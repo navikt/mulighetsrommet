@@ -7,6 +7,7 @@ import no.nav.mulighetsrommet.api.clients.arenaadapter.ArenaAdapterClient
 import no.nav.mulighetsrommet.api.domain.dto.ArenaMigreringTiltaksgjennomforingDto
 import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingDto
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
+import no.nav.mulighetsrommet.api.services.TiltakstypeService
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.kafka.producers.ArenaMigreringTiltaksgjennomforingKafkaProducer
 import no.nav.mulighetsrommet.kafka.serialization.JsonElementDeserializer
@@ -16,7 +17,7 @@ import java.util.*
 
 class TiltaksgjennomforingTopicConsumer(
     config: Config,
-    private val migrerteTiltak: List<String>,
+    private val tiltakstyper: TiltakstypeService,
     private val tiltaksgjennomforingRepository: TiltaksgjennomforingRepository,
     private val arenaMigreringTiltaksgjennomforingKafkaProducer: ArenaMigreringTiltaksgjennomforingKafkaProducer,
     private val arenaAdapterClient: ArenaAdapterClient,
@@ -56,6 +57,6 @@ class TiltaksgjennomforingTopicConsumer(
     }
 
     private fun gjennomforingSKalDelesMedArena(gjennomforing: TiltaksgjennomforingDto): Boolean {
-        return gjennomforing.tiltakstype.arenaKode in migrerteTiltak
+        return tiltakstyper.isEnabled(gjennomforing.tiltakstype.arenaKode)
     }
 }
