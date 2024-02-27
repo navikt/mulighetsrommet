@@ -64,7 +64,7 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
   const { data: leverandorData } = useVirksomhet(watchedLeverandor);
 
   const underenheterForLeverandor = leverandorData?.underenheter ?? [];
-  const valgtTiltakstypeFraArena = !migrerteTiltakstyper?.includes(watchedTiltakstype.arenaKode);
+  const valgtTiltakstypeFraArena = !migrerteTiltakstyper?.includes(watchedTiltakstype?.arenaKode);
 
   const arenaOpphavOgIngenEierskap = avtale?.opphav === Opphav.ARENA && valgtTiltakstypeFraArena;
 
