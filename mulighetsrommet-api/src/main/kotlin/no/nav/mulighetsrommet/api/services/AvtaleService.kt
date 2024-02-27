@@ -70,7 +70,12 @@ class AvtaleService(
 
                     val dto = getOrError(dbo.id, tx)
 
-                    logEndring("Redigerte avtale", dto, navIdent, tx)
+                    val operation = if (previous == null) {
+                        "Opprettet avtale"
+                    } else {
+                        "Redigerte avtale"
+                    }
+                    logEndring(operation, dto, navIdent, tx)
                     dto
                 }
             }
