@@ -21,6 +21,9 @@ export function TiltakgjennomforingRedaksjoneltInnholdForm({ avtale }: Props) {
   function kopierRedaksjoneltInnhold({ beskrivelse, faneinnhold }: Tiltaksgjennomforing | Avtale) {
     setValue("beskrivelse", beskrivelse ?? null);
     setValue("faneinnhold", faneinnhold ?? null);
+    // Ved å endre `key` så tvinger vi en update av den underliggende Slate-komponenten slik at
+    // innhold i komponenten blir resatt til å reflektere den nye tilstanden i skjemaet
+    setKey(key + 1);
   }
 
   return (
@@ -34,10 +37,6 @@ export function TiltakgjennomforingRedaksjoneltInnholdForm({ avtale }: Props) {
             title="Gjenopprett til redaksjonelt innhold fra avtale"
             onClick={() => {
               kopierRedaksjoneltInnhold(avtale);
-
-              // Ved å endre `key` så tvinger vi en update av den underliggende Slate-komponenten slik at
-              // innhold i komponenten blir resatt til å reflektere den nye tilstanden i skjemaet
-              setKey(key + 1);
             }}
           >
             Gjenopprett til redaksjonelt innhold fra avtale
