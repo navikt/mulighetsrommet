@@ -15,8 +15,10 @@ import { useRef, useState } from "react";
 import { useFormContext } from "react-hook-form";
 import { MultiValue } from "react-select";
 import { useAvtaleAdministratorer } from "../../api/ansatt/useAvtaleAdministratorer";
+import { useMigrerteTiltakstyperForAvtaler } from "../../api/tiltakstyper/useMigrerteTiltakstyper";
 import { useSokVirksomheter } from "../../api/virksomhet/useSokVirksomhet";
 import { useVirksomhet } from "../../api/virksomhet/useVirksomhet";
+import { useVirksomhetKontaktpersoner } from "../../api/virksomhet/useVirksomhetKontaktpersoner";
 import { erAnskaffetTiltak } from "../../utils/tiltakskoder";
 import { addYear } from "../../utils/Utils";
 import { Separator } from "../detaljside/Metadata";
@@ -28,8 +30,6 @@ import skjemastyles from "../skjema/Skjema.module.scss";
 import { VirksomhetKontaktpersonerModal } from "../virksomhet/VirksomhetKontaktpersonerModal";
 import { InferredAvtaleSchema } from "./AvtaleSchema";
 import { getLokaleUnderenheterAsSelectOptions, underenheterOptions } from "./AvtaleSkjemaConst";
-import { useVirksomhetKontaktpersoner } from "../../api/virksomhet/useVirksomhetKontaktpersoner";
-import { useMigrerteTiltakstyper } from "../../api/tiltakstyper/useMigrerteTiltakstyper";
 
 const minStartdato = new Date(2000, 0, 1);
 
@@ -43,12 +43,8 @@ interface Props {
 export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: Props) {
   const [sokLeverandor, setSokLeverandor] = useState("");
   const { data: leverandorVirksomheter = [] } = useSokVirksomheter(sokLeverandor);
-  const { data: migrerteTiltakstyper } = useMigrerteTiltakstyper();
+  const { data: migrerteTiltakstyper } = useMigrerteTiltakstyperForAvtaler();
 
-  const migrerteTiltakstyperOgTiltakstyperUtenAvtaleIArena = migrerteTiltakstyper?.concat(
-    "VASV",
-    "ARBFORB",
-  );
   const { data: administratorer } = useAvtaleAdministratorer();
   const virksomhetKontaktpersonerModalRef = useRef<HTMLDialogElement>(null);
 
@@ -71,7 +67,7 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
 
   const arenaOpphavOgIngenEierskap =
     avtale?.opphav === Opphav.ARENA &&
-    !migrerteTiltakstyperOgTiltakstyperUtenAvtaleIArena?.includes(watchedTiltakstype.arenaKode);
+    !migrerteTiltakstyper?.includes(watchedTiltakstype.arenaKode);
 
   const navRegionerOptions = enheter
     .filter((enhet) => enhet.type === NavEnhetType.FYLKE)
@@ -137,14 +133,10 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
                     navn: tiltakstype.navn,
                     id: tiltakstype.id,
                   },
-                  label: !migrerteTiltakstyperOgTiltakstyperUtenAvtaleIArena?.includes(
-                    tiltakstype.arenaKode,
-                  )
+                  label: !migrerteTiltakstyper?.includes(tiltakstype.arenaKode)
                     ? `${tiltakstype.navn} må opprettes i Arena`
                     : tiltakstype.navn,
-                  isDisabled: !migrerteTiltakstyperOgTiltakstyperUtenAvtaleIArena?.includes(
-                    tiltakstype.arenaKode,
-                  ),
+                  isDisabled: !migrerteTiltakstyper?.includes(tiltakstype.arenaKode),
                 }))}
               />
               <ControlledSokeSelect
