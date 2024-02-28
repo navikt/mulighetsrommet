@@ -1,0 +1,17 @@
+.panel {
+  background-color: var(--a-surface-default);
+  border: none;
+  max-width: 50rem;
+}
+
+.deltarStatus {
+  //  Overstyrer bakgrunnsfargen for deltar-status siden den skal være hvit
+  background-color: var(--a-surface-default);
+}
+
+.utkast {
+  border: 2px dotted var(--a-border-info);
+}
+.kladd {
+  border: 2px dotted var(--a-border-warning);
+}

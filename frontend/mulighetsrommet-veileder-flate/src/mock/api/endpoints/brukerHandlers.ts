@@ -2,16 +2,16 @@ import { HttpResponse, PathParams, http } from "msw";
 import {
   Bruker,
   BrukerVarsel,
+  BrukerdataFraKomet,
   GetBrukerRequest,
   HistorikkForBruker,
-  HistorikkForBrukerFraKomet,
   Innsatsgruppe,
   NavEnhetStatus,
   NavEnhetType,
 } from "mulighetsrommet-api-client";
 import { historikk } from "../../fixtures/historikk";
+import { historikkFraKomet, utkastFraKomet } from "../../fixtures/mockHistorikkFraKomet";
 import { ENHET_SARPSBORG } from "../../mock_constants";
-import { historikkFraKomet } from "../../fixtures/mockHistorikkFraKomet";
 
 export const brukerHandlers = [
   http.post<PathParams, GetBrukerRequest, Bruker | String>(
@@ -54,8 +54,8 @@ export const brukerHandlers = [
     HttpResponse.json(historikk),
   ),
 
-  http.post<PathParams, HistorikkForBrukerFraKomet[]>(
+  http.post<PathParams, BrukerdataFraKomet, BrukerdataFraKomet>(
     "*/api/v1/internal/bruker/historikk-fra-komet",
-    () => HttpResponse.json(historikkFraKomet),
+    () => HttpResponse.json({ historikk: historikkFraKomet, utkast: utkastFraKomet }),
   ),
 ];

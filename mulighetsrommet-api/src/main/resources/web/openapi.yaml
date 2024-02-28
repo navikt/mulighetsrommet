@@ -1104,9 +1104,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/HistorikkForBrukerFraKomet"
+                $ref: "#/components/schemas/BrukerdataFraKomet"
 
   /api/v1/internal/ansatt:
     get:
@@ -2593,12 +2591,71 @@ components:
         - tiltakstype
         - arrangor
 
+    BrukerdataFraKomet:
+      type: object
+      properties:
+        utkast:
+          type: array
+          items:
+            $ref: "#/components/schemas/UtkastForBrukerFraKomet"
+        historikk:
+          type: array
+          items:
+            $ref: "#/components/schemas/HistorikkForBrukerFraKomet"
+      required:
+        - utkast
+        - historikk
+
+    UtkastForBrukerFraKomet:
+      type: object
+      properties:
+        id:
+          type: string
+        innsoktDato:
+          type: string
+          nullable: true
+        sistEndretDato:
+         type: string
+         nullable: true
+        status:
+          type: object
+          properties:
+            navn:
+              type: string
+              enum:
+                - UTKAST_PAMELDING
+                - VENTER_PA_OPPSTART
+                - DELTAR
+                - KLADD
+          required:
+            - navn
+        tittel:
+          type: string
+          nullable: true
+        tiltakstype:
+          type: string
+        beskrivelse:
+          type: string
+          nullable: true
+        tiltaksgjennomforingId:
+          type: string
+          format: uuid
+      required:
+        - id
+        - innsoktDato
+        - sistEndretDato
+        - status
+        - tittel
+        - tiltakstype
+        - beskrivelse
+        - tiltaksgjennomforingId
+
     HistorikkForBrukerFraKomet:
       type: object
       properties:
         id:
           type: string
-        fnr:
+        innsoktDato:
           type: string
         fraDato:
           type: string
@@ -2607,18 +2664,23 @@ components:
           type: string
           nullable: true
         status:
-          type: string
-          enum:
-            - VENTER
-            - AVSLUTTET
-            - DELTAR
-            - IKKE_AKTUELL
-        tiltaksnavn:
+          type: object
+          properties:
+            navn:
+              type: string
+              enum:
+                - VENTER
+                - AVSLUTTET
+                - DELTAR
+                - IKKE_AKTUELL
+          required:
+            - navn
+        tittel:
           type: string
           nullable: true
         tiltakstype:
           type: string
-        arsak:
+        beskrivelse:
           type: string
           nullable: true
         tiltaksgjennomforingId:
@@ -2627,13 +2689,15 @@ components:
       required:
         - id
         - fnr
+        - innsoktDato
         - fraDato
         - tilDato
         - status
-        - tiltaksnavn
+        - tittel
         - tiltakstype
-        - arsak
+        - beskrivelse
         - tiltaksgjennomforingId
+
 
     TiltakshistorikkArrangor:
       type: object

@@ -1,31 +1,26 @@
 import { BodyShort, HStack, Heading, LinkPanel, Tag, VStack } from "@navikt/ds-react";
-import styles from "./HistorikkKort.module.scss";
-import { HistorikkForBrukerFraKomet } from "mulighetsrommet-api-client";
+import { UtkastForBrukerFraKomet } from "mulighetsrommet-api-client";
 import { formaterDato } from "../../../utils/Utils";
+import styles from "./UtkastKort.module.scss";
+import classNames from "classnames";
 
 interface Props {
-  historikk: HistorikkForBrukerFraKomet;
+  utkast: UtkastForBrukerFraKomet;
 }
-export function HistorikkKort({ historikk }: Props) {
-  const {
-    tiltakstype,
-    tittel,
-    fraDato,
-    tilDato,
-    status,
-    tiltaksgjennomforingId,
-    beskrivelse,
-    innsoktDato,
-  } = historikk;
+export function UtkastKort({ utkast }: Props) {
+  const { tiltakstype, tittel, status, tiltaksgjennomforingId, beskrivelse, innsoktDato } = utkast;
   return (
     <LinkPanel
       href={`/arbeidsmarkedstiltak/tiltak/${tiltaksgjennomforingId}`}
-      className={styles.panel}
+      className={classNames(styles.panel, {
+        [styles.utkast]: status.navn === UtkastForBrukerFraKomet.navn.UTKAST_PAMELDING,
+        [styles.kladd]: status.navn === UtkastForBrukerFraKomet.navn.KLADD,
+      })}
     >
       <VStack gap="2">
         <HStack gap="10">
           <small>{tiltakstype.toUpperCase()}</small>
-          <small>Søkt inn: {formaterDato(innsoktDato)}</small>
+          {innsoktDato ? <small>Søkt inn: {formaterDato(innsoktDato)}</small> : null}
         </HStack>
         <Heading size="medium" level="4">
           {tittel}
@@ -33,9 +28,6 @@ export function HistorikkKort({ historikk }: Props) {
         <HStack align={"center"} gap="5">
           <Status status={status.navn} />
           {beskrivelse ? <BodyShort size="small">Årsak: {beskrivelse}</BodyShort> : null}
-          <BodyShort size="small">
-            {fraDato} - {tilDato}
-          </BodyShort>
         </HStack>
       </VStack>
     </LinkPanel>
@@ -43,32 +35,32 @@ export function HistorikkKort({ historikk }: Props) {
 }
 
 interface StatusProps {
-  status: HistorikkForBrukerFraKomet.navn;
+  status: UtkastForBrukerFraKomet.navn;
 }
 
 function Status({ status }: StatusProps) {
   switch (status) {
-    case HistorikkForBrukerFraKomet.navn.DELTAR:
+    case UtkastForBrukerFraKomet.navn.DELTAR:
       return (
         <Tag size="small" variant="success" className={styles.deltarStatus}>
           Deltar
         </Tag>
       );
-    case HistorikkForBrukerFraKomet.navn.AVSLUTTET:
+    case UtkastForBrukerFraKomet.navn.KLADD:
       return (
-        <Tag size="small" variant="info">
-          Avsluttet
+        <Tag size="small" variant="warning">
+          Kladd
         </Tag>
       );
-    case HistorikkForBrukerFraKomet.navn.IKKE_AKTUELL:
-      return (
-        <Tag size="small" variant="neutral">
-          Ikke aktuell
-        </Tag>
-      );
-    case HistorikkForBrukerFraKomet.navn.VENTER:
+    case UtkastForBrukerFraKomet.navn.UTKAST_PAMELDING:
       return (
         <Tag size="small" variant="info">
+          Utkast til påmelding
+        </Tag>
+      );
+    case UtkastForBrukerFraKomet.navn.VENTER_PA_OPPSTART:
+      return (
+        <Tag size="small" variant="alt3">
           Venter på oppstart
         </Tag>
       );
