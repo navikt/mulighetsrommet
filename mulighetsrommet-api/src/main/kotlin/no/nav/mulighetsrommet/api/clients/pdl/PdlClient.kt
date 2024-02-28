@@ -8,6 +8,7 @@ import com.github.benmanes.caffeine.cache.Caffeine
 import io.ktor.client.call.*
 import io.ktor.client.engine.*
 import io.ktor.client.engine.cio.*
+import io.ktor.client.plugins.*
 import io.ktor.client.plugins.cache.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
@@ -27,6 +28,13 @@ class PdlClient(
 
     private val client = httpJsonClient(clientEngine).config {
         install(HttpCache)
+        install(HttpRequestRetry) {
+            retryOnException(maxRetries = 3, retryOnTimeout = true)
+            exponentialDelay()
+        }
+        install(HttpTimeout) {
+            requestTimeoutMillis = 30000
+        }
     }
 
     private val pdlCache: Cache<String, List<IdentInformasjon>> = Caffeine.newBuilder()
@@ -63,8 +71,8 @@ class PdlClient(
                 PdlError.Error.left()
             }
         } else {
-            if (response.data.hentIdenter == null) {
-                throw Exception("hentIdenter var null og errors tom! response: $response")
+            require(response.data.hentIdenter != null) {
+                "hentIdenter var null og errors tom! response: $response"
             }
             response.data.hentIdenter.identer.right()
         }
