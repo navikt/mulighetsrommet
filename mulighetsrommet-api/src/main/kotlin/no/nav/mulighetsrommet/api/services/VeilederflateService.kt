@@ -341,8 +341,6 @@ class VeilederflateService(
                 tiltakstype = veilederflateTiltakstype,
                 navn = navn,
                 tiltaksnummer = apiGjennomforing.tiltaksnummer,
-                stengtFra = apiGjennomforing.stengtFra,
-                stengtTil = apiGjennomforing.stengtTil,
                 oppstart = apiGjennomforing.oppstart,
                 oppstartsdato = apiGjennomforing.startDato,
                 sluttdato = apiGjennomforing.sluttDato,

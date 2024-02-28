@@ -143,10 +143,6 @@ class TiltaksgjennomforingService(
         return tiltaksgjennomforinger.getAllGjennomforingerSomNarmerSegSluttdato()
     }
 
-    fun getAllMidlertidigStengteGjennomforingerSomNarmerSegSluttdato(): List<TiltaksgjennomforingNotificationDto> {
-        return tiltaksgjennomforinger.getAllMidlertidigStengteGjennomforingerSomNarmerSegSluttdato()
-    }
-
     fun setPublisert(id: UUID, publisert: Boolean, navIdent: String) {
         db.transaction { tx ->
             tiltaksgjennomforinger.setPublisert(tx, id, publisert)
