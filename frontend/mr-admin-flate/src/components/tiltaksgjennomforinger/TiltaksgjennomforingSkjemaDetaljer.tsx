@@ -177,7 +177,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
               Åpen for innsøk
             </Checkbox>
 
-            <HStack justify="space-between" columns={2}>
+            <HStack justify="space-between">
               <TextField
                 size="small"
                 readOnly={erArenaOpphavOgIngenEierskap(tiltaksgjennomforing, migrerteTiltakstyper)}
@@ -223,7 +223,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
                 Registrer estimert ventetid
               </Switch>
               {watch("visEstimertVentetid") ? (
-                <HStack align="start" justify="start" gap="10" columns={4}>
+                <HStack align="start" justify="start" gap="10">
                   <TextField
                     size="small"
                     type="number"
