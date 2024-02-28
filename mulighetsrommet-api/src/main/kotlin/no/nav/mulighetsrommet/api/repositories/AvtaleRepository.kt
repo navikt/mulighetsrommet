@@ -245,7 +245,7 @@ class AvtaleRepository(private val db: Database) {
 
         val where = DatabaseUtils.andWhereParameterNotNull(
             tiltakstypeIder.ifEmpty { null } to tiltakstypeIderWhereStatement(tiltakstypeIder),
-            search to "(lower(navn) like lower(:search)) or avtalenummer like :search",
+            search to "(lower(navn) like lower(:search) or avtalenummer like :search)",
             statuser.ifEmpty { null } to statuserWhereStatement(statuser),
             navRegioner.ifEmpty { null } to navRegionerWhereStatement(navRegioner),
             leverandorOrgnr.ifEmpty { null } to leverandorOrgnrWhereStatement(leverandorOrgnr),
