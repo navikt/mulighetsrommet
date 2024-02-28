@@ -64,14 +64,6 @@ class TiltaksgjennomforingValidator(
                 add(ValidationError.of(TiltaksgjennomforingDbo::startDato, "Startdato må være før sluttdato"))
             }
 
-            if ((dbo.stengtFra != null) != (dbo.stengtTil != null)) {
-                add(ValidationError.of(TiltaksgjennomforingDbo::stengtFra, "Både stengt fra og til må være satt"))
-            }
-
-            if (dbo.stengtTil?.isBefore(dbo.stengtFra) == true) {
-                add(ValidationError.of(TiltaksgjennomforingDbo::stengtFra, "Stengt fra må være før stengt til"))
-            }
-
             if (dbo.antallPlasser <= 0) {
                 add(ValidationError.of(TiltaksgjennomforingDbo::antallPlasser, "Antall plasser må være større enn 0"))
             }

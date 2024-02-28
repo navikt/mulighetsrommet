@@ -153,10 +153,6 @@ data class TiltaksgjennomforingRequest(
     val navRegion: String,
     val navEnheter: List<String>,
     val oppstart: TiltaksgjennomforingOppstartstype,
-    @Serializable(with = LocalDateSerializer::class)
-    val stengtFra: LocalDate?,
-    @Serializable(with = LocalDateSerializer::class)
-    val stengtTil: LocalDate?,
     val apentForInnsok: Boolean,
     val kontaktpersoner: List<NavKontaktpersonForGjennomforing>,
     val stedForGjennomforing: String?,
@@ -180,8 +176,6 @@ data class TiltaksgjennomforingRequest(
         navRegion = navRegion,
         navEnheter = navEnheter,
         oppstart = oppstart,
-        stengtFra = stengtFra,
-        stengtTil = stengtTil,
         kontaktpersoner = kontaktpersoner.map {
             TiltaksgjennomforingKontaktpersonDbo(
                 navIdent = it.navIdent,

@@ -20,8 +20,6 @@ data class TiltaksgjennomforingDbo(
     val navRegion: String,
     val navEnheter: List<String>,
     val oppstart: TiltaksgjennomforingOppstartstype,
-    val stengtFra: LocalDate?,
-    val stengtTil: LocalDate?,
     val kontaktpersoner: List<TiltaksgjennomforingKontaktpersonDbo>,
     val stedForGjennomforing: String?,
     val faneinnhold: Faneinnhold?,

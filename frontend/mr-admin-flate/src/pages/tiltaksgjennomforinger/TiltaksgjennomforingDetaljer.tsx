@@ -1,22 +1,22 @@
-import { ExclamationmarkTriangleIcon, ExternalLinkIcon } from "@navikt/aksel-icons";
-import { Heading, HelpText, Tag } from "@navikt/ds-react";
+import { ExternalLinkIcon } from "@navikt/aksel-icons";
+import { HelpText, Tag } from "@navikt/ds-react";
 import {
   Avtale,
   Tiltaksgjennomforing,
   TiltaksgjennomforingOppstartstype,
   VirksomhetKontaktperson,
 } from "mulighetsrommet-api-client";
+import { useTitle } from "mulighetsrommet-frontend-common";
 import { NOM_ANSATT_SIDE } from "mulighetsrommet-frontend-common/constants";
+import { Link } from "react-router-dom";
+import { usePollTiltaksnummer } from "../../api/tiltaksgjennomforing/usePollTiltaksnummer";
 import { Bolk } from "../../components/detaljside/Bolk";
 import { Metadata, Separator } from "../../components/detaljside/Metadata";
+import { Laster } from "../../components/laster/Laster";
 import { formaterDato, formatertVentetid } from "../../utils/Utils";
+import { isTiltakMedFellesOppstart } from "../../utils/tiltakskoder";
 import styles from "../DetaljerInfo.module.scss";
 import { Kontaktperson } from "./Kontaktperson";
-import { Link } from "react-router-dom";
-import { useTitle } from "mulighetsrommet-frontend-common";
-import { isTiltakMedFellesOppstart } from "../../utils/tiltakskoder";
-import { usePollTiltaksnummer } from "../../api/tiltaksgjennomforing/usePollTiltaksnummer";
-import { Laster } from "../../components/laster/Laster";
 
 interface Props {
   tiltaksgjennomforing: Tiltaksgjennomforing;
@@ -47,7 +47,6 @@ export function TiltaksgjennomforingDetaljer(props: Props) {
     );
   };
 
-  const todayDate = new Date();
   const kontaktpersonerFraNav = tiltaksgjennomforing.kontaktpersoner ?? [];
 
   const {
@@ -56,8 +55,6 @@ export function TiltaksgjennomforingDetaljer(props: Props) {
     startDato,
     sluttDato,
     oppstart,
-    stengtFra,
-    stengtTil,
     antallPlasser,
     deltidsprosent,
     apentForInnsok,
@@ -115,28 +112,6 @@ export function TiltaksgjennomforingDetaljer(props: Props) {
                   : "Løpende oppstart"
               }
             />
-            {stengtFra && stengtTil && new Date(stengtTil) > todayDate && (
-              <Metadata
-                header={
-                  todayDate >= new Date(stengtFra) && todayDate <= new Date(stengtTil) ? (
-                    <div style={{ display: "flex", flexDirection: "row" }}>
-                      <ExclamationmarkTriangleIcon
-                        style={{ marginRight: "5px" }}
-                        title="midlertidig-stengt"
-                      />
-                      <Heading size="xsmall" level="3">
-                        Midlertidig Stengt
-                      </Heading>
-                    </div>
-                  ) : (
-                    <Heading size="xsmall" level="3">
-                      Midlertidig Stengt
-                    </Heading>
-                  )
-                }
-                verdi={formaterDato(stengtFra) + " - " + formaterDato(stengtTil)}
-              />
-            )}
           </Bolk>
 
           <Bolk>
