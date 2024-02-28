@@ -19,9 +19,11 @@ import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
 import org.slf4j.LoggerFactory
 import java.util.concurrent.TimeUnit
 
+const val VALP_BEHANDLINGSNUMMER: String = "B450" // Team Valps behandlingsnummer for behandling av data for løsningen Arbeidsmarkedstiltak i Modia
+
 class PdlClient(
     private val baseUrl: String,
-    private val tokenProvider: () -> String,
+    private val tokenProvider: (accessToken: String?) -> String,
     clientEngine: HttpClientEngine = CIO.create(),
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
@@ -43,7 +45,7 @@ class PdlClient(
         .recordStats()
         .build()
 
-    suspend fun hentIdenter(ident: String): Either<PdlError, List<IdentInformasjon>> {
+    suspend fun hentIdenter(ident: String, accessToken: String?): Either<PdlError, List<IdentInformasjon>> {
         pdlCache.getIfPresent(ident)?.let { return@hentIdenter it.right() }
 
         val response = graphqlRequest<GraphqlRequest.Ident, HentIdenterData>(
@@ -61,6 +63,7 @@ class PdlClient(
                 """.trimIndent(),
                 variables = GraphqlRequest.Ident(ident = ident),
             ),
+            accessToken = accessToken,
         )
 
         return if (response.errors.isNotEmpty()) {
@@ -79,11 +82,11 @@ class PdlClient(
             .onRight { pdlCache.put(ident, it) }
     }
 
-    private suspend inline fun <reified T, reified V> graphqlRequest(req: GraphqlRequest<T>): GraphqlResponse<V> {
+    private suspend inline fun <reified T, reified V> graphqlRequest(req: GraphqlRequest<T>, accessToken: String?): GraphqlResponse<V> {
         val response = client.post("$baseUrl/graphql") {
-            bearerAuth(tokenProvider.invoke())
+            bearerAuth(tokenProvider.invoke(accessToken))
             header(HttpHeaders.ContentType, ContentType.Application.Json)
-            header("Behandlingsnummer", "B450")
+            header("Behandlingsnummer", VALP_BEHANDLINGSNUMMER)
             header("Tema", Tema.GEN)
             setBody(req)
         }

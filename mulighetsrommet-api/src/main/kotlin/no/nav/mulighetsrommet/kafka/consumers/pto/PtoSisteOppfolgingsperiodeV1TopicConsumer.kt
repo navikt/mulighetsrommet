@@ -6,6 +6,7 @@ import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.decodeFromJsonElement
 import no.nav.common.kafka.consumer.util.deserializer.Deserializers.stringDeserializer
 import no.nav.mulighetsrommet.api.clients.pdl.PdlClient
+import no.nav.mulighetsrommet.api.clients.pdl.PdlError
 import no.nav.mulighetsrommet.api.services.TiltakshistorikkService
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.domain.serializers.ZonedDateTimeSerializer
@@ -44,12 +45,14 @@ class PtoSisteOppfolgingsperiodeV1TopicConsumer(
                     return // Oppfolging er ikke avsluttet - Noop
                 }
 
-                val identer = pdlClient.hentIdenter(sisteOppfolgingsperiode.aktorId)
+                val identer = pdlClient.hentIdenter(sisteOppfolgingsperiode.aktorId, null)
+                    .map { list -> list.map { it.ident } }
                     .getOrElse {
-                        log.warn("Fant ikke identer til bruker. PdlError: $it")
-                        return@consume
+                        when (it) {
+                            PdlError.Error -> throw Exception("Error mot pdl i konsumering av siste oppfolgingsperiode")
+                            PdlError.NotFound -> listOf(sisteOppfolgingsperiode.aktorId)
+                        }
                     }
-                    .map { it.ident }
 
                 log.debug("Avslutter oppfolging for bruker")
                 tiltakshistorikkService.slettHistorikkForIdenter(identer)

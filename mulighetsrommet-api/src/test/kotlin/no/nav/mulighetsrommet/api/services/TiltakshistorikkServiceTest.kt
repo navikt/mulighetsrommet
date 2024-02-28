@@ -83,7 +83,7 @@ class TiltakshistorikkServiceTest : FunSpec({
             postnummer = null,
             poststed = null,
         ).right()
-        coEvery { pdlClient.hentIdenter(any()) } returns listOf(
+        coEvery { pdlClient.hentIdenter(any(), any()) } returns listOf(
             IdentInformasjon(
                 ident = "12345678910",
                 gruppe = IdentGruppe.FOLKEREGISTERIDENT,
@@ -120,6 +120,6 @@ class TiltakshistorikkServiceTest : FunSpec({
             ),
         )
 
-        historikkService.hentHistorikkForBruker("12345678910") shouldBe forventetHistorikk
+        historikkService.hentHistorikkForBruker("12345678910", "token") shouldBe forventetHistorikk
     }
 })

@@ -90,7 +90,7 @@ class PtoSisteOppfolgingsperiodeV1TopicConsumerTest : FunSpec({
                 sluttDato = null,
             )
 
-            coEvery { pdlClient.hentIdenter(any()) } returns listOf(
+            coEvery { pdlClient.hentIdenter(any(), any()) } returns listOf(
                 IdentInformasjon(
                     ident = "12345678910",
                     gruppe = IdentGruppe.FOLKEREGISTERIDENT,
@@ -126,7 +126,7 @@ class PtoSisteOppfolgingsperiodeV1TopicConsumerTest : FunSpec({
                 sluttDato = ZonedDateTime.now(),
             )
 
-            coEvery { pdlClient.hentIdenter(any()) } returns listOf(
+            coEvery { pdlClient.hentIdenter(any(), any()) } returns listOf(
                 IdentInformasjon(
                     ident = "12345678910",
                     gruppe = IdentGruppe.FOLKEREGISTERIDENT,

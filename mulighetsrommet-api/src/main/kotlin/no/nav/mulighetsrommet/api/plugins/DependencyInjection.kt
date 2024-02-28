@@ -216,7 +216,13 @@ private fun services(appConfig: AppConfig) = module {
     single {
         PdlClient(
             baseUrl = appConfig.pdl.url,
-            tokenProvider = { m2mTokenProvider.createMachineToMachineToken(appConfig.pdl.scope) },
+            tokenProvider = { token ->
+                if (token == null) {
+                    m2mTokenProvider.createMachineToMachineToken(appConfig.pdl.scope)
+                } else {
+                    oboTokenProvider.exchangeOnBehalfOfToken(appConfig.pdl.scope, token)
+                }
+            },
         )
     }
 

@@ -15,8 +15,8 @@ class TiltakshistorikkService(
 ) {
     val log: Logger = LoggerFactory.getLogger(javaClass)
 
-    suspend fun hentHistorikkForBruker(norskIdent: String): List<TiltakshistorikkDto> {
-        val identer = pdlClient.hentIdenter(norskIdent)
+    suspend fun hentHistorikkForBruker(norskIdent: String, accessToken: String): List<TiltakshistorikkDto> {
+        val identer = pdlClient.hentIdenter(norskIdent, accessToken)
             .map { list -> list.map { it.ident } }
             .getOrElse {
                 when (it) {

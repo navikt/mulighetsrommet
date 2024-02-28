@@ -28,7 +28,7 @@ class PdlClientTest : FunSpec({
             ),
         )
 
-        pdlClient.hentIdenter("12345678910").shouldBeRight(emptyList())
+        pdlClient.hentIdenter("12345678910", null).shouldBeRight(emptyList())
     }
 
     test("not_found gives NotFound") {
@@ -54,7 +54,7 @@ class PdlClientTest : FunSpec({
             ),
         )
 
-        pdlClient.hentIdenter("12345678910").shouldBeLeft(PdlError.NotFound)
+        pdlClient.hentIdenter("12345678910", null).shouldBeLeft(PdlError.NotFound)
     }
 
     test("happy case") {
@@ -97,7 +97,7 @@ class PdlClientTest : FunSpec({
             ),
         )
 
-        val identer = pdlClient.hentIdenter("12345678910").shouldBeRight()
+        val identer = pdlClient.hentIdenter("12345678910", null).shouldBeRight()
         identer shouldContainExactlyInAnyOrder listOf(
             IdentInformasjon(
                 ident = "12345678910",
