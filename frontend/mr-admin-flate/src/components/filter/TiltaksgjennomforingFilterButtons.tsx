@@ -1,4 +1,4 @@
-import { BodyShort, Button, Heading, Modal } from "@navikt/ds-react";
+import { BodyShort, Button, Heading, Modal, VStack } from "@navikt/ds-react";
 import { WritableAtom, useAtom } from "jotai";
 import { Avtalestatus, Opphav } from "mulighetsrommet-api-client";
 import { useState } from "react";
@@ -10,6 +10,7 @@ import { HarSkrivetilgang } from "../authActions/HarSkrivetilgang";
 import { Lenkeknapp } from "../lenkeknapp/Lenkeknapp";
 import { LeggTilGjennomforingModal } from "../modal/LeggTilGjennomforingModal";
 import styles from "./../modal/Modal.module.scss";
+import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
 
 interface Props {
   filterAtom: WritableAtom<
@@ -138,6 +139,14 @@ interface OpprettTiltakIArenaModalProps {
   tiltakstype: string;
 }
 function OpprettTiltakIArenaModal({ open, onClose, tiltakstype }: OpprettTiltakIArenaModalProps) {
+  const { data: migrerteTiltakstyper } = useMigrerteTiltakstyper();
+  const { data: tiltakstyper } = useTiltakstyper({});
+
+  const migrerteTiltakstyperNavn =
+    tiltakstyper?.data
+      .filter((tiltakstype) => migrerteTiltakstyper?.includes(tiltakstype.arenaKode))
+      .map((tiltakstype) => tiltakstype.navn) ?? [];
+
   return (
     <Modal
       open={open}
@@ -150,12 +159,25 @@ function OpprettTiltakIArenaModal({ open, onClose, tiltakstype }: OpprettTiltakI
       <Modal.Header closeButton>
         <Heading size="medium">Tiltaksgjennomføring kan ikke opprettes her</Heading>
       </Modal.Header>
-
       <Modal.Body className={styles.modal_content}>
-        <BodyShort>
-          Tiltak knyttet til tiltakstypen <code>{tiltakstype}</code> kan ikke opprettes her enda. Du
-          må fortsatt opprette tiltaksgjennomføringer for denne tiltakstypen i Arena.
-        </BodyShort>
+        <VStack gap="2">
+          <BodyShort>
+            Tiltak knyttet til tiltakstypen <code>{tiltakstype}</code> kan ikke opprettes her enda.
+            Du må fortsatt opprette tiltaksgjennomføringer for denne tiltakstypen i Arena.
+          </BodyShort>
+          {migrerteTiltakstyperNavn.length > 0 ? (
+            <>
+              <Heading size="small" level="4">
+                Du kan opprette tiltak for følgende tiltakstyper her i NAV Tiltaksadministrasjon:
+              </Heading>
+              <ul>
+                {migrerteTiltakstyperNavn.map((tiltakstype) => (
+                  <li key={tiltakstype}>{tiltakstype}</li>
+                ))}
+              </ul>
+            </>
+          ) : null}
+        </VStack>
       </Modal.Body>
     </Modal>
   );
