@@ -12,14 +12,10 @@ export const TiltaksgjennomforingSchema = z
         }),
         sluttDato: z.string().optional().nullable(),
       })
-      .refine(
-        (data) =>
-          !data.startDato || !data.sluttDato || new Date(data.sluttDato) > new Date(data.startDato),
-        {
-          message: "Startdato må være før sluttdato",
-          path: ["startDato"],
-        },
-      ),
+      .refine((data) => !data.startDato || !data.sluttDato || data.sluttDato >= data.startDato, {
+        message: "Startdato må være før sluttdato",
+        path: ["startDato"],
+      }),
     antallPlasser: z
       .number({
         invalid_type_error:

@@ -1,5 +1,4 @@
 import { Alert, Tabs } from "@navikt/ds-react";
-import { TiltaksgjennomforingStatus } from "mulighetsrommet-api-client";
 import { useAvtale } from "../../api/avtaler/useAvtale";
 import { useTiltaksgjennomforingById } from "../../api/tiltaksgjennomforing/useTiltaksgjennomforingById";
 import { Laster } from "../../components/laster/Laster";
@@ -11,36 +10,27 @@ import { RedaksjoneltInnholdPreview } from "../../components/redaksjonelt-innhol
 import { gjennomforingDetaljerTabAtom } from "../../api/atoms";
 import { useAtom } from "jotai";
 import { InlineErrorBoundary } from "../../ErrorBoundary";
+import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
 
 export function TiltaksgjennomforingInfo() {
+  const { data: bruker } = useHentAnsatt();
+
   const {
     data: tiltaksgjennomforing,
     isError: isErrorTiltaksgjennomforing,
-    isLoading: isLoadingTiltaksgjennomforing,
+    isPending: isLoadingTiltaksgjennomforing,
   } = useTiltaksgjennomforingById();
+
   const [activeTab, setActiveTab] = useAtom(gjennomforingDetaljerTabAtom);
 
   const { data: avtale, isLoading: isLoadingAvtale } = useAvtale(tiltaksgjennomforing?.avtaleId);
 
-  if (isLoadingTiltaksgjennomforing || isLoadingAvtale) {
+  if (!bruker || isLoadingTiltaksgjennomforing || isLoadingAvtale) {
     return <Laster tekst="Laster informasjon om tiltaksgjennomføring..." />;
   }
 
   if (isErrorTiltaksgjennomforing) {
     return <Alert variant="error">Klarte ikke hente informasjon om tiltaksgjennomføring</Alert>;
-  }
-
-  if (!tiltaksgjennomforing) {
-    return <Alert variant="warning">Fant ingen tiltaksgjennomføring</Alert>;
-  }
-
-  function visKnapperad(status: TiltaksgjennomforingStatus): boolean {
-    const whitelist: TiltaksgjennomforingStatus[] = [
-      TiltaksgjennomforingStatus.PLANLAGT,
-      TiltaksgjennomforingStatus.GJENNOMFORES,
-    ];
-
-    return whitelist.includes(status);
   }
 
   return (
@@ -55,9 +45,10 @@ export function TiltaksgjennomforingInfo() {
               label="Redaksjonelt innhold"
             />
           </div>
-          {visKnapperad(tiltaksgjennomforing.status) && (
-            <TiltaksgjennomforingKnapperad tiltaksgjennomforing={tiltaksgjennomforing} />
-          )}
+          <TiltaksgjennomforingKnapperad
+            bruker={bruker}
+            tiltaksgjennomforing={tiltaksgjennomforing}
+          />
         </Tabs.List>
         <Tabs.Panel value="detaljer">
           <InlineErrorBoundary>
