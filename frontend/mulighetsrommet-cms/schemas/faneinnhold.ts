@@ -137,7 +137,7 @@ export const faneinnhold = defineType({
       description: "KOMMER SNART - Legg til lenker som blir synlig for NAV-ansatte",
       type: "array",
       of: [{ type: "lenke" }],
-      readOnly: false,
+      readOnly: true,
     }),
   ],
 });
