@@ -9,8 +9,8 @@ interface Props {
   buttons: React.ReactNode;
   resetButton?: React.ReactNode;
   table: React.ReactNode;
-  filterSelected: boolean;
-  setFilterSelected: (filterSelected: boolean) => void;
+  filterOpen: boolean;
+  setFilterOpen: (filterOpen: boolean) => void;
 }
 
 export function FilterAndTableLayout({
@@ -18,21 +18,21 @@ export function FilterAndTableLayout({
   table,
   resetButton,
   buttons,
-  filterSelected,
-  setFilterSelected,
+  filterOpen,
+  setFilterOpen,
 }: Props) {
   return (
     <div className={styles.filter_table_layout_container}>
       <Tabs
         className={styles.filter_headerbutton}
         size="medium"
-        value={filterSelected ? "filter" : ""}
+        value={filterOpen ? "filter" : ""}
         data-testid="filter_tabs"
       >
         <Tabs.List>
           <Tabs.Tab
             className={styles.filter_tab}
-            onClick={() => setFilterSelected(!filterSelected)}
+            onClick={() => setFilterOpen(!filterOpen)}
             value="filter"
             data-testid="filter-tab"
             label="Filter"
@@ -45,13 +45,13 @@ export function FilterAndTableLayout({
         {resetButton ? <div className={styles.button_row_right}>{resetButton}</div> : <div></div>}
         <div className={styles.button_row_left}>{buttons}</div>
       </div>
-      <div id="filter" className={classNames(styles.filter, !filterSelected && styles.hide_filter)}>
+      <div id="filter" className={classNames(styles.filter, !filterOpen && styles.hide_filter)}>
         {filter}
       </div>
       <div
         className={classNames(
           styles.tags_and_table_container,
-          filterSelected
+          filterOpen
             ? styles.tags_and_table_container_filter_open
             : styles.tags_and_table_container_filter_hidden,
         )}

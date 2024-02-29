@@ -21,15 +21,15 @@ export const NavArbeidsmarkedstiltakOversikt = ({ preview = false }: Props) => {
   const { data: tiltaksgjennomforinger = [], isLoading } = useNavTiltaksgjennomforinger({
     preview,
   });
-  const [filterSelected, setFilterSelected] = useState<boolean>(true);
+  const [filterOpen, setFilterOpen] = useState<boolean>(true);
   const filter = useArbeidsmarkedstiltakFilterValue();
   const { filterHasChanged, resetFilterToDefaults } =
     useResetArbeidsmarkedstiltakFilterUtenBrukerIKontekst();
 
   return (
     <FilterAndTableLayout
-      filterSelected={filterSelected}
-      setFilterSelected={setFilterSelected}
+      filterOpen={filterOpen}
+      setFilterOpen={setFilterOpen}
       buttons={null}
       filter={<FilterMenyMedSkeletonLoader />}
       resetButton={
@@ -52,7 +52,7 @@ export const NavArbeidsmarkedstiltakOversikt = ({ preview = false }: Props) => {
             <Tiltaksgjennomforingsoversikt
               tiltaksgjennomforinger={tiltaksgjennomforinger}
               tags={<NavFilterTags />}
-              filterOpen={filterSelected}
+              filterOpen={filterOpen}
               feilmelding={
                 !isFilterReady(filter) ? (
                   <Feilmelding

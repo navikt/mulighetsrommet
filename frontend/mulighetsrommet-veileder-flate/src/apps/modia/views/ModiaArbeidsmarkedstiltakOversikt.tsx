@@ -23,7 +23,7 @@ import { Feilmelding } from "@/components/feilmelding/Feilmelding";
 
 export const ModiaArbeidsmarkedstiltakOversikt = () => {
   useTitle("Arbeidsmarkedstiltak - Oversikt");
-  const [filterSelected, setFilterSelected] = useState<boolean>(true);
+  const [filterOpen, setFilterOpen] = useState<boolean>(true);
   const { data: brukerdata } = useHentBrukerdata();
   const { alleTiltakDeltMedBruker } = useHentAlleTiltakDeltMedBruker();
 
@@ -71,8 +71,8 @@ export const ModiaArbeidsmarkedstiltakOversikt = () => {
     <>
       {landingssideEnabled ? <Tilbakeknapp tilbakelenke="/arbeidsmarkedstiltak" /> : null}
       <FilterAndTableLayout
-        filterSelected={filterSelected}
-        setFilterSelected={setFilterSelected}
+        filterOpen={filterOpen}
+        setFilterOpen={setFilterOpen}
         resetButton={
           filterHasChanged && (
             <Button
@@ -103,7 +103,7 @@ export const ModiaArbeidsmarkedstiltakOversikt = () => {
               <Tiltaksgjennomforingsoversikt
                 tiltaksgjennomforinger={tiltaksgjennomforinger}
                 deltMedBruker={alleTiltakDeltMedBruker}
-                filterOpen={filterSelected}
+                filterOpen={filterOpen}
                 varsler={
                   <>
                     <BrukerHarIkke14aVedtakVarsel brukerdata={brukerdata} />
