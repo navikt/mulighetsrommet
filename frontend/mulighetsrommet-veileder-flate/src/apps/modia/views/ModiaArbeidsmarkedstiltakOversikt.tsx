@@ -3,7 +3,6 @@ import { Alert, Button } from "@navikt/ds-react";
 import { ApiError, Toggles } from "mulighetsrommet-api-client";
 import { useTitle } from "mulighetsrommet-frontend-common";
 import { TiltakLoader } from "@/components/TiltakLoader";
-import { Feilmelding } from "@/components/feilmelding/Feilmelding";
 import { FilterAndTableLayout } from "@/components/filtrering/FilterAndTableLayout";
 import { HistorikkButton } from "@/apps/modia/historikk/HistorikkButton";
 import { OversiktenJoyride } from "@/components/joyride/OversiktenJoyride";
@@ -20,6 +19,7 @@ import { BrukerHarIkke14aVedtakVarsel } from "@/apps/modia/varsler/BrukerHarIkke
 import { BrukersOppfolgingsenhetVarsel } from "@/apps/modia/varsler/BrukersOppfolgingsenhetVarsel";
 import { FiltrertFeilInnsatsgruppeVarsel } from "@/apps/modia/varsler/FiltrertFeilInnsatsgruppeVarsel";
 import { ModiaFilterTags } from "@/apps/modia/filtrering/ModiaFilterTags";
+import { Feilmelding } from "@/components/feilmelding/Feilmelding";
 
 export const ModiaArbeidsmarkedstiltakOversikt = () => {
   useTitle("Arbeidsmarkedstiltak - Oversikt");
@@ -99,8 +99,6 @@ export const ModiaArbeidsmarkedstiltakOversikt = () => {
           <div>
             {isLoading ? (
               <TiltakLoader />
-            ) : tiltaksgjennomforinger.length === 0 ? (
-              <TilbakestillFilterFeil resetFilter={resetFilterToDefaults} />
             ) : (
               <Tiltaksgjennomforingsoversikt
                 tiltaksgjennomforinger={tiltaksgjennomforinger}
@@ -114,6 +112,15 @@ export const ModiaArbeidsmarkedstiltakOversikt = () => {
                   </>
                 }
                 tags={<ModiaFilterTags />}
+                feilmelding={
+                  tiltaksgjennomforinger.length === 0 ? (
+                    <Feilmelding
+                      header="Ingen tiltaksgjennomføringer funnet"
+                      beskrivelse="Prøv å justere søket eller filteret for å finne det du leter etter"
+                      ikonvariant="warning"
+                    />
+                  ) : null
+                }
               />
             )}
           </div>
@@ -122,17 +129,3 @@ export const ModiaArbeidsmarkedstiltakOversikt = () => {
     </>
   );
 };
-
-function TilbakestillFilterFeil({ resetFilter }: { resetFilter(): void }) {
-  return (
-    <Feilmelding
-      header="Ingen tiltaksgjennomføringer funnet"
-      beskrivelse="Prøv å justere søket eller filteret for å finne det du leter etter"
-      ikonvariant="warning"
-    >
-      <Button variant="tertiary" onClick={resetFilter}>
-        Tilbakestill filter
-      </Button>
-    </Feilmelding>
-  );
-}

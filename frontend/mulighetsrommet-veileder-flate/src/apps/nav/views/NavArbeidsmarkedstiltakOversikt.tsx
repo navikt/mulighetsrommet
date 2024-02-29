@@ -1,5 +1,4 @@
 import { TiltakLoader } from "@/components/TiltakLoader";
-import { Feilmelding } from "@/components/feilmelding/Feilmelding";
 import { FilterAndTableLayout } from "@/components/filtrering/FilterAndTableLayout";
 import { Tiltaksgjennomforingsoversikt } from "@/components/oversikt/Tiltaksgjennomforingsoversikt";
 import { useNavTiltaksgjennomforinger } from "@/core/api/queries/useTiltaksgjennomforinger";
@@ -7,10 +6,12 @@ import { FilterMenyMedSkeletonLoader } from "@/components/filtrering/FilterMenyM
 import { Button } from "@navikt/ds-react";
 import {
   isFilterReady,
+  useArbeidsmarkedstiltakFilterValue,
   useResetArbeidsmarkedstiltakFilterUtenBrukerIKontekst,
 } from "@/hooks/useArbeidsmarkedstiltakFilter";
 import { NavFilterTags } from "@/apps/nav/filtrering/NavFilterTags";
 import { useState } from "react";
+import { Feilmelding } from "@/components/feilmelding/Feilmelding";
 
 interface Props {
   preview?: boolean;
@@ -21,8 +22,8 @@ export const NavArbeidsmarkedstiltakOversikt = ({ preview = false }: Props) => {
     preview,
   });
   const [filterSelected, setFilterSelected] = useState<boolean>(true);
-
-  const { filter, filterHasChanged, resetFilterToDefaults } =
+  const filter = useArbeidsmarkedstiltakFilterValue();
+  const { filterHasChanged, resetFilterToDefaults } =
     useResetArbeidsmarkedstiltakFilterUtenBrukerIKontekst();
 
   return (
@@ -47,23 +48,26 @@ export const NavArbeidsmarkedstiltakOversikt = ({ preview = false }: Props) => {
         <div>
           {isLoading ? (
             <TiltakLoader />
-          ) : !isFilterReady(filter) ? (
-            <Feilmelding
-              data-testid="filter-mangler-verdier-feilmelding"
-              header="Du må filtrere på en innsatsgruppe og minst én NAV-enhet for å se tiltaksgjennomføringer"
-              ikonvariant="info"
-            />
-          ) : tiltaksgjennomforinger.length === 0 ? (
-            <Feilmelding
-              header="Ingen tiltaksgjennomføringer funnet"
-              beskrivelse="Prøv å justere søket eller filteret for å finne det du leter etter"
-              ikonvariant="warning"
-            />
           ) : (
             <Tiltaksgjennomforingsoversikt
               tiltaksgjennomforinger={tiltaksgjennomforinger}
               tags={<NavFilterTags />}
               filterSelected={filterSelected}
+              feilmelding={
+                !isFilterReady(filter) ? (
+                  <Feilmelding
+                    data-testid="filter-mangler-verdier-feilmelding"
+                    header="Du må filtrere på en innsatsgruppe og minst én NAV-enhet for å se tiltaksgjennomføringer"
+                    ikonvariant="info"
+                  />
+                ) : tiltaksgjennomforinger.length === 0 ? (
+                  <Feilmelding
+                    header="Ingen tiltaksgjennomføringer funnet"
+                    beskrivelse="Prøv å justere søket eller filteret for å finne det du leter etter"
+                    ikonvariant="warning"
+                  />
+                ) : null
+              }
             />
           )}
         </div>

@@ -20,6 +20,7 @@ interface Props {
   varsler?: React.ReactNode;
   tags: React.ReactNode;
   filterSelected?: boolean;
+  feilmelding: React.ReactNode;
 }
 
 export const Tiltaksgjennomforingsoversikt = ({
@@ -28,12 +29,25 @@ export const Tiltaksgjennomforingsoversikt = ({
   varsler,
   tags,
   filterSelected,
+  feilmelding,
 }: Props) => {
   const [pageData, setPages] = useAtom(paginationAtom);
   const filter = useArbeidsmarkedstiltakFilterValue();
 
   const pagination = (tiltaksgjennomforing: VeilederflateTiltaksgjennomforing[]) => {
     return Math.ceil(tiltaksgjennomforing.length / pageData.pageSize);
+  };
+
+  const ViserAntallTiltakTekst = () => {
+    return tiltaksgjennomforinger.length > 0 ? (
+      <BodyShort>
+        Viser {(pageData.page - 1) * pageData.pageSize + 1}-
+        {gjennomforingerForSide.length + (pageData.page - 1) * pageData.pageSize} av{" "}
+        {tiltaksgjennomforinger.length} tiltak
+      </BodyShort>
+    ) : (
+      <BodyShort>Viser 0 tiltak</BodyShort>
+    );
   };
 
   const [sortValue, setSortValue] = useState<string>("tiltakstype-ascending");
@@ -123,13 +137,8 @@ export const Tiltaksgjennomforingsoversikt = ({
         {varsler}
         <div className={styles.visnings_og_sorteringsmeny}>
           <div className={styles.visningsmeny}>
-            {tiltaksgjennomforinger.length > 0 ? (
-              <BodyShort>
-                Viser {(pageData.page - 1) * pageData.pageSize + 1}-
-                {gjennomforingerForSide.length + (pageData.page - 1) * pageData.pageSize} av{" "}
-                {tiltaksgjennomforinger.length} tiltak
-              </BodyShort>
-            ) : null}
+            <ViserAntallTiltakTekst />
+
             <Select
               size="small"
               label="Velg antall"
@@ -157,7 +166,7 @@ export const Tiltaksgjennomforingsoversikt = ({
           <Sorteringsmeny sortValue={sortValue} setSortValue={setSortValue} />
         </div>
       </div>
-
+      {feilmelding}
       <ul
         className={classnames(
           styles.gjennomforinger,
@@ -182,30 +191,21 @@ export const Tiltaksgjennomforingsoversikt = ({
           );
         })}
       </ul>
+      {/*)}*/}
       <div
         className={classnames(
           styles.under_oversikt,
           filterSelected && styles.under_oversikt_filter_selected,
         )}
       >
-        {tiltaksgjennomforinger.length > 0 ? (
-          <>
-            <BodyShort>
-              Viser {(pageData.page - 1) * pageData.pageSize + 1}-
-              {gjennomforingerForSide.length + (pageData.page - 1) * pageData.pageSize} av{" "}
-              {tiltaksgjennomforinger.length} tiltak
-            </BodyShort>
-            <Pagination
-              size="small"
-              page={pageData.page}
-              onPageChange={(page) => setPages({ ...pageData, page })}
-              count={
-                pagination(tiltaksgjennomforinger) === 0 ? 1 : pagination(tiltaksgjennomforinger)
-              }
-              data-version="v1"
-            />
-          </>
-        ) : null}
+        <ViserAntallTiltakTekst />
+        <Pagination
+          size="small"
+          page={pageData.page}
+          onPageChange={(page) => setPages({ ...pageData, page })}
+          count={pagination(tiltaksgjennomforinger) === 0 ? 1 : pagination(tiltaksgjennomforinger)}
+          data-version="v1"
+        />
       </div>
     </>
   );
