@@ -1,11 +1,6 @@
 import { ExternalLinkIcon } from "@navikt/aksel-icons";
 import { Box, Heading, Link, List } from "@navikt/ds-react";
-
-interface Lenke {
-  lenkenavn: string;
-  lenke: string;
-  apneINyFane?: boolean;
-}
+import { Lenke } from "mulighetsrommet-api-client";
 
 interface Props {
   lenker?: Lenke[];

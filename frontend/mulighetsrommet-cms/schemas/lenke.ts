@@ -28,7 +28,15 @@ export const lenke = {
     }),
     defineField({
       title: "Åpne i ny fane?",
+      description: "Skru på hvis du vil at lenken skal åpnes i ny fane",
       name: "apneINyFane",
+      type: "boolean",
+      initialValue: false,
+    }),
+    defineField({
+      title: "Kun tilgjengelig for veileder i Modia?",
+      description: "Skru på hvis du vil at lenken bare skal vises for veiledere i Modia",
+      name: "visKunForVeileder",
       type: "boolean",
       initialValue: false,
     }),

@@ -3537,8 +3537,11 @@ components:
           format: uri
         apneINyFane:
           type: boolean
+        visKunForVeileder:
+          type: boolean
       required:
         - lenkenavn
         - lenke
         - apneINyFane
+        - visKunForVeileder
 
