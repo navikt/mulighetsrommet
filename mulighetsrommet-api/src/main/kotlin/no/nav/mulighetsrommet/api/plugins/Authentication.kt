@@ -8,6 +8,7 @@ import io.ktor.server.auth.jwt.*
 import io.ktor.util.pipeline.*
 import no.nav.mulighetsrommet.api.AuthConfig
 import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattRolle
+import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import java.net.URI
 import java.util.*
@@ -184,8 +185,8 @@ fun Application.configureAuthentication(
  * Gets a NAVident from the underlying [JWTPrincipal], or throws a [StatusException]
  * if the claim is not available.
  */
-fun <T : Any> PipelineContext<T, ApplicationCall>.getNavIdent(): String {
-    return call.principal<JWTPrincipal>()?.get("NAVident") ?: throw StatusException(
+fun <T : Any> PipelineContext<T, ApplicationCall>.getNavIdent(): NavIdent {
+    return call.principal<JWTPrincipal>()?.get("NAVident")?.let { NavIdent(it) } ?: throw StatusException(
         HttpStatusCode.Forbidden,
         "NAVident mangler i JWTPrincipal",
     )

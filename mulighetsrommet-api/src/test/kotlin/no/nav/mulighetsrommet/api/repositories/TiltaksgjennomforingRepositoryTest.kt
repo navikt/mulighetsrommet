@@ -41,6 +41,7 @@ import no.nav.mulighetsrommet.domain.dbo.ArenaTiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dto.Faneinnhold
+import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus
 import java.time.LocalDate
 import java.util.*
@@ -311,7 +312,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             val result = tiltaksgjennomforinger.get(gjennomforing.id)
             result?.kontaktpersoner shouldContainExactlyInAnyOrder listOf(
                 TiltaksgjennomforingKontaktperson(
-                    navIdent = "DD1",
+                    navIdent = NavIdent("DD1"),
                     navn = "Donald Duck",
                     mobilnummer = "12345678",
                     epost = "donald.duck@nav.no",
@@ -320,7 +321,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                     beskrivelse = "hei hei kontaktperson",
                 ),
                 TiltaksgjennomforingKontaktperson(
-                    navIdent = "DD2",
+                    navIdent = NavIdent("DD2"),
                     navn = "Dolly Duck",
                     mobilnummer = "48243214",
                     epost = "dolly.duck@nav.no",
@@ -343,7 +344,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             val oppdatertResult = tiltaksgjennomforinger.get(gjennomforingFjernetKontaktperson.id)
             oppdatertResult?.kontaktpersoner shouldBe listOf(
                 TiltaksgjennomforingKontaktperson(
-                    navIdent = "DD1",
+                    navIdent = NavIdent("DD1"),
                     navn = "Donald Duck",
                     mobilnummer = "12345678",
                     epost = "donald.duck@nav.no",
@@ -560,8 +561,9 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
     context("Tiltaksgjennomforingadministrator") {
         test("Administratorer crud") {
             val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
-            val gjennomforing =
-                Oppfolging1.copy(administratorer = listOf(NavAnsattFixture.ansatt1.navIdent))
+            val gjennomforing = Oppfolging1.copy(
+                administratorer = listOf(NavAnsattFixture.ansatt1.navIdent),
+            )
             tiltaksgjennomforinger.upsert(gjennomforing)
 
             tiltaksgjennomforinger.get(gjennomforing.id).should {
@@ -579,12 +581,12 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
     context("Hente tiltaksgjennomføringer som nærmer seg sluttdato") {
         test("Skal hente gjennomføringer som er 14, 7 eller 1 dag til sluttdato") {
             val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
-            val oppfolging14Dager =
-                Oppfolging1.copy(
-                    id = UUID.randomUUID(),
-                    sluttDato = LocalDate.of(2023, 5, 30),
-                )
-            val gjennomforing7Dager = Oppfolging1.copy(
+            val oppfolging14Dager = Oppfolging1.copy(
+                id = UUID.randomUUID(),
+                sluttDato = LocalDate.of(2023, 5, 30),
+                administratorer = listOf(NavAnsattFixture.ansatt1.navIdent),
+            )
+            val oppfolging7Dager = Oppfolging1.copy(
                 id = UUID.randomUUID(),
                 sluttDato = LocalDate.of(2023, 5, 23),
             )
@@ -597,7 +599,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 sluttDato = LocalDate.of(2023, 5, 26),
             )
             tiltaksgjennomforinger.upsert(oppfolging14Dager)
-            tiltaksgjennomforinger.upsert(gjennomforing7Dager)
+            tiltaksgjennomforinger.upsert(oppfolging7Dager)
             tiltaksgjennomforinger.upsert(oppfolging1Dager)
             tiltaksgjennomforinger.upsert(oppfolging10Dager)
 
@@ -608,7 +610,12 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                     16,
                 ),
             )
-            result.size shouldBe 3
+
+            result.map { Pair(it.id, it.administratorer) } shouldContainExactlyInAnyOrder listOf(
+                Pair(oppfolging14Dager.id, listOf(NavIdent("DD1"))),
+                Pair(oppfolging7Dager.id, listOf()),
+                Pair(oppfolging1Dager.id, listOf()),
+            )
         }
     }
 

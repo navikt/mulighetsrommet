@@ -8,6 +8,7 @@ import io.mockk.coVerify
 import io.mockk.mockk
 import no.nav.mulighetsrommet.api.clients.msgraph.AzureAdNavAnsatt
 import no.nav.mulighetsrommet.api.clients.msgraph.MicrosoftGraphClient
+import no.nav.mulighetsrommet.domain.dto.NavIdent
 import java.util.*
 
 class MicrosoftGraphServiceTest : FunSpec({
@@ -21,7 +22,7 @@ class MicrosoftGraphServiceTest : FunSpec({
                 hovedenhetNavn = "IT-Avdelingen",
                 fornavn = "Bertil",
                 etternavn = "Bengtson",
-                navIdent = "B123456",
+                navIdent = NavIdent("B123456"),
                 mobilnummer = "12345678",
                 epost = "test@test.no",
             )

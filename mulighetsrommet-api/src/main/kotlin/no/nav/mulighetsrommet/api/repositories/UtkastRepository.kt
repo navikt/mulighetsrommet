@@ -12,6 +12,7 @@ import no.nav.mulighetsrommet.api.utils.UtkastFilter
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.QueryResult
 import no.nav.mulighetsrommet.database.utils.query
+import no.nav.mulighetsrommet.domain.dto.NavIdent
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
 import java.util.*
@@ -64,7 +65,7 @@ class UtkastRepository(private val db: Database) {
 
         val params = mapOf(
             "utkast_type" to filter.type.name,
-            "opprettetAv" to filter.opprettetAv,
+            "opprettetAv" to filter.opprettetAv?.value,
             "avtaleId" to filter.avtaleId,
         )
 
@@ -101,7 +102,7 @@ class UtkastRepository(private val db: Database) {
     private fun UtkastRequest.toSqlParams() = mapOf(
         "id" to id,
         "avtale_id" to avtaleId,
-        "opprettet_av" to opprettetAv,
+        "opprettet_av" to opprettetAv.value,
         "utkast_data" to utkastData.toString(),
         "utkast_type" to type.name,
     )
@@ -110,7 +111,7 @@ class UtkastRepository(private val db: Database) {
         return UtkastDto(
             id = uuid("id"),
             avtaleId = uuid("avtale_id"),
-            opprettetAv = string("opprettet_av"),
+            opprettetAv = NavIdent(string("opprettet_av")),
             utkastData = Json.decodeFromString(string("utkast_data")),
             createdAt = localDateTime("created_at"),
             updatedAt = localDateTime("updated_at"),

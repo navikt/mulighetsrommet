@@ -1,11 +1,12 @@
 package no.nav.mulighetsrommet.api.domain.dbo
 
 import no.nav.mulighetsrommet.api.domain.dto.NavAnsattDto
+import no.nav.mulighetsrommet.domain.dto.NavIdent
 import java.time.LocalDate
 import java.util.*
 
 data class NavAnsattDbo(
-    val navIdent: String,
+    val navIdent: NavIdent,
     val fornavn: String,
     val etternavn: String,
     /**

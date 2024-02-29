@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.domain.dto
 
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.domain.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import java.time.LocalDateTime
@@ -21,7 +22,7 @@ data class AvtaleNotatDto(
 ) {
     @Serializable
     data class OpprettetAv(
-        val navIdent: String,
+        val navIdent: NavIdent,
         val navn: String?,
     )
 }

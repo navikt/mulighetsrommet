@@ -10,6 +10,7 @@ import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
 import no.nav.mulighetsrommet.api.domain.dto.NavAnsattDto
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
+import no.nav.mulighetsrommet.domain.dto.NavIdent
 import java.util.*
 
 class NavAnsattRepositoryTest : FunSpec({
@@ -59,7 +60,7 @@ class NavAnsattRepositoryTest : FunSpec({
 
         val ansatt1 = NavAnsattDbo(
             azureId = UUID.randomUUID(),
-            navIdent = "D1",
+            navIdent = NavIdent("D1"),
             fornavn = "Donald",
             etternavn = "Duck",
             hovedenhet = "1000",
@@ -70,7 +71,7 @@ class NavAnsattRepositoryTest : FunSpec({
 
         val ansatt2 = NavAnsattDbo(
             azureId = UUID.randomUUID(),
-            navIdent = "D2",
+            navIdent = NavIdent("D2"),
             fornavn = "Dolly",
             etternavn = "Duck",
             hovedenhet = "2000",
@@ -81,7 +82,7 @@ class NavAnsattRepositoryTest : FunSpec({
 
         val ansatt3 = NavAnsattDbo(
             azureId = UUID.randomUUID(),
-            navIdent = "D3",
+            navIdent = NavIdent("D3"),
             fornavn = "Ole",
             etternavn = "Duck",
             hovedenhet = "1000",

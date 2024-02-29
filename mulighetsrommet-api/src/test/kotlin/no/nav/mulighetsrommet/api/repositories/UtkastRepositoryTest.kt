@@ -19,6 +19,7 @@ import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.utils.UtkastFilter
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
+import no.nav.mulighetsrommet.domain.dto.NavIdent
 import java.util.*
 
 class UtkastRepositoryTest : FunSpec({
@@ -42,7 +43,7 @@ class UtkastRepositoryTest : FunSpec({
         )
         navAnsatte.upsert(
             NavAnsattDbo(
-                navIdent = "B123456",
+                navIdent = NavIdent("B123456"),
                 fornavn = "Bertil",
                 etternavn = "Bengtson",
                 hovedenhet = "2990",
@@ -55,7 +56,7 @@ class UtkastRepositoryTest : FunSpec({
         )
         navAnsatte.upsert(
             NavAnsattDbo(
-                navIdent = "P998877",
+                navIdent = NavIdent("P998877"),
                 fornavn = "Per",
                 etternavn = "Pilotbruker",
                 hovedenhet = "2990",

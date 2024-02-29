@@ -16,6 +16,7 @@ import no.nav.mulighetsrommet.api.routes.v1.responses.StatusResponse
 import no.nav.mulighetsrommet.api.routes.v1.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.services.NotatService
 import no.nav.mulighetsrommet.api.utils.getNotatFilter
+import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import org.koin.ktor.ext.inject
 import java.util.*
@@ -131,7 +132,7 @@ data class AvtaleNotatRequest(
     val id: UUID,
     @Serializable(with = UUIDSerializer::class)
     val avtaleId: UUID,
-    val opprettetAv: String? = null,
+    val opprettetAv: NavIdent? = null,
     val innhold: String,
 ) {
     fun toDbo(): StatusResponse<AvtaleNotatDbo> {
@@ -154,7 +155,7 @@ data class TiltaksgjennomforingNotatRequest(
     val id: UUID,
     @Serializable(with = UUIDSerializer::class)
     val tiltaksgjennomforingId: UUID,
-    val opprettetAv: String? = null,
+    val opprettetAv: NavIdent? = null,
     val innhold: String,
 ) {
     fun toDbo(): StatusResponse<TiltaksgjennomforingNotatDbo> {
