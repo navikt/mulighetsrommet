@@ -144,7 +144,6 @@ class BrregClient(
             }
 
             HttpStatusCode.NotFound -> {
-                log.warn("NotFound: orgnr=$orgnr")
                 BrregError.NotFound.left()
             }
 

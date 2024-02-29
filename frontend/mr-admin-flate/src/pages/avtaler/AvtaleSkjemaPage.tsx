@@ -1,5 +1,5 @@
 import { Tiltakstypestatus } from "mulighetsrommet-api-client";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
 import { useNavEnheter } from "../../api/enhet/useNavEnheter";
 import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
@@ -23,6 +23,7 @@ const AvtaleSkjemaPage = () => {
   );
   const { data: ansatt, isLoading: isLoadingAnsatt } = useHentAnsatt();
   const { data: enheter, isLoading: isLoadingEnheter } = useNavEnheter();
+  const location = useLocation();
 
   const redigeringsModus = avtale && inneholderUrl(avtale?.id);
 
@@ -56,7 +57,7 @@ const AvtaleSkjemaPage = () => {
                 tiltakstyper={tiltakstyper.data}
                 ansatt={ansatt}
                 enheter={enheter}
-                avtale={avtale}
+                avtale={location.state?.avtale ? location.state.avtale : avtale}
                 redigeringsModus={redigeringsModus!}
               />
             )}

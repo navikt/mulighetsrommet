@@ -30,7 +30,7 @@ class VirksomhetServiceTest : FunSpec({
         virksomhetService = VirksomhetService(brregClient, virksomhetRepository)
     }
 
-    context(VirksomhetService::getOrSyncVirksomhetFromBrreg.name) {
+    context(VirksomhetService::getOrSyncHovedenhetFromBrreg.name) {
         val underenhet = VirksomhetDto(
             organisasjonsnummer = "234567891",
             navn = "Underenhet til Testbedriften AS",
@@ -54,7 +54,7 @@ class VirksomhetServiceTest : FunSpec({
         test("skal synkronisere hovedenhet med underenheter fra brreg til databasen gitt orgnr til hovedenhet") {
             coEvery { brregClient.getHovedenhet(hovedenhet.organisasjonsnummer) } returns hovedenhet.right()
 
-            virksomhetService.getOrSyncVirksomhetFromBrreg(hovedenhet.organisasjonsnummer) shouldBeRight hovedenhet
+            virksomhetService.getOrSyncHovedenhetFromBrreg(hovedenhet.organisasjonsnummer) shouldBeRight hovedenhet
 
             virksomhetRepository.get(hovedenhet.organisasjonsnummer) shouldBe hovedenhet
             virksomhetRepository.get(underenhet.organisasjonsnummer) shouldBe underenhet
@@ -65,7 +65,7 @@ class VirksomhetServiceTest : FunSpec({
             coEvery { brregClient.getHovedenhet(underenhet.organisasjonsnummer) } returns BrregError.NotFound.left()
             coEvery { brregClient.getUnderenhet(underenhet.organisasjonsnummer) } returns underenhet.right()
 
-            virksomhetService.getOrSyncVirksomhetFromBrreg(underenhet.organisasjonsnummer) shouldBeRight hovedenhet
+            virksomhetService.getOrSyncHovedenhetFromBrreg(underenhet.organisasjonsnummer) shouldBeRight hovedenhet
 
             virksomhetRepository.get(hovedenhet.organisasjonsnummer) shouldBe hovedenhet
             virksomhetRepository.get(underenhet.organisasjonsnummer) shouldBe underenhet
@@ -83,7 +83,7 @@ class VirksomhetServiceTest : FunSpec({
 
             coEvery { brregClient.getHovedenhet(orgnr) } returns slettetVirksomhet.right()
 
-            virksomhetService.getOrSyncVirksomhetFromBrreg(orgnr) shouldBeRight slettetVirksomhet
+            virksomhetService.getOrSyncHovedenhetFromBrreg(orgnr) shouldBeRight slettetVirksomhet
 
             virksomhetRepository.get(orgnr) shouldBe slettetVirksomhet
         }
@@ -94,7 +94,7 @@ class VirksomhetServiceTest : FunSpec({
             coEvery { brregClient.getHovedenhet(orgnr) } returns BrregError.NotFound.left()
             coEvery { brregClient.getUnderenhet(orgnr) } returns BrregError.NotFound.left()
 
-            virksomhetService.getOrSyncVirksomhetFromBrreg(orgnr) shouldBeLeft BrregError.NotFound
+            virksomhetService.getOrSyncHovedenhetFromBrreg(orgnr) shouldBeLeft BrregError.NotFound
 
             virksomhetRepository.get(orgnr) shouldBe null
         }

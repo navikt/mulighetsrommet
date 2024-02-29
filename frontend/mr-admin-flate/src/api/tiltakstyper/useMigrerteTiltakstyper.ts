@@ -8,3 +8,9 @@ export function useMigrerteTiltakstyper() {
     queryFn: () => mulighetsrommetClient.tiltakstyper.getMigrerteTiltakstyper(),
   });
 }
+
+export function useMigrerteTiltakstyperForAvtaler() {
+  const { data = [], ...rest } = useMigrerteTiltakstyper();
+
+  return { data: data?.concat("VASV", "ARBFORB"), ...rest };
+}

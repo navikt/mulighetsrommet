@@ -1,4 +1,4 @@
-import { Accordion, Checkbox, Search, Skeleton } from "@navikt/ds-react";
+import { Accordion, Checkbox, Search, Skeleton, VStack } from "@navikt/ds-react";
 import { useAtom, WritableAtom } from "jotai";
 import { Tiltakstypestatus, VirksomhetTil } from "mulighetsrommet-api-client";
 import { useEffect, useState } from "react";
@@ -61,7 +61,16 @@ export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
     !tiltakstyper ||
     isLoadingTiltakstyper
   ) {
-    return <Skeleton variant="rounded" height="400px" />;
+    return (
+      <VStack gap="2">
+        <Skeleton height={50} variant="rounded" />
+        <Skeleton height={200} variant="rounded" />
+        <Skeleton height={50} variant="rounded" />
+        <Skeleton height={50} variant="rounded" />
+        <Skeleton height={50} variant="rounded" />
+        <Skeleton height={50} variant="rounded" />
+      </VStack>
+    );
   }
 
   return (

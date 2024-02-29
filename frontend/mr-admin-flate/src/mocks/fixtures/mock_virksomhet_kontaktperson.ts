@@ -12,7 +12,7 @@ export const mockVirksomhetKontaktperson: VirksomhetKontaktperson[] = [
   {
     epost: "elvira.johansen@arrangor.no",
     navn: "Elvira Johansen",
-    telefon: "54328765",
+    telefon: null,
     id: "20e70e14-2b6a-440d-af5c-5f0a1ee7a416",
     organisasjonsnummer: "123456789",
     beskrivelse: "Direktør",

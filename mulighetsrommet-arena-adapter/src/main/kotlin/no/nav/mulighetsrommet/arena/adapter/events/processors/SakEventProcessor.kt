@@ -23,11 +23,17 @@ class SakEventProcessor(
         val data = event.decodePayload<ArenaSak>()
 
         if (!sakIsRelatedToTiltaksgjennomforing(data)) {
-            return@either ProcessingResult(Ignored, """Sak ignorert fordi den ikke er en tiltakssak (SAKSKODE != "TILT")""")
+            return@either ProcessingResult(
+                Ignored,
+                """Sak ignorert fordi den ikke er en tiltakssak (SAKSKODE != "TILT")""",
+            )
         }
 
         if (!sakHasEnhet(data)) {
-            return@either ProcessingResult(Ignored, "Sak ignorert fordi den ikke har en tilhørende enhet (AETATENHET_ANSVARLIG = null)")
+            return@either ProcessingResult(
+                Ignored,
+                "Sak ignorert fordi den ikke har en tilhørende enhet (AETATENHET_ANSVARLIG = null)",
+            )
         }
 
         data

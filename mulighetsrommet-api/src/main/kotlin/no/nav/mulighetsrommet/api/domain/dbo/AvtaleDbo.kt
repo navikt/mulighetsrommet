@@ -1,6 +1,5 @@
 package no.nav.mulighetsrommet.api.domain.dbo
 
-import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
 import no.nav.mulighetsrommet.domain.dto.Faneinnhold
 import java.time.LocalDate
@@ -18,7 +17,6 @@ data class AvtaleDbo(
     val sluttDato: LocalDate,
     val navEnheter: List<String>,
     val avtaletype: Avtaletype,
-    val opphav: ArenaMigrering.Opphav,
     val prisbetingelser: String?,
     val antallPlasser: Int?,
     val url: String?,

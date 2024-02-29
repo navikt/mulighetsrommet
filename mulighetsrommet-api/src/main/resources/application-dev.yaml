@@ -15,6 +15,7 @@ app:
 
   migrerteTiltak:
     - VASV
+    - AVKLARAG
 
   kafka:
     producerId: mulighetsrommet-api-kafka-producer.v1
@@ -121,8 +122,6 @@ app:
     notifyFailedKafkaEvents:
       maxRetries: 5
       delayOfMinutes: 15
-    notifySluttdatoForMidlertidigStengtGjennomforingerNarmerSeg:
-      cronPattern: "0 0 6 * * *" # Hver morgen kl. 06:00
     oppdaterMetrikker:
       delayOfMinutes: 5
     generateValidationReport:

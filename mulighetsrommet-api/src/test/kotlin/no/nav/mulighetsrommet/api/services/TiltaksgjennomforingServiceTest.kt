@@ -36,7 +36,6 @@ class TiltaksgjennomforingServiceTest : FunSpec({
     val virksomhetService: VirksomhetService = mockk(relaxed = true)
     val utkastRepository: UtkastRepository = mockk(relaxed = true)
     val validator = mockk<TiltaksgjennomforingValidator>()
-    val enabledTiltakstyper = listOf(TiltakstypeFixtures.Oppfolging.arenaKode)
     val avtaleId = AvtaleFixtures.oppfolging.id
     val domain = MulighetsrommetTestDomain()
 
@@ -47,7 +46,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
             firstArg<TiltaksgjennomforingDbo>().right()
         }
 
-        coEvery { virksomhetService.getOrSyncVirksomhetFromBrreg(any()) } answers {
+        coEvery { virksomhetService.getOrSyncHovedenhetFromBrreg(any()) } answers {
             VirksomhetDto(
                 organisasjonsnummer = firstArg<String>(),
                 navn = "Virksomhet",
@@ -66,20 +65,17 @@ class TiltaksgjennomforingServiceTest : FunSpec({
         val avtaler = AvtaleRepository(database.db)
         val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
         val deltagerRepository = DeltakerRepository(database.db)
-        val tiltakstypeRepository = TiltakstypeRepository(database.db)
         val tiltaksgjennomforingService = TiltaksgjennomforingService(
             avtaler,
             tiltaksgjennomforingRepository,
             deltagerRepository,
             virksomhetService,
             utkastRepository,
-            tiltakstypeRepository,
             tiltaksgjennomforingKafkaProducer,
             NotificationRepository(database.db),
             validator,
             EndringshistorikkService(database.db),
             database.db,
-            enabledTiltakstyper,
         )
 
         test("Man skal ikke få avbryte dersom gjennomføringen ikke finnes") {
@@ -91,9 +87,9 @@ class TiltaksgjennomforingServiceTest : FunSpec({
         test("Man skal ikke få avbryte dersom opphav for gjennomføringen ikke er admin-flate") {
             val gjennomforing = TiltaksgjennomforingFixtures.Oppfolging1.copy(
                 avtaleId = avtaleId,
-                opphav = ArenaMigrering.Opphav.ARENA,
             )
             tiltaksgjennomforingRepository.upsert(gjennomforing)
+            tiltaksgjennomforingRepository.setOpphav(gjennomforing.id, ArenaMigrering.Opphav.ARENA)
 
             tiltaksgjennomforingService.avbrytGjennomforing(gjennomforing.id, "B123456").shouldBeLeft(
                 BadRequest(message = "Gjennomføringen har opprinnelse fra Arena og kan ikke bli avbrutt i admin-flate."),
@@ -103,10 +99,10 @@ class TiltaksgjennomforingServiceTest : FunSpec({
         test("Man skal ikke få avbryte dersom det finnes deltagere koblet til gjennomføringen") {
             val gjennomforing = TiltaksgjennomforingFixtures.Oppfolging1.copy(
                 avtaleId = avtaleId,
-                opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
                 sluttDato = null,
             )
             tiltaksgjennomforingRepository.upsert(gjennomforing)
+            tiltaksgjennomforingRepository.setOpphav(gjennomforing.id, ArenaMigrering.Opphav.MR_ADMIN_FLATE)
 
             val deltager = DeltakerFixture.Deltaker.copy(tiltaksgjennomforingId = gjennomforing.id)
             deltagerRepository.upsert(deltager)
@@ -133,20 +129,17 @@ class TiltaksgjennomforingServiceTest : FunSpec({
         val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
         val deltagerRepository = DeltakerRepository(database.db)
         val avtaleRepository = AvtaleRepository(database.db)
-        val tiltakstypeRepository = TiltakstypeRepository(database.db)
         val tiltaksgjennomforingService = TiltaksgjennomforingService(
             avtaler,
             tiltaksgjennomforingRepository,
             deltagerRepository,
             virksomhetService,
             utkastRepository,
-            tiltakstypeRepository,
             tiltaksgjennomforingKafkaProducer,
             NotificationRepository(database.db),
             validator,
             EndringshistorikkService(database.db),
             database.db,
-            enabledTiltakstyper,
         )
 
         test("Man skal ikke få lov til å opprette gjennomføring dersom det oppstår valideringsfeil") {
@@ -169,20 +162,17 @@ class TiltaksgjennomforingServiceTest : FunSpec({
         val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
         val deltagerRepository = DeltakerRepository(database.db)
         val avtaleRepository = AvtaleRepository(database.db)
-        val tiltakstypeRepository = TiltakstypeRepository(database.db)
         val tiltaksgjennomforingService = TiltaksgjennomforingService(
             avtaler,
             tiltaksgjennomforingRepository,
             deltagerRepository,
             virksomhetService,
             utkastRepository,
-            tiltakstypeRepository,
             tiltaksgjennomforingKafkaProducer,
             NotificationRepository(database.db),
             validator,
             EndringshistorikkService(database.db),
             database.db,
-            enabledTiltakstyper,
         )
         val navAnsattRepository = NavAnsattRepository(database.db)
 
@@ -290,20 +280,17 @@ class TiltaksgjennomforingServiceTest : FunSpec({
         val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
         val deltagerRepository = DeltakerRepository(database.db)
         val notificationRepository = spyk(NotificationRepository(database.db))
-        val tiltakstypeRepository = TiltakstypeRepository(database.db)
         val tiltaksgjennomforingService = TiltaksgjennomforingService(
             avtaler,
             tiltaksgjennomforingRepository,
             deltagerRepository,
             virksomhetService,
             utkastRepository,
-            tiltakstypeRepository,
             tiltaksgjennomforingKafkaProducer,
             notificationRepository,
             validator,
             EndringshistorikkService(database.db),
             database.db,
-            enabledTiltakstyper,
         )
 
         test("Hvis publish kaster rulles upsert tilbake") {

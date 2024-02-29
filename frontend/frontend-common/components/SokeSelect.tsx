@@ -7,6 +7,7 @@ import Select from "react-select/base";
 export interface SelectOption<T = string> {
   value: T;
   label: string;
+  isDisabled?: boolean;
 }
 
 export interface SelectProps<T> {
@@ -121,6 +122,7 @@ export const SokeSelect = <T,>(
         }}
         styles={customStyles(readOnly, Boolean(error))}
         options={options}
+        isOptionDisabled={(option) => !!option.isDisabled}
         className={className}
         theme={(theme) => ({
           ...theme,
@@ -141,6 +143,7 @@ export const SokeSelect = <T,>(
           style={{
             marginTop: "8px",
             color: "#c30000",
+            fontSize: size === "small" ? "16px" : "18px",
           }}
         >
           <b>• {error.message}</b>

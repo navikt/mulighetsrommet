@@ -8,12 +8,16 @@ import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEventService
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
+import org.slf4j.MDC
+import java.util.*
 
 class ArenaEventConsumer(
     config: Config,
     private val arenaEventService: ArenaEventService,
 ) : KafkaTopicConsumer<String, JsonElement>(config, stringDeserializer(), ArenaJsonElementDeserializer()) {
     override suspend fun consume(key: String, message: JsonElement) {
+        MDC.put("correlationId", key)
+
         val data = decodeArenaEvent(message)
         arenaEventService.processEvent(data)
     }

@@ -686,6 +686,29 @@ paths:
               schema:
                 type: string
 
+  /api/v1/internal/tiltaksgjennomforinger/{id}/tiltaksnummer:
+    parameters:
+      - $ref: "#/components/parameters/ID"
+    get:
+      tags:
+        - Tiltaksgjennomforinger
+      operationId: getTiltaksnummer
+      responses:
+        200:
+          description: Tiltaksnummer til tiltaksgjennomføringen.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TiltaksnummerResponse"
+        204:
+          description: Tiltaksgjennomføringen har enda ikke tiltaksnummer.
+        404:
+          description: Tiltaksgjennomføringen ble ikke funnet.
+          content:
+            application/json:
+              schema:
+                type: string
+
   /api/v1/internal/tiltaksgjennomforinger/{id}/avtale:
     parameters:
       - $ref: "#/components/parameters/ID"
@@ -2047,8 +2070,6 @@ components:
         faneinnhold:
           $ref: "#/components/schemas/SanityFaneinnholdRequest"
           nullable: true
-        opphav:
-          $ref: "#/components/schemas/Opphav"
       required:
         - id
         - navn
@@ -2066,7 +2087,6 @@ components:
         - navEnheter
         - beskrivelse
         - faneinnhold
-        - opphav
         - avslutningsstatus
 
     EmbeddedTiltakstype:
@@ -2190,12 +2210,6 @@ components:
           $ref: "#/components/schemas/TiltaksgjennomforingOppstartstype"
         opphav:
           $ref: "#/components/schemas/Opphav"
-        stengtFra:
-          type: string
-          format: date
-        stengtTil:
-          type: string
-          format: date
         apentForInnsok:
           type: boolean
         kontaktpersoner:
@@ -2226,11 +2240,18 @@ components:
         - arrangor
         - navEnheter
         - opphav
-        - midlertidigStengt
         - apentForInnsok
         - publisert
         - publisertForAlle
         - deltidsprosent
+
+    TiltaksnummerResponse:
+      type: object
+      properties:
+        tiltaksnummer:
+          type: string
+      required:
+        - tiltaksnummer
 
     TiltaksgjennomforingRequest:
       type: object
@@ -2262,9 +2283,6 @@ components:
           items:
             type: string
             format: UUID
-        tiltaksnummer:
-          type: string
-          nullable: true
         administratorer:
           type: array
           items:
@@ -2277,14 +2295,6 @@ components:
             type: string
         oppstart:
           $ref: "#/components/schemas/TiltaksgjennomforingOppstartstype"
-        stengtFra:
-          type: string
-          format: date
-          nullable: true
-        stengtTil:
-          type: string
-          format: date
-          nullable: true
         apentForInnsok:
           type: boolean
         kontaktpersoner:
@@ -2293,9 +2303,6 @@ components:
             $ref: "#/components/schemas/TiltaksgjennomforingKontaktpersonRequest"
         stedForGjennomforing:
           type: string
-          nullable: true
-        opphav:
-          $ref: "#/components/schemas/Opphav"
           nullable: true
         faneinnhold:
           $ref: "#/components/schemas/SanityFaneinnholdRequest"
@@ -2326,17 +2333,13 @@ components:
         - avtaleId
         - arrangorOrganisasjonsnummer
         - arrangorKontaktpersoner
-        - tiltaksnummer
         - administrator
         - navRegion
         - navEnheter
         - oppstart
-        - stengtFra
-        - stengtTil
         - apentForInnsok
         - kontaktpersoner
         - stedForGjennomforing
-        - opphav
         - faneinnhold
         - beskrivelse
         - deltidsprosent
@@ -2375,8 +2378,8 @@ components:
           type: string
         innsatsgruppe:
           $ref: "#/components/schemas/Innsatsgruppe"
-        erSykmeldtMedArbeidsgiver:
-          type: boolean
+        servicegruppe:
+          type: string
         enheter:
           type: array
           items:
@@ -2394,7 +2397,6 @@ components:
         - fnr
         - enheter
         - varsler
-        - erSykmeldtMedArbeidsgiver
 
     BrukerVarsel:
       type: string
@@ -2903,10 +2905,6 @@ components:
           $ref: "#/components/schemas/SanityFaneinnhold"
         apentForInnsok:
           type: boolean
-        stengtFra:
-          type: string
-        stengtTil:
-          type: string
         kontaktinfo:
           $ref: "#/components/schemas/VeilederflateKontaktInfo"
         estimertVentetid:
@@ -3423,8 +3421,6 @@ components:
         - mulighetsrommet-veilederflate-landingsside
         - mulighetsrommet-veilederflate-arena-oppskrifter
         - mulighetsrommet.admin-flate.show-notater
-        - mulighetsrommet.admin-flate.midlertidig-stengt
-        - mr-admin-flate.kan-duplisere-tiltak
 
     PublisertRequest:
       type: object

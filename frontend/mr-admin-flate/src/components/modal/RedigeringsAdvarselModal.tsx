@@ -14,7 +14,7 @@ export const RedigeringsAdvarselModal = ({ modalRef, onRediger, ressursNavn }: P
   };
 
   return (
-    <Modal ref={modalRef} onClose={onClose} aria-label="modal">
+    <Modal ref={modalRef} onClose={onClose} closeOnBackdropClick aria-label="modal">
       <Modal.Header closeButton={false}>
         <div className={styles.heading}>
           <Heading size="medium">{`Du er ikke eier av denne ${ressursNavn}`}</Heading>

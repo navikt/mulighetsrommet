@@ -18,7 +18,6 @@ import no.nav.mulighetsrommet.api.routes.v1.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.services.TiltaksgjennomforingService
 import no.nav.mulighetsrommet.api.utils.getAdminTiltaksgjennomforingsFilter
 import no.nav.mulighetsrommet.api.utils.getPaginationParams
-import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dto.Faneinnhold
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
@@ -92,6 +91,18 @@ fun Route.tiltaksgjennomforingRoutes() {
                 ?: call.respond(HttpStatusCode.NotFound, "Ingen tiltaksgjennomføring med id=$id")
         }
 
+        get("{id}/tiltaksnummer") {
+            val id = call.parameters.getOrFail<UUID>("id")
+
+            service.get(id)
+                ?.let { gjennomforing ->
+                    gjennomforing.tiltaksnummer
+                        ?.let { call.respond(TiltaksnummerResponse(tiltaksnummer = it)) }
+                        ?: call.respond(HttpStatusCode.NoContent)
+                }
+                ?: call.respond(HttpStatusCode.NotFound, "Ingen tiltaksgjennomføring med id=$id")
+        }
+
         get("{id}/historikk") {
             val id: UUID by call.parameters
             val historikk = service.getEndringshistorikk(id)
@@ -115,6 +126,11 @@ data class TiltaksgjennomforingDeltakerSummary(
 )
 
 @Serializable
+data class TiltaksnummerResponse(
+    val tiltaksnummer: String,
+)
+
+@Serializable
 data class TiltaksgjennomforingRequest(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
@@ -133,19 +149,13 @@ data class TiltaksgjennomforingRequest(
         @Serializable(with = UUIDSerializer::class)
         UUID,
         >,
-    val tiltaksnummer: String?,
     val administratorer: List<String>,
     val navRegion: String,
     val navEnheter: List<String>,
     val oppstart: TiltaksgjennomforingOppstartstype,
-    @Serializable(with = LocalDateSerializer::class)
-    val stengtFra: LocalDate?,
-    @Serializable(with = LocalDateSerializer::class)
-    val stengtTil: LocalDate?,
     val apentForInnsok: Boolean,
     val kontaktpersoner: List<NavKontaktpersonForGjennomforing>,
     val stedForGjennomforing: String?,
-    val opphav: ArenaMigrering.Opphav?,
     val faneinnhold: Faneinnhold?,
     val beskrivelse: String?,
     val deltidsprosent: Double,
@@ -160,16 +170,12 @@ data class TiltaksgjennomforingRequest(
         sluttDato = sluttDato,
         antallPlasser = antallPlasser,
         apentForInnsok = apentForInnsok,
-        tiltaksnummer = tiltaksnummer,
         arrangorOrganisasjonsnummer = arrangorOrganisasjonsnummer,
         arrangorKontaktpersoner = arrangorKontaktpersoner,
         administratorer = administratorer,
         navRegion = navRegion,
         navEnheter = navEnheter,
         oppstart = oppstart,
-        opphav = opphav ?: ArenaMigrering.Opphav.MR_ADMIN_FLATE,
-        stengtFra = stengtFra,
-        stengtTil = stengtTil,
         kontaktpersoner = kontaktpersoner.map {
             TiltaksgjennomforingKontaktpersonDbo(
                 navIdent = it.navIdent,

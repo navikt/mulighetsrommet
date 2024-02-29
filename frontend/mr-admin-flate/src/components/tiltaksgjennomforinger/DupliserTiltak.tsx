@@ -1,9 +1,9 @@
 import { LayersPlusIcon } from "@navikt/aksel-icons";
-import styles from "./DupliserTiltak.module.scss";
 import { Button } from "@navikt/ds-react";
-import { Opphav, Tiltaksgjennomforing, Toggles } from "mulighetsrommet-api-client";
+import { Opphav, Tiltaksgjennomforing } from "mulighetsrommet-api-client";
 import { useNavigate } from "react-router-dom";
-import { useFeatureToggle } from "../../api/features/feature-toggles";
+import { useMigrerteTiltakstyper } from "../../api/tiltakstyper/useMigrerteTiltakstyper";
+import styles from "./DupliserTiltak.module.scss";
 
 interface Props {
   tiltaksgjennomforing: Tiltaksgjennomforing;
@@ -11,11 +11,9 @@ interface Props {
 
 export function DupliserTiltak({ tiltaksgjennomforing }: Props) {
   const navigate = useNavigate();
-  const { data: kanDuplisereTiltak } = useFeatureToggle(
-    Toggles.MR_ADMIN_FLATE_KAN_DUPLISERE_TILTAK,
-  );
+  const { data: migrerteTiltakstyper } = useMigrerteTiltakstyper();
 
-  if (!kanDuplisereTiltak) return null;
+  if (!migrerteTiltakstyper?.includes(tiltaksgjennomforing.tiltakstype.arenaKode)) return null;
 
   function apneRedigeringForDupliseringAvTiltak() {
     navigate(`/tiltaksgjennomforinger/${tiltaksgjennomforing.id}/skjema`, {
@@ -23,7 +21,6 @@ export function DupliserTiltak({ tiltaksgjennomforing }: Props) {
         tiltaksgjennomforing: {
           ...tiltaksgjennomforing,
           id: window.crypto.randomUUID(),
-          tiltaksnummer: "",
           startDato: undefined,
           sluttDato: undefined,
           opphav: Opphav.MR_ADMIN_FLATE,

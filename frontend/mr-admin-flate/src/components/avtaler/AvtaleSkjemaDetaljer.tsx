@@ -1,4 +1,4 @@
-import { Button, Textarea, TextField, VStack } from "@navikt/ds-react";
+import { Button, HGrid, Textarea, TextField } from "@navikt/ds-react";
 import {
   Avtale,
   Avtaletype,
@@ -15,8 +15,10 @@ import { useRef, useState } from "react";
 import { useFormContext } from "react-hook-form";
 import { MultiValue } from "react-select";
 import { useAvtaleAdministratorer } from "../../api/ansatt/useAvtaleAdministratorer";
+import { useMigrerteTiltakstyperForAvtaler } from "../../api/tiltakstyper/useMigrerteTiltakstyper";
 import { useSokVirksomheter } from "../../api/virksomhet/useSokVirksomhet";
 import { useVirksomhet } from "../../api/virksomhet/useVirksomhet";
+import { useVirksomhetKontaktpersoner } from "../../api/virksomhet/useVirksomhetKontaktpersoner";
 import { erAnskaffetTiltak } from "../../utils/tiltakskoder";
 import { addYear } from "../../utils/Utils";
 import { Separator } from "../detaljside/Metadata";
@@ -28,8 +30,6 @@ import skjemastyles from "../skjema/Skjema.module.scss";
 import { VirksomhetKontaktpersonerModal } from "../virksomhet/VirksomhetKontaktpersonerModal";
 import { InferredAvtaleSchema } from "./AvtaleSchema";
 import { getLokaleUnderenheterAsSelectOptions, underenheterOptions } from "./AvtaleSkjemaConst";
-import { useVirksomhetKontaktpersoner } from "../../api/virksomhet/useVirksomhetKontaktpersoner";
-import { useMigrerteTiltakstyper } from "../../api/tiltakstyper/useMigrerteTiltakstyper";
 
 const minStartdato = new Date(2000, 0, 1);
 
@@ -43,7 +43,7 @@ interface Props {
 export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: Props) {
   const [sokLeverandor, setSokLeverandor] = useState("");
   const { data: leverandorVirksomheter = [] } = useSokVirksomheter(sokLeverandor);
-  const { data: migrerteTiltakstyper } = useMigrerteTiltakstyper();
+  const { data: migrerteTiltakstyper } = useMigrerteTiltakstyperForAvtaler();
 
   const { data: administratorer } = useAvtaleAdministratorer();
   const virksomhetKontaktpersonerModalRef = useRef<HTMLDialogElement>(null);
@@ -64,10 +64,9 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
   const { data: leverandorData } = useVirksomhet(watchedLeverandor);
 
   const underenheterForLeverandor = leverandorData?.underenheter ?? [];
+  const valgtTiltakstypeFraArena = !migrerteTiltakstyper?.includes(watchedTiltakstype?.arenaKode);
 
-  const arenaOpphavOgIngenEierskap =
-    avtale?.opphav === Opphav.ARENA &&
-    !migrerteTiltakstyper?.includes(watchedTiltakstype.arenaKode);
+  const arenaOpphavOgIngenEierskap = avtale?.opphav === Opphav.ARENA && valgtTiltakstypeFraArena;
 
   const navRegionerOptions = enheter
     .filter((enhet) => enhet.type === NavEnhetType.FYLKE)
@@ -103,57 +102,64 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
     <div className={skjemastyles.container}>
       <div className={skjemastyles.input_container}>
         <div className={skjemastyles.column}>
-          <FormGroup cols={avtale?.avtalenummer ? 2 : 1}>
-            <TextField
-              size="small"
-              readOnly={arenaOpphavOgIngenEierskap}
-              error={errors.navn?.message}
-              label="Avtalenavn"
-              autoFocus
-              {...register("navn")}
-            />
-            {avtale?.avtalenummer ? (
-              <TextField size="small" readOnly label="Avtalenummer" value={avtale.avtalenummer} />
-            ) : null}
+          <FormGroup>
+            <HGrid gap="4" columns={avtale?.avtalenummer ? 2 : 1}>
+              <TextField
+                size="small"
+                readOnly={arenaOpphavOgIngenEierskap}
+                error={errors.navn?.message}
+                label="Avtalenavn"
+                autoFocus
+                {...register("navn")}
+              />
+              {avtale?.avtalenummer ? (
+                <TextField size="small" readOnly label="Avtalenummer" value={avtale.avtalenummer} />
+              ) : null}
+            </HGrid>
           </FormGroup>
           <Separator />
-          <FormGroup cols={2}>
-            <ControlledSokeSelect
-              size="small"
-              readOnly={arenaOpphavOgIngenEierskap}
-              placeholder="Velg en"
-              label={"Tiltakstype"}
-              {...register("tiltakstype")}
-              options={tiltakstyper.map((tiltakstype) => ({
-                value: {
-                  arenaKode: tiltakstype.arenaKode,
-                  navn: tiltakstype.navn,
-                  id: tiltakstype.id,
-                },
-                label: tiltakstype.navn,
-              }))}
-            />
-            <ControlledSokeSelect
-              size="small"
-              readOnly={arenaOpphavOgIngenEierskap}
-              placeholder="Velg en"
-              label={"Avtaletype"}
-              {...register("avtaletype")}
-              options={[
-                {
-                  value: Avtaletype.FORHAANDSGODKJENT,
-                  label: "Forhåndsgodkjent avtale",
-                },
-                {
-                  value: Avtaletype.RAMMEAVTALE,
-                  label: "Rammeavtale",
-                },
-                {
-                  value: Avtaletype.AVTALE,
-                  label: "Avtale",
-                },
-              ]}
-            />
+          <FormGroup>
+            <HGrid gap="4" columns={2}>
+              <ControlledSokeSelect
+                size="small"
+                readOnly={arenaOpphavOgIngenEierskap}
+                placeholder="Velg en"
+                label={"Tiltakstype"}
+                {...register("tiltakstype")}
+                options={tiltakstyper.map((tiltakstype) => ({
+                  value: {
+                    arenaKode: tiltakstype.arenaKode,
+                    navn: tiltakstype.navn,
+                    id: tiltakstype.id,
+                  },
+                  label: !migrerteTiltakstyper?.includes(tiltakstype.arenaKode)
+                    ? `${tiltakstype.navn} må opprettes i Arena`
+                    : tiltakstype.navn,
+                  isDisabled: !migrerteTiltakstyper?.includes(tiltakstype.arenaKode),
+                }))}
+              />
+              <ControlledSokeSelect
+                size="small"
+                readOnly={arenaOpphavOgIngenEierskap}
+                placeholder="Velg en"
+                label={"Avtaletype"}
+                {...register("avtaletype")}
+                options={[
+                  {
+                    value: Avtaletype.FORHAANDSGODKJENT,
+                    label: "Forhåndsgodkjent avtale",
+                  },
+                  {
+                    value: Avtaletype.RAMMEAVTALE,
+                    label: "Rammeavtale",
+                  },
+                  {
+                    value: Avtaletype.AVTALE,
+                    label: "Avtale",
+                  },
+                ]}
+              />
+            </HGrid>
           </FormGroup>
           <Separator />
           <FormGroup>
@@ -277,7 +283,7 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
             </FormGroup>
             {watchedLeverandor && !avtale?.leverandor?.slettet && (
               <FormGroup>
-                <VStack gap="2" className={skjemastyles.kontaktperson_container}>
+                <div className={skjemastyles.virksomhet_kontaktperson_container}>
                   <ControlledSokeSelect
                     size="small"
                     placeholder="Velg en"
@@ -291,14 +297,15 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
                     }
                   />
                   <Button
+                    className={skjemastyles.kontaktperson_button}
                     size="small"
                     type="button"
-                    variant="secondary"
+                    variant="tertiary"
                     onClick={() => virksomhetKontaktpersonerModalRef.current?.showModal()}
                   >
-                    Rediger kontaktpersoner
+                    Rediger eller legg til kontaktpersoner
                   </Button>
-                </VStack>
+                </div>
               </FormGroup>
             )}
           </div>

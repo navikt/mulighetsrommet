@@ -12,7 +12,6 @@ import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.domain.Gruppetiltak
-import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.ArenaTiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
@@ -61,7 +60,6 @@ class KafkaSyncServiceTest : FunSpec({
             apentForInnsok = true,
             antallPlasser = 12,
             oppstart = TiltaksgjennomforingOppstartstype.FELLES,
-            opphav = ArenaMigrering.Opphav.ARENA,
             avtaleId = null,
             deltidsprosent = 100.0,
         )

@@ -21,6 +21,7 @@ import no.nav.mulighetsrommet.database.utils.getOrThrow
 import no.nav.mulighetsrommet.database.utils.query
 import no.nav.mulighetsrommet.domain.Tiltakskoder
 import no.nav.mulighetsrommet.domain.Tiltakskoder.isEgenRegiTiltak
+import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering.TiltaksgjennomforingSluttDatoCutoffDate
 import no.nav.mulighetsrommet.domain.dbo.*
 import no.nav.mulighetsrommet.domain.dto.Avtalestatus
@@ -103,18 +104,17 @@ class ArenaAdapterService(
     suspend fun upsertTiltaksgjennomforing(tiltaksgjennomforing: ArenaTiltaksgjennomforingDbo): QueryResult<TiltaksgjennomforingAdminDto> {
         syncVirksomhetFromBrreg(tiltaksgjennomforing.arrangorOrganisasjonsnummer)
 
-        val mulighetsrommetAvtaleId = lookForExistingAvtale(tiltaksgjennomforing)
-        val tiltaksgjennomforingMedAvtale = tiltaksgjennomforing.copy(avtaleId = mulighetsrommetAvtaleId)
+        val previous = tiltaksgjennomforinger.get(tiltaksgjennomforing.id)
+        val tiltaksgjennomforingMedAvtale = withExistingAvtale(tiltaksgjennomforing, previous)
 
         val gjennomforing = db.transactionSuspend { tx ->
-            val previous = tiltaksgjennomforinger.get(tiltaksgjennomforing.id)
-            if (previous?.toArenaTiltaksgjennomforingDbo() == tiltaksgjennomforing) {
+            if (previous?.toArenaTiltaksgjennomforingDbo() == tiltaksgjennomforingMedAvtale) {
                 return@transactionSuspend previous
             }
 
             tiltaksgjennomforinger.upsertArenaTiltaksgjennomforing(tiltaksgjennomforingMedAvtale, tx)
 
-            val gjennomforing = tiltaksgjennomforinger.get(tiltaksgjennomforing.id, tx)!!
+            val gjennomforing = tiltaksgjennomforinger.get(tiltaksgjennomforingMedAvtale.id, tx)!!
 
             logUpdate(tx, DocumentClass.TILTAKSGJENNOMFORING, gjennomforing.id, gjennomforing)
 
@@ -137,7 +137,7 @@ class ArenaAdapterService(
     }
 
     private suspend fun syncVirksomhetFromBrreg(orgnr: String) {
-        virksomhetService.getOrSyncVirksomhetFromBrreg(orgnr).onLeft { error ->
+        virksomhetService.getOrSyncHovedenhetFromBrreg(orgnr).onLeft { error ->
             if (error == BrregError.NotFound) {
                 logger.warn("Virksomhet mer orgnr=$orgnr finnes ikke i brreg. Er dette en utenlandsk arrangør?")
             }
@@ -178,15 +178,23 @@ class ArenaAdapterService(
         return query { deltakere.delete(id) }
     }
 
-    private fun lookForExistingAvtale(tiltaksgjennomforing: ArenaTiltaksgjennomforingDbo): UUID? {
+    private fun withExistingAvtale(
+        tiltaksgjennomforing: ArenaTiltaksgjennomforingDbo,
+        previous: TiltaksgjennomforingAdminDto?,
+    ): ArenaTiltaksgjennomforingDbo {
         val tiltakstype = tiltakstyper.get(tiltaksgjennomforing.tiltakstypeId)
             ?: throw IllegalStateException("Ukjent tiltakstype id=${tiltaksgjennomforing.tiltakstypeId}")
 
-        return if (Tiltakskoder.isTiltakMedAvtalerFraMulighetsrommet(tiltakstype.arenaKode)) {
-            tiltaksgjennomforinger.get(tiltaksgjennomforing.id)?.avtaleId ?: tiltaksgjennomforing.avtaleId
+        val avtaleId = if (
+            previous?.opphav == ArenaMigrering.Opphav.MR_ADMIN_FLATE ||
+            Tiltakskoder.isTiltakMedAvtalerFraMulighetsrommet(tiltakstype.arenaKode)
+        ) {
+            previous?.avtaleId ?: tiltaksgjennomforing.avtaleId
         } else {
             tiltaksgjennomforing.avtaleId
         }
+
+        return tiltaksgjennomforing.copy(avtaleId = avtaleId)
     }
 
     private fun shouldBeManagedInSanity(gjennomforing: TiltaksgjennomforingAdminDto): Boolean {

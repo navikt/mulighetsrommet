@@ -12,14 +12,10 @@ export const TiltaksgjennomforingSchema = z
         }),
         sluttDato: z.string().optional().nullable(),
       })
-      .refine(
-        (data) =>
-          !data.startDato || !data.sluttDato || new Date(data.sluttDato) > new Date(data.startDato),
-        {
-          message: "Startdato må være før sluttdato",
-          path: ["startDato"],
-        },
-      ),
+      .refine((data) => !data.startDato || !data.sluttDato || data.sluttDato >= data.startDato, {
+        message: "Startdato må være før sluttdato",
+        path: ["startDato"],
+      }),
     antallPlasser: z
       .number({
         invalid_type_error:
@@ -37,14 +33,8 @@ export const TiltaksgjennomforingSchema = z
     }),
     kontaktpersoner: z
       .object({
-        navIdent: z.string({
-          required_error: "Du må velge en kontaktperson",
-        }),
-        navEnheter: z
-          .string({
-            required_error: "Du må velge minst et område",
-          })
-          .array(),
+        navIdent: z.string().nullable(),
+        navEnheter: z.string().array(),
         beskrivelse: z.string().nullable().optional(),
       })
       .array()
@@ -60,31 +50,6 @@ export const TiltaksgjennomforingSchema = z
       .string({ required_error: "Du må velge minst én administrator" })
       .array()
       .min(1, "Du må velge minst én administrator"),
-    midlertidigStengt: z
-      .object({
-        erMidlertidigStengt: z.boolean(),
-        stengtFra: z.date().optional(),
-        stengtTil: z.date().optional(),
-      })
-      .refine((data) => !data.erMidlertidigStengt || Boolean(data.stengtFra), {
-        message: "Midlertidig stengt må ha en start dato",
-        path: ["stengtFra"],
-      })
-      .refine((data) => !data.erMidlertidigStengt || Boolean(data.stengtTil), {
-        message: "Midlertidig stengt må ha en til dato",
-        path: ["stengtTil"],
-      })
-      .refine(
-        (data) =>
-          !data.erMidlertidigStengt ||
-          !data.stengtTil ||
-          !data.stengtFra ||
-          data.stengtTil > data.stengtFra,
-        {
-          message: "Midlertidig stengt fra dato må være før til dato",
-          path: ["stengtFra"],
-        },
-      ),
     oppstart: z.custom<TiltaksgjennomforingOppstartstype>(
       (val) => !!val,
       "Du må velge oppstartstype",
@@ -120,19 +85,6 @@ export const TiltaksgjennomforingSchema = z
       .nullable(),
   })
   .superRefine((data, ctx) => {
-    if (
-      data.startOgSluttDato.sluttDato &&
-      data.midlertidigStengt.erMidlertidigStengt &&
-      data.midlertidigStengt.stengtTil &&
-      data.midlertidigStengt.stengtTil >= new Date(data.startOgSluttDato.sluttDato)
-    ) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Stengt til dato må være før sluttdato",
-        path: ["midlertidigStengt.stengtTil"],
-      });
-    }
-
     if (data.opphav === Opphav.MR_ADMIN_FLATE && !data.startOgSluttDato.sluttDato) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
@@ -163,6 +115,22 @@ export const TiltaksgjennomforingSchema = z
         });
       }
     }
+    data.kontaktpersoner?.forEach((kontaktperson, index) => {
+      if (kontaktperson.navIdent == null) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Du må velge en kontaktperson",
+          path: [`kontaktpersoner.${index}.navIdent`],
+        });
+      }
+      if (kontaktperson.navEnheter.length === 0) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Du må velge minst én enhet",
+          path: [`kontaktpersoner.${index}.navEnheter`],
+        });
+      }
+    });
   });
 
 function bareDatoUtenTidspunkt(date: Date): Date {

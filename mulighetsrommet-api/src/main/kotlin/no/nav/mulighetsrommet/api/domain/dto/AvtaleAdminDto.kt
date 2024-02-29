@@ -80,7 +80,6 @@ data class AvtaleAdminDto(
             sluttDato = sluttDato,
             navEnheter = this.kontorstruktur.flatMap { it.kontorer.map { kontor -> kontor.enhetsnummer } + it.region.enhetsnummer },
             avtaletype = avtaletype,
-            opphav = opphav,
             prisbetingelser = prisbetingelser,
             antallPlasser = antallPlasser,
             url = url,
@@ -105,7 +104,6 @@ data class AvtaleAdminDto(
                 Avtalestatus.Avbrutt -> Avslutningsstatus.AVBRUTT
                 Avtalestatus.Avsluttet -> Avslutningsstatus.AVSLUTTET
             },
-            opphav = opphav,
             prisbetingelser = prisbetingelser,
         )
 }

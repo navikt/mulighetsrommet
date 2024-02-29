@@ -15,6 +15,8 @@ import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
+import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
+import no.nav.mulighetsrommet.api.services.TiltakstypeService
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.domain.dto.ArenaTiltaksgjennomforingDto
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
@@ -55,10 +57,11 @@ class TiltaksgjennomforingTopicConsumerTest : FunSpec({
             coEvery { arenaAdapterClient.hentArenadata(gjennomforing.id) } returns null
 
             val migrerteTiltak = listOf<String>()
+            val tiltakstyper = TiltakstypeService(TiltakstypeRepository(database.db), migrerteTiltak)
 
             val consumer = TiltaksgjennomforingTopicConsumer(
                 KafkaTopicConsumer.Config(id = "id", topic = "topic"),
-                migrerteTiltak,
+                tiltakstyper,
                 gjennomforinger,
                 producer,
                 arenaAdapterClient,
@@ -78,10 +81,11 @@ class TiltaksgjennomforingTopicConsumerTest : FunSpec({
             coEvery { arenaAdapterClient.hentArenadata(gjennomforing.id) } returns null
 
             val migrerteTiltak = listOf(TiltakstypeFixtures.Oppfolging.arenaKode)
+            val tiltakstyper = TiltakstypeService(TiltakstypeRepository(database.db), migrerteTiltak)
 
             val consumer = TiltaksgjennomforingTopicConsumer(
                 KafkaTopicConsumer.Config(id = "id", topic = "topic"),
-                migrerteTiltak,
+                tiltakstyper,
                 gjennomforinger,
                 producer,
                 arenaAdapterClient,
@@ -105,10 +109,11 @@ class TiltaksgjennomforingTopicConsumerTest : FunSpec({
             )
 
             val migrerteTiltak = listOf(TiltakstypeFixtures.Oppfolging.arenaKode)
+            val tiltakstyper = TiltakstypeService(TiltakstypeRepository(database.db), migrerteTiltak)
 
             val consumer = TiltaksgjennomforingTopicConsumer(
                 KafkaTopicConsumer.Config(id = "id", topic = "topic"),
-                migrerteTiltak,
+                tiltakstyper,
                 gjennomforinger,
                 producer,
                 arenaAdapterClient,

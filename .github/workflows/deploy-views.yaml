@@ -1,4 +1,4 @@
-name: Deploy BigQuery Views
+name: Deploy BigQuery Views - template
 on:
   workflow_call:
     inputs:
@@ -18,6 +18,8 @@ jobs:
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: ${{ inputs.cluster }}
-          RESOURCE: iac/bigquery-views/tiltakstyper.yaml
+          RESOURCE: iac/bigquery-views/tiltakstyper.yaml,iac/bigquery-views/tiltaksgjennomforing.yaml
           VAR: project=${{ inputs.project }}
           PRINT_PAYLOAD: true
+
+

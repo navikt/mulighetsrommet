@@ -19,7 +19,10 @@ import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
-import no.nav.mulighetsrommet.api.repositories.*
+import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
+import no.nav.mulighetsrommet.api.repositories.NavAnsattRepository
+import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
+import no.nav.mulighetsrommet.api.repositories.UtkastRepository
 import no.nav.mulighetsrommet.api.routes.v1.responses.BadRequest
 import no.nav.mulighetsrommet.api.routes.v1.responses.NotFound
 import no.nav.mulighetsrommet.api.routes.v1.responses.ValidationError
@@ -34,7 +37,6 @@ class AvtaleServiceTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
     val virksomhetService: VirksomhetService = mockk(relaxed = true)
     val utkastRepository: UtkastRepository = mockk(relaxed = true)
-    val enabledTiltakstyper = listOf(TiltakstypeFixtures.Oppfolging.arenaKode)
     val validator = mockk<AvtaleValidator>()
 
     val domain = MulighetsrommetTestDomain()
@@ -46,7 +48,7 @@ class AvtaleServiceTest : FunSpec({
             firstArg<AvtaleDbo>().right()
         }
 
-        coEvery { virksomhetService.getOrSyncVirksomhetFromBrreg(any()) } answers {
+        coEvery { virksomhetService.getOrSyncHovedenhetFromBrreg(any()) } answers {
             VirksomhetDto(
                 organisasjonsnummer = firstArg<String>(),
                 navn = "Virksomhet",
@@ -58,7 +60,6 @@ class AvtaleServiceTest : FunSpec({
 
     context("Upsert avtale") {
         val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
-        val tiltakstypeRepository = TiltakstypeRepository(database.db)
         val avtaler = AvtaleRepository(database.db)
         val avtaleService = AvtaleService(
             avtaler,
@@ -66,11 +67,9 @@ class AvtaleServiceTest : FunSpec({
             virksomhetService,
             NotificationRepository(database.db),
             utkastRepository,
-            tiltakstypeRepository,
             validator,
             EndringshistorikkService(database.db),
             database.db,
-            enabledTiltakstyper,
         )
 
         test("Man skal ikke få lov til å opprette avtale dersom det oppstår valideringsfeil") {
@@ -89,7 +88,6 @@ class AvtaleServiceTest : FunSpec({
     context("Avbryte avtale") {
         val avtaleRepository = AvtaleRepository(database.db)
         val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
-        val tiltakstypeRepository = TiltakstypeRepository(database.db)
 
         val avtaleService = AvtaleService(
             avtaleRepository,
@@ -97,11 +95,9 @@ class AvtaleServiceTest : FunSpec({
             virksomhetService,
             NotificationRepository(database.db),
             utkastRepository,
-            tiltakstypeRepository,
             validator,
             EndringshistorikkService(database.db),
             database.db,
-            enabledTiltakstyper,
         )
 
         test("Man skal ikke få avbryte dersom avtalen ikke finnes") {
@@ -119,9 +115,9 @@ class AvtaleServiceTest : FunSpec({
                 navn = "Avtale som eksisterer",
                 startDato = LocalDate.of(2023, 6, 1),
                 sluttDato = LocalDate.of(2023, 7, 1),
-                opphav = ArenaMigrering.Opphav.ARENA,
             )
             avtaleRepository.upsert(avtale)
+            avtaleRepository.setOpphav(avtale.id, ArenaMigrering.Opphav.ARENA)
 
             avtaleService.avbrytAvtale(avtale.id, "B123456").shouldBeLeft(
                 BadRequest("Avtalen har opprinnelse fra Arena og kan ikke bli avbrutt fra admin-flate."),
@@ -133,9 +129,9 @@ class AvtaleServiceTest : FunSpec({
                 navn = "Avtale som eksisterer",
                 startDato = LocalDate.of(2023, 5, 1),
                 sluttDato = LocalDate.of(2023, 6, 1),
-                opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
             )
             avtaleRepository.upsert(avtale)
+            avtaleRepository.setOpphav(avtale.id, ArenaMigrering.Opphav.MR_ADMIN_FLATE)
 
             avtaleService.avbrytAvtale(avtale.id, "B123456").shouldBeLeft(
                 BadRequest(message = "Avtalen er allerede avsluttet og kan derfor ikke avbrytes."),
@@ -198,18 +194,15 @@ class AvtaleServiceTest : FunSpec({
     context("Administrator-notification") {
         val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
         val avtaler = AvtaleRepository(database.db)
-        val tiltakstypeRepository = TiltakstypeRepository(database.db)
         val avtaleService = AvtaleService(
             avtaler,
             tiltaksgjennomforinger,
             virksomhetService,
             NotificationRepository(database.db),
             utkastRepository,
-            tiltakstypeRepository,
             validator,
             EndringshistorikkService(database.db),
             database.db,
-            enabledTiltakstyper,
         )
         val navAnsattRepository = NavAnsattRepository(database.db)
 
@@ -299,18 +292,15 @@ class AvtaleServiceTest : FunSpec({
     context("transactions") {
         val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
         val avtaler = AvtaleRepository(database.db)
-        val tiltakstypeRepository = TiltakstypeRepository(database.db)
         val avtaleService = AvtaleService(
             avtaler,
             tiltaksgjennomforinger,
             virksomhetService,
             NotificationRepository(database.db),
             utkastRepository,
-            tiltakstypeRepository,
             validator,
             EndringshistorikkService(database.db),
             database.db,
-            enabledTiltakstyper,
         )
 
         test("Hvis is utkast _ikke_ kaster blir upsert værende") {

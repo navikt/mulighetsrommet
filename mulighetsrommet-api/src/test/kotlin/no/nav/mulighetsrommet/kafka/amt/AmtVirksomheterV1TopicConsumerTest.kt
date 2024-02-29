@@ -3,7 +3,6 @@ package no.nav.mulighetsrommet.kafka.amt
 import arrow.core.right
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
-import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.mockk
@@ -55,8 +54,8 @@ class AmtVirksomheterV1TopicConsumerTest : FunSpec({
         val virksomhetRepository = VirksomhetRepository(database.db)
 
         val virksomhetService: VirksomhetService = mockk()
-        coEvery { virksomhetService.getVirksomhetFromBrreg(amtVirksomhet.organisasjonsnummer) } returns virksomhetDto.right()
-        coEvery { virksomhetService.getVirksomhetFromBrreg(amtUnderenhet.organisasjonsnummer) } returns underenhetDto.right()
+        coEvery { virksomhetService.syncHovedenhetFromBrreg(amtVirksomhet.organisasjonsnummer) } returns virksomhetDto.right()
+        coEvery { virksomhetService.syncHovedenhetFromBrreg(amtUnderenhet.organisasjonsnummer) } returns virksomhetDto.right()
 
         val virksomhetConsumer = AmtVirksomheterV1TopicConsumer(
             config = KafkaTopicConsumer.Config(id = "virksomheter", topic = "virksomheter"),
@@ -71,20 +70,8 @@ class AmtVirksomheterV1TopicConsumerTest : FunSpec({
             virksomhetRepository.getAll().shouldBeEmpty()
         }
 
-        test("oppdaterer virksomheter når de finnes i database") {
-            virksomhetRepository.upsert(virksomhetDto.copy(poststed = "Gåseby"))
-            virksomhetRepository.upsert(underenhetDto.copy(poststed = "Gåseby"))
-
-            virksomhetConsumer.consume(amtVirksomhet.organisasjonsnummer, Json.encodeToJsonElement(amtVirksomhet))
-            virksomhetConsumer.consume(amtUnderenhet.organisasjonsnummer, Json.encodeToJsonElement(amtUnderenhet))
-
-            virksomhetRepository.getAll().shouldHaveSize(2)
-            virksomhetRepository.get(virksomhetDto.organisasjonsnummer).shouldBe(virksomhetDto)
-            virksomhetRepository.get(underenhetDto.organisasjonsnummer).shouldBe(underenhetDto)
-        }
-
         test("delete virksomheter for tombstone messages") {
-            virksomhetRepository.upsert(underenhetDto)
+            virksomhetRepository.upsert(virksomhetDto)
 
             virksomhetConsumer.consume(amtUnderenhet.organisasjonsnummer, JsonNull)
 

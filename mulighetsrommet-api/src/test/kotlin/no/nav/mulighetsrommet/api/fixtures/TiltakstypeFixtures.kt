@@ -22,7 +22,7 @@ object TiltakstypeFixtures {
     val VTA = TiltakstypeDbo(
         id = UUID.fromString("6fb921d6-0a87-4b8a-82a4-067477c1e113"),
         navn = "Varig tilrettelagt arbeid i skjermet virksomhet",
-        tiltakskode = Gruppetiltak.VARIG_TILRETTELAGT_ARBEID,
+        tiltakskode = Gruppetiltak.VARIG_TILRETTELAGT_ARBEID_SKJERMET,
         arenaKode = "VASV",
         rettPaaTiltakspenger = false,
         fraDato = LocalDate.of(2023, 1, 1),

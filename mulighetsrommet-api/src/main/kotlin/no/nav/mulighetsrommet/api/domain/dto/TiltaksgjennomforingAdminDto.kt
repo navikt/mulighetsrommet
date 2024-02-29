@@ -42,10 +42,6 @@ data class TiltaksgjennomforingAdminDto(
     val sanityId: UUID?,
     val oppstart: TiltaksgjennomforingOppstartstype,
     val opphav: ArenaMigrering.Opphav,
-    @Serializable(with = LocalDateSerializer::class)
-    val stengtFra: LocalDate?,
-    @Serializable(with = LocalDateSerializer::class)
-    val stengtTil: LocalDate?,
     val kontaktpersoner: List<TiltaksgjennomforingKontaktperson>,
     val stedForGjennomforing: String?,
     val faneinnhold: Faneinnhold?,
@@ -95,7 +91,6 @@ data class TiltaksgjennomforingAdminDto(
             id = id,
             navn = navn,
             tiltakstypeId = tiltakstype.id,
-            tiltaksnummer = tiltaksnummer,
             arrangorOrganisasjonsnummer = arrangor.organisasjonsnummer,
             arrangorKontaktpersoner = arrangor.kontaktpersoner.map { it.id },
             startDato = startDato,
@@ -107,9 +102,6 @@ data class TiltaksgjennomforingAdminDto(
             navRegion = navRegion?.enhetsnummer ?: "",
             navEnheter = navEnheter.map { it.enhetsnummer },
             oppstart = oppstart,
-            opphav = opphav,
-            stengtFra = stengtFra,
-            stengtTil = stengtTil,
             kontaktpersoner = kontaktpersoner.map {
                 TiltaksgjennomforingKontaktpersonDbo(
                     navIdent = it.navIdent,
@@ -145,7 +137,6 @@ data class TiltaksgjennomforingAdminDto(
             antallPlasser = antallPlasser,
             avtaleId = avtaleId,
             oppstart = oppstart,
-            opphav = opphav,
             deltidsprosent = deltidsprosent,
         )
 }

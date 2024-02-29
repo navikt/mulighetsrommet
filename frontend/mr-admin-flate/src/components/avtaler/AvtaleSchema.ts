@@ -1,4 +1,4 @@
-import { Avtaletype, Opphav, TiltakskodeArena } from "mulighetsrommet-api-client";
+import { Avtaletype, TiltakskodeArena } from "mulighetsrommet-api-client";
 import z from "zod";
 
 const GyldigUrlHvisVerdi = z.union([
@@ -33,7 +33,7 @@ export const AvtaleSchema = z.object({
       startDato: z.string({ required_error: "En avtale må ha en startdato" }),
       sluttDato: z.string({ required_error: "En avtale må ha en sluttdato" }),
     })
-    .refine((data) => !data.startDato || !data.sluttDato || data.sluttDato > data.startDato, {
+    .refine((data) => !data.startDato || !data.sluttDato || data.sluttDato >= data.startDato, {
       message: "Startdato må være før sluttdato",
       path: ["startDato"],
     }),
@@ -59,7 +59,6 @@ export const AvtaleSchema = z.object({
       { required_error: "Det redaksjonelle innholdet må settes på avtalen" },
     )
     .nullable(),
-  opphav: z.nativeEnum(Opphav),
 });
 
 export type InferredAvtaleSchema = z.infer<typeof AvtaleSchema>;

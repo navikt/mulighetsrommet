@@ -112,15 +112,6 @@ export function defaultTiltaksgjennomforingData(
       sluttDato: tiltaksgjennomforing?.sluttDato,
     },
     tiltaksArrangorUnderenhetOrganisasjonsnummer: defaultArrangor(avtale, tiltaksgjennomforing),
-    midlertidigStengt: {
-      erMidlertidigStengt: Boolean(tiltaksgjennomforing?.stengtFra),
-      stengtFra: tiltaksgjennomforing?.stengtFra
-        ? new Date(tiltaksgjennomforing.stengtFra)
-        : undefined,
-      stengtTil: tiltaksgjennomforing?.stengtTil
-        ? new Date(tiltaksgjennomforing.stengtTil)
-        : undefined,
-    },
     oppstart: tiltaksgjennomforing?.oppstart || defaultOppstartType(avtale),
     apentForInnsok: tiltaksgjennomforing?.apentForInnsok,
     kontaktpersoner: defaultValuesForKontaktpersoner(tiltaksgjennomforing?.kontaktpersoner),

@@ -14,6 +14,7 @@ import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dbo.AvtaleDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
+import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
@@ -22,7 +23,9 @@ import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.api.routes.v1.responses.ValidationError
 import no.nav.mulighetsrommet.api.services.NavEnhetService
+import no.nav.mulighetsrommet.api.services.TiltakstypeService
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
+import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
 import no.nav.mulighetsrommet.env.NaisEnv
@@ -47,25 +50,18 @@ class AvtaleValidatorTest : FunSpec({
         avtaletype = Avtaletype.Avtale,
         prisbetingelser = null,
         navEnheter = listOf("0400", "0502"),
-        opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
         antallPlasser = null,
         beskrivelse = null,
         faneinnhold = null,
     )
 
     lateinit var navEnheterService: NavEnhetService
-    lateinit var tiltakstyper: TiltakstypeRepository
+    lateinit var tiltakstyper: TiltakstypeService
     lateinit var avtaler: AvtaleRepository
     lateinit var gjennomforinger: TiltaksgjennomforingRepository
 
-    beforeEach {
-        tiltakstyper = TiltakstypeRepository(database.db)
-        tiltakstyper.upsert(TiltakstypeFixtures.AFT)
-        tiltakstyper.upsert(TiltakstypeFixtures.VTA)
-        tiltakstyper.upsert(TiltakstypeFixtures.Oppfolging)
-
-        val enheter = NavEnhetRepository(database.db)
-        enheter.upsert(
+    val domain = MulighetsrommetTestDomain(
+        enheter = listOf(
             NavEnhetDbo(
                 navn = "NAV Oslo",
                 enhetsnummer = "0300",
@@ -73,8 +69,6 @@ class AvtaleValidatorTest : FunSpec({
                 type = Norg2Type.FYLKE,
                 overordnetEnhet = null,
             ),
-        ).shouldBeRight()
-        enheter.upsert(
             NavEnhetDbo(
                 navn = "NAV Innlandet",
                 enhetsnummer = "0400",
@@ -82,8 +76,6 @@ class AvtaleValidatorTest : FunSpec({
                 type = Norg2Type.FYLKE,
                 overordnetEnhet = null,
             ),
-        ).shouldBeRight()
-        enheter.upsert(
             NavEnhetDbo(
                 navn = "NAV Gjøvik",
                 enhetsnummer = "0502",
@@ -91,12 +83,44 @@ class AvtaleValidatorTest : FunSpec({
                 type = Norg2Type.LOKAL,
                 overordnetEnhet = "0400",
             ),
-        ).shouldBeRight()
-        navEnheterService = NavEnhetService(enheter)
+        ),
+        ansatte = listOf(),
+        tiltakstyper = listOf(
+            TiltakstypeFixtures.AFT,
+            TiltakstypeFixtures.VTA,
+            TiltakstypeFixtures.Oppfolging,
+        ),
+        avtaler = listOf(),
+    )
 
+    beforeEach {
+        domain.initialize(database.db)
+
+        tiltakstyper = TiltakstypeService(TiltakstypeRepository(database.db), listOf("INDOPPFAG"))
+        navEnheterService = NavEnhetService(NavEnhetRepository(database.db))
         avtaler = AvtaleRepository(database.db)
-
         gjennomforinger = TiltaksgjennomforingRepository(database.db)
+    }
+
+    afterEach {
+        database.db.truncateAll()
+    }
+
+    test("should fail when tiltakstype is not enabled") {
+        val arenakodeEnabledTiltakstyper = listOf<String>()
+        tiltakstyper = TiltakstypeService(TiltakstypeRepository(database.db), arenakodeEnabledTiltakstyper)
+        val validator = AvtaleValidator(tiltakstyper, gjennomforinger, navEnheterService)
+
+        val dbo = avtaleDbo.copy(
+            tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
+        )
+
+        validator.validate(dbo, null).shouldBeLeft().shouldContainAll(
+            ValidationError(
+                "tiltakstypeId",
+                "Opprettelse av avtale for tiltakstype: 'Oppfølging' er ikke skrudd på enda.",
+            ),
+        )
     }
 
     test("should accumulate errors when dbo has multiple issues") {
@@ -120,7 +144,7 @@ class AvtaleValidatorTest : FunSpec({
 
     test("Avtalenavn må være minst 5 tegn når avtalen er opprettet i Admin-flate") {
         val validator = AvtaleValidator(tiltakstyper, gjennomforinger, navEnheterService)
-        val dbo = avtaleDbo.copy(navn = "Avt", opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE)
+        val dbo = avtaleDbo.copy(navn = "Avt")
         validator.validate(dbo, null).shouldBeLeft().shouldContainExactlyInAnyOrder(
             listOf(
                 ValidationError("navn", "Avtalenavn må være minst 5 tegn langt"),
@@ -128,7 +152,7 @@ class AvtaleValidatorTest : FunSpec({
         )
     }
 
-    test("skal validere at ") {
+    test("skal validere at NAV-enheter må være koblet til NAV-fylke") {
         val validator = AvtaleValidator(tiltakstyper, gjennomforinger, navEnheterService)
 
         val dbo = avtaleDbo.copy(
@@ -169,32 +193,9 @@ class AvtaleValidatorTest : FunSpec({
                 dbo.tiltakstypeId.toString() shouldBe TiltakstypeFixtures.Oppfolging.id.toString()
             }
         }
-
-        test("skal feile når opphav ikke er MR_ADMIN_FLATE") {
-            val validator = AvtaleValidator(tiltakstyper, gjennomforinger, navEnheterService)
-
-            val dbo = avtaleDbo.copy(opphav = ArenaMigrering.Opphav.ARENA)
-
-            validator.validate(dbo, null).shouldBeLeft().shouldContain(
-                ValidationError("opphav", "Opphav må være MR_ADMIN_FLATE"),
-            )
-        }
     }
 
     context("når avtalen allerede eksisterer") {
-        test("skal ikke kunne endre opphav") {
-            avtaler.upsert(avtaleDbo.copy(opphav = ArenaMigrering.Opphav.ARENA, administratorer = listOf()))
-
-            val validator = AvtaleValidator(tiltakstyper, gjennomforinger, navEnheterService)
-
-            val dbo = avtaleDbo.copy(opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE)
-
-            val previous = avtaler.get(avtaleDbo.id)
-            validator.validate(dbo, previous).shouldBeLeft().shouldContain(
-                ValidationError("opphav", "Avtalens opphav kan ikke endres"),
-            )
-        }
-
         test("skal ikke kunne endre felter med opphav fra Arena") {
             val avtaleMedEndringer = AvtaleDbo(
                 id = avtaleDbo.id,
@@ -211,18 +212,13 @@ class AvtaleValidatorTest : FunSpec({
                 avtaletype = Avtaletype.Rammeavtale,
                 prisbetingelser = null,
                 navEnheter = listOf("0300"),
-                opphav = ArenaMigrering.Opphav.ARENA,
                 antallPlasser = null,
                 beskrivelse = null,
                 faneinnhold = null,
             )
 
-            avtaler.upsert(
-                avtaleDbo.copy(
-                    opphav = ArenaMigrering.Opphav.ARENA,
-                    administratorer = listOf(),
-                ),
-            )
+            avtaler.upsert(avtaleDbo.copy(administratorer = listOf()))
+            avtaler.setOpphav(avtaleDbo.id, ArenaMigrering.Opphav.ARENA)
 
             val validator = AvtaleValidator(tiltakstyper, gjennomforinger, navEnheterService)
 

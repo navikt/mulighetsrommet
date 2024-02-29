@@ -8,7 +8,10 @@ import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.domain.dbo.AvtaleDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
-import no.nav.mulighetsrommet.api.domain.dto.*
+import no.nav.mulighetsrommet.api.domain.dto.AvtaleAdminDto
+import no.nav.mulighetsrommet.api.domain.dto.AvtaleNotificationDto
+import no.nav.mulighetsrommet.api.domain.dto.Kontorstruktur
+import no.nav.mulighetsrommet.api.domain.dto.VirksomhetKontaktperson
 import no.nav.mulighetsrommet.api.utils.DatabaseUtils
 import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.database.Database
@@ -73,7 +76,7 @@ class AvtaleRepository(private val db: Database) {
                                            prisbetingelser                = excluded.prisbetingelser,
                                            antall_plasser                 = excluded.antall_plasser,
                                            url                            = excluded.url,
-                                           opphav                         = excluded.opphav,
+                                           opphav                         = coalesce(avtale.opphav, excluded.opphav),
                                            beskrivelse                    = excluded.beskrivelse,
                                            faneinnhold                    = excluded.faneinnhold
             returning *
@@ -197,7 +200,7 @@ class AvtaleRepository(private val db: Database) {
                                            avslutningsstatus              = excluded.avslutningsstatus,
                                            prisbetingelser                = excluded.prisbetingelser,
                                            antall_plasser                 = excluded.antall_plasser,
-                                           opphav                         = excluded.opphav
+                                           opphav                         = coalesce(avtale.opphav, excluded.opphav)
             returning *
         """.trimIndent()
 
@@ -242,7 +245,7 @@ class AvtaleRepository(private val db: Database) {
 
         val where = DatabaseUtils.andWhereParameterNotNull(
             tiltakstypeIder.ifEmpty { null } to tiltakstypeIderWhereStatement(tiltakstypeIder),
-            search to "(lower(navn) like lower(:search)) or avtalenummer like :search",
+            search to "(lower(navn) like lower(:search) or avtalenummer like :search)",
             statuser.ifEmpty { null } to statuserWhereStatement(statuser),
             navRegioner.ifEmpty { null } to navRegionerWhereStatement(navRegioner),
             leverandorOrgnr.ifEmpty { null } to leverandorOrgnrWhereStatement(leverandorOrgnr),
@@ -308,6 +311,19 @@ class AvtaleRepository(private val db: Database) {
             .let { db.run(it) }
     }
 
+    fun setOpphav(id: UUID, opphav: ArenaMigrering.Opphav) {
+        @Language("PostgreSQL")
+        val query = """
+            update avtale
+            set opphav = :opphav::opphav
+            where id = :id::uuid
+        """.trimIndent()
+
+        queryOf(query, mapOf("id" to id, "opphav" to opphav.name))
+            .asUpdate
+            .let { db.run(it) }
+    }
+
     fun setAvslutningsstatus(id: UUID, status: Avslutningsstatus) {
         db.transaction { setAvslutningsstatus(it, id, status) }
     }
@@ -353,6 +369,7 @@ class AvtaleRepository(private val db: Database) {
     }
 
     private fun AvtaleDbo.toSqlParameters() = mapOf(
+        "opphav" to ArenaMigrering.Opphav.MR_ADMIN_FLATE.name,
         "id" to id,
         "navn" to navn,
         "tiltakstype_id" to tiltakstypeId,
@@ -366,12 +383,12 @@ class AvtaleRepository(private val db: Database) {
         "prisbetingelser" to prisbetingelser,
         "antall_plasser" to antallPlasser,
         "url" to url,
-        "opphav" to opphav.name,
         "beskrivelse" to beskrivelse,
         "faneinnhold" to faneinnhold?.let { Json.encodeToString(it) },
     )
 
     private fun ArenaAvtaleDbo.toSqlParameters() = mapOf(
+        "opphav" to ArenaMigrering.Opphav.ARENA.name,
         "id" to id,
         "navn" to navn,
         "tiltakstype_id" to tiltakstypeId,
@@ -383,7 +400,6 @@ class AvtaleRepository(private val db: Database) {
         "avtaletype" to avtaletype.name,
         "avslutningsstatus" to avslutningsstatus.name,
         "prisbetingelser" to prisbetingelser,
-        "opphav" to opphav.name,
     )
 
     private fun Row.toAvtaleAdminDto(): AvtaleAdminDto {

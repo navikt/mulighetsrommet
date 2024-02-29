@@ -14,7 +14,7 @@ import { v4 as uuidv4 } from "uuid";
 import { gjennomforingDetaljerTabAtom } from "../../api/atoms";
 import { useHandleApiUpsertResponse } from "../../api/effects";
 import { useUpsertTiltaksgjennomforing } from "../../api/tiltaksgjennomforing/useUpsertTiltaksgjennomforing";
-import { formaterDatoSomYYYYMMDD } from "../../utils/Utils";
+import { useMigrerteTiltakstyper } from "../../api/tiltakstyper/useMigrerteTiltakstyper";
 import { HarSkrivetilgang } from "../authActions/HarSkrivetilgang";
 import { Separator } from "../detaljside/Metadata";
 import { AvbrytTiltaksgjennomforingModal } from "../modal/AvbrytTiltaksgjennomforingModal";
@@ -30,7 +30,6 @@ import {
 } from "./TiltaksgjennomforingSkjemaConst";
 import { TiltaksgjennomforingSkjemaDetaljer } from "./TiltaksgjennomforingSkjemaDetaljer";
 import { TiltaksgjennomforingSkjemaKnapperad } from "./TiltaksgjennomforingSkjemaKnapperad";
-import { useMigrerteTiltakstyper } from "../../api/tiltakstyper/useMigrerteTiltakstyper";
 
 interface Props {
   onClose: () => void;
@@ -82,20 +81,13 @@ export const TiltaksgjennomforingSkjemaContainer = ({
         data.tiltaksArrangorUnderenhetOrganisasjonsnummer ||
         tiltaksgjennomforing?.arrangor?.organisasjonsnummer ||
         "",
-      tiltaksnummer: tiltaksgjennomforing?.tiltaksnummer ?? null,
       oppstart: data.oppstart,
       apentForInnsok: data.apentForInnsok,
-      stengtFra: data.midlertidigStengt.erMidlertidigStengt
-        ? formaterDatoSomYYYYMMDD(data.midlertidigStengt.stengtFra)
-        : null,
-      stengtTil: data.midlertidigStengt.erMidlertidigStengt
-        ? formaterDatoSomYYYYMMDD(data.midlertidigStengt.stengtTil)
-        : null,
       kontaktpersoner:
         data.kontaktpersoner
-          ?.filter((kontakt) => kontakt.navIdent !== "")
+          ?.filter((kontakt) => kontakt.navIdent !== null)
           ?.map((kontakt) => ({
-            ...kontakt,
+            navIdent: kontakt.navIdent!!,
             navEnheter: kontakt.navEnheter,
             beskrivelse: kontakt.beskrivelse ?? null,
           })) || [],
@@ -103,7 +95,6 @@ export const TiltaksgjennomforingSkjemaContainer = ({
       arrangorKontaktpersoner: data.arrangorKontaktpersoner,
       beskrivelse: data.beskrivelse,
       faneinnhold: data.faneinnhold ?? null,
-      opphav: data.opphav,
       deltidsprosent: data.deltidsprosent,
       estimertVentetid: data.estimertVentetid ?? null,
     };
@@ -125,8 +116,6 @@ export const TiltaksgjennomforingSkjemaContainer = ({
           startDato: "startOgSluttDato.startDato",
           sluttDato: "startOgSluttDato.sluttDato",
           arrangorOrganisasjonsnummer: "tiltaksArrangorUnderenhetOrganisasjonsnummer",
-          stengtFra: "midlertidigStengt.erMidlertidigStengt",
-          stengtTil: "midlertidigStengt.erMidlertidigStengt",
         };
         return (mapping[name] ?? name) as keyof InferredTiltaksgjennomforingSchema;
       }

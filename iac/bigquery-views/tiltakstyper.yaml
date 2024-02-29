@@ -1,7 +1,7 @@
 apiVersion: bigquery.cnrm.cloud.google.com/v1beta1
 kind: BigQueryTable
 metadata:
-  name: mulighetsrommet-api
+  name: bq-tiltakstype-view
   namespace: team-mulighetsrommet
   labels:
     team: team-mulighetsrommet
@@ -11,15 +11,16 @@ metadata:
     cnrm.cloud.google.com/state-into-spec: merge
 
 spec:
-  resourceID: tiltakstyper
+  resourceID: tiltakstype_view # Navn på viewet uttad
   description: "Dataprodukt som viser tiltakstyper med navn, tiltakskode og om tiltakstypen gir rett til tiltakspenger"
   datasetRef:
-    external: dataprodukt
+    external: datastream_mulighetsrommet_api_db
   view:
     useLegacySql: false
     query: >-
       SELECT
+        id,
         navn,
         tiltakskode,
         rett_paa_tiltakspenger
-      FROM dataprodukt.tiltakstype
+      FROM datastream_mulighetsrommet_api_db.public_tiltakstype

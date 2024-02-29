@@ -73,7 +73,7 @@ const SletteModal = ({
   }
 
   return (
-    <Modal open={modalOpen} onClose={clickCancel} aria-label="modal">
+    <Modal open={modalOpen} onClose={clickCancel} closeOnBackdropClick aria-label="modal">
       <Modal.Header closeButton={false}>{headerInnhold()}</Modal.Header>
       <Modal.Body>{modalInnhold()}</Modal.Body>
       <Modal.Footer>{footerInnhold()}</Modal.Footer>

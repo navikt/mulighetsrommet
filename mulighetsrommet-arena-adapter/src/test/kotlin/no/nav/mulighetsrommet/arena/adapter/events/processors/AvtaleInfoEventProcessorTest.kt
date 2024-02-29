@@ -30,7 +30,6 @@ import no.nav.mulighetsrommet.arena.adapter.repositories.*
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
-import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.ArenaAvtaleDbo
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
@@ -256,7 +255,6 @@ class AvtaleInfoEventProcessorTest : FunSpec({
                         leverandorOrganisasjonsnummer shouldBe "1000000"
                         avtaletype shouldBe Avtaletype.Rammeavtale
                         avslutningsstatus shouldBe Avslutningsstatus.IKKE_AVSLUTTET
-                        opphav shouldBe ArenaMigrering.Opphav.ARENA
                     }
                 }
 

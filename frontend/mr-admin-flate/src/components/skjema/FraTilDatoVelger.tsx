@@ -1,6 +1,6 @@
-import styles from "./FraTilDatoVelger.module.scss";
 import { ControlledDateInput, DateInputProps } from "./ControlledDateInput";
 import { ReactNode } from "react";
+import { HGrid } from "@navikt/ds-react";
 
 export interface FraTilDatoVelgerProps {
   fra: DateInputProps;
@@ -9,12 +9,11 @@ export interface FraTilDatoVelgerProps {
   children?: ReactNode;
 }
 
-export function FraTilDatoVelger({ fra, til, size, children }: FraTilDatoVelgerProps) {
+export function FraTilDatoVelger({ fra, til, size }: FraTilDatoVelgerProps) {
   return (
-    <div className={styles.dato_container}>
+    <HGrid columns={2}>
       <ControlledDateInput size={size} {...fra} />
       <ControlledDateInput size={size} {...til} />
-      {children}
-    </div>
+    </HGrid>
   );
 }

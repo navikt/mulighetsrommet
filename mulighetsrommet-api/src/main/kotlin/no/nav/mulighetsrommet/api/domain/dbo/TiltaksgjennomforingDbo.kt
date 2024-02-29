@@ -1,6 +1,5 @@
 package no.nav.mulighetsrommet.api.domain.dbo
 
-import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dto.Faneinnhold
 import java.time.LocalDate
@@ -10,7 +9,6 @@ data class TiltaksgjennomforingDbo(
     val id: UUID,
     val navn: String,
     val tiltakstypeId: UUID,
-    val tiltaksnummer: String?,
     val arrangorOrganisasjonsnummer: String,
     val arrangorKontaktpersoner: List<UUID>,
     val startDato: LocalDate,
@@ -22,9 +20,6 @@ data class TiltaksgjennomforingDbo(
     val navRegion: String,
     val navEnheter: List<String>,
     val oppstart: TiltaksgjennomforingOppstartstype,
-    val opphav: ArenaMigrering.Opphav,
-    val stengtFra: LocalDate?,
-    val stengtTil: LocalDate?,
     val kontaktpersoner: List<TiltaksgjennomforingKontaktpersonDbo>,
     val stedForGjennomforing: String?,
     val faneinnhold: Faneinnhold?,

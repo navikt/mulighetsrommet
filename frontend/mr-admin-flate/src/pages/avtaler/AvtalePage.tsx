@@ -13,6 +13,7 @@ import { useNavigateAndReplaceUrl } from "../../hooks/useNavigateWithoutReplacin
 import { ContainerLayout } from "../../layouts/ContainerLayout";
 import commonStyles from "../Page.module.scss";
 import styles from "./DetaljerAvtalePage.module.scss";
+import { DupliserAvtale } from "../../components/avtaler/DupliserAvtale";
 
 export function AvtalePage() {
   const avtaleId = useGetAvtaleIdFromUrlOrThrow();
@@ -59,6 +60,7 @@ export function AvtalePage() {
             {avtale.navn ?? "..."}
           </Heading>
           <AvtalestatusTag avtale={avtale} />
+          <DupliserAvtale avtale={avtale} />
         </div>
       </Header>
       <Tabs value={currentTab()}>
