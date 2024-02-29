@@ -2956,6 +2956,10 @@ components:
           type: object
         kontaktinfoInfoboks:
           type: string
+        lenker:
+          type: array
+          items:
+            $ref: "#/components/schemas/Lenke"
         delMedBruker:
           type: string
 
@@ -3522,3 +3526,19 @@ components:
       required:
         - verdi
         - enhet
+
+    Lenke:
+      type: object
+      properties:
+        lenkenavn:
+          type: string
+        lenke:
+          type: string
+          format: uri
+        apneINyFane:
+          type: boolean
+      required:
+        - lenkenavn
+        - lenke
+        - apneINyFane
+

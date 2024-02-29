@@ -1,4 +1,4 @@
-import { BodyShort, Panel } from "@navikt/ds-react";
+import { BodyShort, Box } from "@navikt/ds-react";
 import {
   TiltaksgjennomforingOppstartstype,
   Tiltakskode,
@@ -62,7 +62,7 @@ const SidemenyDetaljer = ({ tiltaksgjennomforing }: Props) => {
   return (
     <>
       <EstimertVentetid tiltaksgjennomforing={tiltaksgjennomforing} />
-      <Panel className={styles.panel} id="sidemeny">
+      <Box padding="5" background="bg-subtle" className={styles.panel} id="sidemeny">
         {tiltaksnummer && (
           <div className={styles.rad}>
             <BodyShort size="small" className={styles.tittel}>
@@ -120,7 +120,7 @@ const SidemenyDetaljer = ({ tiltaksgjennomforing }: Props) => {
             <Regelverksinfo regelverkLenker={tiltakstype.regelverkLenker} />
           </div>
         )}
-      </Panel>
+      </Box>
     </>
   );
 };
