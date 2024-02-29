@@ -10,6 +10,7 @@ import {
   useResetArbeidsmarkedstiltakFilterUtenBrukerIKontekst,
 } from "@/hooks/useArbeidsmarkedstiltakFilter";
 import { NavFilterTags } from "@/apps/nav/filtrering/NavFilterTags";
+import { useState } from "react";
 
 interface Props {
   preview?: boolean;
@@ -19,15 +20,17 @@ export const NavArbeidsmarkedstiltakOversikt = ({ preview = false }: Props) => {
   const { data: tiltaksgjennomforinger = [], isLoading } = useNavTiltaksgjennomforinger({
     preview,
   });
+  const [filterSelected, setFilterSelected] = useState<boolean>(true);
 
   const { filter, filterHasChanged, resetFilterToDefaults } =
     useResetArbeidsmarkedstiltakFilterUtenBrukerIKontekst();
 
   return (
     <FilterAndTableLayout
+      filterSelected={filterSelected}
+      setFilterSelected={setFilterSelected}
       buttons={null}
       filter={<FilterMenyMedSkeletonLoader />}
-      tags={<NavFilterTags />}
       resetButton={
         filterHasChanged && (
           <Button
@@ -57,7 +60,11 @@ export const NavArbeidsmarkedstiltakOversikt = ({ preview = false }: Props) => {
               ikonvariant="warning"
             />
           ) : (
-            <Tiltaksgjennomforingsoversikt tiltaksgjennomforinger={tiltaksgjennomforinger} />
+            <Tiltaksgjennomforingsoversikt
+              tiltaksgjennomforinger={tiltaksgjennomforinger}
+              tags={<NavFilterTags />}
+              filterSelected={filterSelected}
+            />
           )}
         </div>
       }

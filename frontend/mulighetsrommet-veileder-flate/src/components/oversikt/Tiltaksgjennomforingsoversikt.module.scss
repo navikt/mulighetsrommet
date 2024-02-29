@@ -1,9 +1,9 @@
 .gjennomforinger {
-  margin: 1rem 0;
-  padding: 0;
+  margin: 0 0 1rem;
   display: flex;
   flex-direction: column;
   row-gap: 12px;
+  padding: 0;
 }
 
 .under_oversikt {
@@ -11,20 +11,48 @@
   justify-content: space-between;
   margin-top: 1rem;
   margin-bottom: 2rem;
+
+  &_filter_selected {
+    padding: 0 0 0 1rem;
+  }
 }
 
-.overskrift_og_sorteringsmeny {
+.visnings_og_sorteringsmeny {
   display: flex;
   justify-content: space-between;
+  gap: 1rem;
   align-items: center;
+  background-color: var(--a-bg-subtle);
+  margin-bottom: 0.5rem;
+}
 
-  &_venstre {
-    display: flex;
-    gap: 1rem;
-    align-items: center;
+.visningsmeny {
+  display: flex;
+  grid-row: 2;
+  gap: 2rem;
+  align-items: center;
+}
 
-    select {
-      width: 6rem;
+.toolbar_container {
+  display: flex;
+  justify-content: space-between;
+  flex-direction: column;
+  position: sticky;
+  top: 3rem;
+  background-color: var(--a-bg-subtle);
+  gap: 1rem;
+  padding: 0;
+}
+
+@media screen and (min-width: 1200px) {
+  .gjennomforinger_filter_selected {
+    padding: 0 0 0 1rem;
+  }
+
+  .toolbar_container {
+    padding: 0 0 0 1rem;
+    &_filter_unselected {
+      padding: 0;
     }
   }
 }

@@ -12,13 +12,23 @@ import { Gjennomforingsrad } from "./Gjennomforingsrad";
 import styles from "./Tiltaksgjennomforingsoversikt.module.scss";
 import { useLogEvent } from "@/logging/amplitude";
 import { useArbeidsmarkedstiltakFilterValue } from "@/hooks/useArbeidsmarkedstiltakFilter";
+import classnames from "classnames";
 
 interface Props {
   tiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[];
   deltMedBruker?: DelMedBruker[];
+  varsler?: React.ReactNode;
+  tags: React.ReactNode;
+  filterSelected?: boolean;
 }
 
-export const Tiltaksgjennomforingsoversikt = ({ tiltaksgjennomforinger, deltMedBruker }: Props) => {
+export const Tiltaksgjennomforingsoversikt = ({
+  tiltaksgjennomforinger,
+  deltMedBruker,
+  varsler,
+  tags,
+  filterSelected,
+}: Props) => {
   const [pageData, setPages] = useAtom(paginationAtom);
   const filter = useArbeidsmarkedstiltakFilterValue();
 
@@ -101,42 +111,60 @@ export const Tiltaksgjennomforingsoversikt = ({ tiltaksgjennomforinger, deltMedB
 
   return (
     <>
-      <div className={styles.overskrift_og_sorteringsmeny}>
-        <div className={styles.overskrift_og_sorteringsmeny_venstre}>
-          {tiltaksgjennomforinger.length > 0 ? (
-            <BodyShort>
-              Viser {(pageData.page - 1) * pageData.pageSize + 1}-
-              {gjennomforingerForSide.length + (pageData.page - 1) * pageData.pageSize} av{" "}
-              {tiltaksgjennomforinger.length} tiltak
-            </BodyShort>
-          ) : null}
-          <Select
-            size="small"
-            label="Velg antall"
-            hideLabel
-            name="size"
-            value={pageData.pageSize}
-            onChange={(e) => {
-              setPages({ page: 1, pageSize: parseInt(e.currentTarget.value) });
-              logEvent({
-                name: "arbeidsmarkedstiltak.vis-antall-tiltak",
-                data: {
-                  valgt_antall: parseInt(e.currentTarget.value),
-                  antall_tiltak: tiltaksgjennomforinger.length,
-                },
-              });
-            }}
-          >
-            {antallSize.map((ant) => (
-              <option key={ant} value={ant}>
-                {ant}
-              </option>
-            ))}
-          </Select>
+      <div
+        className={classnames(
+          styles.toolbar_container,
+          filterSelected
+            ? styles.toolbar_container_filter_selected
+            : styles.toolbar_container_filter_unselected,
+        )}
+      >
+        {tags}
+        {varsler}
+        <div className={styles.visnings_og_sorteringsmeny}>
+          <div className={styles.visningsmeny}>
+            {tiltaksgjennomforinger.length > 0 ? (
+              <BodyShort>
+                Viser {(pageData.page - 1) * pageData.pageSize + 1}-
+                {gjennomforingerForSide.length + (pageData.page - 1) * pageData.pageSize} av{" "}
+                {tiltaksgjennomforinger.length} tiltak
+              </BodyShort>
+            ) : null}
+            <Select
+              size="small"
+              label="Velg antall"
+              hideLabel
+              name="size"
+              value={pageData.pageSize}
+              onChange={(e) => {
+                setPages({ page: 1, pageSize: parseInt(e.currentTarget.value) });
+                logEvent({
+                  name: "arbeidsmarkedstiltak.vis-antall-tiltak",
+                  data: {
+                    valgt_antall: parseInt(e.currentTarget.value),
+                    antall_tiltak: tiltaksgjennomforinger.length,
+                  },
+                });
+              }}
+            >
+              {antallSize.map((ant) => (
+                <option key={ant} value={ant}>
+                  {ant}
+                </option>
+              ))}
+            </Select>
+          </div>
+          <Sorteringsmeny sortValue={sortValue} setSortValue={setSortValue} />
         </div>
-        <Sorteringsmeny sortValue={sortValue} setSortValue={setSortValue} />
       </div>
-      <ul className={styles.gjennomforinger} data-testid="oversikt_tiltaksgjennomforinger">
+
+      <ul
+        className={classnames(
+          styles.gjennomforinger,
+          filterSelected && styles.gjennomforinger_filter_selected,
+        )}
+        data-testid="oversikt_tiltaksgjennomforinger"
+      >
         {gjennomforingerForSide.map((gjennomforing, index) => {
           const delMedBruker = deltMedBruker?.find((delt) => {
             return (
@@ -154,7 +182,12 @@ export const Tiltaksgjennomforingsoversikt = ({ tiltaksgjennomforinger, deltMedB
           );
         })}
       </ul>
-      <div className={styles.under_oversikt}>
+      <div
+        className={classnames(
+          styles.under_oversikt,
+          filterSelected && styles.under_oversikt_filter_selected,
+        )}
+      >
         {tiltaksgjennomforinger.length > 0 ? (
           <>
             <BodyShort>
