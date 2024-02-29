@@ -54,6 +54,20 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
       varsler: [],
     },
     faneinnhold: {
+      lenker: [
+        {
+          lenke: "https://www.google.com",
+          lenkenavn: "Søk via Google",
+          apneINyFane: true,
+          visKunForVeileder: false,
+        },
+        {
+          lenke: "https://www.vg.no",
+          lenkenavn: "Sjekk nyhetene på VG",
+          apneINyFane: false,
+          visKunForVeileder: true,
+        },
+      ],
       forHvem: [
         {
           style: "normal",

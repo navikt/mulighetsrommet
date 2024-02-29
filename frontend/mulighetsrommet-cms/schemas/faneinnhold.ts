@@ -29,6 +29,10 @@ export const faneinnhold = defineType({
       name: "kontaktinfo",
       title: "Kontaktinfo",
     },
+    {
+      name: "lenker",
+      title: "Lenker",
+    },
   ],
   fields: [
     defineField({
@@ -51,8 +55,8 @@ export const faneinnhold = defineType({
           blockContentValidation(
             doc,
             MAKS_LENGDE_INNHOLD,
-            "Innholdet er for langt. Kan innholdet være kortere og mer konsist?"
-          )
+            "Innholdet er for langt. Kan innholdet være kortere og mer konsist?",
+          ),
         ),
     }),
     defineField({
@@ -75,8 +79,8 @@ export const faneinnhold = defineType({
           blockContentValidation(
             doc,
             MAKS_LENGDE_INNHOLD,
-            "Innholdet er for langt. Kan innholdet være kortere og mer konsist?"
-          )
+            "Innholdet er for langt. Kan innholdet være kortere og mer konsist?",
+          ),
         ),
     }),
     defineField({
@@ -99,8 +103,8 @@ export const faneinnhold = defineType({
           blockContentValidation(
             doc,
             MAKS_LENGDE_INNHOLD,
-            "Innholdet er for langt. Kan innholdet være kortere og mer konsist?"
-          )
+            "Innholdet er for langt. Kan innholdet være kortere og mer konsist?",
+          ),
         ),
     }),
     defineField({
@@ -123,9 +127,17 @@ export const faneinnhold = defineType({
           blockContentValidation(
             doc,
             MAKS_LENGDE_INNHOLD,
-            "Innholdet er for langt. Kan innholdet være kortere og mer konsist?"
-          )
+            "Innholdet er for langt. Kan innholdet være kortere og mer konsist?",
+          ),
         ),
+    }),
+    defineField({
+      name: "lenker",
+      title: "Lenker",
+      description: "KOMMER SNART - Legg til lenker som blir synlig for NAV-ansatte",
+      type: "array",
+      of: [{ type: "lenke" }],
+      readOnly: true,
     }),
   ],
 });
