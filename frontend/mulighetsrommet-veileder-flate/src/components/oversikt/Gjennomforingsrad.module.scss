@@ -5,6 +5,9 @@
   border-radius: 4px;
   font-size: 16px;
 
+  &:hover {
+    background-color: var(--a-gray-50);
+  }
   &_border {
     border: 1px solid var(--Border-Subtle, rgba(7, 26, 54, 0.21));
   }
