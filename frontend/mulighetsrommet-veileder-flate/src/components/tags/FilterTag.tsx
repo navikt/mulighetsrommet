@@ -19,6 +19,7 @@ const FilterTag = ({ options, onClose }: FilterTagsProps) => {
             variant="info"
             key={filtertype.id}
             data-testid={`filtertag_${kebabCase(filtertype.tittel)}`}
+            className={styles.filtertag}
           >
             {filtertype.tittel}
             {onClose ? (
