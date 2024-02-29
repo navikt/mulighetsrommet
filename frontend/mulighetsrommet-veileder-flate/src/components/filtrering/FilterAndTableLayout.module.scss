@@ -47,7 +47,7 @@ $filter-width: 320px;
   .tags_and_table_container {
     grid-column: 2;
     grid-row: 2;
-    &_filter_unselected {
+    &_filter_hidden {
       grid-column: 1 / 3;
       padding-left: 0;
     }
@@ -92,7 +92,7 @@ $filter-width: 320px;
   }
 
   @media screen and (max-width: 1200px) {
-    .tags_and_table_container_filter_selected {
+    .tags_and_table_container_open {
       .filtertags {
         margin-left: 21rem;
       }

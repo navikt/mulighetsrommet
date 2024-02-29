@@ -52,8 +52,8 @@ export function FilterAndTableLayout({
         className={classNames(
           styles.tags_and_table_container,
           filterSelected
-            ? styles.tags_and_table_container_filter_selected
-            : styles.tags_and_table_container_filter_unselected,
+            ? styles.tags_and_table_container_filter_open
+            : styles.tags_and_table_container_filter_hidden,
         )}
       >
         <div className={styles.table}>{table}</div>

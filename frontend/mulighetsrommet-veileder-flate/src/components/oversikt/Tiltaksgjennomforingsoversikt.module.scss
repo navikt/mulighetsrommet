@@ -12,7 +12,7 @@
   margin-top: 1rem;
   margin-bottom: 2rem;
 
-  &_filter_selected {
+  &_filter_open {
     padding: 0 0 0 1rem;
   }
 }
@@ -45,13 +45,13 @@
 }
 
 @media screen and (min-width: 1200px) {
-  .gjennomforinger_filter_selected {
+  .gjennomforinger_filter_open {
     padding: 0 0 0 1rem;
   }
 
   .toolbar_container {
     padding: 0 0 0 1rem;
-    &_filter_unselected {
+    &_filter_hidden {
       padding: 0;
     }
   }

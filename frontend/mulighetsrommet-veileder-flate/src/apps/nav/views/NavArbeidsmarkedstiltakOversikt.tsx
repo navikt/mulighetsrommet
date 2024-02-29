@@ -52,7 +52,7 @@ export const NavArbeidsmarkedstiltakOversikt = ({ preview = false }: Props) => {
             <Tiltaksgjennomforingsoversikt
               tiltaksgjennomforinger={tiltaksgjennomforinger}
               tags={<NavFilterTags />}
-              filterSelected={filterSelected}
+              filterOpen={filterSelected}
               feilmelding={
                 !isFilterReady(filter) ? (
                   <Feilmelding

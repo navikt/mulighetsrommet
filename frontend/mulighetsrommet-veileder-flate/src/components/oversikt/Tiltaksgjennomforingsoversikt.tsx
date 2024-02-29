@@ -19,7 +19,7 @@ interface Props {
   deltMedBruker?: DelMedBruker[];
   varsler?: React.ReactNode;
   tags: React.ReactNode;
-  filterSelected?: boolean;
+  filterOpen?: boolean;
   feilmelding: React.ReactNode;
 }
 
@@ -28,7 +28,7 @@ export const Tiltaksgjennomforingsoversikt = ({
   deltMedBruker,
   varsler,
   tags,
-  filterSelected,
+  filterOpen,
   feilmelding,
 }: Props) => {
   const [pageData, setPages] = useAtom(paginationAtom);
@@ -126,12 +126,10 @@ export const Tiltaksgjennomforingsoversikt = ({
   return (
     <>
       <div
-        className={classnames(
-          styles.toolbar_container,
-          filterSelected
-            ? styles.toolbar_container_filter_selected
-            : styles.toolbar_container_filter_unselected,
-        )}
+        className={classnames(styles.toolbar_container, {
+          [styles.toolbar_container_filter_open]: filterOpen,
+          [styles.toolbar_container_filter_hidden]: !filterOpen,
+        })}
       >
         {tags}
         {varsler}
@@ -170,7 +168,7 @@ export const Tiltaksgjennomforingsoversikt = ({
       <ul
         className={classnames(
           styles.gjennomforinger,
-          filterSelected && styles.gjennomforinger_filter_selected,
+          filterOpen && styles.gjennomforinger_filter_open,
         )}
         data-testid="oversikt_tiltaksgjennomforinger"
       >
@@ -195,7 +193,7 @@ export const Tiltaksgjennomforingsoversikt = ({
       <div
         className={classnames(
           styles.under_oversikt,
-          filterSelected && styles.under_oversikt_filter_selected,
+          filterOpen && styles.under_oversikt_filter_open,
         )}
       >
         <ViserAntallTiltakTekst />

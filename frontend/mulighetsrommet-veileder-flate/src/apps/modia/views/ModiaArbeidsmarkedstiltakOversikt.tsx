@@ -103,7 +103,7 @@ export const ModiaArbeidsmarkedstiltakOversikt = () => {
               <Tiltaksgjennomforingsoversikt
                 tiltaksgjennomforinger={tiltaksgjennomforinger}
                 deltMedBruker={alleTiltakDeltMedBruker}
-                filterSelected={filterSelected}
+                filterOpen={filterSelected}
                 varsler={
                   <>
                     <BrukerHarIkke14aVedtakVarsel brukerdata={brukerdata} />
