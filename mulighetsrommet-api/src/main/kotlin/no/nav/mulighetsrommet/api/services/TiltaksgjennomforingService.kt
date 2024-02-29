@@ -10,7 +10,6 @@ import no.nav.mulighetsrommet.api.domain.dto.*
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.repositories.DeltakerRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
-import no.nav.mulighetsrommet.api.repositories.UtkastRepository
 import no.nav.mulighetsrommet.api.routes.v1.TiltaksgjennomforingRequest
 import no.nav.mulighetsrommet.api.routes.v1.responses.*
 import no.nav.mulighetsrommet.api.tiltaksgjennomforinger.TiltaksgjennomforingValidator
@@ -33,7 +32,6 @@ class TiltaksgjennomforingService(
     private val tiltaksgjennomforinger: TiltaksgjennomforingRepository,
     private val deltakerRepository: DeltakerRepository,
     private val virksomhetService: VirksomhetService,
-    private val utkastRepository: UtkastRepository,
     private val tiltaksgjennomforingKafkaProducer: TiltaksgjennomforingKafkaProducer,
     private val notificationRepository: NotificationRepository,
     private val validator: TiltaksgjennomforingValidator,
@@ -64,7 +62,6 @@ class TiltaksgjennomforingService(
                     }
 
                     tiltaksgjennomforinger.upsert(dbo, tx)
-                    utkastRepository.delete(dbo.id, tx)
 
                     val dto = getOrError(dbo.id, tx)
 

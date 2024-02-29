@@ -14,7 +14,6 @@ import no.nav.mulighetsrommet.api.domain.dto.AvtaleNotificationDto
 import no.nav.mulighetsrommet.api.domain.dto.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
-import no.nav.mulighetsrommet.api.repositories.UtkastRepository
 import no.nav.mulighetsrommet.api.routes.v1.AvtaleRequest
 import no.nav.mulighetsrommet.api.routes.v1.responses.*
 import no.nav.mulighetsrommet.api.utils.AvtaleFilter
@@ -35,7 +34,6 @@ class AvtaleService(
     private val tiltaksgjennomforinger: TiltaksgjennomforingRepository,
     private val virksomhetService: VirksomhetService,
     private val notificationRepository: NotificationRepository,
-    private val utkastRepository: UtkastRepository,
     private val validator: AvtaleValidator,
     private val endringshistorikkService: EndringshistorikkService,
     private val db: Database,
@@ -65,7 +63,6 @@ class AvtaleService(
                     }
 
                     avtaler.upsert(dbo, tx)
-                    utkastRepository.delete(dbo.id, tx)
 
                     dispatchNotificationToNewAdministrators(tx, dbo, navIdent)
 

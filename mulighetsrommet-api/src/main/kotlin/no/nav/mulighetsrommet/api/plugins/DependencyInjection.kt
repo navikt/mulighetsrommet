@@ -164,7 +164,6 @@ private fun repositories() = module {
     single { VirksomhetRepository(get()) }
     single { KafkaConsumerRepositoryImpl(get()) }
     single { MetrikkRepository(get()) }
-    single { UtkastRepository(get()) }
     single { AvtaleNotatRepository(get()) }
     single { TiltaksgjennomforingNotatRepository(get()) }
     single { VeilederJoyrideRepository(get()) }
@@ -272,7 +271,6 @@ private fun services(appConfig: AppConfig) = module {
             get(),
             get(),
             get(),
-            get(),
         )
     }
     single { TiltakshistorikkService(get(), get()) }
@@ -294,7 +292,6 @@ private fun services(appConfig: AppConfig) = module {
             get(),
             get(),
             get(),
-            get(),
         )
     }
     single { SanityTiltaksgjennomforingService(get(), get(), get()) }
@@ -307,7 +304,6 @@ private fun services(appConfig: AppConfig) = module {
     single { VirksomhetService(get(), get()) }
     single { ExcelService() }
     single { MetrikkService(get()) }
-    single { UtkastService(get()) }
     single { NotatService(get(), get()) }
     single {
         val byEnhetStrategy = ByEnhetStrategy(get())
