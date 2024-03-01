@@ -1,14 +1,5 @@
 import { PlusIcon, XMarkIcon } from "@navikt/aksel-icons";
-import {
-  Alert,
-  Button,
-  Checkbox,
-  HStack,
-  HelpText,
-  Select,
-  Switch,
-  TextField,
-} from "@navikt/ds-react";
+import { Alert, Button, HStack, HelpText, Select, Switch, TextField } from "@navikt/ds-react";
 import {
   Avtale,
   Tiltaksgjennomforing,
@@ -173,13 +164,13 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
                 format: "iso-string",
               }}
             />
-            <Checkbox
+            <Switch
               size="small"
               readOnly={erArenaOpphavOgIngenEierskap(tiltaksgjennomforing, migrerteTiltakstyper)}
               {...register("apentForInnsok")}
             >
               Åpen for innsøk
-            </Checkbox>
+            </Switch>
 
             <HStack justify="space-between">
               <TextField
