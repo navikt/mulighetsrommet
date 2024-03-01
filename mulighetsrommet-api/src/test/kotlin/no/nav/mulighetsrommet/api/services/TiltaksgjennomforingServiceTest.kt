@@ -15,7 +15,10 @@ import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattDbo
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.api.domain.dto.VirksomhetDto
 import no.nav.mulighetsrommet.api.fixtures.*
-import no.nav.mulighetsrommet.api.repositories.*
+import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
+import no.nav.mulighetsrommet.api.repositories.DeltakerRepository
+import no.nav.mulighetsrommet.api.repositories.NavAnsattRepository
+import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.routes.v1.responses.BadRequest
 import no.nav.mulighetsrommet.api.routes.v1.responses.NotFound
 import no.nav.mulighetsrommet.api.routes.v1.responses.ValidationError
@@ -35,7 +38,6 @@ class TiltaksgjennomforingServiceTest : FunSpec({
 
     val tiltaksgjennomforingKafkaProducer: TiltaksgjennomforingKafkaProducer = mockk(relaxed = true)
     val virksomhetService: VirksomhetService = mockk(relaxed = true)
-    val utkastRepository: UtkastRepository = mockk(relaxed = true)
     val validator = mockk<TiltaksgjennomforingValidator>()
     val avtaleId = AvtaleFixtures.oppfolging.id
     val domain = MulighetsrommetTestDomain()
@@ -73,7 +75,6 @@ class TiltaksgjennomforingServiceTest : FunSpec({
             tiltaksgjennomforingRepository,
             deltagerRepository,
             virksomhetService,
-            utkastRepository,
             tiltaksgjennomforingKafkaProducer,
             NotificationRepository(database.db),
             validator,
@@ -137,7 +138,6 @@ class TiltaksgjennomforingServiceTest : FunSpec({
             tiltaksgjennomforingRepository,
             deltagerRepository,
             virksomhetService,
-            utkastRepository,
             tiltaksgjennomforingKafkaProducer,
             NotificationRepository(database.db),
             validator,
@@ -170,7 +170,6 @@ class TiltaksgjennomforingServiceTest : FunSpec({
             tiltaksgjennomforingRepository,
             deltagerRepository,
             virksomhetService,
-            utkastRepository,
             tiltaksgjennomforingKafkaProducer,
             NotificationRepository(database.db),
             validator,
@@ -288,7 +287,6 @@ class TiltaksgjennomforingServiceTest : FunSpec({
             tiltaksgjennomforingRepository,
             deltagerRepository,
             virksomhetService,
-            utkastRepository,
             tiltaksgjennomforingKafkaProducer,
             notificationRepository,
             validator,
@@ -327,18 +325,6 @@ class TiltaksgjennomforingServiceTest : FunSpec({
             tiltaksgjennomforingService.upsert(gjennomforing, bertilNavIdent).shouldBeRight()
 
             tiltaksgjennomforingService.get(gjennomforing.id) shouldNotBe null
-        }
-
-        test("Hvis utkast kaster rulles upsert tilbake") {
-            val gjennomforing = TiltaksgjennomforingFixtures.Oppfolging1Request
-
-            every { utkastRepository.delete(any(), any()) } throws Exception()
-
-            shouldThrow<Throwable> {
-                tiltaksgjennomforingService.upsert(gjennomforing, bertilNavIdent)
-            }
-
-            tiltaksgjennomforingService.get(gjennomforing.id) shouldBe null
         }
 
         test("Hvis notification kaster rulles upsert tilbake") {

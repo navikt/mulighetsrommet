@@ -3,10 +3,7 @@ package no.nav.mulighetsrommet.api.services
 import arrow.core.left
 import arrow.core.right
 import io.kotest.assertions.arrow.core.shouldBeLeft
-import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.matchers.shouldBe
-import io.kotest.matchers.shouldNotBe
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
@@ -22,7 +19,6 @@ import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.repositories.NavAnsattRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
-import no.nav.mulighetsrommet.api.repositories.UtkastRepository
 import no.nav.mulighetsrommet.api.routes.v1.responses.BadRequest
 import no.nav.mulighetsrommet.api.routes.v1.responses.NotFound
 import no.nav.mulighetsrommet.api.routes.v1.responses.ValidationError
@@ -37,7 +33,6 @@ import java.util.*
 class AvtaleServiceTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
     val virksomhetService: VirksomhetService = mockk(relaxed = true)
-    val utkastRepository: UtkastRepository = mockk(relaxed = true)
     val validator = mockk<AvtaleValidator>()
 
     val domain = MulighetsrommetTestDomain()
@@ -69,7 +64,6 @@ class AvtaleServiceTest : FunSpec({
             tiltaksgjennomforinger,
             virksomhetService,
             NotificationRepository(database.db),
-            utkastRepository,
             validator,
             EndringshistorikkService(database.db),
             database.db,
@@ -97,7 +91,6 @@ class AvtaleServiceTest : FunSpec({
             tiltaksgjennomforinger,
             virksomhetService,
             NotificationRepository(database.db),
-            utkastRepository,
             validator,
             EndringshistorikkService(database.db),
             database.db,
@@ -202,7 +195,6 @@ class AvtaleServiceTest : FunSpec({
             tiltaksgjennomforinger,
             virksomhetService,
             NotificationRepository(database.db),
-            utkastRepository,
             validator,
             EndringshistorikkService(database.db),
             database.db,
@@ -289,39 +281,6 @@ class AvtaleServiceTest : FunSpec({
                 .hasNumberOfRows(2)
                 .column("user_id")
                 .containsValues("Z654321", "T654321")
-        }
-    }
-
-    context("transactions") {
-        val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
-        val avtaler = AvtaleRepository(database.db)
-        val avtaleService = AvtaleService(
-            avtaler,
-            tiltaksgjennomforinger,
-            virksomhetService,
-            NotificationRepository(database.db),
-            utkastRepository,
-            validator,
-            EndringshistorikkService(database.db),
-            database.db,
-        )
-
-        test("Hvis is utkast _ikke_ kaster blir upsert værende") {
-            val avtale = AvtaleFixtures.avtaleRequest.copy(id = UUID.randomUUID())
-
-            avtaleService.upsert(avtale, NavIdent("Z123456"))
-
-            avtaleService.get(avtale.id) shouldNotBe null
-        }
-
-        test("Hvis utkast kaster rulles upsert tilbake") {
-            val avtale = AvtaleFixtures.avtaleRequest.copy(id = UUID.randomUUID())
-
-            every { utkastRepository.delete(any(), any()) } throws Exception()
-
-            shouldThrow<Throwable> { avtaleService.upsert(avtale, bertilNavIdent) }
-
-            avtaleService.get(avtale.id) shouldBe null
         }
     }
 })
