@@ -35,7 +35,7 @@ class PdlClient(
             exponentialDelay()
         }
         install(HttpTimeout) {
-            requestTimeoutMillis = 30000
+            requestTimeoutMillis = 5000
         }
     }
 

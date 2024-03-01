@@ -58,8 +58,8 @@ class TiltakshistorikkRepositoryTest : FunSpec({
 
         test("should not delete historikk that is newer than the specified expiration date") {
             val tiltakshistorikk = TiltakshistorikkRepository(database.db)
-            tiltakshistorikk.upsert(historikkUtenTilDato).shouldBeRight()
-            tiltakshistorikk.upsert(historikkMedTilDato).shouldBeRight()
+            tiltakshistorikk.upsert(historikkUtenTilDato)
+            tiltakshistorikk.upsert(historikkMedTilDato)
 
             tiltakshistorikk.deleteByExpirationDate(LocalDate.of(2015, 1, 1)).shouldBeRight(0)
 
@@ -68,8 +68,8 @@ class TiltakshistorikkRepositoryTest : FunSpec({
 
         test("should delete historikk that is older than the specified expiration date") {
             val tiltakshistorikk = TiltakshistorikkRepository(database.db)
-            tiltakshistorikk.upsert(historikkUtenTilDato).shouldBeRight()
-            tiltakshistorikk.upsert(historikkMedTilDato).shouldBeRight()
+            tiltakshistorikk.upsert(historikkUtenTilDato)
+            tiltakshistorikk.upsert(historikkMedTilDato)
 
             tiltakshistorikk.deleteByExpirationDate(LocalDate.of(2019, 1, 1)).shouldBeRight(1)
 
@@ -107,8 +107,8 @@ class TiltakshistorikkRepositoryTest : FunSpec({
         )
 
         val tiltakshistorikk = TiltakshistorikkRepository(database.db)
-        tiltakshistorikk.upsert(historikk1).shouldBeRight()
-        tiltakshistorikk.upsert(historikk2).shouldBeRight()
+        tiltakshistorikk.upsert(historikk1)
+        tiltakshistorikk.upsert(historikk2)
 
         tiltakshistorikk.deleteTiltakshistorikkForIdenter(listOf("12345678910", "xyz", "123456789101234567"))
 

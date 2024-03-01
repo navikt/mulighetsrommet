@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.services
 
+import arrow.core.right
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.common.runBlocking
 import io.kotest.core.spec.style.FunSpec
@@ -9,8 +10,10 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.mockk.clearAllMocks
+import io.mockk.coEvery
 import io.mockk.mockk
 import io.mockk.verify
+import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClient
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.api.domain.dto.AvtaleAdminDto
@@ -40,6 +43,7 @@ class ArenaAdapterServiceTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
 
     val tiltakstype = TiltakstypeFixtures.Oppfolging
+    val veilarboppfolgingClient: VeilarboppfolgingClient = mockk()
 
     val avtale = ArenaAvtaleDbo(
         id = UUID.randomUUID(),
@@ -106,6 +110,7 @@ class ArenaAdapterServiceTest : FunSpec({
     )
 
     context("tiltakstype") {
+        coEvery { veilarboppfolgingClient.erBrukerUnderOppfolging(any(), any()) } returns true.right()
         val tiltakstypeKafkaProducer = mockk<TiltakstypeKafkaProducer>(relaxed = true)
         val service = ArenaAdapterService(
             db = database.db,
@@ -122,6 +127,7 @@ class ArenaAdapterServiceTest : FunSpec({
             navEnhetService = mockk(relaxed = true),
             notificationService = mockk(relaxed = true),
             endringshistorikk = EndringshistorikkService(database.db),
+            veilarboppfolgingClient = veilarboppfolgingClient,
         )
 
         afterTest {
@@ -179,6 +185,7 @@ class ArenaAdapterServiceTest : FunSpec({
     }
 
     context("avtaler") {
+        coEvery { veilarboppfolgingClient.erBrukerUnderOppfolging(any(), any()) } returns true.right()
         val notificationService = mockk<NotificationService>(relaxed = true)
         val navEnheter = NavEnhetRepository(database.db)
         val service = ArenaAdapterService(
@@ -196,6 +203,7 @@ class ArenaAdapterServiceTest : FunSpec({
             navEnhetService = NavEnhetService(navEnheter),
             notificationService = notificationService,
             endringshistorikk = EndringshistorikkService(database.db),
+            veilarboppfolgingClient = veilarboppfolgingClient,
         )
 
         afterEach {
@@ -316,6 +324,7 @@ class ArenaAdapterServiceTest : FunSpec({
     }
 
     context("tiltaksgjennomføring") {
+        coEvery { veilarboppfolgingClient.erBrukerUnderOppfolging(any(), any()) } returns true.right()
         val tiltaksgjennomforingKafkaProducer = mockk<TiltaksgjennomforingKafkaProducer>(relaxed = true)
         val notificationService = mockk<NotificationService>(relaxed = true)
         val gjennomforinger = TiltaksgjennomforingRepository(database.db)
@@ -334,6 +343,7 @@ class ArenaAdapterServiceTest : FunSpec({
             navEnhetService = NavEnhetService(NavEnhetRepository(database.db)),
             notificationService = notificationService,
             endringshistorikk = EndringshistorikkService(database.db),
+            veilarboppfolgingClient = veilarboppfolgingClient,
         )
 
         afterEach {
@@ -580,6 +590,7 @@ class ArenaAdapterServiceTest : FunSpec({
     }
 
     context("tiltakshistorikk") {
+        coEvery { veilarboppfolgingClient.erBrukerUnderOppfolging(any(), any()) } returns true.right()
         val service = ArenaAdapterService(
             db = database.db,
             navAnsatte = NavAnsattRepository(database.db),
@@ -595,6 +606,7 @@ class ArenaAdapterServiceTest : FunSpec({
             navEnhetService = NavEnhetService(NavEnhetRepository(database.db)),
             notificationService = mockk(relaxed = true),
             endringshistorikk = EndringshistorikkService(database.db),
+            veilarboppfolgingClient = veilarboppfolgingClient,
         )
 
         beforeTest {

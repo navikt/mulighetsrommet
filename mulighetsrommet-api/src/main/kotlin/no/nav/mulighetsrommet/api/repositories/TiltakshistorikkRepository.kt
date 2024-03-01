@@ -17,7 +17,7 @@ class TiltakshistorikkRepository(private val db: Database) {
 
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    fun upsert(tiltakshistorikk: ArenaTiltakshistorikkDbo): QueryResult<ArenaTiltakshistorikkDbo> = query {
+    fun upsert(tiltakshistorikk: ArenaTiltakshistorikkDbo): ArenaTiltakshistorikkDbo {
         logger.info("Lagrer tiltakshistorikk id=${tiltakshistorikk.id}")
 
         @Language("PostgreSQL")
@@ -37,7 +37,7 @@ class TiltakshistorikkRepository(private val db: Database) {
             returning *
         """.trimIndent()
 
-        queryOf(query, tiltakshistorikk.toSqlParameters())
+        return queryOf(query, tiltakshistorikk.toSqlParameters())
             .map { it.toTiltakshistorikkDbo() }
             .asSingle
             .let { db.run(it)!! }

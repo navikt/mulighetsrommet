@@ -185,7 +185,11 @@ private fun services(appConfig: AppConfig) = module {
         VeilarboppfolgingClient(
             baseUrl = appConfig.veilarboppfolgingConfig.url,
             tokenProvider = { token ->
-                oboTokenProvider.exchangeOnBehalfOfToken(appConfig.veilarboppfolgingConfig.scope, token)
+                if (token == null) {
+                    m2mTokenProvider.createMachineToMachineToken(appConfig.veilarboppfolgingConfig.scope)
+                } else {
+                    oboTokenProvider.exchangeOnBehalfOfToken(appConfig.veilarboppfolgingConfig.scope, token)
+                }
             },
         )
     }
@@ -266,6 +270,7 @@ private fun services(appConfig: AppConfig) = module {
     single { EndringshistorikkService(get()) }
     single {
         ArenaAdapterService(
+            get(),
             get(),
             get(),
             get(),
