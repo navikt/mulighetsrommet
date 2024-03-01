@@ -119,6 +119,7 @@ class VeilarboppfolgingClient(
 
         return when (response.status) {
             HttpStatusCode.NotFound -> {
+                log.warn("Fikk not found i hentGjeldendePeriode. Trodde ikke dette kunne skje")
                 OppfolgingError.NotFound.left()
             }
             HttpStatusCode.Forbidden -> {
@@ -186,7 +187,6 @@ data class ManuellStatusRequest(
 @Serializable
 data class OppfolgingEnhetMedVeilederResponse(
     val oppfolgingsenhet: Oppfolgingsenhet,
-    val servicegruppe: String?,
 )
 
 @Serializable
