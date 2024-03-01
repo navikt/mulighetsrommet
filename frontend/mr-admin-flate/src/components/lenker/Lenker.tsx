@@ -1,7 +1,13 @@
 import { Box, Button, HStack, Heading, Switch, TextField, VStack } from "@navikt/ds-react";
-import { FieldValues, useFieldArray, useFormContext } from "react-hook-form";
-import { InferredAvtaleSchema } from "../avtaler/AvtaleSchema";
+import { useFieldArray, useFormContext } from "react-hook-form";
+import z from "zod";
 import styles from "./Lenker.module.scss";
+import { FaneinnholdSchema } from "../redaksjonelt-innhold/FaneinnholdSchema";
+
+const LenkeSchema = z.object({
+  faneinnhold: FaneinnholdSchema.pick({ lenker: true }),
+});
+type Lenke = z.infer<typeof LenkeSchema>;
 
 export function Lenker() {
   return (
@@ -18,20 +24,14 @@ export function Lenker() {
   );
 }
 
-//  TODO Gjøre komponenten generisk så den kan brukes i gjennomføringsskjema by default
 // TODO Må kunne ta i mot lenker fra avtalenivå ned til tiltaksgjennomføring
-interface Props {
-  fields: Record<"id", string>[];
-  append: () => void;
-  remove: () => void;
-}
 
 function Lenkeskjema() {
   const {
     control,
     register,
     formState: { errors },
-  } = useFormContext<InferredAvtaleSchema>(); // TODO Må ta denne inn som generisk verdi
+  } = useFormContext<Lenke>();
   const { fields, append, remove } = useFieldArray({
     control,
     name: "faneinnhold.lenker",

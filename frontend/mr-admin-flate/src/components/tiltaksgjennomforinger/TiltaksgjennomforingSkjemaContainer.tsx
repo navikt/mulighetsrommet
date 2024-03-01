@@ -23,7 +23,7 @@ import { TiltakgjennomforingRedaksjoneltInnholdForm } from "./Tiltaksgjennomfori
 import {
   InferredTiltaksgjennomforingSchema,
   TiltaksgjennomforingSchema,
-} from "./TiltaksgjennomforingSchema";
+} from "../redaksjonelt-innhold/TiltaksgjennomforingSchema";
 import {
   defaultTiltaksgjennomforingData,
   erArenaOpphavOgIngenEierskap,

@@ -28,7 +28,7 @@ import { FormGroup } from "../skjema/FormGroup";
 import { FraTilDatoVelger } from "../skjema/FraTilDatoVelger";
 import skjemastyles from "../skjema/Skjema.module.scss";
 import { VirksomhetKontaktpersonerModal } from "../virksomhet/VirksomhetKontaktpersonerModal";
-import { InferredAvtaleSchema } from "./AvtaleSchema";
+import { InferredAvtaleSchema } from "../redaksjonelt-innhold/AvtaleSchema";
 import { getLokaleUnderenheterAsSelectOptions, underenheterOptions } from "./AvtaleSkjemaConst";
 
 const minStartdato = new Date(2000, 0, 1);

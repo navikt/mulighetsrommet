@@ -6,7 +6,7 @@ import { useState } from "react";
 import { RedaksjoneltInnholdContainer } from "../redaksjonelt-innhold/RedaksjoneltInnholdContainer";
 import styles from "../modal/LeggTilGjennomforingModal.module.scss";
 import { AvtaleListe } from "./AvtaleListe";
-import { InferredAvtaleSchema } from "./AvtaleSchema";
+import { InferredAvtaleSchema } from "../redaksjonelt-innhold/AvtaleSchema";
 import skjemastyles from "../skjema/Skjema.module.scss";
 
 interface Props {

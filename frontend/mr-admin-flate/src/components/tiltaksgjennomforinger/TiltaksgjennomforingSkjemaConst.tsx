@@ -8,7 +8,7 @@ import {
   TiltaksgjennomforingOppstartstype,
   VirksomhetKontaktperson,
 } from "mulighetsrommet-api-client";
-import { InferredTiltaksgjennomforingSchema } from "./TiltaksgjennomforingSchema";
+import { InferredTiltaksgjennomforingSchema } from "../redaksjonelt-innhold/TiltaksgjennomforingSchema";
 import { DeepPartial } from "react-hook-form";
 
 export function defaultOppstartType(avtale?: Avtale): TiltaksgjennomforingOppstartstype {

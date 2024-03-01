@@ -20,7 +20,7 @@ import { useHandleApiUpsertResponse } from "../../api/effects";
 import { Separator } from "../detaljside/Metadata";
 import skjemastyles from "../skjema/Skjema.module.scss";
 import { useUpsertAvtale } from "../../api/avtaler/useUpsertAvtale";
-import { AvtaleSchema, InferredAvtaleSchema } from "./AvtaleSchema";
+import { AvtaleSchema, InferredAvtaleSchema } from "../redaksjonelt-innhold/AvtaleSchema";
 import { erAnskaffetTiltak } from "../../utils/tiltakskoder";
 import { defaultAvtaleData } from "./AvtaleSkjemaConst";
 import { useAtom } from "jotai";

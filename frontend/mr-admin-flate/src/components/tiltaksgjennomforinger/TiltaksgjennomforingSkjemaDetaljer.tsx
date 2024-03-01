@@ -28,7 +28,7 @@ import { FraTilDatoVelger } from "../skjema/FraTilDatoVelger";
 import skjemastyles from "../skjema/Skjema.module.scss";
 import { VirksomhetKontaktpersonerModal } from "../virksomhet/VirksomhetKontaktpersonerModal";
 import { SelectOppstartstype } from "./SelectOppstartstype";
-import { InferredTiltaksgjennomforingSchema } from "./TiltaksgjennomforingSchema";
+import { InferredTiltaksgjennomforingSchema } from "../redaksjonelt-innhold/TiltaksgjennomforingSchema";
 import {
   arrangorUnderenheterOptions,
   erArenaOpphavOgIngenEierskap,
