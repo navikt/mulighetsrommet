@@ -46,7 +46,6 @@ class BrregClient(
 
         val response = client.get("$baseUrl/enheter") {
             parameter("size", 20)
-            parameter("sort", "navn,ASC")
             parameter(sokEllerOppslag, orgnr)
         }
 
@@ -66,7 +65,6 @@ class BrregClient(
     suspend fun hentUnderenheterForOverordnetEnhet(orgnr: String): Either<BrregError, List<VirksomhetDto>> {
         val underenheterResponse = client.get("$baseUrl/underenheter") {
             parameter("size", 1000)
-            parameter("sort", "navn,ASC")
             parameter("overordnetEnhet", orgnr)
         }
 

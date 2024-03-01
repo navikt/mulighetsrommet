@@ -80,10 +80,12 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
   const sluttDatoTilDato = addYear(startDato ? new Date(startDato) : new Date(), 5);
 
   const leverandorOptions = () => {
-    const options = leverandorVirksomheter.map((enhet) => ({
-      value: enhet.organisasjonsnummer,
-      label: `${enhet.navn} - ${enhet.organisasjonsnummer}`,
-    }));
+    const options = leverandorVirksomheter
+      .sort((a, b) => a.navn.localeCompare(b.navn))
+      .map((enhet) => ({
+        value: enhet.organisasjonsnummer,
+        label: `${enhet.navn} - ${enhet.organisasjonsnummer}`,
+      }));
 
     if (leverandorData) {
       options.push({

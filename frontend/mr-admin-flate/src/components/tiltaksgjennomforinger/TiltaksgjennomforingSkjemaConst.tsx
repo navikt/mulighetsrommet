@@ -32,12 +32,14 @@ export const erArenaOpphavOgIngenEierskap = (
 };
 
 export const arrangorUnderenheterOptions = (avtale: Avtale) => {
-  return (avtale?.leverandorUnderenheter ?? []).map((arrangor) => {
-    return {
-      label: `${arrangor.navn} - ${arrangor.organisasjonsnummer}`,
-      value: arrangor.organisasjonsnummer,
-    };
-  });
+  return (avtale?.leverandorUnderenheter ?? [])
+    .sort((a, b) => a.navn.localeCompare(b.navn))
+    .map((arrangor) => {
+      return {
+        label: `${arrangor.navn} - ${arrangor.organisasjonsnummer}`,
+        value: arrangor.organisasjonsnummer,
+      };
+    });
 };
 
 function defaultNavRegion(
