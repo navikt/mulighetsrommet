@@ -10,7 +10,7 @@ export function LenkeListe({ lenker }: Props) {
   if (!lenker || lenker.length === 0) return null;
 
   return (
-    <Box background="bg-subtle" padding="5">
+    <Box background="bg-default" borderColor="border-subtle" borderWidth="1" padding="5">
       <Heading level="4" size="small">
         Lenker
       </Heading>
