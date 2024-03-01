@@ -9,7 +9,6 @@ import io.ktor.server.util.*
 import io.ktor.util.logging.*
 import io.ktor.util.pipeline.*
 import no.nav.mulighetsrommet.api.services.ArenaAdapterService
-import no.nav.mulighetsrommet.database.utils.DatabaseOperationError
 import no.nav.mulighetsrommet.domain.dbo.*
 import org.koin.ktor.ext.inject
 import org.postgresql.util.PSQLException
@@ -80,16 +79,8 @@ fun Route.arenaAdapterRoutes() {
             arenaAdapterService.upsertTiltakshistorikk(tiltakshistorikk)
                 .map { call.respond(HttpStatusCode.OK, it) }
                 .mapLeft {
-                    when (it) {
-                        is DatabaseOperationError.ForeignKeyViolation -> {
-                            call.respond(HttpStatusCode.Conflict, "Kunne ikke opprette tiltakshistorikk")
-                        }
-
-                        else -> {
-                            logError(logger, it.error)
-                            call.respond(HttpStatusCode.InternalServerError, "Kunne ikke opprette tiltakshistorikk")
-                        }
-                    }
+                    logger.warn("Error during upsertTiltakshistorikk: $it")
+                    call.respond(HttpStatusCode.InternalServerError, "Kunne ikke opprette tiltakshistorikk")
                 }
         }
 

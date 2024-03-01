@@ -40,6 +40,7 @@ data class AppConfig(
     val brreg: BrregClient.Config,
     val unleash: UnleashService.Config,
     val axsys: ServiceClientConfig,
+    val pdl: ServiceClientConfig,
     val engine: HttpClientEngine = CIO.create(),
 )
 
@@ -71,6 +72,7 @@ data class KafkaConsumers(
     val tiltaksgjennomforingerV1: KafkaTopicConsumer.Config,
     val amtDeltakerV1: KafkaTopicConsumer.Config,
     val amtVirksomheterV1: KafkaTopicConsumer.Config,
+    val ptoSisteOppfolgingsperiodeV1: KafkaTopicConsumer.Config,
 )
 
 data class AuthProvider(

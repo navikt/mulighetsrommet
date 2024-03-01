@@ -39,6 +39,7 @@ fun Route.brukerRoutes() {
             val request = call.receive<GetHistorikkForBrukerRequest>()
             val norskIdent = request.norskIdent
             val navIdent = getNavIdent()
+            val accessToken = call.getAccessToken()
 
             poaoTilgangService.verifyAccessToUserFromVeileder(getNavAnsattAzureId(), norskIdent) {
                 val message = createAuditMessage(
@@ -49,7 +50,7 @@ fun Route.brukerRoutes() {
                 AuditLog.auditLogger.log(message)
             }
 
-            historikkService.hentHistorikkForBruker(norskIdent).let {
+            historikkService.hentHistorikkForBruker(norskIdent, accessToken).let {
                 val message = createAuditMessage(
                     msg = "NAV-ansatt med ident: '$navIdent' har sett på tiltakshistorikken for bruker med ident: '$norskIdent'.",
                     navIdent = navIdent,

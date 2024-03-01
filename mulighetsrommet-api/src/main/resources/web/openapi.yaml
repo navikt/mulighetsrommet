@@ -2288,8 +2288,6 @@ components:
           type: string
         innsatsgruppe:
           $ref: "#/components/schemas/Innsatsgruppe"
-        servicegruppe:
-          type: string
         enheter:
           type: array
           items:

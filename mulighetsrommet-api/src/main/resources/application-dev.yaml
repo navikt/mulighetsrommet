@@ -37,6 +37,9 @@ app:
       amtVirksomheterV1:
         id: amt-virksomheter
         topic: amt.virksomheter-v1
+      ptoSisteOppfolgingsperiodeV1:
+        id: pto-virksomheter
+        topic: pto.siste-oppfolgingsperiode-v1
 
   auth:
     azure:
@@ -107,6 +110,10 @@ app:
   axsys:
     url: https://axsys.dev-fss-pub.nais.io
     scope: api://dev-fss.org.axsys/.default
+
+  pdl:
+    url: https://pdl-api.dev-fss-pub.nais.io
+    scope: api://dev-fss.pdl.pdl-api/.default
 
   tasks:
     deleteExpiredTiltakshistorikk:
