@@ -9,7 +9,11 @@ import {
   Switch,
   TextField,
 } from "@navikt/ds-react";
-import { Avtale, Tiltaksgjennomforing } from "mulighetsrommet-api-client";
+import {
+  Avtale,
+  Tiltaksgjennomforing,
+  TiltaksgjennomforingKontaktperson,
+} from "mulighetsrommet-api-client";
 import { ControlledSokeSelect } from "mulighetsrommet-frontend-common";
 import { useEffect, useRef } from "react";
 import { useFieldArray, useFormContext } from "react-hook-form";
@@ -212,7 +216,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
             <Separator />
             <fieldset className={skjemastyles.fieldset_no_styling}>
               <HStack gap="1">
-                <legend>Estimert ventetid </legend>
+                <legend>Estimert ventetid</legend>
                 <HelpText title="Hva er estimert ventetid?">
                   Estimert ventetid er et felt som kan brukes hvis dere sitter på informasjon om
                   estimert ventetid for tiltaket. Hvis dere legger inn en verdi i feltene her blir
@@ -343,12 +347,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
                   type="button"
                   size="small"
                   variant="tertiary"
-                  onClick={() =>
-                    appendKontaktperson({
-                      navIdent: null,
-                      navEnheter: [],
-                    })
-                  }
+                  onClick={() => appendKontaktperson({} as TiltaksgjennomforingKontaktperson)}
                 >
                   <PlusIcon aria-label="Legg til ny kontaktperson" /> Legg til ny kontaktperson
                 </Button>

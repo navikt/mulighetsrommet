@@ -34,8 +34,10 @@ export const TiltaksgjennomforingSchema = z
     }),
     kontaktpersoner: z
       .object({
-        navIdent: z.string().nullable(),
-        navEnheter: z.string().array(),
+        navIdent: z.string({ required_error: "Velg kontaktperson" }),
+        navEnheter: z
+          .string({ required_error: "Velg NAV-enheter som kontaktpersonen er tilgjengelig for" })
+          .array(),
         beskrivelse: z.string().nullable().optional(),
       })
       .array()

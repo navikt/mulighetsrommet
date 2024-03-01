@@ -4,7 +4,6 @@ import {
   NavAnsatt,
   Opphav,
   Tiltaksgjennomforing,
-  TiltaksgjennomforingKontaktperson,
   TiltaksgjennomforingOppstartstype,
   VirksomhetKontaktperson,
 } from "mulighetsrommet-api-client";
@@ -20,24 +19,6 @@ export function defaultOppstartType(avtale?: Avtale): TiltaksgjennomforingOppsta
   return isTiltakMedFellesOppstart(tiltakskode)
     ? TiltaksgjennomforingOppstartstype.FELLES
     : TiltaksgjennomforingOppstartstype.LOPENDE;
-}
-
-export function defaultValuesForKontaktpersoner(
-  kontaktpersoner?: TiltaksgjennomforingKontaktperson[],
-): TiltaksgjennomforingKontaktperson[] {
-  if (!kontaktpersoner)
-    return [
-      { navIdent: "", navEnheter: [], navn: "", epost: "", mobilnummer: null, beskrivelse: null },
-    ];
-
-  return kontaktpersoner?.map((person) => ({
-    navIdent: person.navIdent,
-    navEnheter: person.navEnheter,
-    mobilnummer: person.mobilnummer,
-    epost: person.epost,
-    navn: person.navn,
-    beskrivelse: person.beskrivelse,
-  }));
 }
 
 export const erArenaOpphavOgIngenEierskap = (
@@ -114,7 +95,7 @@ export function defaultTiltaksgjennomforingData(
     tiltaksArrangorUnderenhetOrganisasjonsnummer: defaultArrangor(avtale, tiltaksgjennomforing),
     oppstart: tiltaksgjennomforing?.oppstart || defaultOppstartType(avtale),
     apentForInnsok: tiltaksgjennomforing?.apentForInnsok,
-    kontaktpersoner: defaultValuesForKontaktpersoner(tiltaksgjennomforing?.kontaktpersoner),
+    kontaktpersoner: tiltaksgjennomforing?.kontaktpersoner ?? [],
     stedForGjennomforing: tiltaksgjennomforing?.stedForGjennomforing ?? null,
     arrangorKontaktpersoner:
       tiltaksgjennomforing?.arrangor?.kontaktpersoner.map((p: VirksomhetKontaktperson) => p.id) ??
