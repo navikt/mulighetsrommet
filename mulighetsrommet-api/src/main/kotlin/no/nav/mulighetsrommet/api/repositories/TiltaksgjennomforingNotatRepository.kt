@@ -77,7 +77,7 @@ class TiltaksgjennomforingNotatRepository(private val db: Database) {
     ): QueryResult<List<TiltaksgjennomforingNotatDto>> = query {
         val parameters = mapOf(
             "tiltaksgjennomforingId" to filter.tiltaksgjennomforingId,
-            "opprettetAv" to filter.opprettetAv,
+            "opprettetAv" to filter.opprettetAv?.value,
         )
 
         val where = DatabaseUtils.andWhereParameterNotNull(
@@ -115,7 +115,7 @@ class TiltaksgjennomforingNotatRepository(private val db: Database) {
     private fun TiltaksgjennomforingNotatDbo.toSqlParameters() = mapOf(
         "id" to id,
         "tiltaksgjennomforingId" to tiltaksgjennomforingId,
-        "opprettet_av" to opprettetAv,
+        "opprettet_av" to opprettetAv?.value,
         "innhold" to innhold,
     )
 

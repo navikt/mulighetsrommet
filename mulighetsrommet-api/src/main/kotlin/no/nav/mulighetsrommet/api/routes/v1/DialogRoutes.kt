@@ -14,6 +14,7 @@ import no.nav.mulighetsrommet.api.services.DialogRequest
 import no.nav.mulighetsrommet.api.services.DialogService
 import no.nav.mulighetsrommet.api.services.PoaoTilgangService
 import no.nav.mulighetsrommet.auditlog.AuditLog
+import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.ktor.extensions.getAccessToken
 import org.koin.ktor.ext.inject
 
@@ -52,14 +53,14 @@ fun Route.dialogRoutes() {
     }
 }
 
-private fun createAuditMessage(msg: String, navIdent: String, norskIdent: String): CefMessage {
+private fun createAuditMessage(msg: String, navIdent: NavIdent, norskIdent: String): CefMessage {
     return CefMessage.builder()
         .applicationName("modia")
         .loggerName("mulighetsrommet-api")
         .event(CefMessageEvent.CREATE)
         .name("Arbeidsmarkedstiltak - Del med bruker")
         .severity(CefMessageSeverity.INFO)
-        .sourceUserId(navIdent)
+        .sourceUserId(navIdent.value)
         .destinationUserId(norskIdent)
         .timeEnded(System.currentTimeMillis())
         .extension("msg", msg)

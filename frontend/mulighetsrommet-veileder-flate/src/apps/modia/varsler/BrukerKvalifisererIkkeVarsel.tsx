@@ -1,6 +1,5 @@
 import { Alert } from "@navikt/ds-react";
 import { Bruker, VeilederflateTiltakstype } from "mulighetsrommet-api-client";
-import styles from "./BrukerKvalifisererIkkeVarsel.module.scss";
 
 interface Props {
   brukerdata: Bruker;
@@ -16,7 +15,7 @@ export function BrukerKvalifisererIkkeVarsel({
   const innsatsgruppeEllerTiltakstype = tiltakstype.innsatsgruppe?.tittel ?? tiltakstype.navn;
 
   return !brukerHarRettPaaTiltak && brukerdata.innsatsgruppe ? (
-    <Alert variant="warning" className={styles.varsel}>
+    <Alert variant="warning">
       Brukeren tilhører innsatsgruppen{" "}
       <strong>{brukerdata.innsatsgruppe.replaceAll("_", " ").toLocaleLowerCase()}</strong>, men
       tiltaksgjennomføringen gjelder for{" "}

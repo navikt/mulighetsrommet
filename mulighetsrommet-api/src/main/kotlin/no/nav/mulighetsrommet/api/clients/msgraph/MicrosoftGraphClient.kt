@@ -9,6 +9,7 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import no.nav.mulighetsrommet.api.domain.dto.AdGruppe
+import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
 import org.slf4j.LoggerFactory
 import java.util.*
@@ -120,7 +121,7 @@ class MicrosoftGraphClient(
 
         else -> AzureAdNavAnsatt(
             azureId = user.id,
-            navIdent = user.onPremisesSamAccountName,
+            navIdent = NavIdent(user.onPremisesSamAccountName),
             fornavn = user.givenName,
             etternavn = user.surname,
             hovedenhetKode = user.streetAddress,

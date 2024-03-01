@@ -8,6 +8,7 @@ import no.nav.mulighetsrommet.api.domain.dto.JoyrideType
 import no.nav.mulighetsrommet.api.domain.dto.VeilederJoyrideDto
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
+import no.nav.mulighetsrommet.domain.dto.NavIdent
 
 class JoyrideVeilederRepositoryTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
@@ -21,13 +22,13 @@ class JoyrideVeilederRepositoryTest : FunSpec({
             val veilederJoyrideRepository = VeilederJoyrideRepository(database.db)
 
             val joyrideKjortForOversikten = VeilederJoyrideDto(
-                navIdent = "S123456",
+                navIdent = NavIdent("S123456"),
                 fullfort = true,
                 type = JoyrideType.OVERSIKT,
             )
 
             val joyrideKjortForDetaljside = VeilederJoyrideDto(
-                navIdent = "S123456",
+                navIdent = NavIdent("S123456"),
                 fullfort = true,
                 type = JoyrideType.DETALJER,
             )
@@ -38,7 +39,7 @@ class JoyrideVeilederRepositoryTest : FunSpec({
 
     test("Returnerer true hvis veileder har kjørt en spesifkk joyride tidligere") {
         val veilederJoyrideRepository = VeilederJoyrideRepository(database.db)
-        val navident = "S123456"
+        val navident = NavIdent("S123456")
         val joyrideKjortForOversikten = VeilederJoyrideDto(
             navIdent = navident,
             fullfort = true,
@@ -56,7 +57,7 @@ class JoyrideVeilederRepositoryTest : FunSpec({
 
     test("Returnerer false hvis veileder ikke har kjørt en spesifkk joyride tidligere") {
         val veilederJoyrideRepository = VeilederJoyrideRepository(database.db)
-        val navident = "S123456"
+        val navident = NavIdent("S123456")
         val joyrideKjortForOversikten = VeilederJoyrideDto(
             navIdent = navident,
             fullfort = false,

@@ -9,6 +9,7 @@ import no.nav.mulighetsrommet.api.utils.DatabaseUtils
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.QueryResult
 import no.nav.mulighetsrommet.database.utils.query
+import no.nav.mulighetsrommet.domain.dto.NavIdent
 import org.intellij.lang.annotations.Language
 import java.time.LocalDate
 import java.util.*
@@ -79,7 +80,7 @@ class NavAnsattRepository(private val db: Database) {
             .let { db.run(it) }
     }
 
-    fun getByNavIdent(navIdent: String): QueryResult<NavAnsattDto?> = query {
+    fun getByNavIdent(navIdent: NavIdent): QueryResult<NavAnsattDto?> = query {
         @Language("PostgreSQL")
         val query = """
             select nav_ident,
@@ -97,7 +98,7 @@ class NavAnsattRepository(private val db: Database) {
             where nav_ident = :nav_ident
         """.trimIndent()
 
-        queryOf(query, mapOf("nav_ident" to navIdent))
+        queryOf(query, mapOf("nav_ident" to navIdent.value))
             .map { it.toNavAnsattDto() }
             .asSingle
             .let { db.run(it) }
@@ -140,7 +141,7 @@ class NavAnsattRepository(private val db: Database) {
     }
 
     private fun NavAnsattDbo.toSqlParameters() = mapOf(
-        "nav_ident" to navIdent,
+        "nav_ident" to navIdent.value,
         "fornavn" to fornavn,
         "etternavn" to etternavn,
         "hovedenhet" to hovedenhet,
@@ -152,7 +153,7 @@ class NavAnsattRepository(private val db: Database) {
     )
 
     private fun Row.toNavAnsatt() = NavAnsattDbo(
-        navIdent = string("nav_ident"),
+        navIdent = NavIdent(string("nav_ident")),
         fornavn = string("fornavn"),
         etternavn = string("etternavn"),
         hovedenhet = string("hovedenhet"),
@@ -164,7 +165,7 @@ class NavAnsattRepository(private val db: Database) {
     )
 
     private fun Row.toNavAnsattDto() = NavAnsattDto(
-        navIdent = string("nav_ident"),
+        navIdent = NavIdent(string("nav_ident")),
         fornavn = string("fornavn"),
         etternavn = string("etternavn"),
         hovedenhet = NavAnsattDto.Hovedenhet(

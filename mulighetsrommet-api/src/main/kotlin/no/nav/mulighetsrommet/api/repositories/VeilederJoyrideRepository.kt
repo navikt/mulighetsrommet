@@ -6,6 +6,7 @@ import no.nav.mulighetsrommet.api.domain.dto.VeilederJoyrideDto
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.QueryResult
 import no.nav.mulighetsrommet.database.utils.query
+import no.nav.mulighetsrommet.domain.dto.NavIdent
 import org.intellij.lang.annotations.Language
 
 class VeilederJoyrideRepository(private val db: Database) {
@@ -23,9 +24,9 @@ class VeilederJoyrideRepository(private val db: Database) {
         queryOf(query, data.toSqlParameters()).asExecute.let { db.run(it) }
     }
 
-    fun harFullfortJoyride(navIdent: String, type: JoyrideType): Boolean {
+    fun harFullfortJoyride(navIdent: NavIdent, type: JoyrideType): Boolean {
         val params = mapOf(
-            "nav_ident" to navIdent,
+            "nav_ident" to navIdent.value,
             "type" to type.name,
         )
 
@@ -38,7 +39,7 @@ class VeilederJoyrideRepository(private val db: Database) {
     }
 
     private fun VeilederJoyrideDto.toSqlParameters() = mapOf(
-        "nav_ident" to navIdent,
+        "nav_ident" to navIdent.value,
         "fullfort" to fullfort,
         "type" to type.name,
     )

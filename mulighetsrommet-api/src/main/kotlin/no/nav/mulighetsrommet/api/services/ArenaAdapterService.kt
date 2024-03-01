@@ -28,6 +28,7 @@ import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering.TiltaksgjennomforingSluttDatoCutoffDate
 import no.nav.mulighetsrommet.domain.dbo.*
 import no.nav.mulighetsrommet.domain.dto.Avtalestatus
+import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.kafka.producers.TiltaksgjennomforingKafkaProducer
 import no.nav.mulighetsrommet.kafka.producers.TiltakstypeKafkaProducer
 import no.nav.mulighetsrommet.notifications.NotificationMetadata
@@ -256,7 +257,7 @@ class ArenaAdapterService(
     private fun notifyRelevantAdministrators(
         overordnetEnhet: NavEnhetDbo,
         navAnsattRolle: NavAnsattRolle,
-        createNotification: (administrators: NonEmptyList<String>) -> ScheduledNotification,
+        createNotification: (administrators: NonEmptyList<NavIdent>) -> ScheduledNotification,
     ) {
         val potentialAdministratorHovedenheter = navEnhetService
             .hentAlleEnheter(

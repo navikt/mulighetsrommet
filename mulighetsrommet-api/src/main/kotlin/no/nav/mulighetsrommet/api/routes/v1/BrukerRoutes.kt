@@ -14,6 +14,7 @@ import no.nav.mulighetsrommet.api.services.BrukerService
 import no.nav.mulighetsrommet.api.services.PoaoTilgangService
 import no.nav.mulighetsrommet.api.services.TiltakshistorikkService
 import no.nav.mulighetsrommet.auditlog.AuditLog
+import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.ktor.extensions.getAccessToken
 import org.koin.ktor.ext.inject
 
@@ -73,14 +74,14 @@ data class GetHistorikkForBrukerRequest(
     val norskIdent: String,
 )
 
-private fun createAuditMessage(msg: String, navIdent: String, norskIdent: String): CefMessage {
+private fun createAuditMessage(msg: String, navIdent: NavIdent, norskIdent: String): CefMessage {
     return CefMessage.builder()
         .applicationName("modia")
         .loggerName("mulighetsrommet-api")
         .event(CefMessageEvent.ACCESS)
         .name("Arbeidsmarkedstiltak - Vis tiltakshistorikk")
         .severity(CefMessageSeverity.INFO)
-        .sourceUserId(navIdent)
+        .sourceUserId(navIdent.value)
         .destinationUserId(norskIdent)
         .timeEnded(System.currentTimeMillis())
         .extension("msg", msg)

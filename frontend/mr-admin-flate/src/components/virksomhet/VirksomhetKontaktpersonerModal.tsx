@@ -44,10 +44,10 @@ export function VirksomhetKontaktpersonerModal(props: Props) {
         modalRef.current?.close();
         onClose();
       }}
+      header={{
+        heading: `Kontaktpersoner hos ${virksomhet.navn}`,
+      }}
     >
-      <Modal.Header>
-        <Label>{`Kontaktpersoner hos ${virksomhet.navn}`}</Label>
-      </Modal.Header>
       <Modal.Body>
         <div className={styles.modal_body}>
           {kontaktpersoner

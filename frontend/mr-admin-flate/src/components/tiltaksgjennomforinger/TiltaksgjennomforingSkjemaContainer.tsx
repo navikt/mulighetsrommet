@@ -23,7 +23,7 @@ import { TiltakgjennomforingRedaksjoneltInnholdForm } from "./Tiltaksgjennomfori
 import {
   InferredTiltaksgjennomforingSchema,
   TiltaksgjennomforingSchema,
-} from "./TiltaksgjennomforingSchema";
+} from "../redaksjonelt-innhold/TiltaksgjennomforingSchema";
 import {
   defaultTiltaksgjennomforingData,
   erArenaOpphavOgIngenEierskap,
@@ -123,11 +123,6 @@ export const TiltaksgjennomforingSkjemaContainer = ({
   );
 
   const hasErrors = () => Object.keys(errors).length > 0;
-
-  if (hasErrors()) {
-    // eslint-disable-next-line no-console
-    console.error(errors);
-  }
 
   return (
     <FormProvider {...form}>

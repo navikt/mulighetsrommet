@@ -1,10 +1,11 @@
 package no.nav.mulighetsrommet.api.domain.dto
 
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.domain.dto.NavIdent
 
 @Serializable
 data class TiltaksgjennomforingKontaktperson(
-    val navIdent: String,
+    val navIdent: NavIdent,
     val navn: String,
     val epost: String,
     val mobilnummer: String? = null,

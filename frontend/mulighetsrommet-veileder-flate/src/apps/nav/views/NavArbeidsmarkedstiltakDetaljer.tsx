@@ -3,6 +3,7 @@ import { ViewTiltaksgjennomforingDetaljer } from "@/layouts/ViewTiltaksgjennomfo
 import { Tilbakeknapp } from "@/components/tilbakeknapp/Tilbakeknapp";
 import { TiltakLoader } from "@/components/TiltakLoader";
 import { useNavTiltaksgjennomforingById } from "@/core/api/queries/useTiltaksgjennomforingById";
+import { LenkeListe } from "../../../components/sidemeny/Lenker";
 
 export function NavArbeidsmarkedstiltakDetaljer() {
   const { data, isLoading, isError } = useNavTiltaksgjennomforingById();
@@ -21,7 +22,11 @@ export function NavArbeidsmarkedstiltakDetaljer() {
     <ViewTiltaksgjennomforingDetaljer
       tiltaksgjennomforing={data}
       knapperad={<Tilbakeknapp tilbakelenke=".." tekst="Tilbake til tiltaksoversikten" />}
-      brukerActions={null}
+      brukerActions={
+        <LenkeListe
+          lenker={data?.faneinnhold?.lenker?.filter((lenke) => !lenke.visKunForVeileder)}
+        />
+      }
     />
   );
 }

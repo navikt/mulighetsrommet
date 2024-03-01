@@ -28,7 +28,7 @@ import { FormGroup } from "../skjema/FormGroup";
 import { FraTilDatoVelger } from "../skjema/FraTilDatoVelger";
 import skjemastyles from "../skjema/Skjema.module.scss";
 import { VirksomhetKontaktpersonerModal } from "../virksomhet/VirksomhetKontaktpersonerModal";
-import { InferredAvtaleSchema } from "./AvtaleSchema";
+import { InferredAvtaleSchema } from "../redaksjonelt-innhold/AvtaleSchema";
 import { getLokaleUnderenheterAsSelectOptions, underenheterOptions } from "./AvtaleSkjemaConst";
 
 const minStartdato = new Date(2000, 0, 1);
@@ -80,10 +80,12 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
   const sluttDatoTilDato = addYear(startDato ? new Date(startDato) : new Date(), 5);
 
   const leverandorOptions = () => {
-    const options = leverandorVirksomheter.map((enhet) => ({
-      value: enhet.organisasjonsnummer,
-      label: `${enhet.navn} - ${enhet.organisasjonsnummer}`,
-    }));
+    const options = leverandorVirksomheter
+      .sort((a, b) => a.navn.localeCompare(b.navn))
+      .map((enhet) => ({
+        value: enhet.organisasjonsnummer,
+        label: `${enhet.navn} - ${enhet.organisasjonsnummer}`,
+      }));
 
     if (leverandorData) {
       options.push({

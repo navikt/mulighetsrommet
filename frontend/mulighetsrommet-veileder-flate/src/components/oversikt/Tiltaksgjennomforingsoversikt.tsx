@@ -12,18 +12,42 @@ import { Gjennomforingsrad } from "./Gjennomforingsrad";
 import styles from "./Tiltaksgjennomforingsoversikt.module.scss";
 import { useLogEvent } from "@/logging/amplitude";
 import { useArbeidsmarkedstiltakFilterValue } from "@/hooks/useArbeidsmarkedstiltakFilter";
+import classnames from "classnames";
 
 interface Props {
   tiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[];
   deltMedBruker?: DelMedBruker[];
+  varsler?: React.ReactNode;
+  tags: React.ReactNode;
+  filterOpen?: boolean;
+  feilmelding: React.ReactNode;
 }
 
-export const Tiltaksgjennomforingsoversikt = ({ tiltaksgjennomforinger, deltMedBruker }: Props) => {
+export const Tiltaksgjennomforingsoversikt = ({
+  tiltaksgjennomforinger,
+  deltMedBruker,
+  varsler,
+  tags,
+  filterOpen,
+  feilmelding,
+}: Props) => {
   const [pageData, setPages] = useAtom(paginationAtom);
   const filter = useArbeidsmarkedstiltakFilterValue();
 
   const pagination = (tiltaksgjennomforing: VeilederflateTiltaksgjennomforing[]) => {
     return Math.ceil(tiltaksgjennomforing.length / pageData.pageSize);
+  };
+
+  const ViserAntallTiltakTekst = () => {
+    return tiltaksgjennomforinger.length > 0 ? (
+      <BodyShort>
+        Viser {(pageData.page - 1) * pageData.pageSize + 1}-
+        {gjennomforingerForSide.length + (pageData.page - 1) * pageData.pageSize} av{" "}
+        {tiltaksgjennomforinger.length} tiltak
+      </BodyShort>
+    ) : (
+      <BodyShort>Viser 0 tiltak</BodyShort>
+    );
   };
 
   const [sortValue, setSortValue] = useState<string>("tiltakstype-ascending");
@@ -101,42 +125,53 @@ export const Tiltaksgjennomforingsoversikt = ({ tiltaksgjennomforinger, deltMedB
 
   return (
     <>
-      <div className={styles.overskrift_og_sorteringsmeny}>
-        <div className={styles.overskrift_og_sorteringsmeny_venstre}>
-          {tiltaksgjennomforinger.length > 0 ? (
-            <BodyShort>
-              Viser {(pageData.page - 1) * pageData.pageSize + 1}-
-              {gjennomforingerForSide.length + (pageData.page - 1) * pageData.pageSize} av{" "}
-              {tiltaksgjennomforinger.length} tiltak
-            </BodyShort>
-          ) : null}
-          <Select
-            size="small"
-            label="Velg antall"
-            hideLabel
-            name="size"
-            value={pageData.pageSize}
-            onChange={(e) => {
-              setPages({ page: 1, pageSize: parseInt(e.currentTarget.value) });
-              logEvent({
-                name: "arbeidsmarkedstiltak.vis-antall-tiltak",
-                data: {
-                  valgt_antall: parseInt(e.currentTarget.value),
-                  antall_tiltak: tiltaksgjennomforinger.length,
-                },
-              });
-            }}
-          >
-            {antallSize.map((ant) => (
-              <option key={ant} value={ant}>
-                {ant}
-              </option>
-            ))}
-          </Select>
+      <div
+        className={classnames(styles.toolbar_container, {
+          [styles.toolbar_container_filter_open]: filterOpen,
+          [styles.toolbar_container_filter_hidden]: !filterOpen,
+        })}
+      >
+        {tags}
+        {varsler}
+        <div className={styles.visnings_og_sorteringsmeny}>
+          <div className={styles.visningsmeny}>
+            <ViserAntallTiltakTekst />
+
+            <Select
+              size="small"
+              label="Velg antall"
+              hideLabel
+              name="size"
+              value={pageData.pageSize}
+              onChange={(e) => {
+                setPages({ page: 1, pageSize: parseInt(e.currentTarget.value) });
+                logEvent({
+                  name: "arbeidsmarkedstiltak.vis-antall-tiltak",
+                  data: {
+                    valgt_antall: parseInt(e.currentTarget.value),
+                    antall_tiltak: tiltaksgjennomforinger.length,
+                  },
+                });
+              }}
+            >
+              {antallSize.map((ant) => (
+                <option key={ant} value={ant}>
+                  {ant}
+                </option>
+              ))}
+            </Select>
+          </div>
+          <Sorteringsmeny sortValue={sortValue} setSortValue={setSortValue} />
         </div>
-        <Sorteringsmeny sortValue={sortValue} setSortValue={setSortValue} />
       </div>
-      <ul className={styles.gjennomforinger} data-testid="oversikt_tiltaksgjennomforinger">
+      {feilmelding}
+      <ul
+        className={classnames(
+          styles.gjennomforinger,
+          filterOpen && styles.gjennomforinger_filter_open,
+        )}
+        data-testid="oversikt_tiltaksgjennomforinger"
+      >
         {gjennomforingerForSide.map((gjennomforing, index) => {
           const delMedBruker = deltMedBruker?.find((delt) => {
             return (
@@ -154,25 +189,21 @@ export const Tiltaksgjennomforingsoversikt = ({ tiltaksgjennomforinger, deltMedB
           );
         })}
       </ul>
-      <div className={styles.under_oversikt}>
-        {tiltaksgjennomforinger.length > 0 ? (
-          <>
-            <BodyShort>
-              Viser {(pageData.page - 1) * pageData.pageSize + 1}-
-              {gjennomforingerForSide.length + (pageData.page - 1) * pageData.pageSize} av{" "}
-              {tiltaksgjennomforinger.length} tiltak
-            </BodyShort>
-            <Pagination
-              size="small"
-              page={pageData.page}
-              onPageChange={(page) => setPages({ ...pageData, page })}
-              count={
-                pagination(tiltaksgjennomforinger) === 0 ? 1 : pagination(tiltaksgjennomforinger)
-              }
-              data-version="v1"
-            />
-          </>
-        ) : null}
+      {/*)}*/}
+      <div
+        className={classnames(
+          styles.under_oversikt,
+          filterOpen && styles.under_oversikt_filter_open,
+        )}
+      >
+        <ViserAntallTiltakTekst />
+        <Pagination
+          size="small"
+          page={pageData.page}
+          onPageChange={(page) => setPages({ ...pageData, page })}
+          count={pagination(tiltaksgjennomforinger) === 0 ? 1 : pagination(tiltaksgjennomforinger)}
+          data-version="v1"
+        />
       </div>
     </>
   );

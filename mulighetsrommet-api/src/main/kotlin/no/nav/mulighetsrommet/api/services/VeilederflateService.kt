@@ -258,6 +258,7 @@ class VeilederflateService(
                 pameldingOgVarighet,
                 kontaktinfoInfoboks,
                 kontaktinfo,
+                lenker
               },
               delingMedBruker,
             }[0]
