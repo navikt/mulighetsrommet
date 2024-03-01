@@ -24,8 +24,6 @@ export function Lenker() {
   );
 }
 
-// TODO Må kunne ta i mot lenker fra avtalenivå ned til tiltaksgjennomføring
-
 function Lenkeskjema() {
   const {
     control,
