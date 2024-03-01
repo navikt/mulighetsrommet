@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.notifications
 import arrow.core.NonEmptyList
 import arrow.core.serialization.NonEmptyListSerializer
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.domain.serializers.InstantSerializer
 import no.nav.mulighetsrommet.domain.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
@@ -37,7 +38,7 @@ data class ScheduledNotification(
      * NAVident for each notification target
      */
     @Serializable(with = NonEmptyListSerializer::class)
-    val targets: NonEmptyList<String>,
+    val targets: NonEmptyList<NavIdent>,
 )
 
 @Serializable
@@ -47,7 +48,7 @@ data class UserNotification(
     val type: NotificationType,
     val title: String,
     val description: String? = null,
-    val user: String,
+    val user: NavIdent,
     @Serializable(with = LocalDateTimeSerializer::class)
     val createdAt: LocalDateTime,
     @Serializable(with = LocalDateTimeSerializer::class)

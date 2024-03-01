@@ -9,6 +9,7 @@ import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
 import no.nav.mulighetsrommet.api.domain.dbo.Utkasttype
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dto.Avtalestatus
+import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus
 import no.nav.mulighetsrommet.domain.dto.Tiltakstypestatus
 import no.nav.mulighetsrommet.notifications.NotificationStatus
@@ -32,7 +33,7 @@ data class AvtaleFilter(
     val sortering: String? = null,
     val dagensDato: LocalDate = LocalDate.now(),
     val leverandorOrgnr: List<String> = emptyList(),
-    val administratorNavIdent: String? = null,
+    val administratorNavIdent: NavIdent? = null,
 )
 
 data class AdminTiltaksgjennomforingFilter(
@@ -46,7 +47,7 @@ data class AdminTiltaksgjennomforingFilter(
     val navRegioner: List<String> = emptyList(),
     val avtaleId: UUID? = null,
     val arrangorOrgnr: List<String> = emptyList(),
-    val administratorNavIdent: String? = null,
+    val administratorNavIdent: NavIdent? = null,
 )
 
 data class EnhetFilter(
@@ -75,14 +76,14 @@ enum class VirksomhetTil {
 
 data class UtkastFilter(
     val type: Utkasttype,
-    val opprettetAv: String?,
+    val opprettetAv: NavIdent?,
     val avtaleId: UUID?,
 )
 
 data class NotatFilter(
     val avtaleId: UUID? = null,
     val tiltaksgjennomforingId: UUID? = null,
-    val opprettetAv: String? = null,
+    val opprettetAv: NavIdent? = null,
     val sortering: String? = "dato-created-asc",
 )
 

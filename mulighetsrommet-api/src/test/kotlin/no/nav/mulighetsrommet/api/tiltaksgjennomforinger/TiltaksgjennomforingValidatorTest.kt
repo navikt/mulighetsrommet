@@ -22,6 +22,7 @@ import no.nav.mulighetsrommet.api.services.TiltakstypeService
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
+import no.nav.mulighetsrommet.domain.dto.NavIdent
 import java.time.LocalDate
 import java.util.*
 
@@ -44,7 +45,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
         navRegion = "0400",
         navEnheter = listOf("0502"),
         arrangorOrganisasjonsnummer = "000000001",
-        administratorer = listOf("B123456"),
+        administratorer = listOf(NavIdent("B123456")),
     )
 
     lateinit var tiltakstyper: TiltakstypeService

@@ -20,6 +20,7 @@ import no.nav.mulighetsrommet.api.utils.getAdminTiltaksgjennomforingsFilter
 import no.nav.mulighetsrommet.api.utils.getPaginationParams
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dto.Faneinnhold
+import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import org.koin.ktor.ext.inject
@@ -149,7 +150,7 @@ data class TiltaksgjennomforingRequest(
         @Serializable(with = UUIDSerializer::class)
         UUID,
         >,
-    val administratorer: List<String>,
+    val administratorer: List<NavIdent>,
     val navRegion: String,
     val navEnheter: List<String>,
     val oppstart: TiltaksgjennomforingOppstartstype,
@@ -200,7 +201,7 @@ data class SetAvtaleForGjennomforingRequest(
 
 @Serializable
 data class NavKontaktpersonForGjennomforing(
-    val navIdent: String,
+    val navIdent: NavIdent,
     val navEnheter: List<String>,
     val beskrivelse: String?,
 )

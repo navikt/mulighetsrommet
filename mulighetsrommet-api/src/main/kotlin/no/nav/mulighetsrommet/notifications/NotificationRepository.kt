@@ -5,10 +5,11 @@ import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.api.utils.*
+import no.nav.mulighetsrommet.api.utils.DatabaseUtils
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.QueryResult
 import no.nav.mulighetsrommet.database.utils.query
+import no.nav.mulighetsrommet.domain.dto.NavIdent
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
@@ -57,7 +58,7 @@ class NotificationRepository(private val db: Database) {
                     insertUserNotification,
                     mapOf(
                         "notification_id" to notification.id,
-                        "user_id" to userId,
+                        "user_id" to userId.value,
                         "done_at" to null,
                     ),
                 ).asExecute,
@@ -65,7 +66,7 @@ class NotificationRepository(private val db: Database) {
         }
     }
 
-    fun setNotificationDoneAt(id: UUID, userId: String, doneAt: LocalDateTime?): QueryResult<Int> = query {
+    fun setNotificationDoneAt(id: UUID, userId: NavIdent, doneAt: LocalDateTime?): QueryResult<Int> = query {
         logger.info("Setting notification id=$id doneAt=$doneAt")
 
         @Language("PostgreSQL")
@@ -81,7 +82,7 @@ class NotificationRepository(private val db: Database) {
             where un.notification_id = mn.id and (un.user_id = :user_id or mn.type = 'TASK')
         """.trimIndent()
 
-        queryOf(query, mapOf("notification_id" to id, "user_id" to userId, "done_at" to doneAt))
+        queryOf(query, mapOf("notification_id" to id, "user_id" to userId.value, "done_at" to doneAt))
             .asUpdate
             .let { db.run(it) }
     }
@@ -119,7 +120,7 @@ class NotificationRepository(private val db: Database) {
     }
 
     fun getUserNotifications(
-        userId: String? = null,
+        userId: NavIdent? = null,
         status: NotificationStatus? = null,
     ): QueryResult<List<UserNotification>> =
         query {
@@ -137,13 +138,13 @@ class NotificationRepository(private val db: Database) {
             order by created_at desc
             """.trimIndent()
 
-            queryOf(query, mapOf("user_id" to userId))
+            queryOf(query, mapOf("user_id" to userId?.value))
                 .map { it.toUserNotification() }
                 .asList
                 .let { db.run(it) }
         }
 
-    fun getUserNotificationSummary(userId: String): QueryResult<UserNotificationSummary> = query {
+    fun getUserNotificationSummary(userId: NavIdent): QueryResult<UserNotificationSummary> = query {
         @Language("PostgreSQL")
         val query = """
             select count(*) as not_done_count
@@ -153,7 +154,7 @@ class NotificationRepository(private val db: Database) {
               and done_at is null
         """.trimIndent()
 
-        queryOf(query, mapOf("user_id" to userId))
+        queryOf(query, mapOf("user_id" to userId.value))
             .map {
                 UserNotificationSummary(
                     notDoneCount = it.int("not_done_count"),
@@ -182,7 +183,7 @@ class NotificationRepository(private val db: Database) {
         type = NotificationType.valueOf(string("type")),
         title = string("title"),
         description = stringOrNull("description"),
-        user = string("user_id"),
+        user = NavIdent(string("user_id")),
         createdAt = localDateTime("created_at"),
         doneAt = localDateTimeOrNull("done_at"),
         metadata = stringOrNull("metadata")?.let { Json.decodeFromString(it) },

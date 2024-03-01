@@ -28,6 +28,7 @@ import no.nav.mulighetsrommet.api.routes.v1.responses.NotFound
 import no.nav.mulighetsrommet.api.routes.v1.responses.ValidationError
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
+import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.notifications.NotificationRepository
 import no.nav.mulighetsrommet.utils.toUUID
 import java.time.LocalDate
@@ -58,6 +59,8 @@ class AvtaleServiceTest : FunSpec({
         }
     }
 
+    val bertilNavIdent = NavIdent("B123456")
+
     context("Upsert avtale") {
         val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
         val avtaler = AvtaleRepository(database.db)
@@ -79,7 +82,7 @@ class AvtaleServiceTest : FunSpec({
                 ValidationError("navn", "Dårlig navn"),
             ).left()
 
-            avtaleService.upsert(request, "B123456").shouldBeLeft(
+            avtaleService.upsert(request, bertilNavIdent).shouldBeLeft(
                 listOf(ValidationError("navn", "Dårlig navn")),
             )
         }
@@ -105,7 +108,7 @@ class AvtaleServiceTest : FunSpec({
             val avtaleIdSomIkkeFinnes = "3c9f3d26-50ec-45a7-a7b2-c2d8a3653945".toUUID()
             avtaleRepository.upsert(avtale)
 
-            avtaleService.avbrytAvtale(avtaleIdSomIkkeFinnes, "B123456").shouldBeLeft(
+            avtaleService.avbrytAvtale(avtaleIdSomIkkeFinnes, bertilNavIdent).shouldBeLeft(
                 NotFound("Avtalen finnes ikke"),
             )
         }
@@ -119,7 +122,7 @@ class AvtaleServiceTest : FunSpec({
             avtaleRepository.upsert(avtale)
             avtaleRepository.setOpphav(avtale.id, ArenaMigrering.Opphav.ARENA)
 
-            avtaleService.avbrytAvtale(avtale.id, "B123456").shouldBeLeft(
+            avtaleService.avbrytAvtale(avtale.id, bertilNavIdent).shouldBeLeft(
                 BadRequest("Avtalen har opprinnelse fra Arena og kan ikke bli avbrutt fra admin-flate."),
             )
         }
@@ -133,7 +136,7 @@ class AvtaleServiceTest : FunSpec({
             avtaleRepository.upsert(avtale)
             avtaleRepository.setOpphav(avtale.id, ArenaMigrering.Opphav.MR_ADMIN_FLATE)
 
-            avtaleService.avbrytAvtale(avtale.id, "B123456").shouldBeLeft(
+            avtaleService.avbrytAvtale(avtale.id, bertilNavIdent).shouldBeLeft(
                 BadRequest(message = "Avtalen er allerede avsluttet og kan derfor ikke avbrytes."),
             )
         }
@@ -175,7 +178,7 @@ class AvtaleServiceTest : FunSpec({
             tiltaksgjennomforinger.upsert(arbeidstrening)
             tiltaksgjennomforinger.upsert(oppfolging2)
 
-            avtaleService.avbrytAvtale(avtale.id, "B123456").shouldBeLeft(
+            avtaleService.avbrytAvtale(avtale.id, bertilNavIdent).shouldBeLeft(
                 BadRequest("Avtalen har 2 tiltaksgjennomføringer koblet til seg. Du må frikoble gjennomføringene før du kan avbryte avtalen."),
             )
         }
@@ -187,7 +190,7 @@ class AvtaleServiceTest : FunSpec({
             )
             avtaleRepository.upsert(avtale).right()
 
-            avtaleService.avbrytAvtale(avtale.id, "B123456")
+            avtaleService.avbrytAvtale(avtale.id, bertilNavIdent)
         }
     }
 
@@ -209,7 +212,7 @@ class AvtaleServiceTest : FunSpec({
         test("Ingen administrator-notification hvis administrator er samme som opprettet") {
             navAnsattRepository.upsert(
                 NavAnsattDbo(
-                    navIdent = "B123456",
+                    navIdent = bertilNavIdent,
                     fornavn = "Bertil",
                     etternavn = "Bengtson",
                     hovedenhet = "2990",
@@ -220,8 +223,8 @@ class AvtaleServiceTest : FunSpec({
                     skalSlettesDato = null,
                 ),
             )
-            val avtale = AvtaleFixtures.avtaleRequest.copy(administratorer = listOf("B123456"))
-            avtaleService.upsert(avtale, "B123456")
+            val avtale = AvtaleFixtures.avtaleRequest.copy(administratorer = listOf(bertilNavIdent))
+            avtaleService.upsert(avtale, bertilNavIdent)
 
             database.assertThat("user_notification").isEmpty
         }
@@ -229,7 +232,7 @@ class AvtaleServiceTest : FunSpec({
         test("Bare nye administratorer får notification når man endrer gjennomføring") {
             navAnsattRepository.upsert(
                 NavAnsattDbo(
-                    navIdent = "B123456",
+                    navIdent = bertilNavIdent,
                     fornavn = "Bertil",
                     etternavn = "Bengtson",
                     hovedenhet = "2990",
@@ -242,7 +245,7 @@ class AvtaleServiceTest : FunSpec({
             )
             navAnsattRepository.upsert(
                 NavAnsattDbo(
-                    navIdent = "Z654321",
+                    navIdent = NavIdent("Z654321"),
                     fornavn = "Zorre",
                     etternavn = "Zorreszon",
                     hovedenhet = "2990",
@@ -255,7 +258,7 @@ class AvtaleServiceTest : FunSpec({
             )
             navAnsattRepository.upsert(
                 NavAnsattDbo(
-                    navIdent = "T654321",
+                    navIdent = NavIdent("T654321"),
                     fornavn = "Tuva",
                     etternavn = "Testpilot",
                     hovedenhet = "2990",
@@ -266,8 +269,8 @@ class AvtaleServiceTest : FunSpec({
                     skalSlettesDato = null,
                 ),
             )
-            val avtale = AvtaleFixtures.avtaleRequest.copy(administratorer = listOf("Z654321"))
-            avtaleService.upsert(avtale, "B123456")
+            val avtale = AvtaleFixtures.avtaleRequest.copy(administratorer = listOf(NavIdent("Z654321")))
+            avtaleService.upsert(avtale, bertilNavIdent)
 
             database.assertThat("user_notification")
                 .hasNumberOfRows(1)
@@ -277,9 +280,9 @@ class AvtaleServiceTest : FunSpec({
             avtaleService.upsert(
                 avtale.copy(
                     navn = "nytt navn",
-                    administratorer = listOf("Z654321", "T654321", "B123456"),
+                    administratorer = listOf(NavIdent("Z654321"), NavIdent("T654321"), bertilNavIdent),
                 ),
-                "B123456",
+                bertilNavIdent,
             )
 
             database.assertThat("user_notification")
@@ -306,7 +309,7 @@ class AvtaleServiceTest : FunSpec({
         test("Hvis is utkast _ikke_ kaster blir upsert værende") {
             val avtale = AvtaleFixtures.avtaleRequest.copy(id = UUID.randomUUID())
 
-            avtaleService.upsert(avtale, "Z123456")
+            avtaleService.upsert(avtale, NavIdent("Z123456"))
 
             avtaleService.get(avtale.id) shouldNotBe null
         }
@@ -316,7 +319,7 @@ class AvtaleServiceTest : FunSpec({
 
             every { utkastRepository.delete(any(), any()) } throws Exception()
 
-            shouldThrow<Throwable> { avtaleService.upsert(avtale, "B123456") }
+            shouldThrow<Throwable> { avtaleService.upsert(avtale, bertilNavIdent) }
 
             avtaleService.get(avtale.id) shouldBe null
         }

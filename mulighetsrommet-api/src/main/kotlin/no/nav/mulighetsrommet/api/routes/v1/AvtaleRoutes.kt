@@ -19,6 +19,7 @@ import no.nav.mulighetsrommet.api.utils.getAvtaleFilter
 import no.nav.mulighetsrommet.api.utils.getPaginationParams
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
 import no.nav.mulighetsrommet.domain.dto.Faneinnhold
+import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import org.koin.ktor.ext.inject
@@ -75,8 +76,10 @@ fun Route.avtaleRoutes() {
                     null
                 }
             }
-            val overstyrtFilter =
-                filter.copy(sortering = "tiltakstype_navn-ascending", administratorNavIdent = navIdent)
+            val overstyrtFilter = filter.copy(
+                sortering = "tiltakstype_navn-ascending",
+                administratorNavIdent = navIdent,
+            )
             val result = avtaler.getAll(overstyrtFilter, pagination)
             val file = excelService.createExcelFile(result.data)
             call.response.header(
@@ -125,7 +128,7 @@ data class AvtaleRequest(
     @Serializable(with = LocalDateSerializer::class)
     val sluttDato: LocalDate,
     val url: String?,
-    val administratorer: List<String>,
+    val administratorer: List<NavIdent>,
     val avtaletype: Avtaletype,
     val prisbetingelser: String?,
     val navEnheter: List<String>,

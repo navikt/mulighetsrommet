@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api.fixtures
 import no.nav.mulighetsrommet.api.domain.dbo.AvtaleDbo
 import no.nav.mulighetsrommet.api.routes.v1.AvtaleRequest
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
+import no.nav.mulighetsrommet.domain.dto.NavIdent
 import java.time.LocalDate
 import java.util.*
 
@@ -57,7 +58,7 @@ object AvtaleFixtures {
         startDato = LocalDate.of(2023, 1, 11),
         sluttDato = LocalDate.now().plusMonths(3),
         avtaletype = Avtaletype.Rammeavtale,
-        administratorer = listOf("DD1"),
+        administratorer = listOf(NavIdent("DD1")),
         url = "google.com",
         navEnheter = listOf("2990"),
         leverandorKontaktpersonId = null,

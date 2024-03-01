@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api.domain.dto
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.clients.msgraph.AzureAdNavAnsatt
 import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattRolle
+import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import java.time.LocalDate
@@ -12,7 +13,7 @@ import java.util.*
 data class NavAnsattDto(
     @Serializable(with = UUIDSerializer::class)
     val azureId: UUID,
-    val navIdent: String,
+    val navIdent: NavIdent,
     val fornavn: String,
     val etternavn: String,
     val hovedenhet: Hovedenhet,

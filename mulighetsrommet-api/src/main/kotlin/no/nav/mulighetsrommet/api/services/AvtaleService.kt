@@ -23,6 +23,7 @@ import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering.Opphav
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dto.Avtalestatus
+import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.notifications.NotificationRepository
 import no.nav.mulighetsrommet.notifications.NotificationType
 import no.nav.mulighetsrommet.notifications.ScheduledNotification
@@ -43,7 +44,7 @@ class AvtaleService(
         return avtaler.get(id)
     }
 
-    suspend fun upsert(request: AvtaleRequest, navIdent: String): Either<List<ValidationError>, AvtaleAdminDto> {
+    suspend fun upsert(request: AvtaleRequest, navIdent: NavIdent): Either<List<ValidationError>, AvtaleAdminDto> {
         val previous = avtaler.get(request.id)
         return virksomhetService.getOrSyncHovedenhetFromBrreg(request.leverandorOrganisasjonsnummer)
             .mapLeft {
@@ -104,7 +105,7 @@ class AvtaleService(
         return avtaler.getAllAvtalerSomNarmerSegSluttdato()
     }
 
-    fun avbrytAvtale(id: UUID, navIdent: String): StatusResponse<Unit> {
+    fun avbrytAvtale(id: UUID, navIdent: NavIdent): StatusResponse<Unit> {
         val avtale = avtaler.get(id) ?: return Either.Left(NotFound("Avtalen finnes ikke"))
 
         if (avtale.opphav == Opphav.ARENA) {
@@ -149,7 +150,7 @@ class AvtaleService(
     private fun dispatchNotificationToNewAdministrators(
         tx: TransactionalSession,
         dbo: AvtaleDbo,
-        navIdent: String,
+        navIdent: NavIdent,
     ) {
         val currentAdministratorer = get(dbo.id)?.administratorer?.map { it.navIdent }?.toSet() ?: setOf()
 
@@ -168,10 +169,10 @@ class AvtaleService(
     private fun logEndring(
         operation: String,
         dto: AvtaleAdminDto,
-        navIdent: String,
+        navIdent: NavIdent,
         tx: TransactionalSession,
     ) {
-        endringshistorikkService.logEndring(tx, DocumentClass.AVTALE, operation, navIdent, dto.id) {
+        endringshistorikkService.logEndring(tx, DocumentClass.AVTALE, operation, navIdent.value, dto.id) {
             Json.encodeToJsonElement(dto)
         }
     }
