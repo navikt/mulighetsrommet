@@ -1,11 +1,12 @@
-import { SanityFaneinnhold } from "mulighetsrommet-api-client";
-import styles from "../../pages/DetaljerInfo.module.scss";
-import { Alert, BodyLong, Heading } from "@navikt/ds-react";
-import { useTiltakstypeFaneinnhold } from "../../api/tiltaksgjennomforing/useTiltakstypeFaneinnhold";
+import { Alert, BodyLong, BodyShort, Heading } from "@navikt/ds-react";
 import { PortableText } from "@portabletext/react";
-import { InlineErrorBoundary } from "../../ErrorBoundary";
+import { SanityFaneinnhold } from "mulighetsrommet-api-client";
 import React from "react";
+import { InlineErrorBoundary } from "../../ErrorBoundary";
+import { useTiltakstypeFaneinnhold } from "../../api/tiltaksgjennomforing/useTiltakstypeFaneinnhold";
+import styles from "../../pages/DetaljerInfo.module.scss";
 import { Laster } from "../laster/Laster";
+import { Lenkeliste } from "../lenker/Lenkeliste";
 
 interface RedaksjoneltInnholdPreviewProps {
   tiltakstypeId: string;
@@ -26,7 +27,6 @@ export function RedaksjoneltInnholdPreview(props: RedaksjoneltInnholdPreviewProp
 function RedaksjoneltInnhold(props: RedaksjoneltInnholdPreviewProps) {
   const { tiltakstypeId, beskrivelse, faneinnhold } = props;
   const { data: tiltakstypeSanityData } = useTiltakstypeFaneinnhold(tiltakstypeId);
-
   return (
     <div className={styles.red_innhold_container}>
       {tiltakstypeSanityData?.beskrivelse && (
@@ -67,6 +67,12 @@ function RedaksjoneltInnhold(props: RedaksjoneltInnholdPreviewProps) {
         tiltaksgjennomforing={faneinnhold?.kontaktinfo}
         tiltaksgjennomforingAlert={faneinnhold?.kontaktinfoInfoboks}
       />
+      <Heading size="medium">Lenker</Heading>
+      {faneinnhold?.lenker && faneinnhold.lenker.length > 0 ? (
+        <Lenkeliste lenker={faneinnhold.lenker} />
+      ) : (
+        <BodyShort>Ingen lenker lagt inn</BodyShort>
+      )}
       <Heading size="medium">Del med bruker</Heading>
       <BodyLong as="div" size="small">
         {faneinnhold?.delMedBruker ?? tiltakstypeSanityData.delingMedBruker}
