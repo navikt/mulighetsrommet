@@ -33,13 +33,14 @@ jobs:
     name: CI
     runs-on: ubuntu-latest
     container:
-      image: mcr.microsoft.com/playwright:v1.41.1-jammy
+      image: mcr.microsoft.com/playwright:v1.42.1-jammy
     steps:
       - uses: actions/checkout@v4
       - name: Setup frontend
         uses: ./.github/actions/setup-frontend
       - name: Test
         run: npx turbo run lint test:ci playwright --filter=mr-admin-flate
+
   deploy-dev:
     name: Deploy (dev)
     runs-on: ubuntu-latest
@@ -61,7 +62,7 @@ jobs:
       - name: Set up gcloud
         uses: google-github-actions/setup-gcloud@v2
       - name: Upload files to GCS
-        run: gsutil -m rsync -r /home/runner/work/mulighetsrommet/mulighetsrommet/frontend/mr-admin-flate/dist gs://mr-admin-flate-dev
+        run: gsutil -m rsync -r frontend/mr-admin-flate/dist gs://mr-admin-flate-dev
 
   deploy-demo:
     name: Deploy (demo)
@@ -84,7 +85,7 @@ jobs:
       - name: Set up gcloud
         uses: google-github-actions/setup-gcloud@v2
       - name: Upload files to GCS
-        run: gsutil -m rsync -r /home/runner/work/mulighetsrommet/mulighetsrommet/frontend/mr-admin-flate/dist gs://mr-admin-flate-demo
+        run: gsutil -m rsync -r frontend/mr-admin-flate/dist gs://mr-admin-flate-demo
 
   deploy-prod:
     name: Deploy (prod)
@@ -107,4 +108,4 @@ jobs:
       - name: Set up gcloud
         uses: google-github-actions/setup-gcloud@v2
       - name: Upload files to GCS
-        run: gsutil -m rsync -r /home/runner/work/mulighetsrommet/mulighetsrommet/frontend/mr-admin-flate/dist gs://mr-admin-flate-prod
+        run: gsutil -m rsync -r frontend/mr-admin-flate/dist gs://mr-admin-flate-prod
