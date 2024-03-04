@@ -1,0 +1,12 @@
+.button {
+  background-color: var(--a-surface-action);
+  max-height: 2rem;
+
+  &_inner {
+    display: flex;
+    align-items: start;
+    justify-content: space-between;
+    font-size: 1rem;
+    gap: .5rem;
+  }
+}
