@@ -3,8 +3,8 @@ import { useAtom, WritableAtom } from "jotai";
 import { Tiltakstypestatus, VirksomhetTil } from "mulighetsrommet-api-client";
 import { useEffect, useState } from "react";
 import {
-  TiltaksgjennomforingFilter as TiltaksgjennomforingFilterProps,
   gjennomforingFilterAccordionAtom,
+  TiltaksgjennomforingFilter as TiltaksgjennomforingFilterProps,
 } from "../../api/atoms";
 import { useAvtale } from "../../api/avtaler/useAvtale";
 import { useNavEnheter } from "../../api/enhet/useNavEnheter";
@@ -19,6 +19,7 @@ import {
   tiltakstypeOptions,
   virksomhetOptions,
 } from "../../utils/filterUtils";
+import { FilterAccordionHeader } from "./FilterAccordionHeader";
 
 type Filters = "tiltakstype";
 
@@ -98,7 +99,7 @@ export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
               setAccordionsOpen([...addOrRemove(accordionsOpen, "status")]);
             }}
           >
-            Status
+            <FilterAccordionHeader tittel="Status" antallValgteFilter={filter.statuser.length} />
           </Accordion.Header>
           <Accordion.Content>
             <CheckboxList
@@ -122,7 +123,10 @@ export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
                 setAccordionsOpen([...addOrRemove(accordionsOpen, "tiltakstype")]);
               }}
             >
-              Tiltakstype
+              <FilterAccordionHeader
+                tittel="Tiltakstype"
+                antallValgteFilter={filter.tiltakstyper.length}
+              />
             </Accordion.Header>
             <Accordion.Content>
               <CheckboxList
@@ -145,7 +149,7 @@ export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
               setAccordionsOpen([...addOrRemove(accordionsOpen, "region")]);
             }}
           >
-            Region
+            <FilterAccordionHeader tittel="Region" antallValgteFilter={filter.navRegioner.length} />
           </Accordion.Header>
           <Accordion.Content>
             <CheckboxList
@@ -167,7 +171,7 @@ export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
               setAccordionsOpen([...addOrRemove(accordionsOpen, "enhet")]);
             }}
           >
-            Enhet
+            <FilterAccordionHeader tittel="Enhet" antallValgteFilter={filter.navEnheter.length} />
           </Accordion.Header>
           <Accordion.Content>
             <CheckboxList
@@ -190,7 +194,10 @@ export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
               setAccordionsOpen([...addOrRemove(accordionsOpen, "arrangor")]);
             }}
           >
-            Arrangør
+            <FilterAccordionHeader
+              tittel="Arrangør"
+              antallValgteFilter={filter.arrangorOrgnr.length}
+            />
           </Accordion.Header>
           <Accordion.Content>
             <CheckboxList
