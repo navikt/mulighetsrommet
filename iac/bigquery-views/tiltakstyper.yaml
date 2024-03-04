@@ -21,6 +21,6 @@ spec:
       SELECT
         id,
         navn,
-        tiltakskode,
-        rett_paa_tiltakspenger
+        tiltakskode as arena_kode
       FROM datastream_mulighetsrommet_api_db.public_tiltakstype
+      WHERE skal_migreres
