@@ -25,7 +25,7 @@ import { AvtalerPage } from "./pages/avtaler/AvtalerPage";
 import { AvtaleInfo } from "./pages/avtaler/AvtaleInfo";
 import TiltaksgjennomforingSkjemaPage from "./pages/tiltaksgjennomforinger/TiltaksgjennomforingSkjemaPage";
 import { TiltaksgjennomforingerForAvtalePage } from "./pages/tiltaksgjennomforinger/TiltaksgjennomforingerForAvtalePage";
-import { initializeAmplitude } from "./amplitude";
+import { initializeAmplitude } from "./logging/amplitude";
 
 if (import.meta.env.PROD) {
   initializeFaro({
