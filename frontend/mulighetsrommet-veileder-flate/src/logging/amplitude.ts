@@ -25,9 +25,10 @@ export function initAmplitudeModia() {
 
 export function initAmplitudeNav() {
   amplitude.init(import.meta.env.VITE_AMPLITUDE_API_KEY, {
-    serverUrl: "amplitude.nav.no/collect",
+    serverUrl: "https://amplitude.nav.no/collect",
     serverZone: "EU",
     instanceName: "nav-arbeidsmarkedstiltak",
+    defaultTracking: true,
   });
   amplitudeLogger = (params: { eventName: string; eventData?: any }) =>
     amplitude.logEvent(params.eventName, params.eventData);
