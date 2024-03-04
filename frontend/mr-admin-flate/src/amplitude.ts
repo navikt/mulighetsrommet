@@ -4,9 +4,9 @@ import { getEnvironment } from "./api/getEnvironment";
 function getApiKeyFromEnvironment() {
   switch (getEnvironment()) {
     case "production":
-      return ""; // TODO Legg inn ApiKey for Amplitude i prod
+      return "94b44c9f436db8d9d42b493fdd7d98c9"; // TODO Legg inn ApiKey for Amplitude i prod
     case "development":
-      return ""; // TODO Legg inn ApiKey for Amplitude i dev
+      return "42076036673d4b35d862b4282840f30b";
     case "local":
       return ""; // TODO Legg inn ApiKey for Amplitude lokalt?
   }
