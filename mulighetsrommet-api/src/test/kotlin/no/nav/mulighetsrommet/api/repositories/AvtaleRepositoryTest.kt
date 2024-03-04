@@ -353,6 +353,7 @@ class AvtaleRepositoryTest : FunSpec({
                 avtaler.setAvslutningsstatus(avtalePlanlagt.id, Avslutningsstatus.IKKE_AVSLUTTET)
 
                 forAll(
+                    row(listOf(Avtalestatus.Aktiv), listOf(avtaleAktiv.id, avtalePlanlagt.id)),
                     row(listOf(Avtalestatus.Avbrutt), listOf(avtaleAvbrutt.id)),
                     row(listOf(Avtalestatus.Avsluttet), listOf(avtaleAvsluttetStatus.id, avtaleAvsluttetDato.id)),
                     row(
