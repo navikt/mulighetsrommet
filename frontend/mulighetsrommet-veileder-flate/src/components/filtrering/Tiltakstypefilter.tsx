@@ -1,7 +1,7 @@
 import { useTiltakstyper } from "@/core/api/queries/useTiltakstyper";
 import { useArbeidsmarkedstiltakFilter } from "@/hooks/useArbeidsmarkedstiltakFilter";
 import CheckboxFilter from "./CheckboxFilter";
-import styles from "@/components/filtrering/NavEnhetFilter.module.scss";
+import { FilterAccordionHeader } from "@/components/filtrering/FilterAccordionHeader";
 
 interface Props {
   antallValgteTiltakstyper: number;
@@ -13,12 +13,7 @@ export function Tiltakstypefilter({ antallValgteTiltakstyper }: Props) {
   return (
     <CheckboxFilter
       accordionHeader={
-        <div className={styles.accordion_header_text}>
-          <span>Tiltakstyper</span>
-          {antallValgteTiltakstyper !== 0 ? (
-            <span className={styles.antall_filter}>{antallValgteTiltakstyper}</span>
-          ) : null}
-        </div>
+        <FilterAccordionHeader tittel="Tiltakstype" antallValgteFilter={antallValgteTiltakstyper} />
       }
       accordionNavn="Tiltakstyper"
       options={filter.tiltakstyper}

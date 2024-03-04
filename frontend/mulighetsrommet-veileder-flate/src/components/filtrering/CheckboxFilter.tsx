@@ -3,7 +3,7 @@ import { useAtom } from "jotai";
 import React from "react";
 import { filterAccordionAtom } from "@/core/atoms/atoms";
 import { addOrRemove, kebabCase } from "@/utils/Utils";
-import styles from "@/components/filtrering/NavEnhetFilter.module.scss";
+import styles from "@/components/filtrering/CheckboxFilter.module.scss";
 
 interface CheckboxFilterProps<T extends { id: string; tittel: string }> {
   accordionHeader: React.ReactNode;

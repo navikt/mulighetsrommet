@@ -7,7 +7,7 @@ import { addOrRemove } from "../../utils/Utils";
 import "./FilterToggle.module.scss";
 
 export interface Props {
-  accordionHeader: string;
+  accordionHeader: React.ReactNode;
   value: string;
   onChange(value: any): void;
   venstreTekst: React.ReactNode;

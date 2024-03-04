@@ -12,6 +12,7 @@ import InnsatsgruppeFilter from "./InnsatsgruppeFilter";
 import { NavEnhetFilter } from "./NavEnhetFilter";
 import Sokefelt from "./Sokefelt";
 import { Tiltakstypefilter } from "./Tiltakstypefilter";
+import { FilterAccordionHeader } from "@/components/filtrering/FilterAccordionHeader";
 
 export const Filtermeny = () => {
   const [filter, setFilter] = useArbeidsmarkedstiltakFilter();
@@ -24,7 +25,7 @@ export const Filtermeny = () => {
       />
       <Accordion>
         <FilterToggle
-          accordionHeader="Åpent for innsøk"
+          accordionHeader={<FilterAccordionHeader tittel="Åpent for innsøk" />}
           value={filter.apentForInnsok}
           onChange={(apentForInnsok) => {
             setFilter({ ...filter, apentForInnsok });

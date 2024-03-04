@@ -7,6 +7,7 @@ import { useArbeidsmarkedstiltakFilter } from "@/hooks/useArbeidsmarkedstiltakFi
 import { addOrRemove, kebabCase } from "@/utils/Utils";
 import "./Filtermeny.module.scss";
 import styles from "./InnsatsgruppeFilter.module.scss";
+import { FilterAccordionHeader } from "@/components/filtrering/FilterAccordionHeader";
 
 interface InnsatsgruppeFilterProps<
   T extends { id: string; tittel: string; nokkel?: Innsatsgruppe },
@@ -46,20 +47,22 @@ const InnsatsgruppeAccordion = <T extends { id: string; tittel: string; nokkel?:
         data-testid="filter_accordionheader_innsatsgruppe"
         className={styles.accordion_header}
       >
-        <div className={styles.accordion_header_text}>
-          Innsatsgruppe
-          <HelpText placement="right" strategy="fixed" onClick={(e) => e.stopPropagation()}>
-            Filteret viser de tiltakene som kan være aktuelle for brukere med valgt innsatsgruppe.
-            <br />
-            <a
-              href="https://navno.sharepoint.com/sites/fag-og-ytelser-arbeid-tiltak-og-virkemidler/SitePages/Tiltak-og-virkemidler-etter-innsatsbehov.aspx"
-              rel="noreferrer"
-              target="_blank"
-            >
-              Se mer informasjon om innsatsgruppe og tiltak her.
-            </a>
-          </HelpText>
-        </div>
+        <FilterAccordionHeader
+          tittel="Innsatsgruppe"
+          tilleggsinformasjon={
+            <HelpText placement="right" strategy="fixed" onClick={(e) => e.stopPropagation()}>
+              Filteret viser de tiltakene som kan være aktuelle for brukere med valgt innsatsgruppe.
+              <br />
+              <a
+                href="https://navno.sharepoint.com/sites/fag-og-ytelser-arbeid-tiltak-og-virkemidler/SitePages/Tiltak-og-virkemidler-etter-innsatsbehov.aspx"
+                rel="noreferrer"
+                target="_blank"
+              >
+                Se mer informasjon om innsatsgruppe og tiltak her.
+              </a>
+            </HelpText>
+          }
+        />
       </Accordion.Header>
       <Accordion.Content data-testid="filter_accordioncontent_innsatsgruppe">
         {options.length !== 0 && (
