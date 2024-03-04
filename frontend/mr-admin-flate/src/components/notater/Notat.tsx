@@ -2,7 +2,7 @@ import styles from "./Notater.module.scss";
 import { BodyLong, BodyShort, Button } from "@navikt/ds-react";
 import { formaterDatoTid } from "../../utils/Utils";
 import { TrashIcon } from "@navikt/aksel-icons";
-import { Lenke } from "mulighetsrommet-frontend-common/components/Lenke";
+import { Lenke } from "../../../../frontend-common/components/lenke/Lenke";
 import { AvtaleNotat, TiltaksgjennomforingNotat } from "mulighetsrommet-api-client";
 import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
 import { NOM_ANSATT_SIDE } from "mulighetsrommet-frontend-common/constants";
