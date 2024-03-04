@@ -35,26 +35,38 @@ updates:
       timezone: Europe/Oslo
     open-pull-requests-limit: 10
     groups:
+      playwright:
+        patterns:
+          - "playwright"
+          - "@playwright/test"
+
       nav-designsystem:
         patterns:
           - "@navikt/aksel-*"
           - "@navikt/ds-*"
+
       react:
         patterns:
           - "react"
           - "react-dom"
+
       patches:
         update-types:
           - "patch"
         exclude-patterns:
+          - "playwright"
+          - "@playwright/test"
           - "react"
           - "react-dom"
           - "@navikt/aksel-*"
           - "@navikt/ds-*"
+
       minorversions:
         update-types:
           - "minor"
         exclude-patterns:
+          - "playwright"
+          - "@playwright/test"
           - "react"
           - "react-dom"
           - "@navikt/aksel-*"
