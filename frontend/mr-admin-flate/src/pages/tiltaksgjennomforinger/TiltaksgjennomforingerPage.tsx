@@ -9,6 +9,7 @@ import { TiltaksgjennomforingFilterButtons } from "../../components/filter/Tilta
 import { TiltaksgjennomforingFilterTags } from "../../components/filter/TiltaksgjennomforingFilterTags";
 import { TiltaksgjennomforingFilter } from "../../components/filter/Tiltaksgjennomforingfilter";
 import { ReloadAppErrorBoundary } from "../../ErrorBoundary";
+import { TilToppenKnapp } from "../../../../frontend-common/components/tilToppenKnapp/TilToppenKnapp";
 
 export function TiltaksgjennomforingerPage() {
   useTitle("Tiltaksgjennomføringer");
@@ -32,6 +33,7 @@ export function TiltaksgjennomforingerPage() {
           />
         </ContainerLayout>
       </MainContainer>
+      <TilToppenKnapp />
     </>
   );
 }
