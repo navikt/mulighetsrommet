@@ -82,7 +82,6 @@ export function NavEnhetFilter({
           setAccordionsOpen([...addOrRemove(accordionsOpen, "brukers-enhet")]);
         }}
         data-testid="filter_accordionheader_brukers-enhet"
-        className={styles.accordion_header_med_antall}
       >
         <FilterAccordionHeader tittel="NAV-enhet" antallValgteFilter={antallValgteEnheter} />
       </Accordion.Header>

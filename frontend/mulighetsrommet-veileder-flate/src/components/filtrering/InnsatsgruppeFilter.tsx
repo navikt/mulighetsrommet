@@ -6,7 +6,6 @@ import { filterAccordionAtom } from "@/core/atoms/atoms";
 import { useArbeidsmarkedstiltakFilter } from "@/hooks/useArbeidsmarkedstiltakFilter";
 import { addOrRemove, kebabCase } from "@/utils/Utils";
 import "./Filtermeny.module.scss";
-import styles from "./InnsatsgruppeFilter.module.scss";
 import { FilterAccordionHeader } from "@/components/filtrering/FilterAccordionHeader";
 
 interface InnsatsgruppeFilterProps<
@@ -45,7 +44,6 @@ const InnsatsgruppeAccordion = <T extends { id: string; tittel: string; nokkel?:
           setAccordionsOpen([...addOrRemove(accordionsOpen, "innsatsgruppe")]);
         }}
         data-testid="filter_accordionheader_innsatsgruppe"
-        className={styles.accordion_header}
       >
         <FilterAccordionHeader
           tittel="Innsatsgruppe"
