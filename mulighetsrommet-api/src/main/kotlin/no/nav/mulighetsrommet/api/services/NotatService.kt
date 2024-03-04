@@ -14,6 +14,7 @@ import no.nav.mulighetsrommet.api.routes.v1.responses.StatusResponse
 import no.nav.mulighetsrommet.api.utils.NotatFilter
 import no.nav.mulighetsrommet.database.utils.QueryResult
 import no.nav.mulighetsrommet.database.utils.getOrThrow
+import no.nav.mulighetsrommet.domain.dto.NavIdent
 import org.slf4j.LoggerFactory
 import java.util.*
 
@@ -42,7 +43,7 @@ class NotatService(
         return avtaleNotatRepository.get(id)
     }
 
-    fun deleteAvtaleNotat(id: UUID, navIdent: String): StatusResponse<Int> {
+    fun deleteAvtaleNotat(id: UUID, navIdent: NavIdent): StatusResponse<Int> {
         logger.info("Prøver å slette avtalenotat med id: '$id'")
         val notatForSletting = avtaleNotatRepository.get(id).getOrThrow()
 
@@ -75,7 +76,7 @@ class NotatService(
         return tiltaksgjennomforingNotatRepository.get(id)
     }
 
-    fun deleteTiltaksgjennomforingNotat(id: UUID, navIdent: String): StatusResponse<Int> {
+    fun deleteTiltaksgjennomforingNotat(id: UUID, navIdent: NavIdent): StatusResponse<Int> {
         logger.info("Prøver å slette notat for tiltaksgjennomføring med id: '$id'")
         val notatForSletting = tiltaksgjennomforingNotatRepository.get(id).getOrThrow()
 

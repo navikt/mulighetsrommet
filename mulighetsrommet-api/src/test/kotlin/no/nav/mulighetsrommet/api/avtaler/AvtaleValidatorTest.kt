@@ -28,6 +28,7 @@ import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListe
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
+import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.env.NaisEnv
 import java.time.LocalDate
 import java.util.*
@@ -46,7 +47,7 @@ class AvtaleValidatorTest : FunSpec({
         startDato = LocalDate.now().minusDays(1),
         sluttDato = LocalDate.now().plusMonths(1),
         url = "http://localhost:8080",
-        administratorer = listOf("B123456"),
+        administratorer = listOf(NavIdent("B123456")),
         avtaletype = Avtaletype.Avtale,
         prisbetingelser = null,
         navEnheter = listOf("0400", "0502"),
@@ -208,7 +209,7 @@ class AvtaleValidatorTest : FunSpec({
                 startDato = LocalDate.now(),
                 sluttDato = LocalDate.now().plusYears(1),
                 url = "nav.no",
-                administratorer = listOf("B123456"),
+                administratorer = listOf(NavIdent("B123456")),
                 avtaletype = Avtaletype.Rammeavtale,
                 prisbetingelser = null,
                 navEnheter = listOf("0300"),

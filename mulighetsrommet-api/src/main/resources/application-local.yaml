@@ -49,6 +49,9 @@ app:
       amtVirksomheterV1:
         id: amt-virksomheter
         topic: amt.virksomheter-v1
+      ptoSisteOppfolgingsperiodeV1:
+        id: pto-virksomheter
+        topic: pto.siste-oppfolgingsperiode-v1
 
   auth:
     azure:
@@ -111,6 +114,11 @@ app:
   axsys:
     url: https://axsys.dev-fss-pub.nais.io # TODO Url for wiremock for axsys
     scope: default # TODO scope for wiremock for axsys
+
+  pdl:
+    url: http://localhost:8090/pdl
+    scope: default
+
 
   tasks:
     deleteExpiredTiltakshistorikk:

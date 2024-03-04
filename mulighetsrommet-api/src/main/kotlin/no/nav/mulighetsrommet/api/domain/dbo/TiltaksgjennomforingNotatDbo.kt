@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.domain.dbo
 
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.domain.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import java.time.LocalDateTime
@@ -16,6 +17,6 @@ data class TiltaksgjennomforingNotatDbo(
     val createdAt: LocalDateTime?,
     @Serializable(with = LocalDateTimeSerializer::class)
     val updatedAt: LocalDateTime?,
-    val opprettetAv: String?,
+    val opprettetAv: NavIdent?,
     val innhold: String,
 )

@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api.repositories
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.data.forAll
 import io.kotest.data.row
+import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldNotBeNull
@@ -124,21 +125,18 @@ class AvtaleRepositoryTest : FunSpec({
             )
 
             avtaler.upsert(avtale1)
-
-            database.assertThat("avtale_administrator").row()
-                .value("avtale_id").isEqualTo(avtale1.id)
-                .value("nav_ident").isEqualTo(ansatt1.navIdent)
+            avtaler.get(avtale1.id)?.administratorer shouldContainExactlyInAnyOrder listOf(
+                AvtaleAdminDto.Administrator(ansatt1.navIdent, "Donald Duck"),
+            )
 
             avtaler.upsert(avtale1.copy(administratorer = listOf(ansatt1.navIdent, ansatt2.navIdent)))
+            avtaler.get(avtale1.id)?.administratorer shouldContainExactlyInAnyOrder listOf(
+                AvtaleAdminDto.Administrator(ansatt1.navIdent, "Donald Duck"),
+                AvtaleAdminDto.Administrator(ansatt2.navIdent, "Dolly Duck"),
+            )
 
-            database.assertThat("avtale_administrator")
-                .hasNumberOfRows(2)
-                .row()
-                .value("avtale_id").isEqualTo(avtale1.id)
-                .value("nav_ident").isEqualTo(ansatt1.navIdent)
-                .row()
-                .value("avtale_id").isEqualTo(avtale1.id)
-                .value("nav_ident").isEqualTo(ansatt2.navIdent)
+            avtaler.upsert(avtale1.copy(administratorer = listOf()))
+            avtaler.get(avtale1.id).shouldNotBeNull().administratorer.shouldBeEmpty()
         }
 
         test("Leverandør kontaktperson") {

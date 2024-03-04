@@ -82,7 +82,7 @@ class EndringshistorikkServiceTest : FunSpec({
         endringshistorikk.logEndring(
             DocumentClass.AVTALE,
             operation = "OPPRETTET",
-            userId = ansatt1.navIdent,
+            userId = ansatt1.navIdent.value,
             documentId = id,
             timestamp = LocalDateTime.of(2023, 1, 1, 9, 0, 0),
         ) { Json.parseToJsonElement("""{ "navn": "Ny avtale" }""") }
@@ -90,7 +90,7 @@ class EndringshistorikkServiceTest : FunSpec({
         endringshistorikk.logEndring(
             DocumentClass.AVTALE,
             operation = "ENDRET",
-            userId = ansatt2.navIdent,
+            userId = ansatt2.navIdent.value,
             documentId = id,
             timestamp = LocalDateTime.of(2023, 1, 2, 9, 0, 0),
         ) { Json.parseToJsonElement("""{ "navn": "Endret avtale" }""") }

@@ -20,6 +20,7 @@ import no.nav.mulighetsrommet.domain.dbo.ArenaAvtaleDbo
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dto.Avtalestatus
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
+import no.nav.mulighetsrommet.domain.dto.NavIdent
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
 import java.time.LocalDate
@@ -120,14 +121,14 @@ class AvtaleRepository(private val db: Database) {
             queryOf(
                 upsertAdministrator,
                 avtale.id,
-                administrator,
+                administrator.value,
             ).asExecute.let { tx.run(it) }
         }
 
         queryOf(
             deleteAdministratorer,
             avtale.id,
-            db.createTextArray(avtale.administratorer),
+            db.createTextArray(avtale.administratorer.map { it.value }),
         ).asExecute.let { tx.run(it) }
 
         avtale.navEnheter.forEach { enhet ->
@@ -233,14 +234,14 @@ class AvtaleRepository(private val db: Database) {
         sortering: String? = null,
         dagensDato: LocalDate = LocalDate.now(),
         leverandorOrgnr: List<String> = emptyList(),
-        administratorNavIdent: String? = null,
+        administratorNavIdent: NavIdent? = null,
     ): Pair<Int, List<AvtaleAdminDto>> {
         val parameters = mapOf(
             "search" to "%${search?.replace("/", "#")?.trim()}%",
             "limit" to pagination.limit,
             "offset" to pagination.offset,
             "today" to dagensDato,
-            "administrator_nav_ident" to administratorNavIdent?.let { """[{"navIdent": "$it" }]""" },
+            "administrator_nav_ident" to administratorNavIdent?.let { """[{"navIdent": "${it.value}" }]""" },
         )
 
         val where = DatabaseUtils.andWhereParameterNotNull(
@@ -510,7 +511,7 @@ class AvtaleRepository(private val db: Database) {
             navn = string("navn"),
             startDato = startDato,
             sluttDato = sluttDato,
-            administratorer = administratorer,
+            administratorer = administratorer.map { NavIdent(it) },
         )
     }
 }

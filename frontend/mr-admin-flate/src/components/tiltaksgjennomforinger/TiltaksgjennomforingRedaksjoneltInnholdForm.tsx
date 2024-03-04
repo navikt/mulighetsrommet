@@ -2,7 +2,7 @@ import { Button, Heading, HStack, Modal } from "@navikt/ds-react";
 import { Avtale, Tiltaksgjennomforing } from "mulighetsrommet-api-client";
 import { RedaksjoneltInnholdForm } from "../redaksjonelt-innhold/RedaksjoneltInnholdForm";
 import { useFormContext } from "react-hook-form";
-import { InferredTiltaksgjennomforingSchema } from "./TiltaksgjennomforingSchema";
+import { InferredTiltaksgjennomforingSchema } from "../redaksjonelt-innhold/TiltaksgjennomforingSchema";
 import { useState } from "react";
 import { RedaksjoneltInnholdContainer } from "../redaksjonelt-innhold/RedaksjoneltInnholdContainer";
 import styles from "../modal/LeggTilGjennomforingModal.module.scss";

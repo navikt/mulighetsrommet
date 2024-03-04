@@ -8,7 +8,7 @@ import {
   Virksomhet,
 } from "mulighetsrommet-api-client";
 import { DeepPartial } from "react-hook-form";
-import { InferredAvtaleSchema } from "./AvtaleSchema";
+import { InferredAvtaleSchema } from "../redaksjonelt-innhold/AvtaleSchema";
 
 export const getLokaleUnderenheterAsSelectOptions = (
   navRegioner: string[],

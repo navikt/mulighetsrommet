@@ -20,6 +20,7 @@ import no.nav.mulighetsrommet.api.clients.dialog.VeilarbdialogClient
 import no.nav.mulighetsrommet.api.clients.msgraph.MicrosoftGraphClient
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Client
 import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClient
+import no.nav.mulighetsrommet.api.clients.pdl.PdlClient
 import no.nav.mulighetsrommet.api.clients.person.VeilarbpersonClient
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClient
@@ -35,6 +36,7 @@ import no.nav.mulighetsrommet.kafka.KafkaConsumerRepositoryImpl
 import no.nav.mulighetsrommet.kafka.consumers.TiltaksgjennomforingTopicConsumer
 import no.nav.mulighetsrommet.kafka.consumers.amt.AmtDeltakerV1TopicConsumer
 import no.nav.mulighetsrommet.kafka.consumers.amt.AmtVirksomheterV1TopicConsumer
+import no.nav.mulighetsrommet.kafka.consumers.pto.PtoSisteOppfolgingsperiodeV1TopicConsumer
 import no.nav.mulighetsrommet.kafka.producers.ArenaMigreringTiltaksgjennomforingKafkaProducer
 import no.nav.mulighetsrommet.kafka.producers.TiltaksgjennomforingKafkaProducer
 import no.nav.mulighetsrommet.kafka.producers.TiltakstypeKafkaProducer
@@ -143,6 +145,11 @@ private fun kafka(appConfig: AppConfig) = module {
                 virksomhetRepository = get(),
                 virksomhetService = get(),
             ),
+            PtoSisteOppfolgingsperiodeV1TopicConsumer(
+                config = config.consumers.ptoSisteOppfolgingsperiodeV1,
+                tiltakshistorikkService = get(),
+                pdlClient = get(),
+            ),
         )
         KafkaConsumerOrchestrator(
             consumerPreset = properties,
@@ -164,7 +171,6 @@ private fun repositories() = module {
     single { VirksomhetRepository(get()) }
     single { KafkaConsumerRepositoryImpl(get()) }
     single { MetrikkRepository(get()) }
-    single { UtkastRepository(get()) }
     single { AvtaleNotatRepository(get()) }
     single { TiltaksgjennomforingNotatRepository(get()) }
     single { VeilederJoyrideRepository(get()) }
@@ -174,15 +180,19 @@ private fun services(appConfig: AppConfig) = module {
     val m2mTokenProvider = createM2mTokenClient(appConfig)
     val oboTokenProvider = createOboTokenClient(appConfig)
 
-    single<VeilarboppfolgingClient> {
+    single {
         VeilarboppfolgingClient(
             baseUrl = appConfig.veilarboppfolgingConfig.url,
             tokenProvider = { token ->
-                oboTokenProvider.exchangeOnBehalfOfToken(appConfig.veilarboppfolgingConfig.scope, token)
+                if (token == null) {
+                    m2mTokenProvider.createMachineToMachineToken(appConfig.veilarboppfolgingConfig.scope)
+                } else {
+                    oboTokenProvider.exchangeOnBehalfOfToken(appConfig.veilarboppfolgingConfig.scope, token)
+                }
             },
         )
     }
-    single<VeilarbvedtaksstotteClient> {
+    single {
         VeilarbvedtaksstotteClient(
             baseUrl = appConfig.veilarbvedtaksstotteConfig.url,
             tokenProvider = { token ->
@@ -190,7 +200,7 @@ private fun services(appConfig: AppConfig) = module {
             },
         )
     }
-    single<VeilarbpersonClient> {
+    single {
         VeilarbpersonClient(
             baseUrl = appConfig.veilarbpersonConfig.url,
             tokenProvider = { token ->
@@ -198,11 +208,23 @@ private fun services(appConfig: AppConfig) = module {
             },
         )
     }
-    single<VeilarbdialogClient> {
+    single {
         VeilarbdialogClient(
             baseUrl = appConfig.veilarbdialogConfig.url,
             tokenProvider = { token ->
                 oboTokenProvider.exchangeOnBehalfOfToken(appConfig.veilarbdialogConfig.scope, token)
+            },
+        )
+    }
+    single {
+        PdlClient(
+            baseUrl = appConfig.pdl.url,
+            tokenProvider = { token ->
+                if (token == null) {
+                    m2mTokenProvider.createMachineToMachineToken(appConfig.pdl.scope)
+                } else {
+                    oboTokenProvider.exchangeOnBehalfOfToken(appConfig.pdl.scope, token)
+                }
             },
         )
     }
@@ -213,7 +235,7 @@ private fun services(appConfig: AppConfig) = module {
             tokenProvider = { m2mTokenProvider.createMachineToMachineToken(appConfig.poaoTilgang.scope) },
         )
     }
-    single<MicrosoftGraphClient> {
+    single {
         MicrosoftGraphClient(
             baseUrl = appConfig.msGraphConfig.url,
             tokenProvider = { token ->
@@ -225,13 +247,13 @@ private fun services(appConfig: AppConfig) = module {
             },
         )
     }
-    single<ArenaAdapterClient> {
+    single {
         ArenaAdapterClient(
             baseUrl = appConfig.arenaAdapter.url,
             machineToMachineTokenClient = { m2mTokenProvider.createMachineToMachineToken(appConfig.arenaAdapter.scope) },
         )
     }
-    single<Norg2Client> {
+    single {
         Norg2Client(
             baseUrl = appConfig.norg2.baseUrl,
         )
@@ -261,6 +283,7 @@ private fun services(appConfig: AppConfig) = module {
             get(),
             get(),
             get(),
+            get(),
         )
     }
     single {
@@ -272,10 +295,9 @@ private fun services(appConfig: AppConfig) = module {
             get(),
             get(),
             get(),
-            get(),
         )
     }
-    single { TiltakshistorikkService(get(), get()) }
+    single { TiltakshistorikkService(get(), get(), get()) }
     single { VeilederflateService(get(), get(), get(), get()) }
     single { BrukerService(get(), get(), get(), get()) }
     single { DialogService(get()) }
@@ -285,7 +307,6 @@ private fun services(appConfig: AppConfig) = module {
     single { MicrosoftGraphService(get()) }
     single {
         TiltaksgjennomforingService(
-            get(),
             get(),
             get(),
             get(),
@@ -307,7 +328,6 @@ private fun services(appConfig: AppConfig) = module {
     single { VirksomhetService(get(), get()) }
     single { ExcelService() }
     single { MetrikkService(get()) }
-    single { UtkastService(get()) }
     single { NotatService(get(), get()) }
     single {
         val byEnhetStrategy = ByEnhetStrategy(get())

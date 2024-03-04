@@ -90,6 +90,7 @@ fun createTestApplicationConfig() = AppConfig(
         environment = "",
     ),
     axsys = ServiceClientConfig(url = "", scope = ""),
+    pdl = ServiceClientConfig(url = "", scope = ""),
     migrerteTiltak = emptyList(),
 )
 
@@ -112,6 +113,7 @@ fun createKafkaConfig(): KafkaConfig {
             ),
             amtDeltakerV1 = KafkaTopicConsumer.Config(id = "amt-deltaker", topic = "amt-deltaker"),
             amtVirksomheterV1 = KafkaTopicConsumer.Config(id = "amt-virksomheter", topic = "amt-virksomheter"),
+            ptoSisteOppfolgingsperiodeV1 = KafkaTopicConsumer.Config(id = "pto-sisteoppfolgingsperiode", topic = "pto-sisteoppfolgingsperiode"),
         ),
     )
 }
