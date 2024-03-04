@@ -1,9 +1,7 @@
-import { LayersPlusIcon } from "@navikt/aksel-icons";
-import { Button } from "@navikt/ds-react";
 import { Opphav, Tiltaksgjennomforing } from "mulighetsrommet-api-client";
 import { useNavigate } from "react-router-dom";
 import { useMigrerteTiltakstyper } from "../../api/tiltakstyper/useMigrerteTiltakstyper";
-import styles from "./DupliserTiltak.module.scss";
+import { DupliserButton } from "../detaljside/DupliserButton";
 
 interface Props {
   tiltaksgjennomforing: Tiltaksgjennomforing;
@@ -30,17 +28,9 @@ export function DupliserTiltak({ tiltaksgjennomforing }: Props) {
   }
 
   return (
-    <Button
+    <DupliserButton
       title="Dupliser tiltaksgjennomføring"
-      className={styles.button}
       onClick={apneRedigeringForDupliseringAvTiltak}
-    >
-      <LayersPlusIcon
-        style={{ margin: "0 auto", display: "block" }}
-        color="white"
-        fontSize="1.5rem"
-        aria-label="Ikon for duplisering av dokument"
-      />
-    </Button>
+    />
   );
 }
