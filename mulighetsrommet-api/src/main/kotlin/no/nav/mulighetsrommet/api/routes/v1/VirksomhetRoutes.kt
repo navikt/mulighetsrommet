@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.routes.v1
 
 import arrow.core.Either
+import arrow.core.flatMap
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.plugins.*
@@ -74,14 +75,14 @@ fun Route.virksomhetRoutes() {
 
         put("{orgnr}/kontaktperson") {
             val orgnr = call.parameters.getOrFail("orgnr").also { validateOrgnr(it) }
-
             val virksomhetKontaktperson = call.receive<VirksomhetKontaktpersonRequest>()
-            val result = virksomhetKontaktperson
-                .toDto(orgnr)
+
+            val result = virksomhetService.getOrSyncHovedenhetFromBrreg(orgnr)
+                .mapLeft { toStatusResponseError(it) }
+                .flatMap { virksomhetKontaktperson.toDto(orgnr) }
                 .map { virksomhetService.upsertKontaktperson(it) }
-                .onLeft {
-                    application.log.error(it.message)
-                }
+                .onLeft { application.log.warn("Klarte ikke opprette kontaktperson: $it") }
+
             call.respondWithStatusResponse(result)
         }
 
@@ -131,8 +132,20 @@ data class VirksomhetKontaktpersonRequest(
     val epost: String,
 ) {
     fun toDto(orgnr: String): StatusResponse<VirksomhetKontaktperson> {
-        if (navn.isEmpty() || epost.isEmpty()) {
-            return Either.Left(BadRequest("Verdier kan ikke være tomme"))
+        val navn = navn.trim()
+        val epost = epost.trim()
+
+        val errors = buildList {
+            if (navn.isEmpty()) {
+                add(ValidationError.of(VirksomhetKontaktperson::navn, "Navn er påkrevd"))
+            }
+            if (epost.isEmpty()) {
+                add(ValidationError.of(VirksomhetKontaktperson::epost, "E-post er påkrevd"))
+            }
+        }
+
+        if (errors.isNotEmpty()) {
+            return Either.Left(BadRequest(errors = errors))
         }
 
         return Either.Right(
@@ -140,9 +153,9 @@ data class VirksomhetKontaktpersonRequest(
                 id = id,
                 organisasjonsnummer = orgnr,
                 navn = navn,
-                telefon = telefon,
+                telefon = telefon?.trim()?.ifEmpty { null },
                 epost = epost,
-                beskrivelse = beskrivelse,
+                beskrivelse = beskrivelse?.trim()?.ifEmpty { null },
             ),
         )
     }
