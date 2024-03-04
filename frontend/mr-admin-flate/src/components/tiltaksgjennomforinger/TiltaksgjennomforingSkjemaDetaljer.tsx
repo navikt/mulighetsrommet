@@ -99,7 +99,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
     .filter((kontor) => kontor.overordnetEnhet === watch("navRegion"))
     .map((kontor) => ({ label: kontor.navn, value: kontor.enhetsnummer }));
 
-  const minStartdato = new Date();
+  const minStartdato = new Date(avtale.startDato);
   const maxSluttdato = addYear(minStartdato, 5);
 
   const valgteNavEnheter = watch("navEnheter");
