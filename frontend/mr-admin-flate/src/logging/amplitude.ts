@@ -32,7 +32,7 @@ function initializeAmplitude() {
     };
   } else {
     amplitude.init(getApiKeyFromEnvironment(), {
-      serverUrl: "amplitude.nav.no/collect",
+      serverUrl: "https://amplitude.nav.no/collect",
       serverZone: "EU",
       instanceName: "nav-tiltaksadministrasjon",
       defaultTracking: true,
