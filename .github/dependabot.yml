@@ -35,6 +35,10 @@ updates:
       timezone: Europe/Oslo
     open-pull-requests-limit: 10
     groups:
+      playwright:
+        patterns:
+          - "playwright"
+          - "@playwright/test"
       nav-designsystem:
         patterns:
           - "@navikt/aksel-*"
