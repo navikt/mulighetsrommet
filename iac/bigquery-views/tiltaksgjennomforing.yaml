@@ -20,7 +20,6 @@ spec:
     query: >-
       SELECT
         id,
-        navn,
         tiltakstype_id,
         tiltaksnummer,
         start_dato,
