@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.services
 
 import arrow.core.getOrElse
+import no.nav.mulighetsrommet.api.clients.AccessType
 import no.nav.mulighetsrommet.api.clients.pdl.PdlClient
 import no.nav.mulighetsrommet.api.clients.pdl.PdlError
 import no.nav.mulighetsrommet.api.domain.dto.TiltakshistorikkDto
@@ -15,8 +16,8 @@ class TiltakshistorikkService(
 ) {
     val log: Logger = LoggerFactory.getLogger(javaClass)
 
-    suspend fun hentHistorikkForBruker(norskIdent: String, accessToken: String): List<TiltakshistorikkDto> {
-        val identer = pdlClient.hentIdenter(norskIdent, accessToken)
+    suspend fun hentHistorikkForBruker(norskIdent: String, obo: AccessType.OBO): List<TiltakshistorikkDto> {
+        val identer = pdlClient.hentIdenter(norskIdent, obo)
             .map { list -> list.map { it.ident } }
             .getOrElse {
                 when (it) {

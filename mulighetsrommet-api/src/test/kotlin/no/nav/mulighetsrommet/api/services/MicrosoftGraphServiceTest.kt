@@ -6,6 +6,7 @@ import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
+import no.nav.mulighetsrommet.api.clients.AccessType
 import no.nav.mulighetsrommet.api.clients.msgraph.AzureAdNavAnsatt
 import no.nav.mulighetsrommet.api.clients.msgraph.MicrosoftGraphClient
 import no.nav.mulighetsrommet.domain.dto.NavIdent
@@ -29,30 +30,30 @@ class MicrosoftGraphServiceTest : FunSpec({
 
             val client: MicrosoftGraphClient = mockk()
             coEvery {
-                client.getNavAnsatt(navAnsattAzureId, null)
+                client.getNavAnsatt(navAnsattAzureId, AccessType.M2M)
             } returns mockResponse
 
             val service = MicrosoftGraphService(client)
-            val result = service.getNavAnsatt(navAnsattAzureId)
+            val result = service.getNavAnsatt(navAnsattAzureId, AccessType.M2M)
 
-            service.getNavAnsatt(navAnsattAzureId)
-            service.getNavAnsatt(navAnsattAzureId)
-            service.getNavAnsatt(navAnsattAzureId)
+            service.getNavAnsatt(navAnsattAzureId, AccessType.M2M)
+            service.getNavAnsatt(navAnsattAzureId, AccessType.M2M)
+            service.getNavAnsatt(navAnsattAzureId, AccessType.M2M)
 
             result shouldBe mockResponse
             coVerify(exactly = 1) {
-                client.getNavAnsatt(navAnsattAzureId, null)
+                client.getNavAnsatt(navAnsattAzureId, AccessType.M2M)
             }
         }
 
         test("Når man kaller hentAnsattData og ikke finner bruker skal det kastes en feil") {
             val client: MicrosoftGraphClient = mockk()
-            coEvery { client.getNavAnsatt(navAnsattAzureId, null) } throws RuntimeException("Klarte ikke hente bruker")
+            coEvery { client.getNavAnsatt(navAnsattAzureId, AccessType.M2M) } throws RuntimeException("Klarte ikke hente bruker")
 
             val service = MicrosoftGraphService(client)
 
             shouldThrow<RuntimeException> {
-                service.getNavAnsatt(navAnsattAzureId)
+                service.getNavAnsatt(navAnsattAzureId, AccessType.M2M)
             }
         }
     }

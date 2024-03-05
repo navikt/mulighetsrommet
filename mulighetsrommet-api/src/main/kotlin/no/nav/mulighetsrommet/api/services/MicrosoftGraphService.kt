@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api.services
 import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
 import io.prometheus.client.cache.caffeine.CacheMetricsCollector
+import no.nav.mulighetsrommet.api.clients.AccessType
 import no.nav.mulighetsrommet.api.clients.msgraph.AzureAdNavAnsatt
 import no.nav.mulighetsrommet.api.clients.msgraph.MicrosoftGraphClient
 import no.nav.mulighetsrommet.api.domain.dto.AdGruppe
@@ -32,15 +33,15 @@ class MicrosoftGraphService(private val client: MicrosoftGraphClient) {
         cacheMetrics.addCache("brukerAzureIdToAdGruppeCache", navAnsattAdGrupperCache)
     }
 
-    suspend fun getNavAnsatt(navAnsattAzureId: UUID, oboToken: String? = null): AzureAdNavAnsatt {
+    suspend fun getNavAnsatt(navAnsattAzureId: UUID, accessType: AccessType): AzureAdNavAnsatt {
         return CacheUtils.tryCacheFirstNotNull(ansattDataCache, navAnsattAzureId) {
-            client.getNavAnsatt(navAnsattAzureId, oboToken)
+            client.getNavAnsatt(navAnsattAzureId, accessType)
         }
     }
 
-    suspend fun getNavAnsattAdGrupper(navAnsattAzureId: UUID, oboToken: String? = null): List<AdGruppe> {
+    suspend fun getNavAnsattAdGrupper(navAnsattAzureId: UUID, accessType: AccessType): List<AdGruppe> {
         return CacheUtils.tryCacheFirstNotNull(navAnsattAdGrupperCache, navAnsattAzureId) {
-            client.getMemberGroups(navAnsattAzureId, oboToken)
+            client.getMemberGroups(navAnsattAzureId, accessType)
         }
     }
 

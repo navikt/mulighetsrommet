@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api.clients.msgraph
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.ktor.client.engine.mock.*
+import no.nav.mulighetsrommet.api.clients.AccessType
 import no.nav.mulighetsrommet.api.domain.dto.AdGruppe
 import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.ktor.createMockEngine
@@ -35,7 +36,7 @@ class MicrosoftGraphClientImplTest : FunSpec({
 
         val client = createClient(engine)
 
-        client.getNavAnsatt(id, null) shouldBe AzureAdNavAnsatt(
+        client.getNavAnsatt(id, AccessType.M2M) shouldBe AzureAdNavAnsatt(
             azureId = id,
             navIdent = NavIdent("DD123456"),
             fornavn = "Donald",
@@ -60,6 +61,6 @@ class MicrosoftGraphClientImplTest : FunSpec({
 
         val client = createClient(engine)
 
-        client.getMemberGroups(id, null) shouldBe listOf(AdGruppe(group.id, group.displayName))
+        client.getMemberGroups(id, AccessType.M2M) shouldBe listOf(AdGruppe(group.id, group.displayName))
     }
 })

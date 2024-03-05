@@ -10,6 +10,7 @@ import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.mockk
+import no.nav.mulighetsrommet.api.clients.AccessType
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.clients.oppfolging.*
 import no.nav.mulighetsrommet.api.clients.person.Enhet
@@ -95,7 +96,7 @@ class BrukerServiceTest : FunSpec({
     }
 
     test("Henter brukerdata for et gitt fnr") {
-        brukerService.hentBrukerdata(fnr1, "") shouldBe
+        brukerService.hentBrukerdata(fnr1, AccessType.OBO("")) shouldBe
             BrukerService.Brukerdata(
                 fornavn = "Ola",
                 innsatsgruppe = Innsatsgruppe.STANDARD_INNSATS,
@@ -128,7 +129,7 @@ class BrukerServiceTest : FunSpec({
         coEvery { veilarboppfolgingClient.hentOppfolgingsenhet(fnr1, any()) } returns OppfolgingError.NotFound.left()
 
         shouldThrow<StatusException> {
-            brukerService.hentBrukerdata(fnr1, "")
+            brukerService.hentBrukerdata(fnr1, AccessType.OBO(""))
         }
     }
 
@@ -136,7 +137,7 @@ class BrukerServiceTest : FunSpec({
         coEvery { veilarbpersonClient.hentPersonInfo(fnr1, any()) } returns PersonError.Error.left()
 
         shouldThrow<StatusException> {
-            brukerService.hentBrukerdata(fnr1, "")
+            brukerService.hentBrukerdata(fnr1, AccessType.OBO(""))
         }
     }
 

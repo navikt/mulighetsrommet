@@ -14,6 +14,7 @@ import no.nav.mulighetsrommet.api.AppConfig
 import no.nav.mulighetsrommet.api.SlackConfig
 import no.nav.mulighetsrommet.api.TaskConfig
 import no.nav.mulighetsrommet.api.avtaler.AvtaleValidator
+import no.nav.mulighetsrommet.api.clients.AccessType
 import no.nav.mulighetsrommet.api.clients.arenaadapter.ArenaAdapterClient
 import no.nav.mulighetsrommet.api.clients.brreg.BrregClient
 import no.nav.mulighetsrommet.api.clients.dialog.VeilarbdialogClient
@@ -183,11 +184,10 @@ private fun services(appConfig: AppConfig) = module {
     single {
         VeilarboppfolgingClient(
             baseUrl = appConfig.veilarboppfolgingConfig.url,
-            tokenProvider = { token ->
-                if (token == null) {
-                    m2mTokenProvider.createMachineToMachineToken(appConfig.veilarboppfolgingConfig.scope)
-                } else {
-                    oboTokenProvider.exchangeOnBehalfOfToken(appConfig.veilarboppfolgingConfig.scope, token)
+            tokenProvider = { accessType ->
+                when (accessType) {
+                    AccessType.M2M -> m2mTokenProvider.createMachineToMachineToken(appConfig.veilarboppfolgingConfig.scope)
+                    is AccessType.OBO -> oboTokenProvider.exchangeOnBehalfOfToken(appConfig.veilarboppfolgingConfig.scope, accessType.token)
                 }
             },
         )
@@ -195,16 +195,16 @@ private fun services(appConfig: AppConfig) = module {
     single {
         VeilarbvedtaksstotteClient(
             baseUrl = appConfig.veilarbvedtaksstotteConfig.url,
-            tokenProvider = { token ->
-                oboTokenProvider.exchangeOnBehalfOfToken(appConfig.veilarbvedtaksstotteConfig.scope, token)
+            tokenProvider = { obo ->
+                oboTokenProvider.exchangeOnBehalfOfToken(appConfig.veilarbvedtaksstotteConfig.scope, obo.token)
             },
         )
     }
     single {
         VeilarbpersonClient(
             baseUrl = appConfig.veilarbpersonConfig.url,
-            tokenProvider = { token ->
-                oboTokenProvider.exchangeOnBehalfOfToken(appConfig.veilarbpersonConfig.scope, token)
+            tokenProvider = { obo ->
+                oboTokenProvider.exchangeOnBehalfOfToken(appConfig.veilarbpersonConfig.scope, obo.token)
             },
         )
     }
@@ -219,11 +219,10 @@ private fun services(appConfig: AppConfig) = module {
     single {
         PdlClient(
             baseUrl = appConfig.pdl.url,
-            tokenProvider = { token ->
-                if (token == null) {
-                    m2mTokenProvider.createMachineToMachineToken(appConfig.pdl.scope)
-                } else {
-                    oboTokenProvider.exchangeOnBehalfOfToken(appConfig.pdl.scope, token)
+            tokenProvider = { accessType ->
+                when (accessType) {
+                    AccessType.M2M -> m2mTokenProvider.createMachineToMachineToken(appConfig.pdl.scope)
+                    is AccessType.OBO -> oboTokenProvider.exchangeOnBehalfOfToken(appConfig.pdl.scope, accessType.token)
                 }
             },
         )
@@ -238,11 +237,10 @@ private fun services(appConfig: AppConfig) = module {
     single {
         MicrosoftGraphClient(
             baseUrl = appConfig.msGraphConfig.url,
-            tokenProvider = { token ->
-                if (token == null) {
-                    m2mTokenProvider.createMachineToMachineToken(appConfig.msGraphConfig.scope)
-                } else {
-                    oboTokenProvider.exchangeOnBehalfOfToken(appConfig.msGraphConfig.scope, token)
+            tokenProvider = { accessType ->
+                when (accessType) {
+                    AccessType.M2M -> m2mTokenProvider.createMachineToMachineToken(appConfig.msGraphConfig.scope)
+                    is AccessType.OBO -> oboTokenProvider.exchangeOnBehalfOfToken(appConfig.msGraphConfig.scope, accessType.token)
                 }
             },
         )

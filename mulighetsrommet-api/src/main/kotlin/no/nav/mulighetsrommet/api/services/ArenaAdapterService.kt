@@ -7,6 +7,7 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.encodeToJsonElement
 import kotliquery.TransactionalSession
+import no.nav.mulighetsrommet.api.clients.AccessType
 import no.nav.mulighetsrommet.api.clients.brreg.BrregError
 import no.nav.mulighetsrommet.api.clients.oppfolging.ErUnderOppfolgingError
 import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClient
@@ -167,7 +168,7 @@ class ArenaAdapterService(
     }
 
     suspend fun upsertTiltakshistorikk(tiltakshistorikk: ArenaTiltakshistorikkDbo): Either<ErUnderOppfolgingError, Boolean> {
-        return veilarboppfolgingClient.erBrukerUnderOppfolging(tiltakshistorikk.norskIdent, accessToken = null)
+        return veilarboppfolgingClient.erBrukerUnderOppfolging(tiltakshistorikk.norskIdent, AccessType.M2M)
             .onRight {
                 if (it) {
                     this.tiltakshistorikk.upsert(tiltakshistorikk)

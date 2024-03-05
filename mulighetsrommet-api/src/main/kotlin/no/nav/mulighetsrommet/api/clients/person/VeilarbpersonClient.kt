@@ -14,6 +14,7 @@ import io.ktor.http.*
 import io.ktor.server.plugins.*
 import io.prometheus.client.cache.caffeine.CacheMetricsCollector
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.clients.AccessType
 import no.nav.mulighetsrommet.api.clients.pdl.VALP_BEHANDLINGSNUMMER
 import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
 import no.nav.mulighetsrommet.metrics.Metrikker
@@ -23,7 +24,7 @@ import java.util.concurrent.TimeUnit
 
 class VeilarbpersonClient(
     private val baseUrl: String,
-    private val tokenProvider: (accessToken: String) -> String,
+    private val tokenProvider: (obo: AccessType.OBO) -> String,
     clientEngine: HttpClientEngine = CIO.create(),
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
@@ -44,11 +45,11 @@ class VeilarbpersonClient(
         cacheMetrics.addCache("personInfoCache", personInfoCache)
     }
 
-    suspend fun hentPersonInfo(fnr: String, accessToken: String): Either<PersonError, PersonDto> {
+    suspend fun hentPersonInfo(fnr: String, obo: AccessType.OBO): Either<PersonError, PersonDto> {
         personInfoCache.getIfPresent(fnr)?.let { return@hentPersonInfo it.right() }
 
         val response = client.post("$baseUrl/v3/hent-person") {
-            bearerAuth(tokenProvider.invoke(accessToken))
+            bearerAuth(tokenProvider.invoke(obo))
             header(HttpHeaders.ContentType, ContentType.Application.Json)
             setBody(PersonRequest(fnr = fnr, behandlingsnummer = VALP_BEHANDLINGSNUMMER))
         }
