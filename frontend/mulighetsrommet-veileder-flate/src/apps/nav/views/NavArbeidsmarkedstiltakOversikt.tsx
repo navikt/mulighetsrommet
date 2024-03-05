@@ -75,7 +75,7 @@ export const NavArbeidsmarkedstiltakOversikt = ({ preview = false }: Props) => {
           </div>
         }
       />
-      <TilToppenKnapp />;
+      <TilToppenKnapp />
     </>
   );
 };
