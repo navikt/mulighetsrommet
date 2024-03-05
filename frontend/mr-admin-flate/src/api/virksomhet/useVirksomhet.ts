@@ -4,10 +4,19 @@ import { mulighetsrommetClient } from "../clients";
 
 export function useVirksomhet(orgnr: string) {
   return useQuery({
-    queryKey: QueryKeys.virksomhetOppslag(orgnr),
+    queryKey: QueryKeys.virksomhet(orgnr),
     queryFn: () => {
-      return mulighetsrommetClient.virksomhet.hentVirksomhet({ orgnr });
+      return mulighetsrommetClient.virksomhet.getVirksomhetByOrgnr({ orgnr });
     },
     enabled: !!orgnr,
+  });
+}
+
+export function useVirksomhetById(id: string) {
+  return useQuery({
+    queryKey: QueryKeys.virksomhet(id),
+    queryFn: () => {
+      return mulighetsrommetClient.virksomhet.getVirksomhetById({ id });
+    },
   });
 }

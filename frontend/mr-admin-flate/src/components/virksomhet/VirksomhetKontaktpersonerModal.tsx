@@ -6,22 +6,18 @@ import styles from "./VirksomhetKontaktpersonerModal.module.scss";
 import { Laster } from "../laster/Laster";
 import { VirksomhetKontaktperson } from "mulighetsrommet-api-client";
 import { VirksomhetKontaktpersonSkjema } from "./VirksomhetKontaktpersonSkjema";
-import { useVirksomhet } from "../../api/virksomhet/useVirksomhet";
+import { useVirksomhetById } from "../../api/virksomhet/useVirksomhet";
 
 interface Props {
-  orgnr: string;
+  virksomhetId: string;
   modalRef: RefObject<HTMLDialogElement>;
-  onClose: () => void;
 }
 
 export function VirksomhetKontaktpersonerModal(props: Props) {
-  const { orgnr, modalRef, onClose } = props;
-  const { data: virksomhet, isLoading: isLoadingVirksomhet } = useVirksomhet(orgnr);
-  const {
-    data: kontaktpersoner,
-    isLoading: isLoadingKontaktpersoner,
-    refetch,
-  } = useVirksomhetKontaktpersoner(orgnr);
+  const { virksomhetId, modalRef } = props;
+  const { data: virksomhet, isLoading: isLoadingVirksomhet } = useVirksomhetById(virksomhetId);
+  const { data: kontaktpersoner, isLoading: isLoadingKontaktpersoner } =
+    useVirksomhetKontaktpersoner(virksomhetId);
 
   const [opprett, setOpprett] = useState<boolean>(false);
   const [redigerId, setRedigerId] = useState<string | undefined>(undefined);
@@ -33,7 +29,6 @@ export function VirksomhetKontaktpersonerModal(props: Props) {
   function reset() {
     setOpprett(false);
     setRedigerId(undefined);
-    refetch();
   }
 
   return (
@@ -42,7 +37,6 @@ export function VirksomhetKontaktpersonerModal(props: Props) {
       className={styles.modal}
       onClose={() => {
         modalRef.current?.close();
-        onClose();
       }}
       header={{
         heading: `Kontaktpersoner hos ${virksomhet.navn}`,
@@ -55,7 +49,11 @@ export function VirksomhetKontaktpersonerModal(props: Props) {
             .map((person: VirksomhetKontaktperson) => (
               <div key={person.id} className={styles.list_item_container}>
                 {redigerId === person.id ? (
-                  <VirksomhetKontaktpersonSkjema orgnr={orgnr} person={person} onSubmit={reset} />
+                  <VirksomhetKontaktpersonSkjema
+                    virksomhetId={virksomhetId}
+                    person={person}
+                    onSubmit={reset}
+                  />
                 ) : (
                   <div>
                     <Label size="small">Navn</Label>
@@ -100,7 +98,7 @@ export function VirksomhetKontaktpersonerModal(props: Props) {
             ))}
           {opprett ? (
             <div className={styles.list_item_container}>
-              <VirksomhetKontaktpersonSkjema orgnr={orgnr} onSubmit={reset} />
+              <VirksomhetKontaktpersonSkjema virksomhetId={virksomhetId} onSubmit={reset} />
             </div>
           ) : (
             <Button

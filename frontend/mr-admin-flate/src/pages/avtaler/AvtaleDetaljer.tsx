@@ -54,8 +54,6 @@ export function AvtaleDetaljer() {
     kontorstruktur,
     arenaAnsvarligEnhet,
     leverandor,
-    leverandorUnderenheter,
-    leverandorKontaktperson,
   } = avtale;
 
   return (
@@ -215,7 +213,7 @@ export function AvtaleDetaljer() {
             header="Arrangører underenheter"
             verdi={
               <ul>
-                {leverandorUnderenheter.map((enhet) => (
+                {leverandor.underenheter.map((enhet) => (
                   <li key={enhet.organisasjonsnummer}>
                     {enhet?.navn
                       ? `${enhet.navn} - ${enhet.organisasjonsnummer}`
@@ -229,18 +227,22 @@ export function AvtaleDetaljer() {
 
         <Separator />
 
-        {leverandorKontaktperson ? (
+        {leverandor.kontaktperson ? (
           <Bolk aria-label="Kontaktperson">
             <Metadata
               header="Kontaktperson"
               verdi={
                 <div className={styles.leverandor_kontaktinfo}>
-                  <label>{leverandorKontaktperson.navn}</label>
-                  <label>{leverandorKontaktperson.telefon}</label>
-                  <a href={`mailto:${leverandorKontaktperson.epost}`}>
-                    {leverandorKontaktperson.epost}
+                  <label>{leverandor.kontaktperson.navn}</label>
+                  {leverandor.kontaktperson.telefon && (
+                    <label>{leverandor.kontaktperson.telefon}</label>
+                  )}
+                  <a href={`mailto:${leverandor.kontaktperson.epost}`}>
+                    {leverandor.kontaktperson.epost}
                   </a>
-                  <label>{leverandorKontaktperson.beskrivelse}</label>
+                  {leverandor.kontaktperson.beskrivelse && (
+                    <label>{leverandor.kontaktperson.beskrivelse}</label>
+                  )}
                 </div>
               }
             />

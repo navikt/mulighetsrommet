@@ -28,10 +28,11 @@ export const QueryKeys = {
   virksomheter: (til?: VirksomhetTil) => ["virksomheter", til],
   antallUlesteNotifikasjoner: () => ["antallUlesteNotifikasjoner"],
   notifikasjonerForAnsatt: (status: NotificationStatus) => ["notifikasjoner", status] as const,
-  virksomhetSok: (sokestreng: string) => ["virksomhetSok", sokestreng],
-  virksomhetOppslag: (orgnr: string) => ["virksometOppslag", orgnr],
+  virksomhetSok: (sokestreng: string) => ["virksomhet", "sok", sokestreng],
+  virksomhet: (id: string) => ["virksomet", id],
   navansatt: (rolle: NavAnsattRolle) => ["nav-ansatte", rolle],
-  virksomhetKontaktpersoner: (orgnr: string) => ["virksomhet-kontaktpersoner", orgnr] as const,
+  virksomhetKontaktpersoner: (virksomhetId: string) =>
+    ["virksomhet", virksomhetId, "kontaktpersoner"] as const,
   avtalenotater: (avtaleId: string) => ["avtalenotater", avtaleId] as const,
   mineAvtalenotater: (avtaleId: string) => ["avtalenotater", "mine", avtaleId] as const,
   tiltaksgjennomforingsnotater: (tiltaksgjennomforingsId: string) =>

@@ -135,11 +135,11 @@ data class TiltaksnummerResponse(
 data class TiltaksgjennomforingRequest(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
-    val navn: String,
     @Serializable(with = UUIDSerializer::class)
     val tiltakstypeId: UUID,
     @Serializable(with = UUIDSerializer::class)
     val avtaleId: UUID,
+    val navn: String,
     @Serializable(with = LocalDateSerializer::class)
     val startDato: LocalDate,
     @Serializable(with = LocalDateSerializer::class)

@@ -61,7 +61,7 @@ export const tiltaksgjennomforingHandlers = [
       }
 
       const gjennomforing = mockTiltaksgjennomforinger.filter((tg) =>
-        tg.tiltaksnummer.toString().includes(tiltaksnummer),
+        (tg.tiltaksnummer ?? "").toString().includes(tiltaksnummer),
       );
 
       return HttpResponse.json(gjennomforing);

@@ -140,7 +140,7 @@ class VirksomhetRepository(private val db: Database) {
 
         @Language("PostgreSQL")
         val selectVirksomheter = """
-            select
+            select distinct
                 v.id,
                 v.organisasjonsnummer,
                 v.overordnet_enhet,

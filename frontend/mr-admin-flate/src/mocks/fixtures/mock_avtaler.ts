@@ -19,18 +19,20 @@ export const mockAvtaler: Avtale[] = [
     leverandor: {
       ...mockVirksomheter.fretex,
       slettet: false,
-    },
-    leverandorUnderenheter: mockVirksomheter.fretex.underenheter!!.map((v) => ({
-      organisasjonsnummer: v.organisasjonsnummer,
-      navn: v.navn,
-    })),
-    leverandorKontaktperson: {
-      navn: "Ole Kjetil Martinsen",
-      id: "1234",
-      epost: "ole.kjetil.martinsen@arrangor.no",
-      telefon: "90123456",
-      organisasjonsnummer: "123456789",
-      beskrivelse: "Direktør",
+      underenheter: mockVirksomheter.fretex.underenheter!.map((v) => ({
+        id: v.id,
+        organisasjonsnummer: v.organisasjonsnummer,
+        navn: v.navn,
+        slettet: false,
+      })),
+      kontaktperson: {
+        id: "d136d6a4-c812-4d28-81db-b688187e4e32",
+        virksomhetId: "a714ca5e-857e-41a7-85d7-8be1c1d483ab",
+        navn: "Ole Kjetil Martinsen",
+        epost: "ole.kjetil.martinsen@arrangor.no",
+        telefon: "90123456",
+        beskrivelse: "Direktør",
+      },
     },
     startDato: "2021-08-02",
     sluttDato: "2026-08-01",
@@ -64,6 +66,12 @@ export const mockAvtaler: Avtale[] = [
     leverandor: {
       ...mockVirksomheter.fretex,
       slettet: false,
+      underenheter: mockVirksomheter.fretex.underenheter!.map((v) => ({
+        id: v.id,
+        organisasjonsnummer: v.organisasjonsnummer,
+        navn: v.navn,
+        slettet: false,
+      })),
     },
     opphav: Opphav.ARENA,
     administratorer: [
@@ -72,10 +80,6 @@ export const mockAvtaler: Avtale[] = [
         navn: "Bertil Bengtson",
       },
     ],
-    leverandorUnderenheter: mockVirksomheter.fretex.underenheter!!.map((v) => ({
-      organisasjonsnummer: v.organisasjonsnummer,
-      navn: v.navn,
-    })),
     startDato: "2021-08-02",
     sluttDato: "2026-08-01",
     avtaletype: Avtaletype.RAMMEAVTALE,
@@ -103,11 +107,13 @@ export const mockAvtaler: Avtale[] = [
     leverandor: {
       ...mockVirksomheter.fretex,
       slettet: false,
+      underenheter: mockVirksomheter.fretex.underenheter!.map((v) => ({
+        id: v.id,
+        organisasjonsnummer: v.organisasjonsnummer,
+        navn: v.navn,
+        slettet: false,
+      })),
     },
-    leverandorUnderenheter: mockVirksomheter.fretex.underenheter!!.map((v) => ({
-      organisasjonsnummer: v.organisasjonsnummer,
-      navn: v.navn,
-    })),
     startDato: "2020-07-01",
     sluttDato: "2024-06-30",
     avtaletype: Avtaletype.RAMMEAVTALE,
