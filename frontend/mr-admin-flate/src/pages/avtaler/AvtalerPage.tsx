@@ -9,6 +9,7 @@ import { ReloadAppErrorBoundary } from "../../ErrorBoundary";
 import { FilterAndTableLayout } from "../../components/filter/FilterAndTableLayout";
 import { AvtaleFilterButtons } from "../../components/filter/AvtaleFilterButtons";
 import { AvtaleFilterTags } from "../../components/filter/AvtaleFilterTags";
+import { TilToppenKnapp } from "../../../../frontend-common/components/tilToppenKnapp/TilToppenKnapp";
 
 export function AvtalerPage() {
   useTitle("Avtaler");
@@ -28,6 +29,7 @@ export function AvtalerPage() {
           </ContainerLayout>
         </MainContainer>
       </ReloadAppErrorBoundary>
+      <TilToppenKnapp />
     </>
   );
 }

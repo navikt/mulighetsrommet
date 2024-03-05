@@ -2,7 +2,7 @@ import { Alert, Button, Checkbox, Pagination, Table } from "@navikt/ds-react";
 import classNames from "classnames";
 import { useAtom, WritableAtom } from "jotai";
 import { OpenAPI, SorteringAvtaler } from "mulighetsrommet-api-client";
-import { Lenke } from "mulighetsrommet-frontend-common/components/Lenke";
+import { Lenke } from "../../../../frontend-common/components/lenke/Lenke";
 import { createRef, useEffect, useState } from "react";
 import { AvtaleFilter } from "../../api/atoms";
 import { APPLICATION_NAME } from "../../constants";

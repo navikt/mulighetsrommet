@@ -20,6 +20,7 @@ import { BrukersOppfolgingsenhetVarsel } from "@/apps/modia/varsler/BrukersOppfo
 import { FiltrertFeilInnsatsgruppeVarsel } from "@/apps/modia/varsler/FiltrertFeilInnsatsgruppeVarsel";
 import { ModiaFilterTags } from "@/apps/modia/filtrering/ModiaFilterTags";
 import { Feilmelding } from "@/components/feilmelding/Feilmelding";
+import { TilToppenKnapp } from "../../../../../frontend-common/components/tilToppenKnapp/TilToppenKnapp";
 
 export const ModiaArbeidsmarkedstiltakOversikt = () => {
   useTitle("Arbeidsmarkedstiltak - Oversikt");
@@ -126,6 +127,7 @@ export const ModiaArbeidsmarkedstiltakOversikt = () => {
           </div>
         }
       />
+      <TilToppenKnapp />
     </>
   );
 };
