@@ -33,6 +33,14 @@ spec:
     requests:
       cpu: 250m
       memory: 512Mi
+  observability:
+    autoInstrumentation:
+      enabled: true
+      runtime: java
+    logging:
+      destinations:
+        - id: elastic
+        - id: loki
   gcp:
     buckets:
       - name: mulighetsrommet-api-uploads-dev
