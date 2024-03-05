@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { throttle } from "throttle-typescript";
+import debounce from "debounce";
 import classNames from "classnames";
 import { Button } from "@navikt/ds-react";
 import { ArrowUpIcon } from "@navikt/aksel-icons";
@@ -9,7 +9,7 @@ export const TilToppenKnapp = () => {
   const [scrollPosition, setScrollPosition] = useState<number>();
   const knappRef = useRef<HTMLButtonElement>(null);
 
-  const onScroll = throttle(() => {
+  const onScroll = debounce(() => {
     setScrollPosition(window.scrollY);
   }, 1000);
 
