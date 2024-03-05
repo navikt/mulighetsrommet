@@ -179,6 +179,10 @@ Datastream i prod: https://console.cloud.google.com/datastream/streams?authuser=
 BigQuery i dev: https://console.cloud.google.com/bigquery?authuser=1&project=team-mulighetsrommet-dev-a2d7&ws=!1m0
 BigQuery i prod: https://console.cloud.google.com/bigquery?authuser=1&project=team-mulighetsrommet-prod-5492&ws=!1m0
 
+### Views
+Vi har views til BigQuery definert i iac/bigquery-views.
+Du kan gjøre endringer i view'ene og så vil de bygges på nytt når du deployer koden via Github Actions.
+
 ### Ang. datastream
 Dersom datastreamen tuller seg eller man vil restarte prosessen så må man gå til datastreamen (lenke over) og så slette datastreamen.
 [Kjør så datastream på nytt basert på guiden her ](https://github.com/navikt/nada-datastream)
