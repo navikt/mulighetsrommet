@@ -180,7 +180,8 @@ Synkronisering av kontaktpersoner kjører en gang i timen, så du må potensielt
 MERK: Hvis du mangler tilgang til AD så kan du selv be om tilgang ved å følge beskrivelse her: https://github.com/navikt/azure-ad-self-service/blob/main/DirectoryRead/README.md
 
 # Datadeling på Datamarkedsplassen
-TODO: Legg til info om produktene i datamarkedsplassen (kommer når produkt er på datamarkedsplassen)
+Vi har to datasett tilgjengelig på datamarkedsplassen. Det er data om tiltakstypene vi skal migrere og data om tiltaksgjennomføringer.
+Datasettene finner du her: https://data.intern.nav.no/dataproduct/5755b188-6670-41a2-8bbc-74fba810bd9e/Data%20om%20arbeidsmarkedstiltak%20fra%20Team%20Valp
 
 ## Henvendelser
 
