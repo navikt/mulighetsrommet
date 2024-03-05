@@ -1,18 +1,19 @@
+import { paginationAtom } from "@/core/atoms/atoms";
+import { useArbeidsmarkedstiltakFilterValue } from "@/hooks/useArbeidsmarkedstiltakFilter";
+import { useLogEvent } from "@/logging/amplitude";
 import { BodyShort, Pagination, Select } from "@navikt/ds-react";
+import classnames from "classnames";
 import { useAtom } from "jotai";
 import {
   DelMedBruker,
   TiltaksgjennomforingOppstartstype,
   VeilederflateTiltaksgjennomforing,
 } from "mulighetsrommet-api-client";
-import { useEffect, useState } from "react";
-import { paginationAtom } from "@/core/atoms/atoms";
+import { useEffect } from "react";
 import { Sorteringsmeny } from "../sorteringmeny/Sorteringsmeny";
 import { Gjennomforingsrad } from "./Gjennomforingsrad";
 import styles from "./Tiltaksgjennomforingsoversikt.module.scss";
-import { useLogEvent } from "@/logging/amplitude";
-import { useArbeidsmarkedstiltakFilterValue } from "@/hooks/useArbeidsmarkedstiltakFilter";
-import classnames from "classnames";
+import { sorteringAtom } from "../sorteringmeny/sorteringAtom";
 
 interface Props {
   tiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[];
@@ -50,7 +51,8 @@ export const Tiltaksgjennomforingsoversikt = ({
     );
   };
 
-  const [sortValue, setSortValue] = useState<string>("tiltakstype-ascending");
+  const [sortValue, setSortValue] = useAtom(sorteringAtom);
+
   const { logEvent } = useLogEvent();
   useEffect(() => {
     // Reset state
