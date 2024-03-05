@@ -25,15 +25,15 @@
     "not op_mini all"
   ],
   "dependencies": {
-    "@amplitude/analytics-browser": "^2.5.2",
+    "@amplitude/analytics-browser": "2.5.2",
     "@grafana/faro-web-sdk": "1.4.1",
     "@navikt/aksel-icons": "6.1.1",
     "@navikt/ds-css": "6.1.1",
     "@navikt/ds-react": "6.1.1",
     "@navikt/navspa": "6.0.1",
     "@portabletext/react": "3.0.11",
-    "@tanstack/react-query": "5.24.7",
-    "@tanstack/react-query-devtools": "5.24.7",
+    "@tanstack/react-query": "5.24.8",
+    "@tanstack/react-query-devtools": "5.24.8",
     "axe-core": "4.8.4",
     "classnames": "2.5.1",
     "jotai": "2.7.0",
@@ -48,14 +48,14 @@
     "uuid": "9.0.1"
   },
   "devDependencies": {
-    "@axe-core/playwright": "^4.8.5",
+    "@axe-core/playwright": "4.8.5",
     "@faker-js/faker": "8.4.1",
     "@playwright/test": "1.42.1",
-    "@types/node": "^20.11.24",
-    "@typescript-eslint/eslint-plugin": "7.1.0",
+    "@types/node": "20.11.24",
+    "@typescript-eslint/eslint-plugin": "7.1.1",
     "@vitejs/plugin-react": "4.2.1",
     "cross-env": "7.0.3",
-    "dotenv": "^16.4.5",
+    "dotenv": "16.4.5",
     "eslint": "8.57.0",
     "eslint-config-prettier": "9.1.0",
     "eslint-config-standard": "17.1.0",
@@ -70,9 +70,9 @@
     "playwright": "1.42.1",
     "rollup-plugin-visualizer": "5.12.0",
     "typescript": "5.3.3",
-    "vite": "5.0.12",
-    "vite-plugin-shadow-style": "^1.1.0",
-    "vite-tsconfig-paths": "^4.3.1"
+    "vite": "5.1.5",
+    "vite-plugin-shadow-style": "1.1.0",
+    "vite-tsconfig-paths": "4.3.1"
   },
   "msw": {
     "workerDirectory": "public"
