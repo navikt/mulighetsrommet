@@ -135,36 +135,38 @@ export const Tiltaksgjennomforingsoversikt = ({
       >
         {tags}
         {varsler}
-        <div className={styles.visnings_og_sorteringsmeny}>
-          <div className={styles.visningsmeny}>
-            <ViserAntallTiltakTekst />
+        {gjennomforingerForSide.length > 0 ? (
+          <div className={styles.visnings_og_sorteringsmeny}>
+            <div className={styles.visningsmeny}>
+              <ViserAntallTiltakTekst />
 
-            <Select
-              size="small"
-              label="Velg antall"
-              hideLabel
-              name="size"
-              value={pageData.pageSize}
-              onChange={(e) => {
-                setPages({ page: 1, pageSize: parseInt(e.currentTarget.value) });
-                logEvent({
-                  name: "arbeidsmarkedstiltak.vis-antall-tiltak",
-                  data: {
-                    valgt_antall: parseInt(e.currentTarget.value),
-                    antall_tiltak: tiltaksgjennomforinger.length,
-                  },
-                });
-              }}
-            >
-              {antallSize.map((ant) => (
-                <option key={ant} value={ant}>
-                  {ant}
-                </option>
-              ))}
-            </Select>
+              <Select
+                size="small"
+                label="Velg antall"
+                hideLabel
+                name="size"
+                value={pageData.pageSize}
+                onChange={(e) => {
+                  setPages({ page: 1, pageSize: parseInt(e.currentTarget.value) });
+                  logEvent({
+                    name: "arbeidsmarkedstiltak.vis-antall-tiltak",
+                    data: {
+                      valgt_antall: parseInt(e.currentTarget.value),
+                      antall_tiltak: tiltaksgjennomforinger.length,
+                    },
+                  });
+                }}
+              >
+                {antallSize.map((ant) => (
+                  <option key={ant} value={ant}>
+                    {ant}
+                  </option>
+                ))}
+              </Select>
+            </div>
+            <Sorteringsmeny sortValue={sortValue} setSortValue={setSortValue} />
           </div>
-          <Sorteringsmeny sortValue={sortValue} setSortValue={setSortValue} />
-        </div>
+        ) : null}
       </div>
       {feilmelding}
       <ul
@@ -191,22 +193,25 @@ export const Tiltaksgjennomforingsoversikt = ({
           );
         })}
       </ul>
-      {/*)}*/}
-      <div
-        className={classnames(
-          styles.under_oversikt,
-          filterOpen && styles.under_oversikt_filter_open,
-        )}
-      >
-        <ViserAntallTiltakTekst />
-        <Pagination
-          size="small"
-          page={pageData.page}
-          onPageChange={(page) => setPages({ ...pageData, page })}
-          count={pagination(tiltaksgjennomforinger) === 0 ? 1 : pagination(tiltaksgjennomforinger)}
-          data-version="v1"
-        />
-      </div>
+      {gjennomforingerForSide.length > 0 ? (
+        <div
+          className={classnames(
+            styles.under_oversikt,
+            filterOpen && styles.under_oversikt_filter_open,
+          )}
+        >
+          <ViserAntallTiltakTekst />
+          <Pagination
+            size="small"
+            page={pageData.page}
+            onPageChange={(page) => setPages({ ...pageData, page })}
+            count={
+              pagination(tiltaksgjennomforinger) === 0 ? 1 : pagination(tiltaksgjennomforinger)
+            }
+            data-version="v1"
+          />
+        </div>
+      ) : null}
     </>
   );
 };
