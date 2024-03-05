@@ -33,6 +33,14 @@ spec:
       memory: 512Mi
     limits:
       memory: 8192Mi
+  observability:
+    autoInstrumentation:
+      enabled: true
+      runtime: java
+    logging:
+      destinations:
+        - id: elastic
+        - id: loki
   gcp:
     sqlInstances:
       - type: POSTGRES_14
