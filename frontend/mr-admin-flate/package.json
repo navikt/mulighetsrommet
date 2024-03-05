@@ -34,7 +34,6 @@
     "@tanstack/react-query-devtools": "5.24.7",
     "@types/is-url": "1.2.32",
     "classnames": "2.5.1",
-    "debounce": "2.0.0",
     "eslint": "8.57.0",
     "is-url": "1.2.4",
     "jotai": "2.7.0",
