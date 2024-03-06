@@ -135,7 +135,7 @@ app:
       bucketName: mulighetsrommet-api-uploads-dev
     updateApentForInnsok:
       disabled: false
-      cronPattern: "0 0 1 * * *" # Hver morgen kl. 01:00
+      cronPattern: "0 55 23 * * *" # 23.55 hver kveld
 
   norg2:
     baseUrl: https://norg2.dev-fss-pub.nais.io/norg2/api/v1
