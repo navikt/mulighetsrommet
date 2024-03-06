@@ -45,11 +45,11 @@ class UpdateApentForInnsok(
             )
         }
         .execute { _, _ ->
-            logger.info("Oppdaterer Åpent for innsøk for tiltak med sluttdato i dag...")
+            logger.info("Oppdaterer Åpent for innsøk for tiltak med startdato i dag...")
 
             runBlocking {
                 val antallOppdaterteTiltak = tiltaksgjennomforingService.batchApentForInnsokForAlleMedStarttdatoForDato(LocalDate.now())
-                logger.info("Oppdaterte $antallOppdaterteTiltak tiltak med åpent for stengt = false")
+                logger.info("Oppdaterte $antallOppdaterteTiltak tiltak med åpent for innsøk = false")
             }
         }
 }
