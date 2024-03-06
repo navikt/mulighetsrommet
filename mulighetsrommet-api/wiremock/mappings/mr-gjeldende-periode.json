@@ -1,0 +1,16 @@
+{
+  "request": {
+    "method": "POST",
+    "urlPattern": "/veilarboppfolging/api/v3/oppfolging/hent-gjeldende-periode"
+  },
+  "response": {
+    "status": 200,
+    "jsonBody": {
+      "uuid": "875b10ab-ae9a-425e-ab6b-153ecc90d9fe",
+      "startDato": "2024-01-01T00:00:00+01:00[Europe/Oslo]"
+    },
+    "headers": {
+      "Content-Type": "application/json"
+    }
+  }
+}
