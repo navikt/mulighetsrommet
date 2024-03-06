@@ -2,6 +2,8 @@ package no.nav.mulighetsrommet.api.repositories
 
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.data.forAll
+import io.kotest.data.row
 import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
@@ -23,15 +25,12 @@ import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingAdminDto
 import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingKontaktperson
 import no.nav.mulighetsrommet.api.domain.dto.VirksomhetDto
 import no.nav.mulighetsrommet.api.domain.dto.VirksomhetKontaktperson
+import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures.oppfolging
-import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
-import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
-import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.Arbeidstrening1
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.ArenaOppfolging1
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.Oppfolging1
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.Oppfolging2
-import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.utils.DEFAULT_PAGINATION_LIMIT
 import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
@@ -952,7 +951,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         }
     }
 
-    test("Tilgjengelig for alle må settes eksplisitt") {
+    test("Publisert for alle må settes eksplisitt") {
         val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
 
         val gjennomforing = Oppfolging1.copy(id = UUID.randomUUID())
@@ -963,7 +962,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         tiltaksgjennomforinger.get(gjennomforing.id)?.publisert shouldBe true
     }
 
-    test("skal vises til veileder basert til tilgjengelighet og avslutningsstatus") {
+    test("skal vises til veileder basert på publisert eller ikke, og avslutningsstatus") {
         val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
         val gjennomforing = Oppfolging1.copy(id = UUID.randomUUID())
         tiltaksgjennomforinger.upsert(gjennomforing)
@@ -1202,6 +1201,54 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 innsatsgrupper = listOf(Innsatsgruppe.STANDARD_INNSATS),
                 brukersEnheter = listOf("2990"),
             ) shouldHaveSize 2
+        }
+    }
+
+    context("Update åpent for innsøk") {
+        val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
+
+        test("Skal sette åpent for innsøk til false for tiltak med felles oppstartstype og startdato i dag") {
+            val jobbklubbStartDatoIFremtiden = TiltaksgjennomforingFixtures.Jobbklubb1.copy(
+                id = UUID.randomUUID(),
+                oppstart = TiltaksgjennomforingOppstartstype.FELLES,
+                startDato = LocalDate.of(2024, 5, 1),
+                apentForInnsok = true,
+            )
+            tiltaksgjennomforinger.upsert(jobbklubbStartDatoIFremtiden)
+
+            val jobbklubbStartDatoIDag = TiltaksgjennomforingFixtures.Jobbklubb1.copy(
+                id = UUID.randomUUID(),
+                navn = "Jobbklubb 2",
+                oppstart = TiltaksgjennomforingOppstartstype.FELLES,
+                startDato = LocalDate.of(2024, 3, 6),
+                apentForInnsok = true,
+            )
+            tiltaksgjennomforinger.upsert(jobbklubbStartDatoIDag)
+
+            val jobbklubbStartDatoHarPassert = TiltaksgjennomforingFixtures.Jobbklubb1.copy(
+                id = UUID.randomUUID(),
+                navn = "Jobbklubb 3",
+                oppstart = TiltaksgjennomforingOppstartstype.FELLES,
+                startDato = LocalDate.of(2024, 1, 1),
+                apentForInnsok = false,
+            )
+            tiltaksgjennomforinger.upsert(jobbklubbStartDatoHarPassert)
+
+            forAll(
+                row(jobbklubbStartDatoIFremtiden.id, true),
+                row(jobbklubbStartDatoIDag.id, false),
+                row(jobbklubbStartDatoHarPassert.id, false),
+            ) { id, apentForInnsok ->
+                val result = tiltaksgjennomforinger.lukkApentForInnsokForTiltakMedStartdatoForDato(
+                    dagensDato = LocalDate.of(
+                        2024,
+                        3,
+                        6,
+                    ),
+                )
+                result shouldBe 1
+                tiltaksgjennomforinger.get(id)?.apentForInnsok shouldBe apentForInnsok
+            }
         }
     }
 })

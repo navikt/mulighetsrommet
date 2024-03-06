@@ -142,6 +142,10 @@ app:
     oppdaterMetrikker:
       disabled: true
       delayOfMinutes: 1
+    updateApentForInnsok:
+      disabled: true
+      cronPattern: "0 */1 * * * *" # Hvert 1 minutt
+
 
   norg2:
     baseUrl: https://norg2.dev-fss-pub.nais.io/norg2/api/v1

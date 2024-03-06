@@ -74,6 +74,9 @@ fun createTestApplicationConfig() = AppConfig(
             disabled = true,
             delayOfMinutes = 10,
         ),
+        updateApentForInnsok = UpdateApentForInnsok.Config(
+            disabled = true,
+        ),
     ),
     norg2 = Norg2Config(baseUrl = ""),
     slack = SlackConfig(

@@ -851,4 +851,15 @@ class TiltaksgjennomforingRepository(private val db: Database) {
 
         return tx.run(queryOf(query, mapOf("id" to id, "status" to status.name)).asUpdate)
     }
+
+    fun lukkApentForInnsokForTiltakMedStartdatoForDato(dagensDato: LocalDate): Int {
+        @Language("PostgreSQL")
+        val query = """
+            update tiltaksgjennomforing
+            set apent_for_innsok = false
+            where oppstart = 'FELLES' and start_dato = ?
+        """.trimIndent()
+
+        return queryOf(query, dagensDato).asUpdate.let { db.run(it) }
+    }
 }

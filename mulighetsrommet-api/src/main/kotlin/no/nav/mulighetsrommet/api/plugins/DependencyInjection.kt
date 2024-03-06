@@ -375,6 +375,7 @@ private fun tasks(config: TaskConfig) = module {
             get(),
             get(),
         )
+        val updateApentForInnsok = UpdateApentForInnsok(config.updateApentForInnsok, get(), get())
         val oppdaterMetrikker = OppdaterMetrikker(config.oppdaterMetrikker, get(), get())
         val notificationService: NotificationService by inject()
         val generateValidationReport: GenerateValidationReport by inject()
@@ -404,6 +405,7 @@ private fun tasks(config: TaskConfig) = module {
                 notifySluttdatoForAvtalerNarmerSeg.task,
                 notifyFailedKafkaEvents.task,
                 oppdaterMetrikker.task,
+                updateApentForInnsok.task,
             )
             .serializer(DbSchedulerKotlinSerializer())
             .registerShutdownHook()

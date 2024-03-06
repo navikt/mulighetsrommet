@@ -131,6 +131,9 @@ app:
       delayOfMinutes: 5
     generateValidationReport:
       bucketName: mulighetsrommet-api-uploads-prod
+    updateApentForInnsok:
+      disabled: true # TODO Sett til false når test i dev er ok
+      cronPattern: "0 0 1 * * *" # Hver morgen kl. 01:00
 
   norg2:
     baseUrl: https://norg2.prod-fss-pub.nais.io/norg2/api/v1

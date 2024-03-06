@@ -25,6 +25,7 @@ import no.nav.mulighetsrommet.notifications.NotificationRepository
 import no.nav.mulighetsrommet.notifications.NotificationType
 import no.nav.mulighetsrommet.notifications.ScheduledNotification
 import java.time.Instant
+import java.time.LocalDate
 import java.util.*
 
 class TiltaksgjennomforingService(
@@ -201,6 +202,10 @@ class TiltaksgjennomforingService(
         }
 
         return Either.Right(Unit)
+    }
+
+    fun batchApentForInnsokForAlleMedStarttdatoForDato(dagensDato: LocalDate): Int {
+        return tiltaksgjennomforinger.lukkApentForInnsokForTiltakMedStartdatoForDato(dagensDato)
     }
 
     fun getEndringshistorikk(id: UUID): EndringshistorikkDto {
