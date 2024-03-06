@@ -31,7 +31,7 @@ export function Brodsmuler({ brodsmuler }: Props) {
                   <Link className={styles.link} to={item.lenke}>
                     {item.tittel}
                   </Link>
-                  <ArrowRightIcon />
+                  <ArrowRightIcon aria-label="Ikon for pil til høyre" />
                 </div>
               )}
             </li>
