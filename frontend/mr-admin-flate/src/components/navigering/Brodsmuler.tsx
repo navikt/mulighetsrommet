@@ -3,7 +3,18 @@ import { Link } from "react-router-dom";
 import styles from "./Brodsmuler.module.scss";
 
 export interface Brodsmule {
-  tittel: string;
+  tittel:
+    | "Forside"
+    | "Avtaler"
+    | "Rediger avtale"
+    | "Ny avtale"
+    | "Avtaledetaljer"
+    | "Tiltaksgjennomføringer"
+    | "Tiltaksgjennomføringdetaljer"
+    | "Rediger tiltaksgjennomføring"
+    | "Ny tiltaksgjennomføring"
+    | "Tiltakstyper"
+    | "Tiltakstypedetaljer";
   lenke: string;
 }
 
@@ -25,13 +36,13 @@ export function Brodsmuler({ brodsmuler }: Props) {
           return (
             <li key={index}>
               {index > 0 && index === filtrerteBrodsmuler.length - 1 ? (
-                <span>{item.tittel}</span>
+                <span aria-current="page">{item.tittel}</span>
               ) : (
                 <div className={styles.item}>
                   <Link className={styles.link} to={item.lenke}>
                     {item.tittel}
                   </Link>
-                  <ArrowRightIcon aria-label="Ikon for pil til høyre" />
+                  <ArrowRightIcon aria-hidden="true" aria-label="Ikon for pil til høyre" />
                 </div>
               )}
             </li>
