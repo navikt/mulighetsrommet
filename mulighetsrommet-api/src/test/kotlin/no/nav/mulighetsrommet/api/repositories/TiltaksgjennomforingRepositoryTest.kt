@@ -1208,6 +1208,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
 
         test("Skal sette åpent for innsøk til false for tiltak med felles oppstartstype og startdato i dag") {
+            val dagensDatoMock = LocalDate.of(2024, 3, 6)
             val jobbklubbStartDatoIFremtiden = TiltaksgjennomforingFixtures.Jobbklubb1.copy(
                 id = UUID.randomUUID(),
                 oppstart = TiltaksgjennomforingOppstartstype.FELLES,
@@ -1220,7 +1221,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 id = UUID.randomUUID(),
                 navn = "Jobbklubb 2",
                 oppstart = TiltaksgjennomforingOppstartstype.FELLES,
-                startDato = LocalDate.of(2024, 3, 6),
+                startDato = dagensDatoMock,
                 apentForInnsok = true,
             )
             tiltaksgjennomforinger.upsert(jobbklubbStartDatoIDag)
@@ -1240,11 +1241,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 row(jobbklubbStartDatoHarPassert.id, false),
             ) { id, apentForInnsok ->
                 val result = tiltaksgjennomforinger.lukkApentForInnsokForTiltakMedStartdatoForDato(
-                    dagensDato = LocalDate.of(
-                        2024,
-                        3,
-                        6,
-                    ),
+                    dagensDato = dagensDatoMock,
                 )
                 result shouldBe 1
                 tiltaksgjennomforinger.get(id)?.apentForInnsok shouldBe apentForInnsok
