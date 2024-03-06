@@ -8,6 +8,7 @@ import { TiltakstypestatusTag } from "../../components/statuselementer/Tiltaksty
 import { useNavigateAndReplaceUrl } from "../../hooks/useNavigateWithoutReplacingUrl";
 import { ContainerLayout } from "../../layouts/ContainerLayout";
 import commonStyles from "../Page.module.scss";
+import { Brodsmuler } from "../../components/navigering/Brodsmuler";
 
 export function DetaljerTiltakstypePage() {
   const { pathname } = useLocation();
@@ -32,6 +33,13 @@ export function DetaljerTiltakstypePage() {
 
   return (
     <main>
+      <Brodsmuler
+        brodsmuler={[
+          { tittel: "Forside", lenke: "/" },
+          { tittel: "Tiltakstyper", lenke: "/tiltakstyper" },
+          { tittel: "Tiltakstypedetaljer", lenke: `/tiltakstyper/${tiltakstype.id}` },
+        ]}
+      />
       <Header>
         <Heading size="large" level="2">
           {tiltakstype?.navn ?? "..."}
