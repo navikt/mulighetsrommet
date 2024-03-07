@@ -14,6 +14,7 @@ import { ContainerLayout } from "../../layouts/ContainerLayout";
 import commonStyles from "../Page.module.scss";
 import styles from "./DetaljerAvtalePage.module.scss";
 import { DupliserAvtale } from "../../components/avtaler/DupliserAvtale";
+import { Brodsmuler } from "../../components/navigering/Brodsmuler";
 
 export function AvtalePage() {
   const avtaleId = useGetAvtaleIdFromUrlOrThrow();
@@ -54,6 +55,13 @@ export function AvtalePage() {
 
   return (
     <main className={styles.avtaleinfo}>
+      <Brodsmuler
+        brodsmuler={[
+          { tittel: "Forside", lenke: "/" },
+          { tittel: "Avtaler", lenke: "/avtaler" },
+          { tittel: "Avtaledetaljer", lenke: `/avtaler/${avtale.id}` },
+        ]}
+      />
       <Header>
         <div className={headerStyles.tiltaksnavn_status}>
           <Heading size="large" level="2">

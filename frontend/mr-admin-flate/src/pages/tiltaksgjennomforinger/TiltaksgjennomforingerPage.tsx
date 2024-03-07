@@ -10,12 +10,19 @@ import { TiltaksgjennomforingFilterTags } from "../../components/filter/Tiltaksg
 import { TiltaksgjennomforingFilter } from "../../components/filter/Tiltaksgjennomforingfilter";
 import { ReloadAppErrorBoundary } from "../../ErrorBoundary";
 import { TilToppenKnapp } from "../../../../frontend-common/components/tilToppenKnapp/TilToppenKnapp";
+import { Brodsmuler } from "../../components/navigering/Brodsmuler";
 
 export function TiltaksgjennomforingerPage() {
   useTitle("Tiltaksgjennomføringer");
 
   return (
     <>
+      <Brodsmuler
+        brodsmuler={[
+          { tittel: "Forside", lenke: "/" },
+          { tittel: "Tiltaksgjennomføringer", lenke: "/tiltaksgjennomforinger" },
+        ]}
+      />
       <HeaderBanner heading="Oversikt over tiltaksgjennomføringer" />
       <MainContainer>
         <ContainerLayout>
