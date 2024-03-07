@@ -59,20 +59,21 @@ class UpdateApentForInnsok(
                 database.transaction { tx ->
                     val oppdaterteTiltak =
                         tiltaksgjennomforingService.batchApentForInnsokForAlleMedStarttdatoForDato(LocalDate.now())
-                            .forEach {
-                                endringshistorikkService.logEndring(
-                                    tx,
-                                    DocumentClass.TILTAKSGJENNOMFORING,
-                                    operation = "Stengte for innsøk",
-                                    "System",
-                                    it.id,
-                                    LocalDateTime.now(),
-                                ) {
-                                    Json.encodeToJsonElement(it)
-                                }
-                            }
 
-                    logger.info("Oppdaterte $oppdaterteTiltak tiltak med åpent for innsøk = false")
+                    oppdaterteTiltak.forEach {
+                        endringshistorikkService.logEndring(
+                            tx,
+                            DocumentClass.TILTAKSGJENNOMFORING,
+                            operation = "Stengte for innsøk",
+                            "System",
+                            it.id,
+                            LocalDateTime.now(),
+                        ) {
+                            Json.encodeToJsonElement(it)
+                        }
+                    }
+
+                    logger.info("Oppdaterte ${oppdaterteTiltak.size} tiltak med åpent for innsøk = false")
                 }
             }
         }
