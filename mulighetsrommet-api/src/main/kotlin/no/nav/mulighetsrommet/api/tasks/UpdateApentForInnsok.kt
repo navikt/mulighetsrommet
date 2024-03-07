@@ -42,8 +42,8 @@ class UpdateApentForInnsok(
             val cause = failure.cause.getOrNull()?.message
             slack.sendMessage(
                 """
-                Klarte ikke oppdatere Åpent for innsøk for tiltak der sluttdato har passert.
-                Konsekvensen er at tiltak kan stå som at de er åpne for innsøk når de egentlig ikke er det og redaktører må manuelt rydde opp.
+                Klarte ikke oppdatere Åpent for innsøk for tiltak der startdato har passert.
+                Konsekvensen er at tiltak kan stå at de er åpne for innsøk når de egentlig ikke er det og redaktører må manuelt rydde opp.
                 Detaljer: $cause
                 """.trimIndent(),
             )
