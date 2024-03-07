@@ -57,6 +57,12 @@ export function TiltaksgjennomforingPage() {
             ? { tittel: "Avtaler", lenke: "/avtaler" }
             : { tittel: "Tiltaksgjennomføringer", lenke: "/tiltaksgjennomforinger" },
           avtaleId ? { tittel: "Avtaledetaljer", lenke: `/avtaler/${avtaleId}` } : undefined,
+          avtaleId
+            ? {
+                tittel: "Avtalens gjennomføringer",
+                lenke: `/avtaler/${avtaleId}/tiltaksgjennomforinger`,
+              }
+            : undefined,
           {
             tittel: "Tiltaksgjennomføringdetaljer",
             lenke: `/tiltaksgjennomforinger/${tiltaksgjennomforing.id}`,

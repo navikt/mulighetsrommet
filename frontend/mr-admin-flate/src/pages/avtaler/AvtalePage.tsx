@@ -1,28 +1,27 @@
 import { Alert, Heading, Tabs } from "@navikt/ds-react";
 import { Toggles } from "mulighetsrommet-api-client";
 import { useTitle } from "mulighetsrommet-frontend-common";
-import { Link, Outlet, useLocation } from "react-router-dom";
+import { Link, Outlet, useLocation, useMatch } from "react-router-dom";
 import { useAvtale } from "../../api/avtaler/useAvtale";
 import { useFeatureToggle } from "../../api/features/feature-toggles";
+import { DupliserAvtale } from "../../components/avtaler/DupliserAvtale";
 import { Header } from "../../components/detaljside/Header";
 import headerStyles from "../../components/detaljside/Header.module.scss";
 import { Laster } from "../../components/laster/Laster";
+import { Brodsmuler } from "../../components/navigering/Brodsmuler";
 import { AvtalestatusTag } from "../../components/statuselementer/AvtalestatusTag";
-import { useGetAvtaleIdFromUrlOrThrow } from "../../hooks/useGetAvtaleIdFromUrl";
 import { useNavigateAndReplaceUrl } from "../../hooks/useNavigateWithoutReplacingUrl";
 import { ContainerLayout } from "../../layouts/ContainerLayout";
 import commonStyles from "../Page.module.scss";
 import styles from "./DetaljerAvtalePage.module.scss";
-import { DupliserAvtale } from "../../components/avtaler/DupliserAvtale";
-import { Brodsmuler } from "../../components/navigering/Brodsmuler";
 
 export function AvtalePage() {
-  const avtaleId = useGetAvtaleIdFromUrlOrThrow();
   const { pathname } = useLocation();
   const { navigateAndReplaceUrl } = useNavigateAndReplaceUrl();
   const { data: showNotater } = useFeatureToggle(Toggles.MULIGHETSROMMET_ADMIN_FLATE_SHOW_NOTATER);
   const { data: avtale, isPending } = useAvtale();
   useTitle(`Avtale ${avtale?.navn ? `- ${avtale.navn}` : ""}`);
+  const erPaaGjennomforingerForAvtale = useMatch("/avtaler/:avtaleId/tiltaksgjennomforinger");
 
   if (isPending) {
     return (
@@ -60,6 +59,12 @@ export function AvtalePage() {
           { tittel: "Forside", lenke: "/" },
           { tittel: "Avtaler", lenke: "/avtaler" },
           { tittel: "Avtaledetaljer", lenke: `/avtaler/${avtale.id}` },
+          erPaaGjennomforingerForAvtale
+            ? {
+                tittel: "Avtalens gjennomføringer",
+                lenke: `/avtaler/${avtale.id}/tiltaksgjennomforinger`,
+              }
+            : undefined,
         ]}
       />
       <Header>
@@ -76,14 +81,14 @@ export function AvtalePage() {
           <Tabs.Tab
             value="info"
             label="Avtaleinfo"
-            onClick={() => navigateAndReplaceUrl(`/avtaler/${avtaleId}`)}
+            onClick={() => navigateAndReplaceUrl(`/avtaler/${avtale.id}`)}
             aria-controls="panel"
           />
           {showNotater && (
             <Tabs.Tab
               value="notater"
               label="Notater"
-              onClick={() => navigateAndReplaceUrl(`/avtaler/${avtaleId}/notater`)}
+              onClick={() => navigateAndReplaceUrl(`/avtaler/${avtale.id}/notater`)}
               aria-controls="panel"
               data-testid="notater-tab"
             />
@@ -91,7 +96,7 @@ export function AvtalePage() {
           <Tabs.Tab
             value="tiltaksgjennomforinger"
             label="Gjennomføringer"
-            onClick={() => navigateAndReplaceUrl(`/avtaler/${avtaleId}/tiltaksgjennomforinger`)}
+            onClick={() => navigateAndReplaceUrl(`/avtaler/${avtale.id}/tiltaksgjennomforinger`)}
             aria-controls="panel"
             data-testid="gjennomforinger-tab"
           />

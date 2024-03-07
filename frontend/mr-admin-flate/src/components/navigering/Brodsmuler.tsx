@@ -11,6 +11,7 @@ export interface Brodsmule {
     | "Rediger avtale"
     | "Ny avtale"
     | "Avtaledetaljer"
+    | "Avtalens gjennomføringer"
     | "Tiltaksgjennomføringer"
     | "Tiltaksgjennomføringdetaljer"
     | "Rediger tiltaksgjennomføring"
