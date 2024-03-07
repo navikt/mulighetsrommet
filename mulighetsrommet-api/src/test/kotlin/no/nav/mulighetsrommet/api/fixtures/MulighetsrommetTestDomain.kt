@@ -22,7 +22,7 @@ data class MulighetsrommetTestDomain(
     ),
     val avtaler: List<AvtaleDbo> = listOf(AvtaleFixtures.oppfolging, AvtaleFixtures.avtaleForVta),
     val gjennomforinger: List<TiltaksgjennomforingDbo> = listOf(),
-    val virksomhter: List<VirksomhetDto> = listOf(),
+    val virksomheter: List<VirksomhetDto> = listOf(),
 ) {
     fun initialize(database: FlywayDatabaseAdapter) {
         NavEnhetRepository(database).also { repository ->
@@ -46,7 +46,7 @@ data class MulighetsrommetTestDomain(
         }
 
         VirksomhetRepository(database).also { repository ->
-            virksomhter.forEach { repository.upsert(it) }
+            virksomheter.forEach { repository.upsert(it) }
         }
     }
 }
