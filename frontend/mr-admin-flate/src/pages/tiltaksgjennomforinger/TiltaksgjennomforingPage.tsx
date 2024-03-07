@@ -14,7 +14,30 @@ import { ContainerLayout } from "../../layouts/ContainerLayout";
 import commonStyles from "../Page.module.scss";
 import { DupliserTiltak } from "../../components/tiltaksgjennomforinger/DupliserTiltak";
 import { PREVIEW_ARBEIDSMARKEDSTILTAK_URL } from "../../constants";
-import { Brodsmuler } from "../../components/navigering/Brodsmuler";
+import { Brodsmule, Brodsmuler } from "../../components/navigering/Brodsmuler";
+
+function useTiltaksgjennomforingBrodsmuler(
+  tiltaksgjennomforingId: string,
+  avtaleId?: string,
+): Array<Brodsmule | undefined> {
+  return [
+    { tittel: "Forside", lenke: "/" },
+    avtaleId
+      ? { tittel: "Avtaler", lenke: "/avtaler" }
+      : { tittel: "Tiltaksgjennomføringer", lenke: "/tiltaksgjennomforinger" },
+    avtaleId ? { tittel: "Avtaledetaljer", lenke: `/avtaler/${avtaleId}` } : undefined,
+    avtaleId
+      ? {
+          tittel: "Avtalens gjennomføringer",
+          lenke: `/avtaler/${avtaleId}/tiltaksgjennomforinger`,
+        }
+      : undefined,
+    {
+      tittel: "Tiltaksgjennomføringdetaljer",
+      lenke: `/tiltaksgjennomforinger/${tiltaksgjennomforingId}`,
+    },
+  ];
+}
 
 export function TiltaksgjennomforingPage() {
   const { pathname } = useLocation();
@@ -22,6 +45,7 @@ export function TiltaksgjennomforingPage() {
   const { navigateAndReplaceUrl } = useNavigateAndReplaceUrl();
   const { data: tiltaksgjennomforing, isLoading } = useTiltaksgjennomforingById();
   const { data: showNotater } = useFeatureToggle(Toggles.MULIGHETSROMMET_ADMIN_FLATE_SHOW_NOTATER);
+  const brodsmuler = useTiltaksgjennomforingBrodsmuler(tiltaksgjennomforing?.id!!, avtaleId);
 
   if (!tiltaksgjennomforing && isLoading) {
     return <Laster tekst="Laster tiltaksgjennomføring" />;
@@ -50,25 +74,7 @@ export function TiltaksgjennomforingPage() {
 
   return (
     <main>
-      <Brodsmuler
-        brodsmuler={[
-          { tittel: "Forside", lenke: "/" },
-          avtaleId
-            ? { tittel: "Avtaler", lenke: "/avtaler" }
-            : { tittel: "Tiltaksgjennomføringer", lenke: "/tiltaksgjennomforinger" },
-          avtaleId ? { tittel: "Avtaledetaljer", lenke: `/avtaler/${avtaleId}` } : undefined,
-          avtaleId
-            ? {
-                tittel: "Avtalens gjennomføringer",
-                lenke: `/avtaler/${avtaleId}/tiltaksgjennomforinger`,
-              }
-            : undefined,
-          {
-            tittel: "Tiltaksgjennomføringdetaljer",
-            lenke: `/tiltaksgjennomforinger/${tiltaksgjennomforing.id}`,
-          },
-        ]}
-      />
+      <Brodsmuler brodsmuler={brodsmuler} />
       <Header harForhandsvisningsknapp>
         <div
           className={classNames(

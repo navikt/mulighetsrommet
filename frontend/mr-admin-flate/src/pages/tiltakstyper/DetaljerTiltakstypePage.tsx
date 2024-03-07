@@ -1,6 +1,6 @@
 import { Alert, Heading, Tabs } from "@navikt/ds-react";
 import { useTitle } from "mulighetsrommet-frontend-common";
-import { Link, Outlet, useLocation } from "react-router-dom";
+import { Link, Outlet, useLocation, useMatch } from "react-router-dom";
 import { useTiltakstypeById } from "../../api/tiltakstyper/useTiltakstypeById";
 import { Header } from "../../components/detaljside/Header";
 import { Laster } from "../../components/laster/Laster";
@@ -8,13 +8,26 @@ import { TiltakstypestatusTag } from "../../components/statuselementer/Tiltaksty
 import { useNavigateAndReplaceUrl } from "../../hooks/useNavigateWithoutReplacingUrl";
 import { ContainerLayout } from "../../layouts/ContainerLayout";
 import commonStyles from "../Page.module.scss";
-import { Brodsmuler } from "../../components/navigering/Brodsmuler";
+import { Brodsmule, Brodsmuler } from "../../components/navigering/Brodsmuler";
+
+function useTiltakstypeBrodsmuler(tiltakstypeId: string): Array<Brodsmule | undefined> {
+  const match = useMatch("/tiltakstyper/:tiltakstypeId/avtaler");
+  return [
+    { tittel: "Forside", lenke: "/" },
+    { tittel: "Tiltakstyper", lenke: "/tiltakstyper" },
+    { tittel: "Tiltakstypedetaljer", lenke: `/tiltakstyper/${tiltakstypeId}` },
+    match
+      ? { tittel: "Tiltaktypens avtaler", lenke: `/tiltakstyper/${tiltakstypeId}/avtaler` }
+      : undefined,
+  ];
+}
 
 export function DetaljerTiltakstypePage() {
   const { pathname } = useLocation();
   const { navigateAndReplaceUrl } = useNavigateAndReplaceUrl();
   const { data: tiltakstype, isLoading } = useTiltakstypeById();
   useTitle(`Tiltakstyper ${tiltakstype?.navn ? `- ${tiltakstype.navn}` : ""}`);
+  const brodsmuler = useTiltakstypeBrodsmuler(tiltakstype?.id!!);
 
   if (!tiltakstype && isLoading) {
     return <Laster tekst="Laster tiltakstype" />;
@@ -33,13 +46,7 @@ export function DetaljerTiltakstypePage() {
 
   return (
     <main>
-      <Brodsmuler
-        brodsmuler={[
-          { tittel: "Forside", lenke: "/" },
-          { tittel: "Tiltakstyper", lenke: "/tiltakstyper" },
-          { tittel: "Tiltakstypedetaljer", lenke: `/tiltakstyper/${tiltakstype.id}` },
-        ]}
-      />
+      <Brodsmuler brodsmuler={brodsmuler} />
       <Header>
         <Heading size="large" level="2">
           {tiltakstype?.navn ?? "..."}

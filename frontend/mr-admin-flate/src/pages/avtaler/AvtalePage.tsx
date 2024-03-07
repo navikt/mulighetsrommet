@@ -8,12 +8,27 @@ import { DupliserAvtale } from "../../components/avtaler/DupliserAvtale";
 import { Header } from "../../components/detaljside/Header";
 import headerStyles from "../../components/detaljside/Header.module.scss";
 import { Laster } from "../../components/laster/Laster";
-import { Brodsmuler } from "../../components/navigering/Brodsmuler";
+import { Brodsmule, Brodsmuler } from "../../components/navigering/Brodsmuler";
 import { AvtalestatusTag } from "../../components/statuselementer/AvtalestatusTag";
 import { useNavigateAndReplaceUrl } from "../../hooks/useNavigateWithoutReplacingUrl";
 import { ContainerLayout } from "../../layouts/ContainerLayout";
 import commonStyles from "../Page.module.scss";
 import styles from "./DetaljerAvtalePage.module.scss";
+
+function useAvtaleBrodsmuler(avtaleId: string): Array<Brodsmule | undefined> {
+  const erPaaGjennomforingerForAvtale = useMatch("/avtaler/:avtaleId/tiltaksgjennomforinger");
+  return [
+    { tittel: "Forside", lenke: "/" },
+    { tittel: "Avtaler", lenke: "/avtaler" },
+    { tittel: "Avtaledetaljer", lenke: `/avtaler/${avtaleId}` },
+    erPaaGjennomforingerForAvtale
+      ? {
+          tittel: "Avtalens gjennomføringer",
+          lenke: `/avtaler/${avtaleId}/tiltaksgjennomforinger`,
+        }
+      : undefined,
+  ];
+}
 
 export function AvtalePage() {
   const { pathname } = useLocation();
@@ -21,7 +36,7 @@ export function AvtalePage() {
   const { data: showNotater } = useFeatureToggle(Toggles.MULIGHETSROMMET_ADMIN_FLATE_SHOW_NOTATER);
   const { data: avtale, isPending } = useAvtale();
   useTitle(`Avtale ${avtale?.navn ? `- ${avtale.navn}` : ""}`);
-  const erPaaGjennomforingerForAvtale = useMatch("/avtaler/:avtaleId/tiltaksgjennomforinger");
+  const brodsmuler = useAvtaleBrodsmuler(avtale?.id!!);
 
   if (isPending) {
     return (
@@ -54,19 +69,7 @@ export function AvtalePage() {
 
   return (
     <main className={styles.avtaleinfo}>
-      <Brodsmuler
-        brodsmuler={[
-          { tittel: "Forside", lenke: "/" },
-          { tittel: "Avtaler", lenke: "/avtaler" },
-          { tittel: "Avtaledetaljer", lenke: `/avtaler/${avtale.id}` },
-          erPaaGjennomforingerForAvtale
-            ? {
-                tittel: "Avtalens gjennomføringer",
-                lenke: `/avtaler/${avtale.id}/tiltaksgjennomforinger`,
-              }
-            : undefined,
-        ]}
-      />
+      <Brodsmuler brodsmuler={brodsmuler} />
       <Header>
         <div className={headerStyles.tiltaksnavn_status}>
           <Heading size="large" level="2">
