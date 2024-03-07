@@ -2,6 +2,8 @@ import { ArrowRightIcon } from "@navikt/aksel-icons";
 import { Link } from "react-router-dom";
 import styles from "./Brodsmuler.module.scss";
 
+type Id = string;
+
 export interface Brodsmule {
   tittel:
     | "Forside"
@@ -15,7 +17,14 @@ export interface Brodsmule {
     | "Ny tiltaksgjennomføring"
     | "Tiltakstyper"
     | "Tiltakstypedetaljer";
-  lenke: string;
+  lenke:
+    | "/"
+    | "/tiltakstyper"
+    | `/tiltakstyper/${Id}`
+    | "/avtaler"
+    | `/avtaler/${Id}`
+    | "/tiltaksgjennomforinger"
+    | `/tiltaksgjennomforinger/${Id}`;
 }
 
 interface Props {
