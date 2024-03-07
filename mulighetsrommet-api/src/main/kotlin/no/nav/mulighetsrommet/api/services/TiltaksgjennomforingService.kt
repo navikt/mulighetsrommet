@@ -260,7 +260,7 @@ class TiltaksgjennomforingService(
         dto: TiltaksgjennomforingAdminDto,
         tx: TransactionalSession,
     ) {
-        documentHistoryService.logEndring(tx, DocumentClass.TILTAKSGJENNOMFORING, operation, "System", dto.id) {
+        documentHistoryService.logEndring(tx, DocumentClass.TILTAKSGJENNOMFORING, operation, TILTAKSADMINISTRASJON_SYSTEM_BRUKER, dto.id) {
             Json.encodeToJsonElement<TiltaksgjennomforingAdminDto>(dto)
         }
     }
