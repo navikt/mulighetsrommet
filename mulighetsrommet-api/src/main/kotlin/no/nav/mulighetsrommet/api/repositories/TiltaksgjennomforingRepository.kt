@@ -852,14 +852,15 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         return tx.run(queryOf(query, mapOf("id" to id, "status" to status.name)).asUpdate)
     }
 
-    fun lukkApentForInnsokForTiltakMedStartdatoForDato(dagensDato: LocalDate): Int {
+    fun lukkApentForInnsokForTiltakMedStartdatoForDato(dagensDato: LocalDate): List<TiltaksgjennomforingAdminDto> {
         @Language("PostgreSQL")
         val query = """
             update tiltaksgjennomforing
             set apent_for_innsok = false
-            where oppstart = 'FELLES' and start_dato = ?
+            where apent_for_innsok = true and oppstart = 'FELLES' and start_dato = ?
+            returning id
         """.trimIndent()
 
-        return queryOf(query, dagensDato).asUpdate.let { db.run(it) }
+        return queryOf(query, dagensDato).map { get(it.uuid("id")) }.asList.let { db.run(it) }
     }
 }

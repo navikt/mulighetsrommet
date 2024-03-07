@@ -6,15 +6,23 @@ import com.github.kagkarlsson.scheduler.task.schedule.DisabledSchedule
 import com.github.kagkarlsson.scheduler.task.schedule.Schedule
 import com.github.kagkarlsson.scheduler.task.schedule.Schedules
 import kotlinx.coroutines.runBlocking
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.encodeToJsonElement
+import no.nav.mulighetsrommet.api.services.DocumentClass
+import no.nav.mulighetsrommet.api.services.EndringshistorikkService
 import no.nav.mulighetsrommet.api.services.TiltaksgjennomforingService
+import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.slack.SlackNotifier
 import org.slf4j.LoggerFactory
 import java.time.LocalDate
+import java.time.LocalDateTime
 import kotlin.jvm.optionals.getOrNull
 
 class UpdateApentForInnsok(
     config: Config,
+    database: Database,
     tiltaksgjennomforingService: TiltaksgjennomforingService,
+    endringshistorikkService: EndringshistorikkService,
     slack: SlackNotifier,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
@@ -48,8 +56,24 @@ class UpdateApentForInnsok(
             logger.info("Oppdaterer Åpent for innsøk for tiltak med startdato i dag...")
 
             runBlocking {
-                val antallOppdaterteTiltak = tiltaksgjennomforingService.batchApentForInnsokForAlleMedStarttdatoForDato(LocalDate.now())
-                logger.info("Oppdaterte $antallOppdaterteTiltak tiltak med åpent for innsøk = false")
+                database.transaction { tx ->
+                    val oppdaterteTiltak =
+                        tiltaksgjennomforingService.batchApentForInnsokForAlleMedStarttdatoForDato(LocalDate.now())
+                            .forEach {
+                                endringshistorikkService.logEndring(
+                                    tx,
+                                    DocumentClass.TILTAKSGJENNOMFORING,
+                                    operation = "Stengte for innsøk",
+                                    "System",
+                                    it.id,
+                                    LocalDateTime.now(),
+                                ) {
+                                    Json.encodeToJsonElement(it)
+                                }
+                            }
+
+                    logger.info("Oppdaterte $oppdaterteTiltak tiltak med åpent for innsøk = false")
+                }
             }
         }
 }

@@ -204,7 +204,7 @@ class TiltaksgjennomforingService(
         return Either.Right(Unit)
     }
 
-    fun batchApentForInnsokForAlleMedStarttdatoForDato(dagensDato: LocalDate): Int {
+    fun batchApentForInnsokForAlleMedStarttdatoForDato(dagensDato: LocalDate): List<TiltaksgjennomforingAdminDto> {
         return tiltaksgjennomforinger.lukkApentForInnsokForTiltakMedStartdatoForDato(dagensDato)
     }
 

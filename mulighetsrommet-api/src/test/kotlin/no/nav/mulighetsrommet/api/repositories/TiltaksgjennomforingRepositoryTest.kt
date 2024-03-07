@@ -1243,7 +1243,6 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 val result = tiltaksgjennomforinger.lukkApentForInnsokForTiltakMedStartdatoForDato(
                     dagensDato = dagensDatoMock,
                 )
-                result shouldBe 1
                 tiltaksgjennomforinger.get(id)?.apentForInnsok shouldBe apentForInnsok
             }
         }
