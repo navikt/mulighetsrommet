@@ -6,9 +6,7 @@ import com.github.kagkarlsson.scheduler.task.schedule.DisabledSchedule
 import com.github.kagkarlsson.scheduler.task.schedule.Schedule
 import com.github.kagkarlsson.scheduler.task.schedule.Schedules
 import kotlinx.coroutines.runBlocking
-import no.nav.mulighetsrommet.api.services.EndringshistorikkService
 import no.nav.mulighetsrommet.api.services.TiltaksgjennomforingService
-import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.slack.SlackNotifier
 import org.slf4j.LoggerFactory
 import java.time.LocalDate
@@ -16,9 +14,7 @@ import kotlin.jvm.optionals.getOrNull
 
 class UpdateApentForInnsok(
     config: Config,
-    database: Database,
     tiltaksgjennomforingService: TiltaksgjennomforingService,
-    endringshistorikkService: EndringshistorikkService,
     slack: SlackNotifier,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
@@ -52,11 +48,7 @@ class UpdateApentForInnsok(
             logger.info("Oppdaterer Åpent for innsøk for tiltak med startdato i dag...")
 
             runBlocking {
-                database.transaction { tx ->
-                    val antallTiltak =
-                        tiltaksgjennomforingService.batchApentForInnsokForAlleMedStarttdatoForDato(LocalDate.now(), tx)
-                    logger.info("Oppdaterte $antallTiltak tiltak med åpent for innsøk = false")
-                }
+                tiltaksgjennomforingService.batchApentForInnsokForAlleMedStarttdatoForDato(LocalDate.now())
             }
         }
 }
