@@ -6,16 +6,12 @@ import com.github.kagkarlsson.scheduler.task.schedule.DisabledSchedule
 import com.github.kagkarlsson.scheduler.task.schedule.Schedule
 import com.github.kagkarlsson.scheduler.task.schedule.Schedules
 import kotlinx.coroutines.runBlocking
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.encodeToJsonElement
-import no.nav.mulighetsrommet.api.services.DocumentClass
 import no.nav.mulighetsrommet.api.services.EndringshistorikkService
 import no.nav.mulighetsrommet.api.services.TiltaksgjennomforingService
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.slack.SlackNotifier
 import org.slf4j.LoggerFactory
 import java.time.LocalDate
-import java.time.LocalDateTime
 import kotlin.jvm.optionals.getOrNull
 
 class UpdateApentForInnsok(
@@ -57,23 +53,9 @@ class UpdateApentForInnsok(
 
             runBlocking {
                 database.transaction { tx ->
-                    val oppdaterteTiltak =
-                        tiltaksgjennomforingService.batchApentForInnsokForAlleMedStarttdatoForDato(LocalDate.now())
-
-                    oppdaterteTiltak.forEach {
-                        endringshistorikkService.logEndring(
-                            tx,
-                            DocumentClass.TILTAKSGJENNOMFORING,
-                            operation = "Stengte for innsøk",
-                            "System",
-                            it.id,
-                            LocalDateTime.now(),
-                        ) {
-                            Json.encodeToJsonElement(it)
-                        }
-                    }
-
-                    logger.info("Oppdaterte ${oppdaterteTiltak.size} tiltak med åpent for innsøk = false")
+                    val antallTiltak =
+                        tiltaksgjennomforingService.batchApentForInnsokForAlleMedStarttdatoForDato(LocalDate.now(), tx)
+                    logger.info("Oppdaterte $antallTiltak tiltak med åpent for innsøk = false")
                 }
             }
         }

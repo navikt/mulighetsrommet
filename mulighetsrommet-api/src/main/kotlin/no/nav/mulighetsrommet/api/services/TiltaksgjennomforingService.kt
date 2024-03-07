@@ -204,8 +204,16 @@ class TiltaksgjennomforingService(
         return Either.Right(Unit)
     }
 
-    fun batchApentForInnsokForAlleMedStarttdatoForDato(dagensDato: LocalDate): List<TiltaksgjennomforingAdminDto> {
-        return tiltaksgjennomforinger.lukkApentForInnsokForTiltakMedStartdatoForDato(dagensDato)
+    fun batchApentForInnsokForAlleMedStarttdatoForDato(dagensDato: LocalDate, tx: TransactionalSession): Int {
+        val tiltak = tiltaksgjennomforinger.lukkApentForInnsokForTiltakMedStartdatoForDato(dagensDato, tx)
+        tiltak.forEach {
+            logEndringSomSystembruker(
+                operation = "Stengte for innsøk",
+                it,
+                tx,
+            )
+        }
+        return tiltak.size
     }
 
     fun getEndringshistorikk(id: UUID): EndringshistorikkDto {
@@ -243,6 +251,16 @@ class TiltaksgjennomforingService(
         tx: TransactionalSession,
     ) {
         documentHistoryService.logEndring(tx, DocumentClass.TILTAKSGJENNOMFORING, operation, navIdent.value, dto.id) {
+            Json.encodeToJsonElement<TiltaksgjennomforingAdminDto>(dto)
+        }
+    }
+
+    private fun logEndringSomSystembruker(
+        operation: String,
+        dto: TiltaksgjennomforingAdminDto,
+        tx: TransactionalSession,
+    ) {
+        documentHistoryService.logEndring(tx, DocumentClass.TILTAKSGJENNOMFORING, operation, "System", dto.id) {
             Json.encodeToJsonElement<TiltaksgjennomforingAdminDto>(dto)
         }
     }

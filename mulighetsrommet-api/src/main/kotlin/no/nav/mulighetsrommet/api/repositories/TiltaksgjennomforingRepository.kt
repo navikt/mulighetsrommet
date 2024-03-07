@@ -4,6 +4,7 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.Session
+import kotliquery.TransactionalSession
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.clients.vedtak.Innsatsgruppe
@@ -852,7 +853,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         return tx.run(queryOf(query, mapOf("id" to id, "status" to status.name)).asUpdate)
     }
 
-    fun lukkApentForInnsokForTiltakMedStartdatoForDato(dagensDato: LocalDate): List<TiltaksgjennomforingAdminDto> {
+    fun lukkApentForInnsokForTiltakMedStartdatoForDato(dagensDato: LocalDate, tx: TransactionalSession): List<TiltaksgjennomforingAdminDto> {
         @Language("PostgreSQL")
         val query = """
             update tiltaksgjennomforing
@@ -861,6 +862,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             returning id
         """.trimIndent()
 
-        return queryOf(query, dagensDato).map { get(it.uuid("id")) }.asList.let { db.run(it) }
+        return queryOf(query, dagensDato).map { get(it.uuid("id")) }.asList.let { tx.run(it) }
     }
 }

@@ -1240,9 +1240,12 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 row(jobbklubbStartDatoIDag.id, false),
                 row(jobbklubbStartDatoHarPassert.id, false),
             ) { id, apentForInnsok ->
-                val result = tiltaksgjennomforinger.lukkApentForInnsokForTiltakMedStartdatoForDato(
-                    dagensDato = dagensDatoMock,
-                )
+                database.db.transaction { tx ->
+                    tiltaksgjennomforinger.lukkApentForInnsokForTiltakMedStartdatoForDato(
+                        dagensDato = dagensDatoMock,
+                        tx = tx,
+                    )
+                }
                 tiltaksgjennomforinger.get(id)?.apentForInnsok shouldBe apentForInnsok
             }
         }
