@@ -17,7 +17,8 @@ export interface Brodsmule {
     | "Rediger tiltaksgjennomføring"
     | "Ny tiltaksgjennomføring"
     | "Tiltakstyper"
-    | "Tiltakstypedetaljer";
+    | "Tiltakstypedetaljer"
+    | "Tiltaktypens avtaler";
   lenke:
     | "/"
     | "/tiltakstyper"
