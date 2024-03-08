@@ -2,6 +2,8 @@ package no.nav.mulighetsrommet.api.services
 
 import io.ktor.client.statement.*
 import io.ktor.http.*
+import kotlinx.serialization.EncodeDefault
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.AdGruppeNavAnsattRolleMapping
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
@@ -174,6 +176,7 @@ class NavAnsattService(
         val sanityPatch = SanityNavKontaktperson(
             _id = id,
             _type = "navKontaktperson",
+            navIdent = Slug(current = ansatt.navIdent.value),
             enhet = "${ansatt.hovedenhet.enhetsnummer} ${ansatt.hovedenhet.navn}",
             telefonnummer = ansatt.mobilnummer,
             epost = ansatt.epost,
@@ -189,10 +192,8 @@ class NavAnsattService(
             _type = "redaktor",
             enhet = "${ansatt.hovedenhet.enhetsnummer} ${ansatt.hovedenhet.navn}",
             navn = "${ansatt.fornavn} ${ansatt.etternavn}",
-            epost = Slug(
-                _type = "slug",
-                current = ansatt.epost,
-            ),
+            navIdent = Slug(current = ansatt.navIdent.value),
+            epost = Slug(current = ansatt.epost),
         )
         return Mutation(createOrReplace = sanityPatch)
     }
@@ -219,6 +220,7 @@ class NavAnsattService(
 data class SanityNavKontaktperson(
     val _id: String,
     val _type: String,
+    val navIdent: Slug,
     val enhet: String,
     val telefonnummer: String? = null,
     val epost: String,
@@ -229,13 +231,16 @@ data class SanityNavKontaktperson(
 data class SanityRedaktor(
     val _id: String,
     val _type: String,
+    val navIdent: Slug,
     val enhet: String,
     val epost: Slug,
     val navn: String,
 )
 
 @Serializable
+@OptIn(ExperimentalSerializationApi::class)
 data class Slug(
-    val _type: String,
+    @EncodeDefault
+    val _type: String = "slug",
     val current: String,
 )
