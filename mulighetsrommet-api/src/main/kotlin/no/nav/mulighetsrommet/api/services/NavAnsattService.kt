@@ -220,7 +220,7 @@ class NavAnsattService(
 data class SanityNavKontaktperson(
     val _id: String,
     val _type: String,
-    val navIdent: Slug,
+    val navIdent: Slug? = null,
     val enhet: String,
     val telefonnummer: String? = null,
     val epost: String,
@@ -231,7 +231,7 @@ data class SanityNavKontaktperson(
 data class SanityRedaktor(
     val _id: String,
     val _type: String,
-    val navIdent: Slug,
+    val navIdent: Slug? = null,
     val enhet: String,
     val epost: Slug,
     val navn: String,
