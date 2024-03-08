@@ -117,9 +117,10 @@ class NavAnsattServiceTest : FunSpec({
         test("should get NavAnsatt with roles filtered by the configured roles") {
 
             val service = NavAnsattService(
+                roles = listOf(tiltaksadministrasjon),
+                db = database.db,
                 microsoftGraphService = msGraph,
                 ansatte = NavAnsattRepository(database.db),
-                roles = listOf(tiltaksadministrasjon),
                 sanityClient = sanityClient,
             )
 
@@ -142,9 +143,10 @@ class NavAnsattServiceTest : FunSpec({
 
         test("should fail when the requested NavAnsatt does not have any of the configured roles") {
             val service = NavAnsattService(
+                roles = listOf(kontaktperson),
+                db = database.db,
                 microsoftGraphService = msGraph,
                 ansatte = NavAnsattRepository(database.db),
-                roles = listOf(kontaktperson),
                 sanityClient = sanityClient,
             )
 
@@ -185,9 +187,10 @@ class NavAnsattServiceTest : FunSpec({
             ) { roles, ansatteMedRoller ->
                 runBlocking {
                     val service = NavAnsattService(
+                        roles = roles,
+                        db = database.db,
                         microsoftGraphService = msGraph,
                         ansatte = NavAnsattRepository(database.db),
-                        roles = roles,
                         sanityClient = sanityClient,
                     )
 
@@ -207,9 +210,10 @@ class NavAnsattServiceTest : FunSpec({
             coEvery { msGraph.getNavAnsatteInGroup(id) } returns listOf(ansatt1, ansatt2)
 
             val service = NavAnsattService(
+                roles = roles,
+                db = database.db,
                 microsoftGraphService = msGraph,
                 ansatte = NavAnsattRepository(database.db),
-                roles = roles,
                 sanityClient = sanityClient,
             )
 
@@ -267,9 +271,10 @@ class NavAnsattServiceTest : FunSpec({
             ) { roles, ansatteMedRoller ->
                 runBlocking {
                     val service = NavAnsattService(
+                        roles = roles,
+                        db = database.db,
                         microsoftGraphService = msGraph,
                         ansatte = ansatte,
-                        roles = roles,
                         sanityClient = sanityClient,
                     )
 
@@ -304,9 +309,10 @@ class NavAnsattServiceTest : FunSpec({
             ) { roles, ansatteMedRoller ->
                 runBlocking {
                     val service = NavAnsattService(
+                        roles = roles,
+                        db = database.db,
                         microsoftGraphService = msGraph,
                         ansatte = ansatte,
-                        roles = roles,
                         sanityClient = sanityClient,
                     )
 

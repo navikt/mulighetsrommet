@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.repositories
 
 import kotliquery.Row
+import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattRolle
@@ -126,16 +127,16 @@ class NavAnsattRepository(private val db: Database) {
             .let { db.run(it) }
     }
 
-    fun deleteByAzureId(azureId: UUID): Int {
+    fun deleteByAzureId(azureId: UUID, tx: Session? = null): Int {
         @Language("PostgreSQL")
         val query = """
             delete from nav_ansatt
             where azure_id = :azure_id::uuid
         """.trimIndent()
 
-        return queryOf(query, mapOf("azure_id" to azureId))
-            .asUpdate
-            .let { db.run(it) }
+        val update = queryOf(query, mapOf("azure_id" to azureId)).asUpdate
+
+        return tx?.run(update) ?: db.run(update)
     }
 
     private fun NavAnsattDbo.toSqlParameters() = mapOf(

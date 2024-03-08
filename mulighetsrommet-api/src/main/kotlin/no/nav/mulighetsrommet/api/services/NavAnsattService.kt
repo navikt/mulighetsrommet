@@ -13,12 +13,14 @@ import no.nav.mulighetsrommet.api.domain.dto.NavAnsattDto
 import no.nav.mulighetsrommet.api.domain.dto.SanityResponse
 import no.nav.mulighetsrommet.api.repositories.NavAnsattRepository
 import no.nav.mulighetsrommet.api.utils.NavAnsattFilter
+import no.nav.mulighetsrommet.database.Database
 import org.slf4j.LoggerFactory
 import java.time.LocalDate
 import java.util.*
 
 class NavAnsattService(
     private val roles: List<AdGruppeNavAnsattRolleMapping>,
+    private val db: Database,
     private val microsoftGraphService: MicrosoftGraphService,
     private val ansatte: NavAnsattRepository,
     private val sanityClient: SanityClient,
@@ -94,8 +96,10 @@ class NavAnsattService(
         val ansatteToDelete = ansatte.getAll(skalSlettesDatoLte = today)
         ansatteToDelete.forEach { ansatt ->
             logger.info("Sletter NavAnsatt fordi vi har passert dato for sletting azureId=${ansatt.azureId} dato=${ansatt.skalSlettesDato}")
-            ansatte.deleteByAzureId(ansatt.azureId)
-            deleteSanityAnsatt(ansatt)
+            db.transactionSuspend { tx ->
+                ansatte.deleteByAzureId(ansatt.azureId, tx)
+                deleteSanityAnsatt(ansatt)
+            }
         }
     }
 
