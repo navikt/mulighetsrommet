@@ -12,6 +12,7 @@ import no.nav.mulighetsrommet.api.services.NavAnsattService
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.slack.SlackNotifier
 import org.slf4j.LoggerFactory
+import org.slf4j.MDC
 import java.time.Instant
 import java.time.LocalDate
 import java.time.Period
@@ -54,7 +55,9 @@ class SynchronizeNavAnsatte(
                 """.trimIndent(),
             )
         }
-        .execute { _, _ ->
+        .execute { instance, _ ->
+            MDC.put("correlationId", instance.id)
+
             logger.info("Synkroniserer NAV-ansatte fra Azure til database...")
 
             runBlocking {
