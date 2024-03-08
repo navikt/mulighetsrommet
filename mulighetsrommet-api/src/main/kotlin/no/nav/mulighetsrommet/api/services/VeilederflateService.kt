@@ -280,8 +280,7 @@ class VeilederflateService(
         return sanityGjennomforing.run {
             val kontaktpersoner = kontaktpersoner
                 ?.filter { it.enheter.any { enhet -> enhet in enheter } }
-                ?.map { it.navKontaktperson }
-                ?.filterNotNull()
+                ?.mapNotNull { it.navKontaktperson }
                 ?.map {
                     VeilederflateKontaktinfoTiltaksansvarlig(
                         navn = it.navn,
