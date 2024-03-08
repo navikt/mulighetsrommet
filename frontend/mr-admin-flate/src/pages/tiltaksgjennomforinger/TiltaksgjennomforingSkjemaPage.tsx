@@ -43,7 +43,13 @@ const TiltaksgjennomforingSkjemaPage = () => {
         onClose={() => {
           navigerTilbake();
         }}
-        onSuccess={(id) => navigate(`/tiltaksgjennomforinger/${id}`)}
+        onSuccess={(id) =>
+          navigate(
+            avtaleId
+              ? `/avtaler/${avtaleId}/tiltaksgjennomforinger/${id}`
+              : `/tiltaksgjennomforinger/${id}`,
+          )
+        }
         avtale={avtale}
         ansatt={ansatt}
         tiltaksgjennomforing={
