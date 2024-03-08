@@ -28,6 +28,12 @@ export const navKontaktperson = defineType({
       validation: (rule) => rule.required().min(2).max(200),
     }),
     defineField({
+      name: "navIdent",
+      title: "NAV-ident",
+      type: "slug",
+      validation: (rule) => rule.required(),
+    }),
+    defineField({
       name: "enhet",
       title: "NAV-enhet",
       type: "string",

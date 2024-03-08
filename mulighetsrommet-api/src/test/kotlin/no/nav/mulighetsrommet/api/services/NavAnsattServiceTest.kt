@@ -68,17 +68,17 @@ class NavAnsattServiceTest : FunSpec({
     val sanityClient = SanityClient(
         engine = MockEngine { request ->
             if (request.method === HttpMethod.Post) {
-                respondOk()
+                return@MockEngine respondOk()
             } else if (request.method === HttpMethod.Delete) {
-                respondOk()
-            } else if (request.url.parameters.getOrFail<String>("query")
-                    .contains("redaktor") && request.url.parameters.getOrFail<String>("query")
-                    .contains("navKontaktperson")
-            ) {
+                return@MockEngine respondOk()
+            }
+
+            val query = request.url.parameters.getOrFail<String>("query")
+            if (query.contains("redaktor") && query.contains("navKontaktperson")) {
                 respondJson(
                     content = sanityContentResult(listOf("123", "456")),
                 )
-            } else if (request.url.parameters.getOrFail<String>("query").contains("redaktor")) {
+            } else if (query.contains("redaktor")) {
                 respondJson(
                     content = sanityContentResult(
                         listOf(
@@ -86,13 +86,14 @@ class NavAnsattServiceTest : FunSpec({
                                 _id = "123",
                                 _type = "redaktor",
                                 enhet = "",
-                                epost = Slug(_type = "slug", current = "epost@epost.no"),
+                                epost = Slug(current = "epost@epost.no"),
+                                navIdent = Slug(current = "N123"),
                                 navn = "Navn Navnesen",
                             ),
                         ),
                     ),
                 )
-            } else if (request.url.parameters.getOrFail("query").contains("navKontaktperson")) {
+            } else if (query.contains("navKontaktperson")) {
                 respondJson(
                     content = sanityContentResult(
                         listOf(
@@ -103,6 +104,7 @@ class NavAnsattServiceTest : FunSpec({
                                 telefonnummer = null,
                                 epost = "navn.navnesen@nav.no",
                                 navn = "Navn Navnesen",
+                                navIdent = Slug(current = "N123"),
                             ),
                         ),
                     ),
