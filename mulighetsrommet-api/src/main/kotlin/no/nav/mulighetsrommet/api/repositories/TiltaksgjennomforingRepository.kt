@@ -858,7 +858,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         val query = """
             update tiltaksgjennomforing
             set apent_for_innsok = false
-            where apent_for_innsok = true and oppstart = 'FELLES' and start_dato = ?
+            where apent_for_innsok = true and oppstart = 'FELLES' and start_dato = ? and opphav = 'MR_ADMIN_FLATE'
             returning id
         """.trimIndent()
 
