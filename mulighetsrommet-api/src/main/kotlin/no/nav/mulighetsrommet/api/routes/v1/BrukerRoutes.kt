@@ -14,6 +14,7 @@ import no.nav.mulighetsrommet.api.services.BrukerService
 import no.nav.mulighetsrommet.api.services.PoaoTilgangService
 import no.nav.mulighetsrommet.api.services.TiltakshistorikkService
 import no.nav.mulighetsrommet.auditlog.AuditLog
+import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.ktor.extensions.getAccessToken
 import org.koin.ktor.ext.inject
 
@@ -38,6 +39,7 @@ fun Route.brukerRoutes() {
             val request = call.receive<GetHistorikkForBrukerRequest>()
             val norskIdent = request.norskIdent
             val navIdent = getNavIdent()
+            val accessToken = call.getAccessToken()
 
             poaoTilgangService.verifyAccessToUserFromVeileder(getNavAnsattAzureId(), norskIdent) {
                 val message = createAuditMessage(
@@ -48,7 +50,7 @@ fun Route.brukerRoutes() {
                 AuditLog.auditLogger.log(message)
             }
 
-            historikkService.hentHistorikkForBruker(norskIdent).let {
+            historikkService.hentHistorikkForBruker(norskIdent, accessToken).let {
                 val message = createAuditMessage(
                     msg = "NAV-ansatt med ident: '$navIdent' har sett på tiltakshistorikken for bruker med ident: '$norskIdent'.",
                     navIdent = navIdent,
@@ -72,14 +74,14 @@ data class GetHistorikkForBrukerRequest(
     val norskIdent: String,
 )
 
-private fun createAuditMessage(msg: String, navIdent: String, norskIdent: String): CefMessage {
+private fun createAuditMessage(msg: String, navIdent: NavIdent, norskIdent: String): CefMessage {
     return CefMessage.builder()
         .applicationName("modia")
         .loggerName("mulighetsrommet-api")
         .event(CefMessageEvent.ACCESS)
         .name("Arbeidsmarkedstiltak - Vis tiltakshistorikk")
         .severity(CefMessageSeverity.INFO)
-        .sourceUserId(navIdent)
+        .sourceUserId(navIdent.value)
         .destinationUserId(norskIdent)
         .timeEnded(System.currentTimeMillis())
         .extension("msg", msg)

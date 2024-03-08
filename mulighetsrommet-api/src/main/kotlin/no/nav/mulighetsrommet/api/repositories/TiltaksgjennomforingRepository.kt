@@ -4,6 +4,7 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.Session
+import kotliquery.TransactionalSession
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.clients.vedtak.Innsatsgruppe
@@ -18,6 +19,7 @@ import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.ArenaTiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
+import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus
 import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus.*
 import org.intellij.lang.annotations.Language
@@ -168,7 +170,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 queryOf(
                     upsertAdministrator,
                     tiltaksgjennomforing.id,
-                    administrator,
+                    administrator.value,
                 ).asExecute,
             )
         }
@@ -177,7 +179,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             queryOf(
                 deleteAdministratorer,
                 tiltaksgjennomforing.id,
-                db.createTextArray(tiltaksgjennomforing.administratorer),
+                db.createTextArray(tiltaksgjennomforing.administratorer.map { it.value }),
             ).asExecute,
         )
 
@@ -206,7 +208,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                     mapOf(
                         "id" to tiltaksgjennomforing.id,
                         "enheter" to db.createTextArray(kontakt.navEnheter),
-                        "nav_ident" to kontakt.navIdent,
+                        "nav_ident" to kontakt.navIdent.value,
                         "beskrivelse" to kontakt.beskrivelse,
                     ),
                 ).asExecute,
@@ -217,7 +219,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             queryOf(
                 deleteKontaktpersoner,
                 tiltaksgjennomforing.id,
-                tiltaksgjennomforing.kontaktpersoner.let { kontakt -> db.createTextArray(kontakt.map { it.navIdent }) },
+                tiltaksgjennomforing.kontaktpersoner.let { kontakt -> db.createTextArray(kontakt.map { it.navIdent.value }) },
             ).asExecute,
         )
 
@@ -368,7 +370,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         navRegioner: List<String> = emptyList(),
         avtaleId: UUID? = null,
         arrangorOrgnr: List<String> = emptyList(),
-        administratorNavIdent: String? = null,
+        administratorNavIdent: NavIdent? = null,
         skalMigreres: Boolean? = null,
         opphav: ArenaMigrering.Opphav? = null,
     ): Pair<Int, List<TiltaksgjennomforingAdminDto>> {
@@ -380,13 +382,13 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             "today" to dagensDato,
             "avtaleId" to avtaleId,
             "arrangor_organisasjonsnummer" to arrangorOrgnr,
-            "administrator_nav_ident" to administratorNavIdent?.let { """[{ "navIdent": "$it" }]""" },
+            "administrator_nav_ident" to administratorNavIdent?.let { """[{ "navIdent": "${it.value}" }]""" },
             "skalMigreres" to skalMigreres,
             "opphav" to opphav?.name,
         )
 
         val where = DatabaseUtils.andWhereParameterNotNull(
-            search to "((lower(navn) like lower(:search)) or (tiltaksnummer like :search))",
+            search to "((lower(navn) like lower(:search) or tiltaksnummer like :search))",
             navEnheter.ifEmpty { null } to navEnheterWhereStatement(navEnheter),
             tiltakstypeIder.ifEmpty { null } to tiltakstypeIderWhereStatement(tiltakstypeIder),
             statuser.ifEmpty { null } to statuserWhereStatement(statuser),
@@ -783,7 +785,11 @@ class TiltaksgjennomforingRepository(private val db: Database) {
     }
 
     private fun Row.toTiltaksgjennomforingNotificationDto(): TiltaksgjennomforingNotificationDto {
-        val administratorer = arrayOrNull<String?>("administratorer")?.asList()?.filterNotNull() ?: emptyList()
+        val administratorer = arrayOrNull<String?>("administratorer")
+            ?.asList()
+            ?.filterNotNull()
+            ?.map { NavIdent(it) }
+            ?: emptyList()
 
         val startDato = localDate("start_dato")
         val sluttDato = localDateOrNull("slutt_dato")
@@ -845,5 +851,17 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         """.trimIndent()
 
         return tx.run(queryOf(query, mapOf("id" to id, "status" to status.name)).asUpdate)
+    }
+
+    fun lukkApentForInnsokForTiltakMedStartdatoForDato(dagensDato: LocalDate, tx: TransactionalSession): List<TiltaksgjennomforingAdminDto> {
+        @Language("PostgreSQL")
+        val query = """
+            update tiltaksgjennomforing
+            set apent_for_innsok = false
+            where apent_for_innsok = true and oppstart = 'FELLES' and start_dato = ?
+            returning id
+        """.trimIndent()
+
+        return queryOf(query, dagensDato).map { get(it.uuid("id")) }.asList.let { tx.run(it) }
     }
 }

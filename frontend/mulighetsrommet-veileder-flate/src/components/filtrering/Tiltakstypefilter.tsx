@@ -1,12 +1,20 @@
-import { useTiltakstyper } from "../../core/api/queries/useTiltakstyper";
-import { useArbeidsmarkedstiltakFilter } from "../../hooks/useArbeidsmarkedstiltakFilter";
+import { useTiltakstyper } from "@/core/api/queries/useTiltakstyper";
+import { useArbeidsmarkedstiltakFilter } from "@/hooks/useArbeidsmarkedstiltakFilter";
 import CheckboxFilter from "./CheckboxFilter";
+import { FilterAccordionHeader } from "@/components/filtrering/FilterAccordionHeader";
 
-export function Tiltakstypefilter() {
+interface Props {
+  antallValgteTiltakstyper: number;
+}
+
+export function Tiltakstypefilter({ antallValgteTiltakstyper }: Props) {
   const tiltakstyper = useTiltakstyper();
   const [filter, setFilter] = useArbeidsmarkedstiltakFilter();
   return (
     <CheckboxFilter
+      accordionHeader={
+        <FilterAccordionHeader tittel="Tiltakstype" antallValgteFilter={antallValgteTiltakstyper} />
+      }
       accordionNavn="Tiltakstyper"
       options={filter.tiltakstyper}
       setOptions={(tiltakstyper) => setFilter({ ...filter, tiltakstyper })}

@@ -51,10 +51,8 @@ class BrukerServiceTest : FunSpec({
     )
 
     beforeSpec {
-        coEvery { veilarboppfolgingClient.hentOppfolgingsstatus(fnr1, any()) } returns OppfolgingsstatusDto(
-            oppfolgingsenhet = mockOppfolgingsenhet(),
-            servicegruppe = "IKKE_VURDERT",
-        ).right()
+        coEvery { veilarboppfolgingClient.erBrukerUnderOppfolging(fnr1, any()) } returns true.right()
+        coEvery { veilarboppfolgingClient.hentOppfolgingsenhet(fnr1, any()) } returns mockOppfolgingsenhet().right()
 
         coEvery { veilarboppfolgingClient.hentManuellStatus(fnr1, any()) } returns mockManuellStatus().right()
 
@@ -70,10 +68,8 @@ class BrukerServiceTest : FunSpec({
             ),
         ).right()
 
-        coEvery { veilarboppfolgingClient.hentOppfolgingsstatus(fnr2, any()) } returns OppfolgingsstatusDto(
-            oppfolgingsenhet = mockOppfolgingsenhet(),
-            servicegruppe = "IKKE_VURDERT",
-        ).right()
+        coEvery { veilarboppfolgingClient.erBrukerUnderOppfolging(fnr2, any()) } returns true.right()
+        coEvery { veilarboppfolgingClient.hentOppfolgingsenhet(fnr2, any()) } returns mockOppfolgingsenhet().right()
 
         coEvery { veilarboppfolgingClient.hentManuellStatus(fnr2, any()) } returns mockManuellStatus().right()
 
@@ -106,7 +102,7 @@ class BrukerServiceTest : FunSpec({
                 fnr = fnr1,
                 manuellStatus = ManuellStatusDto(
                     erUnderManuellOppfolging = false,
-                    krrStatus = KrrStatus(
+                    krrStatus = ManuellStatusDto.KrrStatus(
                         erReservert = false,
                         kanVarsles = true,
                     ),
@@ -120,7 +116,6 @@ class BrukerServiceTest : FunSpec({
                         status = NavEnhetStatus.AKTIV,
                     ),
                 ),
-                servicegruppe = "IKKE_VURDERT",
                 varsler = emptyList(),
             )
     }
@@ -130,7 +125,7 @@ class BrukerServiceTest : FunSpec({
             fornavn = "Ola",
             geografiskEnhet = null,
         ).right()
-        coEvery { veilarboppfolgingClient.hentOppfolgingsstatus(fnr1, any()) } returns OppfolgingsstatusError.NotFound.left()
+        coEvery { veilarboppfolgingClient.hentOppfolgingsenhet(fnr1, any()) } returns OppfolgingError.NotFound.left()
 
         shouldThrow<StatusException> {
             brukerService.hentBrukerdata(fnr1, "")
@@ -211,7 +206,7 @@ class BrukerServiceTest : FunSpec({
 fun mockManuellStatus(): ManuellStatusDto {
     return ManuellStatusDto(
         erUnderManuellOppfolging = false,
-        krrStatus = KrrStatus(
+        krrStatus = ManuellStatusDto.KrrStatus(
             kanVarsles = true,
             erReservert = false,
         ),

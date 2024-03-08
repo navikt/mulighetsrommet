@@ -1,33 +1,38 @@
 import { Tabs } from "@navikt/ds-react";
-import React, { useState } from "react";
+import React from "react";
 import styles from "./FilterAndTableLayout.module.scss";
 import { FunnelIcon } from "@navikt/aksel-icons";
 import classNames from "classnames";
-import { Separator } from "../../utils/Separator";
 
 interface Props {
   filter: React.ReactNode;
   buttons: React.ReactNode;
   resetButton?: React.ReactNode;
-  tags: React.ReactNode;
   table: React.ReactNode;
+  filterOpen: boolean;
+  setFilterOpen: (filterOpen: boolean) => void;
 }
 
-export function FilterAndTableLayout({ filter, table, resetButton, buttons, tags }: Props) {
-  const [filterSelected, setFilterSelected] = useState<boolean>(true);
-
+export function FilterAndTableLayout({
+  filter,
+  table,
+  resetButton,
+  buttons,
+  filterOpen,
+  setFilterOpen,
+}: Props) {
   return (
     <div className={styles.filter_table_layout_container}>
       <Tabs
-        className={styles.filter_tabs}
+        className={styles.filter_headerbutton}
         size="medium"
-        value={filterSelected ? "filter" : ""}
+        value={filterOpen ? "filter" : ""}
         data-testid="filter_tabs"
       >
         <Tabs.List>
           <Tabs.Tab
             className={styles.filter_tab}
-            onClick={() => setFilterSelected(!filterSelected)}
+            onClick={() => setFilterOpen(!filterOpen)}
             value="filter"
             data-testid="filter-tab"
             label="Filter"
@@ -40,17 +45,17 @@ export function FilterAndTableLayout({ filter, table, resetButton, buttons, tags
         {resetButton ? <div className={styles.button_row_right}>{resetButton}</div> : <div></div>}
         <div className={styles.button_row_left}>{buttons}</div>
       </div>
-      <div id="filter" className={classNames(styles.filter, !filterSelected && styles.hide_filter)}>
+      <div id="filter" className={classNames(styles.filter, !filterOpen && styles.hide_filter)}>
         {filter}
       </div>
       <div
         className={classNames(
           styles.tags_and_table_container,
-          !filterSelected && styles.wide_table,
+          filterOpen
+            ? styles.tags_and_table_container_filter_open
+            : styles.tags_and_table_container_filter_hidden,
         )}
       >
-        <Separator providedStyle={{ marginBottom: "0.25rem", marginTop: "0" }} />
-        {tags}
         <div className={styles.table}>{table}</div>
       </div>
     </div>

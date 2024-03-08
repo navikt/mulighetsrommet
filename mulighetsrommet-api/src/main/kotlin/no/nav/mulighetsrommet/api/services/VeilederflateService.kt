@@ -258,6 +258,7 @@ class VeilederflateService(
                 pameldingOgVarighet,
                 kontaktinfoInfoboks,
                 kontaktinfo,
+                lenker
               },
               delingMedBruker,
             }[0]
@@ -370,7 +371,7 @@ class VeilederflateService(
         enheter: List<String>,
     ): List<VeilederflateKontaktinfoTiltaksansvarlig> {
         return tiltaksgjennomforingAdminDto.kontaktpersoner
-            .filter { it.navEnheter.isEmpty() || it.navEnheter.any { enhet -> enhet in enheter } }
+            .filter { enheter.isEmpty() || it.navEnheter.isEmpty() || it.navEnheter.any { enhet -> enhet in enheter } }
             .map {
                 VeilederflateKontaktinfoTiltaksansvarlig(
                     navn = it.navn,

@@ -20,6 +20,9 @@ Et API med endepunkter for å hente ut informasjon om forskjellige tiltak NAV ka
   - [Automatiske jobber](#automatiske-jobber)
     - [Oppdatere enheter fra NORG til Sanity](#oppdatere-enheter-fra-norg-til-sanity)
 - [Strukturert innhold](#strukturert-innhold)
+- [Datadeling til Datamarkedsplassen med Datastream](#datadeling-til-datamarkedsplassen-med-datastream)
+    - [Ang. datastream](#ang-datastream)
+    - [Tilganger for servicebruker (SA-bruker)](#tilganger-for-servicebruker-sa-bruker)
 
 # <a name="teknologier"></a>Teknologier
 
@@ -166,3 +169,23 @@ create/update-tilgang til enheter-dokumentene i Sanity.
 Vi deler strukturert innhold om tiltakstyper via Kafka.
 Innholdet lever i tabeller i databasen og kan oppdateres via filen `R__deltakerregistrering-innhold.sql`. Gjør de endringene som må til og deploy så vil migrasjonsfilen kjøres på nytt mot databasene i dev og prod.
 
+# Datadeling til Datamarkedsplassen med Datastream
+Databasen til api er satt opp med replikasjon av tabeller for tiltakstyper og tiltaksgjennomføringer.
+Vi har fulgt guiden her https://github.com/navikt/nada-datastream for oppsett.
+
+Datastream i dev: https://console.cloud.google.com/datastream/streams?authuser=1&project=team-mulighetsrommet-dev-a2d7
+Datastream i prod: https://console.cloud.google.com/datastream/streams?authuser=1&project=team-mulighetsrommet-prod-5492
+
+BigQuery i dev: https://console.cloud.google.com/bigquery?authuser=1&project=team-mulighetsrommet-dev-a2d7&ws=!1m0
+BigQuery i prod: https://console.cloud.google.com/bigquery?authuser=1&project=team-mulighetsrommet-prod-5492&ws=!1m0
+
+### Views
+Vi har views til BigQuery definert i iac/bigquery-views.
+Du kan gjøre endringer i view'ene og så vil de bygges på nytt når du deployer koden via Github Actions.
+
+### Ang. datastream
+Dersom datastreamen tuller seg eller man vil restarte prosessen så må man gå til datastreamen (lenke over) og så slette datastreamen.
+[Kjør så datastream på nytt basert på guiden her ](https://github.com/navikt/nada-datastream)
+
+### Tilganger for servicebruker (SA-bruker)
+I dev og prod har vi servicebrukere som trenger tilgang til BigQuery for å opprette ressurser (feks. views). Disse har tilgang til `BigQuery Data Editor`-rollen. Den rollen trengs for å opprette og oppdatere views.

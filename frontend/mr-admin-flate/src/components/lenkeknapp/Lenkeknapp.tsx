@@ -1,5 +1,5 @@
 import classNames from "classnames";
-import { Lenke } from "mulighetsrommet-frontend-common/components/Lenke";
+import { Lenke } from "../../../../frontend-common/components/lenke/Lenke";
 import style from "./Lenkeknapp.module.scss";
 
 interface Props {

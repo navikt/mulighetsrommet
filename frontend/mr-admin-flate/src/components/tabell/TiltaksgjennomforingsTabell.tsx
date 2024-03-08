@@ -1,7 +1,7 @@
 import { Alert, Checkbox, Pagination, Table, Tag, VStack } from "@navikt/ds-react";
 import { useAtom, WritableAtom } from "jotai";
 import { SorteringTiltaksgjennomforinger } from "mulighetsrommet-api-client";
-import { Lenke } from "mulighetsrommet-frontend-common/components/Lenke";
+import { Lenke } from "../../../../frontend-common/components/lenke/Lenke";
 import React from "react";
 import { TiltaksgjennomforingFilter } from "../../api/atoms";
 import { useSort } from "../../hooks/useSort";
@@ -203,7 +203,7 @@ export const TiltaksgjennomforingsTabell = ({ skjulKolonner, filterAtom }: Props
                         className={styles.title}
                       >
                         <Lenke
-                          to={`${tiltaksgjennomforing.id}`}
+                          to={`${tiltaksgjennomforing?.avtaleId ? `/avtaler/${tiltaksgjennomforing?.avtaleId}/tiltaksgjennomforinger/${tiltaksgjennomforing.id}` : `${tiltaksgjennomforing.id}`} `}
                           data-testid="tiltaksgjennomforing-tabell_tittel"
                         >
                           {tiltaksgjennomforing.navn}

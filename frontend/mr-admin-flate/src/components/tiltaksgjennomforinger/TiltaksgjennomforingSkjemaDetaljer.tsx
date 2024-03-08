@@ -1,15 +1,10 @@
 import { PlusIcon, XMarkIcon } from "@navikt/aksel-icons";
+import { Alert, Button, HStack, HelpText, Select, Switch, TextField } from "@navikt/ds-react";
 import {
-  Alert,
-  Button,
-  Checkbox,
-  HStack,
-  HelpText,
-  Select,
-  Switch,
-  TextField,
-} from "@navikt/ds-react";
-import { Avtale, Tiltaksgjennomforing } from "mulighetsrommet-api-client";
+  Avtale,
+  Tiltaksgjennomforing,
+  TiltaksgjennomforingKontaktperson,
+} from "mulighetsrommet-api-client";
 import { ControlledSokeSelect } from "mulighetsrommet-frontend-common";
 import { useEffect, useRef } from "react";
 import { useFieldArray, useFormContext } from "react-hook-form";
@@ -28,7 +23,7 @@ import { FraTilDatoVelger } from "../skjema/FraTilDatoVelger";
 import skjemastyles from "../skjema/Skjema.module.scss";
 import { VirksomhetKontaktpersonerModal } from "../virksomhet/VirksomhetKontaktpersonerModal";
 import { SelectOppstartstype } from "./SelectOppstartstype";
-import { InferredTiltaksgjennomforingSchema } from "./TiltaksgjennomforingSchema";
+import { InferredTiltaksgjennomforingSchema } from "../redaksjonelt-innhold/TiltaksgjennomforingSchema";
 import {
   arrangorUnderenheterOptions,
   erArenaOpphavOgIngenEierskap,
@@ -104,7 +99,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
     .filter((kontor) => kontor.overordnetEnhet === watch("navRegion"))
     .map((kontor) => ({ label: kontor.navn, value: kontor.enhetsnummer }));
 
-  const minStartdato = new Date();
+  const minStartdato = new Date(avtale.startDato);
   const maxSluttdato = addYear(minStartdato, 5);
 
   const valgteNavEnheter = watch("navEnheter");
@@ -169,15 +164,15 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
                 format: "iso-string",
               }}
             />
-            <Checkbox
+            <Switch
               size="small"
               readOnly={erArenaOpphavOgIngenEierskap(tiltaksgjennomforing, migrerteTiltakstyper)}
               {...register("apentForInnsok")}
             >
               Åpen for innsøk
-            </Checkbox>
+            </Switch>
 
-            <HStack justify="space-between" columns={2}>
+            <HStack justify="space-between">
               <TextField
                 size="small"
                 readOnly={erArenaOpphavOgIngenEierskap(tiltaksgjennomforing, migrerteTiltakstyper)}
@@ -212,7 +207,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
             <Separator />
             <fieldset className={skjemastyles.fieldset_no_styling}>
               <HStack gap="1">
-                <legend>Estimert ventetid </legend>
+                <legend>Estimert ventetid</legend>
                 <HelpText title="Hva er estimert ventetid?">
                   Estimert ventetid er et felt som kan brukes hvis dere sitter på informasjon om
                   estimert ventetid for tiltaket. Hvis dere legger inn en verdi i feltene her blir
@@ -223,7 +218,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
                 Registrer estimert ventetid
               </Switch>
               {watch("visEstimertVentetid") ? (
-                <HStack align="start" justify="start" gap="10" columns={4}>
+                <HStack align="start" justify="start" gap="10">
                   <TextField
                     size="small"
                     type="number"
@@ -343,12 +338,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
                   type="button"
                   size="small"
                   variant="tertiary"
-                  onClick={() =>
-                    appendKontaktperson({
-                      navIdent: null,
-                      navEnheter: [],
-                    })
-                  }
+                  onClick={() => appendKontaktperson({} as TiltaksgjennomforingKontaktperson)}
                 >
                   <PlusIcon aria-label="Legg til ny kontaktperson" /> Legg til ny kontaktperson
                 </Button>

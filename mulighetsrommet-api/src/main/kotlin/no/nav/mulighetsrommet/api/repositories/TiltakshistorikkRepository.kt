@@ -17,7 +17,7 @@ class TiltakshistorikkRepository(private val db: Database) {
 
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    fun upsert(tiltakshistorikk: ArenaTiltakshistorikkDbo): QueryResult<ArenaTiltakshistorikkDbo> = query {
+    fun upsert(tiltakshistorikk: ArenaTiltakshistorikkDbo): ArenaTiltakshistorikkDbo {
         logger.info("Lagrer tiltakshistorikk id=${tiltakshistorikk.id}")
 
         @Language("PostgreSQL")
@@ -37,7 +37,7 @@ class TiltakshistorikkRepository(private val db: Database) {
             returning *
         """.trimIndent()
 
-        queryOf(query, tiltakshistorikk.toSqlParameters())
+        return queryOf(query, tiltakshistorikk.toSqlParameters())
             .map { it.toTiltakshistorikkDbo() }
             .asSingle
             .let { db.run(it)!! }
@@ -69,7 +69,7 @@ class TiltakshistorikkRepository(private val db: Database) {
             .let { db.run(it) }
     }
 
-    fun getTiltakshistorikkForBruker(norskIdent: String): List<TiltakshistorikkDbo> {
+    fun getTiltakshistorikkForBruker(identer: List<String>): List<TiltakshistorikkDbo> {
         @Language("PostgreSQL")
         val query = """
             select h.id,
@@ -82,11 +82,20 @@ class TiltakshistorikkRepository(private val db: Database) {
             from tiltakshistorikk h
                      left join tiltaksgjennomforing g on g.id = h.tiltaksgjennomforing_id
                      left join tiltakstype t on t.id = coalesce(g.tiltakstype_id, h.tiltakstypeid)
-            where h.norsk_ident = ?
+            where h.norsk_ident = any(?)
             order by h.fra_dato desc nulls last;
         """.trimIndent()
-        val queryResult = queryOf(query, norskIdent).map { it.toTiltakshistorikk() }.asList
+        val queryResult = queryOf(query, db.createTextArray(identer)).map { it.toTiltakshistorikk() }.asList
         return db.run(queryResult)
+    }
+
+    fun deleteTiltakshistorikkForIdenter(identer: List<String>) {
+        @Language("PostgreSQL")
+        val query = """
+            delete from tiltakshistorikk where norsk_ident = any(?);
+        """.trimIndent()
+
+        db.run(queryOf(query, db.createTextArray(identer)).asExecute)
     }
 
     private fun ArenaTiltakshistorikkDbo.toSqlParameters(): Map<String, *> {

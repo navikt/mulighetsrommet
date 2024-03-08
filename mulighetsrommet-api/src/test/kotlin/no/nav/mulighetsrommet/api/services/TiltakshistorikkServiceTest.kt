@@ -5,6 +5,9 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.mockk
+import no.nav.mulighetsrommet.api.clients.pdl.IdentGruppe
+import no.nav.mulighetsrommet.api.clients.pdl.IdentInformasjon
+import no.nav.mulighetsrommet.api.clients.pdl.PdlClient
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dto.TiltakshistorikkDto
 import no.nav.mulighetsrommet.api.domain.dto.VirksomhetDto
@@ -24,6 +27,7 @@ class TiltakshistorikkServiceTest : FunSpec({
 
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
 
+    val pdlClient: PdlClient = mockk()
     val tiltakstype = TiltakstypeFixtures.Oppfolging
 
     val tiltaksgjennomforing = TiltaksgjennomforingFixtures.Oppfolging1
@@ -79,8 +83,15 @@ class TiltakshistorikkServiceTest : FunSpec({
             postnummer = null,
             poststed = null,
         ).right()
+        coEvery { pdlClient.hentIdenter(any(), any()) } returns listOf(
+            IdentInformasjon(
+                ident = "12345678910",
+                gruppe = IdentGruppe.FOLKEREGISTERIDENT,
+                historisk = false,
+            ),
+        ).right()
 
-        val historikkService = TiltakshistorikkService(virksomhetService, TiltakshistorikkRepository(database.db))
+        val historikkService = TiltakshistorikkService(virksomhetService, TiltakshistorikkRepository(database.db), pdlClient)
 
         val forventetHistorikk = listOf(
             TiltakshistorikkDto(
@@ -109,6 +120,6 @@ class TiltakshistorikkServiceTest : FunSpec({
             ),
         )
 
-        historikkService.hentHistorikkForBruker("12345678910") shouldBe forventetHistorikk
+        historikkService.hentHistorikkForBruker("12345678910", "token") shouldBe forventetHistorikk
     }
 })

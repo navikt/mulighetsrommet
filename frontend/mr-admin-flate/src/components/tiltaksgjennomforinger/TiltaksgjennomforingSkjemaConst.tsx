@@ -4,11 +4,10 @@ import {
   NavAnsatt,
   Opphav,
   Tiltaksgjennomforing,
-  TiltaksgjennomforingKontaktperson,
   TiltaksgjennomforingOppstartstype,
   VirksomhetKontaktperson,
 } from "mulighetsrommet-api-client";
-import { InferredTiltaksgjennomforingSchema } from "./TiltaksgjennomforingSchema";
+import { InferredTiltaksgjennomforingSchema } from "../redaksjonelt-innhold/TiltaksgjennomforingSchema";
 import { DeepPartial } from "react-hook-form";
 
 export function defaultOppstartType(avtale?: Avtale): TiltaksgjennomforingOppstartstype {
@@ -22,24 +21,6 @@ export function defaultOppstartType(avtale?: Avtale): TiltaksgjennomforingOppsta
     : TiltaksgjennomforingOppstartstype.LOPENDE;
 }
 
-export function defaultValuesForKontaktpersoner(
-  kontaktpersoner?: TiltaksgjennomforingKontaktperson[],
-): TiltaksgjennomforingKontaktperson[] {
-  if (!kontaktpersoner)
-    return [
-      { navIdent: "", navEnheter: [], navn: "", epost: "", mobilnummer: null, beskrivelse: null },
-    ];
-
-  return kontaktpersoner?.map((person) => ({
-    navIdent: person.navIdent,
-    navEnheter: person.navEnheter,
-    mobilnummer: person.mobilnummer,
-    epost: person.epost,
-    navn: person.navn,
-    beskrivelse: person.beskrivelse,
-  }));
-}
-
 export const erArenaOpphavOgIngenEierskap = (
   tiltaksgjennomforing: Tiltaksgjennomforing | undefined,
   migrerteTiltakstyper: string[],
@@ -51,12 +32,14 @@ export const erArenaOpphavOgIngenEierskap = (
 };
 
 export const arrangorUnderenheterOptions = (avtale: Avtale) => {
-  return (avtale?.leverandorUnderenheter ?? []).map((arrangor) => {
-    return {
-      label: `${arrangor.navn} - ${arrangor.organisasjonsnummer}`,
-      value: arrangor.organisasjonsnummer,
-    };
-  });
+  return (avtale?.leverandorUnderenheter ?? [])
+    .sort((a, b) => a.navn.localeCompare(b.navn))
+    .map((arrangor) => {
+      return {
+        label: `${arrangor.navn} - ${arrangor.organisasjonsnummer}`,
+        value: arrangor.organisasjonsnummer,
+      };
+    });
 };
 
 function defaultNavRegion(
@@ -113,8 +96,8 @@ export function defaultTiltaksgjennomforingData(
     },
     tiltaksArrangorUnderenhetOrganisasjonsnummer: defaultArrangor(avtale, tiltaksgjennomforing),
     oppstart: tiltaksgjennomforing?.oppstart || defaultOppstartType(avtale),
-    apentForInnsok: tiltaksgjennomforing?.apentForInnsok,
-    kontaktpersoner: defaultValuesForKontaktpersoner(tiltaksgjennomforing?.kontaktpersoner),
+    apentForInnsok: tiltaksgjennomforing?.apentForInnsok ?? true,
+    kontaktpersoner: tiltaksgjennomforing?.kontaktpersoner ?? [],
     stedForGjennomforing: tiltaksgjennomforing?.stedForGjennomforing ?? null,
     arrangorKontaktpersoner:
       tiltaksgjennomforing?.arrangor?.kontaktpersoner.map((p: VirksomhetKontaktperson) => p.id) ??

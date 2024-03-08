@@ -8,6 +8,7 @@ import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
+import no.nav.mulighetsrommet.domain.dto.NavIdent
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -48,7 +49,7 @@ class NotificationRepositoryTest : FunSpec({
         targets = nonEmptyListOf(user1),
     )
 
-    fun ScheduledNotification.asUserNotification(userId: String, doneAt: LocalDateTime? = null) = run {
+    fun ScheduledNotification.asUserNotification(userId: NavIdent, doneAt: LocalDateTime? = null) = run {
         UserNotification(
             id = id,
             type = type,

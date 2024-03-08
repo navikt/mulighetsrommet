@@ -12,6 +12,7 @@ import { AvtaleSkjemaContainer } from "../../components/avtaler/AvtaleSkjemaCont
 import { useAvtale } from "../../api/avtaler/useAvtale";
 import { AvtalestatusTag } from "../../components/statuselementer/AvtalestatusTag";
 import { Heading } from "@navikt/ds-react";
+import { Brodsmule, Brodsmuler } from "../../components/navigering/Brodsmuler";
 
 const AvtaleSkjemaPage = () => {
   const navigate = useNavigate();
@@ -35,8 +36,24 @@ const AvtaleSkjemaPage = () => {
     return <Laster size="xlarge" tekst={"Laster avtale..."} />;
   }
 
+  const brodsmuler: Array<Brodsmule | undefined> = [
+    { tittel: "Forside", lenke: "/" },
+    { tittel: "Avtaler", lenke: "/avtaler" },
+    redigeringsModus
+      ? {
+          tittel: "Avtaledetaljer",
+          lenke: `/avtaler/${avtale?.id}`,
+        }
+      : undefined,
+    {
+      tittel: redigeringsModus ? "Rediger avtale" : "Ny avtale",
+      lenke: redigeringsModus ? `/avtaler/${avtale?.id}/skjema` : "/avtaler/skjema",
+    },
+  ];
+
   return (
     <main>
+      <Brodsmuler brodsmuler={brodsmuler} />
       <Header>
         <Heading size="large" level="2">
           {redigeringsModus ? "Rediger avtale" : "Opprett ny avtale"}

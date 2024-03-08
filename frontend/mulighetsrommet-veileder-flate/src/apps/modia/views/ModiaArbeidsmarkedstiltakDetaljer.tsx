@@ -30,6 +30,7 @@ import {
 import { useTitle } from "mulighetsrommet-frontend-common";
 import { Link } from "react-router-dom";
 import styles from "./ModiaArbeidsmarkedstiltakDetaljer.module.scss";
+import { LenkeListe } from "../../../components/sidemeny/Lenker";
 
 export function ModiaArbeidsmarkedstiltakDetaljer() {
   const { fnr } = useModiaContext();
@@ -173,6 +174,7 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
                 </Button>
               </div>
             )}
+            <LenkeListe lenker={tiltaksgjennomforing.faneinnhold?.lenker} />
           </>
         }
       />

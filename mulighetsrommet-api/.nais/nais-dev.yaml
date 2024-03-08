@@ -33,6 +33,14 @@ spec:
     requests:
       cpu: 250m
       memory: 512Mi
+  observability:
+    autoInstrumentation:
+      enabled: true
+      runtime: java
+    logging:
+      destinations:
+        - id: elastic
+        - id: loki
   gcp:
     buckets:
       - name: mulighetsrommet-api-uploads-dev
@@ -110,6 +118,7 @@ spec:
         - host: data.brreg.no
         - host: team-mulighetsrommet-unleash-api.nav.cloud.nais.io
         - host: axsys.dev-fss-pub.nais.io
+        - host: pdl-api.dev-fss-pub.nais.io
   envFrom:
     - secret: mulighetsrommet-api
     - secret: mr-admin-flate-unleash-api-token

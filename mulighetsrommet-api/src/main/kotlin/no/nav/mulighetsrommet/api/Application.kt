@@ -58,7 +58,6 @@ fun Application.configure(config: AppConfig) {
             navEnhetRoutes()
             virksomhetRoutes()
             notificationRoutes()
-            utkastRoutes()
             avtaleNotatRoutes()
             featureTogglesRoute()
             veilederJoyrideRoutes()

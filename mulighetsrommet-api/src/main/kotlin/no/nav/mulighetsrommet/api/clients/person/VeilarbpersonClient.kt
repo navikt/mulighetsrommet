@@ -14,6 +14,7 @@ import io.ktor.http.*
 import io.ktor.server.plugins.*
 import io.prometheus.client.cache.caffeine.CacheMetricsCollector
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.clients.pdl.VALP_BEHANDLINGSNUMMER
 import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
 import no.nav.mulighetsrommet.metrics.Metrikker
 import no.nav.mulighetsrommet.securelog.SecureLog
@@ -26,7 +27,6 @@ class VeilarbpersonClient(
     clientEngine: HttpClientEngine = CIO.create(),
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
-    private val behandlingsnummer = "B450" // Team Valps behandlingsnummer for behandling av data for løsningen Arbeidsmarkedstiltak i Modia
 
     val client = httpJsonClient(clientEngine).config {
         install(HttpCache)
@@ -50,7 +50,7 @@ class VeilarbpersonClient(
         val response = client.post("$baseUrl/v3/hent-person") {
             bearerAuth(tokenProvider.invoke(accessToken))
             header(HttpHeaders.ContentType, ContentType.Application.Json)
-            setBody(PersonRequest(fnr = fnr, behandlingsnummer = behandlingsnummer))
+            setBody(PersonRequest(fnr = fnr, behandlingsnummer = VALP_BEHANDLINGSNUMMER))
         }
 
         return if (response.status == HttpStatusCode.Forbidden) {

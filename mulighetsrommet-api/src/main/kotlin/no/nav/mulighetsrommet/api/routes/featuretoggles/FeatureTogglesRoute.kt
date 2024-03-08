@@ -20,7 +20,7 @@ fun Route.featureTogglesRoute() {
             val feature: String = call.request.queryParameters.getOrFail("feature")
 
             val context = FeatureToggleContext(
-                userId = getNavIdent(),
+                userId = getNavIdent().value,
                 sessionId = call.generateSessionId(),
                 remoteAddress = call.request.origin.remoteAddress,
             )

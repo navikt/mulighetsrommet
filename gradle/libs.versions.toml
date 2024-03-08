@@ -6,10 +6,10 @@ koin = "3.5.3"
 kotest = "5.8.0"
 kotest-testcontainers = "2.0.2"
 kotlin = "1.9.22"
-ktor = "2.3.8"
-logback = "1.5.0"
+ktor = "2.3.9"
+logback = "1.5.3"
 metrics = "4.2.25"
-arrow = "1.2.1"
+arrow = "1.2.3"
 
 [plugins]
 flyway = { id = "org.flywaydb.flyway", version.ref = "flyway" }
@@ -54,7 +54,7 @@ kotlinx-coroutines-core = "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0"
 
 kotliquery = "com.github.seratch:kotliquery:1.9.0"
 
-ktlint = "com.pinterest.ktlint:ktlint-cli:1.1.1"
+ktlint = "com.pinterest.ktlint:ktlint-cli:1.2.1"
 
 ktor-client-cio = { module = "io.ktor:ktor-client-cio", version.ref = "ktor" }
 ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
@@ -92,7 +92,7 @@ metrics-healthchecks = { module = "io.dropwizard.metrics:metrics-healthchecks", 
 
 micrometer-registry-prometheus = "io.micrometer:micrometer-registry-prometheus:1.12.3"
 
-mockk = "io.mockk:mockk:1.13.9"
+mockk = "io.mockk:mockk:1.13.10"
 
 nav-common-auditLog = { module = "no.nav.common:audit-log", version.ref = "common-java-modules" }
 nav-common-kafka = { module = "no.nav.common:kafka", version.ref = "common-java-modules" }
@@ -105,9 +105,9 @@ postgresql = "org.postgresql:postgresql:42.7.2"
 
 prometheus-caffeine = "io.prometheus:simpleclient_caffeine:0.16.0"
 
-shedlock-jdbc = "net.javacrumbs.shedlock:shedlock-provider-jdbc:5.11.0"
+shedlock-jdbc = "net.javacrumbs.shedlock:shedlock-provider-jdbc:5.12.0"
 
-slack-client = "com.slack.api:slack-api-client:1.38.1"
+slack-client = "com.slack.api:slack-api-client:1.38.2"
 
 slf4j = "org.slf4j:slf4j-api:2.0.12"
 

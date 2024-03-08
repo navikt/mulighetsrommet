@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api.repositories
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.data.forAll
 import io.kotest.data.row
+import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldNotBeNull
@@ -124,21 +125,18 @@ class AvtaleRepositoryTest : FunSpec({
             )
 
             avtaler.upsert(avtale1)
-
-            database.assertThat("avtale_administrator").row()
-                .value("avtale_id").isEqualTo(avtale1.id)
-                .value("nav_ident").isEqualTo(ansatt1.navIdent)
+            avtaler.get(avtale1.id)?.administratorer shouldContainExactlyInAnyOrder listOf(
+                AvtaleAdminDto.Administrator(ansatt1.navIdent, "Donald Duck"),
+            )
 
             avtaler.upsert(avtale1.copy(administratorer = listOf(ansatt1.navIdent, ansatt2.navIdent)))
+            avtaler.get(avtale1.id)?.administratorer shouldContainExactlyInAnyOrder listOf(
+                AvtaleAdminDto.Administrator(ansatt1.navIdent, "Donald Duck"),
+                AvtaleAdminDto.Administrator(ansatt2.navIdent, "Dolly Duck"),
+            )
 
-            database.assertThat("avtale_administrator")
-                .hasNumberOfRows(2)
-                .row()
-                .value("avtale_id").isEqualTo(avtale1.id)
-                .value("nav_ident").isEqualTo(ansatt1.navIdent)
-                .row()
-                .value("avtale_id").isEqualTo(avtale1.id)
-                .value("nav_ident").isEqualTo(ansatt2.navIdent)
+            avtaler.upsert(avtale1.copy(administratorer = listOf()))
+            avtaler.get(avtale1.id).shouldNotBeNull().administratorer.shouldBeEmpty()
         }
 
         test("Leverandør kontaktperson") {
@@ -355,6 +353,7 @@ class AvtaleRepositoryTest : FunSpec({
                 avtaler.setAvslutningsstatus(avtalePlanlagt.id, Avslutningsstatus.IKKE_AVSLUTTET)
 
                 forAll(
+                    row(listOf(Avtalestatus.Aktiv), listOf(avtaleAktiv.id, avtalePlanlagt.id)),
                     row(listOf(Avtalestatus.Avbrutt), listOf(avtaleAvbrutt.id)),
                     row(listOf(Avtalestatus.Avsluttet), listOf(avtaleAvsluttetStatus.id, avtaleAvsluttetDato.id)),
                     row(
@@ -600,7 +599,7 @@ class AvtaleRepositoryTest : FunSpec({
                     sluttDato = LocalDate.of(2023, 1, 1),
                 ),
             ),
-            virksomhter = listOf(
+            virksomheter = listOf(
                 VirksomhetDto(navn = "alvdal", organisasjonsnummer = "987654321", postnummer = null, poststed = null),
                 VirksomhetDto(navn = "bjarne", organisasjonsnummer = "123456789", postnummer = null, poststed = null),
                 VirksomhetDto(navn = "chris", organisasjonsnummer = "999888777", postnummer = null, poststed = null),

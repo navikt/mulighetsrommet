@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.services
 
+import arrow.core.Either
 import arrow.core.NonEmptyList
 import arrow.core.toNonEmptyListOrNull
 import kotlinx.serialization.json.Json
@@ -7,6 +8,8 @@ import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.encodeToJsonElement
 import kotliquery.TransactionalSession
 import no.nav.mulighetsrommet.api.clients.brreg.BrregError
+import no.nav.mulighetsrommet.api.clients.oppfolging.ErUnderOppfolgingError
+import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClient
 import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattRolle
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
@@ -25,6 +28,7 @@ import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering.TiltaksgjennomforingSluttDatoCutoffDate
 import no.nav.mulighetsrommet.domain.dbo.*
 import no.nav.mulighetsrommet.domain.dto.Avtalestatus
+import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.kafka.producers.TiltaksgjennomforingKafkaProducer
 import no.nav.mulighetsrommet.kafka.producers.TiltakstypeKafkaProducer
 import no.nav.mulighetsrommet.notifications.NotificationMetadata
@@ -50,6 +54,7 @@ class ArenaAdapterService(
     private val navEnhetService: NavEnhetService,
     private val notificationService: NotificationService,
     private val endringshistorikk: EndringshistorikkService,
+    private val veilarboppfolgingClient: VeilarboppfolgingClient,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
@@ -161,8 +166,13 @@ class ArenaAdapterService(
         }
     }
 
-    fun upsertTiltakshistorikk(tiltakshistorikk: ArenaTiltakshistorikkDbo): QueryResult<ArenaTiltakshistorikkDbo> {
-        return this.tiltakshistorikk.upsert(tiltakshistorikk)
+    suspend fun upsertTiltakshistorikk(tiltakshistorikk: ArenaTiltakshistorikkDbo): Either<ErUnderOppfolgingError, Boolean> {
+        return veilarboppfolgingClient.erBrukerUnderOppfolging(tiltakshistorikk.norskIdent, accessToken = null)
+            .onRight {
+                if (it) {
+                    this.tiltakshistorikk.upsert(tiltakshistorikk)
+                }
+            }
     }
 
     fun removeTiltakshistorikk(id: UUID): QueryResult<Unit> {
@@ -247,7 +257,7 @@ class ArenaAdapterService(
     private fun notifyRelevantAdministrators(
         overordnetEnhet: NavEnhetDbo,
         navAnsattRolle: NavAnsattRolle,
-        createNotification: (administrators: NonEmptyList<String>) -> ScheduledNotification,
+        createNotification: (administrators: NonEmptyList<NavIdent>) -> ScheduledNotification,
     ) {
         val potentialAdministratorHovedenheter = navEnhetService
             .hentAlleEnheter(

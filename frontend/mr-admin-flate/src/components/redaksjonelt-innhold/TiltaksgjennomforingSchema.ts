@@ -1,5 +1,6 @@
 import { Opphav, TiltaksgjennomforingOppstartstype } from "mulighetsrommet-api-client";
 import z from "zod";
+import { FaneinnholdSchema } from "./FaneinnholdSchema";
 
 export const TiltaksgjennomforingSchema = z
   .object({
@@ -33,8 +34,10 @@ export const TiltaksgjennomforingSchema = z
     }),
     kontaktpersoner: z
       .object({
-        navIdent: z.string().nullable(),
-        navEnheter: z.string().array(),
+        navIdent: z.string({ required_error: "Velg kontaktperson" }),
+        navEnheter: z
+          .string({ required_error: "Velg NAV-enheter som kontaktpersonen er tilgjengelig for" })
+          .array(),
         beskrivelse: z.string().nullable().optional(),
       })
       .array()
@@ -54,21 +57,9 @@ export const TiltaksgjennomforingSchema = z
       (val) => !!val,
       "Du må velge oppstartstype",
     ),
-    apentForInnsok: z.boolean(),
+    apentForInnsok: z.boolean().default(true),
     beskrivelse: z.string().nullable(),
-    faneinnhold: z
-      .object({
-        forHvemInfoboks: z.string().nullable().optional(),
-        forHvem: z.any().nullable(),
-        detaljerOgInnholdInfoboks: z.string().nullable().optional(),
-        detaljerOgInnhold: z.any().nullable(),
-        pameldingOgVarighetInfoboks: z.string().nullable().optional(),
-        pameldingOgVarighet: z.any().nullable(),
-        kontaktinfo: z.any().nullable(),
-        kontaktinfoInfoboks: z.string().nullable().optional(),
-        delMedBruker: z.string().nullable().optional(),
-      })
-      .nullable(),
+    faneinnhold: FaneinnholdSchema.nullable(),
     opphav: z.nativeEnum(Opphav),
     visEstimertVentetid: z.boolean(),
     estimertVentetid: z

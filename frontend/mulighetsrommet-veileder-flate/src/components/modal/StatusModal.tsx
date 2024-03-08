@@ -68,7 +68,12 @@ export function StatusModal({
   }
 
   return (
-    <Modal open={modalOpen} onClose={onClose} data-testid="statusmodal">
+    <Modal
+      open={modalOpen}
+      onClose={onClose}
+      data-testid="statusmodal"
+      aria-label={heading || "Statusmodal"}
+    >
       <Modal.Header closeButton={false}>
         <Heading size="medium" className={modalStyles.heading}>
           {ikon()}
