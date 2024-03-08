@@ -1,4 +1,4 @@
 nodejs 20.9.0
-gradle 8.5
+gradle 8.6
 java temurin-17.0.6+10
 kubectl 1.26.6
