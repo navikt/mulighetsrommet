@@ -20,7 +20,6 @@ import no.nav.mulighetsrommet.api.repositories.*
 import no.nav.mulighetsrommet.api.utils.EnhetFilter
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.QueryResult
-import no.nav.mulighetsrommet.database.utils.getOrThrow
 import no.nav.mulighetsrommet.database.utils.query
 import no.nav.mulighetsrommet.domain.Tiltakskoder
 import no.nav.mulighetsrommet.domain.Tiltakskoder.isEgenRegiTiltak
@@ -274,7 +273,6 @@ class ArenaAdapterService(
                 roller = listOf(navAnsattRolle),
                 hovedenhetIn = potentialAdministratorHovedenheter,
             )
-            .getOrThrow()
             .map { it.navIdent }
             .toNonEmptyListOrNull() ?: return
 

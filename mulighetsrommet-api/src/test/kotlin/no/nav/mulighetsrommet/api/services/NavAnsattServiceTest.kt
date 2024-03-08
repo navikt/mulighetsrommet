@@ -1,13 +1,11 @@
 package no.nav.mulighetsrommet.api.services
 
-import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.common.runBlocking
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.data.blocking.forAll
 import io.kotest.data.row
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
-import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.ktor.client.engine.mock.*
 import io.ktor.http.*
@@ -275,11 +273,9 @@ class NavAnsattServiceTest : FunSpec({
                         sanityClient = sanityClient,
                     )
 
-                    service.synchronizeNavAnsatte(today, deletionDate).shouldBeRight()
+                    service.synchronizeNavAnsatte(today, deletionDate)
 
-                    ansatte.getAll().shouldBeRight().should {
-                        it shouldContainExactlyInAnyOrder ansatteMedRoller
-                    }
+                    ansatte.getAll() shouldContainExactlyInAnyOrder ansatteMedRoller
                 }
             }
         }
@@ -314,11 +310,9 @@ class NavAnsattServiceTest : FunSpec({
                         sanityClient = sanityClient,
                     )
 
-                    service.synchronizeNavAnsatte(today, deletionDate = today).shouldBeRight()
+                    service.synchronizeNavAnsatte(today, deletionDate = today)
 
-                    ansatte.getAll().shouldBeRight().should {
-                        it shouldContainExactlyInAnyOrder ansatteMedRoller
-                    }
+                    ansatte.getAll() shouldContainExactlyInAnyOrder ansatteMedRoller
                 }
             }
         }
