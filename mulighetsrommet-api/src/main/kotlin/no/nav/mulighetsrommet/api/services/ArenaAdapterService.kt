@@ -119,10 +119,10 @@ class ArenaAdapterService(
 
             val gjennomforing = tiltaksgjennomforinger.get(tiltaksgjennomforingMedAvtale.id, tx)!!
 
-            if (gjennomforing.tiltaksnummer != null) {
-                logUpdate(tx, DocumentClass.TILTAKSGJENNOMFORING, gjennomforing.id, gjennomforing)
-            } else {
+            if (previous?.tiltaksnummer == null) {
                 logTiltaksnummerHentetFraArena(tx, DocumentClass.TILTAKSGJENNOMFORING, gjennomforing.id, gjennomforing)
+            } else {
+                logUpdate(tx, DocumentClass.TILTAKSGJENNOMFORING, gjennomforing.id, gjennomforing)
             }
 
             gjennomforing.avtaleId?.let { avtaleId ->
