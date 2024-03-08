@@ -1225,6 +1225,15 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 apentForInnsok = true,
             )
             tiltaksgjennomforinger.upsert(jobbklubbStartDatoIDag)
+            val jobbklubbStartDatoIDagFraArena = TiltaksgjennomforingFixtures.Jobbklubb1.copy(
+                id = UUID.randomUUID(),
+                navn = "Jobbklubb 2 fra Arena",
+                oppstart = TiltaksgjennomforingOppstartstype.FELLES,
+                startDato = dagensDatoMock,
+                apentForInnsok = true,
+            )
+            tiltaksgjennomforinger.upsert(jobbklubbStartDatoIDagFraArena)
+            tiltaksgjennomforinger.setOpphav(jobbklubbStartDatoIDagFraArena.id, ArenaMigrering.Opphav.ARENA)
 
             val jobbklubbStartDatoHarPassert = TiltaksgjennomforingFixtures.Jobbklubb1.copy(
                 id = UUID.randomUUID(),
@@ -1238,6 +1247,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             forAll(
                 row(jobbklubbStartDatoIFremtiden.id, true),
                 row(jobbklubbStartDatoIDag.id, false),
+                row(jobbklubbStartDatoIDagFraArena.id, true),
                 row(jobbklubbStartDatoHarPassert.id, false),
             ) { id, apentForInnsok ->
                 database.db.transaction { tx ->
