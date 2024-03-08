@@ -1,5 +1,5 @@
 import { Alert, Heading } from "@navikt/ds-react";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useLocation, useMatch, useNavigate, useParams } from "react-router-dom";
 import { useAvtale } from "../../api/avtaler/useAvtale";
 import { useTiltaksgjennomforingById } from "../../api/tiltaksgjennomforing/useTiltaksgjennomforingById";
 import { ContainerLayout } from "../../layouts/ContainerLayout";
@@ -21,6 +21,9 @@ const TiltaksgjennomforingSkjemaPage = () => {
     useTiltaksgjennomforingById();
   const { data: avtale, isLoading: avtaleIsLoading } = useAvtale(tiltaksgjennomforing?.avtaleId);
   const { data: ansatt, isPending: isPendingAnsatt } = useHentAnsatt();
+  const erPaaGjennomforingerForAvtale = useMatch(
+    "/avtaler/:avtaleId/tiltaksgjennomforinger/:tiltaksgjennomforingId/skjema",
+  );
 
   const redigeringsModus = tiltaksgjennomforing && inneholderUrl(tiltaksgjennomforing?.id);
 
@@ -64,6 +67,12 @@ const TiltaksgjennomforingSkjemaPage = () => {
       ? {
           tittel: "Avtaledetaljer",
           lenke: `/avtaler/${avtaleId}`,
+        }
+      : undefined,
+    erPaaGjennomforingerForAvtale
+      ? {
+          tittel: "Avtalens gjennomføringer",
+          lenke: `/avtaler/${avtaleId}/tiltaksgjennomforinger`,
         }
       : undefined,
     redigeringsModus
