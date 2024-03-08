@@ -151,7 +151,7 @@ class TiltaksgjennomforingService(
             val operation = if (publisert) {
                 "Tiltak publisert"
             } else {
-                "Tiltak ikke publisert"
+                "Tiltak avpublisert"
             }
             logEndring(operation, dto, navIdent, tx)
         }
