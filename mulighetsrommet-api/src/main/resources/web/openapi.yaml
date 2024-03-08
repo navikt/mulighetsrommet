@@ -1104,9 +1104,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/HistorikkForBrukerFraKomet"
+                $ref: "#/components/schemas/BrukerdataFraKomet"
 
   /api/v1/internal/ansatt:
     get:
@@ -2494,47 +2492,110 @@ components:
         - tiltakstype
         - arrangor
 
-    HistorikkForBrukerFraKomet:
+    BrukerdataFraKomet:
       type: object
       properties:
-        id:
+        aktive:
+          type: array
+          items:
+            $ref: "#/components/schemas/AktivDeltakelse"
+        historikk:
+          type: array
+          items:
+            $ref: "#/components/schemas/HistorikkForBrukerFraKomet"
+      required:
+        - aktive
+        - historikk
+
+    AktivDeltakelse:
+      type: object
+      properties:
+        deltakerId:
           type: string
-        fnr:
+          format: uuid
+        innsoktDato:
           type: string
-        fraDato:
-          type: string
-          nullable: true
-        tilDato:
-          type: string
-          nullable: true
-        status:
-          type: string
-          enum:
-            - VENTER
-            - AVSLUTTET
-            - DELTAR
-            - IKKE_AKTUELL
-        tiltaksnavn:
+        sistEndretDato:
+         type: string
+        aktivStatus:
+          type: object
+          properties:
+            navn:
+              type: string
+              enum:
+                - UTKAST_PAMELDING
+                - VENTER_PA_OPPSTART
+                - DELTAR
+                - KLADD
+                - SOKT_INN
+                - VURDERES
+                - VENTELISTE
+                - PABEGYNT_REGISTRERING
+          required:
+            - navn
+        tittel:
           type: string
           nullable: true
         tiltakstype:
-          type: string
-        arsak:
+          $ref: "#/components/schemas/Gruppetiltak"
+        beskrivelse:
           type: string
           nullable: true
-        tiltaksgjennomforingId:
+      required:
+        - deltakerId
+        - status
+        - tittel
+        - aktivStatus
+        - tiltakstype
+        - beskrivelse
+
+    HistorikkForBrukerFraKomet:
+      type: object
+      properties:
+        deltakerId:
           type: string
           format: uuid
+        innsoktDato:
+          type: string
+        periode:
+          type: object
+          properties:
+            startDato:
+              type: string
+              nullable: true
+            sluttDato:
+              type: string
+              nullable: true
+        historiskStatus:
+          type: object
+          properties:
+            historiskStatusType:
+              type: string
+              enum:
+                - AVBRUTT_UTKAST
+                - HAR_SLUTTET
+                - IKKE_AKTUELL
+                - FEILREGISTRERT
+                - AVBRUTT
+                - FULLFORT
+            aarsak:
+              type: string
+              nullable: true
+          required:
+            - historiskStatusType
+        tittel:
+          type: string
+        tiltakstype:
+          $ref: "#/components/schemas/Gruppetiltak"
+        beskrivelse:
+          type: string
+          nullable: true
       required:
-        - id
-        - fnr
-        - fraDato
-        - tilDato
-        - status
-        - tiltaksnavn
+        - deltakerId
+        - innsoktDato
+        - historiskStatus
+        - tittel
         - tiltakstype
-        - arsak
-        - tiltaksgjennomforingId
 
     TiltakshistorikkArrangor:
       type: object
@@ -3387,3 +3448,23 @@ components:
         - apneINyFane
         - visKunForVeileder
 
+    Gruppetiltak:
+      type: object
+      properties:
+        navn:
+          type: string
+        tiltakskode:
+          type: string
+          enum:
+            - INDOPPFAG
+            - ARBFORB
+            - AVKLARAG
+            - VASV
+            - ARBRRHDAG
+            - DIGIOPPARB
+            - JOBBK
+            - GRUPPEAMO
+            - GRUFAGYRKE
+      required:
+        - navn
+        - tiltakskode
