@@ -1,9 +1,5 @@
 package no.nav.mulighetsrommet.api.services
 
-import arrow.core.Either
-import arrow.core.flatMap
-import arrow.core.raise.either
-import arrow.core.right
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import kotlinx.serialization.Serializable
@@ -17,14 +13,14 @@ import no.nav.mulighetsrommet.api.domain.dto.NavAnsattDto
 import no.nav.mulighetsrommet.api.domain.dto.SanityResponse
 import no.nav.mulighetsrommet.api.repositories.NavAnsattRepository
 import no.nav.mulighetsrommet.api.utils.NavAnsattFilter
-import no.nav.mulighetsrommet.database.utils.DatabaseOperationError
-import no.nav.mulighetsrommet.database.utils.getOrThrow
+import no.nav.mulighetsrommet.database.Database
 import org.slf4j.LoggerFactory
 import java.time.LocalDate
 import java.util.*
 
 class NavAnsattService(
     private val roles: List<AdGruppeNavAnsattRolleMapping>,
+    private val db: Database,
     private val microsoftGraphService: MicrosoftGraphService,
     private val ansatte: NavAnsattRepository,
     private val sanityClient: SanityClient,
@@ -32,19 +28,16 @@ class NavAnsattService(
     private val logger = LoggerFactory.getLogger(javaClass)
 
     suspend fun getOrSynchronizeNavAnsatt(azureId: UUID): NavAnsattDto {
-        return ansatte.getByAzureId(azureId)
-            .flatMap {
-                it?.right() ?: run {
-                    logger.info("Fant ikke NavAnsatt for azureId=$azureId i databasen, forsøker Azure AD i stedet")
-                    val ansatt = getNavAnsattFromAzure(azureId)
-                    ansatte.upsert(NavAnsattDbo.fromNavAnsattDto(ansatt)).map { ansatt }
-                }
-            }
-            .getOrThrow()
+        return ansatte.getByAzureId(azureId) ?: run {
+            logger.info("Fant ikke NavAnsatt for azureId=$azureId i databasen, forsøker Azure AD i stedet")
+            val ansatt = getNavAnsattFromAzure(azureId)
+            ansatte.upsert(NavAnsattDbo.fromNavAnsattDto(ansatt))
+            ansatt
+        }
     }
 
     fun getNavAnsatte(filter: NavAnsattFilter): List<NavAnsattDto> {
-        return ansatte.getAll(roller = filter.roller).getOrThrow()
+        return ansatte.getAll(roller = filter.roller)
     }
 
     suspend fun getNavAnsattFromAzure(azureId: UUID): NavAnsattDto {
@@ -81,33 +74,32 @@ class NavAnsattService(
             }
     }
 
-    suspend fun synchronizeNavAnsatte(
-        today: LocalDate,
-        deletionDate: LocalDate,
-    ): Either<DatabaseOperationError, Unit> = either {
+    suspend fun synchronizeNavAnsatte(today: LocalDate, deletionDate: LocalDate) {
         val ansatteToUpsert = getNavAnsatteFromAzure()
 
         logger.info("Oppdaterer ${ansatteToUpsert.size} NavAnsatt fra Azure")
         ansatteToUpsert.forEach { ansatt ->
-            ansatte.upsert(NavAnsattDbo.fromNavAnsattDto(ansatt)).bind()
+            ansatte.upsert(NavAnsattDbo.fromNavAnsattDto(ansatt))
         }
         upsertSanityAnsatte(ansatteToUpsert)
 
         val ansatteAzureIds = ansatteToUpsert.map { it.azureId }
-        val ansatteToScheduleForDeletion = ansatte.getAll()
-            .map { it.filter { ansatt -> ansatt.azureId !in ansatteAzureIds && ansatt.skalSlettesDato == null } }
-            .bind()
+        val ansatteToScheduleForDeletion = ansatte.getAll().filter { ansatt ->
+            ansatt.azureId !in ansatteAzureIds && ansatt.skalSlettesDato == null
+        }
         ansatteToScheduleForDeletion.forEach { ansatt ->
             logger.info("Oppdaterer NavAnsatt med dato for sletting azureId=${ansatt.azureId} dato=$deletionDate")
             val ansattToDelete = ansatt.copy(roller = emptySet(), skalSlettesDato = deletionDate)
-            ansatte.upsert(NavAnsattDbo.fromNavAnsattDto(ansattToDelete)).bind()
+            ansatte.upsert(NavAnsattDbo.fromNavAnsattDto(ansattToDelete))
         }
 
-        val ansatteToDelete = ansatte.getAll(skalSlettesDatoLte = today).bind()
+        val ansatteToDelete = ansatte.getAll(skalSlettesDatoLte = today)
         ansatteToDelete.forEach { ansatt ->
             logger.info("Sletter NavAnsatt fordi vi har passert dato for sletting azureId=${ansatt.azureId} dato=${ansatt.skalSlettesDato}")
-            ansatte.deleteByAzureId(ansatt.azureId).bind()
-            deleteSanityAnsatt(ansatt)
+            db.transactionSuspend { tx ->
+                ansatte.deleteByAzureId(ansatt.azureId, tx)
+                deleteSanityAnsatt(ansatt)
+            }
         }
     }
 

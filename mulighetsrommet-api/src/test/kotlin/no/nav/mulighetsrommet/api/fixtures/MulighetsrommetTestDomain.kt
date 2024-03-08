@@ -30,7 +30,7 @@ data class MulighetsrommetTestDomain(
         }
 
         NavAnsattRepository(database).also { repository ->
-            ansatte.forEach { repository.upsert(it).shouldBeRight() }
+            ansatte.forEach { repository.upsert(it) }
         }
 
         TiltakstypeRepository(database).also { repository ->

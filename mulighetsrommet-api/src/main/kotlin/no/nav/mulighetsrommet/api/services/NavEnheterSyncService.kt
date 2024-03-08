@@ -100,13 +100,13 @@ class NavEnheterSyncService(
         return NavEnhetUtils.isRelevantEnhetStatus(it.enhet.status) && NavEnhetUtils.isRelevantEnhetType(it.enhet.type)
     }
 
-    suspend fun lagreEnheterTilSanity(sanityEnheter: List<SanityEnhet>) {
+    private suspend fun lagreEnheterTilSanity(sanityEnheter: List<SanityEnhet>) {
         logger.info("Oppdaterer Sanity-enheter - Antall: ${sanityEnheter.size}")
         val mutations = sanityEnheter.map { Mutation(createOrReplace = it) }
 
         val response = sanityClient.mutate(mutations)
 
-        if (response.status.value != HttpStatusCode.OK.value) {
+        if (response.status != HttpStatusCode.OK) {
             logger.error("Klarte ikke oppdatere enheter fra NORG til Sanity: {}", response.status)
             slackNotifier.sendMessage("Klarte ikke oppdatere enheter fra NORG til Sanity. Statuskode: ${response.status.value}. Dette må sees på av en utvikler.")
         } else {
