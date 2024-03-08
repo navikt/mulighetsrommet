@@ -56,6 +56,6 @@ export const brukerHandlers = [
 
   http.post<PathParams, BrukerdataFraKomet, BrukerdataFraKomet>(
     "*/api/v1/internal/bruker/historikk-fra-komet",
-    () => HttpResponse.json({ historikk: historikkFraKomet, utkast: utkastFraKomet }),
+    () => HttpResponse.json({ historikk: historikkFraKomet, aktive: utkastFraKomet }),
   ),
 ];

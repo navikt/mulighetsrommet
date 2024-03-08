@@ -36,7 +36,7 @@ function Historikk() {
         Historikk
       </Heading>
       {historikk.map((hist) => {
-        return <HistorikkKort key={hist.id} historikk={hist} />;
+        return <HistorikkKort key={hist.deltakerId} historikk={hist} />;
       })}
     </VStack>
   );
@@ -48,15 +48,15 @@ function Utkast() {
     return null;
   }
 
-  const { utkast } = data;
+  const { aktive } = data;
 
   return (
     <VStack gap="5">
       <Heading level="3" size="medium">
         Utkast
       </Heading>
-      {utkast.map((utkast) => {
-        return <UtkastKort key={utkast.id} utkast={utkast} />;
+      {aktive.map((utkast) => {
+        return <UtkastKort key={utkast.deltakerId} utkast={utkast} />;
       })}
     </VStack>
   );

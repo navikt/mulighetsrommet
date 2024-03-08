@@ -7,35 +7,28 @@ interface Props {
   historikk: HistorikkForBrukerFraKomet;
 }
 export function HistorikkKort({ historikk }: Props) {
-  const {
-    tiltakstype,
-    tittel,
-    fraDato,
-    tilDato,
-    status,
-    tiltaksgjennomforingId,
-    beskrivelse,
-    innsoktDato,
-  } = historikk;
+  const { tiltakstype, tittel, periode, historiskStatus, beskrivelse, innsoktDato } = historikk;
   return (
     <LinkPanel
-      href={`/arbeidsmarkedstiltak/tiltak/${tiltaksgjennomforingId}`}
+      href="#" // TODO Fiks korrekt url til Komets løsning for påmelding
       className={styles.panel}
     >
       <VStack gap="2">
         <HStack gap="10">
-          <small>{tiltakstype.toUpperCase()}</small>
+          <small>{tiltakstype.navn.toUpperCase()}</small>
           <small>Søkt inn: {formaterDato(innsoktDato)}</small>
         </HStack>
         <Heading size="medium" level="4">
           {tittel}
         </Heading>
         <HStack align={"center"} gap="5">
-          <Status status={status.navn} />
+          <Status status={historiskStatus.historiskStatusType} />
           {beskrivelse ? <BodyShort size="small">Årsak: {beskrivelse}</BodyShort> : null}
-          <BodyShort size="small">
-            {fraDato} - {tilDato}
-          </BodyShort>
+          {periode ? (
+            <BodyShort size="small">
+              {periode.startDato} - {periode.sluttDato}
+            </BodyShort>
+          ) : null}
         </HStack>
       </VStack>
     </LinkPanel>
@@ -43,33 +36,45 @@ export function HistorikkKort({ historikk }: Props) {
 }
 
 interface StatusProps {
-  status: HistorikkForBrukerFraKomet.navn;
+  status: HistorikkForBrukerFraKomet.historiskStatusType;
 }
 
 function Status({ status }: StatusProps) {
   switch (status) {
-    case HistorikkForBrukerFraKomet.navn.DELTAR:
+    case HistorikkForBrukerFraKomet.historiskStatusType.AVBRUTT:
       return (
         <Tag size="small" variant="success" className={styles.deltarStatus}>
-          Deltar
+          Avbrutt
         </Tag>
       );
-    case HistorikkForBrukerFraKomet.navn.AVSLUTTET:
+    case HistorikkForBrukerFraKomet.historiskStatusType.HAR_SLUTTET:
       return (
         <Tag size="small" variant="info">
-          Avsluttet
+          Har sluttet
         </Tag>
       );
-    case HistorikkForBrukerFraKomet.navn.IKKE_AKTUELL:
+    case HistorikkForBrukerFraKomet.historiskStatusType.IKKE_AKTUELL:
       return (
         <Tag size="small" variant="neutral">
           Ikke aktuell
         </Tag>
       );
-    case HistorikkForBrukerFraKomet.navn.VENTER:
+    case HistorikkForBrukerFraKomet.historiskStatusType.FEILREGISTRERT:
       return (
         <Tag size="small" variant="info">
-          Venter på oppstart
+          Feilregistrert
+        </Tag>
+      );
+    case HistorikkForBrukerFraKomet.historiskStatusType.FULLFORT:
+      return (
+        <Tag size="small" variant="info">
+          Fullført
+        </Tag>
+      );
+    case HistorikkForBrukerFraKomet.historiskStatusType.AVBRUTT_UTKAST:
+      return (
+        <Tag size="small" variant="info">
+          Avbrutt utkast
         </Tag>
       );
   }
