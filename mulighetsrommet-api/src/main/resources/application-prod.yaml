@@ -132,7 +132,7 @@ app:
     generateValidationReport:
       bucketName: mulighetsrommet-api-uploads-prod
     updateApentForInnsok:
-      disabled: true # TODO Sett til false når test i dev er ok
+      disabled: false
       cronPattern: "0 55 23 * * *" # 23.55 hver kveld
 
   norg2:
