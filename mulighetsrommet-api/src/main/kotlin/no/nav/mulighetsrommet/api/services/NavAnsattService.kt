@@ -118,8 +118,11 @@ class NavAnsattService(
             is SanityResponse.Error -> throw Exception("Klarte ikke hente ut id'er til sletting fra Sanity: ${queryResponse.error}")
         }
 
-        val result = sanityClient.mutate(mutations = ider.map { Mutation(Delete(it)) })
+        if (ider.isEmpty()) {
+            return
+        }
 
+        val result = sanityClient.mutate(mutations = ider.map { Mutation(Delete(it)) })
         if (result.status != HttpStatusCode.OK) {
             throw Exception("Klarte ikke slette Sanity-dokument: ${result.bodyAsText()}")
         }
