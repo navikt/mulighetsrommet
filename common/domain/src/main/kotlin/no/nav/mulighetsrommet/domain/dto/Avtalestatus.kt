@@ -12,12 +12,12 @@ enum class Avtalestatus {
     companion object {
         fun resolveFromDatesAndAvslutningsstatus(
             now: LocalDate,
-            sluttDato: LocalDate,
+            sluttDato: LocalDate?,
             avslutningsstatus: Avslutningsstatus,
         ): Avtalestatus = when {
             avslutningsstatus == Avslutningsstatus.AVBRUTT -> Avbrutt
             avslutningsstatus == Avslutningsstatus.AVSLUTTET -> Avsluttet
-            now <= sluttDato -> Aktiv
+            sluttDato == null || now <= sluttDato -> Aktiv
             else -> Avsluttet
         }
     }

@@ -405,7 +405,7 @@ class AvtaleRepository(private val db: Database) {
 
     private fun Row.toAvtaleAdminDto(): AvtaleAdminDto {
         val startDato = localDate("start_dato")
-        val sluttDato = localDate("slutt_dato")
+        val sluttDato = localDateOrNull("slutt_dato")
 
         val underenheter = stringOrNull("leverandor_underenheter")
             ?.let { Json.decodeFromString<List<AvtaleAdminDto.LeverandorUnderenhet?>>(it).filterNotNull() }

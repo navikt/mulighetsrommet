@@ -30,7 +30,7 @@ class ExcelService {
             opprettCelle(
                 row,
                 6,
-                avtaleAdminDto.sluttDato.formaterDato(),
+                avtaleAdminDto.sluttDato?.formaterDato() ?: "",
             )
         }
 

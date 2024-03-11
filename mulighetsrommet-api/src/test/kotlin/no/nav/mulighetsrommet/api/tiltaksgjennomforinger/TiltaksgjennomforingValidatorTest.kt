@@ -12,6 +12,7 @@ import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
+import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
@@ -20,6 +21,7 @@ import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.api.routes.v1.responses.ValidationError
 import no.nav.mulighetsrommet.api.services.TiltakstypeService
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
+import no.nav.mulighetsrommet.domain.Tiltakskoder.Gruppetiltak
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dto.NavIdent
@@ -75,10 +77,22 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
                 type = Norg2Type.LOKAL,
                 overordnetEnhet = "0400",
             ),
+            NavEnhetDbo(
+                navn = "NAV Gjøvik",
+                enhetsnummer = "2990",
+                status = NavEnhetStatus.AKTIV,
+                type = Norg2Type.IT,
+                overordnetEnhet = null,
+            ),
         ),
-        ansatte = listOf(),
-        tiltakstyper = listOf(TiltakstypeFixtures.AFT, TiltakstypeFixtures.Jobbklubb, TiltakstypeFixtures.Oppfolging),
-        avtaler = listOf(avtale),
+        ansatte = listOf(NavAnsattFixture.ansatt1, NavAnsattFixture.ansatt2),
+        tiltakstyper = listOf(
+            TiltakstypeFixtures.VTA,
+            TiltakstypeFixtures.AFT,
+            TiltakstypeFixtures.Jobbklubb,
+            TiltakstypeFixtures.Oppfolging,
+        ),
+        avtaler = listOf(avtale, AvtaleFixtures.VTA, AvtaleFixtures.AFT),
     )
 
     beforeEach {
@@ -159,6 +173,25 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
 
         validator.validate(dbo, null).shouldBeLeft(
             listOf(ValidationError("startDato", "Startdato må være etter avtalens startdato")),
+        )
+    }
+
+    test("sluttDato er påkrevd hvis ikke VTA eller AFT") {
+        val validator = TiltaksgjennomforingValidator(
+            TiltakstypeService(TiltakstypeRepository(database.db), Gruppetiltak),
+            avtaler,
+        )
+        val aft = TiltaksgjennomforingFixtures.AFT1.copy(sluttDato = null)
+        val vta = TiltaksgjennomforingFixtures.VTA1.copy(sluttDato = null)
+        val oppfolging = gjennomforing.copy(
+            sluttDato = null,
+            arrangorOrganisasjonsnummer = "000000001",
+        )
+
+        validator.validate(aft, null).shouldBeRight()
+        validator.validate(vta, null).shouldBeRight()
+        validator.validate(oppfolging, null).shouldBeLeft(
+            listOf(ValidationError("sluttDato", "Sluttdato må være valgt")),
         )
     }
 

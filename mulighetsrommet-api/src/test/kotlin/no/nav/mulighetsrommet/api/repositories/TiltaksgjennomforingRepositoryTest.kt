@@ -86,28 +86,14 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 it.apentForInnsok shouldBe true
                 it.antallPlasser shouldBe 12
                 it.avtaleId shouldBe Oppfolging1.avtaleId
-                it.administratorer shouldBe emptyList()
-                it.navEnheter shouldBe listOf(
-                    NavEnhetDbo(
-                        navn = "IT",
-                        enhetsnummer = "2990",
-                        type = Norg2Type.DIR,
-                        overordnetEnhet = null,
-                        status = NavEnhetStatus.AKTIV,
-                    ),
-                )
+                it.administratorer shouldBe listOf(TiltaksgjennomforingAdminDto.Administrator(navIdent = NavIdent("DD1"), navn = "Donald Duck"))
+                it.navEnheter shouldBe listOf(NavEnhetFixtures.Gjovik)
                 it.sanityId shouldBe null
                 it.oppstart shouldBe TiltaksgjennomforingOppstartstype.LOPENDE
                 it.opphav shouldBe ArenaMigrering.Opphav.MR_ADMIN_FLATE
                 it.kontaktpersoner shouldBe listOf()
                 it.stedForGjennomforing shouldBe "Oslo"
-                it.navRegion shouldBe NavEnhetDbo(
-                    navn = "IT",
-                    enhetsnummer = "2990",
-                    type = Norg2Type.DIR,
-                    overordnetEnhet = null,
-                    status = NavEnhetStatus.AKTIV,
-                )
+                it.navRegion shouldBe NavEnhetFixtures.Innlandet
                 it.faneinnhold shouldBe null
                 it.beskrivelse shouldBe null
                 it.createdAt shouldNotBe null
@@ -588,10 +574,12 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             val oppfolging7Dager = Oppfolging1.copy(
                 id = UUID.randomUUID(),
                 sluttDato = LocalDate.of(2023, 5, 23),
+                administratorer = emptyList(),
             )
             val oppfolging1Dager = Oppfolging1.copy(
                 id = UUID.randomUUID(),
                 sluttDato = LocalDate.of(2023, 5, 17),
+                administratorer = emptyList(),
             )
             val oppfolging10Dager = Oppfolging1.copy(
                 id = UUID.randomUUID(),
@@ -1167,7 +1155,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
                 search = "rik",
                 innsatsgrupper = listOf(Innsatsgruppe.STANDARD_INNSATS),
-                brukersEnheter = listOf("2990"),
+                brukersEnheter = listOf("0502"),
             ).should {
                 it shouldHaveSize 1
                 it[0].navn shouldBe "erik"
@@ -1175,7 +1163,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         }
 
         test("skal filtrere basert på apent_for_innsok") {
-            tiltaksgjennomforinger.upsert(Oppfolging1.copy(apentForInnsok = true))
+            tiltaksgjennomforinger.upsert(Oppfolging1.copy(apentForInnsok = true, navEnheter = listOf("2990")))
             tiltaksgjennomforinger.upsert(Arbeidstrening1.copy(apentForInnsok = false, navEnheter = listOf("2990")))
 
             tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(

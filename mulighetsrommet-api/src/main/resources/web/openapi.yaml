@@ -1919,7 +1919,6 @@ components:
         - leverandor
         - leverandorUnderenheter
         - startDato
-        - sluttDato
         - avtaletype
         - avtalestatus
         - prisbetingelser
@@ -1956,6 +1955,7 @@ components:
         sluttDato:
           type: string
           format: date
+          nullable: true
         url:
           type: string
           nullable: true

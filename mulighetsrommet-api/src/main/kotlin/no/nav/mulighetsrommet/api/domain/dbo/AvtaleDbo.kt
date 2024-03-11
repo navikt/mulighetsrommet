@@ -15,7 +15,7 @@ data class AvtaleDbo(
     val leverandorUnderenheter: List<String>,
     val leverandorKontaktpersonId: UUID?,
     val startDato: LocalDate,
-    val sluttDato: LocalDate,
+    val sluttDato: LocalDate?,
     val navEnheter: List<String>,
     val avtaletype: Avtaletype,
     val prisbetingelser: String?,
