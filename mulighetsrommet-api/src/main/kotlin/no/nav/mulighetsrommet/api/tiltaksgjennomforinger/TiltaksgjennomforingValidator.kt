@@ -138,11 +138,11 @@ class TiltaksgjennomforingValidator(
                         )
                     }
 
-                    if (dbo.startDato != previous.startDato) {
+                    if (dbo.startDato.isBefore(avtale.startDato)) {
                         add(
                             ValidationError.of(
                                 TiltaksgjennomforingDbo::startDato,
-                                "Startdato kan ikke endres når gjennomføringen er aktiv",
+                                "Startdato må være etter avtalens startdato",
                             ),
                         )
                     }

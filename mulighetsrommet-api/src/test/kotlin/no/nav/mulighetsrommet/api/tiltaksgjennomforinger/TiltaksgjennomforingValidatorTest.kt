@@ -215,6 +215,17 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
             validator.validate(gjennomforing.copy(antallPlasser = 15), previous).shouldBeRight()
         }
 
+        test("Skal godta endringer for startdato selv om gjennomføringen er aktiv, men startdato skal ikke kunne settes til før avtaledatoen") {
+            val validator = TiltaksgjennomforingValidator(tiltakstyper, avtaler)
+            val previous = tiltaksgjennomforinger.get(gjennomforing.id)
+            validator.validate(gjennomforing.copy(startDato = LocalDate.now().plusDays(5)), previous).shouldBeRight()
+            validator.validate(gjennomforing.copy(startDato = avtaleStartDato.minusDays(1)), previous).shouldBeLeft(
+                listOf(
+                    ValidationError("startDato", "Startdato må være etter avtalens startdato"),
+                ),
+            )
+        }
+
         test("skal godta endringer selv om avtale er avbrutt") {
             forAll(
                 row(Avslutningsstatus.AVBRUTT),
