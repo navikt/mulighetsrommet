@@ -2,7 +2,7 @@ package no.nav.mulighetsrommet.api.clients.brreg
 
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
-import no.nav.mulighetsrommet.api.domain.dto.VirksomhetDto
+import no.nav.mulighetsrommet.api.domain.dto.BrregVirksomhetDto
 import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.ktor.respondJson
 
@@ -31,7 +31,7 @@ class BrregClientTest : FunSpec({
         )
 
         brregClient.sokEtterOverordnetEnheter("Nav") shouldBeRight listOf(
-            VirksomhetDto(
+            BrregVirksomhetDto(
                 organisasjonsnummer = "123456789",
                 navn = "NAV Hovedenhet",
                 postnummer = "1234",
@@ -64,7 +64,7 @@ class BrregClientTest : FunSpec({
         )
 
         brregClient.hentUnderenheterForOverordnetEnhet("123456789") shouldBeRight listOf(
-            VirksomhetDto(
+            BrregVirksomhetDto(
                 organisasjonsnummer = "123456780",
                 navn = "NAV Underenhet",
                 overordnetEnhet = "123456789",
@@ -100,7 +100,7 @@ class BrregClientTest : FunSpec({
             ),
         )
 
-        brregClient.getHovedenhet("123456789") shouldBeRight VirksomhetDto(
+        brregClient.getHovedenhet("123456789") shouldBeRight BrregVirksomhetDto(
             organisasjonsnummer = "123456789",
             navn = "NAV Hovedenhet",
             underenheter = emptyList(),
@@ -122,11 +122,11 @@ class BrregClientTest : FunSpec({
             ),
         )
 
-        brregClient.getHovedenhet("123456789") shouldBeRight VirksomhetDto(
+        brregClient.getHovedenhet("123456789") shouldBeRight BrregVirksomhetDto(
             organisasjonsnummer = "123456789",
             navn = "NAV Hovedenhet",
             underenheter = listOf(
-                VirksomhetDto(
+                BrregVirksomhetDto(
                     organisasjonsnummer = "123456780",
                     navn = "NAV Underenhet",
                     overordnetEnhet = "123456789",
@@ -147,7 +147,7 @@ class BrregClientTest : FunSpec({
             ),
         )
 
-        brregClient.getUnderenhet("123456780") shouldBeRight VirksomhetDto(
+        brregClient.getUnderenhet("123456780") shouldBeRight BrregVirksomhetDto(
             organisasjonsnummer = "123456780",
             navn = "NAV Underenhet",
             overordnetEnhet = "123456789",

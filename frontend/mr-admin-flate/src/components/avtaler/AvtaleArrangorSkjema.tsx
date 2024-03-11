@@ -1,5 +1,9 @@
 import { Button } from "@navikt/ds-react";
-import { LagretVirksomhet, Virksomhet, VirksomhetKontaktperson } from "mulighetsrommet-api-client";
+import {
+  BrregVirksomhet,
+  LagretVirksomhet,
+  VirksomhetKontaktperson,
+} from "mulighetsrommet-api-client";
 import { ControlledSokeSelect } from "mulighetsrommet-frontend-common/components/ControlledSokeSelect";
 import { useRef, useState } from "react";
 import { DeepPartial, useFormContext } from "react-hook-form";
@@ -98,7 +102,7 @@ export function AvtaleArrangorSkjema({ readOnly }: Props) {
 }
 
 function getLeverandorOptions(
-  virksomheter: Virksomhet[],
+  virksomheter: BrregVirksomhet[],
   leverandor: LagretVirksomhet | undefined,
 ) {
   const options = virksomheter
@@ -118,7 +122,7 @@ function getLeverandorOptions(
   return options;
 }
 
-function getUnderenheterOptions(underenheterForLeverandor: Virksomhet[]): SelectOption[] {
+function getUnderenheterOptions(underenheterForLeverandor: BrregVirksomhet[]): SelectOption[] {
   return underenheterForLeverandor.map((leverandor) => ({
     value: leverandor.organisasjonsnummer,
     label: `${leverandor.navn} - ${leverandor.organisasjonsnummer}`,

@@ -16,7 +16,7 @@ import io.mockk.mockk
 import no.nav.mulighetsrommet.api.clients.brreg.BrregClient
 import no.nav.mulighetsrommet.api.clients.brreg.BrregError
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
-import no.nav.mulighetsrommet.api.domain.dto.VirksomhetDto
+import no.nav.mulighetsrommet.api.domain.dto.BrregVirksomhetDto
 import no.nav.mulighetsrommet.api.repositories.VirksomhetRepository
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
@@ -35,14 +35,14 @@ class VirksomhetServiceTest : FunSpec({
     }
 
     context(VirksomhetService::getOrSyncHovedenhetFromBrreg.name) {
-        val underenhet = VirksomhetDto(
+        val underenhet = BrregVirksomhetDto(
             organisasjonsnummer = "234567891",
             navn = "Underenhet til Testbedriften AS",
             overordnetEnhet = "123456789",
             postnummer = null,
             poststed = null,
         )
-        val hovedenhet = VirksomhetDto(
+        val hovedenhet = BrregVirksomhetDto(
             organisasjonsnummer = "123456789",
             navn = "Testbedriften AS",
             underenheter = listOf(underenhet),
@@ -98,7 +98,7 @@ class VirksomhetServiceTest : FunSpec({
 
         test("skal synkronisere slettet enhet fra brreg og til databasen gitt orgnr til enheten") {
             val orgnr = "100200300"
-            val slettetVirksomhet = VirksomhetDto(
+            val slettetVirksomhet = BrregVirksomhetDto(
                 organisasjonsnummer = orgnr,
                 navn = "Slettet bedrift",
                 slettetDato = LocalDate.of(2020, 1, 1),

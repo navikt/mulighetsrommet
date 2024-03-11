@@ -4,7 +4,7 @@ import kotliquery.Row
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.domain.dbo.OverordnetEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dto.LagretVirksomhetDto
-import no.nav.mulighetsrommet.api.domain.dto.VirksomhetDto
+import no.nav.mulighetsrommet.api.domain.dto.BrregVirksomhetDto
 import no.nav.mulighetsrommet.api.domain.dto.VirksomhetKontaktperson
 import no.nav.mulighetsrommet.api.utils.VirksomhetTil
 import no.nav.mulighetsrommet.database.Database
@@ -100,8 +100,8 @@ class VirksomhetRepository(private val db: Database) {
     }
 
     /** Upserter kun enheten og tar ikke hensyn til underenheter */
-    fun upsert(virksomhetDto: VirksomhetDto) {
-        logger.info("Lagrer virksomhet ${virksomhetDto.organisasjonsnummer}")
+    fun upsert(brregVirksomhet: BrregVirksomhetDto) {
+        logger.info("Lagrer virksomhet ${brregVirksomhet.organisasjonsnummer}")
 
         @Language("PostgreSQL")
         val query = """
@@ -117,7 +117,7 @@ class VirksomhetRepository(private val db: Database) {
         """.trimIndent()
 
         db.transaction { tx ->
-            tx.run(queryOf(query, virksomhetDto.toSqlParameters()).asExecute)
+            tx.run(queryOf(query, brregVirksomhet.toSqlParameters()).asExecute)
         }
     }
 
@@ -341,7 +341,7 @@ class VirksomhetRepository(private val db: Database) {
         beskrivelse = stringOrNull("beskrivelse"),
     )
 
-    private fun VirksomhetDto.toSqlParameters() = mapOf(
+    private fun BrregVirksomhetDto.toSqlParameters() = mapOf(
         "organisasjonsnummer" to organisasjonsnummer,
         "navn" to navn,
         "overordnet_enhet" to overordnetEnhet,

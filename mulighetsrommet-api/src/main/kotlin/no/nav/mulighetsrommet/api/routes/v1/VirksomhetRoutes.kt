@@ -11,7 +11,7 @@ import io.ktor.server.util.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.clients.brreg.BrregClient
 import no.nav.mulighetsrommet.api.clients.brreg.BrregError
-import no.nav.mulighetsrommet.api.domain.dto.VirksomhetDto
+import no.nav.mulighetsrommet.api.domain.dto.BrregVirksomhetDto
 import no.nav.mulighetsrommet.api.domain.dto.VirksomhetKontaktperson
 import no.nav.mulighetsrommet.api.repositories.VirksomhetRepository
 import no.nav.mulighetsrommet.api.routes.v1.responses.*
@@ -43,7 +43,7 @@ fun Route.virksomhetRoutes() {
                 .map {
                     // Kombinerer resultat med utenlandske virksomheter siden de ikke finnes i brreg
                     it + virksomhetRepository.getAll(sok = sok, utenlandsk = true).map { virksomhet ->
-                        VirksomhetDto(
+                        BrregVirksomhetDto(
                             organisasjonsnummer = virksomhet.organisasjonsnummer,
                             navn = virksomhet.navn,
                             overordnetEnhet = virksomhet.overordnetEnhet,

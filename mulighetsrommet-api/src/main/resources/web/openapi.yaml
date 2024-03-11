@@ -1372,7 +1372,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/Virksomhet"
+                  $ref: "#/components/schemas/BrregVirksomhet"
 
   /api/v1/internal/virksomhet/{id}:
     get:
@@ -3063,30 +3063,30 @@ components:
         - ALS
         - KO
 
-    Virksomhet:
+    BrregVirksomhet:
       type: object
       properties:
         organisasjonsnummer:
           type: string
         navn:
           type: string
-        slettetDato:
-          type: string
-          format: date
-          nullable: true
         overordnetEnhet:
           type: string
           nullable: true
         underenheter:
           type: array
           items:
-            $ref: "#/components/schemas/Virksomhet"
+            $ref: "#/components/schemas/BrregVirksomhet"
           nullable: true
         postnummer:
           type: string
           nullable: true
         poststed:
           type: string
+          nullable: true
+        slettetDato:
+          type: string
+          format: date
           nullable: true
       required:
         - organisasjonsnummer

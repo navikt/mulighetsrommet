@@ -10,8 +10,8 @@ import io.prometheus.client.cache.caffeine.CacheMetricsCollector
 import no.nav.mulighetsrommet.api.clients.brreg.BrregClient
 import no.nav.mulighetsrommet.api.clients.brreg.BrregError
 import no.nav.mulighetsrommet.api.domain.dbo.toOverordnetEnhetDbo
+import no.nav.mulighetsrommet.api.domain.dto.BrregVirksomhetDto
 import no.nav.mulighetsrommet.api.domain.dto.LagretVirksomhetDto
-import no.nav.mulighetsrommet.api.domain.dto.VirksomhetDto
 import no.nav.mulighetsrommet.api.domain.dto.VirksomhetKontaktperson
 import no.nav.mulighetsrommet.api.repositories.VirksomhetRepository
 import no.nav.mulighetsrommet.api.routes.v1.responses.BadRequest
@@ -27,7 +27,7 @@ class VirksomhetService(
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
 
-    private val brregServiceCache: Cache<String, VirksomhetDto> = Caffeine.newBuilder()
+    private val brregCache: Cache<String, BrregVirksomhetDto> = Caffeine.newBuilder()
         .expireAfterWrite(3, TimeUnit.HOURS)
         .maximumSize(20_000)
         .recordStats()
@@ -36,7 +36,7 @@ class VirksomhetService(
     init {
         val cacheMetrics: CacheMetricsCollector = CacheMetricsCollector()
             .register(Metrikker.appMicrometerRegistry.prometheusRegistry)
-        cacheMetrics.addCache("brregServiceCache", brregServiceCache)
+        cacheMetrics.addCache("brregServiceCache", brregCache)
     }
 
     suspend fun getOrSyncHovedenhetFromBrreg(orgnr: String): Either<BrregError, LagretVirksomhetDto> {
@@ -79,8 +79,8 @@ class VirksomhetService(
             }
     }
 
-    suspend fun getVirksomhetFromBrreg(orgnr: String): Either<BrregError, VirksomhetDto> {
-        val virksomhet = brregServiceCache.getIfPresent(orgnr)
+    suspend fun getVirksomhetFromBrreg(orgnr: String): Either<BrregError, BrregVirksomhetDto> {
+        val virksomhet = brregCache.getIfPresent(orgnr)
         if (virksomhet != null) {
             return virksomhet.right()
         }
@@ -96,7 +96,7 @@ class VirksomhetService(
                 }
             },
             {
-                brregServiceCache.put(orgnr, it)
+                brregCache.put(orgnr, it)
                 it.right()
             },
         )

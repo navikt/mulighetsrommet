@@ -11,7 +11,7 @@ import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dbo.OverordnetEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dto.LagretVirksomhetDto
-import no.nav.mulighetsrommet.api.domain.dto.VirksomhetDto
+import no.nav.mulighetsrommet.api.domain.dto.BrregVirksomhetDto
 import no.nav.mulighetsrommet.api.domain.dto.VirksomhetKontaktperson
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.utils.VirksomhetTil
@@ -86,14 +86,14 @@ class VirksomhetRepositoryTest : FunSpec({
         test("Upsert virksomhet med underenheter") {
             val virksomhetRepository = VirksomhetRepository(database.db)
 
-            val underenhet1 = VirksomhetDto(
+            val underenhet1 = BrregVirksomhetDto(
                 organisasjonsnummer = "880907522",
                 overordnetEnhet = "982254604",
                 navn = "REMA 1000 NORGE AS REGION NORDLAND",
                 postnummer = "5174",
                 poststed = "Mathopen",
             )
-            val underenhet2 = VirksomhetDto(
+            val underenhet2 = BrregVirksomhetDto(
                 organisasjonsnummer = "912704327",
                 overordnetEnhet = "982254604",
                 navn = "REMA 1000 NORGE AS REGION VESTRE ØSTLAND",
@@ -132,7 +132,7 @@ class VirksomhetRepositoryTest : FunSpec({
         test("Upsert virksomhet med underenheter oppdaterer korrekt data ved conflict på organisasjonsnummer") {
             val virksomhetRepository = VirksomhetRepository(database.db)
 
-            val underenhet1 = VirksomhetDto(
+            val underenhet1 = BrregVirksomhetDto(
                 organisasjonsnummer = "880907522",
                 overordnetEnhet = "982254604",
                 navn = "REMA 1000 NORGE AS REGION NORDLAND",
@@ -173,7 +173,7 @@ class VirksomhetRepositoryTest : FunSpec({
         test("Upsert underenhet etter overenhet") {
             val virksomhetRepository = VirksomhetRepository(database.db)
 
-            val underenhet1 = VirksomhetDto(
+            val underenhet1 = BrregVirksomhetDto(
                 organisasjonsnummer = "880907522",
                 overordnetEnhet = "982254604",
                 navn = "REMA 1000 NORGE AS REGION NORDLAND",
@@ -181,7 +181,7 @@ class VirksomhetRepositoryTest : FunSpec({
                 poststed = "Mathopen",
             )
 
-            val overordnet = VirksomhetDto(
+            val overordnet = BrregVirksomhetDto(
                 navn = "REMA 1000 AS",
                 organisasjonsnummer = "982254604",
                 underenheter = listOf(),
@@ -210,7 +210,7 @@ class VirksomhetRepositoryTest : FunSpec({
 
             val slettetDato = LocalDate.of(2024, 1, 1)
 
-            val underenhet1 = VirksomhetDto(
+            val underenhet1 = BrregVirksomhetDto(
                 organisasjonsnummer = "880907522",
                 overordnetEnhet = "982254604",
                 navn = "REMA 1000 NORGE AS REGION NORDLAND",
@@ -243,7 +243,7 @@ class VirksomhetRepositoryTest : FunSpec({
         test("Delete overordnet cascader") {
             val virksomhetRepository = VirksomhetRepository(database.db)
 
-            val underenhet1 = VirksomhetDto(
+            val underenhet1 = BrregVirksomhetDto(
                 organisasjonsnummer = "880907522",
                 overordnetEnhet = "982254604",
                 navn = "REMA 1000 NORGE AS REGION NORDLAND",

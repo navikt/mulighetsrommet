@@ -6,13 +6,12 @@ import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import java.time.LocalDate
 import java.util.*
 
-// TODO rename to BrregVirksomhetDto
 @Serializable
-data class VirksomhetDto(
+data class BrregVirksomhetDto(
     val organisasjonsnummer: String,
     val navn: String,
     val overordnetEnhet: String? = null,
-    val underenheter: List<VirksomhetDto>? = null,
+    val underenheter: List<BrregVirksomhetDto>? = null,
     val postnummer: String?,
     val poststed: String?,
     @Serializable(with = LocalDateSerializer::class)
