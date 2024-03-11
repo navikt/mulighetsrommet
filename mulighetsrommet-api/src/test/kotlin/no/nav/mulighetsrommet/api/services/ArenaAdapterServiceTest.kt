@@ -14,6 +14,7 @@ import io.mockk.clearAllMocks
 import io.mockk.coEvery
 import io.mockk.mockk
 import io.mockk.verify
+import no.nav.mulighetsrommet.api.clients.AccessType
 import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClient
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
@@ -640,7 +641,12 @@ class ArenaAdapterServiceTest : FunSpec({
             )
             domain.initialize(database.db)
 
-            coEvery { veilarboppfolgingClient.erBrukerUnderOppfolging("12345678910", null) } returns true.right()
+            coEvery {
+                veilarboppfolgingClient.erBrukerUnderOppfolging(
+                    "12345678910",
+                    AccessType.M2M,
+                )
+            } returns true.right()
         }
 
         test("CRUD gruppe") {
