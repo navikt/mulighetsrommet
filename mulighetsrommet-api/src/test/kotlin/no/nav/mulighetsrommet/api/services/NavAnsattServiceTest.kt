@@ -15,6 +15,7 @@ import io.mockk.mockk
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.mulighetsrommet.api.AdGruppeNavAnsattRolleMapping
+import no.nav.mulighetsrommet.api.clients.AccessType
 import no.nav.mulighetsrommet.api.clients.msgraph.AzureAdNavAnsatt
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
@@ -128,8 +129,8 @@ class NavAnsattServiceTest : FunSpec({
 
             val azureId = UUID.randomUUID()
 
-            coEvery { msGraph.getNavAnsatt(azureId) } returns ansatt1
-            coEvery { msGraph.getNavAnsattAdGrupper(azureId) } returns listOf(
+            coEvery { msGraph.getNavAnsatt(azureId, AccessType.M2M) } returns ansatt1
+            coEvery { msGraph.getNavAnsattAdGrupper(azureId, AccessType.M2M) } returns listOf(
                 AdGruppe(id = tiltaksadministrasjon.adGruppeId, navn = "Tiltaksadministrasjon generell"),
                 AdGruppe(
                     id = UUID.randomUUID(),
@@ -154,8 +155,8 @@ class NavAnsattServiceTest : FunSpec({
 
             val azureId = UUID.randomUUID()
 
-            coEvery { msGraph.getNavAnsatt(azureId) } returns ansatt1
-            coEvery { msGraph.getNavAnsattAdGrupper(azureId) } returns listOf(
+            coEvery { msGraph.getNavAnsatt(azureId, AccessType.M2M) } returns ansatt1
+            coEvery { msGraph.getNavAnsattAdGrupper(azureId, AccessType.M2M) } returns listOf(
                 AdGruppe(id = tiltaksadministrasjon.adGruppeId, navn = "Tiltaksadministrasjon generell"),
             )
 

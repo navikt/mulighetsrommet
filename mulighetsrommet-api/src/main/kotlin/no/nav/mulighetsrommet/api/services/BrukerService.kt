@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api.services
 import arrow.core.getOrElse
 import io.ktor.http.*
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.clients.AccessType
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.clients.oppfolging.ErUnderOppfolgingError
 import no.nav.mulighetsrommet.api.clients.oppfolging.ManuellStatusDto
@@ -22,8 +23,8 @@ class BrukerService(
     private val veilarbpersonClient: VeilarbpersonClient,
     private val navEnhetService: NavEnhetService,
 ) {
-    suspend fun hentBrukerdata(fnr: String, accessToken: String): Brukerdata {
-        val erUnderOppfolging = veilarboppfolgingClient.erBrukerUnderOppfolging(fnr, accessToken)
+    suspend fun hentBrukerdata(fnr: String, obo: AccessType.OBO): Brukerdata {
+        val erUnderOppfolging = veilarboppfolgingClient.erBrukerUnderOppfolging(fnr, obo)
             .getOrElse {
                 when (it) {
                     ErUnderOppfolgingError.Forbidden -> throw StatusException(HttpStatusCode.Forbidden, "Manglet tilgang til å hente oppfølgingsstatus.")
@@ -34,7 +35,7 @@ class BrukerService(
             throw StatusException(HttpStatusCode.Forbidden, "Bruker er ikke under oppfølging. Kontroller at brukeren er under oppfølging og finnes i Arena.")
         }
 
-        val oppfolgingsenhet = veilarboppfolgingClient.hentOppfolgingsenhet(fnr, accessToken)
+        val oppfolgingsenhet = veilarboppfolgingClient.hentOppfolgingsenhet(fnr, obo)
             .getOrElse {
                 when (it) {
                     OppfolgingError.Forbidden -> throw StatusException(HttpStatusCode.Forbidden, "Manglet tilgang til å hente oppfølgingsenhet.")
@@ -42,7 +43,7 @@ class BrukerService(
                     OppfolgingError.NotFound -> null
                 }
             }
-        val manuellStatus = veilarboppfolgingClient.hentManuellStatus(fnr, accessToken)
+        val manuellStatus = veilarboppfolgingClient.hentManuellStatus(fnr, obo)
             .getOrElse {
                 when (it) {
                     OppfolgingError.Forbidden -> throw StatusException(HttpStatusCode.Forbidden, "Manglet tilgang til å hente hente manuell status.")
@@ -50,14 +51,14 @@ class BrukerService(
                     OppfolgingError.NotFound -> throw StatusException(HttpStatusCode.InternalServerError, "Fant ikke manuell status.")
                 }
             }
-        val personInfo = veilarbpersonClient.hentPersonInfo(fnr, accessToken)
+        val personInfo = veilarbpersonClient.hentPersonInfo(fnr, obo)
             .getOrElse {
                 when (it) {
                     PersonError.Forbidden -> throw StatusException(HttpStatusCode.Forbidden, "Manglet tilgang til å hente hente personinfo.")
                     PersonError.Error -> throw StatusException(HttpStatusCode.InternalServerError, "Klarte ikke hente hente personinfo.")
                 }
             }
-        val sisteVedtak = veilarbvedtaksstotteClient.hentSiste14AVedtak(fnr, accessToken)
+        val sisteVedtak = veilarbvedtaksstotteClient.hentSiste14AVedtak(fnr, obo)
             .getOrElse {
                 when (it) {
                     VedtakError.Forbidden -> throw StatusException(HttpStatusCode.Forbidden, "Mangler tilgang til å hente §14a-vedtak.")

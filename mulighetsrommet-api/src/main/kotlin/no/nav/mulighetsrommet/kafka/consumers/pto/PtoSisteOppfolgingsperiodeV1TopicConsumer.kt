@@ -5,6 +5,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.decodeFromJsonElement
 import no.nav.common.kafka.consumer.util.deserializer.Deserializers.stringDeserializer
+import no.nav.mulighetsrommet.api.clients.AccessType
 import no.nav.mulighetsrommet.api.clients.pdl.PdlClient
 import no.nav.mulighetsrommet.api.clients.pdl.PdlError
 import no.nav.mulighetsrommet.api.services.TiltakshistorikkService
@@ -45,7 +46,7 @@ class PtoSisteOppfolgingsperiodeV1TopicConsumer(
                     return // Oppfolging er ikke avsluttet - Noop
                 }
 
-                val identer = pdlClient.hentIdenter(sisteOppfolgingsperiode.aktorId, null)
+                val identer = pdlClient.hentIdenter(sisteOppfolgingsperiode.aktorId, AccessType.M2M)
                     .map { list -> list.map { it.ident } }
                     .getOrElse {
                         when (it) {

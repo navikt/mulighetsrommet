@@ -15,6 +15,7 @@ import io.ktor.client.request.*
 import io.ktor.http.*
 import io.prometheus.client.cache.caffeine.CacheMetricsCollector
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.clients.AccessType
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.domain.serializers.ZonedDateTimeSerializer
 import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
@@ -26,7 +27,7 @@ import java.util.concurrent.TimeUnit
 
 class VeilarboppfolgingClient(
     private val baseUrl: String,
-    private val tokenProvider: (accessToken: String?) -> String,
+    private val tokenProvider: (accessType: AccessType) -> String,
     clientEngine: HttpClientEngine = CIO.create(),
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
@@ -68,11 +69,11 @@ class VeilarboppfolgingClient(
         cacheMetrics.addCache("manuellStatusCache", manuellStatusCache)
     }
 
-    suspend fun hentOppfolgingsenhet(fnr: String, accessToken: String): Either<OppfolgingError, Oppfolgingsenhet> {
+    suspend fun hentOppfolgingsenhet(fnr: String, obo: AccessType.OBO): Either<OppfolgingError, Oppfolgingsenhet> {
         oppfolgingsenhetCache.getIfPresent(fnr)?.let { return@hentOppfolgingsenhet it.right() }
 
         val response = client.post("$baseUrl/v2/person/hent-oppfolgingsstatus") {
-            bearerAuth(tokenProvider.invoke(accessToken))
+            bearerAuth(tokenProvider.invoke(obo))
             header(HttpHeaders.ContentType, ContentType.Application.Json)
             setBody(HentOppfolgingsstatusRequest(fnr = fnr))
         }
@@ -96,8 +97,8 @@ class VeilarboppfolgingClient(
         }
     }
 
-    suspend fun erBrukerUnderOppfolging(fnr: String, accessToken: String?): Either<ErUnderOppfolgingError, Boolean> {
-        return hentGjeldendePeriode(fnr, accessToken)
+    suspend fun erBrukerUnderOppfolging(fnr: String, accessType: AccessType): Either<ErUnderOppfolgingError, Boolean> {
+        return hentGjeldendePeriode(fnr, accessType)
             .map { (it.sluttDato == null).right() }
             .getOrElse {
                 when (it) {
@@ -108,11 +109,11 @@ class VeilarboppfolgingClient(
             }
     }
 
-    private suspend fun hentGjeldendePeriode(fnr: String, accessToken: String?): Either<OppfolgingError, OppfolgingPeriodeMinimalDTO> {
+    private suspend fun hentGjeldendePeriode(fnr: String, accessType: AccessType): Either<OppfolgingError, OppfolgingPeriodeMinimalDTO> {
         gjeldendePeriodeCache.getIfPresent(fnr)?.let { return@hentGjeldendePeriode it.right() }
 
         val response = client.post("$baseUrl/v3/oppfolging/hent-gjeldende-periode") {
-            bearerAuth(tokenProvider.invoke(accessToken))
+            bearerAuth(tokenProvider.invoke(accessType))
             header(HttpHeaders.ContentType, ContentType.Application.Json)
             setBody(HentOppfolgingsstatusRequest(fnr = fnr))
         }
@@ -139,11 +140,11 @@ class VeilarboppfolgingClient(
         }
     }
 
-    suspend fun hentManuellStatus(fnr: String, accessToken: String): Either<OppfolgingError, ManuellStatusDto> {
+    suspend fun hentManuellStatus(fnr: String, obo: AccessType.OBO): Either<OppfolgingError, ManuellStatusDto> {
         manuellStatusCache.getIfPresent(fnr)?.let { return@hentManuellStatus it.right() }
 
         val response = client.post("$baseUrl/v3/manuell/hent-status") {
-            bearerAuth(tokenProvider.invoke(accessToken))
+            bearerAuth(tokenProvider.invoke(obo))
             header(HttpHeaders.ContentType, ContentType.Application.Json)
             setBody(ManuellStatusRequest(fnr = fnr))
         }

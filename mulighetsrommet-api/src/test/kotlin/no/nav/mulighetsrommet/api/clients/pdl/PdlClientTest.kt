@@ -6,6 +6,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.ktor.client.engine.mock.*
 import io.ktor.http.*
+import no.nav.mulighetsrommet.api.clients.AccessType
 import no.nav.mulighetsrommet.ktor.createMockEngine
 
 class PdlClientTest : FunSpec({
@@ -28,7 +29,7 @@ class PdlClientTest : FunSpec({
             ),
         )
 
-        pdlClient.hentIdenter("12345678910", null).shouldBeRight(emptyList())
+        pdlClient.hentIdenter("12345678910", AccessType.M2M).shouldBeRight(emptyList())
     }
 
     test("not_found gives NotFound") {
@@ -54,7 +55,7 @@ class PdlClientTest : FunSpec({
             ),
         )
 
-        pdlClient.hentIdenter("12345678910", null).shouldBeLeft(PdlError.NotFound)
+        pdlClient.hentIdenter("12345678910", AccessType.M2M).shouldBeLeft(PdlError.NotFound)
     }
 
     test("happy case") {
@@ -97,7 +98,7 @@ class PdlClientTest : FunSpec({
             ),
         )
 
-        val identer = pdlClient.hentIdenter("12345678910", null).shouldBeRight()
+        val identer = pdlClient.hentIdenter("12345678910", AccessType.M2M).shouldBeRight()
         identer shouldContainExactlyInAnyOrder listOf(
             IdentInformasjon(
                 ident = "12345678910",

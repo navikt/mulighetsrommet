@@ -15,6 +15,7 @@ import io.ktor.client.statement.*
 import io.ktor.http.*
 import kotlinx.serialization.Serializable
 import no.nav.common.client.pdl.Tema
+import no.nav.mulighetsrommet.api.clients.AccessType
 import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
 import org.slf4j.LoggerFactory
 import java.util.concurrent.TimeUnit
@@ -23,7 +24,7 @@ const val VALP_BEHANDLINGSNUMMER: String = "B450" // Team Valps behandlingsnumme
 
 class PdlClient(
     private val baseUrl: String,
-    private val tokenProvider: (accessToken: String?) -> String,
+    private val tokenProvider: (accessType: AccessType) -> String,
     clientEngine: HttpClientEngine = CIO.create(),
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
@@ -45,7 +46,7 @@ class PdlClient(
         .recordStats()
         .build()
 
-    suspend fun hentIdenter(ident: String, accessToken: String?): Either<PdlError, List<IdentInformasjon>> {
+    suspend fun hentIdenter(ident: String, accessType: AccessType): Either<PdlError, List<IdentInformasjon>> {
         pdlCache.getIfPresent(ident)?.let { return@hentIdenter it.right() }
 
         val response = graphqlRequest<GraphqlRequest.Ident, HentIdenterData>(
@@ -63,7 +64,7 @@ class PdlClient(
                 """.trimIndent(),
                 variables = GraphqlRequest.Ident(ident = ident),
             ),
-            accessToken = accessToken,
+            accessType = accessType,
         )
 
         return if (response.errors.isNotEmpty()) {
@@ -82,9 +83,9 @@ class PdlClient(
             .onRight { pdlCache.put(ident, it) }
     }
 
-    private suspend inline fun <reified T, reified V> graphqlRequest(req: GraphqlRequest<T>, accessToken: String?): GraphqlResponse<V> {
+    private suspend inline fun <reified T, reified V> graphqlRequest(req: GraphqlRequest<T>, accessType: AccessType): GraphqlResponse<V> {
         val response = client.post("$baseUrl/graphql") {
-            bearerAuth(tokenProvider.invoke(accessToken))
+            bearerAuth(tokenProvider.invoke(accessType))
             header(HttpHeaders.ContentType, ContentType.Application.Json)
             header("Behandlingsnummer", VALP_BEHANDLINGSNUMMER)
             header("Tema", Tema.GEN)

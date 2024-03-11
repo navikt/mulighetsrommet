@@ -6,6 +6,7 @@ import kotlinx.serialization.EncodeDefault
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.AdGruppeNavAnsattRolleMapping
+import no.nav.mulighetsrommet.api.clients.AccessType
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattRolle
@@ -45,7 +46,7 @@ class NavAnsattService(
     suspend fun getNavAnsattFromAzure(azureId: UUID): NavAnsattDto {
         val rolesDirectory = roles.associateBy { it.adGruppeId }
 
-        val roller = microsoftGraphService.getNavAnsattAdGrupper(azureId)
+        val roller = microsoftGraphService.getNavAnsattAdGrupper(azureId, AccessType.M2M)
             .filter { rolesDirectory.containsKey(it.id) }
             .map { rolesDirectory.getValue(it.id).rolle }
             .toSet()
@@ -55,7 +56,7 @@ class NavAnsattService(
             throw IllegalStateException("Ansatt med azureId=$azureId har ingen av de påkrevde rollene")
         }
 
-        val ansatt = microsoftGraphService.getNavAnsatt(azureId)
+        val ansatt = microsoftGraphService.getNavAnsatt(azureId, AccessType.M2M)
         return NavAnsattDto.fromAzureAdNavAnsatt(ansatt, roller)
     }
 
