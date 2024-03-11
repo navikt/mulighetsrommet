@@ -120,7 +120,11 @@ class ArenaAdapterService(
 
             val gjennomforing = tiltaksgjennomforinger.get(tiltaksgjennomforingMedAvtale.id, tx)!!
 
-            logUpdate(tx, DocumentClass.TILTAKSGJENNOMFORING, gjennomforing.id, gjennomforing)
+            if (previous?.tiltaksnummer == null) {
+                logTiltaksnummerHentetFraArena(tx, DocumentClass.TILTAKSGJENNOMFORING, gjennomforing.id, gjennomforing)
+            } else {
+                logUpdate(tx, DocumentClass.TILTAKSGJENNOMFORING, gjennomforing.id, gjennomforing)
+            }
 
             gjennomforing.avtaleId?.let { avtaleId ->
                 avtaler.setLeverandorUnderenhet(tx, avtaleId, gjennomforing.arrangor.organisasjonsnummer)
@@ -292,6 +296,21 @@ class ArenaAdapterService(
             documentClass,
             "Endret i Arena",
             "Arena",
+            id,
+        ) { Json.encodeToJsonElement(value) }
+    }
+
+    private inline fun <reified T> logTiltaksnummerHentetFraArena(
+        tx: TransactionalSession,
+        documentClass: DocumentClass,
+        id: UUID,
+        value: T,
+    ) {
+        endringshistorikk.logEndring(
+            tx,
+            documentClass,
+            "Oppdatert med tiltaksnummer fra Arena",
+            TILTAKSADMINISTRASJON_SYSTEM_BRUKER,
             id,
         ) { Json.encodeToJsonElement(value) }
     }
