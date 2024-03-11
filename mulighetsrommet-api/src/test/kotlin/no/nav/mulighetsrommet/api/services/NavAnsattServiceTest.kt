@@ -70,8 +70,6 @@ class NavAnsattServiceTest : FunSpec({
         engine = MockEngine { request ->
             if (request.method === HttpMethod.Post) {
                 return@MockEngine respondOk()
-            } else if (request.method === HttpMethod.Delete) {
-                return@MockEngine respondOk()
             }
 
             val query = request.url.parameters.getOrFail<String>("query")

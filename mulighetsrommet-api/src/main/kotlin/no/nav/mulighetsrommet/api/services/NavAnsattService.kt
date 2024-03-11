@@ -10,7 +10,6 @@ import no.nav.mulighetsrommet.api.clients.AccessType
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattRolle
-import no.nav.mulighetsrommet.api.domain.dto.Delete
 import no.nav.mulighetsrommet.api.domain.dto.Mutation
 import no.nav.mulighetsrommet.api.domain.dto.NavAnsattDto
 import no.nav.mulighetsrommet.api.domain.dto.SanityResponse
@@ -122,7 +121,7 @@ class NavAnsattService(
             return
         }
 
-        val result = sanityClient.mutate(mutations = ider.map { Mutation(Delete(it)) })
+        val result = sanityClient.mutate(mutations = ider.map { Mutation.delete(it) })
         if (result.status != HttpStatusCode.OK) {
             throw Exception("Klarte ikke slette Sanity-dokument: ${result.bodyAsText()}")
         }
@@ -187,7 +186,7 @@ class NavAnsattService(
             navn = "${ansatt.fornavn} ${ansatt.etternavn}",
         )
 
-        return Mutation(createOrReplace = sanityPatch)
+        return Mutation.createOrReplace(sanityPatch)
     }
 
     private fun upsertRedaktor(ansatt: NavAnsattDto, id: String): Mutation<SanityRedaktor> {
@@ -199,7 +198,7 @@ class NavAnsattService(
             navIdent = Slug(current = ansatt.navIdent.value),
             epost = Slug(current = ansatt.epost),
         )
-        return Mutation(createOrReplace = sanityPatch)
+        return Mutation.createOrReplace(sanityPatch)
     }
 
     private suspend fun upsertMutations(
