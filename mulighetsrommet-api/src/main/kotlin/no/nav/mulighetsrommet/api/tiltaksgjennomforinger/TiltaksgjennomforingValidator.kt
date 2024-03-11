@@ -156,15 +156,6 @@ class TiltaksgjennomforingValidator(
                         )
                     }
 
-                    if (dbo.antallPlasser != previous.antallPlasser) {
-                        add(
-                            ValidationError.of(
-                                TiltaksgjennomforingDbo::antallPlasser,
-                                "Antall plasser kan ikke endres når gjennomføringen er aktiv",
-                            ),
-                        )
-                    }
-
                     if (dbo.arrangorOrganisasjonsnummer != previous.arrangor.organisasjonsnummer) {
                         add(
                             ValidationError.of(
