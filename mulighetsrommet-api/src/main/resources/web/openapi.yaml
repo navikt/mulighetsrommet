@@ -2534,7 +2534,7 @@ components:
         innsoktDato:
           type: string
         sistEndretDato:
-         type: string
+          type: string
         aktivStatus:
           type: object
           properties:
@@ -3021,10 +3021,33 @@ components:
         kontaktpersoner:
           type: array
           items:
-            $ref: "#/components/schemas/VirksomhetKontaktperson"
+            $ref: "#/components/schemas/VeilederflateArrangorKontaktperson"
       required:
         - selskapsnavn
         - kontaktpersoner
+
+    VeilederflateArrangorKontaktperson:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        navn:
+          type: string
+        epost:
+          type: string
+        telefon:
+          type: string
+          nullable: true
+        beskrivelse:
+          type: string
+          nullable: true
+      required:
+        - id
+        - navn
+        - epost
+        - telefon
+        - beskrivelse
 
     VeilederflateKontaktinfoTiltaksansvarlig:
       type: object

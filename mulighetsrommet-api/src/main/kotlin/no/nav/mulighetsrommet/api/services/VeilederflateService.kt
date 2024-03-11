@@ -331,7 +331,15 @@ class VeilederflateService(
             virksomhetId = apiGjennomforing.arrangor.id,
             selskapsnavn = apiGjennomforing.arrangor.navn,
             organisasjonsnummer = apiGjennomforing.arrangor.organisasjonsnummer,
-            kontaktpersoner = apiGjennomforing.arrangor.kontaktpersoner,
+            kontaktpersoner = apiGjennomforing.arrangor.kontaktpersoner.map {
+                VeilederflateArrangorKontaktperson(
+                    id = it.id,
+                    navn = it.navn,
+                    epost = it.epost,
+                    telefon = it.telefon,
+                    beskrivelse = it.beskrivelse,
+                )
+            },
         )
 
         val kontaktpersoner = utledKontaktpersonerForEnhet(apiGjennomforing, enheter)

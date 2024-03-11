@@ -30,8 +30,6 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
           navn: "Ole Testesen",
           telefon: "12345678",
           epost: "test@example.com",
-          // TODO ikke eksportere VirksomhetKontaktperson til veilderflate
-          virksomhetId: "5dc9747c-83e1-4b07-afd7-bfbd9011eee4",
           beskrivelse: null,
         },
       ],
@@ -153,8 +151,6 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
           navn: "Ole Testesen",
           telefon: "12345678",
           epost: "test@example.com",
-          // TODO ikke eksportere VirksomhetKontaktperson til veilderflate
-          virksomhetId: "5dc9747c-83e1-4b07-afd7-bfbd9011eee4",
           beskrivelse: null,
         },
       ],
@@ -244,8 +240,6 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
           navn: "Ole Testesen",
           telefon: "12345678",
           epost: "test@example.com",
-          // TODO ikke eksportere VirksomhetKontaktperson til veilderflate
-          virksomhetId: "5dc9747c-83e1-4b07-afd7-bfbd9011eee4",
           beskrivelse: null,
         },
       ],
@@ -380,8 +374,6 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
           navn: "Ole Testesen",
           telefon: "12345678",
           epost: "test@example.com",
-          // TODO ikke eksportere VirksomhetKontaktperson til veilderflate
-          virksomhetId: "5dc9747c-83e1-4b07-afd7-bfbd9011eee4",
           beskrivelse: null,
         },
       ],

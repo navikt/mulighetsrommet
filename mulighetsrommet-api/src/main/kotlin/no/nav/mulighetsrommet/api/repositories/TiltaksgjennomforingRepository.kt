@@ -533,7 +533,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                     case when tvk.tiltaksgjennomforing_id is null then null::jsonb
                     else jsonb_build_object(
                         'id', tvk.virksomhet_kontaktperson_id,
-                        'virksomhetId', vk.virksomhet_id,
                         'navn', vk.navn,
                         'telefon', vk.telefon,
                         'epost', vk.epost,
@@ -683,7 +682,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
     private fun Row.toVeilederflateTiltaksgjennomforing(): VeilederflateTiltaksgjennomforing {
         val navEnheter = arrayOrNull<String?>("nav_enheter")?.asList()?.filterNotNull() ?: emptyList()
         val virksomhetKontaktpersoner = Json
-            .decodeFromString<List<VirksomhetKontaktperson?>>(string("virksomhet_kontaktpersoner"))
+            .decodeFromString<List<VeilederflateArrangorKontaktperson?>>(string("virksomhet_kontaktpersoner"))
             .filterNotNull()
 
         return VeilederflateTiltaksgjennomforing(
