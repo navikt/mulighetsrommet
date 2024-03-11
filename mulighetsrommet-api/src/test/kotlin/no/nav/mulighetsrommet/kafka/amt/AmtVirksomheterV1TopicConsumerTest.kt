@@ -10,7 +10,7 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
-import no.nav.mulighetsrommet.api.domain.dto.LagretVirksomhetDto
+import no.nav.mulighetsrommet.api.domain.dto.VirksomhetDto
 import no.nav.mulighetsrommet.api.repositories.VirksomhetRepository
 import no.nav.mulighetsrommet.api.services.VirksomhetService
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
@@ -35,7 +35,7 @@ class AmtVirksomheterV1TopicConsumerTest : FunSpec({
             overordnetEnhetOrganisasjonsnummer = amtVirksomhet.organisasjonsnummer,
         )
 
-        val underenhetDto = LagretVirksomhetDto(
+        val underenhetDto = VirksomhetDto(
             id = UUID.randomUUID(),
             navn = amtUnderenhet.navn,
             organisasjonsnummer = amtUnderenhet.organisasjonsnummer,
@@ -44,7 +44,7 @@ class AmtVirksomheterV1TopicConsumerTest : FunSpec({
             poststed = "Andeby",
         )
 
-        val virksomhetDto = LagretVirksomhetDto(
+        val virksomhetDto = VirksomhetDto(
             id = UUID.randomUUID(),
             organisasjonsnummer = amtVirksomhet.organisasjonsnummer,
             navn = amtVirksomhet.navn,

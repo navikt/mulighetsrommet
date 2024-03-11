@@ -1,10 +1,10 @@
 import {
   Avtalestatus,
-  LagretVirksomhet,
   NavEnhet,
   NavEnhetType,
   TiltaksgjennomforingStatus,
   Tiltakstype,
+  Virksomhet,
 } from "mulighetsrommet-api-client";
 
 export const TILTAKSGJENNOMFORING_STATUS_OPTIONS: {
@@ -83,7 +83,7 @@ export const tiltakstypeOptions = (tiltakstyper: Tiltakstype[]) => {
   );
 };
 
-export const virksomhetOptions = (virksomheter: LagretVirksomhet[]) => {
+export const virksomhetOptions = (virksomheter: Virksomhet[]) => {
   return virksomheter.sort().map((virksomhet) => ({
     label: virksomhet.navn,
     value: virksomhet.organisasjonsnummer,

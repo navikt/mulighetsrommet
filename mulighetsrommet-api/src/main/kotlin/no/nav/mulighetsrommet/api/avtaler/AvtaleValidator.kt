@@ -9,7 +9,7 @@ import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.domain.dbo.AvtaleDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dto.AvtaleAdminDto
-import no.nav.mulighetsrommet.api.domain.dto.LagretVirksomhetDto
+import no.nav.mulighetsrommet.api.domain.dto.VirksomhetDto
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.repositories.VirksomhetRepository
 import no.nav.mulighetsrommet.api.routes.v1.responses.ValidationError
@@ -93,7 +93,7 @@ class AvtaleValidator(
                     gjennomforinger.forEach { gjennomforing ->
                         val arrangor = gjennomforing.arrangor.id
                         if (arrangor !in dbo.leverandorUnderenheter) {
-                            val virksomhet: LagretVirksomhetDto = virksomheter.getById(arrangor)
+                            val virksomhet: VirksomhetDto = virksomheter.getById(arrangor)
                             add(
                                 ValidationError.of(
                                     AvtaleDbo::leverandorUnderenheter,

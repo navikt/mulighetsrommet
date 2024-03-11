@@ -10,7 +10,7 @@ import no.nav.mulighetsrommet.api.domain.dbo.AvtaleDbo
 import no.nav.mulighetsrommet.api.domain.dto.AvtaleAdminDto
 import no.nav.mulighetsrommet.api.domain.dto.AvtaleNotificationDto
 import no.nav.mulighetsrommet.api.domain.dto.EndringshistorikkDto
-import no.nav.mulighetsrommet.api.domain.dto.LagretVirksomhetDto
+import no.nav.mulighetsrommet.api.domain.dto.VirksomhetDto
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.routes.v1.AvtaleRequest
@@ -91,7 +91,7 @@ class AvtaleService(
             }
     }
 
-    private suspend fun syncVirksomheterFromBrreg(request: AvtaleRequest): Either<List<ValidationError>, Pair<LagretVirksomhetDto, List<LagretVirksomhetDto>>> =
+    private suspend fun syncVirksomheterFromBrreg(request: AvtaleRequest): Either<List<ValidationError>, Pair<VirksomhetDto, List<VirksomhetDto>>> =
         either {
             val leverandor = syncVirksomhetFromBrreg(request.leverandorOrganisasjonsnummer).bind()
             val underenheter = request.leverandorUnderenheter.mapOrAccumulate({ e1, e2 -> e1 + e2 }) {
@@ -100,7 +100,7 @@ class AvtaleService(
             Pair(leverandor, underenheter)
         }
 
-    private suspend fun syncVirksomhetFromBrreg(orgnr: String): Either<List<ValidationError>, LagretVirksomhetDto> {
+    private suspend fun syncVirksomhetFromBrreg(orgnr: String): Either<List<ValidationError>, VirksomhetDto> {
         return virksomhetService
             .getOrSyncVirksomhetFromBrreg(orgnr)
             .mapLeft {

@@ -16,7 +16,7 @@ import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
 import no.nav.mulighetsrommet.api.domain.dto.AvtaleAdminDto
 import no.nav.mulighetsrommet.api.domain.dto.Kontorstruktur
-import no.nav.mulighetsrommet.api.domain.dto.LagretVirksomhetDto
+import no.nav.mulighetsrommet.api.domain.dto.VirksomhetDto
 import no.nav.mulighetsrommet.api.domain.dto.VirksomhetKontaktperson
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
@@ -532,21 +532,21 @@ class AvtaleRepositoryTest : FunSpec({
     context("Sortering") {
         val avtaler = AvtaleRepository(database.db)
 
-        val virksomhetA = LagretVirksomhetDto(
+        val virksomhetA = VirksomhetDto(
             id = UUID.randomUUID(),
             navn = "alvdal",
             organisasjonsnummer = "987654321",
             postnummer = null,
             poststed = null,
         )
-        val virksomhetB = LagretVirksomhetDto(
+        val virksomhetB = VirksomhetDto(
             id = UUID.randomUUID(),
             navn = "bjarne",
             organisasjonsnummer = "123456789",
             postnummer = null,
             poststed = null,
         )
-        val virksomhetC = LagretVirksomhetDto(
+        val virksomhetC = VirksomhetDto(
             id = UUID.randomUUID(),
             navn = "chris",
             organisasjonsnummer = "999888777",

@@ -13,7 +13,7 @@ import io.mockk.*
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattDbo
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
-import no.nav.mulighetsrommet.api.domain.dto.LagretVirksomhetDto
+import no.nav.mulighetsrommet.api.domain.dto.VirksomhetDto
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.repositories.DeltakerRepository
@@ -50,7 +50,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
         }
 
         coEvery { virksomhetService.getOrSyncHovedenhetFromBrreg(any()) } answers {
-            LagretVirksomhetDto(
+            VirksomhetDto(
                 id = UUID.randomUUID(),
                 organisasjonsnummer = firstArg<String>(),
                 navn = "Virksomhet",

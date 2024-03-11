@@ -10,8 +10,8 @@ import no.nav.mulighetsrommet.api.clients.pdl.IdentGruppe
 import no.nav.mulighetsrommet.api.clients.pdl.IdentInformasjon
 import no.nav.mulighetsrommet.api.clients.pdl.PdlClient
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
-import no.nav.mulighetsrommet.api.domain.dto.LagretVirksomhetDto
 import no.nav.mulighetsrommet.api.domain.dto.TiltakshistorikkDto
+import no.nav.mulighetsrommet.api.domain.dto.VirksomhetDto
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.repositories.TiltakshistorikkRepository
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
@@ -69,7 +69,7 @@ class TiltakshistorikkServiceTest : FunSpec({
 
     test("henter historikk for bruker basert på person id med arrangørnavn") {
         coEvery { virksomhetService.getOrSyncHovedenhetFromBrreg(Fixtures.Virksomhet.underenhet1.organisasjonsnummer) } returns Fixtures.Virksomhet.underenhet1.right()
-        coEvery { virksomhetService.getOrSyncHovedenhetFromBrreg(tiltakshistorikkIndividuell.arrangorOrganisasjonsnummer) } returns LagretVirksomhetDto(
+        coEvery { virksomhetService.getOrSyncHovedenhetFromBrreg(tiltakshistorikkIndividuell.arrangorOrganisasjonsnummer) } returns VirksomhetDto(
             id = UUID.randomUUID(),
             navn = "Bedriftsnavn 2",
             organisasjonsnummer = tiltakshistorikkIndividuell.arrangorOrganisasjonsnummer,

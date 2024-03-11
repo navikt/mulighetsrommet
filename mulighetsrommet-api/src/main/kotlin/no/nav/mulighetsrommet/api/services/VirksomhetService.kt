@@ -11,7 +11,7 @@ import no.nav.mulighetsrommet.api.clients.brreg.BrregClient
 import no.nav.mulighetsrommet.api.clients.brreg.BrregError
 import no.nav.mulighetsrommet.api.domain.dbo.toOverordnetEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dto.BrregVirksomhetDto
-import no.nav.mulighetsrommet.api.domain.dto.LagretVirksomhetDto
+import no.nav.mulighetsrommet.api.domain.dto.VirksomhetDto
 import no.nav.mulighetsrommet.api.domain.dto.VirksomhetKontaktperson
 import no.nav.mulighetsrommet.api.repositories.VirksomhetRepository
 import no.nav.mulighetsrommet.api.routes.v1.responses.BadRequest
@@ -39,11 +39,11 @@ class VirksomhetService(
         cacheMetrics.addCache("brregServiceCache", brregCache)
     }
 
-    suspend fun getOrSyncHovedenhetFromBrreg(orgnr: String): Either<BrregError, LagretVirksomhetDto> {
+    suspend fun getOrSyncHovedenhetFromBrreg(orgnr: String): Either<BrregError, VirksomhetDto> {
         return virksomhetRepository.get(orgnr)?.right() ?: syncHovedenhetFromBrreg(orgnr)
     }
 
-    suspend fun syncHovedenhetFromBrreg(orgnr: String): Either<BrregError, LagretVirksomhetDto> {
+    suspend fun syncHovedenhetFromBrreg(orgnr: String): Either<BrregError, VirksomhetDto> {
         log.info("Synkroniserer hovedenhet fra brreg orgnr=$orgnr")
         return getVirksomhetFromBrreg(orgnr)
             .flatMap { virksomhet ->
@@ -66,11 +66,11 @@ class VirksomhetService(
             }
     }
 
-    suspend fun getOrSyncVirksomhetFromBrreg(orgnr: String): Either<BrregError, LagretVirksomhetDto> {
+    suspend fun getOrSyncVirksomhetFromBrreg(orgnr: String): Either<BrregError, VirksomhetDto> {
         return virksomhetRepository.get(orgnr)?.right() ?: syncVirksomhetFromBrreg(orgnr)
     }
 
-    private suspend fun syncVirksomhetFromBrreg(orgnr: String): Either<BrregError, LagretVirksomhetDto> {
+    private suspend fun syncVirksomhetFromBrreg(orgnr: String): Either<BrregError, VirksomhetDto> {
         log.info("Synkroniserer enhet fra brreg orgnr=$orgnr")
         return getVirksomhetFromBrreg(orgnr)
             .map { virksomhet ->

@@ -18,15 +18,15 @@ data class BrregVirksomhetDto(
     val slettetDato: LocalDate? = null,
 )
 
-// TODO Mulig virksometene burde vært en sealed class slik at vi enklere visste om det var en hovedenhet eller underenhet?
+// TODO modellere om klasse til å passe bedre med domenet. Kalle det for en "ArrangorDto" i stedet?
 @Serializable
-data class LagretVirksomhetDto(
+data class VirksomhetDto(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     val organisasjonsnummer: String,
     val navn: String,
     val overordnetEnhet: String? = null,
-    val underenheter: List<LagretVirksomhetDto>? = null,
+    val underenheter: List<VirksomhetDto>? = null,
     val postnummer: String?,
     val poststed: String?,
     @Serializable(with = LocalDateSerializer::class)

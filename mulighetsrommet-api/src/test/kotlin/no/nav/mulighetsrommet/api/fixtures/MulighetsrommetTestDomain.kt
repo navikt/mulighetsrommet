@@ -5,7 +5,7 @@ import no.nav.mulighetsrommet.api.domain.dbo.AvtaleDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
-import no.nav.mulighetsrommet.api.domain.dto.LagretVirksomhetDto
+import no.nav.mulighetsrommet.api.domain.dto.VirksomhetDto
 import no.nav.mulighetsrommet.api.repositories.*
 import no.nav.mulighetsrommet.database.FlywayDatabaseAdapter
 import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
@@ -14,7 +14,7 @@ import java.util.*
 // TODO samle alle fixtures?
 object Fixtures {
     object Virksomhet {
-        val hovedenhet = LagretVirksomhetDto(
+        val hovedenhet = VirksomhetDto(
             id = UUID.randomUUID(),
             organisasjonsnummer = "123456789",
             navn = "Hovedenhet AS",
@@ -22,7 +22,7 @@ object Fixtures {
             poststed = "Oslo",
         )
 
-        val underenhet1 = LagretVirksomhetDto(
+        val underenhet1 = VirksomhetDto(
             id = UUID.randomUUID(),
             organisasjonsnummer = "976663934",
             overordnetEnhet = "123456789",
@@ -31,7 +31,7 @@ object Fixtures {
             poststed = "Oslo",
         )
 
-        val underenhet2 = LagretVirksomhetDto(
+        val underenhet2 = VirksomhetDto(
             id = UUID.randomUUID(),
             organisasjonsnummer = "890765789",
             overordnetEnhet = "123456789",
@@ -45,7 +45,7 @@ object Fixtures {
 data class MulighetsrommetTestDomain(
     val enheter: List<NavEnhetDbo> = listOf(NavEnhetFixtures.IT),
     val ansatte: List<NavAnsattDbo> = listOf(NavAnsattFixture.ansatt1, NavAnsattFixture.ansatt2),
-    val virksomheter: List<LagretVirksomhetDto> = listOf(
+    val virksomheter: List<VirksomhetDto> = listOf(
         Fixtures.Virksomhet.hovedenhet,
         Fixtures.Virksomhet.underenhet1,
         Fixtures.Virksomhet.underenhet2,

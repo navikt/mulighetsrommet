@@ -3,8 +3,8 @@ package no.nav.mulighetsrommet.api.repositories
 import kotliquery.Row
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.domain.dbo.OverordnetEnhetDbo
-import no.nav.mulighetsrommet.api.domain.dto.LagretVirksomhetDto
 import no.nav.mulighetsrommet.api.domain.dto.BrregVirksomhetDto
+import no.nav.mulighetsrommet.api.domain.dto.VirksomhetDto
 import no.nav.mulighetsrommet.api.domain.dto.VirksomhetKontaktperson
 import no.nav.mulighetsrommet.api.utils.VirksomhetTil
 import no.nav.mulighetsrommet.database.Database
@@ -69,7 +69,7 @@ class VirksomhetRepository(private val db: Database) {
     }
 
     /** Upserter kun enheten og tar ikke hensyn til underenheter */
-    fun upsert(virksomhet: LagretVirksomhetDto) {
+    fun upsert(virksomhet: VirksomhetDto) {
         @Language("PostgreSQL")
         val query = """
             insert into virksomhet(id, organisasjonsnummer, navn, overordnet_enhet, slettet_dato, postnummer, poststed)
@@ -125,7 +125,7 @@ class VirksomhetRepository(private val db: Database) {
         til: VirksomhetTil? = null,
         sok: String? = null,
         utenlandsk: Boolean? = null,
-    ): List<LagretVirksomhetDto> {
+    ): List<VirksomhetDto> {
         val join = when (til) {
             VirksomhetTil.AVTALE -> {
                 "inner join avtale on avtale.leverandor_virksomhet_id = v.id"
@@ -163,7 +163,7 @@ class VirksomhetRepository(private val db: Database) {
             .let { db.run(it) }
     }
 
-    fun get(orgnr: String): LagretVirksomhetDto? {
+    fun get(orgnr: String): VirksomhetDto? {
         @Language("PostgreSQL")
         val selectVirksomhet = """
             select
@@ -209,7 +209,7 @@ class VirksomhetRepository(private val db: Database) {
         }
     }
 
-    fun getById(id: UUID): LagretVirksomhetDto {
+    fun getById(id: UUID): VirksomhetDto {
         @Language("PostgreSQL")
         val query = """
             select
@@ -322,7 +322,7 @@ class VirksomhetRepository(private val db: Database) {
             .let { db.run(it) }
     }
 
-    private fun Row.toVirksomhetDto() = LagretVirksomhetDto(
+    private fun Row.toVirksomhetDto() = VirksomhetDto(
         id = uuid("id"),
         organisasjonsnummer = string("organisasjonsnummer"),
         navn = string("navn"),

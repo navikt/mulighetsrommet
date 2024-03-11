@@ -1,9 +1,5 @@
 import { Button } from "@navikt/ds-react";
-import {
-  BrregVirksomhet,
-  LagretVirksomhet,
-  VirksomhetKontaktperson,
-} from "mulighetsrommet-api-client";
+import { BrregVirksomhet, Virksomhet, VirksomhetKontaktperson } from "mulighetsrommet-api-client";
 import { ControlledSokeSelect } from "mulighetsrommet-frontend-common/components/ControlledSokeSelect";
 import { useRef, useState } from "react";
 import { DeepPartial, useFormContext } from "react-hook-form";
@@ -101,10 +97,7 @@ export function AvtaleArrangorSkjema({ readOnly }: Props) {
   );
 }
 
-function getLeverandorOptions(
-  virksomheter: BrregVirksomhet[],
-  leverandor: LagretVirksomhet | undefined,
-) {
+function getLeverandorOptions(virksomheter: BrregVirksomhet[], leverandor: Virksomhet | undefined) {
   const options = virksomheter
     .sort((a, b) => a.navn.localeCompare(b.navn))
     .map((enhet) => ({

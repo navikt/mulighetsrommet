@@ -1350,7 +1350,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/LagretVirksomhet"
+                  $ref: "#/components/schemas/Virksomhet"
 
   /api/v1/internal/virksomhet/sok:
     get:
@@ -1392,7 +1392,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/LagretVirksomhet"
+                $ref: "#/components/schemas/Virksomhet"
 
   /api/v1/internal/virksomhet/{orgnr}:
     post:
@@ -1412,7 +1412,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/LagretVirksomhet"
+                $ref: "#/components/schemas/Virksomhet"
 
   /api/v1/internal/virksomhet/{id}/kontaktpersoner:
     get:
@@ -3092,7 +3092,7 @@ components:
         - organisasjonsnummer
         - navn
 
-    LagretVirksomhet:
+    Virksomhet:
       type: object
       properties:
         id:
@@ -3102,23 +3102,23 @@ components:
           type: string
         navn:
           type: string
-        slettetDato:
-          type: string
-          format: date
-          nullable: true
         overordnetEnhet:
           type: string
           nullable: true
         underenheter:
           type: array
           items:
-            $ref: "#/components/schemas/LagretVirksomhet"
+            $ref: "#/components/schemas/Virksomhet"
           nullable: true
         postnummer:
           type: string
           nullable: true
         poststed:
           type: string
+          nullable: true
+        slettetDato:
+          type: string
+          format: date
           nullable: true
       required:
         - id

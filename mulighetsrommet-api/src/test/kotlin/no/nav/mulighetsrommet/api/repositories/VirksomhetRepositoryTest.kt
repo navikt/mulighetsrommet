@@ -10,8 +10,8 @@ import io.kotest.matchers.shouldBe
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dbo.OverordnetEnhetDbo
-import no.nav.mulighetsrommet.api.domain.dto.LagretVirksomhetDto
 import no.nav.mulighetsrommet.api.domain.dto.BrregVirksomhetDto
+import no.nav.mulighetsrommet.api.domain.dto.VirksomhetDto
 import no.nav.mulighetsrommet.api.domain.dto.VirksomhetKontaktperson
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.utils.VirksomhetTil
@@ -31,7 +31,7 @@ class VirksomhetRepositoryTest : FunSpec({
         test("søk og filtrering på virksomheter") {
             val virksomhetRepository = VirksomhetRepository(database.db)
 
-            val overordnet = LagretVirksomhetDto(
+            val overordnet = VirksomhetDto(
                 id = UUID.randomUUID(),
                 navn = "REMA 1000 AS",
                 organisasjonsnummer = "982254604",
@@ -40,7 +40,7 @@ class VirksomhetRepositoryTest : FunSpec({
             )
             virksomhetRepository.upsert(overordnet)
 
-            val underenhet1 = LagretVirksomhetDto(
+            val underenhet1 = VirksomhetDto(
                 id = UUID.randomUUID(),
                 organisasjonsnummer = "880907522",
                 overordnetEnhet = overordnet.organisasjonsnummer,
@@ -50,7 +50,7 @@ class VirksomhetRepositoryTest : FunSpec({
             )
             virksomhetRepository.upsert(underenhet1)
 
-            val underenhet2 = LagretVirksomhetDto(
+            val underenhet2 = VirksomhetDto(
                 id = UUID.randomUUID(),
                 organisasjonsnummer = "912704327",
                 overordnetEnhet = overordnet.organisasjonsnummer,
@@ -60,7 +60,7 @@ class VirksomhetRepositoryTest : FunSpec({
             )
             virksomhetRepository.upsert(underenhet2)
 
-            val utenlandsk = LagretVirksomhetDto(
+            val utenlandsk = VirksomhetDto(
                 id = UUID.randomUUID(),
                 organisasjonsnummer = "100000001",
                 navn = "X - Utenlandsk virksomhet",
@@ -306,7 +306,7 @@ class VirksomhetRepositoryTest : FunSpec({
         test("crud") {
             val virksomhetRepository = VirksomhetRepository(database.db)
             val virksomhetId = UUID.randomUUID()
-            val virksomhet = LagretVirksomhetDto(
+            val virksomhet = VirksomhetDto(
                 id = virksomhetId,
                 navn = "REMA 1000 AS",
                 organisasjonsnummer = "982254604",
