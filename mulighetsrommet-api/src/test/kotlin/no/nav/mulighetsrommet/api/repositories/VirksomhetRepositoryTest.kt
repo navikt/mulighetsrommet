@@ -276,8 +276,8 @@ class VirksomhetRepositoryTest : FunSpec({
         }
 
         test("Filter på avtale eller gjennomforing") {
-            val hovedenhet = Fixtures.Virksomhet.hovedenhet
-            val underenhet = Fixtures.Virksomhet.underenhet1
+            val hovedenhet = VirksomhetFixtures.hovedenhet
+            val underenhet = VirksomhetFixtures.underenhet1
 
             MulighetsrommetTestDomain(
                 virksomheter = listOf(hovedenhet, underenhet),

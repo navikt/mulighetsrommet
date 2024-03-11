@@ -21,21 +21,21 @@ class TiltaksgjennomforingRoutesTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(databaseConfig))
     val domain = MulighetsrommetTestDomain(
         enheter = listOf(NavEnhetFixtures.IT, NavEnhetFixtures.Oslo, NavEnhetFixtures.Sagene),
-        virksomheter = listOf(Fixtures.Virksomhet.hovedenhet, Fixtures.Virksomhet.underenhet1),
+        virksomheter = listOf(VirksomhetFixtures.hovedenhet, VirksomhetFixtures.underenhet1),
         avtaler = listOf(
             AvtaleFixtures.oppfolging.copy(
                 navEnheter = listOf(
                     NavEnhetFixtures.Sagene.enhetsnummer,
                     NavEnhetFixtures.Oslo.enhetsnummer,
                 ),
-                leverandorUnderenheter = listOf(Fixtures.Virksomhet.underenhet1.id),
+                leverandorUnderenheter = listOf(VirksomhetFixtures.underenhet1.id),
             ),
             AvtaleFixtures.avtaleForVta.copy(
                 navEnheter = listOf(
                     NavEnhetFixtures.Sagene.enhetsnummer,
                     NavEnhetFixtures.Oslo.enhetsnummer,
                 ),
-                leverandorUnderenheter = listOf(Fixtures.Virksomhet.underenhet1.id),
+                leverandorUnderenheter = listOf(VirksomhetFixtures.underenhet1.id),
             ),
         ),
     )

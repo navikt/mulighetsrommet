@@ -12,10 +12,10 @@ import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dbo.AvtaleDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
-import no.nav.mulighetsrommet.api.fixtures.Fixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
+import no.nav.mulighetsrommet.api.fixtures.VirksomhetFixtures
 import no.nav.mulighetsrommet.api.repositories.*
 import no.nav.mulighetsrommet.api.routes.v1.responses.ValidationError
 import no.nav.mulighetsrommet.api.services.NavEnhetService
@@ -63,9 +63,9 @@ class AvtaleValidatorTest : FunSpec({
         ),
         ansatte = listOf(),
         virksomheter = listOf(
-            Fixtures.Virksomhet.hovedenhet,
-            Fixtures.Virksomhet.underenhet1,
-            Fixtures.Virksomhet.underenhet2,
+            VirksomhetFixtures.hovedenhet,
+            VirksomhetFixtures.underenhet1,
+            VirksomhetFixtures.underenhet2,
         ),
         tiltakstyper = listOf(
             TiltakstypeFixtures.AFT,
@@ -80,8 +80,8 @@ class AvtaleValidatorTest : FunSpec({
         id = UUID.randomUUID(),
         navn = "Avtale",
         tiltakstypeId = TiltakstypeFixtures.AFT.id,
-        leverandorVirksomhetId = Fixtures.Virksomhet.hovedenhet.id,
-        leverandorUnderenheter = listOf(Fixtures.Virksomhet.underenhet1.id),
+        leverandorVirksomhetId = VirksomhetFixtures.hovedenhet.id,
+        leverandorUnderenheter = listOf(VirksomhetFixtures.underenhet1.id),
         leverandorKontaktpersonId = null,
         avtalenummer = "123456",
         startDato = LocalDate.now().minusDays(1),
@@ -194,8 +194,8 @@ class AvtaleValidatorTest : FunSpec({
                 id = avtaleDbo.id,
                 navn = "Nytt navn",
                 tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
-                leverandorVirksomhetId = Fixtures.Virksomhet.underenhet1.id,
-                leverandorUnderenheter = listOf(Fixtures.Virksomhet.underenhet1.id),
+                leverandorVirksomhetId = VirksomhetFixtures.underenhet1.id,
+                leverandorUnderenheter = listOf(VirksomhetFixtures.underenhet1.id),
                 leverandorKontaktpersonId = null,
                 avtalenummer = "123456",
                 startDato = LocalDate.now(),
@@ -234,7 +234,7 @@ class AvtaleValidatorTest : FunSpec({
                 gjennomforinger.upsert(
                     TiltaksgjennomforingFixtures.Oppfolging1.copy(
                         avtaleId = avtaleDbo.id,
-                        arrangorVirksomhetId = Fixtures.Virksomhet.underenhet2.id,
+                        arrangorVirksomhetId = VirksomhetFixtures.underenhet2.id,
                         navRegion = "0400",
                         navEnheter = listOf("0502"),
                     ),

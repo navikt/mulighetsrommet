@@ -56,7 +56,7 @@ class TiltakshistorikkServiceTest : FunSpec({
 
     beforeSpec {
         MulighetsrommetTestDomain(
-            virksomheter = listOf(Fixtures.Virksomhet.hovedenhet, Fixtures.Virksomhet.underenhet1),
+            virksomheter = listOf(VirksomhetFixtures.hovedenhet, VirksomhetFixtures.underenhet1),
             tiltakstyper = listOf(tiltakstype, tiltakstypeIndividuell),
             avtaler = listOf(AvtaleFixtures.oppfolging),
             gjennomforinger = listOf(tiltaksgjennomforing),
@@ -68,7 +68,7 @@ class TiltakshistorikkServiceTest : FunSpec({
     }
 
     test("henter historikk for bruker basert på person id med arrangørnavn") {
-        coEvery { virksomhetService.getOrSyncHovedenhetFromBrreg(Fixtures.Virksomhet.underenhet1.organisasjonsnummer) } returns Fixtures.Virksomhet.underenhet1.right()
+        coEvery { virksomhetService.getOrSyncHovedenhetFromBrreg(VirksomhetFixtures.underenhet1.organisasjonsnummer) } returns VirksomhetFixtures.underenhet1.right()
         coEvery { virksomhetService.getOrSyncHovedenhetFromBrreg(tiltakshistorikkIndividuell.arrangorOrganisasjonsnummer) } returns VirksomhetDto(
             id = UUID.randomUUID(),
             navn = "Bedriftsnavn 2",
@@ -95,8 +95,8 @@ class TiltakshistorikkServiceTest : FunSpec({
                 tiltaksnavn = tiltaksgjennomforing.navn,
                 tiltakstype = tiltakstype.navn,
                 arrangor = TiltakshistorikkDto.Arrangor(
-                    organisasjonsnummer = Fixtures.Virksomhet.underenhet1.organisasjonsnummer,
-                    navn = Fixtures.Virksomhet.underenhet1.navn,
+                    organisasjonsnummer = VirksomhetFixtures.underenhet1.organisasjonsnummer,
+                    navn = VirksomhetFixtures.underenhet1.navn,
                 ),
             ),
             TiltakshistorikkDto(

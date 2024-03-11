@@ -160,7 +160,7 @@ class ArenaAdapterServiceTest : FunSpec({
 
         test("CRUD") {
             val domain = MulighetsrommetTestDomain(
-                virksomheter = listOf(Fixtures.Virksomhet.hovedenhet),
+                virksomheter = listOf(VirksomhetFixtures.hovedenhet),
                 tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
                 avtaler = listOf(),
                 gjennomforinger = listOf(),
@@ -173,7 +173,7 @@ class ArenaAdapterServiceTest : FunSpec({
                 .value("navn").isEqualTo(avtale.navn)
                 .value("tiltakstype_id").isEqualTo(avtale.tiltakstypeId)
                 .value("avtalenummer").isEqualTo(avtale.avtalenummer)
-                .value("leverandor_virksomhet_id").isEqualTo(Fixtures.Virksomhet.hovedenhet.id)
+                .value("leverandor_virksomhet_id").isEqualTo(VirksomhetFixtures.hovedenhet.id)
                 .value("start_dato").isEqualTo(avtale.startDato)
                 .value("slutt_dato").isEqualTo(avtale.sluttDato)
                 .value("arena_ansvarlig_enhet").isEqualTo(avtale.arenaAnsvarligEnhet)
@@ -328,7 +328,7 @@ class ArenaAdapterServiceTest : FunSpec({
                 .value("navn").isEqualTo(tiltaksgjennomforing.navn)
                 .value("tiltakstype_id").isEqualTo(TiltakstypeFixtures.Oppfolging.id)
                 .value("tiltaksnummer").isEqualTo(tiltaksgjennomforing.tiltaksnummer)
-                .value("arrangor_virksomhet_id").isEqualTo(Fixtures.Virksomhet.underenhet1.id)
+                .value("arrangor_virksomhet_id").isEqualTo(VirksomhetFixtures.underenhet1.id)
                 .value("start_dato").isEqualTo(tiltaksgjennomforing.startDato)
                 .value("slutt_dato").isEqualTo(tiltaksgjennomforing.sluttDato)
                 .value("deltidsprosent").isEqualTo(tiltaksgjennomforing.deltidsprosent)
@@ -392,7 +392,7 @@ class ArenaAdapterServiceTest : FunSpec({
             val gjennomforing = TiltaksgjennomforingFixtures.Oppfolging1
 
             MulighetsrommetTestDomain(
-                virksomheter = listOf(Fixtures.Virksomhet.hovedenhet, Fixtures.Virksomhet.underenhet1),
+                virksomheter = listOf(VirksomhetFixtures.hovedenhet, VirksomhetFixtures.underenhet1),
                 tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
                 avtaler = listOf(AvtaleFixtures.oppfolging),
                 gjennomforinger = listOf(gjennomforing),
@@ -401,7 +401,7 @@ class ArenaAdapterServiceTest : FunSpec({
             service.upsertTiltaksgjennomforing(
                 toArenaTiltaksgjennomforingDbo(
                     gjennomforing.copy(navn = "Endret navn"),
-                    Fixtures.Virksomhet.underenhet1.organisasjonsnummer,
+                    VirksomhetFixtures.underenhet1.organisasjonsnummer,
                     AVSLUTTET,
                     "2024#1",
                 ),
@@ -480,9 +480,9 @@ class ArenaAdapterServiceTest : FunSpec({
 
             avtaler.get(AvtaleFixtures.oppfolging.id).shouldNotBeNull().leverandor.underenheter shouldBe listOf(
                 AvtaleAdminDto.LeverandorUnderenhet(
-                    id = Fixtures.Virksomhet.underenhet1.id,
-                    organisasjonsnummer = Fixtures.Virksomhet.underenhet1.organisasjonsnummer,
-                    navn = Fixtures.Virksomhet.underenhet1.navn,
+                    id = VirksomhetFixtures.underenhet1.id,
+                    organisasjonsnummer = VirksomhetFixtures.underenhet1.organisasjonsnummer,
+                    navn = VirksomhetFixtures.underenhet1.navn,
                     slettet = false,
                 ),
             )

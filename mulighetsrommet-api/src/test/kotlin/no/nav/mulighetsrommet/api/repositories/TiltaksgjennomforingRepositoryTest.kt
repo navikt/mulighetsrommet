@@ -46,9 +46,9 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
 
     val domain = MulighetsrommetTestDomain(
         virksomheter = listOf(
-            Fixtures.Virksomhet.hovedenhet,
-            Fixtures.Virksomhet.underenhet1,
-            Fixtures.Virksomhet.underenhet2,
+            VirksomhetFixtures.hovedenhet,
+            VirksomhetFixtures.underenhet1,
+            VirksomhetFixtures.underenhet2,
         ),
         avtaler = listOf(AvtaleFixtures.oppfolging),
     )
@@ -78,9 +78,9 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 it.navn shouldBe Oppfolging1.navn
                 it.tiltaksnummer shouldBe null
                 it.arrangor shouldBe TiltaksgjennomforingAdminDto.Arrangor(
-                    id = Fixtures.Virksomhet.underenhet1.id,
-                    organisasjonsnummer = Fixtures.Virksomhet.underenhet1.organisasjonsnummer,
-                    navn = Fixtures.Virksomhet.underenhet1.navn,
+                    id = VirksomhetFixtures.underenhet1.id,
+                    organisasjonsnummer = VirksomhetFixtures.underenhet1.organisasjonsnummer,
+                    navn = VirksomhetFixtures.underenhet1.navn,
                     slettet = false,
                     kontaktpersoner = emptyList(),
                 )
@@ -157,9 +157,9 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 )
                 it.tiltaksnummer shouldBe "2023#1"
                 it.arrangor shouldBe TiltaksgjennomforingAdminDto.Arrangor(
-                    id = Fixtures.Virksomhet.hovedenhet.id,
-                    organisasjonsnummer = Fixtures.Virksomhet.hovedenhet.organisasjonsnummer,
-                    navn = Fixtures.Virksomhet.hovedenhet.navn,
+                    id = VirksomhetFixtures.hovedenhet.id,
+                    organisasjonsnummer = VirksomhetFixtures.hovedenhet.organisasjonsnummer,
+                    navn = VirksomhetFixtures.hovedenhet.navn,
                     slettet = false,
                     kontaktpersoner = emptyList(),
                 )
@@ -263,7 +263,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                         overordnetEnhet = null,
                     ),
                 ),
-                virksomheter = listOf(Fixtures.Virksomhet.hovedenhet, Fixtures.Virksomhet.underenhet1),
+                virksomheter = listOf(VirksomhetFixtures.hovedenhet, VirksomhetFixtures.underenhet1),
                 avtaler = listOf(AvtaleFixtures.oppfolging),
                 gjennomforinger = listOf(gjennomforing),
             )
@@ -392,7 +392,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
 
             val thomas = VirksomhetKontaktperson(
                 id = UUID.randomUUID(),
-                virksomhetId = Fixtures.Virksomhet.hovedenhet.id,
+                virksomhetId = VirksomhetFixtures.hovedenhet.id,
                 navn = "Thomas",
                 telefon = "22222222",
                 epost = "thomas@thetrain.co.uk",
@@ -400,7 +400,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             )
             val jens = VirksomhetKontaktperson(
                 id = UUID.randomUUID(),
-                virksomhetId = Fixtures.Virksomhet.hovedenhet.id,
+                virksomhetId = VirksomhetFixtures.hovedenhet.id,
                 navn = "Jens",
                 telefon = "22222224",
                 epost = "jens@theshark.co.uk",
@@ -532,21 +532,21 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
 
             tiltaksgjennomforinger.upsert(
-                Oppfolging1.copy(arrangorVirksomhetId = Fixtures.Virksomhet.underenhet1.id),
+                Oppfolging1.copy(arrangorVirksomhetId = VirksomhetFixtures.underenhet1.id),
             )
             tiltaksgjennomforinger.upsert(
-                Oppfolging2.copy(arrangorVirksomhetId = Fixtures.Virksomhet.underenhet2.id),
+                Oppfolging2.copy(arrangorVirksomhetId = VirksomhetFixtures.underenhet2.id),
             )
 
             tiltaksgjennomforinger.getAll(
-                arrangorOrgnr = listOf(Fixtures.Virksomhet.underenhet1.organisasjonsnummer),
+                arrangorOrgnr = listOf(VirksomhetFixtures.underenhet1.organisasjonsnummer),
             ).should {
                 it.second.size shouldBe 1
                 it.second[0].id shouldBe Oppfolging1.id
             }
 
             tiltaksgjennomforinger.getAll(
-                arrangorOrgnr = listOf(Fixtures.Virksomhet.underenhet2.organisasjonsnummer),
+                arrangorOrgnr = listOf(VirksomhetFixtures.underenhet2.organisasjonsnummer),
             ).should {
                 it.second.size shouldBe 1
                 it.second[0].id shouldBe Oppfolging2.id
@@ -871,7 +871,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                         id = UUID.randomUUID(),
                         navn = "Tiltak - $it",
                         tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
-                        arrangorVirksomhetId = Fixtures.Virksomhet.underenhet1.id,
+                        arrangorVirksomhetId = VirksomhetFixtures.underenhet1.id,
                         startDato = LocalDate.of(2022, 1, 1),
                         apentForInnsok = true,
                         oppstart = TiltaksgjennomforingOppstartstype.FELLES,

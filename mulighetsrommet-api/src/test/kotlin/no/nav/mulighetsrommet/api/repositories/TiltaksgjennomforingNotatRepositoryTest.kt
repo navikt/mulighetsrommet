@@ -15,7 +15,7 @@ class TiltaksgjennomforingNotatRepositoryTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
 
     val domain = MulighetsrommetTestDomain(
-        virksomheter = listOf(Fixtures.Virksomhet.hovedenhet, Fixtures.Virksomhet.underenhet1),
+        virksomheter = listOf(VirksomhetFixtures.hovedenhet, VirksomhetFixtures.underenhet1),
         tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
         avtaler = listOf(AvtaleFixtures.oppfolging),
         gjennomforinger = listOf(TiltaksgjennomforingFixtures.Oppfolging1),

@@ -30,8 +30,8 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
     val avtale = AvtaleFixtures.oppfolging.copy(
         startDato = avtaleStartDato,
         sluttDato = avtaleSluttDato,
-        leverandorVirksomhetId = Fixtures.Virksomhet.hovedenhet.id,
-        leverandorUnderenheter = listOf(Fixtures.Virksomhet.underenhet1.id),
+        leverandorVirksomhetId = VirksomhetFixtures.hovedenhet.id,
+        leverandorUnderenheter = listOf(VirksomhetFixtures.underenhet1.id),
         navEnheter = listOf("0400", "0502"),
     )
 
@@ -40,7 +40,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
         sluttDato = avtaleSluttDato,
         navRegion = "0400",
         navEnheter = listOf("0502"),
-        arrangorVirksomhetId = Fixtures.Virksomhet.underenhet1.id,
+        arrangorVirksomhetId = VirksomhetFixtures.underenhet1.id,
         administratorer = listOf(NavAnsattFixture.ansatt1.navIdent),
     )
 
@@ -76,9 +76,9 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
             ),
         ),
         virksomheter = listOf(
-            Fixtures.Virksomhet.hovedenhet,
-            Fixtures.Virksomhet.underenhet1,
-            Fixtures.Virksomhet.underenhet2,
+            VirksomhetFixtures.hovedenhet,
+            VirksomhetFixtures.underenhet1,
+            VirksomhetFixtures.underenhet2,
         ),
         ansatte = listOf(NavAnsattFixture.ansatt1),
         tiltakstyper = listOf(TiltakstypeFixtures.AFT, TiltakstypeFixtures.Jobbklubb, TiltakstypeFixtures.Oppfolging),
@@ -197,7 +197,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
                 listOf(ValidationError("navEnheter", "NAV-enhet 0401 mangler i avtalen")),
             ),
             row(
-                gjennomforing.copy(arrangorVirksomhetId = Fixtures.Virksomhet.underenhet2.id),
+                gjennomforing.copy(arrangorVirksomhetId = VirksomhetFixtures.underenhet2.id),
                 listOf(ValidationError("arrangorVirksomhetId", "Arrangøren mangler i avtalen")),
             ),
         ) { input, error ->
