@@ -147,11 +147,11 @@ class TiltaksgjennomforingValidator(
                         )
                     }
 
-                    if (dbo.sluttDato != previous.sluttDato) {
+                    if (dbo.sluttDato != null && previous.sluttDato != null && dbo.sluttDato.isBefore(previous.sluttDato)) {
                         add(
                             ValidationError.of(
                                 TiltaksgjennomforingDbo::sluttDato,
-                                "Sluttdato kan ikke endres når gjennomføringen er aktiv",
+                                "Sluttdato kan ikke endres bakover i tid når gjennomføringen er aktiv",
                             ),
                         )
                     }

@@ -226,6 +226,17 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
             )
         }
 
+        test("Skal godta endringer for sluttdato frem i tid selv om gjennomføringen er aktiv") {
+            val validator = TiltaksgjennomforingValidator(tiltakstyper, avtaler)
+            val previous = tiltaksgjennomforinger.get(gjennomforing.id)
+            validator.validate(gjennomforing.copy(sluttDato = avtaleSluttDato.plusDays(5)), previous).shouldBeRight()
+            validator.validate(gjennomforing.copy(sluttDato = avtaleSluttDato.minusDays(1)), previous).shouldBeLeft(
+                listOf(
+                    ValidationError("sluttDato", "Sluttdato kan ikke endres bakover i tid når gjennomføringen er aktiv"),
+                ),
+            )
+        }
+
         test("skal godta endringer selv om avtale er avbrutt") {
             forAll(
                 row(Avslutningsstatus.AVBRUTT),
