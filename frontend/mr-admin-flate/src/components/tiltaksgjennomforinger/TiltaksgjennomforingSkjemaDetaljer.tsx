@@ -4,6 +4,7 @@ import {
   Avtale,
   Tiltaksgjennomforing,
   TiltaksgjennomforingKontaktperson,
+  Tiltakskode,
 } from "mulighetsrommet-api-client";
 import { ControlledSokeSelect } from "mulighetsrommet-frontend-common";
 import { useEffect, useRef } from "react";
@@ -32,6 +33,15 @@ import {
 interface Props {
   tiltaksgjennomforing?: Tiltaksgjennomforing;
   avtale: Avtale;
+}
+
+function visApentForInnsok(arenaKode: Tiltakskode) {
+  return [
+    Tiltakskode.JOBBK,
+    Tiltakskode.DIGIOPPARB,
+    Tiltakskode.GRUPPEAMO,
+    Tiltakskode.GRUFAGYRKE,
+  ].includes(arenaKode);
 }
 
 export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtale }: Props) => {
@@ -164,13 +174,15 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
                 format: "iso-string",
               }}
             />
-            <Switch
-              size="small"
-              readOnly={erArenaOpphavOgIngenEierskap(tiltaksgjennomforing, migrerteTiltakstyper)}
-              {...register("apentForInnsok")}
-            >
-              Åpen for innsøk
-            </Switch>
+            {visApentForInnsok(avtale.tiltakstype.arenaKode) ? (
+              <Switch
+                size="small"
+                readOnly={erArenaOpphavOgIngenEierskap(tiltaksgjennomforing, migrerteTiltakstyper)}
+                {...register("apentForInnsok")}
+              >
+                Åpen for innsøk
+              </Switch>
+            ) : null}
 
             <HStack justify="space-between">
               <TextField

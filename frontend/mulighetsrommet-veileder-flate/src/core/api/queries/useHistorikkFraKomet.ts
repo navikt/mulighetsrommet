@@ -8,7 +8,7 @@ export function useHistorikkFraKomet() {
 
   const requestBody = { norskIdent: fnr };
   return useQuery({
-    queryKey: [QueryKeys.Historikk, fnr],
+    queryKey: [QueryKeys.HistorikkFraKomet, fnr],
     queryFn: () => mulighetsrommetClient.historikk.hentHistorikkForBrukerFraKomet({ requestBody }),
     throwOnError: false, // TODO Fjern denne når vi har endepunkt fra Komet
   });

@@ -299,7 +299,7 @@ private fun services(appConfig: AppConfig) = module {
     single { VeilederflateService(get(), get(), get(), get()) }
     single { BrukerService(get(), get(), get(), get()) }
     single { DialogService(get()) }
-    single { NavAnsattService(appConfig.auth.roles, get(), get(), get()) }
+    single { NavAnsattService(appConfig.auth.roles, get(), get(), get(), get()) }
     single { PoaoTilgangService(get()) }
     single { DelMedBrukerService(get()) }
     single { MicrosoftGraphService(get()) }
@@ -373,6 +373,7 @@ private fun tasks(config: TaskConfig) = module {
             get(),
             get(),
         )
+        val updateApentForInnsok = UpdateApentForInnsok(config.updateApentForInnsok, get(), get())
         val oppdaterMetrikker = OppdaterMetrikker(config.oppdaterMetrikker, get(), get())
         val notificationService: NotificationService by inject()
         val generateValidationReport: GenerateValidationReport by inject()
@@ -402,6 +403,7 @@ private fun tasks(config: TaskConfig) = module {
                 notifySluttdatoForAvtalerNarmerSeg.task,
                 notifyFailedKafkaEvents.task,
                 oppdaterMetrikker.task,
+                updateApentForInnsok.task,
             )
             .serializer(DbSchedulerKotlinSerializer())
             .registerShutdownHook()

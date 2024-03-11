@@ -599,7 +599,7 @@ class AvtaleRepositoryTest : FunSpec({
                     sluttDato = LocalDate.of(2023, 1, 1),
                 ),
             ),
-            virksomhter = listOf(
+            virksomheter = listOf(
                 VirksomhetDto(navn = "alvdal", organisasjonsnummer = "987654321", postnummer = null, poststed = null),
                 VirksomhetDto(navn = "bjarne", organisasjonsnummer = "123456789", postnummer = null, poststed = null),
                 VirksomhetDto(navn = "chris", organisasjonsnummer = "999888777", postnummer = null, poststed = null),

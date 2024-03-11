@@ -14,8 +14,15 @@ app:
       strategy: Migrate
 
   migrerteTiltak:
-    - VASV
+    - ARBFORB
+    - ARBRRHDAG
     - AVKLARAG
+    - DIGIOPPARB
+    - GRUFAGYRKE
+    - GRUPPEAMO
+    - INDOPPFAG
+    - JOBBK
+    - VASV
 
   kafka:
     producerId: mulighetsrommet-api-kafka-producer.v1
@@ -133,6 +140,9 @@ app:
       delayOfMinutes: 5
     generateValidationReport:
       bucketName: mulighetsrommet-api-uploads-dev
+    updateApentForInnsok:
+      disabled: false
+      cronPattern: "0 55 23 * * *" # 23.55 hver kveld
 
   norg2:
     baseUrl: https://norg2.dev-fss-pub.nais.io/norg2/api/v1

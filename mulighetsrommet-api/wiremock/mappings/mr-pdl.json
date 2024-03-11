@@ -1,0 +1,26 @@
+{
+  "request": {
+    "method": "POST",
+    "urlPattern": "/pdl/graphql"
+  },
+  "response": {
+    "status": 200,
+    "jsonBody": {
+      "data": {
+        "hentIdenter": {
+          "identer": [
+            {
+              "ident": "12118323058",
+              "gruppe": "AKTORID",
+              "historisk": false
+            }
+          ]
+        }
+      },
+      "errors": []
+    },
+    "headers": {
+      "Content-Type": "application/json"
+    }
+  }
+}

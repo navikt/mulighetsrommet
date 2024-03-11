@@ -1,48 +1,78 @@
-import { HistorikkForBrukerFraKomet } from "mulighetsrommet-api-client";
-import { mockTiltaksgjennomforinger } from "./mockTiltaksgjennomforinger";
+import {
+  AktivDeltakelse,
+  Gruppetiltak,
+  HistorikkForBrukerFraKomet,
+} from "mulighetsrommet-api-client";
 
 export const historikkFraKomet: HistorikkForBrukerFraKomet[] = [
   {
-    fnr: "12345678910",
-    fraDato: "10.05.2023",
-    tilDato: "12.12.2023",
-    arsak: null,
-    tiltaksnavn: "Oppfølging hos Muligheter AS",
-    tiltakstype: "Oppfølging",
-    id: window.crypto.randomUUID(),
-    status: HistorikkForBrukerFraKomet.status.AVSLUTTET,
-    tiltaksgjennomforingId:
-      mockTiltaksgjennomforinger[0].id ||
-      mockTiltaksgjennomforinger[0].sanityId ||
-      window.crypto.randomUUID(),
+    periode: {
+      startDato: "10.05.2023",
+      sluttDato: "12.12.2023",
+    },
+    beskrivelse: null,
+    tittel: "Oppfølging hos Muligheter AS",
+    tiltakstype: {
+      navn: "Oppfølging",
+      tiltakskode: Gruppetiltak.tiltakskode.INDOPPFAG,
+    },
+    deltakerId: window.crypto.randomUUID(),
+    historiskStatus: {
+      historiskStatusType: HistorikkForBrukerFraKomet.historiskStatusType.HAR_SLUTTET,
+    },
+    innsoktDato: "03.02.2024",
   },
+  {
+    periode: {
+      startDato: "01.01.2024",
+      sluttDato: "01.02.2024",
+    },
+    tittel: "Avklaring med Anne",
+    tiltakstype: {
+      navn: "Avklaring",
+      tiltakskode: Gruppetiltak.tiltakskode.AVKLARAG,
+    },
+    deltakerId: window.crypto.randomUUID(),
+    historiskStatus: {
+      historiskStatusType: HistorikkForBrukerFraKomet.historiskStatusType.FULLFORT,
+    },
 
-  {
-    fnr: "12345678910",
-    fraDato: "01.01.2024",
-    tilDato: "01.06.2025",
-    arsak: null,
-    tiltaksnavn: "Arbeidstrening hos Jobbfrukt ASA",
-    tiltakstype: "Arbeidstrening",
-    id: window.crypto.randomUUID(),
-    status: HistorikkForBrukerFraKomet.status.DELTAR,
-    tiltaksgjennomforingId:
-      mockTiltaksgjennomforinger[1].id ||
-      mockTiltaksgjennomforinger[1].sanityId ||
-      window.crypto.randomUUID(),
+    beskrivelse: "Dårlig stemning mellom mentor og bruker",
+    innsoktDato: "03.02.2024",
   },
   {
-    fnr: "12345678910",
-    fraDato: "01.01.2024",
-    tilDato: "01.02.2024",
-    tiltaksnavn: "Mentor med Manfred",
-    tiltakstype: "Mentor",
-    id: window.crypto.randomUUID(),
-    status: HistorikkForBrukerFraKomet.status.AVSLUTTET,
-    tiltaksgjennomforingId:
-      mockTiltaksgjennomforinger[2].id ||
-      mockTiltaksgjennomforinger[2].sanityId ||
-      window.crypto.randomUUID(),
-    arsak: "Dårlig stemning mellom mentor og bruker",
+    periode: {
+      startDato: "01.01.2024",
+      sluttDato: "01.06.2025",
+    },
+    beskrivelse: null,
+    tittel: "Jobbklubb - Oslo",
+    tiltakstype: {
+      navn: "Jobbklubb",
+      tiltakskode: Gruppetiltak.tiltakskode.JOBBK,
+    },
+    deltakerId: window.crypto.randomUUID(),
+    historiskStatus: {
+      historiskStatusType: HistorikkForBrukerFraKomet.historiskStatusType.IKKE_AKTUELL,
+    },
+
+    innsoktDato: "03.02.2024",
+  },
+];
+
+export const utkastFraKomet: AktivDeltakelse[] = [
+  {
+    deltakerId: window.crypto.randomUUID(),
+    beskrivelse: null,
+    innsoktDato: "03.02.2024",
+    sistEndretDato: "27.02.2024",
+    aktivStatus: {
+      navn: AktivDeltakelse.navn.KLADD,
+    },
+    tiltakstype: {
+      navn: "Avklaring",
+      tiltakskode: Gruppetiltak.tiltakskode.AVKLARAG,
+    },
+    tittel: "Avklaring hos Muligheter AS",
   },
 ];

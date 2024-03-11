@@ -24,7 +24,9 @@ import no.nav.mulighetsrommet.kafka.producers.TiltaksgjennomforingKafkaProducer
 import no.nav.mulighetsrommet.notifications.NotificationRepository
 import no.nav.mulighetsrommet.notifications.NotificationType
 import no.nav.mulighetsrommet.notifications.ScheduledNotification
+import org.slf4j.LoggerFactory
 import java.time.Instant
+import java.time.LocalDate
 import java.util.*
 
 class TiltaksgjennomforingService(
@@ -38,6 +40,7 @@ class TiltaksgjennomforingService(
     private val documentHistoryService: EndringshistorikkService,
     private val db: Database,
 ) {
+    private val logger = LoggerFactory.getLogger(javaClass)
     suspend fun upsert(
         request: TiltaksgjennomforingRequest,
         navIdent: NavIdent,
@@ -203,6 +206,20 @@ class TiltaksgjennomforingService(
         return Either.Right(Unit)
     }
 
+    fun batchApentForInnsokForAlleMedStarttdatoForDato(dagensDato: LocalDate) {
+        db.transaction { tx ->
+            val tiltak = tiltaksgjennomforinger.lukkApentForInnsokForTiltakMedStartdatoForDato(dagensDato, tx)
+            tiltak.forEach {
+                logEndringSomSystembruker(
+                    operation = "Stengte for innsøk",
+                    it,
+                    tx,
+                )
+            }
+            logger.info("Oppdaterte ${tiltak.size} tiltak med åpent for innsøk = false")
+        }
+    }
+
     fun getEndringshistorikk(id: UUID): EndringshistorikkDto {
         return documentHistoryService.getEndringshistorikk(DocumentClass.TILTAKSGJENNOMFORING, id)
     }
@@ -238,6 +255,22 @@ class TiltaksgjennomforingService(
         tx: TransactionalSession,
     ) {
         documentHistoryService.logEndring(tx, DocumentClass.TILTAKSGJENNOMFORING, operation, navIdent.value, dto.id) {
+            Json.encodeToJsonElement<TiltaksgjennomforingAdminDto>(dto)
+        }
+    }
+
+    private fun logEndringSomSystembruker(
+        operation: String,
+        dto: TiltaksgjennomforingAdminDto,
+        tx: TransactionalSession,
+    ) {
+        documentHistoryService.logEndring(
+            tx,
+            DocumentClass.TILTAKSGJENNOMFORING,
+            operation,
+            TILTAKSADMINISTRASJON_SYSTEM_BRUKER,
+            dto.id,
+        ) {
             Json.encodeToJsonElement<TiltaksgjennomforingAdminDto>(dto)
         }
     }

@@ -1,7 +1,7 @@
 import { Alert, Heading, Tabs } from "@navikt/ds-react";
 import classNames from "classnames";
 import { Toggles } from "mulighetsrommet-api-client";
-import { Link, Outlet, useLocation } from "react-router-dom";
+import { Link, Outlet, useLocation, useParams } from "react-router-dom";
 import { useFeatureToggle } from "../../api/features/feature-toggles";
 import { useTiltaksgjennomforingById } from "../../api/tiltaksgjennomforing/useTiltaksgjennomforingById";
 import { Header } from "../../components/detaljside/Header";
@@ -14,12 +14,38 @@ import { ContainerLayout } from "../../layouts/ContainerLayout";
 import commonStyles from "../Page.module.scss";
 import { DupliserTiltak } from "../../components/tiltaksgjennomforinger/DupliserTiltak";
 import { PREVIEW_ARBEIDSMARKEDSTILTAK_URL } from "../../constants";
+import { Brodsmule, Brodsmuler } from "../../components/navigering/Brodsmuler";
+
+function useTiltaksgjennomforingBrodsmuler(
+  tiltaksgjennomforingId: string,
+  avtaleId?: string,
+): Array<Brodsmule | undefined> {
+  return [
+    { tittel: "Forside", lenke: "/" },
+    avtaleId
+      ? { tittel: "Avtaler", lenke: "/avtaler" }
+      : { tittel: "Tiltaksgjennomføringer", lenke: "/tiltaksgjennomforinger" },
+    avtaleId ? { tittel: "Avtaledetaljer", lenke: `/avtaler/${avtaleId}` } : undefined,
+    avtaleId
+      ? {
+          tittel: "Avtalens gjennomføringer",
+          lenke: `/avtaler/${avtaleId}/tiltaksgjennomforinger`,
+        }
+      : undefined,
+    {
+      tittel: "Tiltaksgjennomføringdetaljer",
+      lenke: `/tiltaksgjennomforinger/${tiltaksgjennomforingId}`,
+    },
+  ];
+}
 
 export function TiltaksgjennomforingPage() {
   const { pathname } = useLocation();
+  const { avtaleId } = useParams();
   const { navigateAndReplaceUrl } = useNavigateAndReplaceUrl();
   const { data: tiltaksgjennomforing, isLoading } = useTiltaksgjennomforingById();
   const { data: showNotater } = useFeatureToggle(Toggles.MULIGHETSROMMET_ADMIN_FLATE_SHOW_NOTATER);
+  const brodsmuler = useTiltaksgjennomforingBrodsmuler(tiltaksgjennomforing?.id!!, avtaleId);
 
   if (!tiltaksgjennomforing && isLoading) {
     return <Laster tekst="Laster tiltaksgjennomføring" />;
@@ -28,7 +54,7 @@ export function TiltaksgjennomforingPage() {
   if (!tiltaksgjennomforing) {
     return (
       <Alert variant="warning">
-        Klarte ikke finne tiltaksgjennømforing
+        Klarte ikke finne tiltaksgjennomføring
         <div>
           <Link to="/">Til forside</Link>
         </div>
@@ -48,6 +74,7 @@ export function TiltaksgjennomforingPage() {
 
   return (
     <main>
+      <Brodsmuler brodsmuler={brodsmuler} />
       <Header harForhandsvisningsknapp>
         <div
           className={classNames(

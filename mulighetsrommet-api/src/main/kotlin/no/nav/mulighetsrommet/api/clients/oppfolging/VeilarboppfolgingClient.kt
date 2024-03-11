@@ -109,7 +109,7 @@ class VeilarboppfolgingClient(
             }
     }
 
-    suspend fun hentGjeldendePeriode(fnr: String, accessType: AccessType): Either<OppfolgingError, OppfolgingPeriodeMinimalDTO> {
+    private suspend fun hentGjeldendePeriode(fnr: String, accessType: AccessType): Either<OppfolgingError, OppfolgingPeriodeMinimalDTO> {
         gjeldendePeriodeCache.getIfPresent(fnr)?.let { return@hentGjeldendePeriode it.right() }
 
         val response = client.post("$baseUrl/v3/oppfolging/hent-gjeldende-periode") {

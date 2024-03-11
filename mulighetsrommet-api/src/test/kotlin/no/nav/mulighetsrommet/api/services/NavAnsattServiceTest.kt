@@ -1,13 +1,11 @@
 package no.nav.mulighetsrommet.api.services
 
-import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.common.runBlocking
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.data.blocking.forAll
 import io.kotest.data.row
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
-import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.ktor.client.engine.mock.*
 import io.ktor.http.*
@@ -71,17 +69,17 @@ class NavAnsattServiceTest : FunSpec({
     val sanityClient = SanityClient(
         engine = MockEngine { request ->
             if (request.method === HttpMethod.Post) {
-                respondOk()
+                return@MockEngine respondOk()
             } else if (request.method === HttpMethod.Delete) {
-                respondOk()
-            } else if (request.url.parameters.getOrFail<String>("query")
-                    .contains("redaktor") && request.url.parameters.getOrFail<String>("query")
-                    .contains("navKontaktperson")
-            ) {
+                return@MockEngine respondOk()
+            }
+
+            val query = request.url.parameters.getOrFail<String>("query")
+            if (query.contains("redaktor") && query.contains("navKontaktperson")) {
                 respondJson(
                     content = sanityContentResult(listOf("123", "456")),
                 )
-            } else if (request.url.parameters.getOrFail<String>("query").contains("redaktor")) {
+            } else if (query.contains("redaktor")) {
                 respondJson(
                     content = sanityContentResult(
                         listOf(
@@ -89,13 +87,14 @@ class NavAnsattServiceTest : FunSpec({
                                 _id = "123",
                                 _type = "redaktor",
                                 enhet = "",
-                                epost = Slug(_type = "slug", current = "epost@epost.no"),
+                                epost = Slug(current = "epost@epost.no"),
+                                navIdent = Slug(current = "N123"),
                                 navn = "Navn Navnesen",
                             ),
                         ),
                     ),
                 )
-            } else if (request.url.parameters.getOrFail("query").contains("navKontaktperson")) {
+            } else if (query.contains("navKontaktperson")) {
                 respondJson(
                     content = sanityContentResult(
                         listOf(
@@ -106,6 +105,7 @@ class NavAnsattServiceTest : FunSpec({
                                 telefonnummer = null,
                                 epost = "navn.navnesen@nav.no",
                                 navn = "Navn Navnesen",
+                                navIdent = Slug(current = "N123"),
                             ),
                         ),
                     ),
@@ -120,9 +120,10 @@ class NavAnsattServiceTest : FunSpec({
         test("should get NavAnsatt with roles filtered by the configured roles") {
 
             val service = NavAnsattService(
+                roles = listOf(tiltaksadministrasjon),
+                db = database.db,
                 microsoftGraphService = msGraph,
                 ansatte = NavAnsattRepository(database.db),
-                roles = listOf(tiltaksadministrasjon),
                 sanityClient = sanityClient,
             )
 
@@ -145,9 +146,10 @@ class NavAnsattServiceTest : FunSpec({
 
         test("should fail when the requested NavAnsatt does not have any of the configured roles") {
             val service = NavAnsattService(
+                roles = listOf(kontaktperson),
+                db = database.db,
                 microsoftGraphService = msGraph,
                 ansatte = NavAnsattRepository(database.db),
-                roles = listOf(kontaktperson),
                 sanityClient = sanityClient,
             )
 
@@ -188,9 +190,10 @@ class NavAnsattServiceTest : FunSpec({
             ) { roles, ansatteMedRoller ->
                 runBlocking {
                     val service = NavAnsattService(
+                        roles = roles,
+                        db = database.db,
                         microsoftGraphService = msGraph,
                         ansatte = NavAnsattRepository(database.db),
-                        roles = roles,
                         sanityClient = sanityClient,
                     )
 
@@ -210,9 +213,10 @@ class NavAnsattServiceTest : FunSpec({
             coEvery { msGraph.getNavAnsatteInGroup(id) } returns listOf(ansatt1, ansatt2)
 
             val service = NavAnsattService(
+                roles = roles,
+                db = database.db,
                 microsoftGraphService = msGraph,
                 ansatte = NavAnsattRepository(database.db),
-                roles = roles,
                 sanityClient = sanityClient,
             )
 
@@ -270,17 +274,16 @@ class NavAnsattServiceTest : FunSpec({
             ) { roles, ansatteMedRoller ->
                 runBlocking {
                     val service = NavAnsattService(
+                        roles = roles,
+                        db = database.db,
                         microsoftGraphService = msGraph,
                         ansatte = ansatte,
-                        roles = roles,
                         sanityClient = sanityClient,
                     )
 
-                    service.synchronizeNavAnsatte(today, deletionDate).shouldBeRight()
+                    service.synchronizeNavAnsatte(today, deletionDate)
 
-                    ansatte.getAll().shouldBeRight().should {
-                        it shouldContainExactlyInAnyOrder ansatteMedRoller
-                    }
+                    ansatte.getAll() shouldContainExactlyInAnyOrder ansatteMedRoller
                 }
             }
         }
@@ -309,17 +312,16 @@ class NavAnsattServiceTest : FunSpec({
             ) { roles, ansatteMedRoller ->
                 runBlocking {
                     val service = NavAnsattService(
+                        roles = roles,
+                        db = database.db,
                         microsoftGraphService = msGraph,
                         ansatte = ansatte,
-                        roles = roles,
                         sanityClient = sanityClient,
                     )
 
-                    service.synchronizeNavAnsatte(today, deletionDate = today).shouldBeRight()
+                    service.synchronizeNavAnsatte(today, deletionDate = today)
 
-                    ansatte.getAll().shouldBeRight().should {
-                        it shouldContainExactlyInAnyOrder ansatteMedRoller
-                    }
+                    ansatte.getAll() shouldContainExactlyInAnyOrder ansatteMedRoller
                 }
             }
         }
