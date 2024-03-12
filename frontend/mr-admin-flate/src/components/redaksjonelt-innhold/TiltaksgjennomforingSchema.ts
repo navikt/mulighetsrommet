@@ -42,13 +42,13 @@ export const TiltaksgjennomforingSchema = z
       })
       .array()
       .optional(),
-    tiltaksArrangorUnderenhetOrganisasjonsnummer: z
+    arrangorVirksomhetId: z
       .string({
         required_error: "Du må velge en underenhet for tiltaksarrangør",
       })
-      .min(1, "Du må velge en underenhet for tiltaksarrangør"),
+      .uuid("Du må velge en underenhet for tiltaksarrangør"),
     stedForGjennomforing: z.string().nullable(),
-    arrangorKontaktpersoner: z.string().array(),
+    arrangorKontaktpersoner: z.string().uuid().array(),
     administratorer: z
       .string({ required_error: "Du må velge minst én administrator" })
       .array()

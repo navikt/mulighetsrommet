@@ -8,7 +8,6 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.api.domain.dbo.AvtaleDbo
 import no.nav.mulighetsrommet.api.plugins.AuthProvider
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.routes.v1.responses.BadRequest
@@ -134,24 +133,4 @@ data class AvtaleRequest(
     val navEnheter: List<String>,
     val beskrivelse: String?,
     val faneinnhold: Faneinnhold?,
-) {
-    fun toDbo() = AvtaleDbo(
-        id = id,
-        navn = navn,
-        avtalenummer = avtalenummer,
-        tiltakstypeId = tiltakstypeId,
-        leverandorOrganisasjonsnummer = leverandorOrganisasjonsnummer,
-        leverandorUnderenheter = leverandorUnderenheter,
-        leverandorKontaktpersonId = leverandorKontaktpersonId,
-        startDato = startDato,
-        sluttDato = sluttDato,
-        avtaletype = avtaletype,
-        antallPlasser = null,
-        url = url,
-        administratorer = administratorer,
-        prisbetingelser = prisbetingelser,
-        navEnheter = navEnheter,
-        beskrivelse = beskrivelse,
-        faneinnhold = faneinnhold,
-    )
-}
+)

@@ -13,6 +13,11 @@ import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
 data class MulighetsrommetTestDomain(
     val enheter: List<NavEnhetDbo> = listOf(NavEnhetFixtures.IT),
     val ansatte: List<NavAnsattDbo> = listOf(NavAnsattFixture.ansatt1, NavAnsattFixture.ansatt2),
+    val virksomheter: List<VirksomhetDto> = listOf(
+        VirksomhetFixtures.hovedenhet,
+        VirksomhetFixtures.underenhet1,
+        VirksomhetFixtures.underenhet2,
+    ),
     val tiltakstyper: List<TiltakstypeDbo> = listOf(
         TiltakstypeFixtures.Oppfolging,
         TiltakstypeFixtures.Arbeidstrening,
@@ -22,7 +27,6 @@ data class MulighetsrommetTestDomain(
     ),
     val avtaler: List<AvtaleDbo> = listOf(AvtaleFixtures.oppfolging, AvtaleFixtures.avtaleForVta),
     val gjennomforinger: List<TiltaksgjennomforingDbo> = listOf(),
-    val virksomheter: List<VirksomhetDto> = listOf(),
 ) {
     fun initialize(database: FlywayDatabaseAdapter) {
         NavEnhetRepository(database).also { repository ->
@@ -31,6 +35,10 @@ data class MulighetsrommetTestDomain(
 
         NavAnsattRepository(database).also { repository ->
             ansatte.forEach { repository.upsert(it) }
+        }
+
+        VirksomhetRepository(database).also { repository ->
+            virksomheter.forEach { repository.upsert(it) }
         }
 
         TiltakstypeRepository(database).also { repository ->
@@ -43,10 +51,6 @@ data class MulighetsrommetTestDomain(
 
         TiltaksgjennomforingRepository(database).also { repository ->
             gjennomforinger.forEach { repository.upsert(it) }
-        }
-
-        VirksomhetRepository(database).also { repository ->
-            virksomheter.forEach { repository.upsert(it) }
         }
     }
 }

@@ -5,6 +5,10 @@ import arrow.core.right
 import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.nulls.shouldBeNull
+import io.kotest.matchers.nulls.shouldNotBeNull
+import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.mockk.clearAllMocks
 import io.mockk.coEvery
@@ -12,7 +16,7 @@ import io.mockk.mockk
 import no.nav.mulighetsrommet.api.clients.brreg.BrregClient
 import no.nav.mulighetsrommet.api.clients.brreg.BrregError
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
-import no.nav.mulighetsrommet.api.domain.dto.VirksomhetDto
+import no.nav.mulighetsrommet.api.domain.dto.BrregVirksomhetDto
 import no.nav.mulighetsrommet.api.repositories.VirksomhetRepository
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
@@ -31,19 +35,19 @@ class VirksomhetServiceTest : FunSpec({
     }
 
     context(VirksomhetService::getOrSyncHovedenhetFromBrreg.name) {
-        val underenhet = VirksomhetDto(
+        val underenhet = BrregVirksomhetDto(
             organisasjonsnummer = "234567891",
             navn = "Underenhet til Testbedriften AS",
             overordnetEnhet = "123456789",
             postnummer = null,
             poststed = null,
         )
-        val hovedenhet = VirksomhetDto(
+        val hovedenhet = BrregVirksomhetDto(
             organisasjonsnummer = "123456789",
             navn = "Testbedriften AS",
             underenheter = listOf(underenhet),
-            postnummer = null,
-            poststed = null,
+            postnummer = "0484",
+            poststed = "Oslo",
         )
 
         afterEach {
@@ -54,10 +58,25 @@ class VirksomhetServiceTest : FunSpec({
         test("skal synkronisere hovedenhet med underenheter fra brreg til databasen gitt orgnr til hovedenhet") {
             coEvery { brregClient.getHovedenhet(hovedenhet.organisasjonsnummer) } returns hovedenhet.right()
 
-            virksomhetService.getOrSyncHovedenhetFromBrreg(hovedenhet.organisasjonsnummer) shouldBeRight hovedenhet
+            virksomhetService.getOrSyncHovedenhetFromBrreg(hovedenhet.organisasjonsnummer).shouldBeRight()
 
-            virksomhetRepository.get(hovedenhet.organisasjonsnummer) shouldBe hovedenhet
-            virksomhetRepository.get(underenhet.organisasjonsnummer) shouldBe underenhet
+            virksomhetRepository.get(hovedenhet.organisasjonsnummer).shouldNotBeNull().should {
+                it.id.shouldNotBeNull()
+                it.navn shouldBe "Testbedriften AS"
+                it.organisasjonsnummer shouldBe "123456789"
+                it.postnummer shouldBe "0484"
+                it.poststed shouldBe "Oslo"
+                it.underenheter.shouldNotBeNull().shouldHaveSize(1).first().should { e ->
+                    e.navn shouldBe "Underenhet til Testbedriften AS"
+                    e.organisasjonsnummer shouldBe "234567891"
+                }
+            }
+            virksomhetRepository.get(underenhet.organisasjonsnummer).shouldNotBeNull().should {
+                it.id.shouldNotBeNull()
+                it.navn shouldBe "Underenhet til Testbedriften AS"
+                it.organisasjonsnummer shouldBe "234567891"
+                it.underenheter.shouldBeNull()
+            }
         }
 
         test("skal synkronisere hovedenhet med underenheter fra brreg til databasen gitt orgnr til underenhet") {
@@ -65,15 +84,21 @@ class VirksomhetServiceTest : FunSpec({
             coEvery { brregClient.getHovedenhet(underenhet.organisasjonsnummer) } returns BrregError.NotFound.left()
             coEvery { brregClient.getUnderenhet(underenhet.organisasjonsnummer) } returns underenhet.right()
 
-            virksomhetService.getOrSyncHovedenhetFromBrreg(underenhet.organisasjonsnummer) shouldBeRight hovedenhet
+            virksomhetService.getOrSyncHovedenhetFromBrreg(underenhet.organisasjonsnummer).shouldBeRight()
 
-            virksomhetRepository.get(hovedenhet.organisasjonsnummer) shouldBe hovedenhet
-            virksomhetRepository.get(underenhet.organisasjonsnummer) shouldBe underenhet
+            virksomhetRepository.get(hovedenhet.organisasjonsnummer).shouldNotBeNull().should {
+                it.navn shouldBe "Testbedriften AS"
+                it.organisasjonsnummer shouldBe "123456789"
+            }
+            virksomhetRepository.get(underenhet.organisasjonsnummer).shouldNotBeNull().should {
+                it.navn shouldBe "Underenhet til Testbedriften AS"
+                it.organisasjonsnummer shouldBe "234567891"
+            }
         }
 
         test("skal synkronisere slettet enhet fra brreg og til databasen gitt orgnr til enheten") {
             val orgnr = "100200300"
-            val slettetVirksomhet = VirksomhetDto(
+            val slettetVirksomhet = BrregVirksomhetDto(
                 organisasjonsnummer = orgnr,
                 navn = "Slettet bedrift",
                 slettetDato = LocalDate.of(2020, 1, 1),
@@ -83,9 +108,13 @@ class VirksomhetServiceTest : FunSpec({
 
             coEvery { brregClient.getHovedenhet(orgnr) } returns slettetVirksomhet.right()
 
-            virksomhetService.getOrSyncHovedenhetFromBrreg(orgnr) shouldBeRight slettetVirksomhet
+            virksomhetService.getOrSyncHovedenhetFromBrreg(orgnr).shouldBeRight()
 
-            virksomhetRepository.get(orgnr) shouldBe slettetVirksomhet
+            virksomhetRepository.get(orgnr).shouldNotBeNull().should {
+                it.navn shouldBe "Slettet bedrift"
+                it.organisasjonsnummer shouldBe orgnr
+                it.slettetDato shouldBe LocalDate.of(2020, 1, 1)
+            }
         }
 
         test("NotFound error når enhet ikke finnes") {

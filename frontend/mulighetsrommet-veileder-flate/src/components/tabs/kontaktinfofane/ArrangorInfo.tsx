@@ -1,5 +1,5 @@
 import { BodyLong, BodyShort, Heading } from "@navikt/ds-react";
-import { VeilderflateArrangor, VirksomhetKontaktperson } from "mulighetsrommet-api-client";
+import { VeilderflateArrangor } from "mulighetsrommet-api-client";
 import styles from "./Kontaktinfo.module.scss";
 import { RedaksjoneltInnhold } from "../../RedaksjoneltInnhold";
 
@@ -27,7 +27,7 @@ const ArrangorInfo = ({ arrangor, faneinnhold }: ArrangorInfoProps) => {
         </BodyShort>
       </div>
 
-      {kontaktpersoner.map((person: VirksomhetKontaktperson) => (
+      {kontaktpersoner.map((person) => (
         <div key={person.id} className={styles.container}>
           <BodyShort className={styles.navn} size="small">
             {person.navn}

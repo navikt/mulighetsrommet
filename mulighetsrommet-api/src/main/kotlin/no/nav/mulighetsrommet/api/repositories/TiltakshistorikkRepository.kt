@@ -77,11 +77,12 @@ class TiltakshistorikkRepository(private val db: Database) {
                    h.til_dato,
                    h.status,
                    coalesce(g.navn, h.beskrivelse) as navn,
-                   coalesce(g.arrangor_organisasjonsnummer, h.arrangor_organisasjonsnummer) as arrangor_organisasjonsnummer,
+                   coalesce(v.organisasjonsnummer, h.arrangor_organisasjonsnummer) as arrangor_organisasjonsnummer,
                    t.navn as tiltakstype
             from tiltakshistorikk h
                      left join tiltaksgjennomforing g on g.id = h.tiltaksgjennomforing_id
                      left join tiltakstype t on t.id = coalesce(g.tiltakstype_id, h.tiltakstypeid)
+                     left join virksomhet v on v.id = g.arrangor_virksomhet_id
             where h.norsk_ident = any(?)
             order by h.fra_dato desc nulls last;
         """.trimIndent()

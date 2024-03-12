@@ -1,9 +1,7 @@
 package no.nav.mulighetsrommet.api.services
 
-import arrow.core.Either
-import arrow.core.flatMap
-import arrow.core.nel
-import arrow.core.toNonEmptyListOrNull
+import arrow.core.*
+import arrow.core.raise.either
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import kotliquery.TransactionalSession
@@ -12,6 +10,7 @@ import no.nav.mulighetsrommet.api.domain.dbo.AvtaleDbo
 import no.nav.mulighetsrommet.api.domain.dto.AvtaleAdminDto
 import no.nav.mulighetsrommet.api.domain.dto.AvtaleNotificationDto
 import no.nav.mulighetsrommet.api.domain.dto.EndringshistorikkDto
+import no.nav.mulighetsrommet.api.domain.dto.VirksomhetDto
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.routes.v1.AvtaleRequest
@@ -44,17 +43,30 @@ class AvtaleService(
 
     suspend fun upsert(request: AvtaleRequest, navIdent: NavIdent): Either<List<ValidationError>, AvtaleAdminDto> {
         val previous = avtaler.get(request.id)
-        return virksomhetService.getOrSyncHovedenhetFromBrreg(request.leverandorOrganisasjonsnummer)
-            .mapLeft {
-                ValidationError
-                    .of(
-                        AvtaleDbo::leverandorOrganisasjonsnummer,
-                        "Leverandøren finnes ikke Brønnøysundregistrene",
+        return syncVirksomheterFromBrreg(request)
+            .flatMap { (leverandor, underenheter) ->
+                val dbo = request.run {
+                    AvtaleDbo(
+                        id = id,
+                        navn = navn,
+                        avtalenummer = avtalenummer,
+                        tiltakstypeId = tiltakstypeId,
+                        leverandorVirksomhetId = leverandor.id,
+                        leverandorUnderenheter = underenheter.map { it.id },
+                        leverandorKontaktpersonId = leverandorKontaktpersonId,
+                        startDato = startDato,
+                        sluttDato = sluttDato,
+                        avtaletype = avtaletype,
+                        antallPlasser = null,
+                        url = url,
+                        administratorer = administratorer,
+                        prisbetingelser = prisbetingelser,
+                        navEnheter = navEnheter,
+                        beskrivelse = beskrivelse,
+                        faneinnhold = faneinnhold,
                     )
-                    .nel()
-            }
-            .flatMap {
-                validator.validate(request.toDbo(), previous)
+                }
+                validator.validate(dbo, previous)
             }
             .map { dbo ->
                 db.transaction { tx ->
@@ -76,6 +88,26 @@ class AvtaleService(
                     logEndring(operation, dto, navIdent, tx)
                     dto
                 }
+            }
+    }
+
+    private suspend fun syncVirksomheterFromBrreg(request: AvtaleRequest): Either<List<ValidationError>, Pair<VirksomhetDto, List<VirksomhetDto>>> =
+        either {
+            val leverandor = syncVirksomhetFromBrreg(request.leverandorOrganisasjonsnummer).bind()
+            val underenheter = request.leverandorUnderenheter.mapOrAccumulate({ e1, e2 -> e1 + e2 }) {
+                syncVirksomhetFromBrreg(it).bind()
+            }.bind()
+            Pair(leverandor, underenheter)
+        }
+
+    private suspend fun syncVirksomhetFromBrreg(orgnr: String): Either<List<ValidationError>, VirksomhetDto> {
+        return virksomhetService
+            .getOrSyncVirksomhetFromBrreg(orgnr)
+            .mapLeft {
+                ValidationError.of(
+                    AvtaleRequest::leverandorOrganisasjonsnummer,
+                    "Leverandøren finnes ikke Brønnøysundregistrene",
+                ).nel()
             }
     }
 

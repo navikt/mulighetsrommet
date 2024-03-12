@@ -5,17 +5,18 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
-import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
-import no.nav.mulighetsrommet.api.fixtures.AvtaleNotatFixture
-import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
-import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
+import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.utils.NotatFilter
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import java.util.*
 
 class AvtaleNotatRepositoryTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
-    val domain = MulighetsrommetTestDomain()
+    val domain = MulighetsrommetTestDomain(
+        virksomheter = listOf(VirksomhetFixtures.hovedenhet),
+        tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
+        avtaler = listOf(AvtaleFixtures.oppfolging),
+    )
 
     beforeEach {
         domain.initialize(database.db)
