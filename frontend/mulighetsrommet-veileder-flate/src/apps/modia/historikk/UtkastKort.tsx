@@ -1,14 +1,14 @@
-import { BodyShort, HStack, Heading, LinkPanel, Tag, VStack } from "@navikt/ds-react";
-import { formaterDato } from "../../../utils/Utils";
-import styles from "./UtkastKort.module.scss";
+import { HStack, Heading, LinkPanel, Tag, VStack } from "@navikt/ds-react";
 import classNames from "classnames";
 import { AktivDeltakelse } from "mulighetsrommet-api-client";
+import { formaterDato } from "../../../utils/Utils";
+import styles from "./UtkastKort.module.scss";
 
 interface Props {
   utkast: AktivDeltakelse;
 }
 export function UtkastKort({ utkast }: Props) {
-  const { tiltakstype, tittel, aktivStatus, beskrivelse, innsoktDato } = utkast;
+  const { tiltakstype, tittel, aktivStatus, innsoktDato } = utkast;
   return (
     <LinkPanel
       href="#" // TODO Fiks korrekt url til Komets løsning for påmelding
@@ -27,7 +27,6 @@ export function UtkastKort({ utkast }: Props) {
         </Heading>
         <HStack align={"center"} gap="5">
           <Status status={aktivStatus.navn} />
-          {beskrivelse ? <BodyShort size="small">Årsak: {beskrivelse}</BodyShort> : null}
         </HStack>
       </VStack>
     </LinkPanel>

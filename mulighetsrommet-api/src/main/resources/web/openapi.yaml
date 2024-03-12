@@ -2538,9 +2538,6 @@ components:
           nullable: true
         tiltakstype:
           $ref: "#/components/schemas/Gruppetiltak"
-        beskrivelse:
-          type: string
-          nullable: true
       required:
         - deltakerId
         - status
