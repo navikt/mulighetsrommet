@@ -3,6 +3,8 @@ package no.nav.mulighetsrommet.kafka.amt
 import arrow.core.right
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.mockk
@@ -10,14 +12,13 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
-import no.nav.mulighetsrommet.api.domain.dto.VirksomhetDto
+import no.nav.mulighetsrommet.api.domain.dto.BrregVirksomhetDto
 import no.nav.mulighetsrommet.api.repositories.VirksomhetRepository
 import no.nav.mulighetsrommet.api.services.VirksomhetService
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.kafka.consumers.amt.AmtVirksomhetV1Dto
 import no.nav.mulighetsrommet.kafka.consumers.amt.AmtVirksomheterV1TopicConsumer
-import java.util.*
 
 class AmtVirksomheterV1TopicConsumerTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
@@ -35,8 +36,7 @@ class AmtVirksomheterV1TopicConsumerTest : FunSpec({
             overordnetEnhetOrganisasjonsnummer = amtVirksomhet.organisasjonsnummer,
         )
 
-        val underenhetDto = VirksomhetDto(
-            id = UUID.randomUUID(),
+        val underenhetDto = BrregVirksomhetDto(
             navn = amtUnderenhet.navn,
             organisasjonsnummer = amtUnderenhet.organisasjonsnummer,
             overordnetEnhet = amtVirksomhet.organisasjonsnummer,
@@ -44,12 +44,11 @@ class AmtVirksomheterV1TopicConsumerTest : FunSpec({
             poststed = "Andeby",
         )
 
-        val virksomhetDto = VirksomhetDto(
-            id = UUID.randomUUID(),
+        val virksomhetDto = BrregVirksomhetDto(
             organisasjonsnummer = amtVirksomhet.organisasjonsnummer,
             navn = amtVirksomhet.navn,
             overordnetEnhet = null,
-            underenheter = listOf(underenhetDto),
+            underenheter = listOf(),
             postnummer = "1000",
             poststed = "Andeby",
         )
@@ -57,8 +56,8 @@ class AmtVirksomheterV1TopicConsumerTest : FunSpec({
         val virksomhetRepository = VirksomhetRepository(database.db)
 
         val virksomhetService: VirksomhetService = mockk()
-        coEvery { virksomhetService.syncHovedenhetFromBrreg(amtVirksomhet.organisasjonsnummer) } returns virksomhetDto.right()
-        coEvery { virksomhetService.syncHovedenhetFromBrreg(amtUnderenhet.organisasjonsnummer) } returns virksomhetDto.right()
+        coEvery { virksomhetService.getVirksomhetFromBrreg(amtVirksomhet.organisasjonsnummer) } returns virksomhetDto.right()
+        coEvery { virksomhetService.getVirksomhetFromBrreg(amtUnderenhet.organisasjonsnummer) } returns underenhetDto.right()
 
         val virksomhetConsumer = AmtVirksomheterV1TopicConsumer(
             config = KafkaTopicConsumer.Config(id = "virksomheter", topic = "virksomheter"),
@@ -66,11 +65,25 @@ class AmtVirksomheterV1TopicConsumerTest : FunSpec({
             virksomhetService = virksomhetService,
         )
 
-        test("ignorer virksomheter når de ikke allerede er lagret i database") {
+        test("ignorer virksomheter når de ikke allerede er lagret i databasen") {
             virksomhetConsumer.consume(amtVirksomhet.organisasjonsnummer, Json.encodeToJsonElement(amtVirksomhet))
             virksomhetConsumer.consume(amtUnderenhet.organisasjonsnummer, Json.encodeToJsonElement(amtUnderenhet))
 
             virksomhetRepository.getAll().shouldBeEmpty()
+        }
+
+        test("oppdaterer bare virksomheter som er lagret i databasen") {
+            virksomhetRepository.upsert(virksomhetDto.copy(navn = "Kiwi", postnummer = "9999", poststed = "Gåseby"))
+
+            virksomhetConsumer.consume(amtVirksomhet.organisasjonsnummer, Json.encodeToJsonElement(amtVirksomhet))
+            virksomhetConsumer.consume(amtUnderenhet.organisasjonsnummer, Json.encodeToJsonElement(amtUnderenhet))
+
+            virksomhetRepository.getAll().should {
+                it.shouldHaveSize(1)
+                it[0].navn shouldBe "REMA 1000 AS"
+                it[0].postnummer shouldBe "1000"
+                it[0].poststed shouldBe "Andeby"
+            }
         }
 
         test("delete virksomheter for tombstone messages") {
