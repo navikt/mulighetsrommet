@@ -16,7 +16,7 @@ import { MultiValue } from "react-select";
 import { useAvtaleAdministratorer } from "../../api/ansatt/useAvtaleAdministratorer";
 import { useMigrerteTiltakstyperForAvtaler } from "../../api/tiltakstyper/useMigrerteTiltakstyper";
 import { erAnskaffetTiltak } from "../../utils/tiltakskoder";
-import { addYear } from "../../utils/Utils";
+import { addYear, avtaletypeTilTekst } from "../../utils/Utils";
 import { Separator } from "../detaljside/Metadata";
 import { AdministratorOptions } from "../skjema/AdministratorOptions";
 import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
@@ -66,6 +66,41 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
   const sluttDatoFraDato = startDato ? new Date(startDato) : minStartdato;
   const sluttDatoTilDato = addYear(startDato ? new Date(startDato) : new Date(), 5);
 
+  function avtaletypeOptions(): { value: Avtaletype; label: string }[] {
+    const forhaandsgodkjent = {
+      value: Avtaletype.FORHAANDSGODKJENT,
+      label: avtaletypeTilTekst(Avtaletype.FORHAANDSGODKJENT),
+    };
+    const rammeavtale = {
+      value: Avtaletype.RAMMEAVTALE,
+      label: avtaletypeTilTekst(Avtaletype.RAMMEAVTALE),
+    };
+    const avtale = {
+      value: Avtaletype.AVTALE,
+      label: avtaletypeTilTekst(Avtaletype.AVTALE),
+    };
+    const offentligOffentlig = {
+      value: Avtaletype.OFFENTLIG_OFFENTLIG,
+      label: avtaletypeTilTekst(Avtaletype.OFFENTLIG_OFFENTLIG),
+    };
+    switch (watchedTiltakstype?.arenaKode) {
+      case "ARBFORB":
+      case "VASV":
+        return [forhaandsgodkjent];
+      case "AVKLARAG":
+      case "INDOPPFAG":
+      case "ARBRRHDAG":
+      case "DIGIOPPARB":
+      case "JOBBK":
+        return [rammeavtale, avtale];
+      case "GRUFAGYRKE":
+      case "GRUPPEAMO":
+        return [rammeavtale, avtale, offentligOffentlig];
+      default:
+    }
+    return [];
+  }
+
   return (
     <div className={skjemastyles.container}>
       <div className={skjemastyles.input_container}>
@@ -112,20 +147,7 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
                 placeholder="Velg en"
                 label={"Avtaletype"}
                 {...register("avtaletype")}
-                options={[
-                  {
-                    value: Avtaletype.FORHAANDSGODKJENT,
-                    label: "Forhåndsgodkjent avtale",
-                  },
-                  {
-                    value: Avtaletype.RAMMEAVTALE,
-                    label: "Rammeavtale",
-                  },
-                  {
-                    value: Avtaletype.AVTALE,
-                    label: "Avtale",
-                  },
-                ]}
+                options={avtaletypeOptions()}
               />
             </HGrid>
           </FormGroup>

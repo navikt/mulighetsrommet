@@ -74,6 +74,7 @@ class AvtaleValidatorTest : FunSpec({
             TiltakstypeFixtures.VTA,
             TiltakstypeFixtures.Oppfolging,
             TiltakstypeFixtures.Jobbklubb,
+            TiltakstypeFixtures.GRUPPE_AMO,
         ),
         avtaler = listOf(),
     )
@@ -206,6 +207,41 @@ class AvtaleValidatorTest : FunSpec({
         validator.validate(oppfolging, null).shouldBeLeft(
             listOf(ValidationError("sluttDato", "Sluttdato må være valgt")),
         )
+    }
+
+    test("avtaletype må være allowed") {
+        val validator = AvtaleValidator(
+            TiltakstypeService(TiltakstypeRepository(database.db), Tiltakskoder.Gruppetiltak),
+            gjennomforinger,
+            navEnheterService,
+            virksomheter,
+        )
+
+        val aft = AvtaleFixtures.AFT.copy(avtaletype = Avtaletype.Rammeavtale)
+        val vta = AvtaleFixtures.VTA.copy(avtaletype = Avtaletype.Avtale)
+        val oppfolging = AvtaleFixtures.oppfolging.copy(avtaletype = Avtaletype.OffentligOffentlig)
+        val gruppeAmo = AvtaleFixtures.gruppeAmo.copy(avtaletype = Avtaletype.Forhaandsgodkjent)
+        validator.validate(aft, null).shouldBeLeft(
+            listOf(ValidationError("avtaletype", "Rammeavtale er ikke tillat for tiltakstype Arbeidsforberedende trening (AFT)")),
+        )
+        validator.validate(vta, null).shouldBeLeft(
+            listOf(ValidationError("avtaletype", "Avtale er ikke tillat for tiltakstype Varig tilrettelagt arbeid i skjermet virksomhet")),
+        )
+        validator.validate(oppfolging, null).shouldBeLeft(
+            listOf(ValidationError("avtaletype", "OffentligOffentlig er ikke tillat for tiltakstype Oppfølging")),
+        )
+        validator.validate(gruppeAmo, null).shouldBeLeft(
+            listOf(ValidationError("avtaletype", "Forhaandsgodkjent er ikke tillat for tiltakstype Gruppe amo")),
+        )
+
+        val aftForhaands = AvtaleFixtures.AFT.copy(avtaletype = Avtaletype.Forhaandsgodkjent)
+        val vtaForhaands = AvtaleFixtures.AFT.copy(avtaletype = Avtaletype.Forhaandsgodkjent)
+        val oppfolgingRamme = AvtaleFixtures.oppfolging.copy(avtaletype = Avtaletype.Rammeavtale)
+        val gruppeAmoOffentlig = AvtaleFixtures.gruppeAmo.copy(avtaletype = Avtaletype.OffentligOffentlig)
+        validator.validate(aftForhaands, null).shouldBeRight()
+        validator.validate(vtaForhaands, null).shouldBeRight()
+        validator.validate(oppfolgingRamme, null).shouldBeRight()
+        validator.validate(gruppeAmoOffentlig, null).shouldBeRight()
     }
 
     context("når avtalen allerede eksisterer") {
