@@ -1,7 +1,6 @@
 package no.nav.mulighetsrommet.api.routes.v1
 
 import arrow.core.Either
-import arrow.core.flatMap
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.plugins.*
@@ -12,6 +11,7 @@ import io.ktor.server.util.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.clients.brreg.BrregClient
 import no.nav.mulighetsrommet.api.clients.brreg.BrregError
+import no.nav.mulighetsrommet.api.domain.dto.BrregVirksomhetDto
 import no.nav.mulighetsrommet.api.domain.dto.VirksomhetKontaktperson
 import no.nav.mulighetsrommet.api.repositories.VirksomhetRepository
 import no.nav.mulighetsrommet.api.routes.v1.responses.*
@@ -42,44 +42,58 @@ fun Route.virksomhetRoutes() {
             val response = brregClient.sokEtterOverordnetEnheter(sok)
                 .map {
                     // Kombinerer resultat med utenlandske virksomheter siden de ikke finnes i brreg
-                    it + virksomhetRepository.getAll(sok = sok, utenlandsk = true)
+                    it + virksomhetRepository.getAll(sok = sok, utenlandsk = true).map { virksomhet ->
+                        BrregVirksomhetDto(
+                            organisasjonsnummer = virksomhet.organisasjonsnummer,
+                            navn = virksomhet.navn,
+                            overordnetEnhet = virksomhet.overordnetEnhet,
+                            underenheter = listOf(),
+                            postnummer = virksomhet.postnummer,
+                            poststed = virksomhet.poststed,
+                            slettetDato = virksomhet.slettetDato,
+                        )
+                    }
                 }
                 .mapLeft { toStatusResponseError(it) }
 
             call.respondWithStatusResponse(response)
         }
 
-        get("{orgnr}") {
+        get("{id}") {
+            val id: UUID by call.parameters
+
+            call.respond(virksomhetRepository.getById(id))
+        }
+
+        get("{id}/kontaktpersoner") {
+            val id: UUID by call.parameters
+
+            call.respond(virksomhetService.hentKontaktpersoner(id))
+        }
+
+        post("{orgnr}") {
             val orgnr = call.parameters.getOrFail("orgnr").also { validateOrgnr(it) }
 
             if (isUtenlandskOrgnr(orgnr)) {
                 val virksomhet = virksomhetRepository.get(orgnr)
-                return@get if (virksomhet != null) {
+                return@post if (virksomhet != null) {
                     call.respond(virksomhet)
                 } else {
                     call.respond(HttpStatusCode.NotFound, "Fant ikke enhet med orgnr: $orgnr")
                 }
             }
 
-            val response = virksomhetService.getVirksomhetFromBrreg(orgnr)
+            val response = virksomhetService.getOrSyncVirksomhetFromBrreg(orgnr)
                 .mapLeft { toStatusResponseError(it) }
 
             call.respondWithStatusResponse(response)
         }
 
-        get("{orgnr}/kontaktperson") {
-            val orgnr = call.parameters.getOrFail("orgnr").also { validateOrgnr(it) }
-
-            call.respond(virksomhetService.hentKontaktpersoner(orgnr))
-        }
-
-        put("{orgnr}/kontaktperson") {
-            val orgnr = call.parameters.getOrFail("orgnr").also { validateOrgnr(it) }
+        put("{id}/kontaktpersoner") {
+            val id: UUID by call.parameters
             val virksomhetKontaktperson = call.receive<VirksomhetKontaktpersonRequest>()
 
-            val result = virksomhetService.getOrSyncHovedenhetFromBrreg(orgnr)
-                .mapLeft { toStatusResponseError(it) }
-                .flatMap { virksomhetKontaktperson.toDto(orgnr) }
+            val result = virksomhetKontaktperson.toDto(id)
                 .map { virksomhetService.upsertKontaktperson(it) }
                 .onLeft { application.log.warn("Klarte ikke opprette kontaktperson: $it") }
 
@@ -87,7 +101,7 @@ fun Route.virksomhetRoutes() {
         }
 
         delete("kontaktperson/{id}") {
-            val id = call.parameters.getOrFail<UUID>("id")
+            val id: UUID by call.parameters
 
             call.respondWithStatusResponse(virksomhetService.deleteKontaktperson(id))
         }
@@ -131,7 +145,7 @@ data class VirksomhetKontaktpersonRequest(
     val beskrivelse: String?,
     val epost: String,
 ) {
-    fun toDto(orgnr: String): StatusResponse<VirksomhetKontaktperson> {
+    fun toDto(virksomhetId: UUID): StatusResponse<VirksomhetKontaktperson> {
         val navn = navn.trim()
         val epost = epost.trim()
 
@@ -151,7 +165,7 @@ data class VirksomhetKontaktpersonRequest(
         return Either.Right(
             VirksomhetKontaktperson(
                 id = id,
-                organisasjonsnummer = orgnr,
+                virksomhetId = virksomhetId,
                 navn = navn,
                 telefon = telefon?.trim()?.ifEmpty { null },
                 epost = epost,

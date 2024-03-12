@@ -10,6 +10,7 @@ import io.prometheus.client.cache.caffeine.CacheMetricsCollector
 import no.nav.mulighetsrommet.api.clients.brreg.BrregClient
 import no.nav.mulighetsrommet.api.clients.brreg.BrregError
 import no.nav.mulighetsrommet.api.domain.dbo.toOverordnetEnhetDbo
+import no.nav.mulighetsrommet.api.domain.dto.BrregVirksomhetDto
 import no.nav.mulighetsrommet.api.domain.dto.VirksomhetDto
 import no.nav.mulighetsrommet.api.domain.dto.VirksomhetKontaktperson
 import no.nav.mulighetsrommet.api.repositories.VirksomhetRepository
@@ -26,7 +27,7 @@ class VirksomhetService(
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
 
-    private val brregServiceCache: Cache<String, VirksomhetDto> = Caffeine.newBuilder()
+    private val brregCache: Cache<String, BrregVirksomhetDto> = Caffeine.newBuilder()
         .expireAfterWrite(3, TimeUnit.HOURS)
         .maximumSize(20_000)
         .recordStats()
@@ -35,7 +36,7 @@ class VirksomhetService(
     init {
         val cacheMetrics: CacheMetricsCollector = CacheMetricsCollector()
             .register(Metrikker.appMicrometerRegistry.prometheusRegistry)
-        cacheMetrics.addCache("brregServiceCache", brregServiceCache)
+        cacheMetrics.addCache("brregServiceCache", brregCache)
     }
 
     suspend fun getOrSyncHovedenhetFromBrreg(orgnr: String): Either<BrregError, VirksomhetDto> {
@@ -43,7 +44,7 @@ class VirksomhetService(
     }
 
     suspend fun syncHovedenhetFromBrreg(orgnr: String): Either<BrregError, VirksomhetDto> {
-        log.info("Synkroniserer enhet fra brreg orgnr=$orgnr")
+        log.info("Synkroniserer hovedenhet fra brreg orgnr=$orgnr")
         return getVirksomhetFromBrreg(orgnr)
             .flatMap { virksomhet ->
                 if (virksomhet.overordnetEnhet == null) {
@@ -61,12 +62,25 @@ class VirksomhetService(
                     val overordnetEnhetDbo = virksomhet.toOverordnetEnhetDbo()
                     virksomhetRepository.upsertOverordnetEnhet(overordnetEnhetDbo)
                 }
-                virksomhet
+                virksomhetRepository.get(virksomhet.organisasjonsnummer)!!
             }
     }
 
-    suspend fun getVirksomhetFromBrreg(orgnr: String): Either<BrregError, VirksomhetDto> {
-        val virksomhet = brregServiceCache.getIfPresent(orgnr)
+    suspend fun getOrSyncVirksomhetFromBrreg(orgnr: String): Either<BrregError, VirksomhetDto> {
+        return virksomhetRepository.get(orgnr)?.right() ?: syncVirksomhetFromBrreg(orgnr)
+    }
+
+    private suspend fun syncVirksomhetFromBrreg(orgnr: String): Either<BrregError, VirksomhetDto> {
+        log.info("Synkroniserer enhet fra brreg orgnr=$orgnr")
+        return getVirksomhetFromBrreg(orgnr)
+            .map { virksomhet ->
+                virksomhetRepository.upsert(virksomhet)
+                virksomhetRepository.get(virksomhet.organisasjonsnummer)!!
+            }
+    }
+
+    suspend fun getVirksomhetFromBrreg(orgnr: String): Either<BrregError, BrregVirksomhetDto> {
+        val virksomhet = brregCache.getIfPresent(orgnr)
         if (virksomhet != null) {
             return virksomhet.right()
         }
@@ -82,7 +96,7 @@ class VirksomhetService(
                 }
             },
             {
-                brregServiceCache.put(orgnr, it)
+                brregCache.put(orgnr, it)
                 it.right()
             },
         )
@@ -91,8 +105,8 @@ class VirksomhetService(
     fun upsertKontaktperson(kontaktperson: VirksomhetKontaktperson) =
         virksomhetRepository.upsertKontaktperson(kontaktperson)
 
-    fun hentKontaktpersoner(orgnr: String): List<VirksomhetKontaktperson> =
-        virksomhetRepository.getKontaktpersoner(orgnr)
+    fun hentKontaktpersoner(virksomhetId: UUID): List<VirksomhetKontaktperson> =
+        virksomhetRepository.getKontaktpersoner(virksomhetId)
 
     fun deleteKontaktperson(id: UUID): StatusResponse<Unit> {
         val (gjennomforinger, avtaler) = virksomhetRepository.koblingerTilKontaktperson(id)

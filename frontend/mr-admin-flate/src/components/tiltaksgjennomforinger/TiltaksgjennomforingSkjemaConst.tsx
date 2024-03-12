@@ -31,17 +31,6 @@ export const erArenaOpphavOgIngenEierskap = (
   );
 };
 
-export const arrangorUnderenheterOptions = (avtale: Avtale) => {
-  return (avtale?.leverandorUnderenheter ?? [])
-    .sort((a, b) => a.navn.localeCompare(b.navn))
-    .map((arrangor) => {
-      return {
-        label: `${arrangor.navn} - ${arrangor.organisasjonsnummer}`,
-        value: arrangor.organisasjonsnummer,
-      };
-    });
-};
-
 function defaultNavRegion(
   avtale: Avtale,
   tiltaksgjennomforing?: Tiltaksgjennomforing,
@@ -68,12 +57,15 @@ function defaultArrangor(
   avtale: Avtale,
   tiltaksgjennomforing?: Tiltaksgjennomforing,
 ): string | undefined {
-  if (tiltaksgjennomforing?.arrangor.organisasjonsnummer) {
-    return tiltaksgjennomforing?.arrangor.organisasjonsnummer;
+  if (tiltaksgjennomforing?.arrangor.id) {
+    return tiltaksgjennomforing.arrangor.id;
   }
-  if (avtale.leverandorUnderenheter.length === 1) {
-    return avtale.leverandorUnderenheter[0].organisasjonsnummer;
+
+  if (avtale.leverandor.underenheter.length === 1) {
+    return avtale.leverandor.underenheter[0].id;
   }
+
+  return undefined;
 }
 
 export function defaultTiltaksgjennomforingData(
@@ -94,7 +86,7 @@ export function defaultTiltaksgjennomforingData(
       startDato: tiltaksgjennomforing?.startDato,
       sluttDato: tiltaksgjennomforing?.sluttDato,
     },
-    tiltaksArrangorUnderenhetOrganisasjonsnummer: defaultArrangor(avtale, tiltaksgjennomforing),
+    arrangorVirksomhetId: defaultArrangor(avtale, tiltaksgjennomforing),
     oppstart: tiltaksgjennomforing?.oppstart || defaultOppstartType(avtale),
     apentForInnsok: tiltaksgjennomforing?.apentForInnsok ?? true,
     kontaktpersoner: tiltaksgjennomforing?.kontaktpersoner ?? [],

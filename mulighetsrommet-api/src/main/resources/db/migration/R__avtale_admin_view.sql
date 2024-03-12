@@ -3,14 +3,16 @@ select a.id,
        a.navn,
        a.tiltakstype_id,
        a.avtalenummer,
-       a.leverandor_organisasjonsnummer,
-       vk.id                                                                    as leverandor_kontaktperson_id,
-       vk.organisasjonsnummer                                                   as leverandor_kontaktperson_organisasjonsnummer,
-       vk.navn                                                                  as leverandor_kontaktperson_navn,
-       vk.telefon                                                               as leverandor_kontaktperson_telefon,
-       vk.epost                                                                 as leverandor_kontaktperson_epost,
-       vk.beskrivelse                                                           as leverandor_kontaktperson_beskrivelse,
-       v.navn                                                                   as leverandor_navn,
+       v.id                       as leverandor_virksomhet_id,
+       v.organisasjonsnummer      as leverandor_organisasjonsnummer,
+       v.navn                     as leverandor_navn,
+       v.slettet_dato is not null as leverandor_slettet,
+       vk.id                      as leverandor_kontaktperson_id,
+       vk.virksomhet_id           as leverandor_kontaktperson_virksomhet_id,
+       vk.navn                    as leverandor_kontaktperson_navn,
+       vk.telefon                 as leverandor_kontaktperson_telefon,
+       vk.epost                   as leverandor_kontaktperson_epost,
+       vk.beskrivelse             as leverandor_kontaktperson_beskrivelse,
        a.start_dato,
        a.slutt_dato,
        case
@@ -22,7 +24,7 @@ select a.id,
                        'type', arena_nav_enhet.type,
                        'overordnetEnhet', arena_nav_enhet.overordnet_enhet,
                        'status', arena_nav_enhet.status
-               ) end as arena_ansvarlig_enhet,
+               ) end              as arena_ansvarlig_enhet,
        a.opphav,
        a.avtaletype,
        a.avslutningsstatus,
@@ -30,17 +32,17 @@ select a.id,
        a.antall_plasser,
        a.url,
        a.updated_at,
-       t.navn                                                                   as tiltakstype_navn,
+       t.navn                     as tiltakstype_navn,
        t.tiltakskode,
        an.nav_enheter,
-       au.leverandor_underenheter,
+       lu.leverandor_underenheter,
        jsonb_agg(
                distinct
                case
                    when aa.nav_ident is null then null::jsonb
                    else jsonb_build_object('navIdent', aa.nav_ident, 'navn', concat(na.fornavn, ' ', na.etternavn))
                    end
-           )                                                                    as administratorer,
+       )                          as administratorer,
        a.beskrivelse,
        a.faneinnhold
 from avtale a
@@ -63,13 +65,21 @@ from avtale a
          left join lateral (
     select au.avtale_id,
            jsonb_strip_nulls(jsonb_agg(jsonb_build_object(
-                   'organisasjonsnummer', au.organisasjonsnummer,
-                   'navn', v.navn))) as leverandor_underenheter
+                   'id', v.id,
+                   'organisasjonsnummer', v.organisasjonsnummer,
+                   'navn', v.navn,
+                   'slettet', v.slettet_dato is not null))) as leverandor_underenheter
     from avtale_underleverandor au
-             left join virksomhet v on v.organisasjonsnummer = au.organisasjonsnummer
+             left join virksomhet v on v.id = au.virksomhet_id
     group by au.avtale_id
-    ) au on au.avtale_id = a.id
-         left join virksomhet v on v.organisasjonsnummer = a.leverandor_organisasjonsnummer
+    ) lu on lu.avtale_id = a.id
+         left join virksomhet v on v.id = a.leverandor_virksomhet_id
          left join virksomhet_kontaktperson vk on vk.id = a.leverandor_kontaktperson_id
-group by a.id, t.navn, t.tiltakskode, v.navn, au.leverandor_underenheter, an.nav_enheter, vk.id,
+group by a.id,
+         t.navn,
+         t.tiltakskode,
+         v.organisasjonsnummer,
+         vk.id,
+         lu.leverandor_underenheter,
+         an.nav_enheter,
          arena_nav_enhet.enhetsnummer;

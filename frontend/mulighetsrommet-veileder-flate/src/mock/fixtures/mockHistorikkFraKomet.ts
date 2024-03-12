@@ -63,7 +63,6 @@ export const historikkFraKomet: HistorikkForBrukerFraKomet[] = [
 export const utkastFraKomet: AktivDeltakelse[] = [
   {
     deltakerId: window.crypto.randomUUID(),
-    beskrivelse: null,
     innsoktDato: "03.02.2024",
     sistEndretDato: "27.02.2024",
     aktivStatus: {

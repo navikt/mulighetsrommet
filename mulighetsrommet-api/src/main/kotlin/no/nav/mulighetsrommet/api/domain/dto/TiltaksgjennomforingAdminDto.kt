@@ -37,8 +37,8 @@ data class TiltaksgjennomforingAdminDto(
     @Serializable(with = UUIDSerializer::class)
     val avtaleId: UUID?,
     val administratorer: List<Administrator>,
-    val navEnheter: List<NavEnhetDbo>,
     val navRegion: NavEnhetDbo?,
+    val navEnheter: List<NavEnhetDbo>,
     @Serializable(with = UUIDSerializer::class)
     val sanityId: UUID?,
     val oppstart: TiltaksgjennomforingOppstartstype,
@@ -75,8 +75,10 @@ data class TiltaksgjennomforingAdminDto(
 
     @Serializable
     data class Arrangor(
+        @Serializable(with = UUIDSerializer::class)
+        val id: UUID,
         val organisasjonsnummer: String,
-        val navn: String?,
+        val navn: String,
         val kontaktpersoner: List<VirksomhetKontaktperson>,
         val slettet: Boolean,
     )
@@ -92,7 +94,7 @@ data class TiltaksgjennomforingAdminDto(
             id = id,
             navn = navn,
             tiltakstypeId = tiltakstype.id,
-            arrangorOrganisasjonsnummer = arrangor.organisasjonsnummer,
+            arrangorVirksomhetId = arrangor.id,
             arrangorKontaktpersoner = arrangor.kontaktpersoner.map { it.id },
             startDato = startDato,
             sluttDato = sluttDato,

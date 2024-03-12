@@ -16,17 +16,15 @@ class DeltakerRepositoryTest : FunSpec({
 
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
 
+    val domain = MulighetsrommetTestDomain(
+        gjennomforinger = listOf(TiltaksgjennomforingFixtures.Oppfolging1, TiltaksgjennomforingFixtures.Oppfolging2),
+    )
+
     beforeEach {
-        MulighetsrommetTestDomain().initialize(database.db)
+        domain.initialize(database.db)
     }
 
     context("consume deltakere") {
-        beforeTest {
-            val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
-            tiltaksgjennomforinger.upsert(TiltaksgjennomforingFixtures.Oppfolging1)
-            tiltaksgjennomforinger.upsert(TiltaksgjennomforingFixtures.Oppfolging2)
-        }
-
         val deltakere = DeltakerRepository(database.db)
 
         val deltaker1 = DeltakerDbo(

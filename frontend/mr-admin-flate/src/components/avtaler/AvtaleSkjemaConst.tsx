@@ -1,12 +1,4 @@
-import {
-  Avtale,
-  Avtaletype,
-  LeverandorUnderenhet,
-  NavAnsatt,
-  NavEnhet,
-  NavEnhetType,
-  Virksomhet,
-} from "mulighetsrommet-api-client";
+import { Avtale, Avtaletype, NavAnsatt, NavEnhet, NavEnhetType } from "mulighetsrommet-api-client";
 import { DeepPartial } from "react-hook-form";
 import { InferredAvtaleSchema } from "../redaksjonelt-innhold/AvtaleSchema";
 
@@ -28,12 +20,6 @@ export const getLokaleUnderenheterAsSelectOptions = (
     }));
 };
 
-export const underenheterOptions = (underenheterForLeverandor: Virksomhet[]) =>
-  underenheterForLeverandor.map((leverandor: LeverandorUnderenhet) => ({
-    value: leverandor.organisasjonsnummer,
-    label: `${leverandor.navn} - ${leverandor.organisasjonsnummer}`,
-  }));
-
 export function defaultAvtaleData(
   ansatt: NavAnsatt,
   avtale?: Avtale,
@@ -51,13 +37,10 @@ export function defaultAvtaleData(
     navn: avtale?.navn ?? "",
     avtaletype: avtale?.avtaletype ?? Avtaletype.AVTALE,
     leverandor: avtale?.leverandor?.organisasjonsnummer ?? "",
-    leverandorUnderenheter:
-      avtale?.leverandorUnderenheter?.length === 0 || !avtale?.leverandorUnderenheter
-        ? []
-        : avtale?.leverandorUnderenheter?.map(
-            (leverandor: LeverandorUnderenhet) => leverandor.organisasjonsnummer,
-          ),
-    leverandorKontaktpersonId: avtale?.leverandorKontaktperson?.id,
+    leverandorUnderenheter: !avtale?.leverandor?.underenheter
+      ? []
+      : avtale.leverandor.underenheter.map((underenhet) => underenhet.organisasjonsnummer),
+    leverandorKontaktpersonId: avtale?.leverandor?.kontaktperson?.id,
     startOgSluttDato: {
       startDato: avtale?.startDato ? avtale.startDato : undefined,
       sluttDato: avtale?.sluttDato ? avtale.sluttDato : undefined,

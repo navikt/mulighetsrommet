@@ -17,6 +17,7 @@ import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListe
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.kafka.consumers.amt.AmtVirksomhetV1Dto
 import no.nav.mulighetsrommet.kafka.consumers.amt.AmtVirksomheterV1TopicConsumer
+import java.util.*
 
 class AmtVirksomheterV1TopicConsumerTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
@@ -35,6 +36,7 @@ class AmtVirksomheterV1TopicConsumerTest : FunSpec({
         )
 
         val underenhetDto = VirksomhetDto(
+            id = UUID.randomUUID(),
             navn = amtUnderenhet.navn,
             organisasjonsnummer = amtUnderenhet.organisasjonsnummer,
             overordnetEnhet = amtVirksomhet.organisasjonsnummer,
@@ -43,6 +45,7 @@ class AmtVirksomheterV1TopicConsumerTest : FunSpec({
         )
 
         val virksomhetDto = VirksomhetDto(
+            id = UUID.randomUUID(),
             organisasjonsnummer = amtVirksomhet.organisasjonsnummer,
             navn = amtVirksomhet.navn,
             overordnetEnhet = null,

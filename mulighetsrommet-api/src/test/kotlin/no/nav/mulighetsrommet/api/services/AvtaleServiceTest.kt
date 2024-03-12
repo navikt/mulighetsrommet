@@ -8,10 +8,11 @@ import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
 import no.nav.mulighetsrommet.api.avtaler.AvtaleValidator
+import no.nav.mulighetsrommet.api.clients.brreg.BrregClient
+import no.nav.mulighetsrommet.api.clients.brreg.BrregError
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dbo.AvtaleDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattDbo
-import no.nav.mulighetsrommet.api.domain.dto.VirksomhetDto
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures
@@ -19,6 +20,7 @@ import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.repositories.NavAnsattRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
+import no.nav.mulighetsrommet.api.repositories.VirksomhetRepository
 import no.nav.mulighetsrommet.api.routes.v1.responses.BadRequest
 import no.nav.mulighetsrommet.api.routes.v1.responses.NotFound
 import no.nav.mulighetsrommet.api.routes.v1.responses.ValidationError
@@ -32,7 +34,7 @@ import java.util.*
 
 class AvtaleServiceTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
-    val virksomhetService: VirksomhetService = mockk(relaxed = true)
+
     val validator = mockk<AvtaleValidator>()
 
     val domain = MulighetsrommetTestDomain()
@@ -43,20 +45,13 @@ class AvtaleServiceTest : FunSpec({
         every { validator.validate(any(), any()) } answers {
             firstArg<AvtaleDbo>().right()
         }
-
-        coEvery { virksomhetService.getOrSyncHovedenhetFromBrreg(any()) } answers {
-            VirksomhetDto(
-                organisasjonsnummer = firstArg<String>(),
-                navn = "Virksomhet",
-                postnummer = null,
-                poststed = null,
-            ).right()
-        }
     }
 
     val bertilNavIdent = NavIdent("B123456")
 
     context("Upsert avtale") {
+        val brregClient = mockk<BrregClient>()
+        val virksomhetService = VirksomhetService(brregClient, VirksomhetRepository(database.db))
         val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
         val avtaler = AvtaleRepository(database.db)
         val avtaleService = AvtaleService(
@@ -69,10 +64,10 @@ class AvtaleServiceTest : FunSpec({
             database.db,
         )
 
-        test("Man skal ikke få lov til å opprette avtale dersom det oppstår valideringsfeil") {
+        test("får ikke opprette avtale dersom det oppstår valideringsfeil") {
             val request = AvtaleFixtures.avtaleRequest
 
-            every { validator.validate(request.toDbo(), any()) } returns listOf(
+            every { validator.validate(any(), any()) } returns listOf(
                 ValidationError("navn", "Dårlig navn"),
             ).left()
 
@@ -80,12 +75,31 @@ class AvtaleServiceTest : FunSpec({
                 listOf(ValidationError("navn", "Dårlig navn")),
             )
         }
+
+        test("får ikke opprette avtale dersom virksomhet ikke finnes i Brreg") {
+            val request = AvtaleFixtures.avtaleRequest.copy(
+                leverandorOrganisasjonsnummer = "404",
+                leverandorUnderenheter = listOf(),
+            )
+
+            coEvery { brregClient.getHovedenhet("404") } returns BrregError.NotFound.left()
+            coEvery { brregClient.getUnderenhet("404") } returns BrregError.NotFound.left()
+
+            avtaleService.upsert(request, bertilNavIdent).shouldBeLeft(
+                listOf(
+                    ValidationError(
+                        "leverandorOrganisasjonsnummer",
+                        "Leverandøren finnes ikke Brønnøysundregistrene",
+                    ),
+                ),
+            )
+        }
     }
 
     context("Avbryte avtale") {
+        val virksomhetService = VirksomhetService(mockk(), VirksomhetRepository(database.db))
         val avtaleRepository = AvtaleRepository(database.db)
         val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
-
         val avtaleService = AvtaleService(
             avtaleRepository,
             tiltaksgjennomforinger,
@@ -188,6 +202,7 @@ class AvtaleServiceTest : FunSpec({
     }
 
     context("Administrator-notification") {
+        val virksomhetService = VirksomhetService(mockk(), VirksomhetRepository(database.db))
         val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
         val avtaler = AvtaleRepository(database.db)
         val avtaleService = AvtaleService(

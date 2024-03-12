@@ -127,7 +127,7 @@ class ArenaAdapterService(
             }
 
             gjennomforing.avtaleId?.let { avtaleId ->
-                avtaler.setLeverandorUnderenhet(tx, avtaleId, gjennomforing.arrangor.organisasjonsnummer)
+                avtaler.setLeverandorUnderenhet(tx, avtaleId, gjennomforing.arrangor.id)
             }
 
             tiltaksgjennomforingKafkaProducer.publish(TiltaksgjennomforingDto.from(gjennomforing))

@@ -110,16 +110,11 @@ class TiltaksgjennomforingValidator(
                 }
             }
 
-            val avtaleHasArrangor = avtale.leverandorUnderenheter.any {
-                it.organisasjonsnummer == dbo.arrangorOrganisasjonsnummer
+            val avtaleHasArrangor = avtale.leverandor.underenheter.any {
+                it.id == dbo.arrangorVirksomhetId
             }
             if (!avtaleHasArrangor) {
-                add(
-                    ValidationError.of(
-                        TiltaksgjennomforingDbo::arrangorOrganisasjonsnummer,
-                        "Arrangøren mangler i avtalen",
-                    ),
-                )
+                add(ValidationError.of(TiltaksgjennomforingDbo::arrangorVirksomhetId, "Arrangøren mangler i avtalen"))
             }
 
             if (previous != null) {
@@ -160,10 +155,10 @@ class TiltaksgjennomforingValidator(
                         )
                     }
 
-                    if (dbo.arrangorOrganisasjonsnummer != previous.arrangor.organisasjonsnummer) {
+                    if (dbo.arrangorVirksomhetId != previous.arrangor.id) {
                         add(
                             ValidationError.of(
-                                TiltaksgjennomforingDbo::arrangorOrganisasjonsnummer,
+                                TiltaksgjennomforingDbo::arrangorVirksomhetId,
                                 "Arrangøren kan ikke endres når gjennomføringen er aktiv",
                             ),
                         )

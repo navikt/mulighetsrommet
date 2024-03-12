@@ -20,14 +20,14 @@ interface State {
 }
 
 interface VirksomhetKontaktpersonerProps {
-  orgnr: string;
+  virksomhetId: string;
   person?: VirksomhetKontaktperson;
   onSubmit: () => void;
 }
 
 export const VirksomhetKontaktpersonSkjema = (props: VirksomhetKontaktpersonerProps) => {
-  const { orgnr, person, onSubmit } = props;
-  const putMutation = usePutVirksomhetKontaktperson(orgnr);
+  const { virksomhetId, person, onSubmit } = props;
+  const putMutation = usePutVirksomhetKontaktperson(virksomhetId);
   const deleteMutation = useDeleteVirksomhetKontaktperson();
 
   const [state, setState] = useState<State>({
@@ -48,7 +48,7 @@ export const VirksomhetKontaktpersonSkjema = (props: VirksomhetKontaktpersonerPr
 
   function deleteKontaktperson() {
     if (person) {
-      deleteMutation.mutate(person.id);
+      deleteMutation.mutate({ virksomhetId, kontaktpersonId: person.id });
     }
   }
 

@@ -9,20 +9,21 @@ import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.domain.dbo.AvtaleDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dto.AvtaleAdminDto
+import no.nav.mulighetsrommet.api.domain.dto.VirksomhetDto
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
+import no.nav.mulighetsrommet.api.repositories.VirksomhetRepository
 import no.nav.mulighetsrommet.api.routes.v1.responses.ValidationError
 import no.nav.mulighetsrommet.api.services.NavEnhetService
 import no.nav.mulighetsrommet.api.services.TiltakstypeService
 import no.nav.mulighetsrommet.domain.Tiltakskoder.isAFTOrVTA
-import no.nav.mulighetsrommet.domain.Tiltakskoder.isTiltakMedAvtalerFraMulighetsrommet
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dto.TiltakstypeAdminDto
-import no.nav.mulighetsrommet.env.NaisEnv
 
 class AvtaleValidator(
     private val tiltakstyper: TiltakstypeService,
     private val tiltaksgjennomforinger: TiltaksgjennomforingRepository,
     private val navEnheterService: NavEnhetService,
+    private val virksomheter: VirksomhetRepository,
 ) {
     fun validate(dbo: AvtaleDbo, previous: AvtaleAdminDto?): Either<List<ValidationError>, AvtaleDbo> = either {
         val tiltakstype = tiltakstyper.getById(dbo.tiltakstypeId)
@@ -95,12 +96,13 @@ class AvtaleValidator(
                     }
 
                     gjennomforinger.forEach { gjennomforing ->
-                        val arrangor = gjennomforing.arrangor.organisasjonsnummer
+                        val arrangor = gjennomforing.arrangor.id
                         if (arrangor !in dbo.leverandorUnderenheter) {
+                            val virksomhet: VirksomhetDto = virksomheter.getById(arrangor)
                             add(
                                 ValidationError.of(
                                     AvtaleDbo::leverandorUnderenheter,
-                                    "Arrangøren $arrangor er i bruk på en av avtalens gjennomføringer, men mangler blandt leverandørens underenheter",
+                                    "Arrangøren ${virksomhet.navn} er i bruk på en av avtalens gjennomføringer, men mangler blandt leverandørens underenheter",
                                 ),
                             )
                         }
@@ -163,10 +165,10 @@ class AvtaleValidator(
                         )
                     }
 
-                    if (dbo.leverandorOrganisasjonsnummer != avtale.leverandor.organisasjonsnummer) {
+                    if (dbo.leverandorVirksomhetId != avtale.leverandor.id) {
                         add(
                             ValidationError.of(
-                                AvtaleDbo::leverandorOrganisasjonsnummer,
+                                AvtaleDbo::leverandorVirksomhetId,
                                 "Leverandøren kan ikke endres utenfor Arena",
                             ),
                         )
@@ -175,15 +177,6 @@ class AvtaleValidator(
             } ?: run {
                 if (dbo.navn.length < 5) {
                     add(ValidationError.of(AvtaleDbo::navn, "Avtalenavn må være minst 5 tegn langt"))
-                }
-
-                if (!isTiltakMedAvtalerFraMulighetsrommet(tiltakstype.arenaKode) && NaisEnv.current().isProdGCP()) {
-                    add(
-                        ValidationError.of(
-                            AvtaleDbo::tiltakstypeId,
-                            message = "Avtaler kan bare opprettes når de gjelder for tiltakstypene AFT eller VTA",
-                        ),
-                    )
                 }
             }
         }

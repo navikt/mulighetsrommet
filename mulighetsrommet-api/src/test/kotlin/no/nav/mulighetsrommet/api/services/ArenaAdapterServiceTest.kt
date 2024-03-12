@@ -6,6 +6,7 @@ import io.kotest.common.runBlocking
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.data.blocking.forAll
 import io.kotest.data.row
+import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
@@ -13,6 +14,7 @@ import io.mockk.clearAllMocks
 import io.mockk.coEvery
 import io.mockk.mockk
 import io.mockk.verify
+import no.nav.mulighetsrommet.api.clients.AccessType
 import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClient
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
@@ -22,7 +24,6 @@ import no.nav.mulighetsrommet.api.domain.dto.TiltakstypeEksternDto
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.repositories.*
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
-import no.nav.mulighetsrommet.database.utils.getOrThrow
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.*
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus.AVSLUTTET
@@ -42,75 +43,7 @@ import java.util.*
 class ArenaAdapterServiceTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
 
-    val tiltakstype = TiltakstypeFixtures.Oppfolging
-    val veilarboppfolgingClient: VeilarboppfolgingClient = mockk()
-
-    val avtale = ArenaAvtaleDbo(
-        id = UUID.randomUUID(),
-        navn = "Oppfølgingsavtale",
-        tiltakstypeId = tiltakstype.id,
-        avtalenummer = "2023#1000",
-        leverandorOrganisasjonsnummer = "123456789",
-        startDato = LocalDate.now(),
-        sluttDato = LocalDate.now().plusYears(1),
-        arenaAnsvarligEnhet = null,
-        avtaletype = Avtaletype.Rammeavtale,
-        avslutningsstatus = IKKE_AVSLUTTET,
-        prisbetingelser = "💸",
-    )
-
-    val tiltaksgjennomforing = ArenaTiltaksgjennomforingDbo(
-        id = UUID.randomUUID(),
-        navn = "Oppfølging",
-        tiltakstypeId = tiltakstype.id,
-        tiltaksnummer = "12345",
-        arrangorOrganisasjonsnummer = "123456789",
-        startDato = LocalDate.now(),
-        sluttDato = LocalDate.now().plusYears(1),
-        arenaAnsvarligEnhet = null,
-        avslutningsstatus = IKKE_AVSLUTTET,
-        apentForInnsok = true,
-        antallPlasser = null,
-        oppstart = TiltaksgjennomforingOppstartstype.FELLES,
-        avtaleId = null,
-        deltidsprosent = 100.0,
-    )
-
-    val tiltakshistorikkGruppe = ArenaTiltakshistorikkDbo.Gruppetiltak(
-        id = UUID.randomUUID(),
-        tiltaksgjennomforingId = tiltaksgjennomforing.id,
-        norskIdent = "12345678910",
-        status = Deltakerstatus.VENTER,
-        fraDato = LocalDateTime.of(2018, 12, 3, 0, 0),
-        tilDato = LocalDateTime.of(2019, 12, 3, 0, 0),
-        registrertIArenaDato = LocalDateTime.of(2018, 12, 3, 0, 0),
-    )
-
-    val tiltakstypeIndividuell = TiltakstypeDbo(
-        id = UUID.randomUUID(),
-        navn = "Høyere utdanning",
-        tiltakskode = "HOYEREUTD",
-        rettPaaTiltakspenger = true,
-        registrertDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
-        sistEndretDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
-        fraDato = LocalDate.of(2023, 1, 11),
-        tilDato = LocalDate.of(2023, 1, 12),
-    )
-
-    val tiltakshistorikkIndividuell = ArenaTiltakshistorikkDbo.IndividueltTiltak(
-        id = UUID.randomUUID(),
-        norskIdent = "12345678910",
-        status = Deltakerstatus.VENTER,
-        fraDato = LocalDateTime.of(2018, 12, 3, 0, 0),
-        tilDato = LocalDateTime.of(2019, 12, 3, 0, 0),
-        registrertIArenaDato = LocalDateTime.of(2018, 12, 3, 0, 0),
-        beskrivelse = "Utdanning",
-        tiltakstypeId = tiltakstypeIndividuell.id,
-        arrangorOrganisasjonsnummer = "12343",
-    )
-
     context("tiltakstype") {
-        coEvery { veilarboppfolgingClient.erBrukerUnderOppfolging(any(), any()) } returns true.right()
         val tiltakstypeKafkaProducer = mockk<TiltakstypeKafkaProducer>(relaxed = true)
         val service = ArenaAdapterService(
             db = database.db,
@@ -127,8 +60,10 @@ class ArenaAdapterServiceTest : FunSpec({
             navEnhetService = mockk(relaxed = true),
             notificationService = mockk(relaxed = true),
             endringshistorikk = EndringshistorikkService(database.db),
-            veilarboppfolgingClient = veilarboppfolgingClient,
+            veilarboppfolgingClient = mockk<VeilarboppfolgingClient>(),
         )
+
+        val tiltakstype = TiltakstypeFixtures.Oppfolging
 
         afterTest {
             clearAllMocks()
@@ -185,7 +120,6 @@ class ArenaAdapterServiceTest : FunSpec({
     }
 
     context("avtaler") {
-        coEvery { veilarboppfolgingClient.erBrukerUnderOppfolging(any(), any()) } returns true.right()
         val notificationService = mockk<NotificationService>(relaxed = true)
         val navEnheter = NavEnhetRepository(database.db)
         val service = ArenaAdapterService(
@@ -203,7 +137,21 @@ class ArenaAdapterServiceTest : FunSpec({
             navEnhetService = NavEnhetService(navEnheter),
             notificationService = notificationService,
             endringshistorikk = EndringshistorikkService(database.db),
-            veilarboppfolgingClient = veilarboppfolgingClient,
+            veilarboppfolgingClient = mockk<VeilarboppfolgingClient>(),
+        )
+
+        val avtale = ArenaAvtaleDbo(
+            id = UUID.randomUUID(),
+            navn = "Oppfølgingsavtale",
+            tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
+            avtalenummer = "2023#1000",
+            leverandorOrganisasjonsnummer = "123456789",
+            startDato = LocalDate.now(),
+            sluttDato = LocalDate.now().plusYears(1),
+            arenaAnsvarligEnhet = null,
+            avtaletype = Avtaletype.Rammeavtale,
+            avslutningsstatus = IKKE_AVSLUTTET,
+            prisbetingelser = "💸",
         )
 
         afterEach {
@@ -211,28 +159,27 @@ class ArenaAdapterServiceTest : FunSpec({
         }
 
         test("CRUD") {
-            service.upsertTiltakstype(tiltakstype)
+            val domain = MulighetsrommetTestDomain(
+                virksomheter = listOf(VirksomhetFixtures.hovedenhet),
+                tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
+                avtaler = listOf(),
+                gjennomforinger = listOf(),
+            )
+            domain.initialize(database.db)
+
             service.upsertAvtale(avtale)
             database.assertThat("avtale").row()
                 .value("id").isEqualTo(avtale.id)
                 .value("navn").isEqualTo(avtale.navn)
                 .value("tiltakstype_id").isEqualTo(avtale.tiltakstypeId)
                 .value("avtalenummer").isEqualTo(avtale.avtalenummer)
-                .value("leverandor_organisasjonsnummer").isEqualTo(avtale.leverandorOrganisasjonsnummer)
+                .value("leverandor_virksomhet_id").isEqualTo(VirksomhetFixtures.hovedenhet.id)
                 .value("start_dato").isEqualTo(avtale.startDato)
                 .value("slutt_dato").isEqualTo(avtale.sluttDato)
                 .value("arena_ansvarlig_enhet").isEqualTo(avtale.arenaAnsvarligEnhet)
                 .value("avtaletype").isEqualTo(avtale.avtaletype.name)
                 .value("avslutningsstatus").isEqualTo(avtale.avslutningsstatus.name)
                 .value("prisbetingelser").isEqualTo(avtale.prisbetingelser)
-
-            val updated = tiltaksgjennomforing.copy(navn = "Arbeidsovertrening")
-            service.upsertTiltaksgjennomforing(updated).getOrThrow()
-            database.assertThat("tiltaksgjennomforing").row()
-                .value("navn").isEqualTo(updated.navn)
-
-            service.removeTiltaksgjennomforing(updated.id)
-            database.assertThat("tiltaksgjennomforing").isEmpty
         }
 
         test("varsler administratorer basert på hovedenhet når avtale har endringer") {
@@ -242,7 +189,7 @@ class ArenaAdapterServiceTest : FunSpec({
                     NavAnsattFixture.ansatt1.copy(hovedenhet = NavEnhetFixtures.IT.enhetsnummer),
                     NavAnsattFixture.ansatt2.copy(hovedenhet = NavEnhetFixtures.IT.enhetsnummer),
                 ),
-                tiltakstyper = listOf(tiltakstype),
+                tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
                 avtaler = listOf(),
             )
             domain.initialize(database.db)
@@ -277,7 +224,7 @@ class ArenaAdapterServiceTest : FunSpec({
                     NavAnsattFixture.ansatt1.copy(hovedenhet = NavEnhetFixtures.Sagene.enhetsnummer),
                     NavAnsattFixture.ansatt2.copy(hovedenhet = NavEnhetFixtures.Gjovik.enhetsnummer),
                 ),
-                tiltakstyper = listOf(tiltakstype),
+                tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
                 avtaler = listOf(),
             )
             domain.initialize(database.db)
@@ -305,7 +252,7 @@ class ArenaAdapterServiceTest : FunSpec({
                     NavAnsattFixture.ansatt1.copy(hovedenhet = NavEnhetFixtures.IT.enhetsnummer),
                     NavAnsattFixture.ansatt2.copy(hovedenhet = NavEnhetFixtures.IT.enhetsnummer),
                 ),
-                tiltakstyper = listOf(tiltakstype),
+                tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
                 avtaler = listOf(),
             )
             domain.initialize(database.db)
@@ -324,7 +271,6 @@ class ArenaAdapterServiceTest : FunSpec({
     }
 
     context("tiltaksgjennomføring") {
-        coEvery { veilarboppfolgingClient.erBrukerUnderOppfolging(any(), any()) } returns true.right()
         val tiltaksgjennomforingKafkaProducer = mockk<TiltaksgjennomforingKafkaProducer>(relaxed = true)
         val notificationService = mockk<NotificationService>(relaxed = true)
         val gjennomforinger = TiltaksgjennomforingRepository(database.db)
@@ -343,7 +289,24 @@ class ArenaAdapterServiceTest : FunSpec({
             navEnhetService = NavEnhetService(NavEnhetRepository(database.db)),
             notificationService = notificationService,
             endringshistorikk = EndringshistorikkService(database.db),
-            veilarboppfolgingClient = veilarboppfolgingClient,
+            veilarboppfolgingClient = mockk<VeilarboppfolgingClient>(),
+        )
+
+        val tiltaksgjennomforing = ArenaTiltaksgjennomforingDbo(
+            id = UUID.randomUUID(),
+            navn = "Oppfølging",
+            tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
+            tiltaksnummer = "12345",
+            arrangorOrganisasjonsnummer = "976663934",
+            startDato = LocalDate.now(),
+            sluttDato = LocalDate.now().plusYears(1),
+            arenaAnsvarligEnhet = null,
+            avslutningsstatus = IKKE_AVSLUTTET,
+            apentForInnsok = true,
+            antallPlasser = null,
+            oppstart = TiltaksgjennomforingOppstartstype.FELLES,
+            avtaleId = null,
+            deltidsprosent = 100.0,
         )
 
         afterEach {
@@ -351,16 +314,21 @@ class ArenaAdapterServiceTest : FunSpec({
         }
 
         test("CRUD") {
-            service.upsertTiltakstype(tiltakstype)
+            val domain = MulighetsrommetTestDomain(
+                enheter = listOf(NavEnhetFixtures.IT),
+                tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
+                avtaler = listOf(AvtaleFixtures.oppfolging),
+            )
+            domain.initialize(database.db)
 
             service.upsertTiltaksgjennomforing(tiltaksgjennomforing)
 
             database.assertThat("tiltaksgjennomforing").row()
                 .value("id").isEqualTo(tiltaksgjennomforing.id)
                 .value("navn").isEqualTo(tiltaksgjennomforing.navn)
-                .value("tiltakstype_id").isEqualTo(tiltakstype.id)
+                .value("tiltakstype_id").isEqualTo(TiltakstypeFixtures.Oppfolging.id)
                 .value("tiltaksnummer").isEqualTo(tiltaksgjennomforing.tiltaksnummer)
-                .value("arrangor_organisasjonsnummer").isEqualTo(tiltaksgjennomforing.arrangorOrganisasjonsnummer)
+                .value("arrangor_virksomhet_id").isEqualTo(VirksomhetFixtures.underenhet1.id)
                 .value("start_dato").isEqualTo(tiltaksgjennomforing.startDato)
                 .value("slutt_dato").isEqualTo(tiltaksgjennomforing.sluttDato)
                 .value("deltidsprosent").isEqualTo(tiltaksgjennomforing.deltidsprosent)
@@ -384,11 +352,16 @@ class ArenaAdapterServiceTest : FunSpec({
         }
 
         test("should publish and retract gruppetiltak from kafka topic") {
-            service.upsertTiltakstype(tiltakstype)
+            service.upsertTiltakstype(TiltakstypeFixtures.Oppfolging)
             service.upsertTiltaksgjennomforing(tiltaksgjennomforing)
 
             verify(exactly = 1) {
-                tiltaksgjennomforingKafkaProducer.publish(toTiltaksgjennomforingDto(tiltaksgjennomforing, tiltakstype))
+                tiltaksgjennomforingKafkaProducer.publish(
+                    toTiltaksgjennomforingDto(
+                        tiltaksgjennomforing,
+                        TiltakstypeFixtures.Oppfolging,
+                    ),
+                )
             }
 
             service.removeTiltaksgjennomforing(tiltaksgjennomforing.id)
@@ -401,12 +374,17 @@ class ArenaAdapterServiceTest : FunSpec({
         }
 
         test("should only publish once for duplicated upserts") {
-            service.upsertTiltakstype(tiltakstype)
+            service.upsertTiltakstype(TiltakstypeFixtures.Oppfolging)
             service.upsertTiltaksgjennomforing(tiltaksgjennomforing)
             service.upsertTiltaksgjennomforing(tiltaksgjennomforing)
 
             verify(exactly = 1) {
-                tiltaksgjennomforingKafkaProducer.publish(toTiltaksgjennomforingDto(tiltaksgjennomforing, tiltakstype))
+                tiltaksgjennomforingKafkaProducer.publish(
+                    toTiltaksgjennomforingDto(
+                        tiltaksgjennomforing,
+                        TiltakstypeFixtures.Oppfolging,
+                    ),
+                )
             }
         }
 
@@ -414,14 +392,19 @@ class ArenaAdapterServiceTest : FunSpec({
             val gjennomforing = TiltaksgjennomforingFixtures.Oppfolging1
 
             MulighetsrommetTestDomain(
-                tiltakstyper = listOf(tiltakstype),
+                virksomheter = listOf(VirksomhetFixtures.hovedenhet, VirksomhetFixtures.underenhet1),
+                tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
                 avtaler = listOf(AvtaleFixtures.oppfolging),
                 gjennomforinger = listOf(gjennomforing),
             ).initialize(database.db)
 
-            service.upsertTiltakstype(tiltakstype)
             service.upsertTiltaksgjennomforing(
-                toArenaTiltaksgjennomforingDbo(gjennomforing.copy(navn = "Endret navn"), AVSLUTTET, "2024#1"),
+                toArenaTiltaksgjennomforingDbo(
+                    gjennomforing.copy(navn = "Endret navn"),
+                    VirksomhetFixtures.underenhet1.organisasjonsnummer,
+                    AVSLUTTET,
+                    "2024#1",
+                ),
             )
 
             gjennomforinger.get(gjennomforing.id).shouldNotBeNull().should {
@@ -433,19 +416,22 @@ class ArenaAdapterServiceTest : FunSpec({
         test("should keep references to existing avtale when avtale is managed in Mulighetsrommet") {
             forAll(row("VASV"), row("ARBFORB")) { tiltakskode ->
                 runBlocking {
-                    val type = tiltakstype.copy(tiltakskode = tiltakskode)
+                    val domain = MulighetsrommetTestDomain(
+                        tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging.copy(tiltakskode = tiltakskode)),
+                        avtaler = listOf(AvtaleFixtures.oppfolging),
+                    )
+                    domain.initialize(database.db)
 
-                    service.upsertTiltakstype(type)
-                    service.upsertAvtale(avtale)
+                    val avtaleId = domain.avtaler[0].id
 
-                    service.upsertTiltaksgjennomforing(tiltaksgjennomforing.copy(avtaleId = avtale.id)).shouldBeRight()
+                    service.upsertTiltaksgjennomforing(tiltaksgjennomforing.copy(avtaleId = avtaleId)).shouldBeRight()
                     gjennomforinger.get(tiltaksgjennomforing.id).shouldNotBeNull().should {
-                        it.avtaleId shouldBe avtale.id
+                        it.avtaleId shouldBe avtaleId
                     }
 
                     service.upsertTiltaksgjennomforing(tiltaksgjennomforing.copy(avtaleId = null))
                     gjennomforinger.get(tiltaksgjennomforing.id).shouldNotBeNull().should {
-                        it.avtaleId shouldBe avtale.id
+                        it.avtaleId shouldBe avtaleId
                     }
 
                     verify(exactly = 1) {
@@ -458,14 +444,17 @@ class ArenaAdapterServiceTest : FunSpec({
         test("should overwrite references to existing avtale when avtale is managed in Arena") {
             forAll(row("JOBBK"), row("GRUPPEAMO")) { tiltakskode ->
                 runBlocking {
-                    val type = tiltakstype.copy(tiltakskode = tiltakskode)
+                    val domain = MulighetsrommetTestDomain(
+                        tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging.copy(tiltakskode = tiltakskode)),
+                        avtaler = listOf(AvtaleFixtures.oppfolging),
+                    )
+                    domain.initialize(database.db)
 
-                    service.upsertTiltakstype(type)
-                    service.upsertAvtale(avtale)
+                    val avtaleId = domain.avtaler[0].id
 
-                    service.upsertTiltaksgjennomforing(tiltaksgjennomforing.copy(avtaleId = avtale.id))
+                    service.upsertTiltaksgjennomforing(tiltaksgjennomforing.copy(avtaleId = avtaleId))
                     gjennomforinger.get(tiltaksgjennomforing.id).shouldNotBeNull().should {
-                        it.avtaleId shouldBe avtale.id
+                        it.avtaleId shouldBe avtaleId
                     }
 
                     service.upsertTiltaksgjennomforing(tiltaksgjennomforing.copy(avtaleId = null))
@@ -477,17 +466,24 @@ class ArenaAdapterServiceTest : FunSpec({
         }
 
         test("should update avtale underleverandor") {
+            val domain = MulighetsrommetTestDomain(
+                tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
+                avtaler = listOf(AvtaleFixtures.oppfolging.copy(leverandorUnderenheter = emptyList())),
+            )
+            domain.initialize(database.db)
+
             val avtaler = AvtaleRepository(database.db)
-            val a = avtale.copy(id = UUID.randomUUID())
 
-            service.upsertTiltakstype(tiltakstype)
-            service.upsertAvtale(a)
+            avtaler.get(AvtaleFixtures.oppfolging.id).shouldNotBeNull().leverandor.underenheter.shouldBeEmpty()
 
-            service.upsertTiltaksgjennomforing(tiltaksgjennomforing.copy(avtaleId = a.id))
+            service.upsertTiltaksgjennomforing(tiltaksgjennomforing.copy(avtaleId = AvtaleFixtures.oppfolging.id))
 
-            avtaler.get(a.id)?.leverandorUnderenheter shouldBe listOf(
+            avtaler.get(AvtaleFixtures.oppfolging.id).shouldNotBeNull().leverandor.underenheter shouldBe listOf(
                 AvtaleAdminDto.LeverandorUnderenhet(
-                    organisasjonsnummer = tiltaksgjennomforing.arrangorOrganisasjonsnummer,
+                    id = VirksomhetFixtures.underenhet1.id,
+                    organisasjonsnummer = VirksomhetFixtures.underenhet1.organisasjonsnummer,
+                    navn = VirksomhetFixtures.underenhet1.navn,
+                    slettet = false,
                 ),
             )
         }
@@ -499,15 +495,14 @@ class ArenaAdapterServiceTest : FunSpec({
                     NavAnsattFixture.ansatt1.copy(hovedenhet = NavEnhetFixtures.IT.enhetsnummer),
                     NavAnsattFixture.ansatt2.copy(hovedenhet = NavEnhetFixtures.IT.enhetsnummer),
                 ),
-                tiltakstyper = listOf(tiltakstype),
-                avtaler = listOf(),
+                tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
+                avtaler = listOf(AvtaleFixtures.oppfolging),
             )
             domain.initialize(database.db)
-            service.upsertAvtale(avtale)
 
             service.upsertTiltaksgjennomforing(
                 tiltaksgjennomforing.copy(
-                    avtaleId = avtale.id,
+                    avtaleId = AvtaleFixtures.oppfolging.id,
                     arenaAnsvarligEnhet = NavEnhetFixtures.IT.enhetsnummer,
                 ),
             )
@@ -536,18 +531,14 @@ class ArenaAdapterServiceTest : FunSpec({
                     NavAnsattFixture.ansatt1.copy(hovedenhet = NavEnhetFixtures.Sagene.enhetsnummer),
                     NavAnsattFixture.ansatt2.copy(hovedenhet = NavEnhetFixtures.Gjovik.enhetsnummer),
                 ),
-                tiltakstyper = listOf(tiltakstype),
-                avtaler = listOf(),
+                tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
+                avtaler = listOf(AvtaleFixtures.oppfolging),
             )
             domain.initialize(database.db)
-            val enheter = NavEnhetRepository(database.db)
-            enheter.upsert(NavEnhetFixtures.Oslo).shouldBeRight()
-            enheter.upsert(NavEnhetFixtures.TiltakOslo).shouldBeRight()
-            service.upsertAvtale(avtale)
 
             service.upsertTiltaksgjennomforing(
                 tiltaksgjennomforing.copy(
-                    avtaleId = avtale.id,
+                    avtaleId = AvtaleFixtures.oppfolging.id,
                     arenaAnsvarligEnhet = NavEnhetFixtures.TiltakOslo.enhetsnummer,
                 ),
             )
@@ -569,15 +560,14 @@ class ArenaAdapterServiceTest : FunSpec({
                     NavAnsattFixture.ansatt1.copy(hovedenhet = NavEnhetFixtures.IT.enhetsnummer),
                     NavAnsattFixture.ansatt2.copy(hovedenhet = NavEnhetFixtures.IT.enhetsnummer),
                 ),
-                tiltakstyper = listOf(tiltakstype),
-                avtaler = listOf(),
+                tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
+                avtaler = listOf(AvtaleFixtures.oppfolging),
             )
             domain.initialize(database.db)
-            service.upsertAvtale(avtale)
 
             service.upsertTiltaksgjennomforing(
                 tiltaksgjennomforing.copy(
-                    avtaleId = avtale.id,
+                    avtaleId = AvtaleFixtures.oppfolging.id,
                     arenaAnsvarligEnhet = NavEnhetFixtures.IT.enhetsnummer,
                     avslutningsstatus = Avslutningsstatus.AVBRUTT,
                 ),
@@ -590,7 +580,8 @@ class ArenaAdapterServiceTest : FunSpec({
     }
 
     context("tiltakshistorikk") {
-        coEvery { veilarboppfolgingClient.erBrukerUnderOppfolging(any(), any()) } returns true.right()
+        val veilarboppfolgingClient: VeilarboppfolgingClient = mockk()
+
         val service = ArenaAdapterService(
             db = database.db,
             navAnsatte = NavAnsattRepository(database.db),
@@ -609,9 +600,53 @@ class ArenaAdapterServiceTest : FunSpec({
             veilarboppfolgingClient = veilarboppfolgingClient,
         )
 
+        val tiltakshistorikkGruppe = ArenaTiltakshistorikkDbo.Gruppetiltak(
+            id = UUID.randomUUID(),
+            tiltaksgjennomforingId = TiltaksgjennomforingFixtures.Oppfolging1.id,
+            norskIdent = "12345678910",
+            status = Deltakerstatus.VENTER,
+            fraDato = LocalDateTime.of(2018, 12, 3, 0, 0),
+            tilDato = LocalDateTime.of(2019, 12, 3, 0, 0),
+            registrertIArenaDato = LocalDateTime.of(2018, 12, 3, 0, 0),
+        )
+
+        val tiltakstypeIndividuell = TiltakstypeDbo(
+            id = UUID.randomUUID(),
+            navn = "Høyere utdanning",
+            tiltakskode = "HOYEREUTD",
+            rettPaaTiltakspenger = true,
+            registrertDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
+            sistEndretDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
+            fraDato = LocalDate.of(2023, 1, 11),
+            tilDato = LocalDate.of(2023, 1, 12),
+        )
+
+        val tiltakshistorikkIndividuell = ArenaTiltakshistorikkDbo.IndividueltTiltak(
+            id = UUID.randomUUID(),
+            norskIdent = "12345678910",
+            status = Deltakerstatus.VENTER,
+            fraDato = LocalDateTime.of(2018, 12, 3, 0, 0),
+            tilDato = LocalDateTime.of(2019, 12, 3, 0, 0),
+            registrertIArenaDato = LocalDateTime.of(2018, 12, 3, 0, 0),
+            beskrivelse = "Utdanning",
+            tiltakstypeId = tiltakstypeIndividuell.id,
+            arrangorOrganisasjonsnummer = "12343",
+        )
+
         beforeTest {
-            service.upsertTiltakstype(tiltakstype)
-            service.upsertTiltaksgjennomforing(tiltaksgjennomforing)
+            val domain = MulighetsrommetTestDomain(
+                tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging, tiltakstypeIndividuell),
+                avtaler = listOf(AvtaleFixtures.oppfolging),
+                gjennomforinger = listOf(TiltaksgjennomforingFixtures.Oppfolging1),
+            )
+            domain.initialize(database.db)
+
+            coEvery {
+                veilarboppfolgingClient.erBrukerUnderOppfolging(
+                    "12345678910",
+                    AccessType.M2M,
+                )
+            } returns true.right()
         }
 
         test("CRUD gruppe") {
@@ -637,7 +672,6 @@ class ArenaAdapterServiceTest : FunSpec({
         }
 
         test("CRUD individuell") {
-            service.upsertTiltakstype(tiltakstypeIndividuell)
             service.upsertTiltakshistorikk(tiltakshistorikkIndividuell)
 
             database.assertThat("tiltakshistorikk").row()
@@ -680,6 +714,7 @@ private fun toTiltaksgjennomforingDto(dbo: ArenaTiltaksgjennomforingDbo, tiltaks
 
 fun toArenaTiltaksgjennomforingDbo(
     dbo: TiltaksgjennomforingDbo,
+    organiasjonsnummer: String,
     avslutningsstatus: Avslutningsstatus,
     tiltaksnummer: String,
 ) = dbo.run {
@@ -688,7 +723,7 @@ fun toArenaTiltaksgjennomforingDbo(
         navn = navn,
         tiltakstypeId = tiltakstypeId,
         tiltaksnummer = tiltaksnummer,
-        arrangorOrganisasjonsnummer = arrangorOrganisasjonsnummer,
+        arrangorOrganisasjonsnummer = organiasjonsnummer,
         startDato = startDato,
         sluttDato = sluttDato,
         arenaAnsvarligEnhet = null,

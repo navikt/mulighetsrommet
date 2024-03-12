@@ -8,7 +8,8 @@ import java.util.*
 data class VirksomhetKontaktperson(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
-    val organisasjonsnummer: String,
+    @Serializable(with = UUIDSerializer::class)
+    val virksomhetId: UUID,
     val navn: String,
     val beskrivelse: String?,
     val telefon: String?,

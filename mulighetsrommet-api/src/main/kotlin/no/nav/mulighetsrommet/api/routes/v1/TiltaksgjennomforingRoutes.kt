@@ -135,17 +135,18 @@ data class TiltaksnummerResponse(
 data class TiltaksgjennomforingRequest(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
-    val navn: String,
     @Serializable(with = UUIDSerializer::class)
     val tiltakstypeId: UUID,
     @Serializable(with = UUIDSerializer::class)
     val avtaleId: UUID,
+    val navn: String,
     @Serializable(with = LocalDateSerializer::class)
     val startDato: LocalDate,
     @Serializable(with = LocalDateSerializer::class)
     val sluttDato: LocalDate?,
     val antallPlasser: Int,
-    val arrangorOrganisasjonsnummer: String,
+    @Serializable(with = UUIDSerializer::class)
+    val arrangorVirksomhetId: UUID,
     val arrangorKontaktpersoner: List<
         @Serializable(with = UUIDSerializer::class)
         UUID,
@@ -171,7 +172,7 @@ data class TiltaksgjennomforingRequest(
         sluttDato = sluttDato,
         antallPlasser = antallPlasser,
         apentForInnsok = apentForInnsok,
-        arrangorOrganisasjonsnummer = arrangorOrganisasjonsnummer,
+        arrangorVirksomhetId = arrangorVirksomhetId,
         arrangorKontaktpersoner = arrangorKontaktpersoner,
         administratorer = administratorer,
         navRegion = navRegion,

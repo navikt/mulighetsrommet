@@ -51,6 +51,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
 
         coEvery { virksomhetService.getOrSyncHovedenhetFromBrreg(any()) } answers {
             VirksomhetDto(
+                id = UUID.randomUUID(),
                 organisasjonsnummer = firstArg<String>(),
                 navn = "Virksomhet",
                 postnummer = null,
