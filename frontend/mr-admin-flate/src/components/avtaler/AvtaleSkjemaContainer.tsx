@@ -88,7 +88,7 @@ export function AvtaleSkjemaContainer({
       leverandorOrganisasjonsnummer: data.leverandor,
       leverandorUnderenheter: data.leverandorUnderenheter,
       navn: data.navn,
-      sluttDato: data.startOgSluttDato.sluttDato,
+      sluttDato: data.startOgSluttDato.sluttDato ?? null,
       startDato: data.startOgSluttDato.startDato,
       tiltakstypeId: data.tiltakstype.id,
       url: data.url || null,

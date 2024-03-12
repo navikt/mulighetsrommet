@@ -26,7 +26,7 @@ class TiltaksgjennomforingValidator(
         previous: TiltaksgjennomforingAdminDto?,
     ): Either<List<ValidationError>, TiltaksgjennomforingDbo> = either {
         val tiltakstype = tiltakstyper.getById(dbo.tiltakstypeId)
-            ?: raise(ValidationError.of(AvtaleDbo::tiltakstypeId, "Tiltakstypen finnes ikke").nel())
+            ?: raise(ValidationError.of(TiltaksgjennomforingDbo::tiltakstypeId, "Tiltakstypen finnes ikke").nel())
 
         if (isTiltakstypeDisabled(previous, tiltakstype)) {
             return ValidationError
@@ -58,6 +58,10 @@ class TiltaksgjennomforingValidator(
                         "Minst én administrator må være valgt",
                     ),
                 )
+            }
+
+            if (!Tiltakskoder.isAFTOrVTA(tiltakstype.arenaKode) && dbo.sluttDato == null) {
+                add(ValidationError.of(AvtaleDbo::sluttDato, "Sluttdato må være valgt"))
             }
 
             if (dbo.sluttDato != null && dbo.startDato.isAfter(dbo.sluttDato)) {

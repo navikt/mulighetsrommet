@@ -561,30 +561,35 @@ class AvtaleRepositoryTest : FunSpec({
                     id = UUID.randomUUID(),
                     navn = "Avtale hos Anders",
                     leverandorVirksomhetId = virksomhetB.id,
+                    leverandorUnderenheter = emptyList(),
                     sluttDato = LocalDate.of(2010, 1, 31),
                 ),
                 AvtaleFixtures.oppfolging.copy(
                     id = UUID.randomUUID(),
                     navn = "Avtale hos Åse",
                     leverandorVirksomhetId = virksomhetA.id,
+                    leverandorUnderenheter = emptyList(),
                     sluttDato = LocalDate.of(2009, 1, 1),
                 ),
                 AvtaleFixtures.oppfolging.copy(
                     id = UUID.randomUUID(),
                     navn = "Avtale hos Øyvind",
                     leverandorVirksomhetId = virksomhetB.id,
+                    leverandorUnderenheter = emptyList(),
                     sluttDato = LocalDate.of(2010, 1, 1),
                 ),
                 AvtaleFixtures.oppfolging.copy(
                     id = UUID.randomUUID(),
                     navn = "Avtale hos Kjetil",
                     leverandorVirksomhetId = virksomhetC.id,
+                    leverandorUnderenheter = emptyList(),
                     sluttDato = LocalDate.of(2011, 1, 1),
                 ),
                 AvtaleFixtures.oppfolging.copy(
                     id = UUID.randomUUID(),
                     navn = "Avtale hos Ærfuglen Ærle",
                     leverandorVirksomhetId = virksomhetB.id,
+                    leverandorUnderenheter = emptyList(),
                     sluttDato = LocalDate.of(2023, 1, 1),
                 ),
             ),
@@ -635,6 +640,7 @@ class AvtaleRepositoryTest : FunSpec({
             val avtale1 = AvtaleFixtures.oppfolging.copy(
                 id = UUID.randomUUID(),
                 leverandorVirksomhetId = virksomhetA.id,
+                leverandorUnderenheter = emptyList(),
                 navn = "Avtale hos Anders",
             )
             val avtale2 = avtale1.copy(
@@ -773,7 +779,7 @@ class AvtaleRepositoryTest : FunSpec({
             )
 
             val domain = MulighetsrommetTestDomain(
-                virksomheter = listOf(VirksomhetFixtures.hovedenhet),
+                virksomheter = listOf(VirksomhetFixtures.hovedenhet, VirksomhetFixtures.underenhet1),
                 tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
                 avtaler = listOf(avtale6Mnd, avtale3Mnd, avtale14Dag, avtale7Dag, avtaleSomIkkeSkalMatche),
             )
@@ -804,7 +810,7 @@ class AvtaleRepositoryTest : FunSpec({
         )
 
         val domain = MulighetsrommetTestDomain(
-            virksomheter = listOf(VirksomhetFixtures.hovedenhet),
+            virksomheter = listOf(VirksomhetFixtures.hovedenhet, VirksomhetFixtures.underenhet1),
             tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
             avtaler = listOf(avtale),
         )

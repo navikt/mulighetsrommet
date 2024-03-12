@@ -30,7 +30,7 @@ class TiltaksgjennomforingRoutesTest : FunSpec({
                 ),
                 leverandorUnderenheter = listOf(VirksomhetFixtures.underenhet1.id),
             ),
-            AvtaleFixtures.avtaleForVta.copy(
+            AvtaleFixtures.VTA.copy(
                 navEnheter = listOf(
                     NavEnhetFixtures.Sagene.enhetsnummer,
                     NavEnhetFixtures.Oslo.enhetsnummer,

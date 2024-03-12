@@ -7,15 +7,13 @@ import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
-import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.clients.pdl.IdentGruppe
 import no.nav.mulighetsrommet.api.clients.pdl.IdentInformasjon
 import no.nav.mulighetsrommet.api.clients.pdl.PdlClient
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
-import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
-import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
+import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.repositories.TiltakshistorikkRepository
@@ -37,13 +35,9 @@ class PtoSisteOppfolgingsperiodeV1TopicConsumerTest : FunSpec({
     val virksomhetService: VirksomhetService = mockk()
     val domain = MulighetsrommetTestDomain(
         enheter = listOf(
-            NavEnhetDbo(
-                navn = "NAV Gjøvik",
-                enhetsnummer = "2990",
-                status = NavEnhetStatus.AKTIV,
-                type = Norg2Type.FYLKE,
-                overordnetEnhet = null,
-            ),
+            NavEnhetFixtures.Innlandet,
+            NavEnhetFixtures.Gjovik,
+            NavEnhetFixtures.IT,
         ),
         tiltakstyper = listOf(
             TiltakstypeFixtures.Oppfolging,

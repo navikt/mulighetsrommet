@@ -32,9 +32,9 @@ export const AvtaleSchema = z.object({
   startOgSluttDato: z
     .object({
       startDato: z.string({ required_error: "En avtale må ha en startdato" }),
-      sluttDato: z.string({ required_error: "En avtale må ha en sluttdato" }),
+      sluttDato: z.string().optional().nullable(),
     })
-    .refine((data) => !data.startDato || !data.sluttDato || data.sluttDato >= data.startDato, {
+    .refine((data) => data.startDato && data.sluttDato && data.sluttDato >= data.startDato, {
       message: "Startdato må være før sluttdato",
       path: ["startDato"],
     }),

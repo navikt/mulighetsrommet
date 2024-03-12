@@ -15,6 +15,7 @@ import no.nav.mulighetsrommet.api.repositories.VirksomhetRepository
 import no.nav.mulighetsrommet.api.routes.v1.responses.ValidationError
 import no.nav.mulighetsrommet.api.services.NavEnhetService
 import no.nav.mulighetsrommet.api.services.TiltakstypeService
+import no.nav.mulighetsrommet.domain.Tiltakskoder.isAFTOrVTA
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dto.TiltakstypeAdminDto
 
@@ -43,7 +44,11 @@ class AvtaleValidator(
                 add(ValidationError.of(AvtaleDbo::administratorer, "Minst én administrator må være valgt"))
             }
 
-            if (!dbo.startDato.isBefore(dbo.sluttDato)) {
+            if (!isAFTOrVTA(tiltakstype.arenaKode) && dbo.sluttDato == null) {
+                add(ValidationError.of(AvtaleDbo::sluttDato, "Sluttdato må være valgt"))
+            }
+
+            if (dbo.sluttDato != null && !dbo.startDato.isBefore(dbo.sluttDato)) {
                 add(ValidationError.of(AvtaleDbo::startDato, "Startdato må være før sluttdato"))
             }
 

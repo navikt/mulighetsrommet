@@ -468,7 +468,7 @@ class ArenaAdapterServiceTest : FunSpec({
         test("should update avtale underleverandor") {
             val domain = MulighetsrommetTestDomain(
                 tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
-                avtaler = listOf(AvtaleFixtures.oppfolging),
+                avtaler = listOf(AvtaleFixtures.oppfolging.copy(leverandorUnderenheter = emptyList())),
             )
             domain.initialize(database.db)
 

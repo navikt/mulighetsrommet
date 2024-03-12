@@ -125,7 +125,7 @@ data class AvtaleRequest(
     @Serializable(with = LocalDateSerializer::class)
     val startDato: LocalDate,
     @Serializable(with = LocalDateSerializer::class)
-    val sluttDato: LocalDate,
+    val sluttDato: LocalDate?,
     val url: String?,
     val administratorer: List<NavIdent>,
     val avtaletype: Avtaletype,

@@ -12,6 +12,7 @@ import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dbo.AvtaleDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
+import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
@@ -22,6 +23,7 @@ import no.nav.mulighetsrommet.api.services.NavEnhetService
 import no.nav.mulighetsrommet.api.services.TiltakstypeService
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
+import no.nav.mulighetsrommet.domain.Tiltakskoder
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
 import no.nav.mulighetsrommet.domain.dto.NavIdent
@@ -188,6 +190,24 @@ class AvtaleValidatorTest : FunSpec({
         )
     }
 
+    test("sluttDato er påkrevd hvis ikke VTA eller AFT") {
+        val validator = AvtaleValidator(
+            TiltakstypeService(TiltakstypeRepository(database.db), Tiltakskoder.Gruppetiltak),
+            gjennomforinger,
+            navEnheterService,
+            virksomheter,
+        )
+        val aft = AvtaleFixtures.AFT.copy(sluttDato = null)
+        val vta = AvtaleFixtures.VTA.copy(sluttDato = null)
+        val oppfolging = AvtaleFixtures.oppfolging.copy(sluttDato = null)
+
+        validator.validate(aft, null).shouldBeRight()
+        validator.validate(vta, null).shouldBeRight()
+        validator.validate(oppfolging, null).shouldBeLeft(
+            listOf(ValidationError("sluttDato", "Sluttdato må være valgt")),
+        )
+    }
+
     context("når avtalen allerede eksisterer") {
         test("skal ikke kunne endre felter med opphav fra Arena") {
             val avtaleMedEndringer = AvtaleDbo(
@@ -233,6 +253,7 @@ class AvtaleValidatorTest : FunSpec({
                 avtaler.upsert(avtaleDbo.copy(administratorer = listOf()))
                 gjennomforinger.upsert(
                     TiltaksgjennomforingFixtures.Oppfolging1.copy(
+                        administratorer = emptyList(),
                         avtaleId = avtaleDbo.id,
                         arrangorVirksomhetId = VirksomhetFixtures.underenhet2.id,
                         navRegion = "0400",

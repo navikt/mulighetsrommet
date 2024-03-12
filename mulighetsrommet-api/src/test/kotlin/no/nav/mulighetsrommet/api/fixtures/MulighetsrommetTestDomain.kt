@@ -11,7 +11,7 @@ import no.nav.mulighetsrommet.database.FlywayDatabaseAdapter
 import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
 
 data class MulighetsrommetTestDomain(
-    val enheter: List<NavEnhetDbo> = listOf(NavEnhetFixtures.IT),
+    val enheter: List<NavEnhetDbo> = listOf(NavEnhetFixtures.IT, NavEnhetFixtures.Innlandet, NavEnhetFixtures.Gjovik),
     val ansatte: List<NavAnsattDbo> = listOf(NavAnsattFixture.ansatt1, NavAnsattFixture.ansatt2),
     val virksomheter: List<VirksomhetDto> = listOf(
         VirksomhetFixtures.hovedenhet,
@@ -25,7 +25,7 @@ data class MulighetsrommetTestDomain(
         TiltakstypeFixtures.Jobbklubb,
         TiltakstypeFixtures.AFT,
     ),
-    val avtaler: List<AvtaleDbo> = listOf(AvtaleFixtures.oppfolging, AvtaleFixtures.avtaleForVta),
+    val avtaler: List<AvtaleDbo> = listOf(AvtaleFixtures.oppfolging, AvtaleFixtures.VTA),
     val gjennomforinger: List<TiltaksgjennomforingDbo> = listOf(),
 ) {
     fun initialize(database: FlywayDatabaseAdapter) {
