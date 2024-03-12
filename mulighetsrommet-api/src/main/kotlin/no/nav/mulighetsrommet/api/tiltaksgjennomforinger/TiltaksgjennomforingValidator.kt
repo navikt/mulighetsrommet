@@ -138,29 +138,20 @@ class TiltaksgjennomforingValidator(
                         )
                     }
 
-                    if (dbo.startDato != previous.startDato) {
+                    if (dbo.startDato.isBefore(avtale.startDato)) {
                         add(
                             ValidationError.of(
                                 TiltaksgjennomforingDbo::startDato,
-                                "Startdato kan ikke endres når gjennomføringen er aktiv",
+                                "Startdato må være etter avtalens startdato",
                             ),
                         )
                     }
 
-                    if (dbo.sluttDato != previous.sluttDato) {
+                    if (dbo.sluttDato != null && previous.sluttDato != null && dbo.sluttDato.isBefore(previous.sluttDato)) {
                         add(
                             ValidationError.of(
                                 TiltaksgjennomforingDbo::sluttDato,
-                                "Sluttdato kan ikke endres når gjennomføringen er aktiv",
-                            ),
-                        )
-                    }
-
-                    if (dbo.antallPlasser != previous.antallPlasser) {
-                        add(
-                            ValidationError.of(
-                                TiltaksgjennomforingDbo::antallPlasser,
-                                "Antall plasser kan ikke endres når gjennomføringen er aktiv",
+                                "Sluttdato kan ikke endres bakover i tid når gjennomføringen er aktiv",
                             ),
                         )
                     }
