@@ -12,6 +12,7 @@ import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.clients.brreg.BrregClient
 import no.nav.mulighetsrommet.api.clients.brreg.BrregError
 import no.nav.mulighetsrommet.api.domain.dto.BrregVirksomhetDto
+import no.nav.mulighetsrommet.api.domain.dto.VirksomhetDto
 import no.nav.mulighetsrommet.api.domain.dto.VirksomhetKontaktperson
 import no.nav.mulighetsrommet.api.repositories.VirksomhetRepository
 import no.nav.mulighetsrommet.api.routes.v1.responses.*
@@ -40,19 +41,25 @@ fun Route.virksomhetRoutes() {
             }
 
             val response = brregClient.sokEtterOverordnetEnheter(sok)
-                .map {
+                .map { hovedenheter ->
                     // Kombinerer resultat med utenlandske virksomheter siden de ikke finnes i brreg
-                    it + virksomhetRepository.getAll(sok = sok, utenlandsk = true).map { virksomhet ->
-                        BrregVirksomhetDto(
-                            organisasjonsnummer = virksomhet.organisasjonsnummer,
-                            navn = virksomhet.navn,
-                            overordnetEnhet = virksomhet.overordnetEnhet,
-                            underenheter = listOf(),
-                            postnummer = virksomhet.postnummer,
-                            poststed = virksomhet.poststed,
-                            slettetDato = virksomhet.slettetDato,
-                        )
+                    hovedenheter + virksomhetRepository.getAll(sok = sok, utenlandsk = true).map { virksomhet ->
+                        toBrregVirksomhetDto(virksomhet)
                     }
+                }
+                .mapLeft { toStatusResponseError(it) }
+
+            call.respondWithStatusResponse(response)
+        }
+
+        get("{orgnr}/underenheter") {
+            val orgnr = call.parameters.getOrFail("orgnr").also { validateOrgnr(it) }
+
+            val response = brregClient.hentUnderenheterForOverordnetEnhet(orgnr)
+                .map { underenheter ->
+                    // Kombinerer resultat med virksomheter som er slettet fra brreg for å støtte avtaler/gjennomføringer som henger etter
+                    underenheter + virksomhetRepository.getAll(overordnetEnhetOrgnr = orgnr, slettet = true)
+                        .map { virksomhet -> toBrregVirksomhetDto(virksomhet) }
                 }
                 .mapLeft { toStatusResponseError(it) }
 
@@ -135,6 +142,16 @@ private fun toStatusResponseError(it: BrregError) = when (it) {
     BrregError.BadRequest -> BadRequest()
     BrregError.Error -> ServerError()
 }
+
+private fun toBrregVirksomhetDto(virksomhet: VirksomhetDto) = BrregVirksomhetDto(
+    organisasjonsnummer = virksomhet.organisasjonsnummer,
+    navn = virksomhet.navn,
+    overordnetEnhet = virksomhet.overordnetEnhet,
+    underenheter = listOf(),
+    postnummer = virksomhet.postnummer,
+    poststed = virksomhet.poststed,
+    slettetDato = virksomhet.slettetDato,
+)
 
 @Serializable
 data class VirksomhetKontaktpersonRequest(

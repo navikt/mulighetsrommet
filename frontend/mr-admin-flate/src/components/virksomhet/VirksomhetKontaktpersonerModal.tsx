@@ -6,7 +6,7 @@ import styles from "./VirksomhetKontaktpersonerModal.module.scss";
 import { Laster } from "../laster/Laster";
 import { VirksomhetKontaktperson } from "mulighetsrommet-api-client";
 import { VirksomhetKontaktpersonSkjema } from "./VirksomhetKontaktpersonSkjema";
-import { useVirksomhetById } from "../../api/virksomhet/useVirksomhet";
+import { useVirksomhetById } from "../../api/virksomhet/useVirksomhetById";
 
 interface Props {
   virksomhetId: string;
