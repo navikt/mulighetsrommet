@@ -22,8 +22,8 @@ class SanityTiltaksgjennomforingService(
         val response = sanityClient.mutate(
             listOf(
                 // Deletes both drafts and published dokuments
-                Mutation<Unit>(delete = Delete(id = "drafts.$sanityId")),
-                Mutation(delete = Delete(id = "$sanityId")),
+                Mutation.delete(id = "drafts.$sanityId"),
+                Mutation.delete(id = "$sanityId"),
             ),
         )
 
@@ -71,7 +71,7 @@ class SanityTiltaksgjennomforingService(
         )
 
         val response = sanityClient.mutate(
-            listOf(Mutation(createOrReplace = sanityTiltaksgjennomforing)),
+            listOf(Mutation.createOrReplace(sanityTiltaksgjennomforing)),
         )
 
         if (response.status != HttpStatusCode.OK) {
@@ -95,7 +95,7 @@ class SanityTiltaksgjennomforingService(
         }
 
         val response = sanityClient.mutate(
-            listOf(Mutation(patch = Patch(id = id, set = sanityTiltaksgjennomforingFields))),
+            listOf(Mutation.patch(id = id, set = sanityTiltaksgjennomforingFields)),
         )
 
         if (response.status != HttpStatusCode.OK) {

@@ -1,7 +1,10 @@
 package no.nav.mulighetsrommet.api.services
 
 import io.ktor.http.*
-import no.nav.mulighetsrommet.api.clients.norg2.*
+import no.nav.mulighetsrommet.api.clients.norg2.Norg2Client
+import no.nav.mulighetsrommet.api.clients.norg2.Norg2EnhetDto
+import no.nav.mulighetsrommet.api.clients.norg2.Norg2Response
+import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
@@ -102,7 +105,7 @@ class NavEnheterSyncService(
 
     private suspend fun lagreEnheterTilSanity(sanityEnheter: List<SanityEnhet>) {
         logger.info("Oppdaterer Sanity-enheter - Antall: ${sanityEnheter.size}")
-        val mutations = sanityEnheter.map { Mutation(createOrReplace = it) }
+        val mutations = sanityEnheter.map { Mutation.createOrReplace(it) }
 
         val response = sanityClient.mutate(mutations)
 

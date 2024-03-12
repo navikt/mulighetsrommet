@@ -10,6 +10,7 @@ import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
+import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
@@ -24,7 +25,6 @@ import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListe
 import no.nav.mulighetsrommet.domain.Tiltakskoder.Gruppetiltak
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
-import no.nav.mulighetsrommet.domain.dto.NavIdent
 import java.time.LocalDate
 import java.util.*
 
@@ -47,7 +47,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
         navRegion = "0400",
         navEnheter = listOf("0502"),
         arrangorOrganisasjonsnummer = "000000001",
-        administratorer = listOf(NavIdent("B123456")),
+        administratorer = listOf(NavAnsattFixture.ansatt1.navIdent),
     )
 
     lateinit var tiltakstyper: TiltakstypeService
@@ -78,7 +78,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
                 overordnetEnhet = "0400",
             ),
             NavEnhetDbo(
-                navn = "NAV Gjøvik",
+                navn = "NAV IT",
                 enhetsnummer = "2990",
                 status = NavEnhetStatus.AKTIV,
                 type = Norg2Type.IT,
@@ -237,6 +237,34 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
 
         afterEach {
             tiltaksgjennomforinger.delete(gjennomforing.id)
+        }
+
+        test("Skal godta endringer for antall plasser selv om gjennomføringen er aktiv") {
+            val validator = TiltaksgjennomforingValidator(tiltakstyper, avtaler)
+            val previous = tiltaksgjennomforinger.get(gjennomforing.id)
+            validator.validate(gjennomforing.copy(antallPlasser = 15), previous).shouldBeRight()
+        }
+
+        test("Skal godta endringer for startdato selv om gjennomføringen er aktiv, men startdato skal ikke kunne settes til før avtaledatoen") {
+            val validator = TiltaksgjennomforingValidator(tiltakstyper, avtaler)
+            val previous = tiltaksgjennomforinger.get(gjennomforing.id)
+            validator.validate(gjennomforing.copy(startDato = LocalDate.now().plusDays(5)), previous).shouldBeRight()
+            validator.validate(gjennomforing.copy(startDato = avtaleStartDato.minusDays(1)), previous).shouldBeLeft(
+                listOf(
+                    ValidationError("startDato", "Startdato må være etter avtalens startdato"),
+                ),
+            )
+        }
+
+        test("Skal godta endringer for sluttdato frem i tid selv om gjennomføringen er aktiv") {
+            val validator = TiltaksgjennomforingValidator(tiltakstyper, avtaler)
+            val previous = tiltaksgjennomforinger.get(gjennomforing.id)
+            validator.validate(gjennomforing.copy(sluttDato = avtaleSluttDato.plusDays(5)), previous).shouldBeRight()
+            validator.validate(gjennomforing.copy(sluttDato = avtaleSluttDato.minusDays(1)), previous).shouldBeLeft(
+                listOf(
+                    ValidationError("sluttDato", "Sluttdato kan ikke endres bakover i tid når gjennomføringen er aktiv"),
+                ),
+            )
         }
 
         test("skal godta endringer selv om avtale er avbrutt") {
