@@ -30,6 +30,7 @@ export const QueryKeys = {
   notifikasjonerForAnsatt: (status: NotificationStatus) => ["notifikasjoner", status] as const,
   virksomhetSok: (sokestreng: string) => ["virksomhet", "sok", sokestreng],
   virksomhet: (id: string) => ["virksomet", id],
+  virksomhetUnderenheter: (id: string) => ["virksomet", id, "underenheter"],
   navansatt: (rolle: NavAnsattRolle) => ["nav-ansatte", rolle],
   virksomhetKontaktpersoner: (virksomhetId: string) =>
     ["virksomhet", virksomhetId, "kontaktpersoner"] as const,

@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.repositories
 
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldBeNull
@@ -81,6 +82,12 @@ class VirksomhetRepositoryTest : FunSpec({
 
             virksomhetRepository.getAll(sok = "utenlandsk") shouldContainExactlyInAnyOrder listOf(utenlandsk)
             virksomhetRepository.getAll(sok = "østland") shouldContainExactlyInAnyOrder listOf(underenhet2)
+
+            virksomhetRepository.getAll(overordnetEnhetOrgnr = overordnet.organisasjonsnummer) shouldContainExactlyInAnyOrder listOf(
+                underenhet1,
+                underenhet2,
+            )
+            virksomhetRepository.getAll(overordnetEnhetOrgnr = underenhet1.organisasjonsnummer).shouldBeEmpty()
         }
 
         test("Upsert virksomhet med underenheter") {
@@ -210,7 +217,8 @@ class VirksomhetRepositoryTest : FunSpec({
 
             val slettetDato = LocalDate.of(2024, 1, 1)
 
-            val underenhet1 = BrregVirksomhetDto(
+            val underenhet1 = VirksomhetDto(
+                id = UUID.randomUUID(),
                 organisasjonsnummer = "880907522",
                 overordnetEnhet = "982254604",
                 navn = "REMA 1000 NORGE AS REGION NORDLAND",
@@ -219,25 +227,27 @@ class VirksomhetRepositoryTest : FunSpec({
                 poststed = "Mathopen",
             )
 
-            val overordnet = OverordnetEnhetDbo(
+            val overordnet = VirksomhetDto(
+                id = UUID.randomUUID(),
                 navn = "REMA 1000 AS",
                 organisasjonsnummer = "982254604",
-                underenheter = listOf(underenhet1),
-                slettetDato = slettetDato,
                 postnummer = "5174",
                 poststed = "Mathopen",
             )
 
-            virksomhetRepository.upsertOverordnetEnhet(overordnet)
+            virksomhetRepository.upsert(overordnet)
+            virksomhetRepository.upsert(underenhet1)
 
             virksomhetRepository.get(overordnet.organisasjonsnummer).should {
                 it.shouldNotBeNull()
-                it.slettetDato shouldBe slettetDato
+                it.slettetDato shouldBe null
             }
             virksomhetRepository.get(underenhet1.organisasjonsnummer).should {
                 it.shouldNotBeNull()
                 it.slettetDato shouldBe slettetDato
             }
+            virksomhetRepository.getAll(slettet = true) shouldContainExactlyInAnyOrder listOf(underenhet1)
+            virksomhetRepository.getAll(slettet = false) shouldContainExactlyInAnyOrder listOf(overordnet)
         }
 
         test("Delete overordnet cascader") {
@@ -288,6 +298,7 @@ class VirksomhetRepositoryTest : FunSpec({
 
             val virksomhetRepository = VirksomhetRepository(database.db)
 
+            virksomhetRepository.getAll() shouldContainExactlyInAnyOrder listOf(hovedenhet, underenhet)
             virksomhetRepository.getAll(til = VirksomhetTil.AVTALE).should {
                 it.size shouldBe 1
                 it[0] shouldBe hovedenhet
@@ -295,9 +306,6 @@ class VirksomhetRepositoryTest : FunSpec({
             virksomhetRepository.getAll(til = VirksomhetTil.TILTAKSGJENNOMFORING).should {
                 it.size shouldBe 1
                 it[0] shouldBe underenhet
-            }
-            virksomhetRepository.getAll().should {
-                it shouldContainExactlyInAnyOrder listOf(hovedenhet, underenhet)
             }
         }
     }
