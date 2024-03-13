@@ -48,7 +48,7 @@ class AvtaleValidator(
                 add(ValidationError.of(AvtaleDbo::sluttDato, "Sluttdato må være valgt"))
             }
 
-            if (dbo.sluttDato != null && !dbo.startDato.isBefore(dbo.sluttDato)) {
+            if (dbo.sluttDato != null && dbo.sluttDato.isBefore(dbo.startDato)) {
                 add(ValidationError.of(AvtaleDbo::startDato, "Startdato må være før sluttdato"))
             }
 
