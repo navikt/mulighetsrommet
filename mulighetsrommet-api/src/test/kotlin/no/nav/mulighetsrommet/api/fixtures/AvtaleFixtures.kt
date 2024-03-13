@@ -28,6 +28,26 @@ object AvtaleFixtures {
         faneinnhold = null,
     )
 
+    val gruppeAmo = AvtaleDbo(
+        id = UUID.randomUUID(),
+        navn = "Gruppe Amo",
+        avtalenummer = "2024#8",
+        tiltakstypeId = TiltakstypeFixtures.GRUPPE_AMO.id,
+        leverandorVirksomhetId = VirksomhetFixtures.hovedenhet.id,
+        leverandorUnderenheter = listOf(VirksomhetFixtures.underenhet1.id),
+        leverandorKontaktpersonId = null,
+        startDato = LocalDate.of(2023, 1, 1),
+        sluttDato = LocalDate.now().plusMonths(3),
+        avtaletype = Avtaletype.Rammeavtale,
+        prisbetingelser = "Alt er dyrt",
+        administratorer = listOf(NavIdent("DD1")),
+        navEnheter = listOf("0400", "0502"),
+        antallPlasser = null,
+        url = null,
+        beskrivelse = null,
+        faneinnhold = null,
+    )
+
     val VTA = AvtaleDbo(
         id = UUID.randomUUID(),
         navn = "Avtalenavn for VTA",
@@ -38,7 +58,7 @@ object AvtaleFixtures {
         leverandorKontaktpersonId = null,
         startDato = LocalDate.of(2023, 1, 1),
         sluttDato = LocalDate.now().plusMonths(3),
-        avtaletype = Avtaletype.Rammeavtale,
+        avtaletype = Avtaletype.Forhaandsgodkjent,
         prisbetingelser = null,
         administratorer = listOf(NavIdent("DD1")),
         navEnheter = listOf("0400", "0502"),
@@ -58,7 +78,7 @@ object AvtaleFixtures {
         leverandorKontaktpersonId = null,
         startDato = LocalDate.of(2023, 1, 1),
         sluttDato = null,
-        avtaletype = Avtaletype.Rammeavtale,
+        avtaletype = Avtaletype.Forhaandsgodkjent,
         prisbetingelser = null,
         administratorer = listOf(NavIdent("DD1")),
         navEnheter = listOf("0400", "0502"),

@@ -2053,6 +2053,7 @@ components:
         - Avtale
         - Rammeavtale
         - Forhaandsgodkjent
+        - OffentligOffentlig
 
     Avtalestatus:
       type: string

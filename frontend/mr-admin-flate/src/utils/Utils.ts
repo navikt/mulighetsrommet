@@ -110,7 +110,7 @@ export const inneholderUrl = (string: string) => {
 
 export function avtaletypeTilTekst(
   type: Avtaletype,
-): "Avtale" | "Rammeavtale" | "Forhåndsgodkjent" {
+): "Avtale" | "Rammeavtale" | "Forhåndsgodkjent" | "Offentlig-offentlig samarbeid" {
   switch (type) {
     case Avtaletype.AVTALE:
       return "Avtale";
@@ -118,6 +118,8 @@ export function avtaletypeTilTekst(
       return "Forhåndsgodkjent";
     case Avtaletype.RAMMEAVTALE:
       return "Rammeavtale";
+    case Avtaletype.OFFENTLIG_OFFENTLIG:
+      return "Offentlig-offentlig samarbeid";
   }
 }
 

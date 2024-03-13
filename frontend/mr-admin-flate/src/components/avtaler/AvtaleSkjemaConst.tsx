@@ -1,16 +1,16 @@
-import { Avtale, Avtaletype, NavAnsatt, NavEnhet, NavEnhetType } from "mulighetsrommet-api-client";
+import { Avtale, NavAnsatt, NavEnhet, NavEnhetType } from "mulighetsrommet-api-client";
 import { DeepPartial } from "react-hook-form";
 import { InferredAvtaleSchema } from "../redaksjonelt-innhold/AvtaleSchema";
 
 export const getLokaleUnderenheterAsSelectOptions = (
-  navRegioner: string[],
+  navRegioner: (string | undefined)[],
   enheter: NavEnhet[],
 ) => {
   return enheter
     .filter((enhet: NavEnhet) => {
       return (
         enhet.overordnetEnhet != null &&
-        navRegioner.includes(enhet.overordnetEnhet) &&
+        navRegioner.includes(enhet?.overordnetEnhet) &&
         (enhet.type === NavEnhetType.LOKAL || enhet.type === NavEnhetType.KO)
       );
     })
@@ -35,7 +35,7 @@ export function defaultAvtaleData(
     navEnheter,
     administratorer: avtale?.administratorer?.map((admin) => admin.navIdent) || [ansatt.navIdent],
     navn: avtale?.navn ?? "",
-    avtaletype: avtale?.avtaletype ?? Avtaletype.AVTALE,
+    avtaletype: avtale?.avtaletype,
     leverandor: avtale?.leverandor?.organisasjonsnummer ?? "",
     leverandorUnderenheter: !avtale?.leverandor?.underenheter
       ? []

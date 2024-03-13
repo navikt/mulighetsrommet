@@ -18,6 +18,7 @@ import no.nav.mulighetsrommet.api.services.TiltakstypeService
 import no.nav.mulighetsrommet.domain.Tiltakskoder.isAFTOrVTA
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dto.TiltakstypeAdminDto
+import no.nav.mulighetsrommet.domain.dto.allowedAvtaletypes
 
 class AvtaleValidator(
     private val tiltakstyper: TiltakstypeService,
@@ -61,6 +62,10 @@ class AvtaleValidator(
                         "Minst én underenhet til leverandøren må være valgt",
                     ),
                 )
+            }
+
+            if (!allowedAvtaletypes(tiltakstype.arenaKode).contains(dbo.avtaletype)) {
+                add(ValidationError.of(AvtaleDbo::avtaletype, "${dbo.avtaletype} er ikke tillat for tiltakstype ${tiltakstype.navn}"))
             }
 
             previous?.also { avtale ->

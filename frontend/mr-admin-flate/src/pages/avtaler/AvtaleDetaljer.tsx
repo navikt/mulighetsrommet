@@ -83,7 +83,7 @@ export function AvtaleDetaljer() {
 
         <Bolk aria-label="Start- og sluttdato">
           <Metadata header="Startdato" verdi={formaterDato(startDato)} />
-          <Metadata header="Sluttdato" verdi={formaterDato(sluttDato)} />
+          <Metadata header="Sluttdato" verdi={formaterDato(sluttDato, "-")} />
         </Bolk>
 
         <Separator />
