@@ -29,7 +29,7 @@ export function TiltaksgjennomforingstatusTag({ tiltaksgjennomforing }: Props) {
   return (
     <Tag
       size="small"
-      aria-label={`Status for tiltaksgjennomføring: ${status}`}
+      aria-label={`Status for tiltaksgjennomføring: ${oversettStatusForTiltaksgjennomforing(status)}`}
       variant={variant(status)}
     >
       {oversettStatusForTiltaksgjennomforing(status)}

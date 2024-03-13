@@ -72,6 +72,7 @@ class AvtaleValidatorTest : FunSpec({
             TiltakstypeFixtures.VTA,
             TiltakstypeFixtures.Oppfolging,
             TiltakstypeFixtures.Jobbklubb,
+            TiltakstypeFixtures.Avklaring,
         ),
         avtaler = listOf(),
     )
@@ -287,7 +288,7 @@ class AvtaleValidatorTest : FunSpec({
                 faneinnhold = null,
             )
 
-            avtaler.upsert(avtaleDbo.copy(administratorer = listOf()))
+            avtaler.upsert(avtaleDbo.copy(administratorer = listOf(), tiltakstypeId = TiltakstypeFixtures.Jobbklubb.id))
             avtaler.setOpphav(avtaleDbo.id, ArenaMigrering.Opphav.ARENA)
 
             val validator = AvtaleValidator(tiltakstyper, gjennomforinger, navEnheterService, virksomheter)
@@ -295,10 +296,11 @@ class AvtaleValidatorTest : FunSpec({
             val previous = avtaler.get(avtaleDbo.id)
             validator.validate(avtaleMedEndringer, previous).shouldBeLeft().shouldContainExactlyInAnyOrder(
                 listOf(
-                    ValidationError(
-                        "tiltakstypeId",
-                        "Opprettelse av avtale for tiltakstype: 'Jobbklubb' er ikke skrudd på enda.",
-                    ),
+                    ValidationError("navn", "Navn kan ikke endres utenfor Arena"),
+                    ValidationError("startDato", "Startdato kan ikke endres utenfor Arena"),
+                    ValidationError("sluttDato", "Sluttdato kan ikke endres utenfor Arena"),
+                    ValidationError("avtaletype", "Avtaletype kan ikke endres utenfor Arena"),
+                    ValidationError("leverandorVirksomhetId", "Leverandøren kan ikke endres utenfor Arena"),
                 ),
             )
         }
@@ -354,11 +356,13 @@ class AvtaleValidatorTest : FunSpec({
                         ),
                         ValidationError(
                             "startDato",
-                            "Du kan ikke sette startdato for avtalen til etter startdato for tiltaksgjennomføringer koblet til avtalen. Minst én gjennomføring har startdato: ${startDatoForGjennomforing.format(
-                                DateTimeFormatter.ofLocalizedDate(
-                                    FormatStyle.SHORT,
-                                ),
-                            )}",
+                            "Startdato kan ikke være før startdatoen til tiltaksgjennomføringer koblet til avtalen. Minst en gjennomføring har startdato: ${
+                                startDatoForGjennomforing.format(
+                                    DateTimeFormatter.ofLocalizedDate(
+                                        FormatStyle.SHORT,
+                                    ),
+                                )
+                            }",
                         ),
                     ),
                 )

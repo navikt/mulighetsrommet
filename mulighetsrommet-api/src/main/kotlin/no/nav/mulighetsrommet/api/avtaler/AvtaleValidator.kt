@@ -122,34 +122,24 @@ class AvtaleValidator(
                         }
 
                         if (gjennomforing.startDato.isBefore(dbo.startDato)) {
+                            val gjennomforingsStartDato = gjennomforing.startDato.format(
+                                DateTimeFormatter.ofLocalizedDate(
+                                    FormatStyle.SHORT,
+                                ),
+                            )
                             add(
                                 ValidationError.of(
                                     AvtaleDbo::startDato,
-                                    "Du kan ikke sette startdato for avtalen til etter startdato for tiltaksgjennomføringer koblet til avtalen. Minst én gjennomføring har startdato: ${
-                                        gjennomforing.startDato.format(
-                                            DateTimeFormatter.ofLocalizedDate(
-                                                FormatStyle.SHORT,
-                                            ),
-                                        )
-                                    }",
+                                    "Startdato kan ikke være før startdatoen til tiltaksgjennomføringer koblet til avtalen. Minst en gjennomføring har startdato: $gjennomforingsStartDato",
                                 ),
                             )
                         }
                     }
                 }
 
-                if (avtale.opphav == ArenaMigrering.Opphav.ARENA && isTiltakstypeDisabled(previous, tiltakstype)) {
+                if (avtale.opphav == ArenaMigrering.Opphav.ARENA && !tiltakstyper.kanRedigeres(tiltakstype)) {
                     if (dbo.navn != avtale.navn) {
                         add(ValidationError.of(AvtaleDbo::navn, "Navn kan ikke endres utenfor Arena"))
-                    }
-
-                    if (dbo.tiltakstypeId != avtale.tiltakstype.id) {
-                        add(
-                            ValidationError.of(
-                                AvtaleDbo::tiltakstypeId,
-                                "Tiltakstype kan ikke endres utenfor Arena",
-                            ),
-                        )
                     }
 
                     if (dbo.avtalenummer != avtale.avtalenummer) {
@@ -211,6 +201,7 @@ class AvtaleValidator(
         val kanIkkeOppretteAvtale = previous == null && !isEnabled(tiltakstype.arenaKode)
 
         val kanIkkeRedigereTiltakstypeForAvtale = previous != null &&
+            tiltakstype.arenaKode != previous.tiltakstype.arenaKode &&
             !isEnabled(tiltakstype.arenaKode)
 
         return kanIkkeOppretteAvtale || kanIkkeRedigereTiltakstypeForAvtale
