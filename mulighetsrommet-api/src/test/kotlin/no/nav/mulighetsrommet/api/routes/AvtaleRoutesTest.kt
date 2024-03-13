@@ -18,6 +18,7 @@ import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
+import no.nav.mulighetsrommet.domain.dto.allowedAvtaletypes
 import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.ktor.respondJson
 import no.nav.security.mock.oauth2.MockOAuth2Server
@@ -132,6 +133,7 @@ class AvtaleRoutesTest : FunSpec({
                     setBody(
                         AvtaleFixtures.avtaleRequest.copy(
                             id = UUID.randomUUID(),
+                            avtaletype = allowedAvtaletypes(tiltakstype.tiltakskode)[0],
                             navEnheter = listOf(NavEnhetFixtures.Oslo.enhetsnummer),
                             tiltakstypeId = tiltakstype.id,
                         ),
