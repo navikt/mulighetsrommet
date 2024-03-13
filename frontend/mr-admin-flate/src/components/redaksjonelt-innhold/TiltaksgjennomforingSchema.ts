@@ -76,35 +76,27 @@ export const TiltaksgjennomforingSchema = z
       .nullable(),
   })
   .superRefine((data, ctx) => {
-    if (data.opphav === Opphav.MR_ADMIN_FLATE && !data.startOgSluttDato.sluttDato) {
+    if (
+      data.startOgSluttDato.sluttDato &&
+      bareDatoUtenTidspunkt(new Date(data.startOgSluttDato.sluttDato)) <
+        bareDatoUtenTidspunkt(new Date())
+    ) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: "Du må legge til en sluttdato",
+        message: "Sluttdato kan ikke være før dagens dato",
         path: ["startOgSluttDato.sluttDato"],
       });
-
-      if (
-        data.startOgSluttDato.sluttDato &&
-        bareDatoUtenTidspunkt(new Date(data.startOgSluttDato.sluttDato)) <
-          bareDatoUtenTidspunkt(new Date())
-      ) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: "Sluttdato kan ikke være før dagens dato",
-          path: ["startOgSluttDato.sluttDato"],
-        });
-      }
-      if (
-        data.startOgSluttDato.sluttDato &&
-        bareDatoUtenTidspunkt(new Date(data.startOgSluttDato.sluttDato)) <
-          bareDatoUtenTidspunkt(new Date(data.startOgSluttDato.startDato))
-      ) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: "Sluttdato må være etter startdato",
-          path: ["startOgSluttDato.sluttDato"],
-        });
-      }
+    }
+    if (
+      data.startOgSluttDato.sluttDato &&
+      bareDatoUtenTidspunkt(new Date(data.startOgSluttDato.sluttDato)) <
+        bareDatoUtenTidspunkt(new Date(data.startOgSluttDato.startDato))
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Sluttdato må være etter startdato",
+        path: ["startOgSluttDato.sluttDato"],
+      });
     }
     data.kontaktpersoner?.forEach((kontaktperson, index) => {
       if (kontaktperson.navIdent == null) {
