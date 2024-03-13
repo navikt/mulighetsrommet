@@ -35,7 +35,6 @@ class TiltaksgjennomforingService(
     private val avtaler: AvtaleRepository,
     private val tiltaksgjennomforinger: TiltaksgjennomforingRepository,
     private val deltakerRepository: DeltakerRepository,
-    private val virksomhetService: VirksomhetService,
     private val tiltaksgjennomforingKafkaProducer: TiltaksgjennomforingKafkaProducer,
     private val notificationRepository: NotificationRepository,
     private val validator: TiltaksgjennomforingValidator,
