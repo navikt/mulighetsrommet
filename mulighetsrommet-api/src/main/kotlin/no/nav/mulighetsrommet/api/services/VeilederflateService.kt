@@ -258,6 +258,7 @@ class VeilederflateService(
                 pameldingOgVarighet,
                 kontaktinfoInfoboks,
                 kontaktinfo,
+                lenker
               },
               delingMedBruker,
             }[0]
@@ -279,8 +280,7 @@ class VeilederflateService(
         return sanityGjennomforing.run {
             val kontaktpersoner = kontaktpersoner
                 ?.filter { it.enheter.any { enhet -> enhet in enheter } }
-                ?.map { it.navKontaktperson }
-                ?.filterNotNull()
+                ?.mapNotNull { it.navKontaktperson }
                 ?.map {
                     VeilederflateKontaktinfoTiltaksansvarlig(
                         navn = it.navn,
@@ -328,9 +328,18 @@ class VeilederflateService(
         enheter: List<String>,
     ): VeilederflateTiltaksgjennomforing {
         val arrangor = VeilederflateArrangor(
+            virksomhetId = apiGjennomforing.arrangor.id,
             selskapsnavn = apiGjennomforing.arrangor.navn,
             organisasjonsnummer = apiGjennomforing.arrangor.organisasjonsnummer,
-            kontaktpersoner = apiGjennomforing.arrangor.kontaktpersoner,
+            kontaktpersoner = apiGjennomforing.arrangor.kontaktpersoner.map {
+                VeilederflateArrangorKontaktperson(
+                    id = it.id,
+                    navn = it.navn,
+                    epost = it.epost,
+                    telefon = it.telefon,
+                    beskrivelse = it.beskrivelse,
+                )
+            },
         )
 
         val kontaktpersoner = utledKontaktpersonerForEnhet(apiGjennomforing, enheter)
@@ -370,7 +379,7 @@ class VeilederflateService(
         enheter: List<String>,
     ): List<VeilederflateKontaktinfoTiltaksansvarlig> {
         return tiltaksgjennomforingAdminDto.kontaktpersoner
-            .filter { it.navEnheter.isEmpty() || it.navEnheter.any { enhet -> enhet in enheter } }
+            .filter { enheter.isEmpty() || it.navEnheter.isEmpty() || it.navEnheter.any { enhet -> enhet in enheter } }
             .map {
                 VeilederflateKontaktinfoTiltaksansvarlig(
                     navn = it.navn,

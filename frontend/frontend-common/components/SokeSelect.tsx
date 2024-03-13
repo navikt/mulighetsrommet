@@ -66,7 +66,7 @@ export const SokeSelect = <T,>(
         style={{
           display: "flex",
           alignItems: "center",
-          gap: "0.25rem",
+          gap: "0.5rem",
           flexDirection: "row",
         }}
       >
@@ -77,6 +77,7 @@ export const SokeSelect = <T,>(
           style={{
             fontSize: size === "small" ? "16px" : "18px",
             display: "inline-block",
+            marginBottom: "8px",
           }}
           htmlFor={name}
         >

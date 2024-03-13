@@ -1,14 +1,13 @@
 package no.nav.mulighetsrommet.api.utils
 
 import io.ktor.server.application.*
-import io.ktor.server.util.*
 import io.ktor.util.pipeline.*
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattRolle
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
-import no.nav.mulighetsrommet.api.domain.dbo.Utkasttype
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dto.Avtalestatus
+import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus
 import no.nav.mulighetsrommet.domain.dto.Tiltakstypestatus
 import no.nav.mulighetsrommet.notifications.NotificationStatus
@@ -31,7 +30,7 @@ data class AvtaleFilter(
     val sortering: String? = null,
     val dagensDato: LocalDate = LocalDate.now(),
     val leverandorOrgnr: List<String> = emptyList(),
-    val administratorNavIdent: String? = null,
+    val administratorNavIdent: NavIdent? = null,
 )
 
 data class AdminTiltaksgjennomforingFilter(
@@ -45,7 +44,7 @@ data class AdminTiltaksgjennomforingFilter(
     val navRegioner: List<String> = emptyList(),
     val avtaleId: UUID? = null,
     val arrangorOrgnr: List<String> = emptyList(),
-    val administratorNavIdent: String? = null,
+    val administratorNavIdent: NavIdent? = null,
 )
 
 data class EnhetFilter(
@@ -67,16 +66,10 @@ enum class VirksomhetTil {
     TILTAKSGJENNOMFORING,
 }
 
-data class UtkastFilter(
-    val type: Utkasttype,
-    val opprettetAv: String?,
-    val avtaleId: UUID?,
-)
-
 data class NotatFilter(
     val avtaleId: UUID? = null,
     val tiltaksgjennomforingId: UUID? = null,
-    val opprettetAv: String? = null,
+    val opprettetAv: NavIdent? = null,
     val sortering: String? = "dato-created-asc",
 )
 
@@ -171,16 +164,6 @@ fun <T : Any> PipelineContext<T, ApplicationCall>.getNavAnsattFilter(): NavAnsat
     val azureIder = call.parameters.getAll("roller")?.map { NavAnsattRolle.valueOf(it) } ?: emptyList()
     return NavAnsattFilter(
         roller = azureIder,
-    )
-}
-
-fun <T : Any> PipelineContext<T, ApplicationCall>.getUtkastFilter(): UtkastFilter {
-    val type = Utkasttype.valueOf(call.request.queryParameters.getOrFail("utkasttype"))
-    val avtaleId = call.request.queryParameters["avtaleId"]?.let { if (it.isEmpty()) null else UUID.fromString(it) }
-    return UtkastFilter(
-        type = type,
-        opprettetAv = null,
-        avtaleId = avtaleId,
     )
 }
 

@@ -29,22 +29,21 @@ spec:
       for: 3m
       annotations:
         consequence: Konsumenter kan oppleve ustabilitet mot API
-        action: "Sjekk loggene til mulighetsrommet-api i namespace {{ $labels.log_namespace }}, for å se hvorfor det er så mye feil"
         summary: |-
           Vi ser mange feilmeldinger i loggene.
           Det kan resultere i ustabile tjenester hos konsumenter som
           trenger data fra API.
+        action: "Sjekk loggene til mulighetsrommet-api  [logs.adeo.no](https://logs.adeo.no/app/discover#/view/a6a558c0-e657-11ec-a21b-2f67f808c51c?_g=(filters:!(),refreshInterval:(pause:!t,value:60000),time:(from:now-15m,to:now))&_a=(columns:!(message,envclass,level,application,pod,cluster),filters:!(('$state':(store:appState),meta:(alias:!n,disabled:!f,index:ca314120-3e9b-11ea-9aca-19a3af0c6171,key:application,negate:!f,params:!(mulighetsrommet-api,mulighetsrommet-arena-adapter),type:phrases,value:!(mulighetsrommet-api,mulighetsrommet-arena-adapter)),query:(bool:(minimum_should_match:1,should:!((match_phrase:(application:mulighetsrommet-api)),(match_phrase:(application:mulighetsrommet-arena-adapter)))))),('$state':(store:appState),meta:(alias:!n,disabled:!f,index:'96e648c0-980a-11e9-830a-e17bbd64b4db',key:level,negate:!f,params:!(Error,Warning),type:phrases,value:!(Error,Warning)),query:(bool:(minimum_should_match:1,should:!((match_phrase:(level:Error)),(match_phrase:(level:Warning)))))),('$state':(store:appState),meta:(alias:!n,disabled:!f,index:'96e648c0-980a-11e9-830a-e17bbd64b4db',key:cluster,negate:!f,params:(query:prod-gcp),type:phrase),query:(match_phrase:(cluster:prod-gcp)))),hideChart:!f,index:'96e648c0-980a-11e9-830a-e17bbd64b4db',interval:auto,query:(language:lucene,query:''),sort:!(!('@timestamp',desc)))) i namespace {{ $labels.log_namespace }}, for å se hvorfor det er så mye feil"
       labels:
         namespace: team-mulighetsrommet
         severity: warning
 
     - alert: Høy andel HTTP serverfeil (5xx responser)
-      severity: danger
       expr: (100 * (sum by (app, route) (rate(ktor_http_server_requests_seconds_count{status=~"^5\\d\\d", namespace="team-mulighetsrommet", app="mulighetsrommet-api"}[3m])) / sum by (app, route) (rate(ktor_http_server_requests_seconds_count{namespace="team-mulighetsrommet", app="mulighetsrommet-api", status=~"^5\\d\\d"}[3m])))) > 10
       for: 3m
       annotations:
         consequence: 500-feil fra API
-        action: "Sjekk loggene til mulighetsrommet-api for å se hvorfor '{{ $labels.route }}' returnerer feilkoder"
+        action: "Sjekk loggene til mulighetsrommet-api [logs.adeo.no](https://logs.adeo.no/app/discover#/view/a6a558c0-e657-11ec-a21b-2f67f808c51c?_g=(filters:!(),refreshInterval:(pause:!t,value:60000),time:(from:now-15m,to:now))&_a=(columns:!(message,envclass,level,application,pod),filters:!(('$state':(store:appState),meta:(alias:!n,disabled:!f,index:'96e648c0-980a-11e9-830a-e17bbd64b4db',key:cluster,negate:!f,params:(query:dev-gcp),type:phrase),query:(match_phrase:(cluster:dev-gcp))),('$state':(store:appState),meta:(alias:!n,disabled:!f,index:ca314120-3e9b-11ea-9aca-19a3af0c6171,key:application,negate:!f,params:!(mulighetsrommet-api,mulighetsrommet-arena-adapter),type:phrases,value:'mulighetsrommet-api,%20mulighetsrommet-arena-adapter'),query:(bool:(minimum_should_match:1,should:!((match_phrase:(application:mulighetsrommet-api)),(match_phrase:(application:mulighetsrommet-arena-adapter)))))),('$state':(store:appState),meta:(alias:!n,disabled:!f,index:'96e648c0-980a-11e9-830a-e17bbd64b4db',key:level,negate:!f,params:!(Error,Warning),type:phrases,value:'Error,%20Warning'),query:(bool:(minimum_should_match:1,should:!((match_phrase:(level:Error)),(match_phrase:(level:Warning))))))),hideChart:!f,index:'96e648c0-980a-11e9-830a-e17bbd64b4db',interval:auto,query:(language:lucene,query:''),sort:!(!('@timestamp',desc))):~:text=Mulighetsrommet%2Dapi-,Mulighetsrommet,-Warning%20%2B%20Error) for å se hvorfor '{{ $labels.route }}' returnerer feilkoder"
         summary: |-
           Vi ser mange 500-feil fra API. Vi bør undersøke hvorfor, da det kan tyde på en
           feil som må rettes opp i.
@@ -61,7 +60,7 @@ spec:
       for: 3m
       annotations:
         consequense: API returnerer mange 4xx-feil
-        action: "Sjekk loggene til mulighetsrommet-api for å se hvorfor '{{ $labels.route }}' returnerer feilkoder"
+        action: "Sjekk loggene til mulighetsrommet-api <https://logs.adeo.no/app/discover#/view/9ba27a70-0443-11ed-a503-d3f90a22c586?_g=(filters:!(),refreshInterval:(pause:!t,value:60000),time:(from:now-15h,to:now))&_a=(columns:!(message,envclass,level,application,pod,exception,stack_trace),filters:!(('$state':(store:appState),meta:(alias:!n,disabled:!f,index:'96e648c0-980a-11e9-830a-e17bbd64b4db',key:query,negate:!f,type:custom,value:'%7B%22regexp%22:%7B%22application%22:%7B%22value%22:%22mulighetsrommet-.*%22%7D%7D%7D'),query:(regexp:(application:(value:'mulighetsrommet-.*')))),('$state':(store:appState),meta:(alias:!n,disabled:!f,index:'96e648c0-980a-11e9-830a-e17bbd64b4db',key:level,negate:!f,params:(query:Info),type:phrase),query:(match_phrase:(level:Info)))),grid:(),hideChart:!f,index:'96e648c0-980a-11e9-830a-e17bbd64b4db',interval:auto,query:(language:kuery,query:'message:%20(400%20OR%20401%20OR%20402%20OR%20403%20OR%20404%20OR%20405%20OR%20409%20OR%20410%20OR%20411%20OR%20412%20OR%20413%20OR%20414%20OR%20415%20OR%20416%20OR%20417%20OR%20418%20OR%20421%20OR%20422%20OR%20423%20OR%20424%20OR%20425%20OR%20426%20OR%20428%20OR%20429)%20AND%20NOT%20(RESPONSE)'),sort:!(!('@timestamp',desc))):~:text=siste%2015%20loggmeldinger-,mulighetsrommet,-%2Dapi%204**%20responser|logs.adeo.no> for å se hvorfor '{{ $labels.route }}' returnerer feilkoder"
         summary: |-
           API returnerer mange 4xx-feil. Dette gjør at
           konsumenter kan oppleve ustabilitet mot API.

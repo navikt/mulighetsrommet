@@ -8,7 +8,6 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.api.domain.dbo.AvtaleDbo
 import no.nav.mulighetsrommet.api.plugins.AuthProvider
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.routes.v1.responses.BadRequest
@@ -19,6 +18,7 @@ import no.nav.mulighetsrommet.api.utils.getAvtaleFilter
 import no.nav.mulighetsrommet.api.utils.getPaginationParams
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
 import no.nav.mulighetsrommet.domain.dto.Faneinnhold
+import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import org.koin.ktor.ext.inject
@@ -75,8 +75,10 @@ fun Route.avtaleRoutes() {
                     null
                 }
             }
-            val overstyrtFilter =
-                filter.copy(sortering = "tiltakstype_navn-ascending", administratorNavIdent = navIdent)
+            val overstyrtFilter = filter.copy(
+                sortering = "tiltakstype_navn-ascending",
+                administratorNavIdent = navIdent,
+            )
             val result = avtaler.getAll(overstyrtFilter, pagination)
             val file = excelService.createExcelFile(result.data)
             call.response.header(
@@ -123,32 +125,12 @@ data class AvtaleRequest(
     @Serializable(with = LocalDateSerializer::class)
     val startDato: LocalDate,
     @Serializable(with = LocalDateSerializer::class)
-    val sluttDato: LocalDate,
+    val sluttDato: LocalDate?,
     val url: String?,
-    val administratorer: List<String>,
+    val administratorer: List<NavIdent>,
     val avtaletype: Avtaletype,
     val prisbetingelser: String?,
     val navEnheter: List<String>,
     val beskrivelse: String?,
     val faneinnhold: Faneinnhold?,
-) {
-    fun toDbo() = AvtaleDbo(
-        id = id,
-        navn = navn,
-        avtalenummer = avtalenummer,
-        tiltakstypeId = tiltakstypeId,
-        leverandorOrganisasjonsnummer = leverandorOrganisasjonsnummer,
-        leverandorUnderenheter = leverandorUnderenheter,
-        leverandorKontaktpersonId = leverandorKontaktpersonId,
-        startDato = startDato,
-        sluttDato = sluttDato,
-        avtaletype = avtaletype,
-        antallPlasser = null,
-        url = url,
-        administratorer = administratorer,
-        prisbetingelser = prisbetingelser,
-        navEnheter = navEnheter,
-        beskrivelse = beskrivelse,
-        faneinnhold = faneinnhold,
-    )
-}
+)

@@ -20,6 +20,7 @@ import no.nav.mulighetsrommet.api.utils.getAdminTiltaksgjennomforingsFilter
 import no.nav.mulighetsrommet.api.utils.getPaginationParams
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dto.Faneinnhold
+import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import org.koin.ktor.ext.inject
@@ -134,22 +135,23 @@ data class TiltaksnummerResponse(
 data class TiltaksgjennomforingRequest(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
-    val navn: String,
     @Serializable(with = UUIDSerializer::class)
     val tiltakstypeId: UUID,
     @Serializable(with = UUIDSerializer::class)
     val avtaleId: UUID,
+    val navn: String,
     @Serializable(with = LocalDateSerializer::class)
     val startDato: LocalDate,
     @Serializable(with = LocalDateSerializer::class)
     val sluttDato: LocalDate?,
     val antallPlasser: Int,
-    val arrangorOrganisasjonsnummer: String,
+    @Serializable(with = UUIDSerializer::class)
+    val arrangorVirksomhetId: UUID,
     val arrangorKontaktpersoner: List<
         @Serializable(with = UUIDSerializer::class)
         UUID,
         >,
-    val administratorer: List<String>,
+    val administratorer: List<NavIdent>,
     val navRegion: String,
     val navEnheter: List<String>,
     val oppstart: TiltaksgjennomforingOppstartstype,
@@ -170,7 +172,7 @@ data class TiltaksgjennomforingRequest(
         sluttDato = sluttDato,
         antallPlasser = antallPlasser,
         apentForInnsok = apentForInnsok,
-        arrangorOrganisasjonsnummer = arrangorOrganisasjonsnummer,
+        arrangorVirksomhetId = arrangorVirksomhetId,
         arrangorKontaktpersoner = arrangorKontaktpersoner,
         administratorer = administratorer,
         navRegion = navRegion,
@@ -200,7 +202,7 @@ data class SetAvtaleForGjennomforingRequest(
 
 @Serializable
 data class NavKontaktpersonForGjennomforing(
-    val navIdent: String,
+    val navIdent: NavIdent,
     val navEnheter: List<String>,
     val beskrivelse: String?,
 )

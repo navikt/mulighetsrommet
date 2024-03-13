@@ -9,12 +9,20 @@ import { ReloadAppErrorBoundary } from "../../ErrorBoundary";
 import { FilterAndTableLayout } from "../../components/filter/FilterAndTableLayout";
 import { AvtaleFilterButtons } from "../../components/filter/AvtaleFilterButtons";
 import { AvtaleFilterTags } from "../../components/filter/AvtaleFilterTags";
+import { TilToppenKnapp } from "../../../../frontend-common/components/tilToppenKnapp/TilToppenKnapp";
+import { Brodsmuler } from "../../components/navigering/Brodsmuler";
 
 export function AvtalerPage() {
   useTitle("Avtaler");
 
   return (
     <>
+      <Brodsmuler
+        brodsmuler={[
+          { tittel: "Forside", lenke: "/" },
+          { tittel: "Avtaler", lenke: "/avtaler" },
+        ]}
+      />
       <HeaderBanner heading="Oversikt over avtaler" harUndermeny />
       <ReloadAppErrorBoundary>
         <MainContainer>
@@ -28,6 +36,7 @@ export function AvtalerPage() {
           </ContainerLayout>
         </MainContainer>
       </ReloadAppErrorBoundary>
+      <TilToppenKnapp />
     </>
   );
 }

@@ -19,6 +19,12 @@ export const redaktor = defineType({
       },
     }),
     defineField({
+      name: "navIdent",
+      title: "NAV-ident",
+      type: "slug",
+      validation: (rule) => rule.required(),
+    }),
+    defineField({
       name: "epost",
       title: "NAV-epost",
       type: "slug",

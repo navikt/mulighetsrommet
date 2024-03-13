@@ -8,12 +8,14 @@ import kotlinx.serialization.Serializable
 import no.nav.common.audit_log.cef.CefMessage
 import no.nav.common.audit_log.cef.CefMessageEvent
 import no.nav.common.audit_log.cef.CefMessageSeverity
+import no.nav.mulighetsrommet.api.clients.AccessType
 import no.nav.mulighetsrommet.api.plugins.getNavAnsattAzureId
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.services.BrukerService
 import no.nav.mulighetsrommet.api.services.PoaoTilgangService
 import no.nav.mulighetsrommet.api.services.TiltakshistorikkService
 import no.nav.mulighetsrommet.auditlog.AuditLog
+import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.ktor.extensions.getAccessToken
 import org.koin.ktor.ext.inject
 
@@ -28,8 +30,8 @@ fun Route.brukerRoutes() {
 
             poaoTilgangService.verifyAccessToUserFromVeileder(getNavAnsattAzureId(), request.norskIdent)
 
-            val accessToken = call.getAccessToken()
-            call.respond(brukerService.hentBrukerdata(request.norskIdent, accessToken))
+            val obo = AccessType.OBO(call.getAccessToken())
+            call.respond(brukerService.hentBrukerdata(request.norskIdent, obo))
         }
     }
 
@@ -38,6 +40,7 @@ fun Route.brukerRoutes() {
             val request = call.receive<GetHistorikkForBrukerRequest>()
             val norskIdent = request.norskIdent
             val navIdent = getNavIdent()
+            val obo = AccessType.OBO(call.getAccessToken())
 
             poaoTilgangService.verifyAccessToUserFromVeileder(getNavAnsattAzureId(), norskIdent) {
                 val message = createAuditMessage(
@@ -48,7 +51,7 @@ fun Route.brukerRoutes() {
                 AuditLog.auditLogger.log(message)
             }
 
-            historikkService.hentHistorikkForBruker(norskIdent).let {
+            historikkService.hentHistorikkForBruker(norskIdent, obo).let {
                 val message = createAuditMessage(
                     msg = "NAV-ansatt med ident: '$navIdent' har sett på tiltakshistorikken for bruker med ident: '$norskIdent'.",
                     navIdent = navIdent,
@@ -72,14 +75,14 @@ data class GetHistorikkForBrukerRequest(
     val norskIdent: String,
 )
 
-private fun createAuditMessage(msg: String, navIdent: String, norskIdent: String): CefMessage {
+private fun createAuditMessage(msg: String, navIdent: NavIdent, norskIdent: String): CefMessage {
     return CefMessage.builder()
         .applicationName("modia")
         .loggerName("mulighetsrommet-api")
         .event(CefMessageEvent.ACCESS)
         .name("Arbeidsmarkedstiltak - Vis tiltakshistorikk")
         .severity(CefMessageSeverity.INFO)
-        .sourceUserId(navIdent)
+        .sourceUserId(navIdent.value)
         .destinationUserId(norskIdent)
         .timeEnded(System.currentTimeMillis())
         .extension("msg", msg)

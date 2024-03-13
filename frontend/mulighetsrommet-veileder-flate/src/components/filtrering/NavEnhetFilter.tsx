@@ -8,16 +8,19 @@ import { useRegioner } from "@/core/api/queries/useRegioner";
 import { filterAccordionAtom } from "@/core/atoms/atoms";
 import { RegionMap } from "@/hooks/useArbeidsmarkedstiltakFilter";
 import { addOrRemove } from "@/utils/Utils";
-import styles from "./NavEnhetFilter.module.scss";
+import styles from "./CheckboxFilter.module.scss";
+import { FilterAccordionHeader } from "@/components/filtrering/FilterAccordionHeader";
 
 interface Props {
   regionMapFilter: RegionMap;
   setRegionMapFilter: (regionMap: RegionMap) => void;
+  antallValgteEnheter: number;
 }
 
 export function NavEnhetFilter({
   regionMapFilter: regionMap,
   setRegionMapFilter: setRegionMap,
+  antallValgteEnheter,
 }: Props) {
   const [accordionsOpen, setAccordionsOpen] = useAtom(filterAccordionAtom);
   const { data: alleRegioner } = useRegioner();
@@ -80,7 +83,7 @@ export function NavEnhetFilter({
         }}
         data-testid="filter_accordionheader_brukers-enhet"
       >
-        NAV-enhet
+        <FilterAccordionHeader tittel="NAV-enhet" antallValgteFilter={antallValgteEnheter} />
       </Accordion.Header>
       <Accordion.Content data-testid="filter_accordioncontent_brukers-enhet">
         <CheckboxGroup

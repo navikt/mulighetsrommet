@@ -1,4 +1,4 @@
-import amplitude from "amplitude-js";
+import * as amplitude from "@amplitude/analytics-browser";
 import { useAtomValue } from "jotai";
 import { Event } from "./taxonomy";
 import { modiaContextAtom } from "../apps/modia/hooks/useModiaContext";
@@ -24,22 +24,14 @@ export function initAmplitudeModia() {
 }
 
 export function initAmplitudeNav() {
-  const config = {
-    apiEndpoint: "amplitude.nav.no/collect",
-    saveEvents: false,
-    includeUtm: true,
-    includeReferrer: true,
-    platform: window.location.toString(),
-    trackingOptions: {
-      city: false,
-      ip_address: false,
-    },
-    // eslint-disable-next-line no-console
-    onerror: () => console.warn("Amplitude init error"),
-  };
-  amplitude.getInstance().init(import.meta.env.VITE_AMPLITUDE_API_KEY, undefined, config);
+  amplitude.init(import.meta.env.VITE_AMPLITUDE_API_KEY, {
+    serverUrl: "https://amplitude.nav.no/collect",
+    serverZone: "EU",
+    instanceName: "nav-arbeidsmarkedstiltak",
+    defaultTracking: true,
+  });
   amplitudeLogger = (params: { eventName: string; eventData?: any }) =>
-    amplitude.getInstance().logEvent(params.eventName, params.eventData);
+    amplitude.logEvent(params.eventName, params.eventData);
 }
 
 export function useLogEvent() {

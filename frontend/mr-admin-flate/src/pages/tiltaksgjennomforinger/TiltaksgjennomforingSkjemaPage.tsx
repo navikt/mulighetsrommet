@@ -1,5 +1,5 @@
 import { Alert, Heading } from "@navikt/ds-react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useMatch, useNavigate, useParams } from "react-router-dom";
 import { useAvtale } from "../../api/avtaler/useAvtale";
 import { useTiltaksgjennomforingById } from "../../api/tiltaksgjennomforing/useTiltaksgjennomforingById";
 import { ContainerLayout } from "../../layouts/ContainerLayout";
@@ -11,14 +11,19 @@ import { TiltaksgjennomforingSkjemaContainer } from "../../components/tiltaksgje
 import { ErrorMeldinger } from "../../components/tiltaksgjennomforinger/TiltaksgjennomforingSkjemaErrors";
 import { TiltaksgjennomforingstatusTag } from "../../components/statuselementer/TiltaksgjennomforingstatusTag";
 import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
+import { Brodsmule, Brodsmuler } from "../../components/navigering/Brodsmuler";
 
 const TiltaksgjennomforingSkjemaPage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { avtaleId } = useParams();
   const { data: tiltaksgjennomforing, isLoading: tiltaksgjennomforingLoading } =
     useTiltaksgjennomforingById();
   const { data: avtale, isLoading: avtaleIsLoading } = useAvtale(tiltaksgjennomforing?.avtaleId);
   const { data: ansatt, isPending: isPendingAnsatt } = useHentAnsatt();
-  const location = useLocation();
+  const erPaaGjennomforingerForAvtale = useMatch(
+    "/avtaler/:avtaleId/tiltaksgjennomforinger/:tiltaksgjennomforingId/skjema",
+  );
 
   const redigeringsModus = tiltaksgjennomforing && inneholderUrl(tiltaksgjennomforing?.id);
 
@@ -41,7 +46,13 @@ const TiltaksgjennomforingSkjemaPage = () => {
         onClose={() => {
           navigerTilbake();
         }}
-        onSuccess={(id) => navigate(`/tiltaksgjennomforinger/${id}`)}
+        onSuccess={(id) =>
+          navigate(
+            avtaleId
+              ? `/avtaler/${avtaleId}/tiltaksgjennomforinger/${id}`
+              : `/tiltaksgjennomforinger/${id}`,
+          )
+        }
         avtale={avtale}
         ansatt={ansatt}
         tiltaksgjennomforing={
@@ -53,8 +64,42 @@ const TiltaksgjennomforingSkjemaPage = () => {
     );
   }
 
+  const brodsmuler: Array<Brodsmule | undefined> = [
+    { tittel: "Forside", lenke: "/" },
+    avtaleId
+      ? { tittel: "Avtaler", lenke: "/avtaler" }
+      : { tittel: "Tiltaksgjennomføringer", lenke: "/tiltaksgjennomforinger" },
+    avtaleId
+      ? {
+          tittel: "Avtaledetaljer",
+          lenke: `/avtaler/${avtaleId}`,
+        }
+      : undefined,
+    erPaaGjennomforingerForAvtale
+      ? {
+          tittel: "Avtalens gjennomføringer",
+          lenke: `/avtaler/${avtaleId}/tiltaksgjennomforinger`,
+        }
+      : undefined,
+    redigeringsModus
+      ? {
+          tittel: "Tiltaksgjennomføringdetaljer",
+          lenke: avtaleId
+            ? `/avtaler/${avtaleId}/tiltaksgjennomforinger/${tiltaksgjennomforing?.id}`
+            : `/tiltaksgjennomforinger/${tiltaksgjennomforing?.id}`,
+        }
+      : undefined,
+    {
+      tittel: redigeringsModus ? "Rediger tiltaksgjennomføring" : "Ny tiltaksgjennomføring",
+      lenke: redigeringsModus
+        ? `/tiltaksgjennomforinger/${tiltaksgjennomforing?.id}/skjema`
+        : "/tiltaksgjennomforinger/skjema",
+    },
+  ];
+
   return (
     <main>
+      <Brodsmuler brodsmuler={brodsmuler} />
       <Header>
         <Heading size="large" level="2">
           {redigeringsModus ? "Rediger tiltaksgjennomføring" : "Opprett ny tiltaksgjennomføring"}

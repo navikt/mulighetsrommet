@@ -20,6 +20,7 @@ import no.nav.mulighetsrommet.domain.dbo.ArenaAvtaleDbo
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dto.Avtalestatus
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
+import no.nav.mulighetsrommet.domain.dto.NavIdent
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
 import java.time.LocalDate
@@ -39,7 +40,7 @@ class AvtaleRepository(private val db: Database) {
                                navn,
                                tiltakstype_id,
                                avtalenummer,
-                               leverandor_organisasjonsnummer,
+                               leverandor_virksomhet_id,
                                leverandor_kontaktperson_id,
                                start_dato,
                                slutt_dato,
@@ -54,7 +55,7 @@ class AvtaleRepository(private val db: Database) {
                     :navn,
                     :tiltakstype_id::uuid,
                     :avtalenummer,
-                    :leverandor_organisasjonsnummer,
+                    :leverandor_virksomhet_id,
                     :leverandor_kontaktperson_id,
                     :start_dato,
                     :slutt_dato,
@@ -65,21 +66,20 @@ class AvtaleRepository(private val db: Database) {
                     :opphav::opphav,
                     :beskrivelse,
                     :faneinnhold::jsonb)
-            on conflict (id) do update set navn                           = excluded.navn,
-                                           tiltakstype_id                 = excluded.tiltakstype_id,
-                                           avtalenummer                   = excluded.avtalenummer,
-                                           leverandor_organisasjonsnummer = excluded.leverandor_organisasjonsnummer,
-                                           leverandor_kontaktperson_id    = excluded.leverandor_kontaktperson_id,
-                                           start_dato                     = excluded.start_dato,
-                                           slutt_dato                     = excluded.slutt_dato,
-                                           avtaletype                     = excluded.avtaletype,
-                                           prisbetingelser                = excluded.prisbetingelser,
-                                           antall_plasser                 = excluded.antall_plasser,
-                                           url                            = excluded.url,
-                                           opphav                         = coalesce(avtale.opphav, excluded.opphav),
-                                           beskrivelse                    = excluded.beskrivelse,
-                                           faneinnhold                    = excluded.faneinnhold
-            returning *
+            on conflict (id) do update set navn                        = excluded.navn,
+                                           tiltakstype_id              = excluded.tiltakstype_id,
+                                           avtalenummer                = excluded.avtalenummer,
+                                           leverandor_virksomhet_id    = excluded.leverandor_virksomhet_id,
+                                           leverandor_kontaktperson_id = excluded.leverandor_kontaktperson_id,
+                                           start_dato                  = excluded.start_dato,
+                                           slutt_dato                  = excluded.slutt_dato,
+                                           avtaletype                  = excluded.avtaletype,
+                                           prisbetingelser             = excluded.prisbetingelser,
+                                           antall_plasser              = excluded.antall_plasser,
+                                           url                         = excluded.url,
+                                           opphav                      = coalesce(avtale.opphav, excluded.opphav),
+                                           beskrivelse                 = excluded.beskrivelse,
+                                           faneinnhold                 = excluded.faneinnhold
         """.trimIndent()
 
         @Language("PostgreSQL")
@@ -111,7 +111,7 @@ class AvtaleRepository(private val db: Database) {
         @Language("PostgreSQL")
         val deleteUnderenheter = """
              delete from avtale_underleverandor
-             where avtale_id = ?::uuid and not (organisasjonsnummer = any (?))
+             where avtale_id = ?::uuid and not (virksomhet_id = any (?))
         """.trimIndent()
 
         tx.run(queryOf(query, avtale.toSqlParameters()).asExecute)
@@ -120,14 +120,14 @@ class AvtaleRepository(private val db: Database) {
             queryOf(
                 upsertAdministrator,
                 avtale.id,
-                administrator,
+                administrator.value,
             ).asExecute.let { tx.run(it) }
         }
 
         queryOf(
             deleteAdministratorer,
             avtale.id,
-            db.createTextArray(avtale.administratorer),
+            db.createTextArray(avtale.administratorer.map { it.value }),
         ).asExecute.let { tx.run(it) }
 
         avtale.navEnheter.forEach { enhet ->
@@ -151,7 +151,7 @@ class AvtaleRepository(private val db: Database) {
         queryOf(
             deleteUnderenheter,
             avtale.id,
-            db.createTextArray(avtale.leverandorUnderenheter),
+            db.createUuidArray(avtale.leverandorUnderenheter),
         ).asExecute.let { tx.run(it) }
     }
 
@@ -162,13 +162,21 @@ class AvtaleRepository(private val db: Database) {
     fun upsertArenaAvtale(tx: Session, avtale: ArenaAvtaleDbo) {
         logger.info("Lagrer avtale fra Arena id=${avtale.id}")
 
+        val virksomhetId = queryOf(
+            "select id from virksomhet where organisasjonsnummer = ?",
+            avtale.leverandorOrganisasjonsnummer,
+        )
+            .map { it.uuid("id") }
+            .asSingle
+            .let { requireNotNull(db.run(it)) }
+
         @Language("PostgreSQL")
         val query = """
             insert into avtale(id,
                                navn,
                                tiltakstype_id,
                                avtalenummer,
-                               leverandor_organisasjonsnummer,
+                               leverandor_virksomhet_id,
                                start_dato,
                                slutt_dato,
                                arena_ansvarlig_enhet,
@@ -180,31 +188,29 @@ class AvtaleRepository(private val db: Database) {
                     :navn,
                     :tiltakstype_id::uuid,
                     :avtalenummer,
-                    :leverandor_organisasjonsnummer,
+                    :leverandor_virksomhet_id,
                     :start_dato,
                     :slutt_dato,
                     :arena_ansvarlig_enhet,
                     :avtaletype::avtaletype,
                     :avslutningsstatus::avslutningsstatus,
                     :prisbetingelser,
-                    :opphav::opphav
-                    )
-            on conflict (id) do update set navn                           = excluded.navn,
-                                           tiltakstype_id                 = excluded.tiltakstype_id,
-                                           avtalenummer                   = excluded.avtalenummer,
-                                           leverandor_organisasjonsnummer = excluded.leverandor_organisasjonsnummer,
-                                           start_dato                     = excluded.start_dato,
-                                           slutt_dato                     = excluded.slutt_dato,
-                                           arena_ansvarlig_enhet          = excluded.arena_ansvarlig_enhet,
-                                           avtaletype                     = excluded.avtaletype,
-                                           avslutningsstatus              = excluded.avslutningsstatus,
-                                           prisbetingelser                = excluded.prisbetingelser,
-                                           antall_plasser                 = excluded.antall_plasser,
-                                           opphav                         = coalesce(avtale.opphav, excluded.opphav)
-            returning *
+                    :opphav::opphav)
+            on conflict (id) do update set navn                     = excluded.navn,
+                                           tiltakstype_id           = excluded.tiltakstype_id,
+                                           avtalenummer             = excluded.avtalenummer,
+                                           leverandor_virksomhet_id = excluded.leverandor_virksomhet_id,
+                                           start_dato               = excluded.start_dato,
+                                           slutt_dato               = excluded.slutt_dato,
+                                           arena_ansvarlig_enhet    = excluded.arena_ansvarlig_enhet,
+                                           avtaletype               = excluded.avtaletype,
+                                           avslutningsstatus        = excluded.avslutningsstatus,
+                                           prisbetingelser          = excluded.prisbetingelser,
+                                           antall_plasser           = excluded.antall_plasser,
+                                           opphav                   = coalesce(avtale.opphav, excluded.opphav)
         """.trimIndent()
 
-        queryOf(query, avtale.toSqlParameters()).asExecute.let { tx.run(it) }
+        queryOf(query, avtale.toSqlParameters(virksomhetId)).asExecute.let { tx.run(it) }
     }
 
     fun get(id: UUID): AvtaleAdminDto? = db.transaction { get(id, it) }
@@ -233,14 +239,14 @@ class AvtaleRepository(private val db: Database) {
         sortering: String? = null,
         dagensDato: LocalDate = LocalDate.now(),
         leverandorOrgnr: List<String> = emptyList(),
-        administratorNavIdent: String? = null,
+        administratorNavIdent: NavIdent? = null,
     ): Pair<Int, List<AvtaleAdminDto>> {
         val parameters = mapOf(
             "search" to "%${search?.replace("/", "#")?.trim()}%",
             "limit" to pagination.limit,
             "offset" to pagination.offset,
             "today" to dagensDato,
-            "administrator_nav_ident" to administratorNavIdent?.let { """[{"navIdent": "$it" }]""" },
+            "administrator_nav_ident" to administratorNavIdent?.let { """[{"navIdent": "${it.value}" }]""" },
         )
 
         val where = DatabaseUtils.andWhereParameterNotNull(
@@ -341,15 +347,15 @@ class AvtaleRepository(private val db: Database) {
             .let { tx.run(it) }
     }
 
-    fun setLeverandorUnderenhet(tx: Session, avtaleId: UUID, organisasjonsnummer: String) {
+    fun setLeverandorUnderenhet(tx: Session, avtaleId: UUID, virksomhetId: UUID) {
         @Language("PostgreSQL")
         val query = """
-             insert into avtale_underleverandor (avtale_id, organisasjonsnummer)
-             values (?::uuid, ?)
-             on conflict (avtale_id, organisasjonsnummer) do nothing
+             insert into avtale_underleverandor (avtale_id, virksomhet_id)
+             values (?::uuid, ?::uuid)
+             on conflict (avtale_id, virksomhet_id) do nothing
         """.trimIndent()
 
-        queryOf(query, avtaleId, organisasjonsnummer)
+        queryOf(query, avtaleId, virksomhetId)
             .asExecute
             .let { tx.run(it) }
     }
@@ -374,9 +380,8 @@ class AvtaleRepository(private val db: Database) {
         "navn" to navn,
         "tiltakstype_id" to tiltakstypeId,
         "avtalenummer" to avtalenummer,
-        "leverandor_organisasjonsnummer" to leverandorOrganisasjonsnummer,
+        "leverandor_virksomhet_id" to leverandorVirksomhetId,
         "leverandor_kontaktperson_id" to leverandorKontaktpersonId,
-        "leverandor_underenheter" to db.createTextArray(leverandorUnderenheter),
         "start_dato" to startDato,
         "slutt_dato" to sluttDato,
         "avtaletype" to avtaletype.name,
@@ -387,13 +392,13 @@ class AvtaleRepository(private val db: Database) {
         "faneinnhold" to faneinnhold?.let { Json.encodeToString(it) },
     )
 
-    private fun ArenaAvtaleDbo.toSqlParameters() = mapOf(
+    private fun ArenaAvtaleDbo.toSqlParameters(virksomhetId: UUID) = mapOf(
         "opphav" to ArenaMigrering.Opphav.ARENA.name,
         "id" to id,
         "navn" to navn,
         "tiltakstype_id" to tiltakstypeId,
         "avtalenummer" to avtalenummer,
-        "leverandor_organisasjonsnummer" to leverandorOrganisasjonsnummer,
+        "leverandor_virksomhet_id" to virksomhetId,
         "start_dato" to startDato,
         "slutt_dato" to sluttDato,
         "arena_ansvarlig_enhet" to arenaAnsvarligEnhet,
@@ -404,7 +409,7 @@ class AvtaleRepository(private val db: Database) {
 
     private fun Row.toAvtaleAdminDto(): AvtaleAdminDto {
         val startDato = localDate("start_dato")
-        val sluttDato = localDate("slutt_dato")
+        val sluttDato = localDateOrNull("slutt_dato")
 
         val underenheter = stringOrNull("leverandor_underenheter")
             ?.let { Json.decodeFromString<List<AvtaleAdminDto.LeverandorUnderenhet?>>(it).filterNotNull() }
@@ -435,27 +440,26 @@ class AvtaleRepository(private val db: Database) {
             ),
             avtalenummer = stringOrNull("avtalenummer"),
             leverandor = AvtaleAdminDto.Leverandor(
+                id = uuid("leverandor_virksomhet_id"),
                 organisasjonsnummer = string("leverandor_organisasjonsnummer"),
-                navn = stringOrNull("leverandor_navn"),
-                slettet = stringOrNull("leverandor_navn") == null,
+                navn = string("leverandor_navn"),
+                slettet = boolean("leverandor_slettet"),
+                underenheter = underenheter,
+                kontaktperson = uuidOrNull("leverandor_kontaktperson_id")?.let {
+                    VirksomhetKontaktperson(
+                        id = it,
+                        virksomhetId = uuid("leverandor_kontaktperson_virksomhet_id"),
+                        navn = string("leverandor_kontaktperson_navn"),
+                        telefon = stringOrNull("leverandor_kontaktperson_telefon"),
+                        epost = string("leverandor_kontaktperson_epost"),
+                        beskrivelse = stringOrNull("leverandor_kontaktperson_beskrivelse"),
+                    )
+                },
             ),
-            leverandorUnderenheter = underenheter,
-            leverandorKontaktperson = uuidOrNull("leverandor_kontaktperson_id")?.let {
-                VirksomhetKontaktperson(
-                    id = it,
-                    organisasjonsnummer = string("leverandor_kontaktperson_organisasjonsnummer"),
-                    navn = string("leverandor_kontaktperson_navn"),
-                    telefon = stringOrNull("leverandor_kontaktperson_telefon"),
-                    epost = string("leverandor_kontaktperson_epost"),
-                    beskrivelse = stringOrNull("leverandor_kontaktperson_beskrivelse"),
-                )
-            },
             startDato = startDato,
             sluttDato = sluttDato,
             arenaAnsvarligEnhet = stringOrNull("arena_ansvarlig_enhet")?.let {
-                Json.decodeFromString(
-                    it,
-                )
+                Json.decodeFromString(it)
             },
             avtaletype = Avtaletype.valueOf(string("avtaletype")),
             avtalestatus = Avtalestatus.resolveFromDatesAndAvslutningsstatus(
@@ -494,7 +498,7 @@ class AvtaleRepository(private val db: Database) {
         statuser
             .joinToString(prefix = "(", postfix = ")", separator = " or ") {
                 when (it) {
-                    Avtalestatus.Aktiv -> "(avslutningsstatus = '${Avslutningsstatus.IKKE_AVSLUTTET}' and (:today >= start_dato and :today <= slutt_dato))"
+                    Avtalestatus.Aktiv -> "(avslutningsstatus = '${Avslutningsstatus.IKKE_AVSLUTTET}' and :today <= slutt_dato)"
                     Avtalestatus.Avsluttet -> "(avslutningsstatus = '${Avslutningsstatus.AVSLUTTET}' or :today > slutt_dato)"
                     Avtalestatus.Avbrutt -> "avslutningsstatus = '${Avslutningsstatus.AVBRUTT}'"
                 }
@@ -510,7 +514,7 @@ class AvtaleRepository(private val db: Database) {
             navn = string("navn"),
             startDato = startDato,
             sluttDato = sluttDato,
-            administratorer = administratorer,
+            administratorer = administratorer.map { NavIdent(it) },
         )
     }
 }

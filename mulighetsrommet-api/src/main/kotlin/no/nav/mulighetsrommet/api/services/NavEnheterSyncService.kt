@@ -1,7 +1,10 @@
 package no.nav.mulighetsrommet.api.services
 
 import io.ktor.http.*
-import no.nav.mulighetsrommet.api.clients.norg2.*
+import no.nav.mulighetsrommet.api.clients.norg2.Norg2Client
+import no.nav.mulighetsrommet.api.clients.norg2.Norg2EnhetDto
+import no.nav.mulighetsrommet.api.clients.norg2.Norg2Response
+import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
@@ -100,13 +103,13 @@ class NavEnheterSyncService(
         return NavEnhetUtils.isRelevantEnhetStatus(it.enhet.status) && NavEnhetUtils.isRelevantEnhetType(it.enhet.type)
     }
 
-    suspend fun lagreEnheterTilSanity(sanityEnheter: List<SanityEnhet>) {
+    private suspend fun lagreEnheterTilSanity(sanityEnheter: List<SanityEnhet>) {
         logger.info("Oppdaterer Sanity-enheter - Antall: ${sanityEnheter.size}")
-        val mutations = sanityEnheter.map { Mutation(createOrReplace = it) }
+        val mutations = sanityEnheter.map { Mutation.createOrReplace(it) }
 
         val response = sanityClient.mutate(mutations)
 
-        if (response.status.value != HttpStatusCode.OK.value) {
+        if (response.status != HttpStatusCode.OK) {
             logger.error("Klarte ikke oppdatere enheter fra NORG til Sanity: {}", response.status)
             slackNotifier.sendMessage("Klarte ikke oppdatere enheter fra NORG til Sanity. Statuskode: ${response.status.value}. Dette må sees på av en utvikler.")
         } else {

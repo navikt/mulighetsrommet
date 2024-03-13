@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api.routes.v1
 import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import no.nav.mulighetsrommet.api.clients.AccessType
 import no.nav.mulighetsrommet.api.plugins.getNavAnsattAzureId
 import no.nav.mulighetsrommet.api.services.NavAnsattService
 import no.nav.mulighetsrommet.api.services.NavVeilederService
@@ -17,8 +18,8 @@ fun Route.navAnsattRoutes() {
     route("/api/v1/internal") {
         get("/veileder/me") {
             val azureId = getNavAnsattAzureId()
-            val oboToken = call.getAccessToken()
-            call.respond(veilederService.getNavVeileder(azureId, oboToken))
+            val obo = AccessType.OBO(call.getAccessToken())
+            call.respond(veilederService.getNavVeileder(azureId, obo))
         }
 
         route("/ansatt") {

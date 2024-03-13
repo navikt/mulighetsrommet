@@ -10,23 +10,33 @@ data class Mutations<T>(
 )
 
 @Serializable
-data class Mutation<T>(
+class Mutation<T> private constructor(
     val createIfNotExists: T? = null,
     val createOrReplace: T? = null,
     val patch: T? = null,
     val delete: Delete? = null,
-)
+) {
+    companion object {
+        fun <T> createIfNotExists(data: T) = Mutation(createIfNotExists = data)
 
-@Serializable
-data class Delete(
-    val id: String,
-)
+        fun <T> createOrReplace(data: T) = Mutation(createOrReplace = data)
 
-@Serializable
-data class Patch<T>(
-    val id: String,
-    val set: T,
-)
+        fun <T> patch(id: String, set: T) = Mutation(patch = Patch(id = id, set = set))
+
+        fun delete(id: String) = Mutation<Unit>(delete = Delete(id))
+    }
+
+    @Serializable
+    data class Delete(
+        val id: String,
+    )
+
+    @Serializable
+    data class Patch<T>(
+        val id: String,
+        val set: T,
+    )
+}
 
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable

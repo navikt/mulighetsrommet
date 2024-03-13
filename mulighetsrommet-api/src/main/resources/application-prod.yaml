@@ -35,6 +35,9 @@ app:
       amtVirksomheterV1:
         id: amt-virksomheter
         topic: amt.virksomheter-v1
+      ptoSisteOppfolgingsperiodeV1:
+        id: pto-virksomheter
+        topic: pto.siste-oppfolgingsperiode-v1
 
   auth:
     azure:
@@ -106,6 +109,10 @@ app:
     url: https://axsys.prod-fss-pub.nais.io
     scope: api://prod-fss.org.axsys/.default
 
+  pdl:
+    url: https://pdl-api.prod-fss-pub.nais.io
+    scope: api://prod-fss.pdl.pdl-api/.default
+
   tasks:
     deleteExpiredTiltakshistorikk:
       cronPattern: "0 0 1 * * *" # Hver morgen kl. 01:00
@@ -124,6 +131,9 @@ app:
       delayOfMinutes: 5
     generateValidationReport:
       bucketName: mulighetsrommet-api-uploads-prod
+    updateApentForInnsok:
+      disabled: false
+      cronPattern: "0 55 23 * * *" # 23.55 hver kveld
 
   norg2:
     baseUrl: https://norg2.prod-fss-pub.nais.io/norg2/api/v1

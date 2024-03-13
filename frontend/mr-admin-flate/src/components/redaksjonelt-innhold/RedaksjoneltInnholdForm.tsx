@@ -9,7 +9,8 @@ import skjemastyles from "../skjema/Skjema.module.scss";
 import { Laster } from "../laster/Laster";
 import React, { useState } from "react";
 import { InlineErrorBoundary } from "../../ErrorBoundary";
-import { FileTextIcon, PaperplaneIcon } from "@navikt/aksel-icons";
+import { FileTextIcon, LinkIcon, PaperplaneIcon } from "@navikt/aksel-icons";
+import { Lenker } from "../lenker/Lenker";
 
 interface RedaksjoneltInnholdFormProps {
   tiltakstype: EmbeddedTiltakstype;
@@ -86,6 +87,14 @@ function RedaksjoneltInnhold({ tiltakstype }: { tiltakstype: EmbeddedTiltakstype
               }
             />
             <Tabs.Tab
+              value="lenker"
+              label={
+                <div className={skjemastyles.red_tab_title}>
+                  <LinkIcon /> Lenker
+                </div>
+              }
+            />
+            <Tabs.Tab
               value="del_med_bruker"
               label={
                 <div className={skjemastyles.red_tab_title}>
@@ -105,6 +114,9 @@ function RedaksjoneltInnhold({ tiltakstype }: { tiltakstype: EmbeddedTiltakstype
           </Tabs.Panel>
           <Tabs.Panel value="kontaktinfo">
             <Kontaktinfo />
+          </Tabs.Panel>
+          <Tabs.Panel value="lenker">
+            <Lenker />
           </Tabs.Panel>
           <Tabs.Panel value="del_med_bruker">
             <DelMedBruker tiltakstype={tiltakstypeSanityData} />

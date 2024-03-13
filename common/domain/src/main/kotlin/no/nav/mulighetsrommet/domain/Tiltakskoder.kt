@@ -78,6 +78,10 @@ object Tiltakskoder {
         return arenaKode in GruppetiltakArenaKoder
     }
 
+    fun isAFTOrVTA(tiltakskode: String): Boolean {
+        return tiltakskode == "VASV" || tiltakskode == "ARBFORB"
+    }
+
     fun isEgenRegiTiltak(arenaKode: String): Boolean {
         return arenaKode in EgenRegiTiltak
     }

@@ -30,7 +30,6 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
           navn: "Ole Testesen",
           telefon: "12345678",
           epost: "test@example.com",
-          organisasjonsnummer: "987654321",
           beskrivelse: null,
         },
       ],
@@ -54,6 +53,20 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
       varsler: [],
     },
     faneinnhold: {
+      lenker: [
+        {
+          lenke: "https://www.google.com",
+          lenkenavn: "Søk via Google",
+          apneINyFane: true,
+          visKunForVeileder: false,
+        },
+        {
+          lenke: "https://www.vg.no",
+          lenkenavn: "Sjekk nyhetene på VG",
+          apneINyFane: false,
+          visKunForVeileder: true,
+        },
+      ],
       forHvem: [
         {
           style: "normal",
@@ -138,7 +151,6 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
           navn: "Ole Testesen",
           telefon: "12345678",
           epost: "test@example.com",
-          organisasjonsnummer: "987654321",
           beskrivelse: null,
         },
       ],
@@ -228,7 +240,6 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
           navn: "Ole Testesen",
           telefon: "12345678",
           epost: "test@example.com",
-          organisasjonsnummer: "987654321",
           beskrivelse: null,
         },
       ],
@@ -363,7 +374,6 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
           navn: "Ole Testesen",
           telefon: "12345678",
           epost: "test@example.com",
-          organisasjonsnummer: "987654321",
           beskrivelse: null,
         },
       ],

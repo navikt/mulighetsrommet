@@ -4,13 +4,15 @@ import { ApentForInnsok } from "mulighetsrommet-api-client";
 import {
   RegionMap,
   useArbeidsmarkedstiltakFilter,
-} from "../../hooks/useArbeidsmarkedstiltakFilter";
+  valgteEnhetsnumre,
+} from "@/hooks/useArbeidsmarkedstiltakFilter";
 import { FilterToggle } from "./FilterToggle";
 import styles from "./Filtermeny.module.scss";
 import InnsatsgruppeFilter from "./InnsatsgruppeFilter";
 import { NavEnhetFilter } from "./NavEnhetFilter";
 import Sokefelt from "./Sokefelt";
 import { Tiltakstypefilter } from "./Tiltakstypefilter";
+import { FilterAccordionHeader } from "@/components/filtrering/FilterAccordionHeader";
 
 export const Filtermeny = () => {
   const [filter, setFilter] = useArbeidsmarkedstiltakFilter();
@@ -23,7 +25,7 @@ export const Filtermeny = () => {
       />
       <Accordion>
         <FilterToggle
-          accordionHeader="Åpent for innsøk"
+          accordionHeader={<FilterAccordionHeader tittel="Åpent for innsøk" />}
           value={filter.apentForInnsok}
           onChange={(apentForInnsok) => {
             setFilter({ ...filter, apentForInnsok });
@@ -44,8 +46,9 @@ export const Filtermeny = () => {
         <NavEnhetFilter
           regionMapFilter={filter.regionMap}
           setRegionMapFilter={(regionMap: RegionMap) => setFilter({ ...filter, regionMap })}
+          antallValgteEnheter={valgteEnhetsnumre(filter).length}
         />
-        <Tiltakstypefilter />
+        <Tiltakstypefilter antallValgteTiltakstyper={filter.tiltakstyper.length} />
       </Accordion>
     </div>
   );

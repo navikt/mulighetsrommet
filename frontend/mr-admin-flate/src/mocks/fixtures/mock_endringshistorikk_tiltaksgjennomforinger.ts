@@ -31,6 +31,14 @@ export const mockEndringshistorikkForTiltaksgjennomforing: Endringshistorikk = {
       operation: "Endret tiltaksgjennomføring",
     },
     {
+      editedAt: new Date(2023, 9, 16, 12, 15, 0).toISOString(),
+      editedBy: {
+        navn: "System",
+      },
+      id: crypto.randomUUID(),
+      operation: "Oppdatert med tiltaksnummer fra Arena",
+    },
+    {
       editedAt: new Date(2023, 5, 10, 8, 14, 0).toISOString(),
       editedBy: {
         navIdent: mockRedaktor.navIdent,

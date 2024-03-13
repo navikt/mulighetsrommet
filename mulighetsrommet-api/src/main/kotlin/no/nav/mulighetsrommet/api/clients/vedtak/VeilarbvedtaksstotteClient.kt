@@ -13,6 +13,7 @@ import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.prometheus.client.cache.caffeine.CacheMetricsCollector
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.clients.AccessType
 import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
 import no.nav.mulighetsrommet.metrics.Metrikker
 import no.nav.mulighetsrommet.securelog.SecureLog
@@ -22,7 +23,7 @@ import java.util.concurrent.TimeUnit
 
 class VeilarbvedtaksstotteClient(
     private val baseUrl: String,
-    private val tokenProvider: (accessToken: String) -> String,
+    private val tokenProvider: (obo: AccessType.OBO) -> String,
     clientEngine: HttpClientEngine = CIO.create(),
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
@@ -43,11 +44,11 @@ class VeilarbvedtaksstotteClient(
         cacheMetrics.addCache("siste14aVedtakCache", siste14aVedtakCache)
     }
 
-    suspend fun hentSiste14AVedtak(fnr: String, accessToken: String): Either<VedtakError, VedtakDto> {
+    suspend fun hentSiste14AVedtak(fnr: String, obo: AccessType.OBO): Either<VedtakError, VedtakDto> {
         siste14aVedtakCache.getIfPresent(fnr)?.let { return@hentSiste14AVedtak it.right() }
 
         val response = client.post("$baseUrl/v2/hent-siste-14a-vedtak") {
-            bearerAuth(tokenProvider.invoke(accessToken))
+            bearerAuth(tokenProvider.invoke(obo))
             header(HttpHeaders.ContentType, ContentType.Application.Json)
             setBody(VedtakRequest(fnr = fnr))
         }

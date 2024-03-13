@@ -1,12 +1,16 @@
 package no.nav.mulighetsrommet.api.services
 
+import arrow.core.Either
 import arrow.core.NonEmptyList
 import arrow.core.toNonEmptyListOrNull
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.encodeToJsonElement
 import kotliquery.TransactionalSession
+import no.nav.mulighetsrommet.api.clients.AccessType
 import no.nav.mulighetsrommet.api.clients.brreg.BrregError
+import no.nav.mulighetsrommet.api.clients.oppfolging.ErUnderOppfolgingError
+import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClient
 import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattRolle
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
@@ -17,7 +21,6 @@ import no.nav.mulighetsrommet.api.repositories.*
 import no.nav.mulighetsrommet.api.utils.EnhetFilter
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.QueryResult
-import no.nav.mulighetsrommet.database.utils.getOrThrow
 import no.nav.mulighetsrommet.database.utils.query
 import no.nav.mulighetsrommet.domain.Tiltakskoder
 import no.nav.mulighetsrommet.domain.Tiltakskoder.isEgenRegiTiltak
@@ -25,6 +28,7 @@ import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering.TiltaksgjennomforingSluttDatoCutoffDate
 import no.nav.mulighetsrommet.domain.dbo.*
 import no.nav.mulighetsrommet.domain.dto.Avtalestatus
+import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.kafka.producers.TiltaksgjennomforingKafkaProducer
 import no.nav.mulighetsrommet.kafka.producers.TiltakstypeKafkaProducer
 import no.nav.mulighetsrommet.notifications.NotificationMetadata
@@ -50,6 +54,7 @@ class ArenaAdapterService(
     private val navEnhetService: NavEnhetService,
     private val notificationService: NotificationService,
     private val endringshistorikk: EndringshistorikkService,
+    private val veilarboppfolgingClient: VeilarboppfolgingClient,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
@@ -116,10 +121,14 @@ class ArenaAdapterService(
 
             val gjennomforing = tiltaksgjennomforinger.get(tiltaksgjennomforingMedAvtale.id, tx)!!
 
-            logUpdate(tx, DocumentClass.TILTAKSGJENNOMFORING, gjennomforing.id, gjennomforing)
+            if (previous?.tiltaksnummer == null) {
+                logTiltaksnummerHentetFraArena(tx, DocumentClass.TILTAKSGJENNOMFORING, gjennomforing.id, gjennomforing)
+            } else {
+                logUpdate(tx, DocumentClass.TILTAKSGJENNOMFORING, gjennomforing.id, gjennomforing)
+            }
 
             gjennomforing.avtaleId?.let { avtaleId ->
-                avtaler.setLeverandorUnderenhet(tx, avtaleId, gjennomforing.arrangor.organisasjonsnummer)
+                avtaler.setLeverandorUnderenhet(tx, avtaleId, gjennomforing.arrangor.id)
             }
 
             tiltaksgjennomforingKafkaProducer.publish(TiltaksgjennomforingDto.from(gjennomforing))
@@ -162,8 +171,13 @@ class ArenaAdapterService(
         }
     }
 
-    fun upsertTiltakshistorikk(tiltakshistorikk: ArenaTiltakshistorikkDbo): QueryResult<ArenaTiltakshistorikkDbo> {
-        return this.tiltakshistorikk.upsert(tiltakshistorikk)
+    suspend fun upsertTiltakshistorikk(tiltakshistorikk: ArenaTiltakshistorikkDbo): Either<ErUnderOppfolgingError, Boolean> {
+        return veilarboppfolgingClient.erBrukerUnderOppfolging(tiltakshistorikk.norskIdent, AccessType.M2M)
+            .onRight {
+                if (it) {
+                    this.tiltakshistorikk.upsert(tiltakshistorikk)
+                }
+            }
     }
 
     fun removeTiltakshistorikk(id: UUID): QueryResult<Unit> {
@@ -248,7 +262,7 @@ class ArenaAdapterService(
     private fun notifyRelevantAdministrators(
         overordnetEnhet: NavEnhetDbo,
         navAnsattRolle: NavAnsattRolle,
-        createNotification: (administrators: NonEmptyList<String>) -> ScheduledNotification,
+        createNotification: (administrators: NonEmptyList<NavIdent>) -> ScheduledNotification,
     ) {
         val potentialAdministratorHovedenheter = navEnhetService
             .hentAlleEnheter(
@@ -265,7 +279,6 @@ class ArenaAdapterService(
                 roller = listOf(navAnsattRolle),
                 hovedenhetIn = potentialAdministratorHovedenheter,
             )
-            .getOrThrow()
             .map { it.navIdent }
             .toNonEmptyListOrNull() ?: return
 
@@ -284,6 +297,21 @@ class ArenaAdapterService(
             documentClass,
             "Endret i Arena",
             "Arena",
+            id,
+        ) { Json.encodeToJsonElement(value) }
+    }
+
+    private inline fun <reified T> logTiltaksnummerHentetFraArena(
+        tx: TransactionalSession,
+        documentClass: DocumentClass,
+        id: UUID,
+        value: T,
+    ) {
+        endringshistorikk.logEndring(
+            tx,
+            documentClass,
+            "Oppdatert med tiltaksnummer fra Arena",
+            TILTAKSADMINISTRASJON_SYSTEM_BRUKER,
             id,
         ) { Json.encodeToJsonElement(value) }
     }

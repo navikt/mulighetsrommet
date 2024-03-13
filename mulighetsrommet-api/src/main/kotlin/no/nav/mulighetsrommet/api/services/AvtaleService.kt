@@ -1,9 +1,7 @@
 package no.nav.mulighetsrommet.api.services
 
-import arrow.core.Either
-import arrow.core.flatMap
-import arrow.core.nel
-import arrow.core.toNonEmptyListOrNull
+import arrow.core.*
+import arrow.core.raise.either
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import kotliquery.TransactionalSession
@@ -12,9 +10,9 @@ import no.nav.mulighetsrommet.api.domain.dbo.AvtaleDbo
 import no.nav.mulighetsrommet.api.domain.dto.AvtaleAdminDto
 import no.nav.mulighetsrommet.api.domain.dto.AvtaleNotificationDto
 import no.nav.mulighetsrommet.api.domain.dto.EndringshistorikkDto
+import no.nav.mulighetsrommet.api.domain.dto.VirksomhetDto
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
-import no.nav.mulighetsrommet.api.repositories.UtkastRepository
 import no.nav.mulighetsrommet.api.routes.v1.AvtaleRequest
 import no.nav.mulighetsrommet.api.routes.v1.responses.*
 import no.nav.mulighetsrommet.api.utils.AvtaleFilter
@@ -23,6 +21,7 @@ import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering.Opphav
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dto.Avtalestatus
+import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.notifications.NotificationRepository
 import no.nav.mulighetsrommet.notifications.NotificationType
 import no.nav.mulighetsrommet.notifications.ScheduledNotification
@@ -34,7 +33,6 @@ class AvtaleService(
     private val tiltaksgjennomforinger: TiltaksgjennomforingRepository,
     private val virksomhetService: VirksomhetService,
     private val notificationRepository: NotificationRepository,
-    private val utkastRepository: UtkastRepository,
     private val validator: AvtaleValidator,
     private val endringshistorikkService: EndringshistorikkService,
     private val db: Database,
@@ -43,19 +41,32 @@ class AvtaleService(
         return avtaler.get(id)
     }
 
-    suspend fun upsert(request: AvtaleRequest, navIdent: String): Either<List<ValidationError>, AvtaleAdminDto> {
+    suspend fun upsert(request: AvtaleRequest, navIdent: NavIdent): Either<List<ValidationError>, AvtaleAdminDto> {
         val previous = avtaler.get(request.id)
-        return virksomhetService.getOrSyncHovedenhetFromBrreg(request.leverandorOrganisasjonsnummer)
-            .mapLeft {
-                ValidationError
-                    .of(
-                        AvtaleDbo::leverandorOrganisasjonsnummer,
-                        "Leverandøren finnes ikke Brønnøysundregistrene",
+        return syncVirksomheterFromBrreg(request)
+            .flatMap { (leverandor, underenheter) ->
+                val dbo = request.run {
+                    AvtaleDbo(
+                        id = id,
+                        navn = navn,
+                        avtalenummer = avtalenummer,
+                        tiltakstypeId = tiltakstypeId,
+                        leverandorVirksomhetId = leverandor.id,
+                        leverandorUnderenheter = underenheter.map { it.id },
+                        leverandorKontaktpersonId = leverandorKontaktpersonId,
+                        startDato = startDato,
+                        sluttDato = sluttDato,
+                        avtaletype = avtaletype,
+                        antallPlasser = null,
+                        url = url,
+                        administratorer = administratorer,
+                        prisbetingelser = prisbetingelser,
+                        navEnheter = navEnheter,
+                        beskrivelse = beskrivelse,
+                        faneinnhold = faneinnhold,
                     )
-                    .nel()
-            }
-            .flatMap {
-                validator.validate(request.toDbo(), previous)
+                }
+                validator.validate(dbo, previous)
             }
             .map { dbo ->
                 db.transaction { tx ->
@@ -64,7 +75,6 @@ class AvtaleService(
                     }
 
                     avtaler.upsert(dbo, tx)
-                    utkastRepository.delete(dbo.id, tx)
 
                     dispatchNotificationToNewAdministrators(tx, dbo, navIdent)
 
@@ -78,6 +88,26 @@ class AvtaleService(
                     logEndring(operation, dto, navIdent, tx)
                     dto
                 }
+            }
+    }
+
+    private suspend fun syncVirksomheterFromBrreg(request: AvtaleRequest): Either<List<ValidationError>, Pair<VirksomhetDto, List<VirksomhetDto>>> =
+        either {
+            val leverandor = syncVirksomhetFromBrreg(request.leverandorOrganisasjonsnummer).bind()
+            val underenheter = request.leverandorUnderenheter.mapOrAccumulate({ e1, e2 -> e1 + e2 }) {
+                syncVirksomhetFromBrreg(it).bind()
+            }.bind()
+            Pair(leverandor, underenheter)
+        }
+
+    private suspend fun syncVirksomhetFromBrreg(orgnr: String): Either<List<ValidationError>, VirksomhetDto> {
+        return virksomhetService
+            .getOrSyncVirksomhetFromBrreg(orgnr)
+            .mapLeft {
+                ValidationError.of(
+                    AvtaleRequest::leverandorOrganisasjonsnummer,
+                    "Leverandøren finnes ikke Brønnøysundregistrene",
+                ).nel()
             }
     }
 
@@ -104,7 +134,7 @@ class AvtaleService(
         return avtaler.getAllAvtalerSomNarmerSegSluttdato()
     }
 
-    fun avbrytAvtale(id: UUID, navIdent: String): StatusResponse<Unit> {
+    fun avbrytAvtale(id: UUID, navIdent: NavIdent): StatusResponse<Unit> {
         val avtale = avtaler.get(id) ?: return Either.Left(NotFound("Avtalen finnes ikke"))
 
         if (avtale.opphav == Opphav.ARENA) {
@@ -149,7 +179,7 @@ class AvtaleService(
     private fun dispatchNotificationToNewAdministrators(
         tx: TransactionalSession,
         dbo: AvtaleDbo,
-        navIdent: String,
+        navIdent: NavIdent,
     ) {
         val currentAdministratorer = get(dbo.id)?.administratorer?.map { it.navIdent }?.toSet() ?: setOf()
 
@@ -168,10 +198,10 @@ class AvtaleService(
     private fun logEndring(
         operation: String,
         dto: AvtaleAdminDto,
-        navIdent: String,
+        navIdent: NavIdent,
         tx: TransactionalSession,
     ) {
-        endringshistorikkService.logEndring(tx, DocumentClass.AVTALE, operation, navIdent, dto.id) {
+        endringshistorikkService.logEndring(tx, DocumentClass.AVTALE, operation, navIdent.value, dto.id) {
             Json.encodeToJsonElement(dto)
         }
     }

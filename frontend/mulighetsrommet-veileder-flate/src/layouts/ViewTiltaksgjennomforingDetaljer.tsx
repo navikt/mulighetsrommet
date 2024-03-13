@@ -1,13 +1,13 @@
+import { Oppskrift } from "@/components/oppskrift/Oppskrift";
+import { useGetTiltaksgjennomforingIdFraUrl } from "@/core/api/queries/useGetTiltaksgjennomforingIdFraUrl";
 import { PadlockLockedFillIcon } from "@navikt/aksel-icons";
 import { Alert } from "@navikt/ds-react";
 import { Innsatsgruppe, VeilederflateTiltaksgjennomforing } from "mulighetsrommet-api-client";
+import { ReactNode, useState } from "react";
 import SidemenyDetaljer from "../components/sidemeny/SidemenyDetaljer";
 import TiltaksdetaljerFane from "../components/tabs/TiltaksdetaljerFane";
-import { useGetTiltaksgjennomforingIdFraUrl } from "@/core/api/queries/useGetTiltaksgjennomforingIdFraUrl";
 import TiltaksgjennomforingsHeader from "./TiltaksgjennomforingsHeader";
 import styles from "./ViewTiltaksgjennomforingDetaljer.module.scss";
-import { Oppskrift } from "@/components/oppskrift/Oppskrift";
-import { ReactNode, useState } from "react";
 
 interface Props {
   tiltaksgjennomforing: VeilederflateTiltaksgjennomforing;

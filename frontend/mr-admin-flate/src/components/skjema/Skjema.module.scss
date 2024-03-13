@@ -79,13 +79,10 @@
     padding: 0;
     float: right;
   }
+}
 
-  .virksomhet_kontaktperson_container {
-    background-color: var(--a-surface-selected);
-    padding: 0.5rem;
-    border: 1px solid var(--a-border-divider);
-    border-radius: 0.2rem;
-  }
+.virksomhet_kontaktperson_container {
+  margin: 1rem 0;
 }
 
 .gray_container {

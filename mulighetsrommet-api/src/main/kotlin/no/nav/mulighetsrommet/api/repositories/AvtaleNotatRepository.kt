@@ -77,7 +77,7 @@ class AvtaleNotatRepository(private val db: Database) {
     ): QueryResult<List<AvtaleNotatDto>> = query {
         val parameters = mapOf(
             "avtaleId" to filter.avtaleId,
-            "opprettetAv" to filter.opprettetAv,
+            "opprettetAv" to filter.opprettetAv?.value,
         )
 
         val where = DatabaseUtils.andWhereParameterNotNull(
@@ -115,7 +115,7 @@ class AvtaleNotatRepository(private val db: Database) {
     private fun AvtaleNotatDbo.toSqlParameters() = mapOf(
         "id" to id,
         "avtaleId" to avtaleId,
-        "opprettet_av" to opprettetAv,
+        "opprettet_av" to opprettetAv?.value,
         "innhold" to innhold,
     )
 

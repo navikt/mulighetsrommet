@@ -1,29 +1,34 @@
 import { BodyShort, HStack, Heading, LinkPanel, Tag, VStack } from "@navikt/ds-react";
 import styles from "./HistorikkKort.module.scss";
 import { HistorikkForBrukerFraKomet } from "mulighetsrommet-api-client";
+import { formaterDato } from "../../../utils/Utils";
 
 interface Props {
   historikk: HistorikkForBrukerFraKomet;
 }
 export function HistorikkKort({ historikk }: Props) {
-  const { tiltakstype, tiltaksnavn, fraDato, tilDato, status, tiltaksgjennomforingId, arsak } =
-    historikk;
+  const { tiltakstype, tittel, periode, historiskStatus, beskrivelse, innsoktDato } = historikk;
   return (
     <LinkPanel
-      href={`/arbeidsmarkedstiltak/tiltak/${tiltaksgjennomforingId}`}
+      href="#" // TODO Fiks korrekt url til Komets løsning for påmelding
       className={styles.panel}
     >
       <VStack gap="2">
-        <small>{tiltakstype.toUpperCase()}</small>
+        <HStack gap="10">
+          <small>{tiltakstype.navn.toUpperCase()}</small>
+          <small>Søkt inn: {formaterDato(innsoktDato)}</small>
+        </HStack>
         <Heading size="medium" level="4">
-          {tiltaksnavn}
+          {tittel}
         </Heading>
         <HStack align={"center"} gap="5">
-          <BodyShort size="small">
-            {fraDato} - {tilDato}
-          </BodyShort>
-          <Status status={status} />
-          {arsak ? <BodyShort size="small">Årsak: {arsak}</BodyShort> : null}
+          <Status status={historiskStatus.historiskStatusType} />
+          {beskrivelse ? <BodyShort size="small">Årsak: {beskrivelse}</BodyShort> : null}
+          {periode ? (
+            <BodyShort size="small">
+              {periode.startDato} - {periode.sluttDato}
+            </BodyShort>
+          ) : null}
         </HStack>
       </VStack>
     </LinkPanel>
@@ -31,33 +36,45 @@ export function HistorikkKort({ historikk }: Props) {
 }
 
 interface StatusProps {
-  status: HistorikkForBrukerFraKomet.status;
+  status: HistorikkForBrukerFraKomet.historiskStatusType;
 }
 
 function Status({ status }: StatusProps) {
   switch (status) {
-    case HistorikkForBrukerFraKomet.status.DELTAR:
+    case HistorikkForBrukerFraKomet.historiskStatusType.AVBRUTT:
       return (
         <Tag size="small" variant="success" className={styles.deltarStatus}>
-          Deltar
+          Avbrutt
         </Tag>
       );
-    case HistorikkForBrukerFraKomet.status.AVSLUTTET:
+    case HistorikkForBrukerFraKomet.historiskStatusType.HAR_SLUTTET:
       return (
         <Tag size="small" variant="info">
-          Avsluttet
+          Har sluttet
         </Tag>
       );
-    case HistorikkForBrukerFraKomet.status.IKKE_AKTUELL:
+    case HistorikkForBrukerFraKomet.historiskStatusType.IKKE_AKTUELL:
       return (
         <Tag size="small" variant="neutral">
           Ikke aktuell
         </Tag>
       );
-    case HistorikkForBrukerFraKomet.status.VENTER:
+    case HistorikkForBrukerFraKomet.historiskStatusType.FEILREGISTRERT:
       return (
         <Tag size="small" variant="info">
-          Venter på oppstart
+          Feilregistrert
+        </Tag>
+      );
+    case HistorikkForBrukerFraKomet.historiskStatusType.FULLFORT:
+      return (
+        <Tag size="small" variant="info">
+          Fullført
+        </Tag>
+      );
+    case HistorikkForBrukerFraKomet.historiskStatusType.AVBRUTT_UTKAST:
+      return (
+        <Tag size="small" variant="info">
+          Avbrutt utkast
         </Tag>
       );
   }

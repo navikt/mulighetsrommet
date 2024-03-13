@@ -9,6 +9,7 @@ import io.ktor.http.HttpStatusCode.Companion.BadRequest
 import io.ktor.http.HttpStatusCode.Companion.InternalServerError
 import no.nav.mulighetsrommet.api.utils.NotificationFilter
 import no.nav.mulighetsrommet.database.Database
+import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.slack.SlackNotifier
 import no.nav.mulighetsrommet.tasks.DbSchedulerKotlinSerializer
@@ -59,7 +60,7 @@ class NotificationService(
         client.schedule(instance, instant)
     }
 
-    fun getNotifications(userId: String, filter: NotificationFilter): List<UserNotification> {
+    fun getNotifications(userId: NavIdent, filter: NotificationFilter): List<UserNotification> {
         return notifications.getUserNotifications(userId, filter.status)
             .getOrElse {
                 logger.error("Failed to get notifications for user=$userId", it.error)
@@ -67,7 +68,7 @@ class NotificationService(
             }
     }
 
-    fun getNotificationSummary(userId: String): UserNotificationSummary {
+    fun getNotificationSummary(userId: NavIdent): UserNotificationSummary {
         return notifications.getUserNotificationSummary(userId)
             .getOrElse {
                 logger.error("Failed to get summary for user=$userId", it.error)
@@ -75,7 +76,7 @@ class NotificationService(
             }
     }
 
-    fun setNotificationStatus(id: UUID, userId: String, status: NotificationStatus) {
+    fun setNotificationStatus(id: UUID, userId: NavIdent, status: NotificationStatus) {
         val doneAt = when (status) {
             NotificationStatus.DONE -> LocalDateTime.now()
             NotificationStatus.NOT_DONE -> null

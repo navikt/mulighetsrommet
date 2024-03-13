@@ -1,10 +1,11 @@
 package no.nav.mulighetsrommet.api.domain.dto
 
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.domain.dto.NavIdent
 
 @Serializable
 data class VeilederJoyrideDto(
-    val navIdent: String,
+    val navIdent: NavIdent,
     val fullfort: Boolean,
     val type: JoyrideType,
 )

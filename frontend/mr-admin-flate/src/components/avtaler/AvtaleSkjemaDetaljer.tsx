@@ -1,4 +1,4 @@
-import { Button, HGrid, Textarea, TextField } from "@navikt/ds-react";
+import { HGrid, Textarea, TextField } from "@navikt/ds-react";
 import {
   Avtale,
   Avtaletype,
@@ -11,14 +11,10 @@ import {
 } from "mulighetsrommet-api-client";
 import { ControlledSokeSelect } from "mulighetsrommet-frontend-common/components/ControlledSokeSelect";
 import { SelectOption } from "mulighetsrommet-frontend-common/components/SokeSelect";
-import { useRef, useState } from "react";
 import { useFormContext } from "react-hook-form";
 import { MultiValue } from "react-select";
 import { useAvtaleAdministratorer } from "../../api/ansatt/useAvtaleAdministratorer";
 import { useMigrerteTiltakstyperForAvtaler } from "../../api/tiltakstyper/useMigrerteTiltakstyper";
-import { useSokVirksomheter } from "../../api/virksomhet/useSokVirksomhet";
-import { useVirksomhet } from "../../api/virksomhet/useVirksomhet";
-import { useVirksomhetKontaktpersoner } from "../../api/virksomhet/useVirksomhetKontaktpersoner";
 import { erAnskaffetTiltak } from "../../utils/tiltakskoder";
 import { addYear } from "../../utils/Utils";
 import { Separator } from "../detaljside/Metadata";
@@ -27,9 +23,9 @@ import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { FormGroup } from "../skjema/FormGroup";
 import { FraTilDatoVelger } from "../skjema/FraTilDatoVelger";
 import skjemastyles from "../skjema/Skjema.module.scss";
-import { VirksomhetKontaktpersonerModal } from "../virksomhet/VirksomhetKontaktpersonerModal";
-import { InferredAvtaleSchema } from "./AvtaleSchema";
-import { getLokaleUnderenheterAsSelectOptions, underenheterOptions } from "./AvtaleSkjemaConst";
+import { InferredAvtaleSchema } from "../redaksjonelt-innhold/AvtaleSchema";
+import { getLokaleUnderenheterAsSelectOptions } from "./AvtaleSkjemaConst";
+import { AvtaleArrangorSkjema } from "./AvtaleArrangorSkjema";
 
 const minStartdato = new Date(2000, 0, 1);
 
@@ -41,12 +37,9 @@ interface Props {
 }
 
 export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: Props) {
-  const [sokLeverandor, setSokLeverandor] = useState("");
-  const { data: leverandorVirksomheter = [] } = useSokVirksomheter(sokLeverandor);
   const { data: migrerteTiltakstyper } = useMigrerteTiltakstyperForAvtaler();
 
   const { data: administratorer } = useAvtaleAdministratorer();
-  const virksomhetKontaktpersonerModalRef = useRef<HTMLDialogElement>(null);
 
   const {
     register,
@@ -58,12 +51,6 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
   const watchedTiltakstype: EmbeddedTiltakstype | undefined = watch("tiltakstype");
   const arenaKode = watchedTiltakstype?.arenaKode;
 
-  const watchedLeverandor = watch("leverandor");
-  const { data: virksomhetKontaktpersoner, refetch: refetchVirksomhetKontaktpersoner } =
-    useVirksomhetKontaktpersoner(watchedLeverandor);
-  const { data: leverandorData } = useVirksomhet(watchedLeverandor);
-
-  const underenheterForLeverandor = leverandorData?.underenheter ?? [];
   const valgtTiltakstypeFraArena = !migrerteTiltakstyper?.includes(watchedTiltakstype?.arenaKode);
 
   const arenaOpphavOgIngenEierskap = avtale?.opphav === Opphav.ARENA && valgtTiltakstypeFraArena;
@@ -78,25 +65,6 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
   const { startDato } = watch("startOgSluttDato");
   const sluttDatoFraDato = startDato ? new Date(startDato) : minStartdato;
   const sluttDatoTilDato = addYear(startDato ? new Date(startDato) : new Date(), 5);
-
-  const leverandorOptions = () => {
-    const options = leverandorVirksomheter.map((enhet) => ({
-      value: enhet.organisasjonsnummer,
-      label: `${enhet.navn} - ${enhet.organisasjonsnummer}`,
-    }));
-
-    if (leverandorData) {
-      options.push({
-        label: `${leverandorData.navn} - ${leverandorData.organisasjonsnummer}`,
-        value: leverandorData.organisasjonsnummer,
-      });
-    } else if (watchedLeverandor) {
-      // TODO Dette fører til flickering i gui. Hadde vært bedre om valgt leverandør alltid var tilgjengelig..
-      options.push({ label: watchedLeverandor, value: watchedLeverandor });
-    }
-
-    return options;
-  };
 
   return (
     <div className={skjemastyles.container}>
@@ -258,72 +226,10 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
             </FormGroup>
           </div>
           <div className={skjemastyles.gray_container}>
-            <FormGroup>
-              <ControlledSokeSelect
-                size="small"
-                readOnly={arenaOpphavOgIngenEierskap}
-                placeholder="Skriv for å søke etter tiltaksarrangør"
-                label={"Tiltaksarrangør hovedenhet"}
-                {...register("leverandor")}
-                onInputChange={(value) => {
-                  setSokLeverandor(value);
-                }}
-                onClearValue={() => setValue("leverandor", "")}
-                options={leverandorOptions()}
-              />
-              <ControlledMultiSelect
-                size="small"
-                placeholder="Velg underenhet for tiltaksarrangør"
-                label={"Tiltaksarrangør underenhet"}
-                helpText="Bestemmer hvilke arrangører som kan velges i gjennomføringene til avtalen."
-                readOnly={!watchedLeverandor}
-                {...register("leverandorUnderenheter")}
-                options={underenheterOptions(underenheterForLeverandor)}
-              />
-            </FormGroup>
-            {watchedLeverandor && !avtale?.leverandor?.slettet && (
-              <FormGroup>
-                <div className={skjemastyles.virksomhet_kontaktperson_container}>
-                  <ControlledSokeSelect
-                    size="small"
-                    placeholder="Velg en"
-                    label={"Kontaktperson hos leverandør"}
-                    {...register("leverandorKontaktpersonId")}
-                    options={
-                      virksomhetKontaktpersoner?.map((person) => ({
-                        value: person.id,
-                        label: person.navn,
-                      })) ?? []
-                    }
-                  />
-                  <Button
-                    className={skjemastyles.kontaktperson_button}
-                    size="small"
-                    type="button"
-                    variant="tertiary"
-                    onClick={() => virksomhetKontaktpersonerModalRef.current?.showModal()}
-                  >
-                    Rediger eller legg til kontaktpersoner
-                  </Button>
-                </div>
-              </FormGroup>
-            )}
+            <AvtaleArrangorSkjema readOnly={arenaOpphavOgIngenEierskap} />
           </div>
         </div>
       </div>
-      {watchedLeverandor && (
-        <VirksomhetKontaktpersonerModal
-          orgnr={watchedLeverandor}
-          modalRef={virksomhetKontaktpersonerModalRef}
-          onClose={() => {
-            refetchVirksomhetKontaktpersoner().then((res) => {
-              if (!res?.data?.some((p) => p.id === watch("leverandorKontaktpersonId"))) {
-                setValue("leverandorKontaktpersonId", undefined);
-              }
-            });
-          }}
-        />
-      )}
     </div>
   );
 }

@@ -14,12 +14,14 @@ import no.nav.mulighetsrommet.api.AppConfig
 import no.nav.mulighetsrommet.api.SlackConfig
 import no.nav.mulighetsrommet.api.TaskConfig
 import no.nav.mulighetsrommet.api.avtaler.AvtaleValidator
+import no.nav.mulighetsrommet.api.clients.AccessType
 import no.nav.mulighetsrommet.api.clients.arenaadapter.ArenaAdapterClient
 import no.nav.mulighetsrommet.api.clients.brreg.BrregClient
 import no.nav.mulighetsrommet.api.clients.dialog.VeilarbdialogClient
 import no.nav.mulighetsrommet.api.clients.msgraph.MicrosoftGraphClient
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Client
 import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClient
+import no.nav.mulighetsrommet.api.clients.pdl.PdlClient
 import no.nav.mulighetsrommet.api.clients.person.VeilarbpersonClient
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClient
@@ -35,6 +37,7 @@ import no.nav.mulighetsrommet.kafka.KafkaConsumerRepositoryImpl
 import no.nav.mulighetsrommet.kafka.consumers.TiltaksgjennomforingTopicConsumer
 import no.nav.mulighetsrommet.kafka.consumers.amt.AmtDeltakerV1TopicConsumer
 import no.nav.mulighetsrommet.kafka.consumers.amt.AmtVirksomheterV1TopicConsumer
+import no.nav.mulighetsrommet.kafka.consumers.pto.PtoSisteOppfolgingsperiodeV1TopicConsumer
 import no.nav.mulighetsrommet.kafka.producers.ArenaMigreringTiltaksgjennomforingKafkaProducer
 import no.nav.mulighetsrommet.kafka.producers.TiltaksgjennomforingKafkaProducer
 import no.nav.mulighetsrommet.kafka.producers.TiltakstypeKafkaProducer
@@ -143,6 +146,11 @@ private fun kafka(appConfig: AppConfig) = module {
                 virksomhetRepository = get(),
                 virksomhetService = get(),
             ),
+            PtoSisteOppfolgingsperiodeV1TopicConsumer(
+                config = config.consumers.ptoSisteOppfolgingsperiodeV1,
+                tiltakshistorikkService = get(),
+                pdlClient = get(),
+            ),
         )
         KafkaConsumerOrchestrator(
             consumerPreset = properties,
@@ -164,7 +172,6 @@ private fun repositories() = module {
     single { VirksomhetRepository(get()) }
     single { KafkaConsumerRepositoryImpl(get()) }
     single { MetrikkRepository(get()) }
-    single { UtkastRepository(get()) }
     single { AvtaleNotatRepository(get()) }
     single { TiltaksgjennomforingNotatRepository(get()) }
     single { VeilederJoyrideRepository(get()) }
@@ -174,35 +181,49 @@ private fun services(appConfig: AppConfig) = module {
     val m2mTokenProvider = createM2mTokenClient(appConfig)
     val oboTokenProvider = createOboTokenClient(appConfig)
 
-    single<VeilarboppfolgingClient> {
+    single {
         VeilarboppfolgingClient(
             baseUrl = appConfig.veilarboppfolgingConfig.url,
-            tokenProvider = { token ->
-                oboTokenProvider.exchangeOnBehalfOfToken(appConfig.veilarboppfolgingConfig.scope, token)
+            tokenProvider = { accessType ->
+                when (accessType) {
+                    AccessType.M2M -> m2mTokenProvider.createMachineToMachineToken(appConfig.veilarboppfolgingConfig.scope)
+                    is AccessType.OBO -> oboTokenProvider.exchangeOnBehalfOfToken(appConfig.veilarboppfolgingConfig.scope, accessType.token)
+                }
             },
         )
     }
-    single<VeilarbvedtaksstotteClient> {
+    single {
         VeilarbvedtaksstotteClient(
             baseUrl = appConfig.veilarbvedtaksstotteConfig.url,
-            tokenProvider = { token ->
-                oboTokenProvider.exchangeOnBehalfOfToken(appConfig.veilarbvedtaksstotteConfig.scope, token)
+            tokenProvider = { obo ->
+                oboTokenProvider.exchangeOnBehalfOfToken(appConfig.veilarbvedtaksstotteConfig.scope, obo.token)
             },
         )
     }
-    single<VeilarbpersonClient> {
+    single {
         VeilarbpersonClient(
             baseUrl = appConfig.veilarbpersonConfig.url,
-            tokenProvider = { token ->
-                oboTokenProvider.exchangeOnBehalfOfToken(appConfig.veilarbpersonConfig.scope, token)
+            tokenProvider = { obo ->
+                oboTokenProvider.exchangeOnBehalfOfToken(appConfig.veilarbpersonConfig.scope, obo.token)
             },
         )
     }
-    single<VeilarbdialogClient> {
+    single {
         VeilarbdialogClient(
             baseUrl = appConfig.veilarbdialogConfig.url,
             tokenProvider = { token ->
                 oboTokenProvider.exchangeOnBehalfOfToken(appConfig.veilarbdialogConfig.scope, token)
+            },
+        )
+    }
+    single {
+        PdlClient(
+            baseUrl = appConfig.pdl.url,
+            tokenProvider = { accessType ->
+                when (accessType) {
+                    AccessType.M2M -> m2mTokenProvider.createMachineToMachineToken(appConfig.pdl.scope)
+                    is AccessType.OBO -> oboTokenProvider.exchangeOnBehalfOfToken(appConfig.pdl.scope, accessType.token)
+                }
             },
         )
     }
@@ -213,25 +234,24 @@ private fun services(appConfig: AppConfig) = module {
             tokenProvider = { m2mTokenProvider.createMachineToMachineToken(appConfig.poaoTilgang.scope) },
         )
     }
-    single<MicrosoftGraphClient> {
+    single {
         MicrosoftGraphClient(
             baseUrl = appConfig.msGraphConfig.url,
-            tokenProvider = { token ->
-                if (token == null) {
-                    m2mTokenProvider.createMachineToMachineToken(appConfig.msGraphConfig.scope)
-                } else {
-                    oboTokenProvider.exchangeOnBehalfOfToken(appConfig.msGraphConfig.scope, token)
+            tokenProvider = { accessType ->
+                when (accessType) {
+                    AccessType.M2M -> m2mTokenProvider.createMachineToMachineToken(appConfig.msGraphConfig.scope)
+                    is AccessType.OBO -> oboTokenProvider.exchangeOnBehalfOfToken(appConfig.msGraphConfig.scope, accessType.token)
                 }
             },
         )
     }
-    single<ArenaAdapterClient> {
+    single {
         ArenaAdapterClient(
             baseUrl = appConfig.arenaAdapter.url,
             machineToMachineTokenClient = { m2mTokenProvider.createMachineToMachineToken(appConfig.arenaAdapter.scope) },
         )
     }
-    single<Norg2Client> {
+    single {
         Norg2Client(
             baseUrl = appConfig.norg2.baseUrl,
         )
@@ -261,6 +281,7 @@ private fun services(appConfig: AppConfig) = module {
             get(),
             get(),
             get(),
+            get(),
         )
     }
     single {
@@ -272,20 +293,18 @@ private fun services(appConfig: AppConfig) = module {
             get(),
             get(),
             get(),
-            get(),
         )
     }
-    single { TiltakshistorikkService(get(), get()) }
+    single { TiltakshistorikkService(get(), get(), get()) }
     single { VeilederflateService(get(), get(), get(), get()) }
     single { BrukerService(get(), get(), get(), get()) }
     single { DialogService(get()) }
-    single { NavAnsattService(appConfig.auth.roles, get(), get(), get()) }
+    single { NavAnsattService(appConfig.auth.roles, get(), get(), get(), get()) }
     single { PoaoTilgangService(get()) }
     single { DelMedBrukerService(get()) }
     single { MicrosoftGraphService(get()) }
     single {
         TiltaksgjennomforingService(
-            get(),
             get(),
             get(),
             get(),
@@ -307,7 +326,6 @@ private fun services(appConfig: AppConfig) = module {
     single { VirksomhetService(get(), get()) }
     single { ExcelService() }
     single { MetrikkService(get()) }
-    single { UtkastService(get()) }
     single { NotatService(get(), get()) }
     single {
         val byEnhetStrategy = ByEnhetStrategy(get())
@@ -315,7 +333,7 @@ private fun services(appConfig: AppConfig) = module {
         UnleashService(appConfig.unleash, byEnhetStrategy, byNavidentStrategy)
     }
     single { AxsysService(appConfig.axsys) { m2mTokenProvider.createMachineToMachineToken(appConfig.axsys.scope) } }
-    single { AvtaleValidator(get(), get(), get()) }
+    single { AvtaleValidator(get(), get(), get(), get()) }
     single { TiltaksgjennomforingValidator(get(), get()) }
 }
 
@@ -324,7 +342,7 @@ private fun tasks(config: TaskConfig) = module {
     single { InitialLoadTiltaksgjennomforinger(get(), get(), get()) }
     single { InitialLoadTiltakstyper(get(), get(), get()) }
     single { SynchronizeNavAnsatte(config.synchronizeNavAnsatte, get(), get(), get()) }
-    single { SynchronizeVirksomheterFromBrreg(get(), get()) }
+    single { SynchronizeVirksomheterFromBrreg(get(), get(), get()) }
     single {
         val deleteExpiredTiltakshistorikk = DeleteExpiredTiltakshistorikk(
             config.deleteExpiredTiltakshistorikk,
@@ -355,6 +373,7 @@ private fun tasks(config: TaskConfig) = module {
             get(),
             get(),
         )
+        val updateApentForInnsok = UpdateApentForInnsok(config.updateApentForInnsok, get(), get())
         val oppdaterMetrikker = OppdaterMetrikker(config.oppdaterMetrikker, get(), get())
         val notificationService: NotificationService by inject()
         val generateValidationReport: GenerateValidationReport by inject()
@@ -384,6 +403,7 @@ private fun tasks(config: TaskConfig) = module {
                 notifySluttdatoForAvtalerNarmerSeg.task,
                 notifyFailedKafkaEvents.task,
                 oppdaterMetrikker.task,
+                updateApentForInnsok.task,
             )
             .serializer(DbSchedulerKotlinSerializer())
             .registerShutdownHook()

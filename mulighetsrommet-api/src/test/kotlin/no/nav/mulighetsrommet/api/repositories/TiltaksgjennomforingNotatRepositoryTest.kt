@@ -13,20 +13,19 @@ import java.util.*
 
 class TiltaksgjennomforingNotatRepositoryTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
-    val domain = MulighetsrommetTestDomain()
+
+    val domain = MulighetsrommetTestDomain(
+        virksomheter = listOf(VirksomhetFixtures.hovedenhet, VirksomhetFixtures.underenhet1),
+        tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
+        avtaler = listOf(AvtaleFixtures.oppfolging),
+        gjennomforinger = listOf(TiltaksgjennomforingFixtures.Oppfolging1),
+    )
 
     context("Notater for tiltaksgjennomføring - CRUD") {
         test("CRUD") {
             domain.initialize(database.db)
-            val tiltakstypeFixture = TiltakstypeFixtures
-            val tiltakstyper = TiltakstypeRepository(database.db)
-            tiltakstyper.upsert(tiltakstypeFixture.Arbeidstrening)
-            tiltakstyper.upsert(tiltakstypeFixture.Oppfolging)
-            val avtale = AvtaleFixtures.oppfolging
-            val tiltaksgjennomforingFixtures = TiltaksgjennomforingFixtures
-            val gjennomforing = tiltaksgjennomforingFixtures.Oppfolging1.copy(avtaleId = avtale.id)
-            val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
-            tiltaksgjennomforinger.upsert(gjennomforing)
+            val gjennomforing = domain.gjennomforinger[0]
+
             val notater = TiltaksgjennomforingNotatRepository(database.db)
 
             val notat1 = TiltaksgjennomforingNotatDbo(
@@ -74,10 +73,11 @@ class TiltaksgjennomforingNotatRepositoryTest : FunSpec({
                 filter = NotatFilter(
                     tiltaksgjennomforingId = gjennomforing.id,
                     opprettetAv = null,
-                    avtaleId = UUID.randomUUID(),
+                    avtaleId = null,
                 ),
-            ).shouldBeRight()
-                .should { it.size shouldBe 3 }
+            ).shouldBeRight().should {
+                it.size shouldBe 3
+            }
 
             // Les notater
             notater.get(notat1.id).shouldBeRight().should {

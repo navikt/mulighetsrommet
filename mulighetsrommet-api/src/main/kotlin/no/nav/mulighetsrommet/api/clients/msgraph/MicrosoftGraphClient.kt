@@ -8,7 +8,9 @@ import io.ktor.client.plugins.cache.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
+import no.nav.mulighetsrommet.api.clients.AccessType
 import no.nav.mulighetsrommet.api.domain.dto.AdGruppe
+import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
 import org.slf4j.LoggerFactory
 import java.util.*
@@ -26,7 +28,7 @@ import java.util.*
 class MicrosoftGraphClient(
     engine: HttpClientEngine = CIO.create(),
     private val baseUrl: String,
-    private val tokenProvider: (accessToken: String?) -> String,
+    private val tokenProvider: (accessType: AccessType) -> String,
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
 
@@ -39,9 +41,9 @@ class MicrosoftGraphClient(
         }
     }
 
-    suspend fun getNavAnsatt(navAnsattAzureId: UUID, oboToken: String?): AzureAdNavAnsatt {
+    suspend fun getNavAnsatt(navAnsattAzureId: UUID, accessType: AccessType): AzureAdNavAnsatt {
         val response = client.get("$baseUrl/v1.0/users/$navAnsattAzureId") {
-            bearerAuth(tokenProvider(oboToken))
+            bearerAuth(tokenProvider(accessType))
             parameter("\$select", "id,streetAddress,city,givenName,surname,onPremisesSamAccountName,mail,mobilePhone")
         }
 
@@ -55,9 +57,9 @@ class MicrosoftGraphClient(
         return toNavAnsatt(user)
     }
 
-    suspend fun getMemberGroups(navAnsattAzureId: UUID, oboToken: String?): List<AdGruppe> {
+    suspend fun getMemberGroups(navAnsattAzureId: UUID, accessType: AccessType): List<AdGruppe> {
         val response = client.get("$baseUrl/v1.0/users/$navAnsattAzureId/transitiveMemberOf/microsoft.graph.group") {
-            bearerAuth(tokenProvider.invoke(oboToken))
+            bearerAuth(tokenProvider.invoke(accessType))
             parameter("\$select", "id,displayName")
         }
 
@@ -75,7 +77,7 @@ class MicrosoftGraphClient(
 
     suspend fun getGroupMembers(groupId: UUID): List<AzureAdNavAnsatt> {
         val response = client.get("$baseUrl/v1.0/groups/$groupId/members") {
-            bearerAuth(tokenProvider.invoke(null))
+            bearerAuth(tokenProvider.invoke(AccessType.M2M))
             parameter("\$select", "id,streetAddress,city,givenName,surname,onPremisesSamAccountName,mail,mobilePhone")
             parameter("\$top", "999")
         }
@@ -120,7 +122,7 @@ class MicrosoftGraphClient(
 
         else -> AzureAdNavAnsatt(
             azureId = user.id,
-            navIdent = user.onPremisesSamAccountName,
+            navIdent = NavIdent(user.onPremisesSamAccountName),
             fornavn = user.givenName,
             etternavn = user.surname,
             hovedenhetKode = user.streetAddress,

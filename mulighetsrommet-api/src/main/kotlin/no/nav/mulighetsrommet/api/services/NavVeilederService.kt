@@ -1,13 +1,14 @@
 package no.nav.mulighetsrommet.api.services
 
+import no.nav.mulighetsrommet.api.clients.AccessType
 import no.nav.mulighetsrommet.api.domain.dto.NavVeilederDto
 import java.util.*
 
 class NavVeilederService(
     private val microsoftGraphService: MicrosoftGraphService,
 ) {
-    suspend fun getNavVeileder(azureId: UUID, oboToken: String): NavVeilederDto {
-        val ansatt = microsoftGraphService.getNavAnsatt(azureId, oboToken)
+    suspend fun getNavVeileder(azureId: UUID, obo: AccessType.OBO): NavVeilederDto {
+        val ansatt = microsoftGraphService.getNavAnsatt(azureId, obo)
         return NavVeilederDto(
             navIdent = ansatt.navIdent,
             fornavn = ansatt.fornavn,

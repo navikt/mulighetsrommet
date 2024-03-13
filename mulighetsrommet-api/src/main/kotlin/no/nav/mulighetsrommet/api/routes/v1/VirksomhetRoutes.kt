@@ -11,6 +11,8 @@ import io.ktor.server.util.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.clients.brreg.BrregClient
 import no.nav.mulighetsrommet.api.clients.brreg.BrregError
+import no.nav.mulighetsrommet.api.domain.dto.BrregVirksomhetDto
+import no.nav.mulighetsrommet.api.domain.dto.VirksomhetDto
 import no.nav.mulighetsrommet.api.domain.dto.VirksomhetKontaktperson
 import no.nav.mulighetsrommet.api.repositories.VirksomhetRepository
 import no.nav.mulighetsrommet.api.routes.v1.responses.*
@@ -39,54 +41,74 @@ fun Route.virksomhetRoutes() {
             }
 
             val response = brregClient.sokEtterOverordnetEnheter(sok)
-                .map {
+                .map { hovedenheter ->
                     // Kombinerer resultat med utenlandske virksomheter siden de ikke finnes i brreg
-                    it + virksomhetRepository.getAll(sok = sok, utenlandsk = true)
+                    hovedenheter + virksomhetRepository.getAll(sok = sok, utenlandsk = true).map { virksomhet ->
+                        toBrregVirksomhetDto(virksomhet)
+                    }
                 }
                 .mapLeft { toStatusResponseError(it) }
 
             call.respondWithStatusResponse(response)
         }
 
-        get("{orgnr}") {
+        get("{orgnr}/underenheter") {
+            val orgnr = call.parameters.getOrFail("orgnr").also { validateOrgnr(it) }
+
+            val response = brregClient.hentUnderenheterForOverordnetEnhet(orgnr)
+                .map { underenheter ->
+                    // Kombinerer resultat med virksomheter som er slettet fra brreg for å støtte avtaler/gjennomføringer som henger etter
+                    underenheter + virksomhetRepository.getAll(overordnetEnhetOrgnr = orgnr, slettet = true)
+                        .map { virksomhet -> toBrregVirksomhetDto(virksomhet) }
+                }
+                .mapLeft { toStatusResponseError(it) }
+
+            call.respondWithStatusResponse(response)
+        }
+
+        get("{id}") {
+            val id: UUID by call.parameters
+
+            call.respond(virksomhetRepository.getById(id))
+        }
+
+        get("{id}/kontaktpersoner") {
+            val id: UUID by call.parameters
+
+            call.respond(virksomhetService.hentKontaktpersoner(id))
+        }
+
+        post("{orgnr}") {
             val orgnr = call.parameters.getOrFail("orgnr").also { validateOrgnr(it) }
 
             if (isUtenlandskOrgnr(orgnr)) {
                 val virksomhet = virksomhetRepository.get(orgnr)
-                return@get if (virksomhet != null) {
+                return@post if (virksomhet != null) {
                     call.respond(virksomhet)
                 } else {
                     call.respond(HttpStatusCode.NotFound, "Fant ikke enhet med orgnr: $orgnr")
                 }
             }
 
-            val response = virksomhetService.getVirksomhetFromBrreg(orgnr)
+            val response = virksomhetService.getOrSyncVirksomhetFromBrreg(orgnr)
                 .mapLeft { toStatusResponseError(it) }
 
             call.respondWithStatusResponse(response)
         }
 
-        get("{orgnr}/kontaktperson") {
-            val orgnr = call.parameters.getOrFail("orgnr").also { validateOrgnr(it) }
-
-            call.respond(virksomhetService.hentKontaktpersoner(orgnr))
-        }
-
-        put("{orgnr}/kontaktperson") {
-            val orgnr = call.parameters.getOrFail("orgnr").also { validateOrgnr(it) }
-
+        put("{id}/kontaktpersoner") {
+            val id: UUID by call.parameters
             val virksomhetKontaktperson = call.receive<VirksomhetKontaktpersonRequest>()
-            val result = virksomhetKontaktperson
-                .toDto(orgnr)
+
+            val result = virksomhetKontaktperson.toDto(id)
                 .map { virksomhetService.upsertKontaktperson(it) }
-                .onLeft {
-                    application.log.error(it.message)
-                }
+                .onLeft { application.log.warn("Klarte ikke opprette kontaktperson: $it") }
+
             call.respondWithStatusResponse(result)
         }
 
         delete("kontaktperson/{id}") {
-            val id = call.parameters.getOrFail<UUID>("id")
+            val id: UUID by call.parameters
 
             call.respondWithStatusResponse(virksomhetService.deleteKontaktperson(id))
         }
@@ -121,6 +143,16 @@ private fun toStatusResponseError(it: BrregError) = when (it) {
     BrregError.Error -> ServerError()
 }
 
+private fun toBrregVirksomhetDto(virksomhet: VirksomhetDto) = BrregVirksomhetDto(
+    organisasjonsnummer = virksomhet.organisasjonsnummer,
+    navn = virksomhet.navn,
+    overordnetEnhet = virksomhet.overordnetEnhet,
+    underenheter = listOf(),
+    postnummer = virksomhet.postnummer,
+    poststed = virksomhet.poststed,
+    slettetDato = virksomhet.slettetDato,
+)
+
 @Serializable
 data class VirksomhetKontaktpersonRequest(
     @Serializable(with = UUIDSerializer::class)
@@ -130,19 +162,31 @@ data class VirksomhetKontaktpersonRequest(
     val beskrivelse: String?,
     val epost: String,
 ) {
-    fun toDto(orgnr: String): StatusResponse<VirksomhetKontaktperson> {
-        if (navn.isEmpty() || epost.isEmpty()) {
-            return Either.Left(BadRequest("Verdier kan ikke være tomme"))
+    fun toDto(virksomhetId: UUID): StatusResponse<VirksomhetKontaktperson> {
+        val navn = navn.trim()
+        val epost = epost.trim()
+
+        val errors = buildList {
+            if (navn.isEmpty()) {
+                add(ValidationError.of(VirksomhetKontaktperson::navn, "Navn er påkrevd"))
+            }
+            if (epost.isEmpty()) {
+                add(ValidationError.of(VirksomhetKontaktperson::epost, "E-post er påkrevd"))
+            }
+        }
+
+        if (errors.isNotEmpty()) {
+            return Either.Left(BadRequest(errors = errors))
         }
 
         return Either.Right(
             VirksomhetKontaktperson(
                 id = id,
-                organisasjonsnummer = orgnr,
+                virksomhetId = virksomhetId,
                 navn = navn,
-                telefon = telefon,
+                telefon = telefon?.trim()?.ifEmpty { null },
                 epost = epost,
-                beskrivelse = beskrivelse,
+                beskrivelse = beskrivelse?.trim()?.ifEmpty { null },
             ),
         )
     }

@@ -12,7 +12,8 @@ export function ModiaFilterTags() {
 
   return (
     <FilterTagsContainer>
-      <NavEnhetTag />
+      {filter.innsatsgruppe && <FilterTag options={[filter.innsatsgruppe]} />}
+      <NavEnhetTag onClose={() => setFilter({ ...filter, regionMap: {} })} />
       {filter.apentForInnsok !== ApentForInnsok.APENT_ELLER_STENGT && (
         <FilterTag
           options={[
@@ -29,7 +30,6 @@ export function ModiaFilterTags() {
           }
         />
       )}
-      {filter.innsatsgruppe && <FilterTag options={[filter.innsatsgruppe]} />}
       <FilterTag
         options={filter.tiltakstyper}
         onClose={(id: string) =>

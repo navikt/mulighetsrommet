@@ -5,6 +5,7 @@ import type {
 } from "mulighetsrommet-api-client";
 import { formaterDatoTid } from "../../utils/Utils";
 import styles from "./ViewEndringshistorikk.module.scss";
+import classNames from "classnames";
 
 export interface ViewEndringshistorikkProps {
   historikk: Endringshistorikk;
@@ -25,7 +26,12 @@ export function ViewEndringshistorikk(props: ViewEndringshistorikkProps) {
           : editedBy.navn;
 
         return (
-          <li key={editedAt}>
+          <li
+            className={classNames({
+              [styles.system]: !isNavAnsatt(editedBy),
+            })}
+            key={editedAt}
+          >
             {formaterDatoTid(editedAt)} - <b>{operation}</b> - {user}
           </li>
         );

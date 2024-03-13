@@ -13,6 +13,7 @@ import {
   tiltakstypeOptions,
   virksomhetOptions,
 } from "../../utils/filterUtils";
+import { FilterAccordionHeader } from "./FilterAccordionHeader";
 
 type Filters = "tiltakstype";
 
@@ -78,7 +79,7 @@ export function AvtaleFilter({ filterAtom, skjulFilter }: Props) {
               setAccordionsOpen([...addOrRemove(accordionsOpen, "status")]);
             }}
           >
-            Status
+            <FilterAccordionHeader tittel="Status" antallValgteFilter={filter.statuser.length} />
           </Accordion.Header>
           <Accordion.Content>
             <CheckboxList
@@ -101,7 +102,10 @@ export function AvtaleFilter({ filterAtom, skjulFilter }: Props) {
                 setAccordionsOpen([...addOrRemove(accordionsOpen, "tiltakstype")]);
               }}
             >
-              Tiltakstype
+              <FilterAccordionHeader
+                tittel="Tiltakstype"
+                antallValgteFilter={filter.tiltakstyper.length}
+              />
             </Accordion.Header>
             <Accordion.Content>
               <CheckboxList
@@ -124,7 +128,7 @@ export function AvtaleFilter({ filterAtom, skjulFilter }: Props) {
               setAccordionsOpen([...addOrRemove(accordionsOpen, "region")]);
             }}
           >
-            Region
+            <FilterAccordionHeader tittel="Region" antallValgteFilter={filter.navRegioner.length} />
           </Accordion.Header>
           <Accordion.Content>
             <CheckboxList
@@ -146,7 +150,10 @@ export function AvtaleFilter({ filterAtom, skjulFilter }: Props) {
               setAccordionsOpen([...addOrRemove(accordionsOpen, "leverandor")]);
             }}
           >
-            Leverandør
+            <FilterAccordionHeader
+              tittel="Leverandør"
+              antallValgteFilter={filter.leverandor.length}
+            />
           </Accordion.Header>
           <Accordion.Content>
             <CheckboxList

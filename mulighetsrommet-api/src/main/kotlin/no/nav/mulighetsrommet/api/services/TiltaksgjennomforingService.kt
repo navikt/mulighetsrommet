@@ -1,6 +1,8 @@
 package no.nav.mulighetsrommet.api.services
 
-import arrow.core.*
+import arrow.core.Either
+import arrow.core.left
+import arrow.core.toNonEmptyListOrNull
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import kotliquery.TransactionalSession
@@ -10,7 +12,6 @@ import no.nav.mulighetsrommet.api.domain.dto.*
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.repositories.DeltakerRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
-import no.nav.mulighetsrommet.api.repositories.UtkastRepository
 import no.nav.mulighetsrommet.api.routes.v1.TiltaksgjennomforingRequest
 import no.nav.mulighetsrommet.api.routes.v1.responses.*
 import no.nav.mulighetsrommet.api.tiltaksgjennomforinger.TiltaksgjennomforingValidator
@@ -20,11 +21,14 @@ import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.Tiltakskoder.isTiltakMedAvtalerFraMulighetsrommet
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
+import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.kafka.producers.TiltaksgjennomforingKafkaProducer
 import no.nav.mulighetsrommet.notifications.NotificationRepository
 import no.nav.mulighetsrommet.notifications.NotificationType
 import no.nav.mulighetsrommet.notifications.ScheduledNotification
+import org.slf4j.LoggerFactory
 import java.time.Instant
+import java.time.LocalDate
 import java.util.*
 
 class TiltaksgjennomforingService(
@@ -32,30 +36,19 @@ class TiltaksgjennomforingService(
     private val tiltaksgjennomforinger: TiltaksgjennomforingRepository,
     private val deltakerRepository: DeltakerRepository,
     private val virksomhetService: VirksomhetService,
-    private val utkastRepository: UtkastRepository,
     private val tiltaksgjennomforingKafkaProducer: TiltaksgjennomforingKafkaProducer,
     private val notificationRepository: NotificationRepository,
     private val validator: TiltaksgjennomforingValidator,
     private val documentHistoryService: EndringshistorikkService,
     private val db: Database,
 ) {
+    private val logger = LoggerFactory.getLogger(javaClass)
     suspend fun upsert(
         request: TiltaksgjennomforingRequest,
-        navIdent: String,
+        navIdent: NavIdent,
     ): Either<List<ValidationError>, TiltaksgjennomforingAdminDto> {
         val previous = tiltaksgjennomforinger.get(request.id)
-        return virksomhetService.getOrSyncHovedenhetFromBrreg(request.arrangorOrganisasjonsnummer)
-            .mapLeft {
-                ValidationError
-                    .of(
-                        TiltaksgjennomforingDbo::arrangorOrganisasjonsnummer,
-                        "Arrangøren finnes ikke Brønnøysundregistrene",
-                    )
-                    .nel()
-            }
-            .flatMap {
-                validator.validate(request.toDbo(), previous)
-            }
+        return validator.validate(request.toDbo(), previous)
             .map { dbo ->
                 db.transactionSuspend { tx ->
                     if (previous?.toDbo() == dbo) {
@@ -63,7 +56,6 @@ class TiltaksgjennomforingService(
                     }
 
                     tiltaksgjennomforinger.upsert(dbo, tx)
-                    utkastRepository.delete(dbo.id, tx)
 
                     val dto = getOrError(dbo.id, tx)
 
@@ -143,20 +135,20 @@ class TiltaksgjennomforingService(
         return tiltaksgjennomforinger.getAllGjennomforingerSomNarmerSegSluttdato()
     }
 
-    fun setPublisert(id: UUID, publisert: Boolean, navIdent: String) {
+    fun setPublisert(id: UUID, publisert: Boolean, navIdent: NavIdent) {
         db.transaction { tx ->
             tiltaksgjennomforinger.setPublisert(tx, id, publisert)
             val dto = getOrError(id, tx)
             val operation = if (publisert) {
                 "Tiltak publisert"
             } else {
-                "Tiltak ikke publisert"
+                "Tiltak avpublisert"
             }
             logEndring(operation, dto, navIdent, tx)
         }
     }
 
-    fun setAvtale(id: UUID, avtaleId: UUID?, navIdent: String): StatusResponse<Unit> {
+    fun setAvtale(id: UUID, avtaleId: UUID?, navIdent: NavIdent): StatusResponse<Unit> {
         val gjennomforing = get(id) ?: return NotFound("Gjennomføringen finnes ikke").left()
 
         if (!isTiltakMedAvtalerFraMulighetsrommet(gjennomforing.tiltakstype.arenaKode)) {
@@ -179,7 +171,7 @@ class TiltaksgjennomforingService(
         return Either.Right(Unit)
     }
 
-    fun avbrytGjennomforing(id: UUID, navIdent: String): StatusResponse<Unit> {
+    fun avbrytGjennomforing(id: UUID, navIdent: NavIdent): StatusResponse<Unit> {
         val gjennomforing = get(id) ?: return Either.Left(NotFound("Gjennomføringen finnes ikke"))
 
         if (gjennomforing.opphav == ArenaMigrering.Opphav.ARENA) {
@@ -205,6 +197,20 @@ class TiltaksgjennomforingService(
         return Either.Right(Unit)
     }
 
+    fun batchApentForInnsokForAlleMedStarttdatoForDato(dagensDato: LocalDate) {
+        db.transaction { tx ->
+            val tiltak = tiltaksgjennomforinger.lukkApentForInnsokForTiltakMedStartdatoForDato(dagensDato, tx)
+            tiltak.forEach {
+                logEndringSomSystembruker(
+                    operation = "Stengte for innsøk",
+                    it,
+                    tx,
+                )
+            }
+            logger.info("Oppdaterte ${tiltak.size} tiltak med åpent for innsøk = false")
+        }
+    }
+
     fun getEndringshistorikk(id: UUID): EndringshistorikkDto {
         return documentHistoryService.getEndringshistorikk(DocumentClass.TILTAKSGJENNOMFORING, id)
     }
@@ -217,7 +223,7 @@ class TiltaksgjennomforingService(
     private fun dispatchNotificationToNewAdministrators(
         tx: TransactionalSession,
         dbo: TiltaksgjennomforingDbo,
-        navIdent: String,
+        navIdent: NavIdent,
     ) {
         val currentAdministratorer = get(dbo.id)?.administratorer?.map { it.navIdent }?.toSet() ?: setOf()
 
@@ -236,10 +242,26 @@ class TiltaksgjennomforingService(
     private fun logEndring(
         operation: String,
         dto: TiltaksgjennomforingAdminDto,
-        navIdent: String,
+        navIdent: NavIdent,
         tx: TransactionalSession,
     ) {
-        documentHistoryService.logEndring(tx, DocumentClass.TILTAKSGJENNOMFORING, operation, navIdent, dto.id) {
+        documentHistoryService.logEndring(tx, DocumentClass.TILTAKSGJENNOMFORING, operation, navIdent.value, dto.id) {
+            Json.encodeToJsonElement<TiltaksgjennomforingAdminDto>(dto)
+        }
+    }
+
+    private fun logEndringSomSystembruker(
+        operation: String,
+        dto: TiltaksgjennomforingAdminDto,
+        tx: TransactionalSession,
+    ) {
+        documentHistoryService.logEndring(
+            tx,
+            DocumentClass.TILTAKSGJENNOMFORING,
+            operation,
+            TILTAKSADMINISTRASJON_SYSTEM_BRUKER,
+            dto.id,
+        ) {
             Json.encodeToJsonElement<TiltaksgjennomforingAdminDto>(dto)
         }
     }

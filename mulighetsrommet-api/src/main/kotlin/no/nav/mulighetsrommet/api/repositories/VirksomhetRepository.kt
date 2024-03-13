@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api.repositories
 import kotliquery.Row
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.domain.dbo.OverordnetEnhetDbo
+import no.nav.mulighetsrommet.api.domain.dto.BrregVirksomhetDto
 import no.nav.mulighetsrommet.api.domain.dto.VirksomhetDto
 import no.nav.mulighetsrommet.api.domain.dto.VirksomhetKontaktperson
 import no.nav.mulighetsrommet.api.utils.VirksomhetTil
@@ -68,8 +69,39 @@ class VirksomhetRepository(private val db: Database) {
     }
 
     /** Upserter kun enheten og tar ikke hensyn til underenheter */
-    fun upsert(virksomhetDto: VirksomhetDto) {
-        logger.info("Lagrer virksomhet ${virksomhetDto.organisasjonsnummer}")
+    fun upsert(virksomhet: VirksomhetDto) {
+        @Language("PostgreSQL")
+        val query = """
+            insert into virksomhet(id, organisasjonsnummer, navn, overordnet_enhet, slettet_dato, postnummer, poststed)
+            values (:id, :organisasjonsnummer, :navn, :overordnet_enhet, :slettet_dato, :postnummer, :poststed)
+            on conflict (id) do update set
+                organisasjonsnummer = excluded.organisasjonsnummer,
+                navn = excluded.navn,
+                overordnet_enhet = excluded.overordnet_enhet,
+                slettet_dato = excluded.slettet_dato,
+                postnummer = excluded.postnummer,
+                poststed = excluded.poststed
+            returning *
+        """.trimIndent()
+
+        val parameters = virksomhet.run {
+            mapOf(
+                "id" to id,
+                "organisasjonsnummer" to organisasjonsnummer,
+                "navn" to navn,
+                "overordnet_enhet" to overordnetEnhet,
+                "slettet_dato" to slettetDato,
+                "postnummer" to postnummer,
+                "poststed" to poststed,
+            )
+        }
+
+        db.run(queryOf(query, parameters).asExecute)
+    }
+
+    /** Upserter kun enheten og tar ikke hensyn til underenheter */
+    fun upsert(brregVirksomhet: BrregVirksomhetDto) {
+        logger.info("Lagrer virksomhet ${brregVirksomhet.organisasjonsnummer}")
 
         @Language("PostgreSQL")
         val query = """
@@ -85,22 +117,24 @@ class VirksomhetRepository(private val db: Database) {
         """.trimIndent()
 
         db.transaction { tx ->
-            tx.run(queryOf(query, virksomhetDto.toSqlParameters()).asExecute)
+            tx.run(queryOf(query, brregVirksomhet.toSqlParameters()).asExecute)
         }
     }
 
     fun getAll(
         til: VirksomhetTil? = null,
         sok: String? = null,
+        overordnetEnhetOrgnr: String? = null,
+        slettet: Boolean? = null,
         utenlandsk: Boolean? = null,
     ): List<VirksomhetDto> {
         val join = when (til) {
             VirksomhetTil.AVTALE -> {
-                "inner join avtale on avtale.leverandor_organisasjonsnummer = v.organisasjonsnummer"
+                "inner join avtale on avtale.leverandor_virksomhet_id = v.id"
             }
 
             VirksomhetTil.TILTAKSGJENNOMFORING -> {
-                "inner join tiltaksgjennomforing t on t.arrangor_organisasjonsnummer = v.organisasjonsnummer"
+                "inner join tiltaksgjennomforing t on t.arrangor_virksomhet_id = v.id"
             }
 
             else -> ""
@@ -109,6 +143,7 @@ class VirksomhetRepository(private val db: Database) {
         @Language("PostgreSQL")
         val selectVirksomheter = """
             select distinct
+                v.id,
                 v.organisasjonsnummer,
                 v.overordnet_enhet,
                 v.navn,
@@ -118,11 +153,18 @@ class VirksomhetRepository(private val db: Database) {
             from virksomhet v
                 $join
             where (:sok::text is null or v.navn ilike :sok)
+              and (:overordnet_enhet::text is null or v.overordnet_enhet = :overordnet_enhet)
+              and (:slettet::boolean is null or v.slettet_dato is not null = :slettet)
               and (:utenlandsk::boolean is null or v.er_utenlandsk_virksomhet = :utenlandsk)
             order by v.navn asc
         """.trimIndent()
 
-        val params = mapOf("sok" to sok?.let { "%$it%" }, "utenlandsk" to utenlandsk)
+        val params = mapOf(
+            "sok" to sok?.let { "%$it%" },
+            "overordnet_enhet" to overordnetEnhetOrgnr,
+            "slettet" to slettet,
+            "utenlandsk" to utenlandsk,
+        )
 
         return queryOf(selectVirksomheter, params)
             .map { it.toVirksomhetDto() }
@@ -134,6 +176,7 @@ class VirksomhetRepository(private val db: Database) {
         @Language("PostgreSQL")
         val selectVirksomhet = """
             select
+                v.id,
                 v.organisasjonsnummer,
                 v.overordnet_enhet,
                 v.navn,
@@ -147,6 +190,7 @@ class VirksomhetRepository(private val db: Database) {
         @Language("PostgreSQL")
         val selectUnderenheterTilVirksomhet = """
             select
+                v.id,
                 v.organisasjonsnummer,
                 v.overordnet_enhet,
                 v.navn,
@@ -174,6 +218,31 @@ class VirksomhetRepository(private val db: Database) {
         }
     }
 
+    fun getById(id: UUID): VirksomhetDto {
+        @Language("PostgreSQL")
+        val query = """
+            select
+                v.id,
+                v.organisasjonsnummer,
+                v.overordnet_enhet,
+                v.navn,
+                v.slettet_dato,
+                v.postnummer,
+                v.poststed
+            from virksomhet v
+            where v.id = ?::uuid
+        """.trimIndent()
+
+        val virksomhet = queryOf(query, id)
+            .map { it.toVirksomhetDto() }
+            .asSingle
+            .let { db.run(it) }
+
+        return requireNotNull(virksomhet) {
+            "Virksomhet med id=$id finnes ikke"
+        }
+    }
+
     fun delete(orgnr: String) {
         logger.info("Sletter virksomhet $orgnr")
 
@@ -190,11 +259,11 @@ class VirksomhetRepository(private val db: Database) {
     fun upsertKontaktperson(virksomhetKontaktperson: VirksomhetKontaktperson): VirksomhetKontaktperson {
         @Language("PostgreSQL")
         val upsertVirksomhetKontaktperson = """
-            insert into virksomhet_kontaktperson(id, organisasjonsnummer, navn, telefon, epost, beskrivelse)
-            values (:id::uuid, :organisasjonsnummer, :navn, :telefon, :epost, :beskrivelse)
+            insert into virksomhet_kontaktperson(id, virksomhet_id, navn, telefon, epost, beskrivelse)
+            values (:id::uuid, :virksomhet_id, :navn, :telefon, :epost, :beskrivelse)
             on conflict (id) do update set
                 navn                = excluded.navn,
-                organisasjonsnummer = excluded.organisasjonsnummer,
+                virksomhet_id       = excluded.virksomhet_id,
                 telefon             = excluded.telefon,
                 epost               = excluded.epost,
                 beskrivelse         = excluded.beskrivelse
@@ -242,27 +311,28 @@ class VirksomhetRepository(private val db: Database) {
             .let { db.run(it) }
     }
 
-    fun getKontaktpersoner(orgnr: String): List<VirksomhetKontaktperson> {
+    fun getKontaktpersoner(virksomhetId: UUID): List<VirksomhetKontaktperson> {
         @Language("PostgreSQL")
         val query = """
             select
                 vk.id,
-                vk.organisasjonsnummer,
+                vk.virksomhet_id,
                 vk.navn,
                 vk.telefon,
                 vk.epost,
                 vk.beskrivelse
             from virksomhet_kontaktperson vk
-            where vk.organisasjonsnummer = ?
+            where vk.virksomhet_id = ?::uuid
         """.trimIndent()
 
-        return queryOf(query, orgnr)
+        return queryOf(query, virksomhetId)
             .map { it.toVirksomhetKontaktperson() }
             .asList
             .let { db.run(it) }
     }
 
     private fun Row.toVirksomhetDto() = VirksomhetDto(
+        id = uuid("id"),
         organisasjonsnummer = string("organisasjonsnummer"),
         navn = string("navn"),
         overordnetEnhet = stringOrNull("overordnet_enhet"),
@@ -273,14 +343,14 @@ class VirksomhetRepository(private val db: Database) {
 
     private fun Row.toVirksomhetKontaktperson() = VirksomhetKontaktperson(
         id = uuid("id"),
-        organisasjonsnummer = string("organisasjonsnummer"),
+        virksomhetId = uuid("virksomhet_id"),
         navn = string("navn"),
         telefon = stringOrNull("telefon"),
         epost = string("epost"),
         beskrivelse = stringOrNull("beskrivelse"),
     )
 
-    private fun VirksomhetDto.toSqlParameters() = mapOf(
+    private fun BrregVirksomhetDto.toSqlParameters() = mapOf(
         "organisasjonsnummer" to organisasjonsnummer,
         "navn" to navn,
         "overordnet_enhet" to overordnetEnhet,
@@ -291,7 +361,7 @@ class VirksomhetRepository(private val db: Database) {
 
     private fun VirksomhetKontaktperson.toSqlParameters() = mapOf(
         "id" to id,
-        "organisasjonsnummer" to organisasjonsnummer,
+        "virksomhet_id" to virksomhetId,
         "navn" to navn,
         "telefon" to telefon,
         "epost" to epost,

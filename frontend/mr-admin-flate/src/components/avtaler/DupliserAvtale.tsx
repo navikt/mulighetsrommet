@@ -1,9 +1,7 @@
-import { LayersPlusIcon } from "@navikt/aksel-icons";
-import { Button } from "@navikt/ds-react";
 import { Avtale, Opphav } from "mulighetsrommet-api-client";
 import { useNavigate } from "react-router-dom";
-import styles from "./DupliserAvtale.module.scss";
 import { useMigrerteTiltakstyperForAvtaler } from "../../api/tiltakstyper/useMigrerteTiltakstyper";
+import { DupliserButton } from "../detaljside/DupliserButton";
 
 interface Props {
   avtale: Avtale;
@@ -29,18 +27,5 @@ export function DupliserAvtale({ avtale }: Props) {
     });
   }
 
-  return (
-    <Button
-      title="Dupliser avtale"
-      className={styles.button}
-      onClick={apneRedigeringForDupliseringAvAvtale}
-    >
-      <LayersPlusIcon
-        style={{ margin: "0 auto", display: "block" }}
-        color="white"
-        fontSize="1.5rem"
-        aria-label="Ikon for duplisering av dokument"
-      />
-    </Button>
-  );
+  return <DupliserButton title="Dupliser avtale" onClick={apneRedigeringForDupliseringAvAvtale} />;
 }

@@ -9,40 +9,36 @@ import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import no.nav.mulighetsrommet.api.*
-import no.nav.mulighetsrommet.api.clients.brreg.BrregEmbeddedUnderenheter
-import no.nav.mulighetsrommet.api.clients.brreg.BrregEnhet
-import no.nav.mulighetsrommet.api.clients.brreg.BrregUnderenheter
 import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattRolle
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.ktor.createMockEngine
-import no.nav.mulighetsrommet.ktor.respondJson
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import java.util.*
 
 class TiltaksgjennomforingRoutesTest : FunSpec({
     val databaseConfig = createDatabaseTestConfig()
     val database = extension(FlywayDatabaseTestListener(databaseConfig))
-    val domain =
-        MulighetsrommetTestDomain(
-            enheter = listOf(NavEnhetFixtures.IT, NavEnhetFixtures.Oslo, NavEnhetFixtures.Sagene),
-            avtaler = listOf(
-                AvtaleFixtures.oppfolging.copy(
-                    navEnheter = listOf(
-                        NavEnhetFixtures.Sagene.enhetsnummer,
-                        NavEnhetFixtures.Oslo.enhetsnummer,
-                    ),
-                    leverandorUnderenheter = listOf(TiltaksgjennomforingFixtures.Oppfolging1.arrangorOrganisasjonsnummer),
+    val domain = MulighetsrommetTestDomain(
+        enheter = listOf(NavEnhetFixtures.IT, NavEnhetFixtures.Oslo, NavEnhetFixtures.Sagene),
+        virksomheter = listOf(VirksomhetFixtures.hovedenhet, VirksomhetFixtures.underenhet1),
+        avtaler = listOf(
+            AvtaleFixtures.oppfolging.copy(
+                navEnheter = listOf(
+                    NavEnhetFixtures.Sagene.enhetsnummer,
+                    NavEnhetFixtures.Oslo.enhetsnummer,
                 ),
-                AvtaleFixtures.avtaleForVta.copy(
-                    navEnheter = listOf(
-                        NavEnhetFixtures.Sagene.enhetsnummer,
-                        NavEnhetFixtures.Oslo.enhetsnummer,
-                    ),
-                    leverandorUnderenheter = listOf(TiltaksgjennomforingFixtures.Oppfolging1.arrangorOrganisasjonsnummer),
-                ),
+                leverandorUnderenheter = listOf(VirksomhetFixtures.underenhet1.id),
             ),
-        )
+            AvtaleFixtures.VTA.copy(
+                navEnheter = listOf(
+                    NavEnhetFixtures.Sagene.enhetsnummer,
+                    NavEnhetFixtures.Oslo.enhetsnummer,
+                ),
+                leverandorUnderenheter = listOf(VirksomhetFixtures.underenhet1.id),
+            ),
+        ),
+    )
     val oauth = MockOAuth2Server()
 
     beforeSpec {
@@ -90,7 +86,10 @@ class TiltaksgjennomforingRoutesTest : FunSpec({
         val tiltaksadministrasjonGenerellRolle =
             AdGruppeNavAnsattRolleMapping(UUID.randomUUID(), NavAnsattRolle.TILTAKADMINISTRASJON_GENERELL)
         val config = createTestApplicationConfig().copy(
-            auth = createAuthConfig(oauth, roles = listOf(tiltaksgjennomforingSkrivRolle, tiltaksadministrasjonGenerellRolle)),
+            auth = createAuthConfig(
+                oauth,
+                roles = listOf(tiltaksgjennomforingSkrivRolle, tiltaksadministrasjonGenerellRolle),
+            ),
         )
         withTestApplication(config) {
             val response = client.put("/api/v1/internal/tiltaksgjennomforinger") {
@@ -111,16 +110,12 @@ class TiltaksgjennomforingRoutesTest : FunSpec({
             AdGruppeNavAnsattRolleMapping(UUID.randomUUID(), NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV)
         val tiltaksadministrasjonGenerellRolle =
             AdGruppeNavAnsattRolleMapping(UUID.randomUUID(), NavAnsattRolle.TILTAKADMINISTRASJON_GENERELL)
-        val engine = createMockEngine(
-            "/brreg/enheter/${TiltaksgjennomforingFixtures.Oppfolging1Request.arrangorOrganisasjonsnummer}" to {
-                respondJson(BrregEnhet(organisasjonsnummer = "123456789", navn = "Testvirksomhet"))
-            },
-            "/brreg/underenheter" to {
-                respondJson(BrregEmbeddedUnderenheter(_embedded = BrregUnderenheter(underenheter = emptyList())))
-            },
-        )
+        val engine = createMockEngine()
         val config = createTestApplicationConfig().copy(
-            auth = createAuthConfig(oauth, roles = listOf(tiltaksgjennomforingSkrivRolle, tiltaksadministrasjonGenerellRolle)),
+            auth = createAuthConfig(
+                oauth,
+                roles = listOf(tiltaksgjennomforingSkrivRolle, tiltaksadministrasjonGenerellRolle),
+            ),
             engine = engine,
             database = databaseConfig,
             migrerteTiltak = listOf("INDOPPFAG"),

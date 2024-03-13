@@ -96,10 +96,10 @@ $filter-width: 290px;
   max-width: calc($filter-width - 35px);
   margin-left: -2rem;
   max-height: 400px;
-  overflow-y: scroll;
+  overflow-y: auto;
 }
 
 .checkbox_search {
   margin: 3px;
-  max-width: calc($filter-width - 44px);
+  max-width: 220px;
 }

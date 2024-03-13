@@ -7,25 +7,27 @@ import { validEmail } from "../../utils/Utils";
 import { VirksomhetKontaktperson } from "mulighetsrommet-api-client";
 import { useDeleteVirksomhetKontaktperson } from "../../api/virksomhet/useDeleteVirksomhetKontaktperson";
 import { resolveErrorMessage } from "../../api/errors";
+import { useHandleApiUpsertResponse } from "../../api/effects";
+
+type VirksomhetKontaktpersonErrors = Partial<Record<keyof VirksomhetKontaktperson, string>>;
 
 interface State {
   navn: string;
   epost: string;
   telefon: string;
   beskrivelse: string;
-  navnError?: string;
-  epostError?: string;
+  errors: VirksomhetKontaktpersonErrors;
 }
 
 interface VirksomhetKontaktpersonerProps {
-  orgnr: string;
+  virksomhetId: string;
   person?: VirksomhetKontaktperson;
   onSubmit: () => void;
 }
 
 export const VirksomhetKontaktpersonSkjema = (props: VirksomhetKontaktpersonerProps) => {
-  const { orgnr, person, onSubmit } = props;
-  const putMutation = usePutVirksomhetKontaktperson(orgnr);
+  const { virksomhetId, person, onSubmit } = props;
+  const putMutation = usePutVirksomhetKontaktperson(virksomhetId);
   const deleteMutation = useDeleteVirksomhetKontaktperson();
 
   const [state, setState] = useState<State>({
@@ -33,16 +35,8 @@ export const VirksomhetKontaktpersonSkjema = (props: VirksomhetKontaktpersonerPr
     telefon: person?.telefon ?? "",
     beskrivelse: person?.beskrivelse ?? "",
     epost: person?.epost ?? "",
-    navnError: undefined,
-    epostError: undefined,
+    errors: {},
   });
-
-  useEffect(() => {
-    if (putMutation.isSuccess) {
-      putMutation.reset();
-      onSubmit();
-    }
-  }, [putMutation]);
 
   useEffect(() => {
     if (deleteMutation.isSuccess) {
@@ -54,15 +48,31 @@ export const VirksomhetKontaktpersonSkjema = (props: VirksomhetKontaktpersonerPr
 
   function deleteKontaktperson() {
     if (person) {
-      deleteMutation.mutate(person.id);
+      deleteMutation.mutate({ virksomhetId, kontaktpersonId: person.id });
     }
   }
+
+  useHandleApiUpsertResponse(
+    putMutation,
+    () => {
+      putMutation.reset();
+      onSubmit();
+    },
+    (validation) => {
+      const errors = validation.errors.reduce((errors: Record<string, string>, error) => {
+        return { ...errors, [error.name]: error.message };
+      }, {});
+      setState({ ...state, errors });
+    },
+  );
 
   function opprettEllerLagreKontaktperson() {
     setState({
       ...state,
-      navnError: !state.navn ? "Navn må være satt" : undefined,
-      epostError: !validEmail(state.epost) ? "Epost må være gyldig" : undefined,
+      errors: {
+        navn: !state.navn ? "Navn må være satt" : undefined,
+        epost: !validEmail(state.epost) ? "Epost må være gyldig" : undefined,
+      },
     });
     if (!state.navn || !state.epost || !validEmail(state.epost)) {
       return;
@@ -83,12 +93,12 @@ export const VirksomhetKontaktpersonSkjema = (props: VirksomhetKontaktpersonerPr
         size="small"
         label={"Navn"}
         value={state.navn}
-        error={state.navnError}
+        error={state.errors.navn}
         onChange={(e) => {
           setState({
             ...state,
             navn: e.target.value,
-            navnError: undefined,
+            errors: { ...state.errors, navn: undefined },
           });
         }}
       />
@@ -111,12 +121,12 @@ export const VirksomhetKontaktpersonSkjema = (props: VirksomhetKontaktpersonerPr
             size="small"
             label="Epost"
             value={state.epost}
-            error={state.epostError}
+            error={state.errors.epost}
             onChange={(e) => {
               setState({
                 ...state,
                 epost: e.target.value,
-                epostError: undefined,
+                errors: { ...state.errors, epost: undefined },
               });
             }}
           />

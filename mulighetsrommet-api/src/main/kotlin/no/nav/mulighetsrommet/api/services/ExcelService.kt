@@ -20,7 +20,7 @@ class ExcelService {
             opprettCelle(row, 0, avtaleAdminDto.navn)
             opprettCelle(row, 1, avtaleAdminDto.tiltakstype.navn)
             opprettCelle(row, 2, avtaleAdminDto.avtalenummer ?: "")
-            opprettCelle(row, 3, avtaleAdminDto.leverandor.navn ?: "")
+            opprettCelle(row, 3, avtaleAdminDto.leverandor.navn)
             opprettCelle(row, 4, avtaleAdminDto.leverandor.organisasjonsnummer)
             opprettCelle(
                 row,
@@ -30,7 +30,7 @@ class ExcelService {
             opprettCelle(
                 row,
                 6,
-                avtaleAdminDto.sluttDato.formaterDato(),
+                avtaleAdminDto.sluttDato?.formaterDato() ?: "",
             )
         }
 

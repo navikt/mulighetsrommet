@@ -2,12 +2,11 @@ import { useQuery } from "@tanstack/react-query";
 import { QueryKeys } from "../QueryKeys";
 import { mulighetsrommetClient } from "../clients";
 
-export function useVirksomhet(orgnr: string) {
+export function useVirksomhetById(id: string) {
   return useQuery({
-    queryKey: QueryKeys.virksomhetOppslag(orgnr),
+    queryKey: QueryKeys.virksomhet(id),
     queryFn: () => {
-      return mulighetsrommetClient.virksomhet.hentVirksomhet({ orgnr });
+      return mulighetsrommetClient.virksomhet.getVirksomhetById({ id });
     },
-    enabled: !!orgnr,
   });
 }

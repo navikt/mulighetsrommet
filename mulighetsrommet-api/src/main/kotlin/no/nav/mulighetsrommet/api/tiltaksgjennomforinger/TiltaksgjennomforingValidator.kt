@@ -26,7 +26,7 @@ class TiltaksgjennomforingValidator(
         previous: TiltaksgjennomforingAdminDto?,
     ): Either<List<ValidationError>, TiltaksgjennomforingDbo> = either {
         val tiltakstype = tiltakstyper.getById(dbo.tiltakstypeId)
-            ?: raise(ValidationError.of(AvtaleDbo::tiltakstypeId, "Tiltakstypen finnes ikke").nel())
+            ?: raise(ValidationError.of(TiltaksgjennomforingDbo::tiltakstypeId, "Tiltakstypen finnes ikke").nel())
 
         if (isTiltakstypeDisabled(previous, tiltakstype)) {
             return ValidationError
@@ -58,6 +58,10 @@ class TiltaksgjennomforingValidator(
                         "Minst én administrator må være valgt",
                     ),
                 )
+            }
+
+            if (!Tiltakskoder.isAFTOrVTA(tiltakstype.arenaKode) && dbo.sluttDato == null) {
+                add(ValidationError.of(AvtaleDbo::sluttDato, "Sluttdato må være valgt"))
             }
 
             if (dbo.sluttDato != null && dbo.startDato.isAfter(dbo.sluttDato)) {
@@ -106,16 +110,11 @@ class TiltaksgjennomforingValidator(
                 }
             }
 
-            val avtaleHasArrangor = avtale.leverandorUnderenheter.any {
-                it.organisasjonsnummer == dbo.arrangorOrganisasjonsnummer
+            val avtaleHasArrangor = avtale.leverandor.underenheter.any {
+                it.id == dbo.arrangorVirksomhetId
             }
             if (!avtaleHasArrangor) {
-                add(
-                    ValidationError.of(
-                        TiltaksgjennomforingDbo::arrangorOrganisasjonsnummer,
-                        "Arrangøren mangler i avtalen",
-                    ),
-                )
+                add(ValidationError.of(TiltaksgjennomforingDbo::arrangorVirksomhetId, "Arrangøren mangler i avtalen"))
             }
 
             if (previous != null) {
@@ -138,37 +137,28 @@ class TiltaksgjennomforingValidator(
                         )
                     }
 
-                    if (dbo.startDato != previous.startDato) {
+                    if (dbo.startDato.isBefore(avtale.startDato)) {
                         add(
                             ValidationError.of(
                                 TiltaksgjennomforingDbo::startDato,
-                                "Startdato kan ikke endres når gjennomføringen er aktiv",
+                                "Startdato må være etter avtalens startdato",
                             ),
                         )
                     }
 
-                    if (dbo.sluttDato != previous.sluttDato) {
+                    if (dbo.sluttDato != null && previous.sluttDato != null && dbo.sluttDato.isBefore(previous.sluttDato)) {
                         add(
                             ValidationError.of(
                                 TiltaksgjennomforingDbo::sluttDato,
-                                "Sluttdato kan ikke endres når gjennomføringen er aktiv",
+                                "Sluttdato kan ikke endres bakover i tid når gjennomføringen er aktiv",
                             ),
                         )
                     }
 
-                    if (dbo.antallPlasser != previous.antallPlasser) {
+                    if (dbo.arrangorVirksomhetId != previous.arrangor.id) {
                         add(
                             ValidationError.of(
-                                TiltaksgjennomforingDbo::antallPlasser,
-                                "Antall plasser kan ikke endres når gjennomføringen er aktiv",
-                            ),
-                        )
-                    }
-
-                    if (dbo.arrangorOrganisasjonsnummer != previous.arrangor.organisasjonsnummer) {
-                        add(
-                            ValidationError.of(
-                                TiltaksgjennomforingDbo::arrangorOrganisasjonsnummer,
+                                TiltaksgjennomforingDbo::arrangorVirksomhetId,
                                 "Arrangøren kan ikke endres når gjennomføringen er aktiv",
                             ),
                         )

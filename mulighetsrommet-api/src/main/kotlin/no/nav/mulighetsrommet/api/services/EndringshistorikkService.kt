@@ -9,6 +9,7 @@ import org.intellij.lang.annotations.Language
 import java.time.LocalDateTime
 import java.util.*
 
+const val TILTAKSADMINISTRASJON_SYSTEM_BRUKER = "System"
 class EndringshistorikkService(
     private val db: Database,
 ) {

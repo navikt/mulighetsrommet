@@ -107,6 +107,8 @@ class SanityClient(engine: HttpClientEngine = CIO.create(), val config: Config) 
         visibility: MutationVisibility = MutationVisibility.Sync,
     ): HttpResponse {
         val response = client.post(config.mutationUrl()) {
+            expectSuccess = false
+
             setBody(Mutations(mutations = mutations))
             url.parameters.apply {
                 append("returnIds", returnIds.toString())

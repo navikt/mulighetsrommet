@@ -1,21 +1,21 @@
 package no.nav.mulighetsrommet.api.repositories
 
 import kotliquery.Row
+import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattRolle
 import no.nav.mulighetsrommet.api.domain.dto.NavAnsattDto
 import no.nav.mulighetsrommet.api.utils.DatabaseUtils
 import no.nav.mulighetsrommet.database.Database
-import no.nav.mulighetsrommet.database.utils.QueryResult
-import no.nav.mulighetsrommet.database.utils.query
+import no.nav.mulighetsrommet.domain.dto.NavIdent
 import org.intellij.lang.annotations.Language
 import java.time.LocalDate
 import java.util.*
 
 class NavAnsattRepository(private val db: Database) {
 
-    fun upsert(ansatt: NavAnsattDbo): QueryResult<NavAnsattDbo> = query {
+    fun upsert(ansatt: NavAnsattDbo): NavAnsattDbo {
         @Language("PostgreSQL")
         val query = """
             insert into nav_ansatt(nav_ident, fornavn, etternavn, hovedenhet, azure_id, mobilnummer, epost, roller, skal_slettes_dato)
@@ -32,19 +32,19 @@ class NavAnsattRepository(private val db: Database) {
             returning *
         """.trimIndent()
 
-        queryOf(query, ansatt.toSqlParameters())
+        return queryOf(query, ansatt.toSqlParameters())
             .map { it.toNavAnsatt() }
             .asSingle
-            .let { db.run(it)!! }
+            .let { requireNotNull(db.run(it)) }
     }
 
     fun getAll(
         roller: List<NavAnsattRolle>? = null,
         hovedenhetIn: List<String>? = null,
         skalSlettesDatoLte: LocalDate? = null,
-    ): QueryResult<List<NavAnsattDto>> = query {
+    ): List<NavAnsattDto> {
         val params = mapOf(
-            "roller" to roller?.let { roller -> db.createTextArray(roller.map { it.name }) },
+            "roller" to roller?.let { db.createTextArray(it.map { rolle -> rolle.name }) },
             "hovedenhet" to hovedenhetIn?.let { enheter -> db.createTextArray(enheter) },
             "skal_slettes_dato" to skalSlettesDatoLte,
         )
@@ -73,13 +73,13 @@ class NavAnsattRepository(private val db: Database) {
             order by fornavn, etternavn
         """.trimIndent()
 
-        queryOf(query, params)
+        return queryOf(query, params)
             .map { it.toNavAnsattDto() }
             .asList
             .let { db.run(it) }
     }
 
-    fun getByNavIdent(navIdent: String): QueryResult<NavAnsattDto?> = query {
+    fun getByNavIdent(navIdent: NavIdent): NavAnsattDto? {
         @Language("PostgreSQL")
         val query = """
             select nav_ident,
@@ -97,13 +97,13 @@ class NavAnsattRepository(private val db: Database) {
             where nav_ident = :nav_ident
         """.trimIndent()
 
-        queryOf(query, mapOf("nav_ident" to navIdent))
+        return queryOf(query, mapOf("nav_ident" to navIdent.value))
             .map { it.toNavAnsattDto() }
             .asSingle
             .let { db.run(it) }
     }
 
-    fun getByAzureId(azureId: UUID): QueryResult<NavAnsattDto?> = query {
+    fun getByAzureId(azureId: UUID): NavAnsattDto? {
         @Language("PostgreSQL")
         val query = """
             select nav_ident,
@@ -121,26 +121,26 @@ class NavAnsattRepository(private val db: Database) {
             where azure_id = :azure_id::uuid
         """.trimIndent()
 
-        queryOf(query, mapOf("azure_id" to azureId))
+        return queryOf(query, mapOf("azure_id" to azureId))
             .map { it.toNavAnsattDto() }
             .asSingle
             .let { db.run(it) }
     }
 
-    fun deleteByAzureId(azureId: UUID): QueryResult<Int> = query {
+    fun deleteByAzureId(azureId: UUID, tx: Session? = null): Int {
         @Language("PostgreSQL")
         val query = """
             delete from nav_ansatt
             where azure_id = :azure_id::uuid
         """.trimIndent()
 
-        queryOf(query, mapOf("azure_id" to azureId))
-            .asUpdate
-            .let { db.run(it) }
+        val update = queryOf(query, mapOf("azure_id" to azureId)).asUpdate
+
+        return tx?.run(update) ?: db.run(update)
     }
 
     private fun NavAnsattDbo.toSqlParameters() = mapOf(
-        "nav_ident" to navIdent,
+        "nav_ident" to navIdent.value,
         "fornavn" to fornavn,
         "etternavn" to etternavn,
         "hovedenhet" to hovedenhet,
@@ -152,7 +152,7 @@ class NavAnsattRepository(private val db: Database) {
     )
 
     private fun Row.toNavAnsatt() = NavAnsattDbo(
-        navIdent = string("nav_ident"),
+        navIdent = NavIdent(string("nav_ident")),
         fornavn = string("fornavn"),
         etternavn = string("etternavn"),
         hovedenhet = string("hovedenhet"),
@@ -164,7 +164,7 @@ class NavAnsattRepository(private val db: Database) {
     )
 
     private fun Row.toNavAnsattDto() = NavAnsattDto(
-        navIdent = string("nav_ident"),
+        navIdent = NavIdent(string("nav_ident")),
         fornavn = string("fornavn"),
         etternavn = string("etternavn"),
         hovedenhet = NavAnsattDto.Hovedenhet(

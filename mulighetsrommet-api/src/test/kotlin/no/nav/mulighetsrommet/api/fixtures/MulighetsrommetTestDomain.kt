@@ -11,8 +11,13 @@ import no.nav.mulighetsrommet.database.FlywayDatabaseAdapter
 import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
 
 data class MulighetsrommetTestDomain(
-    val enheter: List<NavEnhetDbo> = listOf(NavEnhetFixtures.IT),
+    val enheter: List<NavEnhetDbo> = listOf(NavEnhetFixtures.IT, NavEnhetFixtures.Innlandet, NavEnhetFixtures.Gjovik),
     val ansatte: List<NavAnsattDbo> = listOf(NavAnsattFixture.ansatt1, NavAnsattFixture.ansatt2),
+    val virksomheter: List<VirksomhetDto> = listOf(
+        VirksomhetFixtures.hovedenhet,
+        VirksomhetFixtures.underenhet1,
+        VirksomhetFixtures.underenhet2,
+    ),
     val tiltakstyper: List<TiltakstypeDbo> = listOf(
         TiltakstypeFixtures.Oppfolging,
         TiltakstypeFixtures.Arbeidstrening,
@@ -21,9 +26,8 @@ data class MulighetsrommetTestDomain(
         TiltakstypeFixtures.AFT,
         TiltakstypeFixtures.EnkelAmo,
     ),
-    val avtaler: List<AvtaleDbo> = listOf(AvtaleFixtures.oppfolging, AvtaleFixtures.avtaleForVta),
+    val avtaler: List<AvtaleDbo> = listOf(AvtaleFixtures.oppfolging, AvtaleFixtures.VTA),
     val gjennomforinger: List<TiltaksgjennomforingDbo> = listOf(),
-    val virksomhter: List<VirksomhetDto> = listOf(),
 ) {
     fun initialize(database: FlywayDatabaseAdapter) {
         NavEnhetRepository(database).also { repository ->
@@ -31,7 +35,11 @@ data class MulighetsrommetTestDomain(
         }
 
         NavAnsattRepository(database).also { repository ->
-            ansatte.forEach { repository.upsert(it).shouldBeRight() }
+            ansatte.forEach { repository.upsert(it) }
+        }
+
+        VirksomhetRepository(database).also { repository ->
+            virksomheter.forEach { repository.upsert(it) }
         }
 
         TiltakstypeRepository(database).also { repository ->
@@ -44,10 +52,6 @@ data class MulighetsrommetTestDomain(
 
         TiltaksgjennomforingRepository(database).also { repository ->
             gjennomforinger.forEach { repository.upsert(it) }
-        }
-
-        VirksomhetRepository(database).also { repository ->
-            virksomhter.forEach { repository.upsert(it) }
         }
     }
 }

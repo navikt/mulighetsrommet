@@ -9,6 +9,7 @@ import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dto.Avtalestatus
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
 import no.nav.mulighetsrommet.domain.dto.Faneinnhold
+import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import java.time.LocalDate
@@ -22,12 +23,10 @@ data class AvtaleAdminDto(
     val navn: String,
     val avtalenummer: String?,
     val leverandor: Leverandor,
-    val leverandorUnderenheter: List<LeverandorUnderenhet>,
-    val leverandorKontaktperson: VirksomhetKontaktperson?,
     @Serializable(with = LocalDateSerializer::class)
     val startDato: LocalDate,
     @Serializable(with = LocalDateSerializer::class)
-    val sluttDato: LocalDate,
+    val sluttDato: LocalDate?,
     val arenaAnsvarligEnhet: NavEnhetDbo?,
     val avtaletype: Avtaletype,
     val avtalestatus: Avtalestatus,
@@ -50,20 +49,27 @@ data class AvtaleAdminDto(
 
     @Serializable
     data class Leverandor(
+        @Serializable(with = UUIDSerializer::class)
+        val id: UUID,
         val organisasjonsnummer: String,
-        val navn: String?,
+        val navn: String,
         val slettet: Boolean,
+        val underenheter: List<LeverandorUnderenhet>,
+        val kontaktperson: VirksomhetKontaktperson?,
     )
 
     @Serializable
     data class LeverandorUnderenhet(
+        @Serializable(with = UUIDSerializer::class)
+        val id: UUID,
         val organisasjonsnummer: String,
-        val navn: String? = null,
+        val navn: String,
+        val slettet: Boolean,
     )
 
     @Serializable
     data class Administrator(
-        val navIdent: String,
+        val navIdent: NavIdent,
         val navn: String,
     )
 
@@ -73,9 +79,9 @@ data class AvtaleAdminDto(
             navn = navn,
             tiltakstypeId = tiltakstype.id,
             avtalenummer = avtalenummer,
-            leverandorOrganisasjonsnummer = leverandor.organisasjonsnummer,
-            leverandorUnderenheter = leverandorUnderenheter.map { it.organisasjonsnummer },
-            leverandorKontaktpersonId = leverandorKontaktperson?.id,
+            leverandorVirksomhetId = leverandor.id,
+            leverandorUnderenheter = leverandor.underenheter.map { it.id },
+            leverandorKontaktpersonId = leverandor.kontaktperson?.id,
             startDato = startDato,
             sluttDato = sluttDato,
             navEnheter = this.kontorstruktur.flatMap { it.kontorer.map { kontor -> kontor.enhetsnummer } + it.region.enhetsnummer },

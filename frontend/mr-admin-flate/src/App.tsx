@@ -25,6 +25,7 @@ import { AvtalerPage } from "./pages/avtaler/AvtalerPage";
 import { AvtaleInfo } from "./pages/avtaler/AvtaleInfo";
 import TiltaksgjennomforingSkjemaPage from "./pages/tiltaksgjennomforinger/TiltaksgjennomforingSkjemaPage";
 import { TiltaksgjennomforingerForAvtalePage } from "./pages/tiltaksgjennomforinger/TiltaksgjennomforingerForAvtalePage";
+import { initializeAmplitude } from "./logging/amplitude";
 
 if (import.meta.env.PROD) {
   initializeFaro({
@@ -35,6 +36,7 @@ if (import.meta.env.PROD) {
     instrumentations: [...getWebInstrumentations({ captureConsole: true })],
   });
 }
+initializeAmplitude();
 
 export function App() {
   const { data: ansatt, isLoading: ansattIsLoading, error } = useHentAnsatt();

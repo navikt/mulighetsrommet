@@ -1,23 +1,18 @@
 import { PlusIcon, XMarkIcon } from "@navikt/aksel-icons";
+import { Alert, Button, HelpText, HStack, Select, Switch, TextField } from "@navikt/ds-react";
 import {
-  Alert,
-  Button,
-  Checkbox,
-  HStack,
-  HelpText,
-  Select,
-  Switch,
-  TextField,
-} from "@navikt/ds-react";
-import { Avtale, Tiltaksgjennomforing } from "mulighetsrommet-api-client";
+  Avtale,
+  Tiltaksgjennomforing,
+  TiltaksgjennomforingKontaktperson,
+  TiltakskodeArena,
+} from "mulighetsrommet-api-client";
 import { ControlledSokeSelect } from "mulighetsrommet-frontend-common";
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import { useFieldArray, useFormContext } from "react-hook-form";
 import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
 import { useHentKontaktpersoner } from "../../api/ansatt/useHentKontaktpersoner";
 import { useTiltaksgjennomforingAdministratorer } from "../../api/ansatt/useTiltaksgjennomforingAdministratorer";
 import { useMigrerteTiltakstyper } from "../../api/tiltakstyper/useMigrerteTiltakstyper";
-import { useVirksomhetKontaktpersoner } from "../../api/virksomhet/useVirksomhetKontaktpersoner";
 import { addYear } from "../../utils/Utils";
 import { isTiltakMedFellesOppstart } from "../../utils/tiltakskoder";
 import { Separator } from "../detaljside/Metadata";
@@ -26,17 +21,23 @@ import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { FormGroup } from "../skjema/FormGroup";
 import { FraTilDatoVelger } from "../skjema/FraTilDatoVelger";
 import skjemastyles from "../skjema/Skjema.module.scss";
-import { VirksomhetKontaktpersonerModal } from "../virksomhet/VirksomhetKontaktpersonerModal";
 import { SelectOppstartstype } from "./SelectOppstartstype";
-import { InferredTiltaksgjennomforingSchema } from "./TiltaksgjennomforingSchema";
-import {
-  arrangorUnderenheterOptions,
-  erArenaOpphavOgIngenEierskap,
-} from "./TiltaksgjennomforingSkjemaConst";
+import { InferredTiltaksgjennomforingSchema } from "../redaksjonelt-innhold/TiltaksgjennomforingSchema";
+import { erArenaOpphavOgIngenEierskap } from "./TiltaksgjennomforingSkjemaConst";
+import { TiltaksgjennomforingArrangorSkjema } from "./TiltaksgjennomforingArrangorSkjema";
 
 interface Props {
   tiltaksgjennomforing?: Tiltaksgjennomforing;
   avtale: Avtale;
+}
+
+function visApentForInnsok(arenaKode: TiltakskodeArena) {
+  return [
+    TiltakskodeArena.JOBBK,
+    TiltakskodeArena.DIGIOPPARB,
+    TiltakskodeArena.GRUPPEAMO,
+    TiltakskodeArena.GRUFAGYRKE,
+  ].includes(arenaKode);
 }
 
 export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtale }: Props) => {
@@ -44,8 +45,6 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
   const { data: ansatt, isLoading: isLoadingAnsatt } = useHentAnsatt();
   const { data: kontaktpersoner, isLoading: isLoadingKontaktpersoner } = useHentKontaktpersoner();
   const { data: migrerteTiltakstyper = [] } = useMigrerteTiltakstyper();
-
-  const virksomhetKontaktpersonerModalRef = useRef<HTMLDialogElement>(null);
 
   const kontaktpersonerOption = (selectedIndex: number) => {
     const excludedKontaktpersoner = watch("kontaktpersoner")
@@ -77,11 +76,6 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
     name: "kontaktpersoner",
     control,
   });
-  const {
-    data: virksomhetKontaktpersoner,
-    isLoading: isLoadingVirksomhetKontaktpersoner,
-    refetch: refetchVirksomhetKontaktpersoner,
-  } = useVirksomhetKontaktpersoner(avtale.leverandor.organisasjonsnummer);
 
   const watchVisEstimertVentetid = watch("visEstimertVentetid");
 
@@ -104,10 +98,15 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
     .filter((kontor) => kontor.overordnetEnhet === watch("navRegion"))
     .map((kontor) => ({ label: kontor.navn, value: kontor.enhetsnummer }));
 
-  const minStartdato = new Date();
+  const minStartdato = new Date(avtale.startDato);
   const maxSluttdato = addYear(minStartdato, 5);
 
   const valgteNavEnheter = watch("navEnheter");
+
+  const eierIkkeGjennomforing = erArenaOpphavOgIngenEierskap(
+    tiltaksgjennomforing,
+    migrerteTiltakstyper,
+  );
 
   return (
     <div className={skjemastyles.container}>
@@ -116,7 +115,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
           <FormGroup>
             <TextField
               size="small"
-              readOnly={erArenaOpphavOgIngenEierskap(tiltaksgjennomforing, migrerteTiltakstyper)}
+              readOnly={eierIkkeGjennomforing}
               error={errors.navn?.message as string}
               label="Tiltaksnavn"
               autoFocus
@@ -154,7 +153,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
               size="small"
               fra={{
                 label: "Startdato",
-                readOnly: erArenaOpphavOgIngenEierskap(tiltaksgjennomforing, migrerteTiltakstyper),
+                readOnly: eierIkkeGjennomforing,
                 fromDate: minStartdato,
                 toDate: maxSluttdato,
                 ...register("startOgSluttDato.startDato"),
@@ -162,25 +161,23 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
               }}
               til={{
                 label: "Sluttdato",
-                readOnly: erArenaOpphavOgIngenEierskap(tiltaksgjennomforing, migrerteTiltakstyper),
+                readOnly: eierIkkeGjennomforing,
                 fromDate: minStartdato,
                 toDate: maxSluttdato,
                 ...register("startOgSluttDato.sluttDato"),
                 format: "iso-string",
               }}
             />
-            <Checkbox
-              size="small"
-              readOnly={erArenaOpphavOgIngenEierskap(tiltaksgjennomforing, migrerteTiltakstyper)}
-              {...register("apentForInnsok")}
-            >
-              Åpen for innsøk
-            </Checkbox>
+            {visApentForInnsok(avtale.tiltakstype.arenaKode) ? (
+              <Switch size="small" readOnly={eierIkkeGjennomforing} {...register("apentForInnsok")}>
+                Åpen for innsøk
+              </Switch>
+            ) : null}
 
             <HStack justify="space-between">
               <TextField
                 size="small"
-                readOnly={erArenaOpphavOgIngenEierskap(tiltaksgjennomforing, migrerteTiltakstyper)}
+                readOnly={eierIkkeGjennomforing}
                 error={errors.antallPlasser?.message as string}
                 type="number"
                 style={{ width: "180px" }}
@@ -192,10 +189,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
               {isTiltakMedFellesOppstart(avtale.tiltakstype.arenaKode) && (
                 <TextField
                   size="small"
-                  readOnly={erArenaOpphavOgIngenEierskap(
-                    tiltaksgjennomforing,
-                    migrerteTiltakstyper,
-                  )}
+                  readOnly={eierIkkeGjennomforing}
                   error={errors.deltidsprosent?.message as string}
                   type="number"
                   step="0.01"
@@ -212,7 +206,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
             <Separator />
             <fieldset className={skjemastyles.fieldset_no_styling}>
               <HStack gap="1">
-                <legend>Estimert ventetid </legend>
+                <legend>Estimert ventetid</legend>
                 <HelpText title="Hva er estimert ventetid?">
                   Estimert ventetid er et felt som kan brukes hvis dere sitter på informasjon om
                   estimert ventetid for tiltaket. Hvis dere legger inn en verdi i feltene her blir
@@ -343,12 +337,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
                   type="button"
                   size="small"
                   variant="tertiary"
-                  onClick={() =>
-                    appendKontaktperson({
-                      navIdent: null,
-                      navEnheter: [],
-                    })
-                  }
+                  onClick={() => appendKontaktperson({} as TiltaksgjennomforingKontaktperson)}
                 >
                   <PlusIcon aria-label="Legg til ny kontaktperson" /> Legg til ny kontaktperson
                 </Button>
@@ -356,81 +345,9 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
             </FormGroup>
           </div>
           <div className={skjemastyles.gray_container}>
-            <FormGroup>
-              <TextField
-                size="small"
-                label="Tiltaksarrangør hovedenhet"
-                placeholder=""
-                defaultValue={`${avtale.leverandor.navn} - ${avtale.leverandor.organisasjonsnummer}`}
-                readOnly
-              />
-              <ControlledSokeSelect
-                size="small"
-                label="Tiltaksarrangør underenhet"
-                placeholder="Velg underenhet for tiltaksarrangør"
-                {...register("tiltaksArrangorUnderenhetOrganisasjonsnummer")}
-                onClearValue={() => {
-                  setValue("tiltaksArrangorUnderenhetOrganisasjonsnummer", "");
-                }}
-                readOnly={
-                  !avtale.leverandor.organisasjonsnummer ||
-                  erArenaOpphavOgIngenEierskap(tiltaksgjennomforing, migrerteTiltakstyper)
-                }
-                options={arrangorUnderenheterOptions(avtale)}
-              />
-              <div className={skjemastyles.virksomhet_kontaktperson_container}>
-                <ControlledMultiSelect
-                  size="small"
-                  placeholder={
-                    isLoadingVirksomhetKontaktpersoner ? "Laster kontaktpersoner..." : "Velg en"
-                  }
-                  label={"Kontaktperson hos arrangøren"}
-                  {...register("arrangorKontaktpersoner")}
-                  options={
-                    virksomhetKontaktpersoner?.map((person) => ({
-                      value: person.id,
-                      label: person.navn,
-                    })) ?? []
-                  }
-                />
-                <Button
-                  className={skjemastyles.kontaktperson_button}
-                  size="small"
-                  type="button"
-                  variant="tertiary"
-                  onClick={() => virksomhetKontaktpersonerModalRef.current?.showModal()}
-                >
-                  Rediger eller legg til kontaktpersoner
-                </Button>
-              </div>
-              <TextField
-                size="small"
-                label="Sted for gjennomføring"
-                description="Skriv inn stedet tiltaket skal gjennomføres, for eksempel Fredrikstad eller Tromsø. For tiltak uten eksplisitt lokasjon (for eksempel digital jobbklubb), kan du la feltet stå tomt."
-                {...register("stedForGjennomforing")}
-                error={
-                  errors.stedForGjennomforing
-                    ? (errors.stedForGjennomforing.message as string)
-                    : null
-                }
-              />
-            </FormGroup>
+            <TiltaksgjennomforingArrangorSkjema readOnly={eierIkkeGjennomforing} avtale={avtale} />
           </div>
         </div>
-        <VirksomhetKontaktpersonerModal
-          orgnr={avtale.leverandor.organisasjonsnummer}
-          modalRef={virksomhetKontaktpersonerModalRef}
-          onClose={() => {
-            refetchVirksomhetKontaktpersoner().then((res) => {
-              setValue(
-                "arrangorKontaktpersoner",
-                watch("arrangorKontaktpersoner").filter((id: string) =>
-                  res?.data?.some((p) => p.id === id),
-                ),
-              );
-            });
-          }}
-        />
       </div>
     </div>
   );
