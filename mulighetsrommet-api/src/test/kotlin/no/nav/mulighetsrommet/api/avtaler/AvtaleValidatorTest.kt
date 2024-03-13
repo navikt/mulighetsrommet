@@ -12,11 +12,7 @@ import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dbo.AvtaleDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
-import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
-import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
-import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures
-import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
-import no.nav.mulighetsrommet.api.fixtures.VirksomhetFixtures
+import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.repositories.*
 import no.nav.mulighetsrommet.api.routes.v1.responses.ValidationError
 import no.nav.mulighetsrommet.api.services.NavEnhetService
@@ -175,6 +171,35 @@ class AvtaleValidatorTest : FunSpec({
                 ValidationError("navn", "Avtalenavn må være minst 5 tegn langt"),
             ),
         )
+    }
+
+    test("Avtalens startdato må være før eller lik som sluttdato") {
+        val validator = AvtaleValidator(tiltakstyper, gjennomforinger, navEnheterService, virksomheter)
+
+        val dagensDato = LocalDate.now()
+        val dbo = avtaleDbo.copy(startDato = dagensDato, sluttDato = dagensDato)
+
+        validator.validate(dbo, null).shouldBeRight()
+
+        val dbo2 = avtaleDbo.copy(startDato = dagensDato.plusDays(5), sluttDato = dagensDato)
+
+        validator.validate(dbo2, null).shouldBeLeft().shouldContainExactlyInAnyOrder(
+            listOf(ValidationError("startDato", "Startdato må være før sluttdato")),
+        )
+    }
+
+    test("Avtalens sluttdato være lik eller etter startdato") {
+        val validator = AvtaleValidator(tiltakstyper, gjennomforinger, navEnheterService, virksomheter)
+
+        val dagensDato = LocalDate.now()
+        val dbo = avtaleDbo.copy(startDato = dagensDato, sluttDato = dagensDato.minusDays(5))
+
+        validator.validate(dbo, null).shouldBeLeft().shouldContainExactlyInAnyOrder(
+            listOf(ValidationError("startDato", "Startdato må være før sluttdato")),
+        )
+
+        val dbo2 = avtaleDbo.copy(startDato = dagensDato, sluttDato = dagensDato)
+        validator.validate(dbo2, null).shouldBeRight()
     }
 
     test("skal validere at NAV-enheter må være koblet til NAV-fylke") {

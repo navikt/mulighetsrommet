@@ -4,7 +4,10 @@ import { ControlledSokeSelect } from "mulighetsrommet-frontend-common/components
 import { useRef, useState } from "react";
 import { DeepPartial, useFormContext } from "react-hook-form";
 import { useSokVirksomheter } from "../../api/virksomhet/useSokVirksomhet";
-import { useVirksomhet } from "../../api/virksomhet/useVirksomhet";
+import {
+  useBrregVirksomhetUnderenheter,
+  useSyncBrregVirksomhet,
+} from "../../api/virksomhet/useBrregVirksomhet";
 import { useVirksomhetKontaktpersoner } from "../../api/virksomhet/useVirksomhetKontaktpersoner";
 import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { FormGroup } from "../skjema/FormGroup";
@@ -26,11 +29,12 @@ export function AvtaleArrangorSkjema({ readOnly }: Props) {
   const { register, watch, setValue } = useFormContext<DeepPartial<InferredAvtaleSchema>>();
   const watchedLeverandor = watch("leverandor") ?? "";
 
-  const { data: leverandor } = useVirksomhet(watchedLeverandor);
+  const { data: leverandor } = useSyncBrregVirksomhet(watchedLeverandor);
+  const { data: leverandorUnderenheter } = useBrregVirksomhetUnderenheter(watchedLeverandor);
   const { data: virksomhetKontaktpersoner } = useVirksomhetKontaktpersoner(leverandor?.id);
 
   const leverandorOptions = getLeverandorOptions(leverandorVirksomheter, leverandor);
-  const underenheterOptions = getUnderenheterOptions(leverandor?.underenheter ?? []);
+  const underenheterOptions = getUnderenheterOptions(leverandorUnderenheter ?? []);
   const kontaktpersonOptions = getKontaktpersonOptions(virksomhetKontaktpersoner ?? []);
 
   return (

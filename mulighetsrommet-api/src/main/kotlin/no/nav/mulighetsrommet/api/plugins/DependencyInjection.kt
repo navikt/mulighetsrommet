@@ -342,7 +342,7 @@ private fun tasks(config: TaskConfig) = module {
     single { InitialLoadTiltaksgjennomforinger(get(), get(), get()) }
     single { InitialLoadTiltakstyper(get(), get(), get()) }
     single { SynchronizeNavAnsatte(config.synchronizeNavAnsatte, get(), get(), get()) }
-    single { SynchronizeVirksomheterFromBrreg(get(), get()) }
+    single { SynchronizeVirksomheterFromBrreg(get(), get(), get()) }
     single {
         val deleteExpiredTiltakshistorikk = DeleteExpiredTiltakshistorikk(
             config.deleteExpiredTiltakshistorikk,

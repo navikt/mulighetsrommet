@@ -1398,7 +1398,7 @@ paths:
     post:
       tags:
         - Virksomhet
-      operationId: getVirksomhetByOrgnr
+      operationId: syncBrregVirksomhet
       parameters:
         - in: path
           name: orgnr
@@ -1413,6 +1413,28 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Virksomhet"
+
+  /api/v1/internal/virksomhet/{orgnr}/underenheter:
+    get:
+      tags:
+        - Virksomhet
+      operationId: getBrregVirksomhetUnderenheter
+      parameters:
+        - in: path
+          name: orgnr
+          required: true
+          schema:
+            type: string
+          description: 9-sifret organisasjonsnummer
+      responses:
+        200:
+          description: Virksomhet som matcher organisasjonsnummeret
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/BrregVirksomhet"
 
   /api/v1/internal/virksomhet/{id}/kontaktpersoner:
     get:

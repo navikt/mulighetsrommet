@@ -124,6 +124,8 @@ class VirksomhetRepository(private val db: Database) {
     fun getAll(
         til: VirksomhetTil? = null,
         sok: String? = null,
+        overordnetEnhetOrgnr: String? = null,
+        slettet: Boolean? = null,
         utenlandsk: Boolean? = null,
     ): List<VirksomhetDto> {
         val join = when (til) {
@@ -151,11 +153,18 @@ class VirksomhetRepository(private val db: Database) {
             from virksomhet v
                 $join
             where (:sok::text is null or v.navn ilike :sok)
+              and (:overordnet_enhet::text is null or v.overordnet_enhet = :overordnet_enhet)
+              and (:slettet::boolean is null or v.slettet_dato is not null = :slettet)
               and (:utenlandsk::boolean is null or v.er_utenlandsk_virksomhet = :utenlandsk)
             order by v.navn asc
         """.trimIndent()
 
-        val params = mapOf("sok" to sok?.let { "%$it%" }, "utenlandsk" to utenlandsk)
+        val params = mapOf(
+            "sok" to sok?.let { "%$it%" },
+            "overordnet_enhet" to overordnetEnhetOrgnr,
+            "slettet" to slettet,
+            "utenlandsk" to utenlandsk,
+        )
 
         return queryOf(selectVirksomheter, params)
             .map { it.toVirksomhetDto() }

@@ -5,6 +5,7 @@ import com.github.kagkarlsson.scheduler.task.helper.OneTimeTask
 import com.github.kagkarlsson.scheduler.task.helper.Tasks
 import kotlinx.coroutines.runBlocking
 import kotliquery.queryOf
+import no.nav.mulighetsrommet.api.repositories.VirksomhetRepository
 import no.nav.mulighetsrommet.api.services.VirksomhetService
 import no.nav.mulighetsrommet.database.Database
 import org.intellij.lang.annotations.Language
@@ -15,6 +16,7 @@ import java.util.*
 
 class SynchronizeVirksomheterFromBrreg(
     private val virksomhetService: VirksomhetService,
+    private val virksomhetRepository: VirksomhetRepository,
     private val database: Database,
 ) {
 
@@ -45,19 +47,7 @@ class SynchronizeVirksomheterFromBrreg(
     private suspend fun synchronizeVirksomheterFromBrreg() {
         @Language("PostgreSQL")
         val query = """
-            with avtale_leverandor as (select distinct leverandor_organisasjonsnummer as orgnr from avtale),
-                 avtale_arrangor as (select distinct organisasjonsnummer as orgnr from avtale_underleverandor),
-                 gjennomforing_arrangor as (select distinct arrangor_organisasjonsnummer as orgnr from tiltaksgjennomforing),
-                 alle_orgnr as (select orgnr
-                                from avtale_leverandor
-                                union
-                                select orgnr
-                                from avtale_arrangor
-                                union
-                                select orgnr
-                                from gjennomforing_arrangor)
-            select distinct orgnr
-            from alle_orgnr;
+            select organisasjonsnummer as orgnr from virksomhet;
         """.trimIndent()
         val orgnrs = queryOf(query)
             .map { it.string("orgnr") }
@@ -65,9 +55,13 @@ class SynchronizeVirksomheterFromBrreg(
             .let { database.run(it) }
 
         orgnrs.forEach { orgnr ->
-            virksomhetService.syncHovedenhetFromBrreg(orgnr).onLeft {
-                logger.warn("Klarte ikke synkronisere virksomhet med orgnr=$orgnr fra brreg: $it")
-            }
+            virksomhetService.getVirksomhetFromBrreg(orgnr)
+                .onRight {
+                    virksomhetRepository.upsert(it)
+                }
+                .onLeft {
+                    logger.warn("Klarte ikke synkronisere virksomhet med orgnr=$orgnr fra brreg: $it")
+                }
         }
     }
 }
