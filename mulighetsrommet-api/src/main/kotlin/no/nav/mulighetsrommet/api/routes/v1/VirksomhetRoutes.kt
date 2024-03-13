@@ -112,18 +112,6 @@ fun Route.virksomhetRoutes() {
 
             call.respondWithStatusResponse(virksomhetService.deleteKontaktperson(id))
         }
-
-        post("/update") {
-            val orgnr = call.parameters.getOrFail("orgnr").also { validateOrgnr(it) }
-
-            virksomhetService.syncHovedenhetFromBrreg(orgnr)
-                .onRight { virksomhet ->
-                    call.respond("${virksomhet.navn} oppdatert")
-                }
-                .onLeft { error ->
-                    call.respondWithStatusResponseError(toStatusResponseError(error))
-                }
-        }
     }
 }
 
