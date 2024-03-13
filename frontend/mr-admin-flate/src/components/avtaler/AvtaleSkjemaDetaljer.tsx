@@ -2,7 +2,6 @@ import { HGrid, Textarea, TextField } from "@navikt/ds-react";
 import {
   Avtale,
   Avtaletype,
-  EmbeddedTiltakstype,
   NavAnsatt,
   NavEnhet,
   NavEnhetType,
@@ -11,7 +10,7 @@ import {
 } from "mulighetsrommet-api-client";
 import { ControlledSokeSelect } from "mulighetsrommet-frontend-common/components/ControlledSokeSelect";
 import { SelectOption } from "mulighetsrommet-frontend-common/components/SokeSelect";
-import { useFormContext } from "react-hook-form";
+import { DeepPartial, useFormContext } from "react-hook-form";
 import { MultiValue } from "react-select";
 import { useAvtaleAdministratorer } from "../../api/ansatt/useAvtaleAdministratorer";
 import { useMigrerteTiltakstyperForAvtaler } from "../../api/tiltakstyper/useMigrerteTiltakstyper";
@@ -46,12 +45,14 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
     formState: { errors },
     watch,
     setValue,
-  } = useFormContext<InferredAvtaleSchema>();
+  } = useFormContext<DeepPartial<InferredAvtaleSchema>>();
 
-  const watchedTiltakstype: EmbeddedTiltakstype | undefined = watch("tiltakstype");
+  const watchedTiltakstype = watch("tiltakstype");
   const arenaKode = watchedTiltakstype?.arenaKode;
 
-  const valgtTiltakstypeFraArena = !migrerteTiltakstyper?.includes(watchedTiltakstype?.arenaKode);
+  const valgtTiltakstypeFraArena = !migrerteTiltakstyper?.includes(
+    watchedTiltakstype?.arenaKode ?? "",
+  );
 
   const arenaOpphavOgIngenEierskap = avtale?.opphav === Opphav.ARENA && valgtTiltakstypeFraArena;
 
@@ -62,7 +63,7 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
       label: enhet.navn,
     }));
 
-  const { startDato } = watch("startOgSluttDato");
+  const { startDato } = watch("startOgSluttDato") ?? {};
   const sluttDatoFraDato = startDato ? new Date(startDato) : minStartdato;
   const sluttDatoTilDato = addYear(startDato ? new Date(startDato) : new Date(), 5);
 
@@ -92,10 +93,10 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
       case "ARBRRHDAG":
       case "DIGIOPPARB":
       case "JOBBK":
-        return [rammeavtale, avtale];
+        return [avtale, rammeavtale];
       case "GRUFAGYRKE":
       case "GRUPPEAMO":
-        return [rammeavtale, avtale, offentligOffentlig];
+        return [avtale, offentligOffentlig, rammeavtale];
       default:
     }
     return [];
@@ -129,6 +130,9 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
                 placeholder="Velg en"
                 label={"Tiltakstype"}
                 {...register("tiltakstype")}
+                onChange={() => {
+                  setValue("avtaletype", undefined);
+                }}
                 options={tiltakstyper.map((tiltakstype) => ({
                   value: {
                     arenaKode: tiltakstype.arenaKode,
@@ -218,7 +222,7 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
                 label={"NAV-regioner"}
                 {...register("navRegioner")}
                 additionalOnChange={(selectedOptions) => {
-                  if (watch("navRegioner").length > 1) {
+                  if ((watch("navRegioner")?.length ?? 0) > 1) {
                     const alleLokaleUnderenheter = velgAlleLokaleUnderenheter(
                       selectedOptions,
                       enheter,
@@ -229,8 +233,8 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
                       selectedOptions,
                       enheter,
                     );
-                    const navEnheter = watch("navEnheter").filter((enhet) =>
-                      alleLokaleUnderenheter.includes(enhet),
+                    const navEnheter = watch("navEnheter")?.filter((enhet) =>
+                      alleLokaleUnderenheter.includes(enhet ?? ""),
                     );
                     setValue("navEnheter", navEnheter as [string, ...string[]]);
                   }
@@ -243,7 +247,7 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
                 label={"NAV-enheter (kontorer)"}
                 helpText="Bestemmer hvilke NAV-enheter som kan velges i gjennomføringene til avtalen."
                 {...register("navEnheter")}
-                options={getLokaleUnderenheterAsSelectOptions(watch("navRegioner"), enheter)}
+                options={getLokaleUnderenheterAsSelectOptions(watch("navRegioner") ?? [], enheter)}
               />
             </FormGroup>
           </div>
