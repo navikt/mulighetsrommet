@@ -18,6 +18,8 @@ import no.nav.mulighetsrommet.api.services.TiltakstypeService
 import no.nav.mulighetsrommet.domain.Tiltakskoder.isAFTOrVTA
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dto.TiltakstypeAdminDto
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
 
 class AvtaleValidator(
     private val tiltakstyper: TiltakstypeService,
@@ -45,7 +47,7 @@ class AvtaleValidator(
             }
 
             if (!isAFTOrVTA(tiltakstype.arenaKode) && dbo.sluttDato == null) {
-                add(ValidationError.of(AvtaleDbo::sluttDato, "Sluttdato må være valgt"))
+                add(ValidationError.of(AvtaleDbo::sluttDato, "Sluttdato må være satt"))
             }
 
             if (dbo.sluttDato != null && dbo.sluttDato.isBefore(dbo.startDato)) {
@@ -118,10 +120,25 @@ class AvtaleValidator(
                                 )
                             }
                         }
+
+                        if (gjennomforing.startDato.isBefore(dbo.startDato)) {
+                            add(
+                                ValidationError.of(
+                                    AvtaleDbo::startDato,
+                                    "Du kan ikke sette startdato for avtalen til etter startdato for tiltaksgjennomføringer koblet til avtalen. Minst én gjennomføring har startdato: ${
+                                        gjennomforing.startDato.format(
+                                            DateTimeFormatter.ofLocalizedDate(
+                                                FormatStyle.SHORT,
+                                            ),
+                                        )
+                                    }",
+                                ),
+                            )
+                        }
                     }
                 }
 
-                if (avtale.opphav == ArenaMigrering.Opphav.ARENA) {
+                if (avtale.opphav == ArenaMigrering.Opphav.ARENA && isTiltakstypeDisabled(previous, tiltakstype)) {
                     if (dbo.navn != avtale.navn) {
                         add(ValidationError.of(AvtaleDbo::navn, "Navn kan ikke endres utenfor Arena"))
                     }
@@ -194,7 +211,6 @@ class AvtaleValidator(
         val kanIkkeOppretteAvtale = previous == null && !isEnabled(tiltakstype.arenaKode)
 
         val kanIkkeRedigereTiltakstypeForAvtale = previous != null &&
-            tiltakstype.arenaKode != previous.tiltakstype.arenaKode &&
             !isEnabled(tiltakstype.arenaKode)
 
         return kanIkkeOppretteAvtale || kanIkkeRedigereTiltakstypeForAvtale
