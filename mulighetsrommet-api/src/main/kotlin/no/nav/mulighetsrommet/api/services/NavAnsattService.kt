@@ -108,7 +108,7 @@ class NavAnsattService(
     private suspend fun deleteSanityAnsatt(ansatt: NavAnsattDto) {
         val queryResponse = sanityClient.query(
             """
-            *[_type == "navKontaktperson" && lower(epost) == lower("${ansatt.epost}") || _type == "redaktor" && lower(epost.current) == lower("${ansatt.epost}")]._id
+            *[_type == "navKontaktperson" && navIdent.current == "${ansatt.navIdent.value}" || _type == "redaktor" && navIdent.current == "${ansatt.navIdent.value}"]._id
             """.trimIndent(),
         )
 
@@ -142,14 +142,14 @@ class NavAnsattService(
 
         val kontaktpersoner = when (navKontaktpersonResponse) {
             is SanityResponse.Result -> navKontaktpersonResponse.decode<List<SanityNavKontaktperson>?>()
-                ?.associate { it.epost to it._id } ?: emptyMap()
+                ?.associate { it.navIdent?.current to it._id } ?: emptyMap()
 
             is SanityResponse.Error -> throw Exception("Klarte ikke hente ut kontaktpersoner fra Sanity: ${navKontaktpersonResponse.error}")
         }
 
         val redaktorer = when (redaktorResponse) {
             is SanityResponse.Result -> redaktorResponse.decode<List<SanityRedaktor>?>()
-                ?.associate { it.epost.current to it._id } ?: emptyMap()
+                ?.associate { it.navIdent?.current to it._id } ?: emptyMap()
 
             is SanityResponse.Error -> throw Exception("Klarte ikke hente ut redaktører fra Sanity: ${redaktorResponse.error}")
         }
@@ -159,13 +159,13 @@ class NavAnsattService(
         val redaktorMutations = mutableListOf<Mutation<SanityRedaktor>>()
         ansatte.forEach { ansatt ->
             if (ansatt.roller.contains(NavAnsattRolle.KONTAKTPERSON)) {
-                val id = kontaktpersoner[ansatt.epost] ?: UUID.randomUUID()
+                val id = kontaktpersoner[ansatt.navIdent.value] ?: UUID.randomUUID()
                 val mutation = createSanityNavKontaktpersonMutation(ansatt, id.toString())
                 kontaktpersonMutations.add(mutation)
             }
 
             if (ansatt.roller.contains(NavAnsattRolle.AVTALER_SKRIV) || ansatt.roller.contains(NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV)) {
-                val id = redaktorer[ansatt.epost] ?: UUID.randomUUID()
+                val id = redaktorer[ansatt.navIdent.value] ?: UUID.randomUUID()
                 redaktorMutations.add(upsertRedaktor(ansatt, id.toString()))
             }
         }
