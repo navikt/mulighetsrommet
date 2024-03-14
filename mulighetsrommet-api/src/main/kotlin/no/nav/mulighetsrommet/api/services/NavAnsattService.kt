@@ -149,7 +149,7 @@ class NavAnsattService(
 
         val redaktorer = when (redaktorResponse) {
             is SanityResponse.Result -> redaktorResponse.decode<List<SanityRedaktor>?>()
-                ?.associate { it.navIdent?.current to it._id } ?: emptyMap()
+                ?.associate { it.navIdent.current to it._id } ?: emptyMap()
 
             is SanityResponse.Error -> throw Exception("Klarte ikke hente ut redaktører fra Sanity: ${redaktorResponse.error}")
         }
@@ -234,7 +234,7 @@ data class SanityNavKontaktperson(
 data class SanityRedaktor(
     val _id: String,
     val _type: String,
-    val navIdent: Slug? = null,
+    val navIdent: Slug,
     val enhet: String,
     val epost: Slug,
     val navn: String,
