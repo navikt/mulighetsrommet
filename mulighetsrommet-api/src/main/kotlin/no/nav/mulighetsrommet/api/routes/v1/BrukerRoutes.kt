@@ -11,6 +11,8 @@ import no.nav.common.audit_log.cef.CefMessageSeverity
 import no.nav.mulighetsrommet.api.clients.AccessType
 import no.nav.mulighetsrommet.api.plugins.getNavAnsattAzureId
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
+import no.nav.mulighetsrommet.api.routes.v1.responses.ServerError
+import no.nav.mulighetsrommet.api.routes.v1.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.services.BrukerService
 import no.nav.mulighetsrommet.api.services.PoaoTilgangService
 import no.nav.mulighetsrommet.api.services.TiltakshistorikkService
@@ -61,6 +63,33 @@ fun Route.brukerRoutes() {
 
                 call.respond(it)
             }
+        }
+        post("ny") {
+            val request = call.receive<GetHistorikkForBrukerRequest>()
+            val norskIdent = request.norskIdent
+            val navIdent = getNavIdent()
+            val obo = AccessType.OBO(call.getAccessToken())
+
+            poaoTilgangService.verifyAccessToUserFromVeileder(getNavAnsattAzureId(), norskIdent) {
+                val message = createAuditMessage(
+                    msg = "NAV-ansatt med ident: '$navIdent' forsøkte, men fikk ikke sett deltakelser for bruker med ident: '$norskIdent'.",
+                    navIdent = navIdent,
+                    norskIdent = norskIdent,
+                )
+                AuditLog.auditLogger.log(message)
+            }
+
+            val response = historikkService.hentDeltakelserFraKomet(norskIdent, obo).map {
+                val message = createAuditMessage(
+                    msg = "NAV-ansatt med ident: '$navIdent' har sett deltakelser for bruker med ident: '$norskIdent'.",
+                    navIdent = navIdent,
+                    norskIdent = norskIdent,
+                )
+                AuditLog.auditLogger.log(message)
+                it
+            }.mapLeft { ServerError(it.error) }
+
+            call.respondWithStatusResponse(response)
         }
     }
 }

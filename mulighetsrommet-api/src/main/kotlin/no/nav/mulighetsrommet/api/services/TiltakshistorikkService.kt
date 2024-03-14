@@ -1,7 +1,12 @@
 package no.nav.mulighetsrommet.api.services
 
+import arrow.core.Either
 import arrow.core.getOrElse
 import no.nav.mulighetsrommet.api.clients.AccessType
+import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
+import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerError
+import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakelserRequest
+import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakelserResponse
 import no.nav.mulighetsrommet.api.clients.pdl.PdlClient
 import no.nav.mulighetsrommet.api.clients.pdl.PdlError
 import no.nav.mulighetsrommet.api.domain.dto.TiltakshistorikkDto
@@ -11,6 +16,7 @@ import org.slf4j.LoggerFactory
 
 class TiltakshistorikkService(
     private val virksomhetService: VirksomhetService,
+    private val amtDeltakerClient: AmtDeltakerClient,
     private val tiltakshistorikkRepository: TiltakshistorikkRepository,
     private val pdlClient: PdlClient,
 ) {
@@ -43,6 +49,11 @@ class TiltakshistorikkService(
                 )
             }
         }
+    }
+
+    // TODO Bedre navn på funksjon
+    suspend fun hentDeltakelserFraKomet(norskIdent: String, obo: AccessType.OBO): Either<AmtDeltakerError, DeltakelserResponse> {
+        return amtDeltakerClient.hentDeltakelser(DeltakelserRequest(norskIdent), obo)
     }
 
     fun slettHistorikkForIdenter(identer: List<String>) =

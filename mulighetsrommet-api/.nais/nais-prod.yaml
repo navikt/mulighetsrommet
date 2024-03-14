@@ -112,6 +112,8 @@ spec:
           namespace: poao
         - application: amt-enhetsregister
           namespace: amt
+        - application: amt-deltaker
+          namespace: amt
       external:
         - host: norg2.prod-fss-pub.nais.io
         - host: slack.com
