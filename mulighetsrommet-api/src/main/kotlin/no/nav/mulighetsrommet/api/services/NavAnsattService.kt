@@ -142,7 +142,7 @@ class NavAnsattService(
 
         val kontaktpersoner = when (navKontaktpersonResponse) {
             is SanityResponse.Result -> navKontaktpersonResponse.decode<List<SanityNavKontaktperson>?>()
-                ?.associate { it.navIdent?.current to it._id } ?: emptyMap()
+                ?.associate { it.navIdent.current to it._id } ?: emptyMap()
 
             is SanityResponse.Error -> throw Exception("Klarte ikke hente ut kontaktpersoner fra Sanity: ${navKontaktpersonResponse.error}")
         }
@@ -223,7 +223,7 @@ class NavAnsattService(
 data class SanityNavKontaktperson(
     val _id: String,
     val _type: String,
-    val navIdent: Slug? = null,
+    val navIdent: Slug,
     val enhet: String,
     val telefonnummer: String? = null,
     val epost: String,
