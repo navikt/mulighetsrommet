@@ -126,4 +126,4 @@ spec:
     - secret: mr-admin-flate-unleash-api-token
   env:
     - name: OTEL_JAVAAGENT_EXCLUDE_CLASSES
-      value: "no.nav.mulighetsrommet.api.clients.dialog,no.nav.mulighetsrommet.api.services.BrukerService"
+      value: "no.nav.mulighetsrommet.api.clients.dialog.*,no.nav.mulighetsrommet.api.services.BrukerService"
