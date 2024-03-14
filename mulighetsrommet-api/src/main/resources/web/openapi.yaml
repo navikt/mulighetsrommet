@@ -2597,10 +2597,10 @@ components:
         periode:
           type: object
           properties:
-            startDato:
+            startdato:
               type: string
               nullable: true
-            sluttDato:
+            sluttdato:
               type: string
               nullable: true
           nullable: true

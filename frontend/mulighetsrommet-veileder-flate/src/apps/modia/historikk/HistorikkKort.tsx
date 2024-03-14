@@ -24,9 +24,9 @@ export function HistorikkKort({ historikk }: Props) {
         <HStack align={"center"} gap="5">
           <Status status={historiskStatus.historiskStatusType} />
           {beskrivelse ? <BodyShort size="small">Årsak: {beskrivelse}</BodyShort> : null}
-          {periode ? (
+          {periode?.startdato && periode.sluttdato ? (
             <BodyShort size="small">
-              {periode.startDato} - {periode.sluttDato}
+              {formaterDato(periode.startdato)} - {formaterDato(periode.sluttdato)}
             </BodyShort>
           ) : null}
         </HStack>

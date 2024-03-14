@@ -5,18 +5,26 @@ import styles from "./Landingsside.module.scss";
 import { HistorikkKort } from "../historikk/HistorikkKort";
 import { useHistorikkFraKomet } from "../../../core/api/queries/useHistorikkFraKomet";
 import { UtkastKort } from "../historikk/UtkastKort";
+import { ErrorBoundary } from "react-error-boundary";
+import { ErrorFallback } from "../../../utils/ErrorFallback";
 
 export function Landingsside() {
   return (
     <main className="mulighetsrommet-veileder-flate">
       <VStack gap="10" className={styles.container}>
-        <Utkast />
+        <ErrorBoundary FallbackComponent={ErrorFallback}>
+          {" "}
+          {/** TODO Bedre komponent for fallback i error boundary */}
+          <Utkast />
+        </ErrorBoundary>
         <div>
           <Link className={styles.cta_link} to="/arbeidsmarkedstiltak/oversikt">
             <PlusIcon color="white" fontSize={30} aria-hidden /> Finn nytt arbeidsmarkedstiltak
           </Link>
         </div>
-        <Historikk />
+        <ErrorBoundary FallbackComponent={ErrorFallback}>
+          <Historikk />
+        </ErrorBoundary>
       </VStack>
     </main>
   );

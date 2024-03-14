@@ -7,8 +7,8 @@ import {
 export const historikkFraKomet: HistorikkForBrukerFraKomet[] = [
   {
     periode: {
-      startDato: "10.05.2023",
-      sluttDato: "12.12.2023",
+      startdato: "10.05.2023",
+      sluttdato: "12.12.2023",
     },
     beskrivelse: null,
     tittel: "Oppfølging hos Muligheter AS",
@@ -24,8 +24,8 @@ export const historikkFraKomet: HistorikkForBrukerFraKomet[] = [
   },
   {
     periode: {
-      startDato: "01.01.2024",
-      sluttDato: "01.02.2024",
+      startdato: "01.01.2024",
+      sluttdato: "01.02.2024",
     },
     tittel: "Avklaring med Anne",
     tiltakstype: {
@@ -42,8 +42,8 @@ export const historikkFraKomet: HistorikkForBrukerFraKomet[] = [
   },
   {
     periode: {
-      startDato: "01.01.2024",
-      sluttDato: "01.06.2025",
+      startdato: "01.01.2024",
+      sluttdato: "01.06.2025",
     },
     beskrivelse: null,
     tittel: "Jobbklubb - Oslo",

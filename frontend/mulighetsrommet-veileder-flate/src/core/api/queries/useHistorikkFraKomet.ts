@@ -10,6 +10,6 @@ export function useHistorikkFraKomet() {
   return useQuery({
     queryKey: [QueryKeys.HistorikkFraKomet, fnr],
     queryFn: () => mulighetsrommetClient.historikk.hentHistorikkForBrukerFraKomet({ requestBody }),
-    throwOnError: false, // TODO Fjern denne når vi har endepunkt fra Komet
+    throwOnError: true, // TODO Fjern denne når vi har endepunkt fra Komet
   });
 }
