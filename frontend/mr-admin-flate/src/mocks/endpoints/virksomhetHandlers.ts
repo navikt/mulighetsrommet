@@ -5,16 +5,26 @@ import { mockVirksomheter } from "../fixtures/mock_virksomheter";
 
 export const virksomhetHandlers = [
   http.get<{ sok: string }, BrregVirksomhet[]>(
-    "*/api/v1/internal/virksomhet/sok/:sok",
-    ({ params }) => {
+    "*/api/v1/internal/virksomhet/sok",
+    ({ request }) => {
+      const url = new URL(request.url);
+      const sok = url.searchParams.get("sok")!!;
       return HttpResponse.json(
         Object.values(mockVirksomheter).filter((enhet) =>
-          enhet.navn?.toLowerCase().includes(params.sok.toLocaleLowerCase()),
+          enhet.navn?.toLowerCase().includes(sok.toLocaleLowerCase()),
         ),
       );
     },
   ),
   http.get<PathParams, BrregVirksomhet | undefined>(
+    "*/api/v1/internal/virksomhet/:id",
+    ({ params }) => {
+      return HttpResponse.json(
+        Object.values(mockVirksomheter).find((enhet) => enhet.id === params.id),
+      );
+    },
+  ),
+  http.post<PathParams, BrregVirksomhet | undefined>(
     "*/api/v1/internal/virksomhet/:orgnr",
     ({ params }) => {
       return HttpResponse.json(
@@ -26,7 +36,8 @@ export const virksomhetHandlers = [
     HttpResponse.json(Object.values(mockVirksomheter)),
   ),
 
-  http.get<PathParams, VirksomhetKontaktperson[]>("*/api/v1/internal/*/kontaktperson", () =>
-    HttpResponse.json(mockVirksomhetKontaktperson),
+  http.get<PathParams, VirksomhetKontaktperson[]>(
+    "*/api/v1/internal/virksomhet/*/kontaktpersoner",
+    () => HttpResponse.json(mockVirksomhetKontaktperson),
   ),
 ];

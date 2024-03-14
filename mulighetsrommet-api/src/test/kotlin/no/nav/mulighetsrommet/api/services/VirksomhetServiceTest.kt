@@ -5,7 +5,6 @@ import arrow.core.right
 import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
@@ -34,31 +33,50 @@ class VirksomhetServiceTest : FunSpec({
         virksomhetService = VirksomhetService(brregClient, virksomhetRepository)
     }
 
-    context(VirksomhetService::getOrSyncHovedenhetFromBrreg.name) {
-        val underenhet = BrregVirksomhetDto(
-            organisasjonsnummer = "234567891",
-            navn = "Underenhet til Testbedriften AS",
-            overordnetEnhet = "123456789",
-            postnummer = null,
-            poststed = null,
-        )
-        val hovedenhet = BrregVirksomhetDto(
-            organisasjonsnummer = "123456789",
-            navn = "Testbedriften AS",
-            underenheter = listOf(underenhet),
-            postnummer = "0484",
-            poststed = "Oslo",
-        )
+    val underenhet = BrregVirksomhetDto(
+        organisasjonsnummer = "234567891",
+        navn = "Underenhet til Testbedriften AS",
+        overordnetEnhet = "123456789",
+        postnummer = null,
+        poststed = null,
+    )
+    val hovedenhet = BrregVirksomhetDto(
+        organisasjonsnummer = "123456789",
+        navn = "Testbedriften AS",
+        underenheter = listOf(underenhet),
+        postnummer = "0484",
+        poststed = "Oslo",
+    )
 
+    context(VirksomhetService::getVirksomhetFromBrreg.name) {
+        afterEach {
+            clearAllMocks()
+        }
+
+        test("skal hente hovedenhet med underenheter fra brreg gitt orgnr til hovedenhet") {
+            coEvery { brregClient.getHovedenhet(hovedenhet.organisasjonsnummer) } returns hovedenhet.right()
+
+            virksomhetService.getVirksomhetFromBrreg(hovedenhet.organisasjonsnummer).shouldBeRight(hovedenhet)
+        }
+
+        test("skal hente underenhet fra brreg gitt orgnr til underenhet") {
+            coEvery { brregClient.getHovedenhet(underenhet.organisasjonsnummer) } returns BrregError.NotFound.left()
+            coEvery { brregClient.getUnderenhet(underenhet.organisasjonsnummer) } returns underenhet.right()
+
+            virksomhetService.getVirksomhetFromBrreg(underenhet.organisasjonsnummer).shouldBeRight(underenhet)
+        }
+    }
+
+    context(VirksomhetService::getOrSyncVirksomhetFromBrreg.name) {
         afterEach {
             clearAllMocks()
             database.db.truncateAll()
         }
 
-        test("skal synkronisere hovedenhet med underenheter fra brreg til databasen gitt orgnr til hovedenhet") {
+        test("skal synkronisere hovedenhet uten underenheter fra brreg til databasen gitt orgnr til hovedenhet") {
             coEvery { brregClient.getHovedenhet(hovedenhet.organisasjonsnummer) } returns hovedenhet.right()
 
-            virksomhetService.getOrSyncHovedenhetFromBrreg(hovedenhet.organisasjonsnummer).shouldBeRight()
+            virksomhetService.getOrSyncVirksomhetFromBrreg(hovedenhet.organisasjonsnummer).shouldBeRight()
 
             virksomhetRepository.get(hovedenhet.organisasjonsnummer).shouldNotBeNull().should {
                 it.id.shouldNotBeNull()
@@ -66,25 +84,17 @@ class VirksomhetServiceTest : FunSpec({
                 it.organisasjonsnummer shouldBe "123456789"
                 it.postnummer shouldBe "0484"
                 it.poststed shouldBe "Oslo"
-                it.underenheter.shouldNotBeNull().shouldHaveSize(1).first().should { e ->
-                    e.navn shouldBe "Underenhet til Testbedriften AS"
-                    e.organisasjonsnummer shouldBe "234567891"
-                }
-            }
-            virksomhetRepository.get(underenhet.organisasjonsnummer).shouldNotBeNull().should {
-                it.id.shouldNotBeNull()
-                it.navn shouldBe "Underenhet til Testbedriften AS"
-                it.organisasjonsnummer shouldBe "234567891"
                 it.underenheter.shouldBeNull()
             }
+            virksomhetRepository.get(underenhet.organisasjonsnummer).shouldBeNull()
         }
 
-        test("skal synkronisere hovedenhet med underenheter fra brreg til databasen gitt orgnr til underenhet") {
+        test("skal synkronisere hovedenhet i tillegg til underenhet fra brreg til databasen gitt orgnr til underenhet") {
             coEvery { brregClient.getHovedenhet(hovedenhet.organisasjonsnummer) } returns hovedenhet.right()
             coEvery { brregClient.getHovedenhet(underenhet.organisasjonsnummer) } returns BrregError.NotFound.left()
             coEvery { brregClient.getUnderenhet(underenhet.organisasjonsnummer) } returns underenhet.right()
 
-            virksomhetService.getOrSyncHovedenhetFromBrreg(underenhet.organisasjonsnummer).shouldBeRight()
+            virksomhetService.getOrSyncVirksomhetFromBrreg(underenhet.organisasjonsnummer).shouldBeRight()
 
             virksomhetRepository.get(hovedenhet.organisasjonsnummer).shouldNotBeNull().should {
                 it.navn shouldBe "Testbedriften AS"
@@ -108,7 +118,7 @@ class VirksomhetServiceTest : FunSpec({
 
             coEvery { brregClient.getHovedenhet(orgnr) } returns slettetVirksomhet.right()
 
-            virksomhetService.getOrSyncHovedenhetFromBrreg(orgnr).shouldBeRight()
+            virksomhetService.getOrSyncVirksomhetFromBrreg(orgnr).shouldBeRight()
 
             virksomhetRepository.get(orgnr).shouldNotBeNull().should {
                 it.navn shouldBe "Slettet bedrift"
@@ -123,7 +133,7 @@ class VirksomhetServiceTest : FunSpec({
             coEvery { brregClient.getHovedenhet(orgnr) } returns BrregError.NotFound.left()
             coEvery { brregClient.getUnderenhet(orgnr) } returns BrregError.NotFound.left()
 
-            virksomhetService.getOrSyncHovedenhetFromBrreg(orgnr) shouldBeLeft BrregError.NotFound
+            virksomhetService.getOrSyncVirksomhetFromBrreg(orgnr) shouldBeLeft BrregError.NotFound
 
             virksomhetRepository.get(orgnr) shouldBe null
         }
