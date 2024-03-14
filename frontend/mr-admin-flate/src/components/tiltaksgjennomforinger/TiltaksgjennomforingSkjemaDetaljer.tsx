@@ -1,5 +1,15 @@
 import { PlusIcon, XMarkIcon } from "@navikt/aksel-icons";
-import { Alert, Button, HelpText, HStack, Select, Switch, TextField } from "@navikt/ds-react";
+import {
+  Alert,
+  Button,
+  DatePicker,
+  HelpText,
+  HGrid,
+  HStack,
+  Select,
+  Switch,
+  TextField,
+} from "@navikt/ds-react";
 import {
   Avtale,
   Tiltaksgjennomforing,
@@ -142,6 +152,20 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
             {errors.avtaleId?.message ? (
               <Alert variant="warning">{errors.avtaleId.message as string}</Alert>
             ) : null}
+            <HGrid columns={2}>
+              <DatePicker.Input
+                value={avtale.startDato}
+                label="Avtalens startdato"
+                readOnly
+                size="small"
+              />
+              <DatePicker.Input
+                value={avtale.sluttDato}
+                label="Avtalens sluttdato"
+                readOnly
+                size="small"
+              />
+            </HGrid>
           </FormGroup>
           <Separator />
           <FormGroup>

@@ -1,5 +1,5 @@
 import { ExternalLinkIcon } from "@navikt/aksel-icons";
-import { HelpText, Tag } from "@navikt/ds-react";
+import { BodyShort, HelpText, Tag } from "@navikt/ds-react";
 import {
   Avtale,
   Tiltaksgjennomforing,
@@ -87,6 +87,12 @@ export function TiltaksgjennomforingDetaljer(props: Props) {
                     <Link to={`/avtaler/${avtale.id}`}>
                       {avtale.navn} {avtale.avtalenummer ? ` - ${avtale.avtalenummer}` : null}
                     </Link>{" "}
+                    <BodyShort>
+                      <small>
+                        Avtalens periode: {formaterDato(avtale.startDato)} -{" "}
+                        {formaterDato(avtale.sluttDato)}
+                      </small>
+                    </BodyShort>
                   </>
                 ) : (
                   "Ingen avtale for gjennomføringen"
