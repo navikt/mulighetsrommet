@@ -78,7 +78,7 @@ from avtale a
 group by a.id,
          t.navn,
          t.tiltakskode,
-         v.organisasjonsnummer,
+         v.id,
          vk.id,
          lu.leverandor_underenheter,
          an.nav_enheter,
