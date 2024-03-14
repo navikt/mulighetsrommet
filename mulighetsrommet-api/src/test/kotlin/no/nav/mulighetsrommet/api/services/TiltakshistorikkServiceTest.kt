@@ -68,8 +68,8 @@ class TiltakshistorikkServiceTest : FunSpec({
     }
 
     test("henter historikk for bruker basert på person id med arrangørnavn") {
-        coEvery { virksomhetService.getOrSyncHovedenhetFromBrreg(VirksomhetFixtures.underenhet1.organisasjonsnummer) } returns VirksomhetFixtures.underenhet1.right()
-        coEvery { virksomhetService.getOrSyncHovedenhetFromBrreg(tiltakshistorikkIndividuell.arrangorOrganisasjonsnummer) } returns VirksomhetDto(
+        coEvery { virksomhetService.getOrSyncVirksomhetFromBrreg(VirksomhetFixtures.underenhet1.organisasjonsnummer) } returns VirksomhetFixtures.underenhet1.right()
+        coEvery { virksomhetService.getOrSyncVirksomhetFromBrreg(tiltakshistorikkIndividuell.arrangorOrganisasjonsnummer) } returns VirksomhetDto(
             id = UUID.randomUUID(),
             navn = "Bedriftsnavn 2",
             organisasjonsnummer = tiltakshistorikkIndividuell.arrangorOrganisasjonsnummer,
@@ -84,7 +84,8 @@ class TiltakshistorikkServiceTest : FunSpec({
             ),
         ).right()
 
-        val historikkService = TiltakshistorikkService(virksomhetService, TiltakshistorikkRepository(database.db), pdlClient)
+        val tiltakshistorikk = TiltakshistorikkRepository(database.db)
+        val historikkService = TiltakshistorikkService(virksomhetService, tiltakshistorikk, pdlClient)
 
         val forventetHistorikk = listOf(
             TiltakshistorikkDto(

@@ -49,7 +49,7 @@ class TiltakshistorikkService(
         tiltakshistorikkRepository.deleteTiltakshistorikkForIdenter(identer)
 
     private suspend fun hentArrangorNavn(virksomhetsnummer: String): String? {
-        return virksomhetService.getOrSyncHovedenhetFromBrreg(virksomhetsnummer).fold({ error ->
+        return virksomhetService.getOrSyncVirksomhetFromBrreg(virksomhetsnummer).fold({ error ->
             log.warn("Klarte ikke hente arrangør. BrregError: $error")
             null
         }, { virksomhet ->
