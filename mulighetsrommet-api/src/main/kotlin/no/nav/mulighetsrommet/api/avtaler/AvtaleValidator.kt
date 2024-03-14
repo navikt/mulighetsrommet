@@ -137,7 +137,7 @@ class AvtaleValidator(
                     }
                 }
 
-                if (avtale.opphav == ArenaMigrering.Opphav.ARENA && !tiltakstyper.kanRedigeres(tiltakstype)) {
+                if (avtale.opphav == ArenaMigrering.Opphav.ARENA && !kanRedigeres(tiltakstype)) {
                     if (dbo.navn != avtale.navn) {
                         add(ValidationError.of(AvtaleDbo::navn, "Navn kan ikke endres utenfor Arena"))
                     }
@@ -232,5 +232,14 @@ class AvtaleValidator(
             .filter { it.type == Norg2Type.FYLKE }
             .flatMap { listOf(it) + navEnheter.filter { enhet -> enhet.overordnetEnhet == it.enhetsnummer } }
             .associateBy { it.enhetsnummer }
+    }
+
+    private fun kanRedigeres(
+        tiltakstype: TiltakstypeAdminDto,
+    ): Boolean {
+        return tiltakstyper.isEnabled(tiltakstype.arenaKode) || listOf(
+            "VASV",
+            "ARBFORB",
+        ).contains(tiltakstype.arenaKode)
     }
 }

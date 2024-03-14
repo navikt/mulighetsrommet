@@ -1,9 +1,4 @@
-import {
-  Avtale,
-  Avtaletype,
-  EstimertVentetid,
-  TiltaksgjennomforingStatus,
-} from "mulighetsrommet-api-client";
+import { Avtale, Avtaletype, EstimertVentetid } from "mulighetsrommet-api-client";
 import { AvtaleFilter } from "../api/atoms";
 
 export function capitalize(text?: string): string {
@@ -87,30 +82,13 @@ export function kalkulerStatusBasertPaaFraOgTilDato(
   }
 }
 
-export const oversettStatusForTiltaksgjennomforing = (status?: TiltaksgjennomforingStatus) => {
-  switch (status) {
-    case TiltaksgjennomforingStatus.GJENNOMFORES:
-      return "Gjennomføres";
-    case TiltaksgjennomforingStatus.AVBRUTT:
-      return "Avbrutt";
-    case TiltaksgjennomforingStatus.AVLYST:
-      return "Avlyst";
-    case TiltaksgjennomforingStatus.AVSLUTTET:
-      return "Avsluttet";
-    case TiltaksgjennomforingStatus.PLANLAGT:
-      return "Planlagt";
-    default:
-      return "";
-  }
-};
-
 export const inneholderUrl = (string: string) => {
   return window.location.href.indexOf(string) > -1;
 };
 
 export function avtaletypeTilTekst(
   type: Avtaletype,
-): "Avtale" | "Rammeavtale" | "Forhåndsgodkjent" {
+): "Avtale" | "Rammeavtale" | "Forhåndsgodkjent" | "Offentlig-Offentlig samarbeid" {
   switch (type) {
     case Avtaletype.AVTALE:
       return "Avtale";
@@ -118,6 +96,8 @@ export function avtaletypeTilTekst(
       return "Forhåndsgodkjent";
     case Avtaletype.RAMMEAVTALE:
       return "Rammeavtale";
+    case Avtaletype.OFFENTLIG_OFFENTLIG:
+      return "Offentlig-Offentlig samarbeid";
   }
 }
 

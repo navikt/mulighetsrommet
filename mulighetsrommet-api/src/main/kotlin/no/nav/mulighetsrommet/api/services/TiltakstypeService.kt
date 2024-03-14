@@ -45,15 +45,4 @@ class TiltakstypeService(
             tiltakstypeRepository.getBySanityId(sanityId)
         }
     }
-
-    fun kanRedigeres(
-        tiltakstype: TiltakstypeAdminDto,
-    ): Boolean {
-        return (
-            arenakodeEnabledTiltakstyper + listOf(
-                "VASV",
-                "ARBFORB",
-            )
-            ).contains(tiltakstype.arenaKode)
-    }
 }
