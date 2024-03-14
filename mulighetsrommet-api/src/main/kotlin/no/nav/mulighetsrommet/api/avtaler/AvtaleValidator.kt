@@ -15,6 +15,7 @@ import no.nav.mulighetsrommet.api.repositories.VirksomhetRepository
 import no.nav.mulighetsrommet.api.routes.v1.responses.ValidationError
 import no.nav.mulighetsrommet.api.services.NavEnhetService
 import no.nav.mulighetsrommet.api.services.TiltakstypeService
+import no.nav.mulighetsrommet.domain.Tiltakskoder
 import no.nav.mulighetsrommet.domain.Tiltakskoder.isAFTOrVTA
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dto.TiltakstypeAdminDto
@@ -28,8 +29,8 @@ class AvtaleValidator(
     private val navEnheterService: NavEnhetService,
     private val virksomheter: VirksomhetRepository,
 ) {
-    fun validate(dbo: AvtaleDbo, previous: AvtaleAdminDto?): Either<List<ValidationError>, AvtaleDbo> = either {
-        val tiltakstype = tiltakstyper.getById(dbo.tiltakstypeId)
+    fun validate(avtale: AvtaleDbo, previous: AvtaleAdminDto?): Either<List<ValidationError>, AvtaleDbo> = either {
+        val tiltakstype = tiltakstyper.getById(avtale.tiltakstypeId)
             ?: raise(ValidationError.of(AvtaleDbo::tiltakstypeId, "Tiltakstypen finnes ikke").nel())
 
         if (isTiltakstypeDisabled(previous, tiltakstype)) {
@@ -43,21 +44,21 @@ class AvtaleValidator(
         }
 
         val errors = buildList {
-            if (dbo.administratorer.isEmpty()) {
+            if (avtale.administratorer.isEmpty()) {
                 add(ValidationError.of(AvtaleDbo::administratorer, "Minst én administrator må være valgt"))
             }
 
-            if (!isAFTOrVTA(tiltakstype.arenaKode) && dbo.sluttDato == null) {
+            if (!isAFTOrVTA(tiltakstype.arenaKode) && avtale.sluttDato == null) {
                 add(ValidationError.of(AvtaleDbo::sluttDato, "Sluttdato må være satt"))
             }
 
-            if (dbo.sluttDato != null && dbo.sluttDato.isBefore(dbo.startDato)) {
+            if (avtale.sluttDato != null && avtale.sluttDato.isBefore(avtale.startDato)) {
                 add(ValidationError.of(AvtaleDbo::startDato, "Startdato må være før sluttdato"))
             }
 
-            addAll(validateNavEnheter(dbo.navEnheter))
+            addAll(validateNavEnheter(avtale.navEnheter))
 
-            if (dbo.leverandorUnderenheter.isEmpty()) {
+            if (avtale.leverandorUnderenheter.isEmpty()) {
                 add(
                     ValidationError.of(
                         AvtaleDbo::leverandorUnderenheter,
@@ -66,12 +67,17 @@ class AvtaleValidator(
                 )
             }
 
-            if (!allowedAvtaletypes(tiltakstype.arenaKode).contains(dbo.avtaletype)) {
-                add(ValidationError.of(AvtaleDbo::avtaletype, "${dbo.avtaletype} er ikke tillat for tiltakstype ${tiltakstype.navn}"))
+            if (!allowedAvtaletypes(tiltakstype.arenaKode).contains(avtale.avtaletype)) {
+                add(
+                    ValidationError.of(
+                        AvtaleDbo::avtaletype,
+                        "${avtale.avtaletype} er ikke tillat for tiltakstype ${tiltakstype.navn}",
+                    ),
+                )
             }
 
-            previous?.also { avtale ->
-                if (dbo.navn.length < 5 && previous.opphav != ArenaMigrering.Opphav.ARENA) {
+            previous?.also { currentAvtale ->
+                if (avtale.navn.length < 5 && currentAvtale.opphav != ArenaMigrering.Opphav.ARENA) {
                     add(ValidationError.of(AvtaleDbo::navn, "Avtalenavn må være minst 5 tegn langt"))
                 }
 
@@ -82,9 +88,9 @@ class AvtaleValidator(
                  * så reglene for når en avtale er låst er foreløpig ganske naive og baserer seg kun på om det finnes
                  * gjennomføringer på avtalen eller ikke...
                  */
-                    val (numGjennomforinger, gjennomforinger) = tiltaksgjennomforinger.getAll(avtaleId = dbo.id)
+                    val (numGjennomforinger, gjennomforinger) = tiltaksgjennomforinger.getAll(avtaleId = avtale.id)
                 if (numGjennomforinger > 0) {
-                    if (dbo.tiltakstypeId != avtale.tiltakstype.id) {
+                    if (avtale.tiltakstypeId != currentAvtale.tiltakstype.id) {
                         add(
                             ValidationError.of(
                                 AvtaleDbo::tiltakstypeId,
@@ -93,7 +99,7 @@ class AvtaleValidator(
                         )
                     }
 
-                    if (dbo.avtaletype != avtale.avtaletype) {
+                    if (avtale.avtaletype != currentAvtale.avtaletype) {
                         add(
                             ValidationError.of(
                                 AvtaleDbo::avtaletype,
@@ -104,7 +110,7 @@ class AvtaleValidator(
 
                     gjennomforinger.forEach { gjennomforing ->
                         val arrangor = gjennomforing.arrangor.id
-                        if (arrangor !in dbo.leverandorUnderenheter) {
+                        if (arrangor !in avtale.leverandorUnderenheter) {
                             val virksomhet: VirksomhetDto = virksomheter.getById(arrangor)
                             add(
                                 ValidationError.of(
@@ -116,7 +122,7 @@ class AvtaleValidator(
 
                         gjennomforing.navEnheter.forEach { enhet: NavEnhetDbo ->
                             val enhetsnummer = enhet.enhetsnummer
-                            if (enhetsnummer !in dbo.navEnheter) {
+                            if (enhetsnummer !in avtale.navEnheter) {
                                 add(
                                     ValidationError.of(
                                         AvtaleDbo::navEnheter,
@@ -126,7 +132,7 @@ class AvtaleValidator(
                             }
                         }
 
-                        if (gjennomforing.startDato.isBefore(dbo.startDato)) {
+                        if (gjennomforing.startDato.isBefore(avtale.startDato)) {
                             val gjennomforingsStartDato = gjennomforing.startDato.format(
                                 DateTimeFormatter.ofLocalizedDate(
                                     FormatStyle.SHORT,
@@ -142,12 +148,12 @@ class AvtaleValidator(
                     }
                 }
 
-                if (avtale.opphav == ArenaMigrering.Opphav.ARENA && !kanRedigeres(tiltakstype)) {
-                    if (dbo.navn != avtale.navn) {
+                if (skalValidereArenafelter(currentAvtale, tiltakstype)) {
+                    if (avtale.navn != currentAvtale.navn) {
                         add(ValidationError.of(AvtaleDbo::navn, "Navn kan ikke endres utenfor Arena"))
                     }
 
-                    if (dbo.avtalenummer != avtale.avtalenummer) {
+                    if (avtale.avtalenummer != currentAvtale.avtalenummer) {
                         add(
                             ValidationError.of(
                                 AvtaleDbo::avtalenummer,
@@ -156,19 +162,19 @@ class AvtaleValidator(
                         )
                     }
 
-                    if (dbo.startDato != avtale.startDato) {
+                    if (avtale.startDato != currentAvtale.startDato) {
                         add(ValidationError.of(AvtaleDbo::startDato, "Startdato kan ikke endres utenfor Arena"))
                     }
 
-                    if (dbo.sluttDato != avtale.sluttDato) {
+                    if (avtale.sluttDato != currentAvtale.sluttDato) {
                         add(ValidationError.of(AvtaleDbo::sluttDato, "Sluttdato kan ikke endres utenfor Arena"))
                     }
 
-                    if (dbo.avtaletype != avtale.avtaletype) {
+                    if (avtale.avtaletype != currentAvtale.avtaletype) {
                         add(ValidationError.of(AvtaleDbo::avtaletype, "Avtaletype kan ikke endres utenfor Arena"))
                     }
 
-                    if (dbo.prisbetingelser != avtale.prisbetingelser) {
+                    if (avtale.prisbetingelser != currentAvtale.prisbetingelser) {
                         add(
                             ValidationError.of(
                                 AvtaleDbo::prisbetingelser,
@@ -177,7 +183,7 @@ class AvtaleValidator(
                         )
                     }
 
-                    if (dbo.leverandorVirksomhetId != avtale.leverandor.id) {
+                    if (avtale.leverandorVirksomhetId != currentAvtale.leverandor.id) {
                         add(
                             ValidationError.of(
                                 AvtaleDbo::leverandorVirksomhetId,
@@ -187,29 +193,13 @@ class AvtaleValidator(
                     }
                 }
             } ?: run {
-                if (dbo.navn.length < 5) {
+                if (avtale.navn.length < 5) {
                     add(ValidationError.of(AvtaleDbo::navn, "Avtalenavn må være minst 5 tegn langt"))
                 }
             }
         }
 
-        return errors.takeIf { it.isNotEmpty() }?.left() ?: dbo.right()
-    }
-
-    private fun isTiltakstypeDisabled(
-        previous: AvtaleAdminDto?,
-        tiltakstype: TiltakstypeAdminDto,
-    ): Boolean {
-        fun isEnabled(arenakode: String) =
-            tiltakstyper.isEnabled(arenakode) || listOf("VASV", "ARBFORB").contains(arenakode)
-
-        val kanIkkeOppretteAvtale = previous == null && !isEnabled(tiltakstype.arenaKode)
-
-        val kanIkkeRedigereTiltakstypeForAvtale = previous != null &&
-            tiltakstype.arenaKode != previous.tiltakstype.arenaKode &&
-            !isEnabled(tiltakstype.arenaKode)
-
-        return kanIkkeOppretteAvtale || kanIkkeRedigereTiltakstypeForAvtale
+        return errors.takeIf { it.isNotEmpty() }?.left() ?: avtale.right()
     }
 
     private fun validateNavEnheter(navEnheter: List<String>) = buildList {
@@ -239,12 +229,26 @@ class AvtaleValidator(
             .associateBy { it.enhetsnummer }
     }
 
-    private fun kanRedigeres(
+    private fun skalValidereArenafelter(
+        avtale: AvtaleAdminDto,
         tiltakstype: TiltakstypeAdminDto,
     ): Boolean {
-        return tiltakstyper.isEnabled(tiltakstype.arenaKode) || listOf(
-            "VASV",
-            "ARBFORB",
-        ).contains(tiltakstype.arenaKode)
+        return avtale.opphav == ArenaMigrering.Opphav.ARENA && !isEnabled(tiltakstype.arenaKode)
     }
+
+    private fun isTiltakstypeDisabled(
+        previous: AvtaleAdminDto?,
+        tiltakstype: TiltakstypeAdminDto,
+    ): Boolean {
+        val kanIkkeOppretteAvtale = previous == null && !isEnabled(tiltakstype.arenaKode)
+
+        val kanIkkeRedigereTiltakstypeForAvtale = previous != null &&
+            tiltakstype.arenaKode != previous.tiltakstype.arenaKode &&
+            !isEnabled(tiltakstype.arenaKode)
+
+        return kanIkkeOppretteAvtale || kanIkkeRedigereTiltakstypeForAvtale
+    }
+
+    private fun isEnabled(arenakode: String) =
+        tiltakstyper.isEnabled(arenakode) || Tiltakskoder.TiltakMedAvtalerFraMulighetsrommet.contains(arenakode)
 }

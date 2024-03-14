@@ -60,7 +60,7 @@ object Tiltakskoder {
     )
 
     fun isAFTOrVTA(tiltakskode: String): Boolean {
-        return tiltakskode == "VASV" || tiltakskode == "ARBFORB"
+        return TiltakMedAvtalerFraMulighetsrommet.contains(tiltakskode)
     }
 
     fun isGruppetiltak(tiltakskode: String): Boolean {
