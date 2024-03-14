@@ -336,6 +336,11 @@ class AvtaleValidatorTest : FunSpec({
                 )
 
                 val previous = avtaler.get(avtaleDbo.id)
+                val formatertDato = startDatoForGjennomforing.format(
+                    DateTimeFormatter.ofLocalizedDate(
+                        FormatStyle.SHORT,
+                    ),
+                )
                 validator.validate(dbo, previous).shouldBeLeft().shouldContainExactlyInAnyOrder(
                     listOf(
                         ValidationError(
@@ -356,13 +361,7 @@ class AvtaleValidatorTest : FunSpec({
                         ),
                         ValidationError(
                             "startDato",
-                            "Startdato kan ikke være før startdatoen til tiltaksgjennomføringer koblet til avtalen. Minst en gjennomføring har startdato: ${
-                                startDatoForGjennomforing.format(
-                                    DateTimeFormatter.ofLocalizedDate(
-                                        FormatStyle.SHORT,
-                                    ),
-                                )
-                            }",
+                            "Startdato kan ikke være før startdatoen til tiltaksgjennomføringer koblet til avtalen. Minst en gjennomføring har startdato: $formatertDato",
                         ),
                     ),
                 )
