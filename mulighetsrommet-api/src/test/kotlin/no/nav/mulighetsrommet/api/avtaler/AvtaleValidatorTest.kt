@@ -314,7 +314,7 @@ class AvtaleValidatorTest : FunSpec({
                 sluttDato = LocalDate.now().plusYears(1),
                 url = "nav.no",
                 administratorer = listOf(NavIdent("B123456")),
-                avtaletype = Avtaletype.Rammeavtale,
+                avtaletype = Avtaletype.Avtale,
                 prisbetingelser = null,
                 navEnheter = listOf("0300"),
                 antallPlasser = null,
