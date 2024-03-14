@@ -36,7 +36,6 @@ class TiltaksgjennomforingServiceTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
 
     val tiltaksgjennomforingKafkaProducer: TiltaksgjennomforingKafkaProducer = mockk(relaxed = true)
-    val virksomhetService: VirksomhetService = mockk(relaxed = true)
     val validator = mockk<TiltaksgjennomforingValidator>()
     val avtaleId = AvtaleFixtures.oppfolging.id
     val domain = MulighetsrommetTestDomain()

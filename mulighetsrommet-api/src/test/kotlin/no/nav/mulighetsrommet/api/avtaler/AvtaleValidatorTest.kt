@@ -22,6 +22,8 @@ import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
 import no.nav.mulighetsrommet.domain.dto.NavIdent
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
 import java.util.*
 
 class AvtaleValidatorTest : FunSpec({
@@ -70,6 +72,7 @@ class AvtaleValidatorTest : FunSpec({
             TiltakstypeFixtures.Jobbklubb,
             TiltakstypeFixtures.GRUPPE_AMO,
             TiltakstypeFixtures.Arbeidstrening,
+            TiltakstypeFixtures.Avklaring,
         ),
         avtaler = listOf(),
     )
@@ -223,7 +226,7 @@ class AvtaleValidatorTest : FunSpec({
         validator.validate(aft, null).shouldBeRight()
         validator.validate(vta, null).shouldBeRight()
         validator.validate(oppfolging, null).shouldBeLeft(
-            listOf(ValidationError("sluttDato", "Sluttdato må være valgt")),
+            listOf(ValidationError("sluttDato", "Sluttdato må være satt")),
         )
     }
 
@@ -263,7 +266,7 @@ class AvtaleValidatorTest : FunSpec({
     }
 
     context("når avtalen allerede eksisterer") {
-        test("skal ikke kunne endre felter med opphav fra Arena") {
+        test("skal kunne endre felter med opphav fra Arena når vi har tatt eierskap til tiltakstypen") {
             val avtaleMedEndringer = AvtaleDbo(
                 id = avtaleDbo.id,
                 navn = "Nytt navn",
@@ -295,10 +298,39 @@ class AvtaleValidatorTest : FunSpec({
             )
 
             val previous = avtaler.get(avtaleDbo.id)
+            validator.validate(avtaleMedEndringer, previous).shouldBeRight()
+        }
+
+        test("skal ikke kunne endre felter med opphav fra Arena når vi ikke har tatt eierskap til tiltakstypen") {
+            val avtaleMedEndringer = AvtaleDbo(
+                id = avtaleDbo.id,
+                navn = "Nytt navn",
+                tiltakstypeId = TiltakstypeFixtures.Jobbklubb.id,
+                leverandorVirksomhetId = VirksomhetFixtures.underenhet1.id,
+                leverandorUnderenheter = listOf(VirksomhetFixtures.underenhet1.id),
+                leverandorKontaktpersonId = null,
+                avtalenummer = "123456",
+                startDato = LocalDate.now(),
+                sluttDato = LocalDate.now().plusYears(1),
+                url = "nav.no",
+                administratorer = listOf(NavIdent("B123456")),
+                avtaletype = Avtaletype.Avtale,
+                prisbetingelser = null,
+                navEnheter = listOf("0300"),
+                antallPlasser = null,
+                beskrivelse = null,
+                faneinnhold = null,
+            )
+
+            avtaler.upsert(avtaleDbo.copy(administratorer = listOf(), tiltakstypeId = TiltakstypeFixtures.Jobbklubb.id))
+            avtaler.setOpphav(avtaleDbo.id, ArenaMigrering.Opphav.ARENA)
+
+            val validator = AvtaleValidator(tiltakstyper, gjennomforinger, navEnheterService, virksomheter)
+
+            val previous = avtaler.get(avtaleDbo.id)
             validator.validate(avtaleMedEndringer, previous).shouldBeLeft().shouldContainExactlyInAnyOrder(
                 listOf(
                     ValidationError("navn", "Navn kan ikke endres utenfor Arena"),
-                    ValidationError("tiltakstypeId", "Tiltakstype kan ikke endres utenfor Arena"),
                     ValidationError("startDato", "Startdato kan ikke endres utenfor Arena"),
                     ValidationError("sluttDato", "Sluttdato kan ikke endres utenfor Arena"),
                     ValidationError("avtaletype", "Avtaletype kan ikke endres utenfor Arena"),
@@ -308,6 +340,7 @@ class AvtaleValidatorTest : FunSpec({
         }
 
         context("når avtalen har gjennomføringer") {
+            val startDatoForGjennomforing = avtaleDbo.startDato
             beforeAny {
                 avtaler.upsert(avtaleDbo.copy(administratorer = listOf()))
                 gjennomforinger.upsert(
@@ -317,6 +350,7 @@ class AvtaleValidatorTest : FunSpec({
                         arrangorVirksomhetId = VirksomhetFixtures.underenhet2.id,
                         navRegion = "0400",
                         navEnheter = listOf("0502"),
+                        startDato = startDatoForGjennomforing,
                     ),
                 )
             }
@@ -337,9 +371,15 @@ class AvtaleValidatorTest : FunSpec({
                     tiltakstypeId = TiltakstypeFixtures.Arbeidstrening.id,
                     avtaletype = Avtaletype.Avtale,
                     navEnheter = listOf("0400"),
+                    startDato = avtaleDbo.startDato.plusDays(4),
                 )
 
                 val previous = avtaler.get(avtaleDbo.id)
+                val formatertDato = startDatoForGjennomforing.format(
+                    DateTimeFormatter.ofLocalizedDate(
+                        FormatStyle.SHORT,
+                    ),
+                )
                 validator.validate(dbo, previous).shouldBeLeft().shouldContainExactlyInAnyOrder(
                     listOf(
                         ValidationError(
@@ -357,6 +397,10 @@ class AvtaleValidatorTest : FunSpec({
                         ValidationError(
                             "navEnheter",
                             "NAV-enheten 0502 er i bruk på en av avtalens gjennomføringer, men mangler blandt avtalens NAV-enheter",
+                        ),
+                        ValidationError(
+                            "startDato",
+                            "Startdato kan ikke være før startdatoen til tiltaksgjennomføringer koblet til avtalen. Minst en gjennomføring har startdato: $formatertDato",
                         ),
                     ),
                 )
