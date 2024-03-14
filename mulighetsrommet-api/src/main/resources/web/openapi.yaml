@@ -1087,7 +1087,7 @@ paths:
                   $ref: "#/components/schemas/HistorikkForBruker"
 
   # TODO Type denne korrekt når vi får data fra Komet
-  /api/v1/internal/bruker/historikk-fra-komet:
+  /api/v1/internal/bruker/historikk/ny:
     post:
       tags:
         - Historikk
@@ -2576,16 +2576,15 @@ components:
             - navn
         tittel:
           type: string
-          nullable: true
         tiltakstype:
           $ref: "#/components/schemas/Gruppetiltak"
       required:
         - deltakerId
-        - status
-        - tittel
+        - innsoktDato
+        - sistEndretDato
         - aktivStatus
+        - tittel
         - tiltakstype
-        - beskrivelse
 
     HistorikkForBrukerFraKomet:
       type: object
@@ -2604,6 +2603,7 @@ components:
             sluttDato:
               type: string
               nullable: true
+          nullable: true
         historiskStatus:
           type: object
           properties:
