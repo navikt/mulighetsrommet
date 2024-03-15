@@ -9,11 +9,12 @@ interface Props {
 }
 export function UtkastKort({ utkast }: Props) {
   const { tiltakstype, tittel, aktivStatus, innsoktDato, sistEndretdato } = utkast;
+
   return (
     <LinkPanel
       href="#" // TODO Fiks korrekt url til Komets løsning for påmelding
       className={classNames(styles.panel, {
-        [styles.utkast]: aktivStatus === AktivDeltakelse.aktivStatus.UTKAST_PAMELDING,
+        [styles.utkast]: aktivStatus === AktivDeltakelse.aktivStatus.UTKAST_TIL_PAMELDING,
         [styles.kladd]: aktivStatus === AktivDeltakelse.aktivStatus.KLADD,
       })}
     >
@@ -40,7 +41,7 @@ interface StatusProps {
 
 function Status({ status }: StatusProps) {
   switch (status) {
-    case AktivDeltakelse.aktivStatus.UTKAST_PAMELDING:
+    case AktivDeltakelse.aktivStatus.UTKAST_TIL_PAMELDING:
       return (
         <Tag size="small" variant="info">
           Utkast til påmelding

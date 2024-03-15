@@ -2561,7 +2561,7 @@ components:
         aktivStatus:
             type: string
             enum:
-              - UTKAST_PAMELDING
+              - UTKAST_TIL_PAMELDING
               - VENTER_PA_OPPSTART
               - DELTAR
               - KLADD
