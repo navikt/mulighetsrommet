@@ -51,7 +51,6 @@ class TiltakshistorikkService(
         }
     }
 
-    // TODO Bedre navn på funksjon
     suspend fun hentDeltakelserFraKomet(norskIdent: String, obo: AccessType.OBO): Either<AmtDeltakerError, DeltakelserResponse> {
         return amtDeltakerClient.hentDeltakelser(DeltakelserRequest(norskIdent), obo)
     }

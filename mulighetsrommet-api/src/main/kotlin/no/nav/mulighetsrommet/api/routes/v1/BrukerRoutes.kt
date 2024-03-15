@@ -9,8 +9,11 @@ import no.nav.common.audit_log.cef.CefMessage
 import no.nav.common.audit_log.cef.CefMessageEvent
 import no.nav.common.audit_log.cef.CefMessageSeverity
 import no.nav.mulighetsrommet.api.clients.AccessType
+import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerError
 import no.nav.mulighetsrommet.api.plugins.getNavAnsattAzureId
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
+import no.nav.mulighetsrommet.api.routes.v1.responses.BadRequest
+import no.nav.mulighetsrommet.api.routes.v1.responses.NotFound
 import no.nav.mulighetsrommet.api.routes.v1.responses.ServerError
 import no.nav.mulighetsrommet.api.routes.v1.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.services.BrukerService
@@ -47,6 +50,7 @@ fun Route.brukerRoutes() {
             poaoTilgangService.verifyAccessToUserFromVeileder(getNavAnsattAzureId(), norskIdent) {
                 val message = createAuditMessage(
                     msg = "NAV-ansatt med ident: '$navIdent' forsøkte, men fikk ikke sett tiltakshistorikken for bruker med ident: '$norskIdent'.",
+                    topic = "Vis tiltakshistorikk",
                     navIdent = navIdent,
                     norskIdent = norskIdent,
                 )
@@ -56,6 +60,7 @@ fun Route.brukerRoutes() {
             historikkService.hentHistorikkForBruker(norskIdent, obo).let {
                 val message = createAuditMessage(
                     msg = "NAV-ansatt med ident: '$navIdent' har sett på tiltakshistorikken for bruker med ident: '$norskIdent'.",
+                    topic = "Vis tiltakshistorikk",
                     navIdent = navIdent,
                     norskIdent = norskIdent,
                 )
@@ -64,6 +69,7 @@ fun Route.brukerRoutes() {
                 call.respond(it)
             }
         }
+
         post("ny") {
             val request = call.receive<GetHistorikkForBrukerRequest>()
             val norskIdent = request.norskIdent
@@ -73,6 +79,7 @@ fun Route.brukerRoutes() {
             poaoTilgangService.verifyAccessToUserFromVeileder(getNavAnsattAzureId(), norskIdent) {
                 val message = createAuditMessage(
                     msg = "NAV-ansatt med ident: '$navIdent' forsøkte, men fikk ikke sett deltakelser for bruker med ident: '$norskIdent'.",
+                    topic = "Se deltakelser",
                     navIdent = navIdent,
                     norskIdent = norskIdent,
                 )
@@ -82,16 +89,23 @@ fun Route.brukerRoutes() {
             val response = historikkService.hentDeltakelserFraKomet(norskIdent, obo).map {
                 val message = createAuditMessage(
                     msg = "NAV-ansatt med ident: '$navIdent' har sett deltakelser for bruker med ident: '$norskIdent'.",
+                    topic = "Se deltakelser",
                     navIdent = navIdent,
                     norskIdent = norskIdent,
                 )
                 AuditLog.auditLogger.log(message)
                 it
-            }.mapLeft { ServerError(it.error) }
+            }.mapLeft { toStatusResponseError(it) }
 
             call.respondWithStatusResponse(response)
         }
     }
+}
+
+private fun toStatusResponseError(it: AmtDeltakerError) = when (it) {
+    AmtDeltakerError.NotFound -> NotFound()
+    AmtDeltakerError.BadRequest -> BadRequest()
+    AmtDeltakerError.Error -> ServerError()
 }
 
 @Serializable
@@ -104,12 +118,12 @@ data class GetHistorikkForBrukerRequest(
     val norskIdent: String,
 )
 
-private fun createAuditMessage(msg: String, navIdent: NavIdent, norskIdent: String): CefMessage {
+private fun createAuditMessage(msg: String, topic: String, navIdent: NavIdent, norskIdent: String): CefMessage {
     return CefMessage.builder()
         .applicationName("modia")
         .loggerName("mulighetsrommet-api")
         .event(CefMessageEvent.ACCESS)
-        .name("Arbeidsmarkedstiltak - Vis tiltakshistorikk")
+        .name("Arbeidsmarkedstiltak - $topic")
         .severity(CefMessageSeverity.INFO)
         .sourceUserId(navIdent.value)
         .destinationUserId(norskIdent)
