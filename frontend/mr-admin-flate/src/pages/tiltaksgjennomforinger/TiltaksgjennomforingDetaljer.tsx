@@ -98,11 +98,6 @@ export function TiltaksgjennomforingDetaljer(props: Props) {
 
           <Separator />
 
-          <Bolk aria-label="Start- og sluttdato">
-            <Metadata header="Startdato" verdi={formaterDato(startDato)} />
-            <Metadata header="Sluttdato" verdi={sluttDato ? formaterDato(sluttDato) : "-"} />
-          </Bolk>
-
           <Bolk aria-label="Oppstartsdato">
             <Metadata
               header="Oppstart"
@@ -112,6 +107,10 @@ export function TiltaksgjennomforingDetaljer(props: Props) {
                   : "Løpende oppstart"
               }
             />
+          </Bolk>
+          <Bolk aria-label="Start- og sluttdato">
+            <Metadata header="Startdato" verdi={formaterDato(startDato)} />
+            <Metadata header="Sluttdato" verdi={sluttDato ? formaterDato(sluttDato) : "-"} />
           </Bolk>
 
           <Bolk>
@@ -223,9 +222,9 @@ export function TiltaksgjennomforingDetaljer(props: Props) {
           <Separator />
 
           {avtale?.leverandor ? (
-            <Bolk aria-label="Tiltaksleverandør hovedenhet">
+            <Bolk aria-label="Tiltaksarrangør hovedenhet">
               <Metadata
-                header="Tiltaksleverandør hovedenhet"
+                header="Tiltaksarrangør hovedenhet"
                 verdi={[avtale.leverandor.navn, avtale.leverandor.organisasjonsnummer]
                   .filter(Boolean)
                   .join(" - ")}
@@ -247,7 +246,7 @@ export function TiltaksgjennomforingDetaljer(props: Props) {
           ) : null}
           {arrangor.kontaktpersoner.length > 0 && (
             <Metadata
-              header="Kontaktperson hos arrangør"
+              header="Kontaktperson hos arrangøren"
               verdi={
                 <div className={styles.leverandor_kontaktinfo_container}>
                   {arrangor.kontaktpersoner.map((person: VirksomhetKontaktperson) => (
@@ -265,8 +264,8 @@ export function TiltaksgjennomforingDetaljer(props: Props) {
           {stedForGjennomforing && (
             <>
               <Separator />
-              <Bolk aria-label="Sted for gjennomføringen">
-                <Metadata header="Sted for gjennomføringen" verdi={stedForGjennomforing} />
+              <Bolk aria-label="Sted for gjennomføring">
+                <Metadata header="Sted for gjennomføring" verdi={stedForGjennomforing} />
               </Bolk>
             </>
           )}

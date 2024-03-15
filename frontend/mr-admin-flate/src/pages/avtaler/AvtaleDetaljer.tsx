@@ -69,9 +69,6 @@ export function AvtaleDetaljer() {
             header="Tiltakstype"
             verdi={<Link to={`/tiltakstyper/${tiltakstype.id}`}>{tiltakstype.navn}</Link>}
           />
-        </Bolk>
-
-        <Bolk aria-label="Avtaletype">
           <Metadata header="Avtaletype" verdi={avtaletypeTilTekst(avtaletype)} />
         </Bolk>
 
@@ -201,9 +198,9 @@ export function AvtaleDetaljer() {
 
         <Separator />
 
-        <Bolk aria-label="Tiltaksleverandør hovedenhet">
+        <Bolk aria-label="Tiltaksarrangør hovedenhet">
           <Metadata
-            header="Tiltaksleverandør hovedenhet"
+            header="Tiltaksarrangør hovedenhet"
             verdi={[leverandor.navn, leverandor.organisasjonsnummer].filter(Boolean).join(" - ")}
           />
         </Bolk>
@@ -228,9 +225,9 @@ export function AvtaleDetaljer() {
         <Separator />
 
         {leverandor.kontaktperson ? (
-          <Bolk aria-label="Kontaktperson">
+          <Bolk aria-label="Kontaktperson hos tiltaksarrangør">
             <Metadata
-              header="Kontaktperson"
+              header="Kontaktperson hos tiltaksarrangør"
               verdi={
                 <div className={styles.leverandor_kontaktinfo}>
                   <label>{leverandor.kontaktperson.navn}</label>

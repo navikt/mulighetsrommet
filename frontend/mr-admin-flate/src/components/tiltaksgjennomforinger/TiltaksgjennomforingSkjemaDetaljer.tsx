@@ -310,7 +310,11 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
                         />
                         <ControlledMultiSelect
                           size="small"
-                          placeholder={isLoadingKontaktpersoner ? "Laster enheter..." : "Velg en"}
+                          placeholder={
+                            isLoadingKontaktpersoner
+                              ? "Laster enheter..."
+                              : "Velg et eller flere områder"
+                          }
                           label={"Område"}
                           {...register(`kontaktpersoner.${index}.navEnheter`, {
                             shouldUnregister: true,

@@ -24,6 +24,15 @@ export const virksomhetHandlers = [
       );
     },
   ),
+  http.get<PathParams, BrregVirksomhet | undefined>(
+    "*/api/v1/internal/virksomhet/:orgnr/underenheter",
+    ({ params }) => {
+      return HttpResponse.json(
+        Object.values(mockVirksomheter).find((enhet) => enhet.organisasjonsnummer === params.orgnr)
+          ?.underenheter,
+      );
+    },
+  ),
   http.post<PathParams, BrregVirksomhet | undefined>(
     "*/api/v1/internal/virksomhet/:orgnr",
     ({ params }) => {

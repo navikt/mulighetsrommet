@@ -75,7 +75,7 @@ export function AvtaleArrangorSkjema({ readOnly }: Props) {
           <ControlledSokeSelect
             size="small"
             placeholder="Velg en"
-            label={"Kontaktperson hos leverandør"}
+            label={"Kontaktperson hos tiltaksarrangør"}
             readOnly={!leverandor}
             {...register("leverandorKontaktpersonId")}
             options={kontaktpersonOptions}
