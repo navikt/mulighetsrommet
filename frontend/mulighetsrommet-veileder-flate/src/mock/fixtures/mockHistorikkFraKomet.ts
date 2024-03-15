@@ -64,10 +64,8 @@ export const utkastFraKomet: AktivDeltakelse[] = [
   {
     deltakerId: window.crypto.randomUUID(),
     innsoktDato: "03.02.2024",
-    sistEndretDato: "27.02.2024",
-    aktivStatus: {
-      navn: AktivDeltakelse.navn.KLADD,
-    },
+    sistEndretdato: "27.02.2024",
+    aktivStatus: AktivDeltakelse.aktivStatus.KLADD,
     tiltakstype: {
       navn: "Avklaring",
       tiltakskode: Gruppetiltak.tiltakskode.AVKLARAG,

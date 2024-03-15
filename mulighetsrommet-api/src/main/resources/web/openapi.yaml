@@ -2556,24 +2556,19 @@ components:
           format: uuid
         innsoktDato:
           type: string
-        sistEndretDato:
+        sistEndretdato:
           type: string
         aktivStatus:
-          type: object
-          properties:
-            navn:
-              type: string
-              enum:
-                - UTKAST_PAMELDING
-                - VENTER_PA_OPPSTART
-                - DELTAR
-                - KLADD
-                - SOKT_INN
-                - VURDERES
-                - VENTELISTE
-                - PABEGYNT_REGISTRERING
-          required:
-            - navn
+            type: string
+            enum:
+              - UTKAST_PAMELDING
+              - VENTER_PA_OPPSTART
+              - DELTAR
+              - KLADD
+              - SOKT_INN
+              - VURDERES
+              - VENTELISTE
+              - PABEGYNT_REGISTRERING
         tittel:
           type: string
         tiltakstype:
@@ -2581,7 +2576,7 @@ components:
       required:
         - deltakerId
         - innsoktDato
-        - sistEndretDato
+        - sistEndretdato
         - aktivStatus
         - tittel
         - tiltakstype

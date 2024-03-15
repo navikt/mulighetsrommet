@@ -6,6 +6,7 @@ import { formaterDato } from "../../../utils/Utils";
 interface Props {
   historikk: HistorikkForBrukerFraKomet;
 }
+
 export function HistorikkKort({ historikk }: Props) {
   const { tiltakstype, tittel, periode, historiskStatus, beskrivelse, innsoktDato } = historikk;
   return (
@@ -49,7 +50,7 @@ function Status({ status }: StatusProps) {
       );
     case HistorikkForBrukerFraKomet.historiskStatusType.HAR_SLUTTET:
       return (
-        <Tag size="small" variant="info">
+        <Tag size="small" variant="alt1">
           Har sluttet
         </Tag>
       );
@@ -73,7 +74,7 @@ function Status({ status }: StatusProps) {
       );
     case HistorikkForBrukerFraKomet.historiskStatusType.AVBRUTT_UTKAST:
       return (
-        <Tag size="small" variant="info">
+        <Tag size="small" variant="neutral">
           Avbrutt utkast
         </Tag>
       );

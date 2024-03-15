@@ -1,5 +1,5 @@
 import { PlusIcon } from "@navikt/aksel-icons";
-import { Heading, VStack } from "@navikt/ds-react";
+import { Heading, Skeleton, VStack } from "@navikt/ds-react";
 import { Link } from "react-router-dom";
 import styles from "./Landingsside.module.scss";
 import { HistorikkKort } from "../historikk/HistorikkKort";
@@ -7,15 +7,20 @@ import { useHistorikkFraKomet } from "../../../core/api/queries/useHistorikkFraK
 import { UtkastKort } from "../historikk/UtkastKort";
 import { ErrorBoundary } from "react-error-boundary";
 import { ErrorFallback } from "../../../utils/ErrorFallback";
+import { Suspense } from "react";
+
+function SkeletonLoader() {
+  return <Skeleton variant="rounded" height={"10rem"} width={"40rem"} />;
+}
 
 export function Landingsside() {
   return (
     <main className="mulighetsrommet-veileder-flate">
       <VStack gap="10" className={styles.container}>
         <ErrorBoundary FallbackComponent={ErrorFallback}>
-          {" "}
-          {/** TODO Bedre komponent for fallback i error boundary */}
-          <Utkast />
+          <Suspense fallback={<SkeletonLoader />}>
+            <Utkast />
+          </Suspense>
         </ErrorBoundary>
         <div>
           <Link className={styles.cta_link} to="/arbeidsmarkedstiltak/oversikt">
@@ -23,7 +28,16 @@ export function Landingsside() {
           </Link>
         </div>
         <ErrorBoundary FallbackComponent={ErrorFallback}>
-          <Historikk />
+          <Suspense
+            fallback={
+              <VStack gap="5">
+                <SkeletonLoader />
+                <SkeletonLoader />
+              </VStack>
+            }
+          >
+            <Historikk />
+          </Suspense>
         </ErrorBoundary>
       </VStack>
     </main>
