@@ -15,7 +15,7 @@ export const mockNotifikasjoner: PaginertUserNotifications = {
     {
       id: "d65c2be1-980d-4782-a51f-0ad9b52c3fda",
       type: NotificationType.NOTIFICATION,
-      title: `Avtalen ${mockAvtale?.navn} utløper den ${formaterDato(mockAvtale?.sluttDato)}`,
+      title: `Avtalen ${mockAvtale?.navn} utløper den ${mockAvtale?.sluttDato ? formaterDato(mockAvtale.sluttDato) : "-"}`,
       description:
         "Beskrivelse med en ganske lang tekst fordi vi har så komplekse prosesser så det viktig at det blir gitt nøyaktig beskjed om hva som skal til for å løse denne vanskelige problemstillingen.",
       user: "B123456",

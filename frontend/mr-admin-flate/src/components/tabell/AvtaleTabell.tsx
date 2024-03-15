@@ -212,8 +212,10 @@ export const AvtaleTabell = ({ filterAtom }: Props) => {
                   <Table.DataCell aria-label={`Startdato: ${formaterDato(avtale.startDato)}`}>
                     {formaterDato(avtale.startDato)}
                   </Table.DataCell>
-                  <Table.DataCell aria-label={`Sluttdato: ${formaterDato(avtale.sluttDato)}`}>
-                    {formaterDato(avtale.sluttDato)}
+                  <Table.DataCell
+                    aria-label={`Sluttdato: ${avtale.sluttDato ? formaterDato(avtale.sluttDato) : "-"}`}
+                  >
+                    {avtale.sluttDato ? formaterDato(avtale.sluttDato) : "-"}
                   </Table.DataCell>
                   <Table.DataCell>
                     <AvtalestatusTag avtale={avtale} />
