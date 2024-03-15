@@ -28,6 +28,26 @@ object AvtaleFixtures {
         faneinnhold = null,
     )
 
+    val oppfolgingMedAvtale = AvtaleDbo(
+        id = UUID.randomUUID(),
+        navn = "Avtalenavn",
+        avtalenummer = "2023#1",
+        tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
+        leverandorVirksomhetId = VirksomhetFixtures.hovedenhet.id,
+        leverandorUnderenheter = listOf(VirksomhetFixtures.underenhet1.id),
+        leverandorKontaktpersonId = null,
+        startDato = LocalDate.of(2023, 1, 1),
+        sluttDato = LocalDate.now().plusMonths(3),
+        avtaletype = Avtaletype.Avtale,
+        prisbetingelser = "Alt er dyrt",
+        administratorer = listOf(NavIdent("DD1")),
+        navEnheter = listOf("0400", "0502"),
+        antallPlasser = null,
+        url = null,
+        beskrivelse = null,
+        faneinnhold = null,
+    )
+
     val gruppeAmo = AvtaleDbo(
         id = UUID.randomUUID(),
         navn = "Gruppe Amo",
@@ -38,7 +58,7 @@ object AvtaleFixtures {
         leverandorKontaktpersonId = null,
         startDato = LocalDate.of(2023, 1, 1),
         sluttDato = LocalDate.now().plusMonths(3),
-        avtaletype = Avtaletype.Rammeavtale,
+        avtaletype = Avtaletype.OffentligOffentlig,
         prisbetingelser = "Alt er dyrt",
         administratorer = listOf(NavIdent("DD1")),
         navEnheter = listOf("0400", "0502"),
