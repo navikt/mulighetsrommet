@@ -60,11 +60,10 @@ jobs:
       - name: Upload to NAV CDN
         uses: nais/deploy/actions/cdn-upload/v2@master
         with:
-          cdn-environment: cdn.dev.nav.no
-          team: mulighetsrommet
+          team: team-mulighetsrommet
           source: frontend/mulighetsrommet-veileder-flate/dist
-          destination: arbeidsmarkedstiltak-modia
-          no-cache-paths: arbeidsmarkedstiltak-modia/dist/asset-manifest.json
+          destination: dev/arbeidsmarkedstiltak-modia
+          no_cache_paths: arbeidsmarkedstiltak-modia/dist/asset-manifest.json
           identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
           project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
 
@@ -87,11 +86,10 @@ jobs:
       - name: Upload to NAV CDN
         uses: nais/deploy/actions/cdn-upload/v2@master
         with:
-          cdn-environment: cdn.nav.no
-          team: mulighetsrommet
+          team: team-mulighetsrommet
           source: frontend/mulighetsrommet-veileder-flate/dist
           destination: arbeidsmarkedstiltak-modia
-          no-cache-paths: arbeidsmarkedstiltak-modia/dist/asset-manifest.json
+          no_cache_paths: arbeidsmarkedstiltak-modia/dist/asset-manifest.json
           identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
           project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
 
