@@ -212,20 +212,26 @@ class AvtaleValidatorTest : FunSpec({
         )
     }
 
-    test("sluttDato er påkrevd hvis ikke VTA eller AFT") {
+    test("sluttDato er påkrevd hvis ikke forhåndsgodkjent") {
         val validator = AvtaleValidator(
             TiltakstypeService(TiltakstypeRepository(database.db), Tiltakskoder.Gruppetiltak),
             gjennomforinger,
             navEnheterService,
             virksomheter,
         )
-        val aft = AvtaleFixtures.AFT.copy(sluttDato = null)
-        val vta = AvtaleFixtures.VTA.copy(sluttDato = null)
-        val oppfolging = AvtaleFixtures.oppfolging.copy(sluttDato = null)
+        val forhaandsgodkjent = AvtaleFixtures.AFT.copy(sluttDato = null)
+        val rammeAvtale = AvtaleFixtures.oppfolging.copy(sluttDato = null)
+        val avtale = AvtaleFixtures.oppfolgingMedAvtale.copy(sluttDato = null)
+        val offentligOffentlig = AvtaleFixtures.gruppeAmo.copy(sluttDato = null)
 
-        validator.validate(aft, null).shouldBeRight()
-        validator.validate(vta, null).shouldBeRight()
-        validator.validate(oppfolging, null).shouldBeLeft(
+        validator.validate(forhaandsgodkjent, null).shouldBeRight()
+        validator.validate(rammeAvtale, null).shouldBeLeft(
+            listOf(ValidationError("sluttDato", "Sluttdato må være satt")),
+        )
+        validator.validate(avtale, null).shouldBeLeft(
+            listOf(ValidationError("sluttDato", "Sluttdato må være satt")),
+        )
+        validator.validate(offentligOffentlig, null).shouldBeLeft(
             listOf(ValidationError("sluttDato", "Sluttdato må være satt")),
         )
     }

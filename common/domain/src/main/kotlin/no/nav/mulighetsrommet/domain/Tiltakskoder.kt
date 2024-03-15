@@ -59,10 +59,6 @@ object Tiltakskoder {
         "VASV",
     )
 
-    fun isAFTOrVTA(tiltakskode: String): Boolean {
-        return TiltakMedAvtalerFraMulighetsrommet.contains(tiltakskode)
-    }
-
     fun isGruppetiltak(tiltakskode: String): Boolean {
         return tiltakskode in Gruppetiltak
     }

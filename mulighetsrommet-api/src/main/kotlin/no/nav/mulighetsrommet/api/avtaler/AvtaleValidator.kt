@@ -16,8 +16,8 @@ import no.nav.mulighetsrommet.api.routes.v1.responses.ValidationError
 import no.nav.mulighetsrommet.api.services.NavEnhetService
 import no.nav.mulighetsrommet.api.services.TiltakstypeService
 import no.nav.mulighetsrommet.domain.Tiltakskoder
-import no.nav.mulighetsrommet.domain.Tiltakskoder.isAFTOrVTA
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
+import no.nav.mulighetsrommet.domain.dto.Avtaletype
 import no.nav.mulighetsrommet.domain.dto.TiltakstypeAdminDto
 import no.nav.mulighetsrommet.domain.dto.allowedAvtaletypes
 import java.time.format.DateTimeFormatter
@@ -48,10 +48,6 @@ class AvtaleValidator(
                 add(ValidationError.of(AvtaleDbo::administratorer, "Minst én administrator må være valgt"))
             }
 
-            if (!isAFTOrVTA(tiltakstype.arenaKode) && avtale.sluttDato == null) {
-                add(ValidationError.of(AvtaleDbo::sluttDato, "Sluttdato må være satt"))
-            }
-
             if (avtale.sluttDato != null && avtale.sluttDato.isBefore(avtale.startDato)) {
                 add(ValidationError.of(AvtaleDbo::startDato, "Startdato må være før sluttdato"))
             }
@@ -74,6 +70,10 @@ class AvtaleValidator(
                         "${avtale.avtaletype} er ikke tillat for tiltakstype ${tiltakstype.navn}",
                     ),
                 )
+            } else {
+                if (avtale.avtaletype != Avtaletype.Forhaandsgodkjent && avtale.sluttDato == null) {
+                    add(ValidationError.of(AvtaleDbo::sluttDato, "Sluttdato må være satt"))
+                }
             }
 
             previous?.also { currentAvtale ->
