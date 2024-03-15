@@ -1,5 +1,5 @@
 import { PlusIcon } from "@navikt/aksel-icons";
-import { Heading, Skeleton, VStack } from "@navikt/ds-react";
+import { Alert, Heading, Skeleton, VStack } from "@navikt/ds-react";
 import { Link } from "react-router-dom";
 import styles from "./Landingsside.module.scss";
 import { HistorikkKort } from "../historikk/HistorikkKort";
@@ -57,9 +57,13 @@ function Historikk() {
       <Heading level="3" size="medium">
         Historikk
       </Heading>
-      {historikk.map((hist) => {
-        return <HistorikkKort key={hist.deltakerId} historikk={hist} />;
-      })}
+      {historikk.length > 0 ? (
+        historikk.map((hist) => {
+          return <HistorikkKort key={hist.deltakerId} historikk={hist} />;
+        })
+      ) : (
+        <Alert variant="info">Ingen historikk for bruker</Alert>
+      )}
     </VStack>
   );
 }
@@ -77,9 +81,14 @@ function Utkast() {
       <Heading level="3" size="medium">
         Utkast
       </Heading>
-      {aktive.map((utkast) => {
-        return <UtkastKort key={utkast.deltakerId} utkast={utkast} />;
-      })}
+
+      {aktive.length > 0 ? (
+        aktive.map((utkast) => {
+          return <UtkastKort key={utkast.deltakerId} utkast={utkast} />;
+        })
+      ) : (
+        <Alert variant="info">Ingen utkast for bruker</Alert>
+      )}
     </VStack>
   );
 }
