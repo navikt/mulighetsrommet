@@ -53,7 +53,7 @@ jobs:
       - name: Setup frontend
         uses: ./.github/actions/setup-frontend
       - name: Build
-        run: npx turbo run build:modia --filter=mulighetsrommet-veileder-flate -- --base=https://cdn.dev.nav.no/mulighetsrommet/arbeidsmarkedstiltak-modia/dist
+        run: npx turbo run build:modia --filter=mulighetsrommet-veileder-flate -- --base=https://cdn.nav.no/team-mulighetsrommet/dev/arbeidsmarkedstiltak-modia/dist
         env:
           VITE_FARO_URL: https://telemetry.ekstern.dev.nav.no/collect
           VITE_PORTEN_URL: https://jira.adeo.no/plugins/servlet/desk/portal/541/create/1401
@@ -63,7 +63,7 @@ jobs:
           team: team-mulighetsrommet
           source: frontend/mulighetsrommet-veileder-flate/dist
           destination: dev/arbeidsmarkedstiltak-modia
-          no_cache_paths: arbeidsmarkedstiltak-modia/dist/asset-manifest.json
+          no_cache_paths: dev/arbeidsmarkedstiltak-modia/dist/asset-manifest.json
           identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
           project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
 
@@ -79,7 +79,7 @@ jobs:
       - name: Setup frontend
         uses: ./.github/actions/setup-frontend
       - name: Build
-        run: npx turbo run build:modia --filter=mulighetsrommet-veileder-flate -- --base=https://cdn.nav.no/mulighetsrommet/arbeidsmarkedstiltak-modia/dist
+        run: npx turbo run build:modia --filter=mulighetsrommet-veileder-flate -- --base=https://cdn.nav.no/team-mulighetsrommet/prod/arbeidsmarkedstiltak-modia/dist
         env:
           VITE_FARO_URL: https://telemetry.nav.no/collect
           VITE_PORTEN_URL: https://jira.adeo.no/plugins/servlet/desk/portal/541/create/1401
@@ -88,8 +88,8 @@ jobs:
         with:
           team: team-mulighetsrommet
           source: frontend/mulighetsrommet-veileder-flate/dist
-          destination: arbeidsmarkedstiltak-modia
-          no_cache_paths: arbeidsmarkedstiltak-modia/dist/asset-manifest.json
+          destination: prod/arbeidsmarkedstiltak-modia
+          no_cache_paths: prod/arbeidsmarkedstiltak-modia/dist/asset-manifest.json
           identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
           project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
 
