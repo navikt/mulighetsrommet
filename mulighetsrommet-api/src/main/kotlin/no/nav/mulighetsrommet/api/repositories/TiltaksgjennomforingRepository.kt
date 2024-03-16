@@ -691,7 +691,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
 
     fun lukkApentForInnsokForTiltakMedStartdatoForDato(
         dagensDato: LocalDate,
-        tx: TransactionalSession
+        tx: TransactionalSession,
     ): List<TiltaksgjennomforingAdminDto> {
         @Language("PostgreSQL")
         val query = """
