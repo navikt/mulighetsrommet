@@ -5,8 +5,6 @@ import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingKontaktpersonDbo
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
-import no.nav.mulighetsrommet.domain.dbo.ArenaTiltaksgjennomforingDbo
-import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dto.Faneinnhold
 import no.nav.mulighetsrommet.domain.dto.NavIdent
@@ -118,28 +116,5 @@ data class TiltaksgjennomforingAdminDto(
             deltidsprosent = deltidsprosent,
             estimertVentetidVerdi = estimertVentetid?.verdi,
             estimertVentetidEnhet = estimertVentetid?.enhet,
-        )
-
-    fun toArenaTiltaksgjennomforingDbo() =
-        ArenaTiltaksgjennomforingDbo(
-            id = id,
-            navn = navn,
-            tiltakstypeId = tiltakstype.id,
-            tiltaksnummer = tiltaksnummer ?: "",
-            arrangorOrganisasjonsnummer = arrangor.organisasjonsnummer,
-            startDato = startDato,
-            sluttDato = sluttDato,
-            arenaAnsvarligEnhet = arenaAnsvarligEnhet?.enhetsnummer,
-            avslutningsstatus = when (status) {
-                Tiltaksgjennomforingsstatus.PLANLAGT, Tiltaksgjennomforingsstatus.GJENNOMFORES -> Avslutningsstatus.IKKE_AVSLUTTET
-                Tiltaksgjennomforingsstatus.AVLYST -> Avslutningsstatus.AVLYST
-                Tiltaksgjennomforingsstatus.AVBRUTT -> Avslutningsstatus.AVBRUTT
-                Tiltaksgjennomforingsstatus.AVSLUTTET -> Avslutningsstatus.AVSLUTTET
-            },
-            apentForInnsok = apentForInnsok,
-            antallPlasser = antallPlasser,
-            avtaleId = avtaleId,
-            oppstart = oppstart,
-            deltidsprosent = deltidsprosent,
         )
 }

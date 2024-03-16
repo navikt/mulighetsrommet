@@ -678,6 +678,18 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         return db.transaction { setAvslutningsstatus(it, id, status) }
     }
 
+    fun getAvslutningsstatus(id: UUID): Avslutningsstatus {
+        @Language("PostgreSQL")
+        val query = """
+            select avslutningsstatus from tiltaksgjennomforing where id = ?::uuid
+        """.trimIndent()
+
+        return queryOf(query, id)
+            .map { Avslutningsstatus.valueOf(it.string("avslutningsstatus")) }
+            .asSingle
+            .let { requireNotNull(db.run(it)) }
+    }
+
     fun setAvslutningsstatus(tx: Session, id: UUID, status: Avslutningsstatus): Int {
         @Language("PostgreSQL")
         val query = """

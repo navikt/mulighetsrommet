@@ -17,7 +17,6 @@ import io.mockk.verify
 import no.nav.mulighetsrommet.api.clients.AccessType
 import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClient
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
-import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.api.domain.dto.AvtaleAdminDto
 import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingDto
 import no.nav.mulighetsrommet.api.domain.dto.TiltakstypeEksternDto
@@ -386,7 +385,7 @@ class ArenaAdapterServiceTest : FunSpec({
             }
         }
 
-        test("should not overwrite opphav when gjennomforing already exists") {
+        test("skal ikke overskrive opphav når gjennomføring allerede eksisterer") {
             val gjennomforing = TiltaksgjennomforingFixtures.Oppfolging1
 
             MulighetsrommetTestDomain(
@@ -399,11 +398,21 @@ class ArenaAdapterServiceTest : FunSpec({
             val service = createArenaAdapterService(database.db)
 
             service.upsertTiltaksgjennomforing(
-                toArenaTiltaksgjennomforingDbo(
-                    gjennomforing.copy(navn = "Endret navn"),
-                    VirksomhetFixtures.underenhet1.organisasjonsnummer,
-                    AVSLUTTET,
-                    "2024#1",
+                ArenaTiltaksgjennomforingDbo(
+                    id = gjennomforing.id,
+                    navn = "Endret navn",
+                    tiltakstypeId = gjennomforing.tiltakstypeId,
+                    tiltaksnummer = "2024#1",
+                    arrangorOrganisasjonsnummer = VirksomhetFixtures.underenhet1.organisasjonsnummer,
+                    startDato = gjennomforing.startDato,
+                    sluttDato = gjennomforing.sluttDato,
+                    arenaAnsvarligEnhet = null,
+                    avslutningsstatus = AVSLUTTET,
+                    apentForInnsok = gjennomforing.apentForInnsok,
+                    antallPlasser = gjennomforing.antallPlasser,
+                    avtaleId = gjennomforing.avtaleId,
+                    oppstart = gjennomforing.oppstart,
+                    deltidsprosent = gjennomforing.deltidsprosent,
                 ),
             )
 
@@ -413,7 +422,34 @@ class ArenaAdapterServiceTest : FunSpec({
             }
         }
 
-        test("skal bare overskrive arena-felter i database når tiltakstype har endret eierskap") {
+        test("skal oppdatere avslutningsstatus når den endres fra Arena") {
+            MulighetsrommetTestDomain(
+                virksomheter = listOf(VirksomhetFixtures.hovedenhet, VirksomhetFixtures.underenhet1),
+                tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
+                avtaler = listOf(AvtaleFixtures.oppfolging),
+                gjennomforinger = listOf(),
+            ).initialize(database.db)
+
+            val service = createArenaAdapterService(database.db)
+
+            // Upsert som har passert sluttdato, men med avslutningsstatus IKKE_AVSLUTTET
+            val arenaGjennomforing = tiltaksgjennomforing.copy(
+                startDato = LocalDate.now().minusDays(1),
+                sluttDato = LocalDate.now().minusDays(1),
+                avslutningsstatus = IKKE_AVSLUTTET,
+            )
+            service.upsertTiltaksgjennomforing(arenaGjennomforing)
+            gjennomforinger.getAvslutningsstatus(arenaGjennomforing.id) shouldBe IKKE_AVSLUTTET
+
+            // Verifiser status utledet fra datoer og ikke avslutningsstatus
+            gjennomforinger.get(arenaGjennomforing.id)?.status shouldBe Tiltaksgjennomforingsstatus.AVSLUTTET
+
+            // Verifiser at avslutningsstatus blir lagret
+            service.upsertTiltaksgjennomforing(arenaGjennomforing.copy(avslutningsstatus = AVSLUTTET))
+            gjennomforinger.getAvslutningsstatus(arenaGjennomforing.id) shouldBe AVSLUTTET
+        }
+
+        test("skal bare oppdatere arena-felter når tiltakstype har endret eierskap") {
             val gjennomforing = TiltaksgjennomforingFixtures.Oppfolging1.copy(
                 startDato = LocalDate.now(),
                 sluttDato = LocalDate.now().plusDays(1),
@@ -805,29 +841,5 @@ private fun toTiltaksgjennomforingDto(dbo: ArenaTiltaksgjennomforingDbo, tiltaks
         status = Tiltaksgjennomforingsstatus.GJENNOMFORES,
         oppstart = oppstart,
         virksomhetsnummer = arrangorOrganisasjonsnummer,
-    )
-}
-
-private fun toArenaTiltaksgjennomforingDbo(
-    dbo: TiltaksgjennomforingDbo,
-    organiasjonsnummer: String,
-    avslutningsstatus: Avslutningsstatus,
-    tiltaksnummer: String,
-) = dbo.run {
-    ArenaTiltaksgjennomforingDbo(
-        id = id,
-        navn = navn,
-        tiltakstypeId = tiltakstypeId,
-        tiltaksnummer = tiltaksnummer,
-        arrangorOrganisasjonsnummer = organiasjonsnummer,
-        startDato = startDato,
-        sluttDato = sluttDato,
-        arenaAnsvarligEnhet = null,
-        avslutningsstatus = avslutningsstatus,
-        apentForInnsok = apentForInnsok,
-        antallPlasser = antallPlasser,
-        avtaleId = avtaleId,
-        oppstart = oppstart,
-        deltidsprosent = deltidsprosent,
     )
 }

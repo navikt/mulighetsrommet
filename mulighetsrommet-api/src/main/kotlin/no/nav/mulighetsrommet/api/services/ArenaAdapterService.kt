@@ -119,11 +119,11 @@ class ArenaAdapterService(
             arenaGjennomforing
         }
 
-        val gjennomforing = db.transactionSuspend { tx ->
-            if (previous?.toArenaTiltaksgjennomforingDbo() == mergedArenaGjennomforing) {
-                return@transactionSuspend previous
-            }
+        if (previous != null && hasNoRelevantChanges(mergedArenaGjennomforing, previous)) {
+            return query { previous }
+        }
 
+        val gjennomforing = db.transactionSuspend { tx ->
             tiltaksgjennomforinger.upsertArenaTiltaksgjennomforing(mergedArenaGjennomforing, tx)
 
             val next = tiltaksgjennomforinger.get(mergedArenaGjennomforing.id, tx)!!
@@ -243,6 +243,30 @@ class ArenaAdapterService(
             }
             tiltaksgjennomforing.copy(avtaleId = avtaleId)
         }
+    }
+
+    private fun hasNoRelevantChanges(
+        arenaGjennomforing: ArenaTiltaksgjennomforingDbo,
+        current: TiltaksgjennomforingAdminDto,
+    ): Boolean {
+        val avslutningsstatus = tiltaksgjennomforinger.getAvslutningsstatus(current.id)
+        val currentAsArenaGjennomforing = ArenaTiltaksgjennomforingDbo(
+            id = current.id,
+            navn = current.navn,
+            tiltakstypeId = current.tiltakstype.id,
+            tiltaksnummer = current.tiltaksnummer ?: "",
+            arrangorOrganisasjonsnummer = current.arrangor.organisasjonsnummer,
+            startDato = current.startDato,
+            sluttDato = current.sluttDato,
+            arenaAnsvarligEnhet = current.arenaAnsvarligEnhet?.enhetsnummer,
+            avslutningsstatus = avslutningsstatus,
+            apentForInnsok = current.apentForInnsok,
+            antallPlasser = current.antallPlasser,
+            avtaleId = current.avtaleId,
+            oppstart = current.oppstart,
+            deltidsprosent = current.deltidsprosent,
+        )
+        return currentAsArenaGjennomforing == arenaGjennomforing
     }
 
     private fun shouldBeManagedInSanity(gjennomforing: TiltaksgjennomforingAdminDto): Boolean {
