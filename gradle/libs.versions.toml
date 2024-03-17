@@ -1,6 +1,6 @@
 [versions]
 common-java-modules = "3.2024.01.24_10.14-f70bae69bd65"
-flyway = "10.9.1"
+flyway = "10.10.0"
 hoplite = "2.7.5"
 koin = "3.5.3"
 kotest = "5.8.1"
