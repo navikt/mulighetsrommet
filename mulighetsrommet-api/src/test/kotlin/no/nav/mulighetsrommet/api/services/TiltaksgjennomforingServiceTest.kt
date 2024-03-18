@@ -13,7 +13,6 @@ import io.mockk.*
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattDbo
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
-import no.nav.mulighetsrommet.api.domain.dto.VirksomhetDto
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.repositories.DeltakerRepository
@@ -37,7 +36,6 @@ class TiltaksgjennomforingServiceTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
 
     val tiltaksgjennomforingKafkaProducer: TiltaksgjennomforingKafkaProducer = mockk(relaxed = true)
-    val virksomhetService: VirksomhetService = mockk(relaxed = true)
     val validator = mockk<TiltaksgjennomforingValidator>()
     val avtaleId = AvtaleFixtures.oppfolging.id
     val domain = MulighetsrommetTestDomain()
@@ -47,16 +45,6 @@ class TiltaksgjennomforingServiceTest : FunSpec({
 
         every { validator.validate(any(), any()) } answers {
             firstArg<TiltaksgjennomforingDbo>().right()
-        }
-
-        coEvery { virksomhetService.getOrSyncHovedenhetFromBrreg(any()) } answers {
-            VirksomhetDto(
-                id = UUID.randomUUID(),
-                organisasjonsnummer = firstArg<String>(),
-                navn = "Virksomhet",
-                postnummer = null,
-                poststed = null,
-            ).right()
         }
     }
 
@@ -75,7 +63,6 @@ class TiltaksgjennomforingServiceTest : FunSpec({
             avtaler,
             tiltaksgjennomforingRepository,
             deltagerRepository,
-            virksomhetService,
             tiltaksgjennomforingKafkaProducer,
             NotificationRepository(database.db),
             validator,
@@ -138,7 +125,6 @@ class TiltaksgjennomforingServiceTest : FunSpec({
             avtaler,
             tiltaksgjennomforingRepository,
             deltagerRepository,
-            virksomhetService,
             tiltaksgjennomforingKafkaProducer,
             NotificationRepository(database.db),
             validator,
@@ -170,7 +156,6 @@ class TiltaksgjennomforingServiceTest : FunSpec({
             avtaler,
             tiltaksgjennomforingRepository,
             deltagerRepository,
-            virksomhetService,
             tiltaksgjennomforingKafkaProducer,
             NotificationRepository(database.db),
             validator,
@@ -287,7 +272,6 @@ class TiltaksgjennomforingServiceTest : FunSpec({
             avtaler,
             tiltaksgjennomforingRepository,
             deltagerRepository,
-            virksomhetService,
             tiltaksgjennomforingKafkaProducer,
             notificationRepository,
             validator,

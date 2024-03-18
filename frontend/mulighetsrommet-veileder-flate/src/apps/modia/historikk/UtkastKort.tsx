@@ -8,13 +8,14 @@ interface Props {
   utkast: AktivDeltakelse;
 }
 export function UtkastKort({ utkast }: Props) {
-  const { tiltakstype, tittel, aktivStatus, innsoktDato } = utkast;
+  const { tiltakstype, tittel, aktivStatus, innsoktDato, sistEndretdato } = utkast;
+
   return (
     <LinkPanel
       href="#" // TODO Fiks korrekt url til Komets løsning for påmelding
       className={classNames(styles.panel, {
-        [styles.utkast]: aktivStatus?.navn === AktivDeltakelse.navn.UTKAST_PAMELDING,
-        [styles.kladd]: aktivStatus?.navn === AktivDeltakelse.navn.KLADD,
+        [styles.utkast]: aktivStatus === AktivDeltakelse.aktivStatus.UTKAST_TIL_PAMELDING,
+        [styles.kladd]: aktivStatus === AktivDeltakelse.aktivStatus.KLADD,
       })}
     >
       <VStack gap="2">
@@ -26,7 +27,8 @@ export function UtkastKort({ utkast }: Props) {
           {tittel}
         </Heading>
         <HStack align={"center"} gap="5">
-          <Status status={aktivStatus.navn} />
+          <Status status={aktivStatus} />
+          <span>Sist endret: {formaterDato(sistEndretdato)}</span>
         </HStack>
       </VStack>
     </LinkPanel>
@@ -34,55 +36,55 @@ export function UtkastKort({ utkast }: Props) {
 }
 
 interface StatusProps {
-  status: AktivDeltakelse.navn;
+  status: AktivDeltakelse.aktivStatus;
 }
 
 function Status({ status }: StatusProps) {
   switch (status) {
-    case AktivDeltakelse.navn.UTKAST_PAMELDING:
+    case AktivDeltakelse.aktivStatus.UTKAST_TIL_PAMELDING:
       return (
         <Tag size="small" variant="info">
           Utkast til påmelding
         </Tag>
       );
-    case AktivDeltakelse.navn.VENTER_PA_OPPSTART:
+    case AktivDeltakelse.aktivStatus.VENTER_PA_OPPSTART:
       return (
         <Tag size="small" variant="alt3">
           Venter på oppstart
         </Tag>
       );
 
-    case AktivDeltakelse.navn.DELTAR:
+    case AktivDeltakelse.aktivStatus.DELTAR:
       return (
         <Tag size="small" variant="success" className={styles.deltarStatus}>
           Deltar
         </Tag>
       );
-    case AktivDeltakelse.navn.KLADD:
+    case AktivDeltakelse.aktivStatus.KLADD:
       return (
         <Tag size="small" variant="warning">
           Kladden er ikke delt
         </Tag>
       );
-    case AktivDeltakelse.navn.SOKT_INN:
+    case AktivDeltakelse.aktivStatus.SOKT_INN:
       return (
         <Tag size="small" variant="warning">
           Søkt inn
         </Tag>
       );
-    case AktivDeltakelse.navn.VURDERES:
+    case AktivDeltakelse.aktivStatus.VURDERES:
       return (
         <Tag size="small" variant="warning">
           Vurderes
         </Tag>
       );
-    case AktivDeltakelse.navn.VENTELISTE:
+    case AktivDeltakelse.aktivStatus.VENTELISTE:
       return (
         <Tag size="small" variant="warning">
           Venteliste
         </Tag>
       );
-    case AktivDeltakelse.navn.PABEGYNT_REGISTRERING:
+    case AktivDeltakelse.aktivStatus.PABEGYNT_REGISTRERING:
       return (
         <Tag size="small" variant="warning">
           Påbegynt registrering

@@ -595,6 +595,30 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             .let { db.run(it) }
     }
 
+    fun getAllGjennomforingerSomNarmerSegSluttdato(currentDate: LocalDate = LocalDate.now()): List<TiltaksgjennomforingNotificationDto> {
+        @Language("PostgreSQL")
+        val query = """
+            select tg.id::uuid,
+                   tg.navn,
+                   tg.start_dato,
+                   tg.slutt_dato,
+                   array_agg(distinct a.nav_ident) as administratorer,
+                   array_agg(e.enhetsnummer) as navEnheter,
+                   tg.tiltaksnummer
+            from tiltaksgjennomforing tg
+                     left join tiltaksgjennomforing_administrator a on a.tiltaksgjennomforing_id = tg.id
+                    left join tiltaksgjennomforing_nav_enhet e on e.tiltaksgjennomforing_id = tg.id
+            where (?::timestamp + interval '14' day) = tg.slutt_dato
+               or (?::timestamp + interval '7' day) = tg.slutt_dato
+               or (?::timestamp + interval '1' day) = tg.slutt_dato
+            group by tg.id;
+        """.trimIndent()
+
+        return queryOf(query, currentDate, currentDate, currentDate).map { it.toTiltaksgjennomforingNotificationDto() }
+            .asList
+            .let { db.run(it) }
+    }
+
     fun delete(id: UUID): Int =
         db.transaction { delete(id, it) }
 
@@ -637,6 +661,59 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         """.trimIndent()
 
         return queryOf(query, publisert, id).asUpdate.let { tx.run(it) }
+    }
+
+    fun setAvtaleId(tx: Session, gjennomforingId: UUID, avtaleId: UUID?) {
+        @Language("PostgreSQL")
+        val query = """
+            update tiltaksgjennomforing
+            set avtale_id = ?
+            where id = ?
+        """.trimIndent()
+
+        return queryOf(query, avtaleId, gjennomforingId).asUpdate.let { tx.run(it) }
+    }
+
+    fun setAvslutningsstatus(id: UUID, status: Avslutningsstatus): Int {
+        return db.transaction { setAvslutningsstatus(it, id, status) }
+    }
+
+    fun getAvslutningsstatus(id: UUID): Avslutningsstatus {
+        @Language("PostgreSQL")
+        val query = """
+            select avslutningsstatus from tiltaksgjennomforing where id = ?::uuid
+        """.trimIndent()
+
+        return queryOf(query, id)
+            .map { Avslutningsstatus.valueOf(it.string("avslutningsstatus")) }
+            .asSingle
+            .let { requireNotNull(db.run(it)) }
+    }
+
+    fun setAvslutningsstatus(tx: Session, id: UUID, status: Avslutningsstatus): Int {
+        @Language("PostgreSQL")
+        val query = """
+            update tiltaksgjennomforing
+            set avslutningsstatus = :status::avslutningsstatus
+            where id = :id::uuid
+        """.trimIndent()
+
+        return tx.run(queryOf(query, mapOf("id" to id, "status" to status.name)).asUpdate)
+    }
+
+    fun lukkApentForInnsokForTiltakMedStartdatoForDato(
+        dagensDato: LocalDate,
+        tx: TransactionalSession,
+    ): List<TiltaksgjennomforingAdminDto> {
+        @Language("PostgreSQL")
+        val query = """
+            update tiltaksgjennomforing
+            set apent_for_innsok = false
+            where apent_for_innsok = true and oppstart = 'FELLES' and start_dato = ? and opphav = 'MR_ADMIN_FLATE'
+            returning id
+        """.trimIndent()
+
+        return queryOf(query, dagensDato).map { get(it.uuid("id")) }.asList.let { tx.run(it) }
     }
 
     private fun TiltaksgjennomforingDbo.toSqlParameters() = mapOf(
@@ -812,67 +889,5 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             administratorer = administratorer,
             tiltaksnummer = stringOrNull("tiltaksnummer"),
         )
-    }
-
-    fun getAllGjennomforingerSomNarmerSegSluttdato(currentDate: LocalDate = LocalDate.now()): List<TiltaksgjennomforingNotificationDto> {
-        @Language("PostgreSQL")
-        val query = """
-            select tg.id::uuid,
-                   tg.navn,
-                   tg.start_dato,
-                   tg.slutt_dato,
-                   array_agg(distinct a.nav_ident) as administratorer,
-                   array_agg(e.enhetsnummer) as navEnheter,
-                   tg.tiltaksnummer
-            from tiltaksgjennomforing tg
-                     left join tiltaksgjennomforing_administrator a on a.tiltaksgjennomforing_id = tg.id
-                    left join tiltaksgjennomforing_nav_enhet e on e.tiltaksgjennomforing_id = tg.id
-            where (?::timestamp + interval '14' day) = tg.slutt_dato
-               or (?::timestamp + interval '7' day) = tg.slutt_dato
-               or (?::timestamp + interval '1' day) = tg.slutt_dato
-            group by tg.id;
-        """.trimIndent()
-
-        return queryOf(query, currentDate, currentDate, currentDate).map { it.toTiltaksgjennomforingNotificationDto() }
-            .asList
-            .let { db.run(it) }
-    }
-
-    fun setAvtaleId(tx: Session, gjennomforingId: UUID, avtaleId: UUID?) {
-        @Language("PostgreSQL")
-        val query = """
-            update tiltaksgjennomforing
-            set avtale_id = ?
-            where id = ?
-        """.trimIndent()
-
-        return queryOf(query, avtaleId, gjennomforingId).asUpdate.let { tx.run(it) }
-    }
-
-    fun setAvslutningsstatus(id: UUID, status: Avslutningsstatus): Int {
-        return db.transaction { setAvslutningsstatus(it, id, status) }
-    }
-
-    fun setAvslutningsstatus(tx: Session, id: UUID, status: Avslutningsstatus): Int {
-        @Language("PostgreSQL")
-        val query = """
-            update tiltaksgjennomforing
-            set avslutningsstatus = :status::avslutningsstatus
-            where id = :id::uuid
-        """.trimIndent()
-
-        return tx.run(queryOf(query, mapOf("id" to id, "status" to status.name)).asUpdate)
-    }
-
-    fun lukkApentForInnsokForTiltakMedStartdatoForDato(dagensDato: LocalDate, tx: TransactionalSession): List<TiltaksgjennomforingAdminDto> {
-        @Language("PostgreSQL")
-        val query = """
-            update tiltaksgjennomforing
-            set apent_for_innsok = false
-            where apent_for_innsok = true and oppstart = 'FELLES' and start_dato = ? and opphav = 'MR_ADMIN_FLATE'
-            returning id
-        """.trimIndent()
-
-        return queryOf(query, dagensDato).map { get(it.uuid("id")) }.asList.let { tx.run(it) }
     }
 }

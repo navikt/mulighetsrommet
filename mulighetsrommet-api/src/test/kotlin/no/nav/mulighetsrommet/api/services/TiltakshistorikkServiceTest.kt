@@ -6,6 +6,7 @@ import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.mockk
 import no.nav.mulighetsrommet.api.clients.AccessType
+import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
 import no.nav.mulighetsrommet.api.clients.pdl.IdentGruppe
 import no.nav.mulighetsrommet.api.clients.pdl.IdentInformasjon
 import no.nav.mulighetsrommet.api.clients.pdl.PdlClient
@@ -26,6 +27,7 @@ class TiltakshistorikkServiceTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
 
     val pdlClient: PdlClient = mockk()
+    val amtDeltakerClient: AmtDeltakerClient = mockk()
     val tiltakstype = TiltakstypeFixtures.Oppfolging
 
     val tiltaksgjennomforing = TiltaksgjennomforingFixtures.Oppfolging1
@@ -68,8 +70,8 @@ class TiltakshistorikkServiceTest : FunSpec({
     }
 
     test("henter historikk for bruker basert på person id med arrangørnavn") {
-        coEvery { virksomhetService.getOrSyncHovedenhetFromBrreg(VirksomhetFixtures.underenhet1.organisasjonsnummer) } returns VirksomhetFixtures.underenhet1.right()
-        coEvery { virksomhetService.getOrSyncHovedenhetFromBrreg(tiltakshistorikkIndividuell.arrangorOrganisasjonsnummer) } returns VirksomhetDto(
+        coEvery { virksomhetService.getOrSyncVirksomhetFromBrreg(VirksomhetFixtures.underenhet1.organisasjonsnummer) } returns VirksomhetFixtures.underenhet1.right()
+        coEvery { virksomhetService.getOrSyncVirksomhetFromBrreg(tiltakshistorikkIndividuell.arrangorOrganisasjonsnummer) } returns VirksomhetDto(
             id = UUID.randomUUID(),
             navn = "Bedriftsnavn 2",
             organisasjonsnummer = tiltakshistorikkIndividuell.arrangorOrganisasjonsnummer,
@@ -84,7 +86,8 @@ class TiltakshistorikkServiceTest : FunSpec({
             ),
         ).right()
 
-        val historikkService = TiltakshistorikkService(virksomhetService, TiltakshistorikkRepository(database.db), pdlClient)
+        val tiltakshistorikk = TiltakshistorikkRepository(database.db)
+        val historikkService = TiltakshistorikkService(virksomhetService, amtDeltakerClient, tiltakshistorikk, pdlClient)
 
         val forventetHistorikk = listOf(
             TiltakshistorikkDto(

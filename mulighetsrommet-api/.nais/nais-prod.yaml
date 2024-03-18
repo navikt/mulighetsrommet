@@ -35,7 +35,7 @@ spec:
       memory: 512Mi
   observability:
     autoInstrumentation:
-      enabled: false
+      enabled: true
       runtime: java
     logging:
       destinations:
@@ -112,6 +112,8 @@ spec:
           namespace: poao
         - application: amt-enhetsregister
           namespace: amt
+        - application: amt-deltaker
+          namespace: amt
       external:
         - host: norg2.prod-fss-pub.nais.io
         - host: slack.com
@@ -124,3 +126,6 @@ spec:
   envFrom:
     - secret: mulighetsrommet-api
     - secret: mr-admin-flate-unleash-api-token
+  env:
+    - name: OTEL_JAVAAGENT_EXCLUDE_CLASSES
+      value: "no.nav.mulighetsrommet.api.clients.dialog.*,no.nav.mulighetsrommet.api.services.BrukerService"

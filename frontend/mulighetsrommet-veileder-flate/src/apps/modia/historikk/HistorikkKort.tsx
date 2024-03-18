@@ -1,11 +1,12 @@
 import { BodyShort, HStack, Heading, LinkPanel, Tag, VStack } from "@navikt/ds-react";
 import styles from "./HistorikkKort.module.scss";
-import { HistorikkForBrukerFraKomet } from "mulighetsrommet-api-client";
 import { formaterDato } from "../../../utils/Utils";
+import { HistorikkForBrukerV2 } from "mulighetsrommet-api-client";
 
 interface Props {
-  historikk: HistorikkForBrukerFraKomet;
+  historikk: HistorikkForBrukerV2;
 }
+
 export function HistorikkKort({ historikk }: Props) {
   const { tiltakstype, tittel, periode, historiskStatus, beskrivelse, innsoktDato } = historikk;
   return (
@@ -24,9 +25,9 @@ export function HistorikkKort({ historikk }: Props) {
         <HStack align={"center"} gap="5">
           <Status status={historiskStatus.historiskStatusType} />
           {beskrivelse ? <BodyShort size="small">Årsak: {beskrivelse}</BodyShort> : null}
-          {periode ? (
+          {periode?.startdato && periode.sluttdato ? (
             <BodyShort size="small">
-              {periode.startDato} - {periode.sluttDato}
+              {formaterDato(periode.startdato)} - {formaterDato(periode.sluttdato)}
             </BodyShort>
           ) : null}
         </HStack>
@@ -36,44 +37,44 @@ export function HistorikkKort({ historikk }: Props) {
 }
 
 interface StatusProps {
-  status: HistorikkForBrukerFraKomet.historiskStatusType;
+  status: HistorikkForBrukerV2.historiskStatusType;
 }
 
 function Status({ status }: StatusProps) {
   switch (status) {
-    case HistorikkForBrukerFraKomet.historiskStatusType.AVBRUTT:
+    case HistorikkForBrukerV2.historiskStatusType.AVBRUTT:
       return (
         <Tag size="small" variant="success" className={styles.deltarStatus}>
           Avbrutt
         </Tag>
       );
-    case HistorikkForBrukerFraKomet.historiskStatusType.HAR_SLUTTET:
+    case HistorikkForBrukerV2.historiskStatusType.HAR_SLUTTET:
       return (
-        <Tag size="small" variant="info">
+        <Tag size="small" variant="alt1">
           Har sluttet
         </Tag>
       );
-    case HistorikkForBrukerFraKomet.historiskStatusType.IKKE_AKTUELL:
+    case HistorikkForBrukerV2.historiskStatusType.IKKE_AKTUELL:
       return (
         <Tag size="small" variant="neutral">
           Ikke aktuell
         </Tag>
       );
-    case HistorikkForBrukerFraKomet.historiskStatusType.FEILREGISTRERT:
+    case HistorikkForBrukerV2.historiskStatusType.FEILREGISTRERT:
       return (
         <Tag size="small" variant="info">
           Feilregistrert
         </Tag>
       );
-    case HistorikkForBrukerFraKomet.historiskStatusType.FULLFORT:
+    case HistorikkForBrukerV2.historiskStatusType.FULLFORT:
       return (
         <Tag size="small" variant="info">
           Fullført
         </Tag>
       );
-    case HistorikkForBrukerFraKomet.historiskStatusType.AVBRUTT_UTKAST:
+    case HistorikkForBrukerV2.historiskStatusType.AVBRUTT_UTKAST:
       return (
-        <Tag size="small" variant="info">
+        <Tag size="small" variant="neutral">
           Avbrutt utkast
         </Tag>
       );

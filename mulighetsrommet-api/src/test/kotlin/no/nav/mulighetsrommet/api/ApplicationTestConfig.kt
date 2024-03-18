@@ -49,6 +49,7 @@ fun createTestApplicationConfig() = AppConfig(
     veilarbpersonConfig = createServiceClientConfig("veilarbperson"),
     veilarbveilederConfig = createServiceClientConfig("veilarbveileder"),
     veilarbdialogConfig = createServiceClientConfig("veilarbdialog"),
+    amtDeltakerConfig = createServiceClientConfig("deltakelser"),
     poaoTilgang = createServiceClientConfig("poaotilgang"),
     msGraphConfig = createServiceClientConfig("ms-graph"),
     arenaAdapter = createServiceClientConfig("arena-adapter"),

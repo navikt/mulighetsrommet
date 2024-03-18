@@ -1,14 +1,10 @@
-import {
-  AktivDeltakelse,
-  Gruppetiltak,
-  HistorikkForBrukerFraKomet,
-} from "mulighetsrommet-api-client";
+import { AktivDeltakelse, Gruppetiltak, HistorikkForBrukerV2 } from "mulighetsrommet-api-client";
 
-export const historikkFraKomet: HistorikkForBrukerFraKomet[] = [
+export const historikkFraKomet: HistorikkForBrukerV2[] = [
   {
     periode: {
-      startDato: "10.05.2023",
-      sluttDato: "12.12.2023",
+      startdato: "10.05.2023",
+      sluttdato: "12.12.2023",
     },
     beskrivelse: null,
     tittel: "Oppfølging hos Muligheter AS",
@@ -18,14 +14,14 @@ export const historikkFraKomet: HistorikkForBrukerFraKomet[] = [
     },
     deltakerId: window.crypto.randomUUID(),
     historiskStatus: {
-      historiskStatusType: HistorikkForBrukerFraKomet.historiskStatusType.HAR_SLUTTET,
+      historiskStatusType: HistorikkForBrukerV2.historiskStatusType.HAR_SLUTTET,
     },
     innsoktDato: "03.02.2024",
   },
   {
     periode: {
-      startDato: "01.01.2024",
-      sluttDato: "01.02.2024",
+      startdato: "01.01.2024",
+      sluttdato: "01.02.2024",
     },
     tittel: "Avklaring med Anne",
     tiltakstype: {
@@ -34,7 +30,7 @@ export const historikkFraKomet: HistorikkForBrukerFraKomet[] = [
     },
     deltakerId: window.crypto.randomUUID(),
     historiskStatus: {
-      historiskStatusType: HistorikkForBrukerFraKomet.historiskStatusType.FULLFORT,
+      historiskStatusType: HistorikkForBrukerV2.historiskStatusType.FULLFORT,
     },
 
     beskrivelse: "Dårlig stemning mellom mentor og bruker",
@@ -42,8 +38,8 @@ export const historikkFraKomet: HistorikkForBrukerFraKomet[] = [
   },
   {
     periode: {
-      startDato: "01.01.2024",
-      sluttDato: "01.06.2025",
+      startdato: "01.01.2024",
+      sluttdato: "01.06.2025",
     },
     beskrivelse: null,
     tittel: "Jobbklubb - Oslo",
@@ -53,7 +49,7 @@ export const historikkFraKomet: HistorikkForBrukerFraKomet[] = [
     },
     deltakerId: window.crypto.randomUUID(),
     historiskStatus: {
-      historiskStatusType: HistorikkForBrukerFraKomet.historiskStatusType.IKKE_AKTUELL,
+      historiskStatusType: HistorikkForBrukerV2.historiskStatusType.IKKE_AKTUELL,
     },
 
     innsoktDato: "03.02.2024",
@@ -64,10 +60,8 @@ export const utkastFraKomet: AktivDeltakelse[] = [
   {
     deltakerId: window.crypto.randomUUID(),
     innsoktDato: "03.02.2024",
-    sistEndretDato: "27.02.2024",
-    aktivStatus: {
-      navn: AktivDeltakelse.navn.KLADD,
-    },
+    sistEndretdato: "27.02.2024",
+    aktivStatus: AktivDeltakelse.aktivStatus.KLADD,
     tiltakstype: {
       navn: "Avklaring",
       tiltakskode: Gruppetiltak.tiltakskode.AVKLARAG,

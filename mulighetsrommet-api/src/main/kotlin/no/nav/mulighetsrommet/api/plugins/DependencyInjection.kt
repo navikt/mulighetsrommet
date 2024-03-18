@@ -15,6 +15,7 @@ import no.nav.mulighetsrommet.api.SlackConfig
 import no.nav.mulighetsrommet.api.TaskConfig
 import no.nav.mulighetsrommet.api.avtaler.AvtaleValidator
 import no.nav.mulighetsrommet.api.clients.AccessType
+import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
 import no.nav.mulighetsrommet.api.clients.arenaadapter.ArenaAdapterClient
 import no.nav.mulighetsrommet.api.clients.brreg.BrregClient
 import no.nav.mulighetsrommet.api.clients.dialog.VeilarbdialogClient
@@ -187,7 +188,10 @@ private fun services(appConfig: AppConfig) = module {
             tokenProvider = { accessType ->
                 when (accessType) {
                     AccessType.M2M -> m2mTokenProvider.createMachineToMachineToken(appConfig.veilarboppfolgingConfig.scope)
-                    is AccessType.OBO -> oboTokenProvider.exchangeOnBehalfOfToken(appConfig.veilarboppfolgingConfig.scope, accessType.token)
+                    is AccessType.OBO -> oboTokenProvider.exchangeOnBehalfOfToken(
+                        appConfig.veilarboppfolgingConfig.scope,
+                        accessType.token,
+                    )
                 }
             },
         )
@@ -240,7 +244,10 @@ private fun services(appConfig: AppConfig) = module {
             tokenProvider = { accessType ->
                 when (accessType) {
                     AccessType.M2M -> m2mTokenProvider.createMachineToMachineToken(appConfig.msGraphConfig.scope)
-                    is AccessType.OBO -> oboTokenProvider.exchangeOnBehalfOfToken(appConfig.msGraphConfig.scope, accessType.token)
+                    is AccessType.OBO -> oboTokenProvider.exchangeOnBehalfOfToken(
+                        appConfig.msGraphConfig.scope,
+                        accessType.token,
+                    )
                 }
             },
         )
@@ -264,9 +271,19 @@ private fun services(appConfig: AppConfig) = module {
     single {
         BrregClient(baseUrl = appConfig.brreg.baseUrl, clientEngine = appConfig.engine)
     }
+    single {
+        AmtDeltakerClient(
+            baseUrl = appConfig.amtDeltakerConfig.url,
+            clientEngine = appConfig.engine,
+            tokenProvider = { obo ->
+                oboTokenProvider.exchangeOnBehalfOfToken(appConfig.amtDeltakerConfig.scope, obo.token)
+            },
+        )
+    }
     single { EndringshistorikkService(get()) }
     single {
         ArenaAdapterService(
+            get(),
             get(),
             get(),
             get(),
@@ -295,7 +312,7 @@ private fun services(appConfig: AppConfig) = module {
             get(),
         )
     }
-    single { TiltakshistorikkService(get(), get(), get()) }
+    single { TiltakshistorikkService(get(), get(), get(), get()) }
     single { VeilederflateService(get(), get(), get(), get()) }
     single { BrukerService(get(), get(), get(), get()) }
     single { DialogService(get()) }
@@ -305,7 +322,6 @@ private fun services(appConfig: AppConfig) = module {
     single { MicrosoftGraphService(get()) }
     single {
         TiltaksgjennomforingService(
-            get(),
             get(),
             get(),
             get(),
