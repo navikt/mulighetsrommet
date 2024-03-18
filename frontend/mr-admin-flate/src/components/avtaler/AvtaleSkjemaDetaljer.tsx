@@ -178,6 +178,8 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
                 toDate: sluttDatoTilDato,
                 ...register("startOgSluttDato.sluttDato"),
                 format: "iso-string",
+                invalidDatoEtterPeriode:
+                  "Avtaleperioden kan ikke vare lenger enn 5 år for anskaffede tiltak",
               }}
             />
           </FormGroup>
