@@ -1,9 +1,9 @@
+import { useSetAtom } from "jotai";
 import { Opphav, Tiltaksgjennomforing } from "mulighetsrommet-api-client";
 import { useNavigate } from "react-router-dom";
+import { gjennomforingDetaljerTabAtom } from "../../api/atoms";
 import { useMigrerteTiltakstyper } from "../../api/tiltakstyper/useMigrerteTiltakstyper";
 import { DupliserButton } from "../detaljside/DupliserButton";
-import { useAtom } from "jotai";
-import { gjennomforingDetaljerTabAtom } from "../../api/atoms";
 
 interface Props {
   tiltaksgjennomforing: Tiltaksgjennomforing;
@@ -12,8 +12,7 @@ interface Props {
 export function DupliserTiltak({ tiltaksgjennomforing }: Props) {
   const navigate = useNavigate();
   const { data: migrerteTiltakstyper } = useMigrerteTiltakstyper();
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [_, setGjennomforingDetaljerTab] = useAtom(gjennomforingDetaljerTabAtom);
+  const setGjennomforingDetaljerTab = useSetAtom(gjennomforingDetaljerTabAtom);
 
   if (!migrerteTiltakstyper?.includes(tiltaksgjennomforing.tiltakstype.arenaKode)) return null;
 
