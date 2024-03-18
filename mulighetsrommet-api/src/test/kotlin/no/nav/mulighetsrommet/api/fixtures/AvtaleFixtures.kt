@@ -23,7 +23,7 @@ object AvtaleFixtures {
         administratorer = listOf(NavIdent("DD1")),
         navEnheter = listOf("0400", "0502"),
         antallPlasser = null,
-        url = null,
+        url = "https://www.websak.no",
         beskrivelse = null,
         faneinnhold = null,
     )
@@ -43,7 +43,7 @@ object AvtaleFixtures {
         administratorer = listOf(NavIdent("DD1")),
         navEnheter = listOf("0400", "0502"),
         antallPlasser = null,
-        url = null,
+        url = "https://www.websak.no",
         beskrivelse = null,
         faneinnhold = null,
     )

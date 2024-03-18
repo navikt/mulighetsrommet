@@ -244,8 +244,8 @@ class AvtaleValidatorTest : FunSpec({
             virksomheter,
         )
 
-        val aft = AvtaleFixtures.AFT.copy(avtaletype = Avtaletype.Rammeavtale)
-        val vta = AvtaleFixtures.VTA.copy(avtaletype = Avtaletype.Avtale)
+        val aft = AvtaleFixtures.AFT.copy(avtaletype = Avtaletype.Rammeavtale, url = "https://www.websak.no")
+        val vta = AvtaleFixtures.VTA.copy(avtaletype = Avtaletype.Avtale, url = "https://www.websak.no")
         val oppfolging = AvtaleFixtures.oppfolging.copy(avtaletype = Avtaletype.OffentligOffentlig)
         val gruppeAmo = AvtaleFixtures.gruppeAmo.copy(avtaletype = Avtaletype.Forhaandsgodkjent)
         validator.validate(aft, null).shouldBeLeft(
