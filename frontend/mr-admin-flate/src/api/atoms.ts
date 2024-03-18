@@ -28,10 +28,10 @@ const safeJSONParse = (initialValue: unknown) => (str: string) => {
 
 // Bump version number when localStorage should be cleared
 const version = localStorage.getItem("version");
-if (version !== "1.4") {
+if (version !== "1.5") {
   localStorage.clear();
   sessionStorage.clear();
-  localStorage.setItem("version", "1.4");
+  localStorage.setItem("version", "1.5");
 }
 
 /**
