@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.services
 
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.shouldBe
 import io.mockk.mockk
 import io.mockk.verifyAll
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
@@ -101,6 +102,12 @@ class KafkaSyncServiceTest : FunSpec({
 
             kafkaSyncService.oppdaterTiltaksgjennomforingStatus(today, lastSuccessDate)
 
+            gjennomforinger.getAvslutningsstatus(startdatoInnenforMenAvsluttetStatus.id) shouldBe Avslutningsstatus.AVSLUTTET
+            gjennomforinger.getAvslutningsstatus(startdatoInnenfor.id) shouldBe Avslutningsstatus.IKKE_AVSLUTTET
+            gjennomforinger.getAvslutningsstatus(sluttdatoInnenforMenAvbruttStatus.id) shouldBe Avslutningsstatus.AVBRUTT
+            gjennomforinger.getAvslutningsstatus(sluttdatoInnenfor.id) shouldBe Avslutningsstatus.AVSLUTTET
+            gjennomforinger.setAvslutningsstatus(datoerUtenfor.id, Avslutningsstatus.IKKE_AVSLUTTET)
+
             verifyAll {
                 tiltaksgjennomforingKafkaProducer.publish(startdatoInnenfor.toDto(TiltaksgjennomforingStatus.GJENNOMFORES))
                 tiltaksgjennomforingKafkaProducer.publish(sluttdatoInnenfor.toDto(TiltaksgjennomforingStatus.AVSLUTTET))
@@ -164,6 +171,7 @@ private fun createService(db: Database): Triple<KafkaSyncService, TiltakstypeKaf
     val tiltakstypeKafkaProducer = mockk<TiltakstypeKafkaProducer>(relaxed = true)
     val tiltaksgjennomforingKafkaProducer = mockk<TiltaksgjennomforingKafkaProducer>(relaxed = true)
     val kafkaSyncService = KafkaSyncService(
+        database = db,
         tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(db),
         tiltakstypeRepository = TiltakstypeRepository(db),
         tiltaksgjennomforingKafkaProducer = tiltaksgjennomforingKafkaProducer,

@@ -674,11 +674,11 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         return queryOf(query, avtaleId, gjennomforingId).asUpdate.let { tx.run(it) }
     }
 
-    fun setAvslutningsstatus(id: UUID, status: Avslutningsstatus): Int {
-        return db.transaction { setAvslutningsstatus(it, id, status) }
+    fun getAvslutningsstatus(id: UUID): Avslutningsstatus {
+        return db.transaction { getAvslutningsstatus(id, it) }
     }
 
-    fun getAvslutningsstatus(id: UUID): Avslutningsstatus {
+    fun getAvslutningsstatus(id: UUID, tx: Session): Avslutningsstatus {
         @Language("PostgreSQL")
         val query = """
             select avslutningsstatus from tiltaksgjennomforing where id = ?::uuid
@@ -687,10 +687,14 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         return queryOf(query, id)
             .map { Avslutningsstatus.valueOf(it.string("avslutningsstatus")) }
             .asSingle
-            .let { requireNotNull(db.run(it)) }
+            .let { requireNotNull(tx.run(it)) }
     }
 
-    fun setAvslutningsstatus(tx: Session, id: UUID, status: Avslutningsstatus): Int {
+    fun setAvslutningsstatus(id: UUID, status: Avslutningsstatus): Int {
+        return db.transaction { setAvslutningsstatus(id, status, it) }
+    }
+
+    fun setAvslutningsstatus(id: UUID, status: Avslutningsstatus, tx: Session): Int {
         @Language("PostgreSQL")
         val query = """
             update tiltaksgjennomforing

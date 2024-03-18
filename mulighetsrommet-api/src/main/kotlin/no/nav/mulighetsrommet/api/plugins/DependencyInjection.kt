@@ -319,7 +319,7 @@ private fun services(appConfig: AppConfig) = module {
     single { SanityTiltaksgjennomforingService(get(), get(), get()) }
     single { TiltakstypeService(get(), appConfig.migrerteTiltak) }
     single { NavEnheterSyncService(get(), get(), get(), get()) }
-    single { KafkaSyncService(get(), get(), get(), get()) }
+    single { KafkaSyncService(get(), get(), get(), get(), get()) }
     single { NavEnhetService(get()) }
     single { NavVeilederService(get()) }
     single { NotificationService(get(), get(), get()) }

@@ -4,6 +4,7 @@ import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingDto
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.api.utils.DatabaseUtils.paginate
+import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.kafka.producers.TiltaksgjennomforingKafkaProducer
 import no.nav.mulighetsrommet.kafka.producers.TiltakstypeKafkaProducer
@@ -11,6 +12,7 @@ import org.slf4j.LoggerFactory
 import java.time.LocalDate
 
 class KafkaSyncService(
+    private val database: Database,
     private val tiltaksgjennomforingRepository: TiltaksgjennomforingRepository,
     private val tiltakstypeRepository: TiltakstypeRepository,
     private val tiltaksgjennomforingKafkaProducer: TiltaksgjennomforingKafkaProducer,
@@ -30,8 +32,17 @@ class KafkaSyncService(
             )
 
             tiltaksgjennomforinger.forEach { id ->
-                val gjennomforing = requireNotNull(tiltaksgjennomforingRepository.get(id))
-                tiltaksgjennomforingKafkaProducer.publish(TiltaksgjennomforingDto.from(gjennomforing))
+                database.transaction { tx ->
+                    val gjennomforing = requireNotNull(tiltaksgjennomforingRepository.get(id, tx))
+
+                    val currentStatus = tiltaksgjennomforingRepository.getAvslutningsstatus(gjennomforing.id, tx)
+                    val nextStatus = Avslutningsstatus.fromTiltaksgjennomforingStatus(gjennomforing.status)
+                    if (currentStatus != nextStatus) {
+                        tiltaksgjennomforingRepository.setAvslutningsstatus(gjennomforing.id, nextStatus, tx)
+                    }
+
+                    tiltaksgjennomforingKafkaProducer.publish(TiltaksgjennomforingDto.from(gjennomforing))
+                }
             }
 
             tiltaksgjennomforinger

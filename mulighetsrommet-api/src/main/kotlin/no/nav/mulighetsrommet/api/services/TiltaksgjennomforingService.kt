@@ -187,7 +187,7 @@ class TiltaksgjennomforingService(
         }
 
         db.transaction { tx ->
-            tiltaksgjennomforinger.setAvslutningsstatus(tx, id, Avslutningsstatus.AVBRUTT)
+            tiltaksgjennomforinger.setAvslutningsstatus(id, Avslutningsstatus.AVBRUTT, tx)
             val dto = getOrError(id, tx)
             logEndring("Gjennomføring ble avbrutt", dto, navIdent, tx)
             tiltaksgjennomforingKafkaProducer.publish(TiltaksgjennomforingDto.from(dto))
