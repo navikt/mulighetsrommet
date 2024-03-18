@@ -1,4 +1,4 @@
-import { Alert, Button, Checkbox, Pagination, Table } from "@navikt/ds-react";
+import { Alert, Button, Pagination, Table } from "@navikt/ds-react";
 import classNames from "classnames";
 import { useAtom, WritableAtom } from "jotai";
 import { OpenAPI, SorteringAvtaler } from "mulighetsrommet-api-client";
@@ -123,17 +123,6 @@ export const AvtaleTabell = ({ filterAtom }: Props) => {
               });
             }}
           />
-          <Checkbox
-            checked={filter.visMineAvtaler}
-            onChange={(event) => {
-              updateFilter({
-                page: 1,
-                visMineAvtaler: event.currentTarget.checked,
-              });
-            }}
-          >
-            Vis kun mine
-          </Checkbox>
         </div>
         <div>
           <Button

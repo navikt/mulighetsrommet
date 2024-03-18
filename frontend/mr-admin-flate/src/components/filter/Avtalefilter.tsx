@@ -1,4 +1,4 @@
-import { Accordion, Search, Skeleton, VStack } from "@navikt/ds-react";
+import { Accordion, Search, Skeleton, Switch, VStack } from "@navikt/ds-react";
 import { useAtom, WritableAtom } from "jotai";
 import { Tiltakstypestatus, VirksomhetTil } from "mulighetsrommet-api-client";
 import { useNavEnheter } from "../../api/enhet/useNavEnheter";
@@ -72,6 +72,22 @@ export function AvtaleFilter({ filterAtom, skjulFilter }: Props) {
         value={filter.sok}
         aria-label="Søk etter tiltaksgjennomføring"
       />
+      <div style={{ margin: ".25rem" }}>
+        <Switch
+          position="right"
+          size="small"
+          checked={filter.visMineAvtaler}
+          onChange={(event) => {
+            setFilter({
+              ...filter,
+              page: 1,
+              visMineAvtaler: event.currentTarget.checked,
+            });
+          }}
+        >
+          Vis kun mine avtaler
+        </Switch>
+      </div>
       <Accordion>
         <Accordion.Item open={accordionsOpen.includes("status")}>
           <Accordion.Header

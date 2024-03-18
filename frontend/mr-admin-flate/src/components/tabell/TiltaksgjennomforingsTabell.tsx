@@ -1,4 +1,4 @@
-import { Alert, Checkbox, Pagination, Table, Tag, VStack } from "@navikt/ds-react";
+import { Alert, Pagination, Table, Tag, VStack } from "@navikt/ds-react";
 import { useAtom, WritableAtom } from "jotai";
 import { SorteringTiltaksgjennomforinger } from "mulighetsrommet-api-client";
 import { Lenke } from "../../../../frontend-common/components/lenke/Lenke";
@@ -151,17 +151,6 @@ export const TiltaksgjennomforingsTabell = ({ skjulKolonner, filterAtom }: Props
             });
           }}
         />
-        <Checkbox
-          checked={filter.visMineGjennomforinger}
-          onChange={(event) => {
-            updateFilter({
-              page: 1,
-              visMineGjennomforinger: event.currentTarget.checked,
-            });
-          }}
-        >
-          Vis kun mine
-        </Checkbox>
       </div>
       {tiltaksgjennomforinger.length === 0 ? (
         <Alert variant="info">Fant ingen tiltaksgjennomføringer</Alert>
