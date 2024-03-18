@@ -369,7 +369,8 @@ private fun tasks(config: TaskConfig) = module {
             get(),
             get(),
         )
-        val synchronizeTiltaksgjennomforingStatusToKafka = SynchronizeTiltaksgjennomforingStatusToKafka(
+        val updateTiltaksgjennomforingStatus = UpdateTiltaksgjennomforingStatus(
+            get(),
             get(),
             get(),
         )
@@ -413,7 +414,7 @@ private fun tasks(config: TaskConfig) = module {
             .startTasks(
                 deleteExpiredTiltakshistorikk.task,
                 synchronizeNorgEnheterTask.task,
-                synchronizeTiltaksgjennomforingStatusToKafka.task,
+                updateTiltaksgjennomforingStatus.task,
                 synchronizeTiltakstypestatuserToKafka.task,
                 synchronizeNavAnsatte.task,
                 notifySluttdatoForGjennomforingerNarmerSeg.task,
