@@ -4,6 +4,7 @@ import styles from "./Filter.module.scss";
 import { Separator } from "../detaljside/Metadata";
 import { FunnelIcon } from "@navikt/aksel-icons";
 import classNames from "classnames";
+import { useOutsideClick } from "../../hooks/useOutsideClick";
 
 interface Props {
   filter: React.ReactNode;
@@ -15,6 +16,7 @@ interface Props {
 export function FilterAndTableLayout(props: Props) {
   const { filter, table, buttons, tags } = props;
   const [filterSelected, setFilterSelected] = useState<boolean>(true);
+  const ref = useOutsideClick(() => setFilterSelected(false));
 
   return (
     <div className={styles.container}>
@@ -32,7 +34,11 @@ export function FilterAndTableLayout(props: Props) {
         </Tabs.List>
       </Tabs>
       <div className={styles.button_row}>{buttons}</div>
-      <div id="filter" className={classNames(styles.filter, !filterSelected && styles.hide_filter)}>
+      <div
+        ref={ref}
+        id="filter"
+        className={classNames(styles.filter, !filterSelected && styles.hide_filter)}
+      >
         {filter}
       </div>
       <div
