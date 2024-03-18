@@ -23,7 +23,7 @@ import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
 import { useHentKontaktpersoner } from "../../api/ansatt/useHentKontaktpersoner";
 import { useTiltaksgjennomforingAdministratorer } from "../../api/ansatt/useTiltaksgjennomforingAdministratorer";
 import { useMigrerteTiltakstyper } from "../../api/tiltakstyper/useMigrerteTiltakstyper";
-import { addYear } from "../../utils/Utils";
+import { addYear, formaterDato } from "../../utils/Utils";
 import { isTiltakMedFellesOppstart } from "../../utils/tiltakskoder";
 import { Separator } from "../detaljside/Metadata";
 import { AdministratorOptions } from "../skjema/AdministratorOptions";
@@ -154,13 +154,13 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
             ) : null}
             <HGrid columns={2}>
               <DatePicker.Input
-                value={avtale.startDato}
+                value={formaterDato(avtale.startDato)}
                 label="Avtalens startdato"
                 readOnly
                 size="small"
               />
               <DatePicker.Input
-                value={avtale.sluttDato}
+                value={formaterDato(avtale.sluttDato)}
                 label="Avtalens sluttdato"
                 readOnly
                 size="small"
