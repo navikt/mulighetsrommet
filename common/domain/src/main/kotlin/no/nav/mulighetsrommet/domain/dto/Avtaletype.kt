@@ -4,7 +4,11 @@ enum class Avtaletype {
     Avtale,
     Rammeavtale,
     Forhaandsgodkjent,
-    OffentligOffentlig,
+    OffentligOffentlig, ;
+
+    fun kreverWebsakUrl(): Boolean {
+        return listOf(Rammeavtale, Avtale).contains(this)
+    }
 }
 
 fun allowedAvtaletypes(arenaKode: String): List<Avtaletype> {
