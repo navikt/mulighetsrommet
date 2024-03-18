@@ -313,7 +313,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
                           placeholder={
                             isLoadingKontaktpersoner
                               ? "Laster enheter..."
-                              : "Velg et eller flere områder"
+                              : "Velg ett eller flere områder"
                           }
                           label={"Område"}
                           {...register(`kontaktpersoner.${index}.navEnheter`, {
