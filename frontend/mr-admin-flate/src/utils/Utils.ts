@@ -82,7 +82,7 @@ export const inneholderUrl = (string: string) => {
 
 export function avtaletypeTilTekst(
   type: Avtaletype,
-): "Avtale" | "Rammeavtale" | "Forhåndsgodkjent" | "Offentlig-Offentlig samarbeid" {
+): "Avtale" | "Rammeavtale" | "Forhåndsgodkjent" | "Offentlig-offentlig samarbeid" {
   switch (type) {
     case Avtaletype.AVTALE:
       return "Avtale";
@@ -91,7 +91,7 @@ export function avtaletypeTilTekst(
     case Avtaletype.RAMMEAVTALE:
       return "Rammeavtale";
     case Avtaletype.OFFENTLIG_OFFENTLIG:
-      return "Offentlig-Offentlig samarbeid";
+      return "Offentlig-offentlig samarbeid";
   }
 }
 
@@ -173,6 +173,7 @@ export function createQueryParamsForExcelDownload(filter: AvtaleFilter): URLSear
 
   filter.tiltakstyper.forEach((tiltakstype) => queryParams.append("tiltakstypeIder", tiltakstype));
   filter.statuser.forEach((status) => queryParams.append("statuser", status));
+  filter.avtaletyper.forEach((type) => queryParams.append("avtaletyper", type));
   filter.navRegioner.forEach((region) => queryParams.append("navRegioner", region));
   filter.leverandor.forEach((orgnr) => queryParams.append("leverandorOrgnr", orgnr));
 

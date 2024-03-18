@@ -1,4 +1,4 @@
-import { Accordion, Checkbox, Search, Skeleton, VStack } from "@navikt/ds-react";
+import { Accordion, Checkbox, Search, Skeleton, Switch, VStack } from "@navikt/ds-react";
 import { useAtom, WritableAtom } from "jotai";
 import { Tiltakstypestatus, VirksomhetTil } from "mulighetsrommet-api-client";
 import { useEffect, useState } from "react";
@@ -92,6 +92,22 @@ export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
         value={filter.search}
         aria-label="Søk etter tiltaksgjennomføring"
       />
+      <div style={{ margin: ".25rem" }}>
+        <Switch
+          position="right"
+          size="small"
+          checked={filter.visMineGjennomforinger}
+          onChange={(event) => {
+            setFilter({
+              ...filter,
+              page: 1,
+              visMineGjennomforinger: event.currentTarget.checked,
+            });
+          }}
+        >
+          Vis kun mine gjennomføringer
+        </Switch>
+      </div>
       <Accordion>
         <Accordion.Item open={accordionsOpen.includes("status")}>
           <Accordion.Header

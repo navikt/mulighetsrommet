@@ -1,4 +1,4 @@
-import { Accordion, Search, Skeleton, VStack } from "@navikt/ds-react";
+import { Accordion, Search, Skeleton, Switch, VStack } from "@navikt/ds-react";
 import { useAtom, WritableAtom } from "jotai";
 import { Tiltakstypestatus, VirksomhetTil } from "mulighetsrommet-api-client";
 import { useNavEnheter } from "../../api/enhet/useNavEnheter";
@@ -9,6 +9,7 @@ import { AvtaleFilter as AvtaleFilterProps, avtaleFilterAccordionAtom } from "..
 import { CheckboxList } from "./Tiltaksgjennomforingfilter";
 import {
   AVTALE_STATUS_OPTIONS,
+  AVTALE_TYPE_OPTIONS,
   regionOptions,
   tiltakstypeOptions,
   virksomhetOptions,
@@ -72,6 +73,22 @@ export function AvtaleFilter({ filterAtom, skjulFilter }: Props) {
         value={filter.sok}
         aria-label="Søk etter tiltaksgjennomføring"
       />
+      <div style={{ margin: ".25rem" }}>
+        <Switch
+          position="right"
+          size="small"
+          checked={filter.visMineAvtaler}
+          onChange={(event) => {
+            setFilter({
+              ...filter,
+              page: 1,
+              visMineAvtaler: event.currentTarget.checked,
+            });
+          }}
+        >
+          Vis kun mine avtaler
+        </Switch>
+      </div>
       <Accordion>
         <Accordion.Item open={accordionsOpen.includes("status")}>
           <Accordion.Header
@@ -90,6 +107,31 @@ export function AvtaleFilter({ filterAtom, skjulFilter }: Props) {
                   ...filter,
                   page: 1,
                   statuser: addOrRemove(filter.statuser, status),
+                });
+              }}
+            />
+          </Accordion.Content>
+        </Accordion.Item>
+        <Accordion.Item open={accordionsOpen.includes("avtaletype")}>
+          <Accordion.Header
+            onClick={() => {
+              setAccordionsOpen([...addOrRemove(accordionsOpen, "avtaletype")]);
+            }}
+          >
+            <FilterAccordionHeader
+              tittel="Avtaletype"
+              antallValgteFilter={filter.avtaletyper.length}
+            />
+          </Accordion.Header>
+          <Accordion.Content>
+            <CheckboxList
+              items={AVTALE_TYPE_OPTIONS}
+              isChecked={(type) => filter.avtaletyper.includes(type)}
+              onChange={(type) => {
+                setFilter({
+                  ...filter,
+                  page: 1,
+                  avtaletyper: addOrRemove(filter.avtaletyper, type),
                 });
               }}
             />

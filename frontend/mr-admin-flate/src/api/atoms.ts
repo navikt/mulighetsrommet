@@ -1,5 +1,6 @@
 import {
   Avtalestatus,
+  Avtaletype,
   SorteringAvtaler,
   SorteringTiltaksgjennomforinger,
   SorteringTiltakstyper,
@@ -204,6 +205,7 @@ export const gjennomforingerForAvtaleFilterAtomFamily = atomFamily<
 export interface AvtaleFilter {
   sok: string;
   statuser: Avtalestatus[];
+  avtaletyper: Avtaletype[];
   navRegioner: string[];
   tiltakstyper: string[];
   sortering: SorteringAvtaler;
@@ -216,6 +218,7 @@ export interface AvtaleFilter {
 export const defaultAvtaleFilter: AvtaleFilter = {
   sok: "",
   statuser: [],
+  avtaletyper: [],
   navRegioner: [],
   tiltakstyper: [],
   sortering: SorteringAvtaler.NAVN_ASCENDING,
