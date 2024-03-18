@@ -17,16 +17,16 @@
     "@navikt/aksel-icons": "6.1.1",
     "@portabletext/react": "3.0.12",
     "@sanity/client": "6.15.5",
-    "@sanity/vision": "3.32.0",
+    "@sanity/vision": "3.34.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-icons": "5.0.1",
     "react-switch": "7.0.0",
-    "sanity": "3.32.0",
+    "sanity": "3.34.0",
     "styled-components": "6.1.8"
   },
   "devDependencies": {
     "@types/react": "18.2.66",
-    "sass": "1.71.1"
+    "sass": "1.72.0"
   }
 }
