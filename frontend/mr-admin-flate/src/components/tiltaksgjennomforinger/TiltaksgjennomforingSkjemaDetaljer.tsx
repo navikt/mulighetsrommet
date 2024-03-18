@@ -156,14 +156,14 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
             <HGrid columns={2}>
               <DatePicker.Input
                 value={formaterDato(avtale.startDato)}
-                label="Avtalens startdato"
+                label={tiltaktekster.avtaleStartdatoLabel}
                 readOnly
                 size="small"
               />
               {avtale.sluttDato ? (
                 <DatePicker.Input
                   value={formaterDato(avtale.sluttDato)}
-                  label="Avtalens sluttdato"
+                  label={tiltaktekster.avtaleSluttdatoLabel}
                   readOnly
                   size="small"
                 />
