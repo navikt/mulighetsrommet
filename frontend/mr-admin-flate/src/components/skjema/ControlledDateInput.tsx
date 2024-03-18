@@ -24,7 +24,7 @@ export const ControlledDateInput = forwardRef(function ControlledDateInput(props
     fromDate,
     toDate,
     placeholder = "dd.mm.åååå",
-    invalidDatoEtterPeriode = "Dato er etter gyldig peride",
+    invalidDatoEtterPeriode = "Dato er etter gyldig periode",
     ...rest
   } = props;
   const [ugyldigDatoError, setUgyldigDatoError] = useState("");
