@@ -63,7 +63,7 @@ export function AvtaleArrangorSkjema({ readOnly }: Props) {
         <ControlledMultiSelect
           size="small"
           placeholder="Velg underenhet for tiltaksarrangør"
-          label={"Tiltaksarrangør underenhet"}
+          label={"Tiltaksarrangør underenheter"}
           helpText="Bestemmer hvilke arrangører som kan velges i gjennomføringene til avtalen."
           readOnly={!leverandor}
           {...register("leverandorUnderenheter")}

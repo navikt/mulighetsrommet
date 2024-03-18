@@ -1,4 +1,4 @@
-import { HGrid, Textarea, TextField } from "@navikt/ds-react";
+import { Heading, HGrid, Textarea, TextField } from "@navikt/ds-react";
 import {
   Avtale,
   Avtaletype,
@@ -157,6 +157,9 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
           </FormGroup>
           <Separator />
           <FormGroup>
+            <Heading size="small" as="h3">
+              Avtalens varighet
+            </Heading>
             <FraTilDatoVelger
               size="small"
               fra={{
@@ -194,7 +197,7 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
                   size="small"
                   readOnly={arenaOpphavOgIngenEierskap}
                   error={errors.prisbetingelser?.message}
-                  label="Pris og betalingsinformasjon"
+                  label="Pris og betalingsbetingelser"
                   {...register("prisbetingelser")}
                 />
               </FormGroup>

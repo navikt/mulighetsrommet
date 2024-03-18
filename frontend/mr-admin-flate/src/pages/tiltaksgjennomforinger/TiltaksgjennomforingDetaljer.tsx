@@ -1,5 +1,5 @@
 import { ExternalLinkIcon } from "@navikt/aksel-icons";
-import { HelpText, Tag } from "@navikt/ds-react";
+import { BodyShort, HelpText, Tag } from "@navikt/ds-react";
 import {
   Avtale,
   Tiltaksgjennomforing,
@@ -100,7 +100,7 @@ export function TiltaksgjennomforingDetaljer(props: Props) {
 
           <Bolk aria-label="Oppstartsdato">
             <Metadata
-              header="Oppstart"
+              header="Oppstartstype"
               verdi={
                 oppstart === TiltaksgjennomforingOppstartstype.FELLES
                   ? "Felles"
@@ -120,11 +120,14 @@ export function TiltaksgjennomforingDetaljer(props: Props) {
             )}
           </Bolk>
 
-          <Separator />
-
-          <Bolk aria-label="Åpent for innsøk">
-            <Metadata header="Åpent for innsøk" verdi={apentForInnsok ? "Ja" : "Nei"} />
-          </Bolk>
+          {apentForInnsok ? (
+            <>
+              <Separator />
+              <Bolk aria-label="Åpent for innsøk">
+                <Metadata header="Åpent for innsøk" verdi={apentForInnsok ? "Ja" : "Nei"} />
+              </Bolk>
+            </>
+          ) : null}
 
           <Separator />
 
@@ -233,9 +236,9 @@ export function TiltaksgjennomforingDetaljer(props: Props) {
           ) : null}
 
           {arrangor ? (
-            <Bolk aria-label="Arrangør underenhet">
+            <Bolk aria-label="Tiltaksarrangør underenhet">
               <Metadata
-                header="Arrangør underenhet"
+                header="Tiltaksarrangør underenhet"
                 verdi={
                   arrangor.navn
                     ? `${arrangor.navn} - ${arrangor.organisasjonsnummer}`
@@ -246,15 +249,15 @@ export function TiltaksgjennomforingDetaljer(props: Props) {
           ) : null}
           {arrangor.kontaktpersoner.length > 0 && (
             <Metadata
-              header="Kontaktperson hos arrangøren"
+              header="Kontaktpersoner hos tiltaksarrangør"
               verdi={
                 <div className={styles.leverandor_kontaktinfo_container}>
                   {arrangor.kontaktpersoner.map((person: VirksomhetKontaktperson) => (
                     <div key={person.id} className={styles.leverandor_kontaktinfo}>
-                      <label>{person.navn}</label>
-                      <label>{person.telefon}</label>
+                      <BodyShort>{person.navn}</BodyShort>
+                      <BodyShort>{person.telefon}</BodyShort>
                       <a href={`mailto:${person.epost}`}>{person.epost}</a>
-                      {person.beskrivelse && <label>{person.beskrivelse}</label>}
+                      {person.beskrivelse && <BodyShort>{person.beskrivelse}</BodyShort>}
                     </div>
                   ))}
                 </div>

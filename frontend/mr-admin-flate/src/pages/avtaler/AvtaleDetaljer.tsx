@@ -161,8 +161,8 @@ export function AvtaleDetaljer() {
           kontorstruktur.map((struktur, index) => {
             return (
               <Fragment key={index}>
-                <Bolk aria-label="NAV-region">
-                  <Metadata header="NAV-region" verdi={struktur.region.navn} />
+                <Bolk aria-label="NAV-regioner">
+                  <Metadata header="NAV-regioner" verdi={struktur.region.navn} />
                 </Bolk>
 
                 <Bolk aria-label="NAV-enheter">
@@ -205,9 +205,9 @@ export function AvtaleDetaljer() {
           />
         </Bolk>
 
-        <Bolk aria-label="Arrangører underenheter">
+        <Bolk aria-label="Tiltaksarrangør underenheter">
           <Metadata
-            header="Arrangører underenheter"
+            header="Tiltaksarrangør underenheter"
             verdi={
               <ul>
                 {leverandor.underenheter.map((enhet) => (

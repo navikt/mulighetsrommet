@@ -87,7 +87,7 @@ export const petrusKontaktperson: TiltaksgjennomforingKontaktperson = {
   navIdent: petrus.navIdent,
   navn: petrus.fornavn + " " + petrus.etternavn,
   epost: petrus.epost,
-  mobilnummer: petrus.epost,
+  mobilnummer: petrus.mobilnummer,
   navEnheter: ["0315", "0330"],
   beskrivelse: "Beskrivelse til Petrus",
 };
@@ -96,7 +96,7 @@ export const nikolineKontaktperson: TiltaksgjennomforingKontaktperson = {
   navIdent: nikoline.navIdent,
   navn: nikoline.fornavn + " " + nikoline.etternavn,
   epost: nikoline.epost,
-  mobilnummer: nikoline.epost,
+  mobilnummer: nikoline.mobilnummer,
   navEnheter: ["0313"],
   beskrivelse: null,
 };

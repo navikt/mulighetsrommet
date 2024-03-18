@@ -54,7 +54,7 @@ export function TiltaksgjennomforingArrangorSkjema({ readOnly, avtale }: Props) 
           <ControlledMultiSelect
             size="small"
             placeholder="Velg kontaktpersoner"
-            label={"Kontaktperson hos arrangøren"}
+            label={"Kontaktpersoner hos tiltaksarrangør"}
             {...register("arrangorKontaktpersoner")}
             options={kontaktpersonOptions}
           />
