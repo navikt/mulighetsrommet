@@ -1,5 +1,15 @@
 import { PlusIcon, XMarkIcon } from "@navikt/aksel-icons";
-import { Alert, Button, HelpText, HStack, Select, Switch, TextField } from "@navikt/ds-react";
+import {
+  Alert,
+  Button,
+  DatePicker,
+  HelpText,
+  HGrid,
+  HStack,
+  Select,
+  Switch,
+  TextField,
+} from "@navikt/ds-react";
 import {
   Avtale,
   Tiltaksgjennomforing,
@@ -13,7 +23,7 @@ import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
 import { useHentKontaktpersoner } from "../../api/ansatt/useHentKontaktpersoner";
 import { useTiltaksgjennomforingAdministratorer } from "../../api/ansatt/useTiltaksgjennomforingAdministratorer";
 import { useMigrerteTiltakstyper } from "../../api/tiltakstyper/useMigrerteTiltakstyper";
-import { addYear } from "../../utils/Utils";
+import { addYear, formaterDato } from "../../utils/Utils";
 import { isTiltakMedFellesOppstart } from "../../utils/tiltakskoder";
 import { Separator } from "../detaljside/Metadata";
 import { AdministratorOptions } from "../skjema/AdministratorOptions";
@@ -143,6 +153,24 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
             {errors.avtaleId?.message ? (
               <Alert variant="warning">{errors.avtaleId.message as string}</Alert>
             ) : null}
+            <HGrid columns={2}>
+              <DatePicker.Input
+                value={formaterDato(avtale.startDato)}
+                label={tiltaktekster.avtaleStartdatoLabel}
+                readOnly
+                size="small"
+              />
+              {avtale.sluttDato ? (
+                <DatePicker.Input
+                  value={formaterDato(avtale.sluttDato)}
+                  label={tiltaktekster.avtaleSluttdatoLabel}
+                  readOnly
+                  size="small"
+                />
+              ) : (
+                " - "
+              )}
+            </HGrid>
           </FormGroup>
           <Separator />
           <FormGroup>

@@ -6,6 +6,8 @@ export const tiltaktekster = {
   ingenAvtaleForGjennomforingenLabel: "Ingen avtale for gjennomføringen",
   tiltakstypeLabel: "Tiltakstype",
   oppstartstypeLabel: "Oppstartstype",
+  avtaleStartdatoLabel: "Avtalens startdato",
+  avtaleSluttdatoLabel: "Avtalens sluttdato",
   startdatoLabel: "Startdato",
   sluttdatoLabel: "Sluttdato",
   antallPlasserLabel: "Antall plasser",

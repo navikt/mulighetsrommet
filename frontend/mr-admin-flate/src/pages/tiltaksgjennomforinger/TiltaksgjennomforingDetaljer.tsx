@@ -88,6 +88,12 @@ export function TiltaksgjennomforingDetaljer(props: Props) {
                     <Link to={`/avtaler/${avtale.id}`}>
                       {avtale.navn} {avtale.avtalenummer ? ` - ${avtale.avtalenummer}` : null}
                     </Link>{" "}
+                    <BodyShort>
+                      <small>
+                        Avtalens periode: {formaterDato(avtale.startDato)} -{" "}
+                        {avtale?.sluttDato ? formaterDato(avtale.sluttDato) : ""}
+                      </small>
+                    </BodyShort>
                   </>
                 ) : (
                   tiltaktekster.ingenAvtaleForGjennomforingenLabel
