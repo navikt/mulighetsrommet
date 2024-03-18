@@ -93,6 +93,10 @@ app:
     url: https://veilarbdialog.prod-fss-pub.nais.io/veilarbdialog/api
     scope: api://prod-fss.pto.veilarbdialog/.default
 
+  amtDeltakerConfig:
+    url: http://amt-deltaker.amt
+    scope: api://prod-gcp.amt.amt-deltaker/.default
+
   poaoTilgang:
     url: http://poao-tilgang.poao
     scope: api://prod-gcp.poao.poao-tilgang/.default
