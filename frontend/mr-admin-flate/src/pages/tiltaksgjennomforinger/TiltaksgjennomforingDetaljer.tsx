@@ -124,17 +124,13 @@ export function TiltaksgjennomforingDetaljer(props: Props) {
             )}
           </Bolk>
 
-          {apentForInnsok ? (
-            <>
-              <Separator />
-              <Bolk aria-label={tiltaktekster.apentForInnsokLabel}>
-                <Metadata
-                  header={tiltaktekster.apentForInnsokLabel}
-                  verdi={apentForInnsok ? "Ja" : "Nei"}
-                />
-              </Bolk>
-            </>
-          ) : null}
+          <Separator />
+          <Bolk aria-label={tiltaktekster.apentForInnsokLabel}>
+            <Metadata
+              header={tiltaktekster.apentForInnsokLabel}
+              verdi={apentForInnsok ? "Ja" : "Nei"}
+            />
+          </Bolk>
 
           <Separator />
 
