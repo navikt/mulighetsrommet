@@ -1,10 +1,6 @@
-import {
-  AktivDeltakelse,
-  Gruppetiltak,
-  HistorikkForBrukerFraKomet,
-} from "mulighetsrommet-api-client";
+import { AktivDeltakelse, Gruppetiltak, HistorikkForBrukerV2 } from "mulighetsrommet-api-client";
 
-export const historikkFraKomet: HistorikkForBrukerFraKomet[] = [
+export const historikkFraKomet: HistorikkForBrukerV2[] = [
   {
     periode: {
       startdato: "10.05.2023",
@@ -18,7 +14,7 @@ export const historikkFraKomet: HistorikkForBrukerFraKomet[] = [
     },
     deltakerId: window.crypto.randomUUID(),
     historiskStatus: {
-      historiskStatusType: HistorikkForBrukerFraKomet.historiskStatusType.HAR_SLUTTET,
+      historiskStatusType: HistorikkForBrukerV2.historiskStatusType.HAR_SLUTTET,
     },
     innsoktDato: "03.02.2024",
   },
@@ -34,7 +30,7 @@ export const historikkFraKomet: HistorikkForBrukerFraKomet[] = [
     },
     deltakerId: window.crypto.randomUUID(),
     historiskStatus: {
-      historiskStatusType: HistorikkForBrukerFraKomet.historiskStatusType.FULLFORT,
+      historiskStatusType: HistorikkForBrukerV2.historiskStatusType.FULLFORT,
     },
 
     beskrivelse: "Dårlig stemning mellom mentor og bruker",
@@ -53,7 +49,7 @@ export const historikkFraKomet: HistorikkForBrukerFraKomet[] = [
     },
     deltakerId: window.crypto.randomUUID(),
     historiskStatus: {
-      historiskStatusType: HistorikkForBrukerFraKomet.historiskStatusType.IKKE_AKTUELL,
+      historiskStatusType: HistorikkForBrukerV2.historiskStatusType.IKKE_AKTUELL,
     },
 
     innsoktDato: "03.02.2024",

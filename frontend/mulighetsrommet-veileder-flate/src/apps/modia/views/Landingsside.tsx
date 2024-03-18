@@ -3,7 +3,7 @@ import { Alert, BodyShort, Heading, Skeleton, VStack } from "@navikt/ds-react";
 import { Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { Link } from "react-router-dom";
-import { useHistorikkFraKomet } from "../../../core/api/queries/useHistorikkFraKomet";
+import { useHistorikkV2 } from "../../../core/api/queries/useHistorikkV2";
 import { HistorikkKort } from "../historikk/HistorikkKort";
 import { UtkastKort } from "../historikk/UtkastKort";
 import styles from "./Landingsside.module.scss";
@@ -71,7 +71,7 @@ export function Landingsside() {
 }
 
 function Historikk() {
-  const { data } = useHistorikkFraKomet();
+  const { data } = useHistorikkV2();
   if (!data) {
     return null;
   }
@@ -95,7 +95,7 @@ function Historikk() {
 }
 
 function Utkast() {
-  const { data } = useHistorikkFraKomet();
+  const { data } = useHistorikkV2();
   if (!data) {
     return null;
   }

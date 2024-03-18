@@ -3,12 +3,12 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { mulighetsrommetClient } from "../clients";
 import { QueryKeys } from "../query-keys";
 
-export function useHistorikkFraKomet() {
+export function useHistorikkV2() {
   const { fnr } = useModiaContext();
 
   const requestBody = { norskIdent: fnr };
   return useSuspenseQuery({
-    queryKey: [QueryKeys.HistorikkFraKomet, fnr],
-    queryFn: () => mulighetsrommetClient.historikk.hentHistorikkForBrukerFraKomet({ requestBody }),
+    queryKey: [QueryKeys.HistorikkV2, fnr],
+    queryFn: () => mulighetsrommetClient.historikk.hentHistorikkForBrukerV2({ requestBody }),
   });
 }

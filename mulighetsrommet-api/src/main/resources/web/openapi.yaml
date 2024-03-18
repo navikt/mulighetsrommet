@@ -1086,12 +1086,11 @@ paths:
                 items:
                   $ref: "#/components/schemas/HistorikkForBruker"
 
-  # TODO Type denne korrekt når vi får data fra Komet
   /api/v1/internal/bruker/historikk/ny:
     post:
       tags:
         - Historikk
-      operationId: hentHistorikkForBrukerFraKomet
+      operationId: hentHistorikkForBrukerV2
       requestBody:
         content:
           application/json:
@@ -1100,11 +1099,11 @@ paths:
         required: true
       responses:
         200:
-          description: Historical data about the user from the team Komet
+          description: Historical data about the user
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/BrukerdataFraKomet"
+                $ref: "#/components/schemas/BrukerdataV2"
 
   /api/v1/internal/ansatt:
     get:
@@ -2533,7 +2532,7 @@ components:
         - tiltakstype
         - arrangor
 
-    BrukerdataFraKomet:
+    BrukerdataV2:
       type: object
       properties:
         aktive:
@@ -2543,7 +2542,7 @@ components:
         historikk:
           type: array
           items:
-            $ref: "#/components/schemas/HistorikkForBrukerFraKomet"
+            $ref: "#/components/schemas/HistorikkForBrukerV2"
       required:
         - aktive
         - historikk
@@ -2581,7 +2580,7 @@ components:
         - tittel
         - tiltakstype
 
-    HistorikkForBrukerFraKomet:
+    HistorikkForBrukerV2:
       type: object
       properties:
         deltakerId:

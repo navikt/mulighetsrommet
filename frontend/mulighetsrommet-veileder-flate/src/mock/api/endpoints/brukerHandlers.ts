@@ -2,7 +2,7 @@ import { HttpResponse, PathParams, http } from "msw";
 import {
   Bruker,
   BrukerVarsel,
-  BrukerdataFraKomet,
+  BrukerdataV2,
   GetBrukerRequest,
   HistorikkForBruker,
   Innsatsgruppe,
@@ -54,8 +54,7 @@ export const brukerHandlers = [
     HttpResponse.json(historikk),
   ),
 
-  http.post<PathParams, BrukerdataFraKomet, BrukerdataFraKomet>(
-    "*/api/v1/internal/bruker/historikk/ny",
-    () => HttpResponse.json({ historikk: historikkFraKomet, aktive: utkastFraKomet }),
+  http.post<PathParams, BrukerdataV2, BrukerdataV2>("*/api/v1/internal/bruker/historikk/ny", () =>
+    HttpResponse.json({ historikk: historikkFraKomet, aktive: utkastFraKomet }),
   ),
 ];

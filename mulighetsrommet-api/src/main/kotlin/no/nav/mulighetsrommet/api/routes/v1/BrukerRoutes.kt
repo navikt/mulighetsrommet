@@ -86,7 +86,7 @@ fun Route.brukerRoutes() {
                 AuditLog.auditLogger.log(message)
             }
 
-            val response = historikkService.hentDeltakelserFraKomet(norskIdent, obo).map {
+            val response = historikkService.hentDeltakelserFraKomet(norskIdent, obo).onRight {
                 val message = createAuditMessage(
                     msg = "NAV-ansatt med ident: '$navIdent' har sett deltakelser for bruker med ident: '$norskIdent'.",
                     topic = "Se deltakelser",
@@ -94,7 +94,6 @@ fun Route.brukerRoutes() {
                     norskIdent = norskIdent,
                 )
                 AuditLog.auditLogger.log(message)
-                it
             }.mapLeft { toStatusResponseError(it) }
 
             call.respondWithStatusResponse(response)

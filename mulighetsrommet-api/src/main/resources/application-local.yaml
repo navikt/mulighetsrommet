@@ -112,7 +112,7 @@ app:
     scope: default
 
   amtDeltakerConfig:
-    url: http://localhost:8090
+    url: http://localhost:8090/amt-deltaker
     scope: default
 
   axsys:

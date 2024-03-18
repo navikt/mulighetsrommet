@@ -1,7 +1,7 @@
 {
   "request": {
     "method": "POST",
-    "urlPathPattern": "/deltakelser"
+    "urlPathPattern": "/amt-deltaker/deltakelser"
   },
   "response": {
     "status": 200,
