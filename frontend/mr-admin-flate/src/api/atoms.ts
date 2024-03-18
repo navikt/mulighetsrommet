@@ -248,7 +248,7 @@ export const getAvtalerForTiltakstypeFilterAtom = atomFamily<
   );
 });
 
-export const gjennomforingDetaljerTabAtom = atom<string>("detaljer");
+export const gjennomforingDetaljerTabAtom = atom<"detaljer" | "redaksjonelt-innhold">("detaljer");
 
 export const avtaleDetaljerTabAtom = atom<"detaljer" | "redaksjonelt-innhold">("detaljer");
 
