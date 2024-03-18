@@ -1,0 +1,61 @@
+{
+  "request": {
+    "method": "POST",
+    "urlPathPattern": "/amt-deltaker/deltakelser"
+  },
+  "response": {
+    "status": 200,
+    "jsonBody": {
+      "aktive": [
+        {
+          "deltakerId": "230258fa-c798-420d-8ddc-25ef8280fae7",
+          "innsoktDato": "2022-03-15",
+          "sistEndretdato": "2022-03-15",
+          "aktivStatus": "DELTAR",
+          "tittel": "Jobbklubb hos Oppfølging AS",
+          "tiltakstype": {
+            "navn": "Oppfølging",
+            "tiltakskode": "INDOPPFAG"
+          }
+        }
+      ],
+      "historikk": [
+        {
+          "deltakerId": "344b4340-a50a-406f-8bce-6a0b0e08544e",
+          "innsoktDato": "2022-03-15",
+          "periode": {
+            "startdato": "2022-03-15",
+            "sluttdato": "2022-06-25"
+          },
+          "historiskStatus": {
+            "historiskStatusType": "HAR_SLUTTET"
+          },
+          "tittel": "Arbeidsrettet rehabilitering hos Fretex AS",
+          "tiltakstype": {
+            "navn": "Arebeidsrettet rehabilitering",
+            "tiltakskode": "ARBRRHDAG"
+          }
+        },
+        {
+          "deltakerId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+          "innsoktDato": "2022-05-16",
+          "periode": {
+            "startdato": "2022-10-03",
+            "sluttdato": "2023-10-03"
+          },
+          "historiskStatus": {
+            "historiskStatusType": "FULLFORT"
+          },
+          "tittel": "Avklaring hos Joblearn AS",
+          "tiltakstype": {
+            "navn": "Avklaring",
+            "tiltakskode": "AVKLARAG"
+          }
+        }
+      ]
+    },
+    "headers": {
+      "Content-Type": "application/json"
+    }
+  }
+}

@@ -5,7 +5,7 @@ export const QueryKeys = {
   Brukerdata: "brukerdata",
   Veilederdata: "veilederdata",
   Historikk: "historikk",
-  HistorikkFraKomet: "historikkFraKomet",
+  HistorikkV2: "historikkV2",
   DeltMedBrukerStatus: "deltMedBrukerStatus",
   AlleDeltMedBrukerStatus: "alleDeltMedBrukerStatus",
   sanity: {

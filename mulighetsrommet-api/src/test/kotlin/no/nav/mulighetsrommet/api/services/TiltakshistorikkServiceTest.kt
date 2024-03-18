@@ -6,6 +6,7 @@ import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.mockk
 import no.nav.mulighetsrommet.api.clients.AccessType
+import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
 import no.nav.mulighetsrommet.api.clients.pdl.IdentGruppe
 import no.nav.mulighetsrommet.api.clients.pdl.IdentInformasjon
 import no.nav.mulighetsrommet.api.clients.pdl.PdlClient
@@ -26,6 +27,7 @@ class TiltakshistorikkServiceTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
 
     val pdlClient: PdlClient = mockk()
+    val amtDeltakerClient: AmtDeltakerClient = mockk()
     val tiltakstype = TiltakstypeFixtures.Oppfolging
 
     val tiltaksgjennomforing = TiltaksgjennomforingFixtures.Oppfolging1
@@ -85,7 +87,7 @@ class TiltakshistorikkServiceTest : FunSpec({
         ).right()
 
         val tiltakshistorikk = TiltakshistorikkRepository(database.db)
-        val historikkService = TiltakshistorikkService(virksomhetService, tiltakshistorikk, pdlClient)
+        val historikkService = TiltakshistorikkService(virksomhetService, amtDeltakerClient, tiltakshistorikk, pdlClient)
 
         val forventetHistorikk = listOf(
             TiltakshistorikkDto(
