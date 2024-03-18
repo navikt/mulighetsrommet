@@ -15,6 +15,7 @@ import skjemastyles from "../skjema/Skjema.module.scss";
 import { VirksomhetKontaktpersonerModal } from "../virksomhet/VirksomhetKontaktpersonerModal";
 import { InferredAvtaleSchema } from "../redaksjonelt-innhold/AvtaleSchema";
 import { SelectOption } from "../../../../frontend-common/components/SokeSelect";
+import { avtaletekster } from "../ledetekster/avtaleLedetekster";
 
 interface Props {
   readOnly: boolean;
@@ -44,7 +45,7 @@ export function AvtaleArrangorSkjema({ readOnly }: Props) {
           size="small"
           readOnly={readOnly}
           placeholder="Skriv for å søke etter tiltaksarrangør"
-          label={"Tiltaksarrangør hovedenhet"}
+          label={avtaletekster.tiltaksarrangorHovedenhetLabel}
           {...register("leverandor")}
           onInputChange={(value) => {
             setSokLeverandor(value);
@@ -63,7 +64,7 @@ export function AvtaleArrangorSkjema({ readOnly }: Props) {
         <ControlledMultiSelect
           size="small"
           placeholder="Velg underenhet for tiltaksarrangør"
-          label={"Tiltaksarrangør underenhet"}
+          label={avtaletekster.tiltaksarrangorUnderenheterLabel}
           helpText="Bestemmer hvilke arrangører som kan velges i gjennomføringene til avtalen."
           readOnly={!leverandor}
           {...register("leverandorUnderenheter")}
@@ -75,7 +76,7 @@ export function AvtaleArrangorSkjema({ readOnly }: Props) {
           <ControlledSokeSelect
             size="small"
             placeholder="Velg en"
-            label={"Kontaktperson hos leverandør"}
+            label={avtaletekster.kontaktpersonHosTiltaksarrangorLabel}
             readOnly={!leverandor}
             {...register("leverandorKontaktpersonId")}
             options={kontaktpersonOptions}
