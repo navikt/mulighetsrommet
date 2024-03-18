@@ -9,6 +9,7 @@ import { FormGroup } from "../skjema/FormGroup";
 import skjemastyles from "../skjema/Skjema.module.scss";
 import { VirksomhetKontaktpersonerModal } from "../virksomhet/VirksomhetKontaktpersonerModal";
 import { InferredTiltaksgjennomforingSchema } from "../redaksjonelt-innhold/TiltaksgjennomforingSchema";
+import { tiltaktekster } from "../ledetekster/tiltaksgjennomforingLedetekster";
 
 interface Props {
   avtale: Avtale;
@@ -34,14 +35,14 @@ export function TiltaksgjennomforingArrangorSkjema({ readOnly, avtale }: Props) 
       <FormGroup>
         <TextField
           size="small"
-          label="Tiltaksarrangør hovedenhet"
+          label={tiltaktekster.tiltaksarrangorHovedenhetLabel}
           placeholder=""
           defaultValue={`${avtale.leverandor.navn} - ${avtale.leverandor.organisasjonsnummer}`}
           readOnly
         />
         <ControlledSokeSelect
           size="small"
-          label="Tiltaksarrangør underenhet"
+          label={tiltaktekster.tiltaksarrangorUnderenhetLabel}
           placeholder="Velg underenhet for tiltaksarrangør"
           {...register("arrangorVirksomhetId")}
           onClearValue={() => {
@@ -54,7 +55,7 @@ export function TiltaksgjennomforingArrangorSkjema({ readOnly, avtale }: Props) 
           <ControlledMultiSelect
             size="small"
             placeholder="Velg kontaktpersoner"
-            label={"Kontaktpersoner hos tiltaksarrangør"}
+            label={tiltaktekster.kontaktpersonerHosTiltaksarrangorLabel}
             {...register("arrangorKontaktpersoner")}
             options={kontaktpersonOptions}
           />
@@ -70,7 +71,7 @@ export function TiltaksgjennomforingArrangorSkjema({ readOnly, avtale }: Props) 
         </div>
         <TextField
           size="small"
-          label="Sted for gjennomføring"
+          label={tiltaktekster.stedForGjennomforingLabel}
           description="Skriv inn stedet tiltaket skal gjennomføres, for eksempel Fredrikstad eller Tromsø. For tiltak uten eksplisitt lokasjon (for eksempel digital jobbklubb), kan du la feltet stå tomt."
           {...register("stedForGjennomforing")}
           error={

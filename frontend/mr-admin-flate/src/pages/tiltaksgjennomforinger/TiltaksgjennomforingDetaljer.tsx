@@ -17,6 +17,7 @@ import { formaterDato, formatertVentetid } from "../../utils/Utils";
 import { isTiltakMedFellesOppstart } from "../../utils/tiltakskoder";
 import styles from "../DetaljerInfo.module.scss";
 import { Kontaktperson } from "./Kontaktperson";
+import { tiltaktekster } from "../../components/ledetekster/tiltaksgjennomforingLedetekster";
 
 interface Props {
   tiltaksgjennomforing: Tiltaksgjennomforing;
@@ -71,16 +72,16 @@ export function TiltaksgjennomforingDetaljer(props: Props) {
       <div className={styles.container}>
         <div className={styles.detaljer}>
           <Bolk aria-label="Tiltaksnavn og tiltaksnummer" data-testid="tiltaksnavn">
-            <Metadata header="Tiltaksnavn" verdi={tiltaksgjennomforing.navn} />
+            <Metadata header={tiltaktekster.tiltaksnavnLabel} verdi={tiltaksgjennomforing.navn} />
             <Metadata
-              header="Tiltaksnummer"
+              header={tiltaktekster.tiltaksnummerLabel}
               verdi={tiltaksnummer ?? <HentTiltaksnummer id={tiltaksgjennomforing.id} />}
             />
           </Bolk>
 
           <Bolk aria-label="Tiltakstype og avtaletype">
             <Metadata
-              header="Avtale"
+              header={tiltaktekster.avtaleLabel}
               verdi={
                 avtale?.id ? (
                   <>
@@ -89,18 +90,18 @@ export function TiltaksgjennomforingDetaljer(props: Props) {
                     </Link>{" "}
                   </>
                 ) : (
-                  "Ingen avtale for gjennomføringen"
+                  tiltaktekster.ingenAvtaleForGjennomforingenLabel
                 )
               }
             />
-            <Metadata header="Tiltakstype" verdi={tiltakstype.navn} />
+            <Metadata header={tiltaktekster.tiltakstypeLabel} verdi={tiltakstype.navn} />
           </Bolk>
 
           <Separator />
 
-          <Bolk aria-label="Oppstartsdato">
+          <Bolk aria-label={tiltaktekster.oppstartstypeLabel}>
             <Metadata
-              header="Oppstartstype"
+              header={tiltaktekster.oppstartstypeLabel}
               verdi={
                 oppstart === TiltaksgjennomforingOppstartstype.FELLES
                   ? "Felles"
@@ -109,22 +110,28 @@ export function TiltaksgjennomforingDetaljer(props: Props) {
             />
           </Bolk>
           <Bolk aria-label="Start- og sluttdato">
-            <Metadata header="Startdato" verdi={formaterDato(startDato)} />
-            <Metadata header="Sluttdato" verdi={sluttDato ? formaterDato(sluttDato) : "-"} />
+            <Metadata header={tiltaktekster.startdatoLabel} verdi={formaterDato(startDato)} />
+            <Metadata
+              header={tiltaktekster.sluttdatoLabel}
+              verdi={sluttDato ? formaterDato(sluttDato) : "-"}
+            />
           </Bolk>
 
           <Bolk>
-            <Metadata header="Antall plasser" verdi={antallPlasser} />
+            <Metadata header={tiltaktekster.antallPlasserLabel} verdi={antallPlasser} />
             {isTiltakMedFellesOppstart(tiltakstype.arenaKode) && (
-              <Metadata header="Deltidsprosent" verdi={deltidsprosent} />
+              <Metadata header={tiltaktekster.deltidsprosentLabel} verdi={deltidsprosent} />
             )}
           </Bolk>
 
           {apentForInnsok ? (
             <>
               <Separator />
-              <Bolk aria-label="Åpent for innsøk">
-                <Metadata header="Åpent for innsøk" verdi={apentForInnsok ? "Ja" : "Nei"} />
+              <Bolk aria-label={tiltaktekster.apentForInnsokLabel}>
+                <Metadata
+                  header={tiltaktekster.apentForInnsokLabel}
+                  verdi={apentForInnsok ? "Ja" : "Nei"}
+                />
               </Bolk>
             </>
           ) : null}
@@ -133,9 +140,9 @@ export function TiltaksgjennomforingDetaljer(props: Props) {
 
           {tiltaksgjennomforing?.estimertVentetid ? (
             <>
-              <Bolk aria-label="Estimert ventetid">
+              <Bolk aria-label={tiltaktekster.estimertVentetidLabel}>
                 <Metadata
-                  header="Estimert ventetid"
+                  header={tiltaktekster.estimertVentetidLabel}
                   verdi={formatertVentetid(
                     tiltaksgjennomforing.estimertVentetid.verdi,
                     tiltaksgjennomforing.estimertVentetid.enhet,
@@ -146,9 +153,9 @@ export function TiltaksgjennomforingDetaljer(props: Props) {
             </>
           ) : null}
 
-          <Bolk aria-label="Administratorer for gjennomføringen">
+          <Bolk aria-label={tiltaktekster.administratorerForGjennomforingenLabel}>
             <Metadata
-              header="Administratorer for gjennomføringen"
+              header={tiltaktekster.administratorerForGjennomforingenLabel}
               verdi={
                 administratorer?.length ? (
                   <ul>
@@ -168,7 +175,7 @@ export function TiltaksgjennomforingDetaljer(props: Props) {
                     })}
                   </ul>
                 ) : (
-                  "Ingen administratorer satt for gjennomføringen"
+                  tiltaktekster.ingenAdministratorerSattForGjennomforingenLabel
                 )
               }
             />
@@ -176,13 +183,13 @@ export function TiltaksgjennomforingDetaljer(props: Props) {
         </div>
 
         <div className={styles.detaljer}>
-          <Bolk aria-label="NAV-region">
-            <Metadata header="NAV-region" verdi={navRegion?.navn} />
+          <Bolk aria-label={tiltaktekster.navRegionLabel}>
+            <Metadata header={tiltaktekster.navRegionLabel} verdi={navRegion?.navn} />
           </Bolk>
 
-          <Bolk aria-label="NAV-enheter">
+          <Bolk aria-label={tiltaktekster.navEnheterKontorerLabel}>
             <Metadata
-              header="NAV-enheter (kontorer)"
+              header={tiltaktekster.navEnheterKontorerLabel}
               verdi={
                 <ul>
                   {navEnheter.map((enhet) => (
@@ -197,7 +204,7 @@ export function TiltaksgjennomforingDetaljer(props: Props) {
             <Bolk>
               <div style={{ display: "flex", gap: "1rem" }}>
                 <Metadata
-                  header="Ansvarlig enhet fra Arena"
+                  header={tiltaktekster.ansvarligEnhetFraArenaLabel}
                   verdi={`${arenaAnsvarligEnhet.enhetsnummer} ${arenaAnsvarligEnhet.navn}`}
                 />
                 <HelpText title="Hva betyr feltet 'Ansvarlig enhet fra Arena'?">
@@ -211,11 +218,15 @@ export function TiltaksgjennomforingDetaljer(props: Props) {
           {kontaktpersonerFraNav.map((kp, index) => {
             return (
               <Bolk
-                aria-label={`Kontaktperson hos ${navnPaaNavEnheterForKontaktperson(kp.navEnheter)}`}
+                aria-label={tiltaktekster.kontaktpersonNavEnheter(
+                  navnPaaNavEnheterForKontaktperson(kp.navEnheter),
+                )}
                 key={index}
               >
                 <Metadata
-                  header={`Kontaktperson hos ${navnPaaNavEnheterForKontaktperson(kp.navEnheter)}`}
+                  header={tiltaktekster.kontaktpersonNavEnheter(
+                    navnPaaNavEnheterForKontaktperson(kp.navEnheter),
+                  )}
                   verdi={<Kontaktperson kontaktperson={kp} />}
                 />
               </Bolk>
@@ -225,9 +236,9 @@ export function TiltaksgjennomforingDetaljer(props: Props) {
           <Separator />
 
           {avtale?.leverandor ? (
-            <Bolk aria-label="Tiltaksarrangør hovedenhet">
+            <Bolk aria-label={tiltaktekster.tiltaksarrangorHovedenhetLabel}>
               <Metadata
-                header="Tiltaksarrangør hovedenhet"
+                header={tiltaktekster.tiltaksarrangorHovedenhetLabel}
                 verdi={[avtale.leverandor.navn, avtale.leverandor.organisasjonsnummer]
                   .filter(Boolean)
                   .join(" - ")}
@@ -236,9 +247,9 @@ export function TiltaksgjennomforingDetaljer(props: Props) {
           ) : null}
 
           {arrangor ? (
-            <Bolk aria-label="Tiltaksarrangør underenhet">
+            <Bolk aria-label={tiltaktekster.tiltaksarrangorUnderenhetLabel}>
               <Metadata
-                header="Tiltaksarrangør underenhet"
+                header={tiltaktekster.tiltaksarrangorUnderenhetLabel}
                 verdi={
                   arrangor.navn
                     ? `${arrangor.navn} - ${arrangor.organisasjonsnummer}`
@@ -249,7 +260,7 @@ export function TiltaksgjennomforingDetaljer(props: Props) {
           ) : null}
           {arrangor.kontaktpersoner.length > 0 && (
             <Metadata
-              header="Kontaktpersoner hos tiltaksarrangør"
+              header={tiltaktekster.kontaktpersonerHosTiltaksarrangorLabel}
               verdi={
                 <div className={styles.leverandor_kontaktinfo_container}>
                   {arrangor.kontaktpersoner.map((person: VirksomhetKontaktperson) => (
@@ -267,8 +278,11 @@ export function TiltaksgjennomforingDetaljer(props: Props) {
           {stedForGjennomforing && (
             <>
               <Separator />
-              <Bolk aria-label="Sted for gjennomføring">
-                <Metadata header="Sted for gjennomføring" verdi={stedForGjennomforing} />
+              <Bolk aria-label={tiltaktekster.stedForGjennomforingLabel}>
+                <Metadata
+                  header={tiltaktekster.stedForGjennomforingLabel}
+                  verdi={stedForGjennomforing}
+                />
               </Bolk>
             </>
           )}
