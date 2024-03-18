@@ -1,23 +1,32 @@
 import { PlusIcon } from "@navikt/aksel-icons";
 import { Alert, Heading, Skeleton, VStack } from "@navikt/ds-react";
-import { Link } from "react-router-dom";
-import styles from "./Landingsside.module.scss";
-import { HistorikkKort } from "../historikk/HistorikkKort";
-import { useHistorikkFraKomet } from "../../../core/api/queries/useHistorikkFraKomet";
-import { UtkastKort } from "../historikk/UtkastKort";
-import { ErrorBoundary } from "react-error-boundary";
-import { ErrorFallback } from "../../../utils/ErrorFallback";
 import { Suspense } from "react";
+import { ErrorBoundary } from "react-error-boundary";
+import { Link } from "react-router-dom";
+import { useHistorikkFraKomet } from "../../../core/api/queries/useHistorikkFraKomet";
+import { HistorikkKort } from "../historikk/HistorikkKort";
+import { UtkastKort } from "../historikk/UtkastKort";
+import styles from "./Landingsside.module.scss";
 
 function SkeletonLoader() {
   return <Skeleton variant="rounded" height={"10rem"} width={"40rem"} />;
+}
+
+function Feilmelding({ message }: { message: string }) {
+  return (
+    <Alert aria-live="polite" variant="error">
+      {message}
+    </Alert>
+  );
 }
 
 export function Landingsside() {
   return (
     <main className="mulighetsrommet-veileder-flate">
       <VStack gap="10" className={styles.container}>
-        <ErrorBoundary FallbackComponent={ErrorFallback}>
+        <ErrorBoundary
+          FallbackComponent={() => Feilmelding({ message: "Klarte ikke hente utkast for bruker" })}
+        >
           <Suspense fallback={<SkeletonLoader />}>
             <Utkast />
           </Suspense>
@@ -27,7 +36,11 @@ export function Landingsside() {
             <PlusIcon color="white" fontSize={30} aria-hidden /> Finn nytt arbeidsmarkedstiltak
           </Link>
         </div>
-        <ErrorBoundary FallbackComponent={ErrorFallback}>
+        <ErrorBoundary
+          FallbackComponent={() =>
+            Feilmelding({ message: "Klarte ikke hente historikk for bruker" })
+          }
+        >
           <Suspense
             fallback={
               <VStack gap="5">
