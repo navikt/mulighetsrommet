@@ -11,10 +11,10 @@
   color: white;
   text-decoration: none;
   display: inline-flex;
-  padding: 1rem;
+  padding: 20px 12px;
   border-radius: 0.2rem;
   align-items: center;
-  gap: 0.5rem;
+  height: 48px;
 
   &:focus-visible {
     box-shadow:
@@ -25,4 +25,11 @@
         ),
       var(--a-shadow-focus);
   }
+}
+
+.info {
+  display: flex;
+  justify-content: center;
+  flex-direction: row;
+  gap: 0.5rem;
 }

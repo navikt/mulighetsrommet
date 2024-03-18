@@ -1,5 +1,5 @@
-import { PlusIcon } from "@navikt/aksel-icons";
-import { Alert, Heading, Skeleton, VStack } from "@navikt/ds-react";
+import { InformationSquareFillIcon, PlusIcon } from "@navikt/aksel-icons";
+import { Alert, BodyShort, Heading, Skeleton, VStack } from "@navikt/ds-react";
 import { Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { Link } from "react-router-dom";
@@ -25,7 +25,12 @@ export function Landingsside() {
     <main className="mulighetsrommet-veileder-flate">
       <VStack gap="10" className={styles.container}>
         <ErrorBoundary
-          FallbackComponent={() => Feilmelding({ message: "Klarte ikke hente utkast for bruker" })}
+          FallbackComponent={() =>
+            Feilmelding({
+              message:
+                "Noe gikk galt, og du får dessverre ikke sett alle deltakelser. Prøv igjen senere. ",
+            })
+          }
         >
           <Suspense fallback={<SkeletonLoader />}>
             <Utkast />
@@ -38,7 +43,10 @@ export function Landingsside() {
         </div>
         <ErrorBoundary
           FallbackComponent={() =>
-            Feilmelding({ message: "Klarte ikke hente historikk for bruker" })
+            Feilmelding({
+              message:
+                "Noe gikk galt, og du får dessverre ikke sett historikk. Prøv igjen senere. ",
+            })
           }
         >
           <Suspense
@@ -52,6 +60,11 @@ export function Landingsside() {
             <Historikk />
           </Suspense>
         </ErrorBoundary>
+        <BodyShort className={styles.info}>
+          <InformationSquareFillIcon color="#236B7D" fontSize={20} aria-hidden />
+          Se Arena og “Tiltaksgjennomføring - avtaler” for å få den totale oversikten over brukerens
+          deltakelse på arbeidsmarkedstiltak.
+        </BodyShort>
       </VStack>
     </main>
   );
@@ -91,10 +104,6 @@ function Utkast() {
 
   return (
     <VStack gap="5">
-      <Heading level="3" size="medium">
-        Utkast
-      </Heading>
-
       {aktive.length > 0 ? (
         aktive.map((utkast) => {
           return <UtkastKort key={utkast.deltakerId} utkast={utkast} />;
