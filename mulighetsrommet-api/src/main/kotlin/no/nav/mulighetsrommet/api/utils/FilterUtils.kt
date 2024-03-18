@@ -8,7 +8,7 @@ import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dto.Avtalestatus
 import no.nav.mulighetsrommet.domain.dto.NavIdent
-import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus
+import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus
 import no.nav.mulighetsrommet.domain.dto.Tiltakstypestatus
 import no.nav.mulighetsrommet.notifications.NotificationStatus
 import no.nav.mulighetsrommet.utils.toUUID
@@ -38,7 +38,7 @@ data class AdminTiltaksgjennomforingFilter(
     val search: String? = null,
     val navEnheter: List<String> = emptyList(),
     val tiltakstypeIder: List<UUID> = emptyList(),
-    val statuser: List<Tiltaksgjennomforingsstatus> = emptyList(),
+    val statuser: List<TiltaksgjennomforingStatus> = emptyList(),
     val sortering: String? = null,
     val sluttDatoCutoff: LocalDate? = ArenaMigrering.TiltaksgjennomforingSluttDatoCutoffDate,
     val dagensDato: LocalDate = LocalDate.now(),
@@ -134,7 +134,7 @@ fun <T : Any> PipelineContext<T, ApplicationCall>.getAdminTiltaksgjennomforingsF
     val tiltakstypeIder =
         call.parameters.getAll("tiltakstypeIder")?.map { UUID.fromString(it) }
     val statuser =
-        call.parameters.getAll("statuser")?.map { Tiltaksgjennomforingsstatus.valueOf(it) }
+        call.parameters.getAll("statuser")?.map { TiltaksgjennomforingStatus.valueOf(it) }
     val sortering = call.request.queryParameters["sort"]
     val navRegioner = call.parameters.getAll("navRegioner")
     val avtaleId = call.request.queryParameters["avtaleId"]?.let { if (it.isEmpty()) null else UUID.fromString(it) }

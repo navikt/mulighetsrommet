@@ -20,8 +20,8 @@ import no.nav.mulighetsrommet.domain.dbo.ArenaTiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dto.NavIdent
-import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus
-import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus.*
+import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus
+import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus.*
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
 import java.time.LocalDate
@@ -372,7 +372,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         search: String? = null,
         navEnheter: List<String> = emptyList(),
         tiltakstypeIder: List<UUID> = emptyList(),
-        statuser: List<Tiltaksgjennomforingsstatus> = emptyList(),
+        statuser: List<TiltaksgjennomforingStatus> = emptyList(),
         sortering: String? = null,
         sluttDatoCutoff: LocalDate? = ArenaMigrering.TiltaksgjennomforingSluttDatoCutoffDate,
         dagensDato: LocalDate = LocalDate.now(),
@@ -468,7 +468,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 "('$it' = nav_region_enhetsnummer or  arena_ansvarlig_enhet::jsonb->>'enhetsnummer' = '$it' or arena_ansvarlig_enhet::jsonb->>'enhetsnummer' in (select enhetsnummer from nav_enhet where overordnet_enhet = '$it'))"
             }
 
-    private fun statuserWhereStatement(statuser: List<Tiltaksgjennomforingsstatus>): String =
+    private fun statuserWhereStatement(statuser: List<TiltaksgjennomforingStatus>): String =
         statuser
             .joinToString(prefix = "(", postfix = ")", separator = " or ") {
                 when (it) {
@@ -832,7 +832,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                     it,
                 )
             },
-            status = Tiltaksgjennomforingsstatus.fromDbo(
+            status = TiltaksgjennomforingStatus.fromDbo(
                 LocalDate.now(),
                 startDato,
                 sluttDato,

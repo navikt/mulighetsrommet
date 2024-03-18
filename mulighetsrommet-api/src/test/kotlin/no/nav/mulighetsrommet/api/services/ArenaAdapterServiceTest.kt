@@ -30,7 +30,7 @@ import no.nav.mulighetsrommet.domain.dbo.*
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus.AVSLUTTET
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus.IKKE_AVSLUTTET
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
-import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus
+import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus
 import no.nav.mulighetsrommet.domain.dto.Tiltakstypestatus
 import no.nav.mulighetsrommet.kafka.producers.TiltaksgjennomforingKafkaProducer
 import no.nav.mulighetsrommet.kafka.producers.TiltakstypeKafkaProducer
@@ -442,7 +442,7 @@ class ArenaAdapterServiceTest : FunSpec({
             gjennomforinger.getAvslutningsstatus(arenaGjennomforing.id) shouldBe IKKE_AVSLUTTET
 
             // Verifiser status utledet fra datoer og ikke avslutningsstatus
-            gjennomforinger.get(arenaGjennomforing.id)?.status shouldBe Tiltaksgjennomforingsstatus.AVSLUTTET
+            gjennomforinger.get(arenaGjennomforing.id)?.status shouldBe TiltaksgjennomforingStatus.AVSLUTTET
 
             // Verifiser at avslutningsstatus blir lagret
             service.upsertTiltaksgjennomforing(arenaGjennomforing.copy(avslutningsstatus = AVSLUTTET))
@@ -496,7 +496,7 @@ class ArenaAdapterServiceTest : FunSpec({
             gjennomforinger.get(gjennomforing.id).shouldNotBeNull().should {
                 it.tiltaksnummer shouldBe "2024#2024"
                 it.arenaAnsvarligEnhet shouldBe NavEnhetFixtures.TiltakOslo
-                it.status shouldBe Tiltaksgjennomforingsstatus.GJENNOMFORES
+                it.status shouldBe TiltaksgjennomforingStatus.GJENNOMFORES
 
                 it.opphav shouldBe ArenaMigrering.Opphav.MR_ADMIN_FLATE
                 it.avtaleId shouldBe gjennomforing.avtaleId
@@ -838,7 +838,7 @@ private fun toTiltaksgjennomforingDto(dbo: ArenaTiltaksgjennomforingDbo, tiltaks
         navn = navn,
         startDato = startDato,
         sluttDato = sluttDato,
-        status = Tiltaksgjennomforingsstatus.GJENNOMFORES,
+        status = TiltaksgjennomforingStatus.GJENNOMFORES,
         oppstart = oppstart,
         virksomhetsnummer = arrangorOrganisasjonsnummer,
     )

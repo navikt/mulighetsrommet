@@ -37,7 +37,7 @@ import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dto.Faneinnhold
 import no.nav.mulighetsrommet.domain.dto.NavIdent
-import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus
+import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus
 import java.time.LocalDate
 import java.util.*
 
@@ -87,7 +87,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 it.startDato shouldBe Oppfolging1.startDato
                 it.sluttDato shouldBe Oppfolging1.sluttDato
                 it.arenaAnsvarligEnhet shouldBe null
-                it.status shouldBe Tiltaksgjennomforingsstatus.AVSLUTTET
+                it.status shouldBe TiltaksgjennomforingStatus.AVSLUTTET
                 it.apentForInnsok shouldBe true
                 it.antallPlasser shouldBe 12
                 it.avtaleId shouldBe Oppfolging1.avtaleId
@@ -156,7 +156,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 it.antallPlasser shouldBe 10
                 it.avtaleId shouldBe null
                 it.oppstart shouldBe TiltaksgjennomforingOppstartstype.FELLES
-                it.status shouldBe Tiltaksgjennomforingsstatus.AVSLUTTET
+                it.status shouldBe TiltaksgjennomforingStatus.AVSLUTTET
                 it.administratorer shouldBe emptyList()
                 it.navEnheter shouldBe emptyList()
                 it.navRegion shouldBe null
@@ -670,7 +670,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
 
             val result = tiltaksgjennomforingRepository.getAll(
                 dagensDato = dagensDato,
-                statuser = listOf(Tiltaksgjennomforingsstatus.AVBRUTT),
+                statuser = listOf(TiltaksgjennomforingStatus.AVBRUTT),
             )
 
             result.second shouldHaveSize 1
@@ -682,7 +682,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
 
             val result = tiltaksgjennomforingRepository.getAll(
                 dagensDato = dagensDato,
-                statuser = listOf(Tiltaksgjennomforingsstatus.AVSLUTTET),
+                statuser = listOf(TiltaksgjennomforingStatus.AVSLUTTET),
             )
 
             result.second shouldHaveSize 2
@@ -694,7 +694,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
 
             val result = tiltaksgjennomforingRepository.getAll(
-                statuser = listOf(Tiltaksgjennomforingsstatus.GJENNOMFORES),
+                statuser = listOf(TiltaksgjennomforingStatus.GJENNOMFORES),
                 dagensDato = dagensDato,
             )
 
@@ -706,7 +706,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
 
             val result = tiltaksgjennomforingRepository.getAll(
-                statuser = listOf(Tiltaksgjennomforingsstatus.AVLYST),
+                statuser = listOf(TiltaksgjennomforingStatus.AVLYST),
                 dagensDato = dagensDato,
             )
 
@@ -718,7 +718,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
 
             val result = tiltaksgjennomforingRepository.getAll(
-                statuser = listOf(Tiltaksgjennomforingsstatus.PLANLAGT),
+                statuser = listOf(TiltaksgjennomforingStatus.PLANLAGT),
                 dagensDato = dagensDato,
             )
 

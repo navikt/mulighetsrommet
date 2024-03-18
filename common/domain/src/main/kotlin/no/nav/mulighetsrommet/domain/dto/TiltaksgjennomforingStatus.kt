@@ -5,7 +5,7 @@ import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import java.time.LocalDate
 
 @Serializable
-enum class Tiltaksgjennomforingsstatus {
+enum class TiltaksgjennomforingStatus {
     PLANLAGT,
     GJENNOMFORES,
     AVBRUTT,
@@ -19,7 +19,7 @@ enum class Tiltaksgjennomforingsstatus {
             startDato: LocalDate,
             sluttDato: LocalDate?,
             avslutningsStatus: Avslutningsstatus,
-        ): Tiltaksgjennomforingsstatus {
+        ): TiltaksgjennomforingStatus {
             return when {
                 avslutningsStatus == Avslutningsstatus.AVLYST -> AVLYST
                 avslutningsStatus == Avslutningsstatus.AVBRUTT -> AVBRUTT
