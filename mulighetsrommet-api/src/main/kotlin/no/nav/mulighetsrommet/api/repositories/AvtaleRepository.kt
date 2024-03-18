@@ -235,6 +235,7 @@ class AvtaleRepository(private val db: Database) {
         tiltakstypeIder: List<UUID> = emptyList(),
         search: String? = null,
         statuser: List<Avtalestatus> = emptyList(),
+        avtaletyper: List<Avtaletype> = emptyList(),
         navRegioner: List<String> = emptyList(),
         sortering: String? = null,
         dagensDato: LocalDate = LocalDate.now(),
@@ -253,6 +254,7 @@ class AvtaleRepository(private val db: Database) {
             tiltakstypeIder.ifEmpty { null } to tiltakstypeIderWhereStatement(tiltakstypeIder),
             search to "(lower(navn) like lower(:search) or avtalenummer like :search)",
             statuser.ifEmpty { null } to statuserWhereStatement(statuser),
+            avtaletyper.ifEmpty { null } to avtaletyperWhereStatement(avtaletyper),
             navRegioner.ifEmpty { null } to navRegionerWhereStatement(navRegioner),
             leverandorOrgnr.ifEmpty { null } to leverandorOrgnrWhereStatement(leverandorOrgnr),
             administratorNavIdent to "administratorer @> :administrator_nav_ident::jsonb",
@@ -501,6 +503,17 @@ class AvtaleRepository(private val db: Database) {
                     Avtalestatus.Aktiv -> "(avslutningsstatus = '${Avslutningsstatus.IKKE_AVSLUTTET}' and :today <= slutt_dato)"
                     Avtalestatus.Avsluttet -> "(avslutningsstatus = '${Avslutningsstatus.AVSLUTTET}' or :today > slutt_dato)"
                     Avtalestatus.Avbrutt -> "avslutningsstatus = '${Avslutningsstatus.AVBRUTT}'"
+                }
+            }
+
+    private fun avtaletyperWhereStatement(avtaletyper: List<Avtaletype>): String =
+        avtaletyper
+            .joinToString(prefix = "(", postfix = ")", separator = " or ") {
+                when (it) {
+                    Avtaletype.Avtale -> "(avtaletype = '${Avtaletype.Avtale}')"
+                    Avtaletype.Rammeavtale -> "(avtaletype = '${Avtaletype.Rammeavtale}')"
+                    Avtaletype.Forhaandsgodkjent -> "(avtaletype = '${Avtaletype.Forhaandsgodkjent}')"
+                    Avtaletype.OffentligOffentlig -> "(avtaletype = '${Avtaletype.OffentligOffentlig}')"
                 }
             }
 

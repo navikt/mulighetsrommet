@@ -120,6 +120,7 @@ class AvtaleService(
             tiltakstypeIder = filter.tiltakstypeIder,
             search = filter.search,
             statuser = filter.statuser,
+            avtaletyper = filter.avtaletyper,
             navRegioner = filter.navRegioner,
             sortering = filter.sortering,
             dagensDato = filter.dagensDato,
