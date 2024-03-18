@@ -83,13 +83,11 @@ function Historikk() {
       <Heading level="3" size="medium">
         Historikk
       </Heading>
-      {historikk.length > 0 ? (
-        historikk.map((hist) => {
-          return <HistorikkKort key={hist.deltakerId} historikk={hist} />;
-        })
-      ) : (
-        <Alert variant="info">Ingen historikk for bruker</Alert>
-      )}
+      {historikk.length > 0
+        ? historikk.map((hist) => {
+            return <HistorikkKort key={hist.deltakerId} historikk={hist} />;
+          })
+        : null}
     </VStack>
   );
 }
