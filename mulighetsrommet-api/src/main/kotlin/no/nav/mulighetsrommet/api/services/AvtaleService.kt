@@ -22,7 +22,7 @@ import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering.Opphav
 import no.nav.mulighetsrommet.domain.dto.Avtalestatus
 import no.nav.mulighetsrommet.domain.dto.NavIdent
-import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus
+import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus
 import no.nav.mulighetsrommet.notifications.NotificationRepository
 import no.nav.mulighetsrommet.notifications.NotificationType
 import no.nav.mulighetsrommet.notifications.ScheduledNotification
@@ -153,13 +153,13 @@ class AvtaleService(
         val gjennomforinger = tiltaksgjennomforinger.getAll(
             avtaleId = id,
             statuser = listOf(
-                Tiltaksgjennomforingsstatus.GJENNOMFORES,
-                Tiltaksgjennomforingsstatus.PLANLAGT,
+                TiltaksgjennomforingStatus.GJENNOMFORES,
+                TiltaksgjennomforingStatus.PLANLAGT,
             ),
             dagensDato = dagensDato,
         ).second
 
-        val (antallAktiveGjennomforinger, antallPlanlagteGjennomforinger) = gjennomforinger.partition { it.status == Tiltaksgjennomforingsstatus.GJENNOMFORES }
+        val (antallAktiveGjennomforinger, antallPlanlagteGjennomforinger) = gjennomforinger.partition { it.status == TiltaksgjennomforingStatus.GJENNOMFORES }
         if (antallAktiveGjennomforinger.isNotEmpty()) {
             return Either.Left(
                 BadRequest(

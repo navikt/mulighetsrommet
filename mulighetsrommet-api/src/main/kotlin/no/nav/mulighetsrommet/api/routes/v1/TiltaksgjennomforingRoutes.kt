@@ -22,7 +22,7 @@ import no.nav.mulighetsrommet.api.utils.getPaginationParams
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dto.Faneinnhold
 import no.nav.mulighetsrommet.domain.dto.NavIdent
-import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus
+import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import org.koin.ktor.ext.inject
@@ -128,7 +128,7 @@ fun <T : Any> PipelineContext<T, ApplicationCall>.getAdminTiltaksgjennomforingsF
     val navEnheter = call.parameters.getAll("navEnheter") ?: emptyList()
     val tiltakstypeIder = call.parameters.getAll("tiltakstyper")?.map { UUID.fromString(it) } ?: emptyList()
     val statuser = call.parameters.getAll("statuser")
-        ?.map { Tiltaksgjennomforingsstatus.valueOf(it) }
+        ?.map { TiltaksgjennomforingStatus.valueOf(it) }
         ?: emptyList()
     val sortering = call.request.queryParameters["sort"]
     val avtaleId = call.request.queryParameters["avtaleId"]?.let { if (it.isEmpty()) null else UUID.fromString(it) }

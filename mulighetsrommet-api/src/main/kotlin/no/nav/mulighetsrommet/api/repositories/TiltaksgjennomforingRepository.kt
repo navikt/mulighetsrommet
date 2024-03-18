@@ -20,8 +20,8 @@ import no.nav.mulighetsrommet.domain.dbo.ArenaTiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dto.NavIdent
-import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus
-import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus.*
+import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus
+import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus.*
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
 import java.time.LocalDate
@@ -369,7 +369,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         search: String? = null,
         navEnheter: List<String> = emptyList(),
         tiltakstypeIder: List<UUID> = emptyList(),
-        statuser: List<Tiltaksgjennomforingsstatus> = emptyList(),
+        statuser: List<TiltaksgjennomforingStatus> = emptyList(),
         sortering: String? = null,
         sluttDatoCutoff: LocalDate? = ArenaMigrering.TiltaksgjennomforingSluttDatoCutoffDate,
         dagensDato: LocalDate = LocalDate.now(),
@@ -451,7 +451,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         return Pair(totaltAntall, tiltaksgjennomforinger)
     }
 
-    private fun statuserWhereStatement(statuser: List<Tiltaksgjennomforingsstatus>): String =
+    private fun statuserWhereStatement(statuser: List<TiltaksgjennomforingStatus>): String =
         statuser
             .ifEmpty { null }
             ?.joinToString(prefix = "(", postfix = ")", separator = " or ") {
@@ -774,7 +774,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             tiltaksnummer = stringOrNull("tiltaksnummer"),
             startDato = startDato,
             sluttDato = sluttDato,
-            status = Tiltaksgjennomforingsstatus.valueOf(string("status")),
+            status = TiltaksgjennomforingStatus.valueOf(string("status")),
             apentForInnsok = boolean("apent_for_innsok"),
             sanityId = uuidOrNull("sanity_id"),
             antallPlasser = intOrNull("antall_plasser"),

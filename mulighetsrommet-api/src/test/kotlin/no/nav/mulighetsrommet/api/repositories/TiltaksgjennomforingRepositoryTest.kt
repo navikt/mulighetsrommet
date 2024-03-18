@@ -42,7 +42,7 @@ import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dto.Faneinnhold
 import no.nav.mulighetsrommet.domain.dto.NavIdent
-import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus
+import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
@@ -86,7 +86,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 it.startDato shouldBe Oppfolging1.startDato
                 it.sluttDato shouldBe Oppfolging1.sluttDato
                 it.arenaAnsvarligEnhet shouldBe null
-                it.status shouldBe Tiltaksgjennomforingsstatus.AVSLUTTET
+                it.status shouldBe TiltaksgjennomforingStatus.AVSLUTTET
                 it.apentForInnsok shouldBe true
                 it.antallPlasser shouldBe 12
                 it.avtaleId shouldBe Oppfolging1.avtaleId
@@ -160,7 +160,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 it.antallPlasser shouldBe 10
                 it.avtaleId shouldBe null
                 it.oppstart shouldBe TiltaksgjennomforingOppstartstype.FELLES
-                it.status shouldBe Tiltaksgjennomforingsstatus.AVSLUTTET
+                it.status shouldBe TiltaksgjennomforingStatus.AVSLUTTET
                 it.administratorer shouldBe emptyList()
                 it.navEnheter shouldBe emptyList()
                 it.navRegion shouldBe null
@@ -529,7 +529,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
 
             val result = tiltaksgjennomforingRepository.getAll(
-                statuser = listOf(Tiltaksgjennomforingsstatus.AVBRUTT),
+                statuser = listOf(TiltaksgjennomforingStatus.AVBRUTT),
             )
 
             result.second shouldHaveSize 1
@@ -540,7 +540,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
 
             val result = tiltaksgjennomforingRepository.getAll(
-                statuser = listOf(Tiltaksgjennomforingsstatus.AVSLUTTET),
+                statuser = listOf(TiltaksgjennomforingStatus.AVSLUTTET),
             )
 
             result.second shouldHaveSize 1
@@ -551,7 +551,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
 
             val result = tiltaksgjennomforingRepository.getAll(
-                statuser = listOf(Tiltaksgjennomforingsstatus.GJENNOMFORES),
+                statuser = listOf(TiltaksgjennomforingStatus.GJENNOMFORES),
             )
 
             result.second shouldHaveSize 1
@@ -562,7 +562,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
 
             val result = tiltaksgjennomforingRepository.getAll(
-                statuser = listOf(Tiltaksgjennomforingsstatus.AVLYST),
+                statuser = listOf(TiltaksgjennomforingStatus.AVLYST),
             )
 
             result.second shouldHaveSize 1
@@ -573,7 +573,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
 
             val result = tiltaksgjennomforingRepository.getAll(
-                statuser = listOf(Tiltaksgjennomforingsstatus.PLANLAGT),
+                statuser = listOf(TiltaksgjennomforingStatus.PLANLAGT),
             )
 
             result.second shouldHaveSize 1
@@ -1145,7 +1145,13 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         }
 
         test("skal filtrere basert på apent_for_innsok") {
-            tiltaksgjennomforinger.upsert(Oppfolging1.copy(sluttDato = null, apentForInnsok = true, navEnheter = listOf("2990")))
+            tiltaksgjennomforinger.upsert(
+                Oppfolging1.copy(
+                    sluttDato = null,
+                    apentForInnsok = true,
+                    navEnheter = listOf("2990"),
+                ),
+            )
             tiltaksgjennomforinger.upsert(AFT1.copy(apentForInnsok = false, navEnheter = listOf("2990")))
 
             tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
@@ -1248,7 +1254,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 ),
             )
             tiltaksgjennomforinger.setAvbruttTidspunkt(AFT1.id, enManedTilbake.atStartOfDay().minusDays(1))
-            tiltaksgjennomforinger.get(AFT1.id)!!.status shouldBe Tiltaksgjennomforingsstatus.AVLYST
+            tiltaksgjennomforinger.get(AFT1.id)!!.status shouldBe TiltaksgjennomforingStatus.AVLYST
 
             tiltaksgjennomforinger.upsert(
                 AFT1.copy(
@@ -1257,7 +1263,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 ),
             )
             tiltaksgjennomforinger.setAvbruttTidspunkt(AFT1.id, toManederTilbake.atStartOfDay().minusYears(1))
-            tiltaksgjennomforinger.get(AFT1.id)!!.status shouldBe Tiltaksgjennomforingsstatus.AVLYST
+            tiltaksgjennomforinger.get(AFT1.id)!!.status shouldBe TiltaksgjennomforingStatus.AVLYST
 
             tiltaksgjennomforinger.upsert(
                 AFT1.copy(
@@ -1266,7 +1272,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 ),
             )
             tiltaksgjennomforinger.setAvbruttTidspunkt(AFT1.id, enManedFrem.atStartOfDay().minusMonths(1))
-            tiltaksgjennomforinger.get(AFT1.id)!!.status shouldBe Tiltaksgjennomforingsstatus.AVLYST
+            tiltaksgjennomforinger.get(AFT1.id)!!.status shouldBe TiltaksgjennomforingStatus.AVLYST
         }
 
         test("avbrutt etter start er avbrutt") {
@@ -1277,7 +1283,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 ),
             )
             tiltaksgjennomforinger.setAvbruttTidspunkt(AFT1.id, enManedTilbake.atStartOfDay().plusDays(3))
-            tiltaksgjennomforinger.get(AFT1.id)!!.status shouldBe Tiltaksgjennomforingsstatus.AVBRUTT
+            tiltaksgjennomforinger.get(AFT1.id)!!.status shouldBe TiltaksgjennomforingStatus.AVBRUTT
 
             tiltaksgjennomforinger.upsert(
                 AFT1.copy(
@@ -1286,7 +1292,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 ),
             )
             tiltaksgjennomforinger.setAvbruttTidspunkt(AFT1.id, toManederTilbake.atStartOfDay().plusYears(2))
-            tiltaksgjennomforinger.get(AFT1.id)!!.status shouldBe Tiltaksgjennomforingsstatus.AVBRUTT
+            tiltaksgjennomforinger.get(AFT1.id)!!.status shouldBe TiltaksgjennomforingStatus.AVBRUTT
 
             tiltaksgjennomforinger.upsert(
                 AFT1.copy(
@@ -1295,7 +1301,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 ),
             )
             tiltaksgjennomforinger.setAvbruttTidspunkt(AFT1.id, enManedFrem.atStartOfDay().plusMonths(2))
-            tiltaksgjennomforinger.get(AFT1.id)!!.status shouldBe Tiltaksgjennomforingsstatus.AVBRUTT
+            tiltaksgjennomforinger.get(AFT1.id)!!.status shouldBe TiltaksgjennomforingStatus.AVBRUTT
         }
 
         test("hvis ikke avbrutt") {
@@ -1305,7 +1311,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                     sluttDato = enManedFrem,
                 ),
             )
-            tiltaksgjennomforinger.get(AFT1.id)!!.status shouldBe Tiltaksgjennomforingsstatus.GJENNOMFORES
+            tiltaksgjennomforinger.get(AFT1.id)!!.status shouldBe TiltaksgjennomforingStatus.GJENNOMFORES
 
             tiltaksgjennomforinger.upsert(
                 AFT1.copy(
@@ -1313,7 +1319,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                     sluttDato = enManedTilbake,
                 ),
             )
-            tiltaksgjennomforinger.get(AFT1.id)!!.status shouldBe Tiltaksgjennomforingsstatus.AVSLUTTET
+            tiltaksgjennomforinger.get(AFT1.id)!!.status shouldBe TiltaksgjennomforingStatus.AVSLUTTET
 
             tiltaksgjennomforinger.upsert(
                 AFT1.copy(
@@ -1321,7 +1327,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                     sluttDato = toManederFrem,
                 ),
             )
-            tiltaksgjennomforinger.get(AFT1.id)!!.status shouldBe Tiltaksgjennomforingsstatus.PLANLAGT
+            tiltaksgjennomforinger.get(AFT1.id)!!.status shouldBe TiltaksgjennomforingStatus.PLANLAGT
         }
 
         test("hvis sluttdato mangler så regnes den som pågående") {
@@ -1331,7 +1337,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                     sluttDato = null,
                 ),
             )
-            tiltaksgjennomforinger.get(AFT1.id)!!.status shouldBe Tiltaksgjennomforingsstatus.GJENNOMFORES
+            tiltaksgjennomforinger.get(AFT1.id)!!.status shouldBe TiltaksgjennomforingStatus.GJENNOMFORES
 
             tiltaksgjennomforinger.upsert(
                 AFT1.copy(
@@ -1339,7 +1345,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                     sluttDato = null,
                 ),
             )
-            tiltaksgjennomforinger.get(AFT1.id)!!.status shouldBe Tiltaksgjennomforingsstatus.PLANLAGT
+            tiltaksgjennomforinger.get(AFT1.id)!!.status shouldBe TiltaksgjennomforingStatus.PLANLAGT
         }
     }
 })
