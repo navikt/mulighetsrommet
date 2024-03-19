@@ -18,13 +18,13 @@ export function ForsidekortListe() {
         navn="Tiltakstyper"
         ikon={<TiltakstypeIkon inkluderBakgrunn aria-label="Tiltakstyper" />}
         url="tiltakstyper"
-        tekst="Her finner du informasjon om tiltakstyper"
+        tekst="Her finner du informasjon om tiltakstyper for gruppetiltak"
       />
       <Forsidekort
         navn="Avtaler"
         ikon={<AvtaleIkon inkluderBakgrunn aria-label="Avtaler" />}
         url="avtaler"
-        tekst="Her finner du informasjon om avtaler"
+        tekst="Her finner du informasjon om avtaler for gruppetiltak"
       />
       <Forsidekort
         navn="Tiltaksgjennomføringer"
@@ -39,7 +39,13 @@ export function ForsidekortListe() {
       />
       <Forsidekort
         navn="Individuelle tiltaksgjennomføringer"
-        ikon={<img src="./sanity_logo.png" alt="Sanity-logo" />}
+        ikon={
+          <img
+            style={{ height: "64px", width: "64px" }}
+            src="./sanity_logo.png"
+            alt="Sanity-logo"
+          />
+        }
         url={SANITY_STUDIO_URL}
         tekst="Her administrerer du individuelle tiltaksgjennomføringer"
       />
