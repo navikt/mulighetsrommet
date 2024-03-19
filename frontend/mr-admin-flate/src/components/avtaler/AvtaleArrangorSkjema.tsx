@@ -44,7 +44,7 @@ export function AvtaleArrangorSkjema({ readOnly }: Props) {
         <ControlledSokeSelect
           size="small"
           readOnly={readOnly}
-          placeholder="Søk på navn eller organisasjonsnummer for tiltaksarrangør"
+          placeholder="Navn eller organisasjonsnummer for tiltaksarrangør"
           label={avtaletekster.tiltaksarrangorHovedenhetLabel}
           {...register("leverandor")}
           onInputChange={(value) => {
