@@ -4,7 +4,7 @@ import styles from "./Filter.module.scss";
 import { Separator } from "../detaljside/Metadata";
 import { FunnelIcon } from "@navikt/aksel-icons";
 import classNames from "classnames";
-import { useOutsideClick } from "../../hooks/useOutsideClick";
+import { useOutsideClick } from "mulighetsrommet-frontend-common/hooks/useOutsideClick";
 
 interface Props {
   filter: React.ReactNode;
@@ -16,7 +16,11 @@ interface Props {
 export function FilterAndTableLayout(props: Props) {
   const { filter, table, buttons, tags } = props;
   const [filterSelected, setFilterSelected] = useState<boolean>(true);
-  const ref = useOutsideClick(() => setFilterSelected(false));
+  const ref = useOutsideClick(() => {
+    if (window?.innerWidth < 1440) {
+      setFilterSelected(false);
+    }
+  });
 
   return (
     <div className={styles.container}>
