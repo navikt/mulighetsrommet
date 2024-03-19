@@ -26,6 +26,7 @@ export function DupliserTiltak({ tiltaksgjennomforing }: Props) {
           startDato: undefined,
           sluttDato: undefined,
           opphav: Opphav.MR_ADMIN_FLATE,
+          tiltaksnummer: undefined,
         },
       },
     });
