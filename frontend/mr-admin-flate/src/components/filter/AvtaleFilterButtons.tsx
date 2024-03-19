@@ -17,6 +17,7 @@ export function AvtaleFilterButtons({ filterAtom, tiltakstypeId }: Props) {
     <div className={style.filterbuttons_container}>
       {filter.sok.length > 0 ||
       filter.navRegioner.length > 0 ||
+      filter.avtaletyper.length > 0 ||
       (!tiltakstypeId && filter.tiltakstyper.length > 0) ||
       filter.statuser.length > 0 ||
       filter.leverandor.length > 0 ? (
