@@ -45,7 +45,6 @@ export function VirksomhetKontaktpersonerModal(props: Props) {
       <Modal.Body>
         <div className={styles.modal_body}>
           <Button
-            className={styles.kontaktperson_button}
             size="small"
             type="button"
             variant="primary"
