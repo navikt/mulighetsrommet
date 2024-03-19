@@ -52,6 +52,10 @@ class AvtaleValidator(
                 add(ValidationError.of(AvtaleDbo::startDato, "Startdato må være før sluttdato"))
             }
 
+            if (avtale.avtaletype.kreverWebsakUrl() && avtale.url == null) {
+                add(ValidationError.of(AvtaleDbo::url, "Avtalen må lenke til Websak"))
+            }
+
             addAll(validateNavEnheter(avtale.navEnheter))
 
             if (avtale.leverandorUnderenheter.isEmpty()) {
@@ -67,7 +71,7 @@ class AvtaleValidator(
                 add(
                     ValidationError.of(
                         AvtaleDbo::avtaletype,
-                        "${avtale.avtaletype} er ikke tillat for tiltakstype ${tiltakstype.navn}",
+                        "${avtale.avtaletype} er ikke tillatt for tiltakstype ${tiltakstype.navn}",
                     ),
                 )
             } else {
