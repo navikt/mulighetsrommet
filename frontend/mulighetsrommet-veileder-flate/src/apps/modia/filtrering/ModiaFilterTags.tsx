@@ -3,9 +3,9 @@ import {
   ArbeidsmarkedstiltakFilterGruppe,
   useArbeidsmarkedstiltakFilter,
 } from "@/hooks/useArbeidsmarkedstiltakFilter";
-import FilterTag from "../../../components/tags/FilterTag";
-import { NavEnhetTag } from "@/components/tags/NavEnhetTag";
-import { FilterTagsContainer } from "@/components/filtrering/FilterTagsContainer";
+import { FilterTag } from "../../../../../frontend-common/components/filtertag/Filtertag";
+import { NavEnhetTag } from "../../../../../frontend-common/components/filtertag/NavEnhetTag";
+import { FilterTagsContainer } from "../../../../../frontend-common/components/filtertag/FilterTagsContainer";
 
 export function ModiaFilterTags() {
   const [filter, setFilter] = useArbeidsmarkedstiltakFilter();

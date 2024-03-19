@@ -1,0 +1,25 @@
+.filtertag {
+  height: 2rem;
+  :global(.navds-button) {
+    min-width: unset;
+  }
+
+  :global(.navds-button__inner) {
+    justify-content: center;
+  }
+
+  :global(.navds-button).overstyrt_ikon_knapp {
+    padding: var(--a-spacing-1) 0;
+    margin-left: 0.4rem;
+  }
+}
+
+.filtertags {
+  display: flex;
+  justify-content: flex-start;
+  gap: 0.5rem;
+  height: fit-content;
+  flex-wrap: wrap;
+  min-height: 33px;
+  margin-top: 0.5rem;
+}

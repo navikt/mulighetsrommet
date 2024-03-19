@@ -5,7 +5,8 @@ import { useNavEnheter } from "../../api/enhet/useNavEnheter";
 import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
 import { useVirksomheter } from "../../api/virksomhet/useVirksomheter";
 import { addOrRemove } from "../../utils/Utils";
-import { FilterTag } from "./FilterTag";
+import { FilterTag } from "../../../../frontend-common/components/filtertag/Filtertag";
+import { FilterTagsContainer } from "../../../../frontend-common/components/filtertag/FilterTagsContainer";
 import { AVTALE_STATUS_OPTIONS } from "../../utils/filterUtils";
 
 interface Props {
@@ -27,21 +28,11 @@ export function AvtaleFilterTags({ filterAtom, tiltakstypeId }: Props) {
   const { data: leverandorer } = useVirksomheter(VirksomhetTil.AVTALE);
 
   return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "row",
-        justifyContent: "start",
-        alignItems: "center",
-        flexWrap: "wrap",
-        rowGap: "0.25rem",
-      }}
-    >
-      {" "}
+    <FilterTagsContainer>
       {filter.sok && (
         <FilterTag
-          label={`'${filter.sok}'`}
-          onClick={() => {
+          options={[{ id: "search", tittel: `'${filter.sok}'` }]}
+          onClose={() => {
             setFilter({
               ...filter,
               sok: "",
@@ -52,8 +43,13 @@ export function AvtaleFilterTags({ filterAtom, tiltakstypeId }: Props) {
       {filter.statuser.map((status) => (
         <FilterTag
           key={status}
-          label={AVTALE_STATUS_OPTIONS.find((o) => status === o.value)?.label}
-          onClick={() => {
+          options={[
+            {
+              id: status,
+              tittel: AVTALE_STATUS_OPTIONS.find((o) => status === o.value)?.label || status,
+            },
+          ]}
+          onClose={() => {
             setFilter({
               ...filter,
               statuser: addOrRemove(filter.statuser, status),
@@ -64,8 +60,13 @@ export function AvtaleFilterTags({ filterAtom, tiltakstypeId }: Props) {
       {filter.navRegioner.map((enhetsnummer) => (
         <FilterTag
           key={enhetsnummer}
-          label={enheter?.find((e) => e.enhetsnummer === enhetsnummer)?.navn}
-          onClick={() => {
+          options={[
+            {
+              id: enhetsnummer,
+              tittel: enheter?.find((e) => e.enhetsnummer === enhetsnummer)?.navn || enhetsnummer,
+            },
+          ]}
+          onClose={() => {
             setFilter({
               ...filter,
               navRegioner: addOrRemove(filter.navRegioner, enhetsnummer),
@@ -77,8 +78,13 @@ export function AvtaleFilterTags({ filterAtom, tiltakstypeId }: Props) {
         filter.tiltakstyper.map((tiltakstype) => (
           <FilterTag
             key={tiltakstype}
-            label={tiltakstyper?.data?.find((t) => tiltakstype === t.id)?.navn}
-            onClick={() => {
+            options={[
+              {
+                id: tiltakstype,
+                tittel: tiltakstyper?.data?.find((t) => tiltakstype === t.id)?.navn || tiltakstype,
+              },
+            ]}
+            onClose={() => {
               setFilter({
                 ...filter,
                 tiltakstyper: addOrRemove(filter.tiltakstyper, tiltakstype),
@@ -89,8 +95,13 @@ export function AvtaleFilterTags({ filterAtom, tiltakstypeId }: Props) {
       {filter.leverandor.map((orgnr) => (
         <FilterTag
           key={orgnr}
-          label={leverandorer?.find((l) => l.organisasjonsnummer === orgnr)?.navn}
-          onClick={() => {
+          options={[
+            {
+              id: orgnr,
+              tittel: leverandorer?.find((l) => l.organisasjonsnummer === orgnr)?.navn || orgnr,
+            },
+          ]}
+          onClose={() => {
             setFilter({
               ...filter,
               leverandor: addOrRemove(filter.leverandor, orgnr),
@@ -98,6 +109,6 @@ export function AvtaleFilterTags({ filterAtom, tiltakstypeId }: Props) {
           }}
         />
       ))}
-    </div>
+    </FilterTagsContainer>
   );
 }

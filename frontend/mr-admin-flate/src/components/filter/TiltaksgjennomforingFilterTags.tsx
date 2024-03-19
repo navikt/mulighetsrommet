@@ -1,12 +1,13 @@
-import { WritableAtom, useAtom } from "jotai";
+import { useAtom, WritableAtom } from "jotai";
 import { Tiltakstypestatus, VirksomhetTil } from "mulighetsrommet-api-client";
 import { TiltaksgjennomforingFilter } from "../../api/atoms";
 import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
 import { useVirksomheter } from "../../api/virksomhet/useVirksomheter";
 import { addOrRemove } from "../../utils/Utils";
-import { FilterTag } from "./FilterTag";
 import { useNavEnheter } from "../../api/enhet/useNavEnheter";
 import { TILTAKSGJENNOMFORING_STATUS_OPTIONS } from "../../utils/filterUtils";
+import { FilterTag } from "../../../../frontend-common/components/filtertag/Filtertag";
+import { FilterTagsContainer } from "../../../../frontend-common/components/filtertag/FilterTagsContainer";
 
 interface Props {
   filterAtom: WritableAtom<
@@ -28,20 +29,11 @@ export function TiltaksgjennomforingFilterTags({ filterAtom }: Props) {
   );
 
   return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "row",
-        justifyContent: "start",
-        alignItems: "center",
-        flexWrap: "wrap",
-        rowGap: "0.25rem",
-      }}
-    >
+    <FilterTagsContainer>
       {filter.search ? (
         <FilterTag
-          label={`'${filter.search}'`}
-          onClick={() => {
+          options={[{ id: "search", tittel: `'${filter.search}'` }]}
+          onClose={() => {
             setFilter({
               ...filter,
               search: "",
@@ -53,8 +45,14 @@ export function TiltaksgjennomforingFilterTags({ filterAtom }: Props) {
         ? filter.navRegioner.map((enhetsnummer) => (
             <FilterTag
               key={enhetsnummer}
-              label={enheter?.find((e) => e.enhetsnummer === enhetsnummer)?.navn}
-              onClick={() => {
+              options={[
+                {
+                  id: enhetsnummer,
+                  tittel:
+                    enheter?.find((e) => e.enhetsnummer === enhetsnummer)?.navn || enhetsnummer,
+                },
+              ]}
+              onClose={() => {
                 setFilter({
                   ...filter,
                   navRegioner: addOrRemove(filter.navRegioner, enhetsnummer),
@@ -67,8 +65,14 @@ export function TiltaksgjennomforingFilterTags({ filterAtom }: Props) {
         ? filter.navEnheter.map((enhetsnummer) => (
             <FilterTag
               key={enhetsnummer}
-              label={enheter?.find((e) => e.enhetsnummer === enhetsnummer)?.navn}
-              onClick={() => {
+              options={[
+                {
+                  id: enhetsnummer,
+                  tittel:
+                    enheter?.find((e) => e.enhetsnummer === enhetsnummer)?.navn || enhetsnummer,
+                },
+              ]}
+              onClose={() => {
                 setFilter({
                   ...filter,
                   navEnheter: addOrRemove(filter.navEnheter, enhetsnummer),
@@ -81,8 +85,14 @@ export function TiltaksgjennomforingFilterTags({ filterAtom }: Props) {
         ? filter.tiltakstyper.map((tiltakstype) => (
             <FilterTag
               key={tiltakstype}
-              label={tiltakstyper?.data?.find((t) => tiltakstype === t.id)?.navn}
-              onClick={() => {
+              options={[
+                {
+                  id: tiltakstype,
+                  tittel:
+                    tiltakstyper?.data?.find((t) => tiltakstype === t.id)?.navn || tiltakstype,
+                },
+              ]}
+              onClose={() => {
                 setFilter({
                   ...filter,
                   tiltakstyper: addOrRemove(filter.tiltakstyper, tiltakstype),
@@ -95,8 +105,15 @@ export function TiltaksgjennomforingFilterTags({ filterAtom }: Props) {
         ? filter.statuser.map((status) => (
             <FilterTag
               key={status}
-              label={TILTAKSGJENNOMFORING_STATUS_OPTIONS.find((o) => status === o.value)?.label}
-              onClick={() => {
+              options={[
+                {
+                  id: status,
+                  tittel:
+                    TILTAKSGJENNOMFORING_STATUS_OPTIONS.find((o) => status === o.value)?.label ||
+                    status,
+                },
+              ]}
+              onClose={() => {
                 setFilter({
                   ...filter,
                   statuser: addOrRemove(filter.statuser, status),
@@ -109,8 +126,13 @@ export function TiltaksgjennomforingFilterTags({ filterAtom }: Props) {
         ? filter.arrangorOrgnr.map((orgNr) => (
             <FilterTag
               key={orgNr}
-              label={virksomheter?.find((v) => v.organisasjonsnummer === orgNr)?.navn}
-              onClick={() => {
+              options={[
+                {
+                  id: orgNr,
+                  tittel: virksomheter?.find((v) => v.organisasjonsnummer === orgNr)?.navn || orgNr,
+                },
+              ]}
+              onClose={() => {
                 setFilter({
                   ...filter,
                   arrangorOrgnr: addOrRemove(filter.arrangorOrgnr, orgNr),
@@ -119,6 +141,6 @@ export function TiltaksgjennomforingFilterTags({ filterAtom }: Props) {
             />
           ))
         : null}
-    </div>
+    </FilterTagsContainer>
   );
 }

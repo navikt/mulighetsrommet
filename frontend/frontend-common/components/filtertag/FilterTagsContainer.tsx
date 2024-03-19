@@ -1,4 +1,4 @@
-import styles from "@/components/filtrering/FilterAndTableLayout.module.scss";
+import styles from "./Filtertag.module.scss";
 import { PropsWithChildren } from "react";
 
 export function FilterTagsContainer(props: PropsWithChildren) {

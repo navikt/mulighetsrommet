@@ -2,10 +2,10 @@ import { Tag } from "@navikt/ds-react";
 import {
   useArbeidsmarkedstiltakFilterValue,
   valgteEnhetsnumre,
-} from "@/hooks/useArbeidsmarkedstiltakFilter";
-import { useNavEnheter } from "@/core/api/queries/useNavEnheter";
+} from "mulighetsrommet-veileder-flate/src/hooks/useArbeidsmarkedstiltakFilter";
+import { useNavEnheter } from "mulighetsrommet-veileder-flate/src/core/api/queries/useNavEnheter";
 import { NavEnhet } from "mulighetsrommet-api-client";
-import Ikonknapp from "@/components/knapper/Ikonknapp";
+import Ikonknapp from "../ikonknapp/Ikonknapp";
 import { XMarkIcon } from "@navikt/aksel-icons";
 import styles from "./Filtertag.module.scss";
 
@@ -34,13 +34,14 @@ export function NavEnhetTag({ onClose }: Props) {
 
   return (
     <Tag
-      key="navenhet"
       size="small"
+      variant="info"
+      key="navenhet"
       data-testid="filtertag_navenhet"
+      className={styles.filtertag}
       title={enheter
         .map((enhet) => alleEnheter.find((e) => e.enhetsnummer === enhet)?.navn)
         .join(", ")}
-      variant="info"
     >
       {tagLabel()}
       {onClose ? (

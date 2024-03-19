@@ -65,32 +65,32 @@ $filter-width: 290px;
   }
 }
 
-.tag {
-  background-color: var(--a-blue-100);
-  border: none;
-  margin-right: 0.5rem;
-  border-radius: 0.25rem;
-}
-
-.tag_inner {
-  margin-left: 0.5rem;
-  margin-right: 0.5rem;
-}
-
-.tag_button {
-  background: none;
-  margin-left: 0.5rem;
-  border: none;
-  color: black;
-  font-size: 13px;
-
-  &:hover {
-    color: var(--a-text-action);
-    background: none;
-    border: none;
-    cursor: pointer;
-  }
-}
+//.tag {
+//  background-color: var(--a-blue-100);
+//  border: none;
+//  margin-right: 0.5rem;
+//  border-radius: 0.25rem;
+//}
+//
+//.tag_inner {
+//  margin-left: 0.5rem;
+//  margin-right: 0.5rem;
+//}
+//
+//.tag_button {
+//  background: none;
+//  margin-left: 0.5rem;
+//  border: none;
+//  color: black;
+//  font-size: 13px;
+//
+//  &:hover {
+//    color: var(--a-text-action);
+//    background: none;
+//    border: none;
+//    cursor: pointer;
+//  }
+//}
 
 .checkbox_list {
   max-width: calc($filter-width - 35px);
