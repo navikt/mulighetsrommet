@@ -13,6 +13,7 @@ import { useAvtale } from "../../api/avtaler/useAvtale";
 import { AvtalestatusTag } from "../../components/statuselementer/AvtalestatusTag";
 import { Heading } from "@navikt/ds-react";
 import { Brodsmule, Brodsmuler } from "../../components/navigering/Brodsmuler";
+import { AvtaleIkon } from "../../components/ikoner/AvtaleIkon";
 
 const AvtaleSkjemaPage = () => {
   const navigate = useNavigate();
@@ -55,6 +56,7 @@ const AvtaleSkjemaPage = () => {
     <main>
       <Brodsmuler brodsmuler={brodsmuler} />
       <Header>
+        <AvtaleIkon />
         <Heading size="large" level="2">
           {redigeringsModus ? "Rediger avtale" : "Opprett ny avtale"}
         </Heading>

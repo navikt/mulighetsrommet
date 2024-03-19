@@ -15,6 +15,7 @@ import commonStyles from "../Page.module.scss";
 import { DupliserTiltak } from "../../components/tiltaksgjennomforinger/DupliserTiltak";
 import { PREVIEW_ARBEIDSMARKEDSTILTAK_URL } from "../../constants";
 import { Brodsmule, Brodsmuler } from "../../components/navigering/Brodsmuler";
+import { TiltaksgjennomforingIkon } from "../../components/ikoner/TiltaksgjennomforingIkon";
 
 function useTiltaksgjennomforingBrodsmuler(
   tiltaksgjennomforingId: string,
@@ -85,7 +86,8 @@ export function TiltaksgjennomforingPage() {
           )}
         >
           <div className={headerStyles.tiltaksnavn_status}>
-            <Heading size="large" level="2">
+            <TiltaksgjennomforingIkon />
+            <Heading className={headerStyles.navn} size="large" level="2">
               {tiltaksgjennomforing?.navn ?? "..."}
             </Heading>
             <TiltaksgjennomforingstatusTag tiltaksgjennomforing={tiltaksgjennomforing} />

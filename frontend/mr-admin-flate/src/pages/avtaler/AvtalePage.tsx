@@ -14,6 +14,7 @@ import { useNavigateAndReplaceUrl } from "../../hooks/useNavigateWithoutReplacin
 import { ContainerLayout } from "../../layouts/ContainerLayout";
 import commonStyles from "../Page.module.scss";
 import styles from "./DetaljerAvtalePage.module.scss";
+import { AvtaleIkon } from "../../components/ikoner/AvtaleIkon";
 
 function useAvtaleBrodsmuler(avtaleId: string): Array<Brodsmule | undefined> {
   const erPaaGjennomforingerForAvtale = useMatch("/avtaler/:avtaleId/tiltaksgjennomforinger");
@@ -72,6 +73,7 @@ export function AvtalePage() {
       <Brodsmuler brodsmuler={brodsmuler} />
       <Header>
         <div className={headerStyles.tiltaksnavn_status}>
+          <AvtaleIkon />
           <Heading size="large" level="2">
             {avtale.navn ?? "..."}
           </Heading>
