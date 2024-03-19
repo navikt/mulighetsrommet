@@ -11,6 +11,7 @@ import { erAnskaffetTiltak } from "../../utils/tiltakskoder";
 import styles from "../DetaljerInfo.module.scss";
 import { Link } from "react-router-dom";
 import { NavEnhet } from "mulighetsrommet-api-client";
+import { avtaletekster } from "../../components/ledetekster/avtaleLedetekster";
 
 export function AvtaleDetaljer() {
   const { data: avtale, isPending, error } = useAvtale();
@@ -60,19 +61,16 @@ export function AvtaleDetaljer() {
     <div className={styles.container}>
       <div className={styles.detaljer}>
         <Bolk aria-label="Avtalenavn og avtalenummer">
-          <Metadata header="Avtalenavn" verdi={navn} />
-          <Metadata header="Avtalenummer" verdi={avtalenummer} />
+          <Metadata header={avtaletekster.avtalenavnLabel} verdi={navn} />
+          <Metadata header={avtaletekster.avtalenummerLabel} verdi={avtalenummer} />
         </Bolk>
 
-        <Bolk aria-label="Tiltakstype">
+        <Bolk aria-label={avtaletekster.tiltakstypeLabel}>
           <Metadata
-            header="Tiltakstype"
+            header={avtaletekster.tiltakstypeLabel}
             verdi={<Link to={`/tiltakstyper/${tiltakstype.id}`}>{tiltakstype.navn}</Link>}
           />
-        </Bolk>
-
-        <Bolk aria-label="Avtaletype">
-          <Metadata header="Avtaletype" verdi={avtaletypeTilTekst(avtaletype)} />
+          <Metadata header={avtaletekster.avtaletypeLabel} verdi={avtaletypeTilTekst(avtaletype)} />
         </Bolk>
 
         <Separator />
@@ -82,17 +80,20 @@ export function AvtaleDetaljer() {
         </Heading>
 
         <Bolk aria-label="Start- og sluttdato">
-          <Metadata header="Startdato" verdi={formaterDato(startDato)} />
-          <Metadata header="Sluttdato" verdi={formaterDato(sluttDato)} />
+          <Metadata header={avtaletekster.startdatoLabel} verdi={formaterDato(startDato)} />
+          <Metadata
+            header={avtaletekster.sluttdatoLabel}
+            verdi={sluttDato ? formaterDato(sluttDato) : "-"}
+          />
         </Bolk>
 
         <Separator />
 
         <VStack gap="5">
-          <Bolk aria-label="Pris- og betalingsbetingelser">
+          <Bolk aria-label={avtaletekster.prisOgBetalingLabel}>
             {erAnskaffetTiltak(tiltakstype.arenaKode) && (
               <Metadata
-                header="Pris- og betalingsbetingelser"
+                header={avtaletekster.prisOgBetalingLabel}
                 verdi={
                   avtale.prisbetingelser ??
                   "Det eksisterer ikke pris og betalingsbetingelser for denne avtalen"
@@ -102,9 +103,9 @@ export function AvtaleDetaljer() {
           </Bolk>
 
           {administratorer ? (
-            <Bolk aria-label="Administratorer for avtalen">
+            <Bolk aria-label={avtaletekster.administratorerForAvtalenLabel}>
               <Metadata
-                header="Administratorer for avtalen"
+                header={avtaletekster.administratorerForAvtalenLabel}
                 verdi={
                   administratorer.length ? (
                     <ul>
@@ -124,13 +125,13 @@ export function AvtaleDetaljer() {
                       })}
                     </ul>
                   ) : (
-                    "Ingen administratorer satt for avtalen"
+                    avtaletekster.ingenAdministratorerSattLabel
                   )
                 }
               />
               {url ? (
                 <Metadata
-                  header="Se originalavtale"
+                  header={avtaletekster.seOriginalavtaleLabel}
                   verdi={
                     <Link
                       className={styles.websakLenke}
@@ -151,7 +152,7 @@ export function AvtaleDetaljer() {
       <div className={styles.detaljer}>
         {kontorstruktur.length > 1 ? (
           <Metadata
-            header="Fylkessamarbeid"
+            header={avtaletekster.fylkessamarbeidLabel}
             verdi={
               <ul>
                 {kontorstruktur.sort(sorterPaRegionsnavn).map((kontor) => {
@@ -164,13 +165,16 @@ export function AvtaleDetaljer() {
           kontorstruktur.map((struktur, index) => {
             return (
               <Fragment key={index}>
-                <Bolk aria-label="NAV-region">
-                  <Metadata header="NAV-region" verdi={struktur.region.navn} />
+                <Bolk aria-label={avtaletekster.fylkessamarbeidLabel}>
+                  <Metadata
+                    header={avtaletekster.fylkessamarbeidLabel}
+                    verdi={struktur.region.navn}
+                  />
                 </Bolk>
 
-                <Bolk aria-label="NAV-enheter">
+                <Bolk aria-label={avtaletekster.navEnheterLabel}>
                   <Metadata
-                    header="NAV-enheter (kontorer)"
+                    header={avtaletekster.navEnheterLabel}
                     verdi={
                       <ul>
                         {struktur.kontorer.map((kontor) => (
@@ -188,7 +192,7 @@ export function AvtaleDetaljer() {
           <div style={{ display: "flex", gap: "1rem", margin: "0.5rem 0" }}>
             <dl style={{ margin: "0" }}>
               <Metadata
-                header="Ansvarlig enhet fra Arena"
+                header={avtaletekster.ansvarligEnhetFraArenaLabel}
                 verdi={`${arenaAnsvarligEnhet.enhetsnummer} ${arenaAnsvarligEnhet.navn}`}
               />
             </dl>
@@ -201,16 +205,16 @@ export function AvtaleDetaljer() {
 
         <Separator />
 
-        <Bolk aria-label="Tiltaksleverandør hovedenhet">
+        <Bolk aria-label={avtaletekster.tiltaksarrangorHovedenhetLabel}>
           <Metadata
-            header="Tiltaksleverandør hovedenhet"
+            header={avtaletekster.tiltaksarrangorHovedenhetLabel}
             verdi={[leverandor.navn, leverandor.organisasjonsnummer].filter(Boolean).join(" - ")}
           />
         </Bolk>
 
-        <Bolk aria-label="Arrangører underenheter">
+        <Bolk aria-label={avtaletekster.tiltaksarrangorUnderenheterLabel}>
           <Metadata
-            header="Arrangører underenheter"
+            header={avtaletekster.tiltaksarrangorUnderenheterLabel}
             verdi={
               <ul>
                 {leverandor.underenheter.map((enhet) => (
@@ -228,9 +232,9 @@ export function AvtaleDetaljer() {
         <Separator />
 
         {leverandor.kontaktperson ? (
-          <Bolk aria-label="Kontaktperson">
+          <Bolk aria-label={avtaletekster.kontaktpersonHosTiltaksarrangorLabel}>
             <Metadata
-              header="Kontaktperson"
+              header={avtaletekster.kontaktpersonHosTiltaksarrangorLabel}
               verdi={
                 <div className={styles.leverandor_kontaktinfo}>
                   <label>{leverandor.kontaktperson.navn}</label>

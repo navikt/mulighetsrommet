@@ -7,6 +7,7 @@ import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattRolle
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dto.Avtalestatus
+import no.nav.mulighetsrommet.domain.dto.Avtaletype
 import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus
 import no.nav.mulighetsrommet.domain.dto.Tiltakstypestatus
@@ -26,6 +27,7 @@ data class AvtaleFilter(
     val tiltakstypeIder: List<UUID> = emptyList(),
     val search: String? = null,
     val statuser: List<Avtalestatus> = emptyList(),
+    val avtaletyper: List<Avtaletype> = emptyList(),
     val navRegioner: List<String> = emptyList(),
     val sortering: String? = null,
     val dagensDato: LocalDate = LocalDate.now(),
@@ -104,6 +106,8 @@ fun <T : Any> PipelineContext<T, ApplicationCall>.getAvtaleFilter(): AvtaleFilte
     val search = call.request.queryParameters["search"]
     val statuser =
         call.parameters.getAll("statuser")?.map { status -> Avtalestatus.valueOf(status) } ?: emptyList()
+    val avtaletyper =
+        call.parameters.getAll("avtaletyper")?.map { type -> Avtaletype.valueOf(type) } ?: emptyList()
     val navRegioner = call.parameters.getAll("navRegioner") ?: emptyList()
     val sortering = call.request.queryParameters["sort"]
     val leverandorOrgnr = call.parameters.getAll("leverandorOrgnr") ?: emptyList()
@@ -112,6 +116,7 @@ fun <T : Any> PipelineContext<T, ApplicationCall>.getAvtaleFilter(): AvtaleFilte
         tiltakstypeIder = tiltakstypeIder,
         search = search,
         statuser = statuser,
+        avtaletyper = avtaletyper,
         navRegioner = navRegioner,
         sortering = sortering,
         leverandorOrgnr = leverandorOrgnr,

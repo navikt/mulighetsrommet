@@ -1,9 +1,4 @@
-import {
-  Avtale,
-  Avtaletype,
-  EstimertVentetid,
-  TiltaksgjennomforingStatus,
-} from "mulighetsrommet-api-client";
+import { Avtale, Avtaletype, EstimertVentetid } from "mulighetsrommet-api-client";
 import { AvtaleFilter } from "../api/atoms";
 
 export function capitalize(text?: string): string {
@@ -22,18 +17,12 @@ export function capitalizeEveryWord(text: string = "", ignoreWords: string[] = [
     ?.join(" ");
 }
 
-export function formaterDato(dato?: string | Date, fallback = ""): string {
-  if (!dato) return fallback;
-
+export function formaterDato(dato: string | Date): string {
   const result = new Date(dato).toLocaleString("no-NO", {
     year: "numeric",
     month: "2-digit",
     day: "2-digit",
   });
-
-  if (result === "Invalid Date") {
-    return fallback;
-  }
 
   return result;
 }
@@ -87,30 +76,13 @@ export function kalkulerStatusBasertPaaFraOgTilDato(
   }
 }
 
-export const oversettStatusForTiltaksgjennomforing = (status?: TiltaksgjennomforingStatus) => {
-  switch (status) {
-    case TiltaksgjennomforingStatus.GJENNOMFORES:
-      return "Gjennomføres";
-    case TiltaksgjennomforingStatus.AVBRUTT:
-      return "Avbrutt";
-    case TiltaksgjennomforingStatus.AVLYST:
-      return "Avlyst";
-    case TiltaksgjennomforingStatus.AVSLUTTET:
-      return "Avsluttet";
-    case TiltaksgjennomforingStatus.PLANLAGT:
-      return "Planlagt";
-    default:
-      return "";
-  }
-};
-
 export const inneholderUrl = (string: string) => {
   return window.location.href.indexOf(string) > -1;
 };
 
 export function avtaletypeTilTekst(
   type: Avtaletype,
-): "Avtale" | "Rammeavtale" | "Forhåndsgodkjent" {
+): "Avtale" | "Rammeavtale" | "Forhåndsgodkjent" | "Offentlig-offentlig samarbeid" {
   switch (type) {
     case Avtaletype.AVTALE:
       return "Avtale";
@@ -118,6 +90,8 @@ export function avtaletypeTilTekst(
       return "Forhåndsgodkjent";
     case Avtaletype.RAMMEAVTALE:
       return "Rammeavtale";
+    case Avtaletype.OFFENTLIG_OFFENTLIG:
+      return "Offentlig-offentlig samarbeid";
   }
 }
 
@@ -199,6 +173,7 @@ export function createQueryParamsForExcelDownload(filter: AvtaleFilter): URLSear
 
   filter.tiltakstyper.forEach((tiltakstype) => queryParams.append("tiltakstypeIder", tiltakstype));
   filter.statuser.forEach((status) => queryParams.append("statuser", status));
+  filter.avtaletyper.forEach((type) => queryParams.append("avtaletyper", type));
   filter.navRegioner.forEach((region) => queryParams.append("navRegioner", region));
   filter.leverandor.forEach((orgnr) => queryParams.append("leverandorOrgnr", orgnr));
 

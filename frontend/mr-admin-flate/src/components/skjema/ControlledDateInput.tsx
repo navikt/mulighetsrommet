@@ -12,6 +12,7 @@ export interface DateInputProps {
   size?: "small" | "medium";
   format: "date" | "iso-string";
   placeholder?: string;
+  invalidDatoEtterPeriode?: string;
 }
 
 export const ControlledDateInput = forwardRef(function ControlledDateInput(props: DateInputProps) {
@@ -23,6 +24,7 @@ export const ControlledDateInput = forwardRef(function ControlledDateInput(props
     fromDate,
     toDate,
     placeholder = "dd.mm.åååå",
+    invalidDatoEtterPeriode = "Dato er etter gyldig periode",
     ...rest
   } = props;
   const [ugyldigDatoError, setUgyldigDatoError] = useState("");
@@ -52,7 +54,7 @@ export const ControlledDateInput = forwardRef(function ControlledDateInput(props
                   if (val.isBefore) {
                     setUgyldigDatoError("Dato er før gyldig periode");
                   } else if (val.isAfter) {
-                    setUgyldigDatoError("Dato er etter gyldig periode");
+                    setUgyldigDatoError(invalidDatoEtterPeriode);
                   }
                 }
               },

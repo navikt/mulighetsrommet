@@ -11,6 +11,7 @@ import { AvtaleFilterButtons } from "../../components/filter/AvtaleFilterButtons
 import { AvtaleFilterTags } from "../../components/filter/AvtaleFilterTags";
 import { TilToppenKnapp } from "../../../../frontend-common/components/tilToppenKnapp/TilToppenKnapp";
 import { Brodsmuler } from "../../components/navigering/Brodsmuler";
+import { AvtaleIkon } from "../../components/ikoner/AvtaleIkon";
 
 export function AvtalerPage() {
   useTitle("Avtaler");
@@ -23,7 +24,7 @@ export function AvtalerPage() {
           { tittel: "Avtaler", lenke: "/avtaler" },
         ]}
       />
-      <HeaderBanner heading="Oversikt over avtaler" harUndermeny />
+      <HeaderBanner heading="Oversikt over avtaler" harUndermeny ikon={<AvtaleIkon />} />
       <ReloadAppErrorBoundary>
         <MainContainer>
           <ContainerLayout>

@@ -3,8 +3,6 @@ package no.nav.mulighetsrommet.api.avtaler
 import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.data.forAll
-import io.kotest.data.row
 import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
@@ -24,6 +22,8 @@ import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
 import no.nav.mulighetsrommet.domain.dto.NavIdent
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
 import java.util.*
 
 class AvtaleValidatorTest : FunSpec({
@@ -70,6 +70,9 @@ class AvtaleValidatorTest : FunSpec({
             TiltakstypeFixtures.VTA,
             TiltakstypeFixtures.Oppfolging,
             TiltakstypeFixtures.Jobbklubb,
+            TiltakstypeFixtures.GRUPPE_AMO,
+            TiltakstypeFixtures.Arbeidstrening,
+            TiltakstypeFixtures.Avklaring,
         ),
         avtaler = listOf(),
     )
@@ -77,7 +80,7 @@ class AvtaleValidatorTest : FunSpec({
     val avtaleDbo = AvtaleDbo(
         id = UUID.randomUUID(),
         navn = "Avtale",
-        tiltakstypeId = TiltakstypeFixtures.AFT.id,
+        tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
         leverandorVirksomhetId = VirksomhetFixtures.hovedenhet.id,
         leverandorUnderenheter = listOf(VirksomhetFixtures.underenhet1.id),
         leverandorKontaktpersonId = null,
@@ -86,7 +89,7 @@ class AvtaleValidatorTest : FunSpec({
         sluttDato = LocalDate.now().plusMonths(1),
         url = "http://localhost:8080",
         administratorer = listOf(NavIdent("B123456")),
-        avtaletype = Avtaletype.Avtale,
+        avtaletype = Avtaletype.Rammeavtale,
         prisbetingelser = null,
         navEnheter = listOf("0400", "0502"),
         antallPlasser = null,
@@ -128,15 +131,9 @@ class AvtaleValidatorTest : FunSpec({
         tiltakstyper = TiltakstypeService(TiltakstypeRepository(database.db), listOf(Tiltakskode.OPPFOLGING))
         val validator = AvtaleValidator(tiltakstyper, gjennomforinger, navEnheterService, virksomheter)
 
-        forAll(
-            row(TiltakstypeFixtures.AFT),
-            row(TiltakstypeFixtures.VTA),
-            row(TiltakstypeFixtures.Oppfolging),
-        ) { tiltakstype ->
-            val dbo = avtaleDbo.copy(tiltakstypeId = tiltakstype.id)
-
-            validator.validate(dbo, null).shouldBeRight()
-        }
+        validator.validate(AvtaleFixtures.AFT, null).shouldBeRight()
+        validator.validate(AvtaleFixtures.VTA, null).shouldBeRight()
+        validator.validate(AvtaleFixtures.oppfolging, null).shouldBeRight()
     }
 
     test("should accumulate errors when dbo has multiple issues") {
@@ -213,30 +210,93 @@ class AvtaleValidatorTest : FunSpec({
         )
     }
 
-    test("sluttDato er påkrevd hvis ikke VTA eller AFT") {
+    test("sluttDato er påkrevd hvis ikke forhåndsgodkjent") {
         val validator = AvtaleValidator(
             TiltakstypeService(TiltakstypeRepository(database.db), Tiltakskode.values().toList()),
             gjennomforinger,
             navEnheterService,
             virksomheter,
         )
-        val aft = AvtaleFixtures.AFT.copy(sluttDato = null)
-        val vta = AvtaleFixtures.VTA.copy(sluttDato = null)
-        val oppfolging = AvtaleFixtures.oppfolging.copy(sluttDato = null)
+        val forhaandsgodkjent = AvtaleFixtures.AFT.copy(sluttDato = null)
+        val rammeAvtale = AvtaleFixtures.oppfolging.copy(sluttDato = null)
+        val avtale = AvtaleFixtures.oppfolgingMedAvtale.copy(sluttDato = null)
+        val offentligOffentlig = AvtaleFixtures.gruppeAmo.copy(sluttDato = null)
 
-        validator.validate(aft, null).shouldBeRight()
-        validator.validate(vta, null).shouldBeRight()
-        validator.validate(oppfolging, null).shouldBeLeft(
-            listOf(ValidationError("sluttDato", "Sluttdato må være valgt")),
+        validator.validate(forhaandsgodkjent, null).shouldBeRight()
+        validator.validate(rammeAvtale, null).shouldBeLeft(
+            listOf(ValidationError("sluttDato", "Sluttdato må være satt")),
+        )
+        validator.validate(avtale, null).shouldBeLeft(
+            listOf(ValidationError("sluttDato", "Sluttdato må være satt")),
+        )
+        validator.validate(offentligOffentlig, null).shouldBeLeft(
+            listOf(ValidationError("sluttDato", "Sluttdato må være satt")),
         )
     }
 
+    test("avtaletype må være allowed") {
+        val validator = AvtaleValidator(
+            TiltakstypeService(TiltakstypeRepository(database.db), Tiltakskode.values().toList()),
+            gjennomforinger,
+            navEnheterService,
+            virksomheter,
+        )
+
+        val aft = AvtaleFixtures.AFT.copy(avtaletype = Avtaletype.Rammeavtale, url = "https://www.websak.no")
+        val vta = AvtaleFixtures.VTA.copy(avtaletype = Avtaletype.Avtale, url = "https://www.websak.no")
+        val oppfolging = AvtaleFixtures.oppfolging.copy(avtaletype = Avtaletype.OffentligOffentlig)
+        val gruppeAmo = AvtaleFixtures.gruppeAmo.copy(avtaletype = Avtaletype.Forhaandsgodkjent)
+        validator.validate(aft, null).shouldBeLeft(
+            listOf(ValidationError("avtaletype", "Rammeavtale er ikke tillatt for tiltakstype Arbeidsforberedende trening (AFT)")),
+        )
+        validator.validate(vta, null).shouldBeLeft(
+            listOf(ValidationError("avtaletype", "Avtale er ikke tillatt for tiltakstype Varig tilrettelagt arbeid i skjermet virksomhet")),
+        )
+        validator.validate(oppfolging, null).shouldBeLeft(
+            listOf(ValidationError("avtaletype", "OffentligOffentlig er ikke tillatt for tiltakstype Oppfølging")),
+        )
+        validator.validate(gruppeAmo, null).shouldBeLeft(
+            listOf(ValidationError("avtaletype", "Forhaandsgodkjent er ikke tillatt for tiltakstype Gruppe amo")),
+        )
+
+        val aftForhaands = AvtaleFixtures.AFT.copy(avtaletype = Avtaletype.Forhaandsgodkjent)
+        val vtaForhaands = AvtaleFixtures.AFT.copy(avtaletype = Avtaletype.Forhaandsgodkjent)
+        val oppfolgingRamme = AvtaleFixtures.oppfolging.copy(avtaletype = Avtaletype.Rammeavtale)
+        val gruppeAmoOffentlig = AvtaleFixtures.gruppeAmo.copy(avtaletype = Avtaletype.OffentligOffentlig)
+        validator.validate(aftForhaands, null).shouldBeRight()
+        validator.validate(vtaForhaands, null).shouldBeRight()
+        validator.validate(oppfolgingRamme, null).shouldBeRight()
+        validator.validate(gruppeAmoOffentlig, null).shouldBeRight()
+    }
+
+    test("Websak-referanse må være med når avtalen er avtale eller rammeavtale") {
+        val validator = AvtaleValidator(
+            TiltakstypeService(TiltakstypeRepository(database.db), Tiltakskode.values().toList()),
+            gjennomforinger,
+            navEnheterService,
+            virksomheter,
+        )
+
+        val rammeavtale = AvtaleFixtures.oppfolging.copy(avtaletype = Avtaletype.Rammeavtale, url = null)
+        validator.validate(rammeavtale, null).shouldBeLeft(
+            listOf(ValidationError("url", "Avtalen må lenke til Websak")),
+        )
+
+        val avtale = AvtaleFixtures.oppfolging.copy(avtaletype = Avtaletype.Avtale, url = null)
+        validator.validate(avtale, null).shouldBeLeft(
+            listOf(ValidationError("url", "Avtalen må lenke til Websak")),
+        )
+
+        val offentligOffentligSamarbeid = AvtaleFixtures.gruppeAmo.copy(avtaletype = Avtaletype.OffentligOffentlig, url = null)
+        validator.validate(offentligOffentligSamarbeid, null).shouldBeRight()
+    }
+
     context("når avtalen allerede eksisterer") {
-        test("skal ikke kunne endre felter med opphav fra Arena") {
+        test("skal kunne endre felter med opphav fra Arena når vi har tatt eierskap til tiltakstypen") {
             val avtaleMedEndringer = AvtaleDbo(
                 id = avtaleDbo.id,
                 navn = "Nytt navn",
-                tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
+                tiltakstypeId = TiltakstypeFixtures.AFT.id,
                 leverandorVirksomhetId = VirksomhetFixtures.underenhet1.id,
                 leverandorUnderenheter = listOf(VirksomhetFixtures.underenhet1.id),
                 leverandorKontaktpersonId = null,
@@ -245,7 +305,7 @@ class AvtaleValidatorTest : FunSpec({
                 sluttDato = LocalDate.now().plusYears(1),
                 url = "nav.no",
                 administratorer = listOf(NavIdent("B123456")),
-                avtaletype = Avtaletype.Rammeavtale,
+                avtaletype = Avtaletype.Forhaandsgodkjent,
                 prisbetingelser = null,
                 navEnheter = listOf("0300"),
                 antallPlasser = null,
@@ -256,13 +316,47 @@ class AvtaleValidatorTest : FunSpec({
             avtaler.upsert(avtaleDbo.copy(administratorer = listOf()))
             avtaler.setOpphav(avtaleDbo.id, ArenaMigrering.Opphav.ARENA)
 
+            val validator = AvtaleValidator(
+                TiltakstypeService(TiltakstypeRepository(database.db), listOf(Tiltakskode.OPPFOLGING, Tiltakskode.ARBEIDSFORBEREDENDE_TRENING)),
+                gjennomforinger,
+                navEnheterService,
+                virksomheter,
+            )
+
+            val previous = avtaler.get(avtaleDbo.id)
+            validator.validate(avtaleMedEndringer, previous).shouldBeRight()
+        }
+
+        test("skal ikke kunne endre felter med opphav fra Arena når vi ikke har tatt eierskap til tiltakstypen") {
+            val avtaleMedEndringer = AvtaleDbo(
+                id = avtaleDbo.id,
+                navn = "Nytt navn",
+                tiltakstypeId = TiltakstypeFixtures.Jobbklubb.id,
+                leverandorVirksomhetId = VirksomhetFixtures.underenhet1.id,
+                leverandorUnderenheter = listOf(VirksomhetFixtures.underenhet1.id),
+                leverandorKontaktpersonId = null,
+                avtalenummer = "123456",
+                startDato = LocalDate.now(),
+                sluttDato = LocalDate.now().plusYears(1),
+                url = "nav.no",
+                administratorer = listOf(NavIdent("B123456")),
+                avtaletype = Avtaletype.Avtale,
+                prisbetingelser = null,
+                navEnheter = listOf("0300"),
+                antallPlasser = null,
+                beskrivelse = null,
+                faneinnhold = null,
+            )
+
+            avtaler.upsert(avtaleDbo.copy(administratorer = listOf(), tiltakstypeId = TiltakstypeFixtures.Jobbklubb.id))
+            avtaler.setOpphav(avtaleDbo.id, ArenaMigrering.Opphav.ARENA)
+
             val validator = AvtaleValidator(tiltakstyper, gjennomforinger, navEnheterService, virksomheter)
 
             val previous = avtaler.get(avtaleDbo.id)
             validator.validate(avtaleMedEndringer, previous).shouldBeLeft().shouldContainExactlyInAnyOrder(
                 listOf(
                     ValidationError("navn", "Navn kan ikke endres utenfor Arena"),
-                    ValidationError("tiltakstypeId", "Tiltakstype kan ikke endres utenfor Arena"),
                     ValidationError("startDato", "Startdato kan ikke endres utenfor Arena"),
                     ValidationError("sluttDato", "Sluttdato kan ikke endres utenfor Arena"),
                     ValidationError("avtaletype", "Avtaletype kan ikke endres utenfor Arena"),
@@ -272,6 +366,7 @@ class AvtaleValidatorTest : FunSpec({
         }
 
         context("når avtalen har gjennomføringer") {
+            val startDatoForGjennomforing = avtaleDbo.startDato
             beforeAny {
                 avtaler.upsert(avtaleDbo.copy(administratorer = listOf()))
                 gjennomforinger.upsert(
@@ -281,6 +376,7 @@ class AvtaleValidatorTest : FunSpec({
                         arrangorVirksomhetId = VirksomhetFixtures.underenhet2.id,
                         navRegion = "0400",
                         navEnheter = listOf("0502"),
+                        startDato = startDatoForGjennomforing,
                     ),
                 )
             }
@@ -290,15 +386,26 @@ class AvtaleValidatorTest : FunSpec({
             }
 
             test("skal validere at data samsvarer med avtalens gjennomføringer") {
-                val validator = AvtaleValidator(tiltakstyper, gjennomforinger, navEnheterService, virksomheter)
+                val validator = AvtaleValidator(
+                    TiltakstypeService(TiltakstypeRepository(database.db), listOf(Tiltakskode.OPPFOLGING, Tiltakskode.ARBEIDSFORBEREDENDE_TRENING)),
+                    gjennomforinger,
+                    navEnheterService,
+                    virksomheter,
+                )
 
                 val dbo = avtaleDbo.copy(
-                    tiltakstypeId = TiltakstypeFixtures.VTA.id,
+                    tiltakstypeId = TiltakstypeFixtures.AFT.id,
                     avtaletype = Avtaletype.Forhaandsgodkjent,
                     navEnheter = listOf("0400"),
+                    startDato = avtaleDbo.startDato.plusDays(4),
                 )
 
                 val previous = avtaler.get(avtaleDbo.id)
+                val formatertDato = startDatoForGjennomforing.format(
+                    DateTimeFormatter.ofLocalizedDate(
+                        FormatStyle.SHORT,
+                    ),
+                )
                 validator.validate(dbo, previous).shouldBeLeft().shouldContainExactlyInAnyOrder(
                     listOf(
                         ValidationError(
@@ -316,6 +423,10 @@ class AvtaleValidatorTest : FunSpec({
                         ValidationError(
                             "navEnheter",
                             "NAV-enheten 0502 er i bruk på en av avtalens gjennomføringer, men mangler blandt avtalens NAV-enheter",
+                        ),
+                        ValidationError(
+                            "startDato",
+                            "Startdato kan ikke være før startdatoen til tiltaksgjennomføringer koblet til avtalen. Minst en gjennomføring har startdato: $formatertDato",
                         ),
                     ),
                 )

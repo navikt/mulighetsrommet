@@ -1,5 +1,15 @@
 import { PlusIcon, XMarkIcon } from "@navikt/aksel-icons";
-import { Alert, Button, HelpText, HStack, Select, Switch, TextField } from "@navikt/ds-react";
+import {
+  Alert,
+  Button,
+  DatePicker,
+  HelpText,
+  HGrid,
+  HStack,
+  Select,
+  Switch,
+  TextField,
+} from "@navikt/ds-react";
 import {
   Avtale,
   Tiltaksgjennomforing,
@@ -13,7 +23,7 @@ import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
 import { useHentKontaktpersoner } from "../../api/ansatt/useHentKontaktpersoner";
 import { useTiltaksgjennomforingAdministratorer } from "../../api/ansatt/useTiltaksgjennomforingAdministratorer";
 import { useMigrerteTiltakstyper } from "../../api/tiltakstyper/useMigrerteTiltakstyper";
-import { addYear } from "../../utils/Utils";
+import { addYear, formaterDato } from "../../utils/Utils";
 import { isTiltakMedFellesOppstart } from "../../utils/tiltakskoder";
 import { Separator } from "../detaljside/Metadata";
 import { AdministratorOptions } from "../skjema/AdministratorOptions";
@@ -25,6 +35,7 @@ import { SelectOppstartstype } from "./SelectOppstartstype";
 import { InferredTiltaksgjennomforingSchema } from "../redaksjonelt-innhold/TiltaksgjennomforingSchema";
 import { erArenaOpphavOgIngenEierskap } from "./TiltaksgjennomforingSkjemaConst";
 import { TiltaksgjennomforingArrangorSkjema } from "./TiltaksgjennomforingArrangorSkjema";
+import { tiltaktekster } from "../ledetekster/tiltaksgjennomforingLedetekster";
 
 interface Props {
   tiltaksgjennomforing?: Tiltaksgjennomforing;
@@ -117,7 +128,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
               size="small"
               readOnly={eierIkkeGjennomforing}
               error={errors.navn?.message as string}
-              label="Tiltaksnavn"
+              label={tiltaktekster.tiltaksnavnLabel}
               autoFocus
               {...register("navn")}
             />
@@ -125,7 +136,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
               <TextField
                 size="small"
                 readOnly
-                label="Tiltaksnummer"
+                label={tiltaktekster.tiltaksnummerLabel}
                 autoFocus
                 value={tiltaksgjennomforing?.tiltaksnummer}
               />
@@ -136,12 +147,30 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
             <TextField
               size="small"
               readOnly
-              label={`Avtale (tiltakstype: ${avtale.tiltakstype.navn})`}
+              label={tiltaktekster.avtaleMedTiltakstype(avtale.tiltakstype.navn)}
               value={avtale.navn || ""}
             />
             {errors.avtaleId?.message ? (
               <Alert variant="warning">{errors.avtaleId.message as string}</Alert>
             ) : null}
+            <HGrid columns={2}>
+              <DatePicker.Input
+                value={formaterDato(avtale.startDato)}
+                label={tiltaktekster.avtaleStartdatoLabel}
+                readOnly
+                size="small"
+              />
+              {avtale.sluttDato ? (
+                <DatePicker.Input
+                  value={formaterDato(avtale.sluttDato)}
+                  label={tiltaktekster.avtaleSluttdatoLabel}
+                  readOnly
+                  size="small"
+                />
+              ) : (
+                " - "
+              )}
+            </HGrid>
           </FormGroup>
           <Separator />
           <FormGroup>
@@ -152,7 +181,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
             <FraTilDatoVelger
               size="small"
               fra={{
-                label: "Startdato",
+                label: tiltaktekster.startdatoLabel,
                 readOnly: eierIkkeGjennomforing,
                 fromDate: minStartdato,
                 toDate: maxSluttdato,
@@ -160,7 +189,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
                 format: "iso-string",
               }}
               til={{
-                label: "Sluttdato",
+                label: tiltaktekster.sluttdatoLabel,
                 readOnly: eierIkkeGjennomforing,
                 fromDate: minStartdato,
                 toDate: maxSluttdato,
@@ -169,19 +198,24 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
               }}
             />
             {visApentForInnsok(avtale.tiltakstype.arenaKode) ? (
-              <Switch size="small" readOnly={eierIkkeGjennomforing} {...register("apentForInnsok")}>
-                Åpen for innsøk
+              <Switch
+                size="small"
+                readOnly={eierIkkeGjennomforing}
+                {...register("apentForInnsok")}
+                checked={watch("apentForInnsok")}
+              >
+                {tiltaktekster.apentForInnsokLabel}
               </Switch>
             ) : null}
 
-            <HStack justify="space-between">
+            <HGrid columns={2}>
               <TextField
                 size="small"
                 readOnly={eierIkkeGjennomforing}
                 error={errors.antallPlasser?.message as string}
                 type="number"
                 style={{ width: "180px" }}
-                label="Antall plasser"
+                label={tiltaktekster.antallPlasserLabel}
                 {...register("antallPlasser", {
                   valueAsNumber: true,
                 })}
@@ -196,13 +230,13 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
                   min={0}
                   max={100}
                   style={{ width: "180px" }}
-                  label="Deltidsprosent"
+                  label={tiltaktekster.deltidsprosentLabel}
                   {...register("deltidsprosent", {
                     valueAsNumber: true,
                   })}
                 />
               )}
-            </HStack>
+            </HGrid>
             <Separator />
             <fieldset className={skjemastyles.fieldset_no_styling}>
               <HStack gap="1">
@@ -246,7 +280,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
             <ControlledMultiSelect
               size="small"
               placeholder={isLoadingAnsatt ? "Laster..." : "Velg en"}
-              label={"Administratorer for gjennomføringen"}
+              label={tiltaktekster.administratorerForGjennomforingenLabel}
               helpText="Bestemmer hvem som eier gjennomføringen. Notifikasjoner sendes til administratorene."
               {...register("administratorer")}
               options={AdministratorOptions(
@@ -263,7 +297,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
             <FormGroup>
               <ControlledSokeSelect
                 size="small"
-                label="NAV-region"
+                label={tiltaktekster.navRegionLabel}
                 placeholder="Velg en"
                 {...register("navRegion")}
                 onChange={() => {
@@ -274,7 +308,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
               <ControlledMultiSelect
                 size="small"
                 placeholder={"Velg en"}
-                label={"NAV-enheter (kontorer)"}
+                label={tiltaktekster.navEnheterKontorerLabel}
                 helpText="Bestemmer hvem gjennomføringen skal vises til i Modia, basert på hvilket kontor brukeren har tilhørighet til."
                 {...register("navEnheter")}
                 options={navEnheterOptions}
@@ -302,7 +336,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
                           placeholder={
                             isLoadingKontaktpersoner ? "Laster kontaktpersoner..." : "Velg en"
                           }
-                          label={"Kontaktperson i NAV"}
+                          label={tiltaktekster.kontaktpersonNav.navnLabel}
                           {...register(`kontaktpersoner.${index}.navIdent`, {
                             shouldUnregister: true,
                           })}
@@ -310,8 +344,12 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
                         />
                         <ControlledMultiSelect
                           size="small"
-                          placeholder={isLoadingKontaktpersoner ? "Laster enheter..." : "Velg en"}
-                          label={"Område"}
+                          placeholder={
+                            isLoadingKontaktpersoner
+                              ? "Laster enheter..."
+                              : "Velg ett eller flere områder"
+                          }
+                          label={tiltaktekster.kontaktpersonNav.omradeLabel}
                           {...register(`kontaktpersoner.${index}.navEnheter`, {
                             shouldUnregister: true,
                           })}
@@ -321,7 +359,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
                         />
                         <TextField
                           size="small"
-                          label="Beskrivelse"
+                          label={tiltaktekster.kontaktpersonNav.beskrivelseLabel}
                           placeholder="Unngå personopplysninger"
                           maxLength={67}
                           {...register(`kontaktpersoner.${index}.beskrivelse`, {

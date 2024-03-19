@@ -22,6 +22,7 @@ import no.nav.mulighetsrommet.api.utils.EnhetFilter
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.QueryResult
 import no.nav.mulighetsrommet.database.utils.query
+import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.Tiltakskoder
 import no.nav.mulighetsrommet.domain.Tiltakskoder.isEgenRegiTiltak
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
@@ -29,6 +30,7 @@ import no.nav.mulighetsrommet.domain.constants.ArenaMigrering.Tiltaksgjennomfori
 import no.nav.mulighetsrommet.domain.dbo.*
 import no.nav.mulighetsrommet.domain.dto.Avtalestatus
 import no.nav.mulighetsrommet.domain.dto.NavIdent
+import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus
 import no.nav.mulighetsrommet.kafka.producers.TiltaksgjennomforingKafkaProducer
 import no.nav.mulighetsrommet.kafka.producers.TiltakstypeKafkaProducer
 import no.nav.mulighetsrommet.notifications.NotificationMetadata
@@ -55,6 +57,7 @@ class ArenaAdapterService(
     private val notificationService: NotificationService,
     private val endringshistorikk: EndringshistorikkService,
     private val veilarboppfolgingClient: VeilarboppfolgingClient,
+    private val tiltakstypeService: TiltakstypeService,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
@@ -86,10 +89,11 @@ class ArenaAdapterService(
 
             avtaler.upsertArenaAvtale(tx, avtale)
 
-            val dto = avtaler.get(avtale.id, tx)!!
+            val next = avtaler.get(avtale.id, tx)!!
 
-            logUpdate(tx, DocumentClass.AVTALE, dto.id, dto)
-            dto
+            logUpdateAvtale(tx, next)
+
+            next
         }
 
         if (dto.avtalestatus == Avtalestatus.Aktiv && dto.administratorer.isEmpty()) {
@@ -106,47 +110,52 @@ class ArenaAdapterService(
         }
     }
 
-    suspend fun upsertTiltaksgjennomforing(tiltaksgjennomforing: ArenaTiltaksgjennomforingDbo): QueryResult<TiltaksgjennomforingAdminDto> {
-        syncVirksomhetFromBrreg(tiltaksgjennomforing.arrangorOrganisasjonsnummer)
+    suspend fun upsertTiltaksgjennomforing(arenaGjennomforing: ArenaTiltaksgjennomforingDbo): QueryResult<TiltaksgjennomforingAdminDto> {
+        syncVirksomhetFromBrreg(arenaGjennomforing.arrangorOrganisasjonsnummer)
 
-        val previous = tiltaksgjennomforinger.get(tiltaksgjennomforing.id)
-        val tiltaksgjennomforingMedAvtale = withExistingAvtale(tiltaksgjennomforing, previous)
+        val previous = tiltaksgjennomforinger.get(arenaGjennomforing.id)
+
+        val mergedArenaGjennomforing = if (previous != null) {
+            mergeWithCurrentGjennomforing(arenaGjennomforing, previous)
+        } else {
+            arenaGjennomforing
+        }
+
+        if (previous != null && hasNoRelevantChanges(mergedArenaGjennomforing, previous)) {
+            return query { previous }
+        }
 
         val gjennomforing = db.transactionSuspend { tx ->
-            if (previous?.toArenaTiltaksgjennomforingDbo() == tiltaksgjennomforingMedAvtale) {
-                return@transactionSuspend previous
-            }
+            tiltaksgjennomforinger.upsertArenaTiltaksgjennomforing(mergedArenaGjennomforing, tx)
 
-            tiltaksgjennomforinger.upsertArenaTiltaksgjennomforing(tiltaksgjennomforingMedAvtale, tx)
-
-            val gjennomforing = tiltaksgjennomforinger.get(tiltaksgjennomforingMedAvtale.id, tx)!!
+            val next = tiltaksgjennomforinger.get(mergedArenaGjennomforing.id, tx)!!
 
             if (previous?.tiltaksnummer == null) {
-                logTiltaksnummerHentetFraArena(tx, DocumentClass.TILTAKSGJENNOMFORING, gjennomforing.id, gjennomforing)
+                logTiltaksnummerHentetFraArena(tx, next)
             } else {
-                logUpdate(tx, DocumentClass.TILTAKSGJENNOMFORING, gjennomforing.id, gjennomforing)
+                logUpdateGjennomforing(tx, next)
             }
 
-            gjennomforing.avtaleId?.let { avtaleId ->
-                avtaler.setLeverandorUnderenhet(tx, avtaleId, gjennomforing.arrangor.id)
+            next.avtaleId?.let { avtaleId ->
+                avtaler.setLeverandorUnderenhet(tx, avtaleId, next.arrangor.id)
             }
 
-            tiltaksgjennomforingKafkaProducer.publish(TiltaksgjennomforingDto.from(gjennomforing))
-
-            if (shouldBeManagedInSanity(gjennomforing)) {
-                sanityTiltaksgjennomforingService.createOrPatchSanityTiltaksgjennomforing(gjennomforing, tx)
-            } else if (gjennomforing.isAktiv() && gjennomforing.administratorer.isEmpty()) {
-                maybeNotifyRelevantAdministrators(gjennomforing)
+            if (shouldBeManagedInSanity(next)) {
+                sanityTiltaksgjennomforingService.createOrPatchSanityTiltaksgjennomforing(next, tx)
+            } else if (next.isAktiv() && next.administratorer.isEmpty()) {
+                maybeNotifyRelevantAdministrators(next)
             }
 
-            gjennomforing
+            tiltaksgjennomforingKafkaProducer.publish(TiltaksgjennomforingDto.from(next))
+
+            next
         }
 
         return query { gjennomforing }
     }
 
     private suspend fun syncVirksomhetFromBrreg(orgnr: String) {
-        virksomhetService.getOrSyncHovedenhetFromBrreg(orgnr).onLeft { error ->
+        virksomhetService.getOrSyncVirksomhetFromBrreg(orgnr).onLeft { error ->
             if (error == BrregError.NotFound) {
                 logger.warn("Virksomhet mer orgnr=$orgnr finnes ikke i brreg. Er dette en utenlandsk arrangør?")
             }
@@ -192,23 +201,74 @@ class ArenaAdapterService(
         return query { deltakere.delete(id) }
     }
 
-    private fun withExistingAvtale(
+    private fun mergeWithCurrentGjennomforing(
         tiltaksgjennomforing: ArenaTiltaksgjennomforingDbo,
-        previous: TiltaksgjennomforingAdminDto?,
+        current: TiltaksgjennomforingAdminDto,
     ): ArenaTiltaksgjennomforingDbo {
         val tiltakstype = tiltakstyper.get(tiltaksgjennomforing.tiltakstypeId)
             ?: throw IllegalStateException("Ukjent tiltakstype id=${tiltaksgjennomforing.tiltakstypeId}")
 
-        val avtaleId = if (
-            previous?.opphav == ArenaMigrering.Opphav.MR_ADMIN_FLATE ||
-            Tiltakskoder.isTiltakMedAvtalerFraMulighetsrommet(tiltakstype.arenaKode)
-        ) {
-            previous?.avtaleId ?: tiltaksgjennomforing.avtaleId
-        } else {
-            tiltaksgjennomforing.avtaleId
-        }
+        return if (tiltakstypeService.isEnabled(Tiltakskode.fromArenaKode(tiltakstype.arenaKode))) {
+            ArenaTiltaksgjennomforingDbo(
+                // Behold felter som settes i Arena
+                tiltaksnummer = tiltaksgjennomforing.tiltaksnummer,
+                arenaAnsvarligEnhet = tiltaksgjennomforing.arenaAnsvarligEnhet,
 
-        return tiltaksgjennomforing.copy(avtaleId = avtaleId)
+                // Resten av feltene skal ikke overskrives med data fra Arena
+                id = current.id,
+                avtaleId = current.avtaleId,
+                navn = current.navn,
+                tiltakstypeId = current.tiltakstype.id,
+                arrangorOrganisasjonsnummer = current.arrangor.organisasjonsnummer,
+                startDato = current.startDato,
+                sluttDato = current.sluttDato,
+                apentForInnsok = current.apentForInnsok,
+                antallPlasser = current.antallPlasser,
+                oppstart = current.oppstart,
+                deltidsprosent = current.deltidsprosent,
+                avslutningsstatus = when (current.status) {
+                    Tiltaksgjennomforingsstatus.PLANLAGT, Tiltaksgjennomforingsstatus.GJENNOMFORES -> Avslutningsstatus.IKKE_AVSLUTTET
+                    Tiltaksgjennomforingsstatus.AVLYST -> Avslutningsstatus.AVLYST
+                    Tiltaksgjennomforingsstatus.AVBRUTT -> Avslutningsstatus.AVBRUTT
+                    Tiltaksgjennomforingsstatus.AVSLUTTET -> Avslutningsstatus.AVSLUTTET
+                },
+            )
+        } else {
+            // Pass på at man ikke mister referansen til Avtalen
+            val avtaleId = if (
+                current.opphav == ArenaMigrering.Opphav.MR_ADMIN_FLATE ||
+                Tiltakskoder.isTiltakMedAvtalerFraMulighetsrommet(tiltakstype.arenaKode)
+            ) {
+                current.avtaleId ?: tiltaksgjennomforing.avtaleId
+            } else {
+                tiltaksgjennomforing.avtaleId
+            }
+            tiltaksgjennomforing.copy(avtaleId = avtaleId)
+        }
+    }
+
+    private fun hasNoRelevantChanges(
+        arenaGjennomforing: ArenaTiltaksgjennomforingDbo,
+        current: TiltaksgjennomforingAdminDto,
+    ): Boolean {
+        val avslutningsstatus = tiltaksgjennomforinger.getAvslutningsstatus(current.id)
+        val currentAsArenaGjennomforing = ArenaTiltaksgjennomforingDbo(
+            id = current.id,
+            navn = current.navn,
+            tiltakstypeId = current.tiltakstype.id,
+            tiltaksnummer = current.tiltaksnummer ?: "",
+            arrangorOrganisasjonsnummer = current.arrangor.organisasjonsnummer,
+            startDato = current.startDato,
+            sluttDato = current.sluttDato,
+            arenaAnsvarligEnhet = current.arenaAnsvarligEnhet?.enhetsnummer,
+            avslutningsstatus = avslutningsstatus,
+            apentForInnsok = current.apentForInnsok,
+            antallPlasser = current.antallPlasser,
+            avtaleId = current.avtaleId,
+            oppstart = current.oppstart,
+            deltidsprosent = current.deltidsprosent,
+        )
+        return currentAsArenaGjennomforing == arenaGjennomforing
     }
 
     private fun shouldBeManagedInSanity(gjennomforing: TiltaksgjennomforingAdminDto): Boolean {
@@ -286,41 +346,37 @@ class ArenaAdapterService(
         notificationService.scheduleNotification(notification)
     }
 
-    private inline fun <reified T> logUpdate(
-        tx: TransactionalSession,
-        documentClass: DocumentClass,
-        id: UUID,
-        value: T,
-    ) {
+    private fun logUpdateAvtale(tx: TransactionalSession, dto: AvtaleAdminDto) {
         endringshistorikk.logEndring(
             tx,
-            documentClass,
+            DocumentClass.AVTALE,
             "Endret i Arena",
             "Arena",
-            id,
-        ) { Json.encodeToJsonElement(value) }
+            dto.id,
+        ) { Json.encodeToJsonElement(dto) }
     }
 
-    private inline fun <reified T> logTiltaksnummerHentetFraArena(
-        tx: TransactionalSession,
-        documentClass: DocumentClass,
-        id: UUID,
-        value: T,
-    ) {
+    private fun logUpdateGjennomforing(tx: TransactionalSession, dto: TiltaksgjennomforingAdminDto) {
         endringshistorikk.logEndring(
             tx,
-            documentClass,
-            "Oppdatert med tiltaksnummer fra Arena",
-            TILTAKSADMINISTRASJON_SYSTEM_BRUKER,
-            id,
-        ) { Json.encodeToJsonElement(value) }
+            DocumentClass.TILTAKSGJENNOMFORING,
+            "Endret i Arena",
+            "Arena",
+            dto.id,
+        ) { Json.encodeToJsonElement(dto) }
     }
 
-    private fun logDelete(
-        tx: TransactionalSession,
-        documentClass: DocumentClass,
-        id: UUID,
-    ) {
+    private fun logTiltaksnummerHentetFraArena(tx: TransactionalSession, dto: TiltaksgjennomforingAdminDto) {
+        endringshistorikk.logEndring(
+            tx,
+            DocumentClass.TILTAKSGJENNOMFORING,
+            "Oppdatert med tiltaksnummer fra Arena",
+            TILTAKSADMINISTRASJON_SYSTEM_BRUKER,
+            dto.id,
+        ) { Json.encodeToJsonElement(dto) }
+    }
+
+    private fun logDelete(tx: TransactionalSession, documentClass: DocumentClass, id: UUID) {
         endringshistorikk.logEndring(
             tx,
             documentClass,

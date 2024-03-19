@@ -2,7 +2,6 @@ package no.nav.mulighetsrommet.api.repositories
 
 import kotliquery.Row
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.api.domain.dbo.OverordnetEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dto.BrregVirksomhetDto
 import no.nav.mulighetsrommet.api.domain.dto.VirksomhetDto
 import no.nav.mulighetsrommet.api.domain.dto.VirksomhetKontaktperson
@@ -14,59 +13,6 @@ import java.util.*
 
 class VirksomhetRepository(private val db: Database) {
     private val logger = LoggerFactory.getLogger(javaClass)
-
-    /** Upserter en overordnet enhet og oppdaterer listen med underenheter */
-    fun upsertOverordnetEnhet(overordnetEnhetDbo: OverordnetEnhetDbo) {
-        logger.info("Lagrer overordnet enhet ${overordnetEnhetDbo.organisasjonsnummer}")
-
-        @Language("PostgreSQL")
-        val query = """
-            insert into virksomhet(organisasjonsnummer, navn, slettet_dato, postnummer, poststed)
-            values (:organisasjonsnummer, :navn, :slettet_dato, :postnummer, :poststed)
-            on conflict (organisasjonsnummer) do update set
-                navn         = excluded.navn,
-                slettet_dato = excluded.slettet_dato,
-                postnummer   = excluded.postnummer,
-                poststed     = excluded.poststed
-            returning *
-        """.trimIndent()
-
-        @Language("PostgreSQL")
-        val upsertUnderenheter = """
-            insert into virksomhet (organisasjonsnummer, navn, overordnet_enhet, slettet_dato, postnummer, poststed)
-            values (:organisasjonsnummer, :navn, :overordnet_enhet, :slettet_dato, :postnummer, :poststed)
-            on conflict (organisasjonsnummer) do update set
-                navn             = excluded.navn,
-                overordnet_enhet = excluded.overordnet_enhet,
-                slettet_dato     = excluded.slettet_dato,
-                postnummer       = excluded.postnummer,
-                poststed         = excluded.poststed
-            returning *
-        """.trimIndent()
-
-        @Language("PostgreSQL")
-        val deleteUnderenheter = """
-             delete from virksomhet
-             where overordnet_enhet = ? and not (organisasjonsnummer = any (?))
-        """.trimIndent()
-
-        db.transaction { tx ->
-            tx.run(queryOf(query, overordnetEnhetDbo.toSqlParameters()).asExecute)
-
-            overordnetEnhetDbo.underenheter.forEach { underenhet ->
-                logger.info("Lagrer underenhet ${underenhet.organisasjonsnummer}")
-                queryOf(upsertUnderenheter, underenhet.toSqlParameters())
-                    .asExecute
-                    .let { tx.run(it) }
-            }
-
-            queryOf(
-                deleteUnderenheter,
-                overordnetEnhetDbo.organisasjonsnummer,
-                db.createTextArray(overordnetEnhetDbo.underenheter.map { it.organisasjonsnummer }),
-            ).asExecute.let { tx.run(it) }
-        }
-    }
 
     /** Upserter kun enheten og tar ikke hensyn til underenheter */
     fun upsert(virksomhet: VirksomhetDto) {
@@ -366,13 +312,5 @@ class VirksomhetRepository(private val db: Database) {
         "telefon" to telefon,
         "epost" to epost,
         "beskrivelse" to beskrivelse,
-    )
-
-    private fun OverordnetEnhetDbo.toSqlParameters() = mapOf(
-        "organisasjonsnummer" to organisasjonsnummer,
-        "navn" to navn,
-        "slettet_dato" to slettetDato,
-        "postnummer" to postnummer,
-        "poststed" to poststed,
     )
 }

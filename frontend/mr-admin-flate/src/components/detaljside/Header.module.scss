@@ -18,6 +18,7 @@
       display: flex;
       justify-content: space-between;
       gap: 1.5rem;
+      flex-wrap: wrap;
     }
 
     .header_outer_container_forhandsvisningsknapp {
@@ -33,11 +34,11 @@
       }
 
       .forhandsvisningsknapp {
-        width: 13rem;
         align-self: center;
         display: flex;
         justify-content: flex-end;
         padding-right: 0.5rem;
+        flex-wrap: wrap;
 
         @media (width <= 1460px) {
         }
@@ -49,6 +50,11 @@
       justify-content: flex-start;
       gap: 1.5rem;
       align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .navn {
+      max-width: 50rem;
     }
   }
 

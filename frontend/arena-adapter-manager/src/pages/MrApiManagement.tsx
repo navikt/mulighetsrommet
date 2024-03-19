@@ -1,5 +1,4 @@
 import { Box, Heading, Link, VStack } from "@chakra-ui/react";
-import { UpdateVirksomhet } from "../sections/UpdateVirksomhet";
 import { RunTask } from "../sections/RunTask";
 import TopicOverview from "../sections/TopicOverview.tsx";
 import { ApiBase } from "../core/api.tsx";
@@ -10,8 +9,6 @@ export function MrApiManagement() {
       <Heading mb="10">mr-api</Heading>
       <VStack spacing={8}>
         <TopicOverview base={ApiBase.MR_API} />
-
-        <UpdateVirksomhet />
 
         <RunTask base={ApiBase.MR_API} task="generate-validation-report">
           <p>
@@ -45,7 +42,8 @@ export function MrApiManagement() {
         </RunTask>
 
         <RunTask base={ApiBase.MR_API} task={"sync-virksomheter"}>
-          Synkoniserer de virksomhetene som allerede finnes i vår database med virksomheter fra brønnøysundregistrene relevante AD-grupper.
+          Synkoniserer de virksomhetene som allerede finnes i vår database med virksomheter fra
+          brønnøysundregistrene.
         </RunTask>
       </VStack>
     </Box>

@@ -26,7 +26,12 @@ data class MulighetsrommetTestDomain(
         TiltakstypeFixtures.AFT,
         TiltakstypeFixtures.EnkelAmo,
     ),
-    val avtaler: List<AvtaleDbo> = listOf(AvtaleFixtures.oppfolging, AvtaleFixtures.VTA),
+    val avtaler: List<AvtaleDbo> = listOf(
+        AvtaleFixtures.oppfolging,
+        AvtaleFixtures.VTA,
+        AvtaleFixtures.AFT,
+        AvtaleFixtures.EnkelAmo,
+    ),
     val gjennomforinger: List<TiltaksgjennomforingDbo> = listOf(),
 ) {
     fun initialize(database: FlywayDatabaseAdapter) {

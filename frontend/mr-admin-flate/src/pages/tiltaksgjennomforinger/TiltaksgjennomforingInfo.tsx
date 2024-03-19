@@ -40,8 +40,8 @@ export function TiltaksgjennomforingInfo() {
           <div>
             <Tabs.Tab onClick={() => setActiveTab("detaljer")} value="detaljer" label="Detaljer" />
             <Tabs.Tab
-              onClick={() => setActiveTab("redaksjonelt_innhold")}
-              value="redaksjonelt_innhold"
+              onClick={() => setActiveTab("redaksjonelt-innhold")}
+              value="redaksjonelt-innhold"
               label="Redaksjonelt innhold"
             />
           </div>
@@ -58,7 +58,7 @@ export function TiltaksgjennomforingInfo() {
             />
           </InlineErrorBoundary>
         </Tabs.Panel>
-        <Tabs.Panel value="redaksjonelt_innhold">
+        <Tabs.Panel value="redaksjonelt-innhold">
           <InlineErrorBoundary>
             <RedaksjoneltInnholdPreview
               tiltakstypeId={tiltaksgjennomforing.tiltakstype.id}

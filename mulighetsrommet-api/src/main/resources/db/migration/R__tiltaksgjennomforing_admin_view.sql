@@ -109,7 +109,6 @@ from tiltaksgjennomforing tg
 group by tg.id,
          t.id,
          v.id,
-         v.organisasjonsnummer,
          region.status,
          region.navn,
          region.type,

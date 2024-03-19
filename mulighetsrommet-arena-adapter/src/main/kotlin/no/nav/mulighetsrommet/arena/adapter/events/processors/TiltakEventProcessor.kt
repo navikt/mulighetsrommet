@@ -90,7 +90,6 @@ class TiltakEventProcessor(
     private fun Tiltakstype.toDbo() = TiltakstypeDbo(
         id = id,
         navn = navn,
-        tiltakskode = null,
         arenaKode = tiltakskode,
         registrertDatoIArena = registrertIArenaDato,
         sistEndretDatoIArena = sistEndretIArenaDato,

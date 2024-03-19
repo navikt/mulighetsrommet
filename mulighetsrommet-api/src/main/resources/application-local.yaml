@@ -109,6 +109,10 @@ app:
     url: http://0.0.0.0:8084
     scope: default
 
+  amtDeltakerConfig:
+    url: http://localhost:8090/amt-deltaker
+    scope: default
+
   axsys:
     url: https://axsys.dev-fss-pub.nais.io # TODO Url for wiremock for axsys
     scope: default # TODO scope for wiremock for axsys

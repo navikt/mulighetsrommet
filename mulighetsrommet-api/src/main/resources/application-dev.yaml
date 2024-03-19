@@ -102,6 +102,10 @@ app:
     url: https://veilarbdialog.dev-fss-pub.nais.io/veilarbdialog/api
     scope: api://dev-fss.pto.veilarbdialog/.default
 
+  amtDeltakerConfig:
+    url: http://amt-deltaker.amt
+    scope: api://dev-gcp.amt.amt-deltaker/.default
+
   poaoTilgang:
     url: http://poao-tilgang.poao
     scope: api://dev-gcp.poao.poao-tilgang/.default

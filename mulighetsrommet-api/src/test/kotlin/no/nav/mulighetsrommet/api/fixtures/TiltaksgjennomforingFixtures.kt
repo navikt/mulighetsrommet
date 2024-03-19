@@ -52,6 +52,30 @@ object TiltaksgjennomforingFixtures {
         estimertVentetidEnhet = "dag",
     )
 
+    val EnkelAmo1 = TiltaksgjennomforingDbo(
+        id = UUID.randomUUID(),
+        navn = "EnkelAmo 1",
+        tiltakstypeId = TiltakstypeFixtures.EnkelAmo.id,
+        arrangorVirksomhetId = VirksomhetFixtures.underenhet1.id,
+        startDato = AvtaleFixtures.oppfolging.startDato.plusDays(1),
+        sluttDato = AvtaleFixtures.oppfolging.startDato.plusMonths(3),
+        apentForInnsok = true,
+        antallPlasser = 12,
+        administratorer = listOf(NavIdent("DD1")),
+        navRegion = "0400",
+        navEnheter = listOf("0502"),
+        oppstart = TiltaksgjennomforingOppstartstype.LOPENDE,
+        kontaktpersoner = emptyList(),
+        arrangorKontaktpersoner = emptyList(),
+        stedForGjennomforing = "Oslo",
+        avtaleId = AvtaleFixtures.EnkelAmo.id,
+        faneinnhold = null,
+        beskrivelse = null,
+        deltidsprosent = 100.0,
+        estimertVentetidVerdi = 3,
+        estimertVentetidEnhet = "dag",
+    )
+
     val Oppfolging1Request = TiltaksgjennomforingRequest(
         id = Oppfolging1.id,
         navn = Oppfolging1.navn,
@@ -199,23 +223,23 @@ object TiltaksgjennomforingFixtures {
         estimertVentetidEnhet = "dag",
     )
 
-    val EnkelAmo = TiltaksgjennomforingDbo(
+    val GruppeAmo1 = TiltaksgjennomforingDbo(
         id = UUID.randomUUID(),
-        navn = "EnkelAmo 1",
-        tiltakstypeId = TiltakstypeFixtures.EnkelAmo.id,
+        navn = "Gruppe Amo 1",
+        tiltakstypeId = TiltakstypeFixtures.GRUPPE_AMO.id,
         arrangorVirksomhetId = VirksomhetFixtures.underenhet1.id,
         startDato = LocalDate.of(2023, 1, 1),
         sluttDato = LocalDate.of(2023, 2, 1),
         apentForInnsok = true,
         antallPlasser = 12,
-        administratorer = emptyList(),
-        navRegion = "2990",
-        navEnheter = emptyList(),
+        administratorer = listOf(NavIdent("DD1")),
+        navRegion = "0400",
+        navEnheter = listOf("0502"),
         oppstart = TiltaksgjennomforingOppstartstype.FELLES,
         kontaktpersoner = emptyList(),
         arrangorKontaktpersoner = emptyList(),
         stedForGjennomforing = "Oslo",
-        avtaleId = AvtaleFixtures.oppfolging.id,
+        avtaleId = AvtaleFixtures.gruppeAmo.id,
         faneinnhold = null,
         beskrivelse = null,
         deltidsprosent = 100.0,

@@ -1,4 +1,4 @@
-import { Alert, Button, Checkbox, Pagination, Table } from "@navikt/ds-react";
+import { Alert, Button, Pagination, Table } from "@navikt/ds-react";
 import classNames from "classnames";
 import { useAtom, WritableAtom } from "jotai";
 import { OpenAPI, SorteringAvtaler } from "mulighetsrommet-api-client";
@@ -123,17 +123,6 @@ export const AvtaleTabell = ({ filterAtom }: Props) => {
               });
             }}
           />
-          <Checkbox
-            checked={filter.visMineAvtaler}
-            onChange={(event) => {
-              updateFilter({
-                page: 1,
-                visMineAvtaler: event.currentTarget.checked,
-              });
-            }}
-          >
-            Vis kun mine
-          </Checkbox>
         </div>
         <div>
           <Button
@@ -212,8 +201,10 @@ export const AvtaleTabell = ({ filterAtom }: Props) => {
                   <Table.DataCell aria-label={`Startdato: ${formaterDato(avtale.startDato)}`}>
                     {formaterDato(avtale.startDato)}
                   </Table.DataCell>
-                  <Table.DataCell aria-label={`Sluttdato: ${formaterDato(avtale.sluttDato)}`}>
-                    {formaterDato(avtale.sluttDato)}
+                  <Table.DataCell
+                    aria-label={`Sluttdato: ${avtale.sluttDato ? formaterDato(avtale.sluttDato) : "-"}`}
+                  >
+                    {avtale.sluttDato ? formaterDato(avtale.sluttDato) : "-"}
                   </Table.DataCell>
                   <Table.DataCell>
                     <AvtalestatusTag avtale={avtale} />

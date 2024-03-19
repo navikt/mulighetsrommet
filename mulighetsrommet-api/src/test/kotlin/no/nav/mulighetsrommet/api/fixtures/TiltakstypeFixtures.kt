@@ -28,6 +28,17 @@ object TiltakstypeFixtures {
         sistEndretDatoIArena = LocalDateTime.of(2023, 1, 11, 0, 0, 0),
     )
 
+    val GRUPPE_AMO = TiltakstypeDbo(
+        id = UUID.fromString("6fb945d6-0a87-4b8a-82a4-067477c1e113"),
+        navn = "Gruppe amo",
+        arenaKode = "GRUPPEAMO",
+        rettPaaTiltakspenger = false,
+        fraDato = LocalDate.of(2023, 1, 1),
+        tilDato = LocalDate.of(2025, 12, 31),
+        registrertDatoIArena = LocalDateTime.of(2023, 1, 11, 0, 0, 0),
+        sistEndretDatoIArena = LocalDateTime.of(2023, 1, 11, 0, 0, 0),
+    )
+
     val Oppfolging = TiltakstypeDbo(
         id = UUID.fromString("5b827950-cf47-4716-9305-bcf7f2646a00"),
         navn = "Oppfølging",
@@ -43,6 +54,17 @@ object TiltakstypeFixtures {
         id = UUID.fromString("801340cd-f0ae-4da9-a01c-caad692933a2"),
         navn = "Jobbklubb",
         arenaKode = "JOBBK",
+        rettPaaTiltakspenger = true,
+        fraDato = LocalDate.of(2023, 1, 1),
+        tilDato = LocalDate.of(2025, 12, 31),
+        registrertDatoIArena = LocalDateTime.of(2023, 1, 11, 0, 0, 0),
+        sistEndretDatoIArena = LocalDateTime.of(2023, 1, 11, 0, 0, 0),
+    )
+
+    val Avklaring = TiltakstypeDbo(
+        id = UUID.fromString("75c4587a-4d99-4924-935b-4244abb81d32"),
+        navn = "Avklaring",
+        arenaKode = "AVKLARAG",
         rettPaaTiltakspenger = true,
         fraDato = LocalDate.of(2023, 1, 1),
         tilDato = LocalDate.of(2025, 12, 31),

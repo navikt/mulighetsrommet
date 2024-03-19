@@ -34,6 +34,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
     val avtaleStartDato = LocalDate.now()
     val avtaleSluttDato = LocalDate.now().plusMonths(1)
     val avtale = AvtaleFixtures.oppfolging.copy(
+        id = UUID.randomUUID(),
         startDato = avtaleStartDato,
         sluttDato = avtaleSluttDato,
         leverandorVirksomhetId = VirksomhetFixtures.hovedenhet.id,
@@ -42,6 +43,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
     )
 
     val gjennomforing = TiltaksgjennomforingFixtures.Oppfolging1.copy(
+        avtaleId = avtale.id,
         startDato = avtaleStartDato,
         sluttDato = avtaleSluttDato,
         navRegion = "0400",
@@ -91,9 +93,17 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
             TiltakstypeFixtures.VTA,
             TiltakstypeFixtures.AFT,
             TiltakstypeFixtures.Jobbklubb,
+            TiltakstypeFixtures.GRUPPE_AMO,
             TiltakstypeFixtures.Oppfolging,
         ),
-        avtaler = listOf(avtale, AvtaleFixtures.VTA, AvtaleFixtures.AFT),
+        avtaler = listOf(
+            avtale,
+            AvtaleFixtures.oppfolgingMedAvtale,
+            AvtaleFixtures.oppfolging,
+            AvtaleFixtures.gruppeAmo,
+            AvtaleFixtures.VTA,
+            AvtaleFixtures.AFT,
+        ),
     )
 
     lateinit var tiltakstyper: TiltakstypeService
@@ -180,21 +190,25 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
         )
     }
 
-    test("sluttDato er påkrevd hvis ikke VTA eller AFT") {
+    test("sluttDato er påkrevd hvis ikke forhåndsgodkjent avtale") {
         val validator = TiltaksgjennomforingValidator(
             TiltakstypeService(TiltakstypeRepository(database.db), Tiltakskode.values().toList()),
             avtaler,
         )
-        val aft = TiltaksgjennomforingFixtures.AFT1.copy(sluttDato = null)
-        val vta = TiltaksgjennomforingFixtures.VTA1.copy(sluttDato = null)
-        val oppfolging = gjennomforing.copy(
-            sluttDato = null,
-        )
+        val forhaandsgodkjent = TiltaksgjennomforingFixtures.AFT1.copy(sluttDato = null)
+        val rammeAvtale = TiltaksgjennomforingFixtures.Oppfolging1.copy(sluttDato = null)
+        val vanligAvtale = TiltaksgjennomforingFixtures.Oppfolging1.copy(sluttDato = null, avtaleId = AvtaleFixtures.oppfolgingMedAvtale.id)
+        val offentligOffentlig = TiltaksgjennomforingFixtures.GruppeAmo1.copy(sluttDato = null)
 
-        validator.validate(aft, null).shouldBeRight()
-        validator.validate(vta, null).shouldBeRight()
-        validator.validate(oppfolging, null).shouldBeLeft(
-            listOf(ValidationError("sluttDato", "Sluttdato må være valgt")),
+        validator.validate(forhaandsgodkjent, null).shouldBeRight()
+        validator.validate(rammeAvtale, null).shouldBeLeft(
+            listOf(ValidationError("sluttDato", "Sluttdato må være satt")),
+        )
+        validator.validate(vanligAvtale, null).shouldBeLeft(
+            listOf(ValidationError("sluttDato", "Sluttdato må være satt")),
+        )
+        validator.validate(offentligOffentlig, null).shouldBeLeft(
+            listOf(ValidationError("sluttDato", "Sluttdato må være satt")),
         )
     }
 

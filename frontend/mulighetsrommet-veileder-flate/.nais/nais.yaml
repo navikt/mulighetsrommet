@@ -22,6 +22,10 @@ spec:
     scalingStrategy:
       cpu:
         thresholdPercentage: 75
+  observability:
+    autoInstrumentation:
+      enabled: true
+      runtime: nodejs
   resources:
     limits:
       memory: 512Mi

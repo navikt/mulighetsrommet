@@ -15,6 +15,7 @@ import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.Tiltakskoder
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dto.Avtalestatus
+import no.nav.mulighetsrommet.domain.dto.Avtaletype
 import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus.GJENNOMFORES
 import no.nav.mulighetsrommet.domain.dto.TiltakstypeAdminDto
 
@@ -61,8 +62,8 @@ class TiltaksgjennomforingValidator(
                 )
             }
 
-            if (!Tiltakskoder.isAFTOrVTA(tiltakstype.arenaKode) && dbo.sluttDato == null) {
-                add(ValidationError.of(AvtaleDbo::sluttDato, "Sluttdato må være valgt"))
+            if (avtale.avtaletype != Avtaletype.Forhaandsgodkjent && dbo.sluttDato == null) {
+                add(ValidationError.of(AvtaleDbo::sluttDato, "Sluttdato må være satt"))
             }
 
             if (dbo.sluttDato != null && dbo.startDato.isAfter(dbo.sluttDato)) {

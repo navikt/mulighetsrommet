@@ -7,15 +7,12 @@ import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
+import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
 import no.nav.mulighetsrommet.api.clients.pdl.IdentGruppe
 import no.nav.mulighetsrommet.api.clients.pdl.IdentInformasjon
 import no.nav.mulighetsrommet.api.clients.pdl.PdlClient
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
-import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
-import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
-import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures
-import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures
-import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
+import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.repositories.TiltakshistorikkRepository
 import no.nav.mulighetsrommet.api.services.TiltakshistorikkService
 import no.nav.mulighetsrommet.api.services.VirksomhetService
@@ -32,6 +29,7 @@ import java.util.*
 class PtoSisteOppfolgingsperiodeV1TopicConsumerTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
     val pdlClient: PdlClient = mockk()
+    val amtDeltakerClient: AmtDeltakerClient = mockk()
     val virksomhetService: VirksomhetService = mockk()
     val domain = MulighetsrommetTestDomain(
         enheter = listOf(
@@ -54,6 +52,7 @@ class PtoSisteOppfolgingsperiodeV1TopicConsumerTest : FunSpec({
         val tiltakshistorikkRepository = TiltakshistorikkRepository(database.db)
         val tiltakshistorikkService = TiltakshistorikkService(
             virksomhetService = virksomhetService,
+            amtDeltakerClient = amtDeltakerClient,
             tiltakshistorikkRepository = tiltakshistorikkRepository,
             pdlClient = pdlClient,
         )

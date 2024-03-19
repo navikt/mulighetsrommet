@@ -127,17 +127,6 @@ export const runTask = (base: ApiBase, task: MrApiTask) =>
       toastError(`Failed to execute task '${task}'`, error);
     });
 
-export const syncVirksomhet = (orgnr: string) =>
-  fetch(`/mulighetsrommet-api/api/v1/internal/virksomhet/update?orgnr=${orgnr}`, {
-    method: "POST",
-    headers: getDefaultHeaders(),
-  })
-    .then(checkOk)
-    .then(() => toast.success("Virksomhet synkronisert"))
-    .catch((error) => {
-      toastError(`Klarte ikke synkronisere virksomhet med orgnr=${orgnr}`, error);
-    });
-
 function getDefaultHeaders(): Record<string, string> {
   return {
     Accept: "application/json",
