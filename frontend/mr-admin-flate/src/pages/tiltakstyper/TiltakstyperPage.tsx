@@ -6,6 +6,7 @@ import { useTitle } from "mulighetsrommet-frontend-common";
 import { ReloadAppErrorBoundary } from "../../ErrorBoundary";
 import { TilToppenKnapp } from "../../../../frontend-common/components/tilToppenKnapp/TilToppenKnapp";
 import { Brodsmuler } from "../../components/navigering/Brodsmuler";
+import { TiltakstypeIkon } from "../../components/ikoner/TiltakstypeIkon";
 
 export function TiltakstyperPage() {
   useTitle("Tiltakstyper");
@@ -17,7 +18,7 @@ export function TiltakstyperPage() {
           { tittel: "Tiltakstyper", lenke: "/tiltakstyper" },
         ]}
       />
-      <HeaderBanner heading="Oversikt over tiltakstyper" />
+      <HeaderBanner heading="Oversikt over tiltakstyper" ikon={<TiltakstypeIkon />} />
       <MainContainer>
         <ContainerLayout>
           <ReloadAppErrorBoundary>

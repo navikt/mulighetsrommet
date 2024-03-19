@@ -9,6 +9,7 @@ import { useNavigateAndReplaceUrl } from "../../hooks/useNavigateWithoutReplacin
 import { ContainerLayout } from "../../layouts/ContainerLayout";
 import commonStyles from "../Page.module.scss";
 import { Brodsmule, Brodsmuler } from "../../components/navigering/Brodsmuler";
+import { TiltakstypeIkon } from "../../components/ikoner/TiltakstypeIkon";
 
 function useTiltakstypeBrodsmuler(tiltakstypeId: string): Array<Brodsmule | undefined> {
   const match = useMatch("/tiltakstyper/:tiltakstypeId/avtaler");
@@ -48,6 +49,7 @@ export function DetaljerTiltakstypePage() {
     <main>
       <Brodsmuler brodsmuler={brodsmuler} />
       <Header>
+        <TiltakstypeIkon />
         <Heading size="large" level="2">
           {tiltakstype?.navn ?? "..."}
         </Heading>

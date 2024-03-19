@@ -10,10 +10,9 @@ interface Props {
 export function Header({ children, harForhandsvisningsknapp = false }: Props) {
   return (
     <div
-      className={classNames(
-        styles.header_container,
-        harForhandsvisningsknapp ? styles.header_container_forhandsvisningsknapp : null,
-      )}
+      className={classNames(styles.header_container, {
+        [styles.header_container_forhandsvisningsknapp]: harForhandsvisningsknapp,
+      })}
     >
       <div className={styles.header}>{children}</div>
     </div>
