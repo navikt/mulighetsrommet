@@ -1,18 +1,26 @@
-import { HStack, Heading, LinkPanel, Tag, VStack } from "@navikt/ds-react";
+import { Heading, HStack, LinkPanel, Tag, VStack } from "@navikt/ds-react";
 import classNames from "classnames";
 import { AktivDeltakelse } from "mulighetsrommet-api-client";
-import { formaterDato } from "../../../utils/Utils";
+import { formaterDato } from "@/utils/Utils";
 import styles from "./UtkastKort.module.scss";
+import { ModiaRoute, resolveModiaRoute } from "@/apps/modia/ModiaRoute";
 
 interface Props {
   utkast: AktivDeltakelse;
 }
+
 export function UtkastKort({ utkast }: Props) {
   const { tiltakstype, tittel, aktivStatus, innsoktDato, sistEndretdato } = utkast;
 
+  const deltakelseRoute = resolveModiaRoute({
+    route: ModiaRoute.ARBEIDSMARKEDSTILTAK_DELTAKELSE,
+    deltakerId: utkast.deltakerId,
+  });
+
   return (
     <LinkPanel
-      href="#" // TODO Fiks korrekt url til Komets løsning for påmelding
+      href={deltakelseRoute.href}
+      onClick={deltakelseRoute.navigate}
       className={classNames(styles.panel, {
         [styles.utkast]: aktivStatus === AktivDeltakelse.aktivStatus.UTKAST_TIL_PAMELDING,
         [styles.kladd]: aktivStatus === AktivDeltakelse.aktivStatus.KLADD,

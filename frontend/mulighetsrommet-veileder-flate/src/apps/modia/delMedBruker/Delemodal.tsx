@@ -6,7 +6,6 @@ import {
 } from "mulighetsrommet-api-client";
 import { mulighetsrommetClient } from "@/core/api/clients";
 import { useLogEvent } from "@/logging/amplitude";
-import { byttTilDialogFlate } from "@/utils/DialogFlateUtils";
 import { erPreview } from "@/utils/Utils";
 import { StatusModal } from "@/components/modal/StatusModal";
 import { DelMedBrukerContent, MAKS_ANTALL_TEGN_DEL_MED_BRUKER } from "./DelMedBrukerContent";
@@ -14,6 +13,7 @@ import delemodalStyles from "./Delemodal.module.scss";
 import { Actions, State } from "./DelemodalActions";
 import { erBrukerReservertMotElektroniskKommunikasjon } from "@/apps/modia/delMedBruker/helpers";
 import { PortenLink } from "@/components/PortenLink";
+import { ModiaRoute, navigateToModiaApp } from "@/apps/modia/ModiaRoute";
 
 interface DelemodalProps {
   brukernavn?: string;
@@ -189,7 +189,13 @@ export function Delemodal({
           heading="Tiltaket er delt med brukeren"
           text="Det er opprettet en ny tråd i Dialogen der du kan fortsette kommunikasjonen rundt dette tiltaket med brukeren."
           primaryButtonText="Gå til dialogen"
-          primaryButtonOnClick={(event) => byttTilDialogFlate({ event, dialogId: state.dialogId })}
+          primaryButtonOnClick={(event) => {
+            event.preventDefault();
+            navigateToModiaApp({
+              route: ModiaRoute.DIALOG,
+              dialogId: state.dialogId,
+            });
+          }}
           secondaryButtonText="Lukk"
           secondaryButtonOnClick={lukkStatusmodal}
         />

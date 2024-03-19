@@ -14,10 +14,8 @@ import { useTiltaksgjennomforingById } from "@/core/api/queries/useTiltaksgjenno
 import { paginationAtom } from "@/core/atoms/atoms";
 import { isProduction } from "@/environment";
 import { ViewTiltaksgjennomforingDetaljer } from "@/layouts/ViewTiltaksgjennomforingDetaljer";
-import { byttTilDialogFlate } from "@/utils/DialogFlateUtils";
 import { Chat2Icon } from "@navikt/aksel-icons";
 import { Alert, Button } from "@navikt/ds-react";
-import classNames from "classnames";
 import { useAtomValue } from "jotai";
 import {
   Bruker,
@@ -28,9 +26,10 @@ import {
   VeilederflateTiltakstype,
 } from "mulighetsrommet-api-client";
 import { useTitle } from "mulighetsrommet-frontend-common";
-import { Link } from "react-router-dom";
 import styles from "./ModiaArbeidsmarkedstiltakDetaljer.module.scss";
-import { LenkeListe } from "../../../components/sidemeny/Lenker";
+import { LenkeListe } from "@/components/sidemeny/Lenker";
+import { ModiaRoute, resolveModiaRoute } from "@/apps/modia/ModiaRoute";
+import { Lenkeknapp } from "mulighetsrommet-frontend-common/components/lenkeknapp/Lenkeknapp";
 
 export function ModiaArbeidsmarkedstiltakDetaljer() {
   const { fnr } = useModiaContext();
@@ -84,6 +83,18 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
     brukerHarRettPaaValgtTiltak &&
     tiltakstypeStotterPamelding(tiltakstype);
 
+  const opprettDeltakelseRoute = resolveModiaRoute({
+    route: ModiaRoute.ARBEIDSMARKEDSTILTAK_OPPRETT_DELTAKELSE,
+    gjennomforingId: id,
+  });
+
+  const dialogRoute = delMedBrukerInfo
+    ? resolveModiaRoute({
+        route: ModiaRoute.DIALOG,
+        dialogId: delMedBrukerInfo.dialogId,
+      })
+    : null;
+
   return (
     <>
       <BrukerKvalifisererIkkeVarsel
@@ -127,14 +138,15 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
             )}
 
             {enableDeltakerRegistrering && skalVisePameldingslenke ? (
-              <Link
-                className={classNames(styles.link, styles.linkAsButton)}
-                to="./deltaker"
-                data-testid="start-pamelding-lenke"
+              <Lenkeknapp
+                variant={"primary"}
+                to={opprettDeltakelseRoute.href}
+                onClick={opprettDeltakelseRoute.navigate}
               >
                 Start påmelding
-              </Link>
+              </Lenkeknapp>
             ) : null}
+
             <DelMedBruker
               delMedBrukerInfo={delMedBrukerInfo}
               veiledernavn={resolveName(veilederdata)}
@@ -157,23 +169,18 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
               </Alert>
             )}
 
-            {delMedBrukerInfo && (
-              <div className={styles.dialogknapp}>
-                <Button
-                  size="small"
-                  variant="tertiary"
-                  onClick={(event) =>
-                    byttTilDialogFlate({
-                      event,
-                      dialogId: delMedBrukerInfo.dialogId,
-                    })
-                  }
-                >
-                  Åpne i dialogen
-                  <Chat2Icon aria-label="Åpne i dialogen" />
-                </Button>
-              </div>
+            {dialogRoute && (
+              <Lenkeknapp
+                size="small"
+                variant="tertiary"
+                to={dialogRoute.href}
+                onClick={dialogRoute.navigate}
+              >
+                Åpne i dialogen
+                <Chat2Icon aria-label="Åpne i dialogen" />
+              </Lenkeknapp>
             )}
+
             <LenkeListe lenker={tiltaksgjennomforing.faneinnhold?.lenker} />
           </>
         }
