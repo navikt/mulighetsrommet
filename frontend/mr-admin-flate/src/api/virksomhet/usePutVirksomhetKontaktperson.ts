@@ -20,7 +20,12 @@ export function usePutVirksomhetKontaktperson(virksomhetId: string) {
       queryClient.setQueryData<VirksomhetKontaktperson[]>(
         QueryKeys.virksomhetKontaktpersoner(virksomhetId),
         (previous) => {
-          return (previous ?? []).concat(kontaktperson);
+          const kontaktpersoner = previous ?? [];
+          if (kontaktpersoner.find((p) => p.id === kontaktperson.id)) {
+            return kontaktpersoner.map((prevKontaktperson) =>
+              prevKontaktperson.id === kontaktperson.id ? kontaktperson : prevKontaktperson,
+            );
+          } else return kontaktpersoner.concat(kontaktperson);
         },
       );
     },
