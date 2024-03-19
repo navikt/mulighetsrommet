@@ -8,6 +8,7 @@ import no.nav.mulighetsrommet.api.domain.dto.ArenaMigreringTiltaksgjennomforingD
 import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingDto
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.services.TiltakstypeService
+import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.kafka.producers.ArenaMigreringTiltaksgjennomforingKafkaProducer
 import no.nav.mulighetsrommet.kafka.serialization.JsonElementDeserializer
@@ -34,7 +35,7 @@ class TiltaksgjennomforingTopicConsumer(
             return
         }
 
-        if (gjennomforingSKalDelesMedArena(gjennomforing)) {
+        if (gjennomforingSkalDelesMedArena(gjennomforing)) {
             publishMigrertGjennomforing(gjennomforing.id)
         }
     }
@@ -56,7 +57,7 @@ class TiltaksgjennomforingTopicConsumer(
         arenaMigreringTiltaksgjennomforingKafkaProducer.publish(migrertGjennomforing)
     }
 
-    private fun gjennomforingSKalDelesMedArena(gjennomforing: TiltaksgjennomforingDto): Boolean {
-        return tiltakstyper.isEnabled(gjennomforing.tiltakstype.arenaKode)
+    private fun gjennomforingSkalDelesMedArena(gjennomforing: TiltaksgjennomforingDto): Boolean {
+        return tiltakstyper.isEnabled(Tiltakskode.fromArenaKode(gjennomforing.tiltakstype.arenaKode))
     }
 }

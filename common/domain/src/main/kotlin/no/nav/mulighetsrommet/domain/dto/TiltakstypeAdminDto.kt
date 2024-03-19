@@ -1,7 +1,6 @@
 package no.nav.mulighetsrommet.domain.dto
 
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.domain.Gruppetiltak
 import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.domain.serializers.LocalDateTimeSerializer
@@ -15,7 +14,6 @@ data class TiltakstypeAdminDto(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     val navn: String,
-    val tiltakskode: Gruppetiltak?,
     val arenaKode: String,
     @Serializable(with = LocalDateTimeSerializer::class)
     val registrertIArenaDato: LocalDateTime,
@@ -35,7 +33,6 @@ data class TiltakstypeAdminDto(
             TiltakstypeAdminDto(
                 id = id,
                 navn = navn,
-                tiltakskode = tiltakskode,
                 arenaKode = arenaKode,
                 registrertIArenaDato = registrertDatoIArena,
                 sistEndretIArenaDato = sistEndretDatoIArena,

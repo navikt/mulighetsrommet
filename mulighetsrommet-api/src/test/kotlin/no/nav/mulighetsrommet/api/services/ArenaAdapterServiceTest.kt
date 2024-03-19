@@ -24,7 +24,7 @@ import no.nav.mulighetsrommet.api.domain.dto.TiltakstypeEksternDto
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.repositories.*
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
-import no.nav.mulighetsrommet.domain.Gruppetiltak
+import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.*
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus.AVSLUTTET
@@ -96,7 +96,7 @@ class ArenaAdapterServiceTest : FunSpec({
                     TiltakstypeEksternDto(
                         id = tiltakstype.id,
                         navn = tiltakstype.navn,
-                        tiltakskode = Gruppetiltak.OPPFOLGING,
+                        tiltakskode = Tiltakskode.fromArenaKode(tiltakstype.arenaKode),
                         arenaKode = tiltakstype.arenaKode,
                         registrertIArenaDato = tiltakstype.registrertDatoIArena,
                         sistEndretIArenaDato = tiltakstype.sistEndretDatoIArena,
@@ -616,7 +616,6 @@ class ArenaAdapterServiceTest : FunSpec({
             id = UUID.randomUUID(),
             navn = "Høyere utdanning",
             arenaKode = "HOYEREUTD",
-            tiltakskode = null,
             rettPaaTiltakspenger = true,
             registrertDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
             sistEndretDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),

@@ -457,7 +457,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
     }
 
     context("skal migreres") {
-        test("skal migreres henter kun der tiltakstypen er ikke null") {
+        test("skal migreres henter kun der tiltakstypen er definert") {
             val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
 
             tiltaksgjennomforinger.upsert(Oppfolging1)

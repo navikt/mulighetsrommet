@@ -15,6 +15,7 @@ import no.nav.mulighetsrommet.api.repositories.VirksomhetRepository
 import no.nav.mulighetsrommet.api.routes.v1.responses.ValidationError
 import no.nav.mulighetsrommet.api.services.NavEnhetService
 import no.nav.mulighetsrommet.api.services.TiltakstypeService
+import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.Tiltakskoder.isAFTOrVTA
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dto.TiltakstypeAdminDto
@@ -188,14 +189,15 @@ class AvtaleValidator(
         previous: AvtaleAdminDto?,
         tiltakstype: TiltakstypeAdminDto,
     ): Boolean {
-        fun isEnabled(arenakode: String) =
-            tiltakstyper.isEnabled(arenakode) || listOf("VASV", "ARBFORB").contains(arenakode)
+        fun isEnabled(tiltakskode: Tiltakskode?) =
+            tiltakstyper.isEnabled(tiltakskode) ||
+                listOf(Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET, Tiltakskode.ARBEIDSFORBEREDENDE_TRENING).contains(tiltakskode)
 
-        val kanIkkeOppretteAvtale = previous == null && !isEnabled(tiltakstype.arenaKode)
+        val kanIkkeOppretteAvtale = previous == null && !isEnabled(Tiltakskode.fromArenaKode(tiltakstype.arenaKode))
 
         val kanIkkeRedigereTiltakstypeForAvtale = previous != null &&
             tiltakstype.arenaKode != previous.tiltakstype.arenaKode &&
-            !isEnabled(tiltakstype.arenaKode)
+            !isEnabled(Tiltakskode.fromArenaKode(tiltakstype.arenaKode))
 
         return kanIkkeOppretteAvtale || kanIkkeRedigereTiltakstypeForAvtale
     }

@@ -1,7 +1,6 @@
 package no.nav.mulighetsrommet.domain.dbo
 
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.domain.Gruppetiltak
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.domain.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
@@ -14,7 +13,6 @@ data class TiltakstypeDbo(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     val navn: String,
-    val tiltakskode: Gruppetiltak?,
     val arenaKode: String,
     @Serializable(with = LocalDateTimeSerializer::class)
     val registrertDatoIArena: LocalDateTime,

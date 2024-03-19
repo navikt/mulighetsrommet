@@ -18,6 +18,7 @@ import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
+import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.ktor.respondJson
 import no.nav.security.mock.oauth2.MockOAuth2Server
@@ -105,7 +106,7 @@ class AvtaleRoutesTest : FunSpec({
             auth = createAuthConfig(oauth, roles = listOf(avtaleSkrivRolle, tiltaksadministrasjonGenerellRolle)),
             engine = engine,
             database = databaseConfig,
-            migrerteTiltak = listOf("INDOPPFAG"),
+            migrerteTiltak = listOf(Tiltakskode.OPPFOLGING),
         )
         withTestApplication(config) {
             val client = createClient {

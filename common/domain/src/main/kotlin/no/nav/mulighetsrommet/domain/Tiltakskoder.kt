@@ -1,18 +1,33 @@
 package no.nav.mulighetsrommet.domain
 
-import kotlinx.serialization.Serializable
-
-@Serializable
-enum class Gruppetiltak {
+enum class Tiltakskode {
     AVKLARING,
     OPPFOLGING,
     GRUPPE_ARBEIDSMARKEDSTILTAK,
     JOBBKLUBB,
     DIGITALT_OPPFOLGINGSTILTAK,
     ARBEIDSFORBEREDENDE_TRENING,
-    FAG_OG_YRKESOPPLAERING,
+    GRUPPE_FAG_OG_YRKESOPPLAERING,
     ARBEIDSRETTET_REHABILITERING,
     VARIG_TILRETTELAGT_ARBEID_SKJERMET,
+    ;
+
+    companion object {
+        fun fromArenaKode(arenaKode: String): Tiltakskode? {
+            return when (arenaKode) {
+                "ARBFORB" -> ARBEIDSFORBEREDENDE_TRENING
+                "ARBRRHDAG" -> ARBEIDSRETTET_REHABILITERING
+                "AVKLARAG" -> AVKLARING
+                "DIGIOPPARB" -> DIGITALT_OPPFOLGINGSTILTAK
+                "GRUFAGYRKE" -> GRUPPE_FAG_OG_YRKESOPPLAERING
+                "GRUPPEAMO" -> GRUPPE_ARBEIDSMARKEDSTILTAK
+                "INDOPPFAG" -> OPPFOLGING
+                "JOBBK" -> JOBBKLUBB
+                "VASV" -> VARIG_TILRETTELAGT_ARBEID_SKJERMET
+                else -> null
+            }
+        }
+    }
 }
 
 object Tiltakskoder {

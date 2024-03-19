@@ -12,7 +12,6 @@ import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.api.utils.TiltakstypeFilter
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
-import no.nav.mulighetsrommet.domain.Gruppetiltak
 import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
 import no.nav.mulighetsrommet.domain.dto.Tiltakstypestatus
 import org.intellij.lang.annotations.Language
@@ -44,7 +43,6 @@ class TiltakstypeRepositoryTest : FunSpec({
         val tiltakstypePlanlagt = TiltakstypeDbo(
             id = UUID.randomUUID(),
             navn = "Arbeidsforberedende trening",
-            tiltakskode = Gruppetiltak.ARBEIDSFORBEREDENDE_TRENING,
             arenaKode = "ARBFORB",
             rettPaaTiltakspenger = true,
             registrertDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
@@ -55,7 +53,6 @@ class TiltakstypeRepositoryTest : FunSpec({
         val tiltakstypeAktiv = TiltakstypeDbo(
             id = UUID.randomUUID(),
             navn = "Jobbklubb",
-            tiltakskode = Gruppetiltak.JOBBKLUBB,
             arenaKode = "JOBBK",
             rettPaaTiltakspenger = true,
             registrertDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
@@ -66,8 +63,7 @@ class TiltakstypeRepositoryTest : FunSpec({
         val tiltakstypeAvsluttet = TiltakstypeDbo(
             id = UUID.randomUUID(),
             navn = "Oppfølgning",
-            tiltakskode = Gruppetiltak.OPPFOLGING,
-            arenaKode = "INDOPPFOLG",
+            arenaKode = "INDOPPFAG",
             rettPaaTiltakspenger = true,
             registrertDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
             sistEndretDatoIArena = LocalDateTime.of(2022, 1, 15, 0, 0, 0),
@@ -78,7 +74,6 @@ class TiltakstypeRepositoryTest : FunSpec({
         val tiltakstypeSkalIkkeMigreres = TiltakstypeDbo(
             id = idSkalIkkeMigreres,
             navn = "AMOY",
-            tiltakskode = null,
             arenaKode = "AMOY",
             rettPaaTiltakspenger = true,
             registrertDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
@@ -140,7 +135,6 @@ class TiltakstypeRepositoryTest : FunSpec({
                 TiltakstypeDbo(
                     id = UUID.randomUUID(),
                     navn = "$it",
-                    tiltakskode = null,
                     arenaKode = "$it",
                     rettPaaTiltakspenger = true,
                     registrertDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),

@@ -12,6 +12,7 @@ import no.nav.mulighetsrommet.api.*
 import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattRolle
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
+import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import java.util.*
@@ -118,7 +119,7 @@ class TiltaksgjennomforingRoutesTest : FunSpec({
             ),
             engine = engine,
             database = databaseConfig,
-            migrerteTiltak = listOf("INDOPPFAG"),
+            migrerteTiltak = listOf(Tiltakskode.OPPFOLGING),
         )
         withTestApplication(config) {
             val client = createClient {

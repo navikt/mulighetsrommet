@@ -12,6 +12,7 @@ import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
+import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
 import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus
@@ -116,7 +117,7 @@ class KafkaSyncServiceTest : FunSpec({
                 id = id,
                 navn = navn,
                 arenaKode = arenaKode,
-                tiltakskode = tiltakskode,
+                tiltakskode = Tiltakskode.fromArenaKode(arenaKode),
                 registrertIArenaDato = registrertDatoIArena,
                 sistEndretIArenaDato = sistEndretDatoIArena,
                 fraDato = fraDato,

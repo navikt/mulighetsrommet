@@ -11,8 +11,7 @@ import no.nav.mulighetsrommet.api.utils.TiltakstypeFilter
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.QueryResult
 import no.nav.mulighetsrommet.database.utils.query
-import no.nav.mulighetsrommet.domain.Gruppetiltak
-import no.nav.mulighetsrommet.domain.Tiltakskoder
+import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
 import no.nav.mulighetsrommet.domain.dto.TiltakstypeAdminDto
 import no.nav.mulighetsrommet.domain.dto.Tiltakstypestatus
@@ -44,7 +43,7 @@ class TiltakstypeRepository(private val db: Database) {
             values (
                 :id::uuid,
                 :navn,
-                :tiltakskode,
+                :tiltakskode::tiltakskode,
                 :arena_kode,
                 :registrert_dato_i_arena,
                 :sist_endret_dato_i_arena,
@@ -73,7 +72,6 @@ class TiltakstypeRepository(private val db: Database) {
             select
                 id::uuid,
                 navn,
-                tiltakskode,
                 arena_kode,
                 registrert_dato_i_arena,
                 sist_endret_dato_i_arena,
@@ -95,7 +93,7 @@ class TiltakstypeRepository(private val db: Database) {
         return TiltakstypeEksternDto(
             id = tiltakstype.id,
             navn = tiltakstype.navn,
-            tiltakskode = tiltakstype.tiltakskode,
+            tiltakskode = Tiltakskode.fromArenaKode(tiltakstype.arenaKode),
             arenaKode = tiltakstype.arenaKode,
             registrertIArenaDato = tiltakstype.registrertIArenaDato,
             sistEndretIArenaDato = tiltakstype.sistEndretIArenaDato,
@@ -113,7 +111,6 @@ class TiltakstypeRepository(private val db: Database) {
             select
                 id::uuid,
                 navn,
-                tiltakskode,
                 registrert_dato_i_arena,
                 sist_endret_dato_i_arena,
                 fra_dato,
@@ -140,7 +137,6 @@ class TiltakstypeRepository(private val db: Database) {
             select
                 id,
                 navn,
-                tiltakskode,
                 arena_kode,
                 registrert_dato_i_arena,
                 sist_endret_dato_i_arena,
@@ -172,7 +168,6 @@ class TiltakstypeRepository(private val db: Database) {
             "search" to "%${tiltakstypeFilter.search}%",
             "limit" to paginationParams.limit,
             "offset" to paginationParams.offset,
-            "gruppetiltakskoder" to db.createTextArray(Tiltakskoder.GruppetiltakArenaKoder),
             "today" to tiltakstypeFilter.dagensDato,
         )
 
@@ -231,7 +226,7 @@ class TiltakstypeRepository(private val db: Database) {
                 TiltakstypeEksternDto(
                     id = tiltakstypeAdminDto.id,
                     navn = tiltakstypeAdminDto.navn,
-                    tiltakskode = tiltakstypeAdminDto.tiltakskode,
+                    tiltakskode = Tiltakskode.fromArenaKode(tiltakstypeAdminDto.arenaKode),
                     arenaKode = tiltakstypeAdminDto.arenaKode,
                     registrertIArenaDato = tiltakstypeAdminDto.registrertIArenaDato,
                     sistEndretIArenaDato = tiltakstypeAdminDto.sistEndretIArenaDato,
@@ -328,7 +323,7 @@ class TiltakstypeRepository(private val db: Database) {
     private fun TiltakstypeDbo.toSqlParameters() = mapOf(
         "id" to id,
         "navn" to navn,
-        "tiltakskode" to tiltakskode?.name,
+        "tiltakskode" to Tiltakskode.fromArenaKode(arenaKode)?.name,
         "arena_kode" to arenaKode,
         "registrert_dato_i_arena" to registrertDatoIArena,
         "sist_endret_dato_i_arena" to sistEndretDatoIArena,
@@ -341,7 +336,6 @@ class TiltakstypeRepository(private val db: Database) {
         return TiltakstypeDbo(
             id = uuid("id"),
             navn = string("navn"),
-            tiltakskode = stringOrNull("tiltakskode")?.let { Gruppetiltak.valueOf(it) },
             arenaKode = string("arena_kode"),
             registrertDatoIArena = localDateTime("registrert_dato_i_arena"),
             sistEndretDatoIArena = localDateTime("sist_endret_dato_i_arena"),
@@ -357,7 +351,6 @@ class TiltakstypeRepository(private val db: Database) {
         return TiltakstypeAdminDto(
             id = uuid("id"),
             navn = string("navn"),
-            tiltakskode = stringOrNull("tiltakskode")?.let { Gruppetiltak.valueOf(it) },
             arenaKode = string("arena_kode"),
             registrertIArenaDato = localDateTime("registrert_dato_i_arena"),
             sistEndretIArenaDato = localDateTime("sist_endret_dato_i_arena"),

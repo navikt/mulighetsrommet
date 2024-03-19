@@ -10,10 +10,11 @@ import no.nav.mulighetsrommet.api.services.TiltakstypeService
 import no.nav.mulighetsrommet.api.services.VeilederflateService
 import no.nav.mulighetsrommet.api.utils.getPaginationParams
 import no.nav.mulighetsrommet.api.utils.getTiltakstypeFilter
+import no.nav.mulighetsrommet.domain.Tiltakskode
 import org.koin.ktor.ext.inject
 import java.util.*
 
-fun Route.tiltakstypeRoutes(migrerteTiltak: List<String>) {
+fun Route.tiltakstypeRoutes(migrerteTiltak: List<Tiltakskode>) {
     val tiltakstypeService: TiltakstypeService by inject()
     val veilederflateService: VeilederflateService by inject()
 

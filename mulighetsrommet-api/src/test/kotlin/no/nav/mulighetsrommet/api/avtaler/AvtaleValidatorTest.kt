@@ -19,7 +19,7 @@ import no.nav.mulighetsrommet.api.services.NavEnhetService
 import no.nav.mulighetsrommet.api.services.TiltakstypeService
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
-import no.nav.mulighetsrommet.domain.Tiltakskoder
+import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
 import no.nav.mulighetsrommet.domain.dto.NavIdent
@@ -97,7 +97,7 @@ class AvtaleValidatorTest : FunSpec({
     beforeEach {
         domain.initialize(database.db)
 
-        tiltakstyper = TiltakstypeService(TiltakstypeRepository(database.db), listOf("INDOPPFAG"))
+        tiltakstyper = TiltakstypeService(TiltakstypeRepository(database.db), listOf(Tiltakskode.OPPFOLGING))
         navEnheterService = NavEnhetService(NavEnhetRepository(database.db))
         avtaler = AvtaleRepository(database.db)
         gjennomforinger = TiltaksgjennomforingRepository(database.db)
@@ -109,8 +109,7 @@ class AvtaleValidatorTest : FunSpec({
     }
 
     test("skal feile når tiltakstypen ikke er aktivert") {
-        val arenakodeEnabledTiltakstyper = listOf<String>()
-        tiltakstyper = TiltakstypeService(TiltakstypeRepository(database.db), arenakodeEnabledTiltakstyper)
+        tiltakstyper = TiltakstypeService(TiltakstypeRepository(database.db), emptyList())
         val validator = AvtaleValidator(tiltakstyper, gjennomforinger, navEnheterService, virksomheter)
 
         val dbo = avtaleDbo.copy(
@@ -126,8 +125,7 @@ class AvtaleValidatorTest : FunSpec({
     }
 
     test("skal ikke feile når når tiltakstypen er AFT, VTA, eller aktivert") {
-        val arenakodeEnabledTiltakstyper = listOf("INDOPPFAG")
-        tiltakstyper = TiltakstypeService(TiltakstypeRepository(database.db), arenakodeEnabledTiltakstyper)
+        tiltakstyper = TiltakstypeService(TiltakstypeRepository(database.db), listOf(Tiltakskode.OPPFOLGING))
         val validator = AvtaleValidator(tiltakstyper, gjennomforinger, navEnheterService, virksomheter)
 
         forAll(
@@ -217,7 +215,7 @@ class AvtaleValidatorTest : FunSpec({
 
     test("sluttDato er påkrevd hvis ikke VTA eller AFT") {
         val validator = AvtaleValidator(
-            TiltakstypeService(TiltakstypeRepository(database.db), Tiltakskoder.GruppetiltakArenaKoder),
+            TiltakstypeService(TiltakstypeRepository(database.db), Tiltakskode.values().toList()),
             gjennomforinger,
             navEnheterService,
             virksomheter,
