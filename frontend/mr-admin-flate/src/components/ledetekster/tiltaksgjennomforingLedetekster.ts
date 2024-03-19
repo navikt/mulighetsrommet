@@ -24,7 +24,7 @@ export const tiltaktekster = {
     omradeLabel: "Område",
     beskrivelseLabel: "Beskrivelse",
   },
-  kontaktpersonNavEnheter: (enheter: string) => `Kontaktperson for ${enheter}`,
+  kontaktpersonNavEnheter: (enheter: string) => `Kontaktperson for: ${enheter}`,
   tiltaksarrangorHovedenhetLabel: "Tiltaksarrangør hovedenhet",
   tiltaksarrangorUnderenhetLabel: "Tiltaksarrangør underenhet",
   kontaktpersonerHosTiltaksarrangorLabel: "Kontaktpersoner hos tiltaksarrangør",
