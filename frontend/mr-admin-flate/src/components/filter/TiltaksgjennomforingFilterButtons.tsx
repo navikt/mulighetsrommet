@@ -1,8 +1,12 @@
 import { BodyShort, Button, Heading, Modal, VStack } from "@navikt/ds-react";
-import { WritableAtom, useAtom } from "jotai";
+import { WritableAtom, useAtom, useSetAtom } from "jotai";
 import { Avtalestatus, Opphav } from "mulighetsrommet-api-client";
 import { useState } from "react";
-import { TiltaksgjennomforingFilter, defaultTiltaksgjennomforingfilter } from "../../api/atoms";
+import {
+  TiltaksgjennomforingFilter,
+  defaultTiltaksgjennomforingfilter,
+  gjennomforingDetaljerTabAtom,
+} from "../../api/atoms";
 import { useAvtale } from "../../api/avtaler/useAvtale";
 import { useMigrerteTiltakstyper } from "../../api/tiltakstyper/useMigrerteTiltakstyper";
 import { inneholderUrl } from "../../utils/Utils";
@@ -26,6 +30,7 @@ export function TiltaksgjennomforingFilterButtons({ filterAtom }: Props) {
   const [modalOpen, setModalOpen] = useState<boolean>(false);
   const { data: migrerteTiltakstyper } = useMigrerteTiltakstyper();
   const [visKanIkkeOppretteTiltakModal, setVisKanIkkeOppretteTiltakModal] = useState(false);
+  const setTiltaksgjennomforingFane = useSetAtom(gjennomforingDetaljerTabAtom);
 
   const visOpprettTiltaksgjennomforingKnapp = inneholderUrl("/avtaler/");
 
@@ -89,6 +94,7 @@ export function TiltaksgjennomforingFilterButtons({ filterAtom }: Props) {
                 to={`skjema`}
                 variant="primary"
                 dataTestid="opprett-ny-tiltaksgjenomforing_knapp"
+                handleClick={() => setTiltaksgjennomforingFane("detaljer")}
               >
                 Opprett ny tiltaksgjennomføring
               </Lenkeknapp>
