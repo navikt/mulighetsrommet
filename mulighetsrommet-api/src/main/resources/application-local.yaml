@@ -21,11 +21,9 @@ app:
     - AVKLARAG
     - DIGIOPPARB
     - GRUFAGYRKE
-    - INDJOBSTOT
+    - GRUPPEAMO
     - INDOPPFAG
-    - IPSUNG
     - JOBBK
-    - UTVAOONAV
     - VASV
 
   kafka:

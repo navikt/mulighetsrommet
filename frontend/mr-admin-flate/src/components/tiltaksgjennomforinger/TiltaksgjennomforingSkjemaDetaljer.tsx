@@ -198,12 +198,17 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
               }}
             />
             {visApentForInnsok(avtale.tiltakstype.arenaKode) ? (
-              <Switch size="small" readOnly={eierIkkeGjennomforing} {...register("apentForInnsok")}>
+              <Switch
+                size="small"
+                readOnly={eierIkkeGjennomforing}
+                {...register("apentForInnsok")}
+                checked={watch("apentForInnsok")}
+              >
                 {tiltaktekster.apentForInnsokLabel}
               </Switch>
             ) : null}
 
-            <HStack justify="space-between">
+            <HGrid columns={2}>
               <TextField
                 size="small"
                 readOnly={eierIkkeGjennomforing}
@@ -231,7 +236,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
                   })}
                 />
               )}
-            </HStack>
+            </HGrid>
             <Separator />
             <fieldset className={skjemastyles.fieldset_no_styling}>
               <HStack gap="1">
