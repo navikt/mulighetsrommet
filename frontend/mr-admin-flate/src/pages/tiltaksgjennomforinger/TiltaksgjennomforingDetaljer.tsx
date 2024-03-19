@@ -1,5 +1,5 @@
 import { ExternalLinkIcon } from "@navikt/aksel-icons";
-import { BodyShort, HelpText, Tag } from "@navikt/ds-react";
+import { BodyShort, HStack, HelpText, Tag } from "@navikt/ds-react";
 import {
   Avtale,
   Tiltaksgjennomforing,
@@ -88,6 +88,12 @@ export function TiltaksgjennomforingDetaljer(props: Props) {
                     <Link to={`/avtaler/${avtale.id}`}>
                       {avtale.navn} {avtale.avtalenummer ? ` - ${avtale.avtalenummer}` : null}
                     </Link>{" "}
+                    <BodyShort>
+                      <small>
+                        Avtalens periode: {formaterDato(avtale.startDato)} -{" "}
+                        {avtale?.sluttDato ? formaterDato(avtale.sluttDato) : ""}
+                      </small>
+                    </BodyShort>
                   </>
                 ) : (
                   tiltaktekster.ingenAvtaleForGjennomforingenLabel
@@ -293,7 +299,10 @@ function HentTiltaksnummer({ id }: { id: string }) {
   return isError ? (
     <Tag variant="error">Klarte ikke hente tiltaksnummer</Tag>
   ) : isLoading ? (
-    <Laster />
+    <HStack align={"center"} gap="1">
+      <Laster />
+      <span>Henter tiltaksnummer i Arena</span>
+    </HStack>
   ) : (
     data?.tiltaksnummer
   );

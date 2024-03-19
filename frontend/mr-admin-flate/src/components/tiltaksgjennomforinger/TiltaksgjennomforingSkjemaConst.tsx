@@ -83,8 +83,16 @@ export function defaultTiltaksgjennomforingData(
     ],
     antallPlasser: tiltaksgjennomforing?.antallPlasser,
     startOgSluttDato: {
-      startDato: tiltaksgjennomforing?.startDato,
-      sluttDato: tiltaksgjennomforing?.sluttDato,
+      startDato: tiltaksgjennomforing?.startDato
+        ? tiltaksgjennomforing.startDato
+        : defaultOppstartType(avtale) === TiltaksgjennomforingOppstartstype.LOPENDE
+          ? avtale.startDato
+          : undefined,
+      sluttDato: tiltaksgjennomforing?.sluttDato
+        ? tiltaksgjennomforing.sluttDato
+        : defaultOppstartType(avtale) === TiltaksgjennomforingOppstartstype.LOPENDE
+          ? avtale.sluttDato
+          : undefined,
     },
     arrangorVirksomhetId: defaultArrangor(avtale, tiltaksgjennomforing),
     oppstart: tiltaksgjennomforing?.oppstart || defaultOppstartType(avtale),

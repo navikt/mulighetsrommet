@@ -12,6 +12,7 @@ import { ErrorMeldinger } from "../../components/tiltaksgjennomforinger/Tiltaksg
 import { TiltaksgjennomforingstatusTag } from "../../components/statuselementer/TiltaksgjennomforingstatusTag";
 import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
 import { Brodsmule, Brodsmuler } from "../../components/navigering/Brodsmuler";
+import { TiltaksgjennomforingIkon } from "../../components/ikoner/TiltaksgjennomforingIkon";
 
 const TiltaksgjennomforingSkjemaPage = () => {
   const navigate = useNavigate();
@@ -101,6 +102,7 @@ const TiltaksgjennomforingSkjemaPage = () => {
     <main>
       <Brodsmuler brodsmuler={brodsmuler} />
       <Header>
+        <TiltaksgjennomforingIkon />
         <Heading size="large" level="2">
           {redigeringsModus ? "Rediger tiltaksgjennomføring" : "Opprett ny tiltaksgjennomføring"}
         </Heading>
