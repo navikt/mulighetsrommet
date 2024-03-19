@@ -66,7 +66,7 @@ export function TiltaksgjennomforingArrangorSkjema({ readOnly, avtale }: Props) 
             variant="tertiary"
             onClick={() => virksomhetKontaktpersonerModalRef.current?.showModal()}
           >
-            Rediger eller legg til kontaktpersoner
+            Opprett eller rediger kontaktpersoner
           </Button>
         </div>
         <TextField

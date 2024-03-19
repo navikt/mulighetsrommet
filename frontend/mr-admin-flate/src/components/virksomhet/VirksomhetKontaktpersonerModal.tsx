@@ -1,12 +1,11 @@
-import { PlusIcon } from "@navikt/aksel-icons";
 import { BodyShort, Button, Label, Modal } from "@navikt/ds-react";
-import { RefObject, useState } from "react";
-import { useVirksomhetKontaktpersoner } from "../../api/virksomhet/useVirksomhetKontaktpersoner";
-import styles from "./VirksomhetKontaktpersonerModal.module.scss";
-import { Laster } from "../laster/Laster";
 import { VirksomhetKontaktperson } from "mulighetsrommet-api-client";
-import { VirksomhetKontaktpersonSkjema } from "./VirksomhetKontaktpersonSkjema";
+import { RefObject, useState } from "react";
 import { useVirksomhetById } from "../../api/virksomhet/useVirksomhetById";
+import { useVirksomhetKontaktpersoner } from "../../api/virksomhet/useVirksomhetKontaktpersoner";
+import { Laster } from "../laster/Laster";
+import { VirksomhetKontaktpersonSkjema } from "./VirksomhetKontaktpersonSkjema";
+import styles from "./VirksomhetKontaktpersonerModal.module.scss";
 
 interface Props {
   virksomhetId: string;
@@ -36,6 +35,7 @@ export function VirksomhetKontaktpersonerModal(props: Props) {
       ref={modalRef}
       className={styles.modal}
       onClose={() => {
+        setOpprett(false);
         modalRef.current?.close();
       }}
       header={{
@@ -44,6 +44,18 @@ export function VirksomhetKontaktpersonerModal(props: Props) {
     >
       <Modal.Body>
         <div className={styles.modal_body}>
+          <Button
+            className={styles.kontaktperson_button}
+            size="small"
+            type="button"
+            variant="primary"
+            onClick={() => {
+              setOpprett(true);
+              setRedigerId(undefined);
+            }}
+          >
+            Opprett ny kontaktperson
+          </Button>
           {kontaktpersoner
             .sort((a, b) => a.navn.localeCompare(b.navn))
             .map((person: VirksomhetKontaktperson) => (
@@ -100,19 +112,7 @@ export function VirksomhetKontaktpersonerModal(props: Props) {
             <div className={styles.list_item_container}>
               <VirksomhetKontaktpersonSkjema virksomhetId={virksomhetId} onSubmit={reset} />
             </div>
-          ) : (
-            <Button
-              className={styles.kontaktperson_button}
-              size="small"
-              type="button"
-              onClick={() => {
-                setOpprett(true);
-                setRedigerId(undefined);
-              }}
-            >
-              <PlusIcon aria-label="Opprett ny kontaktperson" /> eller opprett ny kontaktperson
-            </Button>
-          )}
+          ) : null}
         </div>
       </Modal.Body>
     </Modal>

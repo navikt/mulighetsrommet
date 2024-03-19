@@ -34,24 +34,24 @@
   flex-direction: column;
 }
 
-.kontaktperson_button {
-  display: inline-flex;
-  text-align: left;
-  align-items: center;
-  padding: 0;
-  margin: 0.5rem 0;
-  color: var(--a-text-action);
-  background: none;
-  border: none;
+// .kontaktperson_button {
+//   display: inline-flex;
+//   text-align: left;
+//   align-items: center;
+//   padding: 0;
+//   margin: 0.5rem 0;
+//   color: var(--a-text-action);
+//   background: none;
+//   border: none;
 
-  &:hover {
-    color: var(--a-text-action);
-    text-decoration: underline;
-    background: none;
-    border: none;
-    cursor: pointer;
-  }
-}
+//   &:hover {
+//     color: var(--a-text-action);
+//     text-decoration: underline;
+//     background: none;
+//     border: none;
+//     cursor: pointer;
+//   }
+// }
 
 .button_container {
   margin-top: 8px;
@@ -71,7 +71,6 @@
 
 .modal {
   width: 550px;
-
 }
 
 .modal_body {
