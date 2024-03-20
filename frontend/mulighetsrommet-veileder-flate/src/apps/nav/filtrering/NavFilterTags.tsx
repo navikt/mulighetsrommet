@@ -42,7 +42,7 @@ export function NavFilterTags() {
           }}
         />
       )}
-      <NavEnhetTag onClose={() => setFilter({ ...filter, regionMap: {} })} />
+      <NavEnhetTag onClose={() => setFilter({ ...filter, navEnheter: [] })} />
       <FilterTag
         options={filter.tiltakstyper}
         onClose={(id: string) =>

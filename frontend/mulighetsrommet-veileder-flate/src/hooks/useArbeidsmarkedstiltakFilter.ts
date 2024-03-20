@@ -5,13 +5,9 @@ import { SyncStorage } from "jotai/vanilla/utils/atomWithStorage";
 import { useHentBrukerdata } from "@/apps/modia/hooks/useHentBrukerdata";
 import { brukersEnhetFilterHasChanged } from "@/apps/modia/delMedBruker/helpers";
 
-export interface RegionMap {
-  [region: string]: string[];
-}
-
 export interface ArbeidsmarkedstiltakFilter {
   search: string;
-  regionMap: RegionMap;
+  navEnheter: NavEnhet[];
   innsatsgruppe?: ArbeidsmarkedstiltakFilterGruppe<Innsatsgruppe>;
   tiltakstyper: ArbeidsmarkedstiltakFilterGruppe<string>[];
   apentForInnsok: ApentForInnsok;
@@ -73,7 +69,7 @@ export function useResetArbeidsmarkedstiltakFilterUtenBrukerIKontekst() {
     filter.search !== "" ||
     filter.apentForInnsok !== ApentForInnsok.APENT_ELLER_STENGT ||
     filter.innsatsgruppe?.nokkel !== undefined ||
-    valgteEnhetsnumre(filter).length !== 0 ||
+    filter.navEnheter.length !== 0 ||
     filter.tiltakstyper.length > 0;
 
   return {
@@ -119,7 +115,7 @@ const ARBEIDSMARKEDSTILTAK_FILTER_KEY = "arbeidsmarkedstiltak-filter";
 
 const defaultTiltaksgjennomforingfilter: ArbeidsmarkedstiltakFilter = {
   search: "",
-  regionMap: {},
+  navEnheter: [],
   innsatsgruppe: undefined,
   tiltakstyper: [],
   apentForInnsok: ApentForInnsok.APENT_ELLER_STENGT,
@@ -133,23 +129,5 @@ export const filterAtom = atomWithStorage<FilterMedBrukerIKontekst>(
 );
 
 export function isFilterReady(filter: ArbeidsmarkedstiltakFilter): boolean {
-  return filter.innsatsgruppe !== undefined && valgteEnhetsnumre(filter).length !== 0;
-}
-
-export function valgteEnhetsnumre(filter: ArbeidsmarkedstiltakFilter): string[] {
-  return Array.from(Object.values(filter.regionMap)).flat(1);
-}
-
-export function buildRegionMap(navEnheter: NavEnhet[]): RegionMap {
-  const map: RegionMap = {};
-  navEnheter.forEach((enhet: NavEnhet) => {
-    const regionNavn = enhet.overordnetEnhet ?? "unknown";
-    if (regionNavn in map) {
-      map[regionNavn].push(enhet.enhetsnummer);
-    } else {
-      map[regionNavn] = [enhet.enhetsnummer];
-    }
-  });
-
-  return map;
+  return filter.innsatsgruppe !== undefined && filter.navEnheter.length !== 0;
 }

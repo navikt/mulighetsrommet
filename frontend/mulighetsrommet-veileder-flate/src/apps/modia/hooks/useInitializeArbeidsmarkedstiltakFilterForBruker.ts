@@ -1,11 +1,7 @@
 import { useEffect } from "react";
 import { useHentBrukerdata } from "@/apps/modia/hooks/useHentBrukerdata";
 import { useInnsatsgrupper } from "@/core/api/queries/useInnsatsgrupper";
-import {
-  buildRegionMap,
-  useArbeidsmarkedstiltakFilter,
-  valgteEnhetsnumre,
-} from "@/hooks/useArbeidsmarkedstiltakFilter";
+import { useArbeidsmarkedstiltakFilter } from "@/hooks/useArbeidsmarkedstiltakFilter";
 
 export function useInitializeArbeidsmarkedstiltakFilterForBruker() {
   const { data: innsatsgrupper } = useInnsatsgrupper();
@@ -21,7 +17,7 @@ export function useInitializeArbeidsmarkedstiltakFilterForBruker() {
     brukersInnsatsgruppe !== undefined && filter.innsatsgruppe === undefined;
 
   const resetEnheter =
-    brukerdata && brukerdata.enheter.length > 0 && valgteEnhetsnumre(filter).length === 0;
+    brukerdata && brukerdata.enheter.length > 0 && filter.navEnheter.length === 0;
 
   useEffect(() => {
     if (resetInnsatsgruppe || resetEnheter) {
@@ -34,7 +30,6 @@ export function useInitializeArbeidsmarkedstiltakFilterForBruker() {
               tittel: brukersInnsatsgruppe.tittel,
             }
           : undefined,
-        regionMap: buildRegionMap(brukerdata?.enheter ?? []),
       });
     }
   }, [resetInnsatsgruppe]);

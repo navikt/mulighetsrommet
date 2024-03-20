@@ -1,30 +1,45 @@
 import { ChevronDownIcon } from "@navikt/aksel-icons";
-import { Accordion, Checkbox, CheckboxGroup } from "@navikt/ds-react";
+import { Checkbox, CheckboxGroup } from "@navikt/ds-react";
 import classnames from "classnames";
-import { useAtom } from "jotai";
-import { NavEnhet, NavRegion } from "mulighetsrommet-api-client";
 import { useState } from "react";
-import { useRegioner } from "@/core/api/queries/useRegioner";
-import { filterAccordionAtom } from "@/core/atoms/atoms";
-import { RegionMap } from "@/hooks/useArbeidsmarkedstiltakFilter";
-import { addOrRemove } from "@/utils/Utils";
-import styles from "./CheckboxFilter.module.scss";
-import { FilterAccordionHeader } from "@/components/filtrering/FilterAccordionHeader";
+import styles from "./NavEnhetFilter.module.scss";
+import { addOrRemove } from "../utils/utils";
+import { NavEnhet } from "mulighetsrommet-api-client";
+import { NavRegion } from "mulighetsrommet-api-client";
 
-interface Props {
-  regionMapFilter: RegionMap;
-  setRegionMapFilter: (regionMap: RegionMap) => void;
-  antallValgteEnheter: number;
+interface RegionMap {
+  [region: string]: NavEnhet[];
 }
 
-export function NavEnhetFilter({
-  regionMapFilter: regionMap,
-  setRegionMapFilter: setRegionMap,
-  antallValgteEnheter,
-}: Props) {
-  const [accordionsOpen, setAccordionsOpen] = useAtom(filterAccordionAtom);
-  const { data: alleRegioner } = useRegioner();
+interface Props {
+  navEnheter: NavEnhet[];
+  setNavEnheter: (navEnheter: NavEnhet[]) => void;
+  regioner: NavRegion[];
+}
+
+export function NavEnhetFilter({ navEnheter, setNavEnheter, regioner }: Props) {
+  const regionMap = buildRegionMap(navEnheter);
   const [regionOpen, setRegionOpen] = useState<string[]>([]);
+
+  console.log(44, navEnheter);
+
+  function regionMapToNavEnheter(regionMap: RegionMap): NavEnhet[] {
+    return Array.from(Object.values(regionMap)).flat(1);
+  }
+
+  function buildRegionMap(navEnheter: NavEnhet[]): RegionMap {
+    const map: RegionMap = {};
+    navEnheter.forEach((enhet: NavEnhet) => {
+      const regionNavn = enhet.overordnetEnhet ?? "unknown";
+      if (regionNavn in map) {
+        map[regionNavn].push(enhet);
+      } else {
+        map[regionNavn] = [enhet];
+      }
+    });
+
+    return map;
+  }
 
   function regionIsIndeterminate(region: NavRegion): boolean {
     const underenhetCount = regionMap[region.enhetsnummer]?.length ?? 0;
@@ -33,7 +48,7 @@ export function NavEnhetFilter({
 
   function regionValues(): NavRegion[] {
     return (
-      alleRegioner
+      regioner
         ?.filter(
           (region: NavRegion) =>
             Object.keys(regionMap).includes(region.enhetsnummer) &&
@@ -44,48 +59,37 @@ export function NavEnhetFilter({
   }
 
   function regionOnChange(regioner: NavRegion[]) {
-    function enheterAfterChange(region: NavRegion) {
+    function enheterAfterChange(region: NavRegion): NavEnhet[] {
       const isIndeterminate = regionIsIndeterminate(region);
       const isIncluded = regioner.includes(region);
 
       if (isIndeterminate && !isIncluded) {
         return regionMap[region.enhetsnummer];
       } else if (!isIndeterminate && isIncluded) {
-        return region.enheter.map((enhet: NavEnhet) => enhet.enhetsnummer);
+        return region.enheter;
       } else {
         return [];
       }
     }
 
-    setRegionMap(
-      alleRegioner?.reduce(
-        (acc: RegionMap, region: NavRegion) => ({
-          ...acc,
-          [region.enhetsnummer]: enheterAfterChange(region),
-        }),
-        {} as RegionMap,
-      ) ?? {},
+    setNavEnheter(
+      regioner?.reduce(
+        (acc: NavEnhet[], region: NavRegion) => acc.concat(enheterAfterChange(region)),
+        [],
+      ) ?? [],
     );
   }
 
-  function underenhetOnChange(region: string, enheter: string[]) {
-    setRegionMap({
-      ...regionMap,
-      [region]: enheter,
-    });
+  function underenhetOnChange(region: string, enheter: NavEnhet[]) {
+    setNavEnheter(
+      regionMapToNavEnheter({
+        ...regionMap,
+        [region]: enheter,
+      }),
+    );
   }
 
   return (
-    <Accordion.Item open={accordionsOpen.includes("brukers-enhet")}>
-      <Accordion.Header
-        onClick={() => {
-          setAccordionsOpen([...addOrRemove(accordionsOpen, "brukers-enhet")]);
-        }}
-        data-testid="filter_accordionheader_brukers-enhet"
-      >
-        <FilterAccordionHeader tittel="NAV-enhet" antallValgteFilter={antallValgteEnheter} />
-      </Accordion.Header>
-      <Accordion.Content data-testid="filter_accordioncontent_brukers-enhet">
         <CheckboxGroup
           value={regionValues()}
           onChange={regionOnChange}
@@ -94,7 +98,7 @@ export function NavEnhetFilter({
           size="small"
           data-testid="checkboxgroup_brukers-enhet"
         >
-          {alleRegioner?.map((region: NavRegion) => (
+          {regioner?.map((region: NavRegion) => (
             <div key={region.enhetsnummer}>
               <div
                 className={styles.checkbox_and_caret}
@@ -133,7 +137,7 @@ export function NavEnhetFilter({
                 >
                   <div className={styles.underenhet_list}>
                     {region.enheter.map((enhet: NavEnhet) => (
-                      <Checkbox key={enhet.enhetsnummer} value={enhet.enhetsnummer}>
+                      <Checkbox key={enhet.enhetsnummer} value={enhet}>
                         {enhet.navn}
                       </Checkbox>
                     ))}
@@ -143,7 +147,5 @@ export function NavEnhetFilter({
             </div>
           ))}
         </CheckboxGroup>
-      </Accordion.Content>
-    </Accordion.Item>
   );
 }
