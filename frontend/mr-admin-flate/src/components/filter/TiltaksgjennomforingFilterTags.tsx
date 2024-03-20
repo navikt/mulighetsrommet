@@ -1,11 +1,10 @@
 import { WritableAtom, useAtom } from "jotai";
-import { Tiltakstypestatus, VirksomhetTil } from "mulighetsrommet-api-client";
+import { NavEnhet, Tiltakstypestatus, VirksomhetTil } from "mulighetsrommet-api-client";
 import { TiltaksgjennomforingFilter } from "../../api/atoms";
 import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
 import { useVirksomheter } from "../../api/virksomhet/useVirksomheter";
 import { addOrRemove } from "../../utils/Utils";
 import { FilterTag } from "./FilterTag";
-import { useNavEnheter } from "../../api/enhet/useNavEnheter";
 import { TILTAKSGJENNOMFORING_STATUS_OPTIONS } from "../../utils/filterUtils";
 
 interface Props {
@@ -18,7 +17,6 @@ interface Props {
 
 export function TiltaksgjennomforingFilterTags({ filterAtom }: Props) {
   const [filter, setFilter] = useAtom(filterAtom);
-  const { data: enheter } = useNavEnheter();
   const { data: virksomheter } = useVirksomheter(VirksomhetTil.TILTAKSGJENNOMFORING);
   const { data: tiltakstyper } = useTiltakstyper(
     {
@@ -49,29 +47,15 @@ export function TiltaksgjennomforingFilterTags({ filterAtom }: Props) {
           }}
         />
       ) : null}
-      {filter.navRegioner
-        ? filter.navRegioner.map((enhetsnummer) => (
-            <FilterTag
-              key={enhetsnummer}
-              label={enheter?.find((e) => e.enhetsnummer === enhetsnummer)?.navn}
-              onClick={() => {
-                setFilter({
-                  ...filter,
-                  navRegioner: addOrRemove(filter.navRegioner, enhetsnummer),
-                });
-              }}
-            />
-          ))
-        : null}
       {filter.navEnheter
-        ? filter.navEnheter.map((enhetsnummer) => (
+        ? filter.navEnheter.map((enhet: NavEnhet) => (
             <FilterTag
-              key={enhetsnummer}
-              label={enheter?.find((e) => e.enhetsnummer === enhetsnummer)?.navn}
+              key={enhet.enhetsnummer}
+              label={enhet.navn}
               onClick={() => {
                 setFilter({
                   ...filter,
-                  navEnheter: addOrRemove(filter.navEnheter, enhetsnummer),
+                  navEnheter: addOrRemove(filter.navEnheter, enhet),
                 });
               }}
             />

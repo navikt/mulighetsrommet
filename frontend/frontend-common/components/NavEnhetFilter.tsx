@@ -21,8 +21,6 @@ export function NavEnhetFilter({ navEnheter, setNavEnheter, regioner }: Props) {
   const regionMap = buildRegionMap(navEnheter);
   const [regionOpen, setRegionOpen] = useState<string[]>([]);
 
-  console.log(44, navEnheter);
-
   function regionMapToNavEnheter(regionMap: RegionMap): NavEnhet[] {
     return Array.from(Object.values(regionMap)).flat(1);
   }

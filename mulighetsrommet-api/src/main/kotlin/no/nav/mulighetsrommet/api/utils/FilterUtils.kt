@@ -44,7 +44,6 @@ data class AdminTiltaksgjennomforingFilter(
     val sortering: String? = null,
     val sluttDatoCutoff: LocalDate? = ArenaMigrering.TiltaksgjennomforingSluttDatoCutoffDate,
     val dagensDato: LocalDate = LocalDate.now(),
-    val navRegioner: List<String> = emptyList(),
     val avtaleId: UUID? = null,
     val arrangorOrgnr: List<String> = emptyList(),
     val administratorNavIdent: NavIdent? = null,
@@ -141,7 +140,6 @@ fun <T : Any> PipelineContext<T, ApplicationCall>.getAdminTiltaksgjennomforingsF
     val statuser =
         call.parameters.getAll("statuser")?.map { Tiltaksgjennomforingsstatus.valueOf(it) }
     val sortering = call.request.queryParameters["sort"]
-    val navRegioner = call.parameters.getAll("navRegioner")
     val avtaleId = call.request.queryParameters["avtaleId"]?.let { if (it.isEmpty()) null else UUID.fromString(it) }
     val arrangorOrgnr = call.parameters.getAll("arrangorOrgnr")
     return AdminTiltaksgjennomforingFilter(
@@ -150,7 +148,6 @@ fun <T : Any> PipelineContext<T, ApplicationCall>.getAdminTiltaksgjennomforingsF
         tiltakstypeIder = tiltakstypeIder ?: emptyList(),
         statuser = statuser ?: emptyList(),
         sortering = sortering,
-        navRegioner = navRegioner ?: emptyList(),
         avtaleId = avtaleId,
         arrangorOrgnr = arrangorOrgnr ?: emptyList(),
         administratorNavIdent = null,

@@ -52,7 +52,6 @@ export function TiltaksgjennomforingFilterButtons({ filterAtom }: Props) {
     >
       {filter.search.length > 0 ||
       filter.tiltakstyper.length > 0 ||
-      filter.navRegioner.length > 0 ||
       filter.navEnheter.length > 0 ||
       filter.statuser.length > 0 ||
       filter.arrangorOrgnr.length > 0 ? (

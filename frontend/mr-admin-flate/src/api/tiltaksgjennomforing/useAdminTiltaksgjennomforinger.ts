@@ -9,10 +9,9 @@ export function useAdminTiltaksgjennomforinger(filter: Partial<Tiltaksgjennomfor
 
   const queryFilter = {
     search: debouncedSok || undefined,
-    navEnheter: filter.navEnheter,
+    navEnheter: filter.navEnheter?.map((e) => e.enhetsnummer) ?? [],
     tiltakstypeIder: filter.tiltakstyper,
     statuser: filter.statuser,
-    navRegioner: filter.navRegioner,
     sort: filter.sortering ? filter.sortering : undefined,
     page: filter.page ?? 1,
     size: filter.pageSize,

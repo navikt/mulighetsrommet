@@ -1,6 +1,7 @@
 import {
   Avtalestatus,
   Avtaletype,
+  NavEnhet,
   SorteringAvtaler,
   SorteringTiltaksgjennomforinger,
   SorteringTiltakstyper,
@@ -28,10 +29,10 @@ const safeJSONParse = (initialValue: unknown) => (str: string) => {
 
 // Bump version number when localStorage should be cleared
 const version = localStorage.getItem("version");
-if (version !== "1.5") {
+if (version !== "1.6") {
   localStorage.clear();
   sessionStorage.clear();
-  localStorage.setItem("version", "1.5");
+  localStorage.setItem("version", "1.6");
 }
 
 /**
@@ -156,11 +157,10 @@ export const tiltakstypeFilterAtom = atomWithHashAndStorage<TiltakstypeFilter>(
 
 export interface TiltaksgjennomforingFilter {
   search: string;
-  navEnheter: string[];
+  navEnheter: NavEnhet[];
   tiltakstyper: string[];
   statuser: TiltaksgjennomforingStatus[];
   sortering: SorteringTiltaksgjennomforinger;
-  navRegioner: string[];
   avtale: string;
   arrangorOrgnr: string[];
   visMineGjennomforinger: boolean;
@@ -174,7 +174,6 @@ export const defaultTiltaksgjennomforingfilter: TiltaksgjennomforingFilter = {
   tiltakstyper: [],
   statuser: [],
   sortering: SorteringTiltaksgjennomforinger.NAVN_ASCENDING,
-  navRegioner: [],
   avtale: "",
   arrangorOrgnr: [],
   visMineGjennomforinger: false,
@@ -182,7 +181,7 @@ export const defaultTiltaksgjennomforingfilter: TiltaksgjennomforingFilter = {
   pageSize: PAGE_SIZE,
 };
 
-export const tiltaksgjennomforingfilterAtom = atomWithHashAndStorage<TiltaksgjennomforingFilter>(
+export const tiltaksgjennomforingfilterAtom = atomWithStorage<TiltaksgjennomforingFilter>(
   "tiltaksgjennomforing-filter",
   defaultTiltaksgjennomforingfilter,
   sessionStorage,
