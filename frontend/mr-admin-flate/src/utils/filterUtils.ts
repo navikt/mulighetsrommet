@@ -107,6 +107,6 @@ export const tiltakstypeOptions = (tiltakstyper: Tiltakstype[]) => {
 export const virksomhetOptions = (virksomheter: Virksomhet[]) => {
   return virksomheter.sort().map((virksomhet) => ({
     label: virksomhet.navn,
-    value: virksomhet.organisasjonsnummer,
+    value: virksomhet.id,
   }));
 };

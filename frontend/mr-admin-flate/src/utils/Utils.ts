@@ -155,11 +155,11 @@ export function createQueryParamsForExcelDownload(filter: AvtaleFilter): URLSear
     queryParams.set("search", filter.sok);
   }
 
-  filter.tiltakstyper.forEach((tiltakstype) => queryParams.append("tiltakstypeIder", tiltakstype));
+  filter.tiltakstyper.forEach((tiltakstype) => queryParams.append("tiltakstyper", tiltakstype));
   filter.statuser.forEach((status) => queryParams.append("statuser", status));
   filter.avtaletyper.forEach((type) => queryParams.append("avtaletyper", type));
   filter.navRegioner.forEach((region) => queryParams.append("navRegioner", region));
-  filter.leverandor.forEach((orgnr) => queryParams.append("leverandorOrgnr", orgnr));
+  filter.arrangorer.forEach((arrangorId) => queryParams.append("arrangorer", arrangorId));
 
   if (filter.visMineAvtaler) {
     queryParams.set("visMineAvtaler", "true");

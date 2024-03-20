@@ -36,11 +36,11 @@ export function defaultAvtaleData(
     administratorer: avtale?.administratorer?.map((admin) => admin.navIdent) || [ansatt.navIdent],
     navn: avtale?.navn ?? "",
     avtaletype: avtale?.avtaletype,
-    leverandor: avtale?.leverandor?.organisasjonsnummer ?? "",
-    leverandorUnderenheter: !avtale?.leverandor?.underenheter
+    arrangorOrganisasjonsnummer: avtale?.arrangor?.organisasjonsnummer ?? "",
+    arrangorUnderenheter: !avtale?.arrangor?.underenheter
       ? []
-      : avtale.leverandor.underenheter.map((underenhet) => underenhet.organisasjonsnummer),
-    leverandorKontaktpersonId: avtale?.leverandor?.kontaktperson?.id,
+      : avtale.arrangor.underenheter.map((underenhet) => underenhet.organisasjonsnummer),
+    arrangorKontaktpersonId: avtale?.arrangor?.kontaktperson?.id,
     startOgSluttDato: {
       startDato: avtale?.startDato ? avtale.startDato : undefined,
       sluttDato: avtale?.sluttDato ? avtale.sluttDato : undefined,

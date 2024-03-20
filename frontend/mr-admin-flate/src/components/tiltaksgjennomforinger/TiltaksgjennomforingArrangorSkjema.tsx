@@ -1,5 +1,5 @@
 import { Button, TextField } from "@navikt/ds-react";
-import { Avtale, VirksomhetKontaktperson } from "mulighetsrommet-api-client";
+import { ArrangorKontaktperson, Avtale } from "mulighetsrommet-api-client";
 import { ControlledSokeSelect } from "mulighetsrommet-frontend-common";
 import { useRef } from "react";
 import { useFormContext } from "react-hook-form";
@@ -25,7 +25,7 @@ export function TiltaksgjennomforingArrangorSkjema({ readOnly, avtale }: Props) 
     setValue,
   } = useFormContext<InferredTiltaksgjennomforingSchema>();
 
-  const { data: virksomhetKontaktpersoner } = useVirksomhetKontaktpersoner(avtale.leverandor.id);
+  const { data: virksomhetKontaktpersoner } = useVirksomhetKontaktpersoner(avtale.arrangor.id);
 
   const arrangorOptions = getArrangorOptions(avtale);
   const kontaktpersonOptions = getKontaktpersonOptions(virksomhetKontaktpersoner ?? []);
@@ -37,16 +37,16 @@ export function TiltaksgjennomforingArrangorSkjema({ readOnly, avtale }: Props) 
           size="small"
           label={tiltaktekster.tiltaksarrangorHovedenhetLabel}
           placeholder=""
-          defaultValue={`${avtale.leverandor.navn} - ${avtale.leverandor.organisasjonsnummer}`}
+          defaultValue={`${avtale.arrangor.navn} - ${avtale.arrangor.organisasjonsnummer}`}
           readOnly
         />
         <ControlledSokeSelect
           size="small"
           label={tiltaktekster.tiltaksarrangorUnderenhetLabel}
           placeholder="Velg underenhet for tiltaksarrangør"
-          {...register("arrangorVirksomhetId")}
+          {...register("arrangorId")}
           onClearValue={() => {
-            setValue("arrangorVirksomhetId", "");
+            setValue("arrangorId", "");
           }}
           readOnly={readOnly}
           options={arrangorOptions}
@@ -80,7 +80,7 @@ export function TiltaksgjennomforingArrangorSkjema({ readOnly, avtale }: Props) 
         />
       </FormGroup>
       <VirksomhetKontaktpersonerModal
-        virksomhetId={avtale.leverandor.id}
+        virksomhetId={avtale.arrangor.id}
         modalRef={virksomhetKontaktpersonerModalRef}
       />
     </>
@@ -88,7 +88,7 @@ export function TiltaksgjennomforingArrangorSkjema({ readOnly, avtale }: Props) 
 }
 
 function getArrangorOptions(avtale: Avtale) {
-  return avtale.leverandor.underenheter
+  return avtale.arrangor.underenheter
     .sort((a, b) => a.navn.localeCompare(b.navn))
     .map((arrangor) => {
       return {
@@ -98,7 +98,7 @@ function getArrangorOptions(avtale: Avtale) {
     });
 }
 
-function getKontaktpersonOptions(kontaktpersoner: VirksomhetKontaktperson[]) {
+function getKontaktpersonOptions(kontaktpersoner: ArrangorKontaktperson[]) {
   return kontaktpersoner.map((person) => ({
     value: person.id,
     label: person.navn,

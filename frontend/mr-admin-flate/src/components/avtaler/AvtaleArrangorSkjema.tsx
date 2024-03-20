@@ -1,5 +1,5 @@
 import { Button } from "@navikt/ds-react";
-import { BrregVirksomhet, Virksomhet, VirksomhetKontaktperson } from "mulighetsrommet-api-client";
+import { ArrangorKontaktperson, BrregVirksomhet, Virksomhet } from "mulighetsrommet-api-client";
 import { ControlledSokeSelect } from "mulighetsrommet-frontend-common/components/ControlledSokeSelect";
 import { useRef, useState } from "react";
 import { DeepPartial, useFormContext } from "react-hook-form";
@@ -24,19 +24,19 @@ interface Props {
 export function AvtaleArrangorSkjema({ readOnly }: Props) {
   const virksomhetKontaktpersonerModalRef = useRef<HTMLDialogElement>(null);
 
-  const [sokLeverandor, setSokLeverandor] = useState("");
-  const { data: leverandorVirksomheter = [] } = useSokVirksomheter(sokLeverandor);
+  const [sokArrangor, setSokArrangor] = useState("");
+  const { data: arrangorVirksomheter = [] } = useSokVirksomheter(sokArrangor);
 
   const { register, watch, setValue } = useFormContext<DeepPartial<InferredAvtaleSchema>>();
-  const watchedLeverandor = watch("leverandor") ?? "";
+  const watchedArrangor = watch("arrangorOrganisasjonsnummer") ?? "";
 
-  const { data: leverandor } = useSyncBrregVirksomhet(watchedLeverandor);
-  const { data: leverandorUnderenheter } = useBrregVirksomhetUnderenheter(watchedLeverandor);
-  const { data: virksomhetKontaktpersoner } = useVirksomhetKontaktpersoner(leverandor?.id);
+  const { data: arrangor } = useSyncBrregVirksomhet(watchedArrangor);
+  const { data: underenheter } = useBrregVirksomhetUnderenheter(watchedArrangor);
+  const { data: kontaktpersoner } = useVirksomhetKontaktpersoner(arrangor?.id);
 
-  const leverandorOptions = getLeverandorOptions(leverandorVirksomheter, leverandor);
-  const underenheterOptions = getUnderenheterOptions(leverandorUnderenheter ?? []);
-  const kontaktpersonOptions = getKontaktpersonOptions(virksomhetKontaktpersoner ?? []);
+  const arrangorHovedenhetOptions = getArrangorHovedenhetOptions(arrangorVirksomheter, arrangor);
+  const arrangorUnderenhetOptions = getArrangorUnderenhetOptions(underenheter ?? []);
+  const arrangorKontaktpersonOptions = getArrangorKontaktpersonOptions(kontaktpersoner ?? []);
 
   return (
     <>
@@ -46,29 +46,29 @@ export function AvtaleArrangorSkjema({ readOnly }: Props) {
           readOnly={readOnly}
           placeholder="Navn eller organisasjonsnummer for tiltaksarrangør"
           label={avtaletekster.tiltaksarrangorHovedenhetLabel}
-          {...register("leverandor")}
+          {...register("arrangorOrganisasjonsnummer")}
           onInputChange={(value) => {
-            setSokLeverandor(value);
+            setSokArrangor(value);
           }}
           onChange={(e) => {
-            if (e.target.value !== watchedLeverandor) {
-              setValue("leverandorUnderenheter", []);
+            if (e.target.value !== watchedArrangor) {
+              setValue("arrangorUnderenheter", []);
             }
           }}
           onClearValue={() => {
-            setValue("leverandor", "");
-            setValue("leverandorUnderenheter", []);
+            setValue("arrangorOrganisasjonsnummer", "");
+            setValue("arrangorUnderenheter", []);
           }}
-          options={leverandorOptions}
+          options={arrangorHovedenhetOptions}
         />
         <ControlledMultiSelect
           size="small"
           placeholder="Velg underenhet for tiltaksarrangør"
           label={avtaletekster.tiltaksarrangorUnderenheterLabel}
           helpText="Bestemmer hvilke arrangører som kan velges i gjennomføringene til avtalen."
-          readOnly={!leverandor}
-          {...register("leverandorUnderenheter")}
-          options={underenheterOptions}
+          readOnly={!arrangor}
+          {...register("arrangorUnderenheter")}
+          options={arrangorUnderenhetOptions}
         />
       </FormGroup>
       <FormGroup>
@@ -77,9 +77,9 @@ export function AvtaleArrangorSkjema({ readOnly }: Props) {
             size="small"
             placeholder="Velg en"
             label={avtaletekster.kontaktpersonHosTiltaksarrangorLabel}
-            readOnly={!leverandor}
-            {...register("leverandorKontaktpersonId")}
-            options={kontaktpersonOptions}
+            readOnly={!arrangor}
+            {...register("arrangorKontaktpersonId")}
+            options={arrangorKontaktpersonOptions}
           />
           <Button
             className={skjemastyles.kontaktperson_button}
@@ -92,9 +92,9 @@ export function AvtaleArrangorSkjema({ readOnly }: Props) {
           </Button>
         </div>
       </FormGroup>
-      {leverandor && (
+      {arrangor && (
         <VirksomhetKontaktpersonerModal
-          virksomhetId={leverandor.id}
+          virksomhetId={arrangor.id}
           modalRef={virksomhetKontaktpersonerModalRef}
         />
       )}
@@ -102,33 +102,36 @@ export function AvtaleArrangorSkjema({ readOnly }: Props) {
   );
 }
 
-function getLeverandorOptions(virksomheter: BrregVirksomhet[], leverandor: Virksomhet | undefined) {
+function getArrangorHovedenhetOptions(
+  virksomheter: BrregVirksomhet[],
+  arrangor: Virksomhet | undefined,
+) {
   const options = virksomheter
     .sort((a, b) => a.navn.localeCompare(b.navn))
-    .map((enhet) => ({
-      value: enhet.organisasjonsnummer,
-      label: `${enhet.navn} - ${enhet.organisasjonsnummer}`,
+    .map((virksomhet) => ({
+      value: virksomhet.organisasjonsnummer,
+      label: `${virksomhet.navn} - ${virksomhet.organisasjonsnummer}`,
     }));
 
-  if (leverandor) {
+  if (arrangor) {
     options.push({
-      label: `${leverandor.navn} - ${leverandor.organisasjonsnummer}`,
-      value: leverandor.organisasjonsnummer,
+      label: `${arrangor.navn} - ${arrangor.organisasjonsnummer}`,
+      value: arrangor.organisasjonsnummer,
     });
   }
 
   return options;
 }
 
-function getUnderenheterOptions(underenheterForLeverandor: BrregVirksomhet[]): SelectOption[] {
-  return underenheterForLeverandor.map((leverandor) => ({
-    value: leverandor.organisasjonsnummer,
-    label: `${leverandor.navn} - ${leverandor.organisasjonsnummer}`,
+function getArrangorUnderenhetOptions(underenheter: BrregVirksomhet[]): SelectOption[] {
+  return underenheter.map((virksomet) => ({
+    value: virksomet.organisasjonsnummer,
+    label: `${virksomet.navn} - ${virksomet.organisasjonsnummer}`,
   }));
 }
 
-function getKontaktpersonOptions(virksomhetKontaktpersoner: VirksomhetKontaktperson[]) {
-  return virksomhetKontaktpersoner.map((person) => ({
+function getArrangorKontaktpersonOptions(kontaktpersoner: ArrangorKontaktperson[]) {
+  return kontaktpersoner.map((person) => ({
     value: person.id,
     label: person.navn,
   }));

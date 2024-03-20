@@ -8,10 +8,10 @@ import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.domain.dbo.AvtaleDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
+import no.nav.mulighetsrommet.api.domain.dto.ArrangorKontaktperson
 import no.nav.mulighetsrommet.api.domain.dto.AvtaleAdminDto
 import no.nav.mulighetsrommet.api.domain.dto.AvtaleNotificationDto
 import no.nav.mulighetsrommet.api.domain.dto.Kontorstruktur
-import no.nav.mulighetsrommet.api.domain.dto.VirksomhetKontaktperson
 import no.nav.mulighetsrommet.api.utils.DatabaseUtils
 import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.database.Database
@@ -40,8 +40,8 @@ class AvtaleRepository(private val db: Database) {
                                navn,
                                tiltakstype_id,
                                avtalenummer,
-                               leverandor_virksomhet_id,
-                               leverandor_kontaktperson_id,
+                               arrangor_hovedenhet_id,
+                               arrangor_kontaktperson_id,
                                start_dato,
                                slutt_dato,
                                avtaletype,
@@ -55,8 +55,8 @@ class AvtaleRepository(private val db: Database) {
                     :navn,
                     :tiltakstype_id::uuid,
                     :avtalenummer,
-                    :leverandor_virksomhet_id,
-                    :leverandor_kontaktperson_id,
+                    :arrangor_hovedenhet_id,
+                    :arrangor_kontaktperson_id,
                     :start_dato,
                     :slutt_dato,
                     :avtaletype::avtaletype,
@@ -69,8 +69,8 @@ class AvtaleRepository(private val db: Database) {
             on conflict (id) do update set navn                        = excluded.navn,
                                            tiltakstype_id              = excluded.tiltakstype_id,
                                            avtalenummer                = excluded.avtalenummer,
-                                           leverandor_virksomhet_id    = excluded.leverandor_virksomhet_id,
-                                           leverandor_kontaktperson_id = excluded.leverandor_kontaktperson_id,
+                                           arrangor_hovedenhet_id      = excluded.arrangor_hovedenhet_id,
+                                           arrangor_kontaktperson_id   = excluded.arrangor_kontaktperson_id,
                                            start_dato                  = excluded.start_dato,
                                            slutt_dato                  = excluded.slutt_dato,
                                            avtaletype                  = excluded.avtaletype,
@@ -110,8 +110,8 @@ class AvtaleRepository(private val db: Database) {
 
         @Language("PostgreSQL")
         val deleteUnderenheter = """
-             delete from avtale_underleverandor
-             where avtale_id = ?::uuid and not (virksomhet_id = any (?))
+             delete from avtale_arrangor_underenhet
+             where avtale_id = ?::uuid and not (arrangor_id = any (?))
         """.trimIndent()
 
         tx.run(queryOf(query, avtale.toSqlParameters()).asExecute)
@@ -144,14 +144,14 @@ class AvtaleRepository(private val db: Database) {
             db.createTextArray(avtale.navEnheter),
         ).asExecute.let { tx.run(it) }
 
-        avtale.leverandorUnderenheter.forEach { underenhet ->
-            setLeverandorUnderenhet(tx, avtale.id, underenhet)
+        avtale.arrangorUnderenheter.forEach { underenhet ->
+            setArrangorUnderenhet(tx, avtale.id, underenhet)
         }
 
         queryOf(
             deleteUnderenheter,
             avtale.id,
-            db.createUuidArray(avtale.leverandorUnderenheter),
+            db.createUuidArray(avtale.arrangorUnderenheter),
         ).asExecute.let { tx.run(it) }
     }
 
@@ -162,9 +162,9 @@ class AvtaleRepository(private val db: Database) {
     fun upsertArenaAvtale(tx: Session, avtale: ArenaAvtaleDbo) {
         logger.info("Lagrer avtale fra Arena id=${avtale.id}")
 
-        val virksomhetId = queryOf(
-            "select id from virksomhet where organisasjonsnummer = ?",
-            avtale.leverandorOrganisasjonsnummer,
+        val arrangorId = queryOf(
+            "select id from arrangor where organisasjonsnummer = ?",
+            avtale.arrangorOrganisasjonsnummer,
         )
             .map { it.uuid("id") }
             .asSingle
@@ -176,7 +176,7 @@ class AvtaleRepository(private val db: Database) {
                                navn,
                                tiltakstype_id,
                                avtalenummer,
-                               leverandor_virksomhet_id,
+                               arrangor_hovedenhet_id,
                                start_dato,
                                slutt_dato,
                                arena_ansvarlig_enhet,
@@ -188,7 +188,7 @@ class AvtaleRepository(private val db: Database) {
                     :navn,
                     :tiltakstype_id::uuid,
                     :avtalenummer,
-                    :leverandor_virksomhet_id,
+                    :arrangor_hovedenhet_id,
                     :start_dato,
                     :slutt_dato,
                     :arena_ansvarlig_enhet,
@@ -199,7 +199,7 @@ class AvtaleRepository(private val db: Database) {
             on conflict (id) do update set navn                     = excluded.navn,
                                            tiltakstype_id           = excluded.tiltakstype_id,
                                            avtalenummer             = excluded.avtalenummer,
-                                           leverandor_virksomhet_id = excluded.leverandor_virksomhet_id,
+                                           arrangor_hovedenhet_id   = excluded.arrangor_hovedenhet_id,
                                            start_dato               = excluded.start_dato,
                                            slutt_dato               = excluded.slutt_dato,
                                            arena_ansvarlig_enhet    = excluded.arena_ansvarlig_enhet,
@@ -210,7 +210,7 @@ class AvtaleRepository(private val db: Database) {
                                            opphav                   = coalesce(avtale.opphav, excluded.opphav)
         """.trimIndent()
 
-        queryOf(query, avtale.toSqlParameters(virksomhetId)).asExecute.let { tx.run(it) }
+        queryOf(query, avtale.toSqlParameters(arrangorId)).asExecute.let { tx.run(it) }
     }
 
     fun get(id: UUID): AvtaleAdminDto? = db.transaction { get(id, it) }
@@ -239,7 +239,7 @@ class AvtaleRepository(private val db: Database) {
         navRegioner: List<String> = emptyList(),
         sortering: String? = null,
         dagensDato: LocalDate = LocalDate.now(),
-        leverandorOrgnr: List<String> = emptyList(),
+        arrangorIds: List<UUID> = emptyList(),
         administratorNavIdent: NavIdent? = null,
     ): Pair<Int, List<AvtaleAdminDto>> {
         val parameters = mapOf(
@@ -247,24 +247,25 @@ class AvtaleRepository(private val db: Database) {
             "limit" to pagination.limit,
             "offset" to pagination.offset,
             "today" to dagensDato,
+            "arrangor_ids" to db.createUuidArray(arrangorIds),
             "administrator_nav_ident" to administratorNavIdent?.let { """[{"navIdent": "${it.value}" }]""" },
         )
 
         val where = DatabaseUtils.andWhereParameterNotNull(
             tiltakstypeIder.ifEmpty { null } to tiltakstypeIderWhereStatement(tiltakstypeIder),
-            search to "(lower(navn) like lower(:search) or avtalenummer like :search or lower(leverandor_navn) like lower(:search))",
+            search to "(lower(navn) like lower(:search) or avtalenummer like :search or lower(arrangor_hovedenhet_navn) like lower(:search))",
             statuser.ifEmpty { null } to statuserWhereStatement(statuser),
             avtaletyper.ifEmpty { null } to avtaletyperWhereStatement(avtaletyper),
             navRegioner.ifEmpty { null } to navRegionerWhereStatement(navRegioner),
-            leverandorOrgnr.ifEmpty { null } to leverandorOrgnrWhereStatement(leverandorOrgnr),
-            administratorNavIdent to "administratorer @> :administrator_nav_ident::jsonb",
+            arrangorIds.ifEmpty { null } to "arrangor_hovedenhet_id = any(:arrangor_ids)",
+            administratorNavIdent to "administratorer_json @> :administrator_nav_ident::jsonb",
         )
 
         val order = when (sortering) {
             "navn-ascending" -> "navn asc"
             "navn-descending" -> "navn desc"
-            "leverandor-ascending" -> "leverandor_navn asc"
-            "leverandor-descending" -> "leverandor_navn desc"
+            "arrangor-ascending" -> "arrangor_hovedenhet_navn asc"
+            "arrangor-descending" -> "arrangor_hovedenhet_navn desc"
             "startdato-ascending" -> "start_dato asc, navn asc"
             "startdato-descending" -> "start_dato desc, navn asc"
             "sluttdato-ascending" -> "slutt_dato asc, navn asc"
@@ -349,15 +350,15 @@ class AvtaleRepository(private val db: Database) {
             .let { tx.run(it) }
     }
 
-    fun setLeverandorUnderenhet(tx: Session, avtaleId: UUID, virksomhetId: UUID) {
+    fun setArrangorUnderenhet(tx: Session, avtaleId: UUID, arrangorId: UUID) {
         @Language("PostgreSQL")
         val query = """
-             insert into avtale_underleverandor (avtale_id, virksomhet_id)
+             insert into avtale_arrangor_underenhet (avtale_id, arrangor_id)
              values (?::uuid, ?::uuid)
-             on conflict (avtale_id, virksomhet_id) do nothing
+             on conflict (avtale_id, arrangor_id) do nothing
         """.trimIndent()
 
-        queryOf(query, avtaleId, virksomhetId)
+        queryOf(query, avtaleId, arrangorId)
             .asExecute
             .let { tx.run(it) }
     }
@@ -382,8 +383,8 @@ class AvtaleRepository(private val db: Database) {
         "navn" to navn,
         "tiltakstype_id" to tiltakstypeId,
         "avtalenummer" to avtalenummer,
-        "leverandor_virksomhet_id" to leverandorVirksomhetId,
-        "leverandor_kontaktperson_id" to leverandorKontaktpersonId,
+        "arrangor_hovedenhet_id" to arrangorId,
+        "arrangor_kontaktperson_id" to arrangorKontaktpersonId,
         "start_dato" to startDato,
         "slutt_dato" to sluttDato,
         "avtaletype" to avtaletype.name,
@@ -394,13 +395,13 @@ class AvtaleRepository(private val db: Database) {
         "faneinnhold" to faneinnhold?.let { Json.encodeToString(it) },
     )
 
-    private fun ArenaAvtaleDbo.toSqlParameters(virksomhetId: UUID) = mapOf(
+    private fun ArenaAvtaleDbo.toSqlParameters(arrangorId: UUID) = mapOf(
         "opphav" to ArenaMigrering.Opphav.ARENA.name,
         "id" to id,
         "navn" to navn,
         "tiltakstype_id" to tiltakstypeId,
         "avtalenummer" to avtalenummer,
-        "leverandor_virksomhet_id" to virksomhetId,
+        "arrangor_hovedenhet_id" to arrangorId,
         "start_dato" to startDato,
         "slutt_dato" to sluttDato,
         "arena_ansvarlig_enhet" to arenaAnsvarligEnhet,
@@ -413,14 +414,14 @@ class AvtaleRepository(private val db: Database) {
         val startDato = localDate("start_dato")
         val sluttDato = localDateOrNull("slutt_dato")
 
-        val underenheter = stringOrNull("leverandor_underenheter")
-            ?.let { Json.decodeFromString<List<AvtaleAdminDto.LeverandorUnderenhet?>>(it).filterNotNull() }
+        val underenheter = stringOrNull("arrangor_underenheter")
+            ?.let { Json.decodeFromString<List<AvtaleAdminDto.ArrangorUnderenhet?>>(it).filterNotNull() }
             ?: emptyList()
         val administratorer = Json
-            .decodeFromString<List<AvtaleAdminDto.Administrator?>>(string("administratorer"))
+            .decodeFromString<List<AvtaleAdminDto.Administrator?>>(string("administratorer_json"))
             .filterNotNull()
 
-        val navEnheter = stringOrNull("nav_enheter")
+        val navEnheter = stringOrNull("nav_enheter_json")
             ?.let { Json.decodeFromString<List<NavEnhetDbo?>>(it).filterNotNull() }
             ?: emptyList()
         val kontorstruktur = navEnheter
@@ -435,34 +436,10 @@ class AvtaleRepository(private val db: Database) {
         return AvtaleAdminDto(
             id = uuid("id"),
             navn = string("navn"),
-            tiltakstype = AvtaleAdminDto.Tiltakstype(
-                id = uuid("tiltakstype_id"),
-                navn = string("tiltakstype_navn"),
-                arenaKode = string("arena_kode"),
-            ),
             avtalenummer = stringOrNull("avtalenummer"),
-            leverandor = AvtaleAdminDto.Leverandor(
-                id = uuid("leverandor_virksomhet_id"),
-                organisasjonsnummer = string("leverandor_organisasjonsnummer"),
-                navn = string("leverandor_navn"),
-                slettet = boolean("leverandor_slettet"),
-                underenheter = underenheter,
-                kontaktperson = uuidOrNull("leverandor_kontaktperson_id")?.let {
-                    VirksomhetKontaktperson(
-                        id = it,
-                        virksomhetId = uuid("leverandor_kontaktperson_virksomhet_id"),
-                        navn = string("leverandor_kontaktperson_navn"),
-                        telefon = stringOrNull("leverandor_kontaktperson_telefon"),
-                        epost = string("leverandor_kontaktperson_epost"),
-                        beskrivelse = stringOrNull("leverandor_kontaktperson_beskrivelse"),
-                    )
-                },
-            ),
             startDato = startDato,
             sluttDato = sluttDato,
-            arenaAnsvarligEnhet = stringOrNull("arena_ansvarlig_enhet")?.let {
-                Json.decodeFromString(it)
-            },
+            opphav = ArenaMigrering.Opphav.valueOf(string("opphav")),
             avtaletype = Avtaletype.valueOf(string("avtaletype")),
             avtalestatus = Avtalestatus.resolveFromDatesAndAvslutningsstatus(
                 LocalDate.now(),
@@ -470,30 +447,49 @@ class AvtaleRepository(private val db: Database) {
                 Avslutningsstatus.valueOf(string("avslutningsstatus")),
             ),
             prisbetingelser = stringOrNull("prisbetingelser"),
-            administratorer = administratorer,
-            url = stringOrNull("url"),
             antallPlasser = intOrNull("antall_plasser"),
-            opphav = ArenaMigrering.Opphav.valueOf(string("opphav")),
-            kontorstruktur = kontorstruktur,
+            url = stringOrNull("url"),
             beskrivelse = stringOrNull("beskrivelse"),
             faneinnhold = stringOrNull("faneinnhold")?.let { Json.decodeFromString(it) },
+            administratorer = administratorer,
+            kontorstruktur = kontorstruktur,
+            arrangor = AvtaleAdminDto.ArrangorHovedenhet(
+                id = uuid("arrangor_hovedenhet_id"),
+                organisasjonsnummer = string("arrangor_hovedenhet_organisasjonsnummer"),
+                navn = string("arrangor_hovedenhet_navn"),
+                slettet = boolean("arrangor_hovedenhet_slettet"),
+                underenheter = underenheter,
+                kontaktperson = uuidOrNull("arrangor_hovedenhet_kontaktperson_id")?.let {
+                    ArrangorKontaktperson(
+                        id = it,
+                        arrangorId = uuid("arrangor_hovedenhet_kontaktperson_arrangor_id"),
+                        navn = string("arrangor_hovedenhet_kontaktperson_navn"),
+                        telefon = stringOrNull("arrangor_hovedenhet_kontaktperson_telefon"),
+                        epost = string("arrangor_hovedenhet_kontaktperson_epost"),
+                        beskrivelse = stringOrNull("arrangor_hovedenhet_kontaktperson_beskrivelse"),
+                    )
+                },
+            ),
+            arenaAnsvarligEnhet = stringOrNull("arena_ansvarlig_enhet_json")?.let {
+                Json.decodeFromString(it)
+            },
+            tiltakstype = AvtaleAdminDto.Tiltakstype(
+                id = uuid("tiltakstype_id"),
+                navn = string("tiltakstype_navn"),
+                arenaKode = string("tiltakstype_arena_kode"),
+            ),
         )
     }
-
-    private fun leverandorOrgnrWhereStatement(leverandorOrgnr: List<String>): String =
-        leverandorOrgnr
-            .joinToString(prefix = "(", postfix = ")", separator = " or ") {
-                """leverandor_organisasjonsnummer = '$it'"""
-            }
 
     private fun tiltakstypeIderWhereStatement(tiltakstypeIder: List<UUID>): String =
         tiltakstypeIder
             .joinToString(prefix = "(", postfix = ")", separator = " or ") { "tiltakstype_id = '$it'" }
 
+    // TODO fix possible sql injections
     private fun navRegionerWhereStatement(navRegioner: List<String>): String =
         navRegioner
             .joinToString(prefix = "(", postfix = ")", separator = " or ") {
-                """(nav_enheter @> '[{"enhetsnummer": "$it"}]' or arena_ansvarlig_enhet::jsonb->>'enhetsnummer' = '$it' or arena_ansvarlig_enhet::jsonb->>'enhetsnummer' in (select enhetsnummer from nav_enhet where overordnet_enhet = '$it'))"""
+                """(nav_enheter_json @> '[{"enhetsnummer": "$it"}]' or arena_ansvarlig_enhet_json->>'enhetsnummer' = '$it' or arena_ansvarlig_enhet_json->>'enhetsnummer' in (select enhetsnummer from nav_enhet where overordnet_enhet = '$it'))"""
             }
 
     private fun statuserWhereStatement(statuser: List<Avtalestatus>): String =

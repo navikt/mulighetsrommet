@@ -59,10 +59,10 @@ class AvtaleValidator(
 
             addAll(validateNavEnheter(avtale.navEnheter))
 
-            if (avtale.leverandorUnderenheter.isEmpty()) {
+            if (avtale.arrangorUnderenheter.isEmpty()) {
                 add(
                     ValidationError.of(
-                        AvtaleDbo::leverandorUnderenheter,
+                        AvtaleDbo::arrangorUnderenheter,
                         "Minst én underenhet til tiltaksarrangøren må være valgt",
                     ),
                 )
@@ -115,11 +115,11 @@ class AvtaleValidator(
 
                     gjennomforinger.forEach { gjennomforing ->
                         val arrangor = gjennomforing.arrangor.id
-                        if (arrangor !in avtale.leverandorUnderenheter) {
+                        if (arrangor !in avtale.arrangorUnderenheter) {
                             val virksomhet: VirksomhetDto = virksomheter.getById(arrangor)
                             add(
                                 ValidationError.of(
-                                    AvtaleDbo::leverandorUnderenheter,
+                                    AvtaleDbo::arrangorUnderenheter,
                                     "Arrangøren ${virksomhet.navn} er i bruk på en av avtalens gjennomføringer, men mangler blant tiltaksarrangørens underenheter",
                                 ),
                             )
@@ -188,10 +188,10 @@ class AvtaleValidator(
                         )
                     }
 
-                    if (avtale.leverandorVirksomhetId != currentAvtale.leverandor.id) {
+                    if (avtale.arrangorId != currentAvtale.arrangor.id) {
                         add(
                             ValidationError.of(
-                                AvtaleDbo::leverandorVirksomhetId,
+                                AvtaleDbo::arrangorId,
                                 "Tiltaksarrangøren kan ikke endres utenfor Arena",
                             ),
                         )

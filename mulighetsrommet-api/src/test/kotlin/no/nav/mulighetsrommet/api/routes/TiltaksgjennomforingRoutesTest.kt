@@ -29,14 +29,14 @@ class TiltaksgjennomforingRoutesTest : FunSpec({
                     NavEnhetFixtures.Sagene.enhetsnummer,
                     NavEnhetFixtures.Oslo.enhetsnummer,
                 ),
-                leverandorUnderenheter = listOf(VirksomhetFixtures.underenhet1.id),
+                arrangorUnderenheter = listOf(VirksomhetFixtures.underenhet1.id),
             ),
             AvtaleFixtures.VTA.copy(
                 navEnheter = listOf(
                     NavEnhetFixtures.Sagene.enhetsnummer,
                     NavEnhetFixtures.Oslo.enhetsnummer,
                 ),
-                leverandorUnderenheter = listOf(VirksomhetFixtures.underenhet1.id),
+                arrangorUnderenheter = listOf(VirksomhetFixtures.underenhet1.id),
             ),
         ),
     )

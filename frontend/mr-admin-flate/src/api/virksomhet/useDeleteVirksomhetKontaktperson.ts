@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { mulighetsrommetClient } from "../clients";
-import { ApiError, VirksomhetKontaktperson } from "mulighetsrommet-api-client";
+import { ApiError, ArrangorKontaktpersonRequest } from "mulighetsrommet-api-client";
 import { QueryKeys } from "../QueryKeys";
 
 export function useDeleteVirksomhetKontaktperson() {
@@ -13,7 +13,7 @@ export function useDeleteVirksomhetKontaktperson() {
       });
     },
     onSuccess(_, { virksomhetId, kontaktpersonId }) {
-      queryClient.setQueryData<VirksomhetKontaktperson[]>(
+      queryClient.setQueryData<ArrangorKontaktpersonRequest[]>(
         QueryKeys.virksomhetKontaktpersoner(virksomhetId),
         (previous) => {
           return previous?.filter((kontaktperson) => kontaktperson.id !== kontaktpersonId);

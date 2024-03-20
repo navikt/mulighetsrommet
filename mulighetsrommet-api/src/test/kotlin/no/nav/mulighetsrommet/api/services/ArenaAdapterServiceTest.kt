@@ -124,7 +124,7 @@ class ArenaAdapterServiceTest : FunSpec({
             navn = "Oppfølgingsavtale",
             tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
             avtalenummer = "2023#1000",
-            leverandorOrganisasjonsnummer = "123456789",
+            arrangorOrganisasjonsnummer = "123456789",
             startDato = LocalDate.now(),
             sluttDato = LocalDate.now().plusYears(1),
             arenaAnsvarligEnhet = null,
@@ -155,7 +155,7 @@ class ArenaAdapterServiceTest : FunSpec({
                 .value("navn").isEqualTo(avtale.navn)
                 .value("tiltakstype_id").isEqualTo(avtale.tiltakstypeId)
                 .value("avtalenummer").isEqualTo(avtale.avtalenummer)
-                .value("leverandor_virksomhet_id").isEqualTo(VirksomhetFixtures.hovedenhet.id)
+                .value("arrangor_hovedenhet_id").isEqualTo(VirksomhetFixtures.hovedenhet.id)
                 .value("start_dato").isEqualTo(avtale.startDato)
                 .value("slutt_dato").isEqualTo(avtale.sluttDato)
                 .value("arena_ansvarlig_enhet").isEqualTo(avtale.arenaAnsvarligEnhet)
@@ -311,7 +311,7 @@ class ArenaAdapterServiceTest : FunSpec({
                 .value("navn").isEqualTo(tiltaksgjennomforing.navn)
                 .value("tiltakstype_id").isEqualTo(TiltakstypeFixtures.Oppfolging.id)
                 .value("tiltaksnummer").isEqualTo(tiltaksgjennomforing.tiltaksnummer)
-                .value("arrangor_virksomhet_id").isEqualTo(VirksomhetFixtures.underenhet1.id)
+                .value("arrangor_id").isEqualTo(VirksomhetFixtures.underenhet1.id)
                 .value("start_dato").isEqualTo(tiltaksgjennomforing.startDato)
                 .value("slutt_dato").isEqualTo(tiltaksgjennomforing.sluttDato)
                 .value("deltidsprosent").isEqualTo(tiltaksgjennomforing.deltidsprosent)
@@ -573,20 +573,20 @@ class ArenaAdapterServiceTest : FunSpec({
             }
         }
 
-        test("should update avtale underleverandor") {
+        test("should update arrangør underenhet") {
             MulighetsrommetTestDomain(
                 tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
-                avtaler = listOf(AvtaleFixtures.oppfolging.copy(leverandorUnderenheter = emptyList())),
+                avtaler = listOf(AvtaleFixtures.oppfolging.copy(arrangorUnderenheter = emptyList())),
             ).initialize(database.db)
 
             val avtaler = AvtaleRepository(database.db)
-            avtaler.get(AvtaleFixtures.oppfolging.id).shouldNotBeNull().leverandor.underenheter.shouldBeEmpty()
+            avtaler.get(AvtaleFixtures.oppfolging.id).shouldNotBeNull().arrangor.underenheter.shouldBeEmpty()
 
             val service = createArenaAdapterService(database.db)
             service.upsertTiltaksgjennomforing(tiltaksgjennomforing.copy(avtaleId = AvtaleFixtures.oppfolging.id))
 
-            avtaler.get(AvtaleFixtures.oppfolging.id).shouldNotBeNull().leverandor.underenheter shouldBe listOf(
-                AvtaleAdminDto.LeverandorUnderenhet(
+            avtaler.get(AvtaleFixtures.oppfolging.id).shouldNotBeNull().arrangor.underenheter shouldBe listOf(
+                AvtaleAdminDto.ArrangorUnderenhet(
                     id = VirksomhetFixtures.underenhet1.id,
                     organisasjonsnummer = VirksomhetFixtures.underenhet1.organisasjonsnummer,
                     navn = VirksomhetFixtures.underenhet1.navn,

@@ -186,27 +186,27 @@ export function AvtaleFilter({ filterAtom, skjulFilter }: Props) {
             />
           </Accordion.Content>
         </Accordion.Item>
-        <Accordion.Item open={accordionsOpen.includes("leverandor")}>
+        <Accordion.Item open={accordionsOpen.includes("arrangor")}>
           <Accordion.Header
             onClick={() => {
-              setAccordionsOpen([...addOrRemove(accordionsOpen, "leverandor")]);
+              setAccordionsOpen([...addOrRemove(accordionsOpen, "arrangor")]);
             }}
           >
             <FilterAccordionHeader
               tittel="Tiltaksarrangør"
-              antallValgteFilter={filter.leverandor.length}
+              antallValgteFilter={filter.arrangorer.length}
             />
           </Accordion.Header>
           <Accordion.Content>
             <CheckboxList
               searchable
               items={virksomhetOptions(virksomheter)}
-              isChecked={(orgnr) => filter.leverandor.includes(orgnr)}
-              onChange={(orgnr) => {
+              isChecked={(id) => filter.arrangorer.includes(id)}
+              onChange={(id) => {
                 setFilter({
                   ...filter,
                   page: 1,
-                  leverandor: addOrRemove(filter.leverandor, orgnr),
+                  arrangorer: addOrRemove(filter.arrangorer, id),
                 });
               }}
             />

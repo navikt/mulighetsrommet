@@ -12,6 +12,7 @@ import styles from "../DetaljerInfo.module.scss";
 import { Link } from "react-router-dom";
 import { NavEnhet } from "mulighetsrommet-api-client";
 import { avtaletekster } from "../../components/ledetekster/avtaleLedetekster";
+import { ArrangorKontaktpersonDetaljer } from "../arrangor/ArrangorKontaktpersonDetaljer";
 
 export function AvtaleDetaljer() {
   const { data: avtale, isPending, error } = useAvtale();
@@ -54,7 +55,7 @@ export function AvtaleDetaljer() {
     url,
     kontorstruktur,
     arenaAnsvarligEnhet,
-    leverandor,
+    arrangor,
   } = avtale;
 
   return (
@@ -205,7 +206,7 @@ export function AvtaleDetaljer() {
         <Bolk aria-label={avtaletekster.tiltaksarrangorHovedenhetLabel}>
           <Metadata
             header={avtaletekster.tiltaksarrangorHovedenhetLabel}
-            verdi={[leverandor.navn, leverandor.organisasjonsnummer].filter(Boolean).join(" - ")}
+            verdi={`${arrangor.navn} - ${arrangor.organisasjonsnummer}`}
           />
         </Bolk>
 
@@ -214,11 +215,9 @@ export function AvtaleDetaljer() {
             header={avtaletekster.tiltaksarrangorUnderenheterLabel}
             verdi={
               <ul>
-                {leverandor.underenheter.map((enhet) => (
+                {arrangor.underenheter.map((enhet) => (
                   <li key={enhet.organisasjonsnummer}>
-                    {enhet?.navn
-                      ? `${enhet.navn} - ${enhet.organisasjonsnummer}`
-                      : `${enhet.organisasjonsnummer}`}
+                    {`${enhet.navn} - ${enhet.organisasjonsnummer}`}
                   </li>
                 ))}
               </ul>
@@ -228,24 +227,11 @@ export function AvtaleDetaljer() {
 
         <Separator />
 
-        {leverandor.kontaktperson ? (
+        {arrangor.kontaktperson ? (
           <Bolk aria-label={avtaletekster.kontaktpersonHosTiltaksarrangorLabel}>
             <Metadata
               header={avtaletekster.kontaktpersonHosTiltaksarrangorLabel}
-              verdi={
-                <div className={styles.leverandor_kontaktinfo}>
-                  <label>{leverandor.kontaktperson.navn}</label>
-                  {leverandor.kontaktperson.telefon && (
-                    <label>{leverandor.kontaktperson.telefon}</label>
-                  )}
-                  <a href={`mailto:${leverandor.kontaktperson.epost}`}>
-                    {leverandor.kontaktperson.epost}
-                  </a>
-                  {leverandor.kontaktperson.beskrivelse && (
-                    <label>{leverandor.kontaktperson.beskrivelse}</label>
-                  )}
-                </div>
-              }
+              verdi={<ArrangorKontaktpersonDetaljer kontaktperson={arrangor.kontaktperson} />}
             />
           </Bolk>
         ) : null}

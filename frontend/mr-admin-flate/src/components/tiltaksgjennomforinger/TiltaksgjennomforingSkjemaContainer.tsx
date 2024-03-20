@@ -77,7 +77,7 @@ export const TiltaksgjennomforingSkjemaContainer = ({
       sluttDato: data.startOgSluttDato.sluttDato ?? null,
       avtaleId: avtale.id,
       administratorer: data.administratorer,
-      arrangorVirksomhetId: data.arrangorVirksomhetId,
+      arrangorId: data.arrangorId,
       oppstart: data.oppstart,
       apentForInnsok: data.apentForInnsok,
       kontaktpersoner:

@@ -10,13 +10,13 @@ export function useAdminTiltaksgjennomforinger(filter: Partial<Tiltaksgjennomfor
   const queryFilter = {
     search: debouncedSok || undefined,
     navEnheter: filter.navEnheter?.map((e) => e.enhetsnummer) ?? [],
-    tiltakstypeIder: filter.tiltakstyper,
+    tiltakstyper: filter.tiltakstyper,
     statuser: filter.statuser,
     sort: filter.sortering ? filter.sortering : undefined,
     page: filter.page ?? 1,
     size: filter.pageSize,
     avtaleId: filter.avtale ? filter.avtale : undefined,
-    arrangorOrgnr: filter.arrangorOrgnr,
+    arrangorer: filter.arrangorer,
   };
 
   return useQuery({

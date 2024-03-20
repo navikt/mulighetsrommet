@@ -162,7 +162,7 @@ export interface TiltaksgjennomforingFilter {
   statuser: TiltaksgjennomforingStatus[];
   sortering: SorteringTiltaksgjennomforinger;
   avtale: string;
-  arrangorOrgnr: string[];
+  arrangorer: string[];
   visMineGjennomforinger: boolean;
   page: number;
   pageSize: number;
@@ -175,7 +175,7 @@ export const defaultTiltaksgjennomforingfilter: TiltaksgjennomforingFilter = {
   statuser: [],
   sortering: SorteringTiltaksgjennomforinger.NAVN_ASCENDING,
   avtale: "",
-  arrangorOrgnr: [],
+  arrangorer: [],
   visMineGjennomforinger: false,
   page: 1,
   pageSize: PAGE_SIZE,
@@ -208,7 +208,7 @@ export interface AvtaleFilter {
   navRegioner: string[];
   tiltakstyper: string[];
   sortering: SorteringAvtaler;
-  leverandor: string[];
+  arrangorer: string[];
   visMineAvtaler: boolean;
   page: number;
   pageSize: number;
@@ -221,7 +221,7 @@ export const defaultAvtaleFilter: AvtaleFilter = {
   navRegioner: [],
   tiltakstyper: [],
   sortering: SorteringAvtaler.NAVN_ASCENDING,
-  leverandor: [],
+  arrangorer: [],
   visMineAvtaler: false,
   page: 1,
   pageSize: AVTALE_PAGE_SIZE,

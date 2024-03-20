@@ -1,5 +1,4 @@
 import { BodyShort, Button, Label, Modal } from "@navikt/ds-react";
-import { VirksomhetKontaktperson } from "mulighetsrommet-api-client";
 import { RefObject, useState } from "react";
 import { useVirksomhetById } from "../../api/virksomhet/useVirksomhetById";
 import { useVirksomhetKontaktpersoner } from "../../api/virksomhet/useVirksomhetKontaktpersoner";
@@ -57,7 +56,7 @@ export function VirksomhetKontaktpersonerModal(props: Props) {
           </Button>
           {kontaktpersoner
             .sort((a, b) => a.navn.localeCompare(b.navn))
-            .map((person: VirksomhetKontaktperson) => (
+            .map((person) => (
               <div key={person.id} className={styles.list_item_container}>
                 {redigerId === person.id ? (
                   <VirksomhetKontaktpersonSkjema

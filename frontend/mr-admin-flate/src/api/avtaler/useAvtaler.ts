@@ -8,7 +8,7 @@ export function useAvtaler(filter: Partial<AvtaleFilter>) {
   const debouncedSok = useDebounce(filter.sok?.trim(), 300);
 
   const queryFilter = {
-    tiltakstypeIder: filter.tiltakstyper,
+    tiltakstyper: filter.tiltakstyper,
     search: debouncedSok || undefined,
     statuser: filter.statuser,
     avtaletyper: filter.avtaletyper,
@@ -16,7 +16,7 @@ export function useAvtaler(filter: Partial<AvtaleFilter>) {
     sort: filter.sortering,
     page: filter.page ?? 1,
     size: filter.pageSize,
-    leverandorOrgnr: filter.leverandor,
+    arrangorer: filter.arrangorer,
   };
 
   return useQuery({

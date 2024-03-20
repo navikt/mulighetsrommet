@@ -81,8 +81,8 @@ class AvtaleServiceTest : FunSpec({
 
         test("får ikke opprette avtale dersom virksomhet ikke finnes i Brreg") {
             val request = AvtaleFixtures.avtaleRequest.copy(
-                leverandorOrganisasjonsnummer = "404",
-                leverandorUnderenheter = listOf(),
+                arrangorOrganisasjonsnummer = "404",
+                arrangorUnderenheter = listOf(),
             )
 
             coEvery { brregClient.getHovedenhet("404") } returns BrregError.NotFound.left()
@@ -91,8 +91,8 @@ class AvtaleServiceTest : FunSpec({
             avtaleService.upsert(request, bertilNavIdent).shouldBeLeft(
                 listOf(
                     ValidationError(
-                        "leverandorOrganisasjonsnummer",
-                        "Tiltaksarrangøren finnes ikke Brønnøysundregistrene",
+                        "arrangorOrganisasjonsnummer",
+                        "Tiltaksarrangøren finnes ikke i Brønnøysundregistrene",
                     ),
                 ),
             )

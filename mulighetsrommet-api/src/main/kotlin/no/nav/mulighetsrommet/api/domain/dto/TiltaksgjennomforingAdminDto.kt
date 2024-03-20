@@ -77,7 +77,7 @@ data class TiltaksgjennomforingAdminDto(
         val id: UUID,
         val organisasjonsnummer: String,
         val navn: String,
-        val kontaktpersoner: List<VirksomhetKontaktperson>,
+        val kontaktpersoner: List<ArrangorKontaktperson>,
         val slettet: Boolean,
     )
 

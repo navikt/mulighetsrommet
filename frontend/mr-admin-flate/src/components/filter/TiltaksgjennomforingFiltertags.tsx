@@ -19,7 +19,7 @@ interface Props {
 
 export function TiltaksgjennomforingFiltertags({ filterAtom, filterOpen }: Props) {
   const [filter, setFilter] = useAtom(filterAtom);
-  const { data: virksomheter } = useVirksomheter(VirksomhetTil.TILTAKSGJENNOMFORING);
+  const { data: arrangorer } = useVirksomheter(VirksomhetTil.TILTAKSGJENNOMFORING);
   const { data: tiltakstyper } = useTiltakstyper(
     {
       status: Tiltakstypestatus.AKTIV,
@@ -83,14 +83,14 @@ export function TiltaksgjennomforingFiltertags({ filterAtom, filterOpen }: Props
           }}
         />
       )}
-      {filter.arrangorOrgnr.map((orgNr) => (
+      {filter.arrangorer.map((id) => (
         <Filtertag
-          key={orgNr}
-          label={virksomheter?.find((v) => v.organisasjonsnummer === orgNr)?.navn || orgNr}
+          key={id}
+          label={arrangorer?.find((arrangor) => arrangor.id === id)?.navn ?? id}
           onClose={() => {
             setFilter({
               ...filter,
-              arrangorOrgnr: addOrRemove(filter.arrangorOrgnr, orgNr),
+              arrangorer: addOrRemove(filter.arrangorer, id),
             });
           }}
         />

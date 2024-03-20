@@ -16,7 +16,7 @@ export const mockAvtaler: Avtale[] = [
     ],
     opphav: Opphav.MR_ADMIN_FLATE,
     avtalenummer: "2021#10579",
-    leverandor: {
+    arrangor: {
       ...mockVirksomheter.fretex,
       slettet: false,
       underenheter: mockVirksomheter.fretex.underenheter!.map((v) => ({
@@ -27,7 +27,7 @@ export const mockAvtaler: Avtale[] = [
       })),
       kontaktperson: {
         id: "d136d6a4-c812-4d28-81db-b688187e4e32",
-        virksomhetId: "a714ca5e-857e-41a7-85d7-8be1c1d483ab",
+        arrangorId: "a714ca5e-857e-41a7-85d7-8be1c1d483ab",
         navn: "Ole Kjetil Martinsen",
         epost: "ole.kjetil.martinsen@arrangor.no",
         telefon: "90123456",
@@ -63,7 +63,7 @@ export const mockAvtaler: Avtale[] = [
     tiltakstype: mockTiltakstyper.ARBFORB,
     navn: "Avtale hos ÅMLI KOMMUNE SAMFUNNSAVDELINGA",
     avtalenummer: "2021#10579",
-    leverandor: {
+    arrangor: {
       ...mockVirksomheter.fretex,
       slettet: false,
       underenheter: mockVirksomheter.fretex.underenheter!.map((v) => ({
@@ -104,7 +104,7 @@ export const mockAvtaler: Avtale[] = [
     navn: "Avtale hos Åna Fengsel",
     avtalenummer: "2020#4929",
     url: "https://www.websak.no",
-    leverandor: {
+    arrangor: {
       ...mockVirksomheter.fretex,
       slettet: false,
       underenheter: mockVirksomheter.fretex.underenheter!.map((v) => ({
