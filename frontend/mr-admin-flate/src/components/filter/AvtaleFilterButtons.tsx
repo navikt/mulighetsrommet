@@ -1,9 +1,9 @@
-import { Button } from "@navikt/ds-react";
 import { useAtom, WritableAtom } from "jotai";
 import { AvtaleFilter, defaultAvtaleFilter } from "../../api/atoms";
 import { Lenkeknapp } from "../lenkeknapp/Lenkeknapp";
 import { HarSkrivetilgang } from "../authActions/HarSkrivetilgang";
 import style from "./AvtaleFilterButtons.module.scss";
+import { NullstillFilterKnapp } from "../../../../frontend-common/components/nullstillFilterKnapp/NullstillFilterKnapp";
 
 interface Props {
   filterAtom: WritableAtom<AvtaleFilter, [newValue: AvtaleFilter], void>;
@@ -21,20 +21,14 @@ export function AvtaleFilterButtons({ filterAtom, tiltakstypeId }: Props) {
       (!tiltakstypeId && filter.tiltakstyper.length > 0) ||
       filter.statuser.length > 0 ||
       filter.leverandor.length > 0 ? (
-        <Button
-          type="button"
-          size="small"
-          className={style.nullstill_filter}
-          variant="tertiary"
+        <NullstillFilterKnapp
           onClick={() => {
             setFilter({
               ...defaultAvtaleFilter,
               tiltakstyper: tiltakstypeId ? [tiltakstypeId] : defaultAvtaleFilter.tiltakstyper,
             });
           }}
-        >
-          Nullstill filter
-        </Button>
+        />
       ) : null}
       <HarSkrivetilgang ressurs="Avtale">
         <Lenkeknapp
