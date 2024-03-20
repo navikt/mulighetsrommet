@@ -1,8 +1,6 @@
-$filter-width: 320px;
-
 .filter_table_layout_container {
   display: grid;
-  grid-template-columns: $filter-width auto;
+  grid-template-columns: var(--filter-width) auto;
   grid-template-rows: 3rem auto;
 
   .filter_headerbutton {
@@ -16,7 +14,7 @@ $filter-width: 320px;
 
   .filtertab {
     background-color: white;
-    width: $filter-width;
+    width: var(--filter-width);
   }
 
   .button_row {

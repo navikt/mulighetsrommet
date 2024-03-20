@@ -1,8 +1,6 @@
-$filter-width: 290px;
-
 .container {
   display: grid;
-  grid-template-columns: $filter-width auto;
+  grid-template-columns: var(--filter-width) auto;
   grid-template-rows: 3rem auto;
   grid-column-gap: 0.5rem;
 }
@@ -13,7 +11,7 @@ $filter-width: 290px;
 }
 
 .filtertab {
-  width: $filter-width;
+  width: var(--filter-width);
 }
 
 .button_row {
@@ -65,7 +63,7 @@ $filter-width: 290px;
   }
 }
 .checkbox_list {
-  max-width: calc($filter-width - 35px);
+  max-width: calc(var(--filter-width) - 35px);
   margin-left: -2rem;
   max-height: 400px;
   overflow-y: auto;
