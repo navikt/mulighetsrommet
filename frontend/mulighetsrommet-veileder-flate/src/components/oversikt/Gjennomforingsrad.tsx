@@ -9,7 +9,7 @@ import {
 import { Lenke } from "mulighetsrommet-frontend-common/components/lenke/Lenke";
 import { paginationAtom } from "@/core/atoms/atoms";
 import { formaterDato } from "@/utils/Utils";
-import { kebabCase } from "mulighetsrommet-frontend-common/utils/Utils";
+import { kebabCase } from "../../../../frontend-common/utils/TestUtils";
 import styles from "./Gjennomforingsrad.module.scss";
 import { useAtomValue } from "jotai";
 

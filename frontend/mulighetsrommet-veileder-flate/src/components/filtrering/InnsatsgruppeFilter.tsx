@@ -7,7 +7,7 @@ import { useArbeidsmarkedstiltakFilter } from "@/hooks/useArbeidsmarkedstiltakFi
 import { addOrRemove } from "@/utils/Utils";
 import "./Filtermeny.module.scss";
 import { FilterAccordionHeader } from "mulighetsrommet-frontend-common/components/filter/accordionHeader/FilterAccordionHeader";
-import { kebabCase } from "mulighetsrommet-frontend-common/utils/Utils";
+import { kebabCase } from "../../../../frontend-common/utils/TestUtils";
 
 interface InnsatsgruppeFilterProps<
   T extends { id: string; tittel: string; nokkel?: Innsatsgruppe },

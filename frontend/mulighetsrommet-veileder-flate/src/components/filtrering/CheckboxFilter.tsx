@@ -3,7 +3,7 @@ import { useAtom } from "jotai";
 import React from "react";
 import { filterAccordionAtom } from "@/core/atoms/atoms";
 import { addOrRemove } from "@/utils/Utils";
-import { kebabCase } from "mulighetsrommet-frontend-common/utils/Utils";
+import { kebabCase } from "../../../../frontend-common/utils/TestUtils";
 
 interface CheckboxFilterProps<T extends { id: string; tittel: string }> {
   accordionHeader: React.ReactNode;

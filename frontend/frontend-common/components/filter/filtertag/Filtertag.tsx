@@ -1,5 +1,5 @@
 import { Tag } from "@navikt/ds-react";
-import { kebabCase } from "../../../utils/Utils";
+import { kebabCase } from "../../../utils/TestUtils";
 import { XMarkIcon } from "@navikt/aksel-icons";
 import styles from "./Filtertag.module.scss";
 import Ikonknapp from "../../ikonknapp/Ikonknapp";
