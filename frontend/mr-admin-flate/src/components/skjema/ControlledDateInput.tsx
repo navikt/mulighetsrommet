@@ -15,7 +15,11 @@ export interface DateInputProps {
   invalidDatoEtterPeriode?: string;
 }
 
-export const ControlledDateInput = forwardRef(function ControlledDateInput(props: DateInputProps) {
+export const ControlledDateInput = forwardRef(function ControlledDateInput(
+  props: DateInputProps,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  _,
+) {
   const {
     label,
     size,

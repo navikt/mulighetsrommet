@@ -5,11 +5,13 @@ $filter-width: 290px;
   grid-template-columns: $filter-width auto;
   grid-template-rows: 3rem auto;
   grid-column-gap: 0.5rem;
+  grid-template-areas:
+    "filter button"
+    "filter table";
 }
 
 .filter_tabs {
-  grid-row-start: 1;
-  grid-column-start: 1;
+  grid-area: tab;
 }
 
 .filter_tab {
@@ -17,13 +19,11 @@ $filter-width: 290px;
 }
 
 .button_row {
-  grid-column: 2;
-  grid-row: 1;
+  grid-area: button;
 }
 
 .tags_and_table_container {
-  grid-column: 2;
-  grid-row: 2;
+  grid-area: table;
 }
 
 .filter {
@@ -37,6 +37,8 @@ $filter-width: 290px;
   align-self: start;
   box-shadow: var(--a-shadow-medium);
   padding: 0.25rem;
+  grid-area: filter;
+  position: relative;
 }
 
 .hide_filter {

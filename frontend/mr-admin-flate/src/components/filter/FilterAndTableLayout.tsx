@@ -24,26 +24,27 @@ export function FilterAndTableLayout(props: Props) {
 
   return (
     <div className={styles.container}>
-      <Tabs className={styles.filter_tabs} size="medium" value={filterSelected ? "filter" : ""}>
-        <Tabs.List>
-          <Tabs.Tab
-            className={styles.filter_tab}
-            onClick={() => setFilterSelected(!filterSelected)}
-            value="filter"
-            data-testid="filter-tab"
-            label="Filter"
-            icon={<FunnelIcon title="filter" />}
-            aria-controls="filter"
-          />
-        </Tabs.List>
-      </Tabs>
       <div className={styles.button_row}>{buttons}</div>
-      <div
-        ref={ref}
-        id="filter"
-        className={classNames(styles.filter, !filterSelected && styles.hide_filter)}
-      >
-        {filter}
+      <div ref={ref}>
+        <Tabs className={styles.filter_tabs} size="medium" value={filterSelected ? "filter" : ""}>
+          <Tabs.List>
+            <Tabs.Tab
+              className={styles.filter_tab}
+              onClick={() => setFilterSelected(!filterSelected)}
+              value="filter"
+              data-testid="filter-tab"
+              label="Filter"
+              icon={<FunnelIcon title="filter" />}
+              aria-controls="filter"
+            />
+          </Tabs.List>
+        </Tabs>
+        <div
+          id="filter"
+          className={classNames(styles.filter, !filterSelected && styles.hide_filter)}
+        >
+          {filter}
+        </div>
       </div>
       <div
         className={classNames(
