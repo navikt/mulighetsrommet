@@ -88,7 +88,7 @@ export function AvtaleArrangorSkjema({ readOnly }: Props) {
             variant="tertiary"
             onClick={() => virksomhetKontaktpersonerModalRef.current?.showModal()}
           >
-            Rediger eller legg til kontaktpersoner
+            Opprett eller rediger kontaktpersoner
           </Button>
         </div>
       </FormGroup>

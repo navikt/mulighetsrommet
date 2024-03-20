@@ -1,8 +1,8 @@
 import { Tabs } from "@navikt/ds-react";
 import styles from "./Filter.module.scss";
-import { Separator } from "../detaljside/Metadata";
 import { FunnelIcon } from "@navikt/aksel-icons";
 import classNames from "classnames";
+import { useOutsideClick } from "../../../../frontend-common/hooks/useOutsideClick";
 
 interface Props {
   filter: React.ReactNode;
@@ -21,29 +21,36 @@ export function FilterAndTableLayout({
   setFilterOpen,
   filterOpen,
 }: Props) {
+  const ref = useOutsideClick(() => {
+    if (window?.innerWidth < 1440) {
+      setFilterOpen(false);
+    }
+  });
+
   return (
     <div className={styles.container}>
-      <Tabs className={styles.filtertabs} size="medium" value={filterOpen ? "filter" : ""}>
-        <Tabs.List>
-          <Tabs.Tab
-            className={styles.filtertab}
-            onClick={() => setFilterOpen(!filterOpen)}
-            value="filter"
-            data-testid="filter-tab"
-            label="Filter"
-            icon={<FunnelIcon title="filter" />}
-            aria-controls="filter"
-          />
-        </Tabs.List>
-      </Tabs>
       <div className={styles.button_row}>{buttons}</div>
-      <div id="filter" className={classNames(styles.filter, !filterOpen && styles.hide_filter)}>
-        {filter}
+      <div ref={ref}>
+        <Tabs className={styles.filtertabs} size="medium" value={filterOpen ? "filter" : ""}>
+          <Tabs.List>
+            <Tabs.Tab
+              className={styles.filtertab}
+              onClick={() => setFilterOpen(!filterOpen)}
+              value="filter"
+              data-testid="filter-tab"
+              label="Filter"
+              icon={<FunnelIcon title="filter" />}
+              aria-controls="filter"
+            />
+          </Tabs.List>
+        </Tabs>
+        <div id="filter" className={classNames(styles.filter, !filterOpen && styles.hide_filter)}>
+          {filter}
+        </div>
       </div>
       <div
         className={classNames(styles.tags_and_table_container, !filterOpen && styles.wide_table)}
       >
-        <Separator style={{ marginBottom: "0.25rem", marginTop: "0" }} />
         {tags}
         <div className={styles.table}>{table}</div>
       </div>
