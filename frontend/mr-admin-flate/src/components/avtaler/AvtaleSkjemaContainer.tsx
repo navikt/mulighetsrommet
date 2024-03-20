@@ -1,6 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ExclamationmarkTriangleFillIcon } from "@navikt/aksel-icons";
 import { Button, Tabs } from "@navikt/ds-react";
+import { useAtom } from "jotai";
 import {
   Avtale,
   AvtaleRequest,
@@ -9,27 +10,25 @@ import {
   EmbeddedTiltakstype,
   NavAnsatt,
   NavEnhet,
-  Opphav,
   Tiltakskode,
   Tiltakstype,
 } from "mulighetsrommet-api-client";
 import { useEffect, useRef } from "react";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { v4 as uuidv4 } from "uuid";
-import { useHandleApiUpsertResponse } from "../../api/effects";
-import { Separator } from "../detaljside/Metadata";
-import skjemastyles from "../skjema/Skjema.module.scss";
-import { useUpsertAvtale } from "../../api/avtaler/useUpsertAvtale";
-import { AvtaleSchema, InferredAvtaleSchema } from "../redaksjonelt-innhold/AvtaleSchema";
-import { erAnskaffetTiltak } from "../../utils/tiltakskoder";
-import { defaultAvtaleData } from "./AvtaleSkjemaConst";
-import { useAtom } from "jotai";
 import { avtaleDetaljerTabAtom } from "../../api/atoms";
-import { AvtaleSkjemaKnapperad } from "./AvtaleSkjemaKnapperad";
-import { AvbrytAvtaleModal } from "../modal/AvbrytAvtaleModal";
-import { AvtaleSkjemaDetaljer } from "./AvtaleSkjemaDetaljer";
-import { AvtaleRedaksjoneltInnholdForm } from "./AvtaleRedaksjoneltInnholdForm";
+import { useUpsertAvtale } from "../../api/avtaler/useUpsertAvtale";
+import { useHandleApiUpsertResponse } from "../../api/effects";
+import { erAnskaffetTiltak } from "../../utils/tiltakskoder";
 import { HarSkrivetilgang } from "../authActions/HarSkrivetilgang";
+import { Separator } from "../detaljside/Metadata";
+import { AvbrytAvtaleModal } from "../modal/AvbrytAvtaleModal";
+import { AvtaleSchema, InferredAvtaleSchema } from "../redaksjonelt-innhold/AvtaleSchema";
+import skjemastyles from "../skjema/Skjema.module.scss";
+import { AvtaleRedaksjoneltInnholdForm } from "./AvtaleRedaksjoneltInnholdForm";
+import { defaultAvtaleData } from "./AvtaleSkjemaConst";
+import { AvtaleSkjemaDetaljer } from "./AvtaleSkjemaDetaljer";
+import { AvtaleSkjemaKnapperad } from "./AvtaleSkjemaKnapperad";
 
 interface Props {
   onClose: () => void;
@@ -77,8 +76,6 @@ export function AvtaleSkjemaContainer({
       setValue("avtaletype", Avtaletype.FORHAANDSGODKJENT);
     }
   }, [arenaKode]);
-
-  const arenaOpphav = avtale?.opphav === Opphav.ARENA;
 
   const postData: SubmitHandler<InferredAvtaleSchema> = async (data): Promise<void> => {
     const requestBody: AvtaleRequest = {
@@ -174,7 +171,7 @@ export function AvtaleSkjemaContainer({
         <Separator />
         <div className={skjemastyles.flex_container}>
           <HarSkrivetilgang ressurs="Avtale">
-            {avtale && !arenaOpphav && avtale.avtalestatus === Avtalestatus.AKTIV && (
+            {avtale && avtale.avtalestatus === Avtalestatus.AKTIV && (
               <Button
                 size="small"
                 variant="danger"
