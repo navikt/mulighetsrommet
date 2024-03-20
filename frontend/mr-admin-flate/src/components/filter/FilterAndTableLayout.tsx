@@ -26,7 +26,7 @@ export function FilterAndTableLayout(props: Props) {
     <div className={styles.container}>
       <div className={styles.button_row}>{buttons}</div>
       <div ref={ref}>
-        <Tabs className={styles.filter_tabs} size="medium" value={filterSelected ? "filter" : ""}>
+        <Tabs size="medium" value={filterSelected ? "filter" : ""}>
           <Tabs.List>
             <Tabs.Tab
               className={styles.filter_tab}
