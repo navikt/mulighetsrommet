@@ -11,6 +11,7 @@ export function useAvtaler(filter: Partial<AvtaleFilter>) {
     tiltakstypeIder: filter.tiltakstyper,
     search: debouncedSok || undefined,
     statuser: filter.statuser,
+    avtaletyper: filter.avtaletyper,
     navRegioner: filter.navRegioner,
     sort: filter.sortering,
     page: filter.page ?? 1,

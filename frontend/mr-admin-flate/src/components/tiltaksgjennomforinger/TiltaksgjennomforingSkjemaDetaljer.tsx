@@ -161,19 +161,23 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
               readonly={!isTiltakMedFellesOppstart(avtale.tiltakstype.arenaKode)}
             />
             <HGrid columns={2}>
-              <DatePicker.Input
-                value={formaterDato(avtale.startDato)}
-                label={tiltaktekster.avtaleStartdatoLabel}
-                readOnly
-                size="small"
-              />
-              {avtale.sluttDato ? (
+              <DatePicker>
                 <DatePicker.Input
-                  value={formaterDato(avtale.sluttDato)}
-                  label={tiltaktekster.avtaleSluttdatoLabel}
+                  value={formaterDato(avtale.startDato)}
+                  label={tiltaktekster.avtaleStartdatoLabel}
                   readOnly
                   size="small"
                 />
+              </DatePicker>
+              {avtale.sluttDato ? (
+                <DatePicker>
+                  <DatePicker.Input
+                    value={formaterDato(avtale.sluttDato)}
+                    label={tiltaktekster.avtaleSluttdatoLabel}
+                    readOnly
+                    size="small"
+                  />
+                </DatePicker>
               ) : (
                 " - "
               )}
@@ -198,11 +202,17 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
               }}
             />
             {visApentForInnsok(avtale.tiltakstype.arenaKode) ? (
-              <Switch size="small" readOnly={eierIkkeGjennomforing} {...register("apentForInnsok")}>
+              <Switch
+                size="small"
+                readOnly={eierIkkeGjennomforing}
+                {...register("apentForInnsok")}
+                checked={watch("apentForInnsok")}
+              >
                 {tiltaktekster.apentForInnsokLabel}
               </Switch>
             ) : null}
-            <HStack justify="space-between">
+
+            <HGrid columns={2}>
               <TextField
                 size="small"
                 readOnly={eierIkkeGjennomforing}
@@ -230,7 +240,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
                   })}
                 />
               )}
-            </HStack>
+            </HGrid>
             <Separator />
             <fieldset className={skjemastyles.fieldset_no_styling}>
               <HStack gap="1">

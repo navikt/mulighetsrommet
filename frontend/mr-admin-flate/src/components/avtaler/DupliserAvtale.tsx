@@ -1,5 +1,7 @@
+import { useSetAtom } from "jotai";
 import { Avtale, Opphav } from "mulighetsrommet-api-client";
 import { useNavigate } from "react-router-dom";
+import { avtaleDetaljerTabAtom } from "../../api/atoms";
 import { useMigrerteTiltakstyperForAvtaler } from "../../api/tiltakstyper/useMigrerteTiltakstyper";
 import { DupliserButton } from "../detaljside/DupliserButton";
 
@@ -10,10 +12,12 @@ interface Props {
 export function DupliserAvtale({ avtale }: Props) {
   const navigate = useNavigate();
   const { data: migrerteTiltakstyper } = useMigrerteTiltakstyperForAvtaler();
+  const setAvtaleDetaljerTab = useSetAtom(avtaleDetaljerTabAtom);
 
   if (!migrerteTiltakstyper.includes(avtale.tiltakstype.arenaKode)) return null;
 
   function apneRedigeringForDupliseringAvAvtale() {
+    setAvtaleDetaljerTab("detaljer");
     navigate(`/avtaler/${avtale.id}/skjema`, {
       state: {
         avtale: {

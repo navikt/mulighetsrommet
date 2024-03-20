@@ -4,6 +4,7 @@ import { ContainerLayout } from "../../layouts/ContainerLayout";
 import { HeaderBanner } from "../../layouts/HeaderBanner";
 import styles from "../Page.module.scss";
 import { useTitle } from "mulighetsrommet-frontend-common";
+import { NotifikasjonIkon } from "../../components/ikoner/NotifikasjonIkon";
 
 export function NotifikasjonerPage() {
   const { pathname } = useLocation();
@@ -12,7 +13,7 @@ export function NotifikasjonerPage() {
 
   return (
     <main>
-      <HeaderBanner heading="Notifikasjoner" harUndermeny />
+      <HeaderBanner heading="Notifikasjoner" harUndermeny ikon={<NotifikasjonIkon />} />
       <Tabs value={pathname.includes("tidligere") ? "tidligere" : "nye"} selectionFollowsFocus>
         <Tabs.List id="fane_liste" className={styles.list}>
           <Tabs.Tab

@@ -1,4 +1,4 @@
-import { Alert, Heading, Tabs } from "@navikt/ds-react";
+import { Alert, Heading, Tabs, VStack } from "@navikt/ds-react";
 import classNames from "classnames";
 import { Toggles } from "mulighetsrommet-api-client";
 import { Link, Outlet, useLocation, useParams } from "react-router-dom";
@@ -15,6 +15,8 @@ import commonStyles from "../Page.module.scss";
 import { DupliserTiltak } from "../../components/tiltaksgjennomforinger/DupliserTiltak";
 import { PREVIEW_ARBEIDSMARKEDSTILTAK_URL } from "../../constants";
 import { Brodsmule, Brodsmuler } from "../../components/navigering/Brodsmuler";
+import { TiltaksgjennomforingIkon } from "../../components/ikoner/TiltaksgjennomforingIkon";
+import { ShowOpphavValue } from "../../components/debug/ShowOpphavValue";
 
 function useTiltaksgjennomforingBrodsmuler(
   tiltaksgjennomforingId: string,
@@ -85,9 +87,13 @@ export function TiltaksgjennomforingPage() {
           )}
         >
           <div className={headerStyles.tiltaksnavn_status}>
-            <Heading size="large" level="2">
-              {tiltaksgjennomforing?.navn ?? "..."}
-            </Heading>
+            <TiltaksgjennomforingIkon />
+            <VStack>
+              <Heading className={headerStyles.navn} size="large" level="2">
+                {tiltaksgjennomforing?.navn ?? "..."}
+              </Heading>
+              <ShowOpphavValue value={tiltaksgjennomforing?.opphav} />
+            </VStack>
             <TiltaksgjennomforingstatusTag tiltaksgjennomforing={tiltaksgjennomforing} />
             <DupliserTiltak tiltaksgjennomforing={tiltaksgjennomforing} />
           </div>

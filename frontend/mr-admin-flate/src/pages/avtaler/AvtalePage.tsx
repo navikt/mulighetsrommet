@@ -1,4 +1,4 @@
-import { Alert, Heading, Tabs } from "@navikt/ds-react";
+import { Alert, Heading, Tabs, VStack } from "@navikt/ds-react";
 import { Toggles } from "mulighetsrommet-api-client";
 import { useTitle } from "mulighetsrommet-frontend-common";
 import { Link, Outlet, useLocation, useMatch } from "react-router-dom";
@@ -14,6 +14,8 @@ import { useNavigateAndReplaceUrl } from "../../hooks/useNavigateWithoutReplacin
 import { ContainerLayout } from "../../layouts/ContainerLayout";
 import commonStyles from "../Page.module.scss";
 import styles from "./DetaljerAvtalePage.module.scss";
+import { AvtaleIkon } from "../../components/ikoner/AvtaleIkon";
+import { ShowOpphavValue } from "../../components/debug/ShowOpphavValue";
 
 function useAvtaleBrodsmuler(avtaleId: string): Array<Brodsmule | undefined> {
   const erPaaGjennomforingerForAvtale = useMatch("/avtaler/:avtaleId/tiltaksgjennomforinger");
@@ -72,9 +74,13 @@ export function AvtalePage() {
       <Brodsmuler brodsmuler={brodsmuler} />
       <Header>
         <div className={headerStyles.tiltaksnavn_status}>
-          <Heading size="large" level="2">
-            {avtale.navn ?? "..."}
-          </Heading>
+          <AvtaleIkon />
+          <VStack>
+            <Heading size="large" level="2">
+              {avtale.navn ?? "..."}
+            </Heading>
+            <ShowOpphavValue value={avtale.opphav} />
+          </VStack>
           <AvtalestatusTag avtale={avtale} />
           <DupliserAvtale avtale={avtale} />
         </div>

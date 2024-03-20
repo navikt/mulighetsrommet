@@ -100,6 +100,13 @@ paths:
               $ref: "#/components/schemas/Avtalestatus"
           description: Statuser for avtale
         - in: query
+          name: avtaletyper
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/Avtaletype"
+          description: Avtaletyper
+        - in: query
           name: navRegioner
           schema:
             type: array
@@ -3448,6 +3455,7 @@ components:
         - mulighetsrommet-veilederflate-landingsside
         - mulighetsrommet-veilederflate-arena-oppskrifter
         - mulighetsrommet.admin-flate.show-notater
+        - mulighetsrommet.admin-flate.enableDebugger
 
     PublisertRequest:
       type: object

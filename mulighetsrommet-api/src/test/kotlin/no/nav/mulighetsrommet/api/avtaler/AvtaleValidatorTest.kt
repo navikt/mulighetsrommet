@@ -244,21 +244,21 @@ class AvtaleValidatorTest : FunSpec({
             virksomheter,
         )
 
-        val aft = AvtaleFixtures.AFT.copy(avtaletype = Avtaletype.Rammeavtale)
-        val vta = AvtaleFixtures.VTA.copy(avtaletype = Avtaletype.Avtale)
+        val aft = AvtaleFixtures.AFT.copy(avtaletype = Avtaletype.Rammeavtale, url = "https://www.websak.no")
+        val vta = AvtaleFixtures.VTA.copy(avtaletype = Avtaletype.Avtale, url = "https://www.websak.no")
         val oppfolging = AvtaleFixtures.oppfolging.copy(avtaletype = Avtaletype.OffentligOffentlig)
         val gruppeAmo = AvtaleFixtures.gruppeAmo.copy(avtaletype = Avtaletype.Forhaandsgodkjent)
         validator.validate(aft, null).shouldBeLeft(
-            listOf(ValidationError("avtaletype", "Rammeavtale er ikke tillat for tiltakstype Arbeidsforberedende trening (AFT)")),
+            listOf(ValidationError("avtaletype", "Rammeavtale er ikke tillatt for tiltakstype Arbeidsforberedende trening (AFT)")),
         )
         validator.validate(vta, null).shouldBeLeft(
-            listOf(ValidationError("avtaletype", "Avtale er ikke tillat for tiltakstype Varig tilrettelagt arbeid i skjermet virksomhet")),
+            listOf(ValidationError("avtaletype", "Avtale er ikke tillatt for tiltakstype Varig tilrettelagt arbeid i skjermet virksomhet")),
         )
         validator.validate(oppfolging, null).shouldBeLeft(
-            listOf(ValidationError("avtaletype", "OffentligOffentlig er ikke tillat for tiltakstype Oppfølging")),
+            listOf(ValidationError("avtaletype", "OffentligOffentlig er ikke tillatt for tiltakstype Oppfølging")),
         )
         validator.validate(gruppeAmo, null).shouldBeLeft(
-            listOf(ValidationError("avtaletype", "Forhaandsgodkjent er ikke tillat for tiltakstype Gruppe amo")),
+            listOf(ValidationError("avtaletype", "Forhaandsgodkjent er ikke tillatt for tiltakstype Gruppe amo")),
         )
 
         val aftForhaands = AvtaleFixtures.AFT.copy(avtaletype = Avtaletype.Forhaandsgodkjent)
@@ -269,6 +269,28 @@ class AvtaleValidatorTest : FunSpec({
         validator.validate(vtaForhaands, null).shouldBeRight()
         validator.validate(oppfolgingRamme, null).shouldBeRight()
         validator.validate(gruppeAmoOffentlig, null).shouldBeRight()
+    }
+
+    test("Websak-referanse må være med når avtalen er avtale eller rammeavtale") {
+        val validator = AvtaleValidator(
+            TiltakstypeService(TiltakstypeRepository(database.db), Tiltakskoder.Gruppetiltak),
+            gjennomforinger,
+            navEnheterService,
+            virksomheter,
+        )
+
+        val rammeavtale = AvtaleFixtures.oppfolging.copy(avtaletype = Avtaletype.Rammeavtale, url = null)
+        validator.validate(rammeavtale, null).shouldBeLeft(
+            listOf(ValidationError("url", "Avtalen må lenke til Websak")),
+        )
+
+        val avtale = AvtaleFixtures.oppfolging.copy(avtaletype = Avtaletype.Avtale, url = null)
+        validator.validate(avtale, null).shouldBeLeft(
+            listOf(ValidationError("url", "Avtalen må lenke til Websak")),
+        )
+
+        val offentligOffentligSamarbeid = AvtaleFixtures.gruppeAmo.copy(avtaletype = Avtaletype.OffentligOffentlig, url = null)
+        validator.validate(offentligOffentligSamarbeid, null).shouldBeRight()
     }
 
     context("når avtalen allerede eksisterer") {

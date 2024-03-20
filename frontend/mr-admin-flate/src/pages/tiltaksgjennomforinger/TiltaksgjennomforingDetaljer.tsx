@@ -1,5 +1,5 @@
 import { ExternalLinkIcon } from "@navikt/aksel-icons";
-import { BodyShort, HelpText, Tag } from "@navikt/ds-react";
+import { BodyShort, HStack, HelpText, Tag } from "@navikt/ds-react";
 import {
   Avtale,
   Tiltaksgjennomforing,
@@ -130,17 +130,13 @@ export function TiltaksgjennomforingDetaljer(props: Props) {
             )}
           </Bolk>
 
-          {apentForInnsok ? (
-            <>
-              <Separator />
-              <Bolk aria-label={tiltaktekster.apentForInnsokLabel}>
-                <Metadata
-                  header={tiltaktekster.apentForInnsokLabel}
-                  verdi={apentForInnsok ? "Ja" : "Nei"}
-                />
-              </Bolk>
-            </>
-          ) : null}
+          <Separator />
+          <Bolk aria-label={tiltaktekster.apentForInnsokLabel}>
+            <Metadata
+              header={tiltaktekster.apentForInnsokLabel}
+              verdi={apentForInnsok ? "Ja" : "Nei"}
+            />
+          </Bolk>
 
           <Separator />
 
@@ -303,7 +299,10 @@ function HentTiltaksnummer({ id }: { id: string }) {
   return isError ? (
     <Tag variant="error">Klarte ikke hente tiltaksnummer</Tag>
   ) : isLoading ? (
-    <Laster />
+    <HStack align={"center"} gap="1">
+      <Laster />
+      <span>Henter tiltaksnummer i Arena</span>
+    </HStack>
   ) : (
     data?.tiltaksnummer
   );

@@ -145,8 +145,8 @@ export const TiltaksgjennomforingSkjemaContainer = ({
                 }
               />
               <Tabs.Tab
-                onClick={() => setActiveTab("redaksjonelt_innhold")}
-                value="redaksjonelt_innhold"
+                onClick={() => setActiveTab("redaksjonelt-innhold")}
+                value="redaksjonelt-innhold"
                 label="Redaksjonelt innhold"
               />
             </div>
@@ -163,7 +163,7 @@ export const TiltaksgjennomforingSkjemaContainer = ({
               tiltaksgjennomforing={tiltaksgjennomforing}
             />
           </Tabs.Panel>
-          <Tabs.Panel value="redaksjonelt_innhold">
+          <Tabs.Panel value="redaksjonelt-innhold">
             <TiltakgjennomforingRedaksjoneltInnholdForm avtale={avtale} />
           </Tabs.Panel>
         </Tabs>

@@ -44,7 +44,7 @@ export function AvtaleArrangorSkjema({ readOnly }: Props) {
         <ControlledSokeSelect
           size="small"
           readOnly={readOnly}
-          placeholder="Søk på navn eller organisasjonsnummer for tiltaksarrangør"
+          placeholder="Navn eller organisasjonsnummer for tiltaksarrangør"
           label={avtaletekster.tiltaksarrangorHovedenhetLabel}
           {...register("leverandor")}
           onInputChange={(value) => {
@@ -88,7 +88,7 @@ export function AvtaleArrangorSkjema({ readOnly }: Props) {
             variant="tertiary"
             onClick={() => virksomhetKontaktpersonerModalRef.current?.showModal()}
           >
-            Rediger eller legg til kontaktpersoner
+            Opprett eller rediger kontaktpersoner
           </Button>
         </div>
       </FormGroup>

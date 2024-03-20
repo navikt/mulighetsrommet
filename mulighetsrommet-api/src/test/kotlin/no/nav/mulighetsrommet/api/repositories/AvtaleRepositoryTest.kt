@@ -26,6 +26,7 @@ import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.ArenaAvtaleDbo
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dto.Avtalestatus
+import no.nav.mulighetsrommet.domain.dto.Avtaletype
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
@@ -486,6 +487,43 @@ class AvtaleRepositoryTest : FunSpec({
             }
         }
 
+        test("Filtrer på avtaletyper returnerer riktige avtaler") {
+            TiltakstypeRepository(database.db).upsert(TiltakstypeFixtures.GRUPPE_AMO)
+
+            val avtale1 = AvtaleFixtures.gruppeAmo.copy(
+                id = UUID.randomUUID(),
+                avtaletype = Avtaletype.Avtale,
+            )
+            val avtale2 = avtale1.copy(
+                id = UUID.randomUUID(),
+                avtaletype = Avtaletype.Rammeavtale,
+            )
+            val avtale3 = avtale1.copy(
+                id = UUID.randomUUID(),
+                avtaletype = Avtaletype.OffentligOffentlig,
+            )
+            avtaler.upsert(avtale1)
+            avtaler.upsert(avtale2)
+            avtaler.upsert(avtale3)
+
+            var result = avtaler.getAll(
+                avtaletyper = listOf(Avtaletype.Avtale),
+            )
+            result.second shouldHaveSize 1
+            result.second[0].id shouldBe avtale1.id
+
+            result = avtaler.getAll(
+                avtaletyper = listOf(Avtaletype.Avtale, Avtaletype.OffentligOffentlig),
+            )
+            result.second shouldHaveSize 2
+            result.second.map { it.id } shouldContainExactlyInAnyOrder listOf(avtale1.id, avtale3.id)
+
+            result = avtaler.getAll(
+                avtaletyper = listOf(),
+            )
+            result.second shouldHaveSize 3
+        }
+
         test("Filtrer på tiltakstypeId returnerer avtaler tilknyttet spesifikk tiltakstype") {
             val tiltakstyper = TiltakstypeRepository(database.db)
             val tiltakstypeId: UUID = TiltakstypeFixtures.Oppfolging.id
@@ -526,6 +564,33 @@ class AvtaleRepositoryTest : FunSpec({
             result.second shouldHaveSize 2
             result.second[0].tiltakstype.id shouldBe tiltakstypeId
             result.second[1].tiltakstype.id shouldBe tiltakstypeId
+        }
+
+        test("Filtrering på tiltaksarrangørs navn gir treff") {
+            val virksomheter = VirksomhetRepository(database.db)
+            val annenArrangor = VirksomhetFixtures.underenhet1.copy(id = UUID.randomUUID(), navn = "Annen Arrangør AS", organisasjonsnummer = "667543265")
+            virksomheter.upsert(VirksomhetFixtures.hovedenhet.copy(navn = "Hovedenhet AS"))
+            virksomheter.upsert(annenArrangor)
+            val avtale1 = AvtaleFixtures.oppfolging.copy(
+                leverandorVirksomhetId = VirksomhetFixtures.hovedenhet.id,
+            )
+            val avtale2 = avtale1.copy(
+                id = UUID.randomUUID(),
+                leverandorVirksomhetId = VirksomhetFixtures.hovedenhet.id,
+            )
+            val avtale3 = avtale1.copy(
+                id = UUID.randomUUID(),
+                leverandorVirksomhetId = annenArrangor.id,
+            )
+
+            avtaler.upsert(avtale1)
+            avtaler.upsert(avtale2)
+            avtaler.upsert(avtale3)
+            val result = avtaler.getAll(
+                search = "enhet",
+            )
+
+            result.second shouldHaveSize 2
         }
     }
 
