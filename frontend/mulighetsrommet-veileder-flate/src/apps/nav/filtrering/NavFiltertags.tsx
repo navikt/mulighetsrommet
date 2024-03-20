@@ -3,23 +3,27 @@ import {
   ArbeidsmarkedstiltakFilterGruppe,
   useArbeidsmarkedstiltakFilter,
 } from "@/hooks/useArbeidsmarkedstiltakFilter";
-import { NavEnhetTag } from "../../../../../frontend-common/components/filtertag/NavEnhetTag";
-import { FilterTagsContainer } from "../../../../../frontend-common/components/filtertag/FilterTagsContainer";
-import { FilterTag } from "../../../../../frontend-common/components/filtertag/Filtertag";
+import { NavEnhetFiltertag } from "../../../../../frontend-common/components/filtertag/NavEnhetFiltertag";
+import { FiltertagsContainer } from "../../../../../frontend-common/components/filtertag/FiltertagsContainer";
+import { Filtertag } from "../../../../../frontend-common/components/filtertag/Filtertag";
 
-export function NavFilterTags() {
+interface Props {
+  filterOpen?: boolean;
+}
+
+export function NavFiltertags({ filterOpen }: Props) {
   const [filter, setFilter] = useArbeidsmarkedstiltakFilter();
 
   return (
-    <FilterTagsContainer>
+    <FiltertagsContainer filterOpen={filterOpen}>
       {filter.search && (
-        <FilterTag
+        <Filtertag
           options={[{ id: "search", tittel: `'${filter.search}'` }]}
           onClose={() => setFilter({ ...filter, search: "" })}
         />
       )}
       {filter.apentForInnsok !== ApentForInnsok.APENT_ELLER_STENGT && (
-        <FilterTag
+        <Filtertag
           options={[
             {
               id: filter.apentForInnsok,
@@ -35,15 +39,15 @@ export function NavFilterTags() {
         />
       )}
       {filter.innsatsgruppe && (
-        <FilterTag
+        <Filtertag
           options={[filter.innsatsgruppe]}
           onClose={() => {
             setFilter({ ...filter, innsatsgruppe: undefined });
           }}
         />
       )}
-      <NavEnhetTag onClose={() => setFilter({ ...filter, regionMap: {} })} />
-      <FilterTag
+      <NavEnhetFiltertag onClose={() => setFilter({ ...filter, regionMap: {} })} />
+      <Filtertag
         options={filter.tiltakstyper}
         onClose={(id: string) =>
           setFilter({
@@ -54,6 +58,6 @@ export function NavFilterTags() {
           })
         }
       />
-    </FilterTagsContainer>
+    </FiltertagsContainer>
   );
 }

@@ -9,7 +9,7 @@ import {
   useArbeidsmarkedstiltakFilterValue,
   useResetArbeidsmarkedstiltakFilterUtenBrukerIKontekst,
 } from "@/hooks/useArbeidsmarkedstiltakFilter";
-import { NavFilterTags } from "@/apps/nav/filtrering/NavFilterTags";
+import { NavFiltertags } from "@/apps/nav/filtrering/NavFiltertags";
 import { useState } from "react";
 import { Feilmelding } from "@/components/feilmelding/Feilmelding";
 import { TilToppenKnapp } from "../../../../../frontend-common/components/tilToppenKnapp/TilToppenKnapp";
@@ -53,7 +53,7 @@ export const NavArbeidsmarkedstiltakOversikt = ({ preview = false }: Props) => {
             ) : (
               <Tiltaksgjennomforingsoversikt
                 tiltaksgjennomforinger={tiltaksgjennomforinger}
-                tags={<NavFilterTags />}
+                tags={<NavFiltertags filterOpen={filterOpen} />}
                 filterOpen={filterOpen}
                 feilmelding={
                   !isFilterReady(filter) ? (

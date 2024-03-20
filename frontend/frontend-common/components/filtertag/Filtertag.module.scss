@@ -23,3 +23,9 @@
   min-height: 33px;
   margin-top: 0.5rem;
 }
+
+@media screen and (max-width: 1200px) {
+  .filtertags_filter_open {
+    margin-left: 21rem;
+  }
+}

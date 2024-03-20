@@ -4,12 +4,12 @@ import { XMarkIcon } from "@navikt/aksel-icons";
 import styles from "./Filtertag.module.scss";
 import Ikonknapp from "../ikonknapp/Ikonknapp";
 
-interface FilterTagsProps {
+interface FiltertagsProps {
   options: { id: string; tittel: string }[];
   onClose?: (id: string) => void;
 }
 
-export const FilterTag = ({ options, onClose }: FilterTagsProps) => {
+export const Filtertag = ({ options, onClose }: FiltertagsProps) => {
   return (
     <>
       {options.map((filtertype) => {

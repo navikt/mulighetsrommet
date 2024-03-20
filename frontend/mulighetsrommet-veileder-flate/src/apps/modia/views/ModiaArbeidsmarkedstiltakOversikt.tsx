@@ -18,7 +18,7 @@ import { useResetArbeidsmarkedstiltakFilterMedBrukerIKontekst } from "@/hooks/us
 import { BrukerHarIkke14aVedtakVarsel } from "@/apps/modia/varsler/BrukerHarIkke14aVedtakVarsel";
 import { BrukersOppfolgingsenhetVarsel } from "@/apps/modia/varsler/BrukersOppfolgingsenhetVarsel";
 import { FiltrertFeilInnsatsgruppeVarsel } from "@/apps/modia/varsler/FiltrertFeilInnsatsgruppeVarsel";
-import { ModiaFilterTags } from "@/apps/modia/filtrering/ModiaFilterTags";
+import { ModiaFiltertags } from "@/apps/modia/filtrering/ModiaFiltertags";
 import { Feilmelding } from "@/components/feilmelding/Feilmelding";
 import { TilToppenKnapp } from "../../../../../frontend-common/components/tilToppenKnapp/TilToppenKnapp";
 
@@ -112,7 +112,7 @@ export const ModiaArbeidsmarkedstiltakOversikt = () => {
                     <FiltrertFeilInnsatsgruppeVarsel filter={filter} />
                   </>
                 }
-                tags={<ModiaFilterTags />}
+                tags={<ModiaFiltertags filterOpen={filterOpen} />}
                 feilmelding={
                   tiltaksgjennomforinger.length === 0 ? (
                     <Feilmelding

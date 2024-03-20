@@ -6,8 +6,8 @@ import { useVirksomheter } from "../../api/virksomhet/useVirksomheter";
 import { addOrRemove } from "../../utils/Utils";
 import { useNavEnheter } from "../../api/enhet/useNavEnheter";
 import { TILTAKSGJENNOMFORING_STATUS_OPTIONS } from "../../utils/filterUtils";
-import { FilterTag } from "../../../../frontend-common/components/filtertag/Filtertag";
-import { FilterTagsContainer } from "../../../../frontend-common/components/filtertag/FilterTagsContainer";
+import { Filtertag } from "../../../../frontend-common/components/filtertag/Filtertag";
+import { FiltertagsContainer } from "../../../../frontend-common/components/filtertag/FiltertagsContainer";
 
 interface Props {
   filterAtom: WritableAtom<
@@ -15,9 +15,10 @@ interface Props {
     [newValue: TiltaksgjennomforingFilter],
     void
   >;
+  filterOpen?: boolean;
 }
 
-export function TiltaksgjennomforingFilterTags({ filterAtom }: Props) {
+export function TiltaksgjennomforingFiltertags({ filterAtom, filterOpen }: Props) {
   const [filter, setFilter] = useAtom(filterAtom);
   const { data: enheter } = useNavEnheter();
   const { data: virksomheter } = useVirksomheter(VirksomhetTil.TILTAKSGJENNOMFORING);
@@ -29,9 +30,9 @@ export function TiltaksgjennomforingFilterTags({ filterAtom }: Props) {
   );
 
   return (
-    <FilterTagsContainer>
+    <FiltertagsContainer filterOpen={filterOpen}>
       {filter.search ? (
-        <FilterTag
+        <Filtertag
           options={[{ id: "search", tittel: `'${filter.search}'` }]}
           onClose={() => {
             setFilter({
@@ -43,7 +44,7 @@ export function TiltaksgjennomforingFilterTags({ filterAtom }: Props) {
       ) : null}
       {filter.navRegioner
         ? filter.navRegioner.map((enhetsnummer) => (
-            <FilterTag
+            <Filtertag
               key={enhetsnummer}
               options={[
                 {
@@ -63,7 +64,7 @@ export function TiltaksgjennomforingFilterTags({ filterAtom }: Props) {
         : null}
       {filter.navEnheter
         ? filter.navEnheter.map((enhetsnummer) => (
-            <FilterTag
+            <Filtertag
               key={enhetsnummer}
               options={[
                 {
@@ -83,7 +84,7 @@ export function TiltaksgjennomforingFilterTags({ filterAtom }: Props) {
         : null}
       {filter.tiltakstyper
         ? filter.tiltakstyper.map((tiltakstype) => (
-            <FilterTag
+            <Filtertag
               key={tiltakstype}
               options={[
                 {
@@ -103,7 +104,7 @@ export function TiltaksgjennomforingFilterTags({ filterAtom }: Props) {
         : null}
       {filter.statuser
         ? filter.statuser.map((status) => (
-            <FilterTag
+            <Filtertag
               key={status}
               options={[
                 {
@@ -124,7 +125,7 @@ export function TiltaksgjennomforingFilterTags({ filterAtom }: Props) {
         : null}
       {filter.arrangorOrgnr
         ? filter.arrangorOrgnr.map((orgNr) => (
-            <FilterTag
+            <Filtertag
               key={orgNr}
               options={[
                 {
@@ -141,6 +142,6 @@ export function TiltaksgjennomforingFilterTags({ filterAtom }: Props) {
             />
           ))
         : null}
-    </FilterTagsContainer>
+    </FiltertagsContainer>
   );
 }

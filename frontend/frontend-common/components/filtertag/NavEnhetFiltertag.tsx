@@ -13,7 +13,7 @@ interface Props {
   onClose?: (e: React.MouseEvent) => void;
 }
 
-export function NavEnhetTag({ onClose }: Props) {
+export function NavEnhetFiltertag({ onClose }: Props) {
   const filter = useArbeidsmarkedstiltakFilterValue();
   const { data: alleEnheter } = useNavEnheter();
   const enheter = valgteEnhetsnumre(filter);

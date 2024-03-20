@@ -5,16 +5,17 @@ import { useNavEnheter } from "../../api/enhet/useNavEnheter";
 import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
 import { useVirksomheter } from "../../api/virksomhet/useVirksomheter";
 import { addOrRemove } from "../../utils/Utils";
-import { FilterTag } from "../../../../frontend-common/components/filtertag/Filtertag";
-import { FilterTagsContainer } from "../../../../frontend-common/components/filtertag/FilterTagsContainer";
+import { Filtertag } from "../../../../frontend-common/components/filtertag/Filtertag";
+import { FiltertagsContainer } from "../../../../frontend-common/components/filtertag/FiltertagsContainer";
 import { AVTALE_STATUS_OPTIONS } from "../../utils/filterUtils";
 
 interface Props {
   filterAtom: WritableAtom<AvtaleFilter, [newValue: AvtaleFilter], void>;
   tiltakstypeId?: string;
+  filterOpen?: boolean;
 }
 
-export function AvtaleFilterTags({ filterAtom, tiltakstypeId }: Props) {
+export function AvtaleFiltertags({ filterAtom, tiltakstypeId, filterOpen }: Props) {
   const [filter, setFilter] = useAtom(filterAtom);
 
   const { data: enheter } = useNavEnheter();
@@ -28,9 +29,9 @@ export function AvtaleFilterTags({ filterAtom, tiltakstypeId }: Props) {
   const { data: leverandorer } = useVirksomheter(VirksomhetTil.AVTALE);
 
   return (
-    <FilterTagsContainer>
+    <FiltertagsContainer filterOpen={filterOpen}>
       {filter.sok && (
-        <FilterTag
+        <Filtertag
           options={[{ id: "search", tittel: `'${filter.sok}'` }]}
           onClose={() => {
             setFilter({
@@ -41,7 +42,7 @@ export function AvtaleFilterTags({ filterAtom, tiltakstypeId }: Props) {
         />
       )}
       {filter.statuser.map((status) => (
-        <FilterTag
+        <Filtertag
           key={status}
           options={[
             {
@@ -58,7 +59,7 @@ export function AvtaleFilterTags({ filterAtom, tiltakstypeId }: Props) {
         />
       ))}
       {filter.navRegioner.map((enhetsnummer) => (
-        <FilterTag
+        <Filtertag
           key={enhetsnummer}
           options={[
             {
@@ -76,7 +77,7 @@ export function AvtaleFilterTags({ filterAtom, tiltakstypeId }: Props) {
       ))}
       {!tiltakstypeId &&
         filter.tiltakstyper.map((tiltakstype) => (
-          <FilterTag
+          <Filtertag
             key={tiltakstype}
             options={[
               {
@@ -93,7 +94,7 @@ export function AvtaleFilterTags({ filterAtom, tiltakstypeId }: Props) {
           />
         ))}
       {filter.leverandor.map((orgnr) => (
-        <FilterTag
+        <Filtertag
           key={orgnr}
           options={[
             {
@@ -109,6 +110,6 @@ export function AvtaleFilterTags({ filterAtom, tiltakstypeId }: Props) {
           }}
         />
       ))}
-    </FilterTagsContainer>
+    </FiltertagsContainer>
   );
 }

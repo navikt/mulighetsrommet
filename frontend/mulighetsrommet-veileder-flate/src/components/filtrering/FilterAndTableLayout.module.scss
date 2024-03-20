@@ -14,7 +14,7 @@ $filter-width: 320px;
     z-index: 1;
   }
 
-  .filter_tab {
+  .filtertab {
     background-color: white;
     width: $filter-width;
   }
@@ -83,7 +83,7 @@ $filter-width: 320px;
   @media screen and (max-width: 1200px) {
     .tags_and_table_container_filter_open {
       .filtertags {
-        margin-left: 21rem;
+        margin-left: 22rem;
       }
     }
 

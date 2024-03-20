@@ -3,19 +3,23 @@ import {
   ArbeidsmarkedstiltakFilterGruppe,
   useArbeidsmarkedstiltakFilter,
 } from "@/hooks/useArbeidsmarkedstiltakFilter";
-import { FilterTag } from "../../../../../frontend-common/components/filtertag/Filtertag";
-import { NavEnhetTag } from "../../../../../frontend-common/components/filtertag/NavEnhetTag";
-import { FilterTagsContainer } from "../../../../../frontend-common/components/filtertag/FilterTagsContainer";
+import { Filtertag } from "../../../../../frontend-common/components/filtertag/Filtertag";
+import { NavEnhetFiltertag } from "../../../../../frontend-common/components/filtertag/NavEnhetFiltertag";
+import { FiltertagsContainer } from "../../../../../frontend-common/components/filtertag/FiltertagsContainer";
 
-export function ModiaFilterTags() {
+interface Props {
+  filterOpen?: boolean;
+}
+
+export function ModiaFiltertags({ filterOpen }: Props) {
   const [filter, setFilter] = useArbeidsmarkedstiltakFilter();
 
   return (
-    <FilterTagsContainer>
-      {filter.innsatsgruppe && <FilterTag options={[filter.innsatsgruppe]} />}
-      <NavEnhetTag onClose={() => setFilter({ ...filter, regionMap: {} })} />
+    <FiltertagsContainer filterOpen={filterOpen}>
+      {filter.innsatsgruppe && <Filtertag options={[filter.innsatsgruppe]} />}
+      <NavEnhetFiltertag onClose={() => setFilter({ ...filter, regionMap: {} })} />
       {filter.apentForInnsok !== ApentForInnsok.APENT_ELLER_STENGT && (
-        <FilterTag
+        <Filtertag
           options={[
             {
               id: filter.apentForInnsok,
@@ -30,7 +34,7 @@ export function ModiaFilterTags() {
           }
         />
       )}
-      <FilterTag
+      <Filtertag
         options={filter.tiltakstyper}
         onClose={(id: string) =>
           setFilter({
@@ -42,11 +46,11 @@ export function ModiaFilterTags() {
         }
       />
       {filter.search && (
-        <FilterTag
+        <Filtertag
           options={[{ id: "search", tittel: `'${filter.search}'` }]}
           onClose={() => setFilter({ ...filter, search: "" })}
         />
       )}
-    </FilterTagsContainer>
+    </FiltertagsContainer>
   );
 }
