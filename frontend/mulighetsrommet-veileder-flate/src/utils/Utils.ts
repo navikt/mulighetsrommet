@@ -8,22 +8,6 @@ export function erPreview() {
   return inneholderUrl("/preview");
 }
 
-function specialChar(string: string | { label: string }) {
-  return string
-    .toString()
-    .toLowerCase()
-    .split("æ")
-    .join("ae")
-    .split("ø")
-    .join("o")
-    .split("å")
-    .join("a");
-}
-
-export function kebabCase(string: string | { label: string }) {
-  return specialChar(string).trim().replace(/\s+/g, "-").replace(/_/g, "-");
-}
-
 export function formaterDato(dato: string | Date, fallback = ""): string {
   const result = new Date(dato).toLocaleString("no-NO", {
     year: "numeric",

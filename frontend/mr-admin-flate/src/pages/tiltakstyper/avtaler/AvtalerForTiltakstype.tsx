@@ -4,9 +4,10 @@ import { AvtaleTabell } from "../../../components/tabell/AvtaleTabell";
 import { useGetTiltakstypeIdFromUrlOrThrow } from "../../../hooks/useGetTiltakstypeIdFromUrl";
 import { ContainerLayout } from "../../../layouts/ContainerLayout";
 import { FilterAndTableLayout } from "../../../components/filter/FilterAndTableLayout";
-import { AvtaleFilterTags } from "../../../components/filter/AvtaleFilterTags";
+import { AvtaleFiltertags } from "../../../components/filter/AvtaleFiltertags";
 import { AvtaleFilterButtons } from "../../../components/filter/AvtaleFilterButtons";
 import { AvtaleFilter } from "../../../components/filter/Avtalefilter";
+import { useState } from "react";
 
 export function AvtalerForTiltakstype() {
   useTitle("Tiltakstyper - Avtaler");
@@ -14,6 +15,7 @@ export function AvtalerForTiltakstype() {
   const tiltakstypeId = useGetTiltakstypeIdFromUrlOrThrow();
 
   const filterAtom = getAvtalerForTiltakstypeFilterAtom(tiltakstypeId);
+  const [filterOpen, setFilterOpen] = useState<boolean>(true);
 
   return (
     <ContainerLayout>
@@ -26,9 +28,17 @@ export function AvtalerForTiltakstype() {
             }}
           />
         }
-        tags={<AvtaleFilterTags filterAtom={filterAtom} tiltakstypeId={tiltakstypeId} />}
+        tags={
+          <AvtaleFiltertags
+            filterAtom={filterAtom}
+            tiltakstypeId={tiltakstypeId}
+            filterOpen={filterOpen}
+          />
+        }
         buttons={<AvtaleFilterButtons filterAtom={filterAtom} tiltakstypeId={tiltakstypeId} />}
         table={<AvtaleTabell filterAtom={filterAtom} />}
+        filterOpen={filterOpen}
+        setFilterOpen={setFilterOpen}
       />
     </ContainerLayout>
   );

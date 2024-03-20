@@ -21,3 +21,7 @@ html {
   background-color: #f1f1f1;
   border-color: #0000001a;
 }
+
+:root {
+  --filter-width: 320px;
+}

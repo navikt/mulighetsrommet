@@ -1,11 +1,11 @@
 import { BodyShort, Button, Heading, Modal, VStack } from "@navikt/ds-react";
-import { WritableAtom, useAtom, useSetAtom } from "jotai";
+import { useAtom, useSetAtom, WritableAtom } from "jotai";
 import { Avtalestatus, Opphav } from "mulighetsrommet-api-client";
 import { useState } from "react";
 import {
-  TiltaksgjennomforingFilter,
   defaultTiltaksgjennomforingfilter,
   gjennomforingDetaljerTabAtom,
+  TiltaksgjennomforingFilter,
 } from "../../api/atoms";
 import { useAvtale } from "../../api/avtaler/useAvtale";
 import { useMigrerteTiltakstyper } from "../../api/tiltakstyper/useMigrerteTiltakstyper";
@@ -15,6 +15,7 @@ import { Lenkeknapp } from "../lenkeknapp/Lenkeknapp";
 import { LeggTilGjennomforingModal } from "../modal/LeggTilGjennomforingModal";
 import styles from "./../modal/Modal.module.scss";
 import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
+import { NullstillFilterKnapp } from "mulighetsrommet-frontend-common/components/filter/nullstillFilterKnapp/NullstillFilterKnapp";
 
 interface Props {
   filterAtom: WritableAtom<
@@ -56,20 +57,14 @@ export function TiltaksgjennomforingFilterButtons({ filterAtom }: Props) {
       filter.navEnheter.length > 0 ||
       filter.statuser.length > 0 ||
       filter.arrangorOrgnr.length > 0 ? (
-        <Button
-          type="button"
-          size="small"
-          style={{ maxWidth: "130px" }}
-          variant="tertiary"
+        <NullstillFilterKnapp
           onClick={() => {
             setFilter({
               ...defaultTiltaksgjennomforingfilter,
               avtale: avtale?.id ?? defaultTiltaksgjennomforingfilter.avtale,
             });
           }}
-        >
-          Nullstill filter
-        </Button>
+        />
       ) : (
         <div></div>
       )}
