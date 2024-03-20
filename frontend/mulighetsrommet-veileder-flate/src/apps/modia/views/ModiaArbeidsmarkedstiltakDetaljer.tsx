@@ -26,7 +26,6 @@ import {
   VeilederflateTiltakstype,
 } from "mulighetsrommet-api-client";
 import { useTitle } from "mulighetsrommet-frontend-common";
-import styles from "./ModiaArbeidsmarkedstiltakDetaljer.module.scss";
 import { LenkeListe } from "@/components/sidemeny/Lenker";
 import { ModiaRoute, resolveModiaRoute } from "@/apps/modia/ModiaRoute";
 import { Lenkeknapp } from "mulighetsrommet-frontend-common/components/lenkeknapp/Lenkeknapp";
@@ -162,7 +161,6 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
                 data-testid="alert-innsatsgruppe"
                 size="small"
                 variant="error"
-                className={styles.alert}
               >
                 Vi kunne ikke opprette kontakt med KRR og vet derfor ikke om brukeren har reservert
                 seg mot elektronisk kommunikasjon
