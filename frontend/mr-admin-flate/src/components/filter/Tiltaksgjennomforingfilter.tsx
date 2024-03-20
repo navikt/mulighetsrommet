@@ -81,7 +81,7 @@ export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
         hideLabel
         size="small"
         variant="simple"
-        placeholder="Navn eller tiltaksnr."
+        placeholder="Navn, tiltaksnr., tiltaksarrangør"
         onChange={(search: string) => {
           setFilter({
             ...filter,
