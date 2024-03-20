@@ -397,7 +397,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         )
 
         val where = DatabaseUtils.andWhereParameterNotNull(
-            search to "((lower(navn) like lower(:search) or tiltaksnummer like :search))",
+            search to "((lower(navn) like lower(:search) or tiltaksnummer like :search or lower(arrangor_navn) like lower(:search)))",
             navEnheter.ifEmpty { null } to navEnheterWhereStatement(navEnheter),
             tiltakstypeIder.ifEmpty { null } to tiltakstypeIderWhereStatement(tiltakstypeIder),
             statuser.ifEmpty { null } to statuserWhereStatement(statuser),
