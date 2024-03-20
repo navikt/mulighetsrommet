@@ -165,11 +165,8 @@ export function AvtaleDetaljer() {
           kontorstruktur.map((struktur, index) => {
             return (
               <Fragment key={index}>
-                <Bolk aria-label={avtaletekster.fylkessamarbeidLabel}>
-                  <Metadata
-                    header={avtaletekster.fylkessamarbeidLabel}
-                    verdi={struktur.region.navn}
-                  />
+                <Bolk aria-label={avtaletekster.navRegionerLabel}>
+                  <Metadata header={avtaletekster.navRegionerLabel} verdi={struktur.region.navn} />
                 </Bolk>
 
                 <Bolk aria-label={avtaletekster.navEnheterLabel}>

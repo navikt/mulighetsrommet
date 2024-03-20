@@ -1,18 +1,19 @@
 import { Alert, Pagination, Table, Tag, VStack } from "@navikt/ds-react";
-import { useAtom, WritableAtom } from "jotai";
+import { WritableAtom, useAtom } from "jotai";
 import { SorteringTiltaksgjennomforinger } from "mulighetsrommet-api-client";
-import { Lenke } from "../../../../frontend-common/components/lenke/Lenke";
 import React from "react";
+import { Lenke } from "../../../../frontend-common/components/lenke/Lenke";
 import { TiltaksgjennomforingFilter } from "../../api/atoms";
+import { useAdminTiltaksgjennomforinger } from "../../api/tiltaksgjennomforing/useAdminTiltaksgjennomforinger";
 import { useSort } from "../../hooks/useSort";
 import pageStyles from "../../pages/Page.module.scss";
 import { formaterDato, formaterNavEnheter } from "../../utils/Utils";
+import { ShowOpphavValue } from "../debug/ShowOpphavValue";
 import { Laster } from "../laster/Laster";
 import { PagineringContainer } from "../paginering/PagineringContainer";
 import { PagineringsOversikt } from "../paginering/PagineringOversikt";
 import { TiltaksgjennomforingstatusTag } from "../statuselementer/TiltaksgjennomforingstatusTag";
 import styles from "./Tabell.module.scss";
-import { useAdminTiltaksgjennomforinger } from "../../api/tiltaksgjennomforing/useAdminTiltaksgjennomforinger";
 
 interface ColumnHeader {
   sortKey: Kolonne;
@@ -191,12 +192,15 @@ export const TiltaksgjennomforingsTabell = ({ skjulKolonner, filterAtom }: Props
                         aria-label={`Navn på tiltaksgjennomforing: ${tiltaksgjennomforing.navn}`}
                         className={styles.title}
                       >
-                        <Lenke
-                          to={`${tiltaksgjennomforing?.avtaleId ? `/avtaler/${tiltaksgjennomforing?.avtaleId}/tiltaksgjennomforinger/${tiltaksgjennomforing.id}` : `${tiltaksgjennomforing.id}`} `}
-                          data-testid="tiltaksgjennomforing-tabell_tittel"
-                        >
-                          {tiltaksgjennomforing.navn}
-                        </Lenke>
+                        <VStack>
+                          <Lenke
+                            to={`${tiltaksgjennomforing?.avtaleId ? `/avtaler/${tiltaksgjennomforing?.avtaleId}/tiltaksgjennomforinger/${tiltaksgjennomforing.id}` : `${tiltaksgjennomforing.id}`} `}
+                            data-testid="tiltaksgjennomforing-tabell_tittel"
+                          >
+                            {tiltaksgjennomforing.navn}
+                          </Lenke>
+                          <ShowOpphavValue value={tiltaksgjennomforing.opphav} />
+                        </VStack>
                       </Table.DataCell>
                     </SkjulKolonne>
 
