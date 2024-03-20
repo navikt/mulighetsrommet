@@ -3,9 +3,9 @@ import {
   Alert,
   Button,
   DatePicker,
-  HelpText,
   HGrid,
   HStack,
+  HelpText,
   Select,
   Switch,
   TextField,
@@ -26,16 +26,16 @@ import { useMigrerteTiltakstyper } from "../../api/tiltakstyper/useMigrerteTilta
 import { addYear, formaterDato } from "../../utils/Utils";
 import { isTiltakMedFellesOppstart } from "../../utils/tiltakskoder";
 import { Separator } from "../detaljside/Metadata";
+import { tiltaktekster } from "../ledetekster/tiltaksgjennomforingLedetekster";
+import { InferredTiltaksgjennomforingSchema } from "../redaksjonelt-innhold/TiltaksgjennomforingSchema";
 import { AdministratorOptions } from "../skjema/AdministratorOptions";
 import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { FormGroup } from "../skjema/FormGroup";
 import { FraTilDatoVelger } from "../skjema/FraTilDatoVelger";
 import skjemastyles from "../skjema/Skjema.module.scss";
 import { SelectOppstartstype } from "./SelectOppstartstype";
-import { InferredTiltaksgjennomforingSchema } from "../redaksjonelt-innhold/TiltaksgjennomforingSchema";
-import { erArenaOpphavOgIngenEierskap } from "./TiltaksgjennomforingSkjemaConst";
 import { TiltaksgjennomforingArrangorSkjema } from "./TiltaksgjennomforingArrangorSkjema";
-import { tiltaktekster } from "../ledetekster/tiltaksgjennomforingLedetekster";
+import { erArenaOpphavOgIngenEierskap } from "./TiltaksgjennomforingSkjemaConst";
 
 interface Props {
   tiltaksgjennomforing?: Tiltaksgjennomforing;
@@ -153,6 +153,13 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
             {errors.avtaleId?.message ? (
               <Alert variant="warning">{errors.avtaleId.message as string}</Alert>
             ) : null}
+          </FormGroup>
+          <Separator />
+          <FormGroup>
+            <SelectOppstartstype
+              name="oppstart"
+              readonly={!isTiltakMedFellesOppstart(avtale.tiltakstype.arenaKode)}
+            />
             <HGrid columns={2}>
               <DatePicker.Input
                 value={formaterDato(avtale.startDato)}
@@ -171,13 +178,6 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
                 " - "
               )}
             </HGrid>
-          </FormGroup>
-          <Separator />
-          <FormGroup>
-            <SelectOppstartstype
-              name="oppstart"
-              readonly={!isTiltakMedFellesOppstart(avtale.tiltakstype.arenaKode)}
-            />
             <FraTilDatoVelger
               size="small"
               fra={{
@@ -202,7 +202,6 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
                 {tiltaktekster.apentForInnsokLabel}
               </Switch>
             ) : null}
-
             <HStack justify="space-between">
               <TextField
                 size="small"
