@@ -2,7 +2,7 @@ import { Tabs } from "@navikt/ds-react";
 import styles from "./Filter.module.scss";
 import { FunnelIcon } from "@navikt/aksel-icons";
 import classNames from "classnames";
-import { useOutsideClick } from "../../../../frontend-common/hooks/useOutsideClick";
+import { useOutsideClick } from "mulighetsrommet-frontend-common/hooks/useOutsideClick";
 
 interface Props {
   filter: React.ReactNode;

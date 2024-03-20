@@ -13,7 +13,7 @@ import {
   tiltakstypeOptions,
   virksomhetOptions,
 } from "../../utils/filterUtils";
-import { FilterAccordionHeader } from "../../../../frontend-common/components/filter/accordionHeader/FilterAccordionHeader";
+import { FilterAccordionHeader } from "mulighetsrommet-frontend-common/components/filter/accordionHeader/FilterAccordionHeader";
 import { CheckboxList } from "./Tiltaksgjennomforingfilter";
 
 type Filters = "tiltakstype";

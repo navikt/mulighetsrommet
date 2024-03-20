@@ -3,9 +3,9 @@ import {
   ArbeidsmarkedstiltakFilterGruppe,
   useArbeidsmarkedstiltakFilter,
 } from "@/hooks/useArbeidsmarkedstiltakFilter";
-import { Filtertag } from "../../../../../frontend-common/components/filter/filtertag/Filtertag";
-import { NavEnhetFiltertag } from "../../../../../frontend-common/components/filter/filtertag/NavEnhetFiltertag";
-import { FiltertagsContainer } from "../../../../../frontend-common/components/filter/filtertag/FiltertagsContainer";
+import { Filtertag } from "mulighetsrommet-frontend-common/components/filter/filtertag/Filtertag";
+import { NavEnhetFiltertag } from "mulighetsrommet-frontend-common/components/filter/filtertag/NavEnhetFiltertag";
+import { FiltertagsContainer } from "mulighetsrommet-frontend-common/components/filter/filtertag/FiltertagsContainer";
 
 interface Props {
   filterOpen?: boolean;

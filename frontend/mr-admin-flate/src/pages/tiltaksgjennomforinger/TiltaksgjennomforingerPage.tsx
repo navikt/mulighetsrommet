@@ -9,7 +9,7 @@ import { TiltaksgjennomforingFilterButtons } from "../../components/filter/Tilta
 import { TiltaksgjennomforingFiltertags } from "../../components/filter/TiltaksgjennomforingFiltertags";
 import { TiltaksgjennomforingFilter } from "../../components/filter/Tiltaksgjennomforingfilter";
 import { ReloadAppErrorBoundary } from "../../ErrorBoundary";
-import { TilToppenKnapp } from "../../../../frontend-common/components/tilToppenKnapp/TilToppenKnapp";
+import { TilToppenKnapp } from "mulighetsrommet-frontend-common/components/tilToppenKnapp/TilToppenKnapp";
 import { Brodsmuler } from "../../components/navigering/Brodsmuler";
 import { TiltaksgjennomforingIkon } from "../../components/ikoner/TiltaksgjennomforingIkon";
 import { useState } from "react";

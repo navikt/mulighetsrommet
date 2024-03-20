@@ -6,8 +6,8 @@ import { filterAccordionAtom } from "@/core/atoms/atoms";
 import { useArbeidsmarkedstiltakFilter } from "@/hooks/useArbeidsmarkedstiltakFilter";
 import { addOrRemove } from "@/utils/Utils";
 import "./Filtermeny.module.scss";
-import { FilterAccordionHeader } from "../../../../frontend-common/components/filter/accordionHeader/FilterAccordionHeader";
-import { kebabCase } from "../../../../frontend-common/utils/Utils";
+import { FilterAccordionHeader } from "mulighetsrommet-frontend-common/components/filter/accordionHeader/FilterAccordionHeader";
+import { kebabCase } from "mulighetsrommet-frontend-common/utils/Utils";
 
 interface InnsatsgruppeFilterProps<
   T extends { id: string; tittel: string; nokkel?: Innsatsgruppe },

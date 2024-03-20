@@ -9,7 +9,7 @@ import { ReloadAppErrorBoundary } from "../../ErrorBoundary";
 import { FilterAndTableLayout } from "../../components/filter/FilterAndTableLayout";
 import { AvtaleFilterButtons } from "../../components/filter/AvtaleFilterButtons";
 import { AvtaleFiltertags } from "../../components/filter/AvtaleFiltertags";
-import { TilToppenKnapp } from "../../../../frontend-common/components/tilToppenKnapp/TilToppenKnapp";
+import { TilToppenKnapp } from "mulighetsrommet-frontend-common/components/tilToppenKnapp/TilToppenKnapp";
 import { Brodsmuler } from "../../components/navigering/Brodsmuler";
 import { AvtaleIkon } from "../../components/ikoner/AvtaleIkon";
 import { useState } from "react";

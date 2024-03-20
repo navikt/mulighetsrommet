@@ -5,8 +5,8 @@ import { useNavEnheter } from "../../api/enhet/useNavEnheter";
 import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
 import { useVirksomheter } from "../../api/virksomhet/useVirksomheter";
 import { addOrRemove } from "../../utils/Utils";
-import { Filtertag } from "../../../../frontend-common/components/filter/filtertag/Filtertag";
-import { FiltertagsContainer } from "../../../../frontend-common/components/filter/filtertag/FiltertagsContainer";
+import { Filtertag } from "mulighetsrommet-frontend-common/components/filter/filtertag/Filtertag";
+import { FiltertagsContainer } from "mulighetsrommet-frontend-common/components/filter/filtertag/FiltertagsContainer";
 import { AVTALE_STATUS_OPTIONS } from "../../utils/filterUtils";
 
 interface Props {

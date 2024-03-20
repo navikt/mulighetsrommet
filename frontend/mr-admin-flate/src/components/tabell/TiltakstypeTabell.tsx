@@ -2,7 +2,7 @@ import { Alert, Table } from "@navikt/ds-react";
 import classNames from "classnames";
 import { useAtom } from "jotai";
 import { SorteringTiltakstyper } from "mulighetsrommet-api-client";
-import { Lenke } from "../../../../frontend-common/components/lenke/Lenke";
+import { Lenke } from "mulighetsrommet-frontend-common/components/lenke/Lenke";
 import { tiltakstypeFilterAtom } from "../../api/atoms";
 import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
 import { useSort } from "../../hooks/useSort";
