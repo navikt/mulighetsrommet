@@ -15,7 +15,7 @@ import { Lenkeknapp } from "../lenkeknapp/Lenkeknapp";
 import { LeggTilGjennomforingModal } from "../modal/LeggTilGjennomforingModal";
 import styles from "./../modal/Modal.module.scss";
 import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
-import { NullstillFilterKnapp } from "../../../../frontend-common/components/nullstillFilterKnapp/NullstillFilterKnapp";
+import { NullstillFilterKnapp } from "../../../../frontend-common/components/filter/nullstillFilterKnapp/NullstillFilterKnapp";
 
 interface Props {
   filterAtom: WritableAtom<

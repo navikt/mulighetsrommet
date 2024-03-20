@@ -1,8 +1,8 @@
 import { Tag } from "@navikt/ds-react";
-import { kebabCase } from "mulighetsrommet-frontend-common/utils/Utils";
+import { kebabCase } from "../../../utils/Utils";
 import { XMarkIcon } from "@navikt/aksel-icons";
 import styles from "./Filtertag.module.scss";
-import Ikonknapp from "../ikonknapp/Ikonknapp";
+import Ikonknapp from "../../ikonknapp/Ikonknapp";
 
 interface FiltertagsProps {
   options: { id: string; tittel: string }[];

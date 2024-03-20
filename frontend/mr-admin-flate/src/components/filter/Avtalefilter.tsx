@@ -1,5 +1,5 @@
 import { Accordion, Search, Skeleton, Switch, VStack } from "@navikt/ds-react";
-import { WritableAtom, useAtom } from "jotai";
+import { useAtom, WritableAtom } from "jotai";
 import { Tiltakstypestatus, VirksomhetTil } from "mulighetsrommet-api-client";
 import { AvtaleFilter as AvtaleFilterProps, avtaleFilterAccordionAtom } from "../../api/atoms";
 import { useNavEnheter } from "../../api/enhet/useNavEnheter";
@@ -13,7 +13,7 @@ import {
   tiltakstypeOptions,
   virksomhetOptions,
 } from "../../utils/filterUtils";
-import { FilterAccordionHeader } from "./FilterAccordionHeader";
+import { FilterAccordionHeader } from "../../../../frontend-common/components/filter/accordionHeader/FilterAccordionHeader";
 import { CheckboxList } from "./Tiltaksgjennomforingfilter";
 
 type Filters = "tiltakstype";

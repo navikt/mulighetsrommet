@@ -12,7 +12,7 @@ import InnsatsgruppeFilter from "./InnsatsgruppeFilter";
 import { NavEnhetFilter } from "./NavEnhetFilter";
 import Sokefelt from "./Sokefelt";
 import { Tiltakstypefilter } from "./Tiltakstypefilter";
-import { FilterAccordionHeader } from "@/components/filtrering/FilterAccordionHeader";
+import { FilterAccordionHeader } from "../../../../frontend-common/components/filter/accordionHeader/FilterAccordionHeader";
 
 export const Filtermeny = () => {
   const [filter, setFilter] = useArbeidsmarkedstiltakFilter();

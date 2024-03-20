@@ -3,9 +3,9 @@ import {
   ArbeidsmarkedstiltakFilterGruppe,
   useArbeidsmarkedstiltakFilter,
 } from "@/hooks/useArbeidsmarkedstiltakFilter";
-import { NavEnhetFiltertag } from "../../../../../frontend-common/components/filtertag/NavEnhetFiltertag";
-import { FiltertagsContainer } from "../../../../../frontend-common/components/filtertag/FiltertagsContainer";
-import { Filtertag } from "../../../../../frontend-common/components/filtertag/Filtertag";
+import { NavEnhetFiltertag } from "../../../../../frontend-common/components/filter/filtertag/NavEnhetFiltertag";
+import { FiltertagsContainer } from "../../../../../frontend-common/components/filter/filtertag/FiltertagsContainer";
+import { Filtertag } from "../../../../../frontend-common/components/filter/filtertag/Filtertag";
 
 interface Props {
   filterOpen?: boolean;

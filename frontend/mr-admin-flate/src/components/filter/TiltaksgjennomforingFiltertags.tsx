@@ -6,8 +6,8 @@ import { useVirksomheter } from "../../api/virksomhet/useVirksomheter";
 import { addOrRemove } from "../../utils/Utils";
 import { useNavEnheter } from "../../api/enhet/useNavEnheter";
 import { TILTAKSGJENNOMFORING_STATUS_OPTIONS } from "../../utils/filterUtils";
-import { Filtertag } from "../../../../frontend-common/components/filtertag/Filtertag";
-import { FiltertagsContainer } from "../../../../frontend-common/components/filtertag/FiltertagsContainer";
+import { Filtertag } from "../../../../frontend-common/components/filter/filtertag/Filtertag";
+import { FiltertagsContainer } from "../../../../frontend-common/components/filter/filtertag/FiltertagsContainer";
 
 interface Props {
   filterAtom: WritableAtom<

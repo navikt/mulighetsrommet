@@ -19,7 +19,7 @@ import {
   tiltakstypeOptions,
   virksomhetOptions,
 } from "../../utils/filterUtils";
-import { FilterAccordionHeader } from "./FilterAccordionHeader";
+import { FilterAccordionHeader } from "../../../../frontend-common/components/filter/accordionHeader/FilterAccordionHeader";
 
 type Filters = "tiltakstype";
 

@@ -3,7 +3,7 @@ import { AvtaleFilter, defaultAvtaleFilter } from "../../api/atoms";
 import { Lenkeknapp } from "../lenkeknapp/Lenkeknapp";
 import { HarSkrivetilgang } from "../authActions/HarSkrivetilgang";
 import style from "./AvtaleFilterButtons.module.scss";
-import { NullstillFilterKnapp } from "../../../../frontend-common/components/nullstillFilterKnapp/NullstillFilterKnapp";
+import { NullstillFilterKnapp } from "../../../../frontend-common/components/filter/nullstillFilterKnapp/NullstillFilterKnapp";
 
 interface Props {
   filterAtom: WritableAtom<AvtaleFilter, [newValue: AvtaleFilter], void>;
