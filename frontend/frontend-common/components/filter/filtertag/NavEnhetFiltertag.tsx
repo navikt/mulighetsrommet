@@ -4,7 +4,7 @@ import {
   valgteEnhetsnumre,
 } from "mulighetsrommet-veileder-flate/src/hooks/useArbeidsmarkedstiltakFilter";
 import { useNavEnheter } from "mulighetsrommet-veileder-flate/src/core/api/queries/useNavEnheter";
-import { NavEnhet } from "frontend/mulighetsrommet-api-client";
+import { NavEnhet } from "mulighetsrommet-api-client";
 import Ikonknapp from "../../ikonknapp/Ikonknapp";
 import { XMarkIcon } from "@navikt/aksel-icons";
 import styles from "./Filtertag.module.scss";
