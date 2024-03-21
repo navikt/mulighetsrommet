@@ -64,8 +64,11 @@ class ArenaAdapterService(
     fun upsertTiltakstype(tiltakstype: TiltakstypeDbo): TiltakstypeDbo {
         return tiltakstyper.upsert(tiltakstype)
             .also {
-                tiltakstyper.getEksternTiltakstype(tiltakstype.id)?.let {
-                    tiltakstypeKafkaProducer.publish(it)
+                val eksternDto = tiltakstyper.getEksternTiltakstype(tiltakstype.id)
+                if (eksternDto != null) {
+                    tiltakstypeKafkaProducer.publish(eksternDto)
+                } else {
+                    tiltakstypeKafkaProducer.retract(tiltakstype.id)
                 }
             }
     }

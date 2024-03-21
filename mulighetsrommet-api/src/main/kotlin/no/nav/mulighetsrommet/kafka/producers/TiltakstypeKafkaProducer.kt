@@ -19,9 +19,7 @@ class TiltakstypeKafkaProducer(
         val record: ProducerRecord<String, String?> = ProducerRecord(
             config.topic,
             value.id.toString(),
-            Json.encodeToString(
-                if (value.tiltakskode != null) value else null,
-            ),
+            Json.encodeToString(value),
         )
         kafkaProducerClient.sendSync(record)
     }
