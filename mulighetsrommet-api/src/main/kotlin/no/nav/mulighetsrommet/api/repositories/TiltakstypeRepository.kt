@@ -112,6 +112,7 @@ class TiltakstypeRepository(private val db: Database) {
             select
                 id::uuid,
                 navn,
+                arena_kode,
                 registrert_dato_i_arena,
                 sist_endret_dato_i_arena,
                 fra_dato,
