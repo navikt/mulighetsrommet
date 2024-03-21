@@ -62,7 +62,7 @@ class AvtaleValidator(
                 add(
                     ValidationError.of(
                         AvtaleDbo::leverandorUnderenheter,
-                        "Minst én underenhet til leverandøren må være valgt",
+                        "Minst én underenhet til tiltaksarrangøren må være valgt",
                     ),
                 )
             }
@@ -119,7 +119,7 @@ class AvtaleValidator(
                             add(
                                 ValidationError.of(
                                     AvtaleDbo::leverandorUnderenheter,
-                                    "Arrangøren ${virksomhet.navn} er i bruk på en av avtalens gjennomføringer, men mangler blandt leverandørens underenheter",
+                                    "Arrangøren ${virksomhet.navn} er i bruk på en av avtalens gjennomføringer, men mangler blant tiltaksarrangørens underenheter",
                                 ),
                             )
                         }
@@ -130,7 +130,7 @@ class AvtaleValidator(
                                 add(
                                     ValidationError.of(
                                         AvtaleDbo::navEnheter,
-                                        "NAV-enheten $enhetsnummer er i bruk på en av avtalens gjennomføringer, men mangler blandt avtalens NAV-enheter",
+                                        "NAV-enheten $enhetsnummer er i bruk på en av avtalens gjennomføringer, men mangler blant avtalens NAV-enheter",
                                     ),
                                 )
                             }
@@ -191,7 +191,7 @@ class AvtaleValidator(
                         add(
                             ValidationError.of(
                                 AvtaleDbo::leverandorVirksomhetId,
-                                "Leverandøren kan ikke endres utenfor Arena",
+                                "Tiltaksarrangøren kan ikke endres utenfor Arena",
                             ),
                         )
                     }

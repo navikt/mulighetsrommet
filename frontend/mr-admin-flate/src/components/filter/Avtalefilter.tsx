@@ -193,7 +193,7 @@ export function AvtaleFilter({ filterAtom, skjulFilter }: Props) {
             }}
           >
             <FilterAccordionHeader
-              tittel="Leverandør"
+              tittel="Tiltaksarrangør"
               antallValgteFilter={filter.leverandor.length}
             />
           </Accordion.Header>

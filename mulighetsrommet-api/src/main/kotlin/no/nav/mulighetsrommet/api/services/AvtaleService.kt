@@ -107,7 +107,7 @@ class AvtaleService(
             .mapLeft {
                 ValidationError.of(
                     AvtaleRequest::leverandorOrganisasjonsnummer,
-                    "Leverandøren finnes ikke Brønnøysundregistrene",
+                    "Tiltaksarrangøren finnes ikke Brønnøysundregistrene",
                 ).nel()
             }
     }
