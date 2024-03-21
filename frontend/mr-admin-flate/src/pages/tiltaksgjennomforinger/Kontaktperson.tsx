@@ -1,7 +1,7 @@
-import { TEAMS_DYPLENKE } from "mulighetsrommet-frontend-common/constants";
-import { TiltaksgjennomforingKontaktperson } from "mulighetsrommet-api-client";
 import { BodyShort, VStack } from "@navikt/ds-react";
-import { ExternalLinkIcon } from "@navikt/aksel-icons";
+import { TiltaksgjennomforingKontaktperson } from "mulighetsrommet-api-client";
+import { TEAMS_DYPLENKE } from "mulighetsrommet-frontend-common/constants";
+import { TeamsIkon } from "../../components/ikoner/TeamsIkon";
 
 interface Props {
   kontaktperson: TiltaksgjennomforingKontaktperson;
@@ -18,7 +18,7 @@ export function Kontaktperson({ kontaktperson }: Props) {
       <BodyShort>
         Kontakt via Teams:{" "}
         <a href={`${TEAMS_DYPLENKE}${kontaktperson.epost}`}>{kontaktperson.epost}</a>{" "}
-        <ExternalLinkIcon aria-label="Åpner direktemelding i Teams" />
+        <TeamsIkon aria-label="Åpner direktemelding i Teams" />
       </BodyShort>
     </VStack>
   );
