@@ -153,7 +153,7 @@ export const AvtaleTabell = ({ filterAtom }: Props) => {
               </Table.ColumnHeader>
               <Table.ColumnHeader>Avtalenummer</Table.ColumnHeader>
               <Table.ColumnHeader sortKey="leverandor" sortable>
-                Leverandør
+                Tiltaksarrangør
               </Table.ColumnHeader>
               <Table.ColumnHeader>Region</Table.ColumnHeader>
               <Table.ColumnHeader sortKey="startdato" sortable>
@@ -183,7 +183,7 @@ export const AvtaleTabell = ({ filterAtom }: Props) => {
                   <Table.DataCell aria-label={`Avtalenummer: ${avtale?.avtalenummer ?? "N/A"}`}>
                     {avtale?.avtalenummer}
                   </Table.DataCell>
-                  <Table.DataCell aria-label={`Leverandør: ${avtale.leverandor?.navn}`}>
+                  <Table.DataCell aria-label={`Tiltaksarrangør: ${avtale.leverandor?.navn}`}>
                     {capitalizeEveryWord(avtale.leverandor?.navn, ["og", "i"]) || ""}
                   </Table.DataCell>
                   <Table.DataCell

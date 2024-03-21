@@ -23,9 +23,9 @@ export const AvtaleSchema = z
     }),
     leverandor: z
       .string()
-      .min(9, "Du må velge en leverandør")
-      .max(9, "Du må velge en leverandør")
-      .regex(/^\d+$/, "Leverandør må være et nummer"),
+      .min(9, "Du må velge en tiltaksarrangør")
+      .max(9, "Du må velge en tiltaksarrangør")
+      .regex(/^\d+$/, "Tiltaksarrangør må være et nummer"),
     leverandorUnderenheter: z.string().array().nonempty("Du må velge minst en underenhet"),
     leverandorKontaktpersonId: z.string().uuid().optional(),
     navRegioner: z.string().array().nonempty({ message: "Du må velge minst én region" }),

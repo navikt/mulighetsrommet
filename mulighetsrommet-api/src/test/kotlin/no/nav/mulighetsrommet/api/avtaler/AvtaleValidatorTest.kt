@@ -152,7 +152,7 @@ class AvtaleValidatorTest : FunSpec({
             listOf(
                 ValidationError("startDato", "Startdato må være før sluttdato"),
                 ValidationError("navEnheter", "Minst én NAV-region må være valgt"),
-                ValidationError("leverandorUnderenheter", "Minst én underenhet til leverandøren må være valgt"),
+                ValidationError("leverandorUnderenheter", "Minst én underenhet til tiltaksarrangøren må være valgt"),
             ),
         )
     }
@@ -362,7 +362,7 @@ class AvtaleValidatorTest : FunSpec({
                     ValidationError("startDato", "Startdato kan ikke endres utenfor Arena"),
                     ValidationError("sluttDato", "Sluttdato kan ikke endres utenfor Arena"),
                     ValidationError("avtaletype", "Avtaletype kan ikke endres utenfor Arena"),
-                    ValidationError("leverandorVirksomhetId", "Leverandøren kan ikke endres utenfor Arena"),
+                    ValidationError("leverandorVirksomhetId", "Tiltaksarrangøren kan ikke endres utenfor Arena"),
                 ),
             )
         }
@@ -420,11 +420,11 @@ class AvtaleValidatorTest : FunSpec({
                         ),
                         ValidationError(
                             "leverandorUnderenheter",
-                            "Arrangøren Underenhet 2 AS er i bruk på en av avtalens gjennomføringer, men mangler blandt leverandørens underenheter",
+                            "Arrangøren Underenhet 2 AS er i bruk på en av avtalens gjennomføringer, men mangler blant tiltaksarrangørens underenheter",
                         ),
                         ValidationError(
                             "navEnheter",
-                            "NAV-enheten 0502 er i bruk på en av avtalens gjennomføringer, men mangler blandt avtalens NAV-enheter",
+                            "NAV-enheten 0502 er i bruk på en av avtalens gjennomføringer, men mangler blant avtalens NAV-enheter",
                         ),
                         ValidationError(
                             "startDato",

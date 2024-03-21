@@ -91,7 +91,7 @@ class AvtaleServiceTest : FunSpec({
                 listOf(
                     ValidationError(
                         "leverandorOrganisasjonsnummer",
-                        "Leverandøren finnes ikke Brønnøysundregistrene",
+                        "Tiltaksarrangøren finnes ikke Brønnøysundregistrene",
                     ),
                 ),
             )
