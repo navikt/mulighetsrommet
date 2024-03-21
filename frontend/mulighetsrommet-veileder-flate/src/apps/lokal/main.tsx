@@ -6,8 +6,6 @@ import { NavArbeidsmarkedstiltak } from "@/apps/nav/NavArbeidsmarkedstiltak";
 import { PreviewArbeidsmarkedstiltak } from "@/apps/nav/PreviewArbeidsmarkedstiltak";
 import { ModiaArbeidsmarkedstiltak } from "@/apps/modia/ModiaArbeidsmarkedstiltak";
 import { ReactQueryProvider } from "@/ReactQueryProvider";
-import "../../App.module.scss";
-import "../../index.css";
 
 if (import.meta.env.VITE_MULIGHETSROMMET_API_MOCK === "true") {
   import("../../mock/worker")
