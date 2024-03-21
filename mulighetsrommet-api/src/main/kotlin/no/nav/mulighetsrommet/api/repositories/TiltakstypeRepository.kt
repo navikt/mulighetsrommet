@@ -88,12 +88,13 @@ class TiltakstypeRepository(private val db: Database) {
 
     fun getEksternTiltakstype(id: UUID): TiltakstypeEksternDto? {
         val tiltakstype = get(id) ?: return null
-        val deltakerRegistreringInnhold = getDeltakerregistreringInnholdByArenaKode(tiltakstype.arenaKode)
+        val tiltakskode = Tiltakskode.fromArenaKode(tiltakstype.arenaKode) ?: return null
+        val deltakerRegistreringInnhold = getDeltakerregistreringInnholdByArenaKode(tiltakskode)
 
         return TiltakstypeEksternDto(
             id = tiltakstype.id,
             navn = tiltakstype.navn,
-            tiltakskode = Tiltakskode.fromArenaKode(tiltakstype.arenaKode),
+            tiltakskode = tiltakskode,
             arenaKode = tiltakstype.arenaKode,
             registrertIArenaDato = tiltakstype.registrertIArenaDato,
             sistEndretIArenaDato = tiltakstype.sistEndretIArenaDato,
@@ -217,16 +218,18 @@ class TiltakstypeRepository(private val db: Database) {
         return Pair(totaltAntall, tiltakstyper)
     }
 
-    fun getAllMedDeltakerregistreringsinnhold(): List<TiltakstypeEksternDto> {
+    fun getAllMedDeltakerregistreringsinnhold(): List<TiltakstypeEksternDto?> {
         val tiltakstyper = getAll(paginationParams = PaginationParams(nullableLimit = 1000))
 
         return tiltakstyper.second
             .map { tiltakstypeAdminDto ->
-                val deltakerRegistreringInnhold = getDeltakerregistreringInnholdByArenaKode(tiltakstypeAdminDto.arenaKode)
+                val tiltakskode = Tiltakskode.fromArenaKode(tiltakstypeAdminDto.arenaKode) ?: return@map null
+                val deltakerRegistreringInnhold = getDeltakerregistreringInnholdByArenaKode(tiltakskode)
+
                 TiltakstypeEksternDto(
                     id = tiltakstypeAdminDto.id,
                     navn = tiltakstypeAdminDto.navn,
-                    tiltakskode = Tiltakskode.fromArenaKode(tiltakstypeAdminDto.arenaKode),
+                    tiltakskode = tiltakskode,
                     arenaKode = tiltakstypeAdminDto.arenaKode,
                     registrertIArenaDato = tiltakstypeAdminDto.registrertIArenaDato,
                     sistEndretIArenaDato = tiltakstypeAdminDto.sistEndretIArenaDato,
@@ -239,17 +242,17 @@ class TiltakstypeRepository(private val db: Database) {
             }
     }
 
-    private fun getDeltakerregistreringInnholdByArenaKode(arenaKode: String): DeltakerRegistreringInnholdDto? {
+    private fun getDeltakerregistreringInnholdByArenaKode(tiltakskode: Tiltakskode): DeltakerRegistreringInnholdDto? {
         @Language("PostgreSQL")
         val query = """
            select dri.innholdskode, tekst, tt.deltaker_registrering_ledetekst
            from tiltakstype tt
-               left join tiltakstype_deltaker_registrering_innholdselement tdri on tdri.arena_kode = tt.arena_kode
+               left join tiltakstype_deltaker_registrering_innholdselement tdri on tdri.tiltakskode = tt.tiltakskode
                left join deltaker_registrering_innholdselement dri on tdri.innholdskode = dri.innholdskode
-           where tt.arena_kode = ? and tt.deltaker_registrering_ledetekst is not null;
+           where tt.tiltakskode = ?::tiltakskode and tt.deltaker_registrering_ledetekst is not null;
         """.trimIndent()
 
-        val result = queryOf(query, arenaKode)
+        val result = queryOf(query, tiltakskode.name)
             .map {
                 val innholdskode = it.stringOrNull("innholdskode")
                 val tekst = it.stringOrNull("tekst")

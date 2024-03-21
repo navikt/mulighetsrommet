@@ -15,7 +15,7 @@ data class TiltakstypeEksternDto(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     val navn: String,
-    val tiltakskode: Tiltakskode?,
+    val tiltakskode: Tiltakskode,
     val arenaKode: String,
     @Serializable(with = LocalDateTimeSerializer::class)
     val registrertIArenaDato: LocalDateTime,

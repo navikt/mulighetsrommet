@@ -87,7 +87,7 @@ class ArenaAdapterServiceTest : FunSpec({
                     TiltakstypeEksternDto(
                         id = tiltakstype.id,
                         navn = tiltakstype.navn,
-                        tiltakskode = Tiltakskode.fromArenaKode(tiltakstype.arenaKode),
+                        tiltakskode = Tiltakskode.fromArenaKode(tiltakstype.arenaKode)!!,
                         arenaKode = tiltakstype.arenaKode,
                         registrertIArenaDato = tiltakstype.registrertDatoIArena,
                         sistEndretIArenaDato = tiltakstype.sistEndretDatoIArena,

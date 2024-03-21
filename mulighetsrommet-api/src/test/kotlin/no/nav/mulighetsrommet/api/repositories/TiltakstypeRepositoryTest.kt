@@ -12,6 +12,7 @@ import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.api.utils.TiltakstypeFilter
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
+import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
 import no.nav.mulighetsrommet.domain.dto.Tiltakstypestatus
 import org.intellij.lang.annotations.Language
@@ -212,22 +213,22 @@ class TiltakstypeRepositoryTest : FunSpec({
             @Language("PostgreSQL")
             val query = """
                 insert into deltaker_registrering_innholdselement(innholdskode, tekst)
-                values('jobbsoking', '${TiltakstypeFixtures.Oppfolging.arenaKode}')
+                values('jobbsoking', '${Tiltakskode.OPPFOLGING.name}::tiltakskode')
                 on conflict do nothing;
 
                 insert into deltaker_registrering_innholdselement(innholdskode, tekst)
-                values('kartlegge-helse', '${TiltakstypeFixtures.Oppfolging.arenaKode}')
+                values('kartlegge-helse', '${Tiltakskode.OPPFOLGING.name}::tiltakskode')
                 on conflict do nothing;
 
                 update tiltakstype
                 set deltaker_registrering_ledetekst = 'Oppfølging er et bra tiltak'
-                where arena_kode = '${TiltakstypeFixtures.Oppfolging.arenaKode}';
+                where tiltakskode = '${Tiltakskode.OPPFOLGING.name}';
 
-                insert into tiltakstype_deltaker_registrering_innholdselement(innholdskode, arena_kode)
-                values('jobbsoking', '${TiltakstypeFixtures.Oppfolging.arenaKode}');
+                insert into tiltakstype_deltaker_registrering_innholdselement(innholdskode, tiltakskode)
+                values('jobbsoking', '${Tiltakskode.OPPFOLGING.name}');
 
-                insert into tiltakstype_deltaker_registrering_innholdselement(innholdskode, arena_kode)
-                values('kartlegge-helse', '${TiltakstypeFixtures.Oppfolging.arenaKode}');
+                insert into tiltakstype_deltaker_registrering_innholdselement(innholdskode, tiltakskode)
+                values('kartlegge-helse', '${Tiltakskode.OPPFOLGING.name}');
             """.trimIndent()
             queryOf(
                 query,
@@ -244,7 +245,7 @@ class TiltakstypeRepositoryTest : FunSpec({
             val query = """
                 update tiltakstype
                 set deltaker_registrering_ledetekst = 'VTA er kjempebra'
-                where arena_kode = '${TiltakstypeFixtures.VTA.arenaKode}';
+                where tiltakskode = '${Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET.name}';
             """.trimIndent()
             queryOf(
                 query,
@@ -258,9 +259,7 @@ class TiltakstypeRepositoryTest : FunSpec({
 
         test("Skal kunne hente tiltakstype uten strukturert innhold for deltakerregistrering") {
             tiltakstyper.getEksternTiltakstype(TiltakstypeFixtures.Arbeidstrening.id).should {
-                it?.navn shouldBe "Arbeidstrening"
-                it?.rettPaaTiltakspenger shouldBe true
-                it?.deltakerRegistreringInnhold shouldBe null
+                it shouldBe null
             }
         }
     }

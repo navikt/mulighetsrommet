@@ -6,29 +6,23 @@
 
 update tiltakstype
 set deltaker_registrering_ledetekst = 'Arbeidsforberedende trening er et tilbud for deg som først ønsker å jobbe i et tilrettelagt arbeidsmiljø. Du får veiledning og støtte av en veileder. Sammen kartlegger dere hvordan din kompetanse, interesser og ferdigheter påvirker muligheten din til å jobbe.'
-where arena_kode = 'ARBFORB';
+where tiltakskode = 'ARBEIDSFORBEREDENDE_TRENING';
 
 update tiltakstype
 set deltaker_registrering_ledetekst = 'Arbeidsrettet rehabilitering fokuserer på din helse og muligheter i arbeidslivet. Du får veiledning og støtte av en veileder. Sammen kartlegger dere hvordan din helse, kompetanse, interesser og ferdigheter påvirker muligheten din til å jobbe.'
-where arena_kode = 'ARBRRHDAG';
+where tiltakskode = 'ARBEIDSRETTET_REHABILITERING';
 
 update tiltakstype
 set deltaker_registrering_ledetekst = 'Avklaring skal hjelpe deg med å se hva du kan jobbe med. Du har samtaler med en veileder. Sammen kartlegger dere hvordan kompetanse, opplevelser fra tidligere arbeidsplass, interesser og ferdigheter påvirker muligheten din til å jobbe.'
-where arena_kode = 'AVKLARAG';
+where tiltakskode = 'AVKLARING';
 
 update tiltakstype
 set deltaker_registrering_ledetekst = 'Du får tett oppfølging og støtte av en veileder. Sammen kartlegger dere hvordan din kompetanse, interesser og ferdigheter påvirker muligheten din til å jobbe.'
-where arena_kode = 'INDOPPFAG';
+where tiltakskode = 'OPPFOLGING';
 
 update tiltakstype
 set deltaker_registrering_ledetekst = 'Varig tilrettelagt arbeid er et tilbud for deg som får uføretrygd. Du jobber i en skjermet bedrift med arbeidsoppgaver som er tilpasset deg.'
-where arena_kode = 'VASV';
-
---- AFT = ARBFORB
---- ARR = ARBRRHDAG
---- Avklaring = AVKLARAG
---- Oppfølging = INDOPPFAG
---- VTA = VASV
+where tiltakskode = 'VARIG_TILRETTELAGT_ARBEID_SKJERMET';
 
 insert into deltaker_registrering_innholdselement(innholdskode, tekst)
 values ('jobbsoking', 'Støtte til jobbsøking'),
@@ -50,67 +44,67 @@ values ('jobbsoking', 'Støtte til jobbsøking'),
 on conflict(innholdskode) do update
     set tekst = excluded.tekst;
 
---- Sett innhold for AFT (ARBFORB)
-insert into tiltakstype_deltaker_registrering_innholdselement(innholdskode, arena_kode)
+--- Sett innhold for AFT (ARBEIDSFORBEREDENDE_TRENING)
+insert into tiltakstype_deltaker_registrering_innholdselement(innholdskode, tiltakskode)
 select *
-from (values ('arbeidspraksis', 'ARBFORB'),
-             ('karriereveiledning', 'ARBFORB'),
-             ('kartlegge-helse', 'ARBFORB'),
-             ('kartlegge-grunnleggende-ferdigheter', 'ARBFORB'),
-             ('motivasjon', 'ARBFORB'),
-             ('veiledning-sosialt', 'ARBFORB'),
-             ('oppfolging-arbeidsplassen', 'ARBFORB'),
-             ('tilpasse-arbeidsoppgaver', 'ARBFORB')) as t(innholdskode, arena_kode)
-where exists (select 1 from tiltakstype where arena_kode = 'ARBFORB')
-on conflict (innholdskode, arena_kode) do nothing;
+from (values ('arbeidspraksis', 'ARBEIDSFORBEREDENDE_TRENING'::tiltakskode),
+             ('karriereveiledning', 'ARBEIDSFORBEREDENDE_TRENING'::tiltakskode),
+             ('kartlegge-helse', 'ARBEIDSFORBEREDENDE_TRENING'::tiltakskode),
+             ('kartlegge-grunnleggende-ferdigheter', 'ARBEIDSFORBEREDENDE_TRENING'::tiltakskode),
+             ('motivasjon', 'ARBEIDSFORBEREDENDE_TRENING'::tiltakskode),
+             ('veiledning-sosialt', 'ARBEIDSFORBEREDENDE_TRENING'::tiltakskode),
+             ('oppfolging-arbeidsplassen', 'ARBEIDSFORBEREDENDE_TRENING'::tiltakskode),
+             ('tilpasse-arbeidsoppgaver', 'ARBEIDSFORBEREDENDE_TRENING'::tiltakskode)) as t(innholdskode, tiltakskode)
+where exists (select 1 from tiltakstype where tiltakskode = 'ARBEIDSFORBEREDENDE_TRENING')
+on conflict (innholdskode, tiltakskode) do nothing;
 
---- Sett innhold for ARR (ARBRRHDAG)
-insert into tiltakstype_deltaker_registrering_innholdselement(innholdskode, arena_kode)
+--- Sett innhold for ARR (ARBEIDSRETTET_REHABILITERING)
+insert into tiltakstype_deltaker_registrering_innholdselement(innholdskode, tiltakskode)
 select *
-from (values ('arbeidspraksis', 'ARBRRHDAG'),
-             ('kartlegge-helse', 'ARBRRHDAG'),
-             ('kartlegge-forventninger', 'ARBRRHDAG'),
-             ('kartlegge-arbeidsplassen', 'ARBRRHDAG'),
-             ('veiledning-livsstil', 'ARBRRHDAG'),
-             ('motivasjon', 'ARBRRHDAG'),
-             ('veiledning-sosialt', 'ARBRRHDAG'),
-             ('veiledning-trening', 'ARBRRHDAG'),
-             ('oppfolging-arbeidsplassen', 'ARBRRHDAG'),
-             ('veiledning-arbeidsgiver', 'ARBRRHDAG'),
-             ('tilpasse-arbeidsoppgaver', 'ARBRRHDAG')) as t(innholdskode, arena_kode)
-where exists (select 1 from tiltakstype where arena_kode = 'ARBRRHDAG')
-on conflict (innholdskode, arena_kode) do nothing;
+from (values ('arbeidspraksis', 'ARBEIDSRETTET_REHABILITERING'::tiltakskode),
+             ('kartlegge-helse', 'ARBEIDSRETTET_REHABILITERING'::tiltakskode),
+             ('kartlegge-forventninger', 'ARBEIDSRETTET_REHABILITERING'::tiltakskode),
+             ('kartlegge-arbeidsplassen', 'ARBEIDSRETTET_REHABILITERING'::tiltakskode),
+             ('veiledning-livsstil', 'ARBEIDSRETTET_REHABILITERING'::tiltakskode),
+             ('motivasjon', 'ARBEIDSRETTET_REHABILITERING'::tiltakskode),
+             ('veiledning-sosialt', 'ARBEIDSRETTET_REHABILITERING'::tiltakskode),
+             ('veiledning-trening', 'ARBEIDSRETTET_REHABILITERING'::tiltakskode),
+             ('oppfolging-arbeidsplassen', 'ARBEIDSRETTET_REHABILITERING'::tiltakskode),
+             ('veiledning-arbeidsgiver', 'ARBEIDSRETTET_REHABILITERING'::tiltakskode),
+             ('tilpasse-arbeidsoppgaver', 'ARBEIDSRETTET_REHABILITERING'::tiltakskode)) as t(innholdskode, tiltakskode)
+where exists (select 1 from tiltakstype where tiltakskode = 'ARBEIDSRETTET_REHABILITERING')
+on conflict (innholdskode, tiltakskode) do nothing;
 
---- Sett innhold for Avklaring (AVKLARAG)
-insert into tiltakstype_deltaker_registrering_innholdselement(innholdskode, arena_kode)
+--- Sett innhold for Avklaring (AVKLARING)
+insert into tiltakstype_deltaker_registrering_innholdselement(innholdskode, tiltakskode)
 select *
-from (values ('arbeidspraksis', 'AVKLARAG'),
-             ('karriereveiledning', 'AVKLARAG'),
-             ('kartlegge-helse', 'AVKLARAG'),
-             ('kartlegge-forventninger', 'AVKLARAG'),
-             ('kartlegge-arbeidsplassen', 'AVKLARAG'),
-             ('kartlegge-delta-tiltak', 'AVKLARAG'),
-             ('kartlegge-grunnleggende-ferdigheter', 'AVKLARAG'),
-             ('oppfolging-arbeidsplassen', 'AVKLARAG'),
-             ('veiledning-arbeidsgiver', 'AVKLARAG')) as t(innholdskode, arena_kode)
-where exists (select 1 from tiltakstype where arena_kode = 'AVKLARAG')
-on conflict (innholdskode, arena_kode) do nothing;
+from (values ('arbeidspraksis', 'AVKLARING'::tiltakskode),
+             ('karriereveiledning', 'AVKLARING'::tiltakskode),
+             ('kartlegge-helse', 'AVKLARING'::tiltakskode),
+             ('kartlegge-forventninger', 'AVKLARING'::tiltakskode),
+             ('kartlegge-arbeidsplassen', 'AVKLARING'::tiltakskode),
+             ('kartlegge-delta-tiltak', 'AVKLARING'::tiltakskode),
+             ('kartlegge-grunnleggende-ferdigheter', 'AVKLARING'::tiltakskode),
+             ('oppfolging-arbeidsplassen', 'AVKLARING'::tiltakskode),
+             ('veiledning-arbeidsgiver', 'AVKLARING'::tiltakskode)) as t(innholdskode, tiltakskode)
+where exists (select 1 from tiltakstype where tiltakskode = 'AVKLARING')
+on conflict (innholdskode, tiltakskode) do nothing;
 
---- Sett innhold for Oppfølging (INDOPPFAG)
-insert into tiltakstype_deltaker_registrering_innholdselement(innholdskode, arena_kode)
+--- Sett innhold for Oppfølging (OPPFOLGING)
+insert into tiltakstype_deltaker_registrering_innholdselement(innholdskode, tiltakskode)
 select *
-from (values ('jobbsoking', 'INDOPPFAG'),
-             ('arbeidspraksis', 'INDOPPFAG'),
-             ('karriereveiledning', 'INDOPPFAG'),
-             ('kartlegge-helse', 'INDOPPFAG'),
-             ('kartlegge-forventninger', 'INDOPPFAG'),
-             ('kartlegge-arbeidsplassen', 'INDOPPFAG'),
-             ('veiledning-sosialt', 'INDOPPFAG'),
-             ('oppfolging-arbeidsplassen', 'INDOPPFAG'),
-             ('veiledning-arbeidsgiver', 'INDOPPFAG'),
-             ('tilpasse-arbeidsoppgaver', 'INDOPPFAG')) as t(innholdskode, arena_kode)
-where exists (select 1 from tiltakstype where arena_kode = 'INDOPPFAG')
-on conflict (innholdskode, arena_kode) do nothing;
+from (values ('jobbsoking', 'OPPFOLGING'::tiltakskode),
+             ('arbeidspraksis', 'OPPFOLGING'::tiltakskode),
+             ('karriereveiledning', 'OPPFOLGING'::tiltakskode),
+             ('kartlegge-helse', 'OPPFOLGING'::tiltakskode),
+             ('kartlegge-forventninger', 'OPPFOLGING'::tiltakskode),
+             ('kartlegge-arbeidsplassen', 'OPPFOLGING'::tiltakskode),
+             ('veiledning-sosialt', 'OPPFOLGING'::tiltakskode),
+             ('oppfolging-arbeidsplassen', 'OPPFOLGING'::tiltakskode),
+             ('veiledning-arbeidsgiver', 'OPPFOLGING'::tiltakskode),
+             ('tilpasse-arbeidsoppgaver', 'OPPFOLGING'::tiltakskode)) as t(innholdskode, tiltakskode)
+where exists (select 1 from tiltakstype where tiltakskode = 'OPPFOLGING')
+on conflict (innholdskode, tiltakskode) do nothing;
 
 
 

@@ -117,7 +117,7 @@ class KafkaSyncServiceTest : FunSpec({
                 id = id,
                 navn = navn,
                 arenaKode = arenaKode,
-                tiltakskode = Tiltakskode.fromArenaKode(arenaKode),
+                tiltakskode = Tiltakskode.fromArenaKode(arenaKode)!!,
                 registrertIArenaDato = registrertDatoIArena,
                 sistEndretIArenaDato = sistEndretDatoIArena,
                 fraDato = fraDato,
@@ -130,12 +130,12 @@ class KafkaSyncServiceTest : FunSpec({
 
         val startdatoInnenfor = tiltakstype.copy(
             id = UUID.randomUUID(),
-            arenaKode = "START",
+            arenaKode = "AVKLARAG",
             fraDato = LocalDate.of(2023, 2, 15),
         )
         val sluttdatoInnenfor = tiltakstype.copy(
             id = UUID.randomUUID(),
-            arenaKode = "SLUTT",
+            arenaKode = "GRUPPEAMO",
             fraDato = LocalDate.of(2023, 2, 13),
             tilDato = lastSuccessDate,
         )
