@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { gjennomforingDetaljerTabAtom } from "../../api/atoms";
 import { useMigrerteTiltakstyper } from "../../api/tiltakstyper/useMigrerteTiltakstyper";
 import { DupliserButton } from "../detaljside/DupliserButton";
+import { HarSkrivetilgang } from "../authActions/HarSkrivetilgang";
 
 interface Props {
   tiltaksgjennomforing: Tiltaksgjennomforing;
@@ -33,9 +34,11 @@ export function DupliserTiltak({ tiltaksgjennomforing }: Props) {
   }
 
   return (
-    <DupliserButton
-      title="Dupliser tiltaksgjennomføring"
-      onClick={apneRedigeringForDupliseringAvTiltak}
-    />
+    <HarSkrivetilgang ressurs="Tiltaksgjennomføring">
+      <DupliserButton
+        title="Dupliser tiltaksgjennomføring"
+        onClick={apneRedigeringForDupliseringAvTiltak}
+      />
+    </HarSkrivetilgang>
   );
 }

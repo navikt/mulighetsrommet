@@ -38,11 +38,11 @@ export function MrApiManagement() {
         </RunTask>
 
         <RunTask base={ApiBase.MR_API} task={"sync-navansatte"}>
-          Synkoniserer NAV-ansatte fra relevante AD-grupper.
+          Synkroniserer NAV-ansatte fra relevante AD-grupper.
         </RunTask>
 
         <RunTask base={ApiBase.MR_API} task={"sync-virksomheter"}>
-          Synkoniserer de virksomhetene som allerede finnes i vår database med virksomheter fra
+          Synkroniserer de virksomhetene som allerede finnes i vår database med virksomheter fra
           brønnøysundregistrene.
         </RunTask>
       </VStack>

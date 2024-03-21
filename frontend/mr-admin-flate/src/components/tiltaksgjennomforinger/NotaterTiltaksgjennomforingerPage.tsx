@@ -14,6 +14,7 @@ import { useMineTiltaksgjennomforingsnotater } from "../../api/notater/gjennomfo
 import { useTiltaksgjennomforingById } from "../../api/tiltaksgjennomforing/useTiltaksgjennomforingById";
 import { usePutTiltaksgjennomforingsnotat } from "../../api/notater/gjennomforingsnotat/usePutTiltaksgjennomforingsnotat";
 import { useDeleteTiltaksgjennomforingsnotat } from "../../api/notater/gjennomforingsnotat/useDeleteTiltaksgjennomforingsnotat";
+import { HarSkrivetilgang } from "../authActions/HarSkrivetilgang";
 
 export default function NotaterTiltaksgjennomforingerPage() {
   const { data: notater = [] } = useTiltaksgjennomforingsnotater();
@@ -57,32 +58,34 @@ export default function NotaterTiltaksgjennomforingerPage() {
 
   return (
     <div className={styles.notater}>
-      <FormProvider {...form}>
-        <form onSubmit={handleSubmit(postData)}>
-          <div className={styles.notater_opprett}>
-            <Textarea
-              label={"Innhold for notat"}
-              hideLabel
-              className={styles.notater_input}
-              error={errors.innhold?.message}
-              minRows={15}
-              maxRows={25}
-              resize
-              maxLength={500}
-              {...register("innhold")}
-              value={watch("innhold")}
-            />
-            {putTiltaksgjennomforingsnotat.isError ? (
-              <ErrorMessage>Det skjedde en feil. Notatet ble ikke lagret.</ErrorMessage>
-            ) : null}
-            <span className={styles.notater_knapp}>
-              <Button type="submit" disabled={putTiltaksgjennomforingsnotat.isPending}>
-                {putTiltaksgjennomforingsnotat.isPending ? <Laster /> : "Legg til notat"}
-              </Button>
-            </span>
-          </div>
-        </form>
-      </FormProvider>
+      <HarSkrivetilgang ressurs="Tiltaksgjennomføring">
+        <FormProvider {...form}>
+          <form onSubmit={handleSubmit(postData)}>
+            <div className={styles.notater_opprett}>
+              <Textarea
+                label={"Innhold for notat"}
+                hideLabel
+                className={styles.notater_input}
+                error={errors.innhold?.message}
+                minRows={15}
+                maxRows={25}
+                resize
+                maxLength={500}
+                {...register("innhold")}
+                value={watch("innhold")}
+              />
+              {putTiltaksgjennomforingsnotat.isError ? (
+                <ErrorMessage>Det skjedde en feil. Notatet ble ikke lagret.</ErrorMessage>
+              ) : null}
+              <span className={styles.notater_knapp}>
+                <Button type="submit" disabled={putTiltaksgjennomforingsnotat.isPending}>
+                  {putTiltaksgjennomforingsnotat.isPending ? <Laster /> : "Legg til notat"}
+                </Button>
+              </span>
+            </div>
+          </form>
+        </FormProvider>
+      </HarSkrivetilgang>
 
       <div className={styles.notater_notatvegg}>
         <Heading size="medium" level="3" className={styles.notater_heading}>

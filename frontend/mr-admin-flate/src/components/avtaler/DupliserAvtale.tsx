@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { avtaleDetaljerTabAtom } from "../../api/atoms";
 import { useMigrerteTiltakstyperForAvtaler } from "../../api/tiltakstyper/useMigrerteTiltakstyper";
 import { DupliserButton } from "../detaljside/DupliserButton";
+import { HarSkrivetilgang } from "../authActions/HarSkrivetilgang";
 
 interface Props {
   avtale: Avtale;
@@ -31,5 +32,9 @@ export function DupliserAvtale({ avtale }: Props) {
     });
   }
 
-  return <DupliserButton title="Dupliser avtale" onClick={apneRedigeringForDupliseringAvAvtale} />;
+  return (
+    <HarSkrivetilgang ressurs="Avtale">
+      <DupliserButton title="Dupliser avtale" onClick={apneRedigeringForDupliseringAvAvtale} />
+    </HarSkrivetilgang>
+  );
 }
