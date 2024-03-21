@@ -7,6 +7,7 @@ import { ReactQueryProvider } from "@/ReactQueryProvider";
 import { initAmplitudeNav } from "@/logging/amplitude";
 import { getWebInstrumentations, initializeFaro } from "@grafana/faro-web-sdk";
 import "../../App.module.scss";
+import "../../index.css";
 
 if (import.meta.env.VITE_FARO_URL) {
   initializeFaro({
