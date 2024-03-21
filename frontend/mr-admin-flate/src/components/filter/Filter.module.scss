@@ -38,6 +38,8 @@
   padding: 0.25rem;
   grid-area: filter;
   position: relative;
+  overflow-y: auto;
+  max-height: 85vh;
 }
 
 .hide_filter {
