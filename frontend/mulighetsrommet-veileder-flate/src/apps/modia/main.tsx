@@ -4,7 +4,7 @@ import { getWebInstrumentations, initializeFaro } from "@grafana/faro-web-sdk";
 import { APPLICATION_NAME, APPLICATION_WEB_COMPONENT_NAME } from "@/constants";
 import { ModiaArbeidsmarkedstiltakWrapper } from "./ModiaArbeidsmarkedstiltakWrapper";
 import { initAmplitudeModia } from "@/logging/amplitude";
-import "../../index.css";
+import "../../App.module.scss";
 
 if (import.meta.env.VITE_FARO_URL) {
   initializeFaro({
