@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Alert, Button } from "@navikt/ds-react";
+import { Alert } from "@navikt/ds-react";
 import { ApiError, Toggles } from "mulighetsrommet-api-client";
 import { useTitle } from "mulighetsrommet-frontend-common";
 import { TiltakLoader } from "@/components/TiltakLoader";
@@ -18,9 +18,10 @@ import { useResetArbeidsmarkedstiltakFilterMedBrukerIKontekst } from "@/hooks/us
 import { BrukerHarIkke14aVedtakVarsel } from "@/apps/modia/varsler/BrukerHarIkke14aVedtakVarsel";
 import { BrukersOppfolgingsenhetVarsel } from "@/apps/modia/varsler/BrukersOppfolgingsenhetVarsel";
 import { FiltrertFeilInnsatsgruppeVarsel } from "@/apps/modia/varsler/FiltrertFeilInnsatsgruppeVarsel";
-import { ModiaFilterTags } from "@/apps/modia/filtrering/ModiaFilterTags";
+import { ModiaFiltertags } from "@/apps/modia/filtrering/ModiaFiltertags";
 import { Feilmelding } from "@/components/feilmelding/Feilmelding";
-import { TilToppenKnapp } from "../../../../../frontend-common/components/tilToppenKnapp/TilToppenKnapp";
+import { TilToppenKnapp } from "mulighetsrommet-frontend-common/components/tilToppenKnapp/TilToppenKnapp";
+import { NullstillFilterKnapp } from "mulighetsrommet-frontend-common/components/filter/nullstillFilterKnapp/NullstillFilterKnapp";
 
 export const ModiaArbeidsmarkedstiltakOversikt = () => {
   useTitle("Arbeidsmarkedstiltak - Oversikt");
@@ -74,18 +75,7 @@ export const ModiaArbeidsmarkedstiltakOversikt = () => {
       <FilterAndTableLayout
         filterOpen={filterOpen}
         setFilterOpen={setFilterOpen}
-        resetButton={
-          filterHasChanged && (
-            <Button
-              size="small"
-              variant="tertiary"
-              onClick={resetFilterToDefaults}
-              data-testid="knapp_nullstill-filter"
-            >
-              Nullstill filter
-            </Button>
-          )
-        }
+        resetButton={filterHasChanged && <NullstillFilterKnapp onClick={resetFilterToDefaults} />}
         buttons={
           <>
             <OversiktenJoyride />
@@ -112,7 +102,7 @@ export const ModiaArbeidsmarkedstiltakOversikt = () => {
                     <FiltrertFeilInnsatsgruppeVarsel filter={filter} />
                   </>
                 }
-                tags={<ModiaFilterTags />}
+                tags={<ModiaFiltertags filterOpen={filterOpen} />}
                 feilmelding={
                   tiltaksgjennomforinger.length === 0 ? (
                     <Feilmelding

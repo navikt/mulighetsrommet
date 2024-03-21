@@ -4,7 +4,7 @@ import { TiltakstypeTabell } from "../../components/tabell/TiltakstypeTabell";
 import { HeaderBanner } from "../../layouts/HeaderBanner";
 import { useTitle } from "mulighetsrommet-frontend-common";
 import { ReloadAppErrorBoundary } from "../../ErrorBoundary";
-import { TilToppenKnapp } from "../../../../frontend-common/components/tilToppenKnapp/TilToppenKnapp";
+import { TilToppenKnapp } from "mulighetsrommet-frontend-common/components/tilToppenKnapp/TilToppenKnapp";
 import { Brodsmuler } from "../../components/navigering/Brodsmuler";
 import { TiltakstypeIkon } from "../../components/ikoner/TiltakstypeIkon";
 

@@ -14,7 +14,7 @@ import { FormGroup } from "../skjema/FormGroup";
 import skjemastyles from "../skjema/Skjema.module.scss";
 import { VirksomhetKontaktpersonerModal } from "../virksomhet/VirksomhetKontaktpersonerModal";
 import { InferredAvtaleSchema } from "../redaksjonelt-innhold/AvtaleSchema";
-import { SelectOption } from "../../../../frontend-common/components/SokeSelect";
+import { SelectOption } from "mulighetsrommet-frontend-common/components/SokeSelect";
 import { avtaletekster } from "../ledetekster/avtaleLedetekster";
 
 interface Props {

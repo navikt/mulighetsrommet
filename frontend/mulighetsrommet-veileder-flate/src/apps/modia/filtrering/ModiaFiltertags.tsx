@@ -3,19 +3,26 @@ import {
   ArbeidsmarkedstiltakFilterGruppe,
   useArbeidsmarkedstiltakFilter,
 } from "@/hooks/useArbeidsmarkedstiltakFilter";
-import FilterTag from "../../../components/tags/FilterTag";
-import { NavEnhetTag } from "@/components/tags/NavEnhetTag";
-import { FilterTagsContainer } from "@/components/filtrering/FilterTagsContainer";
+import { Filtertag } from "mulighetsrommet-frontend-common/components/filter/filtertag/Filtertag";
+import { NavEnhetFiltertag } from "mulighetsrommet-frontend-common/components/filter/filtertag/NavEnhetFiltertag";
+import { FiltertagsContainer } from "mulighetsrommet-frontend-common/components/filter/filtertag/FiltertagsContainer";
 
-export function ModiaFilterTags() {
+interface Props {
+  filterOpen?: boolean;
+}
+
+export function ModiaFiltertags({ filterOpen }: Props) {
   const [filter, setFilter] = useArbeidsmarkedstiltakFilter();
 
   return (
-    <FilterTagsContainer>
-      {filter.innsatsgruppe && <FilterTag options={[filter.innsatsgruppe]} />}
-      <NavEnhetTag onClose={() => setFilter({ ...filter, navEnheter: [] })} />
+    <FiltertagsContainer filterOpen={filterOpen}>
+      {filter.innsatsgruppe && <Filtertag options={[filter.innsatsgruppe]} />}
+      <NavEnhetFiltertag
+        navEnheter={filter.navEnheter}
+        onClose={() => setFilter({ ...filter, navEnheter: [] })}
+      />
       {filter.apentForInnsok !== ApentForInnsok.APENT_ELLER_STENGT && (
-        <FilterTag
+        <Filtertag
           options={[
             {
               id: filter.apentForInnsok,
@@ -30,7 +37,7 @@ export function ModiaFilterTags() {
           }
         />
       )}
-      <FilterTag
+      <Filtertag
         options={filter.tiltakstyper}
         onClose={(id: string) =>
           setFilter({
@@ -42,11 +49,11 @@ export function ModiaFilterTags() {
         }
       />
       {filter.search && (
-        <FilterTag
+        <Filtertag
           options={[{ id: "search", tittel: `'${filter.search}'` }]}
           onClose={() => setFilter({ ...filter, search: "" })}
         />
       )}
-    </FilterTagsContainer>
+    </FiltertagsContainer>
   );
 }

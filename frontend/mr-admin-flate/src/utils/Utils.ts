@@ -136,22 +136,6 @@ export function formaterNavEnheter(
   return `${forsteEnhet?.navn} ${liste.length > 0 ? `+ ${liste.length}` : ""}`;
 }
 
-function specialChar(string: string | { label: string }) {
-  return string
-    .toString()
-    .toLowerCase()
-    .split("æ")
-    .join("ae")
-    .split("ø")
-    .join("o")
-    .split("å")
-    .join("a");
-}
-
-export function kebabCase(string: string | { label: string }) {
-  return specialChar(string).trim().replace(/\s+/g, "-").replace(/_/g, "-");
-}
-
 export function addOrRemove<T>(array: T[], item: T): T[] {
   const exists = array.includes(item);
 

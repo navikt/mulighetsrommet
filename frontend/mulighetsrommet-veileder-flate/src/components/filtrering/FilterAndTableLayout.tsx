@@ -27,11 +27,11 @@ export function FilterAndTableLayout({
         className={styles.filter_headerbutton}
         size="medium"
         value={filterOpen ? "filter" : ""}
-        data-testid="filter_tabs"
+        data-testid="filtertabs"
       >
         <Tabs.List>
           <Tabs.Tab
-            className={styles.filter_tab}
+            className={styles.filtertab}
             onClick={() => setFilterOpen(!filterOpen)}
             value="filter"
             data-testid="filter-tab"

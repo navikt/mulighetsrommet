@@ -17,9 +17,9 @@ import {
   tiltakstypeOptions,
   virksomhetOptions,
 } from "../../utils/filterUtils";
-import { FilterAccordionHeader } from "./FilterAccordionHeader";
 import { NavEnhetFilter } from "mulighetsrommet-frontend-common";
 import { useRegioner } from "../../api/enhet/useRegioner";
+import { FilterAccordionHeader } from "mulighetsrommet-frontend-common/components/filter/accordionHeader/FilterAccordionHeader";
 
 type Filters = "tiltakstype";
 
@@ -84,7 +84,7 @@ export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
         hideLabel
         size="small"
         variant="simple"
-        placeholder="Navn eller tiltaksnr."
+        placeholder="Navn, tiltaksnr., tiltaksarrangør"
         onChange={(search: string) => {
           setFilter({
             ...filter,

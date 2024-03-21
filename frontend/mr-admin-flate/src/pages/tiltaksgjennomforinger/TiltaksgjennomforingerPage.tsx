@@ -6,15 +6,17 @@ import { MainContainer } from "../../layouts/MainContainer";
 import { tiltaksgjennomforingfilterAtom } from "../../api/atoms";
 import { FilterAndTableLayout } from "../../components/filter/FilterAndTableLayout";
 import { TiltaksgjennomforingFilterButtons } from "../../components/filter/TiltaksgjennomforingFilterButtons";
-import { TiltaksgjennomforingFilterTags } from "../../components/filter/TiltaksgjennomforingFilterTags";
+import { TiltaksgjennomforingFiltertags } from "../../components/filter/TiltaksgjennomforingFiltertags";
 import { TiltaksgjennomforingFilter } from "../../components/filter/Tiltaksgjennomforingfilter";
 import { ReloadAppErrorBoundary } from "../../ErrorBoundary";
-import { TilToppenKnapp } from "../../../../frontend-common/components/tilToppenKnapp/TilToppenKnapp";
+import { TilToppenKnapp } from "mulighetsrommet-frontend-common/components/tilToppenKnapp/TilToppenKnapp";
 import { Brodsmuler } from "../../components/navigering/Brodsmuler";
 import { TiltaksgjennomforingIkon } from "../../components/ikoner/TiltaksgjennomforingIkon";
+import { useState } from "react";
 
 export function TiltaksgjennomforingerPage() {
   useTitle("Tiltaksgjennomføringer");
+  const [filterOpen, setFilterOpen] = useState<boolean>(true);
 
   return (
     <>
@@ -32,7 +34,12 @@ export function TiltaksgjennomforingerPage() {
         <ContainerLayout>
           <FilterAndTableLayout
             filter={<TiltaksgjennomforingFilter filterAtom={tiltaksgjennomforingfilterAtom} />}
-            tags={<TiltaksgjennomforingFilterTags filterAtom={tiltaksgjennomforingfilterAtom} />}
+            tags={
+              <TiltaksgjennomforingFiltertags
+                filterAtom={tiltaksgjennomforingfilterAtom}
+                filterOpen={filterOpen}
+              />
+            }
             buttons={
               <TiltaksgjennomforingFilterButtons filterAtom={tiltaksgjennomforingfilterAtom} />
             }
@@ -41,6 +48,8 @@ export function TiltaksgjennomforingerPage() {
                 <TiltaksgjennomforingsTabell filterAtom={tiltaksgjennomforingfilterAtom} />
               </ReloadAppErrorBoundary>
             }
+            filterOpen={filterOpen}
+            setFilterOpen={setFilterOpen}
           />
         </ContainerLayout>
       </MainContainer>
