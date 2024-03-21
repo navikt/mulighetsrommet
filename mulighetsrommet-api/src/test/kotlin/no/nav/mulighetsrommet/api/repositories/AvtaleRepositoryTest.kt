@@ -565,6 +565,33 @@ class AvtaleRepositoryTest : FunSpec({
             result.second[0].tiltakstype.id shouldBe tiltakstypeId
             result.second[1].tiltakstype.id shouldBe tiltakstypeId
         }
+
+        test("Filtrering på tiltaksarrangørs navn gir treff") {
+            val virksomheter = VirksomhetRepository(database.db)
+            val annenArrangor = VirksomhetFixtures.underenhet1.copy(id = UUID.randomUUID(), navn = "Annen Arrangør AS", organisasjonsnummer = "667543265")
+            virksomheter.upsert(VirksomhetFixtures.hovedenhet.copy(navn = "Hovedenhet AS"))
+            virksomheter.upsert(annenArrangor)
+            val avtale1 = AvtaleFixtures.oppfolging.copy(
+                leverandorVirksomhetId = VirksomhetFixtures.hovedenhet.id,
+            )
+            val avtale2 = avtale1.copy(
+                id = UUID.randomUUID(),
+                leverandorVirksomhetId = VirksomhetFixtures.hovedenhet.id,
+            )
+            val avtale3 = avtale1.copy(
+                id = UUID.randomUUID(),
+                leverandorVirksomhetId = annenArrangor.id,
+            )
+
+            avtaler.upsert(avtale1)
+            avtaler.upsert(avtale2)
+            avtaler.upsert(avtale3)
+            val result = avtaler.getAll(
+                search = "enhet",
+            )
+
+            result.second shouldHaveSize 2
+        }
     }
 
     context("Sortering") {

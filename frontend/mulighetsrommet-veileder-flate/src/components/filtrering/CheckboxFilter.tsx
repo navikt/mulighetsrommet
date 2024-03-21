@@ -2,7 +2,8 @@ import { Accordion, Alert, Checkbox, CheckboxGroup } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import React from "react";
 import { filterAccordionAtom } from "@/core/atoms/atoms";
-import { addOrRemove, kebabCase } from "@/utils/Utils";
+import { addOrRemove } from "@/utils/Utils";
+import { kebabCase } from "../../../../frontend-common/utils/TestUtils";
 
 interface CheckboxFilterProps<T extends { id: string; tittel: string }> {
   accordionHeader: React.ReactNode;

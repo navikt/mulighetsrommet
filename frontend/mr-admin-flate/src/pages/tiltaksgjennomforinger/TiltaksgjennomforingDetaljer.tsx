@@ -1,5 +1,5 @@
 import { ExternalLinkIcon } from "@navikt/aksel-icons";
-import { BodyShort, HelpText, Tag } from "@navikt/ds-react";
+import { BodyShort, HStack, HelpText, Tag } from "@navikt/ds-react";
 import {
   Avtale,
   Tiltaksgjennomforing,
@@ -194,9 +194,11 @@ export function TiltaksgjennomforingDetaljer(props: Props) {
               header={tiltaktekster.navEnheterKontorerLabel}
               verdi={
                 <ul>
-                  {navEnheter.map((enhet) => (
-                    <li key={enhet.enhetsnummer}>{enhet.navn}</li>
-                  ))}
+                  {navEnheter
+                    .sort((a, b) => a.navn.localeCompare(b.navn))
+                    .map((enhet) => (
+                      <li key={enhet.enhetsnummer}>{enhet.navn}</li>
+                    ))}
                 </ul>
               }
             />
@@ -219,16 +221,18 @@ export function TiltaksgjennomforingDetaljer(props: Props) {
 
           {kontaktpersonerFraNav.map((kp, index) => {
             return (
-              <Bolk
-                aria-label={tiltaktekster.kontaktpersonNavEnheter(
-                  navnPaaNavEnheterForKontaktperson(kp.navEnheter),
-                )}
-                key={index}
-              >
+              <Bolk key={index} classez={styles.nav_kontaktpersoner}>
                 <Metadata
-                  header={tiltaktekster.kontaktpersonNavEnheter(
-                    navnPaaNavEnheterForKontaktperson(kp.navEnheter),
-                  )}
+                  header={
+                    <>
+                      <span style={{ fontWeight: "bold" }}>Kontaktperson for:</span>{" "}
+                      <span style={{ fontWeight: "initial" }}>
+                        {navnPaaNavEnheterForKontaktperson(
+                          kp.navEnheter.sort((a, b) => a.localeCompare(b)),
+                        )}
+                      </span>
+                    </>
+                  }
                   verdi={<Kontaktperson kontaktperson={kp} />}
                 />
               </Bolk>
@@ -299,7 +303,10 @@ function HentTiltaksnummer({ id }: { id: string }) {
   return isError ? (
     <Tag variant="error">Klarte ikke hente tiltaksnummer</Tag>
   ) : isLoading ? (
-    <Laster />
+    <HStack align={"center"} gap="1">
+      <Laster />
+      <span>Henter tiltaksnummer i Arena</span>
+    </HStack>
   ) : (
     data?.tiltaksnummer
   );

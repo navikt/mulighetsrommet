@@ -978,7 +978,7 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
             {
               _type: "span",
               marks: ["strong"],
-              text: "Leverandør tar kontakt med brukeren",
+              text: "Tiltaksarrangør tar kontakt med brukeren",
               _key: "0a1d41c64a1c",
             },
           ],
@@ -994,7 +994,7 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
             {
               _type: "span",
               marks: [],
-              text: "Leverandøren tar kontakt med brukeren på e-post og eventuelt SMS og avtaler oppstart.",
+              text: "Tiltaksarrangør tar kontakt med brukeren på e-post og eventuelt SMS og avtaler oppstart.",
               _key: "91992bbecd2d",
             },
           ],

@@ -85,7 +85,12 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 it.apentForInnsok shouldBe true
                 it.antallPlasser shouldBe 12
                 it.avtaleId shouldBe Oppfolging1.avtaleId
-                it.administratorer shouldBe listOf(TiltaksgjennomforingAdminDto.Administrator(navIdent = NavIdent("DD1"), navn = "Donald Duck"))
+                it.administratorer shouldBe listOf(
+                    TiltaksgjennomforingAdminDto.Administrator(
+                        navIdent = NavIdent("DD1"),
+                        navn = "Donald Duck",
+                    ),
+                )
                 it.navEnheter shouldBe listOf(NavEnhetFixtures.Gjovik)
                 it.sanityId shouldBe null
                 it.oppstart shouldBe TiltaksgjennomforingOppstartstype.LOPENDE
@@ -529,6 +534,35 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 it.second[0].id shouldBe Oppfolging2.id
             }
         }
+
+        test("Skal kunne søke på tiltaksarrangørs navn i fritekstsøk") {
+            val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
+            val virksomheter = VirksomhetRepository(database.db)
+
+            virksomheter.upsert(VirksomhetFixtures.hovedenhet)
+            virksomheter.upsert(VirksomhetFixtures.underenhet1.copy(navn = "Underenhet Bergen"))
+            virksomheter.upsert(VirksomhetFixtures.underenhet2.copy(navn = "Underenhet Ålesun"))
+
+            tiltaksgjennomforinger.upsert(
+                Oppfolging1.copy(arrangorVirksomhetId = VirksomhetFixtures.underenhet1.id),
+            )
+            tiltaksgjennomforinger.upsert(
+                Oppfolging2.copy(arrangorVirksomhetId = VirksomhetFixtures.underenhet2.id),
+            )
+
+            tiltaksgjennomforinger.getAll(
+                search = "bergen",
+            ).should {
+                it.second.size shouldBe 1
+                it.second[0].arrangor.navn shouldBe "Underenhet Bergen"
+            }
+
+            tiltaksgjennomforinger.getAll(
+                search = "under",
+            ).should {
+                it.second.size shouldBe 2
+            }
+        }
     }
 
     context("Cutoffdato") {
@@ -954,6 +988,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
 
     context("getAllVeilederflateTiltaksgjennomforing") {
         val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
+        val virksomheter = VirksomhetRepository(database.db)
 
         val oppfolgingSanityId = UUID.randomUUID()
         val arbeidstreningSanityId = UUID.randomUUID()

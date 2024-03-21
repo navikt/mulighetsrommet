@@ -8,13 +8,15 @@ import { useTitle } from "mulighetsrommet-frontend-common";
 import { ReloadAppErrorBoundary } from "../../ErrorBoundary";
 import { FilterAndTableLayout } from "../../components/filter/FilterAndTableLayout";
 import { AvtaleFilterButtons } from "../../components/filter/AvtaleFilterButtons";
-import { AvtaleFilterTags } from "../../components/filter/AvtaleFilterTags";
-import { TilToppenKnapp } from "../../../../frontend-common/components/tilToppenKnapp/TilToppenKnapp";
+import { AvtaleFiltertags } from "../../components/filter/AvtaleFiltertags";
+import { TilToppenKnapp } from "mulighetsrommet-frontend-common/components/tilToppenKnapp/TilToppenKnapp";
 import { Brodsmuler } from "../../components/navigering/Brodsmuler";
 import { AvtaleIkon } from "../../components/ikoner/AvtaleIkon";
+import { useState } from "react";
 
 export function AvtalerPage() {
   useTitle("Avtaler");
+  const [filterOpen, setFilterOpen] = useState<boolean>(true);
 
   return (
     <>
@@ -30,9 +32,11 @@ export function AvtalerPage() {
           <ContainerLayout>
             <FilterAndTableLayout
               filter={<AvtaleFilter filterAtom={avtaleFilterAtom} />}
-              tags={<AvtaleFilterTags filterAtom={avtaleFilterAtom} />}
+              tags={<AvtaleFiltertags filterAtom={avtaleFilterAtom} filterOpen={filterOpen} />}
               buttons={<AvtaleFilterButtons filterAtom={avtaleFilterAtom} />}
               table={<AvtaleTabell filterAtom={avtaleFilterAtom} />}
+              setFilterOpen={setFilterOpen}
+              filterOpen={filterOpen}
             />
           </ContainerLayout>
         </MainContainer>

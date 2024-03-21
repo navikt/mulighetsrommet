@@ -3,23 +3,27 @@ import {
   ArbeidsmarkedstiltakFilterGruppe,
   useArbeidsmarkedstiltakFilter,
 } from "@/hooks/useArbeidsmarkedstiltakFilter";
-import FilterTag from "../../../components/tags/FilterTag";
-import { NavEnhetTag } from "@/components/tags/NavEnhetTag";
-import { FilterTagsContainer } from "@/components/filtrering/FilterTagsContainer";
+import { NavEnhetFiltertag } from "mulighetsrommet-frontend-common/components/filter/filtertag/NavEnhetFiltertag";
+import { FiltertagsContainer } from "mulighetsrommet-frontend-common/components/filter/filtertag/FiltertagsContainer";
+import { Filtertag } from "mulighetsrommet-frontend-common/components/filter/filtertag/Filtertag";
 
-export function NavFilterTags() {
+interface Props {
+  filterOpen?: boolean;
+}
+
+export function NavFiltertags({ filterOpen }: Props) {
   const [filter, setFilter] = useArbeidsmarkedstiltakFilter();
 
   return (
-    <FilterTagsContainer>
+    <FiltertagsContainer filterOpen={filterOpen}>
       {filter.search && (
-        <FilterTag
+        <Filtertag
           options={[{ id: "search", tittel: `'${filter.search}'` }]}
           onClose={() => setFilter({ ...filter, search: "" })}
         />
       )}
       {filter.apentForInnsok !== ApentForInnsok.APENT_ELLER_STENGT && (
-        <FilterTag
+        <Filtertag
           options={[
             {
               id: filter.apentForInnsok,
@@ -35,15 +39,15 @@ export function NavFilterTags() {
         />
       )}
       {filter.innsatsgruppe && (
-        <FilterTag
+        <Filtertag
           options={[filter.innsatsgruppe]}
           onClose={() => {
             setFilter({ ...filter, innsatsgruppe: undefined });
           }}
         />
       )}
-      <NavEnhetTag onClose={() => setFilter({ ...filter, regionMap: {} })} />
-      <FilterTag
+      <NavEnhetFiltertag onClose={() => setFilter({ ...filter, regionMap: {} })} />
+      <Filtertag
         options={filter.tiltakstyper}
         onClose={(id: string) =>
           setFilter({
@@ -54,6 +58,6 @@ export function NavFilterTags() {
           })
         }
       />
-    </FilterTagsContainer>
+    </FiltertagsContainer>
   );
 }

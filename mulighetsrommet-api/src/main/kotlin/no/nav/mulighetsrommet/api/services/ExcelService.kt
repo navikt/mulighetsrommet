@@ -45,8 +45,8 @@ class ExcelService {
         opprettCelle(headers, 0, "Avtalenavn")
         opprettCelle(headers, 1, "Tiltakstype")
         opprettCelle(headers, 2, "Avtalenummer")
-        opprettCelle(headers, 3, "Leverandør")
-        opprettCelle(headers, 4, "Leverandør orgnr")
+        opprettCelle(headers, 3, "Tiltaksarrangør")
+        opprettCelle(headers, 4, "Tiltaksarrangør orgnr")
         opprettCelle(headers, 5, "Startdato")
         opprettCelle(headers, 6, "Sluttdato")
     }

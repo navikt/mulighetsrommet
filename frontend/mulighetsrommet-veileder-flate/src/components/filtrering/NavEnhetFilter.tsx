@@ -9,7 +9,7 @@ import { filterAccordionAtom } from "@/core/atoms/atoms";
 import { RegionMap } from "@/hooks/useArbeidsmarkedstiltakFilter";
 import { addOrRemove } from "@/utils/Utils";
 import styles from "./CheckboxFilter.module.scss";
-import { FilterAccordionHeader } from "@/components/filtrering/FilterAccordionHeader";
+import { FilterAccordionHeader } from "mulighetsrommet-frontend-common/components/filter/accordionHeader/FilterAccordionHeader";
 
 interface Props {
   regionMapFilter: RegionMap;

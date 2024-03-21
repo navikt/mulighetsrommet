@@ -305,6 +305,7 @@ private fun services(appConfig: AppConfig) = module {
         AvtaleService(
             get(),
             get(),
+            tiltakstyperMigrert = appConfig.migrerteTiltak,
             get(),
             get(),
             get(),

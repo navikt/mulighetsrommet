@@ -1,4 +1,4 @@
-import { Lenke } from "../../../../frontend-common/components/lenke/Lenke";
+import { Lenke } from "mulighetsrommet-frontend-common/components/lenke/Lenke";
 import styles from "./Tilbakeknapp.module.scss";
 import { BodyShort } from "@navikt/ds-react";
 import { ChevronLeftIcon } from "@navikt/aksel-icons";

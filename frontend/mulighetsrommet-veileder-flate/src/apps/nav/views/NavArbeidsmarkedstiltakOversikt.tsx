@@ -3,16 +3,16 @@ import { FilterAndTableLayout } from "@/components/filtrering/FilterAndTableLayo
 import { Tiltaksgjennomforingsoversikt } from "@/components/oversikt/Tiltaksgjennomforingsoversikt";
 import { useNavTiltaksgjennomforinger } from "@/core/api/queries/useTiltaksgjennomforinger";
 import { FilterMenyMedSkeletonLoader } from "@/components/filtrering/FilterMenyMedSkeletonLoader";
-import { Button } from "@navikt/ds-react";
 import {
   isFilterReady,
   useArbeidsmarkedstiltakFilterValue,
   useResetArbeidsmarkedstiltakFilterUtenBrukerIKontekst,
 } from "@/hooks/useArbeidsmarkedstiltakFilter";
-import { NavFilterTags } from "@/apps/nav/filtrering/NavFilterTags";
+import { NavFiltertags } from "@/apps/nav/filtrering/NavFiltertags";
 import { useState } from "react";
 import { Feilmelding } from "@/components/feilmelding/Feilmelding";
-import { TilToppenKnapp } from "../../../../../frontend-common/components/tilToppenKnapp/TilToppenKnapp";
+import { TilToppenKnapp } from "mulighetsrommet-frontend-common/components/tilToppenKnapp/TilToppenKnapp";
+import { NullstillFilterKnapp } from "mulighetsrommet-frontend-common/components/filter/nullstillFilterKnapp/NullstillFilterKnapp";
 
 interface Props {
   preview?: boolean;
@@ -34,18 +34,7 @@ export const NavArbeidsmarkedstiltakOversikt = ({ preview = false }: Props) => {
         setFilterOpen={setFilterOpen}
         buttons={null}
         filter={<FilterMenyMedSkeletonLoader />}
-        resetButton={
-          filterHasChanged && (
-            <Button
-              size="small"
-              variant="tertiary"
-              onClick={resetFilterToDefaults}
-              data-testid="knapp_nullstill-filter"
-            >
-              Nullstill filter
-            </Button>
-          )
-        }
+        resetButton={filterHasChanged && <NullstillFilterKnapp onClick={resetFilterToDefaults} />}
         table={
           <div>
             {isLoading ? (
@@ -53,7 +42,7 @@ export const NavArbeidsmarkedstiltakOversikt = ({ preview = false }: Props) => {
             ) : (
               <Tiltaksgjennomforingsoversikt
                 tiltaksgjennomforinger={tiltaksgjennomforinger}
-                tags={<NavFilterTags />}
+                tags={<NavFiltertags filterOpen={filterOpen} />}
                 filterOpen={filterOpen}
                 feilmelding={
                   !isFilterReady(filter) ? (

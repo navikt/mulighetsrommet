@@ -1,15 +1,15 @@
 import { Tag } from "@navikt/ds-react";
-import { kebabCase } from "@/utils/Utils";
-import Ikonknapp from "../knapper/Ikonknapp";
-import styles from "./Filtertag.module.scss";
+import { kebabCase } from "../../../utils/TestUtils";
 import { XMarkIcon } from "@navikt/aksel-icons";
+import styles from "./Filtertag.module.scss";
+import Ikonknapp from "../../ikonknapp/Ikonknapp";
 
-interface FilterTagsProps {
+interface FiltertagsProps {
   options: { id: string; tittel: string }[];
   onClose?: (id: string) => void;
 }
 
-const FilterTag = ({ options, onClose }: FilterTagsProps) => {
+export const Filtertag = ({ options, onClose }: FiltertagsProps) => {
   return (
     <>
       {options.map((filtertype) => {
@@ -43,5 +43,3 @@ const FilterTag = ({ options, onClose }: FilterTagsProps) => {
     </>
   );
 };
-
-export default FilterTag;

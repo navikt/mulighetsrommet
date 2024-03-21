@@ -94,6 +94,7 @@ export const VirksomhetKontaktpersonSkjema = (props: VirksomhetKontaktpersonerPr
         label={"Navn"}
         value={state.navn}
         error={state.errors.navn}
+        autoFocus
         onChange={(e) => {
           setState({
             ...state,

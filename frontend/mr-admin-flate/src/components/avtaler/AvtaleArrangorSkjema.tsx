@@ -14,7 +14,7 @@ import { FormGroup } from "../skjema/FormGroup";
 import skjemastyles from "../skjema/Skjema.module.scss";
 import { VirksomhetKontaktpersonerModal } from "../virksomhet/VirksomhetKontaktpersonerModal";
 import { InferredAvtaleSchema } from "../redaksjonelt-innhold/AvtaleSchema";
-import { SelectOption } from "../../../../frontend-common/components/SokeSelect";
+import { SelectOption } from "mulighetsrommet-frontend-common/components/SokeSelect";
 import { avtaletekster } from "../ledetekster/avtaleLedetekster";
 
 interface Props {
@@ -88,7 +88,7 @@ export function AvtaleArrangorSkjema({ readOnly }: Props) {
             variant="tertiary"
             onClick={() => virksomhetKontaktpersonerModalRef.current?.showModal()}
           >
-            Rediger eller legg til kontaktpersoner
+            Opprett eller rediger kontaktpersoner
           </Button>
         </div>
       </FormGroup>

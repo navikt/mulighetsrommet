@@ -3448,6 +3448,7 @@ components:
         - mulighetsrommet-veilederflate-landingsside
         - mulighetsrommet-veilederflate-arena-oppskrifter
         - mulighetsrommet.admin-flate.show-notater
+        - mulighetsrommet.admin-flate.enableDebugger
 
     PublisertRequest:
       type: object
