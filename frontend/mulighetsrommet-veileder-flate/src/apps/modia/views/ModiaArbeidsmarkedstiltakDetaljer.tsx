@@ -23,7 +23,7 @@ import {
   Bruker,
   Innsatsgruppe,
   NavVeileder,
-  Tiltakskode,
+  TiltakskodeArena,
   Toggles,
   VeilederflateTiltakstype,
 } from "mulighetsrommet-api-client";
@@ -182,13 +182,13 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
   );
 }
 
-const whiteListOpprettAvtaleKnapp: Tiltakskode[] = [
-  Tiltakskode.MIDLONTIL,
-  Tiltakskode.ARBTREN,
-  Tiltakskode.VARLONTIL,
-  Tiltakskode.MENTOR,
-  Tiltakskode.INKLUTILS,
-  Tiltakskode.TILSJOBB,
+const whiteListOpprettAvtaleKnapp: TiltakskodeArena[] = [
+  TiltakskodeArena.MIDLONTIL,
+  TiltakskodeArena.ARBTREN,
+  TiltakskodeArena.VARLONTIL,
+  TiltakskodeArena.MENTOR,
+  TiltakskodeArena.INKLUTILS,
+  TiltakskodeArena.TILSJOBB,
 ];
 
 function resolveName(ansatt: NavVeileder) {
@@ -225,11 +225,11 @@ function harBrukerRettPaaValgtTiltak(brukerdata: Bruker, tiltakstype: Veilederfl
 
 function tiltakstypeStotterPamelding(tiltakstype: VeilederflateTiltakstype): boolean {
   const whitelistTiltakstypeStotterPamelding = [
-    Tiltakskode.ARBFORB,
-    Tiltakskode.ARBRRHDAG,
-    Tiltakskode.AVKLARAG,
-    Tiltakskode.INDOPPFAG,
-    Tiltakskode.VASV,
+    TiltakskodeArena.ARBFORB,
+    TiltakskodeArena.ARBRRHDAG,
+    TiltakskodeArena.AVKLARAG,
+    TiltakskodeArena.INDOPPFAG,
+    TiltakskodeArena.VASV,
   ];
   return (
     !!tiltakstype.arenakode && whitelistTiltakstypeStotterPamelding.includes(tiltakstype.arenakode)

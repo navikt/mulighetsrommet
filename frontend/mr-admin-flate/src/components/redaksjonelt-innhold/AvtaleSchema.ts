@@ -1,4 +1,4 @@
-import { Avtaletype, Tiltakskode } from "mulighetsrommet-api-client";
+import { Avtaletype, TiltakskodeArena } from "mulighetsrommet-api-client";
 import z from "zod";
 import { FaneinnholdSchema } from "./FaneinnholdSchema";
 
@@ -13,7 +13,7 @@ export const AvtaleSchema = z
     tiltakstype: z.object(
       {
         navn: z.string(),
-        arenaKode: z.nativeEnum(Tiltakskode),
+        arenaKode: z.nativeEnum(TiltakskodeArena),
         id: z.string(),
       },
       { required_error: "Du må velge en tiltakstype" },

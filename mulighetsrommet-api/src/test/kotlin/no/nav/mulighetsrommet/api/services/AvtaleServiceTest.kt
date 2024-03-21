@@ -26,6 +26,7 @@ import no.nav.mulighetsrommet.api.routes.v1.responses.BadRequest
 import no.nav.mulighetsrommet.api.routes.v1.responses.NotFound
 import no.nav.mulighetsrommet.api.routes.v1.responses.ValidationError
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
+import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.notifications.NotificationRepository
@@ -58,7 +59,7 @@ class AvtaleServiceTest : FunSpec({
         val avtaleService = AvtaleService(
             avtaler,
             tiltaksgjennomforinger,
-            listOf(TiltakstypeFixtures.Oppfolging.tiltakskode),
+            listOf(Tiltakskode.OPPFOLGING),
             virksomhetService,
             NotificationRepository(database.db),
             validator,
@@ -105,7 +106,7 @@ class AvtaleServiceTest : FunSpec({
         val avtaleService = AvtaleService(
             avtaleRepository,
             tiltaksgjennomforinger,
-            listOf(TiltakstypeFixtures.Jobbklubb.tiltakskode),
+            listOf(Tiltakskode.JOBBKLUBB),
             virksomhetService,
             NotificationRepository(database.db),
             validator,
@@ -142,7 +143,7 @@ class AvtaleServiceTest : FunSpec({
             val service = AvtaleService(
                 avtaleRepository,
                 tiltaksgjennomforinger,
-                listOf(TiltakstypeFixtures.Oppfolging.tiltakskode),
+                listOf(Tiltakskode.OPPFOLGING),
                 virksomhetService,
                 NotificationRepository(database.db),
                 validator,
@@ -233,7 +234,7 @@ class AvtaleServiceTest : FunSpec({
         val avtaleService = AvtaleService(
             avtaler,
             tiltaksgjennomforinger,
-            listOf(TiltakstypeFixtures.Oppfolging.tiltakskode),
+            listOf(Tiltakskode.OPPFOLGING),
             virksomhetService,
             NotificationRepository(database.db),
             validator,

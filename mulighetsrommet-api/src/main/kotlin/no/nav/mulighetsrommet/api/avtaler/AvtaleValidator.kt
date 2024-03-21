@@ -15,6 +15,7 @@ import no.nav.mulighetsrommet.api.repositories.VirksomhetRepository
 import no.nav.mulighetsrommet.api.routes.v1.responses.ValidationError
 import no.nav.mulighetsrommet.api.services.NavEnhetService
 import no.nav.mulighetsrommet.api.services.TiltakstypeService
+import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.Tiltakskoder
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
@@ -67,7 +68,7 @@ class AvtaleValidator(
                 )
             }
 
-            if (!allowedAvtaletypes(tiltakstype.arenaKode).contains(avtale.avtaletype)) {
+            if (!allowedAvtaletypes(Tiltakskode.fromArenaKode(tiltakstype.arenaKode)).contains(avtale.avtaletype)) {
                 add(
                     ValidationError.of(
                         AvtaleDbo::avtaletype,
@@ -254,5 +255,5 @@ class AvtaleValidator(
     }
 
     private fun isEnabled(arenakode: String) =
-        tiltakstyper.isEnabled(arenakode) || Tiltakskoder.TiltakMedAvtalerFraMulighetsrommet.contains(arenakode)
+        tiltakstyper.isEnabled(Tiltakskode.fromArenaKode(arenakode)) || Tiltakskoder.TiltakMedAvtalerFraMulighetsrommet.contains(arenakode)
 }

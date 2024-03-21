@@ -25,6 +25,7 @@ import no.nav.mulighetsrommet.api.repositories.*
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
+import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.*
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus.AVSLUTTET
@@ -79,14 +80,15 @@ class ArenaAdapterServiceTest : FunSpec({
                 tiltakstypeKafkaProducer = tiltakstypeKafkaProducer,
             )
 
-            service.upsertTiltakstype(tiltakstype).shouldBeRight()
+            service.upsertTiltakstype(tiltakstype)
 
             verify(exactly = 1) {
                 tiltakstypeKafkaProducer.publish(
                     TiltakstypeEksternDto(
                         id = tiltakstype.id,
                         navn = tiltakstype.navn,
-                        arenaKode = tiltakstype.tiltakskode,
+                        tiltakskode = Tiltakskode.fromArenaKode(tiltakstype.arenaKode)!!,
+                        arenaKode = tiltakstype.arenaKode,
                         registrertIArenaDato = tiltakstype.registrertDatoIArena,
                         sistEndretIArenaDato = tiltakstype.sistEndretDatoIArena,
                         fraDato = tiltakstype.fraDato,
@@ -488,7 +490,7 @@ class ArenaAdapterServiceTest : FunSpec({
 
             val service = createArenaAdapterService(
                 database.db,
-                migrerteTiltakstyper = listOf("INDOPPFAG"),
+                migrerteTiltakstyper = listOf(Tiltakskode.OPPFOLGING),
             )
 
             service.upsertTiltaksgjennomforing(arenaDbo)
@@ -518,10 +520,10 @@ class ArenaAdapterServiceTest : FunSpec({
                 tiltaksgjennomforingKafkaProducer = tiltaksgjennomforingKafkaProducer,
             )
 
-            forAll(row("VASV"), row("ARBFORB")) { tiltakskode ->
+            forAll(row("VASV"), row("ARBFORB")) { arenaKode ->
                 runBlocking {
                     val domain = MulighetsrommetTestDomain(
-                        tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging.copy(tiltakskode = tiltakskode)),
+                        tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging.copy(arenaKode = arenaKode)),
                         avtaler = listOf(AvtaleFixtures.oppfolging),
                     )
                     domain.initialize(database.db)
@@ -548,10 +550,10 @@ class ArenaAdapterServiceTest : FunSpec({
         test("should overwrite references to existing avtale when avtale is managed in Arena") {
             val service = createArenaAdapterService(database.db)
 
-            forAll(row("JOBBK"), row("GRUPPEAMO")) { tiltakskode ->
+            forAll(row("JOBBK"), row("GRUPPEAMO")) { arenaKode ->
                 runBlocking {
                     val domain = MulighetsrommetTestDomain(
-                        tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging.copy(tiltakskode = tiltakskode)),
+                        tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging.copy(arenaKode = arenaKode)),
                         avtaler = listOf(AvtaleFixtures.oppfolging),
                     )
                     domain.initialize(database.db)
@@ -719,7 +721,7 @@ class ArenaAdapterServiceTest : FunSpec({
         val tiltakstypeIndividuell = TiltakstypeDbo(
             id = UUID.randomUUID(),
             navn = "Høyere utdanning",
-            tiltakskode = "HOYEREUTD",
+            arenaKode = "HOYEREUTD",
             rettPaaTiltakspenger = true,
             registrertDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
             sistEndretDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
@@ -807,7 +809,7 @@ private fun createArenaAdapterService(
     tiltaksgjennomforingKafkaProducer: TiltaksgjennomforingKafkaProducer = mockk(relaxed = true),
     notificationService: NotificationService = mockk(relaxed = true),
     veilarboppfolgingClient: VeilarboppfolgingClient = mockk(),
-    migrerteTiltakstyper: List<String> = listOf(),
+    migrerteTiltakstyper: List<Tiltakskode> = listOf(),
 ) = ArenaAdapterService(
     db = db,
     navAnsatte = NavAnsattRepository(db),
@@ -833,7 +835,7 @@ private fun toTiltaksgjennomforingDto(dbo: ArenaTiltaksgjennomforingDbo, tiltaks
         tiltakstype = TiltaksgjennomforingDto.Tiltakstype(
             id = tiltakstypeId,
             navn = tiltakstype.navn,
-            arenaKode = tiltakstype.tiltakskode,
+            arenaKode = tiltakstype.arenaKode,
         ),
         navn = navn,
         startDato = startDato,

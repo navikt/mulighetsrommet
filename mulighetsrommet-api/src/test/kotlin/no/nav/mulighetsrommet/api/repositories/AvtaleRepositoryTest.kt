@@ -544,7 +544,7 @@ class AvtaleRepositoryTest : FunSpec({
                 TiltakstypeFixtures.Oppfolging.copy(
                     id = tiltakstypeIdForAvtale3,
                     navn = "",
-                    tiltakskode = "",
+                    arenaKode = "",
                     rettPaaTiltakspenger = true,
                     registrertDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
                     sistEndretDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),

@@ -45,6 +45,10 @@ class InitialLoadTiltakstyper(
     }
 
     private fun initialLoadTiltakstyper() {
-        tiltakstyper.getAllMedDeltakerregistreringsinnhold().forEach { tiltakstypeProducer.publish(it) }
+        tiltakstyper.getAllMedDeltakerregistreringsinnhold()
+            .filterNotNull()
+            .forEach {
+                tiltakstypeProducer.publish(it)
+            }
     }
 }

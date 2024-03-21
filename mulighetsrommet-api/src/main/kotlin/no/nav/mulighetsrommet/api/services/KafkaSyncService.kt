@@ -52,8 +52,11 @@ class KafkaSyncService(
             )
 
             tiltakstyper.forEach { it ->
-                tiltakstypeRepository.getEksternTiltakstype(it.id)?.let {
-                    tiltakstypeKafkaProducer.publish(it)
+                val eksternTiltakstype = tiltakstypeRepository.getEksternTiltakstype(it.id)
+                if (eksternTiltakstype != null) {
+                    tiltakstypeKafkaProducer.publish(eksternTiltakstype)
+                } else {
+                    tiltakstypeKafkaProducer.retract(it.id)
                 }
             }
 

@@ -438,7 +438,7 @@ class AvtaleRepository(private val db: Database) {
             tiltakstype = AvtaleAdminDto.Tiltakstype(
                 id = uuid("tiltakstype_id"),
                 navn = string("tiltakstype_navn"),
-                arenaKode = string("tiltakskode"),
+                arenaKode = string("arena_kode"),
             ),
             avtalenummer = stringOrNull("avtalenummer"),
             leverandor = AvtaleAdminDto.Leverandor(

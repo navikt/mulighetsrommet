@@ -33,7 +33,7 @@ data class TiltakstypeAdminDto(
             TiltakstypeAdminDto(
                 id = id,
                 navn = navn,
-                arenaKode = tiltakskode,
+                arenaKode = arenaKode,
                 registrertIArenaDato = registrertDatoIArena,
                 sistEndretIArenaDato = sistEndretDatoIArena,
                 fraDato = fraDato,

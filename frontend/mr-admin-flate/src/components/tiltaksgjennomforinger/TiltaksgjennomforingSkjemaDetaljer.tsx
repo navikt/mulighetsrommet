@@ -14,7 +14,7 @@ import {
   Avtale,
   Tiltaksgjennomforing,
   TiltaksgjennomforingKontaktperson,
-  Tiltakskode,
+  TiltakskodeArena,
 } from "mulighetsrommet-api-client";
 import { ControlledSokeSelect } from "mulighetsrommet-frontend-common";
 import { useEffect } from "react";
@@ -42,12 +42,12 @@ interface Props {
   avtale: Avtale;
 }
 
-function visApentForInnsok(arenaKode: Tiltakskode) {
+function visApentForInnsok(arenaKode: TiltakskodeArena) {
   return [
-    Tiltakskode.JOBBK,
-    Tiltakskode.DIGIOPPARB,
-    Tiltakskode.GRUPPEAMO,
-    Tiltakskode.GRUFAGYRKE,
+    TiltakskodeArena.JOBBK,
+    TiltakskodeArena.DIGIOPPARB,
+    TiltakskodeArena.GRUPPEAMO,
+    TiltakskodeArena.GRUFAGYRKE,
   ].includes(arenaKode);
 }
 

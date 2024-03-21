@@ -23,12 +23,7 @@ fun Route.arenaAdapterRoutes() {
         put("tiltakstype") {
             val tiltakstype = call.receive<TiltakstypeDbo>()
 
-            arenaAdapterService.upsertTiltakstype(tiltakstype)
-                .map { call.respond(it) }
-                .mapLeft {
-                    logError(logger, it.error)
-                    call.respond(HttpStatusCode.InternalServerError, "Kunne ikke oppdatere tiltakstype")
-                }
+            call.respond(arenaAdapterService.upsertTiltakstype(tiltakstype))
         }
 
         delete("tiltakstype/{id}") {
