@@ -31,6 +31,7 @@ import java.util.*
 class AvtaleService(
     private val avtaler: AvtaleRepository,
     private val tiltaksgjennomforinger: TiltaksgjennomforingRepository,
+    private val tiltakstyperMigrert: List<String>,
     private val virksomhetService: VirksomhetService,
     private val notificationRepository: NotificationRepository,
     private val validator: AvtaleValidator,
@@ -138,7 +139,7 @@ class AvtaleService(
     fun avbrytAvtale(id: UUID, navIdent: NavIdent): StatusResponse<Unit> {
         val avtale = avtaler.get(id) ?: return Either.Left(NotFound("Avtalen finnes ikke"))
 
-        if (avtale.opphav == Opphav.ARENA) {
+        if (avtale.opphav == Opphav.ARENA && !tiltakstyperMigrert.contains(avtale.tiltakstype.arenaKode)) {
             return Either.Left(BadRequest(message = "Avtalen har opprinnelse fra Arena og kan ikke bli avbrutt fra admin-flate."))
         }
 
