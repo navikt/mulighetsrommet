@@ -1,7 +1,7 @@
-import styles from "../DetaljerInfo.module.scss";
 import { TEAMS_DYPLENKE } from "mulighetsrommet-frontend-common/constants";
 import { TiltaksgjennomforingKontaktperson } from "mulighetsrommet-api-client";
-import { BodyShort } from "@navikt/ds-react";
+import { BodyShort, VStack } from "@navikt/ds-react";
+import { ExternalLinkIcon } from "@navikt/aksel-icons";
 
 interface Props {
   kontaktperson: TiltaksgjennomforingKontaktperson;
@@ -9,11 +9,17 @@ interface Props {
 
 export function Kontaktperson({ kontaktperson }: Props) {
   return (
-    <div className={styles.leverandor_kontaktinfo}>
-      <BodyShort>{kontaktperson.navn}</BodyShort>
+    <VStack gap="05">
+      <BodyShort>
+        <b>{kontaktperson.navn}</b>
+      </BodyShort>
       {kontaktperson.beskrivelse && <BodyShort>{kontaktperson.beskrivelse}</BodyShort>}
       <BodyShort>{kontaktperson.mobilnummer}</BodyShort>
-      <a href={`${TEAMS_DYPLENKE}${kontaktperson.epost}`}>{kontaktperson.epost}</a>
-    </div>
+      <BodyShort>
+        Kontakt via Teams:{" "}
+        <a href={`${TEAMS_DYPLENKE}${kontaktperson.epost}`}>{kontaktperson.epost}</a>{" "}
+        <ExternalLinkIcon aria-label="Åpner direktemelding i Teams" />
+      </BodyShort>
+    </VStack>
   );
 }
