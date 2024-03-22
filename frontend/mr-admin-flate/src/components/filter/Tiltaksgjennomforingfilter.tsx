@@ -177,7 +177,9 @@ export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
             <div style={{ marginLeft: "-2rem" }}>
               <NavEnhetFilter
                 navEnheter={filter.navEnheter}
-                setNavEnheter={(navEnheter: NavEnhet[]) => setFilter({ ...filter, page: 1, navEnheter })}
+                setNavEnheter={(navEnheter: NavEnhet[]) =>
+                  setFilter({ ...filter, page: 1, navEnheter })
+                }
                 regioner={regioner}
               />
             </div>
