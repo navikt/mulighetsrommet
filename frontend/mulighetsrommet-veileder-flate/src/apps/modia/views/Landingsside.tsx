@@ -83,11 +83,9 @@ function Historikk() {
       <Heading level="3" size="medium">
         Historikk
       </Heading>
-      {historikk.length > 0
-        ? historikk.map((hist) => {
-            return <HistorikkKort key={hist.deltakerId} historikk={hist} />;
-          })
-        : null}
+      {historikk.map((hist) => {
+        return <HistorikkKort key={hist.deltakerId} historikk={hist} />;
+      })}
     </VStack>
   );
 }
@@ -102,13 +100,9 @@ function Utkast() {
 
   return (
     <VStack gap="5">
-      {aktive.length > 0 ? (
-        aktive.map((utkast) => {
-          return <UtkastKort key={utkast.deltakerId} utkast={utkast} />;
-        })
-      ) : (
-        <Alert variant="info">Ingen utkast for bruker</Alert>
-      )}
+      {aktive.map((utkast) => {
+        return <UtkastKort key={utkast.deltakerId} utkast={utkast} />;
+      })}
     </VStack>
   );
 }
