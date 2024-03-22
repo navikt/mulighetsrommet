@@ -4,10 +4,9 @@ import { AvtaleFilter } from "../../api/atoms";
 import { useNavEnheter } from "../../api/enhet/useNavEnheter";
 import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
 import { useVirksomheter } from "../../api/virksomhet/useVirksomheter";
-import { addOrRemove } from "../../utils/Utils";
-import { Filtertag } from "mulighetsrommet-frontend-common/components/filter/filtertag/Filtertag";
-import { FiltertagsContainer } from "mulighetsrommet-frontend-common/components/filter/filtertag/FiltertagsContainer";
+import { addOrRemove, avtaletypeTilTekst } from "../../utils/Utils";
 import { AVTALE_STATUS_OPTIONS } from "../../utils/filterUtils";
+import { Filtertag, FiltertagsContainer } from "mulighetsrommet-frontend-common";
 
 interface Props {
   filterAtom: WritableAtom<AvtaleFilter, [newValue: AvtaleFilter], void>;
@@ -32,7 +31,7 @@ export function AvtaleFiltertags({ filterAtom, tiltakstypeId, filterOpen }: Prop
     <FiltertagsContainer filterOpen={filterOpen}>
       {filter.sok && (
         <Filtertag
-          options={[{ id: "search", tittel: `'${filter.sok}'` }]}
+          label={filter.sok}
           onClose={() => {
             setFilter({
               ...filter,
@@ -44,12 +43,7 @@ export function AvtaleFiltertags({ filterAtom, tiltakstypeId, filterOpen }: Prop
       {filter.statuser.map((status) => (
         <Filtertag
           key={status}
-          options={[
-            {
-              id: status,
-              tittel: AVTALE_STATUS_OPTIONS.find((o) => status === o.value)?.label || status,
-            },
-          ]}
+          label={AVTALE_STATUS_OPTIONS.find((o) => status === o.value)?.label || status}
           onClose={() => {
             setFilter({
               ...filter,
@@ -58,15 +52,33 @@ export function AvtaleFiltertags({ filterAtom, tiltakstypeId, filterOpen }: Prop
           }}
         />
       ))}
+      {filter.avtaletyper.map((avtaletype) => (
+        <Filtertag
+          key={avtaletype}
+          label={avtaletypeTilTekst(avtaletype)}
+          onClose={() => {
+            setFilter({
+              ...filter,
+              avtaletyper: addOrRemove(filter.avtaletyper, avtaletype),
+            });
+          }}
+        />
+      ))}
+      {filter.visMineAvtaler && (
+        <Filtertag
+          label="Mine avtaler"
+          onClose={() => {
+            setFilter({
+              ...filter,
+              visMineAvtaler: false,
+            });
+          }}
+        />
+      )}
       {filter.navRegioner.map((enhetsnummer) => (
         <Filtertag
           key={enhetsnummer}
-          options={[
-            {
-              id: enhetsnummer,
-              tittel: enheter?.find((e) => e.enhetsnummer === enhetsnummer)?.navn || enhetsnummer,
-            },
-          ]}
+          label={enheter?.find((e) => e.enhetsnummer === enhetsnummer)?.navn || enhetsnummer}
           onClose={() => {
             setFilter({
               ...filter,
@@ -79,12 +91,7 @@ export function AvtaleFiltertags({ filterAtom, tiltakstypeId, filterOpen }: Prop
         filter.tiltakstyper.map((tiltakstype) => (
           <Filtertag
             key={tiltakstype}
-            options={[
-              {
-                id: tiltakstype,
-                tittel: tiltakstyper?.data?.find((t) => tiltakstype === t.id)?.navn || tiltakstype,
-              },
-            ]}
+            label={tiltakstyper?.data?.find((t) => tiltakstype === t.id)?.navn || tiltakstype}
             onClose={() => {
               setFilter({
                 ...filter,
@@ -96,16 +103,11 @@ export function AvtaleFiltertags({ filterAtom, tiltakstypeId, filterOpen }: Prop
       {filter.leverandor.map((orgnr) => (
         <Filtertag
           key={orgnr}
-          options={[
-            {
-              id: orgnr,
-              tittel: leverandorer?.find((l) => l.organisasjonsnummer === orgnr)?.navn || orgnr,
-            },
-          ]}
+          label={leverandorer?.find((l) => l.organisasjonsnummer === orgnr)?.navn || orgnr}
           onClose={() => {
             setFilter({
               ...filter,
-              leverandor: addOrRemove(filter.leverandor, orgnr),
+              leverandor: filter.leverandor.filter((l) => l !== orgnr),
             });
           }}
         />

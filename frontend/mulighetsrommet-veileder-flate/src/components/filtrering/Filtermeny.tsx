@@ -12,7 +12,7 @@ import InnsatsgruppeFilter from "./InnsatsgruppeFilter";
 import { NavEnhetFilter } from "./NavEnhetFilter";
 import Sokefelt from "./Sokefelt";
 import { Tiltakstypefilter } from "./Tiltakstypefilter";
-import { FilterAccordionHeader } from "mulighetsrommet-frontend-common/components/filter/accordionHeader/FilterAccordionHeader";
+import { FilterAccordionHeader } from "mulighetsrommet-frontend-common";
 
 export const Filtermeny = () => {
   const [filter, setFilter] = useArbeidsmarkedstiltakFilter();
