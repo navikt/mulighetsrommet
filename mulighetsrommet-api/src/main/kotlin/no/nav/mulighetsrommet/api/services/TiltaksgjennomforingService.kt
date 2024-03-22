@@ -187,7 +187,7 @@ class TiltaksgjennomforingService(
         }
 
         db.transaction { tx ->
-            tiltaksgjennomforinger.setAvslutningsstatus(tx, id, Avslutningsstatus.AVBRUTT)
+            tiltaksgjennomforinger.setAvslutningsstatus(id, Avslutningsstatus.AVBRUTT, tx)
             val dto = getOrError(id, tx)
             logEndring("Gjennomføring ble avbrutt", dto, navIdent, tx)
             tiltaksgjennomforingKafkaProducer.publish(TiltaksgjennomforingDto.from(dto))
@@ -199,10 +199,10 @@ class TiltaksgjennomforingService(
     fun batchApentForInnsokForAlleMedStarttdatoForDato(dagensDato: LocalDate) {
         db.transaction { tx ->
             val tiltak = tiltaksgjennomforinger.lukkApentForInnsokForTiltakMedStartdatoForDato(dagensDato, tx)
-            tiltak.forEach {
+            tiltak.forEach { gjennomforing ->
                 logEndringSomSystembruker(
                     operation = "Stengte for innsøk",
-                    it,
+                    gjennomforing,
                     tx,
                 )
             }

@@ -1,5 +1,7 @@
 package no.nav.mulighetsrommet.domain.dbo
 
+import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus
+
 enum class Avslutningsstatus {
     AVLYST,
     AVBRUTT,
@@ -15,6 +17,13 @@ enum class Avslutningsstatus {
                 "AVSLUTT" -> AVSLUTTET
                 else -> IKKE_AVSLUTTET
             }
+        }
+
+        fun fromTiltaksgjennomforingStatus(status: TiltaksgjennomforingStatus): Avslutningsstatus = when (status) {
+            TiltaksgjennomforingStatus.PLANLAGT, TiltaksgjennomforingStatus.GJENNOMFORES -> IKKE_AVSLUTTET
+            TiltaksgjennomforingStatus.AVLYST -> AVLYST
+            TiltaksgjennomforingStatus.AVBRUTT -> AVBRUTT
+            TiltaksgjennomforingStatus.AVSLUTTET -> AVSLUTTET
         }
     }
 }

@@ -30,7 +30,6 @@ import no.nav.mulighetsrommet.domain.constants.ArenaMigrering.Tiltaksgjennomfori
 import no.nav.mulighetsrommet.domain.dbo.*
 import no.nav.mulighetsrommet.domain.dto.Avtalestatus
 import no.nav.mulighetsrommet.domain.dto.NavIdent
-import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus
 import no.nav.mulighetsrommet.kafka.producers.TiltaksgjennomforingKafkaProducer
 import no.nav.mulighetsrommet.kafka.producers.TiltakstypeKafkaProducer
 import no.nav.mulighetsrommet.notifications.NotificationMetadata
@@ -217,6 +216,9 @@ class ArenaAdapterService(
                 tiltaksnummer = tiltaksgjennomforing.tiltaksnummer,
                 arenaAnsvarligEnhet = tiltaksgjennomforing.arenaAnsvarligEnhet,
 
+                // Denne mappingen kan potensielt føre til at avslutningsstatus endres i databasen
+                avslutningsstatus = Avslutningsstatus.fromTiltaksgjennomforingStatus(current.status),
+
                 // Resten av feltene skal ikke overskrives med data fra Arena
                 id = current.id,
                 avtaleId = current.avtaleId,
@@ -229,12 +231,6 @@ class ArenaAdapterService(
                 antallPlasser = current.antallPlasser,
                 oppstart = current.oppstart,
                 deltidsprosent = current.deltidsprosent,
-                avslutningsstatus = when (current.status) {
-                    Tiltaksgjennomforingsstatus.PLANLAGT, Tiltaksgjennomforingsstatus.GJENNOMFORES -> Avslutningsstatus.IKKE_AVSLUTTET
-                    Tiltaksgjennomforingsstatus.AVLYST -> Avslutningsstatus.AVLYST
-                    Tiltaksgjennomforingsstatus.AVBRUTT -> Avslutningsstatus.AVBRUTT
-                    Tiltaksgjennomforingsstatus.AVSLUTTET -> Avslutningsstatus.AVSLUTTET
-                },
             )
         } else {
             // Pass på at man ikke mister referansen til Avtalen

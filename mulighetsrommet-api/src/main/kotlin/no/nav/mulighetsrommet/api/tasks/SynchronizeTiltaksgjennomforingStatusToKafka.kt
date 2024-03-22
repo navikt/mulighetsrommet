@@ -11,7 +11,7 @@ import java.time.LocalDate
 import java.time.LocalTime
 import java.time.ZoneId
 
-class SynchronizeTiltaksgjennomforingsstatuserToKafka(
+class SynchronizeTiltaksgjennomforingStatusToKafka(
     kafkaSyncService: KafkaSyncService,
     slackNotifier: SlackNotifier,
 ) {
@@ -25,7 +25,7 @@ class SynchronizeTiltaksgjennomforingsstatuserToKafka(
         .execute { _, context ->
             runBlocking {
                 logger.info("Kjører synkronisering av tiltaksgjennomforingsstatuser på kafka")
-                kafkaSyncService.oppdaterTiltaksgjennomforingsstatus(
+                kafkaSyncService.oppdaterTiltaksgjennomforingStatus(
                     LocalDate.now(),
                     context.execution.lastSuccess?.let { LocalDate.ofInstant(it, ZoneId.systemDefault()) }
                         ?: LocalDate.of(2023, 2, 1),
