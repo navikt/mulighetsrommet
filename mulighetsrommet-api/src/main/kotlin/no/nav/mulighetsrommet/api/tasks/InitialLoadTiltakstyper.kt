@@ -45,10 +45,15 @@ class InitialLoadTiltakstyper(
     }
 
     private fun initialLoadTiltakstyper() {
-        tiltakstyper.getAllMedDeltakerregistreringsinnhold()
-            .filterNotNull()
-            .forEach {
-                tiltakstypeProducer.publish(it)
+        tiltakstyper.getAll()
+            .second
+            .forEach { tiltakstype ->
+                val eksternDto = tiltakstyper.getEksternTiltakstype(tiltakstype.id)
+                if (eksternDto != null) {
+                    tiltakstypeProducer.publish(eksternDto)
+                } else {
+                    tiltakstypeProducer.retract(tiltakstype.id)
+                }
             }
     }
 }
