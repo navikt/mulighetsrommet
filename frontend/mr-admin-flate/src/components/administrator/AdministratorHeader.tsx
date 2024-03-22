@@ -1,18 +1,24 @@
 import { ExternalLinkIcon, MenuGridIcon } from "@navikt/aksel-icons";
 import { Dropdown, InternalHeader, Spacer } from "@navikt/ds-react";
+import { Toggles } from "mulighetsrommet-api-client";
+import { useRef } from "react";
 import { Link } from "react-router-dom";
 import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
-import { Notifikasjonsbjelle } from "../notifikasjoner/Notifikasjonsbjelle";
-import styles from "./AdministratorHeader.module.scss";
-import { useRef } from "react";
+import { useFeatureToggle } from "../../api/features/feature-toggles";
+import { getEnvironment } from "../../api/getEnvironment";
 import {
   ENDRINGSMELDINGER_URL,
   PREVIEW_ARBEIDSMARKEDSTILTAK_URL,
   SANITY_STUDIO_URL,
 } from "../../constants";
+import { Notifikasjonsbjelle } from "../notifikasjoner/Notifikasjonsbjelle";
+import styles from "./AdministratorHeader.module.scss";
 
 export function AdministratorHeader() {
   const { data } = useHentAnsatt();
+  const { data: debugIsEnabled } = useFeatureToggle(
+    Toggles.MULIGHETSROMMET_ADMIN_FLATE_ENABLE_DEBUGGER,
+  );
 
   const ansattNavn = data ? [data.fornavn, data.etternavn].join(" ") : "Team Valp";
 
@@ -23,6 +29,7 @@ export function AdministratorHeader() {
   const veilederflateLinkRef = useRef<HTMLAnchorElement>(null);
   const notifikasjonerLinkRef = useRef<HTMLAnchorElement>(null);
   const endringsmeldingerLinkRef = useRef<HTMLAnchorElement>(null);
+  const logoutLinkRef = useRef<HTMLAnchorElement>(null);
 
   return (
     <InternalHeader>
@@ -37,7 +44,7 @@ export function AdministratorHeader() {
       </div>
       <Dropdown>
         <InternalHeader.Button as={Dropdown.Toggle}>
-          <MenuGridIcon style={{ fontSize: "1.5rem" }} title="Systemer og oppslagsverk" />
+          <MenuGridIcon style={{ fontSize: "1.5rem" }} title="Meny" />
         </InternalHeader.Button>
 
         <Dropdown.Menu>
@@ -103,6 +110,25 @@ export function AdministratorHeader() {
               </Link>
             </Dropdown.Menu.GroupedList.Item>
           </Dropdown.Menu.GroupedList>
+          {debugIsEnabled ? (
+            <>
+              <Dropdown.Menu.Divider />
+              <Dropdown.Menu.List>
+                <Dropdown.Menu.List.Item as="span" onClick={() => logoutLinkRef.current?.click()}>
+                  <Link
+                    ref={logoutLinkRef}
+                    to={
+                      getEnvironment() === "development"
+                        ? "https://tiltaksadministrasjon.intern.dev.nav.no/oauth2/logout"
+                        : "https://tiltaksadministrasjon.intern.nav.no/oauth2/logout"
+                    }
+                  >
+                    Logg ut
+                  </Link>
+                </Dropdown.Menu.List.Item>
+              </Dropdown.Menu.List>
+            </>
+          ) : null}
         </Dropdown.Menu>
       </Dropdown>
       <InternalHeader.User
