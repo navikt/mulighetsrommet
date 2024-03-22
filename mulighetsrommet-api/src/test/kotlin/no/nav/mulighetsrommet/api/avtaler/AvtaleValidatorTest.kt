@@ -17,7 +17,7 @@ import no.nav.mulighetsrommet.api.services.NavEnhetService
 import no.nav.mulighetsrommet.api.services.TiltakstypeService
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
-import no.nav.mulighetsrommet.domain.Tiltakskoder
+import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
 import no.nav.mulighetsrommet.domain.dto.NavIdent
@@ -100,7 +100,7 @@ class AvtaleValidatorTest : FunSpec({
     beforeEach {
         domain.initialize(database.db)
 
-        tiltakstyper = TiltakstypeService(TiltakstypeRepository(database.db), listOf("INDOPPFAG"))
+        tiltakstyper = TiltakstypeService(TiltakstypeRepository(database.db), listOf(Tiltakskode.OPPFOLGING))
         navEnheterService = NavEnhetService(NavEnhetRepository(database.db))
         avtaler = AvtaleRepository(database.db)
         gjennomforinger = TiltaksgjennomforingRepository(database.db)
@@ -112,8 +112,7 @@ class AvtaleValidatorTest : FunSpec({
     }
 
     test("skal feile når tiltakstypen ikke er aktivert") {
-        val arenakodeEnabledTiltakstyper = listOf<String>()
-        tiltakstyper = TiltakstypeService(TiltakstypeRepository(database.db), arenakodeEnabledTiltakstyper)
+        tiltakstyper = TiltakstypeService(TiltakstypeRepository(database.db), emptyList())
         val validator = AvtaleValidator(tiltakstyper, gjennomforinger, navEnheterService, virksomheter)
 
         val dbo = avtaleDbo.copy(
@@ -129,8 +128,7 @@ class AvtaleValidatorTest : FunSpec({
     }
 
     test("skal ikke feile når når tiltakstypen er AFT, VTA, eller aktivert") {
-        val arenakodeEnabledTiltakstyper = listOf("INDOPPFAG")
-        tiltakstyper = TiltakstypeService(TiltakstypeRepository(database.db), arenakodeEnabledTiltakstyper)
+        tiltakstyper = TiltakstypeService(TiltakstypeRepository(database.db), listOf(Tiltakskode.OPPFOLGING))
         val validator = AvtaleValidator(tiltakstyper, gjennomforinger, navEnheterService, virksomheter)
 
         validator.validate(AvtaleFixtures.AFT, null).shouldBeRight()
@@ -152,7 +150,7 @@ class AvtaleValidatorTest : FunSpec({
             listOf(
                 ValidationError("startDato", "Startdato må være før sluttdato"),
                 ValidationError("navEnheter", "Minst én NAV-region må være valgt"),
-                ValidationError("leverandorUnderenheter", "Minst én underenhet til leverandøren må være valgt"),
+                ValidationError("leverandorUnderenheter", "Minst én underenhet til tiltaksarrangøren må være valgt"),
             ),
         )
     }
@@ -214,7 +212,7 @@ class AvtaleValidatorTest : FunSpec({
 
     test("sluttDato er påkrevd hvis ikke forhåndsgodkjent") {
         val validator = AvtaleValidator(
-            TiltakstypeService(TiltakstypeRepository(database.db), Tiltakskoder.Gruppetiltak),
+            TiltakstypeService(TiltakstypeRepository(database.db), Tiltakskode.values().toList()),
             gjennomforinger,
             navEnheterService,
             virksomheter,
@@ -238,7 +236,7 @@ class AvtaleValidatorTest : FunSpec({
 
     test("avtaletype må være allowed") {
         val validator = AvtaleValidator(
-            TiltakstypeService(TiltakstypeRepository(database.db), Tiltakskoder.Gruppetiltak),
+            TiltakstypeService(TiltakstypeRepository(database.db), Tiltakskode.values().toList()),
             gjennomforinger,
             navEnheterService,
             virksomheter,
@@ -273,7 +271,7 @@ class AvtaleValidatorTest : FunSpec({
 
     test("Websak-referanse må være med når avtalen er avtale eller rammeavtale") {
         val validator = AvtaleValidator(
-            TiltakstypeService(TiltakstypeRepository(database.db), Tiltakskoder.Gruppetiltak),
+            TiltakstypeService(TiltakstypeRepository(database.db), Tiltakskode.values().toList()),
             gjennomforinger,
             navEnheterService,
             virksomheter,
@@ -298,7 +296,7 @@ class AvtaleValidatorTest : FunSpec({
             val avtaleMedEndringer = AvtaleDbo(
                 id = avtaleDbo.id,
                 navn = "Nytt navn",
-                tiltakstypeId = TiltakstypeFixtures.Arbeidstrening.id,
+                tiltakstypeId = TiltakstypeFixtures.AFT.id,
                 leverandorVirksomhetId = VirksomhetFixtures.underenhet1.id,
                 leverandorUnderenheter = listOf(VirksomhetFixtures.underenhet1.id),
                 leverandorKontaktpersonId = null,
@@ -307,7 +305,7 @@ class AvtaleValidatorTest : FunSpec({
                 sluttDato = LocalDate.now().plusYears(1),
                 url = "nav.no",
                 administratorer = listOf(NavIdent("B123456")),
-                avtaletype = Avtaletype.Avtale,
+                avtaletype = Avtaletype.Forhaandsgodkjent,
                 prisbetingelser = null,
                 navEnheter = listOf("0300"),
                 antallPlasser = null,
@@ -319,7 +317,7 @@ class AvtaleValidatorTest : FunSpec({
             avtaler.setOpphav(avtaleDbo.id, ArenaMigrering.Opphav.ARENA)
 
             val validator = AvtaleValidator(
-                TiltakstypeService(TiltakstypeRepository(database.db), listOf("INDOPPFAG", "ARBTREN")),
+                TiltakstypeService(TiltakstypeRepository(database.db), listOf(Tiltakskode.OPPFOLGING, Tiltakskode.ARBEIDSFORBEREDENDE_TRENING)),
                 gjennomforinger,
                 navEnheterService,
                 virksomheter,
@@ -362,7 +360,7 @@ class AvtaleValidatorTest : FunSpec({
                     ValidationError("startDato", "Startdato kan ikke endres utenfor Arena"),
                     ValidationError("sluttDato", "Sluttdato kan ikke endres utenfor Arena"),
                     ValidationError("avtaletype", "Avtaletype kan ikke endres utenfor Arena"),
-                    ValidationError("leverandorVirksomhetId", "Leverandøren kan ikke endres utenfor Arena"),
+                    ValidationError("leverandorVirksomhetId", "Tiltaksarrangøren kan ikke endres utenfor Arena"),
                 ),
             )
         }
@@ -389,15 +387,15 @@ class AvtaleValidatorTest : FunSpec({
 
             test("skal validere at data samsvarer med avtalens gjennomføringer") {
                 val validator = AvtaleValidator(
-                    TiltakstypeService(TiltakstypeRepository(database.db), listOf("INDOPPFAG", "ARBTREN")),
+                    TiltakstypeService(TiltakstypeRepository(database.db), listOf(Tiltakskode.OPPFOLGING, Tiltakskode.ARBEIDSFORBEREDENDE_TRENING)),
                     gjennomforinger,
                     navEnheterService,
                     virksomheter,
                 )
 
                 val dbo = avtaleDbo.copy(
-                    tiltakstypeId = TiltakstypeFixtures.Arbeidstrening.id,
-                    avtaletype = Avtaletype.Avtale,
+                    tiltakstypeId = TiltakstypeFixtures.AFT.id,
+                    avtaletype = Avtaletype.Forhaandsgodkjent,
                     navEnheter = listOf("0400"),
                     startDato = avtaleDbo.startDato.plusDays(4),
                 )
@@ -420,11 +418,11 @@ class AvtaleValidatorTest : FunSpec({
                         ),
                         ValidationError(
                             "leverandorUnderenheter",
-                            "Arrangøren Underenhet 2 AS er i bruk på en av avtalens gjennomføringer, men mangler blandt leverandørens underenheter",
+                            "Arrangøren Underenhet 2 AS er i bruk på en av avtalens gjennomføringer, men mangler blant tiltaksarrangørens underenheter",
                         ),
                         ValidationError(
                             "navEnheter",
-                            "NAV-enheten 0502 er i bruk på en av avtalens gjennomføringer, men mangler blandt avtalens NAV-enheter",
+                            "NAV-enheten 0502 er i bruk på en av avtalens gjennomføringer, men mangler blant avtalens NAV-enheter",
                         ),
                         ValidationError(
                             "startDato",

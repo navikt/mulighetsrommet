@@ -10,7 +10,7 @@ import {
   EmbeddedTiltakstype,
   NavAnsatt,
   NavEnhet,
-  Tiltakskode,
+  TiltakskodeArena,
   Tiltakstype,
 } from "mulighetsrommet-api-client";
 import { useEffect, useRef } from "react";
@@ -72,7 +72,7 @@ export function AvtaleSkjemaContainer({
     // TODO: revurdere behovet for denne type logikk eller om det kan defineres som default felter på tiltakstype i stedet
     // Er det slik at tiltakstype alltid styrer avtaletypen? Er det kun for forhåndsgodkjente avtaler?
     // Hvis ARBFORB og VASV uansett alltid skal være av typen FORHAANDSGODKJENT burde det ikke være mulig å endre
-    if (arenaKode === Tiltakskode.ARBFORB || arenaKode === Tiltakskode.VASV) {
+    if (arenaKode === TiltakskodeArena.ARBFORB || arenaKode === TiltakskodeArena.VASV) {
       setValue("avtaletype", Avtaletype.FORHAANDSGODKJENT);
     }
   }, [arenaKode]);

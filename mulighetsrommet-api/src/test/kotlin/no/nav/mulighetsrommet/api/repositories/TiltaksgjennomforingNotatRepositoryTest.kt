@@ -24,7 +24,6 @@ class TiltaksgjennomforingNotatRepositoryTest : FunSpec({
     context("Notater for tiltaksgjennomføring - CRUD") {
         test("CRUD") {
             domain.initialize(database.db)
-
             val gjennomforing = domain.gjennomforinger[0]
 
             val notater = TiltaksgjennomforingNotatRepository(database.db)

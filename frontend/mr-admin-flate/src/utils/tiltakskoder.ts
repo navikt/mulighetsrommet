@@ -1,34 +1,34 @@
-import { Tiltakskode } from "mulighetsrommet-api-client";
+import { TiltakskodeArena } from "mulighetsrommet-api-client";
 
-export const TILTAK_MED_FELLES_OPPSTART: Tiltakskode[] = [
-  Tiltakskode.GRUPPEAMO,
-  Tiltakskode.JOBBK,
-  Tiltakskode.GRUFAGYRKE,
+export const TILTAK_MED_FELLES_OPPSTART: TiltakskodeArena[] = [
+  TiltakskodeArena.GRUPPEAMO,
+  TiltakskodeArena.JOBBK,
+  TiltakskodeArena.GRUFAGYRKE,
 ];
 
-export function isTiltakMedFellesOppstart(tiltakskode: Tiltakskode): boolean {
+export function isTiltakMedFellesOppstart(tiltakskode: TiltakskodeArena): boolean {
   return TILTAK_MED_FELLES_OPPSTART.includes(tiltakskode);
 }
 
-export const TILTAK_MED_AVTALE_FRA_MULIGHETSROMMET: Tiltakskode[] = [
-  Tiltakskode.ARBFORB,
-  Tiltakskode.VASV,
+export const TILTAK_MED_AVTALE_FRA_MULIGHETSROMMET: TiltakskodeArena[] = [
+  TiltakskodeArena.ARBFORB,
+  TiltakskodeArena.VASV,
 ];
 
-export function isTiltakMedAvtaleFraMulighetsrommet(tiltakskode: Tiltakskode): boolean {
+export function isTiltakMedAvtaleFraMulighetsrommet(tiltakskode: TiltakskodeArena): boolean {
   return TILTAK_MED_AVTALE_FRA_MULIGHETSROMMET.includes(tiltakskode);
 }
 
-export const ANSKAFFEDE_TILTAK: Tiltakskode[] = [
-  Tiltakskode.ARBRRHDAG,
-  Tiltakskode.AVKLARAG,
-  Tiltakskode.DIGIOPPARB,
-  Tiltakskode.GRUFAGYRKE,
-  Tiltakskode.GRUPPEAMO,
-  Tiltakskode.INDOPPFAG,
-  Tiltakskode.JOBBK,
+export const ANSKAFFEDE_TILTAK: TiltakskodeArena[] = [
+  TiltakskodeArena.ARBRRHDAG,
+  TiltakskodeArena.AVKLARAG,
+  TiltakskodeArena.DIGIOPPARB,
+  TiltakskodeArena.GRUFAGYRKE,
+  TiltakskodeArena.GRUPPEAMO,
+  TiltakskodeArena.INDOPPFAG,
+  TiltakskodeArena.JOBBK,
 ];
 
-export function erAnskaffetTiltak(tiltakskode: Tiltakskode): boolean {
+export function erAnskaffetTiltak(tiltakskode: TiltakskodeArena): boolean {
   return ANSKAFFEDE_TILTAK.includes(tiltakskode);
 }

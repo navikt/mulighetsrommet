@@ -14,6 +14,7 @@ import { useAvtalenotater } from "../../api/notater/avtalenotat/useAvtalenotater
 import { usePutAvtalenotat } from "../../api/notater/avtalenotat/usePutAvtalenotat";
 import Notatliste from "../notater/Notatliste";
 import { useDeleteAvtalenotat } from "../../api/notater/avtalenotat/useDeleteAvtalenotat";
+import { HarSkrivetilgang } from "../authActions/HarSkrivetilgang";
 
 export default function NotaterAvtalePage() {
   const { data: notater = [] } = useAvtalenotater();
@@ -56,32 +57,34 @@ export default function NotaterAvtalePage() {
 
   return (
     <div className={styles.notater}>
-      <FormProvider {...form}>
-        <form onSubmit={handleSubmit(postData)}>
-          <div className={styles.notater_opprett}>
-            <Textarea
-              label="Innhold for notat"
-              hideLabel
-              className={styles.notater_input}
-              error={errors.innhold?.message}
-              minRows={18}
-              maxRows={25}
-              resize
-              maxLength={500}
-              {...register("innhold")}
-              value={watch("innhold")}
-            />
-            {putAvtalenotat.isError ? (
-              <ErrorMessage>Det skjedde en feil. Notatet ble ikke lagret.</ErrorMessage>
-            ) : null}
-            <span className={styles.notater_knapp}>
-              <Button type="submit" disabled={putAvtalenotat.isPending}>
-                {putAvtalenotat.isPending ? <Laster /> : "Legg til notat"}
-              </Button>
-            </span>
-          </div>
-        </form>
-      </FormProvider>
+      <HarSkrivetilgang ressurs="Avtale">
+        <FormProvider {...form}>
+          <form onSubmit={handleSubmit(postData)}>
+            <div className={styles.notater_opprett}>
+              <Textarea
+                label="Innhold for notat"
+                hideLabel
+                className={styles.notater_input}
+                error={errors.innhold?.message}
+                minRows={18}
+                maxRows={25}
+                resize
+                maxLength={500}
+                {...register("innhold")}
+                value={watch("innhold")}
+              />
+              {putAvtalenotat.isError ? (
+                <ErrorMessage>Det skjedde en feil. Notatet ble ikke lagret.</ErrorMessage>
+              ) : null}
+              <span className={styles.notater_knapp}>
+                <Button type="submit" disabled={putAvtalenotat.isPending}>
+                  {putAvtalenotat.isPending ? <Laster /> : "Legg til notat"}
+                </Button>
+              </span>
+            </div>
+          </form>
+        </FormProvider>
+      </HarSkrivetilgang>
 
       <div className={styles.notater_notatvegg}>
         <Heading size="medium" level="3" className={styles.notater_heading}>

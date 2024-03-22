@@ -4,6 +4,7 @@ import arrow.core.Either
 import arrow.core.flatMap
 import io.ktor.http.*
 import io.ktor.server.application.*
+import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -11,6 +12,7 @@ import io.ktor.server.util.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.domain.dbo.AvtaleNotatDbo
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingNotatDbo
+import no.nav.mulighetsrommet.api.plugins.AuthProvider
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.routes.v1.responses.StatusResponse
 import no.nav.mulighetsrommet.api.routes.v1.responses.respondWithStatusResponse
@@ -26,6 +28,45 @@ fun Route.avtaleNotatRoutes() {
     val logger = application.environment.log
 
     route("/api/v1/internal/notater") {
+        authenticate(AuthProvider.AZURE_AD_AVTALER_SKRIV.name, strategy = AuthenticationStrategy.Required) {
+            put("avtaler") {
+                val avtaleRequest = call.receive<AvtaleNotatRequest>()
+
+                val result = avtaleRequest.copy(opprettetAv = getNavIdent()).toDbo()
+                    .flatMap { notatService.upsertAvtaleNotat(it) }
+                    .onLeft { logger.error(it.message) }
+
+                call.respondWithStatusResponse(result)
+            }
+
+            delete("avtaler/{id}") {
+                val id = call.parameters.getOrFail<UUID>("id")
+                val navIdent = getNavIdent()
+                call.respondWithStatusResponse(notatService.deleteAvtaleNotat(id, navIdent))
+            }
+        }
+
+        authenticate(
+            AuthProvider.AZURE_AD_TILTAKSJENNOMFORINGER_SKRIV.name,
+            strategy = AuthenticationStrategy.Required,
+        ) {
+            put("tiltaksgjennomforinger") {
+                val tiltaksgjennomforingNotatRequest = call.receive<TiltaksgjennomforingNotatRequest>()
+
+                val result = tiltaksgjennomforingNotatRequest.copy(opprettetAv = getNavIdent()).toDbo()
+                    .flatMap { notatService.upsertTiltaksgjennomforingNotat((it)) }
+                    .onLeft { logger.error(it.message) }
+
+                call.respondWithStatusResponse(result)
+            }
+
+            delete("tiltaksgjennomforinger/{id}") {
+                val id = call.parameters.getOrFail<UUID>("id")
+                val navIdent = getNavIdent()
+                call.respondWithStatusResponse(notatService.deleteTiltaksgjennomforingNotat(id, navIdent))
+            }
+        }
+
         get("avtaler") {
             val filter = getNotatFilter()
             val result = notatService.getAllAvtaleNotater(filter = filter)
@@ -56,22 +97,6 @@ fun Route.avtaleNotatRoutes() {
                     application.log.error("$it")
                     call.respond(HttpStatusCode.InternalServerError, "Kunne ikke hente notat for avtale med id: '$id'")
                 }
-        }
-
-        put("avtaler") {
-            val avtaleRequest = call.receive<AvtaleNotatRequest>()
-
-            val result = avtaleRequest.copy(opprettetAv = getNavIdent()).toDbo()
-                .flatMap { notatService.upsertAvtaleNotat(it) }
-                .onLeft { logger.error(it.message) }
-
-            call.respondWithStatusResponse(result)
-        }
-
-        delete("avtaler/{id}") {
-            val id = call.parameters.getOrFail<UUID>("id")
-            val navIdent = getNavIdent()
-            call.respondWithStatusResponse(notatService.deleteAvtaleNotat(id, navIdent))
         }
 
         get("tiltaksgjennomforinger") {
@@ -106,22 +131,6 @@ fun Route.avtaleNotatRoutes() {
                         "Kunne ikke hente notat for tiltaksgjennomføring med id: '$id'",
                     )
                 }
-        }
-
-        put("tiltaksgjennomforinger") {
-            val tiltaksgjennomforingNotatRequest = call.receive<TiltaksgjennomforingNotatRequest>()
-
-            val result = tiltaksgjennomforingNotatRequest.copy(opprettetAv = getNavIdent()).toDbo()
-                .flatMap { notatService.upsertTiltaksgjennomforingNotat((it)) }
-                .onLeft { logger.error(it.message) }
-
-            call.respondWithStatusResponse(result)
-        }
-
-        delete("tiltaksgjennomforinger/{id}") {
-            val id = call.parameters.getOrFail<UUID>("id")
-            val navIdent = getNavIdent()
-            call.respondWithStatusResponse(notatService.deleteTiltaksgjennomforingNotat(id, navIdent))
         }
     }
 }

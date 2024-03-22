@@ -4,16 +4,15 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
-import kotliquery.Query
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.utils.DEFAULT_PAGINATION_LIMIT
 import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.api.utils.TiltakstypeFilter
-import no.nav.mulighetsrommet.api.utils.Tiltakstypekategori
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
+import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
 import no.nav.mulighetsrommet.domain.dto.Tiltakstypestatus
 import org.intellij.lang.annotations.Language
@@ -45,7 +44,7 @@ class TiltakstypeRepositoryTest : FunSpec({
         val tiltakstypePlanlagt = TiltakstypeDbo(
             id = UUID.randomUUID(),
             navn = "Arbeidsforberedende trening",
-            tiltakskode = "ARBFORB",
+            arenaKode = "ARBFORB",
             rettPaaTiltakspenger = true,
             registrertDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
             sistEndretDatoIArena = LocalDateTime.of(2022, 1, 15, 0, 0, 0),
@@ -55,7 +54,7 @@ class TiltakstypeRepositoryTest : FunSpec({
         val tiltakstypeAktiv = TiltakstypeDbo(
             id = UUID.randomUUID(),
             navn = "Jobbklubb",
-            tiltakskode = "JOBBK",
+            arenaKode = "JOBBK",
             rettPaaTiltakspenger = true,
             registrertDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
             sistEndretDatoIArena = LocalDateTime.of(2022, 1, 15, 0, 0, 0),
@@ -65,7 +64,7 @@ class TiltakstypeRepositoryTest : FunSpec({
         val tiltakstypeAvsluttet = TiltakstypeDbo(
             id = UUID.randomUUID(),
             navn = "Oppfølgning",
-            tiltakskode = "INDOPPFOLG",
+            arenaKode = "INDOPPFAG",
             rettPaaTiltakspenger = true,
             registrertDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
             sistEndretDatoIArena = LocalDateTime.of(2022, 1, 15, 0, 0, 0),
@@ -75,8 +74,8 @@ class TiltakstypeRepositoryTest : FunSpec({
         val idSkalIkkeMigreres = UUID.randomUUID()
         val tiltakstypeSkalIkkeMigreres = TiltakstypeDbo(
             id = idSkalIkkeMigreres,
-            navn = "Oppfølgning",
-            tiltakskode = "INDOPPFOLG",
+            navn = "AMOY",
+            arenaKode = "AMOY",
             rettPaaTiltakspenger = true,
             registrertDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
             sistEndretDatoIArena = LocalDateTime.of(2022, 1, 15, 0, 0, 0),
@@ -88,33 +87,6 @@ class TiltakstypeRepositoryTest : FunSpec({
         tiltakstyper.upsert(tiltakstypeAktiv)
         tiltakstyper.upsert(tiltakstypeAvsluttet)
         tiltakstyper.upsert(tiltakstypeSkalIkkeMigreres)
-        Query("update tiltakstype set skal_migreres = true where id <> '$idSkalIkkeMigreres'").asUpdate.let {
-            database.db.run(it)
-        }
-
-        test("Filter for kun gruppetiltak returnerer bare gruppetiltak") {
-            tiltakstyper.getAllSkalMigreres(
-                TiltakstypeFilter(
-                    kategorier = listOf(Tiltakstypekategori.GRUPPE),
-                ),
-            ).second shouldHaveSize 2
-        }
-
-        test("Filter for kun individuelle tiltak returnerer bare individuelle tiltak") {
-            tiltakstyper.getAllSkalMigreres(
-                TiltakstypeFilter(
-                    kategorier = listOf(Tiltakstypekategori.INDIVIDUELL),
-                ),
-            ).second shouldHaveSize 1
-        }
-
-        test("Filter for alle kategorier returnerer alle") {
-            tiltakstyper.getAllSkalMigreres(
-                TiltakstypeFilter(
-                    kategorier = listOf(Tiltakstypekategori.INDIVIDUELL, Tiltakstypekategori.GRUPPE),
-                ),
-            ).second shouldHaveSize 3
-        }
 
         test("Ingen filter for kategori returnerer både individuelle- og gruppetiltak") {
             tiltakstyper.getAllSkalMigreres(
@@ -164,7 +136,7 @@ class TiltakstypeRepositoryTest : FunSpec({
                 TiltakstypeDbo(
                     id = UUID.randomUUID(),
                     navn = "$it",
-                    tiltakskode = "$it",
+                    arenaKode = "$it",
                     rettPaaTiltakspenger = true,
                     registrertDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
                     sistEndretDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
@@ -241,22 +213,22 @@ class TiltakstypeRepositoryTest : FunSpec({
             @Language("PostgreSQL")
             val query = """
                 insert into deltaker_registrering_innholdselement(innholdskode, tekst)
-                values('jobbsoking', '${TiltakstypeFixtures.Oppfolging.tiltakskode}')
+                values('jobbsoking', '${Tiltakskode.OPPFOLGING.name}::tiltakskode')
                 on conflict do nothing;
 
                 insert into deltaker_registrering_innholdselement(innholdskode, tekst)
-                values('kartlegge-helse', '${TiltakstypeFixtures.Oppfolging.tiltakskode}')
+                values('kartlegge-helse', '${Tiltakskode.OPPFOLGING.name}::tiltakskode')
                 on conflict do nothing;
 
                 update tiltakstype
                 set deltaker_registrering_ledetekst = 'Oppfølging er et bra tiltak'
-                where tiltakskode = '${TiltakstypeFixtures.Oppfolging.tiltakskode}';
+                where tiltakskode = '${Tiltakskode.OPPFOLGING.name}';
 
                 insert into tiltakstype_deltaker_registrering_innholdselement(innholdskode, tiltakskode)
-                values('jobbsoking', '${TiltakstypeFixtures.Oppfolging.tiltakskode}');
+                values('jobbsoking', '${Tiltakskode.OPPFOLGING.name}');
 
                 insert into tiltakstype_deltaker_registrering_innholdselement(innholdskode, tiltakskode)
-                values('kartlegge-helse', '${TiltakstypeFixtures.Oppfolging.tiltakskode}');
+                values('kartlegge-helse', '${Tiltakskode.OPPFOLGING.name}');
             """.trimIndent()
             queryOf(
                 query,
@@ -273,7 +245,7 @@ class TiltakstypeRepositoryTest : FunSpec({
             val query = """
                 update tiltakstype
                 set deltaker_registrering_ledetekst = 'VTA er kjempebra'
-                where tiltakskode = '${TiltakstypeFixtures.VTA.tiltakskode}';
+                where tiltakskode = '${Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET.name}';
             """.trimIndent()
             queryOf(
                 query,
@@ -287,9 +259,7 @@ class TiltakstypeRepositoryTest : FunSpec({
 
         test("Skal kunne hente tiltakstype uten strukturert innhold for deltakerregistrering") {
             tiltakstyper.getEksternTiltakstype(TiltakstypeFixtures.Arbeidstrening.id).should {
-                it?.navn shouldBe "Arbeidstrening"
-                it?.rettPaaTiltakspenger shouldBe true
-                it?.deltakerRegistreringInnhold shouldBe null
+                it shouldBe null
             }
         }
     }

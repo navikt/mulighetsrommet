@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api.services
 import arrow.core.left
 import arrow.core.right
 import io.kotest.assertions.arrow.core.shouldBeLeft
+import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
 import io.mockk.coEvery
 import io.mockk.every
@@ -25,6 +26,7 @@ import no.nav.mulighetsrommet.api.routes.v1.responses.BadRequest
 import no.nav.mulighetsrommet.api.routes.v1.responses.NotFound
 import no.nav.mulighetsrommet.api.routes.v1.responses.ValidationError
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
+import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.notifications.NotificationRepository
@@ -57,6 +59,7 @@ class AvtaleServiceTest : FunSpec({
         val avtaleService = AvtaleService(
             avtaler,
             tiltaksgjennomforinger,
+            listOf(Tiltakskode.OPPFOLGING),
             virksomhetService,
             NotificationRepository(database.db),
             validator,
@@ -89,7 +92,7 @@ class AvtaleServiceTest : FunSpec({
                 listOf(
                     ValidationError(
                         "leverandorOrganisasjonsnummer",
-                        "Leverandøren finnes ikke Brønnøysundregistrene",
+                        "Tiltaksarrangøren finnes ikke Brønnøysundregistrene",
                     ),
                 ),
             )
@@ -103,6 +106,7 @@ class AvtaleServiceTest : FunSpec({
         val avtaleService = AvtaleService(
             avtaleRepository,
             tiltaksgjennomforinger,
+            listOf(Tiltakskode.JOBBKLUBB),
             virksomhetService,
             NotificationRepository(database.db),
             validator,
@@ -120,7 +124,7 @@ class AvtaleServiceTest : FunSpec({
             )
         }
 
-        test("Man skal ikke få avbryte, men få en melding dersom opphav for avtalen ikke er admin-flate") {
+        test("Man skal ikke få avbryte, men få en melding dersom opphav for avtalen ikke er admin-flate og vi ikke har tatt eierskap til tiltakstypen enda") {
             val avtale = AvtaleFixtures.oppfolging.copy(
                 navn = "Avtale som eksisterer",
                 startDato = LocalDate.of(2023, 6, 1),
@@ -132,6 +136,28 @@ class AvtaleServiceTest : FunSpec({
             avtaleService.avbrytAvtale(avtale.id, bertilNavIdent).shouldBeLeft(
                 BadRequest("Avtalen har opprinnelse fra Arena og kan ikke bli avbrutt fra admin-flate."),
             )
+        }
+
+        test("Man skal få avbryte dersom opphav for avtalen er Arena, men vi har tatt eierskap til tiltakstype") {
+            val avtaler = AvtaleRepository(database.db)
+            val service = AvtaleService(
+                avtaleRepository,
+                tiltaksgjennomforinger,
+                listOf(Tiltakskode.OPPFOLGING),
+                virksomhetService,
+                NotificationRepository(database.db),
+                validator,
+                EndringshistorikkService(database.db),
+                database.db,
+            )
+            val avtale = AvtaleFixtures.oppfolging.copy(
+                id = UUID.randomUUID(),
+                navn = "Avtale som eksisterer",
+            )
+            avtaler.upsert(avtale)
+            avtaler.setOpphav(avtale.id, ArenaMigrering.Opphav.ARENA)
+
+            service.avbrytAvtale(avtale.id, bertilNavIdent).shouldBeRight()
         }
 
         test("Man skal ikke få avbryte, men få en melding dersom avtalen allerede er avsluttet") {
@@ -208,6 +234,7 @@ class AvtaleServiceTest : FunSpec({
         val avtaleService = AvtaleService(
             avtaler,
             tiltaksgjennomforinger,
+            listOf(Tiltakskode.OPPFOLGING),
             virksomhetService,
             NotificationRepository(database.db),
             validator,

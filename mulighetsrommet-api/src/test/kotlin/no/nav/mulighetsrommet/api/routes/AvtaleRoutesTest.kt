@@ -18,6 +18,7 @@ import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
+import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.dto.allowedAvtaletypes
 import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.ktor.respondJson
@@ -106,7 +107,7 @@ class AvtaleRoutesTest : FunSpec({
             auth = createAuthConfig(oauth, roles = listOf(avtaleSkrivRolle, tiltaksadministrasjonGenerellRolle)),
             engine = engine,
             database = databaseConfig,
-            migrerteTiltak = listOf("INDOPPFAG"),
+            migrerteTiltak = listOf(Tiltakskode.OPPFOLGING),
         )
         withTestApplication(config) {
             val client = createClient {
@@ -133,7 +134,7 @@ class AvtaleRoutesTest : FunSpec({
                     setBody(
                         AvtaleFixtures.avtaleRequest.copy(
                             id = UUID.randomUUID(),
-                            avtaletype = allowedAvtaletypes(tiltakstype.tiltakskode)[0],
+                            avtaletype = allowedAvtaletypes(Tiltakskode.fromArenaKode(tiltakstype.arenaKode))[0],
                             navEnheter = listOf(NavEnhetFixtures.Oslo.enhetsnummer),
                             tiltakstypeId = tiltakstype.id,
                         ),

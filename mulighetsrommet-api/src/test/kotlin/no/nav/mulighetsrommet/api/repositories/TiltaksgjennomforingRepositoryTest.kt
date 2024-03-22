@@ -23,8 +23,9 @@ import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingAdminDto
 import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingKontaktperson
 import no.nav.mulighetsrommet.api.domain.dto.VirksomhetKontaktperson
 import no.nav.mulighetsrommet.api.fixtures.*
-import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.Arbeidstrening1
+import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.ArenaOppfolging1
+import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.EnkelAmo1
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.Oppfolging1
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.Oppfolging2
 import no.nav.mulighetsrommet.api.utils.DEFAULT_PAGINATION_LIMIT
@@ -44,14 +45,7 @@ import java.util.*
 class TiltaksgjennomforingRepositoryTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
 
-    val domain = MulighetsrommetTestDomain(
-        virksomheter = listOf(
-            VirksomhetFixtures.hovedenhet,
-            VirksomhetFixtures.underenhet1,
-            VirksomhetFixtures.underenhet2,
-        ),
-        avtaler = listOf(AvtaleFixtures.oppfolging),
-    )
+    val domain = MulighetsrommetTestDomain()
 
     beforeEach {
         domain.initialize(database.db)
@@ -73,7 +67,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 it.tiltakstype shouldBe TiltaksgjennomforingAdminDto.Tiltakstype(
                     id = TiltakstypeFixtures.Oppfolging.id,
                     navn = TiltakstypeFixtures.Oppfolging.navn,
-                    arenaKode = TiltakstypeFixtures.Oppfolging.tiltakskode,
+                    arenaKode = TiltakstypeFixtures.Oppfolging.arenaKode,
                 )
                 it.navn shouldBe Oppfolging1.navn
                 it.tiltaksnummer shouldBe null
@@ -144,7 +138,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 it.tiltakstype shouldBe TiltaksgjennomforingAdminDto.Tiltakstype(
                     id = TiltakstypeFixtures.Oppfolging.id,
                     navn = TiltakstypeFixtures.Oppfolging.navn,
-                    arenaKode = TiltakstypeFixtures.Oppfolging.tiltakskode,
+                    arenaKode = TiltakstypeFixtures.Oppfolging.arenaKode,
                 )
                 it.tiltaksnummer shouldBe "2023#1"
                 it.arrangor shouldBe TiltaksgjennomforingAdminDto.Arrangor(
@@ -461,14 +455,11 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
     }
 
     context("skal migreres") {
-        test("skal migreres henter kun der tiltakstypen skal_migreres er true") {
+        test("skal migreres henter kun der tiltakstypen er definert") {
             val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
 
-            Query("update tiltakstype set skal_migreres = true where id = '${Oppfolging1.tiltakstypeId}'")
-                .asUpdate.let { database.db.run(it) }
-
             tiltaksgjennomforinger.upsert(Oppfolging1)
-            tiltaksgjennomforinger.upsert(Arbeidstrening1)
+            tiltaksgjennomforinger.upsert(EnkelAmo1)
 
             tiltaksgjennomforinger.getAll(skalMigreres = true).should {
                 it.first shouldBe 1
@@ -665,7 +656,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
     context("Filtrering på tiltaksgjennomforingstatus") {
         val dagensDato = LocalDate.of(2023, 2, 1)
 
-        val tiltaksgjennomforingAktiv = Arbeidstrening1
+        val tiltaksgjennomforingAktiv = AFT1
         val tiltaksgjennomforingAvsluttetStatus = ArenaOppfolging1.copy(
             id = UUID.randomUUID(),
             avslutningsstatus = Avslutningsstatus.AVSLUTTET,
@@ -950,27 +941,24 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         val arbeidstreningSanityId = UUID.randomUUID()
 
         beforeEach {
-            Query("update tiltakstype set skal_migreres = true")
-                .asUpdate
-                .let { database.db.run(it) }
             Query("update tiltakstype set sanity_id = '$oppfolgingSanityId' where id = '${TiltakstypeFixtures.Oppfolging.id}'")
                 .asUpdate
                 .let { database.db.run(it) }
             Query("update tiltakstype set innsatsgruppe = '${Innsatsgruppe.STANDARD_INNSATS}' where id = '${TiltakstypeFixtures.Oppfolging.id}'")
                 .asUpdate
                 .let { database.db.run(it) }
-            Query("update tiltakstype set sanity_id = '$arbeidstreningSanityId' where id = '${TiltakstypeFixtures.Arbeidstrening.id}'")
+            Query("update tiltakstype set sanity_id = '$arbeidstreningSanityId' where id = '${TiltakstypeFixtures.AFT.id}'")
                 .asUpdate
                 .let { database.db.run(it) }
-            Query("update tiltakstype set innsatsgruppe = '${Innsatsgruppe.STANDARD_INNSATS}' where id = '${TiltakstypeFixtures.Arbeidstrening.id}'")
+            Query("update tiltakstype set innsatsgruppe = '${Innsatsgruppe.STANDARD_INNSATS}' where id = '${TiltakstypeFixtures.AFT.id}'")
                 .asUpdate
                 .let { database.db.run(it) }
 
             tiltaksgjennomforinger.upsert(Oppfolging1.copy(navEnheter = listOf("2990")))
             tiltaksgjennomforinger.setPublisert(Oppfolging1.id, true)
 
-            tiltaksgjennomforinger.upsert(Arbeidstrening1.copy(navEnheter = listOf("2990")))
-            tiltaksgjennomforinger.setPublisert(Arbeidstrening1.id, true)
+            tiltaksgjennomforinger.upsert(AFT1.copy(navEnheter = listOf("2990")))
+            tiltaksgjennomforinger.setPublisert(AFT1.id, true)
         }
 
         test("skal filtrere basert på om tiltaket er publisert") {
@@ -986,7 +974,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 brukersEnheter = listOf("2990"),
             ) shouldHaveSize 1
 
-            tiltaksgjennomforinger.setPublisert(Arbeidstrening1.id, false)
+            tiltaksgjennomforinger.setPublisert(AFT1.id, false)
 
             tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
                 innsatsgrupper = listOf(Innsatsgruppe.STANDARD_INNSATS),
@@ -994,13 +982,13 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             ) shouldHaveSize 0
         }
 
-        test("skal bare returnere tiltak markert med skal_migreres") {
+        test("skal bare returnere tiltak markert med tiltakskode definert") {
             tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
                 innsatsgrupper = listOf(Innsatsgruppe.STANDARD_INNSATS),
                 brukersEnheter = listOf("2990"),
             ) shouldHaveSize 2
 
-            Query("update tiltakstype set skal_migreres = false where id = '${TiltakstypeFixtures.Oppfolging.id}'")
+            Query("update tiltakstype set tiltakskode = null where id = '${TiltakstypeFixtures.Oppfolging.id}'")
                 .asUpdate
                 .let { database.db.run(it) }
 
@@ -1009,7 +997,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 brukersEnheter = listOf("2990"),
             ) shouldHaveSize 1
 
-            Query("update tiltakstype set skal_migreres = false where id = '${TiltakstypeFixtures.Arbeidstrening.id}'")
+            Query("update tiltakstype set tiltakskode = null where id = '${TiltakstypeFixtures.AFT.id}'")
                 .asUpdate
                 .let { database.db.run(it) }
 
@@ -1023,7 +1011,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             Query("update tiltakstype set innsatsgruppe = '${Innsatsgruppe.SPESIELT_TILPASSET_INNSATS}' where id = '${TiltakstypeFixtures.Oppfolging.id}'")
                 .asUpdate
                 .let { database.db.run(it) }
-            Query("update tiltakstype set innsatsgruppe = '${Innsatsgruppe.STANDARD_INNSATS}' where id = '${TiltakstypeFixtures.Arbeidstrening.id}'")
+            Query("update tiltakstype set innsatsgruppe = '${Innsatsgruppe.STANDARD_INNSATS}' where id = '${TiltakstypeFixtures.AFT.id}'")
                 .asUpdate
                 .let { database.db.run(it) }
 
@@ -1037,7 +1025,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 brukersEnheter = listOf("2990"),
             ).should {
                 it shouldHaveSize 1
-                it[0].navn shouldBe Arbeidstrening1.navn
+                it[0].navn shouldBe AFT1.navn
             }
 
             tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
@@ -1060,7 +1048,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             enheter.upsert(NavEnhetFixtures.Innlandet)
 
             tiltaksgjennomforinger.upsert(Oppfolging1.copy(navEnheter = listOf("2990", "0400")))
-            tiltaksgjennomforinger.upsert(Arbeidstrening1.copy(navEnheter = listOf("2990", "0300")))
+            tiltaksgjennomforinger.upsert(AFT1.copy(navEnheter = listOf("2990", "0300")))
 
             tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
                 innsatsgrupper = listOf(Innsatsgruppe.STANDARD_INNSATS),
@@ -1075,7 +1063,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 brukersEnheter = listOf("0300"),
             ).should {
                 it shouldHaveSize 1
-                it[0].navn shouldBe Arbeidstrening1.navn
+                it[0].navn shouldBe AFT1.navn
             }
 
             tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
@@ -1111,13 +1099,13 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 brukersEnheter = listOf("2990"),
             ).should {
                 it shouldHaveSize 1
-                it[0].navn shouldBe Arbeidstrening1.navn
+                it[0].navn shouldBe AFT1.navn
             }
         }
 
         test("skal filtrere basert fritekst i navn") {
             tiltaksgjennomforinger.upsert(Oppfolging1.copy(navn = "erik"))
-            tiltaksgjennomforinger.upsert(Arbeidstrening1.copy(navn = "frank"))
+            tiltaksgjennomforinger.upsert(AFT1.copy(navn = "frank"))
 
             tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
                 search = "rik",
@@ -1131,7 +1119,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
 
         test("skal filtrere basert på apent_for_innsok") {
             tiltaksgjennomforinger.upsert(Oppfolging1.copy(apentForInnsok = true, navEnheter = listOf("2990")))
-            tiltaksgjennomforinger.upsert(Arbeidstrening1.copy(apentForInnsok = false, navEnheter = listOf("2990")))
+            tiltaksgjennomforinger.upsert(AFT1.copy(apentForInnsok = false, navEnheter = listOf("2990")))
 
             tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
                 apentForInnsok = true,
@@ -1148,7 +1136,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 brukersEnheter = listOf("2990"),
             ).should {
                 it shouldHaveSize 1
-                it[0].navn shouldBe Arbeidstrening1.navn
+                it[0].navn shouldBe AFT1.navn
             }
 
             tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(

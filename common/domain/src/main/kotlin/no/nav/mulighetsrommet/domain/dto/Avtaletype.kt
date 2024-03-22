@@ -1,5 +1,8 @@
 package no.nav.mulighetsrommet.domain.dto
 
+import no.nav.mulighetsrommet.domain.Tiltakskode
+import no.nav.mulighetsrommet.domain.Tiltakskode.*
+
 enum class Avtaletype {
     Avtale,
     Rammeavtale,
@@ -11,17 +14,14 @@ enum class Avtaletype {
     }
 }
 
-fun allowedAvtaletypes(arenaKode: String): List<Avtaletype> {
-    // TODO: Bruk den nye tiltakskoden når den er merget
-    return when (arenaKode) {
-        "ARBFORB", "VASV" ->
+fun allowedAvtaletypes(tiltakskode: Tiltakskode?): List<Avtaletype> =
+    when (tiltakskode) {
+        ARBEIDSFORBEREDENDE_TRENING, VARIG_TILRETTELAGT_ARBEID_SKJERMET ->
             listOf(Avtaletype.Forhaandsgodkjent)
-        "AVKLARAG", "INDOPPFAG", "ARBRRHDAG", "DIGIOPPARB", "JOBBK" ->
+        AVKLARING, OPPFOLGING, ARBEIDSRETTET_REHABILITERING, JOBBKLUBB, DIGITALT_OPPFOLGINGSTILTAK ->
             listOf(Avtaletype.Rammeavtale, Avtaletype.Avtale)
-        "GRUFAGYRKE", "GRUPPEAMO" ->
+        GRUPPE_ARBEIDSMARKEDSOPPLAERING, GRUPPE_FAG_OG_YRKESOPPLAERING ->
             listOf(Avtaletype.Rammeavtale, Avtaletype.Avtale, Avtaletype.OffentligOffentlig)
-        // Hvis ikke gruppetiltak
         else ->
-            listOf(Avtaletype.Rammeavtale, Avtaletype.Avtale, Avtaletype.Forhaandsgodkjent, Avtaletype.OffentligOffentlig)
+            Avtaletype.values().toList()
     }
-}

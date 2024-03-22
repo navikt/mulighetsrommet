@@ -67,7 +67,6 @@ select tg.id::uuid,
                      end
        )                          as kontaktpersoner,
        tg.sted_for_gjennomforing,
-       t.skal_migreres,
        tg.faneinnhold,
        tg.beskrivelse,
        tg.created_at,
@@ -91,7 +90,8 @@ select tg.id::uuid,
        tg.estimert_ventetid_enhet,
        tg.publisert,
        tg.publisert and tg.avslutningsstatus = 'IKKE_AVSLUTTET'::avslutningsstatus
-                                  as publisert_for_alle
+                                  as publisert_for_alle,
+       t.arena_kode
 from tiltaksgjennomforing tg
          inner join tiltakstype t on tg.tiltakstype_id = t.id
          left join tiltaksgjennomforing_administrator tg_a on tg_a.tiltaksgjennomforing_id = tg.id
@@ -113,4 +113,5 @@ group by tg.id,
          region.navn,
          region.type,
          region.overordnet_enhet,
-         arena_nav_enhet.enhetsnummer;
+         arena_nav_enhet.enhetsnummer,
+         t.arena_kode;

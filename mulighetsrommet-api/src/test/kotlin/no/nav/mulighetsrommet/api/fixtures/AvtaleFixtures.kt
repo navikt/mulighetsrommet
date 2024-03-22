@@ -108,6 +108,26 @@ object AvtaleFixtures {
         faneinnhold = null,
     )
 
+    val EnkelAmo = AvtaleDbo(
+        id = UUID.randomUUID(),
+        navn = "Avtalenavn for EnkelAmo",
+        avtalenummer = "2024#1",
+        tiltakstypeId = TiltakstypeFixtures.EnkelAmo.id,
+        leverandorVirksomhetId = VirksomhetFixtures.hovedenhet.id,
+        leverandorUnderenheter = listOf(VirksomhetFixtures.underenhet1.id),
+        leverandorKontaktpersonId = null,
+        startDato = LocalDate.of(2023, 1, 1),
+        sluttDato = null,
+        avtaletype = Avtaletype.Forhaandsgodkjent,
+        prisbetingelser = null,
+        administratorer = listOf(NavIdent("DD1")),
+        navEnheter = listOf("0400", "0502"),
+        antallPlasser = null,
+        url = null,
+        beskrivelse = null,
+        faneinnhold = null,
+    )
+
     val avtaleRequest = AvtaleRequest(
         id = UUID.randomUUID(),
         navn = "Avtalenavn",

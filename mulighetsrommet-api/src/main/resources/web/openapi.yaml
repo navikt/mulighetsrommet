@@ -823,13 +823,6 @@ paths:
               $ref: "#/components/schemas/Tiltakstypestatus"
           description: Statuser for tiltakstyper
         - in: query
-          name: tiltakstypekategorier
-          schema:
-            type: array
-            items:
-              $ref: "#/components/schemas/Tiltakstypekategori"
-          description: Om man skal hente gruppetiltakstyper eller individuelle tiltakstyper
-        - in: query
           name: page
           schema:
             type: number
@@ -1673,10 +1666,10 @@ components:
     TiltakskodeParam:
       name: tiltakskode
       in: path
-      description: Tiltakskode
+      description: TiltakskodeArena
       required: true
       schema:
-        $ref: "#/components/schemas/Tiltakskode"
+        $ref: "#/components/schemas/TiltakskodeArena"
 
     EnheterParam:
       in: query
@@ -1854,7 +1847,7 @@ components:
           items:
             $ref: "#/components/schemas/Avtale"
 
-    Tiltakskode:
+    TiltakskodeArena:
       type: string
       enum:
         - IPSUNG
@@ -1889,7 +1882,7 @@ components:
         navn:
           type: string
         arenaKode:
-          $ref: "#/components/schemas/Tiltakskode"
+          $ref: "#/components/schemas/TiltakskodeArena"
         fraDato:
           type: string
         tilDato:
@@ -2047,7 +2040,7 @@ components:
         navn:
           type: string
         arenaKode:
-          $ref: "#/components/schemas/Tiltakskode"
+          $ref: "#/components/schemas/TiltakskodeArena"
       required:
         - id
         - navn
@@ -2902,7 +2895,7 @@ components:
         delingMedBruker:
           type: string
         arenakode:
-          $ref: "#/components/schemas/Tiltakskode"
+          $ref: "#/components/schemas/TiltakskodeArena"
       required:
         - sanityId
         - navn

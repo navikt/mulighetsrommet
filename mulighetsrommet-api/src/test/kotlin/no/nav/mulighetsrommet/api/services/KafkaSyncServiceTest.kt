@@ -12,6 +12,7 @@ import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
+import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
 import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus
@@ -41,7 +42,7 @@ class KafkaSyncServiceTest : FunSpec({
                 tiltakstype = TiltaksgjennomforingDto.Tiltakstype(
                     id = tiltakstype.id,
                     navn = tiltakstype.navn,
-                    arenaKode = tiltakstype.tiltakskode,
+                    arenaKode = tiltakstype.arenaKode,
                 ),
                 navn = navn,
                 virksomhetsnummer = VirksomhetFixtures.underenhet1.organisasjonsnummer,
@@ -115,7 +116,8 @@ class KafkaSyncServiceTest : FunSpec({
             return TiltakstypeEksternDto(
                 id = id,
                 navn = navn,
-                arenaKode = tiltakskode,
+                arenaKode = arenaKode,
+                tiltakskode = Tiltakskode.fromArenaKode(arenaKode)!!,
                 registrertIArenaDato = registrertDatoIArena,
                 sistEndretIArenaDato = sistEndretDatoIArena,
                 fraDato = fraDato,
@@ -128,12 +130,12 @@ class KafkaSyncServiceTest : FunSpec({
 
         val startdatoInnenfor = tiltakstype.copy(
             id = UUID.randomUUID(),
-            tiltakskode = "START",
+            arenaKode = "AVKLARAG",
             fraDato = LocalDate.of(2023, 2, 15),
         )
         val sluttdatoInnenfor = tiltakstype.copy(
             id = UUID.randomUUID(),
-            tiltakskode = "SLUTT",
+            arenaKode = "GRUPPEAMO",
             fraDato = LocalDate.of(2023, 2, 13),
             tilDato = lastSuccessDate,
         )

@@ -15,6 +15,7 @@ import no.nav.mulighetsrommet.api.repositories.VirksomhetRepository
 import no.nav.mulighetsrommet.api.routes.v1.responses.ValidationError
 import no.nav.mulighetsrommet.api.services.NavEnhetService
 import no.nav.mulighetsrommet.api.services.TiltakstypeService
+import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.Tiltakskoder
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
@@ -62,12 +63,12 @@ class AvtaleValidator(
                 add(
                     ValidationError.of(
                         AvtaleDbo::leverandorUnderenheter,
-                        "Minst én underenhet til leverandøren må være valgt",
+                        "Minst én underenhet til tiltaksarrangøren må være valgt",
                     ),
                 )
             }
 
-            if (!allowedAvtaletypes(tiltakstype.arenaKode).contains(avtale.avtaletype)) {
+            if (!allowedAvtaletypes(Tiltakskode.fromArenaKode(tiltakstype.arenaKode)).contains(avtale.avtaletype)) {
                 add(
                     ValidationError.of(
                         AvtaleDbo::avtaletype,
@@ -119,7 +120,7 @@ class AvtaleValidator(
                             add(
                                 ValidationError.of(
                                     AvtaleDbo::leverandorUnderenheter,
-                                    "Arrangøren ${virksomhet.navn} er i bruk på en av avtalens gjennomføringer, men mangler blandt leverandørens underenheter",
+                                    "Arrangøren ${virksomhet.navn} er i bruk på en av avtalens gjennomføringer, men mangler blant tiltaksarrangørens underenheter",
                                 ),
                             )
                         }
@@ -130,7 +131,7 @@ class AvtaleValidator(
                                 add(
                                     ValidationError.of(
                                         AvtaleDbo::navEnheter,
-                                        "NAV-enheten $enhetsnummer er i bruk på en av avtalens gjennomføringer, men mangler blandt avtalens NAV-enheter",
+                                        "NAV-enheten $enhetsnummer er i bruk på en av avtalens gjennomføringer, men mangler blant avtalens NAV-enheter",
                                     ),
                                 )
                             }
@@ -191,7 +192,7 @@ class AvtaleValidator(
                         add(
                             ValidationError.of(
                                 AvtaleDbo::leverandorVirksomhetId,
-                                "Leverandøren kan ikke endres utenfor Arena",
+                                "Tiltaksarrangøren kan ikke endres utenfor Arena",
                             ),
                         )
                     }
@@ -254,5 +255,5 @@ class AvtaleValidator(
     }
 
     private fun isEnabled(arenakode: String) =
-        tiltakstyper.isEnabled(arenakode) || Tiltakskoder.TiltakMedAvtalerFraMulighetsrommet.contains(arenakode)
+        tiltakstyper.isEnabled(Tiltakskode.fromArenaKode(arenakode)) || Tiltakskoder.TiltakMedAvtalerFraMulighetsrommet.contains(arenakode)
 }

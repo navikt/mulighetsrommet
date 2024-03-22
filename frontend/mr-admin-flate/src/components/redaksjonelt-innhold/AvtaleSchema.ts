@@ -1,4 +1,4 @@
-import { Avtaletype, Tiltakskode } from "mulighetsrommet-api-client";
+import { Avtaletype, TiltakskodeArena } from "mulighetsrommet-api-client";
 import z from "zod";
 import { FaneinnholdSchema } from "./FaneinnholdSchema";
 
@@ -13,7 +13,7 @@ export const AvtaleSchema = z
     tiltakstype: z.object(
       {
         navn: z.string(),
-        arenaKode: z.nativeEnum(Tiltakskode),
+        arenaKode: z.nativeEnum(TiltakskodeArena),
         id: z.string(),
       },
       { required_error: "Du må velge en tiltakstype" },
@@ -23,9 +23,9 @@ export const AvtaleSchema = z
     }),
     leverandor: z
       .string()
-      .min(9, "Du må velge en leverandør")
-      .max(9, "Du må velge en leverandør")
-      .regex(/^\d+$/, "Leverandør må være et nummer"),
+      .min(9, "Du må velge en tiltaksarrangør")
+      .max(9, "Du må velge en tiltaksarrangør")
+      .regex(/^\d+$/, "Tiltaksarrangør må være et nummer"),
     leverandorUnderenheter: z.string().array().nonempty("Du må velge minst en underenhet"),
     leverandorKontaktpersonId: z.string().uuid().optional(),
     navRegioner: z.string().array().nonempty({ message: "Du må velge minst én region" }),

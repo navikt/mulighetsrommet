@@ -22,6 +22,7 @@ import no.nav.mulighetsrommet.api.utils.EnhetFilter
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.QueryResult
 import no.nav.mulighetsrommet.database.utils.query
+import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.Tiltakskoder
 import no.nav.mulighetsrommet.domain.Tiltakskoder.isEgenRegiTiltak
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
@@ -60,12 +61,16 @@ class ArenaAdapterService(
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    fun upsertTiltakstype(tiltakstype: TiltakstypeDbo): QueryResult<TiltakstypeDbo> {
-        return tiltakstyper.upsert(tiltakstype).onRight {
-            tiltakstyper.getEksternTiltakstype(tiltakstype.id)?.let {
-                tiltakstypeKafkaProducer.publish(it)
+    fun upsertTiltakstype(tiltakstype: TiltakstypeDbo): TiltakstypeDbo {
+        return tiltakstyper.upsert(tiltakstype)
+            .also {
+                val eksternDto = tiltakstyper.getEksternTiltakstype(tiltakstype.id)
+                if (eksternDto != null) {
+                    tiltakstypeKafkaProducer.publish(eksternDto)
+                } else {
+                    tiltakstypeKafkaProducer.retract(tiltakstype.id)
+                }
             }
-        }
     }
 
     fun removeTiltakstype(id: UUID): QueryResult<Int> {
@@ -206,7 +211,7 @@ class ArenaAdapterService(
         val tiltakstype = tiltakstyper.get(tiltaksgjennomforing.tiltakstypeId)
             ?: throw IllegalStateException("Ukjent tiltakstype id=${tiltaksgjennomforing.tiltakstypeId}")
 
-        return if (tiltakstypeService.isEnabled(tiltakstype.arenaKode)) {
+        return if (tiltakstypeService.isEnabled(Tiltakskode.fromArenaKode(tiltakstype.arenaKode))) {
             ArenaTiltaksgjennomforingDbo(
                 // Behold felter som settes i Arena
                 tiltaksnummer = tiltaksgjennomforing.tiltaksnummer,

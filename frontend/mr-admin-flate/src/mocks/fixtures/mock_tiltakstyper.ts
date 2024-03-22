@@ -1,7 +1,7 @@
 import {
   Innsatsgruppe,
   PaginertTiltakstype,
-  Tiltakskode,
+  TiltakskodeArena,
   Tiltakstypestatus,
   VeilederflateInnsatsgruppe,
   VeilederflateTiltakstype,
@@ -11,7 +11,7 @@ export const mockTiltakstyper = {
   ARBFORB: {
     id: "59a64a02-efdd-471d-9529-356ff5553a5d",
     navn: "Arbeidsforberedende trening (AFT)",
-    arenaKode: Tiltakskode.ARBFORB,
+    arenaKode: TiltakskodeArena.ARBFORB,
     fraDato: "2016-01-01",
     tilDato: "2099-01-01",
     status: Tiltakstypestatus.AKTIV,
@@ -20,7 +20,7 @@ export const mockTiltakstyper = {
   ARBRRHDAG: {
     id: "1d5bf722-02aa-4aa5-97e2-f359ea307a14",
     navn: "Arbeidsrettet rehabilitering (dag)",
-    arenaKode: Tiltakskode.ARBRRHDAG,
+    arenaKode: TiltakskodeArena.ARBRRHDAG,
     fraDato: "2012-01-01",
     tilDato: "2099-01-01",
     status: Tiltakstypestatus.AKTIV,
@@ -29,7 +29,7 @@ export const mockTiltakstyper = {
   AVKLARAG: {
     id: "938c2e7b-91d6-4eee-97d3-a110ccbc5968",
     navn: "Avklaring",
-    arenaKode: Tiltakskode.AVKLARAG,
+    arenaKode: TiltakskodeArena.AVKLARAG,
     fraDato: "2009-01-01",
     tilDato: "2099-01-01",
     status: Tiltakstypestatus.AKTIV,
@@ -38,7 +38,7 @@ export const mockTiltakstyper = {
   DIGIOPPARB: {
     id: "e47447e3-bbe4-4c41-839d-f352130b2e8a",
     navn: "Digitalt oppfølgingstiltak for arbeidsledige (jobbklubb)",
-    arenaKode: Tiltakskode.DIGIOPPARB,
+    arenaKode: TiltakskodeArena.DIGIOPPARB,
     fraDato: "2021-01-01",
     tilDato: "2099-01-01",
     status: Tiltakstypestatus.AKTIV,
@@ -47,7 +47,7 @@ export const mockTiltakstyper = {
   GRUPPEAMO: {
     id: "9b52265c-914c-413d-bca4-e9d7b3f1bd8d",
     navn: "Gruppe AMO",
-    arenaKode: Tiltakskode.GRUPPEAMO,
+    arenaKode: TiltakskodeArena.GRUPPEAMO,
     fraDato: "2019-07-01",
     tilDato: "2099-01-01",
     status: Tiltakstypestatus.AKTIV,
@@ -56,7 +56,7 @@ export const mockTiltakstyper = {
   GRUFAGYRKE: {
     id: "53ecc473-c0ce-40ea-88c3-9f4a3131080b",
     navn: "Gruppe Fag- og yrkesopplæring VGS og høyere yrkesfaglig utdanning",
-    arenaKode: Tiltakskode.GRUFAGYRKE,
+    arenaKode: TiltakskodeArena.GRUFAGYRKE,
     fraDato: "2019-07-01",
     tilDato: "2099-01-01",
     status: Tiltakstypestatus.AKTIV,
@@ -65,7 +65,7 @@ export const mockTiltakstyper = {
   JOBBK: {
     id: "95766f55-a456-4c4b-9a77-ca61ae214409",
     navn: "Jobbklubb",
-    arenaKode: Tiltakskode.JOBBK,
+    arenaKode: TiltakskodeArena.JOBBK,
     fraDato: "2003-10-10",
     tilDato: "2099-01-01",
     status: Tiltakstypestatus.AKTIV,
@@ -74,7 +74,7 @@ export const mockTiltakstyper = {
   INDOPPFAG: {
     id: "71a51692-35c5-4951-84eb-a338b0a57210",
     navn: "Oppfølging",
-    arenaKode: Tiltakskode.INDOPPFAG,
+    arenaKode: TiltakskodeArena.INDOPPFAG,
     fraDato: "2009-01-01",
     tilDato: "2099-01-01",
     status: Tiltakstypestatus.AKTIV,
@@ -83,7 +83,7 @@ export const mockTiltakstyper = {
   VASV: {
     id: "6fb921d6-0a87-4b8a-82a4-067477c1e113",
     navn: "Varig tilrettelagt arbeid i skjermet virksomhet",
-    arenaKode: Tiltakskode.VASV,
+    arenaKode: TiltakskodeArena.VASV,
     fraDato: "2001-01-01",
     tilDato: "2099-01-01",
     status: Tiltakstypestatus.AKTIV,

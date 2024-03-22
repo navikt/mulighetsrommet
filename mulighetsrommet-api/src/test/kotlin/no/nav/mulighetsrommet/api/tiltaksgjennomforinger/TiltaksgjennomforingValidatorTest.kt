@@ -22,7 +22,7 @@ import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.api.routes.v1.responses.ValidationError
 import no.nav.mulighetsrommet.api.services.TiltakstypeService
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
-import no.nav.mulighetsrommet.domain.Tiltakskoder.Gruppetiltak
+import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import java.time.LocalDate
@@ -113,14 +113,13 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
     beforeEach {
         domain.initialize(database.db)
 
-        tiltakstyper = TiltakstypeService(TiltakstypeRepository(database.db), listOf("INDOPPFAG"))
+        tiltakstyper = TiltakstypeService(TiltakstypeRepository(database.db), listOf(Tiltakskode.OPPFOLGING))
         avtaler = AvtaleRepository(database.db)
         tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
     }
 
     test("should fail when tiltakstype is not enabled") {
-        val arenakodeEnabledTiltakstyper = listOf<String>()
-        tiltakstyper = TiltakstypeService(TiltakstypeRepository(database.db), arenakodeEnabledTiltakstyper)
+        tiltakstyper = TiltakstypeService(TiltakstypeRepository(database.db), emptyList())
         val validator = TiltaksgjennomforingValidator(tiltakstyper, avtaler)
 
         validator.validate(gjennomforing, null).shouldBeLeft().shouldContainExactlyInAnyOrder(
@@ -193,7 +192,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
 
     test("sluttDato er påkrevd hvis ikke forhåndsgodkjent avtale") {
         val validator = TiltaksgjennomforingValidator(
-            TiltakstypeService(TiltakstypeRepository(database.db), Gruppetiltak),
+            TiltakstypeService(TiltakstypeRepository(database.db), Tiltakskode.values().toList()),
             avtaler,
         )
         val forhaandsgodkjent = TiltaksgjennomforingFixtures.AFT1.copy(sluttDato = null)

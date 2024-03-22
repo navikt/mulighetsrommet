@@ -44,7 +44,8 @@ select a.id,
                    end
        )                          as administratorer,
        a.beskrivelse,
-       a.faneinnhold
+       a.faneinnhold,
+       t.arena_kode
 from avtale a
          join tiltakstype t on t.id = a.tiltakstype_id
          left join avtale_administrator aa on a.id = aa.avtale_id
@@ -78,6 +79,7 @@ from avtale a
 group by a.id,
          t.navn,
          t.tiltakskode,
+         t.arena_kode,
          v.id,
          vk.id,
          lu.leverandor_underenheter,

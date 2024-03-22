@@ -15,7 +15,6 @@
     textarea {
       min-width: 9rem;
       width: 25rem;
-      min-height: 4rem;
     }
 
     .notater_knapp {
@@ -58,6 +57,7 @@
         display: flex;
         gap: 1rem;
         padding-bottom: 1rem;
+        white-space: pre-wrap;
 
         .notatinformasjon {
           display: flex;
