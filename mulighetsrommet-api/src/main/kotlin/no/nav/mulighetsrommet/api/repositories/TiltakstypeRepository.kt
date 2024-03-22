@@ -219,30 +219,6 @@ class TiltakstypeRepository(private val db: Database) {
         return Pair(totaltAntall, tiltakstyper)
     }
 
-    fun getAllMedDeltakerregistreringsinnhold(): List<TiltakstypeEksternDto?> {
-        val tiltakstyper = getAll(paginationParams = PaginationParams(nullableLimit = 1000))
-
-        return tiltakstyper.second
-            .map { tiltakstypeAdminDto ->
-                val tiltakskode = Tiltakskode.fromArenaKode(tiltakstypeAdminDto.arenaKode) ?: return@map null
-                val deltakerRegistreringInnhold = getDeltakerregistreringInnholdByArenaKode(tiltakskode)
-
-                TiltakstypeEksternDto(
-                    id = tiltakstypeAdminDto.id,
-                    navn = tiltakstypeAdminDto.navn,
-                    tiltakskode = tiltakskode,
-                    arenaKode = tiltakstypeAdminDto.arenaKode,
-                    registrertIArenaDato = tiltakstypeAdminDto.registrertIArenaDato,
-                    sistEndretIArenaDato = tiltakstypeAdminDto.sistEndretIArenaDato,
-                    fraDato = tiltakstypeAdminDto.fraDato,
-                    tilDato = tiltakstypeAdminDto.tilDato,
-                    rettPaaTiltakspenger = tiltakstypeAdminDto.rettPaaTiltakspenger,
-                    status = tiltakstypeAdminDto.status,
-                    deltakerRegistreringInnhold = deltakerRegistreringInnhold,
-                )
-            }
-    }
-
     private fun getDeltakerregistreringInnholdByArenaKode(tiltakskode: Tiltakskode): DeltakerRegistreringInnholdDto? {
         @Language("PostgreSQL")
         val query = """
