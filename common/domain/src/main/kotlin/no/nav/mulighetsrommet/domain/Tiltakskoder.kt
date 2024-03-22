@@ -39,7 +39,6 @@ enum class Tiltakskode {
                 OPPFOLGING -> "INDOPPFAG"
                 JOBBKLUBB -> "JOBBK"
                 VARIG_TILRETTELAGT_ARBEID_SKJERMET -> "VASV"
-                else -> null
             }
         }
     }
