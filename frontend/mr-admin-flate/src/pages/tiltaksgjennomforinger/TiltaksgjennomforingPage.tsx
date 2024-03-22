@@ -7,7 +7,7 @@ import { useTiltaksgjennomforingById } from "../../api/tiltaksgjennomforing/useT
 import { Header } from "../../components/detaljside/Header";
 import headerStyles from "../../components/detaljside/Header.module.scss";
 import { Laster } from "../../components/laster/Laster";
-import { Lenkeknapp } from "../../components/lenkeknapp/Lenkeknapp";
+import { Lenkeknapp } from "mulighetsrommet-frontend-common/components/lenkeknapp/Lenkeknapp";
 import { TiltaksgjennomforingstatusTag } from "../../components/statuselementer/TiltaksgjennomforingstatusTag";
 import { useNavigateAndReplaceUrl } from "../../hooks/useNavigateWithoutReplacingUrl";
 import { ContainerLayout } from "../../layouts/ContainerLayout";

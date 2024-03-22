@@ -17,19 +17,11 @@ export function NavFiltertags({ filterOpen }: Props) {
   return (
     <FiltertagsContainer filterOpen={filterOpen}>
       {filter.search && (
-        <Filtertag
-          options={[{ id: "search", tittel: `'${filter.search}'` }]}
-          onClose={() => setFilter({ ...filter, search: "" })}
-        />
+        <Filtertag label={filter.search} onClose={() => setFilter({ ...filter, search: "" })} />
       )}
       {filter.apentForInnsok !== ApentForInnsok.APENT_ELLER_STENGT && (
         <Filtertag
-          options={[
-            {
-              id: filter.apentForInnsok,
-              tittel: filter.apentForInnsok === ApentForInnsok.APENT ? "Åpent" : "Stengt",
-            },
-          ]}
+          label={filter.apentForInnsok === ApentForInnsok.APENT ? "Åpent" : "Stengt"}
           onClose={() =>
             setFilter({
               ...filter,
@@ -40,7 +32,7 @@ export function NavFiltertags({ filterOpen }: Props) {
       )}
       {filter.innsatsgruppe && (
         <Filtertag
-          options={[filter.innsatsgruppe]}
+          label={filter.innsatsgruppe.tittel}
           onClose={() => {
             setFilter({ ...filter, innsatsgruppe: undefined });
           }}
@@ -50,17 +42,20 @@ export function NavFiltertags({ filterOpen }: Props) {
         navEnheter={filter.navEnheter}
         onClose={() => setFilter({ ...filter, navEnheter: [] })}
       />
-      <Filtertag
-        options={filter.tiltakstyper}
-        onClose={(id: string) =>
-          setFilter({
-            ...filter,
-            tiltakstyper: filter.tiltakstyper?.filter(
-              (tiltakstype: ArbeidsmarkedstiltakFilterGruppe<string>) => tiltakstype.id !== id,
-            ),
-          })
-        }
-      />
+      {filter.tiltakstyper.map((tiltakstype) => (
+        <Filtertag
+          key={tiltakstype.id}
+          label={tiltakstype.tittel}
+          onClose={() =>
+            setFilter({
+              ...filter,
+              tiltakstyper: filter.tiltakstyper?.filter(
+                (type: ArbeidsmarkedstiltakFilterGruppe<string>) => tiltakstype.id !== type.id,
+              ),
+            })
+          }
+        />
+      ))}
     </FiltertagsContainer>
   );
 }

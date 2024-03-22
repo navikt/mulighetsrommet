@@ -11,7 +11,6 @@ import { DemoImageHeader } from "@/components/DemoImageHeader";
 import { Landingsside } from "./views/Landingsside";
 import { ModiaArbeidsmarkedstiltakOversikt } from "./views/ModiaArbeidsmarkedstiltakOversikt";
 import { ModiaArbeidsmarkedstiltakDetaljer } from "./views/ModiaArbeidsmarkedstiltakDetaljer";
-import { DeltakerRegistrering } from "@/microfrontends/deltaker-registrering/DeltakerRegistrering";
 
 export function ModiaArbeidsmarkedstiltak() {
   return (
@@ -31,12 +30,7 @@ function ModiaArbeidsmarkedstiltakRoutes() {
   const enableLandingssideFeature = useFeatureToggle(
     Toggles.MULIGHETSROMMET_VEILEDERFLATE_LANDINGSSIDE,
   );
-  const visDeltakerregistreringFeature = useFeatureToggle(
-    Toggles.MULIGHETSROMMET_VEILEDERFLATE_VIS_DELTAKER_REGISTRERING,
-  );
   const enableLandingsside = enableLandingssideFeature.isSuccess && enableLandingssideFeature.data;
-  const visDeltakerregistrering =
-    visDeltakerregistreringFeature.isSuccess && visDeltakerregistreringFeature.data;
 
   if (enableLandingssideFeature.isLoading) {
     return null;
@@ -47,9 +41,6 @@ function ModiaArbeidsmarkedstiltakRoutes() {
       {enableLandingsside ? <Route path="" element={<Landingsside />} /> : null}
       <Route path="oversikt" element={<ModiaArbeidsmarkedstiltakOversikt />} />
       <Route path="tiltak/:id/*" element={<ModiaArbeidsmarkedstiltakDetaljer />} />
-      {visDeltakerregistrering ? (
-        <Route path="tiltak/:id/deltaker" element={<DeltakerRegistrering />} />
-      ) : null}
       <Route
         path="*"
         element={

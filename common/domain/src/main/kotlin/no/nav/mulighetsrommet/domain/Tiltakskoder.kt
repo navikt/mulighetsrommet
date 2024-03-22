@@ -27,6 +27,21 @@ enum class Tiltakskode {
                 else -> null
             }
         }
+
+        fun toArenaKode(tiltakskode: Tiltakskode): String? {
+            return when (tiltakskode) {
+                ARBEIDSFORBEREDENDE_TRENING -> "ARBFORB"
+                ARBEIDSRETTET_REHABILITERING -> "ARBRRHDAG"
+                AVKLARING -> "AVKLARAG"
+                DIGITALT_OPPFOLGINGSTILTAK -> "DIGIOPPARB"
+                GRUPPE_FAG_OG_YRKESOPPLAERING -> "GRUFAGYRKE"
+                GRUPPE_ARBEIDSMARKEDSOPPLAERING -> "GRUPPEAMO"
+                OPPFOLGING -> "INDOPPFAG"
+                JOBBKLUBB -> "JOBBK"
+                VARIG_TILRETTELAGT_ARBEID_SKJERMET -> "VASV"
+                else -> null
+            }
+        }
     }
 }
 

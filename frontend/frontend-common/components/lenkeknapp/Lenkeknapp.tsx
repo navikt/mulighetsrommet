@@ -1,12 +1,13 @@
+import { MouseEventHandler, ReactNode } from "react";
 import classNames from "classnames";
-import { Lenke } from "mulighetsrommet-frontend-common/components/lenke/Lenke";
+import { Lenke } from "../lenke/Lenke";
 import style from "./Lenkeknapp.module.scss";
 
 interface Props {
   to: string;
-  children: React.ReactNode;
+  children: ReactNode;
   variant: "primary" | "secondary" | "tertiary";
-  handleClick?: () => void;
+  onClick?: MouseEventHandler<HTMLAnchorElement>;
   className?: string;
   size?: "small" | "medium";
   isExternal?: boolean;
@@ -16,7 +17,7 @@ interface Props {
 export function Lenkeknapp({
   to,
   variant,
-  handleClick,
+  onClick,
   className,
   children,
   isExternal,
@@ -27,7 +28,7 @@ export function Lenkeknapp({
     <Lenke
       isExternal={isExternal}
       to={to}
-      onClick={handleClick}
+      onClick={onClick}
       className={classNames(
         style.lenkeknapp,
         "navds-button",

@@ -19,7 +19,7 @@ import {
 } from "../../utils/filterUtils";
 import { NavEnhetFilter } from "mulighetsrommet-frontend-common";
 import { useRegioner } from "../../api/enhet/useRegioner";
-import { FilterAccordionHeader } from "mulighetsrommet-frontend-common/components/filter/accordionHeader/FilterAccordionHeader";
+import { FilterAccordionHeader } from "mulighetsrommet-frontend-common";
 
 type Filters = "tiltakstype";
 
@@ -95,7 +95,7 @@ export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
         value={filter.search}
         aria-label="Søk etter tiltaksgjennomføring"
       />
-      <div style={{ margin: ".25rem" }}>
+      <div style={{ margin: "0.8rem 0.5rem" }}>
         <Switch
           position="right"
           size="small"
@@ -108,7 +108,7 @@ export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
             });
           }}
         >
-          Vis kun mine gjennomføringer
+          <span style={{ fontWeight: "bold" }}>Vis kun mine gjennomføringer</span>
         </Switch>
       </div>
       <Accordion>

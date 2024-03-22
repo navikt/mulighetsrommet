@@ -1,6 +1,7 @@
 import { BodyShort, Button, Heading, Modal, VStack } from "@navikt/ds-react";
 import { useAtom, useSetAtom, WritableAtom } from "jotai";
 import { Avtalestatus, Opphav } from "mulighetsrommet-api-client";
+import { Lenkeknapp } from "mulighetsrommet-frontend-common/components/lenkeknapp/Lenkeknapp";
 import { useState } from "react";
 import {
   defaultTiltaksgjennomforingfilter,
@@ -11,7 +12,6 @@ import { useAvtale } from "../../api/avtaler/useAvtale";
 import { useMigrerteTiltakstyper } from "../../api/tiltakstyper/useMigrerteTiltakstyper";
 import { inneholderUrl } from "../../utils/Utils";
 import { HarSkrivetilgang } from "../authActions/HarSkrivetilgang";
-import { Lenkeknapp } from "../lenkeknapp/Lenkeknapp";
 import { LeggTilGjennomforingModal } from "../modal/LeggTilGjennomforingModal";
 import styles from "./../modal/Modal.module.scss";
 import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
@@ -36,6 +36,9 @@ export function TiltaksgjennomforingFilterButtons({ filterAtom }: Props) {
   const visOpprettTiltaksgjennomforingKnapp = inneholderUrl("/avtaler/");
 
   const avtaleErOpprettetIAdminFlate = avtale?.opphav === Opphav.MR_ADMIN_FLATE;
+  const avtaleErAftEllerVta = avtale?.tiltakstype?.arenaKode
+    ? ["ARBFORB", "VASV"].includes(avtale?.tiltakstype?.arenaKode)
+    : false;
   const avtalenErAktiv = avtale?.avtalestatus === Avtalestatus.AKTIV;
 
   const kanOppretteTiltak =
@@ -88,7 +91,7 @@ export function TiltaksgjennomforingFilterButtons({ filterAtom }: Props) {
                 to={`skjema`}
                 variant="primary"
                 dataTestid="opprett-ny-tiltaksgjenomforing_knapp"
-                handleClick={() => setTiltaksgjennomforingFane("detaljer")}
+                onClick={() => setTiltaksgjennomforingFane("detaljer")}
               >
                 Opprett ny tiltaksgjennomføring
               </Lenkeknapp>
@@ -103,7 +106,7 @@ export function TiltaksgjennomforingFilterButtons({ filterAtom }: Props) {
                 </Button>
               </>
             )}
-            {avtaleErOpprettetIAdminFlate && (
+            {avtaleErOpprettetIAdminFlate && avtaleErAftEllerVta && (
               <>
                 <Button
                   size="small"
@@ -112,7 +115,7 @@ export function TiltaksgjennomforingFilterButtons({ filterAtom }: Props) {
                   type="button"
                   title="Legg til en eksisterende gjennomføring til avtalen"
                 >
-                  Legg til gjennomføring
+                  Koble gjennomføring til avtale
                 </Button>
                 <LeggTilGjennomforingModal
                   avtale={avtale}
@@ -138,6 +141,7 @@ interface OpprettTiltakIArenaModalProps {
   onClose: () => void;
   tiltakstype: string;
 }
+
 function OpprettTiltakIArenaModal({ open, onClose, tiltakstype }: OpprettTiltakIArenaModalProps) {
   const { data: migrerteTiltakstyper } = useMigrerteTiltakstyper();
   const { data: tiltakstyper } = useTiltakstyper({});

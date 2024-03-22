@@ -7,12 +7,12 @@ import styles from "./Filtermeny.module.scss";
 import InnsatsgruppeFilter from "./InnsatsgruppeFilter";
 import Sokefelt from "./Sokefelt";
 import { Tiltakstypefilter } from "./Tiltakstypefilter";
-import { FilterAccordionHeader } from "mulighetsrommet-frontend-common/components/filter/accordionHeader/FilterAccordionHeader";
 import { useAtom } from "jotai";
 import { filterAccordionAtom } from "@/core/atoms/atoms";
 import { useRegioner } from "@/core/api/queries/useRegioner";
 import { addOrRemove } from "mulighetsrommet-frontend-common/utils/utils";
 import { NavEnhetFilter } from "mulighetsrommet-frontend-common";
+import { FilterAccordionHeader } from "mulighetsrommet-frontend-common";
 
 export const Filtermeny = () => {
   const [filter, setFilter] = useArbeidsmarkedstiltakFilter();
