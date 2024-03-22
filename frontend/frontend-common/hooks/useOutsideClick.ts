@@ -4,8 +4,8 @@ export function useOutsideClick(callback: () => void) {
   const ref = React.useRef<any>();
 
   React.useEffect(() => {
-    const handleClick = (event: any) => {
-      if (ref.current && !ref.current.contains(event.target)) {
+    const handleClick = (event: MouseEvent) => {
+      if (ref.current && !event.composedPath().includes(ref.current)) {
         callback();
       }
     };
