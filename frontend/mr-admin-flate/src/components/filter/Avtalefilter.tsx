@@ -73,7 +73,7 @@ export function AvtaleFilter({ filterAtom, skjulFilter }: Props) {
         value={filter.sok}
         aria-label="Søk etter tiltaksgjennomføring"
       />
-      <div style={{ margin: ".25rem" }}>
+      <div style={{ margin: "0.8rem 0.5rem" }}>
         <Switch
           position="right"
           size="small"
@@ -86,7 +86,7 @@ export function AvtaleFilter({ filterAtom, skjulFilter }: Props) {
             });
           }}
         >
-          Vis kun mine avtaler
+          <span style={{ fontWeight: "bold" }}>Vis kun mine avtaler</span>
         </Switch>
       </div>
       <Accordion>
