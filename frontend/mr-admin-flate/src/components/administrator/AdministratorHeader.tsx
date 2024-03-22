@@ -115,16 +115,16 @@ export function AdministratorHeader() {
               <Dropdown.Menu.Divider />
               <Dropdown.Menu.List>
                 <Dropdown.Menu.List.Item as="span" onClick={() => logoutLinkRef.current?.click()}>
-                  <Link
+                  <a
                     ref={logoutLinkRef}
-                    to={
+                    href={
                       getEnvironment() === "development"
                         ? "https://tiltaksadministrasjon.intern.dev.nav.no/oauth2/logout"
                         : "https://tiltaksadministrasjon.intern.nav.no/oauth2/logout"
                     }
                   >
                     Logg ut
-                  </Link>
+                  </a>
                 </Dropdown.Menu.List.Item>
               </Dropdown.Menu.List>
             </>
