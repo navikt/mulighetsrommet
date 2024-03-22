@@ -14,6 +14,11 @@
           "strategies": []
         },
         {
+          "name": "mulighetsrommet.admin-flate.enableDebugger",
+          "enabled": true,
+          "strategies": []
+        },
+        {
           "name": "mulighetsrommet.admin-flate.rediger-oppstart",
           "enabled": true,
           "strategies": []
