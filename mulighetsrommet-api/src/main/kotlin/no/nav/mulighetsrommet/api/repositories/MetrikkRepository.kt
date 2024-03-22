@@ -33,24 +33,6 @@ class MetrikkRepository(private val db: Database) {
         return queryOf(query).map { it.int("count") }.asSingle.let { db.run(it) } ?: 0
     }
 
-    fun hentAntallLeverandorer(): Int {
-        @Language("PostgreSQL")
-        val query = """
-            select distinct count(organisasjonsnummer) as antallLeverandorer from virksomhet where overordnet_enhet is null
-        """.trimIndent()
-
-        return queryOf(query).map { it.int("antallLeverandorer") }.asSingle.let { db.run(it) } ?: 0
-    }
-
-    fun hentAntallArrangorer(): Int {
-        @Language("PostgreSQL")
-        val query = """
-            select distinct count(organisasjonsnummer) as antallArrangorer from virksomhet where overordnet_enhet is not null
-        """.trimIndent()
-
-        return queryOf(query).map { it.int("antallArrangorer") }.asSingle.let { db.run(it) } ?: 0
-    }
-
     fun hentAntallTiltaksgjennomforingerMedAdministrator(): Int {
         @Language("PostgreSQL")
         val query = """

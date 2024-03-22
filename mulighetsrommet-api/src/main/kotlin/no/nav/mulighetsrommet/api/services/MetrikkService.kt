@@ -13,10 +13,6 @@ class MetrikkService(private val metrikkRepository: MetrikkRepository) {
         Metrikker.appMicrometerRegistry.gauge("antall.leste.notifikasjoner", AtomicInteger(0))!!
     private val antallAvtalerMedAdministratorGauge: AtomicInteger =
         Metrikker.appMicrometerRegistry.gauge("antall.avtaler.med.administrator", AtomicInteger(0))!!
-    private val antallLeverandorer: AtomicInteger =
-        Metrikker.appMicrometerRegistry.gauge("antall.leverandorer", AtomicInteger(0))!!
-    private val antallArrangorer: AtomicInteger =
-        Metrikker.appMicrometerRegistry.gauge("antall.arrangorer", AtomicInteger(0))!!
     private val antallGjennomforingerMedAdministratorGauge: AtomicInteger =
         Metrikker.appMicrometerRegistry.gauge("antall.tiltaksgjennomforinger.med.administrator", AtomicInteger(0))!!
     private val antallGjennomforingerMedOpphavArenaGauge: AtomicInteger =
@@ -40,8 +36,6 @@ class MetrikkService(private val metrikkRepository: MetrikkRepository) {
         antallUlesteGauge.set(metrikkRepository.hentAntallUlesteNotifikasjoner())
         antallLesteGauge.set(metrikkRepository.hentAntallLesteNotifikasjoner())
         antallAvtalerMedAdministratorGauge.set(metrikkRepository.hentAntallAvtalerMedAdministrator())
-        antallLeverandorer.set(metrikkRepository.hentAntallLeverandorer())
-        antallArrangorer.set(metrikkRepository.hentAntallArrangorer())
         antallGjennomforingerMedAdministratorGauge.set(metrikkRepository.hentAntallTiltaksgjennomforingerMedAdministrator())
         antallDeltakereMedOpphavAmt.set(metrikkRepository.hentAntallDeltakerMedOpphav(opphav = Deltakeropphav.AMT))
         antallDeltakereMedOpphavArena.set(metrikkRepository.hentAntallDeltakerMedOpphav(opphav = Deltakeropphav.ARENA))
