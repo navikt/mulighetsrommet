@@ -162,14 +162,14 @@ export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
             </Accordion.Content>
           </Accordion.Item>
         )}
-        <Accordion.Item open={accordionsOpen.includes("navEnheter")}>
+        <Accordion.Item open={accordionsOpen.includes("navEnhet")}>
           <Accordion.Header
             onClick={() => {
-              setAccordionsOpen([...addOrRemove(accordionsOpen, "navEnheter")]);
+              setAccordionsOpen([...addOrRemove(accordionsOpen, "navEnhet")]);
             }}
           >
             <FilterAccordionHeader
-              tittel="Nav enheter"
+              tittel="Nav-enhet"
               antallValgteFilter={filter.navEnheter.length}
             />
           </Accordion.Header>
@@ -177,7 +177,7 @@ export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
             <div style={{ marginLeft: "-2rem" }}>
               <NavEnhetFilter
                 navEnheter={filter.navEnheter}
-                setNavEnheter={(navEnheter: NavEnhet[]) => setFilter({ ...filter, navEnheter })}
+                setNavEnheter={(navEnheter: NavEnhet[]) => setFilter({ ...filter, page: 1, navEnheter })}
                 regioner={regioner}
               />
             </div>
