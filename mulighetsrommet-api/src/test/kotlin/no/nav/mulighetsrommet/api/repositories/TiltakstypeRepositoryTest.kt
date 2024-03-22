@@ -262,5 +262,22 @@ class TiltakstypeRepositoryTest : FunSpec({
                 it shouldBe null
             }
         }
+
+        test("getBySanityId krasjer ikke") {
+            val sanityId = UUID.randomUUID()
+
+            @Language("PostgreSQL")
+            val query = """
+                update tiltakstype
+                set sanity_id = '$sanityId'
+                where tiltakskode = '${Tiltakskode.OPPFOLGING.name}';
+            """.trimIndent()
+            queryOf(
+                query,
+            ).asExecute.let { database.db.run(it) }
+            tiltakstyper.getBySanityId(sanityId).should {
+                it?.id shouldBe TiltakstypeFixtures.Oppfolging.id
+            }
+        }
     }
 })
