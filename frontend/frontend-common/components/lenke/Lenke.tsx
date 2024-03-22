@@ -1,4 +1,4 @@
-import React from "react";
+import React, { MouseEventHandler } from "react";
 import { Link as RouterLink, LinkProps as RouterLinkProps } from "react-router-dom";
 import classNames from "classnames";
 import { Link } from "@navikt/ds-react";
@@ -8,6 +8,7 @@ import { ExternalLinkIcon } from "@navikt/aksel-icons";
 interface LinkProps extends RouterLinkProps {
   isExternal?: boolean;
   children?: React.ReactNode;
+  onClick?: MouseEventHandler<HTMLAnchorElement>;
 }
 
 export function Lenke({ children, isExternal = false, to, className, ...others }: LinkProps) {
