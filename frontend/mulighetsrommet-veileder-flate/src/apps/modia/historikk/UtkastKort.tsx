@@ -19,7 +19,6 @@ export function UtkastKort({ utkast }: Props) {
 
   return (
     <LinkPanel
-      href={deltakelseRoute.href}
       onClick={deltakelseRoute.navigate}
       className={classNames(styles.panel, {
         [styles.utkast]: aktivStatus === AktivDeltakelse.aktivStatus.UTKAST_TIL_PAMELDING,

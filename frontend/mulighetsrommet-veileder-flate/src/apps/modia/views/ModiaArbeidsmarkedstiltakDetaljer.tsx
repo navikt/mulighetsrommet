@@ -28,7 +28,6 @@ import {
 import { useTitle } from "mulighetsrommet-frontend-common";
 import { LenkeListe } from "@/components/sidemeny/Lenker";
 import { ModiaRoute, resolveModiaRoute } from "@/apps/modia/ModiaRoute";
-import { Lenkeknapp } from "mulighetsrommet-frontend-common/components/lenkeknapp/Lenkeknapp";
 
 export function ModiaArbeidsmarkedstiltakDetaljer() {
   const { fnr } = useModiaContext();
@@ -78,6 +77,7 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
   const kanOppretteAvtaleForTiltak = isIndividueltTiltak(tiltakstype);
   const brukerHarRettPaaValgtTiltak = harBrukerRettPaaValgtTiltak(brukerdata, tiltakstype);
   const skalVisePameldingslenke =
+    enableDeltakerRegistrering &&
     !kanOppretteAvtaleForTiltak &&
     brukerHarRettPaaValgtTiltak &&
     tiltakstypeStotterPamelding(tiltakstype);
@@ -136,14 +136,10 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
               </Button>
             )}
 
-            {enableDeltakerRegistrering && skalVisePameldingslenke ? (
-              <Lenkeknapp
-                variant={"primary"}
-                to={opprettDeltakelseRoute.href}
-                onClick={opprettDeltakelseRoute.navigate}
-              >
+            {skalVisePameldingslenke ? (
+              <Button variant={"primary"} onClick={opprettDeltakelseRoute.navigate}>
                 Start påmelding
-              </Lenkeknapp>
+              </Button>
             ) : null}
 
             <DelMedBruker
@@ -168,15 +164,10 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
             )}
 
             {dialogRoute && (
-              <Lenkeknapp
-                size="small"
-                variant="tertiary"
-                to={dialogRoute.href}
-                onClick={dialogRoute.navigate}
-              >
+              <Button size="small" variant="tertiary" onClick={dialogRoute.navigate}>
                 Åpne i dialogen
                 <Chat2Icon aria-label="Åpne i dialogen" />
-              </Lenkeknapp>
+              </Button>
             )}
 
             <LenkeListe lenker={tiltaksgjennomforing.faneinnhold?.lenker} />
