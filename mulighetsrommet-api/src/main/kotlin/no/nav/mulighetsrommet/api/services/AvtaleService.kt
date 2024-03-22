@@ -28,6 +28,7 @@ import no.nav.mulighetsrommet.notifications.NotificationRepository
 import no.nav.mulighetsrommet.notifications.NotificationType
 import no.nav.mulighetsrommet.notifications.ScheduledNotification
 import java.time.Instant
+import java.time.LocalDate
 import java.util.*
 
 class AvtaleService(
@@ -138,7 +139,7 @@ class AvtaleService(
         return avtaler.getAllAvtalerSomNarmerSegSluttdato()
     }
 
-    fun avbrytAvtale(id: UUID, navIdent: NavIdent): StatusResponse<Unit> {
+    fun avbrytAvtale(id: UUID, navIdent: NavIdent, dagensDato: LocalDate = LocalDate.now()): StatusResponse<Unit> {
         val avtale = avtaler.get(id) ?: return Either.Left(NotFound("Avtalen finnes ikke"))
 
         if (avtale.opphav == Opphav.ARENA && !tiltakstyperMigrert.contains(Tiltakskode.fromArenaKode(avtale.tiltakstype.arenaKode))) {
@@ -149,19 +150,35 @@ class AvtaleService(
             return Either.Left(BadRequest(message = "Avtalen er allerede avsluttet og kan derfor ikke avbrytes."))
         }
 
-        val (antallAktiveGjennomforinger) = tiltaksgjennomforinger.getAll(
+        val gjennomforinger = tiltaksgjennomforinger.getAll(
             avtaleId = id,
             statuser = listOf(
                 Tiltaksgjennomforingsstatus.GJENNOMFORES,
+                Tiltaksgjennomforingsstatus.PLANLAGT,
             ),
-        )
-        if (antallAktiveGjennomforinger > 0) {
+            dagensDato = dagensDato,
+        ).second
+
+        val (antallAktiveGjennomforinger, antallPlanlagteGjennomforinger) = gjennomforinger.partition { it.status == Tiltaksgjennomforingsstatus.GJENNOMFORES }
+        if (antallAktiveGjennomforinger.isNotEmpty()) {
             return Either.Left(
                 BadRequest(
-                    message = "Avtalen har $antallAktiveGjennomforinger ${
-                        if (antallAktiveGjennomforinger > 1) "aktive tiltaksgjennomføringer" else "aktiv tiltaksgjennomføring"
+                    message = "Avtalen har ${antallAktiveGjennomforinger.size} ${
+                        if (antallAktiveGjennomforinger.size > 1) "aktive tiltaksgjennomføringer" else "aktiv tiltaksgjennomføring"
                     } koblet til seg. Du må frikoble ${
-                        if (antallAktiveGjennomforinger > 1) "gjennomføringene" else "gjennomføringen"
+                        if (antallAktiveGjennomforinger.size > 1) "gjennomføringene" else "gjennomføringen"
+                    } før du kan avbryte avtalen.",
+                ),
+            )
+        }
+
+        if (antallPlanlagteGjennomforinger.isNotEmpty()) {
+            return Either.Left(
+                BadRequest(
+                    message = "Avtalen har ${antallPlanlagteGjennomforinger.size} ${
+                        if (antallPlanlagteGjennomforinger.size > 1) "planlagte tiltaksgjennomføringer" else "planlagt tiltaksgjennomføring"
+                    } koblet til seg. Du må flytte eller avslutte ${
+                        if (antallPlanlagteGjennomforinger.size > 1) "gjennomføringene" else "gjennomføringen"
                     } før du kan avbryte avtalen.",
                 ),
             )

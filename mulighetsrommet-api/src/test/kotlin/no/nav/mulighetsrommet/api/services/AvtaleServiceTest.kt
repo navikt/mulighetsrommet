@@ -216,6 +216,35 @@ class AvtaleServiceTest : FunSpec({
             )
         }
 
+        test("Man skal ikke få avbryte, men få en melding dersom det finnes planlagte gjennomføringer koblet til avtalen") {
+            val avtale = AvtaleFixtures.oppfolging.copy(
+                id = UUID.randomUUID(),
+                navn = "Avtale som eksisterer",
+                startDato = LocalDate.of(2024, 5, 17),
+                sluttDato = LocalDate.of(2027, 7, 1),
+            )
+            avtaleRepository.upsert(avtale)
+            val oppfolging = TiltaksgjennomforingFixtures.Oppfolging1.copy(
+                avtaleId = avtale.id,
+                tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
+                startDato = LocalDate.of(2026, 5, 1),
+                sluttDato = null,
+            )
+            val arbeidstrening = TiltaksgjennomforingFixtures.Arbeidstrening1.copy(
+                avtaleId = avtale.id,
+                tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
+                startDato = LocalDate.of(2024, 5, 1),
+                sluttDato = null,
+            )
+
+            tiltaksgjennomforinger.upsert(oppfolging)
+            tiltaksgjennomforinger.upsert(arbeidstrening)
+
+            avtaleService.avbrytAvtale(avtale.id, bertilNavIdent, dagensDato = LocalDate.of(2024, 1, 1)).shouldBeLeft(
+                BadRequest("Avtalen har 2 planlagte tiltaksgjennomføringer koblet til seg. Du må flytte eller avslutte gjennomføringene før du kan avbryte avtalen."),
+            )
+        }
+
         test("Man skal få avbryte dersom det ikke finnes aktive gjennomføringer koblet til avtalen") {
             val avtale = AvtaleFixtures.oppfolging.copy(
                 id = UUID.randomUUID(),
