@@ -174,7 +174,7 @@ class AvtaleServiceTest : FunSpec({
             )
         }
 
-        test("Man skal ikke få avbryte, men få en melding dersom det finnes gjennomføringer koblet til avtalen") {
+        test("Man skal ikke få avbryte, men få en melding dersom det finnes aktive gjennomføringer koblet til avtalen") {
             val avtale = AvtaleFixtures.oppfolging.copy(
                 id = UUID.randomUUID(),
                 navn = "Avtale som eksisterer",
@@ -212,8 +212,41 @@ class AvtaleServiceTest : FunSpec({
             tiltaksgjennomforinger.upsert(oppfolging2)
 
             avtaleService.avbrytAvtale(avtale.id, bertilNavIdent).shouldBeLeft(
-                BadRequest("Avtalen har 2 tiltaksgjennomføringer koblet til seg. Du må frikoble gjennomføringene før du kan avbryte avtalen."),
+                BadRequest("Avtalen har 2 aktive tiltaksgjennomføringer koblet til seg. Du må frikoble gjennomføringene før du kan avbryte avtalen."),
             )
+        }
+
+        test("Man skal få avbryte dersom det ikke finnes aktive gjennomføringer koblet til avtalen") {
+            val avtale = AvtaleFixtures.oppfolging.copy(
+                id = UUID.randomUUID(),
+                navn = "Avtale som eksisterer",
+                startDato = LocalDate.of(2024, 5, 17),
+                sluttDato = LocalDate.of(2025, 7, 1),
+            )
+            val avtaleSomErUinteressant = AvtaleFixtures.oppfolging.copy(
+                id = UUID.randomUUID(),
+                navn = "Avtale som vi ikke bryr oss om",
+                startDato = LocalDate.of(2024, 5, 17),
+                sluttDato = LocalDate.of(2025, 7, 1),
+            )
+            avtaleRepository.upsert(avtale)
+            avtaleRepository.upsert(avtaleSomErUinteressant)
+            val oppfolging = TiltaksgjennomforingFixtures.Oppfolging1.copy(
+                avtaleId = avtale.id,
+                tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
+                startDato = LocalDate.of(2023, 5, 1),
+                sluttDato = LocalDate.of(2023, 6, 1),
+            )
+            val arbeidstrening = TiltaksgjennomforingFixtures.Arbeidstrening1.copy(
+                avtaleId = avtale.id,
+                tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
+                startDato = LocalDate.of(2023, 5, 1),
+                sluttDato = LocalDate.of(2024, 1, 1),
+            )
+            tiltaksgjennomforinger.upsert(oppfolging)
+            tiltaksgjennomforinger.upsert(arbeidstrening)
+
+            avtaleService.avbrytAvtale(avtale.id, bertilNavIdent).shouldBeRight()
         }
 
         test("Skal få avbryte avtale hvis alle sjekkene er ok") {

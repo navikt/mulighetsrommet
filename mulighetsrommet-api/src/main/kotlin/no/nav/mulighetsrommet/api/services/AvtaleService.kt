@@ -23,6 +23,7 @@ import no.nav.mulighetsrommet.domain.constants.ArenaMigrering.Opphav
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dto.Avtalestatus
 import no.nav.mulighetsrommet.domain.dto.NavIdent
+import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus
 import no.nav.mulighetsrommet.notifications.NotificationRepository
 import no.nav.mulighetsrommet.notifications.NotificationType
 import no.nav.mulighetsrommet.notifications.ScheduledNotification
@@ -148,14 +149,19 @@ class AvtaleService(
             return Either.Left(BadRequest(message = "Avtalen er allerede avsluttet og kan derfor ikke avbrytes."))
         }
 
-        val (antallGjennomforinger) = tiltaksgjennomforinger.getAll(avtaleId = id)
-        if (antallGjennomforinger > 0) {
+        val (antallAktiveGjennomforinger) = tiltaksgjennomforinger.getAll(
+            avtaleId = id,
+            statuser = listOf(
+                Tiltaksgjennomforingsstatus.GJENNOMFORES,
+            ),
+        )
+        if (antallAktiveGjennomforinger > 0) {
             return Either.Left(
                 BadRequest(
-                    message = "Avtalen har $antallGjennomforinger ${
-                        if (antallGjennomforinger > 1) "tiltaksgjennomføringer" else "tiltaksgjennomføring"
+                    message = "Avtalen har $antallAktiveGjennomforinger ${
+                        if (antallAktiveGjennomforinger > 1) "aktive tiltaksgjennomføringer" else "aktiv tiltaksgjennomføring"
                     } koblet til seg. Du må frikoble ${
-                        if (antallGjennomforinger > 1) "gjennomføringene" else "gjennomføringen"
+                        if (antallAktiveGjennomforinger > 1) "gjennomføringene" else "gjennomføringen"
                     } før du kan avbryte avtalen.",
                 ),
             )
