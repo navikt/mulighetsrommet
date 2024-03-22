@@ -36,6 +36,9 @@ export function TiltaksgjennomforingFilterButtons({ filterAtom }: Props) {
   const visOpprettTiltaksgjennomforingKnapp = inneholderUrl("/avtaler/");
 
   const avtaleErOpprettetIAdminFlate = avtale?.opphav === Opphav.MR_ADMIN_FLATE;
+  const avtaleErAftEllerVta = avtale?.tiltakstype?.arenaKode
+    ? ["ARBFORB", "VASV"].includes(avtale?.tiltakstype?.arenaKode)
+    : false;
   const avtalenErAktiv = avtale?.avtalestatus === Avtalestatus.AKTIV;
 
   const kanOppretteTiltak =
@@ -104,7 +107,7 @@ export function TiltaksgjennomforingFilterButtons({ filterAtom }: Props) {
                 </Button>
               </>
             )}
-            {avtaleErOpprettetIAdminFlate && (
+            {avtaleErOpprettetIAdminFlate && avtaleErAftEllerVta && (
               <>
                 <Button
                   size="small"
@@ -113,7 +116,7 @@ export function TiltaksgjennomforingFilterButtons({ filterAtom }: Props) {
                   type="button"
                   title="Legg til en eksisterende gjennomføring til avtalen"
                 >
-                  Legg til gjennomføring
+                  Koble gjennomføring til avtale
                 </Button>
                 <LeggTilGjennomforingModal
                   avtale={avtale}

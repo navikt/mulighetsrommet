@@ -46,7 +46,7 @@ export const LeggTilGjennomforingModal = ({ avtale, modalOpen, onClose }: Props)
       width="50rem"
     >
       <Modal.Header closeButton>
-        <Heading size="medium">Legg til ny gjennomføring til avtalen</Heading>
+        <Heading size="medium">Legg til eller fjern gjennomføring fra avtalen</Heading>
       </Modal.Header>
 
       <Modal.Body className={styles.modal_content}>
@@ -61,9 +61,7 @@ export const LeggTilGjennomforingModal = ({ avtale, modalOpen, onClose }: Props)
 
         {error ? <Alert variant="error">{error}</Alert> : null}
 
-        {!search ? (
-          <Alert variant="info">Søk på tiltaksnummer for å finne tiltaksgjennomføringer</Alert>
-        ) : (
+        {!search ? null : (
           <TiltaksgjennomforingerListe
             filter={{
               search,
