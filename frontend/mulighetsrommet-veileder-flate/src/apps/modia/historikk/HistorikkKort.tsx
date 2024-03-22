@@ -1,7 +1,8 @@
-import { BodyShort, HStack, Heading, LinkPanel, Tag, VStack } from "@navikt/ds-react";
+import { BodyShort, Heading, HStack, LinkPanel, Tag, VStack } from "@navikt/ds-react";
 import styles from "./HistorikkKort.module.scss";
-import { formaterDato } from "../../../utils/Utils";
+import { formaterDato } from "@/utils/Utils";
 import { HistorikkForBrukerV2 } from "mulighetsrommet-api-client";
+import { ModiaRoute, resolveModiaRoute } from "@/apps/modia/ModiaRoute";
 
 interface Props {
   historikk: HistorikkForBrukerV2;
@@ -9,9 +10,16 @@ interface Props {
 
 export function HistorikkKort({ historikk }: Props) {
   const { tiltakstype, tittel, periode, historiskStatus, beskrivelse, innsoktDato } = historikk;
+
+  const deltakelseRoute = resolveModiaRoute({
+    route: ModiaRoute.ARBEIDSMARKEDSTILTAK_DELTAKELSE,
+    deltakerId: historikk.deltakerId,
+  });
+
   return (
     <LinkPanel
-      href="#" // TODO Fiks korrekt url til Komets løsning for påmelding
+      href={deltakelseRoute.href}
+      onClick={deltakelseRoute.navigate}
       className={styles.panel}
     >
       <VStack gap="2">

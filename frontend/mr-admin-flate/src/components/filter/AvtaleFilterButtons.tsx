@@ -1,9 +1,9 @@
 import { useAtom, WritableAtom } from "jotai";
 import { AvtaleFilter, defaultAvtaleFilter } from "../../api/atoms";
-import { Lenkeknapp } from "../lenkeknapp/Lenkeknapp";
 import { HarSkrivetilgang } from "../authActions/HarSkrivetilgang";
 import style from "./AvtaleFilterButtons.module.scss";
 import { NullstillFilterKnapp } from "mulighetsrommet-frontend-common/components/filter/nullstillFilterKnapp/NullstillFilterKnapp";
+import { Lenkeknapp } from "mulighetsrommet-frontend-common/components/lenkeknapp/Lenkeknapp";
 
 interface Props {
   filterAtom: WritableAtom<AvtaleFilter, [newValue: AvtaleFilter], void>;
