@@ -91,6 +91,17 @@ export function TiltaksgjennomforingFiltertags({ filterAtom, filterOpen }: Props
           }}
         />
       ))}
+      {filter.visMineGjennomforinger && (
+        <Filtertag
+          label="Mine gjennomføringer"
+          onClose={() => {
+            setFilter({
+              ...filter,
+              visMineGjennomforinger: false,
+            });
+          }}
+        />
+      )}
       {filter.arrangorOrgnr.map((orgNr) => (
         <Filtertag
           key={orgNr}
