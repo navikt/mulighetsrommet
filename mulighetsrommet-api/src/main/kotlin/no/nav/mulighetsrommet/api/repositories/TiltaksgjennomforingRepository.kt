@@ -376,7 +376,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         sortering: String? = null,
         sluttDatoCutoff: LocalDate? = ArenaMigrering.TiltaksgjennomforingSluttDatoCutoffDate,
         dagensDato: LocalDate = LocalDate.now(),
-        navRegioner: List<String> = emptyList(),
         avtaleId: UUID? = null,
         arrangorOrgnr: List<String> = emptyList(),
         administratorNavIdent: NavIdent? = null,
@@ -402,7 +401,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             tiltakstypeIder.ifEmpty { null } to tiltakstypeIderWhereStatement(tiltakstypeIder),
             statuser.ifEmpty { null } to statuserWhereStatement(statuser),
             sluttDatoCutoff to "(slutt_dato >= :cutoffdato or slutt_dato is null)",
-            navRegioner.ifEmpty { null } to navRegionerWhereStatement(navRegioner),
             avtaleId to "avtale_id = :avtaleId",
             arrangorOrgnr.ifEmpty { null } to arrangorOrganisasjonsnummerWhereStatement(arrangorOrgnr),
             administratorNavIdent to "administratorer @> :administrator_nav_ident::jsonb",
@@ -460,12 +458,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         tiltakstypeIder
             .joinToString(prefix = "(", postfix = ")", separator = " or ") {
                 "tiltakstype_id = '$it'"
-            }
-
-    private fun navRegionerWhereStatement(navRegioner: List<String>): String =
-        navRegioner
-            .joinToString(prefix = "(", postfix = ")", separator = " or ") {
-                "('$it' = nav_region_enhetsnummer or  arena_ansvarlig_enhet::jsonb->>'enhetsnummer' = '$it' or arena_ansvarlig_enhet::jsonb->>'enhetsnummer' in (select enhetsnummer from nav_enhet where overordnet_enhet = '$it'))"
             }
 
     private fun statuserWhereStatement(statuser: List<Tiltaksgjennomforingsstatus>): String =

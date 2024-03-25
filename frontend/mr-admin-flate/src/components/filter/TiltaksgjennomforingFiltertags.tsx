@@ -4,8 +4,8 @@ import { TiltaksgjennomforingFilter } from "../../api/atoms";
 import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
 import { useVirksomheter } from "../../api/virksomhet/useVirksomheter";
 import { addOrRemove } from "../../utils/Utils";
-import { useNavEnheter } from "../../api/enhet/useNavEnheter";
 import { TILTAKSGJENNOMFORING_STATUS_OPTIONS } from "../../utils/filterUtils";
+import { NavEnhetFiltertag } from "mulighetsrommet-frontend-common";
 import { Filtertag, FiltertagsContainer } from "mulighetsrommet-frontend-common";
 
 interface Props {
@@ -19,7 +19,6 @@ interface Props {
 
 export function TiltaksgjennomforingFiltertags({ filterAtom, filterOpen }: Props) {
   const [filter, setFilter] = useAtom(filterAtom);
-  const { data: enheter } = useNavEnheter();
   const { data: virksomheter } = useVirksomheter(VirksomhetTil.TILTAKSGJENNOMFORING);
   const { data: tiltakstyper } = useTiltakstyper(
     {
@@ -41,30 +40,12 @@ export function TiltaksgjennomforingFiltertags({ filterAtom, filterOpen }: Props
           }}
         />
       )}
-      {filter.navRegioner.map((enhetsnummer) => (
-        <Filtertag
-          key={enhetsnummer}
-          label={enheter?.find((e) => e.enhetsnummer === enhetsnummer)?.navn || enhetsnummer}
-          onClose={() => {
-            setFilter({
-              ...filter,
-              navRegioner: addOrRemove(filter.navRegioner, enhetsnummer),
-            });
-          }}
+      {filter.navEnheter.length > 0 && (
+        <NavEnhetFiltertag
+          navEnheter={filter.navEnheter}
+          onClose={() => setFilter({ ...filter, navEnheter: [] })}
         />
-      ))}
-      {filter.navEnheter.map((enhetsnummer) => (
-        <Filtertag
-          key={enhetsnummer}
-          label={enheter?.find((e) => e.enhetsnummer === enhetsnummer)?.navn || enhetsnummer}
-          onClose={() => {
-            setFilter({
-              ...filter,
-              navEnheter: addOrRemove(filter.navEnheter, enhetsnummer),
-            });
-          }}
-        />
-      ))}
+      )}
       {filter.tiltakstyper.map((tiltakstype) => (
         <Filtertag
           key={tiltakstype}

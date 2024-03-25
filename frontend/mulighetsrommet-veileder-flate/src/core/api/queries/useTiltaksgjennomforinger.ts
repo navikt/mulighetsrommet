@@ -4,8 +4,8 @@ import { QueryKeys } from "../query-keys";
 import {
   isFilterReady,
   useArbeidsmarkedstiltakFilterValue,
-  valgteEnhetsnumre,
 } from "@/hooks/useArbeidsmarkedstiltakFilter";
+import { NavEnhet } from "mulighetsrommet-api-client";
 
 export function useVeilederTiltaksgjennomforinger() {
   const { isFilterReady, filter } = useGetArbeidsmarkedstiltakFilterAsQuery();
@@ -37,15 +37,13 @@ function useGetArbeidsmarkedstiltakFilterAsQuery() {
   const tiltakstyper =
     filter.tiltakstyper.length !== 0 ? filter.tiltakstyper.map(({ id }) => id) : undefined;
 
-  const enheter = valgteEnhetsnumre(filter);
-
   return {
     isFilterReady: isFilterReady(filter),
     filter: {
       search: filter.search || undefined,
       apentForInnsok: filter.apentForInnsok,
       innsatsgruppe: filter.innsatsgruppe?.nokkel,
-      enheter,
+      enheter: filter.navEnheter.map((enhet: NavEnhet) => enhet.enhetsnummer),
       tiltakstyper,
     },
   };

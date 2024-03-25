@@ -1,33 +1,23 @@
 import { Tag } from "@navikt/ds-react";
-import {
-  useArbeidsmarkedstiltakFilterValue,
-  valgteEnhetsnumre,
-} from "mulighetsrommet-veileder-flate/src/hooks/useArbeidsmarkedstiltakFilter";
-import { useNavEnheter } from "mulighetsrommet-veileder-flate/src/core/api/queries/useNavEnheter";
-import { NavEnhet } from "mulighetsrommet-api-client";
 import Ikonknapp from "../../ikonknapp/Ikonknapp";
 import { XMarkIcon } from "@navikt/aksel-icons";
 import styles from "./Filtertag.module.scss";
+import { NavEnhet } from "mulighetsrommet-api-client";
 
 interface Props {
+  navEnheter: NavEnhet[];
   onClose?: (e: React.MouseEvent) => void;
 }
 
-export function NavEnhetFiltertag({ onClose }: Props) {
-  const filter = useArbeidsmarkedstiltakFilterValue();
-  const { data: alleEnheter } = useNavEnheter();
-  const enheter = valgteEnhetsnumre(filter);
-
-  if (!alleEnheter || !filter || enheter.length === 0) {
+export function NavEnhetFiltertag({ navEnheter, onClose }: Props) {
+  if (navEnheter.length === 0) {
     return null;
   }
 
   function tagLabel() {
-    const firstEnhetName = alleEnheter?.find(
-      (enhet: NavEnhet) => enhet.enhetsnummer === enheter[0],
-    )?.navn;
-    if (enheter.length > 1) {
-      return `${firstEnhetName} +${enheter.length - 1}`;
+    const firstEnhetName = navEnheter[0].navn;
+    if (navEnheter.length > 1) {
+      return `${firstEnhetName} +${navEnheter.length - 1}`;
     }
     return firstEnhetName;
   }
@@ -39,8 +29,8 @@ export function NavEnhetFiltertag({ onClose }: Props) {
       key="navenhet"
       data-testid="filtertag_navenhet"
       className={styles.filtertag}
-      title={enheter
-        .map((enhet) => alleEnheter.find((e) => e.enhetsnummer === enhet)?.navn)
+      title={navEnheter
+        .map((enhet) => enhet.navn)
         .join(", ")}
     >
       {tagLabel()}

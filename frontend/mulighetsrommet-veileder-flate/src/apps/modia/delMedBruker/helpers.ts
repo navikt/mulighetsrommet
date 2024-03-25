@@ -1,7 +1,4 @@
-import {
-  ArbeidsmarkedstiltakFilter,
-  valgteEnhetsnumre,
-} from "@/hooks/useArbeidsmarkedstiltakFilter";
+import { ArbeidsmarkedstiltakFilter } from "@/hooks/useArbeidsmarkedstiltakFilter";
 import { Bruker, NavEnhet, VeilederflateTiltaksgjennomforing } from "mulighetsrommet-api-client";
 
 export function brukersEnhetFilterHasChanged(
@@ -10,14 +7,13 @@ export function brukersEnhetFilterHasChanged(
 ): boolean {
   if (!bruker) return false;
 
-  const filterEnheter = valgteEnhetsnumre(filter);
-  if (filterEnheter.length !== bruker.enheter.length) return true;
+  if (filter.navEnheter.length !== bruker.enheter.length) return true;
 
   return (
     bruker.enheter
       .map((enhet: NavEnhet) => enhet.enhetsnummer)
       .sort()
-      .join(",") !== filterEnheter.sort().join(",")
+      .join(",") !== filter.navEnheter.sort().join(",")
   );
 }
 

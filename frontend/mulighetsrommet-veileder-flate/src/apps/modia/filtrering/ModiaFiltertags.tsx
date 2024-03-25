@@ -17,7 +17,10 @@ export function ModiaFiltertags({ filterOpen }: Props) {
   return (
     <FiltertagsContainer filterOpen={filterOpen}>
       {filter.innsatsgruppe && <Filtertag label={filter.innsatsgruppe.tittel} />}
-      <NavEnhetFiltertag onClose={() => setFilter({ ...filter, regionMap: {} })} />
+      <NavEnhetFiltertag
+        navEnheter={filter.navEnheter}
+        onClose={() => setFilter({ ...filter, navEnheter: [] })}
+      />
       {filter.apentForInnsok !== ApentForInnsok.APENT_ELLER_STENGT && (
         <Filtertag
           label={filter.apentForInnsok === ApentForInnsok.APENT ? "Åpent" : "Stengt"}

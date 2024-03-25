@@ -797,59 +797,6 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             }
         }
 
-        test("filtrer på nav_region") {
-            navEnheter.upsert(
-                NavEnhetDbo(
-                    navn = "NavRegion",
-                    enhetsnummer = "0100",
-                    status = NavEnhetStatus.AKTIV,
-                    type = Norg2Type.FYLKE,
-                    overordnetEnhet = null,
-                ),
-            ).shouldBeRight()
-            navEnheter.upsert(
-                NavEnhetDbo(
-                    navn = "Navn1",
-                    enhetsnummer = "0101",
-                    status = NavEnhetStatus.AKTIV,
-                    type = Norg2Type.LOKAL,
-                    overordnetEnhet = null,
-                ),
-            ).shouldBeRight()
-            navEnheter.upsert(
-                NavEnhetDbo(
-                    navn = "Navn2",
-                    enhetsnummer = "0102",
-                    status = NavEnhetStatus.AKTIV,
-                    type = Norg2Type.LOKAL,
-                    overordnetEnhet = "0100",
-                ),
-            ).shouldBeRight()
-
-            val tg1 = Oppfolging1.copy(id = UUID.randomUUID(), navEnheter = listOf("0101"), navRegion = "2990")
-            tiltaksgjennomforinger.upsert(tg1)
-
-            val tg2 = Oppfolging1.copy(id = UUID.randomUUID())
-            tiltaksgjennomforinger.upsert(tg2)
-            Query("update tiltaksgjennomforing set arena_ansvarlig_enhet = '0101' where id = '${tg2.id}'")
-                .asUpdate
-                .let { database.db.run(it) }
-
-            val tg3 = Oppfolging1.copy(id = UUID.randomUUID(), navEnheter = listOf("0102"), navRegion = "0100")
-            tiltaksgjennomforinger.upsert(tg3)
-
-            val tg4 = Oppfolging1.copy(id = UUID.randomUUID())
-            tiltaksgjennomforinger.upsert(tg4)
-            Query("update tiltaksgjennomforing set arena_ansvarlig_enhet = '0102' where id = '${tg4.id}'")
-                .asUpdate
-                .let { database.db.run(it) }
-
-            tiltaksgjennomforinger.getAll(navRegioner = listOf("0100"))
-                .should {
-                    it.second.map { tg -> tg.id } shouldContainExactlyInAnyOrder listOf(tg3.id, tg4.id)
-                }
-        }
-
         test("administrator") {
             val tg1 = Oppfolging1.copy(
                 id = UUID.randomUUID(),

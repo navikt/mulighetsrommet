@@ -1,6 +1,6 @@
 import { Accordion, Checkbox, Search, Skeleton, Switch, VStack } from "@navikt/ds-react";
 import { useAtom, WritableAtom } from "jotai";
-import { Tiltakstypestatus, VirksomhetTil } from "mulighetsrommet-api-client";
+import { NavEnhet, Tiltakstypestatus, VirksomhetTil } from "mulighetsrommet-api-client";
 import { useEffect, useState } from "react";
 import {
   gjennomforingFilterAccordionAtom,
@@ -13,12 +13,12 @@ import { useVirksomheter } from "../../api/virksomhet/useVirksomheter";
 import { addOrRemove } from "../../utils/Utils";
 import styles from "./Filter.module.scss";
 import {
-  enhetOptions,
-  regionOptions,
   TILTAKSGJENNOMFORING_STATUS_OPTIONS,
   tiltakstypeOptions,
   virksomhetOptions,
 } from "../../utils/filterUtils";
+import { NavEnhetFilter } from "mulighetsrommet-frontend-common";
+import { useRegioner } from "../../api/enhet/useRegioner";
 import { FilterAccordionHeader } from "mulighetsrommet-frontend-common";
 
 type Filters = "tiltakstype";
@@ -37,6 +37,7 @@ export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
   const [accordionsOpen, setAccordionsOpen] = useAtom(gjennomforingFilterAccordionAtom);
   const { data: avtale } = useAvtale();
   const { data: enheter, isLoading: isLoadingEnheter } = useNavEnheter();
+  const { data: regioner, isLoading: isLoadingRegioner } = useRegioner();
   const { data: virksomheter, isLoading: isLoadingVirksomheter } = useVirksomheter(
     VirksomhetTil.TILTAKSGJENNOMFORING,
   );
@@ -57,6 +58,8 @@ export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
   if (
     !enheter ||
     isLoadingEnheter ||
+    !regioner ||
+    isLoadingRegioner ||
     !virksomheter ||
     isLoadingVirksomheter ||
     !tiltakstyper ||
@@ -159,49 +162,27 @@ export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
             </Accordion.Content>
           </Accordion.Item>
         )}
-        <Accordion.Item open={accordionsOpen.includes("region")}>
+        <Accordion.Item open={accordionsOpen.includes("navEnhet")}>
           <Accordion.Header
             onClick={() => {
-              setAccordionsOpen([...addOrRemove(accordionsOpen, "region")]);
+              setAccordionsOpen([...addOrRemove(accordionsOpen, "navEnhet")]);
             }}
           >
-            <FilterAccordionHeader tittel="Region" antallValgteFilter={filter.navRegioner.length} />
+            <FilterAccordionHeader
+              tittel="Nav-enhet"
+              antallValgteFilter={filter.navEnheter.length}
+            />
           </Accordion.Header>
           <Accordion.Content>
-            <CheckboxList
-              items={regionOptions(enheter)}
-              isChecked={(region) => filter.navRegioner.includes(region)}
-              onChange={(region) => {
-                setFilter({
-                  ...filter,
-                  page: 1,
-                  navRegioner: addOrRemove(filter.navRegioner, region),
-                });
-              }}
-            />
-          </Accordion.Content>
-        </Accordion.Item>
-        <Accordion.Item open={accordionsOpen.includes("enhet")}>
-          <Accordion.Header
-            onClick={() => {
-              setAccordionsOpen([...addOrRemove(accordionsOpen, "enhet")]);
-            }}
-          >
-            <FilterAccordionHeader tittel="Enhet" antallValgteFilter={filter.navEnheter.length} />
-          </Accordion.Header>
-          <Accordion.Content>
-            <CheckboxList
-              searchable
-              items={enhetOptions(enheter, filter.navRegioner)}
-              isChecked={(enhet) => filter.navEnheter.includes(enhet)}
-              onChange={(enhet) => {
-                setFilter({
-                  ...filter,
-                  page: 1,
-                  navEnheter: addOrRemove(filter.navEnheter, enhet),
-                });
-              }}
-            />
+            <div style={{ marginLeft: "-2rem" }}>
+              <NavEnhetFilter
+                navEnheter={filter.navEnheter}
+                setNavEnheter={(navEnheter: NavEnhet[]) =>
+                  setFilter({ ...filter, page: 1, navEnheter })
+                }
+                regioner={regioner}
+              />
+            </div>
           </Accordion.Content>
         </Accordion.Item>
         <Accordion.Item open={accordionsOpen.includes("arrangor")}>

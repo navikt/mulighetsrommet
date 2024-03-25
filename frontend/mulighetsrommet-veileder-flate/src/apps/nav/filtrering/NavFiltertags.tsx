@@ -38,7 +38,10 @@ export function NavFiltertags({ filterOpen }: Props) {
           }}
         />
       )}
-      <NavEnhetFiltertag onClose={() => setFilter({ ...filter, regionMap: {} })} />
+      <NavEnhetFiltertag
+        navEnheter={filter.navEnheter}
+        onClose={() => setFilter({ ...filter, navEnheter: [] })}
+      />
       {filter.tiltakstyper.map((tiltakstype) => (
         <Filtertag
           key={tiltakstype.id}
