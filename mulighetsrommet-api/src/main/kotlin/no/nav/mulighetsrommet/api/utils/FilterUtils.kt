@@ -31,6 +31,10 @@ data class AvtaleFilter(
     val administratorNavIdent: NavIdent? = null,
 )
 
+data class EksternTiltaksgjennomforingFilter(
+    val arrangorOrgnr: List<String> = emptyList(),
+)
+
 data class AdminTiltaksgjennomforingFilter(
     val search: String? = null,
     val navEnheter: List<String> = emptyList(),
@@ -41,7 +45,6 @@ data class AdminTiltaksgjennomforingFilter(
     val dagensDato: LocalDate = LocalDate.now(),
     val avtaleId: UUID? = null,
     val arrangorIds: List<UUID> = emptyList(),
-    val arrangorOrgnr: List<String> = emptyList(),
     val administratorNavIdent: NavIdent? = null,
 )
 
@@ -102,31 +105,6 @@ fun <T : Any> PipelineContext<T, ApplicationCall>.getAvtaleFilter(): AvtaleFilte
         navRegioner = navRegioner,
         sortering = sortering,
         arrangorIds = arrangorIds,
-        administratorNavIdent = null,
-    )
-}
-
-fun <T : Any> PipelineContext<T, ApplicationCall>.getAdminTiltaksgjennomforingsFilter(): AdminTiltaksgjennomforingFilter {
-    val search = call.request.queryParameters["search"]
-    val navEnheter = call.parameters.getAll("navEnheter") ?: emptyList()
-    val tiltakstypeIder = call.parameters.getAll("tiltakstyper")?.map { UUID.fromString(it) } ?: emptyList()
-    val statuser = call.parameters.getAll("statuser")
-        ?.map { Tiltaksgjennomforingsstatus.valueOf(it) }
-        ?: emptyList()
-    val sortering = call.request.queryParameters["sort"]
-    val avtaleId = call.request.queryParameters["avtaleId"]?.let { if (it.isEmpty()) null else UUID.fromString(it) }
-    val arrangorIds = call.parameters.getAll("arrangorer")?.map { UUID.fromString(it) } ?: emptyList()
-
-    return AdminTiltaksgjennomforingFilter(
-        search = search,
-        navEnheter = navEnheter,
-        tiltakstypeIder = tiltakstypeIder,
-        statuser = statuser,
-        sortering = sortering,
-        avtaleId = avtaleId,
-        arrangorIds = arrangorIds,
-        // TODO eksponén via egen service-metode for "getEksternTiltaksgjennomforing"
-        arrangorOrgnr = emptyList(),
         administratorNavIdent = null,
     )
 }

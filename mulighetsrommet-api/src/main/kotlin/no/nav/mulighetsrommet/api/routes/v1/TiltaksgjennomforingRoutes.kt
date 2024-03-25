@@ -7,6 +7,7 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
+import io.ktor.util.pipeline.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingKontaktpersonDbo
@@ -16,11 +17,12 @@ import no.nav.mulighetsrommet.api.repositories.DeltakerRepository
 import no.nav.mulighetsrommet.api.routes.v1.responses.BadRequest
 import no.nav.mulighetsrommet.api.routes.v1.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.services.TiltaksgjennomforingService
-import no.nav.mulighetsrommet.api.utils.getAdminTiltaksgjennomforingsFilter
+import no.nav.mulighetsrommet.api.utils.AdminTiltaksgjennomforingFilter
 import no.nav.mulighetsrommet.api.utils.getPaginationParams
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dto.Faneinnhold
 import no.nav.mulighetsrommet.domain.dto.NavIdent
+import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import org.koin.ktor.ext.inject
@@ -119,6 +121,29 @@ fun Route.tiltaksgjennomforingRoutes() {
             call.respond(summary)
         }
     }
+}
+
+fun <T : Any> PipelineContext<T, ApplicationCall>.getAdminTiltaksgjennomforingsFilter(): AdminTiltaksgjennomforingFilter {
+    val search = call.request.queryParameters["search"]
+    val navEnheter = call.parameters.getAll("navEnheter") ?: emptyList()
+    val tiltakstypeIder = call.parameters.getAll("tiltakstyper")?.map { UUID.fromString(it) } ?: emptyList()
+    val statuser = call.parameters.getAll("statuser")
+        ?.map { Tiltaksgjennomforingsstatus.valueOf(it) }
+        ?: emptyList()
+    val sortering = call.request.queryParameters["sort"]
+    val avtaleId = call.request.queryParameters["avtaleId"]?.let { if (it.isEmpty()) null else UUID.fromString(it) }
+    val arrangorIds = call.parameters.getAll("arrangorer")?.map { UUID.fromString(it) } ?: emptyList()
+
+    return AdminTiltaksgjennomforingFilter(
+        search = search,
+        navEnheter = navEnheter,
+        tiltakstypeIder = tiltakstypeIder,
+        statuser = statuser,
+        sortering = sortering,
+        avtaleId = avtaleId,
+        arrangorIds = arrangorIds,
+        administratorNavIdent = null,
+    )
 }
 
 @Serializable

@@ -7,10 +7,8 @@ import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import no.nav.mulighetsrommet.api.clients.arenaadapter.ArenaAdapterClient
 import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingAdminDto
-import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingDto
-import no.nav.mulighetsrommet.api.routes.v1.responses.PaginatedResponse
 import no.nav.mulighetsrommet.api.services.TiltaksgjennomforingService
-import no.nav.mulighetsrommet.api.utils.AdminTiltaksgjennomforingFilter
+import no.nav.mulighetsrommet.api.utils.EksternTiltaksgjennomforingFilter
 import no.nav.mulighetsrommet.api.utils.getPaginationParams
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingsArenadataDto
@@ -24,14 +22,11 @@ fun Route.externalRoutes() {
     route("/api/v1/tiltaksgjennomforinger") {
         get {
             val orgnr = call.request.queryParameters.getOrFail("orgnr")
-            val filter = AdminTiltaksgjennomforingFilter(arrangorOrgnr = listOf(orgnr))
+
+            val filter = EksternTiltaksgjennomforingFilter(arrangorOrgnr = listOf(orgnr))
             val paginationParams = getPaginationParams()
 
-            val result = tiltaksgjennomforingService.getAll(paginationParams, filter)
-                .let {
-                    val data = it.data.map { dto -> TiltaksgjennomforingDto.from(dto) }
-                    PaginatedResponse(pagination = it.pagination, data = data)
-                }
+            val result = tiltaksgjennomforingService.getAllEkstern(paginationParams, filter)
 
             call.respond(result)
         }
@@ -39,8 +34,7 @@ fun Route.externalRoutes() {
         get("{id}") {
             val id = call.parameters.getOrFail<UUID>("id")
 
-            val result = tiltaksgjennomforingService.get(id)
-                ?.let { TiltaksgjennomforingDto.from(it) }
+            val result = tiltaksgjennomforingService.getEkstern(id)
                 ?: return@get call.respond(HttpStatusCode.Companion.NotFound, "Ingen tiltaksgjennomføring med id=$id")
 
             call.respond(result)
