@@ -30,6 +30,7 @@ export function useInitializeArbeidsmarkedstiltakFilterForBruker() {
               tittel: brukersInnsatsgruppe.tittel,
             }
           : undefined,
+        navEnheter: brukerdata?.enheter ?? [],
       });
     }
   }, [resetInnsatsgruppe]);
