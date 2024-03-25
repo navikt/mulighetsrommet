@@ -9,8 +9,8 @@ import {
 import { mockTiltakstyper } from "./mock_tiltakstyper";
 import { nikolineKontaktperson, petrusKontaktperson } from "./mock_ansatt";
 import { mockEnheter } from "./mock_enheter";
-import { mockVirksomheter } from "./mock_virksomheter";
-import { mockVirksomhetKontaktperson } from "./mock_virksomhet_kontaktperson";
+import { mockArrangorer } from "./mock_arrangorer";
+import { mockArrangorKontaktpersoner } from "./mock_arrangorKontaktperson";
 import { mockAvtaler } from "./mock_avtaler";
 
 export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
@@ -24,9 +24,9 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     },
     antallPlasser: 50,
     arrangor: {
-      ...mockVirksomheter.fretex.underenheter!![0],
+      ...mockArrangorer.fretex.underenheter!![0],
       slettet: false,
-      kontaktpersoner: [mockVirksomhetKontaktperson[0]],
+      kontaktpersoner: [mockArrangorKontaktpersoner[0]],
     },
     avtaleId: mockAvtaler[0].id,
     tiltakstype: mockTiltakstyper.AVKLARAG,
@@ -92,9 +92,9 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     tiltaksnummer: "123456",
     deltidsprosent: 100,
     arrangor: {
-      ...mockVirksomheter.fretex.underenheter![0],
+      ...mockArrangorer.fretex.underenheter![0],
       slettet: false,
-      kontaktpersoner: mockVirksomhetKontaktperson,
+      kontaktpersoner: mockArrangorKontaktpersoner,
     },
     tiltakstype: mockTiltakstyper.ARBFORB,
     sanityId: "1234",
@@ -118,9 +118,9 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     sanityId: "1234",
     deltidsprosent: 100,
     arrangor: {
-      ...mockVirksomheter.fretex.underenheter![0],
+      ...mockArrangorer.fretex.underenheter![0],
       slettet: false,
-      kontaktpersoner: mockVirksomhetKontaktperson,
+      kontaktpersoner: mockArrangorKontaktpersoner,
     },
     tiltakstype: mockTiltakstyper.ARBFORB,
     startDato: "2022-01-01",

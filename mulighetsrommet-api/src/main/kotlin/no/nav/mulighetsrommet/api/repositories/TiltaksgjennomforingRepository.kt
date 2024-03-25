@@ -148,7 +148,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         """.trimIndent()
 
         @Language("PostgreSQL")
-        val upsertVirksomhetKontaktperson = """
+        val upsertArrangorKontaktperson = """
             insert into tiltaksgjennomforing_arrangor_kontaktperson (
                 arrangor_kontaktperson_id,
                 tiltaksgjennomforing_id
@@ -158,7 +158,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         """.trimIndent()
 
         @Language("PostgreSQL")
-        val deleteVirksomhetKontaktpersoner = """
+        val deleteArrangorKontaktpersoner = """
             delete from tiltaksgjennomforing_arrangor_kontaktperson
             where tiltaksgjennomforing_id = ?::uuid and not (arrangor_kontaktperson_id = any (?))
         """.trimIndent()
@@ -226,7 +226,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         tiltaksgjennomforing.arrangorKontaktpersoner.forEach { person ->
             tx.run(
                 queryOf(
-                    upsertVirksomhetKontaktperson,
+                    upsertArrangorKontaktperson,
                     mapOf(
                         "tiltaksgjennomforing_id" to tiltaksgjennomforing.id,
                         "arrangor_kontaktperson_id" to person,
@@ -237,7 +237,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
 
         tx.run(
             queryOf(
-                deleteVirksomhetKontaktpersoner,
+                deleteArrangorKontaktpersoner,
                 tiltaksgjennomforing.id,
                 db.createUuidArray(tiltaksgjennomforing.arrangorKontaktpersoner),
             ).asExecute,
@@ -706,7 +706,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         "id" to id,
         "navn" to navn,
         "tiltakstype_id" to tiltakstypeId,
-        "arrangor_id" to arrangorVirksomhetId,
+        "arrangor_id" to arrangorId,
         "start_dato" to startDato,
         "slutt_dato" to sluttDato,
         "avslutningsstatus" to Avslutningsstatus.IKKE_AVSLUTTET.name,
@@ -762,7 +762,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             oppstartsdato = localDate("start_dato"),
             sluttdato = localDateOrNull("slutt_dato"),
             arrangor = VeilederflateArrangor(
-                virksomhetId = uuid("arrangor_id"),
+                arrangorId = uuid("arrangor_id"),
                 organisasjonsnummer = string("arrangor_organisasjonsnummer"),
                 selskapsnavn = stringOrNull("arrangor_navn"),
                 kontaktpersoner = arrangorKontaktpersoner,
@@ -842,7 +842,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             },
             kontaktpersoner = kontaktpersoner,
             administratorer = administratorer,
-            arrangor = TiltaksgjennomforingAdminDto.Arrangor(
+            arrangor = TiltaksgjennomforingAdminDto.ArrangorUnderenhet(
                 id = uuid("arrangor_id"),
                 organisasjonsnummer = string("arrangor_organisasjonsnummer"),
                 navn = string("arrangor_navn"),

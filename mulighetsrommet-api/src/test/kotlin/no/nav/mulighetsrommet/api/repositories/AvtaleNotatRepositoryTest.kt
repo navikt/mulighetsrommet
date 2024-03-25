@@ -13,7 +13,7 @@ import java.util.*
 class AvtaleNotatRepositoryTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
     val domain = MulighetsrommetTestDomain(
-        virksomheter = listOf(VirksomhetFixtures.hovedenhet, VirksomhetFixtures.underenhet1),
+        arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
         tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
         avtaler = listOf(AvtaleFixtures.oppfolging),
     )

@@ -1,6 +1,6 @@
 import { Accordion, Search, Skeleton, Switch, VStack } from "@navikt/ds-react";
 import { useAtom, WritableAtom } from "jotai";
-import { NavEnhet, Tiltakstypestatus, VirksomhetTil } from "mulighetsrommet-api-client";
+import { ArrangorTil, NavEnhet, Tiltakstypestatus } from "mulighetsrommet-api-client";
 import { useEffect } from "react";
 import {
   gjennomforingFilterAccordionAtom,
@@ -9,16 +9,15 @@ import {
 import { useAvtale } from "../../api/avtaler/useAvtale";
 import { useNavEnheter } from "../../api/enhet/useNavEnheter";
 import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
-import { useVirksomheter } from "../../api/virksomhet/useVirksomheter";
+import { useArrangorer } from "../../api/arrangor/useArrangorer";
 import { addOrRemove } from "../../utils/Utils";
 import {
   TILTAKSGJENNOMFORING_STATUS_OPTIONS,
   tiltakstypeOptions,
-  virksomhetOptions,
+  arrangorOptions,
 } from "../../utils/filterUtils";
-import { NavEnhetFilter } from "mulighetsrommet-frontend-common";
+import { FilterAccordionHeader, NavEnhetFilter } from "mulighetsrommet-frontend-common";
 import { useRegioner } from "../../api/enhet/useRegioner";
-import { FilterAccordionHeader } from "mulighetsrommet-frontend-common";
 import { CheckboxList } from "./CheckboxList";
 
 type Filters = "tiltakstype";
@@ -38,8 +37,8 @@ export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
   const { data: avtale } = useAvtale();
   const { data: enheter, isLoading: isLoadingEnheter } = useNavEnheter();
   const { data: regioner, isLoading: isLoadingRegioner } = useRegioner();
-  const { data: virksomheter, isLoading: isLoadingVirksomheter } = useVirksomheter(
-    VirksomhetTil.TILTAKSGJENNOMFORING,
+  const { data: arrangorer, isLoading: isLoadingArrangorer } = useArrangorer(
+    ArrangorTil.TILTAKSGJENNOMFORING,
   );
   const { data: tiltakstyper, isLoading: isLoadingTiltakstyper } = useTiltakstyper(
     {
@@ -60,8 +59,8 @@ export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
     isLoadingEnheter ||
     !regioner ||
     isLoadingRegioner ||
-    !virksomheter ||
-    isLoadingVirksomheter ||
+    !arrangorer ||
+    isLoadingArrangorer ||
     !tiltakstyper ||
     isLoadingTiltakstyper
   ) {
@@ -199,7 +198,7 @@ export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
           <Accordion.Content>
             <CheckboxList
               searchable
-              items={virksomhetOptions(virksomheter)}
+              items={arrangorOptions(arrangorer)}
               isChecked={(id) => filter.arrangorer.includes(id)}
               onChange={(id) => {
                 setFilter({

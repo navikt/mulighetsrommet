@@ -3,13 +3,13 @@ import { useDebounce } from "mulighetsrommet-frontend-common";
 import { QueryKeys } from "../QueryKeys";
 import { mulighetsrommetClient } from "../clients";
 
-export function useSokVirksomheter(sokestreng: string) {
+export function useSokBrregVirksomheter(sokestreng: string) {
   const debouncedSok = useDebounce(sokestreng, 300);
 
   return useQuery({
-    queryKey: QueryKeys.virksomhetSok(debouncedSok),
+    queryKey: QueryKeys.brregVirksomheter(debouncedSok),
     queryFn: () =>
-      mulighetsrommetClient.virksomhet.sokVirksomhet({
+      mulighetsrommetClient.virksomhet.sokBrregVirksomheter({
         sok: debouncedSok.trim(),
       }),
     enabled: !!debouncedSok,

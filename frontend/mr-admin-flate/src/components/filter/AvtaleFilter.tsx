@@ -1,17 +1,17 @@
 import { Accordion, Search, Skeleton, Switch, VStack } from "@navikt/ds-react";
 import { useAtom, WritableAtom } from "jotai";
-import { Tiltakstypestatus, VirksomhetTil } from "mulighetsrommet-api-client";
+import { ArrangorTil, Tiltakstypestatus } from "mulighetsrommet-api-client";
 import { AvtaleFilter as AvtaleFilterProps, avtaleFilterAccordionAtom } from "../../api/atoms";
 import { useNavEnheter } from "../../api/enhet/useNavEnheter";
 import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
-import { useVirksomheter } from "../../api/virksomhet/useVirksomheter";
+import { useArrangorer } from "../../api/arrangor/useArrangorer";
 import { addOrRemove } from "../../utils/Utils";
 import {
   AVTALE_STATUS_OPTIONS,
   AVTALE_TYPE_OPTIONS,
   regionOptions,
   tiltakstypeOptions,
-  virksomhetOptions,
+  arrangorOptions,
 } from "../../utils/filterUtils";
 import { CheckboxList } from "./CheckboxList";
 import { FilterAccordionHeader } from "mulighetsrommet-frontend-common";
@@ -27,9 +27,7 @@ export function AvtaleFilter({ filterAtom, skjulFilter }: Props) {
   const [filter, setFilter] = useAtom(filterAtom);
   const [accordionsOpen, setAccordionsOpen] = useAtom(avtaleFilterAccordionAtom);
   const { data: enheter, isLoading: isLoadingEnheter } = useNavEnheter();
-  const { data: virksomheter, isLoading: isLoadingVirksomheter } = useVirksomheter(
-    VirksomhetTil.AVTALE,
-  );
+  const { data: arrangorer, isLoading: isLoadingArrangorer } = useArrangorer(ArrangorTil.AVTALE);
   const { data: tiltakstyper, isLoading: isLoadingTiltakstyper } = useTiltakstyper(
     {
       status: Tiltakstypestatus.AKTIV,
@@ -39,8 +37,8 @@ export function AvtaleFilter({ filterAtom, skjulFilter }: Props) {
   if (
     !enheter ||
     isLoadingEnheter ||
-    !virksomheter ||
-    isLoadingVirksomheter ||
+    !arrangorer ||
+    isLoadingArrangorer ||
     !tiltakstyper ||
     isLoadingTiltakstyper
   ) {
@@ -200,7 +198,7 @@ export function AvtaleFilter({ filterAtom, skjulFilter }: Props) {
           <Accordion.Content>
             <CheckboxList
               searchable
-              items={virksomhetOptions(virksomheter)}
+              items={arrangorOptions(arrangorer)}
               isChecked={(id) => filter.arrangorer.includes(id)}
               onChange={(id) => {
                 setFilter({

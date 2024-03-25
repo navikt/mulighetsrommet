@@ -2,11 +2,11 @@ import { useQuery } from "@tanstack/react-query";
 import { QueryKeys } from "../QueryKeys";
 import { mulighetsrommetClient } from "../clients";
 
-export function useVirksomhetById(id: string) {
+export function useArrangor(id: string) {
   return useQuery({
-    queryKey: QueryKeys.virksomhet(id),
+    queryKey: QueryKeys.arrangorById(id),
     queryFn: () => {
-      return mulighetsrommetClient.virksomhet.getVirksomhetById({ id });
+      return mulighetsrommetClient.arrangor.getArrangorById({ id });
     },
   });
 }

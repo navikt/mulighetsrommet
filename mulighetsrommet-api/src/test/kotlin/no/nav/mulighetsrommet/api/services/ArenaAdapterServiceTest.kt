@@ -141,7 +141,7 @@ class ArenaAdapterServiceTest : FunSpec({
 
         test("CRUD") {
             MulighetsrommetTestDomain(
-                virksomheter = listOf(VirksomhetFixtures.hovedenhet),
+                arrangorer = listOf(ArrangorFixtures.hovedenhet),
                 tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
                 avtaler = listOf(),
                 gjennomforinger = listOf(),
@@ -155,7 +155,7 @@ class ArenaAdapterServiceTest : FunSpec({
                 .value("navn").isEqualTo(avtale.navn)
                 .value("tiltakstype_id").isEqualTo(avtale.tiltakstypeId)
                 .value("avtalenummer").isEqualTo(avtale.avtalenummer)
-                .value("arrangor_hovedenhet_id").isEqualTo(VirksomhetFixtures.hovedenhet.id)
+                .value("arrangor_hovedenhet_id").isEqualTo(ArrangorFixtures.hovedenhet.id)
                 .value("start_dato").isEqualTo(avtale.startDato)
                 .value("slutt_dato").isEqualTo(avtale.sluttDato)
                 .value("arena_ansvarlig_enhet").isEqualTo(avtale.arenaAnsvarligEnhet)
@@ -311,7 +311,7 @@ class ArenaAdapterServiceTest : FunSpec({
                 .value("navn").isEqualTo(tiltaksgjennomforing.navn)
                 .value("tiltakstype_id").isEqualTo(TiltakstypeFixtures.Oppfolging.id)
                 .value("tiltaksnummer").isEqualTo(tiltaksgjennomforing.tiltaksnummer)
-                .value("arrangor_id").isEqualTo(VirksomhetFixtures.underenhet1.id)
+                .value("arrangor_id").isEqualTo(ArrangorFixtures.underenhet1.id)
                 .value("start_dato").isEqualTo(tiltaksgjennomforing.startDato)
                 .value("slutt_dato").isEqualTo(tiltaksgjennomforing.sluttDato)
                 .value("deltidsprosent").isEqualTo(tiltaksgjennomforing.deltidsprosent)
@@ -391,7 +391,7 @@ class ArenaAdapterServiceTest : FunSpec({
             val gjennomforing = TiltaksgjennomforingFixtures.Oppfolging1
 
             MulighetsrommetTestDomain(
-                virksomheter = listOf(VirksomhetFixtures.hovedenhet, VirksomhetFixtures.underenhet1),
+                arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
                 tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
                 avtaler = listOf(AvtaleFixtures.oppfolging),
                 gjennomforinger = listOf(gjennomforing),
@@ -405,7 +405,7 @@ class ArenaAdapterServiceTest : FunSpec({
                     navn = "Endret navn",
                     tiltakstypeId = gjennomforing.tiltakstypeId,
                     tiltaksnummer = "2024#1",
-                    arrangorOrganisasjonsnummer = VirksomhetFixtures.underenhet1.organisasjonsnummer,
+                    arrangorOrganisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
                     startDato = gjennomforing.startDato,
                     sluttDato = gjennomforing.sluttDato,
                     arenaAnsvarligEnhet = null,
@@ -426,7 +426,7 @@ class ArenaAdapterServiceTest : FunSpec({
 
         test("skal oppdatere avslutningsstatus når den endres fra Arena") {
             MulighetsrommetTestDomain(
-                virksomheter = listOf(VirksomhetFixtures.hovedenhet, VirksomhetFixtures.underenhet1),
+                arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
                 tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
                 avtaler = listOf(AvtaleFixtures.oppfolging),
                 gjennomforinger = listOf(),
@@ -465,7 +465,7 @@ class ArenaAdapterServiceTest : FunSpec({
                     NavEnhetFixtures.Oslo,
                     NavEnhetFixtures.TiltakOslo,
                 ),
-                virksomheter = listOf(VirksomhetFixtures.hovedenhet, VirksomhetFixtures.underenhet1),
+                arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
                 tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
                 avtaler = listOf(AvtaleFixtures.oppfolging),
                 gjennomforinger = listOf(gjennomforing),
@@ -476,7 +476,7 @@ class ArenaAdapterServiceTest : FunSpec({
                 navn = "Endet navn",
                 tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
                 tiltaksnummer = "2024#2024",
-                arrangorOrganisasjonsnummer = VirksomhetFixtures.underenhet2.organisasjonsnummer,
+                arrangorOrganisasjonsnummer = ArrangorFixtures.underenhet2.organisasjonsnummer,
                 startDato = LocalDate.of(2024, 1, 1),
                 sluttDato = LocalDate.of(2024, 1, 1),
                 arenaAnsvarligEnhet = NavEnhetFixtures.TiltakOslo.enhetsnummer,
@@ -503,7 +503,7 @@ class ArenaAdapterServiceTest : FunSpec({
                 it.opphav shouldBe ArenaMigrering.Opphav.MR_ADMIN_FLATE
                 it.avtaleId shouldBe gjennomforing.avtaleId
                 it.navn shouldBe gjennomforing.navn
-                it.arrangor.organisasjonsnummer shouldBe VirksomhetFixtures.underenhet1.organisasjonsnummer
+                it.arrangor.organisasjonsnummer shouldBe ArrangorFixtures.underenhet1.organisasjonsnummer
                 it.startDato shouldBe gjennomforing.startDato
                 it.sluttDato shouldBe gjennomforing.sluttDato
                 it.apentForInnsok shouldBe gjennomforing.apentForInnsok
@@ -587,9 +587,9 @@ class ArenaAdapterServiceTest : FunSpec({
 
             avtaler.get(AvtaleFixtures.oppfolging.id).shouldNotBeNull().arrangor.underenheter shouldBe listOf(
                 AvtaleAdminDto.ArrangorUnderenhet(
-                    id = VirksomhetFixtures.underenhet1.id,
-                    organisasjonsnummer = VirksomhetFixtures.underenhet1.organisasjonsnummer,
-                    navn = VirksomhetFixtures.underenhet1.navn,
+                    id = ArrangorFixtures.underenhet1.id,
+                    organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
+                    navn = ArrangorFixtures.underenhet1.navn,
                     slettet = false,
                 ),
             )
@@ -821,7 +821,7 @@ private fun createArenaAdapterService(
     tiltaksgjennomforingKafkaProducer = tiltaksgjennomforingKafkaProducer,
     tiltakstypeKafkaProducer = tiltakstypeKafkaProducer,
     sanityTiltaksgjennomforingService = mockk(relaxed = true),
-    virksomhetService = mockk(relaxed = true),
+    arrangorService = mockk(relaxed = true),
     navEnhetService = NavEnhetService(NavEnhetRepository(db)),
     notificationService = notificationService,
     endringshistorikk = EndringshistorikkService(db),

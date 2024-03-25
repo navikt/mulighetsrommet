@@ -4,6 +4,8 @@ import arrow.core.Either
 import arrow.core.flatMap
 import arrow.core.left
 import arrow.core.right
+import com.github.benmanes.caffeine.cache.Cache
+import com.github.benmanes.caffeine.cache.Caffeine
 import io.ktor.client.call.*
 import io.ktor.client.engine.*
 import io.ktor.client.engine.cio.*
@@ -17,6 +19,7 @@ import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
 import org.slf4j.LoggerFactory
 import java.time.LocalDate
+import java.util.concurrent.TimeUnit
 
 object OrgnummerUtil {
     fun erOrgnr(verdi: String): Boolean {
@@ -29,16 +32,46 @@ class BrregClient(
     private val baseUrl: String,
     clientEngine: HttpClientEngine = CIO.create(),
 ) {
-    private val log = LoggerFactory.getLogger(this.javaClass)
+    private val log = LoggerFactory.getLogger(javaClass)
+
     private val client = httpJsonClient(clientEngine).config {
         install(HttpCache)
     }
+
+    private val brregCache: Cache<String, BrregVirksomhetDto> = Caffeine.newBuilder()
+        .expireAfterWrite(3, TimeUnit.HOURS)
+        .maximumSize(20_000)
+        .recordStats()
+        .build()
 
     data class Config(
         val baseUrl: String,
     )
 
-    suspend fun sokEtterOverordnetEnheter(orgnr: String): Either<BrregError, List<BrregVirksomhetDto>> {
+    suspend fun getBrregVirksomhet(orgnr: String): Either<BrregError, BrregVirksomhetDto> {
+        val virksomhet = brregCache.getIfPresent(orgnr)
+        if (virksomhet != null) {
+            return virksomhet.right()
+        }
+
+        // Sjekker først hovedenhet
+        return getHovedenhet(orgnr).fold(
+            { error ->
+                if (error == BrregError.NotFound) {
+                    // Ingen treff på hovedenhet, vi sjekker underenheter også
+                    getUnderenhet(orgnr)
+                } else {
+                    error.left()
+                }
+            },
+            {
+                brregCache.put(orgnr, it)
+                it.right()
+            },
+        )
+    }
+
+    suspend fun sokOverordnetEnhet(orgnr: String): Either<BrregError, List<BrregVirksomhetDto>> {
         val sokEllerOppslag = when (OrgnummerUtil.erOrgnr(orgnr)) {
             true -> "organisasjonsnummer"
             false -> "navn"
@@ -62,7 +95,7 @@ class BrregClient(
             }
     }
 
-    suspend fun hentUnderenheterForOverordnetEnhet(orgnr: String): Either<BrregError, List<BrregVirksomhetDto>> {
+    suspend fun getUnderenheterForOverordnetEnhet(orgnr: String): Either<BrregError, List<BrregVirksomhetDto>> {
         val underenheterResponse = client.get("$baseUrl/underenheter") {
             parameter("size", 1000)
             parameter("overordnetEnhet", orgnr)
@@ -88,7 +121,7 @@ class BrregClient(
         return parseResponse<BrregEnhet>(response, orgnr)
             .flatMap { enhet ->
                 val underenheterResult = if (enhet.slettedato == null) {
-                    hentUnderenheterForOverordnetEnhet(orgnr)
+                    getUnderenheterForOverordnetEnhet(orgnr)
                 } else {
                     log.info("Enhet med orgnr: $orgnr er slettet fra Brreg. Slettedato: ${enhet.slettedato}.")
                     emptyList<BrregVirksomhetDto>().right()

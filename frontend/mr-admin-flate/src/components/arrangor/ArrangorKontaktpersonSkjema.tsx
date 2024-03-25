@@ -1,11 +1,11 @@
 import { Button, TextField } from "@navikt/ds-react";
 import { useEffect, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
-import styles from "./VirksomhetKontaktpersonSkjema.module.scss";
-import { usePutVirksomhetKontaktperson } from "../../api/virksomhet/usePutVirksomhetKontaktperson";
+import styles from "./ArrangorKontaktpersonSkjema.module.scss";
+import { useUpsertArrangorKontaktperson } from "../../api/arrangor/useUpsertArrangorKontaktperson";
 import { validEmail } from "../../utils/Utils";
 import { ArrangorKontaktperson as ArrangorKontaktperson } from "mulighetsrommet-api-client";
-import { useDeleteVirksomhetKontaktperson } from "../../api/virksomhet/useDeleteVirksomhetKontaktperson";
+import { useDeleteArrangorKontaktperson } from "../../api/arrangor/useDeleteArrangorKontaktperson";
 import { resolveErrorMessage } from "../../api/errors";
 import { useHandleApiUpsertResponse } from "../../api/effects";
 
@@ -20,15 +20,15 @@ interface State {
 }
 
 interface VirksomhetKontaktpersonerProps {
-  virksomhetId: string;
+  arrangorId: string;
   person?: ArrangorKontaktperson;
   onSubmit: () => void;
 }
 
-export const VirksomhetKontaktpersonSkjema = (props: VirksomhetKontaktpersonerProps) => {
-  const { virksomhetId, person, onSubmit } = props;
-  const putMutation = usePutVirksomhetKontaktperson(virksomhetId);
-  const deleteMutation = useDeleteVirksomhetKontaktperson();
+export const ArrangorKontaktpersonSkjema = (props: VirksomhetKontaktpersonerProps) => {
+  const { arrangorId, person, onSubmit } = props;
+  const putMutation = useUpsertArrangorKontaktperson(arrangorId);
+  const deleteMutation = useDeleteArrangorKontaktperson();
 
   const [state, setState] = useState<State>({
     navn: person?.navn ?? "",
@@ -48,7 +48,7 @@ export const VirksomhetKontaktpersonSkjema = (props: VirksomhetKontaktpersonerPr
 
   function deleteKontaktperson() {
     if (person) {
-      deleteMutation.mutate({ virksomhetId, kontaktpersonId: person.id });
+      deleteMutation.mutate({ arrangorId, kontaktpersonId: person.id });
     }
   }
 

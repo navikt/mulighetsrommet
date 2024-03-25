@@ -146,7 +146,7 @@ data class TiltaksgjennomforingRequest(
     val sluttDato: LocalDate?,
     val antallPlasser: Int,
     @Serializable(with = UUIDSerializer::class)
-    val arrangorVirksomhetId: UUID,
+    val arrangorId: UUID,
     val arrangorKontaktpersoner: List<
         @Serializable(with = UUIDSerializer::class)
         UUID,
@@ -172,7 +172,7 @@ data class TiltaksgjennomforingRequest(
         sluttDato = sluttDato,
         antallPlasser = antallPlasser,
         apentForInnsok = apentForInnsok,
-        arrangorVirksomhetId = arrangorVirksomhetId,
+        arrangorId = arrangorId,
         arrangorKontaktpersoner = arrangorKontaktpersoner,
         administratorer = administratorer,
         navRegion = navRegion,

@@ -3,18 +3,18 @@ import { mulighetsrommetClient } from "../clients";
 import { ApiError, ArrangorKontaktpersonRequest } from "mulighetsrommet-api-client";
 import { QueryKeys } from "../QueryKeys";
 
-export function useDeleteVirksomhetKontaktperson() {
+export function useDeleteArrangorKontaktperson() {
   const queryClient = useQueryClient();
 
-  return useMutation<unknown, ApiError, { virksomhetId: string; kontaktpersonId: string }>({
+  return useMutation<unknown, ApiError, { arrangorId: string; kontaktpersonId: string }>({
     mutationFn({ kontaktpersonId }) {
-      return mulighetsrommetClient.virksomhet.deleteVirksomhetkontaktperson({
+      return mulighetsrommetClient.arrangor.deleteArrangorKontaktperson({
         id: kontaktpersonId,
       });
     },
-    onSuccess(_, { virksomhetId, kontaktpersonId }) {
+    onSuccess(_, { arrangorId, kontaktpersonId }) {
       queryClient.setQueryData<ArrangorKontaktpersonRequest[]>(
-        QueryKeys.virksomhetKontaktpersoner(virksomhetId),
+        QueryKeys.arrangorKontaktpersoner(arrangorId),
         (previous) => {
           return previous?.filter((kontaktperson) => kontaktperson.id !== kontaktpersonId);
         },

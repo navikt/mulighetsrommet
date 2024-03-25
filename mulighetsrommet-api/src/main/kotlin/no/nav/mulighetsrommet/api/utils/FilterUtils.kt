@@ -55,28 +55,12 @@ data class NotificationFilter(
     val status: NotificationStatus? = null,
 )
 
-data class VirksomhetFilter(
-    val til: VirksomhetTil? = null,
-)
-
-enum class VirksomhetTil {
-    AVTALE,
-    TILTAKSGJENNOMFORING,
-}
-
 data class NotatFilter(
     val avtaleId: UUID? = null,
     val tiltaksgjennomforingId: UUID? = null,
     val opprettetAv: NavIdent? = null,
     val sortering: String? = "dato-created-asc",
 )
-
-fun <T : Any> PipelineContext<T, ApplicationCall>.getVirksomhetFilter(): VirksomhetFilter {
-    val til = call.request.queryParameters["til"]
-    return VirksomhetFilter(
-        til = til?.let { VirksomhetTil.valueOf(it) },
-    )
-}
 
 fun <T : Any> PipelineContext<T, ApplicationCall>.getNotificationFilter(): NotificationFilter {
     val status = call.request.queryParameters["status"]
@@ -130,7 +114,6 @@ fun <T : Any> PipelineContext<T, ApplicationCall>.getAdminTiltaksgjennomforingsF
         ?.map { Tiltaksgjennomforingsstatus.valueOf(it) }
         ?: emptyList()
     val sortering = call.request.queryParameters["sort"]
-    val navRegioner = call.parameters.getAll("navRegioner") ?: emptyList()
     val avtaleId = call.request.queryParameters["avtaleId"]?.let { if (it.isEmpty()) null else UUID.fromString(it) }
     val arrangorIds = call.parameters.getAll("arrangorer")?.map { UUID.fromString(it) } ?: emptyList()
 
@@ -142,6 +125,7 @@ fun <T : Any> PipelineContext<T, ApplicationCall>.getAdminTiltaksgjennomforingsF
         sortering = sortering,
         avtaleId = avtaleId,
         arrangorIds = arrangorIds,
+        // TODO eksponén via egen service-metode for "getEksternTiltaksgjennomforing"
         arrangorOrgnr = emptyList(),
         administratorNavIdent = null,
     )

@@ -15,7 +15,7 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 class TiltakshistorikkService(
-    private val virksomhetService: VirksomhetService,
+    private val arrangorService: ArrangorService,
     private val amtDeltakerClient: AmtDeltakerClient,
     private val tiltakshistorikkRepository: TiltakshistorikkRepository,
     private val pdlClient: PdlClient,
@@ -51,15 +51,18 @@ class TiltakshistorikkService(
         }
     }
 
-    suspend fun hentDeltakelserFraKomet(norskIdent: String, obo: AccessType.OBO): Either<AmtDeltakerError, DeltakelserResponse> {
+    suspend fun hentDeltakelserFraKomet(
+        norskIdent: String,
+        obo: AccessType.OBO,
+    ): Either<AmtDeltakerError, DeltakelserResponse> {
         return amtDeltakerClient.hentDeltakelser(DeltakelserRequest(norskIdent), obo)
     }
 
     fun slettHistorikkForIdenter(identer: List<String>) =
         tiltakshistorikkRepository.deleteTiltakshistorikkForIdenter(identer)
 
-    private suspend fun hentArrangorNavn(virksomhetsnummer: String): String? {
-        return virksomhetService.getOrSyncVirksomhetFromBrreg(virksomhetsnummer).fold({ error ->
+    private suspend fun hentArrangorNavn(orgnr: String): String? {
+        return arrangorService.getOrSyncArrangorFromBrreg(orgnr).fold({ error ->
             log.warn("Klarte ikke hente arrangør. BrregError: $error")
             null
         }, { virksomhet ->

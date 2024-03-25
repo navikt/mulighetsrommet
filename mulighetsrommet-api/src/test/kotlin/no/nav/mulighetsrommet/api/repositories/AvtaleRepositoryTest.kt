@@ -14,10 +14,10 @@ import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
+import no.nav.mulighetsrommet.api.domain.dto.ArrangorDto
 import no.nav.mulighetsrommet.api.domain.dto.ArrangorKontaktperson
 import no.nav.mulighetsrommet.api.domain.dto.AvtaleAdminDto
 import no.nav.mulighetsrommet.api.domain.dto.Kontorstruktur
-import no.nav.mulighetsrommet.api.domain.dto.VirksomhetDto
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
@@ -52,10 +52,10 @@ class AvtaleRepositoryTest : FunSpec({
         }
 
         val domain = MulighetsrommetTestDomain(
-            virksomheter = listOf(
-                VirksomhetFixtures.hovedenhet,
-                VirksomhetFixtures.underenhet1,
-                VirksomhetFixtures.underenhet2,
+            arrangorer = listOf(
+                ArrangorFixtures.hovedenhet,
+                ArrangorFixtures.underenhet1,
+                ArrangorFixtures.underenhet2,
             ),
             tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
             avtaler = listOf(),
@@ -79,7 +79,7 @@ class AvtaleRepositoryTest : FunSpec({
                 it.tiltakstype.id shouldBe arenaAvtale.tiltakstypeId
                 it.navn shouldBe arenaAvtale.navn
                 it.avtalenummer shouldBe arenaAvtale.avtalenummer
-                it.arrangor.id shouldBe VirksomhetFixtures.hovedenhet.id
+                it.arrangor.id shouldBe ArrangorFixtures.hovedenhet.id
                 it.arrangor.organisasjonsnummer shouldBe arenaAvtale.arrangorOrganisasjonsnummer
                 it.arenaAnsvarligEnhet shouldBe null
                 it.startDato shouldBe arenaAvtale.startDato
@@ -145,16 +145,16 @@ class AvtaleRepositoryTest : FunSpec({
         }
 
         test("Arrangør kontaktperson") {
-            val virksomhetRepository = VirksomhetRepository(database.db)
+            val arrangorRepository = ArrangorRepository(database.db)
             val arrangorKontaktperson = ArrangorKontaktperson(
                 id = UUID.randomUUID(),
-                arrangorId = VirksomhetFixtures.hovedenhet.id,
+                arrangorId = ArrangorFixtures.hovedenhet.id,
                 navn = "Navn Navnesen",
                 telefon = "22232322",
                 epost = "navn@gmail.com",
                 beskrivelse = "beskrivelse",
             )
-            virksomhetRepository.upsertKontaktperson(arrangorKontaktperson)
+            arrangorRepository.upsertKontaktperson(arrangorKontaktperson)
 
             val avtaler = AvtaleRepository(database.db)
             var avtale = AvtaleFixtures.oppfolging.copy(
@@ -171,7 +171,7 @@ class AvtaleRepositoryTest : FunSpec({
                 navn = "Fredrik Navnesen",
                 telefon = "32322",
             )
-            virksomhetRepository.upsertKontaktperson(nyPerson)
+            arrangorRepository.upsertKontaktperson(nyPerson)
 
             avtale = avtale.copy(arrangorKontaktpersonId = nyPerson.id)
             avtaler.upsert(avtale)
@@ -191,16 +191,16 @@ class AvtaleRepositoryTest : FunSpec({
             val avtaler = AvtaleRepository(database.db)
 
             val avtale1 = AvtaleFixtures.oppfolging.copy(
-                arrangorId = VirksomhetFixtures.hovedenhet.id,
-                arrangorUnderenheter = listOf(VirksomhetFixtures.underenhet1.id, VirksomhetFixtures.underenhet2.id),
+                arrangorId = ArrangorFixtures.hovedenhet.id,
+                arrangorUnderenheter = listOf(ArrangorFixtures.underenhet1.id, ArrangorFixtures.underenhet2.id),
             )
 
             avtaler.upsert(avtale1)
             avtaler.get(avtale1.id).shouldNotBeNull().should {
-                it.arrangor.organisasjonsnummer shouldBe VirksomhetFixtures.hovedenhet.organisasjonsnummer
+                it.arrangor.organisasjonsnummer shouldBe ArrangorFixtures.hovedenhet.organisasjonsnummer
                 it.arrangor.underenheter.map { it.organisasjonsnummer } shouldContainExactlyInAnyOrder listOf(
-                    VirksomhetFixtures.underenhet1.organisasjonsnummer,
-                    VirksomhetFixtures.underenhet2.organisasjonsnummer,
+                    ArrangorFixtures.underenhet1.organisasjonsnummer,
+                    ArrangorFixtures.underenhet2.organisasjonsnummer,
                 )
             }
         }
@@ -210,10 +210,10 @@ class AvtaleRepositoryTest : FunSpec({
         val avtaler = AvtaleRepository(database.db)
 
         val domain = MulighetsrommetTestDomain(
-            virksomheter = listOf(
-                VirksomhetFixtures.hovedenhet,
-                VirksomhetFixtures.underenhet1,
-                VirksomhetFixtures.underenhet2,
+            arrangorer = listOf(
+                ArrangorFixtures.hovedenhet,
+                ArrangorFixtures.underenhet1,
+                ArrangorFixtures.underenhet2,
             ),
             tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
             avtaler = listOf(),
@@ -553,20 +553,20 @@ class AvtaleRepositoryTest : FunSpec({
         }
 
         test("Filtrering på tiltaksarrangørs navn gir treff") {
-            val virksomheter = VirksomhetRepository(database.db)
-            val annenArrangor = VirksomhetFixtures.underenhet1.copy(
+            val arrangorer = ArrangorRepository(database.db)
+            val annenArrangor = ArrangorFixtures.underenhet1.copy(
                 id = UUID.randomUUID(),
                 navn = "Annen Arrangør AS",
                 organisasjonsnummer = "667543265",
             )
-            virksomheter.upsert(VirksomhetFixtures.hovedenhet.copy(navn = "Hovedenhet AS"))
-            virksomheter.upsert(annenArrangor)
+            arrangorer.upsert(ArrangorFixtures.hovedenhet.copy(navn = "Hovedenhet AS"))
+            arrangorer.upsert(annenArrangor)
             val avtale1 = AvtaleFixtures.oppfolging.copy(
-                arrangorId = VirksomhetFixtures.hovedenhet.id,
+                arrangorId = ArrangorFixtures.hovedenhet.id,
             )
             val avtale2 = avtale1.copy(
                 id = UUID.randomUUID(),
-                arrangorId = VirksomhetFixtures.hovedenhet.id,
+                arrangorId = ArrangorFixtures.hovedenhet.id,
             )
             val avtale3 = avtale1.copy(
                 id = UUID.randomUUID(),
@@ -587,21 +587,21 @@ class AvtaleRepositoryTest : FunSpec({
     context("Sortering") {
         val avtaler = AvtaleRepository(database.db)
 
-        val virksomhetA = VirksomhetDto(
+        val arrangorA = ArrangorDto(
             id = UUID.randomUUID(),
             navn = "alvdal",
             organisasjonsnummer = "987654321",
             postnummer = null,
             poststed = null,
         )
-        val virksomhetB = VirksomhetDto(
+        val arrangorB = ArrangorDto(
             id = UUID.randomUUID(),
             navn = "bjarne",
             organisasjonsnummer = "123456789",
             postnummer = null,
             poststed = null,
         )
-        val virksomhetC = VirksomhetDto(
+        val arrangorC = ArrangorDto(
             id = UUID.randomUUID(),
             navn = "chris",
             organisasjonsnummer = "999888777",
@@ -609,41 +609,41 @@ class AvtaleRepositoryTest : FunSpec({
             poststed = null,
         )
         val domain = MulighetsrommetTestDomain(
-            virksomheter = listOf(virksomhetA, virksomhetB, virksomhetC),
+            arrangorer = listOf(arrangorA, arrangorB, arrangorC),
             tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging, TiltakstypeFixtures.Jobbklubb),
             avtaler = listOf(
                 AvtaleFixtures.oppfolging.copy(
                     id = UUID.randomUUID(),
                     navn = "Avtale hos Anders",
-                    arrangorId = virksomhetB.id,
+                    arrangorId = arrangorB.id,
                     arrangorUnderenheter = emptyList(),
                     sluttDato = LocalDate.of(2010, 1, 31),
                 ),
                 AvtaleFixtures.oppfolging.copy(
                     id = UUID.randomUUID(),
                     navn = "Avtale hos Åse",
-                    arrangorId = virksomhetA.id,
+                    arrangorId = arrangorA.id,
                     arrangorUnderenheter = emptyList(),
                     sluttDato = LocalDate.of(2009, 1, 1),
                 ),
                 AvtaleFixtures.oppfolging.copy(
                     id = UUID.randomUUID(),
                     navn = "Avtale hos Øyvind",
-                    arrangorId = virksomhetB.id,
+                    arrangorId = arrangorB.id,
                     arrangorUnderenheter = emptyList(),
                     sluttDato = LocalDate.of(2010, 1, 1),
                 ),
                 AvtaleFixtures.oppfolging.copy(
                     id = UUID.randomUUID(),
                     navn = "Avtale hos Kjetil",
-                    arrangorId = virksomhetC.id,
+                    arrangorId = arrangorC.id,
                     arrangorUnderenheter = emptyList(),
                     sluttDato = LocalDate.of(2011, 1, 1),
                 ),
                 AvtaleFixtures.oppfolging.copy(
                     id = UUID.randomUUID(),
                     navn = "Avtale hos Ærfuglen Ærle",
-                    arrangorId = virksomhetB.id,
+                    arrangorId = arrangorB.id,
                     arrangorUnderenheter = emptyList(),
                     sluttDato = LocalDate.of(2023, 1, 1),
                 ),
@@ -694,18 +694,18 @@ class AvtaleRepositoryTest : FunSpec({
 
             val avtale1 = AvtaleFixtures.oppfolging.copy(
                 id = UUID.randomUUID(),
-                arrangorId = virksomhetA.id,
+                arrangorId = arrangorA.id,
                 arrangorUnderenheter = emptyList(),
                 navn = "Avtale hos Anders",
             )
             val avtale2 = avtale1.copy(
                 id = UUID.randomUUID(),
-                arrangorId = virksomhetA.id,
+                arrangorId = arrangorA.id,
                 navn = "Avtale hos Åse",
             )
             val avtale3 = avtale1.copy(
                 id = UUID.randomUUID(),
-                arrangorId = virksomhetA.id,
+                arrangorId = arrangorA.id,
                 navn = "Avtale hos Øyvind",
                 tiltakstypeId = TiltakstypeFixtures.Jobbklubb.id,
             )
@@ -733,7 +733,7 @@ class AvtaleRepositoryTest : FunSpec({
 
         test("Sortering på arrangør sorterer korrekt") {
             val alvdal = AvtaleAdminDto.ArrangorHovedenhet(
-                id = virksomhetA.id,
+                id = arrangorA.id,
                 organisasjonsnummer = "987654321",
                 navn = "alvdal",
                 slettet = false,
@@ -741,7 +741,7 @@ class AvtaleRepositoryTest : FunSpec({
                 kontaktperson = null,
             )
             val bjarne = AvtaleAdminDto.ArrangorHovedenhet(
-                id = virksomhetB.id,
+                id = arrangorB.id,
                 organisasjonsnummer = "123456789",
                 navn = "bjarne",
                 slettet = false,
@@ -749,7 +749,7 @@ class AvtaleRepositoryTest : FunSpec({
                 kontaktperson = null,
             )
             val chris = AvtaleAdminDto.ArrangorHovedenhet(
-                id = virksomhetC.id,
+                id = arrangorC.id,
                 organisasjonsnummer = "999888777",
                 navn = "chris",
                 slettet = false,
@@ -834,7 +834,7 @@ class AvtaleRepositoryTest : FunSpec({
             )
 
             val domain = MulighetsrommetTestDomain(
-                virksomheter = listOf(VirksomhetFixtures.hovedenhet, VirksomhetFixtures.underenhet1),
+                arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
                 tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
                 avtaler = listOf(avtale6Mnd, avtale3Mnd, avtale14Dag, avtale7Dag, avtaleSomIkkeSkalMatche),
             )
@@ -865,7 +865,7 @@ class AvtaleRepositoryTest : FunSpec({
         )
 
         val domain = MulighetsrommetTestDomain(
-            virksomheter = listOf(VirksomhetFixtures.hovedenhet, VirksomhetFixtures.underenhet1),
+            arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
             tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
             avtaler = listOf(avtale),
         )

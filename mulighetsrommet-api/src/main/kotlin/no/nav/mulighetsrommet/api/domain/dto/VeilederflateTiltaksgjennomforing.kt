@@ -77,7 +77,7 @@ data class VeilederflateTiltakstype(
 @Serializable
 data class VeilederflateArrangor(
     @Serializable(with = UUIDSerializer::class)
-    val virksomhetId: UUID,
+    val arrangorId: UUID,
     val selskapsnavn: String?,
     val organisasjonsnummer: String?,
     val kontaktpersoner: List<VeilederflateArrangorKontaktperson>,

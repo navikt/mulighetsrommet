@@ -65,6 +65,9 @@ data class AvtaleAdminDto(
         val organisasjonsnummer: String,
         val navn: String,
         val slettet: Boolean,
+        // TODO: denne er hardkodet til emptyList() enn så lenge slik at modell matcher [TiltaksgjennomforingAdminDto.ArrangorUnderenhet] samt modell i openapi.yaml
+        //  satser på å få samlet modellene i neste omgang.
+        val kontaktpersoner: List<ArrangorKontaktperson> = emptyList(),
     )
 
     @Serializable

@@ -7,18 +7,18 @@ import {
 import { mulighetsrommetClient } from "../clients";
 import { QueryKeys } from "../QueryKeys";
 
-export function usePutVirksomhetKontaktperson(virksomhetId: string) {
+export function useUpsertArrangorKontaktperson(arrangorId: string) {
   const queryClient = useQueryClient();
 
   return useMutation<ArrangorKontaktperson, ApiError, ArrangorKontaktpersonRequest>({
     mutationFn: (requestBody: ArrangorKontaktpersonRequest) =>
-      mulighetsrommetClient.virksomhet.opprettVirksomhetKontaktperson({
-        id: virksomhetId,
+      mulighetsrommetClient.arrangor.upsertArrangorKontaktperson({
+        id: arrangorId,
         requestBody,
       }),
     onSuccess(kontaktperson) {
       queryClient.setQueryData<ArrangorKontaktperson[]>(
-        QueryKeys.virksomhetKontaktpersoner(virksomhetId),
+        QueryKeys.arrangorKontaktpersoner(arrangorId),
         (previous) => {
           const kontaktpersoner = previous ?? [];
           if (kontaktpersoner.find((p) => p.id === kontaktperson.id)) {

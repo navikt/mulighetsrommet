@@ -1,6 +1,6 @@
 import { ArrangorKontaktperson } from "mulighetsrommet-api-client";
 
-export const mockVirksomhetKontaktperson: ArrangorKontaktperson[] = [
+export const mockArrangorKontaktpersoner: ArrangorKontaktperson[] = [
   {
     epost: "bjarte.berntsen@arrangor.no",
     navn: "Bjarte Berntsen",

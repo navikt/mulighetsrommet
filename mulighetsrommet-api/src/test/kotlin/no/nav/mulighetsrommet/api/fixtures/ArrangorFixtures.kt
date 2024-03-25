@@ -1,10 +1,10 @@
 package no.nav.mulighetsrommet.api.fixtures
 
-import no.nav.mulighetsrommet.api.domain.dto.VirksomhetDto
+import no.nav.mulighetsrommet.api.domain.dto.ArrangorDto
 import java.util.*
 
-object VirksomhetFixtures {
-    val hovedenhet = VirksomhetDto(
+object ArrangorFixtures {
+    val hovedenhet = ArrangorDto(
         id = UUID.randomUUID(),
         organisasjonsnummer = "123456789",
         navn = "Hovedenhet AS",
@@ -12,7 +12,7 @@ object VirksomhetFixtures {
         poststed = "Oslo",
     )
 
-    val underenhet1 = VirksomhetDto(
+    val underenhet1 = ArrangorDto(
         id = UUID.randomUUID(),
         organisasjonsnummer = "976663934",
         overordnetEnhet = "123456789",
@@ -21,7 +21,7 @@ object VirksomhetFixtures {
         poststed = "Oslo",
     )
 
-    val underenhet2 = VirksomhetDto(
+    val underenhet2 = ArrangorDto(
         id = UUID.randomUUID(),
         organisasjonsnummer = "890765789",
         overordnetEnhet = "123456789",
