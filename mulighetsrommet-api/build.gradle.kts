@@ -106,7 +106,7 @@ dependencies {
     implementation(libs.nav.common.auditLog)
     implementation(libs.nav.common.tokenClient)
     constraints {
-        implementation("net.minidev:json-smart:2.5.0") {
+        implementation("net.minidev:json-smart:2.5.1") {
             because("sikkerhetshull i transitiv avhengighet rapportert via snyk")
         }
     }
