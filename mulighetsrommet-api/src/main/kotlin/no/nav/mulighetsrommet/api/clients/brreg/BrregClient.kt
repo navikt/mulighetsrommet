@@ -4,8 +4,6 @@ import arrow.core.Either
 import arrow.core.flatMap
 import arrow.core.left
 import arrow.core.right
-import com.github.benmanes.caffeine.cache.Cache
-import com.github.benmanes.caffeine.cache.Caffeine
 import io.ktor.client.call.*
 import io.ktor.client.engine.*
 import io.ktor.client.engine.cio.*
@@ -19,7 +17,6 @@ import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
 import org.slf4j.LoggerFactory
 import java.time.LocalDate
-import java.util.concurrent.TimeUnit
 
 object OrgnummerUtil {
     fun erOrgnr(verdi: String): Boolean {
@@ -38,22 +35,11 @@ class BrregClient(
         install(HttpCache)
     }
 
-    private val brregCache: Cache<String, BrregVirksomhetDto> = Caffeine.newBuilder()
-        .expireAfterWrite(3, TimeUnit.HOURS)
-        .maximumSize(20_000)
-        .recordStats()
-        .build()
-
     data class Config(
         val baseUrl: String,
     )
 
     suspend fun getBrregVirksomhet(orgnr: String): Either<BrregError, BrregVirksomhetDto> {
-        val virksomhet = brregCache.getIfPresent(orgnr)
-        if (virksomhet != null) {
-            return virksomhet.right()
-        }
-
         // Sjekker først hovedenhet
         return getHovedenhet(orgnr).fold(
             { error ->
@@ -65,7 +51,6 @@ class BrregClient(
                 }
             },
             {
-                brregCache.put(orgnr, it)
                 it.right()
             },
         )
