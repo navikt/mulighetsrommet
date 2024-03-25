@@ -82,7 +82,7 @@ class ArenaAdapterService(
     }
 
     suspend fun upsertAvtale(avtale: ArenaAvtaleDbo): AvtaleAdminDto {
-        syncVirksomhetFromBrreg(avtale.leverandorOrganisasjonsnummer)
+        syncVirksomhetFromBrreg(avtale.arrangorOrganisasjonsnummer)
 
         val dto = db.transaction { tx ->
             val previous = avtaler.get(avtale.id)
@@ -140,7 +140,7 @@ class ArenaAdapterService(
             }
 
             next.avtaleId?.let { avtaleId ->
-                avtaler.setLeverandorUnderenhet(tx, avtaleId, next.arrangor.id)
+                avtaler.setArrangorUnderenhet(tx, avtaleId, next.arrangor.id)
             }
 
             if (shouldBeManagedInSanity(next)) {

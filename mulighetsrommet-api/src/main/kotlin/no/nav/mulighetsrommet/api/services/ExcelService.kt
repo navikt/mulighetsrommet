@@ -20,8 +20,8 @@ class ExcelService {
             opprettCelle(row, 0, avtaleAdminDto.navn)
             opprettCelle(row, 1, avtaleAdminDto.tiltakstype.navn)
             opprettCelle(row, 2, avtaleAdminDto.avtalenummer ?: "")
-            opprettCelle(row, 3, avtaleAdminDto.leverandor.navn)
-            opprettCelle(row, 4, avtaleAdminDto.leverandor.organisasjonsnummer)
+            opprettCelle(row, 3, avtaleAdminDto.arrangor.navn)
+            opprettCelle(row, 4, avtaleAdminDto.arrangor.organisasjonsnummer)
             opprettCelle(
                 row,
                 5,

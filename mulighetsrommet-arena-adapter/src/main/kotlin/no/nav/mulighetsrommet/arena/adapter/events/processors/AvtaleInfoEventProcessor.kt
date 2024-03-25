@@ -144,7 +144,7 @@ class AvtaleInfoEventProcessor(
             navn = avtale.navn,
             tiltakstypeId = tiltakstypeMapping.entityId,
             avtalenummer = "${avtale.aar}#${avtale.lopenr}",
-            leverandorOrganisasjonsnummer = leverandorOrganisasjonsnummer,
+            arrangorOrganisasjonsnummer = leverandorOrganisasjonsnummer,
             startDato = startDato,
             sluttDato = sluttDato,
             arenaAnsvarligEnhet = avtale.ansvarligEnhet,

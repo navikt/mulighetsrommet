@@ -9,9 +9,9 @@ import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
+import no.nav.mulighetsrommet.api.domain.dto.ArrangorKontaktperson
 import no.nav.mulighetsrommet.api.domain.dto.BrregVirksomhetDto
 import no.nav.mulighetsrommet.api.domain.dto.VirksomhetDto
-import no.nav.mulighetsrommet.api.domain.dto.VirksomhetKontaktperson
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.utils.VirksomhetTil
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
@@ -67,7 +67,7 @@ class VirksomhetRepositoryTest : FunSpec({
                 poststed = null,
             )
             virksomhetRepository.upsert(utenlandsk)
-            queryOf("update virksomhet set er_utenlandsk_virksomhet = true where organisasjonsnummer = '${utenlandsk.organisasjonsnummer}'")
+            queryOf("update arrangor set er_utenlandsk_virksomhet = true where organisasjonsnummer = '${utenlandsk.organisasjonsnummer}'")
                 .asExecute
                 .let { database.db.run(it) }
 
@@ -200,17 +200,17 @@ class VirksomhetRepositoryTest : FunSpec({
             )
             virksomhetRepository.upsert(virksomhet)
 
-            val kontaktperson = VirksomhetKontaktperson(
+            val kontaktperson = ArrangorKontaktperson(
                 id = UUID.randomUUID(),
-                virksomhetId = virksomhetId,
+                arrangorId = virksomhetId,
                 navn = "Fredrik",
                 telefon = "322232323",
                 epost = "fredrik@gmail.com",
                 beskrivelse = null,
             )
-            val kontaktperson2 = VirksomhetKontaktperson(
+            val kontaktperson2 = ArrangorKontaktperson(
                 id = UUID.randomUUID(),
-                virksomhetId = virksomhetId,
+                arrangorId = virksomhetId,
                 navn = "Trond",
                 telefon = "232232323",
                 epost = "trond@gmail.com",

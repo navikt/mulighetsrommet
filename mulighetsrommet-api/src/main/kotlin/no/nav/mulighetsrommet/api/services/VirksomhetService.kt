@@ -9,9 +9,9 @@ import com.github.benmanes.caffeine.cache.Caffeine
 import io.prometheus.client.cache.caffeine.CacheMetricsCollector
 import no.nav.mulighetsrommet.api.clients.brreg.BrregClient
 import no.nav.mulighetsrommet.api.clients.brreg.BrregError
+import no.nav.mulighetsrommet.api.domain.dto.ArrangorKontaktperson
 import no.nav.mulighetsrommet.api.domain.dto.BrregVirksomhetDto
 import no.nav.mulighetsrommet.api.domain.dto.VirksomhetDto
-import no.nav.mulighetsrommet.api.domain.dto.VirksomhetKontaktperson
 import no.nav.mulighetsrommet.api.repositories.VirksomhetRepository
 import no.nav.mulighetsrommet.api.routes.v1.responses.BadRequest
 import no.nav.mulighetsrommet.api.routes.v1.responses.StatusResponse
@@ -81,10 +81,10 @@ class VirksomhetService(
         )
     }
 
-    fun upsertKontaktperson(kontaktperson: VirksomhetKontaktperson) =
+    fun upsertKontaktperson(kontaktperson: ArrangorKontaktperson) =
         virksomhetRepository.upsertKontaktperson(kontaktperson)
 
-    fun hentKontaktpersoner(virksomhetId: UUID): List<VirksomhetKontaktperson> =
+    fun hentKontaktpersoner(virksomhetId: UUID): List<ArrangorKontaktperson> =
         virksomhetRepository.getKontaktpersoner(virksomhetId)
 
     fun deleteKontaktperson(id: UUID): StatusResponse<Unit> {

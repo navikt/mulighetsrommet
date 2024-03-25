@@ -252,7 +252,7 @@ class AvtaleInfoEventProcessorTest : FunSpec({
                         id shouldBe mapping.entityId
                         tiltakstypeId shouldBe tiltakstype.id
                         avtalenummer shouldBe "2022#2000"
-                        leverandorOrganisasjonsnummer shouldBe "1000000"
+                        arrangorOrganisasjonsnummer shouldBe "1000000"
                         avtaletype shouldBe Avtaletype.Rammeavtale
                         avslutningsstatus shouldBe Avslutningsstatus.IKKE_AVSLUTTET
                     }

@@ -42,7 +42,7 @@ export const TiltaksgjennomforingSchema = z
       })
       .array()
       .optional(),
-    arrangorVirksomhetId: z
+    arrangorId: z
       .string({
         required_error: "Du må velge en underenhet for tiltaksarrangør",
       })

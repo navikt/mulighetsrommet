@@ -19,9 +19,9 @@ import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingKontaktpersonDbo
+import no.nav.mulighetsrommet.api.domain.dto.ArrangorKontaktperson
 import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingAdminDto
 import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingKontaktperson
-import no.nav.mulighetsrommet.api.domain.dto.VirksomhetKontaktperson
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.ArenaOppfolging1
@@ -375,17 +375,17 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         test("virksomhet_kontaktperson") {
             val virksomhetRepository = VirksomhetRepository(database.db)
 
-            val thomas = VirksomhetKontaktperson(
+            val thomas = ArrangorKontaktperson(
                 id = UUID.randomUUID(),
-                virksomhetId = VirksomhetFixtures.hovedenhet.id,
+                arrangorId = VirksomhetFixtures.hovedenhet.id,
                 navn = "Thomas",
                 telefon = "22222222",
                 epost = "thomas@thetrain.co.uk",
                 beskrivelse = "beskrivelse",
             )
-            val jens = VirksomhetKontaktperson(
+            val jens = ArrangorKontaktperson(
                 id = UUID.randomUUID(),
-                virksomhetId = VirksomhetFixtures.hovedenhet.id,
+                arrangorId = VirksomhetFixtures.hovedenhet.id,
                 navn = "Jens",
                 telefon = "22222224",
                 epost = "jens@theshark.co.uk",

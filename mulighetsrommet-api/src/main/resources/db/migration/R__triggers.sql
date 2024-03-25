@@ -71,10 +71,10 @@ CREATE TRIGGER set_timestamp
     FOR EACH ROW
 EXECUTE PROCEDURE trigger_set_timestamp();
 
-drop trigger if exists set_timestamp on virksomhet;
+drop trigger if exists set_timestamp on arrangor;
 
 create trigger set_timestamp
     before update
-    on virksomhet
+    on arrangor
     for each row
 execute procedure trigger_set_timestamp();

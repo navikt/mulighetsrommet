@@ -81,9 +81,9 @@ class AvtaleValidatorTest : FunSpec({
         id = UUID.randomUUID(),
         navn = "Avtale",
         tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
-        leverandorVirksomhetId = VirksomhetFixtures.hovedenhet.id,
-        leverandorUnderenheter = listOf(VirksomhetFixtures.underenhet1.id),
-        leverandorKontaktpersonId = null,
+        arrangorId = VirksomhetFixtures.hovedenhet.id,
+        arrangorUnderenheter = listOf(VirksomhetFixtures.underenhet1.id),
+        arrangorKontaktpersonId = null,
         avtalenummer = "123456",
         startDato = LocalDate.now().minusDays(1),
         sluttDato = LocalDate.now().plusMonths(1),
@@ -143,14 +143,14 @@ class AvtaleValidatorTest : FunSpec({
             startDato = LocalDate.of(2023, 1, 1),
             sluttDato = LocalDate.of(2020, 1, 1),
             navEnheter = emptyList(),
-            leverandorUnderenheter = emptyList(),
+            arrangorUnderenheter = emptyList(),
         )
 
         validator.validate(dbo, null).shouldBeLeft().shouldContainAll(
             listOf(
                 ValidationError("startDato", "Startdato må være før sluttdato"),
                 ValidationError("navEnheter", "Minst én NAV-region må være valgt"),
-                ValidationError("leverandorUnderenheter", "Minst én underenhet til tiltaksarrangøren må være valgt"),
+                ValidationError("arrangorUnderenheter", "Minst én underenhet til tiltaksarrangøren må være valgt"),
             ),
         )
     }
@@ -297,9 +297,9 @@ class AvtaleValidatorTest : FunSpec({
                 id = avtaleDbo.id,
                 navn = "Nytt navn",
                 tiltakstypeId = TiltakstypeFixtures.AFT.id,
-                leverandorVirksomhetId = VirksomhetFixtures.underenhet1.id,
-                leverandorUnderenheter = listOf(VirksomhetFixtures.underenhet1.id),
-                leverandorKontaktpersonId = null,
+                arrangorId = VirksomhetFixtures.underenhet1.id,
+                arrangorUnderenheter = listOf(VirksomhetFixtures.underenhet1.id),
+                arrangorKontaktpersonId = null,
                 avtalenummer = "123456",
                 startDato = LocalDate.now(),
                 sluttDato = LocalDate.now().plusYears(1),
@@ -332,9 +332,9 @@ class AvtaleValidatorTest : FunSpec({
                 id = avtaleDbo.id,
                 navn = "Nytt navn",
                 tiltakstypeId = TiltakstypeFixtures.Jobbklubb.id,
-                leverandorVirksomhetId = VirksomhetFixtures.underenhet1.id,
-                leverandorUnderenheter = listOf(VirksomhetFixtures.underenhet1.id),
-                leverandorKontaktpersonId = null,
+                arrangorId = VirksomhetFixtures.underenhet1.id,
+                arrangorUnderenheter = listOf(VirksomhetFixtures.underenhet1.id),
+                arrangorKontaktpersonId = null,
                 avtalenummer = "123456",
                 startDato = LocalDate.now(),
                 sluttDato = LocalDate.now().plusYears(1),
@@ -360,7 +360,7 @@ class AvtaleValidatorTest : FunSpec({
                     ValidationError("startDato", "Startdato kan ikke endres utenfor Arena"),
                     ValidationError("sluttDato", "Sluttdato kan ikke endres utenfor Arena"),
                     ValidationError("avtaletype", "Avtaletype kan ikke endres utenfor Arena"),
-                    ValidationError("leverandorVirksomhetId", "Tiltaksarrangøren kan ikke endres utenfor Arena"),
+                    ValidationError("arrangorId", "Tiltaksarrangøren kan ikke endres utenfor Arena"),
                 ),
             )
         }
@@ -417,7 +417,7 @@ class AvtaleValidatorTest : FunSpec({
                             "Avtaletype kan ikke endres fordi det finnes gjennomføringer for avtalen",
                         ),
                         ValidationError(
-                            "leverandorUnderenheter",
+                            "arrangorUnderenheter",
                             "Arrangøren Underenhet 2 AS er i bruk på en av avtalens gjennomføringer, men mangler blant tiltaksarrangørens underenheter",
                         ),
                         ValidationError(

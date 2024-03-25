@@ -81,7 +81,7 @@ paths:
       operationId: getAvtaler
       parameters:
         - in: query
-          name: tiltakstypeIder
+          name: tiltakstyper
           schema:
             type: array
             items:
@@ -114,12 +114,13 @@ paths:
               type: string
           description: 4 digit enhetskode
         - in: query
-          name: leverandorOrgnr
+          name: arrangorer
           schema:
             type: array
             items:
               type: string
-          description: Organisasjonsnummer til leverandører for avtaler
+              format: uuid
+          description: Id til arrangører for avtaler
         - in: query
           name: page
           schema:
@@ -177,7 +178,7 @@ paths:
       operationId: getMineAvtaler
       parameters:
         - in: query
-          name: tiltakstypeIder
+          name: tiltakstyper
           schema:
             type: array
             items:
@@ -217,12 +218,13 @@ paths:
               type: string
           description: 4 digit enhetskode
         - in: query
-          name: leverandorOrgnr
+          name: arrangorer
           schema:
             type: array
             items:
               type: string
-          description: Organisasjonsnummer til leverandører for avtaler
+              format: uuid
+          description: Id til arrangør for avtaler
       responses:
         200:
           description: Object of paginated avtaler connected to specified tiltakstype-id where logged in user is responsible for avtale.
@@ -526,7 +528,7 @@ paths:
               type: string
           description: 4 digit enhetskode
         - in: query
-          name: tiltakstypeIder
+          name: tiltakstyper
           schema:
             type: array
             items:
@@ -547,11 +549,12 @@ paths:
             items:
               type: string
         - in: query
-          name: arrangorOrgnr
+          name: arrangorer
           schema:
             type: array
             items:
               type: string
+              format: uuid
         - in: query
           name: size
           schema:
@@ -615,7 +618,7 @@ paths:
               type: string
           description: 4 digit enhetskode
         - in: query
-          name: tiltakstypeIder
+          name: tiltakstyper
           schema:
             type: array
             items:
@@ -636,11 +639,12 @@ paths:
             items:
               type: string
         - in: query
-          name: arrangorOrgnr
+          name: arrangorer
           schema:
             type: array
             items:
               type: string
+              format: uuid
         - in: query
           name: page
           schema:
@@ -1455,7 +1459,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/VirksomhetKontaktperson"
+                  $ref: "#/components/schemas/ArrangorKontaktperson"
     put:
       tags:
         - Virksomhet
@@ -1471,14 +1475,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/VirksomhetKontaktpersonRequest"
+              $ref: "#/components/schemas/ArrangorKontaktpersonRequest"
       responses:
         200:
           description: VirksomhetKontaktperson response
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/VirksomhetKontaktperson"
+                $ref: "#/components/schemas/ArrangorKontaktperson"
 
   /api/v1/internal/virksomhet/kontaktperson/{id}:
     delete:
@@ -1911,8 +1915,8 @@ components:
           type: string
         avtalenummer:
           type: string
-        leverandor:
-          $ref: "#/components/schemas/Leverandor"
+        arrangor:
+          $ref: "#/components/schemas/ArrangorHovedenhet"
         startDato:
           type: string
           format: date
@@ -1951,8 +1955,7 @@ components:
         - tiltakstype
         - navn
         - avtalenummer
-        - leverandor
-        - leverandorUnderenheter
+        - arrangor
         - startDato
         - avtaletype
         - avtalestatus
@@ -1974,16 +1977,16 @@ components:
         avtalenummer:
           type: string
           nullable: true
-        leverandorOrganisasjonsnummer:
+        arrangorOrganisasjonsnummer:
           type: string
-        leverandorKontaktpersonId:
-          type: string
-          format: UUID
-          nullable: true
-        leverandorUnderenheter:
+        arrangorUnderenheter:
           type: array
           items:
             type: string
+        arrangorKontaktpersonId:
+          type: string
+          format: UUID
+          nullable: true
         startDato:
           type: string
           format: date
@@ -2017,9 +2020,9 @@ components:
         - id
         - navn
         - tiltakstypeId
-        - leverandorOrganisasjonsnummer
-        - leverandorUnderenheter
-        - leverandorKontaktpersonId
+        - arrangorOrganisasjonsnummer
+        - arrangorUnderenheter
+        - arrangorKontaktpersonId
         - avtalenummer
         - startDato
         - sluttDato
@@ -2076,8 +2079,8 @@ components:
         - startdato-descending
         - sluttdato-ascending
         - sluttdato-descending
-        - leverandor-ascending
-        - leverandor-descending
+        - arrangor-ascending
+        - arrangor-descending
 
     SorteringTiltakstyper:
       type: string
@@ -2225,7 +2228,7 @@ components:
           nullable: true
         antallPlasser:
           type: number
-        arrangorVirksomhetId:
+        arrangorId:
           type: string
           format: uuid
         arrangorKontaktpersoner:
@@ -2278,7 +2281,7 @@ components:
         - startDato
         - sluttDato
         - antallPlasser
-        - arrangorVirksomhetId
+        - arrangorId
         - arrangorKontaktpersoner
         - administrator
         - navRegion
@@ -2558,16 +2561,16 @@ components:
         sistEndretdato:
           type: string
         aktivStatus:
-            type: string
-            enum:
-              - UTKAST_TIL_PAMELDING
-              - VENTER_PA_OPPSTART
-              - DELTAR
-              - KLADD
-              - SOKT_INN
-              - VURDERES
-              - VENTELISTE
-              - PABEGYNT_REGISTRERING
+          type: string
+          enum:
+            - UTKAST_TIL_PAMELDING
+            - VENTER_PA_OPPSTART
+            - DELTAR
+            - KLADD
+            - SOKT_INN
+            - VURDERES
+            - VENTELISTE
+            - PABEGYNT_REGISTRERING
         tittel:
           type: string
         tiltakstype:
@@ -2725,7 +2728,7 @@ components:
         kontaktpersoner:
           type: array
           items:
-            $ref: "#/components/schemas/VirksomhetKontaktperson"
+            $ref: "#/components/schemas/ArrangorKontaktperson"
         slettet:
           type: boolean
       required:
@@ -2735,7 +2738,7 @@ components:
         - kontaktpersoner
         - slettet
 
-    Leverandor:
+    ArrangorHovedenhet:
       type: object
       properties:
         id:
@@ -2750,9 +2753,9 @@ components:
         underenheter:
           type: array
           items:
-            $ref: "#/components/schemas/LeverandorUnderenhet"
+            $ref: "#/components/schemas/ArrangorUnderenhet"
         kontaktperson:
-          $ref: "#/components/schemas/VirksomhetKontaktperson"
+          $ref: "#/components/schemas/ArrangorKontaktperson"
       required:
         - id
         - organisasjonsnummer
@@ -2760,7 +2763,7 @@ components:
         - slettet
         - underenheter
 
-    LeverandorUnderenhet:
+    ArrangorUnderenhet:
       type: object
       properties:
         id:
@@ -2778,7 +2781,7 @@ components:
         - navn
         - slettet
 
-    VirksomhetKontaktpersonRequest:
+    ArrangorKontaktpersonRequest:
       type: object
       properties:
         id:
@@ -2801,13 +2804,13 @@ components:
         - telefon
         - beskrivelse
 
-    VirksomhetKontaktperson:
+    ArrangorKontaktperson:
       type: object
       properties:
         id:
           type: string
           format: uuid
-        virksomhetId:
+        arrangorId:
           type: string
           format: uuid
         navn:
@@ -2822,7 +2825,7 @@ components:
           type: string
       required:
         - id
-        - virksomhetId
+        - arrangorId
         - navn
         - beskrivelse
         - telefon

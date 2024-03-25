@@ -82,8 +82,9 @@ export function AvtaleSkjemaContainer({
       id: avtale?.id ?? uuidv4(),
       navEnheter: data.navEnheter.concat(data.navRegioner),
       avtalenummer: avtale?.avtalenummer || null,
-      leverandorOrganisasjonsnummer: data.leverandor,
-      leverandorUnderenheter: data.leverandorUnderenheter,
+      arrangorOrganisasjonsnummer: data.arrangorOrganisasjonsnummer,
+      arrangorUnderenheter: data.arrangorUnderenheter,
+      arrangorKontaktpersonId: data.arrangorKontaktpersonId ?? null,
       navn: data.navn,
       sluttDato: data.startOgSluttDato.sluttDato ?? null,
       startDato: data.startOgSluttDato.startDato,
@@ -96,7 +97,6 @@ export function AvtaleSkjemaContainer({
         : null,
       beskrivelse: data.beskrivelse,
       faneinnhold: data.faneinnhold,
-      leverandorKontaktpersonId: data.leverandorKontaktpersonId ?? null,
     };
 
     mutation.mutate(requestBody);
@@ -115,7 +115,6 @@ export function AvtaleSkjemaContainer({
         const mapping: { [name: string]: string } = {
           startDato: "startOgSluttDato.startDato",
           sluttDato: "startOgSluttDato.sluttDato",
-          leverandorOrganisasjonsnummer: "leverandor",
           tiltakstypeId: "tiltakstype",
         };
         return (mapping[name] ?? name) as keyof InferredAvtaleSchema;

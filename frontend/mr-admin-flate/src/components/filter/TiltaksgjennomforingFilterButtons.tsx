@@ -58,7 +58,7 @@ export function TiltaksgjennomforingFilterButtons({ filterAtom }: Props) {
       filter.tiltakstyper.length > 0 ||
       filter.navEnheter.length > 0 ||
       filter.statuser.length > 0 ||
-      filter.arrangorOrgnr.length > 0 ? (
+      filter.arrangorer.length > 0 ? (
         <NullstillFilterKnapp
           onClick={() => {
             setFilter({

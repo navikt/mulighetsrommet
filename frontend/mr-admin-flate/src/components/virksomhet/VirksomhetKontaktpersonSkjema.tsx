@@ -4,24 +4,24 @@ import { v4 as uuidv4 } from "uuid";
 import styles from "./VirksomhetKontaktpersonSkjema.module.scss";
 import { usePutVirksomhetKontaktperson } from "../../api/virksomhet/usePutVirksomhetKontaktperson";
 import { validEmail } from "../../utils/Utils";
-import { VirksomhetKontaktperson } from "mulighetsrommet-api-client";
+import { ArrangorKontaktperson as ArrangorKontaktperson } from "mulighetsrommet-api-client";
 import { useDeleteVirksomhetKontaktperson } from "../../api/virksomhet/useDeleteVirksomhetKontaktperson";
 import { resolveErrorMessage } from "../../api/errors";
 import { useHandleApiUpsertResponse } from "../../api/effects";
 
-type VirksomhetKontaktpersonErrors = Partial<Record<keyof VirksomhetKontaktperson, string>>;
+type ArrangorKontaktpersonErrors = Partial<Record<keyof ArrangorKontaktperson, string>>;
 
 interface State {
   navn: string;
   epost: string;
   telefon: string;
   beskrivelse: string;
-  errors: VirksomhetKontaktpersonErrors;
+  errors: ArrangorKontaktpersonErrors;
 }
 
 interface VirksomhetKontaktpersonerProps {
   virksomhetId: string;
-  person?: VirksomhetKontaktperson;
+  person?: ArrangorKontaktperson;
   onSubmit: () => void;
 }
 

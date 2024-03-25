@@ -37,8 +37,8 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
         id = UUID.randomUUID(),
         startDato = avtaleStartDato,
         sluttDato = avtaleSluttDato,
-        leverandorVirksomhetId = VirksomhetFixtures.hovedenhet.id,
-        leverandorUnderenheter = listOf(VirksomhetFixtures.underenhet1.id),
+        arrangorId = VirksomhetFixtures.hovedenhet.id,
+        arrangorUnderenheter = listOf(VirksomhetFixtures.underenhet1.id),
         navEnheter = listOf("0400", "0502"),
     )
 

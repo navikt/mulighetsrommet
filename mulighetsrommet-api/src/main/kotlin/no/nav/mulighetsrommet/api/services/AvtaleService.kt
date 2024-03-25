@@ -48,16 +48,16 @@ class AvtaleService(
     suspend fun upsert(request: AvtaleRequest, navIdent: NavIdent): Either<List<ValidationError>, AvtaleAdminDto> {
         val previous = avtaler.get(request.id)
         return syncVirksomheterFromBrreg(request)
-            .flatMap { (leverandor, underenheter) ->
+            .flatMap { (arrangor, underenheter) ->
                 val dbo = request.run {
                     AvtaleDbo(
                         id = id,
                         navn = navn,
                         avtalenummer = avtalenummer,
                         tiltakstypeId = tiltakstypeId,
-                        leverandorVirksomhetId = leverandor.id,
-                        leverandorUnderenheter = underenheter.map { it.id },
-                        leverandorKontaktpersonId = leverandorKontaktpersonId,
+                        arrangorId = arrangor.id,
+                        arrangorUnderenheter = underenheter.map { it.id },
+                        arrangorKontaktpersonId = arrangorKontaktpersonId,
                         startDato = startDato,
                         sluttDato = sluttDato,
                         avtaletype = avtaletype,
@@ -97,11 +97,11 @@ class AvtaleService(
 
     private suspend fun syncVirksomheterFromBrreg(request: AvtaleRequest): Either<List<ValidationError>, Pair<VirksomhetDto, List<VirksomhetDto>>> =
         either {
-            val leverandor = syncVirksomhetFromBrreg(request.leverandorOrganisasjonsnummer).bind()
-            val underenheter = request.leverandorUnderenheter.mapOrAccumulate({ e1, e2 -> e1 + e2 }) {
+            val arrangor = syncVirksomhetFromBrreg(request.arrangorOrganisasjonsnummer).bind()
+            val underenheter = request.arrangorUnderenheter.mapOrAccumulate({ e1, e2 -> e1 + e2 }) {
                 syncVirksomhetFromBrreg(it).bind()
             }.bind()
-            Pair(leverandor, underenheter)
+            Pair(arrangor, underenheter)
         }
 
     private suspend fun syncVirksomhetFromBrreg(orgnr: String): Either<List<ValidationError>, VirksomhetDto> {
@@ -109,8 +109,8 @@ class AvtaleService(
             .getOrSyncVirksomhetFromBrreg(orgnr)
             .mapLeft {
                 ValidationError.of(
-                    AvtaleRequest::leverandorOrganisasjonsnummer,
-                    "Tiltaksarrangøren finnes ikke Brønnøysundregistrene",
+                    AvtaleRequest::arrangorOrganisasjonsnummer,
+                    "Tiltaksarrangøren finnes ikke i Brønnøysundregistrene",
                 ).nel()
             }
     }
@@ -128,7 +128,7 @@ class AvtaleService(
             navRegioner = filter.navRegioner,
             sortering = filter.sortering,
             dagensDato = filter.dagensDato,
-            leverandorOrgnr = filter.leverandorOrgnr,
+            arrangorIds = filter.arrangorIds,
             administratorNavIdent = filter.administratorNavIdent,
         )
 

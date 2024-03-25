@@ -22,7 +22,7 @@ data class AvtaleAdminDto(
     val tiltakstype: Tiltakstype,
     val navn: String,
     val avtalenummer: String?,
-    val leverandor: Leverandor,
+    val arrangor: ArrangorHovedenhet,
     @Serializable(with = LocalDateSerializer::class)
     val startDato: LocalDate,
     @Serializable(with = LocalDateSerializer::class)
@@ -48,18 +48,18 @@ data class AvtaleAdminDto(
     )
 
     @Serializable
-    data class Leverandor(
+    data class ArrangorHovedenhet(
         @Serializable(with = UUIDSerializer::class)
         val id: UUID,
         val organisasjonsnummer: String,
         val navn: String,
         val slettet: Boolean,
-        val underenheter: List<LeverandorUnderenhet>,
-        val kontaktperson: VirksomhetKontaktperson?,
+        val underenheter: List<ArrangorUnderenhet>,
+        val kontaktperson: ArrangorKontaktperson?,
     )
 
     @Serializable
-    data class LeverandorUnderenhet(
+    data class ArrangorUnderenhet(
         @Serializable(with = UUIDSerializer::class)
         val id: UUID,
         val organisasjonsnummer: String,
@@ -79,9 +79,9 @@ data class AvtaleAdminDto(
             navn = navn,
             tiltakstypeId = tiltakstype.id,
             avtalenummer = avtalenummer,
-            leverandorVirksomhetId = leverandor.id,
-            leverandorUnderenheter = leverandor.underenheter.map { it.id },
-            leverandorKontaktpersonId = leverandor.kontaktperson?.id,
+            arrangorId = arrangor.id,
+            arrangorUnderenheter = arrangor.underenheter.map { it.id },
+            arrangorKontaktpersonId = arrangor.kontaktperson?.id,
             startDato = startDato,
             sluttDato = sluttDato,
             navEnheter = this.kontorstruktur.flatMap { it.kontorer.map { kontor -> kontor.enhetsnummer } + it.region.enhetsnummer },
@@ -100,7 +100,7 @@ data class AvtaleAdminDto(
             navn = navn,
             tiltakstypeId = tiltakstype.id,
             avtalenummer = avtalenummer,
-            leverandorOrganisasjonsnummer = leverandor.organisasjonsnummer,
+            arrangorOrganisasjonsnummer = arrangor.organisasjonsnummer,
             startDato = startDato,
             sluttDato = sluttDato,
             arenaAnsvarligEnhet = arenaAnsvarligEnhet?.enhetsnummer,

@@ -15,7 +15,7 @@ data class ArenaAvtaleDbo(
     @Serializable(with = UUIDSerializer::class)
     val tiltakstypeId: UUID,
     val avtalenummer: String?,
-    val leverandorOrganisasjonsnummer: String,
+    val arrangorOrganisasjonsnummer: String,
     @Serializable(with = LocalDateSerializer::class)
     val startDato: LocalDate,
     @Serializable(with = LocalDateSerializer::class)

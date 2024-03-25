@@ -88,6 +88,7 @@ class TiltaksgjennomforingService(
         sluttDatoCutoff = filter.sluttDatoCutoff,
         dagensDato = filter.dagensDato,
         avtaleId = filter.avtaleId,
+        arrangorIds = filter.arrangorIds,
         arrangorOrgnr = filter.arrangorOrgnr,
         administratorNavIdent = filter.administratorNavIdent,
         skalMigreres = true,
@@ -122,6 +123,7 @@ class TiltaksgjennomforingService(
         sluttDatoCutoff = filter.sluttDatoCutoff,
         dagensDato = filter.dagensDato,
         avtaleId = filter.avtaleId,
+        arrangorIds = filter.arrangorIds,
         arrangorOrgnr = filter.arrangorOrgnr,
         administratorNavIdent = filter.administratorNavIdent,
     ).let { (totalCount, data) ->

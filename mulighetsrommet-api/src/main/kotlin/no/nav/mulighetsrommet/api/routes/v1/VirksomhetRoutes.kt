@@ -11,9 +11,9 @@ import io.ktor.server.util.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.clients.brreg.BrregClient
 import no.nav.mulighetsrommet.api.clients.brreg.BrregError
+import no.nav.mulighetsrommet.api.domain.dto.ArrangorKontaktperson
 import no.nav.mulighetsrommet.api.domain.dto.BrregVirksomhetDto
 import no.nav.mulighetsrommet.api.domain.dto.VirksomhetDto
-import no.nav.mulighetsrommet.api.domain.dto.VirksomhetKontaktperson
 import no.nav.mulighetsrommet.api.repositories.VirksomhetRepository
 import no.nav.mulighetsrommet.api.routes.v1.responses.*
 import no.nav.mulighetsrommet.api.services.VirksomhetService
@@ -150,16 +150,16 @@ data class VirksomhetKontaktpersonRequest(
     val beskrivelse: String?,
     val epost: String,
 ) {
-    fun toDto(virksomhetId: UUID): StatusResponse<VirksomhetKontaktperson> {
+    fun toDto(virksomhetId: UUID): StatusResponse<ArrangorKontaktperson> {
         val navn = navn.trim()
         val epost = epost.trim()
 
         val errors = buildList {
             if (navn.isEmpty()) {
-                add(ValidationError.of(VirksomhetKontaktperson::navn, "Navn er påkrevd"))
+                add(ValidationError.of(ArrangorKontaktperson::navn, "Navn er påkrevd"))
             }
             if (epost.isEmpty()) {
-                add(ValidationError.of(VirksomhetKontaktperson::epost, "E-post er påkrevd"))
+                add(ValidationError.of(ArrangorKontaktperson::epost, "E-post er påkrevd"))
             }
         }
 
@@ -168,9 +168,9 @@ data class VirksomhetKontaktpersonRequest(
         }
 
         return Either.Right(
-            VirksomhetKontaktperson(
+            ArrangorKontaktperson(
                 id = id,
-                virksomhetId = virksomhetId,
+                arrangorId = virksomhetId,
                 navn = navn,
                 telefon = telefon?.trim()?.ifEmpty { null },
                 epost = epost,

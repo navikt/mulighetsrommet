@@ -1,10 +1,9 @@
 import { ExternalLinkIcon } from "@navikt/aksel-icons";
-import { BodyShort, HStack, HelpText, Tag } from "@navikt/ds-react";
+import { BodyShort, HelpText, HStack, Tag } from "@navikt/ds-react";
 import {
   Avtale,
   Tiltaksgjennomforing,
   TiltaksgjennomforingOppstartstype,
-  VirksomhetKontaktperson,
 } from "mulighetsrommet-api-client";
 import { useTitle } from "mulighetsrommet-frontend-common";
 import { NOM_ANSATT_SIDE } from "mulighetsrommet-frontend-common/constants";
@@ -18,6 +17,7 @@ import { isTiltakMedFellesOppstart } from "../../utils/tiltakskoder";
 import styles from "../DetaljerInfo.module.scss";
 import { Kontaktperson } from "./Kontaktperson";
 import { tiltaktekster } from "../../components/ledetekster/tiltaksgjennomforingLedetekster";
+import { ArrangorKontaktpersonDetaljer } from "../arrangor/ArrangorKontaktpersonDetaljer";
 
 interface Props {
   tiltaksgjennomforing: Tiltaksgjennomforing;
@@ -241,13 +241,11 @@ export function TiltaksgjennomforingDetaljer(props: Props) {
 
           <Separator />
 
-          {avtale?.leverandor ? (
+          {avtale?.arrangor ? (
             <Bolk aria-label={tiltaktekster.tiltaksarrangorHovedenhetLabel}>
               <Metadata
                 header={tiltaktekster.tiltaksarrangorHovedenhetLabel}
-                verdi={[avtale.leverandor.navn, avtale.leverandor.organisasjonsnummer]
-                  .filter(Boolean)
-                  .join(" - ")}
+                verdi={`${avtale.arrangor.navn} - ${avtale.arrangor.organisasjonsnummer}`}
               />
             </Bolk>
           ) : null}
@@ -256,11 +254,7 @@ export function TiltaksgjennomforingDetaljer(props: Props) {
             <Bolk aria-label={tiltaktekster.tiltaksarrangorUnderenhetLabel}>
               <Metadata
                 header={tiltaktekster.tiltaksarrangorUnderenhetLabel}
-                verdi={
-                  arrangor.navn
-                    ? `${arrangor.navn} - ${arrangor.organisasjonsnummer}`
-                    : arrangor.organisasjonsnummer
-                }
+                verdi={`${arrangor.navn} - ${arrangor.organisasjonsnummer}`}
               />
             </Bolk>
           ) : null}
@@ -268,14 +262,12 @@ export function TiltaksgjennomforingDetaljer(props: Props) {
             <Metadata
               header={tiltaktekster.kontaktpersonerHosTiltaksarrangorLabel}
               verdi={
-                <div className={styles.leverandor_kontaktinfo_container}>
-                  {arrangor.kontaktpersoner.map((person: VirksomhetKontaktperson) => (
-                    <div key={person.id} className={styles.leverandor_kontaktinfo}>
-                      <BodyShort>{person.navn}</BodyShort>
-                      <BodyShort>{person.telefon}</BodyShort>
-                      <a href={`mailto:${person.epost}`}>{person.epost}</a>
-                      {person.beskrivelse && <BodyShort>{person.beskrivelse}</BodyShort>}
-                    </div>
+                <div className={styles.arrangor_kontaktinfo_container}>
+                  {arrangor.kontaktpersoner.map((kontaktperson) => (
+                    <ArrangorKontaktpersonDetaljer
+                      key={kontaktperson.id}
+                      kontaktperson={kontaktperson}
+                    />
                   ))}
                 </div>
               }

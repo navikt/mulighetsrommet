@@ -112,7 +112,7 @@ class TiltaksgjennomforingValidator(
                 }
             }
 
-            val avtaleHasArrangor = avtale.leverandor.underenheter.any {
+            val avtaleHasArrangor = avtale.arrangor.underenheter.any {
                 it.id == dbo.arrangorVirksomhetId
             }
             if (!avtaleHasArrangor) {

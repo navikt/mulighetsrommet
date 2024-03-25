@@ -193,19 +193,19 @@ export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
           >
             <FilterAccordionHeader
               tittel="Arrangør"
-              antallValgteFilter={filter.arrangorOrgnr.length}
+              antallValgteFilter={filter.arrangorer.length}
             />
           </Accordion.Header>
           <Accordion.Content>
             <CheckboxList
               searchable
               items={virksomhetOptions(virksomheter)}
-              isChecked={(orgnr) => filter.arrangorOrgnr.includes(orgnr)}
-              onChange={(orgnr) => {
+              isChecked={(id) => filter.arrangorer.includes(id)}
+              onChange={(id) => {
                 setFilter({
                   ...filter,
                   page: 1,
-                  arrangorOrgnr: addOrRemove(filter.arrangorOrgnr, orgnr),
+                  arrangorer: addOrRemove(filter.arrangorer, id),
                 });
               }}
             />

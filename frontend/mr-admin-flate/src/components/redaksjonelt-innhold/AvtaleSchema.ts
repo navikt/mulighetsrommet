@@ -21,13 +21,13 @@ export const AvtaleSchema = z
     avtaletype: z.nativeEnum(Avtaletype, {
       required_error: "Du må velge en avtaletype",
     }),
-    leverandor: z
+    arrangorOrganisasjonsnummer: z
       .string()
       .min(9, "Du må velge en tiltaksarrangør")
       .max(9, "Du må velge en tiltaksarrangør")
       .regex(/^\d+$/, "Tiltaksarrangør må være et nummer"),
-    leverandorUnderenheter: z.string().array().nonempty("Du må velge minst en underenhet"),
-    leverandorKontaktpersonId: z.string().uuid().optional(),
+    arrangorUnderenheter: z.string().array().nonempty("Du må velge minst en underenhet"),
+    arrangorKontaktpersonId: z.string().uuid().optional(),
     navRegioner: z.string().array().nonempty({ message: "Du må velge minst én region" }),
     navEnheter: z.string().array().nonempty({ message: "Du må velge minst én enhet" }),
     startOgSluttDato: z

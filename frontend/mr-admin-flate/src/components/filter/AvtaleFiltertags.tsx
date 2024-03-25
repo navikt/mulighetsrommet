@@ -25,7 +25,7 @@ export function AvtaleFiltertags({ filterAtom, tiltakstypeId, filterOpen }: Prop
     },
     1,
   );
-  const { data: leverandorer } = useVirksomheter(VirksomhetTil.AVTALE);
+  const { data: arrangorer } = useVirksomheter(VirksomhetTil.AVTALE);
 
   return (
     <FiltertagsContainer filterOpen={filterOpen}>
@@ -100,14 +100,14 @@ export function AvtaleFiltertags({ filterAtom, tiltakstypeId, filterOpen }: Prop
             }}
           />
         ))}
-      {filter.leverandor.map((orgnr) => (
+      {filter.arrangorer.map((id) => (
         <Filtertag
-          key={orgnr}
-          label={leverandorer?.find((l) => l.organisasjonsnummer === orgnr)?.navn || orgnr}
+          key={id}
+          label={arrangorer?.find((arrangor) => arrangor.id === id)?.navn ?? id}
           onClose={() => {
             setFilter({
               ...filter,
-              leverandor: filter.leverandor.filter((l) => l !== orgnr),
+              arrangorer: addOrRemove(filter.arrangorer, id),
             });
           }}
         />

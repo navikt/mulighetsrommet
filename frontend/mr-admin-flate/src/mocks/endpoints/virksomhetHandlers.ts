@@ -1,5 +1,5 @@
 import { http, HttpResponse, PathParams } from "msw";
-import { BrregVirksomhet, VirksomhetKontaktperson } from "mulighetsrommet-api-client";
+import { BrregVirksomhet, ArrangorKontaktperson } from "mulighetsrommet-api-client";
 import { mockVirksomhetKontaktperson } from "../fixtures/mock_virksomhet_kontaktperson";
 import { mockVirksomheter } from "../fixtures/mock_virksomheter";
 
@@ -45,7 +45,7 @@ export const virksomhetHandlers = [
     HttpResponse.json(Object.values(mockVirksomheter)),
   ),
 
-  http.get<PathParams, VirksomhetKontaktperson[]>(
+  http.get<PathParams, ArrangorKontaktperson[]>(
     "*/api/v1/internal/virksomhet/*/kontaktpersoner",
     () => HttpResponse.json(mockVirksomhetKontaktperson),
   ),
