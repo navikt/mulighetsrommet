@@ -3,7 +3,7 @@
   "pipeline": {
     "build": {
       "inputs": ["../../mulighetsrommet-api/src/main/resources/web/openapi.yaml"],
-      "outputs": ["build"]
+      "outputs": ["build/**"]
     }
   }
 }
