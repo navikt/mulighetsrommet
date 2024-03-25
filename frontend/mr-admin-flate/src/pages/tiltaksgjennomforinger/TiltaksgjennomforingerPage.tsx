@@ -7,7 +7,7 @@ import { tiltaksgjennomforingfilterAtom } from "../../api/atoms";
 import { FilterAndTableLayout } from "../../components/filter/FilterAndTableLayout";
 import { TiltaksgjennomforingFilterButtons } from "../../components/filter/TiltaksgjennomforingFilterButtons";
 import { TiltaksgjennomforingFiltertags } from "../../components/filter/TiltaksgjennomforingFiltertags";
-import { TiltaksgjennomforingFilter } from "../../components/filter/Tiltaksgjennomforingfilter";
+import { TiltaksgjennomforingFilter } from "../../components/filter/TiltaksgjennomforingFilter";
 import { ReloadAppErrorBoundary } from "../../ErrorBoundary";
 import { TilToppenKnapp } from "mulighetsrommet-frontend-common/components/tilToppenKnapp/TilToppenKnapp";
 import { Brodsmuler } from "../../components/navigering/Brodsmuler";
