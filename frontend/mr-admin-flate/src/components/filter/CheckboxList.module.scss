@@ -1,0 +1,11 @@
+.checkbox_list {
+  max-width: calc(var(--filter-width) - 35px);
+  margin-left: -2rem;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.checkbox_search {
+  margin: 3px;
+  max-width: 220px;
+}

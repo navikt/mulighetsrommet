@@ -8,8 +8,10 @@ import { virksomhetHandlers } from "./endpoints/virksomhetHandlers";
 import { avtalenotatHandlers } from "./endpoints/avtalenotatHandlers";
 import { tiltaksgjennomforingNotatHandlers } from "./endpoints/tiltaksgjennomforingNotatHandlers";
 import { featureToggleHandlers } from "./endpoints/featureToggleHandlers";
+import { arrangorHandlers } from "./endpoints/arrangorHandlers";
 
 export const apiHandlers = [
+  ...arrangorHandlers,
   ...tiltakstypeHandlers,
   ...avtaleHandlers,
   ...tiltaksgjennomforingHandlers,

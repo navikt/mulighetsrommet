@@ -3,8 +3,8 @@ package no.nav.mulighetsrommet.kafka.consumers.amt
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.decodeFromJsonElement
 import no.nav.common.kafka.consumer.util.deserializer.Deserializers.stringDeserializer
-import no.nav.mulighetsrommet.api.repositories.VirksomhetRepository
-import no.nav.mulighetsrommet.api.services.VirksomhetService
+import no.nav.mulighetsrommet.api.clients.brreg.BrregClient
+import no.nav.mulighetsrommet.api.repositories.ArrangorRepository
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.kafka.serialization.JsonElementDeserializer
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
@@ -12,8 +12,8 @@ import org.slf4j.LoggerFactory
 
 class AmtVirksomheterV1TopicConsumer(
     config: Config,
-    private val virksomhetRepository: VirksomhetRepository,
-    private val virksomhetService: VirksomhetService,
+    private val arrangorRepository: ArrangorRepository,
+    private val brregClient: BrregClient,
 ) : KafkaTopicConsumer<String, JsonElement>(
     config,
     stringDeserializer(),
@@ -29,7 +29,7 @@ class AmtVirksomheterV1TopicConsumer(
         when (val amtVirksomhet = JsonIgnoreUnknownKeys.decodeFromJsonElement<AmtVirksomhetV1Dto?>(message)) {
             null -> {
                 logger.info("Mottok tombstone for virksomhet med orgnr=$key, sletter virksomheten")
-                virksomhetRepository.delete(key)
+                arrangorRepository.delete(key)
             }
 
             else -> {
@@ -39,9 +39,9 @@ class AmtVirksomheterV1TopicConsumer(
     }
 
     private suspend fun updateVirksomhet(amtVirksomhet: AmtVirksomhetV1Dto) {
-        virksomhetService.getVirksomhetFromBrreg(amtVirksomhet.organisasjonsnummer)
+        brregClient.getBrregVirksomhet(amtVirksomhet.organisasjonsnummer)
             .onRight { virksomhet ->
-                virksomhetRepository.upsert(virksomhet)
+                arrangorRepository.upsert(virksomhet)
             }
             .onLeft { error ->
                 logger.error("Error when syncing orgnr: ${amtVirksomhet.organisasjonsnummer} from brreg in AmtVirksomhetV1TopicConsumer")
@@ -50,6 +50,6 @@ class AmtVirksomheterV1TopicConsumer(
     }
 
     private fun shouldIgnoreMessage(key: String): Boolean {
-        return virksomhetRepository.get(key) == null
+        return arrangorRepository.get(key) == null
     }
 }

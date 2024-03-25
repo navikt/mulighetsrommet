@@ -1,14 +1,14 @@
 import { useQuery } from "@tanstack/react-query";
-import { VirksomhetTil } from "mulighetsrommet-api-client";
+import { ArrangorTil } from "mulighetsrommet-api-client";
 import { mulighetsrommetClient } from "../clients";
 import { QueryKeys } from "../QueryKeys";
 
-export function useVirksomheter(til?: VirksomhetTil) {
+export function useArrangorer(til?: ArrangorTil) {
   return useQuery({
-    queryKey: QueryKeys.virksomheter(til),
+    queryKey: QueryKeys.arrangorer(til),
 
     queryFn: () => {
-      return mulighetsrommetClient.virksomhet.getVirksomheter({
+      return mulighetsrommetClient.arrangor.getArrangorer({
         til,
       });
     },

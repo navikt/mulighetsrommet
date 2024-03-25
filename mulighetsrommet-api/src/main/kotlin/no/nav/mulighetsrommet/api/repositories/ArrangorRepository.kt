@@ -2,20 +2,20 @@ package no.nav.mulighetsrommet.api.repositories
 
 import kotliquery.Row
 import kotliquery.queryOf
+import no.nav.mulighetsrommet.api.domain.dto.ArrangorDto
 import no.nav.mulighetsrommet.api.domain.dto.ArrangorKontaktperson
+import no.nav.mulighetsrommet.api.domain.dto.ArrangorTil
 import no.nav.mulighetsrommet.api.domain.dto.BrregVirksomhetDto
-import no.nav.mulighetsrommet.api.domain.dto.VirksomhetDto
-import no.nav.mulighetsrommet.api.utils.VirksomhetTil
 import no.nav.mulighetsrommet.database.Database
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
 import java.util.*
 
-class VirksomhetRepository(private val db: Database) {
+class ArrangorRepository(private val db: Database) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
     /** Upserter kun enheten og tar ikke hensyn til underenheter */
-    fun upsert(arrangor: VirksomhetDto) {
+    fun upsert(arrangor: ArrangorDto) {
         @Language("PostgreSQL")
         val query = """
             insert into arrangor(id, organisasjonsnummer, navn, overordnet_enhet, slettet_dato, postnummer, poststed)
@@ -68,18 +68,18 @@ class VirksomhetRepository(private val db: Database) {
     }
 
     fun getAll(
-        til: VirksomhetTil? = null,
+        til: ArrangorTil? = null,
         sok: String? = null,
         overordnetEnhetOrgnr: String? = null,
         slettet: Boolean? = null,
         utenlandsk: Boolean? = null,
-    ): List<VirksomhetDto> {
+    ): List<ArrangorDto> {
         val join = when (til) {
-            VirksomhetTil.AVTALE -> {
+            ArrangorTil.AVTALE -> {
                 "inner join avtale on avtale.arrangor_hovedenhet_id = arrangor.id"
             }
 
-            VirksomhetTil.TILTAKSGJENNOMFORING -> {
+            ArrangorTil.TILTAKSGJENNOMFORING -> {
                 "inner join tiltaksgjennomforing t on t.arrangor_id = arrangor.id"
             }
 
@@ -118,7 +118,7 @@ class VirksomhetRepository(private val db: Database) {
             .let { db.run(it) }
     }
 
-    fun get(orgnr: String): VirksomhetDto? {
+    fun get(orgnr: String): ArrangorDto? {
         @Language("PostgreSQL")
         val selectHovedenhet = """
             select
@@ -164,7 +164,7 @@ class VirksomhetRepository(private val db: Database) {
         }
     }
 
-    fun getById(id: UUID): VirksomhetDto {
+    fun getById(id: UUID): ArrangorDto {
         @Language("PostgreSQL")
         val query = """
             select
@@ -277,7 +277,7 @@ class VirksomhetRepository(private val db: Database) {
             .let { db.run(it) }
     }
 
-    private fun Row.toVirksomhetDto() = VirksomhetDto(
+    private fun Row.toVirksomhetDto() = ArrangorDto(
         id = uuid("id"),
         organisasjonsnummer = string("organisasjonsnummer"),
         navn = string("navn"),

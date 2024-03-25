@@ -71,10 +71,10 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 )
                 it.navn shouldBe Oppfolging1.navn
                 it.tiltaksnummer shouldBe null
-                it.arrangor shouldBe TiltaksgjennomforingAdminDto.Arrangor(
-                    id = VirksomhetFixtures.underenhet1.id,
-                    organisasjonsnummer = VirksomhetFixtures.underenhet1.organisasjonsnummer,
-                    navn = VirksomhetFixtures.underenhet1.navn,
+                it.arrangor shouldBe TiltaksgjennomforingAdminDto.ArrangorUnderenhet(
+                    id = ArrangorFixtures.underenhet1.id,
+                    organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
+                    navn = ArrangorFixtures.underenhet1.navn,
                     slettet = false,
                     kontaktpersoner = emptyList(),
                 )
@@ -141,10 +141,10 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                     arenaKode = TiltakstypeFixtures.Oppfolging.arenaKode,
                 )
                 it.tiltaksnummer shouldBe "2023#1"
-                it.arrangor shouldBe TiltaksgjennomforingAdminDto.Arrangor(
-                    id = VirksomhetFixtures.hovedenhet.id,
-                    organisasjonsnummer = VirksomhetFixtures.hovedenhet.organisasjonsnummer,
-                    navn = VirksomhetFixtures.hovedenhet.navn,
+                it.arrangor shouldBe TiltaksgjennomforingAdminDto.ArrangorUnderenhet(
+                    id = ArrangorFixtures.hovedenhet.id,
+                    organisasjonsnummer = ArrangorFixtures.hovedenhet.organisasjonsnummer,
+                    navn = ArrangorFixtures.hovedenhet.navn,
                     slettet = false,
                     kontaktpersoner = emptyList(),
                 )
@@ -248,7 +248,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                         overordnetEnhet = null,
                     ),
                 ),
-                virksomheter = listOf(VirksomhetFixtures.hovedenhet, VirksomhetFixtures.underenhet1),
+                arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
                 avtaler = listOf(AvtaleFixtures.oppfolging),
                 gjennomforinger = listOf(gjennomforing),
             )
@@ -372,12 +372,12 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             }
         }
 
-        test("virksomhet_kontaktperson") {
-            val virksomhetRepository = VirksomhetRepository(database.db)
+        test("arrangør kontaktperson") {
+            val arrangorRepository = ArrangorRepository(database.db)
 
             val thomas = ArrangorKontaktperson(
                 id = UUID.randomUUID(),
-                arrangorId = VirksomhetFixtures.hovedenhet.id,
+                arrangorId = ArrangorFixtures.hovedenhet.id,
                 navn = "Thomas",
                 telefon = "22222222",
                 epost = "thomas@thetrain.co.uk",
@@ -385,14 +385,14 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             )
             val jens = ArrangorKontaktperson(
                 id = UUID.randomUUID(),
-                arrangorId = VirksomhetFixtures.hovedenhet.id,
+                arrangorId = ArrangorFixtures.hovedenhet.id,
                 navn = "Jens",
                 telefon = "22222224",
                 epost = "jens@theshark.co.uk",
                 beskrivelse = "beskrivelse2",
             )
-            virksomhetRepository.upsertKontaktperson(thomas)
-            virksomhetRepository.upsertKontaktperson(jens)
+            arrangorRepository.upsertKontaktperson(thomas)
+            arrangorRepository.upsertKontaktperson(jens)
 
             val gjennomforing = Oppfolging1.copy(arrangorKontaktpersoner = listOf(thomas.id))
 
@@ -514,21 +514,21 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
 
             tiltaksgjennomforinger.upsert(
-                Oppfolging1.copy(arrangorVirksomhetId = VirksomhetFixtures.underenhet1.id),
+                Oppfolging1.copy(arrangorId = ArrangorFixtures.underenhet1.id),
             )
             tiltaksgjennomforinger.upsert(
-                Oppfolging2.copy(arrangorVirksomhetId = VirksomhetFixtures.underenhet2.id),
+                Oppfolging2.copy(arrangorId = ArrangorFixtures.underenhet2.id),
             )
 
             tiltaksgjennomforinger.getAll(
-                arrangorOrgnr = listOf(VirksomhetFixtures.underenhet1.organisasjonsnummer),
+                arrangorOrgnr = listOf(ArrangorFixtures.underenhet1.organisasjonsnummer),
             ).should {
                 it.second.size shouldBe 1
                 it.second[0].id shouldBe Oppfolging1.id
             }
 
             tiltaksgjennomforinger.getAll(
-                arrangorOrgnr = listOf(VirksomhetFixtures.underenhet2.organisasjonsnummer),
+                arrangorOrgnr = listOf(ArrangorFixtures.underenhet2.organisasjonsnummer),
             ).should {
                 it.second.size shouldBe 1
                 it.second[0].id shouldBe Oppfolging2.id
@@ -537,17 +537,17 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
 
         test("Skal kunne søke på tiltaksarrangørs navn i fritekstsøk") {
             val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
-            val virksomheter = VirksomhetRepository(database.db)
+            val arrangorer = ArrangorRepository(database.db)
 
-            virksomheter.upsert(VirksomhetFixtures.hovedenhet)
-            virksomheter.upsert(VirksomhetFixtures.underenhet1.copy(navn = "Underenhet Bergen"))
-            virksomheter.upsert(VirksomhetFixtures.underenhet2.copy(navn = "Underenhet Ålesun"))
+            arrangorer.upsert(ArrangorFixtures.hovedenhet)
+            arrangorer.upsert(ArrangorFixtures.underenhet1.copy(navn = "Underenhet Bergen"))
+            arrangorer.upsert(ArrangorFixtures.underenhet2.copy(navn = "Underenhet Ålesun"))
 
             tiltaksgjennomforinger.upsert(
-                Oppfolging1.copy(arrangorVirksomhetId = VirksomhetFixtures.underenhet1.id),
+                Oppfolging1.copy(arrangorId = ArrangorFixtures.underenhet1.id),
             )
             tiltaksgjennomforinger.upsert(
-                Oppfolging2.copy(arrangorVirksomhetId = VirksomhetFixtures.underenhet2.id),
+                Oppfolging2.copy(arrangorId = ArrangorFixtures.underenhet2.id),
             )
 
             tiltaksgjennomforinger.getAll(
@@ -831,7 +831,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                         id = UUID.randomUUID(),
                         navn = "Tiltak - $it",
                         tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
-                        arrangorVirksomhetId = VirksomhetFixtures.underenhet1.id,
+                        arrangorId = ArrangorFixtures.underenhet1.id,
                         startDato = LocalDate.of(2022, 1, 1),
                         apentForInnsok = true,
                         oppstart = TiltaksgjennomforingOppstartstype.FELLES,
@@ -935,7 +935,6 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
 
     context("getAllVeilederflateTiltaksgjennomforing") {
         val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
-        val virksomheter = VirksomhetRepository(database.db)
 
         val oppfolgingSanityId = UUID.randomUUID()
         val arbeidstreningSanityId = UUID.randomUUID()

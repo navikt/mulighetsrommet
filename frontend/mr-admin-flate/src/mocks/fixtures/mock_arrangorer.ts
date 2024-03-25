@@ -1,7 +1,7 @@
-import { Virksomhet } from "mulighetsrommet-api-client";
+import { Arrangor } from "mulighetsrommet-api-client";
 
-export const mockVirksomheter: {
-  [navn: string]: Virksomhet;
+export const mockArrangorer: {
+  [navn: string]: Arrangor;
 } = {
   fretex: {
     id: "c95e836f-a381-4d82-b8e3-74257b14f26c",

@@ -11,10 +11,10 @@ import io.mockk.mockk
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.encodeToJsonElement
+import no.nav.mulighetsrommet.api.clients.brreg.BrregClient
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dto.BrregVirksomhetDto
-import no.nav.mulighetsrommet.api.repositories.VirksomhetRepository
-import no.nav.mulighetsrommet.api.services.VirksomhetService
+import no.nav.mulighetsrommet.api.repositories.ArrangorRepository
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.kafka.consumers.amt.AmtVirksomhetV1Dto
@@ -53,32 +53,32 @@ class AmtVirksomheterV1TopicConsumerTest : FunSpec({
             poststed = "Andeby",
         )
 
-        val virksomhetRepository = VirksomhetRepository(database.db)
+        val arrangorRepository = ArrangorRepository(database.db)
 
-        val virksomhetService: VirksomhetService = mockk()
-        coEvery { virksomhetService.getVirksomhetFromBrreg(amtVirksomhet.organisasjonsnummer) } returns virksomhetDto.right()
-        coEvery { virksomhetService.getVirksomhetFromBrreg(amtUnderenhet.organisasjonsnummer) } returns underenhetDto.right()
+        val brregClient: BrregClient = mockk()
+        coEvery { brregClient.getBrregVirksomhet(amtVirksomhet.organisasjonsnummer) } returns virksomhetDto.right()
+        coEvery { brregClient.getBrregVirksomhet(amtUnderenhet.organisasjonsnummer) } returns underenhetDto.right()
 
         val virksomhetConsumer = AmtVirksomheterV1TopicConsumer(
             config = KafkaTopicConsumer.Config(id = "virksomheter", topic = "virksomheter"),
-            virksomhetRepository = virksomhetRepository,
-            virksomhetService = virksomhetService,
+            arrangorRepository = arrangorRepository,
+            brregClient = brregClient,
         )
 
         test("ignorer virksomheter når de ikke allerede er lagret i databasen") {
             virksomhetConsumer.consume(amtVirksomhet.organisasjonsnummer, Json.encodeToJsonElement(amtVirksomhet))
             virksomhetConsumer.consume(amtUnderenhet.organisasjonsnummer, Json.encodeToJsonElement(amtUnderenhet))
 
-            virksomhetRepository.getAll().shouldBeEmpty()
+            arrangorRepository.getAll().shouldBeEmpty()
         }
 
         test("oppdaterer bare virksomheter som er lagret i databasen") {
-            virksomhetRepository.upsert(virksomhetDto.copy(navn = "Kiwi", postnummer = "9999", poststed = "Gåseby"))
+            arrangorRepository.upsert(virksomhetDto.copy(navn = "Kiwi", postnummer = "9999", poststed = "Gåseby"))
 
             virksomhetConsumer.consume(amtVirksomhet.organisasjonsnummer, Json.encodeToJsonElement(amtVirksomhet))
             virksomhetConsumer.consume(amtUnderenhet.organisasjonsnummer, Json.encodeToJsonElement(amtUnderenhet))
 
-            virksomhetRepository.getAll().should {
+            arrangorRepository.getAll().should {
                 it.shouldHaveSize(1)
                 it[0].navn shouldBe "REMA 1000 AS"
                 it[0].postnummer shouldBe "1000"
@@ -87,11 +87,11 @@ class AmtVirksomheterV1TopicConsumerTest : FunSpec({
         }
 
         test("delete virksomheter for tombstone messages") {
-            virksomhetRepository.upsert(virksomhetDto)
+            arrangorRepository.upsert(virksomhetDto)
 
             virksomhetConsumer.consume(amtUnderenhet.organisasjonsnummer, JsonNull)
 
-            virksomhetRepository.get(underenhetDto.organisasjonsnummer) shouldBe null
+            arrangorRepository.get(underenhetDto.organisasjonsnummer) shouldBe null
         }
     }
 })

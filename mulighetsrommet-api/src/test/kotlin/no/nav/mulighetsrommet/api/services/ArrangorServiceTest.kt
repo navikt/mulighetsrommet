@@ -16,22 +16,13 @@ import no.nav.mulighetsrommet.api.clients.brreg.BrregClient
 import no.nav.mulighetsrommet.api.clients.brreg.BrregError
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dto.BrregVirksomhetDto
-import no.nav.mulighetsrommet.api.repositories.VirksomhetRepository
+import no.nav.mulighetsrommet.api.repositories.ArrangorRepository
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import java.time.LocalDate
 
-class VirksomhetServiceTest : FunSpec({
+class ArrangorServiceTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
-
-    val brregClient: BrregClient = mockk()
-    lateinit var virksomhetRepository: VirksomhetRepository
-    lateinit var virksomhetService: VirksomhetService
-
-    beforeSpec {
-        virksomhetRepository = VirksomhetRepository(database.db)
-        virksomhetService = VirksomhetService(brregClient, virksomhetRepository)
-    }
 
     val underenhet = BrregVirksomhetDto(
         organisasjonsnummer = "234567891",
@@ -48,37 +39,22 @@ class VirksomhetServiceTest : FunSpec({
         poststed = "Oslo",
     )
 
-    context(VirksomhetService::getVirksomhetFromBrreg.name) {
-        afterEach {
-            clearAllMocks()
-        }
+    context(ArrangorService::getOrSyncArrangorFromBrreg.name) {
+        val brregClient: BrregClient = mockk()
+        val arrangorRepository = ArrangorRepository(database.db)
+        val arrangorService = ArrangorService(brregClient, arrangorRepository)
 
-        test("skal hente hovedenhet med underenheter fra brreg gitt orgnr til hovedenhet") {
-            coEvery { brregClient.getHovedenhet(hovedenhet.organisasjonsnummer) } returns hovedenhet.right()
-
-            virksomhetService.getVirksomhetFromBrreg(hovedenhet.organisasjonsnummer).shouldBeRight(hovedenhet)
-        }
-
-        test("skal hente underenhet fra brreg gitt orgnr til underenhet") {
-            coEvery { brregClient.getHovedenhet(underenhet.organisasjonsnummer) } returns BrregError.NotFound.left()
-            coEvery { brregClient.getUnderenhet(underenhet.organisasjonsnummer) } returns underenhet.right()
-
-            virksomhetService.getVirksomhetFromBrreg(underenhet.organisasjonsnummer).shouldBeRight(underenhet)
-        }
-    }
-
-    context(VirksomhetService::getOrSyncVirksomhetFromBrreg.name) {
         afterEach {
             clearAllMocks()
             database.db.truncateAll()
         }
 
         test("skal synkronisere hovedenhet uten underenheter fra brreg til databasen gitt orgnr til hovedenhet") {
-            coEvery { brregClient.getHovedenhet(hovedenhet.organisasjonsnummer) } returns hovedenhet.right()
+            coEvery { brregClient.getBrregVirksomhet(hovedenhet.organisasjonsnummer) } returns hovedenhet.right()
 
-            virksomhetService.getOrSyncVirksomhetFromBrreg(hovedenhet.organisasjonsnummer).shouldBeRight()
+            arrangorService.getOrSyncArrangorFromBrreg(hovedenhet.organisasjonsnummer).shouldBeRight()
 
-            virksomhetRepository.get(hovedenhet.organisasjonsnummer).shouldNotBeNull().should {
+            arrangorRepository.get(hovedenhet.organisasjonsnummer).shouldNotBeNull().should {
                 it.id.shouldNotBeNull()
                 it.navn shouldBe "Testbedriften AS"
                 it.organisasjonsnummer shouldBe "123456789"
@@ -86,21 +62,20 @@ class VirksomhetServiceTest : FunSpec({
                 it.poststed shouldBe "Oslo"
                 it.underenheter.shouldBeNull()
             }
-            virksomhetRepository.get(underenhet.organisasjonsnummer).shouldBeNull()
+            arrangorRepository.get(underenhet.organisasjonsnummer).shouldBeNull()
         }
 
         test("skal synkronisere hovedenhet i tillegg til underenhet fra brreg til databasen gitt orgnr til underenhet") {
-            coEvery { brregClient.getHovedenhet(hovedenhet.organisasjonsnummer) } returns hovedenhet.right()
-            coEvery { brregClient.getHovedenhet(underenhet.organisasjonsnummer) } returns BrregError.NotFound.left()
-            coEvery { brregClient.getUnderenhet(underenhet.organisasjonsnummer) } returns underenhet.right()
+            coEvery { brregClient.getBrregVirksomhet(hovedenhet.organisasjonsnummer) } returns hovedenhet.right()
+            coEvery { brregClient.getBrregVirksomhet(underenhet.organisasjonsnummer) } returns underenhet.right()
 
-            virksomhetService.getOrSyncVirksomhetFromBrreg(underenhet.organisasjonsnummer).shouldBeRight()
+            arrangorService.getOrSyncArrangorFromBrreg(underenhet.organisasjonsnummer).shouldBeRight()
 
-            virksomhetRepository.get(hovedenhet.organisasjonsnummer).shouldNotBeNull().should {
+            arrangorRepository.get(hovedenhet.organisasjonsnummer).shouldNotBeNull().should {
                 it.navn shouldBe "Testbedriften AS"
                 it.organisasjonsnummer shouldBe "123456789"
             }
-            virksomhetRepository.get(underenhet.organisasjonsnummer).shouldNotBeNull().should {
+            arrangorRepository.get(underenhet.organisasjonsnummer).shouldNotBeNull().should {
                 it.navn shouldBe "Underenhet til Testbedriften AS"
                 it.organisasjonsnummer shouldBe "234567891"
             }
@@ -116,11 +91,11 @@ class VirksomhetServiceTest : FunSpec({
                 poststed = null,
             )
 
-            coEvery { brregClient.getHovedenhet(orgnr) } returns slettetVirksomhet.right()
+            coEvery { brregClient.getBrregVirksomhet(orgnr) } returns slettetVirksomhet.right()
 
-            virksomhetService.getOrSyncVirksomhetFromBrreg(orgnr).shouldBeRight()
+            arrangorService.getOrSyncArrangorFromBrreg(orgnr).shouldBeRight()
 
-            virksomhetRepository.get(orgnr).shouldNotBeNull().should {
+            arrangorRepository.get(orgnr).shouldNotBeNull().should {
                 it.navn shouldBe "Slettet bedrift"
                 it.organisasjonsnummer shouldBe orgnr
                 it.slettetDato shouldBe LocalDate.of(2020, 1, 1)
@@ -130,12 +105,12 @@ class VirksomhetServiceTest : FunSpec({
         test("NotFound error når enhet ikke finnes") {
             val orgnr = "123123123"
 
-            coEvery { brregClient.getHovedenhet(orgnr) } returns BrregError.NotFound.left()
-            coEvery { brregClient.getUnderenhet(orgnr) } returns BrregError.NotFound.left()
+            coEvery { brregClient.getBrregVirksomhet(orgnr) } returns BrregError.NotFound.left()
+            coEvery { brregClient.getBrregVirksomhet(orgnr) } returns BrregError.NotFound.left()
 
-            virksomhetService.getOrSyncVirksomhetFromBrreg(orgnr) shouldBeLeft BrregError.NotFound
+            arrangorService.getOrSyncArrangorFromBrreg(orgnr) shouldBeLeft BrregError.NotFound
 
-            virksomhetRepository.get(orgnr) shouldBe null
+            arrangorRepository.get(orgnr) shouldBe null
         }
     }
 })

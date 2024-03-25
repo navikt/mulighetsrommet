@@ -1,9 +1,9 @@
 import { useAtom, WritableAtom } from "jotai";
-import { Tiltakstypestatus, VirksomhetTil } from "mulighetsrommet-api-client";
+import { Tiltakstypestatus, ArrangorTil } from "mulighetsrommet-api-client";
 import { AvtaleFilter } from "../../api/atoms";
 import { useNavEnheter } from "../../api/enhet/useNavEnheter";
 import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
-import { useVirksomheter } from "../../api/virksomhet/useVirksomheter";
+import { useArrangorer } from "../../api/arrangor/useArrangorer";
 import { addOrRemove, avtaletypeTilTekst } from "../../utils/Utils";
 import { AVTALE_STATUS_OPTIONS } from "../../utils/filterUtils";
 import { Filtertag, FiltertagsContainer } from "mulighetsrommet-frontend-common";
@@ -25,7 +25,7 @@ export function AvtaleFiltertags({ filterAtom, tiltakstypeId, filterOpen }: Prop
     },
     1,
   );
-  const { data: arrangorer } = useVirksomheter(VirksomhetTil.AVTALE);
+  const { data: arrangorer } = useArrangorer(ArrangorTil.AVTALE);
 
   return (
     <FiltertagsContainer filterOpen={filterOpen}>

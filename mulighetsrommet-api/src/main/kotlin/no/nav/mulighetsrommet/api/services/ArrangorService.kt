@@ -2,17 +2,16 @@ package no.nav.mulighetsrommet.api.services
 
 import arrow.core.Either
 import arrow.core.flatMap
-import arrow.core.left
 import arrow.core.right
 import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
 import io.prometheus.client.cache.caffeine.CacheMetricsCollector
 import no.nav.mulighetsrommet.api.clients.brreg.BrregClient
 import no.nav.mulighetsrommet.api.clients.brreg.BrregError
+import no.nav.mulighetsrommet.api.domain.dto.ArrangorDto
 import no.nav.mulighetsrommet.api.domain.dto.ArrangorKontaktperson
 import no.nav.mulighetsrommet.api.domain.dto.BrregVirksomhetDto
-import no.nav.mulighetsrommet.api.domain.dto.VirksomhetDto
-import no.nav.mulighetsrommet.api.repositories.VirksomhetRepository
+import no.nav.mulighetsrommet.api.repositories.ArrangorRepository
 import no.nav.mulighetsrommet.api.routes.v1.responses.BadRequest
 import no.nav.mulighetsrommet.api.routes.v1.responses.StatusResponse
 import no.nav.mulighetsrommet.metrics.Metrikker
@@ -20,9 +19,9 @@ import org.slf4j.LoggerFactory
 import java.util.*
 import java.util.concurrent.TimeUnit
 
-class VirksomhetService(
+class ArrangorService(
     private val brregClient: BrregClient,
-    private val virksomhetRepository: VirksomhetRepository,
+    private val arrangorRepository: ArrangorRepository,
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
 
@@ -38,57 +37,34 @@ class VirksomhetService(
         cacheMetrics.addCache("brregServiceCache", brregCache)
     }
 
-    suspend fun getOrSyncVirksomhetFromBrreg(orgnr: String): Either<BrregError, VirksomhetDto> {
-        return virksomhetRepository.get(orgnr)?.right() ?: syncVirksomhetFromBrreg(orgnr)
+    suspend fun getOrSyncArrangorFromBrreg(orgnr: String): Either<BrregError, ArrangorDto> {
+        return arrangorRepository.get(orgnr)?.right() ?: syncArrangorFromBrreg(orgnr)
     }
 
-    private suspend fun syncVirksomhetFromBrreg(orgnr: String): Either<BrregError, VirksomhetDto> {
+    private suspend fun syncArrangorFromBrreg(orgnr: String): Either<BrregError, ArrangorDto> {
         log.info("Synkroniserer enhet fra brreg orgnr=$orgnr")
-        return getVirksomhetFromBrreg(orgnr)
+        return brregClient.getBrregVirksomhet(orgnr)
             .flatMap { virksomhet ->
                 if (virksomhet.overordnetEnhet == null) {
                     virksomhet.right()
                 } else {
-                    getOrSyncVirksomhetFromBrreg(virksomhet.overordnetEnhet).map { virksomhet }
+                    getOrSyncArrangorFromBrreg(virksomhet.overordnetEnhet).map { virksomhet }
                 }
             }
             .map { virksomhet ->
-                virksomhetRepository.upsert(virksomhet)
-                virksomhetRepository.get(virksomhet.organisasjonsnummer)!!
+                arrangorRepository.upsert(virksomhet)
+                arrangorRepository.get(virksomhet.organisasjonsnummer)!!
             }
     }
 
-    suspend fun getVirksomhetFromBrreg(orgnr: String): Either<BrregError, BrregVirksomhetDto> {
-        val virksomhet = brregCache.getIfPresent(orgnr)
-        if (virksomhet != null) {
-            return virksomhet.right()
-        }
-
-        // Sjekker først hovedenhet
-        return brregClient.getHovedenhet(orgnr).fold(
-            { error ->
-                if (error == BrregError.NotFound) {
-                    // Ingen treff på hovedenhet, vi sjekker underenheter også
-                    brregClient.getUnderenhet(orgnr)
-                } else {
-                    error.left()
-                }
-            },
-            {
-                brregCache.put(orgnr, it)
-                it.right()
-            },
-        )
-    }
-
     fun upsertKontaktperson(kontaktperson: ArrangorKontaktperson) =
-        virksomhetRepository.upsertKontaktperson(kontaktperson)
+        arrangorRepository.upsertKontaktperson(kontaktperson)
 
-    fun hentKontaktpersoner(virksomhetId: UUID): List<ArrangorKontaktperson> =
-        virksomhetRepository.getKontaktpersoner(virksomhetId)
+    fun hentKontaktpersoner(arrangorId: UUID): List<ArrangorKontaktperson> =
+        arrangorRepository.getKontaktpersoner(arrangorId)
 
-    fun deleteKontaktperson(id: UUID): StatusResponse<Unit> {
-        val (gjennomforinger, avtaler) = virksomhetRepository.koblingerTilKontaktperson(id)
+    fun deleteKontaktperson(kontaktpersonId: UUID): StatusResponse<Unit> {
+        val (gjennomforinger, avtaler) = arrangorRepository.koblingerTilKontaktperson(kontaktpersonId)
         if (gjennomforinger.isNotEmpty()) {
             log.warn("Prøvde slette kontaktperson med koblinger til disse gjennomføringer: ${gjennomforinger.joinToString()}")
             return Either.Left(BadRequest("Kontaktpersonen er i bruk."))
@@ -98,6 +74,6 @@ class VirksomhetService(
             return Either.Left(BadRequest("Kontaktpersonen er i bruk."))
         }
 
-        return Either.Right(virksomhetRepository.deleteKontaktperson(id))
+        return Either.Right(arrangorRepository.deleteKontaktperson(kontaktpersonId))
     }
 }

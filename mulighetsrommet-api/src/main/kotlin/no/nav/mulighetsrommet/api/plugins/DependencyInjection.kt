@@ -144,8 +144,8 @@ private fun kafka(appConfig: AppConfig) = module {
             AmtDeltakerV1TopicConsumer(config = config.consumers.amtDeltakerV1, deltakere = get()),
             AmtVirksomheterV1TopicConsumer(
                 config = config.consumers.amtVirksomheterV1,
-                virksomhetRepository = get(),
-                virksomhetService = get(),
+                arrangorRepository = get(),
+                brregClient = get(),
             ),
             PtoSisteOppfolgingsperiodeV1TopicConsumer(
                 config = config.consumers.ptoSisteOppfolgingsperiodeV1,
@@ -170,7 +170,7 @@ private fun repositories() = module {
     single { DeltakerRepository(get()) }
     single { NotificationRepository(get()) }
     single { NavAnsattRepository(get()) }
-    single { VirksomhetRepository(get()) }
+    single { ArrangorRepository(get()) }
     single { KafkaConsumerRepositoryImpl(get()) }
     single { MetrikkRepository(get()) }
     single { AvtaleNotatRepository(get()) }
@@ -340,7 +340,7 @@ private fun services(appConfig: AppConfig) = module {
     single { NavEnhetService(get()) }
     single { NavVeilederService(get()) }
     single { NotificationService(get(), get(), get()) }
-    single { VirksomhetService(get(), get()) }
+    single { ArrangorService(get(), get()) }
     single { ExcelService() }
     single { MetrikkService(get()) }
     single { NotatService(get(), get()) }
@@ -359,7 +359,6 @@ private fun tasks(config: TaskConfig) = module {
     single { InitialLoadTiltaksgjennomforinger(get(), get(), get()) }
     single { InitialLoadTiltakstyper(get(), get(), get()) }
     single { SynchronizeNavAnsatte(config.synchronizeNavAnsatte, get(), get(), get()) }
-    single { SynchronizeVirksomheterFromBrreg(get(), get(), get()) }
     single {
         val deleteExpiredTiltakshistorikk = DeleteExpiredTiltakshistorikk(
             config.deleteExpiredTiltakshistorikk,
@@ -397,7 +396,6 @@ private fun tasks(config: TaskConfig) = module {
         val initialLoadTiltaksgjennomforinger: InitialLoadTiltaksgjennomforinger by inject()
         val initialLoadTiltakstyper: InitialLoadTiltakstyper by inject()
         val synchronizeNavAnsatte: SynchronizeNavAnsatte by inject()
-        val synchronizeVirksomheter: SynchronizeVirksomheterFromBrreg by inject()
 
         val db: Database by inject()
 
@@ -408,7 +406,6 @@ private fun tasks(config: TaskConfig) = module {
                 generateValidationReport.task,
                 initialLoadTiltaksgjennomforinger.task,
                 initialLoadTiltakstyper.task,
-                synchronizeVirksomheter.task,
             )
             .startTasks(
                 deleteExpiredTiltakshistorikk.task,

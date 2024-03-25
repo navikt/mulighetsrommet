@@ -1,18 +1,16 @@
 import { Button } from "@navikt/ds-react";
-import { ArrangorKontaktperson, BrregVirksomhet, Virksomhet } from "mulighetsrommet-api-client";
+import { Arrangor, ArrangorKontaktperson, BrregVirksomhet } from "mulighetsrommet-api-client";
 import { ControlledSokeSelect } from "mulighetsrommet-frontend-common/components/ControlledSokeSelect";
 import { useRef, useState } from "react";
 import { DeepPartial, useFormContext } from "react-hook-form";
-import { useSokVirksomheter } from "../../api/virksomhet/useSokVirksomhet";
-import {
-  useBrregVirksomhetUnderenheter,
-  useSyncBrregVirksomhet,
-} from "../../api/virksomhet/useBrregVirksomhet";
-import { useVirksomhetKontaktpersoner } from "../../api/virksomhet/useVirksomhetKontaktpersoner";
+import { useSyncArrangorFromBrreg } from "../../api/arrangor/useSyncArrangorFromBrreg";
+import { useSokBrregVirksomheter } from "../../api/virksomhet/useSokBrregVirksomheter";
+import { useBrregVirksomhetUnderenheter } from "../../api/virksomhet/useBrregVirksomhetUnderenheter";
+import { useArrangorKontaktpersoner } from "../../api/arrangor/useArrangorKontaktpersoner";
 import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { FormGroup } from "../skjema/FormGroup";
 import skjemastyles from "../skjema/Skjema.module.scss";
-import { VirksomhetKontaktpersonerModal } from "../virksomhet/VirksomhetKontaktpersonerModal";
+import { ArrangorKontaktpersonerModal } from "../arrangor/ArrangorKontaktpersonerModal";
 import { InferredAvtaleSchema } from "../redaksjonelt-innhold/AvtaleSchema";
 import { SelectOption } from "mulighetsrommet-frontend-common/components/SokeSelect";
 import { avtaletekster } from "../ledetekster/avtaleLedetekster";
@@ -22,19 +20,19 @@ interface Props {
 }
 
 export function AvtaleArrangorSkjema({ readOnly }: Props) {
-  const virksomhetKontaktpersonerModalRef = useRef<HTMLDialogElement>(null);
+  const arrangorKontaktpersonerModalRef = useRef<HTMLDialogElement>(null);
 
   const [sokArrangor, setSokArrangor] = useState("");
-  const { data: arrangorVirksomheter = [] } = useSokVirksomheter(sokArrangor);
+  const { data: brregVirksomheter = [] } = useSokBrregVirksomheter(sokArrangor);
 
   const { register, watch, setValue } = useFormContext<DeepPartial<InferredAvtaleSchema>>();
   const watchedArrangor = watch("arrangorOrganisasjonsnummer") ?? "";
 
-  const { data: arrangor } = useSyncBrregVirksomhet(watchedArrangor);
+  const { data: arrangor } = useSyncArrangorFromBrreg(watchedArrangor);
   const { data: underenheter } = useBrregVirksomhetUnderenheter(watchedArrangor);
-  const { data: kontaktpersoner } = useVirksomhetKontaktpersoner(arrangor?.id);
+  const { data: kontaktpersoner } = useArrangorKontaktpersoner(arrangor?.id);
 
-  const arrangorHovedenhetOptions = getArrangorHovedenhetOptions(arrangorVirksomheter, arrangor);
+  const arrangorHovedenhetOptions = getArrangorHovedenhetOptions(brregVirksomheter, arrangor);
   const arrangorUnderenhetOptions = getArrangorUnderenhetOptions(underenheter ?? []);
   const arrangorKontaktpersonOptions = getArrangorKontaktpersonOptions(kontaktpersoner ?? []);
 
@@ -72,7 +70,7 @@ export function AvtaleArrangorSkjema({ readOnly }: Props) {
         />
       </FormGroup>
       <FormGroup>
-        <div className={skjemastyles.virksomhet_kontaktperson_container}>
+        <div className={skjemastyles.arrangor_kontaktperson_container}>
           <ControlledSokeSelect
             size="small"
             placeholder="Velg en"
@@ -86,16 +84,16 @@ export function AvtaleArrangorSkjema({ readOnly }: Props) {
             size="small"
             type="button"
             variant="tertiary"
-            onClick={() => virksomhetKontaktpersonerModalRef.current?.showModal()}
+            onClick={() => arrangorKontaktpersonerModalRef.current?.showModal()}
           >
             Opprett eller rediger kontaktpersoner
           </Button>
         </div>
       </FormGroup>
       {arrangor && (
-        <VirksomhetKontaktpersonerModal
-          virksomhetId={arrangor.id}
-          modalRef={virksomhetKontaktpersonerModalRef}
+        <ArrangorKontaktpersonerModal
+          arrangorId={arrangor.id}
+          modalRef={arrangorKontaktpersonerModalRef}
         />
       )}
     </>
@@ -104,7 +102,7 @@ export function AvtaleArrangorSkjema({ readOnly }: Props) {
 
 function getArrangorHovedenhetOptions(
   virksomheter: BrregVirksomhet[],
-  arrangor: Virksomhet | undefined,
+  arrangor: Arrangor | undefined,
 ) {
   const options = virksomheter
     .sort((a, b) => a.navn.localeCompare(b.navn))

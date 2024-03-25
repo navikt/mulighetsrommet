@@ -16,6 +16,7 @@ import no.nav.mulighetsrommet.api.routes.v1.TiltaksgjennomforingRequest
 import no.nav.mulighetsrommet.api.routes.v1.responses.*
 import no.nav.mulighetsrommet.api.tiltaksgjennomforinger.TiltaksgjennomforingValidator
 import no.nav.mulighetsrommet.api.utils.AdminTiltaksgjennomforingFilter
+import no.nav.mulighetsrommet.api.utils.EksternTiltaksgjennomforingFilter
 import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.Tiltakskoder.isTiltakMedAvtalerFraMulighetsrommet
@@ -75,6 +76,25 @@ class TiltaksgjennomforingService(
         return tiltaksgjennomforinger.get(id)
     }
 
+    fun getAll(
+        pagination: PaginationParams,
+        filter: AdminTiltaksgjennomforingFilter,
+    ): PaginatedResponse<TiltaksgjennomforingAdminDto> = tiltaksgjennomforinger.getAll(
+        pagination,
+        search = filter.search,
+        navEnheter = filter.navEnheter,
+        tiltakstypeIder = filter.tiltakstypeIder,
+        statuser = filter.statuser,
+        sortering = filter.sortering,
+        sluttDatoCutoff = filter.sluttDatoCutoff,
+        dagensDato = filter.dagensDato,
+        avtaleId = filter.avtaleId,
+        arrangorIds = filter.arrangorIds,
+        administratorNavIdent = filter.administratorNavIdent,
+    ).let { (totalCount, data) ->
+        PaginatedResponse.of(pagination, totalCount, data)
+    }
+
     fun getAllSkalMigreres(
         pagination: PaginationParams,
         filter: AdminTiltaksgjennomforingFilter,
@@ -89,7 +109,6 @@ class TiltaksgjennomforingService(
         dagensDato = filter.dagensDato,
         avtaleId = filter.avtaleId,
         arrangorIds = filter.arrangorIds,
-        arrangorOrgnr = filter.arrangorOrgnr,
         administratorNavIdent = filter.administratorNavIdent,
         skalMigreres = true,
     ).let { (totalCount, data) ->
@@ -110,25 +129,22 @@ class TiltaksgjennomforingService(
         enheter,
     )
 
-    fun getAll(
-        pagination: PaginationParams,
-        filter: AdminTiltaksgjennomforingFilter,
-    ): PaginatedResponse<TiltaksgjennomforingAdminDto> = tiltaksgjennomforinger.getAll(
-        pagination,
-        search = filter.search,
-        navEnheter = filter.navEnheter,
-        tiltakstypeIder = filter.tiltakstypeIder,
-        statuser = filter.statuser,
-        sortering = filter.sortering,
-        sluttDatoCutoff = filter.sluttDatoCutoff,
-        dagensDato = filter.dagensDato,
-        avtaleId = filter.avtaleId,
-        arrangorIds = filter.arrangorIds,
-        arrangorOrgnr = filter.arrangorOrgnr,
-        administratorNavIdent = filter.administratorNavIdent,
-    ).let { (totalCount, data) ->
-        PaginatedResponse.of(pagination, totalCount, data)
+    fun getEkstern(id: UUID): TiltaksgjennomforingDto? {
+        return tiltaksgjennomforinger.get(id)?.let { TiltaksgjennomforingDto.from(it) }
     }
+
+    fun getAllEkstern(
+        pagination: PaginationParams,
+        filter: EksternTiltaksgjennomforingFilter,
+    ): PaginatedResponse<TiltaksgjennomforingDto> = tiltaksgjennomforinger
+        .getAll(
+            pagination,
+            arrangorOrgnr = filter.arrangorOrgnr,
+        )
+        .let { (totalCount, items) ->
+            val data = items.map { dto -> TiltaksgjennomforingDto.from(dto) }
+            PaginatedResponse.of(pagination, totalCount, data)
+        }
 
     fun getAllGjennomforingerSomNarmerSegSluttdato(): List<TiltaksgjennomforingNotificationDto> {
         return tiltaksgjennomforinger.getAllGjennomforingerSomNarmerSegSluttdato()

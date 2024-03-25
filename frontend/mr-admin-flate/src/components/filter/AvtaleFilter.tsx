@@ -1,67 +1,44 @@
-import { Accordion, Checkbox, Search, Skeleton, Switch, VStack } from "@navikt/ds-react";
+import { Accordion, Search, Skeleton, Switch, VStack } from "@navikt/ds-react";
 import { useAtom, WritableAtom } from "jotai";
-import { NavEnhet, Tiltakstypestatus, VirksomhetTil } from "mulighetsrommet-api-client";
-import { useEffect, useState } from "react";
-import {
-  gjennomforingFilterAccordionAtom,
-  TiltaksgjennomforingFilter as TiltaksgjennomforingFilterProps,
-} from "../../api/atoms";
-import { useAvtale } from "../../api/avtaler/useAvtale";
+import { ArrangorTil, Tiltakstypestatus } from "mulighetsrommet-api-client";
+import { AvtaleFilter as AvtaleFilterProps, avtaleFilterAccordionAtom } from "../../api/atoms";
 import { useNavEnheter } from "../../api/enhet/useNavEnheter";
 import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
-import { useVirksomheter } from "../../api/virksomhet/useVirksomheter";
+import { useArrangorer } from "../../api/arrangor/useArrangorer";
 import { addOrRemove } from "../../utils/Utils";
-import styles from "./Filter.module.scss";
 import {
-  TILTAKSGJENNOMFORING_STATUS_OPTIONS,
+  AVTALE_STATUS_OPTIONS,
+  AVTALE_TYPE_OPTIONS,
+  regionOptions,
   tiltakstypeOptions,
-  virksomhetOptions,
+  arrangorOptions,
 } from "../../utils/filterUtils";
-import { NavEnhetFilter } from "mulighetsrommet-frontend-common";
-import { useRegioner } from "../../api/enhet/useRegioner";
+import { CheckboxList } from "./CheckboxList";
 import { FilterAccordionHeader } from "mulighetsrommet-frontend-common";
 
 type Filters = "tiltakstype";
 
 interface Props {
-  filterAtom: WritableAtom<
-    TiltaksgjennomforingFilterProps,
-    [newValue: TiltaksgjennomforingFilterProps],
-    void
-  >;
+  filterAtom: WritableAtom<AvtaleFilterProps, [newValue: AvtaleFilterProps], void>;
   skjulFilter?: Record<Filters, boolean>;
 }
 
-export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
+export function AvtaleFilter({ filterAtom, skjulFilter }: Props) {
   const [filter, setFilter] = useAtom(filterAtom);
-  const [accordionsOpen, setAccordionsOpen] = useAtom(gjennomforingFilterAccordionAtom);
-  const { data: avtale } = useAvtale();
+  const [accordionsOpen, setAccordionsOpen] = useAtom(avtaleFilterAccordionAtom);
   const { data: enheter, isLoading: isLoadingEnheter } = useNavEnheter();
-  const { data: regioner, isLoading: isLoadingRegioner } = useRegioner();
-  const { data: virksomheter, isLoading: isLoadingVirksomheter } = useVirksomheter(
-    VirksomhetTil.TILTAKSGJENNOMFORING,
-  );
+  const { data: arrangorer, isLoading: isLoadingArrangorer } = useArrangorer(ArrangorTil.AVTALE);
   const { data: tiltakstyper, isLoading: isLoadingTiltakstyper } = useTiltakstyper(
     {
       status: Tiltakstypestatus.AKTIV,
     },
     1,
   );
-
-  useEffect(() => {
-    setFilter({
-      ...filter,
-      avtale: avtale?.id ?? "",
-    });
-  }, [avtale]);
-
   if (
     !enheter ||
     isLoadingEnheter ||
-    !regioner ||
-    isLoadingRegioner ||
-    !virksomheter ||
-    isLoadingVirksomheter ||
+    !arrangorer ||
+    isLoadingArrangorer ||
     !tiltakstyper ||
     isLoadingTiltakstyper
   ) {
@@ -72,13 +49,12 @@ export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
         <Skeleton height={50} variant="rounded" />
         <Skeleton height={50} variant="rounded" />
         <Skeleton height={50} variant="rounded" />
-        <Skeleton height={50} variant="rounded" />
       </VStack>
     );
   }
 
   return (
-    <>
+    <div>
       <Search
         label="Søk etter tiltaksgjennomføring"
         hideLabel
@@ -89,26 +65,26 @@ export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
           setFilter({
             ...filter,
             page: 1,
-            search,
+            sok: search,
           });
         }}
-        value={filter.search}
+        value={filter.sok}
         aria-label="Søk etter tiltaksgjennomføring"
       />
       <div style={{ margin: "0.8rem 0.5rem" }}>
         <Switch
           position="right"
           size="small"
-          checked={filter.visMineGjennomforinger}
+          checked={filter.visMineAvtaler}
           onChange={(event) => {
             setFilter({
               ...filter,
               page: 1,
-              visMineGjennomforinger: event.currentTarget.checked,
+              visMineAvtaler: event.currentTarget.checked,
             });
           }}
         >
-          <span style={{ fontWeight: "bold" }}>Vis kun mine gjennomføringer</span>
+          <span style={{ fontWeight: "bold" }}>Vis kun mine avtaler</span>
         </Switch>
       </div>
       <Accordion>
@@ -122,7 +98,7 @@ export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
           </Accordion.Header>
           <Accordion.Content>
             <CheckboxList
-              items={TILTAKSGJENNOMFORING_STATUS_OPTIONS}
+              items={AVTALE_STATUS_OPTIONS}
               isChecked={(status) => filter.statuser.includes(status)}
               onChange={(status) => {
                 setFilter({
@@ -134,7 +110,31 @@ export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
             />
           </Accordion.Content>
         </Accordion.Item>
-
+        <Accordion.Item open={accordionsOpen.includes("avtaletype")}>
+          <Accordion.Header
+            onClick={() => {
+              setAccordionsOpen([...addOrRemove(accordionsOpen, "avtaletype")]);
+            }}
+          >
+            <FilterAccordionHeader
+              tittel="Avtaletype"
+              antallValgteFilter={filter.avtaletyper.length}
+            />
+          </Accordion.Header>
+          <Accordion.Content>
+            <CheckboxList
+              items={AVTALE_TYPE_OPTIONS}
+              isChecked={(type) => filter.avtaletyper.includes(type)}
+              onChange={(type) => {
+                setFilter({
+                  ...filter,
+                  page: 1,
+                  avtaletyper: addOrRemove(filter.avtaletyper, type),
+                });
+              }}
+            />
+          </Accordion.Content>
+        </Accordion.Item>
         {!skjulFilter?.tiltakstype && (
           <Accordion.Item open={accordionsOpen.includes("tiltakstype")}>
             <Accordion.Header
@@ -162,27 +162,26 @@ export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
             </Accordion.Content>
           </Accordion.Item>
         )}
-        <Accordion.Item open={accordionsOpen.includes("navEnhet")}>
+        <Accordion.Item open={accordionsOpen.includes("region")}>
           <Accordion.Header
             onClick={() => {
-              setAccordionsOpen([...addOrRemove(accordionsOpen, "navEnhet")]);
+              setAccordionsOpen([...addOrRemove(accordionsOpen, "region")]);
             }}
           >
-            <FilterAccordionHeader
-              tittel="Nav-enhet"
-              antallValgteFilter={filter.navEnheter.length}
-            />
+            <FilterAccordionHeader tittel="Region" antallValgteFilter={filter.navRegioner.length} />
           </Accordion.Header>
           <Accordion.Content>
-            <div style={{ marginLeft: "-2rem" }}>
-              <NavEnhetFilter
-                navEnheter={filter.navEnheter}
-                setNavEnheter={(navEnheter: NavEnhet[]) =>
-                  setFilter({ ...filter, page: 1, navEnheter })
-                }
-                regioner={regioner}
-              />
-            </div>
+            <CheckboxList
+              items={regionOptions(enheter)}
+              isChecked={(region) => filter.navRegioner.includes(region)}
+              onChange={(region) => {
+                setFilter({
+                  ...filter,
+                  page: 1,
+                  navRegioner: addOrRemove(filter.navRegioner, region),
+                });
+              }}
+            />
           </Accordion.Content>
         </Accordion.Item>
         <Accordion.Item open={accordionsOpen.includes("arrangor")}>
@@ -192,14 +191,14 @@ export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
             }}
           >
             <FilterAccordionHeader
-              tittel="Arrangør"
+              tittel="Tiltaksarrangør"
               antallValgteFilter={filter.arrangorer.length}
             />
           </Accordion.Header>
           <Accordion.Content>
             <CheckboxList
               searchable
-              items={virksomhetOptions(virksomheter)}
+              items={arrangorOptions(arrangorer)}
               isChecked={(id) => filter.arrangorer.includes(id)}
               onChange={(id) => {
                 setFilter({
@@ -212,45 +211,6 @@ export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
           </Accordion.Content>
         </Accordion.Item>
       </Accordion>
-    </>
-  );
-}
-
-interface CheckboxListProps<T> {
-  items: { label: string; value: T }[];
-  isChecked: (a: T) => boolean;
-  onChange: (a: T) => void;
-  searchable?: boolean;
-}
-
-export function CheckboxList<T>(props: CheckboxListProps<T>) {
-  const { items, isChecked, onChange, searchable = false } = props;
-  const [search, setSearch] = useState<string>("");
-
-  return (
-    <div className={styles.checkbox_list}>
-      {searchable && (
-        <Search
-          label=""
-          size="small"
-          variant="simple"
-          onChange={(v: string) => setSearch(v)}
-          value={search}
-          className={styles.checkbox_search}
-        />
-      )}
-      {items
-        .filter((item) => item.label.toLocaleLowerCase().includes(search.toLocaleLowerCase()))
-        .map((item) => (
-          <Checkbox
-            key={item.value as string}
-            size="small"
-            onChange={() => onChange(item.value)}
-            checked={isChecked(item.value)}
-          >
-            {item.label}
-          </Checkbox>
-        ))}
     </div>
   );
 }

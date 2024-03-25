@@ -3,11 +3,11 @@ import { ArrangorKontaktperson, Avtale } from "mulighetsrommet-api-client";
 import { ControlledSokeSelect } from "mulighetsrommet-frontend-common";
 import { useRef } from "react";
 import { useFormContext } from "react-hook-form";
-import { useVirksomhetKontaktpersoner } from "../../api/virksomhet/useVirksomhetKontaktpersoner";
+import { useArrangorKontaktpersoner } from "../../api/arrangor/useArrangorKontaktpersoner";
 import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { FormGroup } from "../skjema/FormGroup";
 import skjemastyles from "../skjema/Skjema.module.scss";
-import { VirksomhetKontaktpersonerModal } from "../virksomhet/VirksomhetKontaktpersonerModal";
+import { ArrangorKontaktpersonerModal } from "../arrangor/ArrangorKontaktpersonerModal";
 import { InferredTiltaksgjennomforingSchema } from "../redaksjonelt-innhold/TiltaksgjennomforingSchema";
 import { tiltaktekster } from "../ledetekster/tiltaksgjennomforingLedetekster";
 
@@ -17,7 +17,7 @@ interface Props {
 }
 
 export function TiltaksgjennomforingArrangorSkjema({ readOnly, avtale }: Props) {
-  const virksomhetKontaktpersonerModalRef = useRef<HTMLDialogElement>(null);
+  const arrangorKontaktpersonerModalRef = useRef<HTMLDialogElement>(null);
 
   const {
     register,
@@ -25,10 +25,10 @@ export function TiltaksgjennomforingArrangorSkjema({ readOnly, avtale }: Props) 
     setValue,
   } = useFormContext<InferredTiltaksgjennomforingSchema>();
 
-  const { data: virksomhetKontaktpersoner } = useVirksomhetKontaktpersoner(avtale.arrangor.id);
+  const { data: arrangorKontaktpersoner } = useArrangorKontaktpersoner(avtale.arrangor.id);
 
   const arrangorOptions = getArrangorOptions(avtale);
-  const kontaktpersonOptions = getKontaktpersonOptions(virksomhetKontaktpersoner ?? []);
+  const kontaktpersonOptions = getKontaktpersonOptions(arrangorKontaktpersoner ?? []);
 
   return (
     <>
@@ -51,7 +51,7 @@ export function TiltaksgjennomforingArrangorSkjema({ readOnly, avtale }: Props) 
           readOnly={readOnly}
           options={arrangorOptions}
         />
-        <div className={skjemastyles.virksomhet_kontaktperson_container}>
+        <div className={skjemastyles.arrangor_kontaktperson_container}>
           <ControlledMultiSelect
             size="small"
             placeholder="Velg kontaktpersoner"
@@ -64,7 +64,7 @@ export function TiltaksgjennomforingArrangorSkjema({ readOnly, avtale }: Props) 
             size="small"
             type="button"
             variant="tertiary"
-            onClick={() => virksomhetKontaktpersonerModalRef.current?.showModal()}
+            onClick={() => arrangorKontaktpersonerModalRef.current?.showModal()}
           >
             Opprett eller rediger kontaktpersoner
           </Button>
@@ -79,9 +79,9 @@ export function TiltaksgjennomforingArrangorSkjema({ readOnly, avtale }: Props) 
           }
         />
       </FormGroup>
-      <VirksomhetKontaktpersonerModal
-        virksomhetId={avtale.arrangor.id}
-        modalRef={virksomhetKontaktpersonerModalRef}
+      <ArrangorKontaktpersonerModal
+        arrangorId={avtale.arrangor.id}
+        modalRef={arrangorKontaktpersonerModalRef}
       />
     </>
   );

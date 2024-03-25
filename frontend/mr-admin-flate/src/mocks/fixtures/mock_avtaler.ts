@@ -1,7 +1,7 @@
 import { Avtale, Avtalestatus, Avtaletype, Opphav } from "mulighetsrommet-api-client";
 import { mockEnheter } from "./mock_enheter";
 import { mockTiltakstyper } from "./mock_tiltakstyper";
-import { mockVirksomheter } from "./mock_virksomheter";
+import { mockArrangorer } from "./mock_arrangorer";
 
 export const mockAvtaler: Avtale[] = [
   {
@@ -17,13 +17,14 @@ export const mockAvtaler: Avtale[] = [
     opphav: Opphav.MR_ADMIN_FLATE,
     avtalenummer: "2021#10579",
     arrangor: {
-      ...mockVirksomheter.fretex,
+      ...mockArrangorer.fretex,
       slettet: false,
-      underenheter: mockVirksomheter.fretex.underenheter!.map((v) => ({
+      underenheter: mockArrangorer.fretex.underenheter!.map((v) => ({
         id: v.id,
         organisasjonsnummer: v.organisasjonsnummer,
         navn: v.navn,
         slettet: false,
+        kontaktpersoner: [],
       })),
       kontaktperson: {
         id: "d136d6a4-c812-4d28-81db-b688187e4e32",
@@ -64,13 +65,14 @@ export const mockAvtaler: Avtale[] = [
     navn: "Avtale hos ÅMLI KOMMUNE SAMFUNNSAVDELINGA",
     avtalenummer: "2021#10579",
     arrangor: {
-      ...mockVirksomheter.fretex,
+      ...mockArrangorer.fretex,
       slettet: false,
-      underenheter: mockVirksomheter.fretex.underenheter!.map((v) => ({
+      underenheter: mockArrangorer.fretex.underenheter!.map((v) => ({
         id: v.id,
         organisasjonsnummer: v.organisasjonsnummer,
         navn: v.navn,
         slettet: false,
+        kontaktpersoner: [],
       })),
     },
     opphav: Opphav.ARENA,
@@ -105,13 +107,14 @@ export const mockAvtaler: Avtale[] = [
     avtalenummer: "2020#4929",
     url: "https://www.websak.no",
     arrangor: {
-      ...mockVirksomheter.fretex,
+      ...mockArrangorer.fretex,
       slettet: false,
-      underenheter: mockVirksomheter.fretex.underenheter!.map((v) => ({
+      underenheter: mockArrangorer.fretex.underenheter!.map((v) => ({
         id: v.id,
         organisasjonsnummer: v.organisasjonsnummer,
         navn: v.navn,
         slettet: false,
+        kontaktpersoner: [],
       })),
     },
     startDato: "2020-07-01",

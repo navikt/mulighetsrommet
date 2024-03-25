@@ -1,11 +1,11 @@
 import {
+  Arrangor,
   Avtalestatus,
   Avtaletype,
   NavEnhet,
   NavEnhetType,
   TiltaksgjennomforingStatus,
   Tiltakstype,
-  Virksomhet,
 } from "mulighetsrommet-api-client";
 import { avtaletypeTilTekst } from "./Utils";
 
@@ -104,9 +104,9 @@ export const tiltakstypeOptions = (tiltakstyper: Tiltakstype[]) => {
   );
 };
 
-export const virksomhetOptions = (virksomheter: Virksomhet[]) => {
-  return virksomheter.sort().map((virksomhet) => ({
-    label: virksomhet.navn,
-    value: virksomhet.id,
+export const arrangorOptions = (arrangorer: Arrangor[]) => {
+  return arrangorer.sort().map((arrangor) => ({
+    label: arrangor.navn,
+    value: arrangor.id,
   }));
 };

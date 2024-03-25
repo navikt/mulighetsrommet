@@ -18,10 +18,10 @@ import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
+import no.nav.mulighetsrommet.api.repositories.ArrangorRepository
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.repositories.NavAnsattRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
-import no.nav.mulighetsrommet.api.repositories.VirksomhetRepository
 import no.nav.mulighetsrommet.api.routes.v1.responses.BadRequest
 import no.nav.mulighetsrommet.api.routes.v1.responses.NotFound
 import no.nav.mulighetsrommet.api.routes.v1.responses.ValidationError
@@ -53,14 +53,14 @@ class AvtaleServiceTest : FunSpec({
 
     context("Upsert avtale") {
         val brregClient = mockk<BrregClient>()
-        val virksomhetService = VirksomhetService(brregClient, VirksomhetRepository(database.db))
+        val arrangorService = ArrangorService(brregClient, ArrangorRepository(database.db))
         val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
         val avtaler = AvtaleRepository(database.db)
         val avtaleService = AvtaleService(
             avtaler,
             tiltaksgjennomforinger,
             listOf(Tiltakskode.OPPFOLGING),
-            virksomhetService,
+            arrangorService,
             NotificationRepository(database.db),
             validator,
             EndringshistorikkService(database.db),
@@ -85,8 +85,7 @@ class AvtaleServiceTest : FunSpec({
                 arrangorUnderenheter = listOf(),
             )
 
-            coEvery { brregClient.getHovedenhet("404") } returns BrregError.NotFound.left()
-            coEvery { brregClient.getUnderenhet("404") } returns BrregError.NotFound.left()
+            coEvery { brregClient.getBrregVirksomhet("404") } returns BrregError.NotFound.left()
 
             avtaleService.upsert(request, bertilNavIdent).shouldBeLeft(
                 listOf(
@@ -100,14 +99,14 @@ class AvtaleServiceTest : FunSpec({
     }
 
     context("Avbryte avtale") {
-        val virksomhetService = VirksomhetService(mockk(), VirksomhetRepository(database.db))
+        val arrangorService = ArrangorService(mockk(), ArrangorRepository(database.db))
         val avtaleRepository = AvtaleRepository(database.db)
         val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
         val avtaleService = AvtaleService(
             avtaleRepository,
             tiltaksgjennomforinger,
             listOf(Tiltakskode.JOBBKLUBB),
-            virksomhetService,
+            arrangorService,
             NotificationRepository(database.db),
             validator,
             EndringshistorikkService(database.db),
@@ -144,7 +143,7 @@ class AvtaleServiceTest : FunSpec({
                 avtaleRepository,
                 tiltaksgjennomforinger,
                 listOf(Tiltakskode.OPPFOLGING),
-                virksomhetService,
+                arrangorService,
                 NotificationRepository(database.db),
                 validator,
                 EndringshistorikkService(database.db),
@@ -290,14 +289,14 @@ class AvtaleServiceTest : FunSpec({
     }
 
     context("Administrator-notification") {
-        val virksomhetService = VirksomhetService(mockk(), VirksomhetRepository(database.db))
+        val arrangorService = ArrangorService(mockk(), ArrangorRepository(database.db))
         val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
         val avtaler = AvtaleRepository(database.db)
         val avtaleService = AvtaleService(
             avtaler,
             tiltaksgjennomforinger,
             listOf(Tiltakskode.OPPFOLGING),
-            virksomhetService,
+            arrangorService,
             NotificationRepository(database.db),
             validator,
             EndringshistorikkService(database.db),

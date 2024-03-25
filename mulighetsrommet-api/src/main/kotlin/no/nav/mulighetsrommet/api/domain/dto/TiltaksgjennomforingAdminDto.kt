@@ -23,7 +23,7 @@ data class TiltaksgjennomforingAdminDto(
     val tiltakstype: Tiltakstype,
     val navn: String,
     val tiltaksnummer: String?,
-    val arrangor: Arrangor,
+    val arrangor: ArrangorUnderenhet,
     @Serializable(with = LocalDateSerializer::class)
     val startDato: LocalDate,
     @Serializable(with = LocalDateSerializer::class)
@@ -72,7 +72,7 @@ data class TiltaksgjennomforingAdminDto(
     )
 
     @Serializable
-    data class Arrangor(
+    data class ArrangorUnderenhet(
         @Serializable(with = UUIDSerializer::class)
         val id: UUID,
         val organisasjonsnummer: String,
@@ -92,7 +92,7 @@ data class TiltaksgjennomforingAdminDto(
             id = id,
             navn = navn,
             tiltakstypeId = tiltakstype.id,
-            arrangorVirksomhetId = arrangor.id,
+            arrangorId = arrangor.id,
             arrangorKontaktpersoner = arrangor.kontaktpersoner.map { it.id },
             startDato = startDato,
             sluttDato = sluttDato,

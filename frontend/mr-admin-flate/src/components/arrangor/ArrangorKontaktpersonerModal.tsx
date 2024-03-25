@@ -1,26 +1,26 @@
 import { BodyShort, Button, Label, Modal } from "@navikt/ds-react";
 import { RefObject, useState } from "react";
-import { useVirksomhetById } from "../../api/virksomhet/useVirksomhetById";
-import { useVirksomhetKontaktpersoner } from "../../api/virksomhet/useVirksomhetKontaktpersoner";
+import { useArrangor } from "../../api/arrangor/useArrangor";
+import { useArrangorKontaktpersoner } from "../../api/arrangor/useArrangorKontaktpersoner";
 import { Laster } from "../laster/Laster";
-import { VirksomhetKontaktpersonSkjema } from "./VirksomhetKontaktpersonSkjema";
-import styles from "./VirksomhetKontaktpersonerModal.module.scss";
+import { ArrangorKontaktpersonSkjema } from "./ArrangorKontaktpersonSkjema";
+import styles from "./ArrangorKontaktpersonerModal.module.scss";
 
 interface Props {
-  virksomhetId: string;
+  arrangorId: string;
   modalRef: RefObject<HTMLDialogElement>;
 }
 
-export function VirksomhetKontaktpersonerModal(props: Props) {
-  const { virksomhetId, modalRef } = props;
-  const { data: virksomhet, isLoading: isLoadingVirksomhet } = useVirksomhetById(virksomhetId);
+export function ArrangorKontaktpersonerModal(props: Props) {
+  const { arrangorId, modalRef } = props;
+  const { data: arrangor, isLoading: isLoadingArrangor } = useArrangor(arrangorId);
   const { data: kontaktpersoner, isLoading: isLoadingKontaktpersoner } =
-    useVirksomhetKontaktpersoner(virksomhetId);
+    useArrangorKontaktpersoner(arrangorId);
 
   const [opprett, setOpprett] = useState<boolean>(false);
   const [redigerId, setRedigerId] = useState<string | undefined>(undefined);
 
-  if (!virksomhet || !kontaktpersoner || isLoadingKontaktpersoner || isLoadingVirksomhet) {
+  if (!arrangor || !kontaktpersoner || isLoadingKontaktpersoner || isLoadingArrangor) {
     return <Laster />;
   }
 
@@ -38,7 +38,7 @@ export function VirksomhetKontaktpersonerModal(props: Props) {
         modalRef.current?.close();
       }}
       header={{
-        heading: `Kontaktpersoner hos ${virksomhet.navn}`,
+        heading: `Kontaktpersoner hos ${arrangor.navn}`,
       }}
     >
       <Modal.Body>
@@ -59,8 +59,8 @@ export function VirksomhetKontaktpersonerModal(props: Props) {
             .map((person) => (
               <div key={person.id} className={styles.list_item_container}>
                 {redigerId === person.id ? (
-                  <VirksomhetKontaktpersonSkjema
-                    virksomhetId={virksomhetId}
+                  <ArrangorKontaktpersonSkjema
+                    arrangorId={arrangorId}
                     person={person}
                     onSubmit={reset}
                   />
@@ -108,7 +108,7 @@ export function VirksomhetKontaktpersonerModal(props: Props) {
             ))}
           {opprett ? (
             <div className={styles.list_item_container}>
-              <VirksomhetKontaktpersonSkjema virksomhetId={virksomhetId} onSubmit={reset} />
+              <ArrangorKontaktpersonSkjema arrangorId={arrangorId} onSubmit={reset} />
             </div>
           ) : null}
         </div>

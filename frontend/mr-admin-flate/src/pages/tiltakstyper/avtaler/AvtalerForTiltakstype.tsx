@@ -6,7 +6,7 @@ import { ContainerLayout } from "../../../layouts/ContainerLayout";
 import { FilterAndTableLayout } from "../../../components/filter/FilterAndTableLayout";
 import { AvtaleFiltertags } from "../../../components/filter/AvtaleFiltertags";
 import { AvtaleFilterButtons } from "../../../components/filter/AvtaleFilterButtons";
-import { AvtaleFilter } from "../../../components/filter/Avtalefilter";
+import { AvtaleFilter } from "../../../components/filter/AvtaleFilter";
 import { useState } from "react";
 
 export function AvtalerForTiltakstype() {
