@@ -13,7 +13,7 @@ import {
   tiltakstypeOptions,
   virksomhetOptions,
 } from "../../utils/filterUtils";
-import { CheckboxList } from "./Tiltaksgjennomforingfilter";
+import { CheckboxList } from "./CheckboxList";
 import { FilterAccordionHeader } from "mulighetsrommet-frontend-common";
 
 type Filters = "tiltakstype";

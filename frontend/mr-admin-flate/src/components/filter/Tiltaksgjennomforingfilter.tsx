@@ -1,7 +1,7 @@
-import { Accordion, Checkbox, Search, Skeleton, Switch, VStack } from "@navikt/ds-react";
+import { Accordion, Search, Skeleton, Switch, VStack } from "@navikt/ds-react";
 import { useAtom, WritableAtom } from "jotai";
 import { NavEnhet, Tiltakstypestatus, VirksomhetTil } from "mulighetsrommet-api-client";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import {
   gjennomforingFilterAccordionAtom,
   TiltaksgjennomforingFilter as TiltaksgjennomforingFilterProps,
@@ -11,7 +11,6 @@ import { useNavEnheter } from "../../api/enhet/useNavEnheter";
 import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
 import { useVirksomheter } from "../../api/virksomhet/useVirksomheter";
 import { addOrRemove } from "../../utils/Utils";
-import styles from "./Filter.module.scss";
 import {
   TILTAKSGJENNOMFORING_STATUS_OPTIONS,
   tiltakstypeOptions,
@@ -20,6 +19,7 @@ import {
 import { NavEnhetFilter } from "mulighetsrommet-frontend-common";
 import { useRegioner } from "../../api/enhet/useRegioner";
 import { FilterAccordionHeader } from "mulighetsrommet-frontend-common";
+import { CheckboxList } from "./CheckboxList";
 
 type Filters = "tiltakstype";
 
@@ -213,44 +213,5 @@ export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
         </Accordion.Item>
       </Accordion>
     </>
-  );
-}
-
-interface CheckboxListProps<T> {
-  items: { label: string; value: T }[];
-  isChecked: (a: T) => boolean;
-  onChange: (a: T) => void;
-  searchable?: boolean;
-}
-
-export function CheckboxList<T>(props: CheckboxListProps<T>) {
-  const { items, isChecked, onChange, searchable = false } = props;
-  const [search, setSearch] = useState<string>("");
-
-  return (
-    <div className={styles.checkbox_list}>
-      {searchable && (
-        <Search
-          label=""
-          size="small"
-          variant="simple"
-          onChange={(v: string) => setSearch(v)}
-          value={search}
-          className={styles.checkbox_search}
-        />
-      )}
-      {items
-        .filter((item) => item.label.toLocaleLowerCase().includes(search.toLocaleLowerCase()))
-        .map((item) => (
-          <Checkbox
-            key={item.value as string}
-            size="small"
-            onChange={() => onChange(item.value)}
-            checked={isChecked(item.value)}
-          >
-            {item.label}
-          </Checkbox>
-        ))}
-    </div>
   );
 }
