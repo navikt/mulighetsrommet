@@ -25,8 +25,8 @@
     "not op_mini all"
   ],
   "dependencies": {
-    "@amplitude/analytics-browser": "2.5.3",
-    "@grafana/faro-web-sdk": "1.4.2",
+    "@amplitude/analytics-browser": "2.6.0",
+    "@grafana/faro-web-sdk": "1.5.0",
     "@navikt/aksel-icons": "6.3.3",
     "@navikt/ds-css": "6.3.3",
     "@navikt/ds-react": "6.3.3",
@@ -43,7 +43,7 @@
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-error-boundary": "4.0.13",
-    "react-joyride": "2.7.4",
+    "react-joyride": "2.8.0",
     "react-router-dom": "6.22.3",
     "uuid": "9.0.1"
   },
@@ -52,7 +52,7 @@
     "@faker-js/faker": "8.4.1",
     "@playwright/test": "1.42.1",
     "@types/node": "20.11.30",
-    "@typescript-eslint/eslint-plugin": "7.2.0",
+    "@typescript-eslint/eslint-plugin": "7.3.1",
     "@vitejs/plugin-react": "4.2.1",
     "cross-env": "7.0.3",
     "dotenv": "16.4.5",
