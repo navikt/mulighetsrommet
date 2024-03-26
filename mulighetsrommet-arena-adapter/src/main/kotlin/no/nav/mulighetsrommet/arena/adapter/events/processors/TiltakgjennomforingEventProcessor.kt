@@ -131,7 +131,7 @@ class TiltakgjennomforingEventProcessor(
         val virksomhetsnummer = tiltaksgjennomforing.arrangorId.let { id ->
             ords.getArbeidsgiver(id)
                 .mapLeft { ProcessingError.fromResponseException(it) }
-                .flatMap { it?.right() ?: ProcessingError.InvalidPayload("Fant ikke arrangør i Arena ORDS").left() }
+                .flatMap { it?.right() ?: ProcessingError.ProcessingFailed("Fant ikke arrangør i Arena ORDS").left() }
                 .map { it.virksomhetsnummer }.bind()
         }
         val dbo =
@@ -188,7 +188,7 @@ class TiltakgjennomforingEventProcessor(
                 avtaleId = avtaleId,
                 deltidsprosent = PROSENT_DELTID,
             )
-        }.mapLeft { ProcessingError.InvalidPayload(it.localizedMessage) }
+        }.mapLeft { ProcessingError.ProcessingFailed(it.localizedMessage) }
 
     private fun Tiltaksgjennomforing.toDbo(tiltakstypeId: UUID, sak: Sak, virksomhetsnummer: String, avtaleId: UUID?) =
         ArenaTiltaksgjennomforingDbo(

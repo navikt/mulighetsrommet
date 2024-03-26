@@ -46,8 +46,8 @@ class ArenaEventServiceTest : FunSpec({
         arenaId = "2",
         payload = JsonObject(mapOf("after" to JsonObject(mapOf("name" to JsonPrimitive("Bar"))))),
     )
-    val invalidEvent = ArenaEvent(
-        status = ProcessingStatus.Invalid,
+    val failedEvent = ArenaEvent(
+        status = ProcessingStatus.Failed,
         arenaTable = table,
         operation = ArenaEvent.Operation.Insert,
         arenaId = "3",
@@ -386,8 +386,8 @@ class ArenaEventServiceTest : FunSpec({
             entities.getOrCreateMapping(pendingEvent)
             events.upsert(processedEvent)
             entities.getOrCreateMapping(processedEvent)
-            events.upsert(invalidEvent)
-            entities.getOrCreateMapping(invalidEvent)
+            events.upsert(failedEvent)
+            entities.getOrCreateMapping(failedEvent)
 
             val service = ArenaEventService(events = events, processors = listOf(), entities = entities)
             service.setReplayStatusForEvents(table, ArenaEntityMapping.Status.Handled)
@@ -395,7 +395,7 @@ class ArenaEventServiceTest : FunSpec({
             database.assertThat("arena_events")
                 .row().value("processing_status").isEqualTo(ProcessingStatus.Pending.name)
                 .row().value("processing_status").isEqualTo(ProcessingStatus.Replay.name)
-                .row().value("processing_status").isEqualTo(ProcessingStatus.Invalid.name)
+                .row().value("processing_status").isEqualTo(ProcessingStatus.Failed.name)
         }
     }
 
@@ -462,14 +462,14 @@ class ArenaEventServiceTest : FunSpec({
             val processor = spyk(ArenaEventTestProcessor())
             events.upsert(pendingEvent)
             events.upsert(processedEvent)
-            events.upsert(invalidEvent)
+            events.upsert(failedEvent)
 
             val service = ArenaEventService(events = events, processors = listOf(processor), entities = entities)
-            service.deleteEntities(table, listOf(processedEvent.arenaId, invalidEvent.arenaId))
+            service.deleteEntities(table, listOf(processedEvent.arenaId, failedEvent.arenaId))
 
             coVerify(exactly = 1) {
                 processor.deleteEntity(processedEvent)
-                processor.deleteEntity(invalidEvent)
+                processor.deleteEntity(failedEvent)
             }
         }
     }

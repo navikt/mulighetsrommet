@@ -50,9 +50,6 @@ data class ArenaEvent(
         /** Processing has failed, event processing can be retried */
         Failed,
 
-        /** Event payload is invalid and needs manual intervention */
-        Invalid,
-
         /** Event should be replayed by replay events task */
         Replay,
     }
