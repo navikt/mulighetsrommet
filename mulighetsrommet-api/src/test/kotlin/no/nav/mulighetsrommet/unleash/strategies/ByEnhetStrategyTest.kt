@@ -5,17 +5,17 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.mockk
+import no.nav.common.client.axsys.AxsysClient
 import no.nav.common.client.axsys.AxsysEnhet
 import no.nav.common.types.identer.EnhetId
 import no.nav.common.types.identer.NavIdent
-import no.nav.mulighetsrommet.api.services.AxsysService
 
 class ByEnhetStrategyTest : FunSpec({
     context("Unleash - ByEnhetStrategy") {
-        val axsysService = mockk<AxsysService>(relaxed = true)
-        coEvery { axsysService.get().hentTilganger(NavIdent("N123456")) } returns mockEnheter()
-        coEvery { axsysService.get().hentTilganger(NavIdent("N666666")) } returns mockAvskruddeEnheter()
-        val byEnhetStrategy = ByEnhetStrategy(axsysService = axsysService)
+        val axsysClient = mockk<AxsysClient>(relaxed = true)
+        coEvery { axsysClient.hentTilganger(NavIdent("N123456")) } returns mockEnheter()
+        coEvery { axsysClient.hentTilganger(NavIdent("N666666")) } returns mockAvskruddeEnheter()
+        val byEnhetStrategy = ByEnhetStrategy(axsysClient = axsysClient)
 
         test("Skal returnere false når ingen UnleashContext er sendt inn") {
             byEnhetStrategy.isEnabled(mutableMapOf()) shouldBe false
