@@ -12,7 +12,6 @@ import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.api.domain.dto.*
-import no.nav.mulighetsrommet.api.utils.DatabaseUtils
 import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
@@ -384,31 +383,19 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         opphav: ArenaMigrering.Opphav? = null,
     ): Pair<Int, List<TiltaksgjennomforingAdminDto>> {
         val parameters = mapOf(
-            "search" to "%${search?.replace("/", "#")?.trim()}%",
+            "search" to search?.replace("/", "#")?.trim()?.let { "%$it%" },
             "limit" to pagination.limit,
             "offset" to pagination.offset,
-            "cutoffdato" to sluttDatoCutoff,
+            "slutt_dato_cutoff" to sluttDatoCutoff,
             "today" to dagensDato,
             "avtaleId" to avtaleId,
-            "arrangor_ids" to db.createUuidArray(arrangorIds),
-            "arrangor_orgnrs" to db.createTextArray(arrangorOrgnr),
+            "nav_enheter" to navEnheter.ifEmpty { null }?.let { db.createTextArray(it) },
+            "tiltakstype_ids" to tiltakstypeIder.ifEmpty { null }?.let { db.createUuidArray(it) },
+            "arrangor_ids" to arrangorIds.ifEmpty { null }?.let { db.createUuidArray(it) },
+            "arrangor_orgnrs" to arrangorOrgnr.ifEmpty { null }?.let { db.createTextArray(it) },
             "administrator_nav_ident" to administratorNavIdent?.let { """[{ "navIdent": "${it.value}" }]""" },
-            "skalMigreres" to skalMigreres,
+            "skal_migreres" to skalMigreres,
             "opphav" to opphav?.name,
-        )
-
-        val where = DatabaseUtils.andWhereParameterNotNull(
-            search to "((lower(navn) like lower(:search) or tiltaksnummer like :search or lower(arrangor_navn) like lower(:search)))",
-            navEnheter.ifEmpty { null } to navEnheterWhereStatement(navEnheter),
-            tiltakstypeIder.ifEmpty { null } to tiltakstypeIderWhereStatement(tiltakstypeIder),
-            statuser.ifEmpty { null } to statuserWhereStatement(statuser),
-            sluttDatoCutoff to "(slutt_dato >= :cutoffdato or slutt_dato is null)",
-            avtaleId to "avtale_id = :avtaleId",
-            arrangorIds.ifEmpty { null } to "arrangor_id = any(:arrangor_ids)",
-            arrangorOrgnr.ifEmpty { null } to "arrangor_organisasjonsnummer = any(:arrangor_orgnrs)",
-            administratorNavIdent to "administratorer_json @> :administrator_nav_ident::jsonb",
-            skalMigreres to "tiltakstype_tiltakskode is not null",
-            opphav to "opphav = :opphav::opphav",
         )
 
         val order = when (sortering) {
@@ -433,7 +420,22 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         val query = """
             select *, count(*) over () as full_count
             from tiltaksgjennomforing_admin_dto_view
-            $where
+            where (:tiltakstype_ids::uuid[] is null or tiltakstype_id = any(:tiltakstype_ids))
+              and (:avtale_id::uuid is null or avtale_id = :avtale_id)
+              and (:arrangor_ids::uuid[] is null or arrangor_id = any(:arrangor_ids))
+              and (:arrangor_orgnrs::text[] is null or arrangor_organisasjonsnummer = any(:arrangor_orgnrs))
+              and (:search::text is null or (navn ilike :search or tiltaksnummer ilike :search or arrangor_navn ilike :search))
+              and (:nav_enheter::text[] is null or (
+                   nav_region_enhetsnummer = any (:nav_enheter) or
+                   exists(select true
+                          from jsonb_array_elements(nav_enheter_json) as nav_enhet
+                          where nav_enhet ->> 'enhetsnummer' = any (:nav_enheter)) or
+                   arena_ansvarlig_enhet_json ->> 'enhetsnummer' = any (:nav_enheter)))
+              and (:administrator_nav_ident::text is null or administratorer_json @> :administrator_nav_ident::jsonb)
+              and (:slutt_dato_cutoff::date is null or slutt_dato >= :slutt_dato_cutoff or slutt_dato is null)
+              and (:skal_migreres::boolean is null or tiltakstype_tiltakskode is not null)
+              and (:opphav::opphav is null or opphav = :opphav::opphav)
+              and (${statuserWhereStatement(statuser)})
             order by $order
             limit :limit
             offset :offset
@@ -451,21 +453,10 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         return Pair(totaltAntall, tiltaksgjennomforinger)
     }
 
-    private fun navEnheterWhereStatement(navEnheter: List<String>): String =
-        navEnheter
-            .joinToString(prefix = "(", postfix = ")", separator = " or ") {
-                "('$it' in (select enhetsnummer from tiltaksgjennomforing_nav_enhet tg_e where tg_e.tiltaksgjennomforing_id = id) or arena_ansvarlig_enhet_json->>'enhetsnummer' = '$it')"
-            }
-
-    private fun tiltakstypeIderWhereStatement(tiltakstypeIder: List<UUID>): String =
-        tiltakstypeIder
-            .joinToString(prefix = "(", postfix = ")", separator = " or ") {
-                "tiltakstype_id = '$it'"
-            }
-
     private fun statuserWhereStatement(statuser: List<Tiltaksgjennomforingsstatus>): String =
         statuser
-            .joinToString(prefix = "(", postfix = ")", separator = " or ") {
+            .ifEmpty { null }
+            ?.joinToString(prefix = "(", postfix = ")", separator = " or ") {
                 when (it) {
                     PLANLAGT -> "(:today < start_dato and avslutningsstatus = '${Avslutningsstatus.IKKE_AVSLUTTET}')"
                     GJENNOMFORES -> "((:today >= start_dato and (:today <= slutt_dato or slutt_dato is null)) and avslutningsstatus = '${Avslutningsstatus.IKKE_AVSLUTTET}')"
@@ -474,6 +465,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                     AVLYST -> "avslutningsstatus = '${Avslutningsstatus.AVLYST}'"
                 }
             }
+            ?: "true"
 
     fun getAllVeilederflateTiltaksgjennomforing(
         search: String? = null,

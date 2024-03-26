@@ -19,16 +19,18 @@ import no.nav.mulighetsrommet.api.domain.dto.ArrangorKontaktperson
 import no.nav.mulighetsrommet.api.domain.dto.AvtaleAdminDto
 import no.nav.mulighetsrommet.api.domain.dto.Kontorstruktur
 import no.nav.mulighetsrommet.api.fixtures.*
+import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Gjovik
+import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Innlandet
+import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Oslo
+import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Sel
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
-import no.nav.mulighetsrommet.database.utils.getOrThrow
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.ArenaAvtaleDbo
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dto.Avtalestatus
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.util.*
 
 class AvtaleRepositoryTest : FunSpec({
@@ -325,104 +327,72 @@ class AvtaleRepositoryTest : FunSpec({
         }
 
         context("NavEnhet") {
-            test("Filtrere på region returnerer avtaler for gitt region") {
-                val navEnhetRepository = NavEnhetRepository(database.db)
-                navEnhetRepository.upsert(
-                    NavEnhetDbo(
-                        navn = "Oppland",
-                        enhetsnummer = "1900",
-                        status = NavEnhetStatus.AKTIV,
-                        type = Norg2Type.FYLKE,
-                        overordnetEnhet = null,
+            test("filtrering på ansvarlig enhet i Arena") {
+                MulighetsrommetTestDomain(
+                    enheter = listOf(Oslo, Innlandet, Gjovik),
+                    tiltakstyper = listOf(
+                        TiltakstypeFixtures.Oppfolging,
+                        TiltakstypeFixtures.AFT,
+                        TiltakstypeFixtures.VTA,
                     ),
-                )
-                navEnhetRepository.upsert(
-                    NavEnhetDbo(
-                        navn = "Vestland",
-                        enhetsnummer = "1801",
-                        status = NavEnhetStatus.AKTIV,
-                        type = Norg2Type.FYLKE,
-                        overordnetEnhet = null,
+                    avtaler = listOf(
+                        AvtaleFixtures.oppfolging.copy(navEnheter = listOf()),
+                        AvtaleFixtures.AFT.copy(navEnheter = listOf()),
+                        AvtaleFixtures.VTA.copy(navEnheter = listOf()),
                     ),
-                )
+                ).initialize(database.db)
 
-                val avtale1 = AvtaleFixtures.oppfolging.copy(
-                    id = UUID.randomUUID(),
-                    navEnheter = listOf("1801"),
-                )
-                val avtale2 = avtale1.copy(
-                    id = UUID.randomUUID(),
-                    navEnheter = listOf("1900"),
-                )
+                Query("update avtale set arena_ansvarlig_enhet = '0300' where id = '${AvtaleFixtures.oppfolging.id}'")
+                    .asUpdate.let { database.db.run(it) }
+                Query("update avtale set arena_ansvarlig_enhet = '0400' where id = '${AvtaleFixtures.AFT.id}'")
+                    .asUpdate.let { database.db.run(it) }
+                Query("update avtale set arena_ansvarlig_enhet = '0502' where id = '${AvtaleFixtures.VTA.id}'")
+                    .asUpdate.let { database.db.run(it) }
 
-                avtaler.upsert(avtale1)
-                avtaler.upsert(avtale2)
-
-                val result = avtaler.getAll(
-                    dagensDato = LocalDate.of(2023, 2, 1),
-                    tiltakstypeIder = listOf(TiltakstypeFixtures.Oppfolging.id),
-                    navRegioner = listOf("1801"),
-                )
-                result.second shouldHaveSize 1
-                result.second[0].kontorstruktur[0].region shouldBe NavEnhetDbo(
-                    enhetsnummer = "1801",
-                    navn = "Vestland",
-                    type = Norg2Type.FYLKE,
-                    overordnetEnhet = null,
-                    status = NavEnhetStatus.AKTIV,
-                )
+                avtaler.getAll(navRegioner = listOf("0300")).should { (totalCount) ->
+                    totalCount shouldBe 1
+                }
+                avtaler.getAll(navRegioner = listOf("0400")).should { (totalCount) ->
+                    totalCount shouldBe 2
+                }
+                avtaler.getAll(navRegioner = listOf("0502")).should { (totalCount) ->
+                    totalCount shouldBe 1
+                }
             }
 
-            test("Filtrere på to regioner returnerer avtaler for gitte regioner") {
-                val navEnhetRepository = NavEnhetRepository(database.db)
-                navEnhetRepository.upsert(
-                    NavEnhetDbo(
-                        navn = "Oppland",
-                        enhetsnummer = "1900",
-                        status = NavEnhetStatus.AKTIV,
-                        type = Norg2Type.FYLKE,
-                        overordnetEnhet = null,
+            test("filtrering på NAV-enheter") {
+                MulighetsrommetTestDomain(
+                    enheter = listOf(Innlandet, Gjovik, Sel),
+                    tiltakstyper = listOf(
+                        TiltakstypeFixtures.Oppfolging,
+                        TiltakstypeFixtures.AFT,
+                        TiltakstypeFixtures.VTA,
                     ),
-                )
-                navEnhetRepository.upsert(
-                    NavEnhetDbo(
-                        navn = "Vestland",
-                        enhetsnummer = "1801",
-                        status = NavEnhetStatus.AKTIV,
-                        type = Norg2Type.FYLKE,
-                        overordnetEnhet = null,
+                    avtaler = listOf(
+                        AvtaleFixtures.oppfolging.copy(
+                            navEnheter = listOf(Innlandet.enhetsnummer, Gjovik.enhetsnummer),
+                        ),
+                        AvtaleFixtures.AFT.copy(
+                            navEnheter = listOf(Innlandet.enhetsnummer, Sel.enhetsnummer),
+                        ),
+                        AvtaleFixtures.VTA.copy(navEnheter = listOf(Innlandet.enhetsnummer)),
                     ),
-                )
+                ).initialize(database.db)
 
-                val avtale1 = AvtaleFixtures.oppfolging.copy(
-                    id = UUID.randomUUID(),
-                    navEnheter = listOf("1801"),
-                )
-                val avtale2 = avtale1.copy(
-                    id = UUID.randomUUID(),
-                    navEnheter = listOf("1900"),
-                )
+                avtaler.getAll(
+                    navRegioner = listOf(Innlandet.enhetsnummer),
+                ).should { (totalCount) ->
+                    totalCount shouldBe 3
+                }
 
-                val avtale3 = avtale1.copy(
-                    id = UUID.randomUUID(),
-                    navEnheter = emptyList(),
-                )
-
-                avtaler.upsert(avtale1)
-                avtaler.upsert(avtale2)
-                avtaler.upsert(avtale3)
-
-                val result = avtaler.getAll(
-                    dagensDato = LocalDate.of(2023, 2, 1),
-                    tiltakstypeIder = listOf(TiltakstypeFixtures.Oppfolging.id),
-                    navRegioner = listOf("1801", "1900"),
-                )
-                result.second shouldHaveSize 2
-                result.second.map { it.kontorstruktur[0].region.enhetsnummer } shouldContainExactlyInAnyOrder
-                    listOf("1801", "1900")
+                avtaler.getAll(
+                    navRegioner = listOf(Gjovik.enhetsnummer, Sel.enhetsnummer),
+                ).should { (totalCount) ->
+                    totalCount shouldBe 2
+                }
             }
 
-            test("Avtale navenhet blir med riktig tilbake") {
+            test("Avtale NAV-enhet blir med riktig tilbake") {
                 val navEnhetRepository = NavEnhetRepository(database.db)
                 navEnhetRepository.upsert(
                     NavEnhetDbo(
@@ -511,45 +481,30 @@ class AvtaleRepositoryTest : FunSpec({
         }
 
         test("Filtrer på tiltakstypeId returnerer avtaler tilknyttet spesifikk tiltakstype") {
-            val tiltakstyper = TiltakstypeRepository(database.db)
-            val tiltakstypeId: UUID = TiltakstypeFixtures.Oppfolging.id
-            val tiltakstypeIdForAvtale3: UUID = UUID.randomUUID()
-            val avtale1 = AvtaleFixtures.oppfolging.copy(
-                tiltakstypeId = tiltakstypeId,
-            )
-            val avtale2 = avtale1.copy(
-                id = UUID.randomUUID(),
-                tiltakstypeId = tiltakstypeId,
-            )
-            val avtale3 = avtale1.copy(
-                id = UUID.randomUUID(),
-                tiltakstypeId = tiltakstypeIdForAvtale3,
-            )
-
-            tiltakstyper.upsert(
-                TiltakstypeFixtures.Oppfolging.copy(
-                    id = tiltakstypeIdForAvtale3,
-                    navn = "",
-                    arenaKode = "",
-                    rettPaaTiltakspenger = true,
-                    registrertDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
-                    sistEndretDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
-                    fraDato = LocalDate.of(2023, 1, 11),
-                    tilDato = LocalDate.of(2023, 1, 12),
+            MulighetsrommetTestDomain(
+                tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging, TiltakstypeFixtures.AFT),
+                avtaler = listOf(
+                    AvtaleFixtures.oppfolging,
+                    AvtaleFixtures.oppfolging.copy(id = UUID.randomUUID()),
+                    AvtaleFixtures.AFT,
                 ),
-            )
+            ).initialize(database.db)
 
-            avtaler.upsert(avtale1)
-            avtaler.upsert(avtale2)
-            avtaler.upsert(avtale3)
-            val result = avtaler.getAll(
+            avtaler.getAll(
                 dagensDato = LocalDate.of(2023, 2, 1),
-                tiltakstypeIder = listOf(tiltakstypeId),
-            )
+                tiltakstypeIder = listOf(TiltakstypeFixtures.Oppfolging.id),
+            ).should { (totalCount, avtaler) ->
+                totalCount shouldBe 2
+                avtaler[0].tiltakstype.id shouldBe TiltakstypeFixtures.Oppfolging.id
+                avtaler[1].tiltakstype.id shouldBe TiltakstypeFixtures.Oppfolging.id
+            }
 
-            result.second shouldHaveSize 2
-            result.second[0].tiltakstype.id shouldBe tiltakstypeId
-            result.second[1].tiltakstype.id shouldBe tiltakstypeId
+            avtaler.getAll(
+                dagensDato = LocalDate.of(2023, 2, 1),
+                tiltakstypeIder = listOf(TiltakstypeFixtures.Oppfolging.id, TiltakstypeFixtures.AFT.id),
+            ).should { (totalCount) ->
+                totalCount shouldBe 3
+            }
         }
 
         test("Filtrering på tiltaksarrangørs navn gir treff") {
@@ -677,58 +632,6 @@ class AvtaleRepositoryTest : FunSpec({
             result.second[2].navn shouldBe "Avtale hos Ærfuglen Ærle"
             result.second[3].navn shouldBe "Avtale hos Kjetil"
             result.second[4].navn shouldBe "Avtale hos Anders"
-        }
-
-        test("Filtrer på tiltakstype og nav-region forholder seg til korrekt logikk i filter-spørring") {
-            val navEnhetRepository = NavEnhetRepository(database.db)
-
-            navEnhetRepository.upsert(
-                NavEnhetDbo(
-                    navn = "NAV Oslo",
-                    "0300",
-                    NavEnhetStatus.AKTIV,
-                    Norg2Type.FYLKE,
-                    null,
-                ),
-            ).getOrThrow()
-
-            val avtale1 = AvtaleFixtures.oppfolging.copy(
-                id = UUID.randomUUID(),
-                arrangorId = arrangorA.id,
-                arrangorUnderenheter = emptyList(),
-                navn = "Avtale hos Anders",
-            )
-            val avtale2 = avtale1.copy(
-                id = UUID.randomUUID(),
-                arrangorId = arrangorA.id,
-                navn = "Avtale hos Åse",
-            )
-            val avtale3 = avtale1.copy(
-                id = UUID.randomUUID(),
-                arrangorId = arrangorA.id,
-                navn = "Avtale hos Øyvind",
-                tiltakstypeId = TiltakstypeFixtures.Jobbklubb.id,
-            )
-
-            avtaler.upsert(avtale1)
-            Query("update avtale set arena_ansvarlig_enhet = '0300' where id = '${avtale1.id}'").asUpdate.let {
-                database.db.run(it)
-            }
-            avtaler.upsert(avtale2)
-            Query("update avtale set arena_ansvarlig_enhet = '0300' where id = '${avtale2.id}'").asUpdate.let {
-                database.db.run(it)
-            }
-            avtaler.upsert(avtale3)
-            Query("update avtale set arena_ansvarlig_enhet = '0300' where id = '${avtale3.id}'").asUpdate.let {
-                database.db.run(it)
-            }
-
-            val result = avtaler.getAll(
-                tiltakstypeIder = listOf(TiltakstypeFixtures.Oppfolging.id),
-                navRegioner = listOf("0300"),
-            )
-
-            result.second shouldHaveSize 2
         }
 
         test("Sortering på arrangør sorterer korrekt") {
