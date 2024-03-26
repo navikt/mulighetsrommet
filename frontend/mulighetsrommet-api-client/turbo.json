@@ -2,7 +2,10 @@
   "extends": ["//"],
   "pipeline": {
     "build": {
-      "inputs": ["../../mulighetsrommet-api/src/main/resources/web/openapi.yaml"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "../../mulighetsrommet-api/src/main/resources/web/openapi.yaml"
+      ],
       "outputs": ["build/**"]
     }
   }
