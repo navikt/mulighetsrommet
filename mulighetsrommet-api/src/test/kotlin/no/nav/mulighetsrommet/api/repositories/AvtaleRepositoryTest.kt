@@ -12,6 +12,7 @@ import io.kotest.matchers.shouldBe
 import kotliquery.Query
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
+import no.nav.mulighetsrommet.api.domain.dbo.ArenaNavEnhet
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
 import no.nav.mulighetsrommet.api.domain.dto.ArrangorDto
@@ -83,7 +84,7 @@ class AvtaleRepositoryTest : FunSpec({
                 it.avtalenummer shouldBe arenaAvtale.avtalenummer
                 it.arrangor.id shouldBe ArrangorFixtures.hovedenhet.id
                 it.arrangor.organisasjonsnummer shouldBe arenaAvtale.arrangorOrganisasjonsnummer
-                it.arenaAnsvarligEnhet shouldBe null
+                it.arenaAnsvarligEnhet shouldBe ArenaNavEnhet(navn = null, enhetsnummer = "9999")
                 it.startDato shouldBe arenaAvtale.startDato
                 it.sluttDato shouldBe arenaAvtale.sluttDato
                 it.avtaletype shouldBe arenaAvtale.avtaletype

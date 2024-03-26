@@ -17,6 +17,7 @@ import io.mockk.verify
 import no.nav.mulighetsrommet.api.clients.AccessType
 import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClient
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
+import no.nav.mulighetsrommet.api.domain.dbo.ArenaNavEnhet
 import no.nav.mulighetsrommet.api.domain.dto.AvtaleAdminDto
 import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingDto
 import no.nav.mulighetsrommet.api.domain.dto.TiltakstypeEksternDto
@@ -497,7 +498,7 @@ class ArenaAdapterServiceTest : FunSpec({
 
             gjennomforinger.get(gjennomforing.id).shouldNotBeNull().should {
                 it.tiltaksnummer shouldBe "2024#2024"
-                it.arenaAnsvarligEnhet shouldBe NavEnhetFixtures.TiltakOslo
+                it.arenaAnsvarligEnhet shouldBe ArenaNavEnhet(navn = "NAV Tiltak Oslo", enhetsnummer = "0387")
                 it.status shouldBe Tiltaksgjennomforingsstatus.GJENNOMFORES
 
                 it.opphav shouldBe ArenaMigrering.Opphav.MR_ADMIN_FLATE

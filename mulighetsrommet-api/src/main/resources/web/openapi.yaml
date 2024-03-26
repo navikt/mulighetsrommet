@@ -1929,7 +1929,7 @@ components:
         avtalestatus:
           $ref: "#/components/schemas/Avtalestatus"
         arenaAnsvarligEnhet:
-          $ref: "#/components/schemas/NavEnhet"
+          $ref: "#/components/schemas/ArenaNavEnhet"
         prisbetingelser:
           type: string
           nullable: true
@@ -2133,7 +2133,7 @@ components:
           type: string
           format: date
         arenaAnsvarligEnhet:
-          $ref: "#/components/schemas/NavEnhet"
+          $ref: "#/components/schemas/ArenaNavEnhet"
         status:
           $ref: "#/components/schemas/TiltaksgjennomforingStatus"
         apentForInnsok:
@@ -2672,6 +2672,16 @@ components:
         - norskIdent
         - navident
         - dialogId
+
+    ArenaNavEnhet:
+      type: object
+      properties:
+        enhetsnummer:
+          type: string
+        navn:
+          type: string
+      required:
+        - enhetsnummer
 
     NavEnhet:
       type: object

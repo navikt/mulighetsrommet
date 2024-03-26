@@ -40,12 +40,12 @@ data class ArenaMigreringTiltaksgjennomforingDto(
             arenaId: Int?,
             endretTidspunkt: LocalDateTime,
         ): ArenaMigreringTiltaksgjennomforingDto {
-            val enhet = if (tiltaksgjennomforing.opphav == ArenaMigrering.Opphav.ARENA) {
-                tiltaksgjennomforing.arenaAnsvarligEnhet
+            val enhetsnummer = if (tiltaksgjennomforing.opphav == ArenaMigrering.Opphav.ARENA) {
+                tiltaksgjennomforing.arenaAnsvarligEnhet?.enhetsnummer
             } else {
-                tiltaksgjennomforing.navRegion
+                tiltaksgjennomforing.navRegion?.enhetsnummer
             }
-            requireNotNull(enhet) {
+            requireNotNull(enhetsnummer) {
                 "navRegion or arenaAnsvarligEnhet was null! Should not be possible!"
             }
 
@@ -66,7 +66,7 @@ data class ArenaMigreringTiltaksgjennomforingDto(
                 antallPlasser = tiltaksgjennomforing.antallPlasser,
                 status = status,
                 arenaId = arenaId,
-                enhet = enhet.enhetsnummer,
+                enhet = enhetsnummer,
                 apentForInnsok = tiltaksgjennomforing.apentForInnsok,
                 deltidsprosent = tiltaksgjennomforing.deltidsprosent,
             )

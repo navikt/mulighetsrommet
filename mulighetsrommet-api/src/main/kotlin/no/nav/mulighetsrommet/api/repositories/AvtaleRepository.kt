@@ -6,6 +6,7 @@ import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
+import no.nav.mulighetsrommet.api.domain.dbo.ArenaNavEnhet
 import no.nav.mulighetsrommet.api.domain.dbo.AvtaleDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dto.ArrangorKontaktperson
@@ -278,10 +279,10 @@ class AvtaleRepository(private val db: Database) {
                    exists(select true
                           from jsonb_array_elements(nav_enheter_json) as nav_enhet
                           where nav_enhet ->> 'enhetsnummer' = any (:nav_enheter)) or
-                   arena_ansvarlig_enhet_json ->> 'enhetsnummer' = any (:nav_enheter) or
-                   arena_ansvarlig_enhet_json ->> 'enhetsnummer' in (select enhetsnummer
-                                                                     from nav_enhet
-                                                                     where overordnet_enhet = any (:nav_enheter))))
+                   arena_nav_enhet_enhetsnummer = any (:nav_enheter) or
+                   arena_nav_enhet_enhetsnummer in (select enhetsnummer
+                                                    from nav_enhet
+                                                    where overordnet_enhet = any (:nav_enheter))))
               and (:arrangor_hovedenhet_id::text is null or :arrangor_hovedenhet_id = any (:arrangor_ids))
               and (:administrator_nav_ident::text is null or administratorer_json @> :administrator_nav_ident::jsonb)
               and (:avtaletyper::avtaletype[] is null or avtaletype = any (:avtaletyper))
@@ -476,8 +477,11 @@ class AvtaleRepository(private val db: Database) {
                     )
                 },
             ),
-            arenaAnsvarligEnhet = stringOrNull("arena_ansvarlig_enhet_json")?.let {
-                Json.decodeFromString(it)
+            arenaAnsvarligEnhet = stringOrNull("arena_nav_enhet_enhetsnummer")?.let {
+                ArenaNavEnhet(
+                    navn = stringOrNull("arena_nav_enhet_navn"),
+                    enhetsnummer = it,
+                )
             },
             tiltakstype = AvtaleAdminDto.Tiltakstype(
                 id = uuid("tiltakstype_id"),

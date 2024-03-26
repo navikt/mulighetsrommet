@@ -1,4 +1,6 @@
-create or replace view avtale_admin_dto_view as
+drop view if exists avtale_admin_dto_view;
+
+create view avtale_admin_dto_view as
 select avtale.id,
        avtale.navn,
        avtale.avtalenummer,
@@ -16,11 +18,13 @@ select avtale.id,
                distinct
                case
                    when avtale_administrator.nav_ident is null then null::jsonb
-                   else jsonb_build_object('navIdent', avtale_administrator.nav_ident, 'navn',
-                                           concat(nav_ansatt.fornavn, ' ', nav_ansatt.etternavn))
+                   else jsonb_build_object('navIdent', avtale_administrator.nav_ident,
+                                           'navn', concat(nav_ansatt.fornavn, ' ', nav_ansatt.etternavn))
                    end
        )                                   as administratorer_json,
        avtale_nav_enheter_json.nav_enheter as nav_enheter_json,
+       avtale.arena_ansvarlig_enhet        as arena_nav_enhet_enhetsnummer,
+       arena_nav_enhet.navn                as arena_nav_enhet_navn,
        arrangor.id                         as arrangor_hovedenhet_id,
        arrangor.organisasjonsnummer        as arrangor_hovedenhet_organisasjonsnummer,
        arrangor.navn                       as arrangor_hovedenhet_navn,
@@ -32,16 +36,6 @@ select avtale.id,
        arrangor_kontaktperson.epost        as arrangor_hovedenhet_kontaktperson_epost,
        arrangor_kontaktperson.beskrivelse  as arrangor_hovedenhet_kontaktperson_beskrivelse,
        arrangor_underenheter_json.arrangor_underenheter,
-       case
-           when arena_nav_enhet.enhetsnummer is null then null::jsonb
-           else
-               jsonb_build_object(
-                       'enhetsnummer', arena_nav_enhet.enhetsnummer,
-                       'navn', arena_nav_enhet.navn,
-                       'type', arena_nav_enhet.type,
-                       'overordnetEnhet', arena_nav_enhet.overordnet_enhet,
-                       'status', arena_nav_enhet.status
-               ) end                       as arena_ansvarlig_enhet_json,
        tiltakstype.id                      as tiltakstype_id,
        tiltakstype.navn                    as tiltakstype_navn,
        tiltakstype.tiltakskode             as tiltakstype_tiltakskode,

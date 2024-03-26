@@ -19,3 +19,17 @@ enum class NavEnhetStatus {
     UNDER_AVVIKLING,
     NEDLAGT,
 }
+
+/**
+ * Det finnes mange aktive NAV-enheter i Arena med [enhetsnummer] som ikke er reflektert i NORG.
+ * Derfor støtter vi at enheten er definert, men at [navn] er nullable.
+ *
+ * Man må også være oppmerksom på at det finnes noen NAV-enheter i både Arena og NORG som har samme [enhetsnummer],
+ * men forskjellig [navn] - altså at NAV-enhtene kan ha forskjellig betydning ifm. økonomi i de to systemene.
+ * Dette får vi ikke gjort så mye med i vår løsning, dermed viser vi alltid [navn] vi får fra NORG.
+ */
+@Serializable
+data class ArenaNavEnhet(
+    val navn: String?,
+    val enhetsnummer: String,
+)

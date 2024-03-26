@@ -18,6 +18,7 @@ import styles from "../DetaljerInfo.module.scss";
 import { Kontaktperson } from "./Kontaktperson";
 import { tiltaktekster } from "../../components/ledetekster/tiltaksgjennomforingLedetekster";
 import { ArrangorKontaktpersonDetaljer } from "../arrangor/ArrangorKontaktpersonDetaljer";
+import { getDisplayName } from "../../api/enhet/helpers";
 
 interface Props {
   tiltaksgjennomforing: Tiltaksgjennomforing;
@@ -209,7 +210,7 @@ export function TiltaksgjennomforingDetaljer(props: Props) {
               <div style={{ display: "flex", gap: "1rem" }}>
                 <Metadata
                   header={tiltaktekster.ansvarligEnhetFraArenaLabel}
-                  verdi={`${arenaAnsvarligEnhet.enhetsnummer} ${arenaAnsvarligEnhet.navn}`}
+                  verdi={getDisplayName(arenaAnsvarligEnhet)}
                 />
                 <HelpText title="Hva betyr feltet 'Ansvarlig enhet fra Arena'?">
                   Ansvarlig enhet fra Arena blir satt i Arena basert på tiltaksansvarlig sin enhet
