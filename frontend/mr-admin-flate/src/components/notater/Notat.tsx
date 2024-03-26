@@ -4,7 +4,7 @@ import { formaterDatoTid } from "../../utils/Utils";
 import { TrashIcon } from "@navikt/aksel-icons";
 import { Lenke } from "mulighetsrommet-frontend-common/components/lenke/Lenke";
 import { AvtaleNotat, TiltaksgjennomforingNotat } from "mulighetsrommet-api-client";
-import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
+import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
 import { NOM_ANSATT_SIDE } from "mulighetsrommet-frontend-common/constants";
 
 interface Props {

@@ -1,5 +1,5 @@
 import { useAtom, WritableAtom } from "jotai";
-import { AvtaleFilter, defaultAvtaleFilter } from "../../api/atoms";
+import { AvtaleFilter, defaultAvtaleFilter } from "@/api/atoms";
 import { HarSkrivetilgang } from "../authActions/HarSkrivetilgang";
 import style from "./AvtaleFilterButtons.module.scss";
 import { NullstillFilterKnapp } from "mulighetsrommet-frontend-common/components/filter/nullstillFilterKnapp/NullstillFilterKnapp";

@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useDebounce } from "mulighetsrommet-frontend-common";
-import { QueryKeys } from "../QueryKeys";
-import { mulighetsrommetClient } from "../clients";
+import { QueryKeys } from "@/api/QueryKeys";
+import { mulighetsrommetClient } from "@/api/client";
 
 export function useSokBrregVirksomheter(sokestreng: string) {
   const debouncedSok = useDebounce(sokestreng, 300);

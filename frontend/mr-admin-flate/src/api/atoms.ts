@@ -9,7 +9,7 @@ import {
 } from "mulighetsrommet-api-client";
 import { atom, WritableAtom } from "jotai";
 import { atomFamily } from "jotai/utils";
-import { AVTALE_PAGE_SIZE, PAGE_SIZE } from "../constants";
+import { AVTALE_PAGE_SIZE, PAGE_SIZE } from "@/constants";
 import { RESET } from "jotai/vanilla/utils";
 
 type SetStateActionWithReset<Value> =

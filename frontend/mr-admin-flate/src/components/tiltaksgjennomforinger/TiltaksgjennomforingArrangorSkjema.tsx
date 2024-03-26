@@ -3,7 +3,7 @@ import { ArrangorKontaktperson, Avtale } from "mulighetsrommet-api-client";
 import { ControlledSokeSelect } from "mulighetsrommet-frontend-common";
 import { useRef } from "react";
 import { useFormContext } from "react-hook-form";
-import { useArrangorKontaktpersoner } from "../../api/arrangor/useArrangorKontaktpersoner";
+import { useArrangorKontaktpersoner } from "@/api/arrangor/useArrangorKontaktpersoner";
 import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { FormGroup } from "../skjema/FormGroup";
 import skjemastyles from "../skjema/Skjema.module.scss";

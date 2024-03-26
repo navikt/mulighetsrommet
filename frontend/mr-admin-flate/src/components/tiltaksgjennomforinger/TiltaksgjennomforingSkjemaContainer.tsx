@@ -11,10 +11,10 @@ import {
 import { useRef } from "react";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { v4 as uuidv4 } from "uuid";
-import { gjennomforingDetaljerTabAtom } from "../../api/atoms";
-import { useHandleApiUpsertResponse } from "../../api/effects";
-import { useUpsertTiltaksgjennomforing } from "../../api/tiltaksgjennomforing/useUpsertTiltaksgjennomforing";
-import { useMigrerteTiltakstyper } from "../../api/tiltakstyper/useMigrerteTiltakstyper";
+import { gjennomforingDetaljerTabAtom } from "@/api/atoms";
+import { useHandleApiUpsertResponse } from "@/api/effects";
+import { useUpsertTiltaksgjennomforing } from "@/api/tiltaksgjennomforing/useUpsertTiltaksgjennomforing";
+import { useMigrerteTiltakstyper } from "@/api/tiltakstyper/useMigrerteTiltakstyper";
 import { HarSkrivetilgang } from "../authActions/HarSkrivetilgang";
 import { Separator } from "../detaljside/Metadata";
 import { AvbrytTiltaksgjennomforingModal } from "../modal/AvbrytTiltaksgjennomforingModal";

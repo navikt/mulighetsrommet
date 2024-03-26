@@ -7,7 +7,7 @@ import {
   VeilederflateTiltaksgjennomforing,
 } from "mulighetsrommet-api-client";
 import { Lenke } from "mulighetsrommet-frontend-common/components/lenke/Lenke";
-import { paginationAtom } from "@/core/atoms/atoms";
+import { paginationAtom } from "@/core/atoms";
 import { formaterDato } from "@/utils/Utils";
 import { kebabCase } from "../../../../frontend-common/utils/TestUtils";
 import styles from "./Gjennomforingsrad.module.scss";

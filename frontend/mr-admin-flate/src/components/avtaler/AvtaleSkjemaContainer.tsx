@@ -14,9 +14,9 @@ import {
 import { useRef } from "react";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { v4 as uuidv4 } from "uuid";
-import { avtaleDetaljerTabAtom } from "../../api/atoms";
-import { useUpsertAvtale } from "../../api/avtaler/useUpsertAvtale";
-import { useHandleApiUpsertResponse } from "../../api/effects";
+import { avtaleDetaljerTabAtom } from "@/api/atoms";
+import { useUpsertAvtale } from "@/api/avtaler/useUpsertAvtale";
+import { useHandleApiUpsertResponse } from "@/api/effects";
 import { erAnskaffetTiltak } from "../../utils/tiltakskoder";
 import { HarSkrivetilgang } from "../authActions/HarSkrivetilgang";
 import { Separator } from "../detaljside/Metadata";

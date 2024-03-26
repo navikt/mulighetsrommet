@@ -7,14 +7,14 @@ import {
   defaultTiltaksgjennomforingfilter,
   gjennomforingDetaljerTabAtom,
   TiltaksgjennomforingFilter,
-} from "../../api/atoms";
-import { useAvtale } from "../../api/avtaler/useAvtale";
-import { useMigrerteTiltakstyper } from "../../api/tiltakstyper/useMigrerteTiltakstyper";
+} from "@/api/atoms";
+import { useAvtale } from "@/api/avtaler/useAvtale";
+import { useMigrerteTiltakstyper } from "@/api/tiltakstyper/useMigrerteTiltakstyper";
 import { inneholderUrl } from "../../utils/Utils";
 import { HarSkrivetilgang } from "../authActions/HarSkrivetilgang";
 import { LeggTilGjennomforingModal } from "../modal/LeggTilGjennomforingModal";
 import styles from "./../modal/Modal.module.scss";
-import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
+import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
 import { NullstillFilterKnapp } from "mulighetsrommet-frontend-common/components/filter/nullstillFilterKnapp/NullstillFilterKnapp";
 
 interface Props {

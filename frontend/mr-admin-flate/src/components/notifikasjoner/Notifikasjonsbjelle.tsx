@@ -1,6 +1,6 @@
 import { BellIcon } from "@navikt/aksel-icons";
 import { Link } from "react-router-dom";
-import { useNotificationSummary } from "../../api/notifikasjoner/useNotificationSummary";
+import { useNotificationSummary } from "@/api/notifikasjoner/useNotificationSummary";
 import styles from "./Notifikasjonsbjelle.module.scss";
 
 function Notifier() {

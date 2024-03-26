@@ -1,10 +1,10 @@
 import { Accordion, Search, Skeleton, Switch, VStack } from "@navikt/ds-react";
 import { useAtom, WritableAtom } from "jotai";
 import { ArrangorTil } from "mulighetsrommet-api-client";
-import { AvtaleFilter as AvtaleFilterProps, avtaleFilterAccordionAtom } from "../../api/atoms";
-import { useNavEnheter } from "../../api/enhet/useNavEnheter";
-import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
-import { useArrangorer } from "../../api/arrangor/useArrangorer";
+import { AvtaleFilter as AvtaleFilterProps, avtaleFilterAccordionAtom } from "@/api/atoms";
+import { useNavEnheter } from "@/api/enhet/useNavEnheter";
+import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
+import { useArrangorer } from "@/api/arrangor/useArrangorer";
 import { addOrRemove } from "../../utils/Utils";
 import {
   arrangorOptions,

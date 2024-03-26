@@ -1,8 +1,8 @@
 import { Accordion, Alert, HelpText, Radio, RadioGroup } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import { Innsatsgruppe } from "mulighetsrommet-api-client";
-import { useInnsatsgrupper } from "@/core/api/queries/useInnsatsgrupper";
-import { filterAccordionAtom } from "@/core/atoms/atoms";
+import { useInnsatsgrupper } from "@/api/queries/useInnsatsgrupper";
+import { filterAccordionAtom } from "@/core/atoms";
 import { useArbeidsmarkedstiltakFilter } from "@/hooks/useArbeidsmarkedstiltakFilter";
 import { addOrRemove } from "@/utils/Utils";
 import "./Filtermeny.module.scss";

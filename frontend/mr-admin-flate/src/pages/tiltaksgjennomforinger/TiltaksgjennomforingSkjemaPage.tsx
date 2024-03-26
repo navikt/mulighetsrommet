@@ -1,7 +1,7 @@
 import { Alert, Heading } from "@navikt/ds-react";
 import { useLocation, useMatch, useNavigate, useParams } from "react-router-dom";
-import { useAvtale } from "../../api/avtaler/useAvtale";
-import { useTiltaksgjennomforingById } from "../../api/tiltaksgjennomforing/useTiltaksgjennomforingById";
+import { useAvtale } from "@/api/avtaler/useAvtale";
+import { useTiltaksgjennomforingById } from "@/api/tiltaksgjennomforing/useTiltaksgjennomforingById";
 import { ContainerLayout } from "../../layouts/ContainerLayout";
 import { avtaleHarRegioner, inneholderUrl } from "../../utils/Utils";
 import { Header } from "../../components/detaljside/Header";
@@ -10,7 +10,7 @@ import styles from "../../components/skjema/Skjema.module.scss";
 import { TiltaksgjennomforingSkjemaContainer } from "../../components/tiltaksgjennomforinger/TiltaksgjennomforingSkjemaContainer";
 import { ErrorMeldinger } from "../../components/tiltaksgjennomforinger/TiltaksgjennomforingSkjemaErrors";
 import { TiltaksgjennomforingstatusTag } from "../../components/statuselementer/TiltaksgjennomforingstatusTag";
-import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
+import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
 import { Brodsmule, Brodsmuler } from "../../components/navigering/Brodsmuler";
 import { TiltaksgjennomforingIkon } from "../../components/ikoner/TiltaksgjennomforingIkon";
 

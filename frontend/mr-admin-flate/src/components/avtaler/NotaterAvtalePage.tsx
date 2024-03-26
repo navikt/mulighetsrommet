@@ -3,17 +3,17 @@ import { Button, Checkbox, ErrorMessage, Heading, Textarea } from "@navikt/ds-re
 import { useState } from "react";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { AvtaleNotatRequest } from "mulighetsrommet-api-client";
-import { useAvtale } from "../../api/avtaler/useAvtale";
+import { useAvtale } from "@/api/avtaler/useAvtale";
 import { v4 as uuidv4 } from "uuid";
 import { zodResolver } from "@hookform/resolvers/zod";
 import invariant from "tiny-invariant";
 import { Laster } from "../laster/Laster";
-import { useMineAvtalenotater } from "../../api/notater/avtalenotat/useMineAvtalenotater";
+import { useMineAvtalenotater } from "@/api/notater/avtalenotat/useMineAvtalenotater";
 import { inferredNotatSchema, NotatSchema } from "../notater/NotatSchema";
-import { useAvtalenotater } from "../../api/notater/avtalenotat/useAvtalenotater";
-import { usePutAvtalenotat } from "../../api/notater/avtalenotat/usePutAvtalenotat";
+import { useAvtalenotater } from "@/api/notater/avtalenotat/useAvtalenotater";
+import { usePutAvtalenotat } from "@/api/notater/avtalenotat/usePutAvtalenotat";
 import Notatliste from "../notater/Notatliste";
-import { useDeleteAvtalenotat } from "../../api/notater/avtalenotat/useDeleteAvtalenotat";
+import { useDeleteAvtalenotat } from "@/api/notater/avtalenotat/useDeleteAvtalenotat";
 import { HarSkrivetilgang } from "../authActions/HarSkrivetilgang";
 
 export default function NotaterAvtalePage() {

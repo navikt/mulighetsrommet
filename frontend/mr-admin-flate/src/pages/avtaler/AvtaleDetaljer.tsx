@@ -2,7 +2,7 @@ import { ExternalLinkIcon } from "@navikt/aksel-icons";
 import { Alert, Heading, HelpText, VStack } from "@navikt/ds-react";
 import { NOM_ANSATT_SIDE } from "mulighetsrommet-frontend-common/constants";
 import { Fragment } from "react";
-import { useAvtale } from "../../api/avtaler/useAvtale";
+import { useAvtale } from "@/api/avtaler/useAvtale";
 import { Bolk } from "../../components/detaljside/Bolk";
 import { Metadata, Separator } from "../../components/detaljside/Metadata";
 import { Laster } from "../../components/laster/Laster";
@@ -13,7 +13,7 @@ import { Link } from "react-router-dom";
 import { NavEnhet } from "mulighetsrommet-api-client";
 import { avtaletekster } from "../../components/ledetekster/avtaleLedetekster";
 import { ArrangorKontaktpersonDetaljer } from "../arrangor/ArrangorKontaktpersonDetaljer";
-import { getDisplayName } from "../../api/enhet/helpers";
+import { getDisplayName } from "@/api/enhet/helpers";
 
 export function AvtaleDetaljer() {
   const { data: avtale, isPending, error } = useAvtale();

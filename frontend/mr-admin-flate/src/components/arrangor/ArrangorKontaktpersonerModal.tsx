@@ -1,7 +1,7 @@
 import { BodyShort, Button, Label, Modal } from "@navikt/ds-react";
 import { RefObject, useState } from "react";
-import { useArrangor } from "../../api/arrangor/useArrangor";
-import { useArrangorKontaktpersoner } from "../../api/arrangor/useArrangorKontaktpersoner";
+import { useArrangor } from "@/api/arrangor/useArrangor";
+import { useArrangorKontaktpersoner } from "@/api/arrangor/useArrangorKontaktpersoner";
 import { Laster } from "../laster/Laster";
 import { ArrangorKontaktpersonSkjema } from "./ArrangorKontaktpersonSkjema";
 import styles from "./ArrangorKontaktpersonerModal.module.scss";

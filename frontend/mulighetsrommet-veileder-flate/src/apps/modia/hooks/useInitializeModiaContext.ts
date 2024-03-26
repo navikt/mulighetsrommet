@@ -1,5 +1,5 @@
 import { useSetAtom } from "jotai";
-import { useOverordnetEnhet } from "@/core/api/queries/useOverordnetEnhet";
+import { useOverordnetEnhet } from "@/api/queries/useOverordnetEnhet";
 import { modiaContextAtom, useModiaContext } from "./useModiaContext";
 import { useEffect } from "react";
 import { useLogEvent } from "@/logging/amplitude";

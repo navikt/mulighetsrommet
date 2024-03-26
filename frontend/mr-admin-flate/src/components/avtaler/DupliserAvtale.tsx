@@ -1,8 +1,8 @@
 import { useSetAtom } from "jotai";
 import { Avtale, Opphav } from "mulighetsrommet-api-client";
 import { useNavigate } from "react-router-dom";
-import { avtaleDetaljerTabAtom } from "../../api/atoms";
-import { useMigrerteTiltakstyperForAvtaler } from "../../api/tiltakstyper/useMigrerteTiltakstyper";
+import { avtaleDetaljerTabAtom } from "@/api/atoms";
+import { useMigrerteTiltakstyperForAvtaler } from "@/api/tiltakstyper/useMigrerteTiltakstyper";
 import { DupliserButton } from "../detaljside/DupliserButton";
 import { HarSkrivetilgang } from "../authActions/HarSkrivetilgang";
 

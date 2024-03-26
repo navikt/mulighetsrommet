@@ -1,6 +1,6 @@
 import { FilterAndTableLayout } from "../../components/filter/FilterAndTableLayout";
 import { TiltaksgjennomforingFilter } from "../../components/filter/TiltaksgjennomforingFilter";
-import { gjennomforingerForAvtaleFilterAtomFamily } from "../../api/atoms";
+import { gjennomforingerForAvtaleFilterAtomFamily } from "@/api/atoms";
 import { TiltaksgjennomforingFiltertags } from "../../components/filter/TiltaksgjennomforingFiltertags";
 import { TiltaksgjennomforingFilterButtons } from "../../components/filter/TiltaksgjennomforingFilterButtons";
 import { TiltaksgjennomforingsTabell } from "../../components/tabell/TiltaksgjennomforingsTabell";

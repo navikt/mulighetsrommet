@@ -1,6 +1,6 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { QueryKeys } from "../QueryKeys";
-import { mulighetsrommetClient } from "../clients";
+import { QueryKeys } from "@/api/QueryKeys";
+import { mulighetsrommetClient } from "@/api/client";
 
 export function useTiltaksgjennomforingEndringshistorikk(id: string) {
   return useSuspenseQuery({

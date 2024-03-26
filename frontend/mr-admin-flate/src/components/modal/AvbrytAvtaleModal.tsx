@@ -3,9 +3,9 @@ import { BodyShort, Button, Heading, Modal } from "@navikt/ds-react";
 import classNames from "classnames";
 import { Avtale } from "mulighetsrommet-api-client";
 import { RefObject, useEffect } from "react";
-import { useAvbrytAvtale } from "../../api/avtaler/useAvbrytAvtale";
+import { useAvbrytAvtale } from "@/api/avtaler/useAvbrytAvtale";
 import styles from "./Modal.module.scss";
-import { resolveErrorMessage } from "../../api/errors";
+import { resolveErrorMessage } from "@/api/errors";
 import { useNavigate } from "react-router-dom";
 import { HarSkrivetilgang } from "../authActions/HarSkrivetilgang";
 

@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { mulighetsrommetClient } from "../clients";
+import { mulighetsrommetClient } from "../client";
 import { QueryKeys } from "../query-keys";
 import {
   isFilterReady,

@@ -3,7 +3,7 @@ import { TiltaksgjennomforingsTabell } from "../../components/tabell/Tiltaksgjen
 import { ContainerLayout } from "../../layouts/ContainerLayout";
 import { HeaderBanner } from "../../layouts/HeaderBanner";
 import { MainContainer } from "../../layouts/MainContainer";
-import { tiltaksgjennomforingfilterAtom } from "../../api/atoms";
+import { tiltaksgjennomforingfilterAtom } from "@/api/atoms";
 import { FilterAndTableLayout } from "../../components/filter/FilterAndTableLayout";
 import { TiltaksgjennomforingFilterButtons } from "../../components/filter/TiltaksgjennomforingFilterButtons";
 import { TiltaksgjennomforingFiltertags } from "../../components/filter/TiltaksgjennomforingFiltertags";

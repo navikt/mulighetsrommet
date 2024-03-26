@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { mulighetsrommetClient } from "../clients";
-import { QueryKeys } from "../QueryKeys";
+import { mulighetsrommetClient } from "@/api/client";
+import { QueryKeys } from "@/api/QueryKeys";
 
 export function useSetAvtaleForGjennomforing() {
   const queryClient = useQueryClient();

@@ -5,7 +5,7 @@ import {
   kalkulerStatusBasertPaaFraOgTilDato,
 } from "./Utils";
 import { Avtalestatus, Avtaletype, SorteringAvtaler } from "mulighetsrommet-api-client";
-import { AvtaleFilter } from "../api/atoms";
+import { AvtaleFilter } from "@/api/atoms";
 
 describe("Utils - kalkulerStatusBasertPaaFraOgTilDato", () => {
   test("Skal returnere status 'Aktiv' når nå er større eller lik fra-dato og nå er mindre eller lik til-dato", () => {

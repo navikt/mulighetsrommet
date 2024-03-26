@@ -4,7 +4,7 @@ import styles from "../modal/Modal.module.scss";
 import { ExclamationmarkTriangleFillIcon, XMarkOctagonFillIcon } from "@navikt/aksel-icons";
 import classNames from "classnames";
 import { UseMutationResult } from "@tanstack/react-query";
-import { resolveErrorMessage } from "../../api/errors";
+import { resolveErrorMessage } from "@/api/errors";
 
 interface Props {
   modalOpen: boolean;

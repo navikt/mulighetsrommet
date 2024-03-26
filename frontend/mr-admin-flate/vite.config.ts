@@ -1,6 +1,7 @@
 import { defineConfig } from "vitest/config";
 import react from "@vitejs/plugin-react";
 import terser from "@rollup/plugin-terser";
+import tsconfigPaths from "vite-tsconfig-paths";
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -9,7 +10,7 @@ export default defineConfig({
     host: "127.0.0.1",
     open: true,
   },
-  plugins: [react(), terser()],
+  plugins: [tsconfigPaths(), react(), terser()],
   base: process.env.VITE_BASE || "/",
   build: {
     manifest: "asset-manifest.json",
