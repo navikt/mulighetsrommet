@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { mulighetsrommetClient } from "../../clients";
 import { AvtaleNotatRequest } from "mulighetsrommet-api-client";
+import { QueryKeys } from "../../QueryKeys";
 
 export function usePutAvtalenotat() {
   const client = useQueryClient();
@@ -10,9 +11,9 @@ export function usePutAvtalenotat() {
         requestBody: notat,
       });
     },
-    onSuccess: () => {
-      client.invalidateQueries({
-        queryKey: ["avtalenotater"],
+    async onSuccess(_, request) {
+      await client.invalidateQueries({
+        queryKey: QueryKeys.avtalenotater(request.id),
       });
     },
   });

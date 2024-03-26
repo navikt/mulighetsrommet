@@ -9,7 +9,7 @@ import {
   TiltaksgjennomforingOppstartstype,
   VeilederflateTiltaksgjennomforing,
 } from "mulighetsrommet-api-client";
-import { useEffect } from "react";
+import { ReactNode, useEffect } from "react";
 import { Sorteringsmeny } from "../sorteringmeny/Sorteringsmeny";
 import { Gjennomforingsrad } from "./Gjennomforingsrad";
 import styles from "./Tiltaksgjennomforingsoversikt.module.scss";
@@ -18,10 +18,10 @@ import { sorteringAtom } from "../sorteringmeny/sorteringAtom";
 interface Props {
   tiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[];
   deltMedBruker?: DelMedBruker[];
-  varsler?: React.ReactNode;
-  tags: React.ReactNode;
+  varsler?: ReactNode;
+  tags: ReactNode;
   filterOpen?: boolean;
-  feilmelding: React.ReactNode;
+  feilmelding: ReactNode;
 }
 
 export const Tiltaksgjennomforingsoversikt = ({

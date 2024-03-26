@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { mulighetsrommetClient } from "../clients";
 import { ApiError } from "mulighetsrommet-api-client";
+import { QueryKeys } from "../QueryKeys";
 
 export function useAvbrytTiltaksgjennomforing() {
   const client = useQueryClient();
@@ -8,9 +9,9 @@ export function useAvbrytTiltaksgjennomforing() {
     mutationFn: (id: string) => {
       return mulighetsrommetClient.tiltaksgjennomforinger.avbrytTiltaksgjennomforing({ id });
     },
-    onSuccess: () => {
-      client.invalidateQueries({
-        queryKey: ["tiltaksgjennomforing"],
+    async onSuccess() {
+      await client.invalidateQueries({
+        queryKey: QueryKeys.tiltaksgjennomforing(),
       });
     },
   });
