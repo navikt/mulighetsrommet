@@ -3,10 +3,11 @@ import { Link } from "react-router-dom";
 import { kebabCase } from "../../../../frontend-common/utils/TestUtils";
 import styles from "./Forsidekort.module.scss";
 import { logEvent } from "../../logging/amplitude";
+import { ReactNode } from "react";
 
 interface ForsidekortProps {
   navn: string;
-  ikon: React.ReactNode;
+  ikon: ReactNode;
   url: string;
   tekst?: string;
 }

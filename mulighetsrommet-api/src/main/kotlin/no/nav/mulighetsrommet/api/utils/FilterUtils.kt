@@ -12,13 +12,6 @@ import no.nav.mulighetsrommet.utils.toUUID
 import java.time.LocalDate
 import java.util.*
 
-data class TiltakstypeFilter(
-    val search: String? = null,
-    val statuser: List<Tiltakstypestatus> = emptyList(),
-    val dagensDato: LocalDate = LocalDate.now(),
-    val sortering: String? = null,
-)
-
 data class AvtaleFilter(
     val tiltakstypeIder: List<UUID> = emptyList(),
     val search: String? = null,
@@ -69,18 +62,6 @@ fun <T : Any> PipelineContext<T, ApplicationCall>.getNotificationFilter(): Notif
     val status = call.request.queryParameters["status"]
     return NotificationFilter(
         status = status?.let { NotificationStatus.valueOf(it) },
-    )
-}
-
-fun <T : Any> PipelineContext<T, ApplicationCall>.getTiltakstypeFilter(): TiltakstypeFilter {
-    val search = call.request.queryParameters["search"]
-    val statuser =
-        call.parameters.getAll("tiltakstypestatuser")?.map { status -> Tiltakstypestatus.valueOf(status) }
-    val sortering = call.request.queryParameters["sort"]
-    return TiltakstypeFilter(
-        search = search,
-        statuser = statuser ?: emptyList(),
-        sortering = sortering,
     )
 }
 

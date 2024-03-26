@@ -3,8 +3,6 @@ import { mulighetsrommetClient } from "./clients";
 import { QueryKeys } from "./query-keys";
 import { useQuery } from "@tanstack/react-query";
 
-export const ALL_TOGGLES = [...Object.values(Toggles)];
-
 export type Features = Record<Toggles, boolean>;
 
 /**

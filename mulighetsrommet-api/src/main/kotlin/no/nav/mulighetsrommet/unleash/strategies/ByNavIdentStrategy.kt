@@ -4,7 +4,7 @@ import io.getunleash.UnleashContext
 import io.getunleash.strategy.Strategy
 import java.util.*
 
-class ByNavidentStrategy() : Strategy {
+class ByNavIdentStrategy : Strategy {
     companion object {
         const val VALGT_NAVIDENT_PARAM = "valgtNavident"
     }

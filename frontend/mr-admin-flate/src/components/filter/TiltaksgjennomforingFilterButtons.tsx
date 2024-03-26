@@ -144,7 +144,7 @@ interface OpprettTiltakIArenaModalProps {
 
 function OpprettTiltakIArenaModal({ open, onClose, tiltakstype }: OpprettTiltakIArenaModalProps) {
   const { data: migrerteTiltakstyper } = useMigrerteTiltakstyper();
-  const { data: tiltakstyper } = useTiltakstyper({});
+  const { data: tiltakstyper } = useTiltakstyper();
 
   const migrerteTiltakstyperNavn =
     tiltakstyper?.data

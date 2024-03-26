@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { mulighetsrommetClient } from "../../clients";
 import { ApiError } from "mulighetsrommet-api-client";
+import { QueryKeys } from "../../QueryKeys";
 
 export function useDeleteTiltaksgjennomforingsnotat() {
   const client = useQueryClient();
@@ -10,9 +11,9 @@ export function useDeleteTiltaksgjennomforingsnotat() {
         id,
       });
     },
-    onSuccess: () => {
-      client.invalidateQueries({
-        queryKey: ["tiltaksgjennomforingsnotater"],
+    async onSuccess(_, id) {
+      await client.invalidateQueries({
+        queryKey: QueryKeys.tiltaksgjennomforingsnotater(id),
       });
     },
   });

@@ -774,41 +774,6 @@ paths:
         200:
           description: Update for 'tilgjengelig for veileder' was successful
 
-  /api/v1/internal/tiltaksgjennomforinger/enhet/{enhet}:
-    parameters:
-      - in: path
-        name: enhet
-        schema:
-          type: string
-        required: true
-      - in: query
-        name: page
-        schema:
-          type: number
-        description: Page number, default 1
-      - in: query
-        name: size
-        schema:
-          type: number
-        description: Page size, default 50
-    get:
-      tags:
-        - Tiltaksgjennomforinger
-      operationId: getAllByEnhet
-      responses:
-        200:
-          description: En liste med tiltaksgjennomføringer tilknyttet en enhet
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/PaginertTiltaksgjennomforing"
-        404:
-          description: "Fant ingen tiltaksgjennomføringer for enhet"
-          content:
-            application/json:
-              schema:
-                type: string
-
   /api/v1/internal/tiltakstyper:
     get:
       tags:
@@ -1160,30 +1125,6 @@ paths:
                 $ref: "#/components/schemas/NavAnsatt"
         404:
           description: "Could not find data about 'ansatt'"
-          content:
-            application/json:
-              schema:
-                type: string
-
-  /logger/event:
-    post:
-      tags:
-        - Internal
-      operationId: logFrontendEvent
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/FrontendEvent"
-      responses:
-        201:
-          description: "Logged frontend event"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/FrontendEvent"
-        500:
-          description: "Logging to frontend failed"
           content:
             application/json:
               schema:
@@ -2453,12 +2394,6 @@ components:
         - Aktiv
         - Planlagt
         - Avsluttet
-
-    Tiltakstypekategori:
-      type: string
-      enum:
-        - GRUPPE
-        - INDIVIDUELL
 
     FrontendEvent:
       type: object

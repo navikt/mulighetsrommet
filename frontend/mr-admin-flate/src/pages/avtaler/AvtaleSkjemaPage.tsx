@@ -1,4 +1,3 @@
-import { Tiltakstypestatus } from "mulighetsrommet-api-client";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
 import { useNavEnheter } from "../../api/enhet/useNavEnheter";
@@ -19,10 +18,7 @@ const AvtaleSkjemaPage = () => {
   const navigate = useNavigate();
 
   const { data: avtale, isLoading: avtaleLoading } = useAvtale();
-  const { data: tiltakstyper, isLoading: isLoadingTiltakstyper } = useTiltakstyper(
-    { status: Tiltakstypestatus.AKTIV },
-    1,
-  );
+  const { data: tiltakstyper, isLoading: isLoadingTiltakstyper } = useTiltakstyper();
   const { data: ansatt, isLoading: isLoadingAnsatt } = useHentAnsatt();
   const { data: enheter, isLoading: isLoadingEnheter } = useNavEnheter();
   const location = useLocation();

@@ -9,7 +9,6 @@ import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.utils.DEFAULT_PAGINATION_LIMIT
 import no.nav.mulighetsrommet.api.utils.PaginationParams
-import no.nav.mulighetsrommet.api.utils.TiltakstypeFilter
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.domain.Tiltakskode
@@ -89,17 +88,13 @@ class TiltakstypeRepositoryTest : FunSpec({
         tiltakstyper.upsert(tiltakstypeSkalIkkeMigreres)
 
         test("Ingen filter for kategori returnerer både individuelle- og gruppetiltak") {
-            tiltakstyper.getAllSkalMigreres(
-                TiltakstypeFilter(),
-            ).second shouldHaveSize 3
+            tiltakstyper.getAllSkalMigreres().second shouldHaveSize 3
         }
 
         test("Filter på planlagt returnerer planlagte tiltakstyper") {
             val typer = tiltakstyper.getAllSkalMigreres(
-                TiltakstypeFilter(
-                    statuser = listOf(Tiltakstypestatus.Planlagt),
-                    dagensDato = dagensDato,
-                ),
+                statuser = listOf(Tiltakstypestatus.Planlagt),
+                dagensDato = dagensDato,
             )
             typer.second shouldHaveSize 1
             typer.second.first().id shouldBe tiltakstypePlanlagt.id
@@ -107,10 +102,8 @@ class TiltakstypeRepositoryTest : FunSpec({
 
         test("Filter på aktiv returnerer aktive tiltakstyper") {
             val typer = tiltakstyper.getAllSkalMigreres(
-                TiltakstypeFilter(
-                    statuser = listOf(Tiltakstypestatus.Aktiv),
-                    dagensDato = dagensDato,
-                ),
+                statuser = listOf(Tiltakstypestatus.Aktiv),
+                dagensDato = dagensDato,
             )
             typer.second shouldHaveSize 1
             typer.second.first().id shouldBe tiltakstypeAktiv.id
@@ -118,10 +111,8 @@ class TiltakstypeRepositoryTest : FunSpec({
 
         test("Filter på avsluttet returnerer avsluttede tiltakstyper") {
             val typer = tiltakstyper.getAllSkalMigreres(
-                TiltakstypeFilter(
-                    statuser = listOf(Tiltakstypestatus.Avsluttet),
-                    dagensDato = dagensDato,
-                ),
+                statuser = listOf(Tiltakstypestatus.Avsluttet),
+                dagensDato = dagensDato,
             )
             typer.second shouldHaveSize 1
             typer.second.first().id shouldBe tiltakstypeAvsluttet.id

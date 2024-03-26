@@ -3,7 +3,7 @@ import { apiHandlers } from "./apiHandlers";
 
 export function initializeMockServiceWorker() {
   const worker = setupWorker(...apiHandlers);
-  worker.start({
+  return worker.start({
     onUnhandledRequest: "bypass",
   });
 }

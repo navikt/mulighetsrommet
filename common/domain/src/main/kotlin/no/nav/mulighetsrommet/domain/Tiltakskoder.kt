@@ -28,7 +28,7 @@ enum class Tiltakskode {
             }
         }
 
-        fun toArenaKode(tiltakskode: Tiltakskode): String? {
+        fun toArenaKode(tiltakskode: Tiltakskode): String {
             return when (tiltakskode) {
                 ARBEIDSFORBEREDENDE_TRENING -> "ARBFORB"
                 ARBEIDSRETTET_REHABILITERING -> "ARBRRHDAG"

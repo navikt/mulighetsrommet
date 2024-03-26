@@ -1,12 +1,11 @@
 import { useAtom, WritableAtom } from "jotai";
-import { Tiltakstypestatus, ArrangorTil } from "mulighetsrommet-api-client";
+import { ArrangorTil } from "mulighetsrommet-api-client";
 import { TiltaksgjennomforingFilter } from "../../api/atoms";
 import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
 import { useArrangorer } from "../../api/arrangor/useArrangorer";
 import { addOrRemove } from "../../utils/Utils";
 import { TILTAKSGJENNOMFORING_STATUS_OPTIONS } from "../../utils/filterUtils";
-import { NavEnhetFiltertag } from "mulighetsrommet-frontend-common";
-import { Filtertag, FiltertagsContainer } from "mulighetsrommet-frontend-common";
+import { Filtertag, FiltertagsContainer, NavEnhetFiltertag } from "mulighetsrommet-frontend-common";
 
 interface Props {
   filterAtom: WritableAtom<
@@ -20,12 +19,7 @@ interface Props {
 export function TiltaksgjennomforingFiltertags({ filterAtom, filterOpen }: Props) {
   const [filter, setFilter] = useAtom(filterAtom);
   const { data: arrangorer } = useArrangorer(ArrangorTil.TILTAKSGJENNOMFORING);
-  const { data: tiltakstyper } = useTiltakstyper(
-    {
-      status: Tiltakstypestatus.AKTIV,
-    },
-    1,
-  );
+  const { data: tiltakstyper } = useTiltakstyper();
 
   return (
     <FiltertagsContainer filterOpen={filterOpen}>

@@ -5,11 +5,11 @@ import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
+import io.ktor.util.pipeline.*
 import no.nav.mulighetsrommet.api.domain.dto.VeilederflateTiltakstype
 import no.nav.mulighetsrommet.api.services.TiltakstypeService
 import no.nav.mulighetsrommet.api.services.VeilederflateService
 import no.nav.mulighetsrommet.api.utils.getPaginationParams
-import no.nav.mulighetsrommet.api.utils.getTiltakstypeFilter
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.Tiltakskode.Companion.toArenaKode
 import org.koin.ktor.ext.inject
@@ -24,12 +24,9 @@ fun Route.tiltakstypeRoutes(migrerteTiltak: List<Tiltakskode>) {
             val filter = getTiltakstypeFilter()
             val paginationParams = getPaginationParams()
 
-            call.respond(
-                tiltakstypeService.getWithFilter(
-                    filter,
-                    paginationParams,
-                ),
-            )
+            val tiltakstyper = tiltakstypeService.getWithFilter(filter, paginationParams)
+
+            call.respond(tiltakstyper)
         }
         get("{id}") {
             val id = call.parameters.getOrFail<UUID>("id")
@@ -62,4 +59,15 @@ fun Route.tiltakstypeRoutes(migrerteTiltak: List<Tiltakskode>) {
             call.respond(migrerteTiltak.map { toArenaKode(it) })
         }
     }
+}
+
+data class TiltakstypeFilter(
+    val sortering: String? = null,
+)
+
+fun <T : Any> PipelineContext<T, ApplicationCall>.getTiltakstypeFilter(): TiltakstypeFilter {
+    val sortering = call.request.queryParameters["sort"]
+    return TiltakstypeFilter(
+        sortering = sortering,
+    )
 }

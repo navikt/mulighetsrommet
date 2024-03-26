@@ -1,8 +1,9 @@
 import styles from "./Filtertag.module.scss";
 import classNames from "classnames";
+import { ReactNode } from "react";
 
 interface Props {
-  children: React.ReactNode;
+  children: ReactNode;
   filterOpen?: boolean;
 }
 

@@ -6,8 +6,6 @@ import {
   SorteringTiltaksgjennomforinger,
   SorteringTiltakstyper,
   TiltaksgjennomforingStatus,
-  Tiltakstypekategori,
-  Tiltakstypestatus,
 } from "mulighetsrommet-api-client";
 import { atom, WritableAtom } from "jotai";
 import { atomFamily } from "jotai/utils";
@@ -136,17 +134,11 @@ function atomWithHashAndStorage<Value>(
 }
 
 export interface TiltakstypeFilter {
-  sok?: string;
-  status?: Tiltakstypestatus;
-  kategori?: Tiltakstypekategori;
-  sortering?: SorteringTiltakstyper;
+  sort?: SorteringTiltakstyper;
 }
 
 export const defaultTiltakstypeFilter: TiltakstypeFilter = {
-  sok: "",
-  status: Tiltakstypestatus.AKTIV,
-  kategori: Tiltakstypekategori.GRUPPE,
-  sortering: SorteringTiltakstyper.NAVN_ASCENDING,
+  sort: SorteringTiltakstyper.NAVN_ASCENDING,
 };
 
 export const tiltakstypeFilterAtom = atomWithHashAndStorage<TiltakstypeFilter>(
