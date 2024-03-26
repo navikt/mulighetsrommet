@@ -1,17 +1,17 @@
 import { Accordion, Search, Skeleton, Switch, VStack } from "@navikt/ds-react";
 import { useAtom, WritableAtom } from "jotai";
-import { ArrangorTil, Tiltakstypestatus } from "mulighetsrommet-api-client";
+import { ArrangorTil } from "mulighetsrommet-api-client";
 import { AvtaleFilter as AvtaleFilterProps, avtaleFilterAccordionAtom } from "../../api/atoms";
 import { useNavEnheter } from "../../api/enhet/useNavEnheter";
 import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
 import { useArrangorer } from "../../api/arrangor/useArrangorer";
 import { addOrRemove } from "../../utils/Utils";
 import {
+  arrangorOptions,
   AVTALE_STATUS_OPTIONS,
   AVTALE_TYPE_OPTIONS,
   regionOptions,
   tiltakstypeOptions,
-  arrangorOptions,
 } from "../../utils/filterUtils";
 import { CheckboxList } from "./CheckboxList";
 import { FilterAccordionHeader } from "mulighetsrommet-frontend-common";
@@ -28,12 +28,7 @@ export function AvtaleFilter({ filterAtom, skjulFilter }: Props) {
   const [accordionsOpen, setAccordionsOpen] = useAtom(avtaleFilterAccordionAtom);
   const { data: enheter, isLoading: isLoadingEnheter } = useNavEnheter();
   const { data: arrangorer, isLoading: isLoadingArrangorer } = useArrangorer(ArrangorTil.AVTALE);
-  const { data: tiltakstyper, isLoading: isLoadingTiltakstyper } = useTiltakstyper(
-    {
-      status: Tiltakstypestatus.AKTIV,
-    },
-    1,
-  );
+  const { data: tiltakstyper, isLoading: isLoadingTiltakstyper } = useTiltakstyper();
   if (
     !enheter ||
     isLoadingEnheter ||

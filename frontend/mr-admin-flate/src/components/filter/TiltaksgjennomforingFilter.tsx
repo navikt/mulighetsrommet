@@ -1,6 +1,6 @@
 import { Accordion, Search, Skeleton, Switch, VStack } from "@navikt/ds-react";
 import { useAtom, WritableAtom } from "jotai";
-import { ArrangorTil, NavEnhet, Tiltakstypestatus } from "mulighetsrommet-api-client";
+import { ArrangorTil, NavEnhet } from "mulighetsrommet-api-client";
 import { useEffect } from "react";
 import {
   gjennomforingFilterAccordionAtom,
@@ -12,9 +12,9 @@ import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
 import { useArrangorer } from "../../api/arrangor/useArrangorer";
 import { addOrRemove } from "../../utils/Utils";
 import {
+  arrangorOptions,
   TILTAKSGJENNOMFORING_STATUS_OPTIONS,
   tiltakstypeOptions,
-  arrangorOptions,
 } from "../../utils/filterUtils";
 import { FilterAccordionHeader, NavEnhetFilter } from "mulighetsrommet-frontend-common";
 import { useRegioner } from "../../api/enhet/useRegioner";
@@ -40,12 +40,7 @@ export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
   const { data: arrangorer, isLoading: isLoadingArrangorer } = useArrangorer(
     ArrangorTil.TILTAKSGJENNOMFORING,
   );
-  const { data: tiltakstyper, isLoading: isLoadingTiltakstyper } = useTiltakstyper(
-    {
-      status: Tiltakstypestatus.AKTIV,
-    },
-    1,
-  );
+  const { data: tiltakstyper, isLoading: isLoadingTiltakstyper } = useTiltakstyper();
 
   useEffect(() => {
     setFilter({

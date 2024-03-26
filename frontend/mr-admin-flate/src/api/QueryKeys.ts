@@ -1,10 +1,9 @@
 import { ArrangorTil, NavAnsattRolle, NotificationStatus } from "mulighetsrommet-api-client";
-import { AvtaleFilter, TiltaksgjennomforingFilter, TiltakstypeFilter } from "./atoms";
+import { AvtaleFilter, TiltaksgjennomforingFilter } from "./atoms";
 
 export const QueryKeys = {
   tiltakstype: (id?: string) => ["tiltakstype", id] as const,
-  tiltakstyper: (sokestreng?: string, filter?: TiltakstypeFilter, page?: number) =>
-    ["tiltakstyper", page, sokestreng, { ...filter }] as const,
+  tiltakstyper: (filter?: object) => ["tiltakstyper", { ...filter }] as const,
   tiltakstypeFaneinnhold: (id: string) => ["tiltakstype", id, "faneinnhold"] as const,
   tiltaksgjennomforinger: (
     mine?: boolean,

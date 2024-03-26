@@ -2395,12 +2395,6 @@ components:
         - Planlagt
         - Avsluttet
 
-    Tiltakstypekategori:
-      type: string
-      enum:
-        - GRUPPE
-        - INDIVIDUELL
-
     FrontendEvent:
       type: object
       properties:

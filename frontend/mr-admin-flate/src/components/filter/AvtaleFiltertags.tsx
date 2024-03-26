@@ -1,5 +1,5 @@
 import { useAtom, WritableAtom } from "jotai";
-import { Tiltakstypestatus, ArrangorTil } from "mulighetsrommet-api-client";
+import { ArrangorTil } from "mulighetsrommet-api-client";
 import { AvtaleFilter } from "../../api/atoms";
 import { useNavEnheter } from "../../api/enhet/useNavEnheter";
 import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
@@ -18,13 +18,7 @@ export function AvtaleFiltertags({ filterAtom, tiltakstypeId, filterOpen }: Prop
   const [filter, setFilter] = useAtom(filterAtom);
 
   const { data: enheter } = useNavEnheter();
-  const { data: tiltakstyper } = useTiltakstyper(
-    {
-      status: Tiltakstypestatus.AKTIV,
-      kategori: undefined,
-    },
-    1,
-  );
+  const { data: tiltakstyper } = useTiltakstyper();
   const { data: arrangorer } = useArrangorer(ArrangorTil.AVTALE);
 
   return (

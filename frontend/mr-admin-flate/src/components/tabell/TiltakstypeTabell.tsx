@@ -35,7 +35,7 @@ export const TiltakstypeTabell = () => {
 
     setFilter({
       ...filter,
-      sortering: `${sortKey}-${direction}` as SorteringTiltakstyper,
+      sort: `${sortKey}-${direction}` as SorteringTiltakstyper,
     });
   };
   return (
