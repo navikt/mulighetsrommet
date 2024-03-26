@@ -8,6 +8,7 @@ import kotliquery.TransactionalSession
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.clients.vedtak.Innsatsgruppe
+import no.nav.mulighetsrommet.api.domain.dbo.ArenaNavEnhet
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
@@ -430,7 +431,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                    exists(select true
                           from jsonb_array_elements(nav_enheter_json) as nav_enhet
                           where nav_enhet ->> 'enhetsnummer' = any (:nav_enheter)) or
-                   arena_ansvarlig_enhet_json ->> 'enhetsnummer' = any (:nav_enheter)))
+                   arena_nav_enhet_enhetsnummer = any (:nav_enheter)))
               and (:administrator_nav_ident::text is null or administratorer_json @> :administrator_nav_ident::jsonb)
               and (:slutt_dato_cutoff::date is null or slutt_dato >= :slutt_dato_cutoff or slutt_dato is null)
               and (:skal_migreres::boolean is null or tiltakstype_tiltakskode is not null)
@@ -827,9 +828,10 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 )
             },
             navEnheter = navEnheterDto,
-            arenaAnsvarligEnhet = stringOrNull("arena_ansvarlig_enhet_json")?.let {
-                Json.decodeFromString(
-                    it,
+            arenaAnsvarligEnhet = stringOrNull("arena_nav_enhet_enhetsnummer")?.let {
+                ArenaNavEnhet(
+                    navn = stringOrNull("arena_nav_enhet_navn"),
+                    enhetsnummer = it,
                 )
             },
             kontaktpersoner = kontaktpersoner,

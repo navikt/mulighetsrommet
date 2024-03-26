@@ -3,17 +3,24 @@
 .envrc
 *.tar.gz
 
+# IDE's
+.vscode
+.idea
+
 # Backend specific mumbojumbo
 *.iml
 *.log
-target/
 bash.exe.stackdump
-users.txt
 .gradle
-build/
-.idea
+build
 **/.DS_Store
 **/bin
+
+# Ignore Gradle GUI config
+gradle-app.setting
+
+# Avoid ignoring Gradle wrapper jar file (.jar files are usually ignored)
+!gradle-wrapper.jar
 
 # npm
 node_modules
@@ -22,16 +29,6 @@ npm-debug.log*
 # Logs and task output from turborepo
 .turbo
 
-# Ignore Gradle GUI config
-gradle-app.setting
-
-# Avoid ignoring Gradle wrapper jar file (.jar files are usually ignored)
-!gradle-wrapper.jar
-
 # Cache of project
 .gradletasknamecache
 docker-compose.override.yml
-
-dist
-
-.vscode

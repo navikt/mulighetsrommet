@@ -13,6 +13,7 @@ import { Link } from "react-router-dom";
 import { NavEnhet } from "mulighetsrommet-api-client";
 import { avtaletekster } from "../../components/ledetekster/avtaleLedetekster";
 import { ArrangorKontaktpersonDetaljer } from "../arrangor/ArrangorKontaktpersonDetaljer";
+import { getDisplayName } from "../../api/enhet/helpers";
 
 export function AvtaleDetaljer() {
   const { data: avtale, isPending, error } = useAvtale();
@@ -191,7 +192,7 @@ export function AvtaleDetaljer() {
             <dl style={{ margin: "0" }}>
               <Metadata
                 header={avtaletekster.ansvarligEnhetFraArenaLabel}
-                verdi={`${arenaAnsvarligEnhet.enhetsnummer} ${arenaAnsvarligEnhet.navn}`}
+                verdi={getDisplayName(arenaAnsvarligEnhet)}
               />
             </dl>
             <HelpText title="Hva betyr feltet 'Ansvarlig enhet fra Arena'?">
