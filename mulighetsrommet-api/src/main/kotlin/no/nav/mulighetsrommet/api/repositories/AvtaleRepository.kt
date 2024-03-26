@@ -12,7 +12,6 @@ import no.nav.mulighetsrommet.api.domain.dto.ArrangorKontaktperson
 import no.nav.mulighetsrommet.api.domain.dto.AvtaleAdminDto
 import no.nav.mulighetsrommet.api.domain.dto.AvtaleNotificationDto
 import no.nav.mulighetsrommet.api.domain.dto.Kontorstruktur
-import no.nav.mulighetsrommet.api.utils.DatabaseUtils
 import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
@@ -243,22 +242,16 @@ class AvtaleRepository(private val db: Database) {
         administratorNavIdent: NavIdent? = null,
     ): Pair<Int, List<AvtaleAdminDto>> {
         val parameters = mapOf(
-            "search" to "%${search?.replace("/", "#")?.trim()}%",
+            "today" to dagensDato,
+            "search" to search?.replace("/", "#")?.trim()?.let { "%$it%" },
             "limit" to pagination.limit,
             "offset" to pagination.offset,
-            "today" to dagensDato,
-            "arrangor_ids" to db.createUuidArray(arrangorIds),
-            "administrator_nav_ident" to administratorNavIdent?.let { """[{"navIdent": "${it.value}" }]""" },
-        )
-
-        val where = DatabaseUtils.andWhereParameterNotNull(
-            tiltakstypeIder.ifEmpty { null } to tiltakstypeIderWhereStatement(tiltakstypeIder),
-            search to "(lower(navn) like lower(:search) or avtalenummer like :search or lower(arrangor_hovedenhet_navn) like lower(:search))",
-            statuser.ifEmpty { null } to statuserWhereStatement(statuser),
-            avtaletyper.ifEmpty { null } to avtaletyperWhereStatement(avtaletyper),
-            navRegioner.ifEmpty { null } to navRegionerWhereStatement(navRegioner),
-            arrangorIds.ifEmpty { null } to "arrangor_hovedenhet_id = any(:arrangor_ids)",
-            administratorNavIdent to "administratorer_json @> :administrator_nav_ident::jsonb",
+            "administrator_nav_ident" to administratorNavIdent?.let { """[{ "navIdent": "${it.value}" }]""" },
+            "tiltakstype_ids" to tiltakstypeIder.ifEmpty { null }?.let { db.createUuidArray(it) },
+            "arrangor_ids" to arrangorIds.ifEmpty { null }?.let { db.createUuidArray(it) },
+            "arrangor_ids" to arrangorIds.ifEmpty { null }?.let { db.createUuidArray(it) },
+            "nav_enheter" to navRegioner.ifEmpty { null }?.let { db.createTextArray(it) },
+            "avtaletyper" to avtaletyper.ifEmpty { null }?.let { db.createArrayOf("avtaletype", it) },
         )
 
         val order = when (sortering) {
@@ -279,7 +272,20 @@ class AvtaleRepository(private val db: Database) {
         val query = """
             select *, count(*) over() as full_count
             from avtale_admin_dto_view
-            $where
+            where (:tiltakstype_ids::uuid[] is null or tiltakstype_id = any (:tiltakstype_ids))
+              and (:search::text is null or (navn ilike :search or avtalenummer ilike :search or arrangor_hovedenhet_navn ilike :search))
+              and (:nav_enheter::text[] is null or (
+                   exists(select true
+                          from jsonb_array_elements(nav_enheter_json) as nav_enhet
+                          where nav_enhet ->> 'enhetsnummer' = any (:nav_enheter)) or
+                   arena_ansvarlig_enhet_json ->> 'enhetsnummer' = any (:nav_enheter) or
+                   arena_ansvarlig_enhet_json ->> 'enhetsnummer' in (select enhetsnummer
+                                                                     from nav_enhet
+                                                                     where overordnet_enhet = any (:nav_enheter))))
+              and (:arrangor_hovedenhet_id::text is null or :arrangor_hovedenhet_id = any (:arrangor_ids))
+              and (:administrator_nav_ident::text is null or administratorer_json @> :administrator_nav_ident::jsonb)
+              and (:avtaletyper::avtaletype[] is null or avtaletype = any (:avtaletyper))
+              and (${statuserWhereStatement(statuser)})
             order by $order
             limit :limit
             offset :offset
@@ -481,37 +487,17 @@ class AvtaleRepository(private val db: Database) {
         )
     }
 
-    private fun tiltakstypeIderWhereStatement(tiltakstypeIder: List<UUID>): String =
-        tiltakstypeIder
-            .joinToString(prefix = "(", postfix = ")", separator = " or ") { "tiltakstype_id = '$it'" }
-
-    // TODO fix possible sql injections
-    private fun navRegionerWhereStatement(navRegioner: List<String>): String =
-        navRegioner
-            .joinToString(prefix = "(", postfix = ")", separator = " or ") {
-                """(nav_enheter_json @> '[{"enhetsnummer": "$it"}]' or arena_ansvarlig_enhet_json->>'enhetsnummer' = '$it' or arena_ansvarlig_enhet_json->>'enhetsnummer' in (select enhetsnummer from nav_enhet where overordnet_enhet = '$it'))"""
-            }
-
     private fun statuserWhereStatement(statuser: List<Avtalestatus>): String =
         statuser
-            .joinToString(prefix = "(", postfix = ")", separator = " or ") {
+            .ifEmpty { null }
+            ?.joinToString(prefix = "(", postfix = ")", separator = " or ") {
                 when (it) {
                     Avtalestatus.Aktiv -> "(avslutningsstatus = '${Avslutningsstatus.IKKE_AVSLUTTET}' and :today <= slutt_dato)"
                     Avtalestatus.Avsluttet -> "(avslutningsstatus = '${Avslutningsstatus.AVSLUTTET}' or :today > slutt_dato)"
                     Avtalestatus.Avbrutt -> "avslutningsstatus = '${Avslutningsstatus.AVBRUTT}'"
                 }
             }
-
-    private fun avtaletyperWhereStatement(avtaletyper: List<Avtaletype>): String =
-        avtaletyper
-            .joinToString(prefix = "(", postfix = ")", separator = " or ") {
-                when (it) {
-                    Avtaletype.Avtale -> "(avtaletype = '${Avtaletype.Avtale}')"
-                    Avtaletype.Rammeavtale -> "(avtaletype = '${Avtaletype.Rammeavtale}')"
-                    Avtaletype.Forhaandsgodkjent -> "(avtaletype = '${Avtaletype.Forhaandsgodkjent}')"
-                    Avtaletype.OffentligOffentlig -> "(avtaletype = '${Avtaletype.OffentligOffentlig}')"
-                }
-            }
+            ?: "true"
 
     private fun Row.toAvtaleNotificationDto(): AvtaleNotificationDto {
         val administratorer = arrayOrNull<String?>("administratorer")?.asList()?.filterNotNull() ?: emptyList()

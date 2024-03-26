@@ -23,11 +23,15 @@ import no.nav.mulighetsrommet.api.domain.dto.ArrangorKontaktperson
 import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingAdminDto
 import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingKontaktperson
 import no.nav.mulighetsrommet.api.fixtures.*
+import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Gjovik
+import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Lillehammer
+import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Sel
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.ArenaOppfolging1
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.EnkelAmo1
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.Oppfolging1
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.Oppfolging2
+import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.VTA1
 import no.nav.mulighetsrommet.api.utils.DEFAULT_PAGINATION_LIMIT
 import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
@@ -91,7 +95,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                         navn = "Donald Duck",
                     ),
                 )
-                it.navEnheter shouldBe listOf(NavEnhetFixtures.Gjovik)
+                it.navEnheter shouldBe listOf(Gjovik)
                 it.sanityId shouldBe null
                 it.oppstart shouldBe TiltaksgjennomforingOppstartstype.LOPENDE
                 it.opphav shouldBe ArenaMigrering.Opphav.MR_ADMIN_FLATE
@@ -452,204 +456,38 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             tiltaksgjennomforinger.setAvslutningsstatus(gjennomforing.id, Avslutningsstatus.IKKE_AVSLUTTET)
             tiltaksgjennomforinger.get(gjennomforing.id)?.publisertForAlle shouldBe true
         }
-    }
 
-    context("skal migreres") {
-        test("skal migreres henter kun der tiltakstypen er definert") {
-            val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
-
-            tiltaksgjennomforinger.upsert(Oppfolging1)
-            tiltaksgjennomforinger.upsert(EnkelAmo1)
-
-            tiltaksgjennomforinger.getAll(skalMigreres = true).should {
-                it.first shouldBe 1
-                it.second[0].id shouldBe Oppfolging1.id
+        test("faneinnhold") {
+            val faneinnhold = Json.decodeFromString<Faneinnhold>(
+                """ {
+                "forHvem": [{
+                    "_key": "edcad230384e",
+                    "markDefs": [],
+                    "children": [
+                    {
+                        "marks": [],
+                        "text": "Oppl\u00e6ringen er beregnet p\u00e5 arbeidss\u00f8kere som \u00f8nsker og er egnet til \u00e5 ta arbeid som maskinf\u00f8rer. Deltakerne b\u00f8r ha f\u00f8rerkort kl. B.",
+                        "_key": "0e5849bf79a70",
+                        "_type": "span"
+                    }
+                    ],
+                    "_type": "block",
+                    "style": "normal"
+                }]
             }
-        }
-    }
-
-    test("get by opphav") {
-        val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
-
-        tiltaksgjennomforinger.upsert(Oppfolging1)
-        tiltaksgjennomforinger.setOpphav(Oppfolging1.id, ArenaMigrering.Opphav.ARENA)
-        tiltaksgjennomforinger.upsert(Oppfolging2)
-
-        tiltaksgjennomforinger.getAll(opphav = null).should {
-            it.first shouldBe 2
-        }
-
-        tiltaksgjennomforinger.getAll(opphav = ArenaMigrering.Opphav.ARENA).should {
-            it.first shouldBe 1
-            it.second[0].id shouldBe Oppfolging1.id
-        }
-
-        tiltaksgjennomforinger.getAll(opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE).should {
-            it.first shouldBe 1
-            it.second[0].id shouldBe Oppfolging2.id
-        }
-    }
-
-    context("Filtrer på avtale") {
-        test("Kun gjennomforinger tilhørende avtale blir tatt med") {
-            val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
-
-            tiltaksgjennomforinger.upsert(
-                Oppfolging1.copy(
-                    avtaleId = AvtaleFixtures.oppfolging.id,
-                ),
+            """,
             )
 
-            val result = tiltaksgjennomforinger.getAll(
-                avtaleId = AvtaleFixtures.oppfolging.id,
-            )
-                .second
-            result shouldHaveSize 1
-            result.first().id shouldBe Oppfolging1.id
-        }
-    }
-
-    context("Filtrer på arrangør") {
-        test("Kun gjennomføringer tilhørende arrangør blir tatt med") {
-            val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
-
-            tiltaksgjennomforinger.upsert(
-                Oppfolging1.copy(arrangorId = ArrangorFixtures.underenhet1.id),
-            )
-            tiltaksgjennomforinger.upsert(
-                Oppfolging2.copy(arrangorId = ArrangorFixtures.underenhet2.id),
-            )
-
-            tiltaksgjennomforinger.getAll(
-                arrangorOrgnr = listOf(ArrangorFixtures.underenhet1.organisasjonsnummer),
-            ).should {
-                it.second.size shouldBe 1
-                it.second[0].id shouldBe Oppfolging1.id
-            }
-
-            tiltaksgjennomforinger.getAll(
-                arrangorOrgnr = listOf(ArrangorFixtures.underenhet2.organisasjonsnummer),
-            ).should {
-                it.second.size shouldBe 1
-                it.second[0].id shouldBe Oppfolging2.id
-            }
-        }
-
-        test("Skal kunne søke på tiltaksarrangørs navn i fritekstsøk") {
-            val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
-            val arrangorer = ArrangorRepository(database.db)
-
-            arrangorer.upsert(ArrangorFixtures.hovedenhet)
-            arrangorer.upsert(ArrangorFixtures.underenhet1.copy(navn = "Underenhet Bergen"))
-            arrangorer.upsert(ArrangorFixtures.underenhet2.copy(navn = "Underenhet Ålesun"))
-
-            tiltaksgjennomforinger.upsert(
-                Oppfolging1.copy(arrangorId = ArrangorFixtures.underenhet1.id),
-            )
-            tiltaksgjennomforinger.upsert(
-                Oppfolging2.copy(arrangorId = ArrangorFixtures.underenhet2.id),
-            )
-
-            tiltaksgjennomforinger.getAll(
-                search = "bergen",
-            ).should {
-                it.second.size shouldBe 1
-                it.second[0].arrangor.navn shouldBe "Underenhet Bergen"
-            }
-
-            tiltaksgjennomforinger.getAll(
-                search = "under",
-            ).should {
-                it.second.size shouldBe 2
-            }
-        }
-    }
-
-    context("Cutoffdato") {
-        test("Gamle tiltaksgjennomføringer blir ikke tatt med") {
-            val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
-
-            tiltaksgjennomforinger.upsert(
-                Oppfolging1.copy(
-                    sluttDato = LocalDate.of(2023, 12, 31),
-                ),
-            )
-
-            tiltaksgjennomforinger.upsert(
-                Oppfolging1.copy(
-                    id = UUID.randomUUID(),
-                    sluttDato = LocalDate.of(2023, 6, 29),
-                ),
-            )
-
-            tiltaksgjennomforinger.upsert(
-                Oppfolging1.copy(
-                    id = UUID.randomUUID(),
-                    sluttDato = LocalDate.of(2022, 12, 31),
-                ),
-            )
-
-            val result =
-                tiltaksgjennomforinger.getAll().second
-            result shouldHaveSize 2
-        }
-
-        test("Tiltaksgjennomføringer med sluttdato som er null blir tatt med") {
-            val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
-
-            tiltaksgjennomforinger.upsert(Oppfolging1)
-            tiltaksgjennomforinger.upsert(
-                Oppfolging1.copy(
-                    id = UUID.randomUUID(),
-                    sluttDato = null,
-                ),
-            )
-
-            tiltaksgjennomforinger.getAll()
-                .second shouldHaveSize 2
-        }
-    }
-
-    context("Hente tiltaksgjennomføringer som nærmer seg sluttdato") {
-        test("Skal hente gjennomføringer som er 14, 7 eller 1 dag til sluttdato") {
-            val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
-            val oppfolging14Dager = Oppfolging1.copy(
+            val gjennomforing = Oppfolging1.copy(
                 id = UUID.randomUUID(),
-                sluttDato = LocalDate.of(2023, 5, 30),
-                administratorer = listOf(NavAnsattFixture.ansatt1.navIdent),
-            )
-            val oppfolging7Dager = Oppfolging1.copy(
-                id = UUID.randomUUID(),
-                sluttDato = LocalDate.of(2023, 5, 23),
-                administratorer = emptyList(),
-            )
-            val oppfolging1Dager = Oppfolging1.copy(
-                id = UUID.randomUUID(),
-                sluttDato = LocalDate.of(2023, 5, 17),
-                administratorer = emptyList(),
-            )
-            val oppfolging10Dager = Oppfolging1.copy(
-                id = UUID.randomUUID(),
-                sluttDato = LocalDate.of(2023, 5, 26),
-            )
-            tiltaksgjennomforinger.upsert(oppfolging14Dager)
-            tiltaksgjennomforinger.upsert(oppfolging7Dager)
-            tiltaksgjennomforinger.upsert(oppfolging1Dager)
-            tiltaksgjennomforinger.upsert(oppfolging10Dager)
-
-            val result = tiltaksgjennomforinger.getAllGjennomforingerSomNarmerSegSluttdato(
-                currentDate = LocalDate.of(
-                    2023,
-                    5,
-                    16,
-                ),
+                faneinnhold = faneinnhold,
             )
 
-            result.map { Pair(it.id, it.administratorer) } shouldContainExactlyInAnyOrder listOf(
-                Pair(oppfolging14Dager.id, listOf(NavIdent("DD1"))),
-                Pair(oppfolging7Dager.id, listOf()),
-                Pair(oppfolging1Dager.id, listOf()),
-            )
+            tiltaksgjennomforinger.upsert(gjennomforing)
+
+            tiltaksgjennomforinger.get(gjennomforing.id).should {
+                it!!.faneinnhold!!.forHvem!![0] shouldBe faneinnhold.forHvem!![0]
+            }
         }
     }
 
@@ -756,6 +594,140 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
         val navEnheter = NavEnhetRepository(database.db)
 
+        test("filtrering på arrangør") {
+            tiltaksgjennomforinger.upsert(
+                Oppfolging1.copy(arrangorId = ArrangorFixtures.underenhet1.id),
+            )
+            tiltaksgjennomforinger.upsert(
+                Oppfolging2.copy(arrangorId = ArrangorFixtures.underenhet2.id),
+            )
+
+            tiltaksgjennomforinger.getAll(
+                arrangorOrgnr = listOf(ArrangorFixtures.underenhet1.organisasjonsnummer),
+            ).should {
+                it.second.size shouldBe 1
+                it.second[0].id shouldBe Oppfolging1.id
+            }
+
+            tiltaksgjennomforinger.getAll(
+                arrangorOrgnr = listOf(ArrangorFixtures.underenhet2.organisasjonsnummer),
+            ).should {
+                it.second.size shouldBe 1
+                it.second[0].id shouldBe Oppfolging2.id
+            }
+        }
+
+        test("søk på tiltaksarrangørs navn") {
+            val arrangorer = ArrangorRepository(database.db)
+
+            arrangorer.upsert(ArrangorFixtures.hovedenhet)
+            arrangorer.upsert(ArrangorFixtures.underenhet1.copy(navn = "Underenhet Bergen"))
+            arrangorer.upsert(ArrangorFixtures.underenhet2.copy(navn = "Underenhet Ålesun"))
+
+            tiltaksgjennomforinger.upsert(
+                Oppfolging1.copy(arrangorId = ArrangorFixtures.underenhet1.id),
+            )
+            tiltaksgjennomforinger.upsert(
+                Oppfolging2.copy(arrangorId = ArrangorFixtures.underenhet2.id),
+            )
+
+            tiltaksgjennomforinger.getAll(
+                search = "bergen",
+            ).should {
+                it.second.size shouldBe 1
+                it.second[0].arrangor.navn shouldBe "Underenhet Bergen"
+            }
+
+            tiltaksgjennomforinger.getAll(
+                search = "under",
+            ).should {
+                it.second.size shouldBe 2
+            }
+        }
+
+        test("skal migreres henter kun der tiltakstypen har egen tiltakskode") {
+            tiltaksgjennomforinger.upsert(Oppfolging1)
+            tiltaksgjennomforinger.upsert(EnkelAmo1)
+
+            tiltaksgjennomforinger.getAll(skalMigreres = true).should {
+                it.first shouldBe 1
+                it.second[0].id shouldBe Oppfolging1.id
+            }
+        }
+
+        test("filtrering på opphav") {
+            tiltaksgjennomforinger.upsert(Oppfolging1)
+            tiltaksgjennomforinger.setOpphav(Oppfolging1.id, ArenaMigrering.Opphav.ARENA)
+            tiltaksgjennomforinger.upsert(Oppfolging2)
+
+            tiltaksgjennomforinger.getAll(opphav = null).should {
+                it.first shouldBe 2
+            }
+
+            tiltaksgjennomforinger.getAll(opphav = ArenaMigrering.Opphav.ARENA).should {
+                it.first shouldBe 1
+                it.second[0].id shouldBe Oppfolging1.id
+            }
+
+            tiltaksgjennomforinger.getAll(opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE).should {
+                it.first shouldBe 1
+                it.second[0].id shouldBe Oppfolging2.id
+            }
+        }
+
+        test("filtrering på avtale") {
+            tiltaksgjennomforinger.upsert(
+                Oppfolging1.copy(
+                    avtaleId = AvtaleFixtures.oppfolging.id,
+                ),
+            )
+
+            val result = tiltaksgjennomforinger.getAll(
+                avtaleId = AvtaleFixtures.oppfolging.id,
+            )
+                .second
+            result shouldHaveSize 1
+            result.first().id shouldBe Oppfolging1.id
+        }
+
+        test("filtrer vekk gjennomføringer som ble avsluttet før 2023") {
+            tiltaksgjennomforinger.upsert(
+                Oppfolging1.copy(
+                    sluttDato = LocalDate.of(2023, 12, 31),
+                ),
+            )
+
+            tiltaksgjennomforinger.upsert(
+                Oppfolging1.copy(
+                    id = UUID.randomUUID(),
+                    sluttDato = LocalDate.of(2023, 6, 29),
+                ),
+            )
+
+            tiltaksgjennomforinger.upsert(
+                Oppfolging1.copy(
+                    id = UUID.randomUUID(),
+                    sluttDato = LocalDate.of(2022, 12, 31),
+                ),
+            )
+
+            tiltaksgjennomforinger.upsert(
+                Oppfolging1.copy(
+                    id = UUID.randomUUID(),
+                    sluttDato = null,
+                ),
+            )
+
+            tiltaksgjennomforinger.getAll().should { (totalCount, gjennomforinger) ->
+                totalCount shouldBe 3
+                gjennomforinger.map { it.sluttDato } shouldContainExactlyInAnyOrder listOf(
+                    LocalDate.of(2023, 12, 31),
+                    LocalDate.of(2023, 6, 29),
+                    null,
+                )
+            }
+        }
+
         test("filtrer på nav_enhet") {
             navEnheter.upsert(
                 NavEnhetDbo(
@@ -819,6 +791,100 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 it.first shouldBe 1
                 it.second.map { tg -> tg.id } shouldContainAll listOf(tg2.id)
             }
+        }
+
+        test("filtrering på tiltakstype") {
+            MulighetsrommetTestDomain(
+                avtaler = listOf(AvtaleFixtures.oppfolging, AvtaleFixtures.VTA, AvtaleFixtures.AFT),
+                gjennomforinger = listOf(Oppfolging1, VTA1, AFT1),
+            ).initialize(database.db)
+
+            tiltaksgjennomforinger.getAll(tiltakstypeIder = listOf(TiltakstypeFixtures.Oppfolging.id))
+                .should { (totalCount, gjennomforinger) ->
+                    totalCount shouldBe 1
+                    gjennomforinger[0].navn shouldBe Oppfolging1.navn
+                }
+
+            tiltaksgjennomforinger.getAll(
+                tiltakstypeIder = listOf(TiltakstypeFixtures.AFT.id, TiltakstypeFixtures.VTA.id),
+            ).should { (totalCount, gjennomforinger) ->
+                totalCount shouldBe 2
+                gjennomforinger.map { it.navn } shouldContainExactlyInAnyOrder listOf(VTA1.navn, AFT1.navn)
+            }
+        }
+
+        test("filtrering på NAV-enhet") {
+            MulighetsrommetTestDomain(
+                enheter = listOf(
+                    NavEnhetFixtures.IT,
+                    NavEnhetFixtures.Innlandet,
+                    Gjovik,
+                    Lillehammer,
+                    Sel,
+                ),
+                avtaler = listOf(AvtaleFixtures.oppfolging, AvtaleFixtures.VTA, AvtaleFixtures.AFT),
+                gjennomforinger = listOf(
+                    Oppfolging1.copy(navEnheter = listOf(Gjovik.enhetsnummer)),
+                    VTA1.copy(navEnheter = listOf(Lillehammer.enhetsnummer)),
+                    AFT1.copy(navEnheter = listOf(Sel.enhetsnummer, Gjovik.enhetsnummer)),
+                ),
+            ).initialize(database.db)
+
+            tiltaksgjennomforinger.getAll(navEnheter = listOf(Gjovik.enhetsnummer))
+                .should { (totalCount, gjennomforinger) ->
+                    totalCount shouldBe 2
+                    gjennomforinger.map { it.navn } shouldContainExactlyInAnyOrder listOf(Oppfolging1.navn, AFT1.navn)
+                }
+
+            tiltaksgjennomforinger.getAll(navEnheter = listOf(Lillehammer.enhetsnummer, Sel.enhetsnummer))
+                .should { (totalCount, gjennomforinger) ->
+                    totalCount shouldBe 2
+                    gjennomforinger.map { it.navn } shouldContainExactlyInAnyOrder listOf(VTA1.navn, AFT1.navn)
+                }
+
+            tiltaksgjennomforinger.getAll(navEnheter = listOf(NavEnhetFixtures.Innlandet.enhetsnummer))
+                .should { (totalCount) ->
+                    totalCount shouldBe 3
+                }
+        }
+    }
+
+    context("Hente tiltaksgjennomføringer som nærmer seg sluttdato") {
+        test("Skal hente gjennomføringer som er 14, 7 eller 1 dag til sluttdato") {
+            val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
+            val oppfolging14Dager = Oppfolging1.copy(
+                id = UUID.randomUUID(),
+                sluttDato = LocalDate.of(2023, 5, 30),
+                administratorer = listOf(NavAnsattFixture.ansatt1.navIdent),
+            )
+            val oppfolging7Dager = Oppfolging1.copy(
+                id = UUID.randomUUID(),
+                sluttDato = LocalDate.of(2023, 5, 23),
+                administratorer = emptyList(),
+            )
+            val oppfolging1Dager = Oppfolging1.copy(
+                id = UUID.randomUUID(),
+                sluttDato = LocalDate.of(2023, 5, 17),
+                administratorer = emptyList(),
+            )
+            val oppfolging10Dager = Oppfolging1.copy(
+                id = UUID.randomUUID(),
+                sluttDato = LocalDate.of(2023, 5, 26),
+            )
+            tiltaksgjennomforinger.upsert(oppfolging14Dager)
+            tiltaksgjennomforinger.upsert(oppfolging7Dager)
+            tiltaksgjennomforinger.upsert(oppfolging1Dager)
+            tiltaksgjennomforinger.upsert(oppfolging10Dager)
+
+            val result = tiltaksgjennomforinger.getAllGjennomforingerSomNarmerSegSluttdato(
+                currentDate = LocalDate.of(2023, 5, 16),
+            )
+
+            result.map { Pair(it.id, it.administratorer) } shouldContainExactlyInAnyOrder listOf(
+                Pair(oppfolging14Dager.id, listOf(NavIdent("DD1"))),
+                Pair(oppfolging7Dager.id, listOf()),
+                Pair(oppfolging1Dager.id, listOf()),
+            )
         }
     }
 
@@ -896,40 +962,6 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             items.last().navn shouldBe "Tiltak - 99"
 
             totalCount shouldBe 105
-        }
-    }
-
-    test("faneinnhold") {
-        val faneinnhold = Json.decodeFromString<Faneinnhold>(
-            """ {
-                "forHvem": [{
-                    "_key": "edcad230384e",
-                    "markDefs": [],
-                    "children": [
-                    {
-                        "marks": [],
-                        "text": "Oppl\u00e6ringen er beregnet p\u00e5 arbeidss\u00f8kere som \u00f8nsker og er egnet til \u00e5 ta arbeid som maskinf\u00f8rer. Deltakerne b\u00f8r ha f\u00f8rerkort kl. B.",
-                        "_key": "0e5849bf79a70",
-                        "_type": "span"
-                    }
-                    ],
-                    "_type": "block",
-                    "style": "normal"
-                }]
-            }
-            """,
-        )
-
-        val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
-        val gjennomforing = Oppfolging1.copy(
-            id = UUID.randomUUID(),
-            faneinnhold = faneinnhold,
-        )
-
-        tiltaksgjennomforinger.upsert(gjennomforing)
-
-        tiltaksgjennomforinger.get(gjennomforing.id).should {
-            it!!.faneinnhold!!.forHvem!![0] shouldBe faneinnhold.forHvem!![0]
         }
     }
 

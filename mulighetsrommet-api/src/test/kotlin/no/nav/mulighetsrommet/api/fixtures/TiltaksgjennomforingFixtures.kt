@@ -126,31 +126,6 @@ object TiltaksgjennomforingFixtures {
         estimertVentetidEnhet = "dag",
     )
 
-    // TODO slett denne
-    val Arbeidstrening1 = TiltaksgjennomforingDbo(
-        id = UUID.randomUUID(),
-        navn = "Arbeidstrening 1",
-        tiltakstypeId = TiltakstypeFixtures.Arbeidstrening.id,
-        arrangorId = ArrangorFixtures.underenhet2.id,
-        startDato = LocalDate.of(2023, 1, 1),
-        sluttDato = LocalDate.of(2023, 2, 1),
-        apentForInnsok = true,
-        antallPlasser = 12,
-        administratorer = emptyList(),
-        navRegion = "2990",
-        navEnheter = emptyList(),
-        oppstart = TiltaksgjennomforingOppstartstype.FELLES,
-        kontaktpersoner = emptyList(),
-        arrangorKontaktpersoner = emptyList(),
-        stedForGjennomforing = "Oslo",
-        avtaleId = AvtaleFixtures.oppfolging.id,
-        faneinnhold = null,
-        beskrivelse = null,
-        deltidsprosent = 100.0,
-        estimertVentetidVerdi = 3,
-        estimertVentetidEnhet = "dag",
-    )
-
     val VTA1 = TiltaksgjennomforingDbo(
         id = UUID.randomUUID(),
         navn = "VTA 1",

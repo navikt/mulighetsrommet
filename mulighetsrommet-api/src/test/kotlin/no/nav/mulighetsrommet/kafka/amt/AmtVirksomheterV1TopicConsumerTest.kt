@@ -4,6 +4,7 @@ import arrow.core.right
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
@@ -87,7 +88,9 @@ class AmtVirksomheterV1TopicConsumerTest : FunSpec({
         }
 
         test("delete virksomheter for tombstone messages") {
-            arrangorRepository.upsert(virksomhetDto)
+            arrangorRepository.upsert(underenhetDto)
+
+            arrangorRepository.get(underenhetDto.organisasjonsnummer).shouldNotBeNull()
 
             virksomhetConsumer.consume(amtUnderenhet.organisasjonsnummer, JsonNull)
 

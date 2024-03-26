@@ -17,7 +17,6 @@ import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattDbo
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures
-import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.repositories.ArrangorRepository
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.repositories.NavAnsattRepository
@@ -180,34 +179,18 @@ class AvtaleServiceTest : FunSpec({
                 startDato = LocalDate.of(2024, 5, 17),
                 sluttDato = LocalDate.of(2025, 7, 1),
             )
-            val avtaleSomErUinteressant = AvtaleFixtures.oppfolging.copy(
-                id = UUID.randomUUID(),
-                navn = "Avtale som vi ikke bryr oss om",
-                startDato = LocalDate.of(2024, 5, 17),
-                sluttDato = LocalDate.of(2025, 7, 1),
-            )
             avtaleRepository.upsert(avtale)
-            avtaleRepository.upsert(avtaleSomErUinteressant)
-            val oppfolging = TiltaksgjennomforingFixtures.Oppfolging1.copy(
+            val oppfolging1 = TiltaksgjennomforingFixtures.Oppfolging1.copy(
                 avtaleId = avtale.id,
-                tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
-                startDato = LocalDate.of(2023, 5, 1),
-                sluttDato = null,
-            )
-            val arbeidstrening = TiltaksgjennomforingFixtures.Arbeidstrening1.copy(
-                avtaleId = avtale.id,
-                tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
                 startDato = LocalDate.of(2023, 5, 1),
                 sluttDato = null,
             )
             val oppfolging2 = TiltaksgjennomforingFixtures.Oppfolging2.copy(
-                avtaleId = avtaleSomErUinteressant.id,
-                tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
+                avtaleId = avtale.id,
                 startDato = LocalDate.of(2023, 5, 1),
                 sluttDato = null,
             )
-            tiltaksgjennomforinger.upsert(oppfolging)
-            tiltaksgjennomforinger.upsert(arbeidstrening)
+            tiltaksgjennomforinger.upsert(oppfolging1)
             tiltaksgjennomforinger.upsert(oppfolging2)
 
             avtaleService.avbrytAvtale(avtale.id, bertilNavIdent).shouldBeLeft(
@@ -223,21 +206,19 @@ class AvtaleServiceTest : FunSpec({
                 sluttDato = LocalDate.of(2027, 7, 1),
             )
             avtaleRepository.upsert(avtale)
-            val oppfolging = TiltaksgjennomforingFixtures.Oppfolging1.copy(
+            val oppfolging1 = TiltaksgjennomforingFixtures.Oppfolging1.copy(
                 avtaleId = avtale.id,
-                tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
                 startDato = LocalDate.of(2026, 5, 1),
                 sluttDato = null,
             )
-            val arbeidstrening = TiltaksgjennomforingFixtures.Arbeidstrening1.copy(
+            val oppfolging2 = TiltaksgjennomforingFixtures.Oppfolging2.copy(
                 avtaleId = avtale.id,
-                tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
                 startDato = LocalDate.of(2024, 5, 1),
                 sluttDato = null,
             )
 
-            tiltaksgjennomforinger.upsert(oppfolging)
-            tiltaksgjennomforinger.upsert(arbeidstrening)
+            tiltaksgjennomforinger.upsert(oppfolging1)
+            tiltaksgjennomforinger.upsert(oppfolging2)
 
             avtaleService.avbrytAvtale(avtale.id, bertilNavIdent, dagensDato = LocalDate.of(2024, 1, 1)).shouldBeLeft(
                 BadRequest("Avtalen har 2 planlagte tiltaksgjennomføringer koblet til seg. Du må flytte eller avslutte gjennomføringene før du kan avbryte avtalen."),
@@ -251,28 +232,19 @@ class AvtaleServiceTest : FunSpec({
                 startDato = LocalDate.of(2024, 5, 17),
                 sluttDato = LocalDate.of(2025, 7, 1),
             )
-            val avtaleSomErUinteressant = AvtaleFixtures.oppfolging.copy(
-                id = UUID.randomUUID(),
-                navn = "Avtale som vi ikke bryr oss om",
-                startDato = LocalDate.of(2024, 5, 17),
-                sluttDato = LocalDate.of(2025, 7, 1),
-            )
             avtaleRepository.upsert(avtale)
-            avtaleRepository.upsert(avtaleSomErUinteressant)
-            val oppfolging = TiltaksgjennomforingFixtures.Oppfolging1.copy(
+            val oppfolging1 = TiltaksgjennomforingFixtures.Oppfolging1.copy(
                 avtaleId = avtale.id,
-                tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
                 startDato = LocalDate.of(2023, 5, 1),
                 sluttDato = LocalDate.of(2023, 6, 1),
             )
-            val arbeidstrening = TiltaksgjennomforingFixtures.Arbeidstrening1.copy(
+            val oppfolging2 = TiltaksgjennomforingFixtures.Oppfolging2.copy(
                 avtaleId = avtale.id,
-                tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
                 startDato = LocalDate.of(2023, 5, 1),
                 sluttDato = LocalDate.of(2024, 1, 1),
             )
-            tiltaksgjennomforinger.upsert(oppfolging)
-            tiltaksgjennomforinger.upsert(arbeidstrening)
+            tiltaksgjennomforinger.upsert(oppfolging1)
+            tiltaksgjennomforinger.upsert(oppfolging2)
 
             avtaleService.avbrytAvtale(avtale.id, bertilNavIdent).shouldBeRight()
         }
