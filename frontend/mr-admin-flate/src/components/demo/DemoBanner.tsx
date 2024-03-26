@@ -1,17 +1,9 @@
 import { Alert, BodyShort, Button, Heading } from "@navikt/ds-react";
 import { useState } from "react";
-import { useVisForMiljo } from "../../hooks/useVisForMiljo";
-import styles from "./MiljoBanner.module.scss";
+import styles from "./DemoBanner.module.scss";
 
-const WHITELIST_BANNER = [".ekstern.dev.nav.no"];
-
-export function MiljoBanner() {
+export function DemoBanner() {
   const [vis, setVis] = useState(true);
-  const visForMiljo = useVisForMiljo(WHITELIST_BANNER);
-
-  if (!visForMiljo) {
-    return null;
-  }
 
   if (!vis) return null;
 
