@@ -79,22 +79,6 @@ export const regionOptions = (enheter: NavEnhet[]) => {
     }));
 };
 
-export const enhetOptions = (enheter: NavEnhet[], navRegioner: string[]) => {
-  return enheter
-    .filter((enhet) => {
-      const erLokalEllerTiltaksenhet =
-        enhet.type === NavEnhetType.LOKAL || enhet.type === NavEnhetType.TILTAK;
-      const enheterFraFylke =
-        navRegioner.length === 0 ? true : navRegioner.includes(enhet.overordnetEnhet ?? "");
-      return erLokalEllerTiltaksenhet && enheterFraFylke;
-    })
-    .sort()
-    .map((enhet) => ({
-      label: `${enhet.navn} - ${enhet.enhetsnummer}`,
-      value: enhet.enhetsnummer,
-    }));
-};
-
 export const tiltakstypeOptions = (tiltakstyper: Tiltakstype[]) => {
   return (
     tiltakstyper.sort().map((tiltakstype) => ({
