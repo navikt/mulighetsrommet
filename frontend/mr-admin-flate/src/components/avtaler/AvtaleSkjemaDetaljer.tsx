@@ -6,6 +6,7 @@ import {
   NavEnhet,
   NavEnhetType,
   Opphav,
+  TiltakskodeArena,
   Tiltakstype,
 } from "mulighetsrommet-api-client";
 import { ControlledSokeSelect } from "mulighetsrommet-frontend-common/components/ControlledSokeSelect";
@@ -68,41 +69,6 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
   const sluttDatoFraDato = startDato ? new Date(startDato) : minStartdato;
   const sluttDatoTilDato = addYear(startDato ? new Date(startDato) : new Date(), 5);
 
-  function avtaletypeOptions(): { value: Avtaletype; label: string }[] {
-    const forhaandsgodkjent = {
-      value: Avtaletype.FORHAANDSGODKJENT,
-      label: avtaletypeTilTekst(Avtaletype.FORHAANDSGODKJENT),
-    };
-    const rammeavtale = {
-      value: Avtaletype.RAMMEAVTALE,
-      label: avtaletypeTilTekst(Avtaletype.RAMMEAVTALE),
-    };
-    const avtale = {
-      value: Avtaletype.AVTALE,
-      label: avtaletypeTilTekst(Avtaletype.AVTALE),
-    };
-    const offentligOffentlig = {
-      value: Avtaletype.OFFENTLIG_OFFENTLIG,
-      label: avtaletypeTilTekst(Avtaletype.OFFENTLIG_OFFENTLIG),
-    };
-    switch (watchedTiltakstype?.arenaKode) {
-      case "ARBFORB":
-      case "VASV":
-        return [forhaandsgodkjent];
-      case "AVKLARAG":
-      case "INDOPPFAG":
-      case "ARBRRHDAG":
-      case "DIGIOPPARB":
-      case "JOBBK":
-        return [avtale, rammeavtale];
-      case "GRUFAGYRKE":
-      case "GRUPPEAMO":
-        return [avtale, offentligOffentlig, rammeavtale];
-      default:
-    }
-    return [];
-  }
-
   return (
     <div className={skjemastyles.container}>
       <div className={skjemastyles.input_container}>
@@ -131,8 +97,12 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
                 placeholder="Velg en"
                 label={avtaletekster.tiltakstypeLabel}
                 {...register("tiltakstype")}
-                onChange={() => {
-                  setValue("avtaletype", undefined);
+                onChange={(event) => {
+                  const options = event.target.value?.arenaKode
+                    ? avtaletypeOptions(event.target.value.arenaKode)
+                    : [];
+                  const avtaletype = options.length === 1 ? options[0].value : undefined;
+                  setValue("avtaletype", avtaletype);
                 }}
                 options={tiltakstyper.map((tiltakstype) => ({
                   value: {
@@ -152,7 +122,7 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
                 placeholder="Velg en"
                 label={avtaletekster.avtaletypeLabel}
                 {...register("avtaletype")}
-                options={avtaletypeOptions()}
+                options={arenaKode ? avtaletypeOptions(arenaKode) : []}
               />
             </HGrid>
           </FormGroup>
@@ -271,8 +241,40 @@ function velgAlleLokaleUnderenheter(
   enheter: NavEnhet[],
 ): string[] {
   const regioner = selectedOptions?.map((option) => option.value);
-  const navEnheter = getLokaleUnderenheterAsSelectOptions(regioner, enheter).map(
-    (option) => option.value,
-  );
-  return navEnheter;
+  return getLokaleUnderenheterAsSelectOptions(regioner, enheter).map((option) => option.value);
+}
+
+function avtaletypeOptions(arenaKode: TiltakskodeArena): { value: Avtaletype; label: string }[] {
+  const forhaandsgodkjent = {
+    value: Avtaletype.FORHAANDSGODKJENT,
+    label: avtaletypeTilTekst(Avtaletype.FORHAANDSGODKJENT),
+  };
+  const rammeavtale = {
+    value: Avtaletype.RAMMEAVTALE,
+    label: avtaletypeTilTekst(Avtaletype.RAMMEAVTALE),
+  };
+  const avtale = {
+    value: Avtaletype.AVTALE,
+    label: avtaletypeTilTekst(Avtaletype.AVTALE),
+  };
+  const offentligOffentlig = {
+    value: Avtaletype.OFFENTLIG_OFFENTLIG,
+    label: avtaletypeTilTekst(Avtaletype.OFFENTLIG_OFFENTLIG),
+  };
+  switch (arenaKode) {
+    case "ARBFORB":
+    case "VASV":
+      return [forhaandsgodkjent];
+    case "AVKLARAG":
+    case "INDOPPFAG":
+    case "ARBRRHDAG":
+    case "DIGIOPPARB":
+    case "JOBBK":
+      return [avtale, rammeavtale];
+    case "GRUFAGYRKE":
+    case "GRUPPEAMO":
+      return [avtale, offentligOffentlig, rammeavtale];
+    default:
+      return [];
+  }
 }
