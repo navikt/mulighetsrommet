@@ -26,6 +26,7 @@ import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.*
 
 class TiltaksgjennomforingValidatorTest : FunSpec({
@@ -298,21 +299,26 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
             }
         }
 
-        test("should fail when status is Avsluttet") {
-            forAll(
-                row(Avslutningsstatus.AVBRUTT),
-                row(Avslutningsstatus.AVLYST),
-                row(Avslutningsstatus.AVSLUTTET),
-            ) { status ->
-                tiltaksgjennomforinger.setAvslutningsstatus(gjennomforing.id, status)
+        test("should fail when is avbrutt") {
+            tiltaksgjennomforinger.setAvbruttTidspunkt(gjennomforing.id, LocalDateTime.now())
 
-                val validator = TiltaksgjennomforingValidator(tiltakstyper, avtaler)
+            val validator = TiltaksgjennomforingValidator(tiltakstyper, avtaler)
 
-                val previous = tiltaksgjennomforinger.get(gjennomforing.id)
-                validator.validate(gjennomforing, previous).shouldBeLeft().shouldContainExactlyInAnyOrder(
-                    ValidationError("navn", "Kan bare gjøre endringer når gjennomføringen er aktiv"),
-                )
-            }
+            val previous = tiltaksgjennomforinger.get(gjennomforing.id)
+            validator.validate(gjennomforing, previous).shouldBeLeft().shouldContainExactlyInAnyOrder(
+                ValidationError("navn", "Kan bare gjøre endringer når gjennomføringen er aktiv"),
+            )
+        }
+
+        test("should fail when is avsluttet") {
+            tiltaksgjennomforinger.upsert(gjennomforing.copy(sluttDato = LocalDate.now().minusDays(2)))
+
+            val validator = TiltaksgjennomforingValidator(tiltakstyper, avtaler)
+
+            val previous = tiltaksgjennomforinger.get(gjennomforing.id)
+            validator.validate(gjennomforing, previous).shouldBeLeft().shouldContainExactlyInAnyOrder(
+                ValidationError("navn", "Kan bare gjøre endringer når gjennomføringen er aktiv"),
+            )
         }
     }
 })

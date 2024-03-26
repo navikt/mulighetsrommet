@@ -17,7 +17,6 @@ select tg.id::uuid,
                    'status', arena_nav_enhet.status
                 )
            end                    as arena_ansvarlig_enhet,
-       tg.avslutningsstatus,
        tg.apent_for_innsok,
        tg.sanity_id,
        tg.antall_plasser,
@@ -89,9 +88,9 @@ select tg.id::uuid,
        tg.estimert_ventetid_verdi,
        tg.estimert_ventetid_enhet,
        tg.publisert,
-       tg.publisert and tg.avslutningsstatus = 'IKKE_AVSLUTTET'::avslutningsstatus
-                                  as publisert_for_alle,
-       t.arena_kode
+       tg.publisert and avbrutt_tidspunkt is null as publisert_for_alle,
+       t.arena_kode,
+       tg.avbrutt_tidspunkt
 from tiltaksgjennomforing tg
          inner join tiltakstype t on tg.tiltakstype_id = t.id
          left join tiltaksgjennomforing_administrator tg_a on tg_a.tiltaksgjennomforing_id = tg.id

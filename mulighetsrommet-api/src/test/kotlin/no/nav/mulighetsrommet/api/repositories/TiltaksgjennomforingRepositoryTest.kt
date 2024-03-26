@@ -40,6 +40,7 @@ import no.nav.mulighetsrommet.domain.dto.Faneinnhold
 import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.*
 
 class TiltaksgjennomforingRepositoryTest : FunSpec({
@@ -438,19 +439,19 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             tiltaksgjennomforinger.get(gjennomforing.id)?.publisert shouldBe true
         }
 
-        test("skal vises til veileder basert til publisert og avslutningsstatus") {
+        test("skal vises til veileder basert til publisert og status") {
             val gjennomforing = Oppfolging1.copy(id = UUID.randomUUID())
             tiltaksgjennomforinger.upsert(gjennomforing)
+            tiltaksgjennomforinger.setPublisert(gjennomforing.id, true)
+            tiltaksgjennomforinger.get(gjennomforing.id)?.publisertForAlle shouldBe true
 
-            tiltaksgjennomforinger.setAvslutningsstatus(gjennomforing.id, Avslutningsstatus.AVSLUTTET)
             tiltaksgjennomforinger.setPublisert(gjennomforing.id, false)
             tiltaksgjennomforinger.get(gjennomforing.id)?.publisertForAlle shouldBe false
 
             tiltaksgjennomforinger.setPublisert(gjennomforing.id, true)
-            tiltaksgjennomforinger.get(gjennomforing.id)?.publisertForAlle shouldBe false
+            tiltaksgjennomforinger.setAvbruttTidspunkt(gjennomforing.id, LocalDateTime.now())
 
-            tiltaksgjennomforinger.setAvslutningsstatus(gjennomforing.id, Avslutningsstatus.IKKE_AVSLUTTET)
-            tiltaksgjennomforinger.get(gjennomforing.id)?.publisertForAlle shouldBe true
+            tiltaksgjennomforinger.get(gjennomforing.id)?.publisertForAlle shouldBe false
         }
     }
 
@@ -657,10 +658,6 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         val dagensDato = LocalDate.of(2023, 2, 1)
 
         val tiltaksgjennomforingAktiv = AFT1
-        val tiltaksgjennomforingAvsluttetStatus = ArenaOppfolging1.copy(
-            id = UUID.randomUUID(),
-            avslutningsstatus = Avslutningsstatus.AVSLUTTET,
-        )
         val tiltaksgjennomforingAvsluttetDato = ArenaOppfolging1.copy(
             id = UUID.randomUUID(),
             avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
@@ -683,7 +680,6 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         beforeAny {
             val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
             tiltaksgjennomforingRepository.upsert(tiltaksgjennomforingAktiv)
-            tiltaksgjennomforingRepository.upsertArenaTiltaksgjennomforing(tiltaksgjennomforingAvsluttetStatus)
             tiltaksgjennomforingRepository.upsertArenaTiltaksgjennomforing(tiltaksgjennomforingAvsluttetDato)
             tiltaksgjennomforingRepository.upsertArenaTiltaksgjennomforing(tiltaksgjennomforingAvbrutt)
             tiltaksgjennomforingRepository.upsertArenaTiltaksgjennomforing(tiltaksgjennomforingPlanlagt)
@@ -710,9 +706,8 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 statuser = listOf(Tiltaksgjennomforingsstatus.AVSLUTTET),
             )
 
-            result.second shouldHaveSize 2
-            result.second.map { it.id }
-                .shouldContainAll(tiltaksgjennomforingAvsluttetDato.id, tiltaksgjennomforingAvsluttetStatus.id)
+            result.second shouldHaveSize 1
+            result.second[0].id shouldBe tiltaksgjennomforingAvsluttetDato.id
         }
 
         test("filtrer på gjennomføres") {
@@ -935,7 +930,6 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
 
     context("getAllVeilederflateTiltaksgjennomforing") {
         val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
-        val virksomheter = VirksomhetRepository(database.db)
 
         val oppfolgingSanityId = UUID.randomUUID()
         val arbeidstreningSanityId = UUID.randomUUID()
@@ -954,7 +948,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 .asUpdate
                 .let { database.db.run(it) }
 
-            tiltaksgjennomforinger.upsert(Oppfolging1.copy(navEnheter = listOf("2990")))
+            tiltaksgjennomforinger.upsert(Oppfolging1.copy(sluttDato = null, navEnheter = listOf("2990")))
             tiltaksgjennomforinger.setPublisert(Oppfolging1.id, true)
 
             tiltaksgjennomforinger.upsert(AFT1.copy(navEnheter = listOf("2990")))
@@ -1047,7 +1041,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             enheter.upsert(NavEnhetFixtures.Oslo)
             enheter.upsert(NavEnhetFixtures.Innlandet)
 
-            tiltaksgjennomforinger.upsert(Oppfolging1.copy(navEnheter = listOf("2990", "0400")))
+            tiltaksgjennomforinger.upsert(Oppfolging1.copy(sluttDato = null, navEnheter = listOf("2990", "0400")))
             tiltaksgjennomforinger.upsert(AFT1.copy(navEnheter = listOf("2990", "0300")))
 
             tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
@@ -1104,7 +1098,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         }
 
         test("skal filtrere basert fritekst i navn") {
-            tiltaksgjennomforinger.upsert(Oppfolging1.copy(navn = "erik"))
+            tiltaksgjennomforinger.upsert(Oppfolging1.copy(sluttDato = null, navn = "erik"))
             tiltaksgjennomforinger.upsert(AFT1.copy(navn = "frank"))
 
             tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
@@ -1118,7 +1112,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         }
 
         test("skal filtrere basert på apent_for_innsok") {
-            tiltaksgjennomforinger.upsert(Oppfolging1.copy(apentForInnsok = true, navEnheter = listOf("2990")))
+            tiltaksgjennomforinger.upsert(Oppfolging1.copy(sluttDato = null, apentForInnsok = true, navEnheter = listOf("2990")))
             tiltaksgjennomforinger.upsert(AFT1.copy(apentForInnsok = false, navEnheter = listOf("2990")))
 
             tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(

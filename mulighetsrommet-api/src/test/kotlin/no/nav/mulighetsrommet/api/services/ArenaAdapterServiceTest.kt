@@ -28,8 +28,6 @@ import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.*
-import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus.AVSLUTTET
-import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus.IKKE_AVSLUTTET
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
 import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus
 import no.nav.mulighetsrommet.domain.dto.Tiltakstypestatus
@@ -129,7 +127,7 @@ class ArenaAdapterServiceTest : FunSpec({
             sluttDato = LocalDate.now().plusYears(1),
             arenaAnsvarligEnhet = null,
             avtaletype = Avtaletype.Rammeavtale,
-            avslutningsstatus = IKKE_AVSLUTTET,
+            avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
             prisbetingelser = "💸",
         )
 
@@ -257,7 +255,7 @@ class ArenaAdapterServiceTest : FunSpec({
             service.upsertAvtale(
                 avtale.copy(
                     arenaAnsvarligEnhet = NavEnhetFixtures.IT.enhetsnummer,
-                    avslutningsstatus = AVSLUTTET,
+                    avslutningsstatus = Avslutningsstatus.AVSLUTTET,
                 ),
             )
 
@@ -279,7 +277,7 @@ class ArenaAdapterServiceTest : FunSpec({
             startDato = LocalDate.now(),
             sluttDato = LocalDate.now().plusYears(1),
             arenaAnsvarligEnhet = null,
-            avslutningsstatus = IKKE_AVSLUTTET,
+            avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
             apentForInnsok = true,
             antallPlasser = null,
             oppstart = TiltaksgjennomforingOppstartstype.FELLES,
@@ -409,7 +407,7 @@ class ArenaAdapterServiceTest : FunSpec({
                     startDato = gjennomforing.startDato,
                     sluttDato = gjennomforing.sluttDato,
                     arenaAnsvarligEnhet = null,
-                    avslutningsstatus = AVSLUTTET,
+                    avslutningsstatus = Avslutningsstatus.AVSLUTTET,
                     apentForInnsok = gjennomforing.apentForInnsok,
                     antallPlasser = gjennomforing.antallPlasser,
                     avtaleId = gjennomforing.avtaleId,
@@ -424,7 +422,7 @@ class ArenaAdapterServiceTest : FunSpec({
             }
         }
 
-        test("skal oppdatere avslutningsstatus når den endres fra Arena") {
+        test("skal oppdatere avbrutt_tidspunkt når den endres fra Arena") {
             MulighetsrommetTestDomain(
                 virksomheter = listOf(VirksomhetFixtures.hovedenhet, VirksomhetFixtures.underenhet1),
                 tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
@@ -438,17 +436,23 @@ class ArenaAdapterServiceTest : FunSpec({
             val arenaGjennomforing = tiltaksgjennomforing.copy(
                 startDato = LocalDate.now().minusDays(1),
                 sluttDato = LocalDate.now().minusDays(1),
-                avslutningsstatus = IKKE_AVSLUTTET,
+                avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
             )
             service.upsertTiltaksgjennomforing(arenaGjennomforing)
-            gjennomforinger.getAvslutningsstatus(arenaGjennomforing.id) shouldBe IKKE_AVSLUTTET
-
             // Verifiser status utledet fra datoer og ikke avslutningsstatus
             gjennomforinger.get(arenaGjennomforing.id)?.status shouldBe Tiltaksgjennomforingsstatus.AVSLUTTET
 
-            // Verifiser at avslutningsstatus blir lagret
-            service.upsertTiltaksgjennomforing(arenaGjennomforing.copy(avslutningsstatus = AVSLUTTET))
-            gjennomforinger.getAvslutningsstatus(arenaGjennomforing.id) shouldBe AVSLUTTET
+            // Verifiser at avbrutt_tidspunkt blir lagret
+            service.upsertTiltaksgjennomforing(arenaGjennomforing.copy(avslutningsstatus = Avslutningsstatus.AVBRUTT))
+            gjennomforinger.get(arenaGjennomforing.id)?.status shouldBe Tiltaksgjennomforingsstatus.AVBRUTT
+
+            // Verifiser at man kan endre statusen
+            service.upsertTiltaksgjennomforing(arenaGjennomforing.copy(avslutningsstatus = Avslutningsstatus.AVLYST))
+            gjennomforinger.get(arenaGjennomforing.id)?.status shouldBe Tiltaksgjennomforingsstatus.AVLYST
+
+            // Verifiser at man kan endre statusen
+            service.upsertTiltaksgjennomforing(arenaGjennomforing.copy(avslutningsstatus = Avslutningsstatus.AVSLUTTET))
+            gjennomforinger.get(arenaGjennomforing.id)?.status shouldBe Tiltaksgjennomforingsstatus.AVSLUTTET
         }
 
         test("skal bare oppdatere arena-felter når tiltakstype har endret eierskap") {
@@ -480,7 +484,7 @@ class ArenaAdapterServiceTest : FunSpec({
                 startDato = LocalDate.of(2024, 1, 1),
                 sluttDato = LocalDate.of(2024, 1, 1),
                 arenaAnsvarligEnhet = NavEnhetFixtures.TiltakOslo.enhetsnummer,
-                avslutningsstatus = AVSLUTTET,
+                avslutningsstatus = Avslutningsstatus.AVSLUTTET,
                 apentForInnsok = false,
                 antallPlasser = 100,
                 oppstart = TiltaksgjennomforingOppstartstype.FELLES,
