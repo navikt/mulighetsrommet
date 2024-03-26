@@ -5,9 +5,9 @@ import io.getunleash.Unleash
 import io.getunleash.UnleashContext
 import io.getunleash.util.UnleashConfig
 import no.nav.mulighetsrommet.unleash.strategies.ByEnhetStrategy
-import no.nav.mulighetsrommet.unleash.strategies.ByNavidentStrategy
+import no.nav.mulighetsrommet.unleash.strategies.ByNavIdentStrategy
 
-class UnleashService(config: Config, byEnhetStrategy: ByEnhetStrategy, byNavidentStrategy: ByNavidentStrategy) {
+class UnleashService(config: Config, byEnhetStrategy: ByEnhetStrategy, byNavidentStrategy: ByNavIdentStrategy) {
     private val unleash: Unleash
 
     data class Config(
