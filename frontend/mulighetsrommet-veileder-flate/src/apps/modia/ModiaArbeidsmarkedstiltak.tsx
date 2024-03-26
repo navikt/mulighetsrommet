@@ -4,7 +4,7 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import { useHentVeilederdata } from "@/apps/modia/hooks/useHentVeilederdata";
 import { useInitializeModiaContext } from "@/apps/modia/hooks/useInitializeModiaContext";
 import { useInitializeArbeidsmarkedstiltakFilterForBruker } from "@/apps/modia/hooks/useInitializeArbeidsmarkedstiltakFilterForBruker";
-import { useFeatureToggle } from "@/core/api/feature-toggles";
+import { useFeatureToggle } from "@/api/feature-toggles";
 import { Toggles } from "mulighetsrommet-api-client";
 import { AppContainer } from "@/layouts/AppContainer";
 import { DemoImageHeader } from "@/components/DemoImageHeader";

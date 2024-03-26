@@ -2,7 +2,7 @@ import { Alert } from "@navikt/ds-react";
 import { ViewTiltaksgjennomforingDetaljer } from "@/layouts/ViewTiltaksgjennomforingDetaljer";
 import { Tilbakeknapp } from "@/components/tilbakeknapp/Tilbakeknapp";
 import { TiltakLoader } from "@/components/TiltakLoader";
-import { useNavTiltaksgjennomforingById } from "@/core/api/queries/useTiltaksgjennomforingById";
+import { useNavTiltaksgjennomforingById } from "@/api/queries/useTiltaksgjennomforingById";
 import { LenkeListe } from "../../../components/sidemeny/Lenker";
 
 export function NavArbeidsmarkedstiltakDetaljer() {

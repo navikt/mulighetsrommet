@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { mulighetsrommetClient } from "../../clients";
+import { mulighetsrommetClient } from "@/api/client";
 import { AvtaleNotatRequest } from "mulighetsrommet-api-client";
-import { QueryKeys } from "../../QueryKeys";
+import { QueryKeys } from "@/api/QueryKeys";
 
 export function usePutAvtalenotat() {
   const client = useQueryClient();

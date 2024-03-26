@@ -1,6 +1,6 @@
 import { Alert, Button, Heading, HelpText, Modal, Search } from "@navikt/ds-react";
 import styles from "./LeggTilGjennomforingModal.module.scss";
-import { useSetAvtaleForGjennomforing } from "../../api/tiltaksgjennomforing/useSetAvtaleForGjennomforing";
+import { useSetAvtaleForGjennomforing } from "@/api/tiltaksgjennomforing/useSetAvtaleForGjennomforing";
 import { useState } from "react";
 import { Avtale, Tiltaksgjennomforing } from "mulighetsrommet-api-client";
 import { TiltaksgjennomforingerListe } from "../tiltaksgjennomforinger/TiltaksgjennomforingerListe";

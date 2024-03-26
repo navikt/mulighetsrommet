@@ -5,11 +5,11 @@ import { useEffect } from "react";
 import {
   gjennomforingFilterAccordionAtom,
   TiltaksgjennomforingFilter as TiltaksgjennomforingFilterProps,
-} from "../../api/atoms";
-import { useAvtale } from "../../api/avtaler/useAvtale";
-import { useNavEnheter } from "../../api/enhet/useNavEnheter";
-import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
-import { useArrangorer } from "../../api/arrangor/useArrangorer";
+} from "@/api/atoms";
+import { useAvtale } from "@/api/avtaler/useAvtale";
+import { useNavEnheter } from "@/api/enhet/useNavEnheter";
+import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
+import { useArrangorer } from "@/api/arrangor/useArrangorer";
 import { addOrRemove } from "../../utils/Utils";
 import {
   arrangorOptions,
@@ -17,7 +17,7 @@ import {
   tiltakstypeOptions,
 } from "../../utils/filterUtils";
 import { FilterAccordionHeader, NavEnhetFilter } from "mulighetsrommet-frontend-common";
-import { useRegioner } from "../../api/enhet/useRegioner";
+import { useRegioner } from "@/api/enhet/useRegioner";
 import { CheckboxList } from "./CheckboxList";
 
 type Filters = "tiltakstype";

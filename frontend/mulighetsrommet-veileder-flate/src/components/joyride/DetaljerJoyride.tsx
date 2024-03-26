@@ -1,6 +1,6 @@
 import { JoyrideType } from "mulighetsrommet-api-client";
 import Joyride, { ACTIONS, CallBackProps, EVENTS, STATUS } from "react-joyride";
-import { useJoyride } from "../../core/api/queries/useJoyride";
+import { useJoyride } from "@/api/queries/useJoyride";
 import { JoyrideKnapp } from "./JoyrideKnapp";
 import { detaljerSteps, isStep, useSteps } from "./Steps";
 import { locale, styling } from "./config";

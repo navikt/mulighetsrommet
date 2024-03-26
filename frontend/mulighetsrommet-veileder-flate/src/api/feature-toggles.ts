@@ -1,5 +1,5 @@
 import { Toggles } from "mulighetsrommet-api-client";
-import { mulighetsrommetClient } from "./clients";
+import { mulighetsrommetClient } from "./client";
 import { QueryKeys } from "./query-keys";
 import { useQuery } from "@tanstack/react-query";
 

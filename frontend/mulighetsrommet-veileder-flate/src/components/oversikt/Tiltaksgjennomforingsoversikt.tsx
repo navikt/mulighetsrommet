@@ -1,4 +1,4 @@
-import { paginationAtom } from "@/core/atoms/atoms";
+import { paginationAtom } from "@/core/atoms";
 import { useArbeidsmarkedstiltakFilterValue } from "@/hooks/useArbeidsmarkedstiltakFilter";
 import { useLogEvent } from "@/logging/amplitude";
 import { BodyShort, Pagination, Select } from "@navikt/ds-react";

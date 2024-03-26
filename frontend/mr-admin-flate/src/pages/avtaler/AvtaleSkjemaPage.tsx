@@ -1,14 +1,14 @@
 import { useLocation, useNavigate } from "react-router-dom";
-import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
-import { useNavEnheter } from "../../api/enhet/useNavEnheter";
-import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
+import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
+import { useNavEnheter } from "@/api/enhet/useNavEnheter";
+import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
 import { ContainerLayout } from "../../layouts/ContainerLayout";
 import { inneholderUrl } from "../../utils/Utils";
 import { Header } from "../../components/detaljside/Header";
 import { Laster } from "../../components/laster/Laster";
 import styles from "../../components/skjema/Skjema.module.scss";
 import { AvtaleSkjemaContainer } from "../../components/avtaler/AvtaleSkjemaContainer";
-import { useAvtale } from "../../api/avtaler/useAvtale";
+import { useAvtale } from "@/api/avtaler/useAvtale";
 import { AvtalestatusTag } from "../../components/statuselementer/AvtalestatusTag";
 import { Heading } from "@navikt/ds-react";
 import { Brodsmule, Brodsmuler } from "../../components/navigering/Brodsmuler";

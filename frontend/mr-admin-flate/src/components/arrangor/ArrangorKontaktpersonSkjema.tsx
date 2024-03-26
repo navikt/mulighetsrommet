@@ -2,12 +2,12 @@ import { Button, TextField } from "@navikt/ds-react";
 import { useEffect, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import styles from "./ArrangorKontaktpersonSkjema.module.scss";
-import { useUpsertArrangorKontaktperson } from "../../api/arrangor/useUpsertArrangorKontaktperson";
+import { useUpsertArrangorKontaktperson } from "@/api/arrangor/useUpsertArrangorKontaktperson";
 import { validEmail } from "../../utils/Utils";
 import { ArrangorKontaktperson as ArrangorKontaktperson } from "mulighetsrommet-api-client";
-import { useDeleteArrangorKontaktperson } from "../../api/arrangor/useDeleteArrangorKontaktperson";
-import { resolveErrorMessage } from "../../api/errors";
-import { useHandleApiUpsertResponse } from "../../api/effects";
+import { useDeleteArrangorKontaktperson } from "@/api/arrangor/useDeleteArrangorKontaktperson";
+import { resolveErrorMessage } from "@/api/errors";
+import { useHandleApiUpsertResponse } from "@/api/effects";
 
 type ArrangorKontaktpersonErrors = Partial<Record<keyof ArrangorKontaktperson, string>>;
 

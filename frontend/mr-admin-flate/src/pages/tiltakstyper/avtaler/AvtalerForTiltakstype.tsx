@@ -1,5 +1,5 @@
 import { useTitle } from "mulighetsrommet-frontend-common";
-import { getAvtalerForTiltakstypeFilterAtom } from "../../../api/atoms";
+import { getAvtalerForTiltakstypeFilterAtom } from "@/api/atoms";
 import { AvtaleTabell } from "../../../components/tabell/AvtaleTabell";
 import { useGetTiltakstypeIdFromUrlOrThrow } from "../../../hooks/useGetTiltakstypeIdFromUrl";
 import { ContainerLayout } from "../../../layouts/ContainerLayout";

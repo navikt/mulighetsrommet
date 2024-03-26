@@ -1,5 +1,5 @@
 import { Oppskrift } from "@/components/oppskrift/Oppskrift";
-import { useGetTiltaksgjennomforingIdFraUrl } from "@/core/api/queries/useGetTiltaksgjennomforingIdFraUrl";
+import { useGetTiltaksgjennomforingIdFraUrl } from "@/api/queries/useGetTiltaksgjennomforingIdFraUrl";
 import { PadlockLockedFillIcon } from "@navikt/aksel-icons";
 import { Alert } from "@navikt/ds-react";
 import { Innsatsgruppe, VeilederflateTiltaksgjennomforing } from "mulighetsrommet-api-client";

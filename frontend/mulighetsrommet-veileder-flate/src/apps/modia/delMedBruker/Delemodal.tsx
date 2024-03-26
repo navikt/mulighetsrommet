@@ -4,7 +4,7 @@ import {
   DelMedBruker,
   VeilederflateTiltaksgjennomforing,
 } from "mulighetsrommet-api-client";
-import { mulighetsrommetClient } from "@/core/api/clients";
+import { mulighetsrommetClient } from "@/api/client";
 import { useLogEvent } from "@/logging/amplitude";
 import { erPreview } from "@/utils/Utils";
 import { StatusModal } from "@/components/modal/StatusModal";

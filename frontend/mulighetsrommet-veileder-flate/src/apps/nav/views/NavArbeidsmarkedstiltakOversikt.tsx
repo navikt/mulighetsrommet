@@ -1,7 +1,7 @@
 import { TiltakLoader } from "@/components/TiltakLoader";
 import { FilterAndTableLayout } from "@/components/filtrering/FilterAndTableLayout";
 import { Tiltaksgjennomforingsoversikt } from "@/components/oversikt/Tiltaksgjennomforingsoversikt";
-import { useNavTiltaksgjennomforinger } from "@/core/api/queries/useTiltaksgjennomforinger";
+import { useNavTiltaksgjennomforinger } from "@/api/queries/useTiltaksgjennomforinger";
 import { FilterMenyMedSkeletonLoader } from "@/components/filtrering/FilterMenyMedSkeletonLoader";
 import {
   isFilterReady,

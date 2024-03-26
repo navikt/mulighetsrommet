@@ -3,7 +3,7 @@ import { PortableText } from "@portabletext/react";
 import { SanityFaneinnhold } from "mulighetsrommet-api-client";
 import React from "react";
 import { InlineErrorBoundary } from "../../ErrorBoundary";
-import { useTiltakstypeFaneinnhold } from "../../api/tiltaksgjennomforing/useTiltakstypeFaneinnhold";
+import { useTiltakstypeFaneinnhold } from "@/api/tiltaksgjennomforing/useTiltakstypeFaneinnhold";
 import styles from "../../pages/DetaljerInfo.module.scss";
 import { Laster } from "../laster/Laster";
 import { Lenkeliste } from "../lenker/Lenkeliste";

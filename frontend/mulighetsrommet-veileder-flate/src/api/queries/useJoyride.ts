@@ -1,7 +1,7 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { JoyrideType } from "mulighetsrommet-api-client";
 import { useEffect, useState } from "react";
-import { mulighetsrommetClient } from "../clients";
+import { mulighetsrommetClient } from "../client";
 import { QueryKeys } from "../query-keys";
 
 export function useJoyride(joyrideType: JoyrideType) {

@@ -1,16 +1,16 @@
 import { Alert, Tabs } from "@navikt/ds-react";
-import { useAvtale } from "../../api/avtaler/useAvtale";
-import { useTiltaksgjennomforingById } from "../../api/tiltaksgjennomforing/useTiltaksgjennomforingById";
+import { useAvtale } from "@/api/avtaler/useAvtale";
+import { useTiltaksgjennomforingById } from "@/api/tiltaksgjennomforing/useTiltaksgjennomforingById";
 import { Laster } from "../../components/laster/Laster";
 import skjemaStyles from "../../components/skjema/Skjema.module.scss";
 import styles from "../DetaljerInfo.module.scss";
 import { TiltaksgjennomforingDetaljer } from "./TiltaksgjennomforingDetaljer";
 import { TiltaksgjennomforingKnapperad } from "./TiltaksgjennomforingKnapperad";
 import { RedaksjoneltInnholdPreview } from "../../components/redaksjonelt-innhold/RedaksjoneltInnholdPreview";
-import { gjennomforingDetaljerTabAtom } from "../../api/atoms";
+import { gjennomforingDetaljerTabAtom } from "@/api/atoms";
 import { useAtom } from "jotai";
 import { InlineErrorBoundary } from "../../ErrorBoundary";
-import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
+import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
 
 export function TiltaksgjennomforingInfo() {
   const { data: bruker } = useHentAnsatt();

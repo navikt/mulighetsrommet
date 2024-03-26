@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useHentBrukerdata } from "@/apps/modia/hooks/useHentBrukerdata";
-import { useInnsatsgrupper } from "@/core/api/queries/useInnsatsgrupper";
+import { useInnsatsgrupper } from "@/api/queries/useInnsatsgrupper";
 import { useArbeidsmarkedstiltakFilter } from "@/hooks/useArbeidsmarkedstiltakFilter";
 
 export function useInitializeArbeidsmarkedstiltakFilterForBruker() {

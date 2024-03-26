@@ -1,6 +1,6 @@
 import { HttpResponse, http } from "msw";
 import invariant from "tiny-invariant";
-import { Features } from "../../../core/api/feature-toggles";
+import { Features } from "@/api/feature-toggles";
 import { mockFeatures } from "../features";
 
 export const featureToggleHandlers = [

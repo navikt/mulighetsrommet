@@ -13,8 +13,8 @@ import { ControlledSokeSelect } from "mulighetsrommet-frontend-common/components
 import { SelectOption } from "mulighetsrommet-frontend-common/components/SokeSelect";
 import { DeepPartial, useFormContext } from "react-hook-form";
 import { MultiValue } from "react-select";
-import { useAvtaleAdministratorer } from "../../api/ansatt/useAvtaleAdministratorer";
-import { useMigrerteTiltakstyperForAvtaler } from "../../api/tiltakstyper/useMigrerteTiltakstyper";
+import { useAvtaleAdministratorer } from "@/api/ansatt/useAvtaleAdministratorer";
+import { useMigrerteTiltakstyperForAvtaler } from "@/api/tiltakstyper/useMigrerteTiltakstyper";
 import { erAnskaffetTiltak } from "../../utils/tiltakskoder";
 import { addYear, avtaletypeTilTekst } from "../../utils/Utils";
 import { Separator } from "../detaljside/Metadata";

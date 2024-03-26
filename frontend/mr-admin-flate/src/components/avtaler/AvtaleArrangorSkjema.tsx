@@ -3,10 +3,10 @@ import { Arrangor, ArrangorKontaktperson, BrregVirksomhet } from "mulighetsromme
 import { ControlledSokeSelect } from "mulighetsrommet-frontend-common/components/ControlledSokeSelect";
 import { useRef, useState } from "react";
 import { DeepPartial, useFormContext } from "react-hook-form";
-import { useSyncArrangorFromBrreg } from "../../api/arrangor/useSyncArrangorFromBrreg";
-import { useSokBrregVirksomheter } from "../../api/virksomhet/useSokBrregVirksomheter";
-import { useBrregVirksomhetUnderenheter } from "../../api/virksomhet/useBrregVirksomhetUnderenheter";
-import { useArrangorKontaktpersoner } from "../../api/arrangor/useArrangorKontaktpersoner";
+import { useSyncArrangorFromBrreg } from "@/api/arrangor/useSyncArrangorFromBrreg";
+import { useSokBrregVirksomheter } from "@/api/virksomhet/useSokBrregVirksomheter";
+import { useBrregVirksomhetUnderenheter } from "@/api/virksomhet/useBrregVirksomhetUnderenheter";
+import { useArrangorKontaktpersoner } from "@/api/arrangor/useArrangorKontaktpersoner";
 import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { FormGroup } from "../skjema/FormGroup";
 import skjemastyles from "../skjema/Skjema.module.scss";

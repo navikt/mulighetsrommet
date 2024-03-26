@@ -1,9 +1,9 @@
 import { useAtom, WritableAtom } from "jotai";
 import { ArrangorTil } from "mulighetsrommet-api-client";
-import { AvtaleFilter } from "../../api/atoms";
-import { useNavEnheter } from "../../api/enhet/useNavEnheter";
-import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
-import { useArrangorer } from "../../api/arrangor/useArrangorer";
+import { AvtaleFilter } from "@/api/atoms";
+import { useNavEnheter } from "@/api/enhet/useNavEnheter";
+import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
+import { useArrangorer } from "@/api/arrangor/useArrangorer";
 import { addOrRemove, avtaletypeTilTekst } from "../../utils/Utils";
 import { AVTALE_STATUS_OPTIONS } from "../../utils/filterUtils";
 import { Filtertag, FiltertagsContainer } from "mulighetsrommet-frontend-common";

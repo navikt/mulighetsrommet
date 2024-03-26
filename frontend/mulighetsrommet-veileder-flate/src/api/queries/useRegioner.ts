@@ -1,5 +1,5 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { mulighetsrommetClient } from "../clients";
+import { mulighetsrommetClient } from "../client";
 import { QueryKeys } from "../query-keys";
 
 export function useRegioner() {

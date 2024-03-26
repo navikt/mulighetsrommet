@@ -3,7 +3,7 @@ import { CheckmarkCircleFillIcon, CheckmarkCircleIcon } from "@navikt/aksel-icon
 import { NotificationStatus } from "mulighetsrommet-api-client";
 import classNames from "classnames";
 import styles from "./CheckmarkButton.module.scss";
-import { useSetNotificationStatus } from "../../api/notifikasjoner/useSetNotificationStatus";
+import { useSetNotificationStatus } from "@/api/notifikasjoner/useSetNotificationStatus";
 import { Button } from "@navikt/ds-react";
 import { toast } from "react-toastify";
 

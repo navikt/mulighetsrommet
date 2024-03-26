@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-import { mulighetsrommetClient } from "../../clients";
-import { QueryKeys } from "../../QueryKeys";
+import { mulighetsrommetClient } from "@/api/client";
+import { QueryKeys } from "@/api/QueryKeys";
 import { useGetTiltaksgjennomforingIdFromUrlOrThrow } from "../../../hooks/useGetTiltaksgjennomforingIdFromUrl";
 
 export function useMineTiltaksgjennomforingsnotater() {

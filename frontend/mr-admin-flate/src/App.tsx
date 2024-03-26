@@ -4,7 +4,7 @@ import { NavAnsattRolle, Toggles } from "mulighetsrommet-api-client";
 import { Route, Routes } from "react-router-dom";
 import { Forside } from "./Forside";
 import IkkeAutentisertApp from "./IkkeAutentisertApp";
-import { useHentAnsatt } from "./api/ansatt/useHentAnsatt";
+import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
 import AvtaleSkjemaPage from "./pages/avtaler/AvtaleSkjemaPage";
 import NotaterAvtalePage from "./components/avtaler/NotaterAvtalePage";
 import { Laster } from "./components/laster/Laster";
@@ -20,7 +20,7 @@ import { DetaljerTiltakstypePage } from "./pages/tiltakstyper/DetaljerTiltakstyp
 import { TiltakstypeInfo } from "./pages/tiltakstyper/TiltakstypeInfo";
 import { TiltakstyperPage } from "./pages/tiltakstyper/TiltakstyperPage";
 import { AvtalerForTiltakstype } from "./pages/tiltakstyper/avtaler/AvtalerForTiltakstype";
-import { useFeatureToggle } from "./api/features/feature-toggles";
+import { useFeatureToggle } from "@/api/features/feature-toggles";
 import { AvtalerPage } from "./pages/avtaler/AvtalerPage";
 import { AvtaleInfo } from "./pages/avtaler/AvtaleInfo";
 import TiltaksgjennomforingSkjemaPage from "./pages/tiltaksgjennomforinger/TiltaksgjennomforingSkjemaPage";

@@ -1,4 +1,4 @@
-import { avtaleFilterAtom } from "../../api/atoms";
+import { avtaleFilterAtom } from "@/api/atoms";
 import { AvtaleFilter } from "../../components/filter/AvtaleFilter";
 import { AvtaleTabell } from "../../components/tabell/AvtaleTabell";
 import { HeaderBanner } from "../../layouts/HeaderBanner";

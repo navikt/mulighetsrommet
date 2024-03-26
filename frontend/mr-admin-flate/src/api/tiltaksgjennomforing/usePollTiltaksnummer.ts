@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { mulighetsrommetClient } from "../clients";
+import { mulighetsrommetClient } from "@/api/client";
 
 const FANT_IKKE_TILTAKSNUMMER_MESSAGE = "Fant ikke tiltaksnummer";
 

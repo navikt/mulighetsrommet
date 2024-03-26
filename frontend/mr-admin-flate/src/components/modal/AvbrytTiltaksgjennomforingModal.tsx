@@ -1,6 +1,6 @@
-import { useAvbrytTiltaksgjennomforing } from "../../api/tiltaksgjennomforing/useAvbrytTiltaksgjennomforing";
+import { useAvbrytTiltaksgjennomforing } from "@/api/tiltaksgjennomforing/useAvbrytTiltaksgjennomforing";
 import styles from "./Modal.module.scss";
-import { resolveErrorMessage } from "../../api/errors";
+import { resolveErrorMessage } from "@/api/errors";
 import { XMarkOctagonFillIcon } from "@navikt/aksel-icons";
 import classNames from "classnames";
 import { Heading, BodyShort, Button, Modal } from "@navikt/ds-react";

@@ -1,5 +1,5 @@
 import { Toggles } from "mulighetsrommet-api-client";
-import { useFeatureToggle } from "../../api/features/feature-toggles";
+import { useFeatureToggle } from "@/api/features/feature-toggles";
 
 interface Props {
   value: string;

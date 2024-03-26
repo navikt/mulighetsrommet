@@ -3,8 +3,8 @@ import { Dropdown, InternalHeader, Spacer } from "@navikt/ds-react";
 import { Toggles } from "mulighetsrommet-api-client";
 import { useRef } from "react";
 import { Link } from "react-router-dom";
-import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
-import { useFeatureToggle } from "../../api/features/feature-toggles";
+import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
+import { useFeatureToggle } from "@/api/features/feature-toggles";
 import {
   ENDRINGSMELDINGER_URL,
   LOGOUT_URL,

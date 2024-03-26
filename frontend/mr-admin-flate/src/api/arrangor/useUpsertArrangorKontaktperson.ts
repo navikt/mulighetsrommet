@@ -4,8 +4,8 @@ import {
   ArrangorKontaktperson,
   ArrangorKontaktpersonRequest,
 } from "mulighetsrommet-api-client";
-import { mulighetsrommetClient } from "../clients";
-import { QueryKeys } from "../QueryKeys";
+import { mulighetsrommetClient } from "@/api/client";
+import { QueryKeys } from "@/api/QueryKeys";
 
 export function useUpsertArrangorKontaktperson(arrangorId: string) {
   const queryClient = useQueryClient();

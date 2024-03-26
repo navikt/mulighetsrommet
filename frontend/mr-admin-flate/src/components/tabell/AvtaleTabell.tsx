@@ -4,8 +4,8 @@ import { WritableAtom, useAtom } from "jotai";
 import { OpenAPI, SorteringAvtaler } from "mulighetsrommet-api-client";
 import { Lenke } from "mulighetsrommet-frontend-common/components/lenke/Lenke";
 import { createRef, useEffect, useState } from "react";
-import { AvtaleFilter } from "../../api/atoms";
-import { useAvtaler } from "../../api/avtaler/useAvtaler";
+import { AvtaleFilter } from "@/api/atoms";
+import { useAvtaler } from "@/api/avtaler/useAvtaler";
 import { APPLICATION_NAME } from "../../constants";
 import { useSort } from "../../hooks/useSort";
 import {

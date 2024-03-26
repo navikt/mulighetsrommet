@@ -4,7 +4,7 @@ import { ViewTiltaksgjennomforingDetaljer } from "@/layouts/ViewTiltaksgjennomfo
 import { Tilbakeknapp } from "@/components/tilbakeknapp/Tilbakeknapp";
 import { DelMedBruker } from "@/apps/modia/delMedBruker/DelMedBruker";
 import { TiltakLoader } from "@/components/TiltakLoader";
-import { usePreviewTiltaksgjennomforingById } from "@/core/api/queries/useTiltaksgjennomforingById";
+import { usePreviewTiltaksgjennomforingById } from "@/api/queries/useTiltaksgjennomforingById";
 import { LenkeListe } from "../../../components/sidemeny/Lenker";
 
 export function PreviewArbeidsmarkedstiltakDetaljer() {
