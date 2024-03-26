@@ -27,7 +27,6 @@ import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping.Status.
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.Operation.*
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.ProcessingStatus.Failed
-import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.ProcessingStatus.Invalid
 import no.nav.mulighetsrommet.arena.adapter.models.db.Sak
 import no.nav.mulighetsrommet.arena.adapter.models.db.Tiltaksgjennomforing
 import no.nav.mulighetsrommet.arena.adapter.models.dto.ArenaOrdsArrangor
@@ -274,7 +273,6 @@ class TiltakdeltakerEventProcessorTest : FunSpec({
                 }
             }
 
-            // TODO: burde manglende data i ords ha en annen semantikk enn Invalid?
             test("should mark the event as Invalid when arena ords proxy responds with NotFound") {
                 val engine = createMockEngine(
                     "/ords/fnr" to { respondError(HttpStatusCode.NotFound) },
@@ -284,7 +282,7 @@ class TiltakdeltakerEventProcessorTest : FunSpec({
                 val processor = createProcessor(engine)
                 val (event) = prepareEvent(createArenaTiltakdeltakerEvent(Insert), Ignored)
                 processor.handleEvent(event).shouldBeLeft().should {
-                    it.status shouldBe Invalid
+                    it.status shouldBe Failed
                     it.message shouldContain "Fant ikke norsk ident i Arena ORDS"
                 }
             }

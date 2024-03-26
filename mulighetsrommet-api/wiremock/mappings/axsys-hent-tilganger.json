@@ -1,0 +1,21 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPathPattern": "/axsys/api/v2/tilgang/B123456"
+  },
+  "response": {
+    "status": 200,
+    "jsonBody": {
+      "enheter": [
+        {
+          "enhetId": "0315",
+          "navn": "NAV Fredrikstad",
+          "temaer": []
+        }
+      ]
+    },
+    "headers": {
+      "Content-Type": "application/json"
+    }
+  }
+}

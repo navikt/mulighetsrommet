@@ -29,7 +29,6 @@ import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping.Status.
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.Operation.*
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.ProcessingStatus.Failed
-import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.ProcessingStatus.Invalid
 import no.nav.mulighetsrommet.arena.adapter.models.db.Sak
 import no.nav.mulighetsrommet.arena.adapter.models.dto.ArenaOrdsArrangor
 import no.nav.mulighetsrommet.arena.adapter.repositories.*
@@ -307,7 +306,6 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                 }
             }
 
-            // TODO: burde manglende data i ords ha en annen semantikk enn Invalid?
             test("should mark the event as Invalid when arena ords proxy responds with NotFound") {
                 val engine = createMockEngine(
                     "/ords/arbeidsgiver" to {
@@ -318,7 +316,7 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                 val (event) = prepareEvent(createArenaTiltakgjennomforingEvent(Insert))
 
                 processor.handleEvent(event).shouldBeLeft().should {
-                    it.status shouldBe Invalid
+                    it.status shouldBe Failed
                     it.message shouldContain "Fant ikke arrangør i Arena ORDS"
                 }
             }

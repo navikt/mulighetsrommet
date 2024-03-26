@@ -4,6 +4,8 @@ import com.github.kagkarlsson.scheduler.Scheduler
 import com.nimbusds.jose.jwk.KeyUse
 import com.nimbusds.jose.jwk.RSAKey
 import io.ktor.server.application.*
+import no.nav.common.client.axsys.AxsysClient
+import no.nav.common.client.axsys.AxsysV2ClientImpl
 import no.nav.common.kafka.producer.util.KafkaProducerClientBuilder
 import no.nav.common.kafka.util.KafkaPropertiesBuilder
 import no.nav.common.kafka.util.KafkaPropertiesPreset
@@ -349,7 +351,11 @@ private fun services(appConfig: AppConfig) = module {
         val byNavidentStrategy = ByNavidentStrategy()
         UnleashService(appConfig.unleash, byEnhetStrategy, byNavidentStrategy)
     }
-    single { AxsysService(appConfig.axsys) { m2mTokenProvider.createMachineToMachineToken(appConfig.axsys.scope) } }
+    single<AxsysClient> {
+        AxsysV2ClientImpl(appConfig.axsys.url) {
+            m2mTokenProvider.createMachineToMachineToken(appConfig.axsys.scope)
+        }
+    }
     single { AvtaleValidator(get(), get(), get(), get()) }
     single { TiltaksgjennomforingValidator(get(), get()) }
 }

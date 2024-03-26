@@ -70,7 +70,7 @@ class TiltakdeltakerEventProcessor(
             .bind()
         val norskIdent = ords.getFnr(deltaker.personId)
             .mapLeft { ProcessingError.fromResponseException(it) }
-            .flatMap { it?.right() ?: ProcessingError.InvalidPayload("Fant ikke norsk ident i Arena ORDS").left() }
+            .flatMap { it?.right() ?: ProcessingError.ProcessingFailed("Fant ikke norsk ident i Arena ORDS").left() }
             .map { it.fnr }
             .bind()
         val tiltakstypeMapping = entities
@@ -157,7 +157,7 @@ class TiltakdeltakerEventProcessor(
                 status = ArenaUtils.toDeltakerstatus(DELTAKERSTATUSKODE),
             )
         }
-        .mapLeft { ProcessingError.InvalidPayload(it.localizedMessage) }
+        .mapLeft { ProcessingError.ProcessingFailed(it.localizedMessage) }
 
     private suspend fun Deltaker.toTiltakshistorikkDbo(
         tiltakstype: Tiltakstype,
@@ -179,7 +179,7 @@ class TiltakdeltakerEventProcessor(
                 ords.getArbeidsgiver(id)
                     .mapLeft { ProcessingError.fromResponseException(it) }
                     .flatMap {
-                        it?.right() ?: ProcessingError.InvalidPayload("Fant ikke arrangør i Arena ORDS").left()
+                        it?.right() ?: ProcessingError.ProcessingFailed("Fant ikke arrangør i Arena ORDS").left()
                     }
                     .map { it.virksomhetsnummer }
                     .bind()
