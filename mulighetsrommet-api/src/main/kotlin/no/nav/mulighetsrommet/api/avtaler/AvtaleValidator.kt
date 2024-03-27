@@ -29,11 +29,11 @@ class AvtaleValidator(
     private val navEnheterService: NavEnhetService,
     private val arrangorer: ArrangorRepository,
 ) {
-    fun validate(avtale: AvtaleDbo, previous: AvtaleAdminDto?): Either<List<ValidationError>, AvtaleDbo> = either {
+    fun validate(avtale: AvtaleDbo, currentAvtale: AvtaleAdminDto?): Either<List<ValidationError>, AvtaleDbo> = either {
         val tiltakstype = tiltakstyper.getById(avtale.tiltakstypeId)
             ?: raise(ValidationError.of(AvtaleDbo::tiltakstypeId, "Tiltakstypen finnes ikke").nel())
 
-        if (isTiltakstypeDisabled(previous, tiltakstype)) {
+        if (isTiltakstypeDisabled(currentAvtale, tiltakstype)) {
             return ValidationError
                 .of(
                     AvtaleDbo::tiltakstypeId,
@@ -44,6 +44,10 @@ class AvtaleValidator(
         }
 
         val errors = buildList {
+            if (avtale.navn.length < 5 && currentAvtale?.opphav != ArenaMigrering.Opphav.ARENA) {
+                add(ValidationError.of(AvtaleDbo::navn, "Avtalenavn må være minst 5 tegn langt"))
+            }
+
             if (avtale.administratorer.isEmpty()) {
                 add(ValidationError.of(AvtaleDbo::administratorer, "Minst én administrator må være valgt"))
             }
@@ -80,12 +84,8 @@ class AvtaleValidator(
 
             validateNavEnheter(avtale.navEnheter)
 
-            previous?.also { currentAvtale ->
+            if (currentAvtale != null) {
                 validateUpdateAvtale(avtale, currentAvtale, tiltakstype)
-            } ?: run {
-                if (avtale.navn.length < 5) {
-                    add(ValidationError.of(AvtaleDbo::navn, "Avtalenavn må være minst 5 tegn langt"))
-                }
             }
         }
 
@@ -97,10 +97,6 @@ class AvtaleValidator(
         currentAvtale: AvtaleAdminDto,
         tiltakstype: TiltakstypeAdminDto,
     ) {
-        if (avtale.navn.length < 5 && currentAvtale.opphav != ArenaMigrering.Opphav.ARENA) {
-            add(ValidationError.of(AvtaleDbo::navn, "Avtalenavn må være minst 5 tegn langt"))
-        }
-
         /**
          * Når avtalen har blitt godkjent så skal alle datafelter som påvirker økonomien, påmelding, osv. være låst.
          *
