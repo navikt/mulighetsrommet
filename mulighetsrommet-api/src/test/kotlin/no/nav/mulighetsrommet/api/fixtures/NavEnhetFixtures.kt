@@ -27,6 +27,20 @@ object NavEnhetFixtures {
         type = Norg2Type.LOKAL,
         overordnetEnhet = "0400",
     )
+    val Lillehammer = NavEnhetDbo(
+        navn = "NAV Lillehammer",
+        enhetsnummer = "0501",
+        status = NavEnhetStatus.AKTIV,
+        type = Norg2Type.LOKAL,
+        overordnetEnhet = "0400",
+    )
+    val Sel = NavEnhetDbo(
+        navn = "NAV Sel",
+        enhetsnummer = "0517",
+        status = NavEnhetStatus.AKTIV,
+        type = Norg2Type.LOKAL,
+        overordnetEnhet = "0400",
+    )
 
     val Oslo = NavEnhetDbo(
         navn = "NAV Oslo",

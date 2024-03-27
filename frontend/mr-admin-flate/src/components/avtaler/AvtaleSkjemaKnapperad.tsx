@@ -3,7 +3,7 @@ import styles from "../skjema/Skjema.module.scss";
 import { ValideringsfeilOppsummering } from "../skjema/ValideringsfeilOppsummering";
 import { HarSkrivetilgang } from "../authActions/HarSkrivetilgang";
 import { useSetAtom } from "jotai";
-import { gjennomforingDetaljerTabAtom } from "../../api/atoms";
+import { gjennomforingDetaljerTabAtom } from "@/api/atoms";
 
 interface Props {
   redigeringsModus: boolean;

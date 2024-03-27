@@ -19,10 +19,10 @@ import {
 import { ControlledSokeSelect } from "mulighetsrommet-frontend-common";
 import { useEffect } from "react";
 import { useFieldArray, useFormContext } from "react-hook-form";
-import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
-import { useHentKontaktpersoner } from "../../api/ansatt/useHentKontaktpersoner";
-import { useTiltaksgjennomforingAdministratorer } from "../../api/ansatt/useTiltaksgjennomforingAdministratorer";
-import { useMigrerteTiltakstyper } from "../../api/tiltakstyper/useMigrerteTiltakstyper";
+import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
+import { useHentKontaktpersoner } from "@/api/ansatt/useHentKontaktpersoner";
+import { useTiltaksgjennomforingAdministratorer } from "@/api/ansatt/useTiltaksgjennomforingAdministratorer";
+import { useMigrerteTiltakstyper } from "@/api/tiltakstyper/useMigrerteTiltakstyper";
 import { addYear, formaterDato } from "../../utils/Utils";
 import { isTiltakMedFellesOppstart } from "../../utils/tiltakskoder";
 import { Separator } from "../detaljside/Metadata";

@@ -9,11 +9,11 @@ import invariant from "tiny-invariant";
 import { Laster } from "../laster/Laster";
 import { inferredNotatSchema, NotatSchema } from "../notater/NotatSchema";
 import Notatliste from "../notater/Notatliste";
-import { useTiltaksgjennomforingsnotater } from "../../api/notater/gjennomforingsnotat/useTiltaksgjennomforingsnotater";
-import { useMineTiltaksgjennomforingsnotater } from "../../api/notater/gjennomforingsnotat/useMineTiltaksgjennomforingsnotater";
-import { useTiltaksgjennomforingById } from "../../api/tiltaksgjennomforing/useTiltaksgjennomforingById";
-import { usePutTiltaksgjennomforingsnotat } from "../../api/notater/gjennomforingsnotat/usePutTiltaksgjennomforingsnotat";
-import { useDeleteTiltaksgjennomforingsnotat } from "../../api/notater/gjennomforingsnotat/useDeleteTiltaksgjennomforingsnotat";
+import { useTiltaksgjennomforingsnotater } from "@/api/notater/gjennomforingsnotat/useTiltaksgjennomforingsnotater";
+import { useMineTiltaksgjennomforingsnotater } from "@/api/notater/gjennomforingsnotat/useMineTiltaksgjennomforingsnotater";
+import { useTiltaksgjennomforingById } from "@/api/tiltaksgjennomforing/useTiltaksgjennomforingById";
+import { usePutTiltaksgjennomforingsnotat } from "@/api/notater/gjennomforingsnotat/usePutTiltaksgjennomforingsnotat";
+import { useDeleteTiltaksgjennomforingsnotat } from "@/api/notater/gjennomforingsnotat/useDeleteTiltaksgjennomforingsnotat";
 import { HarSkrivetilgang } from "../authActions/HarSkrivetilgang";
 
 export default function NotaterTiltaksgjennomforingerPage() {

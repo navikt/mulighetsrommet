@@ -51,7 +51,7 @@ class ArenaAdapterService(
     private val tiltaksgjennomforingKafkaProducer: TiltaksgjennomforingKafkaProducer,
     private val tiltakstypeKafkaProducer: TiltakstypeKafkaProducer,
     private val sanityTiltaksgjennomforingService: SanityTiltaksgjennomforingService,
-    private val virksomhetService: VirksomhetService,
+    private val arrangorService: ArrangorService,
     private val navEnhetService: NavEnhetService,
     private val notificationService: NotificationService,
     private val endringshistorikk: EndringshistorikkService,
@@ -81,7 +81,7 @@ class ArenaAdapterService(
     }
 
     suspend fun upsertAvtale(avtale: ArenaAvtaleDbo): AvtaleAdminDto {
-        syncVirksomhetFromBrreg(avtale.leverandorOrganisasjonsnummer)
+        syncArrangorFromBrreg(avtale.arrangorOrganisasjonsnummer)
 
         val dto = db.transaction { tx ->
             val previous = avtaler.get(avtale.id)
@@ -113,7 +113,7 @@ class ArenaAdapterService(
     }
 
     suspend fun upsertTiltaksgjennomforing(arenaGjennomforing: ArenaTiltaksgjennomforingDbo): QueryResult<TiltaksgjennomforingAdminDto> {
-        syncVirksomhetFromBrreg(arenaGjennomforing.arrangorOrganisasjonsnummer)
+        syncArrangorFromBrreg(arenaGjennomforing.arrangorOrganisasjonsnummer)
 
         val previous = tiltaksgjennomforinger.get(arenaGjennomforing.id)
 
@@ -139,7 +139,7 @@ class ArenaAdapterService(
             }
 
             next.avtaleId?.let { avtaleId ->
-                avtaler.setLeverandorUnderenhet(tx, avtaleId, next.arrangor.id)
+                avtaler.setArrangorUnderenhet(tx, avtaleId, next.arrangor.id)
             }
 
             if (shouldBeManagedInSanity(next)) {
@@ -156,8 +156,8 @@ class ArenaAdapterService(
         return query { gjennomforing }
     }
 
-    private suspend fun syncVirksomhetFromBrreg(orgnr: String) {
-        virksomhetService.getOrSyncVirksomhetFromBrreg(orgnr).onLeft { error ->
+    private suspend fun syncArrangorFromBrreg(orgnr: String) {
+        arrangorService.getOrSyncArrangorFromBrreg(orgnr).onLeft { error ->
             if (error == BrregError.NotFound) {
                 logger.warn("Virksomhet mer orgnr=$orgnr finnes ikke i brreg. Er dette en utenlandsk arrangør?")
             }

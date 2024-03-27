@@ -77,6 +77,10 @@ app:
     token: ${SANITY_AUTH_TOKEN:-}
     useCdn: false
 
+  arenaAdapter:
+    url: http://0.0.0.0:8084
+    scope: default
+
   veilarbvedtaksstotteConfig:
     url: http://localhost:8090/veilarbvedtaksstotte/api
     scope: default
@@ -105,17 +109,13 @@ app:
     url: http://localhost:8090/ms-graph
     scope: default
 
-  arenaAdapter:
-    url: http://0.0.0.0:8084
-    scope: default
-
   amtDeltakerConfig:
     url: http://localhost:8090/amt-deltaker
     scope: default
 
   axsys:
-    url: https://axsys.dev-fss-pub.nais.io # TODO Url for wiremock for axsys
-    scope: default # TODO scope for wiremock for axsys
+    url: http://localhost:8090/axsys
+    scope: default
 
   pdl:
     url: http://localhost:8090/pdl

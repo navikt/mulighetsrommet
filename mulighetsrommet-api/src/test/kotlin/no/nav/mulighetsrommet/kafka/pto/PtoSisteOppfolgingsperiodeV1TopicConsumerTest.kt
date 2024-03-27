@@ -14,8 +14,8 @@ import no.nav.mulighetsrommet.api.clients.pdl.PdlClient
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.repositories.TiltakshistorikkRepository
+import no.nav.mulighetsrommet.api.services.ArrangorService
 import no.nav.mulighetsrommet.api.services.TiltakshistorikkService
-import no.nav.mulighetsrommet.api.services.VirksomhetService
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.domain.dbo.ArenaTiltakshistorikkDbo
 import no.nav.mulighetsrommet.domain.dbo.Deltakerstatus
@@ -30,7 +30,7 @@ class PtoSisteOppfolgingsperiodeV1TopicConsumerTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
     val pdlClient: PdlClient = mockk()
     val amtDeltakerClient: AmtDeltakerClient = mockk()
-    val virksomhetService: VirksomhetService = mockk()
+    val arrangorService: ArrangorService = mockk()
     val domain = MulighetsrommetTestDomain(
         enheter = listOf(
             NavEnhetFixtures.Innlandet,
@@ -51,7 +51,7 @@ class PtoSisteOppfolgingsperiodeV1TopicConsumerTest : FunSpec({
     context("context") {
         val tiltakshistorikkRepository = TiltakshistorikkRepository(database.db)
         val tiltakshistorikkService = TiltakshistorikkService(
-            virksomhetService = virksomhetService,
+            arrangorService = arrangorService,
             amtDeltakerClient = amtDeltakerClient,
             tiltakshistorikkRepository = tiltakshistorikkRepository,
             pdlClient = pdlClient,

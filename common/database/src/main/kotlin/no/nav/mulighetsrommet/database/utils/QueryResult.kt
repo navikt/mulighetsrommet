@@ -23,7 +23,6 @@ fun <T> QueryResult<T>.getOrThrow(): T {
 fun <T> query(queryRunner: () -> T): QueryResult<T> = try {
     Either.Right(queryRunner.invoke())
 } catch (e: PSQLException) {
-    // TODO Logg warning her
     Either.Left(DatabaseOperationError.fromPSQLException(e))
 }
 

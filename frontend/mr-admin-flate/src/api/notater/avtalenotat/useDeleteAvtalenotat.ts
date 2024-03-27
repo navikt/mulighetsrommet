@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { mulighetsrommetClient } from "../../clients";
+import { mulighetsrommetClient } from "@/api/client";
 import { ApiError } from "mulighetsrommet-api-client";
+import { QueryKeys } from "@/api/QueryKeys";
 
 export function useDeleteAvtalenotat() {
   const client = useQueryClient();
@@ -8,9 +9,9 @@ export function useDeleteAvtalenotat() {
     mutationFn: (id: string) => {
       return mulighetsrommetClient.avtaleNotater.slettAvtalenotat({ id });
     },
-    onSuccess: () => {
-      client.invalidateQueries({
-        queryKey: ["avtalenotater"],
+    async onSuccess(_, id) {
+      await client.invalidateQueries({
+        queryKey: QueryKeys.avtalenotater(id),
       });
     },
   });

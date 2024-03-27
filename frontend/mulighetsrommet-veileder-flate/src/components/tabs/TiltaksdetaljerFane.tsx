@@ -1,6 +1,6 @@
 import { Tabs } from "@navikt/ds-react";
 import { Toggles, VeilederflateTiltaksgjennomforing } from "mulighetsrommet-api-client";
-import { useFeatureToggle } from "../../core/api/feature-toggles";
+import { useFeatureToggle } from "@/api/feature-toggles";
 import { Oppskriftsoversikt } from "../oppskrift/Oppskriftsoversikt";
 import DetaljerFane from "./DetaljerFane";
 import styles from "./TiltaksdetaljerFane.module.scss";

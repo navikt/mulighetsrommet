@@ -85,7 +85,7 @@ class TiltakEventProcessor(
                 sendKopibrevOgHovedbrevTilArbeidsgiver = ArenaUtils.parseJaNei(STATUS_KOPIBREV),
             )
         }
-        .mapLeft { ProcessingError.InvalidPayload(it.localizedMessage) }
+        .mapLeft { ProcessingError.ProcessingFailed(it.localizedMessage) }
 
     private fun Tiltakstype.toDbo() = TiltakstypeDbo(
         id = id,

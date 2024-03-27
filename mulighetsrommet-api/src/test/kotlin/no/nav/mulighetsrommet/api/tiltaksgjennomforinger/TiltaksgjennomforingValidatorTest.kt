@@ -38,8 +38,8 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
         id = UUID.randomUUID(),
         startDato = avtaleStartDato,
         sluttDato = avtaleSluttDato,
-        leverandorVirksomhetId = VirksomhetFixtures.hovedenhet.id,
-        leverandorUnderenheter = listOf(VirksomhetFixtures.underenhet1.id),
+        arrangorId = ArrangorFixtures.hovedenhet.id,
+        arrangorUnderenheter = listOf(ArrangorFixtures.underenhet1.id),
         navEnheter = listOf("0400", "0502"),
     )
 
@@ -49,7 +49,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
         sluttDato = avtaleSluttDato,
         navRegion = "0400",
         navEnheter = listOf("0502"),
-        arrangorVirksomhetId = VirksomhetFixtures.underenhet1.id,
+        arrangorId = ArrangorFixtures.underenhet1.id,
         administratorer = listOf(NavAnsattFixture.ansatt1.navIdent),
     )
 
@@ -84,10 +84,10 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
                 overordnetEnhet = null,
             ),
         ),
-        virksomheter = listOf(
-            VirksomhetFixtures.hovedenhet,
-            VirksomhetFixtures.underenhet1,
-            VirksomhetFixtures.underenhet2,
+        arrangorer = listOf(
+            ArrangorFixtures.hovedenhet,
+            ArrangorFixtures.underenhet1,
+            ArrangorFixtures.underenhet2,
         ),
         ansatte = listOf(NavAnsattFixture.ansatt1, NavAnsattFixture.ansatt2),
         tiltakstyper = listOf(
@@ -240,8 +240,8 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
                 listOf(ValidationError("navEnheter", "NAV-enhet 0401 mangler i avtalen")),
             ),
             row(
-                gjennomforing.copy(arrangorVirksomhetId = VirksomhetFixtures.underenhet2.id),
-                listOf(ValidationError("arrangorVirksomhetId", "Arrangøren mangler i avtalen")),
+                gjennomforing.copy(arrangorId = ArrangorFixtures.underenhet2.id),
+                listOf(ValidationError("arrangorId", "Arrangøren mangler i avtalen")),
             ),
         ) { input, error ->
             validator.validate(input, null).shouldBeLeft(error)

@@ -2,11 +2,12 @@ import { Tag } from "@navikt/ds-react";
 import Ikonknapp from "../../ikonknapp/Ikonknapp";
 import { XMarkIcon } from "@navikt/aksel-icons";
 import styles from "./Filtertag.module.scss";
+import { MouseEvent } from "react";
 import { NavEnhet } from "mulighetsrommet-api-client";
 
 interface Props {
   navEnheter: NavEnhet[];
-  onClose?: (e: React.MouseEvent) => void;
+  onClose?: (e: MouseEvent) => void;
 }
 
 export function NavEnhetFiltertag({ navEnheter, onClose }: Props) {
@@ -29,9 +30,7 @@ export function NavEnhetFiltertag({ navEnheter, onClose }: Props) {
       key="navenhet"
       data-testid="filtertag_navenhet"
       className={styles.filtertag}
-      title={navEnheter
-        .map((enhet) => enhet.navn)
-        .join(", ")}
+      title={navEnheter.map((enhet) => enhet.navn).join(", ")}
     >
       {tagLabel()}
       {onClose ? (

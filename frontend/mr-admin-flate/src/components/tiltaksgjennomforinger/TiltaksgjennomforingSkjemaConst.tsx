@@ -1,11 +1,11 @@
 import { isTiltakMedFellesOppstart } from "../../utils/tiltakskoder";
 import {
+  ArrangorKontaktperson,
   Avtale,
   NavAnsatt,
   Opphav,
   Tiltaksgjennomforing,
   TiltaksgjennomforingOppstartstype,
-  VirksomhetKontaktperson,
 } from "mulighetsrommet-api-client";
 import { InferredTiltaksgjennomforingSchema } from "../redaksjonelt-innhold/TiltaksgjennomforingSchema";
 import { DeepPartial } from "react-hook-form";
@@ -61,8 +61,8 @@ function defaultArrangor(
     return tiltaksgjennomforing.arrangor.id;
   }
 
-  if (avtale.leverandor.underenheter.length === 1) {
-    return avtale.leverandor.underenheter[0].id;
+  if (avtale.arrangor.underenheter.length === 1) {
+    return avtale.arrangor.underenheter[0].id;
   }
 
   return undefined;
@@ -94,14 +94,13 @@ export function defaultTiltaksgjennomforingData(
           ? avtale.sluttDato
           : undefined,
     },
-    arrangorVirksomhetId: defaultArrangor(avtale, tiltaksgjennomforing),
+    arrangorId: defaultArrangor(avtale, tiltaksgjennomforing),
     oppstart: tiltaksgjennomforing?.oppstart || defaultOppstartType(avtale),
     apentForInnsok: tiltaksgjennomforing?.apentForInnsok ?? true,
     kontaktpersoner: tiltaksgjennomforing?.kontaktpersoner ?? [],
     stedForGjennomforing: tiltaksgjennomforing?.stedForGjennomforing ?? null,
     arrangorKontaktpersoner:
-      tiltaksgjennomforing?.arrangor?.kontaktpersoner.map((p: VirksomhetKontaktperson) => p.id) ??
-      [],
+      tiltaksgjennomforing?.arrangor?.kontaktpersoner.map((p: ArrangorKontaktperson) => p.id) ?? [],
     beskrivelse: tiltaksgjennomforing?.beskrivelse ?? avtale.beskrivelse,
     faneinnhold: tiltaksgjennomforing?.faneinnhold ?? avtale.faneinnhold,
     opphav: tiltaksgjennomforing?.opphav ?? Opphav.MR_ADMIN_FLATE,

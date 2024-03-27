@@ -1,9 +1,9 @@
 import { useAtom, WritableAtom } from "jotai";
-import { Tiltakstypestatus, VirksomhetTil } from "mulighetsrommet-api-client";
-import { AvtaleFilter } from "../../api/atoms";
-import { useNavEnheter } from "../../api/enhet/useNavEnheter";
-import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
-import { useVirksomheter } from "../../api/virksomhet/useVirksomheter";
+import { ArrangorTil } from "mulighetsrommet-api-client";
+import { AvtaleFilter } from "@/api/atoms";
+import { useNavEnheter } from "@/api/enhet/useNavEnheter";
+import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
+import { useArrangorer } from "@/api/arrangor/useArrangorer";
 import { addOrRemove, avtaletypeTilTekst } from "../../utils/Utils";
 import { AVTALE_STATUS_OPTIONS } from "../../utils/filterUtils";
 import { Filtertag, FiltertagsContainer } from "mulighetsrommet-frontend-common";
@@ -18,14 +18,8 @@ export function AvtaleFiltertags({ filterAtom, tiltakstypeId, filterOpen }: Prop
   const [filter, setFilter] = useAtom(filterAtom);
 
   const { data: enheter } = useNavEnheter();
-  const { data: tiltakstyper } = useTiltakstyper(
-    {
-      status: Tiltakstypestatus.AKTIV,
-      kategori: undefined,
-    },
-    1,
-  );
-  const { data: leverandorer } = useVirksomheter(VirksomhetTil.AVTALE);
+  const { data: tiltakstyper } = useTiltakstyper();
+  const { data: arrangorer } = useArrangorer(ArrangorTil.AVTALE);
 
   return (
     <FiltertagsContainer filterOpen={filterOpen}>
@@ -100,14 +94,14 @@ export function AvtaleFiltertags({ filterAtom, tiltakstypeId, filterOpen }: Prop
             }}
           />
         ))}
-      {filter.leverandor.map((orgnr) => (
+      {filter.arrangorer.map((id) => (
         <Filtertag
-          key={orgnr}
-          label={leverandorer?.find((l) => l.organisasjonsnummer === orgnr)?.navn || orgnr}
+          key={id}
+          label={arrangorer?.find((arrangor) => arrangor.id === id)?.navn ?? id}
           onClose={() => {
             setFilter({
               ...filter,
-              leverandor: filter.leverandor.filter((l) => l !== orgnr),
+              arrangorer: addOrRemove(filter.arrangorer, id),
             });
           }}
         />

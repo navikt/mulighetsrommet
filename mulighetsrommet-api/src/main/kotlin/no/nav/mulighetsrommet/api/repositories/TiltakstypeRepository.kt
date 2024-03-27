@@ -5,9 +5,7 @@ import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.domain.dto.DeltakerRegistreringInnholdDto
 import no.nav.mulighetsrommet.api.domain.dto.Innholdselement
 import no.nav.mulighetsrommet.api.domain.dto.TiltakstypeEksternDto
-import no.nav.mulighetsrommet.api.utils.DatabaseUtils
 import no.nav.mulighetsrommet.api.utils.PaginationParams
-import no.nav.mulighetsrommet.api.utils.TiltakstypeFilter
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.QueryResult
 import no.nav.mulighetsrommet.database.utils.query
@@ -163,23 +161,18 @@ class TiltakstypeRepository(private val db: Database) {
     }
 
     fun getAllSkalMigreres(
-        tiltakstypeFilter: TiltakstypeFilter,
-        paginationParams: PaginationParams = PaginationParams(),
+        pagination: PaginationParams = PaginationParams(),
+        dagensDato: LocalDate = LocalDate.now(),
+        statuser: List<Tiltakstypestatus> = emptyList(),
+        sortering: String? = null,
     ): Pair<Int, List<TiltakstypeAdminDto>> {
         val parameters = mapOf(
-            "search" to "%${tiltakstypeFilter.search}%",
-            "limit" to paginationParams.limit,
-            "offset" to paginationParams.offset,
-            "today" to tiltakstypeFilter.dagensDato,
+            "limit" to pagination.limit,
+            "offset" to pagination.offset,
+            "today" to dagensDato,
         )
 
-        val where = DatabaseUtils.andWhereParameterNotNull(
-            tiltakstypeFilter.search to "(lower(navn) like lower(:search))",
-            tiltakstypeFilter.statuser.ifEmpty { null } to statuserWhereStatement(tiltakstypeFilter.statuser),
-            true to "tiltakskode is not null",
-        )
-
-        val order = when (tiltakstypeFilter.sortering) {
+        val order = when (sortering) {
             "navn-ascending" -> "navn asc"
             "navn-descending" -> "navn desc"
             "startdato-ascending" -> "fra_dato asc"
@@ -204,7 +197,8 @@ class TiltakstypeRepository(private val db: Database) {
                 rett_paa_tiltakspenger,
                 count(*) OVER() AS full_count
             from tiltakstype
-            $where
+            where tiltakskode is not null
+              and ${statuserWhereStatement(statuser)}
             order by $order
             limit :limit
             offset :offset
@@ -343,11 +337,14 @@ class TiltakstypeRepository(private val db: Database) {
     }
 
     private fun statuserWhereStatement(statuser: List<Tiltakstypestatus>): String =
-        statuser.joinToString(prefix = "(", postfix = ")", separator = " or ") {
-            when (it) {
-                Tiltakstypestatus.Planlagt -> "(:today < fra_dato)"
-                Tiltakstypestatus.Aktiv -> "(:today >= fra_dato and :today <= til_dato)"
-                else -> "(:today > til_dato)"
+        statuser
+            .ifEmpty { null }
+            ?.joinToString(prefix = "(", postfix = ")", separator = " or ") {
+                when (it) {
+                    Tiltakstypestatus.Planlagt -> "(:today < fra_dato)"
+                    Tiltakstypestatus.Aktiv -> "(:today >= fra_dato and :today <= til_dato)"
+                    else -> "(:today > til_dato)"
+                }
             }
-        }
+            ?: "true"
 }

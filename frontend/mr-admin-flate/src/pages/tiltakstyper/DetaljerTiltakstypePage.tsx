@@ -1,7 +1,7 @@
 import { Alert, Heading, Tabs } from "@navikt/ds-react";
 import { useTitle } from "mulighetsrommet-frontend-common";
 import { Link, Outlet, useLocation, useMatch } from "react-router-dom";
-import { useTiltakstypeById } from "../../api/tiltakstyper/useTiltakstypeById";
+import { useTiltakstypeById } from "@/api/tiltakstyper/useTiltakstypeById";
 import { Header } from "../../components/detaljside/Header";
 import { Laster } from "../../components/laster/Laster";
 import { TiltakstypestatusTag } from "../../components/statuselementer/TiltakstypestatusTag";

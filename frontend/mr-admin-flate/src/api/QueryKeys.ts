@@ -1,10 +1,9 @@
-import { NavAnsattRolle, NotificationStatus, VirksomhetTil } from "mulighetsrommet-api-client";
-import { AvtaleFilter, TiltaksgjennomforingFilter, TiltakstypeFilter } from "./atoms";
+import { ArrangorTil, NavAnsattRolle, NotificationStatus } from "mulighetsrommet-api-client";
+import { AvtaleFilter, TiltaksgjennomforingFilter } from "./atoms";
 
 export const QueryKeys = {
   tiltakstype: (id?: string) => ["tiltakstype", id] as const,
-  tiltakstyper: (sokestreng?: string, filter?: TiltakstypeFilter, page?: number) =>
-    ["tiltakstyper", page, sokestreng, { ...filter }] as const,
+  tiltakstyper: (filter?: object) => ["tiltakstyper", { ...filter }] as const,
   tiltakstypeFaneinnhold: (id: string) => ["tiltakstype", id, "faneinnhold"] as const,
   tiltaksgjennomforinger: (
     mine?: boolean,
@@ -17,23 +16,21 @@ export const QueryKeys = {
   tiltaksgjennomforingDeltakerSummary(id: string) {
     return ["tiltaksgjennomforing", id, "deltaker-summary"] as const;
   },
-  tiltaksgjennomforingerByEnhet: (enhet: string = "enhet", page?: number) =>
-    [enhet, page, "tiltaksgjennomforinger"] as const,
   ansatt: () => ["ansatt"] as const,
   avtaler: (mine?: boolean, page?: number, avtaleFilter?: Partial<AvtaleFilter>) =>
     ["avtaler", mine, page, { ...avtaleFilter }] as const,
   avtale: (id: string) => ["avtale", id],
   avtaleHistorikk: (id?: string) => ["avtale", id, "historikk"] as const,
   enheter: () => ["enheter"],
-  virksomheter: (til?: VirksomhetTil) => ["virksomheter", til],
+  arrangorer: (til?: ArrangorTil) => ["arrangorer", { til }],
+  arrangorById: (id: string) => ["arrangor", id],
+  arrangorByOrgnr: (orgnr: string) => ["arrangor", { orgnr }],
+  arrangorKontaktpersoner: (id: string) => ["arrangor", id, "kontaktpersoner"],
   antallUlesteNotifikasjoner: () => ["antallUlesteNotifikasjoner"],
   notifikasjonerForAnsatt: (status: NotificationStatus) => ["notifikasjoner", status] as const,
-  virksomhetSok: (sokestreng: string) => ["virksomhet", "sok", sokestreng],
-  virksomhet: (id: string) => ["virksomet", id],
-  virksomhetUnderenheter: (id: string) => ["virksomet", id, "underenheter"],
+  brregVirksomheter: (sokestreng: string) => ["virksomhet", "sok", sokestreng],
+  brregVirksomhetUnderenheter: (id: string) => ["virksomet", id, "underenheter"],
   navansatt: (rolle: NavAnsattRolle) => ["nav-ansatte", rolle],
-  virksomhetKontaktpersoner: (virksomhetId: string) =>
-    ["virksomhet", virksomhetId, "kontaktpersoner"] as const,
   avtalenotater: (avtaleId: string) => ["avtalenotater", avtaleId] as const,
   mineAvtalenotater: (avtaleId: string) => ["avtalenotater", "mine", avtaleId] as const,
   tiltaksgjennomforingsnotater: (tiltaksgjennomforingsId: string) =>

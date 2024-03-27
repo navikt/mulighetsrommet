@@ -1,6 +1,6 @@
 import { VeilederflateTiltaksgjennomforing } from "mulighetsrommet-api-client";
-import { mulighetsrommetClient } from "@/core/api/clients";
-import { QueryKeys } from "@/core/api/query-keys";
+import { mulighetsrommetClient } from "@/api/client";
+import { QueryKeys } from "@/api/query-keys";
 import { useHentVeilederdata } from "@/apps/modia/hooks/useHentVeilederdata";
 import { useQuery } from "@tanstack/react-query";
 

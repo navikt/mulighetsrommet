@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.domain.dto
 
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.domain.dbo.ArenaNavEnhet
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingKontaktpersonDbo
@@ -23,12 +24,12 @@ data class TiltaksgjennomforingAdminDto(
     val tiltakstype: Tiltakstype,
     val navn: String,
     val tiltaksnummer: String?,
-    val arrangor: Arrangor,
+    val arrangor: ArrangorUnderenhet,
     @Serializable(with = LocalDateSerializer::class)
     val startDato: LocalDate,
     @Serializable(with = LocalDateSerializer::class)
     val sluttDato: LocalDate?,
-    val arenaAnsvarligEnhet: NavEnhetDbo?,
+    val arenaAnsvarligEnhet: ArenaNavEnhet?,
     val status: Tiltaksgjennomforingsstatus,
     val apentForInnsok: Boolean,
     val antallPlasser: Int?,
@@ -72,12 +73,12 @@ data class TiltaksgjennomforingAdminDto(
     )
 
     @Serializable
-    data class Arrangor(
+    data class ArrangorUnderenhet(
         @Serializable(with = UUIDSerializer::class)
         val id: UUID,
         val organisasjonsnummer: String,
         val navn: String,
-        val kontaktpersoner: List<VirksomhetKontaktperson>,
+        val kontaktpersoner: List<ArrangorKontaktperson>,
         val slettet: Boolean,
     )
 
@@ -92,7 +93,7 @@ data class TiltaksgjennomforingAdminDto(
             id = id,
             navn = navn,
             tiltakstypeId = tiltakstype.id,
-            arrangorVirksomhetId = arrangor.id,
+            arrangorId = arrangor.id,
             arrangorKontaktpersoner = arrangor.kontaktpersoner.map { it.id },
             startDato = startDato,
             sluttDato = sluttDato,

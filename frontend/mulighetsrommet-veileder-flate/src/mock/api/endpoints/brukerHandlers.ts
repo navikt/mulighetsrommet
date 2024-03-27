@@ -11,7 +11,6 @@ import {
 } from "mulighetsrommet-api-client";
 import { historikk } from "../../fixtures/historikk";
 import { historikkFraKomet, utkastFraKomet } from "../../fixtures/mockHistorikkFraKomet";
-import { ENHET_SARPSBORG } from "../../mock_constants";
 
 export const brukerHandlers = [
   http.post<PathParams, GetBrukerRequest, Bruker | String>(
@@ -29,7 +28,7 @@ export const brukerHandlers = [
         enheter: [
           {
             navn: "NAV Sarpsborg",
-            enhetsnummer: ENHET_SARPSBORG,
+            enhetsnummer: "0105",
             overordnetEnhet: "0200",
             type: NavEnhetType.LOKAL,
             status: NavEnhetStatus.AKTIV,

@@ -2,13 +2,13 @@ package no.nav.mulighetsrommet.unleash.strategies
 
 import io.getunleash.UnleashContext
 import io.getunleash.strategy.Strategy
+import no.nav.common.client.axsys.AxsysClient
 import no.nav.common.types.identer.NavIdent
-import no.nav.mulighetsrommet.api.services.AxsysService
 import no.nav.mulighetsrommet.securelog.SecureLog
 import org.slf4j.LoggerFactory
 import java.util.*
 
-class ByEnhetStrategy(private val axsysService: AxsysService) : Strategy {
+class ByEnhetStrategy(private val axsysClient: AxsysClient) : Strategy {
     companion object {
         const val VALGT_ENHET_PARAM = "valgtEnhet"
         private const val TEMA_OPPFOLGING = "OPP"
@@ -43,7 +43,7 @@ class ByEnhetStrategy(private val axsysService: AxsysService) : Strategy {
 
     private fun hentEnheter(navIdent: String): List<String?> {
         return try {
-            axsysService.get().hentTilganger(NavIdent(navIdent)).stream()
+            axsysClient.hentTilganger(NavIdent(navIdent)).stream()
                 .filter { enhet ->
                     enhet.temaer.contains(TEMA_OPPFOLGING)
                 }

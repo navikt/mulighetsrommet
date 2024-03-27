@@ -1,6 +1,6 @@
 import { Avtale, NavAnsatt } from "mulighetsrommet-api-client";
 import styles from "../DetaljerInfo.module.scss";
-import { useAvtaleEndringshistorikk } from "../../api/avtaler/useAvtaleEndringshistorikk";
+import { useAvtaleEndringshistorikk } from "@/api/avtaler/useAvtaleEndringshistorikk";
 import { ViewEndringshistorikk } from "../../components/endringshistorikk/ViewEndringshistorikk";
 import { EndringshistorikkPopover } from "../../components/endringshistorikk/EndringshistorikkPopover";
 import { RedigeringsAdvarselModal } from "../../components/modal/RedigeringsAdvarselModal";

@@ -23,7 +23,6 @@ import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping.Status.
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.Operation.*
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.ProcessingStatus.Failed
-import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.ProcessingStatus.Invalid
 import no.nav.mulighetsrommet.arena.adapter.models.db.Avtale
 import no.nav.mulighetsrommet.arena.adapter.models.dto.ArenaOrdsArrangor
 import no.nav.mulighetsrommet.arena.adapter.repositories.*
@@ -191,7 +190,6 @@ class AvtaleInfoEventProcessorTest : FunSpec({
                 }
             }
 
-            // TODO: burde manglende data i ords ha en annen semantikk enn Invalid?
             test("should mark the event as Invalid when arena ords proxy responds with NotFound") {
                 val engine = createMockEngine(
                     "/ords/arbeidsgiver" to {
@@ -204,7 +202,7 @@ class AvtaleInfoEventProcessorTest : FunSpec({
                 val result = processor.handleEvent(event)
 
                 result.shouldBeLeft().should {
-                    it.status shouldBe Invalid
+                    it.status shouldBe Failed
                     it.message shouldContain "Fant ikke leverandør i Arena ORDS"
                 }
             }
@@ -252,7 +250,7 @@ class AvtaleInfoEventProcessorTest : FunSpec({
                         id shouldBe mapping.entityId
                         tiltakstypeId shouldBe tiltakstype.id
                         avtalenummer shouldBe "2022#2000"
-                        leverandorOrganisasjonsnummer shouldBe "1000000"
+                        arrangorOrganisasjonsnummer shouldBe "1000000"
                         avtaletype shouldBe Avtaletype.Rammeavtale
                         avslutningsstatus shouldBe Avslutningsstatus.IKKE_AVSLUTTET
                     }

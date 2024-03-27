@@ -1,15 +1,14 @@
 import { ExternalLinkIcon } from "@navikt/aksel-icons";
-import { BodyShort, HStack, HelpText, Tag } from "@navikt/ds-react";
+import { BodyShort, HelpText, HStack, Tag } from "@navikt/ds-react";
 import {
   Avtale,
   Tiltaksgjennomforing,
   TiltaksgjennomforingOppstartstype,
-  VirksomhetKontaktperson,
 } from "mulighetsrommet-api-client";
 import { useTitle } from "mulighetsrommet-frontend-common";
 import { NOM_ANSATT_SIDE } from "mulighetsrommet-frontend-common/constants";
 import { Link } from "react-router-dom";
-import { usePollTiltaksnummer } from "../../api/tiltaksgjennomforing/usePollTiltaksnummer";
+import { usePollTiltaksnummer } from "@/api/tiltaksgjennomforing/usePollTiltaksnummer";
 import { Bolk } from "../../components/detaljside/Bolk";
 import { Metadata, Separator } from "../../components/detaljside/Metadata";
 import { Laster } from "../../components/laster/Laster";
@@ -18,6 +17,8 @@ import { isTiltakMedFellesOppstart } from "../../utils/tiltakskoder";
 import styles from "../DetaljerInfo.module.scss";
 import { Kontaktperson } from "./Kontaktperson";
 import { tiltaktekster } from "../../components/ledetekster/tiltaksgjennomforingLedetekster";
+import { ArrangorKontaktpersonDetaljer } from "../arrangor/ArrangorKontaktpersonDetaljer";
+import { getDisplayName } from "@/api/enhet/helpers";
 
 interface Props {
   tiltaksgjennomforing: Tiltaksgjennomforing;
@@ -209,7 +210,7 @@ export function TiltaksgjennomforingDetaljer(props: Props) {
               <div style={{ display: "flex", gap: "1rem" }}>
                 <Metadata
                   header={tiltaktekster.ansvarligEnhetFraArenaLabel}
-                  verdi={`${arenaAnsvarligEnhet.enhetsnummer} ${arenaAnsvarligEnhet.navn}`}
+                  verdi={getDisplayName(arenaAnsvarligEnhet)}
                 />
                 <HelpText title="Hva betyr feltet 'Ansvarlig enhet fra Arena'?">
                   Ansvarlig enhet fra Arena blir satt i Arena basert på tiltaksansvarlig sin enhet
@@ -241,13 +242,11 @@ export function TiltaksgjennomforingDetaljer(props: Props) {
 
           <Separator />
 
-          {avtale?.leverandor ? (
+          {avtale?.arrangor ? (
             <Bolk aria-label={tiltaktekster.tiltaksarrangorHovedenhetLabel}>
               <Metadata
                 header={tiltaktekster.tiltaksarrangorHovedenhetLabel}
-                verdi={[avtale.leverandor.navn, avtale.leverandor.organisasjonsnummer]
-                  .filter(Boolean)
-                  .join(" - ")}
+                verdi={`${avtale.arrangor.navn} - ${avtale.arrangor.organisasjonsnummer}`}
               />
             </Bolk>
           ) : null}
@@ -256,11 +255,7 @@ export function TiltaksgjennomforingDetaljer(props: Props) {
             <Bolk aria-label={tiltaktekster.tiltaksarrangorUnderenhetLabel}>
               <Metadata
                 header={tiltaktekster.tiltaksarrangorUnderenhetLabel}
-                verdi={
-                  arrangor.navn
-                    ? `${arrangor.navn} - ${arrangor.organisasjonsnummer}`
-                    : arrangor.organisasjonsnummer
-                }
+                verdi={`${arrangor.navn} - ${arrangor.organisasjonsnummer}`}
               />
             </Bolk>
           ) : null}
@@ -268,14 +263,12 @@ export function TiltaksgjennomforingDetaljer(props: Props) {
             <Metadata
               header={tiltaktekster.kontaktpersonerHosTiltaksarrangorLabel}
               verdi={
-                <div className={styles.leverandor_kontaktinfo_container}>
-                  {arrangor.kontaktpersoner.map((person: VirksomhetKontaktperson) => (
-                    <div key={person.id} className={styles.leverandor_kontaktinfo}>
-                      <BodyShort>{person.navn}</BodyShort>
-                      <BodyShort>{person.telefon}</BodyShort>
-                      <a href={`mailto:${person.epost}`}>{person.epost}</a>
-                      {person.beskrivelse && <BodyShort>{person.beskrivelse}</BodyShort>}
-                    </div>
+                <div className={styles.arrangor_kontaktinfo_container}>
+                  {arrangor.kontaktpersoner.map((kontaktperson) => (
+                    <ArrangorKontaktpersonDetaljer
+                      key={kontaktperson.id}
+                      kontaktperson={kontaktperson}
+                    />
                   ))}
                 </div>
               }

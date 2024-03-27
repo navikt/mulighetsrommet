@@ -9,9 +9,8 @@ import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.domain.dbo.AvtaleDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dto.AvtaleAdminDto
-import no.nav.mulighetsrommet.api.domain.dto.VirksomhetDto
+import no.nav.mulighetsrommet.api.repositories.ArrangorRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
-import no.nav.mulighetsrommet.api.repositories.VirksomhetRepository
 import no.nav.mulighetsrommet.api.routes.v1.responses.ValidationError
 import no.nav.mulighetsrommet.api.services.NavEnhetService
 import no.nav.mulighetsrommet.api.services.TiltakstypeService
@@ -28,7 +27,7 @@ class AvtaleValidator(
     private val tiltakstyper: TiltakstypeService,
     private val tiltaksgjennomforinger: TiltaksgjennomforingRepository,
     private val navEnheterService: NavEnhetService,
-    private val virksomheter: VirksomhetRepository,
+    private val arrangorer: ArrangorRepository,
 ) {
     fun validate(avtale: AvtaleDbo, previous: AvtaleAdminDto?): Either<List<ValidationError>, AvtaleDbo> = either {
         val tiltakstype = tiltakstyper.getById(avtale.tiltakstypeId)
@@ -59,10 +58,10 @@ class AvtaleValidator(
 
             addAll(validateNavEnheter(avtale.navEnheter))
 
-            if (avtale.leverandorUnderenheter.isEmpty()) {
+            if (avtale.arrangorUnderenheter.isEmpty()) {
                 add(
                     ValidationError.of(
-                        AvtaleDbo::leverandorUnderenheter,
+                        AvtaleDbo::arrangorUnderenheter,
                         "Minst én underenhet til tiltaksarrangøren må være valgt",
                     ),
                 )
@@ -114,13 +113,13 @@ class AvtaleValidator(
                     }
 
                     gjennomforinger.forEach { gjennomforing ->
-                        val arrangor = gjennomforing.arrangor.id
-                        if (arrangor !in avtale.leverandorUnderenheter) {
-                            val virksomhet: VirksomhetDto = virksomheter.getById(arrangor)
+                        val arrangorId = gjennomforing.arrangor.id
+                        if (arrangorId !in avtale.arrangorUnderenheter) {
+                            val arrangor = arrangorer.getById(arrangorId)
                             add(
                                 ValidationError.of(
-                                    AvtaleDbo::leverandorUnderenheter,
-                                    "Arrangøren ${virksomhet.navn} er i bruk på en av avtalens gjennomføringer, men mangler blant tiltaksarrangørens underenheter",
+                                    AvtaleDbo::arrangorUnderenheter,
+                                    "Arrangøren ${arrangor.navn} er i bruk på en av avtalens gjennomføringer, men mangler blant tiltaksarrangørens underenheter",
                                 ),
                             )
                         }
@@ -188,10 +187,10 @@ class AvtaleValidator(
                         )
                     }
 
-                    if (avtale.leverandorVirksomhetId != currentAvtale.leverandor.id) {
+                    if (avtale.arrangorId != currentAvtale.arrangor.id) {
                         add(
                             ValidationError.of(
-                                AvtaleDbo::leverandorVirksomhetId,
+                                AvtaleDbo::arrangorId,
                                 "Tiltaksarrangøren kan ikke endres utenfor Arena",
                             ),
                         )
@@ -255,5 +254,6 @@ class AvtaleValidator(
     }
 
     private fun isEnabled(arenakode: String) =
-        tiltakstyper.isEnabled(Tiltakskode.fromArenaKode(arenakode)) || Tiltakskoder.TiltakMedAvtalerFraMulighetsrommet.contains(arenakode)
+        tiltakstyper.isEnabled(Tiltakskode.fromArenaKode(arenakode)) ||
+            Tiltakskoder.TiltakMedAvtalerFraMulighetsrommet.contains(arenakode)
 }

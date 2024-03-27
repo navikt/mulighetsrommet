@@ -96,7 +96,7 @@ class AvtaleRoutesTest : FunSpec({
         val tiltaksadministrasjonGenerellRolle =
             AdGruppeNavAnsattRolleMapping(UUID.randomUUID(), NavAnsattRolle.TILTAKADMINISTRASJON_GENERELL)
         val engine = createMockEngine(
-            "/brreg/enheter/${AvtaleFixtures.avtaleRequest.leverandorOrganisasjonsnummer}" to {
+            "/brreg/enheter/${AvtaleFixtures.avtaleRequest.arrangorOrganisasjonsnummer}" to {
                 respondJson(BrregEnhet(organisasjonsnummer = "123456789", navn = "Testvirksomhet"))
             },
             "/brreg/underenheter" to {

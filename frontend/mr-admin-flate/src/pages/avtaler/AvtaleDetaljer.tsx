@@ -2,7 +2,7 @@ import { ExternalLinkIcon } from "@navikt/aksel-icons";
 import { Alert, Heading, HelpText, VStack } from "@navikt/ds-react";
 import { NOM_ANSATT_SIDE } from "mulighetsrommet-frontend-common/constants";
 import { Fragment } from "react";
-import { useAvtale } from "../../api/avtaler/useAvtale";
+import { useAvtale } from "@/api/avtaler/useAvtale";
 import { Bolk } from "../../components/detaljside/Bolk";
 import { Metadata, Separator } from "../../components/detaljside/Metadata";
 import { Laster } from "../../components/laster/Laster";
@@ -12,6 +12,8 @@ import styles from "../DetaljerInfo.module.scss";
 import { Link } from "react-router-dom";
 import { NavEnhet } from "mulighetsrommet-api-client";
 import { avtaletekster } from "../../components/ledetekster/avtaleLedetekster";
+import { ArrangorKontaktpersonDetaljer } from "../arrangor/ArrangorKontaktpersonDetaljer";
+import { getDisplayName } from "@/api/enhet/helpers";
 
 export function AvtaleDetaljer() {
   const { data: avtale, isPending, error } = useAvtale();
@@ -54,7 +56,7 @@ export function AvtaleDetaljer() {
     url,
     kontorstruktur,
     arenaAnsvarligEnhet,
-    leverandor,
+    arrangor,
   } = avtale;
 
   return (
@@ -190,7 +192,7 @@ export function AvtaleDetaljer() {
             <dl style={{ margin: "0" }}>
               <Metadata
                 header={avtaletekster.ansvarligEnhetFraArenaLabel}
-                verdi={`${arenaAnsvarligEnhet.enhetsnummer} ${arenaAnsvarligEnhet.navn}`}
+                verdi={getDisplayName(arenaAnsvarligEnhet)}
               />
             </dl>
             <HelpText title="Hva betyr feltet 'Ansvarlig enhet fra Arena'?">
@@ -205,7 +207,7 @@ export function AvtaleDetaljer() {
         <Bolk aria-label={avtaletekster.tiltaksarrangorHovedenhetLabel}>
           <Metadata
             header={avtaletekster.tiltaksarrangorHovedenhetLabel}
-            verdi={[leverandor.navn, leverandor.organisasjonsnummer].filter(Boolean).join(" - ")}
+            verdi={`${arrangor.navn} - ${arrangor.organisasjonsnummer}`}
           />
         </Bolk>
 
@@ -214,11 +216,9 @@ export function AvtaleDetaljer() {
             header={avtaletekster.tiltaksarrangorUnderenheterLabel}
             verdi={
               <ul>
-                {leverandor.underenheter.map((enhet) => (
+                {arrangor.underenheter.map((enhet) => (
                   <li key={enhet.organisasjonsnummer}>
-                    {enhet?.navn
-                      ? `${enhet.navn} - ${enhet.organisasjonsnummer}`
-                      : `${enhet.organisasjonsnummer}`}
+                    {`${enhet.navn} - ${enhet.organisasjonsnummer}`}
                   </li>
                 ))}
               </ul>
@@ -228,24 +228,11 @@ export function AvtaleDetaljer() {
 
         <Separator />
 
-        {leverandor.kontaktperson ? (
+        {arrangor.kontaktperson ? (
           <Bolk aria-label={avtaletekster.kontaktpersonHosTiltaksarrangorLabel}>
             <Metadata
               header={avtaletekster.kontaktpersonHosTiltaksarrangorLabel}
-              verdi={
-                <div className={styles.leverandor_kontaktinfo}>
-                  <label>{leverandor.kontaktperson.navn}</label>
-                  {leverandor.kontaktperson.telefon && (
-                    <label>{leverandor.kontaktperson.telefon}</label>
-                  )}
-                  <a href={`mailto:${leverandor.kontaktperson.epost}`}>
-                    {leverandor.kontaktperson.epost}
-                  </a>
-                  {leverandor.kontaktperson.beskrivelse && (
-                    <label>{leverandor.kontaktperson.beskrivelse}</label>
-                  )}
-                </div>
-              }
+              verdi={<ArrangorKontaktpersonDetaljer kontaktperson={arrangor.kontaktperson} />}
             />
           </Bolk>
         ) : null}

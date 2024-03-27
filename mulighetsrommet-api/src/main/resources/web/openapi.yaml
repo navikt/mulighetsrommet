@@ -81,7 +81,7 @@ paths:
       operationId: getAvtaler
       parameters:
         - in: query
-          name: tiltakstypeIder
+          name: tiltakstyper
           schema:
             type: array
             items:
@@ -114,12 +114,13 @@ paths:
               type: string
           description: 4 digit enhetskode
         - in: query
-          name: leverandorOrgnr
+          name: arrangorer
           schema:
             type: array
             items:
               type: string
-          description: Organisasjonsnummer til leverandører for avtaler
+              format: uuid
+          description: Id til arrangører for avtaler
         - in: query
           name: page
           schema:
@@ -177,7 +178,7 @@ paths:
       operationId: getMineAvtaler
       parameters:
         - in: query
-          name: tiltakstypeIder
+          name: tiltakstyper
           schema:
             type: array
             items:
@@ -217,12 +218,13 @@ paths:
               type: string
           description: 4 digit enhetskode
         - in: query
-          name: leverandorOrgnr
+          name: arrangorer
           schema:
             type: array
             items:
               type: string
-          description: Organisasjonsnummer til leverandører for avtaler
+              format: uuid
+          description: Id til arrangør for avtaler
       responses:
         200:
           description: Object of paginated avtaler connected to specified tiltakstype-id where logged in user is responsible for avtale.
@@ -493,6 +495,7 @@ paths:
           required: true
           schema:
             type: string
+            format: uuid
           description: ID for notatet som skal slettes
       responses:
         200:
@@ -526,7 +529,7 @@ paths:
               type: string
           description: 4 digit enhetskode
         - in: query
-          name: tiltakstypeIder
+          name: tiltakstyper
           schema:
             type: array
             items:
@@ -547,11 +550,12 @@ paths:
             items:
               type: string
         - in: query
-          name: arrangorOrgnr
+          name: arrangorer
           schema:
             type: array
             items:
               type: string
+              format: uuid
         - in: query
           name: size
           schema:
@@ -615,7 +619,7 @@ paths:
               type: string
           description: 4 digit enhetskode
         - in: query
-          name: tiltakstypeIder
+          name: tiltakstyper
           schema:
             type: array
             items:
@@ -636,11 +640,12 @@ paths:
             items:
               type: string
         - in: query
-          name: arrangorOrgnr
+          name: arrangorer
           schema:
             type: array
             items:
               type: string
+              format: uuid
         - in: query
           name: page
           schema:
@@ -768,41 +773,6 @@ paths:
       responses:
         200:
           description: Update for 'tilgjengelig for veileder' was successful
-
-  /api/v1/internal/tiltaksgjennomforinger/enhet/{enhet}:
-    parameters:
-      - in: path
-        name: enhet
-        schema:
-          type: string
-        required: true
-      - in: query
-        name: page
-        schema:
-          type: number
-        description: Page number, default 1
-      - in: query
-        name: size
-        schema:
-          type: number
-        description: Page size, default 50
-    get:
-      tags:
-        - Tiltaksgjennomforinger
-      operationId: getAllByEnhet
-      responses:
-        200:
-          description: En liste med tiltaksgjennomføringer tilknyttet en enhet
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/PaginertTiltaksgjennomforing"
-        404:
-          description: "Fant ingen tiltaksgjennomføringer for enhet"
-          content:
-            application/json:
-              schema:
-                type: string
 
   /api/v1/internal/tiltakstyper:
     get:
@@ -1160,30 +1130,6 @@ paths:
               schema:
                 type: string
 
-  /logger/event:
-    post:
-      tags:
-        - Internal
-      operationId: logFrontendEvent
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/FrontendEvent"
-      responses:
-        201:
-          description: "Logged frontend event"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/FrontendEvent"
-        500:
-          description: "Logging to frontend failed"
-          content:
-            application/json:
-              schema:
-                type: string
-
   /api/v1/internal/del-med-bruker:
     post:
       tags:
@@ -1330,17 +1276,17 @@ paths:
               schema:
                 $ref: "#/components/schemas/NavEnhet"
 
-  /api/v1/internal/virksomhet:
+  /api/v1/internal/arrangorer:
     get:
       tags:
-        - Virksomhet
-      operationId: getVirksomheter
+        - Arrangor
+      operationId: getArrangorer
       parameters:
         - in: query
           name: til
           schema:
-            $ref: "#/components/schemas/VirksomhetTil"
-          description: Hent virksomheter tilhørende avtaler eller gjennomforinger
+            $ref: "#/components/schemas/ArrangorTil"
+          description: Hent arrangører tilhørende avtaler eller gjennomforinger
       responses:
         200:
           description: Liste med virksomheter
@@ -1349,13 +1295,116 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/Virksomhet"
+                  $ref: "#/components/schemas/Arrangor"
+
+  /api/v1/internal/arrangorer/{id}:
+    get:
+      tags:
+        - Arrangor
+      operationId: getArrangorById
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: Arrangor for id
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Arrangor"
+
+  /api/v1/internal/arrangorer/{orgnr}:
+    post:
+      tags:
+        - Arrangor
+      operationId: syncArrangorFromBrreg
+      parameters:
+        - in: path
+          name: orgnr
+          required: true
+          schema:
+            type: string
+          description: 9-sifret organisasjonsnummer
+      responses:
+        200:
+          description: Arrangor som matcher organisasjonsnummeret
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Arrangor"
+
+  /api/v1/internal/arrangorer/{id}/kontaktpersoner:
+    get:
+      tags:
+        - Arrangor
+      operationId: getArrangorKontaktpersoner
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: Kontaktpersoner lagret på arrangøren
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ArrangorKontaktperson"
+    put:
+      tags:
+        - Arrangor
+      operationId: upsertArrangorKontaktperson
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ArrangorKontaktpersonRequest"
+      responses:
+        200:
+          description: Opprettet kontaktperson
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ArrangorKontaktperson"
+
+  /api/v1/internal/arrangorer/kontaktperson/{id}:
+    delete:
+      tags:
+        - Arrangor
+      operationId: deleteArrangorKontaktperson
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: uuid til kontaktpersonen
+      responses:
+        200:
+          description: Om kontaktpersonen ble slettet eller ikke
+        500:
+          description: Hvis noe gikk galt ved sletting av kontaktperson
 
   /api/v1/internal/virksomhet/sok:
     get:
       tags:
         - Virksomhet
-      operationId: sokVirksomhet
+      operationId: sokBrregVirksomheter
       parameters:
         - in: query
           name: sok
@@ -1373,46 +1422,6 @@ paths:
                 items:
                   $ref: "#/components/schemas/BrregVirksomhet"
 
-  /api/v1/internal/virksomhet/{id}:
-    get:
-      tags:
-        - Virksomhet
-      operationId: getVirksomhetById
-      parameters:
-        - in: path
-          name: id
-          required: true
-          schema:
-            type: string
-            format: uuid
-      responses:
-        200:
-          description: Virksomhet for id
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Virksomhet"
-
-  /api/v1/internal/virksomhet/{orgnr}:
-    post:
-      tags:
-        - Virksomhet
-      operationId: syncBrregVirksomhet
-      parameters:
-        - in: path
-          name: orgnr
-          required: true
-          schema:
-            type: string
-          description: 9-sifret organisasjonsnummer
-      responses:
-        200:
-          description: Virksomhet som matcher organisasjonsnummeret
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Virksomhet"
-
   /api/v1/internal/virksomhet/{orgnr}/underenheter:
     get:
       tags:
@@ -1427,76 +1436,13 @@ paths:
           description: 9-sifret organisasjonsnummer
       responses:
         200:
-          description: Virksomhet som matcher organisasjonsnummeret
+          description: Underenheter til brreg hovedenhet som matcher organisasjonsnummeret
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: "#/components/schemas/BrregVirksomhet"
-
-  /api/v1/internal/virksomhet/{id}/kontaktpersoner:
-    get:
-      tags:
-        - Virksomhet
-      operationId: hentVirksomhetKontaktpersoner
-      parameters:
-        - in: path
-          name: id
-          required: true
-          schema:
-            type: string
-            format: uuid
-      responses:
-        200:
-          description: Kontaktpersoner lagret på virksomhet
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/VirksomhetKontaktperson"
-    put:
-      tags:
-        - Virksomhet
-      operationId: opprettVirksomhetKontaktperson
-      parameters:
-        - in: path
-          name: id
-          required: true
-          schema:
-            type: string
-            format: uuid
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/VirksomhetKontaktpersonRequest"
-      responses:
-        200:
-          description: VirksomhetKontaktperson response
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/VirksomhetKontaktperson"
-
-  /api/v1/internal/virksomhet/kontaktperson/{id}:
-    delete:
-      tags:
-        - Virksomhet
-      operationId: deleteVirksomhetkontaktperson
-      parameters:
-        - in: path
-          name: id
-          required: true
-          schema:
-            type: string
-          description: uuid til kontaktpersonen
-      responses:
-        200:
-          description: Om kontaktpersonen ble slettet eller ikke
-        500:
-          description: Hvis noe gikk galt ved sletting av kontaktperson
 
   /api/v1/internal/notifications:
     get:
@@ -1911,8 +1857,8 @@ components:
           type: string
         avtalenummer:
           type: string
-        leverandor:
-          $ref: "#/components/schemas/Leverandor"
+        arrangor:
+          $ref: "#/components/schemas/ArrangorHovedenhet"
         startDato:
           type: string
           format: date
@@ -1924,7 +1870,7 @@ components:
         avtalestatus:
           $ref: "#/components/schemas/Avtalestatus"
         arenaAnsvarligEnhet:
-          $ref: "#/components/schemas/NavEnhet"
+          $ref: "#/components/schemas/ArenaNavEnhet"
         prisbetingelser:
           type: string
           nullable: true
@@ -1951,8 +1897,7 @@ components:
         - tiltakstype
         - navn
         - avtalenummer
-        - leverandor
-        - leverandorUnderenheter
+        - arrangor
         - startDato
         - avtaletype
         - avtalestatus
@@ -1974,16 +1919,16 @@ components:
         avtalenummer:
           type: string
           nullable: true
-        leverandorOrganisasjonsnummer:
+        arrangorOrganisasjonsnummer:
           type: string
-        leverandorKontaktpersonId:
-          type: string
-          format: UUID
-          nullable: true
-        leverandorUnderenheter:
+        arrangorUnderenheter:
           type: array
           items:
             type: string
+        arrangorKontaktpersonId:
+          type: string
+          format: UUID
+          nullable: true
         startDato:
           type: string
           format: date
@@ -2017,9 +1962,9 @@ components:
         - id
         - navn
         - tiltakstypeId
-        - leverandorOrganisasjonsnummer
-        - leverandorUnderenheter
-        - leverandorKontaktpersonId
+        - arrangorOrganisasjonsnummer
+        - arrangorUnderenheter
+        - arrangorKontaktpersonId
         - avtalenummer
         - startDato
         - sluttDato
@@ -2076,8 +2021,8 @@ components:
         - startdato-descending
         - sluttdato-ascending
         - sluttdato-descending
-        - leverandor-ascending
-        - leverandor-descending
+        - arrangor-ascending
+        - arrangor-descending
 
     SorteringTiltakstyper:
       type: string
@@ -2121,7 +2066,7 @@ components:
           type: string
           nullable: true
         arrangor:
-          $ref: "#/components/schemas/Arrangor"
+          $ref: "#/components/schemas/ArrangorUnderenhet"
         startDato:
           type: string
           format: date
@@ -2129,7 +2074,7 @@ components:
           type: string
           format: date
         arenaAnsvarligEnhet:
-          $ref: "#/components/schemas/NavEnhet"
+          $ref: "#/components/schemas/ArenaNavEnhet"
         status:
           $ref: "#/components/schemas/TiltaksgjennomforingStatus"
         apentForInnsok:
@@ -2225,7 +2170,7 @@ components:
           nullable: true
         antallPlasser:
           type: number
-        arrangorVirksomhetId:
+        arrangorId:
           type: string
           format: uuid
         arrangorKontaktpersoner:
@@ -2278,7 +2223,7 @@ components:
         - startDato
         - sluttDato
         - antallPlasser
-        - arrangorVirksomhetId
+        - arrangorId
         - arrangorKontaktpersoner
         - administrator
         - navRegion
@@ -2313,7 +2258,7 @@ components:
         - ARENA
         - MR_ADMIN_FLATE
 
-    VirksomhetTil:
+    ArrangorTil:
       type: string
       enum:
         - AVTALE
@@ -2552,16 +2497,16 @@ components:
         sistEndretdato:
           type: string
         aktivStatus:
-            type: string
-            enum:
-              - UTKAST_TIL_PAMELDING
-              - VENTER_PA_OPPSTART
-              - DELTAR
-              - KLADD
-              - SOKT_INN
-              - VURDERES
-              - VENTELISTE
-              - PABEGYNT_REGISTRERING
+          type: string
+          enum:
+            - UTKAST_TIL_PAMELDING
+            - VENTER_PA_OPPSTART
+            - DELTAR
+            - KLADD
+            - SOKT_INN
+            - VURDERES
+            - VENTELISTE
+            - PABEGYNT_REGISTRERING
         tittel:
           type: string
         tiltakstype:
@@ -2663,6 +2608,16 @@ components:
         - navident
         - dialogId
 
+    ArenaNavEnhet:
+      type: object
+      properties:
+        enhetsnummer:
+          type: string
+        navn:
+          type: string
+      required:
+        - enhetsnummer
+
     NavEnhet:
       type: object
       properties:
@@ -2706,30 +2661,7 @@ components:
         - status
         - type
 
-    Arrangor:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        organisasjonsnummer:
-          type: string
-        navn:
-          type: string
-        kontaktpersoner:
-          type: array
-          items:
-            $ref: "#/components/schemas/VirksomhetKontaktperson"
-        slettet:
-          type: boolean
-      required:
-        - id
-        - organisasjonsnummer
-        - navn
-        - kontaktpersoner
-        - slettet
-
-    Leverandor:
+    ArrangorHovedenhet:
       type: object
       properties:
         id:
@@ -2744,9 +2676,9 @@ components:
         underenheter:
           type: array
           items:
-            $ref: "#/components/schemas/LeverandorUnderenhet"
+            $ref: "#/components/schemas/ArrangorUnderenhet"
         kontaktperson:
-          $ref: "#/components/schemas/VirksomhetKontaktperson"
+          $ref: "#/components/schemas/ArrangorKontaktperson"
       required:
         - id
         - organisasjonsnummer
@@ -2754,7 +2686,7 @@ components:
         - slettet
         - underenheter
 
-    LeverandorUnderenhet:
+    ArrangorUnderenhet:
       type: object
       properties:
         id:
@@ -2764,15 +2696,20 @@ components:
           type: string
         navn:
           type: string
+        kontaktpersoner:
+          type: array
+          items:
+            $ref: "#/components/schemas/ArrangorKontaktperson"
         slettet:
           type: boolean
       required:
         - id
         - organisasjonsnummer
         - navn
+        - kontaktpersoner
         - slettet
 
-    VirksomhetKontaktpersonRequest:
+    ArrangorKontaktpersonRequest:
       type: object
       properties:
         id:
@@ -2795,13 +2732,13 @@ components:
         - telefon
         - beskrivelse
 
-    VirksomhetKontaktperson:
+    ArrangorKontaktperson:
       type: object
       properties:
         id:
           type: string
           format: uuid
-        virksomhetId:
+        arrangorId:
           type: string
           format: uuid
         navn:
@@ -2816,7 +2753,7 @@ components:
           type: string
       required:
         - id
-        - virksomhetId
+        - arrangorId
         - navn
         - beskrivelse
         - telefon
@@ -3126,7 +3063,7 @@ components:
         - organisasjonsnummer
         - navn
 
-    Virksomhet:
+    Arrangor:
       type: object
       properties:
         id:
@@ -3142,7 +3079,7 @@ components:
         underenheter:
           type: array
           items:
-            $ref: "#/components/schemas/Virksomhet"
+            $ref: "#/components/schemas/Arrangor"
           nullable: true
         postnummer:
           type: string

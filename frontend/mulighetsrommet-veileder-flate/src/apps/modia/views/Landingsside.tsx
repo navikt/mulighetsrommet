@@ -3,7 +3,7 @@ import { Alert, BodyShort, Heading, Skeleton, VStack } from "@navikt/ds-react";
 import { Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { Link } from "react-router-dom";
-import { useHistorikkV2 } from "@/core/api/queries/useHistorikkV2";
+import { useHistorikkV2 } from "@/api/queries/useHistorikkV2";
 import { HistorikkKort } from "../historikk/HistorikkKort";
 import { UtkastKort } from "../historikk/UtkastKort";
 import styles from "./Landingsside.module.scss";

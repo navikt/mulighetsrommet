@@ -1,5 +1,5 @@
 import { NotificationStatus } from "mulighetsrommet-api-client";
-import { useNotifikasjonerForAnsatt } from "../../api/notifikasjoner/useNotifikasjonerForAnsatt";
+import { useNotifikasjonerForAnsatt } from "@/api/notifikasjoner/useNotifikasjonerForAnsatt";
 import { Laster } from "../laster/Laster";
 import { EmptyState } from "./EmptyState";
 import styles from "./Notifikasjoner.module.scss";

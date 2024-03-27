@@ -1,15 +1,14 @@
-import { Tiltakstypestatus } from "mulighetsrommet-api-client";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
-import { useNavEnheter } from "../../api/enhet/useNavEnheter";
-import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
+import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
+import { useNavEnheter } from "@/api/enhet/useNavEnheter";
+import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
 import { ContainerLayout } from "../../layouts/ContainerLayout";
 import { inneholderUrl } from "../../utils/Utils";
 import { Header } from "../../components/detaljside/Header";
 import { Laster } from "../../components/laster/Laster";
 import styles from "../../components/skjema/Skjema.module.scss";
 import { AvtaleSkjemaContainer } from "../../components/avtaler/AvtaleSkjemaContainer";
-import { useAvtale } from "../../api/avtaler/useAvtale";
+import { useAvtale } from "@/api/avtaler/useAvtale";
 import { AvtalestatusTag } from "../../components/statuselementer/AvtalestatusTag";
 import { Heading } from "@navikt/ds-react";
 import { Brodsmule, Brodsmuler } from "../../components/navigering/Brodsmuler";
@@ -19,10 +18,7 @@ const AvtaleSkjemaPage = () => {
   const navigate = useNavigate();
 
   const { data: avtale, isLoading: avtaleLoading } = useAvtale();
-  const { data: tiltakstyper, isLoading: isLoadingTiltakstyper } = useTiltakstyper(
-    { status: Tiltakstypestatus.AKTIV },
-    1,
-  );
+  const { data: tiltakstyper, isLoading: isLoadingTiltakstyper } = useTiltakstyper();
   const { data: ansatt, isLoading: isLoadingAnsatt } = useHentAnsatt();
   const { data: enheter, isLoading: isLoadingEnheter } = useNavEnheter();
   const location = useLocation();

@@ -7,10 +7,10 @@ import kotlinx.serialization.json.encodeToJsonElement
 import kotliquery.TransactionalSession
 import no.nav.mulighetsrommet.api.avtaler.AvtaleValidator
 import no.nav.mulighetsrommet.api.domain.dbo.AvtaleDbo
+import no.nav.mulighetsrommet.api.domain.dto.ArrangorDto
 import no.nav.mulighetsrommet.api.domain.dto.AvtaleAdminDto
 import no.nav.mulighetsrommet.api.domain.dto.AvtaleNotificationDto
 import no.nav.mulighetsrommet.api.domain.dto.EndringshistorikkDto
-import no.nav.mulighetsrommet.api.domain.dto.VirksomhetDto
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.routes.v1.AvtaleRequest
@@ -35,7 +35,7 @@ class AvtaleService(
     private val avtaler: AvtaleRepository,
     private val tiltaksgjennomforinger: TiltaksgjennomforingRepository,
     private val tiltakstyperMigrert: List<Tiltakskode>,
-    private val virksomhetService: VirksomhetService,
+    private val arrangorService: ArrangorService,
     private val notificationRepository: NotificationRepository,
     private val validator: AvtaleValidator,
     private val endringshistorikkService: EndringshistorikkService,
@@ -47,17 +47,17 @@ class AvtaleService(
 
     suspend fun upsert(request: AvtaleRequest, navIdent: NavIdent): Either<List<ValidationError>, AvtaleAdminDto> {
         val previous = avtaler.get(request.id)
-        return syncVirksomheterFromBrreg(request)
-            .flatMap { (leverandor, underenheter) ->
+        return syncArrangorerFromBrreg(request)
+            .flatMap { (arrangor, underenheter) ->
                 val dbo = request.run {
                     AvtaleDbo(
                         id = id,
                         navn = navn,
                         avtalenummer = avtalenummer,
                         tiltakstypeId = tiltakstypeId,
-                        leverandorVirksomhetId = leverandor.id,
-                        leverandorUnderenheter = underenheter.map { it.id },
-                        leverandorKontaktpersonId = leverandorKontaktpersonId,
+                        arrangorId = arrangor.id,
+                        arrangorUnderenheter = underenheter.map { it.id },
+                        arrangorKontaktpersonId = arrangorKontaktpersonId,
                         startDato = startDato,
                         sluttDato = sluttDato,
                         avtaletype = avtaletype,
@@ -95,22 +95,22 @@ class AvtaleService(
             }
     }
 
-    private suspend fun syncVirksomheterFromBrreg(request: AvtaleRequest): Either<List<ValidationError>, Pair<VirksomhetDto, List<VirksomhetDto>>> =
+    private suspend fun syncArrangorerFromBrreg(request: AvtaleRequest): Either<List<ValidationError>, Pair<ArrangorDto, List<ArrangorDto>>> =
         either {
-            val leverandor = syncVirksomhetFromBrreg(request.leverandorOrganisasjonsnummer).bind()
-            val underenheter = request.leverandorUnderenheter.mapOrAccumulate({ e1, e2 -> e1 + e2 }) {
-                syncVirksomhetFromBrreg(it).bind()
+            val arrangor = syncArrangorFromBrreg(request.arrangorOrganisasjonsnummer).bind()
+            val underenheter = request.arrangorUnderenheter.mapOrAccumulate({ e1, e2 -> e1 + e2 }) {
+                syncArrangorFromBrreg(it).bind()
             }.bind()
-            Pair(leverandor, underenheter)
+            Pair(arrangor, underenheter)
         }
 
-    private suspend fun syncVirksomhetFromBrreg(orgnr: String): Either<List<ValidationError>, VirksomhetDto> {
-        return virksomhetService
-            .getOrSyncVirksomhetFromBrreg(orgnr)
+    private suspend fun syncArrangorFromBrreg(orgnr: String): Either<List<ValidationError>, ArrangorDto> {
+        return arrangorService
+            .getOrSyncArrangorFromBrreg(orgnr)
             .mapLeft {
                 ValidationError.of(
-                    AvtaleRequest::leverandorOrganisasjonsnummer,
-                    "Tiltaksarrangøren finnes ikke Brønnøysundregistrene",
+                    AvtaleRequest::arrangorOrganisasjonsnummer,
+                    "Tiltaksarrangøren finnes ikke i Brønnøysundregistrene",
                 ).nel()
             }
     }
@@ -128,7 +128,7 @@ class AvtaleService(
             navRegioner = filter.navRegioner,
             sortering = filter.sortering,
             dagensDato = filter.dagensDato,
-            leverandorOrgnr = filter.leverandorOrgnr,
+            arrangorIds = filter.arrangorIds,
             administratorNavIdent = filter.administratorNavIdent,
         )
 

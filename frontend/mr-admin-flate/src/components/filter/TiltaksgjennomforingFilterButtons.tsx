@@ -7,14 +7,14 @@ import {
   defaultTiltaksgjennomforingfilter,
   gjennomforingDetaljerTabAtom,
   TiltaksgjennomforingFilter,
-} from "../../api/atoms";
-import { useAvtale } from "../../api/avtaler/useAvtale";
-import { useMigrerteTiltakstyper } from "../../api/tiltakstyper/useMigrerteTiltakstyper";
+} from "@/api/atoms";
+import { useAvtale } from "@/api/avtaler/useAvtale";
+import { useMigrerteTiltakstyper } from "@/api/tiltakstyper/useMigrerteTiltakstyper";
 import { inneholderUrl } from "../../utils/Utils";
 import { HarSkrivetilgang } from "../authActions/HarSkrivetilgang";
 import { LeggTilGjennomforingModal } from "../modal/LeggTilGjennomforingModal";
 import styles from "./../modal/Modal.module.scss";
-import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
+import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
 import { NullstillFilterKnapp } from "mulighetsrommet-frontend-common/components/filter/nullstillFilterKnapp/NullstillFilterKnapp";
 
 interface Props {
@@ -58,7 +58,7 @@ export function TiltaksgjennomforingFilterButtons({ filterAtom }: Props) {
       filter.tiltakstyper.length > 0 ||
       filter.navEnheter.length > 0 ||
       filter.statuser.length > 0 ||
-      filter.arrangorOrgnr.length > 0 ? (
+      filter.arrangorer.length > 0 ? (
         <NullstillFilterKnapp
           onClick={() => {
             setFilter({
@@ -144,7 +144,7 @@ interface OpprettTiltakIArenaModalProps {
 
 function OpprettTiltakIArenaModal({ open, onClose, tiltakstype }: OpprettTiltakIArenaModalProps) {
   const { data: migrerteTiltakstyper } = useMigrerteTiltakstyper();
-  const { data: tiltakstyper } = useTiltakstyper({});
+  const { data: tiltakstyper } = useTiltakstyper();
 
   const migrerteTiltakstyperNavn =
     tiltakstyper?.data

@@ -12,10 +12,6 @@ export function isStep(step: Step | null, stepId: string): boolean {
   return (step as MulighetsrommetStep | null)?.id === stepId;
 }
 
-export function getStepIndex(steps: MulighetsrommetStep[], stepId: string): number {
-  return steps.findIndex((step) => step.id === stepId);
-}
-
 export function useSteps(ready: boolean | null, initialSteps: MulighetsrommetStep[]) {
   const [stepIndex, setStepIndex] = useState(0);
 

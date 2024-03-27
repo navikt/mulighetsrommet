@@ -11,8 +11,8 @@ import no.nav.mulighetsrommet.api.clients.pdl.IdentGruppe
 import no.nav.mulighetsrommet.api.clients.pdl.IdentInformasjon
 import no.nav.mulighetsrommet.api.clients.pdl.PdlClient
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
+import no.nav.mulighetsrommet.api.domain.dto.ArrangorDto
 import no.nav.mulighetsrommet.api.domain.dto.TiltakshistorikkDto
-import no.nav.mulighetsrommet.api.domain.dto.VirksomhetDto
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.repositories.TiltakshistorikkRepository
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
@@ -22,7 +22,7 @@ import java.time.LocalDateTime
 import java.util.*
 
 class TiltakshistorikkServiceTest : FunSpec({
-    val virksomhetService: VirksomhetService = mockk()
+    val arrangorService: ArrangorService = mockk()
 
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
 
@@ -58,7 +58,7 @@ class TiltakshistorikkServiceTest : FunSpec({
 
     beforeSpec {
         MulighetsrommetTestDomain(
-            virksomheter = listOf(VirksomhetFixtures.hovedenhet, VirksomhetFixtures.underenhet1),
+            arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
             tiltakstyper = listOf(tiltakstype, tiltakstypeIndividuell),
             avtaler = listOf(AvtaleFixtures.oppfolging),
             gjennomforinger = listOf(tiltaksgjennomforing),
@@ -70,8 +70,8 @@ class TiltakshistorikkServiceTest : FunSpec({
     }
 
     test("henter historikk for bruker basert på person id med arrangørnavn") {
-        coEvery { virksomhetService.getOrSyncVirksomhetFromBrreg(VirksomhetFixtures.underenhet1.organisasjonsnummer) } returns VirksomhetFixtures.underenhet1.right()
-        coEvery { virksomhetService.getOrSyncVirksomhetFromBrreg(tiltakshistorikkIndividuell.arrangorOrganisasjonsnummer) } returns VirksomhetDto(
+        coEvery { arrangorService.getOrSyncArrangorFromBrreg(ArrangorFixtures.underenhet1.organisasjonsnummer) } returns ArrangorFixtures.underenhet1.right()
+        coEvery { arrangorService.getOrSyncArrangorFromBrreg(tiltakshistorikkIndividuell.arrangorOrganisasjonsnummer) } returns ArrangorDto(
             id = UUID.randomUUID(),
             navn = "Bedriftsnavn 2",
             organisasjonsnummer = tiltakshistorikkIndividuell.arrangorOrganisasjonsnummer,
@@ -87,7 +87,7 @@ class TiltakshistorikkServiceTest : FunSpec({
         ).right()
 
         val tiltakshistorikk = TiltakshistorikkRepository(database.db)
-        val historikkService = TiltakshistorikkService(virksomhetService, amtDeltakerClient, tiltakshistorikk, pdlClient)
+        val historikkService = TiltakshistorikkService(arrangorService, amtDeltakerClient, tiltakshistorikk, pdlClient)
 
         val forventetHistorikk = listOf(
             TiltakshistorikkDto(
@@ -98,8 +98,8 @@ class TiltakshistorikkServiceTest : FunSpec({
                 tiltaksnavn = tiltaksgjennomforing.navn,
                 tiltakstype = tiltakstype.navn,
                 arrangor = TiltakshistorikkDto.Arrangor(
-                    organisasjonsnummer = VirksomhetFixtures.underenhet1.organisasjonsnummer,
-                    navn = VirksomhetFixtures.underenhet1.navn,
+                    organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
+                    navn = ArrangorFixtures.underenhet1.navn,
                 ),
             ),
             TiltakshistorikkDto(

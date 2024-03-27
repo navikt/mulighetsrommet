@@ -6,12 +6,10 @@ import {
   SorteringTiltaksgjennomforinger,
   SorteringTiltakstyper,
   TiltaksgjennomforingStatus,
-  Tiltakstypekategori,
-  Tiltakstypestatus,
 } from "mulighetsrommet-api-client";
 import { atom, WritableAtom } from "jotai";
 import { atomFamily } from "jotai/utils";
-import { AVTALE_PAGE_SIZE, PAGE_SIZE } from "../constants";
+import { AVTALE_PAGE_SIZE, PAGE_SIZE } from "@/constants";
 import { RESET } from "jotai/vanilla/utils";
 
 type SetStateActionWithReset<Value> =
@@ -29,10 +27,10 @@ const safeJSONParse = (initialValue: unknown) => (str: string) => {
 
 // Bump version number when localStorage should be cleared
 const version = localStorage.getItem("version");
-if (version !== "1.6") {
+if (version !== "2") {
   localStorage.clear();
   sessionStorage.clear();
-  localStorage.setItem("version", "1.6");
+  localStorage.setItem("version", "2");
 }
 
 /**
@@ -136,17 +134,11 @@ function atomWithHashAndStorage<Value>(
 }
 
 export interface TiltakstypeFilter {
-  sok?: string;
-  status?: Tiltakstypestatus;
-  kategori?: Tiltakstypekategori;
-  sortering?: SorteringTiltakstyper;
+  sort?: SorteringTiltakstyper;
 }
 
 export const defaultTiltakstypeFilter: TiltakstypeFilter = {
-  sok: "",
-  status: Tiltakstypestatus.AKTIV,
-  kategori: Tiltakstypekategori.GRUPPE,
-  sortering: SorteringTiltakstyper.NAVN_ASCENDING,
+  sort: SorteringTiltakstyper.NAVN_ASCENDING,
 };
 
 export const tiltakstypeFilterAtom = atomWithHashAndStorage<TiltakstypeFilter>(
@@ -162,7 +154,7 @@ export interface TiltaksgjennomforingFilter {
   statuser: TiltaksgjennomforingStatus[];
   sortering: SorteringTiltaksgjennomforinger;
   avtale: string;
-  arrangorOrgnr: string[];
+  arrangorer: string[];
   visMineGjennomforinger: boolean;
   page: number;
   pageSize: number;
@@ -175,7 +167,7 @@ export const defaultTiltaksgjennomforingfilter: TiltaksgjennomforingFilter = {
   statuser: [],
   sortering: SorteringTiltaksgjennomforinger.NAVN_ASCENDING,
   avtale: "",
-  arrangorOrgnr: [],
+  arrangorer: [],
   visMineGjennomforinger: false,
   page: 1,
   pageSize: PAGE_SIZE,
@@ -208,7 +200,7 @@ export interface AvtaleFilter {
   navRegioner: string[];
   tiltakstyper: string[];
   sortering: SorteringAvtaler;
-  leverandor: string[];
+  arrangorer: string[];
   visMineAvtaler: boolean;
   page: number;
   pageSize: number;
@@ -221,7 +213,7 @@ export const defaultAvtaleFilter: AvtaleFilter = {
   navRegioner: [],
   tiltakstyper: [],
   sortering: SorteringAvtaler.NAVN_ASCENDING,
-  leverandor: [],
+  arrangorer: [],
   visMineAvtaler: false,
   page: 1,
   pageSize: AVTALE_PAGE_SIZE,

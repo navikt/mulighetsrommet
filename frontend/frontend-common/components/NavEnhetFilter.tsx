@@ -59,12 +59,14 @@ export function NavEnhetFilter({ navEnheter, setNavEnheter, regioner }: Props) {
       regionMapToNavEnheter({
         ...regionMap,
         [region.enhetsnummer]: count > 0 ? [] : region.enheter,
-      })
+      }),
     );
   }
 
   function underenhetIsChecked(enhet: NavEnhet, region: NavRegion): boolean {
-    return (regionMap[region.enhetsnummer] ?? []).some((e) => e.enhetsnummer === enhet.enhetsnummer);
+    return (regionMap[region.enhetsnummer] ?? []).some(
+      (e) => e.enhetsnummer === enhet.enhetsnummer,
+    );
   }
 
   function underenhetOnChange(enhet: NavEnhet) {
@@ -102,7 +104,7 @@ export function NavEnhetFilter({ navEnheter, setNavEnheter, regioner }: Props) {
           </div>
           {regionOpen.includes(region.enhetsnummer) && (
             <div style={{ marginLeft: "1rem" }}>
-              { region.enheter.map((enhet: NavEnhet) => (
+              {region.enheter.map((enhet: NavEnhet) => (
                 <Checkbox
                   checked={underenhetIsChecked(enhet, region)}
                   onChange={() => underenhetOnChange(enhet)}

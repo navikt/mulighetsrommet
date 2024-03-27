@@ -1,7 +1,7 @@
 import { Accordion, Alert, Checkbox, CheckboxGroup } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import React from "react";
-import { filterAccordionAtom } from "@/core/atoms/atoms";
+import { filterAccordionAtom } from "@/core/atoms";
 import { addOrRemove } from "@/utils/Utils";
 import { kebabCase } from "../../../../frontend-common/utils/TestUtils";
 

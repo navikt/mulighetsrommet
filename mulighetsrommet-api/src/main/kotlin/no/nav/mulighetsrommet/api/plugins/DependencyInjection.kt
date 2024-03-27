@@ -4,6 +4,8 @@ import com.github.kagkarlsson.scheduler.Scheduler
 import com.nimbusds.jose.jwk.KeyUse
 import com.nimbusds.jose.jwk.RSAKey
 import io.ktor.server.application.*
+import no.nav.common.client.axsys.AxsysClient
+import no.nav.common.client.axsys.AxsysV2ClientImpl
 import no.nav.common.kafka.producer.util.KafkaProducerClientBuilder
 import no.nav.common.kafka.util.KafkaPropertiesBuilder
 import no.nav.common.kafka.util.KafkaPropertiesPreset
@@ -50,7 +52,7 @@ import no.nav.mulighetsrommet.slack.SlackNotifierImpl
 import no.nav.mulighetsrommet.tasks.DbSchedulerKotlinSerializer
 import no.nav.mulighetsrommet.unleash.UnleashService
 import no.nav.mulighetsrommet.unleash.strategies.ByEnhetStrategy
-import no.nav.mulighetsrommet.unleash.strategies.ByNavidentStrategy
+import no.nav.mulighetsrommet.unleash.strategies.ByNavIdentStrategy
 import no.nav.poao_tilgang.client.PoaoTilgangClient
 import no.nav.poao_tilgang.client.PoaoTilgangHttpClient
 import org.apache.kafka.common.serialization.ByteArrayDeserializer
@@ -144,8 +146,8 @@ private fun kafka(appConfig: AppConfig) = module {
             AmtDeltakerV1TopicConsumer(config = config.consumers.amtDeltakerV1, deltakere = get()),
             AmtVirksomheterV1TopicConsumer(
                 config = config.consumers.amtVirksomheterV1,
-                virksomhetRepository = get(),
-                virksomhetService = get(),
+                arrangorRepository = get(),
+                brregClient = get(),
             ),
             PtoSisteOppfolgingsperiodeV1TopicConsumer(
                 config = config.consumers.ptoSisteOppfolgingsperiodeV1,
@@ -170,7 +172,7 @@ private fun repositories() = module {
     single { DeltakerRepository(get()) }
     single { NotificationRepository(get()) }
     single { NavAnsattRepository(get()) }
-    single { VirksomhetRepository(get()) }
+    single { ArrangorRepository(get()) }
     single { KafkaConsumerRepositoryImpl(get()) }
     single { MetrikkRepository(get()) }
     single { AvtaleNotatRepository(get()) }
@@ -340,16 +342,20 @@ private fun services(appConfig: AppConfig) = module {
     single { NavEnhetService(get()) }
     single { NavVeilederService(get()) }
     single { NotificationService(get(), get(), get()) }
-    single { VirksomhetService(get(), get()) }
+    single { ArrangorService(get(), get()) }
     single { ExcelService() }
     single { MetrikkService(get()) }
     single { NotatService(get(), get()) }
     single {
         val byEnhetStrategy = ByEnhetStrategy(get())
-        val byNavidentStrategy = ByNavidentStrategy()
+        val byNavidentStrategy = ByNavIdentStrategy()
         UnleashService(appConfig.unleash, byEnhetStrategy, byNavidentStrategy)
     }
-    single { AxsysService(appConfig.axsys) { m2mTokenProvider.createMachineToMachineToken(appConfig.axsys.scope) } }
+    single<AxsysClient> {
+        AxsysV2ClientImpl(appConfig.axsys.url) {
+            m2mTokenProvider.createMachineToMachineToken(appConfig.axsys.scope)
+        }
+    }
     single { AvtaleValidator(get(), get(), get(), get()) }
     single { TiltaksgjennomforingValidator(get(), get()) }
 }
@@ -359,7 +365,6 @@ private fun tasks(config: TaskConfig) = module {
     single { InitialLoadTiltaksgjennomforinger(get(), get(), get()) }
     single { InitialLoadTiltakstyper(get(), get(), get()) }
     single { SynchronizeNavAnsatte(config.synchronizeNavAnsatte, get(), get(), get()) }
-    single { SynchronizeVirksomheterFromBrreg(get(), get(), get()) }
     single {
         val deleteExpiredTiltakshistorikk = DeleteExpiredTiltakshistorikk(
             config.deleteExpiredTiltakshistorikk,
@@ -397,7 +402,6 @@ private fun tasks(config: TaskConfig) = module {
         val initialLoadTiltaksgjennomforinger: InitialLoadTiltaksgjennomforinger by inject()
         val initialLoadTiltakstyper: InitialLoadTiltakstyper by inject()
         val synchronizeNavAnsatte: SynchronizeNavAnsatte by inject()
-        val synchronizeVirksomheter: SynchronizeVirksomheterFromBrreg by inject()
 
         val db: Database by inject()
 
@@ -408,7 +412,6 @@ private fun tasks(config: TaskConfig) = module {
                 generateValidationReport.task,
                 initialLoadTiltaksgjennomforinger.task,
                 initialLoadTiltakstyper.task,
-                synchronizeVirksomheter.task,
             )
             .startTasks(
                 deleteExpiredTiltakshistorikk.task,

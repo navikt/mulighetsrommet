@@ -18,3 +18,7 @@ export const SANITY_STUDIO_URL = isProduction
   : "https://mulighetsrommet-sanity-studio.intern.nav.no/test/desk";
 
 export const PORTEN_URL = "https://jira.adeo.no/plugins/servlet/desk/portal/541/create/4665";
+
+export const LOGOUT_URL = isProduction
+  ? "https://tiltaksadministrasjon.intern.nav.no/oauth2/logout"
+  : "https://tiltaksadministrasjon.intern.dev.nav.no/oauth2/logout";

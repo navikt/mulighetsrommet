@@ -1,11 +1,11 @@
 import {
+  Arrangor,
   Avtalestatus,
   Avtaletype,
   NavEnhet,
   NavEnhetType,
   TiltaksgjennomforingStatus,
   Tiltakstype,
-  Virksomhet,
 } from "mulighetsrommet-api-client";
 import { avtaletypeTilTekst } from "./Utils";
 
@@ -79,22 +79,6 @@ export const regionOptions = (enheter: NavEnhet[]) => {
     }));
 };
 
-export const enhetOptions = (enheter: NavEnhet[], navRegioner: string[]) => {
-  return enheter
-    .filter((enhet) => {
-      const erLokalEllerTiltaksenhet =
-        enhet.type === NavEnhetType.LOKAL || enhet.type === NavEnhetType.TILTAK;
-      const enheterFraFylke =
-        navRegioner.length === 0 ? true : navRegioner.includes(enhet.overordnetEnhet ?? "");
-      return erLokalEllerTiltaksenhet && enheterFraFylke;
-    })
-    .sort()
-    .map((enhet) => ({
-      label: `${enhet.navn} - ${enhet.enhetsnummer}`,
-      value: enhet.enhetsnummer,
-    }));
-};
-
 export const tiltakstypeOptions = (tiltakstyper: Tiltakstype[]) => {
   return (
     tiltakstyper.sort().map((tiltakstype) => ({
@@ -104,9 +88,9 @@ export const tiltakstypeOptions = (tiltakstyper: Tiltakstype[]) => {
   );
 };
 
-export const virksomhetOptions = (virksomheter: Virksomhet[]) => {
-  return virksomheter.sort().map((virksomhet) => ({
-    label: virksomhet.navn,
-    value: virksomhet.organisasjonsnummer,
+export const arrangorOptions = (arrangorer: Arrangor[]) => {
+  return arrangorer.sort().map((arrangor) => ({
+    label: arrangor.navn,
+    value: arrangor.id,
   }));
 };

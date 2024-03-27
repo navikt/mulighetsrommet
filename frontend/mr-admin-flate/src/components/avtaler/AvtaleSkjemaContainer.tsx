@@ -6,19 +6,17 @@ import {
   Avtale,
   AvtaleRequest,
   Avtalestatus,
-  Avtaletype,
   EmbeddedTiltakstype,
   NavAnsatt,
   NavEnhet,
-  TiltakskodeArena,
   Tiltakstype,
 } from "mulighetsrommet-api-client";
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { v4 as uuidv4 } from "uuid";
-import { avtaleDetaljerTabAtom } from "../../api/atoms";
-import { useUpsertAvtale } from "../../api/avtaler/useUpsertAvtale";
-import { useHandleApiUpsertResponse } from "../../api/effects";
+import { avtaleDetaljerTabAtom } from "@/api/atoms";
+import { useUpsertAvtale } from "@/api/avtaler/useUpsertAvtale";
+import { useHandleApiUpsertResponse } from "@/api/effects";
 import { erAnskaffetTiltak } from "../../utils/tiltakskoder";
 import { HarSkrivetilgang } from "../authActions/HarSkrivetilgang";
 import { Separator } from "../detaljside/Metadata";
@@ -62,28 +60,18 @@ export function AvtaleSkjemaContainer({
     handleSubmit,
     formState: { errors },
     watch,
-    setValue,
   } = form;
 
   const watchedTiltakstype: EmbeddedTiltakstype | undefined = watch("tiltakstype");
-  const arenaKode = watchedTiltakstype?.arenaKode;
-
-  useEffect(() => {
-    // TODO: revurdere behovet for denne type logikk eller om det kan defineres som default felter på tiltakstype i stedet
-    // Er det slik at tiltakstype alltid styrer avtaletypen? Er det kun for forhåndsgodkjente avtaler?
-    // Hvis ARBFORB og VASV uansett alltid skal være av typen FORHAANDSGODKJENT burde det ikke være mulig å endre
-    if (arenaKode === TiltakskodeArena.ARBFORB || arenaKode === TiltakskodeArena.VASV) {
-      setValue("avtaletype", Avtaletype.FORHAANDSGODKJENT);
-    }
-  }, [arenaKode]);
 
   const postData: SubmitHandler<InferredAvtaleSchema> = async (data): Promise<void> => {
     const requestBody: AvtaleRequest = {
       id: avtale?.id ?? uuidv4(),
       navEnheter: data.navEnheter.concat(data.navRegioner),
       avtalenummer: avtale?.avtalenummer || null,
-      leverandorOrganisasjonsnummer: data.leverandor,
-      leverandorUnderenheter: data.leverandorUnderenheter,
+      arrangorOrganisasjonsnummer: data.arrangorOrganisasjonsnummer,
+      arrangorUnderenheter: data.arrangorUnderenheter,
+      arrangorKontaktpersonId: data.arrangorKontaktpersonId ?? null,
       navn: data.navn,
       sluttDato: data.startOgSluttDato.sluttDato ?? null,
       startDato: data.startOgSluttDato.startDato,
@@ -96,7 +84,6 @@ export function AvtaleSkjemaContainer({
         : null,
       beskrivelse: data.beskrivelse,
       faneinnhold: data.faneinnhold,
-      leverandorKontaktpersonId: data.leverandorKontaktpersonId ?? null,
     };
 
     mutation.mutate(requestBody);
@@ -115,7 +102,6 @@ export function AvtaleSkjemaContainer({
         const mapping: { [name: string]: string } = {
           startDato: "startOgSluttDato.startDato",
           sluttDato: "startOgSluttDato.sluttDato",
-          leverandorOrganisasjonsnummer: "leverandor",
           tiltakstypeId: "tiltakstype",
         };
         return (mapping[name] ?? name) as keyof InferredAvtaleSchema;

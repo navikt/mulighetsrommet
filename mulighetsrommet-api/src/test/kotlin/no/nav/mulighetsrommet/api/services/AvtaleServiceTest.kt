@@ -17,11 +17,10 @@ import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattDbo
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures
-import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
+import no.nav.mulighetsrommet.api.repositories.ArrangorRepository
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.repositories.NavAnsattRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
-import no.nav.mulighetsrommet.api.repositories.VirksomhetRepository
 import no.nav.mulighetsrommet.api.routes.v1.responses.BadRequest
 import no.nav.mulighetsrommet.api.routes.v1.responses.NotFound
 import no.nav.mulighetsrommet.api.routes.v1.responses.ValidationError
@@ -53,14 +52,14 @@ class AvtaleServiceTest : FunSpec({
 
     context("Upsert avtale") {
         val brregClient = mockk<BrregClient>()
-        val virksomhetService = VirksomhetService(brregClient, VirksomhetRepository(database.db))
+        val arrangorService = ArrangorService(brregClient, ArrangorRepository(database.db))
         val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
         val avtaler = AvtaleRepository(database.db)
         val avtaleService = AvtaleService(
             avtaler,
             tiltaksgjennomforinger,
             listOf(Tiltakskode.OPPFOLGING),
-            virksomhetService,
+            arrangorService,
             NotificationRepository(database.db),
             validator,
             EndringshistorikkService(database.db),
@@ -81,18 +80,17 @@ class AvtaleServiceTest : FunSpec({
 
         test("får ikke opprette avtale dersom virksomhet ikke finnes i Brreg") {
             val request = AvtaleFixtures.avtaleRequest.copy(
-                leverandorOrganisasjonsnummer = "404",
-                leverandorUnderenheter = listOf(),
+                arrangorOrganisasjonsnummer = "404",
+                arrangorUnderenheter = listOf(),
             )
 
-            coEvery { brregClient.getHovedenhet("404") } returns BrregError.NotFound.left()
-            coEvery { brregClient.getUnderenhet("404") } returns BrregError.NotFound.left()
+            coEvery { brregClient.getBrregVirksomhet("404") } returns BrregError.NotFound.left()
 
             avtaleService.upsert(request, bertilNavIdent).shouldBeLeft(
                 listOf(
                     ValidationError(
-                        "leverandorOrganisasjonsnummer",
-                        "Tiltaksarrangøren finnes ikke Brønnøysundregistrene",
+                        "arrangorOrganisasjonsnummer",
+                        "Tiltaksarrangøren finnes ikke i Brønnøysundregistrene",
                     ),
                 ),
             )
@@ -100,14 +98,14 @@ class AvtaleServiceTest : FunSpec({
     }
 
     context("Avbryte avtale") {
-        val virksomhetService = VirksomhetService(mockk(), VirksomhetRepository(database.db))
+        val arrangorService = ArrangorService(mockk(), ArrangorRepository(database.db))
         val avtaleRepository = AvtaleRepository(database.db)
         val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
         val avtaleService = AvtaleService(
             avtaleRepository,
             tiltaksgjennomforinger,
             listOf(Tiltakskode.JOBBKLUBB),
-            virksomhetService,
+            arrangorService,
             NotificationRepository(database.db),
             validator,
             EndringshistorikkService(database.db),
@@ -144,7 +142,7 @@ class AvtaleServiceTest : FunSpec({
                 avtaleRepository,
                 tiltaksgjennomforinger,
                 listOf(Tiltakskode.OPPFOLGING),
-                virksomhetService,
+                arrangorService,
                 NotificationRepository(database.db),
                 validator,
                 EndringshistorikkService(database.db),
@@ -181,34 +179,18 @@ class AvtaleServiceTest : FunSpec({
                 startDato = LocalDate.of(2024, 5, 17),
                 sluttDato = LocalDate.of(2025, 7, 1),
             )
-            val avtaleSomErUinteressant = AvtaleFixtures.oppfolging.copy(
-                id = UUID.randomUUID(),
-                navn = "Avtale som vi ikke bryr oss om",
-                startDato = LocalDate.of(2024, 5, 17),
-                sluttDato = LocalDate.of(2025, 7, 1),
-            )
             avtaleRepository.upsert(avtale)
-            avtaleRepository.upsert(avtaleSomErUinteressant)
-            val oppfolging = TiltaksgjennomforingFixtures.Oppfolging1.copy(
+            val oppfolging1 = TiltaksgjennomforingFixtures.Oppfolging1.copy(
                 avtaleId = avtale.id,
-                tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
-                startDato = LocalDate.of(2023, 5, 1),
-                sluttDato = null,
-            )
-            val arbeidstrening = TiltaksgjennomforingFixtures.Arbeidstrening1.copy(
-                avtaleId = avtale.id,
-                tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
                 startDato = LocalDate.of(2023, 5, 1),
                 sluttDato = null,
             )
             val oppfolging2 = TiltaksgjennomforingFixtures.Oppfolging2.copy(
-                avtaleId = avtaleSomErUinteressant.id,
-                tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
+                avtaleId = avtale.id,
                 startDato = LocalDate.of(2023, 5, 1),
                 sluttDato = null,
             )
-            tiltaksgjennomforinger.upsert(oppfolging)
-            tiltaksgjennomforinger.upsert(arbeidstrening)
+            tiltaksgjennomforinger.upsert(oppfolging1)
             tiltaksgjennomforinger.upsert(oppfolging2)
 
             avtaleService.avbrytAvtale(avtale.id, bertilNavIdent).shouldBeLeft(
@@ -224,21 +206,19 @@ class AvtaleServiceTest : FunSpec({
                 sluttDato = LocalDate.of(2027, 7, 1),
             )
             avtaleRepository.upsert(avtale)
-            val oppfolging = TiltaksgjennomforingFixtures.Oppfolging1.copy(
+            val oppfolging1 = TiltaksgjennomforingFixtures.Oppfolging1.copy(
                 avtaleId = avtale.id,
-                tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
                 startDato = LocalDate.of(2026, 5, 1),
                 sluttDato = null,
             )
-            val arbeidstrening = TiltaksgjennomforingFixtures.Arbeidstrening1.copy(
+            val oppfolging2 = TiltaksgjennomforingFixtures.Oppfolging2.copy(
                 avtaleId = avtale.id,
-                tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
                 startDato = LocalDate.of(2024, 5, 1),
                 sluttDato = null,
             )
 
-            tiltaksgjennomforinger.upsert(oppfolging)
-            tiltaksgjennomforinger.upsert(arbeidstrening)
+            tiltaksgjennomforinger.upsert(oppfolging1)
+            tiltaksgjennomforinger.upsert(oppfolging2)
 
             avtaleService.avbrytAvtale(avtale.id, bertilNavIdent, dagensDato = LocalDate.of(2024, 1, 1)).shouldBeLeft(
                 BadRequest("Avtalen har 2 planlagte tiltaksgjennomføringer koblet til seg. Du må flytte eller avslutte gjennomføringene før du kan avbryte avtalen."),
@@ -252,28 +232,19 @@ class AvtaleServiceTest : FunSpec({
                 startDato = LocalDate.of(2024, 5, 17),
                 sluttDato = LocalDate.of(2025, 7, 1),
             )
-            val avtaleSomErUinteressant = AvtaleFixtures.oppfolging.copy(
-                id = UUID.randomUUID(),
-                navn = "Avtale som vi ikke bryr oss om",
-                startDato = LocalDate.of(2024, 5, 17),
-                sluttDato = LocalDate.of(2025, 7, 1),
-            )
             avtaleRepository.upsert(avtale)
-            avtaleRepository.upsert(avtaleSomErUinteressant)
-            val oppfolging = TiltaksgjennomforingFixtures.Oppfolging1.copy(
+            val oppfolging1 = TiltaksgjennomforingFixtures.Oppfolging1.copy(
                 avtaleId = avtale.id,
-                tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
                 startDato = LocalDate.of(2023, 5, 1),
                 sluttDato = LocalDate.of(2023, 6, 1),
             )
-            val arbeidstrening = TiltaksgjennomforingFixtures.Arbeidstrening1.copy(
+            val oppfolging2 = TiltaksgjennomforingFixtures.Oppfolging2.copy(
                 avtaleId = avtale.id,
-                tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
                 startDato = LocalDate.of(2023, 5, 1),
                 sluttDato = LocalDate.of(2024, 1, 1),
             )
-            tiltaksgjennomforinger.upsert(oppfolging)
-            tiltaksgjennomforinger.upsert(arbeidstrening)
+            tiltaksgjennomforinger.upsert(oppfolging1)
+            tiltaksgjennomforinger.upsert(oppfolging2)
 
             avtaleService.avbrytAvtale(avtale.id, bertilNavIdent).shouldBeRight()
         }
@@ -290,14 +261,14 @@ class AvtaleServiceTest : FunSpec({
     }
 
     context("Administrator-notification") {
-        val virksomhetService = VirksomhetService(mockk(), VirksomhetRepository(database.db))
+        val arrangorService = ArrangorService(mockk(), ArrangorRepository(database.db))
         val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
         val avtaler = AvtaleRepository(database.db)
         val avtaleService = AvtaleService(
             avtaler,
             tiltaksgjennomforinger,
             listOf(Tiltakskode.OPPFOLGING),
-            virksomhetService,
+            arrangorService,
             NotificationRepository(database.db),
             validator,
             EndringshistorikkService(database.db),

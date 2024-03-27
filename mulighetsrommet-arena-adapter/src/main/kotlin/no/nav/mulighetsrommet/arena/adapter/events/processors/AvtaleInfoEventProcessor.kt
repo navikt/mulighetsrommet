@@ -121,7 +121,7 @@ class AvtaleInfoEventProcessor(
             .bind()
         val leverandorOrganisasjonsnummer = ords.getArbeidsgiver(avtale.leverandorId)
             .mapLeft { ProcessingError.fromResponseException(it) }
-            .flatMap { it?.right() ?: ProcessingError.InvalidPayload("Fant ikke leverandør i Arena ORDS").left() }
+            .flatMap { it?.right() ?: ProcessingError.ProcessingFailed("Fant ikke leverandør i Arena ORDS").left() }
             .map { it.organisasjonsnummerMorselskap }
             .bind()
 
@@ -144,7 +144,7 @@ class AvtaleInfoEventProcessor(
             navn = avtale.navn,
             tiltakstypeId = tiltakstypeMapping.entityId,
             avtalenummer = "${avtale.aar}#${avtale.lopenr}",
-            leverandorOrganisasjonsnummer = leverandorOrganisasjonsnummer,
+            arrangorOrganisasjonsnummer = leverandorOrganisasjonsnummer,
             startDato = startDato,
             sluttDato = sluttDato,
             arenaAnsvarligEnhet = avtale.ansvarligEnhet,
@@ -178,4 +178,4 @@ fun ArenaAvtaleInfo.toAvtale(id: UUID) = Either
             prisbetingelser = PRIS_BETBETINGELSER,
         )
     }
-    .mapLeft { ProcessingError.InvalidPayload(it.localizedMessage) }
+    .mapLeft { ProcessingError.ProcessingFailed(it.localizedMessage) }

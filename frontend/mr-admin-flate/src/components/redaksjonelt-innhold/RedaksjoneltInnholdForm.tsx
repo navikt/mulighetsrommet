@@ -2,7 +2,7 @@ import { Alert, BodyLong, Heading, HStack, Tabs, Textarea } from "@navikt/ds-rea
 import { PortableText } from "@portabletext/react";
 import { EmbeddedTiltakstype, VeilederflateTiltakstype } from "mulighetsrommet-api-client";
 import { useFormContext } from "react-hook-form";
-import { useTiltakstypeFaneinnhold } from "../../api/tiltaksgjennomforing/useTiltakstypeFaneinnhold";
+import { useTiltakstypeFaneinnhold } from "@/api/tiltaksgjennomforing/useTiltakstypeFaneinnhold";
 import { Separator } from "../detaljside/Metadata";
 import { PortableTextEditor } from "../portableText/PortableTextEditor";
 import skjemastyles from "../skjema/Skjema.module.scss";

@@ -29,7 +29,8 @@ class BrregClient(
     private val baseUrl: String,
     clientEngine: HttpClientEngine = CIO.create(),
 ) {
-    private val log = LoggerFactory.getLogger(this.javaClass)
+    private val log = LoggerFactory.getLogger(javaClass)
+
     private val client = httpJsonClient(clientEngine).config {
         install(HttpCache)
     }
@@ -38,7 +39,24 @@ class BrregClient(
         val baseUrl: String,
     )
 
-    suspend fun sokEtterOverordnetEnheter(orgnr: String): Either<BrregError, List<BrregVirksomhetDto>> {
+    suspend fun getBrregVirksomhet(orgnr: String): Either<BrregError, BrregVirksomhetDto> {
+        // Sjekker først hovedenhet
+        return getHovedenhet(orgnr).fold(
+            { error ->
+                if (error == BrregError.NotFound) {
+                    // Ingen treff på hovedenhet, vi sjekker underenheter også
+                    getUnderenhet(orgnr)
+                } else {
+                    error.left()
+                }
+            },
+            {
+                it.right()
+            },
+        )
+    }
+
+    suspend fun sokOverordnetEnhet(orgnr: String): Either<BrregError, List<BrregVirksomhetDto>> {
         val sokEllerOppslag = when (OrgnummerUtil.erOrgnr(orgnr)) {
             true -> "organisasjonsnummer"
             false -> "navn"
@@ -62,7 +80,7 @@ class BrregClient(
             }
     }
 
-    suspend fun hentUnderenheterForOverordnetEnhet(orgnr: String): Either<BrregError, List<BrregVirksomhetDto>> {
+    suspend fun getUnderenheterForOverordnetEnhet(orgnr: String): Either<BrregError, List<BrregVirksomhetDto>> {
         val underenheterResponse = client.get("$baseUrl/underenheter") {
             parameter("size", 1000)
             parameter("overordnetEnhet", orgnr)
@@ -88,7 +106,7 @@ class BrregClient(
         return parseResponse<BrregEnhet>(response, orgnr)
             .flatMap { enhet ->
                 val underenheterResult = if (enhet.slettedato == null) {
-                    hentUnderenheterForOverordnetEnhet(orgnr)
+                    getUnderenheterForOverordnetEnhet(orgnr)
                 } else {
                     log.info("Enhet med orgnr: $orgnr er slettet fra Brreg. Slettedato: ${enhet.slettedato}.")
                     emptyList<BrregVirksomhetDto>().right()

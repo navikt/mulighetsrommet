@@ -3,12 +3,13 @@ import styles from "./Filter.module.scss";
 import { FunnelIcon } from "@navikt/aksel-icons";
 import classNames from "classnames";
 import { useOutsideClick } from "mulighetsrommet-frontend-common/hooks/useOutsideClick";
+import { ReactNode } from "react";
 
 interface Props {
-  filter: React.ReactNode;
-  buttons: React.ReactNode;
-  tags: React.ReactNode;
-  table: React.ReactNode;
+  filter: ReactNode;
+  buttons: ReactNode;
+  tags: ReactNode;
+  table: ReactNode;
   filterOpen: boolean;
   setFilterOpen: (filterOpen: boolean) => void;
 }

@@ -1,13 +1,13 @@
 import React, { useRef } from "react";
 import { Button, Switch } from "@navikt/ds-react";
-import { useMutatePublisert } from "../../api/tiltaksgjennomforing/useMutatePublisert";
+import { useMutatePublisert } from "@/api/tiltaksgjennomforing/useMutatePublisert";
 import styles from "../DetaljerInfo.module.scss";
 import {
   NavAnsatt,
   Tiltaksgjennomforing,
   TiltaksgjennomforingStatus,
 } from "mulighetsrommet-api-client";
-import { useTiltaksgjennomforingEndringshistorikk } from "../../api/tiltaksgjennomforing/useTiltaksgjennomforingEndringshistorikk";
+import { useTiltaksgjennomforingEndringshistorikk } from "@/api/tiltaksgjennomforing/useTiltaksgjennomforingEndringshistorikk";
 import { EndringshistorikkPopover } from "../../components/endringshistorikk/EndringshistorikkPopover";
 import { ViewEndringshistorikk } from "../../components/endringshistorikk/ViewEndringshistorikk";
 import { RedigeringsAdvarselModal } from "../../components/modal/RedigeringsAdvarselModal";

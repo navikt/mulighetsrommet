@@ -45,7 +45,7 @@ class KafkaSyncServiceTest : FunSpec({
                     arenaKode = tiltakstype.arenaKode,
                 ),
                 navn = navn,
-                virksomhetsnummer = VirksomhetFixtures.underenhet1.organisasjonsnummer,
+                virksomhetsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
                 startDato = startDato,
                 sluttDato = sluttDato,
                 status = tiltaksgjennomforingsstatus,

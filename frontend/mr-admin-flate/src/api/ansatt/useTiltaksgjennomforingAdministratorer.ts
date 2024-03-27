@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-import { QueryKeys } from "../QueryKeys";
-import { mulighetsrommetClient } from "../clients";
+import { QueryKeys } from "@/api/QueryKeys";
+import { mulighetsrommetClient } from "@/api/client";
 import { NavAnsattRolle } from "mulighetsrommet-api-client";
 
 export function useTiltaksgjennomforingAdministratorer() {

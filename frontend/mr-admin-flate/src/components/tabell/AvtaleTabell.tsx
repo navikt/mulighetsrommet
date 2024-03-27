@@ -4,8 +4,8 @@ import { WritableAtom, useAtom } from "jotai";
 import { OpenAPI, SorteringAvtaler } from "mulighetsrommet-api-client";
 import { Lenke } from "mulighetsrommet-frontend-common/components/lenke/Lenke";
 import { createRef, useEffect, useState } from "react";
-import { AvtaleFilter } from "../../api/atoms";
-import { useAvtaler } from "../../api/avtaler/useAvtaler";
+import { AvtaleFilter } from "@/api/atoms";
+import { useAvtaler } from "@/api/avtaler/useAvtaler";
 import { APPLICATION_NAME } from "../../constants";
 import { useSort } from "../../hooks/useSort";
 import {
@@ -152,7 +152,7 @@ export const AvtaleTabell = ({ filterAtom }: Props) => {
                 Avtalenavn
               </Table.ColumnHeader>
               <Table.ColumnHeader>Avtalenummer</Table.ColumnHeader>
-              <Table.ColumnHeader sortKey="leverandor" sortable>
+              <Table.ColumnHeader sortKey="arrangor" sortable>
                 Tiltaksarrangør
               </Table.ColumnHeader>
               <Table.ColumnHeader>Region</Table.ColumnHeader>
@@ -183,8 +183,8 @@ export const AvtaleTabell = ({ filterAtom }: Props) => {
                   <Table.DataCell aria-label={`Avtalenummer: ${avtale?.avtalenummer ?? "N/A"}`}>
                     {avtale?.avtalenummer}
                   </Table.DataCell>
-                  <Table.DataCell aria-label={`Tiltaksarrangør: ${avtale.leverandor?.navn}`}>
-                    {capitalizeEveryWord(avtale.leverandor?.navn, ["og", "i"]) || ""}
+                  <Table.DataCell aria-label={`Tiltaksarrangør: ${avtale.arrangor.navn}`}>
+                    {capitalizeEveryWord(avtale.arrangor.navn, ["og", "i"]) || ""}
                   </Table.DataCell>
                   <Table.DataCell
                     aria-label={`Regioner: ${avtale?.kontorstruktur

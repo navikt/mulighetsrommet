@@ -1,9 +1,9 @@
 import { Alert, BodyShort } from "@navikt/ds-react";
-import { useAdminTiltaksgjennomforinger } from "../../api/tiltaksgjennomforing/useAdminTiltaksgjennomforinger";
+import { useAdminTiltaksgjennomforinger } from "@/api/tiltaksgjennomforing/useAdminTiltaksgjennomforinger";
 import { Laster } from "../laster/Laster";
 import { TiltaksgjennomforingstatusTag } from "../statuselementer/TiltaksgjennomforingstatusTag";
 import styles from "./TiltaksgjennomforingerListe.module.scss";
-import { TiltaksgjennomforingFilter } from "../../api/atoms";
+import { TiltaksgjennomforingFilter } from "@/api/atoms";
 import { Tiltaksgjennomforing } from "mulighetsrommet-api-client";
 import { ReactNode } from "react";
 

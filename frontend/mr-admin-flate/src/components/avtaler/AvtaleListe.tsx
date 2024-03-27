@@ -1,10 +1,10 @@
 import { Alert, BodyShort } from "@navikt/ds-react";
 import { Laster } from "../laster/Laster";
 import styles from "../tiltaksgjennomforinger/TiltaksgjennomforingerListe.module.scss";
-import { AvtaleFilter } from "../../api/atoms";
+import { AvtaleFilter } from "@/api/atoms";
 import { Avtale } from "mulighetsrommet-api-client";
 import { ReactNode } from "react";
-import { useAvtaler } from "../../api/avtaler/useAvtaler";
+import { useAvtaler } from "@/api/avtaler/useAvtaler";
 import { AvtalestatusTag } from "../statuselementer/AvtalestatusTag";
 
 interface Props {

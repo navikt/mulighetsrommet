@@ -1,44 +1,32 @@
-create or replace view tiltaksgjennomforing_admin_dto_view as
-select tg.id::uuid,
-       tg.navn,
-       tg.tiltakstype_id,
-       tg.tiltaksnummer,
-       tg.start_dato,
-       tg.slutt_dato,
-       t.tiltakskode,
-       t.navn                     as tiltakstype_navn,
-       case
-           when arena_nav_enhet.enhetsnummer is null then null::jsonb
-           else jsonb_build_object(
-                   'enhetsnummer', arena_nav_enhet.enhetsnummer,
-                   'navn', arena_nav_enhet.navn,
-                   'type', arena_nav_enhet.type,
-                   'overordnetEnhet', arena_nav_enhet.overordnet_enhet,
-                   'status', arena_nav_enhet.status
-                )
-           end                    as arena_ansvarlig_enhet,
-       tg.apent_for_innsok,
-       tg.sanity_id,
-       tg.antall_plasser,
-       tg.avtale_id,
-       tg.oppstart,
-       tg.opphav,
-       tg.nav_region              as nav_region_enhetsnummer,
-       region.navn                as nav_region_navn,
-       region.type                as nav_region_type,
-       region.overordnet_enhet    as nav_region_overordnet_enhet,
-       v.id                       as arrangor_virksomhet_id,
-       v.organisasjonsnummer      as arrangor_organisasjonsnummer,
-       v.navn                     as arrangor_navn,
-       v.slettet_dato is not null as arrangor_slettet,
-       jsonb_agg(
-               distinct
-               case
-                   when tg_a.nav_ident is null then null::jsonb
-                   else jsonb_build_object('navIdent', tg_a.nav_ident, 'navn',
-                                           concat(na_tg.fornavn, ' ', na_tg.etternavn))
-                   end
-       )                          as administratorer,
+drop view if exists tiltaksgjennomforing_admin_dto_view;
+
+create view tiltaksgjennomforing_admin_dto_view as
+select gjennomforing.id,
+       gjennomforing.navn,
+       gjennomforing.tiltaksnummer,
+       gjennomforing.start_dato,
+       gjennomforing.slutt_dato,
+       gjennomforing.apent_for_innsok,
+       gjennomforing.sanity_id,
+       gjennomforing.antall_plasser,
+       gjennomforing.avtale_id,
+       gjennomforing.oppstart,
+       gjennomforing.opphav,
+       gjennomforing.beskrivelse,
+       gjennomforing.faneinnhold,
+       gjennomforing.created_at,
+       gjennomforing.deltidsprosent,
+       gjennomforing.estimert_ventetid_verdi,
+       gjennomforing.estimert_ventetid_enhet,
+       gjennomforing.sted_for_gjennomforing,
+       gjennomforing.publisert,
+       gjennomforing.publisert and gjennomforing.avbrutt_tidspunkt is null
+                                           as publisert_for_alle,
+       gjennomforing.nav_region            as nav_region_enhetsnummer,
+       nav_region.navn                     as nav_region_navn,
+       nav_region.type                     as nav_region_type,
+       nav_region.overordnet_enhet         as nav_region_overordnet_enhet,
+       nav_region.status                   as nav_region_status,
        jsonb_agg(distinct
                  case
                      when tg_e.enhetsnummer is null then null::jsonb
@@ -50,7 +38,9 @@ select tg.id::uuid,
                              'overordnetEnhet', ne.overordnet_enhet
                           )
                      end
-       )                          as nav_enheter,
+       )                                   as nav_enheter_json,
+       gjennomforing.arena_ansvarlig_enhet as arena_nav_enhet_enhetsnummer,
+       arena_nav_enhet.navn                as arena_nav_enhet_navn,
        jsonb_agg(distinct
                  case
                      when tgk.tiltaksgjennomforing_id is null then null::jsonb
@@ -64,53 +54,55 @@ select tg.id::uuid,
                              'beskrivelse', tgk.beskrivelse
                           )
                      end
-       )                          as kontaktpersoner,
-       tg.sted_for_gjennomforing,
-       tg.faneinnhold,
-       tg.beskrivelse,
-       tg.created_at,
-       tg.updated_at,
-       tg.deltidsprosent,
-       region.status              as nav_region_status,
+       )                                   as nav_kontaktpersoner_json,
+       jsonb_agg(
+               distinct
+               case
+                   when tg_a.nav_ident is null then null::jsonb
+                   else jsonb_build_object('navIdent', tg_a.nav_ident, 'navn',
+                                           concat(na_tg.fornavn, ' ', na_tg.etternavn))
+                   end
+       )                                   as administratorer_json,
+       arrangor.id                         as arrangor_id,
+       arrangor.organisasjonsnummer        as arrangor_organisasjonsnummer,
+       arrangor.navn                       as arrangor_navn,
+       arrangor.slettet_dato is not null   as arrangor_slettet,
        jsonb_agg(distinct
                  case
-                     when tvk.tiltaksgjennomforing_id is null then null::jsonb
+                     when gjennomforing_arrangor_kontaktperson.tiltaksgjennomforing_id is null then null::jsonb
                      else jsonb_build_object(
-                             'id', tvk.virksomhet_kontaktperson_id,
-                             'virksomhetId', vk.virksomhet_id,
-                             'navn', vk.navn,
-                             'telefon', vk.telefon,
-                             'epost', vk.epost,
-                             'beskrivelse', vk.beskrivelse
+                             'id', gjennomforing_arrangor_kontaktperson.arrangor_kontaktperson_id,
+                             'arrangorId', arrangor_kontaktperson.arrangor_id,
+                             'navn', arrangor_kontaktperson.navn,
+                             'telefon', arrangor_kontaktperson.telefon,
+                             'epost', arrangor_kontaktperson.epost,
+                             'beskrivelse', arrangor_kontaktperson.beskrivelse
                           )
                      end
-       )                          as virksomhet_kontaktpersoner,
-       tg.estimert_ventetid_verdi,
-       tg.estimert_ventetid_enhet,
-       tg.publisert,
-       tg.publisert and avbrutt_tidspunkt is null as publisert_for_alle,
-       t.arena_kode,
-       tg.avbrutt_tidspunkt
-from tiltaksgjennomforing tg
-         inner join tiltakstype t on tg.tiltakstype_id = t.id
-         left join tiltaksgjennomforing_administrator tg_a on tg_a.tiltaksgjennomforing_id = tg.id
-         left join tiltaksgjennomforing_nav_enhet tg_e on tg_e.tiltaksgjennomforing_id = tg.id
-         left join avtale a on a.id = tg.avtale_id
+       )                                   as arrangor_kontaktpersoner_json,
+       tiltakstype.id                      as tiltakstype_id,
+       tiltakstype.navn                    as tiltakstype_navn,
+       tiltakstype.tiltakskode             as tiltakstype_tiltakskode,
+       tiltakstype.arena_kode              as tiltakstype_arena_kode,
+       gjennomforing.avbrutt_tidspunkt
+from tiltaksgjennomforing gjennomforing
+         inner join tiltakstype on gjennomforing.tiltakstype_id = tiltakstype.id
+         left join tiltaksgjennomforing_administrator tg_a on tg_a.tiltaksgjennomforing_id = gjennomforing.id
+         left join tiltaksgjennomforing_nav_enhet tg_e on tg_e.tiltaksgjennomforing_id = gjennomforing.id
+         left join avtale a on a.id = gjennomforing.avtale_id
          left join nav_enhet ne on tg_e.enhetsnummer = ne.enhetsnummer
-         left join nav_enhet region on region.enhetsnummer = tg.nav_region
-         left join nav_enhet arena_nav_enhet on tg.arena_ansvarlig_enhet = arena_nav_enhet.enhetsnummer
-         left join virksomhet v on v.id = tg.arrangor_virksomhet_id
-         left join tiltaksgjennomforing_kontaktperson tgk on tgk.tiltaksgjennomforing_id = tg.id
+         left join nav_enhet nav_region on nav_region.enhetsnummer = gjennomforing.nav_region
+         left join nav_enhet arena_nav_enhet on gjennomforing.arena_ansvarlig_enhet = arena_nav_enhet.enhetsnummer
+         left join arrangor on arrangor.id = gjennomforing.arrangor_id
+         left join tiltaksgjennomforing_kontaktperson tgk on tgk.tiltaksgjennomforing_id = gjennomforing.id
          left join nav_ansatt na on na.nav_ident = tgk.kontaktperson_nav_ident
          left join nav_ansatt na_tg on na_tg.nav_ident = tg_a.nav_ident
-         left join tiltaksgjennomforing_virksomhet_kontaktperson tvk on tvk.tiltaksgjennomforing_id = tg.id
-         left join virksomhet_kontaktperson vk on vk.id = tvk.virksomhet_kontaktperson_id
-group by tg.id,
-         t.id,
-         v.id,
-         region.status,
-         region.navn,
-         region.type,
-         region.overordnet_enhet,
-         arena_nav_enhet.enhetsnummer,
-         t.arena_kode;
+         left join tiltaksgjennomforing_arrangor_kontaktperson gjennomforing_arrangor_kontaktperson
+                   on gjennomforing_arrangor_kontaktperson.tiltaksgjennomforing_id = gjennomforing.id
+         left join arrangor_kontaktperson
+                   on arrangor_kontaktperson.id = gjennomforing_arrangor_kontaktperson.arrangor_kontaktperson_id
+group by gjennomforing.id,
+         tiltakstype.id,
+         arrangor.id,
+         nav_region.enhetsnummer,
+         arena_nav_enhet.enhetsnummer;

@@ -1,4 +1,4 @@
-import { useTiltakstyper } from "@/core/api/queries/useTiltakstyper";
+import { useTiltakstyper } from "@/api/queries/useTiltakstyper";
 import { useArbeidsmarkedstiltakFilter } from "@/hooks/useArbeidsmarkedstiltakFilter";
 import CheckboxFilter from "./CheckboxFilter";
 import { FilterAccordionHeader } from "mulighetsrommet-frontend-common";

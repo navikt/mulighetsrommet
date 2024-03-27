@@ -3,8 +3,8 @@ import classNames from "classnames";
 import { useAtom } from "jotai";
 import { SorteringTiltakstyper } from "mulighetsrommet-api-client";
 import { Lenke } from "mulighetsrommet-frontend-common/components/lenke/Lenke";
-import { tiltakstypeFilterAtom } from "../../api/atoms";
-import { useTiltakstyper } from "../../api/tiltakstyper/useTiltakstyper";
+import { tiltakstypeFilterAtom } from "@/api/atoms";
+import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
 import { useSort } from "../../hooks/useSort";
 import { formaterDato } from "../../utils/Utils";
 import { Laster } from "../laster/Laster";
@@ -35,7 +35,7 @@ export const TiltakstypeTabell = () => {
 
     setFilter({
       ...filter,
-      sortering: `${sortKey}-${direction}` as SorteringTiltakstyper,
+      sort: `${sortKey}-${direction}` as SorteringTiltakstyper,
     });
   };
   return (

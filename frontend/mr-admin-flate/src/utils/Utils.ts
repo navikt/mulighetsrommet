@@ -1,5 +1,5 @@
 import { Avtale, Avtaletype, EstimertVentetid } from "mulighetsrommet-api-client";
-import { AvtaleFilter } from "../api/atoms";
+import { AvtaleFilter } from "@/api/atoms";
 
 export function capitalize(text?: string): string {
   return text ? text.slice(0, 1).toUpperCase() + text.slice(1, text.length).toLowerCase() : "";
@@ -155,11 +155,11 @@ export function createQueryParamsForExcelDownload(filter: AvtaleFilter): URLSear
     queryParams.set("search", filter.sok);
   }
 
-  filter.tiltakstyper.forEach((tiltakstype) => queryParams.append("tiltakstypeIder", tiltakstype));
+  filter.tiltakstyper.forEach((tiltakstype) => queryParams.append("tiltakstyper", tiltakstype));
   filter.statuser.forEach((status) => queryParams.append("statuser", status));
   filter.avtaletyper.forEach((type) => queryParams.append("avtaletyper", type));
   filter.navRegioner.forEach((region) => queryParams.append("navRegioner", region));
-  filter.leverandor.forEach((orgnr) => queryParams.append("leverandorOrgnr", orgnr));
+  filter.arrangorer.forEach((arrangorId) => queryParams.append("arrangorer", arrangorId));
 
   if (filter.visMineAvtaler) {
     queryParams.set("visMineAvtaler", "true");

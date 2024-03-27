@@ -1,5 +1,5 @@
 import { useAtom, WritableAtom } from "jotai";
-import { AvtaleFilter, defaultAvtaleFilter } from "../../api/atoms";
+import { AvtaleFilter, defaultAvtaleFilter } from "@/api/atoms";
 import { HarSkrivetilgang } from "../authActions/HarSkrivetilgang";
 import style from "./AvtaleFilterButtons.module.scss";
 import { NullstillFilterKnapp } from "mulighetsrommet-frontend-common/components/filter/nullstillFilterKnapp/NullstillFilterKnapp";
@@ -20,7 +20,7 @@ export function AvtaleFilterButtons({ filterAtom, tiltakstypeId }: Props) {
       filter.avtaletyper.length > 0 ||
       (!tiltakstypeId && filter.tiltakstyper.length > 0) ||
       filter.statuser.length > 0 ||
-      filter.leverandor.length > 0 ? (
+      filter.arrangorer.length > 0 ? (
         <NullstillFilterKnapp
           onClick={() => {
             setFilter({

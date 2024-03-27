@@ -10,15 +10,6 @@ export function isTiltakMedFellesOppstart(tiltakskode: TiltakskodeArena): boolea
   return TILTAK_MED_FELLES_OPPSTART.includes(tiltakskode);
 }
 
-export const TILTAK_MED_AVTALE_FRA_MULIGHETSROMMET: TiltakskodeArena[] = [
-  TiltakskodeArena.ARBFORB,
-  TiltakskodeArena.VASV,
-];
-
-export function isTiltakMedAvtaleFraMulighetsrommet(tiltakskode: TiltakskodeArena): boolean {
-  return TILTAK_MED_AVTALE_FRA_MULIGHETSROMMET.includes(tiltakskode);
-}
-
 export const ANSKAFFEDE_TILTAK: TiltakskodeArena[] = [
   TiltakskodeArena.ARBRRHDAG,
   TiltakskodeArena.AVKLARAG,

@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import { useHentAnsatt } from "../../api/ansatt/useHentAnsatt";
+import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
 import { NavAnsatt, NavAnsattRolle } from "mulighetsrommet-api-client";
 
 interface Props {

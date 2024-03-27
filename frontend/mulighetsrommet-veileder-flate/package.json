@@ -25,16 +25,16 @@
     "not op_mini all"
   ],
   "dependencies": {
-    "@amplitude/analytics-browser": "2.5.3",
-    "@grafana/faro-web-sdk": "1.4.2",
+    "@amplitude/analytics-browser": "2.6.0",
+    "@grafana/faro-web-sdk": "1.5.0",
     "@navikt/aksel-icons": "6.3.3",
     "@navikt/ds-css": "6.3.3",
     "@navikt/ds-react": "6.3.3",
     "@navikt/navspa": "6.0.1",
     "@portabletext/react": "3.0.15",
-    "@tanstack/react-query": "5.28.6",
-    "@tanstack/react-query-devtools": "5.28.6",
-    "axe-core": "4.8.4",
+    "@tanstack/react-query": "5.28.8",
+    "@tanstack/react-query-devtools": "5.28.8",
+    "axe-core": "4.9.0",
     "classnames": "2.5.1",
     "jotai": "2.7.1",
     "jotai-location": "0.5.4",
@@ -43,7 +43,7 @@
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-error-boundary": "4.0.13",
-    "react-joyride": "2.7.4",
+    "react-joyride": "2.8.0",
     "react-router-dom": "6.22.3",
     "uuid": "9.0.1"
   },
@@ -52,7 +52,7 @@
     "@faker-js/faker": "8.4.1",
     "@playwright/test": "1.42.1",
     "@types/node": "20.11.30",
-    "@typescript-eslint/eslint-plugin": "7.2.0",
+    "@typescript-eslint/eslint-plugin": "7.4.0",
     "@vitejs/plugin-react": "4.2.1",
     "cross-env": "7.0.3",
     "dotenv": "16.4.5",
@@ -66,15 +66,17 @@
     "eslint-plugin-react": "7.34.1",
     "eslint-plugin-react-hooks": "4.6.0",
     "eslint-plugin-react-refresh": "0.4.6",
-    "msw": "2.2.10",
+    "msw": "2.2.11",
     "playwright": "1.42.1",
     "rollup-plugin-visualizer": "5.12.0",
     "typescript": "5.4.3",
-    "vite": "5.1.5",
+    "vite": "5.2.6",
     "vite-plugin-shadow-style": "1.1.0",
     "vite-tsconfig-paths": "4.3.2"
   },
   "msw": {
-    "workerDirectory": "public"
+    "workerDirectory": [
+      "public"
+    ]
   }
 }

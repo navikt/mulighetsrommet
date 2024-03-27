@@ -1,4 +1,4 @@
-import { mulighetsrommetClient } from "../clients";
+import { mulighetsrommetClient } from "@/api/client";
 import { NotificationStatus } from "mulighetsrommet-api-client";
 import { useMutation } from "@tanstack/react-query";
 import { useNotificationSummary } from "./useNotificationSummary";

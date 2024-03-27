@@ -7,9 +7,10 @@ import { BrowserRouter as Router } from "react-router-dom";
 import "react-toastify/dist/ReactToastify.css";
 import { App } from "./App";
 import { AdministratorHeader } from "./components/administrator/AdministratorHeader";
-import { MiljoBanner } from "./components/miljobanner/MiljoBanner";
+import { DemoBanner } from "@/components/demo/DemoBanner";
 import "./index.css";
 import { ReloadAppErrorBoundary } from "./ErrorBoundary";
+import { isDemo } from "@/environment";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -38,7 +39,7 @@ function render() {
   ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
     <React.StrictMode>
       <QueryClientProvider client={queryClient}>
-        <MiljoBanner />
+        {isDemo && <DemoBanner />}
         <Router basename={import.meta.env.BASE_URL}>
           <AdministratorHeader />
           <ReloadAppErrorBoundary>

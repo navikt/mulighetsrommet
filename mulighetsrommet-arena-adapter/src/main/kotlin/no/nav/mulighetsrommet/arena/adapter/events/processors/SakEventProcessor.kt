@@ -60,5 +60,5 @@ class SakEventProcessor(
                 enhet = AETATENHET_ANSVARLIG,
             )
         }
-        .mapLeft { ProcessingError.InvalidPayload(it.localizedMessage) }
+        .mapLeft { ProcessingError.ProcessingFailed(it.localizedMessage) }
 }
