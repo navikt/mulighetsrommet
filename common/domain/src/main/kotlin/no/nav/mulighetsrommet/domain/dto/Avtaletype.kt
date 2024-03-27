@@ -18,10 +18,12 @@ fun allowedAvtaletypes(tiltakskode: Tiltakskode?): List<Avtaletype> =
     when (tiltakskode) {
         ARBEIDSFORBEREDENDE_TRENING, VARIG_TILRETTELAGT_ARBEID_SKJERMET ->
             listOf(Avtaletype.Forhaandsgodkjent)
+
         AVKLARING, OPPFOLGING, ARBEIDSRETTET_REHABILITERING, JOBBKLUBB, DIGITALT_OPPFOLGINGSTILTAK ->
             listOf(Avtaletype.Rammeavtale, Avtaletype.Avtale)
+
         GRUPPE_ARBEIDSMARKEDSOPPLAERING, GRUPPE_FAG_OG_YRKESOPPLAERING ->
             listOf(Avtaletype.Rammeavtale, Avtaletype.Avtale, Avtaletype.OffentligOffentlig)
-        else ->
-            Avtaletype.values().toList()
+
+        else -> Avtaletype.entries
     }
