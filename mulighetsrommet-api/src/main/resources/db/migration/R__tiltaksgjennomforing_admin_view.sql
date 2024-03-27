@@ -6,7 +6,6 @@ select gjennomforing.id,
        gjennomforing.tiltaksnummer,
        gjennomforing.start_dato,
        gjennomforing.slutt_dato,
-       gjennomforing.avslutningsstatus,
        gjennomforing.apent_for_innsok,
        gjennomforing.sanity_id,
        gjennomforing.antall_plasser,
@@ -21,7 +20,7 @@ select gjennomforing.id,
        gjennomforing.estimert_ventetid_enhet,
        gjennomforing.sted_for_gjennomforing,
        gjennomforing.publisert,
-       gjennomforing.publisert and gjennomforing.avslutningsstatus = 'IKKE_AVSLUTTET'::avslutningsstatus
+       gjennomforing.publisert and gjennomforing.avbrutt_tidspunkt is null
                                            as publisert_for_alle,
        gjennomforing.nav_region            as nav_region_enhetsnummer,
        nav_region.navn                     as nav_region_navn,
@@ -84,7 +83,8 @@ select gjennomforing.id,
        tiltakstype.id                      as tiltakstype_id,
        tiltakstype.navn                    as tiltakstype_navn,
        tiltakstype.tiltakskode             as tiltakstype_tiltakskode,
-       tiltakstype.arena_kode              as tiltakstype_arena_kode
+       tiltakstype.arena_kode              as tiltakstype_arena_kode,
+       gjennomforing.avbrutt_tidspunkt
 from tiltaksgjennomforing gjennomforing
          inner join tiltakstype on gjennomforing.tiltakstype_id = tiltakstype.id
          left join tiltaksgjennomforing_administrator tg_a on tg_a.tiltaksgjennomforing_id = gjennomforing.id

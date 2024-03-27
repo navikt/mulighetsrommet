@@ -30,7 +30,6 @@ import no.nav.mulighetsrommet.domain.constants.ArenaMigrering.Tiltaksgjennomfori
 import no.nav.mulighetsrommet.domain.dbo.*
 import no.nav.mulighetsrommet.domain.dto.Avtalestatus
 import no.nav.mulighetsrommet.domain.dto.NavIdent
-import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus
 import no.nav.mulighetsrommet.kafka.producers.TiltaksgjennomforingKafkaProducer
 import no.nav.mulighetsrommet.kafka.producers.TiltakstypeKafkaProducer
 import no.nav.mulighetsrommet.notifications.NotificationMetadata
@@ -229,12 +228,7 @@ class ArenaAdapterService(
                 antallPlasser = current.antallPlasser,
                 oppstart = current.oppstart,
                 deltidsprosent = current.deltidsprosent,
-                avslutningsstatus = when (current.status) {
-                    Tiltaksgjennomforingsstatus.PLANLAGT, Tiltaksgjennomforingsstatus.GJENNOMFORES -> Avslutningsstatus.IKKE_AVSLUTTET
-                    Tiltaksgjennomforingsstatus.AVLYST -> Avslutningsstatus.AVLYST
-                    Tiltaksgjennomforingsstatus.AVBRUTT -> Avslutningsstatus.AVBRUTT
-                    Tiltaksgjennomforingsstatus.AVSLUTTET -> Avslutningsstatus.AVSLUTTET
-                },
+                avslutningsstatus = current.status.toAvslutningsstatus(),
             )
         } else {
             // Pass på at man ikke mister referansen til Avtalen
@@ -254,7 +248,6 @@ class ArenaAdapterService(
         arenaGjennomforing: ArenaTiltaksgjennomforingDbo,
         current: TiltaksgjennomforingAdminDto,
     ): Boolean {
-        val avslutningsstatus = tiltaksgjennomforinger.getAvslutningsstatus(current.id)
         val currentAsArenaGjennomforing = ArenaTiltaksgjennomforingDbo(
             id = current.id,
             navn = current.navn,
@@ -264,7 +257,7 @@ class ArenaAdapterService(
             startDato = current.startDato,
             sluttDato = current.sluttDato,
             arenaAnsvarligEnhet = current.arenaAnsvarligEnhet?.enhetsnummer,
-            avslutningsstatus = avslutningsstatus,
+            avslutningsstatus = current.status.toAvslutningsstatus(),
             apentForInnsok = current.apentForInnsok,
             antallPlasser = current.antallPlasser,
             avtaleId = current.avtaleId,

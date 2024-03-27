@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.domain.dto
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 @Serializable
 enum class Tiltaksgjennomforingsstatus {
@@ -13,20 +14,27 @@ enum class Tiltaksgjennomforingsstatus {
     AVSLUTTET,
     ;
 
+    fun toAvslutningsstatus(): Avslutningsstatus =
+        when (this) {
+            PLANLAGT, GJENNOMFORES -> Avslutningsstatus.IKKE_AVSLUTTET
+            AVLYST -> Avslutningsstatus.AVLYST
+            AVBRUTT -> Avslutningsstatus.AVBRUTT
+            AVSLUTTET -> Avslutningsstatus.AVSLUTTET
+        }
+
     companion object {
         fun fromDbo(
             dagensDato: LocalDate,
             startDato: LocalDate,
             sluttDato: LocalDate?,
-            avslutningsStatus: Avslutningsstatus,
+            avbruttTidspunkt: LocalDateTime?,
         ): Tiltaksgjennomforingsstatus {
             return when {
-                avslutningsStatus == Avslutningsstatus.AVLYST -> AVLYST
-                avslutningsStatus == Avslutningsstatus.AVBRUTT -> AVBRUTT
-                avslutningsStatus == Avslutningsstatus.AVSLUTTET -> AVSLUTTET
-                startDato > dagensDato -> PLANLAGT
-                sluttDato == null || sluttDato >= dagensDato -> GJENNOMFORES
-                else -> AVSLUTTET
+                avbruttTidspunkt != null && avbruttTidspunkt.toLocalDate().isBefore(startDato) -> AVLYST
+                avbruttTidspunkt != null && !avbruttTidspunkt.toLocalDate().isBefore(startDato) -> AVBRUTT
+                sluttDato != null && dagensDato.isAfter(sluttDato) -> AVSLUTTET
+                !startDato.isAfter(dagensDato) -> GJENNOMFORES
+                else -> PLANLAGT
             }
         }
     }
