@@ -4,6 +4,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.data.forAll
 import io.kotest.data.row
 import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldNotBeNull
@@ -161,11 +162,11 @@ class AvtaleRepositoryTest : FunSpec({
 
             val avtaler = AvtaleRepository(database.db)
             var avtale = AvtaleFixtures.oppfolging.copy(
-                arrangorKontaktpersonId = arrangorKontaktperson.id,
+                arrangorKontaktpersoner = listOf(arrangorKontaktperson.id),
             )
             avtaler.upsert(avtale)
             avtaler.get(avtale.id).shouldNotBeNull().should {
-                it.arrangor.kontaktperson shouldBe arrangorKontaktperson
+                it.arrangor.kontaktpersoner shouldContainExactly listOf(arrangorKontaktperson)
             }
 
             // Endre kontaktperson
@@ -174,19 +175,25 @@ class AvtaleRepositoryTest : FunSpec({
                 navn = "Fredrik Navnesen",
                 telefon = "32322",
             )
+            val nyPerson2 = arrangorKontaktperson.copy(
+                id = UUID.randomUUID(),
+                navn = "Thomas Navnesen",
+                telefon = "84322",
+            )
             arrangorRepository.upsertKontaktperson(nyPerson)
+            arrangorRepository.upsertKontaktperson(nyPerson2)
 
-            avtale = avtale.copy(arrangorKontaktpersonId = nyPerson.id)
+            avtale = avtale.copy(arrangorKontaktpersoner = listOf(nyPerson.id, nyPerson2.id))
             avtaler.upsert(avtale)
             avtaler.get(avtale.id).shouldNotBeNull().should {
-                it.arrangor.kontaktperson shouldBe nyPerson
+                it.arrangor.kontaktpersoner shouldContainExactlyInAnyOrder listOf(nyPerson, nyPerson2)
             }
 
             // Fjern kontaktperson
-            avtale = avtale.copy(arrangorKontaktpersonId = null)
+            avtale = avtale.copy(arrangorKontaktpersoner = emptyList())
             avtaler.upsert(avtale)
             avtaler.get(avtale.id).shouldNotBeNull().should {
-                it.arrangor.kontaktperson shouldBe null
+                it.arrangor.kontaktpersoner shouldHaveSize 0
             }
         }
 
@@ -642,7 +649,7 @@ class AvtaleRepositoryTest : FunSpec({
                 navn = "alvdal",
                 slettet = false,
                 underenheter = listOf(),
-                kontaktperson = null,
+                kontaktpersoner = emptyList(),
             )
             val bjarne = AvtaleAdminDto.ArrangorHovedenhet(
                 id = arrangorB.id,
@@ -650,7 +657,7 @@ class AvtaleRepositoryTest : FunSpec({
                 navn = "bjarne",
                 slettet = false,
                 underenheter = listOf(),
-                kontaktperson = null,
+                kontaktpersoner = emptyList(),
             )
             val chris = AvtaleAdminDto.ArrangorHovedenhet(
                 id = arrangorC.id,
@@ -658,7 +665,7 @@ class AvtaleRepositoryTest : FunSpec({
                 navn = "chris",
                 slettet = false,
                 underenheter = listOf(),
-                kontaktperson = null,
+                kontaktpersoner = emptyList(),
             )
 
             val ascending = avtaler.getAll(sortering = "arrangor-ascending")

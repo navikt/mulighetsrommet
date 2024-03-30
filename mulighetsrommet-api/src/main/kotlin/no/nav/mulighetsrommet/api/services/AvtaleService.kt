@@ -57,7 +57,7 @@ class AvtaleService(
                         tiltakstypeId = tiltakstypeId,
                         arrangorId = arrangor.id,
                         arrangorUnderenheter = underenheter.map { it.id },
-                        arrangorKontaktpersonId = arrangorKontaktpersonId,
+                        arrangorKontaktpersoner = arrangorKontaktpersoner,
                         startDato = startDato,
                         sluttDato = sluttDato,
                         avtaletype = avtaletype,

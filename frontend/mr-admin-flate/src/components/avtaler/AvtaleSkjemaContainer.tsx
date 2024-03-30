@@ -71,7 +71,7 @@ export function AvtaleSkjemaContainer({
       avtalenummer: avtale?.avtalenummer || null,
       arrangorOrganisasjonsnummer: data.arrangorOrganisasjonsnummer,
       arrangorUnderenheter: data.arrangorUnderenheter,
-      arrangorKontaktpersonId: data.arrangorKontaktpersonId ?? null,
+      arrangorKontaktpersoner: data.arrangorKontaktpersoner,
       navn: data.navn,
       sluttDato: data.startOgSluttDato.sluttDato ?? null,
       startDato: data.startOgSluttDato.startDato,

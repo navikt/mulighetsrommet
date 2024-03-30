@@ -1,4 +1,10 @@
-import { Avtale, NavAnsatt, NavEnhet, NavEnhetType } from "mulighetsrommet-api-client";
+import {
+  ArrangorKontaktperson,
+  Avtale,
+  NavAnsatt,
+  NavEnhet,
+  NavEnhetType,
+} from "mulighetsrommet-api-client";
 import { DeepPartial } from "react-hook-form";
 import { InferredAvtaleSchema } from "../redaksjonelt-innhold/AvtaleSchema";
 
@@ -40,7 +46,8 @@ export function defaultAvtaleData(
     arrangorUnderenheter: !avtale?.arrangor?.underenheter
       ? []
       : avtale.arrangor.underenheter.map((underenhet) => underenhet.organisasjonsnummer),
-    arrangorKontaktpersonId: avtale?.arrangor?.kontaktperson?.id,
+    arrangorKontaktpersoner:
+      avtale?.arrangor?.kontaktpersoner.map((p: ArrangorKontaktperson) => p.id) ?? [],
     startOgSluttDato: {
       startDato: avtale?.startDato ? avtale.startDato : undefined,
       sluttDato: avtale?.sluttDato ? avtale.sluttDato : undefined,

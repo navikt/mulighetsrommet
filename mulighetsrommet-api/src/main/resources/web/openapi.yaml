@@ -1925,10 +1925,11 @@ components:
           type: array
           items:
             type: string
-        arrangorKontaktpersonId:
-          type: string
-          format: UUID
-          nullable: true
+        arrangorKontaktpersoner:
+          type: array
+          items:
+            type: string
+            format: UUID
         startDato:
           type: string
           format: date
@@ -2677,14 +2678,17 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/ArrangorUnderenhet"
-        kontaktperson:
-          $ref: "#/components/schemas/ArrangorKontaktperson"
+        kontaktpersoner:
+          type: array
+          items:
+            $ref: "#/components/schemas/ArrangorKontaktperson"
       required:
         - id
         - organisasjonsnummer
         - navn
         - slettet
         - underenheter
+        - kontaktpersoner
 
     ArrangorUnderenhet:
       type: object
