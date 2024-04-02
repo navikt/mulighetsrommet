@@ -1,3 +1,5 @@
+drop view if exists avtale_admin_dto_view;
+
 create table avtale_arrangor_kontaktperson
 (
     arrangor_kontaktperson_id uuid not null references arrangor_kontaktperson (id) on delete cascade,
