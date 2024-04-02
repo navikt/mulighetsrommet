@@ -684,10 +684,15 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 ),
             )
 
+            tiltaksgjennomforinger.upsert(
+                Oppfolging2.copy(
+                    avtaleId = AvtaleFixtures.AFT.id,
+                ),
+            )
+
             val result = tiltaksgjennomforinger.getAll(
                 avtaleId = AvtaleFixtures.oppfolging.id,
-            )
-                .second
+            ).second
             result shouldHaveSize 1
             result.first().id shouldBe Oppfolging1.id
         }
