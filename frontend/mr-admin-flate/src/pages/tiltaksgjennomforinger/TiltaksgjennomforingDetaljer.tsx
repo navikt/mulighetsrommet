@@ -19,6 +19,7 @@ import { Kontaktperson } from "./Kontaktperson";
 import { tiltaktekster } from "../../components/ledetekster/tiltaksgjennomforingLedetekster";
 import { ArrangorKontaktpersonDetaljer } from "../arrangor/ArrangorKontaktpersonDetaljer";
 import { getDisplayName } from "@/api/enhet/helpers";
+import { NokkeltallDeltakere } from "../../components/tiltaksgjennomforinger/NokkeltallDeltakere";
 
 interface Props {
   tiltaksgjennomforing: Tiltaksgjennomforing;
@@ -285,6 +286,9 @@ export function TiltaksgjennomforingDetaljer(props: Props) {
               </Bolk>
             </>
           )}
+        </div>
+        <div className={styles.detaljer}>
+          <NokkeltallDeltakere tiltaksgjennomforingId={tiltaksgjennomforing.id} />
         </div>
       </div>
     </>

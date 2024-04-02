@@ -1,22 +1,22 @@
+import { useFeatureToggle } from "@/api/features/feature-toggles";
+import { useTiltaksgjennomforingById } from "@/api/tiltaksgjennomforing/useTiltaksgjennomforingById";
 import { Alert, Heading, Tabs, VStack } from "@navikt/ds-react";
 import classNames from "classnames";
 import { Toggles } from "mulighetsrommet-api-client";
+import { Lenkeknapp } from "mulighetsrommet-frontend-common/components/lenkeknapp/Lenkeknapp";
 import { Link, Outlet, useLocation, useParams } from "react-router-dom";
-import { useFeatureToggle } from "@/api/features/feature-toggles";
-import { useTiltaksgjennomforingById } from "@/api/tiltaksgjennomforing/useTiltaksgjennomforingById";
+import { ShowOpphavValue } from "../../components/debug/ShowOpphavValue";
 import { Header } from "../../components/detaljside/Header";
 import headerStyles from "../../components/detaljside/Header.module.scss";
+import { TiltaksgjennomforingIkon } from "../../components/ikoner/TiltaksgjennomforingIkon";
 import { Laster } from "../../components/laster/Laster";
-import { Lenkeknapp } from "mulighetsrommet-frontend-common/components/lenkeknapp/Lenkeknapp";
+import { Brodsmule, Brodsmuler } from "../../components/navigering/Brodsmuler";
 import { TiltaksgjennomforingstatusTag } from "../../components/statuselementer/TiltaksgjennomforingstatusTag";
+import { DupliserTiltak } from "../../components/tiltaksgjennomforinger/DupliserTiltak";
+import { PREVIEW_ARBEIDSMARKEDSTILTAK_URL } from "../../constants";
 import { useNavigateAndReplaceUrl } from "../../hooks/useNavigateWithoutReplacingUrl";
 import { ContainerLayout } from "../../layouts/ContainerLayout";
 import commonStyles from "../Page.module.scss";
-import { DupliserTiltak } from "../../components/tiltaksgjennomforinger/DupliserTiltak";
-import { PREVIEW_ARBEIDSMARKEDSTILTAK_URL } from "../../constants";
-import { Brodsmule, Brodsmuler } from "../../components/navigering/Brodsmuler";
-import { TiltaksgjennomforingIkon } from "../../components/ikoner/TiltaksgjennomforingIkon";
-import { ShowOpphavValue } from "../../components/debug/ShowOpphavValue";
 
 function useTiltaksgjennomforingBrodsmuler(
   tiltaksgjennomforingId: string,
