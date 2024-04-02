@@ -11,6 +11,7 @@ import { atom, WritableAtom } from "jotai";
 import { atomFamily } from "jotai/utils";
 import { AVTALE_PAGE_SIZE, PAGE_SIZE } from "@/constants";
 import { RESET } from "jotai/vanilla/utils";
+import { ZodType, z } from "zod";
 
 type SetStateActionWithReset<Value> =
   | Value
@@ -25,23 +26,26 @@ const safeJSONParse = (initialValue: unknown) => (str: string) => {
   }
 };
 
-// Bump version number when localStorage should be cleared
-const version = localStorage.getItem("version");
-if (version !== "2") {
-  localStorage.clear();
-  sessionStorage.clear();
-  localStorage.setItem("version", "2");
-}
-
 /**
  * atomWithStorage fra jotai rendrer først alltid initial value selv om den
  * finnes i storage (https://github.com/pmndrs/jotai/discussions/1879#discussioncomment-5626120)
  * Dette er anbefalt måte og ha en sync versjon av atomWithStorage
  */
-function atomWithStorage<Value>(key: string, initialValue: Value, storage: Storage) {
+function atomWithStorage<Value>(
+  key: string,
+  initialValue: Value,
+  storage: Storage,
+  zodSchema: ZodType,
+) {
   const baseAtom = atom(storage.getItem(key) ?? JSON.stringify(initialValue));
   return atom(
-    (get) => JSON.parse(get(baseAtom)) as Value,
+    (get) => {
+      const result = zodSchema.safeParse(JSON.parse(get(baseAtom)));
+      if (!result.success) {
+        return initialValue;
+      }
+      return result.data;
+    },
     (_, set, nextValue: Value) => {
       const str = JSON.stringify(nextValue);
       set(baseAtom, str);
@@ -62,6 +66,7 @@ function atomWithHashAndStorage<Value>(
   key: string,
   initialValue: Value,
   storage: Storage,
+  schema: ZodType,
   options?: {
     serialize?: (val: Value) => string;
     deserialize?: (str: string) => Value;
@@ -92,7 +97,7 @@ function atomWithHashAndStorage<Value>(
     str = searchParams.get(key);
   }
 
-  const strAtom = atomWithStorage<string | null>(key, str, storage);
+  const strAtom = atomWithStorage<string | null>(key, str, storage, schema);
   strAtom.onMount = (setAtom) => {
     if (typeof window === "undefined" || !window.location) {
       return undefined;
@@ -133,9 +138,10 @@ function atomWithHashAndStorage<Value>(
   );
 }
 
-export interface TiltakstypeFilter {
-  sort?: SorteringTiltakstyper;
-}
+const tiltakstypeFilterSchema = z.object({
+  sort: z.custom<SorteringTiltakstyper>().optional(),
+});
+export type TiltakstypeFilter = z.infer<typeof tiltakstypeFilterSchema>;
 
 export const defaultTiltakstypeFilter: TiltakstypeFilter = {
   sort: SorteringTiltakstyper.NAVN_ASCENDING,
@@ -145,20 +151,22 @@ export const tiltakstypeFilterAtom = atomWithHashAndStorage<TiltakstypeFilter>(
   "tiltakstype-filter",
   defaultTiltakstypeFilter,
   sessionStorage,
+  tiltakstypeFilterSchema,
 );
 
-export interface TiltaksgjennomforingFilter {
-  search: string;
-  navEnheter: NavEnhet[];
-  tiltakstyper: string[];
-  statuser: TiltaksgjennomforingStatus[];
-  sortering: SorteringTiltaksgjennomforinger;
-  avtale: string;
-  arrangorer: string[];
-  visMineGjennomforinger: boolean;
-  page: number;
-  pageSize: number;
-}
+const tiltaksgjennomforingFilterSchema = z.object({
+  search: z.string(),
+  navEnheter: z.custom<NavEnhet>().array(),
+  tiltakstyper: z.string().array(),
+  statuser: z.custom<TiltaksgjennomforingStatus>().array(),
+  sortering: z.custom<SorteringTiltaksgjennomforinger>(),
+  avtale: z.string(),
+  arrangorer: z.string().array(),
+  visMineGjennomforinger: z.boolean(),
+  page: z.number(),
+  pageSize: z.number(),
+});
+export type TiltaksgjennomforingFilter = z.infer<typeof tiltaksgjennomforingFilterSchema>;
 
 export const defaultTiltaksgjennomforingfilter: TiltaksgjennomforingFilter = {
   search: "",
@@ -177,6 +185,7 @@ export const tiltaksgjennomforingfilterAtom = atomWithStorage<Tiltaksgjennomfori
   "tiltaksgjennomforing-filter",
   defaultTiltaksgjennomforingfilter,
   sessionStorage,
+  tiltaksgjennomforingFilterSchema,
 );
 
 export const gjennomforingerForAvtaleFilterAtomFamily = atomFamily<
@@ -190,21 +199,23 @@ export const gjennomforingerForAvtaleFilterAtomFamily = atomFamily<
       avtale: avtaleId,
     },
     sessionStorage,
+    tiltaksgjennomforingFilterSchema,
   );
 });
 
-export interface AvtaleFilter {
-  sok: string;
-  statuser: Avtalestatus[];
-  avtaletyper: Avtaletype[];
-  navRegioner: string[];
-  tiltakstyper: string[];
-  sortering: SorteringAvtaler;
-  arrangorer: string[];
-  visMineAvtaler: boolean;
-  page: number;
-  pageSize: number;
-}
+const avtaleFilterSchema = z.object({
+  sok: z.string(),
+  statuser: z.custom<Avtalestatus>().array(),
+  avtaletyper: z.custom<Avtaletype>().array(),
+  navRegioner: z.string().array(),
+  tiltakstyper: z.string().array(),
+  sortering: z.custom<SorteringAvtaler>(),
+  arrangorer: z.string().array(),
+  visMineAvtaler: z.boolean(),
+  page: z.number(),
+  pageSize: z.number(),
+});
+export type AvtaleFilter = z.infer<typeof avtaleFilterSchema>;
 
 export const defaultAvtaleFilter: AvtaleFilter = {
   sok: "",
@@ -223,6 +234,7 @@ export const avtaleFilterAtom = atomWithHashAndStorage<AvtaleFilter>(
   "avtale-filter",
   defaultAvtaleFilter,
   sessionStorage,
+  avtaleFilterSchema,
 );
 
 export const getAvtalerForTiltakstypeFilterAtom = atomFamily<
@@ -236,6 +248,7 @@ export const getAvtalerForTiltakstypeFilterAtom = atomFamily<
       tiltakstyper: [tiltakstypeId],
     },
     sessionStorage,
+    avtaleFilterSchema,
   );
 });
 
