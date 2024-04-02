@@ -29,24 +29,33 @@ select avtale.id,
        arrangor.organisasjonsnummer        as arrangor_hovedenhet_organisasjonsnummer,
        arrangor.navn                       as arrangor_hovedenhet_navn,
        arrangor.slettet_dato is not null   as arrangor_hovedenhet_slettet,
-       arrangor_kontaktperson.id           as arrangor_hovedenhet_kontaktperson_id,
-       arrangor_kontaktperson.arrangor_id  as arrangor_hovedenhet_kontaktperson_arrangor_id,
-       arrangor_kontaktperson.navn         as arrangor_hovedenhet_kontaktperson_navn,
-       arrangor_kontaktperson.telefon      as arrangor_hovedenhet_kontaktperson_telefon,
-       arrangor_kontaktperson.epost        as arrangor_hovedenhet_kontaktperson_epost,
-       arrangor_kontaktperson.beskrivelse  as arrangor_hovedenhet_kontaktperson_beskrivelse,
        arrangor_underenheter_json.arrangor_underenheter,
        tiltakstype.id                      as tiltakstype_id,
        tiltakstype.navn                    as tiltakstype_navn,
        tiltakstype.tiltakskode             as tiltakstype_tiltakskode,
-       tiltakstype.arena_kode              as tiltakstype_arena_kode
+       tiltakstype.arena_kode              as tiltakstype_arena_kode,
+       jsonb_agg(distinct
+           case
+               when avtale_arrangor_kontaktperson.avtale_id is null then null::jsonb
+               else jsonb_build_object(
+                   'id', avtale_arrangor_kontaktperson.arrangor_kontaktperson_id,
+                   'arrangorId', arrangor_kontaktperson.arrangor_id,
+                   'navn', arrangor_kontaktperson.navn,
+                   'telefon', arrangor_kontaktperson.telefon,
+                   'epost', arrangor_kontaktperson.epost,
+                   'beskrivelse', arrangor_kontaktperson.beskrivelse
+               )
+           end
+       )                                   as arrangor_kontaktpersoner_json
 from avtale
          join tiltakstype on tiltakstype.id = avtale.tiltakstype_id
          left join avtale_administrator on avtale.id = avtale_administrator.avtale_id
          left join nav_ansatt on nav_ansatt.nav_ident = avtale_administrator.nav_ident
          left join nav_enhet arena_nav_enhet on avtale.arena_ansvarlig_enhet = arena_nav_enhet.enhetsnummer
          left join arrangor on arrangor.id = avtale.arrangor_hovedenhet_id
-         left join arrangor_kontaktperson on arrangor_kontaktperson.id = avtale.arrangor_kontaktperson_id
+         left join avtale_arrangor_kontaktperson on avtale_arrangor_kontaktperson.avtale_id = avtale.id
+         left join arrangor_kontaktperson
+            on arrangor_kontaktperson.id = avtale_arrangor_kontaktperson.arrangor_kontaktperson_id
          left join lateral (
     select an.avtale_id,
            jsonb_strip_nulls(jsonb_agg(jsonb_build_object(
@@ -73,7 +82,6 @@ from avtale
 group by avtale.id,
          tiltakstype.id,
          arrangor.id,
-         arrangor_kontaktperson.id,
          arrangor_underenheter_json.arrangor_underenheter,
          avtale_nav_enheter_json.nav_enheter,
          arena_nav_enhet.enhetsnummer;

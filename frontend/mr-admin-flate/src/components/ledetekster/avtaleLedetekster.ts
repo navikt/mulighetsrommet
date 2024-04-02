@@ -16,5 +16,5 @@ export const avtaletekster = {
   ansvarligEnhetFraArenaLabel: "Ansvarlig enhet fra Arena",
   tiltaksarrangorHovedenhetLabel: "Tiltaksarrangør hovedenhet",
   tiltaksarrangorUnderenheterLabel: "Tiltaksarrangør underenheter",
-  kontaktpersonHosTiltaksarrangorLabel: "Kontaktperson hos tiltaksarrangør",
+  kontaktpersonerHosTiltaksarrangorLabel: "Kontaktpersoner hos tiltaksarrangør",
 } as const;

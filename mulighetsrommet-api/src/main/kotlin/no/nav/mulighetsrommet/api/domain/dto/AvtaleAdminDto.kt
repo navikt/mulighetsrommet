@@ -55,7 +55,7 @@ data class AvtaleAdminDto(
         val navn: String,
         val slettet: Boolean,
         val underenheter: List<ArrangorUnderenhet>,
-        val kontaktperson: ArrangorKontaktperson?,
+        val kontaktpersoner: List<ArrangorKontaktperson>,
     )
 
     @Serializable
@@ -84,7 +84,7 @@ data class AvtaleAdminDto(
             avtalenummer = avtalenummer,
             arrangorId = arrangor.id,
             arrangorUnderenheter = arrangor.underenheter.map { it.id },
-            arrangorKontaktpersonId = arrangor.kontaktperson?.id,
+            arrangorKontaktpersoner = arrangor.kontaktpersoner.map { it.id },
             startDato = startDato,
             sluttDato = sluttDato,
             navEnheter = this.kontorstruktur.flatMap { it.kontorer.map { kontor -> kontor.enhetsnummer } + it.region.enhetsnummer },

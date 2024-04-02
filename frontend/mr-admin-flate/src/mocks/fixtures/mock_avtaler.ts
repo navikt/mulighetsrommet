@@ -26,14 +26,16 @@ export const mockAvtaler: Avtale[] = [
         slettet: false,
         kontaktpersoner: [],
       })),
-      kontaktperson: {
-        id: "d136d6a4-c812-4d28-81db-b688187e4e32",
-        arrangorId: "a714ca5e-857e-41a7-85d7-8be1c1d483ab",
-        navn: "Ole Kjetil Martinsen",
-        epost: "ole.kjetil.martinsen@arrangor.no",
-        telefon: "90123456",
-        beskrivelse: "Direktør",
-      },
+      kontaktpersoner: [
+        {
+          id: "d136d6a4-c812-4d28-81db-b688187e4e32",
+          arrangorId: "a714ca5e-857e-41a7-85d7-8be1c1d483ab",
+          navn: "Ole Kjetil Martinsen",
+          epost: "ole.kjetil.martinsen@arrangor.no",
+          telefon: "90123456",
+          beskrivelse: "Direktør",
+        },
+      ],
     },
     startDato: "2021-08-02",
     sluttDato: "2026-08-01",
@@ -67,6 +69,7 @@ export const mockAvtaler: Avtale[] = [
     arrangor: {
       ...mockArrangorer.fretex,
       slettet: false,
+      kontaktpersoner: [],
       underenheter: mockArrangorer.fretex.underenheter!.map((v) => ({
         id: v.id,
         organisasjonsnummer: v.organisasjonsnummer,
@@ -109,6 +112,7 @@ export const mockAvtaler: Avtale[] = [
     arrangor: {
       ...mockArrangorer.fretex,
       slettet: false,
+      kontaktpersoner: [],
       underenheter: mockArrangorer.fretex.underenheter!.map((v) => ({
         id: v.id,
         organisasjonsnummer: v.organisasjonsnummer,

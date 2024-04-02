@@ -71,12 +71,12 @@ export function AvtaleArrangorSkjema({ readOnly }: Props) {
       </FormGroup>
       <FormGroup>
         <div className={skjemastyles.arrangor_kontaktperson_container}>
-          <ControlledSokeSelect
+          <ControlledMultiSelect
             size="small"
-            placeholder="Velg en"
-            label={avtaletekster.kontaktpersonHosTiltaksarrangorLabel}
+            placeholder="Velg kontaktpersoner"
+            label={avtaletekster.kontaktpersonerHosTiltaksarrangorLabel}
             readOnly={!arrangor}
-            {...register("arrangorKontaktpersonId")}
+            {...register("arrangorKontaktpersoner")}
             options={arrangorKontaktpersonOptions}
           />
           <Button

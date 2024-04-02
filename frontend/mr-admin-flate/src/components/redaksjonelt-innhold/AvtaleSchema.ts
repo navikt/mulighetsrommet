@@ -27,7 +27,7 @@ export const AvtaleSchema = z
       .max(9, "Du må velge en tiltaksarrangør")
       .regex(/^\d+$/, "Tiltaksarrangør må være et nummer"),
     arrangorUnderenheter: z.string().array().nonempty("Du må velge minst en underenhet"),
-    arrangorKontaktpersonId: z.string().uuid().optional(),
+    arrangorKontaktpersoner: z.string().uuid().array(),
     navRegioner: z.string().array().nonempty({ message: "Du må velge minst én region" }),
     navEnheter: z.string().array().nonempty({ message: "Du må velge minst én enhet" }),
     startOgSluttDato: z

@@ -119,8 +119,10 @@ data class AvtaleRequest(
     val tiltakstypeId: UUID,
     val arrangorOrganisasjonsnummer: String,
     val arrangorUnderenheter: List<String>,
-    @Serializable(with = UUIDSerializer::class)
-    val arrangorKontaktpersonId: UUID?,
+    val arrangorKontaktpersoner: List<
+        @Serializable(with = UUIDSerializer::class)
+        UUID,
+        >,
     val avtalenummer: String?,
     @Serializable(with = LocalDateSerializer::class)
     val startDato: LocalDate,
