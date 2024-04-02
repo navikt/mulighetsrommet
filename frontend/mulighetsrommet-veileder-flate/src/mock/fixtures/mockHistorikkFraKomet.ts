@@ -1,5 +1,30 @@
 import { AktivDeltakelse, Gruppetiltak, HistorikkForBrukerV2 } from "mulighetsrommet-api-client";
 
+export const utkastFraKomet: AktivDeltakelse[] = [
+  {
+    deltakerId: window.crypto.randomUUID(),
+    innsoktDato: "01.02.2024",
+    sistEndretdato: "27.03.2024",
+    aktivStatus: AktivDeltakelse.aktivStatus.DELTAR,
+    tiltakstype: {
+      navn: "Jobbklubb",
+      tiltakskode: Gruppetiltak.tiltakskode.JOBBK,
+    },
+    tittel: "Jobbklubb hos Fretex",
+  },
+  {
+    deltakerId: window.crypto.randomUUID(),
+    innsoktDato: "03.02.2024",
+    sistEndretdato: "27.02.2024",
+    aktivStatus: AktivDeltakelse.aktivStatus.KLADD,
+    tiltakstype: {
+      navn: "Avklaring",
+      tiltakskode: Gruppetiltak.tiltakskode.AVKLARAG,
+    },
+    tittel: "Avklaring hos Muligheter AS",
+  },
+];
+
 export const historikkFraKomet: HistorikkForBrukerV2[] = [
   {
     periode: {
@@ -53,19 +78,5 @@ export const historikkFraKomet: HistorikkForBrukerV2[] = [
     },
 
     innsoktDato: "03.02.2024",
-  },
-];
-
-export const utkastFraKomet: AktivDeltakelse[] = [
-  {
-    deltakerId: window.crypto.randomUUID(),
-    innsoktDato: "03.02.2024",
-    sistEndretdato: "27.02.2024",
-    aktivStatus: AktivDeltakelse.aktivStatus.KLADD,
-    tiltakstype: {
-      navn: "Avklaring",
-      tiltakskode: Gruppetiltak.tiltakskode.AVKLARAG,
-    },
-    tittel: "Avklaring hos Muligheter AS",
   },
 ];
