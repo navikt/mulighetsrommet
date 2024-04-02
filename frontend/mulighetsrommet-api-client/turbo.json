@@ -6,7 +6,7 @@
         "$TURBO_DEFAULT$",
         "../../mulighetsrommet-api/src/main/resources/web/openapi.yaml"
       ],
-      "outputs": ["build/**"]
+      "outputs": ["build"]
     }
   }
 }
