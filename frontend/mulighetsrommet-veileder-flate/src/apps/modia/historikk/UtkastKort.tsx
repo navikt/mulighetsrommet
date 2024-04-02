@@ -19,6 +19,7 @@ export function UtkastKort({ utkast }: Props) {
 
   return (
     <LinkPanel
+      as="button"
       onClick={deltakelseRoute.navigate}
       className={classNames(styles.panel, {
         [styles.utkast]: aktivStatus === AktivDeltakelse.aktivStatus.UTKAST_TIL_PAMELDING,
@@ -51,7 +52,7 @@ function Status({ status }: StatusProps) {
     case AktivDeltakelse.aktivStatus.UTKAST_TIL_PAMELDING:
       return (
         <Tag size="small" variant="info">
-          Utkast til påmelding
+          Utkastet er delt og venter på godkjenning
         </Tag>
       );
     case AktivDeltakelse.aktivStatus.VENTER_PA_OPPSTART:
