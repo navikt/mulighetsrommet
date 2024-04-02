@@ -3,8 +3,8 @@ import { AktivDeltakelse, Gruppetiltak, HistorikkForBrukerV2 } from "mulighetsro
 export const utkastFraKomet: AktivDeltakelse[] = [
   {
     deltakerId: window.crypto.randomUUID(),
-    innsoktDato: "01.02.2024",
-    sistEndretdato: "27.03.2024",
+    innsoktDato: "2024-02-01",
+    sistEndretdato: "2024-03-27",
     aktivStatus: AktivDeltakelse.aktivStatus.DELTAR,
     tiltakstype: {
       navn: "Jobbklubb",
@@ -14,8 +14,8 @@ export const utkastFraKomet: AktivDeltakelse[] = [
   },
   {
     deltakerId: window.crypto.randomUUID(),
-    innsoktDato: "03.02.2024",
-    sistEndretdato: "27.02.2024",
+    innsoktDato: "2024-03-02",
+    sistEndretdato: "2024-03-27",
     aktivStatus: AktivDeltakelse.aktivStatus.KLADD,
     tiltakstype: {
       navn: "Avklaring",
@@ -28,8 +28,8 @@ export const utkastFraKomet: AktivDeltakelse[] = [
 export const historikkFraKomet: HistorikkForBrukerV2[] = [
   {
     periode: {
-      startdato: "10.05.2023",
-      sluttdato: "12.12.2023",
+      startdato: "2023-05-10",
+      sluttdato: "2023-12-12",
     },
     beskrivelse: null,
     tittel: "Oppfølging hos Muligheter AS",
@@ -41,12 +41,12 @@ export const historikkFraKomet: HistorikkForBrukerV2[] = [
     historiskStatus: {
       historiskStatusType: HistorikkForBrukerV2.historiskStatusType.HAR_SLUTTET,
     },
-    innsoktDato: "03.02.2024",
+    innsoktDato: "2024-03-02",
   },
   {
     periode: {
-      startdato: "01.01.2024",
-      sluttdato: "01.02.2024",
+      startdato: "2023-01.01",
+      sluttdato: "2024-02-01",
     },
     tittel: "Avklaring med Anne",
     tiltakstype: {
@@ -59,12 +59,12 @@ export const historikkFraKomet: HistorikkForBrukerV2[] = [
     },
 
     beskrivelse: "Dårlig stemning mellom mentor og bruker",
-    innsoktDato: "03.02.2024",
+    innsoktDato: "2024-02-03",
   },
   {
     periode: {
-      startdato: "01.01.2024",
-      sluttdato: "01.06.2025",
+      startdato: "2024-01-01",
+      sluttdato: "2025-06-01",
     },
     beskrivelse: null,
     tittel: "Jobbklubb - Oslo",
@@ -77,6 +77,6 @@ export const historikkFraKomet: HistorikkForBrukerV2[] = [
       historiskStatusType: HistorikkForBrukerV2.historiskStatusType.IKKE_AKTUELL,
     },
 
-    innsoktDato: "03.02.2024",
+    innsoktDato: "2024-02-03",
   },
 ];
