@@ -7,7 +7,7 @@ import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
 import { useFeatureToggle } from "@/api/features/feature-toggles";
 import {
   ENDRINGSMELDINGER_URL,
-  LOGOUT_URL,
+  LOGOUT_AND_SELECT_ACCOUNT_URL,
   PREVIEW_ARBEIDSMARKEDSTILTAK_URL,
   SANITY_STUDIO_URL,
 } from "../../constants";
@@ -115,7 +115,7 @@ export function AdministratorHeader() {
               <Dropdown.Menu.Divider />
               <Dropdown.Menu.List>
                 <Dropdown.Menu.List.Item as="span" onClick={() => logoutLinkRef.current?.click()}>
-                  <a ref={logoutLinkRef} href={LOGOUT_URL}>
+                  <a ref={logoutLinkRef} href={LOGOUT_AND_SELECT_ACCOUNT_URL}>
                     Logg ut
                   </a>
                 </Dropdown.Menu.List.Item>

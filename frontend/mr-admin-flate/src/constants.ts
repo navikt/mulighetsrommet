@@ -19,6 +19,6 @@ export const SANITY_STUDIO_URL = isProduction
 
 export const PORTEN_URL = "https://jira.adeo.no/plugins/servlet/desk/portal/541/create/4665";
 
-export const LOGOUT_URL = isProduction
-  ? "https://tiltaksadministrasjon.intern.nav.no/oauth2/logout"
-  : "https://tiltaksadministrasjon.intern.dev.nav.no/oauth2/logout";
+export const LOGOUT_AND_SELECT_ACCOUNT_URL = isProduction
+  ? "https://tiltaksadministrasjon.intern.nav.no/oauth2/login?prompt=select_account" // Ja, det skal være login, og ikke logout
+  : "https://tiltaksadministrasjon.intern.dev.nav.no/oauth2/login?prompt=select_account"; // Ja, det skal være login, og ikke logout;
