@@ -9,6 +9,7 @@ import no.nav.mulighetsrommet.api.domain.dbo.AvtaleDbo
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.api.domain.dto.AvtaleAdminDto
 import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingAdminDto
+import no.nav.mulighetsrommet.api.repositories.ArrangorRepository
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.routes.v1.responses.ValidationError
 import no.nav.mulighetsrommet.api.services.TiltakstypeService
@@ -23,6 +24,7 @@ import no.nav.mulighetsrommet.domain.dto.TiltakstypeAdminDto
 class TiltaksgjennomforingValidator(
     private val tiltakstyper: TiltakstypeService,
     private val avtaler: AvtaleRepository,
+    private val arrangorer: ArrangorRepository,
 ) {
     fun validate(
         dbo: TiltaksgjennomforingDbo,
@@ -134,6 +136,16 @@ class TiltaksgjennomforingValidator(
         gjennomforing: TiltaksgjennomforingDbo,
         avtale: AvtaleAdminDto,
     ) {
+        val arrangor = arrangorer.getById(gjennomforing.arrangorId)
+        if (arrangor.slettetDato != null) {
+            add(
+                ValidationError.of(
+                    TiltaksgjennomforingDbo::arrangorId,
+                    "Arrangøren ${arrangor.navn} er slettet i Brønnøysundregistrene. Gjennomføringer kan ikke opprettes for slettede bedrifter.",
+                ),
+            )
+        }
+
         if (gjennomforing.startDato.isBefore(avtale.startDato)) {
             add(
                 ValidationError.of(
@@ -142,6 +154,7 @@ class TiltaksgjennomforingValidator(
                 ),
             )
         }
+
         if (avtale.avtalestatus != Avtalestatus.AKTIV) {
             add(
                 ValidationError.of(

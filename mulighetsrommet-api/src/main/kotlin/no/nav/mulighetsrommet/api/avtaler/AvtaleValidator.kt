@@ -84,7 +84,9 @@ class AvtaleValidator(
 
             validateNavEnheter(avtale.navEnheter)
 
-            if (currentAvtale != null) {
+            if (currentAvtale == null) {
+                validateCreateAvtale(avtale)
+            } else {
                 validateUpdateAvtale(avtale, currentAvtale, tiltakstype)
             }
         }
@@ -92,11 +94,50 @@ class AvtaleValidator(
         return errors.takeIf { it.isNotEmpty() }?.left() ?: avtale.right()
     }
 
+    private fun MutableList<ValidationError>.validateCreateAvtale(
+        avtale: AvtaleDbo,
+    ) {
+        val hovedenhet = arrangorer.getById(avtale.arrangorId)
+
+        if (hovedenhet.slettetDato != null) {
+            add(
+                ValidationError.of(
+                    AvtaleDbo::arrangorId,
+                    "Arrangøren ${hovedenhet.navn} er slettet i Brønnøysundregistrene. Avtaler kan ikke opprettes for slettede bedrifter.",
+                ),
+            )
+        }
+
+        avtale.arrangorUnderenheter.forEach { underenhetId ->
+            val underenhet = arrangorer.getById(underenhetId)
+
+            if (underenhet.slettetDato != null) {
+                add(
+                    ValidationError.of(
+                        AvtaleDbo::arrangorUnderenheter,
+                        "Arrangøren ${underenhet.navn} er slettet i Brønnøysundregistrene. Avtaler kan ikke opprettes for slettede bedrifter.",
+                    ),
+                )
+            }
+
+            if (underenhet.overordnetEnhet != hovedenhet.organisasjonsnummer) {
+                add(
+                    ValidationError.of(
+                        AvtaleDbo::arrangorUnderenheter,
+                        "Arrangøren ${underenhet.navn} er ikke en gyldig underenhet til hovedenheten ${hovedenhet.navn}.",
+                    ),
+                )
+            }
+        }
+    }
+
     private fun MutableList<ValidationError>.validateUpdateAvtale(
         avtale: AvtaleDbo,
         currentAvtale: AvtaleAdminDto,
         tiltakstype: TiltakstypeAdminDto,
     ) {
+        val (numGjennomforinger, gjennomforinger) = tiltaksgjennomforinger.getAll(avtaleId = avtale.id)
+
         /**
          * Når avtalen har blitt godkjent så skal alle datafelter som påvirker økonomien, påmelding, osv. være låst.
          *
@@ -104,7 +145,6 @@ class AvtaleValidator(
          * så reglene for når en avtale er låst er foreløpig ganske naive og baserer seg kun på om det finnes
          * gjennomføringer på avtalen eller ikke...
          */
-            val (numGjennomforinger, gjennomforinger) = tiltaksgjennomforinger.getAll(avtaleId = avtale.id)
         if (numGjennomforinger > 0) {
             if (avtale.tiltakstypeId != currentAvtale.tiltakstype.id) {
                 add(

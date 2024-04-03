@@ -29,12 +29,6 @@ import java.util.*
 class AvtaleValidatorTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
 
-    lateinit var navEnheterService: NavEnhetService
-    lateinit var tiltakstyper: TiltakstypeService
-    lateinit var avtaler: AvtaleRepository
-    lateinit var gjennomforinger: TiltaksgjennomforingRepository
-    lateinit var arrangorer: ArrangorRepository
-
     val domain = MulighetsrommetTestDomain(
         enheter = listOf(
             NavEnhetDbo(
@@ -64,6 +58,8 @@ class AvtaleValidatorTest : FunSpec({
             ArrangorFixtures.hovedenhet,
             ArrangorFixtures.underenhet1,
             ArrangorFixtures.underenhet2,
+            ArrangorFixtures.Fretex.hovedenhet,
+            ArrangorFixtures.Fretex.underenhet1,
         ),
         tiltakstyper = listOf(
             TiltakstypeFixtures.AFT,
@@ -96,6 +92,12 @@ class AvtaleValidatorTest : FunSpec({
         beskrivelse = null,
         faneinnhold = null,
     )
+
+    lateinit var navEnheterService: NavEnhetService
+    lateinit var tiltakstyper: TiltakstypeService
+    lateinit var avtaler: AvtaleRepository
+    lateinit var gjennomforinger: TiltaksgjennomforingRepository
+    lateinit var arrangorer: ArrangorRepository
 
     beforeEach {
         domain.initialize(database.db)
@@ -247,10 +249,20 @@ class AvtaleValidatorTest : FunSpec({
         val oppfolging = AvtaleFixtures.oppfolging.copy(avtaletype = Avtaletype.OffentligOffentlig)
         val gruppeAmo = AvtaleFixtures.gruppeAmo.copy(avtaletype = Avtaletype.Forhaandsgodkjent)
         validator.validate(aft, null).shouldBeLeft(
-            listOf(ValidationError("avtaletype", "Rammeavtale er ikke tillatt for tiltakstype Arbeidsforberedende trening (AFT)")),
+            listOf(
+                ValidationError(
+                    "avtaletype",
+                    "Rammeavtale er ikke tillatt for tiltakstype Arbeidsforberedende trening (AFT)",
+                ),
+            ),
         )
         validator.validate(vta, null).shouldBeLeft(
-            listOf(ValidationError("avtaletype", "Avtale er ikke tillatt for tiltakstype Varig tilrettelagt arbeid i skjermet virksomhet")),
+            listOf(
+                ValidationError(
+                    "avtaletype",
+                    "Avtale er ikke tillatt for tiltakstype Varig tilrettelagt arbeid i skjermet virksomhet",
+                ),
+            ),
         )
         validator.validate(oppfolging, null).shouldBeLeft(
             listOf(ValidationError("avtaletype", "OffentligOffentlig er ikke tillatt for tiltakstype Oppfølging")),
@@ -287,8 +299,54 @@ class AvtaleValidatorTest : FunSpec({
             listOf(ValidationError("url", "Avtalen må lenke til Websak")),
         )
 
-        val offentligOffentligSamarbeid = AvtaleFixtures.gruppeAmo.copy(avtaletype = Avtaletype.OffentligOffentlig, url = null)
+        val offentligOffentligSamarbeid =
+            AvtaleFixtures.gruppeAmo.copy(avtaletype = Avtaletype.OffentligOffentlig, url = null)
         validator.validate(offentligOffentligSamarbeid, null).shouldBeRight()
+    }
+
+    test("arrangørens underenheter må tilhøre hovedenhet i Brreg") {
+        val validator = AvtaleValidator(tiltakstyper, gjennomforinger, navEnheterService, arrangorer)
+
+        val avtale1 = AvtaleFixtures.oppfolging.copy(
+            arrangorId = ArrangorFixtures.Fretex.hovedenhet.id,
+            arrangorUnderenheter = listOf(ArrangorFixtures.underenhet1.id),
+        )
+
+        validator.validate(avtale1, null).shouldBeLeft().shouldContainExactlyInAnyOrder(
+            ValidationError(
+                "arrangorUnderenheter",
+                "Arrangøren Underenhet 1 AS er ikke en gyldig underenhet til hovedenheten FRETEX AS.",
+            ),
+        )
+
+        val avtale2 = AvtaleFixtures.oppfolging.copy(
+            arrangorId = ArrangorFixtures.Fretex.hovedenhet.id,
+            arrangorUnderenheter = listOf(ArrangorFixtures.Fretex.underenhet1.id),
+        )
+        validator.validate(avtale2, null).shouldBeRight()
+    }
+
+    test("arrangøren må være aktiv i Brreg") {
+        arrangorer.upsert(ArrangorFixtures.Fretex.hovedenhet.copy(slettetDato = LocalDate.of(2024, 1, 1)))
+        arrangorer.upsert(ArrangorFixtures.Fretex.underenhet1.copy(slettetDato = LocalDate.of(2024, 1, 1)))
+
+        val validator = AvtaleValidator(tiltakstyper, gjennomforinger, navEnheterService, arrangorer)
+
+        val avtale1 = AvtaleFixtures.oppfolging.copy(
+            arrangorId = ArrangorFixtures.Fretex.hovedenhet.id,
+            arrangorUnderenheter = listOf(ArrangorFixtures.Fretex.underenhet1.id),
+        )
+
+        validator.validate(avtale1, null).shouldBeLeft().shouldContainExactlyInAnyOrder(
+            ValidationError(
+                "arrangorId",
+                "Arrangøren FRETEX AS er slettet i Brønnøysundregistrene. Avtaler kan ikke opprettes for slettede bedrifter.",
+            ),
+            ValidationError(
+                "arrangorUnderenheter",
+                "Arrangøren FRETEX AS AVD OSLO er slettet i Brønnøysundregistrene. Avtaler kan ikke opprettes for slettede bedrifter.",
+            ),
+        )
     }
 
     context("når avtalen allerede eksisterer") {
@@ -317,7 +375,10 @@ class AvtaleValidatorTest : FunSpec({
             avtaler.setOpphav(avtaleDbo.id, ArenaMigrering.Opphav.ARENA)
 
             val validator = AvtaleValidator(
-                TiltakstypeService(TiltakstypeRepository(database.db), listOf(Tiltakskode.OPPFOLGING, Tiltakskode.ARBEIDSFORBEREDENDE_TRENING)),
+                TiltakstypeService(
+                    TiltakstypeRepository(database.db),
+                    listOf(Tiltakskode.OPPFOLGING, Tiltakskode.ARBEIDSFORBEREDENDE_TRENING),
+                ),
                 gjennomforinger,
                 navEnheterService,
                 arrangorer,
@@ -355,13 +416,11 @@ class AvtaleValidatorTest : FunSpec({
 
             val previous = avtaler.get(avtaleDbo.id)
             validator.validate(avtaleMedEndringer, previous).shouldBeLeft().shouldContainExactlyInAnyOrder(
-                listOf(
-                    ValidationError("navn", "Navn kan ikke endres utenfor Arena"),
-                    ValidationError("startDato", "Startdato kan ikke endres utenfor Arena"),
-                    ValidationError("sluttDato", "Sluttdato kan ikke endres utenfor Arena"),
-                    ValidationError("avtaletype", "Avtaletype kan ikke endres utenfor Arena"),
-                    ValidationError("arrangorId", "Tiltaksarrangøren kan ikke endres utenfor Arena"),
-                ),
+                ValidationError("navn", "Navn kan ikke endres utenfor Arena"),
+                ValidationError("startDato", "Startdato kan ikke endres utenfor Arena"),
+                ValidationError("sluttDato", "Sluttdato kan ikke endres utenfor Arena"),
+                ValidationError("avtaletype", "Avtaletype kan ikke endres utenfor Arena"),
+                ValidationError("arrangorId", "Tiltaksarrangøren kan ikke endres utenfor Arena"),
             )
         }
 
@@ -387,7 +446,10 @@ class AvtaleValidatorTest : FunSpec({
 
             test("skal validere at data samsvarer med avtalens gjennomføringer") {
                 val validator = AvtaleValidator(
-                    TiltakstypeService(TiltakstypeRepository(database.db), listOf(Tiltakskode.OPPFOLGING, Tiltakskode.ARBEIDSFORBEREDENDE_TRENING)),
+                    TiltakstypeService(
+                        TiltakstypeRepository(database.db),
+                        listOf(Tiltakskode.OPPFOLGING, Tiltakskode.ARBEIDSFORBEREDENDE_TRENING),
+                    ),
                     gjennomforinger,
                     navEnheterService,
                     arrangorer,
