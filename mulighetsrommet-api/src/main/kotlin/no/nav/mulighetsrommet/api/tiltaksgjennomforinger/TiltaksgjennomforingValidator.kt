@@ -166,6 +166,15 @@ class TiltaksgjennomforingValidator(
             )
         }
 
+        if (gjennomforing.arrangorId != previous.arrangor.id) {
+            add(
+                ValidationError.of(
+                    TiltaksgjennomforingDbo::arrangorId,
+                    "Arrangøren kan ikke endres når gjennomføringen er aktiv",
+                ),
+            )
+        }
+
         if (previous.status == GJENNOMFORES) {
             if (gjennomforing.avtaleId != previous.avtaleId) {
                 add(
@@ -193,15 +202,6 @@ class TiltaksgjennomforingValidator(
                     ValidationError.of(
                         TiltaksgjennomforingDbo::sluttDato,
                         "Sluttdato kan ikke endres bakover i tid når gjennomføringen er aktiv",
-                    ),
-                )
-            }
-
-            if (gjennomforing.arrangorId != previous.arrangor.id) {
-                add(
-                    ValidationError.of(
-                        TiltaksgjennomforingDbo::arrangorId,
-                        "Arrangøren kan ikke endres når gjennomføringen er aktiv",
                     ),
                 )
             }

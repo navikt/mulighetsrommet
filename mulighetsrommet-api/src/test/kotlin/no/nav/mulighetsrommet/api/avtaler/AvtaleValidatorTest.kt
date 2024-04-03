@@ -127,7 +127,7 @@ class AvtaleValidatorTest : FunSpec({
         )
     }
 
-    test("skal ikke feile når når tiltakstypen er AFT, VTA, eller aktivert") {
+    test("skal ikke feile når tiltakstypen er AFT, VTA, eller aktivert") {
         tiltakstyper = TiltakstypeService(TiltakstypeRepository(database.db), listOf(Tiltakskode.OPPFOLGING))
         val validator = AvtaleValidator(tiltakstyper, gjennomforinger, navEnheterService, arrangorer)
 
