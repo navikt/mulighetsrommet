@@ -15,6 +15,31 @@ function erUtkast(
   return (deltakelse as Partial<AktivDeltakelse>).aktivStatus !== undefined;
 }
 
+function skalViseSistEndretDato(
+  deltakelse: Partial<AktivDeltakelse> | Partial<HistorikkForBrukerV2>,
+): boolean {
+  if (erUtkast(deltakelse)) {
+    return (
+      !!deltakelse?.aktivStatus &&
+      [
+        AktivDeltakelse.aktivStatus.KLADD,
+        AktivDeltakelse.aktivStatus.UTKAST_TIL_PAMELDING,
+      ].includes(deltakelse.aktivStatus)
+    );
+  }
+
+  if (erHistorisk(deltakelse)) {
+    return (
+      !!deltakelse?.historiskStatus &&
+      [HistorikkForBrukerV2.historiskStatusType.AVBRUTT_UTKAST].includes(
+        deltakelse.historiskStatus.historiskStatusType,
+      )
+    );
+  }
+
+  return false;
+}
+
 function erHistorisk(
   deltakelse: Partial<HistorikkForBrukerV2>,
 ): deltakelse is Partial<HistorikkForBrukerV2> {
@@ -60,15 +85,13 @@ export function DeltakelseKort({ deltakelse }: Props) {
           {erHistorisk(deltakelse) && deltakelse.beskrivelse ? (
             <BodyShort size="small">Årsak: {deltakelse.beskrivelse}</BodyShort>
           ) : null}
-          {erHistorisk(deltakelse) &&
-          deltakelse.periode?.startdato &&
-          deltakelse.periode.sluttdato ? (
+          {deltakelse.periode?.startdato && deltakelse.periode.sluttdato ? (
             <BodyShort size="small">
               {formaterDato(deltakelse.periode.startdato)} -{" "}
               {formaterDato(deltakelse.periode.sluttdato)}
             </BodyShort>
           ) : null}
-          {erUtkast(deltakelse) && deltakelse.sistEndretdato ? (
+          {skalViseSistEndretDato(deltakelse) && deltakelse.sistEndretdato ? (
             <span>Sist endret: {formaterDato(deltakelse.sistEndretdato)}</span>
           ) : null}
         </HStack>

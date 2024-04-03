@@ -2512,6 +2512,16 @@ components:
           type: string
         tiltakstype:
           $ref: "#/components/schemas/Gruppetiltak"
+        periode:
+          type: object
+          properties:
+            startdato:
+              type: string
+              nullable: true
+            sluttdato:
+              type: string
+              nullable: true
+          nullable: true
       required:
         - deltakerId
         - innsoktDato
@@ -2527,6 +2537,8 @@ components:
           type: string
           format: uuid
         innsoktDato:
+          type: string
+        sistEndretdato:
           type: string
         periode:
           type: object
