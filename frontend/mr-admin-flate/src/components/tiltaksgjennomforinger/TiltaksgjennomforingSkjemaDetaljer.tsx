@@ -14,6 +14,7 @@ import {
   Avtale,
   Tiltaksgjennomforing,
   TiltaksgjennomforingKontaktperson,
+  TiltaksgjennomforingOppstartstype,
   TiltakskodeArena,
 } from "mulighetsrommet-api-client";
 import { ControlledSokeSelect } from "mulighetsrommet-frontend-common";
@@ -241,43 +242,50 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
                 />
               )}
             </HGrid>
-            <Separator />
-            <fieldset className={skjemastyles.fieldset_no_styling}>
-              <HStack gap="1">
-                <legend>Estimert ventetid</legend>
-                <HelpText title="Hva er estimert ventetid?">
-                  Estimert ventetid er et felt som kan brukes hvis dere sitter på informasjon om
-                  estimert ventetid for tiltaket. Hvis dere legger inn en verdi i feltene her blir
-                  det synlig for alle ansatte i NAV.
-                </HelpText>
-              </HStack>
-              <Switch checked={watch("visEstimertVentetid")} {...register("visEstimertVentetid")}>
-                Registrer estimert ventetid
-              </Switch>
-              {watch("visEstimertVentetid") ? (
-                <HStack align="start" justify="start" gap="10">
-                  <TextField
-                    size="small"
-                    type="number"
-                    min={0}
-                    label="Antall"
-                    error={errors.estimertVentetid?.verdi?.message as string}
-                    {...register("estimertVentetid.verdi", {
-                      valueAsNumber: true,
-                    })}
-                  />
-                  <Select
-                    size="small"
-                    label="Måleenhet"
-                    error={errors.estimertVentetid?.enhet?.message as string}
-                    {...register("estimertVentetid.enhet")}
+            {watch("oppstart") === TiltaksgjennomforingOppstartstype.LOPENDE ? (
+              <>
+                <Separator />
+                <fieldset className={skjemastyles.fieldset_no_styling}>
+                  <HStack gap="1">
+                    <legend>Estimert ventetid</legend>
+                    <HelpText title="Hva er estimert ventetid?">
+                      Estimert ventetid er et felt som kan brukes hvis dere sitter på informasjon om
+                      estimert ventetid for tiltaket. Hvis dere legger inn en verdi i feltene her
+                      blir det synlig for alle ansatte i NAV.
+                    </HelpText>
+                  </HStack>
+                  <Switch
+                    checked={watch("visEstimertVentetid")}
+                    {...register("visEstimertVentetid")}
                   >
-                    <option value="uke">Uker</option>
-                    <option value="maned">Måneder</option>
-                  </Select>
-                </HStack>
-              ) : null}
-            </fieldset>
+                    Registrer estimert ventetid
+                  </Switch>
+                  {watch("visEstimertVentetid") ? (
+                    <HStack align="start" justify="start" gap="10">
+                      <TextField
+                        size="small"
+                        type="number"
+                        min={0}
+                        label="Antall"
+                        error={errors.estimertVentetid?.verdi?.message as string}
+                        {...register("estimertVentetid.verdi", {
+                          valueAsNumber: true,
+                        })}
+                      />
+                      <Select
+                        size="small"
+                        label="Måleenhet"
+                        error={errors.estimertVentetid?.enhet?.message as string}
+                        {...register("estimertVentetid.enhet")}
+                      >
+                        <option value="uke">Uker</option>
+                        <option value="maned">Måneder</option>
+                      </Select>
+                    </HStack>
+                  ) : null}
+                </fieldset>
+              </>
+            ) : null}
           </FormGroup>
           <Separator />
           <FormGroup>
