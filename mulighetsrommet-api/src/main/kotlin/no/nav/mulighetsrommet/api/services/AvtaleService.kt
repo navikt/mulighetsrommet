@@ -20,7 +20,6 @@ import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering.Opphav
-import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dto.Avtalestatus
 import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus
@@ -58,7 +57,7 @@ class AvtaleService(
                         tiltakstypeId = tiltakstypeId,
                         arrangorId = arrangor.id,
                         arrangorUnderenheter = underenheter.map { it.id },
-                        arrangorKontaktpersonId = arrangorKontaktpersonId,
+                        arrangorKontaktpersoner = arrangorKontaktpersoner,
                         startDato = startDato,
                         sluttDato = sluttDato,
                         avtaletype = avtaletype,

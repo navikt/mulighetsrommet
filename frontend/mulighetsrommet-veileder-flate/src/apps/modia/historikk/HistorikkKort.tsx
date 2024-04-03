@@ -17,7 +17,7 @@ export function HistorikkKort({ historikk }: Props) {
   });
 
   return (
-    <LinkPanel onClick={deltakelseRoute.navigate} className={styles.panel}>
+    <LinkPanel as="button" onClick={deltakelseRoute.navigate} className={styles.panel}>
       <VStack gap="2">
         <HStack gap="10">
           <small>{tiltakstype.navn.toUpperCase()}</small>

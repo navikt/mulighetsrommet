@@ -1,6 +1,5 @@
 package no.nav.mulighetsrommet.domain.dto
 
-import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import java.time.LocalDate
 import java.time.LocalDateTime
 

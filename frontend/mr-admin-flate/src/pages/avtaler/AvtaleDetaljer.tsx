@@ -227,15 +227,21 @@ export function AvtaleDetaljer() {
         </Bolk>
 
         <Separator />
-
-        {arrangor.kontaktperson ? (
-          <Bolk aria-label={avtaletekster.kontaktpersonHosTiltaksarrangorLabel}>
-            <Metadata
-              header={avtaletekster.kontaktpersonHosTiltaksarrangorLabel}
-              verdi={<ArrangorKontaktpersonDetaljer kontaktperson={arrangor.kontaktperson} />}
-            />
-          </Bolk>
-        ) : null}
+        {arrangor.kontaktpersoner.length > 0 && (
+          <Metadata
+            header={avtaletekster.kontaktpersonerHosTiltaksarrangorLabel}
+            verdi={
+              <div className={styles.arrangor_kontaktinfo_container}>
+                {arrangor.kontaktpersoner.map((kontaktperson) => (
+                  <ArrangorKontaktpersonDetaljer
+                    key={kontaktperson.id}
+                    kontaktperson={kontaktperson}
+                  />
+                ))}
+              </div>
+            }
+          />
+        )}
       </div>
     </div>
   );

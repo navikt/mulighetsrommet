@@ -1,9 +1,11 @@
 import { ApentForInnsok, Innsatsgruppe, NavEnhet } from "mulighetsrommet-api-client";
 import { atomWithStorage, createJSONStorage } from "jotai/utils";
 import { useAtom, useAtomValue } from "jotai";
+import { unstable_withStorageValidator as withStorageValidator } from "jotai/utils";
 import { SyncStorage } from "jotai/vanilla/utils/atomWithStorage";
 import { useHentBrukerdata } from "@/apps/modia/hooks/useHentBrukerdata";
 import { brukersEnhetFilterHasChanged } from "@/apps/modia/delMedBruker/helpers";
+import { z } from "zod";
 
 export interface ArbeidsmarkedstiltakFilter {
   search: string;
@@ -84,10 +86,11 @@ export function useResetArbeidsmarkedstiltakFilterUtenBrukerIKontekst() {
   };
 }
 
-export interface FilterMedBrukerIKontekst {
-  brukerIKontekst: string | null;
-  filter: ArbeidsmarkedstiltakFilter;
-}
+const filterMedBrukerIKontekstSchema = z.object({
+  brukerIKontekst: z.string().nullable(),
+  filter: z.custom<ArbeidsmarkedstiltakFilter>(),
+});
+export type FilterMedBrukerIKontekst = z.infer<typeof filterMedBrukerIKontekstSchema>;
 
 export function getDefaultFilterForBrukerIKontekst(
   brukerIKontekst: string | null,
@@ -107,8 +110,12 @@ export function getDefaultFilterForBrukerIKontekst(
     : defaultFilterForBrukerIKontekst;
 }
 
-const filterStorage: SyncStorage<FilterMedBrukerIKontekst> = createJSONStorage(
-  () => sessionStorage,
+const filterValidator = (v: unknown): v is FilterMedBrukerIKontekst => {
+  return Boolean(filterMedBrukerIKontekstSchema.safeParse(v).success);
+};
+
+const filterStorage: SyncStorage<FilterMedBrukerIKontekst> = withStorageValidator(filterValidator)(
+  createJSONStorage(() => sessionStorage),
 );
 
 const ARBEIDSMARKEDSTILTAK_FILTER_KEY = "arbeidsmarkedstiltak-filter";

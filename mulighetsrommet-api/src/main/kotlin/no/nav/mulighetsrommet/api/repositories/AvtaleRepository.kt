@@ -42,7 +42,6 @@ class AvtaleRepository(private val db: Database) {
                                tiltakstype_id,
                                avtalenummer,
                                arrangor_hovedenhet_id,
-                               arrangor_kontaktperson_id,
                                start_dato,
                                slutt_dato,
                                avtaletype,
@@ -57,7 +56,6 @@ class AvtaleRepository(private val db: Database) {
                     :tiltakstype_id::uuid,
                     :avtalenummer,
                     :arrangor_hovedenhet_id,
-                    :arrangor_kontaktperson_id,
                     :start_dato,
                     :slutt_dato,
                     :avtaletype::avtaletype,
@@ -71,7 +69,6 @@ class AvtaleRepository(private val db: Database) {
                                            tiltakstype_id              = excluded.tiltakstype_id,
                                            avtalenummer                = excluded.avtalenummer,
                                            arrangor_hovedenhet_id      = excluded.arrangor_hovedenhet_id,
-                                           arrangor_kontaktperson_id   = excluded.arrangor_kontaktperson_id,
                                            start_dato                  = excluded.start_dato,
                                            slutt_dato                  = excluded.slutt_dato,
                                            avtaletype                  = excluded.avtaletype,
@@ -115,6 +112,22 @@ class AvtaleRepository(private val db: Database) {
              where avtale_id = ?::uuid and not (arrangor_id = any (?))
         """.trimIndent()
 
+        @Language("PostgreSQL")
+        val upsertArrangorKontaktperson = """
+            insert into avtale_arrangor_kontaktperson (
+                arrangor_kontaktperson_id,
+                avtale_id
+            )
+            values (:arrangor_kontaktperson_id::uuid, :avtale_id::uuid)
+            on conflict do nothing
+        """.trimIndent()
+
+        @Language("PostgreSQL")
+        val deleteArrangorKontaktpersoner = """
+            delete from avtale_arrangor_kontaktperson
+            where avtale_id = ?::uuid and not (arrangor_kontaktperson_id = any (?))
+        """.trimIndent()
+
         tx.run(queryOf(query, avtale.toSqlParameters()).asExecute)
 
         avtale.administratorer.forEach { administrator ->
@@ -154,6 +167,26 @@ class AvtaleRepository(private val db: Database) {
             avtale.id,
             db.createUuidArray(avtale.arrangorUnderenheter),
         ).asExecute.let { tx.run(it) }
+
+        avtale.arrangorKontaktpersoner.forEach { person ->
+            tx.run(
+                queryOf(
+                    upsertArrangorKontaktperson,
+                    mapOf(
+                        "avtale_id" to avtale.id,
+                        "arrangor_kontaktperson_id" to person,
+                    ),
+                ).asExecute,
+            )
+        }
+
+        tx.run(
+            queryOf(
+                deleteArrangorKontaktpersoner,
+                avtale.id,
+                db.createUuidArray(avtale.arrangorKontaktpersoner),
+            ).asExecute,
+        )
     }
 
     fun upsertArenaAvtale(avtale: ArenaAvtaleDbo): Unit = db.transaction {
@@ -392,7 +425,6 @@ class AvtaleRepository(private val db: Database) {
         "tiltakstype_id" to tiltakstypeId,
         "avtalenummer" to avtalenummer,
         "arrangor_hovedenhet_id" to arrangorId,
-        "arrangor_kontaktperson_id" to arrangorKontaktpersonId,
         "start_dato" to startDato,
         "slutt_dato" to sluttDato,
         "avtaletype" to avtaletype.name,
@@ -433,7 +465,9 @@ class AvtaleRepository(private val db: Database) {
         val administratorer = Json
             .decodeFromString<List<AvtaleAdminDto.Administrator?>>(string("administratorer_json"))
             .filterNotNull()
-
+        val arrangorKontaktpersoner = Json
+            .decodeFromString<List<ArrangorKontaktperson?>>(string("arrangor_kontaktpersoner_json"))
+            .filterNotNull()
         val navEnheter = stringOrNull("nav_enheter_json")
             ?.let { Json.decodeFromString<List<NavEnhetDbo?>>(it).filterNotNull() }
             ?: emptyList()
@@ -472,16 +506,7 @@ class AvtaleRepository(private val db: Database) {
                 navn = string("arrangor_hovedenhet_navn"),
                 slettet = boolean("arrangor_hovedenhet_slettet"),
                 underenheter = underenheter,
-                kontaktperson = uuidOrNull("arrangor_hovedenhet_kontaktperson_id")?.let {
-                    ArrangorKontaktperson(
-                        id = it,
-                        arrangorId = uuid("arrangor_hovedenhet_kontaktperson_arrangor_id"),
-                        navn = string("arrangor_hovedenhet_kontaktperson_navn"),
-                        telefon = stringOrNull("arrangor_hovedenhet_kontaktperson_telefon"),
-                        epost = string("arrangor_hovedenhet_kontaktperson_epost"),
-                        beskrivelse = stringOrNull("arrangor_hovedenhet_kontaktperson_beskrivelse"),
-                    )
-                },
+                kontaktpersoner = arrangorKontaktpersoner,
             ),
             arenaAnsvarligEnhet = stringOrNull("arena_nav_enhet_enhetsnummer")?.let {
                 ArenaNavEnhet(
