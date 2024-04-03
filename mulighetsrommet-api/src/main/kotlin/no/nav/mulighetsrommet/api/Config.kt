@@ -96,7 +96,6 @@ data class TaskConfig(
     val notifySluttdatoForGjennomforingerNarmerSeg: NotifySluttdatoForGjennomforingerNarmerSeg.Config,
     val notifySluttdatoForAvtalerNarmerSeg: NotifySluttdatoForAvtalerNarmerSeg.Config,
     val notifyFailedKafkaEvents: NotifyFailedKafkaEvents.Config,
-    val oppdaterMetrikker: OppdaterMetrikker.Config,
     val generateValidationReport: GenerateValidationReport.Config = GenerateValidationReport.Config(),
     val updateApentForInnsok: UpdateApentForInnsok.Config = UpdateApentForInnsok.Config(),
 )
