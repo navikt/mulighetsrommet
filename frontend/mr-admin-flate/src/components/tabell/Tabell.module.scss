@@ -14,6 +14,14 @@
 
   .tabell {
     background-color: var(--a-white);
+
+    :global(.navds-table__header) {
+      position: sticky;
+      //      top: 10rem;
+      z-index: 1;
+      background-color: var(--a-white);
+      //      border: 1px solid var(--a-gray-300);
+    }
   }
 
   .title {

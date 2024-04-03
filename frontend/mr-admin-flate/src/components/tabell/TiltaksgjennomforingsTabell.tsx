@@ -96,7 +96,11 @@ export const TiltaksgjennomforingsTabell = ({
             className={styles.tabell}
             data-testid="tiltaksgjennomforing-tabell"
           >
-            <Table.Header>
+            <Table.Header
+              style={{
+                top: `calc(${tagsHeight}px + 7.4rem)`,
+              }}
+            >
               <Table.Row>
                 {headers
                   .filter((header) => {

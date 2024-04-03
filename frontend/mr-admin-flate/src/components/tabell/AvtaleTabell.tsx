@@ -153,7 +153,11 @@ export const AvtaleTabell = ({ filterAtom, tagsHeight, filterOpen }: Props) => {
             onSortChange={(sortKey) => handleSort(sortKey!)}
             className={styles.tabell}
           >
-            <Table.Header>
+            <Table.Header
+              style={{
+                top: `calc(${tagsHeight}px + 7.4rem)`,
+              }}
+            >
               <Table.Row className={styles.avtale_tabellrad}>
                 {headers.map((header) => (
                   <Table.ColumnHeader
