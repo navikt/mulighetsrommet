@@ -174,7 +174,6 @@ private fun repositories() = module {
     single { NavAnsattRepository(get()) }
     single { ArrangorRepository(get()) }
     single { KafkaConsumerRepositoryImpl(get()) }
-    single { MetrikkRepository(get()) }
     single { AvtaleNotatRepository(get()) }
     single { TiltaksgjennomforingNotatRepository(get()) }
     single { VeilederJoyrideRepository(get()) }
@@ -344,7 +343,6 @@ private fun services(appConfig: AppConfig) = module {
     single { NotificationService(get(), get(), get()) }
     single { ArrangorService(get(), get()) }
     single { ExcelService() }
-    single { MetrikkService(get()) }
     single { NotatService(get(), get()) }
     single {
         val byEnhetStrategy = ByEnhetStrategy(get())
@@ -396,7 +394,6 @@ private fun tasks(config: TaskConfig) = module {
             get(),
         )
         val updateApentForInnsok = UpdateApentForInnsok(config.updateApentForInnsok, get(), get())
-        val oppdaterMetrikker = OppdaterMetrikker(config.oppdaterMetrikker, get(), get())
         val notificationService: NotificationService by inject()
         val generateValidationReport: GenerateValidationReport by inject()
         val initialLoadTiltaksgjennomforinger: InitialLoadTiltaksgjennomforinger by inject()
@@ -422,7 +419,6 @@ private fun tasks(config: TaskConfig) = module {
                 notifySluttdatoForGjennomforingerNarmerSeg.task,
                 notifySluttdatoForAvtalerNarmerSeg.task,
                 notifyFailedKafkaEvents.task,
-                oppdaterMetrikker.task,
                 updateApentForInnsok.task,
             )
             .serializer(DbSchedulerKotlinSerializer())
