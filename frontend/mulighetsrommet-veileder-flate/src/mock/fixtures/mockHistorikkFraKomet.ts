@@ -5,6 +5,17 @@ export const utkastFraKomet: AktivDeltakelse[] = [
     deltakerId: window.crypto.randomUUID(),
     innsoktDato: "2024-02-01",
     sistEndretdato: "2024-03-27",
+    aktivStatus: AktivDeltakelse.aktivStatus.UTKAST_TIL_PAMELDING,
+    tiltakstype: {
+      navn: "Avklaring",
+      tiltakskode: Gruppetiltak.tiltakskode.AVKLARAG,
+    },
+    tittel: "Avklaring hos Fretex AS",
+  },
+  {
+    deltakerId: window.crypto.randomUUID(),
+    innsoktDato: "2024-02-01",
+    sistEndretdato: "2024-03-27",
     aktivStatus: AktivDeltakelse.aktivStatus.DELTAR,
     tiltakstype: {
       navn: "Jobbklubb",
