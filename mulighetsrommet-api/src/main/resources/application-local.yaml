@@ -141,9 +141,6 @@ app:
       disabled: true
       maxRetries: 5
       delayOfMinutes: 15
-    oppdaterMetrikker:
-      disabled: true
-      delayOfMinutes: 1
     updateApentForInnsok:
       disabled: true
       cronPattern: "0 */1 * * * *" # Hvert 1 minutt
