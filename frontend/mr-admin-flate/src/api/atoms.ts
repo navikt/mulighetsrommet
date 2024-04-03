@@ -18,9 +18,13 @@ type SetStateActionWithReset<Value> =
   | typeof RESET
   | ((prev: Value) => Value | typeof RESET);
 
-const safeJSONParse = (initialValue: unknown) => (str: string) => {
+const safeZodParse = (zodSchema: ZodType, initialValue: unknown, str: string) => {
   try {
-    return JSON.parse(str);
+    const result = zodSchema.safeParse(JSON.parse(str));
+    if (!result.success) {
+      return initialValue;
+    }
+    return result.data;
   } catch (e) {
     return initialValue;
   }
@@ -39,13 +43,7 @@ function atomWithStorage<Value>(
 ) {
   const baseAtom = atom(storage.getItem(key) ?? JSON.stringify(initialValue));
   return atom(
-    (get) => {
-      const result = zodSchema.safeParse(JSON.parse(get(baseAtom)));
-      if (!result.success) {
-        return initialValue;
-      }
-      return result.data;
-    },
+    (get) => safeZodParse(zodSchema, initialValue, get(baseAtom)),
     (_, set, nextValue: Value) => {
       const str = JSON.stringify(nextValue);
       set(baseAtom, str);
@@ -66,23 +64,16 @@ function atomWithHashAndStorage<Value>(
   key: string,
   initialValue: Value,
   storage: Storage,
-  schema: ZodType,
-  options?: {
-    serialize?: (val: Value) => string;
-    deserialize?: (str: string) => Value;
-    subscribe?: (callback: () => void) => () => void;
-  },
+  zodSchema: ZodType,
 ): WritableAtom<Value, [SetStateActionWithReset<Value>], void> {
-  const serialize = options?.serialize || JSON.stringify;
-  const deserialize = options?.deserialize || safeJSONParse(initialValue);
-  const subscribe =
-    options?.subscribe ||
-    ((callback) => {
-      window.addEventListener("hashchange", callback);
-      return () => {
-        window.removeEventListener("hashchange", callback);
-      };
-    });
+  const serialize = JSON.stringify;
+  const deserialize = (str: string) => safeZodParse(zodSchema, initialValue, str);
+  const subscribe = (callback: any) => {
+    window.addEventListener("hashchange", callback);
+    return () => {
+      window.removeEventListener("hashchange", callback);
+    };
+  };
   const setHash = (searchParams: string) => {
     window.history.replaceState(
       window.history.state,
@@ -97,7 +88,7 @@ function atomWithHashAndStorage<Value>(
     str = searchParams.get(key);
   }
 
-  const strAtom = atomWithStorage<string | null>(key, str, storage, schema);
+  const strAtom = atomWithStorage<string | null>(key, str, storage, z.string().nullable());
   strAtom.onMount = (setAtom) => {
     if (typeof window === "undefined" || !window.location) {
       return undefined;

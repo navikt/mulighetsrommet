@@ -71,10 +71,6 @@ fun createTestApplicationConfig() = AppConfig(
             delayOfMinutes = 15,
             maxRetries = 5,
         ),
-        oppdaterMetrikker = OppdaterMetrikker.Config(
-            disabled = true,
-            delayOfMinutes = 10,
-        ),
         updateApentForInnsok = UpdateApentForInnsok.Config(
             disabled = true,
         ),

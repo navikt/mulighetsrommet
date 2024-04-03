@@ -131,8 +131,6 @@ app:
     notifyFailedKafkaEvents:
       maxRetries: 5
       delayOfMinutes: 15
-    oppdaterMetrikker:
-      delayOfMinutes: 5
     generateValidationReport:
       bucketName: mulighetsrommet-api-uploads-prod
     updateApentForInnsok:
