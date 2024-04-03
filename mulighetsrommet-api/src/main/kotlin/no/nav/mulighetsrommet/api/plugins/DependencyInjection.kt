@@ -174,7 +174,6 @@ private fun repositories() = module {
     single { NavAnsattRepository(get()) }
     single { ArrangorRepository(get()) }
     single { KafkaConsumerRepositoryImpl(get()) }
-    single { MetrikkRepository(get()) }
     single { AvtaleNotatRepository(get()) }
     single { TiltaksgjennomforingNotatRepository(get()) }
     single { VeilederJoyrideRepository(get()) }
