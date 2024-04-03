@@ -45,7 +45,6 @@ allprojects {
         testLogging {
             showCauses = true
             showExceptions = true
-            showStandardStreams = isCI
             exceptionFormat = if (isCI) {
                 TestExceptionFormat.FULL
             } else {
