@@ -8,14 +8,15 @@ import { FiltertagsContainer } from "mulighetsrommet-frontend-common/components/
 import { Filtertag } from "mulighetsrommet-frontend-common/components/filter/filtertag/Filtertag";
 
 interface Props {
-  filterOpen?: boolean;
+  filterOpen: boolean;
+  setTagsHeight: (height: number) => void;
 }
 
-export function NavFiltertags({ filterOpen }: Props) {
+export function NavFiltertags({ filterOpen, setTagsHeight }: Props) {
   const [filter, setFilter] = useArbeidsmarkedstiltakFilter();
 
   return (
-    <FiltertagsContainer filterOpen={filterOpen}>
+    <FiltertagsContainer filterOpen={filterOpen} setTagsHeight={setTagsHeight}>
       {filter.search && (
         <Filtertag label={filter.search} onClose={() => setFilter({ ...filter, search: "" })} />
       )}

@@ -27,7 +27,6 @@ export const Filtertag = ({ label, onClose }: FiltertagsProps) => {
           icon={
             <XMarkIcon
               data-testid={`filtertag_lukkeknapp_${kebabCase(label)}`}
-              className={styles.ikon}
               aria-label="Lukke"
             />
           }

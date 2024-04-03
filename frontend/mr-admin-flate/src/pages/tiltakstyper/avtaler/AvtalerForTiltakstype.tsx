@@ -1,21 +1,22 @@
 import { useTitle } from "mulighetsrommet-frontend-common";
 import { getAvtalerForTiltakstypeFilterAtom } from "@/api/atoms";
-import { AvtaleTabell } from "../../../components/tabell/AvtaleTabell";
-import { useGetTiltakstypeIdFromUrlOrThrow } from "../../../hooks/useGetTiltakstypeIdFromUrl";
-import { ContainerLayout } from "../../../layouts/ContainerLayout";
-import { FilterAndTableLayout } from "../../../components/filter/FilterAndTableLayout";
-import { AvtaleFiltertags } from "../../../components/filter/AvtaleFiltertags";
-import { AvtaleFilterButtons } from "../../../components/filter/AvtaleFilterButtons";
-import { AvtaleFilter } from "../../../components/filter/AvtaleFilter";
+import { AvtaleTabell } from "@/components/tabell/AvtaleTabell";
+import { useGetTiltakstypeIdFromUrlOrThrow } from "@/hooks/useGetTiltakstypeIdFromUrl";
+import { ContainerLayout } from "@/layouts/ContainerLayout";
+import { FilterAndTableLayout } from "mulighetsrommet-frontend-common/components/filterAndTableLayout/FilterAndTableLayout";
+import { AvtaleFiltertags } from "@/components/filter/AvtaleFiltertags";
+import { AvtaleFilterButtons } from "@/components/filter/AvtaleFilterButtons";
+import { AvtaleFilter } from "@/components/filter/AvtaleFilter";
 import { useState } from "react";
+import { NullstillKnappForAvtaler } from "@/pages/avtaler/NullstillKnappForAvtaler";
 
 export function AvtalerForTiltakstype() {
   useTitle("Tiltakstyper - Avtaler");
 
   const tiltakstypeId = useGetTiltakstypeIdFromUrlOrThrow();
-
   const filterAtom = getAvtalerForTiltakstypeFilterAtom(tiltakstypeId);
   const [filterOpen, setFilterOpen] = useState<boolean>(true);
+  const [tagsHeight, setTagsHeight] = useState(0);
 
   return (
     <ContainerLayout>
@@ -33,12 +34,16 @@ export function AvtalerForTiltakstype() {
             filterAtom={filterAtom}
             tiltakstypeId={tiltakstypeId}
             filterOpen={filterOpen}
+            setTagsHeight={setTagsHeight}
           />
         }
-        buttons={<AvtaleFilterButtons filterAtom={filterAtom} tiltakstypeId={tiltakstypeId} />}
-        table={<AvtaleTabell filterAtom={filterAtom} />}
+        buttons={<AvtaleFilterButtons />}
+        table={
+          <AvtaleTabell filterAtom={filterAtom} tagsHeight={tagsHeight} filterOpen={filterOpen} />
+        }
         filterOpen={filterOpen}
         setFilterOpen={setFilterOpen}
+        nullstillFilterButton={<NullstillKnappForAvtaler />}
       />
     </ContainerLayout>
   );

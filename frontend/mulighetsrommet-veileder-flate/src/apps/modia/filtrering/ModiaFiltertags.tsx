@@ -8,14 +8,15 @@ import { NavEnhetFiltertag } from "mulighetsrommet-frontend-common/components/fi
 import { FiltertagsContainer } from "mulighetsrommet-frontend-common/components/filter/filtertag/FiltertagsContainer";
 
 interface Props {
-  filterOpen?: boolean;
+  filterOpen: boolean;
+  setTagsHeight: (height: number) => void;
 }
 
-export function ModiaFiltertags({ filterOpen }: Props) {
+export function ModiaFiltertags({ filterOpen, setTagsHeight }: Props) {
   const [filter, setFilter] = useArbeidsmarkedstiltakFilter();
 
   return (
-    <FiltertagsContainer filterOpen={filterOpen}>
+    <FiltertagsContainer filterOpen={filterOpen} setTagsHeight={setTagsHeight}>
       {filter.innsatsgruppe && <Filtertag label={filter.innsatsgruppe.tittel} />}
       <NavEnhetFiltertag
         navEnheter={filter.navEnheter}

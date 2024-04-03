@@ -3,8 +3,8 @@ import { ArrangorTil } from "mulighetsrommet-api-client";
 import { TiltaksgjennomforingFilter } from "@/api/atoms";
 import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
 import { useArrangorer } from "@/api/arrangor/useArrangorer";
-import { addOrRemove } from "../../utils/Utils";
-import { TILTAKSGJENNOMFORING_STATUS_OPTIONS } from "../../utils/filterUtils";
+import { addOrRemove } from "@/utils/Utils";
+import { TILTAKSGJENNOMFORING_STATUS_OPTIONS } from "@/utils/filterUtils";
 import { Filtertag, FiltertagsContainer, NavEnhetFiltertag } from "mulighetsrommet-frontend-common";
 
 interface Props {
@@ -13,16 +13,17 @@ interface Props {
     [newValue: TiltaksgjennomforingFilter],
     void
   >;
-  filterOpen?: boolean;
+  filterOpen: boolean;
+  setTagsHeight: (height: number) => void;
 }
 
-export function TiltaksgjennomforingFiltertags({ filterAtom, filterOpen }: Props) {
+export function TiltaksgjennomforingFiltertags({ filterAtom, filterOpen, setTagsHeight }: Props) {
   const [filter, setFilter] = useAtom(filterAtom);
   const { data: arrangorer } = useArrangorer(ArrangorTil.TILTAKSGJENNOMFORING);
   const { data: tiltakstyper } = useTiltakstyper();
 
   return (
-    <FiltertagsContainer filterOpen={filterOpen}>
+    <FiltertagsContainer filterOpen={filterOpen} setTagsHeight={setTagsHeight}>
       {filter.search && (
         <Filtertag
           label={filter.search}

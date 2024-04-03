@@ -4,17 +4,18 @@ import { AvtaleFilter } from "@/api/atoms";
 import { useNavEnheter } from "@/api/enhet/useNavEnheter";
 import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
 import { useArrangorer } from "@/api/arrangor/useArrangorer";
-import { addOrRemove, avtaletypeTilTekst } from "../../utils/Utils";
-import { AVTALE_STATUS_OPTIONS } from "../../utils/filterUtils";
+import { addOrRemove, avtaletypeTilTekst } from "@/utils/Utils";
+import { AVTALE_STATUS_OPTIONS } from "@/utils/filterUtils";
 import { Filtertag, FiltertagsContainer } from "mulighetsrommet-frontend-common";
 
 interface Props {
   filterAtom: WritableAtom<AvtaleFilter, [newValue: AvtaleFilter], void>;
   tiltakstypeId?: string;
-  filterOpen?: boolean;
+  filterOpen: boolean;
+  setTagsHeight: (height: number) => void;
 }
 
-export function AvtaleFiltertags({ filterAtom, tiltakstypeId, filterOpen }: Props) {
+export function AvtaleFiltertags({ filterAtom, tiltakstypeId, filterOpen, setTagsHeight }: Props) {
   const [filter, setFilter] = useAtom(filterAtom);
 
   const { data: enheter } = useNavEnheter();
@@ -22,7 +23,7 @@ export function AvtaleFiltertags({ filterAtom, tiltakstypeId, filterOpen }: Prop
   const { data: arrangorer } = useArrangorer(ArrangorTil.AVTALE);
 
   return (
-    <FiltertagsContainer filterOpen={filterOpen}>
+    <FiltertagsContainer filterOpen={filterOpen} setTagsHeight={setTagsHeight}>
       {filter.sok && (
         <Filtertag
           label={filter.sok}

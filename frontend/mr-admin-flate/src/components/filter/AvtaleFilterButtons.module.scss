@@ -1,12 +1,6 @@
-.filterbuttons_container {
-  display: grid;
-  grid-template-columns: auto auto;
-  height: 100%;
-  align-items: center;
-  .opprett_avtale_knapp {
-    grid-column: 2;
-    width: fit-content;
-    display: flex;
-    justify-self: flex-end;
-  }
+.opprett_avtale_knapp {
+  grid-column: 2;
+  width: fit-content;
+  display: flex;
+  justify-self: flex-end;
 }

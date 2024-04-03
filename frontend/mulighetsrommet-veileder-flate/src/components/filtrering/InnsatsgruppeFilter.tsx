@@ -6,7 +6,7 @@ import { filterAccordionAtom } from "@/core/atoms";
 import { useArbeidsmarkedstiltakFilter } from "@/hooks/useArbeidsmarkedstiltakFilter";
 import { addOrRemove } from "@/utils/Utils";
 import "./Filtermeny.module.scss";
-import { kebabCase } from "../../../../frontend-common/utils/TestUtils";
+import { kebabCase } from "mulighetsrommet-frontend-common/utils/TestUtils";
 import { FilterAccordionHeader } from "mulighetsrommet-frontend-common";
 
 interface InnsatsgruppeFilterProps<

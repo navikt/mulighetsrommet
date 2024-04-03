@@ -3,7 +3,7 @@ import { Alert } from "@navikt/ds-react";
 import { ApiError, Toggles } from "mulighetsrommet-api-client";
 import { useTitle } from "mulighetsrommet-frontend-common";
 import { TiltakLoader } from "@/components/TiltakLoader";
-import { FilterAndTableLayout } from "@/components/filtrering/FilterAndTableLayout";
+import { FilterAndTableLayout } from "mulighetsrommet-frontend-common/components/filterAndTableLayout/FilterAndTableLayout";
 import { HistorikkButton } from "@/apps/modia/historikk/HistorikkButton";
 import { OversiktenJoyride } from "@/components/joyride/OversiktenJoyride";
 import { Tiltaksgjennomforingsoversikt } from "@/components/oversikt/Tiltaksgjennomforingsoversikt";
@@ -34,8 +34,8 @@ export const ModiaArbeidsmarkedstiltakOversikt = () => {
 
   const landingssideFeature = useFeatureToggle(Toggles.MULIGHETSROMMET_VEILEDERFLATE_LANDINGSSIDE);
   const landingssideEnabled = landingssideFeature.isSuccess && landingssideFeature.data;
-
   const [isHistorikkModalOpen, setIsHistorikkModalOpen] = useState(false);
+  const [tagsHeight, setTagsHeight] = useState(0);
 
   const {
     data: tiltaksgjennomforinger = [],
@@ -75,7 +75,9 @@ export const ModiaArbeidsmarkedstiltakOversikt = () => {
       <FilterAndTableLayout
         filterOpen={filterOpen}
         setFilterOpen={setFilterOpen}
-        resetButton={filterHasChanged && <NullstillFilterKnapp onClick={resetFilterToDefaults} />}
+        nullstillFilterButton={
+          filterHasChanged && <NullstillFilterKnapp onClick={resetFilterToDefaults} />
+        }
         buttons={
           <>
             <OversiktenJoyride />
@@ -86,8 +88,9 @@ export const ModiaArbeidsmarkedstiltakOversikt = () => {
           </>
         }
         filter={<FilterMenyMedSkeletonLoader />}
+        tags={<ModiaFiltertags filterOpen={filterOpen} setTagsHeight={setTagsHeight} />}
         table={
-          <div>
+          <>
             {isLoading ? (
               <TiltakLoader />
             ) : (
@@ -102,7 +105,6 @@ export const ModiaArbeidsmarkedstiltakOversikt = () => {
                     <FiltrertFeilInnsatsgruppeVarsel filter={filter} />
                   </>
                 }
-                tags={<ModiaFiltertags filterOpen={filterOpen} />}
                 feilmelding={
                   tiltaksgjennomforinger.length === 0 ? (
                     <Feilmelding
@@ -112,9 +114,10 @@ export const ModiaArbeidsmarkedstiltakOversikt = () => {
                     />
                   ) : null
                 }
+                tagsHeight={tagsHeight}
               />
             )}
-          </div>
+          </>
         }
       />
       <TilToppenKnapp />
