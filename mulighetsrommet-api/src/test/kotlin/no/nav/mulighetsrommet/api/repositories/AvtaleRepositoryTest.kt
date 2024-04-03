@@ -32,6 +32,7 @@ import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dto.Avtalestatus
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.*
 
 class AvtaleRepositoryTest : FunSpec({
@@ -88,7 +89,7 @@ class AvtaleRepositoryTest : FunSpec({
                 it.startDato shouldBe arenaAvtale.startDato
                 it.sluttDato shouldBe arenaAvtale.sluttDato
                 it.avtaletype shouldBe arenaAvtale.avtaletype
-                it.avtalestatus shouldBe Avtalestatus.Avsluttet
+                it.avtalestatus shouldBe Avtalestatus.Aktiv
                 it.opphav shouldBe ArenaMigrering.Opphav.ARENA
                 it.prisbetingelser shouldBe "Alt er dyrt"
             }
@@ -281,45 +282,36 @@ class AvtaleRepositoryTest : FunSpec({
                     id = UUID.randomUUID(),
                 )
                 avtaler.upsert(avtaleAktiv)
-                avtaler.setAvslutningsstatus(avtaleAktiv.id, Avslutningsstatus.IKKE_AVSLUTTET)
 
-                val avtaleAvsluttetStatus = AvtaleFixtures.oppfolging.copy(
+                val avtaleAvsluttet = AvtaleFixtures.oppfolging.copy(
                     id = UUID.randomUUID(),
+                    sluttDato = LocalDate.now().minusDays(1),
                 )
-                avtaler.upsert(avtaleAvsluttetStatus)
-                avtaler.setAvslutningsstatus(avtaleAvsluttetStatus.id, Avslutningsstatus.AVSLUTTET)
-
-                val avtaleAvsluttetDato = AvtaleFixtures.oppfolging.copy(
-                    id = UUID.randomUUID(),
-                    sluttDato = LocalDate.of(2023, 1, 31),
-                )
-                avtaler.upsert(avtaleAvsluttetDato)
-                avtaler.setAvslutningsstatus(avtaleAvsluttetDato.id, Avslutningsstatus.IKKE_AVSLUTTET)
+                avtaler.upsert(avtaleAvsluttet)
 
                 val avtaleAvbrutt = AvtaleFixtures.oppfolging.copy(
                     id = UUID.randomUUID(),
                 )
                 avtaler.upsert(avtaleAvbrutt)
-                avtaler.setAvslutningsstatus(avtaleAvbrutt.id, Avslutningsstatus.AVBRUTT)
+                avtaler.setAvbruttTidspunkt(avtaleAvbrutt.id, LocalDateTime.now())
 
                 val avtalePlanlagt = AvtaleFixtures.oppfolging.copy(
                     id = UUID.randomUUID(),
-                    startDato = LocalDate.of(2023, 2, 2),
+                    startDato = LocalDate.now().plusDays(1),
                 )
                 avtaler.upsert(avtalePlanlagt)
-                avtaler.setAvslutningsstatus(avtalePlanlagt.id, Avslutningsstatus.IKKE_AVSLUTTET)
 
                 forAll(
                     row(listOf(Avtalestatus.Aktiv), listOf(avtaleAktiv.id, avtalePlanlagt.id)),
                     row(listOf(Avtalestatus.Avbrutt), listOf(avtaleAvbrutt.id)),
-                    row(listOf(Avtalestatus.Avsluttet), listOf(avtaleAvsluttetStatus.id, avtaleAvsluttetDato.id)),
+                    row(listOf(Avtalestatus.Avsluttet), listOf(avtaleAvsluttet.id)),
                     row(
                         listOf(Avtalestatus.Avbrutt, Avtalestatus.Avsluttet),
-                        listOf(avtaleAvbrutt.id, avtaleAvsluttetStatus.id, avtaleAvsluttetDato.id),
+                        listOf(avtaleAvbrutt.id, avtaleAvsluttet.id),
                     ),
                 ) { statuser, expected ->
                     val result = avtaler.getAll(
-                        dagensDato = LocalDate.of(2023, 2, 1),
+                        dagensDato = LocalDate.now(),
                         statuser = statuser,
                     )
                     result.second.map { it.id } shouldContainExactlyInAnyOrder expected
@@ -778,19 +770,14 @@ class AvtaleRepositoryTest : FunSpec({
 
         val avtaler = AvtaleRepository(database.db)
 
-        test("endringer på avslutningsstatus påvirker avtalestatus") {
+        test("set avbrutt_tidspunkt påvirker avtalestatus") {
             avtaler.get(AvtaleFixtures.oppfolging.id).should {
                 it?.avtalestatus shouldBe Avtalestatus.Aktiv
             }
 
-            avtaler.setAvslutningsstatus(avtale.id, Avslutningsstatus.AVBRUTT)
+            avtaler.setAvbruttTidspunkt(avtale.id, LocalDateTime.now())
             avtaler.get(AvtaleFixtures.oppfolging.id).should {
                 it?.avtalestatus shouldBe Avtalestatus.Avbrutt
-            }
-
-            avtaler.setAvslutningsstatus(AvtaleFixtures.oppfolging.id, Avslutningsstatus.AVSLUTTET)
-            avtaler.get(AvtaleFixtures.oppfolging.id).should {
-                it?.avtalestatus shouldBe Avtalestatus.Avsluttet
             }
         }
     }

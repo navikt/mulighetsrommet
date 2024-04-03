@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.domain.dto
 
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 enum class Avtalestatus {
     Aktiv,
@@ -10,15 +11,14 @@ enum class Avtalestatus {
     ;
 
     companion object {
-        fun resolveFromDatesAndAvslutningsstatus(
-            now: LocalDate,
+        fun fromDbo(
+            dagensDato: LocalDate,
             sluttDato: LocalDate?,
-            avslutningsstatus: Avslutningsstatus,
+            avbruttTidspunkt: LocalDateTime?,
         ): Avtalestatus = when {
-            avslutningsstatus == Avslutningsstatus.AVBRUTT -> Avbrutt
-            avslutningsstatus == Avslutningsstatus.AVSLUTTET -> Avsluttet
-            sluttDato == null || now <= sluttDato -> Aktiv
-            else -> Avsluttet
+            avbruttTidspunkt != null -> Avbrutt
+            sluttDato != null && dagensDato.isAfter(sluttDato) -> Avsluttet
+            else -> Aktiv
         }
     }
 }

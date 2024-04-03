@@ -715,7 +715,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         "deltidsprosent" to deltidsprosent,
         "avbrutt_tidspunkt" to when (avslutningsstatus) {
             Avslutningsstatus.AVLYST -> startDato.atStartOfDay().minusDays(1)
-            Avslutningsstatus.AVBRUTT -> startDato.atStartOfDay().plusDays(1)
+            Avslutningsstatus.AVBRUTT -> startDato.atStartOfDay()
             Avslutningsstatus.AVSLUTTET -> null
             Avslutningsstatus.IKKE_AVSLUTTET -> null
         },

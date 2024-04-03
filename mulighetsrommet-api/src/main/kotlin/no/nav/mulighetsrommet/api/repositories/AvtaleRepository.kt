@@ -24,6 +24,7 @@ import no.nav.mulighetsrommet.domain.dto.NavIdent
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.*
 
 class AvtaleRepository(private val db: Database) {
@@ -181,7 +182,7 @@ class AvtaleRepository(private val db: Database) {
                                slutt_dato,
                                arena_ansvarlig_enhet,
                                avtaletype,
-                               avslutningsstatus,
+                               avbrutt_tidspunkt,
                                prisbetingelser,
                                opphav)
             values (:id::uuid,
@@ -193,7 +194,7 @@ class AvtaleRepository(private val db: Database) {
                     :slutt_dato,
                     :arena_ansvarlig_enhet,
                     :avtaletype::avtaletype,
-                    :avslutningsstatus::avslutningsstatus,
+                    :avbrutt_tidspunkt,
                     :prisbetingelser,
                     :opphav::opphav)
             on conflict (id) do update set navn                     = excluded.navn,
@@ -204,7 +205,7 @@ class AvtaleRepository(private val db: Database) {
                                            slutt_dato               = excluded.slutt_dato,
                                            arena_ansvarlig_enhet    = excluded.arena_ansvarlig_enhet,
                                            avtaletype               = excluded.avtaletype,
-                                           avslutningsstatus        = excluded.avslutningsstatus,
+                                           avbrutt_tidspunkt        = excluded.avbrutt_tidspunkt,
                                            prisbetingelser          = excluded.prisbetingelser,
                                            antall_plasser           = excluded.antall_plasser,
                                            opphav                   = coalesce(avtale.opphav, excluded.opphav)
@@ -340,19 +341,19 @@ class AvtaleRepository(private val db: Database) {
             .let { db.run(it) }
     }
 
-    fun setAvslutningsstatus(id: UUID, status: Avslutningsstatus) {
-        db.transaction { setAvslutningsstatus(it, id, status) }
+    fun setAvbruttTidspunkt(id: UUID, avbruttTidspunkt: LocalDateTime) {
+        db.transaction { setAvbruttTidspunkt(it, id, avbruttTidspunkt) }
     }
 
-    fun setAvslutningsstatus(tx: Session, id: UUID, status: Avslutningsstatus) {
+    fun setAvbruttTidspunkt(tx: Session, id: UUID, avbruttTidspunkt: LocalDateTime) {
         @Language("PostgreSQL")
         val query = """
             update avtale
-            set avslutningsstatus = :status::avslutningsstatus
+            set avbrutt_tidspunkt = :avbrutt_tidspunkt
             where id = :id::uuid
         """.trimIndent()
 
-        queryOf(query, mapOf("id" to id, "status" to status.name))
+        queryOf(query, mapOf("id" to id, "avbrutt_tidspunkt" to avbruttTidspunkt))
             .asUpdate
             .let { tx.run(it) }
     }
@@ -413,7 +414,12 @@ class AvtaleRepository(private val db: Database) {
         "slutt_dato" to sluttDato,
         "arena_ansvarlig_enhet" to arenaAnsvarligEnhet,
         "avtaletype" to avtaletype.name,
-        "avslutningsstatus" to avslutningsstatus.name,
+        "avbrutt_tidspunkt" to when (avslutningsstatus) {
+            Avslutningsstatus.AVLYST -> startDato.atStartOfDay().minusDays(1)
+            Avslutningsstatus.AVBRUTT -> startDato.atStartOfDay()
+            Avslutningsstatus.AVSLUTTET -> null
+            Avslutningsstatus.IKKE_AVSLUTTET -> null
+        },
         "prisbetingelser" to prisbetingelser,
     )
 
@@ -448,10 +454,10 @@ class AvtaleRepository(private val db: Database) {
             sluttDato = sluttDato,
             opphav = ArenaMigrering.Opphav.valueOf(string("opphav")),
             avtaletype = Avtaletype.valueOf(string("avtaletype")),
-            avtalestatus = Avtalestatus.resolveFromDatesAndAvslutningsstatus(
+            avtalestatus = Avtalestatus.fromDbo(
                 LocalDate.now(),
                 sluttDato,
-                Avslutningsstatus.valueOf(string("avslutningsstatus")),
+                localDateTimeOrNull("avbrutt_tidspunkt"),
             ),
             prisbetingelser = stringOrNull("prisbetingelser"),
             antallPlasser = intOrNull("antall_plasser"),
@@ -496,9 +502,9 @@ class AvtaleRepository(private val db: Database) {
             .ifEmpty { null }
             ?.joinToString(prefix = "(", postfix = ")", separator = " or ") {
                 when (it) {
-                    Avtalestatus.Aktiv -> "(avslutningsstatus = '${Avslutningsstatus.IKKE_AVSLUTTET}' and :today <= slutt_dato)"
-                    Avtalestatus.Avsluttet -> "(avslutningsstatus = '${Avslutningsstatus.AVSLUTTET}' or :today > slutt_dato)"
-                    Avtalestatus.Avbrutt -> "avslutningsstatus = '${Avslutningsstatus.AVBRUTT}'"
+                    Avtalestatus.Aktiv -> "(avbrutt_tidspunkt is null and (slutt_dato is null or :today <= slutt_dato))"
+                    Avtalestatus.Avsluttet -> "(avbrutt_tidspunkt is null and :today > slutt_dato)"
+                    Avtalestatus.Avbrutt -> "(avbrutt_tidspunkt is not null)"
                 }
             }
             ?: "true"

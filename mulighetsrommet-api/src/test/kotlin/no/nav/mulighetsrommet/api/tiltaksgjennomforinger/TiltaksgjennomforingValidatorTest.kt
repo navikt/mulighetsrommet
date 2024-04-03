@@ -165,19 +165,23 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
         val id = UUID.randomUUID()
         avtaler.upsert(avtale.copy(id = id))
 
-        forAll(
-            row(Avslutningsstatus.AVBRUTT),
-            row(Avslutningsstatus.AVSLUTTET),
-        ) { status ->
-            avtaler.setAvslutningsstatus(id, status)
+        avtaler.setAvbruttTidspunkt(id, LocalDateTime.now())
 
-            val validator = TiltaksgjennomforingValidator(tiltakstyper, avtaler)
-            val dbo = gjennomforing.copy(avtaleId = id)
+        val validator = TiltaksgjennomforingValidator(tiltakstyper, avtaler)
+        val dbo = gjennomforing.copy(avtaleId = id)
 
-            validator.validate(dbo, null).shouldBeLeft(
-                listOf(ValidationError("avtaleId", "Avtalen må være aktiv for å kunne opprette tiltak")),
-            )
-        }
+        validator.validate(dbo, null).shouldBeLeft(
+            listOf(ValidationError("avtaleId", "Avtalen må være aktiv for å kunne opprette tiltak")),
+        )
+
+        val id2 = UUID.randomUUID()
+        avtaler.upsert(avtale.copy(id = id2, sluttDato = LocalDate.now().minusDays(1)))
+
+        val dbo2 = gjennomforing.copy(avtaleId = id2)
+
+        validator.validate(dbo2, null).shouldBeLeft(
+            listOf(ValidationError("avtaleId", "Avtalen må være aktiv for å kunne opprette tiltak")),
+        )
     }
 
     test("kan ikke opprette før Avtale startDato") {
@@ -286,17 +290,12 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
         }
 
         test("skal godta endringer selv om avtale er avbrutt") {
-            forAll(
-                row(Avslutningsstatus.AVBRUTT),
-                row(Avslutningsstatus.AVSLUTTET),
-            ) { status ->
-                avtaler.setAvslutningsstatus(avtale.id, status)
+            avtaler.setAvbruttTidspunkt(avtale.id, LocalDateTime.now())
 
-                val validator = TiltaksgjennomforingValidator(tiltakstyper, avtaler)
+            val validator = TiltaksgjennomforingValidator(tiltakstyper, avtaler)
 
-                val previous = tiltaksgjennomforinger.get(gjennomforing.id)
-                validator.validate(gjennomforing, previous).shouldBeRight()
-            }
+            val previous = tiltaksgjennomforinger.get(gjennomforing.id)
+            validator.validate(gjennomforing, previous).shouldBeRight()
         }
 
         test("should fail when is avbrutt") {

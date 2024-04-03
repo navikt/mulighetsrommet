@@ -29,6 +29,7 @@ import no.nav.mulighetsrommet.notifications.NotificationType
 import no.nav.mulighetsrommet.notifications.ScheduledNotification
 import java.time.Instant
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.*
 
 class AvtaleService(
@@ -185,7 +186,7 @@ class AvtaleService(
         }
 
         db.transaction { tx ->
-            avtaler.setAvslutningsstatus(tx, id, Avslutningsstatus.AVBRUTT)
+            avtaler.setAvbruttTidspunkt(tx, id, LocalDateTime.now())
             val dto = getOrError(id, tx)
             logEndring("Avtale ble avbrutt", dto, navIdent, tx)
         }

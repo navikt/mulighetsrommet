@@ -159,7 +159,6 @@ class ArenaAdapterServiceTest : FunSpec({
                 .value("slutt_dato").isEqualTo(avtale.sluttDato)
                 .value("arena_ansvarlig_enhet").isEqualTo(avtale.arenaAnsvarligEnhet)
                 .value("avtaletype").isEqualTo(avtale.avtaletype.name)
-                .value("avslutningsstatus").isEqualTo(avtale.avslutningsstatus.name)
                 .value("prisbetingelser").isEqualTo(avtale.prisbetingelser)
         }
 
@@ -256,7 +255,7 @@ class ArenaAdapterServiceTest : FunSpec({
             service.upsertAvtale(
                 avtale.copy(
                     arenaAnsvarligEnhet = NavEnhetFixtures.IT.enhetsnummer,
-                    avslutningsstatus = Avslutningsstatus.AVSLUTTET,
+                    sluttDato = LocalDate.now().minusDays(1),
                 ),
             )
 
