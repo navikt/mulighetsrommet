@@ -2294,6 +2294,7 @@ components:
       type: string
       enum:
         - LOKAL_OPPFOLGINGSENHET
+        - BRUKER_IKKE_UNDER_OPPFOLGING
 
     NavVeileder:
       type: object
@@ -2395,20 +2396,6 @@ components:
         - Aktiv
         - Planlagt
         - Avsluttet
-
-    FrontendEvent:
-      type: object
-      properties:
-        name:
-          type: string
-        fields:
-          type: object
-          additionalProperties: true
-        tags:
-          type: object
-          additionalProperties: true
-      required:
-        - name
 
     DialogRequest:
       type: object

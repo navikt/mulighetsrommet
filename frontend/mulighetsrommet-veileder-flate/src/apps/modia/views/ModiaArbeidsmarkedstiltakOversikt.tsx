@@ -22,6 +22,7 @@ import { ModiaFiltertags } from "@/apps/modia/filtrering/ModiaFiltertags";
 import { Feilmelding } from "@/components/feilmelding/Feilmelding";
 import { TilToppenKnapp } from "mulighetsrommet-frontend-common/components/tilToppenKnapp/TilToppenKnapp";
 import { NullstillFilterKnapp } from "mulighetsrommet-frontend-common/components/filter/nullstillFilterKnapp/NullstillFilterKnapp";
+import { BrukerErIkkeUnderOppfolgingVarsel } from "../varsler/BrukerErIkkeUnderOppfolgingVarsel";
 
 export const ModiaArbeidsmarkedstiltakOversikt = () => {
   useTitle("Arbeidsmarkedstiltak - Oversikt");
@@ -99,6 +100,7 @@ export const ModiaArbeidsmarkedstiltakOversikt = () => {
                   <>
                     <BrukerHarIkke14aVedtakVarsel brukerdata={brukerdata} />
                     <BrukersOppfolgingsenhetVarsel brukerdata={brukerdata} />
+                    <BrukerErIkkeUnderOppfolgingVarsel brukerdata={brukerdata} />
                     <FiltrertFeilInnsatsgruppeVarsel filter={filter} />
                   </>
                 }

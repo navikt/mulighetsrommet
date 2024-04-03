@@ -31,9 +31,6 @@ class BrukerService(
                     ErUnderOppfolgingError.Error -> throw StatusException(HttpStatusCode.InternalServerError, "Klarte ikke hente oppfølgingsstatus.")
                 }
             }
-        if (!erUnderOppfolging) {
-            throw StatusException(HttpStatusCode.Forbidden, "Bruker er ikke under oppfølging. Kontroller at brukeren er under oppfølging og finnes i Arena.")
-        }
 
         val oppfolgingsenhet = veilarboppfolgingClient.hentOppfolgingsenhet(fnr, obo)
             .getOrElse {
@@ -90,6 +87,8 @@ class BrukerService(
             varsler = listOfNotNull(
                 if (oppfolgingsenhetLokalOgUlik(brukersGeografiskeEnhet, brukersOppfolgingsenhet)) {
                     BrukerVarsel.LOKAL_OPPFOLGINGSENHET
+                } else if (!erUnderOppfolging) {
+                    BrukerVarsel.BRUKER_IKKE_UNDER_OPPFOLGING
                 } else {
                     null
                 },
@@ -109,6 +108,7 @@ class BrukerService(
 
     enum class BrukerVarsel {
         LOKAL_OPPFOLGINGSENHET,
+        BRUKER_IKKE_UNDER_OPPFOLGING,
     }
 }
 
