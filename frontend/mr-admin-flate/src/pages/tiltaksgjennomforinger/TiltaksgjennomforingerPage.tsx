@@ -55,7 +55,11 @@ export function TiltaksgjennomforingerPage() {
             }
             filterOpen={filterOpen}
             setFilterOpen={setFilterOpen}
-            nullstillFilterButton={<NullstillKnappForTiltaksgjennomforinger />}
+            nullstillFilterButton={
+              <NullstillKnappForTiltaksgjennomforinger
+                filterAtom={tiltaksgjennomforingfilterAtom}
+              />
+            }
           />
         </ContainerLayout>
       </MainContainer>

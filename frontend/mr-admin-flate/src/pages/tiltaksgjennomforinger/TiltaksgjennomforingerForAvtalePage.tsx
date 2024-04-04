@@ -48,7 +48,9 @@ export function TiltaksgjennomforingerForAvtalePage() {
       }
       filterOpen={filterOpen}
       setFilterOpen={setFilterOpen}
-      nullstillFilterButton={<NullstillKnappForTiltaksgjennomforinger avtale={avtale} />}
+      nullstillFilterButton={
+        <NullstillKnappForTiltaksgjennomforinger avtale={avtale} filterAtom={filterAtom} />
+      }
     />
   );
 }
