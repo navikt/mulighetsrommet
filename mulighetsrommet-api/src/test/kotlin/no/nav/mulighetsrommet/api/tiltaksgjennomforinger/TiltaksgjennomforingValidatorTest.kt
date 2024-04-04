@@ -202,7 +202,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
         val rammeAvtale = TiltaksgjennomforingFixtures.Oppfolging1.copy(sluttDato = null)
         val vanligAvtale = TiltaksgjennomforingFixtures.Oppfolging1.copy(
             sluttDato = null,
-            avtaleId = AvtaleFixtures.oppfolgingMedAvtale.id
+            avtaleId = AvtaleFixtures.oppfolgingMedAvtale.id,
         )
         val offentligOffentlig = TiltaksgjennomforingFixtures.GruppeAmo1.copy(sluttDato = null)
 
@@ -300,7 +300,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
                 listOf(
                     ValidationError(
                         "sluttDato",
-                        "Sluttdato kan ikke endres bakover i tid når gjennomføringen er aktiv"
+                        "Sluttdato kan ikke endres bakover i tid når gjennomføringen er aktiv",
                     ),
                 ),
             )
