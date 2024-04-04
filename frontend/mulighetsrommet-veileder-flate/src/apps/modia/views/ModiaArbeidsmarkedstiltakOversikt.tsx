@@ -1,28 +1,26 @@
-import { useEffect, useState } from "react";
-import { Alert } from "@navikt/ds-react";
-import { ApiError, Toggles } from "mulighetsrommet-api-client";
-import { useTitle } from "mulighetsrommet-frontend-common";
-import { TiltakLoader } from "@/components/TiltakLoader";
-import { FilterAndTableLayout } from "@/components/filtrering/FilterAndTableLayout";
+import { useFeatureToggle } from "@/api/feature-toggles";
+import { useVeilederTiltaksgjennomforinger } from "@/api/queries/useTiltaksgjennomforinger";
+import { ModiaFiltertags } from "@/apps/modia/filtrering/ModiaFiltertags";
 import { HistorikkButton } from "@/apps/modia/historikk/HistorikkButton";
+import { useHentAlleTiltakDeltMedBruker } from "@/apps/modia/hooks/useHentAlleTiltakDeltMedBruker";
+import { useHentBrukerdata } from "@/apps/modia/hooks/useHentBrukerdata";
+import { FiltrertFeilInnsatsgruppeVarsel } from "@/apps/modia/varsler/FiltrertFeilInnsatsgruppeVarsel";
+import { PortenLink } from "@/components/PortenLink";
+import { TiltakLoader } from "@/components/TiltakLoader";
+import { Feilmelding } from "@/components/feilmelding/Feilmelding";
+import { FilterAndTableLayout } from "@/components/filtrering/FilterAndTableLayout";
+import { FilterMenyMedSkeletonLoader } from "@/components/filtrering/FilterMenyMedSkeletonLoader";
 import { OversiktenJoyride } from "@/components/joyride/OversiktenJoyride";
 import { Tiltaksgjennomforingsoversikt } from "@/components/oversikt/Tiltaksgjennomforingsoversikt";
 import { Tilbakeknapp } from "@/components/tilbakeknapp/Tilbakeknapp";
-import { useFeatureToggle } from "@/api/feature-toggles";
-import { useHentAlleTiltakDeltMedBruker } from "@/apps/modia/hooks/useHentAlleTiltakDeltMedBruker";
-import { useHentBrukerdata } from "@/apps/modia/hooks/useHentBrukerdata";
-import { useVeilederTiltaksgjennomforinger } from "@/api/queries/useTiltaksgjennomforinger";
-import { FilterMenyMedSkeletonLoader } from "@/components/filtrering/FilterMenyMedSkeletonLoader";
-import { PortenLink } from "@/components/PortenLink";
 import { useResetArbeidsmarkedstiltakFilterMedBrukerIKontekst } from "@/hooks/useArbeidsmarkedstiltakFilter";
-import { BrukerHarIkke14aVedtakVarsel } from "@/apps/modia/varsler/BrukerHarIkke14aVedtakVarsel";
-import { BrukersOppfolgingsenhetVarsel } from "@/apps/modia/varsler/BrukersOppfolgingsenhetVarsel";
-import { FiltrertFeilInnsatsgruppeVarsel } from "@/apps/modia/varsler/FiltrertFeilInnsatsgruppeVarsel";
-import { ModiaFiltertags } from "@/apps/modia/filtrering/ModiaFiltertags";
-import { Feilmelding } from "@/components/feilmelding/Feilmelding";
-import { TilToppenKnapp } from "mulighetsrommet-frontend-common/components/tilToppenKnapp/TilToppenKnapp";
+import { Alert } from "@navikt/ds-react";
+import { ApiError, Toggles } from "mulighetsrommet-api-client";
+import { useTitle } from "mulighetsrommet-frontend-common";
 import { NullstillFilterKnapp } from "mulighetsrommet-frontend-common/components/filter/nullstillFilterKnapp/NullstillFilterKnapp";
-import { BrukerErIkkeUnderOppfolgingVarsel } from "../varsler/BrukerErIkkeUnderOppfolgingVarsel";
+import { TilToppenKnapp } from "mulighetsrommet-frontend-common/components/tilToppenKnapp/TilToppenKnapp";
+import { useEffect, useState } from "react";
+import { ModiaOversiktBrukerVarsler } from "../varsler/ModiaOversiktBrukerVarsler";
 
 export const ModiaArbeidsmarkedstiltakOversikt = () => {
   useTitle("Arbeidsmarkedstiltak - Oversikt");
@@ -98,9 +96,7 @@ export const ModiaArbeidsmarkedstiltakOversikt = () => {
                 filterOpen={filterOpen}
                 varsler={
                   <>
-                    <BrukerHarIkke14aVedtakVarsel brukerdata={brukerdata} />
-                    <BrukersOppfolgingsenhetVarsel brukerdata={brukerdata} />
-                    <BrukerErIkkeUnderOppfolgingVarsel brukerdata={brukerdata} />
+                    <ModiaOversiktBrukerVarsler brukerdata={brukerdata} />
                     <FiltrertFeilInnsatsgruppeVarsel filter={filter} />
                   </>
                 }
