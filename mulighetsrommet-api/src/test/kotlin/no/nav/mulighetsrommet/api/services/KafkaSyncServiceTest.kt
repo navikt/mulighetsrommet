@@ -95,10 +95,7 @@ class KafkaSyncServiceTest : FunSpec({
 
             val gjennomforinger = TiltaksgjennomforingRepository(database.db)
             gjennomforinger.setAvbruttTidspunkt(startdatoInnenforMenAvsluttetStatus.id, LocalDateTime.now())
-            // gjennomforinger.setAvbruttTidspunkt(startdatoInnenfor.id, Avslutningsstatus.IKKE_AVSLUTTET)
             gjennomforinger.setAvbruttTidspunkt(sluttdatoInnenforMenAvbruttStatus.id, LocalDateTime.now())
-            // gjennomforinger.setAvbruttTidspunkt(sluttdatoInnenfor.id, Avslutningsstatus.IKKE_AVSLUTTET)
-            // gjennomforinger.setAvbruttTidspunkt(datoerUtenfor.id, Avslutningsstatus.IKKE_AVSLUTTET)
 
             kafkaSyncService.oppdaterTiltaksgjennomforingsstatus(today, lastSuccessDate)
 

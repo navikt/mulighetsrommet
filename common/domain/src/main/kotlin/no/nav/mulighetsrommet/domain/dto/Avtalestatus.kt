@@ -14,10 +14,11 @@ enum class Avtalestatus {
             dagensDato: LocalDate,
             sluttDato: LocalDate?,
             avbruttTidspunkt: LocalDateTime?,
-        ): Avtalestatus = when {
-            avbruttTidspunkt != null -> Avbrutt
-            sluttDato != null && dagensDato.isAfter(sluttDato) -> Avsluttet
-            else -> Aktiv
-        }
+        ): Avtalestatus =
+            when {
+                avbruttTidspunkt != null -> Avbrutt
+                sluttDato != null && dagensDato.isAfter(sluttDato) -> Avsluttet
+                else -> Aktiv
+            }
     }
 }
