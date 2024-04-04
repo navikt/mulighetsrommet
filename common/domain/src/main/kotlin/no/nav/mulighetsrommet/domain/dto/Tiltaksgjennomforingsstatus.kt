@@ -32,7 +32,7 @@ enum class Tiltaksgjennomforingsstatus {
             when {
                 avbruttTidspunkt != null && avbruttTidspunkt.toLocalDate().isBefore(startDato) -> AVLYST
                 avbruttTidspunkt != null && !avbruttTidspunkt.toLocalDate().isBefore(startDato) -> AVBRUTT
-                sluttDato != null && dagensDato.isAfter(sluttDato) -> AVSLUTTET
+                sluttDato != null && !dagensDato.isBefore(sluttDato) -> AVSLUTTET
                 !startDato.isAfter(dagensDato) -> GJENNOMFORES
                 else -> PLANLAGT
             }

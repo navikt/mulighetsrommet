@@ -17,7 +17,7 @@ enum class Avtalestatus {
         ): Avtalestatus =
             when {
                 avbruttTidspunkt != null -> Avbrutt
-                sluttDato != null && dagensDato.isAfter(sluttDato) -> Avsluttet
+                sluttDato != null && !dagensDato.isBefore(sluttDato) -> Avsluttet
                 else -> Aktiv
             }
     }
