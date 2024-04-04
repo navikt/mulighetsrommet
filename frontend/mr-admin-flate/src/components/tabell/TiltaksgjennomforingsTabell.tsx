@@ -98,7 +98,7 @@ export const TiltaksgjennomforingsTabell = ({
           >
             <Table.Header
               style={{
-                top: `calc(${tagsHeight}px + 7.4rem)`,
+                top: `calc(${tagsHeight}px + 6.9rem)`,
               }}
             >
               <Table.Row>

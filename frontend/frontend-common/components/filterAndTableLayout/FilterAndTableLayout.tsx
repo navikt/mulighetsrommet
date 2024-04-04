@@ -25,14 +25,14 @@ export const FilterAndTableLayout = ({
 }: Props) => {
   return (
     <div className={styles.filter_table_layout_container}>
+      <Filter setFilterOpen={setFilterOpen} filterOpen={filterOpen}>
+        {filter}
+      </Filter>
+
       <TableButtonRow>
         <div className={styles.button_row_left}>{nullstillFilterButton}</div>
         <div className={styles.button_row_right}>{buttons}</div>
       </TableButtonRow>
-
-      <Filter setFilterOpen={setFilterOpen} filterOpen={filterOpen}>
-        {filter}
-      </Filter>
 
       <div
         className={classNames(

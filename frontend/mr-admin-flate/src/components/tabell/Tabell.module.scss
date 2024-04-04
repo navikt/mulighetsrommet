@@ -17,10 +17,8 @@
 
     :global(.navds-table__header) {
       position: sticky;
-      //      top: 10rem;
-      z-index: 1;
       background-color: var(--a-white);
-      //      border: 1px solid var(--a-gray-300);
+      box-shadow: 0 1px 0 rgba(0, 0, 0, 0.5);
     }
   }
 

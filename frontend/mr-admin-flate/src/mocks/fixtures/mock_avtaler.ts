@@ -136,7 +136,7 @@ export const mockAvtaler: Avtale[] = [
 
 // Bruker denne for å teste med flere tiltaksgjennomføringer lokalt, men setter den til 0 sånn
 // at testene går gjennom.
-const x = 200;
+const x = 0;
 for (let i = 0; i < x; i++) {
   mockAvtaler.push({
     id: "6374b285-989d-4f78-a59e-29481b64ba92",
