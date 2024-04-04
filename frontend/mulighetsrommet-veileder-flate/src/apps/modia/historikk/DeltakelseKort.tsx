@@ -1,49 +1,12 @@
 import { BodyShort, HStack, Heading, LinkPanel, Tag, VStack } from "@navikt/ds-react";
-import { AktivDeltakelse, HistorikkForBrukerV2 } from "mulighetsrommet-api-client";
+import classNames from "classnames";
+import { DeltakerKort, DeltakerStatus } from "mulighetsrommet-api-client";
 import { formaterDato } from "../../../utils/Utils";
 import { ModiaRoute, resolveModiaRoute } from "../ModiaRoute";
 import styles from "./DeltakelseKort.module.scss";
-import classNames from "classnames";
 
 interface Props {
-  deltakelse: Partial<AktivDeltakelse> | Partial<HistorikkForBrukerV2>;
-}
-
-function erUtkast(
-  deltakelse: Partial<AktivDeltakelse> | Partial<HistorikkForBrukerV2>,
-): deltakelse is Partial<AktivDeltakelse> {
-  return (deltakelse as Partial<AktivDeltakelse>).aktivStatus !== undefined;
-}
-
-function skalViseSistEndretDato(
-  deltakelse: Partial<AktivDeltakelse> | Partial<HistorikkForBrukerV2>,
-): boolean {
-  if (erUtkast(deltakelse)) {
-    return (
-      !!deltakelse?.aktivStatus &&
-      [
-        AktivDeltakelse.aktivStatus.KLADD,
-        AktivDeltakelse.aktivStatus.UTKAST_TIL_PAMELDING,
-      ].includes(deltakelse.aktivStatus)
-    );
-  }
-
-  if (erHistorisk(deltakelse)) {
-    return (
-      !!deltakelse?.historiskStatus &&
-      [HistorikkForBrukerV2.historiskStatusType.AVBRUTT_UTKAST].includes(
-        deltakelse.historiskStatus.historiskStatusType,
-      )
-    );
-  }
-
-  return false;
-}
-
-function erHistorisk(
-  deltakelse: Partial<HistorikkForBrukerV2>,
-): deltakelse is Partial<HistorikkForBrukerV2> {
-  return (deltakelse as Partial<HistorikkForBrukerV2>).historiskStatus !== undefined;
+  deltakelse: DeltakerKort;
 }
 
 export function DeltakelseKort({ deltakelse }: Props) {
@@ -59,11 +22,8 @@ export function DeltakelseKort({ deltakelse }: Props) {
       as="button"
       onClick={deltakelseRoute.navigate}
       className={classNames(styles.panel, {
-        [styles.utkast]:
-          erUtkast(deltakelse) &&
-          deltakelse?.aktivStatus === AktivDeltakelse.aktivStatus.UTKAST_TIL_PAMELDING,
-        [styles.kladd]:
-          erUtkast(deltakelse) && deltakelse?.aktivStatus === AktivDeltakelse.aktivStatus.KLADD,
+        [styles.utkast]: deltakelse?.status.type === DeltakerStatus.type.UTKAST_TIL_PAMELDING,
+        [styles.kladd]: deltakelse?.status.type === DeltakerStatus.type.KLADD,
       })}
     >
       <VStack gap="2">
@@ -77,22 +37,21 @@ export function DeltakelseKort({ deltakelse }: Props) {
           </Heading>
         ) : null}
         <HStack align={"center"} gap="5">
-          {erHistorisk(deltakelse) && deltakelse?.historiskStatus ? (
-            <Status status={deltakelse.historiskStatus.historiskStatusType} />
-          ) : erUtkast(deltakelse) && deltakelse.aktivStatus ? (
-            <Status status={deltakelse.aktivStatus} />
+          {deltakelse?.status ? <Status status={deltakelse.status} /> : null}
+          {deltakelse.status.aarsak ? (
+            <BodyShort size="small">Årsak: {deltakelse.status.aarsak}</BodyShort>
           ) : null}
-          {erHistorisk(deltakelse) && deltakelse.beskrivelse ? (
-            <BodyShort size="small">Årsak: {deltakelse.beskrivelse}</BodyShort>
-          ) : null}
-          {deltakelse.periode?.startdato && deltakelse.periode.sluttdato ? (
+          {deltakelse.periode?.startdato ? (
             <BodyShort size="small">
-              {formaterDato(deltakelse.periode.startdato)} -{" "}
-              {formaterDato(deltakelse.periode.sluttdato)}
+              {[deltakelse.periode.startdato, deltakelse.periode.sluttdato]
+                .filter(Boolean)
+                .map((dato) => dato && formaterDato(dato))
+                .join(" - ") +
+                (deltakelse.periode?.startdato && !deltakelse.periode?.sluttdato ? " - " : "")}
             </BodyShort>
           ) : null}
-          {skalViseSistEndretDato(deltakelse) && deltakelse.sistEndretdato ? (
-            <span>Sist endret: {formaterDato(deltakelse.sistEndretdato)}</span>
+          {deltakelse.sistEndretDato ? (
+            <span>Sist endret: {formaterDato(deltakelse.sistEndretDato)}</span>
           ) : null}
         </HStack>
       </VStack>
@@ -101,94 +60,53 @@ export function DeltakelseKort({ deltakelse }: Props) {
 }
 
 interface StatusProps {
-  status: HistorikkForBrukerV2.historiskStatusType | AktivDeltakelse.aktivStatus;
+  status: DeltakerStatus;
 }
 
 function Status({ status }: StatusProps) {
-  switch (status) {
-    case HistorikkForBrukerV2.historiskStatusType.AVBRUTT:
+  const { statustekst } = status;
+  switch (status.type) {
+    case DeltakerStatus.type.DELTAR:
       return (
         <Tag size="small" variant="success" className={styles.deltarStatus}>
-          Avbrutt
+          {statustekst}
         </Tag>
       );
-    case HistorikkForBrukerV2.historiskStatusType.HAR_SLUTTET:
+    case DeltakerStatus.type.IKKE_AKTUELL:
+    case DeltakerStatus.type.AVBRUTT_UTKAST:
+    case DeltakerStatus.type.AVBRUTT:
+      return (
+        <Tag size="small" variant="neutral">
+          {statustekst}
+        </Tag>
+      );
+    case DeltakerStatus.type.UTKAST_TIL_PAMELDING:
+    case DeltakerStatus.type.FULLFORT:
+      return (
+        <Tag size="small" variant="info">
+          {statustekst}
+        </Tag>
+      );
+    case DeltakerStatus.type.HAR_SLUTTET:
       return (
         <Tag size="small" variant="alt1">
-          Har sluttet
+          {statustekst}
         </Tag>
       );
-    case HistorikkForBrukerV2.historiskStatusType.IKKE_AKTUELL:
-      return (
-        <Tag size="small" variant="neutral">
-          Ikke aktuell
-        </Tag>
-      );
-    case HistorikkForBrukerV2.historiskStatusType.FEILREGISTRERT:
-      return (
-        <Tag size="small" variant="info">
-          Feilregistrert
-        </Tag>
-      );
-    case HistorikkForBrukerV2.historiskStatusType.FULLFORT:
-      return (
-        <Tag size="small" variant="info">
-          Fullført
-        </Tag>
-      );
-    case HistorikkForBrukerV2.historiskStatusType.AVBRUTT_UTKAST:
-      return (
-        <Tag size="small" variant="neutral">
-          Avbrutt utkast
-        </Tag>
-      );
-    case AktivDeltakelse.aktivStatus.UTKAST_TIL_PAMELDING:
-      return (
-        <Tag size="small" variant="info">
-          Utkastet er delt og venter på godkjenning
-        </Tag>
-      );
-    case AktivDeltakelse.aktivStatus.VENTER_PA_OPPSTART:
+    case DeltakerStatus.type.VENTER_PA_OPPSTART:
       return (
         <Tag size="small" variant="alt3">
-          Venter på oppstart
+          {statustekst}
         </Tag>
       );
 
-    case AktivDeltakelse.aktivStatus.DELTAR:
-      return (
-        <Tag size="small" variant="success" className={styles.deltarStatus}>
-          Deltar
-        </Tag>
-      );
-    case AktivDeltakelse.aktivStatus.KLADD:
+    case DeltakerStatus.type.KLADD:
+    case DeltakerStatus.type.SOKT_INN:
+    case DeltakerStatus.type.VURDERES:
+    case DeltakerStatus.type.VENTELISTE:
       return (
         <Tag size="small" variant="warning">
-          Kladden er ikke delt
-        </Tag>
-      );
-    case AktivDeltakelse.aktivStatus.SOKT_INN:
-      return (
-        <Tag size="small" variant="warning">
-          Søkt inn
-        </Tag>
-      );
-    case AktivDeltakelse.aktivStatus.VURDERES:
-      return (
-        <Tag size="small" variant="warning">
-          Vurderes
-        </Tag>
-      );
-    case AktivDeltakelse.aktivStatus.VENTELISTE:
-      return (
-        <Tag size="small" variant="warning">
-          Venteliste
-        </Tag>
-      );
-    case AktivDeltakelse.aktivStatus.PABEGYNT_REGISTRERING:
-      return (
-        <Tag size="small" variant="warning">
-          Påbegynt registrering
+          {statustekst}
         </Tag>
       );
   }

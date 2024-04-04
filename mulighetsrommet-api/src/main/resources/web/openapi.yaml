@@ -2478,108 +2478,75 @@ components:
         aktive:
           type: array
           items:
-            $ref: "#/components/schemas/AktivDeltakelse"
+            $ref: "#/components/schemas/DeltakerKort"
         historikk:
           type: array
           items:
-            $ref: "#/components/schemas/HistorikkForBrukerV2"
+            $ref: "#/components/schemas/DeltakerKort"
       required:
         - aktive
         - historikk
 
-    AktivDeltakelse:
+    DeltakerKort:
       type: object
       properties:
         deltakerId:
           type: string
           format: uuid
+        tittel:
+          type: string
+        tiltakstype:
+          $ref: "#/components/schemas/Gruppetiltak"
+        status:
+          $ref: "#/components/schemas/DeltakerStatus"
         innsoktDato:
           type: string
-        sistEndretdato:
+          nullable: true
+        sistEndretDato:
           type: string
-        aktivStatus:
+          nullable: true
+        periode:
+          type: object
+          properties:
+            startdato:
+              type: string
+              nullable: true
+            sluttdato:
+              type: string
+              nullable: true
+          nullable: true
+      required:
+        - deltakerId
+        - tittel
+        - tiltakstype
+        - status
+
+    DeltakerStatus:
+      type: object
+      properties:
+        "type":
           type: string
           enum:
+            - KLADD
             - UTKAST_TIL_PAMELDING
+            - AVBRUTT_UTKAST
             - VENTER_PA_OPPSTART
             - DELTAR
-            - KLADD
+            - HAR_SLUTTET
+            - IKKE_AKTUELL
             - SOKT_INN
             - VURDERES
             - VENTELISTE
-            - PABEGYNT_REGISTRERING
-        tittel:
+            - AVBRUTT
+            - FULLFORT
+        statustekst:
           type: string
-        tiltakstype:
-          $ref: "#/components/schemas/Gruppetiltak"
-        periode:
-          type: object
-          properties:
-            startdato:
-              type: string
-              nullable: true
-            sluttdato:
-              type: string
-              nullable: true
-          nullable: true
-      required:
-        - deltakerId
-        - innsoktDato
-        - sistEndretdato
-        - aktivStatus
-        - tittel
-        - tiltakstype
-
-    HistorikkForBrukerV2:
-      type: object
-      properties:
-        deltakerId:
-          type: string
-          format: uuid
-        innsoktDato:
-          type: string
-        sistEndretdato:
-          type: string
-        periode:
-          type: object
-          properties:
-            startdato:
-              type: string
-              nullable: true
-            sluttdato:
-              type: string
-              nullable: true
-          nullable: true
-        historiskStatus:
-          type: object
-          properties:
-            historiskStatusType:
-              type: string
-              enum:
-                - AVBRUTT_UTKAST
-                - HAR_SLUTTET
-                - IKKE_AKTUELL
-                - FEILREGISTRERT
-                - AVBRUTT
-                - FULLFORT
-            aarsak:
-              type: string
-              nullable: true
-          required:
-            - historiskStatusType
-        tittel:
-          type: string
-        tiltakstype:
-          $ref: "#/components/schemas/Gruppetiltak"
-        beskrivelse:
+        aarsak:
           type: string
           nullable: true
       required:
-        - deltakerId
-        - innsoktDato
-        - historiskStatus
-        - tittel
-        - tiltakstype
+        - "type"
+        - statustekst
 
     TiltakshistorikkArrangor:
       type: object
