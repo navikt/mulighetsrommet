@@ -2295,6 +2295,7 @@ components:
       enum:
         - LOKAL_OPPFOLGINGSENHET
         - BRUKER_IKKE_UNDER_OPPFOLGING
+        - BRUKER_HAR_VAERT_UNDER_OPPFOLGING
 
     NavVeileder:
       type: object

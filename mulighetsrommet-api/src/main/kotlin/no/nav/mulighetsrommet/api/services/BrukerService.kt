@@ -27,39 +27,80 @@ class BrukerService(
         val erUnderOppfolging = veilarboppfolgingClient.erBrukerUnderOppfolging(fnr, obo)
             .getOrElse {
                 when (it) {
-                    ErUnderOppfolgingError.Forbidden -> throw StatusException(HttpStatusCode.Forbidden, "Manglet tilgang til å hente oppfølgingsstatus.")
-                    ErUnderOppfolgingError.Error -> throw StatusException(HttpStatusCode.InternalServerError, "Klarte ikke hente oppfølgingsstatus.")
+                    ErUnderOppfolgingError.Forbidden -> throw StatusException(
+                        HttpStatusCode.Forbidden,
+                        "Manglet tilgang til å hente oppfølgingsstatus.",
+                    )
+
+                    ErUnderOppfolgingError.Error -> throw StatusException(
+                        HttpStatusCode.InternalServerError,
+                        "Klarte ikke hente oppfølgingsstatus.",
+                    )
                 }
             }
 
         val oppfolgingsenhet = veilarboppfolgingClient.hentOppfolgingsenhet(fnr, obo)
             .getOrElse {
                 when (it) {
-                    OppfolgingError.Forbidden -> throw StatusException(HttpStatusCode.Forbidden, "Manglet tilgang til å hente oppfølgingsenhet.")
-                    OppfolgingError.Error -> throw StatusException(HttpStatusCode.InternalServerError, "Klarte ikke hente oppfølgingsenhet.")
+                    OppfolgingError.Forbidden -> throw StatusException(
+                        HttpStatusCode.Forbidden,
+                        "Manglet tilgang til å hente oppfølgingsenhet.",
+                    )
+
+                    OppfolgingError.Error -> throw StatusException(
+                        HttpStatusCode.InternalServerError,
+                        "Klarte ikke hente oppfølgingsenhet.",
+                    )
+
                     OppfolgingError.NotFound -> null
                 }
             }
         val manuellStatus = veilarboppfolgingClient.hentManuellStatus(fnr, obo)
             .getOrElse {
                 when (it) {
-                    OppfolgingError.Forbidden -> throw StatusException(HttpStatusCode.Forbidden, "Manglet tilgang til å hente hente manuell status.")
-                    OppfolgingError.Error -> throw StatusException(HttpStatusCode.InternalServerError, "Klarte ikke hente hente manuell status.")
-                    OppfolgingError.NotFound -> throw StatusException(HttpStatusCode.InternalServerError, "Fant ikke manuell status.")
+                    OppfolgingError.Forbidden -> throw StatusException(
+                        HttpStatusCode.Forbidden,
+                        "Manglet tilgang til å hente hente manuell status.",
+                    )
+
+                    OppfolgingError.Error -> throw StatusException(
+                        HttpStatusCode.InternalServerError,
+                        "Klarte ikke hente hente manuell status.",
+                    )
+
+                    OppfolgingError.NotFound -> throw StatusException(
+                        HttpStatusCode.InternalServerError,
+                        "Fant ikke manuell status.",
+                    )
                 }
             }
         val personInfo = veilarbpersonClient.hentPersonInfo(fnr, obo)
             .getOrElse {
                 when (it) {
-                    PersonError.Forbidden -> throw StatusException(HttpStatusCode.Forbidden, "Manglet tilgang til å hente hente personinfo.")
-                    PersonError.Error -> throw StatusException(HttpStatusCode.InternalServerError, "Klarte ikke hente hente personinfo.")
+                    PersonError.Forbidden -> throw StatusException(
+                        HttpStatusCode.Forbidden,
+                        "Manglet tilgang til å hente hente personinfo.",
+                    )
+
+                    PersonError.Error -> throw StatusException(
+                        HttpStatusCode.InternalServerError,
+                        "Klarte ikke hente hente personinfo.",
+                    )
                 }
             }
         val sisteVedtak = veilarbvedtaksstotteClient.hentSiste14AVedtak(fnr, obo)
             .getOrElse {
                 when (it) {
-                    VedtakError.Forbidden -> throw StatusException(HttpStatusCode.Forbidden, "Mangler tilgang til å hente §14a-vedtak.")
-                    VedtakError.Error -> throw StatusException(HttpStatusCode.InternalServerError, "Klarte ikke hente hente §14a-vedtak.")
+                    VedtakError.Forbidden -> throw StatusException(
+                        HttpStatusCode.Forbidden,
+                        "Mangler tilgang til å hente §14a-vedtak.",
+                    )
+
+                    VedtakError.Error -> throw StatusException(
+                        HttpStatusCode.InternalServerError,
+                        "Klarte ikke hente hente §14a-vedtak.",
+                    )
+
                     VedtakError.NotFound -> null
                 }
             }
@@ -75,7 +116,10 @@ class BrukerService(
         val enheter = getRelevanteEnheterForBruker(brukersGeografiskeEnhet, brukersOppfolgingsenhet)
 
         if (enheter.isEmpty()) {
-            throw StatusException(HttpStatusCode.BadRequest, "Fant ikke brukers enheter. Kontroller at brukeren er under oppfølging og finnes i Arena")
+            throw StatusException(
+                HttpStatusCode.BadRequest,
+                "Fant ikke brukers enheter. Kontroller at brukeren er under oppfølging og finnes i Arena",
+            )
         }
 
         return Brukerdata(
@@ -84,15 +128,17 @@ class BrukerService(
             enheter = enheter,
             fornavn = personInfo.fornavn,
             manuellStatus = manuellStatus,
-            varsler = listOfNotNull(
+            varsler = buildList {
                 if (oppfolgingsenhetLokalOgUlik(brukersGeografiskeEnhet, brukersOppfolgingsenhet)) {
-                    BrukerVarsel.LOKAL_OPPFOLGINGSENHET
+                    add(BrukerVarsel.LOKAL_OPPFOLGINGSENHET)
+                }
+
+                if (!erUnderOppfolging && sisteVedtak?.innsatsgruppe != null) {
+                    add(BrukerVarsel.BRUKER_HAR_VAERT_UNDER_OPPFOLGING)
                 } else if (!erUnderOppfolging) {
-                    BrukerVarsel.BRUKER_IKKE_UNDER_OPPFOLGING
-                } else {
-                    null
-                },
-            ),
+                    add(BrukerVarsel.BRUKER_IKKE_UNDER_OPPFOLGING)
+                }
+            },
         )
     }
 
@@ -109,6 +155,7 @@ class BrukerService(
     enum class BrukerVarsel {
         LOKAL_OPPFOLGINGSENHET,
         BRUKER_IKKE_UNDER_OPPFOLGING,
+        BRUKER_HAR_VAERT_UNDER_OPPFOLGING,
     }
 }
 
