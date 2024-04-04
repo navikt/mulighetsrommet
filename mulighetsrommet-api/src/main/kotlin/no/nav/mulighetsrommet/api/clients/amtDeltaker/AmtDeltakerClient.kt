@@ -84,7 +84,7 @@ data class DeltakerKort(
     @Serializable(with = LocalDateSerializer::class)
     val innsoktDato: LocalDate? = null,
     @Serializable(with = LocalDateSerializer::class)
-    val sistEndretdato: LocalDate? = null,
+    val sistEndretDato: LocalDate? = null,
     val periode: Periode? = null,
 )
 
