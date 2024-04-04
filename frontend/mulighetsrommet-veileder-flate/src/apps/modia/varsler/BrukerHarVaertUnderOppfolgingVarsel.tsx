@@ -5,7 +5,7 @@ interface Props {
   brukerdata: Bruker;
 }
 
-export function BrukerErIkkeUnderOppfolgingVarsel({ brukerdata }: Props) {
+export function BrukerHarVaertUnderOppfolgingVarsel({ brukerdata }: Props) {
   if (brukerdata.varsler.includes(BrukerVarsel.BRUKER_HAR_VAERT_UNDER_OPPFOLGING)) {
     return (
       <Alert variant="warning">
