@@ -488,11 +488,7 @@ class AvtaleRepository(private val db: Database) {
             sluttDato = sluttDato,
             opphav = ArenaMigrering.Opphav.valueOf(string("opphav")),
             avtaletype = Avtaletype.valueOf(string("avtaletype")),
-            avtalestatus = Avtalestatus.fromDbo(
-                LocalDate.now(),
-                sluttDato,
-                localDateTimeOrNull("avbrutt_tidspunkt"),
-            ),
+            avtalestatus = Avtalestatus.valueOf(string("status")),
             prisbetingelser = stringOrNull("prisbetingelser"),
             antallPlasser = intOrNull("antall_plasser"),
             url = stringOrNull("url"),
@@ -526,11 +522,7 @@ class AvtaleRepository(private val db: Database) {
         statuser
             .ifEmpty { null }
             ?.joinToString(prefix = "(", postfix = ")", separator = " or ") {
-                when (it) {
-                    Avtalestatus.Aktiv -> "(avbrutt_tidspunkt is null and (slutt_dato is null or :today <= slutt_dato))"
-                    Avtalestatus.Avsluttet -> "(avbrutt_tidspunkt is null and :today > slutt_dato)"
-                    Avtalestatus.Avbrutt -> "(avbrutt_tidspunkt is not null)"
-                }
+                "(status = '${it.name}')"
             }
             ?: "true"
 

@@ -98,7 +98,7 @@ class ArenaAdapterService(
             next
         }
 
-        if (dto.avtalestatus == Avtalestatus.Aktiv && dto.administratorer.isEmpty()) {
+        if (dto.avtalestatus == Avtalestatus.AKTIV && dto.administratorer.isEmpty()) {
             maybeNotifyRelevantAdministrators(dto)
         }
 

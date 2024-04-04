@@ -455,13 +455,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         statuser
             .ifEmpty { null }
             ?.joinToString(prefix = "(", postfix = ")", separator = " or ") {
-                when (it) {
-                    PLANLAGT -> "(:today < start_dato and avbrutt_tidspunkt is null)"
-                    GJENNOMFORES -> "((:today >= start_dato and (:today <= slutt_dato or slutt_dato is null)) and avbrutt_tidspunkt is null)"
-                    AVSLUTTET -> "(:today > slutt_dato and avbrutt_tidspunkt is null)"
-                    AVBRUTT -> "(avbrutt_tidspunkt >= start_dato)"
-                    AVLYST -> "(avbrutt_tidspunkt < start_dato)"
-                }
+                "(status = '${it.name}')"
             }
             ?: "true"
 
@@ -780,12 +774,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             tiltaksnummer = stringOrNull("tiltaksnummer"),
             startDato = startDato,
             sluttDato = sluttDato,
-            status = Tiltaksgjennomforingsstatus.fromDbo(
-                LocalDate.now(),
-                startDato,
-                sluttDato,
-                localDateTimeOrNull("avbrutt_tidspunkt"),
-            ),
+            status = Tiltaksgjennomforingsstatus.valueOf(string("status")),
             apentForInnsok = boolean("apent_for_innsok"),
             sanityId = uuidOrNull("sanity_id"),
             antallPlasser = intOrNull("antall_plasser"),

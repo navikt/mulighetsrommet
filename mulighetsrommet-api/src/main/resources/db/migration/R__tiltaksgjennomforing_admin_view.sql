@@ -84,7 +84,14 @@ select gjennomforing.id,
        tiltakstype.navn                    as tiltakstype_navn,
        tiltakstype.tiltakskode             as tiltakstype_tiltakskode,
        tiltakstype.arena_kode              as tiltakstype_arena_kode,
-       gjennomforing.avbrutt_tidspunkt
+       gjennomforing.avbrutt_tidspunkt,
+       case
+           when gjennomforing.avbrutt_tidspunkt is not null and gjennomforing.avbrutt_tidspunkt < gjennomforing.start_dato then 'AVLYST'
+           when gjennomforing.avbrutt_tidspunkt is not null and gjennomforing.avbrutt_tidspunkt >= gjennomforing.start_dato then 'AVBRUTT'
+           when gjennomforing.slutt_dato is not null and now() >= gjennomforing.slutt_dato then 'AVSLUTTET'
+           when now() >= gjennomforing.start_dato then 'GJENNOMFORES'
+           else 'PLANLAGT'
+       end as status
 from tiltaksgjennomforing gjennomforing
          inner join tiltakstype on gjennomforing.tiltakstype_id = tiltakstype.id
          left join tiltaksgjennomforing_administrator tg_a on tg_a.tiltaksgjennomforing_id = gjennomforing.id

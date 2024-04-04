@@ -146,7 +146,7 @@ class AvtaleService(
             return Either.Left(BadRequest(message = "Avtalen har opprinnelse fra Arena og kan ikke bli avbrutt fra admin-flate."))
         }
 
-        if (avtale.avtalestatus != Avtalestatus.Aktiv) {
+        if (avtale.avtalestatus != Avtalestatus.AKTIV) {
             return Either.Left(BadRequest(message = "Avtalen er allerede avsluttet og kan derfor ikke avbrytes."))
         }
 

@@ -90,7 +90,7 @@ class AvtaleRepositoryTest : FunSpec({
                 it.startDato shouldBe arenaAvtale.startDato
                 it.sluttDato shouldBe arenaAvtale.sluttDato
                 it.avtaletype shouldBe arenaAvtale.avtaletype
-                it.avtalestatus shouldBe Avtalestatus.Aktiv
+                it.avtalestatus shouldBe Avtalestatus.AKTIV
                 it.opphav shouldBe ArenaMigrering.Opphav.ARENA
                 it.prisbetingelser shouldBe "Alt er dyrt"
             }
@@ -309,11 +309,11 @@ class AvtaleRepositoryTest : FunSpec({
                 avtaler.upsert(avtalePlanlagt)
 
                 forAll(
-                    row(listOf(Avtalestatus.Aktiv), listOf(avtaleAktiv.id, avtalePlanlagt.id)),
-                    row(listOf(Avtalestatus.Avbrutt), listOf(avtaleAvbrutt.id)),
-                    row(listOf(Avtalestatus.Avsluttet), listOf(avtaleAvsluttet.id)),
+                    row(listOf(Avtalestatus.AKTIV), listOf(avtaleAktiv.id, avtalePlanlagt.id)),
+                    row(listOf(Avtalestatus.AVBRUTT), listOf(avtaleAvbrutt.id)),
+                    row(listOf(Avtalestatus.AVSLUTTET), listOf(avtaleAvsluttet.id)),
                     row(
-                        listOf(Avtalestatus.Avbrutt, Avtalestatus.Avsluttet),
+                        listOf(Avtalestatus.AVBRUTT, Avtalestatus.AVSLUTTET),
                         listOf(avtaleAvbrutt.id, avtaleAvsluttet.id),
                     ),
                 ) { statuser, expected ->
@@ -779,12 +779,12 @@ class AvtaleRepositoryTest : FunSpec({
 
         test("set avbrutt_tidspunkt påvirker avtalestatus") {
             avtaler.get(AvtaleFixtures.oppfolging.id).should {
-                it?.avtalestatus shouldBe Avtalestatus.Aktiv
+                it?.avtalestatus shouldBe Avtalestatus.AKTIV
             }
 
             avtaler.setAvbruttTidspunkt(avtale.id, LocalDateTime.now())
             avtaler.get(AvtaleFixtures.oppfolging.id).should {
-                it?.avtalestatus shouldBe Avtalestatus.Avbrutt
+                it?.avtalestatus shouldBe Avtalestatus.AVBRUTT
             }
         }
     }

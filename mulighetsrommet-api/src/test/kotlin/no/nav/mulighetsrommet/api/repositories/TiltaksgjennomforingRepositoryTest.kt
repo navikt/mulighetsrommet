@@ -495,13 +495,11 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
     }
 
     context("Filtrering på tiltaksgjennomforingstatus") {
-        val dagensDato = LocalDate.of(2023, 2, 1)
-
         val tiltaksgjennomforingAktiv = AFT1
         val tiltaksgjennomforingAvsluttetDato = ArenaOppfolging1.copy(
             id = UUID.randomUUID(),
             avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
-            sluttDato = LocalDate.of(2023, 1, 31),
+            sluttDato = LocalDate.now().minusMonths(1),
         )
         val tiltaksgjennomforingAvbrutt = ArenaOppfolging1.copy(
             id = UUID.randomUUID(),
@@ -514,7 +512,8 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         val tiltaksgjennomforingPlanlagt = ArenaOppfolging1.copy(
             id = UUID.randomUUID(),
             avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
-            startDato = LocalDate.of(2023, 2, 2),
+            startDato = LocalDate.now().plusDays(1),
+            sluttDato = LocalDate.now().plusDays(10),
         )
 
         beforeAny {
@@ -530,7 +529,6 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
 
             val result = tiltaksgjennomforingRepository.getAll(
-                dagensDato = dagensDato,
                 statuser = listOf(Tiltaksgjennomforingsstatus.AVBRUTT),
             )
 
@@ -542,7 +540,6 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
 
             val result = tiltaksgjennomforingRepository.getAll(
-                dagensDato = dagensDato,
                 statuser = listOf(Tiltaksgjennomforingsstatus.AVSLUTTET),
             )
 
@@ -555,7 +552,6 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
 
             val result = tiltaksgjennomforingRepository.getAll(
                 statuser = listOf(Tiltaksgjennomforingsstatus.GJENNOMFORES),
-                dagensDato = dagensDato,
             )
 
             result.second shouldHaveSize 1
@@ -567,19 +563,17 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
 
             val result = tiltaksgjennomforingRepository.getAll(
                 statuser = listOf(Tiltaksgjennomforingsstatus.AVLYST),
-                dagensDato = dagensDato,
             )
 
             result.second shouldHaveSize 1
             result.second[0].id shouldBe tiltaksgjennomforingAvlyst.id
         }
 
-        test("filtrer på åpent for innsøk") {
+        test("filtrer på PLANLAGT") {
             val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
 
             val result = tiltaksgjennomforingRepository.getAll(
                 statuser = listOf(Tiltaksgjennomforingsstatus.PLANLAGT),
-                dagensDato = dagensDato,
             )
 
             result.second shouldHaveSize 1
@@ -1234,6 +1228,118 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 }
                 tiltaksgjennomforinger.get(id)?.apentForInnsok shouldBe apentForInnsok
             }
+        }
+    }
+
+    context("tiltaksgjennomforingstatus") {
+        val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
+
+        val dagensDato = LocalDate.now()
+        val enManedFrem = dagensDato.plusMonths(1)
+        val enManedTilbake = dagensDato.minusMonths(1)
+        val toManederFrem = dagensDato.plusMonths(2)
+        val toManederTilbake = dagensDato.minusMonths(2)
+
+        test("avbrutt før start er avlyst") {
+            tiltaksgjennomforinger.upsert(
+                AFT1.copy(
+                    startDato = enManedTilbake,
+                    sluttDato = enManedFrem,
+                ),
+            )
+            tiltaksgjennomforinger.setAvbruttTidspunkt(AFT1.id, enManedTilbake.atStartOfDay().minusDays(1))
+            tiltaksgjennomforinger.get(AFT1.id)!!.status shouldBe Tiltaksgjennomforingsstatus.AVLYST
+
+            tiltaksgjennomforinger.upsert(
+                AFT1.copy(
+                    startDato = toManederTilbake,
+                    sluttDato = enManedTilbake,
+                ),
+            )
+            tiltaksgjennomforinger.setAvbruttTidspunkt(AFT1.id, toManederTilbake.atStartOfDay().minusYears(1))
+            tiltaksgjennomforinger.get(AFT1.id)!!.status shouldBe Tiltaksgjennomforingsstatus.AVLYST
+
+            tiltaksgjennomforinger.upsert(
+                AFT1.copy(
+                    startDato = enManedFrem,
+                    sluttDato = toManederFrem,
+                ),
+            )
+            tiltaksgjennomforinger.setAvbruttTidspunkt(AFT1.id, enManedFrem.atStartOfDay().minusMonths(1))
+            tiltaksgjennomforinger.get(AFT1.id)!!.status shouldBe Tiltaksgjennomforingsstatus.AVLYST
+        }
+
+        test("avbrutt etter start er avbrutt") {
+            tiltaksgjennomforinger.upsert(
+                AFT1.copy(
+                    startDato = enManedTilbake,
+                    sluttDato = enManedFrem,
+                ),
+            )
+            tiltaksgjennomforinger.setAvbruttTidspunkt(AFT1.id, enManedTilbake.atStartOfDay().plusDays(3))
+            tiltaksgjennomforinger.get(AFT1.id)!!.status shouldBe Tiltaksgjennomforingsstatus.AVBRUTT
+
+            tiltaksgjennomforinger.upsert(
+                AFT1.copy(
+                    startDato = toManederTilbake,
+                    sluttDato = enManedTilbake,
+                ),
+            )
+            tiltaksgjennomforinger.setAvbruttTidspunkt(AFT1.id, toManederTilbake.atStartOfDay().plusYears(2))
+            tiltaksgjennomforinger.get(AFT1.id)!!.status shouldBe Tiltaksgjennomforingsstatus.AVBRUTT
+
+            tiltaksgjennomforinger.upsert(
+                AFT1.copy(
+                    startDato = enManedFrem,
+                    sluttDato = toManederFrem,
+                ),
+            )
+            tiltaksgjennomforinger.setAvbruttTidspunkt(AFT1.id, enManedFrem.atStartOfDay().plusMonths(2))
+            tiltaksgjennomforinger.get(AFT1.id)!!.status shouldBe Tiltaksgjennomforingsstatus.AVBRUTT
+        }
+
+        test("hvis ikke avbrutt") {
+            tiltaksgjennomforinger.upsert(
+                AFT1.copy(
+                    startDato = enManedTilbake,
+                    sluttDato = enManedFrem,
+                ),
+            )
+            tiltaksgjennomforinger.get(AFT1.id)!!.status shouldBe Tiltaksgjennomforingsstatus.GJENNOMFORES
+
+            tiltaksgjennomforinger.upsert(
+                AFT1.copy(
+                    startDato = toManederTilbake,
+                    sluttDato = enManedTilbake,
+                ),
+            )
+            tiltaksgjennomforinger.get(AFT1.id)!!.status shouldBe Tiltaksgjennomforingsstatus.AVSLUTTET
+
+            tiltaksgjennomforinger.upsert(
+                AFT1.copy(
+                    startDato = enManedFrem,
+                    sluttDato = toManederFrem,
+                ),
+            )
+            tiltaksgjennomforinger.get(AFT1.id)!!.status shouldBe Tiltaksgjennomforingsstatus.PLANLAGT
+        }
+
+        test("hvis sluttdato mangler så regnes den som pågående") {
+            tiltaksgjennomforinger.upsert(
+                AFT1.copy(
+                    startDato = enManedTilbake,
+                    sluttDato = null,
+                ),
+            )
+            tiltaksgjennomforinger.get(AFT1.id)!!.status shouldBe Tiltaksgjennomforingsstatus.GJENNOMFORES
+
+            tiltaksgjennomforinger.upsert(
+                AFT1.copy(
+                    startDato = enManedFrem,
+                    sluttDato = null,
+                ),
+            )
+            tiltaksgjennomforinger.get(AFT1.id)!!.status shouldBe Tiltaksgjennomforingsstatus.PLANLAGT
         }
     }
 })
