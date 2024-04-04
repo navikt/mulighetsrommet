@@ -150,7 +150,7 @@ export const paginertMockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = 
 
 // Bruker denne for å teste med flere tiltaksgjennomføringer lokalt, men setter den til 0 sånn
 // at testene går gjennom.
-const x = 0;
+const x = 200;
 for (let i = 0; i < x; i++) {
   mockTiltaksgjennomforinger.push({
     id: "a7d63fb0-4366-412c-84b7-7c15518ee363",

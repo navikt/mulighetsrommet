@@ -43,7 +43,9 @@ export function AvtalerForTiltakstype() {
         }
         filterOpen={filterOpen}
         setFilterOpen={setFilterOpen}
-        nullstillFilterButton={<NullstillKnappForAvtaler />}
+        nullstillFilterButton={
+          <NullstillKnappForAvtaler filterAtom={filterAtom} tiltakstypeId={tiltakstypeId} />
+        }
       />
     </ContainerLayout>
   );

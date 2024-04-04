@@ -33,7 +33,7 @@ export function AvtalerPage() {
         <MainContainer>
           <ContainerLayout>
             <FilterAndTableLayout
-              nullstillFilterButton={<NullstillKnappForAvtaler />}
+              nullstillFilterButton={<NullstillKnappForAvtaler filterAtom={avtaleFilterAtom} />}
               filter={<AvtaleFilter filterAtom={avtaleFilterAtom} />}
               tags={
                 <AvtaleFiltertags
