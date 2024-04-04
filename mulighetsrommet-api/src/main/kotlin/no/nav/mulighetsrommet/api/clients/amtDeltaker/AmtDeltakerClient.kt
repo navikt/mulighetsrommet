@@ -64,8 +64,8 @@ data class DeltakelserRequest(
 
 @Serializable
 data class DeltakelserResponse(
-    val aktive: List<AktivDeltakelse>,
-    val historikk: List<HistoriskDeltakelse>,
+    val aktive: List<DeltakerKort>,
+    val historikk: List<DeltakerKort>,
 ) {
     @Serializable
     data class Tiltakstype(
@@ -75,53 +75,38 @@ data class DeltakelserResponse(
 }
 
 @Serializable
-data class AktivDeltakelse(
+data class DeltakerKort(
     @Serializable(with = UUIDSerializer::class)
     val deltakerId: UUID,
-    @Serializable(with = LocalDateSerializer::class)
-    val innsoktDato: LocalDate?,
-    @Serializable(with = LocalDateSerializer::class)
-    val sistEndretdato: LocalDate,
-    val aktivStatus: AktivStatusType,
     val tittel: String,
     val tiltakstype: DeltakelserResponse.Tiltakstype,
+    val status: DeltakerStatus,
+    @Serializable(with = LocalDateSerializer::class)
+    val innsoktDato: LocalDate? = null,
+    @Serializable(with = LocalDateSerializer::class)
+    val sistEndretdato: LocalDate? = null,
+    val periode: Periode? = null,
+)
+
+@Serializable
+data class DeltakerStatus(
+    val type: DeltakerStatusType,
+    val visningstekst: String,
+    val aarsak: String? = null,
+
 ) {
     @Serializable
-    enum class AktivStatusType {
+    enum class DeltakerStatusType {
         KLADD,
         UTKAST_TIL_PAMELDING,
+        AVBRUTT_UTKAST,
         VENTER_PA_OPPSTART,
         DELTAR,
+        HAR_SLUTTET,
+        IKKE_AKTUELL,
         SOKT_INN,
         VURDERES,
         VENTELISTE,
-        PABEGYNT_REGISTRERING,
-    }
-}
-
-@Serializable
-data class HistoriskDeltakelse(
-    @Serializable(with = UUIDSerializer::class)
-    val deltakerId: UUID,
-    @Serializable(with = LocalDateSerializer::class)
-    val innsoktDato: LocalDate,
-    val periode: Periode?,
-    val historiskStatus: HistoriskStatus,
-    val tittel: String,
-    val tiltakstype: DeltakelserResponse.Tiltakstype,
-) {
-    @Serializable
-    data class HistoriskStatus(
-        val historiskStatusType: HistoriskStatusType,
-        val aarsak: String? = null,
-    )
-
-    @Serializable
-    enum class HistoriskStatusType {
-        AVBRUTT_UTKAST,
-        HAR_SLUTTET,
-        IKKE_AKTUELL,
-        FEILREGISTRERT,
         AVBRUTT,
         FULLFORT,
     }
