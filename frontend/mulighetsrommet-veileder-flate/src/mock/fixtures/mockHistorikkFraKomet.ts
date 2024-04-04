@@ -1,11 +1,41 @@
-import { AktivDeltakelse, Gruppetiltak, HistorikkForBrukerV2 } from "mulighetsrommet-api-client";
+import { DeltakerKort, DeltakerStatus, Gruppetiltak } from "mulighetsrommet-api-client";
 
-export const utkastFraKomet: AktivDeltakelse[] = [
+export const utkastFraKomet: DeltakerKort[] = [
   {
     deltakerId: window.crypto.randomUUID(),
-    innsoktDato: "01.02.2024",
-    sistEndretdato: "27.03.2024",
-    aktivStatus: AktivDeltakelse.aktivStatus.DELTAR,
+    innsoktDato: "2024-03-02",
+    sistEndretDato: "2024-03-27",
+    status: {
+      type: DeltakerStatus.type.KLADD,
+      statustekst: "Kladden er ikke delt",
+    },
+    tiltakstype: {
+      navn: "Avklaring",
+      tiltakskode: Gruppetiltak.tiltakskode.AVKLARAG,
+    },
+    tittel: "Avklaring hos Muligheter AS",
+  },
+  {
+    deltakerId: window.crypto.randomUUID(),
+    innsoktDato: "2024-02-01",
+    sistEndretDato: "2024-03-27",
+    status: {
+      type: DeltakerStatus.type.UTKAST_TIL_PAMELDING,
+      statustekst: "Utkastet er delt og venter på godkjenning",
+    },
+    tiltakstype: {
+      navn: "Avklaring",
+      tiltakskode: Gruppetiltak.tiltakskode.AVKLARAG,
+    },
+    tittel: "Avklaring hos Fretex AS",
+  },
+  {
+    deltakerId: window.crypto.randomUUID(),
+    innsoktDato: "2024-02-01",
+    status: {
+      type: DeltakerStatus.type.VENTER_PA_OPPSTART,
+      statustekst: "Venter på oppstart",
+    },
     tiltakstype: {
       navn: "Jobbklubb",
       tiltakskode: Gruppetiltak.tiltakskode.JOBBK,
@@ -14,39 +44,106 @@ export const utkastFraKomet: AktivDeltakelse[] = [
   },
   {
     deltakerId: window.crypto.randomUUID(),
-    innsoktDato: "03.02.2024",
-    sistEndretdato: "27.02.2024",
-    aktivStatus: AktivDeltakelse.aktivStatus.KLADD,
-    tiltakstype: {
-      navn: "Avklaring",
-      tiltakskode: Gruppetiltak.tiltakskode.AVKLARAG,
+    innsoktDato: "2024-02-01",
+    status: {
+      type: DeltakerStatus.type.VENTER_PA_OPPSTART,
+      statustekst: "Venter på oppstart",
     },
-    tittel: "Avklaring hos Muligheter AS",
+    tiltakstype: {
+      navn: "Jobbklubb",
+      tiltakskode: Gruppetiltak.tiltakskode.JOBBK,
+    },
+    periode: {
+      startdato: "2023-08-10",
+      sluttdato: "2023-09-11",
+    },
+    tittel: "Jobbklubb hos Fretex",
+  },
+  {
+    deltakerId: window.crypto.randomUUID(),
+    innsoktDato: "2024-02-01",
+    status: {
+      type: DeltakerStatus.type.DELTAR,
+      statustekst: "Deltar",
+    },
+    tiltakstype: {
+      navn: "Jobbklubb",
+      tiltakskode: Gruppetiltak.tiltakskode.JOBBK,
+    },
+    periode: {
+      startdato: "2023-08-10",
+      sluttdato: "2023-09-11",
+    },
+    tittel: "Jobbklubb hos Fretex",
+  },
+  {
+    deltakerId: window.crypto.randomUUID(),
+    innsoktDato: "2024-02-01",
+    status: {
+      type: DeltakerStatus.type.VENTER_PA_OPPSTART,
+      statustekst: "Venter på oppstart",
+    },
+    tiltakstype: {
+      navn: "Varig tilrettelagt arbeid (VTA)",
+      tiltakskode: Gruppetiltak.tiltakskode.VASV,
+    },
+    periode: {
+      startdato: "2023-08-10",
+    },
+    tittel: "VTA hos Fretex",
   },
 ];
 
-export const historikkFraKomet: HistorikkForBrukerV2[] = [
+export const historikkFraKomet: DeltakerKort[] = [
   {
-    periode: {
-      startdato: "10.05.2023",
-      sluttdato: "12.12.2023",
-    },
-    beskrivelse: null,
     tittel: "Oppfølging hos Muligheter AS",
     tiltakstype: {
       navn: "Oppfølging",
       tiltakskode: Gruppetiltak.tiltakskode.INDOPPFAG,
     },
     deltakerId: window.crypto.randomUUID(),
-    historiskStatus: {
-      historiskStatusType: HistorikkForBrukerV2.historiskStatusType.HAR_SLUTTET,
+    status: {
+      type: DeltakerStatus.type.AVBRUTT_UTKAST,
+      statustekst: "Avbrutt utkast",
     },
-    innsoktDato: "03.02.2024",
+    sistEndretDato: "2024-03-07",
+    innsoktDato: "2024-03-02",
+  },
+  {
+    tittel: "Oppfølging hos Muligheter AS",
+    tiltakstype: {
+      navn: "Oppfølging",
+      tiltakskode: Gruppetiltak.tiltakskode.INDOPPFAG,
+    },
+    deltakerId: window.crypto.randomUUID(),
+    status: {
+      type: DeltakerStatus.type.IKKE_AKTUELL,
+      statustekst: "Ikke aktuell",
+      aarsak: "utdanning",
+    },
+    innsoktDato: "2024-03-02",
   },
   {
     periode: {
-      startdato: "01.01.2024",
-      sluttdato: "01.02.2024",
+      startdato: "2023-05-10",
+      sluttdato: "2023-12-12",
+    },
+    tittel: "Oppfølging hos Muligheter AS",
+    tiltakstype: {
+      navn: "Oppfølging",
+      tiltakskode: Gruppetiltak.tiltakskode.INDOPPFAG,
+    },
+    deltakerId: window.crypto.randomUUID(),
+    status: {
+      type: DeltakerStatus.type.HAR_SLUTTET,
+      statustekst: "Har sluttet",
+    },
+    innsoktDato: "2024-03-02",
+  },
+  {
+    periode: {
+      startdato: "2023-01.01",
+      sluttdato: "2024-02-01",
     },
     tittel: "Avklaring med Anne",
     tiltakstype: {
@@ -54,29 +151,28 @@ export const historikkFraKomet: HistorikkForBrukerV2[] = [
       tiltakskode: Gruppetiltak.tiltakskode.AVKLARAG,
     },
     deltakerId: window.crypto.randomUUID(),
-    historiskStatus: {
-      historiskStatusType: HistorikkForBrukerV2.historiskStatusType.FULLFORT,
+    status: {
+      type: DeltakerStatus.type.FULLFORT,
+      statustekst: "Fullført",
     },
-
-    beskrivelse: "Dårlig stemning mellom mentor og bruker",
-    innsoktDato: "03.02.2024",
+    innsoktDato: "2024-02-03",
   },
   {
     periode: {
-      startdato: "01.01.2024",
-      sluttdato: "01.06.2025",
+      startdato: "2023-01.01",
+      sluttdato: "2024-02-01",
     },
-    beskrivelse: null,
-    tittel: "Jobbklubb - Oslo",
+    tittel: "Avklaring med Anne",
     tiltakstype: {
-      navn: "Jobbklubb",
-      tiltakskode: Gruppetiltak.tiltakskode.JOBBK,
+      navn: "Avklaring",
+      tiltakskode: Gruppetiltak.tiltakskode.AVKLARAG,
     },
     deltakerId: window.crypto.randomUUID(),
-    historiskStatus: {
-      historiskStatusType: HistorikkForBrukerV2.historiskStatusType.IKKE_AKTUELL,
+    status: {
+      type: DeltakerStatus.type.AVBRUTT,
+      statustekst: "Avbrutt",
+      aarsak: "Fått jobb",
     },
-
-    innsoktDato: "03.02.2024",
+    innsoktDato: "2024-02-03",
   },
 ];
