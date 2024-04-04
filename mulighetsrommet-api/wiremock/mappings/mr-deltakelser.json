@@ -13,7 +13,7 @@
           "sistEndretDato": "2024-03-27",
           "status": {
             "type": "KLADD",
-            "statustekst": "Kladden er ikke delt"
+            "visningstekst": "Kladden er ikke delt"
           },
           "tiltakstype": {
             "navn": "Avklaring",
@@ -32,7 +32,7 @@
           "deltakerId": "cac3b5bf-a10c-4dfa-a392-6866d0ce1efa",
           "status": {
             "type": "AVBRUTT_UTKAST",
-            "statustekst": "Avbrutt utkast"
+            "visningstekst": "Avbrutt utkast"
           },
           "sistEndretDato": "2024-03-07",
           "innsoktDato": "2024-03-02"

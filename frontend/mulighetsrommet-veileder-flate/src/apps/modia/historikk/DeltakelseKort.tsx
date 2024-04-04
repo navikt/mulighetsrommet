@@ -64,12 +64,12 @@ interface StatusProps {
 }
 
 function Status({ status }: StatusProps) {
-  const { statustekst } = status;
+  const { visningstekst } = status;
   switch (status.type) {
     case DeltakerStatus.type.DELTAR:
       return (
         <Tag size="small" variant="success" className={styles.deltarStatus}>
-          {statustekst}
+          {visningstekst}
         </Tag>
       );
     case DeltakerStatus.type.IKKE_AKTUELL:
@@ -77,26 +77,26 @@ function Status({ status }: StatusProps) {
     case DeltakerStatus.type.AVBRUTT:
       return (
         <Tag size="small" variant="neutral">
-          {statustekst}
+          {visningstekst}
         </Tag>
       );
     case DeltakerStatus.type.UTKAST_TIL_PAMELDING:
     case DeltakerStatus.type.FULLFORT:
       return (
         <Tag size="small" variant="info">
-          {statustekst}
+          {visningstekst}
         </Tag>
       );
     case DeltakerStatus.type.HAR_SLUTTET:
       return (
         <Tag size="small" variant="alt1">
-          {statustekst}
+          {visningstekst}
         </Tag>
       );
     case DeltakerStatus.type.VENTER_PA_OPPSTART:
       return (
         <Tag size="small" variant="alt3">
-          {statustekst}
+          {visningstekst}
         </Tag>
       );
 
@@ -106,7 +106,7 @@ function Status({ status }: StatusProps) {
     case DeltakerStatus.type.VENTELISTE:
       return (
         <Tag size="small" variant="warning">
-          {statustekst}
+          {visningstekst}
         </Tag>
       );
   }

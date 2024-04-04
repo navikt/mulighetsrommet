@@ -7,7 +7,7 @@ export const utkastFraKomet: DeltakerKort[] = [
     sistEndretDato: "2024-03-27",
     status: {
       type: DeltakerStatus.type.KLADD,
-      statustekst: "Kladden er ikke delt",
+      visningstekst: "Kladden er ikke delt",
     },
     tiltakstype: {
       navn: "Avklaring",
@@ -21,7 +21,7 @@ export const utkastFraKomet: DeltakerKort[] = [
     sistEndretDato: "2024-03-27",
     status: {
       type: DeltakerStatus.type.UTKAST_TIL_PAMELDING,
-      statustekst: "Utkastet er delt og venter på godkjenning",
+      visningstekst: "Utkastet er delt og venter på godkjenning",
     },
     tiltakstype: {
       navn: "Avklaring",
@@ -34,7 +34,7 @@ export const utkastFraKomet: DeltakerKort[] = [
     innsoktDato: "2024-02-01",
     status: {
       type: DeltakerStatus.type.VENTER_PA_OPPSTART,
-      statustekst: "Venter på oppstart",
+      visningstekst: "Venter på oppstart",
     },
     tiltakstype: {
       navn: "Jobbklubb",
@@ -47,7 +47,7 @@ export const utkastFraKomet: DeltakerKort[] = [
     innsoktDato: "2024-02-01",
     status: {
       type: DeltakerStatus.type.VENTER_PA_OPPSTART,
-      statustekst: "Venter på oppstart",
+      visningstekst: "Venter på oppstart",
     },
     tiltakstype: {
       navn: "Jobbklubb",
@@ -64,7 +64,7 @@ export const utkastFraKomet: DeltakerKort[] = [
     innsoktDato: "2024-02-01",
     status: {
       type: DeltakerStatus.type.DELTAR,
-      statustekst: "Deltar",
+      visningstekst: "Deltar",
     },
     tiltakstype: {
       navn: "Jobbklubb",
@@ -81,7 +81,7 @@ export const utkastFraKomet: DeltakerKort[] = [
     innsoktDato: "2024-02-01",
     status: {
       type: DeltakerStatus.type.VENTER_PA_OPPSTART,
-      statustekst: "Venter på oppstart",
+      visningstekst: "Venter på oppstart",
     },
     tiltakstype: {
       navn: "Varig tilrettelagt arbeid (VTA)",
@@ -104,7 +104,7 @@ export const historikkFraKomet: DeltakerKort[] = [
     deltakerId: window.crypto.randomUUID(),
     status: {
       type: DeltakerStatus.type.AVBRUTT_UTKAST,
-      statustekst: "Avbrutt utkast",
+      visningstekst: "Avbrutt utkast",
     },
     sistEndretDato: "2024-03-07",
     innsoktDato: "2024-03-02",
@@ -118,7 +118,7 @@ export const historikkFraKomet: DeltakerKort[] = [
     deltakerId: window.crypto.randomUUID(),
     status: {
       type: DeltakerStatus.type.IKKE_AKTUELL,
-      statustekst: "Ikke aktuell",
+      visningstekst: "Ikke aktuell",
       aarsak: "utdanning",
     },
     innsoktDato: "2024-03-02",
@@ -136,7 +136,7 @@ export const historikkFraKomet: DeltakerKort[] = [
     deltakerId: window.crypto.randomUUID(),
     status: {
       type: DeltakerStatus.type.HAR_SLUTTET,
-      statustekst: "Har sluttet",
+      visningstekst: "Har sluttet",
     },
     innsoktDato: "2024-03-02",
   },
@@ -153,7 +153,7 @@ export const historikkFraKomet: DeltakerKort[] = [
     deltakerId: window.crypto.randomUUID(),
     status: {
       type: DeltakerStatus.type.FULLFORT,
-      statustekst: "Fullført",
+      visningstekst: "Fullført",
     },
     innsoktDato: "2024-02-03",
   },
@@ -170,7 +170,7 @@ export const historikkFraKomet: DeltakerKort[] = [
     deltakerId: window.crypto.randomUUID(),
     status: {
       type: DeltakerStatus.type.AVBRUTT,
-      statustekst: "Avbrutt",
+      visningstekst: "Avbrutt",
       aarsak: "Fått jobb",
     },
     innsoktDato: "2024-02-03",
