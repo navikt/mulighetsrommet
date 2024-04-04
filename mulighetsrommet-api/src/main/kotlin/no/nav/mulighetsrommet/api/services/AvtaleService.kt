@@ -20,7 +20,6 @@ import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering.Opphav
-import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dto.Avtalestatus
 import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus
@@ -29,6 +28,7 @@ import no.nav.mulighetsrommet.notifications.NotificationType
 import no.nav.mulighetsrommet.notifications.ScheduledNotification
 import java.time.Instant
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.*
 
 class AvtaleService(
@@ -146,7 +146,7 @@ class AvtaleService(
             return Either.Left(BadRequest(message = "Avtalen har opprinnelse fra Arena og kan ikke bli avbrutt fra admin-flate."))
         }
 
-        if (avtale.avtalestatus != Avtalestatus.Aktiv) {
+        if (avtale.avtalestatus != Avtalestatus.AKTIV) {
             return Either.Left(BadRequest(message = "Avtalen er allerede avsluttet og kan derfor ikke avbrytes."))
         }
 
@@ -185,7 +185,7 @@ class AvtaleService(
         }
 
         db.transaction { tx ->
-            avtaler.setAvslutningsstatus(tx, id, Avslutningsstatus.AVBRUTT)
+            avtaler.setAvbruttTidspunkt(tx, id, LocalDateTime.now())
             val dto = getOrError(id, tx)
             logEndring("Avtale ble avbrutt", dto, navIdent, tx)
         }

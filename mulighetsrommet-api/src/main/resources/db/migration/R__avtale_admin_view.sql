@@ -8,7 +8,7 @@ select avtale.id,
        avtale.slutt_dato,
        avtale.opphav,
        avtale.avtaletype,
-       avtale.avslutningsstatus,
+       avtale.avbrutt_tidspunkt,
        avtale.prisbetingelser,
        avtale.antall_plasser,
        avtale.url,
@@ -46,7 +46,12 @@ select avtale.id,
                    'beskrivelse', arrangor_kontaktperson.beskrivelse
                )
            end
-       )                                   as arrangor_kontaktpersoner_json
+       )                                   as arrangor_kontaktpersoner_json,
+       case
+           when avtale.avbrutt_tidspunkt is not null then 'AVBRUTT'
+           when avtale.slutt_dato is not null and now() >= avtale.slutt_dato then 'AVSLUTTET'
+           else 'AKTIV'
+       end as status
 from avtale
          join tiltakstype on tiltakstype.id = avtale.tiltakstype_id
          left join avtale_administrator on avtale.id = avtale_administrator.avtale_id

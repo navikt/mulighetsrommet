@@ -2003,9 +2003,9 @@ components:
     Avtalestatus:
       type: string
       enum:
-        - Aktiv
-        - Avsluttet
-        - Avbrutt
+        - AKTIV
+        - AVSLUTTET
+        - AVBRUTT
 
     NotificationStatus:
       type: string

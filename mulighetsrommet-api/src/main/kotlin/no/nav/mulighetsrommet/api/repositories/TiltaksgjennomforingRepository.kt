@@ -45,7 +45,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 arrangor_id,
                 start_dato,
                 slutt_dato,
-                avslutningsstatus,
                 apent_for_innsok,
                 antall_plasser,
                 avtale_id,
@@ -66,7 +65,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 :arrangor_id,
                 :start_dato,
                 :slutt_dato,
-                :avslutningsstatus::avslutningsstatus,
                 :apent_for_innsok,
                 :antall_plasser,
                 :avtale_id,
@@ -86,7 +84,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                               arrangor_id                  = excluded.arrangor_id,
                               start_dato                   = excluded.start_dato,
                               slutt_dato                   = excluded.slutt_dato,
-                              avslutningsstatus            = excluded.avslutningsstatus,
                               apent_for_innsok             = excluded.apent_for_innsok,
                               antall_plasser               = excluded.antall_plasser,
                               avtale_id                    = excluded.avtale_id,
@@ -270,13 +267,13 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 arena_ansvarlig_enhet,
                 start_dato,
                 slutt_dato,
-                avslutningsstatus,
                 apent_for_innsok,
                 antall_plasser,
                 avtale_id,
                 oppstart,
                 opphav,
-                deltidsprosent
+                deltidsprosent,
+                avbrutt_tidspunkt
             )
             values (
                 :id::uuid,
@@ -287,13 +284,13 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 :arena_ansvarlig_enhet,
                 :start_dato,
                 :slutt_dato,
-                :avslutningsstatus::avslutningsstatus,
                 :apent_for_innsok,
                 :antall_plasser,
                 :avtale_id,
                 :oppstart::tiltaksgjennomforing_oppstartstype,
                 :opphav::opphav,
-                :deltidsprosent
+                :deltidsprosent,
+                :avbrutt_tidspunkt
             )
             on conflict (id)
                 do update set navn                         = excluded.navn,
@@ -303,13 +300,13 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                               arena_ansvarlig_enhet        = excluded.arena_ansvarlig_enhet,
                               start_dato                   = excluded.start_dato,
                               slutt_dato                   = excluded.slutt_dato,
-                              avslutningsstatus            = excluded.avslutningsstatus,
                               apent_for_innsok             = excluded.apent_for_innsok,
                               antall_plasser               = excluded.antall_plasser,
                               avtale_id                    = excluded.avtale_id,
                               oppstart                     = coalesce(tiltaksgjennomforing.oppstart, excluded.oppstart),
                               opphav                       = coalesce(tiltaksgjennomforing.opphav, excluded.opphav),
-                              deltidsprosent               = excluded.deltidsprosent
+                              deltidsprosent               = excluded.deltidsprosent,
+                              avbrutt_tidspunkt            = excluded.avbrutt_tidspunkt
         """.trimIndent()
 
         queryOf(query, tiltaksgjennomforing.toSqlParameters(arrangorId)).asExecute.let { tx.run(it) }
@@ -458,13 +455,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         statuser
             .ifEmpty { null }
             ?.joinToString(prefix = "(", postfix = ")", separator = " or ") {
-                when (it) {
-                    PLANLAGT -> "(:today < start_dato and avslutningsstatus = '${Avslutningsstatus.IKKE_AVSLUTTET}')"
-                    GJENNOMFORES -> "((:today >= start_dato and (:today <= slutt_dato or slutt_dato is null)) and avslutningsstatus = '${Avslutningsstatus.IKKE_AVSLUTTET}')"
-                    AVSLUTTET -> "(:today > slutt_dato or avslutningsstatus = '${Avslutningsstatus.AVSLUTTET}')"
-                    AVBRUTT -> "avslutningsstatus = '${Avslutningsstatus.AVBRUTT}'"
-                    AVLYST -> "avslutningsstatus = '${Avslutningsstatus.AVLYST}'"
-                }
+                "(status = '${it.name}')"
             }
             ?: "true"
 
@@ -524,7 +515,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 left join arrangor_kontaktperson on arrangor_kontaktperson.id = ak.arrangor_kontaktperson_id
             where tiltakstype.tiltakskode is not null
               and gjennomforing.publisert
-              and gjennomforing.avslutningsstatus = 'IKKE_AVSLUTTET'
+              and gjennomforing.avbrutt_tidspunkt is null and (gjennomforing.slutt_dato is null or gjennomforing.slutt_dato > now())
               and (:search::text is null or ((lower(gjennomforing.navn) like lower(:search)) or (gjennomforing.tiltaksnummer like :search)))
               and (:sanityTiltakstypeIds::uuid[] is null or tiltakstype.sanity_id = any(:sanityTiltakstypeIds))
               and (:innsatsgrupper::innsatsgruppe[] is null or tiltakstype.innsatsgruppe = any(:innsatsgrupper::innsatsgruppe[]))
@@ -539,19 +530,18 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             .let { db.run(it) }
     }
 
-    fun getAllByDateIntervalAndAvslutningsstatus(
+    fun getAllByDateIntervalAndNotAvbrutt(
         dateIntervalStart: LocalDate,
         dateIntervalEnd: LocalDate,
-        avslutningsstatus: Avslutningsstatus,
         pagination: PaginationParams,
     ): List<UUID> {
-        logger.info("Henter alle tiltaksgjennomføringer med start- eller sluttdato mellom $dateIntervalStart og $dateIntervalEnd, med avslutningsstatus $avslutningsstatus")
+        logger.info("Henter alle tiltaksgjennomføringer med start- eller sluttdato mellom $dateIntervalStart og $dateIntervalEnd, og ikke avbrutt")
 
         @Language("PostgreSQL")
         val query = """
             select tg.id::uuid
             from tiltaksgjennomforing tg
-            where avslutningsstatus = :avslutningsstatus::avslutningsstatus and (
+            where avbrutt_tidspunkt is null and (
                 (start_dato > :date_interval_start and start_dato <= :date_interval_end) or
                 (slutt_dato >= :date_interval_start and slutt_dato < :date_interval_end))
             order by id
@@ -561,7 +551,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         return queryOf(
             query,
             mapOf(
-                "avslutningsstatus" to avslutningsstatus.name,
                 "date_interval_start" to dateIntervalStart,
                 "date_interval_end" to dateIntervalEnd,
                 "limit" to pagination.limit,
@@ -652,31 +641,19 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         return queryOf(query, avtaleId, gjennomforingId).asUpdate.let { tx.run(it) }
     }
 
-    fun setAvslutningsstatus(id: UUID, status: Avslutningsstatus): Int {
-        return db.transaction { setAvslutningsstatus(it, id, status) }
+    fun setAvbruttTidspunkt(id: UUID, avbruttTidspunkt: LocalDateTime): Int {
+        return db.transaction { setAvbruttTidspunkt(it, id, avbruttTidspunkt) }
     }
 
-    fun getAvslutningsstatus(id: UUID): Avslutningsstatus {
-        @Language("PostgreSQL")
-        val query = """
-            select avslutningsstatus from tiltaksgjennomforing where id = ?::uuid
-        """.trimIndent()
-
-        return queryOf(query, id)
-            .map { Avslutningsstatus.valueOf(it.string("avslutningsstatus")) }
-            .asSingle
-            .let { requireNotNull(db.run(it)) }
-    }
-
-    fun setAvslutningsstatus(tx: Session, id: UUID, status: Avslutningsstatus): Int {
+    fun setAvbruttTidspunkt(tx: Session, id: UUID, avbruttTidspunkt: LocalDateTime): Int {
         @Language("PostgreSQL")
         val query = """
             update tiltaksgjennomforing
-            set avslutningsstatus = :status::avslutningsstatus
+            set avbrutt_tidspunkt = :avbruttTidspunkt
             where id = :id::uuid
         """.trimIndent()
 
-        return tx.run(queryOf(query, mapOf("id" to id, "status" to status.name)).asUpdate)
+        return tx.run(queryOf(query, mapOf("id" to id, "avbruttTidspunkt" to avbruttTidspunkt)).asUpdate)
     }
 
     fun lukkApentForInnsokForTiltakMedStartdatoForDato(
@@ -702,7 +679,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         "arrangor_id" to arrangorId,
         "start_dato" to startDato,
         "slutt_dato" to sluttDato,
-        "avslutningsstatus" to Avslutningsstatus.IKKE_AVSLUTTET.name,
         "apent_for_innsok" to apentForInnsok,
         "antall_plasser" to antallPlasser,
         "avtale_id" to avtaleId,
@@ -726,12 +702,17 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         "start_dato" to startDato,
         "arena_ansvarlig_enhet" to arenaAnsvarligEnhet,
         "slutt_dato" to sluttDato,
-        "avslutningsstatus" to avslutningsstatus.name,
         "apent_for_innsok" to apentForInnsok,
         "antall_plasser" to antallPlasser,
         "avtale_id" to avtaleId,
         "oppstart" to oppstart.name,
         "deltidsprosent" to deltidsprosent,
+        "avbrutt_tidspunkt" to when (avslutningsstatus) {
+            Avslutningsstatus.AVLYST -> startDato.atStartOfDay().minusDays(1)
+            Avslutningsstatus.AVBRUTT -> startDato.atStartOfDay()
+            Avslutningsstatus.AVSLUTTET -> null
+            Avslutningsstatus.IKKE_AVSLUTTET -> null
+        },
     )
 
     private fun Row.toVeilederflateTiltaksgjennomforing(): VeilederflateTiltaksgjennomforing {
@@ -793,12 +774,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             tiltaksnummer = stringOrNull("tiltaksnummer"),
             startDato = startDato,
             sluttDato = sluttDato,
-            status = Tiltaksgjennomforingsstatus.fromDbo(
-                LocalDate.now(),
-                startDato,
-                sluttDato,
-                Avslutningsstatus.valueOf(string("avslutningsstatus")),
-            ),
+            status = Tiltaksgjennomforingsstatus.valueOf(string("status")),
             apentForInnsok = boolean("apent_for_innsok"),
             sanityId = uuidOrNull("sanity_id"),
             antallPlasser = intOrNull("antall_plasser"),

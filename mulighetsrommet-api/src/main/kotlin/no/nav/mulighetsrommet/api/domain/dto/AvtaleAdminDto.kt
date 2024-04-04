@@ -109,9 +109,9 @@ data class AvtaleAdminDto(
             arenaAnsvarligEnhet = arenaAnsvarligEnhet?.enhetsnummer,
             avtaletype = avtaletype,
             avslutningsstatus = when (avtalestatus) {
-                Avtalestatus.Aktiv -> Avslutningsstatus.IKKE_AVSLUTTET
-                Avtalestatus.Avbrutt -> Avslutningsstatus.AVBRUTT
-                Avtalestatus.Avsluttet -> Avslutningsstatus.AVSLUTTET
+                Avtalestatus.AKTIV -> Avslutningsstatus.IKKE_AVSLUTTET
+                Avtalestatus.AVBRUTT -> Avslutningsstatus.AVBRUTT
+                Avtalestatus.AVSLUTTET -> Avslutningsstatus.AVSLUTTET
             },
             prisbetingelser = prisbetingelser,
         )

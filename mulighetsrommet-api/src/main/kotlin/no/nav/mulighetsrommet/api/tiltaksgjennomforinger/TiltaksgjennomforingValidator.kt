@@ -175,7 +175,7 @@ class TiltaksgjennomforingValidator(
                         ),
                     )
                 }
-                if (avtale.avtalestatus != Avtalestatus.Aktiv) {
+                if (avtale.avtalestatus != Avtalestatus.AKTIV) {
                     add(
                         ValidationError.of(
                             TiltaksgjennomforingDbo::avtaleId,
