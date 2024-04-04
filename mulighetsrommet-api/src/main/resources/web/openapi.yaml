@@ -2539,14 +2539,14 @@ components:
             - VENTELISTE
             - AVBRUTT
             - FULLFORT
-        statustekst:
+        visningstekst:
           type: string
         aarsak:
           type: string
           nullable: true
       required:
         - "type"
-        - statustekst
+        - visningstekst
 
     TiltakshistorikkArrangor:
       type: object

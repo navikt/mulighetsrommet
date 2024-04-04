@@ -91,7 +91,7 @@ data class DeltakerKort(
 @Serializable
 data class DeltakerStatus(
     val type: DeltakerStatusType,
-    val statustekst: String,
+    val visningstekst: String,
     val aarsak: String? = null,
 
 ) {
