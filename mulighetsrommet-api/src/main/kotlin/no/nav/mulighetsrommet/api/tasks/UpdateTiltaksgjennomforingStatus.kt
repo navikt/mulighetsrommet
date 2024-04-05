@@ -29,11 +29,12 @@ class UpdateTiltaksgjennomforingStatus(
         .execute { _, context ->
             runBlocking {
                 logger.info("Kjører synkronisering av tiltaksgjennomforingsstatuser på kafka")
-                oppdaterTiltaksgjennomforingStatus(
-                    LocalDate.now(),
-                    context.execution.lastSuccess?.let { LocalDate.ofInstant(it, ZoneId.systemDefault()) }
-                        ?: LocalDate.of(2023, 2, 1),
-                )
+
+                val lastSuccessDate = context.execution.lastSuccess
+                    ?.let { LocalDate.ofInstant(it, ZoneId.systemDefault()) }
+                    ?: LocalDate.of(2023, 2, 1)
+
+                oppdaterTiltaksgjennomforingStatus(LocalDate.now(), lastSuccessDate)
             }
         }
 

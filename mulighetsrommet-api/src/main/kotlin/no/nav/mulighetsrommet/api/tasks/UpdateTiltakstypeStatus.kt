@@ -28,11 +28,12 @@ class UpdateTiltakstypeStatus(
         .execute { _, context ->
             runBlocking {
                 logger.info("Kjører synkronisering av tiltakstypestatuser på kafka")
-                kafkaSyncService.oppdaterTiltakstypestatus(
-                    LocalDate.now(),
-                    context.execution.lastSuccess?.let { LocalDate.ofInstant(it, ZoneId.systemDefault()) }
-                        ?: LocalDate.of(2023, 2, 1),
-                )
+
+                val lastSuccessDate = context.execution.lastSuccess
+                    ?.let { LocalDate.ofInstant(it, ZoneId.systemDefault()) }
+                    ?: LocalDate.of(2023, 2, 1)
+
+                oppdaterTiltakstypestatus(LocalDate.now(), lastSuccessDate)
             }
         }
 
