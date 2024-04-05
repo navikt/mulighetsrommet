@@ -4,7 +4,7 @@ import { ContainerLayout } from "@/layouts/ContainerLayout";
 import { HeaderBanner } from "@/layouts/HeaderBanner";
 import styles from "../Page.module.scss";
 import { useTitle } from "mulighetsrommet-frontend-common";
-import { BellDotIcon } from "@navikt/aksel-icons";
+import { BellDotFillIcon } from "@navikt/aksel-icons";
 
 export function NotifikasjonerPage() {
   const { pathname } = useLocation();
@@ -16,7 +16,7 @@ export function NotifikasjonerPage() {
       <HeaderBanner
         heading="Notifikasjoner"
         harUndermeny
-        ikon={<BellDotIcon title="Notifikasjoner" fontSize="2rem" />}
+        ikon={<BellDotFillIcon title="Notifikasjoner" fontSize="2rem" className={styles.ikon} />}
       />
       <Tabs value={pathname.includes("tidligere") ? "tidligere" : "nye"} selectionFollowsFocus>
         <Tabs.List id="fane_liste" className={styles.list}>
