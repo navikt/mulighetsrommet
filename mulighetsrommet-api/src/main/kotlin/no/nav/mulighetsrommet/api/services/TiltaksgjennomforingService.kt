@@ -12,10 +12,10 @@ import no.nav.mulighetsrommet.api.domain.dto.*
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.repositories.DeltakerRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
+import no.nav.mulighetsrommet.api.routes.v1.AdminTiltaksgjennomforingFilter
 import no.nav.mulighetsrommet.api.routes.v1.TiltaksgjennomforingRequest
 import no.nav.mulighetsrommet.api.routes.v1.responses.*
 import no.nav.mulighetsrommet.api.tiltaksgjennomforinger.TiltaksgjennomforingValidator
-import no.nav.mulighetsrommet.api.utils.AdminTiltaksgjennomforingFilter
 import no.nav.mulighetsrommet.api.utils.EksternTiltaksgjennomforingFilter
 import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.database.Database
@@ -76,25 +76,6 @@ class TiltaksgjennomforingService(
         return tiltaksgjennomforinger.get(id)
     }
 
-    fun getAll(
-        pagination: PaginationParams,
-        filter: AdminTiltaksgjennomforingFilter,
-    ): PaginatedResponse<TiltaksgjennomforingAdminDto> = tiltaksgjennomforinger.getAll(
-        pagination,
-        search = filter.search,
-        navEnheter = filter.navEnheter,
-        tiltakstypeIder = filter.tiltakstypeIder,
-        statuser = filter.statuser,
-        sortering = filter.sortering,
-        sluttDatoCutoff = filter.sluttDatoCutoff,
-        dagensDato = filter.dagensDato,
-        avtaleId = filter.avtaleId,
-        arrangorIds = filter.arrangorIds,
-        administratorNavIdent = filter.administratorNavIdent,
-    ).let { (totalCount, data) ->
-        PaginatedResponse.of(pagination, totalCount, data)
-    }
-
     fun getAllSkalMigreres(
         pagination: PaginationParams,
         filter: AdminTiltaksgjennomforingFilter,
@@ -105,12 +86,15 @@ class TiltaksgjennomforingService(
         tiltakstypeIder = filter.tiltakstypeIder,
         statuser = filter.statuser,
         sortering = filter.sortering,
-        sluttDatoCutoff = filter.sluttDatoCutoff,
         dagensDato = filter.dagensDato,
         avtaleId = filter.avtaleId,
         arrangorIds = filter.arrangorIds,
         administratorNavIdent = filter.administratorNavIdent,
+        /**
+         * Hardkodet filter så man kun viser relevante gjennomføringer i Tiltaksadmin
+         */
         skalMigreres = true,
+        sluttDatoGreaterThanOrEqualTo = ArenaMigrering.TiltaksgjennomforingSluttDatoCutoffDate,
     ).let { (totalCount, data) ->
         PaginatedResponse.of(pagination, totalCount, data)
     }

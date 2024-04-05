@@ -21,7 +21,6 @@ import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus
-import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus.*
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
 import java.time.LocalDate
@@ -385,7 +384,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         tiltakstypeIder: List<UUID> = emptyList(),
         statuser: List<TiltaksgjennomforingStatus> = emptyList(),
         sortering: String? = null,
-        sluttDatoCutoff: LocalDate? = ArenaMigrering.TiltaksgjennomforingSluttDatoCutoffDate,
+        sluttDatoGreaterThanOrEqualTo: LocalDate? = null,
         dagensDato: LocalDate = LocalDate.now(),
         avtaleId: UUID? = null,
         arrangorIds: List<UUID> = emptyList(),
@@ -398,7 +397,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             "search" to search?.replace("/", "#")?.trim()?.let { "%$it%" },
             "limit" to pagination.limit,
             "offset" to pagination.offset,
-            "slutt_dato_cutoff" to sluttDatoCutoff,
+            "slutt_dato_cutoff" to sluttDatoGreaterThanOrEqualTo,
             "today" to dagensDato,
             "avtale_id" to avtaleId,
             "nav_enheter" to navEnheter.ifEmpty { null }?.let { db.createTextArray(it) },
