@@ -18,7 +18,8 @@ export interface Brodsmule {
     | "Ny tiltaksgjennomføring"
     | "Tiltakstyper"
     | "Tiltakstypedetaljer"
-    | "Tiltaktypens avtaler";
+    | "Tiltaktypens avtaler"
+    | "Arrangører";
   lenke:
     | "/"
     | "/tiltakstyper"
@@ -26,7 +27,8 @@ export interface Brodsmule {
     | "/avtaler"
     | `/avtaler/${Id}`
     | "/tiltaksgjennomforinger"
-    | `/tiltaksgjennomforinger/${Id}`;
+    | `/tiltaksgjennomforinger/${Id}`
+    | "/arrangorer";
 }
 
 interface Props {
