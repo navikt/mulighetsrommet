@@ -16,7 +16,7 @@ export function NotifikasjonerPage() {
       <HeaderBanner
         heading="Notifikasjoner"
         harUndermeny
-        ikon={<BellDotFillIcon title="Notifikasjoner" fontSize="2rem" className={styles.ikon} />}
+        ikon={<BellDotFillIcon title="Notifikasjoner" className={styles.ikon} />}
       />
       <Tabs value={pathname.includes("tidligere") ? "tidligere" : "nye"} selectionFollowsFocus>
         <Tabs.List id="fane_liste" className={styles.list}>
