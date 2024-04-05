@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.services
+package no.nav.mulighetsrommet.api.tasks
 
 import io.kotest.core.spec.style.FunSpec
 import io.mockk.mockk
@@ -7,19 +7,16 @@ import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dto.TiltakstypeEksternDto
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
-import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
-import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
 import no.nav.mulighetsrommet.domain.dto.Tiltakstypestatus
-import no.nav.mulighetsrommet.kafka.producers.TiltaksgjennomforingKafkaProducer
 import no.nav.mulighetsrommet.kafka.producers.TiltakstypeKafkaProducer
 import java.time.LocalDate
 import java.util.*
 
-class KafkaSyncServiceTest : FunSpec({
+class UpdateTiltakstypeStatusTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
 
     val lastSuccessDate = LocalDate.of(2023, 2, 14)
@@ -31,7 +28,12 @@ class KafkaSyncServiceTest : FunSpec({
     )
 
     context("oppdater statuser på tiltakstyper") {
-        val (kafkaSyncService, tiltakstypeKafkaProducer) = createService(database.db)
+        val tiltakstypeKafkaProducer = mockk<TiltakstypeKafkaProducer>(relaxed = true)
+        val kafkaSyncService = UpdateTiltakstypeStatus(
+            mockk(),
+            tiltakstypeRepository = TiltakstypeRepository(database.db),
+            tiltakstypeKafkaProducer = tiltakstypeKafkaProducer,
+        )
 
         fun TiltakstypeDbo.toDto(tiltakstypestatus: Tiltakstypestatus): TiltakstypeEksternDto {
             return TiltakstypeEksternDto(
@@ -82,15 +84,3 @@ class KafkaSyncServiceTest : FunSpec({
         }
     }
 })
-
-private fun createService(db: Database): Triple<KafkaSyncService, TiltakstypeKafkaProducer, TiltaksgjennomforingKafkaProducer> {
-    val tiltakstypeKafkaProducer = mockk<TiltakstypeKafkaProducer>(relaxed = true)
-    val tiltaksgjennomforingKafkaProducer = mockk<TiltaksgjennomforingKafkaProducer>(relaxed = true)
-    val kafkaSyncService = KafkaSyncService(
-        tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(db),
-        tiltakstypeRepository = TiltakstypeRepository(db),
-        tiltaksgjennomforingKafkaProducer = tiltaksgjennomforingKafkaProducer,
-        tiltakstypeKafkaProducer = tiltakstypeKafkaProducer,
-    )
-    return Triple(kafkaSyncService, tiltakstypeKafkaProducer, tiltaksgjennomforingKafkaProducer)
-}

@@ -337,7 +337,6 @@ private fun services(appConfig: AppConfig) = module {
     single { SanityTiltaksgjennomforingService(get(), get(), get()) }
     single { TiltakstypeService(get(), appConfig.migrerteTiltak) }
     single { NavEnheterSyncService(get(), get(), get(), get()) }
-    single { KafkaSyncService(get(), get(), get(), get()) }
     single { NavEnhetService(get()) }
     single { NavVeilederService(get()) }
     single { NotificationService(get(), get(), get()) }
@@ -374,7 +373,7 @@ private fun tasks(config: TaskConfig) = module {
             get(),
             get(),
         )
-        val synchronizeTiltakstypestatuserToKafka = SynchronizeTiltakstypestatuserToKafka(get(), get())
+        val updateTiltakstypeStatus = UpdateTiltakstypeStatus(get(), get(), get())
         val synchronizeNorgEnheterTask = SynchronizeNorgEnheter(config.synchronizeNorgEnheter, get(), get())
         val notifySluttdatoForGjennomforingerNarmerSeg = NotifySluttdatoForGjennomforingerNarmerSeg(
             config.notifySluttdatoForGjennomforingerNarmerSeg,
@@ -415,7 +414,7 @@ private fun tasks(config: TaskConfig) = module {
                 deleteExpiredTiltakshistorikk.task,
                 synchronizeNorgEnheterTask.task,
                 updateTiltaksgjennomforingStatus.task,
-                synchronizeTiltakstypestatuserToKafka.task,
+                updateTiltakstypeStatus.task,
                 synchronizeNavAnsatte.task,
                 notifySluttdatoForGjennomforingerNarmerSeg.task,
                 notifySluttdatoForAvtalerNarmerSeg.task,
