@@ -14,6 +14,7 @@ import io.mockk.clearAllMocks
 import io.mockk.coEvery
 import io.mockk.mockk
 import io.mockk.verify
+import kotliquery.Query
 import no.nav.mulighetsrommet.api.clients.AccessType
 import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClient
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
@@ -515,6 +516,62 @@ class ArenaAdapterServiceTest : FunSpec({
                 it.oppstart shouldBe gjennomforing.oppstart
                 it.deltidsprosent shouldBe gjennomforing.deltidsprosent
             }
+        }
+
+        test("skal ikke overskrive avbrutt_tidspunkt") {
+            val gjennomforing = TiltaksgjennomforingFixtures.Oppfolging1.copy(
+                startDato = LocalDate.now(),
+                sluttDato = LocalDate.now().plusDays(1),
+            )
+
+            MulighetsrommetTestDomain(
+                enheter = listOf(
+                    NavEnhetFixtures.IT,
+                    NavEnhetFixtures.Innlandet,
+                    NavEnhetFixtures.Gjovik,
+                    NavEnhetFixtures.Oslo,
+                    NavEnhetFixtures.TiltakOslo,
+                ),
+                arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
+                tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
+                avtaler = listOf(AvtaleFixtures.oppfolging),
+                gjennomforinger = listOf(gjennomforing),
+            ).initialize(database.db)
+
+            // Setter den til custom avbrutt tidspunkt for å sjekke at den ikke overskrives med en "fake" en
+            val jan2023 = LocalDateTime.of(2023, 1, 1, 0, 0, 0)
+            gjennomforinger.setAvbruttTidspunkt(gjennomforing.id, jan2023)
+
+            val arenaDbo = ArenaTiltaksgjennomforingDbo(
+                id = gjennomforing.id,
+                navn = "Endet navn",
+                tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
+                tiltaksnummer = "2024#2024",
+                arrangorOrganisasjonsnummer = ArrangorFixtures.underenhet2.organisasjonsnummer,
+                startDato = LocalDate.of(2024, 1, 1),
+                sluttDato = LocalDate.of(2024, 1, 1),
+                arenaAnsvarligEnhet = NavEnhetFixtures.TiltakOslo.enhetsnummer,
+                avslutningsstatus = Avslutningsstatus.AVLYST,
+                apentForInnsok = false,
+                antallPlasser = 100,
+                oppstart = TiltaksgjennomforingOppstartstype.FELLES,
+                avtaleId = null,
+                deltidsprosent = 1.0,
+            )
+
+            val service = createArenaAdapterService(
+                database.db,
+                migrerteTiltakstyper = listOf(Tiltakskode.OPPFOLGING),
+            )
+
+            service.upsertTiltaksgjennomforing(arenaDbo)
+
+            val avbruttTidspunkt = Query("select avbrutt_tidspunkt from tiltaksgjennomforing where id = '${gjennomforing.id}'")
+                .map { it.localDateTime("avbrutt_tidspunkt") }
+                .asSingle
+                .let { database.db.run(it) }
+
+            avbruttTidspunkt shouldBe jan2023
         }
 
         test("should keep references to existing avtale when avtale is managed in Mulighetsrommet") {

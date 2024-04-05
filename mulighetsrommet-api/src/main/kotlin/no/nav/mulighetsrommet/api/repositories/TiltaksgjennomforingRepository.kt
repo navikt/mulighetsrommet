@@ -312,6 +312,20 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         queryOf(query, tiltaksgjennomforing.toSqlParameters(arrangorId)).asExecute.let { tx.run(it) }
     }
 
+    fun updateArenaData(id: UUID, tiltaksnummer: String, arenaAnsvarligEnhet: String?, tx: Session) {
+        logger.info("Oppdaterer tiltaksgjennomføring med Arena data id=$id")
+
+        @Language("PostgreSQL")
+        val query = """
+            update tiltaksgjennomforing set
+                tiltaksnummer = :tiltaksnummer, arena_ansvarlig_enhet = :arena_ansvarlig_enhet
+            where id = :id::uuid
+        """.trimIndent()
+
+        queryOf(query, mapOf("id" to id, "tiltaksnummer" to tiltaksnummer, "arena_ansvarlig_enhet" to arenaAnsvarligEnhet))
+            .asExecute.let { tx.run(it) }
+    }
+
     fun get(id: UUID): TiltaksgjennomforingAdminDto? =
         db.transaction { get(id, it) }
 
