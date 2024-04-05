@@ -14,7 +14,7 @@ import { PagineringContainer } from "../paginering/PagineringContainer";
 import { PagineringsOversikt } from "../paginering/PagineringOversikt";
 import { TiltaksgjennomforingstatusTag } from "../statuselementer/TiltaksgjennomforingstatusTag";
 import styles from "./Tabell.module.scss";
-import { ToolbarContainer } from "mulighetsrommet-frontend-common/components/toolbarContainer/ToolbarContainer";
+import { ToolbarContainer } from "mulighetsrommet-frontend-common/components/toolbar/toolbarContainer/ToolbarContainer";
 import { TabellWrapper } from "@/components/tabell/TabellWrapper";
 
 const SkjulKolonne = ({ children, skjul }: { children: React.ReactNode; skjul: boolean }) => {
@@ -28,12 +28,12 @@ interface Props {
   filterOpen: boolean;
 }
 
-export const TiltaksgjennomforingsTabell = ({
+export function TiltaksgjennomforingsTabell({
   skjulKolonner,
   filterAtom,
   tagsHeight,
   filterOpen,
-}: Props) => {
+}: Props) {
   const [sort, setSort] = useSort("navn");
   const [filter, setFilter] = useAtom(filterAtom);
 
@@ -262,7 +262,7 @@ export const TiltaksgjennomforingsTabell = ({
       </TabellWrapper>
     </>
   );
-};
+}
 
 interface ColumnHeader {
   sortKey: Kolonne;

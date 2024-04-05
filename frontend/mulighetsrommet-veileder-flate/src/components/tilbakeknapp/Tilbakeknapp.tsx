@@ -8,11 +8,11 @@ interface TilbakeknappProps {
   tekst?: string;
 }
 
-export const Tilbakeknapp = ({ tilbakelenke, tekst = "Tilbake" }: TilbakeknappProps) => {
+export function Tilbakeknapp({ tilbakelenke, tekst = "Tilbake" }: TilbakeknappProps) {
   return (
     <Lenke className={styles.tilbakeknapp} to={tilbakelenke}>
       <ChevronLeftIcon aria-label="Tilbakeknapp" />
       <BodyShort size="small">{tekst}</BodyShort>
     </Lenke>
   );
-};
+}

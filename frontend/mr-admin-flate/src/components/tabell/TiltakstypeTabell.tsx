@@ -11,7 +11,7 @@ import { TiltakstypestatusTag } from "../statuselementer/TiltakstypestatusTag";
 import styles from "./Tabell.module.scss";
 import { TabellWrapper } from "@/components/tabell/TabellWrapper";
 
-export const TiltakstypeTabell = () => {
+export function TiltakstypeTabell() {
   const [filter, setFilter] = useAtom(tiltakstypeFilterAtom);
   const { data, isLoading } = useTiltakstyper(filter);
   const [sort, setSort] = useSort("navn");
@@ -91,7 +91,7 @@ export const TiltakstypeTabell = () => {
       </Table>
     </TabellWrapper>
   );
-};
+}
 
 interface ColumnHeader {
   sortKey: Kolonne;
