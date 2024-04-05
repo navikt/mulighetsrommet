@@ -686,7 +686,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             result.first().id shouldBe Oppfolging1.id
         }
 
-        test("filtrer vekk gjennomføringer som ble avsluttet før 2023") {
+        test("filtrer vekk gjennomføringer basert på sluttdato") {
             tiltaksgjennomforinger.upsert(
                 Oppfolging1.copy(
                     sluttDato = LocalDate.of(2023, 12, 31),
@@ -714,14 +714,15 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 ),
             )
 
-            tiltaksgjennomforinger.getAll().should { (totalCount, gjennomforinger) ->
-                totalCount shouldBe 3
-                gjennomforinger.map { it.sluttDato } shouldContainExactlyInAnyOrder listOf(
-                    LocalDate.of(2023, 12, 31),
-                    LocalDate.of(2023, 6, 29),
-                    null,
-                )
-            }
+            tiltaksgjennomforinger.getAll(sluttDatoGreaterThanOrEqualTo = ArenaMigrering.TiltaksgjennomforingSluttDatoCutoffDate)
+                .should { (totalCount, gjennomforinger) ->
+                    totalCount shouldBe 3
+                    gjennomforinger.map { it.sluttDato } shouldContainExactlyInAnyOrder listOf(
+                        LocalDate.of(2023, 12, 31),
+                        LocalDate.of(2023, 6, 29),
+                        null,
+                    )
+                }
         }
 
         test("filtrer på nav_enhet") {

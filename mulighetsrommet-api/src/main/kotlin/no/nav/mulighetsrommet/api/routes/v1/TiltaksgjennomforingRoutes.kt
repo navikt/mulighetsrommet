@@ -17,7 +17,6 @@ import no.nav.mulighetsrommet.api.repositories.DeltakerRepository
 import no.nav.mulighetsrommet.api.routes.v1.responses.BadRequest
 import no.nav.mulighetsrommet.api.routes.v1.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.services.TiltaksgjennomforingService
-import no.nav.mulighetsrommet.api.utils.AdminTiltaksgjennomforingFilter
 import no.nav.mulighetsrommet.api.utils.getPaginationParams
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dto.Faneinnhold
@@ -122,6 +121,18 @@ fun Route.tiltaksgjennomforingRoutes() {
         }
     }
 }
+
+data class AdminTiltaksgjennomforingFilter(
+    val search: String? = null,
+    val navEnheter: List<String> = emptyList(),
+    val tiltakstypeIder: List<UUID> = emptyList(),
+    val statuser: List<TiltaksgjennomforingStatus> = emptyList(),
+    val sortering: String? = null,
+    val dagensDato: LocalDate = LocalDate.now(),
+    val avtaleId: UUID? = null,
+    val arrangorIds: List<UUID> = emptyList(),
+    val administratorNavIdent: NavIdent? = null,
+)
 
 fun <T : Any> PipelineContext<T, ApplicationCall>.getAdminTiltaksgjennomforingsFilter(): AdminTiltaksgjennomforingFilter {
     val search = call.request.queryParameters["search"]
