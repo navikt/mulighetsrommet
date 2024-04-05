@@ -1,10 +1,10 @@
 import { Tabs } from "@navikt/ds-react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
-import { ContainerLayout } from "../../layouts/ContainerLayout";
-import { HeaderBanner } from "../../layouts/HeaderBanner";
+import { ContainerLayout } from "@/layouts/ContainerLayout";
+import { HeaderBanner } from "@/layouts/HeaderBanner";
 import styles from "../Page.module.scss";
 import { useTitle } from "mulighetsrommet-frontend-common";
-import { NotifikasjonIkon } from "../../components/ikoner/NotifikasjonIkon";
+import { BellDotIcon } from "@navikt/aksel-icons";
 
 export function NotifikasjonerPage() {
   const { pathname } = useLocation();
@@ -13,7 +13,11 @@ export function NotifikasjonerPage() {
 
   return (
     <main>
-      <HeaderBanner heading="Notifikasjoner" harUndermeny ikon={<NotifikasjonIkon />} />
+      <HeaderBanner
+        heading="Notifikasjoner"
+        harUndermeny
+        ikon={<BellDotIcon title="Notifikasjoner" fontSize="2rem" />}
+      />
       <Tabs value={pathname.includes("tidligere") ? "tidligere" : "nye"} selectionFollowsFocus>
         <Tabs.List id="fane_liste" className={styles.list}>
           <Tabs.Tab

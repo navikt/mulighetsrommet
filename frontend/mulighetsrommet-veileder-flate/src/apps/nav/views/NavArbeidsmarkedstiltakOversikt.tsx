@@ -1,5 +1,5 @@
 import { TiltakLoader } from "@/components/TiltakLoader";
-import { FilterAndTableLayout } from "@/components/filtrering/FilterAndTableLayout";
+import { FilterAndTableLayout } from "mulighetsrommet-frontend-common/components/filterAndTableLayout/FilterAndTableLayout";
 import { Tiltaksgjennomforingsoversikt } from "@/components/oversikt/Tiltaksgjennomforingsoversikt";
 import { useNavTiltaksgjennomforinger } from "@/api/queries/useTiltaksgjennomforinger";
 import { FilterMenyMedSkeletonLoader } from "@/components/filtrering/FilterMenyMedSkeletonLoader";
@@ -12,7 +12,7 @@ import { NavFiltertags } from "@/apps/nav/filtrering/NavFiltertags";
 import { useState } from "react";
 import { Feilmelding } from "@/components/feilmelding/Feilmelding";
 import { TilToppenKnapp } from "mulighetsrommet-frontend-common/components/tilToppenKnapp/TilToppenKnapp";
-import { NullstillFilterKnapp } from "mulighetsrommet-frontend-common/components/filter/nullstillFilterKnapp/NullstillFilterKnapp";
+import { NullstillFilterKnapp } from "mulighetsrommet-frontend-common/components/nullstillFilterKnapp/NullstillFilterKnapp";
 
 interface Props {
   preview?: boolean;
@@ -26,6 +26,7 @@ export const NavArbeidsmarkedstiltakOversikt = ({ preview = false }: Props) => {
   const filter = useArbeidsmarkedstiltakFilterValue();
   const { filterHasChanged, resetFilterToDefaults } =
     useResetArbeidsmarkedstiltakFilterUtenBrukerIKontekst();
+  const [tagsHeight, setTagsHeight] = useState(0);
 
   return (
     <>
@@ -34,7 +35,10 @@ export const NavArbeidsmarkedstiltakOversikt = ({ preview = false }: Props) => {
         setFilterOpen={setFilterOpen}
         buttons={null}
         filter={<FilterMenyMedSkeletonLoader />}
-        resetButton={filterHasChanged && <NullstillFilterKnapp onClick={resetFilterToDefaults} />}
+        tags={<NavFiltertags filterOpen={filterOpen} setTagsHeight={setTagsHeight} />}
+        nullstillFilterButton={
+          filterHasChanged && <NullstillFilterKnapp onClick={resetFilterToDefaults} />
+        }
         table={
           <div>
             {isLoading ? (
@@ -42,7 +46,6 @@ export const NavArbeidsmarkedstiltakOversikt = ({ preview = false }: Props) => {
             ) : (
               <Tiltaksgjennomforingsoversikt
                 tiltaksgjennomforinger={tiltaksgjennomforinger}
-                tags={<NavFiltertags filterOpen={filterOpen} />}
                 filterOpen={filterOpen}
                 feilmelding={
                   !isFilterReady(filter) ? (
@@ -59,6 +62,7 @@ export const NavArbeidsmarkedstiltakOversikt = ({ preview = false }: Props) => {
                     />
                   ) : null
                 }
+                tagsHeight={tagsHeight}
               />
             )}
           </div>

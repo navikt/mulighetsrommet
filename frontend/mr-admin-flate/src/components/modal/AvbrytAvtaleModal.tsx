@@ -14,7 +14,7 @@ interface Props {
   avtale: Avtale;
 }
 
-export const AvbrytAvtaleModal = ({ modalRef, avtale }: Props) => {
+export function AvbrytAvtaleModal({ modalRef, avtale }: Props) {
   const mutation = useAvbrytAvtale();
   const navigate = useNavigate();
 
@@ -71,4 +71,4 @@ export const AvbrytAvtaleModal = ({ modalRef, avtale }: Props) => {
       </Modal.Footer>
     </Modal>
   );
-};
+}

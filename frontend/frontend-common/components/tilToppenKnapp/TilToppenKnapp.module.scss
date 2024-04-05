@@ -1,4 +1,5 @@
 .til_toppen_knapp {
+  transform: rotate(-90deg);
   right: 2rem;
   bottom: 2rem;
   box-shadow:
@@ -8,7 +9,6 @@
   opacity: 1;
   background-color: white;
   transition: all 0.75s ease;
-  transform: translateY(0);
 
   &:focus {
     fill: #0074df;

@@ -3,7 +3,7 @@ import styles from "./Modal.module.scss";
 import { resolveErrorMessage } from "@/api/errors";
 import { XMarkOctagonFillIcon } from "@navikt/aksel-icons";
 import classNames from "classnames";
-import { Heading, BodyShort, Button, Modal } from "@navikt/ds-react";
+import { BodyShort, Button, Heading, Modal } from "@navikt/ds-react";
 import { Tiltaksgjennomforing } from "mulighetsrommet-api-client";
 import { RefObject, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
@@ -13,7 +13,7 @@ interface Props {
   tiltaksgjennomforing: Tiltaksgjennomforing;
 }
 
-export const AvbrytTiltaksgjennomforingModal = ({ modalRef, tiltaksgjennomforing }: Props) => {
+export function AvbrytTiltaksgjennomforingModal({ modalRef, tiltaksgjennomforing }: Props) {
   const mutation = useAvbrytTiltaksgjennomforing();
   const navigate = useNavigate();
 
@@ -68,4 +68,4 @@ export const AvbrytTiltaksgjennomforingModal = ({ modalRef, tiltaksgjennomforing
       </Modal.Footer>
     </Modal>
   );
-};
+}

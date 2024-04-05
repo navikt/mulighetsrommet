@@ -3,24 +3,25 @@ import {
   ArbeidsmarkedstiltakFilterGruppe,
   useArbeidsmarkedstiltakFilter,
 } from "@/hooks/useArbeidsmarkedstiltakFilter";
-import { NavEnhetFiltertag } from "mulighetsrommet-frontend-common/components/filter/filtertag/NavEnhetFiltertag";
-import { FiltertagsContainer } from "mulighetsrommet-frontend-common/components/filter/filtertag/FiltertagsContainer";
-import { Filtertag } from "mulighetsrommet-frontend-common/components/filter/filtertag/Filtertag";
+import { NavEnhetFilterTag } from "mulighetsrommet-frontend-common/components/filter/filterTag/NavEnhetFilterTag";
+import { FilterTagsContainer } from "mulighetsrommet-frontend-common/components/filter/filterTag/FilterTagsContainer";
+import { FilterTag } from "mulighetsrommet-frontend-common/components/filter/filterTag/FilterTag";
 
 interface Props {
-  filterOpen?: boolean;
+  filterOpen: boolean;
+  setTagsHeight: (height: number) => void;
 }
 
-export function NavFiltertags({ filterOpen }: Props) {
+export function NavFiltertags({ filterOpen, setTagsHeight }: Props) {
   const [filter, setFilter] = useArbeidsmarkedstiltakFilter();
 
   return (
-    <FiltertagsContainer filterOpen={filterOpen}>
+    <FilterTagsContainer filterOpen={filterOpen} setTagsHeight={setTagsHeight}>
       {filter.search && (
-        <Filtertag label={filter.search} onClose={() => setFilter({ ...filter, search: "" })} />
+        <FilterTag label={filter.search} onClose={() => setFilter({ ...filter, search: "" })} />
       )}
       {filter.apentForInnsok !== ApentForInnsok.APENT_ELLER_STENGT && (
-        <Filtertag
+        <FilterTag
           label={filter.apentForInnsok === ApentForInnsok.APENT ? "Åpent" : "Stengt"}
           onClose={() =>
             setFilter({
@@ -31,19 +32,19 @@ export function NavFiltertags({ filterOpen }: Props) {
         />
       )}
       {filter.innsatsgruppe && (
-        <Filtertag
+        <FilterTag
           label={filter.innsatsgruppe.tittel}
           onClose={() => {
             setFilter({ ...filter, innsatsgruppe: undefined });
           }}
         />
       )}
-      <NavEnhetFiltertag
+      <NavEnhetFilterTag
         navEnheter={filter.navEnheter}
         onClose={() => setFilter({ ...filter, navEnheter: [] })}
       />
       {filter.tiltakstyper.map((tiltakstype) => (
-        <Filtertag
+        <FilterTag
           key={tiltakstype.id}
           label={tiltakstype.tittel}
           onClose={() =>
@@ -56,6 +57,6 @@ export function NavFiltertags({ filterOpen }: Props) {
           }
         />
       ))}
-    </FiltertagsContainer>
+    </FilterTagsContainer>
   );
 }

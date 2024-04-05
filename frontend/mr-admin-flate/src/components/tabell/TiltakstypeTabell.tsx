@@ -1,17 +1,17 @@
 import { Alert, Table } from "@navikt/ds-react";
-import classNames from "classnames";
 import { useAtom } from "jotai";
 import { SorteringTiltakstyper } from "mulighetsrommet-api-client";
 import { Lenke } from "mulighetsrommet-frontend-common/components/lenke/Lenke";
 import { tiltakstypeFilterAtom } from "@/api/atoms";
 import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
-import { useSort } from "../../hooks/useSort";
-import { formaterDato } from "../../utils/Utils";
+import { useSort } from "@/hooks/useSort";
+import { formaterDato } from "@/utils/Utils";
 import { Laster } from "../laster/Laster";
 import { TiltakstypestatusTag } from "../statuselementer/TiltakstypestatusTag";
 import styles from "./Tabell.module.scss";
+import { TabellWrapper } from "@/components/tabell/TabellWrapper";
 
-export const TiltakstypeTabell = () => {
+export function TiltakstypeTabell() {
   const [filter, setFilter] = useAtom(tiltakstypeFilterAtom);
   const { data, isLoading } = useTiltakstyper(filter);
   const [sort, setSort] = useSort("navn");
@@ -39,24 +39,26 @@ export const TiltakstypeTabell = () => {
     });
   };
   return (
-    <div className={classNames(styles.tabell_wrapper, styles.tiltakstypetabell)}>
+    <TabellWrapper className={styles.tiltakstypetabell}>
       <Table
         sort={sort!}
         onSortChange={(sortKey) => handleSort(sortKey!)}
         className={styles.tabell}
       >
         <Table.Header>
-          <Table.Row className={styles.tiltakstype_tabellrad}>
-            <Table.ColumnHeader sortKey="navn" sortable>
-              Navn
-            </Table.ColumnHeader>
-            <Table.ColumnHeader sortKey="startdato" sortable>
-              Startdato
-            </Table.ColumnHeader>
-            <Table.ColumnHeader sortKey="sluttdato" sortable>
-              Sluttdato
-            </Table.ColumnHeader>
-            <Table.ColumnHeader>Status</Table.ColumnHeader>
+          <Table.Row>
+            {headers.map((header) => (
+              <Table.ColumnHeader
+                key={header.sortKey}
+                sortKey={header.sortKey}
+                sortable={header.sortable}
+                style={{
+                  width: header.width,
+                }}
+              >
+                {header.tittel}
+              </Table.ColumnHeader>
+            ))}
           </Table.Row>
         </Table.Header>
         {tiltakstyper.length > 0 ? (
@@ -87,6 +89,49 @@ export const TiltakstypeTabell = () => {
           <></>
         )}
       </Table>
-    </div>
+    </TabellWrapper>
   );
-};
+}
+
+interface ColumnHeader {
+  sortKey: Kolonne;
+  tittel: string;
+  sortable: boolean;
+  width: string;
+}
+
+const headers: ColumnHeader[] = [
+  {
+    sortKey: "navn",
+    tittel: "Avtalenavn",
+    sortable: true,
+    width: "3fr",
+  },
+  {
+    sortKey: "startdato",
+    tittel: "Startdato",
+    sortable: true,
+    width: "1fr",
+  },
+  {
+    sortKey: "sluttdato",
+    tittel: "Sluttdato",
+    sortable: true,
+    width: "1fr",
+  },
+  {
+    sortKey: "status",
+    tittel: "Status",
+    sortable: false,
+    width: "1fr",
+  },
+];
+
+type Kolonne =
+  | "navn"
+  | "avtalenummer"
+  | "arrangor"
+  | "region"
+  | "startdato"
+  | "sluttdato"
+  | "status";

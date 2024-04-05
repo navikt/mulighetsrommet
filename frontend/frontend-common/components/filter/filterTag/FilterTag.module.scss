@@ -11,6 +11,11 @@
   :global(.navds-button).overstyrt_ikon_knapp {
     padding: var(--a-spacing-1) 0;
     margin-left: 0.4rem;
+
+    &:hover {
+      background-color: var(--a-surface-action-subtle-hover);
+      height: 1.7rem;
+    }
   }
 }
 
@@ -20,12 +25,16 @@
   gap: 0.5rem;
   height: fit-content;
   flex-wrap: wrap;
-  min-height: 33px;
-  margin-top: 0.5rem;
-}
-
-@media screen and (max-width: 1200px) {
-  .filtertags_filter_open {
-    margin-left: 20.5rem;
+  padding: 0.5rem 0.5rem 1rem;
+  background-color: var(--a-gray-100);
+  top: 3rem;
+  position: sticky;
+  &_filter_hidden {
+    padding: 0.5rem 0.5rem 1rem 0;
+  }
+  &_filter_open {
+    @media (max-width: 1200px) {
+      margin-left: 20rem;
+    }
   }
 }
