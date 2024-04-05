@@ -4,7 +4,7 @@ import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 
 @Serializable
-enum class Tiltaksgjennomforingsstatus {
+enum class TiltaksgjennomforingStatus {
     PLANLAGT,
     GJENNOMFORES,
     AVBRUTT,

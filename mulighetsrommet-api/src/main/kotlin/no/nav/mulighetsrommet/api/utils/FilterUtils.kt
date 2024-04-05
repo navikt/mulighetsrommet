@@ -6,7 +6,10 @@ import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattRolle
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
-import no.nav.mulighetsrommet.domain.dto.*
+import no.nav.mulighetsrommet.domain.dto.Avtalestatus
+import no.nav.mulighetsrommet.domain.dto.Avtaletype
+import no.nav.mulighetsrommet.domain.dto.NavIdent
+import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus
 import no.nav.mulighetsrommet.notifications.NotificationStatus
 import no.nav.mulighetsrommet.utils.toUUID
 import java.time.LocalDate
@@ -32,7 +35,7 @@ data class AdminTiltaksgjennomforingFilter(
     val search: String? = null,
     val navEnheter: List<String> = emptyList(),
     val tiltakstypeIder: List<UUID> = emptyList(),
-    val statuser: List<Tiltaksgjennomforingsstatus> = emptyList(),
+    val statuser: List<TiltaksgjennomforingStatus> = emptyList(),
     val sortering: String? = null,
     val sluttDatoCutoff: LocalDate? = ArenaMigrering.TiltaksgjennomforingSluttDatoCutoffDate,
     val dagensDato: LocalDate = LocalDate.now(),

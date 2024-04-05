@@ -17,7 +17,7 @@ class KafkaSyncService(
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    fun oppdaterTiltaksgjennomforingsstatus(today: LocalDate, lastSuccessDate: LocalDate) {
+    fun oppdaterTiltaksgjennomforingStatus(today: LocalDate, lastSuccessDate: LocalDate) {
         logger.info("Oppdaterer statuser for gjennomføringer med start eller sluttdato mellom $lastSuccessDate og $today")
 
         val numberOfUpdates = paginate(limit = 1000) { paginationParams ->
@@ -28,10 +28,8 @@ class KafkaSyncService(
             )
 
             tiltaksgjennomforinger.forEach { id ->
-                tiltaksgjennomforingRepository.get(id)
-                    ?.let {
-                        tiltaksgjennomforingKafkaProducer.publish(TiltaksgjennomforingDto.from(it))
-                    }
+                val gjennomforing = requireNotNull(tiltaksgjennomforingRepository.get(id))
+                tiltaksgjennomforingKafkaProducer.publish(TiltaksgjennomforingDto.from(gjennomforing))
             }
 
             tiltaksgjennomforinger
