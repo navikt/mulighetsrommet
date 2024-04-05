@@ -3363,6 +3363,7 @@ components:
         - mulighetsrommet-veilederflate-arena-oppskrifter
         - mulighetsrommet.admin-flate.show-notater
         - mulighetsrommet.admin-flate.enableDebugger
+        - mulighetsrommet.admin-flate.enableArrangorSider
 
     PublisertRequest:
       type: object

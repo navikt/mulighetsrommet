@@ -228,6 +228,22 @@ export const avtaleFilterAtom = atomWithHashAndStorage<AvtaleFilter>(
   avtaleFilterSchema,
 );
 
+const arrangorerFilterSchema = z.object({
+  sok: z.string(),
+});
+
+export type ArrangorerFilter = z.infer<typeof arrangorerFilterSchema>;
+export const defaultArrangorerFilter: ArrangorerFilter = {
+  sok: "",
+};
+
+export const arrangorerFilterAtom = atomWithHashAndStorage<ArrangorerFilter>(
+  "arrangorer-filter",
+  defaultArrangorerFilter,
+  sessionStorage,
+  arrangorerFilterSchema,
+);
+
 export const getAvtalerForTiltakstypeFilterAtom = atomFamily<
   string,
   WritableAtom<AvtaleFilter, [newValue: AvtaleFilter], void>
