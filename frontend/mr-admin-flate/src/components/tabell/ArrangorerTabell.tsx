@@ -19,7 +19,7 @@ export function ArrangorerTabell({ filterAtom, tagsHeight, filterOpen }: Props) 
   const [sort, setSort] = useSort("navn");
   const [filter, setFilter] = useAtom(filterAtom);
 
-  const { data: arrangorer = [], isLoading } = useArrangorer();
+  const { data: arrangorer = [], isLoading } = useArrangorer(); // TODO Må hente ut arrangorer med paginert objekt
 
   function updateFilter(newFilter: Partial<ArrangorerFilter>) {
     setFilter({ ...filter, ...newFilter });
@@ -53,10 +53,10 @@ export function ArrangorerTabell({ filterAtom, tagsHeight, filterOpen }: Props) 
     <>
       <ToolbarContainer tagsHeight={tagsHeight} filterOpen={filterOpen}>
         <PagineringsOversikt
-          page={1}
-          pageSize={10}
-          antall={10}
-          maksAntall={20}
+          page={filter.page}
+          pageSize={filter.pageSize}
+          antall={arrangorer.length}
+          maksAntall={20} // TODO Må bruke verdi fra pagineringsobjekt fra backend
           type="arrangører"
           onChangePageSize={(value) => {
             updateFilter({
@@ -91,6 +91,16 @@ export function ArrangorerTabell({ filterAtom, tagsHeight, filterOpen }: Props) 
                 })}
               </Table.Row>
             </Table.Header>
+            <Table.Body>
+              {arrangorer.map((arrangor) => {
+                return (
+                  <Table.Row key={arrangor.id}>
+                    <Table.DataCell>{arrangor.navn}</Table.DataCell>
+                    <Table.DataCell>{arrangor.organisasjonsnummer}</Table.DataCell>
+                  </Table.Row>
+                );
+              })}
+            </Table.Body>
           </Table>
         )}
       </TabellWrapper>
