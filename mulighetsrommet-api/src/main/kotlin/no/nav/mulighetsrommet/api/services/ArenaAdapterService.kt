@@ -67,8 +67,6 @@ class ArenaAdapterService(
                 val eksternDto = tiltakstyper.getEksternTiltakstype(tiltakstype.id)
                 if (eksternDto != null) {
                     tiltakstypeKafkaProducer.publish(eksternDto)
-                } else {
-                    tiltakstypeKafkaProducer.retract(tiltakstype.id)
                 }
             }
     }

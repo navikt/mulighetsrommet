@@ -52,8 +52,6 @@ class InitialLoadTiltakstyper(
                 val eksternDto = tiltakstyper.getEksternTiltakstype(tiltakstype.id)
                 if (eksternDto != null) {
                     tiltakstypeProducer.publish(eksternDto)
-                } else {
-                    tiltakstypeProducer.retract(tiltakstype.id)
                 }
             }
     }

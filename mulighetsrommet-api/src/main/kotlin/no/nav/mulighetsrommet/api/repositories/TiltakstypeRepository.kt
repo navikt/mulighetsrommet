@@ -256,7 +256,6 @@ class TiltakstypeRepository(private val db: Database) {
     fun getAllByDateInterval(
         dateIntervalStart: LocalDate,
         dateIntervalEnd: LocalDate,
-        pagination: PaginationParams,
     ): List<TiltakstypeAdminDto> {
         logger.info("Henter alle tiltakstyper med start- eller sluttdato mellom $dateIntervalStart og $dateIntervalEnd")
 
@@ -267,8 +266,6 @@ class TiltakstypeRepository(private val db: Database) {
             where
                 (fra_dato > :date_interval_start and fra_dato <= :date_interval_end) or
                 (til_dato >= :date_interval_start and til_dato < :date_interval_end)
-            order by navn
-            limit :limit offset :offset
         """.trimIndent()
 
         return queryOf(
@@ -276,8 +273,6 @@ class TiltakstypeRepository(private val db: Database) {
             mapOf(
                 "date_interval_start" to dateIntervalStart,
                 "date_interval_end" to dateIntervalEnd,
-                "limit" to pagination.limit,
-                "offset" to pagination.offset,
             ),
         ).map { it.toTiltakstypeAdminDto() }.asList.let { db.run(it) }
     }
