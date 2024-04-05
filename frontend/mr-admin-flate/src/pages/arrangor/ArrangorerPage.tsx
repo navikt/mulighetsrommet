@@ -9,10 +9,15 @@ import { ContainerLayout } from "../../layouts/ContainerLayout";
 import { HeaderBanner } from "../../layouts/HeaderBanner";
 import { MainContainer } from "../../layouts/MainContainer";
 import { NullstillKnappForArrangorer } from "./NullstillKnappForArrangorer";
+import { ArrangorerTabell } from "../../components/tabell/ArrangorerTabell";
 
 export function ArrangorerPage() {
   useTitle("Arrangører");
   const [filterOpen, setFilterOpen] = useState<boolean>(true);
+  // TODO Remove eslint-disable
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [tagsHeight, setTagsHeight] = useState(0);
+
   return (
     <>
       <Brodsmuler
@@ -32,7 +37,13 @@ export function ArrangorerPage() {
               filter={<ArrangorerFilter filterAtom={arrangorerFilterAtom} />}
               tags={null}
               buttons={null}
-              table={null}
+              table={
+                <ArrangorerTabell
+                  filterAtom={arrangorerFilterAtom}
+                  tagsHeight={tagsHeight}
+                  filterOpen={filterOpen}
+                />
+              }
               setFilterOpen={setFilterOpen}
               filterOpen={filterOpen}
             />
