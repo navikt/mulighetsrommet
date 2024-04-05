@@ -6,8 +6,10 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.api.tasks.*
-import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
+import no.nav.mulighetsrommet.api.tasks.GenerateValidationReport
+import no.nav.mulighetsrommet.api.tasks.InitialLoadTiltaksgjennomforinger
+import no.nav.mulighetsrommet.api.tasks.InitialLoadTiltakstyper
+import no.nav.mulighetsrommet.api.tasks.SynchronizeNavAnsatte
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.kafka.KafkaConsumerOrchestrator
 import no.nav.mulighetsrommet.kafka.Topic
@@ -29,20 +31,13 @@ fun Route.maamRoutes() {
             }
 
             post("initial-load-tiltaksgjennomforinger") {
-                val input = InitialLoadTiltaksgjennomforingerInput(opphav = null)
+                val input = call.receive<InitialLoadTiltaksgjennomforinger.Input>()
                 val taskId = initialLoadTiltaksgjennomforinger.schedule(input)
 
                 call.respond(HttpStatusCode.Accepted, ScheduleTaskResponse(id = taskId))
             }
 
-            post("initial-load-mulighetsrommet-tiltaksgjennomforinger") {
-                val input = InitialLoadTiltaksgjennomforingerInput(opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE)
-                val taskId = initialLoadTiltaksgjennomforinger.schedule(input)
-
-                call.respond(HttpStatusCode.Accepted, ScheduleTaskResponse(id = taskId))
-            }
-
-            post("initial-load-mulighetsrommet-tiltakstyper") {
+            post("initial-load-tiltakstyper") {
                 val taskId = initialLoadTiltakstyper.schedule()
 
                 call.respond(HttpStatusCode.Accepted, ScheduleTaskResponse(id = taskId))

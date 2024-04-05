@@ -24,6 +24,7 @@ import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingDto
 import no.nav.mulighetsrommet.api.domain.dto.TiltakstypeEksternDto
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.repositories.*
+import no.nav.mulighetsrommet.api.tasks.InitialLoadTiltaksgjennomforinger
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
@@ -102,7 +103,34 @@ class ArenaAdapterServiceTest : FunSpec({
 
             service.removeTiltakstype(tiltakstype.id)
 
-            verify(exactly = 1) { tiltakstypeKafkaProducer.retract(tiltakstype.id) }
+            verify(exactly = 1) {
+                tiltakstypeKafkaProducer.retract(tiltakstype.id)
+            }
+        }
+
+        test("should schedule initial load of gjennomføringer when name changes") {
+            val initialLoadTiltaksgjennomforinger = mockk<InitialLoadTiltaksgjennomforinger>(relaxed = true)
+            val service = createArenaAdapterService(
+                database.db,
+                initialLoadTiltaksgjennomforinger = initialLoadTiltaksgjennomforinger,
+            )
+
+            service.upsertTiltakstype(tiltakstype)
+
+            verify(exactly = 0) {
+                initialLoadTiltaksgjennomforinger.schedule(any(), any())
+            }
+
+            service.upsertTiltakstype(tiltakstype.copy(navn = "Nytt navn"))
+
+            verify(exactly = 1) {
+                initialLoadTiltaksgjennomforinger.schedule(
+                    input = InitialLoadTiltaksgjennomforinger.Input(
+                        tiltakstyper = listOf(Tiltakskode.OPPFOLGING),
+                    ),
+                    startTime = any(),
+                )
+            }
         }
 
         test("should not retract tiltakstype if it did not already exist") {
@@ -566,10 +594,11 @@ class ArenaAdapterServiceTest : FunSpec({
 
             service.upsertTiltaksgjennomforing(arenaDbo)
 
-            val avbruttTidspunkt = Query("select avbrutt_tidspunkt from tiltaksgjennomforing where id = '${gjennomforing.id}'")
-                .map { it.localDateTime("avbrutt_tidspunkt") }
-                .asSingle
-                .let { database.db.run(it) }
+            val avbruttTidspunkt =
+                Query("select avbrutt_tidspunkt from tiltaksgjennomforing where id = '${gjennomforing.id}'")
+                    .map { it.localDateTime("avbrutt_tidspunkt") }
+                    .asSingle
+                    .let { database.db.run(it) }
 
             avbruttTidspunkt shouldBe jan2023
         }
@@ -871,6 +900,7 @@ private fun createArenaAdapterService(
     notificationService: NotificationService = mockk(relaxed = true),
     veilarboppfolgingClient: VeilarboppfolgingClient = mockk(),
     migrerteTiltakstyper: List<Tiltakskode> = listOf(),
+    initialLoadTiltaksgjennomforinger: InitialLoadTiltaksgjennomforinger = mockk(relaxed = true),
 ) = ArenaAdapterService(
     db = db,
     navAnsatte = NavAnsattRepository(db),
@@ -888,6 +918,7 @@ private fun createArenaAdapterService(
     endringshistorikk = EndringshistorikkService(db),
     veilarboppfolgingClient = veilarboppfolgingClient,
     tiltakstypeService = TiltakstypeService(TiltakstypeRepository(db), migrerteTiltakstyper),
+    initialLoadTiltaksgjennomforinger = initialLoadTiltaksgjennomforinger,
 )
 
 private fun toTiltaksgjennomforingDto(dbo: ArenaTiltaksgjennomforingDbo, tiltakstype: TiltakstypeDbo) = dbo.run {

@@ -17,7 +17,9 @@ import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
 import no.nav.mulighetsrommet.api.domain.dto.AvtaleAdminDto
 import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingAdminDto
 import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingDto
+import no.nav.mulighetsrommet.api.domain.dto.TiltakstypeEksternDto
 import no.nav.mulighetsrommet.api.repositories.*
+import no.nav.mulighetsrommet.api.tasks.InitialLoadTiltaksgjennomforinger
 import no.nav.mulighetsrommet.api.utils.EnhetFilter
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.QueryResult
@@ -58,18 +60,32 @@ class ArenaAdapterService(
     private val endringshistorikk: EndringshistorikkService,
     private val veilarboppfolgingClient: VeilarboppfolgingClient,
     private val tiltakstypeService: TiltakstypeService,
+    private val initialLoadTiltaksgjennomforinger: InitialLoadTiltaksgjennomforinger,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
     fun upsertTiltakstype(tiltakstype: TiltakstypeDbo): TiltakstypeDbo {
+        val current = tiltakstyper.get(tiltakstype.id)
         return tiltakstyper.upsert(tiltakstype)
             .also {
                 val eksternDto = tiltakstyper.getEksternTiltakstype(tiltakstype.id)
                 if (eksternDto != null) {
                     tiltakstypeKafkaProducer.publish(eksternDto)
+
+                    if (tiltakstypeNavnHasChanged(current, eksternDto)) {
+                        val input = InitialLoadTiltaksgjennomforinger.Input(
+                            tiltakstyper = listOf(eksternDto.tiltakskode),
+                        )
+                        initialLoadTiltaksgjennomforinger.schedule(input)
+                    }
                 }
             }
     }
+
+    private fun tiltakstypeNavnHasChanged(
+        current: TiltakstypeAdminDto?,
+        eksternDto: TiltakstypeEksternDto,
+    ) = current != null && current.navn != eksternDto.navn
 
     fun removeTiltakstype(id: UUID): QueryResult<Int> {
         return tiltakstyper.delete(id).onRight { deletedRows ->

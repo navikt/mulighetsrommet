@@ -300,6 +300,7 @@ private fun services(appConfig: AppConfig) = module {
             get(),
             get(),
             get(),
+            get(),
         )
     }
     single {
@@ -359,7 +360,7 @@ private fun services(appConfig: AppConfig) = module {
 
 private fun tasks(config: TaskConfig) = module {
     single { GenerateValidationReport(config.generateValidationReport, get(), get(), get(), get(), get()) }
-    single { InitialLoadTiltaksgjennomforinger(get(), get(), get()) }
+    single { InitialLoadTiltaksgjennomforinger(get(), get(), get(), get()) }
     single { InitialLoadTiltakstyper(get(), get(), get()) }
     single { SynchronizeNavAnsatte(config.synchronizeNavAnsatte, get(), get(), get()) }
     single {
