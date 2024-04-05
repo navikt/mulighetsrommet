@@ -355,7 +355,7 @@ private fun services(appConfig: AppConfig) = module {
         }
     }
     single { AvtaleValidator(get(), get(), get(), get()) }
-    single { TiltaksgjennomforingValidator(get(), get()) }
+    single { TiltaksgjennomforingValidator(get(), get(), get()) }
 }
 
 private fun tasks(config: TaskConfig) = module {
