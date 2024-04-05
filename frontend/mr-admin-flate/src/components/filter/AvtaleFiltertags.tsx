@@ -6,7 +6,7 @@ import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
 import { useArrangorer } from "@/api/arrangor/useArrangorer";
 import { addOrRemove, avtaletypeTilTekst } from "@/utils/Utils";
 import { AVTALE_STATUS_OPTIONS } from "@/utils/filterUtils";
-import { Filtertag, FiltertagsContainer } from "mulighetsrommet-frontend-common";
+import { FilterTag, FilterTagsContainer } from "mulighetsrommet-frontend-common";
 
 interface Props {
   filterAtom: WritableAtom<AvtaleFilter, [newValue: AvtaleFilter], void>;
@@ -23,9 +23,9 @@ export function AvtaleFiltertags({ filterAtom, tiltakstypeId, filterOpen, setTag
   const { data: arrangorer } = useArrangorer(ArrangorTil.AVTALE);
 
   return (
-    <FiltertagsContainer filterOpen={filterOpen} setTagsHeight={setTagsHeight}>
+    <FilterTagsContainer filterOpen={filterOpen} setTagsHeight={setTagsHeight}>
       {filter.sok && (
-        <Filtertag
+        <FilterTag
           label={filter.sok}
           onClose={() => {
             setFilter({
@@ -36,7 +36,7 @@ export function AvtaleFiltertags({ filterAtom, tiltakstypeId, filterOpen, setTag
         />
       )}
       {filter.statuser.map((status) => (
-        <Filtertag
+        <FilterTag
           key={status}
           label={AVTALE_STATUS_OPTIONS.find((o) => status === o.value)?.label || status}
           onClose={() => {
@@ -48,7 +48,7 @@ export function AvtaleFiltertags({ filterAtom, tiltakstypeId, filterOpen, setTag
         />
       ))}
       {filter.avtaletyper.map((avtaletype) => (
-        <Filtertag
+        <FilterTag
           key={avtaletype}
           label={avtaletypeTilTekst(avtaletype)}
           onClose={() => {
@@ -60,7 +60,7 @@ export function AvtaleFiltertags({ filterAtom, tiltakstypeId, filterOpen, setTag
         />
       ))}
       {filter.visMineAvtaler && (
-        <Filtertag
+        <FilterTag
           label="Mine avtaler"
           onClose={() => {
             setFilter({
@@ -71,7 +71,7 @@ export function AvtaleFiltertags({ filterAtom, tiltakstypeId, filterOpen, setTag
         />
       )}
       {filter.navRegioner.map((enhetsnummer) => (
-        <Filtertag
+        <FilterTag
           key={enhetsnummer}
           label={enheter?.find((e) => e.enhetsnummer === enhetsnummer)?.navn || enhetsnummer}
           onClose={() => {
@@ -84,7 +84,7 @@ export function AvtaleFiltertags({ filterAtom, tiltakstypeId, filterOpen, setTag
       ))}
       {!tiltakstypeId &&
         filter.tiltakstyper.map((tiltakstype) => (
-          <Filtertag
+          <FilterTag
             key={tiltakstype}
             label={tiltakstyper?.data?.find((t) => tiltakstype === t.id)?.navn || tiltakstype}
             onClose={() => {
@@ -96,7 +96,7 @@ export function AvtaleFiltertags({ filterAtom, tiltakstypeId, filterOpen, setTag
           />
         ))}
       {filter.arrangorer.map((id) => (
-        <Filtertag
+        <FilterTag
           key={id}
           label={arrangorer?.find((arrangor) => arrangor.id === id)?.navn ?? id}
           onClose={() => {
@@ -107,6 +107,6 @@ export function AvtaleFiltertags({ filterAtom, tiltakstypeId, filterOpen, setTag
           }}
         />
       ))}
-    </FiltertagsContainer>
+    </FilterTagsContainer>
   );
 }

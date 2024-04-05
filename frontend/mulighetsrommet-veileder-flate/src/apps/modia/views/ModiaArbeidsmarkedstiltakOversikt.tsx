@@ -21,7 +21,7 @@ import { FiltrertFeilInnsatsgruppeVarsel } from "@/apps/modia/varsler/FiltrertFe
 import { ModiaFiltertags } from "@/apps/modia/filtrering/ModiaFiltertags";
 import { Feilmelding } from "@/components/feilmelding/Feilmelding";
 import { TilToppenKnapp } from "mulighetsrommet-frontend-common/components/tilToppenKnapp/TilToppenKnapp";
-import { NullstillFilterKnapp } from "mulighetsrommet-frontend-common/components/filter/nullstillFilterKnapp/NullstillFilterKnapp";
+import { NullstillFilterKnapp } from "mulighetsrommet-frontend-common/components/nullstillFilterKnapp/NullstillFilterKnapp";
 
 export const ModiaArbeidsmarkedstiltakOversikt = () => {
   useTitle("Arbeidsmarkedstiltak - Oversikt");

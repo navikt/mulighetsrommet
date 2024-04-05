@@ -20,7 +20,7 @@ import { PagineringsOversikt } from "../paginering/PagineringOversikt";
 import { AvtalestatusTag } from "../statuselementer/AvtalestatusTag";
 import styles from "./Tabell.module.scss";
 import { FileExcelIcon } from "@navikt/aksel-icons";
-import { ToolbarContainer } from "mulighetsrommet-frontend-common/components/toolbarContainer/ToolbarContainer";
+import { ToolbarContainer } from "mulighetsrommet-frontend-common/components/toolbar/toolbarContainer/ToolbarContainer";
 import { TabellWrapper } from "@/components/tabell/TabellWrapper";
 
 async function lastNedFil(filter: AvtaleFilter) {
@@ -48,7 +48,7 @@ interface Props {
   filterOpen: boolean;
 }
 
-export const AvtaleTabell = ({ filterAtom, tagsHeight, filterOpen }: Props) => {
+export function AvtaleTabell({ filterAtom, tagsHeight, filterOpen }: Props) {
   const [sort, setSort] = useSort("navn");
   const [filter, setFilter] = useAtom(filterAtom);
   const [lasterExcel, setLasterExcel] = useState(false);
@@ -113,11 +113,7 @@ export const AvtaleTabell = ({ filterAtom, tagsHeight, filterOpen }: Props) => {
 
   return (
     <>
-      <ToolbarContainer
-        tagsHeight={tagsHeight}
-        filterOpen={filterOpen}
-        className={styles.avtaletabell_toolbar_container}
-      >
+      <ToolbarContainer tagsHeight={tagsHeight} filterOpen={filterOpen}>
         <PagineringsOversikt
           page={filter.page}
           pageSize={filter.pageSize}
@@ -251,7 +247,7 @@ export const AvtaleTabell = ({ filterAtom, tagsHeight, filterOpen }: Props) => {
       </TabellWrapper>
     </>
   );
-};
+}
 
 interface ColumnHeader {
   sortKey: Kolonne;

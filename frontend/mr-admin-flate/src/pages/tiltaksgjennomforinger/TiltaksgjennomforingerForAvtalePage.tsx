@@ -8,6 +8,7 @@ import { useGetAvtaleIdFromUrlOrThrow } from "@/hooks/useGetAvtaleIdFromUrl";
 import { useState } from "react";
 import { useAvtale } from "@/api/avtaler/useAvtale";
 import { NullstillKnappForTiltaksgjennomforinger } from "@/pages/tiltaksgjennomforinger/NullstillKnappForTiltaksgjennomforinger";
+import { TilToppenKnapp } from "mulighetsrommet-frontend-common/components/tilToppenKnapp/TilToppenKnapp";
 
 export function TiltaksgjennomforingerForAvtalePage() {
   const id = useGetAvtaleIdFromUrlOrThrow();
@@ -18,39 +19,42 @@ export function TiltaksgjennomforingerForAvtalePage() {
   const [tagsHeight, setTagsHeight] = useState(0);
 
   return (
-    <FilterAndTableLayout
-      filter={
-        <TiltaksgjennomforingFilter
-          filterAtom={filterAtom}
-          skjulFilter={{
-            tiltakstype: true,
-          }}
-        />
-      }
-      tags={
-        <TiltaksgjennomforingFiltertags
-          filterAtom={filterAtom}
-          filterOpen={filterOpen}
-          setTagsHeight={setTagsHeight}
-        />
-      }
-      buttons={<TiltaksgjennomforingFilterButtons />}
-      table={
-        <TiltaksgjennomforingsTabell
-          skjulKolonner={{
-            tiltakstype: true,
-            arrangor: true,
-          }}
-          filterAtom={filterAtom}
-          tagsHeight={tagsHeight}
-          filterOpen={filterOpen}
-        />
-      }
-      filterOpen={filterOpen}
-      setFilterOpen={setFilterOpen}
-      nullstillFilterButton={
-        <NullstillKnappForTiltaksgjennomforinger avtale={avtale} filterAtom={filterAtom} />
-      }
-    />
+    <>
+      <FilterAndTableLayout
+        filter={
+          <TiltaksgjennomforingFilter
+            filterAtom={filterAtom}
+            skjulFilter={{
+              tiltakstype: true,
+            }}
+          />
+        }
+        tags={
+          <TiltaksgjennomforingFiltertags
+            filterAtom={filterAtom}
+            filterOpen={filterOpen}
+            setTagsHeight={setTagsHeight}
+          />
+        }
+        buttons={<TiltaksgjennomforingFilterButtons />}
+        table={
+          <TiltaksgjennomforingsTabell
+            skjulKolonner={{
+              tiltakstype: true,
+              arrangor: true,
+            }}
+            filterAtom={filterAtom}
+            tagsHeight={tagsHeight}
+            filterOpen={filterOpen}
+          />
+        }
+        filterOpen={filterOpen}
+        setFilterOpen={setFilterOpen}
+        nullstillFilterButton={
+          <NullstillKnappForTiltaksgjennomforinger avtale={avtale} filterAtom={filterAtom} />
+        }
+      />
+      <TilToppenKnapp />
+    </>
   );
 }

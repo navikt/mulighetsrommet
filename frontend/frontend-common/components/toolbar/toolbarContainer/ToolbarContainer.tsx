@@ -5,14 +5,13 @@ interface Props {
   tagsHeight: number;
   filterOpen: boolean;
   children: React.ReactNode;
-  className?: string;
 }
-export const ToolbarContainer = ({ tagsHeight, filterOpen, children, className }: Props) => {
+
+export const ToolbarContainer = ({ tagsHeight, filterOpen, children }: Props) => {
   return (
     <div
       style={{ top: `calc(${tagsHeight}px + 4.4rem)` }}
-      className={classnames(styles.toolbar_container, className, {
-        [styles.toolbar_container_filter_open]: filterOpen,
+      className={classnames(styles.toolbar_container, {
         [styles.toolbar_container_filter_hidden]: !filterOpen,
       })}
     >

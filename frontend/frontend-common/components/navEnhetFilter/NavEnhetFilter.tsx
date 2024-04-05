@@ -3,9 +3,8 @@ import { Checkbox } from "@navikt/ds-react";
 import classnames from "classnames";
 import { useState } from "react";
 import styles from "./NavEnhetFilter.module.scss";
-import { addOrRemove } from "../utils/utils";
-import { NavEnhet } from "mulighetsrommet-api-client";
-import { NavRegion } from "mulighetsrommet-api-client";
+import { addOrRemove } from "../../utils/utils";
+import { NavEnhet, NavRegion } from "mulighetsrommet-api-client";
 
 interface RegionMap {
   [region: string]: NavEnhet[];

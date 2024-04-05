@@ -1,7 +1,7 @@
 import { Tag } from "@navikt/ds-react";
 import { kebabCase } from "../../../utils/TestUtils";
 import { XMarkIcon } from "@navikt/aksel-icons";
-import styles from "./Filtertag.module.scss";
+import styles from "./FilterTag.module.scss";
 import Ikonknapp from "../../ikonknapp/Ikonknapp";
 
 interface FiltertagsProps {
@@ -9,7 +9,7 @@ interface FiltertagsProps {
   onClose?: () => void;
 }
 
-export const Filtertag = ({ label, onClose }: FiltertagsProps) => {
+export function FilterTag({ label, onClose }: FiltertagsProps) {
   return (
     <Tag
       size="small"
@@ -34,4 +34,4 @@ export const Filtertag = ({ label, onClose }: FiltertagsProps) => {
       ) : null}
     </Tag>
   );
-};
+}

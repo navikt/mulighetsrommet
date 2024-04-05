@@ -1,7 +1,7 @@
 import style from "@/pages/avtaler/AvtalerPage.module.scss";
 import { AvtaleFilter, defaultAvtaleFilter } from "@/api/atoms";
 import { useAtom } from "jotai/index";
-import { NullstillFilterKnapp } from "mulighetsrommet-frontend-common/components/filter/nullstillFilterKnapp/NullstillFilterKnapp";
+import { NullstillFilterKnapp } from "mulighetsrommet-frontend-common/components/nullstillFilterKnapp/NullstillFilterKnapp";
 import { WritableAtom } from "jotai";
 
 interface Props {

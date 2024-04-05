@@ -9,6 +9,7 @@ import { AvtaleFilterButtons } from "@/components/filter/AvtaleFilterButtons";
 import { AvtaleFilter } from "@/components/filter/AvtaleFilter";
 import { useState } from "react";
 import { NullstillKnappForAvtaler } from "@/pages/avtaler/NullstillKnappForAvtaler";
+import { TilToppenKnapp } from "mulighetsrommet-frontend-common/components/tilToppenKnapp/TilToppenKnapp";
 
 export function AvtalerForTiltakstype() {
   useTitle("Tiltakstyper - Avtaler");
@@ -19,34 +20,37 @@ export function AvtalerForTiltakstype() {
   const [tagsHeight, setTagsHeight] = useState(0);
 
   return (
-    <ContainerLayout>
-      <FilterAndTableLayout
-        filter={
-          <AvtaleFilter
-            filterAtom={filterAtom}
-            skjulFilter={{
-              tiltakstype: true,
-            }}
-          />
-        }
-        tags={
-          <AvtaleFiltertags
-            filterAtom={filterAtom}
-            tiltakstypeId={tiltakstypeId}
-            filterOpen={filterOpen}
-            setTagsHeight={setTagsHeight}
-          />
-        }
-        buttons={<AvtaleFilterButtons />}
-        table={
-          <AvtaleTabell filterAtom={filterAtom} tagsHeight={tagsHeight} filterOpen={filterOpen} />
-        }
-        filterOpen={filterOpen}
-        setFilterOpen={setFilterOpen}
-        nullstillFilterButton={
-          <NullstillKnappForAvtaler filterAtom={filterAtom} tiltakstypeId={tiltakstypeId} />
-        }
-      />
-    </ContainerLayout>
+    <>
+      <ContainerLayout>
+        <FilterAndTableLayout
+          filter={
+            <AvtaleFilter
+              filterAtom={filterAtom}
+              skjulFilter={{
+                tiltakstype: true,
+              }}
+            />
+          }
+          tags={
+            <AvtaleFiltertags
+              filterAtom={filterAtom}
+              tiltakstypeId={tiltakstypeId}
+              filterOpen={filterOpen}
+              setTagsHeight={setTagsHeight}
+            />
+          }
+          buttons={<AvtaleFilterButtons />}
+          table={
+            <AvtaleTabell filterAtom={filterAtom} tagsHeight={tagsHeight} filterOpen={filterOpen} />
+          }
+          filterOpen={filterOpen}
+          setFilterOpen={setFilterOpen}
+          nullstillFilterButton={
+            <NullstillKnappForAvtaler filterAtom={filterAtom} tiltakstypeId={tiltakstypeId} />
+          }
+        />
+      </ContainerLayout>
+      <TilToppenKnapp />
+    </>
   );
 }

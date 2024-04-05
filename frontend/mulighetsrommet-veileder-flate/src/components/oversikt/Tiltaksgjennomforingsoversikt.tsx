@@ -14,7 +14,7 @@ import { Sorteringsmeny } from "../sorteringmeny/Sorteringsmeny";
 import { Gjennomforingsrad } from "./Gjennomforingsrad";
 import styles from "./Tiltaksgjennomforingsoversikt.module.scss";
 import { sorteringAtom } from "../sorteringmeny/sorteringAtom";
-import { ToolbarContainer } from "mulighetsrommet-frontend-common/components/toolbarContainer/ToolbarContainer";
+import { ToolbarContainer } from "mulighetsrommet-frontend-common/components/toolbar/toolbarContainer/ToolbarContainer";
 
 interface Props {
   tiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[];
@@ -127,17 +127,12 @@ export const Tiltaksgjennomforingsoversikt = ({
 
   return (
     <>
-      <ToolbarContainer
-        tagsHeight={tagsHeight}
-        filterOpen={filterOpen}
-        className={styles.modia_toolbar_container}
-      >
+      <ToolbarContainer tagsHeight={tagsHeight} filterOpen={filterOpen}>
         {varsler}
         {gjennomforingerForSide.length > 0 ? (
-          <div className={styles.visnings_og_sorteringsmeny}>
+          <>
             <div className={styles.visningsmeny}>
               <ViserAntallTiltakTekst />
-
               <Select
                 size="small"
                 label="Velg antall"
@@ -163,7 +158,7 @@ export const Tiltaksgjennomforingsoversikt = ({
               </Select>
             </div>
             <Sorteringsmeny sortValue={sortValue} setSortValue={setSortValue} />
-          </div>
+          </>
         ) : null}
       </ToolbarContainer>
       {feilmelding}

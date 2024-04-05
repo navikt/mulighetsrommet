@@ -1,7 +1,7 @@
 import { Tag } from "@navikt/ds-react";
 import Ikonknapp from "../../ikonknapp/Ikonknapp";
 import { XMarkIcon } from "@navikt/aksel-icons";
-import styles from "./Filtertag.module.scss";
+import styles from "./FilterTag.module.scss";
 import { MouseEvent } from "react";
 import { NavEnhet } from "mulighetsrommet-api-client";
 
@@ -10,7 +10,7 @@ interface Props {
   onClose?: (e: MouseEvent) => void;
 }
 
-export function NavEnhetFiltertag({ navEnheter, onClose }: Props) {
+export function NavEnhetFilterTag({ navEnheter, onClose }: Props) {
   if (navEnheter.length === 0) {
     return null;
   }

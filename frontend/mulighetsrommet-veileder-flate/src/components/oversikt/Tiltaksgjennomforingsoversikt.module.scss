@@ -17,15 +17,6 @@
   }
 }
 
-.visnings_og_sorteringsmeny {
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-  align-items: center;
-  background-color: var(--a-bg-subtle);
-  margin-bottom: 0.5rem;
-}
-
 .visningsmeny {
   display: flex;
   grid-row: 2;
@@ -37,8 +28,4 @@
   .gjennomforinger_filter_open {
     padding: 0 0 0 0.5rem;
   }
-}
-
-.modia_toolbar_container {
-  flex-direction: column;
 }

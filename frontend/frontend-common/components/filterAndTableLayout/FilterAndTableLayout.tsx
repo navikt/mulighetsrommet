@@ -1,4 +1,4 @@
-import { TableButtonRow } from "../toolbarButtonRow/TableButtonRow";
+import { ToolbarButtonRow } from "../toolbar/toolbarButtonRow/ToolbarButtonRow";
 import { Filter } from "../filter/Filter";
 import styles from "./FilterAndTableLayout.module.scss";
 import classNames from "classnames";
@@ -29,10 +29,10 @@ export const FilterAndTableLayout = ({
         {filter}
       </Filter>
 
-      <TableButtonRow>
+      <ToolbarButtonRow>
         <div className={styles.button_row_left}>{nullstillFilterButton}</div>
         <div className={styles.button_row_right}>{buttons}</div>
-      </TableButtonRow>
+      </ToolbarButtonRow>
 
       <div
         className={classNames(
@@ -41,7 +41,7 @@ export const FilterAndTableLayout = ({
         )}
       >
         {tags}
-        <div className={styles.table}>{table}</div>
+        <>{table}</>
       </div>
     </div>
   );

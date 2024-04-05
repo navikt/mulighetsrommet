@@ -1,6 +1,6 @@
 import { defaultTiltaksgjennomforingfilter, TiltaksgjennomforingFilter } from "@/api/atoms";
 import { useAtom } from "jotai/index";
-import { NullstillFilterKnapp } from "mulighetsrommet-frontend-common/components/filter/nullstillFilterKnapp/NullstillFilterKnapp";
+import { NullstillFilterKnapp } from "mulighetsrommet-frontend-common/components/nullstillFilterKnapp/NullstillFilterKnapp";
 import { Avtale } from "mulighetsrommet-api-client";
 import { WritableAtom } from "jotai";
 
