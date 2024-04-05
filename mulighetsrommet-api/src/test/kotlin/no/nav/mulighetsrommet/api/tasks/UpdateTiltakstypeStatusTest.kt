@@ -1,7 +1,9 @@
 package no.nav.mulighetsrommet.api.tasks
 
 import io.kotest.core.spec.style.FunSpec
+import io.mockk.clearAllMocks
 import io.mockk.mockk
+import io.mockk.verify
 import io.mockk.verifyAll
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dto.TiltakstypeEksternDto
@@ -35,6 +37,10 @@ class UpdateTiltakstypeStatusTest : FunSpec({
             tiltakstypeKafkaProducer = tiltakstypeKafkaProducer,
         )
 
+        afterEach {
+            clearAllMocks()
+        }
+
         fun TiltakstypeDbo.toDto(tiltakstypestatus: Tiltakstypestatus): TiltakstypeEksternDto {
             return TiltakstypeEksternDto(
                 id = id,
@@ -62,14 +68,13 @@ class UpdateTiltakstypeStatusTest : FunSpec({
             fraDato = LocalDate.of(2023, 2, 13),
             tilDato = lastSuccessDate,
         )
-        val domain = MulighetsrommetTestDomain(
-            tiltakstyper = listOf(tiltakstype, startdatoInnenfor, sluttdatoInnenfor),
-            avtaler = listOf(),
-            gjennomforinger = listOf(),
-        )
 
-        test("oppdater statuser på kafka på relevante tiltakstyper") {
-            domain.initialize(database.db)
+        test("oppdater statuser på relevante tiltakstyper") {
+            MulighetsrommetTestDomain(
+                tiltakstyper = listOf(tiltakstype, startdatoInnenfor, sluttdatoInnenfor),
+                avtaler = listOf(),
+                gjennomforinger = listOf(),
+            ).initialize(database.db)
 
             kafkaSyncService.oppdaterTiltakstypestatus(today, lastSuccessDate)
 
@@ -81,6 +86,22 @@ class UpdateTiltakstypeStatusTest : FunSpec({
                     sluttdatoInnenfor.toDto(Tiltakstypestatus.Avsluttet),
                 )
             }
+        }
+
+        test("oppdater ikke status på individuelle tiltakstyper") {
+            MulighetsrommetTestDomain(
+                tiltakstyper = listOf(
+                    tiltakstype,
+                    startdatoInnenfor.copy(arenaKode = "ARBTREN"),
+                    sluttdatoInnenfor.copy(arenaKode = "ENKELAMO"),
+                ),
+                avtaler = listOf(),
+                gjennomforinger = listOf(),
+            ).initialize(database.db)
+
+            kafkaSyncService.oppdaterTiltakstypestatus(today, lastSuccessDate)
+
+            verify(exactly = 0) { tiltakstypeKafkaProducer.publish(any()) }
         }
     }
 })

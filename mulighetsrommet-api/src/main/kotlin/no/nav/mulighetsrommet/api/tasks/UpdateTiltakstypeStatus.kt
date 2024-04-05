@@ -5,7 +5,6 @@ import com.github.kagkarlsson.scheduler.task.helper.Tasks
 import com.github.kagkarlsson.scheduler.task.schedule.Daily
 import kotlinx.coroutines.runBlocking
 import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
-import no.nav.mulighetsrommet.api.utils.DatabaseUtils
 import no.nav.mulighetsrommet.kafka.producers.TiltakstypeKafkaProducer
 import no.nav.mulighetsrommet.slack.SlackNotifier
 import org.slf4j.LoggerFactory
@@ -40,24 +39,14 @@ class UpdateTiltakstypeStatus(
     fun oppdaterTiltakstypestatus(today: LocalDate, lastSuccessDate: LocalDate) {
         logger.info("Oppdaterer statuser for tiltakstyper med start eller sluttdato mellom $lastSuccessDate og $today")
 
-        val numberOfUpdates = DatabaseUtils.paginate(limit = 1000) { paginationParams ->
-            val tiltakstyper = tiltakstypeRepository.getAllByDateInterval(
-                dateIntervalStart = lastSuccessDate,
-                dateIntervalEnd = today,
-                pagination = paginationParams,
-            )
+        val eksterneTiltakstyperMedNyStatus = tiltakstypeRepository
+            .getAllByDateInterval(dateIntervalStart = lastSuccessDate, dateIntervalEnd = today)
+            .mapNotNull { tiltakstypeRepository.getEksternTiltakstype(it.id) }
 
-            tiltakstyper.forEach { it ->
-                val eksternTiltakstype = tiltakstypeRepository.getEksternTiltakstype(it.id)
-                if (eksternTiltakstype != null) {
-                    tiltakstypeKafkaProducer.publish(eksternTiltakstype)
-                } else {
-                    tiltakstypeKafkaProducer.retract(it.id)
-                }
-            }
-
-            tiltakstyper
+        eksterneTiltakstyperMedNyStatus.forEach {
+            tiltakstypeKafkaProducer.publish(it)
         }
-        logger.info("Oppdaterte status for $numberOfUpdates tiltakstyper")
+
+        logger.info("Oppdaterte status for ${eksterneTiltakstyperMedNyStatus.size} tiltakstyper")
     }
 }
