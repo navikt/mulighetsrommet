@@ -23,7 +23,7 @@ data class TiltakstypeAdminDto(
     @Serializable(with = LocalDateSerializer::class)
     val tilDato: LocalDate,
     val rettPaaTiltakspenger: Boolean,
-    val status: Tiltakstypestatus,
+    val status: TiltakstypeStatus,
     @Serializable(with = UUIDSerializer::class)
     val sanityId: UUID?,
     val personopplysninger: Map<PersonopplysningFrekvens, List<PersonopplysningMedBeskrivelse>>,

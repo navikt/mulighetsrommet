@@ -34,7 +34,7 @@ import no.nav.mulighetsrommet.domain.dbo.*
 import no.nav.mulighetsrommet.domain.dto.AvbruttAarsak
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus
-import no.nav.mulighetsrommet.domain.dto.Tiltakstypestatus
+import no.nav.mulighetsrommet.domain.dto.TiltakstypeStatus
 import no.nav.mulighetsrommet.kafka.producers.TiltaksgjennomforingKafkaProducer
 import no.nav.mulighetsrommet.kafka.producers.TiltakstypeKafkaProducer
 import no.nav.mulighetsrommet.notifications.NotificationService
@@ -96,7 +96,7 @@ class ArenaAdapterServiceTest : FunSpec({
                         fraDato = tiltakstype.fraDato,
                         tilDato = tiltakstype.tilDato,
                         rettPaaTiltakspenger = tiltakstype.rettPaaTiltakspenger,
-                        status = Tiltakstypestatus.Aktiv,
+                        status = TiltakstypeStatus.AKTIV,
                         deltakerRegistreringInnhold = null,
                     ),
                 )

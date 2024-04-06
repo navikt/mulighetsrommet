@@ -13,7 +13,7 @@ import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
-import no.nav.mulighetsrommet.domain.dto.Tiltakstypestatus
+import no.nav.mulighetsrommet.domain.dto.TiltakstypeStatus
 import no.nav.mulighetsrommet.kafka.producers.TiltakstypeKafkaProducer
 import java.time.LocalDate
 import java.util.*
@@ -41,7 +41,7 @@ class UpdateTiltakstypeStatusTest : FunSpec({
             clearAllMocks()
         }
 
-        fun TiltakstypeDbo.toDto(tiltakstypestatus: Tiltakstypestatus): TiltakstypeEksternDto {
+        fun TiltakstypeDbo.toDto(tiltakstypestatus: TiltakstypeStatus): TiltakstypeEksternDto {
             return TiltakstypeEksternDto(
                 id = id,
                 navn = navn,
@@ -80,10 +80,10 @@ class UpdateTiltakstypeStatusTest : FunSpec({
 
             verifyAll {
                 tiltakstypeKafkaProducer.publish(
-                    startdatoInnenfor.toDto(Tiltakstypestatus.Aktiv),
+                    startdatoInnenfor.toDto(TiltakstypeStatus.AKTIV),
                 )
                 tiltakstypeKafkaProducer.publish(
-                    sluttdatoInnenfor.toDto(Tiltakstypestatus.Avsluttet),
+                    sluttdatoInnenfor.toDto(TiltakstypeStatus.AVSLUTTET),
                 )
             }
         }

@@ -12,7 +12,7 @@ import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
 import no.nav.mulighetsrommet.domain.dto.PersonopplysningMedFrekvens
 import no.nav.mulighetsrommet.domain.dto.TiltakstypeAdminDto
-import no.nav.mulighetsrommet.domain.dto.Tiltakstypestatus
+import no.nav.mulighetsrommet.domain.dto.TiltakstypeStatus
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
 import java.time.LocalDate
@@ -140,7 +140,7 @@ class TiltakstypeRepository(private val db: Database) {
 
     fun getAllSkalMigreres(
         pagination: Pagination = Pagination.all(),
-        statuser: List<Tiltakstypestatus> = emptyList(),
+        statuser: List<TiltakstypeStatus> = emptyList(),
         sortering: String? = null,
     ): PaginatedResult<TiltakstypeAdminDto> {
         val parameters = mapOf(
@@ -293,7 +293,7 @@ class TiltakstypeRepository(private val db: Database) {
             tilDato = tilDato,
             sanityId = uuidOrNull("sanity_id"),
             rettPaaTiltakspenger = boolean("rett_paa_tiltakspenger"),
-            status = Tiltakstypestatus.valueOf(string("status")),
+            status = TiltakstypeStatus.valueOf(string("status")),
             personopplysninger = personopplysninger,
         )
     }

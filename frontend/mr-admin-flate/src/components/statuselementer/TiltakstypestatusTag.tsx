@@ -1,5 +1,5 @@
 import { Tag } from "@navikt/ds-react";
-import { Tiltakstype, Tiltakstypestatus } from "mulighetsrommet-api-client";
+import { Tiltakstype, TiltakstypeStatus } from "mulighetsrommet-api-client";
 
 interface Props {
   tiltakstype: Tiltakstype;
@@ -8,13 +8,13 @@ interface Props {
 export function TiltakstypestatusTag({ tiltakstype }: Props) {
   const status = tiltakstype.status;
 
-  const variant = (status: Tiltakstypestatus) => {
+  const variant = (status: TiltakstypeStatus) => {
     switch (status) {
-      case Tiltakstypestatus.AKTIV:
+      case TiltakstypeStatus.AKTIV:
         return "success";
-      case Tiltakstypestatus.PLANLAGT:
+      case TiltakstypeStatus.PLANLAGT:
         return "alt1";
-      case Tiltakstypestatus.AVSLUTTET:
+      case TiltakstypeStatus.AVSLUTTET:
         return "neutral";
     }
   };

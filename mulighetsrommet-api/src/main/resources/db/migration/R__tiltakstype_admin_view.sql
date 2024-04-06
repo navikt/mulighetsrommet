@@ -13,20 +13,19 @@ select
     tiltakstype.sanity_id,
     tiltakstype.rett_paa_tiltakspenger,
     case
-        when now() > til_dato then 'Avsluttet'
-        when now() >= fra_dato then 'Aktiv'
-        else 'Planlagt'
+        when now() > til_dato then 'AVSLUTTET'
+        when now() >= fra_dato then 'AKTIV'
+        else 'PLANLAGT'
     end as status,
-    COALESCE(
+    coalesce(
         jsonb_agg(
             jsonb_build_object(
                 'personopplysning', tiltakstype_personopplysning.personopplysning,
                 'frekvens', tiltakstype_personopplysning.frekvens
             )
         )
-        FILTER (WHERE tiltakstype_personopplysning.tiltakskode IS NOT NULL), '[]'
+        filter (where tiltakstype_personopplysning.tiltakskode is not null), '[]'
     ) as personopplysninger
 from tiltakstype
     left join tiltakstype_personopplysning on tiltakstype_personopplysning.tiltakskode = tiltakstype.tiltakskode
 group by tiltakstype.id
-

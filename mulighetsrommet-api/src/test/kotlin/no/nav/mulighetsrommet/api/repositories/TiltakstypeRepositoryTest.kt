@@ -17,7 +17,7 @@ import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
 import no.nav.mulighetsrommet.domain.dto.Personopplysning
 import no.nav.mulighetsrommet.domain.dto.PersonopplysningFrekvens
-import no.nav.mulighetsrommet.domain.dto.Tiltakstypestatus
+import no.nav.mulighetsrommet.domain.dto.TiltakstypeStatus
 import org.intellij.lang.annotations.Language
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -96,9 +96,9 @@ class TiltakstypeRepositoryTest : FunSpec({
 
         test("filtrering på status") {
             forAll(
-                row(Tiltakstypestatus.Planlagt, tiltakstypePlanlagt.id),
-                row(Tiltakstypestatus.Aktiv, tiltakstypeAktiv.id),
-                row(Tiltakstypestatus.Avsluttet, tiltakstypeAvsluttet.id),
+                row(TiltakstypeStatus.PLANLAGT, tiltakstypePlanlagt.id),
+                row(TiltakstypeStatus.AKTIV, tiltakstypeAktiv.id),
+                row(TiltakstypeStatus.AVSLUTTET, tiltakstypeAvsluttet.id),
             ) { status, expectedId ->
                 val result = tiltakstyper.getAllSkalMigreres(statuser = listOf(status))
                 result.totalCount shouldBe 1

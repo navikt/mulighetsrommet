@@ -2,7 +2,7 @@ package no.nav.mulighetsrommet.api.domain.dto
 
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.domain.Tiltakskode
-import no.nav.mulighetsrommet.domain.dto.Tiltakstypestatus
+import no.nav.mulighetsrommet.domain.dto.TiltakstypeStatus
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.domain.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
@@ -26,6 +26,6 @@ data class TiltakstypeEksternDto(
     @Serializable(with = LocalDateSerializer::class)
     val tilDato: LocalDate,
     val rettPaaTiltakspenger: Boolean,
-    val status: Tiltakstypestatus,
+    val status: TiltakstypeStatus,
     val deltakerRegistreringInnhold: DeltakerRegistreringInnholdDto?,
 )

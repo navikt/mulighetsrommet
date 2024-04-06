@@ -852,7 +852,7 @@ paths:
           schema:
             type: array
             items:
-              $ref: "#/components/schemas/Tiltakstypestatus"
+              $ref: "#/components/schemas/TiltakstypeStatus"
           description: Statuser for tiltakstyper
         - in: query
           name: page
@@ -1964,7 +1964,7 @@ components:
         tilDato:
           type: string
         status:
-          $ref: "#/components/schemas/Tiltakstypestatus"
+          $ref: "#/components/schemas/TiltakstypeStatus"
         sanityId:
           type: string
         personopplysninger:
@@ -2548,12 +2548,12 @@ components:
         - SPESIELT_TILPASSET_INNSATS
         - VARIG_TILPASSET_INNSATS
 
-    Tiltakstypestatus:
+    TiltakstypeStatus:
       type: string
       enum:
-        - Aktiv
-        - Planlagt
-        - Avsluttet
+        - AKTIV
+        - PLANLAGT
+        - AVSLUTTET
 
     DialogRequest:
       type: object
