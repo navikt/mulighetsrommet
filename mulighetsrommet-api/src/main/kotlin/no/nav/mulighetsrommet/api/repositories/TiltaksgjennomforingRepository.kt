@@ -407,6 +407,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             "tiltakstype_ids" to tiltakstypeIder.ifEmpty { null }?.let { db.createUuidArray(it) },
             "arrangor_ids" to arrangorIds.ifEmpty { null }?.let { db.createUuidArray(it) },
             "arrangor_orgnrs" to arrangorOrgnr.ifEmpty { null }?.let { db.createTextArray(it) },
+            "statuser" to statuser.ifEmpty { null }?.let { db.createArrayOf("text", statuser) },
             "administrator_nav_ident" to administratorNavIdent?.let { """[{ "navIdent": "${it.value}" }]""" },
             "skal_migreres" to skalMigreres,
             "opphav" to opphav?.name,
@@ -449,7 +450,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
               and (:slutt_dato_cutoff::date is null or slutt_dato >= :slutt_dato_cutoff or slutt_dato is null)
               and (:skal_migreres::boolean is null or tiltakstype_tiltakskode is not null)
               and (:opphav::opphav is null or opphav = :opphav::opphav)
-              and (${statuserWhereStatement(statuser)})
+              and (:statuser::text[] is null or status = any(:statuser))
             order by $order
             limit :limit
             offset :offset
@@ -461,14 +462,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 .runWithSession(session)
         }
     }
-
-    private fun statuserWhereStatement(statuser: List<TiltaksgjennomforingStatus>): String =
-        statuser
-            .ifEmpty { null }
-            ?.joinToString(prefix = "(", postfix = ")", separator = " or ") {
-                "(status = '${it.name}')"
-            }
-            ?: "true"
 
     fun getAllVeilederflateTiltaksgjennomforing(
         search: String? = null,

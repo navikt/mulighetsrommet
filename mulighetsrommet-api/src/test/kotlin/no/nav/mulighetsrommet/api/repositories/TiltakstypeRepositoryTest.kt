@@ -38,9 +38,8 @@ class TiltakstypeRepositoryTest : FunSpec({
         }
     }
 
-    context("filter") {
+    context("filtrering") {
         val tiltakstyper = TiltakstypeRepository(database.db)
-        val dagensDato = LocalDate.of(2023, 1, 12)
         val tiltakstypePlanlagt = TiltakstypeDbo(
             id = UUID.randomUUID(),
             navn = "Arbeidsforberedende trening",
@@ -48,8 +47,8 @@ class TiltakstypeRepositoryTest : FunSpec({
             rettPaaTiltakspenger = true,
             registrertDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
             sistEndretDatoIArena = LocalDateTime.of(2022, 1, 15, 0, 0, 0),
-            fraDato = LocalDate.of(2023, 1, 13),
-            tilDato = LocalDate.of(2023, 1, 15),
+            fraDato = LocalDate.now().plusDays(1),
+            tilDato = LocalDate.now().plusMonths(1),
         )
         val tiltakstypeAktiv = TiltakstypeDbo(
             id = UUID.randomUUID(),
@@ -58,8 +57,8 @@ class TiltakstypeRepositoryTest : FunSpec({
             rettPaaTiltakspenger = true,
             registrertDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
             sistEndretDatoIArena = LocalDateTime.of(2022, 1, 15, 0, 0, 0),
-            fraDato = LocalDate.of(2023, 1, 11),
-            tilDato = LocalDate.of(2023, 1, 15),
+            fraDato = LocalDate.now(),
+            tilDato = LocalDate.now().plusMonths(1),
         )
         val tiltakstypeAvsluttet = TiltakstypeDbo(
             id = UUID.randomUUID(),
@@ -68,8 +67,8 @@ class TiltakstypeRepositoryTest : FunSpec({
             rettPaaTiltakspenger = true,
             registrertDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
             sistEndretDatoIArena = LocalDateTime.of(2022, 1, 15, 0, 0, 0),
-            fraDato = LocalDate.of(2023, 1, 9),
-            tilDato = LocalDate.of(2023, 1, 11),
+            fraDato = LocalDate.now().minusMonths(1),
+            tilDato = LocalDate.now().minusDays(1),
         )
         val idSkalIkkeMigreres = UUID.randomUUID()
         val tiltakstypeSkalIkkeMigreres = TiltakstypeDbo(
@@ -79,8 +78,8 @@ class TiltakstypeRepositoryTest : FunSpec({
             rettPaaTiltakspenger = true,
             registrertDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
             sistEndretDatoIArena = LocalDateTime.of(2022, 1, 15, 0, 0, 0),
-            fraDato = LocalDate.of(2023, 1, 9),
-            tilDato = LocalDate.of(2023, 1, 11),
+            fraDato = LocalDate.now(),
+            tilDato = LocalDate.now().plusMonths(1),
         )
 
         tiltakstyper.upsert(tiltakstypePlanlagt)
@@ -88,35 +87,20 @@ class TiltakstypeRepositoryTest : FunSpec({
         tiltakstyper.upsert(tiltakstypeAvsluttet)
         tiltakstyper.upsert(tiltakstypeSkalIkkeMigreres)
 
-        test("Ingen filter for kategori returnerer både individuelle- og gruppetiltak") {
+        test("returnerer bare tiltak som skal migreres") {
             tiltakstyper.getAllSkalMigreres().items shouldHaveSize 3
         }
 
-        test("Filter på planlagt returnerer planlagte tiltakstyper") {
-            val typer = tiltakstyper.getAllSkalMigreres(
-                statuser = listOf(Tiltakstypestatus.Planlagt),
-                dagensDato = dagensDato,
-            )
-            typer.items shouldHaveSize 1
-            typer.items.first().id shouldBe tiltakstypePlanlagt.id
-        }
-
-        test("Filter på aktiv returnerer aktive tiltakstyper") {
-            val typer = tiltakstyper.getAllSkalMigreres(
-                statuser = listOf(Tiltakstypestatus.Aktiv),
-                dagensDato = dagensDato,
-            )
-            typer.items shouldHaveSize 1
-            typer.items.first().id shouldBe tiltakstypeAktiv.id
-        }
-
-        test("Filter på avsluttet returnerer avsluttede tiltakstyper") {
-            val typer = tiltakstyper.getAllSkalMigreres(
-                statuser = listOf(Tiltakstypestatus.Avsluttet),
-                dagensDato = dagensDato,
-            )
-            typer.items shouldHaveSize 1
-            typer.items.first().id shouldBe tiltakstypeAvsluttet.id
+        test("filtrering på status") {
+            forAll(
+                row(Tiltakstypestatus.Planlagt, tiltakstypePlanlagt.id),
+                row(Tiltakstypestatus.Aktiv, tiltakstypeAktiv.id),
+                row(Tiltakstypestatus.Avsluttet, tiltakstypeAvsluttet.id),
+            ) { status, expectedId ->
+                val result = tiltakstyper.getAllSkalMigreres(statuser = listOf(status))
+                result.totalCount shouldBe 1
+                result.items.first().id shouldBe expectedId
+            }
         }
     }
 

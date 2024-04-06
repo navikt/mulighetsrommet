@@ -66,15 +66,21 @@ class TiltakstypeRepository(private val db: Database) {
         @Language("PostgreSQL")
         val query = """
             select
-                id::uuid,
+                id,
                 navn,
+                tiltakskode,
                 arena_kode,
                 registrert_dato_i_arena,
                 sist_endret_dato_i_arena,
                 fra_dato,
                 til_dato,
+                sanity_id,
                 rett_paa_tiltakspenger,
-                sanity_id
+                case
+                    when now() > til_dato then 'Avsluttet'
+                    when now() >= fra_dato then 'Aktiv'
+                    else 'Planlagt'
+                end as status
             from tiltakstype
             where id = ?::uuid
         """.trimIndent()
@@ -106,15 +112,21 @@ class TiltakstypeRepository(private val db: Database) {
         @Language("PostgreSQL")
         val query = """
             select
-                id::uuid,
+                id,
                 navn,
+                tiltakskode,
                 arena_kode,
                 registrert_dato_i_arena,
                 sist_endret_dato_i_arena,
                 fra_dato,
                 til_dato,
+                sanity_id,
                 rett_paa_tiltakspenger,
-                sanity_id
+                case
+                    when now() > til_dato then 'Avsluttet'
+                    when now() >= fra_dato then 'Aktiv'
+                    else 'Planlagt'
+                end as status
             from tiltakstype
             where tiltakskode = ?::tiltakskode
         """.trimIndent()
@@ -128,15 +140,21 @@ class TiltakstypeRepository(private val db: Database) {
         @Language("PostgreSQL")
         val query = """
             select
-                id::uuid,
+                id,
                 navn,
+                tiltakskode,
                 arena_kode,
                 registrert_dato_i_arena,
                 sist_endret_dato_i_arena,
                 fra_dato,
                 til_dato,
+                sanity_id,
                 rett_paa_tiltakspenger,
-                sanity_id
+                case
+                    when now() > til_dato then 'Avsluttet'
+                    when now() >= fra_dato then 'Aktiv'
+                    else 'Planlagt'
+                end as status
             from tiltakstype
             where sanity_id = ?::uuid
         """.trimIndent()
@@ -152,6 +170,7 @@ class TiltakstypeRepository(private val db: Database) {
             select
                 id,
                 navn,
+                tiltakskode,
                 arena_kode,
                 registrert_dato_i_arena,
                 sist_endret_dato_i_arena,
@@ -159,6 +178,11 @@ class TiltakstypeRepository(private val db: Database) {
                 til_dato,
                 sanity_id,
                 rett_paa_tiltakspenger,
+                case
+                    when now() > til_dato then 'Avsluttet'
+                    when now() >= fra_dato then 'Aktiv'
+                    else 'Planlagt'
+                end as status,
                 count(*) over() as total_count
             from tiltakstype
             order by navn asc
@@ -175,12 +199,11 @@ class TiltakstypeRepository(private val db: Database) {
 
     fun getAllSkalMigreres(
         pagination: Pagination = Pagination.all(),
-        dagensDato: LocalDate = LocalDate.now(),
         statuser: List<Tiltakstypestatus> = emptyList(),
         sortering: String? = null,
     ): PaginatedResult<TiltakstypeAdminDto> {
         val parameters = mapOf(
-            "today" to dagensDato,
+            "statuser" to statuser.ifEmpty { null }?.let { db.createArrayOf("text", statuser) },
         )
 
         val order = when (sortering) {
@@ -206,10 +229,19 @@ class TiltakstypeRepository(private val db: Database) {
                 til_dato,
                 sanity_id,
                 rett_paa_tiltakspenger,
+                case
+                    when now() > til_dato then 'Avsluttet'
+                    when now() >= fra_dato then 'Aktiv'
+                    else 'Planlagt'
+                end as status,
                 count(*) over() as total_count
             from tiltakstype
             where tiltakskode is not null
-              and ${statuserWhereStatement(statuser)}
+              and (:statuser::text[] is null or case
+                    when now() > til_dato then 'Avsluttet'
+                    when now() >= fra_dato then 'Aktiv'
+                    else 'Planlagt'
+                end = any(:statuser))
             order by $order
             limit :limit
             offset :offset
@@ -280,7 +312,12 @@ class TiltakstypeRepository(private val db: Database) {
                 fra_dato,
                 til_dato,
                 sanity_id,
-                rett_paa_tiltakspenger
+                rett_paa_tiltakspenger,
+                case
+                    when now() > til_dato then 'Avsluttet'
+                    when now() >= fra_dato then 'Aktiv'
+                    else 'Planlagt'
+                end as status
             from tiltakstype
             where
                 (fra_dato > :date_interval_start and fra_dato <= :date_interval_end) or
@@ -346,19 +383,7 @@ class TiltakstypeRepository(private val db: Database) {
             tilDato = tilDato,
             sanityId = uuidOrNull("sanity_id"),
             rettPaaTiltakspenger = boolean("rett_paa_tiltakspenger"),
-            status = Tiltakstypestatus.resolveFromDates(LocalDate.now(), fraDato, tilDato),
+            status = Tiltakstypestatus.valueOf(string("status")),
         )
     }
-
-    private fun statuserWhereStatement(statuser: List<Tiltakstypestatus>): String =
-        statuser
-            .ifEmpty { null }
-            ?.joinToString(prefix = "(", postfix = ")", separator = " or ") {
-                when (it) {
-                    Tiltakstypestatus.Planlagt -> "(:today < fra_dato)"
-                    Tiltakstypestatus.Aktiv -> "(:today >= fra_dato and :today <= til_dato)"
-                    else -> "(:today > til_dato)"
-                }
-            }
-            ?: "true"
 }
