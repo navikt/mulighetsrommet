@@ -147,7 +147,7 @@ class NavAnsattRepository(private val db: Database) {
         "azure_id" to azureId,
         "mobilnummer" to mobilnummer,
         "epost" to epost,
-        "roller" to db.createArrayOf("nav_ansatt_rolle", roller.map { it.name }),
+        "roller" to db.createArrayOf("nav_ansatt_rolle", roller),
         "skal_slettes_dato" to skalSlettesDato,
     )
 
