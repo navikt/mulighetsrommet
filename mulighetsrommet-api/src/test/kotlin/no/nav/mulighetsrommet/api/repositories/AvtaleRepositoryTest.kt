@@ -251,7 +251,6 @@ class AvtaleRepositoryTest : FunSpec({
                 avtaler.upsert(avtale1)
                 avtaler.upsert(avtale2)
                 val result = avtaler.getAll(
-                    dagensDato = LocalDate.of(2023, 2, 1),
                     tiltakstypeIder = listOf(TiltakstypeFixtures.Oppfolging.id),
                     search = "Kroko",
                 )
@@ -317,10 +316,7 @@ class AvtaleRepositoryTest : FunSpec({
                         listOf(avtaleAvbrutt.id, avtaleAvsluttet.id),
                     ),
                 ) { statuser, expected ->
-                    val result = avtaler.getAll(
-                        dagensDato = LocalDate.now(),
-                        statuser = statuser,
-                    )
+                    val result = avtaler.getAll(statuser = statuser)
                     result.items.map { it.id } shouldContainExactlyInAnyOrder expected
                 }
             }
@@ -490,21 +486,17 @@ class AvtaleRepositoryTest : FunSpec({
                 ),
             ).initialize(database.db)
 
-            avtaler.getAll(
-                dagensDato = LocalDate.of(2023, 2, 1),
-                tiltakstypeIder = listOf(TiltakstypeFixtures.Oppfolging.id),
-            ).should { (totalCount, avtaler) ->
-                totalCount shouldBe 2
-                avtaler[0].tiltakstype.id shouldBe TiltakstypeFixtures.Oppfolging.id
-                avtaler[1].tiltakstype.id shouldBe TiltakstypeFixtures.Oppfolging.id
-            }
+            avtaler.getAll(tiltakstypeIder = listOf(TiltakstypeFixtures.Oppfolging.id))
+                .should { (totalCount, avtaler) ->
+                    totalCount shouldBe 2
+                    avtaler[0].tiltakstype.id shouldBe TiltakstypeFixtures.Oppfolging.id
+                    avtaler[1].tiltakstype.id shouldBe TiltakstypeFixtures.Oppfolging.id
+                }
 
-            avtaler.getAll(
-                dagensDato = LocalDate.of(2023, 2, 1),
-                tiltakstypeIder = listOf(TiltakstypeFixtures.Oppfolging.id, TiltakstypeFixtures.AFT.id),
-            ).should { (totalCount) ->
-                totalCount shouldBe 3
-            }
+            avtaler.getAll(tiltakstypeIder = listOf(TiltakstypeFixtures.Oppfolging.id, TiltakstypeFixtures.AFT.id))
+                .should { (totalCount) ->
+                    totalCount shouldBe 3
+                }
         }
 
         test("Filtrering på tiltaksarrangørs navn gir treff") {

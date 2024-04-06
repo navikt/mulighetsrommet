@@ -274,12 +274,10 @@ class AvtaleRepository(private val db: Database) {
         avtaletyper: List<Avtaletype> = emptyList(),
         navRegioner: List<String> = emptyList(),
         sortering: String? = null,
-        dagensDato: LocalDate = LocalDate.now(),
         arrangorIds: List<UUID> = emptyList(),
         administratorNavIdent: NavIdent? = null,
     ): PaginatedResult<AvtaleAdminDto> {
         val parameters = mapOf(
-            "today" to dagensDato,
             "search" to search?.replace("/", "#")?.trim()?.let { "%$it%" },
             "administrator_nav_ident" to administratorNavIdent?.let { """[{ "navIdent": "${it.value}" }]""" },
             "tiltakstype_ids" to tiltakstypeIder.ifEmpty { null }?.let { db.createUuidArray(it) },

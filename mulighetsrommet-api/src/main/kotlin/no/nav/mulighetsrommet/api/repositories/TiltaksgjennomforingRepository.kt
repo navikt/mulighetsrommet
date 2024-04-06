@@ -390,7 +390,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         statuser: List<TiltaksgjennomforingStatus> = emptyList(),
         sortering: String? = null,
         sluttDatoGreaterThanOrEqualTo: LocalDate? = null,
-        dagensDato: LocalDate = LocalDate.now(),
         avtaleId: UUID? = null,
         arrangorIds: List<UUID> = emptyList(),
         arrangorOrgnr: List<String> = emptyList(),
@@ -401,7 +400,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         val parameters = mapOf(
             "search" to search?.replace("/", "#")?.trim()?.let { "%$it%" },
             "slutt_dato_cutoff" to sluttDatoGreaterThanOrEqualTo,
-            "today" to dagensDato,
             "avtale_id" to avtaleId,
             "nav_enheter" to navEnheter.ifEmpty { null }?.let { db.createTextArray(it) },
             "tiltakstype_ids" to tiltakstypeIder.ifEmpty { null }?.let { db.createUuidArray(it) },
