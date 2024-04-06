@@ -72,11 +72,11 @@ export function TiltakstypeTabell() {
                   >
                     <Lenke to={`/tiltakstyper/${tiltakstype.id}`}>{tiltakstype.navn}</Lenke>
                   </Table.DataCell>
-                  <Table.DataCell aria-label={`Startdato: ${formaterDato(tiltakstype.fraDato)}`}>
-                    {formaterDato(tiltakstype.fraDato)}
+                  <Table.DataCell aria-label={`Startdato: ${formaterDato(tiltakstype.startDato)}`}>
+                    {formaterDato(tiltakstype.startDato)}
                   </Table.DataCell>
-                  <Table.DataCell aria-label={`Sluttdato: ${formaterDato(tiltakstype.tilDato)}`}>
-                    {formaterDato(tiltakstype.tilDato)}
+                  <Table.DataCell aria-label={`Sluttdato: ${formaterDato(tiltakstype.sluttDato)}`}>
+                    {formaterDato(tiltakstype.sluttDato)}
                   </Table.DataCell>
                   <Table.DataCell>
                     <TiltakstypestatusTag tiltakstype={tiltakstype} />

@@ -25,8 +25,8 @@ class UpdateTiltakstypeStatusTest : FunSpec({
     val today = LocalDate.of(2023, 2, 16)
 
     val tiltakstype = TiltakstypeFixtures.Oppfolging.copy(
-        fraDato = LocalDate.of(2023, 1, 11),
-        tilDato = LocalDate.now().plusYears(1),
+        startDato = LocalDate.of(2023, 1, 11),
+        sluttDato = LocalDate.now().plusYears(1),
     )
 
     context("oppdater statuser på tiltakstyper") {
@@ -49,8 +49,8 @@ class UpdateTiltakstypeStatusTest : FunSpec({
                 tiltakskode = Tiltakskode.fromArenaKode(arenaKode)!!,
                 registrertIArenaDato = registrertDatoIArena,
                 sistEndretIArenaDato = sistEndretDatoIArena,
-                fraDato = fraDato,
-                tilDato = tilDato,
+                startDato = startDato,
+                sluttDato = sluttDato,
                 rettPaaTiltakspenger = rettPaaTiltakspenger,
                 status = tiltakstypestatus,
                 deltakerRegistreringInnhold = null,
@@ -60,13 +60,13 @@ class UpdateTiltakstypeStatusTest : FunSpec({
         val startdatoInnenfor = tiltakstype.copy(
             id = UUID.randomUUID(),
             arenaKode = "AVKLARAG",
-            fraDato = LocalDate.of(2023, 2, 15),
+            startDato = LocalDate.of(2023, 2, 15),
         )
         val sluttdatoInnenfor = tiltakstype.copy(
             id = UUID.randomUUID(),
             arenaKode = "GRUPPEAMO",
-            fraDato = LocalDate.of(2023, 2, 13),
-            tilDato = lastSuccessDate,
+            startDato = LocalDate.of(2023, 2, 13),
+            sluttDato = lastSuccessDate,
         )
 
         test("oppdater statuser på relevante tiltakstyper") {

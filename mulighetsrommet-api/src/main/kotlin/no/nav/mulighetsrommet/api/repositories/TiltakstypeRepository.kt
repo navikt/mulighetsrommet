@@ -34,8 +34,8 @@ class TiltakstypeRepository(private val db: Database) {
                 arena_kode,
                 registrert_dato_i_arena,
                 sist_endret_dato_i_arena,
-                fra_dato,
-                til_dato,
+                start_dato,
+                slutt_dato,
                 rett_paa_tiltakspenger
             )
             values (
@@ -45,8 +45,8 @@ class TiltakstypeRepository(private val db: Database) {
                 :arena_kode,
                 :registrert_dato_i_arena,
                 :sist_endret_dato_i_arena,
-                :fra_dato,
-                :til_dato,
+                :start_dato,
+                :slutt_dato,
                 :rett_paa_tiltakspenger
             )
             on conflict (id)
@@ -55,8 +55,8 @@ class TiltakstypeRepository(private val db: Database) {
                               arena_kode = excluded.arena_kode,
                               registrert_dato_i_arena = excluded.registrert_dato_i_arena,
                               sist_endret_dato_i_arena = excluded.sist_endret_dato_i_arena,
-                              fra_dato = excluded.fra_dato,
-                              til_dato = excluded.til_dato,
+                              start_dato = excluded.start_dato,
+                              slutt_dato = excluded.slutt_dato,
                               rett_paa_tiltakspenger = excluded.rett_paa_tiltakspenger
             returning *
         """.trimIndent()
@@ -87,8 +87,8 @@ class TiltakstypeRepository(private val db: Database) {
             arenaKode = tiltakstype.arenaKode,
             registrertIArenaDato = tiltakstype.registrertIArenaDato,
             sistEndretIArenaDato = tiltakstype.sistEndretIArenaDato,
-            fraDato = tiltakstype.fraDato,
-            tilDato = tiltakstype.tilDato,
+            startDato = tiltakstype.startDato,
+            sluttDato = tiltakstype.sluttDato,
             rettPaaTiltakspenger = tiltakstype.rettPaaTiltakspenger,
             status = tiltakstype.status,
             deltakerRegistreringInnhold = deltakerRegistreringInnhold,
@@ -150,10 +150,10 @@ class TiltakstypeRepository(private val db: Database) {
         val order = when (sortering) {
             "navn-ascending" -> "navn asc"
             "navn-descending" -> "navn desc"
-            "startdato-ascending" -> "fra_dato asc"
-            "startdato-descending" -> "fra_dato desc"
-            "sluttdato-ascending" -> "til_dato asc"
-            "sluttdato-descending" -> "til_dato desc"
+            "startdato-ascending" -> "start_dato asc"
+            "startdato-descending" -> "start_dato desc"
+            "sluttdato-ascending" -> "slutt_dato asc"
+            "sluttdato-descending" -> "slutt_dato desc"
             else -> "navn asc"
         }
 
@@ -226,8 +226,8 @@ class TiltakstypeRepository(private val db: Database) {
             select *
             from tiltakstype_admin_dto_view
             where
-                (fra_dato > :date_interval_start and fra_dato <= :date_interval_end) or
-                (til_dato >= :date_interval_start and til_dato < :date_interval_end)
+                (start_dato > :date_interval_start and start_dato <= :date_interval_end) or
+                (slutt_dato >= :date_interval_start and slutt_dato < :date_interval_end)
         """.trimIndent()
 
         return queryOf(
@@ -258,8 +258,8 @@ class TiltakstypeRepository(private val db: Database) {
         "arena_kode" to arenaKode,
         "registrert_dato_i_arena" to registrertDatoIArena,
         "sist_endret_dato_i_arena" to sistEndretDatoIArena,
-        "fra_dato" to fraDato,
-        "til_dato" to tilDato,
+        "start_dato" to startDato,
+        "slutt_dato" to sluttDato,
         "rett_paa_tiltakspenger" to rettPaaTiltakspenger,
     )
 
@@ -270,16 +270,13 @@ class TiltakstypeRepository(private val db: Database) {
             arenaKode = string("arena_kode"),
             registrertDatoIArena = localDateTime("registrert_dato_i_arena"),
             sistEndretDatoIArena = localDateTime("sist_endret_dato_i_arena"),
-            fraDato = localDate("fra_dato"),
-            tilDato = localDate("til_dato"),
+            startDato = localDate("start_dato"),
+            sluttDato = localDate("slutt_dato"),
             rettPaaTiltakspenger = boolean("rett_paa_tiltakspenger"),
         )
     }
 
     private fun Row.toTiltakstypeAdminDto(): TiltakstypeAdminDto {
-        val fraDato = localDate("fra_dato")
-        val tilDato = localDate("til_dato")
-
         val personopplysninger = Json.decodeFromString<List<PersonopplysningMedFrekvens>>(string("personopplysninger"))
             .groupBy({ it.frekvens }, { it.personopplysning.toPersonopplysningMedBeskrivelse() })
 
@@ -289,8 +286,8 @@ class TiltakstypeRepository(private val db: Database) {
             arenaKode = string("arena_kode"),
             registrertIArenaDato = localDateTime("registrert_dato_i_arena"),
             sistEndretIArenaDato = localDateTime("sist_endret_dato_i_arena"),
-            fraDato = fraDato,
-            tilDato = tilDato,
+            startDato = localDate("start_dato"),
+            sluttDato = localDate("slutt_dato"),
             sanityId = uuidOrNull("sanity_id"),
             rettPaaTiltakspenger = boolean("rett_paa_tiltakspenger"),
             status = TiltakstypeStatus.valueOf(string("status")),

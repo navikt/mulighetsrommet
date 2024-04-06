@@ -11,8 +11,8 @@ object TiltakstypeFixtures {
         navn = "Arbeidsforberedende trening (AFT)",
         arenaKode = "ARBFORB",
         rettPaaTiltakspenger = true,
-        fraDato = LocalDate.of(2023, 1, 1),
-        tilDato = LocalDate.of(2025, 12, 31),
+        startDato = LocalDate.of(2023, 1, 1),
+        sluttDato = LocalDate.of(2025, 12, 31),
         registrertDatoIArena = LocalDateTime.of(2023, 1, 11, 0, 0, 0),
         sistEndretDatoIArena = LocalDateTime.of(2023, 1, 11, 0, 0, 0),
     )
@@ -22,8 +22,8 @@ object TiltakstypeFixtures {
         navn = "Varig tilrettelagt arbeid i skjermet virksomhet",
         arenaKode = "VASV",
         rettPaaTiltakspenger = false,
-        fraDato = LocalDate.of(2023, 1, 1),
-        tilDato = LocalDate.of(2025, 12, 31),
+        startDato = LocalDate.of(2023, 1, 1),
+        sluttDato = LocalDate.of(2025, 12, 31),
         registrertDatoIArena = LocalDateTime.of(2023, 1, 11, 0, 0, 0),
         sistEndretDatoIArena = LocalDateTime.of(2023, 1, 11, 0, 0, 0),
     )
@@ -33,8 +33,8 @@ object TiltakstypeFixtures {
         navn = "Gruppe amo",
         arenaKode = "GRUPPEAMO",
         rettPaaTiltakspenger = false,
-        fraDato = LocalDate.of(2023, 1, 1),
-        tilDato = LocalDate.of(2025, 12, 31),
+        startDato = LocalDate.of(2023, 1, 1),
+        sluttDato = LocalDate.of(2025, 12, 31),
         registrertDatoIArena = LocalDateTime.of(2023, 1, 11, 0, 0, 0),
         sistEndretDatoIArena = LocalDateTime.of(2023, 1, 11, 0, 0, 0),
     )
@@ -44,8 +44,8 @@ object TiltakstypeFixtures {
         navn = "Oppfølging",
         arenaKode = "INDOPPFAG",
         rettPaaTiltakspenger = true,
-        fraDato = LocalDate.of(2023, 1, 1),
-        tilDato = LocalDate.of(2025, 12, 31),
+        startDato = LocalDate.of(2023, 1, 1),
+        sluttDato = LocalDate.of(2025, 12, 31),
         registrertDatoIArena = LocalDateTime.of(2023, 1, 11, 0, 0, 0),
         sistEndretDatoIArena = LocalDateTime.of(2023, 1, 11, 0, 0, 0),
     )
@@ -55,8 +55,8 @@ object TiltakstypeFixtures {
         navn = "Jobbklubb",
         arenaKode = "JOBBK",
         rettPaaTiltakspenger = true,
-        fraDato = LocalDate.of(2023, 1, 1),
-        tilDato = LocalDate.of(2025, 12, 31),
+        startDato = LocalDate.of(2023, 1, 1),
+        sluttDato = LocalDate.of(2025, 12, 31),
         registrertDatoIArena = LocalDateTime.of(2023, 1, 11, 0, 0, 0),
         sistEndretDatoIArena = LocalDateTime.of(2023, 1, 11, 0, 0, 0),
     )
@@ -66,8 +66,8 @@ object TiltakstypeFixtures {
         navn = "Avklaring",
         arenaKode = "AVKLARAG",
         rettPaaTiltakspenger = true,
-        fraDato = LocalDate.of(2023, 1, 1),
-        tilDato = LocalDate.of(2025, 12, 31),
+        startDato = LocalDate.of(2023, 1, 1),
+        sluttDato = LocalDate.of(2025, 12, 31),
         registrertDatoIArena = LocalDateTime.of(2023, 1, 11, 0, 0, 0),
         sistEndretDatoIArena = LocalDateTime.of(2023, 1, 11, 0, 0, 0),
     )
@@ -79,8 +79,8 @@ object TiltakstypeFixtures {
         rettPaaTiltakspenger = true,
         registrertDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
         sistEndretDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
-        fraDato = LocalDate.of(2023, 1, 11),
-        tilDato = LocalDate.of(2025, 12, 31),
+        startDato = LocalDate.of(2023, 1, 11),
+        sluttDato = LocalDate.of(2025, 12, 31),
     )
 
     val EnkelAmo = TiltakstypeDbo(
@@ -90,7 +90,7 @@ object TiltakstypeFixtures {
         rettPaaTiltakspenger = true,
         registrertDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
         sistEndretDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
-        fraDato = LocalDate.of(2023, 1, 11),
-        tilDato = LocalDate.of(2025, 12, 31),
+        startDato = LocalDate.of(2023, 1, 11),
+        sluttDato = LocalDate.of(2025, 12, 31),
     )
 }

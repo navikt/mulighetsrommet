@@ -19,8 +19,8 @@ data class TiltakstypeDbo(
     @Serializable(with = LocalDateTimeSerializer::class)
     val sistEndretDatoIArena: LocalDateTime,
     @Serializable(with = LocalDateSerializer::class)
-    val fraDato: LocalDate,
+    val startDato: LocalDate,
     @Serializable(with = LocalDateSerializer::class)
-    val tilDato: LocalDate,
+    val sluttDato: LocalDate,
     val rettPaaTiltakspenger: Boolean,
 )

@@ -1959,9 +1959,9 @@ components:
           type: string
         arenaKode:
           $ref: "#/components/schemas/TiltakskodeArena"
-        fraDato:
+        startDato:
           type: string
-        tilDato:
+        sluttDato:
           type: string
         status:
           $ref: "#/components/schemas/TiltakstypeStatus"
@@ -1973,8 +1973,8 @@ components:
         - id
         - navn
         - arenaKode
-        - fraDato
-        - tilDato
+        - startDato
+        - sluttDato
         - status
         - personopplysninger
 

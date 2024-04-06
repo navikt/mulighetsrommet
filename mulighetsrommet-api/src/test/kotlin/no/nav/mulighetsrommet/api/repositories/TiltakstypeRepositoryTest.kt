@@ -50,8 +50,8 @@ class TiltakstypeRepositoryTest : FunSpec({
             rettPaaTiltakspenger = true,
             registrertDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
             sistEndretDatoIArena = LocalDateTime.of(2022, 1, 15, 0, 0, 0),
-            fraDato = LocalDate.now().plusDays(1),
-            tilDato = LocalDate.now().plusMonths(1),
+            startDato = LocalDate.now().plusDays(1),
+            sluttDato = LocalDate.now().plusMonths(1),
         )
         val tiltakstypeAktiv = TiltakstypeDbo(
             id = UUID.randomUUID(),
@@ -60,8 +60,8 @@ class TiltakstypeRepositoryTest : FunSpec({
             rettPaaTiltakspenger = true,
             registrertDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
             sistEndretDatoIArena = LocalDateTime.of(2022, 1, 15, 0, 0, 0),
-            fraDato = LocalDate.now(),
-            tilDato = LocalDate.now().plusMonths(1),
+            startDato = LocalDate.now(),
+            sluttDato = LocalDate.now().plusMonths(1),
         )
         val tiltakstypeAvsluttet = TiltakstypeDbo(
             id = UUID.randomUUID(),
@@ -70,8 +70,8 @@ class TiltakstypeRepositoryTest : FunSpec({
             rettPaaTiltakspenger = true,
             registrertDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
             sistEndretDatoIArena = LocalDateTime.of(2022, 1, 15, 0, 0, 0),
-            fraDato = LocalDate.now().minusMonths(1),
-            tilDato = LocalDate.now().minusDays(1),
+            startDato = LocalDate.now().minusMonths(1),
+            sluttDato = LocalDate.now().minusDays(1),
         )
         val idSkalIkkeMigreres = UUID.randomUUID()
         val tiltakstypeSkalIkkeMigreres = TiltakstypeDbo(
@@ -81,8 +81,8 @@ class TiltakstypeRepositoryTest : FunSpec({
             rettPaaTiltakspenger = true,
             registrertDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
             sistEndretDatoIArena = LocalDateTime.of(2022, 1, 15, 0, 0, 0),
-            fraDato = LocalDate.now(),
-            tilDato = LocalDate.now().plusMonths(1),
+            startDato = LocalDate.now(),
+            sluttDato = LocalDate.now().plusMonths(1),
         )
 
         tiltakstyper.upsert(tiltakstypePlanlagt)

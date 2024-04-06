@@ -93,8 +93,8 @@ class TiltakEventProcessor(
         arenaKode = tiltakskode,
         registrertDatoIArena = registrertIArenaDato,
         sistEndretDatoIArena = sistEndretIArenaDato,
-        fraDato = fraDato.toLocalDate(),
-        tilDato = tilDato.toLocalDate(),
+        startDato = fraDato.toLocalDate(),
+        sluttDato = tilDato.toLocalDate(),
         rettPaaTiltakspenger = rettPaaTiltakspenger,
     )
 }

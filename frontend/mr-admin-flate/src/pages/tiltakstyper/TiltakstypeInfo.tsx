@@ -26,8 +26,8 @@ export function TiltakstypeInfo() {
         </Bolk>
         <Separator />
         <Bolk>
-          <Metadata header="Startdato" verdi={formaterDato(tiltakstype.fraDato)} />
-          <Metadata header="Sluttdato" verdi={formaterDato(tiltakstype.tilDato)} />
+          <Metadata header="Startdato" verdi={formaterDato(tiltakstype.startDato)} />
+          <Metadata header="Sluttdato" verdi={formaterDato(tiltakstype.sluttDato)} />
         </Bolk>
         {tiltakstype.sanityId && (
           <>

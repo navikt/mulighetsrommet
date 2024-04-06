@@ -93,8 +93,8 @@ class ArenaAdapterServiceTest : FunSpec({
                         arenaKode = tiltakstype.arenaKode,
                         registrertIArenaDato = tiltakstype.registrertDatoIArena,
                         sistEndretIArenaDato = tiltakstype.sistEndretDatoIArena,
-                        fraDato = tiltakstype.fraDato,
-                        tilDato = tiltakstype.tilDato,
+                        startDato = tiltakstype.startDato,
+                        sluttDato = tiltakstype.sluttDato,
                         rettPaaTiltakspenger = tiltakstype.rettPaaTiltakspenger,
                         status = TiltakstypeStatus.AKTIV,
                         deltakerRegistreringInnhold = null,
@@ -816,8 +816,8 @@ class ArenaAdapterServiceTest : FunSpec({
             rettPaaTiltakspenger = true,
             registrertDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
             sistEndretDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
-            fraDato = LocalDate.of(2023, 1, 11),
-            tilDato = LocalDate.of(2023, 1, 12),
+            startDato = LocalDate.of(2023, 1, 11),
+            sluttDato = LocalDate.of(2023, 1, 12),
         )
 
         val tiltakshistorikkIndividuell = ArenaTiltakshistorikkDbo.IndividueltTiltak(

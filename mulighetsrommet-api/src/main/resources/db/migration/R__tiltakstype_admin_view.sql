@@ -8,13 +8,13 @@ select
     tiltakstype.arena_kode,
     tiltakstype.registrert_dato_i_arena,
     tiltakstype.sist_endret_dato_i_arena,
-    tiltakstype.fra_dato,
-    tiltakstype.til_dato,
+    tiltakstype.start_dato,
+    tiltakstype.slutt_dato,
     tiltakstype.sanity_id,
     tiltakstype.rett_paa_tiltakspenger,
     case
-        when now() > til_dato then 'AVSLUTTET'
-        when now() >= fra_dato then 'AKTIV'
+        when now() > slutt_dato then 'AVSLUTTET'
+        when now() >= start_dato then 'AKTIV'
         else 'PLANLAGT'
     end as status,
     coalesce(
