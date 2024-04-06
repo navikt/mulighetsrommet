@@ -65,23 +65,8 @@ class TiltakstypeRepository(private val db: Database) {
     fun get(id: UUID): TiltakstypeAdminDto? {
         @Language("PostgreSQL")
         val query = """
-            select
-                id,
-                navn,
-                tiltakskode,
-                arena_kode,
-                registrert_dato_i_arena,
-                sist_endret_dato_i_arena,
-                fra_dato,
-                til_dato,
-                sanity_id,
-                rett_paa_tiltakspenger,
-                case
-                    when now() > til_dato then 'Avsluttet'
-                    when now() >= fra_dato then 'Aktiv'
-                    else 'Planlagt'
-                end as status
-            from tiltakstype
+            select *
+            from tiltakstype_admin_dto_view
             where id = ?::uuid
         """.trimIndent()
         val queryResult = queryOf(query, id).map { it.toTiltakstypeAdminDto() }.asSingle
@@ -111,23 +96,8 @@ class TiltakstypeRepository(private val db: Database) {
     fun getByTiltakskode(tiltakskode: Tiltakskode): TiltakstypeAdminDto {
         @Language("PostgreSQL")
         val query = """
-            select
-                id,
-                navn,
-                tiltakskode,
-                arena_kode,
-                registrert_dato_i_arena,
-                sist_endret_dato_i_arena,
-                fra_dato,
-                til_dato,
-                sanity_id,
-                rett_paa_tiltakspenger,
-                case
-                    when now() > til_dato then 'Avsluttet'
-                    when now() >= fra_dato then 'Aktiv'
-                    else 'Planlagt'
-                end as status
-            from tiltakstype
+            select *
+            from tiltakstype_admin_dto_view
             where tiltakskode = ?::tiltakskode
         """.trimIndent()
         val queryResult = queryOf(query, tiltakskode.name).map { it.toTiltakstypeAdminDto() }.asSingle
@@ -139,23 +109,8 @@ class TiltakstypeRepository(private val db: Database) {
     fun getBySanityId(sanityId: UUID): TiltakstypeAdminDto? {
         @Language("PostgreSQL")
         val query = """
-            select
-                id,
-                navn,
-                tiltakskode,
-                arena_kode,
-                registrert_dato_i_arena,
-                sist_endret_dato_i_arena,
-                fra_dato,
-                til_dato,
-                sanity_id,
-                rett_paa_tiltakspenger,
-                case
-                    when now() > til_dato then 'Avsluttet'
-                    when now() >= fra_dato then 'Aktiv'
-                    else 'Planlagt'
-                end as status
-            from tiltakstype
+            select *
+            from tiltakstype_admin_dto_view
             where sanity_id = ?::uuid
         """.trimIndent()
         val queryResult = queryOf(query, sanityId).map { it.toTiltakstypeAdminDto() }.asSingle
@@ -167,24 +122,8 @@ class TiltakstypeRepository(private val db: Database) {
     ): PaginatedResult<TiltakstypeAdminDto> {
         @Language("PostgreSQL")
         val query = """
-            select
-                id,
-                navn,
-                tiltakskode,
-                arena_kode,
-                registrert_dato_i_arena,
-                sist_endret_dato_i_arena,
-                fra_dato,
-                til_dato,
-                sanity_id,
-                rett_paa_tiltakspenger,
-                case
-                    when now() > til_dato then 'Avsluttet'
-                    when now() >= fra_dato then 'Aktiv'
-                    else 'Planlagt'
-                end as status,
-                count(*) over() as total_count
-            from tiltakstype
+            select *, count(*) over() as total_count
+            from tiltakstype_admin_dto_view
             order by navn asc
             limit :limit
             offset :offset
@@ -218,30 +157,10 @@ class TiltakstypeRepository(private val db: Database) {
 
         @Language("PostgreSQL")
         val query = """
-            select
-                id,
-                navn,
-                tiltakskode,
-                arena_kode,
-                registrert_dato_i_arena,
-                sist_endret_dato_i_arena,
-                fra_dato,
-                til_dato,
-                sanity_id,
-                rett_paa_tiltakspenger,
-                case
-                    when now() > til_dato then 'Avsluttet'
-                    when now() >= fra_dato then 'Aktiv'
-                    else 'Planlagt'
-                end as status,
-                count(*) over() as total_count
-            from tiltakstype
+            select *, count(*) over() as total_count
+            from tiltakstype_admin_dto_view
             where tiltakskode is not null
-              and (:statuser::text[] is null or case
-                    when now() > til_dato then 'Avsluttet'
-                    when now() >= fra_dato then 'Aktiv'
-                    else 'Planlagt'
-                end = any(:statuser))
+              and (:statuser::text[] is null or status = any(:statuser))
             order by $order
             limit :limit
             offset :offset
@@ -302,23 +221,8 @@ class TiltakstypeRepository(private val db: Database) {
 
         @Language("PostgreSQL")
         val query = """
-            select
-                id,
-                navn,
-                tiltakskode,
-                arena_kode,
-                registrert_dato_i_arena,
-                sist_endret_dato_i_arena,
-                fra_dato,
-                til_dato,
-                sanity_id,
-                rett_paa_tiltakspenger,
-                case
-                    when now() > til_dato then 'Avsluttet'
-                    when now() >= fra_dato then 'Aktiv'
-                    else 'Planlagt'
-                end as status
-            from tiltakstype
+            select *
+            from tiltakstype_admin_dto_view
             where
                 (fra_dato > :date_interval_start and fra_dato <= :date_interval_end) or
                 (til_dato >= :date_interval_start and til_dato < :date_interval_end)
