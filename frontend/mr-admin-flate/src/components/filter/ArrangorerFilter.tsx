@@ -18,7 +18,7 @@ export function ArrangorerFilter({ filterAtom }: Props) {
         variant="simple"
         placeholder="Navn, organisasjonsnummer"
         onChange={(search: string) => {
-          setFilter({ ...filter, sok: search });
+          setFilter({ ...filter, sok: search, page: 1 });
         }}
         value={filter.sok}
         aria-label="Søk etter arrangør"
