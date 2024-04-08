@@ -1751,14 +1751,11 @@ components:
           type: integer
         totalPages:
           type: integer
-        currentPage:
-          type: integer
         pageSize:
           type: integer
       required:
         - totalCount
         - totalPages
-        - currentPage
         - pageSize
 
     PaginertTiltakstype:
@@ -2059,6 +2056,12 @@ components:
         - arrangor-descending
         - publisert_ascending
         - publisert_descending
+
+    SorteringArrangorer:
+      type: string
+      enum:
+        - navn-ascending
+        - navn-descending
 
     Tiltaksgjennomforing:
       type: object
@@ -2402,20 +2405,6 @@ components:
         - Aktiv
         - Planlagt
         - Avsluttet
-
-    FrontendEvent:
-      type: object
-      properties:
-        name:
-          type: string
-        fields:
-          type: object
-          additionalProperties: true
-        tags:
-          type: object
-          additionalProperties: true
-      required:
-        - name
 
     DialogRequest:
       type: object
@@ -3389,6 +3378,7 @@ components:
         - mulighetsrommet-veilederflate-arena-oppskrifter
         - mulighetsrommet.admin-flate.show-notater
         - mulighetsrommet.admin-flate.enableDebugger
+        - mulighetsrommet.admin-flate.enableArrangorSider
 
     PublisertRequest:
       type: object

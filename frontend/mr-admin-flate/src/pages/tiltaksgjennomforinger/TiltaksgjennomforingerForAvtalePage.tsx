@@ -1,20 +1,25 @@
-import { FilterAndTableLayout } from "../../components/filter/FilterAndTableLayout";
-import { TiltaksgjennomforingFilter } from "../../components/filter/TiltaksgjennomforingFilter";
+import { FilterAndTableLayout } from "mulighetsrommet-frontend-common/components/filterAndTableLayout/FilterAndTableLayout";
+import { TiltaksgjennomforingFilter } from "@/components/filter/TiltaksgjennomforingFilter";
 import { gjennomforingerForAvtaleFilterAtomFamily } from "@/api/atoms";
-import { TiltaksgjennomforingFiltertags } from "../../components/filter/TiltaksgjennomforingFiltertags";
-import { TiltaksgjennomforingFilterButtons } from "../../components/filter/TiltaksgjennomforingFilterButtons";
-import { TiltaksgjennomforingsTabell } from "../../components/tabell/TiltaksgjennomforingsTabell";
-import { useGetAvtaleIdFromUrlOrThrow } from "../../hooks/useGetAvtaleIdFromUrl";
+import { TiltaksgjennomforingFiltertags } from "@/components/filter/TiltaksgjennomforingFiltertags";
+import { TiltaksgjennomforingFilterButtons } from "@/components/filter/TiltaksgjennomforingFilterButtons";
+import { TiltaksgjennomforingsTabell } from "@/components/tabell/TiltaksgjennomforingsTabell";
+import { useGetAvtaleIdFromUrlOrThrow } from "@/hooks/useGetAvtaleIdFromUrl";
 import { useState } from "react";
+import { useAvtale } from "@/api/avtaler/useAvtale";
+import { NullstillKnappForTiltaksgjennomforinger } from "@/pages/tiltaksgjennomforinger/NullstillKnappForTiltaksgjennomforinger";
+import { TilToppenKnapp } from "mulighetsrommet-frontend-common/components/tilToppenKnapp/TilToppenKnapp";
 
 export function TiltaksgjennomforingerForAvtalePage() {
   const id = useGetAvtaleIdFromUrlOrThrow();
 
   const filterAtom = gjennomforingerForAvtaleFilterAtomFamily(id);
   const [filterOpen, setFilterOpen] = useState<boolean>(true);
+  const { data: avtale } = useAvtale();
+  const [tagsHeight, setTagsHeight] = useState(0);
 
   return (
-    <div style={{ marginTop: "1rem" }}>
+    <>
       <FilterAndTableLayout
         filter={
           <TiltaksgjennomforingFilter
@@ -24,8 +29,14 @@ export function TiltaksgjennomforingerForAvtalePage() {
             }}
           />
         }
-        tags={<TiltaksgjennomforingFiltertags filterAtom={filterAtom} filterOpen={filterOpen} />}
-        buttons={<TiltaksgjennomforingFilterButtons filterAtom={filterAtom} />}
+        tags={
+          <TiltaksgjennomforingFiltertags
+            filterAtom={filterAtom}
+            filterOpen={filterOpen}
+            setTagsHeight={setTagsHeight}
+          />
+        }
+        buttons={<TiltaksgjennomforingFilterButtons />}
         table={
           <TiltaksgjennomforingsTabell
             skjulKolonner={{
@@ -33,11 +44,17 @@ export function TiltaksgjennomforingerForAvtalePage() {
               arrangor: true,
             }}
             filterAtom={filterAtom}
+            tagsHeight={tagsHeight}
+            filterOpen={filterOpen}
           />
         }
         filterOpen={filterOpen}
         setFilterOpen={setFilterOpen}
+        nullstillFilterButton={
+          <NullstillKnappForTiltaksgjennomforinger avtale={avtale} filterAtom={filterAtom} />
+        }
       />
-    </div>
+      <TilToppenKnapp />
+    </>
   );
 }

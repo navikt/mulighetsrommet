@@ -12,15 +12,16 @@ import no.nav.mulighetsrommet.api.domain.dto.*
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.repositories.DeltakerRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
+import no.nav.mulighetsrommet.api.routes.v1.AdminTiltaksgjennomforingFilter
 import no.nav.mulighetsrommet.api.routes.v1.TiltaksgjennomforingRequest
 import no.nav.mulighetsrommet.api.routes.v1.responses.*
 import no.nav.mulighetsrommet.api.tiltaksgjennomforinger.TiltaksgjennomforingValidator
-import no.nav.mulighetsrommet.api.utils.AdminTiltaksgjennomforingFilter
 import no.nav.mulighetsrommet.api.utils.EksternTiltaksgjennomforingFilter
-import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.database.Database
+import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.Tiltakskoder.isTiltakMedAvtalerFraMulighetsrommet
+import no.nav.mulighetsrommet.domain.constants.ArenaMigrering.TiltaksgjennomforingSluttDatoCutoffDate
 import no.nav.mulighetsrommet.domain.dto.AvbruttAarsak
 import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.kafka.producers.TiltaksgjennomforingKafkaProducer
@@ -78,27 +79,8 @@ class TiltaksgjennomforingService(
         return tiltaksgjennomforinger.get(id)
     }
 
-    fun getAll(
-        pagination: PaginationParams,
-        filter: AdminTiltaksgjennomforingFilter,
-    ): PaginatedResponse<TiltaksgjennomforingAdminDto> = tiltaksgjennomforinger.getAll(
-        pagination,
-        search = filter.search,
-        navEnheter = filter.navEnheter,
-        tiltakstypeIder = filter.tiltakstypeIder,
-        statuser = filter.statuser,
-        sortering = filter.sortering,
-        sluttDatoCutoff = filter.sluttDatoCutoff,
-        dagensDato = filter.dagensDato,
-        avtaleId = filter.avtaleId,
-        arrangorIds = filter.arrangorIds,
-        administratorNavIdent = filter.administratorNavIdent,
-    ).let { (totalCount, data) ->
-        PaginatedResponse.of(pagination, totalCount, data)
-    }
-
     fun getAllSkalMigreres(
-        pagination: PaginationParams,
+        pagination: Pagination,
         filter: AdminTiltaksgjennomforingFilter,
     ): PaginatedResponse<TiltaksgjennomforingAdminDto> = tiltaksgjennomforinger.getAll(
         pagination,
@@ -107,12 +89,15 @@ class TiltaksgjennomforingService(
         tiltakstypeIder = filter.tiltakstypeIder,
         statuser = filter.statuser,
         sortering = filter.sortering,
-        sluttDatoCutoff = filter.sluttDatoCutoff,
         dagensDato = filter.dagensDato,
         avtaleId = filter.avtaleId,
         arrangorIds = filter.arrangorIds,
         administratorNavIdent = filter.administratorNavIdent,
+        /**
+         * Hardkodet filter så man kun viser relevante gjennomføringer i Tiltaksadmin
+         */
         skalMigreres = true,
+        sluttDatoGreaterThanOrEqualTo = TiltaksgjennomforingSluttDatoCutoffDate,
     ).let { (totalCount, data) ->
         PaginatedResponse.of(pagination, totalCount, data)
     }
@@ -136,7 +121,7 @@ class TiltaksgjennomforingService(
     }
 
     fun getAllEkstern(
-        pagination: PaginationParams,
+        pagination: Pagination,
         filter: EksternTiltaksgjennomforingFilter,
     ): PaginatedResponse<TiltaksgjennomforingDto> = tiltaksgjennomforinger
         .getAll(
@@ -216,10 +201,10 @@ class TiltaksgjennomforingService(
     fun batchApentForInnsokForAlleMedStarttdatoForDato(dagensDato: LocalDate) {
         db.transaction { tx ->
             val tiltak = tiltaksgjennomforinger.lukkApentForInnsokForTiltakMedStartdatoForDato(dagensDato, tx)
-            tiltak.forEach {
+            tiltak.forEach { gjennomforing ->
                 logEndringSomSystembruker(
                     operation = "Stengte for innsøk",
-                    it,
+                    gjennomforing,
                     tx,
                 )
             }

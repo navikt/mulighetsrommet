@@ -1,5 +1,5 @@
 import styles from "./Modal.module.scss";
-import { Heading, BodyShort, Button, Modal } from "@navikt/ds-react";
+import { BodyShort, Button, Heading, Modal } from "@navikt/ds-react";
 import { RefObject } from "react";
 
 interface Props {
@@ -8,7 +8,7 @@ interface Props {
   ressursNavn: string;
 }
 
-export const RedigeringsAdvarselModal = ({ modalRef, onRediger, ressursNavn }: Props) => {
+export function RedigeringsAdvarselModal({ modalRef, onRediger, ressursNavn }: Props) {
   const onClose = () => {
     modalRef.current?.close();
   };
@@ -35,4 +35,4 @@ export const RedigeringsAdvarselModal = ({ modalRef, onRediger, ressursNavn }: P
       </Modal.Footer>
     </Modal>
   );
-};
+}

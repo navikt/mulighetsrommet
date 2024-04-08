@@ -13,16 +13,17 @@ import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.api.domain.dto.*
-import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.database.Database
+import no.nav.mulighetsrommet.database.utils.PaginatedResult
+import no.nav.mulighetsrommet.database.utils.Pagination
+import no.nav.mulighetsrommet.database.utils.mapPaginated
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.ArenaTiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dto.AvbruttAarsak
 import no.nav.mulighetsrommet.domain.dto.NavIdent
-import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus
-import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus.*
+import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
 import java.time.LocalDate
@@ -316,6 +317,23 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         queryOf(query, tiltaksgjennomforing.toSqlParameters(arrangorId)).asExecute.let { tx.run(it) }
     }
 
+    fun updateArenaData(id: UUID, tiltaksnummer: String, arenaAnsvarligEnhet: String?, tx: Session) {
+        logger.info("Oppdaterer tiltaksgjennomføring med Arena data id=$id")
+
+        @Language("PostgreSQL")
+        val query = """
+            update tiltaksgjennomforing set
+                tiltaksnummer = :tiltaksnummer, arena_ansvarlig_enhet = :arena_ansvarlig_enhet
+            where id = :id::uuid
+        """.trimIndent()
+
+        queryOf(
+            query,
+            mapOf("id" to id, "tiltaksnummer" to tiltaksnummer, "arena_ansvarlig_enhet" to arenaAnsvarligEnhet),
+        )
+            .asExecute.let { tx.run(it) }
+    }
+
     fun get(id: UUID): TiltaksgjennomforingAdminDto? =
         db.transaction { get(id, it) }
 
@@ -369,13 +387,13 @@ class TiltaksgjennomforingRepository(private val db: Database) {
     }
 
     fun getAll(
-        pagination: PaginationParams = PaginationParams(),
+        pagination: Pagination = Pagination.all(),
         search: String? = null,
         navEnheter: List<String> = emptyList(),
         tiltakstypeIder: List<UUID> = emptyList(),
-        statuser: List<Tiltaksgjennomforingsstatus> = emptyList(),
+        statuser: List<TiltaksgjennomforingStatus> = emptyList(),
         sortering: String? = null,
-        sluttDatoCutoff: LocalDate? = ArenaMigrering.TiltaksgjennomforingSluttDatoCutoffDate,
+        sluttDatoGreaterThanOrEqualTo: LocalDate? = null,
         dagensDato: LocalDate = LocalDate.now(),
         avtaleId: UUID? = null,
         arrangorIds: List<UUID> = emptyList(),
@@ -383,12 +401,10 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         administratorNavIdent: NavIdent? = null,
         skalMigreres: Boolean? = null,
         opphav: ArenaMigrering.Opphav? = null,
-    ): Pair<Int, List<TiltaksgjennomforingAdminDto>> {
+    ): PaginatedResult<TiltaksgjennomforingAdminDto> {
         val parameters = mapOf(
             "search" to search?.replace("/", "#")?.trim()?.let { "%$it%" },
-            "limit" to pagination.limit,
-            "offset" to pagination.offset,
-            "slutt_dato_cutoff" to sluttDatoCutoff,
+            "slutt_dato_cutoff" to sluttDatoGreaterThanOrEqualTo,
             "today" to dagensDato,
             "avtale_id" to avtaleId,
             "nav_enheter" to navEnheter.ifEmpty { null }?.let { db.createTextArray(it) },
@@ -420,7 +436,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
 
         @Language("PostgreSQL")
         val query = """
-            select *, count(*) over () as full_count
+            select *, count(*) over () as total_count
             from tiltaksgjennomforing_admin_dto_view
             where (:tiltakstype_ids::uuid[] is null or tiltakstype_id = any(:tiltakstype_ids))
               and (:avtale_id::uuid is null or avtale_id = :avtale_id)
@@ -443,19 +459,14 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             offset :offset
         """.trimIndent()
 
-        val results = queryOf(query, parameters)
-            .map {
-                it.int("full_count") to it.toTiltaksgjennomforingAdminDto()
-            }
-            .asList
-            .let { db.run(it) }
-        val tiltaksgjennomforinger = results.map { it.second }
-        val totaltAntall = results.firstOrNull()?.first ?: 0
-
-        return Pair(totaltAntall, tiltaksgjennomforinger)
+        return db.useSession { session ->
+            queryOf(query, parameters + pagination.parameters)
+                .mapPaginated { it.toTiltaksgjennomforingAdminDto() }
+                .runWithSession(session)
+        }
     }
 
-    private fun statuserWhereStatement(statuser: List<Tiltaksgjennomforingsstatus>): String =
+    private fun statuserWhereStatement(statuser: List<TiltaksgjennomforingStatus>): String =
         statuser
             .ifEmpty { null }
             ?.joinToString(prefix = "(", postfix = ")", separator = " or ") {
@@ -537,7 +548,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
     fun getAllByDateIntervalAndNotAvbrutt(
         dateIntervalStart: LocalDate,
         dateIntervalEnd: LocalDate,
-        pagination: PaginationParams,
+        pagination: Pagination,
     ): List<UUID> {
         logger.info("Henter alle tiltaksgjennomføringer med start- eller sluttdato mellom $dateIntervalStart og $dateIntervalEnd, og ikke avbrutt")
 
@@ -557,9 +568,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             mapOf(
                 "date_interval_start" to dateIntervalStart,
                 "date_interval_end" to dateIntervalEnd,
-                "limit" to pagination.limit,
-                "offset" to pagination.offset,
-            ),
+            ) + pagination.parameters,
         )
             .map { it.uuid("id") }
             .asList
@@ -783,7 +792,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             tiltaksnummer = stringOrNull("tiltaksnummer"),
             startDato = startDato,
             sluttDato = sluttDato,
-            status = Tiltaksgjennomforingsstatus.valueOf(string("status")),
+            status = TiltaksgjennomforingStatus.valueOf(string("status")),
             apentForInnsok = boolean("apent_for_innsok"),
             sanityId = uuidOrNull("sanity_id"),
             antallPlasser = intOrNull("antall_plasser"),

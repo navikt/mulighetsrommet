@@ -27,7 +27,7 @@ import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dto.AvbruttAarsak
 import no.nav.mulighetsrommet.domain.dto.NavIdent
-import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus
+import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus
 import no.nav.mulighetsrommet.kafka.producers.TiltaksgjennomforingKafkaProducer
 import no.nav.mulighetsrommet.notifications.NotificationRepository
 import java.time.LocalDate
@@ -330,7 +330,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
             shouldThrow<Throwable> { tiltaksgjennomforingService.avbrytGjennomforing(gjennomforing.id, bertilNavIdent, AvbruttAarsak.Feilregistrering) }
 
             tiltaksgjennomforingService.get(gjennomforing.id) should {
-                it!!.status shouldBe Tiltaksgjennomforingsstatus.GJENNOMFORES
+                it!!.status shouldBe TiltaksgjennomforingStatus.GJENNOMFORES
             }
         }
     }

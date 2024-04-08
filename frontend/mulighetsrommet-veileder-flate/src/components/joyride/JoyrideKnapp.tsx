@@ -6,7 +6,7 @@ interface Props {
   handleClick: () => void;
 }
 
-export const JoyrideKnapp = ({ handleClick }: Props) => {
+export function JoyrideKnapp({ handleClick }: Props) {
   return (
     <Button
       size="small"
@@ -19,4 +19,4 @@ export const JoyrideKnapp = ({ handleClick }: Props) => {
       Veiviser
     </Button>
   );
-};
+}

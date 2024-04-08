@@ -2,6 +2,7 @@ import {
   Avtalestatus,
   Avtaletype,
   NavEnhet,
+  SorteringArrangorer,
   SorteringAvtaler,
   SorteringTiltaksgjennomforinger,
   SorteringTiltakstyper,
@@ -226,6 +227,28 @@ export const avtaleFilterAtom = atomWithHashAndStorage<AvtaleFilter>(
   defaultAvtaleFilter,
   sessionStorage,
   avtaleFilterSchema,
+);
+
+const arrangorerFilterSchema = z.object({
+  sok: z.string(),
+  page: z.number(),
+  pageSize: z.number(),
+  sortering: z.custom<SorteringArrangorer>(),
+});
+
+export type ArrangorerFilter = z.infer<typeof arrangorerFilterSchema>;
+export const defaultArrangorerFilter: ArrangorerFilter = {
+  sok: "",
+  sortering: SorteringArrangorer.NAVN_ASCENDING,
+  page: 1,
+  pageSize: 15,
+};
+
+export const arrangorerFilterAtom = atomWithHashAndStorage<ArrangorerFilter>(
+  "arrangorer-filter",
+  defaultArrangorerFilter,
+  sessionStorage,
+  arrangorerFilterSchema,
 );
 
 export const getAvtalerForTiltakstypeFilterAtom = atomFamily<

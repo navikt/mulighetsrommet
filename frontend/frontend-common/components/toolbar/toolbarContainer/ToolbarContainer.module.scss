@@ -1,0 +1,15 @@
+.toolbar_container {
+  display: flex;
+  justify-content: space-between;
+  flex-direction: row;
+  position: sticky;
+  background-color: var(--a-bg-subtle);
+  gap: 1rem;
+  padding: 0 0 0.5rem;
+  @media screen and (min-width: 1200px) {
+    padding: 0 0 0 0.5rem;
+    &_filter_hidden {
+      padding: 0;
+    }
+  }
+}

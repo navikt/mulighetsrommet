@@ -14,27 +14,27 @@ import { Sorteringsmeny } from "../sorteringmeny/Sorteringsmeny";
 import { Gjennomforingsrad } from "./Gjennomforingsrad";
 import styles from "./Tiltaksgjennomforingsoversikt.module.scss";
 import { sorteringAtom } from "../sorteringmeny/sorteringAtom";
+import { ToolbarContainer } from "mulighetsrommet-frontend-common/components/toolbar/toolbarContainer/ToolbarContainer";
 
 interface Props {
   tiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[];
   deltMedBruker?: DelMedBruker[];
-  varsler?: ReactNode;
-  tags: ReactNode;
-  filterOpen?: boolean;
+  varsler?: React.ReactNode;
+  filterOpen: boolean;
   feilmelding: ReactNode;
+  tagsHeight: number;
 }
 
 export const Tiltaksgjennomforingsoversikt = ({
   tiltaksgjennomforinger,
   deltMedBruker,
   varsler,
-  tags,
   filterOpen,
   feilmelding,
+  tagsHeight,
 }: Props) => {
   const [pageData, setPages] = useAtom(paginationAtom);
   const filter = useArbeidsmarkedstiltakFilterValue();
-
   const pagination = (tiltaksgjennomforing: VeilederflateTiltaksgjennomforing[]) => {
     return Math.ceil(tiltaksgjennomforing.length / pageData.pageSize);
   };
@@ -127,19 +127,12 @@ export const Tiltaksgjennomforingsoversikt = ({
 
   return (
     <>
-      <div
-        className={classnames(styles.toolbar_container, {
-          [styles.toolbar_container_filter_open]: filterOpen,
-          [styles.toolbar_container_filter_hidden]: !filterOpen,
-        })}
-      >
-        {tags}
+      <ToolbarContainer tagsHeight={tagsHeight} filterOpen={filterOpen}>
         {varsler}
         {gjennomforingerForSide.length > 0 ? (
-          <div className={styles.visnings_og_sorteringsmeny}>
+          <>
             <div className={styles.visningsmeny}>
               <ViserAntallTiltakTekst />
-
               <Select
                 size="small"
                 label="Velg antall"
@@ -165,9 +158,9 @@ export const Tiltaksgjennomforingsoversikt = ({
               </Select>
             </div>
             <Sorteringsmeny sortValue={sortValue} setSortValue={setSortValue} />
-          </div>
+          </>
         ) : null}
-      </div>
+      </ToolbarContainer>
       {feilmelding}
       <ul
         className={classnames(

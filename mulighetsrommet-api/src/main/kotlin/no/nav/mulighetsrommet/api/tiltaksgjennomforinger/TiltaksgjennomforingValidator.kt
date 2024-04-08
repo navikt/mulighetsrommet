@@ -7,7 +7,9 @@ import arrow.core.raise.either
 import arrow.core.right
 import no.nav.mulighetsrommet.api.domain.dbo.AvtaleDbo
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
+import no.nav.mulighetsrommet.api.domain.dto.AvtaleAdminDto
 import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingAdminDto
+import no.nav.mulighetsrommet.api.repositories.ArrangorRepository
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.routes.v1.responses.ValidationError
 import no.nav.mulighetsrommet.api.services.TiltakstypeService
@@ -16,12 +18,13 @@ import no.nav.mulighetsrommet.domain.Tiltakskoder
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dto.Avtalestatus
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
-import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus.GJENNOMFORES
+import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus.GJENNOMFORES
 import no.nav.mulighetsrommet.domain.dto.TiltakstypeAdminDto
 
 class TiltaksgjennomforingValidator(
     private val tiltakstyper: TiltakstypeService,
     private val avtaler: AvtaleRepository,
+    private val arrangorer: ArrangorRepository,
 ) {
     fun validate(
         dbo: TiltaksgjennomforingDbo,
@@ -119,74 +122,103 @@ class TiltaksgjennomforingValidator(
                 add(ValidationError.of(TiltaksgjennomforingDbo::arrangorId, "Arrangøren mangler i avtalen"))
             }
 
-            if (previous != null) {
-                if (!previous.isAktiv()) {
-                    add(
-                        ValidationError.of(
-                            TiltaksgjennomforingDbo::navn,
-                            "Kan bare gjøre endringer når gjennomføringen er aktiv",
-                        ),
-                    )
-                }
-
-                if (previous.status == GJENNOMFORES) {
-                    if (dbo.avtaleId != previous.avtaleId) {
-                        add(
-                            ValidationError.of(
-                                TiltaksgjennomforingDbo::avtaleId,
-                                "Avtalen kan ikke endres når gjennomføringen er aktiv",
-                            ),
-                        )
-                    }
-
-                    if (dbo.startDato.isBefore(avtale.startDato)) {
-                        add(
-                            ValidationError.of(
-                                TiltaksgjennomforingDbo::startDato,
-                                "Startdato må være etter avtalens startdato",
-                            ),
-                        )
-                    }
-
-                    if (dbo.sluttDato != null && previous.sluttDato != null && dbo.sluttDato.isBefore(previous.sluttDato)) {
-                        add(
-                            ValidationError.of(
-                                TiltaksgjennomforingDbo::sluttDato,
-                                "Sluttdato kan ikke endres bakover i tid når gjennomføringen er aktiv",
-                            ),
-                        )
-                    }
-
-                    if (dbo.arrangorId != previous.arrangor.id) {
-                        add(
-                            ValidationError.of(
-                                TiltaksgjennomforingDbo::arrangorId,
-                                "Arrangøren kan ikke endres når gjennomføringen er aktiv",
-                            ),
-                        )
-                    }
-                }
-            } else { // Dvs. opprettelse av ny gjennomføring
-                if (dbo.startDato.isBefore(avtale.startDato)) {
-                    add(
-                        ValidationError.of(
-                            TiltaksgjennomforingDbo::startDato,
-                            "Startdato må være etter avtalens startdato",
-                        ),
-                    )
-                }
-                if (avtale.avtalestatus != Avtalestatus.AKTIV) {
-                    add(
-                        ValidationError.of(
-                            TiltaksgjennomforingDbo::avtaleId,
-                            "Avtalen må være aktiv for å kunne opprette tiltak",
-                        ),
-                    )
-                }
+            if (previous == null) {
+                validateCreateGjennomforing(dbo, avtale)
+            } else {
+                validateUpdateGjennomforing(dbo, previous, avtale)
             }
         }
 
         return errors.takeIf { it.isNotEmpty() }?.left() ?: dbo.right()
+    }
+
+    private fun MutableList<ValidationError>.validateCreateGjennomforing(
+        gjennomforing: TiltaksgjennomforingDbo,
+        avtale: AvtaleAdminDto,
+    ) {
+        val arrangor = arrangorer.getById(gjennomforing.arrangorId)
+        if (arrangor.slettetDato != null) {
+            add(
+                ValidationError.of(
+                    TiltaksgjennomforingDbo::arrangorId,
+                    "Arrangøren ${arrangor.navn} er slettet i Brønnøysundregistrene. Gjennomføringer kan ikke opprettes for slettede bedrifter.",
+                ),
+            )
+        }
+
+        if (gjennomforing.startDato.isBefore(avtale.startDato)) {
+            add(
+                ValidationError.of(
+                    TiltaksgjennomforingDbo::startDato,
+                    "Startdato må være etter avtalens startdato",
+                ),
+            )
+        }
+
+        if (avtale.avtalestatus != Avtalestatus.AKTIV) {
+            add(
+                ValidationError.of(
+                    TiltaksgjennomforingDbo::avtaleId,
+                    "Avtalen må være aktiv for å kunne opprette tiltak",
+                ),
+            )
+        }
+    }
+
+    private fun MutableList<ValidationError>.validateUpdateGjennomforing(
+        gjennomforing: TiltaksgjennomforingDbo,
+        previous: TiltaksgjennomforingAdminDto,
+        avtale: AvtaleAdminDto,
+    ) {
+        if (!previous.isAktiv()) {
+            add(
+                ValidationError.of(
+                    TiltaksgjennomforingDbo::navn,
+                    "Kan bare gjøre endringer når gjennomføringen er aktiv",
+                ),
+            )
+        }
+
+        if (gjennomforing.arrangorId != previous.arrangor.id) {
+            add(
+                ValidationError.of(
+                    TiltaksgjennomforingDbo::arrangorId,
+                    "Arrangøren kan ikke endres når gjennomføringen er aktiv",
+                ),
+            )
+        }
+
+        if (previous.status == GJENNOMFORES) {
+            if (gjennomforing.avtaleId != previous.avtaleId) {
+                add(
+                    ValidationError.of(
+                        TiltaksgjennomforingDbo::avtaleId,
+                        "Avtalen kan ikke endres når gjennomføringen er aktiv",
+                    ),
+                )
+            }
+
+            if (gjennomforing.startDato.isBefore(avtale.startDato)) {
+                add(
+                    ValidationError.of(
+                        TiltaksgjennomforingDbo::startDato,
+                        "Startdato må være etter avtalens startdato",
+                    ),
+                )
+            }
+
+            if (gjennomforing.sluttDato != null && previous.sluttDato != null && gjennomforing.sluttDato.isBefore(
+                    previous.sluttDato,
+                )
+            ) {
+                add(
+                    ValidationError.of(
+                        TiltaksgjennomforingDbo::sluttDato,
+                        "Sluttdato kan ikke endres bakover i tid når gjennomføringen er aktiv",
+                    ),
+                )
+            }
+        }
     }
 
     private fun MutableList<ValidationError>.validateKursTiltak(dbo: TiltaksgjennomforingDbo) {

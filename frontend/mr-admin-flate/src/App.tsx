@@ -26,6 +26,8 @@ import { AvtaleInfo } from "./pages/avtaler/AvtaleInfo";
 import TiltaksgjennomforingSkjemaPage from "./pages/tiltaksgjennomforinger/TiltaksgjennomforingSkjemaPage";
 import { TiltaksgjennomforingerForAvtalePage } from "./pages/tiltaksgjennomforinger/TiltaksgjennomforingerForAvtalePage";
 import { initializeAmplitude } from "./logging/amplitude";
+import { ArrangorerPage } from "./pages/arrangor/ArrangorerPage";
+import { ArrangorPage } from "./pages/arrangor/ArrangorPage";
 
 if (import.meta.env.PROD) {
   initializeFaro({
@@ -154,6 +156,12 @@ export function App() {
       <Route
         path="tiltaksgjennomforinger/:tiltaksgjennomforingId/skjema"
         element={<TiltaksgjennomforingSkjemaPage />}
+        errorElement={<ErrorPage />}
+      />
+      <Route path="arrangorer" element={<ArrangorerPage />} errorElement={<ErrorPage />} />
+      <Route
+        path="arrangorer/:arrangorId"
+        element={<ArrangorPage />}
         errorElement={<ErrorPage />}
       />
       <Route path="notifikasjoner" element={<NotifikasjonerPage />} errorElement={<ErrorPage />}>

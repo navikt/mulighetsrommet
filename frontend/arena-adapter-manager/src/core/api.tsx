@@ -108,15 +108,18 @@ export const deleteEvents = async (arenaTable: string, arenaIds: string) => {
 
 export type MrApiTask =
   | "generate-validation-report"
-  | "initial-load-mulighetsrommet-tiltakstyper"
+  | "initial-load-tiltakstyper"
   | "initial-load-tiltaksgjennomforinger"
-  | "initial-load-mulighetsrommet-tiltaksgjennomforinger"
   | "sync-navansatte";
 
-export const runTask = (base: ApiBase, task: MrApiTask) =>
+export const runTask = (base: ApiBase, task: MrApiTask, input?: object) =>
   fetch(`${base}/tasks/${task}`, {
     method: "POST",
-    headers: getDefaultHeaders(),
+    headers: {
+      ...getDefaultHeaders(),
+      "content-type": "application/json",
+    },
+    body: input ? JSON.stringify(input) : undefined,
   })
     .then(parseJson)
     .then((response) => {

@@ -10,9 +10,11 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingDto
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
-import no.nav.mulighetsrommet.api.utils.DatabaseUtils.paginateFanOut
-import no.nav.mulighetsrommet.api.utils.PaginationParams
+import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.database.Database
+import no.nav.mulighetsrommet.database.utils.DatabaseUtils.paginateFanOut
+import no.nav.mulighetsrommet.database.utils.Pagination
+import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.kafka.producers.TiltaksgjennomforingKafkaProducer
 import no.nav.mulighetsrommet.tasks.DbSchedulerKotlinSerializer
@@ -23,14 +25,21 @@ import java.util.*
 
 class InitialLoadTiltaksgjennomforinger(
     database: Database,
+    private val tiltakstyper: TiltakstypeRepository,
     private val gjennomforinger: TiltaksgjennomforingRepository,
     private val gjennomforingProducer: TiltaksgjennomforingKafkaProducer,
 ) {
 
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    val task: OneTimeTask<InitialLoadTiltaksgjennomforingerInput> = Tasks
-        .oneTime(javaClass.name, InitialLoadTiltaksgjennomforingerInput::class.java)
+    @Serializable
+    data class Input(
+        val opphav: ArenaMigrering.Opphav? = null,
+        val tiltakstyper: List<Tiltakskode>? = null,
+    )
+
+    val task: OneTimeTask<Input> = Tasks
+        .oneTime(javaClass.name, Input::class.java)
         .execute { instance, context ->
             val input = instance.data
 
@@ -40,7 +49,7 @@ class InitialLoadTiltaksgjennomforinger(
 
             runBlocking {
                 val job = async {
-                    initialLoadTiltaksgjennomforinger(opphav = input.opphav)
+                    initialLoadTiltaksgjennomforinger(input)
                 }
 
                 while (job.isActive) {
@@ -62,30 +71,29 @@ class InitialLoadTiltaksgjennomforinger(
         .serializer(DbSchedulerKotlinSerializer())
         .build()
 
-    fun schedule(input: InitialLoadTiltaksgjennomforingerInput, startTime: Instant = Instant.now()): UUID {
+    fun schedule(input: Input, startTime: Instant = Instant.now()): UUID {
         val id = UUID.randomUUID()
         val instance = task.instance(id.toString(), input)
         client.schedule(instance, startTime)
         return id
     }
 
-    private suspend fun initialLoadTiltaksgjennomforinger(opphav: ArenaMigrering.Opphav? = null): Int {
+    private suspend fun initialLoadTiltaksgjennomforinger(input: Input): Int {
+        val tiltakstypeIder = (input.tiltakstyper ?: emptyList())
+            .map { tiltakstyper.getByTiltakskode(it).id }
+
         return paginateFanOut(
-            { pagination: PaginationParams ->
-                logger.info("Henter gjennomføringer limit=${pagination.limit} offset=${pagination.offset}")
+            { pagination: Pagination ->
+                logger.info("Henter gjennomføringer pagination=$pagination")
                 val result = gjennomforinger.getAll(
                     pagination = pagination,
-                    opphav = opphav,
+                    opphav = input.opphav,
+                    tiltakstypeIder = tiltakstypeIder,
                 )
-                result.second
+                result.items
             },
         ) {
             gjennomforingProducer.publish(TiltaksgjennomforingDto.from(it))
         }
     }
 }
-
-@Serializable
-data class InitialLoadTiltaksgjennomforingerInput(
-    val opphav: ArenaMigrering.Opphav?,
-)

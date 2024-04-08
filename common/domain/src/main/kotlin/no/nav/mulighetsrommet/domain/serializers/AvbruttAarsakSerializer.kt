@@ -12,7 +12,7 @@ class AvbruttAarsakSerializer : KSerializer<AvbruttAarsak> {
     override fun deserialize(decoder: Decoder): AvbruttAarsak {
         return when (val aarsak = decoder.decodeString()) {
             "ENDRING_HOS_ARRANGOR" -> AvbruttAarsak.EndringHosArrangor
-            "BUDSJETT_HENSYN" -> AvbruttAarsak.BudsjettHensys
+            "BUDSJETT_HENSYN" -> AvbruttAarsak.BudsjettHensyn
             "FOR_FAA_DELTAKERE" -> AvbruttAarsak.ForFaaDeltakere
             "FEILREGISTRERING" -> AvbruttAarsak.Feilregistrering
             "FORCE_MAJEURE" -> AvbruttAarsak.Feilregistrering

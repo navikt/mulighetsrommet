@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.utils
+package no.nav.mulighetsrommet.database.utils
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
@@ -17,12 +17,12 @@ object DatabaseUtils {
         ?: ""
 
     @Suppress("DuplicatedCode")
-    fun <T> paginate(limit: Int, operation: (PaginationParams) -> List<T>): Int {
+    fun <T> paginate(pageSize: Int, operation: (Pagination) -> List<T>): Int {
         var page = 1
         var count = 0
 
         do {
-            val items = operation(PaginationParams(page, limit))
+            val items = operation(Pagination.of(page, pageSize))
             page += 1
             count += items.size
         } while (items.isNotEmpty())
@@ -31,12 +31,12 @@ object DatabaseUtils {
     }
 
     @Suppress("DuplicatedCode")
-    suspend fun <T> paginateSuspend(limit: Int, operation: suspend (PaginationParams) -> List<T>): Int {
+    suspend fun <T> paginateSuspend(pageSize: Int, operation: suspend (Pagination) -> List<T>): Int {
         var page = 1
         var count = 0
 
         do {
-            val items = operation(PaginationParams(page, limit))
+            val items = operation(Pagination.of(page, pageSize))
             page += 1
             count += items.size
         } while (items.isNotEmpty())
@@ -48,14 +48,14 @@ object DatabaseUtils {
      * Fan-out utility for å prosessere mange entries i parallell.
      *
      * Et typisk case vil være å paginere over en hel database-tabell ved å implementere en [producer] som henter
-     * rader basert på gitt [PaginationParams] og en [consumer] som prosesserer én enkel rad.
+     * rader basert på gitt [Pagination] og en [consumer] som prosesserer én enkel rad.
      *
      * Antall konsumenter kan overtyres ved å sette [numConsumers] og [Channel]-kapasiteten til produsenten kan
      * overstyres ved å sette [channelCapacity].
      */
     @OptIn(ExperimentalCoroutinesApi::class)
     suspend fun <T> paginateFanOut(
-        producer: (PaginationParams) -> List<T>,
+        producer: (Pagination) -> List<T>,
         numConsumers: Int = 10,
         channelCapacity: Int = 1000,
         consumer: suspend (T) -> Unit,

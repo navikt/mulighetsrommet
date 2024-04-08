@@ -22,20 +22,49 @@ export function MrApiManagement() {
           </p>
         </RunTask>
 
-        <RunTask base={ApiBase.MR_API} task="initial-load-mulighetsrommet-tiltakstyper">
-          Starter en initial load av alle tiltakstyper
+        <RunTask base={ApiBase.MR_API} task="initial-load-tiltakstyper">
+          Starter en initial load av alle relevante tiltakstyper.
         </RunTask>
 
-        <RunTask base={ApiBase.MR_API} task="initial-load-mulighetsrommet-tiltaksgjennomforinger">
-          Starter en initial load av alle gjennomføringer med opphav = MR_ADMIN_FLATE.
-        </RunTask>
-
-        <RunTask base={ApiBase.MR_API} task="initial-load-tiltaksgjennomforinger">
-          <p>Starter en initial load av alle gjennomføringer i API.</p>
-          <p>
-            Dette inkluderer både gjennomføringer med opphav = ARENA og opphav = MR_ADMIN_FLATE.
-          </p>
-        </RunTask>
+        <RunTask
+          base={ApiBase.MR_API}
+          task="initial-load-tiltaksgjennomforinger"
+          input={{
+            type: "object",
+            description:
+              "Starter en initial load av gjennomføringer filtrert basert på input fra skjemaet.",
+            properties: {
+              opphav: {
+                title: "Opphav",
+                description:
+                  "For hvilket opphav skal gjennomføringer relastes på topic? Hvis feltet er tomt vil gjennomføringer relastes uavhengig av opphav.",
+                type: "string",
+                enum: ["MR_ADMIN_FLATE", "ARENA"],
+              },
+              tiltakstyper: {
+                title: "Tiltakstyper",
+                description:
+                  "For hvilke tiltakstyper skal gjennomføringer relastes på topic? Hvis ingen er valgt vil gjennomføringer relastes for alle tiltakstyper.",
+                type: "array",
+                items: {
+                  type: "string",
+                  enum: [
+                    "AVKLARING",
+                    "OPPFOLGING",
+                    "GRUPPE_ARBEIDSMARKEDSOPPLAERING",
+                    "JOBBKLUBB",
+                    "DIGITALT_OPPFOLGINGSTILTAK",
+                    "ARBEIDSFORBEREDENDE_TRENING",
+                    "GRUPPE_FAG_OG_YRKESOPPLAERING",
+                    "ARBEIDSRETTET_REHABILITERING",
+                    "VARIG_TILRETTELAGT_ARBEID_SKJERMET",
+                  ],
+                },
+                uniqueItems: true,
+              },
+            },
+          }}
+        />
 
         <RunTask base={ApiBase.MR_API} task={"sync-navansatte"}>
           Synkroniserer NAV-ansatte fra relevante AD-grupper.

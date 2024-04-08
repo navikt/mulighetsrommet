@@ -1,0 +1,12 @@
+.button_row {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background-color: var(--a-bg-subtle);
+  padding-left: 0.5rem;
+  grid-row: 1;
+  grid-column: 2;
+}

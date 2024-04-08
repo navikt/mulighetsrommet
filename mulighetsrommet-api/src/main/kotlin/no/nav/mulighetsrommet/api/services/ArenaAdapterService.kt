@@ -17,7 +17,9 @@ import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
 import no.nav.mulighetsrommet.api.domain.dto.AvtaleAdminDto
 import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingAdminDto
 import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingDto
+import no.nav.mulighetsrommet.api.domain.dto.TiltakstypeEksternDto
 import no.nav.mulighetsrommet.api.repositories.*
+import no.nav.mulighetsrommet.api.tasks.InitialLoadTiltaksgjennomforinger
 import no.nav.mulighetsrommet.api.utils.EnhetFilter
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.QueryResult
@@ -30,6 +32,7 @@ import no.nav.mulighetsrommet.domain.constants.ArenaMigrering.Tiltaksgjennomfori
 import no.nav.mulighetsrommet.domain.dbo.*
 import no.nav.mulighetsrommet.domain.dto.Avtalestatus
 import no.nav.mulighetsrommet.domain.dto.NavIdent
+import no.nav.mulighetsrommet.domain.dto.TiltakstypeAdminDto
 import no.nav.mulighetsrommet.kafka.producers.TiltaksgjennomforingKafkaProducer
 import no.nav.mulighetsrommet.kafka.producers.TiltakstypeKafkaProducer
 import no.nav.mulighetsrommet.notifications.NotificationMetadata
@@ -57,20 +60,32 @@ class ArenaAdapterService(
     private val endringshistorikk: EndringshistorikkService,
     private val veilarboppfolgingClient: VeilarboppfolgingClient,
     private val tiltakstypeService: TiltakstypeService,
+    private val initialLoadTiltaksgjennomforinger: InitialLoadTiltaksgjennomforinger,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
     fun upsertTiltakstype(tiltakstype: TiltakstypeDbo): TiltakstypeDbo {
+        val current = tiltakstyper.get(tiltakstype.id)
         return tiltakstyper.upsert(tiltakstype)
             .also {
                 val eksternDto = tiltakstyper.getEksternTiltakstype(tiltakstype.id)
                 if (eksternDto != null) {
                     tiltakstypeKafkaProducer.publish(eksternDto)
-                } else {
-                    tiltakstypeKafkaProducer.retract(tiltakstype.id)
+
+                    if (tiltakstypeNavnHasChanged(current, eksternDto)) {
+                        val input = InitialLoadTiltaksgjennomforinger.Input(
+                            tiltakstyper = listOf(eksternDto.tiltakskode),
+                        )
+                        initialLoadTiltaksgjennomforinger.schedule(input)
+                    }
                 }
             }
     }
+
+    private fun tiltakstypeNavnHasChanged(
+        current: TiltakstypeAdminDto?,
+        eksternDto: TiltakstypeEksternDto,
+    ) = current != null && current.navn != eksternDto.navn
 
     fun removeTiltakstype(id: UUID): QueryResult<Int> {
         return tiltakstyper.delete(id).onRight { deletedRows ->
@@ -113,12 +128,15 @@ class ArenaAdapterService(
     }
 
     suspend fun upsertTiltaksgjennomforing(arenaGjennomforing: ArenaTiltaksgjennomforingDbo): QueryResult<TiltaksgjennomforingAdminDto> {
+        val tiltakstype = tiltakstyper.get(arenaGjennomforing.tiltakstypeId)
+            ?: throw IllegalStateException("Ukjent tiltakstype id=${arenaGjennomforing.tiltakstypeId}")
+
         syncArrangorFromBrreg(arenaGjennomforing.arrangorOrganisasjonsnummer)
 
         val previous = tiltaksgjennomforinger.get(arenaGjennomforing.id)
 
         val mergedArenaGjennomforing = if (previous != null) {
-            mergeWithCurrentGjennomforing(arenaGjennomforing, previous)
+            mergeWithCurrentGjennomforing(arenaGjennomforing, previous, tiltakstype)
         } else {
             arenaGjennomforing
         }
@@ -128,7 +146,16 @@ class ArenaAdapterService(
         }
 
         val gjennomforing = db.transactionSuspend { tx ->
-            tiltaksgjennomforinger.upsertArenaTiltaksgjennomforing(mergedArenaGjennomforing, tx)
+            if (previous != null && tiltakstypeService.isEnabled(Tiltakskode.fromArenaKode(tiltakstype.arenaKode))) {
+                tiltaksgjennomforinger.updateArenaData(
+                    previous.id,
+                    mergedArenaGjennomforing.tiltaksnummer,
+                    mergedArenaGjennomforing.arenaAnsvarligEnhet,
+                    tx,
+                )
+            } else {
+                tiltaksgjennomforinger.upsertArenaTiltaksgjennomforing(mergedArenaGjennomforing, tx)
+            }
 
             val next = tiltaksgjennomforinger.get(mergedArenaGjennomforing.id, tx)!!
 
@@ -206,10 +233,8 @@ class ArenaAdapterService(
     private fun mergeWithCurrentGjennomforing(
         tiltaksgjennomforing: ArenaTiltaksgjennomforingDbo,
         current: TiltaksgjennomforingAdminDto,
+        tiltakstype: TiltakstypeAdminDto,
     ): ArenaTiltaksgjennomforingDbo {
-        val tiltakstype = tiltakstyper.get(tiltaksgjennomforing.tiltakstypeId)
-            ?: throw IllegalStateException("Ukjent tiltakstype id=${tiltaksgjennomforing.tiltakstypeId}")
-
         return if (tiltakstypeService.isEnabled(Tiltakskode.fromArenaKode(tiltakstype.arenaKode))) {
             ArenaTiltaksgjennomforingDbo(
                 // Behold felter som settes i Arena

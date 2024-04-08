@@ -3,9 +3,9 @@ import { ArrangorTil } from "mulighetsrommet-api-client";
 import { TiltaksgjennomforingFilter } from "@/api/atoms";
 import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
 import { useArrangorer } from "@/api/arrangor/useArrangorer";
-import { addOrRemove } from "../../utils/Utils";
-import { TILTAKSGJENNOMFORING_STATUS_OPTIONS } from "../../utils/filterUtils";
-import { Filtertag, FiltertagsContainer, NavEnhetFiltertag } from "mulighetsrommet-frontend-common";
+import { addOrRemove } from "@/utils/Utils";
+import { TILTAKSGJENNOMFORING_STATUS_OPTIONS } from "@/utils/filterUtils";
+import { FilterTag, FilterTagsContainer, NavEnhetFilterTag } from "mulighetsrommet-frontend-common";
 
 interface Props {
   filterAtom: WritableAtom<
@@ -13,18 +13,19 @@ interface Props {
     [newValue: TiltaksgjennomforingFilter],
     void
   >;
-  filterOpen?: boolean;
+  filterOpen: boolean;
+  setTagsHeight: (height: number) => void;
 }
 
-export function TiltaksgjennomforingFiltertags({ filterAtom, filterOpen }: Props) {
+export function TiltaksgjennomforingFiltertags({ filterAtom, filterOpen, setTagsHeight }: Props) {
   const [filter, setFilter] = useAtom(filterAtom);
   const { data: arrangorer } = useArrangorer(ArrangorTil.TILTAKSGJENNOMFORING);
   const { data: tiltakstyper } = useTiltakstyper();
 
   return (
-    <FiltertagsContainer filterOpen={filterOpen}>
+    <FilterTagsContainer filterOpen={filterOpen} setTagsHeight={setTagsHeight}>
       {filter.search && (
-        <Filtertag
+        <FilterTag
           label={filter.search}
           onClose={() => {
             setFilter({
@@ -35,13 +36,13 @@ export function TiltaksgjennomforingFiltertags({ filterAtom, filterOpen }: Props
         />
       )}
       {filter.navEnheter.length > 0 && (
-        <NavEnhetFiltertag
+        <NavEnhetFilterTag
           navEnheter={filter.navEnheter}
           onClose={() => setFilter({ ...filter, navEnheter: [] })}
         />
       )}
       {filter.tiltakstyper.map((tiltakstype) => (
-        <Filtertag
+        <FilterTag
           key={tiltakstype}
           label={tiltakstyper?.data?.find((t) => tiltakstype === t.id)?.navn || tiltakstype}
           onClose={() => {
@@ -53,7 +54,7 @@ export function TiltaksgjennomforingFiltertags({ filterAtom, filterOpen }: Props
         />
       ))}
       {filter.statuser.map((status) => (
-        <Filtertag
+        <FilterTag
           key={status}
           label={
             TILTAKSGJENNOMFORING_STATUS_OPTIONS.find((o) => status === o.value)?.label || status
@@ -67,7 +68,7 @@ export function TiltaksgjennomforingFiltertags({ filterAtom, filterOpen }: Props
         />
       ))}
       {filter.visMineGjennomforinger && (
-        <Filtertag
+        <FilterTag
           label="Mine gjennomføringer"
           onClose={() => {
             setFilter({
@@ -78,7 +79,7 @@ export function TiltaksgjennomforingFiltertags({ filterAtom, filterOpen }: Props
         />
       )}
       {filter.arrangorer.map((id) => (
-        <Filtertag
+        <FilterTag
           key={id}
           label={arrangorer?.find((arrangor) => arrangor.id === id)?.navn ?? id}
           onClose={() => {
@@ -89,6 +90,6 @@ export function TiltaksgjennomforingFiltertags({ filterAtom, filterOpen }: Props
           }}
         />
       ))}
-    </FiltertagsContainer>
+    </FilterTagsContainer>
   );
 }

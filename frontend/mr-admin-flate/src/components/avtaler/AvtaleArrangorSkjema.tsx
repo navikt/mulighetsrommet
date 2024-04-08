@@ -1,4 +1,4 @@
-import { Button } from "@navikt/ds-react";
+import { Alert, Button } from "@navikt/ds-react";
 import { Arrangor, ArrangorKontaktperson, BrregVirksomhet } from "mulighetsrommet-api-client";
 import { ControlledSokeSelect } from "mulighetsrommet-frontend-common/components/ControlledSokeSelect";
 import { useRef, useState } from "react";
@@ -36,6 +36,8 @@ export function AvtaleArrangorSkjema({ readOnly }: Props) {
   const arrangorUnderenhetOptions = getArrangorUnderenhetOptions(underenheter ?? []);
   const arrangorKontaktpersonOptions = getArrangorKontaktpersonOptions(kontaktpersoner ?? []);
 
+  const underenheterIsEmpty = arrangorUnderenhetOptions.length === 0;
+
   return (
     <>
       <FormGroup>
@@ -59,12 +61,18 @@ export function AvtaleArrangorSkjema({ readOnly }: Props) {
           }}
           options={arrangorHovedenhetOptions}
         />
+        {arrangor && underenheter && underenheterIsEmpty && (
+          <Alert variant="warning">
+            Bedriften {arrangor.navn} mangler underenheter i Brønnøysundregistrene og kan derfor
+            ikke velges som tiltaksarrangør.
+          </Alert>
+        )}
         <ControlledMultiSelect
           size="small"
           placeholder="Velg underenhet for tiltaksarrangør"
           label={avtaletekster.tiltaksarrangorUnderenheterLabel}
           helpText="Bestemmer hvilke arrangører som kan velges i gjennomføringene til avtalen."
-          readOnly={!arrangor}
+          readOnly={underenheterIsEmpty}
           {...register("arrangorUnderenheter")}
           options={arrangorUnderenhetOptions}
         />
