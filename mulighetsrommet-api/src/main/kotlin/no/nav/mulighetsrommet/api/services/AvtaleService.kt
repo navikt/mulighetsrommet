@@ -27,7 +27,6 @@ import no.nav.mulighetsrommet.notifications.NotificationRepository
 import no.nav.mulighetsrommet.notifications.NotificationType
 import no.nav.mulighetsrommet.notifications.ScheduledNotification
 import java.time.Instant
-import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 
@@ -127,7 +126,6 @@ class AvtaleService(
             avtaletyper = filter.avtaletyper,
             navRegioner = filter.navRegioner,
             sortering = filter.sortering,
-            dagensDato = filter.dagensDato,
             arrangorIds = filter.arrangorIds,
             administratorNavIdent = filter.administratorNavIdent,
         )
@@ -139,7 +137,7 @@ class AvtaleService(
         return avtaler.getAllAvtalerSomNarmerSegSluttdato()
     }
 
-    fun avbrytAvtale(id: UUID, navIdent: NavIdent, dagensDato: LocalDate = LocalDate.now()): StatusResponse<Unit> {
+    fun avbrytAvtale(id: UUID, navIdent: NavIdent): StatusResponse<Unit> {
         val avtale = avtaler.get(id) ?: return Either.Left(NotFound("Avtalen finnes ikke"))
 
         if (avtale.opphav == Opphav.ARENA && !tiltakstyperMigrert.contains(Tiltakskode.fromArenaKode(avtale.tiltakstype.arenaKode))) {
@@ -156,7 +154,6 @@ class AvtaleService(
                 TiltaksgjennomforingStatus.GJENNOMFORES,
                 TiltaksgjennomforingStatus.PLANLAGT,
             ),
-            dagensDato = dagensDato,
         )
 
         val (antallAktiveGjennomforinger, antallPlanlagteGjennomforinger) = gjennomforinger.partition { it.status == TiltaksgjennomforingStatus.GJENNOMFORES }

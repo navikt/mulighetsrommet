@@ -274,12 +274,10 @@ class AvtaleRepository(private val db: Database) {
         avtaletyper: List<Avtaletype> = emptyList(),
         navRegioner: List<String> = emptyList(),
         sortering: String? = null,
-        dagensDato: LocalDate = LocalDate.now(),
         arrangorIds: List<UUID> = emptyList(),
         administratorNavIdent: NavIdent? = null,
     ): PaginatedResult<AvtaleAdminDto> {
         val parameters = mapOf(
-            "today" to dagensDato,
             "search" to search?.replace("/", "#")?.trim()?.let { "%$it%" },
             "administrator_nav_ident" to administratorNavIdent?.let { """[{ "navIdent": "${it.value}" }]""" },
             "tiltakstype_ids" to tiltakstypeIder.ifEmpty { null }?.let { db.createUuidArray(it) },
@@ -287,6 +285,7 @@ class AvtaleRepository(private val db: Database) {
             "arrangor_ids" to arrangorIds.ifEmpty { null }?.let { db.createUuidArray(it) },
             "nav_enheter" to navRegioner.ifEmpty { null }?.let { db.createTextArray(it) },
             "avtaletyper" to avtaletyper.ifEmpty { null }?.let { db.createArrayOf("avtaletype", it) },
+            "statuser" to statuser.ifEmpty { null }?.let { db.createArrayOf("text", statuser) },
         )
 
         val order = when (sortering) {
@@ -320,7 +319,7 @@ class AvtaleRepository(private val db: Database) {
               and (:arrangor_hovedenhet_id::text is null or :arrangor_hovedenhet_id = any (:arrangor_ids))
               and (:administrator_nav_ident::text is null or administratorer_json @> :administrator_nav_ident::jsonb)
               and (:avtaletyper::avtaletype[] is null or avtaletype = any (:avtaletyper))
-              and (${statuserWhereStatement(statuser)})
+              and (:statuser::text[] is null or status = any(:statuser))
             order by $order
             limit :limit
             offset :offset
@@ -512,14 +511,6 @@ class AvtaleRepository(private val db: Database) {
             ),
         )
     }
-
-    private fun statuserWhereStatement(statuser: List<Avtalestatus>): String =
-        statuser
-            .ifEmpty { null }
-            ?.joinToString(prefix = "(", postfix = ")", separator = " or ") {
-                "(status = '${it.name}')"
-            }
-            ?: "true"
 
     private fun Row.toAvtaleNotificationDto(): AvtaleNotificationDto {
         val administratorer = arrayOrNull<String?>("administratorer")?.asList()?.filterNotNull() ?: emptyList()

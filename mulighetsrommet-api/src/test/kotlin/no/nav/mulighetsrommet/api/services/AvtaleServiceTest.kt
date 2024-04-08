@@ -202,25 +202,25 @@ class AvtaleServiceTest : FunSpec({
             val avtale = AvtaleFixtures.oppfolging.copy(
                 id = UUID.randomUUID(),
                 navn = "Avtale som eksisterer",
-                startDato = LocalDate.of(2024, 5, 17),
-                sluttDato = LocalDate.of(2027, 7, 1),
+                startDato = LocalDate.now(),
+                sluttDato = LocalDate.now().plusMonths(1),
             )
             avtaleRepository.upsert(avtale)
             val oppfolging1 = TiltaksgjennomforingFixtures.Oppfolging1.copy(
                 avtaleId = avtale.id,
-                startDato = LocalDate.of(2026, 5, 1),
+                startDato = LocalDate.now().plusDays(1),
                 sluttDato = null,
             )
             val oppfolging2 = TiltaksgjennomforingFixtures.Oppfolging2.copy(
                 avtaleId = avtale.id,
-                startDato = LocalDate.of(2024, 5, 1),
+                startDato = LocalDate.now().plusDays(1),
                 sluttDato = null,
             )
 
             tiltaksgjennomforinger.upsert(oppfolging1)
             tiltaksgjennomforinger.upsert(oppfolging2)
 
-            avtaleService.avbrytAvtale(avtale.id, bertilNavIdent, dagensDato = LocalDate.of(2024, 1, 1)).shouldBeLeft(
+            avtaleService.avbrytAvtale(avtale.id, bertilNavIdent).shouldBeLeft(
                 BadRequest("Avtalen har 2 planlagte tiltaksgjennomføringer koblet til seg. Du må flytte eller avslutte gjennomføringene før du kan avbryte avtalen."),
             )
         }
@@ -229,30 +229,24 @@ class AvtaleServiceTest : FunSpec({
             val avtale = AvtaleFixtures.oppfolging.copy(
                 id = UUID.randomUUID(),
                 navn = "Avtale som eksisterer",
-                startDato = LocalDate.of(2024, 5, 17),
-                sluttDato = LocalDate.of(2025, 7, 1),
+                startDato = LocalDate.now().minusDays(1),
+                sluttDato = LocalDate.now().plusMonths(1),
             )
             avtaleRepository.upsert(avtale)
             val oppfolging1 = TiltaksgjennomforingFixtures.Oppfolging1.copy(
                 avtaleId = avtale.id,
-                startDato = LocalDate.of(2023, 5, 1),
-                sluttDato = LocalDate.of(2023, 6, 1),
-            )
-            val oppfolging2 = TiltaksgjennomforingFixtures.Oppfolging2.copy(
-                avtaleId = avtale.id,
-                startDato = LocalDate.of(2023, 5, 1),
-                sluttDato = LocalDate.of(2024, 1, 1),
+                startDato = LocalDate.now().minusDays(1),
+                sluttDato = LocalDate.now().minusDays(1),
             )
             tiltaksgjennomforinger.upsert(oppfolging1)
-            tiltaksgjennomforinger.upsert(oppfolging2)
 
             avtaleService.avbrytAvtale(avtale.id, bertilNavIdent).shouldBeRight()
         }
 
         test("Skal få avbryte avtale hvis alle sjekkene er ok") {
             val avtale = AvtaleFixtures.oppfolging.copy(
-                startDato = LocalDate.of(2023, 7, 1),
-                sluttDato = LocalDate.of(2024, 7, 1),
+                startDato = LocalDate.now().minusDays(1),
+                sluttDato = LocalDate.now().plusMonths(1),
             )
             avtaleRepository.upsert(avtale).right()
 

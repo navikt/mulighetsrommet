@@ -128,7 +128,6 @@ data class AdminTiltaksgjennomforingFilter(
     val tiltakstypeIder: List<UUID> = emptyList(),
     val statuser: List<TiltaksgjennomforingStatus> = emptyList(),
     val sortering: String? = null,
-    val dagensDato: LocalDate = LocalDate.now(),
     val avtaleId: UUID? = null,
     val arrangorIds: List<UUID> = emptyList(),
     val administratorNavIdent: NavIdent? = null,

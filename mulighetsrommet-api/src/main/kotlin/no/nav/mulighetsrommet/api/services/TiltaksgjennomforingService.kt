@@ -86,7 +86,6 @@ class TiltaksgjennomforingService(
         tiltakstypeIder = filter.tiltakstypeIder,
         statuser = filter.statuser,
         sortering = filter.sortering,
-        dagensDato = filter.dagensDato,
         avtaleId = filter.avtaleId,
         arrangorIds = filter.arrangorIds,
         administratorNavIdent = filter.administratorNavIdent,
