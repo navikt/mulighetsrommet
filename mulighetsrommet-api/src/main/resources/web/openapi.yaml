@@ -1283,19 +1283,36 @@ paths:
       operationId: getArrangorer
       parameters:
         - in: query
+          name: page
+          schema:
+            type: number
+          description: Page number, default 1
+        - in: query
+          name: size
+          schema:
+            type: number
+          description: Page size, default 50
+        - in: query
           name: til
           schema:
             $ref: "#/components/schemas/ArrangorTil"
           description: Hent arrangører tilhørende avtaler eller gjennomforinger
+        - in: query
+          name: sok
+          schema:
+            type: string
+          description: Søk i fritekst etter arrangør
+        - in: query
+          name: sortering
+          schema:
+            $ref: "#/components/schemas/SorteringArrangorer"
       responses:
         200:
-          description: Liste med virksomheter
+          description: Paginert liste med virksomheter
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Arrangor"
+                $ref: "#/components/schemas/PaginertArrangor"
 
   /api/v1/internal/arrangorer/{id}:
     get:
@@ -1792,6 +1809,19 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/Avtale"
+
+    PaginertArrangor:
+      type: object
+      required:
+        - pagination
+        - data
+      properties:
+        pagination:
+          $ref: "#/components/schemas/Pagination"
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Arrangor"
 
     TiltakskodeArena:
       type: string

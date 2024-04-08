@@ -10,7 +10,7 @@ import {
 } from "mulighetsrommet-api-client";
 import { atom, WritableAtom } from "jotai";
 import { atomFamily } from "jotai/utils";
-import { AVTALE_PAGE_SIZE, PAGE_SIZE } from "@/constants";
+import { ARRANGORER_PAGE_SIZE, AVTALE_PAGE_SIZE, PAGE_SIZE } from "@/constants";
 import { RESET } from "jotai/vanilla/utils";
 import { ZodType, z } from "zod";
 
@@ -241,7 +241,7 @@ export const defaultArrangorerFilter: ArrangorerFilter = {
   sok: "",
   sortering: SorteringArrangorer.NAVN_ASCENDING,
   page: 1,
-  pageSize: 15,
+  pageSize: ARRANGORER_PAGE_SIZE,
 };
 
 export const arrangorerFilterAtom = atomWithHashAndStorage<ArrangorerFilter>(

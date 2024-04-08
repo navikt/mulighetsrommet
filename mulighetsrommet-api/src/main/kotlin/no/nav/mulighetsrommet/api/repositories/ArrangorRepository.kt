@@ -6,6 +6,7 @@ import no.nav.mulighetsrommet.api.domain.dto.ArrangorDto
 import no.nav.mulighetsrommet.api.domain.dto.ArrangorKontaktperson
 import no.nav.mulighetsrommet.api.domain.dto.ArrangorTil
 import no.nav.mulighetsrommet.api.domain.dto.BrregVirksomhetDto
+import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.database.Database
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
@@ -73,7 +74,9 @@ class ArrangorRepository(private val db: Database) {
         overordnetEnhetOrgnr: String? = null,
         slettet: Boolean? = null,
         utenlandsk: Boolean? = null,
-    ): List<ArrangorDto> {
+        pagination: PaginationParams = PaginationParams(),
+        sortering: String? = null,
+    ): Pair<Int, List<ArrangorDto>> {
         val join = when (til) {
             ArrangorTil.AVTALE -> {
                 "inner join avtale on avtale.arrangor_hovedenhet_id = arrangor.id"
@@ -86,6 +89,12 @@ class ArrangorRepository(private val db: Database) {
             else -> ""
         }
 
+        val order = when (sortering) {
+            "navn-ascending" -> "arrangor.navn asc"
+            "navn-descending" -> "arrangor.navn desc"
+            else -> "arrangor.navn asc"
+        }
+
         @Language("PostgreSQL")
         val query = """
             select distinct
@@ -95,14 +104,17 @@ class ArrangorRepository(private val db: Database) {
                 arrangor.navn,
                 arrangor.slettet_dato,
                 arrangor.postnummer,
-                arrangor.poststed
+                arrangor.poststed,
+                count(*) over() as full_count
             from arrangor
                 $join
-            where (:sok::text is null or arrangor.navn ilike :sok)
+            where (:sok::text is null or arrangor.navn ilike :sok or arrangor.organisasjonsnummer ilike :sok)
               and (:overordnet_enhet::text is null or arrangor.overordnet_enhet = :overordnet_enhet)
               and (:slettet::boolean is null or arrangor.slettet_dato is not null = :slettet)
               and (:utenlandsk::boolean is null or arrangor.er_utenlandsk_virksomhet = :utenlandsk)
-            order by arrangor.navn asc
+            order by $order
+            limit :limit
+            offset :offset
         """.trimIndent()
 
         val params = mapOf(
@@ -110,12 +122,18 @@ class ArrangorRepository(private val db: Database) {
             "overordnet_enhet" to overordnetEnhetOrgnr,
             "slettet" to slettet,
             "utenlandsk" to utenlandsk,
+            "limit" to pagination.limit,
+            "offset" to pagination.offset,
         )
 
-        return queryOf(query, params)
-            .map { it.toVirksomhetDto() }
+        val results = queryOf(query, params)
+            .map { it.int("full_count") to it.toVirksomhetDto() }
             .asList
             .let { db.run(it) }
+
+        val totaltAntall = results.firstOrNull()?.first ?: 0
+        val arrangorer = results.map { it.second }
+        return Pair(totaltAntall, arrangorer)
     }
 
     fun get(orgnr: String): ArrangorDto? {

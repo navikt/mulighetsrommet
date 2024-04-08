@@ -1,5 +1,5 @@
 import { ArrangorTil, NavAnsattRolle, NotificationStatus } from "mulighetsrommet-api-client";
-import { AvtaleFilter, TiltaksgjennomforingFilter } from "./atoms";
+import { ArrangorerFilter, AvtaleFilter, TiltaksgjennomforingFilter } from "./atoms";
 
 export const QueryKeys = {
   tiltakstype: (id?: string) => ["tiltakstype", id] as const,
@@ -22,7 +22,12 @@ export const QueryKeys = {
   avtale: (id: string) => ["avtale", id],
   avtaleHistorikk: (id?: string) => ["avtale", id, "historikk"] as const,
   enheter: () => ["enheter"],
-  arrangorer: (til?: ArrangorTil) => ["arrangorer", { til }],
+  arrangorer: (til?: ArrangorTil, page?: number, arrangorFilter?: Partial<ArrangorerFilter>) => [
+    "arrangorer",
+    page,
+    { ...arrangorFilter },
+    { til },
+  ],
   arrangorById: (id: string) => ["arrangor", id],
   arrangorByOrgnr: (orgnr: string) => ["arrangor", { orgnr }],
   arrangorKontaktpersoner: (id: string) => ["arrangor", id, "kontaktpersoner"],

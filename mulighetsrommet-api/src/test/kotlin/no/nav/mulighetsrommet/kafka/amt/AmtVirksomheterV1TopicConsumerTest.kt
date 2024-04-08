@@ -70,7 +70,7 @@ class AmtVirksomheterV1TopicConsumerTest : FunSpec({
             virksomhetConsumer.consume(amtVirksomhet.organisasjonsnummer, Json.encodeToJsonElement(amtVirksomhet))
             virksomhetConsumer.consume(amtUnderenhet.organisasjonsnummer, Json.encodeToJsonElement(amtUnderenhet))
 
-            arrangorRepository.getAll().shouldBeEmpty()
+            arrangorRepository.getAll().second.shouldBeEmpty()
         }
 
         test("oppdaterer bare virksomheter som er lagret i databasen") {
@@ -80,10 +80,10 @@ class AmtVirksomheterV1TopicConsumerTest : FunSpec({
             virksomhetConsumer.consume(amtUnderenhet.organisasjonsnummer, Json.encodeToJsonElement(amtUnderenhet))
 
             arrangorRepository.getAll().should {
-                it.shouldHaveSize(1)
-                it[0].navn shouldBe "REMA 1000 AS"
-                it[0].postnummer shouldBe "1000"
-                it[0].poststed shouldBe "Andeby"
+                it.second.shouldHaveSize(1)
+                it.second[0].navn shouldBe "REMA 1000 AS"
+                it.second[0].postnummer shouldBe "1000"
+                it.second[0].poststed shouldBe "Andeby"
             }
         }
 

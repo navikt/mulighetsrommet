@@ -194,7 +194,7 @@ export function AvtaleFilter({ filterAtom, skjulFilter }: Props) {
           <Accordion.Content>
             <CheckboxList
               searchable
-              items={arrangorOptions(arrangorer)}
+              items={arrangorOptions(arrangorer.data)}
               isChecked={(id) => filter.arrangorer.includes(id)}
               onChange={(id) => {
                 setFilter({
