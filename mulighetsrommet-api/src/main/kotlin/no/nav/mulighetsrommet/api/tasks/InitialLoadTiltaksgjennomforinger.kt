@@ -12,8 +12,8 @@ import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingDto
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.api.utils.DatabaseUtils.paginateFanOut
-import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.database.Database
+import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.kafka.producers.TiltaksgjennomforingKafkaProducer
@@ -83,7 +83,7 @@ class InitialLoadTiltaksgjennomforinger(
             .map { tiltakstyper.getByTiltakskode(it).id }
 
         return paginateFanOut(
-            { pagination: PaginationParams ->
+            { pagination: Pagination ->
                 logger.info("Henter gjennomføringer limit=${pagination.limit} offset=${pagination.offset}")
                 val result = gjennomforinger.getAll(
                     pagination = pagination,

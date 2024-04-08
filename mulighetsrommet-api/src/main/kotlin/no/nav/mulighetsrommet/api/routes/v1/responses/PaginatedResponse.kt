@@ -1,46 +1,45 @@
 package no.nav.mulighetsrommet.api.routes.v1.responses
 
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.api.utils.PaginationParams
+import no.nav.mulighetsrommet.database.utils.Pagination
 import kotlin.math.ceil
 
 @Serializable
 data class PaginatedResponse<T>(
-    val pagination: Pagination,
+    val pagination: PaginationSummary,
     val data: List<T>,
 ) {
 
     companion object {
         /**
-         * Utility to wrap the [data] in a [PaginatedResponse] with a default [Pagination] derived from [data].
+         * Utility to wrap the [data] in a [PaginatedResponse] with a default [PaginationSummary] derived from [data].
          */
         fun <T> of(data: List<T>): PaginatedResponse<T> = PaginatedResponse(
-            pagination = Pagination(
+            pagination = PaginationSummary(
                 totalCount = data.size,
                 totalPages = 1,
-                currentPage = 1,
                 pageSize = data.size,
             ),
             data = data,
         )
 
-        fun <T> of(pagination: PaginationParams, totalCount: Int, data: List<T>): PaginatedResponse<T> =
-            PaginatedResponse(
-                pagination = Pagination(
+        fun <T> of(pagination: Pagination, totalCount: Int, data: List<T>): PaginatedResponse<T> {
+            val pageSize = pagination.limit ?: data.size
+            return PaginatedResponse(
+                pagination = PaginationSummary(
                     totalCount = totalCount,
-                    currentPage = pagination.page,
-                    pageSize = pagination.limit,
-                    totalPages = ceil((totalCount.toDouble() / pagination.limit)).toInt(),
+                    pageSize = pageSize,
+                    totalPages = ceil((totalCount.toDouble() / pageSize)).toInt(),
                 ),
                 data = data,
             )
+        }
     }
 }
 
 @Serializable
-data class Pagination(
+data class PaginationSummary(
     val totalCount: Int,
-    val currentPage: Int,
     val pageSize: Int,
     val totalPages: Int,
 )
