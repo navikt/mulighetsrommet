@@ -17,9 +17,9 @@ export const mockAvtaler: Avtale[] = [
     opphav: Opphav.MR_ADMIN_FLATE,
     avtalenummer: "2021#10579",
     arrangor: {
-      ...mockArrangorer.fretex,
+      ...mockArrangorer.data[0],
       slettet: false,
-      underenheter: mockArrangorer.fretex.underenheter!.map((v) => ({
+      underenheter: mockArrangorer.data[0].underenheter!.map((v) => ({
         id: v.id,
         organisasjonsnummer: v.organisasjonsnummer,
         navn: v.navn,
@@ -67,10 +67,10 @@ export const mockAvtaler: Avtale[] = [
     navn: "Avtale hos ÅMLI KOMMUNE SAMFUNNSAVDELINGA",
     avtalenummer: "2021#10579",
     arrangor: {
-      ...mockArrangorer.fretex,
+      ...mockArrangorer.data[0],
       slettet: false,
       kontaktpersoner: [],
-      underenheter: mockArrangorer.fretex.underenheter!.map((v) => ({
+      underenheter: mockArrangorer.data[0].underenheter!.map((v) => ({
         id: v.id,
         organisasjonsnummer: v.organisasjonsnummer,
         navn: v.navn,
@@ -110,10 +110,10 @@ export const mockAvtaler: Avtale[] = [
     avtalenummer: "2020#4929",
     url: "https://www.websak.no",
     arrangor: {
-      ...mockArrangorer.fretex,
+      ...mockArrangorer.data[0],
       slettet: false,
       kontaktpersoner: [],
-      underenheter: mockArrangorer.fretex.underenheter!.map((v) => ({
+      underenheter: mockArrangorer.data[0].underenheter!.map((v) => ({
         id: v.id,
         organisasjonsnummer: v.organisasjonsnummer,
         navn: v.navn,
@@ -152,10 +152,10 @@ for (let i = 0; i < x; i++) {
     avtalenummer: "2020#4929",
     url: "https://www.websak.no",
     arrangor: {
-      ...mockArrangorer.fretex,
+      ...mockArrangorer.data[0],
       slettet: false,
       kontaktpersoner: [],
-      underenheter: mockArrangorer.fretex.underenheter!.map((v) => ({
+      underenheter: mockArrangorer.data[0].underenheter!.map((v) => ({
         id: v.id,
         organisasjonsnummer: v.organisasjonsnummer,
         navn: v.navn,

@@ -24,7 +24,7 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     },
     antallPlasser: 50,
     arrangor: {
-      ...mockArrangorer.fretex.underenheter!![0],
+      ...mockArrangorer.data[0].underenheter!![0],
       slettet: false,
       kontaktpersoner: [mockArrangorKontaktpersoner[0]],
     },
@@ -92,7 +92,7 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     tiltaksnummer: "123456",
     deltidsprosent: 100,
     arrangor: {
-      ...mockArrangorer.fretex.underenheter![0],
+      ...mockArrangorer.data[0].underenheter![0],
       slettet: false,
       kontaktpersoner: mockArrangorKontaktpersoner,
     },
@@ -118,7 +118,7 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     sanityId: "1234",
     deltidsprosent: 100,
     arrangor: {
-      ...mockArrangorer.fretex.underenheter![0],
+      ...mockArrangorer.data[0].underenheter![0],
       slettet: false,
       kontaktpersoner: mockArrangorKontaktpersoner,
     },
@@ -158,7 +158,7 @@ for (let i = 0; i < x; i++) {
     sanityId: "1234",
     deltidsprosent: 100,
     arrangor: {
-      ...mockArrangorer.fretex.underenheter![0],
+      ...mockArrangorer.data[0].underenheter![0],
       slettet: false,
       kontaktpersoner: mockArrangorKontaktpersoner,
     },
