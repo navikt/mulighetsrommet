@@ -10,12 +10,11 @@ import { HeaderBanner } from "../../layouts/HeaderBanner";
 import { MainContainer } from "../../layouts/MainContainer";
 import { NullstillKnappForArrangorer } from "./NullstillKnappForArrangorer";
 import { ArrangorerTabell } from "../../components/tabell/ArrangorerTabell";
+import { ArrangorerFilterTags } from "../../components/filter/ArrangorerFilterTags";
 
 export function ArrangorerPage() {
   useTitle("Arrangører");
   const [filterOpen, setFilterOpen] = useState<boolean>(true);
-  // TODO Remove eslint-disable
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [tagsHeight, setTagsHeight] = useState(0);
 
   return (
@@ -35,7 +34,13 @@ export function ArrangorerPage() {
                 <NullstillKnappForArrangorer filterAtom={arrangorerFilterAtom} />
               }
               filter={<ArrangorerFilter filterAtom={arrangorerFilterAtom} />}
-              tags={null}
+              tags={
+                <ArrangorerFilterTags
+                  filterAtom={arrangorerFilterAtom}
+                  filterOpen={filterOpen}
+                  setTagsHeight={setTagsHeight}
+                />
+              }
               buttons={null}
               table={
                 <ArrangorerTabell

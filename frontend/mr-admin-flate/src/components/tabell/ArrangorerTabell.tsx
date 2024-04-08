@@ -8,6 +8,7 @@ import { TabellWrapper } from "./TabellWrapper";
 import { Laster } from "../laster/Laster";
 import { Alert, Table } from "@navikt/ds-react";
 import { SorteringArrangorer } from "mulighetsrommet-api-client";
+import { Link } from "react-router-dom";
 
 interface Props {
   filterAtom: WritableAtom<ArrangorerFilter, [newValue: ArrangorerFilter], void>;
@@ -95,7 +96,9 @@ export function ArrangorerTabell({ filterAtom, tagsHeight, filterOpen }: Props) 
               {arrangorer.map((arrangor) => {
                 return (
                   <Table.Row key={arrangor.id}>
-                    <Table.DataCell>{arrangor.navn}</Table.DataCell>
+                    <Table.DataCell>
+                      <Link to={`${arrangor.id}`}>{arrangor.navn}</Link>
+                    </Table.DataCell>
                     <Table.DataCell>{arrangor.organisasjonsnummer}</Table.DataCell>
                   </Table.Row>
                 );
