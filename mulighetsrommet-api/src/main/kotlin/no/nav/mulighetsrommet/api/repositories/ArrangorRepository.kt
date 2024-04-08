@@ -81,11 +81,11 @@ class ArrangorRepository(private val db: Database) {
     ): PaginatedResult<ArrangorDto> {
         val join = when (til) {
             ArrangorTil.AVTALE -> {
-                "inner join avtale on avtale.arrangor_hovedenhet_id = arrangor.id"
+                "id in (select arrangor_hovedenhet_id from avtale)"
             }
 
             ArrangorTil.TILTAKSGJENNOMFORING -> {
-                "inner join tiltaksgjennomforing t on t.arrangor_id = arrangor.id"
+                "id in (select arrangor_id from tiltaksgjennomforing)"
             }
 
             else -> ""
@@ -109,8 +109,8 @@ class ArrangorRepository(private val db: Database) {
                 arrangor.poststed,
                 count(*) over() as total_count
             from arrangor
-                $join
-            where (:sok::text is null or arrangor.navn ilike :sok or arrangor.organisasjonsnummer ilike :sok)
+            where $join
+              and (:sok::text is null or arrangor.navn ilike :sok or arrangor.organisasjonsnummer ilike :sok)
               and (:overordnet_enhet::text is null or arrangor.overordnet_enhet = :overordnet_enhet)
               and (:slettet::boolean is null or arrangor.slettet_dato is not null = :slettet)
               and (:utenlandsk::boolean is null or arrangor.er_utenlandsk_virksomhet = :utenlandsk)
