@@ -25,6 +25,7 @@ import no.nav.mulighetsrommet.api.tiltaksgjennomforinger.TiltaksgjennomforingVal
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
+import no.nav.mulighetsrommet.domain.dto.AvbruttAarsak
 import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus
 import no.nav.mulighetsrommet.kafka.producers.TiltaksgjennomforingKafkaProducer
@@ -36,6 +37,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
 
     val tiltaksgjennomforingKafkaProducer: TiltaksgjennomforingKafkaProducer = mockk(relaxed = true)
+    val tiltakstypeService: TiltakstypeService = mockk(relaxed = true)
     val validator = mockk<TiltaksgjennomforingValidator>()
     val avtaleId = AvtaleFixtures.oppfolging.id
     val domain = MulighetsrommetTestDomain()
@@ -46,6 +48,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
         every { validator.validate(any(), any()) } answers {
             firstArg<TiltaksgjennomforingDbo>().right()
         }
+        every { tiltakstypeService.isEnabled(any()) } returns true
     }
 
     afterEach {
@@ -67,40 +70,27 @@ class TiltaksgjennomforingServiceTest : FunSpec({
             NotificationRepository(database.db),
             validator,
             EndringshistorikkService(database.db),
+            tiltakstypeService,
             database.db,
         )
 
         test("Man skal ikke få avbryte dersom gjennomføringen ikke finnes") {
-            tiltaksgjennomforingService.avbrytGjennomforing(UUID.randomUUID(), bertilNavIdent).shouldBeLeft(
+            tiltaksgjennomforingService.avbrytGjennomforing(UUID.randomUUID(), bertilNavIdent, AvbruttAarsak.Feilregistrering).shouldBeLeft(
                 NotFound(message = "Gjennomføringen finnes ikke"),
             )
         }
 
-        test("Man skal ikke få avbryte dersom opphav for gjennomføringen ikke er admin-flate") {
-            val gjennomforing = TiltaksgjennomforingFixtures.Oppfolging1.copy(
+        test("Man skal ikke få avbryte dersom tiltakstypen ikke er enabled") {
+            every { tiltakstypeService.isEnabled(any()) } returns false
+            val gjennomforing = TiltaksgjennomforingFixtures.AFT1.copy(
+                startDato = LocalDate.now(),
                 avtaleId = avtaleId,
             )
             tiltaksgjennomforingRepository.upsert(gjennomforing)
             tiltaksgjennomforingRepository.setOpphav(gjennomforing.id, ArenaMigrering.Opphav.ARENA)
 
-            tiltaksgjennomforingService.avbrytGjennomforing(gjennomforing.id, bertilNavIdent).shouldBeLeft(
-                BadRequest(message = "Gjennomføringen har opprinnelse fra Arena og kan ikke bli avbrutt i admin-flate."),
-            )
-        }
-
-        test("Man skal ikke få avbryte dersom det finnes deltagere koblet til gjennomføringen") {
-            val gjennomforing = TiltaksgjennomforingFixtures.Oppfolging1.copy(
-                avtaleId = avtaleId,
-                sluttDato = null,
-            )
-            tiltaksgjennomforingRepository.upsert(gjennomforing)
-            tiltaksgjennomforingRepository.setOpphav(gjennomforing.id, ArenaMigrering.Opphav.MR_ADMIN_FLATE)
-
-            val deltager = DeltakerFixture.Deltaker.copy(tiltaksgjennomforingId = gjennomforing.id)
-            deltagerRepository.upsert(deltager)
-
-            tiltaksgjennomforingService.avbrytGjennomforing(gjennomforing.id, bertilNavIdent).shouldBeLeft(
-                BadRequest(message = "Gjennomføringen kan ikke avbrytes fordi den har 1 deltager(e) koblet til seg."),
+            tiltaksgjennomforingService.avbrytGjennomforing(gjennomforing.id, bertilNavIdent, AvbruttAarsak.Feilregistrering).shouldBeLeft(
+                BadRequest(message = "Tiltakstype '${TiltakstypeFixtures.AFT.navn}' må avbrytes i Arena."),
             )
         }
 
@@ -112,7 +102,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
             )
             tiltaksgjennomforingRepository.upsert(gjennomforing)
 
-            tiltaksgjennomforingService.avbrytGjennomforing(gjennomforing.id, bertilNavIdent).shouldBeRight()
+            tiltaksgjennomforingService.avbrytGjennomforing(gjennomforing.id, bertilNavIdent, AvbruttAarsak.Feilregistrering).shouldBeRight()
         }
     }
 
@@ -129,6 +119,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
             NotificationRepository(database.db),
             validator,
             EndringshistorikkService(database.db),
+            tiltakstypeService,
             database.db,
         )
 
@@ -160,6 +151,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
             NotificationRepository(database.db),
             validator,
             EndringshistorikkService(database.db),
+            tiltakstypeService,
             database.db,
         )
         val navAnsattRepository = NavAnsattRepository(database.db)
@@ -276,6 +268,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
             notificationRepository,
             validator,
             EndringshistorikkService(database.db),
+            tiltakstypeService,
             database.db,
         )
 
@@ -325,7 +318,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
         }
 
         test("Avbrytes ikke hvis publish feiler") {
-            val gjennomforing = TiltaksgjennomforingFixtures.Oppfolging1.copy(
+            val gjennomforing = TiltaksgjennomforingFixtures.AFT1.copy(
                 avtaleId = avtaleId,
                 startDato = LocalDate.of(2023, 7, 1),
                 sluttDato = null,
@@ -334,7 +327,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
 
             every { tiltaksgjennomforingKafkaProducer.publish(any()) } throws Exception()
 
-            shouldThrow<Throwable> { tiltaksgjennomforingService.avbrytGjennomforing(gjennomforing.id, bertilNavIdent) }
+            shouldThrow<Throwable> { tiltaksgjennomforingService.avbrytGjennomforing(gjennomforing.id, bertilNavIdent, AvbruttAarsak.Feilregistrering) }
 
             tiltaksgjennomforingService.get(gjennomforing.id) should {
                 it!!.status shouldBe Tiltaksgjennomforingsstatus.GJENNOMFORES

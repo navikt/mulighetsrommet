@@ -24,6 +24,7 @@ import no.nav.mulighetsrommet.api.services.TiltakstypeService
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
+import no.nav.mulighetsrommet.domain.dto.AvbruttAarsak
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
@@ -298,7 +299,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
         }
 
         test("should fail when is avbrutt") {
-            tiltaksgjennomforinger.setAvbruttTidspunkt(gjennomforing.id, LocalDateTime.now())
+            tiltaksgjennomforinger.avbryt(gjennomforing.id, LocalDateTime.now(), AvbruttAarsak.Feilregistrering)
 
             val validator = TiltaksgjennomforingValidator(tiltakstyper, avtaler)
 

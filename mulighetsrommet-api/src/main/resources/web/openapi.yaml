@@ -744,6 +744,13 @@ paths:
       tags:
         - Tiltaksgjennomforinger
       operationId: avbrytTiltaksgjennomforing
+      requestBody:
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: "#/components/schemas/AvbrytGjennomforingRequest"
+                - $ref: "#/components/schemas/CustomAvbrytGjennomforingRequest"
       responses:
         200:
           description: The specified tiltaksgjennomføring you want to 'Avbryte'
@@ -3143,6 +3150,25 @@ components:
           type: integer
       required:
         - notDoneCount
+
+    AvbrytGjennomforingRequest:
+      type: object
+      properties:
+        aarsak:
+          type: string
+          enum:
+            - ENDRING_HOS_ARRANGOR
+            - BUDSJETT_HENSYN
+            - FOR_FAA_DELTAKERE
+            - FEILREGISTRERING
+            - AVBRUTT_I_ARENA
+
+    CustomAvbrytGjennomforingRequest:
+      type: object
+      properties:
+        aarsak:
+          type: string
+          nullable: true
 
     SetAvtaleForGjennomforingRequest:
       type: object

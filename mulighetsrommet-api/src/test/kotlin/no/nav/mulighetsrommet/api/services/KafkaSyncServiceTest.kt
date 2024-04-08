@@ -14,6 +14,7 @@ import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
+import no.nav.mulighetsrommet.domain.dto.AvbruttAarsak
 import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus
 import no.nav.mulighetsrommet.domain.dto.Tiltakstypestatus
 import no.nav.mulighetsrommet.kafka.producers.TiltaksgjennomforingKafkaProducer
@@ -94,8 +95,8 @@ class KafkaSyncServiceTest : FunSpec({
             domain.initialize(database.db)
 
             val gjennomforinger = TiltaksgjennomforingRepository(database.db)
-            gjennomforinger.setAvbruttTidspunkt(startdatoInnenforMenAvsluttetStatus.id, LocalDateTime.now())
-            gjennomforinger.setAvbruttTidspunkt(sluttdatoInnenforMenAvbruttStatus.id, LocalDateTime.now())
+            gjennomforinger.avbryt(startdatoInnenforMenAvsluttetStatus.id, LocalDateTime.now(), AvbruttAarsak.Feilregistrering)
+            gjennomforinger.avbryt(sluttdatoInnenforMenAvbruttStatus.id, LocalDateTime.now(), AvbruttAarsak.Feilregistrering)
 
             kafkaSyncService.oppdaterTiltaksgjennomforingsstatus(today, lastSuccessDate)
 

@@ -1,17 +1,28 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { mulighetsrommetClient } from "@/api/client";
-import { ApiError } from "mulighetsrommet-api-client";
+import { ApiError, AvbrytGjennomforingRequest } from "mulighetsrommet-api-client";
 import { QueryKeys } from "@/api/QueryKeys";
 
 export function useAvbrytTiltaksgjennomforing() {
   const client = useQueryClient();
-  return useMutation<string, ApiError, string>({
-    mutationFn: (id: string) => {
-      return mulighetsrommetClient.tiltaksgjennomforinger.avbrytTiltaksgjennomforing({ id });
+
+  return useMutation<
+    unknown,
+    ApiError,
+    { id: string; aarsak: AvbrytGjennomforingRequest.aarsak | string | null }
+  >({
+    mutationFn: (data: {
+      id: string;
+      aarsak?: AvbrytGjennomforingRequest.aarsak | string | null;
+    }) => {
+      return mulighetsrommetClient.tiltaksgjennomforinger.avbrytTiltaksgjennomforing({
+        id: data.id,
+        requestBody: { aarsak: data.aarsak },
+      });
     },
-    async onSuccess() {
+    async onSuccess(_, request) {
       await client.invalidateQueries({
-        queryKey: QueryKeys.tiltaksgjennomforing(),
+        queryKey: QueryKeys.tiltaksgjennomforing(request.id),
       });
     },
   });

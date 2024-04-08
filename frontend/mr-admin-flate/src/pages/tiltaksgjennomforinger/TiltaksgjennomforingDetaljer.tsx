@@ -1,9 +1,10 @@
 import { ExternalLinkIcon } from "@navikt/aksel-icons";
-import { BodyShort, HelpText, HStack, Tag } from "@navikt/ds-react";
+import { BodyShort, Button, HelpText, HStack, Tag } from "@navikt/ds-react";
 import {
   Avtale,
   Tiltaksgjennomforing,
   TiltaksgjennomforingOppstartstype,
+  TiltaksgjennomforingStatus,
 } from "mulighetsrommet-api-client";
 import { useTitle } from "mulighetsrommet-frontend-common";
 import { NOM_ANSATT_SIDE } from "mulighetsrommet-frontend-common/constants";
@@ -19,6 +20,11 @@ import { Kontaktperson } from "./Kontaktperson";
 import { tiltaktekster } from "../../components/ledetekster/tiltaksgjennomforingLedetekster";
 import { ArrangorKontaktpersonDetaljer } from "../arrangor/ArrangorKontaktpersonDetaljer";
 import { getDisplayName } from "@/api/enhet/helpers";
+import { useRef } from "react";
+import { AvbrytGjennomforingModal } from "@/components/modal/AvbrytGjennomforingModal";
+import { HarSkrivetilgang } from "@/components/authActions/HarSkrivetilgang";
+import { erArenaOpphavOgIngenEierskap } from "@/components/tiltaksgjennomforinger/TiltaksgjennomforingSkjemaConst";
+import { useMigrerteTiltakstyper } from "@/api/tiltakstyper/useMigrerteTiltakstyper";
 
 interface Props {
   tiltaksgjennomforing: Tiltaksgjennomforing;
@@ -30,6 +36,13 @@ export function TiltaksgjennomforingDetaljer(props: Props) {
   useTitle(
     `Tiltaksgjennomføring ${tiltaksgjennomforing.navn ? `- ${tiltaksgjennomforing.navn}` : null}`,
   );
+  const { data: migrerteTiltakstyper = [] } = useMigrerteTiltakstyper();
+  const avbrytModalRef = useRef<HTMLDialogElement>(null);
+
+  const gjennomforingIsActive = [
+    TiltaksgjennomforingStatus.PLANLAGT,
+    TiltaksgjennomforingStatus.GJENNOMFORES,
+  ].includes(tiltaksgjennomforing.status);
 
   const navnPaaNavEnheterForKontaktperson = (enheterForKontaktperson: string[]): string => {
     return (
@@ -287,6 +300,25 @@ export function TiltaksgjennomforingDetaljer(props: Props) {
           )}
         </div>
       </div>
+      {!erArenaOpphavOgIngenEierskap(tiltaksgjennomforing, migrerteTiltakstyper) &&
+        gjennomforingIsActive && (
+          <>
+            <Separator />
+            <HarSkrivetilgang ressurs="Tiltaksgjennomføring">
+              <Button
+                size="small"
+                variant="danger"
+                onClick={() => avbrytModalRef.current?.showModal()}
+              >
+                Avbryt gjennomføring
+              </Button>
+            </HarSkrivetilgang>
+            <AvbrytGjennomforingModal
+              modalRef={avbrytModalRef}
+              tiltaksgjennomforing={tiltaksgjennomforing}
+            />
+          </>
+        )}
     </>
   );
 }

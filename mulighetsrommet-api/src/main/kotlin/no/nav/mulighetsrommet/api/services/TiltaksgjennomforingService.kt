@@ -19,8 +19,9 @@ import no.nav.mulighetsrommet.api.utils.AdminTiltaksgjennomforingFilter
 import no.nav.mulighetsrommet.api.utils.EksternTiltaksgjennomforingFilter
 import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.database.Database
+import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.Tiltakskoder.isTiltakMedAvtalerFraMulighetsrommet
-import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
+import no.nav.mulighetsrommet.domain.dto.AvbruttAarsak
 import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.kafka.producers.TiltaksgjennomforingKafkaProducer
 import no.nav.mulighetsrommet.notifications.NotificationRepository
@@ -40,6 +41,7 @@ class TiltaksgjennomforingService(
     private val notificationRepository: NotificationRepository,
     private val validator: TiltaksgjennomforingValidator,
     private val documentHistoryService: EndringshistorikkService,
+    private val tiltakstypeService: TiltakstypeService,
     private val db: Database,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
@@ -186,24 +188,23 @@ class TiltaksgjennomforingService(
         return Either.Right(Unit)
     }
 
-    fun avbrytGjennomforing(id: UUID, navIdent: NavIdent): StatusResponse<Unit> {
+    fun avbrytGjennomforing(id: UUID, navIdent: NavIdent, aarsak: AvbruttAarsak?): StatusResponse<Unit> {
+        if (aarsak == null) {
+            return Either.Left(BadRequest(message = "Årsak mangler"))
+        }
+
         val gjennomforing = get(id) ?: return Either.Left(NotFound("Gjennomføringen finnes ikke"))
 
-        if (gjennomforing.opphav == ArenaMigrering.Opphav.ARENA) {
-            return Either.Left(BadRequest(message = "Gjennomføringen har opprinnelse fra Arena og kan ikke bli avbrutt i admin-flate."))
+        if (!tiltakstypeService.isEnabled(Tiltakskode.fromArenaKode(gjennomforing.tiltakstype.arenaKode))) {
+            return Either.Left(BadRequest(message = "Tiltakstype '${gjennomforing.tiltakstype.navn}' må avbrytes i Arena."))
         }
 
         if (!gjennomforing.isAktiv()) {
             return Either.Left(BadRequest(message = "Gjennomføringen kan ikke avbrytes fordi den allerede er avsluttet."))
         }
 
-        val antallDeltagere = deltakerRepository.getAll(id).size
-        if (antallDeltagere > 0) {
-            return Either.Left(BadRequest(message = "Gjennomføringen kan ikke avbrytes fordi den har $antallDeltagere deltager(e) koblet til seg."))
-        }
-
         db.transaction { tx ->
-            tiltaksgjennomforinger.setAvbruttTidspunkt(tx, id, LocalDateTime.now())
+            tiltaksgjennomforinger.avbryt(tx, id, LocalDateTime.now(), aarsak)
             val dto = getOrError(id, tx)
             logEndring("Gjennomføring ble avbrutt", dto, navIdent, tx)
             tiltaksgjennomforingKafkaProducer.publish(TiltaksgjennomforingDto.from(dto))
@@ -261,7 +262,7 @@ class TiltaksgjennomforingService(
         tx: TransactionalSession,
     ) {
         documentHistoryService.logEndring(tx, DocumentClass.TILTAKSGJENNOMFORING, operation, navIdent.value, dto.id) {
-            Json.encodeToJsonElement<TiltaksgjennomforingAdminDto>(dto)
+            Json.encodeToJsonElement(dto)
         }
     }
 
@@ -277,7 +278,7 @@ class TiltaksgjennomforingService(
             TILTAKSADMINISTRASJON_SYSTEM_BRUKER,
             dto.id,
         ) {
-            Json.encodeToJsonElement<TiltaksgjennomforingAdminDto>(dto)
+            Json.encodeToJsonElement(dto)
         }
     }
 }

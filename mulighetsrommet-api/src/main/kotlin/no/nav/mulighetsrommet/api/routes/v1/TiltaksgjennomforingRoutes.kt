@@ -20,9 +20,11 @@ import no.nav.mulighetsrommet.api.services.TiltaksgjennomforingService
 import no.nav.mulighetsrommet.api.utils.AdminTiltaksgjennomforingFilter
 import no.nav.mulighetsrommet.api.utils.getPaginationParams
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
+import no.nav.mulighetsrommet.domain.dto.AvbruttAarsak
 import no.nav.mulighetsrommet.domain.dto.Faneinnhold
 import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus
+import no.nav.mulighetsrommet.domain.serializers.AvbruttAarsakSerializer
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import org.koin.ktor.ext.inject
@@ -59,7 +61,8 @@ fun Route.tiltaksgjennomforingRoutes() {
             put("{id}/avbryt") {
                 val id = call.parameters.getOrFail<UUID>("id")
                 val navIdent = getNavIdent()
-                val response = service.avbrytGjennomforing(id, navIdent)
+                val request = call.receive<AvbrytGjennomforingRequest>()
+                val response = service.avbrytGjennomforing(id, navIdent, request.aarsak)
                 call.respondWithStatusResponse(response)
             }
 
@@ -218,6 +221,12 @@ data class TiltaksgjennomforingRequest(
         estimertVentetidEnhet = estimertVentetid?.enhet,
     )
 }
+
+@Serializable
+data class AvbrytGjennomforingRequest(
+    @Serializable(with = AvbruttAarsakSerializer::class)
+    val aarsak: AvbruttAarsak?,
+)
 
 @Serializable
 data class SetAvtaleForGjennomforingRequest(
