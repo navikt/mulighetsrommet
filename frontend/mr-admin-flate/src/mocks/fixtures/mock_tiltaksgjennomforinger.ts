@@ -141,7 +141,6 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
 export const paginertMockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
   pagination: {
     totalCount: 18,
-    currentPage: 1,
     pageSize: 50,
     totalPages: 1,
   },

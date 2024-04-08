@@ -5,7 +5,6 @@ import com.github.kagkarlsson.scheduler.task.helper.OneTimeTask
 import com.github.kagkarlsson.scheduler.task.helper.Tasks
 import kotlinx.coroutines.runBlocking
 import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
-import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.kafka.producers.TiltakstypeKafkaProducer
 import org.slf4j.LoggerFactory
@@ -46,7 +45,7 @@ class InitialLoadTiltakstyper(
     }
 
     private fun initialLoadTiltakstyper() {
-        tiltakstyper.getAll(PaginationParams(nullableLimit = 1000))
+        tiltakstyper.getAll()
             .second
             .forEach { tiltakstype ->
                 val eksternDto = tiltakstyper.getEksternTiltakstype(tiltakstype.id)

@@ -1,16 +1,17 @@
 package no.nav.mulighetsrommet.api.repositories
 
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.data.forAll
+import io.kotest.data.row
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
-import no.nav.mulighetsrommet.api.utils.DEFAULT_PAGINATION_LIMIT
-import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
+import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
 import no.nav.mulighetsrommet.domain.dto.Tiltakstypestatus
@@ -119,75 +120,34 @@ class TiltakstypeRepositoryTest : FunSpec({
         }
     }
 
-    context("pagination") {
+    test("pagination") {
         val tiltakstyper = TiltakstypeRepository(database.db)
 
-        (1..105).forEach {
+        (1..10).forEach {
             tiltakstyper.upsert(
-                TiltakstypeDbo(
+                TiltakstypeFixtures.Oppfolging.copy(
                     id = UUID.randomUUID(),
-                    navn = "$it",
+                    navn = "$it".padStart(2, '0'),
                     arenaKode = "$it",
-                    rettPaaTiltakspenger = true,
-                    registrertDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
-                    sistEndretDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
-                    fraDato = LocalDate.of(2023, 1, 11),
-                    tilDato = LocalDate.of(2023, 1, 12),
                 ),
             )
         }
 
-        test("default pagination gets first 50 tiltak") {
-            val (totalCount, items) = tiltakstyper.getAll()
+        forAll(
+            row(Pagination.all(), 10, "01", "10", 10),
+            row(Pagination.of(page = 1, size = 20), 10, "01", "10", 10),
+            row(Pagination.of(page = 1, size = 2), 2, "01", "02", 10),
+            row(Pagination.of(page = 3, size = 2), 2, "05", "06", 10),
+            row(Pagination.of(page = 3, size = 4), 2, "09", "10", 10),
+            row(Pagination.of(page = 2, size = 20), 0, null, null, 0),
+        ) { pagination, expectedSize, expectedFirst, expectedLast, expectedTotalCount ->
+            val (totalCount, items) = tiltakstyper.getAll(pagination)
 
-            items.size shouldBe DEFAULT_PAGINATION_LIMIT
-            items.first().navn shouldBe "1"
-            items.last().navn shouldBe "49"
+            items.size shouldBe expectedSize
+            items.firstOrNull()?.navn shouldBe expectedFirst
+            items.lastOrNull()?.navn shouldBe expectedLast
 
-            totalCount shouldBe 105
-        }
-
-        test("pagination with page 4 and size 20 should give tiltak with id 59-76") {
-            val (totalCount, items) = tiltakstyper.getAll(
-                paginationParams = PaginationParams(
-                    4,
-                    20,
-                ),
-            )
-
-            items.size shouldBe 20
-            items.first().navn shouldBe "59"
-            items.last().navn shouldBe "76"
-
-            totalCount shouldBe 105
-        }
-
-        test("pagination with page 3 default size should give tiltak with id 95-99") {
-            val (totalCount, items) = tiltakstyper.getAll(
-                paginationParams = PaginationParams(
-                    3,
-                ),
-            )
-
-            items.size shouldBe 5
-            items.first().navn shouldBe "95"
-            items.last().navn shouldBe "99"
-
-            totalCount shouldBe 105
-        }
-
-        test("pagination with default page and size 200 should give tiltak with id 1-99") {
-            val (totalCount, items) = tiltakstyper.getAll(
-                paginationParams = PaginationParams(
-                    nullableLimit = 200,
-                ),
-            )
-
-            items.size shouldBe 105
-            items.first().navn shouldBe "1"
-            items.last().navn shouldBe "99"
-
-            totalCount shouldBe 105
+            totalCount shouldBe expectedTotalCount
         }
     }
 

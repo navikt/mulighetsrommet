@@ -5,7 +5,7 @@ import com.github.benmanes.caffeine.cache.Caffeine
 import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.api.routes.v1.TiltakstypeFilter
 import no.nav.mulighetsrommet.api.routes.v1.responses.PaginatedResponse
-import no.nav.mulighetsrommet.api.utils.PaginationParams
+import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.dto.TiltakstypeAdminDto
 import no.nav.mulighetsrommet.utils.CacheUtils
@@ -25,9 +25,9 @@ class TiltakstypeService(
 
     fun isEnabled(tiltakskode: Tiltakskode?) = enabledTiltakskoder.contains(tiltakskode)
 
-    fun getWithFilter(
+    fun getAll(
         filter: TiltakstypeFilter,
-        pagination: PaginationParams,
+        pagination: Pagination,
     ): PaginatedResponse<TiltakstypeAdminDto> {
         val (totalCount, items) = tiltakstypeRepository.getAllSkalMigreres(
             pagination = pagination,

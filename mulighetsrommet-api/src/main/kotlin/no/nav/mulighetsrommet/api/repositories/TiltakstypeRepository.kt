@@ -5,8 +5,8 @@ import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.domain.dto.DeltakerRegistreringInnholdDto
 import no.nav.mulighetsrommet.api.domain.dto.Innholdselement
 import no.nav.mulighetsrommet.api.domain.dto.TiltakstypeEksternDto
-import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.database.Database
+import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.database.utils.QueryResult
 import no.nav.mulighetsrommet.database.utils.query
 import no.nav.mulighetsrommet.domain.Tiltakskode
@@ -147,13 +147,8 @@ class TiltakstypeRepository(private val db: Database) {
     }
 
     fun getAll(
-        paginationParams: PaginationParams = PaginationParams(),
+        pagination: Pagination = Pagination.all(),
     ): Pair<Int, List<TiltakstypeAdminDto>> {
-        val parameters = mapOf(
-            "limit" to paginationParams.limit,
-            "offset" to paginationParams.offset,
-        )
-
         @Language("PostgreSQL")
         val query = """
             select
@@ -175,7 +170,7 @@ class TiltakstypeRepository(private val db: Database) {
 
         val results = queryOf(
             query,
-            parameters,
+            pagination.parameters,
         ).map { it.int("full_count") to it.toTiltakstypeAdminDto() }.asList.let { db.run(it) }
         val tiltakstyper = results.map { it.second }
         val totaltAntall = results.firstOrNull()?.first ?: 0
@@ -183,14 +178,12 @@ class TiltakstypeRepository(private val db: Database) {
     }
 
     fun getAllSkalMigreres(
-        pagination: PaginationParams = PaginationParams(),
+        pagination: Pagination = Pagination.all(),
         dagensDato: LocalDate = LocalDate.now(),
         statuser: List<Tiltakstypestatus> = emptyList(),
         sortering: String? = null,
     ): Pair<Int, List<TiltakstypeAdminDto>> {
         val parameters = mapOf(
-            "limit" to pagination.limit,
-            "offset" to pagination.offset,
             "today" to dagensDato,
         )
 
@@ -228,7 +221,7 @@ class TiltakstypeRepository(private val db: Database) {
 
         val results = queryOf(
             query,
-            parameters,
+            parameters + pagination.parameters,
         ).map { it.int("full_count") to it.toTiltakstypeAdminDto() }.asList.let { db.run(it) }
         val tiltakstyper = results.map { it.second }
         val totaltAntall = results.firstOrNull()?.first ?: 0

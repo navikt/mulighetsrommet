@@ -16,8 +16,8 @@ import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.routes.v1.AvtaleRequest
 import no.nav.mulighetsrommet.api.routes.v1.responses.*
 import no.nav.mulighetsrommet.api.utils.AvtaleFilter
-import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.database.Database
+import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering.Opphav
 import no.nav.mulighetsrommet.domain.dto.Avtalestatus
@@ -117,7 +117,7 @@ class AvtaleService(
 
     fun getAll(
         filter: AvtaleFilter,
-        pagination: PaginationParams = PaginationParams(),
+        pagination: Pagination,
     ): PaginatedResponse<AvtaleAdminDto> {
         val (totalCount, items) = avtaler.getAll(
             pagination = pagination,

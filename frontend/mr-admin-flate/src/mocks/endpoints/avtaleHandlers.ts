@@ -13,7 +13,6 @@ export const avtaleHandlers = [
 
     return HttpResponse.json({
       pagination: {
-        currentPage: 1,
         pageSize: 15,
         totalCount: data.length,
       },
@@ -35,7 +34,6 @@ export const avtaleHandlers = [
 
       return HttpResponse.json({
         pagination: {
-          currentPage: 1,
           pageSize: 15,
           totalCount: data.length,
         },
