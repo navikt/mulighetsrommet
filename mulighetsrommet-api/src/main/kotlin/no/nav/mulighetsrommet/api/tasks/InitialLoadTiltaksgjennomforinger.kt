@@ -84,7 +84,7 @@ class InitialLoadTiltaksgjennomforinger(
 
         return paginateFanOut(
             { pagination: Pagination ->
-                logger.info("Henter gjennomføringer limit=${pagination.limit} offset=${pagination.offset}")
+                logger.info("Henter gjennomføringer pagination=$pagination")
                 val result = gjennomforinger.getAll(
                     pagination = pagination,
                     opphav = input.opphav,

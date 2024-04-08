@@ -395,8 +395,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
     ): Pair<Int, List<TiltaksgjennomforingAdminDto>> {
         val parameters = mapOf(
             "search" to search?.replace("/", "#")?.trim()?.let { "%$it%" },
-            "limit" to pagination.limit,
-            "offset" to pagination.offset,
             "slutt_dato_cutoff" to sluttDatoGreaterThanOrEqualTo,
             "today" to dagensDato,
             "avtale_id" to avtaleId,
@@ -452,7 +450,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             offset :offset
         """.trimIndent()
 
-        val results = queryOf(query, parameters)
+        val results = queryOf(query, parameters + pagination.parameters)
             .map {
                 it.int("full_count") to it.toTiltaksgjennomforingAdminDto()
             }
@@ -566,9 +564,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             mapOf(
                 "date_interval_start" to dateIntervalStart,
                 "date_interval_end" to dateIntervalEnd,
-                "limit" to pagination.limit,
-                "offset" to pagination.offset,
-            ),
+            ) + pagination.parameters,
         )
             .map { it.uuid("id") }
             .asList

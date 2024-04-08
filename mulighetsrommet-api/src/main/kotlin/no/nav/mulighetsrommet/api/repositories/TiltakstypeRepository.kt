@@ -149,11 +149,6 @@ class TiltakstypeRepository(private val db: Database) {
     fun getAll(
         pagination: Pagination = Pagination.all(),
     ): Pair<Int, List<TiltakstypeAdminDto>> {
-        val parameters = mapOf(
-            "limit" to pagination.limit,
-            "offset" to pagination.offset,
-        )
-
         @Language("PostgreSQL")
         val query = """
             select
@@ -175,7 +170,7 @@ class TiltakstypeRepository(private val db: Database) {
 
         val results = queryOf(
             query,
-            parameters,
+            pagination.parameters,
         ).map { it.int("full_count") to it.toTiltakstypeAdminDto() }.asList.let { db.run(it) }
         val tiltakstyper = results.map { it.second }
         val totaltAntall = results.firstOrNull()?.first ?: 0
@@ -189,8 +184,6 @@ class TiltakstypeRepository(private val db: Database) {
         sortering: String? = null,
     ): Pair<Int, List<TiltakstypeAdminDto>> {
         val parameters = mapOf(
-            "limit" to pagination.limit,
-            "offset" to pagination.offset,
             "today" to dagensDato,
         )
 
@@ -228,7 +221,7 @@ class TiltakstypeRepository(private val db: Database) {
 
         val results = queryOf(
             query,
-            parameters,
+            parameters + pagination.parameters,
         ).map { it.int("full_count") to it.toTiltakstypeAdminDto() }.asList.let { db.run(it) }
         val tiltakstyper = results.map { it.second }
         val totaltAntall = results.firstOrNull()?.first ?: 0

@@ -2,7 +2,7 @@ package no.nav.mulighetsrommet.database.utils
 
 class Pagination private constructor(
     private val page: Int,
-    val limit: Int? = null,
+    val pageSize: Int? = null,
 ) {
 
     init {
@@ -10,27 +10,38 @@ class Pagination private constructor(
             "'page' must be greater than '0'"
         }
 
-        require(limit == null || limit > 0) {
-            "'limit' must be 'null' or greater than '0'"
+        require(pageSize == null || pageSize > 0) {
+            "'pageSize' must be 'null' or greater than '0'"
         }
     }
-
-    val offset: Int?
-        get() = if (limit == null) {
-            null
-        } else {
-            (page - 1) * limit
-        }
 
     companion object {
         fun all() = Pagination(
             page = 1,
-            limit = null,
+            pageSize = null,
         )
 
         fun of(page: Int, size: Int) = Pagination(
             page = page,
-            limit = size,
+            pageSize = size,
         )
+    }
+
+    val parameters: Map<String, Int?>
+        get() {
+            val offset = if (pageSize == null) {
+                null
+            } else {
+                (page - 1) * pageSize
+            }
+
+            return mapOf(
+                "limit" to pageSize,
+                "offset" to offset,
+            )
+        }
+
+    override fun toString(): String {
+        return "Pagination(page=$page, pageSize=$pageSize)"
     }
 }

@@ -279,8 +279,6 @@ class AvtaleRepository(private val db: Database) {
         val parameters = mapOf(
             "today" to dagensDato,
             "search" to search?.replace("/", "#")?.trim()?.let { "%$it%" },
-            "limit" to pagination.limit,
-            "offset" to pagination.offset,
             "administrator_nav_ident" to administratorNavIdent?.let { """[{ "navIdent": "${it.value}" }]""" },
             "tiltakstype_ids" to tiltakstypeIder.ifEmpty { null }?.let { db.createUuidArray(it) },
             "arrangor_ids" to arrangorIds.ifEmpty { null }?.let { db.createUuidArray(it) },
@@ -326,7 +324,7 @@ class AvtaleRepository(private val db: Database) {
             offset :offset
         """.trimIndent()
 
-        val results = queryOf(query, parameters)
+        val results = queryOf(query, parameters + pagination.parameters)
             .map {
                 it.int("full_count") to it.toAvtaleAdminDto()
             }

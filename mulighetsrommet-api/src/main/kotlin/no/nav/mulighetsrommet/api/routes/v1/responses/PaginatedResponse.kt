@@ -24,7 +24,7 @@ data class PaginatedResponse<T>(
         )
 
         fun <T> of(pagination: Pagination, totalCount: Int, data: List<T>): PaginatedResponse<T> {
-            val pageSize = pagination.limit ?: data.size
+            val pageSize = pagination.pageSize ?: totalCount
             return PaginatedResponse(
                 pagination = PaginationSummary(
                     totalCount = totalCount,
