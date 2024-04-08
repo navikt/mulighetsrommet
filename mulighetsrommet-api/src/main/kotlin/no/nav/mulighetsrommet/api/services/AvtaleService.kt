@@ -150,14 +150,14 @@ class AvtaleService(
             return Either.Left(BadRequest(message = "Avtalen er allerede avsluttet og kan derfor ikke avbrytes."))
         }
 
-        val gjennomforinger = tiltaksgjennomforinger.getAll(
+        val (_, gjennomforinger) = tiltaksgjennomforinger.getAll(
             avtaleId = id,
             statuser = listOf(
                 TiltaksgjennomforingStatus.GJENNOMFORES,
                 TiltaksgjennomforingStatus.PLANLAGT,
             ),
             dagensDato = dagensDato,
-        ).second
+        )
 
         val (antallAktiveGjennomforinger, antallPlanlagteGjennomforinger) = gjennomforinger.partition { it.status == TiltaksgjennomforingStatus.GJENNOMFORES }
         if (antallAktiveGjennomforinger.isNotEmpty()) {

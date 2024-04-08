@@ -90,7 +90,7 @@ class InitialLoadTiltaksgjennomforinger(
                     opphav = input.opphav,
                     tiltakstypeIder = tiltakstypeIder,
                 )
-                result.second
+                result.items
             },
         ) {
             gjennomforingProducer.publish(TiltaksgjennomforingDto.from(it))

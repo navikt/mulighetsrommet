@@ -129,7 +129,7 @@ class GenerateValidationReport(
     }
 
     private suspend fun validateAvtaler() = buildMap {
-        paginateFanOut({ pagination -> avtaler.getAll(pagination).second }) {
+        paginateFanOut({ pagination -> avtaler.getAll(pagination).items }) {
             val dbo = it.toDbo()
             avtaleValidator.validate(dbo, it)
                 .onLeft { validationErrors ->
@@ -158,7 +158,7 @@ class GenerateValidationReport(
             gjennomforinger.getAll(
                 pagination,
                 sluttDatoGreaterThanOrEqualTo = ArenaMigrering.TiltaksgjennomforingSluttDatoCutoffDate,
-            ).second
+            ).items
         }) {
             val dbo = it.toDbo()
             gjennomforingValidator.validate(dbo, it)

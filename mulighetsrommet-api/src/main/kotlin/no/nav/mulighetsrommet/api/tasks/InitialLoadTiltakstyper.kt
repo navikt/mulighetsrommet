@@ -46,7 +46,7 @@ class InitialLoadTiltakstyper(
 
     private fun initialLoadTiltakstyper() {
         tiltakstyper.getAll()
-            .second
+            .items
             .forEach { tiltakstype ->
                 val eksternDto = tiltakstyper.getEksternTiltakstype(tiltakstype.id)
                 if (eksternDto != null) {
