@@ -27,13 +27,13 @@ export function AvtaleFilter({ filterAtom, skjulFilter }: Props) {
   const [filter, setFilter] = useAtom(filterAtom);
   const [accordionsOpen, setAccordionsOpen] = useAtom(avtaleFilterAccordionAtom);
   const { data: enheter, isLoading: isLoadingEnheter } = useNavEnheter();
-  const { data: arrangorer, isLoading: isLoadingArrangorer } = useArrangorer(ArrangorTil.AVTALE);
+  const { data: arrangorData, isLoading: isLoadingArrangorer } = useArrangorer(ArrangorTil.AVTALE);
   const { data: tiltakstyper, isLoading: isLoadingTiltakstyper } = useTiltakstyper();
 
   if (
     !enheter ||
     isLoadingEnheter ||
-    !arrangorer ||
+    !arrangorData ||
     isLoadingArrangorer ||
     !tiltakstyper ||
     isLoadingTiltakstyper
@@ -194,7 +194,7 @@ export function AvtaleFilter({ filterAtom, skjulFilter }: Props) {
           <Accordion.Content>
             <CheckboxList
               searchable
-              items={arrangorOptions(arrangorer)}
+              items={arrangorOptions(arrangorData.data)}
               isChecked={(id) => filter.arrangorer.includes(id)}
               onChange={(id) => {
                 setFilter({

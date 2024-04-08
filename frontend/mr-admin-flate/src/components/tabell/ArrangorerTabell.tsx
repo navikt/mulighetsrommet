@@ -6,9 +6,10 @@ import { ToolbarContainer } from "mulighetsrommet-frontend-common/components/too
 import { PagineringsOversikt } from "../paginering/PagineringOversikt";
 import { TabellWrapper } from "./TabellWrapper";
 import { Laster } from "../laster/Laster";
-import { Alert, Table } from "@navikt/ds-react";
-import { SorteringArrangorer } from "mulighetsrommet-api-client";
+import { Alert, Pagination, Table } from "@navikt/ds-react";
+import { ArrangorTil, SorteringArrangorer } from "mulighetsrommet-api-client";
 import { Link } from "react-router-dom";
+import { PagineringContainer } from "../paginering/PagineringContainer";
 
 interface Props {
   filterAtom: WritableAtom<ArrangorerFilter, [newValue: ArrangorerFilter], void>;
@@ -20,7 +21,7 @@ export function ArrangorerTabell({ filterAtom, tagsHeight, filterOpen }: Props) 
   const [sort, setSort] = useSort("navn");
   const [filter, setFilter] = useAtom(filterAtom);
 
-  const { data: arrangorer = [], isLoading } = useArrangorer(); // TODO Må hente ut arrangorer med paginert objekt
+  const { data, isLoading } = useArrangorer(ArrangorTil.AVTALE, filter);
 
   function updateFilter(newFilter: Partial<ArrangorerFilter>) {
     setFilter({ ...filter, ...newFilter });
@@ -46,26 +47,30 @@ export function ArrangorerTabell({ filterAtom, tagsHeight, filterOpen }: Props) 
     });
   };
 
-  if (!arrangorer || isLoading) {
+  if (!data || isLoading) {
     return <Laster size="xlarge" tekst="Laster arrangører..." />;
   }
+
+  const { data: arrangorer, pagination } = data;
 
   return (
     <>
       <ToolbarContainer tagsHeight={tagsHeight} filterOpen={filterOpen}>
-        <PagineringsOversikt
-          page={filter.page}
-          pageSize={filter.pageSize}
-          antall={arrangorer.length}
-          maksAntall={20} // TODO Må bruke verdi fra pagineringsobjekt fra backend
-          type="arrangører"
-          onChangePageSize={(value) => {
-            updateFilter({
-              page: 1,
-              pageSize: value,
-            });
-          }}
-        />
+        {arrangorer.length > 0 ? (
+          <PagineringsOversikt
+            page={filter.page}
+            pageSize={filter.pageSize}
+            antall={arrangorer.length}
+            maksAntall={pagination.totalCount}
+            type="arrangører"
+            onChangePageSize={(value) => {
+              updateFilter({
+                page: 1,
+                pageSize: value,
+              });
+            }}
+          />
+        ) : null}
       </ToolbarContainer>
       <TabellWrapper filterOpen={filterOpen}>
         {arrangorer.length === 0 ? (
@@ -106,6 +111,29 @@ export function ArrangorerTabell({ filterAtom, tagsHeight, filterOpen }: Props) 
             </Table.Body>
           </Table>
         )}
+        {arrangorer.length > 0 ? (
+          <PagineringContainer>
+            <PagineringsOversikt
+              page={filter.page}
+              pageSize={filter.pageSize}
+              antall={arrangorer.length}
+              maksAntall={pagination.totalCount}
+              type="arrangører"
+              onChangePageSize={(value) => {
+                updateFilter({
+                  page: 1,
+                  pageSize: value,
+                });
+              }}
+            />
+            <Pagination
+              size="small"
+              page={filter.page}
+              count={pagination.totalPages}
+              onPageChange={(page) => updateFilter({ page })}
+            />
+          </PagineringContainer>
+        ) : null}
       </TabellWrapper>
     </>
   );

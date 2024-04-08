@@ -30,7 +30,7 @@ fun Route.brregVirksomhetRoutes() {
             val response = brregClient.sokOverordnetEnhet(sok)
                 .map { hovedenheter ->
                     // Kombinerer resultat med utenlandske virksomheter siden de ikke finnes i brreg
-                    hovedenheter + arrangorRepository.getAll(sok = sok, utenlandsk = true).map { virksomhet ->
+                    hovedenheter + arrangorRepository.getAll(sok = sok, utenlandsk = true).items.map { virksomhet ->
                         toBrregVirksomhetDto(virksomhet)
                     }
                 }
@@ -45,7 +45,7 @@ fun Route.brregVirksomhetRoutes() {
             val response = brregClient.getUnderenheterForOverordnetEnhet(orgnr)
                 .map { underenheter ->
                     // Kombinerer resultat med virksomheter som er slettet fra brreg for å støtte avtaler/gjennomføringer som henger etter
-                    underenheter + arrangorRepository.getAll(overordnetEnhetOrgnr = orgnr, slettet = true)
+                    underenheter + arrangorRepository.getAll(overordnetEnhetOrgnr = orgnr, slettet = true).items
                         .map { virksomhet -> toBrregVirksomhetDto(virksomhet) }
                 }
                 .mapLeft { toStatusResponseError(it) }

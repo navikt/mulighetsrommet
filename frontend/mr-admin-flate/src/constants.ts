@@ -4,6 +4,7 @@ export const APPLICATION_NAME = "mr-admin-flate";
 
 export const PAGE_SIZE = 15;
 export const AVTALE_PAGE_SIZE = 15;
+export const ARRANGORER_PAGE_SIZE = 15;
 
 export const PREVIEW_ARBEIDSMARKEDSTILTAK_URL = isProduction
   ? "https://nav-arbeidsmarkedstiltak.intern.nav.no/preview"

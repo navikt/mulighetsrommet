@@ -98,7 +98,7 @@ export function AvtaleFiltertags({ filterAtom, tiltakstypeId, filterOpen, setTag
       {filter.arrangorer.map((id) => (
         <FilterTag
           key={id}
-          label={arrangorer?.find((arrangor) => arrangor.id === id)?.navn ?? id}
+          label={arrangorer?.data.find((arrangor) => arrangor.id === id)?.navn ?? id}
           onClose={() => {
             setFilter({
               ...filter,

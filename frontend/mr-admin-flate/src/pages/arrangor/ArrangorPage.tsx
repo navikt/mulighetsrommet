@@ -1,8 +1,8 @@
-import { Heading } from "@navikt/ds-react";
 import { useParams } from "react-router-dom";
-import { Header } from "../../components/detaljside/Header";
+import { ArrangorIkon } from "../../components/ikoner/ArrangorIkon";
 import { Brodsmule, Brodsmuler } from "../../components/navigering/Brodsmuler";
 import { ContainerLayout } from "../../layouts/ContainerLayout";
+import { HeaderBanner } from "../../layouts/HeaderBanner";
 
 export function ArrangorPage() {
   const { arrangorId } = useParams();
@@ -17,11 +17,7 @@ export function ArrangorPage() {
     <>
       <Brodsmuler brodsmuler={brodsmuler} />
       <main>
-        <Header>
-          <Heading size="large" level="2">
-            Arrangør: {arrangorId}
-          </Heading>
-        </Header>
+        <HeaderBanner heading="Arrangørdetaljer" ikon={<ArrangorIkon />} />
         <ContainerLayout>
           <p>Her kommer det noe detaljer om arrangøren</p>
         </ContainerLayout>
