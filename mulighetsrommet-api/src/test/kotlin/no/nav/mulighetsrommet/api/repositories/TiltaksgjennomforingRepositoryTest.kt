@@ -531,8 +531,8 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 statuser = listOf(TiltaksgjennomforingStatus.AVBRUTT),
             )
 
-            result.second shouldHaveSize 1
-            result.second[0].id shouldBe tiltaksgjennomforingAvbrutt.id
+            result.totalCount shouldBe 1
+            result.items[0].id shouldBe tiltaksgjennomforingAvbrutt.id
         }
 
         test("filtrer på avsluttet") {
@@ -542,8 +542,8 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 statuser = listOf(TiltaksgjennomforingStatus.AVSLUTTET),
             )
 
-            result.second shouldHaveSize 1
-            result.second[0].id shouldBe tiltaksgjennomforingAvsluttetDato.id
+            result.totalCount shouldBe 1
+            result.items[0].id shouldBe tiltaksgjennomforingAvsluttetDato.id
         }
 
         test("filtrer på gjennomføres") {
@@ -553,8 +553,8 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 statuser = listOf(TiltaksgjennomforingStatus.GJENNOMFORES),
             )
 
-            result.second shouldHaveSize 1
-            result.second[0].id shouldBe tiltaksgjennomforingAktiv.id
+            result.totalCount shouldBe 1
+            result.items[0].id shouldBe tiltaksgjennomforingAktiv.id
         }
 
         test("filtrer på avlyst") {
@@ -564,8 +564,8 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 statuser = listOf(TiltaksgjennomforingStatus.AVLYST),
             )
 
-            result.second shouldHaveSize 1
-            result.second[0].id shouldBe tiltaksgjennomforingAvlyst.id
+            result.totalCount shouldBe 1
+            result.items[0].id shouldBe tiltaksgjennomforingAvlyst.id
         }
 
         test("filtrer på PLANLAGT") {
@@ -575,8 +575,8 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 statuser = listOf(TiltaksgjennomforingStatus.PLANLAGT),
             )
 
-            result.second shouldHaveSize 1
-            result.second[0].id shouldBe tiltaksgjennomforingPlanlagt.id
+            result.totalCount shouldBe 1
+            result.items[0].id shouldBe tiltaksgjennomforingPlanlagt.id
         }
     }
 
@@ -595,15 +595,15 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             tiltaksgjennomforinger.getAll(
                 arrangorOrgnr = listOf(ArrangorFixtures.underenhet1.organisasjonsnummer),
             ).should {
-                it.second.size shouldBe 1
-                it.second[0].id shouldBe Oppfolging1.id
+                it.items.size shouldBe 1
+                it.items[0].id shouldBe Oppfolging1.id
             }
 
             tiltaksgjennomforinger.getAll(
                 arrangorOrgnr = listOf(ArrangorFixtures.underenhet2.organisasjonsnummer),
             ).should {
-                it.second.size shouldBe 1
-                it.second[0].id shouldBe Oppfolging2.id
+                it.items.size shouldBe 1
+                it.items[0].id shouldBe Oppfolging2.id
             }
         }
 
@@ -624,14 +624,14 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             tiltaksgjennomforinger.getAll(
                 search = "bergen",
             ).should {
-                it.second.size shouldBe 1
-                it.second[0].arrangor.navn shouldBe "Underenhet Bergen"
+                it.items.size shouldBe 1
+                it.items[0].arrangor.navn shouldBe "Underenhet Bergen"
             }
 
             tiltaksgjennomforinger.getAll(
                 search = "under",
             ).should {
-                it.second.size shouldBe 2
+                it.items.size shouldBe 2
             }
         }
 
@@ -640,8 +640,8 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             tiltaksgjennomforinger.upsert(EnkelAmo1)
 
             tiltaksgjennomforinger.getAll(skalMigreres = true).should {
-                it.first shouldBe 1
-                it.second[0].id shouldBe Oppfolging1.id
+                it.totalCount shouldBe 1
+                it.items[0].id shouldBe Oppfolging1.id
             }
         }
 
@@ -651,17 +651,17 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             tiltaksgjennomforinger.upsert(Oppfolging2)
 
             tiltaksgjennomforinger.getAll(opphav = null).should {
-                it.first shouldBe 2
+                it.totalCount shouldBe 2
             }
 
             tiltaksgjennomforinger.getAll(opphav = ArenaMigrering.Opphav.ARENA).should {
-                it.first shouldBe 1
-                it.second[0].id shouldBe Oppfolging1.id
+                it.totalCount shouldBe 1
+                it.items[0].id shouldBe Oppfolging1.id
             }
 
             tiltaksgjennomforinger.getAll(opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE).should {
-                it.first shouldBe 1
-                it.second[0].id shouldBe Oppfolging2.id
+                it.totalCount shouldBe 1
+                it.items[0].id shouldBe Oppfolging2.id
             }
         }
 
@@ -680,7 +680,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
 
             val result = tiltaksgjennomforinger.getAll(
                 avtaleId = AvtaleFixtures.oppfolging.id,
-            ).second
+            ).items
             result shouldHaveSize 1
             result.first().id shouldBe Oppfolging1.id
         }
@@ -760,8 +760,8 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             tiltaksgjennomforinger.upsert(tg4)
 
             tiltaksgjennomforinger.getAll(navEnheter = listOf("1")).should {
-                it.first shouldBe 3
-                it.second.map { tg -> tg.id } shouldContainAll listOf(tg1.id, tg2.id, tg4.id)
+                it.totalCount shouldBe 3
+                it.items.map { tg -> tg.id } shouldContainAll listOf(tg1.id, tg2.id, tg4.id)
             }
         }
 
@@ -779,13 +779,13 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             tiltaksgjennomforinger.upsert(tg2)
 
             tiltaksgjennomforinger.getAll(administratorNavIdent = NavAnsattFixture.ansatt1.navIdent).should {
-                it.first shouldBe 2
-                it.second.map { tg -> tg.id } shouldContainAll listOf(tg1.id, tg2.id)
+                it.totalCount shouldBe 2
+                it.items.map { tg -> tg.id } shouldContainAll listOf(tg1.id, tg2.id)
             }
 
             tiltaksgjennomforinger.getAll(administratorNavIdent = NavAnsattFixture.ansatt2.navIdent).should {
-                it.first shouldBe 1
-                it.second.map { tg -> tg.id } shouldContainAll listOf(tg2.id)
+                it.totalCount shouldBe 1
+                it.items.map { tg -> tg.id } shouldContainAll listOf(tg2.id)
             }
         }
 

@@ -14,7 +14,9 @@ import no.nav.mulighetsrommet.api.domain.dto.AvtaleAdminDto
 import no.nav.mulighetsrommet.api.domain.dto.AvtaleNotificationDto
 import no.nav.mulighetsrommet.api.domain.dto.Kontorstruktur
 import no.nav.mulighetsrommet.database.Database
+import no.nav.mulighetsrommet.database.utils.PaginatedResult
 import no.nav.mulighetsrommet.database.utils.Pagination
+import no.nav.mulighetsrommet.database.utils.mapPaginated
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.ArenaAvtaleDbo
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
@@ -275,7 +277,7 @@ class AvtaleRepository(private val db: Database) {
         dagensDato: LocalDate = LocalDate.now(),
         arrangorIds: List<UUID> = emptyList(),
         administratorNavIdent: NavIdent? = null,
-    ): Pair<Int, List<AvtaleAdminDto>> {
+    ): PaginatedResult<AvtaleAdminDto> {
         val parameters = mapOf(
             "today" to dagensDato,
             "search" to search?.replace("/", "#")?.trim()?.let { "%$it%" },
@@ -303,7 +305,7 @@ class AvtaleRepository(private val db: Database) {
 
         @Language("PostgreSQL")
         val query = """
-            select *, count(*) over() as full_count
+            select *, count(*) over() as total_count
             from avtale_admin_dto_view
             where (:tiltakstype_ids::uuid[] is null or tiltakstype_id = any (:tiltakstype_ids))
               and (:search::text is null or (navn ilike :search or avtalenummer ilike :search or arrangor_hovedenhet_navn ilike :search))
@@ -324,16 +326,11 @@ class AvtaleRepository(private val db: Database) {
             offset :offset
         """.trimIndent()
 
-        val results = queryOf(query, parameters + pagination.parameters)
-            .map {
-                it.int("full_count") to it.toAvtaleAdminDto()
-            }
-            .asList
-            .let { db.run(it) }
-
-        val totaltAntall = results.firstOrNull()?.first ?: 0
-        val avtaler = results.map { it.second }
-        return Pair(totaltAntall, avtaler)
+        return db.useSession { session ->
+            queryOf(query, parameters + pagination.parameters)
+                .mapPaginated { it.toAvtaleAdminDto() }
+                .runWithSession(session)
+        }
     }
 
     fun getAllAvtalerSomNarmerSegSluttdato(currentDate: LocalDate = LocalDate.now()): List<AvtaleNotificationDto> {

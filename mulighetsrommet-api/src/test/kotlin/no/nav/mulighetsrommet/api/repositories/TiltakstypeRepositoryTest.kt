@@ -34,7 +34,7 @@ class TiltakstypeRepositoryTest : FunSpec({
             tiltakstyper.upsert(TiltakstypeFixtures.Arbeidstrening)
             tiltakstyper.upsert(TiltakstypeFixtures.Oppfolging)
 
-            tiltakstyper.getAll().second shouldHaveSize 2
+            tiltakstyper.getAll().totalCount shouldBe 2
         }
     }
 
@@ -89,7 +89,7 @@ class TiltakstypeRepositoryTest : FunSpec({
         tiltakstyper.upsert(tiltakstypeSkalIkkeMigreres)
 
         test("Ingen filter for kategori returnerer både individuelle- og gruppetiltak") {
-            tiltakstyper.getAllSkalMigreres().second shouldHaveSize 3
+            tiltakstyper.getAllSkalMigreres().items shouldHaveSize 3
         }
 
         test("Filter på planlagt returnerer planlagte tiltakstyper") {
@@ -97,8 +97,8 @@ class TiltakstypeRepositoryTest : FunSpec({
                 statuser = listOf(Tiltakstypestatus.Planlagt),
                 dagensDato = dagensDato,
             )
-            typer.second shouldHaveSize 1
-            typer.second.first().id shouldBe tiltakstypePlanlagt.id
+            typer.items shouldHaveSize 1
+            typer.items.first().id shouldBe tiltakstypePlanlagt.id
         }
 
         test("Filter på aktiv returnerer aktive tiltakstyper") {
@@ -106,8 +106,8 @@ class TiltakstypeRepositoryTest : FunSpec({
                 statuser = listOf(Tiltakstypestatus.Aktiv),
                 dagensDato = dagensDato,
             )
-            typer.second shouldHaveSize 1
-            typer.second.first().id shouldBe tiltakstypeAktiv.id
+            typer.items shouldHaveSize 1
+            typer.items.first().id shouldBe tiltakstypeAktiv.id
         }
 
         test("Filter på avsluttet returnerer avsluttede tiltakstyper") {
@@ -115,8 +115,8 @@ class TiltakstypeRepositoryTest : FunSpec({
                 statuser = listOf(Tiltakstypestatus.Avsluttet),
                 dagensDato = dagensDato,
             )
-            typer.second shouldHaveSize 1
-            typer.second.first().id shouldBe tiltakstypeAvsluttet.id
+            typer.items shouldHaveSize 1
+            typer.items.first().id shouldBe tiltakstypeAvsluttet.id
         }
     }
 
