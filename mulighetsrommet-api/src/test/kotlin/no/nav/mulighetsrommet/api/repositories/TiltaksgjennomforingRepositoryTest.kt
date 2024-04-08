@@ -32,10 +32,9 @@ import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.EnkelAmo
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.Oppfolging1
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.Oppfolging2
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.VTA1
-import no.nav.mulighetsrommet.api.utils.DEFAULT_PAGINATION_LIMIT
-import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
+import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.ArenaTiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
@@ -532,8 +531,8 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 statuser = listOf(TiltaksgjennomforingStatus.AVBRUTT),
             )
 
-            result.second shouldHaveSize 1
-            result.second[0].id shouldBe tiltaksgjennomforingAvbrutt.id
+            result.totalCount shouldBe 1
+            result.items[0].id shouldBe tiltaksgjennomforingAvbrutt.id
         }
 
         test("filtrer på avsluttet") {
@@ -543,8 +542,8 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 statuser = listOf(TiltaksgjennomforingStatus.AVSLUTTET),
             )
 
-            result.second shouldHaveSize 1
-            result.second[0].id shouldBe tiltaksgjennomforingAvsluttetDato.id
+            result.totalCount shouldBe 1
+            result.items[0].id shouldBe tiltaksgjennomforingAvsluttetDato.id
         }
 
         test("filtrer på gjennomføres") {
@@ -554,8 +553,8 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 statuser = listOf(TiltaksgjennomforingStatus.GJENNOMFORES),
             )
 
-            result.second shouldHaveSize 1
-            result.second[0].id shouldBe tiltaksgjennomforingAktiv.id
+            result.totalCount shouldBe 1
+            result.items[0].id shouldBe tiltaksgjennomforingAktiv.id
         }
 
         test("filtrer på avlyst") {
@@ -565,8 +564,8 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 statuser = listOf(TiltaksgjennomforingStatus.AVLYST),
             )
 
-            result.second shouldHaveSize 1
-            result.second[0].id shouldBe tiltaksgjennomforingAvlyst.id
+            result.totalCount shouldBe 1
+            result.items[0].id shouldBe tiltaksgjennomforingAvlyst.id
         }
 
         test("filtrer på PLANLAGT") {
@@ -576,8 +575,8 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 statuser = listOf(TiltaksgjennomforingStatus.PLANLAGT),
             )
 
-            result.second shouldHaveSize 1
-            result.second[0].id shouldBe tiltaksgjennomforingPlanlagt.id
+            result.totalCount shouldBe 1
+            result.items[0].id shouldBe tiltaksgjennomforingPlanlagt.id
         }
     }
 
@@ -596,15 +595,15 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             tiltaksgjennomforinger.getAll(
                 arrangorOrgnr = listOf(ArrangorFixtures.underenhet1.organisasjonsnummer),
             ).should {
-                it.second.size shouldBe 1
-                it.second[0].id shouldBe Oppfolging1.id
+                it.items.size shouldBe 1
+                it.items[0].id shouldBe Oppfolging1.id
             }
 
             tiltaksgjennomforinger.getAll(
                 arrangorOrgnr = listOf(ArrangorFixtures.underenhet2.organisasjonsnummer),
             ).should {
-                it.second.size shouldBe 1
-                it.second[0].id shouldBe Oppfolging2.id
+                it.items.size shouldBe 1
+                it.items[0].id shouldBe Oppfolging2.id
             }
         }
 
@@ -625,14 +624,14 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             tiltaksgjennomforinger.getAll(
                 search = "bergen",
             ).should {
-                it.second.size shouldBe 1
-                it.second[0].arrangor.navn shouldBe "Underenhet Bergen"
+                it.items.size shouldBe 1
+                it.items[0].arrangor.navn shouldBe "Underenhet Bergen"
             }
 
             tiltaksgjennomforinger.getAll(
                 search = "under",
             ).should {
-                it.second.size shouldBe 2
+                it.items.size shouldBe 2
             }
         }
 
@@ -641,8 +640,8 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             tiltaksgjennomforinger.upsert(EnkelAmo1)
 
             tiltaksgjennomforinger.getAll(skalMigreres = true).should {
-                it.first shouldBe 1
-                it.second[0].id shouldBe Oppfolging1.id
+                it.totalCount shouldBe 1
+                it.items[0].id shouldBe Oppfolging1.id
             }
         }
 
@@ -652,17 +651,17 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             tiltaksgjennomforinger.upsert(Oppfolging2)
 
             tiltaksgjennomforinger.getAll(opphav = null).should {
-                it.first shouldBe 2
+                it.totalCount shouldBe 2
             }
 
             tiltaksgjennomforinger.getAll(opphav = ArenaMigrering.Opphav.ARENA).should {
-                it.first shouldBe 1
-                it.second[0].id shouldBe Oppfolging1.id
+                it.totalCount shouldBe 1
+                it.items[0].id shouldBe Oppfolging1.id
             }
 
             tiltaksgjennomforinger.getAll(opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE).should {
-                it.first shouldBe 1
-                it.second[0].id shouldBe Oppfolging2.id
+                it.totalCount shouldBe 1
+                it.items[0].id shouldBe Oppfolging2.id
             }
         }
 
@@ -681,7 +680,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
 
             val result = tiltaksgjennomforinger.getAll(
                 avtaleId = AvtaleFixtures.oppfolging.id,
-            ).second
+            ).items
             result shouldHaveSize 1
             result.first().id shouldBe Oppfolging1.id
         }
@@ -761,8 +760,8 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             tiltaksgjennomforinger.upsert(tg4)
 
             tiltaksgjennomforinger.getAll(navEnheter = listOf("1")).should {
-                it.first shouldBe 3
-                it.second.map { tg -> tg.id } shouldContainAll listOf(tg1.id, tg2.id, tg4.id)
+                it.totalCount shouldBe 3
+                it.items.map { tg -> tg.id } shouldContainAll listOf(tg1.id, tg2.id, tg4.id)
             }
         }
 
@@ -780,13 +779,13 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             tiltaksgjennomforinger.upsert(tg2)
 
             tiltaksgjennomforinger.getAll(administratorNavIdent = NavAnsattFixture.ansatt1.navIdent).should {
-                it.first shouldBe 2
-                it.second.map { tg -> tg.id } shouldContainAll listOf(tg1.id, tg2.id)
+                it.totalCount shouldBe 2
+                it.items.map { tg -> tg.id } shouldContainAll listOf(tg1.id, tg2.id)
             }
 
             tiltaksgjennomforinger.getAll(administratorNavIdent = NavAnsattFixture.ansatt2.navIdent).should {
-                it.first shouldBe 1
-                it.second.map { tg -> tg.id } shouldContainAll listOf(tg2.id)
+                it.totalCount shouldBe 1
+                it.items.map { tg -> tg.id } shouldContainAll listOf(tg2.id)
             }
         }
 
@@ -885,80 +884,33 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         }
     }
 
-    context("pagination") {
-        beforeAny {
-            val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
-            (1..105).forEach {
-                tiltaksgjennomforinger.upsert(
-                    Oppfolging1.copy(
-                        id = UUID.randomUUID(),
-                        navn = "Tiltak - $it",
-                        tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
-                        arrangorId = ArrangorFixtures.underenhet1.id,
-                        startDato = LocalDate.of(2022, 1, 1),
-                        apentForInnsok = true,
-                        oppstart = TiltaksgjennomforingOppstartstype.FELLES,
-                        stedForGjennomforing = "0139 Oslo",
-                    ),
-                )
-            }
-        }
+    test("pagination") {
+        val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
 
-        test("default pagination gets first 50 tiltak") {
-            val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
-            val (totalCount, items) = tiltaksgjennomforinger.getAll()
-
-            items.size shouldBe DEFAULT_PAGINATION_LIMIT
-            items.first().navn shouldBe "Tiltak - 1"
-            items.last().navn shouldBe "Tiltak - 49"
-
-            totalCount shouldBe 105
-        }
-
-        test("pagination with page 4 and size 20 should give tiltak with id 59-76") {
-            val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
-            val (totalCount, items) = tiltaksgjennomforinger.getAll(
-                PaginationParams(
-                    4,
-                    20,
+        (1..10).forEach {
+            tiltaksgjennomforinger.upsert(
+                Oppfolging1.copy(
+                    id = UUID.randomUUID(),
+                    navn = "$it".padStart(2, '0'),
                 ),
             )
-
-            items.size shouldBe 20
-            items.first().navn shouldBe "Tiltak - 59"
-            items.last().navn shouldBe "Tiltak - 76"
-
-            totalCount shouldBe 105
         }
 
-        test("pagination with page 3 default size should give tiltak with id 95-99") {
-            val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
-            val (totalCount, items) = tiltaksgjennomforinger.getAll(
-                PaginationParams(
-                    3,
-                ),
-            )
+        forAll(
+            row(Pagination.all(), 10, "01", "10", 10),
+            row(Pagination.of(page = 1, size = 20), 10, "01", "10", 10),
+            row(Pagination.of(page = 1, size = 2), 2, "01", "02", 10),
+            row(Pagination.of(page = 3, size = 2), 2, "05", "06", 10),
+            row(Pagination.of(page = 3, size = 4), 2, "09", "10", 10),
+            row(Pagination.of(page = 2, size = 20), 0, null, null, 0),
+        ) { pagination, expectedSize, expectedFirst, expectedLast, expectedTotalCount ->
+            val (totalCount, items) = tiltaksgjennomforinger.getAll(pagination)
 
-            items.size shouldBe 5
-            items.first().navn shouldBe "Tiltak - 95"
-            items.last().navn shouldBe "Tiltak - 99"
+            items.size shouldBe expectedSize
+            items.firstOrNull()?.navn shouldBe expectedFirst
+            items.lastOrNull()?.navn shouldBe expectedLast
 
-            totalCount shouldBe 105
-        }
-
-        test("pagination with default page and size 200 should give tiltak with id 1-105") {
-            val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
-            val (totalCount, items) = tiltaksgjennomforinger.getAll(
-                PaginationParams(
-                    nullableLimit = 200,
-                ),
-            )
-
-            items.size shouldBe 105
-            items.first().navn shouldBe "Tiltak - 1"
-            items.last().navn shouldBe "Tiltak - 99"
-
-            totalCount shouldBe 105
+            totalCount shouldBe expectedTotalCount
         }
     }
 

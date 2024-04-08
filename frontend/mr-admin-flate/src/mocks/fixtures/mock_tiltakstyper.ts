@@ -94,7 +94,6 @@ export const mockTiltakstyper = {
 export const paginertMockTiltakstyper: PaginertTiltakstype = {
   pagination: {
     totalCount: Object.values(mockTiltakstyper).length,
-    currentPage: 1,
     pageSize: 50,
     totalPages: 1,
   },

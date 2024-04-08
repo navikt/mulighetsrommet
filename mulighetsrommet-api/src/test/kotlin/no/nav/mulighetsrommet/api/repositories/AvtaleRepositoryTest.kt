@@ -256,8 +256,8 @@ class AvtaleRepositoryTest : FunSpec({
                     search = "Kroko",
                 )
 
-                result.second shouldHaveSize 1
-                result.second[0].navn shouldBe "Avtale om opplæring av blinde krokodiller"
+                result.totalCount shouldBe 1
+                result.items[0].navn shouldBe "Avtale om opplæring av blinde krokodiller"
             }
         }
 
@@ -275,11 +275,11 @@ class AvtaleRepositoryTest : FunSpec({
             avtaler.upsert(a2)
 
             avtaler.getAll(administratorNavIdent = NavAnsattFixture.ansatt1.navIdent).should {
-                it.second.map { tg -> tg.id } shouldContainExactlyInAnyOrder listOf(a1.id, a2.id)
+                it.items.map { tg -> tg.id } shouldContainExactlyInAnyOrder listOf(a1.id, a2.id)
             }
 
             avtaler.getAll(administratorNavIdent = NavAnsattFixture.ansatt2.navIdent).should {
-                it.second.map { tg -> tg.id } shouldContainExactlyInAnyOrder listOf(a2.id)
+                it.items.map { tg -> tg.id } shouldContainExactlyInAnyOrder listOf(a2.id)
             }
         }
 
@@ -321,7 +321,7 @@ class AvtaleRepositoryTest : FunSpec({
                         dagensDato = LocalDate.now(),
                         statuser = statuser,
                     )
-                    result.second.map { it.id } shouldContainExactlyInAnyOrder expected
+                    result.items.map { it.id } shouldContainExactlyInAnyOrder expected
                 }
             }
         }
@@ -465,19 +465,19 @@ class AvtaleRepositoryTest : FunSpec({
             var result = avtaler.getAll(
                 avtaletyper = listOf(Avtaletype.Avtale),
             )
-            result.second shouldHaveSize 1
-            result.second[0].id shouldBe avtale1.id
+            result.totalCount shouldBe 1
+            result.items[0].id shouldBe avtale1.id
 
             result = avtaler.getAll(
                 avtaletyper = listOf(Avtaletype.Avtale, Avtaletype.OffentligOffentlig),
             )
-            result.second shouldHaveSize 2
-            result.second.map { it.id } shouldContainExactlyInAnyOrder listOf(avtale1.id, avtale3.id)
+            result.totalCount shouldBe 2
+            result.items.map { it.id } shouldContainExactlyInAnyOrder listOf(avtale1.id, avtale3.id)
 
             result = avtaler.getAll(
                 avtaletyper = listOf(),
             )
-            result.second shouldHaveSize 3
+            result.totalCount shouldBe 3
         }
 
         test("Filtrer på tiltakstypeId returnerer avtaler tilknyttet spesifikk tiltakstype") {
@@ -535,7 +535,7 @@ class AvtaleRepositoryTest : FunSpec({
                 search = "enhet",
             )
 
-            result.second shouldHaveSize 2
+            result.totalCount shouldBe 2
         }
     }
 
@@ -615,23 +615,23 @@ class AvtaleRepositoryTest : FunSpec({
         test("Sortering på navn fra a-å sorterer korrekt med æøå til slutt") {
             val result = avtaler.getAll(sortering = "navn-ascending")
 
-            result.second shouldHaveSize 5
-            result.second[0].navn shouldBe "Avtale hos Anders"
-            result.second[1].navn shouldBe "Avtale hos Kjetil"
-            result.second[2].navn shouldBe "Avtale hos Ærfuglen Ærle"
-            result.second[3].navn shouldBe "Avtale hos Øyvind"
-            result.second[4].navn shouldBe "Avtale hos Åse"
+            result.totalCount shouldBe 5
+            result.items[0].navn shouldBe "Avtale hos Anders"
+            result.items[1].navn shouldBe "Avtale hos Kjetil"
+            result.items[2].navn shouldBe "Avtale hos Ærfuglen Ærle"
+            result.items[3].navn shouldBe "Avtale hos Øyvind"
+            result.items[4].navn shouldBe "Avtale hos Åse"
         }
 
         test("Sortering på navn fra å-a sorterer korrekt") {
             val result = avtaler.getAll(sortering = "navn-descending")
 
-            result.second shouldHaveSize 5
-            result.second[0].navn shouldBe "Avtale hos Åse"
-            result.second[1].navn shouldBe "Avtale hos Øyvind"
-            result.second[2].navn shouldBe "Avtale hos Ærfuglen Ærle"
-            result.second[3].navn shouldBe "Avtale hos Kjetil"
-            result.second[4].navn shouldBe "Avtale hos Anders"
+            result.totalCount shouldBe 5
+            result.items[0].navn shouldBe "Avtale hos Åse"
+            result.items[1].navn shouldBe "Avtale hos Øyvind"
+            result.items[2].navn shouldBe "Avtale hos Ærfuglen Ærle"
+            result.items[3].navn shouldBe "Avtale hos Kjetil"
+            result.items[4].navn shouldBe "Avtale hos Anders"
         }
 
         test("Sortering på arrangør sorterer korrekt") {
@@ -662,49 +662,49 @@ class AvtaleRepositoryTest : FunSpec({
 
             val ascending = avtaler.getAll(sortering = "arrangor-ascending")
 
-            ascending.second[0].arrangor shouldBe alvdal
-            ascending.second[1].arrangor shouldBe bjarne
-            ascending.second[2].arrangor shouldBe bjarne
-            ascending.second[3].arrangor shouldBe bjarne
-            ascending.second[4].arrangor shouldBe chris
+            ascending.items[0].arrangor shouldBe alvdal
+            ascending.items[1].arrangor shouldBe bjarne
+            ascending.items[2].arrangor shouldBe bjarne
+            ascending.items[3].arrangor shouldBe bjarne
+            ascending.items[4].arrangor shouldBe chris
 
             val descending = avtaler.getAll(sortering = "arrangor-descending")
 
-            descending.second[0].arrangor shouldBe chris
-            descending.second[1].arrangor shouldBe bjarne
-            descending.second[2].arrangor shouldBe bjarne
-            descending.second[3].arrangor shouldBe bjarne
-            descending.second[4].arrangor shouldBe alvdal
+            descending.items[0].arrangor shouldBe chris
+            descending.items[1].arrangor shouldBe bjarne
+            descending.items[2].arrangor shouldBe bjarne
+            descending.items[3].arrangor shouldBe bjarne
+            descending.items[4].arrangor shouldBe alvdal
         }
 
         test("Sortering på sluttdato fra a-å sorterer korrekt") {
             val result = avtaler.getAll(sortering = "sluttdato-descending")
 
-            result.second[0].sluttDato shouldBe LocalDate.of(2023, 1, 1)
-            result.second[0].navn shouldBe "Avtale hos Ærfuglen Ærle"
-            result.second[1].sluttDato shouldBe LocalDate.of(2011, 1, 1)
-            result.second[1].navn shouldBe "Avtale hos Kjetil"
-            result.second[2].sluttDato shouldBe LocalDate.of(2010, 1, 31)
-            result.second[2].navn shouldBe "Avtale hos Anders"
-            result.second[3].sluttDato shouldBe LocalDate.of(2010, 1, 1)
-            result.second[3].navn shouldBe "Avtale hos Øyvind"
-            result.second[4].sluttDato shouldBe LocalDate.of(2009, 1, 1)
-            result.second[4].navn shouldBe "Avtale hos Åse"
+            result.items[0].sluttDato shouldBe LocalDate.of(2023, 1, 1)
+            result.items[0].navn shouldBe "Avtale hos Ærfuglen Ærle"
+            result.items[1].sluttDato shouldBe LocalDate.of(2011, 1, 1)
+            result.items[1].navn shouldBe "Avtale hos Kjetil"
+            result.items[2].sluttDato shouldBe LocalDate.of(2010, 1, 31)
+            result.items[2].navn shouldBe "Avtale hos Anders"
+            result.items[3].sluttDato shouldBe LocalDate.of(2010, 1, 1)
+            result.items[3].navn shouldBe "Avtale hos Øyvind"
+            result.items[4].sluttDato shouldBe LocalDate.of(2009, 1, 1)
+            result.items[4].navn shouldBe "Avtale hos Åse"
         }
 
         test("Sortering på sluttdato fra å-a sorterer korrekt") {
             val result = avtaler.getAll(sortering = "sluttdato-ascending")
 
-            result.second[0].sluttDato shouldBe LocalDate.of(2009, 1, 1)
-            result.second[0].navn shouldBe "Avtale hos Åse"
-            result.second[1].sluttDato shouldBe LocalDate.of(2010, 1, 1)
-            result.second[1].navn shouldBe "Avtale hos Øyvind"
-            result.second[2].sluttDato shouldBe LocalDate.of(2010, 1, 31)
-            result.second[2].navn shouldBe "Avtale hos Anders"
-            result.second[3].sluttDato shouldBe LocalDate.of(2011, 1, 1)
-            result.second[3].navn shouldBe "Avtale hos Kjetil"
-            result.second[4].sluttDato shouldBe LocalDate.of(2023, 1, 1)
-            result.second[4].navn shouldBe "Avtale hos Ærfuglen Ærle"
+            result.items[0].sluttDato shouldBe LocalDate.of(2009, 1, 1)
+            result.items[0].navn shouldBe "Avtale hos Åse"
+            result.items[1].sluttDato shouldBe LocalDate.of(2010, 1, 1)
+            result.items[1].navn shouldBe "Avtale hos Øyvind"
+            result.items[2].sluttDato shouldBe LocalDate.of(2010, 1, 31)
+            result.items[2].navn shouldBe "Avtale hos Anders"
+            result.items[3].sluttDato shouldBe LocalDate.of(2011, 1, 1)
+            result.items[3].navn shouldBe "Avtale hos Kjetil"
+            result.items[4].sluttDato shouldBe LocalDate.of(2023, 1, 1)
+            result.items[4].navn shouldBe "Avtale hos Ærfuglen Ærle"
         }
     }
 

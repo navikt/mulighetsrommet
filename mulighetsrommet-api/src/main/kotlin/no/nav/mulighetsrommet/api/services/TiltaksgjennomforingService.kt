@@ -17,8 +17,8 @@ import no.nav.mulighetsrommet.api.routes.v1.TiltaksgjennomforingRequest
 import no.nav.mulighetsrommet.api.routes.v1.responses.*
 import no.nav.mulighetsrommet.api.tiltaksgjennomforinger.TiltaksgjennomforingValidator
 import no.nav.mulighetsrommet.api.utils.EksternTiltaksgjennomforingFilter
-import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.database.Database
+import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.domain.Tiltakskoder.isTiltakMedAvtalerFraMulighetsrommet
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dto.NavIdent
@@ -77,7 +77,7 @@ class TiltaksgjennomforingService(
     }
 
     fun getAllSkalMigreres(
-        pagination: PaginationParams,
+        pagination: Pagination,
         filter: AdminTiltaksgjennomforingFilter,
     ): PaginatedResponse<TiltaksgjennomforingAdminDto> = tiltaksgjennomforinger.getAll(
         pagination,
@@ -118,7 +118,7 @@ class TiltaksgjennomforingService(
     }
 
     fun getAllEkstern(
-        pagination: PaginationParams,
+        pagination: Pagination,
         filter: EksternTiltaksgjennomforingFilter,
     ): PaginatedResponse<TiltaksgjennomforingDto> = tiltaksgjennomforinger
         .getAll(

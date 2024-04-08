@@ -28,7 +28,6 @@ export const tiltaksgjennomforingHandlers = [
       return HttpResponse.json({
         pagination: {
           pageSize: 15,
-          currentPage: 1,
           totalCount: data.length,
         },
         data,
@@ -99,7 +98,6 @@ export const tiltaksgjennomforingHandlers = [
       return HttpResponse.json({
         pagination: {
           totalCount: gjennomforinger.length,
-          currentPage: 1,
           pageSize: 50,
         },
         data: gjennomforinger,
@@ -117,7 +115,6 @@ export const tiltaksgjennomforingHandlers = [
       return HttpResponse.json({
         pagination: {
           totalCount: gjennomforinger.length,
-          currentPage: 1,
           pageSize: 50,
         },
         data: gjennomforinger,
@@ -135,7 +132,6 @@ export const tiltaksgjennomforingHandlers = [
       return HttpResponse.json({
         pagination: {
           totalCount: gjennomforinger.length,
-          currentPage: 1,
           pageSize: 50,
         },
         data: gjennomforinger,

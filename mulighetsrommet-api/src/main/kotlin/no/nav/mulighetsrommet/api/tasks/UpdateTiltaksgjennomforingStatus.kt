@@ -6,7 +6,7 @@ import com.github.kagkarlsson.scheduler.task.schedule.Daily
 import kotlinx.coroutines.runBlocking
 import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingDto
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
-import no.nav.mulighetsrommet.api.utils.DatabaseUtils
+import no.nav.mulighetsrommet.database.utils.DatabaseUtils
 import no.nav.mulighetsrommet.kafka.producers.TiltaksgjennomforingKafkaProducer
 import no.nav.mulighetsrommet.slack.SlackNotifier
 import org.slf4j.LoggerFactory
@@ -41,11 +41,11 @@ class UpdateTiltaksgjennomforingStatus(
     fun oppdaterTiltaksgjennomforingStatus(today: LocalDate, lastSuccessDate: LocalDate) {
         logger.info("Oppdaterer statuser for gjennomføringer med start eller sluttdato mellom $lastSuccessDate og $today")
 
-        val numberOfUpdates = DatabaseUtils.paginate(limit = 1000) { paginationParams ->
+        val numberOfUpdates = DatabaseUtils.paginate(pageSize = 1000) { pagination ->
             val tiltaksgjennomforinger = tiltaksgjennomforingRepository.getAllByDateIntervalAndNotAvbrutt(
                 dateIntervalStart = lastSuccessDate,
                 dateIntervalEnd = today,
-                pagination = paginationParams,
+                pagination = pagination,
             )
 
             tiltaksgjennomforinger.forEach { id ->

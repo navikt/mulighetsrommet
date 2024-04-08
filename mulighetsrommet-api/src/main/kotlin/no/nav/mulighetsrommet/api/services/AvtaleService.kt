@@ -16,8 +16,8 @@ import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.routes.v1.AvtaleRequest
 import no.nav.mulighetsrommet.api.routes.v1.responses.*
 import no.nav.mulighetsrommet.api.utils.AvtaleFilter
-import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.database.Database
+import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering.Opphav
 import no.nav.mulighetsrommet.domain.dto.Avtalestatus
@@ -117,7 +117,7 @@ class AvtaleService(
 
     fun getAll(
         filter: AvtaleFilter,
-        pagination: PaginationParams = PaginationParams(),
+        pagination: Pagination,
     ): PaginatedResponse<AvtaleAdminDto> {
         val (totalCount, items) = avtaler.getAll(
             pagination = pagination,
@@ -150,14 +150,14 @@ class AvtaleService(
             return Either.Left(BadRequest(message = "Avtalen er allerede avsluttet og kan derfor ikke avbrytes."))
         }
 
-        val gjennomforinger = tiltaksgjennomforinger.getAll(
+        val (_, gjennomforinger) = tiltaksgjennomforinger.getAll(
             avtaleId = id,
             statuser = listOf(
                 TiltaksgjennomforingStatus.GJENNOMFORES,
                 TiltaksgjennomforingStatus.PLANLAGT,
             ),
             dagensDato = dagensDato,
-        ).second
+        )
 
         val (antallAktiveGjennomforinger, antallPlanlagteGjennomforinger) = gjennomforinger.partition { it.status == TiltaksgjennomforingStatus.GJENNOMFORES }
         if (antallAktiveGjennomforinger.isNotEmpty()) {

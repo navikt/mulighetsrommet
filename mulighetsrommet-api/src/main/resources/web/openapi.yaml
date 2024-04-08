@@ -1761,14 +1761,11 @@ components:
           type: integer
         totalPages:
           type: integer
-        currentPage:
-          type: integer
         pageSize:
           type: integer
       required:
         - totalCount
         - totalPages
-        - currentPage
         - pageSize
 
     PaginertTiltakstype:
@@ -2431,20 +2428,6 @@ components:
         - Aktiv
         - Planlagt
         - Avsluttet
-
-    FrontendEvent:
-      type: object
-      properties:
-        name:
-          type: string
-        fields:
-          type: object
-          additionalProperties: true
-        tags:
-          type: object
-          additionalProperties: true
-      required:
-        - name
 
     DialogRequest:
       type: object

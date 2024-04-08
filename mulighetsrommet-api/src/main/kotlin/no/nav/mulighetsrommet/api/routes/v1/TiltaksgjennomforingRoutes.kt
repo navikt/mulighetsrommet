@@ -14,10 +14,10 @@ import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingKontaktpersonDb
 import no.nav.mulighetsrommet.api.plugins.AuthProvider
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.repositories.DeltakerRepository
+import no.nav.mulighetsrommet.api.routes.v1.parameters.getPaginationParams
 import no.nav.mulighetsrommet.api.routes.v1.responses.BadRequest
 import no.nav.mulighetsrommet.api.routes.v1.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.services.TiltaksgjennomforingService
-import no.nav.mulighetsrommet.api.utils.getPaginationParams
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dto.Faneinnhold
 import no.nav.mulighetsrommet.domain.dto.NavIdent
@@ -72,17 +72,17 @@ fun Route.tiltaksgjennomforingRoutes() {
         }
 
         get {
-            val paginationParams = getPaginationParams()
+            val pagination = getPaginationParams()
             val filter = getAdminTiltaksgjennomforingsFilter()
 
-            call.respond(service.getAllSkalMigreres(paginationParams, filter))
+            call.respond(service.getAllSkalMigreres(pagination, filter))
         }
 
         get("mine") {
-            val paginationParams = getPaginationParams()
+            val pagination = getPaginationParams()
             val filter = getAdminTiltaksgjennomforingsFilter().copy(administratorNavIdent = getNavIdent())
 
-            call.respond(service.getAllSkalMigreres(paginationParams, filter))
+            call.respond(service.getAllSkalMigreres(pagination, filter))
         }
 
         get("{id}") {

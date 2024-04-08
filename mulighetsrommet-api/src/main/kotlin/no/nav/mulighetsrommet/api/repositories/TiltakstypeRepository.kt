@@ -5,10 +5,8 @@ import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.domain.dto.DeltakerRegistreringInnholdDto
 import no.nav.mulighetsrommet.api.domain.dto.Innholdselement
 import no.nav.mulighetsrommet.api.domain.dto.TiltakstypeEksternDto
-import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.database.Database
-import no.nav.mulighetsrommet.database.utils.QueryResult
-import no.nav.mulighetsrommet.database.utils.query
+import no.nav.mulighetsrommet.database.utils.*
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
 import no.nav.mulighetsrommet.domain.dto.TiltakstypeAdminDto
@@ -147,13 +145,8 @@ class TiltakstypeRepository(private val db: Database) {
     }
 
     fun getAll(
-        paginationParams: PaginationParams = PaginationParams(),
-    ): Pair<Int, List<TiltakstypeAdminDto>> {
-        val parameters = mapOf(
-            "limit" to paginationParams.limit,
-            "offset" to paginationParams.offset,
-        )
-
+        pagination: Pagination = Pagination.all(),
+    ): PaginatedResult<TiltakstypeAdminDto> {
         @Language("PostgreSQL")
         val query = """
             select
@@ -166,31 +159,27 @@ class TiltakstypeRepository(private val db: Database) {
                 til_dato,
                 sanity_id,
                 rett_paa_tiltakspenger,
-                count(*) OVER() AS full_count
+                count(*) over() as total_count
             from tiltakstype
             order by navn asc
             limit :limit
             offset :offset
         """.trimIndent()
 
-        val results = queryOf(
-            query,
-            parameters,
-        ).map { it.int("full_count") to it.toTiltakstypeAdminDto() }.asList.let { db.run(it) }
-        val tiltakstyper = results.map { it.second }
-        val totaltAntall = results.firstOrNull()?.first ?: 0
-        return Pair(totaltAntall, tiltakstyper)
+        return db.useSession { session ->
+            queryOf(query, pagination.parameters)
+                .mapPaginated { it.toTiltakstypeAdminDto() }
+                .runWithSession(session)
+        }
     }
 
     fun getAllSkalMigreres(
-        pagination: PaginationParams = PaginationParams(),
+        pagination: Pagination = Pagination.all(),
         dagensDato: LocalDate = LocalDate.now(),
         statuser: List<Tiltakstypestatus> = emptyList(),
         sortering: String? = null,
-    ): Pair<Int, List<TiltakstypeAdminDto>> {
+    ): PaginatedResult<TiltakstypeAdminDto> {
         val parameters = mapOf(
-            "limit" to pagination.limit,
-            "offset" to pagination.offset,
             "today" to dagensDato,
         )
 
@@ -217,7 +206,7 @@ class TiltakstypeRepository(private val db: Database) {
                 til_dato,
                 sanity_id,
                 rett_paa_tiltakspenger,
-                count(*) OVER() AS full_count
+                count(*) over() as total_count
             from tiltakstype
             where tiltakskode is not null
               and ${statuserWhereStatement(statuser)}
@@ -226,13 +215,11 @@ class TiltakstypeRepository(private val db: Database) {
             offset :offset
         """.trimIndent()
 
-        val results = queryOf(
-            query,
-            parameters,
-        ).map { it.int("full_count") to it.toTiltakstypeAdminDto() }.asList.let { db.run(it) }
-        val tiltakstyper = results.map { it.second }
-        val totaltAntall = results.firstOrNull()?.first ?: 0
-        return Pair(totaltAntall, tiltakstyper)
+        return db.useSession { session ->
+            queryOf(query, parameters + pagination.parameters)
+                .mapPaginated { it.toTiltakstypeAdminDto() }
+                .runWithSession(session)
+        }
     }
 
     private fun getDeltakerregistreringInnholdByArenaKode(tiltakskode: Tiltakskode): DeltakerRegistreringInnholdDto? {
@@ -283,7 +270,17 @@ class TiltakstypeRepository(private val db: Database) {
 
         @Language("PostgreSQL")
         val query = """
-            select id, navn, tiltakskode, arena_kode, sanity_id, registrert_dato_i_arena, sist_endret_dato_i_arena, fra_dato, til_dato, rett_paa_tiltakspenger, deltaker_registrering_ledetekst, count(*) OVER() AS full_count
+            select
+                id,
+                navn,
+                tiltakskode,
+                arena_kode,
+                registrert_dato_i_arena,
+                sist_endret_dato_i_arena,
+                fra_dato,
+                til_dato,
+                sanity_id,
+                rett_paa_tiltakspenger
             from tiltakstype
             where
                 (fra_dato > :date_interval_start and fra_dato <= :date_interval_end) or

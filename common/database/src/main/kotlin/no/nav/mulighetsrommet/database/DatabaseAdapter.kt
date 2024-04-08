@@ -5,10 +5,7 @@ import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import kotliquery.Session
 import kotliquery.TransactionalSession
-import kotliquery.action.*
 import kotliquery.sessionOf
-import kotliquery.using
-import java.sql.Array
 import java.util.*
 import javax.sql.DataSource
 
@@ -71,58 +68,8 @@ open class DatabaseAdapter(config: DatabaseConfig) : Database {
             ?: false
     }
 
-    override fun createArrayOf(arrayType: String, list: Collection<Any>): Array {
-        return using(session) {
-            it.createArrayOf(arrayType, list)
-        }
-    }
-
-    override fun createTextArray(list: Collection<String>): Array {
-        return createArrayOf("text", list)
-    }
-
-    override fun createUuidArray(list: Collection<UUID>): Array {
-        return createArrayOf("uuid", list)
-    }
-
-    override fun createIntArray(list: Collection<Int>): Array {
-        return createArrayOf("integer", list)
-    }
-
-    override fun <T> run(query: NullableResultQueryAction<T>): T? {
-        return using(session) {
-            it.run(query)
-        }
-    }
-
-    override fun <T> run(query: ListResultQueryAction<T>): List<T> {
-        return using(session) {
-            it.run(query)
-        }
-    }
-
-    override fun run(query: ExecuteQueryAction): Boolean {
-        return using(session) {
-            it.run(query)
-        }
-    }
-
-    override fun run(query: UpdateQueryAction): Int {
-        return using(session) {
-            it.run(query)
-        }
-    }
-
-    override fun run(query: UpdateAndReturnGeneratedKeyQueryAction): Long? {
-        return using(session) {
-            it.run(query)
-        }
-    }
-
-    override fun <T> transaction(operation: (TransactionalSession) -> T): T {
-        return using(session) {
-            it.transaction(operation)
-        }
+    override fun <T> useSession(operation: (Session) -> T): T {
+        return session.use { operation(it) }
     }
 
     // Dette er basically en kopi av session.transaction metoden bare i en suspend variant
