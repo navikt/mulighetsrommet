@@ -11,6 +11,7 @@ import { MainContainer } from "../../layouts/MainContainer";
 import { NullstillKnappForArrangorer } from "./NullstillKnappForArrangorer";
 import { ArrangorerTabell } from "../../components/tabell/ArrangorerTabell";
 import { ArrangorerFilterTags } from "../../components/filter/ArrangorerFilterTags";
+import { ArrangorIkon } from "../../components/ikoner/ArrangorIkon";
 
 export function ArrangorerPage() {
   useTitle("Arrangører");
@@ -25,7 +26,7 @@ export function ArrangorerPage() {
           { tittel: "Arrangører", lenke: "/arrangorer" },
         ]}
       />
-      <HeaderBanner heading="Arrangører" />
+      <HeaderBanner heading="Arrangører" ikon={<ArrangorIkon />} />
       <ReloadAppErrorBoundary>
         <MainContainer>
           <ContainerLayout>

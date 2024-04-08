@@ -12,9 +12,9 @@ import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.domain.dto.ArrangorKontaktperson
 import no.nav.mulighetsrommet.api.domain.dto.ArrangorTil
 import no.nav.mulighetsrommet.api.repositories.ArrangorRepository
+import no.nav.mulighetsrommet.api.routes.v1.parameters.getPaginationParams
 import no.nav.mulighetsrommet.api.routes.v1.responses.*
 import no.nav.mulighetsrommet.api.services.ArrangorService
-import no.nav.mulighetsrommet.api.utils.getPaginationParams
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import org.koin.ktor.ext.inject
 import java.util.*

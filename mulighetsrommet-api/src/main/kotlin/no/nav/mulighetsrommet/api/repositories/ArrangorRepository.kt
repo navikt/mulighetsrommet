@@ -6,8 +6,10 @@ import no.nav.mulighetsrommet.api.domain.dto.ArrangorDto
 import no.nav.mulighetsrommet.api.domain.dto.ArrangorKontaktperson
 import no.nav.mulighetsrommet.api.domain.dto.ArrangorTil
 import no.nav.mulighetsrommet.api.domain.dto.BrregVirksomhetDto
-import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.database.Database
+import no.nav.mulighetsrommet.database.utils.PaginatedResult
+import no.nav.mulighetsrommet.database.utils.Pagination
+import no.nav.mulighetsrommet.database.utils.mapPaginated
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
 import java.util.*
@@ -74,9 +76,9 @@ class ArrangorRepository(private val db: Database) {
         overordnetEnhetOrgnr: String? = null,
         slettet: Boolean? = null,
         utenlandsk: Boolean? = null,
-        pagination: PaginationParams = PaginationParams(),
+        pagination: Pagination = Pagination.all(),
         sortering: String? = null,
-    ): Pair<Int, List<ArrangorDto>> {
+    ): PaginatedResult<ArrangorDto> {
         val join = when (til) {
             ArrangorTil.AVTALE -> {
                 "inner join avtale on avtale.arrangor_hovedenhet_id = arrangor.id"
@@ -105,7 +107,7 @@ class ArrangorRepository(private val db: Database) {
                 arrangor.slettet_dato,
                 arrangor.postnummer,
                 arrangor.poststed,
-                count(*) over() as full_count
+                count(*) over() as total_count
             from arrangor
                 $join
             where (:sok::text is null or arrangor.navn ilike :sok or arrangor.organisasjonsnummer ilike :sok)
@@ -122,18 +124,13 @@ class ArrangorRepository(private val db: Database) {
             "overordnet_enhet" to overordnetEnhetOrgnr,
             "slettet" to slettet,
             "utenlandsk" to utenlandsk,
-            "limit" to pagination.limit,
-            "offset" to pagination.offset,
         )
 
-        val results = queryOf(query, params)
-            .map { it.int("full_count") to it.toVirksomhetDto() }
-            .asList
-            .let { db.run(it) }
-
-        val totaltAntall = results.firstOrNull()?.first ?: 0
-        val arrangorer = results.map { it.second }
-        return Pair(totaltAntall, arrangorer)
+        return db.useSession { session ->
+            queryOf(query, params + pagination.parameters)
+                .mapPaginated { it.toVirksomhetDto() }
+                .runWithSession(session)
+        }
     }
 
     fun get(orgnr: String): ArrangorDto? {
