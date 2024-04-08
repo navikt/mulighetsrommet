@@ -10,7 +10,6 @@ import no.nav.mulighetsrommet.api.clients.vedtak.Innsatsgruppe
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.api.domain.dto.*
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
-import no.nav.mulighetsrommet.api.repositories.DeltakerRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.routes.v1.AdminTiltaksgjennomforingFilter
 import no.nav.mulighetsrommet.api.routes.v1.TiltaksgjennomforingRequest
@@ -37,7 +36,6 @@ import java.util.*
 class TiltaksgjennomforingService(
     private val avtaler: AvtaleRepository,
     private val tiltaksgjennomforinger: TiltaksgjennomforingRepository,
-    private val deltakerRepository: DeltakerRepository,
     private val tiltaksgjennomforingKafkaProducer: TiltaksgjennomforingKafkaProducer,
     private val notificationRepository: NotificationRepository,
     private val validator: TiltaksgjennomforingValidator,

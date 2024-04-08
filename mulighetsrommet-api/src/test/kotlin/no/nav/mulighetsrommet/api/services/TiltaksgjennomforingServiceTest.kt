@@ -15,7 +15,6 @@ import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattDbo
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
-import no.nav.mulighetsrommet.api.repositories.DeltakerRepository
 import no.nav.mulighetsrommet.api.repositories.NavAnsattRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.routes.v1.responses.BadRequest
@@ -61,11 +60,9 @@ class TiltaksgjennomforingServiceTest : FunSpec({
     context("Avbryte gjennomføring") {
         val avtaler = AvtaleRepository(database.db)
         val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
-        val deltagerRepository = DeltakerRepository(database.db)
         val tiltaksgjennomforingService = TiltaksgjennomforingService(
             avtaler,
             tiltaksgjennomforingRepository,
-            deltagerRepository,
             tiltaksgjennomforingKafkaProducer,
             NotificationRepository(database.db),
             validator,
@@ -109,12 +106,10 @@ class TiltaksgjennomforingServiceTest : FunSpec({
     context("Upsert gjennomføring") {
         val avtaler = AvtaleRepository(database.db)
         val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
-        val deltagerRepository = DeltakerRepository(database.db)
         val avtaleRepository = AvtaleRepository(database.db)
         val tiltaksgjennomforingService = TiltaksgjennomforingService(
             avtaler,
             tiltaksgjennomforingRepository,
-            deltagerRepository,
             tiltaksgjennomforingKafkaProducer,
             NotificationRepository(database.db),
             validator,
@@ -141,12 +136,10 @@ class TiltaksgjennomforingServiceTest : FunSpec({
     context("Administrator-notification") {
         val avtaler = AvtaleRepository(database.db)
         val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
-        val deltagerRepository = DeltakerRepository(database.db)
         val avtaleRepository = AvtaleRepository(database.db)
         val tiltaksgjennomforingService = TiltaksgjennomforingService(
             avtaler,
             tiltaksgjennomforingRepository,
-            deltagerRepository,
             tiltaksgjennomforingKafkaProducer,
             NotificationRepository(database.db),
             validator,
@@ -258,12 +251,10 @@ class TiltaksgjennomforingServiceTest : FunSpec({
     context("transaction testing") {
         val avtaler = AvtaleRepository(database.db)
         val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
-        val deltagerRepository = DeltakerRepository(database.db)
         val notificationRepository = spyk(NotificationRepository(database.db))
         val tiltaksgjennomforingService = TiltaksgjennomforingService(
             avtaler,
             tiltaksgjennomforingRepository,
-            deltagerRepository,
             tiltaksgjennomforingKafkaProducer,
             notificationRepository,
             validator,

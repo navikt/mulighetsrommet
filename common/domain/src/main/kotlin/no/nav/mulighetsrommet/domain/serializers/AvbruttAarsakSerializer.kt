@@ -15,7 +15,6 @@ class AvbruttAarsakSerializer : KSerializer<AvbruttAarsak> {
             "BUDSJETT_HENSYN" -> AvbruttAarsak.BudsjettHensyn
             "FOR_FAA_DELTAKERE" -> AvbruttAarsak.ForFaaDeltakere
             "FEILREGISTRERING" -> AvbruttAarsak.Feilregistrering
-            "FORCE_MAJEURE" -> AvbruttAarsak.Feilregistrering
             "AVBRUTT_I_ARENA" -> AvbruttAarsak.AvbruttIArena
             else -> AvbruttAarsak.Annet(name = aarsak)
         }

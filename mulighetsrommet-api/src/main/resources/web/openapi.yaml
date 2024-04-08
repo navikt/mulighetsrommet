@@ -3151,6 +3151,8 @@ components:
             - FOR_FAA_DELTAKERE
             - FEILREGISTRERING
             - AVBRUTT_I_ARENA
+      required:
+        - aarsak
 
     CustomAvbrytGjennomforingRequest:
       type: object

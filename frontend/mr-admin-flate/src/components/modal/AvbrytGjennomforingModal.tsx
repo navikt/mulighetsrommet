@@ -46,7 +46,7 @@ export const AvbrytGjennomforingModal = ({ modalRef, tiltaksgjennomforing }: Pro
       case AvbrytGjennomforingRequest.aarsak.AVBRUTT_I_ARENA:
         return "Avbrutt i Arena";
       case AvbrytGjennomforingRequest.aarsak.BUDSJETT_HENSYN:
-        return "Budsjett hensyn";
+        return "Budsjetthensyn";
       case AvbrytGjennomforingRequest.aarsak.ENDRING_HOS_ARRANGOR:
         return "Endring hos arrangør";
       case AvbrytGjennomforingRequest.aarsak.FEILREGISTRERING:
@@ -67,7 +67,8 @@ export const AvbrytGjennomforingModal = ({ modalRef, tiltaksgjennomforing }: Pro
       <Modal.Body className={styles.body}>
         {deltakerSummary && deltakerSummary.antallDeltakere > 0 && (
           <Alert variant="warning">
-            {`Det finnes ${deltakerSummary.antallDeltakere} deltakere på gjennomføringen. Ved å avbryte denne vil det føre til statusendringer på alle deltakerene.`}
+            {`Det finnes ${deltakerSummary.antallDeltakere} deltake${deltakerSummary.antallDeltakere > 1 ? "re" : ""} på gjennomføringen. Ved å
+              avbryte denne vil det føre til statusendring på alle deltakere som har en aktiv status.`}
           </Alert>
         )}
         <RadioGroup size="small" legend="Velg årsak." onChange={setAarsak} value={aarsak}>
