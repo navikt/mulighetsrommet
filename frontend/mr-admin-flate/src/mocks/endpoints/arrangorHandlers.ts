@@ -7,6 +7,10 @@ export const arrangorHandlers = [
   http.get<PathParams, Arrangor[] | undefined>("*/api/v1/internal/arrangorer", () =>
     HttpResponse.json(Object.values(mockArrangorer)),
   ),
+  // TODO Route her er nok feil, skal ikke være alle-arrangorer
+  http.get<PathParams, Arrangor[] | undefined>("*/api/v1/internal/alle-arrangorer", () =>
+    HttpResponse.json(Object.values(mockArrangorer)),
+  ),
   http.get<PathParams, Arrangor | undefined>("*/api/v1/internal/arrangorer/:id", ({ params }) => {
     return HttpResponse.json(Object.values(mockArrangorer).find((enhet) => enhet.id === params.id));
   }),

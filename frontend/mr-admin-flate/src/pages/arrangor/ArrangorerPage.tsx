@@ -9,10 +9,14 @@ import { ContainerLayout } from "../../layouts/ContainerLayout";
 import { HeaderBanner } from "../../layouts/HeaderBanner";
 import { MainContainer } from "../../layouts/MainContainer";
 import { NullstillKnappForArrangorer } from "./NullstillKnappForArrangorer";
+import { ArrangorerTabell } from "../../components/tabell/ArrangorerTabell";
+import { ArrangorerFilterTags } from "../../components/filter/ArrangorerFilterTags";
 
 export function ArrangorerPage() {
   useTitle("Arrangører");
   const [filterOpen, setFilterOpen] = useState<boolean>(true);
+  const [tagsHeight, setTagsHeight] = useState(0);
+
   return (
     <>
       <Brodsmuler
@@ -30,9 +34,21 @@ export function ArrangorerPage() {
                 <NullstillKnappForArrangorer filterAtom={arrangorerFilterAtom} />
               }
               filter={<ArrangorerFilter filterAtom={arrangorerFilterAtom} />}
-              tags={null}
+              tags={
+                <ArrangorerFilterTags
+                  filterAtom={arrangorerFilterAtom}
+                  filterOpen={filterOpen}
+                  setTagsHeight={setTagsHeight}
+                />
+              }
               buttons={null}
-              table={null}
+              table={
+                <ArrangorerTabell
+                  filterAtom={arrangorerFilterAtom}
+                  tagsHeight={tagsHeight}
+                  filterOpen={filterOpen}
+                />
+              }
               setFilterOpen={setFilterOpen}
               filterOpen={filterOpen}
             />

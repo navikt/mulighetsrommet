@@ -2053,6 +2053,12 @@ components:
         - publisert_ascending
         - publisert_descending
 
+    SorteringArrangorer:
+      type: string
+      enum:
+        - navn-ascending
+        - navn-descending
+
     Tiltaksgjennomforing:
       type: object
       properties:

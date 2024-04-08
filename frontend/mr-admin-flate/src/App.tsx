@@ -27,6 +27,7 @@ import TiltaksgjennomforingSkjemaPage from "./pages/tiltaksgjennomforinger/Tilta
 import { TiltaksgjennomforingerForAvtalePage } from "./pages/tiltaksgjennomforinger/TiltaksgjennomforingerForAvtalePage";
 import { initializeAmplitude } from "./logging/amplitude";
 import { ArrangorerPage } from "./pages/arrangor/ArrangorerPage";
+import { ArrangorPage } from "./pages/arrangor/ArrangorPage";
 
 if (import.meta.env.PROD) {
   initializeFaro({
@@ -158,6 +159,11 @@ export function App() {
         errorElement={<ErrorPage />}
       />
       <Route path="arrangorer" element={<ArrangorerPage />} errorElement={<ErrorPage />} />
+      <Route
+        path="arrangorer/:arrangorId"
+        element={<ArrangorPage />}
+        errorElement={<ErrorPage />}
+      />
       <Route path="notifikasjoner" element={<NotifikasjonerPage />} errorElement={<ErrorPage />}>
         <Route index element={<Notifikasjonsliste lest={false} />} errorElement={<ErrorPage />} />
         <Route
