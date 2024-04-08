@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.utils
+package no.nav.mulighetsrommet.database.utils
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
@@ -7,7 +7,6 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.channels.produce
 import kotlinx.coroutines.coroutineScope
-import no.nav.mulighetsrommet.database.utils.Pagination
 
 object DatabaseUtils {
     fun andWhereParameterNotNull(vararg parts: Pair<Any?, String?>): String = parts

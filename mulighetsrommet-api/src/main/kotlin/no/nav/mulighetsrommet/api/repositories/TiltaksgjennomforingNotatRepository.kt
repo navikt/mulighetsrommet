@@ -6,8 +6,8 @@ import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingNotatDbo
 import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingNotatDto
 import no.nav.mulighetsrommet.api.utils.*
-import no.nav.mulighetsrommet.api.utils.DatabaseUtils
 import no.nav.mulighetsrommet.database.Database
+import no.nav.mulighetsrommet.database.utils.DatabaseUtils
 import no.nav.mulighetsrommet.database.utils.QueryResult
 import no.nav.mulighetsrommet.database.utils.query
 import org.intellij.lang.annotations.Language
