@@ -21,6 +21,7 @@ import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.ArenaTiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
+import no.nav.mulighetsrommet.domain.dto.AvbruttAarsak
 import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus
 import org.intellij.lang.annotations.Language
@@ -274,7 +275,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 oppstart,
                 opphav,
                 deltidsprosent,
-                avbrutt_tidspunkt
+                avbrutt_tidspunkt,
+                avbrutt_aarsak
             )
             values (
                 :id::uuid,
@@ -291,7 +293,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 :oppstart::tiltaksgjennomforing_oppstartstype,
                 :opphav::opphav,
                 :deltidsprosent,
-                :avbrutt_tidspunkt
+                :avbrutt_tidspunkt,
+                :avbrutt_aarsak
             )
             on conflict (id)
                 do update set navn                         = excluded.navn,
@@ -307,7 +310,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                               oppstart                     = coalesce(tiltaksgjennomforing.oppstart, excluded.oppstart),
                               opphav                       = coalesce(tiltaksgjennomforing.opphav, excluded.opphav),
                               deltidsprosent               = excluded.deltidsprosent,
-                              avbrutt_tidspunkt            = excluded.avbrutt_tidspunkt
+                              avbrutt_tidspunkt            = excluded.avbrutt_tidspunkt,
+                              avbrutt_aarsak               = excluded.avbrutt_aarsak
         """.trimIndent()
 
         queryOf(query, tiltaksgjennomforing.toSqlParameters(arrangorId)).asExecute.let { tx.run(it) }
@@ -641,19 +645,20 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         return queryOf(query, avtaleId, gjennomforingId).asUpdate.let { tx.run(it) }
     }
 
-    fun setAvbruttTidspunkt(id: UUID, avbruttTidspunkt: LocalDateTime): Int {
-        return db.transaction { setAvbruttTidspunkt(it, id, avbruttTidspunkt) }
+    fun avbryt(id: UUID, tidspunkt: LocalDateTime, aarsak: AvbruttAarsak): Int {
+        return db.transaction { avbryt(it, id, tidspunkt, aarsak) }
     }
 
-    fun setAvbruttTidspunkt(tx: Session, id: UUID, avbruttTidspunkt: LocalDateTime): Int {
+    fun avbryt(tx: Session, id: UUID, tidspunkt: LocalDateTime, aarsak: AvbruttAarsak): Int {
         @Language("PostgreSQL")
         val query = """
-            update tiltaksgjennomforing
-            set avbrutt_tidspunkt = :avbruttTidspunkt
+            update tiltaksgjennomforing set
+                avbrutt_tidspunkt = :tidspunkt,
+                avbrutt_aarsak = :aarsak
             where id = :id::uuid
         """.trimIndent()
 
-        return tx.run(queryOf(query, mapOf("id" to id, "avbruttTidspunkt" to avbruttTidspunkt)).asUpdate)
+        return tx.run(queryOf(query, mapOf("id" to id, "tidspunkt" to tidspunkt, "aarsak" to aarsak.name)).asUpdate)
     }
 
     fun lukkApentForInnsokForTiltakMedStartdatoForDato(
@@ -712,6 +717,10 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             Avslutningsstatus.AVBRUTT -> startDato.atStartOfDay()
             Avslutningsstatus.AVSLUTTET -> null
             Avslutningsstatus.IKKE_AVSLUTTET -> null
+        },
+        "avbrutt_aarsak" to when (avslutningsstatus) {
+            Avslutningsstatus.AVLYST, Avslutningsstatus.AVBRUTT -> AvbruttAarsak.AvbruttIArena.name
+            Avslutningsstatus.AVSLUTTET, Avslutningsstatus.IKKE_AVSLUTTET -> null
         },
     )
 

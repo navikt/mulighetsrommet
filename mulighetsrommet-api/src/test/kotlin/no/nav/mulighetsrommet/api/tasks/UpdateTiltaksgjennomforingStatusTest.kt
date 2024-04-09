@@ -9,6 +9,7 @@ import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingDto
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
+import no.nav.mulighetsrommet.domain.dto.AvbruttAarsak
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus
 import no.nav.mulighetsrommet.kafka.producers.TiltaksgjennomforingKafkaProducer
 import java.time.LocalDate
@@ -93,8 +94,8 @@ class UpdateTiltaksgjennomforingStatusTest : FunSpec({
             domain.initialize(database.db)
 
             val gjennomforinger = TiltaksgjennomforingRepository(database.db)
-            gjennomforinger.setAvbruttTidspunkt(startdatoInnenforMenAvsluttetStatus.id, LocalDateTime.now())
-            gjennomforinger.setAvbruttTidspunkt(sluttdatoInnenforMenAvbruttStatus.id, LocalDateTime.now())
+            gjennomforinger.avbryt(startdatoInnenforMenAvsluttetStatus.id, LocalDateTime.now(), AvbruttAarsak.Feilregistrering)
+            gjennomforinger.avbryt(sluttdatoInnenforMenAvbruttStatus.id, LocalDateTime.now(), AvbruttAarsak.Feilregistrering)
 
             task.oppdaterTiltaksgjennomforingStatus(today, lastSuccessDate)
 

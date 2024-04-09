@@ -39,6 +39,7 @@ import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.ArenaTiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
+import no.nav.mulighetsrommet.domain.dto.AvbruttAarsak
 import no.nav.mulighetsrommet.domain.dto.Faneinnhold
 import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus
@@ -454,7 +455,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             tiltaksgjennomforinger.get(gjennomforing.id)?.publisertForAlle shouldBe false
 
             tiltaksgjennomforinger.setPublisert(gjennomforing.id, true)
-            tiltaksgjennomforinger.setAvbruttTidspunkt(gjennomforing.id, LocalDateTime.now())
+            tiltaksgjennomforinger.avbryt(gjennomforing.id, LocalDateTime.now(), AvbruttAarsak.Feilregistrering)
 
             tiltaksgjennomforinger.get(gjennomforing.id)?.publisertForAlle shouldBe false
         }
@@ -1206,7 +1207,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                     sluttDato = enManedFrem,
                 ),
             )
-            tiltaksgjennomforinger.setAvbruttTidspunkt(AFT1.id, enManedTilbake.atStartOfDay().minusDays(1))
+            tiltaksgjennomforinger.avbryt(AFT1.id, enManedTilbake.atStartOfDay().minusDays(1), AvbruttAarsak.Feilregistrering)
             tiltaksgjennomforinger.get(AFT1.id)!!.status shouldBe TiltaksgjennomforingStatus.AVLYST
 
             tiltaksgjennomforinger.upsert(
@@ -1215,7 +1216,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                     sluttDato = enManedTilbake,
                 ),
             )
-            tiltaksgjennomforinger.setAvbruttTidspunkt(AFT1.id, toManederTilbake.atStartOfDay().minusYears(1))
+            tiltaksgjennomforinger.avbryt(AFT1.id, toManederTilbake.atStartOfDay().minusYears(1), AvbruttAarsak.Feilregistrering)
             tiltaksgjennomforinger.get(AFT1.id)!!.status shouldBe TiltaksgjennomforingStatus.AVLYST
 
             tiltaksgjennomforinger.upsert(
@@ -1224,7 +1225,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                     sluttDato = toManederFrem,
                 ),
             )
-            tiltaksgjennomforinger.setAvbruttTidspunkt(AFT1.id, enManedFrem.atStartOfDay().minusMonths(1))
+            tiltaksgjennomforinger.avbryt(AFT1.id, enManedFrem.atStartOfDay().minusMonths(1), AvbruttAarsak.Feilregistrering)
             tiltaksgjennomforinger.get(AFT1.id)!!.status shouldBe TiltaksgjennomforingStatus.AVLYST
         }
 
@@ -1235,7 +1236,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                     sluttDato = enManedFrem,
                 ),
             )
-            tiltaksgjennomforinger.setAvbruttTidspunkt(AFT1.id, enManedTilbake.atStartOfDay().plusDays(3))
+            tiltaksgjennomforinger.avbryt(AFT1.id, enManedTilbake.atStartOfDay().plusDays(3), AvbruttAarsak.Feilregistrering)
             tiltaksgjennomforinger.get(AFT1.id)!!.status shouldBe TiltaksgjennomforingStatus.AVBRUTT
 
             tiltaksgjennomforinger.upsert(
@@ -1244,7 +1245,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                     sluttDato = enManedTilbake,
                 ),
             )
-            tiltaksgjennomforinger.setAvbruttTidspunkt(AFT1.id, toManederTilbake.atStartOfDay().plusYears(2))
+            tiltaksgjennomforinger.avbryt(AFT1.id, toManederTilbake.atStartOfDay().plusYears(2), AvbruttAarsak.Feilregistrering)
             tiltaksgjennomforinger.get(AFT1.id)!!.status shouldBe TiltaksgjennomforingStatus.AVBRUTT
 
             tiltaksgjennomforinger.upsert(
@@ -1253,7 +1254,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                     sluttDato = toManederFrem,
                 ),
             )
-            tiltaksgjennomforinger.setAvbruttTidspunkt(AFT1.id, enManedFrem.atStartOfDay().plusMonths(2))
+            tiltaksgjennomforinger.avbryt(AFT1.id, enManedFrem.atStartOfDay().plusMonths(2), AvbruttAarsak.Feilregistrering)
             tiltaksgjennomforinger.get(AFT1.id)!!.status shouldBe TiltaksgjennomforingStatus.AVBRUTT
         }
 
