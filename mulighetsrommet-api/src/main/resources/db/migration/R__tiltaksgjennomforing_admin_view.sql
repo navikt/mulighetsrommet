@@ -1,3 +1,4 @@
+--2024-04-09 migrering drop'et view uten å endre det. Da forsvant det i prod
 drop view if exists tiltaksgjennomforing_admin_dto_view;
 
 create view tiltaksgjennomforing_admin_dto_view as
