@@ -21,6 +21,6 @@ data class TiltakstypeDbo(
     @Serializable(with = LocalDateSerializer::class)
     val startDato: LocalDate,
     @Serializable(with = LocalDateSerializer::class)
-    val sluttDato: LocalDate,
+    val sluttDato: LocalDate?,
     val rettPaaTiltakspenger: Boolean,
 )

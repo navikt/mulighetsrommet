@@ -13,7 +13,7 @@ select
     tiltakstype.sanity_id,
     tiltakstype.rett_paa_tiltakspenger,
     case
-        when now() > slutt_dato then 'AVSLUTTET'
+        when slutt_dato is not null and now() > slutt_dato then 'AVSLUTTET'
         when now() >= start_dato then 'AKTIV'
         else 'PLANLAGT'
     end as status,

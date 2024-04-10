@@ -1961,8 +1961,10 @@ components:
           $ref: "#/components/schemas/TiltakskodeArena"
         startDato:
           type: string
+          format: date
         sluttDato:
           type: string
+          format: date
         status:
           $ref: "#/components/schemas/TiltakstypeStatus"
         sanityId:
@@ -1974,7 +1976,6 @@ components:
         - navn
         - arenaKode
         - startDato
-        - sluttDato
         - status
         - personopplysninger
 

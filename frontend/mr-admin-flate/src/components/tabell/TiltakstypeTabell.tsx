@@ -64,6 +64,8 @@ export function TiltakstypeTabell() {
         {tiltakstyper.length > 0 ? (
           <Table.Body>
             {tiltakstyper.map((tiltakstype, index) => {
+              const startDato = formaterDato(tiltakstype.startDato);
+              const sluttDato = tiltakstype.sluttDato ? formaterDato(tiltakstype.sluttDato) : "-";
               return (
                 <Table.Row key={index} className={styles.tiltakstype_tabellrad}>
                   <Table.DataCell
@@ -72,11 +74,11 @@ export function TiltakstypeTabell() {
                   >
                     <Lenke to={`/tiltakstyper/${tiltakstype.id}`}>{tiltakstype.navn}</Lenke>
                   </Table.DataCell>
-                  <Table.DataCell aria-label={`Startdato: ${formaterDato(tiltakstype.startDato)}`}>
-                    {formaterDato(tiltakstype.startDato)}
+                  <Table.DataCell aria-label={`Startdato: ${startDato}`}>
+                    {startDato}
                   </Table.DataCell>
-                  <Table.DataCell aria-label={`Sluttdato: ${formaterDato(tiltakstype.sluttDato)}`}>
-                    {formaterDato(tiltakstype.sluttDato)}
+                  <Table.DataCell aria-label={`Sluttdato: ${sluttDato}`}>
+                    {sluttDato}
                   </Table.DataCell>
                   <Table.DataCell>
                     <TiltakstypestatusTag tiltakstype={tiltakstype} />

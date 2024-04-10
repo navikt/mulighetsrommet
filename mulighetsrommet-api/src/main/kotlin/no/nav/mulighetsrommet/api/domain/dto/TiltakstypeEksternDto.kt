@@ -24,7 +24,7 @@ data class TiltakstypeEksternDto(
     @Serializable(with = LocalDateSerializer::class)
     val startDato: LocalDate,
     @Serializable(with = LocalDateSerializer::class)
-    val sluttDato: LocalDate,
+    val sluttDato: LocalDate?,
     val rettPaaTiltakspenger: Boolean,
     val status: TiltakstypeStatus,
     val deltakerRegistreringInnhold: DeltakerRegistreringInnholdDto?,

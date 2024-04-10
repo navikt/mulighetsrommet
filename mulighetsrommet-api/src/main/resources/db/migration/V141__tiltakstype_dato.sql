@@ -4,3 +4,5 @@ alter table tiltakstype
     rename fra_dato to start_dato;
 alter table tiltakstype
     rename til_dato to slutt_dato;
+alter table tiltakstype
+    alter slutt_dato drop not null;

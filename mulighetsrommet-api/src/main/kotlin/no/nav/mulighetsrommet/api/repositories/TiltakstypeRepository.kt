@@ -271,7 +271,7 @@ class TiltakstypeRepository(private val db: Database) {
             registrertDatoIArena = localDateTime("registrert_dato_i_arena"),
             sistEndretDatoIArena = localDateTime("sist_endret_dato_i_arena"),
             startDato = localDate("start_dato"),
-            sluttDato = localDate("slutt_dato"),
+            sluttDato = localDateOrNull("slutt_dato"),
             rettPaaTiltakspenger = boolean("rett_paa_tiltakspenger"),
         )
     }
@@ -287,7 +287,7 @@ class TiltakstypeRepository(private val db: Database) {
             registrertIArenaDato = localDateTime("registrert_dato_i_arena"),
             sistEndretIArenaDato = localDateTime("sist_endret_dato_i_arena"),
             startDato = localDate("start_dato"),
-            sluttDato = localDate("slutt_dato"),
+            sluttDato = localDateOrNull("slutt_dato"),
             sanityId = uuidOrNull("sanity_id"),
             rettPaaTiltakspenger = boolean("rett_paa_tiltakspenger"),
             status = TiltakstypeStatus.valueOf(string("status")),
