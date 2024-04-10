@@ -14,6 +14,12 @@ export const arrangorHandlers = [
   http.get<PathParams, Arrangor | undefined>("*/api/v1/internal/arrangorer/:id", ({ params }) => {
     return HttpResponse.json(mockArrangorer.data.find((enhet) => enhet.id === params.id));
   }),
+  http.get<PathParams, Arrangor | undefined>(
+    "*/api/v1/internal/arrangorer/hovedenhet/:id",
+    ({ params }) => {
+      return HttpResponse.json(mockArrangorer.data.find((enhet) => enhet.id === params.id));
+    },
+  ),
   http.get<PathParams, ArrangorKontaktperson[]>(
     "*/api/v1/internal/arrangorer/*/kontaktpersoner",
     () => HttpResponse.json(mockArrangorKontaktpersoner),

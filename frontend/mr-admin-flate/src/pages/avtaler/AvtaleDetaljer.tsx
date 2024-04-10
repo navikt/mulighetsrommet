@@ -12,8 +12,8 @@ import styles from "../DetaljerInfo.module.scss";
 import { Link } from "react-router-dom";
 import { NavEnhet } from "mulighetsrommet-api-client";
 import { avtaletekster } from "../../components/ledetekster/avtaleLedetekster";
-import { ArrangorKontaktpersonDetaljer } from "../arrangor/ArrangorKontaktpersonDetaljer";
 import { getDisplayName } from "@/api/enhet/helpers";
+import { ArrangorKontaktpersonDetaljer } from "../arrangor/ArrangorKontaktpersonDetaljer";
 
 export function AvtaleDetaljer() {
   const { data: avtale, isPending, error } = useAvtale();
