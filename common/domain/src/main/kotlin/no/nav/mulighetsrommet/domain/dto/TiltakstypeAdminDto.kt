@@ -14,10 +14,6 @@ data class TiltakstypeAdminDto(
     val id: UUID,
     val navn: String,
     val arenaKode: String,
-    @Serializable(with = LocalDateTimeSerializer::class)
-    val registrertIArenaDato: LocalDateTime,
-    @Serializable(with = LocalDateTimeSerializer::class)
-    val sistEndretIArenaDato: LocalDateTime,
     @Serializable(with = LocalDateSerializer::class)
     val startDato: LocalDate,
     @Serializable(with = LocalDateSerializer::class)

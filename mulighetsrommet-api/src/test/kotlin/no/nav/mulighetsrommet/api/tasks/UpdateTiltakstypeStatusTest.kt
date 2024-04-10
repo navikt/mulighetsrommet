@@ -47,8 +47,6 @@ class UpdateTiltakstypeStatusTest : FunSpec({
                 navn = navn,
                 arenaKode = arenaKode,
                 tiltakskode = Tiltakskode.fromArenaKode(arenaKode)!!,
-                registrertIArenaDato = registrertDatoIArena,
-                sistEndretIArenaDato = sistEndretDatoIArena,
                 startDato = startDato,
                 sluttDato = sluttDato,
                 rettPaaTiltakspenger = rettPaaTiltakspenger,

@@ -4,10 +4,8 @@ import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.dto.TiltakstypeStatus
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
-import no.nav.mulighetsrommet.domain.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.util.*
 
 @Serializable
@@ -17,10 +15,6 @@ data class TiltakstypeEksternDto(
     val navn: String,
     val tiltakskode: Tiltakskode,
     val arenaKode: String,
-    @Serializable(with = LocalDateTimeSerializer::class)
-    val registrertIArenaDato: LocalDateTime,
-    @Serializable(with = LocalDateTimeSerializer::class)
-    val sistEndretIArenaDato: LocalDateTime,
     @Serializable(with = LocalDateSerializer::class)
     val startDato: LocalDate,
     @Serializable(with = LocalDateSerializer::class)

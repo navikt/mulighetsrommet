@@ -13,8 +13,6 @@ object TiltakstypeFixtures {
         rettPaaTiltakspenger = true,
         startDato = LocalDate.of(2023, 1, 1),
         sluttDato = LocalDate.of(2025, 12, 31),
-        registrertDatoIArena = LocalDateTime.of(2023, 1, 11, 0, 0, 0),
-        sistEndretDatoIArena = LocalDateTime.of(2023, 1, 11, 0, 0, 0),
     )
 
     val VTA = TiltakstypeDbo(
@@ -24,8 +22,6 @@ object TiltakstypeFixtures {
         rettPaaTiltakspenger = false,
         startDato = LocalDate.of(2023, 1, 1),
         sluttDato = LocalDate.of(2025, 12, 31),
-        registrertDatoIArena = LocalDateTime.of(2023, 1, 11, 0, 0, 0),
-        sistEndretDatoIArena = LocalDateTime.of(2023, 1, 11, 0, 0, 0),
     )
 
     val GRUPPE_AMO = TiltakstypeDbo(
@@ -35,8 +31,6 @@ object TiltakstypeFixtures {
         rettPaaTiltakspenger = false,
         startDato = LocalDate.of(2023, 1, 1),
         sluttDato = LocalDate.of(2025, 12, 31),
-        registrertDatoIArena = LocalDateTime.of(2023, 1, 11, 0, 0, 0),
-        sistEndretDatoIArena = LocalDateTime.of(2023, 1, 11, 0, 0, 0),
     )
 
     val Oppfolging = TiltakstypeDbo(
@@ -46,8 +40,6 @@ object TiltakstypeFixtures {
         rettPaaTiltakspenger = true,
         startDato = LocalDate.of(2023, 1, 1),
         sluttDato = LocalDate.of(2025, 12, 31),
-        registrertDatoIArena = LocalDateTime.of(2023, 1, 11, 0, 0, 0),
-        sistEndretDatoIArena = LocalDateTime.of(2023, 1, 11, 0, 0, 0),
     )
 
     val Jobbklubb = TiltakstypeDbo(
@@ -57,8 +49,6 @@ object TiltakstypeFixtures {
         rettPaaTiltakspenger = true,
         startDato = LocalDate.of(2023, 1, 1),
         sluttDato = LocalDate.of(2025, 12, 31),
-        registrertDatoIArena = LocalDateTime.of(2023, 1, 11, 0, 0, 0),
-        sistEndretDatoIArena = LocalDateTime.of(2023, 1, 11, 0, 0, 0),
     )
 
     val Avklaring = TiltakstypeDbo(
@@ -68,8 +58,6 @@ object TiltakstypeFixtures {
         rettPaaTiltakspenger = true,
         startDato = LocalDate.of(2023, 1, 1),
         sluttDato = LocalDate.of(2025, 12, 31),
-        registrertDatoIArena = LocalDateTime.of(2023, 1, 11, 0, 0, 0),
-        sistEndretDatoIArena = LocalDateTime.of(2023, 1, 11, 0, 0, 0),
     )
 
     val Arbeidstrening = TiltakstypeDbo(
@@ -77,8 +65,6 @@ object TiltakstypeFixtures {
         navn = "Arbeidstrening",
         arenaKode = "ARBTREN",
         rettPaaTiltakspenger = true,
-        registrertDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
-        sistEndretDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
         startDato = LocalDate.of(2023, 1, 11),
         sluttDato = LocalDate.of(2025, 12, 31),
     )
@@ -88,8 +74,6 @@ object TiltakstypeFixtures {
         navn = "Enkel AMO",
         arenaKode = "ENKELAMO",
         rettPaaTiltakspenger = true,
-        registrertDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
-        sistEndretDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
         startDato = LocalDate.of(2023, 1, 11),
         sluttDato = LocalDate.of(2025, 12, 31),
     )

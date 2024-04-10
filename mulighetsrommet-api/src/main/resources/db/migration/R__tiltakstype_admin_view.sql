@@ -6,8 +6,6 @@ select
     tiltakstype.navn,
     tiltakstype.tiltakskode,
     tiltakstype.arena_kode,
-    tiltakstype.registrert_dato_i_arena,
-    tiltakstype.sist_endret_dato_i_arena,
     tiltakstype.start_dato,
     tiltakstype.slutt_dato,
     tiltakstype.sanity_id,

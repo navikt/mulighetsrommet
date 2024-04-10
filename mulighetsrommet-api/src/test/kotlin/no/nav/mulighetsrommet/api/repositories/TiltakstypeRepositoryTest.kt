@@ -20,7 +20,6 @@ import no.nav.mulighetsrommet.domain.dto.PersonopplysningFrekvens
 import no.nav.mulighetsrommet.domain.dto.TiltakstypeStatus
 import org.intellij.lang.annotations.Language
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.util.*
 
 class TiltakstypeRepositoryTest : FunSpec({
@@ -48,8 +47,6 @@ class TiltakstypeRepositoryTest : FunSpec({
             navn = "Arbeidsforberedende trening",
             arenaKode = "ARBFORB",
             rettPaaTiltakspenger = true,
-            registrertDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
-            sistEndretDatoIArena = LocalDateTime.of(2022, 1, 15, 0, 0, 0),
             startDato = LocalDate.now().plusDays(1),
             sluttDato = LocalDate.now().plusMonths(1),
         )
@@ -58,8 +55,6 @@ class TiltakstypeRepositoryTest : FunSpec({
             navn = "Jobbklubb",
             arenaKode = "JOBBK",
             rettPaaTiltakspenger = true,
-            registrertDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
-            sistEndretDatoIArena = LocalDateTime.of(2022, 1, 15, 0, 0, 0),
             startDato = LocalDate.now(),
             sluttDato = LocalDate.now().plusMonths(1),
         )
@@ -68,8 +63,6 @@ class TiltakstypeRepositoryTest : FunSpec({
             navn = "Oppfølgning",
             arenaKode = "INDOPPFAG",
             rettPaaTiltakspenger = true,
-            registrertDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
-            sistEndretDatoIArena = LocalDateTime.of(2022, 1, 15, 0, 0, 0),
             startDato = LocalDate.now().minusMonths(1),
             sluttDato = LocalDate.now().minusDays(1),
         )
@@ -79,8 +72,6 @@ class TiltakstypeRepositoryTest : FunSpec({
             navn = "AMOY",
             arenaKode = "AMOY",
             rettPaaTiltakspenger = true,
-            registrertDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
-            sistEndretDatoIArena = LocalDateTime.of(2022, 1, 15, 0, 0, 0),
             startDato = LocalDate.now(),
             sluttDato = LocalDate.now().plusMonths(1),
         )

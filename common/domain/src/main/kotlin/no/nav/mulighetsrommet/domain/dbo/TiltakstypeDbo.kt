@@ -14,10 +14,6 @@ data class TiltakstypeDbo(
     val id: UUID,
     val navn: String,
     val arenaKode: String,
-    @Serializable(with = LocalDateTimeSerializer::class)
-    val registrertDatoIArena: LocalDateTime,
-    @Serializable(with = LocalDateTimeSerializer::class)
-    val sistEndretDatoIArena: LocalDateTime,
     @Serializable(with = LocalDateSerializer::class)
     val startDato: LocalDate,
     @Serializable(with = LocalDateSerializer::class)

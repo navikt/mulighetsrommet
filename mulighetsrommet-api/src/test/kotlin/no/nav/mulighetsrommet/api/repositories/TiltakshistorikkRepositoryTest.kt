@@ -20,8 +20,6 @@ class TiltakshistorikkRepositoryTest : FunSpec({
         navn = "Høyere utdanning",
         arenaKode = "HOYEREUTD",
         rettPaaTiltakspenger = true,
-        registrertDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
-        sistEndretDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
         startDato = LocalDate.of(2023, 1, 11),
         sluttDato = LocalDate.of(2023, 1, 12),
     )
