@@ -22,6 +22,7 @@ import styles from "./Tabell.module.scss";
 import { FileExcelIcon } from "@navikt/aksel-icons";
 import { ToolbarContainer } from "mulighetsrommet-frontend-common/components/toolbar/toolbarContainer/ToolbarContainer";
 import { TabellWrapper } from "@/components/tabell/TabellWrapper";
+import { ToolbarMeny } from "mulighetsrommet-frontend-common/components/toolbar/toolbarMeny/ToolbarMeny";
 
 async function lastNedFil(filter: AvtaleFilter) {
   const headers = new Headers();
@@ -114,20 +115,20 @@ export function AvtaleTabell({ filterAtom, tagsHeight, filterOpen }: Props) {
   return (
     <>
       <ToolbarContainer tagsHeight={tagsHeight} filterOpen={filterOpen}>
-        <PagineringsOversikt
-          page={filter.page}
-          pageSize={filter.pageSize}
-          antall={avtaler.length}
-          maksAntall={pagination.totalCount}
-          type="avtaler"
-          onChangePageSize={(value) => {
-            updateFilter({
-              page: 1,
-              pageSize: value,
-            });
-          }}
-        />
-        <div>
+        <ToolbarMeny>
+          <PagineringsOversikt
+            page={filter.page}
+            pageSize={filter.pageSize}
+            antall={avtaler.length}
+            maksAntall={pagination.totalCount}
+            type="avtaler"
+            onChangePageSize={(value) => {
+              updateFilter({
+                page: 1,
+                pageSize: value,
+              });
+            }}
+          />
           <Button
             icon={<FileExcelIcon title="Excelikon" />}
             variant="tertiary"
@@ -138,7 +139,7 @@ export function AvtaleTabell({ filterAtom, tagsHeight, filterOpen }: Props) {
             {lasterExcel ? "Henter Excel-fil..." : "Eksporter tabellen til Excel"}
           </Button>
           <a style={{ display: "none" }} ref={link}></a>
-        </div>
+        </ToolbarMeny>
       </ToolbarContainer>
       <TabellWrapper filterOpen={filterOpen}>
         {avtaler.length === 0 ? (
