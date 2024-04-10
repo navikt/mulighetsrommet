@@ -18,13 +18,13 @@ import { isTiltakMedFellesOppstart } from "../../utils/tiltakskoder";
 import styles from "../DetaljerInfo.module.scss";
 import { Kontaktperson } from "./Kontaktperson";
 import { tiltaktekster } from "../../components/ledetekster/tiltaksgjennomforingLedetekster";
-import { ArrangorKontaktpersonDetaljer } from "../arrangor/ArrangorKontaktpersonDetaljer";
 import { getDisplayName } from "@/api/enhet/helpers";
 import { useRef } from "react";
 import { AvbrytGjennomforingModal } from "@/components/modal/AvbrytGjennomforingModal";
 import { HarSkrivetilgang } from "@/components/authActions/HarSkrivetilgang";
 import { erArenaOpphavOgIngenEierskap } from "@/components/tiltaksgjennomforinger/TiltaksgjennomforingSkjemaConst";
 import { useMigrerteTiltakstyper } from "@/api/tiltakstyper/useMigrerteTiltakstyper";
+import { ArrangorKontaktpersonDetaljer } from "../arrangor/ArrangorKontaktpersonDetaljer";
 
 interface Props {
   tiltaksgjennomforing: Tiltaksgjennomforing;
