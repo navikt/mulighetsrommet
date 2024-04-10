@@ -10,12 +10,24 @@ export const mockArrangorer: PaginertArrangor = {
     {
       id: "c95e836f-a381-4d82-b8e3-74257b14f26c",
       organisasjonsnummer: "123456789",
-      navn: "Fretex AS",
+      navn: "FRETEX AS",
       underenheter: [
         {
           id: "d9d4db51-3564-4493-b897-4fc38dc48965",
-          organisasjonsnummer: "876543987",
-          navn: "Fretex Oslo AS",
+          organisasjonsnummer: "992943084",
+          navn: "FRETEX AS AVD OSLO",
+          overordnetEnhet: "123456789",
+        },
+        {
+          id: "d9d4db51-3564-4493-b897-4fc38dc48963",
+          organisasjonsnummer: "984013922",
+          navn: "FRETEX AS AVD SANDNES",
+          overordnetEnhet: "123456789",
+        },
+        {
+          id: "d9d4db51-3564-4493-b897-4ec38dc48963",
+          organisasjonsnummer: "916281676",
+          navn: "FRETEX AS AVD TRONDHEIM",
           overordnetEnhet: "123456789",
         },
       ],

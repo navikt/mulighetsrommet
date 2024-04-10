@@ -29,6 +29,7 @@ export const QueryKeys = {
     { til },
   ],
   arrangorById: (id: string) => ["arrangor", id],
+  arrangorHovedenhetById: (id: string) => ["arrangorHovedenhet", id],
   arrangorByOrgnr: (orgnr: string) => ["arrangor", { orgnr }],
   arrangorKontaktpersoner: (id: string) => ["arrangor", id, "kontaktpersoner"],
   antallUlesteNotifikasjoner: () => ["antallUlesteNotifikasjoner"],

@@ -204,6 +204,57 @@ class ArrangorRepository(private val db: Database) {
         }
     }
 
+    fun getHovedenhetBy(id: UUID): ArrangorDto {
+        @Language("PostgreSQL")
+        val query = """
+            select
+                id,
+                organisasjonsnummer,
+                overordnet_enhet,
+                navn,
+                slettet_dato,
+                postnummer,
+                poststed
+            from arrangor
+            where id = ?::uuid
+        """.trimIndent()
+
+        val arrangor = queryOf(query, id)
+            .map { it.toVirksomhetDto() }
+            .asSingle
+            .let { db.run(it) }
+
+        @Language("PostgreSQL")
+        val queryForUnderenheter = """
+            select
+                id,
+                organisasjonsnummer,
+                overordnet_enhet,
+                navn,
+                slettet_dato,
+                postnummer,
+                poststed
+            from arrangor
+            where overordnet_enhet = ?
+            order by navn
+        """.trimIndent()
+
+        val underenheter = when (arrangor != null) {
+            true -> queryOf(queryForUnderenheter, arrangor.organisasjonsnummer)
+                .map { it.toVirksomhetDto() }
+                .asList
+                .let { db.run(it) }
+
+            else -> emptyList()
+        }
+
+        val arrangorMedUnderenheter = arrangor?.copy(underenheter = underenheter)
+
+        return requireNotNull(arrangorMedUnderenheter) {
+            "Arrangør med id=$id finnes ikke"
+        }
+    }
+
     fun delete(orgnr: String) {
         logger.info("Sletter arrangør orgnr=$orgnr")
 

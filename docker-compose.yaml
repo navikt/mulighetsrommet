@@ -1,5 +1,3 @@
-version: '3'
-
 services:
   # Mock implementation of Oauth2/OIDC.
   # The service is referenced as part of the authentication between applications as part of local development.

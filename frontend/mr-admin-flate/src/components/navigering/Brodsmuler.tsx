@@ -5,22 +5,7 @@ import styles from "./Brodsmuler.module.scss";
 type Id = string;
 
 export interface Brodsmule {
-  tittel:
-    | "Forside"
-    | "Avtaler"
-    | "Rediger avtale"
-    | "Ny avtale"
-    | "Avtaledetaljer"
-    | "Avtalens gjennomføringer"
-    | "Tiltaksgjennomføringer"
-    | "Tiltaksgjennomføringdetaljer"
-    | "Rediger tiltaksgjennomføring"
-    | "Ny tiltaksgjennomføring"
-    | "Tiltakstyper"
-    | "Tiltakstypedetaljer"
-    | "Tiltaktypens avtaler"
-    | "Arrangører"
-    | "Arrangørdetaljer";
+  tittel: string;
   lenke:
     | "/"
     | "/tiltakstyper"

@@ -1341,6 +1341,26 @@ paths:
               schema:
                 $ref: "#/components/schemas/Arrangor"
 
+  /api/v1/internal/arrangorer/hovedenhet/{id}:
+    get:
+      tags:
+        - Arrangor
+      operationId: getArrangorHovedenhetById
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: Hovedenhet for arrangør for id
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Arrangor"
+
   /api/v1/internal/arrangorer/{orgnr}:
     post:
       tags:
