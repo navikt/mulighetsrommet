@@ -32,13 +32,22 @@ export const ControlledDateInput = forwardRef(function ControlledDateInput(
     ...rest
   } = props;
   const [ugyldigDatoError, setUgyldigDatoError] = useState("");
+
+  function formatDateForInput(date: Date): string {
+    return date.toLocaleDateString("nb", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    });
+  }
+
   return (
     <div>
       <Controller
         name={label}
         {...rest}
         render={({ field: { onChange, value }, fieldState: { error } }) => {
-          const { datepickerProps: startdatoProps, inputProps: startdatoInputProps } =
+          const { datepickerProps, inputProps } =
             // FIXME
             // eslint-disable-next-line react-hooks/rules-of-hooks
             useDatepicker({
@@ -69,13 +78,22 @@ export const ControlledDateInput = forwardRef(function ControlledDateInput(
               defaultSelected: value ? new Date(value) : undefined,
             });
 
+          // Hvis value endres utenfor må man ekplisitt sette den her. Men for at
+          // man fortsatt skal kunne redigere sjekker vi mot lengden til inputProps
+          // sin value som vil være 10 etter den er validert, som trigrer onChange
+          // og derfor er trygg og endre (fordi onChange endrer valuen utenfor, så
+          // hvis den er endret igjen nå så må det ha vært utenfor).
+          if ((inputProps.value + "").length === 10) {
+            inputProps.value = formatDateForInput(new Date(value));
+          }
+
           return (
-            <DatePicker {...startdatoProps} dropdownCaption>
+            <DatePicker {...datepickerProps} dropdownCaption>
               <DatoFelt
                 size={size}
                 label={label}
                 {...rest}
-                {...startdatoInputProps}
+                {...inputProps}
                 error={ugyldigDatoError || error?.message}
                 readOnly={readOnly}
                 placeholder={placeholder}
