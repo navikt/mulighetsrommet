@@ -55,6 +55,12 @@ fun Route.arrangorRoutes() {
             call.respond(arrangorRepository.getById(id))
         }
 
+        get("hovedenhet/{id}") {
+            val id: UUID by call.parameters
+
+            call.respond(arrangorRepository.getHovedenhetBy(id))
+        }
+
         get("{id}/kontaktpersoner") {
             val id: UUID by call.parameters
 

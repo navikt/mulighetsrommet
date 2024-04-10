@@ -3,25 +3,9 @@ import { Link } from "react-router-dom";
 import styles from "./Brodsmuler.module.scss";
 
 type Id = string;
-type Navn = string;
 
 export interface Brodsmule {
-  tittel:
-    | "Forside"
-    | "Avtaler"
-    | "Rediger avtale"
-    | "Ny avtale"
-    | "Avtaledetaljer"
-    | "Avtalens gjennomføringer"
-    | "Tiltaksgjennomføringer"
-    | "Tiltaksgjennomføringdetaljer"
-    | "Rediger tiltaksgjennomføring"
-    | "Ny tiltaksgjennomføring"
-    | "Tiltakstyper"
-    | "Tiltakstypedetaljer"
-    | "Tiltaktypens avtaler"
-    | "Arrangører"
-    | Navn; // TODO Vurder denne typingen siden den gjør alle de andre strengene unødvendig...
+  tittel: string;
   lenke:
     | "/"
     | "/tiltakstyper"

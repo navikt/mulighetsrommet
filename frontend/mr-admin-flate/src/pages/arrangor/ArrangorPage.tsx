@@ -1,7 +1,7 @@
 import { Accordion, Heading } from "@navikt/ds-react";
 import { Arrangor } from "mulighetsrommet-api-client";
 import { useState } from "react";
-import { useArrangor } from "../../api/arrangor/useArrangor";
+import { useArrangorHovedenhet } from "../../api/arrangor/useArrangorHovedenhet";
 import { ArrangorIkon } from "../../components/ikoner/ArrangorIkon";
 import { Brodsmule, Brodsmuler } from "../../components/navigering/Brodsmuler";
 import { ContainerLayout } from "../../layouts/ContainerLayout";
@@ -13,7 +13,7 @@ interface Props {
 }
 
 export function ArrangorPage({ arrangorId }: Props) {
-  const { data: arrangor, isLoading } = useArrangor(arrangorId);
+  const { data: arrangor, isLoading } = useArrangorHovedenhet(arrangorId);
   const [openHovedenhet, setOpenHovedenhet] = useState(arrangor?.underenheter?.length === 0);
 
   const brodsmuler: Brodsmule[] = [
@@ -44,9 +44,7 @@ export function ArrangorPage({ arrangorId }: Props) {
             {arrangor.underenheter?.map((underenhet) => (
               <Accordion.Item key={underenhet.id}>
                 <Accordion.Header>
-                  <span className={styles.underenhet_header}>
-                    Underenhet - {underenhet.organisasjonsnummer} {underenhet.navn}
-                  </span>
+                  Underenhet - {underenhet.organisasjonsnummer} {underenhet.navn}
                 </Accordion.Header>
                 <Accordion.Content>
                   <ArrangorKort arrangor={arrangor} />

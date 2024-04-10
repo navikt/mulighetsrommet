@@ -199,6 +199,31 @@ class ArrangorRepository(private val db: Database) {
             .asSingle
             .let { db.run(it) }
 
+        return requireNotNull(arrangor) {
+            "Arrangør med id=$id finnes ikke"
+        }
+    }
+
+    fun getHovedenhetBy(id: UUID): ArrangorDto {
+        @Language("PostgreSQL")
+        val query = """
+            select
+                id,
+                organisasjonsnummer,
+                overordnet_enhet,
+                navn,
+                slettet_dato,
+                postnummer,
+                poststed
+            from arrangor
+            where id = ?::uuid
+        """.trimIndent()
+
+        val arrangor = queryOf(query, id)
+            .map { it.toVirksomhetDto() }
+            .asSingle
+            .let { db.run(it) }
+
         @Language("PostgreSQL")
         val queryForUnderenheter = """
             select
@@ -219,6 +244,7 @@ class ArrangorRepository(private val db: Database) {
                 .map { it.toVirksomhetDto() }
                 .asList
                 .let { db.run(it) }
+
             else -> emptyList()
         }
 
