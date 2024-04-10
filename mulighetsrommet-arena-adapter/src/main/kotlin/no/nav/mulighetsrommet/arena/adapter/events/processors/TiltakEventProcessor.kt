@@ -3,8 +3,6 @@ package no.nav.mulighetsrommet.arena.adapter.events.processors
 import arrow.core.Either
 import arrow.core.flatMap
 import arrow.core.raise.either
-import io.ktor.http.*
-import no.nav.mulighetsrommet.arena.adapter.MulighetsrommetApiClient
 import no.nav.mulighetsrommet.arena.adapter.models.ProcessingError
 import no.nav.mulighetsrommet.arena.adapter.models.ProcessingResult
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable
@@ -14,39 +12,26 @@ import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
 import no.nav.mulighetsrommet.arena.adapter.models.db.Tiltakstype
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
 import no.nav.mulighetsrommet.arena.adapter.utils.ArenaUtils
-import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
 import java.util.*
 
 class TiltakEventProcessor(
     private val entities: ArenaEntityService,
-    private val client: MulighetsrommetApiClient,
 ) : ArenaEventProcessor {
     override val arenaTable: ArenaTable = ArenaTable.Tiltakstype
 
     override suspend fun handleEvent(event: ArenaEvent) = either {
         val mapping = entities.getMapping(event.arenaTable, event.arenaId).bind()
-        val tiltakstype = event.decodePayload<ArenaTiltak>()
+
+        event.decodePayload<ArenaTiltak>()
             .toTiltakstype(mapping.entityId)
             .flatMap { entities.upsertTiltakstype(it) }
-            .bind()
-        val dbo = tiltakstype.toDbo()
-
-        val response = if (event.operation == ArenaEvent.Operation.Delete) {
-            client.request<Any>(HttpMethod.Delete, "/api/v1/internal/arena/tiltakstype/${dbo.id}")
-        } else {
-            client.request(HttpMethod.Put, "/api/v1/internal/arena/tiltakstype", dbo)
-        }
-        response.mapLeft { ProcessingError.fromResponseException(it) }
             .map { ProcessingResult(Handled) }
             .bind()
     }
 
     override suspend fun deleteEntity(event: ArenaEvent): Either<ProcessingError, Unit> = either {
         val mapping = entities.getMapping(event.arenaTable, event.arenaId).bind()
-        client.request<Any>(HttpMethod.Delete, "/api/v1/internal/arena/tiltakstype/${mapping.entityId}")
-            .mapLeft { ProcessingError.fromResponseException(it) }
-            .flatMap { entities.deleteTiltakstype(mapping.entityId) }
-            .bind()
+        entities.deleteTiltakstype(mapping.entityId).bind()
     }
 
     private fun ArenaTiltak.toTiltakstype(id: UUID) = Either
@@ -86,15 +71,4 @@ class TiltakEventProcessor(
             )
         }
         .mapLeft { ProcessingError.ProcessingFailed(it.localizedMessage) }
-
-    private fun Tiltakstype.toDbo() = TiltakstypeDbo(
-        id = id,
-        navn = navn,
-        arenaKode = tiltakskode,
-        registrertDatoIArena = registrertIArenaDato,
-        sistEndretDatoIArena = sistEndretIArenaDato,
-        startDato = fraDato.toLocalDate(),
-        sluttDato = tilDato.toLocalDate(),
-        rettPaaTiltakspenger = rettPaaTiltakspenger,
-    )
 }
