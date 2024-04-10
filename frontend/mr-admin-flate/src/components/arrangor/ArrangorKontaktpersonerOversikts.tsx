@@ -12,7 +12,7 @@ interface Props {
 
 export function ArrangorKontaktpersonOversikt({ arrangor }: Props) {
   const { data, isLoading } = useArrangorKontaktpersoner(arrangor.id);
-  const [redigerKontaktpersonId, setRedigerKontaktpersonId] = useState<string | null>(null); // [1
+  const [redigerKontaktpersonId, setRedigerKontaktpersonId] = useState<string | null>(null);
 
   if (!data || isLoading) {
     return <Loader />;
