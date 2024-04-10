@@ -96,7 +96,6 @@ class TiltakstypeRepositoryTest : FunSpec({
 
         test("filtrering på status") {
             forAll(
-                row(TiltakstypeStatus.PLANLAGT, tiltakstypePlanlagt.id),
                 row(TiltakstypeStatus.AKTIV, tiltakstypeAktiv.id),
                 row(TiltakstypeStatus.AVSLUTTET, tiltakstypeAvsluttet.id),
             ) { status, expectedId ->

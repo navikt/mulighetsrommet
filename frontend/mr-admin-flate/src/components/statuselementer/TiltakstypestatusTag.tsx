@@ -12,8 +12,6 @@ export function TiltakstypestatusTag({ tiltakstype }: Props) {
     switch (status) {
       case TiltakstypeStatus.AKTIV:
         return "success";
-      case TiltakstypeStatus.PLANLAGT:
-        return "alt1";
       case TiltakstypeStatus.AVSLUTTET:
         return "neutral";
     }

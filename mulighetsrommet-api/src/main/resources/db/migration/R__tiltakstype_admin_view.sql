@@ -14,8 +14,7 @@ select
     tiltakstype.rett_paa_tiltakspenger,
     case
         when slutt_dato is not null and now() > slutt_dato then 'AVSLUTTET'
-        when now() >= start_dato then 'AKTIV'
-        else 'PLANLAGT'
+        else 'AKTIV'
     end as status,
     coalesce(
         jsonb_agg(
