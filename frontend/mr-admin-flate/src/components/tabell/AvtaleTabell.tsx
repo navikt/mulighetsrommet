@@ -152,7 +152,7 @@ export function AvtaleTabell({ filterAtom, tagsHeight, filterOpen }: Props) {
           >
             <Table.Header
               style={{
-                top: `calc(${tagsHeight}px + 7.4rem)`,
+                top: `calc(${tagsHeight}px + 8rem)`,
               }}
             >
               <Table.Row className={styles.avtale_tabellrad}>

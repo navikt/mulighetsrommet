@@ -10,7 +10,7 @@ interface Props {
 export const ToolbarContainer = ({ tagsHeight, filterOpen, children }: Props) => {
   return (
     <div
-      style={{ top: `calc(${tagsHeight}px + 4.4rem)` }}
+      style={{ top: `calc(${tagsHeight}px + 4.5rem)` }}
       className={classnames(styles.toolbar_container, {
         [styles.toolbar_container_filter_hidden]: !filterOpen,
       })}
