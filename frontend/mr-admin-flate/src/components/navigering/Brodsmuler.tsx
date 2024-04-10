@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import styles from "./Brodsmuler.module.scss";
 
 type Id = string;
+type Navn = string;
 
 export interface Brodsmule {
   tittel:
@@ -20,7 +21,7 @@ export interface Brodsmule {
     | "Tiltakstypedetaljer"
     | "Tiltaktypens avtaler"
     | "Arrangører"
-    | "Arrangørdetaljer";
+    | Navn; // TODO Vurder denne typingen siden den gjør alle de andre strengene unødvendig...
   lenke:
     | "/"
     | "/tiltakstyper"

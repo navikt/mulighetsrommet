@@ -199,7 +199,32 @@ class ArrangorRepository(private val db: Database) {
             .asSingle
             .let { db.run(it) }
 
-        return requireNotNull(arrangor) {
+        @Language("PostgreSQL")
+        val queryForUnderenheter = """
+            select
+                id,
+                organisasjonsnummer,
+                overordnet_enhet,
+                navn,
+                slettet_dato,
+                postnummer,
+                poststed
+            from arrangor
+            where overordnet_enhet = ?
+            order by navn
+        """.trimIndent()
+
+        val underenheter = when (arrangor != null) {
+            true -> queryOf(queryForUnderenheter, arrangor.organisasjonsnummer)
+                .map { it.toVirksomhetDto() }
+                .asList
+                .let { db.run(it) }
+            else -> emptyList()
+        }
+
+        val arrangorMedUnderenheter = arrangor?.copy(underenheter = underenheter)
+
+        return requireNotNull(arrangorMedUnderenheter) {
             "Arrangør med id=$id finnes ikke"
         }
     }
