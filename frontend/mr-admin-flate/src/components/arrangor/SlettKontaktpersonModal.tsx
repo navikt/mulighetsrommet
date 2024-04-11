@@ -8,6 +8,7 @@ import { useKoblingerTilDokumenterForKontaktpersonHosArrangor } from "../../api/
 import { useFrikobleArrangorKontaktpersonFraAvtale } from "../../api/avtaler/useFrikobleArrangorKontaktpersonFraAvtale";
 import { useFrikobleArrangorKontaktpersonFraTiltaksgjennomforing } from "../../api/tiltaksgjennomforing/useFrikobleArrangorKontaktpersonFraTiltaksgjennomforing";
 import { Laster } from "../laster/Laster";
+import styles from "./SlettKontaktpersonModal.module.scss";
 
 interface Props {
   onClose: () => void;
@@ -105,7 +106,10 @@ function Koblingsoversikt({ avtaler, gjennomforinger, kontaktperson }: Koblingso
     useFrikobleArrangorKontaktpersonFraTiltaksgjennomforing();
   return (
     <div>
-      <p>{kontaktperson.navn} er koblet til følgende dokumenter:</p>
+      <p>
+        {kontaktperson.navn} er koblet til følgende dokumenter og må fjernes fra dokumentene før hen
+        kan slettes.
+      </p>
       <VStack gap="5">
         <DokumentKoblinger
           baseUrl="avtaler"
@@ -148,7 +152,9 @@ function DokumentKoblinger({
   return (
     <div>
       <Heading level="2" size="small">
-        {baseUrl === "avtaler" ? "Avtaler" : "Gjennomføringer"}
+        {baseUrl === "avtaler"
+          ? `Avtaler (${dokumenter.length})`
+          : `Gjennomføringer (${dokumenter.length})`}
       </Heading>
       {frikobleMutation.error ? (
         <Alert variant="warning">Klarte ikke fjerne kontaktperson</Alert>
@@ -162,16 +168,14 @@ function DokumentKoblinger({
         <Table zebraStripes>
           <Table.Header>
             <Table.Row>
-              <Table.HeaderCell>
-                {baseUrl === "avtaler" ? "Avtalenavn" : "Gjennomføringsnavn"}
-              </Table.HeaderCell>
+              <Table.HeaderCell>Navn</Table.HeaderCell>
               <Table.HeaderCell></Table.HeaderCell>
             </Table.Row>
           </Table.Header>
-          <Table.Body>
+          <Table.Body className={styles.tableBody}>
             {dokumenter.map((dokument) => (
               <Table.Row key={dokument.id}>
-                <Table.DataCell>
+                <Table.DataCell className={styles.name_column}>
                   <Link
                     target="_blank"
                     rel="noopener noreferrer"
@@ -191,7 +195,7 @@ function DokumentKoblinger({
                       })
                     }
                   >
-                    Fjern fra {baseUrl === "avtaler" ? "avtale" : "gjennomføring"}
+                    Fjern
                   </Button>
                 </Table.DataCell>
               </Table.Row>
