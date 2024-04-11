@@ -123,6 +123,11 @@ export function TiltaksgjennomforingsTabell({
             {tiltaksgjennomforinger.length > 0 ? (
               <Table.Body>
                 {tiltaksgjennomforinger.map((tiltaksgjennomforing, index) => {
+                  const formattertSluttDato = tiltaksgjennomforing.sluttDato
+                    ? formaterDato(tiltaksgjennomforing.sluttDato)
+                    : "-";
+                  const formattertStartDato = formaterDato(tiltaksgjennomforing.startDato);
+
                   return (
                     <Table.Row key={index}>
                       <SkjulKolonne skjul={!!skjulKolonner?.navn}>
@@ -184,23 +189,23 @@ export function TiltaksgjennomforingsTabell({
 
                       <SkjulKolonne skjul={!!skjulKolonner?.startdato}>
                         <Table.DataCell
-                          title={`Startdato ${formaterDato(tiltaksgjennomforing.startDato)}`}
-                          aria-label={`Startdato: ${formaterDato(tiltaksgjennomforing.startDato)}`}
+                          title={`Startdato ${formattertStartDato}`}
+                          aria-label={`Startdato: ${formattertStartDato}`}
                         >
-                          {formaterDato(tiltaksgjennomforing.startDato)}
+                          {formattertStartDato}
                         </Table.DataCell>
                       </SkjulKolonne>
 
                       <SkjulKolonne skjul={!!skjulKolonner?.sluttdato}>
                         <Table.DataCell
-                          title={`Sluttdato ${tiltaksgjennomforing.sluttDato ? formaterDato(tiltaksgjennomforing.sluttDato) : "-"}`}
+                          title={`Sluttdato ${formattertSluttDato}`}
                           aria-label={
                             tiltaksgjennomforing.sluttDato
-                              ? `Sluttdato ${tiltaksgjennomforing.sluttDato ? formaterDato(tiltaksgjennomforing.sluttDato) : "-"}`
+                              ? `Sluttdato ${formattertSluttDato}`
                               : undefined // Noen gjennomføringer har ikke sluttdato så da setter vi heller ikke aria-label for da klager reactA11y
                           }
                         >
-                          {formaterDato(tiltaksgjennomforing.sluttDato)}
+                          {formattertSluttDato}
                         </Table.DataCell>
                       </SkjulKolonne>
 
