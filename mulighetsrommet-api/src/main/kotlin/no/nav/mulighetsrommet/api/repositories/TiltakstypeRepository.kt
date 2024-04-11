@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.repositories
 
 import kotlinx.serialization.json.Json
 import kotliquery.Row
+import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.domain.dto.DeltakerRegistreringInnholdDto
 import no.nav.mulighetsrommet.api.domain.dto.Innholdselement
@@ -16,7 +17,6 @@ import no.nav.mulighetsrommet.domain.dto.TiltakstypeAdminDto
 import no.nav.mulighetsrommet.domain.dto.TiltakstypeStatus
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
-import java.time.LocalDate
 import java.util.*
 
 class TiltakstypeRepository(private val db: Database) {
@@ -70,22 +70,19 @@ class TiltakstypeRepository(private val db: Database) {
         return db.run(queryResult)
     }
 
-    fun getEksternTiltakstype(id: UUID): TiltakstypeEksternDto? {
-        val deltakerRegistreringInnhold = getDeltakerregistreringInnhold(id)
-
+    fun getEksternTiltakstype(id: UUID): TiltakstypeEksternDto? = db.useSession { session ->
         @Language("PostgreSQL")
         val query = """
-            select admin_dto.*, tiltakstype.innsatsgrupper
-            from tiltakstype_admin_dto_view admin_dto
-            join tiltakstype using (id)
+            select id, navn, tiltakskode, arena_kode, innsatsgrupper, rett_paa_tiltakspenger
+            from tiltakstype
             where id = ?::uuid
         """.trimIndent()
 
-        return db.useSession { session ->
-            queryOf(query, id)
-                .map { it.tiltakstypeEksternDto(deltakerRegistreringInnhold) }
-                .asSingle.runWithSession(session)
-        }
+        val deltakerRegistreringInnhold = getDeltakerregistreringInnhold(id, session)
+
+        queryOf(query, id)
+            .map { it.tiltakstypeEksternDto(deltakerRegistreringInnhold) }
+            .asSingle.runWithSession(session)
     }
 
     fun getByTiltakskode(tiltakskode: Tiltakskode): TiltakstypeAdminDto {
@@ -168,7 +165,7 @@ class TiltakstypeRepository(private val db: Database) {
         }
     }
 
-    private fun getDeltakerregistreringInnhold(id: UUID): DeltakerRegistreringInnholdDto? {
+    private fun getDeltakerregistreringInnhold(id: UUID, session: Session): DeltakerRegistreringInnholdDto? {
         @Language("PostgreSQL")
         val query = """
            select tiltakstype.deltaker_registrering_ledetekst, element.innholdskode, element.tekst
@@ -191,7 +188,7 @@ class TiltakstypeRepository(private val db: Database) {
                 Pair(ledetekst, innholdselement)
             }
             .asList
-            .let { db.run(it) }
+            .runWithSession(session)
 
         if (result.isEmpty()) return null
 
@@ -200,30 +197,6 @@ class TiltakstypeRepository(private val db: Database) {
             ledetekst = result[0].first,
             innholdselementer = innholdselementer,
         )
-    }
-
-    fun getAllByDateInterval(
-        dateIntervalStart: LocalDate,
-        dateIntervalEnd: LocalDate,
-    ): List<TiltakstypeAdminDto> {
-        logger.info("Henter alle tiltakstyper med start- eller sluttdato mellom $dateIntervalStart og $dateIntervalEnd")
-
-        @Language("PostgreSQL")
-        val query = """
-            select *
-            from tiltakstype_admin_dto_view
-            where
-                (start_dato > :date_interval_start and start_dato <= :date_interval_end) or
-                (slutt_dato >= :date_interval_start and slutt_dato < :date_interval_end)
-        """.trimIndent()
-
-        return queryOf(
-            query,
-            mapOf(
-                "date_interval_start" to dateIntervalStart,
-                "date_interval_end" to dateIntervalEnd,
-            ),
-        ).map { it.toTiltakstypeAdminDto() }.asList.let { db.run(it) }
     }
 
     fun delete(id: UUID): QueryResult<Int> = query {
@@ -289,10 +262,7 @@ class TiltakstypeRepository(private val db: Database) {
             tiltakskode = Tiltakskode.valueOf(string("tiltakskode")),
             innsatsgrupper = innsatsgrupper,
             arenaKode = string("arena_kode"),
-            startDato = localDate("start_dato"),
-            sluttDato = localDateOrNull("slutt_dato"),
             rettPaaTiltakspenger = boolean("rett_paa_tiltakspenger"),
-            status = TiltakstypeStatus.valueOf(string("status")),
             deltakerRegistreringInnhold = deltakerRegistreringInnhold,
         )
     }
