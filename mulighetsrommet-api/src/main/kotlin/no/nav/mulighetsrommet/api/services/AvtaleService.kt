@@ -228,4 +228,8 @@ class AvtaleService(
             Json.encodeToJsonElement(dto)
         }
     }
+
+    fun frikobleKontaktpersonFraAvtale(kontaktpersonId: UUID, avtaleId: UUID): StatusResponse<String> {
+        return Either.Right(avtaler.frikobleKontaktpersonFraAvtale(kontaktpersonId = kontaktpersonId, avtaleId = avtaleId))
+    }
 }

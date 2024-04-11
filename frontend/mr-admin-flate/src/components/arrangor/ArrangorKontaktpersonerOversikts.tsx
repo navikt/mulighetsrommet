@@ -5,6 +5,7 @@ import { z } from "zod";
 import { useArrangorKontaktpersoner } from "../../api/arrangor/useArrangorKontaktpersoner";
 import { useUpsertArrangorKontaktperson } from "../../api/arrangor/useUpsertArrangorKontaktperson";
 import { useHandleApiUpsertResponse } from "../../api/effects";
+import { SlettKontaktpersonModal } from "./SlettKontaktpersonModal";
 
 interface Props {
   arrangor: Arrangor;
@@ -12,7 +13,12 @@ interface Props {
 
 export function ArrangorKontaktpersonOversikt({ arrangor }: Props) {
   const { data, isLoading } = useArrangorKontaktpersoner(arrangor.id);
-  const [redigerKontaktpersonId, setRedigerKontaktpersonId] = useState<string | null>(null);
+  const [redigerKontaktpersonId, setRedigerKontaktpersonId] = useState<string | undefined>(
+    undefined,
+  );
+  const [slettKontaktperson, setSlettKontaktperson] = useState<ArrangorKontaktperson | undefined>(
+    undefined,
+  );
 
   if (!data || isLoading) {
     return <Loader />;
@@ -44,21 +50,29 @@ export function ArrangorKontaktpersonOversikt({ arrangor }: Props) {
                 key={kontaktperson.id}
                 kontaktperson={kontaktperson}
                 setRedigerKontaktperson={setRedigerKontaktpersonId}
+                setSlettKontaktperson={() => setSlettKontaktperson(kontaktperson)}
               />
             ),
           )}
         </Table.Body>
       </Table>
+      {slettKontaktperson ? (
+        <SlettKontaktpersonModal
+          onClose={() => setSlettKontaktperson(undefined)}
+          kontaktperson={slettKontaktperson}
+        />
+      ) : null}
     </div>
   );
 }
 
-interface KontaktpersonRad {
+interface ILeseRad {
   kontaktperson: ArrangorKontaktperson;
-  setRedigerKontaktperson: (kontaktpersonId: string | null) => void;
+  setRedigerKontaktperson: (kontaktpersonId: string | undefined) => void;
+  setSlettKontaktperson: (kontaktperson: ArrangorKontaktperson | undefined) => void;
 }
 
-function LeseRad({ kontaktperson, setRedigerKontaktperson }: KontaktpersonRad) {
+function LeseRad({ kontaktperson, setRedigerKontaktperson, setSlettKontaktperson }: ILeseRad) {
   return (
     <Table.Row key={kontaktperson.id}>
       <Table.DataCell>{kontaktperson.navn}</Table.DataCell>
@@ -70,19 +84,28 @@ function LeseRad({ kontaktperson, setRedigerKontaktperson }: KontaktpersonRad) {
       </Table.DataCell>
       <Table.DataCell>{kontaktperson.beskrivelse}</Table.DataCell>
       <Table.DataCell>
-        <Button
-          onClick={() => setRedigerKontaktperson(kontaktperson.id)}
-          variant="secondary"
-          size="small"
-        >
-          Rediger
-        </Button>
+        <HStack gap="5">
+          <Button
+            onClick={() => setRedigerKontaktperson(kontaktperson.id)}
+            variant="secondary"
+            size="small"
+          >
+            Rediger
+          </Button>
+          <Button
+            variant="danger"
+            size="small"
+            onClick={() => setSlettKontaktperson(kontaktperson)}
+          >
+            Slett
+          </Button>
+        </HStack>
       </Table.DataCell>
     </Table.Row>
   );
 }
 
-interface RedigerbarRadProps extends KontaktpersonRad {
+interface RedigerbarRadProps extends Pick<ILeseRad, "setRedigerKontaktperson" | "kontaktperson"> {
   arrangor: Arrangor;
 }
 
@@ -140,7 +163,7 @@ function RedigerbarRad({ kontaktperson, setRedigerKontaktperson, arrangor }: Red
   useHandleApiUpsertResponse(
     mutation,
     () => {
-      setRedigerKontaktperson(null);
+      setRedigerKontaktperson(undefined);
       mutation.reset();
     },
     (validation) => {
@@ -202,7 +225,7 @@ function RedigerbarRad({ kontaktperson, setRedigerKontaktperson, arrangor }: Red
           <Button onClick={lagre} variant="primary" size="small">
             Lagre
           </Button>
-          <Button onClick={() => setRedigerKontaktperson(null)} variant="danger" size="small">
+          <Button onClick={() => setRedigerKontaktperson(undefined)} variant="danger" size="small">
             Avbryt
           </Button>
         </HStack>

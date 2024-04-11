@@ -54,6 +54,10 @@ export const avtaleHandlers = [
     return HttpResponse.json(avtale);
   }),
 
+  http.delete("/api/v1/internal/avtaler/kontaktperson", () => {
+    return HttpResponse.json();
+  }),
+
   http.delete("/api/v1/internal/avtaler/:id", () => {
     return HttpResponse.json();
   }),

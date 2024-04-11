@@ -12,6 +12,7 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import kotlinx.serialization.json.Json
 import kotliquery.Query
+import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.clients.vedtak.Innsatsgruppe
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
@@ -43,6 +44,7 @@ import no.nav.mulighetsrommet.domain.dto.AvbruttAarsak
 import no.nav.mulighetsrommet.domain.dto.Faneinnhold
 import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus
+import org.intellij.lang.annotations.Language
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
@@ -1207,7 +1209,11 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                     sluttDato = enManedFrem,
                 ),
             )
-            tiltaksgjennomforinger.avbryt(AFT1.id, enManedTilbake.atStartOfDay().minusDays(1), AvbruttAarsak.Feilregistrering)
+            tiltaksgjennomforinger.avbryt(
+                AFT1.id,
+                enManedTilbake.atStartOfDay().minusDays(1),
+                AvbruttAarsak.Feilregistrering,
+            )
             tiltaksgjennomforinger.get(AFT1.id)!!.status shouldBe TiltaksgjennomforingStatus.AVLYST
 
             tiltaksgjennomforinger.upsert(
@@ -1216,7 +1222,11 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                     sluttDato = enManedTilbake,
                 ),
             )
-            tiltaksgjennomforinger.avbryt(AFT1.id, toManederTilbake.atStartOfDay().minusYears(1), AvbruttAarsak.Feilregistrering)
+            tiltaksgjennomforinger.avbryt(
+                AFT1.id,
+                toManederTilbake.atStartOfDay().minusYears(1),
+                AvbruttAarsak.Feilregistrering,
+            )
             tiltaksgjennomforinger.get(AFT1.id)!!.status shouldBe TiltaksgjennomforingStatus.AVLYST
 
             tiltaksgjennomforinger.upsert(
@@ -1225,7 +1235,11 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                     sluttDato = toManederFrem,
                 ),
             )
-            tiltaksgjennomforinger.avbryt(AFT1.id, enManedFrem.atStartOfDay().minusMonths(1), AvbruttAarsak.Feilregistrering)
+            tiltaksgjennomforinger.avbryt(
+                AFT1.id,
+                enManedFrem.atStartOfDay().minusMonths(1),
+                AvbruttAarsak.Feilregistrering,
+            )
             tiltaksgjennomforinger.get(AFT1.id)!!.status shouldBe TiltaksgjennomforingStatus.AVLYST
         }
 
@@ -1236,7 +1250,11 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                     sluttDato = enManedFrem,
                 ),
             )
-            tiltaksgjennomforinger.avbryt(AFT1.id, enManedTilbake.atStartOfDay().plusDays(3), AvbruttAarsak.Feilregistrering)
+            tiltaksgjennomforinger.avbryt(
+                AFT1.id,
+                enManedTilbake.atStartOfDay().plusDays(3),
+                AvbruttAarsak.Feilregistrering,
+            )
             tiltaksgjennomforinger.get(AFT1.id)!!.status shouldBe TiltaksgjennomforingStatus.AVBRUTT
 
             tiltaksgjennomforinger.upsert(
@@ -1245,7 +1263,11 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                     sluttDato = enManedTilbake,
                 ),
             )
-            tiltaksgjennomforinger.avbryt(AFT1.id, toManederTilbake.atStartOfDay().plusYears(2), AvbruttAarsak.Feilregistrering)
+            tiltaksgjennomforinger.avbryt(
+                AFT1.id,
+                toManederTilbake.atStartOfDay().plusYears(2),
+                AvbruttAarsak.Feilregistrering,
+            )
             tiltaksgjennomforinger.get(AFT1.id)!!.status shouldBe TiltaksgjennomforingStatus.AVBRUTT
 
             tiltaksgjennomforinger.upsert(
@@ -1254,7 +1276,11 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                     sluttDato = toManederFrem,
                 ),
             )
-            tiltaksgjennomforinger.avbryt(AFT1.id, enManedFrem.atStartOfDay().plusMonths(2), AvbruttAarsak.Feilregistrering)
+            tiltaksgjennomforinger.avbryt(
+                AFT1.id,
+                enManedFrem.atStartOfDay().plusMonths(2),
+                AvbruttAarsak.Feilregistrering,
+            )
             tiltaksgjennomforinger.get(AFT1.id)!!.status shouldBe TiltaksgjennomforingStatus.AVBRUTT
         }
 
@@ -1300,6 +1326,60 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 ),
             )
             tiltaksgjennomforinger.get(AFT1.id)!!.status shouldBe TiltaksgjennomforingStatus.PLANLAGT
+        }
+    }
+
+    context("Frikoble kontaktperson fra arrangør") {
+        // Add some data to tiltaksgjennomforing_arrangor_kontaktperson-table
+        val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
+        test("Skal fjerne kontaktperson fra koblingstabell") {
+            tiltaksgjennomforinger.upsert(Oppfolging1)
+            tiltaksgjennomforinger.upsert(Oppfolging2)
+
+            val arrangorKontaktperson = ArrangorKontaktperson(
+                id = UUID.randomUUID(),
+                arrangorId = ArrangorFixtures.underenhet1.id,
+                navn = "Aran Goran",
+                telefon = "",
+                epost = "test@test.no",
+                beskrivelse = "",
+            )
+
+            val arrangorKontaktperson2 = ArrangorKontaktperson(
+                id = UUID.randomUUID(),
+                arrangorId = ArrangorFixtures.underenhet1.id,
+                navn = "Gibli Bobli",
+                telefon = "",
+                epost = "test@test.no",
+                beskrivelse = "",
+            )
+
+            @Language("PostgreSQL")
+            val upsertKontaktpersonerQuery = """
+                insert into arrangor_kontaktperson(id, navn, telefon, epost, beskrivelse, arrangor_id) values
+                ('${arrangorKontaktperson.id}', '${arrangorKontaktperson.navn}', '${arrangorKontaktperson.telefon}', '${arrangorKontaktperson.epost}', '${arrangorKontaktperson.beskrivelse}', '${arrangorKontaktperson.arrangorId}'),
+                ('${arrangorKontaktperson2.id}', '${arrangorKontaktperson2.navn}', '${arrangorKontaktperson2.telefon}', '${arrangorKontaktperson2.epost}', '${arrangorKontaktperson2.beskrivelse}', '${arrangorKontaktperson2.arrangorId}')
+            """.trimIndent()
+            queryOf(upsertKontaktpersonerQuery).asExecute.let { database.db.run(it) }
+
+            @Language("PostgreSQL")
+            val upsertQuery = """
+             insert into tiltaksgjennomforing_arrangor_kontaktperson(arrangor_kontaktperson_id, tiltaksgjennomforing_id) values
+             ('${arrangorKontaktperson.id}', '${Oppfolging1.id}'),
+             ('${arrangorKontaktperson2.id}', '${Oppfolging2.id}')
+            """.trimIndent()
+            queryOf(upsertQuery).asExecute.let { database.db.run(it) }
+
+            @Language("PostgreSQL")
+            val selectQuery = """
+                select arrangor_kontaktperson_id from tiltaksgjennomforing_arrangor_kontaktperson
+            """.trimIndent()
+
+            val results = queryOf(selectQuery).map { it.uuid("arrangor_kontaktperson_id") }.asList.let { database.db.run(it) }
+            results.size shouldBe 2
+            tiltaksgjennomforinger.frikobleKontaktpersonFraGjennomforing(arrangorKontaktperson.id, Oppfolging1.id)
+            val resultsAfterFrikobling = queryOf(selectQuery).map { it.uuid("arrangor_kontaktperson_id") }.asList.let { database.db.run(it) }
+            resultsAfterFrikobling.size shouldBe 1
         }
     }
 })
