@@ -1426,7 +1426,28 @@ paths:
               schema:
                 $ref: "#/components/schemas/ArrangorKontaktperson"
 
+
+
   /api/v1/internal/arrangorer/kontaktperson/{id}:
+    get:
+      tags:
+        - Arrangor
+      operationId: getKoblingerTilDokumenter
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: uuid til kontaktpersonen
+      responses:
+        200:
+          description: Koblinger til gjennomføringer og avtaler for kontaktperson
+          content:
+            application/json:
+              schema:
+               $ref: "#/components/schemas/KoblingerForKontaktperson"
+
     delete:
       tags:
         - Arrangor
@@ -3564,3 +3585,30 @@ components:
       required:
         - navn
         - tiltakskode
+
+    KoblingerForKontaktperson:
+      type: object
+      properties:
+        gjennomforinger:
+          type: array
+          items:
+            $ref: "#/components/schemas/DokumentKoblingForKontaktperson"
+        avtaler:
+          type: array
+          items:
+            $ref: "#/components/schemas/DokumentKoblingForKontaktperson"
+      required:
+        - gjennomforinger
+        - avtaler
+
+    DokumentKoblingForKontaktperson:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        navn:
+          type: string
+      required:
+        - id
+        - navn

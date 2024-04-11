@@ -78,6 +78,12 @@ fun Route.arrangorRoutes() {
             call.respondWithStatusResponse(result)
         }
 
+        get("kontaktperson/{id}") {
+            val id: UUID by call.parameters
+
+            call.respondWithStatusResponse(arrangorService.hentKoblingerForKontaktperson(id))
+        }
+
         delete("kontaktperson/{id}") {
             val id: UUID by call.parameters
 
