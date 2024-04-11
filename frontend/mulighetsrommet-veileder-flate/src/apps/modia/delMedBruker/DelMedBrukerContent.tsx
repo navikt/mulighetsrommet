@@ -60,7 +60,6 @@ export function DelMedBrukerContent({
         >{`Dette tiltaket ble delt med bruker ${datoSidenSistDelt}.`}</Alert>
       ) : null}
 
-      {/*<div className={styles.scroll}>*/}
       <Textarea
         label="Tekst som deles med bruker"
         hideLabel
@@ -76,7 +75,6 @@ export function DelMedBrukerContent({
       >
         {state.deletekst}
       </Textarea>
-      {/*</div>*/}
 
       {!veiledernavn ? (
         <ErrorMessage className={styles.feilmeldinger}>
