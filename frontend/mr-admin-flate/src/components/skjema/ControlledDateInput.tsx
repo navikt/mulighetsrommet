@@ -1,7 +1,7 @@
 import { DatePicker, useDatepicker } from "@navikt/ds-react";
 import { forwardRef, useState } from "react";
 import { Controller } from "react-hook-form";
-import { formaterDato, formaterDatoSomYYYYMMDD as formaterSomIsoDate } from "../../utils/Utils";
+import { formaterDatoSomYYYYMMDD as formaterSomIsoDate } from "../../utils/Utils";
 import styles from "./ControlledDateInput.module.scss";
 
 export interface DateInputProps {
@@ -39,7 +39,7 @@ export const ControlledDateInput = forwardRef(function ControlledDateInput(
         name={label}
         {...rest}
         render={({ field: { onChange, value }, fieldState: { error } }) => {
-          const { datepickerProps, inputProps } =
+          const { datepickerProps: startdatoProps, inputProps: startdatoInputProps } =
             // FIXME
             // eslint-disable-next-line react-hooks/rules-of-hooks
             useDatepicker({
@@ -70,22 +70,13 @@ export const ControlledDateInput = forwardRef(function ControlledDateInput(
               defaultSelected: value ? new Date(value) : undefined,
             });
 
-          // Hvis value endres utenfor må man ekplisitt sette den her. Men for at
-          // man fortsatt skal kunne redigere sjekker vi mot lengden til inputProps
-          // sin value som vil være 10 etter den er validert, som trigrer onChange
-          // og derfor er trygg og endre (fordi onChange endrer valuen utenfor, så
-          // hvis den er endret igjen nå så må det ha vært utenfor).
-          if ((inputProps.value + "").length === 10) {
-            inputProps.value = formaterDato(new Date(value));
-          }
-
           return (
-            <DatePicker {...datepickerProps} dropdownCaption>
+            <DatePicker {...startdatoProps} dropdownCaption>
               <DatoFelt
                 size={size}
                 label={label}
                 {...rest}
-                {...inputProps}
+                {...startdatoInputProps}
                 error={ugyldigDatoError || error?.message}
                 readOnly={readOnly}
                 placeholder={placeholder}
