@@ -1,0 +1,31 @@
+package no.nav.mulighetsrommet.domain.dto
+
+enum class Personopplysning {
+    NAVN,
+    KJONN,
+    ADRESSE,
+    TELEFONNUMMER,
+    FOLKEREGISTER_IDENTIFIKATOR,
+    FODSELSDATO,
+    BEHOV_FOR_BISTAND_FRA_NAV,
+    YTELSER_FRA_NAV,
+    BILDE,
+    EPOST,
+    BRUKERNAVN,
+    ARBEIDSERFARING_OG_VERV,
+    SERTIFIKATER_OG_KURS,
+    IP_ADRESSE,
+    UTDANNING_OG_FAGBREV,
+    PERSONLIGE_EGENSKAPER_OG_INTERESSER,
+    SPRAKKUNNSKAP,
+    ADFERD,
+    SOSIALE_FORHOLD,
+    HELSEOPPLYSNINGER,
+    RELIGION,
+}
+
+enum class PersonopplysningFrekvens {
+    ALLTID,
+    OFTE,
+    SJELDEN,
+}

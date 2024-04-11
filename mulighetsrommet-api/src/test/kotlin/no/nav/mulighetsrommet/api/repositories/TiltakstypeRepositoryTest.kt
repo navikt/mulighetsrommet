@@ -14,6 +14,8 @@ import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
+import no.nav.mulighetsrommet.domain.dto.Personopplysning
+import no.nav.mulighetsrommet.domain.dto.PersonopplysningFrekvens
 import no.nav.mulighetsrommet.domain.dto.Tiltakstypestatus
 import org.intellij.lang.annotations.Language
 import java.time.LocalDate
@@ -197,22 +199,26 @@ class TiltakstypeRepositoryTest : FunSpec({
                 it shouldBe null
             }
         }
+    }
 
-        test("getBySanityId krasjer ikke") {
-            val sanityId = UUID.randomUUID()
+    test("getBySanityId krasjer ikke") {
+        val tiltakstyper = TiltakstypeRepository(database.db)
 
-            @Language("PostgreSQL")
-            val query = """
+        tiltakstyper.upsert(TiltakstypeFixtures.Oppfolging)
+
+        val sanityId = UUID.randomUUID()
+
+        @Language("PostgreSQL")
+        val query = """
                 update tiltakstype
                 set sanity_id = '$sanityId'
                 where tiltakskode = '${Tiltakskode.OPPFOLGING.name}';
-            """.trimIndent()
-            queryOf(
-                query,
-            ).asExecute.let { database.db.run(it) }
-            tiltakstyper.getBySanityId(sanityId).should {
-                it?.id shouldBe TiltakstypeFixtures.Oppfolging.id
-            }
+        """.trimIndent()
+        queryOf(
+            query,
+        ).asExecute.let { database.db.run(it) }
+        tiltakstyper.getBySanityId(sanityId).should {
+            it?.id shouldBe TiltakstypeFixtures.Oppfolging.id
         }
     }
 })
