@@ -1,7 +1,7 @@
 import { DatePicker, useDatepicker } from "@navikt/ds-react";
 import { forwardRef, useState } from "react";
 import { Controller } from "react-hook-form";
-import { formaterDatoSomYYYYMMDD as formaterSomIsoDate } from "../../utils/Utils";
+import { formaterDato, formaterDatoSomYYYYMMDD as formaterSomIsoDate } from "../../utils/Utils";
 import styles from "./ControlledDateInput.module.scss";
 
 export interface DateInputProps {
@@ -32,14 +32,6 @@ export const ControlledDateInput = forwardRef(function ControlledDateInput(
     ...rest
   } = props;
   const [ugyldigDatoError, setUgyldigDatoError] = useState("");
-
-  function formatDateForInput(date: Date): string {
-    return date.toLocaleDateString("nb", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-    });
-  }
 
   return (
     <div>
@@ -84,7 +76,7 @@ export const ControlledDateInput = forwardRef(function ControlledDateInput(
           // og derfor er trygg og endre (fordi onChange endrer valuen utenfor, så
           // hvis den er endret igjen nå så må det ha vært utenfor).
           if ((inputProps.value + "").length === 10) {
-            inputProps.value = formatDateForInput(new Date(value));
+            inputProps.value = formaterDato(new Date(value));
           }
 
           return (

@@ -32,13 +32,13 @@ import { InferredTiltaksgjennomforingSchema } from "../redaksjonelt-innhold/Tilt
 import { AdministratorOptions } from "../skjema/AdministratorOptions";
 import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { FormGroup } from "../skjema/FormGroup";
-import { FraTilDatoVelger } from "../skjema/FraTilDatoVelger";
 import skjemastyles from "../skjema/Skjema.module.scss";
 import { SelectOppstartstype } from "./SelectOppstartstype";
 import { TiltaksgjennomforingArrangorSkjema } from "./TiltaksgjennomforingArrangorSkjema";
 import { erArenaOpphavOgIngenEierskap } from "./TiltaksgjennomforingSkjemaConst";
 import { StartDatoAdvarselModal } from "../modal/StartDatoAdvarselModal";
 import { useTiltaksgjennomforingDeltakerSummary } from "@/api/tiltaksgjennomforing/useTiltaksgjennomforingDeltakerSummary";
+import { ControlledDateInput } from "../skjema/ControlledDateInput";
 
 interface Props {
   tiltaksgjennomforing?: Tiltaksgjennomforing;
@@ -202,25 +202,26 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
                 " - "
               )}
             </HGrid>
-            <FraTilDatoVelger
-              size="small"
-              fra={{
-                label: tiltaktekster.startdatoLabel,
-                readOnly: eierIkkeGjennomforing,
-                fromDate: minStartdato,
-                toDate: maxSluttdato,
-                ...register("startOgSluttDato.startDato"),
-                format: "iso-string",
-              }}
-              til={{
-                label: tiltaktekster.sluttdatoLabel,
-                readOnly: eierIkkeGjennomforing,
-                fromDate: minStartdato,
-                toDate: maxSluttdato,
-                ...register("startOgSluttDato.sluttDato"),
-                format: "iso-string",
-              }}
-            />
+            <HGrid columns={2}>
+              <ControlledDateInput
+                size="small"
+                label={tiltaktekster.startdatoLabel}
+                readOnly={eierIkkeGjennomforing}
+                fromDate={minStartdato}
+                toDate={maxSluttdato}
+                {...register("startOgSluttDato.startDato")}
+                format={"iso-string"}
+              />
+              <ControlledDateInput
+                size="small"
+                label={tiltaktekster.sluttdatoLabel}
+                readOnly={eierIkkeGjennomforing}
+                fromDate={minStartdato}
+                toDate={maxSluttdato}
+                {...register("startOgSluttDato.sluttDato")}
+                format={"iso-string"}
+              />
+            </HGrid>
             {visApentForInnsok(avtale.tiltakstype.arenaKode) ? (
               <Switch
                 size="small"
