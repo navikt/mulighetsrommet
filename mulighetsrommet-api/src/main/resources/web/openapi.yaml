@@ -247,6 +247,24 @@ paths:
                 type: string
                 format: binary
 
+  /api/v1/internal/avtaler/kontaktperson:
+    delete:
+      tags:
+        - Avtaler
+      operationId: frikobleKontaktpersonFraAvtale
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FrikobleKontaktpersonRequest"
+      responses:
+        200:
+          description: OK hvis frikobling gikk greit
+          content:
+            application/json:
+              schema:
+                type: string
+
   /api/v1/internal/notater/avtaler:
     get:
       tags:
@@ -780,6 +798,24 @@ paths:
       responses:
         200:
           description: Update for 'tilgjengelig for veileder' was successful
+
+  /api/v1/internal/tiltaksgjennomforinger/kontaktperson:
+    delete:
+      tags:
+        - Tiltaksgjennomforinger
+      operationId: frikobleKontaktpersonFraTiltaksgjennomforing
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FrikobleKontaktpersonRequest"
+      responses:
+        200:
+          description: OK hvis frikobling gikk greit
+          content:
+            application/json:
+              schema:
+                type: string
 
   /api/v1/internal/tiltakstyper:
     get:
@@ -3612,3 +3648,16 @@ components:
       required:
         - id
         - navn
+
+    FrikobleKontaktpersonRequest:
+      type: object
+      properties:
+        kontaktpersonId:
+          type: string
+          format: uuid
+        dokumentId:
+          type: string
+          format: uuid
+      required:
+        - kontaktpersonId
+        - dokumentId

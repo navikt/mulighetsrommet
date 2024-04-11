@@ -67,6 +67,10 @@ export const tiltaksgjennomforingHandlers = [
     },
   ),
 
+  http.delete("/api/v1/internal/tiltaksgjennomforinger/kontaktperson", () => {
+    return HttpResponse.json();
+  }),
+
   http.get<{ id: string }, Tiltaksgjennomforing | undefined>(
     "*/api/v1/internal/tiltaksgjennomforinger/:id",
     ({ params }) => {

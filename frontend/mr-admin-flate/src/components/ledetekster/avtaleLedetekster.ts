@@ -9,7 +9,7 @@ export const avtaletekster = {
   administratorerForAvtalenLabel: "Administratorer for avtalen",
   ingenAdministratorerSattLabel: "Ingen administratorer satt for avtalen",
   seOriginalavtaleLabel: "Se originalavtale",
-  urlAvtaleWebsaklabel: "URl til avtale i Websak",
+  urlAvtaleWebsaklabel: "URL til avtale i Websak",
   fylkessamarbeidLabel: "Fylkessamarbeid",
   navRegionerLabel: "NAV-regioner",
   navEnheterLabel: "NAV-enheter (kontorer)",

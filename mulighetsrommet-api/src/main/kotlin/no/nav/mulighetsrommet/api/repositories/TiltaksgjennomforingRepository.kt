@@ -854,4 +854,18 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             tiltaksnummer = stringOrNull("tiltaksnummer"),
         )
     }
+
+    fun frikobleKontaktpersonFraGjennomforing(kontaktpersonId: UUID, gjennomforingId: UUID): String {
+        @Language("PostgreSQL")
+        val query = """
+            delete from tiltaksgjennomforing_arrangor_kontaktperson
+            where arrangor_kontaktperson_id = ?::uuid and tiltaksgjennomforing_id = ?::uuid
+        """.trimIndent()
+
+        queryOf(query, kontaktpersonId, gjennomforingId)
+            .asUpdate
+            .let { db.run(it) }
+
+        return kontaktpersonId.toString()
+    }
 }

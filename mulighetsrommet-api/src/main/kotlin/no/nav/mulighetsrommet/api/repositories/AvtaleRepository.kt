@@ -525,4 +525,17 @@ class AvtaleRepository(private val db: Database) {
             administratorer = administratorer.map { NavIdent(it) },
         )
     }
+
+    fun frikobleKontaktpersonFraAvtale(kontaktpersonId: UUID, avtaleId: UUID): String {
+        @Language("PostgreSQL")
+        val query = """
+            delete from avtale_arrangor_kontaktperson where arrangor_kontaktperson_id = ?::uuid and avtale_id = ?::uuid
+        """.trimIndent()
+
+        queryOf(query, kontaktpersonId, avtaleId)
+            .asUpdate
+            .let { db.run(it) }
+
+        return kontaktpersonId.toString()
+    }
 }

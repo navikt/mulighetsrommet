@@ -263,4 +263,13 @@ class TiltaksgjennomforingService(
             Json.encodeToJsonElement(dto)
         }
     }
+
+    fun frikobleKontaktpersonFraGjennomforing(kontaktpersonId: UUID, gjennomforingId: UUID): StatusResponse<String> {
+        return Either.Right(
+            tiltaksgjennomforinger.frikobleKontaktpersonFraGjennomforing(
+                kontaktpersonId = kontaktpersonId,
+                gjennomforingId = gjennomforingId,
+            ),
+        )
+    }
 }

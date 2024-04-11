@@ -11,6 +11,7 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import kotliquery.Query
+import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dbo.ArenaNavEnhet
@@ -32,6 +33,7 @@ import no.nav.mulighetsrommet.domain.dbo.ArenaAvtaleDbo
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dto.Avtalestatus
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
+import org.intellij.lang.annotations.Language
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
@@ -778,6 +780,65 @@ class AvtaleRepositoryTest : FunSpec({
             avtaler.get(AvtaleFixtures.oppfolging.id).should {
                 it?.avtalestatus shouldBe Avtalestatus.AVBRUTT
             }
+        }
+    }
+
+    context("Frikoble kontaktperson fra arrangør") {
+        val domain = MulighetsrommetTestDomain()
+        val avtaler = AvtaleRepository(database.db)
+
+        beforeEach {
+            domain.initialize(database.db)
+        }
+
+        test("Skal fjerne kontaktperson fra koblingstabell") {
+            avtaler.upsert(AvtaleFixtures.oppfolging)
+            avtaler.upsert(AvtaleFixtures.VTA)
+
+            val arrangorKontaktperson = ArrangorKontaktperson(
+                id = UUID.randomUUID(),
+                arrangorId = ArrangorFixtures.underenhet1.id,
+                navn = "Aran Goran",
+                telefon = "",
+                epost = "test@test.no",
+                beskrivelse = "",
+            )
+
+            val arrangorKontaktperson2 = ArrangorKontaktperson(
+                id = UUID.randomUUID(),
+                arrangorId = ArrangorFixtures.underenhet1.id,
+                navn = "Gibli Bobli",
+                telefon = "",
+                epost = "test@test.no",
+                beskrivelse = "",
+            )
+
+            @Language("PostgreSQL")
+            val upsertKontaktpersonerQuery = """
+                insert into arrangor_kontaktperson(id, navn, telefon, epost, beskrivelse, arrangor_id) values
+                ('${arrangorKontaktperson.id}', '${arrangorKontaktperson.navn}', '${arrangorKontaktperson.telefon}', '${arrangorKontaktperson.epost}', '${arrangorKontaktperson.beskrivelse}', '${arrangorKontaktperson.arrangorId}'),
+                ('${arrangorKontaktperson2.id}', '${arrangorKontaktperson2.navn}', '${arrangorKontaktperson2.telefon}', '${arrangorKontaktperson2.epost}', '${arrangorKontaktperson2.beskrivelse}', '${arrangorKontaktperson2.arrangorId}')
+            """.trimIndent()
+            queryOf(upsertKontaktpersonerQuery).asExecute.let { database.db.run(it) }
+
+            @Language("PostgreSQL")
+            val upsertQuery = """
+             insert into avtale_arrangor_kontaktperson(arrangor_kontaktperson_id, avtale_id) values
+             ('${arrangorKontaktperson.id}', '${AvtaleFixtures.oppfolging.id}'),
+             ('${arrangorKontaktperson2.id}', '${AvtaleFixtures.VTA.id}')
+            """.trimIndent()
+            queryOf(upsertQuery).asExecute.let { database.db.run(it) }
+
+            @Language("PostgreSQL")
+            val selectQuery = """
+                select arrangor_kontaktperson_id from avtale_arrangor_kontaktperson
+            """.trimIndent()
+
+            val results = queryOf(selectQuery).map { it.uuid("arrangor_kontaktperson_id") }.asList.let { database.db.run(it) }
+            results.size shouldBe 2
+            avtaler.frikobleKontaktpersonFraAvtale(arrangorKontaktperson.id, AvtaleFixtures.oppfolging.id)
+            val resultsAfterFrikobling = queryOf(selectQuery).map { it.uuid("arrangor_kontaktperson_id") }.asList.let { database.db.run(it) }
+            resultsAfterFrikobling.size shouldBe 1
         }
     }
 })
