@@ -111,13 +111,13 @@ function Koblingsoversikt({ avtaler, gjennomforinger, kontaktperson }: Koblingso
           baseUrl="avtaler"
           dokumenter={avtaler}
           kontaktperson={kontaktperson}
-          fristillMutation={frikobleFraAvtaleMutation}
+          frikobleMutation={frikobleFraAvtaleMutation}
         />
         <DokumentKoblinger
           baseUrl="tiltaksgjennomforinger"
           dokumenter={gjennomforinger}
           kontaktperson={kontaktperson}
-          fristillMutation={frikobleFraGjennomforingMutation}
+          frikobleMutation={frikobleFraGjennomforingMutation}
         />
       </VStack>
     </div>
@@ -128,7 +128,7 @@ interface DokumentKoblingerProps {
   dokumenter: DokumentKoblingForKontaktperson[];
   kontaktperson: ArrangorKontaktperson;
   baseUrl: "tiltaksgjennomforinger" | "avtaler";
-  fristillMutation: UseMutationResult<
+  frikobleMutation: UseMutationResult<
     string,
     Error,
     {
@@ -143,15 +143,15 @@ function DokumentKoblinger({
   dokumenter,
   kontaktperson,
   baseUrl,
-  fristillMutation,
+  frikobleMutation,
 }: DokumentKoblingerProps) {
   return (
     <div>
       <Heading level="2" size="small">
         {baseUrl === "avtaler" ? "Avtaler" : "Gjennomføringer"}
       </Heading>
-      {fristillMutation.error ? (
-        <Alert variant="warning">Klarte ikke fristille kontaktperson</Alert>
+      {frikobleMutation.error ? (
+        <Alert variant="warning">Klarte ikke fjerne kontaktperson</Alert>
       ) : null}
       {dokumenter.length === 0 ? (
         <Alert variant="success" inline size="small">
@@ -185,7 +185,7 @@ function DokumentKoblinger({
                     size="small"
                     variant="danger"
                     onClick={() =>
-                      fristillMutation.mutate({
+                      frikobleMutation.mutate({
                         kontaktpersonId: kontaktperson.id,
                         dokumentId: dokument.id,
                       })
