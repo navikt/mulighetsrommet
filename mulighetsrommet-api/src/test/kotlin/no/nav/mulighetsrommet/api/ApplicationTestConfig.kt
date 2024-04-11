@@ -100,7 +100,7 @@ fun createKafkaConfig(): KafkaConfig {
         producerId = "mulighetsrommet-api-producer",
         producers = KafkaProducers(
             tiltaksgjennomforinger = TiltaksgjennomforingKafkaProducer.Config(topic = "siste-tiltaksgjennomforinger-v1"),
-            tiltakstyper = TiltakstypeKafkaProducer.Config(topic = "siste-tiltakstyper-v1"),
+            tiltakstyper = TiltakstypeKafkaProducer.Config(topic = "siste-tiltakstyper-v2"),
             arenaMigreringTiltaksgjennomforinger = ArenaMigreringTiltaksgjennomforingKafkaProducer.Config(
                 topic = "arena-migrering-tiltaksgjennomforinger-v1",
             ),
