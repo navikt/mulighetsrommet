@@ -21,12 +21,12 @@ import { Separator } from "../detaljside/Metadata";
 import { AdministratorOptions } from "../skjema/AdministratorOptions";
 import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { FormGroup } from "../skjema/FormGroup";
-import { FraTilDatoVelger } from "../skjema/FraTilDatoVelger";
 import skjemastyles from "../skjema/Skjema.module.scss";
 import { InferredAvtaleSchema } from "../redaksjonelt-innhold/AvtaleSchema";
 import { getLokaleUnderenheterAsSelectOptions } from "./AvtaleSkjemaConst";
 import { AvtaleArrangorSkjema } from "./AvtaleArrangorSkjema";
 import { avtaletekster } from "../ledetekster/avtaleLedetekster";
+import { ControlledDateInput } from "../skjema/ControlledDateInput";
 
 const minStartdato = new Date(2000, 0, 1);
 
@@ -131,27 +131,29 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
             <Heading size="small" as="h3">
               Avtalens varighet
             </Heading>
-            <FraTilDatoVelger
-              size="small"
-              fra={{
-                label: avtaletekster.startdatoLabel,
-                readOnly: arenaOpphavOgIngenEierskap,
-                fromDate: minStartdato,
-                toDate: sluttDatoTilDato,
-                ...register("startOgSluttDato.startDato"),
-                format: "iso-string",
-              }}
-              til={{
-                label: avtaletekster.sluttdatoLabel,
-                readOnly: arenaOpphavOgIngenEierskap,
-                fromDate: sluttDatoFraDato,
-                toDate: sluttDatoTilDato,
-                ...register("startOgSluttDato.sluttDato"),
-                format: "iso-string",
-                invalidDatoEtterPeriode:
-                  "Avtaleperioden kan ikke vare lenger enn 5 år for anskaffede tiltak",
-              }}
-            />
+            <HGrid columns={2}>
+              <ControlledDateInput
+                size="small"
+                label={avtaletekster.startdatoLabel}
+                readOnly={arenaOpphavOgIngenEierskap}
+                fromDate={minStartdato}
+                toDate={sluttDatoTilDato}
+                {...register("startOgSluttDato.startDato")}
+                format={"iso-string"}
+              />
+              <ControlledDateInput
+                size="small"
+                label={avtaletekster.sluttdatoLabel}
+                readOnly={arenaOpphavOgIngenEierskap}
+                fromDate={sluttDatoFraDato}
+                toDate={sluttDatoTilDato}
+                {...register("startOgSluttDato.sluttDato")}
+                format={"iso-string"}
+                invalidDatoEtterPeriode={
+                  "Avtaleperioden kan ikke vare lenger enn 5 år for anskaffede tiltak"
+                }
+              />
+            </HGrid>
           </FormGroup>
           <Separator />
           <FormGroup>
