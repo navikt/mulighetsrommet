@@ -10,13 +10,17 @@ import { avtaletypeTilTekst, formaterDato } from "../../utils/Utils";
 import { erAnskaffetTiltak } from "../../utils/tiltakskoder";
 import styles from "../DetaljerInfo.module.scss";
 import { Link } from "react-router-dom";
-import { NavEnhet } from "mulighetsrommet-api-client";
+import { NavEnhet, Toggles } from "mulighetsrommet-api-client";
 import { avtaletekster } from "../../components/ledetekster/avtaleLedetekster";
 import { getDisplayName } from "@/api/enhet/helpers";
 import { ArrangorKontaktpersonDetaljer } from "../arrangor/ArrangorKontaktpersonDetaljer";
+import { useFeatureToggle } from "../../api/features/feature-toggles";
 
 export function AvtaleDetaljer() {
   const { data: avtale, isPending, error } = useAvtale();
+  const { data: enableArrangorSide } = useFeatureToggle(
+    Toggles.MULIGHETSROMMET_ADMIN_FLATE_ENABLE_ARRANGOR_SIDER,
+  );
 
   if (isPending) {
     return <Laster tekst="Laster avtale..." />;
@@ -207,7 +211,15 @@ export function AvtaleDetaljer() {
         <Bolk aria-label={avtaletekster.tiltaksarrangorHovedenhetLabel}>
           <Metadata
             header={avtaletekster.tiltaksarrangorHovedenhetLabel}
-            verdi={`${arrangor.navn} - ${arrangor.organisasjonsnummer}`}
+            verdi={
+              enableArrangorSide ? (
+                <Link to={`/arrangorer/${arrangor.id}`}>
+                  {arrangor.navn} - {arrangor.organisasjonsnummer}
+                </Link>
+              ) : (
+                `${arrangor.navn} - ${arrangor.organisasjonsnummer}`
+              )
+            }
           />
         </Bolk>
 
