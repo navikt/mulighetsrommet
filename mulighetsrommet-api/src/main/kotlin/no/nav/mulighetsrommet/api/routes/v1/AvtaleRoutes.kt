@@ -8,6 +8,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.domain.dto.FrikobleKontaktpersonRequest
 import no.nav.mulighetsrommet.api.plugins.AuthProvider
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.routes.v1.parameters.getPaginationParams
@@ -45,6 +46,17 @@ fun Route.avtaleRoutes() {
                 val id = call.parameters.getOrFail<UUID>("id")
                 val navIdent = getNavIdent()
                 val response = avtaler.avbrytAvtale(id, navIdent)
+                call.respondWithStatusResponse(response)
+            }
+
+            delete("kontaktperson") {
+                val request = call.receive<FrikobleKontaktpersonRequest>()
+                val navIdent = getNavIdent()
+                val response = avtaler.frikobleKontaktpersonFraAvtale(
+                    kontaktpersonId = request.kontaktpersonId,
+                    avtaleId = request.dokumentId,
+                    navIdent = navIdent,
+                )
                 call.respondWithStatusResponse(response)
             }
         }

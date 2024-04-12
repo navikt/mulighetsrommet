@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.repositories
 
+import arrow.core.Either
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotliquery.Row
@@ -13,6 +14,7 @@ import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.api.domain.dto.*
+import no.nav.mulighetsrommet.api.routes.v1.responses.StatusResponseError
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.PaginatedResult
 import no.nav.mulighetsrommet.database.utils.Pagination
@@ -853,5 +855,33 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             administratorer = administratorer,
             tiltaksnummer = stringOrNull("tiltaksnummer"),
         )
+    }
+
+    fun frikobleKontaktpersonFraGjennomforing(kontaktpersonId: UUID, gjennomforingId: UUID, tx: Session): Either<StatusResponseError, Pair<String, String>> {
+        @Language("PostgreSQL")
+        val kontaktpersonNavnQuery = """
+            select navn from arrangor_kontaktperson where id = ?::uuid
+        """.trimIndent()
+
+        val optionalNavn = queryOf(kontaktpersonNavnQuery, kontaktpersonId)
+            .map { it.string("navn") }
+            .asSingle
+            .let { tx.run(it) }
+
+        val navn = requireNotNull(optionalNavn) {
+            "Klarte ikke hente ut navn for kontaktperson"
+        }
+
+        @Language("PostgreSQL")
+        val query = """
+            delete from tiltaksgjennomforing_arrangor_kontaktperson
+            where arrangor_kontaktperson_id = ?::uuid and tiltaksgjennomforing_id = ?::uuid
+        """.trimIndent()
+
+        queryOf(query, kontaktpersonId, gjennomforingId)
+            .asUpdate
+            .let { tx.run(it) }
+
+        return Either.Right(navn to kontaktpersonId.toString())
     }
 }

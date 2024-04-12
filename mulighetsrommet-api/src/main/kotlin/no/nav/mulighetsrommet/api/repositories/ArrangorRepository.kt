@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.repositories
 
+import kotlinx.serialization.Serializable
 import kotliquery.Row
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.domain.dto.ArrangorDto
@@ -10,6 +11,7 @@ import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.PaginatedResult
 import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.database.utils.mapPaginated
+import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
 import java.util.*
@@ -288,24 +290,36 @@ class ArrangorRepository(private val db: Database) {
             .let { db.run(it)!! }
     }
 
-    fun koblingerTilKontaktperson(id: UUID): Pair<List<UUID>, List<UUID>> {
+    fun koblingerTilKontaktperson(kontaktpersonId: UUID): Pair<List<DokumentKoblingForKontaktperson>, List<DokumentKoblingForKontaktperson>> {
         @Language("PostgreSQL")
         val gjennomforingQuery = """
-            select tiltaksgjennomforing_id from tiltaksgjennomforing_arrangor_kontaktperson where arrangor_kontaktperson_id = ?
+            select tg.navn, tg.id from tiltaksgjennomforing_arrangor_kontaktperson tak join tiltaksgjennomforing tg on tak.tiltaksgjennomforing_id = tg.id
+            where tak.arrangor_kontaktperson_id = ?
         """.trimIndent()
 
-        val gjennomforinger = queryOf(gjennomforingQuery, id)
-            .map { it.uuid("tiltaksgjennomforing_id") }
+        val gjennomforinger = queryOf(gjennomforingQuery, kontaktpersonId)
+            .map {
+                DokumentKoblingForKontaktperson(
+                    id = it.uuid("id"),
+                    navn = it.string("navn"),
+                )
+            }
             .asList
             .let { db.run(it) }
 
         @Language("PostgreSQL")
         val avtaleQuery = """
-            select id from avtale where arrangor_kontaktperson_id = ?
+            select a.navn, a.id from avtale_arrangor_kontaktperson aak join avtale a on aak.avtale_id = a.id
+             where arrangor_kontaktperson_id = ?
         """.trimIndent()
 
-        val avtaler = queryOf(avtaleQuery, id)
-            .map { it.uuid("id") }
+        val avtaler = queryOf(avtaleQuery, kontaktpersonId)
+            .map {
+                DokumentKoblingForKontaktperson(
+                    id = it.uuid("id"),
+                    navn = it.string("navn"),
+                )
+            }
             .asList
             .let { db.run(it) }
 
@@ -380,3 +394,10 @@ class ArrangorRepository(private val db: Database) {
         "beskrivelse" to beskrivelse,
     )
 }
+
+@Serializable
+data class DokumentKoblingForKontaktperson(
+    @Serializable(with = UUIDSerializer::class)
+    val id: UUID,
+    val navn: String,
+)

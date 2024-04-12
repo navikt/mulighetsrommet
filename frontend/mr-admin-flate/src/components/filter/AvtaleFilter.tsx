@@ -69,7 +69,7 @@ export function AvtaleFilter({ filterAtom, skjulFilter }: Props) {
       />
       <div style={{ margin: "0.8rem 0.5rem" }}>
         <Switch
-          position="right"
+          position="left"
           size="small"
           checked={filter.visMineAvtaler}
           onChange={(event) => {

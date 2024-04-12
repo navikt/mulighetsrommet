@@ -11,6 +11,7 @@ import io.ktor.util.pipeline.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingKontaktpersonDbo
+import no.nav.mulighetsrommet.api.domain.dto.FrikobleKontaktpersonRequest
 import no.nav.mulighetsrommet.api.plugins.AuthProvider
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.repositories.DeltakerRepository
@@ -71,6 +72,18 @@ fun Route.tiltaksgjennomforingRoutes() {
                 val request = call.receive<PublisertRequest>()
                 service.setPublisert(id, request.publisert, navIdent)
                 call.respond(HttpStatusCode.OK)
+            }
+
+            delete("kontaktperson") {
+                val request = call.receive<FrikobleKontaktpersonRequest>()
+                val navIdent = getNavIdent()
+                call.respondWithStatusResponse(
+                    service.frikobleKontaktpersonFraGjennomforing(
+                        kontaktpersonId = request.kontaktpersonId,
+                        gjennomforingId = request.dokumentId,
+                        navIdent = navIdent,
+                    ),
+                )
             }
         }
 
