@@ -98,7 +98,12 @@ export const AvbrytGjennomforingModal = ({ modalRef, tiltaksgjennomforing }: Pro
         </RadioGroup>
         {mutation?.isError && (
           <div className={styles.error}>
-            <b>• {resolveErrorMessage(mutation.error)}</b>
+            <b>
+              •{" "}
+              {aarsak === "annet" && !customAarsak
+                ? "Beskrivelse er obligatorisk når “Annet” er valgt som årsak"
+                : resolveErrorMessage(mutation.error)}
+            </b>
           </div>
         )}
       </Modal.Body>
