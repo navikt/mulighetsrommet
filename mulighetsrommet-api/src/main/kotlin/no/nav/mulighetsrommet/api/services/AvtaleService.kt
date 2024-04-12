@@ -26,6 +26,7 @@ import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus
 import no.nav.mulighetsrommet.notifications.NotificationRepository
 import no.nav.mulighetsrommet.notifications.NotificationType
 import no.nav.mulighetsrommet.notifications.ScheduledNotification
+import org.slf4j.LoggerFactory
 import java.time.Instant
 import java.time.LocalDateTime
 import java.util.*
@@ -40,6 +41,7 @@ class AvtaleService(
     private val endringshistorikkService: EndringshistorikkService,
     private val db: Database,
 ) {
+    private val logger = LoggerFactory.getLogger(javaClass)
     fun get(id: UUID): AvtaleAdminDto? {
         return avtaler.get(id)
     }
@@ -229,7 +231,22 @@ class AvtaleService(
         }
     }
 
-    fun frikobleKontaktpersonFraAvtale(kontaktpersonId: UUID, avtaleId: UUID): StatusResponse<String> {
-        return Either.Right(avtaler.frikobleKontaktpersonFraAvtale(kontaktpersonId = kontaktpersonId, avtaleId = avtaleId))
+    fun frikobleKontaktpersonFraAvtale(
+        kontaktpersonId: UUID,
+        avtaleId: UUID,
+        navIdent: NavIdent,
+    ): Either<StatusResponseError, String> {
+        val avtale = avtaler.get(avtaleId) ?: return Either.Left(NotFound("Avtalen finnes ikke"))
+        return db.transaction { tx ->
+            avtaler.frikobleKontaktpersonFraAvtale(kontaktpersonId = kontaktpersonId, avtaleId = avtaleId, tx = tx)
+                .map {
+                    logEndring("Kontaktperson '${it.first}' ble fjernet fra avtalen via arrangørsidene", avtale, navIdent, tx)
+                    kontaktpersonId.toString()
+                }
+                .mapLeft {
+                    logger.error("Klarte ikke fjerne kontaktperson fra avtale: KontaktpersonId = '$kontaktpersonId', avtaleId = '$avtaleId'")
+                    ServerError("Klarte ikke fjerne kontaktperson fra avtalen")
+                }
+        }
     }
 }

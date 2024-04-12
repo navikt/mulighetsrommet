@@ -1375,10 +1375,18 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 select arrangor_kontaktperson_id from tiltaksgjennomforing_arrangor_kontaktperson
             """.trimIndent()
 
-            val results = queryOf(selectQuery).map { it.uuid("arrangor_kontaktperson_id") }.asList.let { database.db.run(it) }
+            val results =
+                queryOf(selectQuery).map { it.uuid("arrangor_kontaktperson_id") }.asList.let { database.db.run(it) }
             results.size shouldBe 2
-            tiltaksgjennomforinger.frikobleKontaktpersonFraGjennomforing(arrangorKontaktperson.id, Oppfolging1.id)
-            val resultsAfterFrikobling = queryOf(selectQuery).map { it.uuid("arrangor_kontaktperson_id") }.asList.let { database.db.run(it) }
+            database.db.transaction { tx ->
+                tiltaksgjennomforinger.frikobleKontaktpersonFraGjennomforing(
+                    arrangorKontaktperson.id,
+                    Oppfolging1.id,
+                    tx,
+                )
+            }
+            val resultsAfterFrikobling =
+                queryOf(selectQuery).map { it.uuid("arrangor_kontaktperson_id") }.asList.let { database.db.run(it) }
             resultsAfterFrikobling.size shouldBe 1
         }
     }

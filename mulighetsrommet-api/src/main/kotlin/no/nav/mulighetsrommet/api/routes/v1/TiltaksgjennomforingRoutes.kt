@@ -76,10 +76,12 @@ fun Route.tiltaksgjennomforingRoutes() {
 
             delete("kontaktperson") {
                 val request = call.receive<FrikobleKontaktpersonRequest>()
+                val navIdent = getNavIdent()
                 call.respondWithStatusResponse(
                     service.frikobleKontaktpersonFraGjennomforing(
                         kontaktpersonId = request.kontaktpersonId,
                         gjennomforingId = request.dokumentId,
+                        navIdent = navIdent,
                     ),
                 )
             }

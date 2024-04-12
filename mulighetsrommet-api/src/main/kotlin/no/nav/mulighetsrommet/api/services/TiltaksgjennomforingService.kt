@@ -264,12 +264,31 @@ class TiltaksgjennomforingService(
         }
     }
 
-    fun frikobleKontaktpersonFraGjennomforing(kontaktpersonId: UUID, gjennomforingId: UUID): StatusResponse<String> {
-        return Either.Right(
+    fun frikobleKontaktpersonFraGjennomforing(
+        kontaktpersonId: UUID,
+        gjennomforingId: UUID,
+        navIdent: NavIdent,
+    ): Either<StatusResponseError, String> {
+        val gjennomforing =
+            tiltaksgjennomforinger.get(gjennomforingId) ?: return Either.Left(NotFound("Gjennomføringen finnes ikke"))
+
+        return db.transaction { tx ->
             tiltaksgjennomforinger.frikobleKontaktpersonFraGjennomforing(
                 kontaktpersonId = kontaktpersonId,
                 gjennomforingId = gjennomforingId,
-            ),
-        )
+                tx = tx,
+            ).map {
+                logEndring(
+                    "Kontaktperson '${it.first}' ble fjernet fra gjennomføringen via arrangørsidene",
+                    gjennomforing,
+                    navIdent,
+                    tx,
+                )
+                it.second
+            }.mapLeft {
+                logger.error("Klarte ikke fjerne kontaktperson fra gjennomføring: KontaktpersonId = '$kontaktpersonId', gjennomforingId = '$gjennomforingId'")
+                ServerError("Klarte ikke fjerne kontaktperson fra gjennomføringen")
+            }
+        }
     }
 }
