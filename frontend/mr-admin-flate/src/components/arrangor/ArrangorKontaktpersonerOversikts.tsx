@@ -40,23 +40,25 @@ export function ArrangorKontaktpersonOversikt({ arrangor }: Props) {
           </Table.Row>
         </Table.Header>
         <Table.Body>
-          {data.map((kontaktperson) =>
-            redigerKontaktperson?.id === kontaktperson.id ? (
-              <RedigerbarRad
-                key={kontaktperson.id}
-                kontaktperson={kontaktperson}
-                setRedigerKontaktperson={setRedigerKontaktperson}
-                arrangor={arrangor}
-              />
-            ) : (
-              <LeseRad
-                key={kontaktperson.id}
-                kontaktperson={kontaktperson}
-                setRedigerKontaktperson={setRedigerKontaktperson}
-                setSlettKontaktperson={() => setSlettKontaktperson(kontaktperson)}
-              />
-            ),
-          )}
+          {data
+            .sort((a, b) => a.navn.localeCompare(b.navn))
+            .map((kontaktperson) =>
+              redigerKontaktperson?.id === kontaktperson.id ? (
+                <RedigerbarRad
+                  key={kontaktperson.id}
+                  kontaktperson={kontaktperson}
+                  setRedigerKontaktperson={setRedigerKontaktperson}
+                  arrangor={arrangor}
+                />
+              ) : (
+                <LeseRad
+                  key={kontaktperson.id}
+                  kontaktperson={kontaktperson}
+                  setRedigerKontaktperson={setRedigerKontaktperson}
+                  setSlettKontaktperson={() => setSlettKontaktperson(kontaktperson)}
+                />
+              ),
+            )}
           {nyKontaktperson ? (
             <RedigerbarRad
               key={nyKontaktperson.id}
