@@ -3,18 +3,18 @@ import { Alert, Heading, HelpText, VStack } from "@navikt/ds-react";
 import { NOM_ANSATT_SIDE } from "mulighetsrommet-frontend-common/constants";
 import { Fragment } from "react";
 import { useAvtale } from "@/api/avtaler/useAvtale";
-import { Bolk } from "../../components/detaljside/Bolk";
-import { Metadata, Separator } from "../../components/detaljside/Metadata";
-import { Laster } from "../../components/laster/Laster";
-import { avtaletypeTilTekst, formaterDato } from "../../utils/Utils";
-import { erAnskaffetTiltak } from "../../utils/tiltakskoder";
+import { Bolk } from "@/components/detaljside/Bolk";
+import { Metadata, Separator } from "@/components/detaljside/Metadata";
+import { Laster } from "@/components/laster/Laster";
+import { avtaletypeTilTekst, formaterDato } from "@/utils/Utils";
+import { erAnskaffetTiltak } from "@/utils/tiltakskoder";
 import styles from "../DetaljerInfo.module.scss";
 import { Link } from "react-router-dom";
-import { NavEnhet, Toggles } from "mulighetsrommet-api-client";
-import { avtaletekster } from "../../components/ledetekster/avtaleLedetekster";
+import { NavEnhet, Opphav, Toggles } from "mulighetsrommet-api-client";
+import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { getDisplayName } from "@/api/enhet/helpers";
-import { ArrangorKontaktpersonDetaljer } from "../arrangor/ArrangorKontaktpersonDetaljer";
-import { useFeatureToggle } from "../../api/features/feature-toggles";
+import { ArrangorKontaktpersonDetaljer } from "@/pages/arrangor/ArrangorKontaktpersonDetaljer";
+import { useFeatureToggle } from "@/api/features/feature-toggles";
 
 export function AvtaleDetaljer() {
   const { data: avtale, isPending, error } = useAvtale();
@@ -52,6 +52,7 @@ export function AvtaleDetaljer() {
   const {
     navn,
     avtalenummer,
+    lopenummer,
     tiltakstype,
     avtaletype,
     startDato,
@@ -61,6 +62,7 @@ export function AvtaleDetaljer() {
     kontorstruktur,
     arenaAnsvarligEnhet,
     arrangor,
+    opphav,
   } = avtale;
 
   return (
@@ -68,7 +70,11 @@ export function AvtaleDetaljer() {
       <div className={styles.detaljer}>
         <Bolk aria-label="Avtalenavn og avtalenummer">
           <Metadata header={avtaletekster.avtalenavnLabel} verdi={navn} />
-          <Metadata header={avtaletekster.avtalenummerLabel} verdi={avtalenummer} />
+          {opphav === Opphav.MR_ADMIN_FLATE ? (
+            <Metadata header={avtaletekster.lopenummerLabel} verdi={lopenummer} />
+          ) : (
+            <Metadata header={avtaletekster.arenaAvtalenummerLabel} verdi={avtalenummer} />
+          )}
         </Bolk>
 
         <Bolk aria-label={avtaletekster.tiltakstypeLabel}>

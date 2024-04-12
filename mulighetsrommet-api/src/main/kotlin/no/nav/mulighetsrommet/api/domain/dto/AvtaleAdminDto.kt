@@ -6,10 +6,7 @@ import no.nav.mulighetsrommet.api.domain.dbo.AvtaleDbo
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.ArenaAvtaleDbo
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
-import no.nav.mulighetsrommet.domain.dto.Avtalestatus
-import no.nav.mulighetsrommet.domain.dto.Avtaletype
-import no.nav.mulighetsrommet.domain.dto.Faneinnhold
-import no.nav.mulighetsrommet.domain.dto.NavIdent
+import no.nav.mulighetsrommet.domain.dto.*
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import java.time.LocalDate
@@ -22,6 +19,7 @@ data class AvtaleAdminDto(
     val tiltakstype: Tiltakstype,
     val navn: String,
     val avtalenummer: String?,
+    val lopenummer: Lopenummer?,
     val arrangor: ArrangorHovedenhet,
     @Serializable(with = LocalDateSerializer::class)
     val startDato: LocalDate,

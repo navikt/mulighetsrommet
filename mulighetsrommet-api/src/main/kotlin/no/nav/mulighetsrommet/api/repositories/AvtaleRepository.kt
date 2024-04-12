@@ -24,6 +24,7 @@ import no.nav.mulighetsrommet.domain.dbo.ArenaAvtaleDbo
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dto.Avtalestatus
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
+import no.nav.mulighetsrommet.domain.dto.Lopenummer
 import no.nav.mulighetsrommet.domain.dto.NavIdent
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
@@ -480,6 +481,7 @@ class AvtaleRepository(private val db: Database) {
             id = uuid("id"),
             navn = string("navn"),
             avtalenummer = stringOrNull("avtalenummer"),
+            lopenummer = stringOrNull("lopenummer")?.let { Lopenummer(it) },
             startDato = startDato,
             sluttDato = sluttDato,
             opphav = ArenaMigrering.Opphav.valueOf(string("opphav")),
