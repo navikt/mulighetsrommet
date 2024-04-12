@@ -1,4 +1,4 @@
-import { Button, HStack, Loader, Table, TextField } from "@navikt/ds-react";
+import { Button, HStack, Loader, Table, TextField, VStack } from "@navikt/ds-react";
 import { Arrangor, ArrangorKontaktperson } from "mulighetsrommet-api-client";
 import { useState } from "react";
 import { z } from "zod";
@@ -13,10 +13,13 @@ interface Props {
 
 export function ArrangorKontaktpersonOversikt({ arrangor }: Props) {
   const { data, isLoading } = useArrangorKontaktpersoner(arrangor.id);
-  const [redigerKontaktpersonId, setRedigerKontaktpersonId] = useState<string | undefined>(
+  const [redigerKontaktperson, setRedigerKontaktperson] = useState<
+    ArrangorKontaktperson | undefined
+  >(undefined);
+  const [slettKontaktperson, setSlettKontaktperson] = useState<ArrangorKontaktperson | undefined>(
     undefined,
   );
-  const [slettKontaktperson, setSlettKontaktperson] = useState<ArrangorKontaktperson | undefined>(
+  const [nyKontaktperson, setNyKontaktperson] = useState<ArrangorKontaktperson | undefined>(
     undefined,
   );
 
@@ -25,7 +28,7 @@ export function ArrangorKontaktpersonOversikt({ arrangor }: Props) {
   }
 
   return (
-    <div>
+    <VStack gap="5">
       <Table>
         <Table.Header>
           <Table.Row>
@@ -38,37 +41,63 @@ export function ArrangorKontaktpersonOversikt({ arrangor }: Props) {
         </Table.Header>
         <Table.Body>
           {data.map((kontaktperson) =>
-            redigerKontaktpersonId === kontaktperson.id ? (
+            redigerKontaktperson?.id === kontaktperson.id ? (
               <RedigerbarRad
                 key={kontaktperson.id}
                 kontaktperson={kontaktperson}
-                setRedigerKontaktperson={setRedigerKontaktpersonId}
+                setRedigerKontaktperson={setRedigerKontaktperson}
                 arrangor={arrangor}
               />
             ) : (
               <LeseRad
                 key={kontaktperson.id}
                 kontaktperson={kontaktperson}
-                setRedigerKontaktperson={setRedigerKontaktpersonId}
+                setRedigerKontaktperson={setRedigerKontaktperson}
                 setSlettKontaktperson={() => setSlettKontaktperson(kontaktperson)}
               />
             ),
           )}
+          {nyKontaktperson ? (
+            <RedigerbarRad
+              key={nyKontaktperson.id}
+              kontaktperson={nyKontaktperson}
+              setRedigerKontaktperson={setNyKontaktperson}
+              arrangor={arrangor}
+            />
+          ) : null}
         </Table.Body>
       </Table>
+      <HStack justify={"end"} gap="5">
+        <Button
+          variant="primary"
+          size="small"
+          onClick={() =>
+            setNyKontaktperson({
+              id: window.crypto.randomUUID(),
+              arrangorId: arrangor.id,
+              navn: "",
+              epost: "",
+              telefon: "",
+              beskrivelse: "",
+            })
+          }
+        >
+          Legg til ny kontaktperson
+        </Button>
+      </HStack>
       {slettKontaktperson ? (
         <SlettKontaktpersonModal
           onClose={() => setSlettKontaktperson(undefined)}
           kontaktperson={slettKontaktperson}
         />
       ) : null}
-    </div>
+    </VStack>
   );
 }
 
 interface ILeseRad {
   kontaktperson: ArrangorKontaktperson;
-  setRedigerKontaktperson: (kontaktpersonId: string | undefined) => void;
+  setRedigerKontaktperson: (kontaktpersonId: ArrangorKontaktperson | undefined) => void;
   setSlettKontaktperson: (kontaktperson: ArrangorKontaktperson | undefined) => void;
 }
 
@@ -86,7 +115,7 @@ function LeseRad({ kontaktperson, setRedigerKontaktperson, setSlettKontaktperson
       <Table.DataCell>
         <HStack gap="5">
           <Button
-            onClick={() => setRedigerKontaktperson(kontaktperson.id)}
+            onClick={() => setRedigerKontaktperson(kontaktperson)}
             variant="secondary"
             size="small"
           >
