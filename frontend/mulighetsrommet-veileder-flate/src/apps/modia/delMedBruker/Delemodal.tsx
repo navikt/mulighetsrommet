@@ -1,4 +1,4 @@
-import { BodyShort, Button, Heading, Modal } from "@navikt/ds-react";
+import { BodyShort, Button, Checkbox, Heading, HelpText, Modal } from "@navikt/ds-react";
 import {
   Bruker,
   DelMedBruker,
@@ -9,7 +9,7 @@ import { useLogEvent } from "@/logging/amplitude";
 import { erPreview } from "@/utils/Utils";
 import { StatusModal } from "@/components/modal/StatusModal";
 import { DelMedBrukerContent, MAKS_ANTALL_TEGN_DEL_MED_BRUKER } from "./DelMedBrukerContent";
-import delemodalStyles from "./Delemodal.module.scss";
+import style from "./Delemodal.module.scss";
 import { Actions, State } from "./DelemodalActions";
 import { erBrukerReservertMotElektroniskKommunikasjon } from "@/apps/modia/delMedBruker/helpers";
 import { PortenLink } from "@/components/PortenLink";
@@ -43,6 +43,7 @@ export function Delemodal({
   const { logEvent } = useLogEvent();
 
   const senderTilDialogen = state.sendtStatus === "SENDER";
+  const { enableRedigerDeletekst } = state;
 
   const originaltekstLengde = state.originalDeletekst.length;
   const lukkStatusmodal = () => dispatch({ type: "Toggle statusmodal", payload: false });
@@ -97,6 +98,14 @@ export function Delemodal({
 
   const { reservert, melding } = erBrukerReservertMotElektroniskKommunikasjon(brukerdata);
 
+  const enableEndreDeletekst = () => {
+    dispatch({ type: "Enable rediger deletekst", payload: true });
+    logEvent({
+      name: "arbeidsmarkedstiltak.del-med-bruker",
+      data: { action: "Endre deletekst", tiltakstype: tiltaksgjennomforing.tiltakstype.navn },
+    });
+  };
+
   return (
     <>
       {reservert ? (
@@ -113,16 +122,17 @@ export function Delemodal({
         <Modal
           open={state.modalOpen}
           onClose={lukkModal}
-          className={delemodalStyles.delemodal}
+          className={style.delemodal}
           aria-label="modal"
         >
           <Modal.Header closeButton>
             <Heading size="xsmall">Del med bruker</Heading>
-            <Heading size="large" level="1" className={delemodalStyles.heading}>
+            <Heading size="large" level="1" className={style.heading}>
               {"Tiltak gjennom NAV: " + tiltaksgjennomforing.navn}
             </Heading>
           </Modal.Header>
-          <Modal.Body className={delemodalStyles.body}>
+
+          <Modal.Body className={style.body}>
             <DelMedBrukerContent
               state={state}
               dispatch={dispatch}
@@ -130,10 +140,47 @@ export function Delemodal({
               brukernavn={brukernavn}
               harDeltMedBruker={harDeltMedBruker}
               tiltaksgjennomforing={tiltaksgjennomforing}
+              enableRedigerDeletekst={enableRedigerDeletekst}
             />
           </Modal.Body>
-          <Modal.Footer>
-            <div className={delemodalStyles.knapperad}>
+
+          <Modal.Footer className={style.delemodal_footer}>
+            <div className={style.delemodal_actions}>
+              {enableRedigerDeletekst ? null : (
+                <Button onClick={enableEndreDeletekst} variant="secondary">
+                  Rediger melding
+                </Button>
+              )}
+              <div className={style.delemodal_venter_pa_svar}>
+                <Checkbox
+                  onChange={(e) => {
+                    dispatch({
+                      type: "Venter på svar fra bruker",
+                      payload: e.currentTarget.checked,
+                    });
+                    if (e.currentTarget.checked) {
+                      logEvent({
+                        name: "arbeidsmarkedstiltak.del-med-bruker",
+                        data: {
+                          action: "Sett venter på svar fra bruker",
+                          tiltakstype: tiltaksgjennomforing.tiltakstype.navn,
+                        },
+                      });
+                    }
+                  }}
+                  checked={state.venterPaaSvarFraBruker}
+                  value="venter-pa-svar-fra-bruker"
+                >
+                  Venter på svar fra bruker
+                </Checkbox>
+                <HelpText title="Hva betyr dette valget?">
+                  Ved å huke av for at du venter på svar fra bruker vil du kunne bruke filteret i
+                  oversikten til å se alle brukere du venter på svar fra.
+                </HelpText>
+              </div>
+            </div>
+
+            <div className={style.knapperad}>
               <Button
                 variant="tertiary"
                 onClick={clickCancel}
