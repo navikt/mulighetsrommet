@@ -51,7 +51,12 @@ fun Route.avtaleRoutes() {
 
             delete("kontaktperson") {
                 val request = call.receive<FrikobleKontaktpersonRequest>()
-                val response = avtaler.frikobleKontaktpersonFraAvtale(kontaktpersonId = request.kontaktpersonId, avtaleId = request.dokumentId)
+                val navIdent = getNavIdent()
+                val response = avtaler.frikobleKontaktpersonFraAvtale(
+                    kontaktpersonId = request.kontaktpersonId,
+                    avtaleId = request.dokumentId,
+                    navIdent = navIdent,
+                )
                 call.respondWithStatusResponse(response)
             }
         }
