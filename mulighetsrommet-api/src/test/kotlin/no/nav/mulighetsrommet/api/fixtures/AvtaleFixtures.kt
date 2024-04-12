@@ -26,6 +26,8 @@ object AvtaleFixtures {
         url = "https://www.websak.no",
         beskrivelse = null,
         faneinnhold = null,
+        personopplysninger = emptyList(),
+        personvernBekreftet = false,
     )
 
     val oppfolgingMedAvtale = AvtaleDbo(
@@ -46,6 +48,8 @@ object AvtaleFixtures {
         url = "https://www.websak.no",
         beskrivelse = null,
         faneinnhold = null,
+        personopplysninger = emptyList(),
+        personvernBekreftet = false,
     )
 
     val gruppeAmo = AvtaleDbo(
@@ -66,6 +70,8 @@ object AvtaleFixtures {
         url = null,
         beskrivelse = null,
         faneinnhold = null,
+        personopplysninger = emptyList(),
+        personvernBekreftet = false,
     )
 
     val VTA = AvtaleDbo(
@@ -86,6 +92,8 @@ object AvtaleFixtures {
         url = null,
         beskrivelse = null,
         faneinnhold = null,
+        personopplysninger = emptyList(),
+        personvernBekreftet = false,
     )
 
     val AFT = AvtaleDbo(
@@ -106,6 +114,8 @@ object AvtaleFixtures {
         url = null,
         beskrivelse = null,
         faneinnhold = null,
+        personopplysninger = emptyList(),
+        personvernBekreftet = false,
     )
 
     val EnkelAmo = AvtaleDbo(
@@ -126,6 +136,8 @@ object AvtaleFixtures {
         url = null,
         beskrivelse = null,
         faneinnhold = null,
+        personopplysninger = emptyList(),
+        personvernBekreftet = false,
     )
 
     val avtaleRequest = AvtaleRequest(
@@ -145,5 +157,7 @@ object AvtaleFixtures {
         prisbetingelser = null,
         beskrivelse = null,
         faneinnhold = null,
+        personopplysninger = emptyList(),
+        personvernBekreftet = false,
     )
 }

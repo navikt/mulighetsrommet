@@ -33,6 +33,7 @@ import no.nav.mulighetsrommet.domain.dbo.ArenaAvtaleDbo
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dto.Avtalestatus
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
+import no.nav.mulighetsrommet.domain.dto.Personopplysning
 import org.intellij.lang.annotations.Language
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -197,6 +198,27 @@ class AvtaleRepositoryTest : FunSpec({
             avtaler.upsert(avtale)
             avtaler.get(avtale.id).shouldNotBeNull().should {
                 it.arrangor.kontaktpersoner shouldHaveSize 0
+            }
+        }
+
+        test("Personopplysninger") {
+            val avtaler = AvtaleRepository(database.db)
+            var avtale = AvtaleFixtures.oppfolging.copy(personopplysninger = listOf(Personopplysning.NAVN))
+            avtaler.upsert(avtale)
+            avtaler.get(avtale.id).shouldNotBeNull().should {
+                it.personopplysninger shouldContainExactly listOf(Personopplysning.NAVN)
+            }
+
+            avtale = avtale.copy(personopplysninger = listOf(Personopplysning.KJONN, Personopplysning.ADFERD))
+            avtaler.upsert(avtale)
+            avtaler.get(avtale.id).shouldNotBeNull().should {
+                it.personopplysninger shouldContainExactly listOf(Personopplysning.KJONN, Personopplysning.ADFERD)
+            }
+
+            avtale = avtale.copy(personopplysninger = emptyList())
+            avtaler.upsert(avtale)
+            avtaler.get(avtale.id).shouldNotBeNull().should {
+                it.personopplysninger shouldHaveSize 0
             }
         }
 

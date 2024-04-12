@@ -69,6 +69,8 @@ class AvtaleService(
                         navEnheter = navEnheter,
                         beskrivelse = beskrivelse,
                         faneinnhold = faneinnhold,
+                        personopplysninger = personopplysninger,
+                        personvernBekreftet = personvernBekreftet,
                     )
                 }
                 validator.validate(dbo, previous)

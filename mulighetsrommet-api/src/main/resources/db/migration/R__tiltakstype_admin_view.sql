@@ -18,8 +18,8 @@ select
         else 'Planlagt'
     end as status,
     COALESCE(
-        json_agg(
-            json_build_object(
+        jsonb_agg(
+            jsonb_build_object(
                 'personopplysning', tiltakstype_personopplysning.personopplysning,
                 'frekvens', tiltakstype_personopplysning.frekvens
             )

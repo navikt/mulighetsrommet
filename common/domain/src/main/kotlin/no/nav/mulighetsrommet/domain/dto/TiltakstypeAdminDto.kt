@@ -26,5 +26,5 @@ data class TiltakstypeAdminDto(
     val status: Tiltakstypestatus,
     @Serializable(with = UUIDSerializer::class)
     val sanityId: UUID?,
-    val personopplysninger: Map<Personopplysning, PersonopplysningFrekvens>,
+    val personopplysninger: Map<PersonopplysningFrekvens, List<Personopplysning>>,
 )

@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api.repositories
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.data.forAll
 import io.kotest.data.row
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
@@ -219,6 +220,27 @@ class TiltakstypeRepositoryTest : FunSpec({
         ).asExecute.let { database.db.run(it) }
         tiltakstyper.getBySanityId(sanityId).should {
             it?.id shouldBe TiltakstypeFixtures.Oppfolging.id
+        }
+    }
+
+    test("personopplysninger hentes") {
+        val tiltakstyper = TiltakstypeRepository(database.db)
+        tiltakstyper.upsert(TiltakstypeFixtures.Oppfolging)
+
+        @Language("PostgreSQL")
+        val query = """
+                insert into tiltakstype_personopplysning (tiltakskode, personopplysning, frekvens) values
+                    ('OPPFOLGING', 'NAVN', 'ALLTID'),
+                    ('OPPFOLGING', 'KJONN', 'ALLTID'),
+                    ('OPPFOLGING', 'ADFERD', 'OFTE');
+        """.trimIndent()
+        queryOf(
+            query,
+        ).asExecute.let { database.db.run(it) }
+
+        tiltakstyper.get(TiltakstypeFixtures.Oppfolging.id) should {
+            it!!.personopplysninger[PersonopplysningFrekvens.ALLTID] shouldContainExactlyInAnyOrder listOf(Personopplysning.NAVN, Personopplysning.KJONN)
+            it.personopplysninger[PersonopplysningFrekvens.OFTE] shouldContainExactlyInAnyOrder listOf(Personopplysning.ADFERD)
         }
     }
 })

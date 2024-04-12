@@ -283,7 +283,7 @@ class TiltakstypeRepository(private val db: Database) {
         val tilDato = localDate("til_dato")
 
         val personopplysninger = Json.decodeFromString<List<PersonopplysningOgFrekvens>>(string("personopplysninger"))
-            .associateBy({ it.personopplysning }, { it.frekvens })
+            .groupBy({ it.frekvens }, { it.personopplysning })
 
         return TiltakstypeAdminDto(
             id = uuid("id"),

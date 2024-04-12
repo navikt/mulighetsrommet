@@ -1957,6 +1957,7 @@ components:
         - fraDato
         - tilDato
         - status
+        - personopplysninger
 
     Avtale:
       type: object
@@ -2005,6 +2006,12 @@ components:
           type: string
         faneinnhold:
           $ref: "#/components/schemas/SanityFaneinnhold"
+        personopplysninger:
+          type: array
+          items:
+            $ref: "#/components/schemas/Personopplysning"
+        personvernBekreftet:
+          type: boolean
       required:
         - id
         - tiltakstype
@@ -2017,6 +2024,8 @@ components:
         - prisbetingelser
         - kontorstruktur
         - opphav
+        - personopplysninger
+        - personvernBekreftet
 
     AvtaleRequest:
       type: object
@@ -2072,6 +2081,12 @@ components:
         faneinnhold:
           $ref: "#/components/schemas/SanityFaneinnholdRequest"
           nullable: true
+        personopplysninger:
+          type: array
+          items:
+            $ref: "#/components/schemas/Personopplysning"
+        personvernBekreftet:
+          type: boolean
       required:
         - id
         - navn
@@ -2089,6 +2104,8 @@ components:
         - navEnheter
         - beskrivelse
         - faneinnhold
+        - personopplysninger
+        - personvernBekreftet
 
     EmbeddedTiltakstype:
       type: object
@@ -3659,70 +3676,22 @@ components:
     Personopplysninger:
       type: object
       properties:
-        NAVN:
-          $ref: "#/components/schemas/PersonopplysningFrekvens"
-        KJONN:
-          $ref: "#/components/schemas/PersonopplysningFrekvens"
-        ADRESSE:
-          $ref: "#/components/schemas/PersonopplysningFrekvens"
-        TELEFONNUMMER:
-          $ref: "#/components/schemas/PersonopplysningFrekvens"
-        FOLKEREGISTER_IDENTIFIKATOR:
-          $ref: "#/components/schemas/PersonopplysningFrekvens"
-        FODSELSDATO:
-          $ref: "#/components/schemas/PersonopplysningFrekvens"
-        BEHOV_FOR_BISTAND_FRA_NAV:
-          $ref: "#/components/schemas/PersonopplysningFrekvens"
-        YTELSER_FRA_NAV:
-          $ref: "#/components/schemas/PersonopplysningFrekvens"
-        BILDE:
-          $ref: "#/components/schemas/PersonopplysningFrekvens"
-        EPOST:
-          $ref: "#/components/schemas/PersonopplysningFrekvens"
-        BRUKERNAVN:
-          $ref: "#/components/schemas/PersonopplysningFrekvens"
-        ARBEIDSERFARING_OG_VERV:
-          $ref: "#/components/schemas/PersonopplysningFrekvens"
-        SERTIFIKATER_OG_KURS:
-          $ref: "#/components/schemas/PersonopplysningFrekvens"
-        IP_ADRESSE:
-          $ref: "#/components/schemas/PersonopplysningFrekvens"
-        UTDANNING_OG_FAGBREV:
-          $ref: "#/components/schemas/PersonopplysningFrekvens"
-        PERSONLIGE_EGENSKAPER_OG_INTERESSER:
-          $ref: "#/components/schemas/PersonopplysningFrekvens"
-        SPRAKKUNNSKAP:
-          $ref: "#/components/schemas/PersonopplysningFrekvens"
-        ADFERD:
-          $ref: "#/components/schemas/PersonopplysningFrekvens"
-        SOSIALE_FORHOLD:
-          $ref: "#/components/schemas/PersonopplysningFrekvens"
-        HELSEOPPLYSNINGER:
-          $ref: "#/components/schemas/PersonopplysningFrekvens"
-        RELIGION:
-          $ref: "#/components/schemas/PersonopplysningFrekvens"
+        ALLTID:
+          type: array
+          items:
+            $ref: "#/components/schemas/Personopplysning"
+        OFTE:
+          type: array
+          items:
+            $ref: "#/components/schemas/Personopplysning"
+        SJELDEN:
+          type: array
+          items:
+            $ref: "#/components/schemas/Personopplysning"
       required:
-        - NAVN
-        - KJONN
-        - ADRESSE
-        - TELEFONNUMMER
-        - FOLKEREGISTER_IDENTIFIKATOR
-        - FODSELSDATO
-        - BEHOV_FOR_BISTAND_FRA_NAV
-        - YTELSER_FRA_NAV
-        - BILDE
-        - EPOST
-        - BRUKERNAVN
-        - ARBEIDSERFARING_OG_VERV
-        - SERTIFIKATER_OG_KURS
-        - IP_ADRESSE
-        - UTDANNING_OG_FAGBREV
-        - PERSONLIGE_EGENSKAPER_OG_INTERESSER
-        - SPRAKKUNNSKAP
-        - ADFERD
-        - SOSIALE_FORHOLD
-        - HELSEOPPLYSNINGER
-        - RELIGION
+        - ALLTID
+        - OFTE
+        - SJELDEN
 
     KoblingerForKontaktperson:
       type: object
