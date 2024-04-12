@@ -1,4 +1,4 @@
-drop view if exists tiltakstype_admin_dto_view;
+-- drop view if exists tiltakstype_admin_dto_view;
 
 create view tiltakstype_admin_dto_view as
 select id,
