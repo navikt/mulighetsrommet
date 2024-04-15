@@ -7,6 +7,8 @@ import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.comparables.shouldBeLessThan
+import io.kotest.matchers.ints.shouldBeGreaterThanOrEqual
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
@@ -97,6 +99,25 @@ class AvtaleRepositoryTest : FunSpec({
                 it.opphav shouldBe ArenaMigrering.Opphav.ARENA
                 it.prisbetingelser shouldBe "Alt er dyrt"
             }
+        }
+
+        test("upsert genererer nye løpenummer") {
+            val avtaler = AvtaleRepository(database.db)
+
+            val avtale1Id = AvtaleFixtures.oppfolging.id
+            val avtale2Id = UUID.randomUUID()
+
+            avtaler.upsert(AvtaleFixtures.oppfolging)
+            avtaler.upsert(AvtaleFixtures.oppfolging.copy(id = avtale2Id))
+
+            val get = avtaler.get(avtale1Id)
+            val avtale1Lopenummer = get.shouldNotBeNull().lopenummer.shouldNotBeNull()
+            val avtale2Lopenummer = avtaler.get(avtale2Id).shouldNotBeNull().lopenummer.shouldNotBeNull()
+
+            avtale1Lopenummer.getParts().first shouldBe LocalDate.now().year
+            avtale2Lopenummer.getParts().first shouldBe LocalDate.now().year
+            avtale1Lopenummer.getParts().second shouldBeGreaterThanOrEqual 10_000
+            avtale1Lopenummer.getParts().second shouldBeLessThan avtale2Lopenummer.getParts().second
         }
 
         test("upsert setter opphav til MR_ADMIN_FLATE") {

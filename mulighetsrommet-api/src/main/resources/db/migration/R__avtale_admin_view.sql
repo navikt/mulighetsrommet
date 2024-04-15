@@ -1,10 +1,10 @@
---2024-04-09 migrering drop'et view uten å endre det. Da forsvant det i prod
 drop view if exists avtale_admin_dto_view;
 
 create view avtale_admin_dto_view as
 select avtale.id,
        avtale.navn,
        avtale.avtalenummer,
+       avtale.lopenummer,
        avtale.start_dato,
        avtale.slutt_dato,
        avtale.opphav,

@@ -5,6 +5,7 @@ import {
   Tiltaksgjennomforing,
   TiltaksgjennomforingOppstartstype,
   TiltaksgjennomforingStatus,
+  Toggles,
 } from "mulighetsrommet-api-client";
 import { useTitle } from "mulighetsrommet-frontend-common";
 import { NOM_ANSATT_SIDE } from "mulighetsrommet-frontend-common/constants";
@@ -25,6 +26,7 @@ import { HarSkrivetilgang } from "@/components/authActions/HarSkrivetilgang";
 import { erArenaOpphavOgIngenEierskap } from "@/components/tiltaksgjennomforinger/TiltaksgjennomforingSkjemaConst";
 import { useMigrerteTiltakstyper } from "@/api/tiltakstyper/useMigrerteTiltakstyper";
 import { ArrangorKontaktpersonDetaljer } from "../arrangor/ArrangorKontaktpersonDetaljer";
+import { useFeatureToggle } from "../../api/features/feature-toggles";
 
 interface Props {
   tiltaksgjennomforing: Tiltaksgjennomforing;
@@ -35,6 +37,9 @@ export function TiltaksgjennomforingDetaljer(props: Props) {
   const { tiltaksgjennomforing, avtale } = props;
   useTitle(
     `Tiltaksgjennomføring ${tiltaksgjennomforing.navn ? `- ${tiltaksgjennomforing.navn}` : null}`,
+  );
+  const { data: enableArrangorSide } = useFeatureToggle(
+    Toggles.MULIGHETSROMMET_ADMIN_FLATE_ENABLE_ARRANGOR_SIDER,
   );
   const { data: migrerteTiltakstyper = [] } = useMigrerteTiltakstyper();
   const avbrytModalRef = useRef<HTMLDialogElement>(null);
@@ -259,7 +264,15 @@ export function TiltaksgjennomforingDetaljer(props: Props) {
             <Bolk aria-label={tiltaktekster.tiltaksarrangorHovedenhetLabel}>
               <Metadata
                 header={tiltaktekster.tiltaksarrangorHovedenhetLabel}
-                verdi={`${avtale.arrangor.navn} - ${avtale.arrangor.organisasjonsnummer}`}
+                verdi={
+                  enableArrangorSide ? (
+                    <Link to={`/arrangorer/${avtale.arrangor.id}`}>
+                      {avtale.arrangor.navn} - {avtale.arrangor.organisasjonsnummer}
+                    </Link>
+                  ) : (
+                    `${avtale.arrangor.navn} - ${avtale.arrangor.organisasjonsnummer}`
+                  )
+                }
               />
             </Bolk>
           ) : null}
