@@ -132,6 +132,7 @@ class AvtaleService(
             sortering = filter.sortering,
             arrangorIds = filter.arrangorIds,
             administratorNavIdent = filter.administratorNavIdent,
+            personvernBekreftet = filter.personvernBekreftet,
         )
 
         return PaginatedResponse.of(pagination, totalCount, items)

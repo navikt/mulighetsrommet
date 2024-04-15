@@ -574,6 +574,33 @@ class AvtaleRepositoryTest : FunSpec({
 
             result.totalCount shouldBe 2
         }
+
+        test("Filtrering på personvern_bekreftet") {
+            val avtale1 = AvtaleFixtures.oppfolging.copy(
+                personvernBekreftet = true,
+            )
+            val avtale2 = avtale1.copy(
+                id = UUID.randomUUID(),
+                personvernBekreftet = true,
+            )
+            val avtale3 = avtale1.copy(
+                id = UUID.randomUUID(),
+                personvernBekreftet = false,
+            )
+
+            avtaler.upsert(avtale1)
+            avtaler.upsert(avtale2)
+            avtaler.upsert(avtale3)
+
+            var result = avtaler.getAll(personvernBekreftet = true)
+            result.totalCount shouldBe 2
+
+            result = avtaler.getAll(personvernBekreftet = false)
+            result.totalCount shouldBe 1
+
+            result = avtaler.getAll(personvernBekreftet = null)
+            result.totalCount shouldBe 3
+        }
     }
 
     context("Sortering") {

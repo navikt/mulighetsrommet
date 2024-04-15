@@ -164,6 +164,9 @@ export function createQueryParamsForExcelDownload(filter: AvtaleFilter): URLSear
   if (filter.visMineAvtaler) {
     queryParams.set("visMineAvtaler", "true");
   }
+  if (filter.personvernUavklart) {
+    queryParams.set("personvernUavklart", "true");
+  }
 
   queryParams.set("size", "10000");
   return queryParams;

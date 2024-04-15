@@ -21,6 +21,7 @@ data class AvtaleFilter(
     val sortering: String? = null,
     val arrangorIds: List<UUID> = emptyList(),
     val administratorNavIdent: NavIdent? = null,
+    val personvernBekreftet: Boolean? = null,
 )
 
 data class EksternTiltaksgjennomforingFilter(
@@ -63,6 +64,7 @@ fun <T : Any> PipelineContext<T, ApplicationCall>.getAvtaleFilter(): AvtaleFilte
     val navRegioner = call.parameters.getAll("navRegioner") ?: emptyList()
     val sortering = call.request.queryParameters["sort"]
     val arrangorIds = call.parameters.getAll("arrangorer")?.map { UUID.fromString(it) } ?: emptyList()
+    val personvernBekreftet = call.request.queryParameters["personvernBekreftet"]?.let { it == "true" }
 
     return AvtaleFilter(
         tiltakstypeIder = tiltakstypeIder,
@@ -73,6 +75,7 @@ fun <T : Any> PipelineContext<T, ApplicationCall>.getAvtaleFilter(): AvtaleFilte
         sortering = sortering,
         arrangorIds = arrangorIds,
         administratorNavIdent = null,
+        personvernBekreftet = personvernBekreftet,
     )
 }
 

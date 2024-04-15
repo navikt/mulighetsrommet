@@ -204,6 +204,7 @@ const avtaleFilterSchema = z.object({
   sortering: z.custom<SorteringAvtaler>(),
   arrangorer: z.string().array(),
   visMineAvtaler: z.boolean(),
+  personvernUavklart: z.boolean(),
   page: z.number(),
   pageSize: z.number(),
 });
@@ -218,6 +219,7 @@ export const defaultAvtaleFilter: AvtaleFilter = {
   sortering: SorteringAvtaler.NAVN_ASCENDING,
   arrangorer: [],
   visMineAvtaler: false,
+  personvernUavklart: false,
   page: 1,
   pageSize: AVTALE_PAGE_SIZE,
 };

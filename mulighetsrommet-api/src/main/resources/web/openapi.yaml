@@ -135,6 +135,10 @@ paths:
           name: sort
           schema:
             $ref: "#/components/schemas/SorteringAvtaler"
+        - in: query
+          name: personvernBekreftet
+          schema:
+            type: boolean
       responses:
         200:
           description: Object of paginated avtaler connected to specified tiltakstype-id.
