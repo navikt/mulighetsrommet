@@ -8,6 +8,7 @@ import { NavEnhetFilterTag } from "./components/filter/filterTag/NavEnhetFilterT
 import { FilterTag } from "./components/filter/filterTag/FilterTag";
 import { FilterTagsContainer } from "./components/filter/filterTag/FilterTagsContainer";
 import { FilterAccordionHeader } from "./components/filter/accordionHeader/FilterAccordionHeader";
+import { Drawer } from "./components/drawer/Drawer";
 
 export {
   useDebounce,
@@ -20,4 +21,5 @@ export {
   FilterTag,
   FilterTagsContainer,
   FilterAccordionHeader,
+  Drawer,
 };
