@@ -4,7 +4,7 @@ on:
   push:
     paths:
       - iac/bigquery-views/**
-      - .github/workflows/deploy-views.yaml
+      - .github/workflows/deploy-bigquery-views.yaml
   workflow_dispatch:
     inputs:
       environment:
@@ -17,7 +17,19 @@ on:
           - dev_and_prod
 
 jobs:
+  ci:
+    name: CI
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Lint
+        uses: ./.github/actions/lint-yaml
+        with:
+          path: iac/bigquery-views
+
   deploy-dev-views:
+    needs: [ci]
     if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch'
     permissions:
       id-token: write # Needed for `nais/deploy/actions/deploy`
@@ -28,6 +40,7 @@ jobs:
       project: team-mulighetsrommet-dev-a2d7
 
   deploy-prod-views:
+    needs: [ci]
     if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'dev_and_prod'
     permissions:
       id-token: write # Needed for `nais/deploy/actions/deploy`
