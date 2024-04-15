@@ -159,7 +159,7 @@ class ArenaAdapterService(
 
             val next = tiltaksgjennomforinger.get(mergedArenaGjennomforing.id, tx)!!
 
-            if (previous?.tiltaksnummer == null) {
+            if (previous != null && previous.tiltaksnummer == null) {
                 logTiltaksnummerHentetFraArena(tx, next)
             } else {
                 logUpdateGjennomforing(tx, next)
