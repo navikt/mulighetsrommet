@@ -5,10 +5,8 @@
   "module": "index.ts",
   "types": "index.tsx",
   "dependencies": {
-    "@navikt/ds-react": "6.3.6",
-    "classnames": "^2.5.1",
+    "@navikt/ds-react": "6.5.0",
     "debounce": "2.0.0",
-    "focus-trap-react": "^10.2.3",
     "mulighetsrommet-api-client": "*",
     "react-router-dom": "6.22.3",
     "react-select": "^5.8.0",
