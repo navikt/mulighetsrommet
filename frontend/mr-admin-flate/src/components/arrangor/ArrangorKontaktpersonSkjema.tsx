@@ -84,6 +84,7 @@ export const ArrangorKontaktpersonSkjema = (props: VirksomhetKontaktpersonerProp
       telefon: state.telefon || null,
       beskrivelse: state.beskrivelse || null,
       epost: state.epost,
+      ansvarligFor: [],
     });
   }
 

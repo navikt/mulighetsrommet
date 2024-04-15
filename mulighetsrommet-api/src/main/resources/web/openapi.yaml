@@ -2813,12 +2813,17 @@ components:
           nullable: true
         epost:
           type: string
+        ansvarligFor:
+          type: array
+          items:
+            $ref: "#/components/schemas/ArrangorKontaktpersonAnsvar"
       required:
         - id
         - navn
         - epost
         - telefon
         - beskrivelse
+        - ansvarligFor
 
     ArrangorKontaktperson:
       type: object
@@ -2839,6 +2844,10 @@ components:
           nullable: true
         epost:
           type: string
+        ansvarligFor:
+          type: array
+          items:
+            $ref: "#/components/schemas/ArrangorKontaktpersonAnsvar"
       required:
         - id
         - arrangorId
@@ -2846,6 +2855,14 @@ components:
         - beskrivelse
         - telefon
         - epost
+        - ansvarligFor
+
+    ArrangorKontaktpersonAnsvar:
+      type: string
+      enum:
+        - AVTALE
+        - TILTAKSGJENNOMFORING
+        - OKONOMI
 
     AvtaleAdministrator:
       type: object

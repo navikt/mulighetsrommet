@@ -1,4 +1,4 @@
-import { ArrangorKontaktperson } from "mulighetsrommet-api-client";
+import { ArrangorKontaktperson, ArrangorKontaktpersonAnsvar } from "mulighetsrommet-api-client";
 
 export const mockArrangorKontaktpersoner: ArrangorKontaktperson[] = [
   {
@@ -8,6 +8,7 @@ export const mockArrangorKontaktpersoner: ArrangorKontaktperson[] = [
     id: "de954183-dfbf-4b70-87d2-3ba3b807129e",
     arrangorId: "c95e836f-a381-4d82-b8e3-74257b14f26c",
     beskrivelse: "Sekretær",
+    ansvarligFor: [ArrangorKontaktpersonAnsvar.AVTALE],
   },
   {
     epost: "elvira.johansen@arrangor.no",
@@ -16,5 +17,6 @@ export const mockArrangorKontaktpersoner: ArrangorKontaktperson[] = [
     id: "20e70e14-2b6a-440d-af5c-5f0a1ee7a416",
     arrangorId: "c95e836f-a381-4d82-b8e3-74257b14f26c",
     beskrivelse: "Direktør",
+    ansvarligFor: [ArrangorKontaktpersonAnsvar.AVTALE, ArrangorKontaktpersonAnsvar.OKONOMI],
   },
 ];

@@ -1,5 +1,18 @@
-import { Button, HStack, Loader, Table, TextField, VStack } from "@navikt/ds-react";
-import { Arrangor, ArrangorKontaktperson } from "mulighetsrommet-api-client";
+import {
+  Button,
+  HStack,
+  Loader,
+  Table,
+  Tag,
+  TextField,
+  UNSAFE_Combobox,
+  VStack,
+} from "@navikt/ds-react";
+import {
+  Arrangor,
+  ArrangorKontaktperson,
+  ArrangorKontaktpersonAnsvar,
+} from "mulighetsrommet-api-client";
 import { useState } from "react";
 import { z } from "zod";
 import { useArrangorKontaktpersoner } from "../../api/arrangor/useArrangorKontaktpersoner";
@@ -35,6 +48,7 @@ export function ArrangorKontaktpersonOversikt({ arrangor }: Props) {
             <Table.HeaderCell>Kontaktperson</Table.HeaderCell>
             <Table.HeaderCell>Telefon</Table.HeaderCell>
             <Table.HeaderCell>E-post</Table.HeaderCell>
+            <Table.HeaderCell>Ansvarlig for</Table.HeaderCell>
             <Table.HeaderCell>Beskrivelse</Table.HeaderCell>
             <Table.HeaderCell>{""}</Table.HeaderCell>
           </Table.Row>
@@ -81,6 +95,7 @@ export function ArrangorKontaktpersonOversikt({ arrangor }: Props) {
               epost: "",
               telefon: "",
               beskrivelse: "",
+              ansvarligFor: [],
             })
           }
         >
@@ -112,6 +127,26 @@ function LeseRad({ kontaktperson, setRedigerKontaktperson, setSlettKontaktperson
       </Table.DataCell>
       <Table.DataCell>
         <a href={`mailto:${kontaktperson.epost}`}>{kontaktperson.epost}</a>
+      </Table.DataCell>
+      <Table.DataCell>
+        <ul
+          style={{
+            listStyle: "none",
+            margin: 0,
+            padding: 0,
+            display: "flex",
+            gap: "1rem",
+            justifyContent: "flex-start",
+          }}
+        >
+          {kontaktperson.ansvarligFor.map((ansvar, index) => (
+            <li key={index}>
+              <Tag variant="info" size="small">
+                {navnForAnvar(ansvar)}
+              </Tag>
+            </li>
+          ))}
+        </ul>
       </Table.DataCell>
       <Table.DataCell>{kontaktperson.beskrivelse}</Table.DataCell>
       <Table.DataCell>
@@ -164,13 +199,14 @@ function RedigerbarRad({ kontaktperson, setRedigerKontaktperson, arrangor }: Red
     epost: kontaktperson.epost || "",
     telefon: kontaktperson.telefon || "",
     beskrivelse: kontaktperson.beskrivelse || "",
+    ansvarligFor: kontaktperson.ansvarligFor || [],
     errors: {},
   };
 
   const [state, setState] = useState<State>(defaultState);
   const mutation = useUpsertArrangorKontaktperson(arrangor.id);
 
-  function updateField(field: keyof ArrangorKontaktperson, value: string) {
+  function updateField(field: keyof ArrangorKontaktperson, value: string | string[]) {
     setState((prevKontaktperson) => ({ ...prevKontaktperson, [field]: value }));
   }
 
@@ -241,6 +277,34 @@ function RedigerbarRad({ kontaktperson, setRedigerKontaktperson, arrangor }: Red
         />
       </Table.DataCell>
       <Table.DataCell>
+        <UNSAFE_Combobox
+          label="Hva er kontaktpersonen ansvarlig for?"
+          hideLabel
+          size="small"
+          isMultiSelect
+          selectedOptions={state.ansvarligFor.map((ansvar) => ({
+            label: navnForAnvar(ansvar),
+            value: ansvar,
+          }))}
+          options={[
+            { value: ArrangorKontaktpersonAnsvar.AVTALE, label: "Avtale" },
+            {
+              value: ArrangorKontaktpersonAnsvar.TILTAKSGJENNOMFORING,
+              label: "Tiltaksgjennomføring",
+            },
+            { value: ArrangorKontaktpersonAnsvar.OKONOMI, label: "Økonomi" },
+          ]}
+          onToggleSelected={(option, isSelected) => {
+            updateField(
+              "ansvarligFor",
+              isSelected
+                ? [...state.ansvarligFor, option]
+                : state.ansvarligFor.filter((o) => o !== option),
+            );
+          }}
+        />
+      </Table.DataCell>
+      <Table.DataCell>
         {" "}
         <TextField
           label="Beskrivelse"
@@ -263,4 +327,17 @@ function RedigerbarRad({ kontaktperson, setRedigerKontaktperson, arrangor }: Red
       </Table.DataCell>
     </Table.Row>
   );
+}
+
+function navnForAnvar(
+  ansvar: ArrangorKontaktpersonAnsvar,
+): "Avtale" | "Tiltaksgjennomføring" | "Økonomi" {
+  switch (ansvar) {
+    case ArrangorKontaktpersonAnsvar.AVTALE:
+      return "Avtale";
+    case ArrangorKontaktpersonAnsvar.TILTAKSGJENNOMFORING:
+      return "Tiltaksgjennomføring";
+    case ArrangorKontaktpersonAnsvar.OKONOMI:
+      return "Økonomi";
+  }
 }
