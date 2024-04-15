@@ -14,11 +14,19 @@ export function AvtalePersonvern() {
   }
 
   if (error) {
-    return <Alert variant="error">Klarte ikke hente avtaleinformasjon</Alert>;
+    return (
+      <Alert style={{ margin: "1rem" }} variant="error">
+        Klarte ikke hente avtaleinformasjon
+      </Alert>
+    );
   }
 
   if (avtale.personopplysninger.length === 0) {
-    return <Alert variant="info">Personopplysninger som kan behandles er ikke bekreftet</Alert>;
+    return (
+      <Alert style={{ margin: "1rem" }} variant="info">
+        Personopplysninger som kan behandles er ikke bekreftet
+      </Alert>
+    );
   }
 
   return (
