@@ -1,17 +1,15 @@
-import { Alert, Button, TextField } from "@navikt/ds-react";
-import { ArrangorKontaktperson, Avtale, Toggles } from "mulighetsrommet-api-client";
+import { useArrangorKontaktpersoner } from "@/api/arrangor/useArrangorKontaktpersoner";
+import { Button, TextField } from "@navikt/ds-react";
+import { ArrangorKontaktperson, Avtale } from "mulighetsrommet-api-client";
 import { ControlledSokeSelect } from "mulighetsrommet-frontend-common";
 import { useRef } from "react";
 import { useFormContext } from "react-hook-form";
-import { useArrangorKontaktpersoner } from "@/api/arrangor/useArrangorKontaktpersoner";
+import { ArrangorKontaktpersonerModal } from "../arrangor/ArrangorKontaktpersonerModal";
+import { tiltaktekster } from "../ledetekster/tiltaksgjennomforingLedetekster";
+import { InferredTiltaksgjennomforingSchema } from "../redaksjonelt-innhold/TiltaksgjennomforingSchema";
 import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { FormGroup } from "../skjema/FormGroup";
 import skjemastyles from "../skjema/Skjema.module.scss";
-import { ArrangorKontaktpersonerModal } from "../arrangor/ArrangorKontaktpersonerModal";
-import { InferredTiltaksgjennomforingSchema } from "../redaksjonelt-innhold/TiltaksgjennomforingSchema";
-import { tiltaktekster } from "../ledetekster/tiltaksgjennomforingLedetekster";
-import { Link } from "react-router-dom";
-import { useFeatureToggle } from "../../api/features/feature-toggles";
 
 interface Props {
   avtale: Avtale;
@@ -20,9 +18,6 @@ interface Props {
 
 export function TiltaksgjennomforingArrangorSkjema({ readOnly, avtale }: Props) {
   const arrangorKontaktpersonerModalRef = useRef<HTMLDialogElement>(null);
-  const { data: enableArrangorsider } = useFeatureToggle(
-    Toggles.MULIGHETSROMMET_ADMIN_FLATE_ENABLE_ARRANGOR_SIDER,
-  );
 
   const {
     register,
@@ -64,23 +59,15 @@ export function TiltaksgjennomforingArrangorSkjema({ readOnly, avtale }: Props) 
             {...register("arrangorKontaktpersoner")}
             options={kontaktpersonOptions}
           />
-          {enableArrangorsider ? (
-            <Alert style={{ marginTop: "1rem" }} variant="info" inline>
-              Savner du kontaktpersoner?
-              <br /> Opprettelse av kontaktpersoner gjøres via{" "}
-              <Link to="/arrangorer">Arrangør-sidene</Link>
-            </Alert>
-          ) : (
-            <Button
-              className={skjemastyles.kontaktperson_button}
-              size="small"
-              type="button"
-              variant="tertiary"
-              onClick={() => arrangorKontaktpersonerModalRef.current?.showModal()}
-            >
-              Opprett eller rediger kontaktpersoner
-            </Button>
-          )}
+          <Button
+            className={skjemastyles.kontaktperson_button}
+            size="small"
+            type="button"
+            variant="tertiary"
+            onClick={() => arrangorKontaktpersonerModalRef.current?.showModal()}
+          >
+            Opprett eller rediger kontaktpersoner
+          </Button>
         </div>
         <TextField
           size="small"

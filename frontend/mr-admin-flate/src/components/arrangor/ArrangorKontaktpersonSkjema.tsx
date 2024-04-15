@@ -1,10 +1,13 @@
-import { Button, TextField } from "@navikt/ds-react";
+import { Button, TextField, UNSAFE_Combobox } from "@navikt/ds-react";
 import { useEffect, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import styles from "./ArrangorKontaktpersonSkjema.module.scss";
 import { useUpsertArrangorKontaktperson } from "@/api/arrangor/useUpsertArrangorKontaktperson";
 import { validEmail } from "../../utils/Utils";
-import { ArrangorKontaktperson as ArrangorKontaktperson } from "mulighetsrommet-api-client";
+import {
+  ArrangorKontaktperson as ArrangorKontaktperson,
+  ArrangorKontaktpersonAnsvar,
+} from "mulighetsrommet-api-client";
 import { useDeleteArrangorKontaktperson } from "@/api/arrangor/useDeleteArrangorKontaktperson";
 import { resolveErrorMessage } from "@/api/errors";
 import { useHandleApiUpsertResponse } from "@/api/effects";
@@ -16,6 +19,7 @@ interface State {
   epost: string;
   telefon: string;
   beskrivelse: string;
+  ansvarligFor: ArrangorKontaktpersonAnsvar[];
   errors: ArrangorKontaktpersonErrors;
 }
 
@@ -35,6 +39,7 @@ export const ArrangorKontaktpersonSkjema = (props: VirksomhetKontaktpersonerProp
     telefon: person?.telefon ?? "",
     beskrivelse: person?.beskrivelse ?? "",
     epost: person?.epost ?? "",
+    ansvarligFor: person?.ansvarligFor ?? [],
     errors: {},
   });
 
@@ -84,7 +89,7 @@ export const ArrangorKontaktpersonSkjema = (props: VirksomhetKontaktpersonerProp
       telefon: state.telefon || null,
       beskrivelse: state.beskrivelse || null,
       epost: state.epost,
-      ansvarligFor: [],
+      ansvarligFor: state.ansvarligFor,
     });
   }
 
@@ -134,6 +139,31 @@ export const ArrangorKontaktpersonSkjema = (props: VirksomhetKontaktpersonerProp
           />
         </div>
       </div>
+      <UNSAFE_Combobox
+        label="Hva er kontaktpersonen ansvarlig for?"
+        size="small"
+        isMultiSelect
+        selectedOptions={state.ansvarligFor.map((ansvar) => ({
+          label: navnForAnvar(ansvar),
+          value: ansvar,
+        }))}
+        options={[
+          { value: ArrangorKontaktpersonAnsvar.AVTALE, label: "Avtale" },
+          {
+            value: ArrangorKontaktpersonAnsvar.TILTAKSGJENNOMFORING,
+            label: "Tiltaksgjennomføring",
+          },
+          { value: ArrangorKontaktpersonAnsvar.OKONOMI, label: "Økonomi" },
+        ]}
+        onToggleSelected={(option, isSelected) => {
+          setState({
+            ...state,
+            ansvarligFor: isSelected
+              ? [...state.ansvarligFor, option as ArrangorKontaktpersonAnsvar]
+              : state.ansvarligFor.filter((o) => o !== option),
+          });
+        }}
+      />
       <TextField
         size="small"
         label={"Beskrivelse"}
@@ -165,3 +195,16 @@ export const ArrangorKontaktpersonSkjema = (props: VirksomhetKontaktpersonerProp
     </div>
   );
 };
+
+function navnForAnvar(
+  ansvar: ArrangorKontaktpersonAnsvar,
+): "Avtale" | "Tiltaksgjennomføring" | "Økonomi" {
+  switch (ansvar) {
+    case ArrangorKontaktpersonAnsvar.AVTALE:
+      return "Avtale";
+    case ArrangorKontaktpersonAnsvar.TILTAKSGJENNOMFORING:
+      return "Tiltaksgjennomføring";
+    case ArrangorKontaktpersonAnsvar.OKONOMI:
+      return "Økonomi";
+  }
+}
