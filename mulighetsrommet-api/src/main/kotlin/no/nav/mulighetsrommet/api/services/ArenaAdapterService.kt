@@ -159,7 +159,7 @@ class ArenaAdapterService(
 
             val next = tiltaksgjennomforinger.get(mergedArenaGjennomforing.id, tx)!!
 
-            if (previous?.tiltaksnummer == null) {
+            if (previous != null && previous.tiltaksnummer == null) {
                 logTiltaksnummerHentetFraArena(tx, next)
             } else {
                 logUpdateGjennomforing(tx, next)
@@ -286,8 +286,10 @@ class ArenaAdapterService(
             apentForInnsok = current.apentForInnsok,
             antallPlasser = current.antallPlasser,
             avtaleId = current.avtaleId,
-            oppstart = current.oppstart,
             deltidsprosent = current.deltidsprosent,
+
+            // Oppstart kan endres utenfor Arena, dette feltet er derfor ikke med i duplikatsjekken
+            oppstart = arenaGjennomforing.oppstart,
         )
         return currentAsArenaGjennomforing == arenaGjennomforing
     }
