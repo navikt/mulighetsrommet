@@ -101,7 +101,7 @@ export function AvtalePersonvernForm({ tiltakstypeId }: Props) {
             >
               veileder for arbeidsrettet brukeroppfølging
             </Link>{" "}
-            pkt. 4.4.
+            pkt. 4.3.
           </BodyShort>
         </VStack>
       </HGrid>
