@@ -25,6 +25,13 @@ updates:
       time: "07:00"
       timezone: Europe/Oslo
     open-pull-requests-limit: 10
+    groups:
+      patches:
+        update-types:
+          - "patch"
+      minorversions:
+        update-types:
+          - "minor"
 
   - package-ecosystem: npm
     directory: "/"

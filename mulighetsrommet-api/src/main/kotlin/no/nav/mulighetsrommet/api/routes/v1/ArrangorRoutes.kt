@@ -117,6 +117,7 @@ data class ArrangorKontaktpersonRequest(
     val telefon: String?,
     val beskrivelse: String?,
     val epost: String,
+    val ansvarligFor: List<ArrangorKontaktperson.AnsvarligFor>,
 ) {
     fun toDto(arrangorId: UUID): StatusResponse<ArrangorKontaktperson> {
         val navn = navn.trim()
@@ -143,6 +144,7 @@ data class ArrangorKontaktpersonRequest(
                 telefon = telefon?.trim()?.ifEmpty { null },
                 epost = epost,
                 beskrivelse = beskrivelse?.trim()?.ifEmpty { null },
+                ansvarligFor = ansvarligFor,
             ),
         )
     }

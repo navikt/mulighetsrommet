@@ -44,7 +44,8 @@ select avtale.id,
                    'navn', arrangor_kontaktperson.navn,
                    'telefon', arrangor_kontaktperson.telefon,
                    'epost', arrangor_kontaktperson.epost,
-                   'beskrivelse', arrangor_kontaktperson.beskrivelse
+                   'beskrivelse', arrangor_kontaktperson.beskrivelse,
+                    'ansvarligFor', arrangor_kontaktperson.ansvarlig_for
                )
            end
        )                                   as arrangor_kontaktpersoner_json,

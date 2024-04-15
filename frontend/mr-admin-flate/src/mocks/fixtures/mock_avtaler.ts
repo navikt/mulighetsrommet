@@ -34,6 +34,7 @@ export const mockAvtaler: Avtale[] = [
           epost: "ole.kjetil.martinsen@arrangor.no",
           telefon: "90123456",
           beskrivelse: "Direktør",
+          ansvarligFor: [],
         },
       ],
     },

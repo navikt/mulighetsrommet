@@ -273,14 +273,15 @@ class ArrangorRepository(private val db: Database) {
     fun upsertKontaktperson(kontaktperson: ArrangorKontaktperson): ArrangorKontaktperson {
         @Language("PostgreSQL")
         val upsert = """
-            insert into arrangor_kontaktperson(id, arrangor_id, navn, telefon, epost, beskrivelse)
-            values (:id::uuid, :arrangor_id, :navn, :telefon, :epost, :beskrivelse)
+            insert into arrangor_kontaktperson(id, arrangor_id, navn, telefon, epost, beskrivelse, ansvarlig_for)
+            values (:id::uuid, :arrangor_id, :navn, :telefon, :epost, :beskrivelse, :ansvarligFor::arrangor_kontaktperson_ansvarlig_for_type[])
             on conflict (id) do update set
-                navn                = excluded.navn,
-                arrangor_id         = excluded.arrangor_id,
-                telefon             = excluded.telefon,
-                epost               = excluded.epost,
-                beskrivelse         = excluded.beskrivelse
+                navn                    = excluded.navn,
+                arrangor_id             = excluded.arrangor_id,
+                telefon                 = excluded.telefon,
+                epost                   = excluded.epost,
+                beskrivelse             = excluded.beskrivelse,
+                ansvarlig_for           = excluded.ansvarlig_for::arrangor_kontaktperson_ansvarlig_for_type[]
             returning *
         """.trimIndent()
 
@@ -346,7 +347,8 @@ class ArrangorRepository(private val db: Database) {
                 navn,
                 telefon,
                 epost,
-                beskrivelse
+                beskrivelse,
+                ansvarlig_for
             from arrangor_kontaktperson
             where arrangor_id = ?::uuid
         """.trimIndent()
@@ -374,6 +376,7 @@ class ArrangorRepository(private val db: Database) {
         telefon = stringOrNull("telefon"),
         epost = string("epost"),
         beskrivelse = stringOrNull("beskrivelse"),
+        ansvarligFor = arrayOrNull<String>("ansvarlig_for")?.map { ArrangorKontaktperson.AnsvarligFor.valueOf(it) } ?: emptyList(),
     )
 
     private fun BrregVirksomhetDto.toSqlParameters() = mapOf(
@@ -392,6 +395,7 @@ class ArrangorRepository(private val db: Database) {
         "telefon" to telefon,
         "epost" to epost,
         "beskrivelse" to beskrivelse,
+        "ansvarligFor" to ansvarligFor?.let { db.createArrayOf("arrangor_kontaktperson_ansvarlig_for_type", it) },
     )
 }
 
