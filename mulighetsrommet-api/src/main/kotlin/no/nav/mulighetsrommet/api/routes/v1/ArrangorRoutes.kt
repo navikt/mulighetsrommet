@@ -117,6 +117,7 @@ data class ArrangorKontaktpersonRequest(
     val telefon: String?,
     val beskrivelse: String?,
     val epost: String,
+    val ansvarligFor: List<ArrangorKontaktperson.AnsvarligFor>,
 ) {
     fun toDto(arrangorId: UUID): StatusResponse<ArrangorKontaktperson> {
         val navn = navn.trim()
@@ -128,6 +129,9 @@ data class ArrangorKontaktpersonRequest(
             }
             if (epost.isEmpty()) {
                 add(ValidationError.of(ArrangorKontaktperson::epost, "E-post er påkrevd"))
+            }
+            if (ansvarligFor.isEmpty()) {
+                add(ValidationError.of(ArrangorKontaktperson::ansvarligFor, "Ansvarlig for er påkrevd"))
             }
         }
 
@@ -143,6 +147,7 @@ data class ArrangorKontaktpersonRequest(
                 telefon = telefon?.trim()?.ifEmpty { null },
                 epost = epost,
                 beskrivelse = beskrivelse?.trim()?.ifEmpty { null },
+                ansvarligFor = ansvarligFor,
             ),
         )
     }
