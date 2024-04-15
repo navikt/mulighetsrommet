@@ -130,9 +130,6 @@ data class ArrangorKontaktpersonRequest(
             if (epost.isEmpty()) {
                 add(ValidationError.of(ArrangorKontaktperson::epost, "E-post er påkrevd"))
             }
-            if (ansvarligFor.isEmpty()) {
-                add(ValidationError.of(ArrangorKontaktperson::ansvarligFor, "Ansvarlig for er påkrevd"))
-            }
         }
 
         if (errors.isNotEmpty()) {
