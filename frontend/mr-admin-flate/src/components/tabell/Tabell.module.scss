@@ -1,8 +1,6 @@
 .tabell_wrapper {
   background-color: var(--a-white);
-  border-radius: 4px;
   margin: 0 0 2rem 0.5rem;
-  border: 1px solid var(--a-gray-200);
 
   @media screen and (max-width: 1200px) {
     margin: 0 0 2rem 0;
@@ -14,11 +12,13 @@
 
   .tabell {
     background-color: var(--a-white);
+    border-collapse: separate;
+    border-spacing: 0;
 
     :global(.navds-table__header) {
       position: sticky;
       background-color: var(--a-white);
-      box-shadow: 0 1px 0 rgba(0, 0, 0, 0.5);
+      border: 1px solid var(--a-gray-200);
     }
   }
 
