@@ -61,6 +61,7 @@ export const mockAvtaler: Avtale[] = [
       },
     ],
     personopplysninger: [],
+    personvernBekreftet: false,
   },
   {
     id: "d1f163b7-1a41-4547-af16-03fd4492b7bc",
@@ -97,6 +98,7 @@ export const mockAvtaler: Avtale[] = [
       { region: mockEnheter._0400, kontorer: [mockEnheter._0415, mockEnheter._0402] },
     ],
     personopplysninger: [],
+    personvernBekreftet: false,
   },
   {
     id: "6374b285-989d-4f78-a59e-29481b64ba92",
@@ -134,6 +136,7 @@ export const mockAvtaler: Avtale[] = [
       { region: mockEnheter._0300, kontorer: [mockEnheter._0313, mockEnheter._0318] },
     ],
     personopplysninger: [],
+    personvernBekreftet: false,
   },
 ];
 
@@ -177,5 +180,6 @@ for (let i = 0; i < x; i++) {
       { region: mockEnheter._0300, kontorer: [mockEnheter._0313, mockEnheter._0318] },
     ],
     personopplysninger: [],
+    personvernBekreftet: false,
   });
 }

@@ -56,7 +56,7 @@ export function defaultAvtaleData(
     prisbetingelser: avtale?.prisbetingelser ?? undefined,
     beskrivelse: avtale?.beskrivelse ?? null,
     faneinnhold: avtale?.faneinnhold ?? null,
-    personvernBekreftet: avtale?.personvernBekreftet ?? null,
+    personvernBekreftet: avtale?.personvernBekreftet,
     personopplysninger: avtale?.personopplysninger ?? [],
   };
 }

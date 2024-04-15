@@ -18,7 +18,7 @@ export function AvtalePersonvern() {
   }
 
   if (avtale.personopplysninger.length === 0) {
-    return <Alert variant="info">Avtale ikke ferdig signert</Alert>;
+    return <Alert variant="info">Personopplysninger som kan behandles er ikke bekreftet</Alert>;
   }
 
   return (

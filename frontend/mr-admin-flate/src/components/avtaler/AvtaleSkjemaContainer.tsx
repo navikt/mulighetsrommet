@@ -115,7 +115,7 @@ export function AvtaleSkjemaContainer({
     },
   );
 
-  const hasPersonvernErrors = Boolean(errors?.personvernBekreftelse);
+  const hasPersonvernErrors = Boolean(errors?.personvernBekreftet);
   const hasDetaljerErrors = Object.keys(errors).length > (hasPersonvernErrors ? 1 : 0);
 
   return (

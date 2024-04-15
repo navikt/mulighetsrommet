@@ -46,9 +46,7 @@ export const AvtaleSchema = z
       .string({ required_error: "En avtale trenger en beskrivelse i det redaksjonelle innholdet" })
       .nullable(),
     faneinnhold: FaneinnholdSchema.nullable(),
-    personvernBekreftet: z.boolean({
-      required_error: "Du må ta stilling til personvern",
-    }).nullable(),
+    personvernBekreftet: z.boolean({ required_error: "Du må ta stilling til personvern" }),
     personopplysninger: z.nativeEnum(Personopplysning).array(),
   })
   .superRefine((data, ctx) => {

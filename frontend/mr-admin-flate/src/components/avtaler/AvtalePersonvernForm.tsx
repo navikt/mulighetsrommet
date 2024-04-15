@@ -4,8 +4,8 @@ import {
   Checkbox,
   GuidePanel,
   HGrid,
-  HStack,
   Label,
+  Link,
   Radio,
   VStack,
 } from "@navikt/ds-react";
@@ -17,6 +17,8 @@ import { personopplysningToTekst } from "@/utils/Utils";
 import { ControlledRadioGroup } from "../skjema/ControlledRadioGroup";
 import { useEffect } from "react";
 import { addOrRemove } from "mulighetsrommet-frontend-common/utils/utils";
+import { Separator } from "../detaljside/Metadata";
+import { Personopplysning } from "mulighetsrommet-api-client";
 
 interface Props {
   tiltakstypeId?: string;
@@ -41,6 +43,31 @@ export function AvtalePersonvernForm({ tiltakstypeId }: Props) {
     );
   }
 
+  function PersonopplysningCheckboxList(props: {
+    label: string;
+    description: string;
+    personopplysninger?: Personopplysning[];
+  }) {
+    return (
+      <VStack>
+        <Label size="small">{props.label}</Label>
+        <BodyShort size="small" textColor="subtle">
+          {props.description}
+        </BodyShort>
+        {props.personopplysninger?.map((p: Personopplysning) => (
+          <Checkbox
+            checked={watchPersonopplysninger.includes(p)}
+            onChange={() => setValue("personopplysninger", addOrRemove(watchPersonopplysninger, p))}
+            size="small"
+            key={p}
+          >
+            {personopplysningToTekst(p)}
+          </Checkbox>
+        ))}
+      </VStack>
+    );
+  }
+
   return (
     <VStack gap="4" className={styles.container}>
       <GuidePanel poster className={styles.guide_panel}>
@@ -49,84 +76,50 @@ export function AvtalePersonvernForm({ tiltakstypeId }: Props) {
       </GuidePanel>
       <HGrid columns={2}>
         <VStack>
-          <Label size="small">Opplysninger om brukeren som alltid kan/må behandles</Label>
-          <BodyShort size="small" textColor="subtle">
-            Fjern avhukingen hvis noen av opplysningene ikke er relevante for denne avtalen.
-          </BodyShort>
-          {tiltakstype?.personopplysninger?.ALLTID.map((p) => (
-            <Checkbox
-              checked={watchPersonopplysninger.includes(p)}
-              onChange={() =>
-                setValue("personopplysninger", addOrRemove(watchPersonopplysninger, p))
-              }
-              size="small"
-              key={p}
-            >
-              {personopplysningToTekst(p)}
-            </Checkbox>
-          ))}
+          <PersonopplysningCheckboxList
+            label="Opplysninger om brukeren som alltid kan/må behandles"
+            description="Fjern avhukingen hvis noen av opplysningene ikke er relevante for denne avtalen."
+            personopplysninger={tiltakstype?.personopplysninger?.ALLTID}
+          />
         </VStack>
         <VStack justify="space-between">
-          <VStack>
-            <Label size="small">
-              Opplysninger om brukeren som ofte er nødvendig og relevant å behandle
-            </Label>
-            <BodyShort size="small" textColor="subtle">
-              Huk av for de opplysningene som er avtalt i databehandleravtalen.
-            </BodyShort>
-            {tiltakstype?.personopplysninger?.OFTE.map((p) => (
-              <Checkbox
-                checked={watchPersonopplysninger.includes(p)}
-                onChange={() =>
-                  setValue("personopplysninger", addOrRemove(watchPersonopplysninger, p))
-                }
-                size="small"
-                key={p}
-              >
-                {personopplysningToTekst(p)}
-              </Checkbox>
-            ))}
-          </VStack>
-          <VStack>
-            <Label size="small">
-              Opplysninger om brukeren som sjelden eller i helt spesielle tilfeller er nødvendig og
-              relevant å behandle
-            </Label>
-            <BodyShort size="small" textColor="subtle">
-              Huk av for de opplysningene som er avtalt i databehandleravtalen.
-            </BodyShort>
-            {tiltakstype?.personopplysninger?.SJELDEN.map((p) => (
-              <Checkbox
-                checked={watchPersonopplysninger.includes(p)}
-                onChange={() =>
-                  setValue("personopplysninger", addOrRemove(watchPersonopplysninger, p))
-                }
-                size="small"
-                key={p}
-              >
-                {personopplysningToTekst(p)}
-              </Checkbox>
-            ))}
-          </VStack>
+          <PersonopplysningCheckboxList
+            label="Opplysninger om brukeren som ofte er nødvendig og relevant å behandle"
+            description="Huk av for de opplysningene som er avtalt i databehandleravtalen."
+            personopplysninger={tiltakstype?.personopplysninger?.OFTE}
+          />
+          <PersonopplysningCheckboxList
+            label="Opplysninger om brukeren som sjelden eller i helt spesielle tilfeller er nødvendig og relevant å behandle"
+            description="Huk av for de opplysningene som er avtalt i databehandleravtalen."
+            personopplysninger={tiltakstype?.personopplysninger?.SJELDEN}
+          />
           <BodyShort size="small">
-            *Se egne retningslinjer om dette i veileder for arbeidsrettet brukeroppfølging pkt. 4.4.
+            *Se egne retningslinjer om dette i{" "}
+            <Link
+              target="_blank"
+              href="https://navno.sharepoint.com/sites/fag-og-ytelser-veileder-for-arbeidsrettet-brukeroppfolging/SitePages/Arbeidsrettede-tiltak.aspx"
+            >
+              veileder for arbeidsrettet brukeroppfølging
+            </Link>{" "}
+            pkt. 4.4.
           </BodyShort>
         </VStack>
       </HGrid>
+      <Separator />
       <ControlledRadioGroup
         size="small"
-        legend=""
+        legend="Ta stillingen til om personvernopplysningene stemmer eller om avtalen ikke er ferdig signert"
         hideLegend
         {...register("personvernBekreftet")}
       >
-        <HStack align="center" justify="start" gap="4">
+        <VStack align="start" justify="start" gap="2">
           <Radio size="small" value={false}>
-            Hvilke personopplysninger som kan behandles er uavklært og kan ikke vises til veileder
+            Hvilke personopplysninger som kan behandles er uavklart og kan ikke vises til veileder
           </Radio>
           <Radio size="small" value={true}>
-            Bekreft og vis hvilke personveropplysninger som kan behandles til veileder
+            Bekreft og vis hvilke personopplysninger som kan behandles til veileder
           </Radio>
-        </HStack>
+        </VStack>
       </ControlledRadioGroup>
     </VStack>
   );
