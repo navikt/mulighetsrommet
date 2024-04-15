@@ -76,28 +76,6 @@ export const TiltaksgjennomforingSchema = z
       .nullable(),
   })
   .superRefine((data, ctx) => {
-    if (
-      data.startOgSluttDato.sluttDato &&
-      bareDatoUtenTidspunkt(new Date(data.startOgSluttDato.sluttDato)) <
-        bareDatoUtenTidspunkt(new Date())
-    ) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Sluttdato kan ikke være før dagens dato",
-        path: ["startOgSluttDato.sluttDato"],
-      });
-    }
-    if (
-      data.startOgSluttDato.sluttDato &&
-      bareDatoUtenTidspunkt(new Date(data.startOgSluttDato.sluttDato)) <
-        bareDatoUtenTidspunkt(new Date(data.startOgSluttDato.startDato))
-    ) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Sluttdato må være etter startdato",
-        path: ["startOgSluttDato.sluttDato"],
-      });
-    }
     data.kontaktpersoner?.forEach((kontaktperson, index) => {
       if (kontaktperson.navIdent == null) {
         ctx.addIssue({
@@ -115,9 +93,5 @@ export const TiltaksgjennomforingSchema = z
       }
     });
   });
-
-function bareDatoUtenTidspunkt(date: Date): Date {
-  return new Date(date.getFullYear(), date.getMonth(), date.getDate());
-}
 
 export type InferredTiltaksgjennomforingSchema = z.infer<typeof TiltaksgjennomforingSchema>;
