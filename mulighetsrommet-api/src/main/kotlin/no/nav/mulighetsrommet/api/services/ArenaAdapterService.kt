@@ -286,8 +286,10 @@ class ArenaAdapterService(
             apentForInnsok = current.apentForInnsok,
             antallPlasser = current.antallPlasser,
             avtaleId = current.avtaleId,
-            oppstart = current.oppstart,
             deltidsprosent = current.deltidsprosent,
+
+            // Oppstart kan endres utenfor Arena, dette feltet er derfor ikke med i duplikatsjekken
+            oppstart = arenaGjennomforing.oppstart,
         )
         return currentAsArenaGjennomforing == arenaGjennomforing
     }
