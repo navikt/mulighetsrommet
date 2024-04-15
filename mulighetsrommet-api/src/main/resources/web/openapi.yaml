@@ -1948,6 +1948,8 @@ components:
           $ref: "#/components/schemas/Tiltakstypestatus"
         sanityId:
           type: string
+        personopplysninger:
+          $ref: "#/components/schemas/Personopplysninger"
       required:
         - id
         - navn
@@ -1955,6 +1957,7 @@ components:
         - fraDato
         - tilDato
         - status
+        - personopplysninger
 
     Avtale:
       type: object
@@ -2005,6 +2008,12 @@ components:
           type: string
         faneinnhold:
           $ref: "#/components/schemas/SanityFaneinnhold"
+        personopplysninger:
+          type: array
+          items:
+            $ref: "#/components/schemas/Personopplysning"
+        personvernBekreftet:
+          type: boolean
       required:
         - id
         - tiltakstype
@@ -2017,6 +2026,8 @@ components:
         - prisbetingelser
         - kontorstruktur
         - opphav
+        - personopplysninger
+        - personvernBekreftet
 
     AvtaleRequest:
       type: object
@@ -2072,6 +2083,12 @@ components:
         faneinnhold:
           $ref: "#/components/schemas/SanityFaneinnholdRequest"
           nullable: true
+        personopplysninger:
+          type: array
+          items:
+            $ref: "#/components/schemas/Personopplysning"
+        personvernBekreftet:
+          type: boolean
       required:
         - id
         - navn
@@ -2089,6 +2106,8 @@ components:
         - navEnheter
         - beskrivelse
         - faneinnhold
+        - personopplysninger
+        - personvernBekreftet
 
     EmbeddedTiltakstype:
       type: object
@@ -3640,6 +3659,58 @@ components:
       required:
         - navn
         - tiltakskode
+
+    PersonopplysningFrekvens:
+      type: string
+      enum:
+        - ALLTID
+        - OFTE
+        - SJELDEN
+
+    Personopplysning:
+      type: string
+      enum:
+        - NAVN
+        - KJONN
+        - ADRESSE
+        - TELEFONNUMMER
+        - FOLKEREGISTER_IDENTIFIKATOR
+        - FODSELSDATO
+        - BEHOV_FOR_BISTAND_FRA_NAV
+        - YTELSER_FRA_NAV
+        - BILDE
+        - EPOST
+        - BRUKERNAVN
+        - ARBEIDSERFARING_OG_VERV
+        - SERTIFIKATER_OG_KURS
+        - IP_ADRESSE
+        - UTDANNING_OG_FAGBREV
+        - PERSONLIGE_EGENSKAPER_OG_INTERESSER
+        - SPRAKKUNNSKAP
+        - ADFERD
+        - SOSIALE_FORHOLD
+        - HELSEOPPLYSNINGER
+        - RELIGION
+
+    Personopplysninger:
+      type: object
+      properties:
+        ALLTID:
+          type: array
+          items:
+            $ref: "#/components/schemas/Personopplysning"
+        OFTE:
+          type: array
+          items:
+            $ref: "#/components/schemas/Personopplysning"
+        SJELDEN:
+          type: array
+          items:
+            $ref: "#/components/schemas/Personopplysning"
+      required:
+        - ALLTID
+        - OFTE
+        - SJELDEN
 
     KoblingerForKontaktperson:
       type: object

@@ -268,7 +268,9 @@ export const getAvtalerForTiltakstypeFilterAtom = atomFamily<
 
 export const gjennomforingDetaljerTabAtom = atom<"detaljer" | "redaksjonelt-innhold">("detaljer");
 
-export const avtaleDetaljerTabAtom = atom<"detaljer" | "redaksjonelt-innhold">("detaljer");
+export const avtaleDetaljerTabAtom = atom<"detaljer" | "personvern" | "redaksjonelt-innhold">(
+  "detaljer",
+);
 
 export const gjennomforingFilterAccordionAtom = atom<string[]>(["status"]);
 export const avtaleFilterAccordionAtom = atom<string[]>(["status"]);

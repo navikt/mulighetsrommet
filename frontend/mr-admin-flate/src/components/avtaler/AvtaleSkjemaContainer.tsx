@@ -27,6 +27,10 @@ import { AvtaleRedaksjoneltInnholdForm } from "./AvtaleRedaksjoneltInnholdForm";
 import { defaultAvtaleData } from "./AvtaleSkjemaConst";
 import { AvtaleSkjemaDetaljer } from "./AvtaleSkjemaDetaljer";
 import { AvtaleSkjemaKnapperad } from "./AvtaleSkjemaKnapperad";
+import { AvtalePersonvernForm } from "./AvtalePersonvernForm";
+import { InlineErrorBoundary } from "@/ErrorBoundary";
+import React from "react";
+import { Laster } from "../laster/Laster";
 
 interface Props {
   onClose: () => void;
@@ -84,6 +88,8 @@ export function AvtaleSkjemaContainer({
         : null,
       beskrivelse: data.beskrivelse,
       faneinnhold: data.faneinnhold,
+      personopplysninger: data.personvernBekreftet ? data.personopplysninger : [],
+      personvernBekreftet: data.personvernBekreftet,
     };
 
     mutation.mutate(requestBody);
@@ -109,7 +115,8 @@ export function AvtaleSkjemaContainer({
     },
   );
 
-  const hasErrors = Object.keys(errors).length > 0;
+  const hasPersonvernErrors = Boolean(errors?.personvernBekreftet);
+  const hasDetaljerErrors = Object.keys(errors).length > (hasPersonvernErrors ? 1 : 0);
 
   return (
     <FormProvider {...form}>
@@ -120,17 +127,34 @@ export function AvtaleSkjemaContainer({
               <Tabs.Tab
                 onClick={() => setActiveTab("detaljer")}
                 style={{
-                  border: hasErrors ? "solid 2px #C30000" : "",
-                  borderRadius: hasErrors ? "8px" : 0,
+                  border: hasDetaljerErrors ? "solid 2px #C30000" : "",
+                  borderRadius: hasDetaljerErrors ? "8px" : 0,
                 }}
                 value="detaljer"
                 label={
-                  hasErrors ? (
+                  hasDetaljerErrors ? (
                     <span style={{ display: "flex", alignContent: "baseline", gap: "0.4rem" }}>
                       <ExclamationmarkTriangleFillIcon aria-label="Detaljer" /> Detaljer
                     </span>
                   ) : (
                     "Detaljer"
+                  )
+                }
+              />
+              <Tabs.Tab
+                onClick={() => setActiveTab("personvern")}
+                style={{
+                  border: hasPersonvernErrors ? "solid 2px #C30000" : "",
+                  borderRadius: hasPersonvernErrors ? "8px" : 0,
+                }}
+                value="personvern"
+                label={
+                  hasPersonvernErrors ? (
+                    <span style={{ display: "flex", alignContent: "baseline", gap: "0.4rem" }}>
+                      <ExclamationmarkTriangleFillIcon aria-label="Personvern" /> Personvern
+                    </span>
+                  ) : (
+                    "Personvern"
                   )
                 }
               />
@@ -149,6 +173,13 @@ export function AvtaleSkjemaContainer({
               ansatt={ansatt}
               enheter={props.enheter}
             />
+          </Tabs.Panel>
+          <Tabs.Panel value="personvern">
+            <InlineErrorBoundary>
+              <React.Suspense fallback={<Laster tekst="Laster innhold" />}>
+                <AvtalePersonvernForm tiltakstypeId={watchedTiltakstype?.id} />
+              </React.Suspense>
+            </InlineErrorBoundary>
           </Tabs.Panel>
           <Tabs.Panel value="redaksjonelt-innhold">
             <AvtaleRedaksjoneltInnholdForm tiltakstype={watchedTiltakstype} />

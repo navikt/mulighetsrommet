@@ -7,6 +7,11 @@ import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.ArenaAvtaleDbo
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dto.*
+import no.nav.mulighetsrommet.domain.dto.Avtalestatus
+import no.nav.mulighetsrommet.domain.dto.Avtaletype
+import no.nav.mulighetsrommet.domain.dto.Faneinnhold
+import no.nav.mulighetsrommet.domain.dto.NavIdent
+import no.nav.mulighetsrommet.domain.dto.Personopplysning
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import java.time.LocalDate
@@ -36,6 +41,8 @@ data class AvtaleAdminDto(
     val kontorstruktur: List<Kontorstruktur>,
     val beskrivelse: String? = null,
     val faneinnhold: Faneinnhold? = null,
+    val personopplysninger: List<Personopplysning>,
+    val personvernBekreftet: Boolean,
 ) {
     @Serializable
     data class Tiltakstype(
@@ -93,6 +100,8 @@ data class AvtaleAdminDto(
             administratorer = administratorer.map { it.navIdent },
             beskrivelse = null,
             faneinnhold = null,
+            personopplysninger = personopplysninger,
+            personvernBekreftet = personvernBekreftet,
         )
 
     fun toArenaAvtaleDbo() =

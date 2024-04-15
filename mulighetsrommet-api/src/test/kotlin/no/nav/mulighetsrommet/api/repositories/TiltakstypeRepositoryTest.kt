@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api.repositories
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.data.forAll
 import io.kotest.data.row
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
@@ -14,6 +15,8 @@ import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
+import no.nav.mulighetsrommet.domain.dto.Personopplysning
+import no.nav.mulighetsrommet.domain.dto.PersonopplysningFrekvens
 import no.nav.mulighetsrommet.domain.dto.Tiltakstypestatus
 import org.intellij.lang.annotations.Language
 import java.time.LocalDate
@@ -197,22 +200,47 @@ class TiltakstypeRepositoryTest : FunSpec({
                 it shouldBe null
             }
         }
+    }
 
-        test("getBySanityId krasjer ikke") {
-            val sanityId = UUID.randomUUID()
+    test("getBySanityId krasjer ikke") {
+        val tiltakstyper = TiltakstypeRepository(database.db)
 
-            @Language("PostgreSQL")
-            val query = """
+        tiltakstyper.upsert(TiltakstypeFixtures.Oppfolging)
+
+        val sanityId = UUID.randomUUID()
+
+        @Language("PostgreSQL")
+        val query = """
                 update tiltakstype
                 set sanity_id = '$sanityId'
                 where tiltakskode = '${Tiltakskode.OPPFOLGING.name}';
-            """.trimIndent()
-            queryOf(
-                query,
-            ).asExecute.let { database.db.run(it) }
-            tiltakstyper.getBySanityId(sanityId).should {
-                it?.id shouldBe TiltakstypeFixtures.Oppfolging.id
-            }
+        """.trimIndent()
+        queryOf(
+            query,
+        ).asExecute.let { database.db.run(it) }
+        tiltakstyper.getBySanityId(sanityId).should {
+            it?.id shouldBe TiltakstypeFixtures.Oppfolging.id
+        }
+    }
+
+    test("personopplysninger hentes") {
+        val tiltakstyper = TiltakstypeRepository(database.db)
+        tiltakstyper.upsert(TiltakstypeFixtures.Oppfolging)
+
+        @Language("PostgreSQL")
+        val query = """
+                insert into tiltakstype_personopplysning (tiltakskode, personopplysning, frekvens) values
+                    ('OPPFOLGING', 'NAVN', 'ALLTID'),
+                    ('OPPFOLGING', 'KJONN', 'ALLTID'),
+                    ('OPPFOLGING', 'ADFERD', 'OFTE');
+        """.trimIndent()
+        queryOf(
+            query,
+        ).asExecute.let { database.db.run(it) }
+
+        tiltakstyper.get(TiltakstypeFixtures.Oppfolging.id) should {
+            it!!.personopplysninger[PersonopplysningFrekvens.ALLTID] shouldContainExactlyInAnyOrder listOf(Personopplysning.NAVN, Personopplysning.KJONN)
+            it.personopplysninger[PersonopplysningFrekvens.OFTE] shouldContainExactlyInAnyOrder listOf(Personopplysning.ADFERD)
         }
     }
 })
