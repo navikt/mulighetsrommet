@@ -19,7 +19,7 @@ import { useArrangorKontaktpersoner } from "../../api/arrangor/useArrangorKontak
 import { useUpsertArrangorKontaktperson } from "../../api/arrangor/useUpsertArrangorKontaktperson";
 import { useHandleApiUpsertResponse } from "../../api/effects";
 import { SlettKontaktpersonModal } from "./SlettKontaktpersonModal";
-import { navnForAnvar } from "./ArrangorKontaktpersonUtils";
+import { navnForAnsvar } from "./ArrangorKontaktpersonUtils";
 
 interface Props {
   arrangor: Arrangor;
@@ -143,7 +143,7 @@ function LeseRad({ kontaktperson, setRedigerKontaktperson, setSlettKontaktperson
           {kontaktperson.ansvarligFor.map((ansvar, index) => (
             <li key={index}>
               <Tag variant="info" size="small">
-                {navnForAnvar(ansvar)}
+                {navnForAnsvar(ansvar)}
               </Tag>
             </li>
           ))}
@@ -288,7 +288,7 @@ function RedigerbarRad({ kontaktperson, setRedigerKontaktperson, arrangor }: Red
           error={state.errors.ansvarligFor}
           isMultiSelect
           selectedOptions={state.ansvarligFor.map((ansvar) => ({
-            label: navnForAnvar(ansvar),
+            label: navnForAnsvar(ansvar),
             value: ansvar,
           }))}
           options={[

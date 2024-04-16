@@ -1,6 +1,6 @@
 import { ArrangorKontaktpersonAnsvar } from "mulighetsrommet-api-client";
 
-export function navnForAnvar(
+export function navnForAnsvar(
   ansvar: ArrangorKontaktpersonAnsvar,
 ): "Avtale" | "Tiltaksgjennomføring" | "Økonomi" {
   switch (ansvar) {

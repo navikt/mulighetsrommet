@@ -11,7 +11,7 @@ import {
 import { useDeleteArrangorKontaktperson } from "@/api/arrangor/useDeleteArrangorKontaktperson";
 import { resolveErrorMessage } from "@/api/errors";
 import { useHandleApiUpsertResponse } from "@/api/effects";
-import { navnForAnvar } from "./ArrangorKontaktpersonUtils";
+import { navnForAnsvar } from "./ArrangorKontaktpersonUtils";
 
 type ArrangorKontaktpersonErrors = Partial<Record<keyof ArrangorKontaktperson, string>>;
 
@@ -146,7 +146,7 @@ export const ArrangorKontaktpersonSkjema = (props: VirksomhetKontaktpersonerProp
         isMultiSelect
         error={state.errors.ansvarligFor}
         selectedOptions={state.ansvarligFor.map((ansvar) => ({
-          label: navnForAnvar(ansvar),
+          label: navnForAnsvar(ansvar),
           value: ansvar,
         }))}
         options={[
