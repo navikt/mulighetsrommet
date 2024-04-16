@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.domain.dto
 
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.domain.Tiltakskode
+import no.nav.mulighetsrommet.domain.dto.Innsatsgruppe
 import no.nav.mulighetsrommet.domain.dto.TiltakstypeStatus
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
@@ -14,6 +15,7 @@ data class TiltakstypeEksternDto(
     val id: UUID,
     val navn: String,
     val tiltakskode: Tiltakskode,
+    val innsatsgrupper: Set<Innsatsgruppe>,
     val arenaKode: String?,
     @Serializable(with = LocalDateSerializer::class)
     val startDato: LocalDate,

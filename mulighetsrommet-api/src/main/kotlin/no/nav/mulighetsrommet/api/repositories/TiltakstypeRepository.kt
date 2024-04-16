@@ -10,6 +10,7 @@ import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.*
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
+import no.nav.mulighetsrommet.domain.dto.Innsatsgruppe
 import no.nav.mulighetsrommet.domain.dto.PersonopplysningMedFrekvens
 import no.nav.mulighetsrommet.domain.dto.TiltakstypeAdminDto
 import no.nav.mulighetsrommet.domain.dto.TiltakstypeStatus
@@ -70,21 +71,21 @@ class TiltakstypeRepository(private val db: Database) {
     }
 
     fun getEksternTiltakstype(id: UUID): TiltakstypeEksternDto? {
-        val tiltakstype = get(id) ?: return null
-        val tiltakskode = Tiltakskode.fromArenaKode(tiltakstype.arenaKode) ?: return null
-        val deltakerRegistreringInnhold = getDeltakerregistreringInnholdByArenaKode(tiltakskode)
+        val deltakerRegistreringInnhold = getDeltakerregistreringInnhold(id)
 
-        return TiltakstypeEksternDto(
-            id = tiltakstype.id,
-            navn = tiltakstype.navn,
-            tiltakskode = tiltakskode,
-            arenaKode = tiltakstype.arenaKode,
-            startDato = tiltakstype.startDato,
-            sluttDato = tiltakstype.sluttDato,
-            rettPaaTiltakspenger = tiltakstype.rettPaaTiltakspenger,
-            status = tiltakstype.status,
-            deltakerRegistreringInnhold = deltakerRegistreringInnhold,
-        )
+        @Language("PostgreSQL")
+        val query = """
+            select admin_dto.*, tiltakstype.innsatsgrupper
+            from tiltakstype_admin_dto_view admin_dto
+            join tiltakstype using (id)
+            where id = ?::uuid
+        """.trimIndent()
+
+        return db.useSession { session ->
+            queryOf(query, id)
+                .map { it.tiltakstypeEksternDto(deltakerRegistreringInnhold) }
+                .asSingle.runWithSession(session)
+        }
     }
 
     fun getByTiltakskode(tiltakskode: Tiltakskode): TiltakstypeAdminDto {
@@ -167,33 +168,27 @@ class TiltakstypeRepository(private val db: Database) {
         }
     }
 
-    private fun getDeltakerregistreringInnholdByArenaKode(tiltakskode: Tiltakskode): DeltakerRegistreringInnholdDto? {
+    private fun getDeltakerregistreringInnhold(id: UUID): DeltakerRegistreringInnholdDto? {
         @Language("PostgreSQL")
         val query = """
-           select dri.innholdskode, tekst, tt.deltaker_registrering_ledetekst
-           from tiltakstype tt
-               left join tiltakstype_deltaker_registrering_innholdselement tdri on tdri.tiltakskode = tt.tiltakskode
-               left join deltaker_registrering_innholdselement dri on tdri.innholdskode = dri.innholdskode
-           where tt.tiltakskode = ?::tiltakskode and tt.deltaker_registrering_ledetekst is not null;
+           select tiltakstype.deltaker_registrering_ledetekst, element.innholdskode, element.tekst
+           from tiltakstype
+               left join tiltakstype_deltaker_registrering_innholdselement tiltakstype_innholdselement on tiltakstype_innholdselement.tiltakskode = tiltakstype.tiltakskode
+               left join deltaker_registrering_innholdselement element on tiltakstype_innholdselement.innholdskode = element.innholdskode
+           where tiltakstype.id = ?::uuid and tiltakstype.deltaker_registrering_ledetekst is not null;
         """.trimIndent()
 
-        val result = queryOf(query, tiltakskode.name)
+        val result = queryOf(query, id)
             .map {
-                val innholdskode = it.stringOrNull("innholdskode")
-                val tekst = it.stringOrNull("tekst")
                 val ledetekst = it.string("deltaker_registrering_ledetekst")
+                val tekst = it.stringOrNull("tekst")
+                val innholdskode = it.stringOrNull("innholdskode")
                 val innholdselement = if (tekst != null && innholdskode != null) {
-                    Innholdselement(
-                        tekst = tekst,
-                        innholdskode = innholdskode,
-                    )
+                    Innholdselement(tekst = tekst, innholdskode = innholdskode)
                 } else {
                     null
                 }
-                Pair(
-                    ledetekst,
-                    innholdselement,
-                )
+                Pair(ledetekst, innholdselement)
             }
             .asList
             .let { db.run(it) }
@@ -278,6 +273,27 @@ class TiltakstypeRepository(private val db: Database) {
             rettPaaTiltakspenger = boolean("rett_paa_tiltakspenger"),
             status = TiltakstypeStatus.valueOf(string("status")),
             personopplysninger = personopplysninger,
+        )
+    }
+
+    private fun Row.tiltakstypeEksternDto(
+        deltakerRegistreringInnhold: DeltakerRegistreringInnholdDto?,
+    ): TiltakstypeEksternDto {
+        val innsatsgrupper = arrayOrNull<String>("innsatsgrupper")
+            ?.map { Innsatsgruppe.valueOf(it) }
+            ?.toSet()
+            ?: emptySet()
+        return TiltakstypeEksternDto(
+            id = uuid("id"),
+            navn = string("navn"),
+            tiltakskode = Tiltakskode.valueOf(string("tiltakskode")),
+            innsatsgrupper = innsatsgrupper,
+            arenaKode = string("arena_kode"),
+            startDato = localDate("start_dato"),
+            sluttDato = localDateOrNull("slutt_dato"),
+            rettPaaTiltakspenger = boolean("rett_paa_tiltakspenger"),
+            status = TiltakstypeStatus.valueOf(string("status")),
+            deltakerRegistreringInnhold = deltakerRegistreringInnhold,
         )
     }
 }

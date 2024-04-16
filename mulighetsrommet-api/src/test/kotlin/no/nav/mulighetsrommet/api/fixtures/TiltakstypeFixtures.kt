@@ -2,7 +2,6 @@ package no.nav.mulighetsrommet.api.fixtures
 
 import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.util.*
 
 object TiltakstypeFixtures {

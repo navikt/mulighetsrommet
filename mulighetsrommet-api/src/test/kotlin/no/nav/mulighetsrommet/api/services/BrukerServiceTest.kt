@@ -12,16 +12,19 @@ import io.mockk.coEvery
 import io.mockk.mockk
 import no.nav.mulighetsrommet.api.clients.AccessType
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
-import no.nav.mulighetsrommet.api.clients.oppfolging.*
+import no.nav.mulighetsrommet.api.clients.oppfolging.ManuellStatusDto
+import no.nav.mulighetsrommet.api.clients.oppfolging.OppfolgingError
+import no.nav.mulighetsrommet.api.clients.oppfolging.Oppfolgingsenhet
+import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClient
 import no.nav.mulighetsrommet.api.clients.person.Enhet
 import no.nav.mulighetsrommet.api.clients.person.PersonDto
 import no.nav.mulighetsrommet.api.clients.person.PersonError
 import no.nav.mulighetsrommet.api.clients.person.VeilarbpersonClient
-import no.nav.mulighetsrommet.api.clients.vedtak.Innsatsgruppe
 import no.nav.mulighetsrommet.api.clients.vedtak.VedtakDto
 import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClient
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
+import no.nav.mulighetsrommet.domain.dto.Innsatsgruppe
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 
 class BrukerServiceTest : FunSpec({
@@ -58,7 +61,7 @@ class BrukerServiceTest : FunSpec({
         coEvery { veilarboppfolgingClient.hentManuellStatus(fnr1, any()) } returns mockManuellStatus().right()
 
         coEvery { veilarbvedtaksstotteClient.hentSiste14AVedtak(fnr1, any()) } returns VedtakDto(
-            innsatsgruppe = Innsatsgruppe.STANDARD_INNSATS,
+            innsatsgruppe = VedtakDto.Innsatsgruppe.STANDARD_INNSATS,
         ).right()
 
         coEvery { veilarbpersonClient.hentPersonInfo(fnr1, any()) } returns PersonDto(
@@ -75,7 +78,7 @@ class BrukerServiceTest : FunSpec({
         coEvery { veilarboppfolgingClient.hentManuellStatus(fnr2, any()) } returns mockManuellStatus().right()
 
         coEvery { veilarbvedtaksstotteClient.hentSiste14AVedtak(fnr2, any()) } returns VedtakDto(
-            innsatsgruppe = Innsatsgruppe.GRADERT_VARIG_TILPASSET_INNSATS,
+            innsatsgruppe = VedtakDto.Innsatsgruppe.GRADERT_VARIG_TILPASSET_INNSATS,
         ).right()
 
         coEvery { veilarbpersonClient.hentPersonInfo(fnr2, any()) } returns PersonDto(

@@ -45,13 +45,14 @@ class UpdateTiltakstypeStatusTest : FunSpec({
             return TiltakstypeEksternDto(
                 id = id,
                 navn = navn,
-                arenaKode = arenaKode,
                 tiltakskode = Tiltakskode.fromArenaKode(arenaKode)!!,
+                arenaKode = arenaKode,
                 startDato = startDato,
                 sluttDato = sluttDato,
                 rettPaaTiltakspenger = rettPaaTiltakspenger,
                 status = tiltakstypestatus,
                 deltakerRegistreringInnhold = null,
+                innsatsgrupper = emptySet(),
             )
         }
 

@@ -5,6 +5,7 @@ import io.kotest.data.forAll
 import io.kotest.data.row
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import kotliquery.queryOf
@@ -42,7 +43,7 @@ class TiltakstypeRepositoryTest : FunSpec({
 
     context("filtrering") {
         val tiltakstyper = TiltakstypeRepository(database.db)
-        val tiltakstypePlanlagt = TiltakstypeDbo(
+        val tiltakstypeStarterIFremtiden = TiltakstypeDbo(
             id = UUID.randomUUID(),
             navn = "Arbeidsforberedende trening",
             arenaKode = "ARBFORB",
@@ -50,7 +51,7 @@ class TiltakstypeRepositoryTest : FunSpec({
             startDato = LocalDate.now().plusDays(1),
             sluttDato = LocalDate.now().plusMonths(1),
         )
-        val tiltakstypeAktiv = TiltakstypeDbo(
+        val tiltakstypeHarStartet = TiltakstypeDbo(
             id = UUID.randomUUID(),
             navn = "Jobbklubb",
             arenaKode = "JOBBK",
@@ -58,7 +59,7 @@ class TiltakstypeRepositoryTest : FunSpec({
             startDato = LocalDate.now(),
             sluttDato = LocalDate.now().plusMonths(1),
         )
-        val tiltakstypeAvsluttet = TiltakstypeDbo(
+        val tiltakstypeErAvsluttet = TiltakstypeDbo(
             id = UUID.randomUUID(),
             navn = "Oppfølgning",
             arenaKode = "INDOPPFAG",
@@ -76,9 +77,9 @@ class TiltakstypeRepositoryTest : FunSpec({
             sluttDato = LocalDate.now().plusMonths(1),
         )
 
-        tiltakstyper.upsert(tiltakstypePlanlagt)
-        tiltakstyper.upsert(tiltakstypeAktiv)
-        tiltakstyper.upsert(tiltakstypeAvsluttet)
+        tiltakstyper.upsert(tiltakstypeStarterIFremtiden)
+        tiltakstyper.upsert(tiltakstypeHarStartet)
+        tiltakstyper.upsert(tiltakstypeErAvsluttet)
         tiltakstyper.upsert(tiltakstypeSkalIkkeMigreres)
 
         test("returnerer bare tiltak som skal migreres") {
@@ -87,12 +88,12 @@ class TiltakstypeRepositoryTest : FunSpec({
 
         test("filtrering på status") {
             forAll(
-                row(TiltakstypeStatus.AKTIV, tiltakstypeAktiv.id),
-                row(TiltakstypeStatus.AVSLUTTET, tiltakstypeAvsluttet.id),
-            ) { status, expectedId ->
+                row(TiltakstypeStatus.AKTIV, listOf(tiltakstypeStarterIFremtiden.id, tiltakstypeHarStartet.id)),
+                row(TiltakstypeStatus.AVSLUTTET, listOf(tiltakstypeErAvsluttet.id)),
+            ) { status, expectedIds ->
                 val result = tiltakstyper.getAllSkalMigreres(statuser = listOf(status))
-                result.totalCount shouldBe 1
-                result.items.first().id shouldBe expectedId
+                result.totalCount shouldBe expectedIds.size
+                result.items.map { it.id } shouldContainExactlyInAnyOrder expectedIds
             }
         }
     }
@@ -134,7 +135,7 @@ class TiltakstypeRepositoryTest : FunSpec({
         beforeEach {
             tiltakstyper.upsert(TiltakstypeFixtures.Oppfolging)
             tiltakstyper.upsert(TiltakstypeFixtures.VTA)
-            tiltakstyper.upsert(TiltakstypeFixtures.Arbeidstrening)
+            tiltakstyper.upsert(TiltakstypeFixtures.AFT)
         }
 
         test("Skal hente ut korrekt strukturert innhold for tiltakstype som har strukturert innhold") {
@@ -158,13 +159,12 @@ class TiltakstypeRepositoryTest : FunSpec({
                 insert into tiltakstype_deltaker_registrering_innholdselement(innholdskode, tiltakskode)
                 values('kartlegge-helse', '${Tiltakskode.OPPFOLGING.name}');
             """.trimIndent()
-            queryOf(
-                query,
-            ).asExecute.let { database.db.run(it) }
-            tiltakstyper.getEksternTiltakstype(TiltakstypeFixtures.Oppfolging.id).should {
-                it?.navn shouldBe "Oppfølging"
-                it?.deltakerRegistreringInnhold?.ledetekst shouldBe "Oppfølging er et bra tiltak"
-                it?.deltakerRegistreringInnhold?.innholdselementer?.size shouldBe 2
+            database.db.run(queryOf(query).asExecute)
+
+            tiltakstyper.getEksternTiltakstype(TiltakstypeFixtures.Oppfolging.id).shouldNotBeNull().should {
+                it.navn shouldBe "Oppfølging"
+                it.deltakerRegistreringInnhold?.ledetekst shouldBe "Oppfølging er et bra tiltak"
+                it.deltakerRegistreringInnhold?.innholdselementer?.size shouldBe 2
             }
         }
 
@@ -175,19 +175,18 @@ class TiltakstypeRepositoryTest : FunSpec({
                 set deltaker_registrering_ledetekst = 'VTA er kjempebra'
                 where tiltakskode = '${Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET.name}';
             """.trimIndent()
-            queryOf(
-                query,
-            ).asExecute.let { database.db.run(it) }
-            tiltakstyper.getEksternTiltakstype(TiltakstypeFixtures.VTA.id).should {
-                it?.navn shouldBe "Varig tilrettelagt arbeid i skjermet virksomhet"
-                it?.deltakerRegistreringInnhold?.ledetekst shouldBe "VTA er kjempebra"
-                it?.deltakerRegistreringInnhold?.innholdselementer?.size shouldBe 0
+            database.db.run(queryOf(query).asExecute)
+
+            tiltakstyper.getEksternTiltakstype(TiltakstypeFixtures.VTA.id).shouldNotBeNull().should {
+                it.navn shouldBe "Varig tilrettelagt arbeid i skjermet virksomhet"
+                it.deltakerRegistreringInnhold?.ledetekst shouldBe "VTA er kjempebra"
+                it.deltakerRegistreringInnhold?.innholdselementer?.size shouldBe 0
             }
         }
 
         test("Skal kunne hente tiltakstype uten strukturert innhold for deltakerregistrering") {
-            tiltakstyper.getEksternTiltakstype(TiltakstypeFixtures.Arbeidstrening.id).should {
-                it shouldBe null
+            tiltakstyper.getEksternTiltakstype(TiltakstypeFixtures.AFT.id).shouldNotBeNull().should {
+                it.deltakerRegistreringInnhold shouldBe null
             }
         }
     }
@@ -205,11 +204,10 @@ class TiltakstypeRepositoryTest : FunSpec({
                 set sanity_id = '$sanityId'
                 where tiltakskode = '${Tiltakskode.OPPFOLGING.name}';
         """.trimIndent()
-        queryOf(
-            query,
-        ).asExecute.let { database.db.run(it) }
-        tiltakstyper.getBySanityId(sanityId).should {
-            it?.id shouldBe TiltakstypeFixtures.Oppfolging.id
+        database.db.run(queryOf(query).asExecute)
+
+        tiltakstyper.getBySanityId(sanityId).shouldNotBeNull().should {
+            it.id shouldBe TiltakstypeFixtures.Oppfolging.id
         }
     }
 
