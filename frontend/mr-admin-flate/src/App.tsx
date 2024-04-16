@@ -36,6 +36,7 @@ if (import.meta.env.PROD) {
       name: "mr-admin-flate",
     },
     instrumentations: [...getWebInstrumentations({ captureConsole: true })],
+    isolate: true,
   });
 }
 initializeAmplitude();
