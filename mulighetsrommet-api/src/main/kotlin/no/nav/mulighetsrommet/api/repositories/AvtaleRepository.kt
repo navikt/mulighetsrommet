@@ -322,6 +322,7 @@ class AvtaleRepository(private val db: Database) {
         sortering: String? = null,
         arrangorIds: List<UUID> = emptyList(),
         administratorNavIdent: NavIdent? = null,
+        personvernBekreftet: Boolean? = null,
     ): PaginatedResult<AvtaleAdminDto> {
         val parameters = mapOf(
             "search" to search?.replace("/", "#")?.trim()?.let { "%$it%" },
@@ -332,6 +333,7 @@ class AvtaleRepository(private val db: Database) {
             "nav_enheter" to navRegioner.ifEmpty { null }?.let { db.createTextArray(it) },
             "avtaletyper" to avtaletyper.ifEmpty { null }?.let { db.createArrayOf("avtaletype", it) },
             "statuser" to statuser.ifEmpty { null }?.let { db.createArrayOf("text", statuser) },
+            "personvern_bekreftet" to personvernBekreftet,
         )
 
         val order = when (sortering) {
@@ -366,6 +368,7 @@ class AvtaleRepository(private val db: Database) {
               and (:administrator_nav_ident::text is null or administratorer_json @> :administrator_nav_ident::jsonb)
               and (:avtaletyper::avtaletype[] is null or avtaletype = any (:avtaletyper))
               and (:statuser::text[] is null or status = any(:statuser))
+              and (:personvern_bekreftet::boolean is null or personvern_bekreftet = :personvern_bekreftet::boolean)
             order by $order
             limit :limit
             offset :offset

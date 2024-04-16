@@ -207,6 +207,22 @@ export function AvtaleFilter({ filterAtom, skjulFilter }: Props) {
           </Accordion.Content>
         </Accordion.Item>
       </Accordion>
+      <div style={{ margin: "0.8rem 0.5rem" }}>
+        <Switch
+          position="left"
+          size="small"
+          checked={filter.personvernUavklart}
+          onChange={(event) => {
+            setFilter({
+              ...filter,
+              page: 1,
+              personvernUavklart: event.currentTarget.checked,
+            });
+          }}
+        >
+          <span style={{ fontWeight: "bold" }}>Personvern ikke bekreftet</span>
+        </Switch>
+      </div>
     </div>
   );
 }
