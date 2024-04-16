@@ -147,18 +147,8 @@
 }
 
 .flex_container {
-  display: grid;
-  grid-template-columns: 50% 50%;
-
-  .knapperad {
-    grid-column: 2;
-  }
-
-  .avbryt_knapp {
-    grid-column: 1;
-    width: fit-content;
-    height: fit-content;
-  }
+  display: flex;
+  float: right;
 }
 
 .red_tab_title {

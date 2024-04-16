@@ -1,7 +1,7 @@
 import { ExternalLinkIcon } from "@navikt/aksel-icons";
-import { Alert, Heading, HelpText, VStack } from "@navikt/ds-react";
+import { Alert, Button, Heading, HelpText, VStack } from "@navikt/ds-react";
 import { NOM_ANSATT_SIDE } from "mulighetsrommet-frontend-common/constants";
-import { Fragment } from "react";
+import { Fragment, useRef } from "react";
 import { useAvtale } from "@/api/avtaler/useAvtale";
 import { Bolk } from "@/components/detaljside/Bolk";
 import { Metadata, Separator } from "@/components/detaljside/Metadata";
@@ -10,17 +10,20 @@ import { avtaletypeTilTekst, formaterDato } from "@/utils/Utils";
 import { erAnskaffetTiltak } from "@/utils/tiltakskoder";
 import styles from "../DetaljerInfo.module.scss";
 import { Link } from "react-router-dom";
-import { NavEnhet, Opphav, Toggles } from "mulighetsrommet-api-client";
+import { Avtalestatus, NavEnhet, Opphav, Toggles } from "mulighetsrommet-api-client";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { getDisplayName } from "@/api/enhet/helpers";
 import { ArrangorKontaktpersonDetaljer } from "@/pages/arrangor/ArrangorKontaktpersonDetaljer";
 import { useFeatureToggle } from "@/api/features/feature-toggles";
+import { HarSkrivetilgang } from "@/components/authActions/HarSkrivetilgang";
+import { AvbrytAvtaleModal } from "@/components/modal/AvbrytAvtaleModal";
 
 export function AvtaleDetaljer() {
   const { data: avtale, isPending, error } = useAvtale();
   const { data: enableArrangorSide } = useFeatureToggle(
     Toggles.MULIGHETSROMMET_ADMIN_FLATE_ENABLE_ARRANGOR_SIDER,
   );
+  const avbrytModalRef = useRef<HTMLDialogElement>(null);
 
   if (isPending) {
     return <Laster tekst="Laster avtale..." />;
@@ -66,201 +69,223 @@ export function AvtaleDetaljer() {
   } = avtale;
 
   return (
-    <div className={styles.container}>
-      <div className={styles.detaljer}>
-        <Bolk aria-label="Avtalenavn og avtalenummer">
-          <Metadata header={avtaletekster.avtalenavnLabel} verdi={navn} />
-          {opphav === Opphav.MR_ADMIN_FLATE ? (
-            <Metadata header={avtaletekster.lopenummerLabel} verdi={lopenummer} />
-          ) : (
-            <Metadata header={avtaletekster.arenaAvtalenummerLabel} verdi={avtalenummer} />
-          )}
-        </Bolk>
-
-        <Bolk aria-label={avtaletekster.tiltakstypeLabel}>
-          <Metadata
-            header={avtaletekster.tiltakstypeLabel}
-            verdi={<Link to={`/tiltakstyper/${tiltakstype.id}`}>{tiltakstype.navn}</Link>}
-          />
-          <Metadata header={avtaletekster.avtaletypeLabel} verdi={avtaletypeTilTekst(avtaletype)} />
-        </Bolk>
-
-        <Separator />
-
-        <Heading size="small" as="h3">
-          Avtalens varighet
-        </Heading>
-
-        <Bolk aria-label="Start- og sluttdato">
-          <Metadata header={avtaletekster.startdatoLabel} verdi={formaterDato(startDato)} />
-          <Metadata
-            header={avtaletekster.sluttdatoLabel}
-            verdi={sluttDato ? formaterDato(sluttDato) : "-"}
-          />
-        </Bolk>
-
-        <Separator />
-
-        <VStack gap="5">
-          <Bolk aria-label={avtaletekster.prisOgBetalingLabel}>
-            {erAnskaffetTiltak(tiltakstype.arenaKode) && (
-              <Metadata
-                header={avtaletekster.prisOgBetalingLabel}
-                verdi={
-                  avtale.prisbetingelser ??
-                  "Det eksisterer ikke pris og betalingsbetingelser for denne avtalen"
-                }
-              />
+    <>
+      <div className={styles.container}>
+        <div className={styles.detaljer}>
+          <Bolk aria-label="Avtalenavn og avtalenummer">
+            <Metadata header={avtaletekster.avtalenavnLabel} verdi={navn} />
+            {opphav === Opphav.MR_ADMIN_FLATE ? (
+              <Metadata header={avtaletekster.lopenummerLabel} verdi={lopenummer} />
+            ) : (
+              <Metadata header={avtaletekster.arenaAvtalenummerLabel} verdi={avtalenummer} />
             )}
           </Bolk>
 
-          {administratorer ? (
-            <Bolk aria-label={avtaletekster.administratorerForAvtalenLabel}>
-              <Metadata
-                header={avtaletekster.administratorerForAvtalenLabel}
-                verdi={
-                  administratorer.length ? (
-                    <ul>
-                      {administratorer.map((admin) => {
-                        return (
-                          <li key={admin.navIdent}>
-                            <a
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              href={`${NOM_ANSATT_SIDE}${admin.navIdent}`}
-                            >
-                              {`${admin.navn} - ${admin.navIdent}`}{" "}
-                              <ExternalLinkIcon aria-label="Ekstern lenke" />
-                            </a>
-                          </li>
-                        );
-                      })}
-                    </ul>
-                  ) : (
-                    avtaletekster.ingenAdministratorerSattLabel
-                  )
-                }
-              />
-              {url ? (
+          <Bolk aria-label={avtaletekster.tiltakstypeLabel}>
+            <Metadata
+              header={avtaletekster.tiltakstypeLabel}
+              verdi={<Link to={`/tiltakstyper/${tiltakstype.id}`}>{tiltakstype.navn}</Link>}
+            />
+            <Metadata
+              header={avtaletekster.avtaletypeLabel}
+              verdi={avtaletypeTilTekst(avtaletype)}
+            />
+          </Bolk>
+
+          <Separator />
+
+          <Heading size="small" as="h3">
+            Avtalens varighet
+          </Heading>
+
+          <Bolk aria-label="Start- og sluttdato">
+            <Metadata header={avtaletekster.startdatoLabel} verdi={formaterDato(startDato)} />
+            <Metadata
+              header={avtaletekster.sluttdatoLabel}
+              verdi={sluttDato ? formaterDato(sluttDato) : "-"}
+            />
+          </Bolk>
+
+          <Separator />
+
+          <VStack gap="5">
+            <Bolk aria-label={avtaletekster.prisOgBetalingLabel}>
+              {erAnskaffetTiltak(tiltakstype.arenaKode) && (
                 <Metadata
-                  header={avtaletekster.seOriginalavtaleLabel}
+                  header={avtaletekster.prisOgBetalingLabel}
                   verdi={
-                    <Link
-                      className={styles.websakLenke}
-                      to={url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      {lenketekst()}
-                    </Link>
+                    avtale.prisbetingelser ??
+                    "Det eksisterer ikke pris og betalingsbetingelser for denne avtalen"
                   }
                 />
-              ) : null}
+              )}
             </Bolk>
-          ) : null}
-        </VStack>
-      </div>
 
-      <div className={styles.detaljer}>
-        {kontorstruktur.length > 1 ? (
-          <Metadata
-            header={avtaletekster.fylkessamarbeidLabel}
-            verdi={
-              <ul>
-                {kontorstruktur.sort(sorterPaRegionsnavn).map((kontor) => {
-                  return <li key={kontor.region.enhetsnummer}>{kontor.region.navn}</li>;
-                })}
-              </ul>
-            }
-          />
-        ) : (
-          kontorstruktur.map((struktur, index) => {
-            return (
-              <Fragment key={index}>
-                <Bolk aria-label={avtaletekster.navRegionerLabel}>
-                  <Metadata header={avtaletekster.navRegionerLabel} verdi={struktur.region.navn} />
-                </Bolk>
-
-                <Bolk aria-label={avtaletekster.navEnheterLabel}>
-                  <Metadata
-                    header={avtaletekster.navEnheterLabel}
-                    verdi={
+            {administratorer ? (
+              <Bolk aria-label={avtaletekster.administratorerForAvtalenLabel}>
+                <Metadata
+                  header={avtaletekster.administratorerForAvtalenLabel}
+                  verdi={
+                    administratorer.length ? (
                       <ul>
-                        {struktur.kontorer.map((kontor) => (
-                          <li key={kontor.enhetsnummer}>{kontor.navn}</li>
-                        ))}
+                        {administratorer.map((admin) => {
+                          return (
+                            <li key={admin.navIdent}>
+                              <a
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                href={`${NOM_ANSATT_SIDE}${admin.navIdent}`}
+                              >
+                                {`${admin.navn} - ${admin.navIdent}`}{" "}
+                                <ExternalLinkIcon aria-label="Ekstern lenke" />
+                              </a>
+                            </li>
+                          );
+                        })}
                       </ul>
+                    ) : (
+                      avtaletekster.ingenAdministratorerSattLabel
+                    )
+                  }
+                />
+                {url ? (
+                  <Metadata
+                    header={avtaletekster.seOriginalavtaleLabel}
+                    verdi={
+                      <Link
+                        className={styles.websakLenke}
+                        to={url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        {lenketekst()}
+                      </Link>
                     }
                   />
-                </Bolk>
-              </Fragment>
-            );
-          })
-        )}
-        {arenaAnsvarligEnhet ? (
-          <div style={{ display: "flex", gap: "1rem", margin: "0.5rem 0" }}>
-            <dl style={{ margin: "0" }}>
-              <Metadata
-                header={avtaletekster.ansvarligEnhetFraArenaLabel}
-                verdi={getDisplayName(arenaAnsvarligEnhet)}
-              />
-            </dl>
-            <HelpText title="Hva betyr feltet 'Ansvarlig enhet fra Arena'?">
-              Ansvarlig enhet fra Arena blir satt i Arena basert på tiltaksansvarlig sin enhet når
-              det opprettes avtale i Arena.
-            </HelpText>
-          </div>
-        ) : null}
+                ) : null}
+              </Bolk>
+            ) : null}
+          </VStack>
+        </div>
 
-        <Separator />
+        <div className={styles.detaljer}>
+          {kontorstruktur.length > 1 ? (
+            <Metadata
+              header={avtaletekster.fylkessamarbeidLabel}
+              verdi={
+                <ul>
+                  {kontorstruktur.sort(sorterPaRegionsnavn).map((kontor) => {
+                    return <li key={kontor.region.enhetsnummer}>{kontor.region.navn}</li>;
+                  })}
+                </ul>
+              }
+            />
+          ) : (
+            kontorstruktur.map((struktur, index) => {
+              return (
+                <Fragment key={index}>
+                  <Bolk aria-label={avtaletekster.navRegionerLabel}>
+                    <Metadata
+                      header={avtaletekster.navRegionerLabel}
+                      verdi={struktur.region.navn}
+                    />
+                  </Bolk>
 
-        <Bolk aria-label={avtaletekster.tiltaksarrangorHovedenhetLabel}>
-          <Metadata
-            header={avtaletekster.tiltaksarrangorHovedenhetLabel}
-            verdi={
-              enableArrangorSide ? (
-                <Link to={`/arrangorer/${arrangor.id}`}>
-                  {arrangor.navn} - {arrangor.organisasjonsnummer}
-                </Link>
-              ) : (
-                `${arrangor.navn} - ${arrangor.organisasjonsnummer}`
-              )
-            }
-          />
-        </Bolk>
+                  <Bolk aria-label={avtaletekster.navEnheterLabel}>
+                    <Metadata
+                      header={avtaletekster.navEnheterLabel}
+                      verdi={
+                        <ul>
+                          {struktur.kontorer.map((kontor) => (
+                            <li key={kontor.enhetsnummer}>{kontor.navn}</li>
+                          ))}
+                        </ul>
+                      }
+                    />
+                  </Bolk>
+                </Fragment>
+              );
+            })
+          )}
+          {arenaAnsvarligEnhet ? (
+            <div style={{ display: "flex", gap: "1rem", margin: "0.5rem 0" }}>
+              <dl style={{ margin: "0" }}>
+                <Metadata
+                  header={avtaletekster.ansvarligEnhetFraArenaLabel}
+                  verdi={getDisplayName(arenaAnsvarligEnhet)}
+                />
+              </dl>
+              <HelpText title="Hva betyr feltet 'Ansvarlig enhet fra Arena'?">
+                Ansvarlig enhet fra Arena blir satt i Arena basert på tiltaksansvarlig sin enhet når
+                det opprettes avtale i Arena.
+              </HelpText>
+            </div>
+          ) : null}
 
-        <Bolk aria-label={avtaletekster.tiltaksarrangorUnderenheterLabel}>
-          <Metadata
-            header={avtaletekster.tiltaksarrangorUnderenheterLabel}
-            verdi={
-              <ul>
-                {arrangor.underenheter.map((enhet) => (
-                  <li key={enhet.organisasjonsnummer}>
-                    {`${enhet.navn} - ${enhet.organisasjonsnummer}`}
-                  </li>
-                ))}
-              </ul>
-            }
-          />
-        </Bolk>
+          <Separator />
 
-        <Separator />
-        {arrangor.kontaktpersoner.length > 0 && (
-          <Metadata
-            header={avtaletekster.kontaktpersonerHosTiltaksarrangorLabel}
-            verdi={
-              <div className={styles.arrangor_kontaktinfo_container}>
-                {arrangor.kontaktpersoner.map((kontaktperson) => (
-                  <ArrangorKontaktpersonDetaljer
-                    key={kontaktperson.id}
-                    kontaktperson={kontaktperson}
-                  />
-                ))}
-              </div>
-            }
-          />
-        )}
+          <Bolk aria-label={avtaletekster.tiltaksarrangorHovedenhetLabel}>
+            <Metadata
+              header={avtaletekster.tiltaksarrangorHovedenhetLabel}
+              verdi={
+                enableArrangorSide ? (
+                  <Link to={`/arrangorer/${arrangor.id}`}>
+                    {arrangor.navn} - {arrangor.organisasjonsnummer}
+                  </Link>
+                ) : (
+                  `${arrangor.navn} - ${arrangor.organisasjonsnummer}`
+                )
+              }
+            />
+          </Bolk>
+
+          <Bolk aria-label={avtaletekster.tiltaksarrangorUnderenheterLabel}>
+            <Metadata
+              header={avtaletekster.tiltaksarrangorUnderenheterLabel}
+              verdi={
+                <ul>
+                  {arrangor.underenheter.map((enhet) => (
+                    <li key={enhet.organisasjonsnummer}>
+                      {`${enhet.navn} - ${enhet.organisasjonsnummer}`}
+                    </li>
+                  ))}
+                </ul>
+              }
+            />
+          </Bolk>
+
+          <Separator />
+          {arrangor.kontaktpersoner.length > 0 && (
+            <Metadata
+              header={avtaletekster.kontaktpersonerHosTiltaksarrangorLabel}
+              verdi={
+                <div className={styles.arrangor_kontaktinfo_container}>
+                  {arrangor.kontaktpersoner.map((kontaktperson) => (
+                    <ArrangorKontaktpersonDetaljer
+                      key={kontaktperson.id}
+                      kontaktperson={kontaktperson}
+                    />
+                  ))}
+                </div>
+              }
+            />
+          )}
+        </div>
       </div>
-    </div>
+      <Separator />
+      <HarSkrivetilgang ressurs="Avtale">
+        {avtale && avtale.avtalestatus === Avtalestatus.AKTIV && (
+          <Button
+            size="small"
+            variant="danger"
+            type="button"
+            onClick={() => avbrytModalRef.current?.showModal()}
+          >
+            Avbryt avtale
+          </Button>
+        )}
+      </HarSkrivetilgang>
+      {avtale && <AvbrytAvtaleModal modalRef={avbrytModalRef} avtale={avtale} />}
+    </>
   );
 }

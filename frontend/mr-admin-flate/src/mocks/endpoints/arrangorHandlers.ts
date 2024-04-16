@@ -22,7 +22,16 @@ export const arrangorHandlers = [
       return HttpResponse.json(mockArrangorer.data.find((enhet) => enhet.id === params.id));
     },
   ),
-
+  http.post<PathParams, Arrangor | undefined>(
+    "*/api/v1/internal/arrangorer/:orgnr",
+    ({ params }) => {
+      return HttpResponse.json(
+        Object.values(mockArrangorer.data).find(
+          (enhet) => enhet.organisasjonsnummer === params.orgnr,
+        ),
+      );
+    },
+  ),
   http.get<PathParams, Arrangor | undefined>(
     "*/api/v1/internal/arrangorer/kontaktperson/:id",
     () => {

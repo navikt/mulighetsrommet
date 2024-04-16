@@ -141,7 +141,6 @@ export const TiltaksgjennomforingSkjemaContainer = ({
               />
             </div>
             <TiltaksgjennomforingSkjemaKnapperad
-              size="small"
               redigeringsModus={redigeringsModus}
               onClose={onClose}
               mutation={mutation}
@@ -160,7 +159,6 @@ export const TiltaksgjennomforingSkjemaContainer = ({
         <Separator />
         <div className={skjemastyles.flex_container}>
           <TiltaksgjennomforingSkjemaKnapperad
-            size="small"
             redigeringsModus={redigeringsModus}
             onClose={onClose}
             mutation={mutation}
