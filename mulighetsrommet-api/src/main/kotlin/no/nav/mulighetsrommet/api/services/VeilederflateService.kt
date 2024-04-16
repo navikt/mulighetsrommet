@@ -221,7 +221,7 @@ class VeilederflateService(
         perspective: SanityPerspective,
     ): SanityTiltaksgjennomforing {
         val query = """
-            *[_type == "tiltaksgjennomforing" && _id == "$id"] {
+            *[_type == "tiltaksgjennomforing" && _id == ${'$'}id] {
               _id,
               tiltakstype->{
                 _id,
@@ -273,7 +273,9 @@ class VeilederflateService(
             }[0]
         """.trimIndent()
 
-        return when (val result = sanityClient.query(query, perspective = perspective)) {
+        val params = listOf(SanityParam.of("id", id))
+
+        return when (val result = sanityClient.query(query, params, perspective)) {
             is SanityResponse.Result -> result.decode()
             is SanityResponse.Error -> throw Exception(result.error.toString())
         }
@@ -401,7 +403,7 @@ class VeilederflateService(
     }
 
     suspend fun hentOppskrifterForTiltakstype(
-        tiltakstypeId: String,
+        tiltakstypeId: UUID,
         perspective: SanityPerspective,
     ): List<Oppskrift> {
         val query = """
