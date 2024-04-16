@@ -11,12 +11,14 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.api.domain.dto.Mutation
 import no.nav.mulighetsrommet.api.domain.dto.Mutations
 import no.nav.mulighetsrommet.api.domain.dto.SanityResponse
 import no.nav.mulighetsrommet.ktor.clients.ClientResponseMetricPlugin
 import org.slf4j.LoggerFactory
+import java.util.*
 
 class SanityClient(engine: HttpClientEngine = CIO.create(), val config: Config) {
 
@@ -29,6 +31,7 @@ class SanityClient(engine: HttpClientEngine = CIO.create(), val config: Config) 
         val apiVersion: String = "v2023-10-07",
         val token: String?,
         val useCdn: Boolean = true,
+        val maxRetries: Int = 0,
     ) {
         private fun baseUrl(perspective: SanityPerspective = SanityPerspective.PUBLISHED): String {
             val api = if (useCdn && perspective != SanityPerspective.PREVIEW_DRAFTS) "apicdn" else "api"
@@ -47,7 +50,7 @@ class SanityClient(engine: HttpClientEngine = CIO.create(), val config: Config) 
     }
 
     private val client: HttpClient = HttpClient(engine) {
-        expectSuccess = true
+        expectSuccess = false
 
         install(Logging) {
             logger = Logger.DEFAULT
@@ -57,7 +60,7 @@ class SanityClient(engine: HttpClientEngine = CIO.create(), val config: Config) 
         install(ClientResponseMetricPlugin)
 
         install(HttpRequestRetry) {
-            retryOnServerErrors(maxRetries = 5)
+            retryOnServerErrors(maxRetries = config.maxRetries)
             exponentialDelay()
             modifyRequest {
                 response?.let {
@@ -87,11 +90,15 @@ class SanityClient(engine: HttpClientEngine = CIO.create(), val config: Config) 
 
     internal suspend fun query(
         query: String,
+        params: List<SanityParam> = listOf(),
         perspective: SanityPerspective = SanityPerspective.PUBLISHED,
     ): SanityResponse {
         val response = client.get(config.queryUrl(perspective)) {
             url {
                 parameters.append("query", query)
+                params.forEach { param ->
+                    parameters.append("$${param.key}", param.value)
+                }
                 parameters.append("perspective", perspective.navn)
             }
         }
@@ -107,8 +114,6 @@ class SanityClient(engine: HttpClientEngine = CIO.create(), val config: Config) 
         visibility: MutationVisibility = MutationVisibility.Sync,
     ): HttpResponse {
         val response = client.post(config.mutationUrl()) {
-            expectSuccess = false
-
             setBody(Mutations(mutations = mutations))
             url.parameters.apply {
                 append("returnIds", returnIds.toString())
@@ -126,4 +131,18 @@ enum class SanityPerspective(val navn: String) {
     PREVIEW_DRAFTS("previewDrafts"),
     PUBLISHED("published"),
     RAW("raw"),
+}
+
+class SanityParam private constructor(val key: String, val value: String) {
+
+    companion object {
+        internal inline fun <reified T> of(key: String, value: T): SanityParam {
+            val encodedValue = Json.encodeToString<T>(value)
+            return SanityParam(key, encodedValue)
+        }
+
+        internal fun of(key: String, value: UUID): SanityParam {
+            return SanityParam(key, "\"$value\"")
+        }
+    }
 }

@@ -10,7 +10,10 @@ import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import io.ktor.util.pipeline.*
 import no.nav.mulighetsrommet.api.clients.sanity.SanityPerspective
-import no.nav.mulighetsrommet.api.domain.dto.*
+import no.nav.mulighetsrommet.api.domain.dto.KontaktinfoVarsel
+import no.nav.mulighetsrommet.api.domain.dto.Oppskrifter
+import no.nav.mulighetsrommet.api.domain.dto.VeilederflateKontaktinfo
+import no.nav.mulighetsrommet.api.domain.dto.VeilederflateTiltaksgjennomforing
 import no.nav.mulighetsrommet.api.plugins.AuthProvider
 import no.nav.mulighetsrommet.api.plugins.getNavAnsattAzureId
 import no.nav.mulighetsrommet.api.services.PoaoTilgangService
@@ -86,17 +89,19 @@ fun Route.veilederflateRoutes() {
         }
 
         get("/oppskrifter/{tiltakstypeId}") {
-            val tiltakstypeId = call.parameters.getOrFail("tiltakstypeId")
-            val perspective = call.request.queryParameters["perspective"]?.let {
-                when (it) {
-                    "published" -> SanityPerspective.PUBLISHED
-                    "raw" -> SanityPerspective.RAW
-                    else -> SanityPerspective.PREVIEW_DRAFTS
+            val tiltakstypeId: UUID by call.parameters
+            val perspective = call.request.queryParameters["perspective"]
+                ?.let {
+                    when (it) {
+                        "published" -> SanityPerspective.PUBLISHED
+                        "raw" -> SanityPerspective.RAW
+                        else -> SanityPerspective.PREVIEW_DRAFTS
+                    }
                 }
-            }
                 ?: SanityPerspective.PUBLISHED
-            val oppskrifter: List<Oppskrift> =
-                veilederflateService.hentOppskrifterForTiltakstype(tiltakstypeId, perspective)
+
+            val oppskrifter = veilederflateService.hentOppskrifterForTiltakstype(tiltakstypeId, perspective)
+
             call.respond(Oppskrifter(data = oppskrifter))
         }
 
