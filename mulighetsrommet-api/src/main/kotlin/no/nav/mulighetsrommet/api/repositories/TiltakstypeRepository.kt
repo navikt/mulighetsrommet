@@ -23,7 +23,7 @@ class TiltakstypeRepository(private val db: Database) {
 
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    fun upsert(tiltakstype: TiltakstypeDbo): TiltakstypeDbo {
+    fun upsert(tiltakstype: TiltakstypeDbo) {
         logger.info("Lagrer tiltakstype id=${tiltakstype.id}")
 
         @Language("PostgreSQL")
@@ -56,7 +56,7 @@ class TiltakstypeRepository(private val db: Database) {
             returning *
         """.trimIndent()
 
-        return queryOf(query, tiltakstype.toSqlParameters()).map { it.toTiltakstypeDbo() }.asSingle.let { db.run(it)!! }
+        queryOf(query, tiltakstype.toSqlParameters()).asExecute.let { db.run(it) }
     }
 
     fun get(id: UUID): TiltakstypeAdminDto? {
@@ -73,7 +73,7 @@ class TiltakstypeRepository(private val db: Database) {
     fun getEksternTiltakstype(id: UUID): TiltakstypeEksternDto? = db.useSession { session ->
         @Language("PostgreSQL")
         val query = """
-            select id, navn, tiltakskode, arena_kode, innsatsgrupper, rett_paa_tiltakspenger
+            select id, navn, tiltakskode, arena_kode, innsatsgrupper
             from tiltakstype
             where id = ?::uuid
         """.trimIndent()
@@ -221,17 +221,6 @@ class TiltakstypeRepository(private val db: Database) {
         "rett_paa_tiltakspenger" to rettPaaTiltakspenger,
     )
 
-    private fun Row.toTiltakstypeDbo(): TiltakstypeDbo {
-        return TiltakstypeDbo(
-            id = uuid("id"),
-            navn = string("navn"),
-            arenaKode = string("arena_kode"),
-            startDato = localDate("start_dato"),
-            sluttDato = localDateOrNull("slutt_dato"),
-            rettPaaTiltakspenger = boolean("rett_paa_tiltakspenger"),
-        )
-    }
-
     private fun Row.toTiltakstypeAdminDto(): TiltakstypeAdminDto {
         val personopplysninger = Json.decodeFromString<List<PersonopplysningMedFrekvens>>(string("personopplysninger"))
             .groupBy({ it.frekvens }, { it.personopplysning.toPersonopplysningMedBeskrivelse() })
@@ -243,7 +232,6 @@ class TiltakstypeRepository(private val db: Database) {
             startDato = localDate("start_dato"),
             sluttDato = localDateOrNull("slutt_dato"),
             sanityId = uuidOrNull("sanity_id"),
-            rettPaaTiltakspenger = boolean("rett_paa_tiltakspenger"),
             status = TiltakstypeStatus.valueOf(string("status")),
             personopplysninger = personopplysninger,
         )
@@ -262,7 +250,6 @@ class TiltakstypeRepository(private val db: Database) {
             tiltakskode = Tiltakskode.valueOf(string("tiltakskode")),
             innsatsgrupper = innsatsgrupper,
             arenaKode = string("arena_kode"),
-            rettPaaTiltakspenger = boolean("rett_paa_tiltakspenger"),
             deltakerRegistreringInnhold = deltakerRegistreringInnhold,
         )
     }

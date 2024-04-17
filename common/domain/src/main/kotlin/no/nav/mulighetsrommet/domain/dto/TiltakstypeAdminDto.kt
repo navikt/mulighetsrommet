@@ -16,7 +16,6 @@ data class TiltakstypeAdminDto(
     val startDato: LocalDate,
     @Serializable(with = LocalDateSerializer::class)
     val sluttDato: LocalDate?,
-    val rettPaaTiltakspenger: Boolean,
     val status: TiltakstypeStatus,
     @Serializable(with = UUIDSerializer::class)
     val sanityId: UUID?,

@@ -14,6 +14,5 @@ data class TiltakstypeEksternDto(
     val tiltakskode: Tiltakskode,
     val innsatsgrupper: Set<Innsatsgruppe>,
     val arenaKode: String?,
-    val rettPaaTiltakspenger: Boolean,
     val deltakerRegistreringInnhold: DeltakerRegistreringInnholdDto?,
 )
