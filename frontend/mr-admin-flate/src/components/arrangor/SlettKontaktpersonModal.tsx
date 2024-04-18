@@ -106,10 +106,7 @@ function Koblingsoversikt({ avtaler, gjennomforinger, kontaktperson }: Koblingso
     useFrikobleArrangorKontaktpersonFraTiltaksgjennomforing();
   return (
     <div>
-      <p>
-        {kontaktperson.navn} er koblet til følgende dokumenter og må fjernes fra dokumentene før hen
-        kan slettes.
-      </p>
+      <p>{kontaktperson.navn} er koblet til følgende og må fjernes før hen kan slettes.</p>
       <VStack gap="5">
         <DokumentKoblinger
           baseUrl="avtaler"
