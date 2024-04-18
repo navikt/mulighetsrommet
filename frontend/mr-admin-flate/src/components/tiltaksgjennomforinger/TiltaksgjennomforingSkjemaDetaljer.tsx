@@ -232,8 +232,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
                 {tiltaktekster.apentForInnsokLabel}
               </Switch>
             ) : null}
-
-            <HGrid columns={2}>
+            <HGrid align="start" columns={2}>
               <TextField
                 size="small"
                 readOnly={eierIkkeGjennomforing}
