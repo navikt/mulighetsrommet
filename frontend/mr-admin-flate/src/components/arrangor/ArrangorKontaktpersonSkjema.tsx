@@ -11,6 +11,7 @@ import {
 import { useDeleteArrangorKontaktperson } from "@/api/arrangor/useDeleteArrangorKontaktperson";
 import { resolveErrorMessage } from "@/api/errors";
 import { useHandleApiUpsertResponse } from "@/api/effects";
+import { navnForAnsvar } from "./ArrangorKontaktpersonUtils";
 
 type ArrangorKontaktpersonErrors = Partial<Record<keyof ArrangorKontaktperson, string>>;
 
@@ -143,8 +144,9 @@ export const ArrangorKontaktpersonSkjema = (props: VirksomhetKontaktpersonerProp
         label="Hva er kontaktpersonen ansvarlig for?"
         size="small"
         isMultiSelect
+        error={state.errors.ansvarligFor}
         selectedOptions={state.ansvarligFor.map((ansvar) => ({
-          label: navnForAnvar(ansvar),
+          label: navnForAnsvar(ansvar),
           value: ansvar,
         }))}
         options={[
@@ -195,16 +197,3 @@ export const ArrangorKontaktpersonSkjema = (props: VirksomhetKontaktpersonerProp
     </div>
   );
 };
-
-function navnForAnvar(
-  ansvar: ArrangorKontaktpersonAnsvar,
-): "Avtale" | "Tiltaksgjennomføring" | "Økonomi" {
-  switch (ansvar) {
-    case ArrangorKontaktpersonAnsvar.AVTALE:
-      return "Avtale";
-    case ArrangorKontaktpersonAnsvar.TILTAKSGJENNOMFORING:
-      return "Tiltaksgjennomføring";
-    case ArrangorKontaktpersonAnsvar.OKONOMI:
-      return "Økonomi";
-  }
-}

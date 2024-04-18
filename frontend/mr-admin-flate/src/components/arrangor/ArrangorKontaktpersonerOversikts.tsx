@@ -19,6 +19,7 @@ import { useArrangorKontaktpersoner } from "../../api/arrangor/useArrangorKontak
 import { useUpsertArrangorKontaktperson } from "../../api/arrangor/useUpsertArrangorKontaktperson";
 import { useHandleApiUpsertResponse } from "../../api/effects";
 import { SlettKontaktpersonModal } from "./SlettKontaktpersonModal";
+import { navnForAnsvar } from "./ArrangorKontaktpersonUtils";
 
 interface Props {
   arrangor: Arrangor;
@@ -142,7 +143,7 @@ function LeseRad({ kontaktperson, setRedigerKontaktperson, setSlettKontaktperson
           {kontaktperson.ansvarligFor.map((ansvar, index) => (
             <li key={index}>
               <Tag variant="info" size="small">
-                {navnForAnvar(ansvar)}
+                {navnForAnsvar(ansvar)}
               </Tag>
             </li>
           ))}
@@ -185,6 +186,9 @@ const KontaktpersonSchema = z.object({
   epost: z.string().email("Du må skrive inn en gyldig e-postadresse").optional(),
   telefon: z.string().optional(),
   beskrivelse: z.string().optional(),
+  ansvarligFor: z
+    .array(z.enum(["AVTALE", "TILTAKSGJENNOMFORING", "OKONOMI"]))
+    .min(1, "Du må velge minst ett ansvarsområde"),
 });
 
 interface State extends ArrangorKontaktperson {
@@ -281,9 +285,10 @@ function RedigerbarRad({ kontaktperson, setRedigerKontaktperson, arrangor }: Red
           label="Hva er kontaktpersonen ansvarlig for?"
           hideLabel
           size="small"
+          error={state.errors.ansvarligFor}
           isMultiSelect
           selectedOptions={state.ansvarligFor.map((ansvar) => ({
-            label: navnForAnvar(ansvar),
+            label: navnForAnsvar(ansvar),
             value: ansvar,
           }))}
           options={[
@@ -327,17 +332,4 @@ function RedigerbarRad({ kontaktperson, setRedigerKontaktperson, arrangor }: Red
       </Table.DataCell>
     </Table.Row>
   );
-}
-
-function navnForAnvar(
-  ansvar: ArrangorKontaktpersonAnsvar,
-): "Avtale" | "Tiltaksgjennomføring" | "Økonomi" {
-  switch (ansvar) {
-    case ArrangorKontaktpersonAnsvar.AVTALE:
-      return "Avtale";
-    case ArrangorKontaktpersonAnsvar.TILTAKSGJENNOMFORING:
-      return "Tiltaksgjennomføring";
-    case ArrangorKontaktpersonAnsvar.OKONOMI:
-      return "Økonomi";
-  }
 }
