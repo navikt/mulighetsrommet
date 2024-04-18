@@ -22,6 +22,7 @@ import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering.Opphav
 import no.nav.mulighetsrommet.domain.dto.Avtalestatus
 import no.nav.mulighetsrommet.domain.dto.NavIdent
+import no.nav.mulighetsrommet.domain.dto.PersonopplysningerMedBeskrivelse
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus
 import no.nav.mulighetsrommet.notifications.NotificationRepository
 import no.nav.mulighetsrommet.notifications.NotificationType
@@ -251,5 +252,9 @@ class AvtaleService(
                     ServerError("Klarte ikke fjerne kontaktperson fra avtalen")
                 }
         }
+    }
+
+    fun getBehandlingAvPersonopplysninger(id: UUID): PersonopplysningerMedBeskrivelse {
+        return avtaler.getBehandlingAvPersonopplysninger(id = id)
     }
 }

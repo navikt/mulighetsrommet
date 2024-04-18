@@ -115,6 +115,12 @@ fun Route.avtaleRoutes() {
                 ?: call.respond(HttpStatusCode.NotFound, "Det finnes ikke noen avtale med id $id")
         }
 
+        get("{id}/behandle-personopplysninger") {
+            val id = call.parameters.getOrFail<UUID>("id")
+            avtaler.getBehandlingAvPersonopplysninger(id)
+                .let { call.respond(it) }
+        }
+
         get("{id}/historikk") {
             val id: UUID by call.parameters
             val historikk = avtaler.getEndringshistorikk(id)

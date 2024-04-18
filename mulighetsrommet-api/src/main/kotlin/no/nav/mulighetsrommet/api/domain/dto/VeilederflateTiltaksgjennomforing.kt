@@ -23,6 +23,8 @@ data class VeilederflateInnsatsgruppe(
 data class VeilederflateTiltaksgjennomforing(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID? = null,
+    @Serializable(with = UUIDSerializer::class)
+    val avtaleId: UUID? = null,
     val sanityId: String? = null,
     val tiltakstype: VeilederflateTiltakstype,
     val navn: String,
@@ -41,6 +43,7 @@ data class VeilederflateTiltaksgjennomforing(
     val faneinnhold: Faneinnhold? = null,
     val kontaktinfo: VeilederflateKontaktinfo? = null,
     val estimertVentetid: EstimertVentetid? = null,
+    val personvernBekreftet: Boolean,
 )
 
 @Serializable

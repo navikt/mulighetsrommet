@@ -28,6 +28,8 @@ import {
 import { useTitle } from "mulighetsrommet-frontend-common";
 import { LenkeListe } from "@/components/sidemeny/Lenker";
 import { ModiaRoute, resolveModiaRoute } from "@/apps/modia/ModiaRoute";
+import { PersonvernContainer } from "../../../components/personvern/PersonvernContainer";
+import { InlineErrorBoundary } from "../../../ErrorBoundary";
 
 export function ModiaArbeidsmarkedstiltakDetaljer() {
   const { fnr } = useModiaContext();
@@ -169,6 +171,12 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
                 <Chat2Icon aria-label="Åpne i dialogen" />
               </Button>
             )}
+
+            {tiltaksgjennomforing && tiltaksgjennomforing?.personvernBekreftet ? (
+              <InlineErrorBoundary>
+                <PersonvernContainer tiltaksgjennomforing={tiltaksgjennomforing} />
+              </InlineErrorBoundary>
+            ) : null}
 
             <LenkeListe lenker={tiltaksgjennomforing.faneinnhold?.lenker} />
           </>

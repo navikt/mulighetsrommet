@@ -486,6 +486,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         val query = """
             select
                 gjennomforing.id,
+                a.id as avtale_id,
                 gjennomforing.sanity_id,
                 gjennomforing.navn,
                 gjennomforing.sted_for_gjennomforing,
@@ -514,13 +515,15 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                     ) end
                 ) as arrangor_kontaktpersoner_json,
                 tiltakstype.sanity_id as tiltakstype_sanity_id,
-                tiltakstype.navn as tiltakstype_navn
+                tiltakstype.navn as tiltakstype_navn,
+                a.personvern_bekreftet
             from tiltaksgjennomforing gjennomforing
                 inner join tiltakstype on gjennomforing.tiltakstype_id = tiltakstype.id
                 left join tiltaksgjennomforing_nav_enhet nav_enhet on nav_enhet.tiltaksgjennomforing_id = gjennomforing.id
                 left join arrangor on arrangor.id = gjennomforing.arrangor_id
                 left join tiltaksgjennomforing_arrangor_kontaktperson ak on ak.tiltaksgjennomforing_id = gjennomforing.id
                 left join arrangor_kontaktperson on arrangor_kontaktperson.id = ak.arrangor_kontaktperson_id
+                left join avtale a on a.id = gjennomforing.avtale_id
             where tiltakstype.tiltakskode is not null
               and gjennomforing.publisert
               and gjennomforing.avbrutt_tidspunkt is null and (gjennomforing.slutt_dato is null or gjennomforing.slutt_dato > now())
@@ -528,7 +531,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
               and (:sanityTiltakstypeIds::uuid[] is null or tiltakstype.sanity_id = any(:sanityTiltakstypeIds))
               and (:innsatsgrupper::innsatsgruppe[] is null or tiltakstype.innsatsgruppe = any(:innsatsgrupper::innsatsgruppe[]))
               and (:apent_for_innsok::boolean is null or gjennomforing.apent_for_innsok = :apent_for_innsok)
-            group by gjennomforing.id, tiltakstype.id, arrangor.id
+            group by gjennomforing.id, tiltakstype.id, arrangor.id, a.id
             having array_agg(nav_enhet.enhetsnummer) && :brukersEnheter
         """.trimIndent()
 
@@ -735,6 +738,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         return VeilederflateTiltaksgjennomforing(
             sanityId = uuidOrNull("sanity_id").toString(),
             id = uuidOrNull("id"),
+            avtaleId = uuidOrNull("avtale_id"),
             tiltakstype = VeilederflateTiltakstype(
                 sanityId = uuid("tiltakstype_sanity_id").toString(),
                 navn = string("tiltakstype_navn"),
@@ -762,6 +766,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                     enhet = string("estimert_ventetid_enhet"),
                 )
             },
+            personvernBekreftet = boolean("personvern_bekreftet"),
         )
     }
 
@@ -835,6 +840,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 navn = string("tiltakstype_navn"),
                 arenaKode = string("tiltakstype_arena_kode"),
             ),
+            personvernBekreftet = boolean("personvern_bekreftet"),
         )
     }
 
@@ -857,7 +863,11 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         )
     }
 
-    fun frikobleKontaktpersonFraGjennomforing(kontaktpersonId: UUID, gjennomforingId: UUID, tx: Session): Either<StatusResponseError, Pair<String, String>> {
+    fun frikobleKontaktpersonFraGjennomforing(
+        kontaktpersonId: UUID,
+        gjennomforingId: UUID,
+        tx: Session,
+    ): Either<StatusResponseError, Pair<String, String>> {
         @Language("PostgreSQL")
         val kontaktpersonNavnQuery = """
             select navn from arrangor_kontaktperson where id = ?::uuid

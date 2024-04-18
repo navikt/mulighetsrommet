@@ -1,5 +1,7 @@
 package no.nav.mulighetsrommet.domain.dto
 
+import kotlinx.serialization.Serializable
+
 enum class Personopplysning {
     NAVN,
     KJONN,
@@ -29,3 +31,30 @@ enum class PersonopplysningFrekvens {
     OFTE,
     SJELDEN,
 }
+
+@Serializable
+data class PersonopplysningMedFrekvens(
+    val personopplysning: Personopplysning,
+    val frekvens: PersonopplysningFrekvens,
+    val beskrivelse: String,
+) {
+    fun toPersonopplysningMedBeskrivelse(): PersonopplysningMedBeskrivelse {
+        return PersonopplysningMedBeskrivelse(
+            personopplysning = personopplysning,
+            beskrivelse = beskrivelse,
+        )
+    }
+}
+
+@Serializable
+data class PersonopplysningMedBeskrivelse(
+    val personopplysning: Personopplysning,
+    val beskrivelse: String,
+)
+
+@Serializable
+data class PersonopplysningerMedBeskrivelse(
+    val alltid: List<PersonopplysningMedBeskrivelse>,
+    val ofte: List<PersonopplysningMedBeskrivelse>,
+    val sjelden: List<PersonopplysningMedBeskrivelse>,
+)

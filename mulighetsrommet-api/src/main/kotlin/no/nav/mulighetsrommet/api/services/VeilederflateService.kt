@@ -303,6 +303,7 @@ class VeilederflateService(
                 } ?: emptyList()
 
             VeilederflateTiltaksgjennomforing(
+                avtaleId = UUID.randomUUID(),
                 sanityId = _id,
                 tiltakstype = tiltakstype.run {
                     VeilederflateTiltakstype(
@@ -329,6 +330,7 @@ class VeilederflateService(
                     varsler = emptyList(),
                     tiltaksansvarlige = kontaktpersoner,
                 ),
+                personvernBekreftet = true,
             )
         }
     }
@@ -358,6 +360,7 @@ class VeilederflateService(
         return apiGjennomforing.run {
             VeilederflateTiltaksgjennomforing(
                 id = id,
+                avtaleId = avtaleId,
                 tiltakstype = veilederflateTiltakstype,
                 navn = navn,
                 tiltaksnummer = apiGjennomforing.tiltaksnummer,
@@ -381,6 +384,7 @@ class VeilederflateService(
                         enhet = it.enhet,
                     )
                 },
+                personvernBekreftet = personvernBekreftet,
             )
         }
     }

@@ -22,11 +22,7 @@ import no.nav.mulighetsrommet.database.utils.mapPaginated
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.ArenaAvtaleDbo
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
-import no.nav.mulighetsrommet.domain.dto.Avtalestatus
-import no.nav.mulighetsrommet.domain.dto.Avtaletype
-import no.nav.mulighetsrommet.domain.dto.Lopenummer
-import no.nav.mulighetsrommet.domain.dto.NavIdent
-import no.nav.mulighetsrommet.domain.dto.Personopplysning
+import no.nav.mulighetsrommet.domain.dto.*
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
 import java.time.LocalDate
@@ -580,7 +576,11 @@ class AvtaleRepository(private val db: Database) {
         )
     }
 
-    fun frikobleKontaktpersonFraAvtale(kontaktpersonId: UUID, avtaleId: UUID, tx: Session): Either<StatusResponseError, Pair<String, String>> {
+    fun frikobleKontaktpersonFraAvtale(
+        kontaktpersonId: UUID,
+        avtaleId: UUID,
+        tx: Session,
+    ): Either<StatusResponseError, Pair<String, String>> {
         @Language("PostgreSQL")
         val kontaktpersonNavnQuery = """
             select navn from arrangor_kontaktperson where id = ?::uuid
@@ -605,5 +605,73 @@ class AvtaleRepository(private val db: Database) {
             .let { tx.run(it) }
 
         return Either.Right(navn to kontaktpersonId.toString())
+    }
+
+    fun getBehandlingAvPersonopplysninger(id: UUID): PersonopplysningerMedBeskrivelse {
+        @Language("PostgreSQL")
+        val valgtePersonopplysningerQuery = """
+            select distinct tp.personopplysning, frekvens
+            from avtale
+                 join tiltaksgjennomforing on tiltaksgjennomforing.avtale_id = avtale.id
+                 join tiltakstype on tiltakstype.id = avtale.tiltakstype_id
+                 join avtale_personopplysning ap on avtale.id = ap.avtale_id
+                 join tiltakstype_personopplysning tp on tp.personopplysning = ap.personopplysning
+            where avtale.id = ?::uuid
+              and avtale.personvern_bekreftet
+            and tp.tiltakskode = tiltakstype.tiltakskode;
+        """.trimIndent()
+
+        val valgtePersonopplysninger = queryOf(valgtePersonopplysningerQuery, id)
+            .map {
+                it.toPersonopplysningMedFrekvens()
+            }
+            .asList
+            .let { db.run(it) }
+
+        val gruppert = valgtePersonopplysninger.groupBy { it.frekvens }
+
+        return PersonopplysningerMedBeskrivelse(
+            alltid = gruppert[PersonopplysningFrekvens.ALLTID]?.map { it.toPersonopplysningMedBeskrivelse() }
+                ?: emptyList(),
+            ofte = gruppert[PersonopplysningFrekvens.OFTE]?.map { it.toPersonopplysningMedBeskrivelse() }
+                ?: emptyList(),
+            sjelden = gruppert[PersonopplysningFrekvens.SJELDEN]?.map { it.toPersonopplysningMedBeskrivelse() }
+                ?: emptyList(),
+        )
+    }
+
+    private fun Row.toPersonopplysningMedFrekvens(): PersonopplysningMedFrekvens {
+        return PersonopplysningMedFrekvens(
+            personopplysning = Personopplysning.valueOf(this.string("personopplysning")),
+            frekvens = PersonopplysningFrekvens.valueOf(this.string("frekvens")),
+            beskrivelse = beskrivelseForPersonopplysning(Personopplysning.valueOf(this.string("personopplysning"))),
+        )
+    }
+
+    private fun beskrivelseForPersonopplysning(personopplysning: Personopplysning): String {
+        return when (personopplysning) {
+            Personopplysning.NAVN -> "Navn"
+            Personopplysning.KJONN -> "Kjønn"
+            Personopplysning.ADRESSE -> "Adresse"
+            Personopplysning.TELEFONNUMMER -> "Telefonnummer"
+            Personopplysning.FOLKEREGISTER_IDENTIFIKATOR -> "Folkeregisteridentifikator"
+            Personopplysning.FODSELSDATO -> "Fødselsdato"
+            Personopplysning.BEHOV_FOR_BISTAND_FRA_NAV -> "Behov for bistand fra NAV"
+            Personopplysning.YTELSER_FRA_NAV -> "Ytelser fra NAV"
+            Personopplysning.BILDE -> "Bilde"
+            Personopplysning.EPOST -> "E-postadresse"
+            Personopplysning.BRUKERNAVN -> "Brukernavn"
+            Personopplysning.ARBEIDSERFARING_OG_VERV -> "Opplysninger knyttet til arbeidserfaring og verv som normalt fremkommer av en CV, herunder arbeidsgiver og hvor lenge man har jobbet"
+            Personopplysning.SERTIFIKATER_OG_KURS -> "Sertifikater og kurs, eks. Førerkort, vekterkurs"
+            Personopplysning.IP_ADRESSE -> "IP-adresse"
+            Personopplysning.UTDANNING_OG_FAGBREV -> "Utdanning, herunder fagbrev, høyere utdanning, grunnskoleopplæring osv."
+            Personopplysning.PERSONLIGE_EGENSKAPER_OG_INTERESSER -> "Opplysninger om personlige egenskaper og interesser"
+            Personopplysning.SPRAKKUNNSKAP -> "Opplysninger om språkkunnskap"
+            Personopplysning.ADFERD -> "Opplysninger om atferd som kan ha betydning for tiltaksgjennomføring og jobbmuligheter (eks. truende adferd, vanskelig å samarbeide med osv.)"
+            Personopplysning.SOSIALE_FORHOLD -> "Sosiale eller personlige forhold som kan ha betydning for tiltaksgjennomføring og jobbmuligheter (eks. Aleneforsørger og kan derfor ikke jobbe kveldstid, eller økonomiske forhold som går ut over tiltaksgjennomføringen)"
+            Personopplysning.HELSEOPPLYSNINGER -> "Helseopplysninger"
+            Personopplysning.RELIGION -> "Religion"
+            else -> throw Exception("Fant ikke beskrivelse for personopplsyning '${personopplysning.name}' - Den må nok legges til i koden.")
+        }
     }
 }
