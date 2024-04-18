@@ -4,6 +4,8 @@ import { Tilbakeknapp } from "@/components/tilbakeknapp/Tilbakeknapp";
 import { TiltakLoader } from "@/components/TiltakLoader";
 import { useNavTiltaksgjennomforingById } from "@/api/queries/useTiltaksgjennomforingById";
 import { LenkeListe } from "../../../components/sidemeny/Lenker";
+import { PersonvernContainer } from "../../../components/personvern/PersonvernContainer";
+import { InlineErrorBoundary } from "../../../ErrorBoundary";
 
 export function NavArbeidsmarkedstiltakDetaljer() {
   const { data, isLoading, isError } = useNavTiltaksgjennomforingById();
@@ -23,9 +25,16 @@ export function NavArbeidsmarkedstiltakDetaljer() {
       tiltaksgjennomforing={data}
       knapperad={<Tilbakeknapp tilbakelenke=".." tekst="Tilbake til tiltaksoversikten" />}
       brukerActions={
-        <LenkeListe
-          lenker={data?.faneinnhold?.lenker?.filter((lenke) => !lenke.visKunForVeileder)}
-        />
+        <>
+          {data && data?.personvernBekreftet ? (
+            <InlineErrorBoundary>
+              <PersonvernContainer tiltaksgjennomforing={data} />
+            </InlineErrorBoundary>
+          ) : null}
+          <LenkeListe
+            lenker={data?.faneinnhold?.lenker?.filter((lenke) => !lenke.visKunForVeileder)}
+          />
+        </>
       }
     />
   );

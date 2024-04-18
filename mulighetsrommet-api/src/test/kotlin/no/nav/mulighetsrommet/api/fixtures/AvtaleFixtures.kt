@@ -26,6 +26,8 @@ object AvtaleFixtures {
         url = "https://www.websak.no",
         beskrivelse = null,
         faneinnhold = null,
+        personopplysninger = emptyList(),
+        personvernBekreftet = false,
     )
 
     val oppfolgingMedAvtale = AvtaleDbo(
@@ -46,6 +48,8 @@ object AvtaleFixtures {
         url = "https://www.websak.no",
         beskrivelse = null,
         faneinnhold = null,
+        personopplysninger = emptyList(),
+        personvernBekreftet = false,
     )
 
     val gruppeAmo = AvtaleDbo(
@@ -66,6 +70,8 @@ object AvtaleFixtures {
         url = null,
         beskrivelse = null,
         faneinnhold = null,
+        personopplysninger = emptyList(),
+        personvernBekreftet = false,
     )
 
     val VTA = AvtaleDbo(
@@ -86,6 +92,8 @@ object AvtaleFixtures {
         url = null,
         beskrivelse = null,
         faneinnhold = null,
+        personopplysninger = emptyList(),
+        personvernBekreftet = false,
     )
 
     val AFT = AvtaleDbo(
@@ -106,6 +114,8 @@ object AvtaleFixtures {
         url = null,
         beskrivelse = null,
         faneinnhold = null,
+        personopplysninger = emptyList(),
+        personvernBekreftet = false,
     )
 
     val EnkelAmo = AvtaleDbo(
@@ -126,6 +136,8 @@ object AvtaleFixtures {
         url = null,
         beskrivelse = null,
         faneinnhold = null,
+        personopplysninger = emptyList(),
+        personvernBekreftet = false,
     )
 
     val avtaleRequest = AvtaleRequest(
@@ -133,8 +145,8 @@ object AvtaleFixtures {
         navn = "Avtalenavn",
         avtalenummer = "2023#1",
         tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
-        arrangorOrganisasjonsnummer = "123456789",
-        arrangorUnderenheter = listOf("123456789"),
+        arrangorOrganisasjonsnummer = ArrangorFixtures.hovedenhet.organisasjonsnummer,
+        arrangorUnderenheter = listOf(ArrangorFixtures.underenhet1.organisasjonsnummer),
         startDato = LocalDate.of(2023, 1, 11),
         sluttDato = LocalDate.now().plusMonths(3),
         avtaletype = Avtaletype.Rammeavtale,
@@ -145,5 +157,7 @@ object AvtaleFixtures {
         prisbetingelser = null,
         beskrivelse = null,
         faneinnhold = null,
+        personopplysninger = emptyList(),
+        personvernBekreftet = false,
     )
 }

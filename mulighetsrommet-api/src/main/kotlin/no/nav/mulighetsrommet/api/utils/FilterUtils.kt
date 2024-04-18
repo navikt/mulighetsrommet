@@ -5,11 +5,11 @@ import io.ktor.util.pipeline.*
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattRolle
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
-import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
-import no.nav.mulighetsrommet.domain.dto.*
+import no.nav.mulighetsrommet.domain.dto.Avtalestatus
+import no.nav.mulighetsrommet.domain.dto.Avtaletype
+import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.notifications.NotificationStatus
 import no.nav.mulighetsrommet.utils.toUUID
-import java.time.LocalDate
 import java.util.*
 
 data class AvtaleFilter(
@@ -19,26 +19,13 @@ data class AvtaleFilter(
     val avtaletyper: List<Avtaletype> = emptyList(),
     val navRegioner: List<String> = emptyList(),
     val sortering: String? = null,
-    val dagensDato: LocalDate = LocalDate.now(),
     val arrangorIds: List<UUID> = emptyList(),
     val administratorNavIdent: NavIdent? = null,
+    val personvernBekreftet: Boolean? = null,
 )
 
 data class EksternTiltaksgjennomforingFilter(
     val arrangorOrgnr: List<String> = emptyList(),
-)
-
-data class AdminTiltaksgjennomforingFilter(
-    val search: String? = null,
-    val navEnheter: List<String> = emptyList(),
-    val tiltakstypeIder: List<UUID> = emptyList(),
-    val statuser: List<Tiltaksgjennomforingsstatus> = emptyList(),
-    val sortering: String? = null,
-    val sluttDatoCutoff: LocalDate? = ArenaMigrering.TiltaksgjennomforingSluttDatoCutoffDate,
-    val dagensDato: LocalDate = LocalDate.now(),
-    val avtaleId: UUID? = null,
-    val arrangorIds: List<UUID> = emptyList(),
-    val administratorNavIdent: NavIdent? = null,
 )
 
 data class EnhetFilter(
@@ -77,6 +64,7 @@ fun <T : Any> PipelineContext<T, ApplicationCall>.getAvtaleFilter(): AvtaleFilte
     val navRegioner = call.parameters.getAll("navRegioner") ?: emptyList()
     val sortering = call.request.queryParameters["sort"]
     val arrangorIds = call.parameters.getAll("arrangorer")?.map { UUID.fromString(it) } ?: emptyList()
+    val personvernBekreftet = call.request.queryParameters["personvernBekreftet"]?.let { it == "true" }
 
     return AvtaleFilter(
         tiltakstypeIder = tiltakstypeIder,
@@ -87,6 +75,7 @@ fun <T : Any> PipelineContext<T, ApplicationCall>.getAvtaleFilter(): AvtaleFilte
         sortering = sortering,
         arrangorIds = arrangorIds,
         administratorNavIdent = null,
+        personvernBekreftet = personvernBekreftet,
     )
 }
 

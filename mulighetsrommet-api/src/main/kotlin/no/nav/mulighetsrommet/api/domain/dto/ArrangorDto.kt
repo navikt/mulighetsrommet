@@ -35,4 +35,12 @@ data class ArrangorKontaktperson(
     val beskrivelse: String?,
     val telefon: String?,
     val epost: String,
-)
+    val ansvarligFor: List<AnsvarligFor>? = emptyList(),
+) {
+    @Serializable
+    enum class AnsvarligFor {
+        AVTALE,
+        TILTAKSGJENNOMFORING,
+        OKONOMI,
+    }
+}

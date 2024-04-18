@@ -6,6 +6,12 @@
   margin: 0 auto;
 }
 
+.ikon {
+  color: #ffc166;
+  display: inline-block;
+  font-size: 3rem;
+}
+
 :global(.navds-tabs__tablist-wrapper) {
   background-color: var(--a-white);
   width: 100%;

@@ -13,9 +13,9 @@ import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.routes.v1.responses.ValidationError
 import no.nav.mulighetsrommet.api.tiltaksgjennomforinger.TiltaksgjennomforingValidator
-import no.nav.mulighetsrommet.api.utils.DatabaseUtils.paginateFanOut
 import no.nav.mulighetsrommet.database.Database
-import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus.*
+import no.nav.mulighetsrommet.database.utils.DatabaseUtils.paginateFanOut
+import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import org.apache.poi.ss.usermodel.CellType
 import org.apache.poi.xssf.usermodel.XSSFSheet
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
@@ -129,7 +129,7 @@ class GenerateValidationReport(
     }
 
     private suspend fun validateAvtaler() = buildMap {
-        paginateFanOut({ pagination -> avtaler.getAll(pagination).second }) {
+        paginateFanOut({ pagination -> avtaler.getAll(pagination).items }) {
             val dbo = it.toDbo()
             avtaleValidator.validate(dbo, it)
                 .onLeft { validationErrors ->
@@ -154,7 +154,12 @@ class GenerateValidationReport(
     }
 
     private suspend fun validateGjennomforinger() = buildMap {
-        paginateFanOut({ pagination -> gjennomforinger.getAll(pagination).second }) {
+        paginateFanOut({ pagination ->
+            gjennomforinger.getAll(
+                pagination,
+                sluttDatoGreaterThanOrEqualTo = ArenaMigrering.TiltaksgjennomforingSluttDatoCutoffDate,
+            ).items
+        }) {
             val dbo = it.toDbo()
             gjennomforingValidator.validate(dbo, it)
                 .onLeft { validationErrors ->

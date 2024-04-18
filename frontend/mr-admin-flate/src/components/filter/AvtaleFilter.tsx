@@ -5,14 +5,14 @@ import { AvtaleFilter as AvtaleFilterProps, avtaleFilterAccordionAtom } from "@/
 import { useNavEnheter } from "@/api/enhet/useNavEnheter";
 import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
 import { useArrangorer } from "@/api/arrangor/useArrangorer";
-import { addOrRemove } from "../../utils/Utils";
+import { addOrRemove } from "@/utils/Utils";
 import {
   arrangorOptions,
   AVTALE_STATUS_OPTIONS,
   AVTALE_TYPE_OPTIONS,
   regionOptions,
   tiltakstypeOptions,
-} from "../../utils/filterUtils";
+} from "@/utils/filterUtils";
 import { CheckboxList } from "./CheckboxList";
 import { FilterAccordionHeader } from "mulighetsrommet-frontend-common";
 
@@ -27,12 +27,13 @@ export function AvtaleFilter({ filterAtom, skjulFilter }: Props) {
   const [filter, setFilter] = useAtom(filterAtom);
   const [accordionsOpen, setAccordionsOpen] = useAtom(avtaleFilterAccordionAtom);
   const { data: enheter, isLoading: isLoadingEnheter } = useNavEnheter();
-  const { data: arrangorer, isLoading: isLoadingArrangorer } = useArrangorer(ArrangorTil.AVTALE);
+  const { data: arrangorData, isLoading: isLoadingArrangorer } = useArrangorer(ArrangorTil.AVTALE);
   const { data: tiltakstyper, isLoading: isLoadingTiltakstyper } = useTiltakstyper();
+
   if (
     !enheter ||
     isLoadingEnheter ||
-    !arrangorer ||
+    !arrangorData ||
     isLoadingArrangorer ||
     !tiltakstyper ||
     isLoadingTiltakstyper
@@ -68,7 +69,7 @@ export function AvtaleFilter({ filterAtom, skjulFilter }: Props) {
       />
       <div style={{ margin: "0.8rem 0.5rem" }}>
         <Switch
-          position="right"
+          position="left"
           size="small"
           checked={filter.visMineAvtaler}
           onChange={(event) => {
@@ -193,13 +194,47 @@ export function AvtaleFilter({ filterAtom, skjulFilter }: Props) {
           <Accordion.Content>
             <CheckboxList
               searchable
-              items={arrangorOptions(arrangorer)}
+              items={arrangorOptions(arrangorData.data)}
               isChecked={(id) => filter.arrangorer.includes(id)}
               onChange={(id) => {
                 setFilter({
                   ...filter,
                   page: 1,
                   arrangorer: addOrRemove(filter.arrangorer, id),
+                });
+              }}
+            />
+          </Accordion.Content>
+        </Accordion.Item>
+        <Accordion.Item open={accordionsOpen.includes("personvern")}>
+          <Accordion.Header
+            onClick={() => {
+              setAccordionsOpen([...addOrRemove(accordionsOpen, "personvern")]);
+            }}
+          >
+            <FilterAccordionHeader
+              tittel="Personvern"
+              antallValgteFilter={filter.personvernBekreftet.length}
+            />
+          </Accordion.Header>
+          <Accordion.Content>
+            <CheckboxList
+              items={[
+                {
+                  label: "Bekreftet",
+                  value: true,
+                },
+                {
+                  label: "Ikke bekreftet",
+                  value: false,
+                },
+              ]}
+              isChecked={(b) => filter.personvernBekreftet.includes(b)}
+              onChange={(b) => {
+                setFilter({
+                  ...filter,
+                  page: 1,
+                  personvernBekreftet: addOrRemove(filter.personvernBekreftet, b),
                 });
               }}
             />

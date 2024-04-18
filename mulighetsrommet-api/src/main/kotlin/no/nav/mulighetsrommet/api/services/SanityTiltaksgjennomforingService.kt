@@ -4,6 +4,7 @@ import io.ktor.http.*
 import kotlinx.serialization.json.JsonObject
 import kotliquery.Session
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
+import no.nav.mulighetsrommet.api.clients.sanity.SanityParam
 import no.nav.mulighetsrommet.api.clients.sanity.SanityPerspective
 import no.nav.mulighetsrommet.api.domain.dto.*
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
@@ -107,9 +108,12 @@ class SanityTiltaksgjennomforingService(
 
     private suspend fun isPublished(sanityId: UUID): Boolean {
         val query = """
-            *[_type == "tiltaksgjennomforing" && _id == "$sanityId"]{_id}
+            *[_type == "tiltaksgjennomforing" && _id == ${'$'}id]{_id}
         """.trimIndent()
-        return when (val response = sanityClient.query(query)) {
+
+        val params = listOf(SanityParam.of("id", sanityId))
+
+        return when (val response = sanityClient.query(query, params)) {
             is SanityResponse.Result -> {
                 response.decode<List<JsonObject>>().isNotEmpty()
             }
@@ -122,9 +126,12 @@ class SanityTiltaksgjennomforingService(
 
     private suspend fun isDraft(sanityId: UUID): Boolean {
         val query = """
-            *[_type == "tiltaksgjennomforing" && _id == "$sanityId"]{_id}
+            *[_type == "tiltaksgjennomforing" && _id == ${'$'}id]{_id}
         """.trimIndent()
-        return when (val response = sanityClient.query(query, perspective = SanityPerspective.PREVIEW_DRAFTS)) {
+
+        val params = listOf(SanityParam.of("id", sanityId))
+
+        return when (val response = sanityClient.query(query, params, SanityPerspective.PREVIEW_DRAFTS)) {
             is SanityResponse.Result -> {
                 response.decode<List<JsonObject>>().isNotEmpty()
             }

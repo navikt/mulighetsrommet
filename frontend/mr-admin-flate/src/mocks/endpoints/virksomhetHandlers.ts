@@ -9,7 +9,7 @@ export const virksomhetHandlers = [
       const url = new URL(request.url);
       const sok = url.searchParams.get("sok")!!;
       return HttpResponse.json(
-        Object.values(mockArrangorer).filter((enhet) =>
+        mockArrangorer.data.filter((enhet) =>
           enhet.navn?.toLowerCase().includes(sok.toLocaleLowerCase()),
         ),
       );
@@ -19,7 +19,7 @@ export const virksomhetHandlers = [
     "*/api/v1/internal/virksomhet/:orgnr/underenheter",
     ({ params }) => {
       return HttpResponse.json(
-        Object.values(mockArrangorer).find((enhet) => enhet.organisasjonsnummer === params.orgnr)
+        mockArrangorer.data.find((enhet) => enhet.organisasjonsnummer === params.orgnr)
           ?.underenheter,
       );
     },
@@ -28,7 +28,7 @@ export const virksomhetHandlers = [
     "*/api/v1/internal/virksomhet/:orgnr",
     ({ params }) => {
       return HttpResponse.json(
-        Object.values(mockArrangorer).find((enhet) => enhet.organisasjonsnummer === params.orgnr),
+        mockArrangorer.data.find((enhet) => enhet.organisasjonsnummer === params.orgnr),
       );
     },
   ),

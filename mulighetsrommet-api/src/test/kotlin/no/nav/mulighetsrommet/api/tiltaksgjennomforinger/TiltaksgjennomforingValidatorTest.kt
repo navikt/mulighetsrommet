@@ -11,11 +11,7 @@ import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
 import no.nav.mulighetsrommet.api.fixtures.*
-import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
-import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
-import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
-import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures
-import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
+import no.nav.mulighetsrommet.api.repositories.ArrangorRepository
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
@@ -23,9 +19,11 @@ import no.nav.mulighetsrommet.api.routes.v1.responses.ValidationError
 import no.nav.mulighetsrommet.api.services.TiltakstypeService
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.domain.Tiltakskode
-import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
+import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
+import no.nav.mulighetsrommet.domain.dto.AvbruttAarsak
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.*
 
 class TiltaksgjennomforingValidatorTest : FunSpec({
@@ -109,6 +107,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
     lateinit var tiltakstyper: TiltakstypeService
     lateinit var avtaler: AvtaleRepository
     lateinit var tiltaksgjennomforinger: TiltaksgjennomforingRepository
+    lateinit var arrangorer: ArrangorRepository
 
     beforeEach {
         domain.initialize(database.db)
@@ -116,11 +115,12 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
         tiltakstyper = TiltakstypeService(TiltakstypeRepository(database.db), listOf(Tiltakskode.OPPFOLGING))
         avtaler = AvtaleRepository(database.db)
         tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
+        arrangorer = ArrangorRepository(database.db)
     }
 
     test("should fail when tiltakstype is not enabled") {
         tiltakstyper = TiltakstypeService(TiltakstypeRepository(database.db), emptyList())
-        val validator = TiltaksgjennomforingValidator(tiltakstyper, avtaler)
+        val validator = TiltaksgjennomforingValidator(tiltakstyper, avtaler, arrangorer)
 
         validator.validate(gjennomforing, null).shouldBeLeft().shouldContainExactlyInAnyOrder(
             ValidationError(
@@ -133,7 +133,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
     test("should fail when avtale does not exist") {
         val unknownAvtaleId = UUID.randomUUID()
 
-        val validator = TiltaksgjennomforingValidator(tiltakstyper, avtaler)
+        val validator = TiltaksgjennomforingValidator(tiltakstyper, avtaler, arrangorer)
 
         val dbo = gjennomforing.copy(avtaleId = unknownAvtaleId)
 
@@ -145,7 +145,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
     test("should fail when tiltakstype does not match with avtale") {
         avtaler.upsert(avtale.copy(tiltakstypeId = TiltakstypeFixtures.AFT.id))
 
-        val validator = TiltaksgjennomforingValidator(tiltakstyper, avtaler)
+        val validator = TiltaksgjennomforingValidator(tiltakstyper, avtaler, arrangorer)
 
         validator.validate(gjennomforing, null).shouldBeLeft().shouldContainExactlyInAnyOrder(
             ValidationError("tiltakstypeId", "Tiltakstypen må være den samme som for avtalen"),
@@ -153,7 +153,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
     }
 
     test("should fail when tiltakstype does not support change of oppstartstype") {
-        val validator = TiltaksgjennomforingValidator(tiltakstyper, avtaler)
+        val validator = TiltaksgjennomforingValidator(tiltakstyper, avtaler, arrangorer)
 
         validator.validate(gjennomforing.copy(oppstart = TiltaksgjennomforingOppstartstype.FELLES), null)
             .shouldBeLeft()
@@ -164,23 +164,27 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
         val id = UUID.randomUUID()
         avtaler.upsert(avtale.copy(id = id))
 
-        forAll(
-            row(Avslutningsstatus.AVBRUTT),
-            row(Avslutningsstatus.AVSLUTTET),
-        ) { status ->
-            avtaler.setAvslutningsstatus(id, status)
+        avtaler.setAvbruttTidspunkt(id, LocalDateTime.now())
 
-            val validator = TiltaksgjennomforingValidator(tiltakstyper, avtaler)
-            val dbo = gjennomforing.copy(avtaleId = id)
+        val validator = TiltaksgjennomforingValidator(tiltakstyper, avtaler, arrangorer)
+        val dbo = gjennomforing.copy(avtaleId = id)
 
-            validator.validate(dbo, null).shouldBeLeft(
-                listOf(ValidationError("avtaleId", "Avtalen må være aktiv for å kunne opprette tiltak")),
-            )
-        }
+        validator.validate(dbo, null).shouldBeLeft(
+            listOf(ValidationError("avtaleId", "Avtalen må være aktiv for å kunne opprette tiltak")),
+        )
+
+        val id2 = UUID.randomUUID()
+        avtaler.upsert(avtale.copy(id = id2, sluttDato = LocalDate.now().minusDays(1)))
+
+        val dbo2 = gjennomforing.copy(avtaleId = id2)
+
+        validator.validate(dbo2, null).shouldBeLeft(
+            listOf(ValidationError("avtaleId", "Avtalen må være aktiv for å kunne opprette tiltak")),
+        )
     }
 
     test("kan ikke opprette før Avtale startDato") {
-        val validator = TiltaksgjennomforingValidator(tiltakstyper, avtaler)
+        val validator = TiltaksgjennomforingValidator(tiltakstyper, avtaler, arrangorer)
         val dbo = gjennomforing.copy(
             startDato = avtale.startDato.minusDays(1),
         )
@@ -192,12 +196,16 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
 
     test("sluttDato er påkrevd hvis ikke forhåndsgodkjent avtale") {
         val validator = TiltaksgjennomforingValidator(
-            TiltakstypeService(TiltakstypeRepository(database.db), Tiltakskode.values().toList()),
+            TiltakstypeService(TiltakstypeRepository(database.db), Tiltakskode.entries),
             avtaler,
+            arrangorer,
         )
         val forhaandsgodkjent = TiltaksgjennomforingFixtures.AFT1.copy(sluttDato = null)
         val rammeAvtale = TiltaksgjennomforingFixtures.Oppfolging1.copy(sluttDato = null)
-        val vanligAvtale = TiltaksgjennomforingFixtures.Oppfolging1.copy(sluttDato = null, avtaleId = AvtaleFixtures.oppfolgingMedAvtale.id)
+        val vanligAvtale = TiltaksgjennomforingFixtures.Oppfolging1.copy(
+            sluttDato = null,
+            avtaleId = AvtaleFixtures.oppfolgingMedAvtale.id,
+        )
         val offentligOffentlig = TiltaksgjennomforingFixtures.GruppeAmo1.copy(sluttDato = null)
 
         validator.validate(forhaandsgodkjent, null).shouldBeRight()
@@ -212,8 +220,21 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
         )
     }
 
+    test("arrangøren må være aktiv i Brreg") {
+        arrangorer.upsert(ArrangorFixtures.underenhet1.copy(slettetDato = LocalDate.of(2024, 1, 1)))
+
+        val validator = TiltaksgjennomforingValidator(tiltakstyper, avtaler, arrangorer)
+
+        validator.validate(gjennomforing, null).shouldBeLeft().shouldContainExactlyInAnyOrder(
+            ValidationError(
+                "arrangorId",
+                "Arrangøren Underenhet 1 AS er slettet i Brønnøysundregistrene. Gjennomføringer kan ikke opprettes for slettede bedrifter.",
+            ),
+        )
+    }
+
     test("should validate fields in the gjennomføring and fields related to the avtale") {
-        val validator = TiltaksgjennomforingValidator(tiltakstyper, avtaler)
+        val validator = TiltaksgjennomforingValidator(tiltakstyper, avtaler, arrangorer)
 
         forAll(
             row(
@@ -256,14 +277,47 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
             tiltaksgjennomforinger.delete(gjennomforing.id)
         }
 
+        test("skal ikke kunne endre felter med opphav fra Arena når vi ikke har tatt eierskap til tiltakstypen") {
+            val gjennomforingMedEndringer = gjennomforing.copy(
+                navn = "Nytt navn",
+                tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
+                arrangorId = ArrangorFixtures.underenhet2.id,
+                startDato = gjennomforing.startDato.plusDays(1),
+                sluttDato = gjennomforing.sluttDato?.plusDays(1),
+                apentForInnsok = false,
+                antallPlasser = 1000,
+                deltidsprosent = 1.5,
+            )
+
+            tiltaksgjennomforinger.setOpphav(gjennomforing.id, ArenaMigrering.Opphav.ARENA)
+
+            val validator = TiltaksgjennomforingValidator(
+                TiltakstypeService(TiltakstypeRepository(database.db), listOf()),
+                avtaler,
+                arrangorer,
+            )
+
+            val current = tiltaksgjennomforinger.get(gjennomforing.id)
+            validator.validate(gjennomforingMedEndringer, current).shouldBeLeft().shouldContainExactlyInAnyOrder(
+                ValidationError("navn", "Navn kan ikke endres utenfor Arena"),
+                ValidationError("startDato", "Startdato kan ikke endres utenfor Arena"),
+                ValidationError("sluttDato", "Sluttdato kan ikke endres utenfor Arena"),
+                ValidationError("apentForInnsok", "Åpent for innsøk kan ikke endres utenfor Arena"),
+                ValidationError("antallPlasser", "Antall plasser kan ikke endres utenfor Arena"),
+                ValidationError("deltidsprosent", "Deltidsprosent kan ikke endres utenfor Arena"),
+                ValidationError("arrangorId", "Arrangøren kan ikke endres når gjennomføringen er aktiv"),
+                ValidationError("arrangorId", "Arrangøren mangler i avtalen"),
+            )
+        }
+
         test("Skal godta endringer for antall plasser selv om gjennomføringen er aktiv") {
-            val validator = TiltaksgjennomforingValidator(tiltakstyper, avtaler)
+            val validator = TiltaksgjennomforingValidator(tiltakstyper, avtaler, arrangorer)
             val previous = tiltaksgjennomforinger.get(gjennomforing.id)
             validator.validate(gjennomforing.copy(antallPlasser = 15), previous).shouldBeRight()
         }
 
         test("Skal godta endringer for startdato selv om gjennomføringen er aktiv, men startdato skal ikke kunne settes til før avtaledatoen") {
-            val validator = TiltaksgjennomforingValidator(tiltakstyper, avtaler)
+            val validator = TiltaksgjennomforingValidator(tiltakstyper, avtaler, arrangorer)
             val previous = tiltaksgjennomforinger.get(gjennomforing.id)
             validator.validate(gjennomforing.copy(startDato = LocalDate.now().plusDays(5)), previous).shouldBeRight()
             validator.validate(gjennomforing.copy(startDato = avtaleStartDato.minusDays(1)), previous).shouldBeLeft(
@@ -274,45 +328,48 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
         }
 
         test("Skal godta endringer for sluttdato frem i tid selv om gjennomføringen er aktiv") {
-            val validator = TiltaksgjennomforingValidator(tiltakstyper, avtaler)
+            val validator = TiltaksgjennomforingValidator(tiltakstyper, avtaler, arrangorer)
             val previous = tiltaksgjennomforinger.get(gjennomforing.id)
             validator.validate(gjennomforing.copy(sluttDato = avtaleSluttDato.plusDays(5)), previous).shouldBeRight()
             validator.validate(gjennomforing.copy(sluttDato = avtaleSluttDato.minusDays(1)), previous).shouldBeLeft(
                 listOf(
-                    ValidationError("sluttDato", "Sluttdato kan ikke endres bakover i tid når gjennomføringen er aktiv"),
+                    ValidationError(
+                        "sluttDato",
+                        "Sluttdato kan ikke endres bakover i tid når gjennomføringen er aktiv",
+                    ),
                 ),
             )
         }
 
         test("skal godta endringer selv om avtale er avbrutt") {
-            forAll(
-                row(Avslutningsstatus.AVBRUTT),
-                row(Avslutningsstatus.AVSLUTTET),
-            ) { status ->
-                avtaler.setAvslutningsstatus(avtale.id, status)
+            avtaler.setAvbruttTidspunkt(avtale.id, LocalDateTime.now())
 
-                val validator = TiltaksgjennomforingValidator(tiltakstyper, avtaler)
+            val validator = TiltaksgjennomforingValidator(tiltakstyper, avtaler, arrangorer)
 
-                val previous = tiltaksgjennomforinger.get(gjennomforing.id)
-                validator.validate(gjennomforing, previous).shouldBeRight()
-            }
+            val previous = tiltaksgjennomforinger.get(gjennomforing.id)
+            validator.validate(gjennomforing, previous).shouldBeRight()
         }
 
-        test("should fail when status is Avsluttet") {
-            forAll(
-                row(Avslutningsstatus.AVBRUTT),
-                row(Avslutningsstatus.AVLYST),
-                row(Avslutningsstatus.AVSLUTTET),
-            ) { status ->
-                tiltaksgjennomforinger.setAvslutningsstatus(gjennomforing.id, status)
+        test("should fail when is avbrutt") {
+            tiltaksgjennomforinger.avbryt(gjennomforing.id, LocalDateTime.now(), AvbruttAarsak.Feilregistrering)
 
-                val validator = TiltaksgjennomforingValidator(tiltakstyper, avtaler)
+            val validator = TiltaksgjennomforingValidator(tiltakstyper, avtaler, arrangorer)
 
-                val previous = tiltaksgjennomforinger.get(gjennomforing.id)
-                validator.validate(gjennomforing, previous).shouldBeLeft().shouldContainExactlyInAnyOrder(
-                    ValidationError("navn", "Kan bare gjøre endringer når gjennomføringen er aktiv"),
-                )
-            }
+            val previous = tiltaksgjennomforinger.get(gjennomforing.id)
+            validator.validate(gjennomforing, previous).shouldBeLeft().shouldContainExactlyInAnyOrder(
+                ValidationError("navn", "Kan bare gjøre endringer når gjennomføringen er aktiv"),
+            )
+        }
+
+        test("should fail when is avsluttet") {
+            tiltaksgjennomforinger.upsert(gjennomforing.copy(sluttDato = LocalDate.now().minusDays(2)))
+
+            val validator = TiltaksgjennomforingValidator(tiltakstyper, avtaler, arrangorer)
+
+            val previous = tiltaksgjennomforinger.get(gjennomforing.id)
+            validator.validate(gjennomforing, previous).shouldBeLeft().shouldContainExactlyInAnyOrder(
+                ValidationError("navn", "Kan bare gjøre endringer når gjennomføringen er aktiv"),
+            )
         }
     }
 })

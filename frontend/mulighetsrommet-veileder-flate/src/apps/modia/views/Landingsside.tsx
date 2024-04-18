@@ -1,11 +1,10 @@
+import { useHistorikkV2 } from "@/api/queries/useHistorikkV2";
 import { InformationSquareFillIcon, PlusIcon } from "@navikt/aksel-icons";
 import { Alert, BodyShort, Heading, Skeleton, VStack } from "@navikt/ds-react";
 import { Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { Link } from "react-router-dom";
-import { useHistorikkV2 } from "@/api/queries/useHistorikkV2";
-import { HistorikkKort } from "../historikk/HistorikkKort";
-import { UtkastKort } from "../historikk/UtkastKort";
+import { DeltakelseKort } from "../historikk/DeltakelseKort";
 import styles from "./Landingsside.module.scss";
 
 function SkeletonLoader() {
@@ -44,8 +43,7 @@ export function Landingsside() {
         <ErrorBoundary
           FallbackComponent={() =>
             Feilmelding({
-              message:
-                "Noe gikk galt, og du får dessverre ikke sett historikk. Prøv igjen senere. ",
+              message: "Noe gikk galt, og du får dessverre ikke sett historikk. Prøv igjen senere.",
             })
           }
         >
@@ -84,7 +82,11 @@ function Historikk() {
         Historikk
       </Heading>
       {historikk.map((hist) => {
-        return <HistorikkKort key={hist.deltakerId} historikk={hist} />;
+        return (
+          <>
+            <DeltakelseKort key={hist.deltakerId} deltakelse={hist} />
+          </>
+        );
       })}
     </VStack>
   );
@@ -101,7 +103,11 @@ function Utkast() {
   return (
     <VStack gap="5">
       {aktive.map((utkast) => {
-        return <UtkastKort key={utkast.deltakerId} utkast={utkast} />;
+        return (
+          <>
+            <DeltakelseKort key={utkast.deltakerId} deltakelse={utkast} />
+          </>
+        );
       })}
     </VStack>
   );

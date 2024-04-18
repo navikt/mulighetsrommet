@@ -18,7 +18,7 @@ import {
   TiltakskodeArena,
 } from "mulighetsrommet-api-client";
 import { ControlledSokeSelect } from "mulighetsrommet-frontend-common";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useFieldArray, useFormContext } from "react-hook-form";
 import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
 import { useHentKontaktpersoner } from "@/api/ansatt/useHentKontaktpersoner";
@@ -32,11 +32,13 @@ import { InferredTiltaksgjennomforingSchema } from "../redaksjonelt-innhold/Tilt
 import { AdministratorOptions } from "../skjema/AdministratorOptions";
 import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { FormGroup } from "../skjema/FormGroup";
-import { FraTilDatoVelger } from "../skjema/FraTilDatoVelger";
 import skjemastyles from "../skjema/Skjema.module.scss";
 import { SelectOppstartstype } from "./SelectOppstartstype";
 import { TiltaksgjennomforingArrangorSkjema } from "./TiltaksgjennomforingArrangorSkjema";
 import { erArenaOpphavOgIngenEierskap } from "./TiltaksgjennomforingSkjemaConst";
+import { ControlledDateInput } from "../skjema/ControlledDateInput";
+import { useTiltaksgjennomforingDeltakerSummary } from "@/api/tiltaksgjennomforing/useTiltaksgjennomforingDeltakerSummary";
+import { StartDatoAdvarselModal } from "../modal/StartDatoAdvarselModal";
 
 interface Props {
   tiltaksgjennomforing?: Tiltaksgjennomforing;
@@ -57,6 +59,10 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
   const { data: ansatt, isLoading: isLoadingAnsatt } = useHentAnsatt();
   const { data: kontaktpersoner, isLoading: isLoadingKontaktpersoner } = useHentKontaktpersoner();
   const { data: migrerteTiltakstyper = [] } = useMigrerteTiltakstyper();
+  const { data: deltakerSummary } = useTiltaksgjennomforingDeltakerSummary(
+    tiltaksgjennomforing?.id,
+  );
+  const startDatoModalRef = useRef<HTMLDialogElement>(null);
 
   const kontaktpersonerOption = (selectedIndex: number) => {
     const excludedKontaktpersoner = watch("kontaktpersoner")
@@ -100,6 +106,19 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
 
     resetEstimertVentetid();
   }, [watchVisEstimertVentetid]);
+
+  const watchStartDato = watch("startOgSluttDato.startDato");
+
+  useEffect(() => {
+    if (
+      tiltaksgjennomforing &&
+      deltakerSummary?.antallDeltakere &&
+      deltakerSummary.antallDeltakere > 0 &&
+      tiltaksgjennomforing.startDato < watchStartDato
+    ) {
+      startDatoModalRef.current?.showModal();
+    }
+  }, [watchStartDato]);
 
   const regionerOptions = avtale.kontorstruktur
     .map((struk) => struk.region)
@@ -183,25 +202,26 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
                 " - "
               )}
             </HGrid>
-            <FraTilDatoVelger
-              size="small"
-              fra={{
-                label: tiltaktekster.startdatoLabel,
-                readOnly: eierIkkeGjennomforing,
-                fromDate: minStartdato,
-                toDate: maxSluttdato,
-                ...register("startOgSluttDato.startDato"),
-                format: "iso-string",
-              }}
-              til={{
-                label: tiltaktekster.sluttdatoLabel,
-                readOnly: eierIkkeGjennomforing,
-                fromDate: minStartdato,
-                toDate: maxSluttdato,
-                ...register("startOgSluttDato.sluttDato"),
-                format: "iso-string",
-              }}
-            />
+            <HGrid columns={2}>
+              <ControlledDateInput
+                size="small"
+                label={tiltaktekster.startdatoLabel}
+                readOnly={eierIkkeGjennomforing}
+                fromDate={minStartdato}
+                toDate={maxSluttdato}
+                {...register("startOgSluttDato.startDato")}
+                format={"iso-string"}
+              />
+              <ControlledDateInput
+                size="small"
+                label={tiltaktekster.sluttdatoLabel}
+                readOnly={eierIkkeGjennomforing}
+                fromDate={minStartdato}
+                toDate={maxSluttdato}
+                {...register("startOgSluttDato.sluttDato")}
+                format={"iso-string"}
+              />
+            </HGrid>
             {visApentForInnsok(avtale.tiltakstype.arenaKode) ? (
               <Switch
                 size="small"
@@ -399,6 +419,11 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
           </div>
         </div>
       </div>
+      <StartDatoAdvarselModal
+        modalRef={startDatoModalRef}
+        onCancel={() => setValue("startOgSluttDato.startDato", tiltaksgjennomforing!!.startDato)}
+        antallDeltakere={deltakerSummary?.antallDeltakere ?? 0}
+      />
     </div>
   );
 };

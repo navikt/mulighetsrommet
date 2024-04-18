@@ -17,6 +17,8 @@ export function useAvtaler(filter: Partial<AvtaleFilter>) {
     page: filter.page ?? 1,
     size: filter.pageSize,
     arrangorer: filter.arrangorer,
+    personvernBekreftet:
+      filter.personvernBekreftet?.length === 1 ? filter.personvernBekreftet[0] : undefined,
   };
 
   return useQuery({

@@ -281,10 +281,14 @@ components:
       properties:
         totalCount:
           type: integer
-        currentPage:
+        totalPages:
           type: integer
         pageSize:
           type: integer
+      required:
+        - totalCount
+        - totalPages
+        - pageSize
 
     PaginertTiltaksgjennomforing:
       type: object

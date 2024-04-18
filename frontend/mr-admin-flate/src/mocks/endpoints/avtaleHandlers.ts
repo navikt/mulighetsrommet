@@ -13,7 +13,6 @@ export const avtaleHandlers = [
 
     return HttpResponse.json({
       pagination: {
-        currentPage: 1,
         pageSize: 15,
         totalCount: data.length,
       },
@@ -35,7 +34,6 @@ export const avtaleHandlers = [
 
       return HttpResponse.json({
         pagination: {
-          currentPage: 1,
           pageSize: 15,
           totalCount: data.length,
         },
@@ -54,6 +52,10 @@ export const avtaleHandlers = [
     const { id } = params;
     const avtale = mockAvtaler.find((a) => a.id === id) ?? undefined;
     return HttpResponse.json(avtale);
+  }),
+
+  http.delete("/api/v1/internal/avtaler/kontaktperson", () => {
+    return HttpResponse.json();
   }),
 
   http.delete("/api/v1/internal/avtaler/:id", () => {

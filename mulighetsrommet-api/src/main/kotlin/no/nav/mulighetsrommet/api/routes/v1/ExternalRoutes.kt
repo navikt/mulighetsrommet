@@ -7,9 +7,9 @@ import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import no.nav.mulighetsrommet.api.clients.arenaadapter.ArenaAdapterClient
 import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingAdminDto
+import no.nav.mulighetsrommet.api.routes.v1.parameters.getPaginationParams
 import no.nav.mulighetsrommet.api.services.TiltaksgjennomforingService
 import no.nav.mulighetsrommet.api.utils.EksternTiltaksgjennomforingFilter
-import no.nav.mulighetsrommet.api.utils.getPaginationParams
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingsArenadataDto
 import org.koin.ktor.ext.inject
@@ -24,9 +24,9 @@ fun Route.externalRoutes() {
             val orgnr = call.request.queryParameters.getOrFail("orgnr")
 
             val filter = EksternTiltaksgjennomforingFilter(arrangorOrgnr = listOf(orgnr))
-            val paginationParams = getPaginationParams()
+            val pagination = getPaginationParams()
 
-            val result = tiltaksgjennomforingService.getAllEkstern(paginationParams, filter)
+            val result = tiltaksgjennomforingService.getAllEkstern(pagination, filter)
 
             call.respond(result)
         }

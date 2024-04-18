@@ -1,0 +1,44 @@
+.filter_container {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  .filter_headerbutton {
+    grid-row-start: 1;
+    grid-column-start: 1;
+    width: 100%;
+  }
+
+  .filtertab {
+    background-color: white;
+    width: var(--filter-width);
+  }
+
+  .filter {
+    z-index: 2;
+    grid-column: 1;
+    grid-row: 2;
+    border-radius: 0.25rem;
+    border: none;
+    gap: 0;
+    background-color: white;
+    align-self: start;
+    box-shadow: var(--a-shadow-medium);
+    padding: 0.25rem;
+    height: fit-content;
+    width: 100%;
+    position: sticky;
+    top: 3rem;
+    overflow-y: auto;
+    max-height: 85vh;
+  }
+
+  .hide_filter {
+    display: none;
+  }
+
+  @media screen and (min-width: 1200px) {
+    .filter {
+      box-shadow: none;
+    }
+  }
+}

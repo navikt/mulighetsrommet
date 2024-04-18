@@ -1,9 +1,11 @@
 import { ExternalLinkIcon } from "@navikt/aksel-icons";
-import { BodyShort, HelpText, HStack, Tag } from "@navikt/ds-react";
+import { BodyShort, Button, HelpText, HStack, Tag } from "@navikt/ds-react";
 import {
   Avtale,
   Tiltaksgjennomforing,
   TiltaksgjennomforingOppstartstype,
+  TiltaksgjennomforingStatus,
+  Toggles,
 } from "mulighetsrommet-api-client";
 import { useTitle } from "mulighetsrommet-frontend-common";
 import { NOM_ANSATT_SIDE } from "mulighetsrommet-frontend-common/constants";
@@ -17,8 +19,14 @@ import { isTiltakMedFellesOppstart } from "../../utils/tiltakskoder";
 import styles from "../DetaljerInfo.module.scss";
 import { Kontaktperson } from "./Kontaktperson";
 import { tiltaktekster } from "../../components/ledetekster/tiltaksgjennomforingLedetekster";
-import { ArrangorKontaktpersonDetaljer } from "../arrangor/ArrangorKontaktpersonDetaljer";
 import { getDisplayName } from "@/api/enhet/helpers";
+import { useRef } from "react";
+import { AvbrytGjennomforingModal } from "@/components/modal/AvbrytGjennomforingModal";
+import { HarSkrivetilgang } from "@/components/authActions/HarSkrivetilgang";
+import { erArenaOpphavOgIngenEierskap } from "@/components/tiltaksgjennomforinger/TiltaksgjennomforingSkjemaConst";
+import { useMigrerteTiltakstyper } from "@/api/tiltakstyper/useMigrerteTiltakstyper";
+import { ArrangorKontaktpersonDetaljer } from "../arrangor/ArrangorKontaktpersonDetaljer";
+import { useFeatureToggle } from "../../api/features/feature-toggles";
 
 interface Props {
   tiltaksgjennomforing: Tiltaksgjennomforing;
@@ -30,6 +38,16 @@ export function TiltaksgjennomforingDetaljer(props: Props) {
   useTitle(
     `Tiltaksgjennomføring ${tiltaksgjennomforing.navn ? `- ${tiltaksgjennomforing.navn}` : null}`,
   );
+  const { data: enableArrangorSide } = useFeatureToggle(
+    Toggles.MULIGHETSROMMET_ADMIN_FLATE_ENABLE_ARRANGOR_SIDER,
+  );
+  const { data: migrerteTiltakstyper = [] } = useMigrerteTiltakstyper();
+  const avbrytModalRef = useRef<HTMLDialogElement>(null);
+
+  const gjennomforingIsActive = [
+    TiltaksgjennomforingStatus.PLANLAGT,
+    TiltaksgjennomforingStatus.GJENNOMFORES,
+  ].includes(tiltaksgjennomforing.status);
 
   const navnPaaNavEnheterForKontaktperson = (enheterForKontaktperson: string[]): string => {
     return (
@@ -246,7 +264,15 @@ export function TiltaksgjennomforingDetaljer(props: Props) {
             <Bolk aria-label={tiltaktekster.tiltaksarrangorHovedenhetLabel}>
               <Metadata
                 header={tiltaktekster.tiltaksarrangorHovedenhetLabel}
-                verdi={`${avtale.arrangor.navn} - ${avtale.arrangor.organisasjonsnummer}`}
+                verdi={
+                  enableArrangorSide ? (
+                    <Link to={`/arrangorer/${avtale.arrangor.id}`}>
+                      {avtale.arrangor.navn} - {avtale.arrangor.organisasjonsnummer}
+                    </Link>
+                  ) : (
+                    `${avtale.arrangor.navn} - ${avtale.arrangor.organisasjonsnummer}`
+                  )
+                }
               />
             </Bolk>
           ) : null}
@@ -287,6 +313,25 @@ export function TiltaksgjennomforingDetaljer(props: Props) {
           )}
         </div>
       </div>
+      {!erArenaOpphavOgIngenEierskap(tiltaksgjennomforing, migrerteTiltakstyper) &&
+        gjennomforingIsActive && (
+          <>
+            <Separator />
+            <HarSkrivetilgang ressurs="Tiltaksgjennomføring">
+              <Button
+                size="small"
+                variant="danger"
+                onClick={() => avbrytModalRef.current?.showModal()}
+              >
+                Avbryt gjennomføring
+              </Button>
+            </HarSkrivetilgang>
+            <AvbrytGjennomforingModal
+              modalRef={avbrytModalRef}
+              tiltaksgjennomforing={tiltaksgjennomforing}
+            />
+          </>
+        )}
     </>
   );
 }

@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.repositories
 
+import kotlinx.serialization.Serializable
 import kotliquery.Row
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.domain.dto.ArrangorDto
@@ -7,6 +8,10 @@ import no.nav.mulighetsrommet.api.domain.dto.ArrangorKontaktperson
 import no.nav.mulighetsrommet.api.domain.dto.ArrangorTil
 import no.nav.mulighetsrommet.api.domain.dto.BrregVirksomhetDto
 import no.nav.mulighetsrommet.database.Database
+import no.nav.mulighetsrommet.database.utils.PaginatedResult
+import no.nav.mulighetsrommet.database.utils.Pagination
+import no.nav.mulighetsrommet.database.utils.mapPaginated
+import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
 import java.util.*
@@ -73,17 +78,13 @@ class ArrangorRepository(private val db: Database) {
         overordnetEnhetOrgnr: String? = null,
         slettet: Boolean? = null,
         utenlandsk: Boolean? = null,
-    ): List<ArrangorDto> {
-        val join = when (til) {
-            ArrangorTil.AVTALE -> {
-                "inner join avtale on avtale.arrangor_hovedenhet_id = arrangor.id"
-            }
-
-            ArrangorTil.TILTAKSGJENNOMFORING -> {
-                "inner join tiltaksgjennomforing t on t.arrangor_id = arrangor.id"
-            }
-
-            else -> ""
+        pagination: Pagination = Pagination.all(),
+        sortering: String? = null,
+    ): PaginatedResult<ArrangorDto> {
+        val order = when (sortering) {
+            "navn-ascending" -> "arrangor.navn asc"
+            "navn-descending" -> "arrangor.navn desc"
+            else -> "arrangor.navn asc"
         }
 
         @Language("PostgreSQL")
@@ -95,14 +96,29 @@ class ArrangorRepository(private val db: Database) {
                 arrangor.navn,
                 arrangor.slettet_dato,
                 arrangor.postnummer,
-                arrangor.poststed
+                arrangor.poststed,
+                count(*) over() as total_count
             from arrangor
-                $join
-            where (:sok::text is null or arrangor.navn ilike :sok)
+            where ${
+            when (til) {
+                ArrangorTil.AVTALE -> {
+                    "id in (select arrangor_hovedenhet_id from avtale) and"
+                }
+
+                ArrangorTil.TILTAKSGJENNOMFORING -> {
+                    "id in (select arrangor_id from tiltaksgjennomforing) and"
+                }
+
+                else -> ""
+            }
+        }
+              (:sok::text is null or arrangor.navn ilike :sok or arrangor.organisasjonsnummer ilike :sok)
               and (:overordnet_enhet::text is null or arrangor.overordnet_enhet = :overordnet_enhet)
               and (:slettet::boolean is null or arrangor.slettet_dato is not null = :slettet)
               and (:utenlandsk::boolean is null or arrangor.er_utenlandsk_virksomhet = :utenlandsk)
-            order by arrangor.navn asc
+            order by $order
+            limit :limit
+            offset :offset
         """.trimIndent()
 
         val params = mapOf(
@@ -112,10 +128,11 @@ class ArrangorRepository(private val db: Database) {
             "utenlandsk" to utenlandsk,
         )
 
-        return queryOf(query, params)
-            .map { it.toVirksomhetDto() }
-            .asList
-            .let { db.run(it) }
+        return db.useSession { session ->
+            queryOf(query, params + pagination.parameters)
+                .mapPaginated { it.toVirksomhetDto() }
+                .runWithSession(session)
+        }
     }
 
     fun get(orgnr: String): ArrangorDto? {
@@ -189,6 +206,57 @@ class ArrangorRepository(private val db: Database) {
         }
     }
 
+    fun getHovedenhetBy(id: UUID): ArrangorDto {
+        @Language("PostgreSQL")
+        val query = """
+            select
+                id,
+                organisasjonsnummer,
+                overordnet_enhet,
+                navn,
+                slettet_dato,
+                postnummer,
+                poststed
+            from arrangor
+            where id = ?::uuid
+        """.trimIndent()
+
+        val arrangor = queryOf(query, id)
+            .map { it.toVirksomhetDto() }
+            .asSingle
+            .let { db.run(it) }
+
+        @Language("PostgreSQL")
+        val queryForUnderenheter = """
+            select
+                id,
+                organisasjonsnummer,
+                overordnet_enhet,
+                navn,
+                slettet_dato,
+                postnummer,
+                poststed
+            from arrangor
+            where overordnet_enhet = ?
+            order by navn
+        """.trimIndent()
+
+        val underenheter = when (arrangor != null) {
+            true -> queryOf(queryForUnderenheter, arrangor.organisasjonsnummer)
+                .map { it.toVirksomhetDto() }
+                .asList
+                .let { db.run(it) }
+
+            else -> emptyList()
+        }
+
+        val arrangorMedUnderenheter = arrangor?.copy(underenheter = underenheter)
+
+        return requireNotNull(arrangorMedUnderenheter) {
+            "Arrangør med id=$id finnes ikke"
+        }
+    }
+
     fun delete(orgnr: String) {
         logger.info("Sletter arrangør orgnr=$orgnr")
 
@@ -205,14 +273,15 @@ class ArrangorRepository(private val db: Database) {
     fun upsertKontaktperson(kontaktperson: ArrangorKontaktperson): ArrangorKontaktperson {
         @Language("PostgreSQL")
         val upsert = """
-            insert into arrangor_kontaktperson(id, arrangor_id, navn, telefon, epost, beskrivelse)
-            values (:id::uuid, :arrangor_id, :navn, :telefon, :epost, :beskrivelse)
+            insert into arrangor_kontaktperson(id, arrangor_id, navn, telefon, epost, beskrivelse, ansvarlig_for)
+            values (:id::uuid, :arrangor_id, :navn, :telefon, :epost, :beskrivelse, :ansvarligFor::arrangor_kontaktperson_ansvarlig_for_type[])
             on conflict (id) do update set
-                navn                = excluded.navn,
-                arrangor_id         = excluded.arrangor_id,
-                telefon             = excluded.telefon,
-                epost               = excluded.epost,
-                beskrivelse         = excluded.beskrivelse
+                navn                    = excluded.navn,
+                arrangor_id             = excluded.arrangor_id,
+                telefon                 = excluded.telefon,
+                epost                   = excluded.epost,
+                beskrivelse             = excluded.beskrivelse,
+                ansvarlig_for           = excluded.ansvarlig_for::arrangor_kontaktperson_ansvarlig_for_type[]
             returning *
         """.trimIndent()
 
@@ -222,24 +291,36 @@ class ArrangorRepository(private val db: Database) {
             .let { db.run(it)!! }
     }
 
-    fun koblingerTilKontaktperson(id: UUID): Pair<List<UUID>, List<UUID>> {
+    fun koblingerTilKontaktperson(kontaktpersonId: UUID): Pair<List<DokumentKoblingForKontaktperson>, List<DokumentKoblingForKontaktperson>> {
         @Language("PostgreSQL")
         val gjennomforingQuery = """
-            select tiltaksgjennomforing_id from tiltaksgjennomforing_arrangor_kontaktperson where arrangor_kontaktperson_id = ?
+            select tg.navn, tg.id from tiltaksgjennomforing_arrangor_kontaktperson tak join tiltaksgjennomforing tg on tak.tiltaksgjennomforing_id = tg.id
+            where tak.arrangor_kontaktperson_id = ?
         """.trimIndent()
 
-        val gjennomforinger = queryOf(gjennomforingQuery, id)
-            .map { it.uuid("tiltaksgjennomforing_id") }
+        val gjennomforinger = queryOf(gjennomforingQuery, kontaktpersonId)
+            .map {
+                DokumentKoblingForKontaktperson(
+                    id = it.uuid("id"),
+                    navn = it.string("navn"),
+                )
+            }
             .asList
             .let { db.run(it) }
 
         @Language("PostgreSQL")
         val avtaleQuery = """
-            select id from avtale where arrangor_kontaktperson_id = ?
+            select a.navn, a.id from avtale_arrangor_kontaktperson aak join avtale a on aak.avtale_id = a.id
+             where arrangor_kontaktperson_id = ?
         """.trimIndent()
 
-        val avtaler = queryOf(avtaleQuery, id)
-            .map { it.uuid("id") }
+        val avtaler = queryOf(avtaleQuery, kontaktpersonId)
+            .map {
+                DokumentKoblingForKontaktperson(
+                    id = it.uuid("id"),
+                    navn = it.string("navn"),
+                )
+            }
             .asList
             .let { db.run(it) }
 
@@ -266,7 +347,8 @@ class ArrangorRepository(private val db: Database) {
                 navn,
                 telefon,
                 epost,
-                beskrivelse
+                beskrivelse,
+                ansvarlig_for
             from arrangor_kontaktperson
             where arrangor_id = ?::uuid
         """.trimIndent()
@@ -294,6 +376,7 @@ class ArrangorRepository(private val db: Database) {
         telefon = stringOrNull("telefon"),
         epost = string("epost"),
         beskrivelse = stringOrNull("beskrivelse"),
+        ansvarligFor = arrayOrNull<String>("ansvarlig_for")?.map { ArrangorKontaktperson.AnsvarligFor.valueOf(it) } ?: emptyList(),
     )
 
     private fun BrregVirksomhetDto.toSqlParameters() = mapOf(
@@ -312,5 +395,13 @@ class ArrangorRepository(private val db: Database) {
         "telefon" to telefon,
         "epost" to epost,
         "beskrivelse" to beskrivelse,
+        "ansvarligFor" to ansvarligFor?.let { db.createArrayOf("arrangor_kontaktperson_ansvarlig_for_type", it) },
     )
 }
+
+@Serializable
+data class DokumentKoblingForKontaktperson(
+    @Serializable(with = UUIDSerializer::class)
+    val id: UUID,
+    val navn: String,
+)

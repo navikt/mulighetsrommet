@@ -8,49 +8,34 @@
     "jsonBody": {
       "aktive": [
         {
-          "deltakerId": "230258fa-c798-420d-8ddc-25ef8280fae7",
-          "innsoktDato": "2022-03-15",
-          "sistEndretdato": "2022-03-15",
-          "aktivStatus": "DELTAR",
-          "tittel": "Jobbklubb hos Oppfølging AS",
+          "deltakerId": "3348fb45-64a1-44b8-a021-f1a4e0bd6a77",
+          "innsoktDato": "2024-03-02",
+          "sistEndretDato": "2024-03-27",
+          "status": {
+            "type": "KLADD",
+            "visningstekst": "Kladden er ikke delt"
+          },
           "tiltakstype": {
-            "navn": "Oppfølging",
-            "tiltakskode": "INDOPPFAG"
-          }
+            "navn": "Avklaring",
+            "tiltakskode": "AVKLARAG"
+          },
+          "tittel": "Avklaring hos Muligheter AS"
         }
       ],
       "historikk": [
         {
-          "deltakerId": "344b4340-a50a-406f-8bce-6a0b0e08544e",
-          "innsoktDato": "2022-03-15",
-          "periode": {
-            "startdato": "2022-03-15",
-            "sluttdato": "2022-06-25"
-          },
-          "historiskStatus": {
-            "historiskStatusType": "HAR_SLUTTET"
-          },
-          "tittel": "Arbeidsrettet rehabilitering hos Fretex AS",
+          "tittel": "Oppfølging hos Muligheter AS",
           "tiltakstype": {
-            "navn": "Arebeidsrettet rehabilitering",
-            "tiltakskode": "ARBRRHDAG"
-          }
-        },
-        {
-          "deltakerId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-          "innsoktDato": "2022-05-16",
-          "periode": {
-            "startdato": "2022-10-03",
-            "sluttdato": "2023-10-03"
+            "navn": "Oppfølging",
+            "tiltakskode": "INDOPPFAG"
           },
-          "historiskStatus": {
-            "historiskStatusType": "FULLFORT"
+          "deltakerId": "cac3b5bf-a10c-4dfa-a392-6866d0ce1efa",
+          "status": {
+            "type": "AVBRUTT_UTKAST",
+            "visningstekst": "Avbrutt utkast"
           },
-          "tittel": "Avklaring hos Joblearn AS",
-          "tiltakstype": {
-            "navn": "Avklaring",
-            "tiltakskode": "AVKLARAG"
-          }
+          "sistEndretDato": "2024-03-07",
+          "innsoktDato": "2024-03-02"
         }
       ]
     },

@@ -8,17 +8,19 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.domain.dto.FrikobleKontaktpersonRequest
 import no.nav.mulighetsrommet.api.plugins.AuthProvider
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
+import no.nav.mulighetsrommet.api.routes.v1.parameters.getPaginationParams
 import no.nav.mulighetsrommet.api.routes.v1.responses.BadRequest
 import no.nav.mulighetsrommet.api.routes.v1.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.services.AvtaleService
 import no.nav.mulighetsrommet.api.services.ExcelService
 import no.nav.mulighetsrommet.api.utils.getAvtaleFilter
-import no.nav.mulighetsrommet.api.utils.getPaginationParams
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
 import no.nav.mulighetsrommet.domain.dto.Faneinnhold
 import no.nav.mulighetsrommet.domain.dto.NavIdent
+import no.nav.mulighetsrommet.domain.dto.Personopplysning
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import org.koin.ktor.ext.inject
@@ -45,6 +47,17 @@ fun Route.avtaleRoutes() {
                 val id = call.parameters.getOrFail<UUID>("id")
                 val navIdent = getNavIdent()
                 val response = avtaler.avbrytAvtale(id, navIdent)
+                call.respondWithStatusResponse(response)
+            }
+
+            delete("kontaktperson") {
+                val request = call.receive<FrikobleKontaktpersonRequest>()
+                val navIdent = getNavIdent()
+                val response = avtaler.frikobleKontaktpersonFraAvtale(
+                    kontaktpersonId = request.kontaktpersonId,
+                    avtaleId = request.dokumentId,
+                    navIdent = navIdent,
+                )
                 call.respondWithStatusResponse(response)
             }
         }
@@ -102,6 +115,12 @@ fun Route.avtaleRoutes() {
                 ?: call.respond(HttpStatusCode.NotFound, "Det finnes ikke noen avtale med id $id")
         }
 
+        get("{id}/behandle-personopplysninger") {
+            val id = call.parameters.getOrFail<UUID>("id")
+            avtaler.getBehandlingAvPersonopplysninger(id)
+                .let { call.respond(it) }
+        }
+
         get("{id}/historikk") {
             val id: UUID by call.parameters
             val historikk = avtaler.getEndringshistorikk(id)
@@ -135,4 +154,6 @@ data class AvtaleRequest(
     val navEnheter: List<String>,
     val beskrivelse: String?,
     val faneinnhold: Faneinnhold?,
+    val personopplysninger: List<Personopplysning>,
+    val personvernBekreftet: Boolean,
 )

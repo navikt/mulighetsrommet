@@ -24,7 +24,7 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     },
     antallPlasser: 50,
     arrangor: {
-      ...mockArrangorer.fretex.underenheter!![0],
+      ...mockArrangorer.data[0].underenheter!![0],
       slettet: false,
       kontaktpersoner: [mockArrangorKontaktpersoner[0]],
     },
@@ -92,7 +92,7 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     tiltaksnummer: "123456",
     deltidsprosent: 100,
     arrangor: {
-      ...mockArrangorer.fretex.underenheter![0],
+      ...mockArrangorer.data[0].underenheter![0],
       slettet: false,
       kontaktpersoner: mockArrangorKontaktpersoner,
     },
@@ -118,7 +118,7 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     sanityId: "1234",
     deltidsprosent: 100,
     arrangor: {
-      ...mockArrangorer.fretex.underenheter![0],
+      ...mockArrangorer.data[0].underenheter![0],
       slettet: false,
       kontaktpersoner: mockArrangorKontaktpersoner,
     },
@@ -141,9 +141,39 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
 export const paginertMockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {
   pagination: {
     totalCount: 18,
-    currentPage: 1,
     pageSize: 50,
     totalPages: 1,
   },
   data: mockTiltaksgjennomforinger,
 };
+
+// Bruker denne for å teste med flere tiltaksgjennomføringer lokalt, men setter den til 0 sånn
+// at testene går gjennom.
+const x = 0;
+for (let i = 0; i < x; i++) {
+  mockTiltaksgjennomforinger.push({
+    id: "a7d63fb0-4366-412c-84b7-7c15518ee363",
+    navn: "AFT",
+    tiltaksnummer: "654434",
+    sanityId: "1234",
+    deltidsprosent: 100,
+    arrangor: {
+      ...mockArrangorer.data[0].underenheter![0],
+      slettet: false,
+      kontaktpersoner: mockArrangorKontaktpersoner,
+    },
+    tiltakstype: mockTiltakstyper.ARBFORB,
+    startDato: "2022-01-01",
+    sluttDato: "2022-12-12",
+    arenaAnsvarligEnhet: mockEnheter._0313,
+    administratorer: [],
+    navEnheter: [],
+    status: TiltaksgjennomforingStatus.GJENNOMFORES,
+    oppstart: TiltaksgjennomforingOppstartstype.LOPENDE,
+    opphav: Opphav.MR_ADMIN_FLATE,
+    apentForInnsok: true,
+    kontaktpersoner: [],
+    publisert: false,
+    publisertForAlle: true,
+  });
+}

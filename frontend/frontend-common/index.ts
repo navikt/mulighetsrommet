@@ -3,11 +3,12 @@ import { useTitle } from "./hooks/useTitle";
 import { SokeSelect } from "./components/SokeSelect";
 import { shallowEquals } from "./utils/shallow-equals";
 import { ControlledSokeSelect } from "./components/ControlledSokeSelect";
-import { NavEnhetFilter } from "./components/NavEnhetFilter";
-import { NavEnhetFiltertag } from "./components/filter/filtertag/NavEnhetFiltertag";
-import { Filtertag } from "./components/filter/filtertag/Filtertag";
-import { FiltertagsContainer } from "./components/filter/filtertag/FiltertagsContainer";
-import { FilterAccordionHeader } from "./components/filter/accordionHeader/FilterAccordionHeader"
+import { NavEnhetFilter } from "./components/navEnhetFilter/NavEnhetFilter";
+import { NavEnhetFilterTag } from "./components/filter/filterTag/NavEnhetFilterTag";
+import { FilterTag } from "./components/filter/filterTag/FilterTag";
+import { FilterTagsContainer } from "./components/filter/filterTag/FilterTagsContainer";
+import { FilterAccordionHeader } from "./components/filter/accordionHeader/FilterAccordionHeader";
+import { Drawer } from "./components/drawer/Drawer";
 
 export {
   useDebounce,
@@ -16,8 +17,9 @@ export {
   shallowEquals,
   useTitle,
   NavEnhetFilter,
-  NavEnhetFiltertag,
-  Filtertag,
-  FiltertagsContainer,
+  NavEnhetFilterTag,
+  FilterTag,
+  FilterTagsContainer,
   FilterAccordionHeader,
+  Drawer,
 };

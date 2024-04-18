@@ -3,26 +3,27 @@ import {
   ArbeidsmarkedstiltakFilterGruppe,
   useArbeidsmarkedstiltakFilter,
 } from "@/hooks/useArbeidsmarkedstiltakFilter";
-import { Filtertag } from "mulighetsrommet-frontend-common/components/filter/filtertag/Filtertag";
-import { NavEnhetFiltertag } from "mulighetsrommet-frontend-common/components/filter/filtertag/NavEnhetFiltertag";
-import { FiltertagsContainer } from "mulighetsrommet-frontend-common/components/filter/filtertag/FiltertagsContainer";
+import { FilterTag } from "mulighetsrommet-frontend-common/components/filter/filterTag/FilterTag";
+import { NavEnhetFilterTag } from "mulighetsrommet-frontend-common/components/filter/filterTag/NavEnhetFilterTag";
+import { FilterTagsContainer } from "mulighetsrommet-frontend-common/components/filter/filterTag/FilterTagsContainer";
 
 interface Props {
-  filterOpen?: boolean;
+  filterOpen: boolean;
+  setTagsHeight: (height: number) => void;
 }
 
-export function ModiaFiltertags({ filterOpen }: Props) {
+export function ModiaFiltertags({ filterOpen, setTagsHeight }: Props) {
   const [filter, setFilter] = useArbeidsmarkedstiltakFilter();
 
   return (
-    <FiltertagsContainer filterOpen={filterOpen}>
-      {filter.innsatsgruppe && <Filtertag label={filter.innsatsgruppe.tittel} />}
-      <NavEnhetFiltertag
+    <FilterTagsContainer filterOpen={filterOpen} setTagsHeight={setTagsHeight}>
+      {filter.innsatsgruppe && <FilterTag label={filter.innsatsgruppe.tittel} />}
+      <NavEnhetFilterTag
         navEnheter={filter.navEnheter}
         onClose={() => setFilter({ ...filter, navEnheter: [] })}
       />
       {filter.apentForInnsok !== ApentForInnsok.APENT_ELLER_STENGT && (
-        <Filtertag
+        <FilterTag
           label={filter.apentForInnsok === ApentForInnsok.APENT ? "Åpent" : "Stengt"}
           onClose={() =>
             setFilter({
@@ -33,7 +34,7 @@ export function ModiaFiltertags({ filterOpen }: Props) {
         />
       )}
       {filter.tiltakstyper.map((tiltakstype) => (
-        <Filtertag
+        <FilterTag
           key={tiltakstype.id}
           label={tiltakstype.tittel}
           onClose={() =>
@@ -47,8 +48,8 @@ export function ModiaFiltertags({ filterOpen }: Props) {
         />
       ))}
       {filter.search && (
-        <Filtertag label={filter.search} onClose={() => setFilter({ ...filter, search: "" })} />
+        <FilterTag label={filter.search} onClose={() => setFilter({ ...filter, search: "" })} />
       )}
-    </FiltertagsContainer>
+    </FilterTagsContainer>
   );
 }

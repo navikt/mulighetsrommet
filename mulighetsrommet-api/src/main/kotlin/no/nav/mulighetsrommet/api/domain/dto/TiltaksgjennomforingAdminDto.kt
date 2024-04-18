@@ -9,7 +9,7 @@ import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dto.Faneinnhold
 import no.nav.mulighetsrommet.domain.dto.NavIdent
-import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus
+import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.domain.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
@@ -30,7 +30,7 @@ data class TiltaksgjennomforingAdminDto(
     @Serializable(with = LocalDateSerializer::class)
     val sluttDato: LocalDate?,
     val arenaAnsvarligEnhet: ArenaNavEnhet?,
-    val status: Tiltaksgjennomforingsstatus,
+    val status: TiltaksgjennomforingStatus,
     val apentForInnsok: Boolean,
     val antallPlasser: Int?,
     @Serializable(with = UUIDSerializer::class)
@@ -52,10 +52,11 @@ data class TiltaksgjennomforingAdminDto(
     val publisertForAlle: Boolean,
     val deltidsprosent: Double,
     val estimertVentetid: EstimertVentetid?,
+    val personvernBekreftet: Boolean,
 ) {
     fun isAktiv(): Boolean = status in listOf(
-        Tiltaksgjennomforingsstatus.PLANLAGT,
-        Tiltaksgjennomforingsstatus.GJENNOMFORES,
+        TiltaksgjennomforingStatus.PLANLAGT,
+        TiltaksgjennomforingStatus.GJENNOMFORES,
     )
 
     @Serializable

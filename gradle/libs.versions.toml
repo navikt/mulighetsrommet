@@ -1,15 +1,15 @@
 [versions]
 common-java-modules = "3.2024.01.24_10.14-f70bae69bd65"
-flyway = "10.10.0"
+flyway = "10.11.0"
 hoplite = "2.7.5"
-koin = "3.5.3"
+koin = "3.5.6"
 kotest = "5.8.1"
 kotest-testcontainers = "2.0.2"
 kotlin = "1.9.23"
-ktor = "2.3.9"
-logback = "1.5.3"
+ktor = "2.3.10"
+logback = "1.5.5"
 metrics = "4.2.25"
-arrow = "1.2.3"
+arrow = "1.2.4"
 
 [plugins]
 flyway = { id = "org.flywaydb.flyway", version.ref = "flyway" }
@@ -90,7 +90,7 @@ logback-logstashLogbackEncoder = "net.logstash.logback:logstash-logback-encoder:
 metrics-core = { module = "io.dropwizard.metrics:metrics-core", version.ref = "metrics" }
 metrics-healthchecks = { module = "io.dropwizard.metrics:metrics-healthchecks", version.ref = "metrics" }
 
-micrometer-registry-prometheus = "io.micrometer:micrometer-registry-prometheus:1.12.4"
+micrometer-registry-prometheus = "io.micrometer:micrometer-registry-prometheus:1.12.5"
 
 mockk = "io.mockk:mockk:1.13.10"
 
@@ -99,17 +99,17 @@ nav-common-kafka = { module = "no.nav.common:kafka", version.ref = "common-java-
 nav-common-tokenClient = { module = "no.nav.common:token-client", version.ref = "common-java-modules" }
 nav-common-client = { module = "no.nav.common:client", version.ref = "common-java-modules" }
 nav-poaoTilgang-client = "no.nav.poao-tilgang:client:2024.02.20_07.34-4dbbf67d478e"
-nav-mockOauth2Server = "no.nav.security:mock-oauth2-server:2.1.2"
+nav-mockOauth2Server = "no.nav.security:mock-oauth2-server:2.1.4"
 
 postgresql = "org.postgresql:postgresql:42.7.3"
 
 prometheus-caffeine = "io.prometheus:simpleclient_caffeine:0.16.0"
 
-shedlock-jdbc = "net.javacrumbs.shedlock:shedlock-provider-jdbc:5.12.0"
+shedlock-jdbc = "net.javacrumbs.shedlock:shedlock-provider-jdbc:5.13.0"
 
 slack-client = "com.slack.api:slack-api-client:1.39.0"
 
-slf4j = "org.slf4j:slf4j-api:2.0.12"
+slf4j = "org.slf4j:slf4j-api:2.0.13"
 
 apache-poi = "org.apache.poi:poi:5.2.5"
 apache-poi-ooxml = "org.apache.poi:poi-ooxml:5.2.5"

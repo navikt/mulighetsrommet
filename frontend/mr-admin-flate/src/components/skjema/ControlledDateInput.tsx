@@ -1,10 +1,8 @@
-import { DatePicker, useDatepicker } from "@navikt/ds-react";
-import { forwardRef, useState } from "react";
+import { forwardRef } from "react";
 import { Controller } from "react-hook-form";
-import { formaterDatoSomYYYYMMDD as formaterSomIsoDate } from "../../utils/Utils";
-import styles from "./ControlledDateInput.module.scss";
+import { DateInput } from "./DateInput";
 
-export interface DateInputProps {
+export interface Props {
   label: string;
   readOnly?: boolean;
   fromDate: Date;
@@ -16,7 +14,7 @@ export interface DateInputProps {
 }
 
 export const ControlledDateInput = forwardRef(function ControlledDateInput(
-  props: DateInputProps,
+  props: Props,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _,
 ) {
@@ -27,78 +25,34 @@ export const ControlledDateInput = forwardRef(function ControlledDateInput(
     format,
     fromDate,
     toDate,
-    placeholder = "dd.mm.åååå",
-    invalidDatoEtterPeriode = "Dato er etter gyldig periode",
+    placeholder,
+    invalidDatoEtterPeriode,
     ...rest
   } = props;
-  const [ugyldigDatoError, setUgyldigDatoError] = useState("");
+
   return (
     <div>
       <Controller
         name={label}
         {...rest}
         render={({ field: { onChange, value }, fieldState: { error } }) => {
-          const { datepickerProps: startdatoProps, inputProps: startdatoInputProps } =
-            // FIXME
-            // eslint-disable-next-line react-hooks/rules-of-hooks
-            useDatepicker({
-              onDateChange: (val) => {
-                if (val) {
-                  if (format === "iso-string") {
-                    onChange(formaterSomIsoDate(val));
-                  } else {
-                    onChange(val);
-                  }
-                }
-              },
-              onValidate: (val) => {
-                setUgyldigDatoError("");
-                if (!val.isValidDate) {
-                  onChange(undefined);
-                  if (val.isBefore) {
-                    setUgyldigDatoError("Dato er før gyldig periode");
-                  } else if (val.isAfter) {
-                    setUgyldigDatoError(invalidDatoEtterPeriode);
-                  }
-                }
-              },
-              allowTwoDigitYear: true,
-              inputFormat: "dd.MM.yyyy",
-              fromDate,
-              toDate,
-              defaultSelected: value ? new Date(value) : undefined,
-            });
-
           return (
-            <DatePicker {...startdatoProps} dropdownCaption>
-              <DatoFelt
-                size={size}
-                label={label}
-                {...rest}
-                {...startdatoInputProps}
-                error={ugyldigDatoError || error?.message}
-                readOnly={readOnly}
-                placeholder={placeholder}
-              />
-            </DatePicker>
+            <DateInput
+              size={size}
+              format={format}
+              label={label}
+              fromDate={fromDate}
+              toDate={toDate}
+              onChange={onChange}
+              error={error?.message}
+              readOnly={readOnly}
+              placeholder={placeholder}
+              invalidDatoEtterPeriode={invalidDatoEtterPeriode}
+              value={value}
+            />
           );
         }}
       />
     </div>
-  );
-});
-
-const DatoFelt = forwardRef(function DatoFeltInput(props: any, ref: any) {
-  const { name, label, size, placeholder, ...rest } = props;
-  return (
-    <DatePicker.Input
-      {...rest}
-      label={label}
-      name={name}
-      size={size}
-      ref={ref}
-      className={styles.dato_input}
-      placeholder={placeholder}
-    />
   );
 });

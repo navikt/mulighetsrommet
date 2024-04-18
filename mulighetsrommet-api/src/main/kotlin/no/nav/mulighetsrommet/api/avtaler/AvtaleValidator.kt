@@ -29,11 +29,11 @@ class AvtaleValidator(
     private val navEnheterService: NavEnhetService,
     private val arrangorer: ArrangorRepository,
 ) {
-    fun validate(avtale: AvtaleDbo, previous: AvtaleAdminDto?): Either<List<ValidationError>, AvtaleDbo> = either {
+    fun validate(avtale: AvtaleDbo, currentAvtale: AvtaleAdminDto?): Either<List<ValidationError>, AvtaleDbo> = either {
         val tiltakstype = tiltakstyper.getById(avtale.tiltakstypeId)
             ?: raise(ValidationError.of(AvtaleDbo::tiltakstypeId, "Tiltakstypen finnes ikke").nel())
 
-        if (isTiltakstypeDisabled(previous, tiltakstype)) {
+        if (isTiltakstypeDisabled(currentAvtale, tiltakstype)) {
             return ValidationError
                 .of(
                     AvtaleDbo::tiltakstypeId,
@@ -44,6 +44,10 @@ class AvtaleValidator(
         }
 
         val errors = buildList {
+            if (avtale.navn.length < 5 && currentAvtale?.opphav != ArenaMigrering.Opphav.ARENA) {
+                add(ValidationError.of(AvtaleDbo::navn, "Avtalenavn må være minst 5 tegn langt"))
+            }
+
             if (avtale.administratorer.isEmpty()) {
                 add(ValidationError.of(AvtaleDbo::administratorer, "Minst én administrator må være valgt"))
             }
@@ -55,8 +59,6 @@ class AvtaleValidator(
             if (avtale.avtaletype.kreverWebsakUrl() && avtale.url == null) {
                 add(ValidationError.of(AvtaleDbo::url, "Avtalen må lenke til Websak"))
             }
-
-            addAll(validateNavEnheter(avtale.navEnheter))
 
             if (avtale.arrangorUnderenheter.isEmpty()) {
                 add(
@@ -80,133 +82,175 @@ class AvtaleValidator(
                 }
             }
 
-            previous?.also { currentAvtale ->
-                if (avtale.navn.length < 5 && currentAvtale.opphav != ArenaMigrering.Opphav.ARENA) {
-                    add(ValidationError.of(AvtaleDbo::navn, "Avtalenavn må være minst 5 tegn langt"))
-                }
+            validateNavEnheter(avtale.navEnheter)
 
-                /**
-                 * Når avtalen har blitt godkjent så skal alle datafelter som påvirker økonomien, påmelding, osv. være låst.
-                 *
-                 * Vi mangler fortsatt en del innsikt og løsning rundt tilsagn og refusjon (f.eks. når blir avtalen godkjent?),
-                 * så reglene for når en avtale er låst er foreløpig ganske naive og baserer seg kun på om det finnes
-                 * gjennomføringer på avtalen eller ikke...
-                 */
-                    val (numGjennomforinger, gjennomforinger) = tiltaksgjennomforinger.getAll(avtaleId = avtale.id)
-                if (numGjennomforinger > 0) {
-                    if (avtale.tiltakstypeId != currentAvtale.tiltakstype.id) {
-                        add(
-                            ValidationError.of(
-                                AvtaleDbo::tiltakstypeId,
-                                "Tiltakstype kan ikke endres fordi det finnes gjennomføringer for avtalen",
-                            ),
-                        )
-                    }
-
-                    if (avtale.avtaletype != currentAvtale.avtaletype) {
-                        add(
-                            ValidationError.of(
-                                AvtaleDbo::avtaletype,
-                                "Avtaletype kan ikke endres fordi det finnes gjennomføringer for avtalen",
-                            ),
-                        )
-                    }
-
-                    gjennomforinger.forEach { gjennomforing ->
-                        val arrangorId = gjennomforing.arrangor.id
-                        if (arrangorId !in avtale.arrangorUnderenheter) {
-                            val arrangor = arrangorer.getById(arrangorId)
-                            add(
-                                ValidationError.of(
-                                    AvtaleDbo::arrangorUnderenheter,
-                                    "Arrangøren ${arrangor.navn} er i bruk på en av avtalens gjennomføringer, men mangler blant tiltaksarrangørens underenheter",
-                                ),
-                            )
-                        }
-
-                        gjennomforing.navEnheter.forEach { enhet: NavEnhetDbo ->
-                            val enhetsnummer = enhet.enhetsnummer
-                            if (enhetsnummer !in avtale.navEnheter) {
-                                add(
-                                    ValidationError.of(
-                                        AvtaleDbo::navEnheter,
-                                        "NAV-enheten $enhetsnummer er i bruk på en av avtalens gjennomføringer, men mangler blant avtalens NAV-enheter",
-                                    ),
-                                )
-                            }
-                        }
-
-                        if (gjennomforing.startDato.isBefore(avtale.startDato)) {
-                            val gjennomforingsStartDato = gjennomforing.startDato.format(
-                                DateTimeFormatter.ofLocalizedDate(
-                                    FormatStyle.SHORT,
-                                ),
-                            )
-                            add(
-                                ValidationError.of(
-                                    AvtaleDbo::startDato,
-                                    "Startdato kan ikke være før startdatoen til tiltaksgjennomføringer koblet til avtalen. Minst en gjennomføring har startdato: $gjennomforingsStartDato",
-                                ),
-                            )
-                        }
-                    }
-                }
-
-                if (skalValidereArenafelter(currentAvtale, tiltakstype)) {
-                    if (avtale.navn != currentAvtale.navn) {
-                        add(ValidationError.of(AvtaleDbo::navn, "Navn kan ikke endres utenfor Arena"))
-                    }
-
-                    if (avtale.avtalenummer != currentAvtale.avtalenummer) {
-                        add(
-                            ValidationError.of(
-                                AvtaleDbo::avtalenummer,
-                                "Avtalenummer kan ikke endres utenfor Arena",
-                            ),
-                        )
-                    }
-
-                    if (avtale.startDato != currentAvtale.startDato) {
-                        add(ValidationError.of(AvtaleDbo::startDato, "Startdato kan ikke endres utenfor Arena"))
-                    }
-
-                    if (avtale.sluttDato != currentAvtale.sluttDato) {
-                        add(ValidationError.of(AvtaleDbo::sluttDato, "Sluttdato kan ikke endres utenfor Arena"))
-                    }
-
-                    if (avtale.avtaletype != currentAvtale.avtaletype) {
-                        add(ValidationError.of(AvtaleDbo::avtaletype, "Avtaletype kan ikke endres utenfor Arena"))
-                    }
-
-                    if (avtale.prisbetingelser != currentAvtale.prisbetingelser) {
-                        add(
-                            ValidationError.of(
-                                AvtaleDbo::prisbetingelser,
-                                "Pris- og betalingsinformasjon kan ikke endres utenfor Arena",
-                            ),
-                        )
-                    }
-
-                    if (avtale.arrangorId != currentAvtale.arrangor.id) {
-                        add(
-                            ValidationError.of(
-                                AvtaleDbo::arrangorId,
-                                "Tiltaksarrangøren kan ikke endres utenfor Arena",
-                            ),
-                        )
-                    }
-                }
-            } ?: run {
-                if (avtale.navn.length < 5) {
-                    add(ValidationError.of(AvtaleDbo::navn, "Avtalenavn må være minst 5 tegn langt"))
-                }
+            if (currentAvtale == null) {
+                validateCreateAvtale(avtale)
+            } else {
+                validateUpdateAvtale(avtale, currentAvtale, tiltakstype)
             }
         }
 
         return errors.takeIf { it.isNotEmpty() }?.left() ?: avtale.right()
     }
 
-    private fun validateNavEnheter(navEnheter: List<String>) = buildList {
+    private fun MutableList<ValidationError>.validateCreateAvtale(
+        avtale: AvtaleDbo,
+    ) {
+        val hovedenhet = arrangorer.getById(avtale.arrangorId)
+
+        if (hovedenhet.slettetDato != null) {
+            add(
+                ValidationError.of(
+                    AvtaleDbo::arrangorId,
+                    "Arrangøren ${hovedenhet.navn} er slettet i Brønnøysundregistrene. Avtaler kan ikke opprettes for slettede bedrifter.",
+                ),
+            )
+        }
+
+        avtale.arrangorUnderenheter.forEach { underenhetId ->
+            val underenhet = arrangorer.getById(underenhetId)
+
+            if (underenhet.slettetDato != null) {
+                add(
+                    ValidationError.of(
+                        AvtaleDbo::arrangorUnderenheter,
+                        "Arrangøren ${underenhet.navn} er slettet i Brønnøysundregistrene. Avtaler kan ikke opprettes for slettede bedrifter.",
+                    ),
+                )
+            }
+
+            if (underenhet.overordnetEnhet != hovedenhet.organisasjonsnummer) {
+                add(
+                    ValidationError.of(
+                        AvtaleDbo::arrangorUnderenheter,
+                        "Arrangøren ${underenhet.navn} er ikke en gyldig underenhet til hovedenheten ${hovedenhet.navn}.",
+                    ),
+                )
+            }
+        }
+    }
+
+    private fun MutableList<ValidationError>.validateUpdateAvtale(
+        avtale: AvtaleDbo,
+        currentAvtale: AvtaleAdminDto,
+        tiltakstype: TiltakstypeAdminDto,
+    ) {
+        val (numGjennomforinger, gjennomforinger) = tiltaksgjennomforinger.getAll(avtaleId = avtale.id)
+
+        /**
+         * Når avtalen har blitt godkjent så skal alle datafelter som påvirker økonomien, påmelding, osv. være låst.
+         *
+         * Vi mangler fortsatt en del innsikt og løsning rundt tilsagn og refusjon (f.eks. når blir avtalen godkjent?),
+         * så reglene for når en avtale er låst er foreløpig ganske naive og baserer seg kun på om det finnes
+         * gjennomføringer på avtalen eller ikke...
+         */
+        if (numGjennomforinger > 0) {
+            if (avtale.tiltakstypeId != currentAvtale.tiltakstype.id) {
+                add(
+                    ValidationError.of(
+                        AvtaleDbo::tiltakstypeId,
+                        "Tiltakstype kan ikke endres fordi det finnes gjennomføringer for avtalen",
+                    ),
+                )
+            }
+
+            if (avtale.avtaletype != currentAvtale.avtaletype) {
+                add(
+                    ValidationError.of(
+                        AvtaleDbo::avtaletype,
+                        "Avtaletype kan ikke endres fordi det finnes gjennomføringer for avtalen",
+                    ),
+                )
+            }
+
+            gjennomforinger.forEach { gjennomforing ->
+                val arrangorId = gjennomforing.arrangor.id
+                if (arrangorId !in avtale.arrangorUnderenheter) {
+                    val arrangor = arrangorer.getById(arrangorId)
+                    add(
+                        ValidationError.of(
+                            AvtaleDbo::arrangorUnderenheter,
+                            "Arrangøren ${arrangor.navn} er i bruk på en av avtalens gjennomføringer, men mangler blant tiltaksarrangørens underenheter",
+                        ),
+                    )
+                }
+
+                gjennomforing.navEnheter.forEach { enhet: NavEnhetDbo ->
+                    val enhetsnummer = enhet.enhetsnummer
+                    if (enhetsnummer !in avtale.navEnheter) {
+                        add(
+                            ValidationError.of(
+                                AvtaleDbo::navEnheter,
+                                "NAV-enheten $enhetsnummer er i bruk på en av avtalens gjennomføringer, men mangler blant avtalens NAV-enheter",
+                            ),
+                        )
+                    }
+                }
+
+                if (gjennomforing.startDato.isBefore(avtale.startDato)) {
+                    val gjennomforingsStartDato = gjennomforing.startDato.format(
+                        DateTimeFormatter.ofLocalizedDate(
+                            FormatStyle.SHORT,
+                        ),
+                    )
+                    add(
+                        ValidationError.of(
+                            AvtaleDbo::startDato,
+                            "Startdato kan ikke være før startdatoen til tiltaksgjennomføringer koblet til avtalen. Minst en gjennomføring har startdato: $gjennomforingsStartDato",
+                        ),
+                    )
+                }
+            }
+        }
+
+        if (skalValidereArenafelter(currentAvtale, tiltakstype)) {
+            if (avtale.navn != currentAvtale.navn) {
+                add(ValidationError.of(AvtaleDbo::navn, "Navn kan ikke endres utenfor Arena"))
+            }
+
+            if (avtale.avtalenummer != currentAvtale.avtalenummer) {
+                add(
+                    ValidationError.of(
+                        AvtaleDbo::avtalenummer,
+                        "Avtalenummer kan ikke endres utenfor Arena",
+                    ),
+                )
+            }
+
+            if (avtale.startDato != currentAvtale.startDato) {
+                add(ValidationError.of(AvtaleDbo::startDato, "Startdato kan ikke endres utenfor Arena"))
+            }
+
+            if (avtale.sluttDato != currentAvtale.sluttDato) {
+                add(ValidationError.of(AvtaleDbo::sluttDato, "Sluttdato kan ikke endres utenfor Arena"))
+            }
+
+            if (avtale.avtaletype != currentAvtale.avtaletype) {
+                add(ValidationError.of(AvtaleDbo::avtaletype, "Avtaletype kan ikke endres utenfor Arena"))
+            }
+
+            if (avtale.prisbetingelser != currentAvtale.prisbetingelser) {
+                add(
+                    ValidationError.of(
+                        AvtaleDbo::prisbetingelser,
+                        "Pris- og betalingsinformasjon kan ikke endres utenfor Arena",
+                    ),
+                )
+            }
+
+            if (avtale.arrangorId != currentAvtale.arrangor.id) {
+                add(
+                    ValidationError.of(
+                        AvtaleDbo::arrangorId,
+                        "Tiltaksarrangøren kan ikke endres utenfor Arena",
+                    ),
+                )
+            }
+        }
+    }
+
+    private fun MutableList<ValidationError>.validateNavEnheter(navEnheter: List<String>) {
         val actualNavEnheter = resolveNavEnheter(navEnheter)
 
         if (!actualNavEnheter.any { it.value.type == Norg2Type.FYLKE }) {

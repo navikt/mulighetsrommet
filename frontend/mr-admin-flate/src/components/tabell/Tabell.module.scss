@@ -1,12 +1,25 @@
 .tabell_wrapper {
   background-color: var(--a-white);
-  padding: 1rem;
-  border-radius: 4px;
-  margin: 1rem 0 2rem;
+  margin: 0 0 2rem 0.5rem;
+
+  @media screen and (max-width: 1200px) {
+    margin: 0 0 2rem 0;
+  }
+
+  &_filter_hidden {
+    margin: 0 0 2rem 0;
+  }
 
   .tabell {
     background-color: var(--a-white);
-    margin: 0.5rem 0;
+    border-collapse: separate;
+    border-spacing: 0;
+
+    :global(.navds-table__header) {
+      position: sticky;
+      background-color: var(--a-white);
+      border: 1px solid var(--a-gray-200);
+    }
   }
 
   .title {
@@ -14,27 +27,6 @@
   }
 }
 
-.tiltakstypetabell,
-.avtaletabell {
-  :global(.navds-table__row) {
-    display: grid;
-  }
-
-  .tiltakstype_tabellrad {
-    grid-template-columns: 3fr repeat(3, 1fr);
-  }
-
-  .avtale_tabellrad {
-    grid-template-columns: 3fr 1fr 2fr 2fr repeat(3, 1fr);
-  }
-}
-
-.tabell_topp_container {
-  display: flex;
-  justify-content: space-between;
-}
-
-.flex {
-  display: flex;
-  gap: 0.8rem;
+.tiltakstypetabell {
+  margin: 0;
 }

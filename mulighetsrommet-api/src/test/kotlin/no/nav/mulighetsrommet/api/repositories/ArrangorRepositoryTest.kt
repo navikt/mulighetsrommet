@@ -71,21 +71,21 @@ class ArrangorRepositoryTest : FunSpec({
                 .asExecute
                 .let { database.db.run(it) }
 
-            arrangorRepository.getAll(utenlandsk = true) shouldContainExactlyInAnyOrder listOf(utenlandsk)
-            arrangorRepository.getAll(utenlandsk = false) shouldContainExactlyInAnyOrder listOf(
+            arrangorRepository.getAll(utenlandsk = true).items shouldContainExactlyInAnyOrder listOf(utenlandsk)
+            arrangorRepository.getAll(utenlandsk = false).items shouldContainExactlyInAnyOrder listOf(
                 overordnet,
                 underenhet1,
                 underenhet2,
             )
 
-            arrangorRepository.getAll(sok = "utenlandsk") shouldContainExactlyInAnyOrder listOf(utenlandsk)
-            arrangorRepository.getAll(sok = "østland") shouldContainExactlyInAnyOrder listOf(underenhet2)
+            arrangorRepository.getAll(sok = "utenlandsk").items shouldContainExactlyInAnyOrder listOf(utenlandsk)
+            arrangorRepository.getAll(sok = "østland").items shouldContainExactlyInAnyOrder listOf(underenhet2)
 
-            arrangorRepository.getAll(overordnetEnhetOrgnr = overordnet.organisasjonsnummer) shouldContainExactlyInAnyOrder listOf(
+            arrangorRepository.getAll(overordnetEnhetOrgnr = overordnet.organisasjonsnummer).items shouldContainExactlyInAnyOrder listOf(
                 underenhet1,
                 underenhet2,
             )
-            arrangorRepository.getAll(overordnetEnhetOrgnr = underenhet1.organisasjonsnummer).shouldBeEmpty()
+            arrangorRepository.getAll(overordnetEnhetOrgnr = underenhet1.organisasjonsnummer).items.shouldBeEmpty()
         }
 
         test("Upsert underenhet etter overenhet") {
@@ -157,8 +157,8 @@ class ArrangorRepositoryTest : FunSpec({
                 it.shouldNotBeNull()
                 it.slettetDato shouldBe slettetDato
             }
-            arrangorRepository.getAll(slettet = true) shouldContainExactlyInAnyOrder listOf(underenhet1)
-            arrangorRepository.getAll(slettet = false) shouldContainExactlyInAnyOrder listOf(overordnet)
+            arrangorRepository.getAll(slettet = true).items shouldContainExactlyInAnyOrder listOf(underenhet1)
+            arrangorRepository.getAll(slettet = false).items shouldContainExactlyInAnyOrder listOf(overordnet)
         }
 
         test("Filter på avtale eller gjennomforing") {
@@ -174,14 +174,14 @@ class ArrangorRepositoryTest : FunSpec({
 
             val arrangorRepository = ArrangorRepository(database.db)
 
-            arrangorRepository.getAll() shouldContainExactlyInAnyOrder listOf(hovedenhet, underenhet)
+            arrangorRepository.getAll().items shouldContainExactlyInAnyOrder listOf(hovedenhet, underenhet)
             arrangorRepository.getAll(til = ArrangorTil.AVTALE).should {
-                it.size shouldBe 1
-                it[0] shouldBe hovedenhet
+                it.items.size shouldBe 1
+                it.items[0] shouldBe hovedenhet
             }
             arrangorRepository.getAll(til = ArrangorTil.TILTAKSGJENNOMFORING).should {
-                it.size shouldBe 1
-                it[0] shouldBe underenhet
+                it.items.size shouldBe 1
+                it.items[0] shouldBe underenhet
             }
         }
     }

@@ -2,6 +2,7 @@ import {
   Avtalestatus,
   Avtaletype,
   NavEnhet,
+  SorteringArrangorer,
   SorteringAvtaler,
   SorteringTiltaksgjennomforinger,
   SorteringTiltakstyper,
@@ -9,7 +10,7 @@ import {
 } from "mulighetsrommet-api-client";
 import { atom, WritableAtom } from "jotai";
 import { atomFamily } from "jotai/utils";
-import { AVTALE_PAGE_SIZE, PAGE_SIZE } from "@/constants";
+import { ARRANGORER_PAGE_SIZE, AVTALE_PAGE_SIZE, PAGE_SIZE } from "@/constants";
 import { RESET } from "jotai/vanilla/utils";
 import { ZodType, z } from "zod";
 
@@ -18,9 +19,13 @@ type SetStateActionWithReset<Value> =
   | typeof RESET
   | ((prev: Value) => Value | typeof RESET);
 
-const safeJSONParse = (initialValue: unknown) => (str: string) => {
+const safeZodParse = (zodSchema: ZodType, initialValue: unknown, str: string) => {
   try {
-    return JSON.parse(str);
+    const result = zodSchema.safeParse(JSON.parse(str));
+    if (!result.success) {
+      return initialValue;
+    }
+    return result.data;
   } catch (e) {
     return initialValue;
   }
@@ -39,13 +44,7 @@ function atomWithStorage<Value>(
 ) {
   const baseAtom = atom(storage.getItem(key) ?? JSON.stringify(initialValue));
   return atom(
-    (get) => {
-      const result = zodSchema.safeParse(JSON.parse(get(baseAtom)));
-      if (!result.success) {
-        return initialValue;
-      }
-      return result.data;
-    },
+    (get) => safeZodParse(zodSchema, initialValue, get(baseAtom)),
     (_, set, nextValue: Value) => {
       const str = JSON.stringify(nextValue);
       set(baseAtom, str);
@@ -66,23 +65,16 @@ function atomWithHashAndStorage<Value>(
   key: string,
   initialValue: Value,
   storage: Storage,
-  schema: ZodType,
-  options?: {
-    serialize?: (val: Value) => string;
-    deserialize?: (str: string) => Value;
-    subscribe?: (callback: () => void) => () => void;
-  },
+  zodSchema: ZodType,
 ): WritableAtom<Value, [SetStateActionWithReset<Value>], void> {
-  const serialize = options?.serialize || JSON.stringify;
-  const deserialize = options?.deserialize || safeJSONParse(initialValue);
-  const subscribe =
-    options?.subscribe ||
-    ((callback) => {
-      window.addEventListener("hashchange", callback);
-      return () => {
-        window.removeEventListener("hashchange", callback);
-      };
-    });
+  const serialize = JSON.stringify;
+  const deserialize = (str: string) => safeZodParse(zodSchema, initialValue, str);
+  const subscribe = (callback: any) => {
+    window.addEventListener("hashchange", callback);
+    return () => {
+      window.removeEventListener("hashchange", callback);
+    };
+  };
   const setHash = (searchParams: string) => {
     window.history.replaceState(
       window.history.state,
@@ -97,7 +89,7 @@ function atomWithHashAndStorage<Value>(
     str = searchParams.get(key);
   }
 
-  const strAtom = atomWithStorage<string | null>(key, str, storage, schema);
+  const strAtom = atomWithStorage<string | null>(key, str, storage, z.string().nullable());
   strAtom.onMount = (setAtom) => {
     if (typeof window === "undefined" || !window.location) {
       return undefined;
@@ -212,6 +204,7 @@ const avtaleFilterSchema = z.object({
   sortering: z.custom<SorteringAvtaler>(),
   arrangorer: z.string().array(),
   visMineAvtaler: z.boolean(),
+  personvernBekreftet: z.boolean().array(),
   page: z.number(),
   pageSize: z.number(),
 });
@@ -226,6 +219,7 @@ export const defaultAvtaleFilter: AvtaleFilter = {
   sortering: SorteringAvtaler.NAVN_ASCENDING,
   arrangorer: [],
   visMineAvtaler: false,
+  personvernBekreftet: [],
   page: 1,
   pageSize: AVTALE_PAGE_SIZE,
 };
@@ -235,6 +229,28 @@ export const avtaleFilterAtom = atomWithHashAndStorage<AvtaleFilter>(
   defaultAvtaleFilter,
   sessionStorage,
   avtaleFilterSchema,
+);
+
+const arrangorerFilterSchema = z.object({
+  sok: z.string(),
+  page: z.number(),
+  pageSize: z.number(),
+  sortering: z.custom<SorteringArrangorer>(),
+});
+
+export type ArrangorerFilter = z.infer<typeof arrangorerFilterSchema>;
+export const defaultArrangorerFilter: ArrangorerFilter = {
+  sok: "",
+  sortering: SorteringArrangorer.NAVN_ASCENDING,
+  page: 1,
+  pageSize: ARRANGORER_PAGE_SIZE,
+};
+
+export const arrangorerFilterAtom = atomWithHashAndStorage<ArrangorerFilter>(
+  "arrangorer-filter",
+  defaultArrangorerFilter,
+  sessionStorage,
+  arrangorerFilterSchema,
 );
 
 export const getAvtalerForTiltakstypeFilterAtom = atomFamily<
@@ -254,7 +270,9 @@ export const getAvtalerForTiltakstypeFilterAtom = atomFamily<
 
 export const gjennomforingDetaljerTabAtom = atom<"detaljer" | "redaksjonelt-innhold">("detaljer");
 
-export const avtaleDetaljerTabAtom = atom<"detaljer" | "redaksjonelt-innhold">("detaljer");
+export const avtaleDetaljerTabAtom = atom<"detaljer" | "personvern" | "redaksjonelt-innhold">(
+  "detaljer",
+);
 
 export const gjennomforingFilterAccordionAtom = atom<string[]>(["status"]);
 export const avtaleFilterAccordionAtom = atom<string[]>(["status"]);

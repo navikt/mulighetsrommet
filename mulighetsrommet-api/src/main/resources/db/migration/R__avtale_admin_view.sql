@@ -4,11 +4,12 @@ create view avtale_admin_dto_view as
 select avtale.id,
        avtale.navn,
        avtale.avtalenummer,
+       avtale.lopenummer,
        avtale.start_dato,
        avtale.slutt_dato,
        avtale.opphav,
        avtale.avtaletype,
-       avtale.avslutningsstatus,
+       avtale.avbrutt_tidspunkt,
        avtale.prisbetingelser,
        avtale.antall_plasser,
        avtale.url,
@@ -43,10 +44,21 @@ select avtale.id,
                    'navn', arrangor_kontaktperson.navn,
                    'telefon', arrangor_kontaktperson.telefon,
                    'epost', arrangor_kontaktperson.epost,
-                   'beskrivelse', arrangor_kontaktperson.beskrivelse
+                   'beskrivelse', arrangor_kontaktperson.beskrivelse,
+                    'ansvarligFor', arrangor_kontaktperson.ansvarlig_for
                )
            end
-       )                                   as arrangor_kontaktpersoner_json
+       )                                   as arrangor_kontaktpersoner_json,
+       case
+           when avtale.avbrutt_tidspunkt is not null then 'AVBRUTT'
+           when avtale.slutt_dato is not null and now() >= avtale.slutt_dato then 'AVSLUTTET'
+           else 'AKTIV'
+       end as status,
+       coalesce(
+           jsonb_agg(avtale_personopplysning.personopplysning)
+           filter (WHERE avtale_personopplysning.avtale_id IS NOT NULL), '[]'
+       ) as personopplysninger,
+       avtale.personvern_bekreftet
 from avtale
          join tiltakstype on tiltakstype.id = avtale.tiltakstype_id
          left join avtale_administrator on avtale.id = avtale_administrator.avtale_id
@@ -57,28 +69,31 @@ from avtale
          left join arrangor_kontaktperson
             on arrangor_kontaktperson.id = avtale_arrangor_kontaktperson.arrangor_kontaktperson_id
          left join lateral (
-    select an.avtale_id,
-           jsonb_strip_nulls(jsonb_agg(jsonb_build_object(
-                   'enhetsnummer', an.enhetsnummer,
-                   'navn', ne.navn,
-                   'type', ne.type,
-                   'status', ne.status,
-                   'overordnetEnhet', ne.overordnet_enhet))) as nav_enheter
-    from avtale_nav_enhet an
-             left join nav_enhet ne on ne.enhetsnummer = an.enhetsnummer
-    group by an.avtale_id
-    ) avtale_nav_enheter_json on avtale_nav_enheter_json.avtale_id = avtale.id
+            select an.avtale_id,
+                jsonb_strip_nulls(jsonb_agg(jsonb_build_object(
+                    'enhetsnummer', an.enhetsnummer,
+                    'navn', ne.navn,
+                    'type', ne.type,
+                    'status', ne.status,
+                    'overordnetEnhet', ne.overordnet_enhet))
+                ) as nav_enheter
+            from avtale_nav_enhet an
+                left join nav_enhet ne on ne.enhetsnummer = an.enhetsnummer
+            group by an.avtale_id
+         ) avtale_nav_enheter_json on avtale_nav_enheter_json.avtale_id = avtale.id
          left join lateral (
-    select au.avtale_id,
-           jsonb_strip_nulls(jsonb_agg(jsonb_build_object(
-                   'id', v.id,
-                   'organisasjonsnummer', v.organisasjonsnummer,
-                   'navn', v.navn,
-                   'slettet', v.slettet_dato is not null))) as arrangor_underenheter
-    from avtale_arrangor_underenhet au
-             left join arrangor v on v.id = au.arrangor_id
-    group by au.avtale_id
-    ) arrangor_underenheter_json on arrangor_underenheter_json.avtale_id = avtale.id
+            select au.avtale_id,
+                jsonb_strip_nulls(jsonb_agg(jsonb_build_object(
+                    'id', v.id,
+                    'organisasjonsnummer', v.organisasjonsnummer,
+                    'navn', v.navn,
+                    'slettet', v.slettet_dato is not null))
+                ) as arrangor_underenheter
+            from avtale_arrangor_underenhet au
+                left join arrangor v on v.id = au.arrangor_id
+            group by au.avtale_id
+        ) arrangor_underenheter_json on arrangor_underenheter_json.avtale_id = avtale.id
+        left join avtale_personopplysning on avtale_personopplysning.avtale_id = avtale.id
 group by avtale.id,
          tiltakstype.id,
          arrangor.id,

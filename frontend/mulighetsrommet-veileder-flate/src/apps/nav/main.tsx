@@ -15,6 +15,7 @@ if (import.meta.env.VITE_FARO_URL) {
     app: {
       name: "nav-arbeidsmarkedstiltak",
     },
+    isolate: true,
   });
 }
 

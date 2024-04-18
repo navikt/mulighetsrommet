@@ -1,19 +1,24 @@
-import { Button } from "@navikt/ds-react";
-import { Arrangor, ArrangorKontaktperson, BrregVirksomhet } from "mulighetsrommet-api-client";
+import { useArrangorKontaktpersoner } from "@/api/arrangor/useArrangorKontaktpersoner";
+import { useSyncArrangorFromBrreg } from "@/api/arrangor/useSyncArrangorFromBrreg";
+import { useBrregVirksomhetUnderenheter } from "@/api/virksomhet/useBrregVirksomhetUnderenheter";
+import { useSokBrregVirksomheter } from "@/api/virksomhet/useSokBrregVirksomheter";
+import { Alert, Button } from "@navikt/ds-react";
+import {
+  Arrangor,
+  ArrangorKontaktperson,
+  ArrangorKontaktpersonAnsvar,
+  BrregVirksomhet,
+} from "mulighetsrommet-api-client";
 import { ControlledSokeSelect } from "mulighetsrommet-frontend-common/components/ControlledSokeSelect";
+import { SelectOption } from "mulighetsrommet-frontend-common/components/SokeSelect";
 import { useRef, useState } from "react";
 import { DeepPartial, useFormContext } from "react-hook-form";
-import { useSyncArrangorFromBrreg } from "@/api/arrangor/useSyncArrangorFromBrreg";
-import { useSokBrregVirksomheter } from "@/api/virksomhet/useSokBrregVirksomheter";
-import { useBrregVirksomhetUnderenheter } from "@/api/virksomhet/useBrregVirksomhetUnderenheter";
-import { useArrangorKontaktpersoner } from "@/api/arrangor/useArrangorKontaktpersoner";
+import { ArrangorKontaktpersonerModal } from "../arrangor/ArrangorKontaktpersonerModal";
+import { avtaletekster } from "../ledetekster/avtaleLedetekster";
+import { InferredAvtaleSchema } from "../redaksjonelt-innhold/AvtaleSchema";
 import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { FormGroup } from "../skjema/FormGroup";
 import skjemastyles from "../skjema/Skjema.module.scss";
-import { ArrangorKontaktpersonerModal } from "../arrangor/ArrangorKontaktpersonerModal";
-import { InferredAvtaleSchema } from "../redaksjonelt-innhold/AvtaleSchema";
-import { SelectOption } from "mulighetsrommet-frontend-common/components/SokeSelect";
-import { avtaletekster } from "../ledetekster/avtaleLedetekster";
 
 interface Props {
   readOnly: boolean;
@@ -35,6 +40,8 @@ export function AvtaleArrangorSkjema({ readOnly }: Props) {
   const arrangorHovedenhetOptions = getArrangorHovedenhetOptions(brregVirksomheter, arrangor);
   const arrangorUnderenhetOptions = getArrangorUnderenhetOptions(underenheter ?? []);
   const arrangorKontaktpersonOptions = getArrangorKontaktpersonOptions(kontaktpersoner ?? []);
+
+  const underenheterIsEmpty = arrangorUnderenhetOptions.length === 0;
 
   return (
     <>
@@ -59,12 +66,18 @@ export function AvtaleArrangorSkjema({ readOnly }: Props) {
           }}
           options={arrangorHovedenhetOptions}
         />
+        {arrangor && underenheter && underenheterIsEmpty && (
+          <Alert variant="warning">
+            Bedriften {arrangor.navn} mangler underenheter i Brønnøysundregistrene og kan derfor
+            ikke velges som tiltaksarrangør.
+          </Alert>
+        )}
         <ControlledMultiSelect
           size="small"
           placeholder="Velg underenhet for tiltaksarrangør"
           label={avtaletekster.tiltaksarrangorUnderenheterLabel}
           helpText="Bestemmer hvilke arrangører som kan velges i gjennomføringene til avtalen."
-          readOnly={!arrangor}
+          readOnly={underenheterIsEmpty}
           {...register("arrangorUnderenheter")}
           options={arrangorUnderenhetOptions}
         />
@@ -79,6 +92,7 @@ export function AvtaleArrangorSkjema({ readOnly }: Props) {
             {...register("arrangorKontaktpersoner")}
             options={arrangorKontaktpersonOptions}
           />
+
           <Button
             className={skjemastyles.kontaktperson_button}
             size="small"
@@ -94,6 +108,17 @@ export function AvtaleArrangorSkjema({ readOnly }: Props) {
         <ArrangorKontaktpersonerModal
           arrangorId={arrangor.id}
           modalRef={arrangorKontaktpersonerModalRef}
+          onOpprettSuccess={(kontaktperson) => {
+            if (!kontaktperson.ansvarligFor.includes(ArrangorKontaktpersonAnsvar.AVTALE)) {
+              return;
+            }
+
+            const kontaktpersoner = watch("arrangorKontaktpersoner") ?? [];
+            setValue("arrangorKontaktpersoner", [
+              ...kontaktpersoner.filter((k) => k !== kontaktperson.id),
+              kontaktperson.id,
+            ]);
+          }}
         />
       )}
     </>
@@ -129,8 +154,10 @@ function getArrangorUnderenhetOptions(underenheter: BrregVirksomhet[]): SelectOp
 }
 
 function getArrangorKontaktpersonOptions(kontaktpersoner: ArrangorKontaktperson[]) {
-  return kontaktpersoner.map((person) => ({
-    value: person.id,
-    label: person.navn,
-  }));
+  return kontaktpersoner
+    .filter((person) => person.ansvarligFor.includes(ArrangorKontaktpersonAnsvar.AVTALE))
+    .map((person) => ({
+      value: person.id,
+      label: person.navn,
+    }));
 }

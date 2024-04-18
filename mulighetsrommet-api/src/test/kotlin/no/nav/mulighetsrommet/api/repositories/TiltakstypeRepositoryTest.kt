@@ -1,18 +1,22 @@
 package no.nav.mulighetsrommet.api.repositories
 
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.data.forAll
+import io.kotest.data.row
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
-import no.nav.mulighetsrommet.api.utils.DEFAULT_PAGINATION_LIMIT
-import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
+import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
+import no.nav.mulighetsrommet.domain.dto.Personopplysning
+import no.nav.mulighetsrommet.domain.dto.PersonopplysningFrekvens
 import no.nav.mulighetsrommet.domain.dto.Tiltakstypestatus
 import org.intellij.lang.annotations.Language
 import java.time.LocalDate
@@ -33,13 +37,12 @@ class TiltakstypeRepositoryTest : FunSpec({
             tiltakstyper.upsert(TiltakstypeFixtures.Arbeidstrening)
             tiltakstyper.upsert(TiltakstypeFixtures.Oppfolging)
 
-            tiltakstyper.getAll().second shouldHaveSize 2
+            tiltakstyper.getAll().totalCount shouldBe 2
         }
     }
 
-    context("filter") {
+    context("filtrering") {
         val tiltakstyper = TiltakstypeRepository(database.db)
-        val dagensDato = LocalDate.of(2023, 1, 12)
         val tiltakstypePlanlagt = TiltakstypeDbo(
             id = UUID.randomUUID(),
             navn = "Arbeidsforberedende trening",
@@ -47,8 +50,8 @@ class TiltakstypeRepositoryTest : FunSpec({
             rettPaaTiltakspenger = true,
             registrertDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
             sistEndretDatoIArena = LocalDateTime.of(2022, 1, 15, 0, 0, 0),
-            fraDato = LocalDate.of(2023, 1, 13),
-            tilDato = LocalDate.of(2023, 1, 15),
+            fraDato = LocalDate.now().plusDays(1),
+            tilDato = LocalDate.now().plusMonths(1),
         )
         val tiltakstypeAktiv = TiltakstypeDbo(
             id = UUID.randomUUID(),
@@ -57,8 +60,8 @@ class TiltakstypeRepositoryTest : FunSpec({
             rettPaaTiltakspenger = true,
             registrertDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
             sistEndretDatoIArena = LocalDateTime.of(2022, 1, 15, 0, 0, 0),
-            fraDato = LocalDate.of(2023, 1, 11),
-            tilDato = LocalDate.of(2023, 1, 15),
+            fraDato = LocalDate.now(),
+            tilDato = LocalDate.now().plusMonths(1),
         )
         val tiltakstypeAvsluttet = TiltakstypeDbo(
             id = UUID.randomUUID(),
@@ -67,8 +70,8 @@ class TiltakstypeRepositoryTest : FunSpec({
             rettPaaTiltakspenger = true,
             registrertDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
             sistEndretDatoIArena = LocalDateTime.of(2022, 1, 15, 0, 0, 0),
-            fraDato = LocalDate.of(2023, 1, 9),
-            tilDato = LocalDate.of(2023, 1, 11),
+            fraDato = LocalDate.now().minusMonths(1),
+            tilDato = LocalDate.now().minusDays(1),
         )
         val idSkalIkkeMigreres = UUID.randomUUID()
         val tiltakstypeSkalIkkeMigreres = TiltakstypeDbo(
@@ -78,8 +81,8 @@ class TiltakstypeRepositoryTest : FunSpec({
             rettPaaTiltakspenger = true,
             registrertDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
             sistEndretDatoIArena = LocalDateTime.of(2022, 1, 15, 0, 0, 0),
-            fraDato = LocalDate.of(2023, 1, 9),
-            tilDato = LocalDate.of(2023, 1, 11),
+            fraDato = LocalDate.now(),
+            tilDato = LocalDate.now().plusMonths(1),
         )
 
         tiltakstyper.upsert(tiltakstypePlanlagt)
@@ -87,107 +90,51 @@ class TiltakstypeRepositoryTest : FunSpec({
         tiltakstyper.upsert(tiltakstypeAvsluttet)
         tiltakstyper.upsert(tiltakstypeSkalIkkeMigreres)
 
-        test("Ingen filter for kategori returnerer både individuelle- og gruppetiltak") {
-            tiltakstyper.getAllSkalMigreres().second shouldHaveSize 3
+        test("returnerer bare tiltak som skal migreres") {
+            tiltakstyper.getAllSkalMigreres().items shouldHaveSize 3
         }
 
-        test("Filter på planlagt returnerer planlagte tiltakstyper") {
-            val typer = tiltakstyper.getAllSkalMigreres(
-                statuser = listOf(Tiltakstypestatus.Planlagt),
-                dagensDato = dagensDato,
-            )
-            typer.second shouldHaveSize 1
-            typer.second.first().id shouldBe tiltakstypePlanlagt.id
-        }
-
-        test("Filter på aktiv returnerer aktive tiltakstyper") {
-            val typer = tiltakstyper.getAllSkalMigreres(
-                statuser = listOf(Tiltakstypestatus.Aktiv),
-                dagensDato = dagensDato,
-            )
-            typer.second shouldHaveSize 1
-            typer.second.first().id shouldBe tiltakstypeAktiv.id
-        }
-
-        test("Filter på avsluttet returnerer avsluttede tiltakstyper") {
-            val typer = tiltakstyper.getAllSkalMigreres(
-                statuser = listOf(Tiltakstypestatus.Avsluttet),
-                dagensDato = dagensDato,
-            )
-            typer.second shouldHaveSize 1
-            typer.second.first().id shouldBe tiltakstypeAvsluttet.id
+        test("filtrering på status") {
+            forAll(
+                row(Tiltakstypestatus.Planlagt, tiltakstypePlanlagt.id),
+                row(Tiltakstypestatus.Aktiv, tiltakstypeAktiv.id),
+                row(Tiltakstypestatus.Avsluttet, tiltakstypeAvsluttet.id),
+            ) { status, expectedId ->
+                val result = tiltakstyper.getAllSkalMigreres(statuser = listOf(status))
+                result.totalCount shouldBe 1
+                result.items.first().id shouldBe expectedId
+            }
         }
     }
 
-    context("pagination") {
+    test("pagination") {
         val tiltakstyper = TiltakstypeRepository(database.db)
 
-        (1..105).forEach {
+        (1..10).forEach {
             tiltakstyper.upsert(
-                TiltakstypeDbo(
+                TiltakstypeFixtures.Oppfolging.copy(
                     id = UUID.randomUUID(),
-                    navn = "$it",
+                    navn = "$it".padStart(2, '0'),
                     arenaKode = "$it",
-                    rettPaaTiltakspenger = true,
-                    registrertDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
-                    sistEndretDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
-                    fraDato = LocalDate.of(2023, 1, 11),
-                    tilDato = LocalDate.of(2023, 1, 12),
                 ),
             )
         }
 
-        test("default pagination gets first 50 tiltak") {
-            val (totalCount, items) = tiltakstyper.getAll()
+        forAll(
+            row(Pagination.all(), 10, "01", "10", 10),
+            row(Pagination.of(page = 1, size = 20), 10, "01", "10", 10),
+            row(Pagination.of(page = 1, size = 2), 2, "01", "02", 10),
+            row(Pagination.of(page = 3, size = 2), 2, "05", "06", 10),
+            row(Pagination.of(page = 3, size = 4), 2, "09", "10", 10),
+            row(Pagination.of(page = 2, size = 20), 0, null, null, 0),
+        ) { pagination, expectedSize, expectedFirst, expectedLast, expectedTotalCount ->
+            val (totalCount, items) = tiltakstyper.getAll(pagination)
 
-            items.size shouldBe DEFAULT_PAGINATION_LIMIT
-            items.first().navn shouldBe "1"
-            items.last().navn shouldBe "49"
+            items.size shouldBe expectedSize
+            items.firstOrNull()?.navn shouldBe expectedFirst
+            items.lastOrNull()?.navn shouldBe expectedLast
 
-            totalCount shouldBe 105
-        }
-
-        test("pagination with page 4 and size 20 should give tiltak with id 59-76") {
-            val (totalCount, items) = tiltakstyper.getAll(
-                paginationParams = PaginationParams(
-                    4,
-                    20,
-                ),
-            )
-
-            items.size shouldBe 20
-            items.first().navn shouldBe "59"
-            items.last().navn shouldBe "76"
-
-            totalCount shouldBe 105
-        }
-
-        test("pagination with page 3 default size should give tiltak with id 95-99") {
-            val (totalCount, items) = tiltakstyper.getAll(
-                paginationParams = PaginationParams(
-                    3,
-                ),
-            )
-
-            items.size shouldBe 5
-            items.first().navn shouldBe "95"
-            items.last().navn shouldBe "99"
-
-            totalCount shouldBe 105
-        }
-
-        test("pagination with default page and size 200 should give tiltak with id 1-99") {
-            val (totalCount, items) = tiltakstyper.getAll(
-                paginationParams = PaginationParams(
-                    nullableLimit = 200,
-                ),
-            )
-
-            items.size shouldBe 105
-            items.first().navn shouldBe "1"
-            items.last().navn shouldBe "99"
-
-            totalCount shouldBe 105
+            totalCount shouldBe expectedTotalCount
         }
     }
 
@@ -253,22 +200,47 @@ class TiltakstypeRepositoryTest : FunSpec({
                 it shouldBe null
             }
         }
+    }
 
-        test("getBySanityId krasjer ikke") {
-            val sanityId = UUID.randomUUID()
+    test("getBySanityId krasjer ikke") {
+        val tiltakstyper = TiltakstypeRepository(database.db)
 
-            @Language("PostgreSQL")
-            val query = """
+        tiltakstyper.upsert(TiltakstypeFixtures.Oppfolging)
+
+        val sanityId = UUID.randomUUID()
+
+        @Language("PostgreSQL")
+        val query = """
                 update tiltakstype
                 set sanity_id = '$sanityId'
                 where tiltakskode = '${Tiltakskode.OPPFOLGING.name}';
-            """.trimIndent()
-            queryOf(
-                query,
-            ).asExecute.let { database.db.run(it) }
-            tiltakstyper.getBySanityId(sanityId).should {
-                it?.id shouldBe TiltakstypeFixtures.Oppfolging.id
-            }
+        """.trimIndent()
+        queryOf(
+            query,
+        ).asExecute.let { database.db.run(it) }
+        tiltakstyper.getBySanityId(sanityId).should {
+            it?.id shouldBe TiltakstypeFixtures.Oppfolging.id
+        }
+    }
+
+    test("personopplysninger hentes") {
+        val tiltakstyper = TiltakstypeRepository(database.db)
+        tiltakstyper.upsert(TiltakstypeFixtures.Oppfolging)
+
+        @Language("PostgreSQL")
+        val query = """
+                insert into tiltakstype_personopplysning (tiltakskode, personopplysning, frekvens) values
+                    ('OPPFOLGING', 'NAVN', 'ALLTID'),
+                    ('OPPFOLGING', 'KJONN', 'ALLTID'),
+                    ('OPPFOLGING', 'ADFERD', 'OFTE');
+        """.trimIndent()
+        queryOf(
+            query,
+        ).asExecute.let { database.db.run(it) }
+
+        tiltakstyper.get(TiltakstypeFixtures.Oppfolging.id) should {
+            it!!.personopplysninger[PersonopplysningFrekvens.ALLTID] shouldContainExactlyInAnyOrder listOf(Personopplysning.NAVN, Personopplysning.KJONN)
+            it.personopplysninger[PersonopplysningFrekvens.OFTE] shouldContainExactlyInAnyOrder listOf(Personopplysning.ADFERD)
         }
     }
 })

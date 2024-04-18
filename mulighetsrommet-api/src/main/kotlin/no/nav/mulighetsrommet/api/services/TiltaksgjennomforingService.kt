@@ -10,18 +10,18 @@ import no.nav.mulighetsrommet.api.clients.vedtak.Innsatsgruppe
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.api.domain.dto.*
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
-import no.nav.mulighetsrommet.api.repositories.DeltakerRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
+import no.nav.mulighetsrommet.api.routes.v1.AdminTiltaksgjennomforingFilter
 import no.nav.mulighetsrommet.api.routes.v1.TiltaksgjennomforingRequest
 import no.nav.mulighetsrommet.api.routes.v1.responses.*
 import no.nav.mulighetsrommet.api.tiltaksgjennomforinger.TiltaksgjennomforingValidator
-import no.nav.mulighetsrommet.api.utils.AdminTiltaksgjennomforingFilter
 import no.nav.mulighetsrommet.api.utils.EksternTiltaksgjennomforingFilter
-import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.database.Database
+import no.nav.mulighetsrommet.database.utils.Pagination
+import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.Tiltakskoder.isTiltakMedAvtalerFraMulighetsrommet
-import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
-import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
+import no.nav.mulighetsrommet.domain.constants.ArenaMigrering.TiltaksgjennomforingSluttDatoCutoffDate
+import no.nav.mulighetsrommet.domain.dto.AvbruttAarsak
 import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.kafka.producers.TiltaksgjennomforingKafkaProducer
 import no.nav.mulighetsrommet.notifications.NotificationRepository
@@ -30,16 +30,17 @@ import no.nav.mulighetsrommet.notifications.ScheduledNotification
 import org.slf4j.LoggerFactory
 import java.time.Instant
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.*
 
 class TiltaksgjennomforingService(
     private val avtaler: AvtaleRepository,
     private val tiltaksgjennomforinger: TiltaksgjennomforingRepository,
-    private val deltakerRepository: DeltakerRepository,
     private val tiltaksgjennomforingKafkaProducer: TiltaksgjennomforingKafkaProducer,
     private val notificationRepository: NotificationRepository,
     private val validator: TiltaksgjennomforingValidator,
     private val documentHistoryService: EndringshistorikkService,
+    private val tiltakstypeService: TiltakstypeService,
     private val db: Database,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
@@ -76,27 +77,8 @@ class TiltaksgjennomforingService(
         return tiltaksgjennomforinger.get(id)
     }
 
-    fun getAll(
-        pagination: PaginationParams,
-        filter: AdminTiltaksgjennomforingFilter,
-    ): PaginatedResponse<TiltaksgjennomforingAdminDto> = tiltaksgjennomforinger.getAll(
-        pagination,
-        search = filter.search,
-        navEnheter = filter.navEnheter,
-        tiltakstypeIder = filter.tiltakstypeIder,
-        statuser = filter.statuser,
-        sortering = filter.sortering,
-        sluttDatoCutoff = filter.sluttDatoCutoff,
-        dagensDato = filter.dagensDato,
-        avtaleId = filter.avtaleId,
-        arrangorIds = filter.arrangorIds,
-        administratorNavIdent = filter.administratorNavIdent,
-    ).let { (totalCount, data) ->
-        PaginatedResponse.of(pagination, totalCount, data)
-    }
-
     fun getAllSkalMigreres(
-        pagination: PaginationParams,
+        pagination: Pagination,
         filter: AdminTiltaksgjennomforingFilter,
     ): PaginatedResponse<TiltaksgjennomforingAdminDto> = tiltaksgjennomforinger.getAll(
         pagination,
@@ -105,12 +87,14 @@ class TiltaksgjennomforingService(
         tiltakstypeIder = filter.tiltakstypeIder,
         statuser = filter.statuser,
         sortering = filter.sortering,
-        sluttDatoCutoff = filter.sluttDatoCutoff,
-        dagensDato = filter.dagensDato,
         avtaleId = filter.avtaleId,
         arrangorIds = filter.arrangorIds,
         administratorNavIdent = filter.administratorNavIdent,
+        /**
+         * Hardkodet filter så man kun viser relevante gjennomføringer i Tiltaksadmin
+         */
         skalMigreres = true,
+        sluttDatoGreaterThanOrEqualTo = TiltaksgjennomforingSluttDatoCutoffDate,
     ).let { (totalCount, data) ->
         PaginatedResponse.of(pagination, totalCount, data)
     }
@@ -134,7 +118,7 @@ class TiltaksgjennomforingService(
     }
 
     fun getAllEkstern(
-        pagination: PaginationParams,
+        pagination: Pagination,
         filter: EksternTiltaksgjennomforingFilter,
     ): PaginatedResponse<TiltaksgjennomforingDto> = tiltaksgjennomforinger
         .getAll(
@@ -186,24 +170,23 @@ class TiltaksgjennomforingService(
         return Either.Right(Unit)
     }
 
-    fun avbrytGjennomforing(id: UUID, navIdent: NavIdent): StatusResponse<Unit> {
+    fun avbrytGjennomforing(id: UUID, navIdent: NavIdent, aarsak: AvbruttAarsak?): StatusResponse<Unit> {
+        if (aarsak == null) {
+            return Either.Left(BadRequest(message = "Årsak mangler"))
+        }
+
         val gjennomforing = get(id) ?: return Either.Left(NotFound("Gjennomføringen finnes ikke"))
 
-        if (gjennomforing.opphav == ArenaMigrering.Opphav.ARENA) {
-            return Either.Left(BadRequest(message = "Gjennomføringen har opprinnelse fra Arena og kan ikke bli avbrutt i admin-flate."))
+        if (!tiltakstypeService.isEnabled(Tiltakskode.fromArenaKode(gjennomforing.tiltakstype.arenaKode))) {
+            return Either.Left(BadRequest(message = "Tiltakstype '${gjennomforing.tiltakstype.navn}' må avbrytes i Arena."))
         }
 
         if (!gjennomforing.isAktiv()) {
             return Either.Left(BadRequest(message = "Gjennomføringen kan ikke avbrytes fordi den allerede er avsluttet."))
         }
 
-        val antallDeltagere = deltakerRepository.getAll(id).size
-        if (antallDeltagere > 0) {
-            return Either.Left(BadRequest(message = "Gjennomføringen kan ikke avbrytes fordi den har $antallDeltagere deltager(e) koblet til seg."))
-        }
-
         db.transaction { tx ->
-            tiltaksgjennomforinger.setAvslutningsstatus(tx, id, Avslutningsstatus.AVBRUTT)
+            tiltaksgjennomforinger.avbryt(tx, id, LocalDateTime.now(), aarsak)
             val dto = getOrError(id, tx)
             logEndring("Gjennomføring ble avbrutt", dto, navIdent, tx)
             tiltaksgjennomforingKafkaProducer.publish(TiltaksgjennomforingDto.from(dto))
@@ -215,10 +198,10 @@ class TiltaksgjennomforingService(
     fun batchApentForInnsokForAlleMedStarttdatoForDato(dagensDato: LocalDate) {
         db.transaction { tx ->
             val tiltak = tiltaksgjennomforinger.lukkApentForInnsokForTiltakMedStartdatoForDato(dagensDato, tx)
-            tiltak.forEach {
+            tiltak.forEach { gjennomforing ->
                 logEndringSomSystembruker(
                     operation = "Stengte for innsøk",
-                    it,
+                    gjennomforing,
                     tx,
                 )
             }
@@ -261,7 +244,7 @@ class TiltaksgjennomforingService(
         tx: TransactionalSession,
     ) {
         documentHistoryService.logEndring(tx, DocumentClass.TILTAKSGJENNOMFORING, operation, navIdent.value, dto.id) {
-            Json.encodeToJsonElement<TiltaksgjennomforingAdminDto>(dto)
+            Json.encodeToJsonElement(dto)
         }
     }
 
@@ -277,7 +260,35 @@ class TiltaksgjennomforingService(
             TILTAKSADMINISTRASJON_SYSTEM_BRUKER,
             dto.id,
         ) {
-            Json.encodeToJsonElement<TiltaksgjennomforingAdminDto>(dto)
+            Json.encodeToJsonElement(dto)
+        }
+    }
+
+    fun frikobleKontaktpersonFraGjennomforing(
+        kontaktpersonId: UUID,
+        gjennomforingId: UUID,
+        navIdent: NavIdent,
+    ): Either<StatusResponseError, String> {
+        val gjennomforing =
+            tiltaksgjennomforinger.get(gjennomforingId) ?: return Either.Left(NotFound("Gjennomføringen finnes ikke"))
+
+        return db.transaction { tx ->
+            tiltaksgjennomforinger.frikobleKontaktpersonFraGjennomforing(
+                kontaktpersonId = kontaktpersonId,
+                gjennomforingId = gjennomforingId,
+                tx = tx,
+            ).map {
+                logEndring(
+                    "Kontaktperson '${it.first}' ble fjernet fra gjennomføringen via arrangørsidene",
+                    gjennomforing,
+                    navIdent,
+                    tx,
+                )
+                it.second
+            }.mapLeft {
+                logger.error("Klarte ikke fjerne kontaktperson fra gjennomføring: KontaktpersonId = '$kontaktpersonId', gjennomforingId = '$gjennomforingId'")
+                ServerError("Klarte ikke fjerne kontaktperson fra gjennomføringen")
+            }
         }
     }
 }

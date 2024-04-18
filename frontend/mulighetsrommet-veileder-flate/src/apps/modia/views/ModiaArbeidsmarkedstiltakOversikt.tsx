@@ -1,14 +1,12 @@
 import { useFeatureToggle } from "@/api/feature-toggles";
 import { useVeilederTiltaksgjennomforinger } from "@/api/queries/useTiltaksgjennomforinger";
 import { ModiaFiltertags } from "@/apps/modia/filtrering/ModiaFiltertags";
-import { HistorikkButton } from "@/apps/modia/historikk/HistorikkButton";
 import { useHentAlleTiltakDeltMedBruker } from "@/apps/modia/hooks/useHentAlleTiltakDeltMedBruker";
 import { useHentBrukerdata } from "@/apps/modia/hooks/useHentBrukerdata";
 import { FiltrertFeilInnsatsgruppeVarsel } from "@/apps/modia/varsler/FiltrertFeilInnsatsgruppeVarsel";
 import { PortenLink } from "@/components/PortenLink";
 import { TiltakLoader } from "@/components/TiltakLoader";
 import { Feilmelding } from "@/components/feilmelding/Feilmelding";
-import { FilterAndTableLayout } from "@/components/filtrering/FilterAndTableLayout";
 import { FilterMenyMedSkeletonLoader } from "@/components/filtrering/FilterMenyMedSkeletonLoader";
 import { OversiktenJoyride } from "@/components/joyride/OversiktenJoyride";
 import { Tiltaksgjennomforingsoversikt } from "@/components/oversikt/Tiltaksgjennomforingsoversikt";
@@ -17,10 +15,12 @@ import { useResetArbeidsmarkedstiltakFilterMedBrukerIKontekst } from "@/hooks/us
 import { Alert } from "@navikt/ds-react";
 import { ApiError, Toggles } from "mulighetsrommet-api-client";
 import { useTitle } from "mulighetsrommet-frontend-common";
-import { NullstillFilterKnapp } from "mulighetsrommet-frontend-common/components/filter/nullstillFilterKnapp/NullstillFilterKnapp";
 import { TilToppenKnapp } from "mulighetsrommet-frontend-common/components/tilToppenKnapp/TilToppenKnapp";
 import { useEffect, useState } from "react";
 import { ModiaOversiktBrukerVarsler } from "../varsler/ModiaOversiktBrukerVarsler";
+import { FilterAndTableLayout } from "mulighetsrommet-frontend-common/components/filterAndTableLayout/FilterAndTableLayout";
+import { NullstillFilterKnapp } from "mulighetsrommet-frontend-common/components/nullstillFilterKnapp/NullstillFilterKnapp";
+import { HistorikkButton } from "../historikk/HistorikkButton";
 
 export const ModiaArbeidsmarkedstiltakOversikt = () => {
   useTitle("Arbeidsmarkedstiltak - Oversikt");
@@ -33,8 +33,8 @@ export const ModiaArbeidsmarkedstiltakOversikt = () => {
 
   const landingssideFeature = useFeatureToggle(Toggles.MULIGHETSROMMET_VEILEDERFLATE_LANDINGSSIDE);
   const landingssideEnabled = landingssideFeature.isSuccess && landingssideFeature.data;
-
   const [isHistorikkModalOpen, setIsHistorikkModalOpen] = useState(false);
+  const [tagsHeight, setTagsHeight] = useState(0);
 
   const {
     data: tiltaksgjennomforinger = [],
@@ -74,7 +74,9 @@ export const ModiaArbeidsmarkedstiltakOversikt = () => {
       <FilterAndTableLayout
         filterOpen={filterOpen}
         setFilterOpen={setFilterOpen}
-        resetButton={filterHasChanged && <NullstillFilterKnapp onClick={resetFilterToDefaults} />}
+        nullstillFilterButton={
+          filterHasChanged && <NullstillFilterKnapp onClick={resetFilterToDefaults} />
+        }
         buttons={
           <>
             <OversiktenJoyride />
@@ -85,8 +87,9 @@ export const ModiaArbeidsmarkedstiltakOversikt = () => {
           </>
         }
         filter={<FilterMenyMedSkeletonLoader />}
+        tags={<ModiaFiltertags filterOpen={filterOpen} setTagsHeight={setTagsHeight} />}
         table={
-          <div>
+          <>
             {isLoading ? (
               <TiltakLoader />
             ) : (
@@ -100,7 +103,6 @@ export const ModiaArbeidsmarkedstiltakOversikt = () => {
                     <FiltrertFeilInnsatsgruppeVarsel filter={filter} />
                   </>
                 }
-                tags={<ModiaFiltertags filterOpen={filterOpen} />}
                 feilmelding={
                   tiltaksgjennomforinger.length === 0 ? (
                     <Feilmelding
@@ -110,9 +112,10 @@ export const ModiaArbeidsmarkedstiltakOversikt = () => {
                     />
                   ) : null
                 }
+                tagsHeight={tagsHeight}
               />
             )}
-          </div>
+          </>
         }
       />
       <TilToppenKnapp />

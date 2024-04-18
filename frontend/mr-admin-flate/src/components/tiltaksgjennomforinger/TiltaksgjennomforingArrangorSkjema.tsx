@@ -1,15 +1,19 @@
+import { useArrangorKontaktpersoner } from "@/api/arrangor/useArrangorKontaktpersoner";
 import { Button, TextField } from "@navikt/ds-react";
-import { ArrangorKontaktperson, Avtale } from "mulighetsrommet-api-client";
+import {
+  ArrangorKontaktperson,
+  ArrangorKontaktpersonAnsvar,
+  Avtale,
+} from "mulighetsrommet-api-client";
 import { ControlledSokeSelect } from "mulighetsrommet-frontend-common";
 import { useRef } from "react";
 import { useFormContext } from "react-hook-form";
-import { useArrangorKontaktpersoner } from "@/api/arrangor/useArrangorKontaktpersoner";
+import { ArrangorKontaktpersonerModal } from "../arrangor/ArrangorKontaktpersonerModal";
+import { tiltaktekster } from "../ledetekster/tiltaksgjennomforingLedetekster";
+import { InferredTiltaksgjennomforingSchema } from "../redaksjonelt-innhold/TiltaksgjennomforingSchema";
 import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { FormGroup } from "../skjema/FormGroup";
 import skjemastyles from "../skjema/Skjema.module.scss";
-import { ArrangorKontaktpersonerModal } from "../arrangor/ArrangorKontaktpersonerModal";
-import { InferredTiltaksgjennomforingSchema } from "../redaksjonelt-innhold/TiltaksgjennomforingSchema";
-import { tiltaktekster } from "../ledetekster/tiltaksgjennomforingLedetekster";
 
 interface Props {
   avtale: Avtale;
@@ -21,6 +25,7 @@ export function TiltaksgjennomforingArrangorSkjema({ readOnly, avtale }: Props) 
 
   const {
     register,
+    watch,
     formState: { errors },
     setValue,
   } = useFormContext<InferredTiltaksgjennomforingSchema>();
@@ -82,6 +87,19 @@ export function TiltaksgjennomforingArrangorSkjema({ readOnly, avtale }: Props) 
       <ArrangorKontaktpersonerModal
         arrangorId={avtale.arrangor.id}
         modalRef={arrangorKontaktpersonerModalRef}
+        onOpprettSuccess={(kontaktperson) => {
+          if (
+            !kontaktperson.ansvarligFor.includes(ArrangorKontaktpersonAnsvar.TILTAKSGJENNOMFORING)
+          ) {
+            return;
+          }
+
+          const kontaktpersoner = watch("arrangorKontaktpersoner") ?? [];
+          setValue("arrangorKontaktpersoner", [
+            ...kontaktpersoner.filter((k) => k !== kontaktperson.id),
+            kontaktperson.id,
+          ]);
+        }}
       />
     </>
   );
@@ -99,8 +117,12 @@ function getArrangorOptions(avtale: Avtale) {
 }
 
 function getKontaktpersonOptions(kontaktpersoner: ArrangorKontaktperson[]) {
-  return kontaktpersoner.map((person) => ({
-    value: person.id,
-    label: person.navn,
-  }));
+  return kontaktpersoner
+    .filter((person) =>
+      person.ansvarligFor.includes(ArrangorKontaktpersonAnsvar.TILTAKSGJENNOMFORING),
+    )
+    .map((person) => ({
+      value: person.id,
+      label: person.navn,
+    }));
 }

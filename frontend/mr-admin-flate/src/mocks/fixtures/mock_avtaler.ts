@@ -17,9 +17,9 @@ export const mockAvtaler: Avtale[] = [
     opphav: Opphav.MR_ADMIN_FLATE,
     avtalenummer: "2021#10579",
     arrangor: {
-      ...mockArrangorer.fretex,
+      ...mockArrangorer.data[0],
       slettet: false,
-      underenheter: mockArrangorer.fretex.underenheter!.map((v) => ({
+      underenheter: mockArrangorer.data[0].underenheter!.map((v) => ({
         id: v.id,
         organisasjonsnummer: v.organisasjonsnummer,
         navn: v.navn,
@@ -34,6 +34,7 @@ export const mockAvtaler: Avtale[] = [
           epost: "ole.kjetil.martinsen@arrangor.no",
           telefon: "90123456",
           beskrivelse: "Direktør",
+          ansvarligFor: [],
         },
       ],
     },
@@ -60,6 +61,8 @@ export const mockAvtaler: Avtale[] = [
         kontorer: [mockEnheter._0425, mockEnheter._0402, mockEnheter._0415],
       },
     ],
+    personopplysninger: [],
+    personvernBekreftet: false,
   },
   {
     id: "d1f163b7-1a41-4547-af16-03fd4492b7bc",
@@ -67,10 +70,10 @@ export const mockAvtaler: Avtale[] = [
     navn: "Avtale hos ÅMLI KOMMUNE SAMFUNNSAVDELINGA",
     avtalenummer: "2021#10579",
     arrangor: {
-      ...mockArrangorer.fretex,
+      ...mockArrangorer.data[0],
       slettet: false,
       kontaktpersoner: [],
-      underenheter: mockArrangorer.fretex.underenheter!.map((v) => ({
+      underenheter: mockArrangorer.data[0].underenheter!.map((v) => ({
         id: v.id,
         organisasjonsnummer: v.organisasjonsnummer,
         navn: v.navn,
@@ -95,6 +98,8 @@ export const mockAvtaler: Avtale[] = [
     kontorstruktur: [
       { region: mockEnheter._0400, kontorer: [mockEnheter._0415, mockEnheter._0402] },
     ],
+    personopplysninger: [],
+    personvernBekreftet: false,
   },
   {
     id: "6374b285-989d-4f78-a59e-29481b64ba92",
@@ -110,10 +115,10 @@ export const mockAvtaler: Avtale[] = [
     avtalenummer: "2020#4929",
     url: "https://www.websak.no",
     arrangor: {
-      ...mockArrangorer.fretex,
+      ...mockArrangorer.data[0],
       slettet: false,
       kontaktpersoner: [],
-      underenheter: mockArrangorer.fretex.underenheter!.map((v) => ({
+      underenheter: mockArrangorer.data[0].underenheter!.map((v) => ({
         id: v.id,
         organisasjonsnummer: v.organisasjonsnummer,
         navn: v.navn,
@@ -131,5 +136,51 @@ export const mockAvtaler: Avtale[] = [
       { region: mockEnheter._0400, kontorer: [mockEnheter._0415, mockEnheter._0402] },
       { region: mockEnheter._0300, kontorer: [mockEnheter._0313, mockEnheter._0318] },
     ],
+    personopplysninger: [],
+    personvernBekreftet: false,
   },
 ];
+
+// Bruker denne for å teste med flere tiltaksgjennomføringer lokalt, men setter den til 0 sånn
+// at testene går gjennom.
+const x = 0;
+for (let i = 0; i < x; i++) {
+  mockAvtaler.push({
+    id: "6374b285-989d-4f78-a59e-29481b64ba92",
+    opphav: Opphav.ARENA,
+    administratorer: [
+      {
+        navIdent: "B123456",
+        navn: "Bertil Bengtson",
+      },
+    ],
+    tiltakstype: mockTiltakstyper.INDOPPFAG,
+    navn: "Avtale hos Åna Fengsel",
+    avtalenummer: "2020#4929",
+    url: "https://www.websak.no",
+    arrangor: {
+      ...mockArrangorer.data[0],
+      slettet: false,
+      kontaktpersoner: [],
+      underenheter: mockArrangorer.data[0].underenheter!.map((v) => ({
+        id: v.id,
+        organisasjonsnummer: v.organisasjonsnummer,
+        navn: v.navn,
+        slettet: false,
+        kontaktpersoner: [],
+      })),
+    },
+    startDato: "2020-07-01",
+    sluttDato: "2024-06-30",
+    avtaletype: Avtaletype.RAMMEAVTALE,
+    avtalestatus: Avtalestatus.AKTIV,
+    arenaAnsvarligEnhet: mockEnheter._0313,
+    prisbetingelser: "Maskert prisbetingelser",
+    kontorstruktur: [
+      { region: mockEnheter._0400, kontorer: [mockEnheter._0415, mockEnheter._0402] },
+      { region: mockEnheter._0300, kontorer: [mockEnheter._0313, mockEnheter._0318] },
+    ],
+    personopplysninger: [],
+    personvernBekreftet: false,
+  });
+}

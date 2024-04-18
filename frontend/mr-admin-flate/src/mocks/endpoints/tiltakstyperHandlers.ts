@@ -44,7 +44,6 @@ export const tiltakstypeHandlers = [
 
       HttpResponse.json({
         pagination: {
-          currentPage: 1,
           pageSize: 50,
           totalCount: avtaler.length,
         },

@@ -12,10 +12,8 @@ import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.domain.dto.ArrangorKontaktperson
 import no.nav.mulighetsrommet.api.domain.dto.ArrangorTil
 import no.nav.mulighetsrommet.api.repositories.ArrangorRepository
-import no.nav.mulighetsrommet.api.routes.v1.responses.BadRequest
-import no.nav.mulighetsrommet.api.routes.v1.responses.StatusResponse
-import no.nav.mulighetsrommet.api.routes.v1.responses.ValidationError
-import no.nav.mulighetsrommet.api.routes.v1.responses.respondWithStatusResponse
+import no.nav.mulighetsrommet.api.routes.v1.parameters.getPaginationParams
+import no.nav.mulighetsrommet.api.routes.v1.responses.*
 import no.nav.mulighetsrommet.api.services.ArrangorService
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import org.koin.ktor.ext.inject
@@ -46,13 +44,21 @@ fun Route.arrangorRoutes() {
 
         get {
             val filter = getArrangorFilter()
-            call.respond(arrangorRepository.getAll(til = filter.til))
+            val pagination = getPaginationParams()
+            val (totalCount, items) = arrangorRepository.getAll(til = filter.til, sok = filter.sok, sortering = filter.sortering, pagination = pagination)
+            call.respond(PaginatedResponse.of(pagination, totalCount, items))
         }
 
         get("{id}") {
             val id: UUID by call.parameters
 
             call.respond(arrangorRepository.getById(id))
+        }
+
+        get("hovedenhet/{id}") {
+            val id: UUID by call.parameters
+
+            call.respond(arrangorRepository.getHovedenhetBy(id))
         }
 
         get("{id}/kontaktpersoner") {
@@ -72,6 +78,12 @@ fun Route.arrangorRoutes() {
             call.respondWithStatusResponse(result)
         }
 
+        get("kontaktperson/{id}") {
+            val id: UUID by call.parameters
+
+            call.respondWithStatusResponse(arrangorService.hentKoblingerForKontaktperson(id))
+        }
+
         delete("kontaktperson/{id}") {
             val id: UUID by call.parameters
 
@@ -82,12 +94,18 @@ fun Route.arrangorRoutes() {
 
 data class ArrangorFilter(
     val til: ArrangorTil? = null,
+    val sok: String? = null,
+    val sortering: String? = null,
 )
 
 fun <T : Any> PipelineContext<T, ApplicationCall>.getArrangorFilter(): ArrangorFilter {
     val til = call.request.queryParameters["til"]
+    val sok = call.request.queryParameters["sok"]
+    val sortering = call.request.queryParameters["sortering"]
     return ArrangorFilter(
         til = til?.let { ArrangorTil.valueOf(it) },
+        sok = sok,
+        sortering = sortering,
     )
 }
 
@@ -99,6 +117,7 @@ data class ArrangorKontaktpersonRequest(
     val telefon: String?,
     val beskrivelse: String?,
     val epost: String,
+    val ansvarligFor: List<ArrangorKontaktperson.AnsvarligFor>,
 ) {
     fun toDto(arrangorId: UUID): StatusResponse<ArrangorKontaktperson> {
         val navn = navn.trim()
@@ -110,6 +129,9 @@ data class ArrangorKontaktpersonRequest(
             }
             if (epost.isEmpty()) {
                 add(ValidationError.of(ArrangorKontaktperson::epost, "E-post er påkrevd"))
+            }
+            if (ansvarligFor.isEmpty()) {
+                add(ValidationError.of(ArrangorKontaktperson::ansvarligFor, "Du må velge minst ett ansvarsområde"))
             }
         }
 
@@ -125,6 +147,7 @@ data class ArrangorKontaktpersonRequest(
                 telefon = telefon?.trim()?.ifEmpty { null },
                 epost = epost,
                 beskrivelse = beskrivelse?.trim()?.ifEmpty { null },
+                ansvarligFor = ansvarligFor,
             ),
         )
     }
