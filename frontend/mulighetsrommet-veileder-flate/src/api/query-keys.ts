@@ -28,4 +28,8 @@ export const QueryKeys = {
   oppskrifter: (tiltakstypeId: string) => [tiltakstypeId, "oppskrifter"],
   harFullfortJoyride: (joyrideType: JoyrideType) => [joyrideType, "joyride"],
   overordnetEnhet: (enhetsnummer: string) => ["overordnetEnhet", enhetsnummer],
+  behandlingAvPersonopplysninger: (avtaleId?: string) => [
+    "behandlingAvPersonopplysninger",
+    avtaleId,
+  ],
 };

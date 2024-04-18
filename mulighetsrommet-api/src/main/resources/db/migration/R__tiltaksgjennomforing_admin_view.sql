@@ -92,7 +92,8 @@ select gjennomforing.id,
            when gjennomforing.slutt_dato is not null and now() >= gjennomforing.slutt_dato then 'AVSLUTTET'
            when now() >= gjennomforing.start_dato then 'GJENNOMFORES'
            else 'PLANLAGT'
-       end as status
+       end as status,
+    a.personvern_bekreftet
 from tiltaksgjennomforing gjennomforing
          inner join tiltakstype on gjennomforing.tiltakstype_id = tiltakstype.id
          left join tiltaksgjennomforing_administrator tg_a on tg_a.tiltaksgjennomforing_id = gjennomforing.id
@@ -113,4 +114,5 @@ group by gjennomforing.id,
          tiltakstype.id,
          arrangor.id,
          nav_region.enhetsnummer,
-         arena_nav_enhet.enhetsnummer;
+         arena_nav_enhet.enhetsnummer,
+         a.personvern_bekreftet;

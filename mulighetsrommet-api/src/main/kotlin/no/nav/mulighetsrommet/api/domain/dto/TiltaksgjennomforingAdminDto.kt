@@ -52,6 +52,7 @@ data class TiltaksgjennomforingAdminDto(
     val publisertForAlle: Boolean,
     val deltidsprosent: Double,
     val estimertVentetid: EstimertVentetid?,
+    val personvernBekreftet: Boolean,
 ) {
     fun isAktiv(): Boolean = status in listOf(
         TiltaksgjennomforingStatus.PLANLAGT,
