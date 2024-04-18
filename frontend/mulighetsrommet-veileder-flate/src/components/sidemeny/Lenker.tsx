@@ -1,6 +1,7 @@
 import { ExternalLinkIcon } from "@navikt/aksel-icons";
-import { Box, Heading, Link, List } from "@navikt/ds-react";
+import { GuidePanel, Heading, Link, List } from "@navikt/ds-react";
 import { Lenke } from "mulighetsrommet-api-client";
+import { DokumentIkon } from "../../ikoner/DokumentIkon";
 
 interface Props {
   lenker?: Lenke[];
@@ -10,7 +11,7 @@ export function LenkeListe({ lenker }: Props) {
   if (!lenker || lenker.length === 0) return null;
 
   return (
-    <Box background="bg-default" borderColor="border-subtle" borderWidth="1" padding="5">
+    <GuidePanel poster illustration={<DokumentIkon />}>
       <Heading level="4" size="small">
         Lenker
       </Heading>
@@ -27,6 +28,6 @@ export function LenkeListe({ lenker }: Props) {
           </List.Item>
         ))}
       </List>
-    </Box>
+    </GuidePanel>
   );
 }
