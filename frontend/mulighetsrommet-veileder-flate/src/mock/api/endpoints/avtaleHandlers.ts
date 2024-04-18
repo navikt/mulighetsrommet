@@ -1,10 +1,10 @@
 import { http, HttpResponse } from "msw";
-import { BehandlingAvPersonopplysninger, Personopplysning } from "mulighetsrommet-api-client";
+import { Personopplysning, PersonopplysningerPerFrekvens } from "mulighetsrommet-api-client";
 
 export const avtaleHandlers = [
   http.get("*/api/v1/internal/avtaler/:id/behandle-personopplysninger", async () => {
-    return HttpResponse.json<BehandlingAvPersonopplysninger>({
-      alltid: [
+    return HttpResponse.json<PersonopplysningerPerFrekvens>({
+      ALLTID: [
         {
           personopplysning: Personopplysning.NAVN,
           beskrivelse: "Navn",
@@ -71,7 +71,7 @@ export const avtaleHandlers = [
           beskrivelse: "Opplysninger om språkkunnskap",
         },
       ],
-      ofte: [
+      OFTE: [
         {
           personopplysning: Personopplysning.IP_ADRESSE,
           beskrivelse: "IP-adresse",
@@ -86,7 +86,7 @@ export const avtaleHandlers = [
           beskrivelse: "Helseopplysninger",
         },
       ],
-      sjelden: [
+      SJELDEN: [
         {
           personopplysning: Personopplysning.RELIGION,
           beskrivelse: "Religion",

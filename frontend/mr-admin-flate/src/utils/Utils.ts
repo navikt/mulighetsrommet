@@ -1,4 +1,4 @@
-import { Avtale, Avtaletype, EstimertVentetid, Personopplysning } from "mulighetsrommet-api-client";
+import { Avtale, Avtaletype, EstimertVentetid } from "mulighetsrommet-api-client";
 import { AvtaleFilter } from "@/api/atoms";
 
 export function capitalize(text?: string): string {
@@ -180,52 +180,5 @@ export function formatertVentetid(verdi: number, enhet: EstimertVentetid.enhet):
       return `${verdi} ${verdi === 1 ? "måned" : "måneder"}`;
     default:
       return "Ukjent enhet for ventetid";
-  }
-}
-
-export function personopplysningToTekst(personopplysning: Personopplysning): string {
-  switch (personopplysning) {
-    case Personopplysning.NAVN:
-      return "Navn";
-    case Personopplysning.KJONN:
-      return "Kjønn";
-    case Personopplysning.ADRESSE:
-      return "Adresse";
-    case Personopplysning.TELEFONNUMMER:
-      return "Telefonnummer";
-    case Personopplysning.FOLKEREGISTER_IDENTIFIKATOR:
-      return "Folkeregisteridentifikator";
-    case Personopplysning.FODSELSDATO:
-      return "Fødselsdato";
-    case Personopplysning.BEHOV_FOR_BISTAND_FRA_NAV:
-      return "Behov for bistand fra NAV";
-    case Personopplysning.YTELSER_FRA_NAV:
-      return "Ytelser fra NAV";
-    case Personopplysning.BILDE:
-      return "Bilde";
-    case Personopplysning.EPOST:
-      return "E-postadresse";
-    case Personopplysning.BRUKERNAVN:
-      return "Brukernavn";
-    case Personopplysning.ARBEIDSERFARING_OG_VERV:
-      return "Opplysninger knyttet til arbeidserfaring og verv som normalt fremkommer av en CV, herunder arbeidsgiver og hvor lenge man har jobbet";
-    case Personopplysning.SERTIFIKATER_OG_KURS:
-      return "Sertifikater og kurs, eks. Førerkort, vekterkurs";
-    case Personopplysning.IP_ADRESSE:
-      return "IP-adresse";
-    case Personopplysning.UTDANNING_OG_FAGBREV:
-      return "Utdanning, herunder fagbrev, høyere utdanning, grunnskoleopplæring osv.";
-    case Personopplysning.PERSONLIGE_EGENSKAPER_OG_INTERESSER:
-      return "Opplysninger om personlige egenskaper og interesser";
-    case Personopplysning.SPRAKKUNNSKAP:
-      return "Opplysninger om språkkunnskap";
-    case Personopplysning.ADFERD:
-      return "Opplysninger om atferd som kan ha betydning for tiltaksgjennomføring og jobbmuligheter (eks. truende adferd, vanskelig å samarbeide med osv.)";
-    case Personopplysning.SOSIALE_FORHOLD:
-      return "Sosiale eller personlige forhold som kan ha betydning for tiltaksgjennomføring og jobbmuligheter (eks. Aleneforsørger og kan derfor ikke jobbe kveldstid, eller økonomiske forhold som går ut over tiltaksgjennomføringen)";
-    case Personopplysning.HELSEOPPLYSNINGER:
-      return "Helseopplysninger";
-    case Personopplysning.RELIGION:
-      return "Religion";
   }
 }

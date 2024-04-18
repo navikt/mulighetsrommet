@@ -239,8 +239,8 @@ class TiltakstypeRepositoryTest : FunSpec({
         ).asExecute.let { database.db.run(it) }
 
         tiltakstyper.get(TiltakstypeFixtures.Oppfolging.id) should {
-            it!!.personopplysninger[PersonopplysningFrekvens.ALLTID] shouldContainExactlyInAnyOrder listOf(Personopplysning.NAVN, Personopplysning.KJONN)
-            it.personopplysninger[PersonopplysningFrekvens.OFTE] shouldContainExactlyInAnyOrder listOf(Personopplysning.ADFERD)
+            it!!.personopplysninger[PersonopplysningFrekvens.ALLTID]!!.map { it.personopplysning } shouldContainExactlyInAnyOrder listOf(Personopplysning.NAVN, Personopplysning.KJONN)
+            it.personopplysninger[PersonopplysningFrekvens.OFTE]!!.map { it.personopplysning } shouldContainExactlyInAnyOrder listOf(Personopplysning.ADFERD)
         }
     }
 })
