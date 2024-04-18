@@ -32,7 +32,7 @@ enum class Personopplysning {
             KJONN -> "Kjønn"
             ADRESSE -> "Adresse"
             TELEFONNUMMER -> "Telefonnummer"
-            FOLKEREGISTER_IDENTIFIKATOR -> "Folkeregisteridentifikator"
+            FOLKEREGISTER_IDENTIFIKATOR -> "Folkeregisteridentifikator (personnummer og D-nummer)"
             FODSELSDATO -> "Fødselsdato"
             BEHOV_FOR_BISTAND_FRA_NAV -> "Behov for bistand fra NAV"
             YTELSER_FRA_NAV -> "Ytelser fra NAV"
