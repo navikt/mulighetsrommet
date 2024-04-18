@@ -151,10 +151,10 @@ function LeseRad({ kontaktperson, setRedigerKontaktperson, setSlettKontaktperson
       </Table.DataCell>
       <Table.DataCell>{kontaktperson.beskrivelse}</Table.DataCell>
       <Table.DataCell>
-        <HStack gap="5">
+        <HStack gap="5" justify={"end"}>
           <Button
             onClick={() => setRedigerKontaktperson(kontaktperson)}
-            variant="secondary"
+            variant="primary"
             size="small"
           >
             Rediger
@@ -321,11 +321,15 @@ function RedigerbarRad({ kontaktperson, setRedigerKontaktperson, arrangor }: Red
         />
       </Table.DataCell>
       <Table.DataCell>
-        <HStack gap="5">
+        <HStack gap="5" justify={"end"}>
           <Button onClick={lagre} variant="primary" size="small">
             Lagre
           </Button>
-          <Button onClick={() => setRedigerKontaktperson(undefined)} variant="danger" size="small">
+          <Button
+            onClick={() => setRedigerKontaktperson(undefined)}
+            variant="secondary-neutral"
+            size="small"
+          >
             Avbryt
           </Button>
         </HStack>
