@@ -16,6 +16,7 @@ import {
 import { useState } from "react";
 import { useBehandlingAvPersonopplysningerFraAvtale } from "../../api/queries/useBehandlingAvPersonopplysningerFraAvtale";
 import { PersonvernIkon } from "../../ikoner/PersonvernIkon";
+import styles from "./PersonvernContainer.module.scss";
 
 interface Props {
   tiltaksgjennomforing: VeilederflateTiltaksgjennomforing;
@@ -52,13 +53,12 @@ export function PersonvernContainer({ tiltaksgjennomforing }: Props) {
       </GuidePanel>
       <Modal
         closeOnBackdropClick
-        width={"50%"}
         aria-label="Personvern og databehandling"
         open={modalOpen}
         onClose={() => setModalOpen(false)}
       >
         <ModalHeader>
-          <VStack justify={"center"} align={"center"} gap="5">
+          <VStack gap="5">
             <PersonvernIkon />
             <Heading level="2" size="medium">
               {tiltaksgjennomforing.navn}
@@ -69,33 +69,31 @@ export function PersonvernContainer({ tiltaksgjennomforing }: Props) {
           <Heading level="3" size="small">
             {tiltaksgjennomforing.tiltakstype.navn}
           </Heading>
-          <BodyLong spacing>
+          <BodyLong spacing className={styles.lesebredde}>
             NAV har avtalt med tiltaksarrangøren at følgende opplysninger kan behandles om deltakere
             i tiltaket. Dersom du mener det er behov for å utveksle andre typer opplysninger om
             deltaker, må du ta kontakt med avtaleeier i tiltaksenheten/fylket.
           </BodyLong>
-          <BodyLong spacing>
+          <BodyLong spacing className={styles.lesebredde}>
             Det skal ikke deles flere personopplysninger enn det som står på denne listen. Husk også
             at selv om personopplysningene står på listen, må du gjøre en konkret vurdering i hvert
             enkelt tilfelle om det er nødvendig å dele opplysningene. Personopplysninger skal kun
             deles med tiltaksarrangør hvis det er nødvendig.
           </BodyLong>
-          <ListeOverPersonopplysninger
-            title="Opplysninger om bruker som alltid kan/må behandles"
-            personopplysninger={data.alltid ?? []}
-          />
-          <ListeOverPersonopplysninger
-            title="Opplysninger om bruker som ofte er nødvendig og relevant å behandle"
-            personopplysninger={data.ofte ?? []}
-          />
-          <ListeOverPersonopplysninger
-            title="Opplysninger om bruker som sjelden eller i helt spesielle tilfeller er nødvendig og relevant å behandle"
-            personopplysninger={data.sjelden ?? []}
-          />
-          <ListeOverPersonopplysninger
-            title="Opplysninger om bruker som ikke er nødvendig og relevant å behandle"
-            personopplysninger={data.ikkeRelevant ?? []}
-          />
+          <VStack gap="5">
+            <ListeOverPersonopplysninger
+              title="Opplysninger om bruker som alltid kan/må behandles"
+              personopplysninger={data.alltid ?? []}
+            />
+            <ListeOverPersonopplysninger
+              title="Opplysninger om bruker som ofte er nødvendig og relevant å behandle"
+              personopplysninger={data.ofte ?? []}
+            />
+            <ListeOverPersonopplysninger
+              title="Opplysninger om bruker som sjelden eller i helt spesielle tilfeller er nødvendig og relevant å behandle"
+              personopplysninger={data.sjelden ?? []}
+            />
+          </VStack>
         </ModalBody>
       </Modal>
     </>
@@ -118,7 +116,7 @@ function ListeOverPersonopplysninger({
   return (
     <List title={title} size="small">
       {personopplysninger.map((personopplysning) => (
-        <List.Item key={personopplysning.personopplysning}>
+        <List.Item key={personopplysning.personopplysning} className={styles.lesebredde}>
           {personopplysning.beskrivelse}
         </List.Item>
       ))}

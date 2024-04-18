@@ -628,31 +628,6 @@ class AvtaleRepository(private val db: Database) {
             .asList
             .let { db.run(it) }
 
-        @Language("PostgreSQL")
-        val ikkeRelevanteOpplysningerQuery = """
-            select personopplysning, frekvens
-            from tiltakstype_personopplysning
-            where not (personopplysning = any (?))
-              and tiltakskode in
-                  (select tiltakskode
-                   from tiltakstype tt
-                            join avtale a on tt.tiltakskode = tt.tiltakskode
-                   where a.id = ?::uuid
-                     and a.tiltakstype_id = tt.id)
-        """.trimIndent()
-
-        val ikkeRelevanteOpplysninger =
-            queryOf(
-                ikkeRelevanteOpplysningerQuery,
-                db.createArrayOf("personopplysning", valgtePersonopplysninger.map { it.personopplysning.name }),
-                id,
-            )
-                .map {
-                    it.toPersonopplysningMedFrekvens()
-                }
-                .asList
-                .let { db.run(it) }
-
         val gruppert = valgtePersonopplysninger.groupBy { it.frekvens }
 
         return PersonopplysningerMedBeskrivelse(
@@ -662,7 +637,6 @@ class AvtaleRepository(private val db: Database) {
                 ?: emptyList(),
             sjelden = gruppert[PersonopplysningFrekvens.SJELDEN]?.map { it.toPersonopplysningMedBeskrivelse() }
                 ?: emptyList(),
-            ikkeRelevant = ikkeRelevanteOpplysninger.map { it.toPersonopplysningMedBeskrivelse() },
         )
     }
 

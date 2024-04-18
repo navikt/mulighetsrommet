@@ -3791,10 +3791,6 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/PersonopplysningMedBeskrivelse"
-        ikkeRelevant:
-          type: array
-          items:
-            $ref: "#/components/schemas/PersonopplysningMedBeskrivelse"
 
     PersonopplysningMedBeskrivelse:
       type: object

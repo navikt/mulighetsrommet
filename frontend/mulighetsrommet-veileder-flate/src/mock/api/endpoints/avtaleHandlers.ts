@@ -92,13 +92,6 @@ export const avtaleHandlers = [
           beskrivelse: "Religion",
         },
       ],
-      ikkeRelevant: [
-        {
-          personopplysning: Personopplysning.ADFERD,
-          beskrivelse:
-            "Opplysninger om atferd som kan ha betydning for tiltaksgjennomføring og jobbmuligheter (eks. truende adferd, vanskelig å samarbeide med osv.)",
-        },
-      ],
     });
   }),
 ];

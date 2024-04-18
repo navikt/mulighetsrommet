@@ -57,5 +57,4 @@ data class PersonopplysningerMedBeskrivelse(
     val alltid: List<PersonopplysningMedBeskrivelse>,
     val ofte: List<PersonopplysningMedBeskrivelse>,
     val sjelden: List<PersonopplysningMedBeskrivelse>,
-    val ikkeRelevant: List<PersonopplysningMedBeskrivelse>,
 )
