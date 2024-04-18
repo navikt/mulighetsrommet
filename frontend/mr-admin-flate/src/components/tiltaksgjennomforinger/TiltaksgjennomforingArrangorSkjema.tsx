@@ -1,6 +1,10 @@
 import { useArrangorKontaktpersoner } from "@/api/arrangor/useArrangorKontaktpersoner";
 import { Button, TextField } from "@navikt/ds-react";
-import { ArrangorKontaktperson, Avtale } from "mulighetsrommet-api-client";
+import {
+  ArrangorKontaktperson,
+  ArrangorKontaktpersonAnsvar,
+  Avtale,
+} from "mulighetsrommet-api-client";
 import { ControlledSokeSelect } from "mulighetsrommet-frontend-common";
 import { useRef } from "react";
 import { useFormContext } from "react-hook-form";
@@ -99,8 +103,12 @@ function getArrangorOptions(avtale: Avtale) {
 }
 
 function getKontaktpersonOptions(kontaktpersoner: ArrangorKontaktperson[]) {
-  return kontaktpersoner.map((person) => ({
-    value: person.id,
-    label: person.navn,
-  }));
+  return kontaktpersoner
+    .filter((person) =>
+      person.ansvarligFor.includes(ArrangorKontaktpersonAnsvar.TILTAKSGJENNOMFORING),
+    )
+    .map((person) => ({
+      value: person.id,
+      label: person.navn,
+    }));
 }
