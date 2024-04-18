@@ -24,38 +24,54 @@ export function AvtalePersonvern() {
   if (avtale.personopplysninger.length === 0) {
     return (
       <Alert style={{ margin: "1rem" }} variant="info">
-        Personopplysninger som kan behandles er ikke bekreftet
+        Hvilke personopplysninger som kan behandles er ikke bekreftet
       </Alert>
     );
   }
 
+  const alltid =
+    tiltakstype?.personopplysninger?.ALLTID.filter((p) => avtale.personopplysninger.includes(p)) ??
+    [];
+  const ofte =
+    tiltakstype?.personopplysninger?.OFTE.filter((p) => avtale.personopplysninger.includes(p)) ??
+    [];
+  const sjelden =
+    tiltakstype?.personopplysninger?.SJELDEN.filter((p) => avtale.personopplysninger.includes(p)) ??
+    [];
+
   return (
     <VStack gap="4" className={styles.info_container}>
       <HGrid columns={2}>
-        <List size="small" as="ul" title="Opplysninger om brukeren som alltid kan/må behandles">
-          {tiltakstype?.personopplysninger?.ALLTID.filter((p) =>
-            avtale.personopplysninger.includes(p),
-          ).map((p) => <List.Item key={p}>{personopplysningToTekst(p)}</List.Item>)}
-        </List>
+        {alltid.length > 0 && (
+          <List size="small" as="ul" title="Opplysninger om brukeren som alltid kan/må behandles">
+            {alltid.map((p) => (
+              <List.Item key={p}>{personopplysningToTekst(p)}</List.Item>
+            ))}
+          </List>
+        )}
         <VStack justify="start">
-          <List
-            size="small"
-            as="ul"
-            title="Opplysninger om brukeren som ofte er nødvendig og relevant å behandle"
-          >
-            {tiltakstype?.personopplysninger?.OFTE.filter((p) =>
-              avtale.personopplysninger.includes(p),
-            ).map((p) => <List.Item key={p}>{personopplysningToTekst(p)}</List.Item>)}
-          </List>
-          <List
-            size="small"
-            as="ul"
-            title="Opplysninger om brukeren som sjelden eller i helt spesielle tilfeller er nødvendig og relevant å behandle"
-          >
-            {tiltakstype?.personopplysninger?.SJELDEN.filter((p) =>
-              avtale.personopplysninger.includes(p),
-            ).map((p) => <List.Item key={p}>{personopplysningToTekst(p)}</List.Item>)}
-          </List>
+          {ofte.length > 0 && (
+            <List
+              size="small"
+              as="ul"
+              title="Opplysninger om brukeren som ofte er nødvendig og relevant å behandle"
+            >
+              {ofte.map((p) => (
+                <List.Item key={p}>{personopplysningToTekst(p)}</List.Item>
+              ))}
+            </List>
+          )}
+          {sjelden.length > 0 && (
+            <List
+              size="small"
+              as="ul"
+              title="Opplysninger om brukeren som sjelden eller i helt spesielle tilfeller er nødvendig og relevant å behandle"
+            >
+              {sjelden.map((p) => (
+                <List.Item key={p}>{personopplysningToTekst(p)}</List.Item>
+              ))}
+            </List>
+          )}
         </VStack>
       </HGrid>
     </VStack>
