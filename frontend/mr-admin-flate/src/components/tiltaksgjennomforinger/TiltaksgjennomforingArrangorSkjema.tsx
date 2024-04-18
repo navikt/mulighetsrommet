@@ -25,6 +25,7 @@ export function TiltaksgjennomforingArrangorSkjema({ readOnly, avtale }: Props) 
 
   const {
     register,
+    watch,
     formState: { errors },
     setValue,
   } = useFormContext<InferredTiltaksgjennomforingSchema>();
@@ -86,6 +87,19 @@ export function TiltaksgjennomforingArrangorSkjema({ readOnly, avtale }: Props) 
       <ArrangorKontaktpersonerModal
         arrangorId={avtale.arrangor.id}
         modalRef={arrangorKontaktpersonerModalRef}
+        onOpprettSuccess={(kontaktperson) => {
+          if (
+            !kontaktperson.ansvarligFor.includes(ArrangorKontaktpersonAnsvar.TILTAKSGJENNOMFORING)
+          ) {
+            return;
+          }
+
+          const kontaktpersoner = watch("arrangorKontaktpersoner") ?? [];
+          setValue("arrangorKontaktpersoner", [
+            ...kontaktpersoner.filter((k) => k !== kontaktperson.id),
+            kontaktperson.id,
+          ]);
+        }}
       />
     </>
   );

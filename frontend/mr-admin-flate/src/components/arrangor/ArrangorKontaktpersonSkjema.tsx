@@ -28,10 +28,11 @@ interface VirksomhetKontaktpersonerProps {
   arrangorId: string;
   person?: ArrangorKontaktperson;
   onSubmit: () => void;
+  onOpprettSuccess: (kontaktperson: ArrangorKontaktperson) => void;
 }
 
 export const ArrangorKontaktpersonSkjema = (props: VirksomhetKontaktpersonerProps) => {
-  const { arrangorId, person, onSubmit } = props;
+  const { arrangorId, person, onSubmit, onOpprettSuccess } = props;
   const putMutation = useUpsertArrangorKontaktperson(arrangorId);
   const deleteMutation = useDeleteArrangorKontaktperson();
 
@@ -84,14 +85,21 @@ export const ArrangorKontaktpersonSkjema = (props: VirksomhetKontaktpersonerProp
       return;
     }
 
-    putMutation.mutate({
-      id: person?.id ?? uuidv4(),
-      navn: state.navn,
-      telefon: state.telefon || null,
-      beskrivelse: state.beskrivelse || null,
-      epost: state.epost,
-      ansvarligFor: state.ansvarligFor,
-    });
+    putMutation.mutate(
+      {
+        id: person?.id ?? uuidv4(),
+        navn: state.navn,
+        telefon: state.telefon || null,
+        beskrivelse: state.beskrivelse || null,
+        epost: state.epost,
+        ansvarligFor: state.ansvarligFor,
+      },
+      {
+        onSuccess: (kontaktperson) => {
+          onOpprettSuccess(kontaktperson);
+        },
+      },
+    );
   }
 
   return (

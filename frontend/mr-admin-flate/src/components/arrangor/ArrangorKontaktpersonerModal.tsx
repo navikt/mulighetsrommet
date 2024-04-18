@@ -1,18 +1,22 @@
-import { BodyShort, Button, Label, Modal } from "@navikt/ds-react";
-import { RefObject, useState } from "react";
 import { useArrangor } from "@/api/arrangor/useArrangor";
 import { useArrangorKontaktpersoner } from "@/api/arrangor/useArrangorKontaktpersoner";
+import { BodyShort, Button, HStack, Label, Modal } from "@navikt/ds-react";
+import { ArrangorKontaktperson } from "mulighetsrommet-api-client";
+import { FilterTag } from "mulighetsrommet-frontend-common";
+import { RefObject, useState } from "react";
 import { Laster } from "../laster/Laster";
 import { ArrangorKontaktpersonSkjema } from "./ArrangorKontaktpersonSkjema";
+import { navnForAnsvar } from "./ArrangorKontaktpersonUtils";
 import styles from "./ArrangorKontaktpersonerModal.module.scss";
 
 interface Props {
   arrangorId: string;
   modalRef: RefObject<HTMLDialogElement>;
+  onOpprettSuccess: (kontaktperson: ArrangorKontaktperson) => void;
 }
 
 export function ArrangorKontaktpersonerModal(props: Props) {
-  const { arrangorId, modalRef } = props;
+  const { arrangorId, modalRef, onOpprettSuccess } = props;
   const { data: arrangor, isLoading: isLoadingArrangor } = useArrangor(arrangorId);
   const { data: kontaktpersoner, isLoading: isLoadingKontaktpersoner } =
     useArrangorKontaktpersoner(arrangorId);
@@ -63,6 +67,7 @@ export function ArrangorKontaktpersonerModal(props: Props) {
                     arrangorId={arrangorId}
                     person={person}
                     onSubmit={reset}
+                    onOpprettSuccess={() => {}}
                   />
                 ) : (
                   <div>
@@ -88,6 +93,16 @@ export function ArrangorKontaktpersonerModal(props: Props) {
                         <BodyShort size="small">{person.beskrivelse}</BodyShort>
                       </>
                     )}
+                    {person.ansvarligFor && (
+                      <>
+                        <Label size="small">Ansvarlig for</Label>
+                        <HStack gap="5">
+                          {person.ansvarligFor.map((ansvar) => (
+                            <FilterTag label={navnForAnsvar(ansvar)} key={ansvar} />
+                          ))}
+                        </HStack>
+                      </>
+                    )}
                   </div>
                 )}
                 <div className={styles.button_container}>
@@ -108,7 +123,11 @@ export function ArrangorKontaktpersonerModal(props: Props) {
             ))}
           {opprett ? (
             <div className={styles.list_item_container}>
-              <ArrangorKontaktpersonSkjema arrangorId={arrangorId} onSubmit={reset} />
+              <ArrangorKontaktpersonSkjema
+                arrangorId={arrangorId}
+                onSubmit={reset}
+                onOpprettSuccess={onOpprettSuccess}
+              />
             </div>
           ) : null}
         </div>

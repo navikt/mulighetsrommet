@@ -108,6 +108,17 @@ export function AvtaleArrangorSkjema({ readOnly }: Props) {
         <ArrangorKontaktpersonerModal
           arrangorId={arrangor.id}
           modalRef={arrangorKontaktpersonerModalRef}
+          onOpprettSuccess={(kontaktperson) => {
+            if (!kontaktperson.ansvarligFor.includes(ArrangorKontaktpersonAnsvar.AVTALE)) {
+              return;
+            }
+
+            const kontaktpersoner = watch("arrangorKontaktpersoner") ?? [];
+            setValue("arrangorKontaktpersoner", [
+              ...kontaktpersoner.filter((k) => k !== kontaktperson.id),
+              kontaktperson.id,
+            ]);
+          }}
         />
       )}
     </>
