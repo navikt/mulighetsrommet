@@ -9,6 +9,7 @@ import { FilterTag } from "./components/filter/filterTag/FilterTag";
 import { FilterTagsContainer } from "./components/filter/filterTag/FilterTagsContainer";
 import { FilterAccordionHeader } from "./components/filter/accordionHeader/FilterAccordionHeader";
 import { Drawer } from "./components/drawer/Drawer";
+import { TilbakemeldingLenke } from "./components/tilbakemelding/Tilbakemeldingslenke";
 
 export {
   useDebounce,
@@ -22,4 +23,5 @@ export {
   FilterTagsContainer,
   FilterAccordionHeader,
   Drawer,
+  TilbakemeldingLenke,
 };

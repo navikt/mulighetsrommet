@@ -138,6 +138,7 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
     id: "00097090-1ba8-47a4-a82f-6aaad488994e",
     avtaleId: "9a11a2ff-dd9c-42f7-b85f-b07522bb55f8",
     personvernBekreftet: true,
+    tiltaksnummer: "2024/123",
     navn: "Kurs i overlevelsesteknikk (Gruppe AMO)",
     stedForGjennomforing: "2050 JESSHEIM",
     apentForInnsok: true,
