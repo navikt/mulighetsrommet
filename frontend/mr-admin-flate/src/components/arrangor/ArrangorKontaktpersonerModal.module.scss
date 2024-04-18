@@ -5,12 +5,6 @@
   justify-content: space-between;
 }
 
-.telefonepost_container {
-  display: flex;
-  flex-direction: row;
-  gap: 1rem;
-}
-
 .telefonepost_input {
   margin: 8px 0;
   display: flex;
@@ -26,12 +20,6 @@
 .epost_input {
   align-items: start;
   flex: 2 1 auto;
-}
-
-.kontaktperson_info_container {
-  margin-top: 8px;
-  display: flex;
-  flex-direction: column;
 }
 
 .button_container {
@@ -68,4 +56,12 @@
   border: 1px solid var(--a-border-divider);
   background-color: var(--a-gray-100);
   border-radius: 0.25rem;
+}
+
+.list_unstyled {
+  list-style: none;
+  display: flex;
+  gap: 0.5rem;
+  padding: 0;
+  margin: 0;
 }

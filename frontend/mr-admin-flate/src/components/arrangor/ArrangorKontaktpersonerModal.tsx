@@ -1,8 +1,7 @@
 import { useArrangor } from "@/api/arrangor/useArrangor";
 import { useArrangorKontaktpersoner } from "@/api/arrangor/useArrangorKontaktpersoner";
-import { BodyShort, Button, HStack, Label, Modal } from "@navikt/ds-react";
+import { BodyShort, Button, HGrid, HStack, Label, Modal, Tag, VStack } from "@navikt/ds-react";
 import { ArrangorKontaktperson } from "mulighetsrommet-api-client";
-import { FilterTag } from "mulighetsrommet-frontend-common";
 import { RefObject, useState } from "react";
 import { Laster } from "../laster/Laster";
 import { ArrangorKontaktpersonSkjema } from "./ArrangorKontaktpersonSkjema";
@@ -70,42 +69,56 @@ export function ArrangorKontaktpersonerModal(props: Props) {
                     onOpprettSuccess={() => {}}
                   />
                 ) : (
-                  <div>
-                    <Label size="small">Navn</Label>
-                    <BodyShort size="small">{person.navn}</BodyShort>
-                    <div className={styles.telefonepost_container}>
-                      {person.telefon && (
-                        <div>
-                          <Label size="small">Telefon</Label>
-                          <BodyShort>
-                            <a href={`tel:${person.telefon}`}>{person.telefon}</a>
-                          </BodyShort>
-                        </div>
-                      )}
-                      <div>
-                        <Label size="small">Epost</Label>
-                        <BodyShort size="small">{person.epost}</BodyShort>
-                      </div>
+                  <VStack gap="2">
+                    <div>
+                      <Label size="small">Navn</Label>
+                      <BodyShort size="small">{person.navn}</BodyShort>
                     </div>
-                    {person.beskrivelse && (
-                      <>
-                        <Label size="small">Beskrivelse</Label>
-                        <BodyShort size="small">{person.beskrivelse}</BodyShort>
-                      </>
-                    )}
-                    {person.ansvarligFor && (
-                      <>
-                        <Label size="small">Ansvarlig for</Label>
-                        <HStack gap="5">
-                          {person.ansvarligFor.map((ansvar) => (
-                            <FilterTag label={navnForAnsvar(ansvar)} key={ansvar} />
-                          ))}
-                        </HStack>
-                      </>
-                    )}
-                  </div>
+                    <div>
+                      <HGrid columns={2}>
+                        {person.telefon && (
+                          <div>
+                            <Label size="small">Telefon</Label>
+                            <BodyShort>
+                              <a href={`tel:${person.telefon}`}>{person.telefon}</a>
+                            </BodyShort>
+                          </div>
+                        )}
+                        <div>
+                          <Label size="small">Epost</Label>
+                          <BodyShort size="small">{person.epost}</BodyShort>
+                        </div>
+                      </HGrid>
+                    </div>
+                    <div>
+                      <HGrid columns={2}>
+                        {person.ansvarligFor && (
+                          <div>
+                            <Label size="small">Ansvarlig for</Label>
+                            <HStack gap="5">
+                              <ul className={styles.list_unstyled}>
+                                {person.ansvarligFor.map((ansvar) => (
+                                  <li key={ansvar}>
+                                    <Tag variant="info" size="xsmall">
+                                      {navnForAnsvar(ansvar)}
+                                    </Tag>
+                                  </li>
+                                ))}
+                              </ul>
+                            </HStack>
+                          </div>
+                        )}
+                        {person.beskrivelse && (
+                          <div>
+                            <Label size="small">Beskrivelse</Label>
+                            <BodyShort size="small">{person.beskrivelse}</BodyShort>
+                          </div>
+                        )}
+                      </HGrid>
+                    </div>
+                  </VStack>
                 )}
-                <div className={styles.button_container}>
+                <VStack justify="start" align="start" className={styles.button_container}>
                   {redigerId !== person.id && (
                     <Button
                       size="small"
@@ -118,7 +131,7 @@ export function ArrangorKontaktpersonerModal(props: Props) {
                       Rediger
                     </Button>
                   )}
-                </div>
+                </VStack>
               </div>
             ))}
           {opprett ? (
