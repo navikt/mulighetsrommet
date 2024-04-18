@@ -3,7 +3,12 @@ import { useSyncArrangorFromBrreg } from "@/api/arrangor/useSyncArrangorFromBrre
 import { useBrregVirksomhetUnderenheter } from "@/api/virksomhet/useBrregVirksomhetUnderenheter";
 import { useSokBrregVirksomheter } from "@/api/virksomhet/useSokBrregVirksomheter";
 import { Alert, Button } from "@navikt/ds-react";
-import { Arrangor, ArrangorKontaktperson, BrregVirksomhet } from "mulighetsrommet-api-client";
+import {
+  Arrangor,
+  ArrangorKontaktperson,
+  ArrangorKontaktpersonAnsvar,
+  BrregVirksomhet,
+} from "mulighetsrommet-api-client";
 import { ControlledSokeSelect } from "mulighetsrommet-frontend-common/components/ControlledSokeSelect";
 import { SelectOption } from "mulighetsrommet-frontend-common/components/SokeSelect";
 import { useRef, useState } from "react";
@@ -138,8 +143,10 @@ function getArrangorUnderenhetOptions(underenheter: BrregVirksomhet[]): SelectOp
 }
 
 function getArrangorKontaktpersonOptions(kontaktpersoner: ArrangorKontaktperson[]) {
-  return kontaktpersoner.map((person) => ({
-    value: person.id,
-    label: person.navn,
-  }));
+  return kontaktpersoner
+    .filter((person) => person.ansvarligFor.includes(ArrangorKontaktpersonAnsvar.AVTALE))
+    .map((person) => ({
+      value: person.id,
+      label: person.navn,
+    }));
 }
