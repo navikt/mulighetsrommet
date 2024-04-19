@@ -867,21 +867,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         kontaktpersonId: UUID,
         gjennomforingId: UUID,
         tx: Session,
-    ): Either<StatusResponseError, Pair<String, String>> {
-        @Language("PostgreSQL")
-        val kontaktpersonNavnQuery = """
-            select navn from arrangor_kontaktperson where id = ?::uuid
-        """.trimIndent()
-
-        val optionalNavn = queryOf(kontaktpersonNavnQuery, kontaktpersonId)
-            .map { it.string("navn") }
-            .asSingle
-            .let { tx.run(it) }
-
-        val navn = requireNotNull(optionalNavn) {
-            "Klarte ikke hente ut navn for kontaktperson"
-        }
-
+    ): Either<StatusResponseError, String> {
         @Language("PostgreSQL")
         val query = """
             delete from tiltaksgjennomforing_arrangor_kontaktperson
@@ -892,6 +878,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             .asUpdate
             .let { tx.run(it) }
 
-        return Either.Right(navn to kontaktpersonId.toString())
+        return Either.Right(kontaktpersonId.toString())
     }
 }
