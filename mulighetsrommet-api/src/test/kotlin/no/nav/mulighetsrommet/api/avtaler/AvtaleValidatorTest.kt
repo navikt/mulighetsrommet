@@ -66,7 +66,7 @@ class AvtaleValidatorTest : FunSpec({
             TiltakstypeFixtures.VTA,
             TiltakstypeFixtures.Oppfolging,
             TiltakstypeFixtures.Jobbklubb,
-            TiltakstypeFixtures.GRUPPE_AMO,
+            TiltakstypeFixtures.GruppeAmo,
             TiltakstypeFixtures.Arbeidstrening,
             TiltakstypeFixtures.Avklaring,
         ),

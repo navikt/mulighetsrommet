@@ -56,7 +56,7 @@ object AvtaleFixtures {
         id = UUID.randomUUID(),
         navn = "Gruppe Amo",
         avtalenummer = "2024#8",
-        tiltakstypeId = TiltakstypeFixtures.GRUPPE_AMO.id,
+        tiltakstypeId = TiltakstypeFixtures.GruppeAmo.id,
         arrangorId = ArrangorFixtures.hovedenhet.id,
         arrangorUnderenheter = listOf(ArrangorFixtures.underenhet1.id),
         arrangorKontaktpersoner = emptyList(),

@@ -91,7 +91,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
             TiltakstypeFixtures.VTA,
             TiltakstypeFixtures.AFT,
             TiltakstypeFixtures.Jobbklubb,
-            TiltakstypeFixtures.GRUPPE_AMO,
+            TiltakstypeFixtures.GruppeAmo,
             TiltakstypeFixtures.Oppfolging,
         ),
         avtaler = listOf(

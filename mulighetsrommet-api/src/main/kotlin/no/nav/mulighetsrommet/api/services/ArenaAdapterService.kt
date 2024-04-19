@@ -220,7 +220,6 @@ class ArenaAdapterService(
                 sluttDato = current.sluttDato,
                 apentForInnsok = current.apentForInnsok,
                 antallPlasser = current.antallPlasser,
-                oppstart = current.oppstart,
                 deltidsprosent = current.deltidsprosent,
                 avslutningsstatus = current.status.toAvslutningsstatus(),
             )
@@ -256,9 +255,6 @@ class ArenaAdapterService(
             antallPlasser = current.antallPlasser,
             avtaleId = current.avtaleId,
             deltidsprosent = current.deltidsprosent,
-
-            // Oppstart kan endres utenfor Arena, dette feltet er derfor ikke med i duplikatsjekken
-            oppstart = arenaGjennomforing.oppstart,
         )
         return currentAsArenaGjennomforing == arenaGjennomforing
     }

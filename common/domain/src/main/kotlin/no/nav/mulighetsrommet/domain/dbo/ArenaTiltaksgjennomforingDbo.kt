@@ -25,6 +25,5 @@ data class ArenaTiltaksgjennomforingDbo(
     val antallPlasser: Int?,
     @Serializable(with = UUIDSerializer::class)
     val avtaleId: UUID?,
-    val oppstart: TiltaksgjennomforingOppstartstype,
     val deltidsprosent: Double,
 )

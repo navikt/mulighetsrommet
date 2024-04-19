@@ -207,7 +207,6 @@ class ArenaAdapterServiceTest : FunSpec({
             avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
             apentForInnsok = true,
             antallPlasser = null,
-            oppstart = TiltaksgjennomforingOppstartstype.FELLES,
             avtaleId = null,
             deltidsprosent = 100.0,
         )
@@ -338,7 +337,6 @@ class ArenaAdapterServiceTest : FunSpec({
                     apentForInnsok = gjennomforing.apentForInnsok,
                     antallPlasser = gjennomforing.antallPlasser,
                     avtaleId = gjennomforing.avtaleId,
-                    oppstart = gjennomforing.oppstart,
                     deltidsprosent = gjennomforing.deltidsprosent,
                 ),
             )
@@ -414,7 +412,6 @@ class ArenaAdapterServiceTest : FunSpec({
                 avslutningsstatus = Avslutningsstatus.AVSLUTTET,
                 apentForInnsok = false,
                 antallPlasser = 100,
-                oppstart = TiltaksgjennomforingOppstartstype.FELLES,
                 avtaleId = null,
                 deltidsprosent = 1.0,
             )
@@ -480,7 +477,6 @@ class ArenaAdapterServiceTest : FunSpec({
                 avslutningsstatus = Avslutningsstatus.AVLYST,
                 apentForInnsok = false,
                 antallPlasser = 100,
-                oppstart = TiltaksgjennomforingOppstartstype.FELLES,
                 avtaleId = null,
                 deltidsprosent = 1.0,
             )
@@ -827,7 +823,7 @@ private fun toTiltaksgjennomforingDto(dbo: ArenaTiltaksgjennomforingDbo, tiltaks
         startDato = startDato,
         sluttDato = sluttDato,
         status = TiltaksgjennomforingStatus.GJENNOMFORES,
-        oppstart = oppstart,
+        oppstart = TiltaksgjennomforingOppstartstype.LOPENDE,
         virksomhetsnummer = arrangorOrganisasjonsnummer,
     )
 }
