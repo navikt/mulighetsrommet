@@ -6,6 +6,8 @@ import { DelMedBruker } from "@/apps/modia/delMedBruker/DelMedBruker";
 import { TiltakLoader } from "@/components/TiltakLoader";
 import { usePreviewTiltaksgjennomforingById } from "@/api/queries/useTiltaksgjennomforingById";
 import { LenkeListe } from "../../../components/sidemeny/Lenker";
+import { InlineErrorBoundary } from "../../../ErrorBoundary";
+import { PersonvernContainer } from "../../../components/personvern/PersonvernContainer";
 
 export function PreviewArbeidsmarkedstiltakDetaljer() {
   const { data, isPending, isError } = usePreviewTiltaksgjennomforingById();
@@ -57,6 +59,11 @@ export function PreviewArbeidsmarkedstiltakDetaljer() {
                 console.log("Del med bruker", dialogId, gjennomforing);
               }}
             />
+            {data && data?.personvernBekreftet ? (
+              <InlineErrorBoundary>
+                <PersonvernContainer tiltaksgjennomforing={data} />
+              </InlineErrorBoundary>
+            ) : null}
             <LenkeListe lenker={data?.faneinnhold?.lenker} />
           </>
         }
