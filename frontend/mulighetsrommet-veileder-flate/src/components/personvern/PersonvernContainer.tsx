@@ -43,7 +43,7 @@ export function PersonvernContainer({ tiltaksgjennomforing }: Props) {
     <>
       <GuidePanel illustration={<PersonvernIkon />} poster aria-label="Personvern">
         <VStack gap="5">
-          <Heading level="4" size="small">
+          <Heading level="4" size="small" align="center">
             Personvern og databehandling
           </Heading>
           <Button variant="tertiary" size="small" onClick={() => setModalOpen(true)}>
@@ -66,19 +66,16 @@ export function PersonvernContainer({ tiltaksgjennomforing }: Props) {
           </VStack>
         </ModalHeader>
         <ModalBody>
-          <Heading level="3" size="small">
-            {tiltaksgjennomforing.tiltakstype.navn}
-          </Heading>
           <BodyLong spacing className={styles.lesebredde}>
             NAV har avtalt med tiltaksarrangøren at følgende opplysninger kan behandles om deltakere
             i tiltaket. Dersom du mener det er behov for å utveksle andre typer opplysninger om
             deltaker, må du ta kontakt med avtaleeier i tiltaksenheten/fylket.
           </BodyLong>
           <BodyLong spacing className={styles.lesebredde}>
-            Det skal ikke deles flere personopplysninger enn det som står på denne listen. Husk også
-            at selv om personopplysningene står på listen, må du gjøre en konkret vurdering i hvert
-            enkelt tilfelle om det er nødvendig å dele opplysningene. Personopplysninger skal kun
-            deles med tiltaksarrangør hvis det er nødvendig.
+            Det skal ikke deles flere personopplysninger enn det som står på denne listen. Selv om
+            personopplysningene står på listen, må du gjøre en konkret vurdering i hvert enkelt
+            tilfelle om det er nødvendig å dele opplysningene. Husk prinsippet om dataminimering, og
+            at vi ikke skal sende flere opplysninger enn det som er nødvendig.
           </BodyLong>
           <VStack gap="5">
             <ListeOverPersonopplysninger
