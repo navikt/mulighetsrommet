@@ -23,7 +23,9 @@ import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingAdminDto
 import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingKontaktperson
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Gjovik
+import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Innlandet
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Lillehammer
+import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Oslo
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Sel
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.ArenaOppfolging1
@@ -48,6 +50,14 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
 
     val domain = MulighetsrommetTestDomain(
+        enheter = listOf(
+            NavEnhetFixtures.IT,
+            Innlandet,
+            Gjovik,
+            Lillehammer,
+            Sel,
+            Oslo,
+        ),
         tiltakstyper = listOf(
             TiltakstypeFixtures.AFT,
             TiltakstypeFixtures.VTA,
@@ -59,7 +69,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             TiltakstypeFixtures.Avklaring,
             TiltakstypeFixtures.GruppeFagOgYrkesopplaering,
             TiltakstypeFixtures.EnkelAmo,
-        )
+        ),
     )
 
     beforeEach {
@@ -82,7 +92,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 arrangorOrganisasjonsnummer = "123456789",
                 startDato = LocalDate.of(2023, 1, 1),
                 sluttDato = LocalDate.of(2023, 2, 2),
-                arenaAnsvarligEnhet = NavEnhetFixtures.Innlandet.enhetsnummer,
+                arenaAnsvarligEnhet = Innlandet.enhetsnummer,
                 avslutningsstatus = Avslutningsstatus.AVSLUTTET,
                 apentForInnsok = false,
                 antallPlasser = 10,
@@ -191,7 +201,6 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             }
         }
 
-
         test("håndterer at arena-ansvarlig-enhet ikke er en kjent NAV-enhet") {
             tiltaksgjennomforinger.upsertArenaTiltaksgjennomforing(ArenaOppfolging1.copy(arenaAnsvarligEnhet = "9999"))
 
@@ -243,7 +252,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 it.opphav shouldBe ArenaMigrering.Opphav.MR_ADMIN_FLATE
                 it.kontaktpersoner shouldBe listOf()
                 it.stedForGjennomforing shouldBe "Oslo"
-                it.navRegion shouldBe NavEnhetFixtures.Innlandet
+                it.navRegion shouldBe Innlandet
                 it.faneinnhold shouldBe null
                 it.beskrivelse shouldBe null
                 it.createdAt shouldNotBe null
@@ -620,7 +629,6 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
 
     context("filtrering av tiltaksgjennomføringer") {
         val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
-        val navEnheter = NavEnhetRepository(database.db)
 
         test("filtrering på arrangør") {
             tiltaksgjennomforinger.upsert(
@@ -763,41 +771,25 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         }
 
         test("filtrer på nav_enhet") {
-            navEnheter.upsert(
-                NavEnhetDbo(
-                    navn = "Navn1",
-                    enhetsnummer = "1",
-                    status = NavEnhetStatus.AKTIV,
-                    type = Norg2Type.LOKAL,
-                    overordnetEnhet = null,
-                ),
-            ).shouldBeRight()
-            navEnheter.upsert(
-                NavEnhetDbo(
-                    navn = "Navn2",
-                    enhetsnummer = "2",
-                    status = NavEnhetStatus.AKTIV,
-                    type = Norg2Type.LOKAL,
-                    overordnetEnhet = null,
-                ),
-            ).shouldBeRight()
-
-            val tg1 = Oppfolging1.copy(id = UUID.randomUUID(), navEnheter = listOf("1"))
+            val tg1 = Oppfolging1.copy(id = UUID.randomUUID(), navEnheter = listOf(Lillehammer.enhetsnummer))
             tiltaksgjennomforinger.upsert(tg1)
 
             val tg2 = Oppfolging1.copy(id = UUID.randomUUID())
             tiltaksgjennomforinger.upsert(tg2)
-            Query("update tiltaksgjennomforing set arena_ansvarlig_enhet = '1' where id = '${tg2.id}'")
+            Query("update tiltaksgjennomforing set arena_ansvarlig_enhet = '${Lillehammer.enhetsnummer}' where id = '${tg2.id}'")
                 .asUpdate
                 .let { database.db.run(it) }
 
-            val tg3 = Oppfolging1.copy(id = UUID.randomUUID(), navEnheter = listOf("2"))
+            val tg3 = Oppfolging1.copy(id = UUID.randomUUID(), navEnheter = listOf(Gjovik.enhetsnummer))
             tiltaksgjennomforinger.upsert(tg3)
 
-            val tg4 = Oppfolging1.copy(id = UUID.randomUUID(), navEnheter = listOf("1", "2"))
+            val tg4 = Oppfolging1.copy(
+                id = UUID.randomUUID(),
+                navEnheter = listOf(Lillehammer.enhetsnummer, Gjovik.enhetsnummer),
+            )
             tiltaksgjennomforinger.upsert(tg4)
 
-            tiltaksgjennomforinger.getAll(navEnheter = listOf("1")).should {
+            tiltaksgjennomforinger.getAll(navEnheter = listOf(Lillehammer.enhetsnummer)).should {
                 it.totalCount shouldBe 3
                 it.items.map { tg -> tg.id } shouldContainAll listOf(tg1.id, tg2.id, tg4.id)
             }
@@ -851,7 +843,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             MulighetsrommetTestDomain(
                 enheter = listOf(
                     NavEnhetFixtures.IT,
-                    NavEnhetFixtures.Innlandet,
+                    Innlandet,
                     Gjovik,
                     Lillehammer,
                     Sel,
@@ -876,7 +868,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                     gjennomforinger.map { it.navn } shouldContainExactlyInAnyOrder listOf(VTA1.navn, AFT1.navn)
                 }
 
-            tiltaksgjennomforinger.getAll(navEnheter = listOf(NavEnhetFixtures.Innlandet.enhetsnummer))
+            tiltaksgjennomforinger.getAll(navEnheter = listOf(Innlandet.enhetsnummer))
                 .should { (totalCount) ->
                     totalCount shouldBe 3
                 }
@@ -1041,10 +1033,6 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         }
 
         test("skal filtrere på brukers enheter") {
-            val enheter = NavEnhetRepository(database.db)
-            enheter.upsert(NavEnhetFixtures.Oslo)
-            enheter.upsert(NavEnhetFixtures.Innlandet)
-
             tiltaksgjennomforinger.upsert(Oppfolging1.copy(sluttDato = null, navEnheter = listOf("2990", "0400")))
             tiltaksgjennomforinger.upsert(AFT1.copy(navEnheter = listOf("2990", "0300")))
 
