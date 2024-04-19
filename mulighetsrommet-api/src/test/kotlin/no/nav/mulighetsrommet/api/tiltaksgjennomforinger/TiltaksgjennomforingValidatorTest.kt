@@ -330,8 +330,9 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
         test("Skal godta endringer for sluttdato frem i tid selv om gjennomføringen er aktiv") {
             val validator = TiltaksgjennomforingValidator(tiltakstyper, avtaler, arrangorer)
             val previous = tiltaksgjennomforinger.get(gjennomforing.id)
+            avtaler.upsert(avtale.copy(startDato = LocalDate.now().minusDays(3)))
             validator.validate(gjennomforing.copy(sluttDato = avtaleSluttDato.plusDays(5)), previous).shouldBeRight()
-            validator.validate(gjennomforing.copy(sluttDato = avtaleSluttDato.minusDays(1)), previous).shouldBeLeft(
+            validator.validate(gjennomforing.copy(startDato = LocalDate.now().minusDays(2), sluttDato = LocalDate.now().minusDays(1)), previous).shouldBeLeft(
                 listOf(
                     ValidationError(
                         "sluttDato",
