@@ -38,7 +38,7 @@ import { TiltaksgjennomforingArrangorSkjema } from "./TiltaksgjennomforingArrang
 import { erArenaOpphavOgIngenEierskap } from "./TiltaksgjennomforingSkjemaConst";
 import { ControlledDateInput } from "../skjema/ControlledDateInput";
 import { useTiltaksgjennomforingDeltakerSummary } from "@/api/tiltaksgjennomforing/useTiltaksgjennomforingDeltakerSummary";
-import { StartDatoAdvarselModal } from "../modal/StartDatoAdvarselModal";
+import { EndreDatoAdvarselModal } from "../modal/EndreDatoAdvarselModal";
 
 interface Props {
   tiltaksgjennomforing?: Tiltaksgjennomforing;
@@ -62,7 +62,8 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
   const { data: deltakerSummary } = useTiltaksgjennomforingDeltakerSummary(
     tiltaksgjennomforing?.id,
   );
-  const startDatoModalRef = useRef<HTMLDialogElement>(null);
+  const endreStartDatoModalRef = useRef<HTMLDialogElement>(null);
+  const endreSluttDatoModalRef = useRef<HTMLDialogElement>(null);
 
   const kontaktpersonerOption = (selectedIndex: number) => {
     const excludedKontaktpersoner = watch("kontaktpersoner")
@@ -108,17 +109,28 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
   }, [watchVisEstimertVentetid]);
 
   const watchStartDato = watch("startOgSluttDato.startDato");
-
   useEffect(() => {
     if (
       tiltaksgjennomforing &&
       deltakerSummary?.antallDeltakere &&
       deltakerSummary.antallDeltakere > 0 &&
-      tiltaksgjennomforing.startDato < watchStartDato
+      tiltaksgjennomforing.startDato !== watchStartDato
     ) {
-      startDatoModalRef.current?.showModal();
+      endreStartDatoModalRef.current?.showModal();
     }
   }, [watchStartDato]);
+
+  const watchSluttDato = watch("startOgSluttDato.sluttDato");
+  useEffect(() => {
+    if (
+      tiltaksgjennomforing &&
+      deltakerSummary?.antallDeltakere &&
+      deltakerSummary.antallDeltakere > 0 &&
+      tiltaksgjennomforing.sluttDato !== watchSluttDato
+    ) {
+      endreSluttDatoModalRef.current?.showModal();
+    }
+  }, [watchSluttDato]);
 
   const regionerOptions = avtale.kontorstruktur
     .map((struk) => struk.region)
@@ -418,9 +430,14 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
           </div>
         </div>
       </div>
-      <StartDatoAdvarselModal
-        modalRef={startDatoModalRef}
+      <EndreDatoAdvarselModal
+        modalRef={endreStartDatoModalRef}
         onCancel={() => setValue("startOgSluttDato.startDato", tiltaksgjennomforing!!.startDato)}
+        antallDeltakere={deltakerSummary?.antallDeltakere ?? 0}
+      />
+      <EndreDatoAdvarselModal
+        modalRef={endreSluttDatoModalRef}
+        onCancel={() => setValue("startOgSluttDato.sluttDato", tiltaksgjennomforing!!.sluttDato)}
         antallDeltakere={deltakerSummary?.antallDeltakere ?? 0}
       />
     </div>

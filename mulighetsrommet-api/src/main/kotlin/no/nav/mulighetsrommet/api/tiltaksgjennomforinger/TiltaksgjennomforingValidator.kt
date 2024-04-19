@@ -21,6 +21,7 @@ import no.nav.mulighetsrommet.domain.dto.Avtalestatus
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus.GJENNOMFORES
 import no.nav.mulighetsrommet.domain.dto.TiltakstypeAdminDto
+import java.time.LocalDate
 
 class TiltaksgjennomforingValidator(
     private val tiltakstyper: TiltakstypeService,
@@ -209,7 +210,7 @@ class TiltaksgjennomforingValidator(
             }
 
             if (gjennomforing.sluttDato != null && previous.sluttDato != null && gjennomforing.sluttDato.isBefore(
-                    previous.sluttDato,
+                    LocalDate.now(),
                 )
             ) {
                 add(
