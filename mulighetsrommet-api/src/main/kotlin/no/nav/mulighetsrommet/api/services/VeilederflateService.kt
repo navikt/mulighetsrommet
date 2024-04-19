@@ -330,7 +330,7 @@ class VeilederflateService(
                     varsler = emptyList(),
                     tiltaksansvarlige = kontaktpersoner,
                 ),
-                personvernBekreftet = true,
+                personvernBekreftet = false, // Individuelle tiltak har ikke informasjon om personvern
             )
         }
     }
