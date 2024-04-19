@@ -631,15 +631,16 @@ class AvtaleRepository(private val db: Database) {
             .asList
             .let { db.run(it) }
 
-        return valgtePersonopplysninger
-            .groupBy(
-                { it.frekvens },
-                {
-                    PersonopplysningMedBeskrivelse(
-                        personopplysning = it.personopplysning,
-                        beskrivelse = it.personopplysning.toBeskrivelse(),
-                    )
-                },
-            )
+        return mapOf(
+            PersonopplysningFrekvens.ALLTID to valgtePersonopplysninger
+                .filter { it.frekvens == PersonopplysningFrekvens.ALLTID }
+                .map { it.personopplysning.toPersonopplysningMedBeskrivelse() },
+            PersonopplysningFrekvens.OFTE to valgtePersonopplysninger
+                .filter { it.frekvens == PersonopplysningFrekvens.OFTE }
+                .map { it.personopplysning.toPersonopplysningMedBeskrivelse() },
+            PersonopplysningFrekvens.SJELDEN to valgtePersonopplysninger
+                .filter { it.frekvens == PersonopplysningFrekvens.SJELDEN }
+                .map { it.personopplysning.toPersonopplysningMedBeskrivelse() },
+        )
     }
 }

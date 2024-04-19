@@ -29,15 +29,15 @@ export function AvtalePersonvern() {
   }
 
   const alltid =
-    tiltakstype?.personopplysninger?.ALLTID?.filter((p) =>
+    tiltakstype?.personopplysninger?.ALLTID.filter((p) =>
       avtale.personopplysninger.includes(p.personopplysning),
     ) ?? [];
   const ofte =
-    tiltakstype?.personopplysninger?.OFTE?.filter((p) =>
+    tiltakstype?.personopplysninger?.OFTE.filter((p) =>
       avtale.personopplysninger.includes(p.personopplysning),
     ) ?? [];
   const sjelden =
-    tiltakstype?.personopplysninger?.SJELDEN?.filter((p) =>
+    tiltakstype?.personopplysninger?.SJELDEN.filter((p) =>
       avtale.personopplysninger.includes(p.personopplysning),
     ) ?? [];
 

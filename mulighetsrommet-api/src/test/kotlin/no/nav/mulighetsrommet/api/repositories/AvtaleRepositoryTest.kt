@@ -33,9 +33,7 @@ import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.ArenaAvtaleDbo
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
-import no.nav.mulighetsrommet.domain.dto.Avtalestatus
-import no.nav.mulighetsrommet.domain.dto.Avtaletype
-import no.nav.mulighetsrommet.domain.dto.Personopplysning
+import no.nav.mulighetsrommet.domain.dto.*
 import org.intellij.lang.annotations.Language
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -914,6 +912,103 @@ class AvtaleRepositoryTest : FunSpec({
             val resultsAfterFrikobling =
                 queryOf(selectQuery).map { it.uuid("arrangor_kontaktperson_id") }.asList.let { database.db.run(it) }
             resultsAfterFrikobling.size shouldBe 1
+        }
+    }
+
+    context("Hente ut informasjon om behandling av personopplysninger for avtale") {
+        val domain = MulighetsrommetTestDomain(
+            gjennomforinger = listOf(TiltaksgjennomforingFixtures.Oppfolging1),
+        )
+        val avtaler = AvtaleRepository(database.db)
+
+        beforeEach {
+            domain.initialize(database.db)
+
+            @Language("PostgreSQL")
+            val insertPersonopplysningerForTiltakstypeQuery = """
+                insert into tiltakstype_personopplysning(tiltakskode, personopplysning, frekvens) values
+                ('OPPFOLGING'::tiltakskode, 'NAVN', 'ALLTID'::personopplysning_frekvens),
+                ('OPPFOLGING'::tiltakskode, 'KJONN', 'ALLTID'::personopplysning_frekvens),
+                ('OPPFOLGING'::tiltakskode, 'IP_ADRESSE', 'OFTE'::personopplysning_frekvens),
+                ('OPPFOLGING'::tiltakskode, 'ADFERD', 'SJELDEN'::personopplysning_frekvens)
+            """.trimIndent()
+
+            queryOf(insertPersonopplysningerForTiltakstypeQuery).asExecute.let { database.db.run(it) }
+        }
+
+        afterEach {
+            database.db.truncateAll()
+        }
+
+        test("Skal hente korrekt grupperte opplysninger om behandling av personopplysninger") {
+            val avtaleId = AvtaleFixtures.oppfolging.id
+            val expectedPersonopplysningerMedBeskrivelse = mapOf(
+                PersonopplysningFrekvens.ALLTID to listOf(
+                    PersonopplysningMedBeskrivelse(
+                        personopplysning = Personopplysning.NAVN,
+                        beskrivelse = "Navn",
+                    ),
+                    PersonopplysningMedBeskrivelse(
+                        personopplysning = Personopplysning.KJONN,
+                        beskrivelse = "Kjønn",
+                    ),
+                ),
+                PersonopplysningFrekvens.OFTE to listOf(
+                    PersonopplysningMedBeskrivelse(
+                        personopplysning = Personopplysning.IP_ADRESSE,
+                        beskrivelse = "IP-adresse",
+                    ),
+                ),
+                PersonopplysningFrekvens.SJELDEN to listOf(
+                    PersonopplysningMedBeskrivelse(
+                        personopplysning = Personopplysning.ADFERD,
+                        beskrivelse = "Opplysninger om atferd som kan ha betydning for tiltaksgjennomføring og jobbmuligheter (eks. truende adferd, vanskelig å samarbeide med osv.)",
+                    ),
+                ),
+            )
+
+            avtaler.upsert(
+                AvtaleFixtures.oppfolging.copy(
+                    id = avtaleId,
+                    personopplysninger = listOf(
+                        Personopplysning.NAVN,
+                        Personopplysning.KJONN,
+                        Personopplysning.IP_ADRESSE,
+                        Personopplysning.ADFERD,
+                    ),
+                    personvernBekreftet = true,
+                ),
+            )
+
+            val result = avtaler.getBehandlingAvPersonopplysninger(avtaleId)
+
+            result shouldBe expectedPersonopplysningerMedBeskrivelse
+        }
+
+        test("Skal ikke hente noe info om behandling av personopplysninger hvis personvern ikke er bekreftet for avtalen") {
+            val avtaleId = AvtaleFixtures.oppfolging.id
+            val expectedPersonopplysningerMedBeskrivelse = mapOf(
+                PersonopplysningFrekvens.ALLTID to emptyList(),
+                PersonopplysningFrekvens.OFTE to emptyList(),
+                PersonopplysningFrekvens.SJELDEN to emptyList<List<PersonopplysningMedBeskrivelse>>(),
+            )
+
+            avtaler.upsert(
+                AvtaleFixtures.oppfolging.copy(
+                    id = avtaleId,
+                    personopplysninger = listOf(
+                        Personopplysning.NAVN,
+                        Personopplysning.KJONN,
+                        Personopplysning.IP_ADRESSE,
+                        Personopplysning.ADFERD,
+                    ),
+                    personvernBekreftet = false,
+                ),
+            )
+
+            val result = avtaler.getBehandlingAvPersonopplysninger(avtaleId)
+
+            result shouldBe expectedPersonopplysningerMedBeskrivelse
         }
     }
 })

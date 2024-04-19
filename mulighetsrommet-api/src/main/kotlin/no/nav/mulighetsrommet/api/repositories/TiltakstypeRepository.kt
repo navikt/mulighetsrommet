@@ -10,7 +10,6 @@ import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.*
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
-import no.nav.mulighetsrommet.domain.dto.PersonopplysningMedBeskrivelse
 import no.nav.mulighetsrommet.domain.dto.PersonopplysningMedFrekvens
 import no.nav.mulighetsrommet.domain.dto.TiltakstypeAdminDto
 import no.nav.mulighetsrommet.domain.dto.Tiltakstypestatus
@@ -282,15 +281,7 @@ class TiltakstypeRepository(private val db: Database) {
         val tilDato = localDate("til_dato")
 
         val personopplysninger = Json.decodeFromString<List<PersonopplysningMedFrekvens>>(string("personopplysninger"))
-            .groupBy(
-                { it.frekvens },
-                {
-                    PersonopplysningMedBeskrivelse(
-                        personopplysning = it.personopplysning,
-                        beskrivelse = it.personopplysning.toBeskrivelse(),
-                    )
-                },
-            )
+            .groupBy({ it.frekvens }, { it.personopplysning.toPersonopplysningMedBeskrivelse() })
 
         return TiltakstypeAdminDto(
             id = uuid("id"),

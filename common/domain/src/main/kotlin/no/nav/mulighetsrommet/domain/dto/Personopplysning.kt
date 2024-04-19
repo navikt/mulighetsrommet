@@ -26,6 +26,12 @@ enum class Personopplysning {
     RELIGION,
     ;
 
+    fun toPersonopplysningMedBeskrivelse() =
+        PersonopplysningMedBeskrivelse(
+            personopplysning = this,
+            beskrivelse = this.toBeskrivelse(),
+        )
+
     fun toBeskrivelse(): String {
         return when (this) {
             NAVN -> "Navn"

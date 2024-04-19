@@ -3733,6 +3733,10 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/PersonopplysningMedBeskrivelse"
+      required:
+        - ALLTID
+        - OFTE
+        - SJELDEN
 
     KoblingerForKontaktperson:
       type: object

@@ -32,7 +32,7 @@ export function AvtalePersonvernForm({ tiltakstypeId }: Props) {
     if (watchPersonopplysninger.length === 0 && tiltakstype) {
       setValue(
         "personopplysninger",
-        tiltakstype.personopplysninger.ALLTID?.map((p) => p.personopplysning) ?? [],
+        tiltakstype.personopplysninger.ALLTID.map((p) => p.personopplysning) ?? [],
       );
     }
   }, [watchPersonopplysninger, tiltakstype]);
