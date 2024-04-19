@@ -11,10 +11,11 @@ import no.nav.mulighetsrommet.api.clients.oppfolging.OppfolgingError
 import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClient
 import no.nav.mulighetsrommet.api.clients.person.PersonError
 import no.nav.mulighetsrommet.api.clients.person.VeilarbpersonClient
-import no.nav.mulighetsrommet.api.clients.vedtak.Innsatsgruppe
+import no.nav.mulighetsrommet.api.clients.vedtak.VedtakDto
 import no.nav.mulighetsrommet.api.clients.vedtak.VedtakError
 import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClient
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
+import no.nav.mulighetsrommet.domain.dto.Innsatsgruppe
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 
 class BrukerService(
@@ -124,7 +125,7 @@ class BrukerService(
 
         return Brukerdata(
             fnr = fnr,
-            innsatsgruppe = sisteVedtak?.innsatsgruppe,
+            innsatsgruppe = sisteVedtak?.innsatsgruppe?.let { toInnsatsgruppe(it) },
             enheter = enheter,
             fornavn = personInfo.fornavn,
             manuellStatus = manuellStatus,
@@ -156,6 +157,15 @@ class BrukerService(
         LOKAL_OPPFOLGINGSENHET,
         BRUKER_IKKE_UNDER_OPPFOLGING,
         BRUKER_HAR_VAERT_UNDER_OPPFOLGING,
+    }
+}
+
+private fun toInnsatsgruppe(innsatsgruppe: VedtakDto.Innsatsgruppe): Innsatsgruppe {
+    return when (innsatsgruppe) {
+        VedtakDto.Innsatsgruppe.STANDARD_INNSATS -> Innsatsgruppe.STANDARD_INNSATS
+        VedtakDto.Innsatsgruppe.SITUASJONSBESTEMT_INNSATS -> Innsatsgruppe.SITUASJONSBESTEMT_INNSATS
+        VedtakDto.Innsatsgruppe.SPESIELT_TILPASSET_INNSATS -> Innsatsgruppe.SPESIELT_TILPASSET_INNSATS
+        VedtakDto.Innsatsgruppe.GRADERT_VARIG_TILPASSET_INNSATS, VedtakDto.Innsatsgruppe.VARIG_TILPASSET_INNSATS -> Innsatsgruppe.VARIG_TILPASSET_INNSATS
     }
 }
 

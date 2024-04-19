@@ -300,7 +300,6 @@ private fun services(appConfig: AppConfig) = module {
             get(),
             get(),
             get(),
-            get(),
         )
     }
     single {
@@ -374,7 +373,6 @@ private fun tasks(config: TaskConfig) = module {
             get(),
             get(),
         )
-        val updateTiltakstypeStatus = UpdateTiltakstypeStatus(get(), get(), get())
         val synchronizeNorgEnheterTask = SynchronizeNorgEnheter(config.synchronizeNorgEnheter, get(), get())
         val notifySluttdatoForGjennomforingerNarmerSeg = NotifySluttdatoForGjennomforingerNarmerSeg(
             config.notifySluttdatoForGjennomforingerNarmerSeg,
@@ -415,7 +413,6 @@ private fun tasks(config: TaskConfig) = module {
                 deleteExpiredTiltakshistorikk.task,
                 synchronizeNorgEnheterTask.task,
                 updateTiltaksgjennomforingStatus.task,
-                updateTiltakstypeStatus.task,
                 synchronizeNavAnsatte.task,
                 notifySluttdatoForGjennomforingerNarmerSeg.task,
                 notifySluttdatoForAvtalerNarmerSeg.task,

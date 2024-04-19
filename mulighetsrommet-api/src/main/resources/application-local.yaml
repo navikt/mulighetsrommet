@@ -36,7 +36,7 @@ app:
       tiltaksgjennomforinger:
         topic: siste-tiltaksgjennomforinger-v1
       tiltakstyper:
-        topic: team-mulighetsrommet.siste-tiltakstyper-v1
+        topic: team-mulighetsrommet.siste-tiltakstyper-v2
     consumers:
       tiltaksgjennomforingerV1:
         id: siste-tiltaksgjennomforinger

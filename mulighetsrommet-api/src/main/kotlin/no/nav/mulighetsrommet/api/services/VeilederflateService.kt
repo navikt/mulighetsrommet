@@ -8,11 +8,11 @@ import io.prometheus.client.cache.caffeine.CacheMetricsCollector
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.clients.sanity.SanityParam
 import no.nav.mulighetsrommet.api.clients.sanity.SanityPerspective
-import no.nav.mulighetsrommet.api.clients.vedtak.Innsatsgruppe
 import no.nav.mulighetsrommet.api.domain.dto.*
 import no.nav.mulighetsrommet.api.routes.v1.ApentForInnsok
 import no.nav.mulighetsrommet.api.utils.utledInnsatsgrupper
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
+import no.nav.mulighetsrommet.domain.dto.Innsatsgruppe
 import no.nav.mulighetsrommet.metrics.Metrikker
 import no.nav.mulighetsrommet.utils.CacheUtils
 import java.util.*
@@ -122,7 +122,7 @@ class VeilederflateService(
 
     suspend fun hentTiltaksgjennomforinger(
         enheter: NonEmptyList<String>,
-        innsatsgruppe: String? = null,
+        innsatsgruppe: Innsatsgruppe? = null,
         tiltakstypeIds: List<String>? = null,
         search: String? = null,
         apentForInnsok: ApentForInnsok = ApentForInnsok.APENT_ELLER_STENGT,
@@ -165,9 +165,7 @@ class VeilederflateService(
         val gruppeGjennomforinger = tiltaksgjennomforingService.getAllVeilederflateTiltaksgjennomforing(
             search = search,
             sanityTiltakstypeIds = tiltakstypeIds?.map { UUID.fromString(it) },
-            innsatsgrupper = innsatsgruppe
-                ?.let { utledInnsatsgrupper(innsatsgruppe).map { Innsatsgruppe.valueOf(it) } }
-                ?: emptyList(),
+            innsatsgruppe = innsatsgruppe,
             enheter = enheter,
             apentForInnsok = when (apentForInnsok) {
                 ApentForInnsok.APENT -> true

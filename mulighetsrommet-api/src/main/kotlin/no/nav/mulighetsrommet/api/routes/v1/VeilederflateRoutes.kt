@@ -18,6 +18,7 @@ import no.nav.mulighetsrommet.api.plugins.AuthProvider
 import no.nav.mulighetsrommet.api.plugins.getNavAnsattAzureId
 import no.nav.mulighetsrommet.api.services.PoaoTilgangService
 import no.nav.mulighetsrommet.api.services.VeilederflateService
+import no.nav.mulighetsrommet.domain.dto.Innsatsgruppe
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import org.koin.ktor.ext.inject
 import java.util.*
@@ -37,7 +38,7 @@ fun Route.veilederflateRoutes() {
 
         return ArbeidsmarkedstiltakFilter(
             enheter = enheter,
-            innsatsgruppe = queryParameters["innsatsgruppe"],
+            innsatsgruppe = queryParameters["innsatsgruppe"]?.let { Innsatsgruppe.valueOf(it) },
             tiltakstyper = queryParameters.getAll("tiltakstyper"),
             search = queryParameters["search"],
             apentForInnsok = apentForInnsok,
@@ -184,7 +185,7 @@ fun Route.veilederflateRoutes() {
 
 data class ArbeidsmarkedstiltakFilter(
     val enheter: NonEmptyList<String>,
-    val innsatsgruppe: String?,
+    val innsatsgruppe: Innsatsgruppe?,
     val tiltakstyper: List<String>?,
     val search: String?,
     val apentForInnsok: ApentForInnsok,

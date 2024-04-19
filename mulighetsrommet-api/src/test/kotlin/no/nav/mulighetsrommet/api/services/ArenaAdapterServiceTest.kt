@@ -21,10 +21,8 @@ import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dbo.ArenaNavEnhet
 import no.nav.mulighetsrommet.api.domain.dto.AvtaleAdminDto
 import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingDto
-import no.nav.mulighetsrommet.api.domain.dto.TiltakstypeEksternDto
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.repositories.*
-import no.nav.mulighetsrommet.api.tasks.InitialLoadTiltaksgjennomforinger
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
@@ -34,7 +32,6 @@ import no.nav.mulighetsrommet.domain.dbo.*
 import no.nav.mulighetsrommet.domain.dto.AvbruttAarsak
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus
-import no.nav.mulighetsrommet.domain.dto.Tiltakstypestatus
 import no.nav.mulighetsrommet.kafka.producers.TiltaksgjennomforingKafkaProducer
 import no.nav.mulighetsrommet.kafka.producers.TiltakstypeKafkaProducer
 import no.nav.mulighetsrommet.notifications.NotificationService
@@ -46,106 +43,6 @@ import java.util.*
 
 class ArenaAdapterServiceTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
-
-    context("tiltakstype") {
-        val tiltakstype = TiltakstypeFixtures.Oppfolging
-
-        afterEach {
-            database.db.truncateAll()
-
-            clearAllMocks()
-        }
-
-        test("CRUD") {
-            val service = createArenaAdapterService(database.db)
-            service.upsertTiltakstype(tiltakstype)
-
-            database.assertThat("tiltakstype").row()
-                .value("id").isEqualTo(tiltakstype.id)
-                .value("navn").isEqualTo(tiltakstype.navn)
-
-            val updated = tiltakstype.copy(navn = "Arbeidsovertrening")
-            service.upsertTiltakstype(updated)
-
-            database.assertThat("tiltakstype").row()
-                .value("navn").isEqualTo(updated.navn)
-
-            service.removeTiltakstype(updated.id)
-
-            database.assertThat("tiltakstype").isEmpty
-        }
-
-        test("should publish and retract tiltakstype from kafka topic") {
-            val tiltakstypeKafkaProducer = mockk<TiltakstypeKafkaProducer>(relaxed = true)
-            val service = createArenaAdapterService(
-                database.db,
-                tiltakstypeKafkaProducer = tiltakstypeKafkaProducer,
-            )
-
-            service.upsertTiltakstype(tiltakstype)
-
-            verify(exactly = 1) {
-                tiltakstypeKafkaProducer.publish(
-                    TiltakstypeEksternDto(
-                        id = tiltakstype.id,
-                        navn = tiltakstype.navn,
-                        tiltakskode = Tiltakskode.fromArenaKode(tiltakstype.arenaKode)!!,
-                        arenaKode = tiltakstype.arenaKode,
-                        registrertIArenaDato = tiltakstype.registrertDatoIArena,
-                        sistEndretIArenaDato = tiltakstype.sistEndretDatoIArena,
-                        fraDato = tiltakstype.fraDato,
-                        tilDato = tiltakstype.tilDato,
-                        rettPaaTiltakspenger = tiltakstype.rettPaaTiltakspenger,
-                        status = Tiltakstypestatus.Aktiv,
-                        deltakerRegistreringInnhold = null,
-                    ),
-                )
-            }
-
-            service.removeTiltakstype(tiltakstype.id)
-
-            verify(exactly = 1) {
-                tiltakstypeKafkaProducer.retract(tiltakstype.id)
-            }
-        }
-
-        test("should schedule initial load of gjennomføringer when name changes") {
-            val initialLoadTiltaksgjennomforinger = mockk<InitialLoadTiltaksgjennomforinger>(relaxed = true)
-            val service = createArenaAdapterService(
-                database.db,
-                initialLoadTiltaksgjennomforinger = initialLoadTiltaksgjennomforinger,
-            )
-
-            service.upsertTiltakstype(tiltakstype)
-
-            verify(exactly = 0) {
-                initialLoadTiltaksgjennomforinger.schedule(any(), any())
-            }
-
-            service.upsertTiltakstype(tiltakstype.copy(navn = "Nytt navn"))
-
-            verify(exactly = 1) {
-                initialLoadTiltaksgjennomforinger.schedule(
-                    input = InitialLoadTiltaksgjennomforinger.Input(
-                        tiltakstyper = listOf(Tiltakskode.OPPFOLGING),
-                    ),
-                    startTime = any(),
-                )
-            }
-        }
-
-        test("should not retract tiltakstype if it did not already exist") {
-            val tiltakstypeKafkaProducer = mockk<TiltakstypeKafkaProducer>(relaxed = true)
-            val service = createArenaAdapterService(
-                database.db,
-                tiltakstypeKafkaProducer = tiltakstypeKafkaProducer,
-            )
-
-            service.removeTiltakstype(UUID.randomUUID())
-
-            verify(exactly = 0) { tiltakstypeKafkaProducer.retract(any()) }
-        }
-    }
 
     context("avtaler") {
         val avtale = ArenaAvtaleDbo(
@@ -814,10 +711,8 @@ class ArenaAdapterServiceTest : FunSpec({
             navn = "Høyere utdanning",
             arenaKode = "HOYEREUTD",
             rettPaaTiltakspenger = true,
-            registrertDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
-            sistEndretDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
-            fraDato = LocalDate.of(2023, 1, 11),
-            tilDato = LocalDate.of(2023, 1, 12),
+            startDato = LocalDate.of(2023, 1, 11),
+            sluttDato = LocalDate.of(2023, 1, 12),
         )
 
         val tiltakshistorikkIndividuell = ArenaTiltakshistorikkDbo.IndividueltTiltak(
@@ -901,7 +796,6 @@ private fun createArenaAdapterService(
     notificationService: NotificationService = mockk(relaxed = true),
     veilarboppfolgingClient: VeilarboppfolgingClient = mockk(),
     migrerteTiltakstyper: List<Tiltakskode> = listOf(),
-    initialLoadTiltaksgjennomforinger: InitialLoadTiltaksgjennomforinger = mockk(relaxed = true),
 ) = ArenaAdapterService(
     db = db,
     navAnsatte = NavAnsattRepository(db),
@@ -919,7 +813,6 @@ private fun createArenaAdapterService(
     endringshistorikk = EndringshistorikkService(db),
     veilarboppfolgingClient = veilarboppfolgingClient,
     tiltakstypeService = TiltakstypeService(TiltakstypeRepository(db), migrerteTiltakstyper),
-    initialLoadTiltaksgjennomforinger = initialLoadTiltaksgjennomforinger,
 )
 
 private fun toTiltaksgjennomforingDto(dbo: ArenaTiltaksgjennomforingDbo, tiltakstype: TiltakstypeDbo) = dbo.run {

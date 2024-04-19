@@ -6,7 +6,6 @@ import arrow.core.toNonEmptyListOrNull
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import kotliquery.TransactionalSession
-import no.nav.mulighetsrommet.api.clients.vedtak.Innsatsgruppe
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.api.domain.dto.*
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
@@ -22,6 +21,7 @@ import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.Tiltakskoder.isTiltakMedAvtalerFraMulighetsrommet
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering.TiltaksgjennomforingSluttDatoCutoffDate
 import no.nav.mulighetsrommet.domain.dto.AvbruttAarsak
+import no.nav.mulighetsrommet.domain.dto.Innsatsgruppe
 import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.kafka.producers.TiltaksgjennomforingKafkaProducer
 import no.nav.mulighetsrommet.notifications.NotificationRepository
@@ -103,13 +103,13 @@ class TiltaksgjennomforingService(
         search: String?,
         apentForInnsok: Boolean?,
         sanityTiltakstypeIds: List<UUID>?,
-        innsatsgrupper: List<Innsatsgruppe>,
+        innsatsgruppe: Innsatsgruppe?,
         enheter: List<String>,
     ): List<VeilederflateTiltaksgjennomforing> = tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
         search,
         apentForInnsok,
         sanityTiltakstypeIds,
-        innsatsgrupper,
+        innsatsgruppe,
         enheter,
     )
 

@@ -8,7 +8,6 @@ import kotliquery.Session
 import kotliquery.TransactionalSession
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
-import no.nav.mulighetsrommet.api.clients.vedtak.Innsatsgruppe
 import no.nav.mulighetsrommet.api.domain.dbo.ArenaNavEnhet
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
@@ -24,6 +23,7 @@ import no.nav.mulighetsrommet.domain.dbo.ArenaTiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dto.AvbruttAarsak
+import no.nav.mulighetsrommet.domain.dto.Innsatsgruppe
 import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus
 import org.intellij.lang.annotations.Language
@@ -471,14 +471,14 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         search: String? = null,
         apentForInnsok: Boolean? = null,
         sanityTiltakstypeIds: List<UUID>? = null,
-        innsatsgrupper: List<Innsatsgruppe> = emptyList(),
+        innsatsgruppe: Innsatsgruppe? = null,
         brukersEnheter: List<String>,
     ): List<VeilederflateTiltaksgjennomforing> {
         val parameters = mapOf(
             "search" to search?.let { "%${it.replace("/", "#").trim()}%" },
             "apent_for_innsok" to apentForInnsok,
             "sanityTiltakstypeIds" to sanityTiltakstypeIds?.let { db.createUuidArray(it) },
-            "innsatsgrupper" to db.createTextArray(innsatsgrupper.map { it.name }),
+            "innsatsgruppe" to innsatsgruppe?.name,
             "brukersEnheter" to db.createTextArray(brukersEnheter),
         )
 
@@ -529,7 +529,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
               and gjennomforing.avbrutt_tidspunkt is null and (gjennomforing.slutt_dato is null or gjennomforing.slutt_dato > now())
               and (:search::text is null or ((lower(gjennomforing.navn) like lower(:search)) or (gjennomforing.tiltaksnummer like :search)))
               and (:sanityTiltakstypeIds::uuid[] is null or tiltakstype.sanity_id = any(:sanityTiltakstypeIds))
-              and (:innsatsgrupper::innsatsgruppe[] is null or tiltakstype.innsatsgruppe = any(:innsatsgrupper::innsatsgruppe[]))
+              and (:innsatsgruppe::innsatsgruppe is null or :innsatsgruppe::innsatsgruppe = any(tiltakstype.innsatsgrupper))
               and (:apent_for_innsok::boolean is null or gjennomforing.apent_for_innsok = :apent_for_innsok)
             group by gjennomforing.id, tiltakstype.id, arrangor.id, a.id
             having array_agg(nav_enhet.enhetsnummer) && :brukersEnheter
