@@ -279,12 +279,12 @@ class TiltaksgjennomforingService(
                 tx = tx,
             ).map {
                 logEndring(
-                    "Kontaktperson '${it.first}' ble fjernet fra gjennomføringen via arrangørsidene",
+                    "Kontaktperson ble fjernet fra gjennomføringen via arrangørsidene",
                     gjennomforing,
                     navIdent,
                     tx,
                 )
-                it.second
+                it
             }.mapLeft {
                 logger.error("Klarte ikke fjerne kontaktperson fra gjennomføring: KontaktpersonId = '$kontaktpersonId', gjennomforingId = '$gjennomforingId'")
                 ServerError("Klarte ikke fjerne kontaktperson fra gjennomføringen")
