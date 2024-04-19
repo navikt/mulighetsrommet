@@ -70,7 +70,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/BehandlingAvPersonopplysninger"
+                $ref: "#/components/schemas/PersonopplysningerPerFrekvens"
 
   /api/v1/internal/avtaler/{id}/avbryt:
     parameters:
@@ -1968,7 +1968,7 @@ components:
         sanityId:
           type: string
         personopplysninger:
-          $ref: "#/components/schemas/Personopplysninger"
+          $ref: "#/components/schemas/PersonopplysningerPerFrekvens"
       required:
         - id
         - navn
@@ -3718,21 +3718,21 @@ components:
         - HELSEOPPLYSNINGER
         - RELIGION
 
-    Personopplysninger:
+    PersonopplysningerPerFrekvens:
       type: object
       properties:
         ALLTID:
           type: array
           items:
-            $ref: "#/components/schemas/Personopplysning"
+            $ref: "#/components/schemas/PersonopplysningMedBeskrivelse"
         OFTE:
           type: array
           items:
-            $ref: "#/components/schemas/Personopplysning"
+            $ref: "#/components/schemas/PersonopplysningMedBeskrivelse"
         SJELDEN:
           type: array
           items:
-            $ref: "#/components/schemas/Personopplysning"
+            $ref: "#/components/schemas/PersonopplysningMedBeskrivelse"
       required:
         - ALLTID
         - OFTE
@@ -3777,22 +3777,6 @@ components:
       required:
         - kontaktpersonId
         - dokumentId
-
-    BehandlingAvPersonopplysninger:
-      type: object
-      properties:
-        alltid:
-          type: array
-          items:
-            $ref: "#/components/schemas/PersonopplysningMedBeskrivelse"
-        ofte:
-          type: array
-          items:
-            $ref: "#/components/schemas/PersonopplysningMedBeskrivelse"
-        sjelden:
-          type: array
-          items:
-            $ref: "#/components/schemas/PersonopplysningMedBeskrivelse"
 
     PersonopplysningMedBeskrivelse:
       type: object

@@ -13,12 +13,11 @@ import { useFormContext } from "react-hook-form";
 import { InferredAvtaleSchema } from "../redaksjonelt-innhold/AvtaleSchema";
 import styles from "./AvtalePersonvernForm.module.scss";
 import { useTiltakstype } from "@/api/tiltakstyper/useTiltakstype";
-import { personopplysningToTekst } from "@/utils/Utils";
 import { ControlledRadioGroup } from "../skjema/ControlledRadioGroup";
 import { useEffect } from "react";
 import { addOrRemove } from "mulighetsrommet-frontend-common/utils/utils";
 import { Separator } from "../detaljside/Metadata";
-import { Personopplysning } from "mulighetsrommet-api-client";
+import { PersonopplysningMedBeskrivelse } from "mulighetsrommet-api-client";
 
 interface Props {
   tiltakstypeId?: string;
@@ -31,7 +30,10 @@ export function AvtalePersonvernForm({ tiltakstypeId }: Props) {
   const watchPersonopplysninger = watch("personopplysninger");
   useEffect(() => {
     if (watchPersonopplysninger.length === 0 && tiltakstype) {
-      setValue("personopplysninger", tiltakstype.personopplysninger.ALLTID);
+      setValue(
+        "personopplysninger",
+        tiltakstype.personopplysninger.ALLTID.map((p) => p.personopplysning) ?? [],
+      );
     }
   }, [watchPersonopplysninger, tiltakstype]);
 
@@ -46,7 +48,7 @@ export function AvtalePersonvernForm({ tiltakstypeId }: Props) {
   function PersonopplysningCheckboxList(props: {
     label: string;
     description: string;
-    personopplysninger?: Personopplysning[];
+    personopplysninger?: PersonopplysningMedBeskrivelse[];
   }) {
     return (
       <VStack>
@@ -54,14 +56,19 @@ export function AvtalePersonvernForm({ tiltakstypeId }: Props) {
         <BodyShort size="small" textColor="subtle">
           {props.description}
         </BodyShort>
-        {props.personopplysninger?.map((p: Personopplysning) => (
+        {props.personopplysninger?.map((p: PersonopplysningMedBeskrivelse) => (
           <Checkbox
-            checked={watchPersonopplysninger.includes(p)}
-            onChange={() => setValue("personopplysninger", addOrRemove(watchPersonopplysninger, p))}
+            checked={watchPersonopplysninger.includes(p.personopplysning)}
+            onChange={() =>
+              setValue(
+                "personopplysninger",
+                addOrRemove(watchPersonopplysninger, p.personopplysning),
+              )
+            }
             size="small"
-            key={p}
+            key={p.personopplysning}
           >
-            {personopplysningToTekst(p)}
+            {p.beskrivelse}
           </Checkbox>
         ))}
       </VStack>

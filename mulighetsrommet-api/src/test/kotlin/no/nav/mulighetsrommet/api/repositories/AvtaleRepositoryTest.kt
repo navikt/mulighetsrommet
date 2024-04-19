@@ -942,8 +942,8 @@ class AvtaleRepositoryTest : FunSpec({
 
         test("Skal hente korrekt grupperte opplysninger om behandling av personopplysninger") {
             val avtaleId = AvtaleFixtures.oppfolging.id
-            val expectedPersonopplysningerMedBeskrivelse = PersonopplysningerMedBeskrivelse(
-                alltid = listOf(
+            val expectedPersonopplysningerMedBeskrivelse = mapOf(
+                PersonopplysningFrekvens.ALLTID to listOf(
                     PersonopplysningMedBeskrivelse(
                         personopplysning = Personopplysning.NAVN,
                         beskrivelse = "Navn",
@@ -953,13 +953,13 @@ class AvtaleRepositoryTest : FunSpec({
                         beskrivelse = "Kjønn",
                     ),
                 ),
-                ofte = listOf(
+                PersonopplysningFrekvens.OFTE to listOf(
                     PersonopplysningMedBeskrivelse(
                         personopplysning = Personopplysning.IP_ADRESSE,
                         beskrivelse = "IP-adresse",
                     ),
                 ),
-                sjelden = listOf(
+                PersonopplysningFrekvens.SJELDEN to listOf(
                     PersonopplysningMedBeskrivelse(
                         personopplysning = Personopplysning.ADFERD,
                         beskrivelse = "Opplysninger om atferd som kan ha betydning for tiltaksgjennomføring og jobbmuligheter (eks. truende adferd, vanskelig å samarbeide med osv.)",
@@ -987,10 +987,10 @@ class AvtaleRepositoryTest : FunSpec({
 
         test("Skal ikke hente noe info om behandling av personopplysninger hvis personvern ikke er bekreftet for avtalen") {
             val avtaleId = AvtaleFixtures.oppfolging.id
-            val expectedPersonopplysningerMedBeskrivelse = PersonopplysningerMedBeskrivelse(
-                alltid = emptyList(),
-                ofte = emptyList(),
-                sjelden = emptyList(),
+            val expectedPersonopplysningerMedBeskrivelse = mapOf(
+                PersonopplysningFrekvens.ALLTID to emptyList(),
+                PersonopplysningFrekvens.OFTE to emptyList(),
+                PersonopplysningFrekvens.SJELDEN to emptyList<List<PersonopplysningMedBeskrivelse>>(),
             )
 
             avtaler.upsert(

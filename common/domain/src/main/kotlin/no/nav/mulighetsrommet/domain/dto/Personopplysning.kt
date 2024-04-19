@@ -24,6 +24,39 @@ enum class Personopplysning {
     SOSIALE_FORHOLD,
     HELSEOPPLYSNINGER,
     RELIGION,
+    ;
+
+    fun toPersonopplysningMedBeskrivelse() =
+        PersonopplysningMedBeskrivelse(
+            personopplysning = this,
+            beskrivelse = this.toBeskrivelse(),
+        )
+
+    fun toBeskrivelse(): String {
+        return when (this) {
+            NAVN -> "Navn"
+            KJONN -> "Kjønn"
+            ADRESSE -> "Adresse"
+            TELEFONNUMMER -> "Telefonnummer"
+            FOLKEREGISTER_IDENTIFIKATOR -> "Folkeregisteridentifikator (personnummer og D-nummer)"
+            FODSELSDATO -> "Fødselsdato"
+            BEHOV_FOR_BISTAND_FRA_NAV -> "Behov for bistand fra NAV"
+            YTELSER_FRA_NAV -> "Ytelser fra NAV"
+            BILDE -> "Bilde"
+            EPOST -> "E-postadresse"
+            BRUKERNAVN -> "Brukernavn"
+            ARBEIDSERFARING_OG_VERV -> "Opplysninger knyttet til arbeidserfaring og verv som normalt fremkommer av en CV, herunder arbeidsgiver og hvor lenge man har jobbet"
+            SERTIFIKATER_OG_KURS -> "Sertifikater og kurs, eks. Førerkort, vekterkurs"
+            IP_ADRESSE -> "IP-adresse"
+            UTDANNING_OG_FAGBREV -> "Utdanning, herunder fagbrev, høyere utdanning, grunnskoleopplæring osv."
+            PERSONLIGE_EGENSKAPER_OG_INTERESSER -> "Opplysninger om personlige egenskaper og interesser"
+            SPRAKKUNNSKAP -> "Opplysninger om språkkunnskap"
+            ADFERD -> "Opplysninger om atferd som kan ha betydning for tiltaksgjennomføring og jobbmuligheter (eks. truende adferd, vanskelig å samarbeide med osv.)"
+            SOSIALE_FORHOLD -> "Sosiale eller personlige forhold som kan ha betydning for tiltaksgjennomføring og jobbmuligheter (eks. Aleneforsørger og kan derfor ikke jobbe kveldstid, eller økonomiske forhold som går ut over tiltaksgjennomføringen)"
+            HELSEOPPLYSNINGER -> "Helseopplysninger"
+            RELIGION -> "Religion"
+        }
+    }
 }
 
 enum class PersonopplysningFrekvens {
@@ -36,25 +69,10 @@ enum class PersonopplysningFrekvens {
 data class PersonopplysningMedFrekvens(
     val personopplysning: Personopplysning,
     val frekvens: PersonopplysningFrekvens,
-    val beskrivelse: String,
-) {
-    fun toPersonopplysningMedBeskrivelse(): PersonopplysningMedBeskrivelse {
-        return PersonopplysningMedBeskrivelse(
-            personopplysning = personopplysning,
-            beskrivelse = beskrivelse,
-        )
-    }
-}
+)
 
 @Serializable
 data class PersonopplysningMedBeskrivelse(
     val personopplysning: Personopplysning,
     val beskrivelse: String,
-)
-
-@Serializable
-data class PersonopplysningerMedBeskrivelse(
-    val alltid: List<PersonopplysningMedBeskrivelse>,
-    val ofte: List<PersonopplysningMedBeskrivelse>,
-    val sjelden: List<PersonopplysningMedBeskrivelse>,
 )

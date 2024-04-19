@@ -10,29 +10,95 @@ import {
 
 const personopplysninger = {
   ALLTID: [
-    Personopplysning.NAVN,
-    Personopplysning.KJONN,
-    Personopplysning.ADRESSE,
-    Personopplysning.TELEFONNUMMER,
-    Personopplysning.FOLKEREGISTER_IDENTIFIKATOR,
-    Personopplysning.FODSELSDATO,
-    Personopplysning.BEHOV_FOR_BISTAND_FRA_NAV,
-    Personopplysning.YTELSER_FRA_NAV,
-    Personopplysning.BILDE,
-    Personopplysning.EPOST,
-    Personopplysning.BRUKERNAVN,
-    Personopplysning.ARBEIDSERFARING_OG_VERV,
-    Personopplysning.SERTIFIKATER_OG_KURS,
-    Personopplysning.UTDANNING_OG_FAGBREV,
-    Personopplysning.PERSONLIGE_EGENSKAPER_OG_INTERESSER,
-    Personopplysning.SPRAKKUNNSKAP,
+    {
+      personopplysning: Personopplysning.NAVN,
+      beskrivelse: "Navn",
+    },
+    {
+      personopplysning: Personopplysning.KJONN,
+      beskrivelse: "Kjønn",
+    },
+    {
+      personopplysning: Personopplysning.ADRESSE,
+      beskrivelse: "Adresse",
+    },
+    {
+      personopplysning: Personopplysning.TELEFONNUMMER,
+      beskrivelse: "Tlf",
+    },
+    {
+      personopplysning: Personopplysning.FOLKEREGISTER_IDENTIFIKATOR,
+      beskrivelse: "Fnummer",
+    },
+    {
+      personopplysning: Personopplysning.FODSELSDATO,
+      beskrivelse: "Fødselsdato",
+    },
+    {
+      personopplysning: Personopplysning.BEHOV_FOR_BISTAND_FRA_NAV,
+      beskrivelse: "Bistand fra nav",
+    },
+    {
+      personopplysning: Personopplysning.YTELSER_FRA_NAV,
+      beskrivelse: "Ytelser fra nav",
+    },
+    {
+      personopplysning: Personopplysning.BILDE,
+      beskrivelse: "Bilde",
+    },
+    {
+      personopplysning: Personopplysning.EPOST,
+      beskrivelse: "Epost",
+    },
+    {
+      personopplysning: Personopplysning.BRUKERNAVN,
+      beskrivelse: "Brukernavn",
+    },
+    {
+      personopplysning: Personopplysning.ARBEIDSERFARING_OG_VERV,
+      beskrivelse: "Arbeidserfaring",
+    },
+    {
+      personopplysning: Personopplysning.SERTIFIKATER_OG_KURS,
+      beskrivelse: "Sertifikater",
+    },
+    {
+      personopplysning: Personopplysning.UTDANNING_OG_FAGBREV,
+      beskrivelse: "Utdanning og fagbrev",
+    },
+    {
+      personopplysning: Personopplysning.PERSONLIGE_EGENSKAPER_OG_INTERESSER,
+      beskrivelse: "Personelige egenskaper",
+    },
+    {
+      personopplysning: Personopplysning.SPRAKKUNNSKAP,
+      beskrivelse: "Språkkunnskap",
+    },
   ],
   OFTE: [
-    Personopplysning.IP_ADRESSE,
-    Personopplysning.SOSIALE_FORHOLD,
-    Personopplysning.HELSEOPPLYSNINGER,
+    {
+      personopplysning: Personopplysning.IP_ADRESSE,
+      beskrivelse: "IP-adresse",
+    },
+    {
+      personopplysning: Personopplysning.SOSIALE_FORHOLD,
+      beskrivelse: "Sosiale forhold",
+    },
+    {
+      personopplysning: Personopplysning.HELSEOPPLYSNINGER,
+      beskrivelse: "Helseopplysninger",
+    },
   ],
-  SJELDEN: [Personopplysning.ADFERD, Personopplysning.RELIGION],
+  SJELDEN: [
+    {
+      personopplysning: Personopplysning.ADFERD,
+      beskrivelse: "Adferd",
+    },
+    {
+      personopplysning: Personopplysning.RELIGION,
+      beskrivelse: "Religion",
+    },
+  ],
 };
 
 export const mockTiltakstyper = {

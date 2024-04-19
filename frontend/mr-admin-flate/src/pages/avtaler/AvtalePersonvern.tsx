@@ -3,7 +3,6 @@ import { useAvtale } from "@/api/avtaler/useAvtale";
 import { Laster } from "../../components/laster/Laster";
 import styles from "../DetaljerInfo.module.scss";
 import { useTiltakstype } from "@/api/tiltakstyper/useTiltakstype";
-import { personopplysningToTekst } from "@/utils/Utils";
 
 export function AvtalePersonvern() {
   const { data: avtale, isPending, error } = useAvtale();
@@ -30,14 +29,17 @@ export function AvtalePersonvern() {
   }
 
   const alltid =
-    tiltakstype?.personopplysninger?.ALLTID.filter((p) => avtale.personopplysninger.includes(p)) ??
-    [];
+    tiltakstype?.personopplysninger?.ALLTID.filter((p) =>
+      avtale.personopplysninger.includes(p.personopplysning),
+    ) ?? [];
   const ofte =
-    tiltakstype?.personopplysninger?.OFTE.filter((p) => avtale.personopplysninger.includes(p)) ??
-    [];
+    tiltakstype?.personopplysninger?.OFTE.filter((p) =>
+      avtale.personopplysninger.includes(p.personopplysning),
+    ) ?? [];
   const sjelden =
-    tiltakstype?.personopplysninger?.SJELDEN.filter((p) => avtale.personopplysninger.includes(p)) ??
-    [];
+    tiltakstype?.personopplysninger?.SJELDEN.filter((p) =>
+      avtale.personopplysninger.includes(p.personopplysning),
+    ) ?? [];
 
   return (
     <VStack gap="4" className={styles.info_container}>
@@ -45,7 +47,7 @@ export function AvtalePersonvern() {
         {alltid.length > 0 && (
           <List size="small" as="ul" title="Opplysninger om brukeren som alltid kan/må behandles">
             {alltid.map((p) => (
-              <List.Item key={p}>{personopplysningToTekst(p)}</List.Item>
+              <List.Item key={p.personopplysning}>{p.beskrivelse}</List.Item>
             ))}
           </List>
         )}
@@ -57,7 +59,7 @@ export function AvtalePersonvern() {
               title="Opplysninger om brukeren som ofte er nødvendig og relevant å behandle"
             >
               {ofte.map((p) => (
-                <List.Item key={p}>{personopplysningToTekst(p)}</List.Item>
+                <List.Item key={p.personopplysning}>{p.beskrivelse}</List.Item>
               ))}
             </List>
           )}
@@ -68,7 +70,7 @@ export function AvtalePersonvern() {
               title="Opplysninger om brukeren som sjelden eller i helt spesielle tilfeller er nødvendig og relevant å behandle"
             >
               {sjelden.map((p) => (
-                <List.Item key={p}>{personopplysningToTekst(p)}</List.Item>
+                <List.Item key={p.personopplysning}>{p.beskrivelse}</List.Item>
               ))}
             </List>
           )}

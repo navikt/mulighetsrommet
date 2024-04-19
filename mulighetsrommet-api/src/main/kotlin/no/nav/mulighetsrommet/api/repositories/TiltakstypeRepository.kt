@@ -1,6 +1,5 @@
 package no.nav.mulighetsrommet.api.repositories
 
-import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.queryOf
@@ -11,8 +10,7 @@ import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.*
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
-import no.nav.mulighetsrommet.domain.dto.Personopplysning
-import no.nav.mulighetsrommet.domain.dto.PersonopplysningFrekvens
+import no.nav.mulighetsrommet.domain.dto.PersonopplysningMedFrekvens
 import no.nav.mulighetsrommet.domain.dto.TiltakstypeAdminDto
 import no.nav.mulighetsrommet.domain.dto.Tiltakstypestatus
 import org.intellij.lang.annotations.Language
@@ -282,8 +280,8 @@ class TiltakstypeRepository(private val db: Database) {
         val fraDato = localDate("fra_dato")
         val tilDato = localDate("til_dato")
 
-        val personopplysninger = Json.decodeFromString<List<PersonopplysningOgFrekvens>>(string("personopplysninger"))
-            .groupBy({ it.frekvens }, { it.personopplysning })
+        val personopplysninger = Json.decodeFromString<List<PersonopplysningMedFrekvens>>(string("personopplysninger"))
+            .groupBy({ it.frekvens }, { it.personopplysning.toPersonopplysningMedBeskrivelse() })
 
         return TiltakstypeAdminDto(
             id = uuid("id"),
@@ -300,9 +298,3 @@ class TiltakstypeRepository(private val db: Database) {
         )
     }
 }
-
-@Serializable
-data class PersonopplysningOgFrekvens(
-    val personopplysning: Personopplysning,
-    val frekvens: PersonopplysningFrekvens,
-)
