@@ -292,7 +292,12 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 :apent_for_innsok,
                 :antall_plasser,
                 :avtale_id,
-                :oppstart::tiltaksgjennomforing_oppstartstype,
+                (select case
+                     when arena_kode in ('GRUPPEAMO', 'JOBBK', 'GRUFAGYRKE') then 'FELLES'
+                     else 'LOPENDE'
+                     end::tiltaksgjennomforing_oppstartstype
+                 from tiltakstype
+                 where tiltakstype.id = :tiltakstype_id::uuid),
                 :opphav::opphav,
                 :deltidsprosent,
                 :avbrutt_tidspunkt,
@@ -715,7 +720,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         "apent_for_innsok" to apentForInnsok,
         "antall_plasser" to antallPlasser,
         "avtale_id" to avtaleId,
-        "oppstart" to oppstart.name,
         "deltidsprosent" to deltidsprosent,
         "avbrutt_tidspunkt" to when (avslutningsstatus) {
             Avslutningsstatus.AVLYST -> startDato.atStartOfDay().minusDays(1)

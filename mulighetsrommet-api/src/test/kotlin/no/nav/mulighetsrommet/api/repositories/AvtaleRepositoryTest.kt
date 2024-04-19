@@ -483,7 +483,7 @@ class AvtaleRepositoryTest : FunSpec({
         }
 
         test("Filtrer på avtaletyper returnerer riktige avtaler") {
-            TiltakstypeRepository(database.db).upsert(TiltakstypeFixtures.GRUPPE_AMO)
+            TiltakstypeRepository(database.db).upsert(TiltakstypeFixtures.GruppeAmo)
 
             val avtale1 = AvtaleFixtures.gruppeAmo.copy(
                 id = UUID.randomUUID(),

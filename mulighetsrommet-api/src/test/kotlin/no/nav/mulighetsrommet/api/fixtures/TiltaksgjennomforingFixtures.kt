@@ -23,7 +23,6 @@ object TiltaksgjennomforingFixtures {
         avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
         apentForInnsok = true,
         antallPlasser = null,
-        oppstart = TiltaksgjennomforingOppstartstype.FELLES,
         avtaleId = AvtaleFixtures.oppfolging.id,
         deltidsprosent = 100.0,
     )
@@ -201,7 +200,7 @@ object TiltaksgjennomforingFixtures {
     val GruppeAmo1 = TiltaksgjennomforingDbo(
         id = UUID.randomUUID(),
         navn = "Gruppe Amo 1",
-        tiltakstypeId = TiltakstypeFixtures.GRUPPE_AMO.id,
+        tiltakstypeId = TiltakstypeFixtures.GruppeAmo.id,
         arrangorId = ArrangorFixtures.underenhet1.id,
         startDato = LocalDate.of(2023, 1, 1),
         sluttDato = LocalDate.of(2023, 2, 1),

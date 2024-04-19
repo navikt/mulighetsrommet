@@ -23,11 +23,8 @@ import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
 import no.nav.mulighetsrommet.arena.adapter.utils.ArenaUtils
 import no.nav.mulighetsrommet.domain.Tiltakshistorikk
 import no.nav.mulighetsrommet.domain.Tiltakskoder.isGruppetiltak
-import no.nav.mulighetsrommet.domain.Tiltakskoder.isKursTiltak
 import no.nav.mulighetsrommet.domain.dbo.ArenaTiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
-import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype.FELLES
-import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype.LOPENDE
 import no.nav.mulighetsrommet.domain.dto.JaNeiStatus
 import java.util.*
 
@@ -204,7 +201,6 @@ class TiltakgjennomforingEventProcessor(
             apentForInnsok = apentForInnsok,
             antallPlasser = antallPlasser,
             avtaleId = avtaleId,
-            oppstart = if (isKursTiltak(tiltakskode)) FELLES else LOPENDE,
             deltidsprosent = deltidsprosent,
         )
 }

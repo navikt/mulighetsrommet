@@ -1,6 +1,5 @@
 package no.nav.mulighetsrommet.api.repositories
 
-import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.data.forAll
 import io.kotest.data.row
@@ -48,7 +47,20 @@ import java.util.*
 class TiltaksgjennomforingRepositoryTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
 
-    val domain = MulighetsrommetTestDomain()
+    val domain = MulighetsrommetTestDomain(
+        tiltakstyper = listOf(
+            TiltakstypeFixtures.AFT,
+            TiltakstypeFixtures.VTA,
+            TiltakstypeFixtures.ArbeidsrettetRehabilitering,
+            TiltakstypeFixtures.GruppeAmo,
+            TiltakstypeFixtures.Oppfolging,
+            TiltakstypeFixtures.Jobbklubb,
+            TiltakstypeFixtures.DigitalOppfolging,
+            TiltakstypeFixtures.Avklaring,
+            TiltakstypeFixtures.GruppeFagOgYrkesopplaering,
+            TiltakstypeFixtures.EnkelAmo,
+        )
+    )
 
     beforeEach {
         domain.initialize(database.db)
@@ -56,6 +68,137 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
 
     afterEach {
         database.db.truncateAll()
+    }
+
+    context("Arena CRUD") {
+        val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
+
+        test("CRUD ArenaTiltaksgjennomforing") {
+            val gjennomforingFraArena = ArenaTiltaksgjennomforingDbo(
+                id = UUID.randomUUID(),
+                navn = "Tiltak for dovne giraffer",
+                tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
+                tiltaksnummer = "2023#1",
+                arrangorOrganisasjonsnummer = "123456789",
+                startDato = LocalDate.of(2023, 1, 1),
+                sluttDato = LocalDate.of(2023, 2, 2),
+                arenaAnsvarligEnhet = NavEnhetFixtures.Innlandet.enhetsnummer,
+                avslutningsstatus = Avslutningsstatus.AVSLUTTET,
+                apentForInnsok = false,
+                antallPlasser = 10,
+                avtaleId = null,
+                deltidsprosent = 100.0,
+            )
+
+            tiltaksgjennomforinger.upsertArenaTiltaksgjennomforing(gjennomforingFraArena)
+
+            tiltaksgjennomforinger.get(gjennomforingFraArena.id) should {
+                it.shouldNotBeNull()
+                it.navn shouldBe "Tiltak for dovne giraffer"
+                it.tiltakstype shouldBe TiltaksgjennomforingAdminDto.Tiltakstype(
+                    id = TiltakstypeFixtures.Oppfolging.id,
+                    navn = TiltakstypeFixtures.Oppfolging.navn,
+                    arenaKode = TiltakstypeFixtures.Oppfolging.arenaKode,
+                )
+                it.tiltaksnummer shouldBe "2023#1"
+                it.arrangor shouldBe TiltaksgjennomforingAdminDto.ArrangorUnderenhet(
+                    id = ArrangorFixtures.hovedenhet.id,
+                    organisasjonsnummer = ArrangorFixtures.hovedenhet.organisasjonsnummer,
+                    navn = ArrangorFixtures.hovedenhet.navn,
+                    slettet = false,
+                    kontaktpersoner = emptyList(),
+                )
+                it.startDato shouldBe LocalDate.of(2023, 1, 1)
+                it.sluttDato shouldBe LocalDate.of(2023, 2, 2)
+                it.arenaAnsvarligEnhet shouldBe ArenaNavEnhet(navn = "NAV Innlandet", enhetsnummer = "0400")
+                it.apentForInnsok shouldBe false
+                it.antallPlasser shouldBe 10
+                it.avtaleId shouldBe null
+                it.status shouldBe TiltaksgjennomforingStatus.AVSLUTTET
+                it.administratorer shouldBe emptyList()
+                it.navEnheter shouldBe emptyList()
+                it.navRegion shouldBe null
+                it.sanityId shouldBe null
+                it.opphav shouldBe ArenaMigrering.Opphav.ARENA
+                it.kontaktpersoner shouldBe emptyList()
+                it.stedForGjennomforing shouldBe null
+                it.faneinnhold shouldBe null
+                it.beskrivelse shouldBe null
+                it.createdAt shouldNotBe null
+            }
+        }
+
+        test("utleder oppstart fra tiltakstype") {
+            forAll(
+                row(TiltakstypeFixtures.AFT, TiltaksgjennomforingOppstartstype.LOPENDE),
+                row(TiltakstypeFixtures.VTA, TiltaksgjennomforingOppstartstype.LOPENDE),
+                row(TiltakstypeFixtures.ArbeidsrettetRehabilitering, TiltaksgjennomforingOppstartstype.LOPENDE),
+                row(TiltakstypeFixtures.Oppfolging, TiltaksgjennomforingOppstartstype.LOPENDE),
+                row(TiltakstypeFixtures.DigitalOppfolging, TiltaksgjennomforingOppstartstype.LOPENDE),
+                row(TiltakstypeFixtures.Avklaring, TiltaksgjennomforingOppstartstype.LOPENDE),
+                row(TiltakstypeFixtures.GruppeFagOgYrkesopplaering, TiltaksgjennomforingOppstartstype.FELLES),
+                row(TiltakstypeFixtures.GruppeAmo, TiltaksgjennomforingOppstartstype.FELLES),
+                row(TiltakstypeFixtures.Jobbklubb, TiltaksgjennomforingOppstartstype.FELLES),
+            ) { tiltakstype, oppstart ->
+
+                val gjennomforingFraArena = ArenaOppfolging1.copy(
+                    id = UUID.randomUUID(),
+                    tiltakstypeId = tiltakstype.id,
+                )
+
+                tiltaksgjennomforinger.upsertArenaTiltaksgjennomforing(gjennomforingFraArena)
+
+                tiltaksgjennomforinger.get(gjennomforingFraArena.id).shouldNotBeNull().should {
+                    it.oppstart shouldBe oppstart
+                }
+            }
+        }
+
+        test("endrer ikke opphav om det allerede er satt") {
+            val id1 = UUID.randomUUID()
+            tiltaksgjennomforinger.upsertArenaTiltaksgjennomforing(ArenaOppfolging1.copy(id = id1))
+            tiltaksgjennomforinger.upsert(Oppfolging1.copy(id = id1))
+            tiltaksgjennomforinger.get(id1).shouldNotBeNull().should {
+                it.opphav shouldBe ArenaMigrering.Opphav.ARENA
+            }
+
+            val id2 = UUID.randomUUID()
+            tiltaksgjennomforinger.upsert(Oppfolging1.copy(id = id2))
+            tiltaksgjennomforinger.upsertArenaTiltaksgjennomforing(ArenaOppfolging1.copy(id = id2))
+            tiltaksgjennomforinger.get(id2).shouldNotBeNull().should {
+                it.opphav shouldBe ArenaMigrering.Opphav.MR_ADMIN_FLATE
+            }
+        }
+
+        test("endrer ikke oppstart om det allerede er satt") {
+            val id = UUID.randomUUID()
+
+            tiltaksgjennomforinger.upsertArenaTiltaksgjennomforing(ArenaOppfolging1.copy(id = id))
+            tiltaksgjennomforinger.get(id).shouldNotBeNull().should {
+                it.oppstart shouldBe TiltaksgjennomforingOppstartstype.LOPENDE
+            }
+
+            tiltaksgjennomforinger.upsert(
+                Oppfolging1.copy(id = id, oppstart = TiltaksgjennomforingOppstartstype.FELLES),
+            )
+            tiltaksgjennomforinger.get(id).shouldNotBeNull().should {
+                it.oppstart shouldBe TiltaksgjennomforingOppstartstype.FELLES
+            }
+
+            tiltaksgjennomforinger.upsertArenaTiltaksgjennomforing(ArenaOppfolging1.copy(id = id))
+            tiltaksgjennomforinger.get(id).shouldNotBeNull().should {
+                it.oppstart shouldBe TiltaksgjennomforingOppstartstype.FELLES
+            }
+        }
+
+
+        test("håndterer at arena-ansvarlig-enhet ikke er en kjent NAV-enhet") {
+            tiltaksgjennomforinger.upsertArenaTiltaksgjennomforing(ArenaOppfolging1.copy(arenaAnsvarligEnhet = "9999"))
+
+            tiltaksgjennomforinger.get(ArenaOppfolging1.id).shouldNotBeNull().arenaAnsvarligEnhet.shouldBe(
+                ArenaNavEnhet(navn = null, enhetsnummer = "9999"),
+            )
+        }
     }
 
     context("CRUD") {
@@ -109,102 +252,6 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             tiltaksgjennomforinger.delete(Oppfolging1.id)
 
             tiltaksgjennomforinger.get(Oppfolging1.id) shouldBe null
-        }
-
-        test("CRUD ArenaTiltaksgjennomforing") {
-            val navEnheter = NavEnhetRepository(database.db)
-            navEnheter.upsert(NavEnhetFixtures.Innlandet).shouldBeRight()
-            val gjennomforingId = UUID.randomUUID()
-            val gjennomforingFraArena = ArenaTiltaksgjennomforingDbo(
-                id = gjennomforingId,
-                navn = "Tiltak for dovne giraffer",
-                tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
-                tiltaksnummer = "2023#1",
-                arrangorOrganisasjonsnummer = "123456789",
-                startDato = LocalDate.of(2023, 1, 1),
-                sluttDato = LocalDate.of(2023, 2, 2),
-                arenaAnsvarligEnhet = NavEnhetFixtures.Innlandet.enhetsnummer,
-                avslutningsstatus = Avslutningsstatus.AVSLUTTET,
-                apentForInnsok = false,
-                antallPlasser = 10,
-                avtaleId = null,
-                oppstart = TiltaksgjennomforingOppstartstype.FELLES,
-                deltidsprosent = 100.0,
-            )
-
-            tiltaksgjennomforinger.upsertArenaTiltaksgjennomforing(gjennomforingFraArena)
-
-            tiltaksgjennomforinger.get(gjennomforingFraArena.id) should {
-                it.shouldNotBeNull()
-                it.id shouldBe gjennomforingId
-                it.navn shouldBe "Tiltak for dovne giraffer"
-                it.tiltakstype shouldBe TiltaksgjennomforingAdminDto.Tiltakstype(
-                    id = TiltakstypeFixtures.Oppfolging.id,
-                    navn = TiltakstypeFixtures.Oppfolging.navn,
-                    arenaKode = TiltakstypeFixtures.Oppfolging.arenaKode,
-                )
-                it.tiltaksnummer shouldBe "2023#1"
-                it.arrangor shouldBe TiltaksgjennomforingAdminDto.ArrangorUnderenhet(
-                    id = ArrangorFixtures.hovedenhet.id,
-                    organisasjonsnummer = ArrangorFixtures.hovedenhet.organisasjonsnummer,
-                    navn = ArrangorFixtures.hovedenhet.navn,
-                    slettet = false,
-                    kontaktpersoner = emptyList(),
-                )
-                it.startDato shouldBe LocalDate.of(2023, 1, 1)
-                it.sluttDato shouldBe LocalDate.of(2023, 2, 2)
-                it.arenaAnsvarligEnhet shouldBe ArenaNavEnhet(navn = "NAV Innlandet", enhetsnummer = "0400")
-                it.apentForInnsok shouldBe false
-                it.antallPlasser shouldBe 10
-                it.avtaleId shouldBe null
-                it.oppstart shouldBe TiltaksgjennomforingOppstartstype.FELLES
-                it.status shouldBe TiltaksgjennomforingStatus.AVSLUTTET
-                it.administratorer shouldBe emptyList()
-                it.navEnheter shouldBe emptyList()
-                it.navRegion shouldBe null
-                it.sanityId shouldBe null
-                it.opphav shouldBe ArenaMigrering.Opphav.ARENA
-                it.kontaktpersoner shouldBe emptyList()
-                it.stedForGjennomforing shouldBe null
-                it.faneinnhold shouldBe null
-                it.beskrivelse shouldBe null
-                it.createdAt shouldNotBe null
-            }
-        }
-
-        test("upsert endrer ikke opphav om det allerede er satt") {
-            val id1 = UUID.randomUUID()
-            tiltaksgjennomforinger.upsertArenaTiltaksgjennomforing(ArenaOppfolging1.copy(id = id1))
-            tiltaksgjennomforinger.upsert(Oppfolging1.copy(id = id1))
-            tiltaksgjennomforinger.get(id1).shouldNotBeNull().should {
-                it.opphav shouldBe ArenaMigrering.Opphav.ARENA
-            }
-
-            val id2 = UUID.randomUUID()
-            tiltaksgjennomforinger.upsert(Oppfolging1.copy(id = id2))
-            tiltaksgjennomforinger.upsertArenaTiltaksgjennomforing(ArenaOppfolging1.copy(id = id2))
-            tiltaksgjennomforinger.get(id2).shouldNotBeNull().should {
-                it.opphav shouldBe ArenaMigrering.Opphav.MR_ADMIN_FLATE
-            }
-        }
-
-        test("arena overskriver ikke oppstart") {
-            tiltaksgjennomforinger.upsertArenaTiltaksgjennomforing(ArenaOppfolging1)
-            tiltaksgjennomforinger.get(ArenaOppfolging1.id) should {
-                it!!.oppstart shouldBe TiltaksgjennomforingOppstartstype.FELLES
-            }
-
-            tiltaksgjennomforinger.upsert(
-                Oppfolging1.copy(
-                    id = ArenaOppfolging1.id,
-                    oppstart = TiltaksgjennomforingOppstartstype.LOPENDE,
-                ),
-            )
-
-            tiltaksgjennomforinger.upsertArenaTiltaksgjennomforing(ArenaOppfolging1)
-            tiltaksgjennomforinger.get(ArenaOppfolging1.id) should {
-                it!!.oppstart shouldBe TiltaksgjennomforingOppstartstype.LOPENDE
-            }
         }
 
         test("Administratorer crud") {
@@ -423,14 +470,6 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             val secondUpdated = tiltaksgjennomforinger.getUpdatedAt(Oppfolging1.id).shouldNotBeNull()
 
             secondUpdated.shouldBeAfter(firstUpdated)
-        }
-
-        test("håndterer at arena-ansvarlig-enhet ikke er en kjent NAV-enhet") {
-            tiltaksgjennomforinger.upsertArenaTiltaksgjennomforing(ArenaOppfolging1.copy(arenaAnsvarligEnhet = "9999"))
-
-            tiltaksgjennomforinger.get(ArenaOppfolging1.id).shouldNotBeNull().arenaAnsvarligEnhet.shouldBe(
-                ArenaNavEnhet(navn = null, enhetsnummer = "9999"),
-            )
         }
 
         test("Publisert for alle må settes eksplisitt") {
