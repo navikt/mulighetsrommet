@@ -34,7 +34,7 @@
     "@tanstack/react-query-devtools": "5.31.0",
     "@types/is-url": "1.2.32",
     "classnames": "2.5.1",
-    "eslint": "9.1.0",
+    "eslint": "8.57.0",
     "is-url": "1.2.4",
     "jotai": "2.8.0",
     "mulighetsrommet-api-client": "*",
