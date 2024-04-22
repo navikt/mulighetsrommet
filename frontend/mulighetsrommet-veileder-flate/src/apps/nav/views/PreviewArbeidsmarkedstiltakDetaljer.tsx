@@ -1,13 +1,13 @@
-import { Alert } from "@navikt/ds-react";
-import { Innsatsgruppe, NavEnhetStatus, NavEnhetType } from "mulighetsrommet-api-client";
-import { ViewTiltaksgjennomforingDetaljer } from "@/layouts/ViewTiltaksgjennomforingDetaljer";
-import { Tilbakeknapp } from "@/components/tilbakeknapp/Tilbakeknapp";
+import { usePreviewTiltaksgjennomforingById } from "@/api/queries/useTiltaksgjennomforingById";
 import { DelMedBruker } from "@/apps/modia/delMedBruker/DelMedBruker";
 import { TiltakLoader } from "@/components/TiltakLoader";
-import { usePreviewTiltaksgjennomforingById } from "@/api/queries/useTiltaksgjennomforingById";
-import { LenkeListe } from "../../../components/sidemeny/Lenker";
+import { Tilbakeknapp } from "@/components/tilbakeknapp/Tilbakeknapp";
+import { ViewTiltaksgjennomforingDetaljer } from "@/layouts/ViewTiltaksgjennomforingDetaljer";
+import { Alert } from "@navikt/ds-react";
+import { Innsatsgruppe, NavEnhetStatus, NavEnhetType } from "mulighetsrommet-api-client";
 import { InlineErrorBoundary } from "../../../ErrorBoundary";
 import { PersonvernContainer } from "../../../components/personvern/PersonvernContainer";
+import { LenkeListe } from "../../../components/sidemeny/Lenker";
 
 export function PreviewArbeidsmarkedstiltakDetaljer() {
   const { data, isPending, isError } = usePreviewTiltaksgjennomforingById();
@@ -43,6 +43,7 @@ export function PreviewArbeidsmarkedstiltakDetaljer() {
                   erUnderManuellOppfolging: false,
                   krrStatus: { kanVarsles: true, erReservert: false },
                 },
+                erUnderOppfolging: true,
                 varsler: [],
                 enheter: [
                   {

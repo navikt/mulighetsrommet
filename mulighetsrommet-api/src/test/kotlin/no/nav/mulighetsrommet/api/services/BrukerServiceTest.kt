@@ -120,6 +120,7 @@ class BrukerServiceTest : FunSpec({
                         status = NavEnhetStatus.AKTIV,
                     ),
                 ),
+                erUnderOppfolging = true,
                 varsler = emptyList(),
             )
     }
