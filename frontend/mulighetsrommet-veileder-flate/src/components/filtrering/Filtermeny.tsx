@@ -20,7 +20,7 @@ export const Filtermeny = () => {
   const { data: regioner } = useRegioner();
 
   return (
-    <div className={styles.tiltakstype_oversikt_filtermeny} id="tiltakstype_oversikt_filtermeny">
+    <div className={styles.tiltakstype_oversikt_filtermeny} data-testid="filtertabs">
       <Sokefelt
         sokefilter={filter.search}
         setSokefilter={(search: string) => setFilter({ ...filter, search })}
