@@ -3549,7 +3549,6 @@ components:
         - mulighetsrommet.veilederflate.visDeltakerRegistrering
         - mulighetsrommet-veilederflate-landingsside
         - mulighetsrommet-veilederflate-arena-oppskrifter
-        - mulighetsrommet.admin-flate.show-notater
         - mulighetsrommet.admin-flate.enableDebugger
         - mulighetsrommet.admin-flate.enableArrangorSider
 
