@@ -26,6 +26,7 @@ import no.nav.mulighetsrommet.domain.Tiltakskoder.isGruppetiltak
 import no.nav.mulighetsrommet.domain.dbo.ArenaTiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dto.JaNeiStatus
+import java.time.LocalDateTime
 import java.util.*
 
 class TiltakgjennomforingEventProcessor(
@@ -197,12 +198,22 @@ class TiltakgjennomforingEventProcessor(
             startDato = fraDato.toLocalDate(),
             sluttDato = tilDato?.toLocalDate(),
             arenaAnsvarligEnhet = sak.enhet,
-            avslutningsstatus = Avslutningsstatus.fromArenastatus(status),
+            avslutningsstatus = resolveAvslutningsstatus(status, tilDato),
             apentForInnsok = apentForInnsok,
             antallPlasser = antallPlasser,
             avtaleId = avtaleId,
             deltidsprosent = deltidsprosent,
         )
+
+    private fun resolveAvslutningsstatus(status: String, tilDato: LocalDateTime?): Avslutningsstatus {
+        val avslutningsstatus = Avslutningsstatus.fromArenastatus(status)
+        // Overstyr med status AVBRUTT hvis gjennomføring ble AVSLUTTET før sluttdato
+        return if (avslutningsstatus == Avslutningsstatus.AVSLUTTET && (tilDato == null || tilDato.isAfter(LocalDateTime.now()))) {
+            Avslutningsstatus.AVBRUTT
+        } else {
+            avslutningsstatus
+        }
+    }
 }
 
 suspend fun <T> retry(
