@@ -129,6 +129,7 @@ class BrukerService(
             enheter = enheter,
             fornavn = personInfo.fornavn,
             manuellStatus = manuellStatus,
+            erUnderOppfolging = erUnderOppfolging,
             varsler = buildList {
                 if (oppfolgingsenhetLokalOgUlik(brukersGeografiskeEnhet, brukersOppfolgingsenhet)) {
                     add(BrukerVarsel.LOKAL_OPPFOLGINGSENHET)
@@ -150,6 +151,7 @@ class BrukerService(
         val enheter: List<NavEnhetDbo>,
         val fornavn: String,
         val manuellStatus: ManuellStatusDto,
+        val erUnderOppfolging: Boolean,
         val varsler: List<BrukerVarsel>,
     )
 

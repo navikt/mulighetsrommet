@@ -25,6 +25,7 @@ export const brukerHandlers = [
       const bruker: Bruker = {
         fnr: norskIdent,
         innsatsgruppe: Innsatsgruppe.SITUASJONSBESTEMT_INNSATS,
+        erUnderOppfolging: true,
         enheter: [
           {
             navn: "NAV Sarpsborg",

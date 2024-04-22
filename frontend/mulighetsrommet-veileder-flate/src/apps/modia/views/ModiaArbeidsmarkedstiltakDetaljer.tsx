@@ -76,7 +76,8 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
   }
 
   const tiltakstype = tiltaksgjennomforing.tiltakstype;
-  const kanOppretteAvtaleForTiltak = isIndividueltTiltak(tiltakstype);
+  const kanOppretteAvtaleForTiltak =
+    isIndividueltTiltak(tiltakstype) && brukerdata.erUnderOppfolging;
   const brukerHarRettPaaValgtTiltak = harBrukerRettPaaValgtTiltak(brukerdata, tiltakstype);
   const skalVisePameldingslenke =
     enableDeltakerRegistrering &&
@@ -213,15 +214,22 @@ function lenkeTilOpprettAvtale(): string {
   return `${baseUrl}/tiltaksgjennomforing/opprett-avtale`;
 }
 
-function harBrukerRettPaaValgtTiltak(brukerdata: Bruker, tiltakstype: VeilederflateTiltakstype) {
+function harBrukerRettPaaValgtTiltak(
+  bruker: Bruker,
+  tiltakstype: VeilederflateTiltakstype,
+): boolean {
+  if (!bruker.erUnderOppfolging) {
+    return false;
+  }
+
   const innsatsgruppeForGjennomforing = tiltakstype.innsatsgruppe?.nokkel;
 
   if (!innsatsgruppeForGjennomforing) {
     return false;
   }
 
-  const godkjenteInnsatsgrupper = brukerdata.innsatsgruppe
-    ? utledInnsatsgrupperFraInnsatsgruppe(brukerdata.innsatsgruppe)
+  const godkjenteInnsatsgrupper = bruker.innsatsgruppe
+    ? utledInnsatsgrupperFraInnsatsgruppe(bruker.innsatsgruppe)
     : [];
 
   return godkjenteInnsatsgrupper.includes(innsatsgruppeForGjennomforing);

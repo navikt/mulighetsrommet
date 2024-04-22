@@ -2438,6 +2438,8 @@ components:
           type: string
         manuellStatus:
           $ref: "#/components/schemas/ManuellStatus"
+        erUnderOppfolging:
+          type: boolean
         varsler:
           type: array
           items:
@@ -2447,6 +2449,7 @@ components:
         - fnr
         - enheter
         - varsler
+        - erUnderOppfolging
 
     BrukerVarsel:
       type: string
