@@ -67,7 +67,7 @@
     "eslint-plugin-react": "7.34.1",
     "eslint-plugin-react-hooks": "4.6.0",
     "eslint-plugin-react-refresh": "0.4.6",
-    "msw": "2.2.13",
+    "msw": "2.2.14",
     "playwright": "1.43.1",
     "rollup-plugin-visualizer": "5.12.0",
     "typescript": "5.4.5",
