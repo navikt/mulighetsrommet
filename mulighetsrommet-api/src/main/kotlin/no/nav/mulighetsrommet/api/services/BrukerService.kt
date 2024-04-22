@@ -4,13 +4,15 @@ import arrow.core.getOrElse
 import io.ktor.http.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.clients.AccessType
+import no.nav.mulighetsrommet.api.clients.norg2.Norg2Client
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.clients.oppfolging.ErUnderOppfolgingError
 import no.nav.mulighetsrommet.api.clients.oppfolging.ManuellStatusDto
 import no.nav.mulighetsrommet.api.clients.oppfolging.OppfolgingError
 import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClient
-import no.nav.mulighetsrommet.api.clients.person.PersonError
-import no.nav.mulighetsrommet.api.clients.person.VeilarbpersonClient
+import no.nav.mulighetsrommet.api.clients.pdl.GeografiskTilknytning
+import no.nav.mulighetsrommet.api.clients.pdl.PdlClient
+import no.nav.mulighetsrommet.api.clients.pdl.PdlError
 import no.nav.mulighetsrommet.api.clients.vedtak.VedtakDto
 import no.nav.mulighetsrommet.api.clients.vedtak.VedtakError
 import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClient
@@ -21,8 +23,9 @@ import no.nav.mulighetsrommet.ktor.exception.StatusException
 class BrukerService(
     private val veilarboppfolgingClient: VeilarboppfolgingClient,
     private val veilarbvedtaksstotteClient: VeilarbvedtaksstotteClient,
-    private val veilarbpersonClient: VeilarbpersonClient,
     private val navEnhetService: NavEnhetService,
+    private val pdlClient: PdlClient,
+    private val norg2Client: Norg2Client,
 ) {
     suspend fun hentBrukerdata(fnr: String, obo: AccessType.OBO): Brukerdata {
         val erUnderOppfolging = veilarboppfolgingClient.erBrukerUnderOppfolging(fnr, obo)
@@ -75,17 +78,17 @@ class BrukerService(
                     )
                 }
             }
-        val personInfo = veilarbpersonClient.hentPersonInfo(fnr, obo)
+        val pdlPerson = pdlClient.hentPerson(fnr, obo)
             .getOrElse {
                 when (it) {
-                    PersonError.Forbidden -> throw StatusException(
-                        HttpStatusCode.Forbidden,
-                        "Manglet tilgang til å hente hente personinfo.",
+                    PdlError.Error -> throw StatusException(
+                        HttpStatusCode.InternalServerError,
+                        "Feil ved henting av personinfo fra Pdl.",
                     )
 
-                    PersonError.Error -> throw StatusException(
+                    PdlError.NotFound -> throw StatusException(
                         HttpStatusCode.InternalServerError,
-                        "Klarte ikke hente hente personinfo.",
+                        "Fant ikke person i Pdl.",
                     )
                 }
             }
@@ -110,9 +113,7 @@ class BrukerService(
             navEnhetService.hentEnhet(it)
         }
 
-        val brukersGeografiskeEnhet = personInfo.geografiskEnhet?.enhetsnummer?.let {
-            navEnhetService.hentEnhet(it)
-        }
+        val brukersGeografiskeEnhet = hentBrukersGeografiskeEnhet(fnr, obo)
 
         val enheter = getRelevanteEnheterForBruker(brukersGeografiskeEnhet, brukersOppfolgingsenhet)
 
@@ -127,7 +128,7 @@ class BrukerService(
             fnr = fnr,
             innsatsgruppe = sisteVedtak?.innsatsgruppe?.let { toInnsatsgruppe(it) },
             enheter = enheter,
-            fornavn = personInfo.fornavn,
+            fornavn = pdlPerson.navn.firstOrNull()?.fornavn,
             manuellStatus = manuellStatus,
             erUnderOppfolging = erUnderOppfolging,
             varsler = buildList {
@@ -144,12 +145,26 @@ class BrukerService(
         )
     }
 
+    private suspend fun hentBrukersGeografiskeEnhet(fnr: String, obo: AccessType.OBO): NavEnhetDbo? {
+        return pdlClient.hentGeografiskTilknytning(fnr, obo)
+            .getOrNull()
+            ?.let { gt ->
+                val norgEnhet = when (gt) {
+                    is GeografiskTilknytning.GtBydel -> norg2Client.hentEnhetByGeografiskOmraade(gt.value)
+                    is GeografiskTilknytning.GtKommune -> norg2Client.hentEnhetByGeografiskOmraade(gt.value)
+                    is GeografiskTilknytning.GtUtland, GeografiskTilknytning.GtUdefinert -> null
+                }
+
+                norgEnhet?.let { navEnhetService.hentEnhet(it.enhetNr) }
+            }
+    }
+
     @Serializable
     data class Brukerdata(
         val fnr: String,
         val innsatsgruppe: Innsatsgruppe?,
         val enheter: List<NavEnhetDbo>,
-        val fornavn: String,
+        val fornavn: String?,
         val manuellStatus: ManuellStatusDto,
         val erUnderOppfolging: Boolean,
         val varsler: List<BrukerVarsel>,

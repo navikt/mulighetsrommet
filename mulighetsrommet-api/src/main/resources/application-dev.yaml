@@ -90,10 +90,6 @@ app:
     url: https://veilarboppfolging.dev-fss-pub.nais.io/veilarboppfolging/api
     scope: api://dev-fss.pto.veilarboppfolging/.default
 
-  veilarbpersonConfig:
-    url: https://veilarbperson.dev-fss-pub.nais.io/veilarbperson/api
-    scope: api://dev-fss.pto.veilarbperson/.default
-
   veilarbveilederConfig:
     url: https://veilarbveileder.dev-fss-pub.nais.io/veilarbveileder/api
     scope: api://dev-fss.pto.veilarbveileder/.default

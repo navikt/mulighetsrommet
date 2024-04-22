@@ -4,6 +4,7 @@ import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
+import io.kotest.matchers.shouldBe
 import io.ktor.client.engine.mock.*
 import io.ktor.http.*
 import no.nav.mulighetsrommet.api.clients.AccessType
@@ -58,7 +59,7 @@ class PdlClientTest : FunSpec({
         pdlClient.hentIdenter("12345678910", AccessType.M2M).shouldBeLeft(PdlError.NotFound)
     }
 
-    test("happy case") {
+    test("happy case hentIdenter") {
         val pdlClient = PdlClient(
             baseUrl = "https://pdl.no",
             tokenProvider = { "token" },
@@ -116,5 +117,68 @@ class PdlClientTest : FunSpec({
                 historisk = true,
             ),
         )
+    }
+
+    test("happy case hentPerson") {
+        val pdlClient = PdlClient(
+            baseUrl = "https://pdl.no",
+            tokenProvider = { "token" },
+            clientEngine = createMockEngine(
+                "/graphql" to {
+                    respond(
+                        content = """
+                            {
+                                "data": {
+                                    "hentPerson": {
+                                        "navn": [
+                                            {
+                                                "fornavn": "Ola",
+                                                "mellomnavn": null,
+                                                "etternavn": "Normann"
+                                            }
+                                      ]
+                                    }
+                                }
+                            }
+                        """.trimIndent(),
+                        status = HttpStatusCode.OK,
+                        headers = headersOf(HttpHeaders.ContentType to listOf(ContentType.Application.Json.toString())),
+                    )
+                },
+            ),
+        )
+
+        val person = pdlClient.hentPerson("12345678910", AccessType.M2M).shouldBeRight()
+        person shouldBe PdlPerson(navn = listOf(PdlPerson.PdlNavn(fornavn = "Ola", etternavn = "Normann")))
+    }
+
+    test("happy case hentGeografiskTilknytning") {
+        val pdlClient = PdlClient(
+            baseUrl = "https://pdl.no",
+            tokenProvider = { "token" },
+            clientEngine = createMockEngine(
+                "/graphql" to {
+                    respond(
+                        content = """
+                            {
+                                "data": {
+                                    "hentGeografiskTilknytning":{
+                                        "gtType": "BYDEL",
+                                        "gtLand": null,
+                                        "gtKommune": null,
+                                        "gtBydel": "030102"
+                                    }
+                                }
+                            }
+                        """.trimIndent(),
+                        status = HttpStatusCode.OK,
+                        headers = headersOf(HttpHeaders.ContentType to listOf(ContentType.Application.Json.toString())),
+                    )
+                },
+            ),
+        )
+
+        val geografiskTilknytning = pdlClient.hentGeografiskTilknytning("12345678910", AccessType.M2M).shouldBeRight()
+        geografiskTilknytning shouldBe GeografiskTilknytning.GtBydel(value = "030102")
     }
 })
