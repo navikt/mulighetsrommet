@@ -212,7 +212,7 @@ class ArenaAdapterService(
 
                 // Resten av feltene skal ikke overskrives med data fra Arena
                 id = current.id,
-                avtaleId = current.avtaleId,
+                avtaleId = current.avtaleId ?: tiltaksgjennomforing.avtaleId,
                 navn = current.navn,
                 tiltakstypeId = current.tiltakstype.id,
                 arrangorOrganisasjonsnummer = current.arrangor.organisasjonsnummer,
