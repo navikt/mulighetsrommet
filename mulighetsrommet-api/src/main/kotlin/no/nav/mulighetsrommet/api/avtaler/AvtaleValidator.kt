@@ -56,8 +56,8 @@ class AvtaleValidator(
                 add(ValidationError.of(AvtaleDbo::startDato, "Startdato må være før sluttdato"))
             }
 
-            if (avtale.avtaletype.kreverWebsakUrl() && avtale.url == null) {
-                add(ValidationError.of(AvtaleDbo::url, "Avtalen må lenke til Websak"))
+            if (avtale.avtaletype.kreverWebsaknummer() && avtale.websaknummer == null) {
+                add(ValidationError.of(AvtaleDbo::websaknummer, "Avtalen må ha en referanse til Websak"))
             }
 
             if (avtale.arrangorUnderenheter.isEmpty()) {

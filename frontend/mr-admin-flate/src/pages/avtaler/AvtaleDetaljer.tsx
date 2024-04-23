@@ -30,21 +30,6 @@ export function AvtaleDetaljer() {
     return <Alert variant="error">Klarte ikke hente avtaleinformasjon</Alert>;
   }
 
-  const lenketekst = () => {
-    let tekst;
-    if (avtale?.url?.includes("websak")) {
-      tekst = `Se originalavtale i WebSak `;
-    } else {
-      tekst = `Se originalavtale `;
-    }
-    return (
-      <>
-        {tekst}
-        <ExternalLinkIcon aria-label="Ekstern lenke" />
-      </>
-    );
-  };
-
   function sorterPaRegionsnavn(a: { region: NavEnhet }, b: { region: NavEnhet }) {
     return a.region.navn.localeCompare(b.region.navn);
   }
@@ -58,7 +43,7 @@ export function AvtaleDetaljer() {
     startDato,
     sluttDato,
     administratorer,
-    url,
+    websaknummer,
     kontorstruktur,
     arenaAnsvarligEnhet,
     arrangor,
@@ -138,20 +123,8 @@ export function AvtaleDetaljer() {
                   )
                 }
               />
-              {url ? (
-                <Metadata
-                  header={avtaletekster.seOriginalavtaleLabel}
-                  verdi={
-                    <Link
-                      className={styles.websakLenke}
-                      to={url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      {lenketekst()}
-                    </Link>
-                  }
-                />
+              {websaknummer ? (
+                <Metadata header={avtaletekster.websaknummerLabel} verdi={websaknummer} />
               ) : null}
             </Bolk>
           ) : null}

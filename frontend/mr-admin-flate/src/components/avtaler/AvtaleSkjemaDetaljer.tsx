@@ -15,8 +15,8 @@ import { DeepPartial, useFormContext } from "react-hook-form";
 import { MultiValue } from "react-select";
 import { useAvtaleAdministratorer } from "@/api/ansatt/useAvtaleAdministratorer";
 import { useMigrerteTiltakstyperForAvtaler } from "@/api/tiltakstyper/useMigrerteTiltakstyper";
-import { erAnskaffetTiltak } from "../../utils/tiltakskoder";
-import { addYear, avtaletypeTilTekst } from "../../utils/Utils";
+import { erAnskaffetTiltak } from "@/utils/tiltakskoder";
+import { addYear, avtaletypeTilTekst } from "@/utils/Utils";
 import { Separator } from "../detaljside/Metadata";
 import { AdministratorOptions } from "../skjema/AdministratorOptions";
 import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
@@ -159,9 +159,9 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
           <FormGroup>
             <TextField
               size="small"
-              error={errors.url?.message}
-              label={avtaletekster.urlAvtaleWebsaklabel}
-              {...register("url")}
+              error={errors.websaknummer?.message}
+              label={avtaletekster.websaknummerLabel}
+              {...register("websaknummer")}
             />
           </FormGroup>
           <Separator />

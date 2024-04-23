@@ -2,11 +2,6 @@ import { Avtaletype, Personopplysning, TiltakskodeArena } from "mulighetsrommet-
 import z from "zod";
 import { FaneinnholdSchema } from "./FaneinnholdSchema";
 
-const GyldigUrlHvisVerdi = z.union([
-  z.literal(""),
-  z.string().trim().url("Du må skrive inn en gyldig nettadresse"),
-]);
-
 export const AvtaleSchema = z
   .object({
     navn: z.string(),
@@ -40,7 +35,12 @@ export const AvtaleSchema = z
         path: ["startDato"],
       }),
     administratorer: z.string().array().min(1, "Du må velge minst én administrator"),
-    url: GyldigUrlHvisVerdi,
+    websaknummer: z
+      .string()
+      .nullable()
+      .refine((value) => !value || /^\d{2}\/\d+$/.test(value), {
+        message: "Websaknummer må være på formatet 'år/løpenummer'",
+      }),
     prisbetingelser: z.string().optional(),
     beskrivelse: z
       .string({ required_error: "En avtale trenger en beskrivelse i det redaksjonelle innholdet" })
@@ -50,11 +50,14 @@ export const AvtaleSchema = z
     personopplysninger: z.nativeEnum(Personopplysning).array(),
   })
   .superRefine((data, ctx) => {
-    if ([Avtaletype.AVTALE, Avtaletype.RAMMEAVTALE].includes(data.avtaletype) && !data.url) {
+    if (
+      [Avtaletype.AVTALE, Avtaletype.RAMMEAVTALE].includes(data.avtaletype) &&
+      !data.websaknummer
+    ) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: "Avtalen må lenke til Websak og være en gyldig url",
-        path: ["url"],
+        message: "Avtalen må ha en referanse til Websak",
+        path: ["websaknummer"],
       });
     }
   });

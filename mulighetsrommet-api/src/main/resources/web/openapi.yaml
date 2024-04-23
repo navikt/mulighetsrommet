@@ -1991,6 +1991,8 @@ components:
           type: string
         avtalenummer:
           type: string
+        websaknummer:
+          type: string
         lopenummer:
           type: string
         arrangor:
@@ -2063,6 +2065,9 @@ components:
         avtalenummer:
           type: string
           nullable: true
+        websaknummer:
+          type: string
+          nullable: true
         arrangorOrganisasjonsnummer:
           type: string
         arrangorUnderenheter:
@@ -2080,9 +2085,6 @@ components:
         sluttDato:
           type: string
           format: date
-          nullable: true
-        url:
-          type: string
           nullable: true
         administratorer:
           type: array
