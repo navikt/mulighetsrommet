@@ -42,7 +42,27 @@ export function ArrangorKontaktpersonOversikt({ arrangor }: Props) {
   }
 
   return (
-    <VStack gap="5">
+    <VStack>
+      <HStack justify={"end"} gap="5">
+        <Button
+          style={{ marginTop: "1rem" }}
+          variant="primary"
+          size="small"
+          onClick={() =>
+            setNyKontaktperson({
+              id: window.crypto.randomUUID(),
+              arrangorId: arrangor.id,
+              navn: "",
+              epost: "",
+              telefon: "",
+              beskrivelse: "",
+              ansvarligFor: [],
+            })
+          }
+        >
+          Legg til ny kontaktperson
+        </Button>
+      </HStack>
       <Table>
         <Table.Header>
           <Table.Row>
@@ -55,6 +75,14 @@ export function ArrangorKontaktpersonOversikt({ arrangor }: Props) {
           </Table.Row>
         </Table.Header>
         <Table.Body>
+          {nyKontaktperson ? (
+            <RedigerbarRad
+              key={nyKontaktperson.id}
+              kontaktperson={nyKontaktperson}
+              setRedigerKontaktperson={setNyKontaktperson}
+              arrangor={arrangor}
+            />
+          ) : null}
           {data
             .sort((a, b) => a.navn.localeCompare(b.navn))
             .map((kontaktperson) =>
@@ -74,35 +102,9 @@ export function ArrangorKontaktpersonOversikt({ arrangor }: Props) {
                 />
               ),
             )}
-          {nyKontaktperson ? (
-            <RedigerbarRad
-              key={nyKontaktperson.id}
-              kontaktperson={nyKontaktperson}
-              setRedigerKontaktperson={setNyKontaktperson}
-              arrangor={arrangor}
-            />
-          ) : null}
         </Table.Body>
       </Table>
-      <HStack justify={"end"} gap="5">
-        <Button
-          variant="primary"
-          size="small"
-          onClick={() =>
-            setNyKontaktperson({
-              id: window.crypto.randomUUID(),
-              arrangorId: arrangor.id,
-              navn: "",
-              epost: "",
-              telefon: "",
-              beskrivelse: "",
-              ansvarligFor: [],
-            })
-          }
-        >
-          Legg til ny kontaktperson
-        </Button>
-      </HStack>
+
       {slettKontaktperson ? (
         <SlettKontaktpersonModal
           onClose={() => setSlettKontaktperson(undefined)}

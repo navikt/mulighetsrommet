@@ -71,6 +71,9 @@ export function SlettKontaktpersonModal({ onClose, kontaktperson }: Props) {
               <i>Dette kan ikke angres.</i>
             </BodyShort>
             <HStack justify={"space-between"} style={{ marginTop: "1rem" }}>
+              <Button variant="tertiary" onClick={onClose}>
+                Nei, avbryt
+              </Button>
               <Button
                 title={
                   erKobletTilDokumenter
@@ -82,9 +85,6 @@ export function SlettKontaktpersonModal({ onClose, kontaktperson }: Props) {
                 onClick={slettKontaktperson}
               >
                 Slett kontaktperson
-              </Button>
-              <Button variant="tertiary" onClick={onClose}>
-                Nei, avbryt
               </Button>
             </HStack>
           </>
