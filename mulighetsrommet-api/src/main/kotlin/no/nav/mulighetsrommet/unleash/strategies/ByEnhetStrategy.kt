@@ -44,9 +44,6 @@ class ByEnhetStrategy(private val axsysClient: AxsysClient) : Strategy {
     private fun hentEnheter(navIdent: String): List<String?> {
         return try {
             axsysClient.hentTilganger(NavIdent(navIdent)).stream()
-                .filter { enhet ->
-                    enhet.temaer.contains(TEMA_OPPFOLGING)
-                }
                 .map { enhet ->
                     enhet.enhetId.get()
                 }.toList()
