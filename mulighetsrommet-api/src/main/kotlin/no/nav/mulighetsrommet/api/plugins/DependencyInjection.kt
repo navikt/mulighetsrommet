@@ -25,7 +25,6 @@ import no.nav.mulighetsrommet.api.clients.msgraph.MicrosoftGraphClient
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Client
 import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClient
 import no.nav.mulighetsrommet.api.clients.pdl.PdlClient
-import no.nav.mulighetsrommet.api.clients.person.VeilarbpersonClient
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClient
 import no.nav.mulighetsrommet.api.repositories.*
@@ -206,14 +205,6 @@ private fun services(appConfig: AppConfig) = module {
         )
     }
     single {
-        VeilarbpersonClient(
-            baseUrl = appConfig.veilarbpersonConfig.url,
-            tokenProvider = { obo ->
-                oboTokenProvider.exchangeOnBehalfOfToken(appConfig.veilarbpersonConfig.scope, obo.token)
-            },
-        )
-    }
-    single {
         VeilarbdialogClient(
             baseUrl = appConfig.veilarbdialogConfig.url,
             tokenProvider = { token ->
@@ -316,7 +307,7 @@ private fun services(appConfig: AppConfig) = module {
     }
     single { TiltakshistorikkService(get(), get(), get(), get()) }
     single { VeilederflateService(get(), get(), get(), get()) }
-    single { BrukerService(get(), get(), get(), get()) }
+    single { BrukerService(get(), get(), get(), get(), get()) }
     single { DialogService(get()) }
     single { NavAnsattService(appConfig.auth.roles, get(), get(), get(), get()) }
     single { PoaoTilgangService(get()) }

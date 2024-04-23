@@ -29,7 +29,6 @@ data class AppConfig(
     val sanity: SanityClient.Config,
     val veilarboppfolgingConfig: ServiceClientConfig,
     val veilarbvedtaksstotteConfig: ServiceClientConfig,
-    val veilarbpersonConfig: ServiceClientConfig,
     val veilarbdialogConfig: ServiceClientConfig,
     val veilarbveilederConfig: ServiceClientConfig,
     val amtDeltakerConfig: ServiceClientConfig,
