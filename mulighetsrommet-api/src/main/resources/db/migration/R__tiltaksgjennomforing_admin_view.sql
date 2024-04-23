@@ -89,8 +89,8 @@ select gjennomforing.id,
        case
            when gjennomforing.avbrutt_tidspunkt is not null and gjennomforing.avbrutt_tidspunkt < gjennomforing.start_dato then 'AVLYST'
            when gjennomforing.avbrutt_tidspunkt is not null and gjennomforing.avbrutt_tidspunkt >= gjennomforing.start_dato then 'AVBRUTT'
-           when gjennomforing.slutt_dato is not null and now() > gjennomforing.slutt_dato then 'AVSLUTTET'
-           when now() >= gjennomforing.start_dato then 'GJENNOMFORES'
+           when gjennomforing.slutt_dato is not null and date(now()) > gjennomforing.slutt_dato then 'AVSLUTTET'
+           when date(now()) >= gjennomforing.start_dato then 'GJENNOMFORES'
            else 'PLANLAGT'
        end as status,
     a.personvern_bekreftet

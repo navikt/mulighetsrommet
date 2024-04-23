@@ -51,7 +51,7 @@ select avtale.id,
        )                                   as arrangor_kontaktpersoner_json,
        case
            when avtale.avbrutt_tidspunkt is not null then 'AVBRUTT'
-           when avtale.slutt_dato is not null and now() > avtale.slutt_dato then 'AVSLUTTET'
+           when avtale.slutt_dato is not null and date(now()) > avtale.slutt_dato then 'AVSLUTTET'
            else 'AKTIV'
        end as status,
        coalesce(

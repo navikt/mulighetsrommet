@@ -824,29 +824,48 @@ class AvtaleRepositoryTest : FunSpec({
         }
     }
 
-    context("Avslutningsstatus") {
-        val avtale = AvtaleFixtures.oppfolging.copy(
-            sluttDato = LocalDate.now().plusWeeks(1),
-        )
-
+    context("Status på avtale") {
         val domain = MulighetsrommetTestDomain(
             arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
             tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
-            avtaler = listOf(avtale),
+            avtaler = listOf(),
         )
 
         domain.initialize(database.db)
 
+        val dagensDato = LocalDate.now()
+        val enManedFrem = dagensDato.plusMonths(1)
+        val enManedTilbake = dagensDato.minusMonths(1)
+        val toManederFrem = dagensDato.plusMonths(2)
+        val toManederTilbake = dagensDato.minusMonths(1)
+
         val avtaler = AvtaleRepository(database.db)
 
-        test("set avbrutt_tidspunkt påvirker avtalestatus") {
-            avtaler.get(AvtaleFixtures.oppfolging.id).should {
-                it?.avtalestatus shouldBe Avtalestatus.AKTIV
-            }
+        test("status utleds fra avtalens datoer") {
+            forAll(
+                row(dagensDato, enManedFrem, Avtalestatus.AKTIV),
+                row(enManedFrem, toManederFrem, Avtalestatus.AKTIV),
+                row(enManedTilbake, dagensDato, Avtalestatus.AKTIV),
+                row(toManederTilbake, enManedTilbake, Avtalestatus.AVSLUTTET),
+            ) { startDato, sluttDato, expectedStatus ->
+                avtaler.upsert(AvtaleFixtures.oppfolging.copy(startDato = startDato, sluttDato = sluttDato))
 
-            avtaler.setAvbruttTidspunkt(avtale.id, LocalDateTime.now())
-            avtaler.get(AvtaleFixtures.oppfolging.id).should {
-                it?.avtalestatus shouldBe Avtalestatus.AVBRUTT
+                avtaler.get(AvtaleFixtures.oppfolging.id).shouldNotBeNull().avtalestatus shouldBe expectedStatus
+            }
+        }
+
+        test("avbrutt-tidspunkt påvirker avtalestatus") {
+            forAll(
+                row(dagensDato, enManedFrem, dagensDato, Avtalestatus.AVBRUTT),
+                row(enManedFrem, toManederFrem, dagensDato, Avtalestatus.AVBRUTT),
+                row(toManederTilbake, enManedTilbake, dagensDato, Avtalestatus.AVBRUTT),
+                row(enManedTilbake, enManedFrem, enManedFrem.plusDays(1), Avtalestatus.AVBRUTT),
+            ) { startDato, sluttDato, avbruttDato, expectedStatus ->
+                avtaler.upsert(AvtaleFixtures.oppfolging.copy(startDato = startDato, sluttDato = sluttDato))
+
+                avtaler.setAvbruttTidspunkt(AvtaleFixtures.oppfolging.id, avbruttDato.atStartOfDay())
+
+                avtaler.get(AvtaleFixtures.oppfolging.id).shouldNotBeNull().avtalestatus shouldBe expectedStatus
             }
         }
     }

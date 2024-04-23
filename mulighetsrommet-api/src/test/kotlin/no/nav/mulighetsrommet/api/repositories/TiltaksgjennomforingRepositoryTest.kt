@@ -1194,130 +1194,40 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         val toManederFrem = dagensDato.plusMonths(2)
         val toManederTilbake = dagensDato.minusMonths(2)
 
-        test("avbrutt før start er avlyst") {
-            tiltaksgjennomforinger.upsert(
-                AFT1.copy(
-                    startDato = enManedTilbake,
-                    sluttDato = enManedFrem,
-                ),
-            )
-            tiltaksgjennomforinger.avbryt(
-                AFT1.id,
-                enManedTilbake.atStartOfDay().minusDays(1),
-                AvbruttAarsak.Feilregistrering,
-            )
-            tiltaksgjennomforinger.get(AFT1.id)!!.status shouldBe TiltaksgjennomforingStatus.AVLYST
+        test("status AVLYST og AVBRUTT utledes fra avbrutt-tidspunkt") {
+            forAll(
+                row(enManedTilbake, enManedFrem, enManedTilbake.minusDays(1), TiltaksgjennomforingStatus.AVLYST),
+                row(enManedFrem, toManederFrem, dagensDato, TiltaksgjennomforingStatus.AVLYST),
+                row(dagensDato, toManederFrem, dagensDato, TiltaksgjennomforingStatus.AVBRUTT),
+                row(enManedTilbake, enManedFrem, enManedTilbake.plusDays(3), TiltaksgjennomforingStatus.AVBRUTT),
+                row(enManedFrem, toManederFrem, enManedFrem.plusMonths(2), TiltaksgjennomforingStatus.AVBRUTT),
+            ) { startDato, sluttDato, avbruttDato, expectedStatus ->
+                tiltaksgjennomforinger.upsert(AFT1.copy(startDato = startDato, sluttDato = sluttDato))
 
-            tiltaksgjennomforinger.upsert(
-                AFT1.copy(
-                    startDato = toManederTilbake,
-                    sluttDato = enManedTilbake,
-                ),
-            )
-            tiltaksgjennomforinger.avbryt(
-                AFT1.id,
-                toManederTilbake.atStartOfDay().minusYears(1),
-                AvbruttAarsak.Feilregistrering,
-            )
-            tiltaksgjennomforinger.get(AFT1.id)!!.status shouldBe TiltaksgjennomforingStatus.AVLYST
+                tiltaksgjennomforinger.avbryt(
+                    AFT1.id,
+                    avbruttDato.atStartOfDay(),
+                    AvbruttAarsak.Feilregistrering,
+                )
 
-            tiltaksgjennomforinger.upsert(
-                AFT1.copy(
-                    startDato = enManedFrem,
-                    sluttDato = toManederFrem,
-                ),
-            )
-            tiltaksgjennomforinger.avbryt(
-                AFT1.id,
-                enManedFrem.atStartOfDay().minusMonths(1),
-                AvbruttAarsak.Feilregistrering,
-            )
-            tiltaksgjennomforinger.get(AFT1.id)!!.status shouldBe TiltaksgjennomforingStatus.AVLYST
+                tiltaksgjennomforinger.get(AFT1.id).shouldNotBeNull().status shouldBe expectedStatus
+            }
         }
 
-        test("avbrutt etter start er avbrutt") {
-            tiltaksgjennomforinger.upsert(
-                AFT1.copy(
-                    startDato = enManedTilbake,
-                    sluttDato = enManedFrem,
-                ),
-            )
-            tiltaksgjennomforinger.avbryt(
-                AFT1.id,
-                enManedTilbake.atStartOfDay().plusDays(3),
-                AvbruttAarsak.Feilregistrering,
-            )
-            tiltaksgjennomforinger.get(AFT1.id)!!.status shouldBe TiltaksgjennomforingStatus.AVBRUTT
+        test("hvis ikke avbrutt så blir status utledet basert på dagens dato") {
+            forAll(
+                row(toManederTilbake, enManedTilbake, TiltaksgjennomforingStatus.AVSLUTTET),
+                row(toManederTilbake, enManedTilbake, TiltaksgjennomforingStatus.AVSLUTTET),
+                row(enManedTilbake, enManedFrem, TiltaksgjennomforingStatus.GJENNOMFORES),
+                row(enManedTilbake, null, TiltaksgjennomforingStatus.GJENNOMFORES),
+                row(dagensDato, dagensDato, TiltaksgjennomforingStatus.GJENNOMFORES),
+                row(enManedFrem, toManederFrem, TiltaksgjennomforingStatus.PLANLAGT),
+                row(enManedFrem, null, TiltaksgjennomforingStatus.PLANLAGT),
+            ) { startDato, sluttDato, status ->
+                tiltaksgjennomforinger.upsert(AFT1.copy(startDato = startDato, sluttDato = sluttDato))
 
-            tiltaksgjennomforinger.upsert(
-                AFT1.copy(
-                    startDato = toManederTilbake,
-                    sluttDato = enManedTilbake,
-                ),
-            )
-            tiltaksgjennomforinger.avbryt(
-                AFT1.id,
-                toManederTilbake.atStartOfDay().plusYears(2),
-                AvbruttAarsak.Feilregistrering,
-            )
-            tiltaksgjennomforinger.get(AFT1.id)!!.status shouldBe TiltaksgjennomforingStatus.AVBRUTT
-
-            tiltaksgjennomforinger.upsert(
-                AFT1.copy(
-                    startDato = enManedFrem,
-                    sluttDato = toManederFrem,
-                ),
-            )
-            tiltaksgjennomforinger.avbryt(
-                AFT1.id,
-                enManedFrem.atStartOfDay().plusMonths(2),
-                AvbruttAarsak.Feilregistrering,
-            )
-            tiltaksgjennomforinger.get(AFT1.id)!!.status shouldBe TiltaksgjennomforingStatus.AVBRUTT
-        }
-
-        test("hvis ikke avbrutt") {
-            tiltaksgjennomforinger.upsert(
-                AFT1.copy(
-                    startDato = enManedTilbake,
-                    sluttDato = enManedFrem,
-                ),
-            )
-            tiltaksgjennomforinger.get(AFT1.id)!!.status shouldBe TiltaksgjennomforingStatus.GJENNOMFORES
-
-            tiltaksgjennomforinger.upsert(
-                AFT1.copy(
-                    startDato = toManederTilbake,
-                    sluttDato = enManedTilbake,
-                ),
-            )
-            tiltaksgjennomforinger.get(AFT1.id)!!.status shouldBe TiltaksgjennomforingStatus.AVSLUTTET
-
-            tiltaksgjennomforinger.upsert(
-                AFT1.copy(
-                    startDato = enManedFrem,
-                    sluttDato = toManederFrem,
-                ),
-            )
-            tiltaksgjennomforinger.get(AFT1.id)!!.status shouldBe TiltaksgjennomforingStatus.PLANLAGT
-        }
-
-        test("hvis sluttdato mangler så regnes den som pågående") {
-            tiltaksgjennomforinger.upsert(
-                AFT1.copy(
-                    startDato = enManedTilbake,
-                    sluttDato = null,
-                ),
-            )
-            tiltaksgjennomforinger.get(AFT1.id)!!.status shouldBe TiltaksgjennomforingStatus.GJENNOMFORES
-
-            tiltaksgjennomforinger.upsert(
-                AFT1.copy(
-                    startDato = enManedFrem,
-                    sluttDato = null,
-                ),
-            )
-            tiltaksgjennomforinger.get(AFT1.id)!!.status shouldBe TiltaksgjennomforingStatus.PLANLAGT
+                tiltaksgjennomforinger.get(AFT1.id).shouldNotBeNull().status shouldBe status
+            }
         }
     }
 
