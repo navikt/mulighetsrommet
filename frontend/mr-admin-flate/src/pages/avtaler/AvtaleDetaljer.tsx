@@ -1,26 +1,22 @@
-import { ExternalLinkIcon } from "@navikt/aksel-icons";
-import { Alert, Heading, HelpText, VStack } from "@navikt/ds-react";
-import { NOM_ANSATT_SIDE } from "mulighetsrommet-frontend-common/constants";
-import { Fragment } from "react";
 import { useAvtale } from "@/api/avtaler/useAvtale";
+import { getDisplayName } from "@/api/enhet/helpers";
 import { Bolk } from "@/components/detaljside/Bolk";
 import { Metadata, Separator } from "@/components/detaljside/Metadata";
 import { Laster } from "@/components/laster/Laster";
+import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
+import { ArrangorKontaktpersonDetaljer } from "@/pages/arrangor/ArrangorKontaktpersonDetaljer";
 import { avtaletypeTilTekst, formaterDato } from "@/utils/Utils";
 import { erAnskaffetTiltak } from "@/utils/tiltakskoder";
-import styles from "../DetaljerInfo.module.scss";
+import { ExternalLinkIcon } from "@navikt/aksel-icons";
+import { Alert, Heading, HelpText, VStack } from "@navikt/ds-react";
+import { NavEnhet, Opphav } from "mulighetsrommet-api-client";
+import { NOM_ANSATT_SIDE } from "mulighetsrommet-frontend-common/constants";
+import { Fragment } from "react";
 import { Link } from "react-router-dom";
-import { NavEnhet, Opphav, Toggles } from "mulighetsrommet-api-client";
-import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
-import { getDisplayName } from "@/api/enhet/helpers";
-import { ArrangorKontaktpersonDetaljer } from "@/pages/arrangor/ArrangorKontaktpersonDetaljer";
-import { useFeatureToggle } from "@/api/features/feature-toggles";
+import styles from "../DetaljerInfo.module.scss";
 
 export function AvtaleDetaljer() {
   const { data: avtale, isPending, error } = useAvtale();
-  const { data: enableArrangorSide } = useFeatureToggle(
-    Toggles.MULIGHETSROMMET_ADMIN_FLATE_ENABLE_ARRANGOR_SIDER,
-  );
 
   if (isPending) {
     return <Laster tekst="Laster avtale..." />;
@@ -215,13 +211,9 @@ export function AvtaleDetaljer() {
           <Metadata
             header={avtaletekster.tiltaksarrangorHovedenhetLabel}
             verdi={
-              enableArrangorSide ? (
-                <Link to={`/arrangorer/${arrangor.id}`}>
-                  {arrangor.navn} - {arrangor.organisasjonsnummer}
-                </Link>
-              ) : (
-                `${arrangor.navn} - ${arrangor.organisasjonsnummer}`
-              )
+              <Link to={`/arrangorer/${arrangor.id}`}>
+                {arrangor.navn} - {arrangor.organisasjonsnummer}
+              </Link>
             }
           />
         </Bolk>
