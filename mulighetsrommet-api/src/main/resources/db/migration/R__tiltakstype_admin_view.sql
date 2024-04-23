@@ -10,7 +10,7 @@ select
     tiltakstype.slutt_dato,
     tiltakstype.sanity_id,
     case
-        when slutt_dato is not null and now() > slutt_dato then 'AVSLUTTET'
+        when slutt_dato is not null and date(now()) > slutt_dato then 'AVSLUTTET'
         else 'AKTIV'
     end as status,
     coalesce(
