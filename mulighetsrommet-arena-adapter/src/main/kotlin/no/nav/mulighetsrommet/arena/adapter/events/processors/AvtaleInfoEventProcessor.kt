@@ -107,6 +107,8 @@ class AvtaleInfoEventProcessor(
             listOf(
                 // Avtale til gjennomføring 2018/291121
                 227767,
+                // Avtale til gjennomføring 2017/328328
+                234161,
             )
         } else if (NaisEnv.current().isProdGCP()) {
             listOf(
