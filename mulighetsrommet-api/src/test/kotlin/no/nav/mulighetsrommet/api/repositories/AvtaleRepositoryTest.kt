@@ -33,8 +33,7 @@ import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.ArenaAvtaleDbo
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
-import no.nav.mulighetsrommet.domain.dto.Avtalestatus
-import no.nav.mulighetsrommet.domain.dto.Avtaletype
+import no.nav.mulighetsrommet.domain.dto.*
 import org.intellij.lang.annotations.Language
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -218,6 +217,27 @@ class AvtaleRepositoryTest : FunSpec({
             avtaler.upsert(avtale)
             avtaler.get(avtale.id).shouldNotBeNull().should {
                 it.arrangor.kontaktpersoner shouldHaveSize 0
+            }
+        }
+
+        test("Personopplysninger") {
+            val avtaler = AvtaleRepository(database.db)
+            var avtale = AvtaleFixtures.oppfolging.copy(personopplysninger = listOf(Personopplysning.NAVN))
+            avtaler.upsert(avtale)
+            avtaler.get(avtale.id).shouldNotBeNull().should {
+                it.personopplysninger shouldContainExactly listOf(Personopplysning.NAVN)
+            }
+
+            avtale = avtale.copy(personopplysninger = listOf(Personopplysning.KJONN, Personopplysning.ADFERD))
+            avtaler.upsert(avtale)
+            avtaler.get(avtale.id).shouldNotBeNull().should {
+                it.personopplysninger shouldContainExactly listOf(Personopplysning.KJONN, Personopplysning.ADFERD)
+            }
+
+            avtale = avtale.copy(personopplysninger = emptyList())
+            avtaler.upsert(avtale)
+            avtaler.get(avtale.id).shouldNotBeNull().should {
+                it.personopplysninger shouldHaveSize 0
             }
         }
 
@@ -463,7 +483,7 @@ class AvtaleRepositoryTest : FunSpec({
         }
 
         test("Filtrer på avtaletyper returnerer riktige avtaler") {
-            TiltakstypeRepository(database.db).upsert(TiltakstypeFixtures.GRUPPE_AMO)
+            TiltakstypeRepository(database.db).upsert(TiltakstypeFixtures.GruppeAmo)
 
             val avtale1 = AvtaleFixtures.gruppeAmo.copy(
                 id = UUID.randomUUID(),
@@ -551,6 +571,33 @@ class AvtaleRepositoryTest : FunSpec({
             )
 
             result.totalCount shouldBe 2
+        }
+
+        test("Filtrering på personvern_bekreftet") {
+            val avtale1 = AvtaleFixtures.oppfolging.copy(
+                personvernBekreftet = true,
+            )
+            val avtale2 = avtale1.copy(
+                id = UUID.randomUUID(),
+                personvernBekreftet = true,
+            )
+            val avtale3 = avtale1.copy(
+                id = UUID.randomUUID(),
+                personvernBekreftet = false,
+            )
+
+            avtaler.upsert(avtale1)
+            avtaler.upsert(avtale2)
+            avtaler.upsert(avtale3)
+
+            var result = avtaler.getAll(personvernBekreftet = true)
+            result.totalCount shouldBe 2
+
+            result = avtaler.getAll(personvernBekreftet = false)
+            result.totalCount shouldBe 1
+
+            result = avtaler.getAll(personvernBekreftet = null)
+            result.totalCount shouldBe 3
         }
     }
 
@@ -777,29 +824,48 @@ class AvtaleRepositoryTest : FunSpec({
         }
     }
 
-    context("Avslutningsstatus") {
-        val avtale = AvtaleFixtures.oppfolging.copy(
-            sluttDato = LocalDate.now().plusWeeks(1),
-        )
-
+    context("Status på avtale") {
         val domain = MulighetsrommetTestDomain(
             arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
             tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
-            avtaler = listOf(avtale),
+            avtaler = listOf(),
         )
 
         domain.initialize(database.db)
 
+        val dagensDato = LocalDate.now()
+        val enManedFrem = dagensDato.plusMonths(1)
+        val enManedTilbake = dagensDato.minusMonths(1)
+        val toManederFrem = dagensDato.plusMonths(2)
+        val toManederTilbake = dagensDato.minusMonths(1)
+
         val avtaler = AvtaleRepository(database.db)
 
-        test("set avbrutt_tidspunkt påvirker avtalestatus") {
-            avtaler.get(AvtaleFixtures.oppfolging.id).should {
-                it?.avtalestatus shouldBe Avtalestatus.AKTIV
-            }
+        test("status utleds fra avtalens datoer") {
+            forAll(
+                row(dagensDato, enManedFrem, Avtalestatus.AKTIV),
+                row(enManedFrem, toManederFrem, Avtalestatus.AKTIV),
+                row(enManedTilbake, dagensDato, Avtalestatus.AKTIV),
+                row(toManederTilbake, enManedTilbake, Avtalestatus.AVSLUTTET),
+            ) { startDato, sluttDato, expectedStatus ->
+                avtaler.upsert(AvtaleFixtures.oppfolging.copy(startDato = startDato, sluttDato = sluttDato))
 
-            avtaler.setAvbruttTidspunkt(avtale.id, LocalDateTime.now())
-            avtaler.get(AvtaleFixtures.oppfolging.id).should {
-                it?.avtalestatus shouldBe Avtalestatus.AVBRUTT
+                avtaler.get(AvtaleFixtures.oppfolging.id).shouldNotBeNull().avtalestatus shouldBe expectedStatus
+            }
+        }
+
+        test("avbrutt-tidspunkt påvirker avtalestatus") {
+            forAll(
+                row(dagensDato, enManedFrem, dagensDato, Avtalestatus.AVBRUTT),
+                row(enManedFrem, toManederFrem, dagensDato, Avtalestatus.AVBRUTT),
+                row(toManederTilbake, enManedTilbake, dagensDato, Avtalestatus.AVBRUTT),
+                row(enManedTilbake, enManedFrem, enManedFrem.plusDays(1), Avtalestatus.AVBRUTT),
+            ) { startDato, sluttDato, avbruttDato, expectedStatus ->
+                avtaler.upsert(AvtaleFixtures.oppfolging.copy(startDato = startDato, sluttDato = sluttDato))
+
+                avtaler.setAvbruttTidspunkt(AvtaleFixtures.oppfolging.id, avbruttDato.atStartOfDay())
+
+                avtaler.get(AvtaleFixtures.oppfolging.id).shouldNotBeNull().avtalestatus shouldBe expectedStatus
             }
         }
     }
@@ -865,6 +931,103 @@ class AvtaleRepositoryTest : FunSpec({
             val resultsAfterFrikobling =
                 queryOf(selectQuery).map { it.uuid("arrangor_kontaktperson_id") }.asList.let { database.db.run(it) }
             resultsAfterFrikobling.size shouldBe 1
+        }
+    }
+
+    context("Hente ut informasjon om behandling av personopplysninger for avtale") {
+        val domain = MulighetsrommetTestDomain(
+            gjennomforinger = listOf(TiltaksgjennomforingFixtures.Oppfolging1),
+        )
+        val avtaler = AvtaleRepository(database.db)
+
+        beforeEach {
+            domain.initialize(database.db)
+
+            @Language("PostgreSQL")
+            val insertPersonopplysningerForTiltakstypeQuery = """
+                insert into tiltakstype_personopplysning(tiltakskode, personopplysning, frekvens) values
+                ('OPPFOLGING'::tiltakskode, 'NAVN', 'ALLTID'::personopplysning_frekvens),
+                ('OPPFOLGING'::tiltakskode, 'KJONN', 'ALLTID'::personopplysning_frekvens),
+                ('OPPFOLGING'::tiltakskode, 'IP_ADRESSE', 'OFTE'::personopplysning_frekvens),
+                ('OPPFOLGING'::tiltakskode, 'ADFERD', 'SJELDEN'::personopplysning_frekvens)
+            """.trimIndent()
+
+            queryOf(insertPersonopplysningerForTiltakstypeQuery).asExecute.let { database.db.run(it) }
+        }
+
+        afterEach {
+            database.db.truncateAll()
+        }
+
+        test("Skal hente korrekt grupperte opplysninger om behandling av personopplysninger") {
+            val avtaleId = AvtaleFixtures.oppfolging.id
+            val expectedPersonopplysningerMedBeskrivelse = mapOf(
+                PersonopplysningFrekvens.ALLTID to listOf(
+                    PersonopplysningMedBeskrivelse(
+                        personopplysning = Personopplysning.NAVN,
+                        beskrivelse = "Navn",
+                    ),
+                    PersonopplysningMedBeskrivelse(
+                        personopplysning = Personopplysning.KJONN,
+                        beskrivelse = "Kjønn",
+                    ),
+                ),
+                PersonopplysningFrekvens.OFTE to listOf(
+                    PersonopplysningMedBeskrivelse(
+                        personopplysning = Personopplysning.IP_ADRESSE,
+                        beskrivelse = "IP-adresse",
+                    ),
+                ),
+                PersonopplysningFrekvens.SJELDEN to listOf(
+                    PersonopplysningMedBeskrivelse(
+                        personopplysning = Personopplysning.ADFERD,
+                        beskrivelse = "Opplysninger om atferd som kan ha betydning for tiltaksgjennomføring og jobbmuligheter (eks. truende adferd, vanskelig å samarbeide med osv.)",
+                    ),
+                ),
+            )
+
+            avtaler.upsert(
+                AvtaleFixtures.oppfolging.copy(
+                    id = avtaleId,
+                    personopplysninger = listOf(
+                        Personopplysning.NAVN,
+                        Personopplysning.KJONN,
+                        Personopplysning.IP_ADRESSE,
+                        Personopplysning.ADFERD,
+                    ),
+                    personvernBekreftet = true,
+                ),
+            )
+
+            val result = avtaler.getBehandlingAvPersonopplysninger(avtaleId)
+
+            result shouldBe expectedPersonopplysningerMedBeskrivelse
+        }
+
+        test("Skal ikke hente noe info om behandling av personopplysninger hvis personvern ikke er bekreftet for avtalen") {
+            val avtaleId = AvtaleFixtures.oppfolging.id
+            val expectedPersonopplysningerMedBeskrivelse = mapOf(
+                PersonopplysningFrekvens.ALLTID to emptyList(),
+                PersonopplysningFrekvens.OFTE to emptyList(),
+                PersonopplysningFrekvens.SJELDEN to emptyList<List<PersonopplysningMedBeskrivelse>>(),
+            )
+
+            avtaler.upsert(
+                AvtaleFixtures.oppfolging.copy(
+                    id = avtaleId,
+                    personopplysninger = listOf(
+                        Personopplysning.NAVN,
+                        Personopplysning.KJONN,
+                        Personopplysning.IP_ADRESSE,
+                        Personopplysning.ADFERD,
+                    ),
+                    personvernBekreftet = false,
+                ),
+            )
+
+            val result = avtaler.getBehandlingAvPersonopplysninger(avtaleId)
+
+            result shouldBe expectedPersonopplysningerMedBeskrivelse
         }
     }
 })

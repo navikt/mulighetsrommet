@@ -28,6 +28,8 @@ import {
 import { useTitle } from "mulighetsrommet-frontend-common";
 import { LenkeListe } from "@/components/sidemeny/Lenker";
 import { ModiaRoute, resolveModiaRoute } from "@/apps/modia/ModiaRoute";
+import { PersonvernContainer } from "../../../components/personvern/PersonvernContainer";
+import { InlineErrorBoundary } from "../../../ErrorBoundary";
 
 export function ModiaArbeidsmarkedstiltakDetaljer() {
   const { fnr } = useModiaContext();
@@ -74,7 +76,8 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
   }
 
   const tiltakstype = tiltaksgjennomforing.tiltakstype;
-  const kanOppretteAvtaleForTiltak = isIndividueltTiltak(tiltakstype);
+  const kanOppretteAvtaleForTiltak =
+    isIndividueltTiltak(tiltakstype) && brukerdata.erUnderOppfolging;
   const brukerHarRettPaaValgtTiltak = harBrukerRettPaaValgtTiltak(brukerdata, tiltakstype);
   const skalVisePameldingslenke =
     enableDeltakerRegistrering &&
@@ -170,6 +173,12 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
               </Button>
             )}
 
+            {tiltaksgjennomforing && tiltaksgjennomforing?.personvernBekreftet ? (
+              <InlineErrorBoundary>
+                <PersonvernContainer tiltaksgjennomforing={tiltaksgjennomforing} />
+              </InlineErrorBoundary>
+            ) : null}
+
             <LenkeListe lenker={tiltaksgjennomforing.faneinnhold?.lenker} />
           </>
         }
@@ -205,15 +214,22 @@ function lenkeTilOpprettAvtale(): string {
   return `${baseUrl}/tiltaksgjennomforing/opprett-avtale`;
 }
 
-function harBrukerRettPaaValgtTiltak(brukerdata: Bruker, tiltakstype: VeilederflateTiltakstype) {
+function harBrukerRettPaaValgtTiltak(
+  bruker: Bruker,
+  tiltakstype: VeilederflateTiltakstype,
+): boolean {
+  if (!bruker.erUnderOppfolging) {
+    return false;
+  }
+
   const innsatsgruppeForGjennomforing = tiltakstype.innsatsgruppe?.nokkel;
 
   if (!innsatsgruppeForGjennomforing) {
     return false;
   }
 
-  const godkjenteInnsatsgrupper = brukerdata.innsatsgruppe
-    ? utledInnsatsgrupperFraInnsatsgruppe(brukerdata.innsatsgruppe)
+  const godkjenteInnsatsgrupper = bruker.innsatsgruppe
+    ? utledInnsatsgrupperFraInnsatsgruppe(bruker.innsatsgruppe)
     : [];
 
   return godkjenteInnsatsgrupper.includes(innsatsgruppeForGjennomforing);

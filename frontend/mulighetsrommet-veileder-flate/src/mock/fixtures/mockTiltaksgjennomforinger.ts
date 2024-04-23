@@ -136,6 +136,8 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
   },
   {
     id: "00097090-1ba8-47a4-a82f-6aaad488994e",
+    avtaleId: "9a11a2ff-dd9c-42f7-b85f-b07522bb55f8",
+    personvernBekreftet: true,
     navn: "Kurs i overlevelsesteknikk (Gruppe AMO)",
     stedForGjennomforing: "2050 JESSHEIM",
     apentForInnsok: true,
@@ -175,6 +177,20 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
       varsler: [],
     },
     faneinnhold: {
+      lenker: [
+        {
+          lenke: "https://www.google.com",
+          lenkenavn: "Søk via Google",
+          apneINyFane: true,
+          visKunForVeileder: false,
+        },
+        {
+          lenke: "https://www.vg.no",
+          lenkenavn: "Sjekk nyhetene på VG",
+          apneINyFane: false,
+          visKunForVeileder: true,
+        },
+      ],
       forHvemInfoboks: "Deltakeren må være forberedt på dårlig vær under tiltaksperioden",
       forHvem: [
         {

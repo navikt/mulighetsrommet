@@ -83,12 +83,12 @@ export function defaultTiltaksgjennomforingData(
     ],
     antallPlasser: tiltaksgjennomforing?.antallPlasser,
     startOgSluttDato: {
-      startDato: tiltaksgjennomforing?.startDato
+      startDato: tiltaksgjennomforing
         ? tiltaksgjennomforing.startDato
         : defaultOppstartType(avtale) === TiltaksgjennomforingOppstartstype.LOPENDE
           ? avtale.startDato
           : undefined,
-      sluttDato: tiltaksgjennomforing?.sluttDato
+      sluttDato: tiltaksgjennomforing
         ? tiltaksgjennomforing.sluttDato
         : defaultOppstartType(avtale) === TiltaksgjennomforingOppstartstype.LOPENDE
           ? avtale.sluttDato

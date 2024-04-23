@@ -8,7 +8,6 @@ import kotliquery.Session
 import kotliquery.TransactionalSession
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
-import no.nav.mulighetsrommet.api.clients.vedtak.Innsatsgruppe
 import no.nav.mulighetsrommet.api.domain.dbo.ArenaNavEnhet
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
@@ -24,6 +23,7 @@ import no.nav.mulighetsrommet.domain.dbo.ArenaTiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dto.AvbruttAarsak
+import no.nav.mulighetsrommet.domain.dto.Innsatsgruppe
 import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus
 import org.intellij.lang.annotations.Language
@@ -292,7 +292,12 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 :apent_for_innsok,
                 :antall_plasser,
                 :avtale_id,
-                :oppstart::tiltaksgjennomforing_oppstartstype,
+                (select case
+                     when arena_kode in ('GRUPPEAMO', 'JOBBK', 'GRUFAGYRKE') then 'FELLES'
+                     else 'LOPENDE'
+                     end::tiltaksgjennomforing_oppstartstype
+                 from tiltakstype
+                 where tiltakstype.id = :tiltakstype_id::uuid),
                 :opphav::opphav,
                 :deltidsprosent,
                 :avbrutt_tidspunkt,
@@ -471,14 +476,14 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         search: String? = null,
         apentForInnsok: Boolean? = null,
         sanityTiltakstypeIds: List<UUID>? = null,
-        innsatsgrupper: List<Innsatsgruppe> = emptyList(),
+        innsatsgruppe: Innsatsgruppe? = null,
         brukersEnheter: List<String>,
     ): List<VeilederflateTiltaksgjennomforing> {
         val parameters = mapOf(
             "search" to search?.let { "%${it.replace("/", "#").trim()}%" },
             "apent_for_innsok" to apentForInnsok,
             "sanityTiltakstypeIds" to sanityTiltakstypeIds?.let { db.createUuidArray(it) },
-            "innsatsgrupper" to db.createTextArray(innsatsgrupper.map { it.name }),
+            "innsatsgruppe" to innsatsgruppe?.name,
             "brukersEnheter" to db.createTextArray(brukersEnheter),
         )
 
@@ -486,6 +491,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         val query = """
             select
                 gjennomforing.id,
+                a.id as avtale_id,
                 gjennomforing.sanity_id,
                 gjennomforing.navn,
                 gjennomforing.sted_for_gjennomforing,
@@ -514,21 +520,23 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                     ) end
                 ) as arrangor_kontaktpersoner_json,
                 tiltakstype.sanity_id as tiltakstype_sanity_id,
-                tiltakstype.navn as tiltakstype_navn
+                tiltakstype.navn as tiltakstype_navn,
+                a.personvern_bekreftet
             from tiltaksgjennomforing gjennomforing
                 inner join tiltakstype on gjennomforing.tiltakstype_id = tiltakstype.id
                 left join tiltaksgjennomforing_nav_enhet nav_enhet on nav_enhet.tiltaksgjennomforing_id = gjennomforing.id
                 left join arrangor on arrangor.id = gjennomforing.arrangor_id
                 left join tiltaksgjennomforing_arrangor_kontaktperson ak on ak.tiltaksgjennomforing_id = gjennomforing.id
                 left join arrangor_kontaktperson on arrangor_kontaktperson.id = ak.arrangor_kontaktperson_id
+                left join avtale a on a.id = gjennomforing.avtale_id
             where tiltakstype.tiltakskode is not null
               and gjennomforing.publisert
               and gjennomforing.avbrutt_tidspunkt is null and (gjennomforing.slutt_dato is null or gjennomforing.slutt_dato > now())
               and (:search::text is null or ((lower(gjennomforing.navn) like lower(:search)) or (gjennomforing.tiltaksnummer like :search)))
               and (:sanityTiltakstypeIds::uuid[] is null or tiltakstype.sanity_id = any(:sanityTiltakstypeIds))
-              and (:innsatsgrupper::innsatsgruppe[] is null or tiltakstype.innsatsgruppe = any(:innsatsgrupper::innsatsgruppe[]))
+              and (:innsatsgruppe::innsatsgruppe is null or :innsatsgruppe::innsatsgruppe = any(tiltakstype.innsatsgrupper))
               and (:apent_for_innsok::boolean is null or gjennomforing.apent_for_innsok = :apent_for_innsok)
-            group by gjennomforing.id, tiltakstype.id, arrangor.id
+            group by gjennomforing.id, tiltakstype.id, arrangor.id, a.id
             having array_agg(nav_enhet.enhetsnummer) && :brukersEnheter
         """.trimIndent()
 
@@ -712,7 +720,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         "apent_for_innsok" to apentForInnsok,
         "antall_plasser" to antallPlasser,
         "avtale_id" to avtaleId,
-        "oppstart" to oppstart.name,
         "deltidsprosent" to deltidsprosent,
         "avbrutt_tidspunkt" to when (avslutningsstatus) {
             Avslutningsstatus.AVLYST -> startDato.atStartOfDay().minusDays(1)
@@ -735,6 +742,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         return VeilederflateTiltaksgjennomforing(
             sanityId = uuidOrNull("sanity_id").toString(),
             id = uuidOrNull("id"),
+            avtaleId = uuidOrNull("avtale_id"),
             tiltakstype = VeilederflateTiltakstype(
                 sanityId = uuid("tiltakstype_sanity_id").toString(),
                 navn = string("tiltakstype_navn"),
@@ -762,6 +770,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                     enhet = string("estimert_ventetid_enhet"),
                 )
             },
+            personvernBekreftet = boolean("personvern_bekreftet"),
         )
     }
 
@@ -835,6 +844,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 navn = string("tiltakstype_navn"),
                 arenaKode = string("tiltakstype_arena_kode"),
             ),
+            personvernBekreftet = boolean("personvern_bekreftet"),
         )
     }
 
@@ -857,21 +867,11 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         )
     }
 
-    fun frikobleKontaktpersonFraGjennomforing(kontaktpersonId: UUID, gjennomforingId: UUID, tx: Session): Either<StatusResponseError, Pair<String, String>> {
-        @Language("PostgreSQL")
-        val kontaktpersonNavnQuery = """
-            select navn from arrangor_kontaktperson where id = ?::uuid
-        """.trimIndent()
-
-        val optionalNavn = queryOf(kontaktpersonNavnQuery, kontaktpersonId)
-            .map { it.string("navn") }
-            .asSingle
-            .let { tx.run(it) }
-
-        val navn = requireNotNull(optionalNavn) {
-            "Klarte ikke hente ut navn for kontaktperson"
-        }
-
+    fun frikobleKontaktpersonFraGjennomforing(
+        kontaktpersonId: UUID,
+        gjennomforingId: UUID,
+        tx: Session,
+    ): Either<StatusResponseError, String> {
         @Language("PostgreSQL")
         val query = """
             delete from tiltaksgjennomforing_arrangor_kontaktperson
@@ -882,6 +882,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             .asUpdate
             .let { tx.run(it) }
 
-        return Either.Right(navn to kontaktpersonId.toString())
+        return Either.Right(kontaktpersonId.toString())
     }
 }

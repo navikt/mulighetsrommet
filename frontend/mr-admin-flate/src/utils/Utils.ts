@@ -160,6 +160,9 @@ export function createQueryParamsForExcelDownload(filter: AvtaleFilter): URLSear
   filter.avtaletyper.forEach((type) => queryParams.append("avtaletyper", type));
   filter.navRegioner.forEach((region) => queryParams.append("navRegioner", region));
   filter.arrangorer.forEach((arrangorId) => queryParams.append("arrangorer", arrangorId));
+  filter.personvernBekreftet.forEach((b) =>
+    queryParams.append("personvernBekreftet", b ? "true" : "false"),
+  );
 
   if (filter.visMineAvtaler) {
     queryParams.set("visMineAvtaler", "true");

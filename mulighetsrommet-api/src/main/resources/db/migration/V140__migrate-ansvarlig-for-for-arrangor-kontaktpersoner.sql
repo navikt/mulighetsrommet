@@ -1,0 +1,9 @@
+UPDATE arrangor_kontaktperson
+SET ansvarlig_for = array_append(ansvarlig_for, 'AVTALE')
+FROM avtale_arrangor_kontaktperson
+WHERE arrangor_kontaktperson.id = avtale_arrangor_kontaktperson.arrangor_kontaktperson_id;
+
+UPDATE arrangor_kontaktperson
+SET ansvarlig_for = array_append(ansvarlig_for,'TILTAKSGJENNOMFORING')
+FROM tiltaksgjennomforing_arrangor_kontaktperson
+WHERE arrangor_kontaktperson.id = tiltaksgjennomforing_arrangor_kontaktperson.arrangor_kontaktperson_id;

@@ -8,6 +8,7 @@ import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.AdGruppeNavAnsattRolleMapping
 import no.nav.mulighetsrommet.api.clients.AccessType
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
+import no.nav.mulighetsrommet.api.clients.sanity.SanityParam
 import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattRolle
 import no.nav.mulighetsrommet.api.domain.dto.Mutation
@@ -108,8 +109,9 @@ class NavAnsattService(
     private suspend fun deleteSanityAnsatt(ansatt: NavAnsattDto) {
         val queryResponse = sanityClient.query(
             """
-            *[_type == "navKontaktperson" && navIdent.current == "${ansatt.navIdent.value}" || _type == "redaktor" && navIdent.current == "${ansatt.navIdent.value}"]._id
+            *[_type == "navKontaktperson" && navIdent.current == ${'$'}navIdent || _type == "redaktor" && navIdent.current == ${'$'}navIdent]._id
             """.trimIndent(),
+            params = listOf(SanityParam.of("navIdent", ansatt.navIdent.value)),
         )
 
         val ider = when (queryResponse) {

@@ -19,6 +19,7 @@ import { useArrangorKontaktpersoner } from "../../api/arrangor/useArrangorKontak
 import { useUpsertArrangorKontaktperson } from "../../api/arrangor/useUpsertArrangorKontaktperson";
 import { useHandleApiUpsertResponse } from "../../api/effects";
 import { SlettKontaktpersonModal } from "./SlettKontaktpersonModal";
+import { navnForAnsvar } from "./ArrangorKontaktpersonUtils";
 
 interface Props {
   arrangor: Arrangor;
@@ -41,7 +42,27 @@ export function ArrangorKontaktpersonOversikt({ arrangor }: Props) {
   }
 
   return (
-    <VStack gap="5">
+    <VStack>
+      <HStack justify={"end"} gap="5">
+        <Button
+          style={{ marginTop: "1rem" }}
+          variant="primary"
+          size="small"
+          onClick={() =>
+            setNyKontaktperson({
+              id: window.crypto.randomUUID(),
+              arrangorId: arrangor.id,
+              navn: "",
+              epost: "",
+              telefon: "",
+              beskrivelse: "",
+              ansvarligFor: [],
+            })
+          }
+        >
+          Legg til ny kontaktperson
+        </Button>
+      </HStack>
       <Table>
         <Table.Header>
           <Table.Row>
@@ -54,6 +75,14 @@ export function ArrangorKontaktpersonOversikt({ arrangor }: Props) {
           </Table.Row>
         </Table.Header>
         <Table.Body>
+          {nyKontaktperson ? (
+            <RedigerbarRad
+              key={nyKontaktperson.id}
+              kontaktperson={nyKontaktperson}
+              setRedigerKontaktperson={setNyKontaktperson}
+              arrangor={arrangor}
+            />
+          ) : null}
           {data
             .sort((a, b) => a.navn.localeCompare(b.navn))
             .map((kontaktperson) =>
@@ -73,35 +102,9 @@ export function ArrangorKontaktpersonOversikt({ arrangor }: Props) {
                 />
               ),
             )}
-          {nyKontaktperson ? (
-            <RedigerbarRad
-              key={nyKontaktperson.id}
-              kontaktperson={nyKontaktperson}
-              setRedigerKontaktperson={setNyKontaktperson}
-              arrangor={arrangor}
-            />
-          ) : null}
         </Table.Body>
       </Table>
-      <HStack justify={"end"} gap="5">
-        <Button
-          variant="primary"
-          size="small"
-          onClick={() =>
-            setNyKontaktperson({
-              id: window.crypto.randomUUID(),
-              arrangorId: arrangor.id,
-              navn: "",
-              epost: "",
-              telefon: "",
-              beskrivelse: "",
-              ansvarligFor: [],
-            })
-          }
-        >
-          Legg til ny kontaktperson
-        </Button>
-      </HStack>
+
       {slettKontaktperson ? (
         <SlettKontaktpersonModal
           onClose={() => setSlettKontaktperson(undefined)}
@@ -142,7 +145,7 @@ function LeseRad({ kontaktperson, setRedigerKontaktperson, setSlettKontaktperson
           {kontaktperson.ansvarligFor.map((ansvar, index) => (
             <li key={index}>
               <Tag variant="info" size="small">
-                {navnForAnvar(ansvar)}
+                {navnForAnsvar(ansvar)}
               </Tag>
             </li>
           ))}
@@ -150,10 +153,10 @@ function LeseRad({ kontaktperson, setRedigerKontaktperson, setSlettKontaktperson
       </Table.DataCell>
       <Table.DataCell>{kontaktperson.beskrivelse}</Table.DataCell>
       <Table.DataCell>
-        <HStack gap="5">
+        <HStack gap="5" justify={"end"}>
           <Button
             onClick={() => setRedigerKontaktperson(kontaktperson)}
-            variant="secondary"
+            variant="primary"
             size="small"
           >
             Rediger
@@ -185,6 +188,9 @@ const KontaktpersonSchema = z.object({
   epost: z.string().email("Du må skrive inn en gyldig e-postadresse").optional(),
   telefon: z.string().optional(),
   beskrivelse: z.string().optional(),
+  ansvarligFor: z
+    .array(z.enum(["AVTALE", "TILTAKSGJENNOMFORING", "OKONOMI"]))
+    .min(1, "Du må velge minst ett ansvarsområde"),
 });
 
 interface State extends ArrangorKontaktperson {
@@ -281,9 +287,10 @@ function RedigerbarRad({ kontaktperson, setRedigerKontaktperson, arrangor }: Red
           label="Hva er kontaktpersonen ansvarlig for?"
           hideLabel
           size="small"
+          error={state.errors.ansvarligFor}
           isMultiSelect
           selectedOptions={state.ansvarligFor.map((ansvar) => ({
-            label: navnForAnvar(ansvar),
+            label: navnForAnsvar(ansvar),
             value: ansvar,
           }))}
           options={[
@@ -316,28 +323,19 @@ function RedigerbarRad({ kontaktperson, setRedigerKontaktperson, arrangor }: Red
         />
       </Table.DataCell>
       <Table.DataCell>
-        <HStack gap="5">
+        <HStack gap="5" justify={"end"}>
           <Button onClick={lagre} variant="primary" size="small">
             Lagre
           </Button>
-          <Button onClick={() => setRedigerKontaktperson(undefined)} variant="danger" size="small">
+          <Button
+            onClick={() => setRedigerKontaktperson(undefined)}
+            variant="secondary-neutral"
+            size="small"
+          >
             Avbryt
           </Button>
         </HStack>
       </Table.DataCell>
     </Table.Row>
   );
-}
-
-function navnForAnvar(
-  ansvar: ArrangorKontaktpersonAnsvar,
-): "Avtale" | "Tiltaksgjennomføring" | "Økonomi" {
-  switch (ansvar) {
-    case ArrangorKontaktpersonAnsvar.AVTALE:
-      return "Avtale";
-    case ArrangorKontaktpersonAnsvar.TILTAKSGJENNOMFORING:
-      return "Tiltaksgjennomføring";
-    case ArrangorKontaktpersonAnsvar.OKONOMI:
-      return "Økonomi";
-  }
 }

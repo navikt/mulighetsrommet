@@ -390,6 +390,65 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                 }
             }
 
+            test("should map status to avslutningsstatus") {
+                val gjennomfores = createArenaTiltakgjennomforingEvent(Insert) {
+                    it.copy(TILTAKSTATUSKODE = "GJENNOMFOR")
+                }
+                val avlyst = createArenaTiltakgjennomforingEvent(Insert) {
+                    it.copy(TILTAKSTATUSKODE = "AVLYST")
+                }
+                val avbrutt = createArenaTiltakgjennomforingEvent(Insert) {
+                    it.copy(TILTAKSTATUSKODE = "AVBRUTT")
+                }
+                val avsluttetBeforeSluttdato = createArenaTiltakgjennomforingEvent(Insert) {
+                    it.copy(
+                        TILTAKSTATUSKODE = "AVSLUTT",
+                        DATO_FRA = "2022-11-11 00:00:00",
+                        DATO_TIL = LocalDateTime.now().plusYears(1).format(ArenaTimestampFormatter),
+                    )
+                }
+                val avsluttetAfterSluttdato = createArenaTiltakgjennomforingEvent(Insert) {
+                    it.copy(
+                        TILTAKSTATUSKODE = "AVSLUTT",
+                        DATO_FRA = "2022-11-11 00:00:00",
+                        DATO_TIL = "2023-11-11 00:00:00",
+                    )
+                }
+                forAll(
+                    row(gjennomfores, Avslutningsstatus.IKKE_AVSLUTTET),
+                    row(avlyst, Avslutningsstatus.AVLYST),
+                    row(avbrutt, Avslutningsstatus.AVBRUTT),
+                    row(avsluttetBeforeSluttdato, Avslutningsstatus.AVBRUTT),
+                    row(avsluttetAfterSluttdato, Avslutningsstatus.AVSLUTTET),
+                ) { event2, expectedStatus ->
+                    runBlocking {
+                        val (event, mapping) = prepareEvent(event2)
+
+                        val engine = createMockEngine(
+                            "/ords/arbeidsgiver" to {
+                                respondJson(
+                                    ArenaOrdsArrangor("123456", "000000"),
+                                )
+                            },
+                            "/api/v1/internal/arena/tiltaksgjennomforing" to { respondOk() },
+                            "/api/v1/internal/arena/tiltaksgjennomforing/${mapping.entityId}" to { respondOk() },
+                        )
+                        val processor = createProcessor(engine)
+
+                        processor.handleEvent(event).shouldBeRight()
+
+                        engine.requestHistory.last().apply {
+                            method shouldBe HttpMethod.Put
+
+                            decodeRequestBody<ArenaTiltaksgjennomforingDbo>().apply {
+                                id shouldBe mapping.entityId
+                                avslutningsstatus shouldBe expectedStatus
+                            }
+                        }
+                    }
+                }
+            }
+
             test("should fail when dependent avtale is missing") {
                 val processor = createProcessor()
 

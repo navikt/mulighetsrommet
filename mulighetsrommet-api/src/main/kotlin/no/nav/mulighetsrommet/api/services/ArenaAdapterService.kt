@@ -17,9 +17,7 @@ import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
 import no.nav.mulighetsrommet.api.domain.dto.AvtaleAdminDto
 import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingAdminDto
 import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingDto
-import no.nav.mulighetsrommet.api.domain.dto.TiltakstypeEksternDto
 import no.nav.mulighetsrommet.api.repositories.*
-import no.nav.mulighetsrommet.api.tasks.InitialLoadTiltaksgjennomforinger
 import no.nav.mulighetsrommet.api.utils.EnhetFilter
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.QueryResult
@@ -29,7 +27,10 @@ import no.nav.mulighetsrommet.domain.Tiltakskoder
 import no.nav.mulighetsrommet.domain.Tiltakskoder.isEgenRegiTiltak
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering.TiltaksgjennomforingSluttDatoCutoffDate
-import no.nav.mulighetsrommet.domain.dbo.*
+import no.nav.mulighetsrommet.domain.dbo.ArenaAvtaleDbo
+import no.nav.mulighetsrommet.domain.dbo.ArenaTiltaksgjennomforingDbo
+import no.nav.mulighetsrommet.domain.dbo.ArenaTiltakshistorikkDbo
+import no.nav.mulighetsrommet.domain.dbo.DeltakerDbo
 import no.nav.mulighetsrommet.domain.dto.Avtalestatus
 import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.domain.dto.TiltakstypeAdminDto
@@ -60,40 +61,8 @@ class ArenaAdapterService(
     private val endringshistorikk: EndringshistorikkService,
     private val veilarboppfolgingClient: VeilarboppfolgingClient,
     private val tiltakstypeService: TiltakstypeService,
-    private val initialLoadTiltaksgjennomforinger: InitialLoadTiltaksgjennomforinger,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
-
-    fun upsertTiltakstype(tiltakstype: TiltakstypeDbo): TiltakstypeDbo {
-        val current = tiltakstyper.get(tiltakstype.id)
-        return tiltakstyper.upsert(tiltakstype)
-            .also {
-                val eksternDto = tiltakstyper.getEksternTiltakstype(tiltakstype.id)
-                if (eksternDto != null) {
-                    tiltakstypeKafkaProducer.publish(eksternDto)
-
-                    if (tiltakstypeNavnHasChanged(current, eksternDto)) {
-                        val input = InitialLoadTiltaksgjennomforinger.Input(
-                            tiltakstyper = listOf(eksternDto.tiltakskode),
-                        )
-                        initialLoadTiltaksgjennomforinger.schedule(input)
-                    }
-                }
-            }
-    }
-
-    private fun tiltakstypeNavnHasChanged(
-        current: TiltakstypeAdminDto?,
-        eksternDto: TiltakstypeEksternDto,
-    ) = current != null && current.navn != eksternDto.navn
-
-    fun removeTiltakstype(id: UUID): QueryResult<Int> {
-        return tiltakstyper.delete(id).onRight { deletedRows ->
-            if (deletedRows != 0) {
-                tiltakstypeKafkaProducer.retract(id)
-            }
-        }
-    }
 
     suspend fun upsertAvtale(avtale: ArenaAvtaleDbo): AvtaleAdminDto {
         syncArrangorFromBrreg(avtale.arrangorOrganisasjonsnummer)
@@ -159,7 +128,7 @@ class ArenaAdapterService(
 
             val next = tiltaksgjennomforinger.get(mergedArenaGjennomforing.id, tx)!!
 
-            if (previous?.tiltaksnummer == null) {
+            if (previous != null && previous.tiltaksnummer == null) {
                 logTiltaksnummerHentetFraArena(tx, next)
             } else {
                 logUpdateGjennomforing(tx, next)
@@ -243,7 +212,7 @@ class ArenaAdapterService(
 
                 // Resten av feltene skal ikke overskrives med data fra Arena
                 id = current.id,
-                avtaleId = current.avtaleId,
+                avtaleId = current.avtaleId ?: tiltaksgjennomforing.avtaleId,
                 navn = current.navn,
                 tiltakstypeId = current.tiltakstype.id,
                 arrangorOrganisasjonsnummer = current.arrangor.organisasjonsnummer,
@@ -251,7 +220,6 @@ class ArenaAdapterService(
                 sluttDato = current.sluttDato,
                 apentForInnsok = current.apentForInnsok,
                 antallPlasser = current.antallPlasser,
-                oppstart = current.oppstart,
                 deltidsprosent = current.deltidsprosent,
                 avslutningsstatus = current.status.toAvslutningsstatus(),
             )
@@ -286,7 +254,6 @@ class ArenaAdapterService(
             apentForInnsok = current.apentForInnsok,
             antallPlasser = current.antallPlasser,
             avtaleId = current.avtaleId,
-            oppstart = current.oppstart,
             deltidsprosent = current.deltidsprosent,
         )
         return currentAsArenaGjennomforing == arenaGjennomforing

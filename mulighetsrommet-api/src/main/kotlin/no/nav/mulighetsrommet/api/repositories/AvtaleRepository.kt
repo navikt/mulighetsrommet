@@ -22,10 +22,7 @@ import no.nav.mulighetsrommet.database.utils.mapPaginated
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.ArenaAvtaleDbo
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
-import no.nav.mulighetsrommet.domain.dto.Avtalestatus
-import no.nav.mulighetsrommet.domain.dto.Avtaletype
-import no.nav.mulighetsrommet.domain.dto.Lopenummer
-import no.nav.mulighetsrommet.domain.dto.NavIdent
+import no.nav.mulighetsrommet.domain.dto.*
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
 import java.time.LocalDate
@@ -42,47 +39,53 @@ class AvtaleRepository(private val db: Database) {
 
         @Language("PostgreSQL")
         val query = """
-            insert into avtale(id,
-                               navn,
-                               tiltakstype_id,
-                               avtalenummer,
-                               arrangor_hovedenhet_id,
-                               start_dato,
-                               slutt_dato,
-                               avtaletype,
-                               prisbetingelser,
-                               antall_plasser,
-                               url,
-                               opphav,
-                               beskrivelse,
-                               faneinnhold)
-            values (:id::uuid,
-                    :navn,
-                    :tiltakstype_id::uuid,
-                    :avtalenummer,
-                    :arrangor_hovedenhet_id,
-                    :start_dato,
-                    :slutt_dato,
-                    :avtaletype::avtaletype,
-                    :prisbetingelser,
-                    :antall_plasser,
-                    :url,
-                    :opphav::opphav,
-                    :beskrivelse,
-                    :faneinnhold::jsonb)
-            on conflict (id) do update set navn                        = excluded.navn,
-                                           tiltakstype_id              = excluded.tiltakstype_id,
-                                           avtalenummer                = excluded.avtalenummer,
-                                           arrangor_hovedenhet_id      = excluded.arrangor_hovedenhet_id,
-                                           start_dato                  = excluded.start_dato,
-                                           slutt_dato                  = excluded.slutt_dato,
-                                           avtaletype                  = excluded.avtaletype,
-                                           prisbetingelser             = excluded.prisbetingelser,
-                                           antall_plasser              = excluded.antall_plasser,
-                                           url                         = excluded.url,
-                                           opphav                      = coalesce(avtale.opphav, excluded.opphav),
-                                           beskrivelse                 = excluded.beskrivelse,
-                                           faneinnhold                 = excluded.faneinnhold
+            insert into avtale (
+                id,
+                navn,
+                tiltakstype_id,
+                avtalenummer,
+                arrangor_hovedenhet_id,
+                start_dato,
+                slutt_dato,
+                avtaletype,
+                prisbetingelser,
+                antall_plasser,
+                url,
+                opphav,
+                beskrivelse,
+                faneinnhold,
+                personvern_bekreftet
+            ) values (
+                :id::uuid,
+                :navn,
+                :tiltakstype_id::uuid,
+                :avtalenummer,
+                :arrangor_hovedenhet_id,
+                :start_dato,
+                :slutt_dato,
+                :avtaletype::avtaletype,
+                :prisbetingelser,
+                :antall_plasser,
+                :url,
+                :opphav::opphav,
+                :beskrivelse,
+                :faneinnhold::jsonb,
+                :personvern_bekreftet
+            ) on conflict (id) do update set
+                navn                        = excluded.navn,
+                tiltakstype_id              = excluded.tiltakstype_id,
+                avtalenummer                = excluded.avtalenummer,
+                arrangor_hovedenhet_id      = excluded.arrangor_hovedenhet_id,
+                start_dato                  = excluded.start_dato,
+                slutt_dato                  = excluded.slutt_dato,
+                avtaletype                  = excluded.avtaletype,
+                prisbetingelser             = excluded.prisbetingelser,
+                antall_plasser              = excluded.antall_plasser,
+                url                         = excluded.url,
+                opphav                      = coalesce(avtale.opphav, excluded.opphav),
+                beskrivelse                 = excluded.beskrivelse,
+                faneinnhold                 = excluded.faneinnhold,
+                personvern_bekreftet        = excluded.personvern_bekreftet
         """.trimIndent()
 
         @Language("PostgreSQL")
@@ -131,6 +134,22 @@ class AvtaleRepository(private val db: Database) {
         val deleteArrangorKontaktpersoner = """
             delete from avtale_arrangor_kontaktperson
             where avtale_id = ?::uuid and not (arrangor_kontaktperson_id = any (?))
+        """.trimIndent()
+
+        @Language("PostgreSQL")
+        val upsertPersonopplysninger = """
+            insert into avtale_personopplysning (
+                personopplysning,
+                avtale_id
+            )
+            values (:personopplysning::personopplysning, :avtale_id::uuid)
+            on conflict do nothing
+        """.trimIndent()
+
+        @Language("PostgreSQL")
+        val deletePersonopplysninger = """
+            delete from avtale_personopplysning
+            where avtale_id = ?::uuid and not (personopplysning = any (?))
         """.trimIndent()
 
         tx.run(queryOf(query, avtale.toSqlParameters()).asExecute)
@@ -190,6 +209,26 @@ class AvtaleRepository(private val db: Database) {
                 deleteArrangorKontaktpersoner,
                 avtale.id,
                 db.createUuidArray(avtale.arrangorKontaktpersoner),
+            ).asExecute,
+        )
+
+        avtale.personopplysninger.forEach { p ->
+            tx.run(
+                queryOf(
+                    upsertPersonopplysninger,
+                    mapOf(
+                        "avtale_id" to avtale.id,
+                        "personopplysning" to p.name,
+                    ),
+                ).asExecute,
+            )
+        }
+
+        tx.run(
+            queryOf(
+                deletePersonopplysninger,
+                avtale.id,
+                db.createArrayOf("personopplysning", avtale.personopplysninger),
             ).asExecute,
         )
     }
@@ -279,6 +318,7 @@ class AvtaleRepository(private val db: Database) {
         sortering: String? = null,
         arrangorIds: List<UUID> = emptyList(),
         administratorNavIdent: NavIdent? = null,
+        personvernBekreftet: Boolean? = null,
     ): PaginatedResult<AvtaleAdminDto> {
         val parameters = mapOf(
             "search" to search?.replace("/", "#")?.trim()?.let { "%$it%" },
@@ -289,6 +329,7 @@ class AvtaleRepository(private val db: Database) {
             "nav_enheter" to navRegioner.ifEmpty { null }?.let { db.createTextArray(it) },
             "avtaletyper" to avtaletyper.ifEmpty { null }?.let { db.createArrayOf("avtaletype", it) },
             "statuser" to statuser.ifEmpty { null }?.let { db.createArrayOf("text", statuser) },
+            "personvern_bekreftet" to personvernBekreftet,
         )
 
         val order = when (sortering) {
@@ -323,6 +364,7 @@ class AvtaleRepository(private val db: Database) {
               and (:administrator_nav_ident::text is null or administratorer_json @> :administrator_nav_ident::jsonb)
               and (:avtaletyper::avtaletype[] is null or avtaletype = any (:avtaletyper))
               and (:statuser::text[] is null or status = any(:statuser))
+              and (:personvern_bekreftet::boolean is null or personvern_bekreftet = :personvern_bekreftet::boolean)
             order by $order
             limit :limit
             offset :offset
@@ -430,6 +472,7 @@ class AvtaleRepository(private val db: Database) {
         "url" to url,
         "beskrivelse" to beskrivelse,
         "faneinnhold" to faneinnhold?.let { Json.encodeToString(it) },
+        "personvern_bekreftet" to personvernBekreftet,
     )
 
     private fun ArenaAvtaleDbo.toSqlParameters(arrangorId: UUID) = mapOf(
@@ -455,6 +498,7 @@ class AvtaleRepository(private val db: Database) {
     private fun Row.toAvtaleAdminDto(): AvtaleAdminDto {
         val startDato = localDate("start_dato")
         val sluttDato = localDateOrNull("slutt_dato")
+        val personopplysninger = Json.decodeFromString<List<Personopplysning>>(string("personopplysninger"))
 
         val underenheter = stringOrNull("arrangor_underenheter")
             ?.let { Json.decodeFromString<List<AvtaleAdminDto.ArrangorUnderenhet?>>(it).filterNotNull() }
@@ -513,6 +557,8 @@ class AvtaleRepository(private val db: Database) {
                 navn = string("tiltakstype_navn"),
                 arenaKode = string("tiltakstype_arena_kode"),
             ),
+            personopplysninger = personopplysninger,
+            personvernBekreftet = boolean("personvern_bekreftet"),
         )
     }
 
@@ -530,21 +576,11 @@ class AvtaleRepository(private val db: Database) {
         )
     }
 
-    fun frikobleKontaktpersonFraAvtale(kontaktpersonId: UUID, avtaleId: UUID, tx: Session): Either<StatusResponseError, Pair<String, String>> {
-        @Language("PostgreSQL")
-        val kontaktpersonNavnQuery = """
-            select navn from arrangor_kontaktperson where id = ?::uuid
-        """.trimIndent()
-
-        val optionalNavn = queryOf(kontaktpersonNavnQuery, kontaktpersonId)
-            .map { it.string("navn") }
-            .asSingle
-            .let { tx.run(it) }
-
-        val navn = requireNotNull(optionalNavn) {
-            "Klarte ikke hente ut navn for kontaktperson"
-        }
-
+    fun frikobleKontaktpersonFraAvtale(
+        kontaktpersonId: UUID,
+        avtaleId: UUID,
+        tx: Session,
+    ): Either<StatusResponseError, String> {
         @Language("PostgreSQL")
         val query = """
             delete from avtale_arrangor_kontaktperson where arrangor_kontaktperson_id = ?::uuid and avtale_id = ?::uuid
@@ -554,6 +590,43 @@ class AvtaleRepository(private val db: Database) {
             .asUpdate
             .let { tx.run(it) }
 
-        return Either.Right(navn to kontaktpersonId.toString())
+        return Either.Right(kontaktpersonId.toString())
+    }
+
+    fun getBehandlingAvPersonopplysninger(id: UUID): Map<PersonopplysningFrekvens, List<PersonopplysningMedBeskrivelse>> {
+        @Language("PostgreSQL")
+        val valgtePersonopplysningerQuery = """
+            select tp.personopplysning, tp.frekvens
+            from avtale
+                inner join tiltakstype on tiltakstype.id = avtale.tiltakstype_id
+                inner join avtale_personopplysning ap on avtale.id = ap.avtale_id
+                inner join tiltakstype_personopplysning tp on tp.personopplysning = ap.personopplysning
+            where
+                avtale.id = ?::uuid
+                and avtale.personvern_bekreftet
+                and tp.tiltakskode = tiltakstype.tiltakskode;
+        """.trimIndent()
+
+        val valgtePersonopplysninger = queryOf(valgtePersonopplysningerQuery, id)
+            .map {
+                PersonopplysningMedFrekvens(
+                    personopplysning = Personopplysning.valueOf(it.string("personopplysning")),
+                    frekvens = PersonopplysningFrekvens.valueOf(it.string("frekvens")),
+                )
+            }
+            .asList
+            .let { db.run(it) }
+
+        return mapOf(
+            PersonopplysningFrekvens.ALLTID to valgtePersonopplysninger
+                .filter { it.frekvens == PersonopplysningFrekvens.ALLTID }
+                .map { it.personopplysning.toPersonopplysningMedBeskrivelse() },
+            PersonopplysningFrekvens.OFTE to valgtePersonopplysninger
+                .filter { it.frekvens == PersonopplysningFrekvens.OFTE }
+                .map { it.personopplysning.toPersonopplysningMedBeskrivelse() },
+            PersonopplysningFrekvens.SJELDEN to valgtePersonopplysninger
+                .filter { it.frekvens == PersonopplysningFrekvens.SJELDEN }
+                .map { it.personopplysning.toPersonopplysningMedBeskrivelse() },
+        )
     }
 }

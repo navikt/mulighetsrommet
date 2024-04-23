@@ -1,4 +1,4 @@
-import { Avtaletype, TiltakskodeArena } from "mulighetsrommet-api-client";
+import { Avtaletype, Personopplysning, TiltakskodeArena } from "mulighetsrommet-api-client";
 import z from "zod";
 import { FaneinnholdSchema } from "./FaneinnholdSchema";
 
@@ -46,6 +46,8 @@ export const AvtaleSchema = z
       .string({ required_error: "En avtale trenger en beskrivelse i det redaksjonelle innholdet" })
       .nullable(),
     faneinnhold: FaneinnholdSchema.nullable(),
+    personvernBekreftet: z.boolean({ required_error: "Du må ta stilling til personvern" }),
+    personopplysninger: z.nativeEnum(Personopplysning).array(),
   })
   .superRefine((data, ctx) => {
     if ([Avtaletype.AVTALE, Avtaletype.RAMMEAVTALE].includes(data.avtaletype) && !data.url) {

@@ -15,11 +15,13 @@ import no.nav.mulighetsrommet.api.routes.v1.responses.ValidationError
 import no.nav.mulighetsrommet.api.services.TiltakstypeService
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.Tiltakskoder
+import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dto.Avtalestatus
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus.GJENNOMFORES
 import no.nav.mulighetsrommet.domain.dto.TiltakstypeAdminDto
+import java.time.LocalDate
 
 class TiltaksgjennomforingValidator(
     private val tiltakstyper: TiltakstypeService,
@@ -208,13 +210,54 @@ class TiltaksgjennomforingValidator(
             }
 
             if (gjennomforing.sluttDato != null && previous.sluttDato != null && gjennomforing.sluttDato.isBefore(
-                    previous.sluttDato,
+                    LocalDate.now(),
                 )
             ) {
                 add(
                     ValidationError.of(
                         TiltaksgjennomforingDbo::sluttDato,
                         "Sluttdato kan ikke endres bakover i tid når gjennomføringen er aktiv",
+                    ),
+                )
+            }
+        }
+
+        if (isOwnedByArena(previous)) {
+            if (gjennomforing.navn != previous.navn) {
+                add(ValidationError.of(TiltaksgjennomforingDbo::navn, "Navn kan ikke endres utenfor Arena"))
+            }
+
+            if (gjennomforing.startDato != previous.startDato) {
+                add(ValidationError.of(TiltaksgjennomforingDbo::startDato, "Startdato kan ikke endres utenfor Arena"))
+            }
+
+            if (gjennomforing.sluttDato != previous.sluttDato) {
+                add(ValidationError.of(TiltaksgjennomforingDbo::sluttDato, "Sluttdato kan ikke endres utenfor Arena"))
+            }
+
+            if (gjennomforing.apentForInnsok != previous.apentForInnsok) {
+                add(
+                    ValidationError.of(
+                        TiltaksgjennomforingDbo::apentForInnsok,
+                        "Åpent for innsøk kan ikke endres utenfor Arena",
+                    ),
+                )
+            }
+
+            if (gjennomforing.antallPlasser != previous.antallPlasser) {
+                add(
+                    ValidationError.of(
+                        TiltaksgjennomforingDbo::antallPlasser,
+                        "Antall plasser kan ikke endres utenfor Arena",
+                    ),
+                )
+            }
+
+            if (gjennomforing.deltidsprosent != previous.deltidsprosent) {
+                add(
+                    ValidationError.of(
+                        TiltaksgjennomforingDbo::deltidsprosent,
+                        "Deltidsprosent kan ikke endres utenfor Arena",
                     ),
                 )
             }
@@ -243,4 +286,9 @@ class TiltaksgjennomforingValidator(
         previous: TiltaksgjennomforingAdminDto?,
         tiltakstype: TiltakstypeAdminDto,
     ) = previous == null && !tiltakstyper.isEnabled(Tiltakskode.fromArenaKode(tiltakstype.arenaKode))
+
+    private fun isOwnedByArena(previous: TiltaksgjennomforingAdminDto): Boolean {
+        val tiltakskode = Tiltakskode.fromArenaKode(previous.tiltakstype.arenaKode)
+        return previous.opphav == ArenaMigrering.Opphav.ARENA && !tiltakstyper.isEnabled(tiltakskode)
+    }
 }

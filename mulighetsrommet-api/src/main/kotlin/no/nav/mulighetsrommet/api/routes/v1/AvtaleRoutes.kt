@@ -20,6 +20,7 @@ import no.nav.mulighetsrommet.api.utils.getAvtaleFilter
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
 import no.nav.mulighetsrommet.domain.dto.Faneinnhold
 import no.nav.mulighetsrommet.domain.dto.NavIdent
+import no.nav.mulighetsrommet.domain.dto.Personopplysning
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import org.koin.ktor.ext.inject
@@ -114,6 +115,12 @@ fun Route.avtaleRoutes() {
                 ?: call.respond(HttpStatusCode.NotFound, "Det finnes ikke noen avtale med id $id")
         }
 
+        get("{id}/behandle-personopplysninger") {
+            val id = call.parameters.getOrFail<UUID>("id")
+            avtaler.getBehandlingAvPersonopplysninger(id)
+                .let { call.respond(it) }
+        }
+
         get("{id}/historikk") {
             val id: UUID by call.parameters
             val historikk = avtaler.getEndringshistorikk(id)
@@ -147,4 +154,6 @@ data class AvtaleRequest(
     val navEnheter: List<String>,
     val beskrivelse: String?,
     val faneinnhold: Faneinnhold?,
+    val personopplysninger: List<Personopplysning>,
+    val personvernBekreftet: Boolean,
 )

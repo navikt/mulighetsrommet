@@ -206,6 +206,40 @@ export function AvtaleFilter({ filterAtom, skjulFilter }: Props) {
             />
           </Accordion.Content>
         </Accordion.Item>
+        <Accordion.Item open={accordionsOpen.includes("personvern")}>
+          <Accordion.Header
+            onClick={() => {
+              setAccordionsOpen([...addOrRemove(accordionsOpen, "personvern")]);
+            }}
+          >
+            <FilterAccordionHeader
+              tittel="Personvern"
+              antallValgteFilter={filter.personvernBekreftet.length}
+            />
+          </Accordion.Header>
+          <Accordion.Content>
+            <CheckboxList
+              items={[
+                {
+                  label: "Bekreftet",
+                  value: true,
+                },
+                {
+                  label: "Ikke bekreftet",
+                  value: false,
+                },
+              ]}
+              isChecked={(b) => filter.personvernBekreftet.includes(b)}
+              onChange={(b) => {
+                setFilter({
+                  ...filter,
+                  page: 1,
+                  personvernBekreftet: addOrRemove(filter.personvernBekreftet, b),
+                });
+              }}
+            />
+          </Accordion.Content>
+        </Accordion.Item>
       </Accordion>
     </div>
   );

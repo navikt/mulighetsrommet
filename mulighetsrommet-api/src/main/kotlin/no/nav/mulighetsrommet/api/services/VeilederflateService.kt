@@ -6,15 +6,13 @@ import com.github.benmanes.caffeine.cache.Caffeine
 import io.ktor.server.plugins.*
 import io.prometheus.client.cache.caffeine.CacheMetricsCollector
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
+import no.nav.mulighetsrommet.api.clients.sanity.SanityParam
 import no.nav.mulighetsrommet.api.clients.sanity.SanityPerspective
-import no.nav.mulighetsrommet.api.clients.vedtak.Innsatsgruppe
 import no.nav.mulighetsrommet.api.domain.dto.*
 import no.nav.mulighetsrommet.api.routes.v1.ApentForInnsok
-import no.nav.mulighetsrommet.api.utils.byggInnsatsgruppeFilter
-import no.nav.mulighetsrommet.api.utils.byggSokeFilter
-import no.nav.mulighetsrommet.api.utils.byggTiltakstypeFilter
 import no.nav.mulighetsrommet.api.utils.utledInnsatsgrupper
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
+import no.nav.mulighetsrommet.domain.dto.Innsatsgruppe
 import no.nav.mulighetsrommet.metrics.Metrikker
 import no.nav.mulighetsrommet.utils.CacheUtils
 import java.util.*
@@ -124,16 +122,15 @@ class VeilederflateService(
 
     suspend fun hentTiltaksgjennomforinger(
         enheter: NonEmptyList<String>,
-        innsatsgruppe: String? = null,
+        innsatsgruppe: Innsatsgruppe? = null,
         tiltakstypeIds: List<String>? = null,
         search: String? = null,
         apentForInnsok: ApentForInnsok = ApentForInnsok.APENT_ELLER_STENGT,
     ): List<VeilederflateTiltaksgjennomforing> {
         val query = """
-            *[_type == "tiltaksgjennomforing"
-              ${byggInnsatsgruppeFilter(innsatsgruppe)}
-              ${byggTiltakstypeFilter(tiltakstypeIds)}
-              ${byggSokeFilter(search)}
+            *[_type == "tiltaksgjennomforing" && tiltakstype->innsatsgruppe->nokkel in ${'$'}innsatsgrupper
+              ${if (tiltakstypeIds != null) "&& tiltakstype->_id in \$tiltakstyper" else ""}
+              ${if (search != null) "&& [tiltaksgjennomforingNavn, string(tiltaksnummer.current), tiltakstype->tiltakstypeNavn] match \$search" else ""}
             ] {
               _id,
               tiltakstype->{
@@ -148,7 +145,19 @@ class VeilederflateService(
             }
         """.trimIndent()
 
-        val sanityGjennomforinger = when (val result = sanityClient.query(query)) {
+        val params = buildList {
+            add(SanityParam.of("innsatsgrupper", utledInnsatsgrupper(innsatsgruppe)))
+
+            if (tiltakstypeIds != null) {
+                add(SanityParam.of("tiltakstyper", tiltakstypeIds))
+            }
+
+            if (search != null) {
+                add(SanityParam.of("search", "*$search*"))
+            }
+        }
+
+        val sanityGjennomforinger = when (val result = sanityClient.query(query, params)) {
             is SanityResponse.Result -> result.decode<List<SanityTiltaksgjennomforing>>()
             is SanityResponse.Error -> throw Exception(result.error.toString())
         }
@@ -156,9 +165,7 @@ class VeilederflateService(
         val gruppeGjennomforinger = tiltaksgjennomforingService.getAllVeilederflateTiltaksgjennomforing(
             search = search,
             sanityTiltakstypeIds = tiltakstypeIds?.map { UUID.fromString(it) },
-            innsatsgrupper = innsatsgruppe
-                ?.let { utledInnsatsgrupper(innsatsgruppe).map { Innsatsgruppe.valueOf(it) } }
-                ?: emptyList(),
+            innsatsgruppe = innsatsgruppe,
             enheter = enheter,
             apentForInnsok = when (apentForInnsok) {
                 ApentForInnsok.APENT -> true
@@ -202,17 +209,17 @@ class VeilederflateService(
                 toVeilederTiltaksgjennomforing(gjennomforing, sanityTiltakstype, enheter)
             }
             ?: run {
-                val gjennomforing = getSanityTiltaksgjennomforing(id.toString(), sanityPerspective)
+                val gjennomforing = getSanityTiltaksgjennomforing(id, sanityPerspective)
                 toVeilederTiltaksgjennomforing(gjennomforing, enheter)
             }
     }
 
     private suspend fun getSanityTiltaksgjennomforing(
-        id: String,
+        id: UUID,
         perspective: SanityPerspective,
     ): SanityTiltaksgjennomforing {
         val query = """
-            *[_type == "tiltaksgjennomforing" && _id == "$id"] {
+            *[_type == "tiltaksgjennomforing" && _id == ${'$'}id] {
               _id,
               tiltakstype->{
                 _id,
@@ -264,7 +271,9 @@ class VeilederflateService(
             }[0]
         """.trimIndent()
 
-        return when (val result = sanityClient.query(query, perspective)) {
+        val params = listOf(SanityParam.of("id", id))
+
+        return when (val result = sanityClient.query(query, params, perspective)) {
             is SanityResponse.Result -> result.decode()
             is SanityResponse.Error -> throw Exception(result.error.toString())
         }
@@ -292,6 +301,7 @@ class VeilederflateService(
                 } ?: emptyList()
 
             VeilederflateTiltaksgjennomforing(
+                avtaleId = UUID.randomUUID(),
                 sanityId = _id,
                 tiltakstype = tiltakstype.run {
                     VeilederflateTiltakstype(
@@ -318,6 +328,7 @@ class VeilederflateService(
                     varsler = emptyList(),
                     tiltaksansvarlige = kontaktpersoner,
                 ),
+                personvernBekreftet = false, // Individuelle tiltak har ikke informasjon om personvern
             )
         }
     }
@@ -347,6 +358,7 @@ class VeilederflateService(
         return apiGjennomforing.run {
             VeilederflateTiltaksgjennomforing(
                 id = id,
+                avtaleId = avtaleId,
                 tiltakstype = veilederflateTiltakstype,
                 navn = navn,
                 tiltaksnummer = apiGjennomforing.tiltaksnummer,
@@ -370,6 +382,7 @@ class VeilederflateService(
                         enhet = it.enhet,
                     )
                 },
+                personvernBekreftet = personvernBekreftet,
             )
         }
     }
@@ -391,9 +404,12 @@ class VeilederflateService(
             }
     }
 
-    suspend fun hentOppskrifterForTiltakstype(tiltakstypeId: String, perspective: SanityPerspective): List<Oppskrift> {
+    suspend fun hentOppskrifterForTiltakstype(
+        tiltakstypeId: UUID,
+        perspective: SanityPerspective,
+    ): List<Oppskrift> {
         val query = """
-              *[_type == "tiltakstype" && defined(oppskrifter) && _id == '$tiltakstypeId'] {
+              *[_type == "tiltakstype" && defined(oppskrifter) && _id == ${'$'}id] {
                oppskrifter[] -> {
                   ...,
                   steg[] {
@@ -410,7 +426,9 @@ class VeilederflateService(
              }.oppskrifter[]
         """.trimIndent()
 
-        return when (val result = sanityClient.query(query, perspective)) {
+        val params = listOf(SanityParam.of("id", tiltakstypeId))
+
+        return when (val result = sanityClient.query(query, params, perspective)) {
             is SanityResponse.Result -> result.decode()
             is SanityResponse.Error -> throw Exception(result.error.toString())
         }

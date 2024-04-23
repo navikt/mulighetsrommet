@@ -24,8 +24,8 @@ class UpdateTiltaksgjennomforingStatusTest : FunSpec({
     val today = LocalDate.of(2023, 2, 16)
 
     val tiltakstype = TiltakstypeFixtures.Oppfolging.copy(
-        fraDato = LocalDate.of(2023, 1, 11),
-        tilDato = LocalDate.now().plusYears(1),
+        startDato = LocalDate.of(2023, 1, 11),
+        sluttDato = LocalDate.now().plusYears(1),
     )
 
     context("oppdater statuser på tiltaksgjennomføringer") {

@@ -113,10 +113,7 @@ export function AvtaleDetaljer() {
               {erAnskaffetTiltak(tiltakstype.arenaKode) && (
                 <Metadata
                   header={avtaletekster.prisOgBetalingLabel}
-                  verdi={
-                    avtale.prisbetingelser ??
-                    "Det eksisterer ikke pris og betalingsbetingelser for denne avtalen"
-                  }
+                  verdi={avtale.prisbetingelser ?? "-"}
                 />
               )}
             </Bolk>

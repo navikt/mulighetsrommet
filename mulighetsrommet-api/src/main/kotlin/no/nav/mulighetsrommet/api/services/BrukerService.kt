@@ -11,10 +11,11 @@ import no.nav.mulighetsrommet.api.clients.oppfolging.OppfolgingError
 import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClient
 import no.nav.mulighetsrommet.api.clients.person.PersonError
 import no.nav.mulighetsrommet.api.clients.person.VeilarbpersonClient
-import no.nav.mulighetsrommet.api.clients.vedtak.Innsatsgruppe
+import no.nav.mulighetsrommet.api.clients.vedtak.VedtakDto
 import no.nav.mulighetsrommet.api.clients.vedtak.VedtakError
 import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClient
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
+import no.nav.mulighetsrommet.domain.dto.Innsatsgruppe
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 
 class BrukerService(
@@ -27,42 +28,80 @@ class BrukerService(
         val erUnderOppfolging = veilarboppfolgingClient.erBrukerUnderOppfolging(fnr, obo)
             .getOrElse {
                 when (it) {
-                    ErUnderOppfolgingError.Forbidden -> throw StatusException(HttpStatusCode.Forbidden, "Manglet tilgang til å hente oppfølgingsstatus.")
-                    ErUnderOppfolgingError.Error -> throw StatusException(HttpStatusCode.InternalServerError, "Klarte ikke hente oppfølgingsstatus.")
+                    ErUnderOppfolgingError.Forbidden -> throw StatusException(
+                        HttpStatusCode.Forbidden,
+                        "Manglet tilgang til å hente oppfølgingsstatus.",
+                    )
+
+                    ErUnderOppfolgingError.Error -> throw StatusException(
+                        HttpStatusCode.InternalServerError,
+                        "Klarte ikke hente oppfølgingsstatus.",
+                    )
                 }
             }
-        if (!erUnderOppfolging) {
-            throw StatusException(HttpStatusCode.Forbidden, "Bruker er ikke under oppfølging. Kontroller at brukeren er under oppfølging og finnes i Arena.")
-        }
 
         val oppfolgingsenhet = veilarboppfolgingClient.hentOppfolgingsenhet(fnr, obo)
             .getOrElse {
                 when (it) {
-                    OppfolgingError.Forbidden -> throw StatusException(HttpStatusCode.Forbidden, "Manglet tilgang til å hente oppfølgingsenhet.")
-                    OppfolgingError.Error -> throw StatusException(HttpStatusCode.InternalServerError, "Klarte ikke hente oppfølgingsenhet.")
+                    OppfolgingError.Forbidden -> throw StatusException(
+                        HttpStatusCode.Forbidden,
+                        "Manglet tilgang til å hente oppfølgingsenhet.",
+                    )
+
+                    OppfolgingError.Error -> throw StatusException(
+                        HttpStatusCode.InternalServerError,
+                        "Klarte ikke hente oppfølgingsenhet.",
+                    )
+
                     OppfolgingError.NotFound -> null
                 }
             }
         val manuellStatus = veilarboppfolgingClient.hentManuellStatus(fnr, obo)
             .getOrElse {
                 when (it) {
-                    OppfolgingError.Forbidden -> throw StatusException(HttpStatusCode.Forbidden, "Manglet tilgang til å hente hente manuell status.")
-                    OppfolgingError.Error -> throw StatusException(HttpStatusCode.InternalServerError, "Klarte ikke hente hente manuell status.")
-                    OppfolgingError.NotFound -> throw StatusException(HttpStatusCode.InternalServerError, "Fant ikke manuell status.")
+                    OppfolgingError.Forbidden -> throw StatusException(
+                        HttpStatusCode.Forbidden,
+                        "Manglet tilgang til å hente hente manuell status.",
+                    )
+
+                    OppfolgingError.Error -> throw StatusException(
+                        HttpStatusCode.InternalServerError,
+                        "Klarte ikke hente hente manuell status.",
+                    )
+
+                    OppfolgingError.NotFound -> throw StatusException(
+                        HttpStatusCode.InternalServerError,
+                        "Fant ikke manuell status.",
+                    )
                 }
             }
         val personInfo = veilarbpersonClient.hentPersonInfo(fnr, obo)
             .getOrElse {
                 when (it) {
-                    PersonError.Forbidden -> throw StatusException(HttpStatusCode.Forbidden, "Manglet tilgang til å hente hente personinfo.")
-                    PersonError.Error -> throw StatusException(HttpStatusCode.InternalServerError, "Klarte ikke hente hente personinfo.")
+                    PersonError.Forbidden -> throw StatusException(
+                        HttpStatusCode.Forbidden,
+                        "Manglet tilgang til å hente hente personinfo.",
+                    )
+
+                    PersonError.Error -> throw StatusException(
+                        HttpStatusCode.InternalServerError,
+                        "Klarte ikke hente hente personinfo.",
+                    )
                 }
             }
         val sisteVedtak = veilarbvedtaksstotteClient.hentSiste14AVedtak(fnr, obo)
             .getOrElse {
                 when (it) {
-                    VedtakError.Forbidden -> throw StatusException(HttpStatusCode.Forbidden, "Mangler tilgang til å hente §14a-vedtak.")
-                    VedtakError.Error -> throw StatusException(HttpStatusCode.InternalServerError, "Klarte ikke hente hente §14a-vedtak.")
+                    VedtakError.Forbidden -> throw StatusException(
+                        HttpStatusCode.Forbidden,
+                        "Mangler tilgang til å hente §14a-vedtak.",
+                    )
+
+                    VedtakError.Error -> throw StatusException(
+                        HttpStatusCode.InternalServerError,
+                        "Klarte ikke hente hente §14a-vedtak.",
+                    )
+
                     VedtakError.NotFound -> null
                 }
             }
@@ -78,22 +117,30 @@ class BrukerService(
         val enheter = getRelevanteEnheterForBruker(brukersGeografiskeEnhet, brukersOppfolgingsenhet)
 
         if (enheter.isEmpty()) {
-            throw StatusException(HttpStatusCode.BadRequest, "Fant ikke brukers enheter. Kontroller at brukeren er under oppfølging og finnes i Arena")
+            throw StatusException(
+                HttpStatusCode.BadRequest,
+                "Fant ikke brukers enheter. Kontroller at brukeren er under oppfølging og finnes i Arena",
+            )
         }
 
         return Brukerdata(
             fnr = fnr,
-            innsatsgruppe = sisteVedtak?.innsatsgruppe,
+            innsatsgruppe = sisteVedtak?.innsatsgruppe?.let { toInnsatsgruppe(it) },
             enheter = enheter,
             fornavn = personInfo.fornavn,
             manuellStatus = manuellStatus,
-            varsler = listOfNotNull(
+            erUnderOppfolging = erUnderOppfolging,
+            varsler = buildList {
                 if (oppfolgingsenhetLokalOgUlik(brukersGeografiskeEnhet, brukersOppfolgingsenhet)) {
-                    BrukerVarsel.LOKAL_OPPFOLGINGSENHET
-                } else {
-                    null
-                },
-            ),
+                    add(BrukerVarsel.LOKAL_OPPFOLGINGSENHET)
+                }
+
+                if (!erUnderOppfolging && sisteVedtak?.innsatsgruppe != null) {
+                    add(BrukerVarsel.BRUKER_HAR_VAERT_UNDER_OPPFOLGING)
+                } else if (!erUnderOppfolging) {
+                    add(BrukerVarsel.BRUKER_IKKE_UNDER_OPPFOLGING)
+                }
+            },
         )
     }
 
@@ -104,11 +151,23 @@ class BrukerService(
         val enheter: List<NavEnhetDbo>,
         val fornavn: String,
         val manuellStatus: ManuellStatusDto,
+        val erUnderOppfolging: Boolean,
         val varsler: List<BrukerVarsel>,
     )
 
     enum class BrukerVarsel {
         LOKAL_OPPFOLGINGSENHET,
+        BRUKER_IKKE_UNDER_OPPFOLGING,
+        BRUKER_HAR_VAERT_UNDER_OPPFOLGING,
+    }
+}
+
+private fun toInnsatsgruppe(innsatsgruppe: VedtakDto.Innsatsgruppe): Innsatsgruppe {
+    return when (innsatsgruppe) {
+        VedtakDto.Innsatsgruppe.STANDARD_INNSATS -> Innsatsgruppe.STANDARD_INNSATS
+        VedtakDto.Innsatsgruppe.SITUASJONSBESTEMT_INNSATS -> Innsatsgruppe.SITUASJONSBESTEMT_INNSATS
+        VedtakDto.Innsatsgruppe.SPESIELT_TILPASSET_INNSATS -> Innsatsgruppe.SPESIELT_TILPASSET_INNSATS
+        VedtakDto.Innsatsgruppe.GRADERT_VARIG_TILPASSET_INNSATS, VedtakDto.Innsatsgruppe.VARIG_TILPASSET_INNSATS -> Innsatsgruppe.VARIG_TILPASSET_INNSATS
     }
 }
 

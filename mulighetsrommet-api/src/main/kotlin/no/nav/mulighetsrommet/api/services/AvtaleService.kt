@@ -20,9 +20,7 @@ import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering.Opphav
-import no.nav.mulighetsrommet.domain.dto.Avtalestatus
-import no.nav.mulighetsrommet.domain.dto.NavIdent
-import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus
+import no.nav.mulighetsrommet.domain.dto.*
 import no.nav.mulighetsrommet.notifications.NotificationRepository
 import no.nav.mulighetsrommet.notifications.NotificationType
 import no.nav.mulighetsrommet.notifications.ScheduledNotification
@@ -69,6 +67,8 @@ class AvtaleService(
                         navEnheter = navEnheter,
                         beskrivelse = beskrivelse,
                         faneinnhold = faneinnhold,
+                        personopplysninger = personopplysninger,
+                        personvernBekreftet = personvernBekreftet,
                     )
                 }
                 validator.validate(dbo, previous)
@@ -130,6 +130,7 @@ class AvtaleService(
             sortering = filter.sortering,
             arrangorIds = filter.arrangorIds,
             administratorNavIdent = filter.administratorNavIdent,
+            personvernBekreftet = filter.personvernBekreftet,
         )
 
         return PaginatedResponse.of(pagination, totalCount, items)
@@ -240,13 +241,17 @@ class AvtaleService(
         return db.transaction { tx ->
             avtaler.frikobleKontaktpersonFraAvtale(kontaktpersonId = kontaktpersonId, avtaleId = avtaleId, tx = tx)
                 .map {
-                    logEndring("Kontaktperson '${it.first}' ble fjernet fra avtalen via arrangørsidene", avtale, navIdent, tx)
-                    kontaktpersonId.toString()
+                    logEndring("Kontaktperson ble fjernet fra avtalen via arrangørsidene", avtale, navIdent, tx)
+                    it
                 }
                 .mapLeft {
                     logger.error("Klarte ikke fjerne kontaktperson fra avtale: KontaktpersonId = '$kontaktpersonId', avtaleId = '$avtaleId'")
                     ServerError("Klarte ikke fjerne kontaktperson fra avtalen")
                 }
         }
+    }
+
+    fun getBehandlingAvPersonopplysninger(id: UUID): Map<PersonopplysningFrekvens, List<PersonopplysningMedBeskrivelse>> {
+        return avtaler.getBehandlingAvPersonopplysninger(id = id)
     }
 }

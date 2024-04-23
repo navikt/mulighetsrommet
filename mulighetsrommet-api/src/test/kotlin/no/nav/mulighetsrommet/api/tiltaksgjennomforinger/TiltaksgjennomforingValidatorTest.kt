@@ -19,6 +19,7 @@ import no.nav.mulighetsrommet.api.routes.v1.responses.ValidationError
 import no.nav.mulighetsrommet.api.services.TiltakstypeService
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.domain.Tiltakskode
+import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dto.AvbruttAarsak
 import java.time.LocalDate
@@ -90,7 +91,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
             TiltakstypeFixtures.VTA,
             TiltakstypeFixtures.AFT,
             TiltakstypeFixtures.Jobbklubb,
-            TiltakstypeFixtures.GRUPPE_AMO,
+            TiltakstypeFixtures.GruppeAmo,
             TiltakstypeFixtures.Oppfolging,
         ),
         avtaler = listOf(
@@ -195,7 +196,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
 
     test("sluttDato er påkrevd hvis ikke forhåndsgodkjent avtale") {
         val validator = TiltaksgjennomforingValidator(
-            TiltakstypeService(TiltakstypeRepository(database.db), Tiltakskode.values().toList()),
+            TiltakstypeService(TiltakstypeRepository(database.db), Tiltakskode.entries),
             avtaler,
             arrangorer,
         )
@@ -276,6 +277,39 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
             tiltaksgjennomforinger.delete(gjennomforing.id)
         }
 
+        test("skal ikke kunne endre felter med opphav fra Arena når vi ikke har tatt eierskap til tiltakstypen") {
+            val gjennomforingMedEndringer = gjennomforing.copy(
+                navn = "Nytt navn",
+                tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
+                arrangorId = ArrangorFixtures.underenhet2.id,
+                startDato = gjennomforing.startDato.plusDays(1),
+                sluttDato = gjennomforing.sluttDato?.plusDays(1),
+                apentForInnsok = false,
+                antallPlasser = 1000,
+                deltidsprosent = 1.5,
+            )
+
+            tiltaksgjennomforinger.setOpphav(gjennomforing.id, ArenaMigrering.Opphav.ARENA)
+
+            val validator = TiltaksgjennomforingValidator(
+                TiltakstypeService(TiltakstypeRepository(database.db), listOf()),
+                avtaler,
+                arrangorer,
+            )
+
+            val current = tiltaksgjennomforinger.get(gjennomforing.id)
+            validator.validate(gjennomforingMedEndringer, current).shouldBeLeft().shouldContainExactlyInAnyOrder(
+                ValidationError("navn", "Navn kan ikke endres utenfor Arena"),
+                ValidationError("startDato", "Startdato kan ikke endres utenfor Arena"),
+                ValidationError("sluttDato", "Sluttdato kan ikke endres utenfor Arena"),
+                ValidationError("apentForInnsok", "Åpent for innsøk kan ikke endres utenfor Arena"),
+                ValidationError("antallPlasser", "Antall plasser kan ikke endres utenfor Arena"),
+                ValidationError("deltidsprosent", "Deltidsprosent kan ikke endres utenfor Arena"),
+                ValidationError("arrangorId", "Arrangøren kan ikke endres når gjennomføringen er aktiv"),
+                ValidationError("arrangorId", "Arrangøren mangler i avtalen"),
+            )
+        }
+
         test("Skal godta endringer for antall plasser selv om gjennomføringen er aktiv") {
             val validator = TiltaksgjennomforingValidator(tiltakstyper, avtaler, arrangorer)
             val previous = tiltaksgjennomforinger.get(gjennomforing.id)
@@ -296,8 +330,9 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
         test("Skal godta endringer for sluttdato frem i tid selv om gjennomføringen er aktiv") {
             val validator = TiltaksgjennomforingValidator(tiltakstyper, avtaler, arrangorer)
             val previous = tiltaksgjennomforinger.get(gjennomforing.id)
+            avtaler.upsert(avtale.copy(startDato = LocalDate.now().minusDays(3)))
             validator.validate(gjennomforing.copy(sluttDato = avtaleSluttDato.plusDays(5)), previous).shouldBeRight()
-            validator.validate(gjennomforing.copy(sluttDato = avtaleSluttDato.minusDays(1)), previous).shouldBeLeft(
+            validator.validate(gjennomforing.copy(startDato = LocalDate.now().minusDays(2), sluttDato = LocalDate.now().minusDays(1)), previous).shouldBeLeft(
                 listOf(
                     ValidationError(
                         "sluttDato",

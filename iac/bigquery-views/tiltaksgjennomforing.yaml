@@ -12,7 +12,7 @@ metadata:
 
 spec:
   resourceID: tiltaksgjennomforing_view # Navn på viewet uttad
-  description: "Dataprodukt som viser tiltaksgjennomforinger fra 1.1.2018"
+  description: "Dataprodukt som viser tiltaksgjennomforinger som har vært altive fra og med 2018-01-01"
   datasetRef:
     external: datastream_mulighetsrommet_api_db
   view:
@@ -26,4 +26,4 @@ spec:
         slutt_dato,
         arrangor_organisasjonsnummer
       FROM datastream_mulighetsrommet_api_db.public_tiltaksgjennomforing
-      WHERE start_dato >= DATE '2018-01-01'
+      WHERE slutt_dato is null or slutt_dato >= DATE '2018-01-01'

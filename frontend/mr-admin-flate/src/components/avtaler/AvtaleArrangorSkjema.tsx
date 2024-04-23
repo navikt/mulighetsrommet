@@ -1,26 +1,24 @@
+import { useArrangorKontaktpersoner } from "@/api/arrangor/useArrangorKontaktpersoner";
+import { useSyncArrangorFromBrreg } from "@/api/arrangor/useSyncArrangorFromBrreg";
+import { useBrregVirksomhetUnderenheter } from "@/api/virksomhet/useBrregVirksomhetUnderenheter";
+import { useSokBrregVirksomheter } from "@/api/virksomhet/useSokBrregVirksomheter";
 import { Alert, Button } from "@navikt/ds-react";
 import {
   Arrangor,
   ArrangorKontaktperson,
+  ArrangorKontaktpersonAnsvar,
   BrregVirksomhet,
-  Toggles,
 } from "mulighetsrommet-api-client";
 import { ControlledSokeSelect } from "mulighetsrommet-frontend-common/components/ControlledSokeSelect";
+import { SelectOption } from "mulighetsrommet-frontend-common/components/SokeSelect";
 import { useRef, useState } from "react";
 import { DeepPartial, useFormContext } from "react-hook-form";
-import { useSyncArrangorFromBrreg } from "@/api/arrangor/useSyncArrangorFromBrreg";
-import { useSokBrregVirksomheter } from "@/api/virksomhet/useSokBrregVirksomheter";
-import { useBrregVirksomhetUnderenheter } from "@/api/virksomhet/useBrregVirksomhetUnderenheter";
-import { useArrangorKontaktpersoner } from "@/api/arrangor/useArrangorKontaktpersoner";
+import { ArrangorKontaktpersonerModal } from "../arrangor/ArrangorKontaktpersonerModal";
+import { avtaletekster } from "../ledetekster/avtaleLedetekster";
+import { InferredAvtaleSchema } from "../redaksjonelt-innhold/AvtaleSchema";
 import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { FormGroup } from "../skjema/FormGroup";
 import skjemastyles from "../skjema/Skjema.module.scss";
-import { ArrangorKontaktpersonerModal } from "../arrangor/ArrangorKontaktpersonerModal";
-import { InferredAvtaleSchema } from "../redaksjonelt-innhold/AvtaleSchema";
-import { SelectOption } from "mulighetsrommet-frontend-common/components/SokeSelect";
-import { avtaletekster } from "../ledetekster/avtaleLedetekster";
-import { useFeatureToggle } from "../../api/features/feature-toggles";
-import { Link } from "react-router-dom";
 
 interface Props {
   readOnly: boolean;
@@ -28,9 +26,6 @@ interface Props {
 
 export function AvtaleArrangorSkjema({ readOnly }: Props) {
   const arrangorKontaktpersonerModalRef = useRef<HTMLDialogElement>(null);
-  const { data: enableArrangorsider } = useFeatureToggle(
-    Toggles.MULIGHETSROMMET_ADMIN_FLATE_ENABLE_ARRANGOR_SIDER,
-  );
 
   const [sokArrangor, setSokArrangor] = useState("");
   const { data: brregVirksomheter = [] } = useSokBrregVirksomheter(sokArrangor);
@@ -97,29 +92,33 @@ export function AvtaleArrangorSkjema({ readOnly }: Props) {
             {...register("arrangorKontaktpersoner")}
             options={arrangorKontaktpersonOptions}
           />
-          {enableArrangorsider ? (
-            <Alert style={{ marginTop: "1rem" }} variant="info" inline>
-              Savner du kontaktpersoner?
-              <br /> Opprettelse av kontaktpersoner gjøres via{" "}
-              <Link to="/arrangorer">Arrangør-sidene</Link>
-            </Alert>
-          ) : (
-            <Button
-              className={skjemastyles.kontaktperson_button}
-              size="small"
-              type="button"
-              variant="tertiary"
-              onClick={() => arrangorKontaktpersonerModalRef.current?.showModal()}
-            >
-              Opprett eller rediger kontaktpersoner
-            </Button>
-          )}
+
+          <Button
+            className={skjemastyles.kontaktperson_button}
+            size="small"
+            type="button"
+            variant="tertiary"
+            onClick={() => arrangorKontaktpersonerModalRef.current?.showModal()}
+          >
+            Opprett eller rediger kontaktpersoner
+          </Button>
         </div>
       </FormGroup>
       {arrangor && (
         <ArrangorKontaktpersonerModal
           arrangorId={arrangor.id}
           modalRef={arrangorKontaktpersonerModalRef}
+          onOpprettSuccess={(kontaktperson) => {
+            if (!kontaktperson.ansvarligFor.includes(ArrangorKontaktpersonAnsvar.AVTALE)) {
+              return;
+            }
+
+            const kontaktpersoner = watch("arrangorKontaktpersoner") ?? [];
+            setValue("arrangorKontaktpersoner", [
+              ...kontaktpersoner.filter((k) => k !== kontaktperson.id),
+              kontaktperson.id,
+            ]);
+          }}
         />
       )}
     </>
@@ -155,8 +154,10 @@ function getArrangorUnderenhetOptions(underenheter: BrregVirksomhet[]): SelectOp
 }
 
 function getArrangorKontaktpersonOptions(kontaktpersoner: ArrangorKontaktperson[]) {
-  return kontaktpersoner.map((person) => ({
-    value: person.id,
-    label: person.navn,
-  }));
+  return kontaktpersoner
+    .filter((person) => person.ansvarligFor.includes(ArrangorKontaktpersonAnsvar.AVTALE))
+    .map((person) => ({
+      value: person.id,
+      label: person.navn,
+    }));
 }

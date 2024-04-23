@@ -204,6 +204,7 @@ const avtaleFilterSchema = z.object({
   sortering: z.custom<SorteringAvtaler>(),
   arrangorer: z.string().array(),
   visMineAvtaler: z.boolean(),
+  personvernBekreftet: z.boolean().array(),
   page: z.number(),
   pageSize: z.number(),
 });
@@ -218,6 +219,7 @@ export const defaultAvtaleFilter: AvtaleFilter = {
   sortering: SorteringAvtaler.NAVN_ASCENDING,
   arrangorer: [],
   visMineAvtaler: false,
+  personvernBekreftet: [],
   page: 1,
   pageSize: AVTALE_PAGE_SIZE,
 };
@@ -268,7 +270,9 @@ export const getAvtalerForTiltakstypeFilterAtom = atomFamily<
 
 export const gjennomforingDetaljerTabAtom = atom<"detaljer" | "redaksjonelt-innhold">("detaljer");
 
-export const avtaleDetaljerTabAtom = atom<"detaljer" | "redaksjonelt-innhold">("detaljer");
+export const avtaleDetaljerTabAtom = atom<"detaljer" | "personvern" | "redaksjonelt-innhold">(
+  "detaljer",
+);
 
 export const gjennomforingFilterAccordionAtom = atom<string[]>(["status"]);
 export const avtaleFilterAccordionAtom = atom<string[]>(["status"]);

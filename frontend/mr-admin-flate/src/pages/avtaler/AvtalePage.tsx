@@ -1,12 +1,12 @@
+import { useAvtale } from "@/api/avtaler/useAvtale";
 import { Alert, Heading, Tabs, VStack } from "@navikt/ds-react";
-import { Toggles } from "mulighetsrommet-api-client";
 import { useTitle } from "mulighetsrommet-frontend-common";
 import { Link, Outlet, useLocation, useMatch } from "react-router-dom";
-import { useAvtale } from "@/api/avtaler/useAvtale";
-import { useFeatureToggle } from "@/api/features/feature-toggles";
 import { DupliserAvtale } from "../../components/avtaler/DupliserAvtale";
+import { ShowOpphavValue } from "../../components/debug/ShowOpphavValue";
 import { Header } from "../../components/detaljside/Header";
 import headerStyles from "../../components/detaljside/Header.module.scss";
+import { AvtaleIkon } from "../../components/ikoner/AvtaleIkon";
 import { Laster } from "../../components/laster/Laster";
 import { Brodsmule, Brodsmuler } from "../../components/navigering/Brodsmuler";
 import { AvtalestatusTag } from "../../components/statuselementer/AvtalestatusTag";
@@ -14,8 +14,6 @@ import { useNavigateAndReplaceUrl } from "../../hooks/useNavigateWithoutReplacin
 import { ContainerLayout } from "../../layouts/ContainerLayout";
 import commonStyles from "../Page.module.scss";
 import styles from "./DetaljerAvtalePage.module.scss";
-import { AvtaleIkon } from "../../components/ikoner/AvtaleIkon";
-import { ShowOpphavValue } from "../../components/debug/ShowOpphavValue";
 
 function useAvtaleBrodsmuler(avtaleId: string): Array<Brodsmule | undefined> {
   const erPaaGjennomforingerForAvtale = useMatch("/avtaler/:avtaleId/tiltaksgjennomforinger");
@@ -35,7 +33,6 @@ function useAvtaleBrodsmuler(avtaleId: string): Array<Brodsmule | undefined> {
 export function AvtalePage() {
   const { pathname } = useLocation();
   const { navigateAndReplaceUrl } = useNavigateAndReplaceUrl();
-  const { data: showNotater } = useFeatureToggle(Toggles.MULIGHETSROMMET_ADMIN_FLATE_SHOW_NOTATER);
   const { data: avtale, isPending } = useAvtale();
   useTitle(`Avtale ${avtale?.navn ? `- ${avtale.navn}` : ""}`);
   const brodsmuler = useAvtaleBrodsmuler(avtale?.id!!);
@@ -93,15 +90,13 @@ export function AvtalePage() {
             onClick={() => navigateAndReplaceUrl(`/avtaler/${avtale.id}`)}
             aria-controls="panel"
           />
-          {showNotater && (
-            <Tabs.Tab
-              value="notater"
-              label="Notater"
-              onClick={() => navigateAndReplaceUrl(`/avtaler/${avtale.id}/notater`)}
-              aria-controls="panel"
-              data-testid="notater-tab"
-            />
-          )}
+          <Tabs.Tab
+            value="notater"
+            label="Notater"
+            onClick={() => navigateAndReplaceUrl(`/avtaler/${avtale.id}/notater`)}
+            aria-controls="panel"
+            data-testid="notater-tab"
+          />
           <Tabs.Tab
             value="tiltaksgjennomforinger"
             label="Gjennomføringer"

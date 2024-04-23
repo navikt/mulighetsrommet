@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api.domain.dbo
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
 import no.nav.mulighetsrommet.domain.dto.Faneinnhold
 import no.nav.mulighetsrommet.domain.dto.NavIdent
+import no.nav.mulighetsrommet.domain.dto.Personopplysning
 import java.time.LocalDate
 import java.util.*
 
@@ -24,4 +25,6 @@ data class AvtaleDbo(
     val administratorer: List<NavIdent>,
     val beskrivelse: String?,
     val faneinnhold: Faneinnhold?,
+    val personopplysninger: List<Personopplysning>,
+    val personvernBekreftet: Boolean,
 )

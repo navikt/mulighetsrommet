@@ -71,6 +71,9 @@ export function SlettKontaktpersonModal({ onClose, kontaktperson }: Props) {
               <i>Dette kan ikke angres.</i>
             </BodyShort>
             <HStack justify={"space-between"} style={{ marginTop: "1rem" }}>
+              <Button variant="tertiary" onClick={onClose}>
+                Nei, avbryt
+              </Button>
               <Button
                 title={
                   erKobletTilDokumenter
@@ -82,9 +85,6 @@ export function SlettKontaktpersonModal({ onClose, kontaktperson }: Props) {
                 onClick={slettKontaktperson}
               >
                 Slett kontaktperson
-              </Button>
-              <Button variant="tertiary" onClick={onClose}>
-                Nei, avbryt
               </Button>
             </HStack>
           </>
@@ -106,10 +106,7 @@ function Koblingsoversikt({ avtaler, gjennomforinger, kontaktperson }: Koblingso
     useFrikobleArrangorKontaktpersonFraTiltaksgjennomforing();
   return (
     <div>
-      <p>
-        {kontaktperson.navn} er koblet til følgende dokumenter og må fjernes fra dokumentene før hen
-        kan slettes.
-      </p>
+      <p>{kontaktperson.navn} er koblet til følgende og må fjernes før hen kan slettes.</p>
       <VStack gap="5">
         <DokumentKoblinger
           baseUrl="avtaler"

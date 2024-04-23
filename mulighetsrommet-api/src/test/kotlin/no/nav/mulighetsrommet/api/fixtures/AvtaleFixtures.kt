@@ -26,6 +26,8 @@ object AvtaleFixtures {
         url = "https://www.websak.no",
         beskrivelse = null,
         faneinnhold = null,
+        personopplysninger = emptyList(),
+        personvernBekreftet = false,
     )
 
     val oppfolgingMedAvtale = AvtaleDbo(
@@ -46,13 +48,15 @@ object AvtaleFixtures {
         url = "https://www.websak.no",
         beskrivelse = null,
         faneinnhold = null,
+        personopplysninger = emptyList(),
+        personvernBekreftet = false,
     )
 
     val gruppeAmo = AvtaleDbo(
         id = UUID.randomUUID(),
         navn = "Gruppe Amo",
         avtalenummer = "2024#8",
-        tiltakstypeId = TiltakstypeFixtures.GRUPPE_AMO.id,
+        tiltakstypeId = TiltakstypeFixtures.GruppeAmo.id,
         arrangorId = ArrangorFixtures.hovedenhet.id,
         arrangorUnderenheter = listOf(ArrangorFixtures.underenhet1.id),
         arrangorKontaktpersoner = emptyList(),
@@ -66,6 +70,8 @@ object AvtaleFixtures {
         url = null,
         beskrivelse = null,
         faneinnhold = null,
+        personopplysninger = emptyList(),
+        personvernBekreftet = false,
     )
 
     val VTA = AvtaleDbo(
@@ -86,6 +92,8 @@ object AvtaleFixtures {
         url = null,
         beskrivelse = null,
         faneinnhold = null,
+        personopplysninger = emptyList(),
+        personvernBekreftet = false,
     )
 
     val AFT = AvtaleDbo(
@@ -106,6 +114,8 @@ object AvtaleFixtures {
         url = null,
         beskrivelse = null,
         faneinnhold = null,
+        personopplysninger = emptyList(),
+        personvernBekreftet = false,
     )
 
     val EnkelAmo = AvtaleDbo(
@@ -126,6 +136,8 @@ object AvtaleFixtures {
         url = null,
         beskrivelse = null,
         faneinnhold = null,
+        personopplysninger = emptyList(),
+        personvernBekreftet = false,
     )
 
     val avtaleRequest = AvtaleRequest(
@@ -145,5 +157,7 @@ object AvtaleFixtures {
         prisbetingelser = null,
         beskrivelse = null,
         faneinnhold = null,
+        personopplysninger = emptyList(),
+        personvernBekreftet = false,
     )
 }
