@@ -11,14 +11,14 @@ import { useTitle } from "mulighetsrommet-frontend-common";
 import { NOM_ANSATT_SIDE } from "mulighetsrommet-frontend-common/constants";
 import { Link } from "react-router-dom";
 import { usePollTiltaksnummer } from "@/api/tiltaksgjennomforing/usePollTiltaksnummer";
-import { Bolk } from "../../components/detaljside/Bolk";
-import { Metadata, Separator } from "../../components/detaljside/Metadata";
-import { Laster } from "../../components/laster/Laster";
-import { formaterDato, formatertVentetid } from "../../utils/Utils";
-import { isTiltakMedFellesOppstart } from "../../utils/tiltakskoder";
+import { Bolk } from "@/components/detaljside/Bolk";
+import { Metadata, Separator } from "@/components/detaljside/Metadata";
+import { Laster } from "@/components/laster/Laster";
+import { formaterDato, formatertVentetid } from "@/utils/Utils";
+import { isTiltakMedFellesOppstart } from "@/utils/tiltakskoder";
 import styles from "../DetaljerInfo.module.scss";
 import { Kontaktperson } from "./Kontaktperson";
-import { tiltaktekster } from "../../components/ledetekster/tiltaksgjennomforingLedetekster";
+import { tiltaktekster } from "@/components/ledetekster/tiltaksgjennomforingLedetekster";
 import { getDisplayName } from "@/api/enhet/helpers";
 import { useRef } from "react";
 import { AvbrytGjennomforingModal } from "@/components/modal/AvbrytGjennomforingModal";
@@ -26,15 +26,14 @@ import { HarSkrivetilgang } from "@/components/authActions/HarSkrivetilgang";
 import { erArenaOpphavOgIngenEierskap } from "@/components/tiltaksgjennomforinger/TiltaksgjennomforingSkjemaConst";
 import { useMigrerteTiltakstyper } from "@/api/tiltakstyper/useMigrerteTiltakstyper";
 import { ArrangorKontaktpersonDetaljer } from "../arrangor/ArrangorKontaktpersonDetaljer";
-import { useFeatureToggle } from "../../api/features/feature-toggles";
+import { useFeatureToggle } from "@/api/features/feature-toggles";
 
 interface Props {
   tiltaksgjennomforing: Tiltaksgjennomforing;
   avtale?: Avtale;
 }
 
-export function TiltaksgjennomforingDetaljer(props: Props) {
-  const { tiltaksgjennomforing, avtale } = props;
+export function TiltaksgjennomforingDetaljer({ tiltaksgjennomforing, avtale }: Props) {
   useTitle(
     `Tiltaksgjennomføring ${tiltaksgjennomforing.navn ? `- ${tiltaksgjennomforing.navn}` : null}`,
   );

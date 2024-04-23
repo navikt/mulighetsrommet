@@ -26,7 +26,7 @@ export function RedigeringsAdvarselModal({ modalRef, onRediger, ressursNavn }: P
       <Modal.Footer>
         <div className={styles.knapperad}>
           <Button variant="secondary" type="button" onClick={onClose}>
-            Nei takk
+            Nei, takk
           </Button>
           <Button variant="primary" onClick={onRediger}>
             Ja, jeg vil redigere
