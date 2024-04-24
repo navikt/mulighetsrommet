@@ -53,7 +53,7 @@
     "@faker-js/faker": "8.4.1",
     "@playwright/test": "1.43.1",
     "@types/node": "20.12.7",
-    "@typescript-eslint/eslint-plugin": "7.6.0",
+    "@typescript-eslint/eslint-plugin": "7.7.1",
     "@vitejs/plugin-react": "4.2.1",
     "cross-env": "7.0.3",
     "dotenv": "16.4.5",
