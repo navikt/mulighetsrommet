@@ -74,21 +74,46 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
       <div className={skjemastyles.input_container}>
         <div className={skjemastyles.column}>
           <FormGroup>
-            <HGrid gap="4" columns={avtale?.avtalenummer ? 2 : 1}>
+            <TextField
+              size="small"
+              readOnly={arenaOpphavOgIngenEierskap}
+              error={errors.navn?.message}
+              label={avtaletekster.avtalenavnLabel}
+              autoFocus
+              {...register("navn")}
+            />
+          </FormGroup>
+
+          <Separator />
+
+          <FormGroup>
+            <HGrid gap="4" columns={2}>
+              {avtale?.avtalenummer ? (
+                <TextField
+                  size="small"
+                  readOnly
+                  label={avtaletekster.arenaAvtalenummerLabel}
+                  value={avtale.avtalenummer}
+                />
+              ) : (
+                <TextField
+                  size="small"
+                  readOnly
+                  label={avtaletekster.lopenummerLabel}
+                  value={avtale?.lopenummer}
+                />
+              )}
               <TextField
                 size="small"
-                readOnly={arenaOpphavOgIngenEierskap}
-                error={errors.navn?.message}
-                label={avtaletekster.avtalenavnLabel}
-                autoFocus
-                {...register("navn")}
+                error={errors.websaknummer?.message}
+                label={avtaletekster.websaknummerLabel}
+                {...register("websaknummer")}
               />
-              {avtale?.avtalenummer ? (
-                <TextField size="small" readOnly label="Avtalenummer" value={avtale.avtalenummer} />
-              ) : null}
             </HGrid>
           </FormGroup>
+
           <Separator />
+
           <FormGroup>
             <HGrid gap="4" columns={2}>
               <ControlledSokeSelect
@@ -126,7 +151,9 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
               />
             </HGrid>
           </FormGroup>
+
           <Separator />
+
           <FormGroup>
             <Heading size="small" as="h3">
               Avtalens varighet
@@ -155,16 +182,9 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
               />
             </HGrid>
           </FormGroup>
+
           <Separator />
-          <FormGroup>
-            <TextField
-              size="small"
-              error={errors.websaknummer?.message}
-              label={avtaletekster.websaknummerLabel}
-              {...register("websaknummer")}
-            />
-          </FormGroup>
-          <Separator />
+
           {arenaKode && erAnskaffetTiltak(arenaKode) && (
             <>
               <FormGroup>
