@@ -71,7 +71,7 @@ export function AvbrytAvtaleModal({ modalRef, avtale }: Props) {
       <Modal.Body className={styles.body}>
         {tiltaksgjennomforingerMedAvtaleId && tiltaksgjennomforingerMedAvtaleId.data.length > 0 ? (
           <Alert variant="warning">
-            {`Avtaler med aktive gjennomføringer kan ikke avbrytes. Det er ${tiltaksgjennomforingerMedAvtaleId.data.length} aktive gjennomføring${tiltaksgjennomforingerMedAvtaleId.data.length > 1 ? "er" : ""} under denne avtalen. Vurder om du vil avbryte gjennomføringen${tiltaksgjennomforingerMedAvtaleId.data.length > 1 ? "e" : ""}.`}
+            {`Avtaler med aktive gjennomføringer kan ikke avbrytes. Det er ${tiltaksgjennomforingerMedAvtaleId.data.length} aktiv${tiltaksgjennomforingerMedAvtaleId.data.length > 1 ? "e" : ""} gjennomføring${tiltaksgjennomforingerMedAvtaleId.data.length > 1 ? "er" : ""} under denne avtalen. Vurder om du vil avbryte gjennomføringen${tiltaksgjennomforingerMedAvtaleId.data.length > 1 ? "e" : ""}.`}
           </Alert>
         ) : (
           <AvbrytModalAarsaker
