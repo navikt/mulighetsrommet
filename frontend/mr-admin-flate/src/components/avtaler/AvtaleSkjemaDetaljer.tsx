@@ -121,7 +121,7 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
                         En sak for oppfølging og forvaltning av avtale (Avtaleforvaltningssaken).
                       </li>
                     </ol>
-                    Det er <b>2) Saksnummret til Avtalesaken</b> som skal referes til herfra.
+                    Det er <b>2) Saksnummeret til Avtalesaken</b> som skal refereres til herfra.
                   </LabelWithHelpText>
                 }
                 {...register("websaknummer")}
