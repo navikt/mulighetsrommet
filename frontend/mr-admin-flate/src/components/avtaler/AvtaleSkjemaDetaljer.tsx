@@ -11,6 +11,7 @@ import {
 } from "mulighetsrommet-api-client";
 import { ControlledSokeSelect } from "mulighetsrommet-frontend-common/components/ControlledSokeSelect";
 import { SelectOption } from "mulighetsrommet-frontend-common/components/SokeSelect";
+import { LabelWithHelpText } from "mulighetsrommet-frontend-common/components/label/LabelWithHelpText";
 import { DeepPartial, useFormContext } from "react-hook-form";
 import { MultiValue } from "react-select";
 import { useAvtaleAdministratorer } from "@/api/ansatt/useAvtaleAdministratorer";
@@ -107,7 +108,22 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
                 size="small"
                 placeholder="åå/12345"
                 error={errors.websaknummer?.message}
-                label={avtaletekster.websaknummerLabel}
+                label={
+                  <LabelWithHelpText
+                    label={avtaletekster.websaknummerLabel}
+                    helpTextTitle={avtaletekster.websaknummerHelpTextTitle}
+                  >
+                    I Websak skal det opprettes tre typer arkivsaker med egne saksnummer:
+                    <ol>
+                      <li>En sak for hver anskaffelse.</li>
+                      <li>En sak for kontrakt/avtale med hver leverandør (Avtalesaken).</li>
+                      <li>
+                        En sak for oppfølging og forvaltning av avtale (Avtaleforvaltningssaken).
+                      </li>
+                    </ol>
+                    Det er <b>2) Saksnummret til Avtalesaken</b> som skal referes til herfra.
+                  </LabelWithHelpText>
+                }
                 {...register("websaknummer")}
               />
             </HGrid>
