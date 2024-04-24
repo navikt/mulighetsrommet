@@ -47,7 +47,7 @@ class Norg2Client(
             }
             response.body()
         } catch (exe: Exception) {
-            log.error("Klarte ikke hente enhet basert på geografisk tilknytning fra NORG2.")
+            log.error("Klarte ikke hente enhet basert på geografisk tilknytning fra NORG2. geografiskOmraade: $geografiskOmraade", exe)
             throw exe
         }
     }
