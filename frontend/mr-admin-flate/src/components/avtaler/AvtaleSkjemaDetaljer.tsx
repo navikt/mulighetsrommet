@@ -1,4 +1,6 @@
-import { Heading, HGrid, Textarea, TextField } from "@navikt/ds-react";
+import { useAvtaleAdministratorer } from "@/api/ansatt/useAvtaleAdministratorer";
+import { useMigrerteTiltakstyperForAvtaler } from "@/api/tiltakstyper/useMigrerteTiltakstyper";
+import { Alert, Heading, HGrid, Loader, Select, Textarea, TextField } from "@navikt/ds-react";
 import {
   Avtale,
   Avtaletype,
@@ -11,22 +13,22 @@ import {
 } from "mulighetsrommet-api-client";
 import { ControlledSokeSelect } from "mulighetsrommet-frontend-common/components/ControlledSokeSelect";
 import { SelectOption } from "mulighetsrommet-frontend-common/components/SokeSelect";
+import { useState } from "react";
 import { DeepPartial, useFormContext } from "react-hook-form";
 import { MultiValue } from "react-select";
-import { useAvtaleAdministratorer } from "@/api/ansatt/useAvtaleAdministratorer";
-import { useMigrerteTiltakstyperForAvtaler } from "@/api/tiltakstyper/useMigrerteTiltakstyper";
+import { useNusData } from "../../api/nusdata/useNusData";
 import { erAnskaffetTiltak } from "../../utils/tiltakskoder";
 import { addYear, avtaletypeTilTekst } from "../../utils/Utils";
 import { Separator } from "../detaljside/Metadata";
+import { avtaletekster } from "../ledetekster/avtaleLedetekster";
+import { InferredAvtaleSchema } from "../redaksjonelt-innhold/AvtaleSchema";
 import { AdministratorOptions } from "../skjema/AdministratorOptions";
+import { ControlledDateInput } from "../skjema/ControlledDateInput";
 import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { FormGroup } from "../skjema/FormGroup";
 import skjemastyles from "../skjema/Skjema.module.scss";
-import { InferredAvtaleSchema } from "../redaksjonelt-innhold/AvtaleSchema";
-import { getLokaleUnderenheterAsSelectOptions } from "./AvtaleSkjemaConst";
 import { AvtaleArrangorSkjema } from "./AvtaleArrangorSkjema";
-import { avtaletekster } from "../ledetekster/avtaleLedetekster";
-import { ControlledDateInput } from "../skjema/ControlledDateInput";
+import { getLokaleUnderenheterAsSelectOptions } from "./AvtaleSkjemaConst";
 
 const minStartdato = new Date(2000, 0, 1);
 
@@ -125,6 +127,7 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
                 options={arenaKode ? avtaletypeOptions(arenaKode) : []}
               />
             </HGrid>
+            {watch("tiltakstype")?.arenaKode === "GRUFAGYRKE" ? <AvtaleKategoriVelger /> : null}
           </FormGroup>
           <Separator />
           <FormGroup>
@@ -279,4 +282,105 @@ function avtaletypeOptions(arenaKode: TiltakskodeArena): { value: Avtaletype; la
     default:
       return [];
   }
+}
+
+function AvtaleKategoriVelger() {
+  const VGS3 = "3";
+  const VGS4 = "4";
+  const IRRELEVANTE_NIVAAER = ["0", "9"];
+  const { data, isLoading, isError } = useNusData();
+
+  // const kategorier = mockNusData;
+  const [valgtKategori, setValgtKategori] = useState<string | undefined>(undefined);
+  if (!data || isLoading) {
+    return <Loader />;
+  }
+
+  if (isError) {
+    return <Alert variant="error">Kunne ikke hente data fra SSB</Alert>;
+  }
+
+  const kategorier = data.classificationItems
+    .filter((item) => item.level === "1")
+    .filter((item) => !IRRELEVANTE_NIVAAER.includes(item.code))
+    .map((item) => ({
+      value: item.code,
+      label: `${item.code} - ${item.name}`,
+      children: data.classificationItems
+        .filter((child) => child.parentCode === item.code && child.name !== "Uoppgitt fagfelt")
+        .map((child) => ({
+          value: child.code,
+          label: `${child.code} - ${child.name}`,
+        })),
+    }))
+    .map((kategori) => {
+      if (kategori.value === VGS3) {
+        return {
+          ...kategori,
+          children: kategori.children.concat(
+            {
+              value: "3551",
+              label: "3551 - Elektrofag",
+            },
+            {
+              value: "3552",
+              label: "3552 - Mekaniske fag",
+            },
+            {
+              value: "3751",
+              label: "3751 - Bygg og anlegg",
+            },
+          ),
+        };
+      } else if (kategori.value === VGS4) {
+        return {
+          ...kategori,
+          children: kategori.children.concat(
+            {
+              value: "4551",
+              label: "4551 - Elektrofag",
+            },
+            {
+              value: "4552",
+              label: "4552 - Mekaniske fag",
+            },
+            {
+              value: "4751",
+              label: "4751 - Bygg og anlegg",
+            },
+          ),
+        };
+      }
+
+      return kategori;
+    });
+
+  return (
+    <HGrid gap="4" columns={2}>
+      <Select
+        size="small"
+        label="Utdanningsnivå"
+        value={valgtKategori}
+        onChange={(kategori) => {
+          setValgtKategori(kategori.target.value);
+        }}
+      >
+        <option value={""}>Velg utdanningsnivå...</option>
+        {kategorier.map((kategori) => (
+          <option key={kategori.value} value={kategori.value}>
+            {kategori.label}
+          </option>
+        ))}
+      </Select>
+      <Select size="small" label="Utdanningskategori" disabled={!valgtKategori}>
+        {kategorier
+          .find((kategori) => kategori.value === valgtKategori)
+          ?.children.map((child) => (
+            <option key={child.value} value={child.value}>
+              {child.label}
+            </option>
+          ))}
+      </Select>
+    </HGrid>
+  );
 }
