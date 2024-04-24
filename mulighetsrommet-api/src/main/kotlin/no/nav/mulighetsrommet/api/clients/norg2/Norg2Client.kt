@@ -18,12 +18,10 @@ class Norg2Client(
     private val client = httpJsonClient(clientEngine).config {
         install(HttpCache)
         install(HttpRequestRetry) {
-            retryOnException(maxRetries = 3, retryOnTimeout = true)
+            retryOnException(maxRetries = 5, retryOnTimeout = true)
             exponentialDelay()
         }
-        install(HttpTimeout) {
-            requestTimeoutMillis = 5000
-        }
+        install(HttpTimeout)
     }
 
     suspend fun hentEnheter(): List<Norg2Response> {
