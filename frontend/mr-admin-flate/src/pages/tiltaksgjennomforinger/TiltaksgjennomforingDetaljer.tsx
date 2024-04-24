@@ -4,7 +4,6 @@ import {
   TiltaksgjennomforingOppstartstype,
   TiltaksgjennomforingStatus,
 } from "mulighetsrommet-api-client";
-
 import styles from "../DetaljerInfo.module.scss";
 import { useTitle } from "mulighetsrommet-frontend-common";
 import { useMigrerteTiltakstyper } from "@/api/tiltakstyper/useMigrerteTiltakstyper";
