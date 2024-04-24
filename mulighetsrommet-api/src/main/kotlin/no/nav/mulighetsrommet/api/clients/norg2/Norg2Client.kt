@@ -7,6 +7,7 @@ import io.ktor.client.plugins.*
 import io.ktor.client.plugins.cache.*
 import io.ktor.client.request.*
 import io.ktor.client.request.headers
+import io.ktor.http.*
 import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
 import org.slf4j.LoggerFactory
 
@@ -44,6 +45,9 @@ class Norg2Client(
                 headers {
                     this.append("consumerId", "team-mulighetsrommet")
                 }
+            }
+            if (response.status != HttpStatusCode.OK) {
+                throw Exception("Not OK from Norg2, response: $response")
             }
             response.body()
         } catch (exe: Exception) {
