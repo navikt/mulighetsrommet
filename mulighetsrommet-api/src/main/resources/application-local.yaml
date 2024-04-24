@@ -11,8 +11,9 @@ app:
     password: valp
     maximumPoolSize: 10
     migrationConfig:
-      strategy: Migrate
-      # Kan kjøres når du må kjøre flyway repair
+      # Kjører repeatable migrasjoner hver gang applikasjon startes
+      strategy: ForceClearRepeatableAndMigrate
+      # Kan benyttes når du må kjøre flyway repair lokalt
       # strategy: RepairAndMigrate
 
   migrerteTiltak:
@@ -87,10 +88,6 @@ app:
 
   veilarboppfolgingConfig:
     url: http://localhost:8090/veilarboppfolging/api
-    scope: default
-
-  veilarbpersonConfig:
-    url: http://localhost:8090/veilarbperson/api
     scope: default
 
   veilarbveilederConfig:

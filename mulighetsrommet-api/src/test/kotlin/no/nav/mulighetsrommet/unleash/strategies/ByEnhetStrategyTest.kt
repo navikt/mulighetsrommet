@@ -23,7 +23,7 @@ class ByEnhetStrategyTest : FunSpec({
 
         test("Skal returnere false når brukers enhet ikke finnes i liste med påskrudde enheter") {
             byEnhetStrategy.isEnabled(
-                mutableMapOf(ByEnhetStrategy.VALGT_ENHET_PARAM to "987,345"),
+                mutableMapOf(ByEnhetStrategy.VALGT_ENHET_PARAM to "987"),
                 UnleashContext("N666666", "", "", emptyMap()),
             ) shouldBe false
         }

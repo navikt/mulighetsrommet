@@ -1,32 +1,31 @@
-import { ExternalLinkIcon } from "@navikt/aksel-icons";
-import { BodyShort, Button, HelpText, HStack, Tag } from "@navikt/ds-react";
 import {
   Avtale,
   Tiltaksgjennomforing,
   TiltaksgjennomforingOppstartstype,
   TiltaksgjennomforingStatus,
-  Toggles,
 } from "mulighetsrommet-api-client";
+
+import styles from "../DetaljerInfo.module.scss";
 import { useTitle } from "mulighetsrommet-frontend-common";
-import { NOM_ANSATT_SIDE } from "mulighetsrommet-frontend-common/constants";
-import { Link } from "react-router-dom";
-import { usePollTiltaksnummer } from "@/api/tiltaksgjennomforing/usePollTiltaksnummer";
+import { useMigrerteTiltakstyper } from "@/api/tiltakstyper/useMigrerteTiltakstyper";
+import { useRef } from "react";
 import { Bolk } from "@/components/detaljside/Bolk";
 import { Metadata, Separator } from "@/components/detaljside/Metadata";
-import { Laster } from "@/components/laster/Laster";
+import { tiltaktekster } from "@/components/ledetekster/tiltaksgjennomforingLedetekster";
+import { Link } from "react-router-dom";
+import { BodyShort, Button, HelpText, HStack, Tag } from "@navikt/ds-react";
 import { formaterDato, formatertVentetid } from "@/utils/Utils";
 import { isTiltakMedFellesOppstart } from "@/utils/tiltakskoder";
-import styles from "../DetaljerInfo.module.scss";
-import { Kontaktperson } from "./Kontaktperson";
-import { tiltaktekster } from "@/components/ledetekster/tiltaksgjennomforingLedetekster";
+import { NOM_ANSATT_SIDE } from "mulighetsrommet-frontend-common/constants";
+import { ExternalLinkIcon } from "@navikt/aksel-icons";
 import { getDisplayName } from "@/api/enhet/helpers";
-import { useRef } from "react";
-import { AvbrytGjennomforingModal } from "@/components/modal/AvbrytGjennomforingModal";
-import { HarSkrivetilgang } from "@/components/authActions/HarSkrivetilgang";
+import { Kontaktperson } from "@/pages/tiltaksgjennomforinger/Kontaktperson";
+import { ArrangorKontaktpersonDetaljer } from "@/pages/arrangor/ArrangorKontaktpersonDetaljer";
 import { erArenaOpphavOgIngenEierskap } from "@/components/tiltaksgjennomforinger/TiltaksgjennomforingSkjemaConst";
-import { useMigrerteTiltakstyper } from "@/api/tiltakstyper/useMigrerteTiltakstyper";
-import { ArrangorKontaktpersonDetaljer } from "../arrangor/ArrangorKontaktpersonDetaljer";
-import { useFeatureToggle } from "@/api/features/feature-toggles";
+import { HarSkrivetilgang } from "@/components/authActions/HarSkrivetilgang";
+import { AvbrytGjennomforingModal } from "@/components/modal/AvbrytGjennomforingModal";
+import { usePollTiltaksnummer } from "@/api/tiltaksgjennomforing/usePollTiltaksnummer";
+import { Laster } from "@/components/laster/Laster";
 
 interface Props {
   tiltaksgjennomforing: Tiltaksgjennomforing;
@@ -37,9 +36,7 @@ export function TiltaksgjennomforingDetaljer({ tiltaksgjennomforing, avtale }: P
   useTitle(
     `Tiltaksgjennomføring ${tiltaksgjennomforing.navn ? `- ${tiltaksgjennomforing.navn}` : null}`,
   );
-  const { data: enableArrangorSide } = useFeatureToggle(
-    Toggles.MULIGHETSROMMET_ADMIN_FLATE_ENABLE_ARRANGOR_SIDER,
-  );
+
   const { data: migrerteTiltakstyper = [] } = useMigrerteTiltakstyper();
   const avbrytModalRef = useRef<HTMLDialogElement>(null);
 
@@ -264,13 +261,9 @@ export function TiltaksgjennomforingDetaljer({ tiltaksgjennomforing, avtale }: P
               <Metadata
                 header={tiltaktekster.tiltaksarrangorHovedenhetLabel}
                 verdi={
-                  enableArrangorSide ? (
-                    <Link to={`/arrangorer/${avtale.arrangor.id}`}>
-                      {avtale.arrangor.navn} - {avtale.arrangor.organisasjonsnummer}
-                    </Link>
-                  ) : (
-                    `${avtale.arrangor.navn} - ${avtale.arrangor.organisasjonsnummer}`
-                  )
+                  <Link to={`/arrangorer/${avtale.arrangor.id}`}>
+                    {avtale.arrangor.navn} - {avtale.arrangor.organisasjonsnummer}
+                  </Link>
                 }
               />
             </Bolk>
