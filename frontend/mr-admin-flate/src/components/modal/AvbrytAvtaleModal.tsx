@@ -33,13 +33,17 @@ export function AvbrytAvtaleModal({ modalRef, avtale }: Props) {
   };
 
   useEffect(() => {
+    modalRef.current?.close();
     navigate(`/avtaler/${avtale.id}`);
   }, [mutation.isSuccess]);
 
   const handleAvbrytAvtale = () => {
     mutation.reset();
     if (avtale?.id) {
-      mutation.mutate({ id: avtale?.id, aarsak: aarsak === "annet" ? customAarsak : aarsak });
+      mutation.mutate({
+        id: avtale?.id,
+        aarsak: aarsak === "annet" ? customAarsak : aarsak,
+      });
     }
   };
 
@@ -71,7 +75,12 @@ export function AvbrytAvtaleModal({ modalRef, avtale }: Props) {
       <Modal.Body className={styles.body}>
         {tiltaksgjennomforingerMedAvtaleId && tiltaksgjennomforingerMedAvtaleId.data.length > 0 ? (
           <Alert variant="warning">
-            {`Avtaler med aktive gjennomføringer kan ikke avbrytes. Det er ${tiltaksgjennomforingerMedAvtaleId.data.length} aktiv${tiltaksgjennomforingerMedAvtaleId.data.length > 1 ? "e" : ""} gjennomføring${tiltaksgjennomforingerMedAvtaleId.data.length > 1 ? "er" : ""} under denne avtalen. Vurder om du vil avbryte gjennomføringen${tiltaksgjennomforingerMedAvtaleId.data.length > 1 ? "e" : ""}.`}
+            {`Avtaler med aktive gjennomføringer kan ikke avbrytes. Det er 
+            ${tiltaksgjennomforingerMedAvtaleId.data.length} 
+            aktiv${tiltaksgjennomforingerMedAvtaleId.data.length > 1 ? "e" : ""} 
+            gjennomføring${tiltaksgjennomforingerMedAvtaleId.data.length > 1 ? "er" : ""} 
+            under denne avtalen. Vurder om du vil avbryte 
+            gjennomføringen${tiltaksgjennomforingerMedAvtaleId.data.length > 1 ? "e" : ""}.`}
           </Alert>
         ) : (
           <AvbrytModalAarsaker
@@ -104,11 +113,9 @@ export function AvbrytAvtaleModal({ modalRef, avtale }: Props) {
             Nei, takk
           </Button>
           <HarSkrivetilgang ressurs="Avtale">
-            {!mutation?.isError && (
-              <Button variant="danger" onClick={handleAvbrytAvtale}>
-                Ja, jeg vil avbryte avtalen
-              </Button>
-            )}
+            <Button variant="danger" onClick={handleAvbrytAvtale}>
+              Ja, jeg vil avbryte avtalen
+            </Button>
           </HarSkrivetilgang>
         </Modal.Footer>
       ) : (

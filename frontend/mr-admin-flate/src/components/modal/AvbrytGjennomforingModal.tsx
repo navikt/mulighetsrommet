@@ -29,10 +29,11 @@ export const AvbrytGjennomforingModal = ({ modalRef, tiltaksgjennomforing }: Pro
   };
 
   useEffect(() => {
+    modalRef.current?.close();
     navigate(`/tiltaksgjennomforinger/${tiltaksgjennomforing?.id}`);
   }, [mutation.isSuccess]);
 
-  const handleAvbryt = () => {
+  const handleAvbrytGjennomforing = () => {
     mutation.reset();
     mutation.mutate({
       id: tiltaksgjennomforing.id,
@@ -99,7 +100,7 @@ export const AvbrytGjennomforingModal = ({ modalRef, tiltaksgjennomforing }: Pro
         <Button variant="secondary" type="button" onClick={onClose}>
           Nei, takk
         </Button>
-        <Button variant="danger" onClick={handleAvbryt}>
+        <Button variant="danger" onClick={handleAvbrytGjennomforing}>
           Ja, jeg vil avbryte gjennomføringen
         </Button>
       </Modal.Footer>

@@ -282,7 +282,7 @@ export function AvtaleDetaljer() {
           </Button>
         )}
       </HarSkrivetilgang>
-      {avtale && <AvbrytAvtaleModal modalRef={avbrytModalRef} avtale={avtale} />}
+      <AvbrytAvtaleModal modalRef={avbrytModalRef} avtale={avtale} />
     </>
   );
 }
