@@ -10,7 +10,6 @@ import no.nav.mulighetsrommet.api.clients.oppfolging.ErUnderOppfolgingError
 import no.nav.mulighetsrommet.api.clients.oppfolging.ManuellStatusDto
 import no.nav.mulighetsrommet.api.clients.oppfolging.OppfolgingError
 import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClient
-import no.nav.mulighetsrommet.api.clients.pdl.GeografiskTilknytning
 import no.nav.mulighetsrommet.api.clients.pdl.PdlClient
 import no.nav.mulighetsrommet.api.clients.pdl.PdlError
 import no.nav.mulighetsrommet.api.clients.vedtak.VedtakDto
@@ -149,13 +148,8 @@ class BrukerService(
         return pdlClient.hentGeografiskTilknytning(fnr, obo)
             .getOrNull()
             ?.let { gt ->
-                val norgEnhet = when (gt) {
-                    is GeografiskTilknytning.GtBydel -> norg2Client.hentEnhetByGeografiskOmraade(gt.value)
-                    is GeografiskTilknytning.GtKommune -> norg2Client.hentEnhetByGeografiskOmraade(gt.value)
-                    is GeografiskTilknytning.GtUtland, GeografiskTilknytning.GtUdefinert -> null
-                }
-
-                norgEnhet?.let { navEnhetService.hentEnhet(it.enhetNr) }
+                norg2Client.hentEnhetByGeografiskOmraade(gt)
+                    ?.let { navEnhetService.hentEnhet(it.enhetNr) }
             }
     }
 
