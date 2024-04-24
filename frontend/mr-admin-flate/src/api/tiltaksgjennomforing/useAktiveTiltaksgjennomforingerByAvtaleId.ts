@@ -3,7 +3,7 @@ import { QueryKeys } from "@/api/QueryKeys";
 import { mulighetsrommetClient } from "@/api/client";
 import { TiltaksgjennomforingStatus } from "mulighetsrommet-api-client";
 
-export function useTiltaksgjennomforingerByAvtaleId(avtaleId: string) {
+export function useAktiveTiltaksgjennomforingerByAvtaleId(avtaleId: string) {
   return useQuery({
     queryKey: QueryKeys.tiltaksgjennomforing(avtaleId),
     queryFn: () =>

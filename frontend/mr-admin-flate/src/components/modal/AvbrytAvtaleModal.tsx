@@ -9,7 +9,7 @@ import { useNavigate } from "react-router-dom";
 import { HarSkrivetilgang } from "../authActions/HarSkrivetilgang";
 import { AvbrytModalError } from "@/components/modal/AvbrytModalError";
 import { AvbrytModalAarsaker } from "@/components/modal/AvbrytModalAarsaker";
-import { useTiltaksgjennomforingerByAvtaleId } from "@/api/tiltaksgjennomforing/useTiltaksgjennomforingerByAvtaleId";
+import { useAktiveTiltaksgjennomforingerByAvtaleId } from "@/api/tiltaksgjennomforing/useAktiveTiltaksgjennomforingerByAvtaleId";
 
 interface Props {
   modalRef: RefObject<HTMLDialogElement>;
@@ -23,7 +23,7 @@ export function AvbrytAvtaleModal({ modalRef, avtale }: Props) {
   const [aarsak, setAarsak] = useState<string | null>(null);
   const [customAarsak, setCustomAarsak] = useState<string | null>(null);
 
-  const { data: tiltaksgjennomforingerMedAvtaleId } = useTiltaksgjennomforingerByAvtaleId(
+  const { data: tiltaksgjennomforingerMedAvtaleId } = useAktiveTiltaksgjennomforingerByAvtaleId(
     avtale.id,
   );
 
