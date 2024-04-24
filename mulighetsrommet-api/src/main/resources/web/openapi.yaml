@@ -2016,9 +2016,6 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/AvtaleAdministrator"
-        url:
-          type: string
-          nullable: true
         antallPlasser:
           type: number
           nullable: true
@@ -2121,7 +2118,6 @@ components:
         - avtalenummer
         - startDato
         - sluttDato
-        - url
         - administrator
         - avtaletype
         - prisbetingelser
