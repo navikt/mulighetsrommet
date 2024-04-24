@@ -19,9 +19,6 @@ export function AdministratorHeader() {
   const { data: debugIsEnabled } = useFeatureToggle(
     Toggles.MULIGHETSROMMET_ADMIN_FLATE_ENABLE_DEBUGGER,
   );
-  const { data: arrangorsiderIsEnabled } = useFeatureToggle(
-    Toggles.MULIGHETSROMMET_ADMIN_FLATE_ENABLE_ARRANGOR_SIDER,
-  );
 
   const ansattNavn = data ? [data.fornavn, data.etternavn].join(" ") : "Team Valp";
 
@@ -77,16 +74,14 @@ export function AdministratorHeader() {
                 Tiltaksgjennomføringer
               </Link>
             </Dropdown.Menu.GroupedList.Item>
-            {arrangorsiderIsEnabled ? (
-              <Dropdown.Menu.GroupedList.Item
-                onClick={() => arrangorerLinkRef.current?.click()}
-                as="span"
-              >
-                <Link ref={arrangorerLinkRef} to="/arrangorer">
-                  Arrangører
-                </Link>
-              </Dropdown.Menu.GroupedList.Item>
-            ) : null}
+            <Dropdown.Menu.GroupedList.Item
+              onClick={() => arrangorerLinkRef.current?.click()}
+              as="span"
+            >
+              <Link ref={arrangorerLinkRef} to="/arrangorer">
+                Arrangører
+              </Link>
+            </Dropdown.Menu.GroupedList.Item>
             <Dropdown.Menu.Divider />
             <Dropdown.Menu.GroupedList.Item
               onClick={() => notifikasjonerLinkRef.current?.click()}
