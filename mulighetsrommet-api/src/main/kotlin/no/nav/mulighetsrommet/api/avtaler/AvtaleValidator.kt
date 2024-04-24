@@ -57,7 +57,7 @@ class AvtaleValidator(
             }
 
             if (avtale.avtaletype.kreverWebsaknummer() && avtale.websaknummer == null) {
-                add(ValidationError.of(AvtaleDbo::websaknummer, "Avtalen må ha en referanse til Websak"))
+                add(ValidationError.of(AvtaleDbo::websaknummer, "Websaknummer til avtalesaken er påkrevd"))
             }
 
             if (avtale.arrangorUnderenheter.isEmpty()) {

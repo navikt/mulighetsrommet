@@ -105,6 +105,7 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
               )}
               <TextField
                 size="small"
+                placeholder="åå/12345"
                 error={errors.websaknummer?.message}
                 label={avtaletekster.websaknummerLabel}
                 {...register("websaknummer")}

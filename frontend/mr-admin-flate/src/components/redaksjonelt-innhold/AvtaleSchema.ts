@@ -56,7 +56,7 @@ export const AvtaleSchema = z
     ) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: "Avtalen må ha en referanse til Websak",
+        message: "Websaknummer til avtalesaken er påkrevd",
         path: ["websaknummer"],
       });
     }

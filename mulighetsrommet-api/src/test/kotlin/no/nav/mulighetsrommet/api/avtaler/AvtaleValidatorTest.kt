@@ -294,12 +294,12 @@ class AvtaleValidatorTest : FunSpec({
 
         val rammeavtale = AvtaleFixtures.oppfolging.copy(avtaletype = Avtaletype.Rammeavtale, websaknummer = null)
         validator.validate(rammeavtale, null).shouldBeLeft(
-            listOf(ValidationError("websaknummer", "Avtalen må ha en referanse til Websak")),
+            listOf(ValidationError("websaknummer", "Websaknummer til avtalesaken er påkrevd")),
         )
 
         val avtale = AvtaleFixtures.oppfolging.copy(avtaletype = Avtaletype.Avtale, websaknummer = null)
         validator.validate(avtale, null).shouldBeLeft(
-            listOf(ValidationError("websaknummer", "Avtalen må ha en referanse til Websak")),
+            listOf(ValidationError("websaknummer", "Websaknummer til avtalesaken er påkrevd")),
         )
 
         val offentligOffentligSamarbeid =
