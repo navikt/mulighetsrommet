@@ -1,5 +1,8 @@
 package no.nav.mulighetsrommet.api.clients.norg2
 
+import arrow.core.Either
+import arrow.core.left
+import arrow.core.right
 import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
 import io.ktor.client.call.*
@@ -10,7 +13,6 @@ import io.ktor.client.plugins.cache.*
 import io.ktor.client.request.*
 import io.ktor.client.request.headers
 import io.ktor.http.*
-import no.nav.mulighetsrommet.api.clients.pdl.GeografiskTilknytning
 import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
 import org.slf4j.LoggerFactory
 import java.util.concurrent.TimeUnit
@@ -29,7 +31,7 @@ class Norg2Client(
         install(HttpTimeout)
     }
 
-    private val hentEnhetByGeografiskOmraadeCache: Cache<GeografiskTilknytning, Norg2EnhetDto> = Caffeine.newBuilder()
+    private val hentEnhetByGeografiskOmraadeCache: Cache<String, Norg2EnhetDto> = Caffeine.newBuilder()
         .expireAfterWrite(24, TimeUnit.HOURS)
         .maximumSize(10_000)
         .recordStats()
@@ -49,38 +51,34 @@ class Norg2Client(
         }
     }
 
-    suspend fun hentEnhetByGeografiskOmraade(geografiskTilknytning: GeografiskTilknytning): Norg2EnhetDto? {
-        hentEnhetByGeografiskOmraadeCache.getIfPresent(geografiskTilknytning)?.let { return@hentEnhetByGeografiskOmraade it }
+    suspend fun hentEnhetByGeografiskOmraade(geografiskOmraade: String): Either<NorgError, Norg2EnhetDto> {
+        hentEnhetByGeografiskOmraadeCache.getIfPresent(geografiskOmraade)?.let { return@hentEnhetByGeografiskOmraade it.right() }
 
-        val geografiskOmraade = when (geografiskTilknytning) {
-            is GeografiskTilknytning.GtBydel -> geografiskTilknytning.value
-            is GeografiskTilknytning.GtKommune -> geografiskTilknytning.value
-            is GeografiskTilknytning.GtUtland, GeografiskTilknytning.GtUdefinert -> return null
+        val response = client.get("$baseUrl/enhet/navkontor/$geografiskOmraade") {
+            headers {
+                this.append("consumerId", "team-mulighetsrommet")
+            }
         }
-
-        return try {
-            val response = client.get("$baseUrl/enhet/navkontor/$geografiskOmraade") {
-                headers {
-                    this.append("consumerId", "team-mulighetsrommet")
-                }
+        return when (response.status) {
+            HttpStatusCode.NotFound -> {
+                log.error("Fant ikke Nav enhet for geografisk område: $geografiskOmraade")
+                NorgError.NotFound.left()
             }
-            when (response.status) {
-                HttpStatusCode.NotFound -> {
-                    log.error("Fant ikke Nav enhet for geografisk område: $geografiskTilknytning")
-                    null
-                }
-                HttpStatusCode.OK -> {
-                    val enhet = response.body<Norg2EnhetDto>()
-                    hentEnhetByGeografiskOmraadeCache.put(geografiskTilknytning, enhet)
-                    enhet
-                }
-                else -> {
-                    throw Exception("Error fra Norg: $response")
-                }
+            HttpStatusCode.OK -> {
+                val enhet = response.body<Norg2EnhetDto>()
+                enhet.right()
             }
-        } catch (exe: Exception) {
-            log.error("Klarte ikke hente enhet basert på geografisk tilknytning fra NORG2. geografiskOmraade: $geografiskTilknytning", exe)
-            throw exe
+            else -> {
+                log.error("Klarte ikke hente enhet basert på geografisk tilknytning fra NORG2. geografiskOmraade: $geografiskOmraade, response: $response")
+                NorgError.Error.left()
+            }
+        }.onRight {
+            hentEnhetByGeografiskOmraadeCache.put(geografiskOmraade, it)
         }
     }
+}
+
+enum class NorgError {
+    NotFound,
+    Error,
 }

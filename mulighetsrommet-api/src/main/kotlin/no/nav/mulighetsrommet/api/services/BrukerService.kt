@@ -6,10 +6,12 @@ import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.clients.AccessType
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Client
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
+import no.nav.mulighetsrommet.api.clients.norg2.NorgError
 import no.nav.mulighetsrommet.api.clients.oppfolging.ErUnderOppfolgingError
 import no.nav.mulighetsrommet.api.clients.oppfolging.ManuellStatusDto
 import no.nav.mulighetsrommet.api.clients.oppfolging.OppfolgingError
 import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClient
+import no.nav.mulighetsrommet.api.clients.pdl.GeografiskTilknytning
 import no.nav.mulighetsrommet.api.clients.pdl.PdlClient
 import no.nav.mulighetsrommet.api.clients.pdl.PdlError
 import no.nav.mulighetsrommet.api.clients.vedtak.VedtakDto
@@ -101,7 +103,7 @@ class BrukerService(
 
                     VedtakError.Error -> throw StatusException(
                         HttpStatusCode.InternalServerError,
-                        "Klarte ikke hente hente §14a-vedtak.",
+                        "Klarte ikke hente §14a-vedtak.",
                     )
 
                     VedtakError.NotFound -> null
@@ -112,7 +114,20 @@ class BrukerService(
             navEnhetService.hentEnhet(it)
         }
 
-        val brukersGeografiskeEnhet = hentBrukersGeografiskeEnhet(fnr, obo)
+        val geografiskTilknytning = pdlClient.hentGeografiskTilknytning(fnr, obo)
+            .getOrElse {
+                when (it) {
+                    PdlError.Error -> {
+                        throw StatusException(
+                            HttpStatusCode.InternalServerError,
+                            "Klarte ikke hente geografisk tilknytning fra Pdl.",
+                        )
+                    }
+                    PdlError.NotFound -> null
+                }
+            }
+
+        val brukersGeografiskeEnhet = geografiskTilknytning?.let { hentBrukersGeografiskeEnhet(it) }
 
         val enheter = getRelevanteEnheterForBruker(brukersGeografiskeEnhet, brukersOppfolgingsenhet)
 
@@ -144,12 +159,26 @@ class BrukerService(
         )
     }
 
-    private suspend fun hentBrukersGeografiskeEnhet(fnr: String, obo: AccessType.OBO): NavEnhetDbo? {
-        return pdlClient.hentGeografiskTilknytning(fnr, obo)
-            .getOrNull()
-            ?.let { gt ->
-                norg2Client.hentEnhetByGeografiskOmraade(gt)
-                    ?.let { navEnhetService.hentEnhet(it.enhetNr) }
+    private suspend fun hentBrukersGeografiskeEnhet(geografiskTilknytning: GeografiskTilknytning): NavEnhetDbo? {
+        val norgResult = when (geografiskTilknytning) {
+            is GeografiskTilknytning.GtBydel -> norg2Client.hentEnhetByGeografiskOmraade(geografiskTilknytning.value)
+            is GeografiskTilknytning.GtKommune -> norg2Client.hentEnhetByGeografiskOmraade(geografiskTilknytning.value)
+            is GeografiskTilknytning.GtUtland, GeografiskTilknytning.GtUdefinert -> null
+        } ?: return null
+
+        return norgResult
+            .map { navEnhetService.hentEnhet(it.enhetNr) }
+            .getOrElse {
+                when (it) {
+                    NorgError.NotFound -> throw StatusException(
+                        HttpStatusCode.InternalServerError,
+                        "Fant ikke nav enhet til geografisk tilknytning.",
+                    )
+                    NorgError.Error -> throw StatusException(
+                        HttpStatusCode.InternalServerError,
+                        "Fant ikke nav enhet til geografisk tilknytning.",
+                    )
+                }
             }
     }
 
