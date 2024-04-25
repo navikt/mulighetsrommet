@@ -49,6 +49,7 @@ object TiltaksgjennomforingFixtures {
         deltidsprosent = 100.0,
         estimertVentetidVerdi = 3,
         estimertVentetidEnhet = "dag",
+        tilgjengeligForArrangorFraOgMedDato = null,
     )
 
     val EnkelAmo1 = TiltaksgjennomforingDbo(
@@ -73,6 +74,7 @@ object TiltaksgjennomforingFixtures {
         deltidsprosent = 100.0,
         estimertVentetidVerdi = 3,
         estimertVentetidEnhet = "dag",
+        tilgjengeligForArrangorFraOgMedDato = null,
     )
 
     val Oppfolging1Request = TiltaksgjennomforingRequest(
@@ -95,6 +97,7 @@ object TiltaksgjennomforingFixtures {
         faneinnhold = Oppfolging1.faneinnhold,
         beskrivelse = Oppfolging1.beskrivelse,
         deltidsprosent = 100.0,
+        tilgjengeligForArrangorFraOgMedDato = null,
         estimertVentetid = EstimertVentetid(
             verdi = 3,
             enhet = "dag",
@@ -123,6 +126,7 @@ object TiltaksgjennomforingFixtures {
         deltidsprosent = 100.0,
         estimertVentetidVerdi = 3,
         estimertVentetidEnhet = "dag",
+        tilgjengeligForArrangorFraOgMedDato = null,
     )
 
     val VTA1 = TiltaksgjennomforingDbo(
@@ -147,6 +151,7 @@ object TiltaksgjennomforingFixtures {
         deltidsprosent = 100.0,
         estimertVentetidVerdi = 3,
         estimertVentetidEnhet = "dag",
+        tilgjengeligForArrangorFraOgMedDato = null,
     )
 
     val AFT1 = TiltaksgjennomforingDbo(
@@ -171,6 +176,7 @@ object TiltaksgjennomforingFixtures {
         deltidsprosent = 100.0,
         estimertVentetidVerdi = 3,
         estimertVentetidEnhet = "dag",
+        tilgjengeligForArrangorFraOgMedDato = null,
     )
 
     val Jobbklubb1 = TiltaksgjennomforingDbo(
@@ -195,6 +201,7 @@ object TiltaksgjennomforingFixtures {
         deltidsprosent = 100.0,
         estimertVentetidVerdi = 3,
         estimertVentetidEnhet = "dag",
+        tilgjengeligForArrangorFraOgMedDato = null,
     )
 
     val GruppeAmo1 = TiltaksgjennomforingDbo(
@@ -219,5 +226,6 @@ object TiltaksgjennomforingFixtures {
         deltidsprosent = 100.0,
         estimertVentetidVerdi = 3,
         estimertVentetidEnhet = "dag",
+        tilgjengeligForArrangorFraOgMedDato = null,
     )
 }

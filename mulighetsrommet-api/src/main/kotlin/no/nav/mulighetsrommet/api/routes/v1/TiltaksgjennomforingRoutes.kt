@@ -213,6 +213,8 @@ data class TiltaksgjennomforingRequest(
     val beskrivelse: String?,
     val deltidsprosent: Double,
     val estimertVentetid: EstimertVentetid?,
+    @Serializable(with = LocalDateSerializer::class)
+    val tilgjengeligForArrangorFraOgMedDato: LocalDate?,
 ) {
     fun toDbo() = TiltaksgjennomforingDbo(
         id = id,
@@ -242,6 +244,7 @@ data class TiltaksgjennomforingRequest(
         deltidsprosent = deltidsprosent,
         estimertVentetidVerdi = estimertVentetid?.verdi,
         estimertVentetidEnhet = estimertVentetid?.enhet,
+        tilgjengeligForArrangorFraOgMedDato = tilgjengeligForArrangorFraOgMedDato,
     )
 }
 

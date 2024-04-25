@@ -5,12 +5,13 @@ import { HarSkrivetilgang } from "@/components/authActions/HarSkrivetilgang";
 import { AvbrytGjennomforingModal } from "@/components/modal/AvbrytGjennomforingModal";
 import { erArenaOpphavOgIngenEierskap } from "@/components/tiltaksgjennomforinger/TiltaksgjennomforingSkjemaConst";
 import { ExternalLinkIcon } from "@navikt/aksel-icons";
-import { BodyShort, Button, HelpText, HStack, Tag } from "@navikt/ds-react";
+import { Alert, BodyShort, Button, Heading, HelpText, HStack, Tag } from "@navikt/ds-react";
 import {
   Avtale,
   Tiltaksgjennomforing,
   TiltaksgjennomforingOppstartstype,
   TiltaksgjennomforingStatus,
+  Toggles,
 } from "mulighetsrommet-api-client";
 import { useTitle } from "mulighetsrommet-frontend-common";
 import { NOM_ANSATT_SIDE } from "mulighetsrommet-frontend-common/constants";
@@ -25,6 +26,7 @@ import { formaterDato, formatertVentetid } from "../../utils/Utils";
 import { ArrangorKontaktpersonDetaljer } from "../arrangor/ArrangorKontaktpersonDetaljer";
 import styles from "../DetaljerInfo.module.scss";
 import { Kontaktperson } from "./Kontaktperson";
+import { useFeatureToggle } from "../../api/features/feature-toggles";
 
 interface Props {
   tiltaksgjennomforing: Tiltaksgjennomforing;
@@ -35,6 +37,9 @@ export function TiltaksgjennomforingDetaljer(props: Props) {
   const { tiltaksgjennomforing, avtale } = props;
   useTitle(
     `Tiltaksgjennomføring ${tiltaksgjennomforing.navn ? `- ${tiltaksgjennomforing.navn}` : null}`,
+  );
+  const { data: enableTilgjengeligForArrangor } = useFeatureToggle(
+    Toggles.MULIGHETSROMMET_ADMIN_FLATE_TILGJENGELIGGJORE_TILTAK_FOR_ARRANGOR,
   );
 
   const { data: migrerteTiltakstyper = [] } = useMigrerteTiltakstyper();
@@ -303,6 +308,20 @@ export function TiltaksgjennomforingDetaljer(props: Props) {
               </Bolk>
             </>
           )}
+          <Separator />
+          {enableTilgjengeligForArrangor &&
+          tiltaksgjennomforing?.tilgjengeligForArrangorFraOgMedDato ? (
+            <>
+              <Alert variant="info">
+                <Heading spacing size="small" level="3">
+                  Når ser arrangør tiltaket?
+                </Heading>
+                Arrangør vil ha tilgang til tiltaket i Deltakeroversikten på nav.no{" "}
+                <abbr title="Fra og med">fom.</abbr>{" "}
+                {formaterDato(new Date(tiltaksgjennomforing.tilgjengeligForArrangorFraOgMedDato))}
+              </Alert>
+            </>
+          ) : null}
         </div>
       </div>
       {!erArenaOpphavOgIngenEierskap(tiltaksgjennomforing, migrerteTiltakstyper) &&

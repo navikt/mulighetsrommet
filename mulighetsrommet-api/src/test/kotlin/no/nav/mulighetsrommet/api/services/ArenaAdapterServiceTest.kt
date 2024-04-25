@@ -822,5 +822,6 @@ private fun toTiltaksgjennomforingDto(dbo: ArenaTiltaksgjennomforingDbo, tiltaks
         status = TiltaksgjennomforingStatus.GJENNOMFORES,
         oppstart = TiltaksgjennomforingOppstartstype.LOPENDE,
         virksomhetsnummer = arrangorOrganisasjonsnummer,
+        tilgjengeligForArrangorFraOgMedDato = null,
     )
 }

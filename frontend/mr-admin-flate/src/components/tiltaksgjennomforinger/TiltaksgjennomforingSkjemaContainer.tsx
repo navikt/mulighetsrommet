@@ -23,6 +23,7 @@ import {
 import { defaultTiltaksgjennomforingData } from "./TiltaksgjennomforingSkjemaConst";
 import { TiltaksgjennomforingSkjemaDetaljer } from "./TiltaksgjennomforingSkjemaDetaljer";
 import { TiltaksgjennomforingSkjemaKnapperad } from "./TiltaksgjennomforingSkjemaKnapperad";
+import { logEvent } from "../../logging/amplitude";
 
 interface Props {
   onClose: () => void;
@@ -30,6 +31,15 @@ interface Props {
   avtale: Avtale;
   ansatt: NavAnsatt;
   tiltaksgjennomforing?: Tiltaksgjennomforing;
+}
+
+function loggRedaktorEndrerTilgjengeligForArrangor(datoValgt: string) {
+  logEvent({
+    name: "tiltaksadministrasjon.sett-tilgjengelig-for-redaktor",
+    data: {
+      datoValgt,
+    },
+  });
 }
 
 export const TiltaksgjennomforingSkjemaContainer = ({
@@ -84,7 +94,15 @@ export const TiltaksgjennomforingSkjemaContainer = ({
       faneinnhold: data.faneinnhold ?? null,
       deltidsprosent: data.deltidsprosent,
       estimertVentetid: data.estimertVentetid ?? null,
+      tilgjengeligForArrangorFraOgMedDato: data.tilgjengeligForArrangorFraOgMedDato ?? null,
     };
+
+    if (
+      data.tilgjengeligForArrangorFraOgMedDato &&
+      data.startOgSluttDato.startDato !== data.tilgjengeligForArrangorFraOgMedDato
+    ) {
+      loggRedaktorEndrerTilgjengeligForArrangor(data.tilgjengeligForArrangorFraOgMedDato);
+    }
 
     mutation.mutate(body);
   };

@@ -28,6 +28,7 @@ data class TiltaksgjennomforingDbo(
     val deltidsprosent: Double,
     val estimertVentetidVerdi: Int?,
     val estimertVentetidEnhet: String?,
+    val tilgjengeligForArrangorFraOgMedDato: LocalDate?,
 )
 
 data class TiltaksgjennomforingKontaktpersonDbo(
