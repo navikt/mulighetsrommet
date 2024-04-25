@@ -139,6 +139,44 @@ export const mockAvtaler: Avtale[] = [
     personopplysninger: [],
     personvernBekreftet: false,
   },
+  {
+    id: "6374b285-989d-4f78-a59e-29481b64ba93",
+    opphav: Opphav.MR_ADMIN_FLATE,
+    administratorer: [
+      {
+        navIdent: "B123456",
+        navn: "Bertil Bengtson",
+      },
+    ],
+    tiltakstype: mockTiltakstyper.GRUFAGYRKE,
+    navn: "Avtale hos Kulinarisk akademi",
+    avtalenummer: "2020#4929",
+    url: "https://www.websak.no",
+    arrangor: {
+      ...mockArrangorer.data[0],
+      slettet: false,
+      kontaktpersoner: [],
+      underenheter: mockArrangorer.data[0].underenheter!.map((v) => ({
+        id: v.id,
+        organisasjonsnummer: v.organisasjonsnummer,
+        navn: v.navn,
+        slettet: false,
+        kontaktpersoner: [],
+      })),
+    },
+    startDato: "2020-07-01",
+    sluttDato: "2024-06-30",
+    avtaletype: Avtaletype.RAMMEAVTALE,
+    avtalestatus: Avtalestatus.AKTIV,
+    arenaAnsvarligEnhet: mockEnheter._0313,
+    prisbetingelser: "Maskert prisbetingelser",
+    kontorstruktur: [
+      { region: mockEnheter._0400, kontorer: [mockEnheter._0415, mockEnheter._0402] },
+      { region: mockEnheter._0300, kontorer: [mockEnheter._0313, mockEnheter._0318] },
+    ],
+    personopplysninger: [],
+    personvernBekreftet: false,
+  },
 ];
 
 // Bruker denne for å teste med flere tiltaksgjennomføringer lokalt, men setter den til 0 sånn

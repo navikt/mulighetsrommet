@@ -136,6 +136,31 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     publisert: false,
     publisertForAlle: true,
   },
+  {
+    id: "a7d63fb0-4366-412c-84b7-7c15518ee364",
+    navn: "Tiltak hos Kulinarisk akademi",
+    tiltaksnummer: "654432",
+    sanityId: "1234",
+    deltidsprosent: 100,
+    arrangor: {
+      ...mockArrangorer.data[0].underenheter![0],
+      slettet: false,
+      kontaktpersoner: mockArrangorKontaktpersoner,
+    },
+    tiltakstype: mockTiltakstyper.GRUFAGYRKE,
+    startDato: "2022-01-01",
+    sluttDato: "2022-12-12",
+    arenaAnsvarligEnhet: mockEnheter._0313,
+    administratorer: [],
+    navEnheter: [],
+    status: TiltaksgjennomforingStatus.GJENNOMFORES,
+    oppstart: TiltaksgjennomforingOppstartstype.LOPENDE,
+    opphav: Opphav.MR_ADMIN_FLATE,
+    apentForInnsok: true,
+    kontaktpersoner: [],
+    publisert: false,
+    publisertForAlle: true,
+  },
 ];
 
 export const paginertMockTiltaksgjennomforinger: PaginertTiltaksgjennomforing = {

@@ -185,6 +185,9 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
             {errors.avtaleId?.message ? (
               <Alert variant="warning">{errors.avtaleId.message as string}</Alert>
             ) : null}
+            {avtale.tiltakstype.arenaKode === TiltakskodeArena.GRUFAGYRKE ? (
+              <VelgUtdanningskategori />
+            ) : null}
           </FormGroup>
           <Separator />
           <FormGroup>
@@ -443,3 +446,13 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
     </div>
   );
 };
+
+function VelgUtdanningskategori() {
+  return (
+    <Select size="small" label="Velg utdanningskategori">
+      <option value="41 - Humanistiske og estetiske fag">41 - Humanistiske og estetiske fag</option>
+      <option value="4551 - Elektrofag">4551 - Elektrofag</option>
+      <option value="47 - Primærnæringsfag">47 - Primærnæringsfag</option>
+    </Select>
+  );
+}
