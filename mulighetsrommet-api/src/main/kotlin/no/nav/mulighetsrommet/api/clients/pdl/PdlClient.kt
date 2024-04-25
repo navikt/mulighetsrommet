@@ -152,7 +152,6 @@ class PdlClient(
                     }
                     TypeGeografiskTilknytning.UTLAND -> {
                         log.warn("Pdl returnerte UTLAND geografisk tilkytning. Da kan man ikke hente enhet fra norg.")
-                        requireNotNull(it.hentGeografiskTilknytning.gtLand)
                         GeografiskTilknytning.GtUtland(it.hentGeografiskTilknytning.gtLand)
                     }
                     TypeGeografiskTilknytning.UDEFINERT -> {
@@ -276,7 +275,7 @@ data class HentGeografiskTilknytningResponse(
 sealed class GeografiskTilknytning {
     data class GtKommune(val value: String) : GeografiskTilknytning()
     data class GtBydel(val value: String) : GeografiskTilknytning()
-    data class GtUtland(val value: String) : GeografiskTilknytning()
+    data class GtUtland(val value: String?) : GeografiskTilknytning()
     object GtUdefinert : GeografiskTilknytning()
 }
 
