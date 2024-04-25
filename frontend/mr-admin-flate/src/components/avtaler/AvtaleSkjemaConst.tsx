@@ -52,7 +52,7 @@ export function defaultAvtaleData(
       startDato: avtale?.startDato ? avtale.startDato : undefined,
       sluttDato: avtale?.sluttDato ? avtale.sluttDato : undefined,
     },
-    url: avtale?.url ?? "",
+    websaknummer: avtale?.websaknummer,
     prisbetingelser: avtale?.prisbetingelser ?? undefined,
     beskrivelse: avtale?.beskrivelse ?? null,
     faneinnhold: avtale?.faneinnhold ?? null,

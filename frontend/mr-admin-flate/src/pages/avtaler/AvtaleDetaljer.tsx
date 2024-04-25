@@ -1,26 +1,22 @@
-import { ExternalLinkIcon } from "@navikt/aksel-icons";
-import { Alert, Heading, HelpText, VStack } from "@navikt/ds-react";
-import { NOM_ANSATT_SIDE } from "mulighetsrommet-frontend-common/constants";
-import { Fragment } from "react";
 import { useAvtale } from "@/api/avtaler/useAvtale";
+import { getDisplayName } from "@/api/enhet/helpers";
 import { Bolk } from "@/components/detaljside/Bolk";
 import { Metadata, Separator } from "@/components/detaljside/Metadata";
 import { Laster } from "@/components/laster/Laster";
+import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
+import { ArrangorKontaktpersonDetaljer } from "@/pages/arrangor/ArrangorKontaktpersonDetaljer";
 import { avtaletypeTilTekst, formaterDato } from "@/utils/Utils";
 import { erAnskaffetTiltak } from "@/utils/tiltakskoder";
-import styles from "../DetaljerInfo.module.scss";
+import { ExternalLinkIcon } from "@navikt/aksel-icons";
+import { Alert, Heading, HelpText, VStack } from "@navikt/ds-react";
+import { NavEnhet, Opphav } from "mulighetsrommet-api-client";
+import { NOM_ANSATT_SIDE } from "mulighetsrommet-frontend-common/constants";
+import { Fragment } from "react";
 import { Link } from "react-router-dom";
-import { NavEnhet, Opphav, Toggles } from "mulighetsrommet-api-client";
-import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
-import { getDisplayName } from "@/api/enhet/helpers";
-import { ArrangorKontaktpersonDetaljer } from "@/pages/arrangor/ArrangorKontaktpersonDetaljer";
-import { useFeatureToggle } from "@/api/features/feature-toggles";
+import styles from "../DetaljerInfo.module.scss";
 
 export function AvtaleDetaljer() {
   const { data: avtale, isPending, error } = useAvtale();
-  const { data: enableArrangorSide } = useFeatureToggle(
-    Toggles.MULIGHETSROMMET_ADMIN_FLATE_ENABLE_ARRANGOR_SIDER,
-  );
 
   if (isPending) {
     return <Laster tekst="Laster avtale..." />;
@@ -29,21 +25,6 @@ export function AvtaleDetaljer() {
   if (error) {
     return <Alert variant="error">Klarte ikke hente avtaleinformasjon</Alert>;
   }
-
-  const lenketekst = () => {
-    let tekst;
-    if (avtale?.url?.includes("websak")) {
-      tekst = `Se originalavtale i WebSak `;
-    } else {
-      tekst = `Se originalavtale `;
-    }
-    return (
-      <>
-        {tekst}
-        <ExternalLinkIcon aria-label="Ekstern lenke" />
-      </>
-    );
-  };
 
   function sorterPaRegionsnavn(a: { region: NavEnhet }, b: { region: NavEnhet }) {
     return a.region.navn.localeCompare(b.region.navn);
@@ -58,7 +39,7 @@ export function AvtaleDetaljer() {
     startDato,
     sluttDato,
     administratorer,
-    url,
+    websaknummer,
     kontorstruktur,
     arenaAnsvarligEnhet,
     arrangor,
@@ -68,14 +49,24 @@ export function AvtaleDetaljer() {
   return (
     <div className={styles.container}>
       <div className={styles.detaljer}>
-        <Bolk aria-label="Avtalenavn og avtalenummer">
+        <Bolk aria-label="Avtalenavn">
           <Metadata header={avtaletekster.avtalenavnLabel} verdi={navn} />
+        </Bolk>
+
+        <Separator />
+
+        <Bolk aria-label="Eksterne referanser">
           {opphav === Opphav.MR_ADMIN_FLATE ? (
             <Metadata header={avtaletekster.lopenummerLabel} verdi={lopenummer} />
           ) : (
             <Metadata header={avtaletekster.arenaAvtalenummerLabel} verdi={avtalenummer} />
           )}
+          {websaknummer ? (
+            <Metadata header={avtaletekster.websaknummerLabel} verdi={websaknummer} />
+          ) : null}
         </Bolk>
+
+        <Separator />
 
         <Bolk aria-label={avtaletekster.tiltakstypeLabel}>
           <Metadata
@@ -138,21 +129,6 @@ export function AvtaleDetaljer() {
                   )
                 }
               />
-              {url ? (
-                <Metadata
-                  header={avtaletekster.seOriginalavtaleLabel}
-                  verdi={
-                    <Link
-                      className={styles.websakLenke}
-                      to={url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      {lenketekst()}
-                    </Link>
-                  }
-                />
-              ) : null}
             </Bolk>
           ) : null}
         </VStack>
@@ -215,13 +191,9 @@ export function AvtaleDetaljer() {
           <Metadata
             header={avtaletekster.tiltaksarrangorHovedenhetLabel}
             verdi={
-              enableArrangorSide ? (
-                <Link to={`/arrangorer/${arrangor.id}`}>
-                  {arrangor.navn} - {arrangor.organisasjonsnummer}
-                </Link>
-              ) : (
-                `${arrangor.navn} - ${arrangor.organisasjonsnummer}`
-              )
+              <Link to={`/arrangorer/${arrangor.id}`}>
+                {arrangor.navn} - {arrangor.organisasjonsnummer}
+              </Link>
             }
           />
         </Bolk>

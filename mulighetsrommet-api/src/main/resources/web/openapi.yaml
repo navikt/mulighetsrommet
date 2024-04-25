@@ -1991,6 +1991,8 @@ components:
           type: string
         avtalenummer:
           type: string
+        websaknummer:
+          type: string
         lopenummer:
           type: string
         arrangor:
@@ -2063,6 +2065,9 @@ components:
         avtalenummer:
           type: string
           nullable: true
+        websaknummer:
+          type: string
+          nullable: true
         arrangorOrganisasjonsnummer:
           type: string
         arrangorUnderenheter:
@@ -2080,9 +2085,6 @@ components:
         sluttDato:
           type: string
           format: date
-          nullable: true
-        url:
-          type: string
           nullable: true
         administratorer:
           type: array
@@ -2456,7 +2458,7 @@ components:
       enum:
         - LOKAL_OPPFOLGINGSENHET
         - BRUKER_IKKE_UNDER_OPPFOLGING
-        - BRUKER_HAR_VAERT_UNDER_OPPFOLGING
+        - BRUKER_UNDER_OPPFOLGING_MEN_MANGLER_14A_VEDTAK
 
     NavVeileder:
       type: object
@@ -3553,7 +3555,6 @@ components:
         - mulighetsrommet-veilederflate-landingsside
         - mulighetsrommet-veilederflate-arena-oppskrifter
         - mulighetsrommet.admin-flate.enableDebugger
-        - mulighetsrommet.admin-flate.enableArrangorSider
 
     PublisertRequest:
       type: object
