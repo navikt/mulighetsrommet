@@ -17,6 +17,7 @@ import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
 import no.nav.mulighetsrommet.api.domain.dto.AvtaleAdminDto
 import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingAdminDto
 import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingDto
+import no.nav.mulighetsrommet.api.domain.dto.TiltakstypeAdminDto
 import no.nav.mulighetsrommet.api.repositories.*
 import no.nav.mulighetsrommet.api.utils.EnhetFilter
 import no.nav.mulighetsrommet.database.Database
@@ -33,9 +34,7 @@ import no.nav.mulighetsrommet.domain.dbo.ArenaTiltakshistorikkDbo
 import no.nav.mulighetsrommet.domain.dbo.DeltakerDbo
 import no.nav.mulighetsrommet.domain.dto.Avtalestatus
 import no.nav.mulighetsrommet.domain.dto.NavIdent
-import no.nav.mulighetsrommet.domain.dto.TiltakstypeAdminDto
 import no.nav.mulighetsrommet.kafka.producers.TiltaksgjennomforingKafkaProducer
-import no.nav.mulighetsrommet.kafka.producers.TiltakstypeKafkaProducer
 import no.nav.mulighetsrommet.notifications.NotificationMetadata
 import no.nav.mulighetsrommet.notifications.NotificationService
 import no.nav.mulighetsrommet.notifications.NotificationType
@@ -53,8 +52,7 @@ class ArenaAdapterService(
     private val tiltakshistorikk: TiltakshistorikkRepository,
     private val deltakere: DeltakerRepository,
     private val tiltaksgjennomforingKafkaProducer: TiltaksgjennomforingKafkaProducer,
-    private val tiltakstypeKafkaProducer: TiltakstypeKafkaProducer,
-    private val sanityTiltaksgjennomforingService: SanityTiltaksgjennomforingService,
+    private val sanityTiltakService: SanityTiltakService,
     private val arrangorService: ArrangorService,
     private val navEnhetService: NavEnhetService,
     private val notificationService: NotificationService,
@@ -139,7 +137,7 @@ class ArenaAdapterService(
             }
 
             if (shouldBeManagedInSanity(next)) {
-                sanityTiltaksgjennomforingService.createOrPatchSanityTiltaksgjennomforing(next, tx)
+                sanityTiltakService.createOrPatchSanityTiltaksgjennomforing(next, tx)
             } else if (next.isAktiv() && next.administratorer.isEmpty()) {
                 maybeNotifyRelevantAdministrators(next)
             }
@@ -174,7 +172,7 @@ class ArenaAdapterService(
         }
 
         if (sanityId != null) {
-            sanityTiltaksgjennomforingService.deleteSanityTiltaksgjennomforing(sanityId)
+            sanityTiltakService.deleteSanityTiltaksgjennomforing(sanityId)
         }
     }
 

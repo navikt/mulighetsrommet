@@ -290,7 +290,6 @@ private fun services(appConfig: AppConfig) = module {
             get(),
             get(),
             get(),
-            get(),
         )
     }
     single {
@@ -325,7 +324,7 @@ private fun services(appConfig: AppConfig) = module {
             get(),
         )
     }
-    single { SanityTiltaksgjennomforingService(get(), get(), get()) }
+    single { SanityTiltakService(get(), get(), get()) }
     single { TiltakstypeService(get(), appConfig.migrerteTiltak) }
     single { NavEnheterSyncService(get(), get(), get(), get()) }
     single { NavEnhetService(get()) }
@@ -351,7 +350,7 @@ private fun services(appConfig: AppConfig) = module {
 private fun tasks(config: TaskConfig) = module {
     single { GenerateValidationReport(config.generateValidationReport, get(), get(), get(), get(), get()) }
     single { InitialLoadTiltaksgjennomforinger(get(), get(), get(), get()) }
-    single { InitialLoadTiltakstyper(get(), get(), get()) }
+    single { InitialLoadTiltakstyper(get(), get(), get(), get()) }
     single { SynchronizeNavAnsatte(config.synchronizeNavAnsatte, get(), get(), get()) }
     single {
         val deleteExpiredTiltakshistorikk = DeleteExpiredTiltakshistorikk(
