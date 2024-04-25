@@ -1,6 +1,15 @@
 import { useAvtaleAdministratorer } from "@/api/ansatt/useAvtaleAdministratorer";
 import { useMigrerteTiltakstyperForAvtaler } from "@/api/tiltakstyper/useMigrerteTiltakstyper";
-import { Alert, Heading, HGrid, Loader, Select, Textarea, TextField } from "@navikt/ds-react";
+import {
+  Alert,
+  Heading,
+  HGrid,
+  Loader,
+  Select,
+  Textarea,
+  TextField,
+  UNSAFE_Combobox,
+} from "@navikt/ds-react";
 import {
   Avtale,
   Avtaletype,
@@ -355,8 +364,13 @@ function AvtaleKategoriVelger() {
       return kategori;
     });
 
+  const comboboxOptions =
+    kategorier
+      .find((kategori) => kategori.value === valgtKategori)
+      ?.children.map((child) => child) || [];
+
   return (
-    <HGrid gap="4" columns={2}>
+    <HGrid gap="4" columns={1}>
       <Select
         size="small"
         label="Utdanningsnivå"
@@ -372,15 +386,13 @@ function AvtaleKategoriVelger() {
           </option>
         ))}
       </Select>
-      <Select size="small" label="Utdanningskategori" disabled={!valgtKategori}>
-        {kategorier
-          .find((kategori) => kategori.value === valgtKategori)
-          ?.children.map((child) => (
-            <option key={child.value} value={child.value}>
-              {child.label}
-            </option>
-          ))}
-      </Select>
+      <UNSAFE_Combobox
+        size="small"
+        label="Utdanningskategori"
+        disabled={!valgtKategori}
+        isMultiSelect
+        options={comboboxOptions}
+      ></UNSAFE_Combobox>
     </HGrid>
   );
 }
