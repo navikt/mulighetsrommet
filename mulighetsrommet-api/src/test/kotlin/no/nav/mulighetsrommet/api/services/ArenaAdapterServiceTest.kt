@@ -33,7 +33,6 @@ import no.nav.mulighetsrommet.domain.dto.AvbruttAarsak
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus
 import no.nav.mulighetsrommet.kafka.producers.TiltaksgjennomforingKafkaProducer
-import no.nav.mulighetsrommet.kafka.producers.TiltakstypeKafkaProducer
 import no.nav.mulighetsrommet.notifications.NotificationService
 import no.nav.mulighetsrommet.notifications.NotificationType
 import no.nav.mulighetsrommet.notifications.ScheduledNotification
@@ -787,7 +786,6 @@ class ArenaAdapterServiceTest : FunSpec({
 
 private fun createArenaAdapterService(
     db: Database,
-    tiltakstypeKafkaProducer: TiltakstypeKafkaProducer = mockk(relaxed = true),
     tiltaksgjennomforingKafkaProducer: TiltaksgjennomforingKafkaProducer = mockk(relaxed = true),
     notificationService: NotificationService = mockk(relaxed = true),
     veilarboppfolgingClient: VeilarboppfolgingClient = mockk(),
@@ -801,7 +799,6 @@ private fun createArenaAdapterService(
     tiltakshistorikk = TiltakshistorikkRepository(db),
     deltakere = DeltakerRepository(db),
     tiltaksgjennomforingKafkaProducer = tiltaksgjennomforingKafkaProducer,
-    tiltakstypeKafkaProducer = tiltakstypeKafkaProducer,
     sanityTiltaksgjennomforingService = mockk(relaxed = true),
     arrangorService = mockk(relaxed = true),
     navEnhetService = NavEnhetService(NavEnhetRepository(db)),

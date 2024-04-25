@@ -20,6 +20,7 @@ export const tiltakstype = defineType({
       name: "tiltakstypeNavn",
       title: "Navn på tiltakstype",
       type: "string",
+      readOnly: true,
       validation: (Rule) => Rule.required().min(2).max(200),
     }),
     defineField({
