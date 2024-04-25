@@ -53,7 +53,6 @@ export const mockAvtaler: Avtale[] = [
 
         20 deltakere:
         Teori en uke: 56 771,- (55 117,-)                     Praksis en uke: 45 695,- (44 364,-)                       Kombinasjon en uke: 47 344,- (45 965,-)`,
-    url: "https://www.websak.no",
     kontorstruktur: [
       { region: mockEnheter._0300, kontorer: [mockEnheter._0313, mockEnheter._0318] },
       {
@@ -94,7 +93,6 @@ export const mockAvtaler: Avtale[] = [
     avtalestatus: Avtalestatus.AKTIV,
     arenaAnsvarligEnhet: mockEnheter._0400,
     prisbetingelser: "Maskert prisbetingelser",
-    url: null,
     kontorstruktur: [
       { region: mockEnheter._0400, kontorer: [mockEnheter._0415, mockEnheter._0402] },
     ],
@@ -113,7 +111,6 @@ export const mockAvtaler: Avtale[] = [
     tiltakstype: mockTiltakstyper.INDOPPFAG,
     navn: "Avtale hos Åna Fengsel",
     avtalenummer: "2020#4929",
-    url: "https://www.websak.no",
     arrangor: {
       ...mockArrangorer.data[0],
       slettet: false,
@@ -157,7 +154,6 @@ for (let i = 0; i < x; i++) {
     tiltakstype: mockTiltakstyper.INDOPPFAG,
     navn: "Avtale hos Åna Fengsel",
     avtalenummer: "2020#4929",
-    url: "https://www.websak.no",
     arrangor: {
       ...mockArrangorer.data[0],
       slettet: false,

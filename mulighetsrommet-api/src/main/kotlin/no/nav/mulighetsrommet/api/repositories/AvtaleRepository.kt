@@ -534,7 +534,6 @@ class AvtaleRepository(private val db: Database) {
             avtalestatus = Avtalestatus.valueOf(string("status")),
             prisbetingelser = stringOrNull("prisbetingelser"),
             antallPlasser = intOrNull("antall_plasser"),
-            url = stringOrNull("url"),
             beskrivelse = stringOrNull("beskrivelse"),
             faneinnhold = stringOrNull("faneinnhold")?.let { Json.decodeFromString(it) },
             administratorer = administratorer,
