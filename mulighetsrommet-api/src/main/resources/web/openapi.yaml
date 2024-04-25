@@ -1957,6 +1957,10 @@ components:
           format: uuid
         navn:
           type: string
+        innsatsgrupper:
+          type: array
+          items:
+            $ref: "#/components/schemas/Innsatsgruppe"
         arenaKode:
           $ref: "#/components/schemas/TiltakskodeArena"
         startDato:
@@ -2558,6 +2562,7 @@ components:
         - STANDARD_INNSATS
         - SITUASJONSBESTEMT_INNSATS
         - SPESIELT_TILPASSET_INNSATS
+        - GRADERT_VARIG_TILPASSET_INNSATS
         - VARIG_TILPASSET_INNSATS
 
     TiltakstypeStatus:
