@@ -1,3 +1,8 @@
+import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
+import { useHentKontaktpersoner } from "@/api/ansatt/useHentKontaktpersoner";
+import { useTiltaksgjennomforingAdministratorer } from "@/api/ansatt/useTiltaksgjennomforingAdministratorer";
+import { useTiltaksgjennomforingDeltakerSummary } from "@/api/tiltaksgjennomforing/useTiltaksgjennomforingDeltakerSummary";
+import { useMigrerteTiltakstyper } from "@/api/tiltakstyper/useMigrerteTiltakstyper";
 import { PlusIcon, XMarkIcon } from "@navikt/aksel-icons";
 import {
   Alert,
@@ -20,25 +25,21 @@ import {
 import { ControlledSokeSelect } from "mulighetsrommet-frontend-common";
 import { useEffect, useRef } from "react";
 import { useFieldArray, useFormContext } from "react-hook-form";
-import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
-import { useHentKontaktpersoner } from "@/api/ansatt/useHentKontaktpersoner";
-import { useTiltaksgjennomforingAdministratorer } from "@/api/ansatt/useTiltaksgjennomforingAdministratorer";
-import { useMigrerteTiltakstyper } from "@/api/tiltakstyper/useMigrerteTiltakstyper";
 import { addYear, formaterDato } from "../../utils/Utils";
 import { isTiltakMedFellesOppstart } from "../../utils/tiltakskoder";
 import { Separator } from "../detaljside/Metadata";
 import { tiltaktekster } from "../ledetekster/tiltaksgjennomforingLedetekster";
+import { EndreDatoAdvarselModal } from "../modal/EndreDatoAdvarselModal";
 import { InferredTiltaksgjennomforingSchema } from "../redaksjonelt-innhold/TiltaksgjennomforingSchema";
 import { AdministratorOptions } from "../skjema/AdministratorOptions";
+import { ControlledDateInput } from "../skjema/ControlledDateInput";
 import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { FormGroup } from "../skjema/FormGroup";
 import skjemastyles from "../skjema/Skjema.module.scss";
 import { SelectOppstartstype } from "./SelectOppstartstype";
+import { TiltakTilgjengeligForArrangor } from "./TilgjengeligTiltakForArrangor";
 import { TiltaksgjennomforingArrangorSkjema } from "./TiltaksgjennomforingArrangorSkjema";
 import { erArenaOpphavOgIngenEierskap } from "./TiltaksgjennomforingSkjemaConst";
-import { ControlledDateInput } from "../skjema/ControlledDateInput";
-import { useTiltaksgjennomforingDeltakerSummary } from "@/api/tiltaksgjennomforing/useTiltaksgjennomforingDeltakerSummary";
-import { EndreDatoAdvarselModal } from "../modal/EndreDatoAdvarselModal";
 
 interface Props {
   tiltaksgjennomforing?: Tiltaksgjennomforing;
@@ -428,6 +429,12 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
           <div className={skjemastyles.gray_container}>
             <TiltaksgjennomforingArrangorSkjema readOnly={eierIkkeGjennomforing} avtale={avtale} />
           </div>
+          {watch("oppstart") === "LOPENDE" ? (
+            <TiltakTilgjengeligForArrangor
+              startDato={new Date(watch("startOgSluttDato.startDato"))}
+              avtaleStartdato={new Date(avtale.startDato)}
+            />
+          ) : null}
         </div>
       </div>
       <EndreDatoAdvarselModal
