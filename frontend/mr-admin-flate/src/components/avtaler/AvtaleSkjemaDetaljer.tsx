@@ -297,10 +297,10 @@ function AvtaleKategoriVelger() {
   const VGS3 = "3";
   const VGS4 = "4";
   const IRRELEVANTE_NIVAAER = ["0", "9"];
+  const [valgteKategorier, setValgteKategorier] = useState<string[]>([]);
   const { data, isLoading, isError } = useNusData();
+  const [valgtUtdanningsnivaa, setValgtUtdanningsnivaa] = useState<string | undefined>(undefined);
 
-  // const kategorier = mockNusData;
-  const [valgtKategori, setValgtKategori] = useState<string | undefined>(undefined);
   if (!data || isLoading) {
     return <Loader />;
   }
@@ -366,32 +366,42 @@ function AvtaleKategoriVelger() {
 
   const comboboxOptions =
     kategorier
-      .find((kategori) => kategori.value === valgtKategori)
+      .find((kategori) => kategori.value === valgtUtdanningsnivaa)
       ?.children.map((child) => child) || [];
-
   return (
     <HGrid gap="4" columns={1}>
       <Select
         size="small"
         label="Utdanningsnivå"
-        value={valgtKategori}
-        onChange={(kategori) => {
-          setValgtKategori(kategori.target.value);
+        value={valgtUtdanningsnivaa}
+        onChange={(utdanningsnivaa) => {
+          setValgtUtdanningsnivaa(utdanningsnivaa.target.value);
+          setValgteKategorier([]);
         }}
       >
         <option value={""}>Velg utdanningsnivå...</option>
-        {kategorier.map((kategori) => (
-          <option key={kategori.value} value={kategori.value}>
-            {kategori.label}
+        {kategorier.map((utdanningsnivaa) => (
+          <option key={utdanningsnivaa.value} value={utdanningsnivaa.value}>
+            {utdanningsnivaa.label}
           </option>
         ))}
       </Select>
       <UNSAFE_Combobox
+        clearButton
         size="small"
         label="Utdanningskategori"
-        disabled={!valgtKategori}
+        disabled={!valgtUtdanningsnivaa}
         isMultiSelect
         options={comboboxOptions}
+        selectedOptions={valgteKategorier.map((kategori) => ({
+          value: kategori,
+          label: comboboxOptions.find((option) => option.value === kategori)?.label ?? "",
+        }))}
+        onToggleSelected={(option, isSelected) =>
+          isSelected
+            ? setValgteKategorier([...valgteKategorier, option])
+            : setValgteKategorier(valgteKategorier.filter((o) => o !== option))
+        }
       ></UNSAFE_Combobox>
     </HGrid>
   );
