@@ -115,9 +115,25 @@ const SidemenyDetaljer = ({ tiltaksgjennomforing }: Props) => {
         {tiltakstype.regelverkLenker && (
           <div className={styles.rad}>
             <BodyShort size="small" className={styles.tittel}>
-              Regelverk
+              Regelverk og rutiner
             </BodyShort>
-            <Regelverksinfo regelverkLenker={tiltakstype.regelverkLenker} />
+            <Regelverksinfo
+              regelverkLenker={[
+                ...tiltakstype.regelverkLenker,
+                {
+                  _id: "klage",
+                  regelverkLenkeNavn: "Avslag og klage",
+                  regelverkUrl:
+                    "https://navno.sharepoint.com/sites/fag-og-ytelser-arbeid-tiltak-og-virkemidler/SitePages/Klage-p%C3%A5-arbeidsmarkedstiltak.aspx",
+                },
+                {
+                  _id: "vurdering",
+                  regelverkLenkeNavn: "Tiltak hos familie/nærstående",
+                  regelverkUrl:
+                    "https://navno.sharepoint.com/sites/fag-og-ytelser-arbeid-tiltak-og-virkemidler/SitePages/Rutine.aspx",
+                },
+              ]}
+            />
           </div>
         )}
       </Box>
