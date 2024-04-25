@@ -9,6 +9,7 @@ select
     tiltakstype.start_dato,
     tiltakstype.slutt_dato,
     tiltakstype.sanity_id,
+    tiltakstype.innsatsgrupper,
     case
         when slutt_dato is not null and date(now()) > slutt_dato then 'AVSLUTTET'
         else 'AKTIV'

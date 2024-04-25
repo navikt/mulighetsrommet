@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api.domain.dto
 import kotlinx.serialization.EncodeDefault
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.domain.dto.Innsatsgruppe
 
 @Serializable
 data class Mutations<T>(
@@ -41,8 +42,7 @@ class Mutation<T> private constructor(
 @Serializable
 data class SanityTiltakstypeFields(
     val tiltakstypeNavn: String,
-    // TODO innsatsgrupper
-    // val innsatsgrupper: List<Innsatsgruppe>,
+    val innsatsgrupper: Set<Innsatsgruppe>,
 )
 
 @OptIn(ExperimentalSerializationApi::class)

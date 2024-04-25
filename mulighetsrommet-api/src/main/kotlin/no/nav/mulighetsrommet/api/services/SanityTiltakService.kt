@@ -24,7 +24,10 @@ class SanityTiltakService(
             "Kan ikke patche tiltakstype med id=${tiltakstype.id} fordi den mangler en referanse til dokument i Sanity"
         }
 
-        val data = SanityTiltakstypeFields(tiltakstypeNavn = tiltakstype.navn)
+        val data = SanityTiltakstypeFields(
+            tiltakstypeNavn = tiltakstype.navn,
+            innsatsgrupper = tiltakstype.innsatsgrupper,
+        )
 
         patchSanityTiltakstype(sanityId, data)
     }

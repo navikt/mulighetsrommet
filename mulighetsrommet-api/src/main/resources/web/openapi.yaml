@@ -1957,6 +1957,10 @@ components:
           format: uuid
         navn:
           type: string
+        innsatsgrupper:
+          type: array
+          items:
+            $ref: "#/components/schemas/Innsatsgruppe"
         arenaKode:
           $ref: "#/components/schemas/TiltakskodeArena"
         startDato:
