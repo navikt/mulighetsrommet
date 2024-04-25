@@ -17,6 +17,7 @@ import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
 import no.nav.mulighetsrommet.api.domain.dto.AvtaleAdminDto
 import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingAdminDto
 import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingDto
+import no.nav.mulighetsrommet.api.domain.dto.TiltakstypeAdminDto
 import no.nav.mulighetsrommet.api.repositories.*
 import no.nav.mulighetsrommet.api.utils.EnhetFilter
 import no.nav.mulighetsrommet.database.Database
@@ -33,7 +34,6 @@ import no.nav.mulighetsrommet.domain.dbo.ArenaTiltakshistorikkDbo
 import no.nav.mulighetsrommet.domain.dbo.DeltakerDbo
 import no.nav.mulighetsrommet.domain.dto.Avtalestatus
 import no.nav.mulighetsrommet.domain.dto.NavIdent
-import no.nav.mulighetsrommet.domain.dto.TiltakstypeAdminDto
 import no.nav.mulighetsrommet.kafka.producers.TiltaksgjennomforingKafkaProducer
 import no.nav.mulighetsrommet.kafka.producers.TiltakstypeKafkaProducer
 import no.nav.mulighetsrommet.notifications.NotificationMetadata
