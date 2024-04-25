@@ -2458,7 +2458,7 @@ components:
       enum:
         - LOKAL_OPPFOLGINGSENHET
         - BRUKER_IKKE_UNDER_OPPFOLGING
-        - BRUKER_HAR_VAERT_UNDER_OPPFOLGING
+        - BRUKER_UNDER_OPPFOLGING_MEN_MANGLER_14A_VEDTAK
 
     NavVeileder:
       type: object
