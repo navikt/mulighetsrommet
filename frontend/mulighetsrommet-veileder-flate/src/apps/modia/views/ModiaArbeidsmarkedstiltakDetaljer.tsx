@@ -102,6 +102,7 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
       <BrukerKvalifisererIkkeVarsel
         brukerdata={brukerdata}
         brukerHarRettPaaTiltak={brukerHarRettPaaValgtTiltak}
+        brukerErUnderOppfolging={brukerdata.erUnderOppfolging}
         tiltakstype={tiltakstype}
       />
       <ViewTiltaksgjennomforingDetaljer
@@ -145,13 +146,15 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
               </Button>
             ) : null}
 
-            <DelMedBruker
-              delMedBrukerInfo={delMedBrukerInfo}
-              veiledernavn={resolveName(veilederdata)}
-              tiltaksgjennomforing={tiltaksgjennomforing}
-              brukerdata={brukerdata}
-              lagreVeilederHarDeltTiltakMedBruker={lagreVeilederHarDeltTiltakMedBruker}
-            />
+            {brukerdata.erUnderOppfolging ? (
+              <DelMedBruker
+                delMedBrukerInfo={delMedBrukerInfo}
+                veiledernavn={resolveName(veilederdata)}
+                tiltaksgjennomforing={tiltaksgjennomforing}
+                bruker={brukerdata}
+                lagreVeilederHarDeltTiltakMedBruker={lagreVeilederHarDeltTiltakMedBruker}
+              />
+            ) : null}
 
             {!brukerdata?.manuellStatus && (
               <Alert
@@ -166,7 +169,7 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
               </Alert>
             )}
 
-            {dialogRoute && (
+            {dialogRoute && brukerdata.erUnderOppfolging && (
               <Button size="small" variant="tertiary" onClick={dialogRoute.navigate}>
                 Åpne i dialogen
                 <Chat2Icon aria-label="Åpne i dialogen" />

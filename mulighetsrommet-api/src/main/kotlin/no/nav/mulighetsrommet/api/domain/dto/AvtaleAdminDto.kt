@@ -7,11 +7,6 @@ import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.ArenaAvtaleDbo
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dto.*
-import no.nav.mulighetsrommet.domain.dto.Avtalestatus
-import no.nav.mulighetsrommet.domain.dto.Avtaletype
-import no.nav.mulighetsrommet.domain.dto.Faneinnhold
-import no.nav.mulighetsrommet.domain.dto.NavIdent
-import no.nav.mulighetsrommet.domain.dto.Personopplysning
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import java.time.LocalDate
@@ -24,6 +19,7 @@ data class AvtaleAdminDto(
     val tiltakstype: Tiltakstype,
     val navn: String,
     val avtalenummer: String?,
+    val websaknummer: Websaknummer?,
     val lopenummer: Lopenummer?,
     val arrangor: ArrangorHovedenhet,
     @Serializable(with = LocalDateSerializer::class)
@@ -35,7 +31,6 @@ data class AvtaleAdminDto(
     val avtalestatus: Avtalestatus,
     val prisbetingelser: String?,
     val administratorer: List<Administrator>,
-    val url: String?,
     val antallPlasser: Int?,
     val opphav: ArenaMigrering.Opphav,
     val kontorstruktur: List<Kontorstruktur>,
@@ -87,6 +82,7 @@ data class AvtaleAdminDto(
             navn = navn,
             tiltakstypeId = tiltakstype.id,
             avtalenummer = avtalenummer,
+            websaknummer = websaknummer,
             arrangorId = arrangor.id,
             arrangorUnderenheter = arrangor.underenheter.map { it.id },
             arrangorKontaktpersoner = arrangor.kontaktpersoner.map { it.id },
@@ -96,7 +92,6 @@ data class AvtaleAdminDto(
             avtaletype = avtaletype,
             prisbetingelser = prisbetingelser,
             antallPlasser = antallPlasser,
-            url = url,
             administratorer = administratorer.map { it.navIdent },
             beskrivelse = null,
             faneinnhold = null,

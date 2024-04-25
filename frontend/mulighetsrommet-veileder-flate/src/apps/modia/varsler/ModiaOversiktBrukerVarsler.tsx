@@ -1,6 +1,6 @@
 import { Bruker } from "mulighetsrommet-api-client";
-import { BrukerHarVaertUnderOppfolgingVarsel } from "./BrukerHarVaertUnderOppfolgingVarsel";
 import { BrukerIkkeUnderOppfolgingVarsel } from "./BrukerIkkeUnderOppfolgingVarsel";
+import { BrukerUnderOppfolgingMenMangler14aVedtakVarsel } from "./BrukerUnderOppfolgingMenMangler14aVedtakVarsel";
 import { BrukersOppfolgingsenhetVarsel } from "./BrukersOppfolgingsenhetVarsel";
 
 interface Props {
@@ -10,9 +10,9 @@ interface Props {
 export function ModiaOversiktBrukerVarsler({ brukerdata }: Props) {
   return (
     <>
-      <BrukerIkkeUnderOppfolgingVarsel brukerdata={brukerdata} />
+      <BrukerUnderOppfolgingMenMangler14aVedtakVarsel brukerdata={brukerdata} />
       <BrukersOppfolgingsenhetVarsel brukerdata={brukerdata} />
-      <BrukerHarVaertUnderOppfolgingVarsel brukerdata={brukerdata} />
+      <BrukerIkkeUnderOppfolgingVarsel brukerdata={brukerdata} />
     </>
   );
 }

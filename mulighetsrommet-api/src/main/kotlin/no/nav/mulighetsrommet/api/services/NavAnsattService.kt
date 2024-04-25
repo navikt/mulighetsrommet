@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.services
 
+import arrow.core.toNonEmptyListOrNull
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import kotlinx.serialization.EncodeDefault
@@ -11,13 +12,22 @@ import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.clients.sanity.SanityParam
 import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattRolle
+import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
+import no.nav.mulighetsrommet.api.domain.dto.AvtaleAdminDto
 import no.nav.mulighetsrommet.api.domain.dto.Mutation
 import no.nav.mulighetsrommet.api.domain.dto.NavAnsattDto
 import no.nav.mulighetsrommet.api.domain.dto.SanityResponse
+import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.repositories.NavAnsattRepository
+import no.nav.mulighetsrommet.api.utils.EnhetFilter
 import no.nav.mulighetsrommet.api.utils.NavAnsattFilter
 import no.nav.mulighetsrommet.database.Database
+import no.nav.mulighetsrommet.notifications.NotificationMetadata
+import no.nav.mulighetsrommet.notifications.NotificationService
+import no.nav.mulighetsrommet.notifications.NotificationType
+import no.nav.mulighetsrommet.notifications.ScheduledNotification
 import org.slf4j.LoggerFactory
+import java.time.Instant
 import java.time.LocalDate
 import java.util.*
 
@@ -25,22 +35,25 @@ class NavAnsattService(
     private val roles: List<AdGruppeNavAnsattRolleMapping>,
     private val db: Database,
     private val microsoftGraphService: MicrosoftGraphService,
-    private val ansatte: NavAnsattRepository,
+    private val navAnsattRepository: NavAnsattRepository,
     private val sanityClient: SanityClient,
+    private val avtaleRepository: AvtaleRepository,
+    private val navEnhetService: NavEnhetService,
+    private val notificationService: NotificationService,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
     suspend fun getOrSynchronizeNavAnsatt(azureId: UUID): NavAnsattDto {
-        return ansatte.getByAzureId(azureId) ?: run {
+        return navAnsattRepository.getByAzureId(azureId) ?: run {
             logger.info("Fant ikke NavAnsatt for azureId=$azureId i databasen, forsøker Azure AD i stedet")
             val ansatt = getNavAnsattFromAzure(azureId)
-            ansatte.upsert(NavAnsattDbo.fromNavAnsattDto(ansatt))
+            navAnsattRepository.upsert(NavAnsattDbo.fromNavAnsattDto(ansatt))
             ansatt
         }
     }
 
     fun getNavAnsatte(filter: NavAnsattFilter): List<NavAnsattDto> {
-        return ansatte.getAll(roller = filter.roller)
+        return navAnsattRepository.getAll(roller = filter.roller)
     }
 
     suspend fun getNavAnsattFromAzure(azureId: UUID): NavAnsattDto {
@@ -82,28 +95,80 @@ class NavAnsattService(
 
         logger.info("Oppdaterer ${ansatteToUpsert.size} NavAnsatt fra Azure")
         ansatteToUpsert.forEach { ansatt ->
-            ansatte.upsert(NavAnsattDbo.fromNavAnsattDto(ansatt))
+            navAnsattRepository.upsert(NavAnsattDbo.fromNavAnsattDto(ansatt))
         }
         upsertSanityAnsatte(ansatteToUpsert)
 
         val ansatteAzureIds = ansatteToUpsert.map { it.azureId }
-        val ansatteToScheduleForDeletion = ansatte.getAll().filter { ansatt ->
+        val ansatteToScheduleForDeletion = navAnsattRepository.getAll().filter { ansatt ->
             ansatt.azureId !in ansatteAzureIds && ansatt.skalSlettesDato == null
         }
         ansatteToScheduleForDeletion.forEach { ansatt ->
             logger.info("Oppdaterer NavAnsatt med dato for sletting azureId=${ansatt.azureId} dato=$deletionDate")
             val ansattToDelete = ansatt.copy(roller = emptySet(), skalSlettesDato = deletionDate)
-            ansatte.upsert(NavAnsattDbo.fromNavAnsattDto(ansattToDelete))
+            navAnsattRepository.upsert(NavAnsattDbo.fromNavAnsattDto(ansattToDelete))
         }
 
-        val ansatteToDelete = ansatte.getAll(skalSlettesDatoLte = today)
+        val ansatteToDelete = navAnsattRepository.getAll(skalSlettesDatoLte = today)
         ansatteToDelete.forEach { ansatt ->
             logger.info("Sletter NavAnsatt fordi vi har passert dato for sletting azureId=${ansatt.azureId} dato=${ansatt.skalSlettesDato}")
-            db.transactionSuspend { tx ->
-                ansatte.deleteByAzureId(ansatt.azureId, tx)
-                deleteSanityAnsatt(ansatt)
-            }
+            deleteNavAnsatt(ansatt)
         }
+    }
+
+    private suspend fun deleteNavAnsatt(ansatt: NavAnsattDto) {
+        val avtaleIds = avtaleRepository.getAvtaleIdsByAdministrator(ansatt.navIdent)
+
+        db.transactionSuspend { tx ->
+            navAnsattRepository.deleteByAzureId(ansatt.azureId, tx)
+            deleteSanityAnsatt(ansatt)
+        }
+
+        avtaleIds
+            .forEach {
+                val avtale = requireNotNull(avtaleRepository.get(it))
+                if (avtale.administratorer.isEmpty()) {
+                    notifyRelevantAdministrators(avtale, ansatt.hovedenhet)
+                }
+            }
+    }
+
+    private fun notifyRelevantAdministrators(
+        avtale: AvtaleAdminDto,
+        hovedenhet: NavAnsattDto.Hovedenhet,
+    ) {
+        val region = navEnhetService.hentOverordnetFylkesenhet(hovedenhet.enhetsnummer)
+            ?: return
+
+        val potentialAdministratorHovedenheter = navEnhetService.hentAlleEnheter(
+            EnhetFilter(
+                statuser = listOf(NavEnhetStatus.AKTIV),
+                overordnetEnhet = region.enhetsnummer,
+            ),
+        )
+            .map { it.enhetsnummer }
+            .plus(region.enhetsnummer)
+
+        val administrators = navAnsattRepository
+            .getAll(
+                roller = listOf(NavAnsattRolle.AVTALER_SKRIV),
+                hovedenhetIn = potentialAdministratorHovedenheter,
+            )
+            .map { it.navIdent }
+            .toNonEmptyListOrNull() ?: return
+
+        val notification = ScheduledNotification(
+            type = NotificationType.TASK,
+            title = """Avtalen "${avtale.navn}" mangler administrator.""",
+            description = "Du har blitt varslet fordi din NAV-hovedenhet er i samme fylke som forrige administrators NAV-hovedenhet. Gå til avtalen og sett deg som administrator hvis du eier avtalen.",
+            metadata = NotificationMetadata(
+                linkText = "Gå til avtalen",
+                link = "/avtaler/${avtale.id}",
+            ),
+            targets = administrators,
+            createdAt = Instant.now(),
+        )
+        notificationService.scheduleNotification(notification)
     }
 
     private suspend fun deleteSanityAnsatt(ansatt: NavAnsattDto) {

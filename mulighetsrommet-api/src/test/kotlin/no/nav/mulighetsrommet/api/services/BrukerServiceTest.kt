@@ -80,7 +80,7 @@ class BrukerServiceTest : FunSpec({
             enhetNr = "0106",
             status = Norg2EnhetStatus.AKTIV,
             type = Norg2Type.LOKAL,
-        )
+        ).right()
 
         coEvery { veilarboppfolgingClient.erBrukerUnderOppfolging(fnr2, any()) } returns true.right()
         coEvery { veilarboppfolgingClient.hentOppfolgingsenhet(fnr2, any()) } returns mockOppfolgingsenhet().right()

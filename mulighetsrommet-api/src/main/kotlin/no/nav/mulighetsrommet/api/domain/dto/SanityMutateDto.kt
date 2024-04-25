@@ -38,6 +38,13 @@ class Mutation<T> private constructor(
     )
 }
 
+@Serializable
+data class SanityTiltakstypeFields(
+    val tiltakstypeNavn: String,
+    // TODO innsatsgrupper
+    // val innsatsgrupper: List<Innsatsgruppe>,
+)
+
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
 data class CreateSanityTiltaksgjennomforingDto(
@@ -96,11 +103,6 @@ data class TiltakstypeRef(
     val _type: String = "reference",
     val _ref: String,
     val _key: String? = null,
-)
-
-@Serializable
-data class TiltakstypeIdResponse(
-    val _id: String,
 )
 
 @OptIn(ExperimentalSerializationApi::class)
