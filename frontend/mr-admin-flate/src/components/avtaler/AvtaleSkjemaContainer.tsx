@@ -10,6 +10,7 @@ import {
   NavEnhet,
   Tiltakstype,
 } from "mulighetsrommet-api-client";
+import React from "react";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { v4 as uuidv4 } from "uuid";
 import { avtaleDetaljerTabAtom } from "@/api/atoms";
@@ -25,7 +26,6 @@ import { AvtaleSkjemaDetaljer } from "./AvtaleSkjemaDetaljer";
 import { AvtaleSkjemaKnapperad } from "./AvtaleSkjemaKnapperad";
 import { AvtalePersonvernForm } from "./AvtalePersonvernForm";
 import { InlineErrorBoundary } from "@/ErrorBoundary";
-import React from "react";
 import { Laster } from "../laster/Laster";
 
 interface Props {
@@ -68,6 +68,7 @@ export function AvtaleSkjemaContainer({
       id: avtale?.id ?? uuidv4(),
       navEnheter: data.navEnheter.concat(data.navRegioner),
       avtalenummer: avtale?.avtalenummer || null,
+      websaknummer: data.websaknummer || null,
       arrangorOrganisasjonsnummer: data.arrangorOrganisasjonsnummer,
       arrangorUnderenheter: data.arrangorUnderenheter,
       arrangorKontaktpersoner: data.arrangorKontaktpersoner,
@@ -75,7 +76,6 @@ export function AvtaleSkjemaContainer({
       sluttDato: data.startOgSluttDato.sluttDato ?? null,
       startDato: data.startOgSluttDato.startDato,
       tiltakstypeId: data.tiltakstype.id,
-      url: data.url || null,
       administratorer: data.administratorer,
       avtaletype: data.avtaletype,
       prisbetingelser: erAnskaffetTiltak(data.tiltakstype.arenaKode)

@@ -29,21 +29,6 @@ export function AvtaleDetaljer() {
     return <Alert variant="error">Klarte ikke hente avtaleinformasjon</Alert>;
   }
 
-  const lenketekst = () => {
-    let tekst;
-    if (avtale?.url?.includes("websak")) {
-      tekst = `Se originalavtale i WebSak `;
-    } else {
-      tekst = `Se originalavtale `;
-    }
-    return (
-      <>
-        {tekst}
-        <ExternalLinkIcon aria-label="Ekstern lenke" />
-      </>
-    );
-  };
-
   function sorterPaRegionsnavn(a: { region: NavEnhet }, b: { region: NavEnhet }) {
     return a.region.navn.localeCompare(b.region.navn);
   }
@@ -57,7 +42,7 @@ export function AvtaleDetaljer() {
     startDato,
     sluttDato,
     administratorer,
-    url,
+    websaknummer,
     kontorstruktur,
     arenaAnsvarligEnhet,
     arrangor,
@@ -68,14 +53,24 @@ export function AvtaleDetaljer() {
     <>
       <div className={styles.container}>
         <div className={styles.detaljer}>
-          <Bolk aria-label="Avtalenavn og avtalenummer">
+          <Bolk aria-label="Avtalenavn">
             <Metadata header={avtaletekster.avtalenavnLabel} verdi={navn} />
+          </Bolk>
+
+          <Separator />
+
+          <Bolk aria-label="Eksterne referanser">
             {opphav === Opphav.MR_ADMIN_FLATE ? (
               <Metadata header={avtaletekster.lopenummerLabel} verdi={lopenummer} />
             ) : (
               <Metadata header={avtaletekster.arenaAvtalenummerLabel} verdi={avtalenummer} />
             )}
+            {websaknummer ? (
+              <Metadata header={avtaletekster.websaknummerLabel} verdi={websaknummer} />
+            ) : null}
           </Bolk>
+
+          <Separator />
 
           <Bolk aria-label={avtaletekster.tiltakstypeLabel}>
             <Metadata
@@ -141,21 +136,6 @@ export function AvtaleDetaljer() {
                     )
                   }
                 />
-                {url ? (
-                  <Metadata
-                    header={avtaletekster.seOriginalavtaleLabel}
-                    verdi={
-                      <Link
-                        className={styles.websakLenke}
-                        to={url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        {lenketekst()}
-                      </Link>
-                    }
-                  />
-                ) : null}
               </Bolk>
             ) : null}
           </VStack>

@@ -5,16 +5,18 @@ interface Props {
   brukerdata: Bruker;
   brukerHarRettPaaTiltak: boolean;
   tiltakstype: VeilederflateTiltakstype;
+  brukerErUnderOppfolging: boolean;
 }
 
 export function BrukerKvalifisererIkkeVarsel({
   brukerHarRettPaaTiltak,
   brukerdata,
   tiltakstype,
+  brukerErUnderOppfolging,
 }: Props) {
   const innsatsgruppeEllerTiltakstype = tiltakstype.innsatsgruppe?.tittel ?? tiltakstype.navn;
 
-  return !brukerHarRettPaaTiltak && brukerdata.innsatsgruppe ? (
+  return !brukerHarRettPaaTiltak && brukerErUnderOppfolging && brukerdata.innsatsgruppe ? (
     <Alert variant="warning">
       Brukeren tilhører innsatsgruppen{" "}
       <strong>{brukerdata.innsatsgruppe.replaceAll("_", " ").toLocaleLowerCase()}</strong>, men

@@ -66,7 +66,8 @@ export function AvbrytAvtaleModal({ modalRef, avtale }: Props) {
         <div className={styles.heading}>
           <XMarkOctagonFillIcon className={classNames(styles.icon_warning, styles.icon)} />
           <Heading size="medium">
-            {mutation.isError
+            {mutation.isError ||
+            (tiltaksgjennomforingerMedAvtaleId && tiltaksgjennomforingerMedAvtaleId.data.length > 1)
               ? `Kan ikke avbryte «${avtale?.navn}»`
               : `Ønsker du å avbryte «${avtale?.navn}»?`}
           </Heading>
