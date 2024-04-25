@@ -391,7 +391,6 @@ class NavAnsattServiceTest : FunSpec({
                 prisbetingelser = AvtaleFixtures.AFT.prisbetingelser,
                 antallPlasser = AvtaleFixtures.AFT.antallPlasser,
                 websaknummer = AvtaleFixtures.AFT.websaknummer,
-                url = null,
                 beskrivelse = AvtaleFixtures.AFT.beskrivelse,
                 faneinnhold = AvtaleFixtures.AFT.faneinnhold,
                 personopplysninger = AvtaleFixtures.AFT.personopplysninger,
