@@ -594,6 +594,20 @@ class AvtaleRepository(private val db: Database) {
         return Either.Right(kontaktpersonId.toString())
     }
 
+    fun getAvtaleIdsByAdministrator(navIdent: NavIdent): List<UUID> {
+        @Language("PostgreSQL")
+        val query = """
+            select avtale_id from avtale_administrator where nav_ident = ?
+        """.trimIndent()
+
+        return queryOf(query, navIdent)
+            .map {
+                it.uuid("avtale_id")
+            }
+            .asList
+            .let { db.run(it) }
+    }
+
     fun getBehandlingAvPersonopplysninger(id: UUID): Map<PersonopplysningFrekvens, List<PersonopplysningMedBeskrivelse>> {
         @Language("PostgreSQL")
         val valgtePersonopplysningerQuery = """

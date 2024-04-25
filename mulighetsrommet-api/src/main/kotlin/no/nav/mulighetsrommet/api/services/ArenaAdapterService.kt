@@ -270,7 +270,7 @@ class ArenaAdapterService(
         notifyRelevantAdministrators(enhet, NavAnsattRolle.AVTALER_SKRIV) { administrators ->
             ScheduledNotification(
                 type = NotificationType.TASK,
-                title = """Avtalen "${avtale.navn}" har endringer fra Arena, men mangler en ansvarlig administrator.""",
+                title = """Avtalen "${avtale.navn}" har endringer fra Arena, men mangler administrator.""",
                 description = "Du har blitt varslet fordi din NAV-hovedenhet og avtalens ansvarlige NAV-enhet begge er relatert til ${enhet.navn}. Gå til avtalen og sett deg som administrator hvis du eier avtalen.",
                 metadata = NotificationMetadata(
                     linkText = "Gå til avtalen",
@@ -287,7 +287,7 @@ class ArenaAdapterService(
         notifyRelevantAdministrators(enhet, NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV) { administrators ->
             ScheduledNotification(
                 type = NotificationType.TASK,
-                title = """Gjennomføringen "${gjennomforing.navn}" har endringer fra Arena, men mangler en ansvarlig administrator.""",
+                title = """Gjennomføringen "${gjennomforing.navn}" har endringer fra Arena, men mangler administrator.""",
                 description = "Du har blitt varslet fordi din NAV-hovedenhet og gjennomføringens ansvarlige NAV-enhet begge er relatert til ${enhet.navn}. Gå til gjennomføringen og sett deg som administrator hvis du eier gjennomføringen.",
                 metadata = NotificationMetadata(
                     linkText = "Gå til gjennomføringen",
