@@ -146,7 +146,7 @@ class VeilederflateService(
         """.trimIndent()
 
         val params = buildList {
-            add(SanityParam.of("innsatsgrupper", utledInnsatsgrupper(innsatsgruppe)))
+            add(SanityParam.of("innsatsgrupper", innsatsgruppe?.let { utledInnsatsgrupper(it) } ?: emptyList()))
 
             if (tiltakstypeIds != null) {
                 add(SanityParam.of("tiltakstyper", tiltakstypeIds))
