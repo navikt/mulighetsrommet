@@ -128,7 +128,7 @@ const SidemenyDetaljer = ({ tiltaksgjennomforing }: Props) => {
                 },
                 {
                   _id: "vurdering",
-                  regelverkLenkeNavn: "Tiltak hos nærstående ",
+                  regelverkLenkeNavn: "Tiltak hos familie/nærstående",
                   regelverkUrl:
                     "https://navno.sharepoint.com/sites/fag-og-ytelser-arbeid-tiltak-og-virkemidler/SitePages/Rutine.aspx",
                 },

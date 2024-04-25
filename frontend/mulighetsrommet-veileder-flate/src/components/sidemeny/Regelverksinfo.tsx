@@ -13,7 +13,8 @@ const Regelverksinfo = ({ regelverkLenker }: RegelverksinfoProps) => {
       regelverkLenke.regelverkUrl && (
         <div key={regelverkLenke._id}>
           <Link target="_blank" href={regelverkLenke.regelverkUrl}>
-            {regelverkLenke.regelverkLenkeNavn} <ExternalLinkIcon />
+            {regelverkLenke.regelverkLenkeNavn}{" "}
+            <ExternalLinkIcon aria-label="Ikon som representerer at lenke åpnes i ny fane" />
           </Link>
         </div>
       )
