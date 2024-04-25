@@ -52,7 +52,7 @@ class ArenaAdapterService(
     private val tiltakshistorikk: TiltakshistorikkRepository,
     private val deltakere: DeltakerRepository,
     private val tiltaksgjennomforingKafkaProducer: TiltaksgjennomforingKafkaProducer,
-    private val sanityTiltaksgjennomforingService: SanityTiltaksgjennomforingService,
+    private val sanityTiltakService: SanityTiltakService,
     private val arrangorService: ArrangorService,
     private val navEnhetService: NavEnhetService,
     private val notificationService: NotificationService,
@@ -137,7 +137,7 @@ class ArenaAdapterService(
             }
 
             if (shouldBeManagedInSanity(next)) {
-                sanityTiltaksgjennomforingService.createOrPatchSanityTiltaksgjennomforing(next, tx)
+                sanityTiltakService.createOrPatchSanityTiltaksgjennomforing(next, tx)
             } else if (next.isAktiv() && next.administratorer.isEmpty()) {
                 maybeNotifyRelevantAdministrators(next)
             }
@@ -172,7 +172,7 @@ class ArenaAdapterService(
         }
 
         if (sanityId != null) {
-            sanityTiltaksgjennomforingService.deleteSanityTiltaksgjennomforing(sanityId)
+            sanityTiltakService.deleteSanityTiltaksgjennomforing(sanityId)
         }
     }
 

@@ -12,7 +12,7 @@ import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
 import org.slf4j.LoggerFactory
 import java.util.*
 
-class SanityTiltaksgjennomforingService(
+class SanityTiltakService(
     private val sanityClient: SanityClient,
     private val tiltaksgjennomforingRepository: TiltaksgjennomforingRepository,
     private val tiltakstypeRepository: TiltakstypeRepository,

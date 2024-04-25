@@ -799,7 +799,7 @@ private fun createArenaAdapterService(
     tiltakshistorikk = TiltakshistorikkRepository(db),
     deltakere = DeltakerRepository(db),
     tiltaksgjennomforingKafkaProducer = tiltaksgjennomforingKafkaProducer,
-    sanityTiltaksgjennomforingService = mockk(relaxed = true),
+    sanityTiltakService = mockk(relaxed = true),
     arrangorService = mockk(relaxed = true),
     navEnhetService = NavEnhetService(NavEnhetRepository(db)),
     notificationService = notificationService,

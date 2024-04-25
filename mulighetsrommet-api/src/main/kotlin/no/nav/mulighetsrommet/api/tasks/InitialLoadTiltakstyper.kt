@@ -5,7 +5,7 @@ import com.github.kagkarlsson.scheduler.task.helper.OneTimeTask
 import com.github.kagkarlsson.scheduler.task.helper.Tasks
 import kotlinx.coroutines.runBlocking
 import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
-import no.nav.mulighetsrommet.api.services.SanityTiltaksgjennomforingService
+import no.nav.mulighetsrommet.api.services.SanityTiltakService
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.kafka.producers.TiltakstypeKafkaProducer
@@ -18,7 +18,7 @@ class InitialLoadTiltakstyper(
     database: Database,
     private val tiltakstyper: TiltakstypeRepository,
     private val tiltakstypeProducer: TiltakstypeKafkaProducer,
-    private val sanityTiltaksgjennomforingService: SanityTiltaksgjennomforingService,
+    private val sanityTiltakService: SanityTiltakService,
 ) {
 
     private val logger = LoggerFactory.getLogger(javaClass)
@@ -63,7 +63,7 @@ class InitialLoadTiltakstyper(
 
                 if (tiltakstype.sanityId != null) {
                     logger.info("Oppdaterer tiltakstype i Sanity id=${tiltakstype.id}")
-                    sanityTiltaksgjennomforingService.patchSanityTiltakstype(tiltakstype)
+                    sanityTiltakService.patchSanityTiltakstype(tiltakstype)
                 }
             }
     }

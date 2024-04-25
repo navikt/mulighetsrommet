@@ -324,7 +324,7 @@ private fun services(appConfig: AppConfig) = module {
             get(),
         )
     }
-    single { SanityTiltaksgjennomforingService(get(), get(), get()) }
+    single { SanityTiltakService(get(), get(), get()) }
     single { TiltakstypeService(get(), appConfig.migrerteTiltak) }
     single { NavEnheterSyncService(get(), get(), get(), get()) }
     single { NavEnhetService(get()) }
