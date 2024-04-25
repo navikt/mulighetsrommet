@@ -21,6 +21,7 @@ import {
   TiltaksgjennomforingKontaktperson,
   TiltaksgjennomforingOppstartstype,
   TiltakskodeArena,
+  Toggles,
 } from "mulighetsrommet-api-client";
 import { ControlledSokeSelect } from "mulighetsrommet-frontend-common";
 import { useEffect, useRef } from "react";
@@ -40,6 +41,7 @@ import { SelectOppstartstype } from "./SelectOppstartstype";
 import { TiltakTilgjengeligForArrangor } from "./TilgjengeligTiltakForArrangor";
 import { TiltaksgjennomforingArrangorSkjema } from "./TiltaksgjennomforingArrangorSkjema";
 import { erArenaOpphavOgIngenEierskap } from "./TiltaksgjennomforingSkjemaConst";
+import { useFeatureToggle } from "../../api/features/feature-toggles";
 
 interface Props {
   tiltaksgjennomforing?: Tiltaksgjennomforing;
@@ -62,6 +64,9 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
   const { data: migrerteTiltakstyper = [] } = useMigrerteTiltakstyper();
   const { data: deltakerSummary } = useTiltaksgjennomforingDeltakerSummary(
     tiltaksgjennomforing?.id,
+  );
+  const { data: enableTilgjengeligForArrangor } = useFeatureToggle(
+    Toggles.MULIGHETSROMMET_ADMIN_FLATE_TILGJENGELIGGJORE_TILTAK_FOR_ARRANGOR,
   );
   const endreStartDatoModalRef = useRef<HTMLDialogElement>(null);
   const endreSluttDatoModalRef = useRef<HTMLDialogElement>(null);
@@ -429,10 +434,13 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
           <div className={skjemastyles.gray_container}>
             <TiltaksgjennomforingArrangorSkjema readOnly={eierIkkeGjennomforing} avtale={avtale} />
           </div>
-          {watch("oppstart") === "LOPENDE" ? (
+          {enableTilgjengeligForArrangor && watch("oppstart") === "LOPENDE" ? (
             <TiltakTilgjengeligForArrangor
               startDato={new Date(watch("startOgSluttDato.startDato"))}
               avtaleStartdato={new Date(avtale.startDato)}
+              lagretDatoForTilgjengeligForArrangor={
+                tiltaksgjennomforing?.tilgjengeligForArrangorFraOgMedDato
+              }
             />
           ) : null}
         </div>

@@ -2279,7 +2279,7 @@ components:
         estimertVentetid:
           $ref: "#/components/schemas/EstimertVentetid"
           nullable: true
-        tiltakTilgjengeligForArrangorFraOgMed:
+        tilgjengeligForArrangorFraOgMedDato:
           type: string
           format: date
           nullable: true
@@ -2301,6 +2301,7 @@ components:
         - publisert
         - publisertForAlle
         - deltidsprosent
+        - tilgjengeligForArrangorFraOgMedDato
 
     TiltaksnummerResponse:
       type: object
@@ -2378,7 +2379,7 @@ components:
             enhet:
               type: string
           nullable: true
-        tiltakTilgjengeligForArrangorFraOgMed:
+        tilgjengeligForArrangorFraOgMedDato:
           type: string
           format: date
           nullable: true
@@ -2403,7 +2404,7 @@ components:
         - beskrivelse
         - deltidsprosent
         - estimertVentetid
-        - tiltakTilgjengeligForArrangorFraOgMed
+        - tilgjengeligForArrangorFraOgMedDato
 
     TiltaksgjennomforingStatus:
       type: string
@@ -3562,6 +3563,7 @@ components:
         - mulighetsrommet-veilederflate-landingsside
         - mulighetsrommet-veilederflate-arena-oppskrifter
         - mulighetsrommet.admin-flate.enableDebugger
+        - mulighetsrommet.admin-flate.tilgjengeliggjore-tiltak-for-arrangor
 
     PublisertRequest:
       type: object

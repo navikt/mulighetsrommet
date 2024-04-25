@@ -8,26 +8,33 @@ import { ControlledDateInput } from "../skjema/ControlledDateInput";
 interface Props {
   startDato: Date;
   avtaleStartdato: Date;
+  lagretDatoForTilgjengeligForArrangor?: String | null;
 }
 
-export function TiltakTilgjengeligForArrangor({ startDato, avtaleStartdato }: Props) {
-  const [tilgjengeliggjorForArrangor, setTilgjengeliggjorForArrangor] = useState(false);
+export function TiltakTilgjengeligForArrangor({
+  startDato,
+  avtaleStartdato,
+  lagretDatoForTilgjengeligForArrangor,
+}: Props) {
+  const [tilgjengeliggjorForArrangor, setTilgjengeliggjorForArrangor] = useState(
+    !!lagretDatoForTilgjengeligForArrangor,
+  );
   const { register, setValue, watch } = useFormContext<InferredTiltaksgjennomforingSchema>();
 
-  const selectedDay = watch("tiltakTilgjengeligForArrangorFraOgMed") || startDato;
+  const selectedDay = watch("tilgjengeligForArrangorFraOgMedDato") || startDato;
 
   return (
     <Alert variant="info">
       <Heading level="4" size="small">
-        Når ser arrangør tiltaket og deltakerlister?
+        Når ser arrangør tiltaket?
       </Heading>
       <p>
-        Tiltaksgjennomføringen vil bli tilgjengelig for veileder den{" "}
-        <b>{formaterDato(new Date(selectedDay))}</b>.
+        Tiltaket blir automatisk tilgjengelig for arrangør i Deltakeroversikten på nav.no den{" "}
+        <b>{formaterDato(startDato)}</b>.
       </p>
       <p>
-        Ønsker du at arrangør skal ha tilgang til tiltaket før {formaterDato(selectedDay!!)} må du
-        legge til en egen dato.
+        Hvis arrangør har behov for å se opplysninger om deltakere før oppstartdato, kan du endre
+        dette.
       </p>
       <VStack gap="2">
         <Switch
@@ -35,17 +42,17 @@ export function TiltakTilgjengeligForArrangor({ startDato, avtaleStartdato }: Pr
           size="small"
           onChange={(event) => {
             if (!event.target.checked) {
-              setValue("tiltakTilgjengeligForArrangorFraOgMed", formaterDatoSomYYYYMMDD(startDato));
+              setValue("tilgjengeligForArrangorFraOgMedDato", null);
             } else {
               setValue(
-                "tiltakTilgjengeligForArrangorFraOgMed",
+                "tilgjengeligForArrangorFraOgMedDato",
                 formaterDatoSomYYYYMMDD(new Date(selectedDay)),
               );
             }
             setTilgjengeliggjorForArrangor(event.target.checked);
           }}
         >
-          Arrangør skal ha tilgang til tiltaket før denne datoen
+          Ja, arrangør må få tilgang til tiltaket før oppstartsdato
         </Switch>
         {tilgjengeliggjorForArrangor ? (
           <>
@@ -53,15 +60,15 @@ export function TiltakTilgjengeligForArrangor({ startDato, avtaleStartdato }: Pr
               size="small"
               fromDate={avtaleStartdato}
               toDate={startDato}
-              label={"Når skal arrangør ha tilgang til tiltaket?"}
-              {...register("tiltakTilgjengeligForArrangorFraOgMed")}
-              format={"iso-string"}
+              label="Når skal arrangør ha tilgang til tiltaket?"
+              {...register("tilgjengeligForArrangorFraOgMedDato")}
+              format="iso-string"
             />
             {selectedDay && (
-              <p>
-                Arrangør vil kunne se tiltaket <abbr title="Fra og med">fom.</abbr>{" "}
-                <b>{formaterDato(selectedDay!!)}</b>
-              </p>
+              <Alert variant="success" inline style={{ marginTop: "1rem" }}>
+                Arrangør vil ha tilgang til tiltaket <abbr title="Fra og med">fom.</abbr>{" "}
+                <b>{formaterDato(selectedDay!!)}</b> i Deltakeroversikten på nav.no
+              </Alert>
             )}
           </>
         ) : null}

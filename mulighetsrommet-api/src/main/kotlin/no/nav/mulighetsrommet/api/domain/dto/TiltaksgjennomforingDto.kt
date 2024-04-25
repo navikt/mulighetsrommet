@@ -21,6 +21,8 @@ data class TiltaksgjennomforingDto(
     val status: TiltaksgjennomforingStatus,
     val virksomhetsnummer: String,
     val oppstart: TiltaksgjennomforingOppstartstype,
+    @Serializable(with = LocalDateSerializer::class)
+    val tilgjengeligForArrangorFraOgMedDato: LocalDate?,
 ) {
     @Serializable
     data class Tiltakstype(
@@ -45,6 +47,7 @@ data class TiltaksgjennomforingDto(
                 status = status,
                 virksomhetsnummer = arrangor.organisasjonsnummer,
                 oppstart = oppstart,
+                tilgjengeligForArrangorFraOgMedDato = tilgjengeligForArrangorFraOgMedDato,
             )
         }
     }

@@ -53,6 +53,8 @@ data class TiltaksgjennomforingAdminDto(
     val deltidsprosent: Double,
     val estimertVentetid: EstimertVentetid?,
     val personvernBekreftet: Boolean,
+    @Serializable(with = LocalDateSerializer::class)
+    val tilgjengeligForArrangorFraOgMedDato: LocalDate?,
 ) {
     fun isAktiv(): Boolean = status in listOf(
         TiltaksgjennomforingStatus.PLANLAGT,
@@ -118,5 +120,6 @@ data class TiltaksgjennomforingAdminDto(
             deltidsprosent = deltidsprosent,
             estimertVentetidVerdi = estimertVentetid?.verdi,
             estimertVentetidEnhet = estimertVentetid?.enhet,
+            tilgjengeligForArrangorFraOgMedDato = tilgjengeligForArrangorFraOgMedDato,
         )
 }

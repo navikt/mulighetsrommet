@@ -85,6 +85,7 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
       pameldingOgVarighetInfoboks:
         "Nullam lobortis massa nibh, luctus molestie lacus venenatis sed.",
     },
+    tilgjengeligForArrangorFraOgMedDato: null,
   },
   {
     id: "a7d63fb0-4366-412c-84b7-7c15518ee362",
@@ -110,6 +111,7 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     kontaktpersoner: [],
     publisert: false,
     publisertForAlle: false,
+    tilgjengeligForArrangorFraOgMedDato: null,
   },
   {
     id: "a7d63fb0-4366-412c-84b7-7c15518ee363",
@@ -135,6 +137,7 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     kontaktpersoner: [],
     publisert: false,
     publisertForAlle: true,
+    tilgjengeligForArrangorFraOgMedDato: null,
   },
 ];
 
@@ -175,5 +178,6 @@ for (let i = 0; i < x; i++) {
     kontaktpersoner: [],
     publisert: false,
     publisertForAlle: true,
+    tilgjengeligForArrangorFraOgMedDato: null,
   });
 }
