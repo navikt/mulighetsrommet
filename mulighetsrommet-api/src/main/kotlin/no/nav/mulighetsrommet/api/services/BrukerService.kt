@@ -151,9 +151,11 @@ class BrukerService(
                 }
 
                 if (!erUnderOppfolging && sisteVedtak?.innsatsgruppe != null) {
-                    add(BrukerVarsel.BRUKER_HAR_VAERT_UNDER_OPPFOLGING)
+                    add(BrukerVarsel.BRUKER_IKKE_UNDER_OPPFOLGING)
                 } else if (!erUnderOppfolging) {
                     add(BrukerVarsel.BRUKER_IKKE_UNDER_OPPFOLGING)
+                } else if (sisteVedtak?.innsatsgruppe == null) {
+                    add(BrukerVarsel.BRUKER_UNDER_OPPFOLGING_MEN_MANGLER_14A_VEDTAK)
                 }
             },
         )
@@ -196,7 +198,7 @@ class BrukerService(
     enum class BrukerVarsel {
         LOKAL_OPPFOLGINGSENHET,
         BRUKER_IKKE_UNDER_OPPFOLGING,
-        BRUKER_HAR_VAERT_UNDER_OPPFOLGING,
+        BRUKER_UNDER_OPPFOLGING_MEN_MANGLER_14A_VEDTAK,
     }
 }
 

@@ -102,6 +102,7 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
       <BrukerKvalifisererIkkeVarsel
         brukerdata={brukerdata}
         brukerHarRettPaaTiltak={brukerHarRettPaaValgtTiltak}
+        brukerErUnderOppfolging={brukerdata.erUnderOppfolging}
         tiltakstype={tiltakstype}
       />
       <ViewTiltaksgjennomforingDetaljer
