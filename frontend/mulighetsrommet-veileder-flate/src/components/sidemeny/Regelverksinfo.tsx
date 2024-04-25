@@ -1,3 +1,4 @@
+import { ExternalLinkIcon } from "@navikt/aksel-icons";
 import { Link } from "@navikt/ds-react";
 import { SanityRegelverkLenke } from "mulighetsrommet-api-client";
 import styles from "./Sidemenydetaljer.module.scss";
@@ -12,7 +13,7 @@ const Regelverksinfo = ({ regelverkLenker }: RegelverksinfoProps) => {
       regelverkLenke.regelverkUrl && (
         <div key={regelverkLenke._id}>
           <Link target="_blank" href={regelverkLenke.regelverkUrl}>
-            {regelverkLenke.regelverkLenkeNavn}
+            {regelverkLenke.regelverkLenkeNavn} <ExternalLinkIcon />
           </Link>
         </div>
       )

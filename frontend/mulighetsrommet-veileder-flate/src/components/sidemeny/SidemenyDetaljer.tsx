@@ -1,3 +1,4 @@
+import { ExternalLinkIcon } from "@navikt/aksel-icons";
 import { BodyShort, Box } from "@navikt/ds-react";
 import {
   TiltaksgjennomforingOppstartstype,
@@ -120,6 +121,31 @@ const SidemenyDetaljer = ({ tiltaksgjennomforing }: Props) => {
             <Regelverksinfo regelverkLenker={tiltakstype.regelverkLenker} />
           </div>
         )}
+
+        <div className={styles.rad}>
+          <BodyShort size="small" className={styles.tittel}>
+            Avslag og klage
+          </BodyShort>
+          <a
+            href="https://navno.sharepoint.com/sites/fag-og-ytelser-arbeid-tiltak-og-virkemidler/SitePages/Klage-p%C3%A5-arbeidsmarkedstiltak.aspx"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Avslag og klage <ExternalLinkIcon />
+          </a>
+        </div>
+        <div className={styles.rad}>
+          <BodyShort size="small" className={styles.tittel}>
+            Rutine for vurderinger etter tiltaksforskriften §1-6
+          </BodyShort>
+          <a
+            href="https://navno.sharepoint.com/sites/fag-og-ytelser-arbeid-tiltak-og-virkemidler/SitePages/Rutine.aspx"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Rutine for vurderinger etter tiltaksforskriften §1-6 <ExternalLinkIcon />
+          </a>
+        </div>
       </Box>
     </>
   );
