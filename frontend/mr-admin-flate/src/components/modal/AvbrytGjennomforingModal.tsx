@@ -76,7 +76,7 @@ export const AvbrytGjennomforingModal = ({ modalRef, tiltaksgjennomforing }: Pro
           customAarsak={customAarsak}
           setAarsak={setAarsak}
           setCustomAarsak={setCustomAarsak}
-          aarsakToString={
+          radioknapp={
             <>
               {(
                 Object.keys(

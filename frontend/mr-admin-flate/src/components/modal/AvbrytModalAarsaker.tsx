@@ -5,18 +5,18 @@ interface Props {
   setAarsak: (a: string) => void;
   customAarsak: string | null;
   setCustomAarsak: (a: string | null) => void;
-  aarsakToString: React.ReactNode;
+  radioknapp: React.ReactNode;
 }
 export function AvbrytModalAarsaker({
   aarsak,
   setAarsak,
   customAarsak,
   setCustomAarsak,
-  aarsakToString,
+  radioknapp,
 }: Props) {
   return (
     <RadioGroup size="small" legend="Velg årsak" onChange={setAarsak} value={aarsak}>
-      {aarsakToString}
+      {radioknapp}
       <Radio value="annet">
         Annet
         {aarsak === "annet" && (

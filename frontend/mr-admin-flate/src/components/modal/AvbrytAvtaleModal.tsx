@@ -19,13 +19,14 @@ interface Props {
 export function AvbrytAvtaleModal({ modalRef, avtale }: Props) {
   const mutation = useAvbrytAvtale();
   const navigate = useNavigate();
-
   const [aarsak, setAarsak] = useState<string | null>(null);
   const [customAarsak, setCustomAarsak] = useState<string | null>(null);
 
   const { data: tiltaksgjennomforingerMedAvtaleId } = useAktiveTiltaksgjennomforingerByAvtaleId(
     avtale.id,
   );
+
+  const avtalenHarGjennomforinger = tiltaksgjennomforingerMedAvtaleId!.data.length > 0;
 
   const onClose = () => {
     mutation.reset();
@@ -60,28 +61,31 @@ export function AvbrytAvtaleModal({ modalRef, avtale }: Props) {
     }
   };
 
+  function pluralGjennomforingTekst(tekst: string) {
+    return avtalenHarGjennomforinger ? tekst : "";
+  }
+
   return (
     <Modal ref={modalRef} onClose={onClose} closeOnBackdropClick aria-label="modal">
       <Modal.Header closeButton={false}>
         <div className={styles.heading}>
           <XMarkOctagonFillIcon className={classNames(styles.icon_warning, styles.icon)} />
           <Heading size="medium">
-            {mutation.isError ||
-            (tiltaksgjennomforingerMedAvtaleId && tiltaksgjennomforingerMedAvtaleId.data.length > 1)
+            {mutation.isError || avtalenHarGjennomforinger
               ? `Kan ikke avbryte «${avtale?.navn}»`
               : `Ønsker du å avbryte «${avtale?.navn}»?`}
           </Heading>
         </div>
       </Modal.Header>
       <Modal.Body className={styles.body}>
-        {tiltaksgjennomforingerMedAvtaleId && tiltaksgjennomforingerMedAvtaleId.data.length > 0 ? (
+        {avtalenHarGjennomforinger ? (
           <Alert variant="warning">
             {`Avtaler med aktive gjennomføringer kan ikke avbrytes. Det er 
-            ${tiltaksgjennomforingerMedAvtaleId.data.length} 
-            aktiv${tiltaksgjennomforingerMedAvtaleId.data.length > 1 ? "e" : ""} 
-            gjennomføring${tiltaksgjennomforingerMedAvtaleId.data.length > 1 ? "er" : ""} 
+            ${tiltaksgjennomforingerMedAvtaleId!.data.length} 
+            aktiv${pluralGjennomforingTekst("e")} 
+            gjennomføring${pluralGjennomforingTekst("er")} 
             under denne avtalen. Vurder om du vil avbryte 
-            gjennomføringen${tiltaksgjennomforingerMedAvtaleId.data.length > 1 ? "e" : ""}.`}
+            gjennomføringen${pluralGjennomforingTekst("e")}.`}
           </Alert>
         ) : (
           <AvbrytModalAarsaker
@@ -89,7 +93,7 @@ export function AvbrytAvtaleModal({ modalRef, avtale }: Props) {
             customAarsak={customAarsak}
             setAarsak={setAarsak}
             setCustomAarsak={setCustomAarsak}
-            aarsakToString={
+            radioknapp={
               <>
                 {(Object.keys(AvbrytAvtaleRequest.aarsak) as Array<AvbrytAvtaleRequest.aarsak>)
                   .filter((a) => a !== AvbrytAvtaleRequest.aarsak.AVBRUTT_I_ARENA)
@@ -108,7 +112,11 @@ export function AvbrytAvtaleModal({ modalRef, avtale }: Props) {
           )}
         </BodyShort>
       </Modal.Body>
-      {tiltaksgjennomforingerMedAvtaleId && tiltaksgjennomforingerMedAvtaleId.data.length === 0 ? (
+      {avtalenHarGjennomforinger ? (
+        <Modal.Footer>
+          <Button onClick={onClose}>Ok</Button>
+        </Modal.Footer>
+      ) : (
         <Modal.Footer className={styles.footer}>
           <Button variant="secondary" onClick={onClose}>
             Nei, takk
@@ -118,10 +126,6 @@ export function AvbrytAvtaleModal({ modalRef, avtale }: Props) {
               Ja, jeg vil avbryte avtalen
             </Button>
           </HarSkrivetilgang>
-        </Modal.Footer>
-      ) : (
-        <Modal.Footer>
-          <Button onClick={onClose}>OK</Button>
         </Modal.Footer>
       )}
     </Modal>
