@@ -11,19 +11,19 @@ import { InferredTiltaksgjennomforingSchema } from "../redaksjonelt-innhold/Tilt
 import { ControlledDateInput } from "../skjema/ControlledDateInput";
 
 interface Props {
-  avtaleStartdato: Date;
+  gjennomforingStartdato: Date;
   lagretDatoForTilgjengeligForArrangor?: String | null;
 }
 
 export function TiltakTilgjengeligForArrangor({
-  avtaleStartdato,
+  gjennomforingStartdato,
   lagretDatoForTilgjengeligForArrangor,
 }: Props) {
   const [tilgjengeliggjorForArrangor, setTilgjengeliggjorForArrangor] = useState(
     !!lagretDatoForTilgjengeligForArrangor,
   );
   const { register, setValue, watch } = useFormContext<InferredTiltaksgjennomforingSchema>();
-  const selectedDay = watch("tilgjengeligForArrangorFraOgMedDato") || avtaleStartdato;
+  const selectedDay = watch("tilgjengeligForArrangorFraOgMedDato") || gjennomforingStartdato;
 
   function subtractDate(type: "month" | "days", date: Date, value: number) {
     switch (type) {
@@ -48,7 +48,7 @@ export function TiltakTilgjengeligForArrangor({
       </Heading>
       <p>
         Tiltaket blir automatisk tilgjengelig for arrangør i Deltakeroversikten på nav.no den{" "}
-        <b>{formaterDato(avtaleStartdato)}</b>.
+        <b>{formaterDato(gjennomforingStartdato)}</b>.
       </p>
       <p>
         Hvis arrangør har behov for å se opplysninger om deltakere før oppstartdato, kan du endre
@@ -78,7 +78,7 @@ export function TiltakTilgjengeligForArrangor({
               <Button
                 variant="primary"
                 size="xsmall"
-                onClick={() => subtractDate("month", new Date(avtaleStartdato), 1)}
+                onClick={() => subtractDate("month", new Date(gjennomforingStartdato), 1)}
                 type="button"
               >
                 1 måned før
@@ -86,7 +86,7 @@ export function TiltakTilgjengeligForArrangor({
               <Button
                 variant="primary"
                 size="xsmall"
-                onClick={() => subtractDate("days", new Date(avtaleStartdato), 14)}
+                onClick={() => subtractDate("days", new Date(gjennomforingStartdato), 14)}
                 type="button"
               >
                 2 uker før
@@ -94,8 +94,8 @@ export function TiltakTilgjengeligForArrangor({
               <ControlledDateInput
                 label="Annen dato"
                 size="small"
-                fromDate={subtractMonths(avtaleStartdato, 1)}
-                toDate={avtaleStartdato}
+                fromDate={subtractMonths(gjennomforingStartdato, 1)}
+                toDate={gjennomforingStartdato}
                 {...register("tilgjengeligForArrangorFraOgMedDato")}
                 format="iso-string"
               />
