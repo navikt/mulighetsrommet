@@ -82,7 +82,7 @@ export function AvbrytAvtaleModal({ modalRef, avtale }: Props) {
         {avtalenHarGjennomforinger ? (
           <Alert variant="warning">
             {`Avtaler med aktive gjennomføringer kan ikke avbrytes. Det er 
-            ${tiltaksgjennomforingerMedAvtaleId!.data.length} 
+            ${tiltaksgjennomforingerMedAvtaleId.data.length} 
             aktiv${pluralGjennomforingTekst("e")} 
             gjennomføring${pluralGjennomforingTekst("er")} 
             under denne avtalen. Vurder om du vil avbryte 
