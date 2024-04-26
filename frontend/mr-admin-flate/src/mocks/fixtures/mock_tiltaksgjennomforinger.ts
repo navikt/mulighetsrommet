@@ -1,5 +1,5 @@
 import {
-  EstimertVentetid,
+  EstimertVentetidEnhet,
   Opphav,
   PaginertTiltaksgjennomforing,
   Tiltaksgjennomforing,
@@ -20,7 +20,7 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     tiltaksnummer: "123456",
     estimertVentetid: {
       verdi: 3,
-      enhet: EstimertVentetid.enhet.MANED,
+      enhet: EstimertVentetidEnhet.MANED,
     },
     antallPlasser: 50,
     arrangor: {

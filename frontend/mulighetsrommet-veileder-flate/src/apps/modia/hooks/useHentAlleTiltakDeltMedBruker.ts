@@ -12,7 +12,7 @@ export function useHentAlleTiltakDeltMedBruker() {
       const result = await mulighetsrommetClient.delMedBruker.getAlleTiltakDeltMedBruker({
         requestBody: { norskIdent },
       });
-      return result || null; // Returner null hvis API returnerer 204 No Content = undefined;
+      return result || undefined; // Returner null hvis API returnerer 204 No Content = undefined;
     },
     throwOnError: false, // Er ingen krise hvis dette kallet feiler
   });
