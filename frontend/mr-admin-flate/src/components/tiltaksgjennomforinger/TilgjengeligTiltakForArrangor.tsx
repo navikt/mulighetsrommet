@@ -1,18 +1,21 @@
-import { Alert, Heading, Switch, VStack } from "@navikt/ds-react";
+import { Alert, Button, HStack, Heading, Switch, VStack } from "@navikt/ds-react";
 import { useState } from "react";
 import { useFormContext } from "react-hook-form";
-import { formaterDato, formaterDatoSomYYYYMMDD } from "../../utils/Utils";
+import {
+  formaterDato,
+  formaterDatoSomYYYYMMDD,
+  subtractDays,
+  subtractMonths,
+} from "../../utils/Utils";
 import { InferredTiltaksgjennomforingSchema } from "../redaksjonelt-innhold/TiltaksgjennomforingSchema";
 import { ControlledDateInput } from "../skjema/ControlledDateInput";
 
 interface Props {
-  startDato: Date;
   avtaleStartdato: Date;
   lagretDatoForTilgjengeligForArrangor?: String | null;
 }
 
 export function TiltakTilgjengeligForArrangor({
-  startDato,
   avtaleStartdato,
   lagretDatoForTilgjengeligForArrangor,
 }: Props) {
@@ -20,8 +23,17 @@ export function TiltakTilgjengeligForArrangor({
     !!lagretDatoForTilgjengeligForArrangor,
   );
   const { register, setValue, watch } = useFormContext<InferredTiltaksgjennomforingSchema>();
+  const selectedDay = watch("tilgjengeligForArrangorFraOgMedDato") || avtaleStartdato;
 
-  const selectedDay = watch("tilgjengeligForArrangorFraOgMedDato") || startDato;
+  function subtractDate(type: "month" | "days", date: Date, value: number) {
+    const tilgjengeliggjorPaaDato =
+      type === "days" ? subtractDays(date, value) : subtractMonths(date, value);
+
+    setValue(
+      "tilgjengeligForArrangorFraOgMedDato",
+      formaterDatoSomYYYYMMDD(tilgjengeliggjorPaaDato),
+    );
+  }
 
   return (
     <Alert variant="info">
@@ -30,7 +42,7 @@ export function TiltakTilgjengeligForArrangor({
       </Heading>
       <p>
         Tiltaket blir automatisk tilgjengelig for arrangør i Deltakeroversikten på nav.no den{" "}
-        <b>{formaterDato(startDato)}</b>.
+        <b>{formaterDato(avtaleStartdato)}</b>.
       </p>
       <p>
         Hvis arrangør har behov for å se opplysninger om deltakere før oppstartdato, kan du endre
@@ -56,14 +68,34 @@ export function TiltakTilgjengeligForArrangor({
         </Switch>
         {tilgjengeliggjorForArrangor ? (
           <>
-            <ControlledDateInput
-              size="small"
-              fromDate={avtaleStartdato}
-              toDate={startDato}
-              label="Når skal arrangør ha tilgang til tiltaket?"
-              {...register("tilgjengeligForArrangorFraOgMedDato")}
-              format="iso-string"
-            />
+            <VStack gap="2">
+              <HStack gap="2" align={"center"}>
+                <Button
+                  variant="primary"
+                  size="xsmall"
+                  onClick={() => subtractDate("month", new Date(avtaleStartdato), 1)}
+                  type="button"
+                >
+                  1 måned før
+                </Button>
+                <Button
+                  variant="primary"
+                  size="xsmall"
+                  onClick={() => subtractDate("days", new Date(avtaleStartdato), 14)}
+                  type="button"
+                >
+                  2 uker før
+                </Button>
+              </HStack>
+              <ControlledDateInput
+                label="Annen dato"
+                size="small"
+                fromDate={subtractMonths(avtaleStartdato, 1)}
+                toDate={avtaleStartdato}
+                {...register("tilgjengeligForArrangorFraOgMedDato")}
+                format="iso-string"
+              />
+            </VStack>
             {selectedDay && (
               <Alert variant="success" inline style={{ marginTop: "1rem" }}>
                 Arrangør vil ha tilgang til tiltaket <abbr title="Fra og med">fom.</abbr>{" "}
