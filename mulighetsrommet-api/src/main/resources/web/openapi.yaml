@@ -79,9 +79,16 @@ paths:
       tags:
         - Avtaler
       operationId: avbrytAvtale
+      requestBody:
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: "#/components/schemas/AvbrytAvtaleRequest"
+                - $ref: "#/components/schemas/CustomAvbrytAvtaleRequest"
       responses:
         200:
-          description: True if avtale was avbrutt, false otherwise
+          description: The specified avtale you want to 'Avbryte'
         404:
           description: "The specified avtale was not found and could not be avbrutt"
           content:
@@ -3342,6 +3349,26 @@ components:
         - aarsak
 
     CustomAvbrytGjennomforingRequest:
+      type: object
+      properties:
+        aarsak:
+          type: string
+          nullable: true
+
+    AvbrytAvtaleRequest:
+      type: object
+      properties:
+        aarsak:
+          type: string
+          enum:
+            - ENDRING_HOS_ARRANGOR
+            - BUDSJETT_HENSYN
+            - FEILREGISTRERING
+            - AVBRUTT_I_ARENA
+      required:
+        - aarsak
+
+    CustomAvbrytAvtaleRequest:
       type: object
       properties:
         aarsak:

@@ -1,26 +1,23 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ExclamationmarkTriangleFillIcon } from "@navikt/aksel-icons";
-import { Button, Tabs } from "@navikt/ds-react";
+import { Tabs } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import {
   Avtale,
   AvtaleRequest,
-  Avtalestatus,
   EmbeddedTiltakstype,
   NavAnsatt,
   NavEnhet,
   Tiltakstype,
 } from "mulighetsrommet-api-client";
-import React, { useRef } from "react";
+import React from "react";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { v4 as uuidv4 } from "uuid";
 import { avtaleDetaljerTabAtom } from "@/api/atoms";
 import { useUpsertAvtale } from "@/api/avtaler/useUpsertAvtale";
 import { useHandleApiUpsertResponse } from "@/api/effects";
 import { erAnskaffetTiltak } from "@/utils/tiltakskoder";
-import { HarSkrivetilgang } from "../authActions/HarSkrivetilgang";
 import { Separator } from "../detaljside/Metadata";
-import { AvbrytAvtaleModal } from "../modal/AvbrytAvtaleModal";
 import { AvtaleSchema, InferredAvtaleSchema } from "../redaksjonelt-innhold/AvtaleSchema";
 import skjemastyles from "../skjema/Skjema.module.scss";
 import { AvtaleRedaksjoneltInnholdForm } from "./AvtaleRedaksjoneltInnholdForm";
@@ -51,7 +48,6 @@ export function AvtaleSkjemaContainer({
 }: Props) {
   const [activeTab, setActiveTab] = useAtom(avtaleDetaljerTabAtom);
 
-  const avbrytModalRef = useRef<HTMLDialogElement>(null);
   const mutation = useUpsertAvtale();
 
   const form = useForm<InferredAvtaleSchema>({
@@ -186,23 +182,9 @@ export function AvtaleSkjemaContainer({
         </Tabs>
         <Separator />
         <div className={skjemastyles.flex_container}>
-          <HarSkrivetilgang ressurs="Avtale">
-            {avtale && avtale.avtalestatus === Avtalestatus.AKTIV && (
-              <Button
-                size="small"
-                variant="danger"
-                type="button"
-                onClick={() => avbrytModalRef.current?.showModal()}
-                className={skjemastyles.avbryt_knapp}
-              >
-                Avbryt avtale
-              </Button>
-            )}
-          </HarSkrivetilgang>
           <AvtaleSkjemaKnapperad redigeringsModus={redigeringsModus!} onClose={onClose} />
         </div>
       </form>
-      {avtale && <AvbrytAvtaleModal modalRef={avbrytModalRef} avtale={avtale} />}
     </FormProvider>
   );
 }

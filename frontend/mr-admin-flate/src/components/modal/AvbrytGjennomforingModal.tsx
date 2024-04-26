@@ -1,13 +1,14 @@
 import { useAvbrytTiltaksgjennomforing } from "@/api/tiltaksgjennomforing/useAvbrytTiltaksgjennomforing";
-import styles from "./AvbrytGjennomforingModal.module.scss";
-import { resolveErrorMessage } from "@/api/errors";
+import styles from "./AvbrytGjennomforingAvtaleModal.module.scss";
 import { XMarkOctagonFillIcon } from "@navikt/aksel-icons";
 import classNames from "classnames";
-import { Heading, Button, Modal, RadioGroup, Radio, TextField, Alert } from "@navikt/ds-react";
+import { Alert, Button, Heading, Modal, Radio } from "@navikt/ds-react";
 import { AvbrytGjennomforingRequest, Tiltaksgjennomforing } from "mulighetsrommet-api-client";
 import { RefObject, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTiltaksgjennomforingDeltakerSummary } from "@/api/tiltaksgjennomforing/useTiltaksgjennomforingDeltakerSummary";
+import { AvbrytModalError } from "@/components/modal/AvbrytModalError";
+import { AvbrytModalAarsaker } from "@/components/modal/AvbrytModalAarsaker";
 
 interface Props {
   modalRef: RefObject<HTMLDialogElement>;
@@ -28,12 +29,11 @@ export const AvbrytGjennomforingModal = ({ modalRef, tiltaksgjennomforing }: Pro
   };
 
   useEffect(() => {
-    if (mutation.isSuccess) {
-      navigate(`/tiltaksgjennomforinger/${tiltaksgjennomforing?.id}`);
-    }
-  }, [mutation]);
+    modalRef.current?.close();
+    navigate(`/tiltaksgjennomforinger/${tiltaksgjennomforing?.id}`);
+  }, [mutation.isSuccess]);
 
-  const handleAvbryt = () => {
+  const handleAvbrytGjennomforing = () => {
     mutation.reset();
     mutation.mutate({
       id: tiltaksgjennomforing.id,
@@ -68,50 +68,39 @@ export const AvbrytGjennomforingModal = ({ modalRef, tiltaksgjennomforing }: Pro
         {deltakerSummary && deltakerSummary.antallDeltakere > 0 && (
           <Alert variant="warning">
             {`Det finnes ${deltakerSummary.antallDeltakere} deltaker${deltakerSummary.antallDeltakere > 1 ? "e" : ""} på gjennomføringen. Ved å
-              avbryte denne vil det føre til statusendring på alle deltakere som har en aktiv status.`}
+           avbryte denne vil det føre til statusendring på alle deltakere som har en aktiv status.`}
           </Alert>
         )}
-        <RadioGroup size="small" legend="Velg årsak." onChange={setAarsak} value={aarsak}>
-          {(
-            Object.keys(
-              AvbrytGjennomforingRequest.aarsak,
-            ) as Array<AvbrytGjennomforingRequest.aarsak>
-          )
-            .filter((a) => a !== AvbrytGjennomforingRequest.aarsak.AVBRUTT_I_ARENA)
-            .map((a) => (
-              <Radio key={`${a}`} value={a}>
-                {aarsakToString(a)}
-              </Radio>
-            ))}
-          <Radio value="annet">
-            Annet
-            {aarsak === "annet" && (
-              <TextField
-                size="small"
-                placeholder="beskrivelse"
-                onChange={(e) => setCustomAarsak(e.target.value)}
-                value={customAarsak ?? undefined}
-                label={undefined}
-              />
-            )}
-          </Radio>
-        </RadioGroup>
+        <AvbrytModalAarsaker
+          aarsak={aarsak}
+          customAarsak={customAarsak}
+          setAarsak={setAarsak}
+          setCustomAarsak={setCustomAarsak}
+          radioknapp={
+            <>
+              {(
+                Object.keys(
+                  AvbrytGjennomforingRequest.aarsak,
+                ) as Array<AvbrytGjennomforingRequest.aarsak>
+              )
+                .filter((a) => a !== AvbrytGjennomforingRequest.aarsak.AVBRUTT_I_ARENA)
+                .map((a) => (
+                  <Radio key={`${a}`} value={a}>
+                    {aarsakToString(a)}
+                  </Radio>
+                ))}
+            </>
+          }
+        />
         {mutation?.isError && (
-          <div className={styles.error}>
-            <b>
-              •{" "}
-              {aarsak === "annet" && !customAarsak
-                ? "Beskrivelse er obligatorisk når “Annet” er valgt som årsak"
-                : resolveErrorMessage(mutation.error)}
-            </b>
-          </div>
+          <AvbrytModalError aarsak={aarsak} customAarsak={customAarsak} mutation={mutation} />
         )}
       </Modal.Body>
       <Modal.Footer className={styles.footer}>
         <Button variant="secondary" type="button" onClick={onClose}>
-          Nei takk
+          Nei, takk
         </Button>
-        <Button variant="danger" onClick={handleAvbryt}>
+        <Button variant="danger" onClick={handleAvbrytGjennomforing}>
           Ja, jeg vil avbryte gjennomføringen
         </Button>
       </Modal.Footer>
