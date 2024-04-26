@@ -62,8 +62,11 @@ export function AvbrytAvtaleModal({ modalRef, avtale }: Props) {
     }
   };
 
-  function pluralGjennomforingTekst(tekst: string) {
-    return avtalenHarGjennomforinger ? tekst : "";
+  function pluralGjennomforingTekst(antall: number, tekst: string) {
+    return tiltaksgjennomforingerMedAvtaleId &&
+      tiltaksgjennomforingerMedAvtaleId.data.length > antall
+      ? tekst
+      : "";
   }
 
   return (
@@ -83,10 +86,10 @@ export function AvbrytAvtaleModal({ modalRef, avtale }: Props) {
           <Alert variant="warning">
             {`Avtaler med aktive gjennomføringer kan ikke avbrytes. Det er 
             ${tiltaksgjennomforingerMedAvtaleId.data.length} 
-            aktiv${pluralGjennomforingTekst("e")} 
-            gjennomføring${pluralGjennomforingTekst("er")} 
+            aktiv${pluralGjennomforingTekst(1, "e")} 
+            gjennomføring${pluralGjennomforingTekst(1, "er")} 
             under denne avtalen. Vurder om du vil avbryte 
-            gjennomføringen${pluralGjennomforingTekst("e")}.`}
+            gjennomføringen${pluralGjennomforingTekst(0, "e")}.`}
           </Alert>
         ) : (
           <AvbrytModalAarsaker
