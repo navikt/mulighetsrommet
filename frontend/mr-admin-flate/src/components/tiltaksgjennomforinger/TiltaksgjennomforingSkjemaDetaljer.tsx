@@ -436,7 +436,6 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
           </div>
           {enableTilgjengeligForArrangor && watch("oppstart") === "LOPENDE" ? (
             <TiltakTilgjengeligForArrangor
-              startDato={new Date(watch("startOgSluttDato.startDato"))}
               avtaleStartdato={new Date(avtale.startDato)}
               lagretDatoForTilgjengeligForArrangor={
                 tiltaksgjennomforing?.tilgjengeligForArrangorFraOgMedDato

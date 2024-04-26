@@ -116,6 +116,18 @@ export function addYear(date: Date, numYears: number): Date {
   return newDate;
 }
 
+export function subtractMonths(date: Date, numMonths: number): Date {
+  const newDate = new Date(date);
+  newDate.setMonth(date.getMonth() - numMonths);
+  return newDate;
+}
+
+export function subtractDays(date: Date, numDays: number): Date {
+  const newDate = new Date(date);
+  newDate.setDate(date.getDate() - numDays);
+  return newDate;
+}
+
 export function avtaleHarRegioner(avtale: Avtale): boolean {
   return avtale.kontorstruktur.some((stru) => stru.region);
 }

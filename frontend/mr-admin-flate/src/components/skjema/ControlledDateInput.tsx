@@ -4,6 +4,7 @@ import { DateInput } from "./DateInput";
 
 export interface Props {
   label: string;
+  hideLabel?: boolean;
   readOnly?: boolean;
   fromDate: Date;
   toDate: Date;
@@ -20,6 +21,7 @@ export const ControlledDateInput = forwardRef(function ControlledDateInput(
 ) {
   const {
     label,
+    hideLabel = false,
     size,
     readOnly,
     format,
@@ -41,6 +43,7 @@ export const ControlledDateInput = forwardRef(function ControlledDateInput(
               size={size}
               format={format}
               label={label}
+              hideLabel={hideLabel}
               fromDate={fromDate}
               toDate={toDate}
               onChange={onChange}
