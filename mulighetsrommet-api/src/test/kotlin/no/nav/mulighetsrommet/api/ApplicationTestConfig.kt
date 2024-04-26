@@ -5,7 +5,8 @@ import io.ktor.server.testing.*
 import no.nav.mulighetsrommet.api.clients.brreg.BrregClient
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.tasks.*
-import no.nav.mulighetsrommet.database.FlywayDatabaseAdapter
+import no.nav.mulighetsrommet.database.DatabaseConfig
+import no.nav.mulighetsrommet.database.FlywayMigrationManager
 import no.nav.mulighetsrommet.database.kotest.extensions.createDatabaseTestSchema
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.kafka.producers.ArenaMigreringTiltaksgjennomforingKafkaProducer
@@ -14,7 +15,7 @@ import no.nav.mulighetsrommet.kafka.producers.TiltakstypeKafkaProducer
 import no.nav.mulighetsrommet.unleash.UnleashService
 import no.nav.security.mock.oauth2.MockOAuth2Server
 
-var databaseConfig: FlywayDatabaseAdapter.Config? = null
+var databaseConfig: DatabaseConfig? = null
 
 fun createDatabaseTestConfig() =
     if (databaseConfig == null) {
@@ -41,6 +42,7 @@ fun <R> withTestApplication(
 
 fun createTestApplicationConfig() = AppConfig(
     database = createDatabaseTestConfig(),
+    flyway = FlywayMigrationManager.MigrationConfig(),
     auth = createAuthConfig(oauth = null, roles = listOf()),
     kafka = createKafkaConfig(),
     sanity = SanityClient.Config(projectId = "", token = "", dataset = "", apiVersion = ""),

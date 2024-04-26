@@ -9,18 +9,7 @@ import kotliquery.sessionOf
 import java.util.*
 import javax.sql.DataSource
 
-open class DatabaseAdapter(config: DatabaseConfig) : Database {
-
-    data class Config(
-        override val host: String,
-        override val port: Int,
-        override val name: String,
-        override val schema: String?,
-        override val user: String,
-        override val password: Password,
-        override val maximumPoolSize: Int,
-        override val googleCloudSqlInstance: String?,
-    ) : DatabaseConfig
+open class DatabaseAdapter(val config: DatabaseConfig) : Database {
 
     private val dataSource: HikariDataSource
 
