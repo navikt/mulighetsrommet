@@ -86,6 +86,7 @@ select gjennomforing.id,
        tiltakstype.tiltakskode             as tiltakstype_tiltakskode,
        tiltakstype.arena_kode              as tiltakstype_arena_kode,
        gjennomforing.avbrutt_tidspunkt,
+       gjennomforing.tilgjengelig_for_arrangor_fra_og_med_dato,
        case
            when gjennomforing.avbrutt_tidspunkt is not null and gjennomforing.avbrutt_tidspunkt < gjennomforing.start_dato then 'AVLYST'
            when gjennomforing.avbrutt_tidspunkt is not null and gjennomforing.avbrutt_tidspunkt >= gjennomforing.start_dato then 'AVBRUTT'

@@ -74,6 +74,7 @@ export const TiltaksgjennomforingSchema = z
         }),
       })
       .nullable(),
+    tilgjengeligForArrangorFraOgMedDato: z.string().nullable().optional(),
   })
   .superRefine((data, ctx) => {
     data.kontaktpersoner?.forEach((kontaktperson, index) => {

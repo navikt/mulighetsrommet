@@ -35,7 +35,7 @@ export function PreviewArbeidsmarkedstiltakDetaljer() {
             <DelMedBruker
               tiltaksgjennomforing={data}
               veiledernavn="{Veiledernavn}"
-              brukerdata={{
+              bruker={{
                 innsatsgruppe: Innsatsgruppe.VARIG_TILPASSET_INNSATS,
                 fnr: "12345678910",
                 fornavn: "{NAVN}",

@@ -1964,6 +1964,10 @@ components:
           format: uuid
         navn:
           type: string
+        innsatsgrupper:
+          type: array
+          items:
+            $ref: "#/components/schemas/Innsatsgruppe"
         arenaKode:
           $ref: "#/components/schemas/TiltakskodeArena"
         startDato:
@@ -2023,9 +2027,6 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/AvtaleAdministrator"
-        url:
-          type: string
-          nullable: true
         antallPlasser:
           type: number
           nullable: true
@@ -2128,7 +2129,6 @@ components:
         - avtalenummer
         - startDato
         - sluttDato
-        - url
         - administrator
         - avtaletype
         - prisbetingelser
@@ -2288,6 +2288,10 @@ components:
         estimertVentetid:
           $ref: "#/components/schemas/EstimertVentetid"
           nullable: true
+        tilgjengeligForArrangorFraOgMedDato:
+          type: string
+          format: date
+          nullable: true
       required:
         - id
         - tiltakstype
@@ -2306,6 +2310,7 @@ components:
         - publisert
         - publisertForAlle
         - deltidsprosent
+        - tilgjengeligForArrangorFraOgMedDato
 
     TiltaksnummerResponse:
       type: object
@@ -2383,6 +2388,10 @@ components:
             enhet:
               type: string
           nullable: true
+        tilgjengeligForArrangorFraOgMedDato:
+          type: string
+          format: date
+          nullable: true
       required:
         - id
         - tiltakstypeId
@@ -2404,6 +2413,7 @@ components:
         - beskrivelse
         - deltidsprosent
         - estimertVentetid
+        - tilgjengeligForArrangorFraOgMedDato
 
     TiltaksgjennomforingStatus:
       type: string
@@ -2559,6 +2569,7 @@ components:
         - STANDARD_INNSATS
         - SITUASJONSBESTEMT_INNSATS
         - SPESIELT_TILPASSET_INNSATS
+        - GRADERT_VARIG_TILPASSET_INNSATS
         - VARIG_TILPASSET_INNSATS
 
     TiltakstypeStatus:
@@ -3582,6 +3593,7 @@ components:
         - mulighetsrommet-veilederflate-landingsside
         - mulighetsrommet-veilederflate-arena-oppskrifter
         - mulighetsrommet.admin-flate.enableDebugger
+        - mulighetsrommet.admin-flate.tilgjengeliggjore-tiltak-for-arrangor
 
     PublisertRequest:
       type: object

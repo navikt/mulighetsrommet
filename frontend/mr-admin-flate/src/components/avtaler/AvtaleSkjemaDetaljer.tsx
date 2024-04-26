@@ -88,7 +88,7 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
           <Separator />
 
           <FormGroup>
-            <HGrid gap="4" columns={2}>
+            <HGrid align="start" gap="4" columns={2}>
               {avtale?.avtalenummer ? (
                 <TextField
                   size="small"

@@ -20,6 +20,7 @@ export const tiltakstype = defineType({
       name: "tiltakstypeNavn",
       title: "Navn på tiltakstype",
       type: "string",
+      readOnly: true,
       validation: (Rule) => Rule.required().min(2).max(200),
     }),
     defineField({
@@ -48,10 +49,35 @@ export const tiltakstype = defineType({
       title: "Innsatsgruppe",
       description: "Innsatsgrupper som kan delta på tiltaket.",
       type: "reference",
+      readOnly: true,
       options: {
         disableNew: true,
       },
       to: [{ type: "innsatsgruppe" }],
+    }),
+    defineField({
+      name: "innsatsgrupper",
+      title: "Innsatsgrupper",
+      type: "array",
+      readOnly: true,
+      options: {
+        layout: "tags"
+      },
+      of: [
+        {
+          type: "string",
+          options: {
+            list: [
+              { value: "STANDARD_INNSATS" },
+              { value: "SITUASJONSBESTEMT_INNSATS" },
+              { value: "SPESIELT_TILPASSET_INNSATS" },
+              { value: "GRADERT_VARIG_TILPASSET_INNSATS" },
+              { value: "VARIG_TILPASSET_INNSATS" },
+            ],
+          },
+        },
+      ],
+      validation: (Rule) => Rule.unique(),
     }),
     defineField({
       name: "regelverkLenker",

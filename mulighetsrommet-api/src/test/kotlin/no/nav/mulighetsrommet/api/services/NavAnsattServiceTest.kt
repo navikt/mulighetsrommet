@@ -11,25 +11,40 @@ import io.ktor.client.engine.mock.*
 import io.ktor.http.*
 import io.ktor.server.util.*
 import io.mockk.coEvery
+import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.mulighetsrommet.api.AdGruppeNavAnsattRolleMapping
 import no.nav.mulighetsrommet.api.clients.AccessType
 import no.nav.mulighetsrommet.api.clients.msgraph.AzureAdNavAnsatt
+import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattDbo
+import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattRolle.AVTALER_SKRIV
 import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattRolle.KONTAKTPERSON
 import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattRolle.TILTAKADMINISTRASJON_GENERELL
+import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
+import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
 import no.nav.mulighetsrommet.api.domain.dto.AdGruppe
+import no.nav.mulighetsrommet.api.domain.dto.AvtaleAdminDto
 import no.nav.mulighetsrommet.api.domain.dto.NavAnsattDto
 import no.nav.mulighetsrommet.api.domain.dto.SanityResponse
+import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
+import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.repositories.NavAnsattRepository
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
+import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
+import no.nav.mulighetsrommet.domain.dto.Avtalestatus
+import no.nav.mulighetsrommet.domain.dto.Lopenummer
 import no.nav.mulighetsrommet.ktor.respondJson
+import no.nav.mulighetsrommet.notifications.NotificationService
+import no.nav.mulighetsrommet.notifications.NotificationType
+import no.nav.mulighetsrommet.notifications.ScheduledNotification
 import java.time.LocalDate
 import java.util.*
 
@@ -61,10 +76,18 @@ class NavAnsattServiceTest : FunSpec({
         rolle = TILTAKADMINISTRASJON_GENERELL,
     )
     val kontaktperson = AdGruppeNavAnsattRolleMapping(adGruppeId = UUID.randomUUID(), rolle = KONTAKTPERSON)
+    val avtalerSkriv = AdGruppeNavAnsattRolleMapping(
+        adGruppeId = UUID.randomUUID(),
+        rolle = AVTALER_SKRIV,
+    )
 
     val msGraph = mockk<MicrosoftGraphService>()
     coEvery { msGraph.getNavAnsatteInGroup(tiltaksadministrasjon.adGruppeId) } returns listOf(ansatt1, ansatt2)
     coEvery { msGraph.getNavAnsatteInGroup(kontaktperson.adGruppeId) } returns listOf(ansatt2)
+
+    val avtaleRepository: AvtaleRepository = mockk()
+    val navEnhetService: NavEnhetService = mockk()
+    val notificationService: NotificationService = mockk()
 
     val sanityClient = SanityClient(
         engine = MockEngine { request ->
@@ -114,15 +137,18 @@ class NavAnsattServiceTest : FunSpec({
         },
         config = SanityClient.Config("", "", "", "", false),
     )
+
     context("getNavAnsattFromAzure") {
         test("should get NavAnsatt with roles filtered by the configured roles") {
-
             val service = NavAnsattService(
                 roles = listOf(tiltaksadministrasjon),
                 db = database.db,
                 microsoftGraphService = msGraph,
-                ansatte = NavAnsattRepository(database.db),
+                navAnsattRepository = NavAnsattRepository(database.db),
                 sanityClient = sanityClient,
+                avtaleRepository = avtaleRepository,
+                navEnhetService = navEnhetService,
+                notificationService = notificationService,
             )
 
             val azureId = UUID.randomUUID()
@@ -147,8 +173,11 @@ class NavAnsattServiceTest : FunSpec({
                 roles = listOf(kontaktperson),
                 db = database.db,
                 microsoftGraphService = msGraph,
-                ansatte = NavAnsattRepository(database.db),
+                navAnsattRepository = NavAnsattRepository(database.db),
                 sanityClient = sanityClient,
+                avtaleRepository = avtaleRepository,
+                navEnhetService = navEnhetService,
+                notificationService = notificationService,
             )
 
             val azureId = UUID.randomUUID()
@@ -191,8 +220,11 @@ class NavAnsattServiceTest : FunSpec({
                         roles = roles,
                         db = database.db,
                         microsoftGraphService = msGraph,
-                        ansatte = NavAnsattRepository(database.db),
+                        navAnsattRepository = NavAnsattRepository(database.db),
                         sanityClient = sanityClient,
+                        avtaleRepository = avtaleRepository,
+                        navEnhetService = navEnhetService,
+                        notificationService = notificationService,
                     )
 
                     val resolvedAnsatte = service.getNavAnsatteFromAzure()
@@ -214,8 +246,11 @@ class NavAnsattServiceTest : FunSpec({
                 roles = roles,
                 db = database.db,
                 microsoftGraphService = msGraph,
-                ansatte = NavAnsattRepository(database.db),
+                navAnsattRepository = NavAnsattRepository(database.db),
                 sanityClient = sanityClient,
+                avtaleRepository = avtaleRepository,
+                navEnhetService = navEnhetService,
+                notificationService = notificationService,
             )
 
             val resolvedAnsatte = service.getNavAnsatteFromAzure()
@@ -275,8 +310,11 @@ class NavAnsattServiceTest : FunSpec({
                         roles = roles,
                         db = database.db,
                         microsoftGraphService = msGraph,
-                        ansatte = ansatte,
+                        navAnsattRepository = ansatte,
                         sanityClient = sanityClient,
+                        avtaleRepository = avtaleRepository,
+                        navEnhetService = navEnhetService,
+                        notificationService = notificationService,
                     )
 
                     service.synchronizeNavAnsatte(today, deletionDate)
@@ -287,6 +325,7 @@ class NavAnsattServiceTest : FunSpec({
         }
 
         test("should delete nav_ansatt when their deletion date matches the provided deletion date") {
+            every { avtaleRepository.getAvtaleIdsByAdministrator(any()) } returns emptyList()
             val today = LocalDate.now()
 
             forAll(
@@ -313,14 +352,99 @@ class NavAnsattServiceTest : FunSpec({
                         roles = roles,
                         db = database.db,
                         microsoftGraphService = msGraph,
-                        ansatte = ansatte,
+                        navAnsattRepository = ansatte,
                         sanityClient = sanityClient,
+                        avtaleRepository = avtaleRepository,
+                        navEnhetService = navEnhetService,
+                        notificationService = notificationService,
                     )
 
                     service.synchronizeNavAnsatte(today, deletionDate = today)
 
                     ansatte.getAll() shouldContainExactlyInAnyOrder ansatteMedRoller
                 }
+            }
+        }
+
+        test("varsler administratorer basert på hovedenhet når avtale ikke lengre har administrator") {
+            every { avtaleRepository.getAvtaleIdsByAdministrator(ansatt1.navIdent) } returns listOf(AvtaleFixtures.AFT.id)
+            every { avtaleRepository.get(AvtaleFixtures.AFT.id) } returns AvtaleAdminDto(
+                id = AvtaleFixtures.AFT.id,
+                navn = AvtaleFixtures.AFT.navn,
+                avtalenummer = AvtaleFixtures.AFT.avtalenummer,
+                tiltakstype = AvtaleAdminDto.Tiltakstype(
+                    id = UUID.randomUUID(),
+                    navn = "",
+                    arenaKode = "",
+                ),
+                arrangor = AvtaleAdminDto.ArrangorHovedenhet(
+                    id = UUID.randomUUID(),
+                    organisasjonsnummer = "123",
+                    navn = "navn",
+                    slettet = false,
+                    underenheter = emptyList(),
+                    kontaktpersoner = emptyList(),
+                ),
+                startDato = AvtaleFixtures.AFT.startDato,
+                sluttDato = AvtaleFixtures.AFT.sluttDato,
+                avtaletype = AvtaleFixtures.AFT.avtaletype,
+                prisbetingelser = AvtaleFixtures.AFT.prisbetingelser,
+                antallPlasser = AvtaleFixtures.AFT.antallPlasser,
+                websaknummer = AvtaleFixtures.AFT.websaknummer,
+                beskrivelse = AvtaleFixtures.AFT.beskrivelse,
+                faneinnhold = AvtaleFixtures.AFT.faneinnhold,
+                personopplysninger = AvtaleFixtures.AFT.personopplysninger,
+                personvernBekreftet = AvtaleFixtures.AFT.personvernBekreftet,
+                arenaAnsvarligEnhet = null,
+                opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
+                avtalestatus = Avtalestatus.AKTIV,
+                lopenummer = Lopenummer(value = "2024/1"),
+                administratorer = emptyList(), // eneste verdien som er relevant her
+                kontorstruktur = emptyList(),
+            )
+
+            every { navEnhetService.hentOverordnetFylkesenhet(any()) } returns
+                NavEnhetDbo(
+                    navn = ansatt2.hovedenhetNavn,
+                    enhetsnummer = ansatt2.hovedenhetKode,
+                    status = NavEnhetStatus.AKTIV,
+                    type = Norg2Type.LOKAL,
+                    overordnetEnhet = null,
+                )
+
+            every { navEnhetService.hentAlleEnheter(any()) } returns listOf(
+                NavEnhetDbo(
+                    navn = ansatt2.hovedenhetNavn,
+                    enhetsnummer = ansatt2.hovedenhetKode,
+                    status = NavEnhetStatus.AKTIV,
+                    type = Norg2Type.LOKAL,
+                    overordnetEnhet = null,
+                ),
+            )
+
+            every { notificationService.scheduleNotification(any(), any()) } returns Unit
+            coEvery { msGraph.getNavAnsatteInGroup(avtalerSkriv.adGruppeId) } returns listOf(ansatt2)
+
+            val today = LocalDate.now()
+            val service = NavAnsattService(
+                roles = listOf(avtalerSkriv), // Sletter ansatt1 siden den ikke returneres i mocken over
+                db = database.db,
+                microsoftGraphService = msGraph,
+                navAnsattRepository = ansatte,
+                sanityClient = sanityClient,
+                avtaleRepository = avtaleRepository,
+                navEnhetService = navEnhetService,
+                notificationService = notificationService,
+            )
+            service.synchronizeNavAnsatte(today, deletionDate = today)
+
+            verify(exactly = 1) {
+                val expectedNotification: ScheduledNotification = match {
+                    it.type == NotificationType.TASK && it.targets.containsAll(
+                        listOf(ansatt2.navIdent),
+                    )
+                }
+                notificationService.scheduleNotification(expectedNotification, any())
             }
         }
     }

@@ -13,7 +13,6 @@ select avtale.id,
        avtale.avbrutt_tidspunkt,
        avtale.prisbetingelser,
        avtale.antall_plasser,
-       avtale.url,
        avtale.beskrivelse,
        avtale.faneinnhold,
        jsonb_agg(
