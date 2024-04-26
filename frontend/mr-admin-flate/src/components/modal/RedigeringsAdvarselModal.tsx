@@ -1,6 +1,6 @@
-import styles from "./Modal.module.scss";
 import { BodyShort, Button, Heading, Modal } from "@navikt/ds-react";
 import { RefObject } from "react";
+import styles from "./Modal.module.scss";
 
 interface Props {
   modalRef: RefObject<HTMLDialogElement>;
