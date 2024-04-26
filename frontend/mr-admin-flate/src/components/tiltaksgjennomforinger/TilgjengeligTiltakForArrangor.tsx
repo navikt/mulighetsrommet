@@ -68,25 +68,23 @@ export function TiltakTilgjengeligForArrangor({
         </Switch>
         {tilgjengeliggjorForArrangor ? (
           <>
-            <VStack gap="2">
-              <HStack gap="2" align={"center"}>
-                <Button
-                  variant="primary"
-                  size="xsmall"
-                  onClick={() => subtractDate("month", new Date(avtaleStartdato), 1)}
-                  type="button"
-                >
-                  1 måned før
-                </Button>
-                <Button
-                  variant="primary"
-                  size="xsmall"
-                  onClick={() => subtractDate("days", new Date(avtaleStartdato), 14)}
-                  type="button"
-                >
-                  2 uker før
-                </Button>
-              </HStack>
+            <HStack gap="2" align={"end"}>
+              <Button
+                variant="primary"
+                size="xsmall"
+                onClick={() => subtractDate("month", new Date(avtaleStartdato), 1)}
+                type="button"
+              >
+                1 måned før
+              </Button>
+              <Button
+                variant="primary"
+                size="xsmall"
+                onClick={() => subtractDate("days", new Date(avtaleStartdato), 14)}
+                type="button"
+              >
+                2 uker før
+              </Button>
               <ControlledDateInput
                 label="Annen dato"
                 size="small"
@@ -95,7 +93,7 @@ export function TiltakTilgjengeligForArrangor({
                 {...register("tilgjengeligForArrangorFraOgMedDato")}
                 format="iso-string"
               />
-            </VStack>
+            </HStack>
             {selectedDay && (
               <Alert variant="success" inline style={{ marginTop: "1rem" }}>
                 Arrangør vil ha tilgang til tiltaket <abbr title="Fra og med">fom.</abbr>{" "}
