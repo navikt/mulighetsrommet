@@ -13,7 +13,7 @@ export function useHentDeltMedBrukerStatus(norskIdent: string, gjennomforingId: 
       const result = await mulighetsrommetClient.delMedBruker.getDelMedBruker({
         requestBody: { norskIdent, id: gjennomforingId },
       });
-      return result || undefined; // Returner null hvis API returnerer 204 No Content = undefined;
+      return result || null; // Returner null hvis API returnerer 204 No Content = undefined;
     },
   });
 
