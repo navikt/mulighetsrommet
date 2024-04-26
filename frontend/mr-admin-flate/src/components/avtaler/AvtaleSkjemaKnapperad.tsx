@@ -12,7 +12,7 @@ interface Props {
 export function AvtaleSkjemaKnapperad({ redigeringsModus, onClose }: Props) {
   const setTiltaksgjennomforingFane = useSetAtom(gjennomforingDetaljerTabAtom);
   return (
-    <div className={styles.knapperad}>
+    <div>
       <ValideringsfeilOppsummering />
       <Button
         size="small"
