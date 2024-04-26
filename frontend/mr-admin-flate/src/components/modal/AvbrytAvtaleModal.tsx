@@ -26,7 +26,8 @@ export function AvbrytAvtaleModal({ modalRef, avtale }: Props) {
     avtale.id,
   );
 
-  const avtalenHarGjennomforinger = tiltaksgjennomforingerMedAvtaleId!.data.length > 0;
+  const avtalenHarGjennomforinger =
+    tiltaksgjennomforingerMedAvtaleId && tiltaksgjennomforingerMedAvtaleId.data.length > 0;
 
   const onClose = () => {
     mutation.reset();
