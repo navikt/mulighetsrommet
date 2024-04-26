@@ -26,13 +26,19 @@ export function TiltakTilgjengeligForArrangor({
   const selectedDay = watch("tilgjengeligForArrangorFraOgMedDato") || avtaleStartdato;
 
   function subtractDate(type: "month" | "days", date: Date, value: number) {
-    const tilgjengeliggjorPaaDato =
-      type === "days" ? subtractDays(date, value) : subtractMonths(date, value);
-
-    setValue(
-      "tilgjengeligForArrangorFraOgMedDato",
-      formaterDatoSomYYYYMMDD(tilgjengeliggjorPaaDato),
-    );
+    switch (type) {
+      case "days":
+        setValue(
+          "tilgjengeligForArrangorFraOgMedDato",
+          formaterDatoSomYYYYMMDD(subtractDays(date, value)),
+        );
+        return;
+      case "month":
+        setValue(
+          "tilgjengeligForArrangorFraOgMedDato",
+          formaterDatoSomYYYYMMDD(subtractMonths(date, value)),
+        );
+    }
   }
 
   return (
