@@ -29,8 +29,10 @@ export const AvbrytGjennomforingModal = ({ modalRef, tiltaksgjennomforing }: Pro
   };
 
   useEffect(() => {
-    modalRef.current?.close();
-    navigate(`/tiltaksgjennomforinger/${tiltaksgjennomforing?.id}`);
+    if (mutation.isSuccess) {
+      modalRef.current?.close();
+      navigate(`/tiltaksgjennomforinger/${tiltaksgjennomforing?.id}`);
+    }
   }, [mutation.isSuccess]);
 
   const handleAvbrytGjennomforing = () => {
