@@ -7,11 +7,11 @@ import {
   TiltaksgjennomforingStatus,
 } from "mulighetsrommet-api-client";
 import { mockTiltakstyper } from "./mock_tiltakstyper";
-import { nikolineKontaktperson, petrusKontaktperson } from "./mock_ansatt";
 import { mockEnheter } from "./mock_enheter";
 import { mockArrangorer } from "./mock_arrangorer";
 import { mockArrangorKontaktpersoner } from "./mock_arrangorKontaktperson";
-import { mockAvtaler } from "./mock_avtaler";
+import { mockAvtaler } from "@/mocks/fixtures/mock_avtaler";
+import { nikolineKontaktperson, petrusKontaktperson } from "@/mocks/fixtures/mock_ansatt";
 
 export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
   {
