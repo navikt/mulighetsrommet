@@ -45,17 +45,6 @@ export const tiltakstype = defineType({
       description: "Kort beskrivelse av formål med tiltaket. ",
     }),
     defineField({
-      name: "innsatsgruppe",
-      title: "Innsatsgruppe",
-      description: "Innsatsgrupper som kan delta på tiltaket.",
-      type: "reference",
-      readOnly: true,
-      options: {
-        disableNew: true,
-      },
-      to: [{ type: "innsatsgruppe" }],
-    }),
-    defineField({
       name: "innsatsgrupper",
       title: "Innsatsgrupper",
       type: "array",

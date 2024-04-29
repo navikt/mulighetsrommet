@@ -10,7 +10,6 @@ import no.nav.mulighetsrommet.api.clients.sanity.SanityParam
 import no.nav.mulighetsrommet.api.clients.sanity.SanityPerspective
 import no.nav.mulighetsrommet.api.domain.dto.*
 import no.nav.mulighetsrommet.api.routes.v1.ApentForInnsok
-import no.nav.mulighetsrommet.api.utils.utledInnsatsgrupper
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dto.Innsatsgruppe
 import no.nav.mulighetsrommet.metrics.Metrikker
@@ -128,7 +127,7 @@ class VeilederflateService(
         apentForInnsok: ApentForInnsok = ApentForInnsok.APENT_ELLER_STENGT,
     ): List<VeilederflateTiltaksgjennomforing> {
         val query = """
-            *[_type == "tiltaksgjennomforing" && tiltakstype->innsatsgruppe->nokkel in ${'$'}innsatsgrupper
+            *[_type == "tiltaksgjennomforing" && ${'$'}innsatsgruppe in tiltakstype->innsatsgrupper
               ${if (tiltakstypeIds != null) "&& tiltakstype->_id in \$tiltakstyper" else ""}
               ${if (search != null) "&& [tiltaksgjennomforingNavn, string(tiltaksnummer.current), tiltakstype->tiltakstypeNavn] match \$search" else ""}
             ] {
@@ -146,7 +145,7 @@ class VeilederflateService(
         """.trimIndent()
 
         val params = buildList {
-            add(SanityParam.of("innsatsgrupper", innsatsgruppe?.let { utledInnsatsgrupper(it) } ?: emptyList()))
+            add(SanityParam.of("innsatsgruppe", innsatsgruppe))
 
             if (tiltakstypeIds != null) {
                 add(SanityParam.of("tiltakstyper", tiltakstypeIds))
