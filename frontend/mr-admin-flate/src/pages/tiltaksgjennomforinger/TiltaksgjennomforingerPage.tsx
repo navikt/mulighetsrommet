@@ -1,4 +1,4 @@
-import { useTitle } from "mulighetsrommet-frontend-common";
+import { ReloadAppErrorBoundary, useTitle } from "mulighetsrommet-frontend-common";
 import { TiltaksgjennomforingsTabell } from "@/components/tabell/TiltaksgjennomforingsTabell";
 import { ContainerLayout } from "@/layouts/ContainerLayout";
 import { HeaderBanner } from "@/layouts/HeaderBanner";
@@ -8,7 +8,6 @@ import { FilterAndTableLayout } from "mulighetsrommet-frontend-common/components
 import { TiltaksgjennomforingFilterButtons } from "@/components/filter/TiltaksgjennomforingFilterButtons";
 import { TiltaksgjennomforingFiltertags } from "@/components/filter/TiltaksgjennomforingFiltertags";
 import { TiltaksgjennomforingFilter } from "@/components/filter/TiltaksgjennomforingFilter";
-import { ReloadAppErrorBoundary } from "@/ErrorBoundary";
 import { TilToppenKnapp } from "mulighetsrommet-frontend-common/components/tilToppenKnapp/TilToppenKnapp";
 import { Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { TiltaksgjennomforingIkon } from "@/components/ikoner/TiltaksgjennomforingIkon";

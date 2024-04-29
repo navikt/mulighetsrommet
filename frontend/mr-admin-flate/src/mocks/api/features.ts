@@ -1,4 +1,4 @@
-import { Features } from "../../api/features/feature-toggles";
+import { Features } from "../../api/features/useFeatureToggle";
 
 export const mockFeatures: Features = {
   "mulighetsrommet.veilederflate.visDeltakerRegistrering": false,

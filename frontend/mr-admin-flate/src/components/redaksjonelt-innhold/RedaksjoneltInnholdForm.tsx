@@ -8,9 +8,9 @@ import { PortableTextEditor } from "../portableText/PortableTextEditor";
 import skjemastyles from "../skjema/Skjema.module.scss";
 import { Laster } from "../laster/Laster";
 import React, { useState } from "react";
-import { InlineErrorBoundary } from "../../ErrorBoundary";
 import { FileTextIcon, LinkIcon, PaperplaneIcon } from "@navikt/aksel-icons";
 import { Lenker } from "../lenker/Lenker";
+import { InlineErrorBoundary } from "mulighetsrommet-frontend-common";
 
 interface RedaksjoneltInnholdFormProps {
   tiltakstype: EmbeddedTiltakstype;

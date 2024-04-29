@@ -1,8 +1,8 @@
 import React, { ReactElement, useRef, useState } from "react";
 import { ClockDashedIcon } from "@navikt/aksel-icons";
 import { Button, Loader, Popover } from "@navikt/ds-react";
-import { InlineErrorBoundary } from "../../ErrorBoundary";
 import styles from "./ViewEndringshistorikk.module.scss";
+import { InlineErrorBoundary } from "mulighetsrommet-frontend-common";
 
 export interface EndringshistorikkPopoverProps {
   children: ReactElement;

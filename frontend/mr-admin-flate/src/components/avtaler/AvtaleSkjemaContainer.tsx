@@ -25,8 +25,8 @@ import { defaultAvtaleData } from "./AvtaleSkjemaConst";
 import { AvtaleSkjemaDetaljer } from "./AvtaleSkjemaDetaljer";
 import { AvtaleSkjemaKnapperad } from "./AvtaleSkjemaKnapperad";
 import { AvtalePersonvernForm } from "./AvtalePersonvernForm";
-import { InlineErrorBoundary } from "@/ErrorBoundary";
 import { Laster } from "../laster/Laster";
+import { InlineErrorBoundary } from "mulighetsrommet-frontend-common";
 
 interface Props {
   onClose: () => void;

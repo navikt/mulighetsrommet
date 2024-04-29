@@ -9,8 +9,8 @@ import { App } from "./App";
 import { AdministratorHeader } from "./components/administrator/AdministratorHeader";
 import { DemoBanner } from "@/components/demo/DemoBanner";
 import "./index.css";
-import { ReloadAppErrorBoundary } from "./ErrorBoundary";
 import { isDemo } from "@/environment";
+import { ReloadAppErrorBoundary } from "mulighetsrommet-frontend-common";
 
 const queryClient = new QueryClient({
   defaultOptions: {

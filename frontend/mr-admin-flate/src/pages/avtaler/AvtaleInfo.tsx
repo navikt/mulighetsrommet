@@ -8,9 +8,9 @@ import { AvtaleKnapperad } from "./AvtaleKnapperad";
 import { AvtaleDetaljer } from "./AvtaleDetaljer";
 import { useAtom } from "jotai";
 import { avtaleDetaljerTabAtom } from "@/api/atoms";
-import { InlineErrorBoundary } from "../../ErrorBoundary";
 import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
 import { AvtalePersonvern } from "./AvtalePersonvern";
+import { InlineErrorBoundary } from "mulighetsrommet-frontend-common";
 
 export function AvtaleInfo() {
   const { data: bruker } = useHentAnsatt();
