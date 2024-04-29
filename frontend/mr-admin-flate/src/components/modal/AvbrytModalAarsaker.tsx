@@ -21,11 +21,13 @@ export function AvbrytModalAarsaker({
         Annet
         {aarsak === "annet" && (
           <Textarea
+            style={{ width: "22rem", minHeight: "4rem" }}
             size="small"
             placeholder="Beskrivelse"
             onChange={(e) => setCustomAarsak(e.target.value)}
             value={customAarsak ?? undefined}
             label={undefined}
+            required={aarsak === "annet"}
           />
         )}
       </Radio>
