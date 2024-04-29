@@ -1219,10 +1219,6 @@ paths:
                 $ref: "#/components/schemas/DelMedBruker"
         204:
           description: "No content found"
-          content:
-            text/plain:
-              schema:
-                type: string
 
     put:
       tags:
@@ -1275,10 +1271,6 @@ paths:
                   $ref: "#/components/schemas/DelMedBruker"
         204:
           description: "No content found"
-          content:
-            text/plain:
-              schema:
-                type: string
 
   /api/v1/internal/nav-enheter:
     get:
@@ -2603,6 +2595,14 @@ components:
       required:
         - id
 
+    HistorikkForBrukerStatus:
+      type: string
+      enum:
+        - VENTER
+        - AVSLUTTET
+        - DELTAR
+        - IKKE_AKTUELL
+
     HistorikkForBruker:
       type: object
       properties:
@@ -2617,12 +2617,7 @@ components:
           type: string
           nullable: true
         status:
-          type: string
-          enum:
-            - VENTER
-            - AVSLUTTET
-            - DELTAR
-            - IKKE_AKTUELL
+          $ref: "#/components/schemas/HistorikkForBrukerStatus"
         tiltaksnavn:
           type: string
           nullable: true
@@ -2689,24 +2684,27 @@ components:
         - tiltakstype
         - status
 
+    DeltakerStatusType:
+      type: string
+      enum:
+        - KLADD
+        - UTKAST_TIL_PAMELDING
+        - AVBRUTT_UTKAST
+        - VENTER_PA_OPPSTART
+        - DELTAR
+        - HAR_SLUTTET
+        - IKKE_AKTUELL
+        - SOKT_INN
+        - VURDERES
+        - VENTELISTE
+        - AVBRUTT
+        - FULLFORT
+
     DeltakerStatus:
       type: object
       properties:
         "type":
-          type: string
-          enum:
-            - KLADD
-            - UTKAST_TIL_PAMELDING
-            - AVBRUTT_UTKAST
-            - VENTER_PA_OPPSTART
-            - DELTAR
-            - HAR_SLUTTET
-            - IKKE_AKTUELL
-            - SOKT_INN
-            - VURDERES
-            - VENTELISTE
-            - AVBRUTT
-            - FULLFORT
+          $ref: "#/components/schemas/DeltakerStatusType"
         visningstekst:
           type: string
         aarsak:
@@ -3059,23 +3057,42 @@ components:
         - regelverkUrl
         - regelverkLenkeNavn
 
+    PortableTextTypedObject:
+      type: object
+      additionalProperties: true
+      properties:
+        _type:
+          type: string
+        _key:
+          type: string
+      required:
+        - _type
+
     SanityFaneinnhold:
       type: object
       properties:
         forHvemInfoboks:
           type: string
         forHvem:
-          type: object
+          type: array
+          items:
+            $ref: "#/components/schemas/PortableTextTypedObject"
         detaljerOgInnholdInfoboks:
           type: string
         detaljerOgInnhold:
-          type: object
+          type: array
+          items:
+            $ref: "#/components/schemas/PortableTextTypedObject"
         pameldingOgVarighetInfoboks:
           type: string
         pameldingOgVarighet:
-          type: object
+          type: array
+          items:
+            $ref: "#/components/schemas/PortableTextTypedObject"
         kontaktinfo:
-          type: object
+          type: array
+          items:
+            $ref: "#/components/schemas/PortableTextTypedObject"
         kontaktinfoInfoboks:
           type: string
         lenker:
@@ -3334,17 +3351,20 @@ components:
       required:
         - notDoneCount
 
+    AvbrytGjennomforingAarsak:
+      type: string
+      enum:
+        - ENDRING_HOS_ARRANGOR
+        - BUDSJETT_HENSYN
+        - FOR_FAA_DELTAKERE
+        - FEILREGISTRERING
+        - AVBRUTT_I_ARENA
+
     AvbrytGjennomforingRequest:
       type: object
       properties:
         aarsak:
-          type: string
-          enum:
-            - ENDRING_HOS_ARRANGOR
-            - BUDSJETT_HENSYN
-            - FOR_FAA_DELTAKERE
-            - FEILREGISTRERING
-            - AVBRUTT_I_ARENA
+          $ref: "#/components/schemas/AvbrytGjennomforingAarsak"
       required:
         - aarsak
 
@@ -3355,16 +3375,19 @@ components:
           type: string
           nullable: true
 
+    AvbrytAvtaleAarsak:
+      type: string
+      enum:
+        - ENDRING_HOS_ARRANGOR
+        - BUDSJETT_HENSYN
+        - FEILREGISTRERING
+        - AVBRUTT_I_ARENA
+
     AvbrytAvtaleRequest:
       type: object
       properties:
         aarsak:
-          type: string
-          enum:
-            - ENDRING_HOS_ARRANGOR
-            - BUDSJETT_HENSYN
-            - FEILREGISTRERING
-            - AVBRUTT_I_ARENA
+          $ref: "#/components/schemas/AvbrytAvtaleAarsak"
       required:
         - aarsak
 
@@ -3646,7 +3669,9 @@ components:
         navn:
           type: string
         innhold:
-          type: object
+          type: array
+          items:
+            $ref: "#/components/schemas/PortableTextTypedObject"
         _type:
           type: string
         _key:
@@ -3675,16 +3700,19 @@ components:
         - DETALJER
         - HAR_VIST_OPPRETT_AVTALE
 
+    EstimertVentetidEnhet:
+      type: string
+      enum:
+        - uke
+        - maned
+
     EstimertVentetid:
       type: object
       properties:
         verdi:
           type: number
         enhet:
-          type: string
-          enum:
-            - uke
-            - maned
+          $ref: "#/components/schemas/EstimertVentetidEnhet"
       required:
         - verdi
         - enhet
@@ -3707,23 +3735,26 @@ components:
         - apneINyFane
         - visKunForVeileder
 
+    Tiltakskode:
+      type: string
+      enum:
+        - INDOPPFAG
+        - ARBFORB
+        - AVKLARAG
+        - VASV
+        - ARBRRHDAG
+        - DIGIOPPARB
+        - JOBBK
+        - GRUPPEAMO
+        - GRUFAGYRKE
+
     Gruppetiltak:
       type: object
       properties:
         navn:
           type: string
         tiltakskode:
-          type: string
-          enum:
-            - INDOPPFAG
-            - ARBFORB
-            - AVKLARAG
-            - VASV
-            - ARBRRHDAG
-            - DIGIOPPARB
-            - JOBBK
-            - GRUPPEAMO
-            - GRUFAGYRKE
+          $ref: "#/components/schemas/Tiltakskode"
       required:
         - navn
         - tiltakskode

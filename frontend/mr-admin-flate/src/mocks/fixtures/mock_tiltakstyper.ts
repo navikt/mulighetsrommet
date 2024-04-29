@@ -4,7 +4,6 @@ import {
   Personopplysning,
   TiltakskodeArena,
   TiltakstypeStatus,
-  VeilederflateInnsatsgruppe,
   VeilederflateTiltakstype,
 } from "mulighetsrommet-api-client";
 
@@ -400,7 +399,7 @@ export const mockVeilederflateTiltakstypeAFT: VeilederflateTiltakstype = {
     sanityId: "8dcfe56e-0018-48dd-a9f5-817f6aec0b0d",
     beskrivelse: "Spesielt tilpasset innsats ",
     nokkel: Innsatsgruppe.SPESIELT_TILPASSET_INNSATS,
-    tittel: VeilederflateInnsatsgruppe.tittel.SPESIELT_TILPASSET_INNSATS,
+    tittel: "Spesielt tilpasset innsats",
     order: 2,
   },
   delingMedBruker:

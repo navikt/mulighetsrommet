@@ -1,5 +1,5 @@
 import {
-  EstimertVentetid,
+  EstimertVentetidEnhet,
   NavEnhetStatus,
   NavEnhetType,
   TiltaksgjennomforingOppstartstype,
@@ -14,7 +14,7 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
     oppstart: TiltaksgjennomforingOppstartstype.LOPENDE,
     estimertVentetid: {
       verdi: 3,
-      enhet: EstimertVentetid.enhet.MANED,
+      enhet: EstimertVentetidEnhet.MANED,
     },
     stedForGjennomforing:
       "Valpekullsveien 69, 1424" +
@@ -108,7 +108,7 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
     navn: "Sindres mentorordning med Yoda",
     estimertVentetid: {
       verdi: 5,
-      enhet: EstimertVentetid.enhet.UKE,
+      enhet: EstimertVentetidEnhet.UKE,
     },
     oppstart: TiltaksgjennomforingOppstartstype.FELLES,
     oppstartsdato: new Date().toDateString(),

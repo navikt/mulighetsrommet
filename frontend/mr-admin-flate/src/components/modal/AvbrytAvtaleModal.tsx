@@ -1,7 +1,7 @@
 import { XMarkOctagonFillIcon } from "@navikt/aksel-icons";
 import { Alert, BodyShort, Button, Heading, Modal, Radio } from "@navikt/ds-react";
 import classNames from "classnames";
-import { AvbrytAvtaleRequest, Avtale } from "mulighetsrommet-api-client";
+import { AvbrytAvtaleAarsak, Avtale } from "mulighetsrommet-api-client";
 import { RefObject, useEffect, useState } from "react";
 import { useAvbrytAvtale } from "@/api/avtaler/useAvbrytAvtale";
 import styles from "./AvbrytGjennomforingAvtaleModal.module.scss";
@@ -49,15 +49,15 @@ export function AvbrytAvtaleModal({ modalRef, avtale }: Props) {
     }
   };
 
-  const aarsakToString = (aarsak: AvbrytAvtaleRequest.aarsak): string => {
+  const aarsakToString = (aarsak: AvbrytAvtaleAarsak): string => {
     switch (aarsak) {
-      case AvbrytAvtaleRequest.aarsak.AVBRUTT_I_ARENA:
+      case AvbrytAvtaleAarsak.AVBRUTT_I_ARENA:
         return "Avbrutt i Arena";
-      case AvbrytAvtaleRequest.aarsak.BUDSJETT_HENSYN:
+      case AvbrytAvtaleAarsak.BUDSJETT_HENSYN:
         return "Budsjetthensyn";
-      case AvbrytAvtaleRequest.aarsak.ENDRING_HOS_ARRANGOR:
+      case AvbrytAvtaleAarsak.ENDRING_HOS_ARRANGOR:
         return "Endring hos arrangør";
-      case AvbrytAvtaleRequest.aarsak.FEILREGISTRERING:
+      case AvbrytAvtaleAarsak.FEILREGISTRERING:
         return "Feilregistrering";
     }
   };
@@ -99,8 +99,8 @@ export function AvbrytAvtaleModal({ modalRef, avtale }: Props) {
             setCustomAarsak={setCustomAarsak}
             radioknapp={
               <>
-                {(Object.keys(AvbrytAvtaleRequest.aarsak) as Array<AvbrytAvtaleRequest.aarsak>)
-                  .filter((a) => a !== AvbrytAvtaleRequest.aarsak.AVBRUTT_I_ARENA)
+                {(Object.keys(AvbrytAvtaleAarsak) as Array<AvbrytAvtaleAarsak>)
+                  .filter((a) => a !== AvbrytAvtaleAarsak.AVBRUTT_I_ARENA)
                   .map((a) => (
                     <Radio key={`${a}`} value={a}>
                       {aarsakToString(a)}

@@ -95,7 +95,7 @@ export const ModiaArbeidsmarkedstiltakOversikt = () => {
             ) : (
               <Tiltaksgjennomforingsoversikt
                 tiltaksgjennomforinger={tiltaksgjennomforinger}
-                deltMedBruker={alleTiltakDeltMedBruker}
+                deltMedBruker={alleTiltakDeltMedBruker ?? undefined}
                 filterOpen={filterOpen}
                 varsler={
                   <>

@@ -148,7 +148,7 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
 
             {brukerdata.erUnderOppfolging ? (
               <DelMedBruker
-                delMedBrukerInfo={delMedBrukerInfo}
+                delMedBrukerInfo={delMedBrukerInfo ?? undefined}
                 veiledernavn={resolveName(veilederdata)}
                 tiltaksgjennomforing={tiltaksgjennomforing}
                 bruker={brukerdata}

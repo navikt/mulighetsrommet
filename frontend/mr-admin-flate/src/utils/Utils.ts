@@ -1,4 +1,4 @@
-import { Avtale, Avtaletype, EstimertVentetid } from "mulighetsrommet-api-client";
+import { Avtale, Avtaletype, EstimertVentetidEnhet } from "mulighetsrommet-api-client";
 import { AvtaleFilter } from "@/api/atoms";
 
 export function capitalize(text?: string): string {
@@ -184,11 +184,11 @@ export function createQueryParamsForExcelDownload(filter: AvtaleFilter): URLSear
   return queryParams;
 }
 
-export function formatertVentetid(verdi: number, enhet: EstimertVentetid.enhet): string {
+export function formatertVentetid(verdi: number, enhet: EstimertVentetidEnhet): string {
   switch (enhet) {
-    case EstimertVentetid.enhet.UKE:
+    case EstimertVentetidEnhet.UKE:
       return `${verdi} ${verdi === 1 ? "uke" : "uker"}`;
-    case EstimertVentetid.enhet.MANED:
+    case EstimertVentetidEnhet.MANED:
       return `${verdi} ${verdi === 1 ? "måned" : "måneder"}`;
     default:
       return "Ukjent enhet for ventetid";

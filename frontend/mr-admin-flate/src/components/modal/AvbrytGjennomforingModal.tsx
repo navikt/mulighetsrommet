@@ -2,8 +2,8 @@ import { useAvbrytTiltaksgjennomforing } from "@/api/tiltaksgjennomforing/useAvb
 import styles from "./AvbrytGjennomforingAvtaleModal.module.scss";
 import { XMarkOctagonFillIcon } from "@navikt/aksel-icons";
 import classNames from "classnames";
-import { Alert, Button, Heading, Modal, Radio } from "@navikt/ds-react";
-import { AvbrytGjennomforingRequest, Tiltaksgjennomforing } from "mulighetsrommet-api-client";
+import { Heading, Button, Modal, Radio, Alert } from "@navikt/ds-react";
+import { AvbrytGjennomforingAarsak, Tiltaksgjennomforing } from "mulighetsrommet-api-client";
 import { RefObject, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTiltaksgjennomforingDeltakerSummary } from "@/api/tiltaksgjennomforing/useTiltaksgjennomforingDeltakerSummary";
@@ -41,17 +41,17 @@ export const AvbrytGjennomforingModal = ({ modalRef, tiltaksgjennomforing }: Pro
     });
   };
 
-  const aarsakToString = (aarsak: AvbrytGjennomforingRequest.aarsak): string => {
+  const aarsakToString = (aarsak: AvbrytGjennomforingAarsak): string => {
     switch (aarsak) {
-      case AvbrytGjennomforingRequest.aarsak.AVBRUTT_I_ARENA:
+      case AvbrytGjennomforingAarsak.AVBRUTT_I_ARENA:
         return "Avbrutt i Arena";
-      case AvbrytGjennomforingRequest.aarsak.BUDSJETT_HENSYN:
+      case AvbrytGjennomforingAarsak.BUDSJETT_HENSYN:
         return "Budsjetthensyn";
-      case AvbrytGjennomforingRequest.aarsak.ENDRING_HOS_ARRANGOR:
+      case AvbrytGjennomforingAarsak.ENDRING_HOS_ARRANGOR:
         return "Endring hos arrangør";
-      case AvbrytGjennomforingRequest.aarsak.FEILREGISTRERING:
+      case AvbrytGjennomforingAarsak.FEILREGISTRERING:
         return "Feilregistrering";
-      case AvbrytGjennomforingRequest.aarsak.FOR_FAA_DELTAKERE:
+      case AvbrytGjennomforingAarsak.FOR_FAA_DELTAKERE:
         return "For få deltakere";
     }
   };
@@ -78,12 +78,8 @@ export const AvbrytGjennomforingModal = ({ modalRef, tiltaksgjennomforing }: Pro
           setCustomAarsak={setCustomAarsak}
           radioknapp={
             <>
-              {(
-                Object.keys(
-                  AvbrytGjennomforingRequest.aarsak,
-                ) as Array<AvbrytGjennomforingRequest.aarsak>
-              )
-                .filter((a) => a !== AvbrytGjennomforingRequest.aarsak.AVBRUTT_I_ARENA)
+              {(Object.keys(AvbrytGjennomforingAarsak) as Array<AvbrytGjennomforingAarsak>)
+                .filter((a) => a !== AvbrytGjennomforingAarsak.AVBRUTT_I_ARENA)
                 .map((a) => (
                   <Radio key={`${a}`} value={a}>
                     {aarsakToString(a)}
