@@ -7,8 +7,6 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import { OmArbeidsmarkedstiltak } from "./OmArbeidsmarkedstiltak";
 import { NavArbeidsmarkedstiltakDetaljer } from "./views/NavArbeidsmarkedstiltakDetaljer";
 import { NavArbeidsmarkedstiltakOversikt } from "./views/NavArbeidsmarkedstiltakOversikt";
-import React from "react";
-import { TiltakLoader } from "@/components/TiltakLoader";
 
 export function NavArbeidsmarkedstiltak() {
   return (
@@ -19,9 +17,12 @@ export function NavArbeidsmarkedstiltak() {
         </ArbeidsmarkedstiltakHeader>
       }
     >
-      <React.Suspense fallback={<TiltakLoader />}>
-        <NavArbeidsmarkedstiltakRoutes />
-      </React.Suspense>
+      <Routes>
+        <Route path="oversikt" element={<NavArbeidsmarkedstiltakOversikt />} />
+        <Route path="tiltak/:id/*" element={<NavArbeidsmarkedstiltakDetaljer />} />
+        <Route path="om" element={<OmArbeidsmarkedstiltak />} />
+        <Route path="*" element={<Navigate replace to="./oversikt" />} />
+      </Routes>
     </AppContainer>
   );
 }
@@ -43,16 +44,5 @@ function AppHeaderMeny() {
         </Dropdown.Menu>
       </Dropdown>
     </>
-  );
-}
-
-function NavArbeidsmarkedstiltakRoutes() {
-  return (
-    <Routes>
-      <Route path="oversikt" element={<NavArbeidsmarkedstiltakOversikt />} />
-      <Route path="tiltak/:id/*" element={<NavArbeidsmarkedstiltakDetaljer />} />
-      <Route path="om" element={<OmArbeidsmarkedstiltak />} />
-      <Route path="*" element={<Navigate replace to="./oversikt" />} />
-    </Routes>
   );
 }

@@ -15,15 +15,6 @@ data class RegelverkLenke(
 )
 
 @Serializable
-data class SanityInnsatsgruppe(
-    val _id: String,
-    val tittel: String,
-    val nokkel: String,
-    val beskrivelse: String,
-    val order: Int,
-)
-
-@Serializable
 data class SanityTiltakstype(
     val _id: String,
     val tiltakstypeNavn: String,

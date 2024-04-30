@@ -13,10 +13,8 @@ import java.util.*
 
 @Serializable
 data class VeilederflateInnsatsgruppe(
-    val sanityId: String,
     val tittel: String,
     val nokkel: String,
-    val beskrivelse: String,
     val order: Int,
 )
 

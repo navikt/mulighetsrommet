@@ -1480,8 +1480,6 @@ paths:
               schema:
                 $ref: "#/components/schemas/ArrangorKontaktperson"
 
-
-
   /api/v1/internal/arrangorer/kontaktperson/{id}:
     get:
       tags:
@@ -1500,7 +1498,7 @@ paths:
           content:
             application/json:
               schema:
-               $ref: "#/components/schemas/KoblingerForKontaktperson"
+                $ref: "#/components/schemas/KoblingerForKontaktperson"
 
     delete:
       tags:
@@ -2950,24 +2948,13 @@ components:
     VeilederflateInnsatsgruppe:
       type: object
       properties:
-        sanityId:
-          type: string
-        beskrivelse:
-          type: string
         tittel:
           type: string
-          enum:
-            - "Standard innsats"
-            - "Situasjonsbestemt innsats"
-            - "Spesielt tilpasset innsats"
-            - "Varig tilpasset innsats"
         nokkel:
           $ref: "#/components/schemas/Innsatsgruppe"
         order:
           type: integer
       required:
-        - sanityId
-        - beskrivelse
         - tittel
         - nokkel
         - order

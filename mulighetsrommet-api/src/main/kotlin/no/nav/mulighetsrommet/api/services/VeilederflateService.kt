@@ -35,26 +35,13 @@ class VeilederflateService(
         cacheMetrics.addCache("sanityCache", sanityCache)
     }
 
-    suspend fun hentInnsatsgrupper(): List<VeilederflateInnsatsgruppe> {
-        val result = CacheUtils.tryCacheFirstNotNull(sanityCache, "innsatsgrupper") {
-            val result = sanityClient.query(
-                """
-                *[_type == "innsatsgruppe"] | order(order asc)
-                """.trimIndent(),
-            )
-            when (result) {
-                is SanityResponse.Result -> result
-                is SanityResponse.Error -> throw Exception(result.error.toString())
-            }
-        }
-
-        return result.decode<List<SanityInnsatsgruppe>>()
+    fun hentInnsatsgrupper(): List<VeilederflateInnsatsgruppe> {
+        // TODO: benytt verdi for GRADERT_VARIG_TILPASSET_INNSATS når ny 14a-løsning er lansert nasjonalt
+        return (Innsatsgruppe.entries - Innsatsgruppe.GRADERT_VARIG_TILPASSET_INNSATS)
             .map {
                 VeilederflateInnsatsgruppe(
-                    sanityId = it._id,
                     tittel = it.tittel,
-                    nokkel = it.nokkel,
-                    beskrivelse = it.beskrivelse,
+                    nokkel = it.name,
                     order = it.order,
                 )
             }

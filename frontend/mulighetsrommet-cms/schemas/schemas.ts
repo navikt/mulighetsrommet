@@ -5,7 +5,6 @@ import { arrangor } from "./arrangor";
 import { navKontaktperson } from "./navKontaktperson";
 import { enhet } from "./enhet";
 import { regelverklenke } from "./regelverklenke";
-import { innsatsgruppe } from "./innsatsgruppe";
 import { faneinnhold } from "./faneinnhold";
 import { forskningsrapport } from "./forskningsrapport";
 import { lenke } from "./lenke";
@@ -25,7 +24,6 @@ export const schemas = [
   navKontaktperson,
   enhet,
   regelverklenke,
-  innsatsgruppe,
   faneinnhold,
   lenke,
   forskningsrapport,

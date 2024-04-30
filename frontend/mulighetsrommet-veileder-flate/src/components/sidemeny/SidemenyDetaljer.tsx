@@ -114,7 +114,7 @@ const SidemenyDetaljer = ({ innsatsgrupper, tiltaksgjennomforing }: Props) => {
           <BodyShort title="Minimum krav innsatsgruppe" size="small" className={styles.tittel}>
             <abbr title="Minimum">Min</abbr>. innsatsgruppe
           </BodyShort>
-          <BodyShort size="small">{minimumInnsatsgruppe.beskrivelse}</BodyShort>
+          <BodyShort size="small">{minimumInnsatsgruppe.tittel}</BodyShort>
         </div>
 
         {visDato(tiltakstype, oppstart, oppstartsdato, sluttdato)}
