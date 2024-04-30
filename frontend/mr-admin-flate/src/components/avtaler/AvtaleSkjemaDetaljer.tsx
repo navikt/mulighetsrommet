@@ -296,7 +296,7 @@ function avtaletypeOptions(arenaKode: TiltakskodeArena): { value: Avtaletype; la
 function AvtaleKategoriVelger() {
   const VGS3 = "3";
   const VGS4 = "4";
-  const IRRELEVANTE_NIVAAER = ["0", "9"];
+  const RELEVANTE_NIVAAER = [VGS3, VGS4];
   const [valgteKategorier, setValgteKategorier] = useState<string[]>([]);
   const { data, isLoading, isError } = useNusData();
   const [valgtUtdanningsnivaa, setValgtUtdanningsnivaa] = useState<string | undefined>(undefined);
@@ -311,7 +311,7 @@ function AvtaleKategoriVelger() {
 
   const kategorier = data.classificationItems
     .filter((item) => item.level === "1")
-    .filter((item) => !IRRELEVANTE_NIVAAER.includes(item.code))
+    .filter((item) => RELEVANTE_NIVAAER.includes(item.code))
     .map((item) => ({
       value: item.code,
       label: `${item.code} - ${item.name}`,

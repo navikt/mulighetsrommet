@@ -9,6 +9,7 @@ import {
   Select,
   Switch,
   TextField,
+  UNSAFE_Combobox,
 } from "@navikt/ds-react";
 import {
   Avtale,
@@ -39,6 +40,7 @@ import { erArenaOpphavOgIngenEierskap } from "./TiltaksgjennomforingSkjemaConst"
 import { ControlledDateInput } from "../skjema/ControlledDateInput";
 import { useTiltaksgjennomforingDeltakerSummary } from "@/api/tiltaksgjennomforing/useTiltaksgjennomforingDeltakerSummary";
 import { EndreDatoAdvarselModal } from "../modal/EndreDatoAdvarselModal";
+import { mockNusData } from "../../mocks/fixtures/mock_nusData";
 
 interface Props {
   tiltaksgjennomforing?: Tiltaksgjennomforing;
@@ -448,11 +450,13 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
 };
 
 function VelgUtdanningskategori() {
+  const options = mockNusData[1].children;
   return (
-    <Select size="small" label="Velg utdanningskategori">
-      <option value="41 - Humanistiske og estetiske fag">41 - Humanistiske og estetiske fag</option>
-      <option value="4551 - Elektrofag">4551 - Elektrofag</option>
-      <option value="47 - Primærnæringsfag">47 - Primærnæringsfag</option>
-    </Select>
+    <UNSAFE_Combobox
+      options={options}
+      isMultiSelect
+      size="small"
+      label="Velg utdanningskategori"
+    ></UNSAFE_Combobox>
   );
 }

@@ -99,21 +99,6 @@ const vgsNivaa = [
 
 export const mockNusData: NusData[] = [
   {
-    value: "Ingen utdanning og førskoleutdanning",
-    label: "Ingen utdanning og førskoleutdanning",
-    children: [
-      {
-        label: "Uoppgitt fagfelt",
-        value: "Uoppgitt fagfelt",
-      },
-    ],
-  },
-  {
-    value: "Barneskoleutdanning",
-    label: "Barneskoleutdanning",
-    children: ikkeVgsNivaa,
-  },
-  {
     value: "Ungdomsskoleutdanning",
     label: "Ungdomsskoleutdanning",
     children: ikkeVgsNivaa,
@@ -127,25 +112,5 @@ export const mockNusData: NusData[] = [
     value: "Videregående, avsluttende utdanning",
     label: "Videregående, avsluttende utdanning",
     children: vgsNivaa,
-  },
-  {
-    label: "Påbygging til videregående utdanning",
-    value: "Påbygging til videregående utdanning",
-    children: ikkeVgsNivaa,
-  },
-  {
-    label: "Universitets- og høgskoleutdanning, lavere nivå",
-    value: "Universitets- og høgskoleutdanning, lavere nivå",
-    children: ikkeVgsNivaa,
-  },
-  {
-    label: "Universitets- og høgskoleutdanning, høyere nivå",
-    value: "Universitets- og høgskoleutdanning, høyere nivå",
-    children: ikkeVgsNivaa,
-  },
-  {
-    label: "Forskerutdanning",
-    value: "Forskerutdanning",
-    children: ikkeVgsNivaa,
   },
 ];
