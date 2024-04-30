@@ -14,11 +14,11 @@
     background-color: var(--a-white);
     border-collapse: separate;
     border-spacing: 0;
+    border-top: 1px solid var(--a-gray-200);
 
     :global(.navds-table__header) {
       position: sticky;
       background-color: var(--a-white);
-      border: 1px solid var(--a-gray-200);
     }
   }
 

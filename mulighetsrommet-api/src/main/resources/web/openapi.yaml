@@ -51,7 +51,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Avtale"
         404:
-          description: "The specified avtale was not found."
+          description: "Avtalen ble ikke funnet"
           content:
             application/json:
               schema:
@@ -90,7 +90,7 @@ paths:
         200:
           description: The specified avtale you want to 'Avbryte'
         404:
-          description: "The specified avtale was not found and could not be avbrutt"
+          description: "Avtalen ble ikke funnet og kunne ikke avbrytes"
           content:
             application/json:
               schema:
@@ -736,7 +736,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Tiltaksgjennomforing"
         404:
-          description: "The specified tiltaksgjennomføring was not found."
+          description: "Tiltaksgjennomføringen ble ikke funnet"
           content:
             application/json:
               schema:
@@ -803,7 +803,7 @@ paths:
               schema:
                 type: string
         404:
-          description: "Mangler eller ugyldig id."
+          description: "Mangler eller ugyldig id"
           content:
             application/json:
               schema:
@@ -898,7 +898,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Tiltakstype"
         404:
-          description: "The specified tiltakstype was not found."
+          description: "Tiltakstypen ble ikke funnet"
           content:
             text/plain:
               schema:
@@ -919,7 +919,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/VeilederflateTiltakstype"
         404:
-          description: "Faneinnhold for the specified tiltakstype was not found."
+          description: "Faneinnholdet for tiltakstypen ble ikke funnet"
           content:
             text/plain:
               schema:
@@ -1098,7 +1098,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/DialogResponse"
         409:
-          description: "Sending message to Dialogen failed"
+          description: "Sending av meldingen til Dialogen mislyktes"
           content:
             application/json:
               schema:
@@ -1193,7 +1193,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/NavAnsatt"
         404:
-          description: "Could not find data about 'ansatt'"
+          description: "Fant ingen data om 'ansatt'"
           content:
             application/json:
               schema:

@@ -15,12 +15,14 @@ export function useAvbrytAvtale() {
         });
       },
       onSuccess(_, request) {
-        client.invalidateQueries({
-          queryKey: QueryKeys.avtale(request.id),
-        });
-        client.invalidateQueries({
-          queryKey: QueryKeys.avtaler(),
-        });
+        return Promise.all([
+          client.invalidateQueries({
+            queryKey: QueryKeys.avtale(request.id),
+          }),
+          client.invalidateQueries({
+            queryKey: QueryKeys.avtaler(),
+          }),
+        ]);
       },
     },
   );
