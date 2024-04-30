@@ -9,8 +9,8 @@ import { TiltaksgjennomforingKnapperad } from "./TiltaksgjennomforingKnapperad";
 import { RedaksjoneltInnholdPreview } from "../../components/redaksjonelt-innhold/RedaksjoneltInnholdPreview";
 import { gjennomforingDetaljerTabAtom } from "@/api/atoms";
 import { useAtom } from "jotai";
-import { InlineErrorBoundary } from "../../ErrorBoundary";
 import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
+import { InlineErrorBoundary } from "mulighetsrommet-frontend-common";
 
 export function TiltaksgjennomforingInfo() {
   const { data: bruker } = useHentAnsatt();

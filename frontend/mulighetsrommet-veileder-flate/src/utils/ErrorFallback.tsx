@@ -3,8 +3,8 @@ import { ApiError } from "mulighetsrommet-api-client";
 import { BodyShort, Heading } from "@navikt/ds-react";
 import { ReactNode } from "react";
 import { FallbackProps } from "react-error-boundary";
-import { resolveErrorMessage, resolveRequestId } from "mr-admin-flate/src/api/errors";
 import { PortenLink } from "@/components/PortenLink";
+import { resolveErrorMessage, resolveRequestId } from "../errors";
 
 export function ErrorFallback({ error }: FallbackProps) {
   let feilmelding: ReactNode;

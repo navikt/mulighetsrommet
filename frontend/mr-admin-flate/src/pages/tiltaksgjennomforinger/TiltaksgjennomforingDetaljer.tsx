@@ -6,7 +6,7 @@ import {
   Toggles,
 } from "mulighetsrommet-api-client";
 import styles from "../DetaljerInfo.module.scss";
-import { useFeatureToggle } from "@/api/features/feature-toggles";
+import { useFeatureToggle } from "@/api/features/useFeatureToggle";
 import { useTitle } from "mulighetsrommet-frontend-common";
 import { useMigrerteTiltakstyper } from "@/api/tiltakstyper/useMigrerteTiltakstyper";
 import { useRef } from "react";

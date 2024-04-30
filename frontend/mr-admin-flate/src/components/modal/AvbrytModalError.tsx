@@ -1,5 +1,5 @@
 import styles from "@/components/modal/Modal.module.scss";
-import { resolveErrorMessage } from "@/api/errors";
+import { resolveErrorMessage } from "mulighetsrommet-frontend-common/components/error-handling/errors";
 
 interface Props {
   mutation: any;

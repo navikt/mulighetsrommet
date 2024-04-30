@@ -41,7 +41,7 @@ import { SelectOppstartstype } from "./SelectOppstartstype";
 import { TiltakTilgjengeligForArrangor } from "./TilgjengeligTiltakForArrangor";
 import { TiltaksgjennomforingArrangorSkjema } from "./TiltaksgjennomforingArrangorSkjema";
 import { erArenaOpphavOgIngenEierskap } from "./TiltaksgjennomforingSkjemaConst";
-import { useFeatureToggle } from "../../api/features/feature-toggles";
+import { useFeatureToggle } from "../../api/features/useFeatureToggle";
 
 interface Props {
   tiltaksgjennomforing?: Tiltaksgjennomforing;
