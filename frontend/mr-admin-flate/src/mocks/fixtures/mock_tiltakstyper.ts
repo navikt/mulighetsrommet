@@ -395,13 +395,11 @@ export const mockVeilederflateTiltakstypeAFT: VeilederflateTiltakstype = {
       },
     ],
   },
-  innsatsgruppe: {
-    sanityId: "8dcfe56e-0018-48dd-a9f5-817f6aec0b0d",
-    beskrivelse: "Spesielt tilpasset innsats ",
-    nokkel: Innsatsgruppe.SPESIELT_TILPASSET_INNSATS,
-    tittel: "Spesielt tilpasset innsats",
-    order: 2,
-  },
+  innsatsgrupper: [
+    Innsatsgruppe.SPESIELT_TILPASSET_INNSATS,
+    Innsatsgruppe.GRADERT_VARIG_TILPASSET_INNSATS,
+    Innsatsgruppe.VARIG_TILPASSET_INNSATS,
+  ],
   delingMedBruker:
     "Hei <Fornavn>, \n\nVi har nå et arbeidsmarkedstiltak som jeg tenker kan passe deg godt. Det heter <tiltaksnavn> og er et tilbud for deg som deg som har nedsatt arbeidsevne og trenger hjelp for å komme i jobb.\n\nMålet er å avklare arbeidsevnen din gjennom arbeidstrening i ulike arbeidssituasjoner.\n\n- Etter en periode med forberedende arbeidstrening i et tilrettelagt arbeidsmiljø får du arbeidstrening i en vanlig bedrift.\n- Du får kartlagt kompetansen din og får karriereveiledning.\n- Du kan få tilrettelagt opplæring hvis du ønsker å gå videre med et yrkesfaglig utdanningsløp. Opplæringen skal bedre mulighetene dine til å komme i jobb.\n\nDu kan lese mer om kurset på www.nav.no/arbeidsforberedende-trening",
 };
