@@ -2981,8 +2981,11 @@ components:
           type: string
         beskrivelse:
           type: string
-        innsatsgruppe:
-          $ref: "#/components/schemas/VeilederflateInnsatsgruppe"
+        innsatsgrupper:
+          type: array
+          uniqueItems: true
+          items:
+            $ref: "#/components/schemas/Innsatsgruppe"
         regelverkLenker:
           type: array
           items:

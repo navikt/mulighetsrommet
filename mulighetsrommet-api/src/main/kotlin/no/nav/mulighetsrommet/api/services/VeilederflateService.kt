@@ -69,7 +69,7 @@ class VeilederflateService(
                       tiltakstypeNavn,
                       beskrivelse,
                       nokkelinfoKomponenter,
-                      innsatsgruppe->,
+                      innsatsgrupper,
                       regelverkLenker[]->,
                       faneinnhold {
                         forHvemInfoboks,
@@ -87,12 +87,12 @@ class VeilederflateService(
                           innhold[] {
                             ...,
                             _type == "image" => {
-                            ...,
-                            asset-> // For å hente ut url til bilder
+                              ...,
+                              asset-> // For å hente ut url til bilder
+                            }
+                          }
                         }
-                      }
-                    }
-                    }, [])
+                      }, [])
                     }
                 """.trimIndent(),
             )
@@ -110,7 +110,7 @@ class VeilederflateService(
                     sanityId = it._id,
                     navn = it.tiltakstypeNavn,
                     beskrivelse = it.beskrivelse,
-                    innsatsgruppe = it.innsatsgruppe,
+                    innsatsgrupper = it.innsatsgrupper,
                     regelverkLenker = it.regelverkLenker,
                     faneinnhold = it.faneinnhold,
                     delingMedBruker = it.delingMedBruker,
@@ -225,7 +225,7 @@ class VeilederflateService(
                 tiltakstypeNavn,
                 beskrivelse,
                 nokkelinfoKomponenter,
-                innsatsgruppe->,
+                innsatsgrupper,
                 regelverkLenker[]->,
                 faneinnhold {
                   forHvemInfoboks,
@@ -237,18 +237,18 @@ class VeilederflateService(
                 },
                 delingMedBruker,
                 "oppskrifter":  coalesce(oppskrifter[] -> {
+                  ...,
+                  steg[] {
+                    ...,
+                    innhold[] {
+                      ...,
+                      _type == "image" => {
                         ...,
-                        steg[] {
-                          ...,
-                          innhold[] {
-                            ...,
-                            _type == "image" => {
-                            ...,
-                            asset-> // For å hente ut url til bilder
-                        }
+                        asset-> // For å hente ut url til bilder
                       }
                     }
-                  }, [])
+                  }
+                }, [])
               },
               tiltaksgjennomforingNavn,
               "tiltaksnummer": tiltaksnummer.current,
@@ -307,7 +307,7 @@ class VeilederflateService(
                         sanityId = _id,
                         navn = tiltakstypeNavn,
                         beskrivelse = beskrivelse,
-                        innsatsgruppe = innsatsgruppe,
+                        innsatsgrupper = innsatsgrupper,
                         regelverkLenker = regelverkLenker,
                         faneinnhold = faneinnhold,
                         delingMedBruker = delingMedBruker,

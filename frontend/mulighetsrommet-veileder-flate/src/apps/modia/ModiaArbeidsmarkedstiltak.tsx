@@ -11,11 +11,15 @@ import { DemoImageHeader } from "@/components/DemoImageHeader";
 import { Landingsside } from "./views/Landingsside";
 import { ModiaArbeidsmarkedstiltakOversikt } from "./views/ModiaArbeidsmarkedstiltakOversikt";
 import { ModiaArbeidsmarkedstiltakDetaljer } from "./views/ModiaArbeidsmarkedstiltakDetaljer";
+import React from "react";
+import { TiltakLoader } from "@/components/TiltakLoader";
 
 export function ModiaArbeidsmarkedstiltak() {
   return (
     <AppContainer header={<DemoImageHeader />}>
-      <ModiaArbeidsmarkedstiltakRoutes />
+      <React.Suspense fallback={<TiltakLoader />}>
+        <ModiaArbeidsmarkedstiltakRoutes />
+      </React.Suspense>
     </AppContainer>
   );
 }

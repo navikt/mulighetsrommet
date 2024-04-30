@@ -5,13 +5,12 @@ import { Tilbakeknapp } from "@/components/tilbakeknapp/Tilbakeknapp";
 import { ViewTiltaksgjennomforingDetaljer } from "@/layouts/ViewTiltaksgjennomforingDetaljer";
 import { Alert } from "@navikt/ds-react";
 import { Innsatsgruppe, NavEnhetStatus, NavEnhetType } from "mulighetsrommet-api-client";
-import { InlineErrorBoundary } from "../../../ErrorBoundary";
-import { PersonvernContainer } from "../../../components/personvern/PersonvernContainer";
-import { LenkeListe } from "../../../components/sidemeny/Lenker";
+import { InlineErrorBoundary } from "@/ErrorBoundary";
+import { PersonvernContainer } from "@/components/personvern/PersonvernContainer";
+import { LenkeListe } from "@/components/sidemeny/Lenker";
 
 export function PreviewArbeidsmarkedstiltakDetaljer() {
   const { data, isPending, isError } = usePreviewTiltaksgjennomforingById();
-  const brukersInnsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS;
 
   if (isPending) {
     return <TiltakLoader />;
@@ -28,7 +27,6 @@ export function PreviewArbeidsmarkedstiltakDetaljer() {
       </Alert>
       <ViewTiltaksgjennomforingDetaljer
         tiltaksgjennomforing={data}
-        brukersInnsatsgruppe={brukersInnsatsgruppe}
         knapperad={<Tilbakeknapp tilbakelenke=".." tekst="Tilbake til tiltaksoversikten" />}
         brukerActions={
           <>
