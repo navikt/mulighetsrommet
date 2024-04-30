@@ -164,7 +164,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
         val id = UUID.randomUUID()
         avtaler.upsert(avtale.copy(id = id))
 
-        avtaler.setAvbruttTidspunkt(id, LocalDateTime.now())
+        avtaler.avbryt(id, LocalDateTime.now(), AvbruttAarsak.BudsjettHensyn)
 
         val validator = TiltaksgjennomforingValidator(tiltakstyper, avtaler, arrangorer)
         val dbo = gjennomforing.copy(avtaleId = id)
@@ -343,7 +343,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
         }
 
         test("skal godta endringer selv om avtale er avbrutt") {
-            avtaler.setAvbruttTidspunkt(avtale.id, LocalDateTime.now())
+            avtaler.avbryt(avtale.id, LocalDateTime.now(), AvbruttAarsak.BudsjettHensyn)
 
             val validator = TiltaksgjennomforingValidator(tiltakstyper, avtaler, arrangorer)
 

@@ -413,21 +413,20 @@ class AvtaleRepository(private val db: Database) {
             .let { db.run(it) }
     }
 
-    fun setAvbruttTidspunkt(id: UUID, avbruttTidspunkt: LocalDateTime) {
-        db.transaction { setAvbruttTidspunkt(it, id, avbruttTidspunkt) }
+    fun avbryt(id: UUID, tidspunkt: LocalDateTime, aarsak: AvbruttAarsak): Int {
+        return db.transaction { avbryt(it, id, tidspunkt, aarsak) }
     }
 
-    fun setAvbruttTidspunkt(tx: Session, id: UUID, avbruttTidspunkt: LocalDateTime) {
+    fun avbryt(tx: Session, id: UUID, tidspunkt: LocalDateTime, aarsak: AvbruttAarsak): Int {
         @Language("PostgreSQL")
         val query = """
-            update avtale
-            set avbrutt_tidspunkt = :avbrutt_tidspunkt
+            update avtale set
+                avbrutt_tidspunkt = :tidspunkt,
+                avbrutt_aarsak = :aarsak
             where id = :id::uuid
         """.trimIndent()
 
-        queryOf(query, mapOf("id" to id, "avbrutt_tidspunkt" to avbruttTidspunkt))
-            .asUpdate
-            .let { tx.run(it) }
+        return tx.run(queryOf(query, mapOf("id" to id, "tidspunkt" to tidspunkt, "aarsak" to aarsak.name)).asUpdate)
     }
 
     fun setArrangorUnderenhet(tx: Session, avtaleId: UUID, arrangorId: UUID) {

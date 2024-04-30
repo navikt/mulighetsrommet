@@ -43,7 +43,8 @@ fun Route.avtaleRoutes() {
             put("{id}/avbryt") {
                 val id = call.parameters.getOrFail<UUID>("id")
                 val navIdent = getNavIdent()
-                val response = avtaler.avbrytAvtale(id, navIdent)
+                val request = call.receive<AvbrytRequest>()
+                val response = avtaler.avbrytAvtale(id, navIdent, request.aarsak)
                 call.respondWithStatusResponse(response)
             }
 

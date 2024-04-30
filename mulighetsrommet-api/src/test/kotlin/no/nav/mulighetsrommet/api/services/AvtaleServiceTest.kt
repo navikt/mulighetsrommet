@@ -27,6 +27,7 @@ import no.nav.mulighetsrommet.api.routes.v1.responses.ValidationError
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
+import no.nav.mulighetsrommet.domain.dto.AvbruttAarsak
 import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.notifications.NotificationRepository
 import no.nav.mulighetsrommet.utils.toUUID
@@ -117,7 +118,7 @@ class AvtaleServiceTest : FunSpec({
             val avtaleIdSomIkkeFinnes = "3c9f3d26-50ec-45a7-a7b2-c2d8a3653945".toUUID()
             avtaleRepository.upsert(avtale)
 
-            avtaleService.avbrytAvtale(avtaleIdSomIkkeFinnes, bertilNavIdent).shouldBeLeft(
+            avtaleService.avbrytAvtale(avtaleIdSomIkkeFinnes, bertilNavIdent, AvbruttAarsak.Feilregistrering).shouldBeLeft(
                 NotFound("Avtalen finnes ikke"),
             )
         }
@@ -131,7 +132,7 @@ class AvtaleServiceTest : FunSpec({
             avtaleRepository.upsert(avtale)
             avtaleRepository.setOpphav(avtale.id, ArenaMigrering.Opphav.ARENA)
 
-            avtaleService.avbrytAvtale(avtale.id, bertilNavIdent).shouldBeLeft(
+            avtaleService.avbrytAvtale(avtale.id, bertilNavIdent, AvbruttAarsak.Feilregistrering).shouldBeLeft(
                 BadRequest("Avtalen har opprinnelse fra Arena og kan ikke bli avbrutt fra admin-flate."),
             )
         }
@@ -155,7 +156,7 @@ class AvtaleServiceTest : FunSpec({
             avtaler.upsert(avtale)
             avtaler.setOpphav(avtale.id, ArenaMigrering.Opphav.ARENA)
 
-            service.avbrytAvtale(avtale.id, bertilNavIdent).shouldBeRight()
+            service.avbrytAvtale(avtale.id, bertilNavIdent, AvbruttAarsak.Feilregistrering).shouldBeRight()
         }
 
         test("Man skal ikke få avbryte, men få en melding dersom avtalen allerede er avsluttet") {
@@ -167,7 +168,7 @@ class AvtaleServiceTest : FunSpec({
             avtaleRepository.upsert(avtale)
             avtaleRepository.setOpphav(avtale.id, ArenaMigrering.Opphav.MR_ADMIN_FLATE)
 
-            avtaleService.avbrytAvtale(avtale.id, bertilNavIdent).shouldBeLeft(
+            avtaleService.avbrytAvtale(avtale.id, bertilNavIdent, AvbruttAarsak.Feilregistrering).shouldBeLeft(
                 BadRequest(message = "Avtalen er allerede avsluttet og kan derfor ikke avbrytes."),
             )
         }
@@ -193,7 +194,7 @@ class AvtaleServiceTest : FunSpec({
             tiltaksgjennomforinger.upsert(oppfolging1)
             tiltaksgjennomforinger.upsert(oppfolging2)
 
-            avtaleService.avbrytAvtale(avtale.id, bertilNavIdent).shouldBeLeft(
+            avtaleService.avbrytAvtale(avtale.id, bertilNavIdent, AvbruttAarsak.Feilregistrering).shouldBeLeft(
                 BadRequest("Avtalen har 2 aktive tiltaksgjennomføringer koblet til seg. Du må frikoble gjennomføringene før du kan avbryte avtalen."),
             )
         }
@@ -220,7 +221,7 @@ class AvtaleServiceTest : FunSpec({
             tiltaksgjennomforinger.upsert(oppfolging1)
             tiltaksgjennomforinger.upsert(oppfolging2)
 
-            avtaleService.avbrytAvtale(avtale.id, bertilNavIdent).shouldBeLeft(
+            avtaleService.avbrytAvtale(avtale.id, bertilNavIdent, AvbruttAarsak.Feilregistrering).shouldBeLeft(
                 BadRequest("Avtalen har 2 planlagte tiltaksgjennomføringer koblet til seg. Du må flytte eller avslutte gjennomføringene før du kan avbryte avtalen."),
             )
         }
@@ -240,7 +241,7 @@ class AvtaleServiceTest : FunSpec({
             )
             tiltaksgjennomforinger.upsert(oppfolging1)
 
-            avtaleService.avbrytAvtale(avtale.id, bertilNavIdent).shouldBeRight()
+            avtaleService.avbrytAvtale(avtale.id, bertilNavIdent, AvbruttAarsak.Feilregistrering).shouldBeRight()
         }
 
         test("Skal få avbryte avtale hvis alle sjekkene er ok") {
@@ -250,7 +251,7 @@ class AvtaleServiceTest : FunSpec({
             )
             avtaleRepository.upsert(avtale).right()
 
-            avtaleService.avbrytAvtale(avtale.id, bertilNavIdent)
+            avtaleService.avbrytAvtale(avtale.id, bertilNavIdent, AvbruttAarsak.Feilregistrering)
         }
     }
 

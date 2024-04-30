@@ -140,7 +140,10 @@ class AvtaleService(
         return avtaler.getAllAvtalerSomNarmerSegSluttdato()
     }
 
-    fun avbrytAvtale(id: UUID, navIdent: NavIdent): StatusResponse<Unit> {
+    fun avbrytAvtale(id: UUID, navIdent: NavIdent, aarsak: AvbruttAarsak?): StatusResponse<Unit> {
+        if (aarsak == null) {
+            return Either.Left(BadRequest(message = "Årsak mangler"))
+        }
         val avtale = avtaler.get(id) ?: return Either.Left(NotFound("Avtalen finnes ikke"))
 
         if (avtale.opphav == Opphav.ARENA && !tiltakstyperMigrert.contains(Tiltakskode.fromArenaKode(avtale.tiltakstype.arenaKode))) {
@@ -185,7 +188,7 @@ class AvtaleService(
         }
 
         db.transaction { tx ->
-            avtaler.setAvbruttTidspunkt(tx, id, LocalDateTime.now())
+            avtaler.avbryt(tx, id, LocalDateTime.now(), aarsak)
             val dto = getOrError(id, tx)
             logEndring("Avtale ble avbrutt", dto, navIdent, tx)
         }

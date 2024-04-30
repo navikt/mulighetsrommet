@@ -342,7 +342,7 @@ class AvtaleRepositoryTest : FunSpec({
                     id = UUID.randomUUID(),
                 )
                 avtaler.upsert(avtaleAvbrutt)
-                avtaler.setAvbruttTidspunkt(avtaleAvbrutt.id, LocalDateTime.now())
+                avtaler.avbryt(avtaleAvbrutt.id, LocalDateTime.now(), AvbruttAarsak.Feilregistrering)
 
                 val avtalePlanlagt = AvtaleFixtures.oppfolging.copy(
                     id = UUID.randomUUID(),
@@ -863,7 +863,7 @@ class AvtaleRepositoryTest : FunSpec({
             ) { startDato, sluttDato, avbruttDato, expectedStatus ->
                 avtaler.upsert(AvtaleFixtures.oppfolging.copy(startDato = startDato, sluttDato = sluttDato))
 
-                avtaler.setAvbruttTidspunkt(AvtaleFixtures.oppfolging.id, avbruttDato.atStartOfDay())
+                avtaler.avbryt(AvtaleFixtures.oppfolging.id, avbruttDato.atStartOfDay(), AvbruttAarsak.Annet("Min årsak"))
 
                 avtaler.get(AvtaleFixtures.oppfolging.id).shouldNotBeNull().avtalestatus shouldBe expectedStatus
             }
