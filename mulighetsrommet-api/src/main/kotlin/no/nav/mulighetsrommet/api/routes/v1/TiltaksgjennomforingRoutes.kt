@@ -61,7 +61,7 @@ fun Route.tiltaksgjennomforingRoutes() {
             put("{id}/avbryt") {
                 val id = call.parameters.getOrFail<UUID>("id")
                 val navIdent = getNavIdent()
-                val request = call.receive<AvbrytGjennomforingRequest>()
+                val request = call.receive<AvbrytRequest>()
                 val response = service.avbrytGjennomforing(id, navIdent, request.aarsak)
                 call.respondWithStatusResponse(response)
             }
@@ -249,7 +249,7 @@ data class TiltaksgjennomforingRequest(
 }
 
 @Serializable
-data class AvbrytGjennomforingRequest(
+data class AvbrytRequest(
     @Serializable(with = AvbruttAarsakSerializer::class)
     val aarsak: AvbruttAarsak?,
 )
