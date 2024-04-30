@@ -17,10 +17,15 @@ export function useAvbrytTiltaksgjennomforing() {
         requestBody: { aarsak: data.aarsak },
       });
     },
-    async onSuccess(_, request) {
-      await client.invalidateQueries({
-        queryKey: QueryKeys.tiltaksgjennomforing(request.id),
-      });
+    onSuccess(_, request) {
+      return Promise.all([
+        client.invalidateQueries({
+          queryKey: QueryKeys.tiltaksgjennomforing(request.id),
+        }),
+        client.invalidateQueries({
+          queryKey: QueryKeys.tiltaksgjennomforinger(),
+        }),
+      ]);
     },
   });
 }

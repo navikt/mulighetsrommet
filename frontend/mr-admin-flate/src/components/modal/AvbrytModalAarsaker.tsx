@@ -28,6 +28,7 @@ export function AvbrytModalAarsaker({
             value={customAarsak ?? undefined}
             label={undefined}
             required={aarsak === "annet"}
+            maxLength={100}
           />
         )}
       </Radio>

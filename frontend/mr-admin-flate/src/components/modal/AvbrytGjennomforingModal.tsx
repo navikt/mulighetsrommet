@@ -2,7 +2,7 @@ import { useAvbrytTiltaksgjennomforing } from "@/api/tiltaksgjennomforing/useAvb
 import styles from "./AvbrytGjennomforingAvtaleModal.module.scss";
 import { XMarkOctagonFillIcon } from "@navikt/aksel-icons";
 import classNames from "classnames";
-import { Heading, Button, Modal, Radio, Alert } from "@navikt/ds-react";
+import { Alert, BodyShort, Button, Heading, Modal, Radio } from "@navikt/ds-react";
 import { AvbrytGjennomforingAarsak, Tiltaksgjennomforing } from "mulighetsrommet-api-client";
 import { RefObject, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -63,7 +63,11 @@ export const AvbrytGjennomforingModal = ({ modalRef, tiltaksgjennomforing }: Pro
       <Modal.Header closeButton={false}>
         <div className={styles.heading}>
           <XMarkOctagonFillIcon className={classNames(styles.icon_warning, styles.icon)} />
-          <Heading size="medium">{`Ønsker du å avbryte «${tiltaksgjennomforing?.navn}»?`}</Heading>
+          <Heading size="medium">
+            {mutation.isError
+              ? `Kan ikke avbryte «${tiltaksgjennomforing?.navn}»`
+              : `Ønsker du å avbryte «${tiltaksgjennomforing?.navn}»?`}
+          </Heading>
         </div>
       </Modal.Header>
       <Modal.Body className={styles.body}>
@@ -90,10 +94,14 @@ export const AvbrytGjennomforingModal = ({ modalRef, tiltaksgjennomforing }: Pro
             </>
           }
         />
+
         {mutation?.isError && (
-          <AvbrytModalError aarsak={aarsak} customAarsak={customAarsak} mutation={mutation} />
+          <BodyShort>
+            <AvbrytModalError aarsak={aarsak} customAarsak={customAarsak} mutation={mutation} />
+          </BodyShort>
         )}
       </Modal.Body>
+
       <Modal.Footer className={styles.footer}>
         <Button variant="secondary" type="button" onClick={onClose}>
           Nei, takk
