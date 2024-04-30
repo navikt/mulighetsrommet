@@ -15,8 +15,8 @@ export function BrukerKvalifisererIkkeVarsel({
   return !brukerHarRettPaaTiltak && brukerErUnderOppfolging && brukerdata.innsatsgruppe ? (
     <Alert variant="warning">
       Brukeren tilhører innsatsgruppen{" "}
-      <strong>{brukerdata.innsatsgruppe.replaceAll("_", " ").toLocaleLowerCase()}</strong> og
-      kvalifiserer derfor ikke for denne tiltaksgjennomføringen.
+      <strong>{brukerdata.innsatsgruppe.replaceAll("_", " ").toLocaleLowerCase()}</strong> og kan
+      ikke delta på dette tiltaket uten at det gjøres en ny behovsvurdering.
     </Alert>
   ) : null;
 }
