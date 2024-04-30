@@ -1,3 +1,4 @@
+-- hotfix 30 april view accidentally droppet
 drop view if exists avtale_admin_dto_view;
 
 create view avtale_admin_dto_view as
