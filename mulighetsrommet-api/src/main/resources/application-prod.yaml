@@ -13,7 +13,8 @@ app:
   flyway:
     strategy: Migrate
 
-  migrerteTiltak: []
+  migrerteTiltak:
+    - JOBBKLUBB
 
   kafka:
     producerId: mulighetsrommet-api-kafka-producer.v1
