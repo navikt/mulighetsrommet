@@ -5,8 +5,8 @@ server:
 app:
   database:
     host: localhost
-    port: 5443
-    name: mulighetsrommet-arena-adapter-db
+    port: 5442
+    name: mr-tiltakshistorikk
     user: valp
     password: valp
     maximumPoolSize: 10
@@ -15,5 +15,5 @@ app:
     azure:
       issuer: http://localhost:8081/azure
       jwksUri: http://localhost:8081/azure/jwks
-      audience: mulighetsrommet-api
+      audience: mulighetsrommet-tiltakshisstorikk
       tokenEndpointUrl: http://localhost:8081/azure/token

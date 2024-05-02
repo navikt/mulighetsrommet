@@ -19,7 +19,7 @@ var databaseConfig: DatabaseConfig? = null
 
 fun createDatabaseTestConfig() =
     if (databaseConfig == null) {
-        databaseConfig = createDatabaseTestSchema("mulighetsrommet-api-db", 5442)
+        databaseConfig = createDatabaseTestSchema("mr-api")
         databaseConfig!!
     } else {
         databaseConfig!!
@@ -114,7 +114,10 @@ fun createKafkaConfig(): KafkaConfig {
             ),
             amtDeltakerV1 = KafkaTopicConsumer.Config(id = "amt-deltaker", topic = "amt-deltaker"),
             amtVirksomheterV1 = KafkaTopicConsumer.Config(id = "amt-virksomheter", topic = "amt-virksomheter"),
-            ptoSisteOppfolgingsperiodeV1 = KafkaTopicConsumer.Config(id = "pto-sisteoppfolgingsperiode", topic = "pto-sisteoppfolgingsperiode"),
+            ptoSisteOppfolgingsperiodeV1 = KafkaTopicConsumer.Config(
+                id = "pto-sisteoppfolgingsperiode",
+                topic = "pto-sisteoppfolgingsperiode",
+            ),
         ),
     )
 }

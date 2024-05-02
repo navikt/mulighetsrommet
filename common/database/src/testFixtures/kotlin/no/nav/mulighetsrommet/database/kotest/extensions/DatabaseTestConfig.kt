@@ -7,8 +7,8 @@ import java.time.format.DateTimeFormatter
 import java.util.*
 
 fun createDatabaseTestSchema(
-    name: String,
-    port: Int,
+    name: String = "valp",
+    port: Int = 5442,
     host: String = "localhost",
     user: String = "valp",
     password: Password = Password("valp"),

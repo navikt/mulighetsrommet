@@ -5,7 +5,7 @@ import io.kotest.matchers.shouldBe
 import io.ktor.client.request.*
 import io.ktor.http.*
 
-class AuthenticationTest : FunSpec({
+class ApplicationTest : FunSpec({
     context("liveness") {
         test("should respond with 200 OK") {
             withTestApplication {

@@ -13,5 +13,5 @@ include(
     "common:tasks",
     "mulighetsrommet-api",
     "mulighetsrommet-arena-adapter",
-    "mulighetsrommet-tiltakshistorikk"
+    "mulighetsrommet-tiltakshistorikk",
 )

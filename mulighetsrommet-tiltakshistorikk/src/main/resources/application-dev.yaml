@@ -5,7 +5,7 @@ server:
 app:
   database:
     host: ${DB_HOST}
-    port: ${DB_PORww}
+    port: ${DB_PORT}
     name: ${DB_DATABASE}
     user: ${DB_USERNAME}
     password: ${DB_PASSWORD}
