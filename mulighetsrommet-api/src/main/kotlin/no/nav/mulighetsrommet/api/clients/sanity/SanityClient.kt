@@ -31,7 +31,6 @@ class SanityClient(engine: HttpClientEngine = CIO.create(), val config: Config) 
         val apiVersion: String = "v2023-10-07",
         val token: String?,
         val useCdn: Boolean = true,
-        val maxRetries: Int = 0,
     ) {
         private fun baseUrl(perspective: SanityPerspective = SanityPerspective.PUBLISHED): String {
             val api = if (useCdn && perspective != SanityPerspective.PREVIEW_DRAFTS) "apicdn" else "api"
@@ -60,7 +59,7 @@ class SanityClient(engine: HttpClientEngine = CIO.create(), val config: Config) 
         install(ClientResponseMetricPlugin)
 
         install(HttpRequestRetry) {
-            retryOnServerErrors(maxRetries = config.maxRetries)
+            retryOnException(maxRetries = 3, retryOnTimeout = true)
             exponentialDelay()
             modifyRequest {
                 response?.let {
@@ -68,6 +67,10 @@ class SanityClient(engine: HttpClientEngine = CIO.create(), val config: Config) 
                 }
                 logger.info("Retrying request method=${request.method.value}, url=${request.url.buildString()}")
             }
+        }
+
+        install(HttpTimeout) {
+            requestTimeoutMillis = 5000
         }
 
         install(ContentNegotiation) {

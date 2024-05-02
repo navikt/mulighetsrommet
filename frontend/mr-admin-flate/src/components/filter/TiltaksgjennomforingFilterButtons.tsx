@@ -1,6 +1,6 @@
 import { Button } from "@navikt/ds-react";
 import { useSetAtom } from "jotai";
-import { Avtalestatus, Opphav } from "mulighetsrommet-api-client";
+import { Opphav } from "mulighetsrommet-api-client";
 import { Lenkeknapp } from "mulighetsrommet-frontend-common/components/lenkeknapp/Lenkeknapp";
 import { useState } from "react";
 import { gjennomforingDetaljerTabAtom } from "@/api/atoms";
@@ -24,7 +24,7 @@ export function TiltaksgjennomforingFilterButtons() {
   const avtaleErAftEllerVta = avtale?.tiltakstype?.arenaKode
     ? ["ARBFORB", "VASV"].includes(avtale?.tiltakstype?.arenaKode)
     : false;
-  const avtalenErAktiv = avtale?.avtalestatus === Avtalestatus.AKTIV;
+  const avtalenErAktiv = avtale?.status.name === "AKTIV";
 
   const kanOppretteTiltak =
     avtale?.tiltakstype?.arenaKode && migrerteTiltakstyper?.includes(avtale.tiltakstype.arenaKode);

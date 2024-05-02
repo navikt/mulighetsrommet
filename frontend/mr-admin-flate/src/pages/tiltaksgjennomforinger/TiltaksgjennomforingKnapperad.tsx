@@ -2,11 +2,7 @@ import React, { useRef } from "react";
 import { Button, Switch } from "@navikt/ds-react";
 import { useMutatePublisert } from "@/api/tiltaksgjennomforing/useMutatePublisert";
 import styles from "../DetaljerInfo.module.scss";
-import {
-  NavAnsatt,
-  Tiltaksgjennomforing,
-  TiltaksgjennomforingStatus,
-} from "mulighetsrommet-api-client";
+import { NavAnsatt, Tiltaksgjennomforing } from "mulighetsrommet-api-client";
 import { useTiltaksgjennomforingEndringshistorikk } from "@/api/tiltaksgjennomforing/useTiltaksgjennomforingEndringshistorikk";
 import { EndringshistorikkPopover } from "../../components/endringshistorikk/EndringshistorikkPopover";
 import { ViewEndringshistorikk } from "../../components/endringshistorikk/ViewEndringshistorikk";
@@ -28,10 +24,9 @@ export function TiltaksgjennomforingKnapperad({ bruker, tiltaksgjennomforing }: 
     mutate({ id: tiltaksgjennomforing.id, publisert: e.currentTarget.checked });
   }
 
-  const gjennomforingIsActive = [
-    TiltaksgjennomforingStatus.PLANLAGT,
-    TiltaksgjennomforingStatus.GJENNOMFORES,
-  ].includes(tiltaksgjennomforing.status);
+  const gjennomforingIsActive = ["PLANLAGT", "GJENNOMFORES"].includes(
+    tiltaksgjennomforing.status.name,
+  );
 
   return (
     <div className={styles.knapperad}>

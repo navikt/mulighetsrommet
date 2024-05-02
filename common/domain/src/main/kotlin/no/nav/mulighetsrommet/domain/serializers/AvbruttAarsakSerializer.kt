@@ -6,7 +6,7 @@ import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import no.nav.mulighetsrommet.domain.dto.AvbruttAarsak
 
-class AvbruttAarsakSerializer : KSerializer<AvbruttAarsak> {
+object AvbruttAarsakSerializer : KSerializer<AvbruttAarsak> {
     override val descriptor = String.serializer().descriptor
 
     override fun deserialize(decoder: Decoder): AvbruttAarsak {

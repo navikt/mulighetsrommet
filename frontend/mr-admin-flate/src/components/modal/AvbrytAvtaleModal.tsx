@@ -10,6 +10,7 @@ import { HarSkrivetilgang } from "../authActions/HarSkrivetilgang";
 import { AvbrytModalError } from "@/components/modal/AvbrytModalError";
 import { AvbrytModalAarsaker } from "@/components/modal/AvbrytModalAarsaker";
 import { useAktiveTiltaksgjennomforingerByAvtaleId } from "@/api/tiltaksgjennomforing/useAktiveTiltaksgjennomforingerByAvtaleId";
+import { avbrytAvtaleAarsakToString } from "@/utils/Utils";
 
 interface Props {
   modalRef: RefObject<HTMLDialogElement>;
@@ -46,19 +47,6 @@ export function AvbrytAvtaleModal({ modalRef, avtale }: Props) {
         id: avtale?.id,
         aarsak: aarsak === "annet" ? customAarsak : aarsak,
       });
-    }
-  };
-
-  const aarsakToString = (aarsak: AvbrytAvtaleAarsak): string => {
-    switch (aarsak) {
-      case AvbrytAvtaleAarsak.AVBRUTT_I_ARENA:
-        return "Avbrutt i Arena";
-      case AvbrytAvtaleAarsak.BUDSJETT_HENSYN:
-        return "Budsjetthensyn";
-      case AvbrytAvtaleAarsak.ENDRING_HOS_ARRANGOR:
-        return "Endring hos arrangør";
-      case AvbrytAvtaleAarsak.FEILREGISTRERING:
-        return "Feilregistrering";
     }
   };
 
@@ -103,7 +91,7 @@ export function AvbrytAvtaleModal({ modalRef, avtale }: Props) {
                   .filter((a) => a !== AvbrytAvtaleAarsak.AVBRUTT_I_ARENA)
                   .map((a) => (
                     <Radio key={`${a}`} value={a}>
-                      {aarsakToString(a)}
+                      {avbrytAvtaleAarsakToString(a)}
                     </Radio>
                   ))}
               </>

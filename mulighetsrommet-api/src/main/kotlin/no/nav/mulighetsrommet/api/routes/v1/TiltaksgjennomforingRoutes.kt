@@ -142,7 +142,7 @@ data class AdminTiltaksgjennomforingFilter(
     val search: String? = null,
     val navEnheter: List<String> = emptyList(),
     val tiltakstypeIder: List<UUID> = emptyList(),
-    val statuser: List<TiltaksgjennomforingStatus> = emptyList(),
+    val statuser: List<TiltaksgjennomforingStatus.Enum> = emptyList(),
     val sortering: String? = null,
     val avtaleId: UUID? = null,
     val arrangorIds: List<UUID> = emptyList(),
@@ -154,7 +154,7 @@ fun <T : Any> PipelineContext<T, ApplicationCall>.getAdminTiltaksgjennomforingsF
     val navEnheter = call.parameters.getAll("navEnheter") ?: emptyList()
     val tiltakstypeIder = call.parameters.getAll("tiltakstyper")?.map { UUID.fromString(it) } ?: emptyList()
     val statuser = call.parameters.getAll("statuser")
-        ?.map { TiltaksgjennomforingStatus.valueOf(it) }
+        ?.map { TiltaksgjennomforingStatus.Enum.valueOf(it) }
         ?: emptyList()
     val sortering = call.request.queryParameters["sort"]
     val avtaleId = call.request.queryParameters["avtaleId"]?.let { if (it.isEmpty()) null else UUID.fromString(it) }

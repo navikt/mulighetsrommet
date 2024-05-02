@@ -18,9 +18,9 @@ import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.Tiltakskoder
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
-import no.nav.mulighetsrommet.domain.dto.Avtalestatus
+import no.nav.mulighetsrommet.domain.dto.AvtaleStatus
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
-import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus.GJENNOMFORES
+import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus
 import java.time.LocalDate
 
 class TiltaksgjennomforingValidator(
@@ -157,7 +157,7 @@ class TiltaksgjennomforingValidator(
             )
         }
 
-        if (avtale.avtalestatus != Avtalestatus.AKTIV) {
+        if (avtale.status != AvtaleStatus.AKTIV) {
             add(
                 ValidationError.of(
                     TiltaksgjennomforingDbo::avtaleId,
@@ -190,7 +190,7 @@ class TiltaksgjennomforingValidator(
             )
         }
 
-        if (previous.status == GJENNOMFORES) {
+        if (previous.status is TiltaksgjennomforingStatus.GJENNOMFORES) {
             if (gjennomforing.avtaleId != previous.avtaleId) {
                 add(
                     ValidationError.of(

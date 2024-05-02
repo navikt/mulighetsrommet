@@ -7,6 +7,7 @@ import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.ArenaAvtaleDbo
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dto.*
+import no.nav.mulighetsrommet.domain.serializers.AvtaleStatusSerializer
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import java.time.LocalDate
@@ -28,7 +29,8 @@ data class AvtaleAdminDto(
     val sluttDato: LocalDate?,
     val arenaAnsvarligEnhet: ArenaNavEnhet?,
     val avtaletype: Avtaletype,
-    val avtalestatus: Avtalestatus,
+    @Serializable(with = AvtaleStatusSerializer::class)
+    val status: AvtaleStatus,
     val prisbetingelser: String?,
     val administratorer: List<Administrator>,
     val antallPlasser: Int?,
@@ -110,10 +112,10 @@ data class AvtaleAdminDto(
             sluttDato = sluttDato,
             arenaAnsvarligEnhet = arenaAnsvarligEnhet?.enhetsnummer,
             avtaletype = avtaletype,
-            avslutningsstatus = when (avtalestatus) {
-                Avtalestatus.AKTIV -> Avslutningsstatus.IKKE_AVSLUTTET
-                Avtalestatus.AVBRUTT -> Avslutningsstatus.AVBRUTT
-                Avtalestatus.AVSLUTTET -> Avslutningsstatus.AVSLUTTET
+            avslutningsstatus = when (status) {
+                is AvtaleStatus.AKTIV -> Avslutningsstatus.IKKE_AVSLUTTET
+                is AvtaleStatus.AVBRUTT -> Avslutningsstatus.AVBRUTT
+                is AvtaleStatus.AVSLUTTET -> Avslutningsstatus.AVSLUTTET
             },
             prisbetingelser = prisbetingelser,
         )

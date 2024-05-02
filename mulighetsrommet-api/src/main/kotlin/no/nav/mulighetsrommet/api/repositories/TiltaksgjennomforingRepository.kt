@@ -399,7 +399,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         search: String? = null,
         navEnheter: List<String> = emptyList(),
         tiltakstypeIder: List<UUID> = emptyList(),
-        statuser: List<TiltaksgjennomforingStatus> = emptyList(),
+        statuser: List<TiltaksgjennomforingStatus.Enum> = emptyList(),
         sortering: String? = null,
         sluttDatoGreaterThanOrEqualTo: LocalDate? = null,
         avtaleId: UUID? = null,
@@ -790,13 +790,17 @@ class TiltaksgjennomforingRepository(private val db: Database) {
 
         val startDato = localDate("start_dato")
         val sluttDato = localDateOrNull("slutt_dato")
+
+        val avbruttTidspunkt = localDateTimeOrNull("avbrutt_tidspunkt")
+        val avbruttAarsak = stringOrNull("avbrutt_aarsak")?.let { AvbruttAarsak.fromString(it) }
+
         return TiltaksgjennomforingAdminDto(
             id = uuid("id"),
             navn = string("navn"),
             tiltaksnummer = stringOrNull("tiltaksnummer"),
             startDato = startDato,
             sluttDato = sluttDato,
-            status = TiltaksgjennomforingStatus.valueOf(string("status")),
+            status = TiltaksgjennomforingStatus.fromString(string("status"), avbruttTidspunkt, avbruttAarsak),
             apentForInnsok = boolean("apent_for_innsok"),
             sanityId = uuidOrNull("sanity_id"),
             antallPlasser = intOrNull("antall_plasser"),

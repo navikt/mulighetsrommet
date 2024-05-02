@@ -78,7 +78,7 @@ export function AvtalePage() {
             </Heading>
             <ShowOpphavValue value={avtale.opphav} />
           </VStack>
-          <AvtalestatusTag avtale={avtale} />
+          <AvtalestatusTag avtale={avtale} showAvbruttAarsak />
           <DupliserAvtale avtale={avtale} />
         </div>
       </Header>

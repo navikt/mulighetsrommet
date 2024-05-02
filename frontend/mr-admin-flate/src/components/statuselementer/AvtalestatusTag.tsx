@@ -1,33 +1,51 @@
 import { Tag } from "@navikt/ds-react";
-import { Avtale, Avtalestatus } from "mulighetsrommet-api-client";
+import { Avtale } from "mulighetsrommet-api-client";
+import { useState } from "react";
+import { avbrytAvtaleAarsakToString } from "@/utils/Utils";
 
 interface Props {
   avtale: Avtale;
+  showAvbruttAarsak?: boolean;
 }
 
-export function AvtalestatusTag({ avtale }: Props) {
-  const { avtalestatus } = avtale;
+export function AvtalestatusTag({ avtale, showAvbruttAarsak = false }: Props) {
+  const { status } = avtale;
+  const [expandLabel, setExpandLabel] = useState<boolean>(false);
 
-  const variant = (status: Avtalestatus) => {
-    switch (status) {
-      case Avtalestatus.AKTIV:
+  function variant() {
+    switch (status.name) {
+      case "AKTIV":
         return "success";
-      case Avtalestatus.AVSLUTTET:
+      case "AVSLUTTET":
         return "neutral";
-      case Avtalestatus.AVBRUTT:
+      case "AVBRUTT":
         return "error";
     }
-  };
+  }
+
+  function labelText(): string {
+    if (status.name === "AVBRUTT" && showAvbruttAarsak) {
+      return `${status.name} - ${avbrytAvtaleAarsakToString(status.aarsak)}`;
+    }
+
+    return status.name;
+  }
+
+  const label = labelText();
+  const slicedLabel = label.length > 30 ? label.slice(0, 27) + "..." : label;
 
   return (
-    <>
-      <Tag
-        size="small"
-        aria-label={`Avtalestatus: ${avtalestatus}`}
-        variant={variant(avtalestatus)}
-      >
-        {avtalestatus}
-      </Tag>
-    </>
+    <Tag
+      style={{
+        maxWidth: "400px",
+      }}
+      size="small"
+      onMouseEnter={() => setExpandLabel(true)}
+      onMouseLeave={() => setExpandLabel(false)}
+      aria-label={`Avtalestatus: ${status.name}`}
+      variant={variant()}
+    >
+      {expandLabel ? label : slicedLabel}
+    </Tag>
   );
 }

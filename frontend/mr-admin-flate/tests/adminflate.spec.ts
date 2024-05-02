@@ -17,7 +17,7 @@ const sjekkUU = async (page: Page, waitForTestid: string) => {
 
 test.describe("Smoketest og UU", () => {
   test("Adminflate forside", async ({ page }) => {
-    await expect(page).toHaveTitle(/Mulighetsrommet - Admin-flate/);
+    await expect(page).toHaveTitle(/NAV Arbeidsmarkedstiltak/);
     await sjekkUU(page, "heading");
   });
 

@@ -1,4 +1,4 @@
-import { Avtale, Avtalestatus, Avtaletype, Opphav } from "mulighetsrommet-api-client";
+import { Avtale, Avtaletype, Opphav } from "mulighetsrommet-api-client";
 import { mockEnheter } from "./mock_enheter";
 import { mockTiltakstyper } from "./mock_tiltakstyper";
 import { mockArrangorer } from "./mock_arrangorer";
@@ -41,7 +41,7 @@ export const mockAvtaler: Avtale[] = [
     startDato: "2021-08-02",
     sluttDato: "2026-08-01",
     avtaletype: Avtaletype.FORHAANDSGODKJENT,
-    avtalestatus: Avtalestatus.AKTIV,
+    status: { name: "AKTIV" },
     arenaAnsvarligEnhet: mockEnheter._0300,
     prisbetingelser: `Nye priser fra 21.03.23, gamle priser i parentes
 
@@ -90,7 +90,12 @@ export const mockAvtaler: Avtale[] = [
     startDato: "2021-08-02",
     sluttDato: "2026-08-01",
     avtaletype: Avtaletype.RAMMEAVTALE,
-    avtalestatus: Avtalestatus.AKTIV,
+    status: {
+      name: "AVBRUTT",
+      aarsak:
+        "Denne avtalen ble avbrutt pga av noe som ikke var listen opp i listen over mulige årsaker.",
+      tidspunkt: "2020-03-04T12:00:00",
+    },
     arenaAnsvarligEnhet: mockEnheter._0400,
     prisbetingelser: "Maskert prisbetingelser",
     kontorstruktur: [
@@ -126,7 +131,7 @@ export const mockAvtaler: Avtale[] = [
     startDato: "2020-07-01",
     sluttDato: "2024-06-30",
     avtaletype: Avtaletype.RAMMEAVTALE,
-    avtalestatus: Avtalestatus.AKTIV,
+    status: { name: "AKTIV" },
     arenaAnsvarligEnhet: mockEnheter._0313,
     prisbetingelser: "Maskert prisbetingelser",
     kontorstruktur: [
@@ -169,7 +174,7 @@ for (let i = 0; i < x; i++) {
     startDato: "2020-07-01",
     sluttDato: "2024-06-30",
     avtaletype: Avtaletype.RAMMEAVTALE,
-    avtalestatus: Avtalestatus.AKTIV,
+    status: { name: "AKTIV" },
     arenaAnsvarligEnhet: mockEnheter._0313,
     prisbetingelser: "Maskert prisbetingelser",
     kontorstruktur: [

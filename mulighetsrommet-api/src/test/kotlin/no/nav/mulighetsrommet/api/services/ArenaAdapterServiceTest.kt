@@ -364,19 +364,19 @@ class ArenaAdapterServiceTest : FunSpec({
             )
             service.upsertTiltaksgjennomforing(arenaGjennomforing)
             // Verifiser status utledet fra datoer og ikke avslutningsstatus
-            gjennomforinger.get(arenaGjennomforing.id)?.status shouldBe TiltaksgjennomforingStatus.AVSLUTTET
+            gjennomforinger.get(arenaGjennomforing.id)?.status?.enum shouldBe TiltaksgjennomforingStatus.Enum.AVSLUTTET
 
             // Verifiser at avbrutt_tidspunkt blir lagret
             service.upsertTiltaksgjennomforing(arenaGjennomforing.copy(avslutningsstatus = Avslutningsstatus.AVBRUTT))
-            gjennomforinger.get(arenaGjennomforing.id)?.status shouldBe TiltaksgjennomforingStatus.AVBRUTT
+            gjennomforinger.get(arenaGjennomforing.id)?.status?.enum shouldBe TiltaksgjennomforingStatus.Enum.AVBRUTT
 
             // Verifiser at man kan endre statusen
             service.upsertTiltaksgjennomforing(arenaGjennomforing.copy(avslutningsstatus = Avslutningsstatus.AVLYST))
-            gjennomforinger.get(arenaGjennomforing.id)?.status shouldBe TiltaksgjennomforingStatus.AVLYST
+            gjennomforinger.get(arenaGjennomforing.id)?.status?.enum shouldBe TiltaksgjennomforingStatus.Enum.AVLYST
 
             // Verifiser at man kan endre statusen
             service.upsertTiltaksgjennomforing(arenaGjennomforing.copy(avslutningsstatus = Avslutningsstatus.AVSLUTTET))
-            gjennomforinger.get(arenaGjennomforing.id)?.status shouldBe TiltaksgjennomforingStatus.AVSLUTTET
+            gjennomforinger.get(arenaGjennomforing.id)?.status?.enum shouldBe TiltaksgjennomforingStatus.Enum.AVSLUTTET
         }
 
         test("skal bare oppdatere arena-felter når tiltakstype har endret eierskap") {
@@ -819,7 +819,7 @@ private fun toTiltaksgjennomforingDto(dbo: ArenaTiltaksgjennomforingDbo, tiltaks
         navn = navn,
         startDato = startDato,
         sluttDato = sluttDato,
-        status = TiltaksgjennomforingStatus.GJENNOMFORES,
+        status = TiltaksgjennomforingStatus.Enum.GJENNOMFORES,
         oppstart = TiltaksgjennomforingOppstartstype.LOPENDE,
         virksomhetsnummer = arrangorOrganisasjonsnummer,
         tilgjengeligForArrangorFraOgMedDato = null,

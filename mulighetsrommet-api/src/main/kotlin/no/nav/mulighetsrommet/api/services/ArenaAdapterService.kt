@@ -32,7 +32,7 @@ import no.nav.mulighetsrommet.domain.dbo.ArenaAvtaleDbo
 import no.nav.mulighetsrommet.domain.dbo.ArenaTiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.dbo.ArenaTiltakshistorikkDbo
 import no.nav.mulighetsrommet.domain.dbo.DeltakerDbo
-import no.nav.mulighetsrommet.domain.dto.Avtalestatus
+import no.nav.mulighetsrommet.domain.dto.AvtaleStatus
 import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.kafka.producers.TiltaksgjennomforingKafkaProducer
 import no.nav.mulighetsrommet.notifications.NotificationMetadata
@@ -80,7 +80,7 @@ class ArenaAdapterService(
             next
         }
 
-        if (dto.avtalestatus == Avtalestatus.AKTIV && dto.administratorer.isEmpty()) {
+        if (dto.status == AvtaleStatus.AKTIV && dto.administratorer.isEmpty()) {
             maybeNotifyRelevantAdministrators(dto)
         }
 

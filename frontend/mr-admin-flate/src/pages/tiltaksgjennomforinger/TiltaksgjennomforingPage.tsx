@@ -91,7 +91,10 @@ export function TiltaksgjennomforingPage() {
               </Heading>
               <ShowOpphavValue value={tiltaksgjennomforing?.opphav} />
             </VStack>
-            <TiltaksgjennomforingstatusTag tiltaksgjennomforing={tiltaksgjennomforing} />
+            <TiltaksgjennomforingstatusTag
+              tiltaksgjennomforing={tiltaksgjennomforing}
+              showAvbruttAarsak
+            />
             <DupliserTiltak tiltaksgjennomforing={tiltaksgjennomforing} />
           </div>
           {tiltaksgjennomforing?.id && (
