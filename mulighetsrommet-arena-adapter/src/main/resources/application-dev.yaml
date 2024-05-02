@@ -10,8 +10,6 @@ app:
     user: ${DB_USERNAME}
     password: ${DB_PASSWORD}
     maximumPoolSize: 10
-    migrationConfig:
-      strategy: Migrate
 
   services:
     mulighetsrommetApi:
