@@ -1,0 +1,93 @@
+name: CI/CD (mr-tiltakshistorikk)
+
+on:
+  push:
+    paths:
+      - .github/workflows/mr-tiltakshistorikk.yaml
+      - docker-compose.yaml
+      - build.gradle.kts
+      - settings.gradle.kts
+      - gradle.properties
+      - gradle/libs.versions.toml
+      - common/**
+      - mulighetsrommet-tiltakshistorikk/**
+  workflow_dispatch:
+    inputs:
+      environment:
+        type: choice
+        description: Environment
+        required: true
+        default: dev
+        options:
+          - dev
+          - dev_and_prod
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CI: true
+  TZ: Europe/Amsterdam
+
+jobs:
+  ci:
+    name: CI
+    runs-on:
+      labels: ubuntu-latest-8-cores
+    permissions:
+      id-token: write # Needed for `nais/docker-build-push`
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup backend
+        uses: ./.github/actions/setup-backend
+      - name: Build with Gradle
+        run: ./gradlew :mulighetsrommet-tiltakshistorikk:build
+      - name: Build and push Docker image
+        uses: nais/docker-build-push@v0
+        id: docker-build-push
+        if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch'
+        with:
+          team: team-mulighetsrommet
+          identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
+          project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
+          dockerfile: ./mulighetsrommet-tiltakshistorikk/Dockerfile
+          docker_context: mulighetsrommet-tiltakshistorikk
+          image_suffix: mulighetsrommet-tiltakshistorikk
+    outputs:
+      image: ${{ steps.docker-build-push.outputs.image }}
+
+  deploy-dev:
+    name: Deploy (dev)
+    runs-on: ubuntu-latest
+    needs: [ci]
+    if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch'
+    permissions:
+      id-token: write # Needed for `nais/deploy/actions/deploy`
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Deploy
+        uses: nais/deploy/actions/deploy@v2
+        env:
+          CLUSTER: dev-gcp
+          RESOURCE: mulighetsrommet-tiltakshistorikk/.nais/nais-dev.yaml
+          VAR: image=${{ needs.ci.outputs.image }}
+
+  deploy-prod:
+    name: Deploy (prod)
+    runs-on: ubuntu-latest
+    needs: [ci, deploy-dev]
+    if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'dev_and_prod'
+    permissions:
+      id-token: write # Needed for `nais/deploy/actions/deploy`
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Deploy
+        uses: nais/deploy/actions/deploy@v2
+        env:
+          CLUSTER: prod-gcp
+          RESOURCE: mulighetsrommet-tiltakshistorikk/.nais/nais-prod.yaml
+          VAR: image=${{ needs.ci.outputs.image }}
