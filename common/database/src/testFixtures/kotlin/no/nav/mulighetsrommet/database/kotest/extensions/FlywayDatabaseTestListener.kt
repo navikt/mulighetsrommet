@@ -7,7 +7,7 @@ import io.kotest.core.spec.Spec
 import io.kotest.core.test.TestCase
 import io.kotest.core.test.TestCaseOrder
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.database.DatabaseAdapter
+import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.database.FlywayMigrationManager
 import org.assertj.db.api.Assertions
@@ -18,14 +18,14 @@ class FlywayDatabaseTestListener(private val config: DatabaseConfig) :
     BeforeSpecListener,
     AfterSpecListener,
     BeforeEachListener {
-    private var delegate: DatabaseAdapter? = null
+    private var delegate: Database? = null
 
     private val beforeEachFlywayMigration: FlywayMigrationManager = FlywayMigrationManager(
         config = FlywayMigrationManager.MigrationConfig(cleanDisabled = false),
         slackNotifier = null,
     )
 
-    val db: DatabaseAdapter
+    val db: Database
         get() {
             return delegate ?: throw RuntimeException("Database has not yet been initialized")
         }
@@ -35,7 +35,7 @@ class FlywayDatabaseTestListener(private val config: DatabaseConfig) :
         // instance they can't be run in parallel
         spec.testOrder = TestCaseOrder.Sequential
 
-        delegate = DatabaseAdapter(config)
+        delegate = Database(config)
     }
 
     override suspend fun afterSpec(spec: Spec) {
@@ -55,7 +55,7 @@ class FlywayDatabaseTestListener(private val config: DatabaseConfig) :
     }
 }
 
-fun DatabaseAdapter.truncateAll() {
+fun Database.truncateAll() {
     val tableNames =
         queryOf("SELECT table_name FROM information_schema.tables WHERE table_schema='${config.schema}' AND table_type='BASE TABLE'")
             .map { it.string("table_name") }

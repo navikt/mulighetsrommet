@@ -32,9 +32,7 @@ import no.nav.mulighetsrommet.api.services.*
 import no.nav.mulighetsrommet.api.tasks.*
 import no.nav.mulighetsrommet.api.tiltaksgjennomforinger.TiltaksgjennomforingValidator
 import no.nav.mulighetsrommet.database.Database
-import no.nav.mulighetsrommet.database.DatabaseAdapter
 import no.nav.mulighetsrommet.database.DatabaseConfig
-import no.nav.mulighetsrommet.database.FlywayMigrationManager
 import no.nav.mulighetsrommet.env.NaisEnv
 import no.nav.mulighetsrommet.kafka.KafkaConsumerOrchestrator
 import no.nav.mulighetsrommet.kafka.KafkaConsumerRepositoryImpl
@@ -71,7 +69,7 @@ fun Application.configureDependencyInjection(appConfig: AppConfig) {
         SLF4JLogger()
 
         modules(
-            db(appConfig.database, appConfig.flyway),
+            db(appConfig.database),
             kafka(appConfig),
             repositories(),
             services(appConfig),
@@ -89,14 +87,9 @@ fun slack(slack: SlackConfig): Module {
     }
 }
 
-private fun db(config: DatabaseConfig, migrationConfig: FlywayMigrationManager.MigrationConfig) = module {
+private fun db(config: DatabaseConfig) = module {
     single<Database>(createdAtStart = true) {
-        val database = DatabaseAdapter(config)
-
-        val flyway = FlywayMigrationManager(migrationConfig)
-        flyway.migrate(database)
-
-        database
+        Database(config)
     }
 }
 

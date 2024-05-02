@@ -20,9 +20,7 @@ import no.nav.mulighetsrommet.arena.adapter.tasks.NotifyFailedEvents
 import no.nav.mulighetsrommet.arena.adapter.tasks.ReplayEvents
 import no.nav.mulighetsrommet.arena.adapter.tasks.RetryFailedEvents
 import no.nav.mulighetsrommet.database.Database
-import no.nav.mulighetsrommet.database.DatabaseAdapter
 import no.nav.mulighetsrommet.database.DatabaseConfig
-import no.nav.mulighetsrommet.database.FlywayMigrationManager
 import no.nav.mulighetsrommet.env.NaisEnv
 import no.nav.mulighetsrommet.kafka.KafkaConsumerOrchestrator
 import no.nav.mulighetsrommet.slack.SlackNotifier
@@ -43,7 +41,7 @@ fun Application.configureDependencyInjection(
     install(KoinIsolated) {
         SLF4JLogger()
         modules(
-            db(appConfig.database, appConfig.flyway),
+            db(appConfig.database),
             kafka(appConfig.kafka),
             repositories(),
             services(appConfig.services, tokenClient),
@@ -80,14 +78,9 @@ private fun tasks(tasks: TaskConfig) = module {
     }
 }
 
-private fun db(config: DatabaseConfig, migrationConfig: FlywayMigrationManager.MigrationConfig) = module {
+private fun db(config: DatabaseConfig) = module {
     single<Database>(createdAtStart = true) {
-        val database = DatabaseAdapter(config)
-
-        val flyway = FlywayMigrationManager(migrationConfig)
-        flyway.migrate(database)
-
-        database
+        Database(config)
     }
 }
 

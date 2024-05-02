@@ -32,7 +32,7 @@ class FlywayMigrationManager(
 
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    fun migrate(database: DatabaseAdapter) {
+    fun migrate(database: Database) {
         if (hasMigrated.get()) {
             return
         }
