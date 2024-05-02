@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api.domain.dto
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.*
 import no.nav.mulighetsrommet.domain.dto.Faneinnhold
+import no.nav.mulighetsrommet.domain.dto.Innsatsgruppe
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 
 @Serializable
@@ -14,20 +15,11 @@ data class RegelverkLenke(
 )
 
 @Serializable
-data class SanityInnsatsgruppe(
-    val _id: String,
-    val tittel: String,
-    val nokkel: String,
-    val beskrivelse: String,
-    val order: Int,
-)
-
-@Serializable
 data class SanityTiltakstype(
     val _id: String,
     val tiltakstypeNavn: String,
     val beskrivelse: String? = null,
-    val innsatsgruppe: SanityInnsatsgruppe? = null,
+    val innsatsgrupper: Set<Innsatsgruppe>? = null,
     val regelverkLenker: List<RegelverkLenke>? = null,
     val faneinnhold: Faneinnhold? = null,
     val delingMedBruker: String? = null,

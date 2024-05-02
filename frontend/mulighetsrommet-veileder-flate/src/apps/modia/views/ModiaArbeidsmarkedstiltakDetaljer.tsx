@@ -19,7 +19,6 @@ import { Alert, Button } from "@navikt/ds-react";
 import { useAtomValue } from "jotai";
 import {
   Bruker,
-  Innsatsgruppe,
   NavVeileder,
   TiltakskodeArena,
   Toggles,
@@ -28,8 +27,8 @@ import {
 import { useTitle } from "mulighetsrommet-frontend-common";
 import { LenkeListe } from "@/components/sidemeny/Lenker";
 import { ModiaRoute, resolveModiaRoute } from "@/apps/modia/ModiaRoute";
-import { PersonvernContainer } from "../../../components/personvern/PersonvernContainer";
-import { InlineErrorBoundary } from "../../../ErrorBoundary";
+import { PersonvernContainer } from "@/components/personvern/PersonvernContainer";
+import { InlineErrorBoundary } from "@/ErrorBoundary";
 
 export function ModiaArbeidsmarkedstiltakDetaljer() {
   const { fnr } = useModiaContext();
@@ -103,7 +102,6 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
         brukerdata={brukerdata}
         brukerHarRettPaaTiltak={brukerHarRettPaaValgtTiltak}
         brukerErUnderOppfolging={brukerdata.erUnderOppfolging}
-        tiltakstype={tiltakstype}
       />
       <ViewTiltaksgjennomforingDetaljer
         tiltaksgjennomforing={tiltaksgjennomforing}
@@ -221,21 +219,11 @@ function harBrukerRettPaaValgtTiltak(
   bruker: Bruker,
   tiltakstype: VeilederflateTiltakstype,
 ): boolean {
-  if (!bruker.erUnderOppfolging) {
+  if (!bruker.erUnderOppfolging || !bruker.innsatsgruppe) {
     return false;
   }
 
-  const innsatsgruppeForGjennomforing = tiltakstype.innsatsgruppe?.nokkel;
-
-  if (!innsatsgruppeForGjennomforing) {
-    return false;
-  }
-
-  const godkjenteInnsatsgrupper = bruker.innsatsgruppe
-    ? utledInnsatsgrupperFraInnsatsgruppe(bruker.innsatsgruppe)
-    : [];
-
-  return godkjenteInnsatsgrupper.includes(innsatsgruppeForGjennomforing);
+  return (tiltakstype.innsatsgrupper ?? []).includes(bruker.innsatsgruppe);
 }
 
 function tiltakstypeStotterPamelding(tiltakstype: VeilederflateTiltakstype): boolean {
@@ -249,28 +237,4 @@ function tiltakstypeStotterPamelding(tiltakstype: VeilederflateTiltakstype): boo
   return (
     !!tiltakstype.arenakode && whitelistTiltakstypeStotterPamelding.includes(tiltakstype.arenakode)
   );
-}
-
-function utledInnsatsgrupperFraInnsatsgruppe(innsatsgruppe: string): Innsatsgruppe[] {
-  switch (innsatsgruppe) {
-    case "STANDARD_INNSATS":
-      return [Innsatsgruppe.STANDARD_INNSATS];
-    case "SITUASJONSBESTEMT_INNSATS":
-      return [Innsatsgruppe.STANDARD_INNSATS, Innsatsgruppe.SITUASJONSBESTEMT_INNSATS];
-    case "SPESIELT_TILPASSET_INNSATS":
-      return [
-        Innsatsgruppe.STANDARD_INNSATS,
-        Innsatsgruppe.SITUASJONSBESTEMT_INNSATS,
-        Innsatsgruppe.SPESIELT_TILPASSET_INNSATS,
-      ];
-    case "VARIG_TILPASSET_INNSATS":
-      return [
-        Innsatsgruppe.STANDARD_INNSATS,
-        Innsatsgruppe.SITUASJONSBESTEMT_INNSATS,
-        Innsatsgruppe.SPESIELT_TILPASSET_INNSATS,
-        Innsatsgruppe.VARIG_TILPASSET_INNSATS,
-      ];
-    default:
-      return [];
-  }
 }

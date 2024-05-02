@@ -4,7 +4,7 @@ import { ApentForInnsok, NavEnhet } from "mulighetsrommet-api-client";
 import { useArbeidsmarkedstiltakFilter } from "@/hooks/useArbeidsmarkedstiltakFilter";
 import { FilterToggle } from "./FilterToggle";
 import styles from "./Filtermeny.module.scss";
-import InnsatsgruppeFilter from "./InnsatsgruppeFilter";
+import { InnsatsgruppeFilter } from "./InnsatsgruppeFilter";
 import Sokefelt from "./Sokefelt";
 import { Tiltakstypefilter } from "./Tiltakstypefilter";
 import { useAtom } from "jotai";

@@ -2,23 +2,30 @@ import { BodyShort, Box } from "@navikt/ds-react";
 import {
   TiltaksgjennomforingOppstartstype,
   TiltakskodeArena,
+  VeilederflateInnsatsgruppe,
   VeilederflateTiltaksgjennomforing,
   VeilederflateTiltakstype,
 } from "mulighetsrommet-api-client";
-import { formaterDato, utledLopenummerFraTiltaksnummer } from "../../utils/Utils";
+import { formaterDato, utledLopenummerFraTiltaksnummer } from "@/utils/Utils";
 import Kopiknapp from "../kopiknapp/Kopiknapp";
 import { EstimertVentetid } from "./EstimertVentetid";
 import Regelverksinfo from "./Regelverksinfo";
 import styles from "./Sidemenydetaljer.module.scss";
 
 interface Props {
+  innsatsgrupper: VeilederflateInnsatsgruppe[];
   tiltaksgjennomforing: VeilederflateTiltaksgjennomforing;
 }
 
-const SidemenyDetaljer = ({ tiltaksgjennomforing }: Props) => {
+const SidemenyDetaljer = ({ innsatsgrupper, tiltaksgjennomforing }: Props) => {
   const { tiltaksnummer, arrangor, tiltakstype, sluttdato, oppstartsdato, stedForGjennomforing } =
     tiltaksgjennomforing;
+
   const oppstart = resolveOppstart(tiltaksgjennomforing);
+
+  const minimumInnsatsgruppe = innsatsgrupper
+    .filter((innsatsgruppe) => (tiltakstype.innsatsgrupper ?? []).includes(innsatsgruppe.nokkel))
+    .reduce((prev, current) => (prev.order < current.order ? prev : current));
 
   const visDato = (
     tiltakstype: VeilederflateTiltakstype,
@@ -107,7 +114,7 @@ const SidemenyDetaljer = ({ tiltaksgjennomforing }: Props) => {
           <BodyShort title="Minimum krav innsatsgruppe" size="small" className={styles.tittel}>
             <abbr title="Minimum">Min</abbr>. innsatsgruppe
           </BodyShort>
-          <BodyShort size="small">{tiltakstype?.innsatsgruppe?.beskrivelse} </BodyShort>
+          <BodyShort size="small">{minimumInnsatsgruppe.tittel}</BodyShort>
         </div>
 
         {visDato(tiltakstype, oppstart, oppstartsdato, sluttdato)}

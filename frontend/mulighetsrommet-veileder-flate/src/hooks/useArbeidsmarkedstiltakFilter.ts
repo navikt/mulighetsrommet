@@ -1,7 +1,10 @@
 import { ApentForInnsok, Innsatsgruppe, NavEnhet } from "mulighetsrommet-api-client";
-import { atomWithStorage, createJSONStorage } from "jotai/utils";
+import {
+  atomWithStorage,
+  createJSONStorage,
+  unstable_withStorageValidator as withStorageValidator,
+} from "jotai/utils";
 import { useAtom, useAtomValue } from "jotai";
-import { unstable_withStorageValidator as withStorageValidator } from "jotai/utils";
 import { SyncStorage } from "jotai/vanilla/utils/atomWithStorage";
 import { useHentBrukerdata } from "@/apps/modia/hooks/useHentBrukerdata";
 import { brukersEnhetFilterHasChanged } from "@/apps/modia/delMedBruker/helpers";
@@ -10,15 +13,9 @@ import { z } from "zod";
 export interface ArbeidsmarkedstiltakFilter {
   search: string;
   navEnheter: NavEnhet[];
-  innsatsgruppe?: ArbeidsmarkedstiltakFilterGruppe<Innsatsgruppe>;
-  tiltakstyper: ArbeidsmarkedstiltakFilterGruppe<string>[];
+  innsatsgruppe?: { tittel: string; nokkel: Innsatsgruppe };
+  tiltakstyper: { id: string; tittel: string; nokkel?: string }[];
   apentForInnsok: ApentForInnsok;
-}
-
-export interface ArbeidsmarkedstiltakFilterGruppe<T> {
-  id: string;
-  tittel: string;
-  nokkel?: T;
 }
 
 export function useArbeidsmarkedstiltakFilter(): [

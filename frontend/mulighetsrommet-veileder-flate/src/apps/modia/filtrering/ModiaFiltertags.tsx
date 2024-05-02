@@ -1,8 +1,5 @@
 import { ApentForInnsok } from "mulighetsrommet-api-client";
-import {
-  ArbeidsmarkedstiltakFilterGruppe,
-  useArbeidsmarkedstiltakFilter,
-} from "@/hooks/useArbeidsmarkedstiltakFilter";
+import { useArbeidsmarkedstiltakFilter } from "@/hooks/useArbeidsmarkedstiltakFilter";
 import { FilterTag } from "mulighetsrommet-frontend-common/components/filter/filterTag/FilterTag";
 import { NavEnhetFilterTag } from "mulighetsrommet-frontend-common/components/filter/filterTag/NavEnhetFilterTag";
 import { FilterTagsContainer } from "mulighetsrommet-frontend-common/components/filter/filterTag/FilterTagsContainer";
@@ -40,9 +37,7 @@ export function ModiaFiltertags({ filterOpen, setTagsHeight }: Props) {
           onClose={() =>
             setFilter({
               ...filter,
-              tiltakstyper: filter.tiltakstyper?.filter(
-                (type: ArbeidsmarkedstiltakFilterGruppe<string>) => tiltakstype.id !== type.id,
-              ),
+              tiltakstyper: filter.tiltakstyper?.filter(({ id }) => tiltakstype.id !== id),
             })
           }
         />
