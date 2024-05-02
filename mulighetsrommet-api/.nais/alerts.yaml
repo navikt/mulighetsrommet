@@ -22,6 +22,17 @@ spec:
           labels:
             namespace: team-mulighetsrommet
             severity: critical
+        - alert: applikasjon klarte ikke starte
+          expr: kube_deployment_status_replicas_unavailable{deployment="mulighetsrommet-api"} > 0
+          for: 5m
+          annotations:
+            consequence: "mulighetsrommet-api havnet sannyneligvis i CrashLoopBackoff når den prøvde å start i namespace {{ $labels.namespace }}"
+            action: "`kubectl describe pod -l app={{ $labels.deployment }} -n {{ $labels.namespace }}` for events, og `kubectl logs -l app={{ $labels.deployment }} -n {{ $labels.namespace }}` for logger"
+            summary: |-
+              mulighetsrommet-api crashet ved startup og vil ikke ha nyeste versjon av koden. Dette bør fikses asap.
+          labels:
+            namespace: team-mulighetsrommet
+            severity: critical
     - name: Feilrate
       rules:
         - alert: "høy feilrate i logger for mulighetsrommet-api"
