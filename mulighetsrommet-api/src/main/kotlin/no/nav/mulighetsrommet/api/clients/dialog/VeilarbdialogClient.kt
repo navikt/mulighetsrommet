@@ -24,12 +24,11 @@ class VeilarbdialogClient(
     }
 
     suspend fun sendMeldingTilDialogen(
-        fnr: String,
         accessToken: String,
         requestBody: DialogRequest,
     ): DialogResponse? {
         return try {
-            val response = client.post("$baseUrl/dialog?fnr=$fnr") {
+            val response = client.post("$baseUrl/dialog") {
                 bearerAuth(tokenProvider.invoke(accessToken))
                 header(HttpHeaders.ContentType, ContentType.Application.Json)
                 setBody(requestBody)
@@ -42,7 +41,7 @@ class VeilarbdialogClient(
 
             return response.body<DialogResponse>()
         } catch (exe: Exception) {
-            SecureLog.logger.error("Klarte ikke sende melding til dialogen til bruker med fnr: $fnr", exe)
+            SecureLog.logger.error("Klarte ikke sende melding til dialogen til bruker med fnr: ${requestBody.fnr}", exe)
             log.error("Klarte ikke sende melding til dialogen. Se detaljer i secureLog.")
             null
         }

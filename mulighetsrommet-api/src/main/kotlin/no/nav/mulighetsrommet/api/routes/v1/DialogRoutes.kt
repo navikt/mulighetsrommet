@@ -31,7 +31,7 @@ fun Route.dialogRoutes() {
             poaoTilgangService.verifyAccessToUserFromVeileder(getNavAnsattAzureId(), norskIdent)
 
             val accessToken = call.getAccessToken()
-            val response = dialogService.sendMeldingTilDialogen(norskIdent, accessToken, request)
+            val response = dialogService.sendMeldingTilDialogen(accessToken, request.copy(fnr = norskIdent))
             response?.let {
                 val message = createAuditMessage(
                     msg = "NAV-ansatt med ident: '$navIdent' har delt informasjon om tiltaket '${request.overskrift}' til bruker med ident: '$norskIdent'.",
