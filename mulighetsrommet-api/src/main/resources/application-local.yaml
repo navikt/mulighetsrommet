@@ -10,11 +10,11 @@ app:
     user: valp
     password: valp
     maximumPoolSize: 10
-    migrationConfig:
-      # Kjører repeatable migrasjoner hver gang applikasjon startes
-      strategy: ForceClearRepeatableAndMigrate
-      # Kan benyttes når du må kjøre flyway repair lokalt
-      # strategy: RepairAndMigrate
+  flyway:
+    # Kjører repeatable migrasjoner hver gang applikasjon startes
+    strategy: ForceClearRepeatableAndMigrate
+    # Kan benyttes når du må kjøre flyway repair lokalt
+    # strategy: RepairAndMigrate
 
   migrerteTiltak:
     - AVKLARING

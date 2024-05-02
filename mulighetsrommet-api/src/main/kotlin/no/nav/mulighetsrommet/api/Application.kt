@@ -11,6 +11,7 @@ import no.nav.mulighetsrommet.api.routes.featuretoggles.featureTogglesRoute
 import no.nav.mulighetsrommet.api.routes.internal.maamRoutes
 import no.nav.mulighetsrommet.api.routes.v1.*
 import no.nav.mulighetsrommet.database.Database
+import no.nav.mulighetsrommet.database.FlywayMigrationManager
 import no.nav.mulighetsrommet.hoplite.loadConfiguration
 import no.nav.mulighetsrommet.kafka.KafkaConsumerOrchestrator
 import no.nav.mulighetsrommet.ktor.plugins.configureMonitoring
@@ -28,7 +29,6 @@ fun main() {
 
 fun Application.configure(config: AppConfig) {
     val db by inject<Database>()
-    val kafka: KafkaConsumerOrchestrator by inject()
 
     configureDependencyInjection(config)
     configureAuthentication(config.auth)
@@ -38,6 +38,8 @@ fun Application.configure(config: AppConfig) {
     configureMonitoring({ db.isHealthy() })
     configureSerialization()
     configureStatusPagesForStatusException()
+
+    FlywayMigrationManager(config.flyway).migrate(db)
 
     routing {
         authenticate(AuthProvider.AZURE_AD_TEAM_MULIGHETSROMMET.name) {
@@ -73,6 +75,8 @@ fun Application.configure(config: AppConfig) {
         swaggerUI(path = "/swagger-ui/internal", swaggerFile = "web/openapi.yaml")
         swaggerUI(path = "/swagger-ui/external", swaggerFile = "web/openapi-external.yaml")
     }
+
+    val kafka: KafkaConsumerOrchestrator by inject()
 
     val scheduler: Scheduler by inject()
 

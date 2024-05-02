@@ -32,7 +32,7 @@ import no.nav.mulighetsrommet.api.services.*
 import no.nav.mulighetsrommet.api.tasks.*
 import no.nav.mulighetsrommet.api.tiltaksgjennomforinger.TiltaksgjennomforingValidator
 import no.nav.mulighetsrommet.database.Database
-import no.nav.mulighetsrommet.database.FlywayDatabaseAdapter
+import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.env.NaisEnv
 import no.nav.mulighetsrommet.kafka.KafkaConsumerOrchestrator
 import no.nav.mulighetsrommet.kafka.KafkaConsumerRepositoryImpl
@@ -87,11 +87,9 @@ fun slack(slack: SlackConfig): Module {
     }
 }
 
-private fun db(config: FlywayDatabaseAdapter.Config): Module {
-    return module(createdAtStart = true) {
-        single<Database> {
-            FlywayDatabaseAdapter(config, get())
-        }
+private fun db(config: DatabaseConfig) = module {
+    single<Database>(createdAtStart = true) {
+        Database(config)
     }
 }
 
