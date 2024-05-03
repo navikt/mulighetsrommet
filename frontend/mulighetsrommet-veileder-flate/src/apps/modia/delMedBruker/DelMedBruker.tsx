@@ -67,13 +67,12 @@ export const DelMedBruker = ({
       </Button>
 
       <Delemodal
-        brukernavn={bruker.fornavn}
         veiledernavn={veiledernavn}
         tiltaksgjennomforing={tiltaksgjennomforing}
         harDeltMedBruker={delMedBrukerInfo}
         dispatch={dispatch}
         state={state}
-        brukerdata={bruker}
+        bruker={bruker}
         lagreVeilederHarDeltTiltakMedBruker={lagreVeilederHarDeltTiltakMedBruker}
       />
     </>
