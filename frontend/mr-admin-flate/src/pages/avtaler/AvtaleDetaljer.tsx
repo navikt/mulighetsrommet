@@ -3,7 +3,7 @@ import { Fragment, useRef } from "react";
 import { Laster } from "@/components/laster/Laster";
 import { Alert, Button, Heading, HelpText, VStack } from "@navikt/ds-react";
 import { ExternalLinkIcon } from "@navikt/aksel-icons";
-import { Avtalestatus, NavEnhet, Opphav } from "mulighetsrommet-api-client";
+import { NavEnhet, Opphav } from "mulighetsrommet-api-client";
 import { Bolk } from "@/components/detaljside/Bolk";
 import { Metadata, Separator } from "@/components/detaljside/Metadata";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
@@ -243,7 +243,7 @@ export function AvtaleDetaljer() {
       </div>
       <Separator />
       <HarSkrivetilgang ressurs="Avtale">
-        {avtale && avtale.avtalestatus === Avtalestatus.AKTIV && (
+        {avtale && avtale.status.name === "AKTIV" && (
           <Button
             size="small"
             variant="danger"

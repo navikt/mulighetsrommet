@@ -4,7 +4,6 @@ import {
   PaginertTiltaksgjennomforing,
   Tiltaksgjennomforing,
   TiltaksgjennomforingOppstartstype,
-  TiltaksgjennomforingStatus,
 } from "mulighetsrommet-api-client";
 import { mockTiltakstyper } from "./mock_tiltakstyper";
 import { mockEnheter } from "./mock_enheter";
@@ -42,7 +41,7 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     deltidsprosent: 100,
     arenaAnsvarligEnhet: mockEnheter._0313,
     navEnheter: [mockEnheter._0313, mockEnheter._0315, mockEnheter._0330],
-    status: TiltaksgjennomforingStatus.GJENNOMFORES,
+    status: { name: "GJENNOMFORES" },
     oppstart: TiltaksgjennomforingOppstartstype.LOPENDE,
     opphav: Opphav.MR_ADMIN_FLATE,
     apentForInnsok: false,
@@ -104,7 +103,12 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     arenaAnsvarligEnhet: mockEnheter._0313,
     administratorer: [],
     navEnheter: [],
-    status: TiltaksgjennomforingStatus.AVLYST,
+    status: {
+      name: "AVLYST",
+      aarsak:
+        "Denne gjennomføringen ble avbrutt pga av noe som ikke var listen opp i listen over mulige årsaker.",
+      tidspunkt: "2020-03-04T12:00:00",
+    },
     oppstart: TiltaksgjennomforingOppstartstype.LOPENDE,
     opphav: Opphav.MR_ADMIN_FLATE,
     apentForInnsok: true,
@@ -130,7 +134,7 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     arenaAnsvarligEnhet: mockEnheter._0313,
     administratorer: [],
     navEnheter: [],
-    status: TiltaksgjennomforingStatus.GJENNOMFORES,
+    status: { name: "GJENNOMFORES" },
     oppstart: TiltaksgjennomforingOppstartstype.LOPENDE,
     opphav: Opphav.MR_ADMIN_FLATE,
     apentForInnsok: true,
@@ -171,7 +175,7 @@ for (let i = 0; i < x; i++) {
     arenaAnsvarligEnhet: mockEnheter._0313,
     administratorer: [],
     navEnheter: [],
-    status: TiltaksgjennomforingStatus.GJENNOMFORES,
+    status: { name: "GJENNOMFORES" },
     oppstart: TiltaksgjennomforingOppstartstype.LOPENDE,
     opphav: Opphav.MR_ADMIN_FLATE,
     apentForInnsok: true,

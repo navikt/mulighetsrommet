@@ -56,7 +56,7 @@ const AvtaleSkjemaPage = () => {
         <Heading size="large" level="2">
           {redigeringsModus ? "Rediger avtale" : "Opprett ny avtale"}
         </Heading>
-        {avtale ? <AvtalestatusTag avtale={avtale} /> : null}
+        {avtale ? <AvtalestatusTag avtale={avtale} showAvbruttAarsak /> : null}
       </Header>
 
       <ContainerLayout>

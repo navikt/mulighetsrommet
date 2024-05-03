@@ -39,7 +39,7 @@ import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.repositories.NavAnsattRepository
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
-import no.nav.mulighetsrommet.domain.dto.Avtalestatus
+import no.nav.mulighetsrommet.domain.dto.AvtaleStatus
 import no.nav.mulighetsrommet.domain.dto.Lopenummer
 import no.nav.mulighetsrommet.ktor.respondJson
 import no.nav.mulighetsrommet.notifications.NotificationService
@@ -397,7 +397,7 @@ class NavAnsattServiceTest : FunSpec({
                 personvernBekreftet = AvtaleFixtures.AFT.personvernBekreftet,
                 arenaAnsvarligEnhet = null,
                 opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
-                avtalestatus = Avtalestatus.AKTIV,
+                status = AvtaleStatus.AKTIV,
                 lopenummer = Lopenummer(value = "2024/1"),
                 administratorer = emptyList(), // eneste verdien som er relevant her
                 kontorstruktur = emptyList(),

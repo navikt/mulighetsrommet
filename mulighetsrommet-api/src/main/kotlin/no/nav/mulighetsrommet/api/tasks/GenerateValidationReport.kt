@@ -148,7 +148,7 @@ class GenerateValidationReport(
         var rowNumber = 1
         result.forEach { (dto, errors) ->
             errors.forEach { error ->
-                createRow(workSheet, rowNumber++, dto.id, dto.navn, dto.opphav.name, dto.avtalestatus.name, error)
+                createRow(workSheet, rowNumber++, dto.id, dto.navn, dto.opphav.name, dto.status.enum.name, error)
             }
         }
     }
@@ -178,7 +178,7 @@ class GenerateValidationReport(
         var rowNumber = 1
         result.forEach { (dto, errors) ->
             errors.forEach { error ->
-                createRow(workSheet, rowNumber++, dto.id, dto.navn, dto.opphav.name, dto.status.name, error)
+                createRow(workSheet, rowNumber++, dto.id, dto.navn, dto.opphav.name, dto.status.enum.name, error)
             }
         }
     }

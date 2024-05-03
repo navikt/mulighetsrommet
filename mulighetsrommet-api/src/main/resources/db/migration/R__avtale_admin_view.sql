@@ -59,7 +59,8 @@ select avtale.id,
            jsonb_agg(avtale_personopplysning.personopplysning)
            filter (WHERE avtale_personopplysning.avtale_id IS NOT NULL), '[]'
        ) as personopplysninger,
-       avtale.personvern_bekreftet
+       avtale.personvern_bekreftet,
+       avtale.avbrutt_aarsak
 from avtale
          join tiltakstype on tiltakstype.id = avtale.tiltakstype_id
          left join avtale_administrator on avtale.id = avtale_administrator.avtale_id

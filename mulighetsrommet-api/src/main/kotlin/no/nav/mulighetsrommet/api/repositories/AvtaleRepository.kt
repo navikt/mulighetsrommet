@@ -312,7 +312,7 @@ class AvtaleRepository(private val db: Database) {
         pagination: Pagination = Pagination.all(),
         tiltakstypeIder: List<UUID> = emptyList(),
         search: String? = null,
-        statuser: List<Avtalestatus> = emptyList(),
+        statuser: List<AvtaleStatus.Enum> = emptyList(),
         avtaletyper: List<Avtaletype> = emptyList(),
         navRegioner: List<String> = emptyList(),
         sortering: String? = null,
@@ -520,6 +520,9 @@ class AvtaleRepository(private val db: Database) {
                 Kontorstruktur(region = region, kontorer = kontorer)
             }
 
+        val avbruttTidspunkt = localDateTimeOrNull("avbrutt_tidspunkt")
+        val avbruttAarsak = stringOrNull("avbrutt_aarsak")?.let { AvbruttAarsak.fromString(it) }
+
         return AvtaleAdminDto(
             id = uuid("id"),
             navn = string("navn"),
@@ -530,7 +533,7 @@ class AvtaleRepository(private val db: Database) {
             sluttDato = sluttDato,
             opphav = ArenaMigrering.Opphav.valueOf(string("opphav")),
             avtaletype = Avtaletype.valueOf(string("avtaletype")),
-            avtalestatus = Avtalestatus.valueOf(string("status")),
+            status = AvtaleStatus.fromString(string("status"), avbruttTidspunkt, avbruttAarsak),
             prisbetingelser = stringOrNull("prisbetingelser"),
             antallPlasser = intOrNull("antall_plasser"),
             beskrivelse = stringOrNull("beskrivelse"),

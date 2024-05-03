@@ -150,19 +150,19 @@ class AvtaleService(
             return Either.Left(BadRequest(message = "Avtalen har opprinnelse fra Arena og kan ikke bli avbrutt fra admin-flate."))
         }
 
-        if (avtale.avtalestatus != Avtalestatus.AKTIV) {
+        if (avtale.status != AvtaleStatus.AKTIV) {
             return Either.Left(BadRequest(message = "Avtalen er allerede avsluttet og kan derfor ikke avbrytes."))
         }
 
         val (_, gjennomforinger) = tiltaksgjennomforinger.getAll(
             avtaleId = id,
             statuser = listOf(
-                TiltaksgjennomforingStatus.GJENNOMFORES,
-                TiltaksgjennomforingStatus.PLANLAGT,
+                TiltaksgjennomforingStatus.Enum.GJENNOMFORES,
+                TiltaksgjennomforingStatus.Enum.PLANLAGT,
             ),
         )
 
-        val (antallAktiveGjennomforinger, antallPlanlagteGjennomforinger) = gjennomforinger.partition { it.status == TiltaksgjennomforingStatus.GJENNOMFORES }
+        val (antallAktiveGjennomforinger, antallPlanlagteGjennomforinger) = gjennomforinger.partition { it.status is TiltaksgjennomforingStatus.GJENNOMFORES }
         if (antallAktiveGjennomforinger.isNotEmpty()) {
             return Either.Left(
                 BadRequest(

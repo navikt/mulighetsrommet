@@ -2,7 +2,6 @@ import {
   Avtale,
   Tiltaksgjennomforing,
   TiltaksgjennomforingOppstartstype,
-  TiltaksgjennomforingStatus,
   Toggles,
 } from "mulighetsrommet-api-client";
 import styles from "../DetaljerInfo.module.scss";
@@ -44,10 +43,9 @@ export function TiltaksgjennomforingDetaljer({ tiltaksgjennomforing, avtale }: P
   const { data: migrerteTiltakstyper = [] } = useMigrerteTiltakstyper();
   const avbrytModalRef = useRef<HTMLDialogElement>(null);
 
-  const gjennomforingIsActive = [
-    TiltaksgjennomforingStatus.PLANLAGT,
-    TiltaksgjennomforingStatus.GJENNOMFORES,
-  ].includes(tiltaksgjennomforing.status);
+  const gjennomforingIsActive = ["PLANLAGT", "GJENNOMFORES"].includes(
+    tiltaksgjennomforing.status.name,
+  );
 
   const navnPaaNavEnheterForKontaktperson = (enheterForKontaktperson: string[]): string => {
     return (

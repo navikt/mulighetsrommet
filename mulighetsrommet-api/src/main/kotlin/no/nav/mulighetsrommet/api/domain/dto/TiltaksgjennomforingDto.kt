@@ -18,7 +18,7 @@ data class TiltaksgjennomforingDto(
     val startDato: LocalDate,
     @Serializable(with = LocalDateSerializer::class)
     val sluttDato: LocalDate?,
-    val status: TiltaksgjennomforingStatus,
+    val status: TiltaksgjennomforingStatus.Enum,
     val virksomhetsnummer: String,
     val oppstart: TiltaksgjennomforingOppstartstype,
     @Serializable(with = LocalDateSerializer::class)
@@ -44,7 +44,7 @@ data class TiltaksgjennomforingDto(
                 navn = navn,
                 startDato = startDato,
                 sluttDato = sluttDato,
-                status = status,
+                status = status.enum,
                 virksomhetsnummer = arrangor.organisasjonsnummer,
                 oppstart = oppstart,
                 tilgjengeligForArrangorFraOgMedDato = tilgjengeligForArrangorFraOgMedDato,

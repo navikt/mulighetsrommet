@@ -19,4 +19,16 @@ sealed class AvbruttAarsak {
         override val name = "AVBRUTT_I_ARENA"
     }
     data class Annet(override val name: String) : AvbruttAarsak()
+
+    companion object {
+        fun fromString(value: String): AvbruttAarsak =
+            when (value) {
+                "ENDRING_HOS_ARRANGOR" -> EndringHosArrangor
+                "BUDSJETT_HENSYN" -> BudsjettHensyn
+                "FOR_FAA_DELTAKERE" -> ForFaaDeltakere
+                "FEILREGISTRERING" -> Feilregistrering
+                "AVBRUTT_I_ARENA" -> AvbruttIArena
+                else -> Annet(value)
+            }
+    }
 }

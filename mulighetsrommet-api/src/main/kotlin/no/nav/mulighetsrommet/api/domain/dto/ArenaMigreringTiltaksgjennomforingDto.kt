@@ -3,8 +3,6 @@ package no.nav.mulighetsrommet.api.domain.dto
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus
-import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus.GJENNOMFORES
-import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus.PLANLAGT
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.domain.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
@@ -29,7 +27,7 @@ data class ArenaMigreringTiltaksgjennomforingDto(
     val navn: String,
     val orgnummer: String,
     val antallPlasser: Int?,
-    val status: TiltaksgjennomforingStatus,
+    val status: TiltaksgjennomforingStatus.Enum,
     val enhet: String,
     val apentForInnsok: Boolean,
     val deltidsprosent: Double,
@@ -50,8 +48,8 @@ data class ArenaMigreringTiltaksgjennomforingDto(
             }
 
             val status = when (tiltaksgjennomforing.status) {
-                PLANLAGT, GJENNOMFORES -> GJENNOMFORES
-                else -> tiltaksgjennomforing.status
+                TiltaksgjennomforingStatus.PLANLAGT, TiltaksgjennomforingStatus.GJENNOMFORES -> TiltaksgjennomforingStatus.GJENNOMFORES.enum
+                else -> tiltaksgjennomforing.status.enum
             }
 
             return ArenaMigreringTiltaksgjennomforingDto(

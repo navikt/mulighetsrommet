@@ -2006,8 +2006,8 @@ components:
           format: date
         avtaletype:
           $ref: "#/components/schemas/Avtaletype"
-        avtalestatus:
-          $ref: "#/components/schemas/Avtalestatus"
+        status:
+          $ref: "#/components/schemas/AvtalestatusResponse"
         arenaAnsvarligEnhet:
           $ref: "#/components/schemas/ArenaNavEnhet"
         prisbetingelser:
@@ -2042,7 +2042,7 @@ components:
         - arrangor
         - startDato
         - avtaletype
-        - avtalestatus
+        - status
         - prisbetingelser
         - kontorstruktur
         - opphav
@@ -2151,6 +2151,41 @@ components:
         - Forhaandsgodkjent
         - OffentligOffentlig
 
+    AvtalestatusResponse:
+      oneOf:
+        - $ref: "#/components/schemas/AvtaleIkkeAvbruttStatus"
+        - $ref: "#/components/schemas/AvtaleAvbruttStatus"
+
+    AvtaleIkkeAvbruttStatus:
+      type: object
+      properties:
+        name:
+          type: string
+          enum:
+           - AKTIV
+           - AVSLUTTET
+      required:
+       - name
+
+    AvtaleAvbruttStatus:
+      type: object
+      properties:
+        name:
+          type: string
+          enum:
+           - AVBRUTT
+        tidspunkt:
+          type: string
+          format: date-time
+        aarsak:
+          oneOf:
+            - type: string
+            - $ref: "#/components/schemas/AvbrytAvtaleAarsak"
+      required:
+        - name
+        - tidspunkt
+        - aarsak
+
     Avtalestatus:
       type: string
       enum:
@@ -2234,7 +2269,7 @@ components:
         arenaAnsvarligEnhet:
           $ref: "#/components/schemas/ArenaNavEnhet"
         status:
-          $ref: "#/components/schemas/TiltaksgjennomforingStatus"
+          $ref: "#/components/schemas/TiltaksgjennomforingStatusResponse"
         apentForInnsok:
           type: boolean
         antallPlasser:
@@ -2404,6 +2439,43 @@ components:
         - deltidsprosent
         - estimertVentetid
         - tilgjengeligForArrangorFraOgMedDato
+
+    TiltaksgjennomforingStatusResponse:
+      oneOf:
+        - $ref: "#/components/schemas/GjennomforingIkkeAvbruttStatus"
+        - $ref: "#/components/schemas/GjennomforingAvbruttStatus"
+
+    GjennomforingIkkeAvbruttStatus:
+      type: object
+      properties:
+        name:
+          type: string
+          enum:
+            - PLANLAGT
+            - GJENNOMFORES
+            - AVSLUTTET
+      required:
+       - name
+
+    GjennomforingAvbruttStatus:
+      type: object
+      properties:
+        name:
+          type: string
+          enum:
+            - AVBRUTT
+            - AVLYST
+        tidspunkt:
+          type: string
+          format: date-time
+        aarsak:
+          oneOf:
+            - type: string
+            - $ref: "#/components/schemas/AvbrytGjennomforingAarsak"
+      required:
+        - name
+        - tidspunkt
+        - aarsak
 
     TiltaksgjennomforingStatus:
       type: string
@@ -3748,13 +3820,6 @@ components:
       required:
         - navn
         - tiltakskode
-
-    PersonopplysningFrekvens:
-      type: string
-      enum:
-        - ALLTID
-        - OFTE
-        - SJELDEN
 
     Personopplysning:
       type: string

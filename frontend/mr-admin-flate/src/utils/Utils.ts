@@ -1,4 +1,10 @@
-import { Avtale, Avtaletype, EstimertVentetidEnhet } from "mulighetsrommet-api-client";
+import {
+  AvbrytAvtaleAarsak,
+  AvbrytGjennomforingAarsak,
+  Avtale,
+  Avtaletype,
+  EstimertVentetidEnhet,
+} from "mulighetsrommet-api-client";
 import { AvtaleFilter } from "@/api/atoms";
 
 export function capitalize(text?: string): string {
@@ -192,5 +198,39 @@ export function formatertVentetid(verdi: number, enhet: EstimertVentetidEnhet): 
       return `${verdi} ${verdi === 1 ? "måned" : "måneder"}`;
     default:
       return "Ukjent enhet for ventetid";
+  }
+}
+
+export function avbrytAvtaleAarsakToString(aarsak: AvbrytAvtaleAarsak | string): string {
+  switch (aarsak) {
+    case AvbrytAvtaleAarsak.AVBRUTT_I_ARENA:
+      return "Avbrutt i Arena";
+    case AvbrytAvtaleAarsak.BUDSJETT_HENSYN:
+      return "Budsjetthensyn";
+    case AvbrytAvtaleAarsak.ENDRING_HOS_ARRANGOR:
+      return "Endring hos arrangør";
+    case AvbrytAvtaleAarsak.FEILREGISTRERING:
+      return "Feilregistrering";
+    default:
+      return aarsak;
+  }
+}
+
+export function avbrytGjennomforingAarsakToString(
+  aarsak: AvbrytGjennomforingAarsak | string,
+): string {
+  switch (aarsak) {
+    case AvbrytGjennomforingAarsak.AVBRUTT_I_ARENA:
+      return "Avbrutt i Arena";
+    case AvbrytGjennomforingAarsak.BUDSJETT_HENSYN:
+      return "Budsjetthensyn";
+    case AvbrytGjennomforingAarsak.ENDRING_HOS_ARRANGOR:
+      return "Endring hos arrangør";
+    case AvbrytGjennomforingAarsak.FEILREGISTRERING:
+      return "Feilregistrering";
+    case AvbrytGjennomforingAarsak.FOR_FAA_DELTAKERE:
+      return "For få deltakere";
+    default:
+      return aarsak;
   }
 }
