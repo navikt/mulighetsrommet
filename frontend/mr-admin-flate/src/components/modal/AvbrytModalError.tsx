@@ -7,12 +7,14 @@ interface Props {
   customAarsak: string | null;
 }
 export function AvbrytModalError({ mutation, aarsak, customAarsak }: Props) {
-  function beskrivelser() {
-    if (aarsak === "annet" && !customAarsak)
+  const beskrivelser = () => {
+    if (aarsak?.length === 0) return "Du må velge en årsak";
+    else if (aarsak === "annet" && !customAarsak)
       return "Beskrivelse er obligatorisk når “Annet” er valgt som årsak";
-    else if (customAarsak!.length > 100) return "Beskrivelse kan ikke inneholde mer enn 100 tegn";
+    else if (aarsak === "annet" && customAarsak!.length > 100)
+      return "Beskrivelse kan ikke inneholde mer enn 100 tegn";
     else return resolveErrorMessage(mutation.error);
-  }
+  };
 
   return (
     <div className={styles.error}>

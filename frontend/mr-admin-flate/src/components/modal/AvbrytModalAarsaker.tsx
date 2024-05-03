@@ -15,7 +15,7 @@ export function AvbrytModalAarsaker({
   radioknapp,
 }: Props) {
   return (
-    <RadioGroup size="small" legend="Velg årsak" onChange={setAarsak} value={aarsak}>
+    <RadioGroup size="small" legend="Velg årsak" onChange={setAarsak} value={aarsak} required>
       {radioknapp}
       <Radio value="annet">
         Annet
