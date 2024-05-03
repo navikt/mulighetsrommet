@@ -8,18 +8,20 @@ interface Props {
 export function TiltakstypestatusTag({ tiltakstype }: Props) {
   const status = tiltakstype.status;
 
-  const variant = (status: TiltakstypeStatus) => {
+  function variantAndName(): { variant: "success" | "neutral"; name: string } {
     switch (status) {
       case TiltakstypeStatus.AKTIV:
-        return "success";
+        return { variant: "success", name: "Aktiv" };
       case TiltakstypeStatus.AVSLUTTET:
-        return "neutral";
+        return { variant: "neutral", name: "Avsluttet" };
     }
-  };
+  }
+
+  const { variant, name } = variantAndName();
 
   return (
-    <Tag size="small" aria-label={`Status for tiltakstype: ${status}`} variant={variant(status)}>
-      {status}
+    <Tag size="small" aria-label={`Status for tiltakstype: ${name}`} variant={variant}>
+      {name}
     </Tag>
   );
 }
