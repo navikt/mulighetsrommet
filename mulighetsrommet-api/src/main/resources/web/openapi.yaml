@@ -2571,7 +2571,7 @@ components:
     DialogRequest:
       type: object
       properties:
-        norskIdent:
+        fnr:
           type: string
         overskrift:
           type: string
@@ -2580,7 +2580,7 @@ components:
         venterPaaSvarFraBruker:
           type: boolean
       required:
-        - norskIdent
+        - fnr
         - overskrift
         - tekst
         - venterPaaSvarFraBruker

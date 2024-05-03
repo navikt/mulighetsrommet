@@ -16,10 +16,9 @@ import { PortenLink } from "@/components/PortenLink";
 import { ModiaRoute, navigateToModiaApp } from "@/apps/modia/ModiaRoute";
 
 interface DelemodalProps {
-  brukernavn?: string;
   veiledernavn?: string;
   tiltaksgjennomforing: VeilederflateTiltaksgjennomforing;
-  brukerdata: Bruker;
+  bruker: Bruker;
   harDeltMedBruker?: DelMedBruker;
   dispatch: (action: Actions) => void;
   state: State;
@@ -31,10 +30,9 @@ interface DelemodalProps {
 }
 
 export function Delemodal({
-  brukernavn,
   veiledernavn,
   tiltaksgjennomforing,
-  brukerdata,
+  bruker,
   harDeltMedBruker,
   dispatch,
   state,
@@ -82,7 +80,7 @@ export function Delemodal({
     try {
       const res = await mulighetsrommetClient.dialogen.delMedDialogen({
         requestBody: {
-          norskIdent: brukerdata?.fnr,
+          fnr: bruker.fnr,
           overskrift,
           tekst,
           venterPaaSvarFraBruker,
@@ -96,7 +94,7 @@ export function Delemodal({
     }
   };
 
-  const { reservert, melding } = erBrukerReservertMotElektroniskKommunikasjon(brukerdata);
+  const { reservert, melding } = erBrukerReservertMotElektroniskKommunikasjon(bruker);
 
   const enableEndreDeletekst = () => {
     dispatch({ type: "Enable rediger deletekst", payload: true });
@@ -137,7 +135,7 @@ export function Delemodal({
               state={state}
               dispatch={dispatch}
               veiledernavn={veiledernavn}
-              brukernavn={brukernavn}
+              brukernavn={bruker.fornavn}
               harDeltMedBruker={harDeltMedBruker}
               tiltaksgjennomforing={tiltaksgjennomforing}
               enableRedigerDeletekst={enableRedigerDeletekst}
