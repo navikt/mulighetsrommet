@@ -12,20 +12,21 @@ export function AvtalestatusTag({ avtale, showAvbruttAarsak = false }: Props) {
   const { status } = avtale;
   const [expandLabel, setExpandLabel] = useState<boolean>(false);
 
-  function variant() {
+  function variantAndName(): { variant: "success" | "neutral" | "error"; name: string } {
     switch (status.name) {
       case "AKTIV":
-        return "success";
+        return { variant: "success", name: "Aktiv" };
       case "AVSLUTTET":
-        return "neutral";
+        return { variant: "neutral", name: "Avsluttet" };
       case "AVBRUTT":
-        return "error";
+        return { variant: "error", name: "Avbrutt" };
     }
   }
+  const { variant, name } = variantAndName();
 
   function labelText(): string {
     if (status.name === "AVBRUTT" && showAvbruttAarsak) {
-      return `${status.name} - ${avbrytAvtaleAarsakToString(status.aarsak)}`;
+      return `${name} - ${avbrytAvtaleAarsakToString(status.aarsak)}`;
     }
 
     return status.name;
@@ -42,8 +43,8 @@ export function AvtalestatusTag({ avtale, showAvbruttAarsak = false }: Props) {
       size="small"
       onMouseEnter={() => setExpandLabel(true)}
       onMouseLeave={() => setExpandLabel(false)}
-      aria-label={`Avtalestatus: ${status.name}`}
-      variant={variant()}
+      aria-label={`Avtalestatus: ${name}`}
+      variant={variant}
     >
       {expandLabel ? label : slicedLabel}
     </Tag>
