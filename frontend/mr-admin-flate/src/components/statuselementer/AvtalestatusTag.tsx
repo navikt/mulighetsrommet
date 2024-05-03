@@ -29,7 +29,7 @@ export function AvtalestatusTag({ avtale, showAvbruttAarsak = false }: Props) {
       return `${name} - ${avbrytAvtaleAarsakToString(status.aarsak)}`;
     }
 
-    return status.name;
+    return name;
   }
 
   const label = labelText();
