@@ -59,7 +59,6 @@ fun Application.configure(config: AppConfig) {
             arrangorRoutes()
             brregVirksomhetRoutes()
             notificationRoutes()
-            avtaleNotatRoutes()
             featureTogglesRoute()
             veilederJoyrideRoutes()
         }

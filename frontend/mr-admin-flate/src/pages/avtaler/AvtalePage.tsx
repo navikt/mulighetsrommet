@@ -57,9 +57,7 @@ export function AvtalePage() {
   }
 
   const currentTab = () => {
-    if (pathname.includes("notater")) {
-      return "notater";
-    } else if (pathname.includes("tiltaksgjennomforinger")) {
+    if (pathname.includes("tiltaksgjennomforinger")) {
       return "tiltaksgjennomforinger";
     } else {
       return "info";
@@ -89,13 +87,6 @@ export function AvtalePage() {
             label="Avtaleinfo"
             onClick={() => navigateAndReplaceUrl(`/avtaler/${avtale.id}`)}
             aria-controls="panel"
-          />
-          <Tabs.Tab
-            value="notater"
-            label="Notater"
-            onClick={() => navigateAndReplaceUrl(`/avtaler/${avtale.id}/notater`)}
-            aria-controls="panel"
-            data-testid="notater-tab"
           />
           <Tabs.Tab
             value="tiltaksgjennomforinger"

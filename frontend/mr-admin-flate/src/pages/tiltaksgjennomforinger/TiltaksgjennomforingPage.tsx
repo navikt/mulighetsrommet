@@ -64,8 +64,6 @@ export function TiltaksgjennomforingPage() {
   const currentTab = () => {
     if (pathname.includes("deltakere")) {
       return "poc";
-    } else if (pathname.includes("notater")) {
-      return "notater";
     } else {
       return "info";
     }
@@ -116,14 +114,6 @@ export function TiltaksgjennomforingPage() {
             label="Info"
             onClick={() =>
               navigateAndReplaceUrl(`/tiltaksgjennomforinger/${tiltaksgjennomforing.id}`)
-            }
-            aria-controls="panel"
-          />
-          <Tabs.Tab
-            value="notater"
-            label="Notater"
-            onClick={() =>
-              navigateAndReplaceUrl(`/tiltaksgjennomforinger/${tiltaksgjennomforing.id}/notater`)
             }
             aria-controls="panel"
           />

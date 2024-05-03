@@ -38,13 +38,6 @@ data class NotificationFilter(
     val status: NotificationStatus? = null,
 )
 
-data class NotatFilter(
-    val avtaleId: UUID? = null,
-    val tiltaksgjennomforingId: UUID? = null,
-    val opprettetAv: NavIdent? = null,
-    val sortering: String? = "dato-created-asc",
-)
-
 fun <T : Any> PipelineContext<T, ApplicationCall>.getNotificationFilter(): NotificationFilter {
     val status = call.request.queryParameters["status"]
     return NotificationFilter(
@@ -100,19 +93,5 @@ fun <T : Any> PipelineContext<T, ApplicationCall>.getNavAnsattFilter(): NavAnsat
     val azureIder = call.parameters.getAll("roller")?.map { NavAnsattRolle.valueOf(it) } ?: emptyList()
     return NavAnsattFilter(
         roller = azureIder,
-    )
-}
-
-fun <T : Any> PipelineContext<T, ApplicationCall>.getNotatFilter(): NotatFilter {
-    val avtaleId = call.request.queryParameters["avtaleId"]?.let { if (it.isEmpty()) null else it.toUUID() }
-    val tiltaksgjennomforingId =
-        call.request.queryParameters["tiltaksgjennomforingId"]?.let { if (it.isEmpty()) null else it.toUUID() }
-    val sortering = call.request.queryParameters["order"]
-
-    return NotatFilter(
-        avtaleId = avtaleId,
-        tiltaksgjennomforingId = tiltaksgjennomforingId,
-        opprettetAv = null,
-        sortering = sortering,
     )
 }

@@ -171,8 +171,6 @@ private fun repositories() = module {
     single { NavAnsattRepository(get()) }
     single { ArrangorRepository(get()) }
     single { KafkaConsumerRepositoryImpl(get()) }
-    single { AvtaleNotatRepository(get()) }
-    single { TiltaksgjennomforingNotatRepository(get()) }
     single { VeilederJoyrideRepository(get()) }
 }
 
@@ -329,7 +327,6 @@ private fun services(appConfig: AppConfig) = module {
     single { NotificationService(get(), get(), get()) }
     single { ArrangorService(get(), get()) }
     single { ExcelService() }
-    single { NotatService(get(), get()) }
     single {
         val byEnhetStrategy = ByEnhetStrategy(get())
         val byNavidentStrategy = ByNavIdentStrategy()

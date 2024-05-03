@@ -22,11 +22,6 @@
           "name": "mulighetsrommet.admin-flate.rediger-oppstart",
           "enabled": true,
           "strategies": []
-        },
-        {
-          "name": "mulighetsrommet.admin-flate.show-notater",
-          "enabled": false,
-          "strategies": []
         }
       ]
     },

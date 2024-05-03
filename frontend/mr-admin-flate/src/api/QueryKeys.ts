@@ -38,12 +38,6 @@ export const QueryKeys = {
   brregVirksomheter: (sokestreng: string) => ["virksomhet", "sok", sokestreng],
   brregVirksomhetUnderenheter: (id: string) => ["virksomet", id, "underenheter"],
   navansatt: (rolle: NavAnsattRolle) => ["nav-ansatte", rolle],
-  avtalenotater: (avtaleId: string) => ["avtalenotater", avtaleId] as const,
-  mineAvtalenotater: (avtaleId: string) => ["avtalenotater", "mine", avtaleId] as const,
-  tiltaksgjennomforingsnotater: (tiltaksgjennomforingsId: string) =>
-    ["tiltaksgjennomforingsnotater", tiltaksgjennomforingsId] as const,
-  mineTiltaksgjennomforingsnotater: (tiltaksgjennomforingsId: string) =>
-    ["tiltaksgjennomforingsnotater", "mine", tiltaksgjennomforingsId] as const,
   features: (feature: string) => ["feature", feature],
   migrerteTiltakstyper: () => ["migrerteTiltakstyper"],
   navRegioner: () => ["navRegioner"],
