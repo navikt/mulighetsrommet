@@ -10,6 +10,7 @@ spec:
   port: 8080
   ingresses:
     - https://mulighetsrommet-api.intern.dev.nav.no
+    - https://mulighetsrommet-api.ansatt.dev.nav.no
   secureLogs:
     enabled: true
   prometheus:
