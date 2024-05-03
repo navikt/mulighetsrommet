@@ -438,7 +438,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             "sluttdato-descending" -> "slutt_dato desc"
             "publisert-ascending" -> "publisert_for_alle asc"
             "publisert-descending" -> "publisert_for_alle desc"
-            else -> "navn asc"
+            else -> "navn, id"
         }
 
         @Language("PostgreSQL")
