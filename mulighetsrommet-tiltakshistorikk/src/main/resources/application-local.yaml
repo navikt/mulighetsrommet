@@ -1,0 +1,19 @@
+server:
+  port: 8070
+  host: 0.0.0.0
+
+app:
+  database:
+    host: localhost
+    port: 5442
+    name: mr-tiltakshistorikk
+    user: valp
+    password: valp
+    maximumPoolSize: 10
+
+  auth:
+    azure:
+      issuer: http://localhost:8081/azure
+      jwksUri: http://localhost:8081/azure/jwks
+      audience: mulighetsrommet-tiltakshisstorikk
+      tokenEndpointUrl: http://localhost:8081/azure/token

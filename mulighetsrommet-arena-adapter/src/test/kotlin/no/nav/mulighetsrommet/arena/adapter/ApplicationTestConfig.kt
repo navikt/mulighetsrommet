@@ -13,7 +13,7 @@ import no.nav.security.mock.oauth2.MockOAuth2Server
 var databaseConfig: DatabaseConfig? = null
 fun createDatabaseTestConfig() =
     if (databaseConfig == null) {
-        databaseConfig = createDatabaseTestSchema("mulighetsrommet-arena-adapter-db", 5443)
+        databaseConfig = createDatabaseTestSchema("mr-arena-adapter")
         databaseConfig!!
     } else {
         databaseConfig!!

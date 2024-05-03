@@ -61,6 +61,9 @@ dependencies {
     implementation(libs.arrow.core)
     implementation(libs.arrow.core.serialization)
 
+    // Logging
+    implementation(libs.bundles.logging)
+
     // Ktor
     testImplementation(libs.ktor.client.mock)
     implementation(libs.ktor.serialization.json)
@@ -129,11 +132,6 @@ dependencies {
     testImplementation(libs.assertj.db)
     testImplementation(libs.mockk)
     testImplementation(libs.nav.mockOauth2Server)
-
-    // Logging
-    implementation(libs.logback.classic)
-    implementation(libs.logback.logstashLogbackEncoder)
-    implementation(libs.slf4j)
 
     // DB-scheduler
     implementation(libs.dbScheduler)

@@ -6,7 +6,7 @@ app:
   database:
     host: localhost
     port: 5442
-    name: mulighetsrommet-api-db
+    name: mr-api
     user: valp
     password: valp
     maximumPoolSize: 10

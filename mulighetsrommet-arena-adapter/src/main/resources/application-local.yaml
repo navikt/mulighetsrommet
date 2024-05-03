@@ -5,8 +5,8 @@ server:
 app:
   database:
     host: localhost
-    port: 5443
-    name: mulighetsrommet-arena-adapter-db
+    port: 5442
+    name: mr-arena-adapter
     user: valp
     password: valp
     maximumPoolSize: 10
