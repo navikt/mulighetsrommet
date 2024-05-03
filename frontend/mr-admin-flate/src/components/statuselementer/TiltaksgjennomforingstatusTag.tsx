@@ -36,7 +36,7 @@ export function TiltaksgjennomforingstatusTag({
       return `${name} - ${avbrytGjennomforingAarsakToString(status.aarsak)}`;
     }
 
-    return status.name;
+    return name;
   }
 
   const label = labelText();
