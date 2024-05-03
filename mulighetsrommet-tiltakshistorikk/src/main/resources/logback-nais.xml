@@ -9,6 +9,7 @@
                 <exclude>org\.apache\.coyote\..*</exclude>
                 <exclude>org\.apache\.catalina\..*</exclude>
                 <exclude>org\.springframework\.web\..*</exclude>
+                <exclude>io\.ktor\..*</exclude>
             </throwableConverter>
         </encoder>
     </appender>
@@ -33,6 +34,6 @@
     <logger name="secureLogger" level="INFO" additivity="false">
         <appender-ref ref="secureLog"/>
     </logger>
-    <logger name="org.apache.kafka" level="INFO"/>
     <logger name="io.netty" level="INFO"/>
+    <logger name="no.nav.mulighetsrommet" level="INFO"/>
 </included>

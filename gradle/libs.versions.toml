@@ -19,6 +19,15 @@ ktlint = "org.jlleitschuh.gradle.ktlint:12.1.0"
 shadow = "com.github.johnrengelman.shadow:8.1.1"
 openapi-generator = "org.openapi.generator:7.5.0"
 
+[bundles]
+logging = [
+    "slf4j",
+    "logback-core",
+    "logback-classic",
+    "logback-logstashLogbackEncoder",
+    "nav-common-log",
+]
+
 [libraries]
 arrow-core = { module = "io.arrow-kt:arrow-core", version.ref = "arrow" }
 arrow-core-serialization = { module = "io.arrow-kt:arrow-core-serialization", version.ref = "arrow" }
@@ -94,6 +103,7 @@ micrometer-registry-prometheus = "io.micrometer:micrometer-registry-prometheus:1
 
 mockk = "io.mockk:mockk:1.13.10"
 
+nav-common-log = { module = "no.nav.common:log", version.ref = "common-java-modules" }
 nav-common-auditLog = { module = "no.nav.common:audit-log", version.ref = "common-java-modules" }
 nav-common-kafka = { module = "no.nav.common:kafka", version.ref = "common-java-modules" }
 nav-common-tokenClient = { module = "no.nav.common:token-client", version.ref = "common-java-modules" }
