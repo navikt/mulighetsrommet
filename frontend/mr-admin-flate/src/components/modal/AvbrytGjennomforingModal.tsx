@@ -82,6 +82,7 @@ export const AvbrytGjennomforingModal = ({ modalRef, tiltaksgjennomforing }: Pro
           customAarsak={customAarsak}
           setAarsak={setAarsak}
           setCustomAarsak={setCustomAarsak}
+          mutation={mutation}
           radioknapp={
             <>
               {(Object.keys(AvbrytGjennomforingAarsak) as Array<AvbrytGjennomforingAarsak>)

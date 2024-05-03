@@ -84,6 +84,7 @@ export function AvbrytAvtaleModal({ modalRef, avtale }: Props) {
             customAarsak={customAarsak}
             setAarsak={setAarsak}
             setCustomAarsak={setCustomAarsak}
+            mutation={mutation}
             radioknapp={
               <>
                 {(Object.keys(AvbrytAvtaleAarsak) as Array<AvbrytAvtaleAarsak>)
