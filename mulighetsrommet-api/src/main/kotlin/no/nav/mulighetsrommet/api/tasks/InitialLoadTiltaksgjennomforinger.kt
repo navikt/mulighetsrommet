@@ -89,7 +89,6 @@ class InitialLoadTiltaksgjennomforinger(
                     pagination = pagination,
                     opphav = input.opphav,
                     tiltakstypeIder = tiltakstypeIder,
-                    sortering = "id",
                 )
                 result.items
             },
