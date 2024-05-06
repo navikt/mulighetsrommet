@@ -1,7 +1,7 @@
 kind: Application
 apiVersion: nais.io/v1alpha1
 metadata:
-  name: mulighetsrommet-tiltakshistorikk
+  name: tiltakshistorikk
   namespace: team-mulighetsrommet
   labels:
     team: team-mulighetsrommet
@@ -48,7 +48,7 @@ spec:
         diskAutoresize: true
         pointInTimeRecovery: true
         databases:
-          - name: mulighetsrommet-tiltakshistorikk
+          - name: tiltakshistorikk
             envVarPrefix: DB
         flags:
           - name: max_connections
