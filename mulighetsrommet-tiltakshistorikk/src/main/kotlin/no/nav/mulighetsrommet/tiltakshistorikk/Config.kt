@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.tiltakshistorikk
 
 import no.nav.mulighetsrommet.database.DatabaseConfig
+import no.nav.mulighetsrommet.database.FlywayMigrationManager
 import no.nav.mulighetsrommet.ktor.ServerConfig
 
 data class Config(
@@ -10,6 +11,7 @@ data class Config(
 
 data class AppConfig(
     val database: DatabaseConfig,
+    val flyway: FlywayMigrationManager.MigrationConfig = FlywayMigrationManager.MigrationConfig(),
     val auth: AuthConfig,
 )
 
