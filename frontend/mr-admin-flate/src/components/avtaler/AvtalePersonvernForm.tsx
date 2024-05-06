@@ -1,23 +1,23 @@
+import { useTiltakstype } from "@/api/tiltakstyper/useTiltakstype";
 import {
   Alert,
   BodyShort,
   Checkbox,
   GuidePanel,
-  HGrid,
+  HStack,
   Label,
   Link,
   Radio,
   VStack,
 } from "@navikt/ds-react";
-import { useFormContext } from "react-hook-form";
-import { InferredAvtaleSchema } from "../redaksjonelt-innhold/AvtaleSchema";
-import styles from "./AvtalePersonvernForm.module.scss";
-import { useTiltakstype } from "@/api/tiltakstyper/useTiltakstype";
-import { ControlledRadioGroup } from "../skjema/ControlledRadioGroup";
-import { useEffect } from "react";
-import { addOrRemove } from "mulighetsrommet-frontend-common/utils/utils";
-import { Separator } from "../detaljside/Metadata";
 import { PersonopplysningMedBeskrivelse } from "mulighetsrommet-api-client";
+import { addOrRemove } from "mulighetsrommet-frontend-common/utils/utils";
+import { useEffect } from "react";
+import { useFormContext } from "react-hook-form";
+import { Separator } from "../detaljside/Metadata";
+import { InferredAvtaleSchema } from "../redaksjonelt-innhold/AvtaleSchema";
+import { ControlledRadioGroup } from "../skjema/ControlledRadioGroup";
+import styles from "./AvtalePersonvernForm.module.scss";
 
 interface Props {
   tiltakstypeId?: string;
@@ -81,7 +81,7 @@ export function AvtalePersonvernForm({ tiltakstypeId }: Props) {
         Huk av de personopplysningene som er avtalt i databehandleravtalen. NAV tiltaksenhet/fylke
         er ansvarlig for at listen er i samsvar med gjeldende databehandleravtale.
       </GuidePanel>
-      <HGrid columns={2}>
+      <HStack wrap gap="10">
         <VStack>
           <PersonopplysningCheckboxList
             label="Opplysninger om brukeren som alltid kan/må behandles"
@@ -89,7 +89,7 @@ export function AvtalePersonvernForm({ tiltakstypeId }: Props) {
             personopplysninger={tiltakstype?.personopplysninger?.ALLTID}
           />
         </VStack>
-        <VStack justify="space-between">
+        <VStack justify="space-between" gap="10">
           <PersonopplysningCheckboxList
             label="Opplysninger om brukeren som ofte er nødvendig og relevant å behandle"
             description="Huk av for de opplysningene som er avtalt i databehandleravtalen."
@@ -111,7 +111,7 @@ export function AvtalePersonvernForm({ tiltakstypeId }: Props) {
             pkt. 4.3.
           </BodyShort>
         </VStack>
-      </HGrid>
+      </HStack>
       <Separator />
       <ControlledRadioGroup
         size="small"
