@@ -26,7 +26,7 @@ export function TiltaksgjennomforingFiltertags({ filterAtom, filterOpen, setTags
     <FilterTagsContainer filterOpen={filterOpen} setTagsHeight={setTagsHeight}>
       {filter.search && (
         <FilterTag
-          label={filter.search}
+          label={`Søkt på: '${filter.search}'`}
           onClose={() => {
             setFilter({
               ...filter,

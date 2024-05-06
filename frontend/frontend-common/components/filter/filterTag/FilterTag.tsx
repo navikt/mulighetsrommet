@@ -16,6 +16,7 @@ export function FilterTag({ label, onClose }: FiltertagsProps) {
       variant="info"
       data-testid={`filtertag_${kebabCase(label)}`}
       className={styles.filtertag}
+      title={label}
     >
       {label}
       {onClose ? (
