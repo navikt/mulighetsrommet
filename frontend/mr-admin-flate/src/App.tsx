@@ -5,10 +5,8 @@ import { NavAnsattRolle } from "mulighetsrommet-api-client";
 import { Route, Routes } from "react-router-dom";
 import { Forside } from "./Forside";
 import IkkeAutentisertApp from "./IkkeAutentisertApp";
-import NotaterAvtalePage from "./components/avtaler/NotaterAvtalePage";
 import { Laster } from "./components/laster/Laster";
 import { Notifikasjonsliste } from "./components/notifikasjoner/Notifikasjonsliste";
-import NotaterTiltaksgjennomforingerPage from "./components/tiltaksgjennomforinger/NotaterTiltaksgjennomforingerPage";
 import { initializeAmplitude } from "./logging/amplitude";
 import { ErrorPage } from "./pages/ErrorPage";
 import { ArrangorPageContainer } from "./pages/arrangor/ArrangorPageContainer";
@@ -88,7 +86,6 @@ export function App() {
       <Route path="avtaler" element={<AvtalerPage />} errorElement={<ErrorPage />} />
       <Route path="avtaler/:avtaleId" element={<AvtalePage />} errorElement={<ErrorPage />}>
         <Route index element={<AvtaleInfo />} errorElement={<ErrorPage />} />
-        <Route path="notater" element={<NotaterAvtalePage />} errorElement={<ErrorPage />} />
         <Route
           path="tiltaksgjennomforinger"
           element={<TiltaksgjennomforingerForAvtalePage />}
@@ -117,11 +114,6 @@ export function App() {
         errorElement={<ErrorPage />}
       >
         <Route index element={<TiltaksgjennomforingInfo />} errorElement={<ErrorPage />} />
-        <Route
-          path="notater"
-          element={<NotaterTiltaksgjennomforingerPage />}
-          errorElement={<ErrorPage />}
-        />
       </Route>
       <Route
         path="tiltaksgjennomforinger/:tiltaksgjennomforingId"
@@ -129,11 +121,6 @@ export function App() {
         errorElement={<ErrorPage />}
       >
         <Route index element={<TiltaksgjennomforingInfo />} errorElement={<ErrorPage />} />
-        <Route
-          path="notater"
-          element={<NotaterTiltaksgjennomforingerPage />}
-          errorElement={<ErrorPage />}
-        />
       </Route>
       <Route
         path="avtaler/:avtaleId/tiltaksgjennomforinger/:tiltaksgjennomforingId/skjema"
