@@ -119,12 +119,6 @@ export function ArrangorerTabell({ filterAtom, tagsHeight, filterOpen }: Props) 
               antall={arrangorer.length}
               maksAntall={pagination.totalCount}
               type="arrangører"
-              onChangePageSize={(value) => {
-                updateFilter({
-                  page: 1,
-                  pageSize: value,
-                });
-              }}
             />
             <Pagination
               size="small"
