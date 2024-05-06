@@ -1,5 +1,5 @@
 import { useArrangorKontaktpersoner } from "@/api/arrangor/useArrangorKontaktpersoner";
-import { Button, TextField } from "@navikt/ds-react";
+import { Button, TextField, VStack } from "@navikt/ds-react";
 import {
   ArrangorKontaktperson,
   ArrangorKontaktpersonAnsvar,
@@ -12,7 +12,6 @@ import { ArrangorKontaktpersonerModal } from "../arrangor/ArrangorKontaktpersone
 import { tiltaktekster } from "../ledetekster/tiltaksgjennomforingLedetekster";
 import { InferredTiltaksgjennomforingSchema } from "../redaksjonelt-innhold/TiltaksgjennomforingSchema";
 import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
-import { FormGroup } from "../skjema/FormGroup";
 import skjemastyles from "../skjema/Skjema.module.scss";
 
 interface Props {
@@ -37,7 +36,7 @@ export function TiltaksgjennomforingArrangorSkjema({ readOnly, avtale }: Props) 
 
   return (
     <>
-      <FormGroup>
+      <VStack>
         <TextField
           size="small"
           label={tiltaktekster.tiltaksarrangorHovedenhetLabel}
@@ -83,7 +82,7 @@ export function TiltaksgjennomforingArrangorSkjema({ readOnly, avtale }: Props) 
             errors.stedForGjennomforing ? (errors.stedForGjennomforing.message as string) : null
           }
         />
-      </FormGroup>
+      </VStack>
       <ArrangorKontaktpersonerModal
         arrangorId={avtale.arrangor.id}
         modalRef={arrangorKontaktpersonerModalRef}
