@@ -3,8 +3,8 @@ package no.nav.mulighetsrommet.api.tasks
 import com.github.kagkarlsson.scheduler.task.helper.RecurringTask
 import com.github.kagkarlsson.scheduler.task.helper.Tasks
 import com.github.kagkarlsson.scheduler.task.schedule.DisabledSchedule
-import com.github.kagkarlsson.scheduler.task.schedule.FixedDelay
 import com.github.kagkarlsson.scheduler.task.schedule.Schedule
+import com.github.kagkarlsson.scheduler.task.schedule.Schedules
 import kotlinx.coroutines.runBlocking
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.kafka.KafkaConsumerRepositoryImpl
@@ -20,14 +20,14 @@ class NotifyFailedKafkaEvents(
 
     data class Config(
         val disabled: Boolean = false,
-        val delayOfMinutes: Int,
+        val cronPattern: String,
         val maxRetries: Int,
     ) {
         fun toSchedule(): Schedule {
             return if (disabled) {
                 DisabledSchedule()
             } else {
-                FixedDelay.ofMinutes(delayOfMinutes)
+                Schedules.cron(cronPattern)
             }
         }
     }
