@@ -137,7 +137,7 @@ app:
     notifyFailedKafkaEvents:
       disabled: true
       maxRetries: 5
-      delayOfMinutes: 15
+      cronPattern: "0 */15 * ? * MON-FRI"
     updateApentForInnsok:
       disabled: true
       cronPattern: "0 */1 * * * *" # Hvert 1 minutt

@@ -69,7 +69,7 @@ fun createTestApplicationConfig() = AppConfig(
         notifySluttdatoForAvtalerNarmerSeg = NotifySluttdatoForAvtalerNarmerSeg.Config(disabled = true),
         notifyFailedKafkaEvents = NotifyFailedKafkaEvents.Config(
             disabled = true,
-            delayOfMinutes = 15,
+            cronPattern = "",
             maxRetries = 5,
         ),
         updateApentForInnsok = UpdateApentForInnsok.Config(

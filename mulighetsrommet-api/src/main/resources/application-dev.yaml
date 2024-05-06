@@ -135,7 +135,7 @@ app:
       cronPattern: "0 0 6 * * *" # Hver morgen kl. 06:00
     notifyFailedKafkaEvents:
       maxRetries: 5
-      delayOfMinutes: 15
+      cronPattern: "0 */15 * ? * MON-FRI"
     generateValidationReport:
       bucketName: mulighetsrommet-api-uploads-dev
     updateApentForInnsok:
