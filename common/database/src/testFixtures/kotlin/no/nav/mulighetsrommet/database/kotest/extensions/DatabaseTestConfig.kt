@@ -16,13 +16,8 @@ fun createDatabaseTestSchema(
     val currentTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"))
     val schema = "$currentTime-${UUID.randomUUID()}"
     return DatabaseConfig(
-        host,
-        port,
-        name,
-        schema,
-        user,
-        password,
-        2,
-        null,
+        jdbcUrl = "jdbc:postgresql://$host:$port/$name?user=$user&password=${password.value}",
+        schema = schema,
+        maximumPoolSize = 2,
     )
 }

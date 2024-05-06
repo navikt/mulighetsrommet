@@ -4,11 +4,7 @@ server:
 
 app:
   database:
-    host: localhost
-    port: 5442
-    name: mr-api
-    user: valp
-    password: valp
+    jdbcUrl: jdbc:postgresql://localhost:5442/mr-api?user=valp&password=valp
     maximumPoolSize: 10
   flyway:
     # Kjører repeatable migrasjoner hver gang applikasjon startes

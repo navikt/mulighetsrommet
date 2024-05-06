@@ -4,11 +4,7 @@ server:
 
 app:
   database:
-    host: localhost
-    port: 5442
-    name: mr-arena-adapter
-    user: valp
-    password: valp
+    jdbcUrl: jdbc:postgresql://localhost:5442/mr-arena-adapter?user=valp&password=valp
     maximumPoolSize: 10
 
   services:

@@ -25,8 +25,6 @@ class Database(val config: DatabaseConfig) {
                 schema = config.schema
             }
             driverClassName = "org.postgresql.Driver"
-            username = config.user
-            password = config.password.value
             maximumPoolSize = config.maximumPoolSize
             healthCheckRegistry = HealthCheckRegistry()
 
