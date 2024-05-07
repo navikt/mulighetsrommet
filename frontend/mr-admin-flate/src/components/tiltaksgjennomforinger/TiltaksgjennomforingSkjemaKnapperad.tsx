@@ -15,7 +15,7 @@ export function TiltaksgjennomforingSkjemaKnapperad({
   mutation,
 }: Props) {
   return (
-    <div>
+    <div className={styles.knapperad}>
       <ValideringsfeilOppsummering />
       <Button
         size="small"
