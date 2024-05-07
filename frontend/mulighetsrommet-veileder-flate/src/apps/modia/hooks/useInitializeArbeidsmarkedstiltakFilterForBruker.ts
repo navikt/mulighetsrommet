@@ -32,5 +32,5 @@ export function useInitializeArbeidsmarkedstiltakFilterForBruker() {
         navEnheter: brukerdata?.enheter ?? [],
       });
     }
-  }, [resetInnsatsgruppe]);
+  }, [resetInnsatsgruppe, resetEnheter]);
 }
