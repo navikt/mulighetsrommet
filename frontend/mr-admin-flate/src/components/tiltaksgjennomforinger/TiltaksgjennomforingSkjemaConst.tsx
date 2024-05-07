@@ -57,7 +57,7 @@ function defaultArrangor(
   avtale: Avtale,
   tiltaksgjennomforing?: Tiltaksgjennomforing,
 ): string | undefined {
-  if (tiltaksgjennomforing?.arrangor.id) {
+  if (tiltaksgjennomforing?.arrangor?.id) {
     return tiltaksgjennomforing.arrangor.id;
   }
 
