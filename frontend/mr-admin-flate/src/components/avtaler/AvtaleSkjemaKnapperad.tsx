@@ -1,9 +1,9 @@
+import { gjennomforingDetaljerTabAtom } from "@/api/atoms";
 import { Button } from "@navikt/ds-react";
+import { useSetAtom } from "jotai";
+import { HarSkrivetilgang } from "../authActions/HarSkrivetilgang";
 import styles from "../skjema/Skjema.module.scss";
 import { ValideringsfeilOppsummering } from "../skjema/ValideringsfeilOppsummering";
-import { HarSkrivetilgang } from "../authActions/HarSkrivetilgang";
-import { useSetAtom } from "jotai";
-import { gjennomforingDetaljerTabAtom } from "@/api/atoms";
 
 interface Props {
   redigeringsModus: boolean;
@@ -12,7 +12,7 @@ interface Props {
 export function AvtaleSkjemaKnapperad({ redigeringsModus, onClose }: Props) {
   const setTiltaksgjennomforingFane = useSetAtom(gjennomforingDetaljerTabAtom);
   return (
-    <div>
+    <div className={styles.knapperad}>
       <ValideringsfeilOppsummering />
       <Button
         size="small"
