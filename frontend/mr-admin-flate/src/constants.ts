@@ -6,7 +6,7 @@ export const PAGE_SIZE = 15;
 export const AVTALE_PAGE_SIZE = 15;
 export const ARRANGORER_PAGE_SIZE = 15;
 
-export const STED_FOR_GJENNOMFORING_MAX_LENGTH = 500;
+export const STED_FOR_GJENNOMFORING_MAX_LENGTH = 100;
 
 export const PREVIEW_ARBEIDSMARKEDSTILTAK_URL = isProduction
   ? "https://nav-arbeidsmarkedstiltak.intern.nav.no/preview"

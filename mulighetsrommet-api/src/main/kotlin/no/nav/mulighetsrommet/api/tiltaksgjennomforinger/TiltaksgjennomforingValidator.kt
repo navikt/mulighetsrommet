@@ -161,7 +161,7 @@ class TiltaksgjennomforingValidator(
             add(
                 ValidationError.of(
                     TiltaksgjennomforingDbo::stedForGjennomforing,
-                    "Du kan bare skrive 500 tegn i \"Sted for gjennomføring\"",
+                    "Du kan bare skrive 100 tegn i \"Sted for gjennomføring\"",
                 ),
             )
         }
