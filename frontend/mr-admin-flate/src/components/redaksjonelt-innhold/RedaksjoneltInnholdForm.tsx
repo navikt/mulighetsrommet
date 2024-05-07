@@ -58,7 +58,7 @@ function RedaksjoneltInnhold({ tiltakstype }: { tiltakstype: EmbeddedTiltakstype
               value="for_hvem"
               label={
                 <div className={skjemastyles.red_tab_title}>
-                  <FileTextIcon /> For hvem
+                  <FileTextIcon style={{ fontSize: "1.5rem" }} /> For hvem
                 </div>
               }
             />
@@ -66,7 +66,7 @@ function RedaksjoneltInnhold({ tiltakstype }: { tiltakstype: EmbeddedTiltakstype
               value="detaljer_og_innhold"
               label={
                 <div className={skjemastyles.red_tab_title}>
-                  <FileTextIcon /> Detaljer og innhold
+                  <FileTextIcon style={{ fontSize: "1.5rem" }} /> Detaljer og innhold
                 </div>
               }
             />
@@ -74,7 +74,7 @@ function RedaksjoneltInnhold({ tiltakstype }: { tiltakstype: EmbeddedTiltakstype
               value="pamelding_og_varighet"
               label={
                 <div className={skjemastyles.red_tab_title}>
-                  <FileTextIcon /> Påmelding og varighet
+                  <FileTextIcon style={{ fontSize: "1.5rem" }} /> Påmelding og varighet
                 </div>
               }
             />
@@ -82,7 +82,7 @@ function RedaksjoneltInnhold({ tiltakstype }: { tiltakstype: EmbeddedTiltakstype
               value="kontaktinfo"
               label={
                 <div className={skjemastyles.red_tab_title}>
-                  <FileTextIcon /> Kontaktinfo
+                  <FileTextIcon style={{ fontSize: "1.5rem" }} /> Kontaktinfo
                 </div>
               }
             />
@@ -90,7 +90,7 @@ function RedaksjoneltInnhold({ tiltakstype }: { tiltakstype: EmbeddedTiltakstype
               value="lenker"
               label={
                 <div className={skjemastyles.red_tab_title}>
-                  <LinkIcon /> Lenker
+                  <LinkIcon style={{ fontSize: "1.5rem" }} /> Lenker
                 </div>
               }
             />
@@ -98,7 +98,7 @@ function RedaksjoneltInnhold({ tiltakstype }: { tiltakstype: EmbeddedTiltakstype
               value="del_med_bruker"
               label={
                 <div className={skjemastyles.red_tab_title}>
-                  <PaperplaneIcon /> Del med bruker
+                  <PaperplaneIcon style={{ fontSize: "1.5rem" }} /> Del med bruker
                 </div>
               }
             />
