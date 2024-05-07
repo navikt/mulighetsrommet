@@ -36,7 +36,7 @@ export function TiltaksgjennomforingArrangorSkjema({ readOnly, avtale }: Props) 
   const kontaktpersonOptions = getKontaktpersonOptions(arrangorKontaktpersoner ?? []);
   return (
     <>
-      <VStack>
+      <VStack gap="2">
         <TextField
           size="small"
           label={tiltaktekster.tiltaksarrangorHovedenhetLabel}
