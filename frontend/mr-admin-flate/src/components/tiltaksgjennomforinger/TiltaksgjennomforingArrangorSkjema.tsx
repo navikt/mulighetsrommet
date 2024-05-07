@@ -36,7 +36,7 @@ export function TiltaksgjennomforingArrangorSkjema({ readOnly, avtale }: Props) 
 
   return (
     <>
-      <VStack>
+      <VStack gap="2">
         <TextField
           size="small"
           label={tiltaktekster.tiltaksarrangorHovedenhetLabel}
