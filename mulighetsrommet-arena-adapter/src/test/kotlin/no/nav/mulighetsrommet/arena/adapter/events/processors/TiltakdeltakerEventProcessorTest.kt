@@ -21,6 +21,7 @@ import no.nav.mulighetsrommet.arena.adapter.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.arena.adapter.fixtures.createArenaTiltakdeltakerEvent
 import no.nav.mulighetsrommet.arena.adapter.models.ProcessingResult
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable
+import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTiltakdeltakerStatus
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping.Status.Handled
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping.Status.Ignored
@@ -229,7 +230,7 @@ class TiltakdeltakerEventProcessorTest : FunSpec({
 
             test("should treat all operations as upserts") {
                 val (e1, mapping) = prepareEvent(
-                    createArenaTiltakdeltakerEvent(Insert) { it.copy(DELTAKERSTATUSKODE = "GJENN") },
+                    createArenaTiltakdeltakerEvent(Insert) { it.copy(DELTAKERSTATUSKODE = ArenaTiltakdeltakerStatus.GJENNOMFORES) },
                     Ignored,
                 )
 
@@ -245,13 +246,17 @@ class TiltakdeltakerEventProcessorTest : FunSpec({
                     .value("id").isEqualTo(mapping.entityId)
                     .value("status").isEqualTo("DELTAR")
 
-                val e2 = createArenaTiltakdeltakerEvent(Update) { it.copy(DELTAKERSTATUSKODE = "FULLF") }
+                val e2 = createArenaTiltakdeltakerEvent(Update) {
+                    it.copy(DELTAKERSTATUSKODE = ArenaTiltakdeltakerStatus.FULLFORT)
+                }
                 processor.handleEvent(e2).shouldBeRight().should { it.status shouldBe Handled }
                 database.assertThat("deltaker").row()
                     .value("id").isEqualTo(mapping.entityId)
                     .value("status").isEqualTo("AVSLUTTET")
 
-                val e3 = createArenaTiltakdeltakerEvent(Delete) { it.copy(DELTAKERSTATUSKODE = "FULLF") }
+                val e3 = createArenaTiltakdeltakerEvent(Delete) {
+                    it.copy(DELTAKERSTATUSKODE = ArenaTiltakdeltakerStatus.FULLFORT)
+                }
                 processor.handleEvent(e3).shouldBeRight().should { it.status shouldBe Handled }
                 database.assertThat("deltaker").row()
                     .value("id").isEqualTo(mapping.entityId)
