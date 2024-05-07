@@ -68,7 +68,7 @@ export function AvtalePersonvernForm({ tiltakstypeId }: Props) {
             size="small"
             key={p.personopplysning}
           >
-            {p.beskrivelse}
+            <span className={styles.max_length_text}> {p.beskrivelse}</span>
           </Checkbox>
         ))}
       </VStack>
