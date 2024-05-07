@@ -56,7 +56,7 @@ export const TiltaksgjennomforingSchema = z
           if (!val) {
             return true;
           }
-          return val.length < STED_FOR_GJENNOMFORING_MAX_LENGTH;
+          return val.length <= STED_FOR_GJENNOMFORING_MAX_LENGTH;
         },
         {
           message: `Du kan bare skrive ${STED_FOR_GJENNOMFORING_MAX_LENGTH} tegn i "Sted for gjennomføring"`,
