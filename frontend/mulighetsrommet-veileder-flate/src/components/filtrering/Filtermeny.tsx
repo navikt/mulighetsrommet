@@ -11,10 +11,9 @@ import { useAtom } from "jotai";
 import { filterAccordionAtom } from "@/core/atoms";
 import { useRegioner } from "@/api/queries/useRegioner";
 import { addOrRemove } from "mulighetsrommet-frontend-common/utils/utils";
-import { NavEnhetFilter } from "mulighetsrommet-frontend-common";
-import { FilterAccordionHeader } from "mulighetsrommet-frontend-common";
+import { FilterAccordionHeader, NavEnhetFilter } from "mulighetsrommet-frontend-common";
 
-export const Filtermeny = () => {
+export const ModiaFiltermeny = () => {
   const [filter, setFilter] = useArbeidsmarkedstiltakFilter();
   const [accordionsOpen, setAccordionsOpen] = useAtom(filterAccordionAtom);
   const { data: regioner } = useRegioner();
@@ -45,7 +44,8 @@ export const Filtermeny = () => {
           accordionIsOpenValue="apen-for-innsok"
         />
         <InnsatsgruppeFilter />
-        <Accordion.Item open={accordionsOpen.includes("brukers-enhet")}>
+        <Tiltakstypefilter antallValgteTiltakstyper={filter.tiltakstyper.length} />
+        <Accordion.Item>
           <Accordion.Header
             onClick={() => {
               setAccordionsOpen([...addOrRemove(accordionsOpen, "brukers-enhet")]);
@@ -65,7 +65,6 @@ export const Filtermeny = () => {
             />
           </Accordion.Content>
         </Accordion.Item>
-        <Tiltakstypefilter antallValgteTiltakstyper={filter.tiltakstyper.length} />
       </Accordion>
     </div>
   );
