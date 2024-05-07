@@ -13,7 +13,7 @@ import { useRegioner } from "@/api/queries/useRegioner";
 import { addOrRemove } from "mulighetsrommet-frontend-common/utils/utils";
 import { FilterAccordionHeader, NavEnhetFilter } from "mulighetsrommet-frontend-common";
 
-export const ModiaFiltermeny = () => {
+export const Filtermeny = () => {
   const [filter, setFilter] = useArbeidsmarkedstiltakFilter();
   const [accordionsOpen, setAccordionsOpen] = useAtom(filterAccordionAtom);
   const { data: regioner } = useRegioner();
@@ -45,7 +45,7 @@ export const ModiaFiltermeny = () => {
         />
         <InnsatsgruppeFilter />
         <Tiltakstypefilter antallValgteTiltakstyper={filter.tiltakstyper.length} />
-        <Accordion.Item>
+        <Accordion.Item open={accordionsOpen.includes("brukers-enhet")}>
           <Accordion.Header
             onClick={() => {
               setAccordionsOpen([...addOrRemove(accordionsOpen, "brukers-enhet")]);
