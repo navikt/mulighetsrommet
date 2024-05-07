@@ -1,4 +1,4 @@
-import { Alert, BodyLong, Heading, HStack, Tabs, Textarea } from "@navikt/ds-react";
+import { Alert, BodyLong, Heading, HStack, Tabs, Textarea, VStack } from "@navikt/ds-react";
 import { PortableText } from "@portabletext/react";
 import { EmbeddedTiltakstype, VeilederflateTiltakstype } from "mulighetsrommet-api-client";
 import { useFormContext } from "react-hook-form";
@@ -221,16 +221,18 @@ const Kontaktinfo = () => {
 
   return (
     <div className={skjemastyles.faneinnhold_container}>
-      <Textarea
-        {...register("faneinnhold.kontaktinfoInfoboks")}
-        label="Fremhevet informasjon til veileder som legger seg i blå infoboks i fanen «Kontaktinfo»"
-        description="Bruk denne tekstboksen for informasjon som skal være ekstra fremtredende for veilederne."
-      />
-      <PortableTextEditor
-        {...register("faneinnhold.kontaktinfo")}
-        label="Kontaktinfo"
-        description="Ekstra tekst om kontaktinfo."
-      />
+      <VStack gap="5">
+        <Textarea
+          {...register("faneinnhold.kontaktinfoInfoboks")}
+          label="Fremhevet informasjon til veileder som legger seg i blå infoboks i fanen «Kontaktinfo»"
+          description="Bruk denne tekstboksen for informasjon som skal være ekstra fremtredende for veilederne."
+        />
+        <PortableTextEditor
+          {...register("faneinnhold.kontaktinfo")}
+          label="Kontaktinfo"
+          description="Ekstra tekst om kontaktinfo."
+        />
+      </VStack>
     </div>
   );
 };
