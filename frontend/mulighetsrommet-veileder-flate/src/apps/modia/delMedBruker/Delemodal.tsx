@@ -1,19 +1,19 @@
+import { mulighetsrommetClient } from "@/api/client";
+import { ModiaRoute, navigateToModiaApp } from "@/apps/modia/ModiaRoute";
+import { erBrukerReservertMotElektroniskKommunikasjon } from "@/apps/modia/delMedBruker/helpers";
+import { PortenLink } from "@/components/PortenLink";
+import { StatusModal } from "@/components/modal/StatusModal";
+import { useLogEvent } from "@/logging/amplitude";
+import { erPreview } from "@/utils/Utils";
 import { BodyShort, Button, Checkbox, Heading, HelpText, Modal } from "@navikt/ds-react";
 import {
   Bruker,
   DelMedBruker,
   VeilederflateTiltaksgjennomforing,
 } from "mulighetsrommet-api-client";
-import { mulighetsrommetClient } from "@/api/client";
-import { useLogEvent } from "@/logging/amplitude";
-import { erPreview } from "@/utils/Utils";
-import { StatusModal } from "@/components/modal/StatusModal";
 import { DelMedBrukerContent, MAKS_ANTALL_TEGN_DEL_MED_BRUKER } from "./DelMedBrukerContent";
 import style from "./Delemodal.module.scss";
 import { Actions, State } from "./DelemodalActions";
-import { erBrukerReservertMotElektroniskKommunikasjon } from "@/apps/modia/delMedBruker/helpers";
-import { PortenLink } from "@/components/PortenLink";
-import { ModiaRoute, navigateToModiaApp } from "@/apps/modia/ModiaRoute";
 
 interface DelemodalProps {
   veiledernavn?: string;
@@ -145,7 +145,7 @@ export function Delemodal({
           <Modal.Footer className={style.delemodal_footer}>
             <div className={style.delemodal_actions}>
               {enableRedigerDeletekst ? null : (
-                <Button onClick={enableEndreDeletekst} variant="secondary">
+                <Button size="small" onClick={enableEndreDeletekst} variant="secondary">
                   Rediger melding
                 </Button>
               )}
@@ -178,8 +178,13 @@ export function Delemodal({
               </div>
             </div>
 
+            <BodyShort size="small">
+              Kandidatene vil få et varsel fra NAV, og kan logge inn på nav.no for å lese meldingen.
+              <div className={style.hr} />
+            </BodyShort>
             <div className={style.knapperad}>
               <Button
+                size="small"
                 variant="tertiary"
                 onClick={clickCancel}
                 data-testid="modal_btn-cancel"
@@ -188,6 +193,7 @@ export function Delemodal({
                 Avbryt
               </Button>
               <Button
+                size="small"
                 onClick={handleSend}
                 disabled={
                   senderTilDialogen ||
@@ -199,9 +205,6 @@ export function Delemodal({
                 {senderTilDialogen ? "Sender..." : "Send via Dialogen"}
               </Button>
             </div>
-            <BodyShort size="small">
-              Kandidatene vil få et varsel fra NAV, og kan logge inn på nav.no for å lese meldingen.
-            </BodyShort>
           </Modal.Footer>
         </Modal>
       )}
