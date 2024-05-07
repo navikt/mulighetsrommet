@@ -1,6 +1,7 @@
 import { Opphav, TiltaksgjennomforingOppstartstype } from "mulighetsrommet-api-client";
 import z from "zod";
 import { FaneinnholdSchema } from "./FaneinnholdSchema";
+import { STED_FOR_GJENNOMFORING_MAX_LENGTH } from "../../constants";
 
 export const TiltaksgjennomforingSchema = z
   .object({
@@ -47,7 +48,20 @@ export const TiltaksgjennomforingSchema = z
         required_error: "Du må velge en underenhet for tiltaksarrangør",
       })
       .uuid("Du må velge en underenhet for tiltaksarrangør"),
-    stedForGjennomforing: z.string().nullable(),
+    stedForGjennomforing: z
+      .string()
+      .nullable()
+      .refine(
+        (val) => {
+          if (!val) {
+            return true;
+          }
+          return val.length < STED_FOR_GJENNOMFORING_MAX_LENGTH;
+        },
+        {
+          message: `Du kan bare skrive ${STED_FOR_GJENNOMFORING_MAX_LENGTH} tegn i "Sted for gjennomføring"`,
+        },
+      ),
     arrangorKontaktpersoner: z.string().uuid().array(),
     administratorer: z
       .string({ required_error: "Du må velge minst én administrator" })

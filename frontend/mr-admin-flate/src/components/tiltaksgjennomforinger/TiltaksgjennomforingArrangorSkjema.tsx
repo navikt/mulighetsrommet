@@ -1,5 +1,5 @@
 import { useArrangorKontaktpersoner } from "@/api/arrangor/useArrangorKontaktpersoner";
-import { Button, TextField, VStack } from "@navikt/ds-react";
+import { Button, TextField, Textarea, VStack } from "@navikt/ds-react";
 import {
   ArrangorKontaktperson,
   ArrangorKontaktpersonAnsvar,
@@ -13,6 +13,7 @@ import { tiltaktekster } from "../ledetekster/tiltaksgjennomforingLedetekster";
 import { InferredTiltaksgjennomforingSchema } from "../redaksjonelt-innhold/TiltaksgjennomforingSchema";
 import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import skjemastyles from "../skjema/Skjema.module.scss";
+import { STED_FOR_GJENNOMFORING_MAX_LENGTH } from "../../constants";
 
 interface Props {
   avtale: Avtale;
@@ -33,7 +34,6 @@ export function TiltaksgjennomforingArrangorSkjema({ readOnly, avtale }: Props) 
 
   const arrangorOptions = getArrangorOptions(avtale);
   const kontaktpersonOptions = getKontaktpersonOptions(arrangorKontaktpersoner ?? []);
-
   return (
     <>
       <VStack>
@@ -73,8 +73,11 @@ export function TiltaksgjennomforingArrangorSkjema({ readOnly, avtale }: Props) 
             Opprett eller rediger kontaktpersoner
           </Button>
         </div>
-        <TextField
+        <Textarea
           size="small"
+          resize
+          value={watch("stedForGjennomforing") || ""}
+          maxLength={STED_FOR_GJENNOMFORING_MAX_LENGTH}
           label={tiltaktekster.stedForGjennomforingLabel}
           description="Skriv inn stedet tiltaket skal gjennomføres, for eksempel Fredrikstad eller Tromsø. For tiltak uten eksplisitt lokasjon (for eksempel digital jobbklubb), kan du la feltet stå tomt."
           {...register("stedForGjennomforing")}

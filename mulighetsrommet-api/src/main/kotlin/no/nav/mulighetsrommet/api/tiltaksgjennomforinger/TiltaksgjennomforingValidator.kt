@@ -157,6 +157,15 @@ class TiltaksgjennomforingValidator(
             )
         }
 
+        if (gjennomforing.stedForGjennomforing != null && gjennomforing.stedForGjennomforing.length > 500) {
+            add(
+                ValidationError.of(
+                    TiltaksgjennomforingDbo::stedForGjennomforing,
+                    "Du kan bare skrive 100 tegn i \"Sted for gjennomføring\"",
+                ),
+            )
+        }
+
         if (avtale.status != AvtaleStatus.AKTIV) {
             add(
                 ValidationError.of(
