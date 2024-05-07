@@ -1,5 +1,5 @@
 import { SelectOption } from "mulighetsrommet-frontend-common/components/SokeSelect";
-import React from "react";
+import React, { ReactNode } from "react";
 import ReactSelect from "react-select";
 
 export interface MultiSelectProps {
@@ -7,6 +7,7 @@ export interface MultiSelectProps {
   childRef: React.Ref<any>;
   placeholder: string;
   options: SelectOption[];
+  noOptionsMessage?: ReactNode;
   size?: "small" | "medium";
   value: SelectOption[];
   readOnly?: boolean;
@@ -16,7 +17,18 @@ export interface MultiSelectProps {
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const MultiSelect = React.forwardRef(function MultiSelect(props: MultiSelectProps, _) {
-  const { name, placeholder, options, onChange, value, childRef, error, readOnly, size } = props;
+  const {
+    name,
+    placeholder,
+    options,
+    noOptionsMessage,
+    onChange,
+    value,
+    childRef,
+    error,
+    readOnly,
+    size,
+  } = props;
 
   const customStyles = (isError: boolean) => ({
     control: (provided: any, state: any) => ({
@@ -68,7 +80,7 @@ export const MultiSelect = React.forwardRef(function MultiSelect(props: MultiSel
       ref={childRef}
       isMulti
       isDisabled={!!readOnly}
-      noOptionsMessage={() => "Ingen funnet"}
+      noOptionsMessage={() => (noOptionsMessage ? noOptionsMessage : "Ingen funnet")}
       name={name}
       value={value}
       onChange={(e) => {

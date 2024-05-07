@@ -62,6 +62,16 @@ export function TiltaksgjennomforingArrangorSkjema({ readOnly, avtale }: Props) 
             label={tiltaktekster.kontaktpersonerHosTiltaksarrangorLabel}
             {...register("arrangorKontaktpersoner")}
             options={kontaktpersonOptions}
+            noOptionsMessage={
+              <Button
+                size="small"
+                type="button"
+                variant="tertiary"
+                onClick={() => arrangorKontaktpersonerModalRef.current?.showModal()}
+              >
+                Opprett kontaktpersoner
+              </Button>
+            }
           />
           <Button
             className={skjemastyles.kontaktperson_button}

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { ReactNode } from "react";
 import { Controller } from "react-hook-form";
 import { MultiValue } from "react-select";
 import { MultiSelect } from "./MultiSelect";
@@ -14,6 +14,7 @@ export interface MultiSelectProps {
   additionalOnChange?: (values: MultiValue<SelectOption<string>>) => void;
   name: string;
   helpText?: string;
+  noOptionsMessage?: ReactNode;
 }
 
 export const ControlledMultiSelect = React.forwardRef(function ControlledMultiSelect(
@@ -24,6 +25,7 @@ export const ControlledMultiSelect = React.forwardRef(function ControlledMultiSe
   const {
     name,
     size,
+    noOptionsMessage,
     helpText,
     label,
     placeholder,
@@ -64,6 +66,7 @@ export const ControlledMultiSelect = React.forwardRef(function ControlledMultiSe
                 size={size}
                 error={Boolean(error)}
                 placeholder={placeholder}
+                noOptionsMessage={noOptionsMessage}
                 childRef={ref}
                 name={name}
                 value={options.filter((c) => value?.includes(c.value))}

@@ -28,6 +28,7 @@ class TiltaksgjennomforingValidator(
     private val avtaler: AvtaleRepository,
     private val arrangorer: ArrangorRepository,
 ) {
+    val maksAntallTegnStedForGjennomforing = 100
     fun validate(
         dbo: TiltaksgjennomforingDbo,
         previous: TiltaksgjennomforingAdminDto?,
@@ -157,11 +158,11 @@ class TiltaksgjennomforingValidator(
             )
         }
 
-        if (gjennomforing.stedForGjennomforing != null && gjennomforing.stedForGjennomforing.length > 500) {
+        if (gjennomforing.stedForGjennomforing != null && gjennomforing.stedForGjennomforing.length > maksAntallTegnStedForGjennomforing) {
             add(
                 ValidationError.of(
                     TiltaksgjennomforingDbo::stedForGjennomforing,
-                    "Du kan bare skrive 100 tegn i \"Sted for gjennomføring\"",
+                    "Du kan bare skrive $maksAntallTegnStedForGjennomforing tegn i \"Sted for gjennomføring\"",
                 ),
             )
         }
