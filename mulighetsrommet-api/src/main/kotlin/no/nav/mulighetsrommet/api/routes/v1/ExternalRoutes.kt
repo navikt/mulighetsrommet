@@ -9,7 +9,7 @@ import no.nav.mulighetsrommet.api.clients.arenaadapter.ArenaAdapterClient
 import no.nav.mulighetsrommet.api.routes.v1.parameters.getPaginationParams
 import no.nav.mulighetsrommet.api.services.TiltaksgjennomforingService
 import no.nav.mulighetsrommet.api.utils.EksternTiltaksgjennomforingFilter
-import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingsArenadataDto
+import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingArenaDataDto
 import org.koin.ktor.ext.inject
 import java.util.*
 
@@ -62,7 +62,7 @@ fun Route.externalRoutes() {
     }
 }
 
-fun toArenaDataDto(tiltaksnummer: String) = TiltaksgjennomforingsArenadataDto(
+fun toArenaDataDto(tiltaksnummer: String) = TiltaksgjennomforingArenaDataDto(
     opprettetAar = tiltaksnummer.split("#").first().toInt(),
     lopenr = tiltaksnummer.split("#")[1].toInt(),
 )
