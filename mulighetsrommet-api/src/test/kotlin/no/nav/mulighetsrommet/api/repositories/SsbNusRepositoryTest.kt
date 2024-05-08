@@ -2,7 +2,6 @@ package no.nav.mulighetsrommet.api.repositories
 
 import io.kotest.core.spec.style.FunSpec
 import no.nav.mulighetsrommet.api.clients.ssb.ClassificationItem
-import no.nav.mulighetsrommet.api.clients.ssb.Link
 import no.nav.mulighetsrommet.api.clients.ssb.SsbNusData
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
@@ -18,7 +17,6 @@ class SsbNusRepositoryTest : FunSpec({
                 ClassificationItem("2", "2", "2", "Barnehage"),
                 ClassificationItem("3", "3", "3", "Grunnskole"),
             ),
-            _links = Link(Link.Self("selfLink")),
             validFrom = "20240425",
         )
 

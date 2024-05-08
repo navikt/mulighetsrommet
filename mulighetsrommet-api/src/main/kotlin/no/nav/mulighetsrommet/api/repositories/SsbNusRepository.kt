@@ -10,13 +10,12 @@ class SsbNusRepository(private val db: Database) {
     fun upsert(data: SsbNusData, version: String) {
         @Language("PostgreSQL")
         val query = """
-        insert into nus_kodeverk(id, name, parent, level, version, self_link)
-        values(:id, :name, :parent, :level, :version, :selfLink)
-        on conflict (id, version) do update set
+        insert into nus_kodeverk(code, name, parent, level, version)
+        values(:code, :name, :parent, :level, :version)
+        on conflict (code, version) do update set
             name = excluded.name,
             parent = excluded.parent,
-            level = excluded.level,
-            self_link = excluded.self_link
+            level = excluded.level
         """.trimIndent()
 
         db.transaction { tx ->
@@ -24,7 +23,7 @@ class SsbNusRepository(private val db: Database) {
                 tx.run(
                     queryOf(
                         query,
-                        classificationItem.toSqlParams() + mapOf("version" to version, "selfLink" to data._links.self.href),
+                        classificationItem.toSqlParams() + mapOf("version" to version),
                     ).asExecute,
                 )
             }
@@ -34,7 +33,7 @@ class SsbNusRepository(private val db: Database) {
 
 private fun ClassificationItem.toSqlParams(): Map<String, String> {
     return mapOf(
-        "id" to code,
+        "code" to code,
         "name" to name,
         "parent" to parentCode,
         "level" to level,
