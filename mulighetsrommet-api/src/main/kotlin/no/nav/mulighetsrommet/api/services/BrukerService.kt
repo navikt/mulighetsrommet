@@ -173,11 +173,7 @@ class BrukerService(
             .map { navEnhetService.hentEnhet(it.enhetNr) }
             .getOrElse {
                 when (it) {
-                    NorgError.NotFound -> throw StatusException(
-                        HttpStatusCode.InternalServerError,
-                        "Fant ikke nav enhet til geografisk tilknytning.",
-                    )
-
+                    NorgError.NotFound -> null
                     NorgError.Error -> throw StatusException(
                         HttpStatusCode.InternalServerError,
                         "Fant ikke nav enhet til geografisk tilknytning.",
