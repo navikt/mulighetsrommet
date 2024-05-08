@@ -2,6 +2,7 @@ import { Toggles } from "mulighetsrommet-api-client";
 import { useFeatureToggle } from "../../api/features/useFeatureToggle";
 import { useTiltaksgjennomforingDeltakerSummary } from "../../api/tiltaksgjennomforing/useTiltaksgjennomforingDeltakerSummary";
 import styles from "./NokkeltallDeltakere.module.scss";
+import { HStack, HelpText } from "@navikt/ds-react";
 
 interface Props {
   tiltaksgjennomforingId: string;
@@ -19,7 +20,10 @@ export function NokkeltallDeltakere({ tiltaksgjennomforingId }: Props) {
 
   return (
     <div className={styles.container}>
-      <h4 className={styles.heading}>Deltakerinformasjon</h4>
+      <HStack gap="2">
+        <h4 className={styles.heading}>Deltakerinformasjon</h4>
+        <HelpText>Kun tilgjengelig i debug-modus</HelpText>
+      </HStack>
       <dl className={styles.numbers}>
         <div className={styles.key_number}>
           <dt>Påbegynt registrering</dt>
