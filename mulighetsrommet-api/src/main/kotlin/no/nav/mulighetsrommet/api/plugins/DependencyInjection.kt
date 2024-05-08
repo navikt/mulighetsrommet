@@ -173,6 +173,7 @@ private fun repositories() = module {
     single { ArrangorRepository(get()) }
     single { KafkaConsumerRepositoryImpl(get()) }
     single { VeilederJoyrideRepository(get()) }
+    single { SsbNusRepository(get()) }
 }
 
 private fun services(appConfig: AppConfig) = module {
@@ -341,6 +342,7 @@ private fun services(appConfig: AppConfig) = module {
     single { AvtaleValidator(get(), get(), get(), get()) }
     single { TiltaksgjennomforingValidator(get(), get(), get()) }
     single { SsbNusClient(engine = appConfig.engine, config = appConfig.ssbNusConfig) }
+    single { SsbNusService(get(), get()) }
 }
 
 private fun tasks(config: TaskConfig) = module {

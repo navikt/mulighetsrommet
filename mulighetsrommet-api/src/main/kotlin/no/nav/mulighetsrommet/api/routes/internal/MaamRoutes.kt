@@ -7,6 +7,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.clients.ssb.SsbNusClient
+import no.nav.mulighetsrommet.api.services.SsbNusService
 import no.nav.mulighetsrommet.api.tasks.GenerateValidationReport
 import no.nav.mulighetsrommet.api.tasks.InitialLoadTiltaksgjennomforinger
 import no.nav.mulighetsrommet.api.tasks.InitialLoadTiltakstyper
@@ -24,7 +25,7 @@ fun Route.maamRoutes() {
             val initialLoadTiltaksgjennomforinger: InitialLoadTiltaksgjennomforinger by inject()
             val initialLoadTiltakstyper: InitialLoadTiltakstyper by inject()
             val synchronizeNavAnsatte: SynchronizeNavAnsatte by inject()
-            val ssbNusClient: SsbNusClient by inject()
+            val ssbNusService: SsbNusService by inject()
 
             post("generate-validation-report") {
                 val taskId = generateValidationReport.schedule()
@@ -52,8 +53,7 @@ fun Route.maamRoutes() {
 
             post("sync-nusdata") {
                 val input = call.receive<SsbNusClient.Input>()
-                val nusData = ssbNusClient.fetchNusData(input.version)
-                // Upsert to db table
+                ssbNusService.syncData(version = input.version)
                 call.respond(HttpStatusCode.Accepted, GeneralTaskResponse(id = "NUS data synced for version ${input.version}"))
             }
         }
