@@ -70,7 +70,7 @@ class SanityClient(engine: HttpClientEngine = CIO.create(), val config: Config) 
         }
 
         install(HttpTimeout) {
-            requestTimeoutMillis = 5000
+            requestTimeoutMillis = 30000
         }
 
         install(ContentNegotiation) {

@@ -116,7 +116,7 @@ app:
     synchronizeNorgEnheter:
       delayOfMinutes: 360 # Hver 6. time
     synchronizeNavAnsatte:
-      cronPattern: "0 0 6-18 * * MON-FRI" # Hver time i løpet av arbeidsdagen
+      cronPattern: "0 0 6 * * *" # Hver morgen kl. 06:00
     notifySluttdatoForGjennomforingerNarmerSeg:
       cronPattern: "0 0 6 * * *" # Hver morgen kl. 06:00
     notifySluttdatoForAvtalerNarmerSeg:
