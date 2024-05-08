@@ -40,16 +40,28 @@ class PdlClient(
         }
     }
 
-    private val pdlCache: Cache<String, List<IdentInformasjon>> = Caffeine.newBuilder()
+    private val hentIdenterCache: Cache<String, List<IdentInformasjon>> = Caffeine.newBuilder()
+        .expireAfterWrite(1, TimeUnit.HOURS)
+        .maximumSize(10_000)
+        .recordStats()
+        .build()
+
+    private val hentPersonCache: Cache<String, PdlPerson> = Caffeine.newBuilder()
+        .expireAfterWrite(1, TimeUnit.HOURS)
+        .maximumSize(10_000)
+        .recordStats()
+        .build()
+
+    private val hentGeografiskTilknytningCache: Cache<String, GeografiskTilknytning> = Caffeine.newBuilder()
         .expireAfterWrite(1, TimeUnit.HOURS)
         .maximumSize(10_000)
         .recordStats()
         .build()
 
     suspend fun hentIdenter(ident: String, accessType: AccessType): Either<PdlError, List<IdentInformasjon>> {
-        pdlCache.getIfPresent(ident)?.let { return@hentIdenter it.right() }
+        hentIdenterCache.getIfPresent(ident)?.let { return@hentIdenter it.right() }
 
-        val response = graphqlRequest<GraphqlRequest.Ident, HentIdenterData>(
+        return graphqlRequest<GraphqlRequest.Ident, HentIdenterResponse>(
             GraphqlRequest(
                 query = """
                     query(${'$'}ident: ID!) {
@@ -66,24 +78,94 @@ class PdlClient(
             ),
             accessType = accessType,
         )
-
-        return if (response.errors.isNotEmpty()) {
-            if (response.errors.any { error -> error.extensions?.code == "not_found" }) {
-                PdlError.NotFound.left()
-            } else {
-                log.error("Error fra pdl ved hentIdenter: ${response.errors}")
-                PdlError.Error.left()
+            .map {
+                require(it.hentIdenter != null) {
+                    "hentIdenter var null og errors tom! response: $it"
+                }
+                it.hentIdenter.identer
             }
-        } else {
-            require(response.data.hentIdenter != null) {
-                "hentIdenter var null og errors tom! response: $response"
-            }
-            response.data.hentIdenter.identer.right()
-        }
-            .onRight { pdlCache.put(ident, it) }
+            .onRight { hentIdenterCache.put(ident, it) }
     }
 
-    private suspend inline fun <reified T, reified V> graphqlRequest(req: GraphqlRequest<T>, accessType: AccessType): GraphqlResponse<V> {
+    suspend fun hentPerson(ident: String, accessType: AccessType): Either<PdlError, PdlPerson> {
+        hentPersonCache.getIfPresent(ident)?.let { return@hentPerson it.right() }
+
+        return graphqlRequest<GraphqlRequest.Ident, HentPersonResponse>(
+            GraphqlRequest(
+                query = """
+                    query(${'$'}ident: ID!) {
+                        hentPerson(ident: ${'$'}ident) {
+                        	navn(historikk: false) {
+                                fornavn
+                                mellomnavn
+                                etternavn
+                            }
+                        }
+                    }
+                """.trimIndent(),
+                variables = GraphqlRequest.Ident(ident = ident),
+            ),
+            accessType = accessType,
+        )
+            .map {
+                require(it.hentPerson != null) {
+                    "hentPerson var null og errors tom! response: $it"
+                }
+                it.hentPerson
+            }
+            .onRight {
+                hentPersonCache.put(ident, it)
+            }
+    }
+
+    suspend fun hentGeografiskTilknytning(ident: String, accessType: AccessType): Either<PdlError, GeografiskTilknytning> {
+        hentGeografiskTilknytningCache.getIfPresent(ident)?.let { return@hentGeografiskTilknytning it.right() }
+
+        return graphqlRequest<GraphqlRequest.Ident, HentGeografiskTilknytningResponse>(
+            GraphqlRequest(
+                query = """
+                    query(${'$'}ident: ID!) {
+                        hentGeografiskTilknytning(ident: ${'$'}ident) {
+                            gtType
+                            gtKommune
+                            gtBydel
+                            gtLand
+                        }
+                    }
+                """.trimIndent(),
+                variables = GraphqlRequest.Ident(ident = ident),
+            ),
+            accessType = accessType,
+        )
+            .map {
+                require(it.hentGeografiskTilknytning != null) {
+                    "hentGeografiskTilknytning var null og errors tom! response: $it"
+                }
+                when (it.hentGeografiskTilknytning.gtType) {
+                    TypeGeografiskTilknytning.BYDEL -> {
+                        requireNotNull(it.hentGeografiskTilknytning.gtBydel)
+                        GeografiskTilknytning.GtBydel(it.hentGeografiskTilknytning.gtBydel)
+                    }
+                    TypeGeografiskTilknytning.KOMMUNE -> {
+                        requireNotNull(it.hentGeografiskTilknytning.gtKommune)
+                        GeografiskTilknytning.GtKommune(it.hentGeografiskTilknytning.gtKommune)
+                    }
+                    TypeGeografiskTilknytning.UTLAND -> {
+                        log.warn("Pdl returnerte UTLAND geografisk tilkytning. Da kan man ikke hente enhet fra norg.")
+                        GeografiskTilknytning.GtUtland(it.hentGeografiskTilknytning.gtLand)
+                    }
+                    TypeGeografiskTilknytning.UDEFINERT -> {
+                        log.warn("Pdl returnerte UDEFINERT geografisk tilkytning. Da kan man ikke hente enhet fra norg.")
+                        GeografiskTilknytning.GtUdefinert
+                    }
+                }
+            }
+            .onRight {
+                hentGeografiskTilknytningCache.put(ident, it)
+            }
+    }
+
+    private suspend inline fun <reified T, reified V> graphqlRequest(req: GraphqlRequest<T>, accessType: AccessType): Either<PdlError, V> {
         val response = client.post("$baseUrl/graphql") {
             bearerAuth(tokenProvider.invoke(accessType))
             header(HttpHeaders.ContentType, ContentType.Application.Json)
@@ -93,9 +175,20 @@ class PdlClient(
         }
 
         if (response.status != HttpStatusCode.OK) {
-            throw Exception("Error fra pdl ved hentIdenter: $response")
+            throw Exception("Error fra pdl: $response")
         }
-        return response.body()
+        val graphqlResponse: GraphqlResponse<V> = response.body()
+
+        return if (graphqlResponse.errors.isNotEmpty()) {
+            if (graphqlResponse.errors.any { error -> error.extensions?.code == "not_found" }) {
+                PdlError.NotFound.left()
+            } else {
+                log.error("Error fra pdl: ${graphqlResponse.errors}")
+                PdlError.Error.left()
+            }
+        } else {
+            graphqlResponse.data.right()
+        }
     }
 }
 
@@ -133,7 +226,7 @@ data class GraphqlResponse<T>(
 }
 
 @Serializable
-data class HentIdenterData(
+data class HentIdenterResponse(
     val hentIdenter: Identliste? = null,
 ) {
 
@@ -155,4 +248,48 @@ enum class IdentGruppe {
     AKTORID,
     FOLKEREGISTERIDENT,
     NPID,
+}
+
+@Serializable
+data class HentPersonResponse(
+    val hentPerson: PdlPerson? = null,
+)
+
+@Serializable
+data class PdlPerson(
+    val navn: List<PdlNavn>,
+) {
+    @Serializable
+    data class PdlNavn(
+        val fornavn: String? = null,
+        val mellomnavn: String? = null,
+        val etternavn: String? = null,
+    )
+}
+
+@Serializable
+data class HentGeografiskTilknytningResponse(
+    val hentGeografiskTilknytning: PdlGeografiskTilknytning? = null,
+)
+
+sealed class GeografiskTilknytning {
+    data class GtKommune(val value: String) : GeografiskTilknytning()
+    data class GtBydel(val value: String) : GeografiskTilknytning()
+    data class GtUtland(val value: String?) : GeografiskTilknytning()
+    object GtUdefinert : GeografiskTilknytning()
+}
+
+@Serializable
+data class PdlGeografiskTilknytning(
+    val gtType: TypeGeografiskTilknytning,
+    val gtLand: String? = null,
+    val gtKommune: String? = null,
+    val gtBydel: String? = null,
+)
+
+enum class TypeGeografiskTilknytning {
+    BYDEL,
+    KOMMUNE,
+    UDEFINERT,
+    UTLAND,
 }

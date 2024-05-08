@@ -4,16 +4,13 @@ server:
 
 app:
   database:
-    host: ${DB_HOST}
-    port: ${DB_PORT}
-    name: ${DB_DATABASE}
-    user: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
+    jdbcUrl: ${DB_JDBC_URL}
     maximumPoolSize: 10
-    migrationConfig:
-      strategy: Migrate
+  flyway:
+    strategy: Migrate
 
-  migrerteTiltak: []
+  migrerteTiltak:
+    - JOBBKLUBB
 
   kafka:
     producerId: mulighetsrommet-api-kafka-producer.v1
@@ -24,7 +21,7 @@ app:
       tiltaksgjennomforinger:
         topic: team-mulighetsrommet.siste-tiltaksgjennomforinger-v1
       tiltakstyper:
-        topic: team-mulighetsrommet.siste-tiltakstyper-v1
+        topic: team-mulighetsrommet.siste-tiltakstyper-v2
     consumers:
       tiltaksgjennomforingerV1:
         id: siste-tiltaksgjennomforinger
@@ -81,10 +78,6 @@ app:
     url: https://veilarboppfolging.prod-fss-pub.nais.io/veilarboppfolging/api
     scope: api://prod-fss.pto.veilarboppfolging/.default
 
-  veilarbpersonConfig:
-    url: https://veilarbperson.prod-fss-pub.nais.io/veilarbperson/api
-    scope: api://prod-fss.pto.veilarbperson/.default
-
   veilarbveilederConfig:
     url: https://veilarbveileder.prod-fss-pub.nais.io/veilarbveileder/api
     scope: api://prod-fss.pto.veilarbveileder/.default
@@ -123,14 +116,14 @@ app:
     synchronizeNorgEnheter:
       delayOfMinutes: 360 # Hver 6. time
     synchronizeNavAnsatte:
-      cronPattern: "0 0 6-18 * * MON-FRI" # Hver time i løpet av arbeidsdagen
+      cronPattern: "0 0 6 * * *" # Hver morgen kl. 06:00
     notifySluttdatoForGjennomforingerNarmerSeg:
       cronPattern: "0 0 6 * * *" # Hver morgen kl. 06:00
     notifySluttdatoForAvtalerNarmerSeg:
       cronPattern: "0 0 6 * * *" # Hver morgen kl. 06:00
     notifyFailedKafkaEvents:
       maxRetries: 5
-      delayOfMinutes: 15
+      cronPattern: "0 */15 * ? * MON-FRI"
     generateValidationReport:
       bucketName: mulighetsrommet-api-uploads-prod
     updateApentForInnsok:
@@ -154,3 +147,6 @@ app:
     token: ${UNLEASH_SERVER_API_TOKEN}
     instanceId: ${NAIS_CLIENT_ID}
     environment: production
+
+  ssbNusConfig:
+    baseUrl: "https://data.ssb.no/api"

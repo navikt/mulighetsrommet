@@ -4,14 +4,8 @@ server:
 
 app:
   database:
-    host: ${DB_HOST}
-    port: ${DB_PORT}
-    name: ${DB_DATABASE}
-    user: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
+    jdbcUrl: ${DB_JDBC_URL}
     maximumPoolSize: 10
-    migrationConfig:
-      strategy: Migrate
 
   services:
     mulighetsrommetApi:

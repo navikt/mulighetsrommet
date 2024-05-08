@@ -1,15 +1,12 @@
 import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
-import { useFeatureToggle } from "@/api/features/feature-toggles";
 import { getWebInstrumentations, initializeFaro } from "@grafana/faro-web-sdk";
 import { Alert, BodyShort } from "@navikt/ds-react";
-import { NavAnsattRolle, Toggles } from "mulighetsrommet-api-client";
+import { NavAnsattRolle } from "mulighetsrommet-api-client";
 import { Route, Routes } from "react-router-dom";
 import { Forside } from "./Forside";
 import IkkeAutentisertApp from "./IkkeAutentisertApp";
-import NotaterAvtalePage from "./components/avtaler/NotaterAvtalePage";
 import { Laster } from "./components/laster/Laster";
 import { Notifikasjonsliste } from "./components/notifikasjoner/Notifikasjonsliste";
-import NotaterTiltaksgjennomforingerPage from "./components/tiltaksgjennomforinger/NotaterTiltaksgjennomforingerPage";
 import { initializeAmplitude } from "./logging/amplitude";
 import { ErrorPage } from "./pages/ErrorPage";
 import { ArrangorPageContainer } from "./pages/arrangor/ArrangorPageContainer";
@@ -43,8 +40,6 @@ initializeAmplitude();
 
 export function App() {
   const { data: ansatt, isLoading: ansattIsLoading, error } = useHentAnsatt();
-
-  const { data: showNotater } = useFeatureToggle(Toggles.MULIGHETSROMMET_ADMIN_FLATE_SHOW_NOTATER);
 
   if (error) {
     return (
@@ -91,9 +86,6 @@ export function App() {
       <Route path="avtaler" element={<AvtalerPage />} errorElement={<ErrorPage />} />
       <Route path="avtaler/:avtaleId" element={<AvtalePage />} errorElement={<ErrorPage />}>
         <Route index element={<AvtaleInfo />} errorElement={<ErrorPage />} />
-        {showNotater && (
-          <Route path="notater" element={<NotaterAvtalePage />} errorElement={<ErrorPage />} />
-        )}
         <Route
           path="tiltaksgjennomforinger"
           element={<TiltaksgjennomforingerForAvtalePage />}
@@ -122,13 +114,6 @@ export function App() {
         errorElement={<ErrorPage />}
       >
         <Route index element={<TiltaksgjennomforingInfo />} errorElement={<ErrorPage />} />
-        {showNotater && (
-          <Route
-            path="notater"
-            element={<NotaterTiltaksgjennomforingerPage />}
-            errorElement={<ErrorPage />}
-          />
-        )}
       </Route>
       <Route
         path="tiltaksgjennomforinger/:tiltaksgjennomforingId"
@@ -136,13 +121,6 @@ export function App() {
         errorElement={<ErrorPage />}
       >
         <Route index element={<TiltaksgjennomforingInfo />} errorElement={<ErrorPage />} />
-        {showNotater && (
-          <Route
-            path="notater"
-            element={<NotaterTiltaksgjennomforingerPage />}
-            errorElement={<ErrorPage />}
-          />
-        )}
       </Route>
       <Route
         path="avtaler/:avtaleId/tiltaksgjennomforinger/:tiltaksgjennomforingId/skjema"

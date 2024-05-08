@@ -5,8 +5,8 @@
   "module": "index.ts",
   "types": "index.tsx",
   "dependencies": {
-    "@navikt/ds-css": "^6.6.0",
-    "@navikt/ds-react": "^6.5.0",
+    "@navikt/ds-css": "6.7.0",
+    "@navikt/ds-react": "6.7.0",
     "debounce": "2.0.0",
     "focus-trap-react": "^10.2.3",
     "mulighetsrommet-api-client": "*",

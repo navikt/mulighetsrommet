@@ -95,31 +95,11 @@ function filtrerInnsatsgruppe(
   gjennomforing: VeilederflateTiltaksgjennomforing,
   innsatsgruppe?: Innsatsgruppe,
 ): boolean {
-  if (!gjennomforing.tiltakstype.innsatsgruppe) {
+  if (!innsatsgruppe || !gjennomforing.tiltakstype.innsatsgrupper) {
     return true;
   }
 
-  switch (innsatsgruppe) {
-    case Innsatsgruppe.STANDARD_INNSATS: {
-      return gjennomforing.tiltakstype.innsatsgruppe.nokkel === innsatsgruppe;
-    }
-    case Innsatsgruppe.SITUASJONSBESTEMT_INNSATS: {
-      return [Innsatsgruppe.STANDARD_INNSATS, Innsatsgruppe.SITUASJONSBESTEMT_INNSATS].includes(
-        gjennomforing.tiltakstype.innsatsgruppe.nokkel,
-      );
-    }
-    case Innsatsgruppe.SPESIELT_TILPASSET_INNSATS: {
-      return [
-        Innsatsgruppe.STANDARD_INNSATS,
-        Innsatsgruppe.SITUASJONSBESTEMT_INNSATS,
-        Innsatsgruppe.SPESIELT_TILPASSET_INNSATS,
-      ].includes(gjennomforing.tiltakstype.innsatsgruppe.nokkel);
-    }
-    case Innsatsgruppe.VARIG_TILPASSET_INNSATS:
-    default: {
-      return true;
-    }
-  }
+  return gjennomforing.tiltakstype.innsatsgrupper.includes(innsatsgruppe);
 }
 
 function filtrerTiltakstyper(

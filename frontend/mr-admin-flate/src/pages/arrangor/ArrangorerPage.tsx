@@ -1,7 +1,6 @@
-import { useTitle } from "mulighetsrommet-frontend-common";
+import { ReloadAppErrorBoundary, useTitle } from "mulighetsrommet-frontend-common";
 import { FilterAndTableLayout } from "mulighetsrommet-frontend-common/components/filterAndTableLayout/FilterAndTableLayout";
 import { useState } from "react";
-import { ReloadAppErrorBoundary } from "../../ErrorBoundary";
 import { arrangorerFilterAtom } from "../../api/atoms";
 import { ArrangorerFilter } from "../../components/filter/ArrangorerFilter";
 import { Brodsmuler } from "../../components/navigering/Brodsmuler";

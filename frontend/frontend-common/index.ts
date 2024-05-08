@@ -9,6 +9,12 @@ import { FilterTag } from "./components/filter/filterTag/FilterTag";
 import { FilterTagsContainer } from "./components/filter/filterTag/FilterTagsContainer";
 import { FilterAccordionHeader } from "./components/filter/accordionHeader/FilterAccordionHeader";
 import { Drawer } from "./components/drawer/Drawer";
+import {
+  ReloadAppErrorBoundary,
+  InlineErrorBoundary,
+  InlineFallback,
+  ReloadAppFallback,
+} from "./components/error-handling/ErrorBoundary";
 import { TilbakemeldingLenke } from "./components/tilbakemelding/Tilbakemeldingslenke";
 
 export {
@@ -23,5 +29,9 @@ export {
   FilterTagsContainer,
   FilterAccordionHeader,
   Drawer,
+  ReloadAppErrorBoundary,
+  InlineErrorBoundary,
+  InlineFallback,
+  ReloadAppFallback,
   TilbakemeldingLenke,
 };

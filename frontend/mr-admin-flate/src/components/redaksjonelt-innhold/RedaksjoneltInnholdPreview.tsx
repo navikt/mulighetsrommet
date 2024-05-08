@@ -1,9 +1,9 @@
-import { Alert, BodyLong, BodyShort, Heading } from "@navikt/ds-react";
+import { useTiltakstypeFaneinnhold } from "@/api/tiltaksgjennomforing/useTiltakstypeFaneinnhold";
+import { Alert, BodyLong, Heading } from "@navikt/ds-react";
 import { PortableText } from "@portabletext/react";
 import { SanityFaneinnhold } from "mulighetsrommet-api-client";
+import { InlineErrorBoundary } from "mulighetsrommet-frontend-common";
 import React from "react";
-import { InlineErrorBoundary } from "../../ErrorBoundary";
-import { useTiltakstypeFaneinnhold } from "@/api/tiltaksgjennomforing/useTiltakstypeFaneinnhold";
 import styles from "../../pages/DetaljerInfo.module.scss";
 import { Laster } from "../laster/Laster";
 import { Lenkeliste } from "../lenker/Lenkeliste";
@@ -30,7 +30,7 @@ function RedaksjoneltInnhold(props: RedaksjoneltInnholdPreviewProps) {
   return (
     <div className={styles.red_innhold_container}>
       {tiltakstypeSanityData?.beskrivelse && (
-        <BodyLong size="large" className={styles.preWrap}>
+        <BodyLong size="large" spacing className={styles.preWrap}>
           {tiltakstypeSanityData.beskrivelse}
         </BodyLong>
       )}
@@ -41,44 +41,88 @@ function RedaksjoneltInnhold(props: RedaksjoneltInnholdPreviewProps) {
           </BodyLong>
         </div>
       )}
-      <Heading size="medium">For hvem</Heading>
-      <DetaljerFane
-        tiltaksgjennomforing={faneinnhold?.forHvem}
-        tiltaksgjennomforingAlert={faneinnhold?.forHvemInfoboks}
-        tiltakstype={tiltakstypeSanityData?.faneinnhold?.forHvem}
-        tiltakstypeAlert={tiltakstypeSanityData?.faneinnhold?.forHvemInfoboks}
-      />
-      <Heading size="medium">Detaljer og innhold</Heading>
-      <DetaljerFane
-        tiltaksgjennomforing={faneinnhold?.detaljerOgInnhold}
-        tiltaksgjennomforingAlert={faneinnhold?.detaljerOgInnholdInfoboks}
-        tiltakstype={tiltakstypeSanityData?.faneinnhold?.detaljerOgInnhold}
-        tiltakstypeAlert={tiltakstypeSanityData?.faneinnhold?.detaljerOgInnholdInfoboks}
-      />
-      <Heading size="medium">Påmelding og varighet</Heading>
-      <DetaljerFane
-        tiltaksgjennomforing={faneinnhold?.pameldingOgVarighet}
-        tiltaksgjennomforingAlert={faneinnhold?.pameldingOgVarighetInfoboks}
-        tiltakstype={tiltakstypeSanityData?.faneinnhold?.pameldingOgVarighet}
-        tiltakstypeAlert={tiltakstypeSanityData?.faneinnhold?.pameldingOgVarighetInfoboks}
-      />
-      <Heading size="medium">Kontaktinfo</Heading>
-      <DetaljerFane
-        tiltaksgjennomforing={faneinnhold?.kontaktinfo}
-        tiltaksgjennomforingAlert={faneinnhold?.kontaktinfoInfoboks}
-      />
-      <Heading size="medium">Lenker</Heading>
-      {faneinnhold?.lenker && faneinnhold.lenker.length > 0 ? (
-        <Lenkeliste lenker={faneinnhold.lenker} />
-      ) : (
-        <BodyShort>Ingen lenker lagt inn</BodyShort>
-      )}
-      <Heading size="medium">Del med bruker</Heading>
-      <BodyLong as="div" size="small">
-        {faneinnhold?.delMedBruker ?? tiltakstypeSanityData.delingMedBruker}
-      </BodyLong>
+      {someValuesExists([
+        faneinnhold?.forHvem,
+        faneinnhold?.forHvemInfoboks,
+        tiltakstypeSanityData?.faneinnhold?.forHvem,
+        tiltakstypeSanityData?.faneinnhold?.forHvemInfoboks,
+      ]) ? (
+        <>
+          <Heading size="medium">For hvem</Heading>
+          <DetaljerFane
+            tiltaksgjennomforing={faneinnhold?.forHvem}
+            tiltaksgjennomforingAlert={faneinnhold?.forHvemInfoboks}
+            tiltakstype={tiltakstypeSanityData?.faneinnhold?.forHvem}
+            tiltakstypeAlert={tiltakstypeSanityData?.faneinnhold?.forHvemInfoboks}
+          />
+        </>
+      ) : null}
+
+      {someValuesExists([
+        faneinnhold?.detaljerOgInnhold,
+        faneinnhold?.detaljerOgInnholdInfoboks,
+        tiltakstypeSanityData?.faneinnhold?.detaljerOgInnhold,
+        tiltakstypeSanityData?.faneinnhold?.detaljerOgInnholdInfoboks,
+      ]) ? (
+        <>
+          <Heading size="medium">Detaljer og innhold</Heading>
+          <DetaljerFane
+            tiltaksgjennomforing={faneinnhold?.detaljerOgInnhold}
+            tiltaksgjennomforingAlert={faneinnhold?.detaljerOgInnholdInfoboks}
+            tiltakstype={tiltakstypeSanityData?.faneinnhold?.detaljerOgInnhold}
+            tiltakstypeAlert={tiltakstypeSanityData?.faneinnhold?.detaljerOgInnholdInfoboks}
+          />
+        </>
+      ) : null}
+
+      {someValuesExists([
+        faneinnhold?.pameldingOgVarighet,
+        faneinnhold?.pameldingOgVarighetInfoboks,
+        tiltakstypeSanityData?.faneinnhold?.pameldingOgVarighet,
+        tiltakstypeSanityData?.faneinnhold?.pameldingOgVarighetInfoboks,
+      ]) ? (
+        <>
+          <Heading size="medium">Påmelding og varighet</Heading>
+          <DetaljerFane
+            tiltaksgjennomforing={faneinnhold?.pameldingOgVarighet}
+            tiltaksgjennomforingAlert={faneinnhold?.pameldingOgVarighetInfoboks}
+            tiltakstype={tiltakstypeSanityData?.faneinnhold?.pameldingOgVarighet}
+            tiltakstypeAlert={tiltakstypeSanityData?.faneinnhold?.pameldingOgVarighetInfoboks}
+          />
+        </>
+      ) : null}
+
+      {someValuesExists([faneinnhold?.kontaktinfo, faneinnhold?.kontaktinfoInfoboks]) ? (
+        <>
+          <Heading size="medium">Kontaktinfo</Heading>
+          <DetaljerFane
+            tiltaksgjennomforing={faneinnhold?.kontaktinfo}
+            tiltaksgjennomforingAlert={faneinnhold?.kontaktinfoInfoboks}
+          />
+        </>
+      ) : null}
+
+      {someValuesExists([faneinnhold?.lenker]) ? (
+        <>
+          <Heading size="medium">Lenker</Heading>
+          <Lenkeliste lenker={faneinnhold?.lenker || []} />
+        </>
+      ) : null}
+
+      {someValuesExists([faneinnhold?.delMedBruker, tiltakstypeSanityData.delingMedBruker]) ? (
+        <>
+          <Heading size="medium">Del med bruker</Heading>
+          <BodyLong as="div" size="small">
+            {faneinnhold?.delMedBruker ?? tiltakstypeSanityData.delingMedBruker}
+          </BodyLong>
+        </>
+      ) : null}
     </div>
   );
+}
+
+function someValuesExists(params: any[]): boolean {
+  return params.some((p) => !!p);
 }
 
 interface DetaljerFaneProps {

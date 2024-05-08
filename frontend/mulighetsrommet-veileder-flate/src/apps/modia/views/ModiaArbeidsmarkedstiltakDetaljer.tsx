@@ -1,3 +1,4 @@
+import { InlineErrorBoundary } from "@/ErrorBoundary";
 import { useFeatureToggle } from "@/api/feature-toggles";
 import { useGetTiltaksgjennomforingIdFraUrl } from "@/api/queries/useGetTiltaksgjennomforingIdFraUrl";
 import { useTiltaksgjennomforingById } from "@/api/queries/useTiltaksgjennomforingById";
@@ -11,6 +12,7 @@ import { BrukerKvalifisererIkkeVarsel } from "@/apps/modia/varsler/BrukerKvalifi
 import { TiltakLoader } from "@/components/TiltakLoader";
 import { DetaljerJoyride } from "@/components/joyride/DetaljerJoyride";
 import { OpprettAvtaleJoyride } from "@/components/joyride/OpprettAvtaleJoyride";
+import { PersonvernContainer } from "@/components/personvern/PersonvernContainer";
 import { LenkeListe } from "@/components/sidemeny/Lenker";
 import { Tilbakeknapp } from "@/components/tilbakeknapp/Tilbakeknapp";
 import { paginationAtom } from "@/core/atoms";
@@ -21,15 +23,12 @@ import { Alert, Button } from "@navikt/ds-react";
 import { useAtomValue } from "jotai";
 import {
   Bruker,
-  Innsatsgruppe,
   NavVeileder,
   TiltakskodeArena,
   Toggles,
   VeilederflateTiltakstype,
 } from "mulighetsrommet-api-client";
 import { TilbakemeldingLenke, useTitle } from "mulighetsrommet-frontend-common";
-import { InlineErrorBoundary } from "../../../ErrorBoundary";
-import { PersonvernContainer } from "../../../components/personvern/PersonvernContainer";
 import { PORTEN_URL_FOR_TILBAKEMELDING } from "../../../constants";
 
 export function ModiaArbeidsmarkedstiltakDetaljer() {
@@ -77,7 +76,8 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
   }
 
   const tiltakstype = tiltaksgjennomforing.tiltakstype;
-  const kanOppretteAvtaleForTiltak = isIndividueltTiltak(tiltakstype);
+  const kanOppretteAvtaleForTiltak =
+    isIndividueltTiltak(tiltakstype) && brukerdata.erUnderOppfolging;
   const brukerHarRettPaaValgtTiltak = harBrukerRettPaaValgtTiltak(brukerdata, tiltakstype);
   const skalVisePameldingslenke =
     enableDeltakerRegistrering &&
@@ -102,7 +102,7 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
       <BrukerKvalifisererIkkeVarsel
         brukerdata={brukerdata}
         brukerHarRettPaaTiltak={brukerHarRettPaaValgtTiltak}
-        tiltakstype={tiltakstype}
+        brukerErUnderOppfolging={brukerdata.erUnderOppfolging}
       />
       <ViewTiltaksgjennomforingDetaljer
         tiltaksgjennomforing={tiltaksgjennomforing}
@@ -145,13 +145,15 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
               </Button>
             ) : null}
 
-            <DelMedBruker
-              delMedBrukerInfo={delMedBrukerInfo}
-              veiledernavn={resolveName(veilederdata)}
-              tiltaksgjennomforing={tiltaksgjennomforing}
-              brukerdata={brukerdata}
-              lagreVeilederHarDeltTiltakMedBruker={lagreVeilederHarDeltTiltakMedBruker}
-            />
+            {brukerdata.erUnderOppfolging ? (
+              <DelMedBruker
+                delMedBrukerInfo={delMedBrukerInfo ?? undefined}
+                veiledernavn={resolveName(veilederdata)}
+                tiltaksgjennomforing={tiltaksgjennomforing}
+                bruker={brukerdata}
+                lagreVeilederHarDeltTiltakMedBruker={lagreVeilederHarDeltTiltakMedBruker}
+              />
+            ) : null}
 
             {!brukerdata?.manuellStatus && (
               <Alert
@@ -166,7 +168,7 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
               </Alert>
             )}
 
-            {dialogRoute && (
+            {dialogRoute && brukerdata.erUnderOppfolging && (
               <Button size="small" variant="tertiary" onClick={dialogRoute.navigate}>
                 Åpne i dialogen
                 <Chat2Icon aria-label="Åpne i dialogen" />
@@ -218,18 +220,15 @@ function lenkeTilOpprettAvtale(): string {
   return `${baseUrl}/tiltaksgjennomforing/opprett-avtale`;
 }
 
-function harBrukerRettPaaValgtTiltak(brukerdata: Bruker, tiltakstype: VeilederflateTiltakstype) {
-  const innsatsgruppeForGjennomforing = tiltakstype.innsatsgruppe?.nokkel;
-
-  if (!innsatsgruppeForGjennomforing) {
+function harBrukerRettPaaValgtTiltak(
+  bruker: Bruker,
+  tiltakstype: VeilederflateTiltakstype,
+): boolean {
+  if (!bruker.erUnderOppfolging || !bruker.innsatsgruppe) {
     return false;
   }
 
-  const godkjenteInnsatsgrupper = brukerdata.innsatsgruppe
-    ? utledInnsatsgrupperFraInnsatsgruppe(brukerdata.innsatsgruppe)
-    : [];
-
-  return godkjenteInnsatsgrupper.includes(innsatsgruppeForGjennomforing);
+  return (tiltakstype.innsatsgrupper ?? []).includes(bruker.innsatsgruppe);
 }
 
 function tiltakstypeStotterPamelding(tiltakstype: VeilederflateTiltakstype): boolean {
@@ -243,28 +242,4 @@ function tiltakstypeStotterPamelding(tiltakstype: VeilederflateTiltakstype): boo
   return (
     !!tiltakstype.arenakode && whitelistTiltakstypeStotterPamelding.includes(tiltakstype.arenakode)
   );
-}
-
-function utledInnsatsgrupperFraInnsatsgruppe(innsatsgruppe: string): Innsatsgruppe[] {
-  switch (innsatsgruppe) {
-    case "STANDARD_INNSATS":
-      return [Innsatsgruppe.STANDARD_INNSATS];
-    case "SITUASJONSBESTEMT_INNSATS":
-      return [Innsatsgruppe.STANDARD_INNSATS, Innsatsgruppe.SITUASJONSBESTEMT_INNSATS];
-    case "SPESIELT_TILPASSET_INNSATS":
-      return [
-        Innsatsgruppe.STANDARD_INNSATS,
-        Innsatsgruppe.SITUASJONSBESTEMT_INNSATS,
-        Innsatsgruppe.SPESIELT_TILPASSET_INNSATS,
-      ];
-    case "VARIG_TILPASSET_INNSATS":
-      return [
-        Innsatsgruppe.STANDARD_INNSATS,
-        Innsatsgruppe.SITUASJONSBESTEMT_INNSATS,
-        Innsatsgruppe.SPESIELT_TILPASSET_INNSATS,
-        Innsatsgruppe.VARIG_TILPASSET_INNSATS,
-      ];
-    default:
-      return [];
-  }
 }

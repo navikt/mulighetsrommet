@@ -49,9 +49,9 @@
 .knapperad {
   display: flex;
   flex-direction: row;
-  gap: 12px;
-  padding: 0.5rem 1rem 0.5rem 0;
+  gap: 0.5rem;
   justify-content: flex-end;
+  align-items: flex-start;
 }
 
 .kontaktperson {
@@ -112,9 +112,10 @@
 }
 
 .form_group {
-  width: 100%;
-  padding-right: 2rem;
-  margin-right: 2rem;
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: column;
+  gap: 1rem;
 
   .grid {
     display: grid;
@@ -147,18 +148,8 @@
 }
 
 .flex_container {
-  display: grid;
-  grid-template-columns: 50% 50%;
-
-  .knapperad {
-    grid-column: 2;
-  }
-
-  .avbryt_knapp {
-    grid-column: 1;
-    width: fit-content;
-    height: fit-content;
-  }
+  display: flex;
+  justify-content: flex-end;
 }
 
 .red_tab_title {

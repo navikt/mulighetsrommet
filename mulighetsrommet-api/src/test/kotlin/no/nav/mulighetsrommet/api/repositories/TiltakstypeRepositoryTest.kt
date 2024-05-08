@@ -5,6 +5,7 @@ import io.kotest.data.forAll
 import io.kotest.data.row
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import kotliquery.queryOf
@@ -17,10 +18,9 @@ import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
 import no.nav.mulighetsrommet.domain.dto.Personopplysning
 import no.nav.mulighetsrommet.domain.dto.PersonopplysningFrekvens
-import no.nav.mulighetsrommet.domain.dto.Tiltakstypestatus
+import no.nav.mulighetsrommet.domain.dto.TiltakstypeStatus
 import org.intellij.lang.annotations.Language
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.util.*
 
 class TiltakstypeRepositoryTest : FunSpec({
@@ -43,35 +43,29 @@ class TiltakstypeRepositoryTest : FunSpec({
 
     context("filtrering") {
         val tiltakstyper = TiltakstypeRepository(database.db)
-        val tiltakstypePlanlagt = TiltakstypeDbo(
+        val tiltakstypeStarterIFremtiden = TiltakstypeDbo(
             id = UUID.randomUUID(),
             navn = "Arbeidsforberedende trening",
             arenaKode = "ARBFORB",
             rettPaaTiltakspenger = true,
-            registrertDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
-            sistEndretDatoIArena = LocalDateTime.of(2022, 1, 15, 0, 0, 0),
-            fraDato = LocalDate.now().plusDays(1),
-            tilDato = LocalDate.now().plusMonths(1),
+            startDato = LocalDate.now().plusDays(1),
+            sluttDato = LocalDate.now().plusMonths(1),
         )
-        val tiltakstypeAktiv = TiltakstypeDbo(
+        val tiltakstypeHarStartet = TiltakstypeDbo(
             id = UUID.randomUUID(),
             navn = "Jobbklubb",
             arenaKode = "JOBBK",
             rettPaaTiltakspenger = true,
-            registrertDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
-            sistEndretDatoIArena = LocalDateTime.of(2022, 1, 15, 0, 0, 0),
-            fraDato = LocalDate.now(),
-            tilDato = LocalDate.now().plusMonths(1),
+            startDato = LocalDate.now(),
+            sluttDato = LocalDate.now().plusMonths(1),
         )
-        val tiltakstypeAvsluttet = TiltakstypeDbo(
+        val tiltakstypeErAvsluttet = TiltakstypeDbo(
             id = UUID.randomUUID(),
             navn = "Oppfølgning",
             arenaKode = "INDOPPFAG",
             rettPaaTiltakspenger = true,
-            registrertDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
-            sistEndretDatoIArena = LocalDateTime.of(2022, 1, 15, 0, 0, 0),
-            fraDato = LocalDate.now().minusMonths(1),
-            tilDato = LocalDate.now().minusDays(1),
+            startDato = LocalDate.now().minusMonths(1),
+            sluttDato = LocalDate.now().minusDays(1),
         )
         val idSkalIkkeMigreres = UUID.randomUUID()
         val tiltakstypeSkalIkkeMigreres = TiltakstypeDbo(
@@ -79,15 +73,13 @@ class TiltakstypeRepositoryTest : FunSpec({
             navn = "AMOY",
             arenaKode = "AMOY",
             rettPaaTiltakspenger = true,
-            registrertDatoIArena = LocalDateTime.of(2022, 1, 11, 0, 0, 0),
-            sistEndretDatoIArena = LocalDateTime.of(2022, 1, 15, 0, 0, 0),
-            fraDato = LocalDate.now(),
-            tilDato = LocalDate.now().plusMonths(1),
+            startDato = LocalDate.now(),
+            sluttDato = LocalDate.now().plusMonths(1),
         )
 
-        tiltakstyper.upsert(tiltakstypePlanlagt)
-        tiltakstyper.upsert(tiltakstypeAktiv)
-        tiltakstyper.upsert(tiltakstypeAvsluttet)
+        tiltakstyper.upsert(tiltakstypeStarterIFremtiden)
+        tiltakstyper.upsert(tiltakstypeHarStartet)
+        tiltakstyper.upsert(tiltakstypeErAvsluttet)
         tiltakstyper.upsert(tiltakstypeSkalIkkeMigreres)
 
         test("returnerer bare tiltak som skal migreres") {
@@ -96,13 +88,12 @@ class TiltakstypeRepositoryTest : FunSpec({
 
         test("filtrering på status") {
             forAll(
-                row(Tiltakstypestatus.Planlagt, tiltakstypePlanlagt.id),
-                row(Tiltakstypestatus.Aktiv, tiltakstypeAktiv.id),
-                row(Tiltakstypestatus.Avsluttet, tiltakstypeAvsluttet.id),
-            ) { status, expectedId ->
+                row(TiltakstypeStatus.AKTIV, listOf(tiltakstypeStarterIFremtiden.id, tiltakstypeHarStartet.id)),
+                row(TiltakstypeStatus.AVSLUTTET, listOf(tiltakstypeErAvsluttet.id)),
+            ) { status, expectedIds ->
                 val result = tiltakstyper.getAllSkalMigreres(statuser = listOf(status))
-                result.totalCount shouldBe 1
-                result.items.first().id shouldBe expectedId
+                result.totalCount shouldBe expectedIds.size
+                result.items.map { it.id } shouldContainExactlyInAnyOrder expectedIds
             }
         }
     }
@@ -144,7 +135,7 @@ class TiltakstypeRepositoryTest : FunSpec({
         beforeEach {
             tiltakstyper.upsert(TiltakstypeFixtures.Oppfolging)
             tiltakstyper.upsert(TiltakstypeFixtures.VTA)
-            tiltakstyper.upsert(TiltakstypeFixtures.Arbeidstrening)
+            tiltakstyper.upsert(TiltakstypeFixtures.AFT)
         }
 
         test("Skal hente ut korrekt strukturert innhold for tiltakstype som har strukturert innhold") {
@@ -168,13 +159,12 @@ class TiltakstypeRepositoryTest : FunSpec({
                 insert into tiltakstype_deltaker_registrering_innholdselement(innholdskode, tiltakskode)
                 values('kartlegge-helse', '${Tiltakskode.OPPFOLGING.name}');
             """.trimIndent()
-            queryOf(
-                query,
-            ).asExecute.let { database.db.run(it) }
-            tiltakstyper.getEksternTiltakstype(TiltakstypeFixtures.Oppfolging.id).should {
-                it?.navn shouldBe "Oppfølging"
-                it?.deltakerRegistreringInnhold?.ledetekst shouldBe "Oppfølging er et bra tiltak"
-                it?.deltakerRegistreringInnhold?.innholdselementer?.size shouldBe 2
+            database.db.run(queryOf(query).asExecute)
+
+            tiltakstyper.getEksternTiltakstype(TiltakstypeFixtures.Oppfolging.id).shouldNotBeNull().should {
+                it.navn shouldBe "Oppfølging"
+                it.deltakerRegistreringInnhold?.ledetekst shouldBe "Oppfølging er et bra tiltak"
+                it.deltakerRegistreringInnhold?.innholdselementer?.size shouldBe 2
             }
         }
 
@@ -185,19 +175,18 @@ class TiltakstypeRepositoryTest : FunSpec({
                 set deltaker_registrering_ledetekst = 'VTA er kjempebra'
                 where tiltakskode = '${Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET.name}';
             """.trimIndent()
-            queryOf(
-                query,
-            ).asExecute.let { database.db.run(it) }
-            tiltakstyper.getEksternTiltakstype(TiltakstypeFixtures.VTA.id).should {
-                it?.navn shouldBe "Varig tilrettelagt arbeid i skjermet virksomhet"
-                it?.deltakerRegistreringInnhold?.ledetekst shouldBe "VTA er kjempebra"
-                it?.deltakerRegistreringInnhold?.innholdselementer?.size shouldBe 0
+            database.db.run(queryOf(query).asExecute)
+
+            tiltakstyper.getEksternTiltakstype(TiltakstypeFixtures.VTA.id).shouldNotBeNull().should {
+                it.navn shouldBe "Varig tilrettelagt arbeid i skjermet virksomhet"
+                it.deltakerRegistreringInnhold?.ledetekst shouldBe "VTA er kjempebra"
+                it.deltakerRegistreringInnhold?.innholdselementer?.size shouldBe 0
             }
         }
 
         test("Skal kunne hente tiltakstype uten strukturert innhold for deltakerregistrering") {
-            tiltakstyper.getEksternTiltakstype(TiltakstypeFixtures.Arbeidstrening.id).should {
-                it shouldBe null
+            tiltakstyper.getEksternTiltakstype(TiltakstypeFixtures.AFT.id).shouldNotBeNull().should {
+                it.deltakerRegistreringInnhold shouldBe null
             }
         }
     }
@@ -215,11 +204,10 @@ class TiltakstypeRepositoryTest : FunSpec({
                 set sanity_id = '$sanityId'
                 where tiltakskode = '${Tiltakskode.OPPFOLGING.name}';
         """.trimIndent()
-        queryOf(
-            query,
-        ).asExecute.let { database.db.run(it) }
-        tiltakstyper.getBySanityId(sanityId).should {
-            it?.id shouldBe TiltakstypeFixtures.Oppfolging.id
+        database.db.run(queryOf(query).asExecute)
+
+        tiltakstyper.getBySanityId(sanityId).shouldNotBeNull().should {
+            it.id shouldBe TiltakstypeFixtures.Oppfolging.id
         }
     }
 
@@ -239,8 +227,8 @@ class TiltakstypeRepositoryTest : FunSpec({
         ).asExecute.let { database.db.run(it) }
 
         tiltakstyper.get(TiltakstypeFixtures.Oppfolging.id) should {
-            it!!.personopplysninger[PersonopplysningFrekvens.ALLTID] shouldContainExactlyInAnyOrder listOf(Personopplysning.NAVN, Personopplysning.KJONN)
-            it.personopplysninger[PersonopplysningFrekvens.OFTE] shouldContainExactlyInAnyOrder listOf(Personopplysning.ADFERD)
+            it!!.personopplysninger[PersonopplysningFrekvens.ALLTID]!!.map { it.personopplysning } shouldContainExactlyInAnyOrder listOf(Personopplysning.NAVN, Personopplysning.KJONN)
+            it.personopplysninger[PersonopplysningFrekvens.OFTE]!!.map { it.personopplysning } shouldContainExactlyInAnyOrder listOf(Personopplysning.ADFERD)
         }
     }
 })

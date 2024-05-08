@@ -5,6 +5,7 @@ import styles from "./DateInput.module.scss";
 
 interface Props {
   label: string;
+  hideLabel?: boolean;
   readOnly?: boolean;
   onChange: (a0?: string | Date) => void;
   fromDate: Date;
@@ -24,6 +25,7 @@ export const DateInput = forwardRef(function DateInput(
 ) {
   const {
     label,
+    hideLabel = false,
     size,
     readOnly,
     format,
@@ -76,6 +78,7 @@ export const DateInput = forwardRef(function DateInput(
         className={styles.dato_input}
         size={size}
         label={label}
+        hideLabel={hideLabel}
         {...rest}
         {...inputProps}
         error={ugyldigDatoError || error}

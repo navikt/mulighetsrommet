@@ -1,24 +1,23 @@
+import { useTiltakstype } from "@/api/tiltakstyper/useTiltakstype";
 import {
   Alert,
   BodyShort,
   Checkbox,
   GuidePanel,
-  HGrid,
+  HStack,
   Label,
   Link,
   Radio,
   VStack,
 } from "@navikt/ds-react";
-import { useFormContext } from "react-hook-form";
-import { InferredAvtaleSchema } from "../redaksjonelt-innhold/AvtaleSchema";
-import styles from "./AvtalePersonvernForm.module.scss";
-import { useTiltakstype } from "@/api/tiltakstyper/useTiltakstype";
-import { personopplysningToTekst } from "@/utils/Utils";
-import { ControlledRadioGroup } from "../skjema/ControlledRadioGroup";
-import { useEffect } from "react";
+import { PersonopplysningMedBeskrivelse } from "mulighetsrommet-api-client";
 import { addOrRemove } from "mulighetsrommet-frontend-common/utils/utils";
+import { useEffect } from "react";
+import { useFormContext } from "react-hook-form";
 import { Separator } from "../detaljside/Metadata";
-import { Personopplysning } from "mulighetsrommet-api-client";
+import { InferredAvtaleSchema } from "../redaksjonelt-innhold/AvtaleSchema";
+import { ControlledRadioGroup } from "../skjema/ControlledRadioGroup";
+import styles from "./AvtalePersonvernForm.module.scss";
 
 interface Props {
   tiltakstypeId?: string;
@@ -31,7 +30,10 @@ export function AvtalePersonvernForm({ tiltakstypeId }: Props) {
   const watchPersonopplysninger = watch("personopplysninger");
   useEffect(() => {
     if (watchPersonopplysninger.length === 0 && tiltakstype) {
-      setValue("personopplysninger", tiltakstype.personopplysninger.ALLTID);
+      setValue(
+        "personopplysninger",
+        tiltakstype.personopplysninger.ALLTID.map((p) => p.personopplysning) ?? [],
+      );
     }
   }, [watchPersonopplysninger, tiltakstype]);
 
@@ -46,7 +48,7 @@ export function AvtalePersonvernForm({ tiltakstypeId }: Props) {
   function PersonopplysningCheckboxList(props: {
     label: string;
     description: string;
-    personopplysninger?: Personopplysning[];
+    personopplysninger?: PersonopplysningMedBeskrivelse[];
   }) {
     return (
       <VStack>
@@ -54,14 +56,19 @@ export function AvtalePersonvernForm({ tiltakstypeId }: Props) {
         <BodyShort size="small" textColor="subtle">
           {props.description}
         </BodyShort>
-        {props.personopplysninger?.map((p: Personopplysning) => (
+        {props.personopplysninger?.map((p: PersonopplysningMedBeskrivelse) => (
           <Checkbox
-            checked={watchPersonopplysninger.includes(p)}
-            onChange={() => setValue("personopplysninger", addOrRemove(watchPersonopplysninger, p))}
+            checked={watchPersonopplysninger.includes(p.personopplysning)}
+            onChange={() =>
+              setValue(
+                "personopplysninger",
+                addOrRemove(watchPersonopplysninger, p.personopplysning),
+              )
+            }
             size="small"
-            key={p}
+            key={p.personopplysning}
           >
-            {personopplysningToTekst(p)}
+            <span className={styles.max_length_text}> {p.beskrivelse}</span>
           </Checkbox>
         ))}
       </VStack>
@@ -74,7 +81,7 @@ export function AvtalePersonvernForm({ tiltakstypeId }: Props) {
         Huk av de personopplysningene som er avtalt i databehandleravtalen. NAV tiltaksenhet/fylke
         er ansvarlig for at listen er i samsvar med gjeldende databehandleravtale.
       </GuidePanel>
-      <HGrid columns={2}>
+      <HStack wrap gap="10">
         <VStack>
           <PersonopplysningCheckboxList
             label="Opplysninger om brukeren som alltid kan/må behandles"
@@ -82,7 +89,7 @@ export function AvtalePersonvernForm({ tiltakstypeId }: Props) {
             personopplysninger={tiltakstype?.personopplysninger?.ALLTID}
           />
         </VStack>
-        <VStack justify="space-between">
+        <VStack justify="space-between" gap="10">
           <PersonopplysningCheckboxList
             label="Opplysninger om brukeren som ofte er nødvendig og relevant å behandle"
             description="Huk av for de opplysningene som er avtalt i databehandleravtalen."
@@ -104,7 +111,7 @@ export function AvtalePersonvernForm({ tiltakstypeId }: Props) {
             pkt. 4.3.
           </BodyShort>
         </VStack>
-      </HGrid>
+      </HStack>
       <Separator />
       <ControlledRadioGroup
         size="small"

@@ -11,27 +11,34 @@ import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.mockk
 import no.nav.mulighetsrommet.api.clients.AccessType
+import no.nav.mulighetsrommet.api.clients.norg2.Norg2Client
+import no.nav.mulighetsrommet.api.clients.norg2.Norg2EnhetDto
+import no.nav.mulighetsrommet.api.clients.norg2.Norg2EnhetStatus
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
-import no.nav.mulighetsrommet.api.clients.oppfolging.*
-import no.nav.mulighetsrommet.api.clients.person.Enhet
-import no.nav.mulighetsrommet.api.clients.person.PersonDto
-import no.nav.mulighetsrommet.api.clients.person.PersonError
-import no.nav.mulighetsrommet.api.clients.person.VeilarbpersonClient
-import no.nav.mulighetsrommet.api.clients.vedtak.Innsatsgruppe
+import no.nav.mulighetsrommet.api.clients.oppfolging.ManuellStatusDto
+import no.nav.mulighetsrommet.api.clients.oppfolging.OppfolgingError
+import no.nav.mulighetsrommet.api.clients.oppfolging.Oppfolgingsenhet
+import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClient
+import no.nav.mulighetsrommet.api.clients.pdl.GeografiskTilknytning
+import no.nav.mulighetsrommet.api.clients.pdl.PdlClient
+import no.nav.mulighetsrommet.api.clients.pdl.PdlError
+import no.nav.mulighetsrommet.api.clients.pdl.PdlPerson
 import no.nav.mulighetsrommet.api.clients.vedtak.VedtakDto
 import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClient
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
+import no.nav.mulighetsrommet.domain.dto.Innsatsgruppe
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 
 class BrukerServiceTest : FunSpec({
     val veilarboppfolgingClient: VeilarboppfolgingClient = mockk()
     val veilarbvedtaksstotteClient: VeilarbvedtaksstotteClient = mockk()
-    val veilarbpersonClient: VeilarbpersonClient = mockk()
     val navEnhetService: NavEnhetService = mockk()
+    val pdlClient: PdlClient = mockk()
+    val norg2Client: Norg2Client = mockk()
 
     val brukerService =
-        BrukerService(veilarboppfolgingClient, veilarbvedtaksstotteClient, veilarbpersonClient, navEnhetService)
+        BrukerService(veilarboppfolgingClient, veilarbvedtaksstotteClient, navEnhetService, pdlClient, norg2Client)
     val fnr1 = "12345678910"
     val fnr2 = "99887766554"
 
@@ -58,15 +65,21 @@ class BrukerServiceTest : FunSpec({
         coEvery { veilarboppfolgingClient.hentManuellStatus(fnr1, any()) } returns mockManuellStatus().right()
 
         coEvery { veilarbvedtaksstotteClient.hentSiste14AVedtak(fnr1, any()) } returns VedtakDto(
-            innsatsgruppe = Innsatsgruppe.STANDARD_INNSATS,
+            innsatsgruppe = VedtakDto.Innsatsgruppe.STANDARD_INNSATS,
         ).right()
 
-        coEvery { veilarbpersonClient.hentPersonInfo(fnr1, any()) } returns PersonDto(
-            fornavn = "Ola",
-            geografiskEnhet = Enhet(
-                navn = "NAV Fredrikstad",
-                enhetsnummer = "0106",
-            ),
+        coEvery { pdlClient.hentGeografiskTilknytning(any(), any()) } returns GeografiskTilknytning.GtKommune(value = "0301").right()
+
+        coEvery { pdlClient.hentPerson(fnr1, any()) } returns PdlPerson(
+            navn = listOf(PdlPerson.PdlNavn(fornavn = "Ola")),
+        ).right()
+
+        coEvery { norg2Client.hentEnhetByGeografiskOmraade(any()) } returns Norg2EnhetDto(
+            enhetId = 1,
+            navn = "NAV Fredrikstad",
+            enhetNr = "0106",
+            status = Norg2EnhetStatus.AKTIV,
+            type = Norg2Type.LOKAL,
         ).right()
 
         coEvery { veilarboppfolgingClient.erBrukerUnderOppfolging(fnr2, any()) } returns true.right()
@@ -75,15 +88,11 @@ class BrukerServiceTest : FunSpec({
         coEvery { veilarboppfolgingClient.hentManuellStatus(fnr2, any()) } returns mockManuellStatus().right()
 
         coEvery { veilarbvedtaksstotteClient.hentSiste14AVedtak(fnr2, any()) } returns VedtakDto(
-            innsatsgruppe = Innsatsgruppe.GRADERT_VARIG_TILPASSET_INNSATS,
+            innsatsgruppe = VedtakDto.Innsatsgruppe.GRADERT_VARIG_TILPASSET_INNSATS,
         ).right()
 
-        coEvery { veilarbpersonClient.hentPersonInfo(fnr2, any()) } returns PersonDto(
-            fornavn = "Petter",
-            geografiskEnhet = Enhet(
-                navn = "NAV Fredrikstad",
-                enhetsnummer = "0106",
-            ),
+        coEvery { pdlClient.hentPerson(fnr2, any()) } returns PdlPerson(
+            navn = listOf(PdlPerson.PdlNavn(fornavn = "Petter")),
         ).right()
 
         coEvery { navEnhetService.hentEnhet(any()) } returns NavEnhetDbo(
@@ -117,15 +126,13 @@ class BrukerServiceTest : FunSpec({
                         status = NavEnhetStatus.AKTIV,
                     ),
                 ),
+                erUnderOppfolging = true,
                 varsler = emptyList(),
             )
     }
 
     test("Exception kastes ved tom enhetsliste") {
-        coEvery { veilarbpersonClient.hentPersonInfo(fnr1, any()) } returns PersonDto(
-            fornavn = "Ola",
-            geografiskEnhet = null,
-        ).right()
+        coEvery { pdlClient.hentGeografiskTilknytning(fnr1, any()) } returns PdlError.NotFound.left()
         coEvery { veilarboppfolgingClient.hentOppfolgingsenhet(fnr1, any()) } returns OppfolgingError.NotFound.left()
 
         shouldThrow<StatusException> {
@@ -134,7 +141,7 @@ class BrukerServiceTest : FunSpec({
     }
 
     test("Exception kastes hvis personinfo mangler") {
-        coEvery { veilarbpersonClient.hentPersonInfo(fnr1, any()) } returns PersonError.Error.left()
+        coEvery { pdlClient.hentPerson(fnr1, any()) } returns PdlError.Error.left()
 
         shouldThrow<StatusException> {
             brukerService.hentBrukerdata(fnr1, AccessType.OBO(""))

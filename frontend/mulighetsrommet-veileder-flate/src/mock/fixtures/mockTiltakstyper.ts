@@ -1,7 +1,6 @@
 import {
   Innsatsgruppe,
   TiltakskodeArena,
-  VeilederflateInnsatsgruppe,
   VeilederflateTiltakstype,
 } from "mulighetsrommet-api-client";
 
@@ -163,13 +162,10 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
     beskrivelse:
       "Varig tilrettelagt arbeid (VTA-S) skal gi brukeren arbeid med oppgaver tilpasset han eller hennes arbeidsevne, og tilby et individuelt tilpasset opplegg.",
     navn: "VTA - Varig tilrettelagt arbeid",
-    innsatsgruppe: {
-      sanityId: "4193fdbe-78db-429b-9165-45abd5b3a224",
-      beskrivelse: "Varig tilpasset innsats",
-      nokkel: Innsatsgruppe.VARIG_TILPASSET_INNSATS,
-      tittel: VeilederflateInnsatsgruppe.tittel.VARIG_TILPASSET_INNSATS,
-      order: 3,
-    },
+    innsatsgrupper: [
+      Innsatsgruppe.GRADERT_VARIG_TILPASSET_INNSATS,
+      Innsatsgruppe.VARIG_TILPASSET_INNSATS,
+    ],
   },
   OpplaringEnkeltplassFagOgYrke: {
     sanityId: "222a0065-9777-4e09-b2cf-4f48759f86e3",
@@ -274,22 +270,19 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
         },
       ],
     },
-    innsatsgruppe: {
-      sanityId: "48a20a99-11d7-42ec-ba92-2245b7d88fa7",
-      beskrivelse: "Situasjonsbestemt innsats",
-      nokkel: Innsatsgruppe.SITUASJONSBESTEMT_INNSATS,
-      tittel: VeilederflateInnsatsgruppe.tittel.SITUASJONSBESTEMT_INNSATS,
-      order: 1,
-    },
+    innsatsgrupper: [
+      Innsatsgruppe.SITUASJONSBESTEMT_INNSATS,
+      Innsatsgruppe.SPESIELT_TILPASSET_INNSATS,
+      Innsatsgruppe.GRADERT_VARIG_TILPASSET_INNSATS,
+      Innsatsgruppe.VARIG_TILPASSET_INNSATS,
+    ],
   },
   Arbeidsrettet_rehabilitering: {
-    innsatsgruppe: {
-      sanityId: "8dcfe56e-0018-48dd-a9f5-817f6aec0b0d",
-      beskrivelse: "Spesielt tilpasset innsats ",
-      nokkel: Innsatsgruppe.SPESIELT_TILPASSET_INNSATS,
-      tittel: VeilederflateInnsatsgruppe.tittel.SPESIELT_TILPASSET_INNSATS,
-      order: 2,
-    },
+    innsatsgrupper: [
+      Innsatsgruppe.SPESIELT_TILPASSET_INNSATS,
+      Innsatsgruppe.GRADERT_VARIG_TILPASSET_INNSATS,
+      Innsatsgruppe.VARIG_TILPASSET_INNSATS,
+    ],
     sanityId: "29c3d3cb-ffbf-4c22-8ffc-fea5d7f6c822",
     delingMedBruker:
       "Vi har nå et arbeidsmarkedstiltak som jeg tenker kan passe deg godt. Det heter <tiltaksnavn> og er et tilbud for deg som har helseplager eller sosiale problemer.\n\nTiltaket blir tilpasset behovet ditt ut fra mulighetene dine på arbeidsmarkedet, og kan blant annet inneholde:\n- motivasjons- og mestringsaktiviteter\n- individuelt treningsopplegg med veiledning\n- arbeidsutprøving i trygge omgivelser\n- veiledning i livsstil\n\nDu kan lese mer om kurset på www.nav.no/arbeidsrettet-rehabilitering ",
@@ -809,25 +802,25 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
         },
       ],
     },
-    innsatsgruppe: {
-      sanityId: "642a12cf-f32e-42a5-a079-0601b7a14ee8",
-      beskrivelse: "Standardinnsats",
-      nokkel: Innsatsgruppe.STANDARD_INNSATS,
-      tittel: VeilederflateInnsatsgruppe.tittel.STANDARD_INNSATS,
-      order: 0,
-    },
+    innsatsgrupper: [
+      Innsatsgruppe.STANDARD_INNSATS,
+      Innsatsgruppe.SITUASJONSBESTEMT_INNSATS,
+      Innsatsgruppe.SPESIELT_TILPASSET_INNSATS,
+      Innsatsgruppe.GRADERT_VARIG_TILPASSET_INNSATS,
+      Innsatsgruppe.VARIG_TILPASSET_INNSATS,
+    ],
     beskrivelse:
       "Jobbklubb er et kortvarig tiltak for de som søker jobb. Ved deltagelse på jobbklubb får brukeren støtte og hjelp til å orientere seg på arbeidsmarkedet og være en aktiv jobbsøker.",
     navn: "Jobbklubb",
   },
   digital_jobbklubb: {
-    innsatsgruppe: {
-      sanityId: "642a12cf-f32e-42a5-a079-0601b7a14ee8",
-      beskrivelse: "Standardinnsats",
-      nokkel: Innsatsgruppe.STANDARD_INNSATS,
-      tittel: VeilederflateInnsatsgruppe.tittel.STANDARD_INNSATS,
-      order: 0,
-    },
+    innsatsgrupper: [
+      Innsatsgruppe.STANDARD_INNSATS,
+      Innsatsgruppe.SITUASJONSBESTEMT_INNSATS,
+      Innsatsgruppe.SPESIELT_TILPASSET_INNSATS,
+      Innsatsgruppe.GRADERT_VARIG_TILPASSET_INNSATS,
+      Innsatsgruppe.VARIG_TILPASSET_INNSATS,
+    ],
     delingMedBruker:
       "Vi har nå et kurs som jeg tenker kan passe deg godt. Det heter <tiltaksnavn>, og er et heldigitalt jobbsøkings- og karriereveiledningskurs.\n\nMålet er at du skal komme i jobb. Du \n- trener på jobbintervju\n- lærer hvordan skrive CV og jobbsøknad\n- får individuell karriereveileding\n- lærer om arbeidsmarkedet og hvor du finner ledige jobber\n- deltar på gruppearbeid og deler erfaringer med andre arbeidssøkere\n- får hjelp til å søke jobber\n\nDu kan lese mer om kurset  på www.nav.no/digital-jobbklubb ",
     beskrivelse:
@@ -1405,14 +1398,12 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
         },
       ],
     },
-
-    innsatsgruppe: {
-      sanityId: "48a20a99-11d7-42ec-ba92-2245b7d88fa7",
-      beskrivelse: "Situasjonsbestemt innsats",
-      nokkel: Innsatsgruppe.SITUASJONSBESTEMT_INNSATS,
-      tittel: VeilederflateInnsatsgruppe.tittel.SITUASJONSBESTEMT_INNSATS,
-      order: 1,
-    },
+    innsatsgrupper: [
+      Innsatsgruppe.SITUASJONSBESTEMT_INNSATS,
+      Innsatsgruppe.SPESIELT_TILPASSET_INNSATS,
+      Innsatsgruppe.GRADERT_VARIG_TILPASSET_INNSATS,
+      Innsatsgruppe.VARIG_TILPASSET_INNSATS,
+    ],
     sanityId: "50878ad5-90d0-496d-a0d0-a53091800760",
   },
   oppfolging: {
@@ -1708,14 +1699,12 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
         },
       ],
     },
-
-    innsatsgruppe: {
-      sanityId: "48a20a99-11d7-42ec-ba92-2245b7d88fa7",
-      beskrivelse: "Situasjonsbestemt innsats",
-      nokkel: Innsatsgruppe.SITUASJONSBESTEMT_INNSATS,
-      tittel: VeilederflateInnsatsgruppe.tittel.SITUASJONSBESTEMT_INNSATS,
-      order: 1,
-    },
+    innsatsgrupper: [
+      Innsatsgruppe.SITUASJONSBESTEMT_INNSATS,
+      Innsatsgruppe.SPESIELT_TILPASSET_INNSATS,
+      Innsatsgruppe.GRADERT_VARIG_TILPASSET_INNSATS,
+      Innsatsgruppe.VARIG_TILPASSET_INNSATS,
+    ],
     delingMedBruker:
       "Vi har nå et arbeidsmarkedstiltak som jeg tenker kan passe deg godt. Det heter <tiltaksnavn>  og vil tilpasses dine behov for støtte for å skaffe eller beholde en jobb.\n\nDu kan blant annet få veiledning, råd og bistand til\n- jobbsøking og karriereveiledning\n- tilpasning og tilrettelegging av arbeidet og arbeidssituasjonen\n- praktiske oppgaver knyttet til arbeid\n- opplæring i sosiale og arbeidsrelaterte ferdigheter i arbeidslivet\n\nDu kan lese mer om kurset på www.nav.no/oppfolging",
     navn: "Oppfølging",
@@ -1909,14 +1898,10 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
         },
       ],
     },
-
-    innsatsgruppe: {
-      sanityId: "4193fdbe-78db-429b-9165-45abd5b3a224",
-      beskrivelse: "Varig tilpasset innsats",
-      nokkel: Innsatsgruppe.VARIG_TILPASSET_INNSATS,
-      tittel: VeilederflateInnsatsgruppe.tittel.VARIG_TILPASSET_INNSATS,
-      order: 3,
-    },
+    innsatsgrupper: [
+      Innsatsgruppe.GRADERT_VARIG_TILPASSET_INNSATS,
+      Innsatsgruppe.VARIG_TILPASSET_INNSATS,
+    ],
     sanityId: "6de22004-9fb8-4c84-9b75-dc8132a78cd2",
   },
   grufagyrke: {
@@ -1972,13 +1957,12 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
         },
       ],
     },
-    innsatsgruppe: {
-      sanityId: "48a20a99-11d7-42ec-ba92-2245b7d88fa7",
-      beskrivelse: "Situasjonsbestemt innsats",
-      nokkel: Innsatsgruppe.SITUASJONSBESTEMT_INNSATS,
-      tittel: VeilederflateInnsatsgruppe.tittel.SITUASJONSBESTEMT_INNSATS,
-      order: 1,
-    },
+    innsatsgrupper: [
+      Innsatsgruppe.SITUASJONSBESTEMT_INNSATS,
+      Innsatsgruppe.SPESIELT_TILPASSET_INNSATS,
+      Innsatsgruppe.GRADERT_VARIG_TILPASSET_INNSATS,
+      Innsatsgruppe.VARIG_TILPASSET_INNSATS,
+    ],
     delingMedBruker:
       "Vi har nå et opplæringstiltak som jeg tenker kan passe deg godt. Det heter <tiltaksnavn>, og hensikten med tiltaket er å kvalifisere deg for ledige jobber.\n\nDu kan lese mer om tiltaket på www.nav.no/opplaring",
     navn: "Opplæring - Gruppe Fag- og yrkesopplæring",
@@ -2023,13 +2007,10 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
       forHvemInfoboks:
         "Tiltaket er rettet mot personer som mottar eller i nær fremtid ventes å få innvilget uføretrygd, og som har behov for spesiell tilrettelegging og tett oppfølging. ",
     },
-    innsatsgruppe: {
-      sanityId: "4193fdbe-78db-429b-9165-45abd5b3a224",
-      beskrivelse: "Varig tilpasset innsats",
-      nokkel: Innsatsgruppe.VARIG_TILPASSET_INNSATS,
-      tittel: VeilederflateInnsatsgruppe.tittel.VARIG_TILPASSET_INNSATS,
-      order: 3,
-    },
+    innsatsgrupper: [
+      Innsatsgruppe.GRADERT_VARIG_TILPASSET_INNSATS,
+      Innsatsgruppe.VARIG_TILPASSET_INNSATS,
+    ],
     regelverkLenker: [
       {
         _id: "123",
@@ -2241,14 +2222,12 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
         },
       ],
     },
-
-    innsatsgruppe: {
-      sanityId: "48a20a99-11d7-42ec-ba92-2245b7d88fa7",
-      beskrivelse: "Situasjonsbestemt innsats",
-      nokkel: Innsatsgruppe.SITUASJONSBESTEMT_INNSATS,
-      tittel: VeilederflateInnsatsgruppe.tittel.SITUASJONSBESTEMT_INNSATS,
-      order: 1,
-    },
+    innsatsgrupper: [
+      Innsatsgruppe.SITUASJONSBESTEMT_INNSATS,
+      Innsatsgruppe.SPESIELT_TILPASSET_INNSATS,
+      Innsatsgruppe.GRADERT_VARIG_TILPASSET_INNSATS,
+      Innsatsgruppe.VARIG_TILPASSET_INNSATS,
+    ],
     sanityId: "a97fd87c-d7c1-49af-b3fb-cf5e5c10522a",
     delingMedBruker:
       "Hei <Fornavn>,   \n\nVi har et tilbud til personer som har behov for hjelp med å få eller beholde en fast jobb. Det heter <tiltaksnavn>, og er en støtteordning hvor NAV dekker en del av lønnen til en arbeidstaker i en periode.\n\nMålet er å hjelpe flere med å få eller beholde en fast jobb.  \n\nDu blir ansatt med vanlig lønn i en hel- eller deltidsstilling, mens arbeidsgiveren får et tilskudd til lønnen din fra NAV.  \n\nDu kan lese mer om tilskuddet på https://www.nav.no/midlertidig-lonnstilskudd \n",
@@ -2353,14 +2332,12 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
     beskrivelse:
       "Mentor skal gi nødvendig bistand til å kunne gjennomføre arbeidsmarkedstiltak, eller for å kunne få eller beholde lønnet arbeid i en ordinær bedrift.",
     navn: "Mentor",
-
-    innsatsgruppe: {
-      sanityId: "48a20a99-11d7-42ec-ba92-2245b7d88fa7",
-      beskrivelse: "Situasjonsbestemt innsats",
-      nokkel: Innsatsgruppe.SITUASJONSBESTEMT_INNSATS,
-      tittel: VeilederflateInnsatsgruppe.tittel.SITUASJONSBESTEMT_INNSATS,
-      order: 1,
-    },
+    innsatsgrupper: [
+      Innsatsgruppe.SITUASJONSBESTEMT_INNSATS,
+      Innsatsgruppe.SPESIELT_TILPASSET_INNSATS,
+      Innsatsgruppe.GRADERT_VARIG_TILPASSET_INNSATS,
+      Innsatsgruppe.VARIG_TILPASSET_INNSATS,
+    ],
     sanityId: "ad998fc6-310e-45d4-a056-57732fed87b4",
     regelverkLenker: [
       {
@@ -2376,13 +2353,12 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
     ],
   },
   enkeltplass_amo: {
-    innsatsgruppe: {
-      sanityId: "48a20a99-11d7-42ec-ba92-2245b7d88fa7",
-      beskrivelse: "Situasjonsbestemt innsats",
-      nokkel: Innsatsgruppe.SITUASJONSBESTEMT_INNSATS,
-      tittel: VeilederflateInnsatsgruppe.tittel.SITUASJONSBESTEMT_INNSATS,
-      order: 1,
-    },
+    innsatsgrupper: [
+      Innsatsgruppe.SITUASJONSBESTEMT_INNSATS,
+      Innsatsgruppe.SPESIELT_TILPASSET_INNSATS,
+      Innsatsgruppe.GRADERT_VARIG_TILPASSET_INNSATS,
+      Innsatsgruppe.VARIG_TILPASSET_INNSATS,
+    ],
     sanityId: "bbb8d042-b30e-4e4a-8cd0-210019b19de3",
     regelverkLenker: [
       {
@@ -2704,24 +2680,21 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
         },
       ],
     },
-    innsatsgruppe: {
-      sanityId: "8dcfe56e-0018-48dd-a9f5-817f6aec0b0d",
-      beskrivelse: "Spesielt tilpasset innsats ",
-      nokkel: Innsatsgruppe.SPESIELT_TILPASSET_INNSATS,
-      tittel: VeilederflateInnsatsgruppe.tittel.SPESIELT_TILPASSET_INNSATS,
-      order: 2,
-    },
+    innsatsgrupper: [
+      Innsatsgruppe.SPESIELT_TILPASSET_INNSATS,
+      Innsatsgruppe.GRADERT_VARIG_TILPASSET_INNSATS,
+      Innsatsgruppe.VARIG_TILPASSET_INNSATS,
+    ],
     delingMedBruker:
       "Vi har nå et arbeidsmarkedstiltak som jeg tenker kan passe deg godt. Det heter <tiltaksnavn> og er et tilbud for deg som deg som har nedsatt arbeidsevne og trenger hjelp for å komme i jobb.\n\nMålet er å avklare arbeidsevnen din gjennom arbeidstrening i ulike arbeidssituasjoner.\n\n- Etter en periode med forberedende arbeidstrening i et tilrettelagt arbeidsmiljø får du arbeidstrening i en vanlig bedrift.\n- Du får kartlagt kompetansen din og får karriereveiledning.\n- Du kan få tilrettelagt opplæring hvis du ønsker å gå videre med et yrkesfaglig utdanningsløp. Opplæringen skal bedre mulighetene dine til å komme i jobb.\n\nDu kan lese mer om kurset på www.nav.no/arbeidsforberedende-trening",
   },
   arbeidstrening: {
-    innsatsgruppe: {
-      sanityId: "48a20a99-11d7-42ec-ba92-2245b7d88fa7",
-      beskrivelse: "Situasjonsbestemt innsats",
-      nokkel: Innsatsgruppe.SITUASJONSBESTEMT_INNSATS,
-      tittel: VeilederflateInnsatsgruppe.tittel.SITUASJONSBESTEMT_INNSATS,
-      order: 1,
-    },
+    innsatsgrupper: [
+      Innsatsgruppe.SITUASJONSBESTEMT_INNSATS,
+      Innsatsgruppe.SPESIELT_TILPASSET_INNSATS,
+      Innsatsgruppe.GRADERT_VARIG_TILPASSET_INNSATS,
+      Innsatsgruppe.VARIG_TILPASSET_INNSATS,
+    ],
     sanityId: "e8406a67-fabe-4da6-804c-c77a33aaf67d",
     navn: "Arbeidstrening",
     faneinnhold: {
@@ -2913,14 +2886,12 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
         },
       ],
     },
-
-    innsatsgruppe: {
-      sanityId: "48a20a99-11d7-42ec-ba92-2245b7d88fa7",
-      beskrivelse: "Situasjonsbestemt innsats",
-      nokkel: Innsatsgruppe.SITUASJONSBESTEMT_INNSATS,
-      tittel: VeilederflateInnsatsgruppe.tittel.SITUASJONSBESTEMT_INNSATS,
-      order: 1,
-    },
+    innsatsgrupper: [
+      Innsatsgruppe.SITUASJONSBESTEMT_INNSATS,
+      Innsatsgruppe.SPESIELT_TILPASSET_INNSATS,
+      Innsatsgruppe.GRADERT_VARIG_TILPASSET_INNSATS,
+      Innsatsgruppe.VARIG_TILPASSET_INNSATS,
+    ],
     beskrivelse:
       "Opplæringstiltak i form av Gruppe AMO (jf. tiltaksforskriften § 7-2 a) skal bidra til at arbeidssøkere kvalifiseres til ledige jobber. ",
     navn: "Opplæring - Gruppe AMO",
@@ -3189,13 +3160,12 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
         },
       ],
     },
-    innsatsgruppe: {
-      sanityId: "48a20a99-11d7-42ec-ba92-2245b7d88fa7",
-      beskrivelse: "Situasjonsbestemt innsats",
-      nokkel: Innsatsgruppe.SITUASJONSBESTEMT_INNSATS,
-      tittel: VeilederflateInnsatsgruppe.tittel.SITUASJONSBESTEMT_INNSATS,
-      order: 1,
-    },
+    innsatsgrupper: [
+      Innsatsgruppe.SITUASJONSBESTEMT_INNSATS,
+      Innsatsgruppe.SPESIELT_TILPASSET_INNSATS,
+      Innsatsgruppe.GRADERT_VARIG_TILPASSET_INNSATS,
+      Innsatsgruppe.VARIG_TILPASSET_INNSATS,
+    ],
     sanityId: "f9618e97-4510-49e2-b748-29cae84d9019",
     delingMedBruker:
       "Vi har nå et arbeidsmarkedstiltak som jeg tenker kan passe deg godt. Det heter <tiltaksnavn>.\n\nI tiltaket kan det være aktuelt å kartlegge og gi hjelp til å\n- tilpasse arbeidssituasjonen og -oppgaver slik at du kan utføre jobben\n- finne ut hva slags hjelp eller tilrettelegging som skal til for at du kan jobbe\n- se kompetansen din og mulighetene dine\n\nUnder avklaring kan du også få\n- informasjon om arbeidsmarkedet, yrker og jobbkrav\n- veiledning for å velge yrkesmål og arbeidsoppgaver\n- arbeidsutprøving på en arbeidsplass\n\nDu kan lese mer om kurset på www.nav.no/avklaring ",

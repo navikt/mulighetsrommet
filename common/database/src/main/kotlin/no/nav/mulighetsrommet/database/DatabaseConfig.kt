@@ -1,16 +1,15 @@
 package no.nav.mulighetsrommet.database
 
-interface DatabaseConfig {
-    val host: String
-    val port: Int
-    val name: String
-    val schema: String?
-    val user: String
-    val password: Password
-    val maximumPoolSize: Int
-    val googleCloudSqlInstance: String?
-    val jdbcUrl
-        get() = "jdbc:postgresql://$host:$port/$name"
+data class DatabaseConfig(
+    val jdbcUrl: String,
+    val schema: String?,
+    val maximumPoolSize: Int,
+    val googleCloudSqlInstance: String? = null,
+) {
+    init {
+        val postgresPrefix = "jdbc:postgresql://"
+        require(jdbcUrl.startsWith(postgresPrefix)) { "jdbcUrl must start with '$postgresPrefix'" }
+    }
 }
 
 @JvmInline

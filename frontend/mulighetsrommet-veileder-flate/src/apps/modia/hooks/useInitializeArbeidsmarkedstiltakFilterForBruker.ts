@@ -25,7 +25,6 @@ export function useInitializeArbeidsmarkedstiltakFilterForBruker() {
         ...filter,
         innsatsgruppe: brukersInnsatsgruppe
           ? {
-              id: brukersInnsatsgruppe.sanityId,
               nokkel: brukersInnsatsgruppe.nokkel,
               tittel: brukersInnsatsgruppe.tittel,
             }
@@ -33,5 +32,5 @@ export function useInitializeArbeidsmarkedstiltakFilterForBruker() {
         navEnheter: brukerdata?.enheter ?? [],
       });
     }
-  }, [resetInnsatsgruppe]);
+  }, [resetInnsatsgruppe, resetEnheter]);
 }

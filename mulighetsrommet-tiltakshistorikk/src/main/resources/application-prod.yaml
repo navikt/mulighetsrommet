@@ -1,0 +1,15 @@
+server:
+  port: 8080
+  host: 0.0.0.0
+
+app:
+  database:
+    jdbcUrl: ${DB_JDBC_URL}
+    maximumPoolSize: 20
+
+  auth:
+    azure:
+      issuer: ${AZURE_OPENID_CONFIG_ISSUER}
+      jwksUri: ${AZURE_OPENID_CONFIG_JWKS_URI}
+      audience: ${AZURE_APP_CLIENT_ID}
+      tokenEndpointUrl: ${AZURE_OPENID_CONFIG_TOKEN_ENDPOINT}

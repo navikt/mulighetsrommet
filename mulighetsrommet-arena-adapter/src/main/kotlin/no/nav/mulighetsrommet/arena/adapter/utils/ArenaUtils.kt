@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.arena.adapter.utils
 
+import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTiltakdeltakerStatus
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering.ArenaTimestampFormatter
 import no.nav.mulighetsrommet.domain.dbo.Deltakerstatus
 import no.nav.mulighetsrommet.domain.dto.JaNeiStatus
@@ -18,12 +19,27 @@ object ArenaUtils {
         }
     }
 
-    fun toDeltakerstatus(arenaStatus: String): Deltakerstatus = when (arenaStatus) {
-        "AVSLAG", "IKKAKTUELL", "NEITAKK" -> Deltakerstatus.IKKE_AKTUELL
-        "TILBUD", "JATAKK", "INFOMOETE", "AKTUELL", "VENTELISTE" -> Deltakerstatus.VENTER
-        "GJENN" -> Deltakerstatus.DELTAR
-        "DELAVB", "GJENN_AVB", "GJENN_AVL", "FULLF", "IKKEM" -> Deltakerstatus.AVSLUTTET
-        else -> throw Exception("Ukjent deltakerstatus fra Arena")
+    fun toDeltakerstatus(arenaStatus: ArenaTiltakdeltakerStatus): Deltakerstatus = when (arenaStatus) {
+        ArenaTiltakdeltakerStatus.AVSLAG,
+        ArenaTiltakdeltakerStatus.IKKE_AKTUELL,
+        ArenaTiltakdeltakerStatus.TAKKET_NEI_TIL_TILBUD,
+        -> Deltakerstatus.IKKE_AKTUELL
+
+        ArenaTiltakdeltakerStatus.TILBUD,
+        ArenaTiltakdeltakerStatus.TAKKET_JA_TIL_TILBUD,
+        ArenaTiltakdeltakerStatus.INFORMASJONSMOTE,
+        ArenaTiltakdeltakerStatus.AKTUELL,
+        ArenaTiltakdeltakerStatus.VENTELISTE,
+        -> Deltakerstatus.VENTER
+
+        ArenaTiltakdeltakerStatus.GJENNOMFORES -> Deltakerstatus.DELTAR
+
+        ArenaTiltakdeltakerStatus.DELTAKELSE_AVBRUTT,
+        ArenaTiltakdeltakerStatus.GJENNOMFORING_AVBRUTT,
+        ArenaTiltakdeltakerStatus.GJENNOMFORING_AVLYST,
+        ArenaTiltakdeltakerStatus.IKKE_MOTT,
+        ArenaTiltakdeltakerStatus.FULLFORT,
+        -> Deltakerstatus.AVSLUTTET
     }
 
     fun parseJaNei(jaNeiStreng: JaNeiStatus): Boolean {

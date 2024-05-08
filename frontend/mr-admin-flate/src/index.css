@@ -11,13 +11,6 @@ html {
   margin-top: 1rem;
 }
 
-/* Siden vi ønsker en custom read-only styling (gråa ut) overstyrer noen av
- * navds sine read-only stylinger */
-.navds-textarea__input:read-only {
-  background-color: #f1f1f1;
-  border-color: #0000001a;
-}
-
 :root {
   --filter-width: 320px;
 }

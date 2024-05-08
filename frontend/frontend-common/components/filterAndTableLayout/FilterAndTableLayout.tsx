@@ -1,8 +1,9 @@
-import { ToolbarButtonRow } from "../toolbar/toolbarButtonRow/ToolbarButtonRow";
-import { Filter } from "../filter/Filter";
-import styles from "./FilterAndTableLayout.module.scss";
 import classNames from "classnames";
 import React from "react";
+import { Filter } from "../filter/Filter";
+import { ToolbarButtonRow } from "../toolbar/toolbarButtonRow/ToolbarButtonRow";
+import styles from "./FilterAndTableLayout.module.scss";
+import { InlineErrorBoundary } from "../error-handling/ErrorBoundary";
 
 interface Props {
   filter: React.ReactNode;
@@ -26,13 +27,15 @@ export const FilterAndTableLayout = ({
   return (
     <div className={styles.filter_table_layout_container}>
       <Filter setFilterOpen={setFilterOpen} filterOpen={filterOpen}>
-        {filter}
+        <InlineErrorBoundary>{filter}</InlineErrorBoundary>
       </Filter>
 
-      <ToolbarButtonRow>
-        <div className={styles.button_row_left}>{nullstillFilterButton}</div>
-        <div className={styles.button_row_right}>{buttons}</div>
-      </ToolbarButtonRow>
+      <InlineErrorBoundary>
+        <ToolbarButtonRow>
+          <div className={styles.button_row_left}>{nullstillFilterButton}</div>
+          <div className={styles.button_row_right}>{buttons}</div>
+        </ToolbarButtonRow>
+      </InlineErrorBoundary>
 
       <div
         className={classNames(
@@ -40,8 +43,10 @@ export const FilterAndTableLayout = ({
           !filterOpen && styles.tags_and_table_container_filter_hidden,
         )}
       >
-        {tags}
-        <>{table}</>
+        <InlineErrorBoundary>
+          {tags}
+          <>{table}</>
+        </InlineErrorBoundary>
       </div>
     </div>
   );

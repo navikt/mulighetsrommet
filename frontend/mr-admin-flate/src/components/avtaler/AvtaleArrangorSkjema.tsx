@@ -91,8 +91,17 @@ export function AvtaleArrangorSkjema({ readOnly }: Props) {
             readOnly={!arrangor}
             {...register("arrangorKontaktpersoner")}
             options={arrangorKontaktpersonOptions}
+            noOptionsMessage={
+              <Button
+                size="small"
+                type="button"
+                variant="tertiary"
+                onClick={() => arrangorKontaktpersonerModalRef.current?.showModal()}
+              >
+                Opprett kontaktpersoner
+              </Button>
+            }
           />
-
           <Button
             className={skjemastyles.kontaktperson_button}
             size="small"

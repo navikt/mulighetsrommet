@@ -14,11 +14,13 @@ export const NullstillKnappForAvtaler = ({ filterAtom, tiltakstypeId }: Props) =
 
   return (
     <div className={style.filterbuttons_container}>
-      {filter.sok.length > 0 ||
+      {filter.visMineAvtaler ||
+      filter.sok.length > 0 ||
       filter.navRegioner.length > 0 ||
       filter.avtaletyper.length > 0 ||
       (!tiltakstypeId && filter.tiltakstyper.length > 0) ||
       filter.statuser.length > 0 ||
+      filter.personvernBekreftet.length > 0 ||
       filter.arrangorer.length > 0 ? (
         <NullstillFilterKnapp
           onClick={() => {

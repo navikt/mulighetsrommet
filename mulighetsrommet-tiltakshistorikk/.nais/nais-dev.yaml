@@ -1,0 +1,65 @@
+kind: Application
+apiVersion: nais.io/v1alpha1
+metadata:
+  name: tiltakshistorikk
+  namespace: team-mulighetsrommet
+  labels:
+    team: team-mulighetsrommet
+spec:
+  image: "{{image}}"
+  port: 8080
+  ingresses:
+    - https://mulighetsrommet-tiltakshistorikk.intern.dev.nav.no
+  secureLogs:
+    enabled: true
+  prometheus:
+    enabled: true
+    path: /internal/prometheus
+  readiness:
+    path: /internal/readiness
+    initialDelay: 20
+  liveness:
+    path: /internal/liveness
+    initialDelay: 20
+  replicas:
+    min: 1
+    max: 2
+    scalingStrategy:
+      cpu:
+        thresholdPercentage: 75
+  resources:
+    requests:
+      cpu: 250m
+      memory: 512Mi
+    limits:
+      memory: 8192Mi
+  observability:
+    autoInstrumentation:
+      enabled: true
+      runtime: java
+    logging:
+      destinations:
+        - id: elastic
+        - id: loki
+  gcp:
+    sqlInstances:
+      - type: POSTGRES_15
+        databases:
+          - name: tiltakshistorikk
+            envVarPrefix: DB
+        flags:
+          - name: max_connections
+            value: "200"
+  azure:
+    application:
+      enabled: true
+      allowAllUsers: false
+      claims:
+        groups:
+          - id: debefa6e-1865-446d-b22b-9579fc735de3 # team-mulighetsrommet
+        extra:
+          - azp_name
+  accessPolicy:
+    inbound:
+      rules:
+        - application: mulighetsrommet-api

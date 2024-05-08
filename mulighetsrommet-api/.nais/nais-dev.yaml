@@ -121,6 +121,7 @@ spec:
         - host: team-mulighetsrommet-unleash-api.nav.cloud.nais.io
         - host: axsys.dev-fss-pub.nais.io
         - host: pdl-api.dev-fss-pub.nais.io
+        - host: data.ssb.no
   envFrom:
     - secret: mulighetsrommet-api
     - secret: mr-admin-flate-unleash-api-token

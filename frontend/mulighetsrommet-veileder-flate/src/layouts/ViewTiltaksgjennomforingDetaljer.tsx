@@ -2,16 +2,16 @@ import { Oppskrift } from "@/components/oppskrift/Oppskrift";
 import { useGetTiltaksgjennomforingIdFraUrl } from "@/api/queries/useGetTiltaksgjennomforingIdFraUrl";
 import { PadlockLockedFillIcon } from "@navikt/aksel-icons";
 import { Alert } from "@navikt/ds-react";
-import { Innsatsgruppe, VeilederflateTiltaksgjennomforing } from "mulighetsrommet-api-client";
+import { VeilederflateTiltaksgjennomforing } from "mulighetsrommet-api-client";
 import { ReactNode, useState } from "react";
 import SidemenyDetaljer from "../components/sidemeny/SidemenyDetaljer";
 import TiltaksdetaljerFane from "../components/tabs/TiltaksdetaljerFane";
 import TiltaksgjennomforingsHeader from "./TiltaksgjennomforingsHeader";
 import styles from "./ViewTiltaksgjennomforingDetaljer.module.scss";
+import { useInnsatsgrupper } from "@/api/queries/useInnsatsgrupper";
 
 interface Props {
   tiltaksgjennomforing: VeilederflateTiltaksgjennomforing;
-  brukersInnsatsgruppe?: Innsatsgruppe;
   brukerActions: ReactNode;
   knapperad: ReactNode;
 }
@@ -22,6 +22,8 @@ export const ViewTiltaksgjennomforingDetaljer = ({
   knapperad,
 }: Props) => {
   const gjennomforingsId = useGetTiltaksgjennomforingIdFraUrl();
+  const innsatsgrupper = useInnsatsgrupper();
+
   const [oppskriftId, setOppskriftId] = useState<string | undefined>(undefined);
 
   if (!tiltaksgjennomforing) {
@@ -43,7 +45,10 @@ export const ViewTiltaksgjennomforingDetaljer = ({
           </div>
         )}
         <div className={styles.sidemeny}>
-          <SidemenyDetaljer tiltaksgjennomforing={tiltaksgjennomforing} />
+          <SidemenyDetaljer
+            tiltaksgjennomforing={tiltaksgjennomforing}
+            innsatsgrupper={innsatsgrupper.data}
+          />
           <div className={styles.brukeractions_container}>{brukerActions}</div>
         </div>
         <TiltaksdetaljerFane

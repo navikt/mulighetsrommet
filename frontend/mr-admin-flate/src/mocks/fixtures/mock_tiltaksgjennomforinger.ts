@@ -1,17 +1,16 @@
 import {
-  EstimertVentetid,
+  EstimertVentetidEnhet,
   Opphav,
   PaginertTiltaksgjennomforing,
   Tiltaksgjennomforing,
   TiltaksgjennomforingOppstartstype,
-  TiltaksgjennomforingStatus,
 } from "mulighetsrommet-api-client";
 import { mockTiltakstyper } from "./mock_tiltakstyper";
-import { nikolineKontaktperson, petrusKontaktperson } from "./mock_ansatt";
 import { mockEnheter } from "./mock_enheter";
 import { mockArrangorer } from "./mock_arrangorer";
 import { mockArrangorKontaktpersoner } from "./mock_arrangorKontaktperson";
-import { mockAvtaler } from "./mock_avtaler";
+import { mockAvtaler } from "@/mocks/fixtures/mock_avtaler";
+import { nikolineKontaktperson, petrusKontaktperson } from "@/mocks/fixtures/mock_ansatt";
 
 export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
   {
@@ -20,7 +19,7 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     tiltaksnummer: "123456",
     estimertVentetid: {
       verdi: 3,
-      enhet: EstimertVentetid.enhet.MANED,
+      enhet: EstimertVentetidEnhet.MANED,
     },
     antallPlasser: 50,
     arrangor: {
@@ -42,7 +41,7 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     deltidsprosent: 100,
     arenaAnsvarligEnhet: mockEnheter._0313,
     navEnheter: [mockEnheter._0313, mockEnheter._0315, mockEnheter._0330],
-    status: TiltaksgjennomforingStatus.GJENNOMFORES,
+    status: { name: "GJENNOMFORES" },
     oppstart: TiltaksgjennomforingOppstartstype.LOPENDE,
     opphav: Opphav.MR_ADMIN_FLATE,
     apentForInnsok: false,
@@ -85,6 +84,7 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
       pameldingOgVarighetInfoboks:
         "Nullam lobortis massa nibh, luctus molestie lacus venenatis sed.",
     },
+    tilgjengeligForArrangorFraOgMedDato: null,
   },
   {
     id: "a7d63fb0-4366-412c-84b7-7c15518ee362",
@@ -103,13 +103,19 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     arenaAnsvarligEnhet: mockEnheter._0313,
     administratorer: [],
     navEnheter: [],
-    status: TiltaksgjennomforingStatus.AVLYST,
+    status: {
+      name: "AVLYST",
+      aarsak:
+        "Denne gjennomføringen ble avbrutt pga av noe som ikke var listen opp i listen over mulige årsaker.",
+      tidspunkt: "2020-03-04T12:00:00",
+    },
     oppstart: TiltaksgjennomforingOppstartstype.LOPENDE,
     opphav: Opphav.MR_ADMIN_FLATE,
     apentForInnsok: true,
     kontaktpersoner: [],
     publisert: false,
     publisertForAlle: false,
+    tilgjengeligForArrangorFraOgMedDato: null,
   },
   {
     id: "a7d63fb0-4366-412c-84b7-7c15518ee363",
@@ -128,13 +134,14 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     arenaAnsvarligEnhet: mockEnheter._0313,
     administratorer: [],
     navEnheter: [],
-    status: TiltaksgjennomforingStatus.GJENNOMFORES,
+    status: { name: "GJENNOMFORES" },
     oppstart: TiltaksgjennomforingOppstartstype.LOPENDE,
     opphav: Opphav.MR_ADMIN_FLATE,
     apentForInnsok: true,
     kontaktpersoner: [],
     publisert: false,
     publisertForAlle: true,
+    tilgjengeligForArrangorFraOgMedDato: null,
   },
 ];
 
@@ -168,12 +175,13 @@ for (let i = 0; i < x; i++) {
     arenaAnsvarligEnhet: mockEnheter._0313,
     administratorer: [],
     navEnheter: [],
-    status: TiltaksgjennomforingStatus.GJENNOMFORES,
+    status: { name: "GJENNOMFORES" },
     oppstart: TiltaksgjennomforingOppstartstype.LOPENDE,
     opphav: Opphav.MR_ADMIN_FLATE,
     apentForInnsok: true,
     kontaktpersoner: [],
     publisert: false,
     publisertForAlle: true,
+    tilgjengeligForArrangorFraOgMedDato: null,
   });
 }

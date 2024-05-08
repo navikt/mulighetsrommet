@@ -17,9 +17,8 @@ import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
 import no.nav.mulighetsrommet.api.domain.dto.AvtaleAdminDto
 import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingAdminDto
 import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingDto
-import no.nav.mulighetsrommet.api.domain.dto.TiltakstypeEksternDto
+import no.nav.mulighetsrommet.api.domain.dto.TiltakstypeAdminDto
 import no.nav.mulighetsrommet.api.repositories.*
-import no.nav.mulighetsrommet.api.tasks.InitialLoadTiltaksgjennomforinger
 import no.nav.mulighetsrommet.api.utils.EnhetFilter
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.QueryResult
@@ -29,12 +28,13 @@ import no.nav.mulighetsrommet.domain.Tiltakskoder
 import no.nav.mulighetsrommet.domain.Tiltakskoder.isEgenRegiTiltak
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering.TiltaksgjennomforingSluttDatoCutoffDate
-import no.nav.mulighetsrommet.domain.dbo.*
-import no.nav.mulighetsrommet.domain.dto.Avtalestatus
+import no.nav.mulighetsrommet.domain.dbo.ArenaAvtaleDbo
+import no.nav.mulighetsrommet.domain.dbo.ArenaTiltaksgjennomforingDbo
+import no.nav.mulighetsrommet.domain.dbo.ArenaTiltakshistorikkDbo
+import no.nav.mulighetsrommet.domain.dbo.DeltakerDbo
+import no.nav.mulighetsrommet.domain.dto.AvtaleStatus
 import no.nav.mulighetsrommet.domain.dto.NavIdent
-import no.nav.mulighetsrommet.domain.dto.TiltakstypeAdminDto
 import no.nav.mulighetsrommet.kafka.producers.TiltaksgjennomforingKafkaProducer
-import no.nav.mulighetsrommet.kafka.producers.TiltakstypeKafkaProducer
 import no.nav.mulighetsrommet.notifications.NotificationMetadata
 import no.nav.mulighetsrommet.notifications.NotificationService
 import no.nav.mulighetsrommet.notifications.NotificationType
@@ -52,48 +52,15 @@ class ArenaAdapterService(
     private val tiltakshistorikk: TiltakshistorikkRepository,
     private val deltakere: DeltakerRepository,
     private val tiltaksgjennomforingKafkaProducer: TiltaksgjennomforingKafkaProducer,
-    private val tiltakstypeKafkaProducer: TiltakstypeKafkaProducer,
-    private val sanityTiltaksgjennomforingService: SanityTiltaksgjennomforingService,
+    private val sanityTiltakService: SanityTiltakService,
     private val arrangorService: ArrangorService,
     private val navEnhetService: NavEnhetService,
     private val notificationService: NotificationService,
     private val endringshistorikk: EndringshistorikkService,
     private val veilarboppfolgingClient: VeilarboppfolgingClient,
     private val tiltakstypeService: TiltakstypeService,
-    private val initialLoadTiltaksgjennomforinger: InitialLoadTiltaksgjennomforinger,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
-
-    fun upsertTiltakstype(tiltakstype: TiltakstypeDbo): TiltakstypeDbo {
-        val current = tiltakstyper.get(tiltakstype.id)
-        return tiltakstyper.upsert(tiltakstype)
-            .also {
-                val eksternDto = tiltakstyper.getEksternTiltakstype(tiltakstype.id)
-                if (eksternDto != null) {
-                    tiltakstypeKafkaProducer.publish(eksternDto)
-
-                    if (tiltakstypeNavnHasChanged(current, eksternDto)) {
-                        val input = InitialLoadTiltaksgjennomforinger.Input(
-                            tiltakstyper = listOf(eksternDto.tiltakskode),
-                        )
-                        initialLoadTiltaksgjennomforinger.schedule(input)
-                    }
-                }
-            }
-    }
-
-    private fun tiltakstypeNavnHasChanged(
-        current: TiltakstypeAdminDto?,
-        eksternDto: TiltakstypeEksternDto,
-    ) = current != null && current.navn != eksternDto.navn
-
-    fun removeTiltakstype(id: UUID): QueryResult<Int> {
-        return tiltakstyper.delete(id).onRight { deletedRows ->
-            if (deletedRows != 0) {
-                tiltakstypeKafkaProducer.retract(id)
-            }
-        }
-    }
 
     suspend fun upsertAvtale(avtale: ArenaAvtaleDbo): AvtaleAdminDto {
         syncArrangorFromBrreg(avtale.arrangorOrganisasjonsnummer)
@@ -113,7 +80,7 @@ class ArenaAdapterService(
             next
         }
 
-        if (dto.avtalestatus == Avtalestatus.AKTIV && dto.administratorer.isEmpty()) {
+        if (dto.status == AvtaleStatus.AKTIV && dto.administratorer.isEmpty()) {
             maybeNotifyRelevantAdministrators(dto)
         }
 
@@ -170,7 +137,7 @@ class ArenaAdapterService(
             }
 
             if (shouldBeManagedInSanity(next)) {
-                sanityTiltaksgjennomforingService.createOrPatchSanityTiltaksgjennomforing(next, tx)
+                sanityTiltakService.createOrPatchSanityTiltaksgjennomforing(next, tx)
             } else if (next.isAktiv() && next.administratorer.isEmpty()) {
                 maybeNotifyRelevantAdministrators(next)
             }
@@ -205,7 +172,7 @@ class ArenaAdapterService(
         }
 
         if (sanityId != null) {
-            sanityTiltaksgjennomforingService.deleteSanityTiltaksgjennomforing(sanityId)
+            sanityTiltakService.deleteSanityTiltaksgjennomforing(sanityId)
         }
     }
 
@@ -243,7 +210,7 @@ class ArenaAdapterService(
 
                 // Resten av feltene skal ikke overskrives med data fra Arena
                 id = current.id,
-                avtaleId = current.avtaleId,
+                avtaleId = current.avtaleId ?: tiltaksgjennomforing.avtaleId,
                 navn = current.navn,
                 tiltakstypeId = current.tiltakstype.id,
                 arrangorOrganisasjonsnummer = current.arrangor.organisasjonsnummer,
@@ -251,7 +218,6 @@ class ArenaAdapterService(
                 sluttDato = current.sluttDato,
                 apentForInnsok = current.apentForInnsok,
                 antallPlasser = current.antallPlasser,
-                oppstart = current.oppstart,
                 deltidsprosent = current.deltidsprosent,
                 avslutningsstatus = current.status.toAvslutningsstatus(),
             )
@@ -287,9 +253,6 @@ class ArenaAdapterService(
             antallPlasser = current.antallPlasser,
             avtaleId = current.avtaleId,
             deltidsprosent = current.deltidsprosent,
-
-            // Oppstart kan endres utenfor Arena, dette feltet er derfor ikke med i duplikatsjekken
-            oppstart = arenaGjennomforing.oppstart,
         )
         return currentAsArenaGjennomforing == arenaGjennomforing
     }
@@ -305,7 +268,7 @@ class ArenaAdapterService(
         notifyRelevantAdministrators(enhet, NavAnsattRolle.AVTALER_SKRIV) { administrators ->
             ScheduledNotification(
                 type = NotificationType.TASK,
-                title = """Avtalen "${avtale.navn}" har endringer fra Arena, men mangler en ansvarlig administrator.""",
+                title = """Avtalen "${avtale.navn}" har endringer fra Arena, men mangler administrator.""",
                 description = "Du har blitt varslet fordi din NAV-hovedenhet og avtalens ansvarlige NAV-enhet begge er relatert til ${enhet.navn}. Gå til avtalen og sett deg som administrator hvis du eier avtalen.",
                 metadata = NotificationMetadata(
                     linkText = "Gå til avtalen",
@@ -322,7 +285,7 @@ class ArenaAdapterService(
         notifyRelevantAdministrators(enhet, NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV) { administrators ->
             ScheduledNotification(
                 type = NotificationType.TASK,
-                title = """Gjennomføringen "${gjennomforing.navn}" har endringer fra Arena, men mangler en ansvarlig administrator.""",
+                title = """Gjennomføringen "${gjennomforing.navn}" har endringer fra Arena, men mangler administrator.""",
                 description = "Du har blitt varslet fordi din NAV-hovedenhet og gjennomføringens ansvarlige NAV-enhet begge er relatert til ${enhet.navn}. Gå til gjennomføringen og sett deg som administrator hvis du eier gjennomføringen.",
                 metadata = NotificationMetadata(
                     linkText = "Gå til gjennomføringen",

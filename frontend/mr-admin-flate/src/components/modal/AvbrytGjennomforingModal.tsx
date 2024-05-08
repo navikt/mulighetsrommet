@@ -1,13 +1,14 @@
 import { useAvbrytTiltaksgjennomforing } from "@/api/tiltaksgjennomforing/useAvbrytTiltaksgjennomforing";
-import styles from "./AvbrytGjennomforingModal.module.scss";
-import { resolveErrorMessage } from "@/api/errors";
+import styles from "./AvbrytGjennomforingAvtaleModal.module.scss";
 import { XMarkOctagonFillIcon } from "@navikt/aksel-icons";
 import classNames from "classnames";
-import { Heading, Button, Modal, RadioGroup, Radio, TextField, Alert } from "@navikt/ds-react";
-import { AvbrytGjennomforingRequest, Tiltaksgjennomforing } from "mulighetsrommet-api-client";
+import { Alert, BodyShort, Button, Heading, Modal, Radio } from "@navikt/ds-react";
+import { AvbrytGjennomforingAarsak, Tiltaksgjennomforing } from "mulighetsrommet-api-client";
 import { RefObject, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTiltaksgjennomforingDeltakerSummary } from "@/api/tiltaksgjennomforing/useTiltaksgjennomforingDeltakerSummary";
+import { AvbrytModalError } from "@/components/modal/AvbrytModalError";
+import { AvbrytModalAarsaker } from "@/components/modal/AvbrytModalAarsaker";
 
 interface Props {
   modalRef: RefObject<HTMLDialogElement>;
@@ -29,11 +30,12 @@ export const AvbrytGjennomforingModal = ({ modalRef, tiltaksgjennomforing }: Pro
 
   useEffect(() => {
     if (mutation.isSuccess) {
+      modalRef.current?.close();
       navigate(`/tiltaksgjennomforinger/${tiltaksgjennomforing?.id}`);
     }
-  }, [mutation]);
+  }, [mutation.isSuccess]);
 
-  const handleAvbryt = () => {
+  const handleAvbrytGjennomforing = () => {
     mutation.reset();
     mutation.mutate({
       id: tiltaksgjennomforing.id,
@@ -41,17 +43,17 @@ export const AvbrytGjennomforingModal = ({ modalRef, tiltaksgjennomforing }: Pro
     });
   };
 
-  const aarsakToString = (aarsak: AvbrytGjennomforingRequest.aarsak): string => {
+  const aarsakToString = (aarsak: AvbrytGjennomforingAarsak): string => {
     switch (aarsak) {
-      case AvbrytGjennomforingRequest.aarsak.AVBRUTT_I_ARENA:
+      case AvbrytGjennomforingAarsak.AVBRUTT_I_ARENA:
         return "Avbrutt i Arena";
-      case AvbrytGjennomforingRequest.aarsak.BUDSJETT_HENSYN:
+      case AvbrytGjennomforingAarsak.BUDSJETT_HENSYN:
         return "Budsjetthensyn";
-      case AvbrytGjennomforingRequest.aarsak.ENDRING_HOS_ARRANGOR:
+      case AvbrytGjennomforingAarsak.ENDRING_HOS_ARRANGOR:
         return "Endring hos arrangør";
-      case AvbrytGjennomforingRequest.aarsak.FEILREGISTRERING:
+      case AvbrytGjennomforingAarsak.FEILREGISTRERING:
         return "Feilregistrering";
-      case AvbrytGjennomforingRequest.aarsak.FOR_FAA_DELTAKERE:
+      case AvbrytGjennomforingAarsak.FOR_FAA_DELTAKERE:
         return "For få deltakere";
     }
   };
@@ -61,57 +63,51 @@ export const AvbrytGjennomforingModal = ({ modalRef, tiltaksgjennomforing }: Pro
       <Modal.Header closeButton={false}>
         <div className={styles.heading}>
           <XMarkOctagonFillIcon className={classNames(styles.icon_warning, styles.icon)} />
-          <Heading size="medium">{`Ønsker du å avbryte «${tiltaksgjennomforing?.navn}»?`}</Heading>
+          <Heading size="medium">
+            {mutation.isError
+              ? `Kan ikke avbryte «${tiltaksgjennomforing?.navn}»`
+              : `Ønsker du å avbryte «${tiltaksgjennomforing?.navn}»?`}
+          </Heading>
         </div>
       </Modal.Header>
       <Modal.Body className={styles.body}>
         {deltakerSummary && deltakerSummary.antallDeltakere > 0 && (
           <Alert variant="warning">
             {`Det finnes ${deltakerSummary.antallDeltakere} deltaker${deltakerSummary.antallDeltakere > 1 ? "e" : ""} på gjennomføringen. Ved å
-              avbryte denne vil det føre til statusendring på alle deltakere som har en aktiv status.`}
+           avbryte denne vil det føre til statusendring på alle deltakere som har en aktiv status.`}
           </Alert>
         )}
-        <RadioGroup size="small" legend="Velg årsak." onChange={setAarsak} value={aarsak}>
-          {(
-            Object.keys(
-              AvbrytGjennomforingRequest.aarsak,
-            ) as Array<AvbrytGjennomforingRequest.aarsak>
-          )
-            .filter((a) => a !== AvbrytGjennomforingRequest.aarsak.AVBRUTT_I_ARENA)
-            .map((a) => (
-              <Radio key={`${a}`} value={a}>
-                {aarsakToString(a)}
-              </Radio>
-            ))}
-          <Radio value="annet">
-            Annet
-            {aarsak === "annet" && (
-              <TextField
-                size="small"
-                placeholder="beskrivelse"
-                onChange={(e) => setCustomAarsak(e.target.value)}
-                value={customAarsak ?? undefined}
-                label={undefined}
-              />
-            )}
-          </Radio>
-        </RadioGroup>
+        <AvbrytModalAarsaker
+          aarsak={aarsak}
+          customAarsak={customAarsak}
+          setAarsak={setAarsak}
+          setCustomAarsak={setCustomAarsak}
+          mutation={mutation}
+          radioknapp={
+            <>
+              {(Object.keys(AvbrytGjennomforingAarsak) as Array<AvbrytGjennomforingAarsak>)
+                .filter((a) => a !== AvbrytGjennomforingAarsak.AVBRUTT_I_ARENA)
+                .map((a) => (
+                  <Radio key={`${a}`} value={a}>
+                    {aarsakToString(a)}
+                  </Radio>
+                ))}
+            </>
+          }
+        />
+
         {mutation?.isError && (
-          <div className={styles.error}>
-            <b>
-              •{" "}
-              {aarsak === "annet" && !customAarsak
-                ? "Beskrivelse er obligatorisk når “Annet” er valgt som årsak"
-                : resolveErrorMessage(mutation.error)}
-            </b>
-          </div>
+          <BodyShort>
+            <AvbrytModalError aarsak={aarsak} customAarsak={customAarsak} mutation={mutation} />
+          </BodyShort>
         )}
       </Modal.Body>
+
       <Modal.Footer className={styles.footer}>
         <Button variant="secondary" type="button" onClick={onClose}>
-          Nei takk
+          Nei, takk
         </Button>
-        <Button variant="danger" onClick={handleAvbryt}>
+        <Button variant="danger" onClick={handleAvbrytGjennomforing}>
           Ja, jeg vil avbryte gjennomføringen
         </Button>
       </Modal.Footer>

@@ -7,5 +7,6 @@ export function useNotificationSummary() {
     queryKey: QueryKeys.antallUlesteNotifikasjoner(),
     queryFn: () => mulighetsrommetClient.notifications.getNotificationSummary(),
     refetchInterval: 1000 * 60 * 5, // Hvert 5. minutt
+    throwOnError: false,
   });
 }

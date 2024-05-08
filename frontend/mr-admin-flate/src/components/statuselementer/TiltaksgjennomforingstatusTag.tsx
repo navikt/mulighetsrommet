@@ -1,36 +1,59 @@
+import { avbrytGjennomforingAarsakToString } from "@/utils/Utils";
 import { Tag } from "@navikt/ds-react";
-import { Tiltaksgjennomforing, TiltaksgjennomforingStatus } from "mulighetsrommet-api-client";
+import { Tiltaksgjennomforing } from "mulighetsrommet-api-client";
+import { useState } from "react";
 
 interface Props {
   tiltaksgjennomforing: Tiltaksgjennomforing;
+  showAvbruttAarsak?: boolean;
 }
 
-type StatusAndVariant = {
-  status: "Gjennomføres" | "Avbrutt" | "Avlyst" | "Avsluttet" | "Planlagt";
-  variant: "success" | "error" | "neutral" | "alt1";
-};
+export function TiltaksgjennomforingstatusTag({
+  tiltaksgjennomforing,
+  showAvbruttAarsak = false,
+}: Props) {
+  const { status } = tiltaksgjennomforing;
+  const [expandLabel, setExpandLabel] = useState<boolean>(false);
 
-function statusToTag(status: TiltaksgjennomforingStatus): StatusAndVariant {
-  switch (status) {
-    case TiltaksgjennomforingStatus.GJENNOMFORES:
-      return { status: "Gjennomføres", variant: "success" };
-    case TiltaksgjennomforingStatus.AVBRUTT:
-      return { status: "Avbrutt", variant: "error" };
-    case TiltaksgjennomforingStatus.AVLYST:
-      return { status: "Avlyst", variant: "neutral" };
-    case TiltaksgjennomforingStatus.AVSLUTTET:
-      return { status: "Avsluttet", variant: "neutral" };
-    case TiltaksgjennomforingStatus.PLANLAGT:
-      return { status: "Planlagt", variant: "alt1" };
+  function variantAndName(): { variant: "alt1" | "success" | "neutral" | "error"; name: string } {
+    switch (status.name) {
+      case "GJENNOMFORES":
+        return { variant: "success", name: "Gjennomføres" };
+      case "AVSLUTTET":
+        return { variant: "neutral", name: "Avsluttet" };
+      case "AVBRUTT":
+        return { variant: "error", name: "Avbrutt" };
+      case "AVLYST":
+        return { variant: "error", name: "Avlyst" };
+      case "PLANLAGT":
+        return { variant: "alt1", name: "Planlagt" };
+    }
   }
-}
+  const { variant, name } = variantAndName();
 
-export function TiltaksgjennomforingstatusTag({ tiltaksgjennomforing }: Props) {
-  const { status, variant } = statusToTag(tiltaksgjennomforing.status);
+  function labelText(): string {
+    if ((status.name === "AVBRUTT" || status.name === "AVLYST") && showAvbruttAarsak) {
+      return `${name} - ${avbrytGjennomforingAarsakToString(status.aarsak)}`;
+    }
+
+    return name;
+  }
+
+  const label = labelText();
+  const slicedLabel = label.length > 30 ? label.slice(0, 27) + "..." : label;
 
   return (
-    <Tag size="small" aria-label={`Status for tiltaksgjennomføring: ${status}`} variant={variant}>
-      {status}
+    <Tag
+      style={{
+        maxWidth: "400px",
+      }}
+      size="small"
+      onMouseEnter={() => setExpandLabel(true)}
+      onMouseLeave={() => setExpandLabel(false)}
+      aria-label={`Gjennomføringstatus: ${name}`}
+      variant={variant}
+    >
+      {expandLabel ? label : slicedLabel}
     </Tag>
   );
 }

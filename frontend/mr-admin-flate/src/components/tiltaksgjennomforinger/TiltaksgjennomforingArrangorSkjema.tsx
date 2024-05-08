@@ -1,5 +1,5 @@
 import { useArrangorKontaktpersoner } from "@/api/arrangor/useArrangorKontaktpersoner";
-import { Button, TextField } from "@navikt/ds-react";
+import { Button, TextField, Textarea, VStack } from "@navikt/ds-react";
 import {
   ArrangorKontaktperson,
   ArrangorKontaktpersonAnsvar,
@@ -12,8 +12,8 @@ import { ArrangorKontaktpersonerModal } from "../arrangor/ArrangorKontaktpersone
 import { tiltaktekster } from "../ledetekster/tiltaksgjennomforingLedetekster";
 import { InferredTiltaksgjennomforingSchema } from "../redaksjonelt-innhold/TiltaksgjennomforingSchema";
 import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
-import { FormGroup } from "../skjema/FormGroup";
 import skjemastyles from "../skjema/Skjema.module.scss";
+import { STED_FOR_GJENNOMFORING_MAX_LENGTH } from "../../constants";
 
 interface Props {
   avtale: Avtale;
@@ -34,10 +34,9 @@ export function TiltaksgjennomforingArrangorSkjema({ readOnly, avtale }: Props) 
 
   const arrangorOptions = getArrangorOptions(avtale);
   const kontaktpersonOptions = getKontaktpersonOptions(arrangorKontaktpersoner ?? []);
-
   return (
     <>
-      <FormGroup>
+      <VStack gap="2">
         <TextField
           size="small"
           label={tiltaktekster.tiltaksarrangorHovedenhetLabel}
@@ -63,6 +62,16 @@ export function TiltaksgjennomforingArrangorSkjema({ readOnly, avtale }: Props) 
             label={tiltaktekster.kontaktpersonerHosTiltaksarrangorLabel}
             {...register("arrangorKontaktpersoner")}
             options={kontaktpersonOptions}
+            noOptionsMessage={
+              <Button
+                size="small"
+                type="button"
+                variant="tertiary"
+                onClick={() => arrangorKontaktpersonerModalRef.current?.showModal()}
+              >
+                Opprett kontaktpersoner
+              </Button>
+            }
           />
           <Button
             className={skjemastyles.kontaktperson_button}
@@ -74,8 +83,11 @@ export function TiltaksgjennomforingArrangorSkjema({ readOnly, avtale }: Props) 
             Opprett eller rediger kontaktpersoner
           </Button>
         </div>
-        <TextField
+        <Textarea
           size="small"
+          resize
+          value={watch("stedForGjennomforing") || ""}
+          maxLength={STED_FOR_GJENNOMFORING_MAX_LENGTH}
           label={tiltaktekster.stedForGjennomforingLabel}
           description="Skriv inn stedet tiltaket skal gjennomføres, for eksempel Fredrikstad eller Tromsø. For tiltak uten eksplisitt lokasjon (for eksempel digital jobbklubb), kan du la feltet stå tomt."
           {...register("stedForGjennomforing")}
@@ -83,7 +95,7 @@ export function TiltaksgjennomforingArrangorSkjema({ readOnly, avtale }: Props) 
             errors.stedForGjennomforing ? (errors.stedForGjennomforing.message as string) : null
           }
         />
-      </FormGroup>
+      </VStack>
       <ArrangorKontaktpersonerModal
         arrangorId={avtale.arrangor.id}
         modalRef={arrangorKontaktpersonerModalRef}

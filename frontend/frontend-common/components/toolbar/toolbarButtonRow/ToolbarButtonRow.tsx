@@ -1,8 +1,6 @@
 import styles from "./ToolbarButtonRow.module.scss";
+import { PropsWithChildren } from "react";
 
-interface Props {
-  children: React.ReactNode;
-}
-export const ToolbarButtonRow = ({ children }: Props) => {
-  return <div className={styles.button_row}>{children}</div>;
+export const ToolbarButtonRow = (props: PropsWithChildren) => {
+  return <div className={styles.button_row}>{props.children}</div>;
 };

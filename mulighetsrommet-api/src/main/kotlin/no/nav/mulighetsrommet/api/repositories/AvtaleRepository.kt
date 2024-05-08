@@ -44,13 +44,13 @@ class AvtaleRepository(private val db: Database) {
                 navn,
                 tiltakstype_id,
                 avtalenummer,
+                websaknummer,
                 arrangor_hovedenhet_id,
                 start_dato,
                 slutt_dato,
                 avtaletype,
                 prisbetingelser,
                 antall_plasser,
-                url,
                 opphav,
                 beskrivelse,
                 faneinnhold,
@@ -60,13 +60,13 @@ class AvtaleRepository(private val db: Database) {
                 :navn,
                 :tiltakstype_id::uuid,
                 :avtalenummer,
+                :websaknummer,
                 :arrangor_hovedenhet_id,
                 :start_dato,
                 :slutt_dato,
                 :avtaletype::avtaletype,
                 :prisbetingelser,
                 :antall_plasser,
-                :url,
                 :opphav::opphav,
                 :beskrivelse,
                 :faneinnhold::jsonb,
@@ -75,13 +75,13 @@ class AvtaleRepository(private val db: Database) {
                 navn                        = excluded.navn,
                 tiltakstype_id              = excluded.tiltakstype_id,
                 avtalenummer                = excluded.avtalenummer,
+                websaknummer                = excluded.websaknummer,
                 arrangor_hovedenhet_id      = excluded.arrangor_hovedenhet_id,
                 start_dato                  = excluded.start_dato,
                 slutt_dato                  = excluded.slutt_dato,
                 avtaletype                  = excluded.avtaletype,
                 prisbetingelser             = excluded.prisbetingelser,
                 antall_plasser              = excluded.antall_plasser,
-                url                         = excluded.url,
                 opphav                      = coalesce(avtale.opphav, excluded.opphav),
                 beskrivelse                 = excluded.beskrivelse,
                 faneinnhold                 = excluded.faneinnhold,
@@ -312,7 +312,7 @@ class AvtaleRepository(private val db: Database) {
         pagination: Pagination = Pagination.all(),
         tiltakstypeIder: List<UUID> = emptyList(),
         search: String? = null,
-        statuser: List<Avtalestatus> = emptyList(),
+        statuser: List<AvtaleStatus.Enum> = emptyList(),
         avtaletyper: List<Avtaletype> = emptyList(),
         navRegioner: List<String> = emptyList(),
         sortering: String? = null,
@@ -413,21 +413,20 @@ class AvtaleRepository(private val db: Database) {
             .let { db.run(it) }
     }
 
-    fun setAvbruttTidspunkt(id: UUID, avbruttTidspunkt: LocalDateTime) {
-        db.transaction { setAvbruttTidspunkt(it, id, avbruttTidspunkt) }
+    fun avbryt(id: UUID, tidspunkt: LocalDateTime, aarsak: AvbruttAarsak): Int {
+        return db.transaction { avbryt(it, id, tidspunkt, aarsak) }
     }
 
-    fun setAvbruttTidspunkt(tx: Session, id: UUID, avbruttTidspunkt: LocalDateTime) {
+    fun avbryt(tx: Session, id: UUID, tidspunkt: LocalDateTime, aarsak: AvbruttAarsak): Int {
         @Language("PostgreSQL")
         val query = """
-            update avtale
-            set avbrutt_tidspunkt = :avbrutt_tidspunkt
+            update avtale set
+                avbrutt_tidspunkt = :tidspunkt,
+                avbrutt_aarsak = :aarsak
             where id = :id::uuid
         """.trimIndent()
 
-        queryOf(query, mapOf("id" to id, "avbrutt_tidspunkt" to avbruttTidspunkt))
-            .asUpdate
-            .let { tx.run(it) }
+        return tx.run(queryOf(query, mapOf("id" to id, "tidspunkt" to tidspunkt, "aarsak" to aarsak.name)).asUpdate)
     }
 
     fun setArrangorUnderenhet(tx: Session, avtaleId: UUID, arrangorId: UUID) {
@@ -463,13 +462,13 @@ class AvtaleRepository(private val db: Database) {
         "navn" to navn,
         "tiltakstype_id" to tiltakstypeId,
         "avtalenummer" to avtalenummer,
+        "websaknummer" to websaknummer?.value,
         "arrangor_hovedenhet_id" to arrangorId,
         "start_dato" to startDato,
         "slutt_dato" to sluttDato,
         "avtaletype" to avtaletype.name,
         "prisbetingelser" to prisbetingelser,
         "antall_plasser" to antallPlasser,
-        "url" to url,
         "beskrivelse" to beskrivelse,
         "faneinnhold" to faneinnhold?.let { Json.encodeToString(it) },
         "personvern_bekreftet" to personvernBekreftet,
@@ -521,19 +520,22 @@ class AvtaleRepository(private val db: Database) {
                 Kontorstruktur(region = region, kontorer = kontorer)
             }
 
+        val avbruttTidspunkt = localDateTimeOrNull("avbrutt_tidspunkt")
+        val avbruttAarsak = stringOrNull("avbrutt_aarsak")?.let { AvbruttAarsak.fromString(it) }
+
         return AvtaleAdminDto(
             id = uuid("id"),
             navn = string("navn"),
             avtalenummer = stringOrNull("avtalenummer"),
             lopenummer = stringOrNull("lopenummer")?.let { Lopenummer(it) },
+            websaknummer = stringOrNull("websaknummer")?.let { Websaknummer(it) },
             startDato = startDato,
             sluttDato = sluttDato,
             opphav = ArenaMigrering.Opphav.valueOf(string("opphav")),
             avtaletype = Avtaletype.valueOf(string("avtaletype")),
-            avtalestatus = Avtalestatus.valueOf(string("status")),
+            status = AvtaleStatus.fromString(string("status"), avbruttTidspunkt, avbruttAarsak),
             prisbetingelser = stringOrNull("prisbetingelser"),
             antallPlasser = intOrNull("antall_plasser"),
-            url = stringOrNull("url"),
             beskrivelse = stringOrNull("beskrivelse"),
             faneinnhold = stringOrNull("faneinnhold")?.let { Json.decodeFromString(it) },
             administratorer = administratorer,
@@ -580,21 +582,7 @@ class AvtaleRepository(private val db: Database) {
         kontaktpersonId: UUID,
         avtaleId: UUID,
         tx: Session,
-    ): Either<StatusResponseError, Pair<String, String>> {
-        @Language("PostgreSQL")
-        val kontaktpersonNavnQuery = """
-            select navn from arrangor_kontaktperson where id = ?::uuid
-        """.trimIndent()
-
-        val optionalNavn = queryOf(kontaktpersonNavnQuery, kontaktpersonId)
-            .map { it.string("navn") }
-            .asSingle
-            .let { tx.run(it) }
-
-        val navn = requireNotNull(optionalNavn) {
-            "Klarte ikke hente ut navn for kontaktperson"
-        }
-
+    ): Either<StatusResponseError, String> {
         @Language("PostgreSQL")
         val query = """
             delete from avtale_arrangor_kontaktperson where arrangor_kontaktperson_id = ?::uuid and avtale_id = ?::uuid
@@ -604,74 +592,57 @@ class AvtaleRepository(private val db: Database) {
             .asUpdate
             .let { tx.run(it) }
 
-        return Either.Right(navn to kontaktpersonId.toString())
+        return Either.Right(kontaktpersonId.toString())
     }
 
-    fun getBehandlingAvPersonopplysninger(id: UUID): PersonopplysningerMedBeskrivelse {
+    fun getAvtaleIdsByAdministrator(navIdent: NavIdent): List<UUID> {
+        @Language("PostgreSQL")
+        val query = """
+            select avtale_id from avtale_administrator where nav_ident = ?
+        """.trimIndent()
+
+        return queryOf(query, navIdent)
+            .map {
+                it.uuid("avtale_id")
+            }
+            .asList
+            .let { db.run(it) }
+    }
+
+    fun getBehandlingAvPersonopplysninger(id: UUID): Map<PersonopplysningFrekvens, List<PersonopplysningMedBeskrivelse>> {
         @Language("PostgreSQL")
         val valgtePersonopplysningerQuery = """
-            select distinct tp.personopplysning, frekvens
+            select tp.personopplysning, tp.frekvens
             from avtale
-                 join tiltaksgjennomforing on tiltaksgjennomforing.avtale_id = avtale.id
-                 join tiltakstype on tiltakstype.id = avtale.tiltakstype_id
-                 join avtale_personopplysning ap on avtale.id = ap.avtale_id
-                 join tiltakstype_personopplysning tp on tp.personopplysning = ap.personopplysning
-            where avtale.id = ?::uuid
-              and avtale.personvern_bekreftet
-            and tp.tiltakskode = tiltakstype.tiltakskode;
+                inner join tiltakstype on tiltakstype.id = avtale.tiltakstype_id
+                inner join avtale_personopplysning ap on avtale.id = ap.avtale_id
+                inner join tiltakstype_personopplysning tp on tp.personopplysning = ap.personopplysning
+            where
+                avtale.id = ?::uuid
+                and avtale.personvern_bekreftet
+                and tp.tiltakskode = tiltakstype.tiltakskode;
         """.trimIndent()
 
         val valgtePersonopplysninger = queryOf(valgtePersonopplysningerQuery, id)
             .map {
-                it.toPersonopplysningMedFrekvens()
+                PersonopplysningMedFrekvens(
+                    personopplysning = Personopplysning.valueOf(it.string("personopplysning")),
+                    frekvens = PersonopplysningFrekvens.valueOf(it.string("frekvens")),
+                )
             }
             .asList
             .let { db.run(it) }
 
-        val gruppert = valgtePersonopplysninger.groupBy { it.frekvens }
-
-        return PersonopplysningerMedBeskrivelse(
-            alltid = gruppert[PersonopplysningFrekvens.ALLTID]?.map { it.toPersonopplysningMedBeskrivelse() }
-                ?: emptyList(),
-            ofte = gruppert[PersonopplysningFrekvens.OFTE]?.map { it.toPersonopplysningMedBeskrivelse() }
-                ?: emptyList(),
-            sjelden = gruppert[PersonopplysningFrekvens.SJELDEN]?.map { it.toPersonopplysningMedBeskrivelse() }
-                ?: emptyList(),
+        return mapOf(
+            PersonopplysningFrekvens.ALLTID to valgtePersonopplysninger
+                .filter { it.frekvens == PersonopplysningFrekvens.ALLTID }
+                .map { it.personopplysning.toPersonopplysningMedBeskrivelse() },
+            PersonopplysningFrekvens.OFTE to valgtePersonopplysninger
+                .filter { it.frekvens == PersonopplysningFrekvens.OFTE }
+                .map { it.personopplysning.toPersonopplysningMedBeskrivelse() },
+            PersonopplysningFrekvens.SJELDEN to valgtePersonopplysninger
+                .filter { it.frekvens == PersonopplysningFrekvens.SJELDEN }
+                .map { it.personopplysning.toPersonopplysningMedBeskrivelse() },
         )
-    }
-
-    private fun Row.toPersonopplysningMedFrekvens(): PersonopplysningMedFrekvens {
-        return PersonopplysningMedFrekvens(
-            personopplysning = Personopplysning.valueOf(this.string("personopplysning")),
-            frekvens = PersonopplysningFrekvens.valueOf(this.string("frekvens")),
-            beskrivelse = beskrivelseForPersonopplysning(Personopplysning.valueOf(this.string("personopplysning"))),
-        )
-    }
-
-    private fun beskrivelseForPersonopplysning(personopplysning: Personopplysning): String {
-        return when (personopplysning) {
-            Personopplysning.NAVN -> "Navn"
-            Personopplysning.KJONN -> "Kjønn"
-            Personopplysning.ADRESSE -> "Adresse"
-            Personopplysning.TELEFONNUMMER -> "Telefonnummer"
-            Personopplysning.FOLKEREGISTER_IDENTIFIKATOR -> "Folkeregisteridentifikator"
-            Personopplysning.FODSELSDATO -> "Fødselsdato"
-            Personopplysning.BEHOV_FOR_BISTAND_FRA_NAV -> "Behov for bistand fra NAV"
-            Personopplysning.YTELSER_FRA_NAV -> "Ytelser fra NAV"
-            Personopplysning.BILDE -> "Bilde"
-            Personopplysning.EPOST -> "E-postadresse"
-            Personopplysning.BRUKERNAVN -> "Brukernavn"
-            Personopplysning.ARBEIDSERFARING_OG_VERV -> "Opplysninger knyttet til arbeidserfaring og verv som normalt fremkommer av en CV, herunder arbeidsgiver og hvor lenge man har jobbet"
-            Personopplysning.SERTIFIKATER_OG_KURS -> "Sertifikater og kurs, eks. Førerkort, vekterkurs"
-            Personopplysning.IP_ADRESSE -> "IP-adresse"
-            Personopplysning.UTDANNING_OG_FAGBREV -> "Utdanning, herunder fagbrev, høyere utdanning, grunnskoleopplæring osv."
-            Personopplysning.PERSONLIGE_EGENSKAPER_OG_INTERESSER -> "Opplysninger om personlige egenskaper og interesser"
-            Personopplysning.SPRAKKUNNSKAP -> "Opplysninger om språkkunnskap"
-            Personopplysning.ADFERD -> "Opplysninger om atferd som kan ha betydning for tiltaksgjennomføring og jobbmuligheter (eks. truende adferd, vanskelig å samarbeide med osv.)"
-            Personopplysning.SOSIALE_FORHOLD -> "Sosiale eller personlige forhold som kan ha betydning for tiltaksgjennomføring og jobbmuligheter (eks. Aleneforsørger og kan derfor ikke jobbe kveldstid, eller økonomiske forhold som går ut over tiltaksgjennomføringen)"
-            Personopplysning.HELSEOPPLYSNINGER -> "Helseopplysninger"
-            Personopplysning.RELIGION -> "Religion"
-            else -> throw Exception("Fant ikke beskrivelse for personopplsyning '${personopplysning.name}' - Den må nok legges til i koden.")
-        }
     }
 }

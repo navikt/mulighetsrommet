@@ -1,6 +1,6 @@
-import styles from "./Modal.module.scss";
 import { BodyShort, Button, Heading, Modal } from "@navikt/ds-react";
 import { RefObject } from "react";
+import styles from "./Modal.module.scss";
 
 interface Props {
   modalRef: RefObject<HTMLDialogElement>;
@@ -26,7 +26,7 @@ export function RedigeringsAdvarselModal({ modalRef, onRediger, ressursNavn }: P
       <Modal.Footer>
         <div className={styles.knapperad}>
           <Button variant="secondary" type="button" onClick={onClose}>
-            Nei takk
+            Nei, takk
           </Button>
           <Button variant="primary" onClick={onRediger}>
             Ja, jeg vil redigere

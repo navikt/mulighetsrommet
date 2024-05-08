@@ -24,8 +24,8 @@ class UpdateTiltaksgjennomforingStatusTest : FunSpec({
     val today = LocalDate.of(2023, 2, 16)
 
     val tiltakstype = TiltakstypeFixtures.Oppfolging.copy(
-        fraDato = LocalDate.of(2023, 1, 11),
-        tilDato = LocalDate.now().plusYears(1),
+        startDato = LocalDate.of(2023, 1, 11),
+        sluttDato = LocalDate.now().plusYears(1),
     )
 
     context("oppdater statuser på tiltaksgjennomføringer") {
@@ -36,7 +36,7 @@ class UpdateTiltaksgjennomforingStatusTest : FunSpec({
             tiltaksgjennomforingKafkaProducer,
         )
 
-        fun TiltaksgjennomforingDbo.toDto(status: TiltaksgjennomforingStatus): TiltaksgjennomforingDto {
+        fun TiltaksgjennomforingDbo.toDto(status: TiltaksgjennomforingStatus.Enum): TiltaksgjennomforingDto {
             return TiltaksgjennomforingDto(
                 id = id,
                 tiltakstype = TiltaksgjennomforingDto.Tiltakstype(
@@ -50,6 +50,7 @@ class UpdateTiltaksgjennomforingStatusTest : FunSpec({
                 sluttDato = sluttDato,
                 status = status,
                 oppstart = oppstart,
+                tilgjengeligForArrangorFraOgMedDato = null,
             )
         }
 
@@ -100,8 +101,8 @@ class UpdateTiltaksgjennomforingStatusTest : FunSpec({
             task.oppdaterTiltaksgjennomforingStatus(today, lastSuccessDate)
 
             verifyAll {
-                tiltaksgjennomforingKafkaProducer.publish(startdatoInnenfor.toDto(TiltaksgjennomforingStatus.GJENNOMFORES))
-                tiltaksgjennomforingKafkaProducer.publish(sluttdatoInnenfor.toDto(TiltaksgjennomforingStatus.AVSLUTTET))
+                tiltaksgjennomforingKafkaProducer.publish(startdatoInnenfor.toDto(TiltaksgjennomforingStatus.Enum.GJENNOMFORES))
+                tiltaksgjennomforingKafkaProducer.publish(sluttdatoInnenfor.toDto(TiltaksgjennomforingStatus.Enum.AVSLUTTET))
             }
         }
     }

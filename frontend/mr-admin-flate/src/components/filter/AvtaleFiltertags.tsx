@@ -26,7 +26,7 @@ export function AvtaleFiltertags({ filterAtom, tiltakstypeId, filterOpen, setTag
     <FilterTagsContainer filterOpen={filterOpen} setTagsHeight={setTagsHeight}>
       {filter.sok && (
         <FilterTag
-          label={filter.sok}
+          label={`Søkt på: '${filter.sok}`}
           onClose={() => {
             setFilter({
               ...filter,
@@ -107,6 +107,17 @@ export function AvtaleFiltertags({ filterAtom, tiltakstypeId, filterOpen, setTag
           }}
         />
       ))}
+      {filter.personvernBekreftet.map((p, i) => {
+        return (
+          <FilterTag
+            key={i}
+            label={p ? "Personvern bekreftet" : "Personvern ikke bekreftet"}
+            onClose={() => {
+              setFilter({ ...filter, personvernBekreftet: [] });
+            }}
+          />
+        );
+      })}
     </FilterTagsContainer>
   );
 }

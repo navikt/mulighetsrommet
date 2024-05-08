@@ -103,14 +103,21 @@ class AvtaleInfoEventProcessor(
     }
 
     private fun isRelevantBeforeCutoffDate(avtale: ArenaAvtaleInfo): Boolean {
-        if (!NaisEnv.current().isProdGCP()) {
-            return false
+        val idTilAvtalerSomErUtloptIArenaMenFortsattHarAktiveGjennomforinger = if (NaisEnv.current().isDevGCP()) {
+            listOf(
+                // Avtale til gjennomføring 2018/291121
+                227767,
+                // Avtale til gjennomføring 2017/328328
+                234161,
+            )
+        } else if (NaisEnv.current().isProdGCP()) {
+            listOf(
+                // Avtale til gjennomføring 2019/283498
+                276792,
+            )
+        } else {
+            listOf()
         }
-
-        val idTilAvtalerSomErUtloptIArenaMenFortsattHarAktiveGjennomforinger = listOf(
-            // Avtale til gjennomføring 2019/283498
-            276792,
-        )
 
         return avtale.AVTALE_ID in idTilAvtalerSomErUtloptIArenaMenFortsattHarAktiveGjennomforinger
     }

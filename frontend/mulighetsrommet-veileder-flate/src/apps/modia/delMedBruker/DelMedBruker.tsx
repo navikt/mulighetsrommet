@@ -16,7 +16,7 @@ import {
 
 interface Props {
   veiledernavn: string;
-  brukerdata: Bruker;
+  bruker: Bruker;
   tiltaksgjennomforing: VeilederflateTiltaksgjennomforing;
   delMedBrukerInfo?: DelMedBrukerInfo;
 
@@ -28,13 +28,13 @@ interface Props {
 
 export const DelMedBruker = ({
   veiledernavn,
-  brukerdata,
+  bruker,
   tiltaksgjennomforing,
   delMedBrukerInfo,
   lagreVeilederHarDeltTiltakMedBruker,
 }: Props) => {
   const { logEvent } = useLogEvent();
-  const { reservert } = erBrukerReservertMotElektroniskKommunikasjon(brukerdata);
+  const { reservert } = erBrukerReservertMotElektroniskKommunikasjon(bruker);
 
   const deletekst = utledDelMedBrukerTekst(tiltaksgjennomforing, veiledernavn);
   const [state, dispatch] = useDelMedBruker(deletekst);
@@ -67,13 +67,12 @@ export const DelMedBruker = ({
       </Button>
 
       <Delemodal
-        brukernavn={brukerdata.fornavn}
         veiledernavn={veiledernavn}
         tiltaksgjennomforing={tiltaksgjennomforing}
         harDeltMedBruker={delMedBrukerInfo}
         dispatch={dispatch}
         state={state}
-        brukerdata={brukerdata}
+        bruker={bruker}
         lagreVeilederHarDeltTiltakMedBruker={lagreVeilederHarDeltTiltakMedBruker}
       />
     </>

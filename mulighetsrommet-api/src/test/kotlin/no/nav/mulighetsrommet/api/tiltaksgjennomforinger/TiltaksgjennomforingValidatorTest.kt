@@ -91,7 +91,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
             TiltakstypeFixtures.VTA,
             TiltakstypeFixtures.AFT,
             TiltakstypeFixtures.Jobbklubb,
-            TiltakstypeFixtures.GRUPPE_AMO,
+            TiltakstypeFixtures.GruppeAmo,
             TiltakstypeFixtures.Oppfolging,
         ),
         avtaler = listOf(
@@ -164,7 +164,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
         val id = UUID.randomUUID()
         avtaler.upsert(avtale.copy(id = id))
 
-        avtaler.setAvbruttTidspunkt(id, LocalDateTime.now())
+        avtaler.avbryt(id, LocalDateTime.now(), AvbruttAarsak.BudsjettHensyn)
 
         val validator = TiltaksgjennomforingValidator(tiltakstyper, avtaler, arrangorer)
         val dbo = gjennomforing.copy(avtaleId = id)
@@ -330,8 +330,9 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
         test("Skal godta endringer for sluttdato frem i tid selv om gjennomføringen er aktiv") {
             val validator = TiltaksgjennomforingValidator(tiltakstyper, avtaler, arrangorer)
             val previous = tiltaksgjennomforinger.get(gjennomforing.id)
+            avtaler.upsert(avtale.copy(startDato = LocalDate.now().minusDays(3)))
             validator.validate(gjennomforing.copy(sluttDato = avtaleSluttDato.plusDays(5)), previous).shouldBeRight()
-            validator.validate(gjennomforing.copy(sluttDato = avtaleSluttDato.minusDays(1)), previous).shouldBeLeft(
+            validator.validate(gjennomforing.copy(startDato = LocalDate.now().minusDays(2), sluttDato = LocalDate.now().minusDays(1)), previous).shouldBeLeft(
                 listOf(
                     ValidationError(
                         "sluttDato",
@@ -342,7 +343,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
         }
 
         test("skal godta endringer selv om avtale er avbrutt") {
-            avtaler.setAvbruttTidspunkt(avtale.id, LocalDateTime.now())
+            avtaler.avbryt(avtale.id, LocalDateTime.now(), AvbruttAarsak.BudsjettHensyn)
 
             val validator = TiltaksgjennomforingValidator(tiltakstyper, avtaler, arrangorer)
 

@@ -4,16 +4,13 @@ server:
 
 app:
   database:
-    host: localhost
-    port: 5442
-    name: mulighetsrommet-api-db
-    user: valp
-    password: valp
+    jdbcUrl: jdbc:postgresql://localhost:5442/mr-api?user=valp&password=valp
     maximumPoolSize: 10
-    migrationConfig:
-      strategy: Migrate
-      # Kan kjøres når du må kjøre flyway repair
-      # strategy: RepairAndMigrate
+  flyway:
+    # Kjører repeatable migrasjoner hver gang applikasjon startes
+    strategy: ForceClearRepeatableAndMigrate
+    # Kan benyttes når du må kjøre flyway repair lokalt
+    # strategy: RepairAndMigrate
 
   migrerteTiltak:
     - AVKLARING
@@ -36,7 +33,7 @@ app:
       tiltaksgjennomforinger:
         topic: siste-tiltaksgjennomforinger-v1
       tiltakstyper:
-        topic: team-mulighetsrommet.siste-tiltakstyper-v1
+        topic: team-mulighetsrommet.siste-tiltakstyper-v2
     consumers:
       tiltaksgjennomforingerV1:
         id: siste-tiltaksgjennomforinger
@@ -89,10 +86,6 @@ app:
     url: http://localhost:8090/veilarboppfolging/api
     scope: default
 
-  veilarbpersonConfig:
-    url: http://localhost:8090/veilarbperson/api
-    scope: default
-
   veilarbveilederConfig:
     url: http://localhost:8090/veilarbveileder/api
     scope: default
@@ -140,7 +133,7 @@ app:
     notifyFailedKafkaEvents:
       disabled: true
       maxRetries: 5
-      delayOfMinutes: 15
+      cronPattern: "0 */15 * ? * MON-FRI"
     updateApentForInnsok:
       disabled: true
       cronPattern: "0 */1 * * * *" # Hvert 1 minutt
@@ -163,3 +156,6 @@ app:
     token: ${UNLEASH_SERVER_API_TOKEN:-}
     instanceId: mulighetsrommet-api
     environment: development
+
+  ssbNusConfig:
+    baseUrl: "https://data.ssb.no/api"

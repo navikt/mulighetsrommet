@@ -19,6 +19,7 @@ import no.nav.mulighetsrommet.api.routes.v1.parameters.getPaginationParams
 import no.nav.mulighetsrommet.api.routes.v1.responses.BadRequest
 import no.nav.mulighetsrommet.api.routes.v1.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.services.TiltaksgjennomforingService
+import no.nav.mulighetsrommet.domain.dbo.Deltakerstatus
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dto.AvbruttAarsak
 import no.nav.mulighetsrommet.domain.dto.Faneinnhold
@@ -61,7 +62,7 @@ fun Route.tiltaksgjennomforingRoutes() {
             put("{id}/avbryt") {
                 val id = call.parameters.getOrFail<UUID>("id")
                 val navIdent = getNavIdent()
-                val request = call.receive<AvbrytGjennomforingRequest>()
+                val request = call.receive<AvbrytRequest>()
                 val response = service.avbrytGjennomforing(id, navIdent, request.aarsak)
                 call.respondWithStatusResponse(response)
             }
@@ -131,7 +132,21 @@ fun Route.tiltaksgjennomforingRoutes() {
             val id: UUID by call.parameters
 
             val deltakereForGjennomforing = deltakere.getAll(id)
-            val summary = TiltaksgjennomforingDeltakerSummary(antallDeltakere = deltakereForGjennomforing.size)
+            val groupedDeltakere = deltakereForGjennomforing.groupBy { it.status }
+            val summary = TiltaksgjennomforingDeltakerSummary(
+                antallDeltakere = deltakereForGjennomforing.size,
+                antallAktiveDeltakere = groupedDeltakere.getOrDefault(Deltakerstatus.DELTAR, emptyList()).size,
+                antallDeltakereSomVenter = groupedDeltakere.getOrDefault(Deltakerstatus.VENTER, emptyList()).size,
+                antallAvsluttedeDeltakere = groupedDeltakere.getOrDefault(Deltakerstatus.AVSLUTTET, emptyList()).size,
+                antallIkkeAktuelleDeltakere = groupedDeltakere.getOrDefault(
+                    Deltakerstatus.IKKE_AKTUELL,
+                    emptyList(),
+                ).size,
+                pabegyntRegistrering = groupedDeltakere.getOrDefault(
+                    Deltakerstatus.PABEGYNT_REGISTRERING,
+                    emptyList(),
+                ).size,
+            )
 
             call.respond(summary)
         }
@@ -142,7 +157,7 @@ data class AdminTiltaksgjennomforingFilter(
     val search: String? = null,
     val navEnheter: List<String> = emptyList(),
     val tiltakstypeIder: List<UUID> = emptyList(),
-    val statuser: List<TiltaksgjennomforingStatus> = emptyList(),
+    val statuser: List<TiltaksgjennomforingStatus.Enum> = emptyList(),
     val sortering: String? = null,
     val avtaleId: UUID? = null,
     val arrangorIds: List<UUID> = emptyList(),
@@ -154,7 +169,7 @@ fun <T : Any> PipelineContext<T, ApplicationCall>.getAdminTiltaksgjennomforingsF
     val navEnheter = call.parameters.getAll("navEnheter") ?: emptyList()
     val tiltakstypeIder = call.parameters.getAll("tiltakstyper")?.map { UUID.fromString(it) } ?: emptyList()
     val statuser = call.parameters.getAll("statuser")
-        ?.map { TiltaksgjennomforingStatus.valueOf(it) }
+        ?.map { TiltaksgjennomforingStatus.Enum.valueOf(it) }
         ?: emptyList()
     val sortering = call.request.queryParameters["sort"]
     val avtaleId = call.request.queryParameters["avtaleId"]?.let { if (it.isEmpty()) null else UUID.fromString(it) }
@@ -175,6 +190,11 @@ fun <T : Any> PipelineContext<T, ApplicationCall>.getAdminTiltaksgjennomforingsF
 @Serializable
 data class TiltaksgjennomforingDeltakerSummary(
     val antallDeltakere: Int,
+    val antallAktiveDeltakere: Int,
+    val antallDeltakereSomVenter: Int,
+    val antallAvsluttedeDeltakere: Int,
+    val antallIkkeAktuelleDeltakere: Int,
+    val pabegyntRegistrering: Int,
 )
 
 @Serializable
@@ -213,6 +233,8 @@ data class TiltaksgjennomforingRequest(
     val beskrivelse: String?,
     val deltidsprosent: Double,
     val estimertVentetid: EstimertVentetid?,
+    @Serializable(with = LocalDateSerializer::class)
+    val tilgjengeligForArrangorFraOgMedDato: LocalDate?,
 ) {
     fun toDbo() = TiltaksgjennomforingDbo(
         id = id,
@@ -242,11 +264,12 @@ data class TiltaksgjennomforingRequest(
         deltidsprosent = deltidsprosent,
         estimertVentetidVerdi = estimertVentetid?.verdi,
         estimertVentetidEnhet = estimertVentetid?.enhet,
+        tilgjengeligForArrangorFraOgMedDato = tilgjengeligForArrangorFraOgMedDato,
     )
 }
 
 @Serializable
-data class AvbrytGjennomforingRequest(
+data class AvbrytRequest(
     @Serializable(with = AvbruttAarsakSerializer::class)
     val aarsak: AvbruttAarsak?,
 )

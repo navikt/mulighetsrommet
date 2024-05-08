@@ -39,14 +39,6 @@ CREATE TRIGGER set_timestamp
     FOR EACH ROW
 EXECUTE PROCEDURE trigger_set_timestamp();
 
-DROP TRIGGER IF EXISTS set_timestamp ON avtale_notat;
-
-CREATE TRIGGER set_timestamp
-    BEFORE UPDATE
-    ON avtale_notat
-    FOR EACH ROW
-EXECUTE PROCEDURE trigger_set_timestamp();
-
 DROP TRIGGER IF EXISTS set_timestamp ON veileder_joyride;
 
 CREATE TRIGGER set_timestamp
