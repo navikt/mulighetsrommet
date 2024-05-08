@@ -110,7 +110,8 @@ export type MrApiTask =
   | "generate-validation-report"
   | "initial-load-tiltakstyper"
   | "initial-load-tiltaksgjennomforinger"
-  | "sync-navansatte";
+  | "sync-navansatte"
+  | "sync-nusdata";
 
 export const runTask = (base: ApiBase, task: MrApiTask, input?: object) =>
   fetch(`${base}/tasks/${task}`, {

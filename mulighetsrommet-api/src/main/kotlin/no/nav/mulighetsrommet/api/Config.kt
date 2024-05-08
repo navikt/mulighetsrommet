@@ -4,6 +4,7 @@ import io.ktor.client.engine.*
 import io.ktor.client.engine.cio.*
 import no.nav.mulighetsrommet.api.clients.brreg.BrregClient
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
+import no.nav.mulighetsrommet.api.clients.ssb.SsbNusClient
 import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattRolle
 import no.nav.mulighetsrommet.api.tasks.*
 import no.nav.mulighetsrommet.database.DatabaseConfig
@@ -45,6 +46,7 @@ data class AppConfig(
     val axsys: ServiceClientConfig,
     val pdl: ServiceClientConfig,
     val engine: HttpClientEngine = CIO.create(),
+    val ssbNusConfig: SsbNusClient.Config,
 )
 
 data class AuthConfig(
