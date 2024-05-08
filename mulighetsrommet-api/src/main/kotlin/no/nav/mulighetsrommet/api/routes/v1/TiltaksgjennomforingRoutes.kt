@@ -142,6 +142,10 @@ fun Route.tiltaksgjennomforingRoutes() {
                     Deltakerstatus.IKKE_AKTUELL,
                     emptyList(),
                 ).size,
+                pabegyntRegistrering = groupedDeltakere.getOrDefault(
+                    Deltakerstatus.PABEGYNT_REGISTRERING,
+                    emptyList(),
+                ).size,
             )
 
             call.respond(summary)
@@ -190,6 +194,7 @@ data class TiltaksgjennomforingDeltakerSummary(
     val antallDeltakereSomVenter: Int,
     val antallAvsluttedeDeltakere: Int,
     val antallIkkeAktuelleDeltakere: Int,
+    val pabegyntRegistrering: Int,
 )
 
 @Serializable
