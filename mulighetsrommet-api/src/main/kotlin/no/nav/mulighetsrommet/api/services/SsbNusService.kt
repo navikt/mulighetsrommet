@@ -6,6 +6,6 @@ import no.nav.mulighetsrommet.api.repositories.SsbNusRepository
 class SsbNusService(val client: SsbNusClient, private val ssbNusRepository: SsbNusRepository) {
     suspend fun syncData(version: String) {
         val data = client.fetchNusData(version)
-        ssbNusRepository.saveData(data, version)
+        ssbNusRepository.upsert(data, version)
     }
 }

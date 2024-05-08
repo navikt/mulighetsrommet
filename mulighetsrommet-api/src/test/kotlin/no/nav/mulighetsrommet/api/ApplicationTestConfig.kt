@@ -4,6 +4,7 @@ import io.ktor.server.application.*
 import io.ktor.server.testing.*
 import no.nav.mulighetsrommet.api.clients.brreg.BrregClient
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
+import no.nav.mulighetsrommet.api.clients.ssb.SsbNusClient
 import no.nav.mulighetsrommet.api.tasks.*
 import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.database.FlywayMigrationManager
@@ -93,6 +94,10 @@ fun createTestApplicationConfig() = AppConfig(
     axsys = ServiceClientConfig(url = "", scope = ""),
     pdl = ServiceClientConfig(url = "", scope = ""),
     migrerteTiltak = emptyList(),
+    ssbNusConfig = SsbNusClient.Config(
+        baseUrl = "",
+
+    ),
 )
 
 fun createKafkaConfig(): KafkaConfig {

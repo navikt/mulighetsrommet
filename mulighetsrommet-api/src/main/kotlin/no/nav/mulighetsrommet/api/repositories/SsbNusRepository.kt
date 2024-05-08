@@ -7,7 +7,7 @@ import no.nav.mulighetsrommet.database.Database
 import org.intellij.lang.annotations.Language
 
 class SsbNusRepository(private val db: Database) {
-    fun saveData(data: SsbNusData, version: String) {
+    fun upsert(data: SsbNusData, version: String) {
         @Language("PostgreSQL")
         val query = """
         insert into nus_kodeverk(id, name, parent, level, version, self_link)
