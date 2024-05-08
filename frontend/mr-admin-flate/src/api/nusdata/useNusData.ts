@@ -13,7 +13,8 @@ export function useNusData() {
   return useQuery<NusDataFraSsb>({
     queryKey: ["nusdata"],
     queryFn: async () => {
-      const response = await fetch("https://data.ssb.no/api/klass/v1/versions/2437?selectLevel=1");
+      const version = "2437";
+      const response = await fetch(`https://data.ssb.no/api/klass/v1/versions/${version}`);
       if (response.ok) {
         return await response.json();
       }
