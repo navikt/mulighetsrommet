@@ -66,6 +66,7 @@ class Norg2Client(
             }
             HttpStatusCode.OK -> {
                 val enhet = response.body<Norg2EnhetDto>()
+                log.debug("Fant nav enhet: ${enhet.navn} $ for geografisk område: $geografiskOmraade")
                 enhet.right()
             }
             else -> {
