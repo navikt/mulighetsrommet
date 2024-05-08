@@ -96,7 +96,6 @@ fun createTestApplicationConfig() = AppConfig(
     migrerteTiltak = emptyList(),
     ssbNusConfig = SsbNusClient.Config(
         baseUrl = "",
-
     ),
 )
 
