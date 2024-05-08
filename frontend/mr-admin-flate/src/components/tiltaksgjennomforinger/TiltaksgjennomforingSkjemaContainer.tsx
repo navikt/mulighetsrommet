@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ExclamationmarkTriangleFillIcon } from "@navikt/aksel-icons";
-import { Button, Tabs } from "@navikt/ds-react";
+import { Tabs } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import {
   Avtale,
@@ -8,28 +8,22 @@ import {
   Tiltaksgjennomforing,
   TiltaksgjennomforingRequest,
 } from "mulighetsrommet-api-client";
-import { useRef } from "react";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { v4 as uuidv4 } from "uuid";
 import { gjennomforingDetaljerTabAtom } from "@/api/atoms";
 import { useHandleApiUpsertResponse } from "@/api/effects";
 import { useUpsertTiltaksgjennomforing } from "@/api/tiltaksgjennomforing/useUpsertTiltaksgjennomforing";
-import { useMigrerteTiltakstyper } from "@/api/tiltakstyper/useMigrerteTiltakstyper";
-import { HarSkrivetilgang } from "../authActions/HarSkrivetilgang";
 import { Separator } from "../detaljside/Metadata";
-import { AvbrytTiltaksgjennomforingModal } from "../modal/AvbrytTiltaksgjennomforingModal";
 import skjemastyles from "../skjema/Skjema.module.scss";
 import { TiltakgjennomforingRedaksjoneltInnholdForm } from "./TiltaksgjennomforingRedaksjoneltInnholdForm";
 import {
   InferredTiltaksgjennomforingSchema,
   TiltaksgjennomforingSchema,
 } from "../redaksjonelt-innhold/TiltaksgjennomforingSchema";
-import {
-  defaultTiltaksgjennomforingData,
-  erArenaOpphavOgIngenEierskap,
-} from "./TiltaksgjennomforingSkjemaConst";
+import { defaultTiltaksgjennomforingData } from "./TiltaksgjennomforingSkjemaConst";
 import { TiltaksgjennomforingSkjemaDetaljer } from "./TiltaksgjennomforingSkjemaDetaljer";
 import { TiltaksgjennomforingSkjemaKnapperad } from "./TiltaksgjennomforingSkjemaKnapperad";
+import { logEvent } from "../../logging/amplitude";
 
 interface Props {
   onClose: () => void;
@@ -37,6 +31,15 @@ interface Props {
   avtale: Avtale;
   ansatt: NavAnsatt;
   tiltaksgjennomforing?: Tiltaksgjennomforing;
+}
+
+function loggRedaktorEndrerTilgjengeligForArrangor(datoValgt: string) {
+  logEvent({
+    name: "tiltaksadministrasjon.sett-tilgjengelig-for-redaktor",
+    data: {
+      datoValgt,
+    },
+  });
 }
 
 export const TiltaksgjennomforingSkjemaContainer = ({
@@ -49,9 +52,6 @@ export const TiltaksgjennomforingSkjemaContainer = ({
   const redigeringsModus = !!tiltaksgjennomforing;
   const mutation = useUpsertTiltaksgjennomforing();
   const [activeTab, setActiveTab] = useAtom(gjennomforingDetaljerTabAtom);
-  const { data: migrerteTiltakstyper = [] } = useMigrerteTiltakstyper();
-
-  const avbrytModalRef = useRef<HTMLDialogElement>(null);
 
   const form = useForm<InferredTiltaksgjennomforingSchema>({
     resolver: zodResolver(TiltaksgjennomforingSchema),
@@ -94,7 +94,15 @@ export const TiltaksgjennomforingSkjemaContainer = ({
       faneinnhold: data.faneinnhold ?? null,
       deltidsprosent: data.deltidsprosent,
       estimertVentetid: data.estimertVentetid ?? null,
+      tilgjengeligForArrangorFraOgMedDato: data.tilgjengeligForArrangorFraOgMedDato ?? null,
     };
+
+    if (
+      data.tilgjengeligForArrangorFraOgMedDato &&
+      data.startOgSluttDato.startDato !== data.tilgjengeligForArrangorFraOgMedDato
+    ) {
+      loggRedaktorEndrerTilgjengeligForArrangor(data.tilgjengeligForArrangorFraOgMedDato);
+    }
 
     mutation.mutate(body);
   };
@@ -151,7 +159,6 @@ export const TiltaksgjennomforingSkjemaContainer = ({
               />
             </div>
             <TiltaksgjennomforingSkjemaKnapperad
-              size="small"
               redigeringsModus={redigeringsModus}
               onClose={onClose}
               mutation={mutation}
@@ -169,34 +176,13 @@ export const TiltaksgjennomforingSkjemaContainer = ({
         </Tabs>
         <Separator />
         <div className={skjemastyles.flex_container}>
-          <HarSkrivetilgang ressurs="Tiltaksgjennomføring">
-            {!erArenaOpphavOgIngenEierskap(tiltaksgjennomforing, migrerteTiltakstyper) &&
-              redigeringsModus && (
-                <Button
-                  size="small"
-                  variant="danger"
-                  type="button"
-                  onClick={() => avbrytModalRef.current?.showModal()}
-                  className={skjemastyles.avbryt_knapp}
-                >
-                  Avbryt gjennomføring
-                </Button>
-              )}
-          </HarSkrivetilgang>
           <TiltaksgjennomforingSkjemaKnapperad
-            size="small"
             redigeringsModus={redigeringsModus}
             onClose={onClose}
             mutation={mutation}
           />
         </div>
       </form>
-      {tiltaksgjennomforing && (
-        <AvbrytTiltaksgjennomforingModal
-          modalRef={avbrytModalRef}
-          tiltaksgjennomforing={tiltaksgjennomforing}
-        />
-      )}
     </FormProvider>
   );
 };

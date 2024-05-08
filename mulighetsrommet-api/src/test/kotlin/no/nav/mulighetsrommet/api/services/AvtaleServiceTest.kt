@@ -27,6 +27,7 @@ import no.nav.mulighetsrommet.api.routes.v1.responses.ValidationError
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
+import no.nav.mulighetsrommet.domain.dto.AvbruttAarsak
 import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.notifications.NotificationRepository
 import no.nav.mulighetsrommet.utils.toUUID
@@ -117,7 +118,7 @@ class AvtaleServiceTest : FunSpec({
             val avtaleIdSomIkkeFinnes = "3c9f3d26-50ec-45a7-a7b2-c2d8a3653945".toUUID()
             avtaleRepository.upsert(avtale)
 
-            avtaleService.avbrytAvtale(avtaleIdSomIkkeFinnes, bertilNavIdent).shouldBeLeft(
+            avtaleService.avbrytAvtale(avtaleIdSomIkkeFinnes, bertilNavIdent, AvbruttAarsak.Feilregistrering).shouldBeLeft(
                 NotFound("Avtalen finnes ikke"),
             )
         }
@@ -131,7 +132,7 @@ class AvtaleServiceTest : FunSpec({
             avtaleRepository.upsert(avtale)
             avtaleRepository.setOpphav(avtale.id, ArenaMigrering.Opphav.ARENA)
 
-            avtaleService.avbrytAvtale(avtale.id, bertilNavIdent).shouldBeLeft(
+            avtaleService.avbrytAvtale(avtale.id, bertilNavIdent, AvbruttAarsak.Feilregistrering).shouldBeLeft(
                 BadRequest("Avtalen har opprinnelse fra Arena og kan ikke bli avbrutt fra admin-flate."),
             )
         }
@@ -155,7 +156,7 @@ class AvtaleServiceTest : FunSpec({
             avtaler.upsert(avtale)
             avtaler.setOpphav(avtale.id, ArenaMigrering.Opphav.ARENA)
 
-            service.avbrytAvtale(avtale.id, bertilNavIdent).shouldBeRight()
+            service.avbrytAvtale(avtale.id, bertilNavIdent, AvbruttAarsak.Feilregistrering).shouldBeRight()
         }
 
         test("Man skal ikke få avbryte, men få en melding dersom avtalen allerede er avsluttet") {
@@ -167,7 +168,7 @@ class AvtaleServiceTest : FunSpec({
             avtaleRepository.upsert(avtale)
             avtaleRepository.setOpphav(avtale.id, ArenaMigrering.Opphav.MR_ADMIN_FLATE)
 
-            avtaleService.avbrytAvtale(avtale.id, bertilNavIdent).shouldBeLeft(
+            avtaleService.avbrytAvtale(avtale.id, bertilNavIdent, AvbruttAarsak.Feilregistrering).shouldBeLeft(
                 BadRequest(message = "Avtalen er allerede avsluttet og kan derfor ikke avbrytes."),
             )
         }
@@ -193,7 +194,7 @@ class AvtaleServiceTest : FunSpec({
             tiltaksgjennomforinger.upsert(oppfolging1)
             tiltaksgjennomforinger.upsert(oppfolging2)
 
-            avtaleService.avbrytAvtale(avtale.id, bertilNavIdent).shouldBeLeft(
+            avtaleService.avbrytAvtale(avtale.id, bertilNavIdent, AvbruttAarsak.Feilregistrering).shouldBeLeft(
                 BadRequest("Avtalen har 2 aktive tiltaksgjennomføringer koblet til seg. Du må frikoble gjennomføringene før du kan avbryte avtalen."),
             )
         }
@@ -202,25 +203,25 @@ class AvtaleServiceTest : FunSpec({
             val avtale = AvtaleFixtures.oppfolging.copy(
                 id = UUID.randomUUID(),
                 navn = "Avtale som eksisterer",
-                startDato = LocalDate.of(2024, 5, 17),
-                sluttDato = LocalDate.of(2027, 7, 1),
+                startDato = LocalDate.now(),
+                sluttDato = LocalDate.now().plusMonths(1),
             )
             avtaleRepository.upsert(avtale)
             val oppfolging1 = TiltaksgjennomforingFixtures.Oppfolging1.copy(
                 avtaleId = avtale.id,
-                startDato = LocalDate.of(2026, 5, 1),
+                startDato = LocalDate.now().plusDays(1),
                 sluttDato = null,
             )
             val oppfolging2 = TiltaksgjennomforingFixtures.Oppfolging2.copy(
                 avtaleId = avtale.id,
-                startDato = LocalDate.of(2024, 5, 1),
+                startDato = LocalDate.now().plusDays(1),
                 sluttDato = null,
             )
 
             tiltaksgjennomforinger.upsert(oppfolging1)
             tiltaksgjennomforinger.upsert(oppfolging2)
 
-            avtaleService.avbrytAvtale(avtale.id, bertilNavIdent, dagensDato = LocalDate.of(2024, 1, 1)).shouldBeLeft(
+            avtaleService.avbrytAvtale(avtale.id, bertilNavIdent, AvbruttAarsak.Feilregistrering).shouldBeLeft(
                 BadRequest("Avtalen har 2 planlagte tiltaksgjennomføringer koblet til seg. Du må flytte eller avslutte gjennomføringene før du kan avbryte avtalen."),
             )
         }
@@ -229,34 +230,28 @@ class AvtaleServiceTest : FunSpec({
             val avtale = AvtaleFixtures.oppfolging.copy(
                 id = UUID.randomUUID(),
                 navn = "Avtale som eksisterer",
-                startDato = LocalDate.of(2024, 5, 17),
-                sluttDato = LocalDate.of(2025, 7, 1),
+                startDato = LocalDate.now().minusDays(1),
+                sluttDato = LocalDate.now().plusMonths(1),
             )
             avtaleRepository.upsert(avtale)
             val oppfolging1 = TiltaksgjennomforingFixtures.Oppfolging1.copy(
                 avtaleId = avtale.id,
-                startDato = LocalDate.of(2023, 5, 1),
-                sluttDato = LocalDate.of(2023, 6, 1),
-            )
-            val oppfolging2 = TiltaksgjennomforingFixtures.Oppfolging2.copy(
-                avtaleId = avtale.id,
-                startDato = LocalDate.of(2023, 5, 1),
-                sluttDato = LocalDate.of(2024, 1, 1),
+                startDato = LocalDate.now().minusDays(1),
+                sluttDato = LocalDate.now().minusDays(1),
             )
             tiltaksgjennomforinger.upsert(oppfolging1)
-            tiltaksgjennomforinger.upsert(oppfolging2)
 
-            avtaleService.avbrytAvtale(avtale.id, bertilNavIdent).shouldBeRight()
+            avtaleService.avbrytAvtale(avtale.id, bertilNavIdent, AvbruttAarsak.Feilregistrering).shouldBeRight()
         }
 
         test("Skal få avbryte avtale hvis alle sjekkene er ok") {
             val avtale = AvtaleFixtures.oppfolging.copy(
-                startDato = LocalDate.of(2023, 7, 1),
-                sluttDato = LocalDate.of(2024, 7, 1),
+                startDato = LocalDate.now().minusDays(1),
+                sluttDato = LocalDate.now().plusMonths(1),
             )
             avtaleRepository.upsert(avtale).right()
 
-            avtaleService.avbrytAvtale(avtale.id, bertilNavIdent)
+            avtaleService.avbrytAvtale(avtale.id, bertilNavIdent, AvbruttAarsak.Feilregistrering)
         }
     }
 

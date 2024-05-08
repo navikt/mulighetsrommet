@@ -1,11 +1,6 @@
-import { Avtaletype, TiltakskodeArena } from "mulighetsrommet-api-client";
+import { Avtaletype, Personopplysning, TiltakskodeArena } from "mulighetsrommet-api-client";
 import z from "zod";
 import { FaneinnholdSchema } from "./FaneinnholdSchema";
-
-const GyldigUrlHvisVerdi = z.union([
-  z.literal(""),
-  z.string().trim().url("Du må skrive inn en gyldig nettadresse"),
-]);
 
 export const AvtaleSchema = z
   .object({
@@ -27,7 +22,7 @@ export const AvtaleSchema = z
       .max(9, "Du må velge en tiltaksarrangør")
       .regex(/^\d+$/, "Tiltaksarrangør må være et nummer"),
     arrangorUnderenheter: z.string().array().nonempty("Du må velge minst en underenhet"),
-    arrangorKontaktpersonId: z.string().uuid().optional(),
+    arrangorKontaktpersoner: z.string().uuid().array(),
     navRegioner: z.string().array().nonempty({ message: "Du må velge minst én region" }),
     navEnheter: z.string().array().nonempty({ message: "Du må velge minst én enhet" }),
     startOgSluttDato: z
@@ -40,19 +35,29 @@ export const AvtaleSchema = z
         path: ["startDato"],
       }),
     administratorer: z.string().array().min(1, "Du må velge minst én administrator"),
-    url: GyldigUrlHvisVerdi,
+    websaknummer: z
+      .string()
+      .nullable()
+      .refine((value) => !value || /^\d{2}\/\d+$/.test(value), {
+        message: "Websaknummer må være på formatet 'år/løpenummer'",
+      }),
     prisbetingelser: z.string().optional(),
     beskrivelse: z
       .string({ required_error: "En avtale trenger en beskrivelse i det redaksjonelle innholdet" })
       .nullable(),
     faneinnhold: FaneinnholdSchema.nullable(),
+    personvernBekreftet: z.boolean({ required_error: "Du må ta stilling til personvern" }),
+    personopplysninger: z.nativeEnum(Personopplysning).array(),
   })
   .superRefine((data, ctx) => {
-    if ([Avtaletype.AVTALE, Avtaletype.RAMMEAVTALE].includes(data.avtaletype) && !data.url) {
+    if (
+      [Avtaletype.AVTALE, Avtaletype.RAMMEAVTALE].includes(data.avtaletype) &&
+      !data.websaknummer
+    ) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: "Avtalen må lenke til Websak og være en gyldig url",
-        path: ["url"],
+        message: "Websaknummer til avtalesaken er påkrevd",
+        path: ["websaknummer"],
       });
     }
   });

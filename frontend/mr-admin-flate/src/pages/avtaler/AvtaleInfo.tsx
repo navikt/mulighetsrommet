@@ -8,8 +8,9 @@ import { AvtaleKnapperad } from "./AvtaleKnapperad";
 import { AvtaleDetaljer } from "./AvtaleDetaljer";
 import { useAtom } from "jotai";
 import { avtaleDetaljerTabAtom } from "@/api/atoms";
-import { InlineErrorBoundary } from "../../ErrorBoundary";
 import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
+import { AvtalePersonvern } from "./AvtalePersonvern";
+import { InlineErrorBoundary } from "mulighetsrommet-frontend-common";
 
 export function AvtaleInfo() {
   const { data: bruker } = useHentAnsatt();
@@ -32,6 +33,11 @@ export function AvtaleInfo() {
           <div>
             <Tabs.Tab label="Detaljer" value="detaljer" onClick={() => setActiveTab("detaljer")} />
             <Tabs.Tab
+              label="Personvern"
+              value="personvern"
+              onClick={() => setActiveTab("personvern")}
+            />
+            <Tabs.Tab
               label="Redaksjonelt innhold"
               value="redaksjonelt-innhold"
               onClick={() => setActiveTab("redaksjonelt-innhold")}
@@ -51,6 +57,11 @@ export function AvtaleInfo() {
               beskrivelse={avtale.beskrivelse}
               faneinnhold={avtale.faneinnhold}
             />
+          </InlineErrorBoundary>
+        </Tabs.Panel>
+        <Tabs.Panel value="personvern">
+          <InlineErrorBoundary>
+            <AvtalePersonvern />
           </InlineErrorBoundary>
         </Tabs.Panel>
       </Tabs>

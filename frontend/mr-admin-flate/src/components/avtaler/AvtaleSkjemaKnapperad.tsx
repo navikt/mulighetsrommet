@@ -1,9 +1,9 @@
+import { gjennomforingDetaljerTabAtom } from "@/api/atoms";
 import { Button } from "@navikt/ds-react";
+import { useSetAtom } from "jotai";
+import { HarSkrivetilgang } from "../authActions/HarSkrivetilgang";
 import styles from "../skjema/Skjema.module.scss";
 import { ValideringsfeilOppsummering } from "../skjema/ValideringsfeilOppsummering";
-import { HarSkrivetilgang } from "../authActions/HarSkrivetilgang";
-import { useSetAtom } from "jotai";
-import { gjennomforingDetaljerTabAtom } from "@/api/atoms";
 
 interface Props {
   redigeringsModus: boolean;

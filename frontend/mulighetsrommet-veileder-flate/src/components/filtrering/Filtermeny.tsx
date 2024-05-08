@@ -4,15 +4,14 @@ import { ApentForInnsok, NavEnhet } from "mulighetsrommet-api-client";
 import { useArbeidsmarkedstiltakFilter } from "@/hooks/useArbeidsmarkedstiltakFilter";
 import { FilterToggle } from "./FilterToggle";
 import styles from "./Filtermeny.module.scss";
-import InnsatsgruppeFilter from "./InnsatsgruppeFilter";
+import { InnsatsgruppeFilter } from "./InnsatsgruppeFilter";
 import Sokefelt from "./Sokefelt";
 import { Tiltakstypefilter } from "./Tiltakstypefilter";
 import { useAtom } from "jotai";
 import { filterAccordionAtom } from "@/core/atoms";
 import { useRegioner } from "@/api/queries/useRegioner";
 import { addOrRemove } from "mulighetsrommet-frontend-common/utils/utils";
-import { NavEnhetFilter } from "mulighetsrommet-frontend-common";
-import { FilterAccordionHeader } from "mulighetsrommet-frontend-common";
+import { FilterAccordionHeader, NavEnhetFilter } from "mulighetsrommet-frontend-common";
 
 export const Filtermeny = () => {
   const [filter, setFilter] = useArbeidsmarkedstiltakFilter();
@@ -20,7 +19,7 @@ export const Filtermeny = () => {
   const { data: regioner } = useRegioner();
 
   return (
-    <div className={styles.tiltakstype_oversikt_filtermeny} id="tiltakstype_oversikt_filtermeny">
+    <div className={styles.tiltakstype_oversikt_filtermeny} data-testid="filtertabs">
       <Sokefelt
         sokefilter={filter.search}
         setSokefilter={(search: string) => setFilter({ ...filter, search })}
@@ -45,6 +44,7 @@ export const Filtermeny = () => {
           accordionIsOpenValue="apen-for-innsok"
         />
         <InnsatsgruppeFilter />
+        <Tiltakstypefilter antallValgteTiltakstyper={filter.tiltakstyper.length} />
         <Accordion.Item open={accordionsOpen.includes("brukers-enhet")}>
           <Accordion.Header
             onClick={() => {
@@ -65,7 +65,6 @@ export const Filtermeny = () => {
             />
           </Accordion.Content>
         </Accordion.Item>
-        <Tiltakstypefilter antallValgteTiltakstyper={filter.tiltakstyper.length} />
       </Accordion>
     </div>
   );

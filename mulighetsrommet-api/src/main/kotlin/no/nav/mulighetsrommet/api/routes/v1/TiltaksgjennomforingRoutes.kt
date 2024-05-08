@@ -11,19 +11,21 @@ import io.ktor.util.pipeline.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingKontaktpersonDbo
+import no.nav.mulighetsrommet.api.domain.dto.FrikobleKontaktpersonRequest
 import no.nav.mulighetsrommet.api.plugins.AuthProvider
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.repositories.DeltakerRepository
+import no.nav.mulighetsrommet.api.routes.v1.parameters.getPaginationParams
 import no.nav.mulighetsrommet.api.routes.v1.responses.BadRequest
 import no.nav.mulighetsrommet.api.routes.v1.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.services.TiltaksgjennomforingService
-import no.nav.mulighetsrommet.api.utils.AdminTiltaksgjennomforingFilter
-import no.nav.mulighetsrommet.api.utils.getPaginationParams
 import no.nav.mulighetsrommet.domain.dbo.Deltakerstatus
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
+import no.nav.mulighetsrommet.domain.dto.AvbruttAarsak
 import no.nav.mulighetsrommet.domain.dto.Faneinnhold
 import no.nav.mulighetsrommet.domain.dto.NavIdent
-import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus
+import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus
+import no.nav.mulighetsrommet.domain.serializers.AvbruttAarsakSerializer
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import org.koin.ktor.ext.inject
@@ -60,7 +62,8 @@ fun Route.tiltaksgjennomforingRoutes() {
             put("{id}/avbryt") {
                 val id = call.parameters.getOrFail<UUID>("id")
                 val navIdent = getNavIdent()
-                val response = service.avbrytGjennomforing(id, navIdent)
+                val request = call.receive<AvbrytRequest>()
+                val response = service.avbrytGjennomforing(id, navIdent, request.aarsak)
                 call.respondWithStatusResponse(response)
             }
 
@@ -71,20 +74,32 @@ fun Route.tiltaksgjennomforingRoutes() {
                 service.setPublisert(id, request.publisert, navIdent)
                 call.respond(HttpStatusCode.OK)
             }
+
+            delete("kontaktperson") {
+                val request = call.receive<FrikobleKontaktpersonRequest>()
+                val navIdent = getNavIdent()
+                call.respondWithStatusResponse(
+                    service.frikobleKontaktpersonFraGjennomforing(
+                        kontaktpersonId = request.kontaktpersonId,
+                        gjennomforingId = request.dokumentId,
+                        navIdent = navIdent,
+                    ),
+                )
+            }
         }
 
         get {
-            val paginationParams = getPaginationParams()
+            val pagination = getPaginationParams()
             val filter = getAdminTiltaksgjennomforingsFilter()
 
-            call.respond(service.getAllSkalMigreres(paginationParams, filter))
+            call.respond(service.getAllSkalMigreres(pagination, filter))
         }
 
         get("mine") {
-            val paginationParams = getPaginationParams()
+            val pagination = getPaginationParams()
             val filter = getAdminTiltaksgjennomforingsFilter().copy(administratorNavIdent = getNavIdent())
 
-            call.respond(service.getAllSkalMigreres(paginationParams, filter))
+            call.respond(service.getAllSkalMigreres(pagination, filter))
         }
 
         get("{id}") {
@@ -134,12 +149,23 @@ fun Route.tiltaksgjennomforingRoutes() {
     }
 }
 
+data class AdminTiltaksgjennomforingFilter(
+    val search: String? = null,
+    val navEnheter: List<String> = emptyList(),
+    val tiltakstypeIder: List<UUID> = emptyList(),
+    val statuser: List<TiltaksgjennomforingStatus.Enum> = emptyList(),
+    val sortering: String? = null,
+    val avtaleId: UUID? = null,
+    val arrangorIds: List<UUID> = emptyList(),
+    val administratorNavIdent: NavIdent? = null,
+)
+
 fun <T : Any> PipelineContext<T, ApplicationCall>.getAdminTiltaksgjennomforingsFilter(): AdminTiltaksgjennomforingFilter {
     val search = call.request.queryParameters["search"]
     val navEnheter = call.parameters.getAll("navEnheter") ?: emptyList()
     val tiltakstypeIder = call.parameters.getAll("tiltakstyper")?.map { UUID.fromString(it) } ?: emptyList()
     val statuser = call.parameters.getAll("statuser")
-        ?.map { Tiltaksgjennomforingsstatus.valueOf(it) }
+        ?.map { TiltaksgjennomforingStatus.Enum.valueOf(it) }
         ?: emptyList()
     val sortering = call.request.queryParameters["sort"]
     val avtaleId = call.request.queryParameters["avtaleId"]?.let { if (it.isEmpty()) null else UUID.fromString(it) }
@@ -202,6 +228,8 @@ data class TiltaksgjennomforingRequest(
     val beskrivelse: String?,
     val deltidsprosent: Double,
     val estimertVentetid: EstimertVentetid?,
+    @Serializable(with = LocalDateSerializer::class)
+    val tilgjengeligForArrangorFraOgMedDato: LocalDate?,
 ) {
     fun toDbo() = TiltaksgjennomforingDbo(
         id = id,
@@ -231,8 +259,15 @@ data class TiltaksgjennomforingRequest(
         deltidsprosent = deltidsprosent,
         estimertVentetidVerdi = estimertVentetid?.verdi,
         estimertVentetidEnhet = estimertVentetid?.enhet,
+        tilgjengeligForArrangorFraOgMedDato = tilgjengeligForArrangorFraOgMedDato,
     )
 }
+
+@Serializable
+data class AvbrytRequest(
+    @Serializable(with = AvbruttAarsakSerializer::class)
+    val aarsak: AvbruttAarsak?,
+)
 
 @Serializable
 data class SetAvtaleForGjennomforingRequest(

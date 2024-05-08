@@ -13,6 +13,7 @@ if (import.meta.env.VITE_FARO_URL) {
     app: {
       name: "mulighetsrommet-veileder-flate",
     },
+    isolate: true,
   });
 }
 

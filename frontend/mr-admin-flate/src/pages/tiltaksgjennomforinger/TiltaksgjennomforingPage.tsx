@@ -1,8 +1,6 @@
-import { useFeatureToggle } from "@/api/features/feature-toggles";
 import { useTiltaksgjennomforingById } from "@/api/tiltaksgjennomforing/useTiltaksgjennomforingById";
 import { Alert, Heading, Tabs, VStack } from "@navikt/ds-react";
 import classNames from "classnames";
-import { Toggles } from "mulighetsrommet-api-client";
 import { Lenkeknapp } from "mulighetsrommet-frontend-common/components/lenkeknapp/Lenkeknapp";
 import { Link, Outlet, useLocation, useParams } from "react-router-dom";
 import { ShowOpphavValue } from "../../components/debug/ShowOpphavValue";
@@ -46,7 +44,6 @@ export function TiltaksgjennomforingPage() {
   const { avtaleId } = useParams();
   const { navigateAndReplaceUrl } = useNavigateAndReplaceUrl();
   const { data: tiltaksgjennomforing, isLoading } = useTiltaksgjennomforingById();
-  const { data: showNotater } = useFeatureToggle(Toggles.MULIGHETSROMMET_ADMIN_FLATE_SHOW_NOTATER);
   const brodsmuler = useTiltaksgjennomforingBrodsmuler(tiltaksgjennomforing?.id!!, avtaleId);
 
   if (!tiltaksgjennomforing && isLoading) {
@@ -67,8 +64,6 @@ export function TiltaksgjennomforingPage() {
   const currentTab = () => {
     if (pathname.includes("deltakere")) {
       return "poc";
-    } else if (pathname.includes("notater")) {
-      return "notater";
     } else {
       return "info";
     }
@@ -94,7 +89,10 @@ export function TiltaksgjennomforingPage() {
               </Heading>
               <ShowOpphavValue value={tiltaksgjennomforing?.opphav} />
             </VStack>
-            <TiltaksgjennomforingstatusTag tiltaksgjennomforing={tiltaksgjennomforing} />
+            <TiltaksgjennomforingstatusTag
+              tiltaksgjennomforing={tiltaksgjennomforing}
+              showAvbruttAarsak
+            />
             <DupliserTiltak tiltaksgjennomforing={tiltaksgjennomforing} />
           </div>
           {tiltaksgjennomforing?.id && (
@@ -122,16 +120,6 @@ export function TiltaksgjennomforingPage() {
             }
             aria-controls="panel"
           />
-          {showNotater && (
-            <Tabs.Tab
-              value="notater"
-              label="Notater"
-              onClick={() =>
-                navigateAndReplaceUrl(`/tiltaksgjennomforinger/${tiltaksgjennomforing.id}/notater`)
-              }
-              aria-controls="panel"
-            />
-          )}
         </Tabs.List>
         <ContainerLayout>
           <div id="panel">

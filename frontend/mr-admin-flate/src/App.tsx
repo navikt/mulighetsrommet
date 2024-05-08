@@ -1,31 +1,30 @@
+import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
 import { getWebInstrumentations, initializeFaro } from "@grafana/faro-web-sdk";
 import { Alert, BodyShort } from "@navikt/ds-react";
-import { NavAnsattRolle, Toggles } from "mulighetsrommet-api-client";
+import { NavAnsattRolle } from "mulighetsrommet-api-client";
 import { Route, Routes } from "react-router-dom";
 import { Forside } from "./Forside";
 import IkkeAutentisertApp from "./IkkeAutentisertApp";
-import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
-import AvtaleSkjemaPage from "./pages/avtaler/AvtaleSkjemaPage";
-import NotaterAvtalePage from "./components/avtaler/NotaterAvtalePage";
 import { Laster } from "./components/laster/Laster";
 import { Notifikasjonsliste } from "./components/notifikasjoner/Notifikasjonsliste";
-import NotaterTiltaksgjennomforingerPage from "./components/tiltaksgjennomforinger/NotaterTiltaksgjennomforingerPage";
+import { initializeAmplitude } from "./logging/amplitude";
 import { ErrorPage } from "./pages/ErrorPage";
+import { ArrangorPageContainer } from "./pages/arrangor/ArrangorPageContainer";
+import { ArrangorerPage } from "./pages/arrangor/ArrangorerPage";
+import { AvtaleInfo } from "./pages/avtaler/AvtaleInfo";
 import { AvtalePage } from "./pages/avtaler/AvtalePage";
+import AvtaleSkjemaPage from "./pages/avtaler/AvtaleSkjemaPage";
+import { AvtalerPage } from "./pages/avtaler/AvtalerPage";
 import { NotifikasjonerPage } from "./pages/notifikasjoner/NotifikasjonerPage";
 import { TiltaksgjennomforingInfo } from "./pages/tiltaksgjennomforinger/TiltaksgjennomforingInfo";
 import { TiltaksgjennomforingPage } from "./pages/tiltaksgjennomforinger/TiltaksgjennomforingPage";
+import TiltaksgjennomforingSkjemaPage from "./pages/tiltaksgjennomforinger/TiltaksgjennomforingSkjemaPage";
+import { TiltaksgjennomforingerForAvtalePage } from "./pages/tiltaksgjennomforinger/TiltaksgjennomforingerForAvtalePage";
 import { TiltaksgjennomforingerPage } from "./pages/tiltaksgjennomforinger/TiltaksgjennomforingerPage";
 import { DetaljerTiltakstypePage } from "./pages/tiltakstyper/DetaljerTiltakstypePage";
 import { TiltakstypeInfo } from "./pages/tiltakstyper/TiltakstypeInfo";
 import { TiltakstyperPage } from "./pages/tiltakstyper/TiltakstyperPage";
 import { AvtalerForTiltakstype } from "./pages/tiltakstyper/avtaler/AvtalerForTiltakstype";
-import { useFeatureToggle } from "@/api/features/feature-toggles";
-import { AvtalerPage } from "./pages/avtaler/AvtalerPage";
-import { AvtaleInfo } from "./pages/avtaler/AvtaleInfo";
-import TiltaksgjennomforingSkjemaPage from "./pages/tiltaksgjennomforinger/TiltaksgjennomforingSkjemaPage";
-import { TiltaksgjennomforingerForAvtalePage } from "./pages/tiltaksgjennomforinger/TiltaksgjennomforingerForAvtalePage";
-import { initializeAmplitude } from "./logging/amplitude";
 
 if (import.meta.env.PROD) {
   initializeFaro({
@@ -34,14 +33,13 @@ if (import.meta.env.PROD) {
       name: "mr-admin-flate",
     },
     instrumentations: [...getWebInstrumentations({ captureConsole: true })],
+    isolate: true,
   });
 }
 initializeAmplitude();
 
 export function App() {
   const { data: ansatt, isLoading: ansattIsLoading, error } = useHentAnsatt();
-
-  const { data: showNotater } = useFeatureToggle(Toggles.MULIGHETSROMMET_ADMIN_FLATE_SHOW_NOTATER);
 
   if (error) {
     return (
@@ -88,9 +86,6 @@ export function App() {
       <Route path="avtaler" element={<AvtalerPage />} errorElement={<ErrorPage />} />
       <Route path="avtaler/:avtaleId" element={<AvtalePage />} errorElement={<ErrorPage />}>
         <Route index element={<AvtaleInfo />} errorElement={<ErrorPage />} />
-        {showNotater && (
-          <Route path="notater" element={<NotaterAvtalePage />} errorElement={<ErrorPage />} />
-        )}
         <Route
           path="tiltaksgjennomforinger"
           element={<TiltaksgjennomforingerForAvtalePage />}
@@ -119,13 +114,6 @@ export function App() {
         errorElement={<ErrorPage />}
       >
         <Route index element={<TiltaksgjennomforingInfo />} errorElement={<ErrorPage />} />
-        {showNotater && (
-          <Route
-            path="notater"
-            element={<NotaterTiltaksgjennomforingerPage />}
-            errorElement={<ErrorPage />}
-          />
-        )}
       </Route>
       <Route
         path="tiltaksgjennomforinger/:tiltaksgjennomforingId"
@@ -133,13 +121,6 @@ export function App() {
         errorElement={<ErrorPage />}
       >
         <Route index element={<TiltaksgjennomforingInfo />} errorElement={<ErrorPage />} />
-        {showNotater && (
-          <Route
-            path="notater"
-            element={<NotaterTiltaksgjennomforingerPage />}
-            errorElement={<ErrorPage />}
-          />
-        )}
       </Route>
       <Route
         path="avtaler/:avtaleId/tiltaksgjennomforinger/:tiltaksgjennomforingId/skjema"
@@ -154,6 +135,12 @@ export function App() {
       <Route
         path="tiltaksgjennomforinger/:tiltaksgjennomforingId/skjema"
         element={<TiltaksgjennomforingSkjemaPage />}
+        errorElement={<ErrorPage />}
+      />
+      <Route path="arrangorer" element={<ArrangorerPage />} errorElement={<ErrorPage />} />
+      <Route
+        path="arrangorer/:arrangorId"
+        element={<ArrangorPageContainer />}
         errorElement={<ErrorPage />}
       />
       <Route path="notifikasjoner" element={<NotifikasjonerPage />} errorElement={<ErrorPage />}>

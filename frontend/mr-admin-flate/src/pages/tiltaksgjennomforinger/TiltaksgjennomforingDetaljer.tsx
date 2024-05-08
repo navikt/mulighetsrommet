@@ -1,24 +1,31 @@
-import { ExternalLinkIcon } from "@navikt/aksel-icons";
-import { BodyShort, HelpText, HStack, Tag } from "@navikt/ds-react";
 import {
   Avtale,
   Tiltaksgjennomforing,
   TiltaksgjennomforingOppstartstype,
+  Toggles,
 } from "mulighetsrommet-api-client";
-import { useTitle } from "mulighetsrommet-frontend-common";
-import { NOM_ANSATT_SIDE } from "mulighetsrommet-frontend-common/constants";
-import { Link } from "react-router-dom";
-import { usePollTiltaksnummer } from "@/api/tiltaksgjennomforing/usePollTiltaksnummer";
-import { Bolk } from "../../components/detaljside/Bolk";
-import { Metadata, Separator } from "../../components/detaljside/Metadata";
-import { Laster } from "../../components/laster/Laster";
-import { formaterDato, formatertVentetid } from "../../utils/Utils";
-import { isTiltakMedFellesOppstart } from "../../utils/tiltakskoder";
 import styles from "../DetaljerInfo.module.scss";
-import { Kontaktperson } from "./Kontaktperson";
-import { tiltaktekster } from "../../components/ledetekster/tiltaksgjennomforingLedetekster";
-import { ArrangorKontaktpersonDetaljer } from "../arrangor/ArrangorKontaktpersonDetaljer";
+import { useFeatureToggle } from "@/api/features/useFeatureToggle";
+import { useTitle } from "mulighetsrommet-frontend-common";
+import { useMigrerteTiltakstyper } from "@/api/tiltakstyper/useMigrerteTiltakstyper";
+import { useRef } from "react";
+import { Bolk } from "@/components/detaljside/Bolk";
+import { Metadata, Separator } from "@/components/detaljside/Metadata";
+import { tiltaktekster } from "@/components/ledetekster/tiltaksgjennomforingLedetekster";
+import { Link } from "react-router-dom";
+import { Alert, BodyShort, Button, Heading, HelpText, HStack, Tag } from "@navikt/ds-react";
+import { formaterDato, formatertVentetid } from "@/utils/Utils";
+import { isTiltakMedFellesOppstart } from "@/utils/tiltakskoder";
+import { NOM_ANSATT_SIDE } from "mulighetsrommet-frontend-common/constants";
+import { ExternalLinkIcon } from "@navikt/aksel-icons";
 import { getDisplayName } from "@/api/enhet/helpers";
+import { Kontaktperson } from "@/pages/tiltaksgjennomforinger/Kontaktperson";
+import { ArrangorKontaktpersonDetaljer } from "@/pages/arrangor/ArrangorKontaktpersonDetaljer";
+import { erArenaOpphavOgIngenEierskap } from "@/components/tiltaksgjennomforinger/TiltaksgjennomforingSkjemaConst";
+import { HarSkrivetilgang } from "@/components/authActions/HarSkrivetilgang";
+import { AvbrytGjennomforingModal } from "@/components/modal/AvbrytGjennomforingModal";
+import { usePollTiltaksnummer } from "@/api/tiltaksgjennomforing/usePollTiltaksnummer";
+import { Laster } from "@/components/laster/Laster";
 import { NokkeltallDeltakere } from "../../components/tiltaksgjennomforinger/NokkeltallDeltakere";
 
 interface Props {
@@ -26,10 +33,19 @@ interface Props {
   avtale?: Avtale;
 }
 
-export function TiltaksgjennomforingDetaljer(props: Props) {
-  const { tiltaksgjennomforing, avtale } = props;
+export function TiltaksgjennomforingDetaljer({ tiltaksgjennomforing, avtale }: Props) {
   useTitle(
     `Tiltaksgjennomføring ${tiltaksgjennomforing.navn ? `- ${tiltaksgjennomforing.navn}` : null}`,
+  );
+  const { data: enableTilgjengeligForArrangor } = useFeatureToggle(
+    Toggles.MULIGHETSROMMET_ADMIN_FLATE_TILGJENGELIGGJORE_TILTAK_FOR_ARRANGOR,
+  );
+
+  const { data: migrerteTiltakstyper = [] } = useMigrerteTiltakstyper();
+  const avbrytModalRef = useRef<HTMLDialogElement>(null);
+
+  const gjennomforingIsActive = ["PLANLAGT", "GJENNOMFORES"].includes(
+    tiltaksgjennomforing.status.name,
   );
 
   const navnPaaNavEnheterForKontaktperson = (enheterForKontaktperson: string[]): string => {
@@ -247,7 +263,11 @@ export function TiltaksgjennomforingDetaljer(props: Props) {
             <Bolk aria-label={tiltaktekster.tiltaksarrangorHovedenhetLabel}>
               <Metadata
                 header={tiltaktekster.tiltaksarrangorHovedenhetLabel}
-                verdi={`${avtale.arrangor.navn} - ${avtale.arrangor.organisasjonsnummer}`}
+                verdi={
+                  <Link to={`/arrangorer/${avtale.arrangor.id}`}>
+                    {avtale.arrangor.navn} - {avtale.arrangor.organisasjonsnummer}
+                  </Link>
+                }
               />
             </Bolk>
           ) : null}
@@ -286,11 +306,44 @@ export function TiltaksgjennomforingDetaljer(props: Props) {
               </Bolk>
             </>
           )}
+          <Separator />
+          {enableTilgjengeligForArrangor &&
+          tiltaksgjennomforing?.tilgjengeligForArrangorFraOgMedDato ? (
+            <>
+              <Alert variant="info">
+                <Heading spacing size="small" level="3">
+                  Når ser arrangør tiltaket?
+                </Heading>
+                Arrangør vil ha tilgang til tiltaket i Deltakeroversikten på nav.no{" "}
+                <abbr title="Fra og med">fom.</abbr>{" "}
+                {formaterDato(new Date(tiltaksgjennomforing.tilgjengeligForArrangorFraOgMedDato))}
+              </Alert>
+            </>
+          ) : null}
         </div>
         <div className={styles.detaljer}>
           <NokkeltallDeltakere tiltaksgjennomforingId={tiltaksgjennomforing.id} />
         </div>
       </div>
+      {!erArenaOpphavOgIngenEierskap(tiltaksgjennomforing, migrerteTiltakstyper) &&
+        gjennomforingIsActive && (
+          <>
+            <Separator />
+            <HarSkrivetilgang ressurs="Tiltaksgjennomføring">
+              <Button
+                size="small"
+                variant="danger"
+                onClick={() => avbrytModalRef.current?.showModal()}
+              >
+                Avbryt gjennomføring
+              </Button>
+            </HarSkrivetilgang>
+            <AvbrytGjennomforingModal
+              modalRef={avbrytModalRef}
+              tiltaksgjennomforing={tiltaksgjennomforing}
+            />
+          </>
+        )}
     </>
   );
 }

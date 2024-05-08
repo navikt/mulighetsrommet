@@ -9,7 +9,10 @@ import io.ktor.server.util.*
 import io.ktor.util.logging.*
 import io.ktor.util.pipeline.*
 import no.nav.mulighetsrommet.api.services.ArenaAdapterService
-import no.nav.mulighetsrommet.domain.dbo.*
+import no.nav.mulighetsrommet.domain.dbo.ArenaAvtaleDbo
+import no.nav.mulighetsrommet.domain.dbo.ArenaTiltaksgjennomforingDbo
+import no.nav.mulighetsrommet.domain.dbo.ArenaTiltakshistorikkDbo
+import no.nav.mulighetsrommet.domain.dbo.DeltakerDbo
 import org.koin.ktor.ext.inject
 import org.postgresql.util.PSQLException
 import java.util.*
@@ -20,23 +23,6 @@ fun Route.arenaAdapterRoutes() {
     val arenaAdapterService: ArenaAdapterService by inject()
 
     route("/api/v1/internal/arena/") {
-        put("tiltakstype") {
-            val tiltakstype = call.receive<TiltakstypeDbo>()
-
-            call.respond(arenaAdapterService.upsertTiltakstype(tiltakstype))
-        }
-
-        delete("tiltakstype/{id}") {
-            val id = call.parameters.getOrFail<UUID>("id")
-
-            arenaAdapterService.removeTiltakstype(id)
-                .map { call.response.status(HttpStatusCode.OK) }
-                .mapLeft {
-                    logError(logger, it.error)
-                    call.respond(HttpStatusCode.InternalServerError, "Kunne ikke slette tiltakstype")
-                }
-        }
-
         put("avtale") {
             val dbo = call.receive<ArenaAvtaleDbo>()
 

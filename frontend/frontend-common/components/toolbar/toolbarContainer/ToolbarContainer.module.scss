@@ -1,0 +1,13 @@
+.toolbar_container {
+  display: grid;
+  position: sticky;
+  background-color: var(--a-bg-subtle);
+  gap: 1rem;
+
+  @media screen and (min-width: 1200px) {
+    padding: 0 0 0 0.5rem;
+    &_filter_hidden {
+      padding: 0;
+    }
+  }
+}

@@ -1,0 +1,13 @@
+.paginering_container {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding-bottom: 0.5rem;
+}
+
+.paginering {
+  display: flex;
+  justify-content: space-between;
+  padding: 1rem 0 0.5rem 0.5rem;
+  background-color: var(--a-gray-100);
+}

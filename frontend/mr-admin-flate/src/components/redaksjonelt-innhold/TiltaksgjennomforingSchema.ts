@@ -1,6 +1,7 @@
 import { Opphav, TiltaksgjennomforingOppstartstype } from "mulighetsrommet-api-client";
 import z from "zod";
 import { FaneinnholdSchema } from "./FaneinnholdSchema";
+import { STED_FOR_GJENNOMFORING_MAX_LENGTH } from "../../constants";
 
 export const TiltaksgjennomforingSchema = z
   .object({
@@ -47,7 +48,20 @@ export const TiltaksgjennomforingSchema = z
         required_error: "Du må velge en underenhet for tiltaksarrangør",
       })
       .uuid("Du må velge en underenhet for tiltaksarrangør"),
-    stedForGjennomforing: z.string().nullable(),
+    stedForGjennomforing: z
+      .string()
+      .nullable()
+      .refine(
+        (val) => {
+          if (!val) {
+            return true;
+          }
+          return val.length <= STED_FOR_GJENNOMFORING_MAX_LENGTH;
+        },
+        {
+          message: `Du kan bare skrive ${STED_FOR_GJENNOMFORING_MAX_LENGTH} tegn i "Sted for gjennomføring"`,
+        },
+      ),
     arrangorKontaktpersoner: z.string().uuid().array(),
     administratorer: z
       .string({ required_error: "Du må velge minst én administrator" })
@@ -74,30 +88,9 @@ export const TiltaksgjennomforingSchema = z
         }),
       })
       .nullable(),
+    tilgjengeligForArrangorFraOgMedDato: z.string().nullable().optional(),
   })
   .superRefine((data, ctx) => {
-    if (
-      data.startOgSluttDato.sluttDato &&
-      bareDatoUtenTidspunkt(new Date(data.startOgSluttDato.sluttDato)) <
-        bareDatoUtenTidspunkt(new Date())
-    ) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Sluttdato kan ikke være før dagens dato",
-        path: ["startOgSluttDato.sluttDato"],
-      });
-    }
-    if (
-      data.startOgSluttDato.sluttDato &&
-      bareDatoUtenTidspunkt(new Date(data.startOgSluttDato.sluttDato)) <
-        bareDatoUtenTidspunkt(new Date(data.startOgSluttDato.startDato))
-    ) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Sluttdato må være etter startdato",
-        path: ["startOgSluttDato.sluttDato"],
-      });
-    }
     data.kontaktpersoner?.forEach((kontaktperson, index) => {
       if (kontaktperson.navIdent == null) {
         ctx.addIssue({
@@ -115,9 +108,5 @@ export const TiltaksgjennomforingSchema = z
       }
     });
   });
-
-function bareDatoUtenTidspunkt(date: Date): Date {
-  return new Date(date.getFullYear(), date.getMonth(), date.getDate());
-}
 
 export type InferredTiltaksgjennomforingSchema = z.infer<typeof TiltaksgjennomforingSchema>;

@@ -1,5 +1,3 @@
-version: '3'
-
 services:
   # Mock implementation of Oauth2/OIDC.
   # The service is referenced as part of the authentication between applications as part of local development.
@@ -41,12 +39,12 @@ services:
           ]
         }
 
-  # Database for mulighetsrommet-api.
-  mulighetsrommet-api-db:
-    image: "postgres:14.4-alpine"
+  mulighetsrommet-db:
+    image: "postgres:15.6-alpine"
     restart: "always"
     volumes:
-      - "mulighetsrommet-api:/var/lib/postgresql/data"
+      - "mulighetsrommet-db:/var/lib/postgresql/data"
+      - .docker/init-databases.sh:/docker-entrypoint-initdb.d/init-databases.sh
     ports:
       - "5442:5432"
     profiles:
@@ -56,24 +54,6 @@ services:
     environment:
       POSTGRES_USER: "valp"
       POSTGRES_PASSWORD: "valp"
-      POSTGRES_DB: "mulighetsrommet-api-db"
-
-  # Database for mulighetsrommet-arena-adapter.
-  mulighetsrommet-arena-adapter-db:
-    image: "postgres:14.4-alpine"
-    restart: "always"
-    volumes:
-      - "mulighetsrommet-arena-adapter:/var/lib/postgresql/data"
-    ports:
-      - "5443:5432"
-    profiles:
-      - dev
-      - ci
-    command: postgres -c 'max_connections=200'
-    environment:
-      POSTGRES_USER: "valp"
-      POSTGRES_PASSWORD: "valp"
-      POSTGRES_DB: "mulighetsrommet-arena-adapter-db"
 
   # ZooKeeper is used to track the status of nodes in the Kafka cluster and maintain a list of Kafka topics and messages.
   zookeeper:
@@ -120,5 +100,4 @@ services:
       - ./mulighetsrommet-api/wiremock/mappings:/home/wiremock/mappings/mulighetsrommet-api
 
 volumes:
-  mulighetsrommet-api:
-  mulighetsrommet-arena-adapter:
+  mulighetsrommet-db:

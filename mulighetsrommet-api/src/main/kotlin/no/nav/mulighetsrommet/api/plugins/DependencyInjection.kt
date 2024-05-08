@@ -25,7 +25,6 @@ import no.nav.mulighetsrommet.api.clients.msgraph.MicrosoftGraphClient
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Client
 import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClient
 import no.nav.mulighetsrommet.api.clients.pdl.PdlClient
-import no.nav.mulighetsrommet.api.clients.person.VeilarbpersonClient
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClient
 import no.nav.mulighetsrommet.api.repositories.*
@@ -33,7 +32,7 @@ import no.nav.mulighetsrommet.api.services.*
 import no.nav.mulighetsrommet.api.tasks.*
 import no.nav.mulighetsrommet.api.tiltaksgjennomforinger.TiltaksgjennomforingValidator
 import no.nav.mulighetsrommet.database.Database
-import no.nav.mulighetsrommet.database.FlywayDatabaseAdapter
+import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.env.NaisEnv
 import no.nav.mulighetsrommet.kafka.KafkaConsumerOrchestrator
 import no.nav.mulighetsrommet.kafka.KafkaConsumerRepositoryImpl
@@ -88,11 +87,9 @@ fun slack(slack: SlackConfig): Module {
     }
 }
 
-private fun db(config: FlywayDatabaseAdapter.Config): Module {
-    return module(createdAtStart = true) {
-        single<Database> {
-            FlywayDatabaseAdapter(config, get())
-        }
+private fun db(config: DatabaseConfig) = module {
+    single<Database>(createdAtStart = true) {
+        Database(config)
     }
 }
 
@@ -174,9 +171,6 @@ private fun repositories() = module {
     single { NavAnsattRepository(get()) }
     single { ArrangorRepository(get()) }
     single { KafkaConsumerRepositoryImpl(get()) }
-    single { MetrikkRepository(get()) }
-    single { AvtaleNotatRepository(get()) }
-    single { TiltaksgjennomforingNotatRepository(get()) }
     single { VeilederJoyrideRepository(get()) }
 }
 
@@ -203,14 +197,6 @@ private fun services(appConfig: AppConfig) = module {
             baseUrl = appConfig.veilarbvedtaksstotteConfig.url,
             tokenProvider = { obo ->
                 oboTokenProvider.exchangeOnBehalfOfToken(appConfig.veilarbvedtaksstotteConfig.scope, obo.token)
-            },
-        )
-    }
-    single {
-        VeilarbpersonClient(
-            baseUrl = appConfig.veilarbpersonConfig.url,
-            tokenProvider = { obo ->
-                oboTokenProvider.exchangeOnBehalfOfToken(appConfig.veilarbpersonConfig.scope, obo.token)
             },
         )
     }
@@ -300,7 +286,6 @@ private fun services(appConfig: AppConfig) = module {
             get(),
             get(),
             get(),
-            get(),
         )
     }
     single {
@@ -317,9 +302,8 @@ private fun services(appConfig: AppConfig) = module {
     }
     single { TiltakshistorikkService(get(), get(), get(), get()) }
     single { VeilederflateService(get(), get(), get(), get()) }
-    single { BrukerService(get(), get(), get(), get()) }
-    single { DialogService(get()) }
-    single { NavAnsattService(appConfig.auth.roles, get(), get(), get(), get()) }
+    single { BrukerService(get(), get(), get(), get(), get()) }
+    single { NavAnsattService(appConfig.auth.roles, get(), get(), get(), get(), get(), get(), get()) }
     single { PoaoTilgangService(get()) }
     single { DelMedBrukerService(get()) }
     single { MicrosoftGraphService(get()) }
@@ -335,17 +319,14 @@ private fun services(appConfig: AppConfig) = module {
             get(),
         )
     }
-    single { SanityTiltaksgjennomforingService(get(), get(), get()) }
+    single { SanityTiltakService(get(), get(), get()) }
     single { TiltakstypeService(get(), appConfig.migrerteTiltak) }
     single { NavEnheterSyncService(get(), get(), get(), get()) }
-    single { KafkaSyncService(get(), get(), get(), get()) }
     single { NavEnhetService(get()) }
     single { NavVeilederService(get()) }
     single { NotificationService(get(), get(), get()) }
     single { ArrangorService(get(), get()) }
     single { ExcelService() }
-    single { MetrikkService(get()) }
-    single { NotatService(get(), get()) }
     single {
         val byEnhetStrategy = ByEnhetStrategy(get())
         val byNavidentStrategy = ByNavIdentStrategy()
@@ -357,13 +338,13 @@ private fun services(appConfig: AppConfig) = module {
         }
     }
     single { AvtaleValidator(get(), get(), get(), get()) }
-    single { TiltaksgjennomforingValidator(get(), get()) }
+    single { TiltaksgjennomforingValidator(get(), get(), get()) }
 }
 
 private fun tasks(config: TaskConfig) = module {
     single { GenerateValidationReport(config.generateValidationReport, get(), get(), get(), get(), get()) }
-    single { InitialLoadTiltaksgjennomforinger(get(), get(), get()) }
-    single { InitialLoadTiltakstyper(get(), get(), get()) }
+    single { InitialLoadTiltaksgjennomforinger(get(), get(), get(), get()) }
+    single { InitialLoadTiltakstyper(get(), get(), get(), get()) }
     single { SynchronizeNavAnsatte(config.synchronizeNavAnsatte, get(), get(), get()) }
     single {
         val deleteExpiredTiltakshistorikk = DeleteExpiredTiltakshistorikk(
@@ -371,11 +352,11 @@ private fun tasks(config: TaskConfig) = module {
             get(),
             get(),
         )
-        val synchronizeTiltaksgjennomforingsstatuserToKafka = SynchronizeTiltaksgjennomforingsstatuserToKafka(
+        val updateTiltaksgjennomforingStatus = UpdateTiltaksgjennomforingStatus(
+            get(),
             get(),
             get(),
         )
-        val synchronizeTiltakstypestatuserToKafka = SynchronizeTiltakstypestatuserToKafka(get(), get())
         val synchronizeNorgEnheterTask = SynchronizeNorgEnheter(config.synchronizeNorgEnheter, get(), get())
         val notifySluttdatoForGjennomforingerNarmerSeg = NotifySluttdatoForGjennomforingerNarmerSeg(
             config.notifySluttdatoForGjennomforingerNarmerSeg,
@@ -396,7 +377,6 @@ private fun tasks(config: TaskConfig) = module {
             get(),
         )
         val updateApentForInnsok = UpdateApentForInnsok(config.updateApentForInnsok, get(), get())
-        val oppdaterMetrikker = OppdaterMetrikker(config.oppdaterMetrikker, get(), get())
         val notificationService: NotificationService by inject()
         val generateValidationReport: GenerateValidationReport by inject()
         val initialLoadTiltaksgjennomforinger: InitialLoadTiltaksgjennomforinger by inject()
@@ -416,13 +396,11 @@ private fun tasks(config: TaskConfig) = module {
             .startTasks(
                 deleteExpiredTiltakshistorikk.task,
                 synchronizeNorgEnheterTask.task,
-                synchronizeTiltaksgjennomforingsstatuserToKafka.task,
-                synchronizeTiltakstypestatuserToKafka.task,
+                updateTiltaksgjennomforingStatus.task,
                 synchronizeNavAnsatte.task,
                 notifySluttdatoForGjennomforingerNarmerSeg.task,
                 notifySluttdatoForAvtalerNarmerSeg.task,
                 notifyFailedKafkaEvents.task,
-                oppdaterMetrikker.task,
                 updateApentForInnsok.task,
             )
             .serializer(DbSchedulerKotlinSerializer())

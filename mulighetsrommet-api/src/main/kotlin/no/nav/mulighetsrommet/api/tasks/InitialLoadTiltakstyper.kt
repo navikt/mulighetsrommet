@@ -5,8 +5,9 @@ import com.github.kagkarlsson.scheduler.task.helper.OneTimeTask
 import com.github.kagkarlsson.scheduler.task.helper.Tasks
 import kotlinx.coroutines.runBlocking
 import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
-import no.nav.mulighetsrommet.api.utils.PaginationParams
+import no.nav.mulighetsrommet.api.services.SanityTiltakService
 import no.nav.mulighetsrommet.database.Database
+import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.kafka.producers.TiltakstypeKafkaProducer
 import org.slf4j.LoggerFactory
 import org.slf4j.MDC
@@ -17,6 +18,7 @@ class InitialLoadTiltakstyper(
     database: Database,
     private val tiltakstyper: TiltakstypeRepository,
     private val tiltakstypeProducer: TiltakstypeKafkaProducer,
+    private val sanityTiltakService: SanityTiltakService,
 ) {
 
     private val logger = LoggerFactory.getLogger(javaClass)
@@ -45,15 +47,23 @@ class InitialLoadTiltakstyper(
         return id
     }
 
-    private fun initialLoadTiltakstyper() {
-        tiltakstyper.getAll(PaginationParams(nullableLimit = 1000))
-            .second
+    private suspend fun initialLoadTiltakstyper() {
+        tiltakstyper.getAll()
+            .items
             .forEach { tiltakstype ->
-                val eksternDto = tiltakstyper.getEksternTiltakstype(tiltakstype.id)
-                if (eksternDto != null) {
+                val tiltakskode = Tiltakskode.fromArenaKode(tiltakstype.arenaKode)
+                if (tiltakskode != null) {
+                    val eksternDto = requireNotNull(tiltakstyper.getEksternTiltakstype(tiltakstype.id)) {
+                        "Klarte ikke hente ekstern tiltakstype for tiltakskode $tiltakskode"
+                    }
+
+                    logger.info("Publiserer tiltakstype til kafka id=${tiltakstype.id}")
                     tiltakstypeProducer.publish(eksternDto)
-                } else {
-                    tiltakstypeProducer.retract(tiltakstype.id)
+                }
+
+                if (tiltakstype.sanityId != null) {
+                    logger.info("Oppdaterer tiltakstype i Sanity id=${tiltakstype.id}")
+                    sanityTiltakService.patchSanityTiltakstype(tiltakstype)
                 }
             }
     }

@@ -1,4 +1,10 @@
-import { Avtale, NavAnsatt, NavEnhet, NavEnhetType } from "mulighetsrommet-api-client";
+import {
+  ArrangorKontaktperson,
+  Avtale,
+  NavAnsatt,
+  NavEnhet,
+  NavEnhetType,
+} from "mulighetsrommet-api-client";
 import { DeepPartial } from "react-hook-form";
 import { InferredAvtaleSchema } from "../redaksjonelt-innhold/AvtaleSchema";
 
@@ -24,11 +30,11 @@ export function defaultAvtaleData(
   ansatt: NavAnsatt,
   avtale?: Avtale,
 ): DeepPartial<InferredAvtaleSchema> {
-  const navRegioner = avtale?.kontorstruktur.map((struktur) => struktur.region.enhetsnummer) ?? [];
+  const navRegioner = avtale?.kontorstruktur?.map((struktur) => struktur.region.enhetsnummer) ?? [];
   const navEnheter =
     avtale?.kontorstruktur
-      .flatMap((struktur) => struktur.kontorer)
-      .map((enhet) => enhet.enhetsnummer) ?? [];
+      ?.flatMap((struktur) => struktur.kontorer)
+      ?.map((enhet) => enhet.enhetsnummer) ?? [];
   return {
     tiltakstype: avtale?.tiltakstype,
     navRegioner,
@@ -40,14 +46,17 @@ export function defaultAvtaleData(
     arrangorUnderenheter: !avtale?.arrangor?.underenheter
       ? []
       : avtale.arrangor.underenheter.map((underenhet) => underenhet.organisasjonsnummer),
-    arrangorKontaktpersonId: avtale?.arrangor?.kontaktperson?.id,
+    arrangorKontaktpersoner:
+      avtale?.arrangor?.kontaktpersoner.map((p: ArrangorKontaktperson) => p.id) ?? [],
     startOgSluttDato: {
       startDato: avtale?.startDato ? avtale.startDato : undefined,
       sluttDato: avtale?.sluttDato ? avtale.sluttDato : undefined,
     },
-    url: avtale?.url ?? "",
+    websaknummer: avtale?.websaknummer,
     prisbetingelser: avtale?.prisbetingelser ?? undefined,
     beskrivelse: avtale?.beskrivelse ?? null,
     faneinnhold: avtale?.faneinnhold ?? null,
+    personvernBekreftet: avtale?.personvernBekreftet,
+    personopplysninger: avtale?.personopplysninger ?? [],
   };
 }

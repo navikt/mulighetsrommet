@@ -4,14 +4,10 @@ server:
 
 app:
   database:
-    host: ${DB_HOST}
-    port: ${DB_PORT}
-    name: ${DB_DATABASE}
-    user: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
+    jdbcUrl: ${DB_JDBC_URL}
     maximumPoolSize: 10
-    migrationConfig:
-      strategy: Migrate
+  flyway:
+    strategy: Migrate
 
   migrerteTiltak:
     - AVKLARING
@@ -33,7 +29,7 @@ app:
       tiltaksgjennomforinger:
         topic: team-mulighetsrommet.siste-tiltaksgjennomforinger-v1
       tiltakstyper:
-        topic: team-mulighetsrommet.siste-tiltakstyper-v1
+        topic: team-mulighetsrommet.siste-tiltakstyper-v2
     consumers:
       tiltaksgjennomforingerV1:
         id: siste-tiltaksgjennomforinger
@@ -90,10 +86,6 @@ app:
     url: https://veilarboppfolging.dev-fss-pub.nais.io/veilarboppfolging/api
     scope: api://dev-fss.pto.veilarboppfolging/.default
 
-  veilarbpersonConfig:
-    url: https://veilarbperson.dev-fss-pub.nais.io/veilarbperson/api
-    scope: api://dev-fss.pto.veilarbperson/.default
-
   veilarbveilederConfig:
     url: https://veilarbveileder.dev-fss-pub.nais.io/veilarbveileder/api
     scope: api://dev-fss.pto.veilarbveileder/.default
@@ -139,9 +131,7 @@ app:
       cronPattern: "0 0 6 * * *" # Hver morgen kl. 06:00
     notifyFailedKafkaEvents:
       maxRetries: 5
-      delayOfMinutes: 15
-    oppdaterMetrikker:
-      delayOfMinutes: 5
+      cronPattern: "0 */15 * ? * MON-FRI"
     generateValidationReport:
       bucketName: mulighetsrommet-api-uploads-dev
     updateApentForInnsok:

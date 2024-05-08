@@ -17,7 +17,7 @@ const sjekkUU = async (page: Page, waitForTestid: string) => {
 
 test.describe("Smoketest og UU", () => {
   test("Adminflate forside", async ({ page }) => {
-    await expect(page).toHaveTitle(/Mulighetsrommet - Admin-flate/);
+    await expect(page).toHaveTitle(/NAV Arbeidsmarkedstiltak/);
     await sjekkUU(page, "heading");
   });
 
@@ -35,7 +35,7 @@ test.describe("Smoketest og UU", () => {
 
   test("Avtaler - Info", async ({ page }) => {
     await page.getByTestId("forsidekort-avtaler").click();
-    await page.getByTestId("filter-tab").click();
+    await page.getByTestId("filtertab").click();
     await page.getByTestId("avtaletabell_tittel").first().click();
     await expect(page.getByText("Avtalenavn")).toBeVisible();
     await sjekkUU(page, "avtale_info-container");
@@ -43,7 +43,7 @@ test.describe("Smoketest og UU", () => {
 
   test("Avtaler - Gjennomføringer Tab", async ({ page }) => {
     await page.getByTestId("forsidekort-avtaler").click();
-    await page.getByTestId("filter-tab").click();
+    await page.getByTestId("filtertab").click();
     await page.getByTestId("avtaletabell_tittel").first().click();
     await page.getByTestId("gjennomforinger-tab").click();
     await expect(page.getByTestId("tiltaksgjennomforing-tabell")).toBeVisible();
@@ -58,7 +58,7 @@ test.describe("Smoketest og UU", () => {
 
   test("Tiltaksgjennomføring - Info", async ({ page }) => {
     await page.getByTestId("forsidekort-tiltaksgjennomforinger").click();
-    await page.getByTestId("filter-tab").click();
+    await page.getByTestId("filtertab").click();
     await page.getByTestId("tiltaksgjennomforing-tabell_tittel").first().click();
     await expect(page.getByText("Tiltaksnavn")).toBeVisible();
     await sjekkUU(page, "tiltaksgjennomforing_info-container");

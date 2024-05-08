@@ -1,10 +1,10 @@
+import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
+import { useFeatureToggle } from "@/api/features/useFeatureToggle";
 import { ExternalLinkIcon, MenuGridIcon } from "@navikt/aksel-icons";
 import { Dropdown, InternalHeader, Spacer } from "@navikt/ds-react";
 import { Toggles } from "mulighetsrommet-api-client";
 import { useRef } from "react";
 import { Link } from "react-router-dom";
-import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
-import { useFeatureToggle } from "@/api/features/feature-toggles";
 import {
   ENDRINGSMELDINGER_URL,
   LOGOUT_AND_SELECT_ACCOUNT_URL,
@@ -13,18 +13,17 @@ import {
 } from "../../constants";
 import { Notifikasjonsbjelle } from "../notifikasjoner/Notifikasjonsbjelle";
 import styles from "./AdministratorHeader.module.scss";
+import { InlineErrorBoundary } from "mulighetsrommet-frontend-common";
 
 export function AdministratorHeader() {
-  const { data } = useHentAnsatt();
   const { data: debugIsEnabled } = useFeatureToggle(
     Toggles.MULIGHETSROMMET_ADMIN_FLATE_ENABLE_DEBUGGER,
   );
 
-  const ansattNavn = data ? [data.fornavn, data.etternavn].join(" ") : "Team Valp";
-
   const tiltakstyperLinkRef = useRef<HTMLAnchorElement>(null);
   const avtalerLinkRef = useRef<HTMLAnchorElement>(null);
   const gjennomforingerLinkRef = useRef<HTMLAnchorElement>(null);
+  const arrangorerLinkRef = useRef<HTMLAnchorElement>(null);
   const individuelleGjennomforingerLinkRef = useRef<HTMLAnchorElement>(null);
   const veilederflateLinkRef = useRef<HTMLAnchorElement>(null);
   const notifikasjonerLinkRef = useRef<HTMLAnchorElement>(null);
@@ -74,6 +73,15 @@ export function AdministratorHeader() {
               </Link>
             </Dropdown.Menu.GroupedList.Item>
             <Dropdown.Menu.GroupedList.Item
+              onClick={() => arrangorerLinkRef.current?.click()}
+              as="span"
+            >
+              <Link ref={arrangorerLinkRef} to="/arrangorer">
+                Arrangører
+              </Link>
+            </Dropdown.Menu.GroupedList.Item>
+            <Dropdown.Menu.Divider />
+            <Dropdown.Menu.GroupedList.Item
               onClick={() => notifikasjonerLinkRef.current?.click()}
               as="span"
             >
@@ -81,6 +89,7 @@ export function AdministratorHeader() {
                 Notifikasjoner
               </Link>
             </Dropdown.Menu.GroupedList.Item>
+            <Dropdown.Menu.Divider />
             <Dropdown.Menu.GroupedList.Item
               onClick={() => individuelleGjennomforingerLinkRef.current?.click()}
               as="span"
@@ -101,6 +110,7 @@ export function AdministratorHeader() {
                 Veilederflate forhåndsvisning <ExternalLinkIcon />
               </Link>
             </Dropdown.Menu.GroupedList.Item>
+            <Dropdown.Menu.Divider />
             <Dropdown.Menu.GroupedList.Item
               onClick={() => endringsmeldingerLinkRef.current?.click()}
               as="span"
@@ -123,12 +133,28 @@ export function AdministratorHeader() {
             </>
           ) : null}
         </Dropdown.Menu>
+        <InlineErrorBoundary>
+          <Brukernavn />
+        </InlineErrorBoundary>
       </Dropdown>
-      <InternalHeader.User
-        name={ansattNavn}
-        description={data?.navIdent ?? "..."}
-        className={styles.user}
-      />
     </InternalHeader>
+  );
+}
+
+function Brukernavn() {
+  const { data, isLoading } = useHentAnsatt();
+
+  if (!data || isLoading) {
+    return null;
+  }
+
+  const ansattNavn = data ? [data.fornavn, data.etternavn].join(" ") : "Team Valp";
+
+  return (
+    <InternalHeader.User
+      name={ansattNavn}
+      description={data?.navIdent ?? "..."}
+      className={styles.user}
+    />
   );
 }

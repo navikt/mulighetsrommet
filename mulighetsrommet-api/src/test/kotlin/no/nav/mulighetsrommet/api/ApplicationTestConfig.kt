@@ -5,7 +5,8 @@ import io.ktor.server.testing.*
 import no.nav.mulighetsrommet.api.clients.brreg.BrregClient
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.tasks.*
-import no.nav.mulighetsrommet.database.FlywayDatabaseAdapter
+import no.nav.mulighetsrommet.database.DatabaseConfig
+import no.nav.mulighetsrommet.database.FlywayMigrationManager
 import no.nav.mulighetsrommet.database.kotest.extensions.createDatabaseTestSchema
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.kafka.producers.ArenaMigreringTiltaksgjennomforingKafkaProducer
@@ -14,11 +15,11 @@ import no.nav.mulighetsrommet.kafka.producers.TiltakstypeKafkaProducer
 import no.nav.mulighetsrommet.unleash.UnleashService
 import no.nav.security.mock.oauth2.MockOAuth2Server
 
-var databaseConfig: FlywayDatabaseAdapter.Config? = null
+var databaseConfig: DatabaseConfig? = null
 
 fun createDatabaseTestConfig() =
     if (databaseConfig == null) {
-        databaseConfig = createDatabaseTestSchema("mulighetsrommet-api-db", 5442)
+        databaseConfig = createDatabaseTestSchema("mr-api")
         databaseConfig!!
     } else {
         databaseConfig!!
@@ -41,12 +42,12 @@ fun <R> withTestApplication(
 
 fun createTestApplicationConfig() = AppConfig(
     database = createDatabaseTestConfig(),
+    flyway = FlywayMigrationManager.MigrationConfig(),
     auth = createAuthConfig(oauth = null, roles = listOf()),
     kafka = createKafkaConfig(),
     sanity = SanityClient.Config(projectId = "", token = "", dataset = "", apiVersion = ""),
     veilarboppfolgingConfig = createServiceClientConfig("veilarboppfolging"),
     veilarbvedtaksstotteConfig = createServiceClientConfig("veilarbvedtaksstotte"),
-    veilarbpersonConfig = createServiceClientConfig("veilarbperson"),
     veilarbveilederConfig = createServiceClientConfig("veilarbveileder"),
     veilarbdialogConfig = createServiceClientConfig("veilarbdialog"),
     amtDeltakerConfig = createServiceClientConfig("deltakelser"),
@@ -68,12 +69,8 @@ fun createTestApplicationConfig() = AppConfig(
         notifySluttdatoForAvtalerNarmerSeg = NotifySluttdatoForAvtalerNarmerSeg.Config(disabled = true),
         notifyFailedKafkaEvents = NotifyFailedKafkaEvents.Config(
             disabled = true,
-            delayOfMinutes = 15,
+            cronPattern = "",
             maxRetries = 5,
-        ),
-        oppdaterMetrikker = OppdaterMetrikker.Config(
-            disabled = true,
-            delayOfMinutes = 10,
         ),
         updateApentForInnsok = UpdateApentForInnsok.Config(
             disabled = true,
@@ -104,7 +101,7 @@ fun createKafkaConfig(): KafkaConfig {
         producerId = "mulighetsrommet-api-producer",
         producers = KafkaProducers(
             tiltaksgjennomforinger = TiltaksgjennomforingKafkaProducer.Config(topic = "siste-tiltaksgjennomforinger-v1"),
-            tiltakstyper = TiltakstypeKafkaProducer.Config(topic = "siste-tiltakstyper-v1"),
+            tiltakstyper = TiltakstypeKafkaProducer.Config(topic = "siste-tiltakstyper-v2"),
             arenaMigreringTiltaksgjennomforinger = ArenaMigreringTiltaksgjennomforingKafkaProducer.Config(
                 topic = "arena-migrering-tiltaksgjennomforinger-v1",
             ),
@@ -117,7 +114,10 @@ fun createKafkaConfig(): KafkaConfig {
             ),
             amtDeltakerV1 = KafkaTopicConsumer.Config(id = "amt-deltaker", topic = "amt-deltaker"),
             amtVirksomheterV1 = KafkaTopicConsumer.Config(id = "amt-virksomheter", topic = "amt-virksomheter"),
-            ptoSisteOppfolgingsperiodeV1 = KafkaTopicConsumer.Config(id = "pto-sisteoppfolgingsperiode", topic = "pto-sisteoppfolgingsperiode"),
+            ptoSisteOppfolgingsperiodeV1 = KafkaTopicConsumer.Config(
+                id = "pto-sisteoppfolgingsperiode",
+                topic = "pto-sisteoppfolgingsperiode",
+            ),
         ),
     )
 }

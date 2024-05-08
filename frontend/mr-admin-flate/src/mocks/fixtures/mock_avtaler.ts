@@ -1,4 +1,4 @@
-import { Avtale, Avtalestatus, Avtaletype, Opphav } from "mulighetsrommet-api-client";
+import { Avtale, Avtaletype, Opphav } from "mulighetsrommet-api-client";
 import { mockEnheter } from "./mock_enheter";
 import { mockTiltakstyper } from "./mock_tiltakstyper";
 import { mockArrangorer } from "./mock_arrangorer";
@@ -17,28 +17,31 @@ export const mockAvtaler: Avtale[] = [
     opphav: Opphav.MR_ADMIN_FLATE,
     avtalenummer: "2021#10579",
     arrangor: {
-      ...mockArrangorer.fretex,
+      ...mockArrangorer.data[0],
       slettet: false,
-      underenheter: mockArrangorer.fretex.underenheter!.map((v) => ({
+      underenheter: mockArrangorer.data[0].underenheter!.map((v) => ({
         id: v.id,
         organisasjonsnummer: v.organisasjonsnummer,
         navn: v.navn,
         slettet: false,
         kontaktpersoner: [],
       })),
-      kontaktperson: {
-        id: "d136d6a4-c812-4d28-81db-b688187e4e32",
-        arrangorId: "a714ca5e-857e-41a7-85d7-8be1c1d483ab",
-        navn: "Ole Kjetil Martinsen",
-        epost: "ole.kjetil.martinsen@arrangor.no",
-        telefon: "90123456",
-        beskrivelse: "Direktør",
-      },
+      kontaktpersoner: [
+        {
+          id: "d136d6a4-c812-4d28-81db-b688187e4e32",
+          arrangorId: "a714ca5e-857e-41a7-85d7-8be1c1d483ab",
+          navn: "Ole Kjetil Martinsen",
+          epost: "ole.kjetil.martinsen@arrangor.no",
+          telefon: "90123456",
+          beskrivelse: "Direktør",
+          ansvarligFor: [],
+        },
+      ],
     },
     startDato: "2021-08-02",
     sluttDato: "2026-08-01",
     avtaletype: Avtaletype.FORHAANDSGODKJENT,
-    avtalestatus: Avtalestatus.AKTIV,
+    status: { name: "AKTIV" },
     arenaAnsvarligEnhet: mockEnheter._0300,
     prisbetingelser: `Nye priser fra 21.03.23, gamle priser i parentes
 
@@ -50,7 +53,6 @@ export const mockAvtaler: Avtale[] = [
 
         20 deltakere:
         Teori en uke: 56 771,- (55 117,-)                     Praksis en uke: 45 695,- (44 364,-)                       Kombinasjon en uke: 47 344,- (45 965,-)`,
-    url: "https://www.websak.no",
     kontorstruktur: [
       { region: mockEnheter._0300, kontorer: [mockEnheter._0313, mockEnheter._0318] },
       {
@@ -58,6 +60,8 @@ export const mockAvtaler: Avtale[] = [
         kontorer: [mockEnheter._0425, mockEnheter._0402, mockEnheter._0415],
       },
     ],
+    personopplysninger: [],
+    personvernBekreftet: false,
   },
   {
     id: "d1f163b7-1a41-4547-af16-03fd4492b7bc",
@@ -65,9 +69,10 @@ export const mockAvtaler: Avtale[] = [
     navn: "Avtale hos ÅMLI KOMMUNE SAMFUNNSAVDELINGA",
     avtalenummer: "2021#10579",
     arrangor: {
-      ...mockArrangorer.fretex,
+      ...mockArrangorer.data[0],
       slettet: false,
-      underenheter: mockArrangorer.fretex.underenheter!.map((v) => ({
+      kontaktpersoner: [],
+      underenheter: mockArrangorer.data[0].underenheter!.map((v) => ({
         id: v.id,
         organisasjonsnummer: v.organisasjonsnummer,
         navn: v.navn,
@@ -85,13 +90,19 @@ export const mockAvtaler: Avtale[] = [
     startDato: "2021-08-02",
     sluttDato: "2026-08-01",
     avtaletype: Avtaletype.RAMMEAVTALE,
-    avtalestatus: Avtalestatus.AKTIV,
+    status: {
+      name: "AVBRUTT",
+      aarsak:
+        "Denne avtalen ble avbrutt pga av noe som ikke var listen opp i listen over mulige årsaker.",
+      tidspunkt: "2020-03-04T12:00:00",
+    },
     arenaAnsvarligEnhet: mockEnheter._0400,
     prisbetingelser: "Maskert prisbetingelser",
-    url: null,
     kontorstruktur: [
       { region: mockEnheter._0400, kontorer: [mockEnheter._0415, mockEnheter._0402] },
     ],
+    personopplysninger: [],
+    personvernBekreftet: false,
   },
   {
     id: "6374b285-989d-4f78-a59e-29481b64ba92",
@@ -105,11 +116,11 @@ export const mockAvtaler: Avtale[] = [
     tiltakstype: mockTiltakstyper.INDOPPFAG,
     navn: "Avtale hos Åna Fengsel",
     avtalenummer: "2020#4929",
-    url: "https://www.websak.no",
     arrangor: {
-      ...mockArrangorer.fretex,
+      ...mockArrangorer.data[0],
       slettet: false,
-      underenheter: mockArrangorer.fretex.underenheter!.map((v) => ({
+      kontaktpersoner: [],
+      underenheter: mockArrangorer.data[0].underenheter!.map((v) => ({
         id: v.id,
         organisasjonsnummer: v.organisasjonsnummer,
         navn: v.navn,
@@ -120,12 +131,57 @@ export const mockAvtaler: Avtale[] = [
     startDato: "2020-07-01",
     sluttDato: "2024-06-30",
     avtaletype: Avtaletype.RAMMEAVTALE,
-    avtalestatus: Avtalestatus.AKTIV,
+    status: { name: "AKTIV" },
     arenaAnsvarligEnhet: mockEnheter._0313,
     prisbetingelser: "Maskert prisbetingelser",
     kontorstruktur: [
       { region: mockEnheter._0400, kontorer: [mockEnheter._0415, mockEnheter._0402] },
       { region: mockEnheter._0300, kontorer: [mockEnheter._0313, mockEnheter._0318] },
     ],
+    personopplysninger: [],
+    personvernBekreftet: false,
   },
 ];
+
+// Bruker denne for å teste med flere tiltaksgjennomføringer lokalt, men setter den til 0 sånn
+// at testene går gjennom.
+const x = 0;
+for (let i = 0; i < x; i++) {
+  mockAvtaler.push({
+    id: "6374b285-989d-4f78-a59e-29481b64ba92",
+    opphav: Opphav.ARENA,
+    administratorer: [
+      {
+        navIdent: "B123456",
+        navn: "Bertil Bengtson",
+      },
+    ],
+    tiltakstype: mockTiltakstyper.INDOPPFAG,
+    navn: "Avtale hos Åna Fengsel",
+    avtalenummer: "2020#4929",
+    arrangor: {
+      ...mockArrangorer.data[0],
+      slettet: false,
+      kontaktpersoner: [],
+      underenheter: mockArrangorer.data[0].underenheter!.map((v) => ({
+        id: v.id,
+        organisasjonsnummer: v.organisasjonsnummer,
+        navn: v.navn,
+        slettet: false,
+        kontaktpersoner: [],
+      })),
+    },
+    startDato: "2020-07-01",
+    sluttDato: "2024-06-30",
+    avtaletype: Avtaletype.RAMMEAVTALE,
+    status: { name: "AKTIV" },
+    arenaAnsvarligEnhet: mockEnheter._0313,
+    prisbetingelser: "Maskert prisbetingelser",
+    kontorstruktur: [
+      { region: mockEnheter._0400, kontorer: [mockEnheter._0415, mockEnheter._0402] },
+      { region: mockEnheter._0300, kontorer: [mockEnheter._0313, mockEnheter._0318] },
+    ],
+    personopplysninger: [],
+    personvernBekreftet: false,
+  });
+}

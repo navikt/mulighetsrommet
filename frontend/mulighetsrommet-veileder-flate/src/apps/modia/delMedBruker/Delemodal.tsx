@@ -1,25 +1,24 @@
-import { BodyShort, Button, Heading, Modal } from "@navikt/ds-react";
+import { mulighetsrommetClient } from "@/api/client";
+import { ModiaRoute, navigateToModiaApp } from "@/apps/modia/ModiaRoute";
+import { erBrukerReservertMotElektroniskKommunikasjon } from "@/apps/modia/delMedBruker/helpers";
+import { PortenLink } from "@/components/PortenLink";
+import { StatusModal } from "@/components/modal/StatusModal";
+import { useLogEvent } from "@/logging/amplitude";
+import { erPreview } from "@/utils/Utils";
+import { BodyShort, Button, Checkbox, Heading, HelpText, Modal } from "@navikt/ds-react";
 import {
   Bruker,
   DelMedBruker,
   VeilederflateTiltaksgjennomforing,
 } from "mulighetsrommet-api-client";
-import { mulighetsrommetClient } from "@/api/client";
-import { useLogEvent } from "@/logging/amplitude";
-import { erPreview } from "@/utils/Utils";
-import { StatusModal } from "@/components/modal/StatusModal";
 import { DelMedBrukerContent, MAKS_ANTALL_TEGN_DEL_MED_BRUKER } from "./DelMedBrukerContent";
-import delemodalStyles from "./Delemodal.module.scss";
+import style from "./Delemodal.module.scss";
 import { Actions, State } from "./DelemodalActions";
-import { erBrukerReservertMotElektroniskKommunikasjon } from "@/apps/modia/delMedBruker/helpers";
-import { PortenLink } from "@/components/PortenLink";
-import { ModiaRoute, navigateToModiaApp } from "@/apps/modia/ModiaRoute";
 
 interface DelemodalProps {
-  brukernavn?: string;
   veiledernavn?: string;
   tiltaksgjennomforing: VeilederflateTiltaksgjennomforing;
-  brukerdata: Bruker;
+  bruker: Bruker;
   harDeltMedBruker?: DelMedBruker;
   dispatch: (action: Actions) => void;
   state: State;
@@ -31,10 +30,9 @@ interface DelemodalProps {
 }
 
 export function Delemodal({
-  brukernavn,
   veiledernavn,
   tiltaksgjennomforing,
-  brukerdata,
+  bruker,
   harDeltMedBruker,
   dispatch,
   state,
@@ -43,6 +41,7 @@ export function Delemodal({
   const { logEvent } = useLogEvent();
 
   const senderTilDialogen = state.sendtStatus === "SENDER";
+  const { enableRedigerDeletekst } = state;
 
   const originaltekstLengde = state.originalDeletekst.length;
   const lukkStatusmodal = () => dispatch({ type: "Toggle statusmodal", payload: false });
@@ -81,7 +80,7 @@ export function Delemodal({
     try {
       const res = await mulighetsrommetClient.dialogen.delMedDialogen({
         requestBody: {
-          norskIdent: brukerdata?.fnr,
+          fnr: bruker.fnr,
           overskrift,
           tekst,
           venterPaaSvarFraBruker,
@@ -95,7 +94,15 @@ export function Delemodal({
     }
   };
 
-  const { reservert, melding } = erBrukerReservertMotElektroniskKommunikasjon(brukerdata);
+  const { reservert, melding } = erBrukerReservertMotElektroniskKommunikasjon(bruker);
+
+  const enableEndreDeletekst = () => {
+    dispatch({ type: "Enable rediger deletekst", payload: true });
+    logEvent({
+      name: "arbeidsmarkedstiltak.del-med-bruker",
+      data: { action: "Endre deletekst", tiltakstype: tiltaksgjennomforing.tiltakstype.navn },
+    });
+  };
 
   return (
     <>
@@ -113,28 +120,71 @@ export function Delemodal({
         <Modal
           open={state.modalOpen}
           onClose={lukkModal}
-          className={delemodalStyles.delemodal}
+          className={style.delemodal}
           aria-label="modal"
         >
           <Modal.Header closeButton>
             <Heading size="xsmall">Del med bruker</Heading>
-            <Heading size="large" level="1" className={delemodalStyles.heading}>
+            <Heading size="large" level="1" className={style.heading}>
               {"Tiltak gjennom NAV: " + tiltaksgjennomforing.navn}
             </Heading>
           </Modal.Header>
-          <Modal.Body className={delemodalStyles.body}>
+
+          <Modal.Body className={style.body}>
             <DelMedBrukerContent
               state={state}
               dispatch={dispatch}
               veiledernavn={veiledernavn}
-              brukernavn={brukernavn}
+              brukernavn={bruker.fornavn}
               harDeltMedBruker={harDeltMedBruker}
               tiltaksgjennomforing={tiltaksgjennomforing}
+              enableRedigerDeletekst={enableRedigerDeletekst}
             />
           </Modal.Body>
-          <Modal.Footer>
-            <div className={delemodalStyles.knapperad}>
+
+          <Modal.Footer className={style.delemodal_footer}>
+            <div className={style.delemodal_actions}>
+              {enableRedigerDeletekst ? null : (
+                <Button size="small" onClick={enableEndreDeletekst} variant="secondary">
+                  Rediger melding
+                </Button>
+              )}
+              <div className={style.delemodal_venter_pa_svar}>
+                <Checkbox
+                  onChange={(e) => {
+                    dispatch({
+                      type: "Venter på svar fra bruker",
+                      payload: e.currentTarget.checked,
+                    });
+                    if (e.currentTarget.checked) {
+                      logEvent({
+                        name: "arbeidsmarkedstiltak.del-med-bruker",
+                        data: {
+                          action: "Sett venter på svar fra bruker",
+                          tiltakstype: tiltaksgjennomforing.tiltakstype.navn,
+                        },
+                      });
+                    }
+                  }}
+                  checked={state.venterPaaSvarFraBruker}
+                  value="venter-pa-svar-fra-bruker"
+                >
+                  Venter på svar fra bruker
+                </Checkbox>
+                <HelpText title="Hva betyr dette valget?">
+                  Ved å huke av for at du venter på svar fra bruker vil du kunne bruke filteret i
+                  oversikten til å se alle brukere du venter på svar fra.
+                </HelpText>
+              </div>
+            </div>
+
+            <BodyShort size="small">
+              Kandidatene vil få et varsel fra NAV, og kan logge inn på nav.no for å lese meldingen.
+              <div className={style.hr} />
+            </BodyShort>
+            <div className={style.knapperad}>
               <Button
+                size="small"
                 variant="tertiary"
                 onClick={clickCancel}
                 data-testid="modal_btn-cancel"
@@ -143,6 +193,7 @@ export function Delemodal({
                 Avbryt
               </Button>
               <Button
+                size="small"
                 onClick={handleSend}
                 disabled={
                   senderTilDialogen ||
@@ -154,9 +205,6 @@ export function Delemodal({
                 {senderTilDialogen ? "Sender..." : "Send via Dialogen"}
               </Button>
             </div>
-            <BodyShort size="small">
-              Kandidatene vil få et varsel fra NAV, og kan logge inn på nav.no for å lese meldingen.
-            </BodyShort>
           </Modal.Footer>
         </Modal>
       )}

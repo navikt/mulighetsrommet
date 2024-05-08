@@ -1,32 +1,32 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ExclamationmarkTriangleFillIcon } from "@navikt/aksel-icons";
-import { Button, Tabs } from "@navikt/ds-react";
+import { Tabs } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import {
   Avtale,
   AvtaleRequest,
-  Avtalestatus,
   EmbeddedTiltakstype,
   NavAnsatt,
   NavEnhet,
   Tiltakstype,
 } from "mulighetsrommet-api-client";
-import { useRef } from "react";
+import React from "react";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { v4 as uuidv4 } from "uuid";
 import { avtaleDetaljerTabAtom } from "@/api/atoms";
 import { useUpsertAvtale } from "@/api/avtaler/useUpsertAvtale";
 import { useHandleApiUpsertResponse } from "@/api/effects";
-import { erAnskaffetTiltak } from "../../utils/tiltakskoder";
-import { HarSkrivetilgang } from "../authActions/HarSkrivetilgang";
+import { erAnskaffetTiltak } from "@/utils/tiltakskoder";
 import { Separator } from "../detaljside/Metadata";
-import { AvbrytAvtaleModal } from "../modal/AvbrytAvtaleModal";
 import { AvtaleSchema, InferredAvtaleSchema } from "../redaksjonelt-innhold/AvtaleSchema";
 import skjemastyles from "../skjema/Skjema.module.scss";
 import { AvtaleRedaksjoneltInnholdForm } from "./AvtaleRedaksjoneltInnholdForm";
 import { defaultAvtaleData } from "./AvtaleSkjemaConst";
 import { AvtaleSkjemaDetaljer } from "./AvtaleSkjemaDetaljer";
 import { AvtaleSkjemaKnapperad } from "./AvtaleSkjemaKnapperad";
+import { AvtalePersonvernForm } from "./AvtalePersonvernForm";
+import { Laster } from "../laster/Laster";
+import { InlineErrorBoundary } from "mulighetsrommet-frontend-common";
 
 interface Props {
   onClose: () => void;
@@ -48,7 +48,6 @@ export function AvtaleSkjemaContainer({
 }: Props) {
   const [activeTab, setActiveTab] = useAtom(avtaleDetaljerTabAtom);
 
-  const avbrytModalRef = useRef<HTMLDialogElement>(null);
   const mutation = useUpsertAvtale();
 
   const form = useForm<InferredAvtaleSchema>({
@@ -69,14 +68,14 @@ export function AvtaleSkjemaContainer({
       id: avtale?.id ?? uuidv4(),
       navEnheter: data.navEnheter.concat(data.navRegioner),
       avtalenummer: avtale?.avtalenummer || null,
+      websaknummer: data.websaknummer || null,
       arrangorOrganisasjonsnummer: data.arrangorOrganisasjonsnummer,
       arrangorUnderenheter: data.arrangorUnderenheter,
-      arrangorKontaktpersonId: data.arrangorKontaktpersonId ?? null,
+      arrangorKontaktpersoner: data.arrangorKontaktpersoner,
       navn: data.navn,
       sluttDato: data.startOgSluttDato.sluttDato ?? null,
       startDato: data.startOgSluttDato.startDato,
       tiltakstypeId: data.tiltakstype.id,
-      url: data.url || null,
       administratorer: data.administratorer,
       avtaletype: data.avtaletype,
       prisbetingelser: erAnskaffetTiltak(data.tiltakstype.arenaKode)
@@ -84,6 +83,8 @@ export function AvtaleSkjemaContainer({
         : null,
       beskrivelse: data.beskrivelse,
       faneinnhold: data.faneinnhold,
+      personopplysninger: data.personvernBekreftet ? data.personopplysninger : [],
+      personvernBekreftet: data.personvernBekreftet,
     };
 
     mutation.mutate(requestBody);
@@ -109,7 +110,8 @@ export function AvtaleSkjemaContainer({
     },
   );
 
-  const hasErrors = Object.keys(errors).length > 0;
+  const hasPersonvernErrors = Boolean(errors?.personvernBekreftet);
+  const hasDetaljerErrors = Object.keys(errors).length > (hasPersonvernErrors ? 1 : 0);
 
   return (
     <FormProvider {...form}>
@@ -120,17 +122,34 @@ export function AvtaleSkjemaContainer({
               <Tabs.Tab
                 onClick={() => setActiveTab("detaljer")}
                 style={{
-                  border: hasErrors ? "solid 2px #C30000" : "",
-                  borderRadius: hasErrors ? "8px" : 0,
+                  border: hasDetaljerErrors ? "solid 2px #C30000" : "",
+                  borderRadius: hasDetaljerErrors ? "8px" : 0,
                 }}
                 value="detaljer"
                 label={
-                  hasErrors ? (
+                  hasDetaljerErrors ? (
                     <span style={{ display: "flex", alignContent: "baseline", gap: "0.4rem" }}>
                       <ExclamationmarkTriangleFillIcon aria-label="Detaljer" /> Detaljer
                     </span>
                   ) : (
                     "Detaljer"
+                  )
+                }
+              />
+              <Tabs.Tab
+                onClick={() => setActiveTab("personvern")}
+                style={{
+                  border: hasPersonvernErrors ? "solid 2px #C30000" : "",
+                  borderRadius: hasPersonvernErrors ? "8px" : 0,
+                }}
+                value="personvern"
+                label={
+                  hasPersonvernErrors ? (
+                    <span style={{ display: "flex", alignContent: "baseline", gap: "0.4rem" }}>
+                      <ExclamationmarkTriangleFillIcon aria-label="Personvern" /> Personvern
+                    </span>
+                  ) : (
+                    "Personvern"
                   )
                 }
               />
@@ -150,29 +169,22 @@ export function AvtaleSkjemaContainer({
               enheter={props.enheter}
             />
           </Tabs.Panel>
+          <Tabs.Panel value="personvern">
+            <InlineErrorBoundary>
+              <React.Suspense fallback={<Laster tekst="Laster innhold" />}>
+                <AvtalePersonvernForm tiltakstypeId={watchedTiltakstype?.id} />
+              </React.Suspense>
+            </InlineErrorBoundary>
+          </Tabs.Panel>
           <Tabs.Panel value="redaksjonelt-innhold">
             <AvtaleRedaksjoneltInnholdForm tiltakstype={watchedTiltakstype} />
           </Tabs.Panel>
         </Tabs>
         <Separator />
         <div className={skjemastyles.flex_container}>
-          <HarSkrivetilgang ressurs="Avtale">
-            {avtale && avtale.avtalestatus === Avtalestatus.AKTIV && (
-              <Button
-                size="small"
-                variant="danger"
-                type="button"
-                onClick={() => avbrytModalRef.current?.showModal()}
-                className={skjemastyles.avbryt_knapp}
-              >
-                Avbryt avtale
-              </Button>
-            )}
-          </HarSkrivetilgang>
           <AvtaleSkjemaKnapperad redigeringsModus={redigeringsModus!} onClose={onClose} />
         </div>
       </form>
-      {avtale && <AvbrytAvtaleModal modalRef={avbrytModalRef} avtale={avtale} />}
     </FormProvider>
   );
 }

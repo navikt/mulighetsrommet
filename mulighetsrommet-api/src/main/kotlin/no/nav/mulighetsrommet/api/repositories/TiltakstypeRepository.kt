@@ -1,28 +1,29 @@
 package no.nav.mulighetsrommet.api.repositories
 
+import kotlinx.serialization.json.Json
 import kotliquery.Row
+import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.domain.dto.DeltakerRegistreringInnholdDto
 import no.nav.mulighetsrommet.api.domain.dto.Innholdselement
+import no.nav.mulighetsrommet.api.domain.dto.TiltakstypeAdminDto
 import no.nav.mulighetsrommet.api.domain.dto.TiltakstypeEksternDto
-import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.database.Database
-import no.nav.mulighetsrommet.database.utils.QueryResult
-import no.nav.mulighetsrommet.database.utils.query
+import no.nav.mulighetsrommet.database.utils.*
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
-import no.nav.mulighetsrommet.domain.dto.TiltakstypeAdminDto
-import no.nav.mulighetsrommet.domain.dto.Tiltakstypestatus
+import no.nav.mulighetsrommet.domain.dto.Innsatsgruppe
+import no.nav.mulighetsrommet.domain.dto.PersonopplysningMedFrekvens
+import no.nav.mulighetsrommet.domain.dto.TiltakstypeStatus
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
-import java.time.LocalDate
 import java.util.*
 
 class TiltakstypeRepository(private val db: Database) {
 
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    fun upsert(tiltakstype: TiltakstypeDbo): TiltakstypeDbo {
+    fun upsert(tiltakstype: TiltakstypeDbo) {
         logger.info("Lagrer tiltakstype id=${tiltakstype.id}")
 
         @Language("PostgreSQL")
@@ -32,10 +33,8 @@ class TiltakstypeRepository(private val db: Database) {
                 navn,
                 tiltakskode,
                 arena_kode,
-                registrert_dato_i_arena,
-                sist_endret_dato_i_arena,
-                fra_dato,
-                til_dato,
+                start_dato,
+                slutt_dato,
                 rett_paa_tiltakspenger
             )
             values (
@@ -43,81 +42,67 @@ class TiltakstypeRepository(private val db: Database) {
                 :navn,
                 :tiltakskode::tiltakskode,
                 :arena_kode,
-                :registrert_dato_i_arena,
-                :sist_endret_dato_i_arena,
-                :fra_dato,
-                :til_dato,
+                :start_dato,
+                :slutt_dato,
                 :rett_paa_tiltakspenger
             )
             on conflict (id)
                 do update set navn        = excluded.navn,
                               tiltakskode = excluded.tiltakskode,
                               arena_kode = excluded.arena_kode,
-                              registrert_dato_i_arena = excluded.registrert_dato_i_arena,
-                              sist_endret_dato_i_arena = excluded.sist_endret_dato_i_arena,
-                              fra_dato = excluded.fra_dato,
-                              til_dato = excluded.til_dato,
+                              start_dato = excluded.start_dato,
+                              slutt_dato = excluded.slutt_dato,
                               rett_paa_tiltakspenger = excluded.rett_paa_tiltakspenger
             returning *
         """.trimIndent()
 
-        return queryOf(query, tiltakstype.toSqlParameters()).map { it.toTiltakstypeDbo() }.asSingle.let { db.run(it)!! }
+        queryOf(query, tiltakstype.toSqlParameters()).asExecute.let { db.run(it) }
     }
 
     fun get(id: UUID): TiltakstypeAdminDto? {
         @Language("PostgreSQL")
         val query = """
-            select
-                id::uuid,
-                navn,
-                arena_kode,
-                registrert_dato_i_arena,
-                sist_endret_dato_i_arena,
-                fra_dato,
-                til_dato,
-                rett_paa_tiltakspenger,
-                sanity_id
-            from tiltakstype
+            select *
+            from tiltakstype_admin_dto_view
             where id = ?::uuid
         """.trimIndent()
         val queryResult = queryOf(query, id).map { it.toTiltakstypeAdminDto() }.asSingle
         return db.run(queryResult)
     }
 
-    fun getEksternTiltakstype(id: UUID): TiltakstypeEksternDto? {
-        val tiltakstype = get(id) ?: return null
-        val tiltakskode = Tiltakskode.fromArenaKode(tiltakstype.arenaKode) ?: return null
-        val deltakerRegistreringInnhold = getDeltakerregistreringInnholdByArenaKode(tiltakskode)
+    fun getEksternTiltakstype(id: UUID): TiltakstypeEksternDto? = db.useSession { session ->
+        @Language("PostgreSQL")
+        val query = """
+            select id, navn, tiltakskode, arena_kode, innsatsgrupper
+            from tiltakstype
+            where id = ?::uuid
+        """.trimIndent()
 
-        return TiltakstypeEksternDto(
-            id = tiltakstype.id,
-            navn = tiltakstype.navn,
-            tiltakskode = tiltakskode,
-            arenaKode = tiltakstype.arenaKode,
-            registrertIArenaDato = tiltakstype.registrertIArenaDato,
-            sistEndretIArenaDato = tiltakstype.sistEndretIArenaDato,
-            fraDato = tiltakstype.fraDato,
-            tilDato = tiltakstype.tilDato,
-            rettPaaTiltakspenger = tiltakstype.rettPaaTiltakspenger,
-            status = tiltakstype.status,
-            deltakerRegistreringInnhold = deltakerRegistreringInnhold,
-        )
+        val deltakerRegistreringInnhold = getDeltakerregistreringInnhold(id, session)
+
+        queryOf(query, id)
+            .map { it.tiltakstypeEksternDto(deltakerRegistreringInnhold) }
+            .asSingle.runWithSession(session)
+    }
+
+    fun getByTiltakskode(tiltakskode: Tiltakskode): TiltakstypeAdminDto {
+        @Language("PostgreSQL")
+        val query = """
+            select *
+            from tiltakstype_admin_dto_view
+            where tiltakskode = ?::tiltakskode
+        """.trimIndent()
+        val queryResult = queryOf(query, tiltakskode.name).map { it.toTiltakstypeAdminDto() }.asSingle
+        return requireNotNull(db.run(queryResult)) {
+            "Det finnes ingen tiltakstype for tiltakskode $tiltakskode"
+        }
     }
 
     fun getBySanityId(sanityId: UUID): TiltakstypeAdminDto? {
         @Language("PostgreSQL")
         val query = """
-            select
-                id::uuid,
-                navn,
-                arena_kode,
-                registrert_dato_i_arena,
-                sist_endret_dato_i_arena,
-                fra_dato,
-                til_dato,
-                rett_paa_tiltakspenger,
-                sanity_id
-            from tiltakstype
+            select *
+            from tiltakstype_admin_dto_view
             where sanity_id = ?::uuid
         """.trimIndent()
         val queryResult = queryOf(query, sanityId).map { it.toTiltakstypeAdminDto() }.asSingle
@@ -125,124 +110,85 @@ class TiltakstypeRepository(private val db: Database) {
     }
 
     fun getAll(
-        paginationParams: PaginationParams = PaginationParams(),
-    ): Pair<Int, List<TiltakstypeAdminDto>> {
-        val parameters = mapOf(
-            "limit" to paginationParams.limit,
-            "offset" to paginationParams.offset,
-        )
-
+        pagination: Pagination = Pagination.all(),
+    ): PaginatedResult<TiltakstypeAdminDto> {
         @Language("PostgreSQL")
         val query = """
-            select
-                id,
-                navn,
-                arena_kode,
-                registrert_dato_i_arena,
-                sist_endret_dato_i_arena,
-                fra_dato,
-                til_dato,
-                sanity_id,
-                rett_paa_tiltakspenger,
-                count(*) OVER() AS full_count
-            from tiltakstype
+            select *, count(*) over() as total_count
+            from tiltakstype_admin_dto_view
             order by navn asc
             limit :limit
             offset :offset
         """.trimIndent()
 
-        val results = queryOf(
-            query,
-            parameters,
-        ).map { it.int("full_count") to it.toTiltakstypeAdminDto() }.asList.let { db.run(it) }
-        val tiltakstyper = results.map { it.second }
-        val totaltAntall = results.firstOrNull()?.first ?: 0
-        return Pair(totaltAntall, tiltakstyper)
+        return db.useSession { session ->
+            queryOf(query, pagination.parameters)
+                .mapPaginated { it.toTiltakstypeAdminDto() }
+                .runWithSession(session)
+        }
     }
 
     fun getAllSkalMigreres(
-        pagination: PaginationParams = PaginationParams(),
-        dagensDato: LocalDate = LocalDate.now(),
-        statuser: List<Tiltakstypestatus> = emptyList(),
+        pagination: Pagination = Pagination.all(),
+        statuser: List<TiltakstypeStatus> = emptyList(),
         sortering: String? = null,
-    ): Pair<Int, List<TiltakstypeAdminDto>> {
+    ): PaginatedResult<TiltakstypeAdminDto> {
         val parameters = mapOf(
-            "limit" to pagination.limit,
-            "offset" to pagination.offset,
-            "today" to dagensDato,
+            "statuser" to statuser.ifEmpty { null }?.let { db.createArrayOf("text", statuser) },
         )
 
         val order = when (sortering) {
             "navn-ascending" -> "navn asc"
             "navn-descending" -> "navn desc"
-            "startdato-ascending" -> "fra_dato asc"
-            "startdato-descending" -> "fra_dato desc"
-            "sluttdato-ascending" -> "til_dato asc"
-            "sluttdato-descending" -> "til_dato desc"
+            "startdato-ascending" -> "start_dato asc"
+            "startdato-descending" -> "start_dato desc"
+            "sluttdato-ascending" -> "slutt_dato asc"
+            "sluttdato-descending" -> "slutt_dato desc"
             else -> "navn asc"
         }
 
         @Language("PostgreSQL")
         val query = """
-            select
-                id,
-                navn,
-                tiltakskode,
-                arena_kode,
-                registrert_dato_i_arena,
-                sist_endret_dato_i_arena,
-                fra_dato,
-                til_dato,
-                sanity_id,
-                rett_paa_tiltakspenger,
-                count(*) OVER() AS full_count
-            from tiltakstype
+            select *, count(*) over() as total_count
+            from tiltakstype_admin_dto_view
             where tiltakskode is not null
-              and ${statuserWhereStatement(statuser)}
+              and (:statuser::text[] is null or status = any(:statuser))
             order by $order
             limit :limit
             offset :offset
         """.trimIndent()
 
-        val results = queryOf(
-            query,
-            parameters,
-        ).map { it.int("full_count") to it.toTiltakstypeAdminDto() }.asList.let { db.run(it) }
-        val tiltakstyper = results.map { it.second }
-        val totaltAntall = results.firstOrNull()?.first ?: 0
-        return Pair(totaltAntall, tiltakstyper)
+        return db.useSession { session ->
+            queryOf(query, parameters + pagination.parameters)
+                .mapPaginated { it.toTiltakstypeAdminDto() }
+                .runWithSession(session)
+        }
     }
 
-    private fun getDeltakerregistreringInnholdByArenaKode(tiltakskode: Tiltakskode): DeltakerRegistreringInnholdDto? {
+    private fun getDeltakerregistreringInnhold(id: UUID, session: Session): DeltakerRegistreringInnholdDto? {
         @Language("PostgreSQL")
         val query = """
-           select dri.innholdskode, tekst, tt.deltaker_registrering_ledetekst
-           from tiltakstype tt
-               left join tiltakstype_deltaker_registrering_innholdselement tdri on tdri.tiltakskode = tt.tiltakskode
-               left join deltaker_registrering_innholdselement dri on tdri.innholdskode = dri.innholdskode
-           where tt.tiltakskode = ?::tiltakskode and tt.deltaker_registrering_ledetekst is not null;
+           select tiltakstype.deltaker_registrering_ledetekst, element.innholdskode, element.tekst
+           from tiltakstype
+               left join tiltakstype_deltaker_registrering_innholdselement tiltakstype_innholdselement on tiltakstype_innholdselement.tiltakskode = tiltakstype.tiltakskode
+               left join deltaker_registrering_innholdselement element on tiltakstype_innholdselement.innholdskode = element.innholdskode
+           where tiltakstype.id = ?::uuid and tiltakstype.deltaker_registrering_ledetekst is not null;
         """.trimIndent()
 
-        val result = queryOf(query, tiltakskode.name)
+        val result = queryOf(query, id)
             .map {
-                val innholdskode = it.stringOrNull("innholdskode")
-                val tekst = it.stringOrNull("tekst")
                 val ledetekst = it.string("deltaker_registrering_ledetekst")
+                val tekst = it.stringOrNull("tekst")
+                val innholdskode = it.stringOrNull("innholdskode")
                 val innholdselement = if (tekst != null && innholdskode != null) {
-                    Innholdselement(
-                        tekst = tekst,
-                        innholdskode = innholdskode,
-                    )
+                    Innholdselement(tekst = tekst, innholdskode = innholdskode)
                 } else {
                     null
                 }
-                Pair(
-                    ledetekst,
-                    innholdselement,
-                )
+                Pair(ledetekst, innholdselement)
             }
             .asList
-            .let { db.run(it) }
+            .runWithSession(session)
 
         if (result.isEmpty()) return null
 
@@ -251,35 +197,6 @@ class TiltakstypeRepository(private val db: Database) {
             ledetekst = result[0].first,
             innholdselementer = innholdselementer,
         )
-    }
-
-    fun getAllByDateInterval(
-        dateIntervalStart: LocalDate,
-        dateIntervalEnd: LocalDate,
-        pagination: PaginationParams,
-    ): List<TiltakstypeAdminDto> {
-        logger.info("Henter alle tiltakstyper med start- eller sluttdato mellom $dateIntervalStart og $dateIntervalEnd")
-
-        @Language("PostgreSQL")
-        val query = """
-            select id, navn, tiltakskode, arena_kode, sanity_id, registrert_dato_i_arena, sist_endret_dato_i_arena, fra_dato, til_dato, rett_paa_tiltakspenger, deltaker_registrering_ledetekst, count(*) OVER() AS full_count
-            from tiltakstype
-            where
-                (fra_dato > :date_interval_start and fra_dato <= :date_interval_end) or
-                (til_dato >= :date_interval_start and til_dato < :date_interval_end)
-            order by navn
-            limit :limit offset :offset
-        """.trimIndent()
-
-        return queryOf(
-            query,
-            mapOf(
-                "date_interval_start" to dateIntervalStart,
-                "date_interval_end" to dateIntervalEnd,
-                "limit" to pagination.limit,
-                "offset" to pagination.offset,
-            ),
-        ).map { it.toTiltakstypeAdminDto() }.asList.let { db.run(it) }
     }
 
     fun delete(id: UUID): QueryResult<Int> = query {
@@ -299,52 +216,47 @@ class TiltakstypeRepository(private val db: Database) {
         "navn" to navn,
         "tiltakskode" to Tiltakskode.fromArenaKode(arenaKode)?.name,
         "arena_kode" to arenaKode,
-        "registrert_dato_i_arena" to registrertDatoIArena,
-        "sist_endret_dato_i_arena" to sistEndretDatoIArena,
-        "fra_dato" to fraDato,
-        "til_dato" to tilDato,
+        "start_dato" to startDato,
+        "slutt_dato" to sluttDato,
         "rett_paa_tiltakspenger" to rettPaaTiltakspenger,
     )
 
-    private fun Row.toTiltakstypeDbo(): TiltakstypeDbo {
-        return TiltakstypeDbo(
-            id = uuid("id"),
-            navn = string("navn"),
-            arenaKode = string("arena_kode"),
-            registrertDatoIArena = localDateTime("registrert_dato_i_arena"),
-            sistEndretDatoIArena = localDateTime("sist_endret_dato_i_arena"),
-            fraDato = localDate("fra_dato"),
-            tilDato = localDate("til_dato"),
-            rettPaaTiltakspenger = boolean("rett_paa_tiltakspenger"),
-        )
-    }
-
     private fun Row.toTiltakstypeAdminDto(): TiltakstypeAdminDto {
-        val fraDato = localDate("fra_dato")
-        val tilDato = localDate("til_dato")
+        val innsatsgrupper = arrayOrNull<String>("innsatsgrupper")
+            ?.map { Innsatsgruppe.valueOf(it) }
+            ?.toSet()
+            ?: emptySet()
+
+        val personopplysninger = Json.decodeFromString<List<PersonopplysningMedFrekvens>>(string("personopplysninger"))
+            .groupBy({ it.frekvens }, { it.personopplysning.toPersonopplysningMedBeskrivelse() })
+
         return TiltakstypeAdminDto(
             id = uuid("id"),
             navn = string("navn"),
+            innsatsgrupper = innsatsgrupper,
             arenaKode = string("arena_kode"),
-            registrertIArenaDato = localDateTime("registrert_dato_i_arena"),
-            sistEndretIArenaDato = localDateTime("sist_endret_dato_i_arena"),
-            fraDato = fraDato,
-            tilDato = tilDato,
+            startDato = localDate("start_dato"),
+            sluttDato = localDateOrNull("slutt_dato"),
             sanityId = uuidOrNull("sanity_id"),
-            rettPaaTiltakspenger = boolean("rett_paa_tiltakspenger"),
-            status = Tiltakstypestatus.resolveFromDates(LocalDate.now(), fraDato, tilDato),
+            status = TiltakstypeStatus.valueOf(string("status")),
+            personopplysninger = personopplysninger,
         )
     }
 
-    private fun statuserWhereStatement(statuser: List<Tiltakstypestatus>): String =
-        statuser
-            .ifEmpty { null }
-            ?.joinToString(prefix = "(", postfix = ")", separator = " or ") {
-                when (it) {
-                    Tiltakstypestatus.Planlagt -> "(:today < fra_dato)"
-                    Tiltakstypestatus.Aktiv -> "(:today >= fra_dato and :today <= til_dato)"
-                    else -> "(:today > til_dato)"
-                }
-            }
-            ?: "true"
+    private fun Row.tiltakstypeEksternDto(
+        deltakerRegistreringInnhold: DeltakerRegistreringInnholdDto?,
+    ): TiltakstypeEksternDto {
+        val innsatsgrupper = arrayOrNull<String>("innsatsgrupper")
+            ?.map { Innsatsgruppe.valueOf(it) }
+            ?.toSet()
+            ?: emptySet()
+        return TiltakstypeEksternDto(
+            id = uuid("id"),
+            navn = string("navn"),
+            tiltakskode = Tiltakskode.valueOf(string("tiltakskode")),
+            innsatsgrupper = innsatsgrupper,
+            arenaKode = string("arena_kode"),
+            deltakerRegistreringInnhold = deltakerRegistreringInnhold,
+        )
+    }
 }

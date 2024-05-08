@@ -12,13 +12,24 @@ spec:
   - name: Arena-adapter nede
     rules:
     - alert: "applikasjon nede"
-      expr: kube_deployment_status_replicas_available{deployment="mulighetsrommet-arena-adapater"} == 0
+      expr: kube_deployment_status_replicas_available{deployment="mulighetsrommet-arena-adapter"} == 0
       for: 2m
       annotations:
         consequence: "mulighetsrommet-arena-adapter er nede i namespace {{ $labels.namespace }}"
         action: "`kubectl describe pod -l app={{ $labels.deployment }} -n {{ $labels.namespace }}` for events, og `kubectl logs -l app={{ $labels.deployment }} -n {{ $labels.namespace }}` for logger"
         summary: |-
           mulighetsrommet-arena-adapter er nede og vil ikke konsumere data eller tilby data til API. Dette bør fikses asap.
+      labels:
+        namespace: team-mulighetsrommet
+        severity: critical
+    - alert: "applikasjon klarte ikke starte"
+      expr: kube_deployment_status_replicas_unavailable{deployment="mulighetsrommet-arena-adapter"} > 0
+      for: 5m
+      annotations:
+        consequence: "mulighetsrommet-arena-adapter havnet sannyneligvis i CrashLoopBackoff når den prøvde å start i namespace {{ $labels.namespace }}"
+        action: "`kubectl describe pod -l app={{ $labels.deployment }} -n {{ $labels.namespace }}` for events, og `kubectl logs -l app={{ $labels.deployment }} -n {{ $labels.namespace }}` for logger"
+        summary: |-
+          mulighetsrommet-arena-adapter crashet ved startup og vil ikke ha nyeste versjon av koden. Dette bør fikses asap.
       labels:
         namespace: team-mulighetsrommet
         severity: critical

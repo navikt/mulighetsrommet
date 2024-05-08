@@ -19,14 +19,13 @@ export function DupliserAvtale({ avtale }: Props) {
 
   function apneRedigeringForDupliseringAvAvtale() {
     setAvtaleDetaljerTab("detaljer");
-    navigate(`/avtaler/${avtale.id}/skjema`, {
+    navigate(`/avtaler/skjema`, {
       state: {
         avtale: {
-          ...avtale,
-          id: window.crypto.randomUUID(),
-          startDato: undefined,
-          sluttDato: undefined,
           opphav: Opphav.MR_ADMIN_FLATE,
+          faneinnhold: avtale.faneinnhold,
+          tiltakstype: avtale.tiltakstype,
+          avtaletype: avtale.avtaletype,
         },
       },
     });

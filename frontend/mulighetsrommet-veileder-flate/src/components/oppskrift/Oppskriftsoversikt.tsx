@@ -52,7 +52,7 @@ function Oppskriftskort({ oppskrift: { navn, beskrivelse, _updatedAt } }: Oppskr
   return (
     <div className={styles.kort}>
       <div>
-        <h3>{navn}</h3>
+        <h3 className={styles.tittel}>{navn}</h3>
         <p>{beskrivelse}</p>
       </div>
       <small>Oppdatert: {formaterDato(new Date(_updatedAt))}</small>

@@ -12,7 +12,7 @@ interface Props {
   onClose: () => void;
 }
 
-export const LeggTilGjennomforingModal = ({ avtale, modalOpen, onClose }: Props) => {
+export function LeggTilGjennomforingModal({ avtale, modalOpen, onClose }: Props) {
   const [search, setSearch] = useState("");
   const [error, setError] = useState("");
 
@@ -102,4 +102,4 @@ export const LeggTilGjennomforingModal = ({ avtale, modalOpen, onClose }: Props)
       </Modal.Body>
     </Modal>
   );
-};
+}

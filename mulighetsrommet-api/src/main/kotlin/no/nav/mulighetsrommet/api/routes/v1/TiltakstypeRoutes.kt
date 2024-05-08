@@ -7,9 +7,9 @@ import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import io.ktor.util.pipeline.*
 import no.nav.mulighetsrommet.api.domain.dto.VeilederflateTiltakstype
+import no.nav.mulighetsrommet.api.routes.v1.parameters.getPaginationParams
 import no.nav.mulighetsrommet.api.services.TiltakstypeService
 import no.nav.mulighetsrommet.api.services.VeilederflateService
-import no.nav.mulighetsrommet.api.utils.getPaginationParams
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.Tiltakskode.Companion.toArenaKode
 import org.koin.ktor.ext.inject
@@ -22,9 +22,9 @@ fun Route.tiltakstypeRoutes(migrerteTiltak: List<Tiltakskode>) {
     route("/api/v1/internal/tiltakstyper") {
         get {
             val filter = getTiltakstypeFilter()
-            val paginationParams = getPaginationParams()
+            val pagination = getPaginationParams()
 
-            val tiltakstyper = tiltakstypeService.getWithFilter(filter, paginationParams)
+            val tiltakstyper = tiltakstypeService.getAll(filter, pagination)
 
             call.respond(tiltakstyper)
         }

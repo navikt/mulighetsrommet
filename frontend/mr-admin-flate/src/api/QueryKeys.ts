@@ -1,5 +1,5 @@
 import { ArrangorTil, NavAnsattRolle, NotificationStatus } from "mulighetsrommet-api-client";
-import { AvtaleFilter, TiltaksgjennomforingFilter } from "./atoms";
+import { ArrangorerFilter, AvtaleFilter, TiltaksgjennomforingFilter } from "./atoms";
 
 export const QueryKeys = {
   tiltakstype: (id?: string) => ["tiltakstype", id] as const,
@@ -22,21 +22,22 @@ export const QueryKeys = {
   avtale: (id: string) => ["avtale", id],
   avtaleHistorikk: (id?: string) => ["avtale", id, "historikk"] as const,
   enheter: () => ["enheter"],
-  arrangorer: (til?: ArrangorTil) => ["arrangorer", { til }],
+  arrangorer: (til?: ArrangorTil, page?: number, arrangorFilter?: Partial<ArrangorerFilter>) => [
+    "arrangorer",
+    page,
+    { ...arrangorFilter },
+    { til },
+  ],
   arrangorById: (id: string) => ["arrangor", id],
+  arrangorHovedenhetById: (id: string) => ["arrangorHovedenhet", id],
   arrangorByOrgnr: (orgnr: string) => ["arrangor", { orgnr }],
   arrangorKontaktpersoner: (id: string) => ["arrangor", id, "kontaktpersoner"],
+  arrangorKontaktpersonKoblinger: (id: string) => ["arrangorKoblinger", id],
   antallUlesteNotifikasjoner: () => ["antallUlesteNotifikasjoner"],
   notifikasjonerForAnsatt: (status: NotificationStatus) => ["notifikasjoner", status] as const,
   brregVirksomheter: (sokestreng: string) => ["virksomhet", "sok", sokestreng],
   brregVirksomhetUnderenheter: (id: string) => ["virksomet", id, "underenheter"],
   navansatt: (rolle: NavAnsattRolle) => ["nav-ansatte", rolle],
-  avtalenotater: (avtaleId: string) => ["avtalenotater", avtaleId] as const,
-  mineAvtalenotater: (avtaleId: string) => ["avtalenotater", "mine", avtaleId] as const,
-  tiltaksgjennomforingsnotater: (tiltaksgjennomforingsId: string) =>
-    ["tiltaksgjennomforingsnotater", tiltaksgjennomforingsId] as const,
-  mineTiltaksgjennomforingsnotater: (tiltaksgjennomforingsId: string) =>
-    ["tiltaksgjennomforingsnotater", "mine", tiltaksgjennomforingsId] as const,
   features: (feature: string) => ["feature", feature],
   migrerteTiltakstyper: () => ["migrerteTiltakstyper"],
   navRegioner: () => ["navRegioner"],

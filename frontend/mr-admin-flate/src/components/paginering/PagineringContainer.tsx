@@ -1,10 +1,6 @@
-import { ReactNode } from "react";
-import styles from "./PagineringContainer.module.scss";
+import styles from "./Paginering.module.scss";
+import { PropsWithChildren } from "react";
 
-interface Props {
-  children: ReactNode;
-}
-
-export function PagineringContainer({ children }: Props) {
-  return <div className={styles.paginering}>{children}</div>;
+export function PagineringContainer(props: PropsWithChildren) {
+  return <div className={styles.paginering}>{props.children}</div>;
 }

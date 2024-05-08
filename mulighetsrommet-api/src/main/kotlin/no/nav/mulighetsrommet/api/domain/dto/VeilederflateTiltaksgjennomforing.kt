@@ -5,6 +5,7 @@ import kotlinx.serialization.json.JsonObject
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dto.Faneinnhold
+import no.nav.mulighetsrommet.domain.dto.Innsatsgruppe
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import java.time.LocalDate
@@ -12,10 +13,8 @@ import java.util.*
 
 @Serializable
 data class VeilederflateInnsatsgruppe(
-    val sanityId: String,
     val tittel: String,
     val nokkel: String,
-    val beskrivelse: String,
     val order: Int,
 )
 
@@ -23,6 +22,8 @@ data class VeilederflateInnsatsgruppe(
 data class VeilederflateTiltaksgjennomforing(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID? = null,
+    @Serializable(with = UUIDSerializer::class)
+    val avtaleId: UUID? = null,
     val sanityId: String? = null,
     val tiltakstype: VeilederflateTiltakstype,
     val navn: String,
@@ -41,6 +42,7 @@ data class VeilederflateTiltaksgjennomforing(
     val faneinnhold: Faneinnhold? = null,
     val kontaktinfo: VeilederflateKontaktinfo? = null,
     val estimertVentetid: EstimertVentetid? = null,
+    val personvernBekreftet: Boolean,
 )
 
 @Serializable
@@ -67,7 +69,7 @@ data class VeilederflateTiltakstype(
     val sanityId: String,
     val navn: String,
     val beskrivelse: String? = null,
-    val innsatsgruppe: SanityInnsatsgruppe? = null,
+    val innsatsgrupper: Set<Innsatsgruppe>? = null,
     val regelverkLenker: List<RegelverkLenke>? = emptyList(),
     val faneinnhold: Faneinnhold? = null,
     val delingMedBruker: String? = null,

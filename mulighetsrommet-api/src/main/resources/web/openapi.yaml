@@ -51,11 +51,26 @@ paths:
               schema:
                 $ref: "#/components/schemas/Avtale"
         404:
-          description: "The specified avtale was not found."
+          description: "Avtalen ble ikke funnet"
           content:
             application/json:
               schema:
                 type: string
+
+  /api/v1/internal/avtaler/{id}/behandle-personopplysninger:
+    parameters:
+      - $ref: "#/components/parameters/ID"
+    get:
+      tags:
+        - Avtaler
+      operationId: getBehandlingAvPersonopplysninger
+      responses:
+        200:
+          description: Hvilke personopplysninger kan behandles for avtalen
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PersonopplysningerPerFrekvens"
 
   /api/v1/internal/avtaler/{id}/avbryt:
     parameters:
@@ -64,11 +79,18 @@ paths:
       tags:
         - Avtaler
       operationId: avbrytAvtale
+      requestBody:
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: "#/components/schemas/AvbrytAvtaleRequest"
+                - $ref: "#/components/schemas/CustomAvbrytAvtaleRequest"
       responses:
         200:
-          description: True if avtale was avbrutt, false otherwise
+          description: The specified avtale you want to 'Avbryte'
         404:
-          description: "The specified avtale was not found and could not be avbrutt"
+          description: "Avtalen ble ikke funnet og kunne ikke avbrytes"
           content:
             application/json:
               schema:
@@ -135,6 +157,10 @@ paths:
           name: sort
           schema:
             $ref: "#/components/schemas/SorteringAvtaler"
+        - in: query
+          name: personvernBekreftet
+          schema:
+            type: boolean
       responses:
         200:
           description: Object of paginated avtaler connected to specified tiltakstype-id.
@@ -247,149 +273,23 @@ paths:
                 type: string
                 format: binary
 
-  /api/v1/internal/notater/avtaler:
-    get:
+  /api/v1/internal/avtaler/kontaktperson:
+    delete:
       tags:
-        - AvtaleNotater
-      operationId: getNotaterForAvtale
-      parameters:
-        - in: query
-          name: avtaleId
-          required: true
-          schema:
-            type: string
-          description: ID for avtalen med tilhørende notater
-        - in: query
-          name: order
-          schema:
-            type: string
-            enum:
-              - dato-created-asc
-              - dato-created-desc
-          description: Rekkefølge på notater
-      responses:
-        200:
-          description: Liste med notater for tilhørende avtale
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/AvtaleNotat"
-    put:
-      tags:
-        - AvtaleNotater
-      operationId: lagreAvtalenotat
+        - Avtaler
+      operationId: frikobleKontaktpersonFraAvtale
       requestBody:
-        description: Notat for avtale som skal lagres
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/AvtaleNotatRequest"
+              $ref: "#/components/schemas/FrikobleKontaktpersonRequest"
       responses:
         200:
-          description: Liste med notater for tilhørende avtale
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/AvtaleNotat"
-
-  /api/v1/internal/notater/avtaler/mine:
-    get:
-      tags:
-        - AvtaleNotater
-      operationId: getMineAvtaleNotater
-      parameters:
-        - in: query
-          name: avtaleId
-          required: true
-          schema:
-            type: string
-          description: ID for avtalen med tilhørende notater
-        - in: query
-          name: order
-          schema:
-            type: string
-            enum:
-              - dato-created-asc
-              - dato-created-desc
-          description: Rekkefølge på notater
-      responses:
-        200:
-          description: Liste med dine notater for tilhørende avtale
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/AvtaleNotat"
-
-  /api/v1/internal/notater/avtaler/{id}:
-    delete:
-      tags:
-        - AvtaleNotater
-      operationId: slettAvtalenotat
-      parameters:
-        - in: path
-          name: id
-          required: true
-          schema:
-            type: string
-          description: ID for notatet som skal slettes
-      responses:
-        200:
-          description: 200 ok hvis notatet ble slettet
+          description: OK hvis frikobling gikk greit
           content:
             application/json:
               schema:
                 type: string
-
-  /api/v1/internal/notater/tiltaksgjennomforinger:
-    get:
-      tags:
-        - TiltaksgjennomforingNotater
-      operationId: getNotaterForTiltaksgjennomforing
-      parameters:
-        - in: query
-          name: tiltaksgjennomforingId
-          required: true
-          schema:
-            type: string
-          description: ID for tiltaksgjennomføringen med tilhørende notater
-        - in: query
-          name: order
-          schema:
-            type: string
-            enum:
-              - dato-created-asc
-              - dato-created-desc
-          description: Rekkefølge på notater
-      responses:
-        200:
-          description: Liste med notater for tilhørende tiltaksgjennomføring
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/TiltaksgjennomforingNotat"
-    put:
-      tags:
-        - TiltaksgjennomforingNotater
-      operationId: lagreTiltaksgjennomforingNotat
-      requestBody:
-        description: Notat for tiltaksgjennomføring som skal lagres
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/TiltaksgjennomforingNotatRequest"
-      responses:
-        200:
-          description: Liste med notater for tilhørende tiltaksgjennomforing
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/TiltaksgjennomforingNotat"
 
   /api/v1/internal/avtaler/{id}/historikk:
     get:
@@ -453,57 +353,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/TiltaksgjennomforingDeltakerSummary"
-
-  /api/v1/internal/notater/tiltaksgjennomforinger/mine:
-    get:
-      tags:
-        - TiltaksgjennomforingNotater
-      operationId: getMineTiltaksgjennomforingNotater
-      parameters:
-        - in: query
-          name: tiltaksgjennomforingId
-          required: true
-          schema:
-            type: string
-          description: ID for tiltaksgjennomføringen med tilhørende notater
-        - in: query
-          name: order
-          schema:
-            type: string
-            enum:
-              - dato-created-asc
-              - dato-created-desc
-          description: Rekkefølge på notater
-      responses:
-        200:
-          description: Liste med dine notater for tilhørende tiltaksgjennomføring
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/TiltaksgjennomforingNotat"
-
-  /api/v1/internal/notater/tiltaksgjennomforinger/{id}:
-    delete:
-      tags:
-        - TiltaksgjennomforingNotater
-      operationId: slettTiltaksgjennomforingNotat
-      parameters:
-        - in: path
-          name: id
-          required: true
-          schema:
-            type: string
-            format: uuid
-          description: ID for notatet som skal slettes
-      responses:
-        200:
-          description: 200 ok hvis notatet ble slettet
-          content:
-            application/json:
-              schema:
-                type: string
 
   /api/v1/internal/tiltaksgjennomforinger:
     get:
@@ -692,7 +541,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Tiltaksgjennomforing"
         404:
-          description: "The specified tiltaksgjennomføring was not found."
+          description: "Tiltaksgjennomføringen ble ikke funnet"
           content:
             application/json:
               schema:
@@ -744,6 +593,13 @@ paths:
       tags:
         - Tiltaksgjennomforinger
       operationId: avbrytTiltaksgjennomforing
+      requestBody:
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: "#/components/schemas/AvbrytGjennomforingRequest"
+                - $ref: "#/components/schemas/CustomAvbrytGjennomforingRequest"
       responses:
         200:
           description: The specified tiltaksgjennomføring you want to 'Avbryte'
@@ -752,7 +608,7 @@ paths:
               schema:
                 type: string
         404:
-          description: "Mangler eller ugyldig id."
+          description: "Mangler eller ugyldig id"
           content:
             application/json:
               schema:
@@ -774,6 +630,24 @@ paths:
         200:
           description: Update for 'tilgjengelig for veileder' was successful
 
+  /api/v1/internal/tiltaksgjennomforinger/kontaktperson:
+    delete:
+      tags:
+        - Tiltaksgjennomforinger
+      operationId: frikobleKontaktpersonFraTiltaksgjennomforing
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FrikobleKontaktpersonRequest"
+      responses:
+        200:
+          description: OK hvis frikobling gikk greit
+          content:
+            application/json:
+              schema:
+                type: string
+
   /api/v1/internal/tiltakstyper:
     get:
       tags:
@@ -790,7 +664,7 @@ paths:
           schema:
             type: array
             items:
-              $ref: "#/components/schemas/Tiltakstypestatus"
+              $ref: "#/components/schemas/TiltakstypeStatus"
           description: Statuser for tiltakstyper
         - in: query
           name: page
@@ -829,7 +703,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Tiltakstype"
         404:
-          description: "The specified tiltakstype was not found."
+          description: "Tiltakstypen ble ikke funnet"
           content:
             text/plain:
               schema:
@@ -850,7 +724,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/VeilederflateTiltakstype"
         404:
-          description: "Faneinnhold for the specified tiltakstype was not found."
+          description: "Faneinnholdet for tiltakstypen ble ikke funnet"
           content:
             text/plain:
               schema:
@@ -1029,7 +903,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/DialogResponse"
         409:
-          description: "Sending message to Dialogen failed"
+          description: "Sending av meldingen til Dialogen mislyktes"
           content:
             application/json:
               schema:
@@ -1124,7 +998,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/NavAnsatt"
         404:
-          description: "Could not find data about 'ansatt'"
+          description: "Fant ingen data om 'ansatt'"
           content:
             application/json:
               schema:
@@ -1150,10 +1024,6 @@ paths:
                 $ref: "#/components/schemas/DelMedBruker"
         204:
           description: "No content found"
-          content:
-            text/plain:
-              schema:
-                type: string
 
     put:
       tags:
@@ -1206,10 +1076,6 @@ paths:
                   $ref: "#/components/schemas/DelMedBruker"
         204:
           description: "No content found"
-          content:
-            text/plain:
-              schema:
-                type: string
 
   /api/v1/internal/nav-enheter:
     get:
@@ -1283,19 +1149,36 @@ paths:
       operationId: getArrangorer
       parameters:
         - in: query
+          name: page
+          schema:
+            type: number
+          description: Page number, default 1
+        - in: query
+          name: size
+          schema:
+            type: number
+          description: Page size, default 50
+        - in: query
           name: til
           schema:
             $ref: "#/components/schemas/ArrangorTil"
           description: Hent arrangører tilhørende avtaler eller gjennomforinger
+        - in: query
+          name: sok
+          schema:
+            type: string
+          description: Søk i fritekst etter arrangør
+        - in: query
+          name: sortering
+          schema:
+            $ref: "#/components/schemas/SorteringArrangorer"
       responses:
         200:
-          description: Liste med virksomheter
+          description: Paginert liste med virksomheter
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Arrangor"
+                $ref: "#/components/schemas/PaginertArrangor"
 
   /api/v1/internal/arrangorer/{id}:
     get:
@@ -1312,6 +1195,26 @@ paths:
       responses:
         200:
           description: Arrangor for id
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Arrangor"
+
+  /api/v1/internal/arrangorer/hovedenhet/{id}:
+    get:
+      tags:
+        - Arrangor
+      operationId: getArrangorHovedenhetById
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: Hovedenhet for arrangør for id
           content:
             application/json:
               schema:
@@ -1383,6 +1286,25 @@ paths:
                 $ref: "#/components/schemas/ArrangorKontaktperson"
 
   /api/v1/internal/arrangorer/kontaktperson/{id}:
+    get:
+      tags:
+        - Arrangor
+      operationId: getKoblingerTilDokumenter
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: uuid til kontaktpersonen
+      responses:
+        200:
+          description: Koblinger til gjennomføringer og avtaler for kontaktperson
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/KoblingerForKontaktperson"
+
     delete:
       tags:
         - Arrangor
@@ -1744,14 +1666,11 @@ components:
           type: integer
         totalPages:
           type: integer
-        currentPage:
-          type: integer
         pageSize:
           type: integer
       required:
         - totalCount
         - totalPages
-        - currentPage
         - pageSize
 
     PaginertTiltakstype:
@@ -1793,6 +1712,19 @@ components:
           items:
             $ref: "#/components/schemas/Avtale"
 
+    PaginertArrangor:
+      type: object
+      required:
+        - pagination
+        - data
+      properties:
+        pagination:
+          $ref: "#/components/schemas/Pagination"
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Arrangor"
+
     TiltakskodeArena:
       type: string
       enum:
@@ -1827,23 +1759,31 @@ components:
           format: uuid
         navn:
           type: string
+        innsatsgrupper:
+          type: array
+          items:
+            $ref: "#/components/schemas/Innsatsgruppe"
         arenaKode:
           $ref: "#/components/schemas/TiltakskodeArena"
-        fraDato:
+        startDato:
           type: string
-        tilDato:
+          format: date
+        sluttDato:
           type: string
+          format: date
         status:
-          $ref: "#/components/schemas/Tiltakstypestatus"
+          $ref: "#/components/schemas/TiltakstypeStatus"
         sanityId:
           type: string
+        personopplysninger:
+          $ref: "#/components/schemas/PersonopplysningerPerFrekvens"
       required:
         - id
         - navn
         - arenaKode
-        - fraDato
-        - tilDato
+        - startDato
         - status
+        - personopplysninger
 
     Avtale:
       type: object
@@ -1857,6 +1797,10 @@ components:
           type: string
         avtalenummer:
           type: string
+        websaknummer:
+          type: string
+        lopenummer:
+          type: string
         arrangor:
           $ref: "#/components/schemas/ArrangorHovedenhet"
         startDato:
@@ -1867,8 +1811,8 @@ components:
           format: date
         avtaletype:
           $ref: "#/components/schemas/Avtaletype"
-        avtalestatus:
-          $ref: "#/components/schemas/Avtalestatus"
+        status:
+          $ref: "#/components/schemas/AvtalestatusResponse"
         arenaAnsvarligEnhet:
           $ref: "#/components/schemas/ArenaNavEnhet"
         prisbetingelser:
@@ -1878,9 +1822,6 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/AvtaleAdministrator"
-        url:
-          type: string
-          nullable: true
         antallPlasser:
           type: number
           nullable: true
@@ -1892,6 +1833,12 @@ components:
           type: string
         faneinnhold:
           $ref: "#/components/schemas/SanityFaneinnhold"
+        personopplysninger:
+          type: array
+          items:
+            $ref: "#/components/schemas/Personopplysning"
+        personvernBekreftet:
+          type: boolean
       required:
         - id
         - tiltakstype
@@ -1900,10 +1847,12 @@ components:
         - arrangor
         - startDato
         - avtaletype
-        - avtalestatus
+        - status
         - prisbetingelser
         - kontorstruktur
         - opphav
+        - personopplysninger
+        - personvernBekreftet
 
     AvtaleRequest:
       type: object
@@ -1919,25 +1868,26 @@ components:
         avtalenummer:
           type: string
           nullable: true
+        websaknummer:
+          type: string
+          nullable: true
         arrangorOrganisasjonsnummer:
           type: string
         arrangorUnderenheter:
           type: array
           items:
             type: string
-        arrangorKontaktpersonId:
-          type: string
-          format: UUID
-          nullable: true
+        arrangorKontaktpersoner:
+          type: array
+          items:
+            type: string
+            format: UUID
         startDato:
           type: string
           format: date
         sluttDato:
           type: string
           format: date
-          nullable: true
-        url:
-          type: string
           nullable: true
         administratorer:
           type: array
@@ -1958,6 +1908,12 @@ components:
         faneinnhold:
           $ref: "#/components/schemas/SanityFaneinnholdRequest"
           nullable: true
+        personopplysninger:
+          type: array
+          items:
+            $ref: "#/components/schemas/Personopplysning"
+        personvernBekreftet:
+          type: boolean
       required:
         - id
         - navn
@@ -1968,13 +1924,14 @@ components:
         - avtalenummer
         - startDato
         - sluttDato
-        - url
         - administrator
         - avtaletype
         - prisbetingelser
         - navEnheter
         - beskrivelse
         - faneinnhold
+        - personopplysninger
+        - personvernBekreftet
 
     EmbeddedTiltakstype:
       type: object
@@ -1999,12 +1956,47 @@ components:
         - Forhaandsgodkjent
         - OffentligOffentlig
 
+    AvtalestatusResponse:
+      oneOf:
+        - $ref: "#/components/schemas/AvtaleIkkeAvbruttStatus"
+        - $ref: "#/components/schemas/AvtaleAvbruttStatus"
+
+    AvtaleIkkeAvbruttStatus:
+      type: object
+      properties:
+        name:
+          type: string
+          enum:
+           - AKTIV
+           - AVSLUTTET
+      required:
+       - name
+
+    AvtaleAvbruttStatus:
+      type: object
+      properties:
+        name:
+          type: string
+          enum:
+           - AVBRUTT
+        tidspunkt:
+          type: string
+          format: date-time
+        aarsak:
+          oneOf:
+            - type: string
+            - $ref: "#/components/schemas/AvbrytAvtaleAarsak"
+      required:
+        - name
+        - tidspunkt
+        - aarsak
+
     Avtalestatus:
       type: string
       enum:
-        - Aktiv
-        - Avsluttet
-        - Avbrutt
+        - AKTIV
+        - AVSLUTTET
+        - AVBRUTT
 
     NotificationStatus:
       type: string
@@ -2052,6 +2044,12 @@ components:
         - publisert_ascending
         - publisert_descending
 
+    SorteringArrangorer:
+      type: string
+      enum:
+        - navn-ascending
+        - navn-descending
+
     Tiltaksgjennomforing:
       type: object
       properties:
@@ -2076,7 +2074,7 @@ components:
         arenaAnsvarligEnhet:
           $ref: "#/components/schemas/ArenaNavEnhet"
         status:
-          $ref: "#/components/schemas/TiltaksgjennomforingStatus"
+          $ref: "#/components/schemas/TiltaksgjennomforingStatusResponse"
         apentForInnsok:
           type: boolean
         antallPlasser:
@@ -2120,6 +2118,10 @@ components:
         estimertVentetid:
           $ref: "#/components/schemas/EstimertVentetid"
           nullable: true
+        tilgjengeligForArrangorFraOgMedDato:
+          type: string
+          format: date
+          nullable: true
       required:
         - id
         - tiltakstype
@@ -2138,6 +2140,7 @@ components:
         - publisert
         - publisertForAlle
         - deltidsprosent
+        - tilgjengeligForArrangorFraOgMedDato
 
     TiltaksnummerResponse:
       type: object
@@ -2215,6 +2218,10 @@ components:
             enhet:
               type: string
           nullable: true
+        tilgjengeligForArrangorFraOgMedDato:
+          type: string
+          format: date
+          nullable: true
       required:
         - id
         - tiltakstypeId
@@ -2236,6 +2243,44 @@ components:
         - beskrivelse
         - deltidsprosent
         - estimertVentetid
+        - tilgjengeligForArrangorFraOgMedDato
+
+    TiltaksgjennomforingStatusResponse:
+      oneOf:
+        - $ref: "#/components/schemas/GjennomforingIkkeAvbruttStatus"
+        - $ref: "#/components/schemas/GjennomforingAvbruttStatus"
+
+    GjennomforingIkkeAvbruttStatus:
+      type: object
+      properties:
+        name:
+          type: string
+          enum:
+            - PLANLAGT
+            - GJENNOMFORES
+            - AVSLUTTET
+      required:
+       - name
+
+    GjennomforingAvbruttStatus:
+      type: object
+      properties:
+        name:
+          type: string
+          enum:
+            - AVBRUTT
+            - AVLYST
+        tidspunkt:
+          type: string
+          format: date-time
+        aarsak:
+          oneOf:
+            - type: string
+            - $ref: "#/components/schemas/AvbrytGjennomforingAarsak"
+      required:
+        - name
+        - tidspunkt
+        - aarsak
 
     TiltaksgjennomforingStatus:
       type: string
@@ -2279,6 +2324,8 @@ components:
           type: string
         manuellStatus:
           $ref: "#/components/schemas/ManuellStatus"
+        erUnderOppfolging:
+          type: boolean
         varsler:
           type: array
           items:
@@ -2288,11 +2335,14 @@ components:
         - fnr
         - enheter
         - varsler
+        - erUnderOppfolging
 
     BrukerVarsel:
       type: string
       enum:
         - LOKAL_OPPFOLGINGSENHET
+        - BRUKER_IKKE_UNDER_OPPFOLGING
+        - BRUKER_UNDER_OPPFOLGING_MEN_MANGLER_14A_VEDTAK
 
     NavVeileder:
       type: object
@@ -2386,33 +2436,19 @@ components:
         - STANDARD_INNSATS
         - SITUASJONSBESTEMT_INNSATS
         - SPESIELT_TILPASSET_INNSATS
+        - GRADERT_VARIG_TILPASSET_INNSATS
         - VARIG_TILPASSET_INNSATS
 
-    Tiltakstypestatus:
+    TiltakstypeStatus:
       type: string
       enum:
-        - Aktiv
-        - Planlagt
-        - Avsluttet
-
-    FrontendEvent:
-      type: object
-      properties:
-        name:
-          type: string
-        fields:
-          type: object
-          additionalProperties: true
-        tags:
-          type: object
-          additionalProperties: true
-      required:
-        - name
+        - AKTIV
+        - AVSLUTTET
 
     DialogRequest:
       type: object
       properties:
-        norskIdent:
+        fnr:
           type: string
         overskrift:
           type: string
@@ -2421,7 +2457,7 @@ components:
         venterPaaSvarFraBruker:
           type: boolean
       required:
-        - norskIdent
+        - fnr
         - overskrift
         - tekst
         - venterPaaSvarFraBruker
@@ -2433,6 +2469,14 @@ components:
           type: string
       required:
         - id
+
+    HistorikkForBrukerStatus:
+      type: string
+      enum:
+        - VENTER
+        - AVSLUTTET
+        - DELTAR
+        - IKKE_AKTUELL
 
     HistorikkForBruker:
       type: object
@@ -2448,12 +2492,7 @@ components:
           type: string
           nullable: true
         status:
-          type: string
-          enum:
-            - VENTER
-            - AVSLUTTET
-            - DELTAR
-            - IKKE_AKTUELL
+          $ref: "#/components/schemas/HistorikkForBrukerStatus"
         tiltaksnavn:
           type: string
           nullable: true
@@ -2477,56 +2516,33 @@ components:
         aktive:
           type: array
           items:
-            $ref: "#/components/schemas/AktivDeltakelse"
+            $ref: "#/components/schemas/DeltakerKort"
         historikk:
           type: array
           items:
-            $ref: "#/components/schemas/HistorikkForBrukerV2"
+            $ref: "#/components/schemas/DeltakerKort"
       required:
         - aktive
         - historikk
 
-    AktivDeltakelse:
+    DeltakerKort:
       type: object
       properties:
         deltakerId:
           type: string
           format: uuid
-        innsoktDato:
-          type: string
-        sistEndretdato:
-          type: string
-        aktivStatus:
-          type: string
-          enum:
-            - UTKAST_TIL_PAMELDING
-            - VENTER_PA_OPPSTART
-            - DELTAR
-            - KLADD
-            - SOKT_INN
-            - VURDERES
-            - VENTELISTE
-            - PABEGYNT_REGISTRERING
         tittel:
           type: string
         tiltakstype:
           $ref: "#/components/schemas/Gruppetiltak"
-      required:
-        - deltakerId
-        - innsoktDato
-        - sistEndretdato
-        - aktivStatus
-        - tittel
-        - tiltakstype
-
-    HistorikkForBrukerV2:
-      type: object
-      properties:
-        deltakerId:
-          type: string
-          format: uuid
+        status:
+          $ref: "#/components/schemas/DeltakerStatus"
         innsoktDato:
           type: string
+          nullable: true
+        sistEndretDato:
+          type: string
+          nullable: true
         periode:
           type: object
           properties:
@@ -2537,36 +2553,41 @@ components:
               type: string
               nullable: true
           nullable: true
-        historiskStatus:
-          type: object
-          properties:
-            historiskStatusType:
-              type: string
-              enum:
-                - AVBRUTT_UTKAST
-                - HAR_SLUTTET
-                - IKKE_AKTUELL
-                - FEILREGISTRERT
-                - AVBRUTT
-                - FULLFORT
-            aarsak:
-              type: string
-              nullable: true
-          required:
-            - historiskStatusType
-        tittel:
+      required:
+        - deltakerId
+        - tittel
+        - tiltakstype
+        - status
+
+    DeltakerStatusType:
+      type: string
+      enum:
+        - KLADD
+        - UTKAST_TIL_PAMELDING
+        - AVBRUTT_UTKAST
+        - VENTER_PA_OPPSTART
+        - DELTAR
+        - HAR_SLUTTET
+        - IKKE_AKTUELL
+        - SOKT_INN
+        - VURDERES
+        - VENTELISTE
+        - AVBRUTT
+        - FULLFORT
+
+    DeltakerStatus:
+      type: object
+      properties:
+        "type":
+          $ref: "#/components/schemas/DeltakerStatusType"
+        visningstekst:
           type: string
-        tiltakstype:
-          $ref: "#/components/schemas/Gruppetiltak"
-        beskrivelse:
+        aarsak:
           type: string
           nullable: true
       required:
-        - deltakerId
-        - innsoktDato
-        - historiskStatus
-        - tittel
-        - tiltakstype
+        - "type"
+        - visningstekst
 
     TiltakshistorikkArrangor:
       type: object
@@ -2677,14 +2698,17 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/ArrangorUnderenhet"
-        kontaktperson:
-          $ref: "#/components/schemas/ArrangorKontaktperson"
+        kontaktpersoner:
+          type: array
+          items:
+            $ref: "#/components/schemas/ArrangorKontaktperson"
       required:
         - id
         - organisasjonsnummer
         - navn
         - slettet
         - underenheter
+        - kontaktpersoner
 
     ArrangorUnderenhet:
       type: object
@@ -2725,12 +2749,17 @@ components:
           nullable: true
         epost:
           type: string
+        ansvarligFor:
+          type: array
+          items:
+            $ref: "#/components/schemas/ArrangorKontaktpersonAnsvar"
       required:
         - id
         - navn
         - epost
         - telefon
         - beskrivelse
+        - ansvarligFor
 
     ArrangorKontaktperson:
       type: object
@@ -2751,6 +2780,10 @@ components:
           nullable: true
         epost:
           type: string
+        ansvarligFor:
+          type: array
+          items:
+            $ref: "#/components/schemas/ArrangorKontaktpersonAnsvar"
       required:
         - id
         - arrangorId
@@ -2758,6 +2791,14 @@ components:
         - beskrivelse
         - telefon
         - epost
+        - ansvarligFor
+
+    ArrangorKontaktpersonAnsvar:
+      type: string
+      enum:
+        - AVTALE
+        - TILTAKSGJENNOMFORING
+        - OKONOMI
 
     AvtaleAdministrator:
       type: object
@@ -2784,24 +2825,13 @@ components:
     VeilederflateInnsatsgruppe:
       type: object
       properties:
-        sanityId:
-          type: string
-        beskrivelse:
-          type: string
         tittel:
           type: string
-          enum:
-            - "Standard innsats"
-            - "Situasjonsbestemt innsats"
-            - "Spesielt tilpasset innsats"
-            - "Varig tilpasset innsats"
         nokkel:
           $ref: "#/components/schemas/Innsatsgruppe"
         order:
           type: integer
       required:
-        - sanityId
-        - beskrivelse
         - tittel
         - nokkel
         - order
@@ -2815,8 +2845,11 @@ components:
           type: string
         beskrivelse:
           type: string
-        innsatsgruppe:
-          $ref: "#/components/schemas/VeilederflateInnsatsgruppe"
+        innsatsgrupper:
+          type: array
+          uniqueItems: true
+          items:
+            $ref: "#/components/schemas/Innsatsgruppe"
         regelverkLenker:
           type: array
           items:
@@ -2835,6 +2868,9 @@ components:
       type: object
       properties:
         id:
+          type: string
+          format: uuid
+        avtaleId:
           type: string
           format: uuid
         sanityId:
@@ -2866,6 +2902,8 @@ components:
         estimertVentetid:
           $ref: "#/components/schemas/EstimertVentetid"
           nullable: true
+        personvernBekreftet:
+          type: boolean
       required:
         - navn
         - tiltakstype
@@ -2886,23 +2924,42 @@ components:
         - regelverkUrl
         - regelverkLenkeNavn
 
+    PortableTextTypedObject:
+      type: object
+      additionalProperties: true
+      properties:
+        _type:
+          type: string
+        _key:
+          type: string
+      required:
+        - _type
+
     SanityFaneinnhold:
       type: object
       properties:
         forHvemInfoboks:
           type: string
         forHvem:
-          type: object
+          type: array
+          items:
+            $ref: "#/components/schemas/PortableTextTypedObject"
         detaljerOgInnholdInfoboks:
           type: string
         detaljerOgInnhold:
-          type: object
+          type: array
+          items:
+            $ref: "#/components/schemas/PortableTextTypedObject"
         pameldingOgVarighetInfoboks:
           type: string
         pameldingOgVarighet:
-          type: object
+          type: array
+          items:
+            $ref: "#/components/schemas/PortableTextTypedObject"
         kontaktinfo:
-          type: object
+          type: array
+          items:
+            $ref: "#/components/schemas/PortableTextTypedObject"
         kontaktinfoInfoboks:
           type: string
         lenker:
@@ -3161,6 +3218,53 @@ components:
       required:
         - notDoneCount
 
+    AvbrytGjennomforingAarsak:
+      type: string
+      enum:
+        - ENDRING_HOS_ARRANGOR
+        - BUDSJETT_HENSYN
+        - FOR_FAA_DELTAKERE
+        - FEILREGISTRERING
+        - AVBRUTT_I_ARENA
+
+    AvbrytGjennomforingRequest:
+      type: object
+      properties:
+        aarsak:
+          $ref: "#/components/schemas/AvbrytGjennomforingAarsak"
+      required:
+        - aarsak
+
+    CustomAvbrytGjennomforingRequest:
+      type: object
+      properties:
+        aarsak:
+          type: string
+          nullable: true
+
+    AvbrytAvtaleAarsak:
+      type: string
+      enum:
+        - ENDRING_HOS_ARRANGOR
+        - BUDSJETT_HENSYN
+        - FEILREGISTRERING
+        - AVBRUTT_I_ARENA
+
+    AvbrytAvtaleRequest:
+      type: object
+      properties:
+        aarsak:
+          $ref: "#/components/schemas/AvbrytAvtaleAarsak"
+      required:
+        - aarsak
+
+    CustomAvbrytAvtaleRequest:
+      type: object
+      properties:
+        aarsak:
+          type: string
+          nullable: true
+
     SetAvtaleForGjennomforingRequest:
       type: object
       properties:
@@ -3233,55 +3337,6 @@ components:
         - navEnheter
         - beskrivelse
 
-    AvtaleNotat:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        avtaleId:
-          type: string
-          format: uuid
-        createdAt:
-          type: string
-          format: date
-        updatedAt:
-          type: string
-          format: date
-        opprettetAv:
-          type: object
-          properties:
-            navIdent:
-              type: string
-            navn:
-              type: string
-              nullable: true
-        innhold:
-          type: string
-      required:
-        - id
-        - avtaleId
-        - createdAt
-        - updatedAt
-        - opprettetAv
-        - innhold
-
-    AvtaleNotatRequest:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        avtaleId:
-          type: string
-          format: uuid
-        innhold:
-          type: string
-      required:
-        - id
-        - avtaleId
-        - innhold
-
     Endringshistorikk:
       type: object
       properties:
@@ -3335,63 +3390,14 @@ components:
         - navIdent
         - navn
 
-    TiltaksgjennomforingNotat:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        tiltaksgjennomforingId:
-          type: string
-          format: uuid
-        createdAt:
-          type: string
-          format: date
-        updatedAt:
-          type: string
-          format: date
-        opprettetAv:
-          type: object
-          properties:
-            navIdent:
-              type: string
-            navn:
-              type: string
-              nullable: true
-        innhold:
-          type: string
-      required:
-        - id
-        - tiltaksgjennomforingId
-        - createdAt
-        - updatedAt
-        - opprettetAv
-        - innhold
-
-    TiltaksgjennomforingNotatRequest:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        tiltaksgjennomforingId:
-          type: string
-          format: uuid
-        innhold:
-          type: string
-      required:
-        - id
-        - tiltaksgjennomforingId
-        - innhold
-
     Toggles:
       type: string
       enum:
         - mulighetsrommet.veilederflate.visDeltakerRegistrering
         - mulighetsrommet-veilederflate-landingsside
         - mulighetsrommet-veilederflate-arena-oppskrifter
-        - mulighetsrommet.admin-flate.show-notater
         - mulighetsrommet.admin-flate.enableDebugger
+        - mulighetsrommet.admin-flate.tilgjengeliggjore-tiltak-for-arrangor
 
     PublisertRequest:
       type: object
@@ -3444,7 +3450,9 @@ components:
         navn:
           type: string
         innhold:
-          type: object
+          type: array
+          items:
+            $ref: "#/components/schemas/PortableTextTypedObject"
         _type:
           type: string
         _key:
@@ -3473,16 +3481,19 @@ components:
         - DETALJER
         - HAR_VIST_OPPRETT_AVTALE
 
+    EstimertVentetidEnhet:
+      type: string
+      enum:
+        - uke
+        - maned
+
     EstimertVentetid:
       type: object
       properties:
         verdi:
           type: number
         enhet:
-          type: string
-          enum:
-            - uke
-            - maned
+          $ref: "#/components/schemas/EstimertVentetidEnhet"
       required:
         - verdi
         - enhet
@@ -3505,23 +3516,122 @@ components:
         - apneINyFane
         - visKunForVeileder
 
+    Tiltakskode:
+      type: string
+      enum:
+        - INDOPPFAG
+        - ARBFORB
+        - AVKLARAG
+        - VASV
+        - ARBRRHDAG
+        - DIGIOPPARB
+        - JOBBK
+        - GRUPPEAMO
+        - GRUFAGYRKE
+
     Gruppetiltak:
       type: object
       properties:
         navn:
           type: string
         tiltakskode:
-          type: string
-          enum:
-            - INDOPPFAG
-            - ARBFORB
-            - AVKLARAG
-            - VASV
-            - ARBRRHDAG
-            - DIGIOPPARB
-            - JOBBK
-            - GRUPPEAMO
-            - GRUFAGYRKE
+          $ref: "#/components/schemas/Tiltakskode"
       required:
         - navn
         - tiltakskode
+
+    Personopplysning:
+      type: string
+      enum:
+        - NAVN
+        - KJONN
+        - ADRESSE
+        - TELEFONNUMMER
+        - FOLKEREGISTER_IDENTIFIKATOR
+        - FODSELSDATO
+        - BEHOV_FOR_BISTAND_FRA_NAV
+        - YTELSER_FRA_NAV
+        - BILDE
+        - EPOST
+        - BRUKERNAVN
+        - ARBEIDSERFARING_OG_VERV
+        - SERTIFIKATER_OG_KURS
+        - IP_ADRESSE
+        - UTDANNING_OG_FAGBREV
+        - PERSONLIGE_EGENSKAPER_OG_INTERESSER
+        - SPRAKKUNNSKAP
+        - ADFERD
+        - SOSIALE_FORHOLD
+        - HELSEOPPLYSNINGER
+        - RELIGION
+
+    PersonopplysningerPerFrekvens:
+      type: object
+      properties:
+        ALLTID:
+          type: array
+          items:
+            $ref: "#/components/schemas/PersonopplysningMedBeskrivelse"
+        OFTE:
+          type: array
+          items:
+            $ref: "#/components/schemas/PersonopplysningMedBeskrivelse"
+        SJELDEN:
+          type: array
+          items:
+            $ref: "#/components/schemas/PersonopplysningMedBeskrivelse"
+      required:
+        - ALLTID
+        - OFTE
+        - SJELDEN
+
+    KoblingerForKontaktperson:
+      type: object
+      properties:
+        gjennomforinger:
+          type: array
+          items:
+            $ref: "#/components/schemas/DokumentKoblingForKontaktperson"
+        avtaler:
+          type: array
+          items:
+            $ref: "#/components/schemas/DokumentKoblingForKontaktperson"
+      required:
+        - gjennomforinger
+        - avtaler
+
+    DokumentKoblingForKontaktperson:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        navn:
+          type: string
+      required:
+        - id
+        - navn
+
+    FrikobleKontaktpersonRequest:
+      type: object
+      properties:
+        kontaktpersonId:
+          type: string
+          format: uuid
+        dokumentId:
+          type: string
+          format: uuid
+      required:
+        - kontaktpersonId
+        - dokumentId
+
+    PersonopplysningMedBeskrivelse:
+      type: object
+      properties:
+        personopplysning:
+          $ref: "#/components/schemas/Personopplysning"
+        beskrivelse:
+          type: string
+      required:
+        - personopplysning
+        - beskrivelse

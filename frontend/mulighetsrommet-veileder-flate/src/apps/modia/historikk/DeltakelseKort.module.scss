@@ -1,0 +1,34 @@
+:global(#mulighetsrommet-arbeidsmarkedstiltak .navds-panel) {
+  background-color: var(--a-surface-default);
+}
+
+.panel {
+  background-color: var(--a-surface-default);
+  border: 1px solid transparent;
+  max-width: 50rem;
+  text-align: left;
+
+  &:hover {
+    cursor: pointer;
+    box-shadow: var(--a-shadow-small);
+    border: 1px solid var(--ac-link-panel-hover-border, var(--a-border-action-hover));
+
+    h4 {
+      text-decoration: underline;
+      color: var(--a-text-action-hover);
+    }
+  }
+}
+
+.deltarStatus {
+  //  Overstyrer bakgrunnsfargen for deltar-status siden den skal være hvit
+  background-color: var(--a-surface-default);
+  border: 1px solid var(--a-border-default);
+}
+
+.utkast {
+  border: 1px dashed var(--a-border-info);
+}
+.kladd {
+  border: 1px dashed var(--a-border-warning);
+}

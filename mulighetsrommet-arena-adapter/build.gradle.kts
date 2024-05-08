@@ -42,6 +42,9 @@ dependencies {
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.arrow.core)
 
+    // Logging
+    implementation(libs.bundles.logging)
+
     // Ktor
     testImplementation(libs.ktor.client.mock)
     implementation(libs.ktor.serialization.json)
@@ -73,11 +76,6 @@ dependencies {
     // Dependency injection
     implementation(libs.koin.ktor)
     implementation(libs.koin.logger.slf4j)
-
-    // Logging
-    implementation(libs.logback.classic)
-    implementation(libs.logback.logstashLogbackEncoder)
-    implementation(libs.slf4j)
 
     implementation(libs.dbScheduler)
 }

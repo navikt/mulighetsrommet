@@ -14,6 +14,5 @@ data class ArenaEntityMapping(
         Handled,
         Ignored,
         Unhandled,
-        Overfort,
     }
 }

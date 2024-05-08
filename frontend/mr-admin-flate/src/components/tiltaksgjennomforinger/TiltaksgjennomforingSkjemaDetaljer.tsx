@@ -1,3 +1,8 @@
+import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
+import { useHentKontaktpersoner } from "@/api/ansatt/useHentKontaktpersoner";
+import { useTiltaksgjennomforingAdministratorer } from "@/api/ansatt/useTiltaksgjennomforingAdministratorer";
+import { useTiltaksgjennomforingDeltakerSummary } from "@/api/tiltaksgjennomforing/useTiltaksgjennomforingDeltakerSummary";
+import { useMigrerteTiltakstyper } from "@/api/tiltakstyper/useMigrerteTiltakstyper";
 import { PlusIcon, XMarkIcon } from "@navikt/aksel-icons";
 import {
   Alert,
@@ -14,28 +19,29 @@ import {
   Avtale,
   Tiltaksgjennomforing,
   TiltaksgjennomforingKontaktperson,
+  TiltaksgjennomforingOppstartstype,
   TiltakskodeArena,
+  Toggles,
 } from "mulighetsrommet-api-client";
 import { ControlledSokeSelect } from "mulighetsrommet-frontend-common";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useFieldArray, useFormContext } from "react-hook-form";
-import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
-import { useHentKontaktpersoner } from "@/api/ansatt/useHentKontaktpersoner";
-import { useTiltaksgjennomforingAdministratorer } from "@/api/ansatt/useTiltaksgjennomforingAdministratorer";
-import { useMigrerteTiltakstyper } from "@/api/tiltakstyper/useMigrerteTiltakstyper";
 import { addYear, formaterDato } from "../../utils/Utils";
 import { isTiltakMedFellesOppstart } from "../../utils/tiltakskoder";
 import { Separator } from "../detaljside/Metadata";
 import { tiltaktekster } from "../ledetekster/tiltaksgjennomforingLedetekster";
+import { EndreDatoAdvarselModal } from "../modal/EndreDatoAdvarselModal";
 import { InferredTiltaksgjennomforingSchema } from "../redaksjonelt-innhold/TiltaksgjennomforingSchema";
 import { AdministratorOptions } from "../skjema/AdministratorOptions";
+import { ControlledDateInput } from "../skjema/ControlledDateInput";
 import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { FormGroup } from "../skjema/FormGroup";
-import { FraTilDatoVelger } from "../skjema/FraTilDatoVelger";
 import skjemastyles from "../skjema/Skjema.module.scss";
 import { SelectOppstartstype } from "./SelectOppstartstype";
+import { TiltakTilgjengeligForArrangor } from "./TilgjengeligTiltakForArrangor";
 import { TiltaksgjennomforingArrangorSkjema } from "./TiltaksgjennomforingArrangorSkjema";
 import { erArenaOpphavOgIngenEierskap } from "./TiltaksgjennomforingSkjemaConst";
+import { useFeatureToggle } from "../../api/features/useFeatureToggle";
 
 interface Props {
   tiltaksgjennomforing?: Tiltaksgjennomforing;
@@ -56,6 +62,14 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
   const { data: ansatt, isLoading: isLoadingAnsatt } = useHentAnsatt();
   const { data: kontaktpersoner, isLoading: isLoadingKontaktpersoner } = useHentKontaktpersoner();
   const { data: migrerteTiltakstyper = [] } = useMigrerteTiltakstyper();
+  const { data: deltakerSummary } = useTiltaksgjennomforingDeltakerSummary(
+    tiltaksgjennomforing?.id,
+  );
+  const { data: enableTilgjengeligForArrangor } = useFeatureToggle(
+    Toggles.MULIGHETSROMMET_ADMIN_FLATE_TILGJENGELIGGJORE_TILTAK_FOR_ARRANGOR,
+  );
+  const endreStartDatoModalRef = useRef<HTMLDialogElement>(null);
+  const endreSluttDatoModalRef = useRef<HTMLDialogElement>(null);
 
   const kontaktpersonerOption = (selectedIndex: number) => {
     const excludedKontaktpersoner = watch("kontaktpersoner")
@@ -99,6 +113,30 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
 
     resetEstimertVentetid();
   }, [watchVisEstimertVentetid]);
+
+  const watchStartDato = watch("startOgSluttDato.startDato");
+  useEffect(() => {
+    if (
+      tiltaksgjennomforing &&
+      deltakerSummary?.antallDeltakere &&
+      deltakerSummary.antallDeltakere > 0 &&
+      tiltaksgjennomforing.startDato !== watchStartDato
+    ) {
+      endreStartDatoModalRef.current?.showModal();
+    }
+  }, [watchStartDato]);
+
+  const watchSluttDato = watch("startOgSluttDato.sluttDato");
+  useEffect(() => {
+    if (
+      tiltaksgjennomforing &&
+      deltakerSummary?.antallDeltakere &&
+      deltakerSummary.antallDeltakere > 0 &&
+      tiltaksgjennomforing.sluttDato !== watchSluttDato
+    ) {
+      endreSluttDatoModalRef.current?.showModal();
+    }
+  }, [watchSluttDato]);
 
   const regionerOptions = avtale.kontorstruktur
     .map((struk) => struk.region)
@@ -182,25 +220,26 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
                 " - "
               )}
             </HGrid>
-            <FraTilDatoVelger
-              size="small"
-              fra={{
-                label: tiltaktekster.startdatoLabel,
-                readOnly: eierIkkeGjennomforing,
-                fromDate: minStartdato,
-                toDate: maxSluttdato,
-                ...register("startOgSluttDato.startDato"),
-                format: "iso-string",
-              }}
-              til={{
-                label: tiltaktekster.sluttdatoLabel,
-                readOnly: eierIkkeGjennomforing,
-                fromDate: minStartdato,
-                toDate: maxSluttdato,
-                ...register("startOgSluttDato.sluttDato"),
-                format: "iso-string",
-              }}
-            />
+            <HGrid columns={2}>
+              <ControlledDateInput
+                size="small"
+                label={tiltaktekster.startdatoLabel}
+                readOnly={eierIkkeGjennomforing}
+                fromDate={minStartdato}
+                toDate={maxSluttdato}
+                {...register("startOgSluttDato.startDato")}
+                format={"iso-string"}
+              />
+              <ControlledDateInput
+                size="small"
+                label={tiltaktekster.sluttdatoLabel}
+                readOnly={eierIkkeGjennomforing}
+                fromDate={minStartdato}
+                toDate={maxSluttdato}
+                {...register("startOgSluttDato.sluttDato")}
+                format={"iso-string"}
+              />
+            </HGrid>
             {visApentForInnsok(avtale.tiltakstype.arenaKode) ? (
               <Switch
                 size="small"
@@ -211,8 +250,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
                 {tiltaktekster.apentForInnsokLabel}
               </Switch>
             ) : null}
-
-            <HGrid columns={2}>
+            <HGrid align="start" columns={2}>
               <TextField
                 size="small"
                 readOnly={eierIkkeGjennomforing}
@@ -241,43 +279,50 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
                 />
               )}
             </HGrid>
-            <Separator />
-            <fieldset className={skjemastyles.fieldset_no_styling}>
-              <HStack gap="1">
-                <legend>Estimert ventetid</legend>
-                <HelpText title="Hva er estimert ventetid?">
-                  Estimert ventetid er et felt som kan brukes hvis dere sitter på informasjon om
-                  estimert ventetid for tiltaket. Hvis dere legger inn en verdi i feltene her blir
-                  det synlig for alle ansatte i NAV.
-                </HelpText>
-              </HStack>
-              <Switch checked={watch("visEstimertVentetid")} {...register("visEstimertVentetid")}>
-                Registrer estimert ventetid
-              </Switch>
-              {watch("visEstimertVentetid") ? (
-                <HStack align="start" justify="start" gap="10">
-                  <TextField
-                    size="small"
-                    type="number"
-                    min={0}
-                    label="Antall"
-                    error={errors.estimertVentetid?.verdi?.message as string}
-                    {...register("estimertVentetid.verdi", {
-                      valueAsNumber: true,
-                    })}
-                  />
-                  <Select
-                    size="small"
-                    label="Måleenhet"
-                    error={errors.estimertVentetid?.enhet?.message as string}
-                    {...register("estimertVentetid.enhet")}
+            {watch("oppstart") === TiltaksgjennomforingOppstartstype.LOPENDE ? (
+              <>
+                <Separator />
+                <fieldset className={skjemastyles.fieldset_no_styling}>
+                  <HStack gap="1">
+                    <legend>Estimert ventetid</legend>
+                    <HelpText title="Hva er estimert ventetid?">
+                      Estimert ventetid er et felt som kan brukes hvis dere sitter på informasjon om
+                      estimert ventetid for tiltaket. Hvis dere legger inn en verdi i feltene her
+                      blir det synlig for alle ansatte i NAV.
+                    </HelpText>
+                  </HStack>
+                  <Switch
+                    checked={watch("visEstimertVentetid")}
+                    {...register("visEstimertVentetid")}
                   >
-                    <option value="uke">Uker</option>
-                    <option value="maned">Måneder</option>
-                  </Select>
-                </HStack>
-              ) : null}
-            </fieldset>
+                    Registrer estimert ventetid
+                  </Switch>
+                  {watch("visEstimertVentetid") ? (
+                    <HStack align="start" justify="start" gap="10">
+                      <TextField
+                        size="small"
+                        type="number"
+                        min={0}
+                        label="Antall"
+                        error={errors.estimertVentetid?.verdi?.message as string}
+                        {...register("estimertVentetid.verdi", {
+                          valueAsNumber: true,
+                        })}
+                      />
+                      <Select
+                        size="small"
+                        label="Måleenhet"
+                        error={errors.estimertVentetid?.enhet?.message as string}
+                        {...register("estimertVentetid.enhet")}
+                      >
+                        <option value="uke">Uker</option>
+                        <option value="maned">Måneder</option>
+                      </Select>
+                    </HStack>
+                  ) : null}
+                </fieldset>
+              </>
+            ) : null}
           </FormGroup>
           <Separator />
           <FormGroup>
@@ -389,8 +434,26 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
           <div className={skjemastyles.gray_container}>
             <TiltaksgjennomforingArrangorSkjema readOnly={eierIkkeGjennomforing} avtale={avtale} />
           </div>
+          {enableTilgjengeligForArrangor && watch("oppstart") === "LOPENDE" ? (
+            <TiltakTilgjengeligForArrangor
+              gjennomforingStartdato={new Date(watch("startOgSluttDato.startDato"))}
+              lagretDatoForTilgjengeligForArrangor={
+                tiltaksgjennomforing?.tilgjengeligForArrangorFraOgMedDato
+              }
+            />
+          ) : null}
         </div>
       </div>
+      <EndreDatoAdvarselModal
+        modalRef={endreStartDatoModalRef}
+        onCancel={() => setValue("startOgSluttDato.startDato", tiltaksgjennomforing!!.startDato)}
+        antallDeltakere={deltakerSummary?.antallDeltakere ?? 0}
+      />
+      <EndreDatoAdvarselModal
+        modalRef={endreSluttDatoModalRef}
+        onCancel={() => setValue("startOgSluttDato.sluttDato", tiltaksgjennomforing!!.sluttDato)}
+        antallDeltakere={deltakerSummary?.antallDeltakere ?? 0}
+      />
     </div>
   );
 };

@@ -4,17 +4,18 @@ import { AvtaleFilter } from "@/api/atoms";
 import { useNavEnheter } from "@/api/enhet/useNavEnheter";
 import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
 import { useArrangorer } from "@/api/arrangor/useArrangorer";
-import { addOrRemove, avtaletypeTilTekst } from "../../utils/Utils";
-import { AVTALE_STATUS_OPTIONS } from "../../utils/filterUtils";
-import { Filtertag, FiltertagsContainer } from "mulighetsrommet-frontend-common";
+import { addOrRemove, avtaletypeTilTekst } from "@/utils/Utils";
+import { AVTALE_STATUS_OPTIONS } from "@/utils/filterUtils";
+import { FilterTag, FilterTagsContainer } from "mulighetsrommet-frontend-common";
 
 interface Props {
   filterAtom: WritableAtom<AvtaleFilter, [newValue: AvtaleFilter], void>;
   tiltakstypeId?: string;
-  filterOpen?: boolean;
+  filterOpen: boolean;
+  setTagsHeight: (height: number) => void;
 }
 
-export function AvtaleFiltertags({ filterAtom, tiltakstypeId, filterOpen }: Props) {
+export function AvtaleFiltertags({ filterAtom, tiltakstypeId, filterOpen, setTagsHeight }: Props) {
   const [filter, setFilter] = useAtom(filterAtom);
 
   const { data: enheter } = useNavEnheter();
@@ -22,10 +23,10 @@ export function AvtaleFiltertags({ filterAtom, tiltakstypeId, filterOpen }: Prop
   const { data: arrangorer } = useArrangorer(ArrangorTil.AVTALE);
 
   return (
-    <FiltertagsContainer filterOpen={filterOpen}>
+    <FilterTagsContainer filterOpen={filterOpen} setTagsHeight={setTagsHeight}>
       {filter.sok && (
-        <Filtertag
-          label={filter.sok}
+        <FilterTag
+          label={`Søkt på: '${filter.sok}`}
           onClose={() => {
             setFilter({
               ...filter,
@@ -35,7 +36,7 @@ export function AvtaleFiltertags({ filterAtom, tiltakstypeId, filterOpen }: Prop
         />
       )}
       {filter.statuser.map((status) => (
-        <Filtertag
+        <FilterTag
           key={status}
           label={AVTALE_STATUS_OPTIONS.find((o) => status === o.value)?.label || status}
           onClose={() => {
@@ -47,7 +48,7 @@ export function AvtaleFiltertags({ filterAtom, tiltakstypeId, filterOpen }: Prop
         />
       ))}
       {filter.avtaletyper.map((avtaletype) => (
-        <Filtertag
+        <FilterTag
           key={avtaletype}
           label={avtaletypeTilTekst(avtaletype)}
           onClose={() => {
@@ -59,7 +60,7 @@ export function AvtaleFiltertags({ filterAtom, tiltakstypeId, filterOpen }: Prop
         />
       ))}
       {filter.visMineAvtaler && (
-        <Filtertag
+        <FilterTag
           label="Mine avtaler"
           onClose={() => {
             setFilter({
@@ -70,7 +71,7 @@ export function AvtaleFiltertags({ filterAtom, tiltakstypeId, filterOpen }: Prop
         />
       )}
       {filter.navRegioner.map((enhetsnummer) => (
-        <Filtertag
+        <FilterTag
           key={enhetsnummer}
           label={enheter?.find((e) => e.enhetsnummer === enhetsnummer)?.navn || enhetsnummer}
           onClose={() => {
@@ -83,7 +84,7 @@ export function AvtaleFiltertags({ filterAtom, tiltakstypeId, filterOpen }: Prop
       ))}
       {!tiltakstypeId &&
         filter.tiltakstyper.map((tiltakstype) => (
-          <Filtertag
+          <FilterTag
             key={tiltakstype}
             label={tiltakstyper?.data?.find((t) => tiltakstype === t.id)?.navn || tiltakstype}
             onClose={() => {
@@ -95,9 +96,9 @@ export function AvtaleFiltertags({ filterAtom, tiltakstypeId, filterOpen }: Prop
           />
         ))}
       {filter.arrangorer.map((id) => (
-        <Filtertag
+        <FilterTag
           key={id}
-          label={arrangorer?.find((arrangor) => arrangor.id === id)?.navn ?? id}
+          label={arrangorer?.data.find((arrangor) => arrangor.id === id)?.navn ?? id}
           onClose={() => {
             setFilter({
               ...filter,
@@ -106,6 +107,17 @@ export function AvtaleFiltertags({ filterAtom, tiltakstypeId, filterOpen }: Prop
           }}
         />
       ))}
-    </FiltertagsContainer>
+      {filter.personvernBekreftet.map((p, i) => {
+        return (
+          <FilterTag
+            key={i}
+            label={p ? "Personvern bekreftet" : "Personvern ikke bekreftet"}
+            onClose={() => {
+              setFilter({ ...filter, personvernBekreftet: [] });
+            }}
+          />
+        );
+      })}
+    </FilterTagsContainer>
   );
 }

@@ -1,3 +1,4 @@
+import { avtaleHandlers } from "./endpoints/avtaleHandlers";
 import { brukerHandlers } from "./endpoints/brukerHandlers";
 import { delMedBrukerHandlers } from "./endpoints/delMedBrukerHandlers";
 import { enhetHandlers } from "./endpoints/enheterHandlers";
@@ -9,6 +10,7 @@ import { veilederHandlers } from "./endpoints/veilederHandlers";
 
 export const apiHandlers = [
   ...tiltakHandlers,
+  ...avtaleHandlers,
   ...oppskriftHandlers,
   ...delMedBrukerHandlers,
   ...brukerHandlers,

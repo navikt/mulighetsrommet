@@ -11,22 +11,23 @@ import {
 } from "mulighetsrommet-api-client";
 import { ControlledSokeSelect } from "mulighetsrommet-frontend-common/components/ControlledSokeSelect";
 import { SelectOption } from "mulighetsrommet-frontend-common/components/SokeSelect";
+import { LabelWithHelpText } from "mulighetsrommet-frontend-common/components/label/LabelWithHelpText";
 import { DeepPartial, useFormContext } from "react-hook-form";
 import { MultiValue } from "react-select";
 import { useAvtaleAdministratorer } from "@/api/ansatt/useAvtaleAdministratorer";
 import { useMigrerteTiltakstyperForAvtaler } from "@/api/tiltakstyper/useMigrerteTiltakstyper";
-import { erAnskaffetTiltak } from "../../utils/tiltakskoder";
-import { addYear, avtaletypeTilTekst } from "../../utils/Utils";
+import { erAnskaffetTiltak } from "@/utils/tiltakskoder";
+import { addYear, avtaletypeTilTekst } from "@/utils/Utils";
 import { Separator } from "../detaljside/Metadata";
 import { AdministratorOptions } from "../skjema/AdministratorOptions";
 import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { FormGroup } from "../skjema/FormGroup";
-import { FraTilDatoVelger } from "../skjema/FraTilDatoVelger";
 import skjemastyles from "../skjema/Skjema.module.scss";
 import { InferredAvtaleSchema } from "../redaksjonelt-innhold/AvtaleSchema";
 import { getLokaleUnderenheterAsSelectOptions } from "./AvtaleSkjemaConst";
 import { AvtaleArrangorSkjema } from "./AvtaleArrangorSkjema";
 import { avtaletekster } from "../ledetekster/avtaleLedetekster";
+import { ControlledDateInput } from "../skjema/ControlledDateInput";
 
 const minStartdato = new Date(2000, 0, 1);
 
@@ -74,21 +75,62 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
       <div className={skjemastyles.input_container}>
         <div className={skjemastyles.column}>
           <FormGroup>
-            <HGrid gap="4" columns={avtale?.avtalenummer ? 2 : 1}>
+            <TextField
+              size="small"
+              readOnly={arenaOpphavOgIngenEierskap}
+              error={errors.navn?.message}
+              label={avtaletekster.avtalenavnLabel}
+              autoFocus
+              {...register("navn")}
+            />
+          </FormGroup>
+
+          <Separator />
+
+          <FormGroup>
+            <HGrid align="start" gap="4" columns={2}>
+              {avtale?.avtalenummer ? (
+                <TextField
+                  size="small"
+                  readOnly
+                  label={avtaletekster.arenaAvtalenummerLabel}
+                  value={avtale.avtalenummer}
+                />
+              ) : (
+                <TextField
+                  size="small"
+                  readOnly
+                  label={avtaletekster.lopenummerLabel}
+                  value={avtale?.lopenummer}
+                />
+              )}
               <TextField
                 size="small"
-                readOnly={arenaOpphavOgIngenEierskap}
-                error={errors.navn?.message}
-                label={avtaletekster.avtalenavnLabel}
-                autoFocus
-                {...register("navn")}
+                placeholder="åå/12345"
+                error={errors.websaknummer?.message}
+                label={
+                  <LabelWithHelpText
+                    label={avtaletekster.websaknummerLabel}
+                    helpTextTitle={avtaletekster.websaknummerHelpTextTitle}
+                  >
+                    I Websak skal det opprettes tre typer arkivsaker med egne saksnummer:
+                    <ol>
+                      <li>En sak for hver anskaffelse.</li>
+                      <li>En sak for kontrakt/avtale med hver leverandør (Avtalesaken).</li>
+                      <li>
+                        En sak for oppfølging og forvaltning av avtale (Avtaleforvaltningssaken).
+                      </li>
+                    </ol>
+                    Det er <b>2) Saksnummeret til Avtalesaken</b> som skal refereres til herfra.
+                  </LabelWithHelpText>
+                }
+                {...register("websaknummer")}
               />
-              {avtale?.avtalenummer ? (
-                <TextField size="small" readOnly label="Avtalenummer" value={avtale.avtalenummer} />
-              ) : null}
             </HGrid>
           </FormGroup>
+
           <Separator />
+
           <FormGroup>
             <HGrid gap="4" columns={2}>
               <ControlledSokeSelect
@@ -126,43 +168,40 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
               />
             </HGrid>
           </FormGroup>
+
           <Separator />
+
           <FormGroup>
             <Heading size="small" as="h3">
               Avtalens varighet
             </Heading>
-            <FraTilDatoVelger
-              size="small"
-              fra={{
-                label: avtaletekster.startdatoLabel,
-                readOnly: arenaOpphavOgIngenEierskap,
-                fromDate: minStartdato,
-                toDate: sluttDatoTilDato,
-                ...register("startOgSluttDato.startDato"),
-                format: "iso-string",
-              }}
-              til={{
-                label: avtaletekster.sluttdatoLabel,
-                readOnly: arenaOpphavOgIngenEierskap,
-                fromDate: sluttDatoFraDato,
-                toDate: sluttDatoTilDato,
-                ...register("startOgSluttDato.sluttDato"),
-                format: "iso-string",
-                invalidDatoEtterPeriode:
-                  "Avtaleperioden kan ikke vare lenger enn 5 år for anskaffede tiltak",
-              }}
-            />
+            <HGrid columns={2}>
+              <ControlledDateInput
+                size="small"
+                label={avtaletekster.startdatoLabel}
+                readOnly={arenaOpphavOgIngenEierskap}
+                fromDate={minStartdato}
+                toDate={sluttDatoTilDato}
+                {...register("startOgSluttDato.startDato")}
+                format={"iso-string"}
+              />
+              <ControlledDateInput
+                size="small"
+                label={avtaletekster.sluttdatoLabel}
+                readOnly={arenaOpphavOgIngenEierskap}
+                fromDate={sluttDatoFraDato}
+                toDate={sluttDatoTilDato}
+                {...register("startOgSluttDato.sluttDato")}
+                format={"iso-string"}
+                invalidDatoEtterPeriode={
+                  "Avtaleperioden kan ikke vare lenger enn 5 år for anskaffede tiltak"
+                }
+              />
+            </HGrid>
           </FormGroup>
+
           <Separator />
-          <FormGroup>
-            <TextField
-              size="small"
-              error={errors.url?.message}
-              label={avtaletekster.urlAvtaleWebsaklabel}
-              {...register("url")}
-            />
-          </FormGroup>
-          <Separator />
+
           {arenaKode && erAnskaffetTiltak(arenaKode) && (
             <>
               <FormGroup>

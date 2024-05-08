@@ -20,7 +20,7 @@ import no.nav.mulighetsrommet.arena.adapter.tasks.NotifyFailedEvents
 import no.nav.mulighetsrommet.arena.adapter.tasks.ReplayEvents
 import no.nav.mulighetsrommet.arena.adapter.tasks.RetryFailedEvents
 import no.nav.mulighetsrommet.database.Database
-import no.nav.mulighetsrommet.database.FlywayDatabaseAdapter
+import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.env.NaisEnv
 import no.nav.mulighetsrommet.kafka.KafkaConsumerOrchestrator
 import no.nav.mulighetsrommet.slack.SlackNotifier
@@ -78,9 +78,9 @@ private fun tasks(tasks: TaskConfig) = module {
     }
 }
 
-private fun db(config: FlywayDatabaseAdapter.Config) = module(createdAtStart = true) {
-    single<Database> {
-        FlywayDatabaseAdapter(config, get())
+private fun db(config: DatabaseConfig) = module {
+    single<Database>(createdAtStart = true) {
+        Database(config)
     }
 }
 
@@ -138,7 +138,7 @@ private fun services(services: ServiceConfig, tokenClient: MachineToMachineToken
     }
     single {
         val processors = listOf(
-            TiltakEventProcessor(get(), get()),
+            TiltakEventProcessor(get()),
             TiltakgjennomforingEventProcessor(
                 get(),
                 get(),

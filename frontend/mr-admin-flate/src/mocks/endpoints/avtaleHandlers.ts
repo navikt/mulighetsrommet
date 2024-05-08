@@ -7,13 +7,10 @@ export const avtaleHandlers = [
   http.get<PathParams, PaginertAvtale | undefined>("*/api/v1/internal/avtaler", ({ request }) => {
     const url = new URL(request.url);
     const avtalestatus = url.searchParams.get("avtalestatus");
-    const data = mockAvtaler.filter(
-      (a) => a.avtalestatus === avtalestatus || avtalestatus === null,
-    );
+    const data = mockAvtaler.filter((a) => a.status.name === avtalestatus || avtalestatus === null);
 
     return HttpResponse.json({
       pagination: {
-        currentPage: 1,
         pageSize: 15,
         totalCount: data.length,
       },
@@ -29,13 +26,12 @@ export const avtaleHandlers = [
       const brukerident = "B123456";
       const data = mockAvtaler.filter(
         (a) =>
-          (a.avtalestatus === avtalestatus || avtalestatus === null) &&
+          (a.status.name === avtalestatus || avtalestatus === null) &&
           a.administratorer?.map((admin) => admin.navIdent).includes(brukerident),
       );
 
       return HttpResponse.json({
         pagination: {
-          currentPage: 1,
           pageSize: 15,
           totalCount: data.length,
         },
@@ -54,6 +50,10 @@ export const avtaleHandlers = [
     const { id } = params;
     const avtale = mockAvtaler.find((a) => a.id === id) ?? undefined;
     return HttpResponse.json(avtale);
+  }),
+
+  http.delete("/api/v1/internal/avtaler/kontaktperson", () => {
+    return HttpResponse.json();
   }),
 
   http.delete("/api/v1/internal/avtaler/:id", () => {

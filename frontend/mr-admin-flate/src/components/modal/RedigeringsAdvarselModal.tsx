@@ -1,6 +1,6 @@
-import styles from "./Modal.module.scss";
-import { Heading, BodyShort, Button, Modal } from "@navikt/ds-react";
+import { BodyShort, Button, Heading, Modal } from "@navikt/ds-react";
 import { RefObject } from "react";
+import styles from "./Modal.module.scss";
 
 interface Props {
   modalRef: RefObject<HTMLDialogElement>;
@@ -8,7 +8,7 @@ interface Props {
   ressursNavn: string;
 }
 
-export const RedigeringsAdvarselModal = ({ modalRef, onRediger, ressursNavn }: Props) => {
+export function RedigeringsAdvarselModal({ modalRef, onRediger, ressursNavn }: Props) {
   const onClose = () => {
     modalRef.current?.close();
   };
@@ -26,7 +26,7 @@ export const RedigeringsAdvarselModal = ({ modalRef, onRediger, ressursNavn }: P
       <Modal.Footer>
         <div className={styles.knapperad}>
           <Button variant="secondary" type="button" onClick={onClose}>
-            Nei takk
+            Nei, takk
           </Button>
           <Button variant="primary" onClick={onRediger}>
             Ja, jeg vil redigere
@@ -35,4 +35,4 @@ export const RedigeringsAdvarselModal = ({ modalRef, onRediger, ressursNavn }: P
       </Modal.Footer>
     </Modal>
   );
-};
+}

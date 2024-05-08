@@ -88,17 +88,19 @@ describe("Avtaletabell", () => {
       sortering: SorteringAvtaler.NAVN_ASCENDING,
       arrangorer: ["123456789"],
       visMineAvtaler: true,
+      personvernBekreftet: [true],
       page: 0,
       pageSize: 0,
     };
 
     const queryParams = createQueryParamsForExcelDownload(filter);
     expect(queryParams.get("tiltakstyper")).toEqual("123");
-    expect(queryParams.get("statuser")).toEqual("Aktiv");
+    expect(queryParams.get("statuser")).toEqual("AKTIV");
     expect(queryParams.get("avtaletyper")).toEqual("Avtale");
     expect(queryParams.get("navRegioner")).toEqual("0600");
     expect(queryParams.get("arrangorer")).toEqual("123456789");
     expect(queryParams.get("visMineAvtaler")).toEqual("true");
+    expect(queryParams.get("personvernBekreftet")).toEqual("true");
     expect(queryParams.get("size")).toEqual("10000");
   });
 });

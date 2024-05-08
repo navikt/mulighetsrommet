@@ -5,13 +5,12 @@ import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
-import no.nav.mulighetsrommet.api.utils.DatabaseUtils
 import no.nav.mulighetsrommet.database.Database
+import no.nav.mulighetsrommet.database.utils.DatabaseUtils
 import no.nav.mulighetsrommet.database.utils.QueryResult
 import no.nav.mulighetsrommet.database.utils.query
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
-import java.util.*
 
 class NavEnhetRepository(private val db: Database) {
     private val logger = LoggerFactory.getLogger(javaClass)

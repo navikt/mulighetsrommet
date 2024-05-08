@@ -1,4 +1,10 @@
-import { Avtale, Avtaletype, EstimertVentetid } from "mulighetsrommet-api-client";
+import {
+  AvbrytAvtaleAarsak,
+  AvbrytGjennomforingAarsak,
+  Avtale,
+  Avtaletype,
+  EstimertVentetidEnhet,
+} from "mulighetsrommet-api-client";
 import { AvtaleFilter } from "@/api/atoms";
 
 export function capitalize(text?: string): string {
@@ -116,6 +122,18 @@ export function addYear(date: Date, numYears: number): Date {
   return newDate;
 }
 
+export function subtractMonths(date: Date, numMonths: number): Date {
+  const newDate = new Date(date);
+  newDate.setMonth(date.getMonth() - numMonths);
+  return newDate;
+}
+
+export function subtractDays(date: Date, numDays: number): Date {
+  const newDate = new Date(date);
+  newDate.setDate(date.getDate() - numDays);
+  return newDate;
+}
+
 export function avtaleHarRegioner(avtale: Avtale): boolean {
   return avtale.kontorstruktur.some((stru) => stru.region);
 }
@@ -160,6 +178,9 @@ export function createQueryParamsForExcelDownload(filter: AvtaleFilter): URLSear
   filter.avtaletyper.forEach((type) => queryParams.append("avtaletyper", type));
   filter.navRegioner.forEach((region) => queryParams.append("navRegioner", region));
   filter.arrangorer.forEach((arrangorId) => queryParams.append("arrangorer", arrangorId));
+  filter.personvernBekreftet.forEach((b) =>
+    queryParams.append("personvernBekreftet", b ? "true" : "false"),
+  );
 
   if (filter.visMineAvtaler) {
     queryParams.set("visMineAvtaler", "true");
@@ -169,13 +190,47 @@ export function createQueryParamsForExcelDownload(filter: AvtaleFilter): URLSear
   return queryParams;
 }
 
-export function formatertVentetid(verdi: number, enhet: EstimertVentetid.enhet): string {
+export function formatertVentetid(verdi: number, enhet: EstimertVentetidEnhet): string {
   switch (enhet) {
-    case EstimertVentetid.enhet.UKE:
+    case EstimertVentetidEnhet.UKE:
       return `${verdi} ${verdi === 1 ? "uke" : "uker"}`;
-    case EstimertVentetid.enhet.MANED:
+    case EstimertVentetidEnhet.MANED:
       return `${verdi} ${verdi === 1 ? "måned" : "måneder"}`;
     default:
       return "Ukjent enhet for ventetid";
+  }
+}
+
+export function avbrytAvtaleAarsakToString(aarsak: AvbrytAvtaleAarsak | string): string {
+  switch (aarsak) {
+    case AvbrytAvtaleAarsak.AVBRUTT_I_ARENA:
+      return "Avbrutt i Arena";
+    case AvbrytAvtaleAarsak.BUDSJETT_HENSYN:
+      return "Budsjetthensyn";
+    case AvbrytAvtaleAarsak.ENDRING_HOS_ARRANGOR:
+      return "Endring hos arrangør";
+    case AvbrytAvtaleAarsak.FEILREGISTRERING:
+      return "Feilregistrering";
+    default:
+      return aarsak;
+  }
+}
+
+export function avbrytGjennomforingAarsakToString(
+  aarsak: AvbrytGjennomforingAarsak | string,
+): string {
+  switch (aarsak) {
+    case AvbrytGjennomforingAarsak.AVBRUTT_I_ARENA:
+      return "Avbrutt i Arena";
+    case AvbrytGjennomforingAarsak.BUDSJETT_HENSYN:
+      return "Budsjetthensyn";
+    case AvbrytGjennomforingAarsak.ENDRING_HOS_ARRANGOR:
+      return "Endring hos arrangør";
+    case AvbrytGjennomforingAarsak.FEILREGISTRERING:
+      return "Feilregistrering";
+    case AvbrytGjennomforingAarsak.FOR_FAA_DELTAKERE:
+      return "For få deltakere";
+    default:
+      return aarsak;
   }
 }

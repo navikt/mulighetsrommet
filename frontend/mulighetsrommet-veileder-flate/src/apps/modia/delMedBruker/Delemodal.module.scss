@@ -1,43 +1,63 @@
 .delemodal {
+  .top_warning {
+    margin-bottom: 1rem;
+  }
+
   .body {
     padding-bottom: 0;
+
+    .feilmeldinger {
+      margin-bottom: 1rem;
+      margin-top: 0.5rem;
+    }
+
+    &_svg {
+      width: 3rem;
+      height: auto;
+      align-self: center;
+    }
+
+    .personopplysninger {
+      margin-top: 1rem;
+    }
+
+    .deletekst {
+      white-space: pre-wrap;
+      border-radius: 5px;
+    }
+
+    .preview_alert {
+      margin-top: 1rem;
+    }
   }
 
-  .heading {
-    margin-bottom: 1rem;
-  }
+  &_footer {
+    display: flex;
+    flex-flow: row;
+    flex-direction: column;
 
-  .feilmeldinger {
-    margin-bottom: 1rem;
+    .delemodal_actions {
+      display: flex;
+      flex-direction: row;
+      gap: 2rem;
+    }
+
+    .delemodal_venter_pa_svar {
+      display: flex;
+      flex-direction: row;
+      gap: 0.5rem;
+    }
+    .knapperad {
+      display: flex;
+      gap: 2rem;
+      margin-top: 1rem;
+    }
+  }
+  .hr {
+    border-bottom: 1px solid var(--a-border-divider);
+    display: block;
+    width: 100%;
+    box-sizing: unset;
     margin-top: 0.5rem;
   }
-
-  &_svg {
-    width: 3rem;
-    height: auto;
-    align-self: center;
-  }
-
-  .personopplysninger {
-    margin-top: 1rem;
-  }
-
-  .endreTekst_btn {
-    margin-top: 1rem;
-  }
-
-  .deletekst {
-    margin-top: 1rem;
-    white-space: pre-wrap;
-    border-radius: 5px;
-  }
-
-  .preview_alert {
-    margin-top: 1rem;
-  }
-}
-
-.knapperad {
-  display: flex;
-  gap: 2rem;
 }

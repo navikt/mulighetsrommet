@@ -1,29 +1,19 @@
 package no.nav.mulighetsrommet.arena.adapter.events.processors
 
-import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.string.shouldContain
-import io.ktor.client.engine.*
-import io.ktor.client.engine.mock.*
-import io.ktor.http.*
-import no.nav.mulighetsrommet.arena.adapter.MulighetsrommetApiClient
 import no.nav.mulighetsrommet.arena.adapter.createDatabaseTestConfig
 import no.nav.mulighetsrommet.arena.adapter.fixtures.createArenaTiltakEvent
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping.Status.Handled
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.Operation.*
-import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.ProcessingStatus.Failed
 import no.nav.mulighetsrommet.arena.adapter.repositories.*
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
-import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
-import no.nav.mulighetsrommet.ktor.decodeRequestBody
-import no.nav.mulighetsrommet.ktor.getLastPathParameterAsUUID
 import java.time.LocalDate
 import java.time.LocalDateTime
 
@@ -44,11 +34,8 @@ class TiltakEventProcessorTest : FunSpec({
             avtaler = AvtaleRepository(database.db),
         )
 
-        fun createProcessor(engine: HttpClientEngine = MockEngine { respondOk() }): TiltakEventProcessor {
-            val client = MulighetsrommetApiClient(engine, baseUri = "api") {
-                "Bearer token"
-            }
-            return TiltakEventProcessor(entities, client)
+        fun createProcessor(): TiltakEventProcessor {
+            return TiltakEventProcessor(entities)
         }
 
         fun prepareEvent(event: ArenaEvent): Pair<ArenaEvent, ArenaEntityMapping> {
@@ -105,46 +92,6 @@ class TiltakEventProcessorTest : FunSpec({
                 .value("vis_begrunnelse_for_innsoking").isTrue
                 .value("henvisningsbrev_og_hovedbrev_til_arbeidsgiver").isFalse
                 .value("kopibrev_og_hovedbrev_til_arbeidsgiver").isFalse
-        }
-
-        test("should call api with mapped event payload") {
-            val engine = MockEngine { respondOk() }
-            val processor = createProcessor(engine)
-
-            val (event, mapping) = prepareEvent(createArenaTiltakEvent(Insert))
-
-            processor.handleEvent(event).shouldBeRight()
-
-            engine.requestHistory.last().apply {
-                method shouldBe HttpMethod.Put
-
-                decodeRequestBody<TiltakstypeDbo>().apply {
-                    id shouldBe mapping.entityId
-                    navn shouldBe "Oppfølging"
-                    rettPaaTiltakspenger shouldBe true
-                }
-            }
-
-            processor.handleEvent(createArenaTiltakEvent(Delete)).shouldBeRight()
-
-            engine.requestHistory.last().apply {
-                method shouldBe HttpMethod.Delete
-
-                url.getLastPathParameterAsUUID() shouldBe mapping.entityId
-            }
-        }
-
-        test("should treat a 500 response as error") {
-            val engine = MockEngine {
-                respondError(HttpStatusCode.InternalServerError)
-            }
-            val processor = createProcessor(engine)
-
-            val (event) = prepareEvent(createArenaTiltakEvent(Insert))
-            processor.handleEvent(event).shouldBeLeft().should {
-                it.status shouldBe Failed
-                it.message shouldContain "Internal Server Error"
-            }
         }
     }
 })

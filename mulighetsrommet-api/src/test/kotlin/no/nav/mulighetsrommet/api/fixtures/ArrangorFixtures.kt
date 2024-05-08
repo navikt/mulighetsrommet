@@ -4,6 +4,25 @@ import no.nav.mulighetsrommet.api.domain.dto.ArrangorDto
 import java.util.*
 
 object ArrangorFixtures {
+    object Fretex {
+        val hovedenhet = ArrangorDto(
+            id = UUID.randomUUID(),
+            organisasjonsnummer = "983982433",
+            navn = "FRETEX AS",
+            postnummer = "4315",
+            poststed = "SANDNES",
+        )
+
+        val underenhet1 = ArrangorDto(
+            id = UUID.randomUUID(),
+            organisasjonsnummer = "992943084",
+            overordnetEnhet = "983982433",
+            navn = "FRETEX AS AVD OSLO",
+            postnummer = "0668",
+            poststed = "OSLO",
+        )
+    }
+
     val hovedenhet = ArrangorDto(
         id = UUID.randomUUID(),
         organisasjonsnummer = "123456789",

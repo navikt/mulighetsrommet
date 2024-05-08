@@ -6,12 +6,10 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import no.nav.mulighetsrommet.api.clients.arenaadapter.ArenaAdapterClient
-import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingAdminDto
+import no.nav.mulighetsrommet.api.routes.v1.parameters.getPaginationParams
 import no.nav.mulighetsrommet.api.services.TiltaksgjennomforingService
 import no.nav.mulighetsrommet.api.utils.EksternTiltaksgjennomforingFilter
-import no.nav.mulighetsrommet.api.utils.getPaginationParams
-import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
-import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingsArenadataDto
+import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingArenaDataDto
 import org.koin.ktor.ext.inject
 import java.util.*
 
@@ -24,9 +22,9 @@ fun Route.externalRoutes() {
             val orgnr = call.request.queryParameters.getOrFail("orgnr")
 
             val filter = EksternTiltaksgjennomforingFilter(arrangorOrgnr = listOf(orgnr))
-            val paginationParams = getPaginationParams()
+            val pagination = getPaginationParams()
 
-            val result = tiltaksgjennomforingService.getAllEkstern(paginationParams, filter)
+            val result = tiltaksgjennomforingService.getAllEkstern(pagination, filter)
 
             call.respond(result)
         }
@@ -56,12 +54,7 @@ fun Route.externalRoutes() {
             val gjennomforing = tiltaksgjennomforingService.get(id)
                 ?: return@get call.respond(HttpStatusCode.NotFound)
 
-            if (gjennomforing.opphav == ArenaMigrering.Opphav.MR_ADMIN_FLATE) {
-                return@get call.respond(HttpStatusCode.OK)
-            }
-
-            val arenaData = arenaAdapterService.hentArenadata(id)
-                ?.let { toArenaDataDto(gjennomforing, it.status) }
+            val arenaData = gjennomforing.tiltaksnummer?.let { toArenaDataDto(it) }
                 ?: return@get call.respond(HttpStatusCode.NotFound)
 
             call.respond(HttpStatusCode.OK, arenaData)
@@ -69,12 +62,7 @@ fun Route.externalRoutes() {
     }
 }
 
-fun toArenaDataDto(tiltaksgjennomforing: TiltaksgjennomforingAdminDto, status: String) = tiltaksgjennomforing.run {
-    TiltaksgjennomforingsArenadataDto(
-        opprettetAar = tiltaksnummer?.split("#")?.first()?.toInt(),
-        lopenr = tiltaksnummer?.split("#")?.get(1)?.toInt(),
-        virksomhetsnummer = arrangor.organisasjonsnummer,
-        ansvarligNavEnhetId = arenaAnsvarligEnhet?.enhetsnummer,
-        status = status,
-    )
-}
+fun toArenaDataDto(tiltaksnummer: String) = TiltaksgjennomforingArenaDataDto(
+    opprettetAar = tiltaksnummer.split("#").first().toInt(),
+    lopenr = tiltaksnummer.split("#")[1].toInt(),
+)

@@ -91,6 +91,12 @@ spec:
               "valueDeserializerType": "STRING"
             },
             {
+              "name": "team-mulighetsrommet.siste-tiltakstyper-v2",
+              "location": "AIVEN",
+              "keyDeserializerType": "STRING",
+              "valueDeserializerType": "STRING"
+            },
+            {
               "name": "team-mulighetsrommet.arena-migrering-tiltaksgjennomforinger-v1",
               "location": "AIVEN",
               "keyDeserializerType": "STRING",

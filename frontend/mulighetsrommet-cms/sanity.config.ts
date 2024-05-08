@@ -1,12 +1,12 @@
 import { createAuthStore, defineConfig } from "sanity";
-import { deskTool } from "sanity/desk";
+import { structureTool } from "sanity/structure";
 import { schemas } from "./schemas/schemas";
 import { visionTool } from "@sanity/vision";
 import { defaultDocumentNode, structure } from "./deskStructures/deskStrukture";
 import { createClient } from "@sanity/client";
 
 const PROJECT_ID = "xegcworx";
-export const API_VERSION = "2021-10-21";
+export const API_VERSION = "2024-04-23";
 
 const createCommonConfig = (dataset: "production" | "test", basePath: string) => ({
   name: dataset,
@@ -44,7 +44,7 @@ const createCommonConfig = (dataset: "production" | "test", basePath: string) =>
     return prev;
   },
   plugins: [
-    deskTool({
+    structureTool({
       structure: structure,
       defaultDocumentNode,
     }),

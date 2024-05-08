@@ -6,7 +6,8 @@ import no.nav.mulighetsrommet.api.clients.brreg.BrregClient
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattRolle
 import no.nav.mulighetsrommet.api.tasks.*
-import no.nav.mulighetsrommet.database.FlywayDatabaseAdapter
+import no.nav.mulighetsrommet.database.DatabaseConfig
+import no.nav.mulighetsrommet.database.FlywayMigrationManager
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.kafka.producers.ArenaMigreringTiltaksgjennomforingKafkaProducer
@@ -22,14 +23,14 @@ data class Config(
 )
 
 data class AppConfig(
-    val database: FlywayDatabaseAdapter.Config,
+    val database: DatabaseConfig,
+    val flyway: FlywayMigrationManager.MigrationConfig,
     val migrerteTiltak: List<Tiltakskode>,
     val kafka: KafkaConfig,
     val auth: AuthConfig,
     val sanity: SanityClient.Config,
     val veilarboppfolgingConfig: ServiceClientConfig,
     val veilarbvedtaksstotteConfig: ServiceClientConfig,
-    val veilarbpersonConfig: ServiceClientConfig,
     val veilarbdialogConfig: ServiceClientConfig,
     val veilarbveilederConfig: ServiceClientConfig,
     val amtDeltakerConfig: ServiceClientConfig,
@@ -96,7 +97,6 @@ data class TaskConfig(
     val notifySluttdatoForGjennomforingerNarmerSeg: NotifySluttdatoForGjennomforingerNarmerSeg.Config,
     val notifySluttdatoForAvtalerNarmerSeg: NotifySluttdatoForAvtalerNarmerSeg.Config,
     val notifyFailedKafkaEvents: NotifyFailedKafkaEvents.Config,
-    val oppdaterMetrikker: OppdaterMetrikker.Config,
     val generateValidationReport: GenerateValidationReport.Config = GenerateValidationReport.Config(),
     val updateApentForInnsok: UpdateApentForInnsok.Config = UpdateApentForInnsok.Config(),
 )

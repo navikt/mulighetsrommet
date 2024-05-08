@@ -7,7 +7,6 @@ const mockAvtale = mockAvtaler.at(0);
 export const mockNotifikasjoner: PaginertUserNotifications = {
   pagination: {
     totalCount: 2,
-    currentPage: 1,
     pageSize: 50,
     totalPages: 1,
   },

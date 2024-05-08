@@ -16,19 +16,17 @@ import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.routes.v1.AvtaleRequest
 import no.nav.mulighetsrommet.api.routes.v1.responses.*
 import no.nav.mulighetsrommet.api.utils.AvtaleFilter
-import no.nav.mulighetsrommet.api.utils.PaginationParams
 import no.nav.mulighetsrommet.database.Database
+import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering.Opphav
-import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
-import no.nav.mulighetsrommet.domain.dto.Avtalestatus
-import no.nav.mulighetsrommet.domain.dto.NavIdent
-import no.nav.mulighetsrommet.domain.dto.Tiltaksgjennomforingsstatus
+import no.nav.mulighetsrommet.domain.dto.*
 import no.nav.mulighetsrommet.notifications.NotificationRepository
 import no.nav.mulighetsrommet.notifications.NotificationType
 import no.nav.mulighetsrommet.notifications.ScheduledNotification
+import org.slf4j.LoggerFactory
 import java.time.Instant
-import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.*
 
 class AvtaleService(
@@ -41,6 +39,7 @@ class AvtaleService(
     private val endringshistorikkService: EndringshistorikkService,
     private val db: Database,
 ) {
+    private val logger = LoggerFactory.getLogger(javaClass)
     fun get(id: UUID): AvtaleAdminDto? {
         return avtaler.get(id)
     }
@@ -54,20 +53,22 @@ class AvtaleService(
                         id = id,
                         navn = navn,
                         avtalenummer = avtalenummer,
+                        websaknummer = websaknummer,
                         tiltakstypeId = tiltakstypeId,
                         arrangorId = arrangor.id,
                         arrangorUnderenheter = underenheter.map { it.id },
-                        arrangorKontaktpersonId = arrangorKontaktpersonId,
+                        arrangorKontaktpersoner = arrangorKontaktpersoner,
                         startDato = startDato,
                         sluttDato = sluttDato,
                         avtaletype = avtaletype,
                         antallPlasser = null,
-                        url = url,
                         administratorer = administratorer,
                         prisbetingelser = prisbetingelser,
                         navEnheter = navEnheter,
                         beskrivelse = beskrivelse,
                         faneinnhold = faneinnhold,
+                        personopplysninger = personopplysninger,
+                        personvernBekreftet = personvernBekreftet,
                     )
                 }
                 validator.validate(dbo, previous)
@@ -117,7 +118,7 @@ class AvtaleService(
 
     fun getAll(
         filter: AvtaleFilter,
-        pagination: PaginationParams = PaginationParams(),
+        pagination: Pagination,
     ): PaginatedResponse<AvtaleAdminDto> {
         val (totalCount, items) = avtaler.getAll(
             pagination = pagination,
@@ -127,9 +128,9 @@ class AvtaleService(
             avtaletyper = filter.avtaletyper,
             navRegioner = filter.navRegioner,
             sortering = filter.sortering,
-            dagensDato = filter.dagensDato,
             arrangorIds = filter.arrangorIds,
             administratorNavIdent = filter.administratorNavIdent,
+            personvernBekreftet = filter.personvernBekreftet,
         )
 
         return PaginatedResponse.of(pagination, totalCount, items)
@@ -139,27 +140,29 @@ class AvtaleService(
         return avtaler.getAllAvtalerSomNarmerSegSluttdato()
     }
 
-    fun avbrytAvtale(id: UUID, navIdent: NavIdent, dagensDato: LocalDate = LocalDate.now()): StatusResponse<Unit> {
+    fun avbrytAvtale(id: UUID, navIdent: NavIdent, aarsak: AvbruttAarsak?): StatusResponse<Unit> {
+        if (aarsak == null) {
+            return Either.Left(BadRequest(message = "Årsak mangler"))
+        }
         val avtale = avtaler.get(id) ?: return Either.Left(NotFound("Avtalen finnes ikke"))
 
         if (avtale.opphav == Opphav.ARENA && !tiltakstyperMigrert.contains(Tiltakskode.fromArenaKode(avtale.tiltakstype.arenaKode))) {
             return Either.Left(BadRequest(message = "Avtalen har opprinnelse fra Arena og kan ikke bli avbrutt fra admin-flate."))
         }
 
-        if (avtale.avtalestatus != Avtalestatus.Aktiv) {
+        if (avtale.status != AvtaleStatus.AKTIV) {
             return Either.Left(BadRequest(message = "Avtalen er allerede avsluttet og kan derfor ikke avbrytes."))
         }
 
-        val gjennomforinger = tiltaksgjennomforinger.getAll(
+        val (_, gjennomforinger) = tiltaksgjennomforinger.getAll(
             avtaleId = id,
             statuser = listOf(
-                Tiltaksgjennomforingsstatus.GJENNOMFORES,
-                Tiltaksgjennomforingsstatus.PLANLAGT,
+                TiltaksgjennomforingStatus.Enum.GJENNOMFORES,
+                TiltaksgjennomforingStatus.Enum.PLANLAGT,
             ),
-            dagensDato = dagensDato,
-        ).second
+        )
 
-        val (antallAktiveGjennomforinger, antallPlanlagteGjennomforinger) = gjennomforinger.partition { it.status == Tiltaksgjennomforingsstatus.GJENNOMFORES }
+        val (antallAktiveGjennomforinger, antallPlanlagteGjennomforinger) = gjennomforinger.partition { it.status is TiltaksgjennomforingStatus.GJENNOMFORES }
         if (antallAktiveGjennomforinger.isNotEmpty()) {
             return Either.Left(
                 BadRequest(
@@ -185,7 +188,7 @@ class AvtaleService(
         }
 
         db.transaction { tx ->
-            avtaler.setAvslutningsstatus(tx, id, Avslutningsstatus.AVBRUTT)
+            avtaler.avbryt(tx, id, LocalDateTime.now(), aarsak)
             val dto = getOrError(id, tx)
             logEndring("Avtale ble avbrutt", dto, navIdent, tx)
         }
@@ -230,5 +233,28 @@ class AvtaleService(
         endringshistorikkService.logEndring(tx, DocumentClass.AVTALE, operation, navIdent.value, dto.id) {
             Json.encodeToJsonElement(dto)
         }
+    }
+
+    fun frikobleKontaktpersonFraAvtale(
+        kontaktpersonId: UUID,
+        avtaleId: UUID,
+        navIdent: NavIdent,
+    ): Either<StatusResponseError, String> {
+        val avtale = avtaler.get(avtaleId) ?: return Either.Left(NotFound("Avtalen finnes ikke"))
+        return db.transaction { tx ->
+            avtaler.frikobleKontaktpersonFraAvtale(kontaktpersonId = kontaktpersonId, avtaleId = avtaleId, tx = tx)
+                .map {
+                    logEndring("Kontaktperson ble fjernet fra avtalen via arrangørsidene", avtale, navIdent, tx)
+                    it
+                }
+                .mapLeft {
+                    logger.error("Klarte ikke fjerne kontaktperson fra avtale: KontaktpersonId = '$kontaktpersonId', avtaleId = '$avtaleId'")
+                    ServerError("Klarte ikke fjerne kontaktperson fra avtalen")
+                }
+        }
+    }
+
+    fun getBehandlingAvPersonopplysninger(id: UUID): Map<PersonopplysningFrekvens, List<PersonopplysningMedBeskrivelse>> {
+        return avtaler.getBehandlingAvPersonopplysninger(id = id)
     }
 }

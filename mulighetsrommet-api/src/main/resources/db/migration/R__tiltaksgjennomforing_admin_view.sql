@@ -1,10 +1,12 @@
+--2024-04-09 migrering drop'et view uten å endre det. Da forsvant det i prod
+drop view if exists tiltaksgjennomforing_admin_dto_view;
+
 create view tiltaksgjennomforing_admin_dto_view as
 select gjennomforing.id,
        gjennomforing.navn,
        gjennomforing.tiltaksnummer,
        gjennomforing.start_dato,
        gjennomforing.slutt_dato,
-       gjennomforing.avslutningsstatus,
        gjennomforing.apent_for_innsok,
        gjennomforing.sanity_id,
        gjennomforing.antall_plasser,
@@ -19,7 +21,7 @@ select gjennomforing.id,
        gjennomforing.estimert_ventetid_enhet,
        gjennomforing.sted_for_gjennomforing,
        gjennomforing.publisert,
-       gjennomforing.publisert and gjennomforing.avslutningsstatus = 'IKKE_AVSLUTTET'::avslutningsstatus
+       gjennomforing.publisert and gjennomforing.avbrutt_tidspunkt is null
                                            as publisert_for_alle,
        gjennomforing.nav_region            as nav_region_enhetsnummer,
        nav_region.navn                     as nav_region_navn,
@@ -82,7 +84,18 @@ select gjennomforing.id,
        tiltakstype.id                      as tiltakstype_id,
        tiltakstype.navn                    as tiltakstype_navn,
        tiltakstype.tiltakskode             as tiltakstype_tiltakskode,
-       tiltakstype.arena_kode              as tiltakstype_arena_kode
+       tiltakstype.arena_kode              as tiltakstype_arena_kode,
+       gjennomforing.avbrutt_tidspunkt,
+       gjennomforing.tilgjengelig_for_arrangor_fra_og_med_dato,
+       case
+           when gjennomforing.avbrutt_tidspunkt is not null and gjennomforing.avbrutt_tidspunkt < gjennomforing.start_dato then 'AVLYST'
+           when gjennomforing.avbrutt_tidspunkt is not null and gjennomforing.avbrutt_tidspunkt >= gjennomforing.start_dato then 'AVBRUTT'
+           when gjennomforing.slutt_dato is not null and date(now()) > gjennomforing.slutt_dato then 'AVSLUTTET'
+           when date(now()) >= gjennomforing.start_dato then 'GJENNOMFORES'
+           else 'PLANLAGT'
+       end as status,
+       a.personvern_bekreftet,
+       gjennomforing.avbrutt_aarsak
 from tiltaksgjennomforing gjennomforing
          inner join tiltakstype on gjennomforing.tiltakstype_id = tiltakstype.id
          left join tiltaksgjennomforing_administrator tg_a on tg_a.tiltaksgjennomforing_id = gjennomforing.id
@@ -103,4 +116,5 @@ group by gjennomforing.id,
          tiltakstype.id,
          arrangor.id,
          nav_region.enhetsnummer,
-         arena_nav_enhet.enhetsnummer;
+         arena_nav_enhet.enhetsnummer,
+         a.personvern_bekreftet;

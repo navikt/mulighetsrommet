@@ -1,5 +1,5 @@
 import {
-  EstimertVentetid,
+  EstimertVentetidEnhet,
   NavEnhetStatus,
   NavEnhetType,
   TiltaksgjennomforingOppstartstype,
@@ -14,7 +14,7 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
     oppstart: TiltaksgjennomforingOppstartstype.LOPENDE,
     estimertVentetid: {
       verdi: 3,
-      enhet: EstimertVentetid.enhet.MANED,
+      enhet: EstimertVentetidEnhet.MANED,
     },
     stedForGjennomforing:
       "Valpekullsveien 69, 1424" +
@@ -108,7 +108,7 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
     navn: "Sindres mentorordning med Yoda",
     estimertVentetid: {
       verdi: 5,
-      enhet: EstimertVentetid.enhet.UKE,
+      enhet: EstimertVentetidEnhet.UKE,
     },
     oppstart: TiltaksgjennomforingOppstartstype.FELLES,
     oppstartsdato: new Date().toDateString(),
@@ -136,6 +136,8 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
   },
   {
     id: "00097090-1ba8-47a4-a82f-6aaad488994e",
+    avtaleId: "9a11a2ff-dd9c-42f7-b85f-b07522bb55f8",
+    personvernBekreftet: true,
     navn: "Kurs i overlevelsesteknikk (Gruppe AMO)",
     stedForGjennomforing: "2050 JESSHEIM",
     apentForInnsok: true,
@@ -175,6 +177,20 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
       varsler: [],
     },
     faneinnhold: {
+      lenker: [
+        {
+          lenke: "https://www.google.com",
+          lenkenavn: "Søk via Google",
+          apneINyFane: true,
+          visKunForVeileder: false,
+        },
+        {
+          lenke: "https://www.vg.no",
+          lenkenavn: "Sjekk nyhetene på VG",
+          apneINyFane: false,
+          visKunForVeileder: true,
+        },
+      ],
       forHvemInfoboks: "Deltakeren må være forberedt på dårlig vær under tiltaksperioden",
       forHvem: [
         {

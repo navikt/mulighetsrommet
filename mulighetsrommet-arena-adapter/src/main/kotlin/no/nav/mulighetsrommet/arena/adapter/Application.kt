@@ -12,6 +12,7 @@ import no.nav.mulighetsrommet.arena.adapter.routes.apiRoutes
 import no.nav.mulighetsrommet.arena.adapter.routes.managerRoutes
 import no.nav.mulighetsrommet.arena.adapter.tasks.ReplayEvents
 import no.nav.mulighetsrommet.database.Database
+import no.nav.mulighetsrommet.database.FlywayMigrationManager
 import no.nav.mulighetsrommet.hoplite.loadConfiguration
 import no.nav.mulighetsrommet.kafka.KafkaConsumerOrchestrator
 import no.nav.mulighetsrommet.ktor.plugins.configureMonitoring
@@ -35,6 +36,8 @@ fun Application.configure(config: AppConfig) {
     configureSerialization()
     configureMonitoring({ db.isHealthy() })
     configureHTTP()
+
+    FlywayMigrationManager(config.flyway).migrate(db)
 
     val kafka: KafkaConsumerOrchestrator by inject()
 

@@ -1,0 +1,41 @@
+{
+  "request": {
+    "method": "POST",
+    "urlPattern": "/pdl/graphql"
+  },
+  "response": {
+    "status": 200,
+    "jsonBody": {
+      "data": {
+        "hentGeografiskTilknytning":{
+          "gtType": "BYDEL",
+          "gtLand": null,
+          "gtKommune": null,
+          "gtBydel": "030102"
+        },
+        "hentPerson": {
+          "navn": [
+            {
+              "fornavn": "Ola",
+              "mellomnavn": null,
+              "etternavn": "Normann"
+            }
+          ]
+        },
+        "hentIdenter": {
+          "identer": [
+            {
+              "ident": "12118323058",
+              "gruppe": "AKTORID",
+              "historisk": false
+            }
+          ]
+        }
+      },
+      "errors": []
+    },
+    "headers": {
+      "Content-Type": "application/json"
+    }
+  }
+}

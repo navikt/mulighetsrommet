@@ -91,7 +91,7 @@ export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
       />
       <div style={{ margin: "0.8rem 0.5rem" }}>
         <Switch
-          position="right"
+          position="left"
           size="small"
           checked={filter.visMineGjennomforinger}
           onChange={(event) => {
@@ -193,7 +193,7 @@ export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
           <Accordion.Content>
             <CheckboxList
               searchable
-              items={arrangorOptions(arrangorer)}
+              items={arrangorOptions(arrangorer.data)}
               isChecked={(id) => filter.arrangorer.includes(id)}
               onChange={(id) => {
                 setFilter({

@@ -17,15 +17,6 @@
   }
 }
 
-.visnings_og_sorteringsmeny {
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-  align-items: center;
-  background-color: var(--a-bg-subtle);
-  margin-bottom: 0.5rem;
-}
-
 .visningsmeny {
   display: flex;
   grid-row: 2;
@@ -33,26 +24,8 @@
   align-items: center;
 }
 
-.toolbar_container {
-  display: flex;
-  justify-content: space-between;
-  flex-direction: column;
-  position: sticky;
-  top: 3rem;
-  background-color: var(--a-bg-subtle);
-  gap: 1rem;
-  padding: 0;
-}
-
 @media screen and (min-width: 1200px) {
   .gjennomforinger_filter_open {
     padding: 0 0 0 0.5rem;
-  }
-
-  .toolbar_container {
-    padding: 0 0 0 0.5rem;
-    &_filter_hidden {
-      padding: 0;
-    }
   }
 }

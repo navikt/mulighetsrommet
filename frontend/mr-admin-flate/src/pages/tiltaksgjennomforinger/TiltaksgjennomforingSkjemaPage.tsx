@@ -107,7 +107,10 @@ const TiltaksgjennomforingSkjemaPage = () => {
           {redigeringsModus ? "Rediger tiltaksgjennomføring" : "Opprett ny tiltaksgjennomføring"}
         </Heading>
         {tiltaksgjennomforing ? (
-          <TiltaksgjennomforingstatusTag tiltaksgjennomforing={tiltaksgjennomforing} />
+          <TiltaksgjennomforingstatusTag
+            tiltaksgjennomforing={tiltaksgjennomforing}
+            showAvbruttAarsak
+          />
         ) : null}
       </Header>
       <ContainerLayout>

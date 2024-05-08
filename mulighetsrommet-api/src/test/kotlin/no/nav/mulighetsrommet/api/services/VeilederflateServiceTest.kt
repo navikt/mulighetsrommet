@@ -102,7 +102,8 @@ class VeilederflateServiceTest : FunSpec({
                 any(),
             )
         } returns listOf()
-        coEvery { sanityClient.query(any()) } returns sanityResult
+
+        coEvery { sanityClient.query(any(), any()) } returns sanityResult
 
         veilederFlateService.hentTiltaksgjennomforinger(
             enheter = nonEmptyListOf("0430"),

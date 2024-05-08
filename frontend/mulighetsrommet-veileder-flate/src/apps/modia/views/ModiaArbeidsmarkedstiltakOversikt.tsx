@@ -1,27 +1,26 @@
-import { useEffect, useState } from "react";
-import { Alert } from "@navikt/ds-react";
-import { ApiError, Toggles } from "mulighetsrommet-api-client";
-import { useTitle } from "mulighetsrommet-frontend-common";
+import { useFeatureToggle } from "@/api/feature-toggles";
+import { useVeilederTiltaksgjennomforinger } from "@/api/queries/useTiltaksgjennomforinger";
+import { ModiaFiltertags } from "@/apps/modia/filtrering/ModiaFiltertags";
+import { useHentAlleTiltakDeltMedBruker } from "@/apps/modia/hooks/useHentAlleTiltakDeltMedBruker";
+import { useHentBrukerdata } from "@/apps/modia/hooks/useHentBrukerdata";
+import { FiltrertFeilInnsatsgruppeVarsel } from "@/apps/modia/varsler/FiltrertFeilInnsatsgruppeVarsel";
+import { PortenLink } from "@/components/PortenLink";
 import { TiltakLoader } from "@/components/TiltakLoader";
-import { FilterAndTableLayout } from "@/components/filtrering/FilterAndTableLayout";
-import { HistorikkButton } from "@/apps/modia/historikk/HistorikkButton";
+import { Feilmelding } from "@/components/feilmelding/Feilmelding";
+import { FilterMenyMedSkeletonLoader } from "@/components/filtrering/FilterMenyMedSkeletonLoader";
 import { OversiktenJoyride } from "@/components/joyride/OversiktenJoyride";
 import { Tiltaksgjennomforingsoversikt } from "@/components/oversikt/Tiltaksgjennomforingsoversikt";
 import { Tilbakeknapp } from "@/components/tilbakeknapp/Tilbakeknapp";
-import { useFeatureToggle } from "@/api/feature-toggles";
-import { useHentAlleTiltakDeltMedBruker } from "@/apps/modia/hooks/useHentAlleTiltakDeltMedBruker";
-import { useHentBrukerdata } from "@/apps/modia/hooks/useHentBrukerdata";
-import { useVeilederTiltaksgjennomforinger } from "@/api/queries/useTiltaksgjennomforinger";
-import { FilterMenyMedSkeletonLoader } from "@/components/filtrering/FilterMenyMedSkeletonLoader";
-import { PortenLink } from "@/components/PortenLink";
 import { useResetArbeidsmarkedstiltakFilterMedBrukerIKontekst } from "@/hooks/useArbeidsmarkedstiltakFilter";
-import { BrukerHarIkke14aVedtakVarsel } from "@/apps/modia/varsler/BrukerHarIkke14aVedtakVarsel";
-import { BrukersOppfolgingsenhetVarsel } from "@/apps/modia/varsler/BrukersOppfolgingsenhetVarsel";
-import { FiltrertFeilInnsatsgruppeVarsel } from "@/apps/modia/varsler/FiltrertFeilInnsatsgruppeVarsel";
-import { ModiaFiltertags } from "@/apps/modia/filtrering/ModiaFiltertags";
-import { Feilmelding } from "@/components/feilmelding/Feilmelding";
+import { Alert } from "@navikt/ds-react";
+import { ApiError, Toggles } from "mulighetsrommet-api-client";
+import { useTitle } from "mulighetsrommet-frontend-common";
 import { TilToppenKnapp } from "mulighetsrommet-frontend-common/components/tilToppenKnapp/TilToppenKnapp";
-import { NullstillFilterKnapp } from "mulighetsrommet-frontend-common/components/filter/nullstillFilterKnapp/NullstillFilterKnapp";
+import { useEffect, useState } from "react";
+import { ModiaOversiktBrukerVarsler } from "../varsler/ModiaOversiktBrukerVarsler";
+import { FilterAndTableLayout } from "mulighetsrommet-frontend-common/components/filterAndTableLayout/FilterAndTableLayout";
+import { NullstillFilterKnapp } from "mulighetsrommet-frontend-common/components/nullstillFilterKnapp/NullstillFilterKnapp";
+import { HistorikkButton } from "../historikk/HistorikkButton";
 
 export const ModiaArbeidsmarkedstiltakOversikt = () => {
   useTitle("Arbeidsmarkedstiltak - Oversikt");
@@ -34,8 +33,8 @@ export const ModiaArbeidsmarkedstiltakOversikt = () => {
 
   const landingssideFeature = useFeatureToggle(Toggles.MULIGHETSROMMET_VEILEDERFLATE_LANDINGSSIDE);
   const landingssideEnabled = landingssideFeature.isSuccess && landingssideFeature.data;
-
   const [isHistorikkModalOpen, setIsHistorikkModalOpen] = useState(false);
+  const [tagsHeight, setTagsHeight] = useState(0);
 
   const {
     data: tiltaksgjennomforinger = [],
@@ -75,7 +74,9 @@ export const ModiaArbeidsmarkedstiltakOversikt = () => {
       <FilterAndTableLayout
         filterOpen={filterOpen}
         setFilterOpen={setFilterOpen}
-        resetButton={filterHasChanged && <NullstillFilterKnapp onClick={resetFilterToDefaults} />}
+        nullstillFilterButton={
+          filterHasChanged && <NullstillFilterKnapp onClick={resetFilterToDefaults} />
+        }
         buttons={
           <>
             <OversiktenJoyride />
@@ -86,23 +87,22 @@ export const ModiaArbeidsmarkedstiltakOversikt = () => {
           </>
         }
         filter={<FilterMenyMedSkeletonLoader />}
+        tags={<ModiaFiltertags filterOpen={filterOpen} setTagsHeight={setTagsHeight} />}
         table={
-          <div>
+          <>
             {isLoading ? (
               <TiltakLoader />
             ) : (
               <Tiltaksgjennomforingsoversikt
                 tiltaksgjennomforinger={tiltaksgjennomforinger}
-                deltMedBruker={alleTiltakDeltMedBruker}
+                deltMedBruker={alleTiltakDeltMedBruker ?? undefined}
                 filterOpen={filterOpen}
                 varsler={
                   <>
-                    <BrukerHarIkke14aVedtakVarsel brukerdata={brukerdata} />
-                    <BrukersOppfolgingsenhetVarsel brukerdata={brukerdata} />
+                    <ModiaOversiktBrukerVarsler brukerdata={brukerdata} />
                     <FiltrertFeilInnsatsgruppeVarsel filter={filter} />
                   </>
                 }
-                tags={<ModiaFiltertags filterOpen={filterOpen} />}
                 feilmelding={
                   tiltaksgjennomforinger.length === 0 ? (
                     <Feilmelding
@@ -112,9 +112,10 @@ export const ModiaArbeidsmarkedstiltakOversikt = () => {
                     />
                   ) : null
                 }
+                tagsHeight={tagsHeight}
               />
             )}
-          </div>
+          </>
         }
       />
       <TilToppenKnapp />

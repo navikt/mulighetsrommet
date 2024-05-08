@@ -29,20 +29,17 @@ function render() {
     root.render(
       <div>
         <Router>
-          <div>
-            <ul>
-              <li>
-                <Link to="/arbeidsmarkedstiltak">Modia Arbeidsmarkedstiltak</Link>
-              </li>
-              <li>
-                <Link to="/nav">NAV Arbeidsmarkedstiltak</Link>
-              </li>
-              <li>
-                <Link to="/preview">Preview Arbeidsmarkedstiltak</Link>
-              </li>
-            </ul>
-          </div>
-
+          <ul>
+            <li>
+              <Link to="/arbeidsmarkedstiltak">Modia Arbeidsmarkedstiltak</Link>
+            </li>
+            <li>
+              <Link to="/nav">NAV Arbeidsmarkedstiltak</Link>
+            </li>
+            <li>
+              <Link to="/preview">Preview Arbeidsmarkedstiltak</Link>
+            </li>
+          </ul>
           <hr />
 
           <Routes>

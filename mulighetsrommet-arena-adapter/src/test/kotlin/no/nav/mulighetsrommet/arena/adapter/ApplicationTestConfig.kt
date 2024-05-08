@@ -4,18 +4,16 @@ import io.ktor.server.testing.*
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEventService
 import no.nav.mulighetsrommet.arena.adapter.tasks.NotifyFailedEvents
 import no.nav.mulighetsrommet.arena.adapter.tasks.RetryFailedEvents
-import no.nav.mulighetsrommet.database.Database
-import no.nav.mulighetsrommet.database.FlywayDatabaseAdapter
+import no.nav.mulighetsrommet.database.DatabaseConfig
+import no.nav.mulighetsrommet.database.FlywayMigrationManager
 import no.nav.mulighetsrommet.database.kotest.extensions.createDatabaseTestSchema
-import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.security.mock.oauth2.MockOAuth2Server
-import org.koin.ktor.ext.inject
 
-var databaseConfig: FlywayDatabaseAdapter.Config? = null
+var databaseConfig: DatabaseConfig? = null
 fun createDatabaseTestConfig() =
     if (databaseConfig == null) {
-        databaseConfig = createDatabaseTestSchema("mulighetsrommet-arena-adapter-db", 5443)
+        databaseConfig = createDatabaseTestSchema("mr-arena-adapter")
         databaseConfig!!
     } else {
         databaseConfig!!
@@ -26,25 +24,18 @@ fun <R> withTestApplication(
     config: AppConfig = createTestApplicationConfig(oauth),
     test: suspend ApplicationTestBuilder.() -> R,
 ) {
-    var flywayAdapter: FlywayDatabaseAdapter? = null
-
     testApplication {
         application {
             configure(config)
-
-            val db by inject<Database>()
-            flywayAdapter = db as FlywayDatabaseAdapter
         }
 
         test()
     }
-
-    // Småhacky måte å rydde opp databasen etter at testen er ferdig
-    flywayAdapter?.truncateAll()
 }
 
 fun createTestApplicationConfig(oauth: MockOAuth2Server) = AppConfig(
     database = createDatabaseTestConfig(),
+    flyway = FlywayMigrationManager.MigrationConfig(),
     auth = createAuthConfig(oauth),
     kafka = createKafkaConfig(),
     enableFailedRecordProcessor = false,
