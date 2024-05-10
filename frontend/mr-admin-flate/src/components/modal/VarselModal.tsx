@@ -42,10 +42,10 @@ export function VarselModal({
           />
         ) : null}
         {headingIconType === "error" ? (
-          <XMarkOctagonFillIcon className={classNames(styles.icon, styles.icon_warning)} />
+          <XMarkOctagonFillIcon className={classNames(styles.icon, styles.icon_error)} />
         ) : null}
         {headingIconType === "info" ? (
-          <InformationSquareFillIcon className={classNames(styles.icon, styles.icon_warning)} />
+          <InformationSquareFillIcon className={classNames(styles.icon, styles.icon_info)} />
         ) : null}
         <Heading size="medium">{headingText}</Heading>
       </Modal.Header>
