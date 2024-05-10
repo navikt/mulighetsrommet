@@ -129,10 +129,15 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
       kontaktpersoner: mockArrangorKontaktpersoner,
     },
     tiltakstype: mockTiltakstyper.ARBFORB,
+    administratorer: [
+      {
+        navIdent: "B815493",
+        navn: "Test Testesen",
+      },
+    ],
     startDato: "2022-01-01",
     sluttDato: "2022-12-12",
     arenaAnsvarligEnhet: mockEnheter._0313,
-    administratorer: [],
     navEnheter: [],
     status: { name: "GJENNOMFORES" },
     oppstart: TiltaksgjennomforingOppstartstype.LOPENDE,

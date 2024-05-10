@@ -1,16 +1,15 @@
-import { XMarkOctagonFillIcon } from "@navikt/aksel-icons";
-import { Alert, BodyShort, Button, Heading, Modal, Radio } from "@navikt/ds-react";
-import classNames from "classnames";
 import { AvbrytAvtaleAarsak, Avtale } from "mulighetsrommet-api-client";
 import { RefObject, useEffect, useState } from "react";
 import { useAvbrytAvtale } from "@/api/avtaler/useAvbrytAvtale";
-import styles from "./AvbrytGjennomforingAvtaleModal.module.scss";
 import { useNavigate } from "react-router-dom";
-import { HarSkrivetilgang } from "../authActions/HarSkrivetilgang";
+import { useAktiveTiltaksgjennomforingerByAvtaleId } from "@/api/tiltaksgjennomforing/useAktiveTiltaksgjennomforingerByAvtaleId";
+import { VarselModal } from "@/components/modal/VarselModal";
+import { Alert, BodyShort, Button, Radio } from "@navikt/ds-react";
 import { AvbrytModalError } from "@/components/modal/AvbrytModalError";
 import { AvbrytModalAarsaker } from "@/components/modal/AvbrytModalAarsaker";
-import { useAktiveTiltaksgjennomforingerByAvtaleId } from "@/api/tiltaksgjennomforing/useAktiveTiltaksgjennomforingerByAvtaleId";
 import { avbrytAvtaleAarsakToString } from "@/utils/Utils";
+import { HarSkrivetilgang } from "@/components/authActions/HarSkrivetilgang";
+import style from "./AvbrytGjennomforingAvtaleModal.module.scss";
 
 interface Props {
   modalRef: RefObject<HTMLDialogElement>;
@@ -57,71 +56,67 @@ export function AvbrytAvtaleModal({ modalRef, avtale }: Props) {
   }
 
   return (
-    <Modal ref={modalRef} onClose={onClose} closeOnBackdropClick aria-label="modal">
-      <Modal.Header closeButton={false}>
-        <div className={styles.heading}>
-          <XMarkOctagonFillIcon className={classNames(styles.icon_warning, styles.icon)} />
-          <Heading size="medium">
-            {mutation.isError || avtalenHarGjennomforinger
-              ? `Kan ikke avbryte «${avtale?.navn}»`
-              : `Ønsker du å avbryte «${avtale?.navn}»?`}
-          </Heading>
-        </div>
-      </Modal.Header>
-      <Modal.Body className={styles.body}>
-        {avtalenHarGjennomforinger ? (
-          <Alert variant="warning">
-            {`Avtaler med aktive gjennomføringer kan ikke avbrytes. Det er 
-            ${tiltaksgjennomforingerMedAvtaleId.data.length} 
-            aktiv${pluralGjennomforingTekst(1, "e")} 
-            gjennomføring${pluralGjennomforingTekst(1, "er")} 
-            under denne avtalen. Vurder om du vil avbryte 
-            gjennomføringen${pluralGjennomforingTekst(0, "e")}.`}
-          </Alert>
-        ) : (
-          <AvbrytModalAarsaker
-            aarsak={aarsak}
-            customAarsak={customAarsak}
-            setAarsak={setAarsak}
-            setCustomAarsak={setCustomAarsak}
-            mutation={mutation}
-            radioknapp={
-              <>
-                {(Object.keys(AvbrytAvtaleAarsak) as Array<AvbrytAvtaleAarsak>)
-                  .filter((a) => a !== AvbrytAvtaleAarsak.AVBRUTT_I_ARENA)
-                  .map((a) => (
-                    <Radio key={`${a}`} value={a}>
-                      {avbrytAvtaleAarsakToString(a)}
-                    </Radio>
-                  ))}
-              </>
-            }
-          />
-        )}
+    <VarselModal
+      modalRef={modalRef}
+      handleClose={onClose}
+      headingIconType="error"
+      headingText={
+        mutation.isError || avtalenHarGjennomforinger
+          ? `Kan ikke avbryte «${avtale?.navn}»`
+          : `Ønsker du å avbryte «${avtale?.navn}»?`
+      }
+      body={
+        <>
+          {avtalenHarGjennomforinger ? (
+            <Alert variant="warning">
+              {`Avtaler med aktive gjennomføringer kan ikke avbrytes. Det er 
+                ${tiltaksgjennomforingerMedAvtaleId.data.length} 
+                aktiv${pluralGjennomforingTekst(1, "e")} 
+                gjennomføring${pluralGjennomforingTekst(1, "er")} 
+                under denne avtalen. Vurder om du vil avbryte 
+                gjennomføringen${pluralGjennomforingTekst(0, "e")}. `}
+            </Alert>
+          ) : (
+            <AvbrytModalAarsaker
+              aarsak={aarsak}
+              customAarsak={customAarsak}
+              setAarsak={setAarsak}
+              setCustomAarsak={setCustomAarsak}
+              mutation={mutation}
+              radioknapp={
+                <>
+                  {(Object.keys(AvbrytAvtaleAarsak) as Array<AvbrytAvtaleAarsak>)
+                    .filter((a) => a !== AvbrytAvtaleAarsak.AVBRUTT_I_ARENA)
+                    .map((a) => (
+                      <Radio key={`${a}`} value={a}>
+                        {avbrytAvtaleAarsakToString(a)}
+                      </Radio>
+                    ))}
+                </>
+              }
+            />
+          )}
 
-        {mutation?.isError && (
-          <BodyShort>
-            <AvbrytModalError aarsak={aarsak} customAarsak={customAarsak} mutation={mutation} />
-          </BodyShort>
-        )}
-      </Modal.Body>
-
-      <Modal.Footer className={avtalenHarGjennomforinger ? undefined : styles.footer}>
-        {avtalenHarGjennomforinger ? (
+          {mutation?.isError && (
+            <BodyShort>
+              <AvbrytModalError aarsak={aarsak} customAarsak={customAarsak} mutation={mutation} />
+            </BodyShort>
+          )}
+        </>
+      }
+      secondaryButton={!avtalenHarGjennomforinger}
+      primaryButton={
+        avtalenHarGjennomforinger ? (
           <Button onClick={onClose}>Ok</Button>
         ) : (
-          <>
-            <Button variant="secondary" onClick={onClose}>
-              Nei, takk
+          <HarSkrivetilgang ressurs="Avtale">
+            <Button variant="danger" onClick={handleAvbrytAvtale}>
+              Ja, jeg vil avbryte avtalen
             </Button>
-            <HarSkrivetilgang ressurs="Avtale">
-              <Button variant="danger" onClick={handleAvbrytAvtale}>
-                Ja, jeg vil avbryte avtalen
-              </Button>
-            </HarSkrivetilgang>
-          </>
-        )}
-      </Modal.Footer>
-    </Modal>
+          </HarSkrivetilgang>
+        )
+      }
+      footerClassName={avtalenHarGjennomforinger ? style.footer_ok : ""}
+    />
   );
 }

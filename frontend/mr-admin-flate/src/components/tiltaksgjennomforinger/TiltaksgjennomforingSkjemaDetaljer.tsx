@@ -8,9 +8,9 @@ import {
   Alert,
   Button,
   DatePicker,
+  HelpText,
   HGrid,
   HStack,
-  HelpText,
   Select,
   Switch,
   TextField,
@@ -26,8 +26,8 @@ import {
 import { ControlledSokeSelect } from "mulighetsrommet-frontend-common";
 import { useEffect, useRef } from "react";
 import { useFieldArray, useFormContext } from "react-hook-form";
-import { addYear, formaterDato } from "../../utils/Utils";
-import { isTiltakMedFellesOppstart } from "../../utils/tiltakskoder";
+import { addYear, formaterDato } from "@/utils/Utils";
+import { isTiltakMedFellesOppstart } from "@/utils/tiltakskoder";
 import { Separator } from "../detaljside/Metadata";
 import { tiltaktekster } from "../ledetekster/tiltaksgjennomforingLedetekster";
 import { EndreDatoAdvarselModal } from "../modal/EndreDatoAdvarselModal";
@@ -41,7 +41,7 @@ import { SelectOppstartstype } from "./SelectOppstartstype";
 import { TiltakTilgjengeligForArrangor } from "./TilgjengeligTiltakForArrangor";
 import { TiltaksgjennomforingArrangorSkjema } from "./TiltaksgjennomforingArrangorSkjema";
 import { erArenaOpphavOgIngenEierskap } from "./TiltaksgjennomforingSkjemaConst";
-import { useFeatureToggle } from "../../api/features/useFeatureToggle";
+import { useFeatureToggle } from "@/api/features/useFeatureToggle";
 
 interface Props {
   tiltaksgjennomforing?: Tiltaksgjennomforing;
@@ -209,6 +209,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
               </DatePicker>
               {avtale.sluttDato ? (
                 <DatePicker>
+                  <Button onClick={() => endreSluttDatoModalRef.current?.showModal()}>TEST</Button>
                   <DatePicker.Input
                     value={formaterDato(avtale.sluttDato)}
                     label={tiltaktekster.avtaleSluttdatoLabel}
