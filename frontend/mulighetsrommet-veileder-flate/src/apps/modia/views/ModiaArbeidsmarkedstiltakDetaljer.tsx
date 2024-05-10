@@ -182,10 +182,15 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
             ) : null}
 
             <LenkeListe lenker={tiltaksgjennomforing.faneinnhold?.lenker} />
-            <TilbakemeldingLenke
-              url={PORTEN_URL_FOR_TILBAKEMELDING(tiltaksgjennomforing.tiltaksnummer)}
-              tekst="Gi tilbakemelding via Porten"
-            />
+            {Toggles.MULIGHETSROMMET_VEILEDERFLATE_VIS_TILBAKEMELDING && (
+              <TilbakemeldingLenke
+                url={PORTEN_URL_FOR_TILBAKEMELDING(
+                  tiltaksgjennomforing.tiltaksnummer,
+                  brukerdata.enheter[0].navn,
+                )} //fiks til fylke - må mappes fra enhet?
+                tekst="Gi tilbakemelding via Porten"
+              />
+            )}
           </>
         }
       />
