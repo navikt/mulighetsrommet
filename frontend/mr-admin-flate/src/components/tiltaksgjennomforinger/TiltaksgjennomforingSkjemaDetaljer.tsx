@@ -209,7 +209,6 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
               </DatePicker>
               {avtale.sluttDato ? (
                 <DatePicker>
-                  <Button onClick={() => endreSluttDatoModalRef.current?.showModal()}>TEST</Button>
                   <DatePicker.Input
                     value={formaterDato(avtale.sluttDato)}
                     label={tiltaktekster.avtaleSluttdatoLabel}

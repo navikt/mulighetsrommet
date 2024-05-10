@@ -36,17 +36,17 @@ export function VarselModal({
   return (
     <Modal ref={modalRef} onClose={handleClose} closeOnBackdropClick aria-label="modal" open={open}>
       <Modal.Header closeButton={false} className={styles.heading}>
-        {headingIconType === "warning" ? (
+        {headingIconType === "warning" && (
           <ExclamationmarkTriangleFillIcon
             className={classNames(styles.icon, styles.icon_warning)}
           />
-        ) : null}
-        {headingIconType === "error" ? (
+        )}
+        {headingIconType === "error" && (
           <XMarkOctagonFillIcon className={classNames(styles.icon, styles.icon_error)} />
-        ) : null}
-        {headingIconType === "info" ? (
+        )}
+        {headingIconType === "info" && (
           <InformationSquareFillIcon className={classNames(styles.icon, styles.icon_info)} />
-        ) : null}
+        )}
         <Heading size="medium">{headingText}</Heading>
       </Modal.Header>
       <Modal.Body className={styles.body}>{body}</Modal.Body>
