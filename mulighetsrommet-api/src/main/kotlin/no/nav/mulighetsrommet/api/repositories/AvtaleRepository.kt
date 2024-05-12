@@ -601,7 +601,7 @@ class AvtaleRepository(private val db: Database) {
             select avtale_id from avtale_administrator where nav_ident = ?
         """.trimIndent()
 
-        return queryOf(query, navIdent)
+        return queryOf(query, navIdent.value)
             .map {
                 it.uuid("avtale_id")
             }
