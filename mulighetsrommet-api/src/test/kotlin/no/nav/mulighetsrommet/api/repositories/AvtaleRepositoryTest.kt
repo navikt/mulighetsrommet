@@ -258,6 +258,17 @@ class AvtaleRepositoryTest : FunSpec({
                 )
             }
         }
+
+        test("getAvtaleIdsByAdministrator") {
+            val avtaler = AvtaleRepository(database.db)
+
+            val avtale1 = AvtaleFixtures.oppfolging.copy(
+                administratorer = listOf(NavAnsattFixture.ansatt1.navIdent),
+            )
+
+            avtaler.upsert(avtale1)
+            avtaler.getAvtaleIdsByAdministrator(NavAnsattFixture.ansatt1.navIdent) shouldBe listOf(avtale1.id)
+        }
     }
 
     context("Filter for avtaler") {
