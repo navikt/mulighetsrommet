@@ -46,17 +46,6 @@ export function ArrangorKontaktpersonerModal(props: Props) {
     >
       <Modal.Body>
         <div className={styles.modal_body}>
-          <Button
-            size="small"
-            type="button"
-            variant="primary"
-            onClick={() => {
-              setOpprett(true);
-              setRedigerId(undefined);
-            }}
-          >
-            Opprett ny kontaktperson
-          </Button>
           {kontaktpersoner
             .sort((a, b) => a.navn.localeCompare(b.navn))
             .map((person) => (
@@ -145,6 +134,19 @@ export function ArrangorKontaktpersonerModal(props: Props) {
           ) : null}
         </div>
       </Modal.Body>
+      <Modal.Footer>
+        <Button
+          size="small"
+          type="button"
+          variant="primary"
+          onClick={() => {
+            setOpprett(true);
+            setRedigerId(undefined);
+          }}
+        >
+          Opprett ny kontaktperson
+        </Button>
+      </Modal.Footer>
     </Modal>
   );
 }
