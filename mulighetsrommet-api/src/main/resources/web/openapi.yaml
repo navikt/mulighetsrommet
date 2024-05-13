@@ -3399,6 +3399,7 @@ components:
         - mulighetsrommet.veilederflate.visDeltakerRegistrering
         - mulighetsrommet-veilederflate-landingsside
         - mulighetsrommet-veilederflate-arena-oppskrifter
+        - mulighetsrommet-veilederflate.vis-tilbakemelding
         - mulighetsrommet.admin-flate.enableDebugger
         - mulighetsrommet.admin-flate.tilgjengeliggjore-tiltak-for-arrangor
 

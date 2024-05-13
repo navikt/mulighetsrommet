@@ -15,6 +15,7 @@ import {
   InlineFallback,
   ReloadAppFallback,
 } from "./components/error-handling/ErrorBoundary";
+import { TilbakemeldingLenke } from "./components/tilbakemelding/Tilbakemeldingslenke";
 
 export {
   useDebounce,
@@ -32,4 +33,5 @@ export {
   InlineErrorBoundary,
   InlineFallback,
   ReloadAppFallback,
+  TilbakemeldingLenke,
 };

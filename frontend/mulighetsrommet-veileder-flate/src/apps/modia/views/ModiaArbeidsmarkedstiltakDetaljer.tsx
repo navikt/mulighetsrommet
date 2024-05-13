@@ -1,3 +1,8 @@
+import { InlineErrorBoundary } from "@/ErrorBoundary";
+import { useFeatureToggle } from "@/api/feature-toggles";
+import { useGetTiltaksgjennomforingIdFraUrl } from "@/api/queries/useGetTiltaksgjennomforingIdFraUrl";
+import { useTiltaksgjennomforingById } from "@/api/queries/useTiltaksgjennomforingById";
+import { ModiaRoute, resolveModiaRoute } from "@/apps/modia/ModiaRoute";
 import { DelMedBruker } from "@/apps/modia/delMedBruker/DelMedBruker";
 import { useHentBrukerdata } from "@/apps/modia/hooks/useHentBrukerdata";
 import { useHentDeltMedBrukerStatus } from "@/apps/modia/hooks/useHentDeltMedbrukerStatus";
@@ -7,10 +12,9 @@ import { BrukerKvalifisererIkkeVarsel } from "@/apps/modia/varsler/BrukerKvalifi
 import { TiltakLoader } from "@/components/TiltakLoader";
 import { DetaljerJoyride } from "@/components/joyride/DetaljerJoyride";
 import { OpprettAvtaleJoyride } from "@/components/joyride/OpprettAvtaleJoyride";
+import { PersonvernContainer } from "@/components/personvern/PersonvernContainer";
+import { LenkeListe } from "@/components/sidemeny/Lenker";
 import { Tilbakeknapp } from "@/components/tilbakeknapp/Tilbakeknapp";
-import { useFeatureToggle } from "@/api/feature-toggles";
-import { useGetTiltaksgjennomforingIdFraUrl } from "@/api/queries/useGetTiltaksgjennomforingIdFraUrl";
-import { useTiltaksgjennomforingById } from "@/api/queries/useTiltaksgjennomforingById";
 import { paginationAtom } from "@/core/atoms";
 import { isProduction } from "@/environment";
 import { ViewTiltaksgjennomforingDetaljer } from "@/layouts/ViewTiltaksgjennomforingDetaljer";
@@ -24,11 +28,8 @@ import {
   Toggles,
   VeilederflateTiltakstype,
 } from "mulighetsrommet-api-client";
-import { useTitle } from "mulighetsrommet-frontend-common";
-import { LenkeListe } from "@/components/sidemeny/Lenker";
-import { ModiaRoute, resolveModiaRoute } from "@/apps/modia/ModiaRoute";
-import { PersonvernContainer } from "@/components/personvern/PersonvernContainer";
-import { InlineErrorBoundary } from "@/ErrorBoundary";
+import { TilbakemeldingLenke, useTitle } from "mulighetsrommet-frontend-common";
+import { PORTEN_URL_FOR_TILBAKEMELDING } from "../../../constants";
 
 export function ModiaArbeidsmarkedstiltakDetaljer() {
   const { fnr } = useModiaContext();
@@ -181,6 +182,15 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
             ) : null}
 
             <LenkeListe lenker={tiltaksgjennomforing.faneinnhold?.lenker} />
+            {Toggles.MULIGHETSROMMET_VEILEDERFLATE_VIS_TILBAKEMELDING && (
+              <TilbakemeldingLenke
+                url={PORTEN_URL_FOR_TILBAKEMELDING(
+                  tiltaksgjennomforing.tiltaksnummer,
+                  brukerdata.enheter[0].navn,
+                )} //fiks til fylke - må mappes fra enhet?
+                tekst="Gi tilbakemelding via Porten"
+              />
+            )}
           </>
         }
       />
