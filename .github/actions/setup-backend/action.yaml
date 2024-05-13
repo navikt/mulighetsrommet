@@ -4,11 +4,11 @@ description: Steps for setup of the backend modules
 runs:
   using: composite
   steps:
-    - name: Set up JDK 17
+    - name: Set up JDK 21
       uses: actions/setup-java@v4
       with:
         distribution: temurin
-        java-version: 17
+        java-version: 21
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v3
     - name: Set up test environment

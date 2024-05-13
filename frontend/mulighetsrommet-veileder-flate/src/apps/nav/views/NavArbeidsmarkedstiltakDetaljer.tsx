@@ -1,11 +1,11 @@
-import { Alert } from "@navikt/ds-react";
-import { ViewTiltaksgjennomforingDetaljer } from "@/layouts/ViewTiltaksgjennomforingDetaljer";
-import { Tilbakeknapp } from "@/components/tilbakeknapp/Tilbakeknapp";
-import { TiltakLoader } from "@/components/TiltakLoader";
 import { useNavTiltaksgjennomforingById } from "@/api/queries/useTiltaksgjennomforingById";
-import { LenkeListe } from "../../../components/sidemeny/Lenker";
-import { PersonvernContainer } from "../../../components/personvern/PersonvernContainer";
+import { TiltakLoader } from "@/components/TiltakLoader";
+import { Tilbakeknapp } from "@/components/tilbakeknapp/Tilbakeknapp";
+import { ViewTiltaksgjennomforingDetaljer } from "@/layouts/ViewTiltaksgjennomforingDetaljer";
+import { Alert } from "@navikt/ds-react";
 import { InlineErrorBoundary } from "../../../ErrorBoundary";
+import { PersonvernContainer } from "../../../components/personvern/PersonvernContainer";
+import { LenkeListe } from "../../../components/sidemeny/Lenker";
 
 export function NavArbeidsmarkedstiltakDetaljer() {
   const { data, isLoading, isError } = useNavTiltaksgjennomforingById();
@@ -26,7 +26,7 @@ export function NavArbeidsmarkedstiltakDetaljer() {
       knapperad={<Tilbakeknapp tilbakelenke=".." tekst="Tilbake til tiltaksoversikten" />}
       brukerActions={
         <>
-          {data && data?.personvernBekreftet ? (
+          {data?.personvernBekreftet ? (
             <InlineErrorBoundary>
               <PersonvernContainer tiltaksgjennomforing={data} />
             </InlineErrorBoundary>
