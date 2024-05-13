@@ -24,11 +24,11 @@ allprojects {
     }
 
     tasks.withType<KotlinCompile> {
-        kotlinOptions.jvmTarget = "17"
+        kotlinOptions.jvmTarget = "21"
     }
 
     tasks.withType<JavaCompile> {
-        targetCompatibility = "17"
+        targetCompatibility = "21"
         options.encoding = "UTF-8"
     }
 
