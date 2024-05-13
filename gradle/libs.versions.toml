@@ -42,7 +42,7 @@ flyway-core = { module = "org.flywaydb:flyway-core", version.ref = "flyway" }
 flyway-database-postgresql = { module = "org.flywaydb:flyway-database-postgresql", version.ref = "flyway" }
 
 google-cloud-postgresSocketFactory = "com.google.cloud.sql:postgres-socket-factory:1.18.0"
-google-cloud-storage = "com.google.cloud:google-cloud-storage:2.37.0"
+google-cloud-storage = "com.google.cloud:google-cloud-storage:2.38.0"
 
 hikaricp = "com.zaxxer:HikariCP:5.1.0"
 
