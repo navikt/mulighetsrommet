@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.tiltakshistorikk
 
 import io.ktor.server.testing.*
 import no.nav.mulighetsrommet.database.DatabaseConfig
+import no.nav.mulighetsrommet.database.FlywayMigrationManager
 import no.nav.mulighetsrommet.database.kotest.extensions.createDatabaseTestSchema
 import no.nav.security.mock.oauth2.MockOAuth2Server
 
@@ -30,6 +31,7 @@ fun <R> withTestApplication(
 
 fun createTestApplicationConfig(oauth: MockOAuth2Server) = AppConfig(
     database = createDatabaseTestConfig(),
+    flyway = FlywayMigrationManager.MigrationConfig(),
     auth = createAuthConfig(oauth),
 )
 

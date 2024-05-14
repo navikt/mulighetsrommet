@@ -3,6 +3,7 @@ import { useFeatureToggle } from "@/api/features/useFeatureToggle";
 import { ExternalLinkIcon, MenuGridIcon } from "@navikt/aksel-icons";
 import { Dropdown, InternalHeader, Spacer } from "@navikt/ds-react";
 import { Toggles } from "mulighetsrommet-api-client";
+import { InlineErrorBoundary } from "mulighetsrommet-frontend-common";
 import { useRef } from "react";
 import { Link } from "react-router-dom";
 import {
@@ -13,7 +14,6 @@ import {
 } from "../../constants";
 import { Notifikasjonsbjelle } from "../notifikasjoner/Notifikasjonsbjelle";
 import styles from "./AdministratorHeader.module.scss";
-import { InlineErrorBoundary } from "mulighetsrommet-frontend-common";
 
 export function AdministratorHeader() {
   const { data: debugIsEnabled } = useFeatureToggle(
@@ -148,7 +148,7 @@ function Brukernavn() {
     return null;
   }
 
-  const ansattNavn = data ? [data.fornavn, data.etternavn].join(" ") : "Team Valp";
+  const ansattNavn = [data.fornavn, data.etternavn].join(" ");
 
   return (
     <InternalHeader.User

@@ -15,7 +15,9 @@ tasks.shadowJar {
 }
 
 dependencies {
+    implementation(projects.common.domain)
     implementation(projects.common.database)
+    implementation(projects.common.slack)
     testImplementation(testFixtures(projects.common.database))
     implementation(projects.common.ktor)
     testImplementation(testFixtures(projects.common.ktor))

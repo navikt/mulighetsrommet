@@ -26,6 +26,7 @@ import { HarSkrivetilgang } from "@/components/authActions/HarSkrivetilgang";
 import { AvbrytGjennomforingModal } from "@/components/modal/AvbrytGjennomforingModal";
 import { usePollTiltaksnummer } from "@/api/tiltaksgjennomforing/usePollTiltaksnummer";
 import { Laster } from "@/components/laster/Laster";
+import { NokkeltallDeltakere } from "../../components/tiltaksgjennomforinger/NokkeltallDeltakere";
 
 interface Props {
   tiltaksgjennomforing: Tiltaksgjennomforing;
@@ -319,6 +320,9 @@ export function TiltaksgjennomforingDetaljer({ tiltaksgjennomforing, avtale }: P
               </Alert>
             </>
           ) : null}
+        </div>
+        <div className={styles.detaljer}>
+          <NokkeltallDeltakere tiltaksgjennomforingId={tiltaksgjennomforing.id} />
         </div>
       </div>
       {!erArenaOpphavOgIngenEierskap(tiltaksgjennomforing, migrerteTiltakstyper) &&

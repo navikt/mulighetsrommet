@@ -3278,8 +3278,23 @@ components:
       properties:
         antallDeltakere:
           type: number
+        antallAktiveDeltakere:
+          type: number
+        antallDeltakereSomVenter:
+          type: number
+        antallAvsluttedeDeltakere:
+          type: number
+        antallIkkeAktuelleDeltakere:
+          type: number
+        pabegyntRegistrering:
+          type: number
       required:
         - antallDeltakere
+        - antallAktiveDeltakere
+        - antallDeltakereSomVenter
+        - antallAvsluttedeDeltakere
+        - antallIkkeAktuelleDeltakere
+        - pabegyntRegistrering
 
     TiltaksgjennomforingKontaktperson:
       type: object

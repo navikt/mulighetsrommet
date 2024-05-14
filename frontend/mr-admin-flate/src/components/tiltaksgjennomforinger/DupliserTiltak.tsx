@@ -19,15 +19,12 @@ export function DupliserTiltak({ tiltaksgjennomforing }: Props) {
 
   function apneRedigeringForDupliseringAvTiltak() {
     setGjennomforingDetaljerTab("detaljer");
-    navigate(`/tiltaksgjennomforinger/${tiltaksgjennomforing.id}/skjema`, {
+    navigate(`/avtaler/${tiltaksgjennomforing.avtaleId}/tiltaksgjennomforinger/skjema`, {
       state: {
         tiltaksgjennomforing: {
-          ...tiltaksgjennomforing,
-          id: window.crypto.randomUUID(),
-          startDato: undefined,
-          sluttDato: undefined,
           opphav: Opphav.MR_ADMIN_FLATE,
-          tiltaksnummer: undefined,
+          faneinnhold: tiltaksgjennomforing.faneinnhold,
+          avtaleId: tiltaksgjennomforing.avtaleId,
         },
       },
     });

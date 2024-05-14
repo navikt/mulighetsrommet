@@ -26,6 +26,7 @@ import no.nav.mulighetsrommet.api.clients.norg2.Norg2Client
 import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClient
 import no.nav.mulighetsrommet.api.clients.pdl.PdlClient
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
+import no.nav.mulighetsrommet.api.clients.ssb.SsbNusClient
 import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClient
 import no.nav.mulighetsrommet.api.repositories.*
 import no.nav.mulighetsrommet.api.services.*
@@ -172,6 +173,7 @@ private fun repositories() = module {
     single { ArrangorRepository(get()) }
     single { KafkaConsumerRepositoryImpl(get()) }
     single { VeilederJoyrideRepository(get()) }
+    single { SsbNusRepository(get()) }
 }
 
 private fun services(appConfig: AppConfig) = module {
@@ -339,6 +341,8 @@ private fun services(appConfig: AppConfig) = module {
     }
     single { AvtaleValidator(get(), get(), get(), get()) }
     single { TiltaksgjennomforingValidator(get(), get(), get()) }
+    single { SsbNusClient(engine = appConfig.engine, config = appConfig.ssbNusConfig) }
+    single { SsbNusService(get(), get()) }
 }
 
 private fun tasks(config: TaskConfig) = module {
