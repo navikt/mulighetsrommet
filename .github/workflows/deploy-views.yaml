@@ -18,7 +18,7 @@ jobs:
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: ${{ inputs.cluster }}
-          RESOURCE: iac/bigquery-views/tiltakstyper.yaml,iac/bigquery-views/tiltaksgjennomforing.yaml
+          RESOURCE: iac/bigquery-views/tiltakstyper.yaml,iac/bigquery-views/tiltaksgjennomforing.yaml,iac/bigquery-views/tiltaksgjennomforing_opphav_antall_opprettet.yaml
           VAR: project=${{ inputs.project }}
           PRINT_PAYLOAD: true
 
