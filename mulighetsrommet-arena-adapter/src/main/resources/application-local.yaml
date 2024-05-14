@@ -11,6 +11,9 @@ app:
     mulighetsrommetApi:
       url: http://localhost:8080
       scope: default
+    tiltakshistorikk:
+      url: http://localhost:8080
+      scope: default
     arenaEventService:
       channelCapacity: 100
       numChannelConsumers: 10

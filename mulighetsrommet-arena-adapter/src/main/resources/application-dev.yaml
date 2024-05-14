@@ -11,6 +11,9 @@ app:
     mulighetsrommetApi:
       url: http://mulighetsrommet-api
       scope: api://dev-gcp.team-mulighetsrommet.mulighetsrommet-api/.default
+    tiltakshistorikk:
+      url: http://tiltakshistorikk
+      scope: api://dev-gcp.team-mulighetsrommet.tiltakshistorikk/.default
     arenaEventService:
       channelCapacity: 10000
       numChannelConsumers: 100

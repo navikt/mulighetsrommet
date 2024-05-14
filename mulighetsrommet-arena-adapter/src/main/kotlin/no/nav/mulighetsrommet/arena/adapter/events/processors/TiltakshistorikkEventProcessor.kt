@@ -6,8 +6,8 @@ import arrow.core.left
 import arrow.core.raise.either
 import arrow.core.right
 import io.ktor.http.*
-import no.nav.mulighetsrommet.arena.adapter.MulighetsrommetApiClient
 import no.nav.mulighetsrommet.arena.adapter.clients.ArenaOrdsProxyClient
+import no.nav.mulighetsrommet.arena.adapter.clients.TiltakshistorikkClient
 import no.nav.mulighetsrommet.arena.adapter.models.ProcessingError
 import no.nav.mulighetsrommet.arena.adapter.models.ProcessingResult
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable
@@ -25,8 +25,7 @@ import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
 
 class TiltakshistorikkEventProcessor(
     private val entities: ArenaEntityService,
-    // TODO egent client for `tiltakshistorikk`
-    private val client: MulighetsrommetApiClient,
+    private val client: TiltakshistorikkClient,
     private val ords: ArenaOrdsProxyClient,
 ) : ArenaEventProcessor {
     override val arenaTable: ArenaTable = ArenaTable.Deltaker
