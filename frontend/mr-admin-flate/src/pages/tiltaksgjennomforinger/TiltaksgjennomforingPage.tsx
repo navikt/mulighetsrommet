@@ -95,18 +95,19 @@ export function TiltaksgjennomforingPage() {
             />
             <DupliserTiltak tiltaksgjennomforing={tiltaksgjennomforing} />
           </div>
-          {tiltaksgjennomforing?.id && (
-            <div className={headerStyles.forhandsvisningsknapp}>
-              <Lenkeknapp
-                size="small"
-                isExternal={true}
-                variant="secondary"
-                to={`${PREVIEW_ARBEIDSMARKEDSTILTAK_URL}/tiltak/${tiltaksgjennomforing.id}`}
-              >
-                Forhåndsvis i Modia
-              </Lenkeknapp>
-            </div>
-          )}
+          {tiltaksgjennomforing?.id &&
+            ["GJENNOMFORES", "PLANLAGT"].includes(tiltaksgjennomforing.status.name) && (
+              <div className={headerStyles.forhandsvisningsknapp}>
+                <Lenkeknapp
+                  size="small"
+                  isExternal={true}
+                  variant="secondary"
+                  to={`${PREVIEW_ARBEIDSMARKEDSTILTAK_URL}/tiltak/${tiltaksgjennomforing.id}`}
+                >
+                  Forhåndsvis i Modia
+                </Lenkeknapp>
+              </div>
+            )}
         </div>
       </Header>
 
