@@ -23,7 +23,7 @@ export function EndreDatoAdvarselModal({ modalRef, onCancel, antallDeltakere }: 
         <BodyShort>
           {`Det finnes ${antallDeltakere} deltaker${antallDeltakere > 1 ? "e" : ""}
             på gjennomføringen. Ved å endre dato for gjennomføringen kan det medføre
-            at datoer for deltakerne også oppdateres automatisk.`}
+            at datoer for deltakerne også oppdateres automatisk.  Ønsker du å endre dato?`}
         </BodyShort>
       }
       secondaryButton
