@@ -1,13 +1,13 @@
 import { Avtale, NavAnsatt } from "mulighetsrommet-api-client";
 import styles from "../DetaljerInfo.module.scss";
 import { useAvtaleEndringshistorikk } from "@/api/avtaler/useAvtaleEndringshistorikk";
-import { ViewEndringshistorikk } from "../../components/endringshistorikk/ViewEndringshistorikk";
-import { EndringshistorikkPopover } from "../../components/endringshistorikk/EndringshistorikkPopover";
-import { RedigeringsAdvarselModal } from "../../components/modal/RedigeringsAdvarselModal";
-import { Button } from "@navikt/ds-react";
+import { ViewEndringshistorikk } from "@/components/endringshistorikk/ViewEndringshistorikk";
+import { EndringshistorikkPopover } from "@/components/endringshistorikk/EndringshistorikkPopover";
+import { BodyShort, Button } from "@navikt/ds-react";
 import { useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { HarSkrivetilgang } from "../../components/authActions/HarSkrivetilgang";
+import { HarSkrivetilgang } from "@/components/authActions/HarSkrivetilgang";
+import { VarselModal } from "@/components/modal/VarselModal";
 
 interface Props {
   bruker: NavAnsatt;
@@ -43,10 +43,18 @@ export function AvtaleKnapperad({ bruker, avtale }: Props) {
           Rediger
         </Button>
       </HarSkrivetilgang>
-      <RedigeringsAdvarselModal
-        ressursNavn="avtalen"
+      <VarselModal
         modalRef={advarselModal}
-        onRediger={() => navigate("skjema")}
+        handleClose={() => advarselModal.current?.close()}
+        headingIconType="warning"
+        headingText="Du er ikke eier av denne avtalen"
+        body={<BodyShort>Vil du fortsette til redigeringen?</BodyShort>}
+        secondaryButton
+        primaryButton={
+          <Button variant="primary" onClick={() => navigate("skjema")}>
+            Ja, jeg vil redigere
+          </Button>
+        }
       />
     </div>
   );

@@ -109,8 +109,8 @@ export const mockAvtaler: Avtale[] = [
     opphav: Opphav.ARENA,
     administratorer: [
       {
-        navIdent: "B123456",
-        navn: "Bertil Bengtson",
+        navIdent: "B815493",
+        navn: "Test Testesen",
       },
     ],
     tiltakstype: mockTiltakstyper.INDOPPFAG,

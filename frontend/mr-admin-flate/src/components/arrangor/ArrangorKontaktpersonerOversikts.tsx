@@ -13,11 +13,11 @@ import {
   ArrangorKontaktperson,
   ArrangorKontaktpersonAnsvar,
 } from "mulighetsrommet-api-client";
-import { useState } from "react";
+import { RefObject, useRef, useState } from "react";
 import { z } from "zod";
-import { useArrangorKontaktpersoner } from "../../api/arrangor/useArrangorKontaktpersoner";
-import { useUpsertArrangorKontaktperson } from "../../api/arrangor/useUpsertArrangorKontaktperson";
-import { useHandleApiUpsertResponse } from "../../api/effects";
+import { useArrangorKontaktpersoner } from "@/api/arrangor/useArrangorKontaktpersoner";
+import { useUpsertArrangorKontaktperson } from "@/api/arrangor/useUpsertArrangorKontaktperson";
+import { useHandleApiUpsertResponse } from "@/api/effects";
 import { SlettKontaktpersonModal } from "./SlettKontaktpersonModal";
 import { navnForAnsvar } from "./ArrangorKontaktpersonUtils";
 
@@ -26,6 +26,8 @@ interface Props {
 }
 
 export function ArrangorKontaktpersonOversikt({ arrangor }: Props) {
+  const modalRef = useRef<HTMLDialogElement>(null);
+
   const { data, isLoading } = useArrangorKontaktpersoner(arrangor.id);
   const [redigerKontaktperson, setRedigerKontaktperson] = useState<
     ArrangorKontaktperson | undefined
@@ -99,6 +101,7 @@ export function ArrangorKontaktpersonOversikt({ arrangor }: Props) {
                   kontaktperson={kontaktperson}
                   setRedigerKontaktperson={setRedigerKontaktperson}
                   setSlettKontaktperson={() => setSlettKontaktperson(kontaktperson)}
+                  modalRef={modalRef}
                 />
               ),
             )}
@@ -107,8 +110,12 @@ export function ArrangorKontaktpersonOversikt({ arrangor }: Props) {
 
       {slettKontaktperson ? (
         <SlettKontaktpersonModal
-          onClose={() => setSlettKontaktperson(undefined)}
+          onClose={() => {
+            setSlettKontaktperson(undefined);
+            modalRef.current?.close();
+          }}
           kontaktperson={slettKontaktperson}
+          modalRef={modalRef}
         />
       ) : null}
     </VStack>
@@ -119,9 +126,15 @@ interface ILeseRad {
   kontaktperson: ArrangorKontaktperson;
   setRedigerKontaktperson: (kontaktpersonId: ArrangorKontaktperson | undefined) => void;
   setSlettKontaktperson: (kontaktperson: ArrangorKontaktperson | undefined) => void;
+  modalRef: RefObject<HTMLDialogElement>;
 }
 
-function LeseRad({ kontaktperson, setRedigerKontaktperson, setSlettKontaktperson }: ILeseRad) {
+function LeseRad({
+  kontaktperson,
+  setRedigerKontaktperson,
+  setSlettKontaktperson,
+  modalRef,
+}: ILeseRad) {
   return (
     <Table.Row key={kontaktperson.id}>
       <Table.DataCell>{kontaktperson.navn}</Table.DataCell>
@@ -164,7 +177,10 @@ function LeseRad({ kontaktperson, setRedigerKontaktperson, setSlettKontaktperson
           <Button
             variant="danger"
             size="small"
-            onClick={() => setSlettKontaktperson(kontaktperson)}
+            onClick={() => {
+              setSlettKontaktperson(kontaktperson);
+              modalRef.current?.showModal();
+            }}
           >
             Slett
           </Button>
