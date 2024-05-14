@@ -19,7 +19,7 @@ spec:
     useLegacySql: false
     query: >-
       select tiltakstype.navn, opphav, count(*) as antall_opprettet
-      from tiltaksgjennomforing
+      from datastream_mulighetsrommet_api_db.public_tiltaksgjennomforing
                join tiltakstype on tiltaksgjennomforing.tiltakstype_id = tiltakstype.id
       group by opphav, tiltakstype.navn
       order by navn
