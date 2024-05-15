@@ -3240,7 +3240,6 @@ components:
       properties:
         aarsak:
           type: string
-          nullable: true
 
     AvbrytAvtaleAarsak:
       type: string
@@ -3263,7 +3262,6 @@ components:
       properties:
         aarsak:
           type: string
-          nullable: true
 
     SetAvtaleForGjennomforingRequest:
       type: object

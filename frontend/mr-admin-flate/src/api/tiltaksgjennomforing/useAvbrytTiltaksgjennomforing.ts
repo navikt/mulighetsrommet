@@ -6,26 +6,24 @@ import { QueryKeys } from "@/api/QueryKeys";
 export function useAvbrytTiltaksgjennomforing() {
   const client = useQueryClient();
 
-  return useMutation<
-    unknown,
-    ApiError,
-    { id: string; aarsak: AvbrytGjennomforingAarsak | string | null }
-  >({
-    mutationFn: (data: { id: string; aarsak?: AvbrytGjennomforingAarsak | string | null }) => {
-      return mulighetsrommetClient.tiltaksgjennomforinger.avbrytTiltaksgjennomforing({
-        id: data.id,
-        requestBody: { aarsak: data.aarsak },
-      });
+  return useMutation<unknown, ApiError, { id: string; aarsak: AvbrytGjennomforingAarsak | string }>(
+    {
+      mutationFn: (data: { id: string; aarsak?: AvbrytGjennomforingAarsak | string }) => {
+        return mulighetsrommetClient.tiltaksgjennomforinger.avbrytTiltaksgjennomforing({
+          id: data.id,
+          requestBody: { aarsak: data.aarsak },
+        });
+      },
+      onSuccess(_, request) {
+        return Promise.all([
+          client.invalidateQueries({
+            queryKey: QueryKeys.tiltaksgjennomforing(request.id),
+          }),
+          client.invalidateQueries({
+            queryKey: QueryKeys.tiltaksgjennomforinger(),
+          }),
+        ]);
+      },
     },
-    onSuccess(_, request) {
-      return Promise.all([
-        client.invalidateQueries({
-          queryKey: QueryKeys.tiltaksgjennomforing(request.id),
-        }),
-        client.invalidateQueries({
-          queryKey: QueryKeys.tiltaksgjennomforinger(),
-        }),
-      ]);
-    },
-  });
+  );
 }

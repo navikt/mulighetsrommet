@@ -150,6 +150,14 @@ class AvtaleService(
             return Either.Left(BadRequest(message = "Avtalen har opprinnelse fra Arena og kan ikke bli avbrutt fra admin-flate."))
         }
 
+        if (aarsak is AvbruttAarsak.Annet && aarsak.name.length > 100) {
+            return Either.Left(BadRequest(message = "Beskrivelse kan ikke inneholde mer enn 100 tegn"))
+        }
+
+        if (aarsak is AvbruttAarsak.Annet && aarsak.name.isEmpty()) {
+            return Either.Left(BadRequest(message = "Beskrivelse er obligatorisk når “Annet” er valgt som årsak"))
+        }
+
         if (avtale.status != AvtaleStatus.AKTIV) {
             return Either.Left(BadRequest(message = "Avtalen er allerede avsluttet og kan derfor ikke avbrytes."))
         }

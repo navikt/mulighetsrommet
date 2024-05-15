@@ -181,8 +181,16 @@ class TiltaksgjennomforingService(
             return Either.Left(BadRequest(message = "Tiltakstype '${gjennomforing.tiltakstype.navn}' må avbrytes i Arena."))
         }
 
+        if (aarsak is AvbruttAarsak.Annet && aarsak.name.length > 100) {
+            return Either.Left(BadRequest(message = "Beskrivelse kan ikke inneholde mer enn 100 tegn"))
+        }
+
+        if (aarsak is AvbruttAarsak.Annet && aarsak.name.isEmpty()) {
+            return Either.Left(BadRequest(message = "Beskrivelse er obligatorisk når “Annet” er valgt som årsak"))
+        }
+
         if (!gjennomforing.isAktiv()) {
-            return Either.Left(BadRequest(message = "Gjennomføringen kan ikke avbrytes fordi den allerede er avsluttet."))
+            return Either.Left(BadRequest(message = "Gjennomføringen er allerede avsluttet og kan derfor ikke avbrytes."))
         }
 
         db.transaction { tx ->
