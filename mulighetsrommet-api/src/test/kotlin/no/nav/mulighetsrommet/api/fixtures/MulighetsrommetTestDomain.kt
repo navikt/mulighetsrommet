@@ -25,6 +25,7 @@ data class MulighetsrommetTestDomain(
         TiltakstypeFixtures.Jobbklubb,
         TiltakstypeFixtures.AFT,
         TiltakstypeFixtures.EnkelAmo,
+        TiltakstypeFixtures.GruppeFagOgYrkesopplaering,
     ),
     val avtaler: List<AvtaleDbo> = listOf(
         AvtaleFixtures.oppfolging,

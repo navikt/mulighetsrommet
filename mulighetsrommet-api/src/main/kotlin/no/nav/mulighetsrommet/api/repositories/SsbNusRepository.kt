@@ -1,9 +1,11 @@
 package no.nav.mulighetsrommet.api.repositories
 
+import kotliquery.Row
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.clients.ssb.ClassificationItem
 import no.nav.mulighetsrommet.api.clients.ssb.SsbNusData
 import no.nav.mulighetsrommet.database.Database
+import no.nav.mulighetsrommet.domain.Tiltakskode
 import org.intellij.lang.annotations.Language
 
 class SsbNusRepository(private val db: Database) {
@@ -29,6 +31,22 @@ class SsbNusRepository(private val db: Database) {
             }
         }
     }
+
+    fun getNusData(tiltakskode: Tiltakskode, version: String): List<NusElement> {
+        @Language("PostgreSQL")
+        val query = """
+        select tiltakskode, tnk.code, tnk.version, name, parent
+        from tiltakstype_nus_kodeverk tnk
+                 join nus_kodeverk nk on tnk.code = nk.code and tnk.version = nk.version
+        where tiltakskode = ?::tiltakskode
+        and tnk.version = ?
+        order by parent desc
+        """.trimIndent()
+
+        return queryOf(query, tiltakskode.name, version)
+            .map { it.toNusElement() }
+            .asList.let { db.run(it) }
+    }
 }
 
 private fun ClassificationItem.toSqlParams(): Map<String, String> {
@@ -39,3 +57,21 @@ private fun ClassificationItem.toSqlParams(): Map<String, String> {
         "level" to level,
     )
 }
+
+private fun Row.toNusElement(): NusElement {
+    return NusElement(
+        tiltakskode = Tiltakskode.valueOf(string("tiltakskode")),
+        code = string("code"),
+        name = string("name"),
+        parent = string("parent"),
+        version = string("version"),
+    )
+}
+
+data class NusElement(
+    val tiltakskode: Tiltakskode,
+    val code: String,
+    val version: String,
+    val name: String,
+    val parent: String,
+)
