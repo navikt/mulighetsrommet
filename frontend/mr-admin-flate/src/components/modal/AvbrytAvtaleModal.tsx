@@ -12,6 +12,7 @@ import z from "zod";
 import { HarSkrivetilgang } from "@/components/authActions/HarSkrivetilgang";
 import style from "./AvbrytGjennomforingAvtaleModal.module.scss";
 import { AnnetEnum } from "@/api/annetEnum";
+import { Laster } from "@/components/laster/Laster";
 
 export const AvbrytAvtaleModalSchema = z
   .object({
@@ -183,8 +184,13 @@ export function AvbrytAvtaleModal({ modalRef, avtale }: Props) {
           <Button onClick={onClose}>Ok</Button>
         ) : (
           <HarSkrivetilgang ressurs="Avtale">
-            <Button variant="danger" onClick={handleAvbrytAvtale}>
-              Ja, jeg vil avbryte avtalen
+            <Button
+              variant="danger"
+              onClick={handleAvbrytAvtale}
+              disabled={mutation.isPending}
+              style={{ minWidth: "15rem" }}
+            >
+              {mutation.isPending ? <Laster /> : "Ja, jeg vil avbryte avtalen"}
             </Button>
           </HarSkrivetilgang>
         )

@@ -9,6 +9,7 @@ import { AvbrytModalAarsaker } from "@/components/modal/AvbrytModalAarsaker";
 import { VarselModal } from "@/components/modal/VarselModal";
 import z from "zod";
 import { AnnetEnum } from "@/api/annetEnum";
+import { Laster } from "@/components/laster/Laster";
 
 export const AvbrytGjennomforingModalSchema = z
   .object({
@@ -173,8 +174,13 @@ export const AvbrytGjennomforingModal = ({ modalRef, tiltaksgjennomforing }: Pro
       }
       secondaryButton
       primaryButton={
-        <Button variant="danger" onClick={handleAvbrytGjennomforing}>
-          Ja, jeg vil avbryte gjennomføringen
+        <Button
+          variant="danger"
+          onClick={handleAvbrytGjennomforing}
+          disabled={mutation.isPending}
+          style={{ minWidth: "20rem" }}
+        >
+          {mutation.isPending ? <Laster /> : "Ja, jeg vil avbryte gjennomføringen"}
         </Button>
       }
     />
