@@ -15,7 +15,8 @@ interface Props {
 export const NullstillKnappForTiltaksgjennomforinger = ({ filterAtom, avtale }: Props) => {
   const [filter, setFilter] = useAtom(filterAtom);
 
-  return filter.search.length > 0 ||
+  return filter.visMineGjennomforinger ||
+    filter.search.length > 0 ||
     filter.tiltakstyper.length > 0 ||
     filter.navEnheter.length > 0 ||
     filter.statuser.length > 0 ||

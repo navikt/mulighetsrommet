@@ -36,7 +36,7 @@ class UpdateTiltaksgjennomforingStatusTest : FunSpec({
             tiltaksgjennomforingKafkaProducer,
         )
 
-        fun TiltaksgjennomforingDbo.toDto(status: TiltaksgjennomforingStatus): TiltaksgjennomforingDto {
+        fun TiltaksgjennomforingDbo.toDto(status: TiltaksgjennomforingStatus.Enum): TiltaksgjennomforingDto {
             return TiltaksgjennomforingDto(
                 id = id,
                 tiltakstype = TiltaksgjennomforingDto.Tiltakstype(
@@ -50,6 +50,7 @@ class UpdateTiltaksgjennomforingStatusTest : FunSpec({
                 sluttDato = sluttDato,
                 status = status,
                 oppstart = oppstart,
+                tilgjengeligForArrangorFraOgMedDato = null,
             )
         }
 
@@ -100,8 +101,8 @@ class UpdateTiltaksgjennomforingStatusTest : FunSpec({
             task.oppdaterTiltaksgjennomforingStatus(today, lastSuccessDate)
 
             verifyAll {
-                tiltaksgjennomforingKafkaProducer.publish(startdatoInnenfor.toDto(TiltaksgjennomforingStatus.GJENNOMFORES))
-                tiltaksgjennomforingKafkaProducer.publish(sluttdatoInnenfor.toDto(TiltaksgjennomforingStatus.AVSLUTTET))
+                tiltaksgjennomforingKafkaProducer.publish(startdatoInnenfor.toDto(TiltaksgjennomforingStatus.Enum.GJENNOMFORES))
+                tiltaksgjennomforingKafkaProducer.publish(sluttdatoInnenfor.toDto(TiltaksgjennomforingStatus.Enum.AVSLUTTET))
             }
         }
     }

@@ -30,6 +30,6 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["src", "tests"],
+  "include": ["src", "tests", "../frontend-common/components/error-handling/ErrorBoundary.tsx", "../frontend-common/components/errorboundary/errors.ts"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

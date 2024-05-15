@@ -91,6 +91,27 @@ class ArenaEventServiceTest : FunSpec({
                 .value("message").isNull
         }
 
+        test("should handle multiple processors for the same event") {
+            val processor1 = spyk(ArenaEventTestProcessor())
+            val processor2 = spyk(ArenaEventTestProcessor())
+
+            val service = ArenaEventService(
+                events = events,
+                processors = listOf(processor1, processor2),
+                entities = entities,
+            )
+            service.processEvent(pendingEvent)
+
+            coVerify(exactly = 1) {
+                processor1.handleEvent(pendingEvent)
+                processor2.handleEvent(pendingEvent)
+            }
+
+            database.assertThat("arena_events").row()
+                .value("processing_status").isEqualTo(ProcessingStatus.Processed.name)
+                .value("message").isNull
+        }
+
         test("should not replay dependent events when event gets processed successfully") {
             val dependentEvent = ArenaEvent(
                 status = ProcessingStatus.Processed,
@@ -172,6 +193,53 @@ class ArenaEventServiceTest : FunSpec({
             database.assertThat("arena_events").row()
                 .value("processing_status").isEqualTo(ProcessingStatus.Failed.name)
                 .value("message").isEqualTo("Event processing failed: :(")
+        }
+
+        test("should not process the event by a second processor when the first processor fails to handle the event") {
+            val processor1 = ArenaEventTestProcessor {
+                ProcessingError.ProcessingFailed(":(").left()
+            }
+            val processor2 = spyk(ArenaEventTestProcessor())
+
+            val service = ArenaEventService(
+                events = events,
+                processors = listOf(processor1, processor2),
+                entities = entities,
+            )
+            service.processEvent(pendingEvent)
+
+            coVerify(exactly = 0) {
+                processor2.handleEvent(any())
+            }
+
+            database.assertThat("arena_events").row()
+                .value("processing_status").isEqualTo(ProcessingStatus.Failed.name)
+                .value("message").isEqualTo("Event processing failed: :(")
+        }
+
+        test("should not process the event by a second processor when the first processor marks the entity as Ignored") {
+            val processor1 = ArenaEventTestProcessor {
+                ProcessingResult(Ignored, ":/").right()
+            }
+            val processor2 = spyk(ArenaEventTestProcessor())
+
+            val service = ArenaEventService(
+                events = events,
+                processors = listOf(processor1, processor2),
+                entities = entities,
+            )
+            service.processEvent(pendingEvent)
+
+            coVerify(exactly = 0) {
+                processor2.handleEvent(any())
+            }
+
+            database.assertThat("arena_events").row()
+                .value("processing_status").isEqualTo(ProcessingStatus.Processed.name)
+                .value("message").isNull
+            database.assertThat("arena_entity_mapping").row()
+                .value("status").isEqualTo(Ignored.name)
+                .value("message").isEqualTo(":/")
         }
 
         test("should not process the event when it corresponds to a different Arena entity than the processor's configured ArenaTable") {

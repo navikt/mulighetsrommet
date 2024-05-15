@@ -9,6 +9,7 @@ import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.domain.dbo.AvtaleDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dto.AvtaleAdminDto
+import no.nav.mulighetsrommet.api.domain.dto.TiltakstypeAdminDto
 import no.nav.mulighetsrommet.api.repositories.ArrangorRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.routes.v1.responses.ValidationError
@@ -18,7 +19,6 @@ import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.Tiltakskoder
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
-import no.nav.mulighetsrommet.domain.dto.TiltakstypeAdminDto
 import no.nav.mulighetsrommet.domain.dto.allowedAvtaletypes
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
@@ -56,8 +56,8 @@ class AvtaleValidator(
                 add(ValidationError.of(AvtaleDbo::startDato, "Startdato må være før sluttdato"))
             }
 
-            if (avtale.avtaletype.kreverWebsakUrl() && avtale.url == null) {
-                add(ValidationError.of(AvtaleDbo::url, "Avtalen må lenke til Websak"))
+            if (avtale.avtaletype.kreverWebsaknummer() && avtale.websaknummer == null) {
+                add(ValidationError.of(AvtaleDbo::websaknummer, "Websaknummer til avtalesaken er påkrevd"))
             }
 
             if (avtale.arrangorUnderenheter.isEmpty()) {

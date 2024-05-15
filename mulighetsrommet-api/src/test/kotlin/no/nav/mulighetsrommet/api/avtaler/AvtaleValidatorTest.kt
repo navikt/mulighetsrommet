@@ -21,6 +21,7 @@ import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
 import no.nav.mulighetsrommet.domain.dto.NavIdent
+import no.nav.mulighetsrommet.domain.dto.Websaknummer
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
@@ -81,9 +82,9 @@ class AvtaleValidatorTest : FunSpec({
         arrangorUnderenheter = listOf(ArrangorFixtures.underenhet1.id),
         arrangorKontaktpersoner = emptyList(),
         avtalenummer = "123456",
+        websaknummer = Websaknummer("24/1234"),
         startDato = LocalDate.now().minusDays(1),
         sluttDato = LocalDate.now().plusMonths(1),
-        url = "http://localhost:8080",
         administratorer = listOf(NavIdent("B123456")),
         avtaletype = Avtaletype.Rammeavtale,
         prisbetingelser = null,
@@ -240,14 +241,14 @@ class AvtaleValidatorTest : FunSpec({
 
     test("avtaletype må være allowed") {
         val validator = AvtaleValidator(
-            TiltakstypeService(TiltakstypeRepository(database.db), Tiltakskode.values().toList()),
+            TiltakstypeService(TiltakstypeRepository(database.db), Tiltakskode.entries),
             gjennomforinger,
             navEnheterService,
             arrangorer,
         )
 
-        val aft = AvtaleFixtures.AFT.copy(avtaletype = Avtaletype.Rammeavtale, url = "https://www.websak.no")
-        val vta = AvtaleFixtures.VTA.copy(avtaletype = Avtaletype.Avtale, url = "https://www.websak.no")
+        val aft = AvtaleFixtures.AFT.copy(avtaletype = Avtaletype.Rammeavtale)
+        val vta = AvtaleFixtures.VTA.copy(avtaletype = Avtaletype.Avtale)
         val oppfolging = AvtaleFixtures.oppfolging.copy(avtaletype = Avtaletype.OffentligOffentlig)
         val gruppeAmo = AvtaleFixtures.gruppeAmo.copy(avtaletype = Avtaletype.Forhaandsgodkjent)
         validator.validate(aft, null).shouldBeLeft(
@@ -285,24 +286,24 @@ class AvtaleValidatorTest : FunSpec({
 
     test("Websak-referanse må være med når avtalen er avtale eller rammeavtale") {
         val validator = AvtaleValidator(
-            TiltakstypeService(TiltakstypeRepository(database.db), Tiltakskode.values().toList()),
+            TiltakstypeService(TiltakstypeRepository(database.db), Tiltakskode.entries),
             gjennomforinger,
             navEnheterService,
             arrangorer,
         )
 
-        val rammeavtale = AvtaleFixtures.oppfolging.copy(avtaletype = Avtaletype.Rammeavtale, url = null)
+        val rammeavtale = AvtaleFixtures.oppfolging.copy(avtaletype = Avtaletype.Rammeavtale, websaknummer = null)
         validator.validate(rammeavtale, null).shouldBeLeft(
-            listOf(ValidationError("url", "Avtalen må lenke til Websak")),
+            listOf(ValidationError("websaknummer", "Websaknummer til avtalesaken er påkrevd")),
         )
 
-        val avtale = AvtaleFixtures.oppfolging.copy(avtaletype = Avtaletype.Avtale, url = null)
+        val avtale = AvtaleFixtures.oppfolging.copy(avtaletype = Avtaletype.Avtale, websaknummer = null)
         validator.validate(avtale, null).shouldBeLeft(
-            listOf(ValidationError("url", "Avtalen må lenke til Websak")),
+            listOf(ValidationError("websaknummer", "Websaknummer til avtalesaken er påkrevd")),
         )
 
         val offentligOffentligSamarbeid =
-            AvtaleFixtures.gruppeAmo.copy(avtaletype = Avtaletype.OffentligOffentlig, url = null)
+            AvtaleFixtures.gruppeAmo.copy(avtaletype = Avtaletype.OffentligOffentlig, websaknummer = null)
         validator.validate(offentligOffentligSamarbeid, null).shouldBeRight()
     }
 
@@ -361,9 +362,9 @@ class AvtaleValidatorTest : FunSpec({
                 arrangorUnderenheter = listOf(ArrangorFixtures.underenhet1.id),
                 arrangorKontaktpersoner = emptyList(),
                 avtalenummer = "123456",
+                websaknummer = Websaknummer("24/1234"),
                 startDato = LocalDate.now(),
                 sluttDato = LocalDate.now().plusYears(1),
-                url = "nav.no",
                 administratorer = listOf(NavIdent("B123456")),
                 avtaletype = Avtaletype.Forhaandsgodkjent,
                 prisbetingelser = null,
@@ -401,9 +402,9 @@ class AvtaleValidatorTest : FunSpec({
                 arrangorUnderenheter = listOf(ArrangorFixtures.underenhet1.id),
                 arrangorKontaktpersoner = emptyList(),
                 avtalenummer = "123456",
+                websaknummer = Websaknummer("24/1234"),
                 startDato = LocalDate.now(),
                 sluttDato = LocalDate.now().plusYears(1),
-                url = "nav.no",
                 administratorer = listOf(NavIdent("B123456")),
                 avtaletype = Avtaletype.Avtale,
                 prisbetingelser = null,

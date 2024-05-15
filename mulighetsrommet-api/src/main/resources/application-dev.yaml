@@ -4,14 +4,10 @@ server:
 
 app:
   database:
-    host: ${DB_HOST}
-    port: ${DB_PORT}
-    name: ${DB_DATABASE}
-    user: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
+    jdbcUrl: ${DB_JDBC_URL}
     maximumPoolSize: 10
-    migrationConfig:
-      strategy: Migrate
+  flyway:
+    strategy: Migrate
 
   migrerteTiltak:
     - AVKLARING
@@ -135,7 +131,7 @@ app:
       cronPattern: "0 0 6 * * *" # Hver morgen kl. 06:00
     notifyFailedKafkaEvents:
       maxRetries: 5
-      delayOfMinutes: 15
+      cronPattern: "0 */15 * ? * MON-FRI"
     generateValidationReport:
       bucketName: mulighetsrommet-api-uploads-dev
     updateApentForInnsok:
@@ -159,3 +155,6 @@ app:
     token: ${UNLEASH_SERVER_API_TOKEN}
     instanceId: ${NAIS_CLIENT_ID}
     environment: development
+
+  ssbNusConfig:
+    baseUrl: "https://data.ssb.no/api"

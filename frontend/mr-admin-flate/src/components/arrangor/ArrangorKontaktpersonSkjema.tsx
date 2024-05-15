@@ -9,9 +9,9 @@ import {
   ArrangorKontaktpersonAnsvar,
 } from "mulighetsrommet-api-client";
 import { useDeleteArrangorKontaktperson } from "@/api/arrangor/useDeleteArrangorKontaktperson";
-import { resolveErrorMessage } from "@/api/errors";
 import { useHandleApiUpsertResponse } from "@/api/effects";
 import { navnForAnsvar } from "./ArrangorKontaktpersonUtils";
+import { resolveErrorMessage } from "mulighetsrommet-frontend-common/components/error-handling/errors";
 
 type ArrangorKontaktpersonErrors = Partial<Record<keyof ArrangorKontaktperson, string>>;
 

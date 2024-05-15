@@ -5,5 +5,5 @@ export const mockFeatures: Features = {
   "mulighetsrommet-veilederflate-landingsside": false,
   "mulighetsrommet-veilederflate-arena-oppskrifter": true,
   "mulighetsrommet.admin-flate.enableDebugger": false,
-  "mulighetsrommet.admin-flate.enableArrangorSider": false,
+  "mulighetsrommet.admin-flate.tilgjengeliggjore-tiltak-for-arrangor": false,
 };

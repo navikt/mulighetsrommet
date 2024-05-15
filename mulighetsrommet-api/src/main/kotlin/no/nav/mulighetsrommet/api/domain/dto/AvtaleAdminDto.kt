@@ -7,11 +7,7 @@ import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.ArenaAvtaleDbo
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dto.*
-import no.nav.mulighetsrommet.domain.dto.Avtalestatus
-import no.nav.mulighetsrommet.domain.dto.Avtaletype
-import no.nav.mulighetsrommet.domain.dto.Faneinnhold
-import no.nav.mulighetsrommet.domain.dto.NavIdent
-import no.nav.mulighetsrommet.domain.dto.Personopplysning
+import no.nav.mulighetsrommet.domain.serializers.AvtaleStatusSerializer
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import java.time.LocalDate
@@ -24,6 +20,7 @@ data class AvtaleAdminDto(
     val tiltakstype: Tiltakstype,
     val navn: String,
     val avtalenummer: String?,
+    val websaknummer: Websaknummer?,
     val lopenummer: Lopenummer?,
     val arrangor: ArrangorHovedenhet,
     @Serializable(with = LocalDateSerializer::class)
@@ -32,10 +29,10 @@ data class AvtaleAdminDto(
     val sluttDato: LocalDate?,
     val arenaAnsvarligEnhet: ArenaNavEnhet?,
     val avtaletype: Avtaletype,
-    val avtalestatus: Avtalestatus,
+    @Serializable(with = AvtaleStatusSerializer::class)
+    val status: AvtaleStatus,
     val prisbetingelser: String?,
     val administratorer: List<Administrator>,
-    val url: String?,
     val antallPlasser: Int?,
     val opphav: ArenaMigrering.Opphav,
     val kontorstruktur: List<Kontorstruktur>,
@@ -87,6 +84,7 @@ data class AvtaleAdminDto(
             navn = navn,
             tiltakstypeId = tiltakstype.id,
             avtalenummer = avtalenummer,
+            websaknummer = websaknummer,
             arrangorId = arrangor.id,
             arrangorUnderenheter = arrangor.underenheter.map { it.id },
             arrangorKontaktpersoner = arrangor.kontaktpersoner.map { it.id },
@@ -96,7 +94,6 @@ data class AvtaleAdminDto(
             avtaletype = avtaletype,
             prisbetingelser = prisbetingelser,
             antallPlasser = antallPlasser,
-            url = url,
             administratorer = administratorer.map { it.navIdent },
             beskrivelse = null,
             faneinnhold = null,
@@ -115,10 +112,10 @@ data class AvtaleAdminDto(
             sluttDato = sluttDato,
             arenaAnsvarligEnhet = arenaAnsvarligEnhet?.enhetsnummer,
             avtaletype = avtaletype,
-            avslutningsstatus = when (avtalestatus) {
-                Avtalestatus.AKTIV -> Avslutningsstatus.IKKE_AVSLUTTET
-                Avtalestatus.AVBRUTT -> Avslutningsstatus.AVBRUTT
-                Avtalestatus.AVSLUTTET -> Avslutningsstatus.AVSLUTTET
+            avslutningsstatus = when (status) {
+                is AvtaleStatus.AKTIV -> Avslutningsstatus.IKKE_AVSLUTTET
+                is AvtaleStatus.AVBRUTT -> Avslutningsstatus.AVBRUTT
+                is AvtaleStatus.AVSLUTTET -> Avslutningsstatus.AVSLUTTET
             },
             prisbetingelser = prisbetingelser,
         )

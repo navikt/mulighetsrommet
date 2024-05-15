@@ -5,7 +5,7 @@ import io.ktor.util.pipeline.*
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattRolle
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
-import no.nav.mulighetsrommet.domain.dto.Avtalestatus
+import no.nav.mulighetsrommet.domain.dto.AvtaleStatus
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
 import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.notifications.NotificationStatus
@@ -15,7 +15,7 @@ import java.util.*
 data class AvtaleFilter(
     val tiltakstypeIder: List<UUID> = emptyList(),
     val search: String? = null,
-    val statuser: List<Avtalestatus> = emptyList(),
+    val statuser: List<AvtaleStatus.Enum> = emptyList(),
     val avtaletyper: List<Avtaletype> = emptyList(),
     val navRegioner: List<String> = emptyList(),
     val sortering: String? = null,
@@ -38,13 +38,6 @@ data class NotificationFilter(
     val status: NotificationStatus? = null,
 )
 
-data class NotatFilter(
-    val avtaleId: UUID? = null,
-    val tiltaksgjennomforingId: UUID? = null,
-    val opprettetAv: NavIdent? = null,
-    val sortering: String? = "dato-created-asc",
-)
-
 fun <T : Any> PipelineContext<T, ApplicationCall>.getNotificationFilter(): NotificationFilter {
     val status = call.request.queryParameters["status"]
     return NotificationFilter(
@@ -56,7 +49,7 @@ fun <T : Any> PipelineContext<T, ApplicationCall>.getAvtaleFilter(): AvtaleFilte
     val tiltakstypeIder = call.parameters.getAll("tiltakstyper")?.map { it.toUUID() } ?: emptyList()
     val search = call.request.queryParameters["search"]
     val statuser = call.parameters.getAll("statuser")
-        ?.map { status -> Avtalestatus.valueOf(status) }
+        ?.map { status -> AvtaleStatus.Enum.valueOf(status) }
         ?: emptyList()
     val avtaletyper = call.parameters.getAll("avtaletyper")
         ?.map { type -> Avtaletype.valueOf(type) }
@@ -100,19 +93,5 @@ fun <T : Any> PipelineContext<T, ApplicationCall>.getNavAnsattFilter(): NavAnsat
     val azureIder = call.parameters.getAll("roller")?.map { NavAnsattRolle.valueOf(it) } ?: emptyList()
     return NavAnsattFilter(
         roller = azureIder,
-    )
-}
-
-fun <T : Any> PipelineContext<T, ApplicationCall>.getNotatFilter(): NotatFilter {
-    val avtaleId = call.request.queryParameters["avtaleId"]?.let { if (it.isEmpty()) null else it.toUUID() }
-    val tiltaksgjennomforingId =
-        call.request.queryParameters["tiltaksgjennomforingId"]?.let { if (it.isEmpty()) null else it.toUUID() }
-    val sortering = call.request.queryParameters["order"]
-
-    return NotatFilter(
-        avtaleId = avtaleId,
-        tiltaksgjennomforingId = tiltaksgjennomforingId,
-        opprettetAv = null,
-        sortering = sortering,
     )
 }

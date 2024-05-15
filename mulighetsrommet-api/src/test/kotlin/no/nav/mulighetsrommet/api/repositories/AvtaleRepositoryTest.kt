@@ -93,7 +93,7 @@ class AvtaleRepositoryTest : FunSpec({
                 it.startDato shouldBe arenaAvtale.startDato
                 it.sluttDato shouldBe arenaAvtale.sluttDato
                 it.avtaletype shouldBe arenaAvtale.avtaletype
-                it.avtalestatus shouldBe Avtalestatus.AKTIV
+                it.status shouldBe AvtaleStatus.AKTIV
                 it.opphav shouldBe ArenaMigrering.Opphav.ARENA
                 it.prisbetingelser shouldBe "Alt er dyrt"
             }
@@ -258,6 +258,17 @@ class AvtaleRepositoryTest : FunSpec({
                 )
             }
         }
+
+        test("getAvtaleIdsByAdministrator") {
+            val avtaler = AvtaleRepository(database.db)
+
+            val avtale1 = AvtaleFixtures.oppfolging.copy(
+                administratorer = listOf(NavAnsattFixture.ansatt1.navIdent),
+            )
+
+            avtaler.upsert(avtale1)
+            avtaler.getAvtaleIdsByAdministrator(NavAnsattFixture.ansatt1.navIdent) shouldBe listOf(avtale1.id)
+        }
     }
 
     context("Filter for avtaler") {
@@ -342,7 +353,7 @@ class AvtaleRepositoryTest : FunSpec({
                     id = UUID.randomUUID(),
                 )
                 avtaler.upsert(avtaleAvbrutt)
-                avtaler.setAvbruttTidspunkt(avtaleAvbrutt.id, LocalDateTime.now())
+                avtaler.avbryt(avtaleAvbrutt.id, LocalDateTime.now(), AvbruttAarsak.Feilregistrering)
 
                 val avtalePlanlagt = AvtaleFixtures.oppfolging.copy(
                     id = UUID.randomUUID(),
@@ -351,11 +362,11 @@ class AvtaleRepositoryTest : FunSpec({
                 avtaler.upsert(avtalePlanlagt)
 
                 forAll(
-                    row(listOf(Avtalestatus.AKTIV), listOf(avtaleAktiv.id, avtalePlanlagt.id)),
-                    row(listOf(Avtalestatus.AVBRUTT), listOf(avtaleAvbrutt.id)),
-                    row(listOf(Avtalestatus.AVSLUTTET), listOf(avtaleAvsluttet.id)),
+                    row(listOf(AvtaleStatus.Enum.AKTIV), listOf(avtaleAktiv.id, avtalePlanlagt.id)),
+                    row(listOf(AvtaleStatus.Enum.AVBRUTT), listOf(avtaleAvbrutt.id)),
+                    row(listOf(AvtaleStatus.Enum.AVSLUTTET), listOf(avtaleAvsluttet.id)),
                     row(
-                        listOf(Avtalestatus.AVBRUTT, Avtalestatus.AVSLUTTET),
+                        listOf(AvtaleStatus.Enum.AVBRUTT, AvtaleStatus.Enum.AVSLUTTET),
                         listOf(avtaleAvbrutt.id, avtaleAvsluttet.id),
                     ),
                 ) { statuser, expected ->
@@ -843,29 +854,29 @@ class AvtaleRepositoryTest : FunSpec({
 
         test("status utleds fra avtalens datoer") {
             forAll(
-                row(dagensDato, enManedFrem, Avtalestatus.AKTIV),
-                row(enManedFrem, toManederFrem, Avtalestatus.AKTIV),
-                row(enManedTilbake, dagensDato, Avtalestatus.AKTIV),
-                row(toManederTilbake, enManedTilbake, Avtalestatus.AVSLUTTET),
+                row(dagensDato, enManedFrem, AvtaleStatus.AKTIV),
+                row(enManedFrem, toManederFrem, AvtaleStatus.AKTIV),
+                row(enManedTilbake, dagensDato, AvtaleStatus.AKTIV),
+                row(toManederTilbake, enManedTilbake, AvtaleStatus.AVSLUTTET),
             ) { startDato, sluttDato, expectedStatus ->
                 avtaler.upsert(AvtaleFixtures.oppfolging.copy(startDato = startDato, sluttDato = sluttDato))
 
-                avtaler.get(AvtaleFixtures.oppfolging.id).shouldNotBeNull().avtalestatus shouldBe expectedStatus
+                avtaler.get(AvtaleFixtures.oppfolging.id).shouldNotBeNull().status shouldBe expectedStatus
             }
         }
 
         test("avbrutt-tidspunkt påvirker avtalestatus") {
             forAll(
-                row(dagensDato, enManedFrem, dagensDato, Avtalestatus.AVBRUTT),
-                row(enManedFrem, toManederFrem, dagensDato, Avtalestatus.AVBRUTT),
-                row(toManederTilbake, enManedTilbake, dagensDato, Avtalestatus.AVBRUTT),
-                row(enManedTilbake, enManedFrem, enManedFrem.plusDays(1), Avtalestatus.AVBRUTT),
+                row(dagensDato, enManedFrem, dagensDato, AvtaleStatus.Enum.AVBRUTT),
+                row(enManedFrem, toManederFrem, dagensDato, AvtaleStatus.Enum.AVBRUTT),
+                row(toManederTilbake, enManedTilbake, dagensDato, AvtaleStatus.Enum.AVBRUTT),
+                row(enManedTilbake, enManedFrem, enManedFrem.plusDays(1), AvtaleStatus.Enum.AVBRUTT),
             ) { startDato, sluttDato, avbruttDato, expectedStatus ->
                 avtaler.upsert(AvtaleFixtures.oppfolging.copy(startDato = startDato, sluttDato = sluttDato))
 
-                avtaler.setAvbruttTidspunkt(AvtaleFixtures.oppfolging.id, avbruttDato.atStartOfDay())
+                avtaler.avbryt(AvtaleFixtures.oppfolging.id, avbruttDato.atStartOfDay(), AvbruttAarsak.Annet("Min årsak"))
 
-                avtaler.get(AvtaleFixtures.oppfolging.id).shouldNotBeNull().avtalestatus shouldBe expectedStatus
+                avtaler.get(AvtaleFixtures.oppfolging.id).shouldNotBeNull().status.enum shouldBe expectedStatus
             }
         }
     }

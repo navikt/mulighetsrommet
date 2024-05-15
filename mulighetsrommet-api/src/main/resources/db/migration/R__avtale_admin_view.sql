@@ -1,3 +1,4 @@
+-- hotfix 30 april view accidentally droppet
 drop view if exists avtale_admin_dto_view;
 
 create view avtale_admin_dto_view as
@@ -5,6 +6,7 @@ select avtale.id,
        avtale.navn,
        avtale.avtalenummer,
        avtale.lopenummer,
+       avtale.websaknummer,
        avtale.start_dato,
        avtale.slutt_dato,
        avtale.opphav,
@@ -12,7 +14,6 @@ select avtale.id,
        avtale.avbrutt_tidspunkt,
        avtale.prisbetingelser,
        avtale.antall_plasser,
-       avtale.url,
        avtale.beskrivelse,
        avtale.faneinnhold,
        jsonb_agg(
@@ -58,7 +59,8 @@ select avtale.id,
            jsonb_agg(avtale_personopplysning.personopplysning)
            filter (WHERE avtale_personopplysning.avtale_id IS NOT NULL), '[]'
        ) as personopplysninger,
-       avtale.personvern_bekreftet
+       avtale.personvern_bekreftet,
+       avtale.avbrutt_aarsak
 from avtale
          join tiltakstype on tiltakstype.id = avtale.tiltakstype_id
          left join avtale_administrator on avtale.id = avtale_administrator.avtale_id

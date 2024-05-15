@@ -53,6 +53,7 @@ class AvtaleService(
                         id = id,
                         navn = navn,
                         avtalenummer = avtalenummer,
+                        websaknummer = websaknummer,
                         tiltakstypeId = tiltakstypeId,
                         arrangorId = arrangor.id,
                         arrangorUnderenheter = underenheter.map { it.id },
@@ -61,7 +62,6 @@ class AvtaleService(
                         sluttDato = sluttDato,
                         avtaletype = avtaletype,
                         antallPlasser = null,
-                        url = url,
                         administratorer = administratorer,
                         prisbetingelser = prisbetingelser,
                         navEnheter = navEnheter,
@@ -140,26 +140,29 @@ class AvtaleService(
         return avtaler.getAllAvtalerSomNarmerSegSluttdato()
     }
 
-    fun avbrytAvtale(id: UUID, navIdent: NavIdent): StatusResponse<Unit> {
+    fun avbrytAvtale(id: UUID, navIdent: NavIdent, aarsak: AvbruttAarsak?): StatusResponse<Unit> {
+        if (aarsak == null) {
+            return Either.Left(BadRequest(message = "Årsak mangler"))
+        }
         val avtale = avtaler.get(id) ?: return Either.Left(NotFound("Avtalen finnes ikke"))
 
         if (avtale.opphav == Opphav.ARENA && !tiltakstyperMigrert.contains(Tiltakskode.fromArenaKode(avtale.tiltakstype.arenaKode))) {
             return Either.Left(BadRequest(message = "Avtalen har opprinnelse fra Arena og kan ikke bli avbrutt fra admin-flate."))
         }
 
-        if (avtale.avtalestatus != Avtalestatus.AKTIV) {
+        if (avtale.status != AvtaleStatus.AKTIV) {
             return Either.Left(BadRequest(message = "Avtalen er allerede avsluttet og kan derfor ikke avbrytes."))
         }
 
         val (_, gjennomforinger) = tiltaksgjennomforinger.getAll(
             avtaleId = id,
             statuser = listOf(
-                TiltaksgjennomforingStatus.GJENNOMFORES,
-                TiltaksgjennomforingStatus.PLANLAGT,
+                TiltaksgjennomforingStatus.Enum.GJENNOMFORES,
+                TiltaksgjennomforingStatus.Enum.PLANLAGT,
             ),
         )
 
-        val (antallAktiveGjennomforinger, antallPlanlagteGjennomforinger) = gjennomforinger.partition { it.status == TiltaksgjennomforingStatus.GJENNOMFORES }
+        val (antallAktiveGjennomforinger, antallPlanlagteGjennomforinger) = gjennomforinger.partition { it.status is TiltaksgjennomforingStatus.GJENNOMFORES }
         if (antallAktiveGjennomforinger.isNotEmpty()) {
             return Either.Left(
                 BadRequest(
@@ -185,7 +188,7 @@ class AvtaleService(
         }
 
         db.transaction { tx ->
-            avtaler.setAvbruttTidspunkt(tx, id, LocalDateTime.now())
+            avtaler.avbryt(tx, id, LocalDateTime.now(), aarsak)
             val dto = getOrError(id, tx)
             logEndring("Avtale ble avbrutt", dto, navIdent, tx)
         }

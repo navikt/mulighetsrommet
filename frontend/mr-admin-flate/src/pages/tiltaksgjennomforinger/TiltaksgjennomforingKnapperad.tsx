@@ -1,18 +1,14 @@
 import React, { useRef } from "react";
-import { Button, Switch } from "@navikt/ds-react";
+import { BodyShort, Button, Switch } from "@navikt/ds-react";
 import { useMutatePublisert } from "@/api/tiltaksgjennomforing/useMutatePublisert";
 import styles from "../DetaljerInfo.module.scss";
-import {
-  NavAnsatt,
-  Tiltaksgjennomforing,
-  TiltaksgjennomforingStatus,
-} from "mulighetsrommet-api-client";
+import { NavAnsatt, Tiltaksgjennomforing } from "mulighetsrommet-api-client";
 import { useTiltaksgjennomforingEndringshistorikk } from "@/api/tiltaksgjennomforing/useTiltaksgjennomforingEndringshistorikk";
-import { EndringshistorikkPopover } from "../../components/endringshistorikk/EndringshistorikkPopover";
-import { ViewEndringshistorikk } from "../../components/endringshistorikk/ViewEndringshistorikk";
-import { RedigeringsAdvarselModal } from "../../components/modal/RedigeringsAdvarselModal";
+import { EndringshistorikkPopover } from "@/components/endringshistorikk/EndringshistorikkPopover";
+import { ViewEndringshistorikk } from "@/components/endringshistorikk/ViewEndringshistorikk";
 import { useNavigate } from "react-router-dom";
-import { HarSkrivetilgang } from "../../components/authActions/HarSkrivetilgang";
+import { HarSkrivetilgang } from "@/components/authActions/HarSkrivetilgang";
+import { VarselModal } from "@/components/modal/VarselModal";
 
 interface Props {
   bruker: NavAnsatt;
@@ -28,10 +24,9 @@ export function TiltaksgjennomforingKnapperad({ bruker, tiltaksgjennomforing }: 
     mutate({ id: tiltaksgjennomforing.id, publisert: e.currentTarget.checked });
   }
 
-  const gjennomforingIsActive = [
-    TiltaksgjennomforingStatus.PLANLAGT,
-    TiltaksgjennomforingStatus.GJENNOMFORES,
-  ].includes(tiltaksgjennomforing.status);
+  const gjennomforingIsActive = ["PLANLAGT", "GJENNOMFORES"].includes(
+    tiltaksgjennomforing.status.name,
+  );
 
   return (
     <div className={styles.knapperad}>
@@ -64,10 +59,18 @@ export function TiltaksgjennomforingKnapperad({ bruker, tiltaksgjennomforing }: 
           Rediger
         </Button>
       </HarSkrivetilgang>
-      <RedigeringsAdvarselModal
-        ressursNavn="tiltaksgjennomføringen"
+      <VarselModal
         modalRef={advarselModal}
-        onRediger={() => navigate("skjema")}
+        handleClose={() => advarselModal.current?.close()}
+        headingIconType="warning"
+        headingText="Du er ikke eier av denne tiltaksgjennomføringen"
+        body={<BodyShort>Vil du fortsette til redigeringen?</BodyShort>}
+        secondaryButton
+        primaryButton={
+          <Button variant="primary" onClick={() => navigate("skjema")}>
+            Ja, jeg vil redigere
+          </Button>
+        }
       />
     </div>
   );

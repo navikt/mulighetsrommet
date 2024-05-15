@@ -61,6 +61,9 @@ dependencies {
     implementation(libs.arrow.core)
     implementation(libs.arrow.core.serialization)
 
+    // Logging
+    implementation(libs.bundles.logging)
+
     // Ktor
     testImplementation(libs.ktor.client.mock)
     implementation(libs.ktor.serialization.json)
@@ -117,7 +120,7 @@ dependencies {
         implementation("org.yaml:snakeyaml:2.2") {
             because("sikkerhetshull i transitiv avhengighet rapportert via snyk")
         }
-        implementation("org.apache.tomcat.embed:tomcat-embed-core:9.0.88") {
+        implementation("org.apache.tomcat.embed:tomcat-embed-core:9.0.89") {
             because("sikkerhetshull i transitiv avhengighet rapportert via snyk")
         }
     }
@@ -129,11 +132,6 @@ dependencies {
     testImplementation(libs.assertj.db)
     testImplementation(libs.mockk)
     testImplementation(libs.nav.mockOauth2Server)
-
-    // Logging
-    implementation(libs.logback.classic)
-    implementation(libs.logback.logstashLogbackEncoder)
-    implementation(libs.slf4j)
 
     // DB-scheduler
     implementation(libs.dbScheduler)

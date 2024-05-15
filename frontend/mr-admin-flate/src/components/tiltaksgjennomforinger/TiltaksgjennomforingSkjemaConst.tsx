@@ -57,7 +57,7 @@ function defaultArrangor(
   avtale: Avtale,
   tiltaksgjennomforing?: Tiltaksgjennomforing,
 ): string | undefined {
-  if (tiltaksgjennomforing?.arrangor.id) {
+  if (tiltaksgjennomforing?.arrangor?.id) {
     return tiltaksgjennomforing.arrangor.id;
   }
 
@@ -107,5 +107,7 @@ export function defaultTiltaksgjennomforingData(
     deltidsprosent: tiltaksgjennomforing?.deltidsprosent ?? 100,
     visEstimertVentetid: !!tiltaksgjennomforing?.estimertVentetid?.enhet,
     estimertVentetid: tiltaksgjennomforing?.estimertVentetid ?? null,
+    tilgjengeligForArrangorFraOgMedDato:
+      tiltaksgjennomforing?.tilgjengeligForArrangorFraOgMedDato ?? null,
   };
 }

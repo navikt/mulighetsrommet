@@ -1,4 +1,4 @@
-import { Alert, BodyLong, Heading, HStack, Tabs, Textarea } from "@navikt/ds-react";
+import { Alert, BodyLong, Heading, HStack, Tabs, Textarea, VStack } from "@navikt/ds-react";
 import { PortableText } from "@portabletext/react";
 import { EmbeddedTiltakstype, VeilederflateTiltakstype } from "mulighetsrommet-api-client";
 import { useFormContext } from "react-hook-form";
@@ -8,9 +8,9 @@ import { PortableTextEditor } from "../portableText/PortableTextEditor";
 import skjemastyles from "../skjema/Skjema.module.scss";
 import { Laster } from "../laster/Laster";
 import React, { useState } from "react";
-import { InlineErrorBoundary } from "../../ErrorBoundary";
 import { FileTextIcon, LinkIcon, PaperplaneIcon } from "@navikt/aksel-icons";
 import { Lenker } from "../lenker/Lenker";
+import { InlineErrorBoundary } from "mulighetsrommet-frontend-common";
 
 interface RedaksjoneltInnholdFormProps {
   tiltakstype: EmbeddedTiltakstype;
@@ -58,7 +58,7 @@ function RedaksjoneltInnhold({ tiltakstype }: { tiltakstype: EmbeddedTiltakstype
               value="for_hvem"
               label={
                 <div className={skjemastyles.red_tab_title}>
-                  <FileTextIcon /> For hvem
+                  <FileTextIcon style={{ fontSize: "1.5rem" }} /> For hvem
                 </div>
               }
             />
@@ -66,7 +66,7 @@ function RedaksjoneltInnhold({ tiltakstype }: { tiltakstype: EmbeddedTiltakstype
               value="detaljer_og_innhold"
               label={
                 <div className={skjemastyles.red_tab_title}>
-                  <FileTextIcon /> Detaljer og innhold
+                  <FileTextIcon style={{ fontSize: "1.5rem" }} /> Detaljer og innhold
                 </div>
               }
             />
@@ -74,7 +74,7 @@ function RedaksjoneltInnhold({ tiltakstype }: { tiltakstype: EmbeddedTiltakstype
               value="pamelding_og_varighet"
               label={
                 <div className={skjemastyles.red_tab_title}>
-                  <FileTextIcon /> Påmelding og varighet
+                  <FileTextIcon style={{ fontSize: "1.5rem" }} /> Påmelding og varighet
                 </div>
               }
             />
@@ -82,7 +82,7 @@ function RedaksjoneltInnhold({ tiltakstype }: { tiltakstype: EmbeddedTiltakstype
               value="kontaktinfo"
               label={
                 <div className={skjemastyles.red_tab_title}>
-                  <FileTextIcon /> Kontaktinfo
+                  <FileTextIcon style={{ fontSize: "1.5rem" }} /> Kontaktinfo
                 </div>
               }
             />
@@ -90,7 +90,7 @@ function RedaksjoneltInnhold({ tiltakstype }: { tiltakstype: EmbeddedTiltakstype
               value="lenker"
               label={
                 <div className={skjemastyles.red_tab_title}>
-                  <LinkIcon /> Lenker
+                  <LinkIcon style={{ fontSize: "1.5rem" }} /> Lenker
                 </div>
               }
             />
@@ -98,7 +98,7 @@ function RedaksjoneltInnhold({ tiltakstype }: { tiltakstype: EmbeddedTiltakstype
               value="del_med_bruker"
               label={
                 <div className={skjemastyles.red_tab_title}>
-                  <PaperplaneIcon /> Del med bruker
+                  <PaperplaneIcon style={{ fontSize: "1.5rem" }} /> Del med bruker
                 </div>
               }
             />
@@ -137,7 +137,9 @@ const ForHvem = ({ tiltakstype }: { tiltakstype?: VeilederflateTiltakstype }) =>
           {tiltakstype?.faneinnhold?.forHvemInfoboks}
         </Alert>
       )}
-      <PortableText value={tiltakstype?.faneinnhold?.forHvem} />
+      {tiltakstype?.faneinnhold?.forHvem && (
+        <PortableText value={tiltakstype.faneinnhold.forHvem} />
+      )}
       <Separator />
 
       <div className={skjemastyles.description_richtext_container}>
@@ -164,7 +166,9 @@ const DetaljerOgInnhold = ({ tiltakstype }: { tiltakstype?: VeilederflateTiltaks
       {tiltakstype?.faneinnhold?.detaljerOgInnholdInfoboks && (
         <Alert variant="info">{tiltakstype?.faneinnhold?.detaljerOgInnholdInfoboks}</Alert>
       )}
-      <PortableText value={tiltakstype?.faneinnhold?.detaljerOgInnhold} />
+      {tiltakstype?.faneinnhold?.detaljerOgInnhold && (
+        <PortableText value={tiltakstype.faneinnhold.detaljerOgInnhold} />
+      )}
       <Separator />
 
       <div className={skjemastyles.description_richtext_container}>
@@ -191,7 +195,9 @@ const PameldingOgVarighet = ({ tiltakstype }: { tiltakstype?: VeilederflateTilta
       {tiltakstype?.faneinnhold?.pameldingOgVarighetInfoboks && (
         <Alert variant="info">{tiltakstype?.faneinnhold?.pameldingOgVarighetInfoboks}</Alert>
       )}
-      <PortableText value={tiltakstype?.faneinnhold?.pameldingOgVarighet} />
+      {tiltakstype?.faneinnhold?.pameldingOgVarighet && (
+        <PortableText value={tiltakstype.faneinnhold.pameldingOgVarighet} />
+      )}
       <Separator />
 
       <div className={skjemastyles.description_richtext_container}>
@@ -215,16 +221,18 @@ const Kontaktinfo = () => {
 
   return (
     <div className={skjemastyles.faneinnhold_container}>
-      <Textarea
-        {...register("faneinnhold.kontaktinfoInfoboks")}
-        label="Fremhevet informasjon til veileder som legger seg i blå infoboks i fanen «Kontaktinfo»"
-        description="Bruk denne tekstboksen for informasjon som skal være ekstra fremtredende for veilederne."
-      />
-      <PortableTextEditor
-        {...register("faneinnhold.kontaktinfo")}
-        label="Kontaktinfo"
-        description="Ekstra tekst om kontaktinfo."
-      />
+      <VStack gap="5">
+        <Textarea
+          {...register("faneinnhold.kontaktinfoInfoboks")}
+          label="Fremhevet informasjon til veileder som legger seg i blå infoboks i fanen «Kontaktinfo»"
+          description="Bruk denne tekstboksen for informasjon som skal være ekstra fremtredende for veilederne."
+        />
+        <PortableTextEditor
+          {...register("faneinnhold.kontaktinfo")}
+          label="Kontaktinfo"
+          description="Ekstra tekst om kontaktinfo."
+        />
+      </VStack>
     </div>
   );
 };

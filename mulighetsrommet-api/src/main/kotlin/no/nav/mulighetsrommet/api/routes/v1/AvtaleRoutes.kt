@@ -17,10 +17,7 @@ import no.nav.mulighetsrommet.api.routes.v1.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.services.AvtaleService
 import no.nav.mulighetsrommet.api.services.ExcelService
 import no.nav.mulighetsrommet.api.utils.getAvtaleFilter
-import no.nav.mulighetsrommet.domain.dto.Avtaletype
-import no.nav.mulighetsrommet.domain.dto.Faneinnhold
-import no.nav.mulighetsrommet.domain.dto.NavIdent
-import no.nav.mulighetsrommet.domain.dto.Personopplysning
+import no.nav.mulighetsrommet.domain.dto.*
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import org.koin.ktor.ext.inject
@@ -46,7 +43,8 @@ fun Route.avtaleRoutes() {
             put("{id}/avbryt") {
                 val id = call.parameters.getOrFail<UUID>("id")
                 val navIdent = getNavIdent()
-                val response = avtaler.avbrytAvtale(id, navIdent)
+                val request = call.receive<AvbrytRequest>()
+                val response = avtaler.avbrytAvtale(id, navIdent, request.aarsak)
                 call.respondWithStatusResponse(response)
             }
 
@@ -143,11 +141,11 @@ data class AvtaleRequest(
         UUID,
         >,
     val avtalenummer: String?,
+    val websaknummer: Websaknummer?,
     @Serializable(with = LocalDateSerializer::class)
     val startDato: LocalDate,
     @Serializable(with = LocalDateSerializer::class)
     val sluttDato: LocalDate?,
-    val url: String?,
     val administratorer: List<NavIdent>,
     val avtaletype: Avtaletype,
     val prisbetingelser: String?,

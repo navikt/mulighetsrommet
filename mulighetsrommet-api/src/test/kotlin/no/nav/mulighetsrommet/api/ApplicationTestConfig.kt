@@ -4,8 +4,10 @@ import io.ktor.server.application.*
 import io.ktor.server.testing.*
 import no.nav.mulighetsrommet.api.clients.brreg.BrregClient
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
+import no.nav.mulighetsrommet.api.clients.ssb.SsbNusClient
 import no.nav.mulighetsrommet.api.tasks.*
-import no.nav.mulighetsrommet.database.FlywayDatabaseAdapter
+import no.nav.mulighetsrommet.database.DatabaseConfig
+import no.nav.mulighetsrommet.database.FlywayMigrationManager
 import no.nav.mulighetsrommet.database.kotest.extensions.createDatabaseTestSchema
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.kafka.producers.ArenaMigreringTiltaksgjennomforingKafkaProducer
@@ -14,11 +16,11 @@ import no.nav.mulighetsrommet.kafka.producers.TiltakstypeKafkaProducer
 import no.nav.mulighetsrommet.unleash.UnleashService
 import no.nav.security.mock.oauth2.MockOAuth2Server
 
-var databaseConfig: FlywayDatabaseAdapter.Config? = null
+var databaseConfig: DatabaseConfig? = null
 
 fun createDatabaseTestConfig() =
     if (databaseConfig == null) {
-        databaseConfig = createDatabaseTestSchema("mulighetsrommet-api-db", 5442)
+        databaseConfig = createDatabaseTestSchema("mr-api")
         databaseConfig!!
     } else {
         databaseConfig!!
@@ -41,6 +43,7 @@ fun <R> withTestApplication(
 
 fun createTestApplicationConfig() = AppConfig(
     database = createDatabaseTestConfig(),
+    flyway = FlywayMigrationManager.MigrationConfig(),
     auth = createAuthConfig(oauth = null, roles = listOf()),
     kafka = createKafkaConfig(),
     sanity = SanityClient.Config(projectId = "", token = "", dataset = "", apiVersion = ""),
@@ -67,7 +70,7 @@ fun createTestApplicationConfig() = AppConfig(
         notifySluttdatoForAvtalerNarmerSeg = NotifySluttdatoForAvtalerNarmerSeg.Config(disabled = true),
         notifyFailedKafkaEvents = NotifyFailedKafkaEvents.Config(
             disabled = true,
-            delayOfMinutes = 15,
+            cronPattern = "",
             maxRetries = 5,
         ),
         updateApentForInnsok = UpdateApentForInnsok.Config(
@@ -91,6 +94,9 @@ fun createTestApplicationConfig() = AppConfig(
     axsys = ServiceClientConfig(url = "", scope = ""),
     pdl = ServiceClientConfig(url = "", scope = ""),
     migrerteTiltak = emptyList(),
+    ssbNusConfig = SsbNusClient.Config(
+        baseUrl = "",
+    ),
 )
 
 fun createKafkaConfig(): KafkaConfig {
@@ -112,7 +118,10 @@ fun createKafkaConfig(): KafkaConfig {
             ),
             amtDeltakerV1 = KafkaTopicConsumer.Config(id = "amt-deltaker", topic = "amt-deltaker"),
             amtVirksomheterV1 = KafkaTopicConsumer.Config(id = "amt-virksomheter", topic = "amt-virksomheter"),
-            ptoSisteOppfolgingsperiodeV1 = KafkaTopicConsumer.Config(id = "pto-sisteoppfolgingsperiode", topic = "pto-sisteoppfolgingsperiode"),
+            ptoSisteOppfolgingsperiodeV1 = KafkaTopicConsumer.Config(
+                id = "pto-sisteoppfolgingsperiode",
+                topic = "pto-sisteoppfolgingsperiode",
+            ),
         ),
     )
 }

@@ -10,10 +10,10 @@ import no.nav.mulighetsrommet.arena.adapter.events.processors.ArenaEventProcesso
 import no.nav.mulighetsrommet.arena.adapter.metrics.Metrics
 import no.nav.mulighetsrommet.arena.adapter.metrics.recordSuspend
 import no.nav.mulighetsrommet.arena.adapter.models.ProcessingError
+import no.nav.mulighetsrommet.arena.adapter.models.ProcessingResult
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping
-import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping.Status.Handled
-import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping.Status.Ignored
+import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping.Status.*
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
 import no.nav.mulighetsrommet.arena.adapter.repositories.ArenaEventRepository
 import org.slf4j.LoggerFactory
@@ -79,37 +79,55 @@ class ArenaEventService(
     }
 
     private suspend fun handleEvent(event: ArenaEvent) {
-        processors
-            .filter { it.arenaTable == event.arenaTable }
-            .forEach { processor ->
-                try {
-                    logger.info("Processing event: table=${event.arenaTable}, id=${event.arenaId}")
-                    val mapping = entities.getOrCreateMapping(event)
+        try {
+            logger.info("Processing event: table=${event.arenaTable}, id=${event.arenaId}")
+            val mapping = entities.getOrCreateMapping(event)
 
-                    processor.handleEvent(event)
-                        .flatMap { result ->
-                            if (mapping.status == Handled && result.status == Ignored) {
-                                logger.info("Sletter entity som tidligere var håndtert men nå skal ignoreres: table=${event.arenaTable}, id=${event.arenaId}, reason=${result.message}")
-                                deleteEntity(processor, event).map { result }
-                            } else {
-                                result.right()
-                            }
-                        }.onRight {
-                            entities.upsertMapping(mapping.copy(status = it.status, message = it.message))
-                            events.upsert(event.copy(status = ArenaEvent.ProcessingStatus.Processed, message = null))
-                        }.onLeft {
-                            logger.info("Failed to process event: table=${event.arenaTable}, id=${event.arenaId}")
-                            events.upsert(event.copy(status = it.status, message = it.message))
-                        }
-                } catch (e: Throwable) {
-                    logger.warn("Failed to process event table=${event.arenaTable}, id=${event.arenaId}", e)
-
-                    events.upsert(
-                        event.copy(status = ArenaEvent.ProcessingStatus.Failed, message = e.localizedMessage),
-                    )
+            processors
+                .filter { it.arenaTable == event.arenaTable }
+                .fold<ArenaEventProcessor, Either<ProcessingError, ProcessingResult>>(ProcessingResult(Unhandled).right()) { result, processor ->
+                    handleEventWithProcessor(result, processor, event, mapping)
                 }
-            }
+                .onRight {
+                    entities.upsertMapping(mapping.copy(status = it.status, message = it.message))
+                    val status = when (it.status) {
+                        Unhandled -> ArenaEvent.ProcessingStatus.Pending
+                        else -> ArenaEvent.ProcessingStatus.Processed
+                    }
+                    events.upsert(event.copy(status = status, message = null))
+                }
+                .onLeft {
+                    logger.info("Failed to process event: table=${event.arenaTable}, id=${event.arenaId}")
+                    events.upsert(event.copy(status = it.status, message = it.message))
+                }
+        } catch (e: Throwable) {
+            logger.warn("Failed to process event table=${event.arenaTable}, id=${event.arenaId}", e)
+
+            events.upsert(event.copy(status = ArenaEvent.ProcessingStatus.Failed, message = e.localizedMessage))
+        }
     }
+
+    private suspend fun handleEventWithProcessor(
+        resultOrError: Either<ProcessingError, ProcessingResult>,
+        processor: ArenaEventProcessor,
+        event: ArenaEvent,
+        mapping: ArenaEntityMapping,
+    ) = resultOrError
+        .flatMap { result ->
+            if (result.status != Ignored) {
+                processor.handleEvent(event)
+            } else {
+                result.right()
+            }
+        }
+        .flatMap { result ->
+            if (mapping.status == Handled && result.status == Ignored) {
+                logger.info("Sletter entity som tidligere var håndtert men nå skal ignoreres: table=${event.arenaTable}, id=${event.arenaId}, reason=${result.message}")
+                deleteEntity(processor, event).map { result }
+            } else {
+                result.right()
+            }
+        }
 
     private suspend fun handleDeleteEntityForEvent(event: ArenaEvent) {
         processors

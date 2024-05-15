@@ -142,11 +142,17 @@ class PdlClient(
                     "hentGeografiskTilknytning var null og errors tom! response: $it"
                 }
                 when (it.hentGeografiskTilknytning.gtType) {
-                    TypeGeografiskTilknytning.BYDEL -> GeografiskTilknytning.GtBydel(it.hentGeografiskTilknytning.gtBydel!!)
-                    TypeGeografiskTilknytning.KOMMUNE -> GeografiskTilknytning.GtKommune(it.hentGeografiskTilknytning.gtKommune!!)
+                    TypeGeografiskTilknytning.BYDEL -> {
+                        requireNotNull(it.hentGeografiskTilknytning.gtBydel)
+                        GeografiskTilknytning.GtBydel(it.hentGeografiskTilknytning.gtBydel)
+                    }
+                    TypeGeografiskTilknytning.KOMMUNE -> {
+                        requireNotNull(it.hentGeografiskTilknytning.gtKommune)
+                        GeografiskTilknytning.GtKommune(it.hentGeografiskTilknytning.gtKommune)
+                    }
                     TypeGeografiskTilknytning.UTLAND -> {
                         log.warn("Pdl returnerte UTLAND geografisk tilkytning. Da kan man ikke hente enhet fra norg.")
-                        GeografiskTilknytning.GtBydel(it.hentGeografiskTilknytning.gtLand!!)
+                        GeografiskTilknytning.GtUtland(it.hentGeografiskTilknytning.gtLand)
                     }
                     TypeGeografiskTilknytning.UDEFINERT -> {
                         log.warn("Pdl returnerte UDEFINERT geografisk tilkytning. Da kan man ikke hente enhet fra norg.")
@@ -269,7 +275,7 @@ data class HentGeografiskTilknytningResponse(
 sealed class GeografiskTilknytning {
     data class GtKommune(val value: String) : GeografiskTilknytning()
     data class GtBydel(val value: String) : GeografiskTilknytning()
-    data class GtUtland(val value: String) : GeografiskTilknytning()
+    data class GtUtland(val value: String?) : GeografiskTilknytning()
     object GtUdefinert : GeografiskTilknytning()
 }
 

@@ -3,7 +3,8 @@ package no.nav.mulighetsrommet.arena.adapter
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEventService
 import no.nav.mulighetsrommet.arena.adapter.tasks.NotifyFailedEvents
 import no.nav.mulighetsrommet.arena.adapter.tasks.RetryFailedEvents
-import no.nav.mulighetsrommet.database.FlywayDatabaseAdapter
+import no.nav.mulighetsrommet.database.DatabaseConfig
+import no.nav.mulighetsrommet.database.FlywayMigrationManager
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.ktor.ServerConfig
 
@@ -16,7 +17,8 @@ data class AppConfig(
     val enableFailedRecordProcessor: Boolean,
     val tasks: TaskConfig,
     val services: ServiceConfig,
-    val database: FlywayDatabaseAdapter.Config,
+    val database: DatabaseConfig,
+    val flyway: FlywayMigrationManager.MigrationConfig = FlywayMigrationManager.MigrationConfig(),
     val kafka: KafkaConfig,
     val auth: AuthConfig,
     val slack: SlackConfig,

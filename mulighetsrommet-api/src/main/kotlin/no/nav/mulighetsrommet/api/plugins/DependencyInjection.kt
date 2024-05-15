@@ -26,13 +26,14 @@ import no.nav.mulighetsrommet.api.clients.norg2.Norg2Client
 import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClient
 import no.nav.mulighetsrommet.api.clients.pdl.PdlClient
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
+import no.nav.mulighetsrommet.api.clients.ssb.SsbNusClient
 import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClient
 import no.nav.mulighetsrommet.api.repositories.*
 import no.nav.mulighetsrommet.api.services.*
 import no.nav.mulighetsrommet.api.tasks.*
 import no.nav.mulighetsrommet.api.tiltaksgjennomforinger.TiltaksgjennomforingValidator
 import no.nav.mulighetsrommet.database.Database
-import no.nav.mulighetsrommet.database.FlywayDatabaseAdapter
+import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.env.NaisEnv
 import no.nav.mulighetsrommet.kafka.KafkaConsumerOrchestrator
 import no.nav.mulighetsrommet.kafka.KafkaConsumerRepositoryImpl
@@ -87,11 +88,9 @@ fun slack(slack: SlackConfig): Module {
     }
 }
 
-private fun db(config: FlywayDatabaseAdapter.Config): Module {
-    return module(createdAtStart = true) {
-        single<Database> {
-            FlywayDatabaseAdapter(config, get())
-        }
+private fun db(config: DatabaseConfig) = module {
+    single<Database>(createdAtStart = true) {
+        Database(config)
     }
 }
 
@@ -173,9 +172,8 @@ private fun repositories() = module {
     single { NavAnsattRepository(get()) }
     single { ArrangorRepository(get()) }
     single { KafkaConsumerRepositoryImpl(get()) }
-    single { AvtaleNotatRepository(get()) }
-    single { TiltaksgjennomforingNotatRepository(get()) }
     single { VeilederJoyrideRepository(get()) }
+    single { SsbNusRepository(get()) }
 }
 
 private fun services(appConfig: AppConfig) = module {
@@ -290,7 +288,6 @@ private fun services(appConfig: AppConfig) = module {
             get(),
             get(),
             get(),
-            get(),
         )
     }
     single {
@@ -308,8 +305,7 @@ private fun services(appConfig: AppConfig) = module {
     single { TiltakshistorikkService(get(), get(), get(), get()) }
     single { VeilederflateService(get(), get(), get(), get()) }
     single { BrukerService(get(), get(), get(), get(), get()) }
-    single { DialogService(get()) }
-    single { NavAnsattService(appConfig.auth.roles, get(), get(), get(), get()) }
+    single { NavAnsattService(appConfig.auth.roles, get(), get(), get(), get(), get(), get(), get()) }
     single { PoaoTilgangService(get()) }
     single { DelMedBrukerService(get()) }
     single { MicrosoftGraphService(get()) }
@@ -325,7 +321,7 @@ private fun services(appConfig: AppConfig) = module {
             get(),
         )
     }
-    single { SanityTiltaksgjennomforingService(get(), get(), get()) }
+    single { SanityTiltakService(get(), get(), get()) }
     single { TiltakstypeService(get(), appConfig.migrerteTiltak) }
     single { NavEnheterSyncService(get(), get(), get(), get()) }
     single { NavEnhetService(get()) }
@@ -333,7 +329,6 @@ private fun services(appConfig: AppConfig) = module {
     single { NotificationService(get(), get(), get()) }
     single { ArrangorService(get(), get()) }
     single { ExcelService() }
-    single { NotatService(get(), get()) }
     single {
         val byEnhetStrategy = ByEnhetStrategy(get())
         val byNavidentStrategy = ByNavIdentStrategy()
@@ -346,12 +341,14 @@ private fun services(appConfig: AppConfig) = module {
     }
     single { AvtaleValidator(get(), get(), get(), get()) }
     single { TiltaksgjennomforingValidator(get(), get(), get()) }
+    single { SsbNusClient(engine = appConfig.engine, config = appConfig.ssbNusConfig) }
+    single { SsbNusService(get(), get()) }
 }
 
 private fun tasks(config: TaskConfig) = module {
     single { GenerateValidationReport(config.generateValidationReport, get(), get(), get(), get(), get()) }
     single { InitialLoadTiltaksgjennomforinger(get(), get(), get(), get()) }
-    single { InitialLoadTiltakstyper(get(), get(), get()) }
+    single { InitialLoadTiltakstyper(get(), get(), get(), get()) }
     single { SynchronizeNavAnsatte(config.synchronizeNavAnsatte, get(), get(), get()) }
     single {
         val deleteExpiredTiltakshistorikk = DeleteExpiredTiltakshistorikk(

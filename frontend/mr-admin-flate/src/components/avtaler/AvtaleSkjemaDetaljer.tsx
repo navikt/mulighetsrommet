@@ -21,6 +21,7 @@ import {
   Tiltakstype,
 } from "mulighetsrommet-api-client";
 import { ControlledSokeSelect } from "mulighetsrommet-frontend-common/components/ControlledSokeSelect";
+import { LabelWithHelpText } from "mulighetsrommet-frontend-common/components/label/LabelWithHelpText";
 import { SelectOption } from "mulighetsrommet-frontend-common/components/SokeSelect";
 import { useState } from "react";
 import { DeepPartial, useFormContext } from "react-hook-form";
@@ -85,21 +86,62 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
       <div className={skjemastyles.input_container}>
         <div className={skjemastyles.column}>
           <FormGroup>
-            <HGrid gap="4" columns={avtale?.avtalenummer ? 2 : 1}>
+            <TextField
+              size="small"
+              readOnly={arenaOpphavOgIngenEierskap}
+              error={errors.navn?.message}
+              label={avtaletekster.avtalenavnLabel}
+              autoFocus
+              {...register("navn")}
+            />
+          </FormGroup>
+
+          <Separator />
+
+          <FormGroup>
+            <HGrid align="start" gap="4" columns={2}>
+              {avtale?.avtalenummer ? (
+                <TextField
+                  size="small"
+                  readOnly
+                  label={avtaletekster.arenaAvtalenummerLabel}
+                  value={avtale.avtalenummer}
+                />
+              ) : (
+                <TextField
+                  size="small"
+                  readOnly
+                  label={avtaletekster.lopenummerLabel}
+                  value={avtale?.lopenummer}
+                />
+              )}
               <TextField
                 size="small"
-                readOnly={arenaOpphavOgIngenEierskap}
-                error={errors.navn?.message}
-                label={avtaletekster.avtalenavnLabel}
-                autoFocus
-                {...register("navn")}
+                placeholder="åå/12345"
+                error={errors.websaknummer?.message}
+                label={
+                  <LabelWithHelpText
+                    label={avtaletekster.websaknummerLabel}
+                    helpTextTitle={avtaletekster.websaknummerHelpTextTitle}
+                  >
+                    I Websak skal det opprettes tre typer arkivsaker med egne saksnummer:
+                    <ol>
+                      <li>En sak for hver anskaffelse.</li>
+                      <li>En sak for kontrakt/avtale med hver leverandør (Avtalesaken).</li>
+                      <li>
+                        En sak for oppfølging og forvaltning av avtale (Avtaleforvaltningssaken).
+                      </li>
+                    </ol>
+                    Det er <b>2) Saksnummeret til Avtalesaken</b> som skal refereres til herfra.
+                  </LabelWithHelpText>
+                }
+                {...register("websaknummer")}
               />
-              {avtale?.avtalenummer ? (
-                <TextField size="small" readOnly label="Avtalenummer" value={avtale.avtalenummer} />
-              ) : null}
             </HGrid>
           </FormGroup>
+
           <Separator />
+
           <FormGroup>
             <HGrid gap="4" columns={2}>
               <ControlledSokeSelect
@@ -138,7 +180,9 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
             </HGrid>
             {watch("tiltakstype")?.arenaKode === "GRUFAGYRKE" ? <AvtaleKategoriVelger /> : null}
           </FormGroup>
+
           <Separator />
+
           <FormGroup>
             <Heading size="small" as="h3">
               Avtalens varighet
@@ -167,16 +211,9 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
               />
             </HGrid>
           </FormGroup>
+
           <Separator />
-          <FormGroup>
-            <TextField
-              size="small"
-              error={errors.url?.message}
-              label={avtaletekster.urlAvtaleWebsaklabel}
-              {...register("url")}
-            />
-          </FormGroup>
-          <Separator />
+
           {arenaKode && erAnskaffetTiltak(arenaKode) && (
             <>
               <FormGroup>

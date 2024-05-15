@@ -1,5 +1,5 @@
 import { createAuthStore, defineConfig } from "sanity";
-import { deskTool } from "sanity/desk";
+import { structureTool } from "sanity/structure";
 import { schemas } from "./schemas/schemas";
 import { visionTool } from "@sanity/vision";
 import { defaultDocumentNode, structure } from "./deskStructures/deskStrukture";
@@ -44,7 +44,7 @@ const createCommonConfig = (dataset: "production" | "test", basePath: string) =>
     return prev;
   },
   plugins: [
-    deskTool({
+    structureTool({
       structure: structure,
       defaultDocumentNode,
     }),

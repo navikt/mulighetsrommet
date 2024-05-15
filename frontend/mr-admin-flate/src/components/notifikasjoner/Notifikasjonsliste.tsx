@@ -4,7 +4,7 @@ import { Laster } from "../laster/Laster";
 import { EmptyState } from "./EmptyState";
 import styles from "./Notifikasjoner.module.scss";
 import { Notifikasjonssrad } from "./Notifikasjonsrad";
-import { ReloadAppErrorBoundary } from "../../ErrorBoundary";
+import { ReloadAppErrorBoundary } from "mulighetsrommet-frontend-common";
 
 interface Props {
   lest: boolean;

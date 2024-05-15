@@ -50,6 +50,14 @@
     .knapperad {
       display: flex;
       gap: 2rem;
+      margin-top: 1rem;
     }
+  }
+  .hr {
+    border-bottom: 1px solid var(--a-border-divider);
+    display: block;
+    width: 100%;
+    box-sizing: unset;
+    margin-top: 0.5rem;
   }
 }

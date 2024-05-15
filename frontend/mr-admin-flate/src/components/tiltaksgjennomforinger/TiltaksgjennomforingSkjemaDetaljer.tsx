@@ -1,3 +1,11 @@
+import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
+import { useHentKontaktpersoner } from "@/api/ansatt/useHentKontaktpersoner";
+import { useTiltaksgjennomforingAdministratorer } from "@/api/ansatt/useTiltaksgjennomforingAdministratorer";
+import { useFeatureToggle } from "@/api/features/useFeatureToggle";
+import { useTiltaksgjennomforingDeltakerSummary } from "@/api/tiltaksgjennomforing/useTiltaksgjennomforingDeltakerSummary";
+import { useMigrerteTiltakstyper } from "@/api/tiltakstyper/useMigrerteTiltakstyper";
+import { addYear, formaterDato } from "@/utils/Utils";
+import { isTiltakMedFellesOppstart } from "@/utils/tiltakskoder";
 import { PlusIcon, XMarkIcon } from "@navikt/aksel-icons";
 import {
   Alert,
@@ -17,30 +25,25 @@ import {
   TiltaksgjennomforingKontaktperson,
   TiltaksgjennomforingOppstartstype,
   TiltakskodeArena,
+  Toggles,
 } from "mulighetsrommet-api-client";
 import { ControlledSokeSelect } from "mulighetsrommet-frontend-common";
 import { useEffect, useRef } from "react";
 import { useFieldArray, useFormContext } from "react-hook-form";
-import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
-import { useHentKontaktpersoner } from "@/api/ansatt/useHentKontaktpersoner";
-import { useTiltaksgjennomforingAdministratorer } from "@/api/ansatt/useTiltaksgjennomforingAdministratorer";
-import { useMigrerteTiltakstyper } from "@/api/tiltakstyper/useMigrerteTiltakstyper";
-import { addYear, formaterDato } from "../../utils/Utils";
-import { isTiltakMedFellesOppstart } from "../../utils/tiltakskoder";
+import { mockNusData } from "../../mocks/fixtures/mock_nusData";
 import { Separator } from "../detaljside/Metadata";
 import { tiltaktekster } from "../ledetekster/tiltaksgjennomforingLedetekster";
+import { EndreDatoAdvarselModal } from "../modal/EndreDatoAdvarselModal";
 import { InferredTiltaksgjennomforingSchema } from "../redaksjonelt-innhold/TiltaksgjennomforingSchema";
 import { AdministratorOptions } from "../skjema/AdministratorOptions";
+import { ControlledDateInput } from "../skjema/ControlledDateInput";
 import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { FormGroup } from "../skjema/FormGroup";
 import skjemastyles from "../skjema/Skjema.module.scss";
 import { SelectOppstartstype } from "./SelectOppstartstype";
+import { TiltakTilgjengeligForArrangor } from "./TilgjengeligTiltakForArrangor";
 import { TiltaksgjennomforingArrangorSkjema } from "./TiltaksgjennomforingArrangorSkjema";
 import { erArenaOpphavOgIngenEierskap } from "./TiltaksgjennomforingSkjemaConst";
-import { ControlledDateInput } from "../skjema/ControlledDateInput";
-import { useTiltaksgjennomforingDeltakerSummary } from "@/api/tiltaksgjennomforing/useTiltaksgjennomforingDeltakerSummary";
-import { EndreDatoAdvarselModal } from "../modal/EndreDatoAdvarselModal";
-import { mockNusData } from "../../mocks/fixtures/mock_nusData";
 
 interface Props {
   tiltaksgjennomforing?: Tiltaksgjennomforing;
@@ -63,6 +66,9 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
   const { data: migrerteTiltakstyper = [] } = useMigrerteTiltakstyper();
   const { data: deltakerSummary } = useTiltaksgjennomforingDeltakerSummary(
     tiltaksgjennomforing?.id,
+  );
+  const { data: enableTilgjengeligForArrangor } = useFeatureToggle(
+    Toggles.MULIGHETSROMMET_ADMIN_FLATE_TILGJENGELIGGJORE_TILTAK_FOR_ARRANGOR,
   );
   const endreStartDatoModalRef = useRef<HTMLDialogElement>(null);
   const endreSluttDatoModalRef = useRef<HTMLDialogElement>(null);
@@ -433,6 +439,14 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
           <div className={skjemastyles.gray_container}>
             <TiltaksgjennomforingArrangorSkjema readOnly={eierIkkeGjennomforing} avtale={avtale} />
           </div>
+          {enableTilgjengeligForArrangor && watch("oppstart") === "LOPENDE" ? (
+            <TiltakTilgjengeligForArrangor
+              gjennomforingStartdato={new Date(watch("startOgSluttDato.startDato"))}
+              lagretDatoForTilgjengeligForArrangor={
+                tiltaksgjennomforing?.tilgjengeligForArrangorFraOgMedDato
+              }
+            />
+          ) : null}
         </div>
       </div>
       <EndreDatoAdvarselModal

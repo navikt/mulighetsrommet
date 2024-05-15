@@ -1,7 +1,7 @@
 import { HttpResponse, http } from "msw";
 import { mockFeatures } from "../api/features";
 import invariant from "tiny-invariant";
-import { Features } from "../../api/features/feature-toggles";
+import { Features } from "../../api/features/useFeatureToggle";
 
 export const featureToggleHandlers = [
   http.get("*/api/v1/internal/features", ({ request }) => {

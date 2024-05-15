@@ -33,7 +33,6 @@ import no.nav.mulighetsrommet.domain.dto.AvbruttAarsak
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus
 import no.nav.mulighetsrommet.kafka.producers.TiltaksgjennomforingKafkaProducer
-import no.nav.mulighetsrommet.kafka.producers.TiltakstypeKafkaProducer
 import no.nav.mulighetsrommet.notifications.NotificationService
 import no.nav.mulighetsrommet.notifications.NotificationType
 import no.nav.mulighetsrommet.notifications.ScheduledNotification
@@ -365,19 +364,19 @@ class ArenaAdapterServiceTest : FunSpec({
             )
             service.upsertTiltaksgjennomforing(arenaGjennomforing)
             // Verifiser status utledet fra datoer og ikke avslutningsstatus
-            gjennomforinger.get(arenaGjennomforing.id)?.status shouldBe TiltaksgjennomforingStatus.AVSLUTTET
+            gjennomforinger.get(arenaGjennomforing.id)?.status?.enum shouldBe TiltaksgjennomforingStatus.Enum.AVSLUTTET
 
             // Verifiser at avbrutt_tidspunkt blir lagret
             service.upsertTiltaksgjennomforing(arenaGjennomforing.copy(avslutningsstatus = Avslutningsstatus.AVBRUTT))
-            gjennomforinger.get(arenaGjennomforing.id)?.status shouldBe TiltaksgjennomforingStatus.AVBRUTT
+            gjennomforinger.get(arenaGjennomforing.id)?.status?.enum shouldBe TiltaksgjennomforingStatus.Enum.AVBRUTT
 
             // Verifiser at man kan endre statusen
             service.upsertTiltaksgjennomforing(arenaGjennomforing.copy(avslutningsstatus = Avslutningsstatus.AVLYST))
-            gjennomforinger.get(arenaGjennomforing.id)?.status shouldBe TiltaksgjennomforingStatus.AVLYST
+            gjennomforinger.get(arenaGjennomforing.id)?.status?.enum shouldBe TiltaksgjennomforingStatus.Enum.AVLYST
 
             // Verifiser at man kan endre statusen
             service.upsertTiltaksgjennomforing(arenaGjennomforing.copy(avslutningsstatus = Avslutningsstatus.AVSLUTTET))
-            gjennomforinger.get(arenaGjennomforing.id)?.status shouldBe TiltaksgjennomforingStatus.AVSLUTTET
+            gjennomforinger.get(arenaGjennomforing.id)?.status?.enum shouldBe TiltaksgjennomforingStatus.Enum.AVSLUTTET
         }
 
         test("skal bare oppdatere arena-felter når tiltakstype har endret eierskap") {
@@ -787,7 +786,6 @@ class ArenaAdapterServiceTest : FunSpec({
 
 private fun createArenaAdapterService(
     db: Database,
-    tiltakstypeKafkaProducer: TiltakstypeKafkaProducer = mockk(relaxed = true),
     tiltaksgjennomforingKafkaProducer: TiltaksgjennomforingKafkaProducer = mockk(relaxed = true),
     notificationService: NotificationService = mockk(relaxed = true),
     veilarboppfolgingClient: VeilarboppfolgingClient = mockk(),
@@ -801,8 +799,7 @@ private fun createArenaAdapterService(
     tiltakshistorikk = TiltakshistorikkRepository(db),
     deltakere = DeltakerRepository(db),
     tiltaksgjennomforingKafkaProducer = tiltaksgjennomforingKafkaProducer,
-    tiltakstypeKafkaProducer = tiltakstypeKafkaProducer,
-    sanityTiltaksgjennomforingService = mockk(relaxed = true),
+    sanityTiltakService = mockk(relaxed = true),
     arrangorService = mockk(relaxed = true),
     navEnhetService = NavEnhetService(NavEnhetRepository(db)),
     notificationService = notificationService,
@@ -822,8 +819,9 @@ private fun toTiltaksgjennomforingDto(dbo: ArenaTiltaksgjennomforingDbo, tiltaks
         navn = navn,
         startDato = startDato,
         sluttDato = sluttDato,
-        status = TiltaksgjennomforingStatus.GJENNOMFORES,
+        status = TiltaksgjennomforingStatus.Enum.GJENNOMFORES,
         oppstart = TiltaksgjennomforingOppstartstype.LOPENDE,
         virksomhetsnummer = arrangorOrganisasjonsnummer,
+        tilgjengeligForArrangorFraOgMedDato = null,
     )
 }

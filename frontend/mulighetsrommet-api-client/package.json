@@ -7,9 +7,10 @@
   "exports": "./build/index.ts",
   "scripts": {
     "postinstall": "npm run build",
-    "build": "openapi --useOptions --name MulighetsrommetClient --input ../../mulighetsrommet-api/src/main/resources/web/openapi.yaml --output ./build"
+    "build": "openapi-ts --useOptions --name MulighetsrommetClient --input ../../mulighetsrommet-api/src/main/resources/web/openapi.yaml --output ./build"
   },
   "devDependencies": {
-    "openapi-typescript-codegen": "0.29.0"
+    "@hey-api/openapi-ts": "0.44.0",
+    "typescript": "5.4.5"
   }
 }

@@ -1,9 +1,9 @@
 import classNames from "classnames";
-import { HistorikkForBruker } from "mulighetsrommet-api-client";
+import { HistorikkForBrukerStatus } from "mulighetsrommet-api-client";
 import styles from "./Statusbadge.module.scss";
 import { Detail } from "@navikt/ds-react";
 
-export function StatusBadge({ status }: { status?: HistorikkForBruker.status }) {
+export function StatusBadge({ status }: { status?: HistorikkForBrukerStatus }) {
   return (
     <Detail
       className={classNames(
@@ -16,7 +16,7 @@ export function StatusBadge({ status }: { status?: HistorikkForBruker.status }) 
   );
 }
 
-function statustekst(status?: HistorikkForBruker.status): string {
+function statustekst(status?: HistorikkForBrukerStatus): string {
   switch (status) {
     case "AVSLUTTET":
       return "Avsluttet";

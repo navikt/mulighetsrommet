@@ -44,13 +44,13 @@ class AvtaleRepository(private val db: Database) {
                 navn,
                 tiltakstype_id,
                 avtalenummer,
+                websaknummer,
                 arrangor_hovedenhet_id,
                 start_dato,
                 slutt_dato,
                 avtaletype,
                 prisbetingelser,
                 antall_plasser,
-                url,
                 opphav,
                 beskrivelse,
                 faneinnhold,
@@ -60,13 +60,13 @@ class AvtaleRepository(private val db: Database) {
                 :navn,
                 :tiltakstype_id::uuid,
                 :avtalenummer,
+                :websaknummer,
                 :arrangor_hovedenhet_id,
                 :start_dato,
                 :slutt_dato,
                 :avtaletype::avtaletype,
                 :prisbetingelser,
                 :antall_plasser,
-                :url,
                 :opphav::opphav,
                 :beskrivelse,
                 :faneinnhold::jsonb,
@@ -75,13 +75,13 @@ class AvtaleRepository(private val db: Database) {
                 navn                        = excluded.navn,
                 tiltakstype_id              = excluded.tiltakstype_id,
                 avtalenummer                = excluded.avtalenummer,
+                websaknummer                = excluded.websaknummer,
                 arrangor_hovedenhet_id      = excluded.arrangor_hovedenhet_id,
                 start_dato                  = excluded.start_dato,
                 slutt_dato                  = excluded.slutt_dato,
                 avtaletype                  = excluded.avtaletype,
                 prisbetingelser             = excluded.prisbetingelser,
                 antall_plasser              = excluded.antall_plasser,
-                url                         = excluded.url,
                 opphav                      = coalesce(avtale.opphav, excluded.opphav),
                 beskrivelse                 = excluded.beskrivelse,
                 faneinnhold                 = excluded.faneinnhold,
@@ -312,7 +312,7 @@ class AvtaleRepository(private val db: Database) {
         pagination: Pagination = Pagination.all(),
         tiltakstypeIder: List<UUID> = emptyList(),
         search: String? = null,
-        statuser: List<Avtalestatus> = emptyList(),
+        statuser: List<AvtaleStatus.Enum> = emptyList(),
         avtaletyper: List<Avtaletype> = emptyList(),
         navRegioner: List<String> = emptyList(),
         sortering: String? = null,
@@ -413,21 +413,20 @@ class AvtaleRepository(private val db: Database) {
             .let { db.run(it) }
     }
 
-    fun setAvbruttTidspunkt(id: UUID, avbruttTidspunkt: LocalDateTime) {
-        db.transaction { setAvbruttTidspunkt(it, id, avbruttTidspunkt) }
+    fun avbryt(id: UUID, tidspunkt: LocalDateTime, aarsak: AvbruttAarsak): Int {
+        return db.transaction { avbryt(it, id, tidspunkt, aarsak) }
     }
 
-    fun setAvbruttTidspunkt(tx: Session, id: UUID, avbruttTidspunkt: LocalDateTime) {
+    fun avbryt(tx: Session, id: UUID, tidspunkt: LocalDateTime, aarsak: AvbruttAarsak): Int {
         @Language("PostgreSQL")
         val query = """
-            update avtale
-            set avbrutt_tidspunkt = :avbrutt_tidspunkt
+            update avtale set
+                avbrutt_tidspunkt = :tidspunkt,
+                avbrutt_aarsak = :aarsak
             where id = :id::uuid
         """.trimIndent()
 
-        queryOf(query, mapOf("id" to id, "avbrutt_tidspunkt" to avbruttTidspunkt))
-            .asUpdate
-            .let { tx.run(it) }
+        return tx.run(queryOf(query, mapOf("id" to id, "tidspunkt" to tidspunkt, "aarsak" to aarsak.name)).asUpdate)
     }
 
     fun setArrangorUnderenhet(tx: Session, avtaleId: UUID, arrangorId: UUID) {
@@ -463,13 +462,13 @@ class AvtaleRepository(private val db: Database) {
         "navn" to navn,
         "tiltakstype_id" to tiltakstypeId,
         "avtalenummer" to avtalenummer,
+        "websaknummer" to websaknummer?.value,
         "arrangor_hovedenhet_id" to arrangorId,
         "start_dato" to startDato,
         "slutt_dato" to sluttDato,
         "avtaletype" to avtaletype.name,
         "prisbetingelser" to prisbetingelser,
         "antall_plasser" to antallPlasser,
-        "url" to url,
         "beskrivelse" to beskrivelse,
         "faneinnhold" to faneinnhold?.let { Json.encodeToString(it) },
         "personvern_bekreftet" to personvernBekreftet,
@@ -521,19 +520,22 @@ class AvtaleRepository(private val db: Database) {
                 Kontorstruktur(region = region, kontorer = kontorer)
             }
 
+        val avbruttTidspunkt = localDateTimeOrNull("avbrutt_tidspunkt")
+        val avbruttAarsak = stringOrNull("avbrutt_aarsak")?.let { AvbruttAarsak.fromString(it) }
+
         return AvtaleAdminDto(
             id = uuid("id"),
             navn = string("navn"),
             avtalenummer = stringOrNull("avtalenummer"),
             lopenummer = stringOrNull("lopenummer")?.let { Lopenummer(it) },
+            websaknummer = stringOrNull("websaknummer")?.let { Websaknummer(it) },
             startDato = startDato,
             sluttDato = sluttDato,
             opphav = ArenaMigrering.Opphav.valueOf(string("opphav")),
             avtaletype = Avtaletype.valueOf(string("avtaletype")),
-            avtalestatus = Avtalestatus.valueOf(string("status")),
+            status = AvtaleStatus.fromString(string("status"), avbruttTidspunkt, avbruttAarsak),
             prisbetingelser = stringOrNull("prisbetingelser"),
             antallPlasser = intOrNull("antall_plasser"),
-            url = stringOrNull("url"),
             beskrivelse = stringOrNull("beskrivelse"),
             faneinnhold = stringOrNull("faneinnhold")?.let { Json.decodeFromString(it) },
             administratorer = administratorer,
@@ -591,6 +593,20 @@ class AvtaleRepository(private val db: Database) {
             .let { tx.run(it) }
 
         return Either.Right(kontaktpersonId.toString())
+    }
+
+    fun getAvtaleIdsByAdministrator(navIdent: NavIdent): List<UUID> {
+        @Language("PostgreSQL")
+        val query = """
+            select avtale_id from avtale_administrator where nav_ident = ?
+        """.trimIndent()
+
+        return queryOf(query, navIdent.value)
+            .map {
+                it.uuid("avtale_id")
+            }
+            .asList
+            .let { db.run(it) }
     }
 
     fun getBehandlingAvPersonopplysninger(id: UUID): Map<PersonopplysningFrekvens, List<PersonopplysningMedBeskrivelse>> {

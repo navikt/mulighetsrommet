@@ -9,6 +9,7 @@ import no.nav.mulighetsrommet.api.domain.dbo.AvtaleDbo
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.api.domain.dto.AvtaleAdminDto
 import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingAdminDto
+import no.nav.mulighetsrommet.api.domain.dto.TiltakstypeAdminDto
 import no.nav.mulighetsrommet.api.repositories.ArrangorRepository
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.routes.v1.responses.ValidationError
@@ -17,10 +18,9 @@ import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.Tiltakskoder
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
-import no.nav.mulighetsrommet.domain.dto.Avtalestatus
+import no.nav.mulighetsrommet.domain.dto.AvtaleStatus
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
-import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus.GJENNOMFORES
-import no.nav.mulighetsrommet.domain.dto.TiltakstypeAdminDto
+import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus
 import java.time.LocalDate
 
 class TiltaksgjennomforingValidator(
@@ -28,6 +28,7 @@ class TiltaksgjennomforingValidator(
     private val avtaler: AvtaleRepository,
     private val arrangorer: ArrangorRepository,
 ) {
+    val maksAntallTegnStedForGjennomforing = 100
     fun validate(
         dbo: TiltaksgjennomforingDbo,
         previous: TiltaksgjennomforingAdminDto?,
@@ -157,7 +158,16 @@ class TiltaksgjennomforingValidator(
             )
         }
 
-        if (avtale.avtalestatus != Avtalestatus.AKTIV) {
+        if (gjennomforing.stedForGjennomforing != null && gjennomforing.stedForGjennomforing.length > maksAntallTegnStedForGjennomforing) {
+            add(
+                ValidationError.of(
+                    TiltaksgjennomforingDbo::stedForGjennomforing,
+                    "Du kan bare skrive $maksAntallTegnStedForGjennomforing tegn i \"Sted for gjennomføring\"",
+                ),
+            )
+        }
+
+        if (avtale.status != AvtaleStatus.AKTIV) {
             add(
                 ValidationError.of(
                     TiltaksgjennomforingDbo::avtaleId,
@@ -190,7 +200,7 @@ class TiltaksgjennomforingValidator(
             )
         }
 
-        if (previous.status == GJENNOMFORES) {
+        if (previous.status is TiltaksgjennomforingStatus.GJENNOMFORES) {
             if (gjennomforing.avtaleId != previous.avtaleId) {
                 add(
                     ValidationError.of(

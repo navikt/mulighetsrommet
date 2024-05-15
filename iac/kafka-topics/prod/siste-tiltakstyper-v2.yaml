@@ -35,3 +35,8 @@ spec:
     - team: teamoppfolging
       application: teamoppfolging-kafka
       access: read
+
+    # OBO
+    - team: pto
+      application: veilarbportefolje
+      access: read

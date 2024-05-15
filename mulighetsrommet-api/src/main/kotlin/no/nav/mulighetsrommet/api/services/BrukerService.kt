@@ -6,6 +6,7 @@ import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.clients.AccessType
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Client
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
+import no.nav.mulighetsrommet.api.clients.norg2.NorgError
 import no.nav.mulighetsrommet.api.clients.oppfolging.ErUnderOppfolgingError
 import no.nav.mulighetsrommet.api.clients.oppfolging.ManuellStatusDto
 import no.nav.mulighetsrommet.api.clients.oppfolging.OppfolgingError
@@ -102,7 +103,7 @@ class BrukerService(
 
                     VedtakError.Error -> throw StatusException(
                         HttpStatusCode.InternalServerError,
-                        "Klarte ikke hente hente §14a-vedtak.",
+                        "Klarte ikke hente §14a-vedtak.",
                     )
 
                     VedtakError.NotFound -> null
@@ -113,7 +114,21 @@ class BrukerService(
             navEnhetService.hentEnhet(it)
         }
 
-        val brukersGeografiskeEnhet = hentBrukersGeografiskeEnhet(fnr, obo)
+        val geografiskTilknytning = pdlClient.hentGeografiskTilknytning(fnr, obo)
+            .getOrElse {
+                when (it) {
+                    PdlError.Error -> {
+                        throw StatusException(
+                            HttpStatusCode.InternalServerError,
+                            "Klarte ikke hente geografisk tilknytning fra Pdl.",
+                        )
+                    }
+
+                    PdlError.NotFound -> null
+                }
+            }
+
+        val brukersGeografiskeEnhet = geografiskTilknytning?.let { hentBrukersGeografiskeEnhet(it) }
 
         val enheter = getRelevanteEnheterForBruker(brukersGeografiskeEnhet, brukersOppfolgingsenhet)
 
@@ -137,25 +152,33 @@ class BrukerService(
                 }
 
                 if (!erUnderOppfolging && sisteVedtak?.innsatsgruppe != null) {
-                    add(BrukerVarsel.BRUKER_HAR_VAERT_UNDER_OPPFOLGING)
+                    add(BrukerVarsel.BRUKER_IKKE_UNDER_OPPFOLGING)
                 } else if (!erUnderOppfolging) {
                     add(BrukerVarsel.BRUKER_IKKE_UNDER_OPPFOLGING)
+                } else if (sisteVedtak?.innsatsgruppe == null) {
+                    add(BrukerVarsel.BRUKER_UNDER_OPPFOLGING_MEN_MANGLER_14A_VEDTAK)
                 }
             },
         )
     }
 
-    private suspend fun hentBrukersGeografiskeEnhet(fnr: String, obo: AccessType.OBO): NavEnhetDbo? {
-        return pdlClient.hentGeografiskTilknytning(fnr, obo)
-            .getOrNull()
-            ?.let { gt ->
-                val norgEnhet = when (gt) {
-                    is GeografiskTilknytning.GtBydel -> norg2Client.hentEnhetByGeografiskOmraade(gt.value)
-                    is GeografiskTilknytning.GtKommune -> norg2Client.hentEnhetByGeografiskOmraade(gt.value)
-                    is GeografiskTilknytning.GtUtland, GeografiskTilknytning.GtUdefinert -> null
-                }
+    private suspend fun hentBrukersGeografiskeEnhet(geografiskTilknytning: GeografiskTilknytning): NavEnhetDbo? {
+        val norgResult = when (geografiskTilknytning) {
+            is GeografiskTilknytning.GtBydel -> norg2Client.hentEnhetByGeografiskOmraade(geografiskTilknytning.value)
+            is GeografiskTilknytning.GtKommune -> norg2Client.hentEnhetByGeografiskOmraade(geografiskTilknytning.value)
+            is GeografiskTilknytning.GtUtland, GeografiskTilknytning.GtUdefinert -> null
+        } ?: return null
 
-                norgEnhet?.let { navEnhetService.hentEnhet(it.enhetNr) }
+        return norgResult
+            .map { navEnhetService.hentEnhet(it.enhetNr) }
+            .getOrElse {
+                when (it) {
+                    NorgError.NotFound -> null
+                    NorgError.Error -> throw StatusException(
+                        HttpStatusCode.InternalServerError,
+                        "Fant ikke nav enhet til geografisk tilknytning.",
+                    )
+                }
             }
     }
 
@@ -173,7 +196,7 @@ class BrukerService(
     enum class BrukerVarsel {
         LOKAL_OPPFOLGINGSENHET,
         BRUKER_IKKE_UNDER_OPPFOLGING,
-        BRUKER_HAR_VAERT_UNDER_OPPFOLGING,
+        BRUKER_UNDER_OPPFOLGING_MEN_MANGLER_14A_VEDTAK,
     }
 }
 
@@ -182,6 +205,7 @@ private fun toInnsatsgruppe(innsatsgruppe: VedtakDto.Innsatsgruppe): Innsatsgrup
         VedtakDto.Innsatsgruppe.STANDARD_INNSATS -> Innsatsgruppe.STANDARD_INNSATS
         VedtakDto.Innsatsgruppe.SITUASJONSBESTEMT_INNSATS -> Innsatsgruppe.SITUASJONSBESTEMT_INNSATS
         VedtakDto.Innsatsgruppe.SPESIELT_TILPASSET_INNSATS -> Innsatsgruppe.SPESIELT_TILPASSET_INNSATS
+        // TODO: benytt verdi for GRADERT_VARIG_TILPASSET_INNSATS når ny 14a-løsning er lansert nasjonalt
         VedtakDto.Innsatsgruppe.GRADERT_VARIG_TILPASSET_INNSATS, VedtakDto.Innsatsgruppe.VARIG_TILPASSET_INNSATS -> Innsatsgruppe.VARIG_TILPASSET_INNSATS
     }
 }

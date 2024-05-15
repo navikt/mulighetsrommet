@@ -1,7 +1,8 @@
 import styles from "./AppContainer.module.scss";
-import { ReactNode } from "react";
+import React, { ReactNode } from "react";
 import { ErrorFallback } from "@/utils/ErrorFallback";
 import { ErrorBoundary } from "react-error-boundary";
+import { TiltakLoader } from "@/components/TiltakLoader";
 
 interface Props {
   header?: ReactNode;
@@ -13,7 +14,9 @@ export const AppContainer = ({ children, header }: Props) => {
     <div className={styles.app_container}>
       {header}
       <ErrorBoundary FallbackComponent={ErrorFallback}>
-        <div className={styles.app_content}>{children}</div>
+        <React.Suspense fallback={<TiltakLoader />}>
+          <div className={styles.app_content}>{children}</div>
+        </React.Suspense>
       </ErrorBoundary>
     </div>
   );

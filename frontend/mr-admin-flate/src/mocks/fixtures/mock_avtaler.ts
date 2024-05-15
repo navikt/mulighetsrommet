@@ -1,7 +1,7 @@
-import { Avtale, Avtalestatus, Avtaletype, Opphav } from "mulighetsrommet-api-client";
+import { Avtale, Avtaletype, Opphav } from "mulighetsrommet-api-client";
+import { mockArrangorer } from "./mock_arrangorer";
 import { mockEnheter } from "./mock_enheter";
 import { mockTiltakstyper } from "./mock_tiltakstyper";
-import { mockArrangorer } from "./mock_arrangorer";
 
 export const mockAvtaler: Avtale[] = [
   {
@@ -41,7 +41,7 @@ export const mockAvtaler: Avtale[] = [
     startDato: "2021-08-02",
     sluttDato: "2026-08-01",
     avtaletype: Avtaletype.FORHAANDSGODKJENT,
-    avtalestatus: Avtalestatus.AKTIV,
+    status: { name: "AKTIV" },
     arenaAnsvarligEnhet: mockEnheter._0300,
     prisbetingelser: `Nye priser fra 21.03.23, gamle priser i parentes
 
@@ -53,7 +53,6 @@ export const mockAvtaler: Avtale[] = [
 
         20 deltakere:
         Teori en uke: 56 771,- (55 117,-)                     Praksis en uke: 45 695,- (44 364,-)                       Kombinasjon en uke: 47 344,- (45 965,-)`,
-    url: "https://www.websak.no",
     kontorstruktur: [
       { region: mockEnheter._0300, kontorer: [mockEnheter._0313, mockEnheter._0318] },
       {
@@ -91,10 +90,14 @@ export const mockAvtaler: Avtale[] = [
     startDato: "2021-08-02",
     sluttDato: "2026-08-01",
     avtaletype: Avtaletype.RAMMEAVTALE,
-    avtalestatus: Avtalestatus.AKTIV,
+    status: {
+      name: "AVBRUTT",
+      aarsak:
+        "Denne avtalen ble avbrutt pga av noe som ikke var listen opp i listen over mulige årsaker.",
+      tidspunkt: "2020-03-04T12:00:00",
+    },
     arenaAnsvarligEnhet: mockEnheter._0400,
     prisbetingelser: "Maskert prisbetingelser",
-    url: null,
     kontorstruktur: [
       { region: mockEnheter._0400, kontorer: [mockEnheter._0415, mockEnheter._0402] },
     ],
@@ -106,14 +109,13 @@ export const mockAvtaler: Avtale[] = [
     opphav: Opphav.ARENA,
     administratorer: [
       {
-        navIdent: "B123456",
-        navn: "Bertil Bengtson",
+        navIdent: "B815493",
+        navn: "Test Testesen",
       },
     ],
     tiltakstype: mockTiltakstyper.INDOPPFAG,
     navn: "Avtale hos Åna Fengsel",
     avtalenummer: "2020#4929",
-    url: "https://www.websak.no",
     arrangor: {
       ...mockArrangorer.data[0],
       slettet: false,
@@ -129,7 +131,7 @@ export const mockAvtaler: Avtale[] = [
     startDato: "2020-07-01",
     sluttDato: "2024-06-30",
     avtaletype: Avtaletype.RAMMEAVTALE,
-    avtalestatus: Avtalestatus.AKTIV,
+    status: { name: "AKTIV" },
     arenaAnsvarligEnhet: mockEnheter._0313,
     prisbetingelser: "Maskert prisbetingelser",
     kontorstruktur: [
@@ -151,7 +153,7 @@ export const mockAvtaler: Avtale[] = [
     tiltakstype: mockTiltakstyper.GRUFAGYRKE,
     navn: "Avtale hos Kulinarisk akademi",
     avtalenummer: "2020#4929",
-    url: "https://www.websak.no",
+    websaknummer: "24/12345",
     arrangor: {
       ...mockArrangorer.data[0],
       slettet: false,
@@ -167,7 +169,7 @@ export const mockAvtaler: Avtale[] = [
     startDato: "2020-07-01",
     sluttDato: "2024-06-30",
     avtaletype: Avtaletype.RAMMEAVTALE,
-    avtalestatus: Avtalestatus.AKTIV,
+    status: { name: "AKTIV" },
     arenaAnsvarligEnhet: mockEnheter._0313,
     prisbetingelser: "Maskert prisbetingelser",
     kontorstruktur: [
@@ -195,7 +197,6 @@ for (let i = 0; i < x; i++) {
     tiltakstype: mockTiltakstyper.INDOPPFAG,
     navn: "Avtale hos Åna Fengsel",
     avtalenummer: "2020#4929",
-    url: "https://www.websak.no",
     arrangor: {
       ...mockArrangorer.data[0],
       slettet: false,
@@ -211,7 +212,7 @@ for (let i = 0; i < x; i++) {
     startDato: "2020-07-01",
     sluttDato: "2024-06-30",
     avtaletype: Avtaletype.RAMMEAVTALE,
-    avtalestatus: Avtalestatus.AKTIV,
+    status: { name: "AKTIV" },
     arenaAnsvarligEnhet: mockEnheter._0313,
     prisbetingelser: "Maskert prisbetingelser",
     kontorstruktur: [

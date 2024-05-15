@@ -6,6 +6,7 @@ import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.domain.dto.DeltakerRegistreringInnholdDto
 import no.nav.mulighetsrommet.api.domain.dto.Innholdselement
+import no.nav.mulighetsrommet.api.domain.dto.TiltakstypeAdminDto
 import no.nav.mulighetsrommet.api.domain.dto.TiltakstypeEksternDto
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.*
@@ -13,7 +14,6 @@ import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
 import no.nav.mulighetsrommet.domain.dto.Innsatsgruppe
 import no.nav.mulighetsrommet.domain.dto.PersonopplysningMedFrekvens
-import no.nav.mulighetsrommet.domain.dto.TiltakstypeAdminDto
 import no.nav.mulighetsrommet.domain.dto.TiltakstypeStatus
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
@@ -222,12 +222,18 @@ class TiltakstypeRepository(private val db: Database) {
     )
 
     private fun Row.toTiltakstypeAdminDto(): TiltakstypeAdminDto {
+        val innsatsgrupper = arrayOrNull<String>("innsatsgrupper")
+            ?.map { Innsatsgruppe.valueOf(it) }
+            ?.toSet()
+            ?: emptySet()
+
         val personopplysninger = Json.decodeFromString<List<PersonopplysningMedFrekvens>>(string("personopplysninger"))
             .groupBy({ it.frekvens }, { it.personopplysning.toPersonopplysningMedBeskrivelse() })
 
         return TiltakstypeAdminDto(
             id = uuid("id"),
             navn = string("navn"),
+            innsatsgrupper = innsatsgrupper,
             arenaKode = string("arena_kode"),
             startDato = localDate("start_dato"),
             sluttDato = localDateOrNull("slutt_dato"),

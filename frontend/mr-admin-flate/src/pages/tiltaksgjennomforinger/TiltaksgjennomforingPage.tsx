@@ -64,8 +64,6 @@ export function TiltaksgjennomforingPage() {
   const currentTab = () => {
     if (pathname.includes("deltakere")) {
       return "poc";
-    } else if (pathname.includes("notater")) {
-      return "notater";
     } else {
       return "info";
     }
@@ -91,21 +89,25 @@ export function TiltaksgjennomforingPage() {
               </Heading>
               <ShowOpphavValue value={tiltaksgjennomforing?.opphav} />
             </VStack>
-            <TiltaksgjennomforingstatusTag tiltaksgjennomforing={tiltaksgjennomforing} />
+            <TiltaksgjennomforingstatusTag
+              tiltaksgjennomforing={tiltaksgjennomforing}
+              showAvbruttAarsak
+            />
             <DupliserTiltak tiltaksgjennomforing={tiltaksgjennomforing} />
           </div>
-          {tiltaksgjennomforing?.id && (
-            <div className={headerStyles.forhandsvisningsknapp}>
-              <Lenkeknapp
-                size="small"
-                isExternal={true}
-                variant="secondary"
-                to={`${PREVIEW_ARBEIDSMARKEDSTILTAK_URL}/tiltak/${tiltaksgjennomforing.id}`}
-              >
-                Forhåndsvis i Modia
-              </Lenkeknapp>
-            </div>
-          )}
+          {tiltaksgjennomforing?.id &&
+            ["GJENNOMFORES", "PLANLAGT"].includes(tiltaksgjennomforing.status.name) && (
+              <div className={headerStyles.forhandsvisningsknapp}>
+                <Lenkeknapp
+                  size="small"
+                  isExternal={true}
+                  variant="secondary"
+                  to={`${PREVIEW_ARBEIDSMARKEDSTILTAK_URL}/tiltak/${tiltaksgjennomforing.id}`}
+                >
+                  Forhåndsvis i Modia
+                </Lenkeknapp>
+              </div>
+            )}
         </div>
       </Header>
 
@@ -116,14 +118,6 @@ export function TiltaksgjennomforingPage() {
             label="Info"
             onClick={() =>
               navigateAndReplaceUrl(`/tiltaksgjennomforinger/${tiltaksgjennomforing.id}`)
-            }
-            aria-controls="panel"
-          />
-          <Tabs.Tab
-            value="notater"
-            label="Notater"
-            onClick={() =>
-              navigateAndReplaceUrl(`/tiltaksgjennomforinger/${tiltaksgjennomforing.id}/notater`)
             }
             aria-controls="panel"
           />

@@ -30,11 +30,11 @@ export function defaultAvtaleData(
   ansatt: NavAnsatt,
   avtale?: Avtale,
 ): DeepPartial<InferredAvtaleSchema> {
-  const navRegioner = avtale?.kontorstruktur.map((struktur) => struktur.region.enhetsnummer) ?? [];
+  const navRegioner = avtale?.kontorstruktur?.map((struktur) => struktur.region.enhetsnummer) ?? [];
   const navEnheter =
     avtale?.kontorstruktur
-      .flatMap((struktur) => struktur.kontorer)
-      .map((enhet) => enhet.enhetsnummer) ?? [];
+      ?.flatMap((struktur) => struktur.kontorer)
+      ?.map((enhet) => enhet.enhetsnummer) ?? [];
   return {
     tiltakstype: avtale?.tiltakstype,
     navRegioner,
@@ -52,7 +52,7 @@ export function defaultAvtaleData(
       startDato: avtale?.startDato ? avtale.startDato : undefined,
       sluttDato: avtale?.sluttDato ? avtale.sluttDato : undefined,
     },
-    url: avtale?.url ?? "",
+    websaknummer: avtale?.websaknummer,
     prisbetingelser: avtale?.prisbetingelser ?? undefined,
     beskrivelse: avtale?.beskrivelse ?? null,
     faneinnhold: avtale?.faneinnhold ?? null,
