@@ -57,7 +57,7 @@ export function VarselModal({
         <Heading size="medium">{headingText}</Heading>
       </Modal.Header>
       <Modal.Body className={styles.body}>{body}</Modal.Body>
-      <Modal.Footer className={classNames(styles.footer, footerClassName)}>
+      <Modal.Footer className={footerClassName ? footerClassName : styles.footer}>
         {secondaryButton && (
           <Button
             variant="secondary"
