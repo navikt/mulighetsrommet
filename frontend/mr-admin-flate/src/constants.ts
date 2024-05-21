@@ -2,9 +2,9 @@ import { isProduction } from "./environment";
 
 export const APPLICATION_NAME = "mr-admin-flate";
 
-export const PAGE_SIZE = 15;
-export const AVTALE_PAGE_SIZE = 15;
-export const ARRANGORER_PAGE_SIZE = 15;
+export const PAGE_SIZE = 50;
+export const AVTALE_PAGE_SIZE = 50;
+export const ARRANGORER_PAGE_SIZE = 50;
 
 export const STED_FOR_GJENNOMFORING_MAX_LENGTH = 100;
 
