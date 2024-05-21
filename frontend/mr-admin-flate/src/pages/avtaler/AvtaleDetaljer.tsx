@@ -168,7 +168,7 @@ export function AvtaleDetaljer() {
                     <Metadata
                       header={avtaletekster.navEnheterLabel}
                       verdi={
-                        <ul>
+                        <ul className={styles.two_columns}>
                           {struktur.kontorer.map((kontor) => (
                             <li key={kontor.enhetsnummer}>{kontor.navn}</li>
                           ))}

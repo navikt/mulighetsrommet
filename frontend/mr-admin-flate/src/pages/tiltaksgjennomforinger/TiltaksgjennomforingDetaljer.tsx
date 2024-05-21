@@ -211,7 +211,7 @@ export function TiltaksgjennomforingDetaljer({ tiltaksgjennomforing, avtale }: P
             <Metadata
               header={tiltaktekster.navEnheterKontorerLabel}
               verdi={
-                <ul>
+                <ul className={styles.two_columns}>
                   {navEnheter
                     .sort((a, b) => a.navn.localeCompare(b.navn))
                     .map((enhet) => (
