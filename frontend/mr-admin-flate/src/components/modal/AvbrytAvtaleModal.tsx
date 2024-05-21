@@ -8,13 +8,46 @@ import { Alert, BodyShort, Button, Radio } from "@navikt/ds-react";
 import { AvbrytModalError } from "@/components/modal/AvbrytModalError";
 import { AvbrytModalAarsaker } from "@/components/modal/AvbrytModalAarsaker";
 import { avbrytAvtaleAarsakToString } from "@/utils/Utils";
+import z from "zod";
 import { HarSkrivetilgang } from "@/components/authActions/HarSkrivetilgang";
 import style from "./AvbrytGjennomforingAvtaleModal.module.scss";
+import { AnnetEnum } from "@/api/annetEnum";
+import { Laster } from "@/components/laster/Laster";
+
+export const AvbrytAvtaleModalSchema = z
+  .object({
+    aarsak: z.nativeEnum(
+      { ...AvbrytAvtaleAarsak, ...AnnetEnum },
+      { required_error: "Mangler årsak" },
+    ),
+    customAarsak: z.string().max(100, "Beskrivelse kan ikke inneholde mer enn 100 tegn").optional(),
+  })
+  .superRefine((data, ctx) => {
+    if (data.aarsak === AnnetEnum.ANNET && !data.customAarsak) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["customAarsak"],
+        message: "Beskrivelse er obligatorisk når “Annet” er valgt som årsak",
+      });
+    }
+  });
 
 interface Props {
   modalRef: RefObject<HTMLDialogElement>;
   avtale: Avtale;
 }
+
+interface State {
+  aarsak?: AvbrytAvtaleAarsak | AnnetEnum;
+  customAarsak?: string;
+  errors: { aarsakError?: string; customAarsakError?: string };
+}
+
+const initialState: State = {
+  aarsak: undefined,
+  customAarsak: undefined,
+  errors: {},
+};
 
 export function AvbrytAvtaleModal({ modalRef, avtale }: Props) {
   const mutation = useAvbrytAvtale();
@@ -22,29 +55,52 @@ export function AvbrytAvtaleModal({ modalRef, avtale }: Props) {
   const { data: tiltaksgjennomforingerMedAvtaleId } = useAktiveTiltaksgjennomforingerByAvtaleId(
     avtale.id,
   );
+  const [state, setState] = useState<State>(initialState);
 
-  const [aarsak, setAarsak] = useState<string | null>(null);
-  const [customAarsak, setCustomAarsak] = useState<string | null>(null);
   const avtalenHarGjennomforinger =
     tiltaksgjennomforingerMedAvtaleId && tiltaksgjennomforingerMedAvtaleId.data.length > 0;
 
   const onClose = () => {
+    setState(initialState);
     mutation.reset();
     modalRef.current?.close();
   };
 
   useEffect(() => {
-    modalRef.current?.close();
-    navigate(`/avtaler/${avtale.id}`);
-  }, [mutation.isSuccess]);
+    if (mutation.isSuccess) {
+      setState(initialState);
+      modalRef.current?.close();
+      navigate(`/avtaler/${avtale.id}`);
+    }
+  }, [mutation]);
 
   const handleAvbrytAvtale = () => {
-    mutation.reset();
-    if (avtale?.id) {
-      mutation.mutate({
-        id: avtale?.id,
-        aarsak: aarsak === "annet" ? customAarsak : aarsak,
+    const parsed = AvbrytAvtaleModalSchema.safeParse({
+      aarsak: state?.aarsak,
+      customAarsak: state?.customAarsak,
+    });
+    if (!parsed.success) {
+      const aarsakErrors = parsed.error.format();
+      setState({
+        ...state,
+        errors: {
+          aarsakError: aarsakErrors.aarsak?._errors.join("\n"),
+          customAarsakError: aarsakErrors.customAarsak?._errors.join("\n"),
+        },
       });
+    }
+
+    if (parsed.success && avtale?.id && state?.aarsak) {
+      if (state.aarsak === AnnetEnum.ANNET && state.customAarsak) {
+        mutation.mutate({
+          id: avtale.id,
+          aarsak: state.customAarsak,
+        });
+      } else
+        mutation.mutate({
+          id: avtale?.id,
+          aarsak: state.aarsak,
+        });
     }
   };
 
@@ -78,11 +134,25 @@ export function AvbrytAvtaleModal({ modalRef, avtale }: Props) {
             </Alert>
           ) : (
             <AvbrytModalAarsaker
-              aarsak={aarsak}
-              customAarsak={customAarsak}
-              setAarsak={setAarsak}
-              setCustomAarsak={setCustomAarsak}
+              aarsak={state?.aarsak}
+              customAarsak={state?.customAarsak}
+              setAarsak={(aarsak) => {
+                setState({
+                  ...state,
+                  aarsak: aarsak as AvbrytAvtaleAarsak | AnnetEnum,
+                  errors: { ...state.errors, aarsakError: undefined },
+                });
+              }}
+              setCustomAarsak={(customAarsak) => {
+                setState({
+                  ...state,
+                  customAarsak,
+                  errors: { ...state.errors, customAarsakError: undefined },
+                });
+              }}
               mutation={mutation}
+              aarsakError={state?.errors.aarsakError}
+              customAarsakError={state?.errors.customAarsakError}
               radioknapp={
                 <>
                   {(Object.keys(AvbrytAvtaleAarsak) as Array<AvbrytAvtaleAarsak>)
@@ -99,7 +169,11 @@ export function AvbrytAvtaleModal({ modalRef, avtale }: Props) {
 
           {mutation?.isError && (
             <BodyShort>
-              <AvbrytModalError aarsak={aarsak} customAarsak={customAarsak} mutation={mutation} />
+              <AvbrytModalError
+                aarsak={state.aarsak}
+                customAarsak={state?.customAarsak}
+                mutation={mutation}
+              />
             </BodyShort>
           )}
         </>
@@ -110,8 +184,13 @@ export function AvbrytAvtaleModal({ modalRef, avtale }: Props) {
           <Button onClick={onClose}>Ok</Button>
         ) : (
           <HarSkrivetilgang ressurs="Avtale">
-            <Button variant="danger" onClick={handleAvbrytAvtale}>
-              Ja, jeg vil avbryte avtalen
+            <Button
+              variant="danger"
+              onClick={handleAvbrytAvtale}
+              disabled={mutation.isPending}
+              style={{ minWidth: "15rem" }}
+            >
+              {mutation.isPending ? <Laster /> : "Ja, jeg vil avbryte avtalen"}
             </Button>
           </HarSkrivetilgang>
         )

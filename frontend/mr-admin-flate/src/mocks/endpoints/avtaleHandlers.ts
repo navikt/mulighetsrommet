@@ -1,4 +1,4 @@
-import { HttpResponse, PathParams, http } from "msw";
+import { http, HttpResponse, PathParams } from "msw";
 import { Avtale, EndringshistorikkEntry, PaginertAvtale } from "mulighetsrommet-api-client";
 import { mockAvtaler } from "../fixtures/mock_avtaler";
 import { mockEndringshistorikkAvtaler } from "../fixtures/mock_endringshistorikk_avtaler";
@@ -39,6 +39,10 @@ export const avtaleHandlers = [
       });
     },
   ),
+
+  http.put<{ id: string }, Number>("*/api/v1/internal/avtaler/:id/avbryt", () => {
+    return HttpResponse.json(1);
+  }),
 
   http.get<PathParams, Avtale | undefined>("*/api/v1/internal/avtaler/:id", ({ params }) => {
     const { id } = params;

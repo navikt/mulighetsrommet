@@ -34,7 +34,14 @@ export function VarselModal({
   footerClassName,
 }: Props) {
   return (
-    <Modal ref={modalRef} onClose={handleClose} closeOnBackdropClick aria-label="modal" open={open}>
+    <Modal
+      ref={modalRef}
+      onClose={handleClose}
+      closeOnBackdropClick
+      aria-label="modal"
+      open={open}
+      className={styles.varselmodal}
+    >
       <Modal.Header closeButton={false} className={styles.heading}>
         {headingIconType === "warning" && (
           <ExclamationmarkTriangleFillIcon
@@ -50,7 +57,7 @@ export function VarselModal({
         <Heading size="medium">{headingText}</Heading>
       </Modal.Header>
       <Modal.Body className={styles.body}>{body}</Modal.Body>
-      <Modal.Footer className={classNames(styles.footer, footerClassName)}>
+      <Modal.Footer className={footerClassName ? footerClassName : styles.footer}>
         {secondaryButton && (
           <Button
             variant="secondary"
