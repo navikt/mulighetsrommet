@@ -1,7 +1,7 @@
 import { Avtale, Avtaletype, Opphav } from "mulighetsrommet-api-client";
+import { mockArrangorer } from "./mock_arrangorer";
 import { mockEnheter } from "./mock_enheter";
 import { mockTiltakstyper } from "./mock_tiltakstyper";
-import { mockArrangorer } from "./mock_arrangorer";
 
 export const mockAvtaler: Avtale[] = [
   {
@@ -116,6 +116,44 @@ export const mockAvtaler: Avtale[] = [
     tiltakstype: mockTiltakstyper.INDOPPFAG,
     navn: "Avtale hos Åna Fengsel",
     avtalenummer: "2020#4929",
+    arrangor: {
+      ...mockArrangorer.data[0],
+      slettet: false,
+      kontaktpersoner: [],
+      underenheter: mockArrangorer.data[0].underenheter!.map((v) => ({
+        id: v.id,
+        organisasjonsnummer: v.organisasjonsnummer,
+        navn: v.navn,
+        slettet: false,
+        kontaktpersoner: [],
+      })),
+    },
+    startDato: "2020-07-01",
+    sluttDato: "2024-06-30",
+    avtaletype: Avtaletype.RAMMEAVTALE,
+    status: { name: "AKTIV" },
+    arenaAnsvarligEnhet: mockEnheter._0313,
+    prisbetingelser: "Maskert prisbetingelser",
+    kontorstruktur: [
+      { region: mockEnheter._0400, kontorer: [mockEnheter._0415, mockEnheter._0402] },
+      { region: mockEnheter._0300, kontorer: [mockEnheter._0313, mockEnheter._0318] },
+    ],
+    personopplysninger: [],
+    personvernBekreftet: false,
+  },
+  {
+    id: "6374b285-989d-4f78-a59e-29481b64ba93",
+    opphav: Opphav.MR_ADMIN_FLATE,
+    administratorer: [
+      {
+        navIdent: "B123456",
+        navn: "Bertil Bengtson",
+      },
+    ],
+    tiltakstype: mockTiltakstyper.GRUFAGYRKE,
+    navn: "Avtale hos Kulinarisk akademi",
+    avtalenummer: "2020#4929",
+    websaknummer: "24/12345",
     arrangor: {
       ...mockArrangorer.data[0],
       slettet: false,

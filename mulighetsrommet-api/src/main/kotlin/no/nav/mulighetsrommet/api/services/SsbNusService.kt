@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.services
 
+import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.clients.ssb.SsbNusClient
 import no.nav.mulighetsrommet.api.repositories.NusElement
 import no.nav.mulighetsrommet.api.repositories.SsbNusRepository
@@ -11,12 +12,29 @@ class SsbNusService(val client: SsbNusClient, private val ssbNusRepository: SsbN
         ssbNusRepository.upsert(data, version)
     }
 
-    fun getNusData(tiltakskode: Tiltakskode, version: String): Map<String, List<NusElement>> {
-        val data = ssbNusRepository.getNusData(tiltakskode, version)
+    fun getNusData(tiltakskode: Tiltakskode, version: String): NusDataResponse {
+        val (overordneteKategorier, underkategorier) = ssbNusRepository
+            .getNusData(tiltakskode, version)
+            .partition { it.parent == null }
 
-        return data.groupBy {
-            val parent = data.find { el -> el.code == it.parent }
-            parent?.name ?: it.name
-        }
+        return NusDataResponse(
+            data = overordneteKategorier.map { overordnet ->
+                NusData(
+                    nivaa = overordnet.name,
+                    kategorier = underkategorier.filter { it.code.startsWith(overordnet.code) },
+                )
+            },
+        )
     }
 }
+
+@Serializable
+data class NusDataResponse(
+    val data: List<NusData>,
+)
+
+@Serializable
+data class NusData(
+    val nivaa: String,
+    val kategorier: List<NusElement>,
+)

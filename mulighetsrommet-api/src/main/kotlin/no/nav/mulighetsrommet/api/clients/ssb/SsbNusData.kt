@@ -11,7 +11,7 @@ data class SsbNusData(
 @Serializable
 data class ClassificationItem(
     val code: String,
-    val parentCode: String,
+    val parentCode: String? = null,
     val level: String,
     val name: String,
     val shortName: String? = null,

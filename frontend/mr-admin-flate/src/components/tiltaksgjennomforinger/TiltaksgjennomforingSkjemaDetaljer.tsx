@@ -1,19 +1,23 @@
 import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
 import { useHentKontaktpersoner } from "@/api/ansatt/useHentKontaktpersoner";
 import { useTiltaksgjennomforingAdministratorer } from "@/api/ansatt/useTiltaksgjennomforingAdministratorer";
+import { useFeatureToggle } from "@/api/features/useFeatureToggle";
 import { useTiltaksgjennomforingDeltakerSummary } from "@/api/tiltaksgjennomforing/useTiltaksgjennomforingDeltakerSummary";
 import { useMigrerteTiltakstyper } from "@/api/tiltakstyper/useMigrerteTiltakstyper";
+import { addYear, formaterDato } from "@/utils/Utils";
+import { isTiltakMedFellesOppstart } from "@/utils/tiltakskoder";
 import { PlusIcon, XMarkIcon } from "@navikt/aksel-icons";
 import {
   Alert,
   Button,
   DatePicker,
-  HelpText,
   HGrid,
   HStack,
+  HelpText,
   Select,
   Switch,
   TextField,
+  UNSAFE_Combobox,
 } from "@navikt/ds-react";
 import {
   Avtale,
@@ -26,8 +30,7 @@ import {
 import { ControlledSokeSelect } from "mulighetsrommet-frontend-common";
 import { useEffect, useRef } from "react";
 import { useFieldArray, useFormContext } from "react-hook-form";
-import { addYear, formaterDato } from "@/utils/Utils";
-import { isTiltakMedFellesOppstart } from "@/utils/tiltakskoder";
+import { mockNusData } from "../../mocks/fixtures/mock_nusData";
 import { Separator } from "../detaljside/Metadata";
 import { tiltaktekster } from "../ledetekster/tiltaksgjennomforingLedetekster";
 import { EndreDatoAdvarselModal } from "../modal/EndreDatoAdvarselModal";
@@ -41,7 +44,6 @@ import { SelectOppstartstype } from "./SelectOppstartstype";
 import { TiltakTilgjengeligForArrangor } from "./TilgjengeligTiltakForArrangor";
 import { TiltaksgjennomforingArrangorSkjema } from "./TiltaksgjennomforingArrangorSkjema";
 import { erArenaOpphavOgIngenEierskap } from "./TiltaksgjennomforingSkjemaConst";
-import { useFeatureToggle } from "@/api/features/useFeatureToggle";
 
 interface Props {
   tiltaksgjennomforing?: Tiltaksgjennomforing;
@@ -190,6 +192,9 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
             />
             {errors.avtaleId?.message ? (
               <Alert variant="warning">{errors.avtaleId.message as string}</Alert>
+            ) : null}
+            {avtale.tiltakstype.arenaKode === TiltakskodeArena.GRUFAGYRKE ? (
+              <VelgUtdanningskategori />
             ) : null}
           </FormGroup>
           <Separator />
@@ -457,3 +462,18 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
     </div>
   );
 };
+
+function VelgUtdanningskategori() {
+  const options = mockNusData.data[0].kategorier.map((kategori) => ({
+    label: kategori.name,
+    value: kategori.code,
+  }));
+  return (
+    <UNSAFE_Combobox
+      options={options}
+      isMultiSelect
+      size="small"
+      label="Velg utdanningskategori"
+    ></UNSAFE_Combobox>
+  );
+}

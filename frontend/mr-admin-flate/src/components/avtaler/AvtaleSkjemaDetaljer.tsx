@@ -1,4 +1,15 @@
-import { Heading, HGrid, Textarea, TextField } from "@navikt/ds-react";
+import { useAvtaleAdministratorer } from "@/api/ansatt/useAvtaleAdministratorer";
+import { useMigrerteTiltakstyperForAvtaler } from "@/api/tiltakstyper/useMigrerteTiltakstyper";
+import {
+  Alert,
+  Heading,
+  HGrid,
+  Loader,
+  Select,
+  Textarea,
+  TextField,
+  UNSAFE_Combobox,
+} from "@navikt/ds-react";
 import {
   Avtale,
   Avtaletype,
@@ -6,28 +17,31 @@ import {
   NavEnhet,
   NavEnhetType,
   Opphav,
+  Tiltakskode,
   TiltakskodeArena,
   Tiltakstype,
+  Toggles,
 } from "mulighetsrommet-api-client";
 import { ControlledSokeSelect } from "mulighetsrommet-frontend-common/components/ControlledSokeSelect";
-import { SelectOption } from "mulighetsrommet-frontend-common/components/SokeSelect";
 import { LabelWithHelpText } from "mulighetsrommet-frontend-common/components/label/LabelWithHelpText";
+import { SelectOption } from "mulighetsrommet-frontend-common/components/SokeSelect";
+import { useState } from "react";
 import { DeepPartial, useFormContext } from "react-hook-form";
 import { MultiValue } from "react-select";
-import { useAvtaleAdministratorer } from "@/api/ansatt/useAvtaleAdministratorer";
-import { useMigrerteTiltakstyperForAvtaler } from "@/api/tiltakstyper/useMigrerteTiltakstyper";
-import { erAnskaffetTiltak } from "@/utils/tiltakskoder";
-import { addYear, avtaletypeTilTekst } from "@/utils/Utils";
+import { useNusData } from "../../api/nusdata/useNusData";
+import { erAnskaffetTiltak } from "../../utils/tiltakskoder";
+import { addYear, avtaletypeTilTekst } from "../../utils/Utils";
 import { Separator } from "../detaljside/Metadata";
+import { avtaletekster } from "../ledetekster/avtaleLedetekster";
+import { InferredAvtaleSchema } from "../redaksjonelt-innhold/AvtaleSchema";
 import { AdministratorOptions } from "../skjema/AdministratorOptions";
+import { ControlledDateInput } from "../skjema/ControlledDateInput";
 import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { FormGroup } from "../skjema/FormGroup";
 import skjemastyles from "../skjema/Skjema.module.scss";
-import { InferredAvtaleSchema } from "../redaksjonelt-innhold/AvtaleSchema";
-import { getLokaleUnderenheterAsSelectOptions } from "./AvtaleSkjemaConst";
 import { AvtaleArrangorSkjema } from "./AvtaleArrangorSkjema";
-import { avtaletekster } from "../ledetekster/avtaleLedetekster";
-import { ControlledDateInput } from "../skjema/ControlledDateInput";
+import { getLokaleUnderenheterAsSelectOptions } from "./AvtaleSkjemaConst";
+import { useFeatureToggle } from "../../api/features/useFeatureToggle";
 
 const minStartdato = new Date(2000, 0, 1);
 
@@ -167,6 +181,7 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
                 options={arenaKode ? avtaletypeOptions(arenaKode) : []}
               />
             </HGrid>
+            {watch("tiltakstype")?.arenaKode === "GRUFAGYRKE" ? <AvtaleKategoriVelger /> : null}
           </FormGroup>
 
           <Separator />
@@ -316,4 +331,72 @@ function avtaletypeOptions(arenaKode: TiltakskodeArena): { value: Avtaletype; la
     default:
       return [];
   }
+}
+
+function AvtaleKategoriVelger() {
+  const { data: enableNusKategorier } = useFeatureToggle(
+    Toggles.MULIGHETSROMMET_ADMIN_FLATE_ENABLE_NUSKATEGORIER,
+  );
+  const [valgteKategorier, setValgteKategorier] = useState<string[]>([]);
+  const { data, isLoading, isError } = useNusData(
+    Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
+    "2437",
+  ); // TODO Ikke hardkode tiltakstype eller versjon
+
+  const [valgtUtdanningsnivaa, setValgtUtdanningsnivaa] = useState<string | undefined>(undefined);
+
+  if (!data?.data || isLoading) {
+    return <Loader />;
+  }
+
+  if (isError) {
+    return <Alert variant="error">Kunne ikke hente data fra SSB</Alert>;
+  }
+
+  if (!enableNusKategorier) {
+    return null;
+  }
+
+  const comboboxOptions =
+    data.data
+      .find(({ nivaa }) => nivaa === valgtUtdanningsnivaa)
+      ?.kategorier.map(({ name, code }) => ({ label: name, value: code })) || [];
+
+  return (
+    <HGrid gap="4" columns={1}>
+      <Select
+        size="small"
+        label="Utdanningsnivå"
+        value={valgtUtdanningsnivaa}
+        onChange={(utdanningsnivaa) => {
+          setValgtUtdanningsnivaa(utdanningsnivaa.target.value);
+          setValgteKategorier([]);
+        }}
+      >
+        <option value={""}>Velg utdanningsnivå...</option>
+        {data.data.map(({ nivaa }) => (
+          <option key={nivaa} value={nivaa}>
+            {nivaa}
+          </option>
+        ))}
+      </Select>
+      <UNSAFE_Combobox
+        clearButton
+        size="small"
+        label="Utdanningskategori"
+        disabled={!valgtUtdanningsnivaa}
+        isMultiSelect
+        options={comboboxOptions}
+        selectedOptions={valgteKategorier.map((kategori) => ({
+          value: kategori,
+          label: comboboxOptions.find((option) => option.value === kategori)?.label ?? "",
+        }))}
+        onToggleSelected={(option, isSelected) =>
+          isSelected
+            ? setValgteKategorier([...valgteKategorier, option])
+            : setValgteKategorier(valgteKategorier.filter((o) => o !== option))
+        }
+      ></UNSAFE_Combobox>
+    </HGrid>
+  );
 }

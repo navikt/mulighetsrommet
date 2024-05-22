@@ -5,7 +5,7 @@ info:
   title: Mulighetsrommet API
 
 security:
-  - bearerAuth: []
+  - bearerAuth: [ ]
 
 paths:
   /api/v1/internal/bruker:
@@ -1514,6 +1514,24 @@ paths:
               schema:
                 type: boolean
 
+  /api/v1/internal/nus-data:
+    post:
+      tags:
+        - Nus
+      operationId: getNusDataByTiltakstypeAndVersion
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NusDataRequest"
+      responses:
+        200:
+          description: "Nus data for tiltakstype og versjon"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NusDataResponse"
+
 components:
   securitySchemes:
     bearerAuth:
@@ -1967,10 +1985,10 @@ components:
         name:
           type: string
           enum:
-           - AKTIV
-           - AVSLUTTET
+            - AKTIV
+            - AVSLUTTET
       required:
-       - name
+        - name
 
     AvtaleAvbruttStatus:
       type: object
@@ -1978,7 +1996,7 @@ components:
         name:
           type: string
           enum:
-           - AVBRUTT
+            - AVBRUTT
         tidspunkt:
           type: string
           format: date-time
@@ -2260,7 +2278,7 @@ components:
             - GJENNOMFORES
             - AVSLUTTET
       required:
-       - name
+        - name
 
     GjennomforingAvbruttStatus:
       type: object
@@ -3399,6 +3417,7 @@ components:
         - mulighetsrommet-veilederflate-arena-oppskrifter
         - mulighetsrommet.admin-flate.enableDebugger
         - mulighetsrommet.admin-flate.tilgjengeliggjore-tiltak-for-arrangor
+        - mulighetsrommet.admin-flate.enable_nuskategorier
 
     PublisertRequest:
       type: object
@@ -3520,15 +3539,16 @@ components:
     Tiltakskode:
       type: string
       enum:
-        - INDOPPFAG
-        - ARBFORB
-        - AVKLARAG
-        - VASV
-        - ARBRRHDAG
-        - DIGIOPPARB
-        - JOBBK
-        - GRUPPEAMO
-        - GRUFAGYRKE
+        - VARIG_TILRETTELAGT_ARBEID_SKJERMET
+        - OPPFOLGING
+        - JOBBKLUBB
+        - GRUPPE_FAG_OG_YRKESOPPLAERING
+        - GRUPPE_ARBEIDSMARKEDSOPPLAERING
+        - DIGITALT_OPPFOLGINGSTILTAK
+        - AVKLARING
+        - ARBEIDSRETTET_REHABILITERING
+        - ARBEIDSFORBEREDENDE_TRENING
+
 
     Gruppetiltak:
       type: object
@@ -3536,7 +3556,7 @@ components:
         navn:
           type: string
         tiltakskode:
-          $ref: "#/components/schemas/Tiltakskode"
+          $ref: "#/components/schemas/TiltakskodeArena"
       required:
         - navn
         - tiltakskode
@@ -3636,3 +3656,54 @@ components:
       required:
         - personopplysning
         - beskrivelse
+
+    NusDataRequest:
+      type: object
+      properties:
+        tiltakskode:
+          $ref: "#/components/schemas/Tiltakskode"
+        version:
+          type: string
+      required:
+        - tiltakskode
+        - version
+
+    NusDataResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              nivaa:
+                type: string
+              kategorier:
+                type: array
+                items:
+                  $ref: "#/components/schemas/NusElement"
+            required:
+              - nivaa
+              - kategorier
+      required:
+        - data
+
+    NusElement:
+      type: object
+      properties:
+        tiltakskode:
+          $ref: "#/components/schemas/Tiltakskode"
+        code:
+          type: string
+        version:
+          type: string
+        name:
+          type: string
+        parent:
+          type: string
+      required:
+        - tiltakskode
+        - code
+        - version
+        - name
+        - parent
