@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.domain.dbo
 
+import kotlinx.serialization.json.JsonObject
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dto.Faneinnhold
 import no.nav.mulighetsrommet.domain.dto.NavIdent
@@ -29,6 +30,7 @@ data class TiltaksgjennomforingDbo(
     val estimertVentetidVerdi: Int?,
     val estimertVentetidEnhet: String?,
     val tilgjengeligForArrangorFraOgMedDato: LocalDate?,
+    val nusData: JsonObject?,
 )
 
 data class TiltaksgjennomforingKontaktpersonDbo(

@@ -1,6 +1,9 @@
 package no.nav.mulighetsrommet.api.domain.dto
 
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.encodeToJsonElement
+import kotlinx.serialization.json.jsonObject
 import no.nav.mulighetsrommet.api.domain.dbo.ArenaNavEnhet
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
@@ -57,6 +60,7 @@ data class TiltaksgjennomforingAdminDto(
     val personvernBekreftet: Boolean,
     @Serializable(with = LocalDateSerializer::class)
     val tilgjengeligForArrangorFraOgMedDato: LocalDate?,
+    val nusData: NusData?,
 ) {
     fun isAktiv(): Boolean = status in listOf(
         TiltaksgjennomforingStatus.PLANLAGT,
@@ -93,6 +97,17 @@ data class TiltaksgjennomforingAdminDto(
         val enhet: String,
     )
 
+    @Serializable
+    data class NusData(
+        val utdanningskategorier: List<NusDataElement> = emptyList(),
+    )
+
+    @Serializable
+    data class NusDataElement(
+        val code: String,
+        val name: String,
+    )
+
     fun toDbo() =
         TiltaksgjennomforingDbo(
             id = id,
@@ -123,5 +138,6 @@ data class TiltaksgjennomforingAdminDto(
             estimertVentetidVerdi = estimertVentetid?.verdi,
             estimertVentetidEnhet = estimertVentetid?.enhet,
             tilgjengeligForArrangorFraOgMedDato = tilgjengeligForArrangorFraOgMedDato,
+            nusData = nusData?.let { Json.encodeToJsonElement(it).jsonObject },
         )
 }

@@ -89,6 +89,19 @@ export const TiltaksgjennomforingSchema = z
       })
       .nullable(),
     tilgjengeligForArrangorFraOgMedDato: z.string().nullable().optional(),
+    nusData: z
+      .object({
+        utdanningskategorier: z
+          .object(
+            {
+              code: z.string(),
+              name: z.string(),
+            },
+            { required_error: "Du må velge minst én utdanningskategori" },
+          )
+          .array(),
+      })
+      .optional(),
   })
   .superRefine((data, ctx) => {
     data.kontaktpersoner?.forEach((kontaktperson, index) => {

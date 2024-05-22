@@ -15,7 +15,6 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.mulighetsrommet.api.AdGruppeNavAnsattRolleMapping
 import no.nav.mulighetsrommet.api.clients.AccessType
@@ -398,9 +397,9 @@ class NavAnsattServiceTest : FunSpec({
                 opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
                 status = AvtaleStatus.AKTIV,
                 lopenummer = Lopenummer(value = "2024/1"),
-                administratorer = emptyList(), // eneste verdien som er relevant her
+                administratorer = emptyList(),
                 kontorstruktur = emptyList(),
-                nusData = JsonObject(emptyMap()),
+                nusData = null,
             )
 
             every { navEnhetService.hentOverordnetFylkesenhet(any()) } returns

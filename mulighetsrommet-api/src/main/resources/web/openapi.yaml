@@ -1859,6 +1859,18 @@ components:
           type: boolean
         nusData:
           type: object
+          properties:
+            utdanningsnivaa:
+              type: string
+            utdanningskategorier:
+              type: array
+              items:
+                  type: object
+                  properties:
+                    code:
+                      type: string
+                    name:
+                      type: string
           nullable: true
       required:
         - id
@@ -2160,6 +2172,22 @@ components:
           type: string
           format: date
           nullable: true
+        nusData:
+          type: object
+          properties:
+            utdanningskategorier:
+              type: array
+              items:
+                type: object
+                properties:
+                  code:
+                    type: string
+                  name:
+                    type: string
+                required:
+                  - code
+                  - name
+          nullable: true
       required:
         - id
         - tiltakstype
@@ -2179,6 +2207,7 @@ components:
         - publisertForAlle
         - deltidsprosent
         - tilgjengeligForArrangorFraOgMedDato
+        - nusData
 
     TiltaksnummerResponse:
       type: object
@@ -2260,6 +2289,20 @@ components:
           type: string
           format: date
           nullable: true
+        nusData:
+          type: object
+          properties:
+            utdanningskategorier:
+              type: array
+              items:
+                type: object
+                properties:
+                  code:
+                    type: string
+                  name:
+                    type: string
+              nullable: true
+          nullable: true
       required:
         - id
         - tiltakstypeId
@@ -2282,6 +2325,7 @@ components:
         - deltidsprosent
         - estimertVentetid
         - tilgjengeligForArrangorFraOgMedDato
+        - nusData
 
     TiltaksgjennomforingStatusResponse:
       oneOf:
