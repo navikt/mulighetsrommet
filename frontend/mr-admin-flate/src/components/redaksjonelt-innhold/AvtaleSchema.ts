@@ -48,6 +48,17 @@ export const AvtaleSchema = z
     faneinnhold: FaneinnholdSchema.nullable(),
     personvernBekreftet: z.boolean({ required_error: "Du må ta stilling til personvern" }),
     personopplysninger: z.nativeEnum(Personopplysning).array(),
+    nusData: z
+      .object({
+        utdanningsnivaa: z.string().optional(),
+        utdanningskategorier: z
+          .object({
+            code: z.string(),
+            name: z.string(),
+          })
+          .array(),
+      })
+      .optional(),
   })
   .superRefine((data, ctx) => {
     if (
@@ -58,6 +69,28 @@ export const AvtaleSchema = z
         code: z.ZodIssueCode.custom,
         message: "Websaknummer til avtalesaken er påkrevd",
         path: ["websaknummer"],
+      });
+    }
+
+    if (
+      data.tiltakstype.arenaKode === TiltakskodeArena.GRUFAGYRKE &&
+      !data.nusData?.utdanningsnivaa
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Du må velge et utdanningsnivå",
+        path: ["nusData.utdanningsnivaa"],
+      });
+    }
+
+    if (
+      data.tiltakstype.arenaKode === TiltakskodeArena.GRUFAGYRKE &&
+      data.nusData?.utdanningskategorier.length === 0
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Du må velge minst én utdanningskategori",
+        path: ["nusData.utdanningskategorier"],
       });
     }
   });
