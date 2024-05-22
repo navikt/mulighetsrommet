@@ -41,7 +41,7 @@ dbScheduler = "com.github.kagkarlsson:db-scheduler:14.0.0"
 flyway-core = { module = "org.flywaydb:flyway-core", version.ref = "flyway" }
 flyway-database-postgresql = { module = "org.flywaydb:flyway-database-postgresql", version.ref = "flyway" }
 
-google-cloud-postgresSocketFactory = "com.google.cloud.sql:postgres-socket-factory:1.18.0"
+google-cloud-postgresSocketFactory = "com.google.cloud.sql:postgres-socket-factory:1.18.1"
 google-cloud-storage = "com.google.cloud:google-cloud-storage:2.38.0"
 
 hikaricp = "com.zaxxer:HikariCP:5.1.0"
@@ -101,7 +101,7 @@ metrics-healthchecks = { module = "io.dropwizard.metrics:metrics-healthchecks", 
 
 micrometer-registry-prometheus = "io.micrometer:micrometer-registry-prometheus:1.12.5"
 
-mockk = "io.mockk:mockk:1.13.10"
+mockk = "io.mockk:mockk:1.13.11"
 
 nav-common-log = { module = "no.nav.common:log", version.ref = "common-java-modules" }
 nav-common-auditLog = { module = "no.nav.common:audit-log", version.ref = "common-java-modules" }
@@ -117,11 +117,11 @@ prometheus-caffeine = "io.prometheus:simpleclient_caffeine:0.16.0"
 
 shedlock-jdbc = "net.javacrumbs.shedlock:shedlock-provider-jdbc:5.13.0"
 
-slack-client = "com.slack.api:slack-api-client:1.39.1"
+slack-client = "com.slack.api:slack-api-client:1.39.2"
 
 slf4j = "org.slf4j:slf4j-api:2.0.13"
 
 apache-poi = "org.apache.poi:poi:5.2.5"
 apache-poi-ooxml = "org.apache.poi:poi-ooxml:5.2.5"
 
-unleash = "io.getunleash:unleash-client-java:9.2.1"
+unleash = "io.getunleash:unleash-client-java:9.2.2"
