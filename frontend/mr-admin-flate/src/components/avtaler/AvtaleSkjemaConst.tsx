@@ -58,6 +58,6 @@ export function defaultAvtaleData(
     faneinnhold: avtale?.faneinnhold ?? null,
     personvernBekreftet: avtale?.personvernBekreftet,
     personopplysninger: avtale?.personopplysninger ?? [],
-    nusData: avtale?.nusData ?? {},
+    nusData: avtale?.nusData ?? undefined,
   };
 }

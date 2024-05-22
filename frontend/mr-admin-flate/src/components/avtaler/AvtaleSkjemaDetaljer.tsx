@@ -361,7 +361,7 @@ function AvtaleKategoriVelger() {
   }
 
   const utdanningsnivaa = watch("nusData.utdanningsnivaa");
-  const utdanningskategorier = watch("nusData.utdanningskategorier", []);
+  const utdanningskategorier = watch("nusData.utdanningskategorier", []) || [];
 
   const comboboxOptions =
     data.data

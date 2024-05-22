@@ -56,7 +56,8 @@ export const AvtaleSchema = z
             code: z.string(),
             name: z.string(),
           })
-          .array(),
+          .array()
+          .optional(),
       })
       .optional(),
   })
@@ -85,7 +86,7 @@ export const AvtaleSchema = z
 
     if (
       data.tiltakstype.arenaKode === TiltakskodeArena.GRUFAGYRKE &&
-      data.nusData?.utdanningskategorier.length === 0
+      data.nusData?.utdanningskategorier?.length === 0
     ) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
