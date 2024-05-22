@@ -464,7 +464,10 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
 };
 
 function VelgUtdanningskategori() {
-  const options = mockNusData[1].children;
+  const options = mockNusData.data[0].kategorier.map((kategori) => ({
+    label: kategori.name,
+    value: kategori.code,
+  }));
   return (
     <UNSAFE_Combobox
       options={options}

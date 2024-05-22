@@ -1,116 +1,38 @@
-// TODO Hente type fra openApi
-interface NusData {
-  value: string;
-  label: string;
-  children: { value: string; label: string }[];
-}
-[];
+import { NusDataResponse, NusElement, Tiltakskode } from "mulighetsrommet-api-client";
 
-const ikkeVgsNivaa = [
+const vgsNivaa: NusElement[] = [
   {
-    label: "Allmenne fag",
-    value: "Allmenne fag",
+    code: "30",
+    name: "Allmenne fag",
+    parent: "3",
+    tiltakskode: Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
+    version: "2437",
   },
   {
-    label: "Humanistiske og estetiske fag",
-    value: "Humanistiske og estetiske fag",
+    code: "31",
+    name: "Humanistiske og estetiske fag",
+    parent: "3",
+    tiltakskode: Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
+    version: "2437",
   },
   {
-    label: "Lærerutdanninger og utdanninger i pedagogikk",
-    value: "Lærerutdanninger og utdanninger i pedagogikk",
-  },
-  {
-    label: "Samfunnsfag og juridiske fag",
-    value: "Samfunnsfag og juridiske fag",
-  },
-  {
-    label: "Naturvitenskapelige fag, håndverksfag og tekniske fag",
-    value: "Naturvitenskapelige fag, håndverksfag og tekniske fag",
-  },
-
-  {
-    label: "Helse-, sosial- og idrettsfag",
-    value: "Helse-, sosial- og idrettsfag",
-  },
-  {
-    label: "Primærnæringsfag",
-    value: "Primærnæringsfag",
-  },
-  {
-    label: "Samferdsels- og sikkerhetsfag og andre servicefag",
-    value: "Samferdsels- og sikkerhetsfag og andre servicefag",
-  },
-  {
-    label: "Uoppgitt fagfelt",
-    value: "Uoppgitt fagfelt",
+    code: "32",
+    name: "Lærerutdanninger og utdanninger i pedagogikk",
+    parent: "3",
+    tiltakskode: Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
+    version: "2437",
   },
 ];
 
-const vgsNivaa = [
-  {
-    label: "Allmenne fag",
-    value: "Allmenne fag",
-  },
-  {
-    label: "Humanistiske og estetiske fag",
-    value: "Humanistiske og estetiske fag",
-  },
-  {
-    label: "Lærerutdanninger og utdanninger i pedagogikk",
-    value: "Lærerutdanninger og utdanninger i pedagogikk",
-  },
-  {
-    label: "Samfunnsfag og juridiske fag",
-    value: "Samfunnsfag og juridiske fag",
-  },
-  {
-    label: "Naturvitenskapelige fag, håndverksfag og tekniske fag",
-    value: "Naturvitenskapelige fag, håndverksfag og tekniske fag",
-  },
-  {
-    label: "Elektro",
-    value: "Elektro",
-  },
-  {
-    label: "Mekaniske fag",
-    value: "Mekaniske fag",
-  },
-  {
-    label: "Bygg og anlegg",
-    value: "Bygg og anlegg",
-  },
-  {
-    label: "Helse-, sosial- og idrettsfag",
-    value: "Helse-, sosial- og idrettsfag",
-  },
-  {
-    label: "Primærnæringsfag",
-    value: "Primærnæringsfag",
-  },
-  {
-    label: "Samferdsels- og sikkerhetsfag og andre servicefag",
-    value: "Samferdsels- og sikkerhetsfag og andre servicefag",
-  },
-  {
-    label: "Uoppgitt fagfelt",
-    value: "Uoppgitt fagfelt",
-  },
-];
-
-export const mockNusData: NusData[] = [
-  {
-    value: "Ungdomsskoleutdanning",
-    label: "Ungdomsskoleutdanning",
-    children: ikkeVgsNivaa,
-  },
-  {
-    value: "Videregående, grunnutdanning",
-    label: "Videregående, grunnutdanning",
-    children: vgsNivaa,
-  },
-  {
-    value: "Videregående, avsluttende utdanning",
-    label: "Videregående, avsluttende utdanning",
-    children: vgsNivaa,
-  },
-];
+export const mockNusData: NusDataResponse = {
+  data: [
+    {
+      nivaa: "Videregående, grunnutdanning",
+      kategorier: vgsNivaa,
+    },
+    {
+      nivaa: "Videregående, avsluttende utdanning",
+      kategorier: vgsNivaa,
+    },
+  ],
+};
