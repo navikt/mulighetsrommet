@@ -17,7 +17,6 @@ import no.nav.mulighetsrommet.slack.SlackNotifier
 import org.slf4j.LoggerFactory
 import java.time.Instant
 import java.time.format.DateTimeFormatter
-import java.time.format.FormatStyle
 import kotlin.jvm.optionals.getOrNull
 
 class NotifySluttdatoForGjennomforingerNarmerSeg(
@@ -59,13 +58,14 @@ class NotifySluttdatoForGjennomforingerNarmerSeg(
             runBlocking {
                 val tiltaksgjennomforinger: List<TiltaksgjennomforingNotificationDto> =
                     tiltaksgjennomforingService.getAllGjennomforingerSomNarmerSegSluttdato()
+                val europeanDatePattern = "dd.MM.yyyy"
                 tiltaksgjennomforinger.forEach {
                     it.administratorer.toNonEmptyListOrNull()?.let { administratorer ->
                         val notification = ScheduledNotification(
                             type = NotificationType.NOTIFICATION,
                             title = "Gjennomføringen \"${it.navn} ${if (it.tiltaksnummer != null) "(${it.tiltaksnummer})" else ""}\" utløper ${
                                 it.sluttDato?.format(
-                                    DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT),
+                                    DateTimeFormatter.ofPattern(europeanDatePattern),
                                 )
                             }",
                             targets = administratorer,
