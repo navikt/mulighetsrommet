@@ -85,7 +85,7 @@ export function AvtaleSkjemaContainer({
       faneinnhold: data.faneinnhold,
       personopplysninger: data.personvernBekreftet ? data.personopplysninger : [],
       personvernBekreftet: data.personvernBekreftet,
-      nusData: data.nusData || {},
+      nusData: data.nusData || null,
     };
 
     mutation.mutate(requestBody);

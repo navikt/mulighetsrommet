@@ -59,7 +59,8 @@ export const AvtaleSchema = z
             },
             { required_error: "Du må velge minst én utdanningskategori" },
           )
-          .array(),
+          .array()
+          .optional(),
       })
       .optional(),
   })
@@ -88,7 +89,7 @@ export const AvtaleSchema = z
 
     if (
       data.tiltakstype.arenaKode === TiltakskodeArena.GRUFAGYRKE &&
-      data.nusData?.utdanningskategorier.length === 0
+      data.nusData?.utdanningskategorier?.length === 0
     ) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,

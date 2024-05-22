@@ -82,7 +82,7 @@ export function AvtaleDetaljer() {
               verdi={avtaletypeTilTekst(avtaletype)}
             />
           </Bolk>
-          {avtale.nusData && (
+          {avtale?.nusData && (
             <Bolk>
               <Metadata
                 header="Utdanningskategorier"
