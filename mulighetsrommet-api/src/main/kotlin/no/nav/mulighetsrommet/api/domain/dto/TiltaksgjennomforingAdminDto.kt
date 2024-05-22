@@ -60,7 +60,7 @@ data class TiltaksgjennomforingAdminDto(
     val personvernBekreftet: Boolean,
     @Serializable(with = LocalDateSerializer::class)
     val tilgjengeligForArrangorFraOgMedDato: LocalDate?,
-    val nusData: NusData?,
+    val nusData: NusData? = null,
 ) {
     fun isAktiv(): Boolean = status in listOf(
         TiltaksgjennomforingStatus.PLANLAGT,

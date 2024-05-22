@@ -43,7 +43,7 @@ data class AvtaleAdminDto(
     val faneinnhold: Faneinnhold? = null,
     val personopplysninger: List<Personopplysning>,
     val personvernBekreftet: Boolean,
-    val nusData: NusData?,
+    val nusData: NusData? = null,
 ) {
     @Serializable
     data class Tiltakstype(

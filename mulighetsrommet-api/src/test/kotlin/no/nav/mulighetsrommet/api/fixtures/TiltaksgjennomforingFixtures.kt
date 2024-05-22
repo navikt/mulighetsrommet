@@ -1,6 +1,5 @@
 package no.nav.mulighetsrommet.api.fixtures
 
-import kotlinx.serialization.json.JsonObject
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.api.routes.v1.EstimertVentetid
 import no.nav.mulighetsrommet.api.routes.v1.TiltaksgjennomforingRequest
@@ -51,7 +50,7 @@ object TiltaksgjennomforingFixtures {
         estimertVentetidVerdi = 3,
         estimertVentetidEnhet = "dag",
         tilgjengeligForArrangorFraOgMedDato = null,
-        nusData = JsonObject(emptyMap()),
+        nusData = null,
     )
 
     val EnkelAmo1 = TiltaksgjennomforingDbo(
@@ -77,7 +76,7 @@ object TiltaksgjennomforingFixtures {
         estimertVentetidVerdi = 3,
         estimertVentetidEnhet = "dag",
         tilgjengeligForArrangorFraOgMedDato = null,
-        nusData = JsonObject(emptyMap()),
+        nusData = null,
     )
 
     val Oppfolging1Request = TiltaksgjennomforingRequest(
@@ -105,7 +104,7 @@ object TiltaksgjennomforingFixtures {
             verdi = 3,
             enhet = "dag",
         ),
-        nusData = JsonObject(emptyMap()),
+        nusData = null,
     )
 
     val Oppfolging2 = TiltaksgjennomforingDbo(
@@ -131,7 +130,7 @@ object TiltaksgjennomforingFixtures {
         estimertVentetidVerdi = 3,
         estimertVentetidEnhet = "dag",
         tilgjengeligForArrangorFraOgMedDato = null,
-        nusData = JsonObject(emptyMap()),
+        nusData = null,
     )
 
     val VTA1 = TiltaksgjennomforingDbo(
@@ -157,7 +156,7 @@ object TiltaksgjennomforingFixtures {
         estimertVentetidVerdi = 3,
         estimertVentetidEnhet = "dag",
         tilgjengeligForArrangorFraOgMedDato = null,
-        nusData = JsonObject(emptyMap()),
+        nusData = null,
     )
 
     val AFT1 = TiltaksgjennomforingDbo(
@@ -183,7 +182,7 @@ object TiltaksgjennomforingFixtures {
         estimertVentetidVerdi = 3,
         estimertVentetidEnhet = "dag",
         tilgjengeligForArrangorFraOgMedDato = null,
-        nusData = JsonObject(emptyMap()),
+        nusData = null,
     )
 
     val Jobbklubb1 = TiltaksgjennomforingDbo(
@@ -209,7 +208,7 @@ object TiltaksgjennomforingFixtures {
         estimertVentetidVerdi = 3,
         estimertVentetidEnhet = "dag",
         tilgjengeligForArrangorFraOgMedDato = null,
-        nusData = JsonObject(emptyMap()),
+        nusData = null,
     )
 
     val GruppeAmo1 = TiltaksgjennomforingDbo(
@@ -235,6 +234,6 @@ object TiltaksgjennomforingFixtures {
         estimertVentetidVerdi = 3,
         estimertVentetidEnhet = "dag",
         tilgjengeligForArrangorFraOgMedDato = null,
-        nusData = JsonObject(emptyMap()),
+        nusData = null,
     )
 }
