@@ -1,4 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
+import { QueryKeys } from "../QueryKeys";
+import { NusDataResponse, Tiltakskode } from "mulighetsrommet-api-client";
+import { mulighetsrommetClient } from "../client";
 
 export interface NusDataFraSsb {
   classificationItems: {
@@ -9,16 +12,15 @@ export interface NusDataFraSsb {
   }[];
 }
 
-export function useNusData() {
-  return useQuery<NusDataFraSsb>({
-    queryKey: ["nusdata"],
-    queryFn: async () => {
-      const version = "2437";
-      const response = await fetch(`https://data.ssb.no/api/klass/v1/versions/${version}`);
-      if (response.ok) {
-        return await response.json();
-      }
-      throw new Error();
-    },
+export function useNusData(tiltakskode: Tiltakskode, version: string) {
+  return useQuery<NusDataResponse>({
+    queryKey: QueryKeys.nusData(tiltakskode, version),
+    queryFn: () =>
+      mulighetsrommetClient.nus.getNusDataByTiltakstypeAndVersion({
+        requestBody: {
+          tiltakskode,
+          version,
+        },
+      }),
   });
 }

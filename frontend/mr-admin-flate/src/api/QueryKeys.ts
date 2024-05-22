@@ -1,4 +1,9 @@
-import { ArrangorTil, NavAnsattRolle, NotificationStatus } from "mulighetsrommet-api-client";
+import {
+  ArrangorTil,
+  NavAnsattRolle,
+  NotificationStatus,
+  Tiltakskode,
+} from "mulighetsrommet-api-client";
 import { ArrangorerFilter, AvtaleFilter, TiltaksgjennomforingFilter } from "./atoms";
 
 export const QueryKeys = {
@@ -41,4 +46,5 @@ export const QueryKeys = {
   features: (feature: string) => ["feature", feature],
   migrerteTiltakstyper: () => ["migrerteTiltakstyper"],
   navRegioner: () => ["navRegioner"],
+  nusData: (tiltakskode: Tiltakskode, version: string) => ["nus-data", tiltakskode, version],
 };

@@ -1,4 +1,4 @@
-import { DeltakerKort, DeltakerStatusType, Tiltakskode } from "mulighetsrommet-api-client";
+import { DeltakerKort, DeltakerStatusType, TiltakskodeArena } from "mulighetsrommet-api-client";
 
 export const utkastFraKomet: DeltakerKort[] = [
   {
@@ -11,7 +11,7 @@ export const utkastFraKomet: DeltakerKort[] = [
     },
     tiltakstype: {
       navn: "Avklaring",
-      tiltakskode: Tiltakskode.AVKLARAG,
+      tiltakskode: TiltakskodeArena.AVKLARAG,
     },
     tittel: "Avklaring hos Muligheter AS",
   },
@@ -25,7 +25,7 @@ export const utkastFraKomet: DeltakerKort[] = [
     },
     tiltakstype: {
       navn: "Avklaring",
-      tiltakskode: Tiltakskode.AVKLARAG,
+      tiltakskode: TiltakskodeArena.AVKLARAG,
     },
     tittel: "Avklaring hos Fretex AS",
   },
@@ -38,7 +38,7 @@ export const utkastFraKomet: DeltakerKort[] = [
     },
     tiltakstype: {
       navn: "Jobbklubb",
-      tiltakskode: Tiltakskode.JOBBK,
+      tiltakskode: TiltakskodeArena.JOBBK,
     },
     tittel: "Jobbklubb hos Fretex",
   },
@@ -51,7 +51,7 @@ export const utkastFraKomet: DeltakerKort[] = [
     },
     tiltakstype: {
       navn: "Jobbklubb",
-      tiltakskode: Tiltakskode.JOBBK,
+      tiltakskode: TiltakskodeArena.JOBBK,
     },
     periode: {
       startdato: "2023-08-10",
@@ -68,7 +68,7 @@ export const utkastFraKomet: DeltakerKort[] = [
     },
     tiltakstype: {
       navn: "Jobbklubb",
-      tiltakskode: Tiltakskode.JOBBK,
+      tiltakskode: TiltakskodeArena.JOBBK,
     },
     periode: {
       startdato: "2023-08-10",
@@ -85,7 +85,7 @@ export const utkastFraKomet: DeltakerKort[] = [
     },
     tiltakstype: {
       navn: "Varig tilrettelagt arbeid (VTA)",
-      tiltakskode: Tiltakskode.VASV,
+      tiltakskode: TiltakskodeArena.VASV,
     },
     periode: {
       startdato: "2023-08-10",

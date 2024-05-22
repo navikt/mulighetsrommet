@@ -17,8 +17,10 @@ import {
   NavEnhet,
   NavEnhetType,
   Opphav,
+  Tiltakskode,
   TiltakskodeArena,
   Tiltakstype,
+  Toggles,
 } from "mulighetsrommet-api-client";
 import { ControlledSokeSelect } from "mulighetsrommet-frontend-common/components/ControlledSokeSelect";
 import { LabelWithHelpText } from "mulighetsrommet-frontend-common/components/label/LabelWithHelpText";
@@ -39,6 +41,7 @@ import { FormGroup } from "../skjema/FormGroup";
 import skjemastyles from "../skjema/Skjema.module.scss";
 import { AvtaleArrangorSkjema } from "./AvtaleArrangorSkjema";
 import { getLokaleUnderenheterAsSelectOptions } from "./AvtaleSkjemaConst";
+import { useFeatureToggle } from "../../api/features/useFeatureToggle";
 
 const minStartdato = new Date(2000, 0, 1);
 
@@ -331,14 +334,18 @@ function avtaletypeOptions(arenaKode: TiltakskodeArena): { value: Avtaletype; la
 }
 
 function AvtaleKategoriVelger() {
-  const VGS3 = "3";
-  const VGS4 = "4";
-  const RELEVANTE_NIVAAER = [VGS3, VGS4];
+  const { data: enableNusKategorier } = useFeatureToggle(
+    Toggles.MULIGHETSROMMET_ADMIN_FLATE_ENABLE_NUSKATEGORIER,
+  );
   const [valgteKategorier, setValgteKategorier] = useState<string[]>([]);
-  const { data, isLoading, isError } = useNusData();
+  const { data, isLoading, isError } = useNusData(
+    Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
+    "2437",
+  ); // TODO Ikke hardkode tiltakstype eller versjon
+
   const [valgtUtdanningsnivaa, setValgtUtdanningsnivaa] = useState<string | undefined>(undefined);
 
-  if (!data || isLoading) {
+  if (!data?.data || isLoading) {
     return <Loader />;
   }
 
@@ -346,65 +353,15 @@ function AvtaleKategoriVelger() {
     return <Alert variant="error">Kunne ikke hente data fra SSB</Alert>;
   }
 
-  const kategorier = data.classificationItems
-    .filter((item) => item.level === "1")
-    .filter((item) => RELEVANTE_NIVAAER.includes(item.code))
-    .map((item) => ({
-      value: item.code,
-      label: `${item.code} - ${item.name}`,
-      children: data.classificationItems
-        .filter((child) => child.parentCode === item.code && child.name !== "Uoppgitt fagfelt")
-        .map((child) => ({
-          value: child.code,
-          label: `${child.code} - ${child.name}`,
-        })),
-    }))
-    .map((kategori) => {
-      if (kategori.value === VGS3) {
-        return {
-          ...kategori,
-          children: kategori.children.concat(
-            {
-              value: "3551",
-              label: "3551 - Elektrofag",
-            },
-            {
-              value: "3552",
-              label: "3552 - Mekaniske fag",
-            },
-            {
-              value: "3751",
-              label: "3751 - Bygg og anlegg",
-            },
-          ),
-        };
-      } else if (kategori.value === VGS4) {
-        return {
-          ...kategori,
-          children: kategori.children.concat(
-            {
-              value: "4551",
-              label: "4551 - Elektrofag",
-            },
-            {
-              value: "4552",
-              label: "4552 - Mekaniske fag",
-            },
-            {
-              value: "4751",
-              label: "4751 - Bygg og anlegg",
-            },
-          ),
-        };
-      }
-
-      return kategori;
-    });
+  if (!enableNusKategorier) {
+    return null;
+  }
 
   const comboboxOptions =
-    kategorier
-      .find((kategori) => kategori.value === valgtUtdanningsnivaa)
-      ?.children.map((child) => child) || [];
+    data.data
+      .find(({ nivaa }) => nivaa === valgtUtdanningsnivaa)
+      ?.kategorier.map(({ name, code }) => ({ label: name, value: code })) || [];
+
   return (
     <HGrid gap="4" columns={1}>
       <Select
@@ -417,9 +374,9 @@ function AvtaleKategoriVelger() {
         }}
       >
         <option value={""}>Velg utdanningsnivå...</option>
-        {kategorier.map((utdanningsnivaa) => (
-          <option key={utdanningsnivaa.value} value={utdanningsnivaa.value}>
-            {utdanningsnivaa.label}
+        {data.data.map(({ nivaa }) => (
+          <option key={nivaa} value={nivaa}>
+            {nivaa}
           </option>
         ))}
       </Select>
