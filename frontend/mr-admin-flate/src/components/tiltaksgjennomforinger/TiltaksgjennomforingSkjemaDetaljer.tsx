@@ -480,13 +480,11 @@ function VelgUtdanningskategori({ avtale }: VelgUtdanningskategoriProps) {
     return null;
   }
 
-  const utdanningskategorier = avtale?.nusData?.utdanningskategorier as {
-    name: string;
-    code: string;
-  }[]; // TODO Type denne opp på en bedre måte
+  const utdanningskategorier = avtale?.nusData?.utdanningskategorier || [];
 
   const valgteKategorier = watch("nusData.utdanningskategorier", []);
   const options = utdanningskategorier?.map((k) => ({ label: k.name, value: k.code }));
+
   return (
     <UNSAFE_Combobox
       label="Velg utdanningskategorier"

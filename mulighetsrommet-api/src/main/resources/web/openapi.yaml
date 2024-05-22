@@ -1869,8 +1869,13 @@ components:
                   properties:
                     code:
                       type: string
+                      nullable: false
                     name:
                       type: string
+                      nullable: false
+                  required:
+                    - code
+                    - name
           nullable: true
       required:
         - id
