@@ -54,7 +54,8 @@ class AvtaleRepository(private val db: Database) {
                 opphav,
                 beskrivelse,
                 faneinnhold,
-                personvern_bekreftet
+                personvern_bekreftet,
+                nusdata
             ) values (
                 :id::uuid,
                 :navn,
@@ -70,7 +71,8 @@ class AvtaleRepository(private val db: Database) {
                 :opphav::opphav,
                 :beskrivelse,
                 :faneinnhold::jsonb,
-                :personvern_bekreftet
+                :personvern_bekreftet,
+                :nusdata::jsonb
             ) on conflict (id) do update set
                 navn                        = excluded.navn,
                 tiltakstype_id              = excluded.tiltakstype_id,
@@ -85,7 +87,8 @@ class AvtaleRepository(private val db: Database) {
                 opphav                      = coalesce(avtale.opphav, excluded.opphav),
                 beskrivelse                 = excluded.beskrivelse,
                 faneinnhold                 = excluded.faneinnhold,
-                personvern_bekreftet        = excluded.personvern_bekreftet
+                personvern_bekreftet        = excluded.personvern_bekreftet,
+                nusdata                     = excluded.nusdata
         """.trimIndent()
 
         @Language("PostgreSQL")
@@ -472,6 +475,7 @@ class AvtaleRepository(private val db: Database) {
         "beskrivelse" to beskrivelse,
         "faneinnhold" to faneinnhold?.let { Json.encodeToString(it) },
         "personvern_bekreftet" to personvernBekreftet,
+        "nusdata" to nusData?.let { Json.encodeToString(it) },
     )
 
     private fun ArenaAvtaleDbo.toSqlParameters(arrangorId: UUID) = mapOf(
@@ -561,6 +565,7 @@ class AvtaleRepository(private val db: Database) {
             ),
             personopplysninger = personopplysninger,
             personvernBekreftet = boolean("personvern_bekreftet"),
+            nusData = stringOrNull("nusdata")?.let { Json.decodeFromString(it) },
         )
     }
 

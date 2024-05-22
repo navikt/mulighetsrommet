@@ -60,7 +60,8 @@ select avtale.id,
            filter (WHERE avtale_personopplysning.avtale_id IS NOT NULL), '[]'
        ) as personopplysninger,
        avtale.personvern_bekreftet,
-       avtale.avbrutt_aarsak
+       avtale.avbrutt_aarsak,
+       avtale.nusdata
 from avtale
          join tiltakstype on tiltakstype.id = avtale.tiltakstype_id
          left join avtale_administrator on avtale.id = avtale_administrator.avtale_id

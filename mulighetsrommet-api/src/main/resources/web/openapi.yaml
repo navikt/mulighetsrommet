@@ -1857,6 +1857,9 @@ components:
             $ref: "#/components/schemas/Personopplysning"
         personvernBekreftet:
           type: boolean
+        nusData:
+          type: object
+          nullable: true
       required:
         - id
         - tiltakstype
@@ -1932,6 +1935,22 @@ components:
             $ref: "#/components/schemas/Personopplysning"
         personvernBekreftet:
           type: boolean
+        nusData:
+          type: object
+          properties:
+            utdanningsnivaa:
+              type: string
+              nullable: true
+            utdanningskategorier:
+              type: array
+              items:
+                  type: object
+                  properties:
+                    code:
+                      type: string
+                    name:
+                      type: string
+          nullable: true
       required:
         - id
         - navn
@@ -1950,6 +1969,7 @@ components:
         - faneinnhold
         - personopplysninger
         - personvernBekreftet
+        - nusData
 
     EmbeddedTiltakstype:
       type: object

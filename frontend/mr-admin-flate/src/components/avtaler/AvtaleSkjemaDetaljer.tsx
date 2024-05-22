@@ -25,9 +25,9 @@ import {
 import { ControlledSokeSelect } from "mulighetsrommet-frontend-common/components/ControlledSokeSelect";
 import { LabelWithHelpText } from "mulighetsrommet-frontend-common/components/label/LabelWithHelpText";
 import { SelectOption } from "mulighetsrommet-frontend-common/components/SokeSelect";
-import { useState } from "react";
 import { DeepPartial, useFormContext } from "react-hook-form";
 import { MultiValue } from "react-select";
+import { useFeatureToggle } from "../../api/features/useFeatureToggle";
 import { useNusData } from "../../api/nusdata/useNusData";
 import { erAnskaffetTiltak } from "../../utils/tiltakskoder";
 import { addYear, avtaletypeTilTekst } from "../../utils/Utils";
@@ -41,7 +41,6 @@ import { FormGroup } from "../skjema/FormGroup";
 import skjemastyles from "../skjema/Skjema.module.scss";
 import { AvtaleArrangorSkjema } from "./AvtaleArrangorSkjema";
 import { getLokaleUnderenheterAsSelectOptions } from "./AvtaleSkjemaConst";
-import { useFeatureToggle } from "../../api/features/useFeatureToggle";
 
 const minStartdato = new Date(2000, 0, 1);
 
@@ -337,13 +336,17 @@ function AvtaleKategoriVelger() {
   const { data: enableNusKategorier } = useFeatureToggle(
     Toggles.MULIGHETSROMMET_ADMIN_FLATE_ENABLE_NUSKATEGORIER,
   );
-  const [valgteKategorier, setValgteKategorier] = useState<string[]>([]);
+
+  const {
+    setValue,
+    watch,
+    formState: { errors },
+  } = useFormContext<InferredAvtaleSchema>();
+
   const { data, isLoading, isError } = useNusData(
     Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
     "2437",
   ); // TODO Ikke hardkode tiltakstype eller versjon
-
-  const [valgtUtdanningsnivaa, setValgtUtdanningsnivaa] = useState<string | undefined>(undefined);
 
   if (!data?.data || isLoading) {
     return <Loader />;
@@ -357,9 +360,12 @@ function AvtaleKategoriVelger() {
     return null;
   }
 
+  const utdanningsnivaa = watch("nusData.utdanningsnivaa");
+  const utdanningskategorier = watch("nusData.utdanningskategorier", []);
+
   const comboboxOptions =
     data.data
-      .find(({ nivaa }) => nivaa === valgtUtdanningsnivaa)
+      .find(({ nivaa }) => nivaa === utdanningsnivaa)
       ?.kategorier.map(({ name, code }) => ({ label: name, value: code })) || [];
 
   return (
@@ -367,10 +373,11 @@ function AvtaleKategoriVelger() {
       <Select
         size="small"
         label="Utdanningsnivå"
-        value={valgtUtdanningsnivaa}
+        value={utdanningsnivaa}
+        error={errors?.nusData?.utdanningsnivaa?.message}
         onChange={(utdanningsnivaa) => {
-          setValgtUtdanningsnivaa(utdanningsnivaa.target.value);
-          setValgteKategorier([]);
+          setValue("nusData.utdanningsnivaa", utdanningsnivaa.target.value);
+          setValue("nusData.utdanningskategorier", []);
         }}
       >
         <option value={""}>Velg utdanningsnivå...</option>
@@ -384,17 +391,27 @@ function AvtaleKategoriVelger() {
         clearButton
         size="small"
         label="Utdanningskategori"
-        disabled={!valgtUtdanningsnivaa}
+        disabled={!utdanningsnivaa}
         isMultiSelect
+        error={errors.nusData?.utdanningskategorier?.message}
         options={comboboxOptions}
-        selectedOptions={valgteKategorier.map((kategori) => ({
-          value: kategori,
-          label: comboboxOptions.find((option) => option.value === kategori)?.label ?? "",
+        selectedOptions={utdanningskategorier.map((kategori) => ({
+          value: kategori.code,
+          label: kategori.name,
         }))}
         onToggleSelected={(option, isSelected) =>
           isSelected
-            ? setValgteKategorier([...valgteKategorier, option])
-            : setValgteKategorier(valgteKategorier.filter((o) => o !== option))
+            ? setValue("nusData.utdanningskategorier", [
+                ...utdanningskategorier,
+                {
+                  code: option,
+                  name: comboboxOptions.find((o) => o.value === option)?.label || "",
+                },
+              ])
+            : setValue(
+                "nusData.utdanningskategorier",
+                utdanningskategorier.filter((o) => o.code !== option),
+              )
         }
       ></UNSAFE_Combobox>
     </HGrid>

@@ -1,7 +1,7 @@
 import { useAvtale } from "@/api/avtaler/useAvtale";
 import { Fragment, useRef } from "react";
 import { Laster } from "@/components/laster/Laster";
-import { Alert, Button, Heading, HelpText, VStack } from "@navikt/ds-react";
+import { Alert, BodyShort, Button, Heading, HelpText, List, VStack } from "@navikt/ds-react";
 import { ExternalLinkIcon } from "@navikt/aksel-icons";
 import { NavEnhet, Opphav } from "mulighetsrommet-api-client";
 import { Bolk } from "@/components/detaljside/Bolk";
@@ -82,6 +82,25 @@ export function AvtaleDetaljer() {
               verdi={avtaletypeTilTekst(avtaletype)}
             />
           </Bolk>
+          {avtale.nusData && (
+            <Bolk>
+              <Metadata
+                header="Utdanningskategorier"
+                verdi={
+                  <>
+                    <BodyShort spacing>{avtale.nusData?.utdanningsnivaa as string}</BodyShort>
+                    <List>
+                      {(
+                        avtale.nusData?.utdanningskategorier as { code: string; name: string }[]
+                      ).map((k) => (
+                        <List.Item key={k.code}>{k.name}</List.Item>
+                      ))}
+                    </List>
+                  </>
+                }
+              />
+            </Bolk>
+          )}
 
           <Separator />
 

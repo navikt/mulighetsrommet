@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.domain.dto
 
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonObject
 import no.nav.mulighetsrommet.api.domain.dbo.ArenaNavEnhet
 import no.nav.mulighetsrommet.api.domain.dbo.AvtaleDbo
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
@@ -40,6 +41,7 @@ data class AvtaleAdminDto(
     val faneinnhold: Faneinnhold? = null,
     val personopplysninger: List<Personopplysning>,
     val personvernBekreftet: Boolean,
+    val nusData: JsonObject?,
 ) {
     @Serializable
     data class Tiltakstype(
@@ -99,6 +101,7 @@ data class AvtaleAdminDto(
             faneinnhold = null,
             personopplysninger = personopplysninger,
             personvernBekreftet = personvernBekreftet,
+            nusData = nusData,
         )
 
     fun toArenaAvtaleDbo() =
