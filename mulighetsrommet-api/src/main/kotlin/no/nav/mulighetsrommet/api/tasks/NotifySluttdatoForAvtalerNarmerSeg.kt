@@ -17,7 +17,6 @@ import no.nav.mulighetsrommet.slack.SlackNotifier
 import org.slf4j.LoggerFactory
 import java.time.Instant
 import java.time.format.DateTimeFormatter
-import java.time.format.FormatStyle
 import kotlin.jvm.optionals.getOrNull
 
 class NotifySluttdatoForAvtalerNarmerSeg(
@@ -58,6 +57,7 @@ class NotifySluttdatoForAvtalerNarmerSeg(
 
             runBlocking {
                 val avtaler: List<AvtaleNotificationDto> = avtaleService.getAllAvtalerSomNarmerSegSluttdato()
+                val europeanDatePattern = "dd.MM.yyyy"
 
                 avtaler.forEach {
                     it.administratorer.toNonEmptyListOrNull()?.let { administratorer ->
@@ -65,7 +65,7 @@ class NotifySluttdatoForAvtalerNarmerSeg(
                             type = NotificationType.NOTIFICATION,
                             title = "Avtalen \"${it.navn}\" utløper ${
                                 it.sluttDato?.format(
-                                    DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT),
+                                    DateTimeFormatter.ofPattern(europeanDatePattern),
                                 )
                             }",
                             targets = administratorer,
