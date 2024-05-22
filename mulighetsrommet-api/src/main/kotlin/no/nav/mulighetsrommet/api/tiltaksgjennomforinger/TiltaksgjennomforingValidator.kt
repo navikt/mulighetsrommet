@@ -5,6 +5,8 @@ import arrow.core.left
 import arrow.core.nel
 import arrow.core.raise.either
 import arrow.core.right
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.decodeFromJsonElement
 import no.nav.mulighetsrommet.api.domain.dbo.AvtaleDbo
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.api.domain.dto.AvtaleAdminDto
@@ -123,6 +125,13 @@ class TiltaksgjennomforingValidator(
             }
             if (!avtaleHasArrangor) {
                 add(ValidationError.of(TiltaksgjennomforingDbo::arrangorId, "Arrangøren mangler i avtalen"))
+            }
+
+            if (avtale.tiltakstype.arenaKode == Tiltakskode.toArenaKode(Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING)) {
+                val nusdata = dbo.nusData?.let { Json.decodeFromJsonElement<TiltaksgjennomforingAdminDto.NusData>(it) }
+                if (nusdata != null && nusdata.utdanningskategorier.isEmpty()) {
+                    add(ValidationError.of(TiltaksgjennomforingDbo::nusData, "Du må velge minst én utdanningskategori"))
+                }
             }
 
             if (previous == null) {

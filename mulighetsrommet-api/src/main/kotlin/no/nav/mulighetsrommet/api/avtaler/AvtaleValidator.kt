@@ -56,6 +56,10 @@ class AvtaleValidator(
                 add(ValidationError.of(AvtaleDbo::startDato, "Startdato må være før sluttdato"))
             }
 
+            if (currentAvtale?.tiltakstype?.arenaKode == Tiltakskode.toArenaKode(Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING) && currentAvtale.nusData == null) {
+                add(ValidationError.of(AvtaleDbo::nusData, "Du må velge minst én utdanningskategori for avtalen"))
+            }
+
             if (avtale.avtaletype.kreverWebsaknummer() && avtale.websaknummer == null) {
                 add(ValidationError.of(AvtaleDbo::websaknummer, "Websaknummer til avtalesaken er påkrevd"))
             }

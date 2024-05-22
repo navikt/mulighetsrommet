@@ -1,6 +1,5 @@
 package no.nav.mulighetsrommet.api.fixtures
 
-import kotlinx.serialization.json.JsonObject
 import no.nav.mulighetsrommet.api.domain.dbo.AvtaleDbo
 import no.nav.mulighetsrommet.api.routes.v1.AvtaleRequest
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
@@ -30,7 +29,7 @@ object AvtaleFixtures {
         faneinnhold = null,
         personopplysninger = emptyList(),
         personvernBekreftet = false,
-        nusData = JsonObject(emptyMap()),
+        nusData = null,
     )
 
     val oppfolgingMedAvtale = AvtaleDbo(
@@ -53,7 +52,7 @@ object AvtaleFixtures {
         faneinnhold = null,
         personopplysninger = emptyList(),
         personvernBekreftet = false,
-        nusData = JsonObject(emptyMap()),
+        nusData = null,
     )
 
     val gruppeAmo = AvtaleDbo(
@@ -76,7 +75,7 @@ object AvtaleFixtures {
         faneinnhold = null,
         personopplysninger = emptyList(),
         personvernBekreftet = false,
-        nusData = JsonObject(emptyMap()),
+        nusData = null,
     )
 
     val VTA = AvtaleDbo(
@@ -99,7 +98,7 @@ object AvtaleFixtures {
         faneinnhold = null,
         personopplysninger = emptyList(),
         personvernBekreftet = false,
-        nusData = JsonObject(emptyMap()),
+        nusData = null,
     )
 
     val AFT = AvtaleDbo(
@@ -122,7 +121,7 @@ object AvtaleFixtures {
         faneinnhold = null,
         personopplysninger = emptyList(),
         personvernBekreftet = false,
-        nusData = JsonObject(emptyMap()),
+        nusData = null,
     )
 
     val EnkelAmo = AvtaleDbo(
@@ -145,7 +144,7 @@ object AvtaleFixtures {
         faneinnhold = null,
         personopplysninger = emptyList(),
         personvernBekreftet = false,
-        nusData = JsonObject(emptyMap()),
+        nusData = null,
     )
 
     val avtaleRequest = AvtaleRequest(
@@ -167,6 +166,6 @@ object AvtaleFixtures {
         faneinnhold = null,
         personopplysninger = emptyList(),
         personvernBekreftet = false,
-        nusData = JsonObject(emptyMap()),
+        nusData = null,
     )
 }

@@ -363,7 +363,7 @@ function AvtaleKategoriVelger() {
   const utdanningsnivaa = watch("nusData.utdanningsnivaa");
   const utdanningskategorier = watch("nusData.utdanningskategorier", []) || [];
 
-  const comboboxOptions =
+  const options =
     data.data
       .find(({ nivaa }) => nivaa === utdanningsnivaa)
       ?.kategorier.map(({ name, code }) => ({ label: name, value: code })) || [];
@@ -394,7 +394,7 @@ function AvtaleKategoriVelger() {
         disabled={!utdanningsnivaa}
         isMultiSelect
         error={errors.nusData?.utdanningskategorier?.message}
-        options={comboboxOptions}
+        options={options}
         selectedOptions={utdanningskategorier.map((kategori) => ({
           value: kategori.code,
           label: kategori.name,
@@ -405,7 +405,7 @@ function AvtaleKategoriVelger() {
                 ...utdanningskategorier,
                 {
                   code: option,
-                  name: comboboxOptions.find((o) => o.value === option)?.label || "",
+                  name: options.find((o) => o.value === option)?.label || "",
                 },
               ])
             : setValue(

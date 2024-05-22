@@ -30,7 +30,6 @@ import {
 import { ControlledSokeSelect } from "mulighetsrommet-frontend-common";
 import { useEffect, useRef } from "react";
 import { useFieldArray, useFormContext } from "react-hook-form";
-import { mockNusData } from "../../mocks/fixtures/mock_nusData";
 import { Separator } from "../detaljside/Metadata";
 import { tiltaktekster } from "../ledetekster/tiltaksgjennomforingLedetekster";
 import { EndreDatoAdvarselModal } from "../modal/EndreDatoAdvarselModal";
@@ -194,7 +193,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
               <Alert variant="warning">{errors.avtaleId.message as string}</Alert>
             ) : null}
             {avtale.tiltakstype.arenaKode === TiltakskodeArena.GRUFAGYRKE ? (
-              <VelgUtdanningskategori />
+              <VelgUtdanningskategori avtale={avtale} />
             ) : null}
           </FormGroup>
           <Separator />
@@ -463,17 +462,51 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
   );
 };
 
-function VelgUtdanningskategori() {
-  const options = mockNusData.data[0].kategorier.map((kategori) => ({
-    label: kategori.name,
-    value: kategori.code,
-  }));
+interface VelgUtdanningskategoriProps {
+  avtale: Avtale;
+}
+
+function VelgUtdanningskategori({ avtale }: VelgUtdanningskategoriProps) {
+  const {
+    setValue,
+    watch,
+    formState: { errors },
+  } = useFormContext<InferredTiltaksgjennomforingSchema>();
+  const { data: enableNuskategorier } = useFeatureToggle(
+    Toggles.MULIGHETSROMMET_ADMIN_FLATE_ENABLE_NUSKATEGORIER,
+  );
+
+  if (!enableNuskategorier) {
+    return null;
+  }
+
+  const utdanningskategorier = avtale?.nusData?.utdanningskategorier || [];
+
+  const valgteKategorier = watch("nusData.utdanningskategorier", []);
+  const options = utdanningskategorier?.map((k) => ({ label: k.name, value: k.code }));
+
   return (
     <UNSAFE_Combobox
-      options={options}
-      isMultiSelect
+      label="Velg utdanningskategorier"
       size="small"
-      label="Velg utdanningskategori"
+      isMultiSelect
+      error={errors.nusData?.utdanningskategorier?.message || (errors.nusData?.message as string)}
+      options={options}
+      selectedOptions={valgteKategorier.map((k) => ({ label: k.name, value: k.code }))}
+      onToggleSelected={(option, isSelected) =>
+        isSelected
+          ? setValue("nusData.utdanningskategorier", [
+              ...valgteKategorier,
+              {
+                code: option,
+                name: options.find((o) => o.value === option)?.label || "",
+              },
+            ])
+          : setValue(
+              "nusData.utdanningskategorier",
+              valgteKategorier.filter((o) => o.code !== option),
+            )
+      }
     ></UNSAFE_Combobox>
   );
 }

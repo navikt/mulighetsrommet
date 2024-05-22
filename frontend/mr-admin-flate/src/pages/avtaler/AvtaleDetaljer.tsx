@@ -88,11 +88,9 @@ export function AvtaleDetaljer() {
                 header="Utdanningskategorier"
                 verdi={
                   <>
-                    <BodyShort spacing>{avtale.nusData?.utdanningsnivaa as string}</BodyShort>
+                    <BodyShort spacing>{avtale.nusData?.utdanningsnivaa}</BodyShort>
                     <List>
-                      {(
-                        avtale.nusData?.utdanningskategorier as { code: string; name: string }[]
-                      ).map((k) => (
+                      {avtale.nusData?.utdanningskategorier?.map((k) => (
                         <List.Item key={k.code}>{k.name}</List.Item>
                       ))}
                     </List>

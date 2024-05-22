@@ -95,6 +95,7 @@ export const TiltaksgjennomforingSkjemaContainer = ({
       deltidsprosent: data.deltidsprosent,
       estimertVentetid: data.estimertVentetid ?? null,
       tilgjengeligForArrangorFraOgMedDato: data.tilgjengeligForArrangorFraOgMedDato ?? null,
+      nusData: data.nusData || null,
     };
 
     if (

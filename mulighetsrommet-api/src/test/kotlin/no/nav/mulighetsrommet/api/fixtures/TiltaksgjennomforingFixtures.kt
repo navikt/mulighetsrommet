@@ -50,6 +50,7 @@ object TiltaksgjennomforingFixtures {
         estimertVentetidVerdi = 3,
         estimertVentetidEnhet = "dag",
         tilgjengeligForArrangorFraOgMedDato = null,
+        nusData = null,
     )
 
     val EnkelAmo1 = TiltaksgjennomforingDbo(
@@ -75,6 +76,7 @@ object TiltaksgjennomforingFixtures {
         estimertVentetidVerdi = 3,
         estimertVentetidEnhet = "dag",
         tilgjengeligForArrangorFraOgMedDato = null,
+        nusData = null,
     )
 
     val Oppfolging1Request = TiltaksgjennomforingRequest(
@@ -102,6 +104,7 @@ object TiltaksgjennomforingFixtures {
             verdi = 3,
             enhet = "dag",
         ),
+        nusData = null,
     )
 
     val Oppfolging2 = TiltaksgjennomforingDbo(
@@ -127,6 +130,7 @@ object TiltaksgjennomforingFixtures {
         estimertVentetidVerdi = 3,
         estimertVentetidEnhet = "dag",
         tilgjengeligForArrangorFraOgMedDato = null,
+        nusData = null,
     )
 
     val VTA1 = TiltaksgjennomforingDbo(
@@ -152,6 +156,7 @@ object TiltaksgjennomforingFixtures {
         estimertVentetidVerdi = 3,
         estimertVentetidEnhet = "dag",
         tilgjengeligForArrangorFraOgMedDato = null,
+        nusData = null,
     )
 
     val AFT1 = TiltaksgjennomforingDbo(
@@ -177,6 +182,7 @@ object TiltaksgjennomforingFixtures {
         estimertVentetidVerdi = 3,
         estimertVentetidEnhet = "dag",
         tilgjengeligForArrangorFraOgMedDato = null,
+        nusData = null,
     )
 
     val Jobbklubb1 = TiltaksgjennomforingDbo(
@@ -202,6 +208,7 @@ object TiltaksgjennomforingFixtures {
         estimertVentetidVerdi = 3,
         estimertVentetidEnhet = "dag",
         tilgjengeligForArrangorFraOgMedDato = null,
+        nusData = null,
     )
 
     val GruppeAmo1 = TiltaksgjennomforingDbo(
@@ -227,5 +234,6 @@ object TiltaksgjennomforingFixtures {
         estimertVentetidVerdi = 3,
         estimertVentetidEnhet = "dag",
         tilgjengeligForArrangorFraOgMedDato = null,
+        nusData = null,
     )
 }

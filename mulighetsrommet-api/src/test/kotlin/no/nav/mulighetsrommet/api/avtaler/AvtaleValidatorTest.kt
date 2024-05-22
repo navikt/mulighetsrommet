@@ -5,7 +5,6 @@ import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
-import kotlinx.serialization.json.JsonObject
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dbo.AvtaleDbo
@@ -95,7 +94,7 @@ class AvtaleValidatorTest : FunSpec({
         faneinnhold = null,
         personopplysninger = emptyList(),
         personvernBekreftet = false,
-        nusData = JsonObject(emptyMap()),
+        nusData = null,
     )
 
     lateinit var navEnheterService: NavEnhetService
@@ -376,7 +375,7 @@ class AvtaleValidatorTest : FunSpec({
                 faneinnhold = null,
                 personopplysninger = emptyList(),
                 personvernBekreftet = false,
-                nusData = JsonObject(emptyMap()),
+                nusData = null,
             )
 
             avtaler.upsert(avtaleDbo.copy(administratorer = listOf()))
@@ -417,7 +416,7 @@ class AvtaleValidatorTest : FunSpec({
                 faneinnhold = null,
                 personopplysninger = emptyList(),
                 personvernBekreftet = false,
-                nusData = JsonObject(emptyMap()),
+                nusData = null,
             )
 
             avtaler.upsert(avtaleDbo.copy(administratorer = listOf(), tiltakstypeId = TiltakstypeFixtures.Jobbklubb.id))

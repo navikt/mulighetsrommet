@@ -13,7 +13,7 @@ import { Bolk } from "@/components/detaljside/Bolk";
 import { Metadata, Separator } from "@/components/detaljside/Metadata";
 import { tiltaktekster } from "@/components/ledetekster/tiltaksgjennomforingLedetekster";
 import { Link } from "react-router-dom";
-import { Alert, BodyShort, Button, Heading, HelpText, HStack, Tag } from "@navikt/ds-react";
+import { Alert, BodyShort, Button, Heading, HelpText, HStack, List, Tag } from "@navikt/ds-react";
 import { formaterDato, formatertVentetid } from "@/utils/Utils";
 import { isTiltakMedFellesOppstart } from "@/utils/tiltakskoder";
 import { NOM_ANSATT_SIDE } from "mulighetsrommet-frontend-common/constants";
@@ -120,6 +120,23 @@ export function TiltaksgjennomforingDetaljer({ tiltaksgjennomforing, avtale }: P
             />
             <Metadata header={tiltaktekster.tiltakstypeLabel} verdi={tiltakstype.navn} />
           </Bolk>
+
+          {tiltaksgjennomforing.nusData ? (
+            <Bolk>
+              <Metadata
+                header="Utdanningskategorier"
+                verdi={
+                  <>
+                    <List>
+                      {tiltaksgjennomforing.nusData.utdanningskategorier?.map((k) => (
+                        <List.Item key={k.code}>{k.name}</List.Item>
+                      ))}
+                    </List>
+                  </>
+                }
+              />
+            </Bolk>
+          ) : null}
 
           <Separator />
 

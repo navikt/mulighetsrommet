@@ -85,6 +85,7 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
         "Nullam lobortis massa nibh, luctus molestie lacus venenatis sed.",
     },
     tilgjengeligForArrangorFraOgMedDato: null,
+    nusData: null,
   },
   {
     id: "a7d63fb0-4366-412c-84b7-7c15518ee362",
@@ -116,6 +117,7 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     publisert: false,
     publisertForAlle: false,
     tilgjengeligForArrangorFraOgMedDato: null,
+    nusData: null,
   },
   {
     id: "a7d63fb0-4366-412c-84b7-7c15518ee363",
@@ -147,6 +149,7 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     publisert: false,
     publisertForAlle: true,
     tilgjengeligForArrangorFraOgMedDato: null,
+    nusData: null,
   },
   {
     id: "a7d63fb0-4366-412c-84b7-7c15518ee364",
@@ -173,6 +176,7 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     publisert: false,
     publisertForAlle: true,
     tilgjengeligForArrangorFraOgMedDato: null,
+    nusData: null,
   },
 ];
 
@@ -214,5 +218,6 @@ for (let i = 0; i < x; i++) {
     publisert: false,
     publisertForAlle: true,
     tilgjengeligForArrangorFraOgMedDato: null,
+    nusData: null,
   });
 }
