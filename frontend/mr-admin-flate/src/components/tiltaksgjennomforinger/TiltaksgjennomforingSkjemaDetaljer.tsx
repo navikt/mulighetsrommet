@@ -482,7 +482,7 @@ function VelgUtdanningskategori({ avtale }: VelgUtdanningskategoriProps) {
 
   const utdanningskategorier = avtale?.nusData?.utdanningskategorier || [];
 
-  const valgteKategorier = watch("nusData.utdanningskategorier", []);
+  const valgteKategorier = watch("nusData.utdanningskategorier", []) || [];
   const options = utdanningskategorier?.map((k) => ({ label: k.name, value: k.code }));
 
   return (

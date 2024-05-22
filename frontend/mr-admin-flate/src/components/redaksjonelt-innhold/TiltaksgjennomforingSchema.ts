@@ -99,7 +99,8 @@ export const TiltaksgjennomforingSchema = z
             },
             { required_error: "Du må velge minst én utdanningskategori" },
           )
-          .array(),
+          .array()
+          .optional(),
       })
       .optional(),
   })
