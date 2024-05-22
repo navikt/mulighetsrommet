@@ -15,6 +15,7 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.mulighetsrommet.api.AdGruppeNavAnsattRolleMapping
 import no.nav.mulighetsrommet.api.clients.AccessType
@@ -23,9 +24,7 @@ import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattDbo
-import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattRolle.AVTALER_SKRIV
-import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattRolle.KONTAKTPERSON
-import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattRolle.TILTAKADMINISTRASJON_GENERELL
+import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattRolle.*
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
 import no.nav.mulighetsrommet.api.domain.dto.AdGruppe
@@ -401,6 +400,7 @@ class NavAnsattServiceTest : FunSpec({
                 lopenummer = Lopenummer(value = "2024/1"),
                 administratorer = emptyList(), // eneste verdien som er relevant her
                 kontorstruktur = emptyList(),
+                nusData = JsonObject(emptyMap()),
             )
 
             every { navEnhetService.hentOverordnetFylkesenhet(any()) } returns

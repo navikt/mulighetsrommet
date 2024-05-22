@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.fixtures
 
+import kotlinx.serialization.json.JsonObject
 import no.nav.mulighetsrommet.api.domain.dbo.AvtaleDbo
 import no.nav.mulighetsrommet.api.routes.v1.AvtaleRequest
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
@@ -29,6 +30,7 @@ object AvtaleFixtures {
         faneinnhold = null,
         personopplysninger = emptyList(),
         personvernBekreftet = false,
+        nusData = JsonObject(emptyMap()),
     )
 
     val oppfolgingMedAvtale = AvtaleDbo(
@@ -51,6 +53,7 @@ object AvtaleFixtures {
         faneinnhold = null,
         personopplysninger = emptyList(),
         personvernBekreftet = false,
+        nusData = JsonObject(emptyMap()),
     )
 
     val gruppeAmo = AvtaleDbo(
@@ -73,6 +76,7 @@ object AvtaleFixtures {
         faneinnhold = null,
         personopplysninger = emptyList(),
         personvernBekreftet = false,
+        nusData = JsonObject(emptyMap()),
     )
 
     val VTA = AvtaleDbo(
@@ -95,6 +99,7 @@ object AvtaleFixtures {
         faneinnhold = null,
         personopplysninger = emptyList(),
         personvernBekreftet = false,
+        nusData = JsonObject(emptyMap()),
     )
 
     val AFT = AvtaleDbo(
@@ -117,6 +122,7 @@ object AvtaleFixtures {
         faneinnhold = null,
         personopplysninger = emptyList(),
         personvernBekreftet = false,
+        nusData = JsonObject(emptyMap()),
     )
 
     val EnkelAmo = AvtaleDbo(
@@ -139,6 +145,7 @@ object AvtaleFixtures {
         faneinnhold = null,
         personopplysninger = emptyList(),
         personvernBekreftet = false,
+        nusData = JsonObject(emptyMap()),
     )
 
     val avtaleRequest = AvtaleRequest(
@@ -160,5 +167,6 @@ object AvtaleFixtures {
         faneinnhold = null,
         personopplysninger = emptyList(),
         personvernBekreftet = false,
+        nusData = JsonObject(emptyMap()),
     )
 }
