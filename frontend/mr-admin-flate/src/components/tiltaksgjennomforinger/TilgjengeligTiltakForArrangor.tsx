@@ -35,10 +35,7 @@ export function TiltakTilgjengeligForArrangor({
         Tiltaket blir automatisk tilgjengelig for arrangør i Deltakeroversikten på nav.no den{" "}
         <b>{formaterDato(selectedDay)}</b>.
       </p>
-      <p>
-        Hvis arrangør har behov for å se opplysninger om deltakere før oppstartdato, kan du endre
-        dette.
-      </p>
+
       <VStack gap="2">
         <Switch
           checked={tilgjengeliggjorForArrangor}
@@ -55,24 +52,26 @@ export function TiltakTilgjengeligForArrangor({
             setTilgjengeliggjorForArrangor(event.target.checked);
           }}
         >
-          Ja, arrangør må få tilgang til tiltaket før oppstartsdato
+          Arrangør skal ha tilgang fra en annen dato
         </Switch>
         {tilgjengeliggjorForArrangor ? (
           <>
             <HStack gap="2" align={"end"}>
               <ControlledDateInput
-                label="Tilgjengeligjør fra"
+                label="Når skal arrangør ha tilgang?"
                 size="small"
                 fromDate={subtractMonths(gjennomforingStartdato, 2)}
                 toDate={gjennomforingStartdato}
                 {...register("tilgjengeligForArrangorFraOgMedDato")}
                 format="iso-string"
+                invalidDatoEtterPeriode="Du må skrive inn en dato som er før oppstartsdato"
+                invalidDatoForTidlig="Du må skrive en dato som er tidligst to måneder før oppstartsdato"
               />
             </HStack>
             {selectedDay && (
               <Alert variant="success" inline style={{ marginTop: "1rem" }}>
-                Arrangør vil ha tilgang til tiltaket <abbr title="Fra og med">fom.</abbr>{" "}
-                <b>{formaterDato(selectedDay!!)}</b> i Deltakeroversikten på nav.no
+                Arrangøren kan se tiltaket og eventuelle deltakere fra{" "}
+                <b>{formaterDato(selectedDay!!)}</b>
               </Alert>
             )}
           </>

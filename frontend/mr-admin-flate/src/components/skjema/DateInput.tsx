@@ -14,6 +14,7 @@ interface Props {
   format: "date" | "iso-string";
   placeholder?: string;
   invalidDatoEtterPeriode?: string;
+  invalidDatoForTidlig?: string;
   value?: string;
   error?: string;
 }
@@ -36,6 +37,7 @@ export const DateInput = forwardRef(function DateInput(
     error,
     placeholder = "dd.mm.åååå",
     invalidDatoEtterPeriode = "Dato er etter gyldig periode",
+    invalidDatoForTidlig = "Dato er før gyldig periode",
     ...rest
   } = props;
   const [ugyldigDatoError, setUgyldigDatoError] = useState("");
@@ -53,7 +55,7 @@ export const DateInput = forwardRef(function DateInput(
       if (!val.isValidDate) {
         onChange(undefined);
         if (val.isBefore) {
-          setUgyldigDatoError("Dato er før gyldig periode");
+          setUgyldigDatoError(invalidDatoForTidlig);
         } else if (val.isAfter) {
           setUgyldigDatoError(invalidDatoEtterPeriode);
         }
