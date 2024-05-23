@@ -1,7 +1,7 @@
 import { Oppskrift } from "@/components/oppskrift/Oppskrift";
 import { useGetTiltaksgjennomforingIdFraUrl } from "@/api/queries/useGetTiltaksgjennomforingIdFraUrl";
 import { PadlockLockedFillIcon } from "@navikt/aksel-icons";
-import { Alert } from "@navikt/ds-react";
+import { Alert, Tabs } from "@navikt/ds-react";
 import { VeilederflateTiltaksgjennomforing } from "mulighetsrommet-api-client";
 import { ReactNode, useState } from "react";
 import SidemenyDetaljer from "../components/sidemeny/SidemenyDetaljer";
@@ -9,6 +9,7 @@ import TiltaksdetaljerFane from "../components/tabs/TiltaksdetaljerFane";
 import TiltaksgjennomforingsHeader from "./TiltaksgjennomforingsHeader";
 import styles from "./ViewTiltaksgjennomforingDetaljer.module.scss";
 import { useInnsatsgrupper } from "@/api/queries/useInnsatsgrupper";
+import { EstimertVentetid } from "@/components/sidemeny/EstimertVentetid";
 
 interface Props {
   tiltaksgjennomforing: VeilederflateTiltaksgjennomforing;
@@ -45,10 +46,22 @@ export const ViewTiltaksgjennomforingDetaljer = ({
           </div>
         )}
         <div className={styles.sidemeny}>
-          <SidemenyDetaljer
-            tiltaksgjennomforing={tiltaksgjennomforing}
-            innsatsgrupper={innsatsgrupper.data}
-          />
+          <EstimertVentetid tiltaksgjennomforing={tiltaksgjennomforing} />
+          <Tabs size="small" defaultValue="info">
+            <Tabs.List>
+              <Tabs.Tab value="info" label="Info" />
+              <Tabs.Tab value="kombineres" label="Kan kombineres med" />
+            </Tabs.List>
+            <Tabs.Panel value="info">
+              <SidemenyDetaljer
+                tiltaksgjennomforing={tiltaksgjennomforing}
+                innsatsgrupper={innsatsgrupper.data}
+              />
+            </Tabs.Panel>
+            <Tabs.Panel value="kombineres">
+              <>{/* TODO: Implement this*/}</>
+            </Tabs.Panel>
+          </Tabs>
           <div className={styles.brukeractions_container}>{brukerActions}</div>
         </div>
         <TiltaksdetaljerFane
