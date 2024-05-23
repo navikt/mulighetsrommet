@@ -30,7 +30,6 @@ import {
 import { ControlledSokeSelect } from "mulighetsrommet-frontend-common";
 import { useEffect, useRef } from "react";
 import { useFieldArray, useFormContext } from "react-hook-form";
-import { Separator } from "../detaljside/Metadata";
 import { tiltaktekster } from "../ledetekster/tiltaksgjennomforingLedetekster";
 import { EndreDatoAdvarselModal } from "../modal/EndreDatoAdvarselModal";
 import { InferredTiltaksgjennomforingSchema } from "../redaksjonelt-innhold/TiltaksgjennomforingSchema";
@@ -181,7 +180,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
               />
             ) : null}
           </FormGroup>
-          <Separator />
+
           <FormGroup>
             <TextField
               size="small"
@@ -196,7 +195,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
               <VelgUtdanningskategori avtale={avtale} />
             ) : null}
           </FormGroup>
-          <Separator />
+
           <FormGroup>
             <SelectOppstartstype
               name="oppstart"
@@ -285,7 +284,6 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
             </HGrid>
             {watch("oppstart") === TiltaksgjennomforingOppstartstype.LOPENDE ? (
               <>
-                <Separator />
                 <fieldset className={skjemastyles.fieldset_no_styling}>
                   <HStack gap="1">
                     <legend>Estimert ventetid</legend>
@@ -328,7 +326,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
               </>
             ) : null}
           </FormGroup>
-          <Separator />
+
           <FormGroup>
             <ControlledMultiSelect
               size="small"
@@ -346,7 +344,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
         </div>
         <div className={skjemastyles.vertical_separator} />
         <div className={skjemastyles.column}>
-          <div className={skjemastyles.gray_container}>
+          <div>
             <FormGroup>
               <ControlledSokeSelect
                 size="small"
@@ -367,7 +365,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
                 options={navEnheterOptions}
               />
             </FormGroup>
-            <Separator />
+
             <FormGroup>
               <div>
                 {kontaktpersonFields?.map((field, index) => {
@@ -435,9 +433,9 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
               </div>
             </FormGroup>
           </div>
-          <div className={skjemastyles.gray_container}>
+          <FormGroup>
             <TiltaksgjennomforingArrangorSkjema readOnly={eierIkkeGjennomforing} avtale={avtale} />
-          </div>
+          </FormGroup>
           {enableTilgjengeligForArrangor && watch("oppstart") === "LOPENDE" ? (
             <TiltakTilgjengeligForArrangor
               gjennomforingStartdato={new Date(watch("startOgSluttDato.startDato"))}
