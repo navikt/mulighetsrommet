@@ -111,7 +111,7 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
               tilbakelenke={`/arbeidsmarkedstiltak/oversikt#pagination=${encodeURIComponent(
                 JSON.stringify({ ...pagination }),
               )}`}
-              tekst="Tilbake til tiltaksoversikten"
+              tekst="Gå til oversikt over aktuelle tiltak"
             />
             <div>
               <DetaljerJoyride opprettAvtale={kanOppretteAvtaleForTiltak} />

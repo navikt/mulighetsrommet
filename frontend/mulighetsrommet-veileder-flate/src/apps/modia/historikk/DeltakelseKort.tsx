@@ -36,7 +36,7 @@ export function DeltakelseKort({ deltakelse }: Props) {
             {tittel}
           </Heading>
         ) : null}
-        <HStack align={"center"} gap="5">
+        <HStack align={"end"} gap="5">
           {deltakelse?.status ? <Status status={deltakelse.status} /> : null}
           {deltakelse.status.aarsak ? (
             <BodyShort size="small">Årsak: {deltakelse.status.aarsak}</BodyShort>
@@ -51,7 +51,9 @@ export function DeltakelseKort({ deltakelse }: Props) {
             </BodyShort>
           ) : null}
           {deltakelse.sistEndretDato ? (
-            <span>Sist endret: {formaterDato(deltakelse.sistEndretDato)}</span>
+            <BodyShort size="small">
+              Sist endret: {formaterDato(deltakelse.sistEndretDato)}
+            </BodyShort>
           ) : null}
         </HStack>
       </VStack>

@@ -71,7 +71,12 @@
 
 .oppskriftContainer {
   background-color: white;
-  padding: 0 5rem;
+  padding: 0 2rem;
+}
+
+.oppskrift_border {
+  border: 1px solid var(--a-border-subtle);
+  padding: 0;
 }
 
 @media (width <= 1200px) {

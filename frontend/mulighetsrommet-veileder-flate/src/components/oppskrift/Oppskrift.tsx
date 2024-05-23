@@ -1,7 +1,7 @@
+import { useOppskrifter } from "@/api/queries/useOppskrifter";
 import { Alert, Button } from "@navikt/ds-react";
 import { useEffect, useRef } from "react";
 import { APPLICATION_WEB_COMPONENT_NAME } from "../../constants";
-import { useOppskrifter } from "@/api/queries/useOppskrifter";
 import { RedaksjoneltInnhold } from "../RedaksjoneltInnhold";
 import styles from "./Oppskrift.module.scss";
 
