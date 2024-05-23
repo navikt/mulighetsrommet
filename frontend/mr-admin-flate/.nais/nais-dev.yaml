@@ -72,14 +72,14 @@ spec:
           },
           "header": {
             "csp": {
-              "scriptSrc": ["'self'", "'unsafe-inline'", "*.intern.dev.nav.no", "*.nav.no"],
+              "scriptSrc": ["'self'", "'unsafe-inline'", "*.intern.dev.nav.no", "*.ansatt.dev.nav.no", "*.nav.no"],
               "connectSrc": ["'self'", "'unsafe-inline'", "*.nav.no", "login.microsoftonline.com"]
             }
           },
           "proxies": [
             {
               "fromPath": "/mulighetsrommet-api",
-              "toUrl": "http://mulighetsrommet-api",
+              "toUrl": "http://mulighetsrommet-api.intern.dev.nav.no",
               "preserveFromPath": false,
               "toApp": {
                 "name": "mulighetsrommet-api",
