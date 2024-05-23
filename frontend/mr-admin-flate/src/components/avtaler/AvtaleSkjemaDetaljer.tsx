@@ -31,7 +31,6 @@ import { useFeatureToggle } from "../../api/features/useFeatureToggle";
 import { useNusData } from "../../api/nusdata/useNusData";
 import { erAnskaffetTiltak } from "../../utils/tiltakskoder";
 import { addYear, avtaletypeTilTekst } from "../../utils/Utils";
-import { Separator } from "../detaljside/Metadata";
 import { avtaletekster } from "../ledetekster/avtaleLedetekster";
 import { InferredAvtaleSchema } from "../redaksjonelt-innhold/AvtaleSchema";
 import { AdministratorOptions } from "../skjema/AdministratorOptions";
@@ -98,8 +97,6 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
             />
           </FormGroup>
 
-          <Separator />
-
           <FormGroup>
             <HGrid align="start" gap="4" columns={2}>
               {avtale?.avtalenummer ? (
@@ -142,8 +139,6 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
             </HGrid>
           </FormGroup>
 
-          <Separator />
-
           <FormGroup>
             <HGrid gap="4" columns={2}>
               <ControlledSokeSelect
@@ -183,8 +178,6 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
             {watch("tiltakstype")?.arenaKode === "GRUFAGYRKE" ? <AvtaleKategoriVelger /> : null}
           </FormGroup>
 
-          <Separator />
-
           <FormGroup>
             <Heading size="small" as="h3">
               Avtalens varighet
@@ -214,8 +207,6 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
             </HGrid>
           </FormGroup>
 
-          <Separator />
-
           {arenaKode && erAnskaffetTiltak(arenaKode) && (
             <>
               <FormGroup>
@@ -227,7 +218,6 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
                   {...register("prisbetingelser")}
                 />
               </FormGroup>
-              <Separator />
             </>
           )}
           <FormGroup>
@@ -243,7 +233,7 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
         </div>
         <div className={skjemastyles.vertical_separator} />
         <div className={skjemastyles.column}>
-          <div className={skjemastyles.gray_container}>
+          <div>
             <FormGroup>
               <ControlledMultiSelect
                 size="small"
@@ -280,9 +270,9 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
               />
             </FormGroup>
           </div>
-          <div className={skjemastyles.gray_container}>
+          <FormGroup>
             <AvtaleArrangorSkjema readOnly={arenaOpphavOgIngenEierskap} />
-          </div>
+          </FormGroup>
         </div>
       </div>
     </div>

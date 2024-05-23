@@ -85,16 +85,6 @@
   margin: 1rem 0;
 }
 
-.gray_container {
-  width: 100%;
-  margin-top: 0.5rem;
-  margin-bottom: 0.5rem;
-  background-color: var(--a-gray-100);
-  padding: 0.5rem;
-  border: 1px solid var(--a-border-divider);
-  border-radius: 0.25rem;
-}
-
 .vertical_separator {
   background-color: var(--a-border-divider);
   width: 1px;
@@ -124,6 +114,16 @@
     gap: 1rem;
     align-items: start;
   }
+}
+
+.form_group_grey {
+  width: 100%;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+  background-color: var(--a-gray-50);
+  padding: 0.5rem;
+  border: 1px solid var(--a-border-divider);
+  border-radius: 0.25rem;
 }
 
 .faneinnhold_container {
