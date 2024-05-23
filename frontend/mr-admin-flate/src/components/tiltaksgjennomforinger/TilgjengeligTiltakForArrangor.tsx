@@ -64,8 +64,8 @@ export function TiltakTilgjengeligForArrangor({
                 toDate={gjennomforingStartdato}
                 {...register("tilgjengeligForArrangorFraOgMedDato")}
                 format="iso-string"
-                invalidDatoEtterPeriode="Du må skrive inn en dato som er før oppstartsdato"
-                invalidDatoForTidlig="Du må skrive en dato som er tidligst to måneder før oppstartsdato"
+                invalidDatoEtterPeriode="Du må velge en dato som er før oppstartsdato"
+                invalidDatoForTidlig="Du må velge en dato som er tidligst to måneder før oppstartsdato"
               />
             </HStack>
             {selectedDay && (
