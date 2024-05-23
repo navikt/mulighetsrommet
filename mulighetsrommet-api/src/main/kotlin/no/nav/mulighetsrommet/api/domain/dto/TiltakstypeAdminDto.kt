@@ -18,7 +18,7 @@ data class TiltakstypeAdminDto(
     val navn: String,
     val innsatsgrupper: Set<Innsatsgruppe>,
     val arenaKode: String,
-    val tiltakskode: Tiltakskode,
+    val tiltakskode: Tiltakskode?,
     @Serializable(with = LocalDateSerializer::class)
     val startDato: LocalDate,
     @Serializable(with = LocalDateSerializer::class)

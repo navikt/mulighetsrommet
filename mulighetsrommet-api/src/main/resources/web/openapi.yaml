@@ -1783,6 +1783,7 @@ components:
             $ref: "#/components/schemas/Innsatsgruppe"
         tiltakskode:
           $ref: "#/components/schemas/Tiltakskode"
+          nullable: true
         arenaKode:
           $ref: "#/components/schemas/TiltakskodeArena"
         startDato:
