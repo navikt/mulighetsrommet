@@ -46,7 +46,10 @@ export function NokkeltallDeltakere({ tiltaksgjennomforingId }: Props) {
       enabled: false, // Skru av Hightcharts-watermark
     },
     title: {
-      text: "",
+      text: "Oversikt over deltakere",
+      style: {
+        display: "none",
+      },
     },
     xAxis: {
       categories: dataArray.map((d) => d.name),
