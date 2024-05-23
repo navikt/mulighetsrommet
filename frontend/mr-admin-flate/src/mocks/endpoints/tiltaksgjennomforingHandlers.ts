@@ -3,6 +3,7 @@ import {
   Endringshistorikk,
   PaginertTiltaksgjennomforing,
   Tiltaksgjennomforing,
+  TiltaksgjennomforingDeltakerSummary,
 } from "mulighetsrommet-api-client";
 import {
   mockTiltaksgjennomforinger,
@@ -147,6 +148,21 @@ export const tiltaksgjennomforingHandlers = [
     "*/api/v1/internal/tiltaksgjennomforinger/:id/historikk",
     () => {
       return HttpResponse.json(mockEndringshistorikkForTiltaksgjennomforing);
+    },
+  ),
+
+  http.get<PathParams, TiltaksgjennomforingDeltakerSummary>(
+    "*/api/v1/internal/tiltaksgjennomforinger/:id/deltaker-summary",
+    () => {
+      const deltakerSummary: TiltaksgjennomforingDeltakerSummary = {
+        antallAktiveDeltakere: 15,
+        antallAvsluttedeDeltakere: 3,
+        antallDeltakereSomVenter: 10,
+        antallIkkeAktuelleDeltakere: 2,
+        pabegyntRegistrering: 6,
+        antallDeltakere: 36,
+      };
+      return HttpResponse.json(deltakerSummary);
     },
   ),
 ];

@@ -323,7 +323,6 @@ export function TiltaksgjennomforingDetaljer({ tiltaksgjennomforing, avtale }: P
               </Bolk>
             </>
           )}
-          <Separator />
           {enableTilgjengeligForArrangor &&
           tiltaksgjennomforing?.tilgjengeligForArrangorFraOgMedDato ? (
             <>
@@ -338,14 +337,10 @@ export function TiltaksgjennomforingDetaljer({ tiltaksgjennomforing, avtale }: P
             </>
           ) : null}
         </div>
-        <div className={styles.detaljer}>
-          <NokkeltallDeltakere tiltaksgjennomforingId={tiltaksgjennomforing.id} />
-        </div>
       </div>
       {!erArenaOpphavOgIngenEierskap(tiltaksgjennomforing, migrerteTiltakstyper) &&
         gjennomforingIsActive && (
           <>
-            <Separator />
             <HarSkrivetilgang ressurs="Tiltaksgjennomføring">
               <Button
                 size="small"
@@ -361,6 +356,7 @@ export function TiltaksgjennomforingDetaljer({ tiltaksgjennomforing, avtale }: P
             />
           </>
         )}
+      <NokkeltallDeltakere tiltaksgjennomforingId={tiltaksgjennomforing.id} />
     </>
   );
 }

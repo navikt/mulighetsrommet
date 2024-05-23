@@ -35,6 +35,8 @@
     "@types/is-url": "1.2.32",
     "classnames": "2.5.1",
     "eslint": "8.57.0",
+    "highcharts": "^11.4.3",
+    "highcharts-react-official": "^3.2.1",
     "is-url": "1.2.4",
     "jotai": "2.8.0",
     "mulighetsrommet-api-client": "*",
