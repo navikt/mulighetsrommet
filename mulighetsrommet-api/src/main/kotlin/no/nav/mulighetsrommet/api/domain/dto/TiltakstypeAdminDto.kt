@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.domain.dto
 
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.dto.Innsatsgruppe
 import no.nav.mulighetsrommet.domain.dto.PersonopplysningFrekvens
 import no.nav.mulighetsrommet.domain.dto.PersonopplysningMedBeskrivelse
@@ -17,6 +18,7 @@ data class TiltakstypeAdminDto(
     val navn: String,
     val innsatsgrupper: Set<Innsatsgruppe>,
     val arenaKode: String,
+    val tiltakskode: Tiltakskode?,
     @Serializable(with = LocalDateSerializer::class)
     val startDato: LocalDate,
     @Serializable(with = LocalDateSerializer::class)

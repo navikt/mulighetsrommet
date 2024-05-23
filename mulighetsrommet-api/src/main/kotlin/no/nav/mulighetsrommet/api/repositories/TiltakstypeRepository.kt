@@ -235,6 +235,7 @@ class TiltakstypeRepository(private val db: Database) {
             navn = string("navn"),
             innsatsgrupper = innsatsgrupper,
             arenaKode = string("arena_kode"),
+            tiltakskode = stringOrNull("tiltakskode")?.let { Tiltakskode.valueOf(it) },
             startDato = localDate("start_dato"),
             sluttDato = localDateOrNull("slutt_dato"),
             sanityId = uuidOrNull("sanity_id"),
