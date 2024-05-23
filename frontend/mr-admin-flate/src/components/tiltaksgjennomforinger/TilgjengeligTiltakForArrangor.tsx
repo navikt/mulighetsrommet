@@ -1,4 +1,4 @@
-import { Alert, Button, HStack, Heading, Switch, VStack } from "@navikt/ds-react";
+import { Alert, HStack, Heading, Switch, VStack } from "@navikt/ds-react";
 import { useState } from "react";
 import { useFormContext } from "react-hook-form";
 import {
@@ -25,22 +25,6 @@ export function TiltakTilgjengeligForArrangor({
   const { register, setValue, watch } = useFormContext<InferredTiltaksgjennomforingSchema>();
   const selectedDay =
     watch("tilgjengeligForArrangorFraOgMedDato") || subtractDays(gjennomforingStartdato, 14);
-
-  function subtractDate(type: "month" | "days", date: Date, value: number) {
-    switch (type) {
-      case "days":
-        setValue(
-          "tilgjengeligForArrangorFraOgMedDato",
-          formaterDatoSomYYYYMMDD(subtractDays(date, value)),
-        );
-        return;
-      case "month":
-        setValue(
-          "tilgjengeligForArrangorFraOgMedDato",
-          formaterDatoSomYYYYMMDD(subtractMonths(date, value)),
-        );
-    }
-  }
 
   return (
     <Alert variant="info">
@@ -76,24 +60,8 @@ export function TiltakTilgjengeligForArrangor({
         {tilgjengeliggjorForArrangor ? (
           <>
             <HStack gap="2" align={"end"}>
-              <Button
-                variant="primary"
-                size="xsmall"
-                onClick={() => subtractDate("month", new Date(gjennomforingStartdato), 1)}
-                type="button"
-              >
-                1 måned før
-              </Button>
-              <Button
-                variant="primary"
-                size="xsmall"
-                onClick={() => subtractDate("days", new Date(gjennomforingStartdato), 14)}
-                type="button"
-              >
-                2 uker før
-              </Button>
               <ControlledDateInput
-                label="Annen dato"
+                label="Tilgjengeligjør fra"
                 size="small"
                 fromDate={subtractMonths(gjennomforingStartdato, 2)}
                 toDate={gjennomforingStartdato}
