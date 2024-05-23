@@ -1781,6 +1781,8 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/Innsatsgruppe"
+        tiltakskode:
+          $ref: "#/components/schemas/Tiltakskode"
         arenaKode:
           $ref: "#/components/schemas/TiltakskodeArena"
         startDato:
