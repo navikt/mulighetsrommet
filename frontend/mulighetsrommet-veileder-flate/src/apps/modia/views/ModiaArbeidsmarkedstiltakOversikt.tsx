@@ -70,7 +70,12 @@ export const ModiaArbeidsmarkedstiltakOversikt = () => {
 
   return (
     <>
-      {landingssideEnabled ? <Tilbakeknapp tilbakelenke="/arbeidsmarkedstiltak" /> : null}
+      {landingssideEnabled ? (
+        <Tilbakeknapp
+          tekst="Gå til oversikt over brukerens tiltak"
+          tilbakelenke="/arbeidsmarkedstiltak"
+        />
+      ) : null}
       <FilterAndTableLayout
         filterOpen={filterOpen}
         setFilterOpen={setFilterOpen}

@@ -27,7 +27,7 @@ export function PreviewArbeidsmarkedstiltakDetaljer() {
       </Alert>
       <ViewTiltaksgjennomforingDetaljer
         tiltaksgjennomforing={data}
-        knapperad={<Tilbakeknapp tilbakelenke=".." tekst="Tilbake til tiltaksoversikten" />}
+        knapperad={<Tilbakeknapp tilbakelenke=".." tekst="Gå til oversikt over aktuelle tiltak" />}
         brukerActions={
           <>
             <DelMedBruker

@@ -58,11 +58,13 @@ export const ViewTiltaksgjennomforingDetaljer = ({
       </div>
       <div className={styles.oppskriftContainer}>
         {oppskriftId && (
-          <Oppskrift
-            oppskriftId={oppskriftId}
-            tiltakstypeId={tiltaksgjennomforing.tiltakstype.sanityId}
-            setOppskriftId={setOppskriftId}
-          />
+          <div className={styles.oppskrift_border}>
+            <Oppskrift
+              oppskriftId={oppskriftId}
+              tiltakstypeId={tiltaksgjennomforing.tiltakstype.sanityId}
+              setOppskriftId={setOppskriftId}
+            />
+          </div>
         )}
       </div>
     </div>
