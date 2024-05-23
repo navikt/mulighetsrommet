@@ -438,7 +438,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
           <div className={skjemastyles.gray_container}>
             <TiltaksgjennomforingArrangorSkjema readOnly={eierIkkeGjennomforing} avtale={avtale} />
           </div>
-          {enableTilgjengeligForArrangor && watch("oppstart") === "LOPENDE" ? (
+          {enableTilgjengeligForArrangor ? (
             <TiltakTilgjengeligForArrangor
               gjennomforingStartdato={new Date(watch("startOgSluttDato.startDato"))}
               lagretDatoForTilgjengeligForArrangor={

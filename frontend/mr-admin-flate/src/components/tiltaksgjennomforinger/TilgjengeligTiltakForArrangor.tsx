@@ -23,7 +23,8 @@ export function TiltakTilgjengeligForArrangor({
     !!lagretDatoForTilgjengeligForArrangor,
   );
   const { register, setValue, watch } = useFormContext<InferredTiltaksgjennomforingSchema>();
-  const selectedDay = watch("tilgjengeligForArrangorFraOgMedDato") || gjennomforingStartdato;
+  const selectedDay =
+    watch("tilgjengeligForArrangorFraOgMedDato") || subtractDays(gjennomforingStartdato, 14);
 
   function subtractDate(type: "month" | "days", date: Date, value: number) {
     switch (type) {
@@ -48,7 +49,7 @@ export function TiltakTilgjengeligForArrangor({
       </Heading>
       <p>
         Tiltaket blir automatisk tilgjengelig for arrangør i Deltakeroversikten på nav.no den{" "}
-        <b>{formaterDato(gjennomforingStartdato)}</b>.
+        <b>{formaterDato(selectedDay)}</b>.
       </p>
       <p>
         Hvis arrangør har behov for å se opplysninger om deltakere før oppstartdato, kan du endre
@@ -94,7 +95,7 @@ export function TiltakTilgjengeligForArrangor({
               <ControlledDateInput
                 label="Annen dato"
                 size="small"
-                fromDate={subtractMonths(gjennomforingStartdato, 1)}
+                fromDate={subtractMonths(gjennomforingStartdato, 2)}
                 toDate={gjennomforingStartdato}
                 {...register("tilgjengeligForArrangorFraOgMedDato")}
                 format="iso-string"
