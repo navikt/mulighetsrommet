@@ -19,6 +19,7 @@ import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.PaginatedResult
 import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.database.utils.mapPaginated
+import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.ArenaAvtaleDbo
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
@@ -562,6 +563,7 @@ class AvtaleRepository(private val db: Database) {
                 id = uuid("tiltakstype_id"),
                 navn = string("tiltakstype_navn"),
                 arenaKode = string("tiltakstype_arena_kode"),
+                tiltakskode = stringOrNull("tiltakstype_tiltakskode")?.let { Tiltakskode.valueOf(it) },
             ),
             personopplysninger = personopplysninger,
             personvernBekreftet = boolean("personvern_bekreftet"),
