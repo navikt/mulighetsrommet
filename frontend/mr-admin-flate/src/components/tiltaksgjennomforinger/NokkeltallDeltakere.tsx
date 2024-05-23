@@ -53,11 +53,13 @@ export function NokkeltallDeltakere({ tiltaksgjennomforingId }: Props) {
     },
     xAxis: {
       categories: dataArray.map((d) => d.name),
+      tickInterval: 1,
     },
     yAxis: {
       title: {
         text: "Antall deltakere",
       },
+      tickInterval: 1,
     },
     series: [
       {
