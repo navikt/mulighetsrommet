@@ -24,9 +24,9 @@ export function NokkeltallDeltakere({ tiltaksgjennomforingId }: Props) {
 
   const summaryUtenTotal = {
     "Påbegynt registrering": deltakerSummary.pabegyntRegistrering,
-    Venter: deltakerSummary.antallDeltakereSomVenter,
-    Aktive: deltakerSummary.antallAktiveDeltakere,
-    Avsluttede: deltakerSummary.antallAvsluttedeDeltakere,
+    "Venter på oppstart": deltakerSummary.antallDeltakereSomVenter,
+    Deltar: deltakerSummary.antallAktiveDeltakere,
+    "Har sluttet": deltakerSummary.antallAvsluttedeDeltakere,
     "Ikke aktuelle": deltakerSummary.antallIkkeAktuelleDeltakere,
   };
 
@@ -92,8 +92,12 @@ export function NokkeltallDeltakere({ tiltaksgjennomforingId }: Props) {
         <span className={styles.thin}>Deltakerinformasjon</span>{" "}
         <b>Totalt {deltakerSummary.antallDeltakere}</b>
       </Heading>
-      <hr />
-      <HighchartsReact highcharts={Highcharts} options={options} ref={chartComponentRef} />
+      {deltakerSummary.antallDeltakere > 0 ? (
+        <>
+          <hr />
+          <HighchartsReact highcharts={Highcharts} options={options} ref={chartComponentRef} />
+        </>
+      ) : null}
     </div>
   );
 }
