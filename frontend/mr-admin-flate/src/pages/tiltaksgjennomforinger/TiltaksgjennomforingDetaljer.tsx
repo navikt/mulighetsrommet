@@ -330,8 +330,7 @@ export function TiltaksgjennomforingDetaljer({ tiltaksgjennomforing, avtale }: P
                 <Heading spacing size="small" level="3">
                   Når ser arrangør tiltaket?
                 </Heading>
-                Arrangør vil ha tilgang til tiltaket i Deltakeroversikten på nav.no{" "}
-                <abbr title="Fra og med">fom.</abbr>{" "}
+                Arrangør vil ha tilgang til tiltaket i Deltakeroversikten på nav.no fra
                 {formaterDato(new Date(tiltaksgjennomforing.tilgjengeligForArrangorFraOgMedDato))}
               </Alert>
             </>
