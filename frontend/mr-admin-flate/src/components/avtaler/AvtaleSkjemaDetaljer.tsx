@@ -338,7 +338,6 @@ function AvtaleKategoriVelger() {
   } = useFormContext<InferredAvtaleSchema>();
 
   const { data, isLoading, isError } = useNusData(watch("tiltakstype.tiltakskode"), nusDataVersjon);
-
   if (!data?.data || isLoading) {
     return <Loader />;
   }

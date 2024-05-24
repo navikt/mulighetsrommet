@@ -26,6 +26,10 @@ export function TiltakTilgjengeligForArrangor({
   const selectedDay =
     watch("tilgjengeligForArrangorFraOgMedDato") || subtractDays(gjennomforingStartdato, 14);
 
+  if (new Date() > gjennomforingStartdato) {
+    return null;
+  }
+
   return (
     <Alert variant="info">
       <Heading level="4" size="small">

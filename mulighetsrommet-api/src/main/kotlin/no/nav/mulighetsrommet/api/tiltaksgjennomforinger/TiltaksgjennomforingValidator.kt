@@ -134,6 +134,15 @@ class TiltaksgjennomforingValidator(
                 }
             }
 
+            if (dbo.tilgjengeligForArrangorFraOgMedDato != null && dbo.tilgjengeligForArrangorFraOgMedDato.isAfter(dbo.startDato)) {
+                add(
+                    ValidationError.of(
+                        TiltaksgjennomforingDbo::tilgjengeligForArrangorFraOgMedDato,
+                        "Du må velge en dato som er før oppstartsdato",
+                    ),
+                )
+            }
+
             if (previous == null) {
                 validateCreateGjennomforing(dbo, avtale)
             } else {

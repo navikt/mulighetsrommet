@@ -324,13 +324,14 @@ export function TiltaksgjennomforingDetaljer({ tiltaksgjennomforing, avtale }: P
             </>
           )}
           {enableTilgjengeligForArrangor &&
-          tiltaksgjennomforing?.tilgjengeligForArrangorFraOgMedDato ? (
+          tiltaksgjennomforing?.tilgjengeligForArrangorFraOgMedDato &&
+          new Date() < new Date(tiltaksgjennomforing?.startDato) ? (
             <>
               <Alert variant="info">
                 <Heading spacing size="small" level="3">
                   Når ser arrangør tiltaket?
                 </Heading>
-                Arrangør vil ha tilgang til tiltaket i Deltakeroversikten på nav.no fra
+                Arrangør vil ha tilgang til tiltaket i Deltakeroversikten på nav.no fra{" "}
                 {formaterDato(new Date(tiltaksgjennomforing.tilgjengeligForArrangorFraOgMedDato))}
               </Alert>
             </>
