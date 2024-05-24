@@ -90,7 +90,10 @@ export function NokkeltallDeltakere({ tiltaksgjennomforingId }: Props) {
     <div className={styles.container}>
       <Heading size="small" level="2">
         <span className={styles.thin}>Deltakerinformasjon</span>{" "}
-        <b>Totalt {deltakerSummary.antallDeltakere}</b>
+        <b>
+          Totalt {deltakerSummary.antallDeltakere}{" "}
+          {deltakerSummary.antallDeltakere > 1 ? "deltakere" : "deltaker"}
+        </b>
       </Heading>
       {deltakerSummary.antallDeltakere > 0 ? (
         <>
