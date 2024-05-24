@@ -19,7 +19,7 @@ fun Route.tiltakstypeRoutes(migrerteTiltak: List<Tiltakskode>) {
     val tiltakstypeService: TiltakstypeService by inject()
     val veilederflateService: VeilederflateService by inject()
 
-    route("/api/v1/internal/tiltakstyper") {
+    route("/api/v1/intern/tiltakstyper") {
         get {
             val filter = getTiltakstypeFilter()
             val pagination = getPaginationParams()

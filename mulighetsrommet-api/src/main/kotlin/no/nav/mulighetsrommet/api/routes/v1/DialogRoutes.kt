@@ -22,7 +22,7 @@ fun Route.dialogRoutes() {
     val dialogClient: VeilarbdialogClient by inject()
     val poaoTilgangService: PoaoTilgangService by inject()
 
-    route("/api/v1/internal/dialog") {
+    route("/api/v1/intern/dialog") {
         post {
             val request = call.receive<DialogRequest>()
             val navIdent = getNavIdent()

@@ -46,7 +46,7 @@ class AvtaleRoutesTest : FunSpec({
             auth = createAuthConfig(oauth, roles = listOf()),
         )
         withTestApplication(config) {
-            val response = client.put("/api/v1/internal/avtaler")
+            val response = client.put("/api/v1/intern/avtaler")
             response.status shouldBe HttpStatusCode.Unauthorized
         }
     }
@@ -57,7 +57,7 @@ class AvtaleRoutesTest : FunSpec({
             auth = createAuthConfig(oauth, roles = listOf(avtaleSkrivRolle)),
         )
         withTestApplication(config) {
-            val response = client.put("/api/v1/internal/avtaler") {
+            val response = client.put("/api/v1/intern/avtaler") {
                 val claims = mapOf(
                     "NAVident" to "ABC123",
                     "groups" to emptyList<String>(),
@@ -78,7 +78,7 @@ class AvtaleRoutesTest : FunSpec({
             auth = createAuthConfig(oauth, roles = listOf(avtaleSkrivRolle, tiltaksadministrasjonGenerellRolle)),
         )
         withTestApplication(config) {
-            val response = client.put("/api/v1/internal/avtaler") {
+            val response = client.put("/api/v1/intern/avtaler") {
                 val claims = mapOf(
                     "NAVident" to "ABC123",
                     "groups" to listOf(tiltaksadministrasjonGenerellRolle.adGruppeId),
@@ -122,7 +122,7 @@ class AvtaleRoutesTest : FunSpec({
                 row(TiltakstypeFixtures.Oppfolging, HttpStatusCode.OK),
                 row(TiltakstypeFixtures.Jobbklubb, HttpStatusCode.BadRequest),
             ) { tiltakstype, status ->
-                val response = client.put("/api/v1/internal/avtaler") {
+                val response = client.put("/api/v1/intern/avtaler") {
                     val claims = mapOf(
                         "NAVident" to "ABC123",
                         "groups" to listOf(avtaleSkrivRolle.adGruppeId, tiltaksadministrasjonGenerellRolle.adGruppeId),
@@ -151,7 +151,7 @@ class AvtaleRoutesTest : FunSpec({
             database = databaseConfig,
         )
         withTestApplication(config) {
-            val response = client.get("/api/v1/internal/avtaler") {
+            val response = client.get("/api/v1/intern/avtaler") {
                 val claims = mapOf(
                     "NAVident" to "ABC123",
                 )

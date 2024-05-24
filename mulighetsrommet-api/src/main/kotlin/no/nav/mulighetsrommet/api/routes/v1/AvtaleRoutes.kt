@@ -29,7 +29,7 @@ fun Route.avtaleRoutes() {
     val avtaler: AvtaleService by inject()
     val excelService: ExcelService by inject()
 
-    route("/api/v1/internal/avtaler") {
+    route("/api/v1/intern/avtaler") {
         authenticate(AuthProvider.AZURE_AD_AVTALER_SKRIV.name, strategy = AuthenticationStrategy.Required) {
             put {
                 val navIdent = getNavIdent()

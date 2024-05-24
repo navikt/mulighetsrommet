@@ -37,7 +37,7 @@ fun Route.tiltaksgjennomforingRoutes() {
     val deltakere: DeltakerRepository by inject()
     val service: TiltaksgjennomforingService by inject()
 
-    route("/api/v1/internal/tiltaksgjennomforinger") {
+    route("/api/v1/intern/tiltaksgjennomforinger") {
         authenticate(
             AuthProvider.AZURE_AD_TILTAKSJENNOMFORINGER_SKRIV.name,
             strategy = AuthenticationStrategy.Required,

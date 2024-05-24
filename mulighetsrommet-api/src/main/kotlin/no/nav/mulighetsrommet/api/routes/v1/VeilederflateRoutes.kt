@@ -45,7 +45,7 @@ fun Route.veilederflateRoutes() {
         )
     }
 
-    route("/api/v1/internal/veileder") {
+    route("/api/v1/intern/veileder") {
         get("/innsatsgrupper") {
             val innsatsgrupper = veilederflateService.hentInnsatsgrupper()
 

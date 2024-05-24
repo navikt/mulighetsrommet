@@ -86,7 +86,7 @@ class TiltakgjennomforingEventProcessor(
 
     override suspend fun deleteEntity(event: ArenaEvent) = either {
         val mapping = entities.getMapping(event.arenaTable, event.arenaId).bind()
-        client.request<Any>(HttpMethod.Delete, "/api/v1/internal/arena/tiltaksgjennomforing/${mapping.entityId}")
+        client.request<Any>(HttpMethod.Delete, "/api/v1/intern/arena/tiltaksgjennomforing/${mapping.entityId}")
             .mapLeft { ProcessingError.fromResponseException(it) }
             .flatMap { entities.deleteTiltaksgjennomforing(mapping.entityId) }
             .bind()
@@ -136,9 +136,9 @@ class TiltakgjennomforingEventProcessor(
             tiltaksgjennomforing.toDbo(tiltakstypeMapping.entityId, sak, virksomhetsnummer, avtaleMapping?.entityId)
 
         val response = if (operation == ArenaEvent.Operation.Delete) {
-            client.request<Any>(HttpMethod.Delete, "/api/v1/internal/arena/tiltaksgjennomforing/${dbo.id}")
+            client.request<Any>(HttpMethod.Delete, "/api/v1/intern/arena/tiltaksgjennomforing/${dbo.id}")
         } else {
-            client.request(HttpMethod.Put, "/api/v1/internal/arena/tiltaksgjennomforing", dbo)
+            client.request(HttpMethod.Put, "/api/v1/intern/arena/tiltaksgjennomforing", dbo)
         }
         response.mapLeft { ProcessingError.fromResponseException(it) }.map { ProcessingResult(Handled) }.bind()
     }

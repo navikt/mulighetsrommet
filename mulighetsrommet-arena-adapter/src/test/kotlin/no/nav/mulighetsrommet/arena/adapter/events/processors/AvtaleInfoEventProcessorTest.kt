@@ -146,8 +146,8 @@ class AvtaleInfoEventProcessorTest : FunSpec({
                     "/ords/arbeidsgiver" to {
                         respondJson(ArenaOrdsArrangor("123456", "1000000"))
                     },
-                    "/api/v1/internal/arena/avtale" to { respondOk() },
-                    "/api/v1/internal/arena/avtale/${mapping.entityId}" to { respondOk() },
+                    "/api/v1/intern/arena/avtale" to { respondOk() },
+                    "/api/v1/intern/arena/avtale/${mapping.entityId}" to { respondOk() },
                 )
                 val processor = createProcessor(engine)
 
@@ -214,7 +214,7 @@ class AvtaleInfoEventProcessorTest : FunSpec({
                             ArenaOrdsArrangor("123456", "100000"),
                         )
                     },
-                    "/api/v1/internal/arena/avtale" to {
+                    "/api/v1/intern/arena/avtale" to {
                         respondError(HttpStatusCode.InternalServerError)
                     },
                 )
@@ -236,8 +236,8 @@ class AvtaleInfoEventProcessorTest : FunSpec({
                     "/ords/arbeidsgiver" to {
                         respondJson(ArenaOrdsArrangor("123456", "1000000"))
                     },
-                    "/api/v1/internal/arena/avtale" to { respondOk() },
-                    "/api/v1/internal/arena/avtale/${mapping.entityId}" to { respondOk() },
+                    "/api/v1/intern/arena/avtale" to { respondOk() },
+                    "/api/v1/intern/arena/avtale/${mapping.entityId}" to { respondOk() },
                 )
                 val processor = createProcessor(engine)
 
@@ -278,8 +278,8 @@ class AvtaleInfoEventProcessorTest : FunSpec({
                     "/ords/arbeidsgiver" to {
                         respondJson(ArenaOrdsArrangor("123456", "1000000"))
                     },
-                    "/api/v1/internal/arena/avtale" to { respondOk() },
-                    "/api/v1/internal/arena/avtale/${mapping.entityId}" to { respondOk() },
+                    "/api/v1/intern/arena/avtale" to { respondOk() },
+                    "/api/v1/intern/arena/avtale/${mapping.entityId}" to { respondOk() },
                 )
                 val processor = createProcessor(engine)
 
