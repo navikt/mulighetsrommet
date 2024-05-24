@@ -2,7 +2,7 @@ import { http, HttpResponse } from "msw";
 import { Personopplysning, PersonopplysningerPerFrekvens } from "mulighetsrommet-api-client";
 
 export const avtaleHandlers = [
-  http.get("*/api/v1/internal/avtaler/:id/behandle-personopplysninger", async () => {
+  http.get("*/api/v1/intern/avtaler/:id/behandle-personopplysninger", async () => {
     return HttpResponse.json<PersonopplysningerPerFrekvens>({
       ALLTID: [
         {
