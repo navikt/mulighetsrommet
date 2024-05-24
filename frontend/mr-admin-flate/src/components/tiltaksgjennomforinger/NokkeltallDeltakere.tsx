@@ -92,7 +92,7 @@ export function NokkeltallDeltakere({ tiltaksgjennomforingId }: Props) {
         <span className={styles.thin}>Deltakerinformasjon</span>{" "}
         <b>
           Totalt {deltakerSummary.antallDeltakere}{" "}
-          {deltakerSummary.antallDeltakere > 1 ? "deltakere" : "deltaker"}
+          {deltakerSummary.antallDeltakere === 1 ? "deltaker" : "deltakere"}
         </b>
       </Heading>
       {deltakerSummary.antallDeltakere > 0 ? (
