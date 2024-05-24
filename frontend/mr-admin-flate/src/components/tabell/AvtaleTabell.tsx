@@ -38,7 +38,7 @@ async function lastNedFil(filter: AvtaleFilter) {
 
   const queryParams = createQueryParamsForExcelDownload(filter);
 
-  return await fetch(`${OpenAPI.BASE}/api/v1/internal/avtaler/excel?${queryParams}`, {
+  return await fetch(`${OpenAPI.BASE}/api/v1/intern/avtaler/excel?${queryParams}`, {
     headers,
   });
 }
