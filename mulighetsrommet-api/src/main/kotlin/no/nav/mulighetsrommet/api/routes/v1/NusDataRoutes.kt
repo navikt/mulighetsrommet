@@ -12,7 +12,7 @@ import org.koin.ktor.ext.inject
 fun Route.nusDataRoutes() {
     val nusService: SsbNusService by inject()
 
-    route("api/v1/internal/nus-data") {
+    route("api/v1/intern/nus-data") {
         post {
             val request = call.receive<NusDataRequest>()
             call.respond(

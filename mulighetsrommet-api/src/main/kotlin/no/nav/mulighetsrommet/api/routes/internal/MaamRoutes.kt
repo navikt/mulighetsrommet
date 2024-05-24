@@ -19,7 +19,7 @@ import org.koin.ktor.ext.inject
 import java.util.*
 
 fun Route.maamRoutes() {
-    route("/api/internal/maam") {
+    route("/api/intern/maam") {
         route("/tasks") {
             val generateValidationReport: GenerateValidationReport by inject()
             val initialLoadTiltaksgjennomforinger: InitialLoadTiltaksgjennomforinger by inject()

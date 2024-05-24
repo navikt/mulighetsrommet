@@ -8,7 +8,7 @@ security:
   - bearerAuth: [ ]
 
 paths:
-  /api/v1/internal/bruker:
+  /api/v1/intern/bruker:
     post:
       tags:
         - Bruker
@@ -36,7 +36,7 @@ paths:
                   message:
                     type: string
 
-  /api/v1/internal/avtaler/{id}:
+  /api/v1/intern/avtaler/{id}:
     parameters:
       - $ref: "#/components/parameters/ID"
     get:
@@ -57,7 +57,7 @@ paths:
               schema:
                 type: string
 
-  /api/v1/internal/avtaler/{id}/behandle-personopplysninger:
+  /api/v1/intern/avtaler/{id}/behandle-personopplysninger:
     parameters:
       - $ref: "#/components/parameters/ID"
     get:
@@ -72,7 +72,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/PersonopplysningerPerFrekvens"
 
-  /api/v1/internal/avtaler/{id}/avbryt:
+  /api/v1/intern/avtaler/{id}/avbryt:
     parameters:
       - $ref: "#/components/parameters/ID"
     put:
@@ -96,7 +96,7 @@ paths:
               schema:
                 type: string
 
-  /api/v1/internal/avtaler:
+  /api/v1/intern/avtaler:
     get:
       tags:
         - Avtaler
@@ -197,7 +197,7 @@ paths:
               schema:
                 type: string
 
-  /api/v1/internal/avtaler/mine:
+  /api/v1/intern/avtaler/mine:
     get:
       tags:
         - Avtaler
@@ -259,7 +259,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/PaginertAvtale"
 
-  /api/v1/internal/avtaler/excel:
+  /api/v1/intern/avtaler/excel:
     get:
       tags:
         - Avtaler
@@ -273,7 +273,7 @@ paths:
                 type: string
                 format: binary
 
-  /api/v1/internal/avtaler/kontaktperson:
+  /api/v1/intern/avtaler/kontaktperson:
     delete:
       tags:
         - Avtaler
@@ -291,7 +291,7 @@ paths:
               schema:
                 type: string
 
-  /api/v1/internal/avtaler/{id}/historikk:
+  /api/v1/intern/avtaler/{id}/historikk:
     get:
       tags:
         - Avtaler
@@ -312,7 +312,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Endringshistorikk"
 
-  /api/v1/internal/tiltaksgjennomforinger/{id}/historikk:
+  /api/v1/intern/tiltaksgjennomforinger/{id}/historikk:
     get:
       tags:
         - Tiltaksgjennomforinger
@@ -333,7 +333,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Endringshistorikk"
 
-  /api/v1/internal/tiltaksgjennomforinger/{id}/deltaker-summary:
+  /api/v1/intern/tiltaksgjennomforinger/{id}/deltaker-summary:
     get:
       tags:
         - Tiltaksgjennomforinger
@@ -354,7 +354,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/TiltaksgjennomforingDeltakerSummary"
 
-  /api/v1/internal/tiltaksgjennomforinger:
+  /api/v1/intern/tiltaksgjennomforinger:
     get:
       tags:
         - Tiltaksgjennomforinger
@@ -454,7 +454,7 @@ paths:
               schema:
                 type: string
 
-  /api/v1/internal/tiltaksgjennomforinger/mine:
+  /api/v1/intern/tiltaksgjennomforinger/mine:
     get:
       tags:
         - Tiltaksgjennomforinger
@@ -526,7 +526,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/PaginertTiltaksgjennomforing"
 
-  /api/v1/internal/tiltaksgjennomforinger/{id}:
+  /api/v1/intern/tiltaksgjennomforinger/{id}:
     parameters:
       - $ref: "#/components/parameters/ID"
     get:
@@ -547,7 +547,7 @@ paths:
               schema:
                 type: string
 
-  /api/v1/internal/tiltaksgjennomforinger/{id}/tiltaksnummer:
+  /api/v1/intern/tiltaksgjennomforinger/{id}/tiltaksnummer:
     parameters:
       - $ref: "#/components/parameters/ID"
     get:
@@ -570,7 +570,7 @@ paths:
               schema:
                 type: string
 
-  /api/v1/internal/tiltaksgjennomforinger/{id}/avtale:
+  /api/v1/intern/tiltaksgjennomforinger/{id}/avtale:
     parameters:
       - $ref: "#/components/parameters/ID"
     put:
@@ -586,7 +586,7 @@ paths:
         200:
           description: "Gjennomføring ble oppdatert med avtale"
 
-  /api/v1/internal/tiltaksgjennomforinger/{id}/avbryt:
+  /api/v1/intern/tiltaksgjennomforinger/{id}/avbryt:
     parameters:
       - $ref: "#/components/parameters/ID"
     put:
@@ -614,7 +614,7 @@ paths:
               schema:
                 type: string
 
-  /api/v1/internal/tiltaksgjennomforinger/{id}/tilgjengelig-for-veileder:
+  /api/v1/intern/tiltaksgjennomforinger/{id}/tilgjengelig-for-veileder:
     parameters:
       - $ref: "#/components/parameters/ID"
     put:
@@ -630,7 +630,7 @@ paths:
         200:
           description: Update for 'tilgjengelig for veileder' was successful
 
-  /api/v1/internal/tiltaksgjennomforinger/kontaktperson:
+  /api/v1/intern/tiltaksgjennomforinger/kontaktperson:
     delete:
       tags:
         - Tiltaksgjennomforinger
@@ -648,7 +648,7 @@ paths:
               schema:
                 type: string
 
-  /api/v1/internal/tiltakstyper:
+  /api/v1/intern/tiltakstyper:
     get:
       tags:
         - Tiltakstyper
@@ -688,7 +688,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/PaginertTiltakstype"
 
-  /api/v1/internal/tiltakstyper/{id}:
+  /api/v1/intern/tiltakstyper/{id}:
     get:
       tags:
         - Tiltakstyper
@@ -709,7 +709,7 @@ paths:
               schema:
                 type: string
 
-  /api/v1/internal/tiltakstyper/{id}/faneinnhold:
+  /api/v1/intern/tiltakstyper/{id}/faneinnhold:
     get:
       tags:
         - Tiltakstyper
@@ -730,7 +730,7 @@ paths:
               schema:
                 type: string
 
-  /api/v1/internal/tiltakstyper/migrerte:
+  /api/v1/intern/tiltakstyper/migrerte:
     get:
       tags:
         - Tiltakstyper
@@ -745,7 +745,7 @@ paths:
                 items:
                   type: string
 
-  /api/v1/internal/veileder/innsatsgrupper:
+  /api/v1/intern/veileder/innsatsgrupper:
     get:
       tags:
         - VeilederTiltak
@@ -760,7 +760,7 @@ paths:
                 items:
                   $ref: "#/components/schemas/VeilederflateInnsatsgruppe"
 
-  /api/v1/internal/veileder/tiltakstyper:
+  /api/v1/intern/veileder/tiltakstyper:
     get:
       tags:
         - VeilederTiltak
@@ -775,7 +775,7 @@ paths:
                 items:
                   $ref: "#/components/schemas/VeilederflateTiltakstype"
 
-  /api/v1/internal/veileder/tiltaksgjennomforinger:
+  /api/v1/intern/veileder/tiltaksgjennomforinger:
     get:
       tags:
         - VeilederTiltak
@@ -796,7 +796,7 @@ paths:
                 items:
                   $ref: "#/components/schemas/VeilederflateTiltaksgjennomforing"
 
-  /api/v1/internal/veileder/tiltaksgjennomforinger/{id}:
+  /api/v1/intern/veileder/tiltaksgjennomforinger/{id}:
     get:
       tags:
         - VeilederTiltak
@@ -812,7 +812,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/VeilederflateTiltaksgjennomforing"
 
-  /api/v1/internal/veileder/preview/tiltaksgjennomforinger:
+  /api/v1/intern/veileder/preview/tiltaksgjennomforinger:
     get:
       tags:
         - VeilederTiltak
@@ -833,7 +833,7 @@ paths:
                 items:
                   $ref: "#/components/schemas/VeilederflateTiltaksgjennomforing"
 
-  /api/v1/internal/veileder/preview/tiltaksgjennomforinger/{id}:
+  /api/v1/intern/veileder/preview/tiltaksgjennomforinger/{id}:
     get:
       tags:
         - VeilederTiltak
@@ -849,7 +849,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/VeilederflateTiltaksgjennomforing"
 
-  /api/v1/internal/veileder/nav/tiltaksgjennomforinger:
+  /api/v1/intern/veileder/nav/tiltaksgjennomforinger:
     get:
       tags:
         - VeilederTiltak
@@ -870,7 +870,7 @@ paths:
                 items:
                   $ref: "#/components/schemas/VeilederflateTiltaksgjennomforing"
 
-  /api/v1/internal/veileder/nav/tiltaksgjennomforinger/{id}:
+  /api/v1/intern/veileder/nav/tiltaksgjennomforinger/{id}:
     get:
       tags:
         - VeilederTiltak
@@ -885,7 +885,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/VeilederflateTiltaksgjennomforing"
 
-  /api/v1/internal/dialog:
+  /api/v1/intern/dialog:
     post:
       tags:
         - dialogen
@@ -909,7 +909,7 @@ paths:
               schema:
                 type: string
 
-  /api/v1/internal/bruker/historikk:
+  /api/v1/intern/bruker/historikk:
     post:
       tags:
         - Historikk
@@ -930,7 +930,7 @@ paths:
                 items:
                   $ref: "#/components/schemas/HistorikkForBruker"
 
-  /api/v1/internal/bruker/historikk/ny:
+  /api/v1/intern/bruker/historikk/ny:
     post:
       tags:
         - Historikk
@@ -949,7 +949,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/BrukerdataV2"
 
-  /api/v1/internal/ansatt:
+  /api/v1/intern/ansatt:
     get:
       tags:
         - Ansatt
@@ -972,7 +972,7 @@ paths:
                 items:
                   $ref: "#/components/schemas/NavAnsatt"
 
-  /api/v1/internal/veileder/me:
+  /api/v1/intern/veileder/me:
     get:
       tags:
         - Veileder
@@ -985,7 +985,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/NavVeileder"
 
-  /api/v1/internal/ansatt/me:
+  /api/v1/intern/ansatt/me:
     get:
       tags:
         - Ansatt
@@ -1004,7 +1004,7 @@ paths:
               schema:
                 type: string
 
-  /api/v1/internal/del-med-bruker:
+  /api/v1/intern/del-med-bruker:
     post:
       tags:
         - Del med bruker
@@ -1054,7 +1054,7 @@ paths:
               schema:
                 type: string
 
-  /api/v1/internal/del-med-bruker/alle:
+  /api/v1/intern/del-med-bruker/alle:
     post:
       tags:
         - Del med bruker
@@ -1077,7 +1077,7 @@ paths:
         204:
           description: "No content found"
 
-  /api/v1/internal/nav-enheter:
+  /api/v1/intern/nav-enheter:
     get:
       tags:
         - NavEnheter
@@ -1107,7 +1107,7 @@ paths:
                 items:
                   $ref: "#/components/schemas/NavEnhet"
 
-  /api/v1/internal/nav-enheter/regioner:
+  /api/v1/intern/nav-enheter/regioner:
     get:
       tags:
         - NavEnheter
@@ -1122,7 +1122,7 @@ paths:
                 items:
                   $ref: "#/components/schemas/NavRegion"
 
-  /api/v1/internal/nav-enheter/{enhetsnummer}/overordnet:
+  /api/v1/intern/nav-enheter/{enhetsnummer}/overordnet:
     parameters:
       - in: "path"
         name: enhetsnummer
@@ -1142,7 +1142,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/NavEnhet"
 
-  /api/v1/internal/arrangorer:
+  /api/v1/intern/arrangorer:
     get:
       tags:
         - Arrangor
@@ -1180,7 +1180,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/PaginertArrangor"
 
-  /api/v1/internal/arrangorer/{id}:
+  /api/v1/intern/arrangorer/{id}:
     get:
       tags:
         - Arrangor
@@ -1200,7 +1200,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Arrangor"
 
-  /api/v1/internal/arrangorer/hovedenhet/{id}:
+  /api/v1/intern/arrangorer/hovedenhet/{id}:
     get:
       tags:
         - Arrangor
@@ -1220,7 +1220,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Arrangor"
 
-  /api/v1/internal/arrangorer/{orgnr}:
+  /api/v1/intern/arrangorer/{orgnr}:
     post:
       tags:
         - Arrangor
@@ -1240,7 +1240,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Arrangor"
 
-  /api/v1/internal/arrangorer/{id}/kontaktpersoner:
+  /api/v1/intern/arrangorer/{id}/kontaktpersoner:
     get:
       tags:
         - Arrangor
@@ -1285,7 +1285,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ArrangorKontaktperson"
 
-  /api/v1/internal/arrangorer/kontaktperson/{id}:
+  /api/v1/intern/arrangorer/kontaktperson/{id}:
     get:
       tags:
         - Arrangor
@@ -1322,7 +1322,7 @@ paths:
         500:
           description: Hvis noe gikk galt ved sletting av kontaktperson
 
-  /api/v1/internal/virksomhet/sok:
+  /api/v1/intern/virksomhet/sok:
     get:
       tags:
         - Virksomhet
@@ -1344,7 +1344,7 @@ paths:
                 items:
                   $ref: "#/components/schemas/BrregVirksomhet"
 
-  /api/v1/internal/virksomhet/{orgnr}/underenheter:
+  /api/v1/intern/virksomhet/{orgnr}/underenheter:
     get:
       tags:
         - Virksomhet
@@ -1366,7 +1366,7 @@ paths:
                 items:
                   $ref: "#/components/schemas/BrregVirksomhet"
 
-  /api/v1/internal/notifications:
+  /api/v1/intern/notifications:
     get:
       tags:
         - Notifications
@@ -1385,7 +1385,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/PaginertUserNotifications"
 
-  /api/v1/internal/notifications/summary:
+  /api/v1/intern/notifications/summary:
     get:
       tags:
         - Notifications
@@ -1398,7 +1398,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/UserNotificationSummary"
 
-  /api/v1/internal/notifications/{id}/status:
+  /api/v1/intern/notifications/{id}/status:
     parameters:
       - $ref: "#/components/parameters/ID"
     post:
@@ -1420,7 +1420,7 @@ paths:
         200:
           description: OK
 
-  /api/v1/internal/features:
+  /api/v1/intern/features:
     parameters:
       - in: query
         name: feature
@@ -1440,7 +1440,7 @@ paths:
               schema:
                 type: boolean
 
-  /api/v1/internal/veileder/oppskrifter/{tiltakstypeId}:
+  /api/v1/intern/veileder/oppskrifter/{tiltakstypeId}:
     parameters:
       - in: path
         name: tiltakstypeId
@@ -1476,7 +1476,7 @@ paths:
                 required:
                   - data
 
-  /api/v1/internal/joyride/lagre:
+  /api/v1/intern/joyride/lagre:
     post:
       tags:
         - Joyride
@@ -1494,7 +1494,7 @@ paths:
               schema:
                 type: string
 
-  /api/v1/internal/joyride/{joyrideType}/har-fullfort:
+  /api/v1/intern/joyride/{joyrideType}/har-fullfort:
     parameters:
       - in: path
         name: joyrideType
@@ -1514,7 +1514,7 @@ paths:
               schema:
                 type: boolean
 
-  /api/v1/internal/nus-data:
+  /api/v1/intern/nus-data:
     post:
       tags:
         - Nus

@@ -15,7 +15,7 @@ fun Route.navAnsattRoutes() {
     val ansattService: NavAnsattService by inject()
     val veilederService: NavVeilederService by inject()
 
-    route("/api/v1/internal") {
+    route("/api/v1/intern") {
         get("/veileder/me") {
             val azureId = getNavAnsattAzureId()
             val obo = AccessType.OBO(call.getAccessToken())

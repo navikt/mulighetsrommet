@@ -76,9 +76,9 @@ class AvtaleInfoEventProcessor(
             .flatMap { toAvtaleDbo(it) }
             .flatMap { avtale ->
                 val response = if (event.operation == ArenaEvent.Operation.Delete) {
-                    client.request<Any>(HttpMethod.Delete, "/api/v1/internal/arena/avtale/${avtale.id}")
+                    client.request<Any>(HttpMethod.Delete, "/api/v1/intern/arena/avtale/${avtale.id}")
                 } else {
-                    client.request(HttpMethod.Put, "/api/v1/internal/arena/avtale", avtale)
+                    client.request(HttpMethod.Put, "/api/v1/intern/arena/avtale", avtale)
                 }
                 response.mapLeft { ProcessingError.fromResponseException(it) }
             }
@@ -88,7 +88,7 @@ class AvtaleInfoEventProcessor(
 
     override suspend fun deleteEntity(event: ArenaEvent): Either<ProcessingError, Unit> = either {
         val mapping = entities.getMapping(event.arenaTable, event.arenaId).bind()
-        client.request<Any>(HttpMethod.Delete, "/api/v1/internal/arena/avtale/${mapping.entityId}")
+        client.request<Any>(HttpMethod.Delete, "/api/v1/intern/arena/avtale/${mapping.entityId}")
             .mapLeft { ProcessingError.fromResponseException(it) }
             .flatMap { entities.deleteAvtale(mapping.entityId) }
             .bind()

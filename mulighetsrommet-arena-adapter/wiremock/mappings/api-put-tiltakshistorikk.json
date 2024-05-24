@@ -1,7 +1,7 @@
 {
   "request": {
     "method": "PUT",
-    "urlPattern": "/api/v1/internal/arena/tiltakshistorikk"
+    "urlPattern": "/api/v1/intern/arena/tiltakshistorikk"
   },
   "response": {
     "status": 200,

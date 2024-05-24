@@ -29,7 +29,7 @@ fun Route.brukerRoutes() {
     val historikkService: TiltakshistorikkService by inject()
     val poaoTilgangService: PoaoTilgangService by inject()
 
-    route("/api/v1/internal/bruker") {
+    route("/api/v1/intern/bruker") {
         post {
             val request = call.receive<GetBrukerRequest>()
 
@@ -40,7 +40,7 @@ fun Route.brukerRoutes() {
         }
     }
 
-    route("/api/v1/internal/bruker/historikk") {
+    route("/api/v1/intern/bruker/historikk") {
         post {
             val request = call.receive<GetHistorikkForBrukerRequest>()
             val norskIdent = request.norskIdent
