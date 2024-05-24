@@ -43,11 +43,12 @@ export function DeltakelseKort({ deltakelse }: Props) {
           ) : null}
           {deltakelse.periode?.startdato ? (
             <BodyShort size="small">
-              {[deltakelse.periode.startdato, deltakelse.periode.sluttdato]
-                .filter(Boolean)
-                .map((dato) => dato && formaterDato(dato))
-                .join(" - ") +
-                (deltakelse.periode?.startdato && !deltakelse.periode?.sluttdato ? " - " : "")}
+              {deltakelse.periode?.startdato && !deltakelse.periode?.sluttdato
+                ? `Oppstartsdato ${formaterDato(deltakelse.periode.startdato)}`
+                : [deltakelse.periode.startdato, deltakelse.periode.sluttdato]
+                    .filter(Boolean)
+                    .map((dato) => dato && formaterDato(dato))
+                    .join(" - ")}
             </BodyShort>
           ) : null}
           {deltakelse.sistEndretDato ? (
