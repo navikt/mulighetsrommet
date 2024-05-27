@@ -57,6 +57,10 @@ updates:
           - "react"
           - "react-dom"
 
+      rsjf:
+        patterns:
+          - "@rjsf/*"
+
       patches:
         update-types:
           - "patch"
