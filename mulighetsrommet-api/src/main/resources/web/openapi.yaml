@@ -2904,6 +2904,8 @@ components:
           nullable: true
         personvernBekreftet:
           type: boolean
+        fylke:
+          type: string
       required:
         - navn
         - tiltakstype

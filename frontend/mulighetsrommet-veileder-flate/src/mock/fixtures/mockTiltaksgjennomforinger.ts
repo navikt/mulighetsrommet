@@ -9,6 +9,7 @@ import { mockTiltakstyper } from "./mockTiltakstyper";
 
 export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
   {
+    tiltaksnummer: "123123",
     sanityId: "f4cea25b-c372-4d4c-8106-535ab10cd586",
     navn: "Avklaring - Fredrikstad",
     oppstart: TiltaksgjennomforingOppstartstype.LOPENDE,
@@ -34,6 +35,7 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
         },
       ],
     },
+    fylke: "0200",
     kontaktinfo: {
       tiltaksansvarlige: [
         {

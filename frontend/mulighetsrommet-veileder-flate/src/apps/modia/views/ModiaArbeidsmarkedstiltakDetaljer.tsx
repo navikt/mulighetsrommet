@@ -29,7 +29,8 @@ import {
   VeilederflateTiltakstype,
 } from "mulighetsrommet-api-client";
 import { TilbakemeldingLenke, useTitle } from "mulighetsrommet-frontend-common";
-import { PORTEN_URL_FOR_TILBAKEMELDING } from "../../../constants";
+import { PORTEN_URL_FOR_TILBAKEMELDING } from "@/constants";
+import { useRegioner } from "@/api/queries/useRegioner";
 
 export function ModiaArbeidsmarkedstiltakDetaljer() {
   const { fnr } = useModiaContext();
@@ -54,6 +55,7 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
     isPending: isPendingTiltak,
     isError,
   } = useTiltaksgjennomforingById();
+  const regioner = useRegioner();
 
   useTitle(
     `Arbeidsmarkedstiltak - Detaljer ${
@@ -186,8 +188,8 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
               <TilbakemeldingLenke
                 url={PORTEN_URL_FOR_TILBAKEMELDING(
                   tiltaksgjennomforing.tiltaksnummer,
-                  brukerdata.enheter[0].navn,
-                )} //fiks til fylke - må mappes fra enhet?
+                  regioner?.data?.find((r) => r.enhetsnummer === tiltaksgjennomforing?.fylke)?.navn,
+                )}
                 tekst="Gi tilbakemelding via Porten"
               />
             )}
