@@ -18,6 +18,7 @@ dependencies {
     implementation(projects.common.domain)
     implementation(projects.common.database)
     implementation(projects.common.slack)
+    implementation(projects.common.kafka)
     testImplementation(testFixtures(projects.common.database))
     implementation(projects.common.ktor)
     testImplementation(testFixtures(projects.common.ktor))

@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.kafka.consumers.amt
+package no.nav.mulighetsrommet.domain.dto.amt
 
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
