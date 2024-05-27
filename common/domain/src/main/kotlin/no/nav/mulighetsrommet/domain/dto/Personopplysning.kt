@@ -26,13 +26,14 @@ enum class Personopplysning {
     RELIGION,
     ;
 
-    fun toPersonopplysningMedBeskrivelse() =
+    fun toPersonopplysningMedBeskrivelse(hjelpetekst: String?) =
         PersonopplysningMedBeskrivelse(
             personopplysning = this,
             beskrivelse = this.toBeskrivelse(),
+            hjelpetekst = hjelpetekst,
         )
 
-    fun toBeskrivelse(): String {
+    private fun toBeskrivelse(): String {
         return when (this) {
             NAVN -> "Navn"
             KJONN -> "Kjønn"
@@ -69,10 +70,12 @@ enum class PersonopplysningFrekvens {
 data class PersonopplysningMedFrekvens(
     val personopplysning: Personopplysning,
     val frekvens: PersonopplysningFrekvens,
+    val hjelpetekst: String? = null,
 )
 
 @Serializable
 data class PersonopplysningMedBeskrivelse(
     val personopplysning: Personopplysning,
     val beskrivelse: String,
+    val hjelpetekst: String?,
 )

@@ -3,7 +3,7 @@
  * hvilke personopplysninger avtaler på en gitt tiltakstype kan velge mellom.
  */
 
-insert into tiltakstype_personopplysning(tiltakskode, personopplysning, frekvens, beskrivelse)
+insert into tiltakstype_personopplysning(tiltakskode, personopplysning, frekvens, hjelpetekst)
 select *
 from (values ('AVKLARING'::tiltakskode, 'NAVN'::personopplysning, 'ALLTID'::personopplysning_frekvens, null),
              ('AVKLARING'::tiltakskode, 'KJONN'::personopplysning, 'ALLTID'::personopplysning_frekvens, null),
@@ -31,16 +31,16 @@ from (values ('AVKLARING'::tiltakskode, 'NAVN'::personopplysning, 'ALLTID'::pers
              ('AVKLARING'::tiltakskode, 'ADFERD'::personopplysning, 'SJELDEN'::personopplysning_frekvens, null),
              ('AVKLARING'::tiltakskode, 'SOSIALE_FORHOLD'::personopplysning, 'OFTE'::personopplysning_frekvens, null),
              ('AVKLARING'::tiltakskode, 'HELSEOPPLYSNINGER'::personopplysning, 'OFTE'::personopplysning_frekvens,
-              'Kan være nødvendig dersom deltaker har helseutfordringer som påvirker hvilke jobber han/hun kan ta, og dersom det er behov for tilrettelegging hos leverandør/arbeidsplass på grunn av helse.'),
+              null),
              ('AVKLARING'::tiltakskode, 'RELIGION'::personopplysning,
               'SJELDEN'::personopplysning_frekvens,
-              null)) as t(tiltakskode, personvernopplysning, frekvens, beskrivelse)
+              null)) as t(tiltakskode, personvernopplysning, frekvens, hjelpetekst)
 where exists (select 1 from tiltakstype where tiltakskode = 'AVKLARING'::tiltakskode)
 on conflict(tiltakskode, personopplysning) do update
     set frekvens    = excluded.frekvens,
-        beskrivelse = excluded.beskrivelse;
+        hjelpetekst = excluded.hjelpetekst;
 
-insert into tiltakstype_personopplysning(tiltakskode, personopplysning, frekvens, beskrivelse)
+insert into tiltakstype_personopplysning(tiltakskode, personopplysning, frekvens, hjelpetekst)
 select *
 from (values ('OPPFOLGING'::tiltakskode, 'NAVN'::personopplysning, 'ALLTID'::personopplysning_frekvens, null),
              ('OPPFOLGING'::tiltakskode, 'KJONN'::personopplysning, 'ALLTID'::personopplysning_frekvens, null),
@@ -69,15 +69,15 @@ from (values ('OPPFOLGING'::tiltakskode, 'NAVN'::personopplysning, 'ALLTID'::per
              ('OPPFOLGING'::tiltakskode, 'ADFERD'::personopplysning, 'SJELDEN'::personopplysning_frekvens, null),
              ('OPPFOLGING'::tiltakskode, 'SOSIALE_FORHOLD'::personopplysning, 'OFTE'::personopplysning_frekvens, null),
              ('OPPFOLGING'::tiltakskode, 'HELSEOPPLYSNINGER'::personopplysning, 'OFTE'::personopplysning_frekvens,
-              'Kan være nødvendig dersom deltaker har helseutfordringer som påvirker hvilke jobber han/hun kan ta, og dersom det er behov for tilrettelegging hos leverandør/arbeidsplass på grunn av helse.'),
+              null),
              ('OPPFOLGING'::tiltakskode, 'RELIGION'::personopplysning,
               'SJELDEN'::personopplysning_frekvens, null)) as t(tiltakskode, personvernopplysning, frekvens)
 where exists (select 1 from tiltakstype where tiltakskode = 'OPPFOLGING'::tiltakskode)
 on conflict(tiltakskode, personopplysning) do update
     set frekvens    = excluded.frekvens,
-        beskrivelse = excluded.beskrivelse;
+        hjelpetekst = excluded.hjelpetekst;
 
-insert into tiltakstype_personopplysning(tiltakskode, personopplysning, frekvens, beskrivelse)
+insert into tiltakstype_personopplysning(tiltakskode, personopplysning, frekvens, hjelpetekst)
 select *
 from (values ('JOBBKLUBB'::tiltakskode, 'NAVN'::personopplysning, 'ALLTID'::personopplysning_frekvens, null),
              ('JOBBKLUBB'::tiltakskode, 'KJONN'::personopplysning, 'ALLTID'::personopplysning_frekvens, null),
@@ -105,15 +105,15 @@ from (values ('JOBBKLUBB'::tiltakskode, 'NAVN'::personopplysning, 'ALLTID'::pers
              ('JOBBKLUBB'::tiltakskode, 'ADFERD'::personopplysning, 'SJELDEN'::personopplysning_frekvens, null),
              ('JOBBKLUBB'::tiltakskode, 'SOSIALE_FORHOLD'::personopplysning, 'OFTE'::personopplysning_frekvens, null),
              ('JOBBKLUBB'::tiltakskode, 'HELSEOPPLYSNINGER'::personopplysning, 'OFTE'::personopplysning_frekvens,
-              'Kan være nødvendig dersom deltaker har helseutfordringer som påvirker hvilke jobber han/hun kan ta, og dersom det er behov for tilrettelegging hos leverandør/arbeidsplass på grunn av helse.'),
+              null),
              ('JOBBKLUBB'::tiltakskode, 'RELIGION'::personopplysning,
               'SJELDEN'::personopplysning_frekvens, null)) as t(tiltakskode, personvernopplysning, frekvens)
 where exists (select 1 from tiltakstype where tiltakskode = 'JOBBKLUBB'::tiltakskode)
 on conflict(tiltakskode, personopplysning) do update
     set frekvens    = excluded.frekvens,
-        beskrivelse = excluded.beskrivelse;
+        hjelpetekst = excluded.hjelpetekst;
 
-insert into tiltakstype_personopplysning(tiltakskode, personopplysning, frekvens, beskrivelse)
+insert into tiltakstype_personopplysning(tiltakskode, personopplysning, frekvens, hjelpetekst)
 select *
 from (values ('DIGITALT_OPPFOLGINGSTILTAK'::tiltakskode, 'NAVN'::personopplysning, 'ALLTID'::personopplysning_frekvens,
               null),
@@ -154,15 +154,15 @@ from (values ('DIGITALT_OPPFOLGINGSTILTAK'::tiltakskode, 'NAVN'::personopplysnin
               'OFTE'::personopplysning_frekvens, null),
              ('DIGITALT_OPPFOLGINGSTILTAK'::tiltakskode, 'HELSEOPPLYSNINGER'::personopplysning,
               'OFTE'::personopplysning_frekvens,
-              'Kan være nødvendig dersom deltaker har helseutfordringer som påvirker hvilke jobber han/hun kan ta, og dersom det er behov for tilrettelegging hos leverandør/arbeidsplass på grunn av helse.'),
+              null),
              ('DIGITALT_OPPFOLGINGSTILTAK'::tiltakskode, 'RELIGION'::personopplysning,
               'SJELDEN'::personopplysning_frekvens, null)) as t(tiltakskode, personvernopplysning, frekvens)
 where exists (select 1 from tiltakstype where tiltakskode = 'DIGITALT_OPPFOLGINGSTILTAK'::tiltakskode)
 on conflict(tiltakskode, personopplysning) do update
     set frekvens    = excluded.frekvens,
-        beskrivelse = excluded.beskrivelse;
+        hjelpetekst = excluded.hjelpetekst;
 
-insert into tiltakstype_personopplysning(tiltakskode, personopplysning, frekvens, beskrivelse)
+insert into tiltakstype_personopplysning(tiltakskode, personopplysning, frekvens, hjelpetekst)
 select *
 from (values ('GRUPPE_ARBEIDSMARKEDSOPPLAERING'::tiltakskode, 'NAVN'::personopplysning,
               'ALLTID'::personopplysning_frekvens, null),
@@ -203,15 +203,15 @@ from (values ('GRUPPE_ARBEIDSMARKEDSOPPLAERING'::tiltakskode, 'NAVN'::personoppl
               'SJELDEN'::personopplysning_frekvens, null),
              ('GRUPPE_ARBEIDSMARKEDSOPPLAERING'::tiltakskode, 'HELSEOPPLYSNINGER'::personopplysning,
               'OFTE'::personopplysning_frekvens,
-              'Kan være nødvendig dersom deltaker har helseutfordringer som påvirker hvilke jobber han/hun kan ta, og dersom det er behov for tilrettelegging hos leverandør/arbeidsplass på grunn av helse.'),
+              null),
              ('GRUPPE_ARBEIDSMARKEDSOPPLAERING'::tiltakskode, 'RELIGION'::personopplysning,
               'SJELDEN'::personopplysning_frekvens, null)) as t(tiltakskode, personvernopplysning, frekvens)
 where exists (select 1 from tiltakstype where tiltakskode = 'GRUPPE_ARBEIDSMARKEDSOPPLAERING'::tiltakskode)
 on conflict(tiltakskode, personopplysning) do update
     set frekvens    = excluded.frekvens,
-        beskrivelse = excluded.beskrivelse;
+        hjelpetekst = excluded.hjelpetekst;
 
-insert into tiltakstype_personopplysning(tiltakskode, personopplysning, frekvens, beskrivelse)
+insert into tiltakstype_personopplysning(tiltakskode, personopplysning, frekvens, hjelpetekst)
 select *
 from (values ('GRUPPE_FAG_OG_YRKESOPPLAERING'::tiltakskode, 'NAVN'::personopplysning,
               'ALLTID'::personopplysning_frekvens, null),
@@ -252,15 +252,15 @@ from (values ('GRUPPE_FAG_OG_YRKESOPPLAERING'::tiltakskode, 'NAVN'::personopplys
               'SJELDEN'::personopplysning_frekvens, null),
              ('GRUPPE_FAG_OG_YRKESOPPLAERING'::tiltakskode, 'HELSEOPPLYSNINGER'::personopplysning,
               'OFTE'::personopplysning_frekvens,
-              'Kan være nødvendig dersom deltaker har helseutfordringer som påvirker hvilke jobber han/hun kan ta, og dersom det er behov for tilrettelegging hos leverandør/arbeidsplass på grunn av helse.'),
+              null),
              ('GRUPPE_FAG_OG_YRKESOPPLAERING'::tiltakskode, 'RELIGION'::personopplysning,
               'SJELDEN'::personopplysning_frekvens, null)) as t(tiltakskode, personvernopplysning, frekvens)
 where exists (select 1 from tiltakstype where tiltakskode = 'GRUPPE_FAG_OG_YRKESOPPLAERING'::tiltakskode)
 on conflict(tiltakskode, personopplysning) do update
     set frekvens    = excluded.frekvens,
-        beskrivelse = excluded.beskrivelse;
+        hjelpetekst = excluded.hjelpetekst;
 
-insert into tiltakstype_personopplysning(tiltakskode, personopplysning, frekvens, beskrivelse)
+insert into tiltakstype_personopplysning(tiltakskode, personopplysning, frekvens, hjelpetekst)
 select *
 from (values ('ARBEIDSRETTET_REHABILITERING'::tiltakskode, 'NAVN'::personopplysning,
               'ALLTID'::personopplysning_frekvens, null),
@@ -301,15 +301,15 @@ from (values ('ARBEIDSRETTET_REHABILITERING'::tiltakskode, 'NAVN'::personopplysn
               'OFTE'::personopplysning_frekvens, null),
              ('ARBEIDSRETTET_REHABILITERING'::tiltakskode, 'HELSEOPPLYSNINGER'::personopplysning,
               'ALLTID'::personopplysning_frekvens,
-              'Kan være nødvendig dersom deltaker har helseutfordringer som påvirker hvilke jobber han/hun kan ta, og dersom det er behov for tilrettelegging hos leverandør/arbeidsplass på grunn av helse.'),
+              null),
              ('ARBEIDSRETTET_REHABILITERING'::tiltakskode, 'RELIGION'::personopplysning,
               'SJELDEN'::personopplysning_frekvens, null)) as t(tiltakskode, personvernopplysning, frekvens)
 where exists (select 1 from tiltakstype where tiltakskode = 'ARBEIDSRETTET_REHABILITERING'::tiltakskode)
 on conflict(tiltakskode, personopplysning) do update
     set frekvens    = excluded.frekvens,
-        beskrivelse = excluded.beskrivelse;
+        hjelpetekst = excluded.hjelpetekst;
 
-insert into tiltakstype_personopplysning(tiltakskode, personopplysning, frekvens, beskrivelse)
+insert into tiltakstype_personopplysning(tiltakskode, personopplysning, frekvens, hjelpetekst)
 select *
 from (values ('ARBEIDSFORBEREDENDE_TRENING'::tiltakskode, 'NAVN'::personopplysning,
               'ALLTID'::personopplysning_frekvens, null),
@@ -350,15 +350,15 @@ from (values ('ARBEIDSFORBEREDENDE_TRENING'::tiltakskode, 'NAVN'::personopplysni
               'OFTE'::personopplysning_frekvens, null),
              ('ARBEIDSFORBEREDENDE_TRENING'::tiltakskode, 'HELSEOPPLYSNINGER'::personopplysning,
               'OFTE'::personopplysning_frekvens,
-              'Kan være nødvendig dersom deltaker har helseutfordringer som påvirker hvilke jobber han/hun kan ta, og dersom det er behov for tilrettelegging hos leverandør/arbeidsplass på grunn av helse.'),
+              null),
              ('ARBEIDSFORBEREDENDE_TRENING'::tiltakskode, 'RELIGION'::personopplysning,
               'SJELDEN'::personopplysning_frekvens, null)) as t(tiltakskode, personvernopplysning, frekvens)
 where exists (select 1 from tiltakstype where tiltakskode = 'ARBEIDSFORBEREDENDE_TRENING'::tiltakskode)
 on conflict(tiltakskode, personopplysning) do update
     set frekvens    = excluded.frekvens,
-        beskrivelse = excluded.beskrivelse;
+        hjelpetekst = excluded.hjelpetekst;
 
-insert into tiltakstype_personopplysning(tiltakskode, personopplysning, frekvens, beskrivelse)
+insert into tiltakstype_personopplysning(tiltakskode, personopplysning, frekvens, hjelpetekst)
 select *
 from (values ('VARIG_TILRETTELAGT_ARBEID_SKJERMET'::tiltakskode, 'NAVN'::personopplysning,
               'ALLTID'::personopplysning_frekvens, null),
@@ -400,10 +400,10 @@ from (values ('VARIG_TILRETTELAGT_ARBEID_SKJERMET'::tiltakskode, 'NAVN'::persono
               'OFTE'::personopplysning_frekvens, null),
              ('VARIG_TILRETTELAGT_ARBEID_SKJERMET'::tiltakskode, 'HELSEOPPLYSNINGER'::personopplysning,
               'ALLTID'::personopplysning_frekvens,
-              'Kan være nødvendig dersom deltaker har helseutfordringer som påvirker hvilke jobber han/hun kan ta, og dersom det er behov for tilrettelegging hos leverandør/arbeidsplass på grunn av helse.'),
+              null),
              ('VARIG_TILRETTELAGT_ARBEID_SKJERMET'::tiltakskode, 'RELIGION'::personopplysning,
               'SJELDEN'::personopplysning_frekvens, null)) as t(tiltakskode, personvernopplysning, frekvens)
 where exists (select 1 from tiltakstype where tiltakskode = 'VARIG_TILRETTELAGT_ARBEID_SKJERMET'::tiltakskode)
 on conflict(tiltakskode, personopplysning) do update
     set frekvens    = excluded.frekvens,
-        beskrivelse = excluded.beskrivelse;
+        hjelpetekst = excluded.hjelpetekst;

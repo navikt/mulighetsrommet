@@ -619,7 +619,7 @@ class AvtaleRepository(private val db: Database) {
     fun getBehandlingAvPersonopplysninger(id: UUID): Map<PersonopplysningFrekvens, List<PersonopplysningMedBeskrivelse>> {
         @Language("PostgreSQL")
         val valgtePersonopplysningerQuery = """
-            select tp.personopplysning, tp.frekvens
+            select tp.personopplysning, tp.frekvens, tp.hjelpetekst
             from avtale
                 inner join tiltakstype on tiltakstype.id = avtale.tiltakstype_id
                 inner join avtale_personopplysning ap on avtale.id = ap.avtale_id
@@ -635,6 +635,8 @@ class AvtaleRepository(private val db: Database) {
                 PersonopplysningMedFrekvens(
                     personopplysning = Personopplysning.valueOf(it.string("personopplysning")),
                     frekvens = PersonopplysningFrekvens.valueOf(it.string("frekvens")),
+                    hjelpetekst = it.stringOrNull("hjelpetekst"),
+
                 )
             }
             .asList
@@ -643,13 +645,13 @@ class AvtaleRepository(private val db: Database) {
         return mapOf(
             PersonopplysningFrekvens.ALLTID to valgtePersonopplysninger
                 .filter { it.frekvens == PersonopplysningFrekvens.ALLTID }
-                .map { it.personopplysning.toPersonopplysningMedBeskrivelse() },
+                .map { it.personopplysning.toPersonopplysningMedBeskrivelse(it.hjelpetekst) },
             PersonopplysningFrekvens.OFTE to valgtePersonopplysninger
                 .filter { it.frekvens == PersonopplysningFrekvens.OFTE }
-                .map { it.personopplysning.toPersonopplysningMedBeskrivelse() },
+                .map { it.personopplysning.toPersonopplysningMedBeskrivelse(it.hjelpetekst) },
             PersonopplysningFrekvens.SJELDEN to valgtePersonopplysninger
                 .filter { it.frekvens == PersonopplysningFrekvens.SJELDEN }
-                .map { it.personopplysning.toPersonopplysningMedBeskrivelse() },
+                .map { it.personopplysning.toPersonopplysningMedBeskrivelse(it.hjelpetekst) },
         )
     }
 }

@@ -228,7 +228,7 @@ class TiltakstypeRepository(private val db: Database) {
             ?: emptySet()
 
         val personopplysninger = Json.decodeFromString<List<PersonopplysningMedFrekvens>>(string("personopplysninger"))
-            .groupBy({ it.frekvens }, { it.personopplysning.toPersonopplysningMedBeskrivelse() })
+            .groupBy({ it.frekvens }, { it.personopplysning.toPersonopplysningMedBeskrivelse(it.hjelpetekst) })
 
         return TiltakstypeAdminDto(
             id = uuid("id"),

@@ -3727,9 +3727,13 @@ components:
           $ref: "#/components/schemas/Personopplysning"
         beskrivelse:
           type: string
+        hjelpetekst:
+          type: string
+          nullable: true
       required:
         - personopplysning
         - beskrivelse
+        - hjelpetekst
 
     NusDataRequest:
       type: object
