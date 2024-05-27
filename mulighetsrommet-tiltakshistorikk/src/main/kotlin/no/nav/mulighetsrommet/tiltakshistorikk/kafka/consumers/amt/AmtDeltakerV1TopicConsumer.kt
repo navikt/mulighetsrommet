@@ -15,7 +15,7 @@ import java.util.*
 
 class AmtDeltakerV1TopicConsumer(
     config: Config,
-    private val deltakere: DeltakerRepository,
+    private val deltakerRepository: DeltakerRepository,
 ) : KafkaTopicConsumer<UUID, JsonElement>(
     config,
     uuidDeserializer(),
@@ -31,17 +31,17 @@ class AmtDeltakerV1TopicConsumer(
         when {
             amtDeltaker == null -> {
                 logger.info("Mottok tombstone for deltaker med id=$key, sletter deltakeren")
-                deltakere.deleteKometDeltaker(key)
+                deltakerRepository.deleteKometDeltaker(key)
             }
 
             amtDeltaker.status.type == AmtDeltakerStatus.Type.FEILREGISTRERT -> {
                 logger.info("Sletter deltaker med id=$key fordi den var feilregistrert")
-                deltakere.deleteKometDeltaker(key)
+                deltakerRepository.deleteKometDeltaker(key)
             }
 
             else -> {
                 logger.info("Forsøker å lagre deltaker med id=$key")
-                query { deltakere.upsertKometDeltaker(amtDeltaker) }
+                query { deltakerRepository.upsertKometDeltaker(amtDeltaker) }
                     .onLeft {
                         logger.warn("Feil under konsumering av deltaker med id=$key", it.error)
                         throw it.error
