@@ -51,7 +51,7 @@
   "devDependencies": {
     "@axe-core/playwright": "4.9.0",
     "@faker-js/faker": "8.4.1",
-    "@playwright/test": "1.44.0",
+    "@playwright/test": "1.44.1",
     "@types/node": "20.12.7",
     "@typescript-eslint/eslint-plugin": "7.8.0",
     "@vitejs/plugin-react": "4.2.1",
@@ -68,7 +68,7 @@
     "eslint-plugin-react-hooks": "4.6.0",
     "eslint-plugin-react-refresh": "0.4.6",
     "msw": "2.3.0",
-    "playwright": "1.44.0",
+    "playwright": "1.44.1",
     "rollup-plugin-visualizer": "5.12.0",
     "typescript": "5.4.5",
     "vite": "5.2.10",
