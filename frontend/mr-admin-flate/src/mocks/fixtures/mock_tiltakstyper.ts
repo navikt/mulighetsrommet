@@ -2,100 +2,122 @@ import {
   Innsatsgruppe,
   PaginertTiltakstype,
   Personopplysning,
+  PersonopplysningerPerFrekvens,
   TiltakskodeArena,
   TiltakstypeStatus,
   VeilederflateTiltakstype,
 } from "mulighetsrommet-api-client";
 
-const personopplysninger = {
+const personopplysninger: PersonopplysningerPerFrekvens = {
   ALLTID: [
     {
       personopplysning: Personopplysning.NAVN,
       beskrivelse: "Navn",
+      hjelpetekst: null,
     },
     {
       personopplysning: Personopplysning.KJONN,
       beskrivelse: "Kjønn",
+      hjelpetekst: null,
     },
     {
       personopplysning: Personopplysning.ADRESSE,
       beskrivelse: "Adresse",
+      hjelpetekst: null,
     },
     {
       personopplysning: Personopplysning.TELEFONNUMMER,
       beskrivelse: "Tlf",
+      hjelpetekst: null,
     },
     {
       personopplysning: Personopplysning.FOLKEREGISTER_IDENTIFIKATOR,
       beskrivelse: "Fnummer",
+      hjelpetekst: null,
     },
     {
       personopplysning: Personopplysning.FODSELSDATO,
       beskrivelse: "Fødselsdato",
+      hjelpetekst: null,
     },
     {
       personopplysning: Personopplysning.BEHOV_FOR_BISTAND_FRA_NAV,
       beskrivelse: "Bistand fra nav",
+      hjelpetekst: null,
     },
     {
       personopplysning: Personopplysning.YTELSER_FRA_NAV,
       beskrivelse: "Ytelser fra nav",
+      hjelpetekst: null,
     },
     {
       personopplysning: Personopplysning.BILDE,
       beskrivelse: "Bilde",
+      hjelpetekst: null,
     },
     {
       personopplysning: Personopplysning.EPOST,
       beskrivelse: "Epost",
+      hjelpetekst: null,
     },
     {
       personopplysning: Personopplysning.BRUKERNAVN,
       beskrivelse: "Brukernavn",
+      hjelpetekst: null,
     },
     {
       personopplysning: Personopplysning.ARBEIDSERFARING_OG_VERV,
       beskrivelse: "Arbeidserfaring",
+      hjelpetekst: null,
     },
     {
       personopplysning: Personopplysning.SERTIFIKATER_OG_KURS,
       beskrivelse: "Sertifikater",
+      hjelpetekst: null,
     },
     {
       personopplysning: Personopplysning.UTDANNING_OG_FAGBREV,
       beskrivelse: "Utdanning og fagbrev",
+      hjelpetekst: null,
     },
     {
       personopplysning: Personopplysning.PERSONLIGE_EGENSKAPER_OG_INTERESSER,
       beskrivelse: "Personelige egenskaper",
+      hjelpetekst: null,
     },
     {
       personopplysning: Personopplysning.SPRAKKUNNSKAP,
       beskrivelse: "Språkkunnskap",
+      hjelpetekst: null,
     },
   ],
   OFTE: [
     {
       personopplysning: Personopplysning.IP_ADRESSE,
       beskrivelse: "IP-adresse",
+      hjelpetekst: null,
     },
     {
       personopplysning: Personopplysning.SOSIALE_FORHOLD,
       beskrivelse: "Sosiale forhold",
+      hjelpetekst: null,
     },
     {
       personopplysning: Personopplysning.HELSEOPPLYSNINGER,
       beskrivelse: "Helseopplysninger",
+      hjelpetekst: null,
     },
   ],
   SJELDEN: [
     {
       personopplysning: Personopplysning.ADFERD,
       beskrivelse: "Adferd",
+      hjelpetekst: null,
     },
     {
       personopplysning: Personopplysning.RELIGION,
       beskrivelse: "Religion",
+      hjelpetekst: null,
     },
   ],
 };
@@ -205,7 +227,6 @@ export const paginertMockTiltakstyper: PaginertTiltakstype = {
 export const mockVeilederflateTiltakstypeAFT: VeilederflateTiltakstype = {
   beskrivelse:
     "AFT er et tiltak som skal bidra til å prøve ut tiltaksdeltakerens arbeidsevne og til å styrke mulighetene for å få ordinært arbeid. Det er et tiltak med individuell tilrettelegging som kan tilbys personer med sammensatte bistandsbehov som har fått sin arbeidsevne nedsatt og som har særlig usikre yrkesmessige forutsetninger.",
-
   regelverkLenker: [
     {
       _id: "123",

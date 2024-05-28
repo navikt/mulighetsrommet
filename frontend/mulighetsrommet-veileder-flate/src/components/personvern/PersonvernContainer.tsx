@@ -3,7 +3,9 @@ import {
   BodyLong,
   Button,
   GuidePanel,
+  HStack,
   Heading,
+  HelpText,
   List,
   Modal,
   VStack,
@@ -114,7 +116,12 @@ function ListeOverPersonopplysninger({
     <List title={title} size="small">
       {personopplysninger.map((personopplysning) => (
         <List.Item key={personopplysning.personopplysning} className={styles.lesebredde}>
-          {personopplysning.beskrivelse}
+          <HStack align={"end"} gap="1">
+            {personopplysning.beskrivelse}{" "}
+            {personopplysning.hjelpetekst ? (
+              <HelpText>{personopplysning.hjelpetekst}</HelpText>
+            ) : null}
+          </HStack>
         </List.Item>
       ))}
     </List>
