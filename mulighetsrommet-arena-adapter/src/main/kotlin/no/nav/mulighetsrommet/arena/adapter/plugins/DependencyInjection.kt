@@ -147,7 +147,9 @@ private fun services(services: ServiceConfig, tokenClient: MachineToMachineToken
     }
     single {
         val processors = listOf(
+            SakEventProcessor(get()),
             TiltakEventProcessor(get()),
+            AvtaleInfoEventProcessor(get(), get(), get()),
             TiltakgjennomforingEventProcessor(
                 get(),
                 get(),
@@ -155,9 +157,8 @@ private fun services(services: ServiceConfig, tokenClient: MachineToMachineToken
                 config = TiltakgjennomforingEventProcessor.Config(retryUpsertTimes = 10),
             ),
             TiltakdeltakerEventProcessor(get(), get(), get()),
-            TiltakshistorikkEventProcessor(get(), get(), get()),
-            SakEventProcessor(get()),
-            AvtaleInfoEventProcessor(get(), get(), get()),
+            // TODO: skru på etter at tjenesten er klar i dev og prod
+            // TiltakshistorikkEventProcessor(get(), get(), get()),
         )
         ArenaEventService(
             config = services.arenaEventService,
