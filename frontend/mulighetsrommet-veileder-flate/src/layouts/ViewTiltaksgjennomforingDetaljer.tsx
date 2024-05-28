@@ -4,12 +4,13 @@ import { PadlockLockedFillIcon } from "@navikt/aksel-icons";
 import { Alert, Tabs } from "@navikt/ds-react";
 import { VeilederflateTiltaksgjennomforing } from "mulighetsrommet-api-client";
 import { ReactNode, useState } from "react";
-import SidemenyDetaljer from "../components/sidemeny/SidemenyDetaljer";
+import SidemenyInfo from "../components/sidemeny/SidemenyInfo";
 import TiltaksdetaljerFane from "../components/tabs/TiltaksdetaljerFane";
 import TiltaksgjennomforingsHeader from "./TiltaksgjennomforingsHeader";
 import styles from "./ViewTiltaksgjennomforingDetaljer.module.scss";
 import { useInnsatsgrupper } from "@/api/queries/useInnsatsgrupper";
 import { EstimertVentetid } from "@/components/sidemeny/EstimertVentetid";
+import { SidemenyKanKombineresMed } from "@/components/sidemeny/SidemenyKanKombineresMed";
 
 interface Props {
   tiltaksgjennomforing: VeilederflateTiltaksgjennomforing;
@@ -26,6 +27,9 @@ export const ViewTiltaksgjennomforingDetaljer = ({
   const innsatsgrupper = useInnsatsgrupper();
 
   const [oppskriftId, setOppskriftId] = useState<string | undefined>(undefined);
+
+  // const harKombinasjon = tiltaksgjennomforing.tiltakstype.kanKombineresMed!.length > 0;
+  const harKombinasjon = true;
 
   if (!tiltaksgjennomforing) {
     return (
@@ -50,17 +54,19 @@ export const ViewTiltaksgjennomforingDetaljer = ({
           <Tabs size="small" defaultValue="info">
             <Tabs.List>
               <Tabs.Tab value="info" label="Info" />
-              <Tabs.Tab value="kombineres" label="Kan kombineres med" />
+              {harKombinasjon ? <Tabs.Tab value="kombineres" label="Kan kombineres med" /> : null}
             </Tabs.List>
             <Tabs.Panel value="info">
-              <SidemenyDetaljer
+              <SidemenyInfo
                 tiltaksgjennomforing={tiltaksgjennomforing}
                 innsatsgrupper={innsatsgrupper.data}
               />
             </Tabs.Panel>
-            <Tabs.Panel value="kombineres">
-              <>{/* TODO: Implement this*/}</>
-            </Tabs.Panel>
+            {harKombinasjon ? (
+              <Tabs.Panel value="kombineres">
+                <SidemenyKanKombineresMed tiltaksgjennomforing={tiltaksgjennomforing} />
+              </Tabs.Panel>
+            ) : null}
           </Tabs>
           <div className={styles.brukeractions_container}>{brukerActions}</div>
         </div>

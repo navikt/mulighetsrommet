@@ -2952,6 +2952,10 @@ components:
           type: string
         arenakode:
           $ref: "#/components/schemas/TiltakskodeArena"
+        kanKombineresMed:
+          type: array
+          items:
+            $ref: "#/components/schemas/Tiltakstype"
       required:
         - sanityId
         - navn

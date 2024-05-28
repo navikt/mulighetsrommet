@@ -9,14 +9,14 @@ import {
 import { formaterDato, utledLopenummerFraTiltaksnummer } from "@/utils/Utils";
 import Kopiknapp from "../kopiknapp/Kopiknapp";
 import Regelverksinfo from "./Regelverksinfo";
-import styles from "./Sidemenydetaljer.module.scss";
+import styles from "./SidemenyInfo.module.scss";
 
 interface Props {
   innsatsgrupper: VeilederflateInnsatsgruppe[];
   tiltaksgjennomforing: VeilederflateTiltaksgjennomforing;
 }
 
-const SidemenyDetaljer = ({ innsatsgrupper, tiltaksgjennomforing }: Props) => {
+const SidemenyInfo = ({ innsatsgrupper, tiltaksgjennomforing }: Props) => {
   const { tiltaksnummer, arrangor, tiltakstype, sluttdato, oppstartsdato, stedForGjennomforing } =
     tiltaksgjennomforing;
 
@@ -150,4 +150,4 @@ function resolveOppstart({ oppstart, oppstartsdato }: VeilederflateTiltaksgjenno
     : "Løpende";
 }
 
-export default SidemenyDetaljer;
+export default SidemenyInfo;

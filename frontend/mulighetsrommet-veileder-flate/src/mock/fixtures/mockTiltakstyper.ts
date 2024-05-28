@@ -166,6 +166,7 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
       Innsatsgruppe.GRADERT_VARIG_TILPASSET_INNSATS,
       Innsatsgruppe.VARIG_TILPASSET_INNSATS,
     ],
+    kanKombineresMed: [],
   },
   OpplaringEnkeltplassFagOgYrke: {
     sanityId: "222a0065-9777-4e09-b2cf-4f48759f86e3",
@@ -2911,6 +2912,7 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
     ],
     beskrivelse:
       "Avklaring skal kartlegge deltakerens muligheter for arbeid og behov for bistand til å skaffe eller beholde arbeid. Avklaringen skal bidra til at deltaker får økt innsikt i sine muligheter på arbeidsmarkedet og i egne ressurser og ferdigheter i jobbsammenheng.",
+    kanKombineresMed: [],
     faneinnhold: {
       forHvemInfoboks: 'Infoboks i fanen "For hvem"',
       pameldingOgVarighet: [
