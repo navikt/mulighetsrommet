@@ -31,6 +31,7 @@ data class TaskConfig(
 
 data class ServiceConfig(
     val mulighetsrommetApi: ServiceClientConfig,
+    val tiltakshistorikk: ServiceClientConfig,
     val arenaEventService: ArenaEventService.Config,
     val arenaOrdsProxy: ServiceClientConfig,
 )

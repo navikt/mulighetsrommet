@@ -72,6 +72,7 @@ spec:
     outbound:
       rules:
         - application: mulighetsrommet-api
+        - application: tiltakshistorikk
       external:
         - host: amt-arena-ords-proxy.prod-fss-pub.nais.io
         - host: slack.com

@@ -21,7 +21,6 @@ import no.nav.mulighetsrommet.arena.adapter.fixtures.TiltaksgjennomforingFixture
 import no.nav.mulighetsrommet.arena.adapter.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.arena.adapter.fixtures.createArenaAvtaleInfoEvent
 import no.nav.mulighetsrommet.arena.adapter.fixtures.createArenaTiltakgjennomforingEvent
-import no.nav.mulighetsrommet.arena.adapter.models.ProcessingResult
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaAvtaleInfo
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping
@@ -68,7 +67,7 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
         )
 
         fun createProcessor(engine: HttpClientEngine = createMockEngine()): TiltakgjennomforingEventProcessor {
-            val client = MulighetsrommetApiClient(engine, baseUri = "api") {
+            val client = MulighetsrommetApiClient(engine, baseUri = "") {
                 "Bearer token"
             }
 
@@ -171,7 +170,7 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
             }
 
             context("when tiltaksgjennomføring is individuelt tiltak") {
-                test("should ignore gjennomføringer when they're no longer relevant for tiltakshistorikk") {
+                test("should upsert gjennomføringer") {
                     val processor = createProcessor()
 
                     val eventWithOldSluttDato = createArenaTiltakgjennomforingEvent(
@@ -180,37 +179,19 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                     ) {
                         it.copy(DATO_TIL = dateBeforeTiltakshistorikkStartDate.format(ArenaTimestampFormatter))
                     }
-                    val eventWithOldRegDato = createArenaTiltakgjennomforingEvent(
+                    val eventCreatedAfterAktivitetsplanen = createArenaTiltakgjennomforingEvent(
                         Insert,
                         TiltaksgjennomforingFixtures.ArenaTiltaksgjennomforingIndividuell,
                     ) {
-                        it.copy(REG_DATO = dateBeforeTiltakshistorikkStartDate.format(ArenaTimestampFormatter))
+                        it.copy(REG_DATO = tiltakshistorikkStartDate.format(ArenaTimestampFormatter))
                     }
 
-                    forAll(row(eventWithOldSluttDato), row(eventWithOldRegDato)) { event ->
+                    forAll(row(eventWithOldSluttDato), row(eventCreatedAfterAktivitetsplanen)) { event ->
                         runBlocking {
                             val (e) = prepareEvent(event)
-                            processor.handleEvent(e) shouldBeRight ProcessingResult(
-                                Ignored,
-                                "Tiltaksgjennomføring ignorert fordi den ikke lengre er relevant for brukers tiltakshistorikk",
-                            )
+                            processor.handleEvent(e).shouldBeRight().should { it.status shouldBe Handled }
                         }
                     }
-                }
-
-                test("should upsert gjennomføringer created after Aktivitetsplanen") {
-                    val processor = createProcessor()
-
-                    val (event) = prepareEvent(
-                        createArenaTiltakgjennomforingEvent(
-                            Insert,
-                            TiltaksgjennomforingFixtures.ArenaTiltaksgjennomforingIndividuell,
-                        ) {
-                            it.copy(REG_DATO = tiltakshistorikkStartDate.format(ArenaTimestampFormatter))
-                        },
-                    )
-
-                    processor.handleEvent(event).shouldBeRight().should { it.status shouldBe Handled }
                 }
 
                 test("should not send gjennomføringer to mr-api") {
