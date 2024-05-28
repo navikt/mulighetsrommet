@@ -5,6 +5,7 @@ import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.data.blocking.forAll
 import io.kotest.data.row
+import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldHaveSingleElement
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
@@ -19,7 +20,6 @@ import no.nav.mulighetsrommet.arena.adapter.clients.ArenaOrdsProxyClientImpl
 import no.nav.mulighetsrommet.arena.adapter.createDatabaseTestConfig
 import no.nav.mulighetsrommet.arena.adapter.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.arena.adapter.fixtures.createArenaTiltakdeltakerEvent
-import no.nav.mulighetsrommet.arena.adapter.models.ProcessingResult
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTiltakdeltakerStatus
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping
@@ -188,30 +188,6 @@ class TiltakdeltakerEventProcessorTest : FunSpec({
                 }
             }
 
-            test("should be ignored when it's no longer relevant for brukers tiltakshistorikk") {
-                val datoBeforeTiltakshistorikkStart = LocalDateTime.now()
-                    .minus(Tiltakshistorikk.TiltakshistorikkTimePeriod)
-                    .minusDays(1)
-                    .format(ArenaTimestampFormatter)
-
-                val processor = createProcessor()
-
-                val eventWithOldSluttDato = createArenaTiltakdeltakerEvent(Insert) {
-                    it.copy(DATO_TIL = datoBeforeTiltakshistorikkStart)
-                }
-                val eventWithOldRegDato = createArenaTiltakdeltakerEvent(Insert) {
-                    it.copy(REG_DATO = datoBeforeTiltakshistorikkStart)
-                }
-                forAll(row(eventWithOldSluttDato), row(eventWithOldRegDato)) { event ->
-                    runBlocking {
-                        processor.handleEvent(event) shouldBeRight ProcessingResult(
-                            Ignored,
-                            "Deltaker ignorert fordi den ikke lengre er relevant for brukers tiltakshistorikk",
-                        )
-                    }
-                }
-            }
-
             test("should be ignored when dependent tiltaksgjennomforing is ignored") {
                 val processor = createProcessor()
 
@@ -261,6 +237,33 @@ class TiltakdeltakerEventProcessorTest : FunSpec({
                 database.assertThat("deltaker").row()
                     .value("id").isEqualTo(mapping.entityId)
                     .value("status").isEqualTo("AVSLUTTET")
+            }
+
+            test("should not write to API when it's no longer relevant for brukers tiltakshistorikk") {
+                val datoBeforeTiltakshistorikkStart = LocalDateTime.now()
+                    .minus(Tiltakshistorikk.TiltakshistorikkTimePeriod)
+                    .minusDays(1)
+                    .format(ArenaTimestampFormatter)
+
+                val engine = createMockEngine()
+                val processor = createProcessor(engine)
+
+                val eventWithOldSluttDato = createArenaTiltakdeltakerEvent(Insert) {
+                    it.copy(DATO_TIL = datoBeforeTiltakshistorikkStart)
+                }
+                val eventWithOldRegDato = createArenaTiltakdeltakerEvent(Insert) {
+                    it.copy(REG_DATO = datoBeforeTiltakshistorikkStart)
+                }
+
+                forAll(row(eventWithOldSluttDato), row(eventWithOldRegDato)) { event ->
+                    runBlocking {
+                        prepareEvent(event)
+
+                        processor.handleEvent(event).shouldBeRight().should { it.status shouldBe Handled }
+
+                        engine.requestHistory.shouldBeEmpty()
+                    }
+                }
             }
 
             test("should mark the event as Failed when arena ords proxy responds with an error") {
