@@ -2952,9 +2952,14 @@ components:
           type: string
         arenakode:
           $ref: "#/components/schemas/TiltakskodeArena"
+        kanKombineresMed:
+          type: array
+          items:
+            type: string
       required:
         - sanityId
         - navn
+        - kanKombineresMed
 
     VeilederflateTiltaksgjennomforing:
       type: object

@@ -12,7 +12,7 @@ Start Studio lokalt:
 
 ```
 npm install
-npm run start
+npm run dev
 ```
 
 ### Deploy Studio
