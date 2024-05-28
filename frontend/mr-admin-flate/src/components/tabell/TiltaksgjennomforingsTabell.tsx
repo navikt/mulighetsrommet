@@ -218,7 +218,7 @@ export function TiltaksgjennomforingsTabell({
                       </SkjulKolonne>
                       <Table.DataCell>
                         <VStack align={"center"}>
-                          {tiltaksgjennomforing.publisertForAlle ? (
+                          {tiltaksgjennomforing.publisert ? (
                             <Tag
                               aria-label="Tiltaket er publisert for alle"
                               title="Tiltaket er publisert for alle"

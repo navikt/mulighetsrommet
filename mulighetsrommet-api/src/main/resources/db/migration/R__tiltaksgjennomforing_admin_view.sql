@@ -21,8 +21,6 @@ select gjennomforing.id,
        gjennomforing.estimert_ventetid_enhet,
        gjennomforing.sted_for_gjennomforing,
        gjennomforing.publisert,
-       gjennomforing.publisert and gjennomforing.avbrutt_tidspunkt is null
-                                           as publisert_for_alle,
        gjennomforing.nav_region            as nav_region_enhetsnummer,
        nav_region.navn                     as nav_region_navn,
        nav_region.type                     as nav_region_type,

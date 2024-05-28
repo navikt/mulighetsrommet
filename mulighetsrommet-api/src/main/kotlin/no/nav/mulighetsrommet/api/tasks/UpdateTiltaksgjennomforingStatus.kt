@@ -51,6 +51,7 @@ class UpdateTiltaksgjennomforingStatus(
             tiltaksgjennomforinger.forEach { id ->
                 val gjennomforing = requireNotNull(tiltaksgjennomforingRepository.get(id))
                 tiltaksgjennomforingKafkaProducer.publish(TiltaksgjennomforingDto.from(gjennomforing))
+                tiltaksgjennomforingRepository.setPublisert(gjennomforing.id, false)
             }
 
             tiltaksgjennomforinger

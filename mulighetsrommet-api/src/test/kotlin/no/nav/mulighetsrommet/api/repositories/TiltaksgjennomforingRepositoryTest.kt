@@ -495,15 +495,15 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             val gjennomforing = Oppfolging1.copy(id = UUID.randomUUID())
             tiltaksgjennomforinger.upsert(gjennomforing)
             tiltaksgjennomforinger.setPublisert(gjennomforing.id, true)
-            tiltaksgjennomforinger.get(gjennomforing.id)?.publisertForAlle shouldBe true
+            tiltaksgjennomforinger.get(gjennomforing.id)?.publisert shouldBe true
 
             tiltaksgjennomforinger.setPublisert(gjennomforing.id, false)
-            tiltaksgjennomforinger.get(gjennomforing.id)?.publisertForAlle shouldBe false
+            tiltaksgjennomforinger.get(gjennomforing.id)?.publisert shouldBe false
 
             tiltaksgjennomforinger.setPublisert(gjennomforing.id, true)
             tiltaksgjennomforinger.avbryt(gjennomforing.id, LocalDateTime.now(), AvbruttAarsak.Feilregistrering)
 
-            tiltaksgjennomforinger.get(gjennomforing.id)?.publisertForAlle shouldBe false
+            tiltaksgjennomforinger.get(gjennomforing.id)?.publisert shouldBe false
         }
 
         test("faneinnhold") {

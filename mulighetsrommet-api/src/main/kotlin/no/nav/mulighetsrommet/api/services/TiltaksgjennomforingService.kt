@@ -90,6 +90,7 @@ class TiltaksgjennomforingService(
         avtaleId = filter.avtaleId,
         arrangorIds = filter.arrangorIds,
         administratorNavIdent = filter.administratorNavIdent,
+        publisert = filter.publisert,
         /**
          * Hardkodet filter så man kun viser relevante gjennomføringer i Tiltaksadmin
          */

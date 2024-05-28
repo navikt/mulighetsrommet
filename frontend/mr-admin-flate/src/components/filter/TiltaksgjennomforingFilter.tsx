@@ -205,6 +205,34 @@ export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
             />
           </Accordion.Content>
         </Accordion.Item>
+        <Accordion.Item open={accordionsOpen.includes("publiserteStatuser")}>
+          <Accordion.Header
+            onClick={() => {
+              setAccordionsOpen([...addOrRemove(accordionsOpen, "publiserteStatuser")]);
+            }}
+          >
+            <FilterAccordionHeader
+              tittel="Publisert"
+              antallValgteFilter={filter.publisert.length}
+            />
+          </Accordion.Header>
+          <Accordion.Content>
+            <CheckboxList
+              items={[
+                { value: "publisert", label: "Publisert" },
+                { value: "ikke-publisert", label: "Ikke publisert" },
+              ]}
+              isChecked={(id) => filter.publisert.includes(id)}
+              onChange={(id) => {
+                setFilter({
+                  ...filter,
+                  page: 1,
+                  publisert: addOrRemove(filter.publisert, id),
+                });
+              }}
+            />
+          </Accordion.Content>
+        </Accordion.Item>
       </Accordion>
     </>
   );

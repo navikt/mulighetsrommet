@@ -411,6 +411,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         administratorNavIdent: NavIdent? = null,
         skalMigreres: Boolean? = null,
         opphav: ArenaMigrering.Opphav? = null,
+        publisert: Boolean? = null,
     ): PaginatedResult<TiltaksgjennomforingAdminDto> {
         val parameters = mapOf(
             "search" to search?.replace("/", "#")?.trim()?.let { "%$it%" },
@@ -424,6 +425,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             "administrator_nav_ident" to administratorNavIdent?.let { """[{ "navIdent": "${it.value}" }]""" },
             "skal_migreres" to skalMigreres,
             "opphav" to opphav?.name,
+            "publisert" to publisert,
         )
 
         val order = when (sortering) {
@@ -439,8 +441,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             "startdato-descending" -> "start_dato desc"
             "sluttdato-ascending" -> "slutt_dato asc"
             "sluttdato-descending" -> "slutt_dato desc"
-            "publisert-ascending" -> "publisert_for_alle asc"
-            "publisert-descending" -> "publisert_for_alle desc"
+            "publisert-ascending" -> "publisert asc"
+            "publisert-descending" -> "publisert desc"
             else -> "navn, id"
         }
 
@@ -464,6 +466,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
               and (:skal_migreres::boolean is null or tiltakstype_tiltakskode is not null)
               and (:opphav::opphav is null or opphav = :opphav::opphav)
               and (:statuser::text[] is null or status = any(:statuser))
+              and (:publisert::boolean is null or publisert = :publisert::boolean)
             order by $order
             limit :limit
             offset :offset
@@ -535,7 +538,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 left join avtale a on a.id = gjennomforing.avtale_id
             where tiltakstype.tiltakskode is not null
               and gjennomforing.publisert
-              and gjennomforing.avbrutt_tidspunkt is null and (gjennomforing.slutt_dato is null or gjennomforing.slutt_dato > now())
               and (:search::text is null or ((lower(gjennomforing.navn) like lower(:search)) or (gjennomforing.tiltaksnummer like :search)))
               and (:sanityTiltakstypeIds::uuid[] is null or tiltakstype.sanity_id = any(:sanityTiltakstypeIds))
               and (:innsatsgruppe::innsatsgruppe is null or :innsatsgruppe::innsatsgruppe = any(tiltakstype.innsatsgrupper))
@@ -668,7 +670,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         val query = """
             update tiltaksgjennomforing set
                 avbrutt_tidspunkt = :tidspunkt,
-                avbrutt_aarsak = :aarsak
+                avbrutt_aarsak = :aarsak,
+                publisert = false
             where id = :id::uuid
         """.trimIndent()
 
@@ -823,7 +826,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             },
             stedForGjennomforing = stringOrNull("sted_for_gjennomforing"),
             publisert = boolean("publisert"),
-            publisertForAlle = boolean("publisert_for_alle"),
             navRegion = stringOrNull("nav_region_enhetsnummer")?.let {
                 NavEnhetDbo(
                     enhetsnummer = it,

@@ -155,6 +155,7 @@ const tiltaksgjennomforingFilterSchema = z.object({
   avtale: z.string(),
   arrangorer: z.string().array(),
   visMineGjennomforinger: z.boolean(),
+  publisert: z.string().array(),
   page: z.number(),
   pageSize: z.number(),
 });
@@ -168,6 +169,7 @@ export const defaultTiltaksgjennomforingfilter: TiltaksgjennomforingFilter = {
   sortering: SorteringTiltaksgjennomforinger.NAVN_ASCENDING,
   avtale: "",
   arrangorer: [],
+  publisert: [],
   visMineGjennomforinger: false,
   page: 1,
   pageSize: PAGE_SIZE,
