@@ -436,7 +436,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
           <FormGroup>
             <TiltaksgjennomforingArrangorSkjema readOnly={eierIkkeGjennomforing} avtale={avtale} />
           </FormGroup>
-          {enableTilgjengeligForArrangor && watch("oppstart") === "LOPENDE" ? (
+          {enableTilgjengeligForArrangor && watch("startOgSluttDato.startDato") ? (
             <TiltakTilgjengeligForArrangor
               gjennomforingStartdato={new Date(watch("startOgSluttDato.startDato"))}
               lagretDatoForTilgjengeligForArrangor={

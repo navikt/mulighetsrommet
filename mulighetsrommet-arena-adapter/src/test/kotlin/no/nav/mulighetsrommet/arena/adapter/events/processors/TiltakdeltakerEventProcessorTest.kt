@@ -236,8 +236,8 @@ class TiltakdeltakerEventProcessorTest : FunSpec({
 
                 val engine = createMockEngine(
                     "/ords/fnr" to { respondJson(ArenaOrdsFnr("12345678910")) },
-                    "/api/v1/internal/arena/tiltakshistorikk" to { respondOk() },
-                    "/api/v1/internal/arena/tiltakshistorikk/${mapping.entityId}" to { respondOk() },
+                    "/api/v1/intern/arena/tiltakshistorikk" to { respondOk() },
+                    "/api/v1/intern/arena/tiltakshistorikk/${mapping.entityId}" to { respondOk() },
                 )
                 val processor = createProcessor(engine)
 
@@ -266,7 +266,7 @@ class TiltakdeltakerEventProcessorTest : FunSpec({
             test("should mark the event as Failed when arena ords proxy responds with an error") {
                 val engine = createMockEngine(
                     "/ords/fnr" to { respondError(HttpStatusCode.InternalServerError) },
-                    "/api/v1/internal/arena/deltaker" to { respondOk() },
+                    "/api/v1/intern/arena/deltaker" to { respondOk() },
                 )
                 val processor = createProcessor(engine)
 
@@ -281,7 +281,7 @@ class TiltakdeltakerEventProcessorTest : FunSpec({
             test("should mark the event as Invalid when arena ords proxy responds with NotFound") {
                 val engine = createMockEngine(
                     "/ords/fnr" to { respondError(HttpStatusCode.NotFound) },
-                    "/api/v1/internal/arena/tiltakshistorikk" to { respondOk() },
+                    "/api/v1/intern/arena/tiltakshistorikk" to { respondOk() },
                 )
 
                 val processor = createProcessor(engine)
@@ -295,7 +295,7 @@ class TiltakdeltakerEventProcessorTest : FunSpec({
             test("should mark the event as Failed when api responds with an error") {
                 val engine = createMockEngine(
                     "/ords/fnr" to { respondJson(ArenaOrdsFnr("12345678910")) },
-                    "/api/v1/internal/arena/tiltakshistorikk" to {
+                    "/api/v1/intern/arena/tiltakshistorikk" to {
                         respondError(
                             HttpStatusCode.InternalServerError,
                         )
@@ -316,8 +316,8 @@ class TiltakdeltakerEventProcessorTest : FunSpec({
 
                 val engine = createMockEngine(
                     "/ords/fnr" to { respondJson(ArenaOrdsFnr("12345678910")) },
-                    "/api/v1/internal/arena/tiltakshistorikk" to { respondOk() },
-                    "/api/v1/internal/arena/tiltakshistorikk/${mapping.entityId}" to { respondOk() },
+                    "/api/v1/intern/arena/tiltakshistorikk" to { respondOk() },
+                    "/api/v1/intern/arena/tiltakshistorikk/${mapping.entityId}" to { respondOk() },
                 )
                 val processor = createProcessor(engine)
 
@@ -346,7 +346,7 @@ class TiltakdeltakerEventProcessorTest : FunSpec({
             test("should include arbeidsgiver from ORDS when deltakelse is individuelt tiltak") {
                 val engine = createMockEngine(
                     "/ords/fnr" to { respondJson(ArenaOrdsFnr("12345678910")) },
-                    "/api/v1/internal/arena/tiltakshistorikk" to { respondOk() },
+                    "/api/v1/intern/arena/tiltakshistorikk" to { respondOk() },
                     "/ords/arbeidsgiver" to {
                         respondJson(
                             ArenaOrdsArrangor("123456", "000000"),
@@ -384,8 +384,8 @@ class TiltakdeltakerEventProcessorTest : FunSpec({
             test("should call api with deltaker when deltakelse has opphav=Arena") {
                 val engine = createMockEngine(
                     "/ords/fnr" to { respondJson(ArenaOrdsFnr("12345678910")) },
-                    "/api/v1/internal/arena/tiltakshistorikk" to { respondOk() },
-                    "/api/v1/internal/arena/deltaker" to { respondOk() },
+                    "/api/v1/intern/arena/tiltakshistorikk" to { respondOk() },
+                    "/api/v1/intern/arena/deltaker" to { respondOk() },
                 )
                 val processor = createProcessor(engine)
 
@@ -400,13 +400,13 @@ class TiltakdeltakerEventProcessorTest : FunSpec({
 
                 engine.requestHistory shouldHaveSingleElement {
                     it.method == HttpMethod.Put &&
-                        it.url.encodedPath == "/api/v1/internal/arena/tiltakshistorikk" &&
+                        it.url.encodedPath == "/api/v1/intern/arena/tiltakshistorikk" &&
                         it.decodeRequestBody<ArenaTiltakshistorikkDbo>().id == mapping.entityId
                 }
 
                 engine.requestHistory shouldHaveSingleElement {
                     it.method == HttpMethod.Put &&
-                        it.url.encodedPath == "/api/v1/internal/arena/deltaker" &&
+                        it.url.encodedPath == "/api/v1/intern/arena/deltaker" &&
                         it.decodeRequestBody<DeltakerDbo>().id == mapping.entityId
                 }
             }

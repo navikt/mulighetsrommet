@@ -101,9 +101,9 @@ class TiltakdeltakerEventProcessor(
         .toTiltakshistorikkDbo(tiltakstype, tiltaksgjennomforing, norskIdent)
         .flatMap { tiltakshistorikk ->
             if (event.operation == ArenaEvent.Operation.Delete) {
-                client.request<Any>(HttpMethod.Delete, "/api/v1/internal/arena/tiltakshistorikk/${tiltakshistorikk.id}")
+                client.request<Any>(HttpMethod.Delete, "/api/v1/intern/arena/tiltakshistorikk/${tiltakshistorikk.id}")
             } else {
-                client.request(HttpMethod.Put, "/api/v1/internal/arena/tiltakshistorikk", tiltakshistorikk)
+                client.request(HttpMethod.Put, "/api/v1/intern/arena/tiltakshistorikk", tiltakshistorikk)
             }.mapLeft {
                 ProcessingError.fromResponseException(it)
             }
@@ -117,9 +117,9 @@ class TiltakdeltakerEventProcessor(
         val dbo = deltaker.toDeltakerDbo(tiltaksgjennomforing)
 
         return if (event.operation == ArenaEvent.Operation.Delete) {
-            client.request<Any>(HttpMethod.Delete, "/api/v1/internal/arena/deltaker/${dbo.id}")
+            client.request<Any>(HttpMethod.Delete, "/api/v1/intern/arena/deltaker/${dbo.id}")
         } else {
-            client.request(HttpMethod.Put, "/api/v1/internal/arena/deltaker", dbo)
+            client.request(HttpMethod.Put, "/api/v1/intern/arena/deltaker", dbo)
         }.mapLeft {
             ProcessingError.fromResponseException(it)
         }
@@ -128,11 +128,11 @@ class TiltakdeltakerEventProcessor(
     override suspend fun deleteEntity(event: ArenaEvent): Either<ProcessingError, Unit> = either {
         val mapping = entities.getMapping(event.arenaTable, event.arenaId).bind()
 
-        client.request<Any>(HttpMethod.Delete, "/api/v1/internal/arena/tiltakshistorikk/${mapping.entityId}")
+        client.request<Any>(HttpMethod.Delete, "/api/v1/intern/arena/tiltakshistorikk/${mapping.entityId}")
             .mapLeft { ProcessingError.fromResponseException(it) }
             .bind()
 
-        client.request<Any>(HttpMethod.Delete, "/api/v1/internal/arena/deltaker/${mapping.entityId}")
+        client.request<Any>(HttpMethod.Delete, "/api/v1/intern/arena/deltaker/${mapping.entityId}")
             .mapLeft { ProcessingError.fromResponseException(it) }
             .bind()
 

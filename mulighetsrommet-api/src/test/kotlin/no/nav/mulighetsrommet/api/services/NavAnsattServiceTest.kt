@@ -374,6 +374,7 @@ class NavAnsattServiceTest : FunSpec({
                     id = UUID.randomUUID(),
                     navn = "",
                     arenaKode = "",
+                    tiltakskode = null,
                 ),
                 arrangor = AvtaleAdminDto.ArrangorHovedenhet(
                     id = UUID.randomUUID(),

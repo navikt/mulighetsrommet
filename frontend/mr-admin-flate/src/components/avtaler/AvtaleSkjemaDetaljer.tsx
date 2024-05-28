@@ -42,6 +42,7 @@ import { AvtaleArrangorSkjema } from "./AvtaleArrangorSkjema";
 import { getLokaleUnderenheterAsSelectOptions } from "./AvtaleSkjemaConst";
 
 const minStartdato = new Date(2000, 0, 1);
+const nusDataVersjon = "2437";
 
 interface Props {
   tiltakstyper: Tiltakstype[];
@@ -159,6 +160,7 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
                     arenaKode: tiltakstype.arenaKode,
                     navn: tiltakstype.navn,
                     id: tiltakstype.id,
+                    tiltakskode: tiltakstype.tiltakskode,
                   },
                   label: !migrerteTiltakstyper?.includes(tiltakstype.arenaKode)
                     ? `${tiltakstype.navn} må opprettes i Arena`
@@ -175,7 +177,9 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
                 options={arenaKode ? avtaletypeOptions(arenaKode) : []}
               />
             </HGrid>
-            {watch("tiltakstype")?.arenaKode === "GRUFAGYRKE" ? <AvtaleKategoriVelger /> : null}
+            {watch("tiltakstype")?.tiltakskode === Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING ? (
+              <AvtaleKategoriVelger />
+            ) : null}
           </FormGroup>
 
           <FormGroup>
@@ -333,11 +337,7 @@ function AvtaleKategoriVelger() {
     formState: { errors },
   } = useFormContext<InferredAvtaleSchema>();
 
-  const { data, isLoading, isError } = useNusData(
-    Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
-    "2437",
-  ); // TODO Ikke hardkode tiltakstype eller versjon
-
+  const { data, isLoading, isError } = useNusData(watch("tiltakstype.tiltakskode"), nusDataVersjon);
   if (!data?.data || isLoading) {
     return <Loader />;
   }

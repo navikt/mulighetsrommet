@@ -12,7 +12,7 @@ import java.util.*
 
 fun Route.tiltakshistorikkRoutes(deltakerRepository: DeltakerRepository) {
     authenticate {
-        route("/api/v1/internal/arena") {
+        route("/api/v1/intern/arena") {
             put("/deltaker") {
                 val dbo = call.receive<ArenaDeltakerDbo>()
 

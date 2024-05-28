@@ -23,7 +23,11 @@ const NavKontaktpersonInfo = ({ kontaktinfo }: NavKontaktpersonInfoProps) => {
   return (
     <div className={styles.tiltaksansvarlig_info}>
       {varsler.includes(KontaktinfoVarsel.IKKE_TILGANG_TIL_KONTAKTINFO) ? (
-        <Alert variant="info">På grunn av personvern kan ikke kontaktinformasjonen vises</Alert>
+        <Alert variant="info">
+          På grunn av personvernhensyn kan vi ikke vise kontaktinformasjon til arrangør eller
+          tiltaksansvarlig her i åpen løsning. Hvis du har tilgang til Modia kan du finne
+          kontaktinformasjon til arrangør eller tiltaksansvarlig der.
+        </Alert>
       ) : tiltaksansvarlige.length === 0 ? (
         <Alert variant="info">Kontaktinfo til tiltaksansvarlig er ikke lagt inn</Alert>
       ) : (

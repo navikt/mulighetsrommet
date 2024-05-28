@@ -56,7 +56,7 @@ class TiltaksgjennomforingRoutesTest : FunSpec({
             auth = createAuthConfig(oauth, roles = listOf()),
         )
         withTestApplication(config) {
-            val response = client.put("/api/v1/internal/tiltaksgjennomforinger")
+            val response = client.put("/api/v1/intern/tiltaksgjennomforinger")
             response.status shouldBe HttpStatusCode.Unauthorized
         }
     }
@@ -68,7 +68,7 @@ class TiltaksgjennomforingRoutesTest : FunSpec({
             auth = createAuthConfig(oauth, roles = listOf(tiltaksgjennomforingSkrivRolle)),
         )
         withTestApplication(config) {
-            val response = client.put("/api/v1/internal/tiltaksgjennomforinger") {
+            val response = client.put("/api/v1/intern/tiltaksgjennomforinger") {
                 val claims = mapOf(
                     "NAVident" to "ABC123",
                     "groups" to emptyList<String>(),
@@ -93,7 +93,7 @@ class TiltaksgjennomforingRoutesTest : FunSpec({
             ),
         )
         withTestApplication(config) {
-            val response = client.put("/api/v1/internal/tiltaksgjennomforinger") {
+            val response = client.put("/api/v1/intern/tiltaksgjennomforinger") {
                 val claims = mapOf(
                     "NAVident" to "ABC123",
                     "groups" to listOf(tiltaksgjennomforingSkrivRolle.adGruppeId),
@@ -132,7 +132,7 @@ class TiltaksgjennomforingRoutesTest : FunSpec({
                 row(TiltakstypeFixtures.Oppfolging, HttpStatusCode.OK),
                 row(TiltakstypeFixtures.VTA, HttpStatusCode.BadRequest),
             ) { tiltakstype, status ->
-                val response = client.put("/api/v1/internal/tiltaksgjennomforinger") {
+                val response = client.put("/api/v1/intern/tiltaksgjennomforinger") {
                     val claims = mapOf(
                         "NAVident" to "ABC123",
                         "groups" to listOf(
@@ -164,7 +164,7 @@ class TiltaksgjennomforingRoutesTest : FunSpec({
             database = databaseConfig,
         )
         withTestApplication(config) {
-            val response = client.get("/api/v1/internal/tiltaksgjennomforinger") {
+            val response = client.get("/api/v1/intern/tiltaksgjennomforinger") {
                 val claims = mapOf(
                     "NAVident" to "ABC123",
                 )

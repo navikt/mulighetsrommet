@@ -12,6 +12,7 @@ export interface Props {
   format: "date" | "iso-string";
   placeholder?: string;
   invalidDatoEtterPeriode?: string;
+  invalidDatoForTidlig?: string;
 }
 
 export const ControlledDateInput = forwardRef(function ControlledDateInput(
@@ -29,6 +30,7 @@ export const ControlledDateInput = forwardRef(function ControlledDateInput(
     toDate,
     placeholder,
     invalidDatoEtterPeriode,
+    invalidDatoForTidlig,
     ...rest
   } = props;
 
@@ -51,6 +53,7 @@ export const ControlledDateInput = forwardRef(function ControlledDateInput(
               readOnly={readOnly}
               placeholder={placeholder}
               invalidDatoEtterPeriode={invalidDatoEtterPeriode}
+              invalidDatoForTidlig={invalidDatoForTidlig}
               value={value}
             />
           );

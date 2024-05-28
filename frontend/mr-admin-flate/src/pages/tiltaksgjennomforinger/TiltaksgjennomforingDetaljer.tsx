@@ -323,29 +323,24 @@ export function TiltaksgjennomforingDetaljer({ tiltaksgjennomforing, avtale }: P
               </Bolk>
             </>
           )}
-          <Separator />
           {enableTilgjengeligForArrangor &&
-          tiltaksgjennomforing?.tilgjengeligForArrangorFraOgMedDato ? (
+          tiltaksgjennomforing?.tilgjengeligForArrangorFraOgMedDato &&
+          new Date() < new Date(tiltaksgjennomforing?.startDato) ? (
             <>
               <Alert variant="info">
                 <Heading spacing size="small" level="3">
                   Når ser arrangør tiltaket?
                 </Heading>
-                Arrangør vil ha tilgang til tiltaket i Deltakeroversikten på nav.no{" "}
-                <abbr title="Fra og med">fom.</abbr>{" "}
+                Arrangør vil ha tilgang til tiltaket i Deltakeroversikten på nav.no fra{" "}
                 {formaterDato(new Date(tiltaksgjennomforing.tilgjengeligForArrangorFraOgMedDato))}
               </Alert>
             </>
           ) : null}
         </div>
-        <div className={styles.detaljer}>
-          <NokkeltallDeltakere tiltaksgjennomforingId={tiltaksgjennomforing.id} />
-        </div>
       </div>
       {!erArenaOpphavOgIngenEierskap(tiltaksgjennomforing, migrerteTiltakstyper) &&
         gjennomforingIsActive && (
           <>
-            <Separator />
             <HarSkrivetilgang ressurs="Tiltaksgjennomføring">
               <Button
                 size="small"
@@ -361,6 +356,7 @@ export function TiltaksgjennomforingDetaljer({ tiltaksgjennomforing, avtale }: P
             />
           </>
         )}
+      <NokkeltallDeltakere tiltaksgjennomforingId={tiltaksgjennomforing.id} />
     </>
   );
 }

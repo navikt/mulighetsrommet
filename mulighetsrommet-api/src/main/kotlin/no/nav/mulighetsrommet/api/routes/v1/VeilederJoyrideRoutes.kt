@@ -15,7 +15,7 @@ import org.koin.ktor.ext.inject
 fun Route.veilederJoyrideRoutes() {
     val veilederJoyrideRepository: VeilederJoyrideRepository by inject()
 
-    route("/api/v1/internal/joyride") {
+    route("/api/v1/intern/joyride") {
         post("lagre") {
             val request = call.receive<VeilederJoyrideRequest>()
             veilederJoyrideRepository.upsert(

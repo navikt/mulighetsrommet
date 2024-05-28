@@ -228,13 +228,14 @@ class TiltakstypeRepository(private val db: Database) {
             ?: emptySet()
 
         val personopplysninger = Json.decodeFromString<List<PersonopplysningMedFrekvens>>(string("personopplysninger"))
-            .groupBy({ it.frekvens }, { it.personopplysning.toPersonopplysningMedBeskrivelse() })
+            .groupBy({ it.frekvens }, { it.personopplysning.toPersonopplysningMedBeskrivelse(it.hjelpetekst) })
 
         return TiltakstypeAdminDto(
             id = uuid("id"),
             navn = string("navn"),
             innsatsgrupper = innsatsgrupper,
             arenaKode = string("arena_kode"),
+            tiltakskode = stringOrNull("tiltakskode")?.let { Tiltakskode.valueOf(it) },
             startDato = localDate("start_dato"),
             sluttDato = localDateOrNull("slutt_dato"),
             sanityId = uuidOrNull("sanity_id"),

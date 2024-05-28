@@ -22,7 +22,7 @@ fun Route.arenaAdapterRoutes() {
 
     val arenaAdapterService: ArenaAdapterService by inject()
 
-    route("/api/v1/internal/arena/") {
+    route("/api/v1/intern/arena/") {
         put("avtale") {
             val dbo = call.receive<ArenaAvtaleDbo>()
 

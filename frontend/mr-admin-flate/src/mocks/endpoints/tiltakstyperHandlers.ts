@@ -13,16 +13,16 @@ import {
 import { mockAvtaler } from "../fixtures/mock_avtaler";
 
 export const tiltakstypeHandlers = [
-  http.get<PathParams, PaginertTiltakstype>("*/api/v1/internal/tiltakstyper", () => {
+  http.get<PathParams, PaginertTiltakstype>("*/api/v1/intern/tiltakstyper", () => {
     return HttpResponse.json(paginertMockTiltakstyper);
   }),
 
-  http.get<PathParams, string[]>("*/api/v1/internal/tiltakstyper/migrerte", () => {
+  http.get<PathParams, string[]>("*/api/v1/intern/tiltakstyper/migrerte", () => {
     return HttpResponse.json(mockMigrerteTiltakstyper);
   }),
 
   http.get<{ id: string }, Tiltakstype | undefined>(
-    "*/api/v1/internal/tiltakstyper/:id",
+    "*/api/v1/intern/tiltakstyper/:id",
     ({ params }) => {
       const { id } = params;
       return HttpResponse.json(paginertMockTiltakstyper.data.find((gj) => gj.id === id));
@@ -30,14 +30,14 @@ export const tiltakstypeHandlers = [
   ),
 
   http.get<{ id: string }, VeilederflateTiltakstype | undefined>(
-    "*/api/v1/internal/tiltakstyper/:id/faneinnhold",
+    "*/api/v1/intern/tiltakstyper/:id/faneinnhold",
     () => {
       return HttpResponse.json(mockVeilederflateTiltakstypeAFT);
     },
   ),
 
   http.get<{ id: string }, PaginertAvtale>(
-    "*/api/v1/internal/avtaler/tiltakstype/:id",
+    "*/api/v1/intern/avtaler/tiltakstype/:id",
     ({ params }) => {
       const { id } = params;
       const avtaler = mockAvtaler.filter((a) => a.tiltakstype.id === id) ?? [];

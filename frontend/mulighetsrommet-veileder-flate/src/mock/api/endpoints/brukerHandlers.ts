@@ -15,7 +15,7 @@ import { utkastFraKomet } from "@/mock/fixtures/utkastFraKomet";
 
 export const brukerHandlers = [
   http.post<PathParams, GetBrukerRequest, Bruker | String>(
-    "*/api/v1/internal/bruker",
+    "*/api/v1/intern/bruker",
     async ({ request }) => {
       const { norskIdent } = await request.json();
 
@@ -51,11 +51,11 @@ export const brukerHandlers = [
     },
   ),
 
-  http.post<PathParams, HistorikkForBruker[]>("*/api/v1/internal/bruker/historikk", () =>
+  http.post<PathParams, HistorikkForBruker[]>("*/api/v1/intern/bruker/historikk", () =>
     HttpResponse.json(historikk),
   ),
 
-  http.post<PathParams, BrukerdataV2, BrukerdataV2>("*/api/v1/internal/bruker/historikk/ny", () =>
+  http.post<PathParams, BrukerdataV2, BrukerdataV2>("*/api/v1/intern/bruker/historikk/ny", () =>
     HttpResponse.json({ historikk: historikkFraKomet, aktive: utkastFraKomet }),
   ),
 ];

@@ -9,7 +9,7 @@ import { mockDeltMedBruker } from "../../fixtures/mockDeltMedBruker";
 
 export const delMedBrukerHandlers = [
   http.put<PathParams, DelMedBruker, DelMedBruker>(
-    "*/api/v1/internal/del-med-bruker",
+    "*/api/v1/intern/del-med-bruker",
     async ({ request }) => {
       const data = (await request.json()) as DelMedBruker;
       return HttpResponse.json(data);
@@ -17,7 +17,7 @@ export const delMedBrukerHandlers = [
   ),
 
   http.post<PathParams, GetDelMedBrukerRequest>(
-    "*/api/v1/internal/del-med-bruker",
+    "*/api/v1/intern/del-med-bruker",
     async ({ request }) => {
       const data = (await request.json()) as GetDelMedBrukerRequest;
 
@@ -34,13 +34,13 @@ export const delMedBrukerHandlers = [
   ),
 
   http.post<PathParams, GetAlleDeltMedBrukerRequest, DelMedBruker[]>(
-    "*/api/v1/internal/del-med-bruker/alle",
+    "*/api/v1/intern/del-med-bruker/alle",
     () => {
       return HttpResponse.json(mockDeltMedBruker);
     },
   ),
 
-  http.post<PathParams, DialogResponse>("*/api/v1/internal/dialog", () =>
+  http.post<PathParams, DialogResponse>("*/api/v1/intern/dialog", () =>
     HttpResponse.json({
       id: "12345",
     }),

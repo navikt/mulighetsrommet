@@ -874,7 +874,11 @@ class AvtaleRepositoryTest : FunSpec({
             ) { startDato, sluttDato, avbruttDato, expectedStatus ->
                 avtaler.upsert(AvtaleFixtures.oppfolging.copy(startDato = startDato, sluttDato = sluttDato))
 
-                avtaler.avbryt(AvtaleFixtures.oppfolging.id, avbruttDato.atStartOfDay(), AvbruttAarsak.Annet("Min årsak"))
+                avtaler.avbryt(
+                    AvtaleFixtures.oppfolging.id,
+                    avbruttDato.atStartOfDay(),
+                    AvbruttAarsak.Annet("Min årsak"),
+                )
 
                 avtaler.get(AvtaleFixtures.oppfolging.id).shouldNotBeNull().status.enum shouldBe expectedStatus
             }
@@ -977,22 +981,26 @@ class AvtaleRepositoryTest : FunSpec({
                     PersonopplysningMedBeskrivelse(
                         personopplysning = Personopplysning.NAVN,
                         beskrivelse = "Navn",
+                        hjelpetekst = null,
                     ),
                     PersonopplysningMedBeskrivelse(
                         personopplysning = Personopplysning.KJONN,
                         beskrivelse = "Kjønn",
+                        hjelpetekst = null,
                     ),
                 ),
                 PersonopplysningFrekvens.OFTE to listOf(
                     PersonopplysningMedBeskrivelse(
                         personopplysning = Personopplysning.IP_ADRESSE,
                         beskrivelse = "IP-adresse",
+                        hjelpetekst = null,
                     ),
                 ),
                 PersonopplysningFrekvens.SJELDEN to listOf(
                     PersonopplysningMedBeskrivelse(
                         personopplysning = Personopplysning.ADFERD,
                         beskrivelse = "Opplysninger om atferd som kan ha betydning for tiltaksgjennomføring og jobbmuligheter (eks. truende adferd, vanskelig å samarbeide med osv.)",
+                        hjelpetekst = null,
                     ),
                 ),
             )

@@ -19,6 +19,7 @@ import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.PaginatedResult
 import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.database.utils.mapPaginated
+import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.ArenaAvtaleDbo
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
@@ -562,6 +563,7 @@ class AvtaleRepository(private val db: Database) {
                 id = uuid("tiltakstype_id"),
                 navn = string("tiltakstype_navn"),
                 arenaKode = string("tiltakstype_arena_kode"),
+                tiltakskode = stringOrNull("tiltakstype_tiltakskode")?.let { Tiltakskode.valueOf(it) },
             ),
             personopplysninger = personopplysninger,
             personvernBekreftet = boolean("personvern_bekreftet"),
@@ -617,7 +619,7 @@ class AvtaleRepository(private val db: Database) {
     fun getBehandlingAvPersonopplysninger(id: UUID): Map<PersonopplysningFrekvens, List<PersonopplysningMedBeskrivelse>> {
         @Language("PostgreSQL")
         val valgtePersonopplysningerQuery = """
-            select tp.personopplysning, tp.frekvens
+            select tp.personopplysning, tp.frekvens, tp.hjelpetekst
             from avtale
                 inner join tiltakstype on tiltakstype.id = avtale.tiltakstype_id
                 inner join avtale_personopplysning ap on avtale.id = ap.avtale_id
@@ -633,6 +635,8 @@ class AvtaleRepository(private val db: Database) {
                 PersonopplysningMedFrekvens(
                     personopplysning = Personopplysning.valueOf(it.string("personopplysning")),
                     frekvens = PersonopplysningFrekvens.valueOf(it.string("frekvens")),
+                    hjelpetekst = it.stringOrNull("hjelpetekst"),
+
                 )
             }
             .asList
@@ -641,13 +645,13 @@ class AvtaleRepository(private val db: Database) {
         return mapOf(
             PersonopplysningFrekvens.ALLTID to valgtePersonopplysninger
                 .filter { it.frekvens == PersonopplysningFrekvens.ALLTID }
-                .map { it.personopplysning.toPersonopplysningMedBeskrivelse() },
+                .map { it.personopplysning.toPersonopplysningMedBeskrivelse(it.hjelpetekst) },
             PersonopplysningFrekvens.OFTE to valgtePersonopplysninger
                 .filter { it.frekvens == PersonopplysningFrekvens.OFTE }
-                .map { it.personopplysning.toPersonopplysningMedBeskrivelse() },
+                .map { it.personopplysning.toPersonopplysningMedBeskrivelse(it.hjelpetekst) },
             PersonopplysningFrekvens.SJELDEN to valgtePersonopplysninger
                 .filter { it.frekvens == PersonopplysningFrekvens.SJELDEN }
-                .map { it.personopplysning.toPersonopplysningMedBeskrivelse() },
+                .map { it.personopplysning.toPersonopplysningMedBeskrivelse(it.hjelpetekst) },
         )
     }
 }

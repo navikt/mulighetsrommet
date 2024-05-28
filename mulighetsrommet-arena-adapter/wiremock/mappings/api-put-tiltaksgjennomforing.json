@@ -1,7 +1,7 @@
 {
   "request": {
     "method": "PUT",
-    "urlPattern": "/api/v1/internal/arena/tiltaksgjennomforinger"
+    "urlPattern": "/api/v1/intern/arena/tiltaksgjennomforinger"
   },
   "response": {
     "status": 200,

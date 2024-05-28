@@ -260,8 +260,8 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                             ArenaOrdsArrangor("123456", "000000"),
                         )
                     },
-                    "/api/v1/internal/arena/tiltaksgjennomforing" to { respondOk() },
-                    "/api/v1/internal/arena/tiltaksgjennomforing/${mapping.entityId}" to { respondOk() },
+                    "/api/v1/intern/arena/tiltaksgjennomforing" to { respondOk() },
+                    "/api/v1/intern/arena/tiltaksgjennomforing/${mapping.entityId}" to { respondOk() },
                 )
                 val processor = createProcessor(engine)
 
@@ -328,7 +328,7 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                             ArenaOrdsArrangor("123456", "000000"),
                         )
                     },
-                    "/api/v1/internal/arena/tiltaksgjennomforing" to {
+                    "/api/v1/intern/arena/tiltaksgjennomforing" to {
                         respondError(HttpStatusCode.InternalServerError)
                     },
                 )
@@ -359,8 +359,8 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                             ArenaOrdsArrangor("123456", "000000"),
                         )
                     },
-                    "/api/v1/internal/arena/tiltaksgjennomforing" to { respondOk() },
-                    "/api/v1/internal/arena/tiltaksgjennomforing/${mapping.entityId}" to { respondOk() },
+                    "/api/v1/intern/arena/tiltaksgjennomforing" to { respondOk() },
+                    "/api/v1/intern/arena/tiltaksgjennomforing/${mapping.entityId}" to { respondOk() },
                 )
                 val processor = createProcessor(engine)
 
@@ -430,8 +430,8 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                                     ArenaOrdsArrangor("123456", "000000"),
                                 )
                             },
-                            "/api/v1/internal/arena/tiltaksgjennomforing" to { respondOk() },
-                            "/api/v1/internal/arena/tiltaksgjennomforing/${mapping.entityId}" to { respondOk() },
+                            "/api/v1/intern/arena/tiltaksgjennomforing" to { respondOk() },
+                            "/api/v1/intern/arena/tiltaksgjennomforing/${mapping.entityId}" to { respondOk() },
                         )
                         val processor = createProcessor(engine)
 
@@ -485,7 +485,7 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                     "/ords/arbeidsgiver" to {
                         respondJson(ArenaOrdsArrangor("123456", "000000"))
                     },
-                    "/api/v1/internal/arena/tiltaksgjennomforing" to { respondOk() },
+                    "/api/v1/intern/arena/tiltaksgjennomforing" to { respondOk() },
                 )
                 val processor = createProcessor(engine)
 
@@ -512,7 +512,7 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                             ArenaOrdsArrangor("123456", "000000"),
                         )
                     },
-                    "/api/v1/internal/arena/tiltaksgjennomforing" to { respondOk() },
+                    "/api/v1/intern/arena/tiltaksgjennomforing" to { respondOk() },
                 )
                 val processor = createProcessor(engine)
 

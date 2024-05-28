@@ -18,7 +18,8 @@ select
         jsonb_agg(
             jsonb_build_object(
                 'personopplysning', tiltakstype_personopplysning.personopplysning,
-                'frekvens', tiltakstype_personopplysning.frekvens
+                'frekvens', tiltakstype_personopplysning.frekvens,
+                'hjelpetekst', tiltakstype_personopplysning.hjelpetekst
             )
         )
         filter (where tiltakstype_personopplysning.tiltakskode is not null), '[]'

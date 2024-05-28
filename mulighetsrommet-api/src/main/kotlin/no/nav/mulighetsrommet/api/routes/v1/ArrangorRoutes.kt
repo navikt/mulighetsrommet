@@ -23,7 +23,7 @@ fun Route.arrangorRoutes() {
     val arrangorRepository: ArrangorRepository by inject()
     val arrangorService: ArrangorService by inject()
 
-    route("api/v1/internal/arrangorer") {
+    route("api/v1/intern/arrangorer") {
         post("{orgnr}") {
             val orgnr = call.parameters.getOrFail("orgnr").also { validateOrgnr(it) }
 
