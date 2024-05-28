@@ -67,7 +67,7 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
         )
 
         fun createProcessor(engine: HttpClientEngine = createMockEngine()): TiltakgjennomforingEventProcessor {
-            val client = MulighetsrommetApiClient(engine, baseUri = "api") {
+            val client = MulighetsrommetApiClient(engine, baseUri = "") {
                 "Bearer token"
             }
 

@@ -96,15 +96,15 @@ class TiltakshistorikkEventProcessor(
         operation: ArenaEvent.Operation,
         deltaker: ArenaDeltakerDbo,
     ) = if (operation == ArenaEvent.Operation.Delete) {
-        client.request<Any>(HttpMethod.Delete, "/api/v1/internal/arena/deltaker/${deltaker.id}")
+        client.request<Any>(HttpMethod.Delete, "/api/v1/intern/arena/deltaker/${deltaker.id}")
     } else {
-        client.request(HttpMethod.Put, "/api/v1/internal/arena/deltaker", deltaker)
+        client.request(HttpMethod.Put, "/api/v1/intern/arena/deltaker", deltaker)
     }
 
     override suspend fun deleteEntity(event: ArenaEvent): Either<ProcessingError, Unit> = either {
         val mapping = entities.getMapping(event.arenaTable, event.arenaId).bind()
 
-        client.request<Any>(HttpMethod.Delete, "/api/v1/internal/arena/tiltakshistorikk/${mapping.entityId}")
+        client.request<Any>(HttpMethod.Delete, "/api/v1/intern/arena/deltaker/${mapping.entityId}")
             .mapLeft { ProcessingError.fromResponseException(it) }
             .bind()
     }

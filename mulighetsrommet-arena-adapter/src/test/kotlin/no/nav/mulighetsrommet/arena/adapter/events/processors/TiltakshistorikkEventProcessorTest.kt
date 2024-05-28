@@ -57,7 +57,7 @@ class TiltakshistorikkEventProcessorTest : FunSpec({
         )
 
         fun createProcessor(engine: HttpClientEngine = createMockEngine()): TiltakshistorikkEventProcessor {
-            val client = TiltakshistorikkClient(engine, baseUri = "api") {
+            val client = TiltakshistorikkClient(engine, baseUri = "") {
                 "Bearer token"
             }
 
@@ -142,14 +142,14 @@ class TiltakshistorikkEventProcessorTest : FunSpec({
                 }
             }
 
-            test("should call api with tiltakshistorikk when all services responds with success") {
+            test("should upsert tiltakshistorikk when all services responds with success") {
                 val (event, mapping) = prepareEvent(createArenaTiltakdeltakerEvent(Insert), Ignored)
 
                 val engine = createMockEngine(
                     "/ords/arbeidsgiver" to { respondJson(ArenaOrdsArrangor("123456789", "000000000")) },
                     "/ords/fnr" to { respondJson(ArenaOrdsFnr("12345678910")) },
-                    "/api/v1/internal/arena/deltaker" to { respondOk() },
-                    "/api/v1/internal/arena/deltaker/${mapping.entityId}" to { respondOk() },
+                    "/api/v1/intern/arena/deltaker" to { respondOk() },
+                    "/api/v1/intern/arena/deltaker/${mapping.entityId}" to { respondOk() },
                 )
                 val processor = createProcessor(engine)
 
@@ -160,7 +160,6 @@ class TiltakshistorikkEventProcessorTest : FunSpec({
 
                     decodeRequestBody<ArenaDeltakerDbo>().apply {
                         id shouldBe mapping.entityId
-                        // tiltaksgjennomforingId shouldBe tiltaksgjennomforing.id
                         norskIdent shouldBe NorskIdent("12345678910")
                     }
                 }
