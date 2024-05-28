@@ -1,4 +1,4 @@
-import { Button } from "@navikt/ds-react";
+import { Alert, Button } from "@navikt/ds-react";
 import { CheckmarkIcon } from "@navikt/aksel-icons";
 import { Delemodal } from "./Delemodal";
 import { useDelMedBruker } from "./DelemodalReducer";
@@ -34,7 +34,7 @@ export const DelMedBruker = ({
   lagreVeilederHarDeltTiltakMedBruker,
 }: Props) => {
   const { logEvent } = useLogEvent();
-  const { reservert } = erBrukerReservertMotElektroniskKommunikasjon(bruker);
+  const { reservert, melding } = erBrukerReservertMotElektroniskKommunikasjon(bruker);
 
   const deletekst = utledDelMedBrukerTekst(tiltaksgjennomforing, veiledernavn);
   const [state, dispatch] = useDelMedBruker(deletekst);
@@ -44,9 +44,7 @@ export const DelMedBruker = ({
       name: "arbeidsmarkedstiltak.del-med-bruker",
       data: { action: "Åpnet delemodal", tiltakstype: tiltaksgjennomforing.tiltakstype.navn },
     });
-    reservert
-      ? dispatch({ type: "Toggle statusmodal", payload: true })
-      : dispatch({ type: "Toggle modal", payload: true });
+    dispatch({ type: "Toggle modal", payload: true });
   };
 
   const knappetekst = delMedBrukerInfo?.createdAt
@@ -55,26 +53,31 @@ export const DelMedBruker = ({
 
   return (
     <>
-      <Button
-        onClick={handleClickApneModal}
-        variant="secondary"
-        aria-label="Del med bruker"
-        data-testid="deleknapp"
-        icon={delMedBrukerInfo && <CheckmarkIcon title="Suksess" />}
-        iconPosition="left"
-      >
-        {knappetekst}
-      </Button>
-
-      <Delemodal
-        veiledernavn={veiledernavn}
-        tiltaksgjennomforing={tiltaksgjennomforing}
-        harDeltMedBruker={delMedBrukerInfo}
-        dispatch={dispatch}
-        state={state}
-        bruker={bruker}
-        lagreVeilederHarDeltTiltakMedBruker={lagreVeilederHarDeltTiltakMedBruker}
-      />
+      {reservert ? (
+        <Alert variant="warning">{melding}</Alert>
+      ) : (
+        <>
+          <Button
+            onClick={handleClickApneModal}
+            variant="secondary"
+            aria-label="Del med bruker"
+            data-testid="deleknapp"
+            icon={delMedBrukerInfo && <CheckmarkIcon title="Suksess" />}
+            iconPosition="left"
+          >
+            {knappetekst}
+          </Button>
+          <Delemodal
+            veiledernavn={veiledernavn}
+            tiltaksgjennomforing={tiltaksgjennomforing}
+            harDeltMedBruker={delMedBrukerInfo}
+            dispatch={dispatch}
+            state={state}
+            bruker={bruker}
+            lagreVeilederHarDeltTiltakMedBruker={lagreVeilederHarDeltTiltakMedBruker}
+          />
+        </>
+      )}
     </>
   );
 };

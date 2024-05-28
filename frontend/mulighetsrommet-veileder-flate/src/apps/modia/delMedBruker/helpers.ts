@@ -67,8 +67,7 @@ export function erBrukerReservertMotElektroniskKommunikasjon(brukerdata: Bruker)
   } else if (brukerdata.manuellStatus.krrStatus && !brukerdata.manuellStatus.krrStatus.kanVarsles) {
     return {
       reservert: true,
-      melding:
-        "Brukeren er reservert mot elektronisk kommunikasjon i KRR. Vi kan derfor ikke kommunisere digitalt med denne brukeren.",
+      melding: "Brukeren er reservert mot elektronisk kommunikasjon i KRR.",
     };
   } else {
     return {
