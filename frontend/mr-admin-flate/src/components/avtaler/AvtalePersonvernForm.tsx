@@ -5,6 +5,7 @@ import {
   Checkbox,
   GuidePanel,
   HStack,
+  HelpText,
   Label,
   Link,
   Radio,
@@ -57,19 +58,21 @@ export function AvtalePersonvernForm({ tiltakstypeId }: Props) {
           {props.description}
         </BodyShort>
         {props.personopplysninger?.map((p: PersonopplysningMedBeskrivelse) => (
-          <Checkbox
-            checked={watchPersonopplysninger.includes(p.personopplysning)}
-            onChange={() =>
-              setValue(
-                "personopplysninger",
-                addOrRemove(watchPersonopplysninger, p.personopplysning),
-              )
-            }
-            size="small"
-            key={p.personopplysning}
-          >
-            <span className={styles.max_length_text}> {p.beskrivelse}</span>
-          </Checkbox>
+          <HStack align="start" gap="1" key={p.personopplysning}>
+            <Checkbox
+              checked={watchPersonopplysninger.includes(p.personopplysning)}
+              onChange={() =>
+                setValue(
+                  "personopplysninger",
+                  addOrRemove(watchPersonopplysninger, p.personopplysning),
+                )
+              }
+              size="small"
+            >
+              <span className={styles.max_length_text}> {p.beskrivelse}</span>
+            </Checkbox>
+            {p.hjelpetekst && <HelpText>{p.hjelpetekst}</HelpText>}
+          </HStack>
         ))}
       </VStack>
     );

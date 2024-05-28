@@ -1,4 +1,4 @@
-import { Alert, HGrid, List, VStack } from "@navikt/ds-react";
+import { Alert, HGrid, HStack, HelpText, List, VStack } from "@navikt/ds-react";
 import { useAvtale } from "@/api/avtaler/useAvtale";
 import { Laster } from "../../components/laster/Laster";
 import styles from "../DetaljerInfo.module.scss";
@@ -47,7 +47,9 @@ export function AvtalePersonvern() {
         {alltid.length > 0 && (
           <List size="small" as="ul" title="Opplysninger om brukeren som alltid kan/må behandles">
             {alltid.map((p) => (
-              <List.Item key={p.personopplysning}>{p.beskrivelse}</List.Item>
+              <ListWithHelpText hjelpetekst={p.hjelpetekst} key={p.personopplysning}>
+                {p.beskrivelse}
+              </ListWithHelpText>
             ))}
           </List>
         )}
@@ -59,7 +61,9 @@ export function AvtalePersonvern() {
               title="Opplysninger om brukeren som ofte er nødvendig og relevant å behandle"
             >
               {ofte.map((p) => (
-                <List.Item key={p.personopplysning}>{p.beskrivelse}</List.Item>
+                <ListWithHelpText hjelpetekst={p.hjelpetekst} key={p.personopplysning}>
+                  {p.beskrivelse}
+                </ListWithHelpText>
               ))}
             </List>
           )}
@@ -70,12 +74,31 @@ export function AvtalePersonvern() {
               title="Opplysninger om brukeren som sjelden eller i helt spesielle tilfeller er nødvendig og relevant å behandle"
             >
               {sjelden.map((p) => (
-                <List.Item key={p.personopplysning}>{p.beskrivelse}</List.Item>
+                <ListWithHelpText hjelpetekst={p.hjelpetekst} key={p.personopplysning}>
+                  {p.beskrivelse}
+                </ListWithHelpText>
               ))}
             </List>
           )}
         </VStack>
       </HGrid>
     </VStack>
+  );
+}
+
+function ListWithHelpText({
+  hjelpetekst,
+  children,
+}: {
+  hjelpetekst: String | null;
+  children: React.ReactNode;
+}) {
+  return (
+    <List.Item>
+      <HStack align="end" gap="1">
+        {children}
+        {hjelpetekst && <HelpText>{hjelpetekst}</HelpText>}
+      </HStack>
+    </List.Item>
   );
 }

@@ -70,7 +70,7 @@ export function TiltakgjennomforingRedaksjoneltInnholdForm({ avtale }: Props) {
         </Modal.Header>
         <Modal.Body className={styles.modal_content}>
           <TiltaksgjennomforingerListe
-            filter={{ avtale: avtale.id }}
+            filter={{ avtale: avtale.id, pageSize: 1000 }}
             action={(gjennomforing) => (
               <Button
                 size="small"
