@@ -45,9 +45,6 @@ export const tiltakstype = defineType({
         {
           type: "reference",
           to: [{ type: "tiltakstype" }],
-          options: {
-            unique: true,
-          },
         },
       ],
       validation: (Rule) => Rule.unique().error("Du kan bare ha én av hver tiltakstype"),
