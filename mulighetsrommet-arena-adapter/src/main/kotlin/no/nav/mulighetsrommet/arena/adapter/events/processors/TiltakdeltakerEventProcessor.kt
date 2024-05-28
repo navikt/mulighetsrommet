@@ -49,43 +49,40 @@ class TiltakdeltakerEventProcessor(
             )
         }
 
-        if (!isRelevantForBrukersTiltakshistorikk(data)) {
-            return@either ProcessingResult(
-                Ignored,
-                "Deltaker ignorert fordi den ikke lengre er relevant for brukers tiltakshistorikk",
-            )
-        }
-
         val mapping = entities.getMapping(event.arenaTable, event.arenaId).bind()
         val deltaker = data
             .toDeltaker(mapping.entityId)
             .flatMap { entities.upsertDeltaker(it) }
             .bind()
 
-        val tiltaksgjennomforingMapping = entities
-            .getMapping(ArenaTable.Tiltaksgjennomforing, data.TILTAKGJENNOMFORING_ID.toString())
-            .bind()
-        val tiltaksgjennomforing = entities
-            .getTiltaksgjennomforing(tiltaksgjennomforingMapping.entityId)
-            .bind()
-        val norskIdent = ords.getFnr(deltaker.personId)
-            .mapLeft { ProcessingError.fromResponseException(it) }
-            .flatMap { it?.right() ?: ProcessingError.ProcessingFailed("Fant ikke norsk ident i Arena ORDS").left() }
-            .map { it.fnr }
-            .bind()
-        val tiltakstypeMapping = entities
-            .getMapping(ArenaTable.Tiltakstype, tiltaksgjennomforing.tiltakskode)
-            .bind()
-        val tiltakstype = entities
-            .getTiltakstype(tiltakstypeMapping.entityId)
-            .bind()
-
-        upsertTiltakshistorikk(deltaker, event, tiltakstype, tiltaksgjennomforing, norskIdent)
-            .bind()
-
-        if (isGruppetiltak(tiltakstype.tiltakskode) && !isAmtTiltak(tiltakstype.tiltakskode)) {
-            upsertDeltaker(deltaker, event, tiltaksgjennomforing)
+        if (isRelevantForBrukersTiltakshistorikk(data)) {
+            val tiltaksgjennomforingMapping = entities
+                .getMapping(ArenaTable.Tiltaksgjennomforing, data.TILTAKGJENNOMFORING_ID.toString())
                 .bind()
+            val tiltaksgjennomforing = entities
+                .getTiltaksgjennomforing(tiltaksgjennomforingMapping.entityId)
+                .bind()
+            val norskIdent = ords.getFnr(deltaker.personId)
+                .mapLeft { ProcessingError.fromResponseException(it) }
+                .flatMap {
+                    it?.right() ?: ProcessingError.ProcessingFailed("Fant ikke norsk ident i Arena ORDS").left()
+                }
+                .map { it.fnr }
+                .bind()
+            val tiltakstypeMapping = entities
+                .getMapping(ArenaTable.Tiltakstype, tiltaksgjennomforing.tiltakskode)
+                .bind()
+            val tiltakstype = entities
+                .getTiltakstype(tiltakstypeMapping.entityId)
+                .bind()
+
+            upsertTiltakshistorikk(deltaker, event, tiltakstype, tiltaksgjennomforing, norskIdent)
+                .bind()
+
+            if (isGruppetiltak(tiltakstype.tiltakskode) && !isAmtTiltak(tiltakstype.tiltakskode)) {
+                upsertDeltaker(deltaker, event, tiltaksgjennomforing)
+                    .bind()
+            }
         }
 
         ProcessingResult(Handled)

@@ -50,6 +50,7 @@ fun createTestApplicationConfig(oauth: MockOAuth2Server) = AppConfig(
     ),
     services = ServiceConfig(
         mulighetsrommetApi = ServiceClientConfig(url = "mulighetsrommet-api", scope = ""),
+        tiltakshistorikk = ServiceClientConfig(url = "tiltakshistorikk", scope = ""),
         arenaEventService = ArenaEventService.Config(
             channelCapacity = 0,
             numChannelConsumers = 0,

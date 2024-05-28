@@ -63,3 +63,4 @@ spec:
     inbound:
       rules:
         - application: mulighetsrommet-api
+        - application: mulighetsrommet-arena-adapter

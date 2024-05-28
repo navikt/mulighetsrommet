@@ -11,6 +11,7 @@ import no.nav.common.token_client.client.MachineToMachineTokenClient
 import no.nav.mulighetsrommet.arena.adapter.*
 import no.nav.mulighetsrommet.arena.adapter.clients.ArenaOrdsProxyClient
 import no.nav.mulighetsrommet.arena.adapter.clients.ArenaOrdsProxyClientImpl
+import no.nav.mulighetsrommet.arena.adapter.clients.TiltakshistorikkClient
 import no.nav.mulighetsrommet.arena.adapter.events.ArenaEventConsumer
 import no.nav.mulighetsrommet.arena.adapter.events.processors.*
 import no.nav.mulighetsrommet.arena.adapter.repositories.*
@@ -131,6 +132,14 @@ private fun services(services: ServiceConfig, tokenClient: MachineToMachineToken
             tokenClient.createMachineToMachineToken(services.mulighetsrommetApi.scope)
         }
     }
+    single {
+        TiltakshistorikkClient(
+            config = TiltakshistorikkClient.Config(maxRetries = 2),
+            baseUri = services.tiltakshistorikk.url,
+        ) {
+            tokenClient.createMachineToMachineToken(services.tiltakshistorikk.scope)
+        }
+    }
     single<ArenaOrdsProxyClient> {
         ArenaOrdsProxyClientImpl(baseUrl = services.arenaOrdsProxy.url) {
             tokenClient.createMachineToMachineToken(services.arenaOrdsProxy.scope)
@@ -138,7 +147,9 @@ private fun services(services: ServiceConfig, tokenClient: MachineToMachineToken
     }
     single {
         val processors = listOf(
+            SakEventProcessor(get()),
             TiltakEventProcessor(get()),
+            AvtaleInfoEventProcessor(get(), get(), get()),
             TiltakgjennomforingEventProcessor(
                 get(),
                 get(),
@@ -146,8 +157,8 @@ private fun services(services: ServiceConfig, tokenClient: MachineToMachineToken
                 config = TiltakgjennomforingEventProcessor.Config(retryUpsertTimes = 10),
             ),
             TiltakdeltakerEventProcessor(get(), get(), get()),
-            SakEventProcessor(get()),
-            AvtaleInfoEventProcessor(get(), get(), get()),
+            // TODO: skru på etter at tjenesten er klar i dev og prod
+            // TiltakshistorikkEventProcessor(get(), get(), get()),
         )
         ArenaEventService(
             config = services.arenaEventService,

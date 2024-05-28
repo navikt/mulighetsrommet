@@ -21,7 +21,6 @@ import no.nav.mulighetsrommet.arena.adapter.models.db.Sak
 import no.nav.mulighetsrommet.arena.adapter.models.db.Tiltaksgjennomforing
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
 import no.nav.mulighetsrommet.arena.adapter.utils.ArenaUtils
-import no.nav.mulighetsrommet.domain.Tiltakshistorikk
 import no.nav.mulighetsrommet.domain.Tiltakskoder.isGruppetiltak
 import no.nav.mulighetsrommet.domain.dbo.ArenaTiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
@@ -56,14 +55,6 @@ class TiltakgjennomforingEventProcessor(
             return@either ProcessingResult(Ignored, "Tiltaksgjennomføring ignorert fordi ARBGIV_ID_ARRANGOR er null")
         }
 
-        val isGruppetiltak = isGruppetiltak(data.TILTAKSKODE)
-        if (!isGruppetiltak && !isRelevantForBrukersTiltakshistorikk(data)) {
-            return@either ProcessingResult(
-                Ignored,
-                "Tiltaksgjennomføring ignorert fordi den ikke lengre er relevant for brukers tiltakshistorikk",
-            )
-        }
-
         val avtaleId = data.AVTALE_ID?.let { resolveFromMappingStatus(it).bind() }
         val tiltaksgjennomforing = entities.getMapping(event.arenaTable, event.arenaId)
             .flatMap { data.toTiltaksgjennomforing(it.entityId, avtaleId) }
@@ -77,7 +68,7 @@ class TiltakgjennomforingEventProcessor(
             }
             .bind()
 
-        if (isGruppetiltak) {
+        if (isGruppetiltak(data.TILTAKSKODE)) {
             upsertTiltaksgjennomforing(event.operation, tiltaksgjennomforing).bind()
         } else {
             ProcessingResult(Handled)
@@ -141,28 +132,6 @@ class TiltakgjennomforingEventProcessor(
             client.request(HttpMethod.Put, "/api/v1/intern/arena/tiltaksgjennomforing", dbo)
         }
         response.mapLeft { ProcessingError.fromResponseException(it) }.map { ProcessingResult(Handled) }.bind()
-    }
-
-    private fun isRelevantForBrukersTiltakshistorikk(data: ArenaTiltaksgjennomforing): Boolean {
-        // Siden nye instanser av applikasjonen må lese gjennomføringene før deltakelsene vil man ha tilfenner
-        // der denne sjekken returnerer `false` selv om gjennomføringen _egentlig_ har relevante deltakelser
-        // i Arena.
-        // Vi har vurdert denne mangelen som OK og planlegger å ta en nytt sjau på tiltakshistorikken etter hvert.
-        if (anyDeltakereIsRelevantForBrukersTiltakshistorikk(data)) {
-            return true
-        }
-
-        val date = ArenaUtils.parseNullableTimestamp(data.DATO_TIL) ?: ArenaUtils.parseTimestamp(data.REG_DATO)
-        return Tiltakshistorikk.isRelevantTiltakshistorikk(date)
-    }
-
-    private fun anyDeltakereIsRelevantForBrukersTiltakshistorikk(data: ArenaTiltaksgjennomforing): Boolean {
-        val deltakere = entities.getDeltakereByTiltaksgjennomforingId(data.TILTAKGJENNOMFORING_ID)
-
-        return deltakere.any { deltaker ->
-            val date = deltaker.tilDato ?: deltaker.registrertDato
-            Tiltakshistorikk.isRelevantTiltakshistorikk(date)
-        }
     }
 
     private fun ArenaTiltaksgjennomforing.toTiltaksgjennomforing(id: UUID, avtaleId: Int?) = Either
