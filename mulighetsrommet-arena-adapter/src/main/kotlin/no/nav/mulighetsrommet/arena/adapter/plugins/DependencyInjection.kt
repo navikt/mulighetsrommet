@@ -157,8 +157,7 @@ private fun services(services: ServiceConfig, tokenClient: MachineToMachineToken
                 config = TiltakgjennomforingEventProcessor.Config(retryUpsertTimes = 10),
             ),
             TiltakdeltakerEventProcessor(get(), get(), get()),
-            // TODO: skru på etter at tjenesten er klar i dev og prod
-            // TiltakshistorikkEventProcessor(get(), get(), get()),
+            TiltakshistorikkEventProcessor(get(), get(), get()),
         )
         ArenaEventService(
             config = services.arenaEventService,
