@@ -54,7 +54,9 @@ export function VarselModal({
         {headingIconType === "info" && (
           <InformationSquareFillIcon className={classNames(styles.icon, styles.icon_info)} />
         )}
-        <Heading size="medium">{headingText}</Heading>
+        <Heading align="center" size="medium">
+          {headingText}
+        </Heading>
       </Modal.Header>
       <Modal.Body className={styles.body}>{body}</Modal.Body>
       <Modal.Footer className={footerClassName ? footerClassName : styles.footer}>
