@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.kafka.amt
+package no.nav.mulighetsrommet.tiltakshistorikk.kafka.amt
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
@@ -6,20 +6,14 @@ import io.kotest.matchers.collections.shouldContainExactly
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.encodeToJsonElement
-import no.nav.mulighetsrommet.api.createDatabaseTestConfig
-import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
-import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures
-import no.nav.mulighetsrommet.api.repositories.DeltakerRepository
-import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
-import no.nav.mulighetsrommet.domain.dbo.DeltakerDbo
-import no.nav.mulighetsrommet.domain.dbo.Deltakeropphav
-import no.nav.mulighetsrommet.domain.dbo.Deltakerstatus
 import no.nav.mulighetsrommet.domain.dto.amt.AmtDeltakerStatus
 import no.nav.mulighetsrommet.domain.dto.amt.AmtDeltakerV1Dto
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
-import no.nav.mulighetsrommet.kafka.consumers.amt.AmtDeltakerV1TopicConsumer
+import no.nav.mulighetsrommet.tiltakshistorikk.DeltakerRepository
+import no.nav.mulighetsrommet.tiltakshistorikk.createDatabaseTestConfig
+import no.nav.mulighetsrommet.tiltakshistorikk.kafka.consumers.amt.AmtDeltakerV1TopicConsumer
 import java.time.LocalDateTime
 import java.util.*
 
@@ -27,13 +21,6 @@ class AmtDeltakerV1TopicConsumerTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
 
     context("consume deltakere") {
-        beforeTest {
-            MulighetsrommetTestDomain().initialize(database.db)
-
-            val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
-            tiltaksgjennomforinger.upsert(TiltaksgjennomforingFixtures.Oppfolging1)
-        }
-
         afterEach {
             database.db.truncateAll()
         }
@@ -48,7 +35,7 @@ class AmtDeltakerV1TopicConsumerTest : FunSpec({
 
         val amtDeltaker1 = AmtDeltakerV1Dto(
             id = UUID.randomUUID(),
-            gjennomforingId = TiltaksgjennomforingFixtures.Oppfolging1.id,
+            gjennomforingId = UUID.randomUUID(),
             personIdent = "10101010100",
             startDato = null,
             sluttDato = null,
@@ -62,49 +49,23 @@ class AmtDeltakerV1TopicConsumerTest : FunSpec({
             dagerPerUke = 2.5f,
             prosentStilling = null,
         )
-        val amtDeltaker2 = amtDeltaker1.copy(
-            id = UUID.randomUUID(),
-            personIdent = "10101010101",
-            dagerPerUke = 1f,
-        )
-        val deltaker1Dbo = DeltakerDbo(
-            id = amtDeltaker1.id,
-            tiltaksgjennomforingId = amtDeltaker1.gjennomforingId,
-            status = Deltakerstatus.VENTER,
-            opphav = Deltakeropphav.AMT,
-            startDato = null,
-            sluttDato = null,
-            registrertDato = amtDeltaker1.registrertDato,
-        )
-        val deltaker2Dbo = deltaker1Dbo.copy(
-            id = amtDeltaker2.id,
-        )
 
         test("upsert deltakere from topic") {
             deltakerConsumer.consume(amtDeltaker1.id, Json.encodeToJsonElement(amtDeltaker1))
-            deltakerConsumer.consume(amtDeltaker2.id, Json.encodeToJsonElement(amtDeltaker2))
 
-            deltakere.getAll().shouldContainExactly(deltaker1Dbo, deltaker2Dbo)
-        }
-
-        test("ignore deltakere with invalid foreign key reference to gjennomforing") {
-            val deltakerForUnknownGjennomforing = amtDeltaker1.copy(gjennomforingId = UUID.randomUUID())
-
-            deltakerConsumer.consume(amtDeltaker1.id, Json.encodeToJsonElement(deltakerForUnknownGjennomforing))
-
-            deltakere.getAll().shouldBeEmpty()
+            deltakere.getKometDeltakelser(listOf(amtDeltaker1.personIdent)).shouldContainExactly(amtDeltaker1)
         }
 
         test("delete deltakere for tombstone messages") {
-            deltakere.upsert(deltaker1Dbo)
+            deltakere.upsertKometDeltaker(amtDeltaker1)
 
             deltakerConsumer.consume(amtDeltaker1.id, JsonNull)
 
-            deltakere.getAll().shouldBeEmpty()
+            deltakere.getKometDeltakelser(listOf(amtDeltaker1.personIdent)).shouldBeEmpty()
         }
 
         test("delete deltakere that have status FEILREGISTRERT") {
-            deltakere.upsert(deltaker1Dbo)
+            deltakere.upsertKometDeltaker(amtDeltaker1)
 
             val feilregistrertDeltaker1 = amtDeltaker1.copy(
                 status = AmtDeltakerStatus(
@@ -115,7 +76,7 @@ class AmtDeltakerV1TopicConsumerTest : FunSpec({
             )
             deltakerConsumer.consume(feilregistrertDeltaker1.id, Json.encodeToJsonElement(feilregistrertDeltaker1))
 
-            deltakere.getAll().shouldBeEmpty()
+            deltakere.getKometDeltakelser(listOf(amtDeltaker1.personIdent)).shouldBeEmpty()
         }
     }
 })

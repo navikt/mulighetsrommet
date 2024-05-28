@@ -62,6 +62,8 @@ spec:
           - id: debefa6e-1865-446d-b22b-9579fc735de3 # team-mulighetsrommet
         extra:
           - azp_name
+  kafka:
+    pool: nav-prod
   accessPolicy:
     inbound:
       rules:

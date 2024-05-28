@@ -41,22 +41,22 @@ class DeltakerRepositoryTest : FunSpec({
             registrertIArenaDato = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
         )
 
-        tiltakshistorikk.upsert(arbeidstrening)
-        tiltakshistorikk.upsert(mentor)
+        tiltakshistorikk.upsertArenaDeltaker(arbeidstrening)
+        tiltakshistorikk.upsertArenaDeltaker(mentor)
 
-        tiltakshistorikk.getDeltakelser(identer = listOf(NorskIdent("12345678910"))) shouldBe listOf(
+        tiltakshistorikk.getArenaDeltakelser(identer = listOf(NorskIdent("12345678910"))) shouldBe listOf(
             mentor,
             arbeidstrening,
         )
 
-        tiltakshistorikk.delete(mentor.id)
+        tiltakshistorikk.deleteArenaDeltaker(mentor.id)
 
-        tiltakshistorikk.getDeltakelser(identer = listOf(NorskIdent("12345678910"))) shouldBe listOf(
+        tiltakshistorikk.getArenaDeltakelser(identer = listOf(NorskIdent("12345678910"))) shouldBe listOf(
             arbeidstrening,
         )
 
-        tiltakshistorikk.delete(arbeidstrening.id)
+        tiltakshistorikk.deleteArenaDeltaker(arbeidstrening.id)
 
-        tiltakshistorikk.getDeltakelser(identer = listOf(NorskIdent("12345678910"))).shouldBeEmpty()
+        tiltakshistorikk.getArenaDeltakelser(identer = listOf(NorskIdent("12345678910"))).shouldBeEmpty()
     }
 })
