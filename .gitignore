@@ -7,6 +7,8 @@
 .vscode
 .idea
 
+.kotlin
+
 # Backend specific mumbojumbo
 *.iml
 *.log

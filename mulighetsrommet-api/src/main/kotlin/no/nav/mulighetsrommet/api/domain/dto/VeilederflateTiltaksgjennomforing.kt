@@ -74,7 +74,7 @@ data class VeilederflateTiltakstype(
     val faneinnhold: Faneinnhold? = null,
     val delingMedBruker: String? = null,
     val arenakode: String? = null,
-    val kanKombineresMed: List<SanityTiltakstype>? = emptyList(),
+    val kanKombineresMed: List<String> = emptyList(),
 )
 
 @Serializable

@@ -2955,10 +2955,11 @@ components:
         kanKombineresMed:
           type: array
           items:
-            $ref: "#/components/schemas/Tiltakstype"
+            type: string
       required:
         - sanityId
         - navn
+        - kanKombineresMed
 
     VeilederflateTiltaksgjennomforing:
       type: object

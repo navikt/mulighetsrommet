@@ -57,7 +57,7 @@ class VeilederflateService(
                       beskrivelse,
                       nokkelinfoKomponenter,
                       innsatsgrupper,
-                      kanKombineresMed,
+                      "kanKombineresMed": coalesce(kombinasjon[]->{tiltakstypeNavn}.tiltakstypeNavn, []),
                       regelverkLenker[]->,
                       faneinnhold {
                         forHvemInfoboks,
@@ -103,7 +103,7 @@ class VeilederflateService(
                     faneinnhold = it.faneinnhold,
                     delingMedBruker = it.delingMedBruker,
                     arenakode = tiltakstype?.arenaKode,
-                    kanKombineresMed = it.kanKombineresMed
+                    kanKombineresMed = it.kanKombineresMed,
                 )
             }
     }
@@ -215,6 +215,7 @@ class VeilederflateService(
                 beskrivelse,
                 nokkelinfoKomponenter,
                 innsatsgrupper,
+                "kanKombineresMed": coalesce(kombinasjon[]->{tiltakstypeNavn}.tiltakstypeNavn, []),
                 regelverkLenker[]->,
                 faneinnhold {
                   forHvemInfoboks,

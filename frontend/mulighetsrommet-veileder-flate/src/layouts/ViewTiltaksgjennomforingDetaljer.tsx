@@ -28,8 +28,7 @@ export const ViewTiltaksgjennomforingDetaljer = ({
 
   const [oppskriftId, setOppskriftId] = useState<string | undefined>(undefined);
 
-  // const harKombinasjon = tiltaksgjennomforing.tiltakstype.kanKombineresMed!.length > 0;
-  const harKombinasjon = true;
+  const harKombinasjon = tiltaksgjennomforing.tiltakstype.kanKombineresMed.length > 0;
 
   if (!tiltaksgjennomforing) {
     return (
