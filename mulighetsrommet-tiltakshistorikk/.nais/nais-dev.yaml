@@ -63,3 +63,5 @@ spec:
     inbound:
       rules:
         - application: mulighetsrommet-api
+  kafka:
+    pool: nav-dev
