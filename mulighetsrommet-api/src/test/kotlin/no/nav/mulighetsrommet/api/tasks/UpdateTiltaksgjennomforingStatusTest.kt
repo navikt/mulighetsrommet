@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.tasks
 
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.shouldBe
 import io.mockk.mockk
 import io.mockk.verifyAll
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
@@ -9,6 +10,7 @@ import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingDto
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
+import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.domain.dto.AvbruttAarsak
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus
 import no.nav.mulighetsrommet.kafka.producers.TiltaksgjennomforingKafkaProducer
@@ -91,12 +93,27 @@ class UpdateTiltaksgjennomforingStatusTest : FunSpec({
             ),
         )
 
-        test("oppdater statuser på kafka på relevante tiltaksgjennomføringer") {
-            domain.initialize(database.db)
+        val gjennomforinger = TiltaksgjennomforingRepository(database.db)
 
-            val gjennomforinger = TiltaksgjennomforingRepository(database.db)
-            gjennomforinger.avbryt(startdatoInnenforMenAvsluttetStatus.id, LocalDateTime.now(), AvbruttAarsak.Feilregistrering)
-            gjennomforinger.avbryt(sluttdatoInnenforMenAvbruttStatus.id, LocalDateTime.now(), AvbruttAarsak.Feilregistrering)
+        beforeEach {
+            domain.initialize(database.db)
+            gjennomforinger.avbryt(
+                startdatoInnenforMenAvsluttetStatus.id,
+                LocalDateTime.now(),
+                AvbruttAarsak.Feilregistrering,
+            )
+            gjennomforinger.avbryt(
+                sluttdatoInnenforMenAvbruttStatus.id,
+                LocalDateTime.now(),
+                AvbruttAarsak.Feilregistrering,
+            )
+        }
+
+        afterEach {
+            database.db.truncateAll()
+        }
+
+        test("oppdater statuser på kafka på relevante tiltaksgjennomføringer") {
 
             task.oppdaterTiltaksgjennomforingStatus(today, lastSuccessDate)
 
@@ -104,6 +121,19 @@ class UpdateTiltaksgjennomforingStatusTest : FunSpec({
                 tiltaksgjennomforingKafkaProducer.publish(startdatoInnenfor.toDto(TiltaksgjennomforingStatus.Enum.GJENNOMFORES))
                 tiltaksgjennomforingKafkaProducer.publish(sluttdatoInnenfor.toDto(TiltaksgjennomforingStatus.Enum.AVSLUTTET))
             }
+        }
+
+        test("avpubliserer når tiltak blir avsluttet på relevante tiltaksgjennomføringer") {
+            gjennomforinger.setPublisert(startdatoInnenfor.id, true)
+            gjennomforinger.setPublisert(sluttdatoInnenfor.id, true)
+            task.oppdaterTiltaksgjennomforingStatus(today, lastSuccessDate)
+
+            verifyAll {
+                tiltaksgjennomforingKafkaProducer.publish(startdatoInnenfor.toDto(TiltaksgjennomforingStatus.Enum.GJENNOMFORES))
+                tiltaksgjennomforingKafkaProducer.publish(sluttdatoInnenfor.toDto(TiltaksgjennomforingStatus.Enum.AVSLUTTET))
+            }
+            gjennomforinger.get(startdatoInnenfor.id)?.publisert shouldBe true
+            gjennomforinger.get(sluttdatoInnenfor.id)?.publisert shouldBe false
         }
     }
 })
