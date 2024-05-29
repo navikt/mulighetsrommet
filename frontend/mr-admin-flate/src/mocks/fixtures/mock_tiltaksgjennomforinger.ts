@@ -48,7 +48,7 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     stedForGjennomforing: "Brummundal",
     kontaktpersoner: [petrusKontaktperson, nikolineKontaktperson],
     publisert: true,
-    publisertForAlle: true,
+
     beskrivelse: "bla bla bla beskrivelse",
     faneinnhold: {
       forHvem: [
@@ -115,7 +115,7 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     apentForInnsok: true,
     kontaktpersoner: [],
     publisert: false,
-    publisertForAlle: false,
+
     tilgjengeligForArrangorFraOgMedDato: null,
     nusData: null,
   },
@@ -147,7 +147,7 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     apentForInnsok: true,
     kontaktpersoner: [],
     publisert: false,
-    publisertForAlle: true,
+
     tilgjengeligForArrangorFraOgMedDato: null,
     nusData: null,
   },
@@ -174,7 +174,7 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     apentForInnsok: true,
     kontaktpersoner: [],
     publisert: false,
-    publisertForAlle: true,
+
     tilgjengeligForArrangorFraOgMedDato: null,
     nusData: null,
   },
@@ -216,7 +216,7 @@ for (let i = 0; i < x; i++) {
     apentForInnsok: true,
     kontaktpersoner: [],
     publisert: false,
-    publisertForAlle: true,
+
     tilgjengeligForArrangorFraOgMedDato: null,
     nusData: null,
   });

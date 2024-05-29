@@ -163,6 +163,7 @@ data class AdminTiltaksgjennomforingFilter(
     val avtaleId: UUID? = null,
     val arrangorIds: List<UUID> = emptyList(),
     val administratorNavIdent: NavIdent? = null,
+    val publisert: Boolean? = null,
 )
 
 fun <T : Any> PipelineContext<T, ApplicationCall>.getAdminTiltaksgjennomforingsFilter(): AdminTiltaksgjennomforingFilter {
@@ -175,6 +176,7 @@ fun <T : Any> PipelineContext<T, ApplicationCall>.getAdminTiltaksgjennomforingsF
     val sortering = call.request.queryParameters["sort"]
     val avtaleId = call.request.queryParameters["avtaleId"]?.let { if (it.isEmpty()) null else UUID.fromString(it) }
     val arrangorIds = call.parameters.getAll("arrangorer")?.map { UUID.fromString(it) } ?: emptyList()
+    val publisert = call.request.queryParameters["publisert"]?.let { it.toBoolean() }
 
     return AdminTiltaksgjennomforingFilter(
         search = search,
@@ -185,6 +187,7 @@ fun <T : Any> PipelineContext<T, ApplicationCall>.getAdminTiltaksgjennomforingsF
         avtaleId = avtaleId,
         arrangorIds = arrangorIds,
         administratorNavIdent = null,
+        publisert = publisert,
     )
 }
 

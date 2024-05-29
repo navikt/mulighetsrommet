@@ -406,6 +406,11 @@ paths:
               type: string
               format: uuid
         - in: query
+          name: publisert
+          schema:
+            type: boolean
+            nullable: true
+        - in: query
           name: size
           schema:
             type: number
@@ -2171,8 +2176,6 @@ components:
           type: string
         publisert:
           type: boolean
-        publisertForAlle:
-          type: boolean
         deltidsprosent:
           type: number
         estimertVentetid:
@@ -2214,7 +2217,6 @@ components:
         - opphav
         - kontaktpersoner
         - publisert
-        - publisertForAlle
         - deltidsprosent
         - tilgjengeligForArrangorFraOgMedDato
         - nusData
