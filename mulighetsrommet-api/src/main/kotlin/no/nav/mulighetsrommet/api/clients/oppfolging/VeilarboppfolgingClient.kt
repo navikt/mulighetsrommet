@@ -44,19 +44,19 @@ class VeilarboppfolgingClient(
     }
 
     private val oppfolgingsenhetCache: Cache<String, Oppfolgingsenhet> = Caffeine.newBuilder()
-        .expireAfterWrite(30, TimeUnit.MINUTES)
+        .expireAfterWrite(1, TimeUnit.MINUTES)
         .maximumSize(10_000)
         .recordStats()
         .build()
 
     private val gjeldendePeriodeCache: Cache<String, OppfolgingPeriodeMinimalDTO> = Caffeine.newBuilder()
-        .expireAfterWrite(30, TimeUnit.MINUTES)
+        .expireAfterWrite(1, TimeUnit.MINUTES)
         .maximumSize(10_000)
         .recordStats()
         .build()
 
     private val manuellStatusCache: Cache<String, ManuellStatusDto> = Caffeine.newBuilder()
-        .expireAfterWrite(30, TimeUnit.MINUTES)
+        .expireAfterWrite(1, TimeUnit.MINUTES)
         .maximumSize(10_000)
         .recordStats()
         .build()
