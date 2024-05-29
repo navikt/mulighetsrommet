@@ -33,7 +33,7 @@ class VeilarbvedtaksstotteClient(
     }
 
     private val siste14aVedtakCache: Cache<String, VedtakDto> = Caffeine.newBuilder()
-        .expireAfterWrite(30, TimeUnit.MINUTES)
+        .expireAfterWrite(1, TimeUnit.MINUTES)
         .maximumSize(10_000)
         .recordStats()
         .build()
