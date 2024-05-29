@@ -1,4 +1,4 @@
-import { Button, Heading, HStack, Modal } from "@navikt/ds-react";
+import { Button, Heading, HStack, Modal, Search } from "@navikt/ds-react";
 import { Avtale, Tiltaksgjennomforing } from "mulighetsrommet-api-client";
 import { RedaksjoneltInnholdForm } from "../redaksjonelt-innhold/RedaksjoneltInnholdForm";
 import { useFormContext } from "react-hook-form";
@@ -15,6 +15,7 @@ interface Props {
 export function TiltakgjennomforingRedaksjoneltInnholdForm({ avtale }: Props) {
   const [key, setKey] = useState(0);
   const [modalOpen, setModalOpen] = useState<boolean>(false);
+  const [search, setSearch] = useState("");
 
   const { setValue } = useFormContext<InferredTiltaksgjennomforingSchema>();
 
@@ -69,8 +70,16 @@ export function TiltakgjennomforingRedaksjoneltInnholdForm({ avtale }: Props) {
           <Heading size="medium">Kopier redaksjonelt innhold fra gjennomføring</Heading>
         </Modal.Header>
         <Modal.Body className={styles.modal_content}>
+          <Search
+            label="Søk på navn eller tiltaksnummer"
+            variant="simple"
+            hideLabel={false}
+            autoFocus
+            onChange={(search) => setSearch(search)}
+            value={search}
+          />
           <TiltaksgjennomforingerListe
-            filter={{ avtale: avtale.id, pageSize: 1000 }}
+            filter={{ search, avtale: avtale.id, pageSize: 1000 }}
             action={(gjennomforing) => (
               <Button
                 size="small"
