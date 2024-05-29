@@ -126,6 +126,12 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
     }
   }, [watchStartDato]);
 
+  useEffect(() => {
+    if (watchStartDato && new Date(watchStartDato) < new Date()) {
+      setValue("tilgjengeligForArrangorFraOgMedDato", null);
+    }
+  }, [watchStartDato]);
+
   const watchSluttDato = watch("startOgSluttDato.sluttDato");
   useEffect(() => {
     if (
