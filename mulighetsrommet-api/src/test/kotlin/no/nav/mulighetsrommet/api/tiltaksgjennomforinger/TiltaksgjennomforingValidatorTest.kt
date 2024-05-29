@@ -194,6 +194,32 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
         )
     }
 
+    test("kan ikke opprette dersom tilgjengeligForArrangor er mer enn 2 måneder før startdato") {
+        val validator = TiltaksgjennomforingValidator(tiltakstyper, avtaler, arrangorer)
+        val startdato = avtale.startDato.plusDays(1)
+        val dbo = gjennomforing.copy(
+            startDato = startdato,
+            tilgjengeligForArrangorFraOgMedDato = startdato.minusMonths(2).minusDays(1),
+        )
+
+        validator.validate(dbo, null).shouldBeLeft(
+            listOf(ValidationError("tilgjengeligForArrangorFraOgMedDato", "Du må velge en dato som er tidligst to måneder før oppstartsdato")),
+        )
+    }
+
+    test("kan ikke opprette dersom tilgjengeligForArrangor er etter gjennomføringens startdato") {
+        val validator = TiltaksgjennomforingValidator(tiltakstyper, avtaler, arrangorer)
+        val startdato = avtale.startDato.plusDays(1)
+        val dbo = gjennomforing.copy(
+            startDato = startdato,
+            tilgjengeligForArrangorFraOgMedDato = startdato.plusDays(1),
+        )
+
+        validator.validate(dbo, null).shouldBeLeft(
+            listOf(ValidationError("tilgjengeligForArrangorFraOgMedDato", "Du må velge en dato som er før oppstartsdato")),
+        )
+    }
+
     test("sluttDato er påkrevd hvis ikke forhåndsgodkjent avtale") {
         val validator = TiltaksgjennomforingValidator(
             TiltakstypeService(TiltakstypeRepository(database.db), Tiltakskode.entries),

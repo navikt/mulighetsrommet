@@ -134,13 +134,24 @@ class TiltaksgjennomforingValidator(
                 }
             }
 
-            if (dbo.tilgjengeligForArrangorFraOgMedDato != null && dbo.tilgjengeligForArrangorFraOgMedDato.isAfter(dbo.startDato)) {
-                add(
-                    ValidationError.of(
-                        TiltaksgjennomforingDbo::tilgjengeligForArrangorFraOgMedDato,
-                        "Du må velge en dato som er før oppstartsdato",
-                    ),
-                )
+            if (dbo.tilgjengeligForArrangorFraOgMedDato != null) {
+                if (dbo.tilgjengeligForArrangorFraOgMedDato.isAfter(dbo.startDato)) {
+                    add(
+                        ValidationError.of(
+                            TiltaksgjennomforingDbo::tilgjengeligForArrangorFraOgMedDato,
+                            "Du må velge en dato som er før oppstartsdato",
+                        ),
+                    )
+                }
+
+                if (dbo.tilgjengeligForArrangorFraOgMedDato.isBefore(dbo.startDato.minusMonths(2))) {
+                    add(
+                        ValidationError.of(
+                            TiltaksgjennomforingDbo::tilgjengeligForArrangorFraOgMedDato,
+                            "Du må velge en dato som er tidligst to måneder før oppstartsdato",
+                        ),
+                    )
+                }
             }
 
             if (previous == null) {
