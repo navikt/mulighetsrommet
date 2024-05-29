@@ -1,5 +1,5 @@
 [versions]
-common-java-modules = "3.2024.01.24_10.14-f70bae69bd65"
+common-java-modules = "3.2024.05.23_05.46-2b29fa343e8e"
 flyway = "10.12.0"
 hoplite = "2.7.5"
 koin = "3.5.6"
