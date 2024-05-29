@@ -17,6 +17,11 @@ export function DetaljerJoyride({ opprettAvtale }: Props) {
     const { action, index, status, type } = data;
     const nextStepIndex = index + (action === ACTIONS.PREV ? -1 : 1);
 
+    // Hopper over steg hvis target ikke eksisterer
+    if (EVENTS.TARGET_NOT_FOUND === type) {
+      setStepIndex(nextStepIndex);
+    }
+
     //kjører neste step når man klikker på neste
     if (EVENTS.STEP_AFTER === type) {
       setStepIndex(nextStepIndex);
