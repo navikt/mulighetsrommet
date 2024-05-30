@@ -66,7 +66,7 @@ interface StatusProps {
   status: DeltakerStatus;
 }
 
-export function Status({ status }: StatusProps) {
+function Status({ status }: StatusProps) {
   const { visningstekst } = status;
   switch (status.type) {
     case DeltakerStatusType.DELTAR:
