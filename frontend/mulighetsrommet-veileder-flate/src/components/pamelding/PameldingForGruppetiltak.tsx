@@ -69,25 +69,17 @@ export function PameldingForGruppetiltak({
       </Button>
     );
   } else if (aktivDeltakelse) {
-    const test = {
-      ...aktivDeltakelse,
-      status: {
-        ...aktivDeltakelse.status,
-        visningstekst: "Deltar",
-        type: DeltakerStatusType.KLADD,
-      },
-    };
-    const tekster = utledTekster(test);
+    const tekster = utledTekster(aktivDeltakelse);
     return (
       <Alert variant={tekster.variant}>
         <Heading level={"2"} size="small">
           {tekster.overskrift}
         </Heading>
         <VStack gap="2">
-          <BodyShort spacing>{tekster.tekst}</BodyShort>
+          {tekster.tekst ? <BodyShort>{tekster.tekst}</BodyShort> : null}
           {vedtakRoute ? (
             <BodyShort>
-              <Link to={vedtakRoute.href}>Gå til vedtaket</Link>
+              <Link to={vedtakRoute.href}>{tekster.lenketekst}</Link>
             </BodyShort>
           ) : null}
         </VStack>
@@ -98,32 +90,35 @@ export function PameldingForGruppetiltak({
 
 function utledTekster(deltakelse: DeltakerKort): {
   overskrift: string;
-  tekst: string;
+  tekst?: string;
+  lenketekst: string;
   variant: "info" | "success";
 } {
   switch (deltakelse.status.type) {
     case DeltakerStatusType.VENTER_PA_OPPSTART:
       return {
         overskrift: "Venter på oppstart",
-        tekst: "Bruker venter på oppstart",
         variant: "info",
+        lenketekst: "Gå til vedtaket",
       };
     case DeltakerStatusType.DELTAR:
       return {
         overskrift: "Aktiv deltakelse",
-        tekst: "Bruker deltar på tiltaket",
         variant: "success",
+        lenketekst: "Gå til vedtaket",
       };
     case DeltakerStatusType.UTKAST_TIL_PAMELDING:
       return {
         overskrift: "Utkast til påmelding",
         tekst: "Bruker har et utkast til påmelding",
         variant: "info",
+        lenketekst: "Gå til vedtaket",
       };
     case DeltakerStatusType.KLADD:
       return {
-        overskrift: "Kladd",
-        tekst: "Bruker har en kladd til påmelding",
+        overskrift: "Kladd opprettet",
+        tekst: "Kladd er ikke delt med bruker",
+        lenketekst: "Gå til kladden",
         variant: "info",
       };
     default:
