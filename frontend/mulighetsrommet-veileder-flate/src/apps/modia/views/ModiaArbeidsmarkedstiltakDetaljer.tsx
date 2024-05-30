@@ -19,20 +19,16 @@ import { paginationAtom } from "@/core/atoms";
 import { isProduction } from "@/environment";
 import { ViewTiltaksgjennomforingDetaljer } from "@/layouts/ViewTiltaksgjennomforingDetaljer";
 import { Chat2Icon } from "@navikt/aksel-icons";
-import { Alert, BodyShort, Button, Heading, Link, VStack } from "@navikt/ds-react";
+import { Alert, Button } from "@navikt/ds-react";
 import { useAtomValue } from "jotai";
 import {
   Bruker,
-  DeltakerStatusType,
   NavVeileder,
   TiltakskodeArena,
   Toggles,
-  VeilederflateTiltaksgjennomforing,
   VeilederflateTiltakstype,
 } from "mulighetsrommet-api-client";
 import { useTitle } from "mulighetsrommet-frontend-common";
-import { useHistorikkV2 } from "../../../api/queries/useHistorikkV2";
-import { ReactNode } from "react";
 import { PameldingForGruppetiltak } from "../../../components/pamelding/PameldingForGruppetiltak";
 
 export function ModiaArbeidsmarkedstiltakDetaljer() {

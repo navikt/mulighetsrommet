@@ -1,17 +1,16 @@
-import { Button, Alert, Heading, VStack, BodyShort } from "@navikt/ds-react";
+import { Alert, BodyShort, Button, Heading, VStack } from "@navikt/ds-react";
 import {
-  VeilederflateTiltaksgjennomforing,
+  DeltakerKort,
   DeltakerStatusType,
   TiltakskodeArena,
+  VeilederflateTiltaksgjennomforing,
   VeilederflateTiltakstype,
-  DeltakerKort,
 } from "mulighetsrommet-api-client";
 import { ReactNode } from "react";
+import { Link } from "react-router-dom";
 import { useGetTiltaksgjennomforingIdFraUrl } from "../../api/queries/useGetTiltaksgjennomforingIdFraUrl";
 import { useHistorikkV2 } from "../../api/queries/useHistorikkV2";
-import { resolveModiaRoute, ModiaRoute } from "../../apps/modia/ModiaRoute";
-import { Link } from "react-router-dom";
-import { Status } from "../../apps/modia/historikk/DeltakelseKort";
+import { ModiaRoute, resolveModiaRoute } from "../../apps/modia/ModiaRoute";
 
 interface PameldingProps {
   kanOppretteAvtaleForTiltak: boolean;
