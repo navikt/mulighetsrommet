@@ -7,7 +7,6 @@ import {
   VeilederflateTiltakstype,
 } from "mulighetsrommet-api-client";
 import { ReactNode } from "react";
-import { Link } from "react-router-dom";
 import { useGetTiltaksgjennomforingIdFraUrl } from "../../api/queries/useGetTiltaksgjennomforingIdFraUrl";
 import { useHistorikkV2 } from "../../api/queries/useHistorikkV2";
 import { ModiaRoute, resolveModiaRoute } from "../../apps/modia/ModiaRoute";
