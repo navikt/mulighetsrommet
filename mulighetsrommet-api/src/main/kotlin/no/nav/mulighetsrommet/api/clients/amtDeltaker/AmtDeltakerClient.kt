@@ -78,6 +78,8 @@ data class DeltakelserResponse(
 data class DeltakerKort(
     @Serializable(with = UUIDSerializer::class)
     val deltakerId: UUID,
+    @Serializable(with = UUIDSerializer::class)
+    val deltakerlisteId: UUID,
     val tittel: String,
     val tiltakstype: DeltakelserResponse.Tiltakstype,
     val status: DeltakerStatus,

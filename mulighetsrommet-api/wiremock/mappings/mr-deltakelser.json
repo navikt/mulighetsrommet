@@ -9,6 +9,7 @@
       "aktive": [
         {
           "deltakerId": "3348fb45-64a1-44b8-a021-f1a4e0bd6a77",
+          "deltakerlisteId": "494fe9d4-a585-413d-8a56-6fae5601704e",
           "innsoktDato": "2024-03-02",
           "sistEndretDato": "2024-03-27",
           "status": {
@@ -30,6 +31,7 @@
             "tiltakskode": "INDOPPFAG"
           },
           "deltakerId": "cac3b5bf-a10c-4dfa-a392-6866d0ce1efa",
+          "deltakerlisteId": "2d2e986b-0844-446a-85ec-95b3c32d9533",
           "status": {
             "type": "AVBRUTT_UTKAST",
             "visningstekst": "Avbrutt utkast"

@@ -10,8 +10,8 @@ import {
   NavEnhetType,
 } from "mulighetsrommet-api-client";
 import { historikk } from "../../fixtures/historikk";
-import { historikkFraKomet } from "../../fixtures/mockHistorikkFraKomet";
-import { utkastFraKomet } from "@/mock/fixtures/utkastFraKomet";
+import { historikkFraKomet } from "../../fixtures/mockKometHistorikk";
+import { utkastFraKomet } from "@/mock/fixtures/mockKometUtkast";
 
 export const brukerHandlers = [
   http.post<PathParams, GetBrukerRequest, Bruker | String>(
