@@ -78,6 +78,7 @@ function Status({ status }: StatusProps) {
     case DeltakerStatusType.IKKE_AKTUELL:
     case DeltakerStatusType.AVBRUTT_UTKAST:
     case DeltakerStatusType.AVBRUTT:
+    case DeltakerStatusType.FEILREGISTRERT:
       return (
         <Tag size="small" variant="neutral">
           {visningstekst}

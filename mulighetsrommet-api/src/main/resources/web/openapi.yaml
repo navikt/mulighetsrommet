@@ -2672,6 +2672,7 @@ components:
         - VENTELISTE
         - AVBRUTT
         - FULLFORT
+        - FEILREGISTRERT
 
     DeltakerStatus:
       type: object

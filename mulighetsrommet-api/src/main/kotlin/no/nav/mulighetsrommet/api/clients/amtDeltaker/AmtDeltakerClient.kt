@@ -111,6 +111,7 @@ data class DeltakerStatus(
         VENTELISTE,
         AVBRUTT,
         FULLFORT,
+        FEILREGISTRERT,
     }
 }
 
