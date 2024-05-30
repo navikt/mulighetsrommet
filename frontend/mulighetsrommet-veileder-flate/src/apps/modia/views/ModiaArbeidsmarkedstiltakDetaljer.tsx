@@ -1,3 +1,8 @@
+import { InlineErrorBoundary } from "@/ErrorBoundary";
+import { useFeatureToggle } from "@/api/feature-toggles";
+import { useGetTiltaksgjennomforingIdFraUrl } from "@/api/queries/useGetTiltaksgjennomforingIdFraUrl";
+import { useTiltaksgjennomforingById } from "@/api/queries/useTiltaksgjennomforingById";
+import { ModiaRoute, resolveModiaRoute } from "@/apps/modia/ModiaRoute";
 import { DelMedBruker } from "@/apps/modia/delMedBruker/DelMedBruker";
 import { useHentBrukerdata } from "@/apps/modia/hooks/useHentBrukerdata";
 import { useHentDeltMedBrukerStatus } from "@/apps/modia/hooks/useHentDeltMedbrukerStatus";
@@ -7,28 +12,26 @@ import { BrukerKvalifisererIkkeVarsel } from "@/apps/modia/varsler/BrukerKvalifi
 import { TiltakLoader } from "@/components/TiltakLoader";
 import { DetaljerJoyride } from "@/components/joyride/DetaljerJoyride";
 import { OpprettAvtaleJoyride } from "@/components/joyride/OpprettAvtaleJoyride";
+import { PersonvernContainer } from "@/components/personvern/PersonvernContainer";
+import { LenkeListe } from "@/components/sidemeny/Lenker";
 import { Tilbakeknapp } from "@/components/tilbakeknapp/Tilbakeknapp";
-import { useFeatureToggle } from "@/api/feature-toggles";
-import { useGetTiltaksgjennomforingIdFraUrl } from "@/api/queries/useGetTiltaksgjennomforingIdFraUrl";
-import { useTiltaksgjennomforingById } from "@/api/queries/useTiltaksgjennomforingById";
 import { paginationAtom } from "@/core/atoms";
 import { isProduction } from "@/environment";
 import { ViewTiltaksgjennomforingDetaljer } from "@/layouts/ViewTiltaksgjennomforingDetaljer";
 import { Chat2Icon } from "@navikt/aksel-icons";
-import { Alert, Button } from "@navikt/ds-react";
+import { Alert, BodyShort, Button, Heading, Link, VStack } from "@navikt/ds-react";
 import { useAtomValue } from "jotai";
 import {
   Bruker,
   NavVeileder,
   TiltakskodeArena,
   Toggles,
+  VeilederflateTiltaksgjennomforing,
   VeilederflateTiltakstype,
 } from "mulighetsrommet-api-client";
 import { useTitle } from "mulighetsrommet-frontend-common";
-import { LenkeListe } from "@/components/sidemeny/Lenker";
-import { ModiaRoute, resolveModiaRoute } from "@/apps/modia/ModiaRoute";
-import { PersonvernContainer } from "@/components/personvern/PersonvernContainer";
-import { InlineErrorBoundary } from "@/ErrorBoundary";
+import { useHistorikkV2 } from "../../../api/queries/useHistorikkV2";
+import { ReactNode } from "react";
 
 export function ModiaArbeidsmarkedstiltakDetaljer() {
   const { fnr } = useModiaContext();
@@ -62,10 +65,6 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
 
   const pagination = useAtomValue(paginationAtom);
 
-  const { data: enableDeltakerRegistrering } = useFeatureToggle(
-    Toggles.MULIGHETSROMMET_VEILEDERFLATE_VIS_DELTAKER_REGISTRERING,
-  );
-
   if (isPendingTiltak || isPendingVeilederdata || isPendingBrukerdata) {
     return <TiltakLoader />;
   }
@@ -78,16 +77,6 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
   const kanOppretteAvtaleForTiltak =
     isIndividueltTiltak(tiltakstype) && brukerdata.erUnderOppfolging;
   const brukerHarRettPaaValgtTiltak = harBrukerRettPaaValgtTiltak(brukerdata, tiltakstype);
-  const skalVisePameldingslenke =
-    enableDeltakerRegistrering &&
-    !kanOppretteAvtaleForTiltak &&
-    brukerHarRettPaaValgtTiltak &&
-    tiltakstypeStotterPamelding(tiltakstype);
-
-  const opprettDeltakelseRoute = resolveModiaRoute({
-    route: ModiaRoute.ARBEIDSMARKEDSTILTAK_OPPRETT_DELTAKELSE,
-    gjennomforingId: id,
-  });
 
   const dialogRoute = delMedBrukerInfo
     ? resolveModiaRoute({
@@ -138,11 +127,11 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
               </Button>
             )}
 
-            {skalVisePameldingslenke ? (
-              <Button variant={"primary"} onClick={opprettDeltakelseRoute.navigate}>
-                Start påmelding
-              </Button>
-            ) : null}
+            <Pamelding
+              kanOppretteAvtaleForTiltak={kanOppretteAvtaleForTiltak}
+              brukerHarRettPaaValgtTiltak={brukerHarRettPaaValgtTiltak}
+              tiltaksgjennomforing={tiltaksgjennomforing}
+            />
 
             {brukerdata.erUnderOppfolging ? (
               <DelMedBruker
@@ -237,4 +226,73 @@ function tiltakstypeStotterPamelding(tiltakstype: VeilederflateTiltakstype): boo
   return (
     !!tiltakstype.arenakode && whitelistTiltakstypeStotterPamelding.includes(tiltakstype.arenakode)
   );
+}
+
+interface PameldingProps {
+  kanOppretteAvtaleForTiltak: boolean;
+  brukerHarRettPaaValgtTiltak: boolean;
+  tiltaksgjennomforing: VeilederflateTiltaksgjennomforing;
+}
+
+function Pamelding({
+  kanOppretteAvtaleForTiltak,
+  brukerHarRettPaaValgtTiltak,
+  tiltaksgjennomforing,
+}: PameldingProps): ReactNode {
+  const { data: enableDeltakerRegistrering } = useFeatureToggle(
+    Toggles.MULIGHETSROMMET_VEILEDERFLATE_VIS_DELTAKER_REGISTRERING,
+  );
+  const { data: deltakerHistorikk } = useHistorikkV2();
+  const { aktive = [] } = deltakerHistorikk || {};
+  const gjennomforingId = useGetTiltaksgjennomforingIdFraUrl();
+
+  const harAktivDeltakelse = aktive.find((a) => a.deltakerlisteId === gjennomforingId);
+
+  if (!enableDeltakerRegistrering) return null;
+
+  const skalVisePameldingslenke =
+    enableDeltakerRegistrering &&
+    !kanOppretteAvtaleForTiltak &&
+    brukerHarRettPaaValgtTiltak &&
+    tiltakstypeStotterPamelding(tiltaksgjennomforing.tiltakstype) &&
+    !harAktivDeltakelse;
+
+  const opprettDeltakelseRoute = resolveModiaRoute({
+    route: ModiaRoute.ARBEIDSMARKEDSTILTAK_OPPRETT_DELTAKELSE,
+    gjennomforingId,
+  });
+
+  let vedtakRoute = null;
+  if (harAktivDeltakelse) {
+    vedtakRoute = resolveModiaRoute({
+      route: ModiaRoute.ARBEIDSMARKEDSTILTAK_DELTAKELSE,
+      deltakerId: harAktivDeltakelse.deltakerId,
+    });
+  }
+
+  if (skalVisePameldingslenke) {
+    return (
+      <Button variant={"primary"} onClick={opprettDeltakelseRoute.navigate}>
+        Start påmelding
+      </Button>
+    );
+  } else if (harAktivDeltakelse) {
+    return (
+      <Alert variant="success">
+        <Heading level={"2"} size="small">
+          Aktiv deltakelse
+        </Heading>
+        <VStack>
+          <BodyShort spacing>Bruker deltar på tiltaket</BodyShort>
+          {vedtakRoute ? (
+            <BodyShort>
+              <Link href={vedtakRoute.href}>Gå til vedtaket</Link>
+            </BodyShort>
+          ) : null}
+        </VStack>
+      </Alert>
+    );
+  }
+
+  return null;
 }

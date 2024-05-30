@@ -2927,6 +2927,7 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
     kanKombineresMed: [],
   },
   avklaring: {
+    arenakode: TiltakskodeArena.AVKLARAG,
     regelverkLenker: [
       {
         _id: "123",

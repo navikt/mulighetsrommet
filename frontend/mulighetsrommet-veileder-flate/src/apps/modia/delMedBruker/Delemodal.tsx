@@ -166,8 +166,8 @@ export function Delemodal({
 
           <BodyShort size="small">
             Kandidatene vil få et varsel fra NAV, og kan logge inn på nav.no for å lese meldingen.
-            <div className={style.hr} />
           </BodyShort>
+          <div className={style.hr} />
           <div className={style.knapperad}>
             <Button
               size="small"
