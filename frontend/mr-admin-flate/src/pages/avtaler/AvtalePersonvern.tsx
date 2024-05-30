@@ -20,7 +20,7 @@ export function AvtalePersonvern() {
     );
   }
 
-  if (avtale.personopplysninger.length === 0) {
+  if (!avtale.personvernBekreftet) {
     return (
       <Alert style={{ margin: "1rem" }} variant="info">
         Hvilke personopplysninger som kan behandles er ikke bekreftet
@@ -28,59 +28,34 @@ export function AvtalePersonvern() {
     );
   }
 
-  const alltid =
-    tiltakstype?.personopplysninger?.ALLTID.filter((p) =>
-      avtale.personopplysninger.includes(p.personopplysning),
-    ) ?? [];
-  const ofte =
-    tiltakstype?.personopplysninger?.OFTE.filter((p) =>
-      avtale.personopplysninger.includes(p.personopplysning),
-    ) ?? [];
-  const sjelden =
-    tiltakstype?.personopplysninger?.SJELDEN.filter((p) =>
-      avtale.personopplysninger.includes(p.personopplysning),
-    ) ?? [];
+  if (avtale.personopplysninger.length === 0) {
+    return (
+      <Alert style={{ margin: "1rem" }} variant="info">
+        Ingen personopplysninger kan behandles i denne avtalen
+      </Alert>
+    );
+  }
+
+  const personopplysninger = tiltakstype?.personopplysninger?.filter((p) =>
+    avtale.personopplysninger.includes(p.personopplysning),
+  );
 
   return (
     <VStack gap="4" className={styles.info_container}>
       <HGrid columns={2}>
-        {alltid.length > 0 && (
-          <List size="small" as="ul" title="Opplysninger om brukeren som alltid kan/må behandles">
-            {alltid.map((p) => (
+        {personopplysninger && (
+          <List
+            size="small"
+            as="ul"
+            title="Følgende personopplysninger om deltager kan behandles i denne avtalen"
+          >
+            {personopplysninger?.map((p) => (
               <ListWithHelpText hjelpetekst={p.hjelpetekst} key={p.personopplysning}>
                 {p.beskrivelse}
               </ListWithHelpText>
             ))}
           </List>
         )}
-        <VStack justify="start">
-          {ofte.length > 0 && (
-            <List
-              size="small"
-              as="ul"
-              title="Opplysninger om brukeren som ofte er nødvendig og relevant å behandle"
-            >
-              {ofte.map((p) => (
-                <ListWithHelpText hjelpetekst={p.hjelpetekst} key={p.personopplysning}>
-                  {p.beskrivelse}
-                </ListWithHelpText>
-              ))}
-            </List>
-          )}
-          {sjelden.length > 0 && (
-            <List
-              size="small"
-              as="ul"
-              title="Opplysninger om brukeren som sjelden eller i helt spesielle tilfeller er nødvendig og relevant å behandle"
-            >
-              {sjelden.map((p) => (
-                <ListWithHelpText hjelpetekst={p.hjelpetekst} key={p.personopplysning}>
-                  {p.beskrivelse}
-                </ListWithHelpText>
-              ))}
-            </List>
-          )}
-        </VStack>
       </HGrid>
     </VStack>
   );

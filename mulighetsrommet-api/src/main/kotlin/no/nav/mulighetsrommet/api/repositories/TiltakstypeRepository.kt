@@ -230,6 +230,7 @@ class TiltakstypeRepository(private val db: Database) {
         val personopplysninger =
             Json.decodeFromString<List<PersonopplysningMedHjelpetekst>>(string("personopplysninger"))
                 .map { it.personopplysning.toPersonopplysningMedBeskrivelse(it.hjelpetekst) }
+                .sortedBy { it.beskrivelse }
 
         return TiltakstypeAdminDto(
             id = uuid("id"),

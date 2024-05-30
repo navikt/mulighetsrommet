@@ -81,16 +81,8 @@ export function PersonvernContainer({ tiltaksgjennomforing }: Props) {
           </BodyLong>
           <VStack gap="5">
             <ListeOverPersonopplysninger
-              title="Opplysninger om bruker som alltid kan/må behandles"
-              personopplysninger={data.ALLTID}
-            />
-            <ListeOverPersonopplysninger
-              title="Opplysninger om bruker som ofte er nødvendig og relevant å behandle"
-              personopplysninger={data.OFTE}
-            />
-            <ListeOverPersonopplysninger
-              title="Opplysninger om bruker som sjelden eller i helt spesielle tilfeller er nødvendig og relevant å behandle"
-              personopplysninger={data.SJELDEN}
+              title="Følgende personopplysninger om deltager kan behandles i denne avtalen"
+              personopplysninger={data}
             />
           </VStack>
         </ModalBody>

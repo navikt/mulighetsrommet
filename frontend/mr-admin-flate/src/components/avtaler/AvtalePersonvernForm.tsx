@@ -13,7 +13,6 @@ import {
 } from "@navikt/ds-react";
 import { PersonopplysningMedBeskrivelse } from "mulighetsrommet-api-client";
 import { addOrRemove } from "mulighetsrommet-frontend-common/utils/utils";
-import { useEffect } from "react";
 import { useFormContext } from "react-hook-form";
 import { Separator } from "../detaljside/Metadata";
 import { InferredAvtaleSchema } from "../redaksjonelt-innhold/AvtaleSchema";
@@ -29,14 +28,6 @@ export function AvtalePersonvernForm({ tiltakstypeId }: Props) {
   const { data: tiltakstype } = useTiltakstype(tiltakstypeId);
 
   const watchPersonopplysninger = watch("personopplysninger");
-  useEffect(() => {
-    if (watchPersonopplysninger.length === 0 && tiltakstype) {
-      setValue(
-        "personopplysninger",
-        tiltakstype.personopplysninger.ALLTID.map((p) => p.personopplysning) ?? [],
-      );
-    }
-  }, [watchPersonopplysninger, tiltakstype]);
 
   if (!tiltakstypeId) {
     return (
@@ -54,13 +45,13 @@ export function AvtalePersonvernForm({ tiltakstypeId }: Props) {
     return (
       <VStack>
         <Label size="small">{props.label}</Label>
-        <BodyShort size="small" textColor="subtle">
+        <BodyShort spacing size="small" textColor="subtle">
           {props.description}
         </BodyShort>
         {props.personopplysninger?.map((p: PersonopplysningMedBeskrivelse) => (
           <HStack align="start" gap="1" key={p.personopplysning}>
             <Checkbox
-              checked={watchPersonopplysninger.includes(p.personopplysning)}
+              checked={!!watchPersonopplysninger.includes(p.personopplysning)}
               onChange={() =>
                 setValue(
                   "personopplysninger",
@@ -85,23 +76,11 @@ export function AvtalePersonvernForm({ tiltakstypeId }: Props) {
         er ansvarlig for at listen er i samsvar med gjeldende databehandleravtale.
       </GuidePanel>
       <HStack wrap gap="10">
-        <VStack>
+        <VStack gap="5">
           <PersonopplysningCheckboxList
-            label="Opplysninger om brukeren som alltid kan/må behandles"
+            label="Følgende personopplysninger om deltager kan behandles i denne avtalen"
             description="Fjern avhukingen hvis noen av opplysningene ikke er relevante for denne avtalen."
-            personopplysninger={tiltakstype?.personopplysninger?.ALLTID}
-          />
-        </VStack>
-        <VStack justify="space-between" gap="10">
-          <PersonopplysningCheckboxList
-            label="Opplysninger om brukeren som ofte er nødvendig og relevant å behandle"
-            description="Huk av for de opplysningene som er avtalt i databehandleravtalen."
-            personopplysninger={tiltakstype?.personopplysninger?.OFTE}
-          />
-          <PersonopplysningCheckboxList
-            label="Opplysninger om brukeren som sjelden eller i helt spesielle tilfeller er nødvendig og relevant å behandle"
-            description="Huk av for de opplysningene som er avtalt i databehandleravtalen."
-            personopplysninger={tiltakstype?.personopplysninger?.SJELDEN}
+            personopplysninger={tiltakstype?.personopplysninger}
           />
           <BodyShort size="small">
             *Se egne retningslinjer om dette i{" "}
