@@ -41,6 +41,9 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
     fnr,
     id,
   );
+  const { data: enableDeltakerRegistrering } = useFeatureToggle(
+    Toggles.MULIGHETSROMMET_VEILEDERFLATE_VIS_DELTAKER_REGISTRERING,
+  );
 
   const {
     data: veilederdata,
@@ -128,11 +131,13 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
               </Button>
             )}
 
-            <Pamelding
-              kanOppretteAvtaleForTiltak={kanOppretteAvtaleForTiltak}
-              brukerHarRettPaaValgtTiltak={brukerHarRettPaaValgtTiltak}
-              tiltaksgjennomforing={tiltaksgjennomforing}
-            />
+            {enableDeltakerRegistrering ? (
+              <Pamelding
+                kanOppretteAvtaleForTiltak={kanOppretteAvtaleForTiltak}
+                brukerHarRettPaaValgtTiltak={brukerHarRettPaaValgtTiltak}
+                tiltaksgjennomforing={tiltaksgjennomforing}
+              />
+            ) : null}
 
             {brukerdata.erUnderOppfolging ? (
               <DelMedBruker
@@ -240,9 +245,6 @@ function Pamelding({
   brukerHarRettPaaValgtTiltak,
   tiltaksgjennomforing,
 }: PameldingProps): ReactNode {
-  const { data: enableDeltakerRegistrering } = useFeatureToggle(
-    Toggles.MULIGHETSROMMET_VEILEDERFLATE_VIS_DELTAKER_REGISTRERING,
-  );
   const { data: deltakerHistorikk } = useHistorikkV2();
   const { aktive = [] } = deltakerHistorikk || {};
   const gjennomforingId = useGetTiltaksgjennomforingIdFraUrl();
@@ -251,10 +253,7 @@ function Pamelding({
     (a) => a.deltakerlisteId === gjennomforingId && a.status.type === DeltakerStatusType.DELTAR,
   );
 
-  if (!enableDeltakerRegistrering) return null;
-
   const skalVisePameldingslenke =
-    enableDeltakerRegistrering &&
     !kanOppretteAvtaleForTiltak &&
     brukerHarRettPaaValgtTiltak &&
     tiltakstypeStotterPamelding(tiltaksgjennomforing.tiltakstype) &&
