@@ -23,6 +23,7 @@ import { Alert, BodyShort, Button, Heading, Link, VStack } from "@navikt/ds-reac
 import { useAtomValue } from "jotai";
 import {
   Bruker,
+  DeltakerStatusType,
   NavVeileder,
   TiltakskodeArena,
   Toggles,
@@ -246,7 +247,9 @@ function Pamelding({
   const { aktive = [] } = deltakerHistorikk || {};
   const gjennomforingId = useGetTiltaksgjennomforingIdFraUrl();
 
-  const harAktivDeltakelse = aktive.find((a) => a.deltakerlisteId === gjennomforingId);
+  const harAktivDeltakelse = aktive.find(
+    (a) => a.deltakerlisteId === gjennomforingId && a.status.type === DeltakerStatusType.DELTAR,
+  );
 
   if (!enableDeltakerRegistrering) return null;
 
