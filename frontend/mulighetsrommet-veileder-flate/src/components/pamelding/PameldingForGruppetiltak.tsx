@@ -78,7 +78,9 @@ export function PameldingForGruppetiltak({
           {tekster.tekst ? <BodyShort>{tekster.tekst}</BodyShort> : null}
           {vedtakRoute ? (
             <BodyShort>
-              <Link to={vedtakRoute.href}>{tekster.lenketekst}</Link>
+              <Button size="xsmall" onClick={vedtakRoute.navigate}>
+                {tekster.lenketekst}
+              </Button>
             </BodyShort>
           ) : null}
         </VStack>
