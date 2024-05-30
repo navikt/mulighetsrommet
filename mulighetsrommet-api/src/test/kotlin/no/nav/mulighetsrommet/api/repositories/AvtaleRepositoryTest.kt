@@ -960,11 +960,11 @@ class AvtaleRepositoryTest : FunSpec({
 
             @Language("PostgreSQL")
             val insertPersonopplysningerForTiltakstypeQuery = """
-                insert into tiltakstype_personopplysning(tiltakskode, personopplysning, frekvens) values
-                ('OPPFOLGING'::tiltakskode, 'NAVN', 'ALLTID'::personopplysning_frekvens),
-                ('OPPFOLGING'::tiltakskode, 'KJONN', 'ALLTID'::personopplysning_frekvens),
-                ('OPPFOLGING'::tiltakskode, 'IP_ADRESSE', 'OFTE'::personopplysning_frekvens),
-                ('OPPFOLGING'::tiltakskode, 'ADFERD', 'SJELDEN'::personopplysning_frekvens)
+                insert into tiltakstype_personopplysning(tiltakskode, personopplysning) values
+                ('OPPFOLGING'::tiltakskode, 'NAVN'),
+                ('OPPFOLGING'::tiltakskode, 'KJONN'),
+                ('OPPFOLGING'::tiltakskode, 'IP_ADRESSE'),
+                ('OPPFOLGING'::tiltakskode, 'ADFERD')
             """.trimIndent()
 
             queryOf(insertPersonopplysningerForTiltakstypeQuery).asExecute.let { database.db.run(it) }
@@ -976,33 +976,28 @@ class AvtaleRepositoryTest : FunSpec({
 
         test("Skal hente korrekt grupperte opplysninger om behandling av personopplysninger") {
             val avtaleId = AvtaleFixtures.oppfolging.id
-            val expectedPersonopplysningerMedBeskrivelse = mapOf(
-                PersonopplysningFrekvens.ALLTID to listOf(
-                    PersonopplysningMedBeskrivelse(
-                        personopplysning = Personopplysning.NAVN,
-                        beskrivelse = "Navn",
-                        hjelpetekst = null,
-                    ),
-                    PersonopplysningMedBeskrivelse(
-                        personopplysning = Personopplysning.KJONN,
-                        beskrivelse = "Kjønn",
-                        hjelpetekst = null,
-                    ),
+            val expectedPersonopplysningerMedBeskrivelse = listOf(
+                PersonopplysningMedBeskrivelse(
+                    personopplysning = Personopplysning.NAVN,
+                    beskrivelse = "Navn",
+                    hjelpetekst = null,
                 ),
-                PersonopplysningFrekvens.OFTE to listOf(
-                    PersonopplysningMedBeskrivelse(
-                        personopplysning = Personopplysning.IP_ADRESSE,
-                        beskrivelse = "IP-adresse",
-                        hjelpetekst = null,
-                    ),
+                PersonopplysningMedBeskrivelse(
+                    personopplysning = Personopplysning.KJONN,
+                    beskrivelse = "Kjønn",
+                    hjelpetekst = null,
                 ),
-                PersonopplysningFrekvens.SJELDEN to listOf(
-                    PersonopplysningMedBeskrivelse(
-                        personopplysning = Personopplysning.ADFERD,
-                        beskrivelse = "Opplysninger om atferd som kan ha betydning for tiltaksgjennomføring og jobbmuligheter (eks. truende adferd, vanskelig å samarbeide med osv.)",
-                        hjelpetekst = null,
-                    ),
+                PersonopplysningMedBeskrivelse(
+                    personopplysning = Personopplysning.IP_ADRESSE,
+                    beskrivelse = "IP-adresse",
+                    hjelpetekst = null,
                 ),
+                PersonopplysningMedBeskrivelse(
+                    personopplysning = Personopplysning.ADFERD,
+                    beskrivelse = "Opplysninger om atferd som kan ha betydning for tiltaksgjennomføring og jobbmuligheter (eks. truende adferd, vanskelig å samarbeide med osv.)",
+                    hjelpetekst = null,
+                ),
+
             )
 
             avtaler.upsert(
@@ -1025,11 +1020,7 @@ class AvtaleRepositoryTest : FunSpec({
 
         test("Skal ikke hente noe info om behandling av personopplysninger hvis personvern ikke er bekreftet for avtalen") {
             val avtaleId = AvtaleFixtures.oppfolging.id
-            val expectedPersonopplysningerMedBeskrivelse = mapOf(
-                PersonopplysningFrekvens.ALLTID to emptyList(),
-                PersonopplysningFrekvens.OFTE to emptyList(),
-                PersonopplysningFrekvens.SJELDEN to emptyList<List<PersonopplysningMedBeskrivelse>>(),
-            )
+            val expectedPersonopplysningerMedBeskrivelse: List<PersonopplysningMedBeskrivelse> = emptyList()
 
             avtaler.upsert(
                 AvtaleFixtures.oppfolging.copy(

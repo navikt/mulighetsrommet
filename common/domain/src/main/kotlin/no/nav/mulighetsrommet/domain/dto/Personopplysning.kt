@@ -60,16 +60,9 @@ enum class Personopplysning {
     }
 }
 
-enum class PersonopplysningFrekvens {
-    ALLTID,
-    OFTE,
-    SJELDEN,
-}
-
 @Serializable
-data class PersonopplysningMedFrekvens(
+data class PersonopplysningMedHjelpetekst(
     val personopplysning: Personopplysning,
-    val frekvens: PersonopplysningFrekvens,
     val hjelpetekst: String? = null,
 )
 

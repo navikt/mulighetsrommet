@@ -616,10 +616,10 @@ class AvtaleRepository(private val db: Database) {
             .let { db.run(it) }
     }
 
-    fun getBehandlingAvPersonopplysninger(id: UUID): Map<PersonopplysningFrekvens, List<PersonopplysningMedBeskrivelse>> {
+    fun getBehandlingAvPersonopplysninger(id: UUID): List<PersonopplysningMedBeskrivelse> {
         @Language("PostgreSQL")
         val valgtePersonopplysningerQuery = """
-            select tp.personopplysning, tp.frekvens, tp.hjelpetekst
+            select tp.personopplysning, tp.hjelpetekst
             from avtale
                 inner join tiltakstype on tiltakstype.id = avtale.tiltakstype_id
                 inner join avtale_personopplysning ap on avtale.id = ap.avtale_id
@@ -632,9 +632,8 @@ class AvtaleRepository(private val db: Database) {
 
         val valgtePersonopplysninger = queryOf(valgtePersonopplysningerQuery, id)
             .map {
-                PersonopplysningMedFrekvens(
+                PersonopplysningMedHjelpetekst(
                     personopplysning = Personopplysning.valueOf(it.string("personopplysning")),
-                    frekvens = PersonopplysningFrekvens.valueOf(it.string("frekvens")),
                     hjelpetekst = it.stringOrNull("hjelpetekst"),
 
                 )
@@ -642,16 +641,6 @@ class AvtaleRepository(private val db: Database) {
             .asList
             .let { db.run(it) }
 
-        return mapOf(
-            PersonopplysningFrekvens.ALLTID to valgtePersonopplysninger
-                .filter { it.frekvens == PersonopplysningFrekvens.ALLTID }
-                .map { it.personopplysning.toPersonopplysningMedBeskrivelse(it.hjelpetekst) },
-            PersonopplysningFrekvens.OFTE to valgtePersonopplysninger
-                .filter { it.frekvens == PersonopplysningFrekvens.OFTE }
-                .map { it.personopplysning.toPersonopplysningMedBeskrivelse(it.hjelpetekst) },
-            PersonopplysningFrekvens.SJELDEN to valgtePersonopplysninger
-                .filter { it.frekvens == PersonopplysningFrekvens.SJELDEN }
-                .map { it.personopplysning.toPersonopplysningMedBeskrivelse(it.hjelpetekst) },
-        )
+        return valgtePersonopplysninger.map { it.personopplysning.toPersonopplysningMedBeskrivelse(it.hjelpetekst) }
     }
 }

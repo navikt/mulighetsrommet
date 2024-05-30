@@ -263,7 +263,7 @@ class AvtaleService(
         }
     }
 
-    fun getBehandlingAvPersonopplysninger(id: UUID): Map<PersonopplysningFrekvens, List<PersonopplysningMedBeskrivelse>> {
+    fun getBehandlingAvPersonopplysninger(id: UUID): List<PersonopplysningMedBeskrivelse> {
         return avtaler.getBehandlingAvPersonopplysninger(id = id)
     }
 }

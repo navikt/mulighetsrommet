@@ -17,7 +17,6 @@ import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
 import no.nav.mulighetsrommet.domain.dto.Personopplysning
-import no.nav.mulighetsrommet.domain.dto.PersonopplysningFrekvens
 import no.nav.mulighetsrommet.domain.dto.TiltakstypeStatus
 import org.intellij.lang.annotations.Language
 import java.time.LocalDate
@@ -217,18 +216,17 @@ class TiltakstypeRepositoryTest : FunSpec({
 
         @Language("PostgreSQL")
         val query = """
-                insert into tiltakstype_personopplysning (tiltakskode, personopplysning, frekvens) values
-                    ('OPPFOLGING', 'NAVN', 'ALLTID'),
-                    ('OPPFOLGING', 'KJONN', 'ALLTID'),
-                    ('OPPFOLGING', 'ADFERD', 'OFTE');
+                insert into tiltakstype_personopplysning (tiltakskode, personopplysning) values
+                    ('OPPFOLGING', 'NAVN'),
+                    ('OPPFOLGING', 'KJONN'),
+                    ('OPPFOLGING', 'ADFERD');
         """.trimIndent()
         queryOf(
             query,
         ).asExecute.let { database.db.run(it) }
 
         tiltakstyper.get(TiltakstypeFixtures.Oppfolging.id) should {
-            it!!.personopplysninger[PersonopplysningFrekvens.ALLTID]!!.map { it.personopplysning } shouldContainExactlyInAnyOrder listOf(Personopplysning.NAVN, Personopplysning.KJONN)
-            it.personopplysninger[PersonopplysningFrekvens.OFTE]!!.map { it.personopplysning } shouldContainExactlyInAnyOrder listOf(Personopplysning.ADFERD)
+            it!!.personopplysninger.map { it.personopplysning } shouldContainExactlyInAnyOrder listOf(Personopplysning.NAVN, Personopplysning.KJONN, Personopplysning.ADFERD)
         }
     }
 })

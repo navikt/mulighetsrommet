@@ -18,7 +18,6 @@ select
         jsonb_agg(
             jsonb_build_object(
                 'personopplysning', tiltakstype_personopplysning.personopplysning,
-                'frekvens', tiltakstype_personopplysning.frekvens,
                 'hjelpetekst', tiltakstype_personopplysning.hjelpetekst
             )
         )
