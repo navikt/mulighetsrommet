@@ -312,6 +312,32 @@ paths:
               schema:
                 $ref: "#/components/schemas/Endringshistorikk"
 
+  /api/v1/intern/tiltaksgjennomforinger/typeahead/{domene}/{q}:
+    get:
+      tags:
+        - typeahead
+      operationId: typeahead
+      parameters:
+        - in: path
+          name: q
+          required: true
+          schema:
+            type: string
+          description: query
+        - in: path
+          name: domene
+          required: true
+          schema:
+            type: string
+          description: domene
+      responses:
+        200:
+          description: t
+          content:
+            application/json:
+              schema:
+                type: object
+
   /api/v1/intern/tiltaksgjennomforinger/{id}/historikk:
     get:
       tags:

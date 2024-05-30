@@ -41,6 +41,7 @@ export const QueryKeys = {
   antallUlesteNotifikasjoner: () => ["antallUlesteNotifikasjoner"],
   notifikasjonerForAnsatt: (status: NotificationStatus) => ["notifikasjoner", status] as const,
   brregVirksomheter: (sokestreng: string) => ["virksomhet", "sok", sokestreng],
+  typeahead: (q: string, domene: string) => ["typeahead", "q", q, domene],
   brregVirksomhetUnderenheter: (id: string) => ["virksomet", id, "underenheter"],
   navansatt: (rolle: NavAnsattRolle) => ["nav-ansatte", rolle],
   features: (feature: string) => ["feature", feature],

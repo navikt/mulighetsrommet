@@ -10,6 +10,8 @@ import io.ktor.server.util.*
 import io.ktor.util.pipeline.*
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonObject
+import no.nav.mulighetsrommet.api.clients.AccessType
+import no.nav.mulighetsrommet.api.clients.pamOntologi.PamOntologiClient
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingKontaktpersonDbo
 import no.nav.mulighetsrommet.api.domain.dto.FrikobleKontaktpersonRequest
@@ -29,6 +31,7 @@ import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus
 import no.nav.mulighetsrommet.domain.serializers.AvbruttAarsakSerializer
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
+import no.nav.mulighetsrommet.ktor.extensions.getAccessToken
 import org.koin.ktor.ext.inject
 import java.time.LocalDate
 import java.util.*
@@ -36,6 +39,7 @@ import java.util.*
 fun Route.tiltaksgjennomforingRoutes() {
     val deltakere: DeltakerRepository by inject()
     val service: TiltaksgjennomforingService by inject()
+    val pam: PamOntologiClient by inject()
 
     route("/api/v1/intern/tiltaksgjennomforinger") {
         authenticate(
@@ -87,6 +91,13 @@ fun Route.tiltaksgjennomforingRoutes() {
                     ),
                 )
             }
+        }
+
+        get("typeahead/{domene}/{q}") {
+            val domene = call.parameters.getOrFail<String>("domene")
+            val q = call.parameters.getOrFail<String>("q")
+            val obo = AccessType.OBO(call.getAccessToken())
+            call.respond(pam.typeahead(q, domene, obo))
         }
 
         get {

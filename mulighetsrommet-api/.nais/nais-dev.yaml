@@ -112,6 +112,8 @@ spec:
           namespace: amt
         - application: amt-deltaker
           namespace: amt
+        - application: pam-ontologi
+          namespace: teampam
       external:
         - host: norg2.dev-fss-pub.nais.io
         - host: slack.com

@@ -144,6 +144,9 @@ app:
   brreg:
     baseUrl: https://data.brreg.no/enhetsregisteret/api
 
+  pamOntologi:
+    baseUrl: https://pam-ontologi.intern.dev.nav.no
+
   slack:
     token: ${SLACK_TOKEN}
     channel: "#team-valp-monitorering-dev"

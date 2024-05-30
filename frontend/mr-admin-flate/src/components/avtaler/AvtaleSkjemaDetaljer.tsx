@@ -40,6 +40,8 @@ import { FormGroup } from "../skjema/FormGroup";
 import skjemastyles from "../skjema/Skjema.module.scss";
 import { AvtaleArrangorSkjema } from "./AvtaleArrangorSkjema";
 import { getLokaleUnderenheterAsSelectOptions } from "./AvtaleSkjemaConst";
+import { useState } from "react";
+import { useTypeahead } from "@/api/virksomhet/useTypeahead";
 
 const minStartdato = new Date(2000, 0, 1);
 const nusDataVersjon = "2437";
@@ -56,6 +58,10 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
 
   const { data: administratorer } = useAvtaleAdministratorer();
 
+  const [q, setq] = useState<string>("");
+  const [domene, setDomene] = useState<string>("");
+
+  const { data: typeahead } = useTypeahead(q, domene);
   const {
     register,
     formState: { errors },
@@ -87,6 +93,51 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
     <div className={skjemastyles.container}>
       <div className={skjemastyles.input_container}>
         <div className={skjemastyles.column}>
+          {typeahead && <div>hello</div>}
+          <ControlledSokeSelect
+            name="fredrik"
+            placeholder="kompetanse"
+            size="small"
+            label="Kompetanse"
+            onInputChange={(value) => {
+              setq(value);
+              setDomene("kompetanse");
+            }}
+            options={[]}
+          />
+          <ControlledSokeSelect
+            name="fredrik2"
+            placeholder="autorisasjon"
+            size="small"
+            label="autorisasjon"
+            onInputChange={(value) => {
+              setq(value);
+              setDomene("autorisasjon");
+            }}
+            options={[]}
+          />
+          <ControlledSokeSelect
+            name="fredrik3"
+            placeholder="andre_godkjenninger"
+            size="small"
+            label="andre_godkjenninger"
+            onInputChange={(value) => {
+              setq(value);
+              setDomene("andre_godkjenninger");
+            }}
+            options={[]}
+          />
+          <ControlledSokeSelect
+            name="fredrik4"
+            placeholder="fagdokumentasjon"
+            size="small"
+            label="fagdokumentasjon"
+            onInputChange={(value) => {
+              setq(value);
+              setDomene("fagdokumentasjon");
+            }}
+            options={[]}
+          />
           <FormGroup>
             <TextField
               size="small"
