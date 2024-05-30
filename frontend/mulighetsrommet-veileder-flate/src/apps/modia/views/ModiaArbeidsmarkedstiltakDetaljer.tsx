@@ -19,20 +19,17 @@ import { paginationAtom } from "@/core/atoms";
 import { isProduction } from "@/environment";
 import { ViewTiltaksgjennomforingDetaljer } from "@/layouts/ViewTiltaksgjennomforingDetaljer";
 import { Chat2Icon } from "@navikt/aksel-icons";
-import { Alert, BodyShort, Button, Heading, Link, VStack } from "@navikt/ds-react";
+import { Alert, Button } from "@navikt/ds-react";
 import { useAtomValue } from "jotai";
 import {
   Bruker,
-  DeltakerStatusType,
   NavVeileder,
   TiltakskodeArena,
   Toggles,
-  VeilederflateTiltaksgjennomforing,
   VeilederflateTiltakstype,
 } from "mulighetsrommet-api-client";
 import { useTitle } from "mulighetsrommet-frontend-common";
-import { useHistorikkV2 } from "../../../api/queries/useHistorikkV2";
-import { ReactNode } from "react";
+import { PameldingForGruppetiltak } from "../../../components/pamelding/PameldingForGruppetiltak";
 
 export function ModiaArbeidsmarkedstiltakDetaljer() {
   const { fnr } = useModiaContext();
@@ -132,7 +129,7 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
             )}
 
             {enableDeltakerRegistrering ? (
-              <Pamelding
+              <PameldingForGruppetiltak
                 kanOppretteAvtaleForTiltak={kanOppretteAvtaleForTiltak}
                 brukerHarRettPaaValgtTiltak={brukerHarRettPaaValgtTiltak}
                 tiltaksgjennomforing={tiltaksgjennomforing}
@@ -219,82 +216,4 @@ function harBrukerRettPaaValgtTiltak(
   }
 
   return (tiltakstype.innsatsgrupper ?? []).includes(bruker.innsatsgruppe);
-}
-
-function tiltakstypeStotterPamelding(tiltakstype: VeilederflateTiltakstype): boolean {
-  const whitelistTiltakstypeStotterPamelding = [
-    TiltakskodeArena.ARBFORB,
-    TiltakskodeArena.ARBRRHDAG,
-    TiltakskodeArena.AVKLARAG,
-    TiltakskodeArena.INDOPPFAG,
-    TiltakskodeArena.VASV,
-  ];
-  return (
-    !!tiltakstype.arenakode && whitelistTiltakstypeStotterPamelding.includes(tiltakstype.arenakode)
-  );
-}
-
-interface PameldingProps {
-  kanOppretteAvtaleForTiltak: boolean;
-  brukerHarRettPaaValgtTiltak: boolean;
-  tiltaksgjennomforing: VeilederflateTiltaksgjennomforing;
-}
-
-function Pamelding({
-  kanOppretteAvtaleForTiltak,
-  brukerHarRettPaaValgtTiltak,
-  tiltaksgjennomforing,
-}: PameldingProps): ReactNode {
-  const { data: deltakerHistorikk } = useHistorikkV2();
-  const { aktive = [] } = deltakerHistorikk || {};
-  const gjennomforingId = useGetTiltaksgjennomforingIdFraUrl();
-
-  const harAktivDeltakelse = aktive.find(
-    (a) => a.deltakerlisteId === gjennomforingId && a.status.type === DeltakerStatusType.DELTAR,
-  );
-
-  const skalVisePameldingslenke =
-    !kanOppretteAvtaleForTiltak &&
-    brukerHarRettPaaValgtTiltak &&
-    tiltakstypeStotterPamelding(tiltaksgjennomforing.tiltakstype) &&
-    !harAktivDeltakelse;
-
-  const opprettDeltakelseRoute = resolveModiaRoute({
-    route: ModiaRoute.ARBEIDSMARKEDSTILTAK_OPPRETT_DELTAKELSE,
-    gjennomforingId,
-  });
-
-  let vedtakRoute = null;
-  if (harAktivDeltakelse) {
-    vedtakRoute = resolveModiaRoute({
-      route: ModiaRoute.ARBEIDSMARKEDSTILTAK_DELTAKELSE,
-      deltakerId: harAktivDeltakelse.deltakerId,
-    });
-  }
-
-  if (skalVisePameldingslenke) {
-    return (
-      <Button variant={"primary"} onClick={opprettDeltakelseRoute.navigate}>
-        Start påmelding
-      </Button>
-    );
-  } else if (harAktivDeltakelse) {
-    return (
-      <Alert variant="success">
-        <Heading level={"2"} size="small">
-          Aktiv deltakelse
-        </Heading>
-        <VStack>
-          <BodyShort spacing>Bruker deltar på tiltaket</BodyShort>
-          {vedtakRoute ? (
-            <BodyShort>
-              <Link href={vedtakRoute.href}>Gå til vedtaket</Link>
-            </BodyShort>
-          ) : null}
-        </VStack>
-      </Alert>
-    );
-  }
-
-  return null;
 }
