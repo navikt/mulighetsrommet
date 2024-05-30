@@ -102,4 +102,21 @@ export const historikkFraKomet: DeltakerKort[] = [
     },
     innsoktDato: "2024-02-03",
   },
+  {
+    tittel: "Avklaring med Anne",
+    tiltakstype: {
+      navn: "Avklaring",
+      tiltakskode: TiltakskodeArena.AVKLARAG,
+    },
+    deltakerId: window.crypto.randomUUID(),
+    deltakerlisteId:
+      mockTiltaksgjennomforinger[0].id ||
+      mockTiltaksgjennomforinger[0].sanityId ||
+      window.crypto.randomUUID(),
+    status: {
+      type: DeltakerStatusType.FEILREGISTRERT,
+      visningstekst: "Feilregistrert",
+    },
+    innsoktDato: "2024-02-03",
+  },
 ];
