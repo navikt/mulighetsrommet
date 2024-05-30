@@ -74,7 +74,7 @@ export function PameldingForGruppetiltak({
       status: {
         ...aktivDeltakelse.status,
         visningstekst: "Deltar",
-        type: DeltakerStatusType.UTKAST_TIL_PAMELDING,
+        type: DeltakerStatusType.KLADD,
       },
     };
     const tekster = utledTekster(test);
@@ -90,7 +90,6 @@ export function PameldingForGruppetiltak({
               <Link to={vedtakRoute.href}>Gå til vedtaket</Link>
             </BodyShort>
           ) : null}
-          <Status status={test.status} />
         </VStack>
       </Alert>
     );
@@ -102,7 +101,6 @@ function utledTekster(deltakelse: DeltakerKort): {
   tekst: string;
   variant: "info" | "success";
 } {
-  console.log(deltakelse);
   switch (deltakelse.status.type) {
     case DeltakerStatusType.VENTER_PA_OPPSTART:
       return {
