@@ -71,7 +71,7 @@ class TiltaksgjennomforingValidator(
             }
 
             if (avtale.avtaletype != Avtaletype.Forhaandsgodkjent && dbo.sluttDato == null) {
-                add(ValidationError.of(AvtaleDbo::sluttDato, "Du må velge en sluttdato for gjennomføringen"))
+                add(ValidationError.of(AvtaleDbo::sluttDato, "Du må legge inn sluttdato for gjennomføringen"))
             }
 
             if (dbo.sluttDato != null && dbo.startDato.isAfter(dbo.sluttDato)) {

@@ -82,7 +82,7 @@ class AvtaleValidator(
                 )
             } else {
                 if (avtale.avtaletype != Avtaletype.Forhaandsgodkjent && avtale.sluttDato == null) {
-                    add(ValidationError.of(AvtaleDbo::sluttDato, "Sluttdato må være satt"))
+                    add(ValidationError.of(AvtaleDbo::sluttDato, "Du må legge inn sluttdato for avtalen"))
                 }
             }
 

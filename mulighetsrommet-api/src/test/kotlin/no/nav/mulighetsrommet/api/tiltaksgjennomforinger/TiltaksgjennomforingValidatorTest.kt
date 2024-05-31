@@ -236,13 +236,13 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
 
         validator.validate(forhaandsgodkjent, null).shouldBeRight()
         validator.validate(rammeAvtale, null).shouldBeLeft(
-            listOf(ValidationError("sluttDato", "Du må velge en sluttdato for gjennomføringen")),
+            listOf(ValidationError("sluttDato", "Du må legge inn sluttdato for gjennomføringen")),
         )
         validator.validate(vanligAvtale, null).shouldBeLeft(
-            listOf(ValidationError("sluttDato", "Du må velge en sluttdato for gjennomføringen")),
+            listOf(ValidationError("sluttDato", "Du må legge inn sluttdato for gjennomføringen")),
         )
         validator.validate(offentligOffentlig, null).shouldBeLeft(
-            listOf(ValidationError("sluttDato", "Du må velge en sluttdato for gjennomføringen")),
+            listOf(ValidationError("sluttDato", "Du må legge inn sluttdato for gjennomføringen")),
         )
     }
 

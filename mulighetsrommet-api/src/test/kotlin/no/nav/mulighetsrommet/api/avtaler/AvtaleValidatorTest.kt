@@ -230,13 +230,13 @@ class AvtaleValidatorTest : FunSpec({
 
         validator.validate(forhaandsgodkjent, null).shouldBeRight()
         validator.validate(rammeAvtale, null).shouldBeLeft(
-            listOf(ValidationError("sluttDato", "Sluttdato må være satt")),
+            listOf(ValidationError("sluttDato", "Du må legge inn sluttdato for avtalen")),
         )
         validator.validate(avtale, null).shouldBeLeft(
-            listOf(ValidationError("sluttDato", "Sluttdato må være satt")),
+            listOf(ValidationError("sluttDato", "Du må legge inn sluttdato for avtalen")),
         )
         validator.validate(offentligOffentlig, null).shouldBeLeft(
-            listOf(ValidationError("sluttDato", "Sluttdato må være satt")),
+            listOf(ValidationError("sluttDato", "Du må legge inn sluttdato for avtalen")),
         )
     }
 
