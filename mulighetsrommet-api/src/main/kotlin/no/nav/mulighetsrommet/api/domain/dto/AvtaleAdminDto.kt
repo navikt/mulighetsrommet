@@ -86,6 +86,7 @@ data class AvtaleAdminDto(
 
     @Serializable
     data class NusData(
+        val versjon: String,
         val utdanningsnivaa: String,
         val utdanningskategorier: List<NusDataElement>,
     )

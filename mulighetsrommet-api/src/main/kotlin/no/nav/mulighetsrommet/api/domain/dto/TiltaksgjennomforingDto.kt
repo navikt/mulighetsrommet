@@ -23,6 +23,7 @@ data class TiltaksgjennomforingDto(
     val oppstart: TiltaksgjennomforingOppstartstype,
     @Serializable(with = LocalDateSerializer::class)
     val tilgjengeligForArrangorFraOgMedDato: LocalDate?,
+    val nusData: NusDataTilDvh?,
 ) {
     @Serializable
     data class Tiltakstype(
@@ -48,7 +49,19 @@ data class TiltaksgjennomforingDto(
                 virksomhetsnummer = arrangor.organisasjonsnummer,
                 oppstart = oppstart,
                 tilgjengeligForArrangorFraOgMedDato = tilgjengeligForArrangorFraOgMedDato,
+                nusData = nusData?.let {
+                    NusDataTilDvh(
+                        versjon = it.versjon,
+                        kategorier = it.utdanningskategorier.map { kat -> kat.code },
+                    )
+                },
             )
         }
     }
 }
+
+@Serializable
+data class NusDataTilDvh(
+    val versjon: String,
+    val kategorier: List<String>,
+)

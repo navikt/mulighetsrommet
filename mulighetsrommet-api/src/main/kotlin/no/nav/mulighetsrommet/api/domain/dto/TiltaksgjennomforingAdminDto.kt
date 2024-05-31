@@ -98,6 +98,7 @@ data class TiltaksgjennomforingAdminDto(
 
     @Serializable
     data class NusData(
+        val versjon: String,
         val utdanningskategorier: List<NusDataElement> = emptyList(),
     )
 
