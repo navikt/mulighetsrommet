@@ -5,12 +5,12 @@ import { STED_FOR_GJENNOMFORING_MAX_LENGTH } from "../../constants";
 
 export const TiltaksgjennomforingSchema = z
   .object({
-    navn: z.string().min(1, "Du må skrive inn tittel"),
+    navn: z.string().min(1, "Du må skrive inn tiltaksnavn"),
     avtaleId: z.string(),
     startOgSluttDato: z
       .object({
         startDato: z.string({
-          required_error: "En gjennomføring må ha en startdato",
+          required_error: "Du må legge inn startdato for gjennomføringen",
         }),
         sluttDato: z.string().optional().nullable(),
       })
@@ -20,14 +20,13 @@ export const TiltaksgjennomforingSchema = z
       }),
     antallPlasser: z
       .number({
-        invalid_type_error:
-          "Du må skrive inn antall plasser for gjennomføringen som et positivt heltall",
+        invalid_type_error: "Du må legge inn antall plasser",
       })
       .int()
       .positive(),
     deltidsprosent: z.number({
-      invalid_type_error: "Deltidsprosent må være et tall mellom 0 og 100",
-      required_error: "Deltidsprosent er påkrevd",
+      invalid_type_error: "Du må velge deltidsprosent mellom 0 og 100",
+      required_error: "Du må velge deltidsprosent mellom 0 og 100",
     }),
     navRegion: z.string({ required_error: "Du må velge én region" }),
     navEnheter: z.string().array().nonempty({
@@ -35,9 +34,9 @@ export const TiltaksgjennomforingSchema = z
     }),
     kontaktpersoner: z
       .object({
-        navIdent: z.string({ required_error: "Velg kontaktperson" }),
+        navIdent: z.string({ required_error: "Du må velge en kontaktperson" }),
         navEnheter: z
-          .string({ required_error: "Velg NAV-enheter som kontaktpersonen er tilgjengelig for" })
+          .string({ required_error: "Du må velge NAV-enheter kontaktpersonen er tilgjengelig for" })
           .array(),
         beskrivelse: z.string().nullable().optional(),
       })

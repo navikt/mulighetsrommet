@@ -33,7 +33,7 @@ export const AvtaleSchema = z
     navEnheter: z.string().array().nonempty({ message: "Du må velge minst én enhet" }),
     startOgSluttDato: z
       .object({
-        startDato: z.string({ required_error: "En avtale må ha en startdato" }),
+        startDato: z.string({ required_error: "Du må legge inn startdato for avtalen" }),
         sluttDato: z.string().optional().nullable(),
       })
       .refine((data) => !data.startDato || !data.sluttDato || data.sluttDato >= data.startDato, {
@@ -77,7 +77,7 @@ export const AvtaleSchema = z
     ) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: "Websaknummer til avtalesaken er påkrevd",
+        message: "Du må skrive inn Websaknummer til avtalesaken",
         path: ["websaknummer"],
       });
     }

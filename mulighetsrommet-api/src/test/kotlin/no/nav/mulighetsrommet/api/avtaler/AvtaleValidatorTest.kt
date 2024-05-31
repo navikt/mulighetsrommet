@@ -155,8 +155,8 @@ class AvtaleValidatorTest : FunSpec({
         validator.validate(dbo, null).shouldBeLeft().shouldContainAll(
             listOf(
                 ValidationError("startDato", "Startdato må være før sluttdato"),
-                ValidationError("navEnheter", "Minst én NAV-region må være valgt"),
-                ValidationError("arrangorUnderenheter", "Minst én underenhet til tiltaksarrangøren må være valgt"),
+                ValidationError("navEnheter", "Du må velge minst én NAV-region"),
+                ValidationError("arrangorUnderenheter", "Du må velge minst én underenhet for tiltaksarrangør"),
             ),
         )
     }
@@ -295,12 +295,12 @@ class AvtaleValidatorTest : FunSpec({
 
         val rammeavtale = AvtaleFixtures.oppfolging.copy(avtaletype = Avtaletype.Rammeavtale, websaknummer = null)
         validator.validate(rammeavtale, null).shouldBeLeft(
-            listOf(ValidationError("websaknummer", "Websaknummer til avtalesaken er påkrevd")),
+            listOf(ValidationError("websaknummer", "Du må skrive inn Websaknummer til avtalesaken")),
         )
 
         val avtale = AvtaleFixtures.oppfolging.copy(avtaletype = Avtaletype.Avtale, websaknummer = null)
         validator.validate(avtale, null).shouldBeLeft(
-            listOf(ValidationError("websaknummer", "Websaknummer til avtalesaken er påkrevd")),
+            listOf(ValidationError("websaknummer", "Du må skrive inn Websaknummer til avtalesaken")),
         )
 
         val offentligOffentligSamarbeid =
