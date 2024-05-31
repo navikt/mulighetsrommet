@@ -63,6 +63,7 @@ export function NokkeltallDeltakere({ tiltaksgjennomforingId }: Props) {
     },
     series: [
       {
+        name: "Deltakere",
         type: "bar",
         data: dataArray,
         showInLegend: false,
