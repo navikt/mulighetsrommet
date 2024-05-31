@@ -51,7 +51,7 @@ export function AvtalePersonvernForm({ tiltakstypeId }: Props) {
         {props.personopplysninger?.map((p: PersonopplysningMedBeskrivelse) => (
           <HStack align="start" gap="1" key={p.personopplysning}>
             <Checkbox
-              checked={!!watchPersonopplysninger.includes(p.personopplysning)}
+              checked={watchPersonopplysninger.includes(p.personopplysning)}
               onChange={() =>
                 setValue(
                   "personopplysninger",
