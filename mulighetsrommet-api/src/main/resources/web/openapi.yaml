@@ -3676,11 +3676,6 @@ components:
         - HELSEOPPLYSNINGER
         - RELIGION
 
-    Personopplysninger:
-      type: array
-      items:
-        $ref: "#/components/schemas/Personopplysning"
-
     KoblingerForKontaktperson:
       type: object
       properties:
