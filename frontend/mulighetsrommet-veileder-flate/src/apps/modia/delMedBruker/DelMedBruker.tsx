@@ -10,7 +10,7 @@ import {
 } from "mulighetsrommet-api-client";
 import { formaterDato } from "@/utils/Utils";
 import {
-  erBrukerReservertMotElektroniskKommunikasjon,
+  erBrukerReservertMotDigitalKommunikasjon,
   utledDelMedBrukerTekst,
 } from "@/apps/modia/delMedBruker/helpers";
 
@@ -34,7 +34,7 @@ export const DelMedBruker = ({
   lagreVeilederHarDeltTiltakMedBruker,
 }: Props) => {
   const { logEvent } = useLogEvent();
-  const { reservert, melding } = erBrukerReservertMotElektroniskKommunikasjon(bruker);
+  const { reservert, melding } = erBrukerReservertMotDigitalKommunikasjon(bruker);
 
   const deletekst = utledDelMedBrukerTekst(tiltaksgjennomforing, veiledernavn);
   const [state, dispatch] = useDelMedBruker(deletekst);
