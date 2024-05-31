@@ -10,6 +10,7 @@ import { ReactNode } from "react";
 import { useGetTiltaksgjennomforingIdFraUrl } from "../../api/queries/useGetTiltaksgjennomforingIdFraUrl";
 import { useHistorikkV2 } from "../../api/queries/useHistorikkV2";
 import { ModiaRoute, resolveModiaRoute } from "../../apps/modia/ModiaRoute";
+import styles from "./PameldingForGruppetiltak.module.scss";
 
 interface PameldingProps {
   kanOppretteAvtaleForTiltak: boolean;
@@ -23,9 +24,9 @@ export function PameldingForGruppetiltak({
   tiltaksgjennomforing,
 }: PameldingProps): ReactNode {
   const { data: deltakerHistorikk } = useHistorikkV2();
-  const { aktive = [] } = deltakerHistorikk || {};
   const gjennomforingId = useGetTiltaksgjennomforingIdFraUrl();
 
+  const { aktive = [] } = deltakerHistorikk || {};
   const aktiveStatuser: DeltakerStatusType[] = [
     DeltakerStatusType.DELTAR,
     DeltakerStatusType.VENTER_PA_OPPSTART,
@@ -74,10 +75,14 @@ export function PameldingForGruppetiltak({
           {tekster.overskrift}
         </Heading>
         <VStack gap="2">
-          {tekster.tekst ? <BodyShort>{tekster.tekst}</BodyShort> : null}
           {vedtakRoute ? (
             <BodyShort>
-              <Button size="xsmall" onClick={vedtakRoute.navigate}>
+              <Button
+                role="link"
+                className={styles.knapp_som_lenke}
+                size="xsmall"
+                onClick={vedtakRoute.navigate}
+              >
                 {tekster.lenketekst}
               </Button>
             </BodyShort>
@@ -88,38 +93,37 @@ export function PameldingForGruppetiltak({
   }
 }
 
-function utledTekster(deltakelse: DeltakerKort): {
+interface Tekst {
   overskrift: string;
-  tekst?: string;
   lenketekst: string;
-  variant: "info" | "success";
-} {
+  variant: "info" | "success" | "warning";
+}
+
+function utledTekster(deltakelse: DeltakerKort): Tekst {
   switch (deltakelse.status.type) {
     case DeltakerStatusType.VENTER_PA_OPPSTART:
       return {
         overskrift: "Venter på oppstart",
         variant: "info",
-        lenketekst: "Gå til vedtaket",
+        lenketekst: "Les om brukerens deltakelse",
       };
     case DeltakerStatusType.DELTAR:
       return {
-        overskrift: "Aktiv deltakelse",
+        overskrift: "Brukeren deltar på tiltaket",
         variant: "success",
-        lenketekst: "Gå til vedtaket",
+        lenketekst: "Les om brukerens deltakelse",
       };
     case DeltakerStatusType.UTKAST_TIL_PAMELDING:
       return {
-        overskrift: "Utkast til påmelding",
-        tekst: "Bruker har et utkast til påmelding",
+        overskrift: "Utkastet er delt og venter på godkjenning",
         variant: "info",
-        lenketekst: "Gå til vedtaket",
+        lenketekst: "Gå til utkastet",
       };
     case DeltakerStatusType.KLADD:
       return {
-        overskrift: "Kladd opprettet",
-        tekst: "Kladd er ikke delt med bruker",
+        overskrift: "Kladden er ikke delt",
         lenketekst: "Gå til kladden",
-        variant: "info",
+        variant: "warning",
       };
     default:
       throw new Error("Ukjent deltakerstatus");
