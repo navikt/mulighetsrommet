@@ -91,6 +91,7 @@ export const TiltaksgjennomforingSchema = z
     tilgjengeligForArrangorFraOgMedDato: z.string().nullable().optional(),
     nusData: z
       .object({
+        versjon: z.string(),
         utdanningskategorier: z
           .object(
             {

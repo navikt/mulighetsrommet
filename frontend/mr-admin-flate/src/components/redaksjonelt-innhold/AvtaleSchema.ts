@@ -56,6 +56,7 @@ export const AvtaleSchema = z
     personopplysninger: z.nativeEnum(Personopplysning).array(),
     nusData: z
       .object({
+        versjon: z.string(),
         utdanningsnivaa: z.string({ required_error: "Du må velge et utdanningsnivå" }),
         utdanningskategorier: z
           .object(

@@ -53,6 +53,7 @@ class UpdateTiltaksgjennomforingStatusTest : FunSpec({
                 status = status,
                 oppstart = oppstart,
                 tilgjengeligForArrangorFraOgMedDato = null,
+                nusData = null,
             )
         }
 

@@ -1868,6 +1868,8 @@ components:
         nusData:
           type: object
           properties:
+            versjon:
+              type: string
             utdanningsnivaa:
               type: string
             utdanningskategorier:

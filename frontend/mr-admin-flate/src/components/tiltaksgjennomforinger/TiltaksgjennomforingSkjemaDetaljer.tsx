@@ -484,6 +484,10 @@ function VelgUtdanningskategori({ avtale }: VelgUtdanningskategoriProps) {
     return null;
   }
 
+  if (avtale?.nusData?.versjon) {
+    setValue("nusData.versjon", avtale.nusData.versjon);
+  }
+
   const utdanningskategorier = avtale?.nusData?.utdanningskategorier || [];
 
   const valgteKategorier = watch("nusData.utdanningskategorier", []) || [];
