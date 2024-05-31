@@ -148,14 +148,14 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
 
             {!brukerdata?.manuellStatus && (
               <Alert
-                title="Vi kunne ikke opprette kontakt med KRR og vet derfor ikke om brukeren har reservert seg mot elektronisk kommunikasjon"
+                title="Vi kunne ikke opprette kontakt med KRR og vet derfor ikke om brukeren har reservert seg mot digital kommunikasjon"
                 key="alert-innsatsgruppe"
                 data-testid="alert-innsatsgruppe"
                 size="small"
                 variant="error"
               >
                 Vi kunne ikke opprette kontakt med KRR og vet derfor ikke om brukeren har reservert
-                seg mot elektronisk kommunikasjon
+                seg mot digital kommunikasjon
               </Alert>
             )}
 
