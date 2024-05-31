@@ -49,7 +49,7 @@ class AvtaleValidator(
             }
 
             if (avtale.administratorer.isEmpty()) {
-                add(ValidationError.of(AvtaleDbo::administratorer, "Minst én administrator må være valgt"))
+                add(ValidationError.of(AvtaleDbo::administratorer, "Du må velge minst én administrator"))
             }
 
             if (avtale.sluttDato != null && avtale.sluttDato.isBefore(avtale.startDato)) {
@@ -61,14 +61,14 @@ class AvtaleValidator(
             }
 
             if (avtale.avtaletype.kreverWebsaknummer() && avtale.websaknummer == null) {
-                add(ValidationError.of(AvtaleDbo::websaknummer, "Websaknummer til avtalesaken er påkrevd"))
+                add(ValidationError.of(AvtaleDbo::websaknummer, "Du må skrive inn Websaknummer til avtalesaken"))
             }
 
             if (avtale.arrangorUnderenheter.isEmpty()) {
                 add(
                     ValidationError.of(
                         AvtaleDbo::arrangorUnderenheter,
-                        "Minst én underenhet til tiltaksarrangøren må være valgt",
+                        "Du må velge minst én underenhet for tiltaksarrangør",
                     ),
                 )
             }
@@ -258,7 +258,8 @@ class AvtaleValidator(
         val actualNavEnheter = resolveNavEnheter(navEnheter)
 
         if (!actualNavEnheter.any { it.value.type == Norg2Type.FYLKE }) {
-            add(ValidationError.of(AvtaleDbo::navEnheter, "Minst én NAV-region må være valgt"))
+            add(ValidationError.of(AvtaleDbo::navEnheter, "Du må velge minst én NAV-region"))
+            add(ValidationError.of(AvtaleDbo::navEnheter, "Du må velge minst én NAV-region"))
         }
 
         navEnheter.forEach { enhet ->

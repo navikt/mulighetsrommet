@@ -65,13 +65,13 @@ class TiltaksgjennomforingValidator(
                 add(
                     ValidationError.of(
                         TiltaksgjennomforingDbo::administratorer,
-                        "Minst én administrator må være valgt",
+                        "Du må velge minst én administrator",
                     ),
                 )
             }
 
             if (avtale.avtaletype != Avtaletype.Forhaandsgodkjent && dbo.sluttDato == null) {
-                add(ValidationError.of(AvtaleDbo::sluttDato, "Sluttdato må være satt"))
+                add(ValidationError.of(AvtaleDbo::sluttDato, "Du må velge en sluttdato for gjennomføringen"))
             }
 
             if (dbo.sluttDato != null && dbo.startDato.isAfter(dbo.sluttDato)) {
@@ -79,7 +79,7 @@ class TiltaksgjennomforingValidator(
             }
 
             if (dbo.antallPlasser <= 0) {
-                add(ValidationError.of(TiltaksgjennomforingDbo::antallPlasser, "Antall plasser må være større enn 0"))
+                add(ValidationError.of(TiltaksgjennomforingDbo::antallPlasser, "Du må legge inn antall plasser større enn 0"))
             }
 
             if (Tiltakskoder.isKursTiltak(avtale.tiltakstype.arenaKode)) {
@@ -96,7 +96,7 @@ class TiltaksgjennomforingValidator(
             }
 
             if (dbo.navEnheter.isEmpty()) {
-                add(ValidationError.of(TiltaksgjennomforingDbo::navEnheter, "Minst ett NAV-kontor må være valgt"))
+                add(ValidationError.of(TiltaksgjennomforingDbo::navEnheter, "Du må velge minst ett NAV-kontor"))
             }
 
             if (!avtale.kontorstruktur.any { it.region.enhetsnummer == dbo.navRegion }) {
@@ -124,7 +124,7 @@ class TiltaksgjennomforingValidator(
                 it.id == dbo.arrangorId
             }
             if (!avtaleHasArrangor) {
-                add(ValidationError.of(TiltaksgjennomforingDbo::arrangorId, "Arrangøren mangler i avtalen"))
+                add(ValidationError.of(TiltaksgjennomforingDbo::arrangorId, "Du må velge en arrangør for avtalen"))
             }
 
             if (avtale.tiltakstype.arenaKode == Tiltakskode.toArenaKode(Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING)) {
@@ -182,7 +182,7 @@ class TiltaksgjennomforingValidator(
             add(
                 ValidationError.of(
                     TiltaksgjennomforingDbo::startDato,
-                    "Startdato må være etter avtalens startdato",
+                    "Du må legge inn en startdato som er etter avtalens startdato",
                 ),
             )
         }
@@ -215,7 +215,7 @@ class TiltaksgjennomforingValidator(
             add(
                 ValidationError.of(
                     TiltaksgjennomforingDbo::navn,
-                    "Kan bare gjøre endringer når gjennomføringen er aktiv",
+                    "Du kan ikke gjøre endringer på en gjennomføring som ikke er aktiv",
                 ),
             )
         }
@@ -224,7 +224,7 @@ class TiltaksgjennomforingValidator(
             add(
                 ValidationError.of(
                     TiltaksgjennomforingDbo::arrangorId,
-                    "Arrangøren kan ikke endres når gjennomføringen er aktiv",
+                    "Du kan ikke endre arrangør når gjennomføringen er aktiv",
                 ),
             )
         }
@@ -234,7 +234,7 @@ class TiltaksgjennomforingValidator(
                 add(
                     ValidationError.of(
                         TiltaksgjennomforingDbo::avtaleId,
-                        "Avtalen kan ikke endres når gjennomføringen er aktiv",
+                        "Du kan ikke endre avtalen når gjennomføringen er aktiv",
                     ),
                 )
             }
@@ -243,7 +243,7 @@ class TiltaksgjennomforingValidator(
                 add(
                     ValidationError.of(
                         TiltaksgjennomforingDbo::startDato,
-                        "Startdato må være etter avtalens startdato",
+                        "Du må legge inn en startdato som er etter avtalens startdato",
                     ),
                 )
             }
@@ -255,7 +255,7 @@ class TiltaksgjennomforingValidator(
                 add(
                     ValidationError.of(
                         TiltaksgjennomforingDbo::sluttDato,
-                        "Sluttdato kan ikke endres bakover i tid når gjennomføringen er aktiv",
+                        "Du kan ikke sette en sluttdato bakover i tid når gjennomføringen er aktiv",
                     ),
                 )
             }
@@ -308,14 +308,14 @@ class TiltaksgjennomforingValidator(
             add(
                 ValidationError.of(
                     TiltaksgjennomforingDbo::deltidsprosent,
-                    "Deltidsprosent må være større enn 0",
+                    "Du må velge en deltidsprosent større enn 0",
                 ),
             )
         } else if (dbo.deltidsprosent > 100) {
             add(
                 ValidationError.of(
                     TiltaksgjennomforingDbo::deltidsprosent,
-                    "Deltidsprosent kan ikke være større enn 100",
+                    "Du må velge en deltidsprosent mindre enn 100",
                 ),
             )
         }

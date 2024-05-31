@@ -190,7 +190,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
         )
 
         validator.validate(dbo, null).shouldBeLeft(
-            listOf(ValidationError("startDato", "Startdato må være etter avtalens startdato")),
+            listOf(ValidationError("startDato", "Du må legge inn en startdato som er etter avtalens startdato")),
         )
     }
 
@@ -236,13 +236,13 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
 
         validator.validate(forhaandsgodkjent, null).shouldBeRight()
         validator.validate(rammeAvtale, null).shouldBeLeft(
-            listOf(ValidationError("sluttDato", "Sluttdato må være satt")),
+            listOf(ValidationError("sluttDato", "Du må velge en sluttdato for gjennomføringen")),
         )
         validator.validate(vanligAvtale, null).shouldBeLeft(
-            listOf(ValidationError("sluttDato", "Sluttdato må være satt")),
+            listOf(ValidationError("sluttDato", "Du må velge en sluttdato for gjennomføringen")),
         )
         validator.validate(offentligOffentlig, null).shouldBeLeft(
-            listOf(ValidationError("sluttDato", "Sluttdato må være satt")),
+            listOf(ValidationError("sluttDato", "Du må velge en sluttdato for gjennomføringen")),
         )
     }
 
@@ -268,7 +268,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
                     startDato = avtaleStartDato.minusDays(1),
                     sluttDato = avtaleStartDato,
                 ),
-                listOf(ValidationError("startDato", "Startdato må være etter avtalens startdato")),
+                listOf(ValidationError("startDato", "Du må legge inn en startdato som er etter avtalens startdato")),
             ),
             row(
                 gjennomforing.copy(
@@ -279,7 +279,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
             ),
             row(
                 gjennomforing.copy(antallPlasser = 0),
-                listOf(ValidationError("antallPlasser", "Antall plasser må være større enn 0")),
+                listOf(ValidationError("antallPlasser", "Du må legge inn antall plasser større enn 0")),
             ),
             row(
                 gjennomforing.copy(navEnheter = listOf("0401")),
@@ -287,7 +287,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
             ),
             row(
                 gjennomforing.copy(arrangorId = ArrangorFixtures.underenhet2.id),
-                listOf(ValidationError("arrangorId", "Arrangøren mangler i avtalen")),
+                listOf(ValidationError("arrangorId", "Du må velge en arrangør for avtalen")),
             ),
         ) { input, error ->
             validator.validate(input, null).shouldBeLeft(error)
@@ -331,8 +331,8 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
                 ValidationError("apentForInnsok", "Åpent for innsøk kan ikke endres utenfor Arena"),
                 ValidationError("antallPlasser", "Antall plasser kan ikke endres utenfor Arena"),
                 ValidationError("deltidsprosent", "Deltidsprosent kan ikke endres utenfor Arena"),
-                ValidationError("arrangorId", "Arrangøren kan ikke endres når gjennomføringen er aktiv"),
-                ValidationError("arrangorId", "Arrangøren mangler i avtalen"),
+                ValidationError("arrangorId", "Du kan ikke endre arrangør når gjennomføringen er aktiv"),
+                ValidationError("arrangorId", "Du må velge en arrangør for avtalen"),
             )
         }
 
@@ -348,7 +348,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
             validator.validate(gjennomforing.copy(startDato = LocalDate.now().plusDays(5)), previous).shouldBeRight()
             validator.validate(gjennomforing.copy(startDato = avtaleStartDato.minusDays(1)), previous).shouldBeLeft(
                 listOf(
-                    ValidationError("startDato", "Startdato må være etter avtalens startdato"),
+                    ValidationError("startDato", "Du må legge inn en startdato som er etter avtalens startdato"),
                 ),
             )
         }
@@ -362,7 +362,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
                 listOf(
                     ValidationError(
                         "sluttDato",
-                        "Sluttdato kan ikke endres bakover i tid når gjennomføringen er aktiv",
+                        "Du kan ikke sette en sluttdato bakover i tid når gjennomføringen er aktiv",
                     ),
                 ),
             )
@@ -384,7 +384,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
 
             val previous = tiltaksgjennomforinger.get(gjennomforing.id)
             validator.validate(gjennomforing, previous).shouldBeLeft().shouldContainExactlyInAnyOrder(
-                ValidationError("navn", "Kan bare gjøre endringer når gjennomføringen er aktiv"),
+                ValidationError("navn", "Du kan ikke gjøre endringer på en gjennomføring som ikke er aktiv"),
             )
         }
 
@@ -395,7 +395,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
 
             val previous = tiltaksgjennomforinger.get(gjennomforing.id)
             validator.validate(gjennomforing, previous).shouldBeLeft().shouldContainExactlyInAnyOrder(
-                ValidationError("navn", "Kan bare gjøre endringer når gjennomføringen er aktiv"),
+                ValidationError("navn", "Du kan ikke gjøre endringer på en gjennomføring som ikke er aktiv"),
             )
         }
     }
