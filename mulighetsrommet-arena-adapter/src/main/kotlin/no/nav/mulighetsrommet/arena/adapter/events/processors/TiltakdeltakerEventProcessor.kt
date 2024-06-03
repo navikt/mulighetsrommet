@@ -49,6 +49,15 @@ class TiltakdeltakerEventProcessor(
             )
         }
 
+        val norskIdent = ords.getFnr(data.PERSON_ID)
+            .mapLeft { ProcessingError.fromResponseException(it) }
+            .map { it?.fnr }
+            .bind()
+
+        if (norskIdent == null) {
+            return@either ProcessingResult(Ignored, "Deltaker ignorert fordi fødselsnummer mangler i Arena")
+        }
+
         val mapping = entities.getMapping(event.arenaTable, event.arenaId).bind()
         val deltaker = data
             .toDeltaker(mapping.entityId)
@@ -62,15 +71,6 @@ class TiltakdeltakerEventProcessor(
             val tiltaksgjennomforing = entities
                 .getTiltaksgjennomforing(tiltaksgjennomforingMapping.entityId)
                 .bind()
-            val norskIdent = ords.getFnr(deltaker.personId)
-                .mapLeft { ProcessingError.fromResponseException(it) }
-                .map { it?.fnr }
-                .bind()
-
-            if (norskIdent == null) {
-                return@either ProcessingResult(Ignored, "Deltaker ignorert fordi fødselsnummer mangler i Arena")
-            }
-
             val tiltakstypeMapping = entities
                 .getMapping(ArenaTable.Tiltakstype, tiltaksgjennomforing.tiltakskode)
                 .bind()
