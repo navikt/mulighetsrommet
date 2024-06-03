@@ -64,12 +64,12 @@ class TiltakshistorikkEventProcessor(
 
         val norskIdent = ords.getFnr(data.PERSON_ID)
             .mapLeft { ProcessingError.fromResponseException(it) }
-            .flatMap { response ->
-                response?.fnr
-                    ?.let { NorskIdent(it) }?.right()
-                    ?: ProcessingError.ProcessingFailed("Fant ikke norsk ident i Arena ORDS").left()
-            }
+            .map { it?.fnr }
             .bind()
+
+        if (norskIdent == null) {
+            return@either ProcessingResult(Ignored, "Historikk ikke relevant fordi fødselsnummer mangler i Arena")
+        }
 
         val organisasjonsnummer = ords.getArbeidsgiver(tiltaksgjennomforing.arrangorId)
             .mapLeft { ProcessingError.fromResponseException(it) }
@@ -79,7 +79,7 @@ class TiltakshistorikkEventProcessor(
 
         val deltaker = ArenaDeltakerDbo(
             id = deltakerMapping.entityId,
-            norskIdent = norskIdent,
+            norskIdent = NorskIdent(norskIdent),
             arenaTiltakskode = tiltakstype.tiltakskode,
             status = ArenaDeltakerStatus.valueOf(data.DELTAKERSTATUSKODE.name),
             startDato = ArenaUtils.parseNullableTimestamp(data.DATO_FRA),

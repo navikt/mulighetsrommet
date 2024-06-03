@@ -5,7 +5,6 @@ import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.data.blocking.forAll
 import io.kotest.data.row
-import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldHaveSingleElement
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
@@ -240,7 +239,9 @@ class TiltakdeltakerEventProcessorTest : FunSpec({
                     .minusDays(1)
                     .format(ArenaTimestampFormatter)
 
-                val engine = createMockEngine()
+                val engine = createMockEngine(
+                    "/ords/fnr" to { respondJson(ArenaOrdsFnr("12345678910")) },
+                )
                 val processor = createProcessor(engine)
 
                 val eventWithOldSluttDato = createArenaTiltakdeltakerEvent(Insert) {
@@ -256,7 +257,7 @@ class TiltakdeltakerEventProcessorTest : FunSpec({
 
                         processor.handleEvent(event).shouldBeRight().should { it.status shouldBe Handled }
 
-                        engine.requestHistory.shouldBeEmpty()
+                        engine.requestHistory.forEach { it.url.encodedPath shouldContain "/ords/fnr" }
                     }
                 }
             }
