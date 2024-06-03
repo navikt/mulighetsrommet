@@ -64,10 +64,7 @@ class TiltakdeltakerEventProcessor(
                 .bind()
             val norskIdent = ords.getFnr(deltaker.personId)
                 .mapLeft { ProcessingError.fromResponseException(it) }
-                .flatMap {
-                    it?.right() ?: ProcessingError.ProcessingFailed("Fant ikke norsk ident i Arena ORDS").left()
-                }
-                .map { it.fnr }
+                .map { it?.fnr }
                 .bind()
 
             if (norskIdent == null) {

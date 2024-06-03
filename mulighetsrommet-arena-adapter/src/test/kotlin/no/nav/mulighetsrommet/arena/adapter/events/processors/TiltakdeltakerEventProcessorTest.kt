@@ -80,12 +80,8 @@ class TiltakdeltakerEventProcessorTest : FunSpec({
 
         fun prepareEvent(
             event: ArenaEvent,
-            status: ArenaEntityMapping.Status? = null,
         ): Pair<ArenaEvent, ArenaEntityMapping> {
             val mapping = entities.getOrCreateMapping(event)
-            if (status != null) {
-                entities.upsertMapping(mapping.copy(status = status))
-            }
             return Pair(event, mapping)
         }
 
@@ -207,7 +203,6 @@ class TiltakdeltakerEventProcessorTest : FunSpec({
             test("should treat all operations as upserts") {
                 val (e1, mapping) = prepareEvent(
                     createArenaTiltakdeltakerEvent(Insert) { it.copy(DELTAKERSTATUSKODE = ArenaTiltakdeltakerStatus.GJENNOMFORES) },
-                    Ignored,
                 )
 
                 val engine = createMockEngine(
@@ -273,7 +268,7 @@ class TiltakdeltakerEventProcessorTest : FunSpec({
                 )
                 val processor = createProcessor(engine)
 
-                val (event) = prepareEvent(createArenaTiltakdeltakerEvent(Insert), Ignored)
+                val (event) = prepareEvent(createArenaTiltakdeltakerEvent(Insert))
 
                 processor.handleEvent(event).shouldBeLeft().should {
                     it.status shouldBe Failed
@@ -281,17 +276,17 @@ class TiltakdeltakerEventProcessorTest : FunSpec({
                 }
             }
 
-            test("should mark the event as Invalid when arena ords proxy responds with NotFound") {
+            test("should mark the event as Ignored when arena ords proxy responds with NotFound") {
                 val engine = createMockEngine(
                     "/ords/fnr" to { respondError(HttpStatusCode.NotFound) },
                     "/api/v1/intern/arena/tiltakshistorikk" to { respondOk() },
                 )
 
                 val processor = createProcessor(engine)
-                val (event) = prepareEvent(createArenaTiltakdeltakerEvent(Insert), Ignored)
-                processor.handleEvent(event).shouldBeLeft().should {
-                    it.status shouldBe Failed
-                    it.message shouldContain "Fant ikke norsk ident i Arena ORDS"
+                val (event) = prepareEvent(createArenaTiltakdeltakerEvent(Insert))
+                processor.handleEvent(event).shouldBeRight().should {
+                    it.status shouldBe Ignored
+                    it.message shouldContain "Deltaker ignorert fordi fødselsnummer mangler i Arena"
                 }
             }
 
@@ -306,7 +301,7 @@ class TiltakdeltakerEventProcessorTest : FunSpec({
                 )
                 val processor = createProcessor(engine)
 
-                val (event) = prepareEvent(createArenaTiltakdeltakerEvent(Insert), Ignored)
+                val (event) = prepareEvent(createArenaTiltakdeltakerEvent(Insert))
 
                 processor.handleEvent(event).shouldBeLeft().should {
                     it.status shouldBe Failed
@@ -315,7 +310,7 @@ class TiltakdeltakerEventProcessorTest : FunSpec({
             }
 
             test("should call api with tiltakshistorikk when all services responds with success") {
-                val (event, mapping) = prepareEvent(createArenaTiltakdeltakerEvent(Insert), Ignored)
+                val (event, mapping) = prepareEvent(createArenaTiltakdeltakerEvent(Insert))
 
                 val engine = createMockEngine(
                     "/ords/fnr" to { respondJson(ArenaOrdsFnr("12345678910")) },
@@ -365,7 +360,6 @@ class TiltakdeltakerEventProcessorTest : FunSpec({
                             TILTAKGJENNOMFORING_ID = tiltaksgjennomforingIndividuell.tiltaksgjennomforingId,
                         )
                     },
-                    Ignored,
                 )
 
                 processor.handleEvent(event).shouldBeRight()
@@ -396,7 +390,6 @@ class TiltakdeltakerEventProcessorTest : FunSpec({
                     createArenaTiltakdeltakerEvent(Insert) {
                         it.copy(TILTAKGJENNOMFORING_ID = tiltaksgjennomforingOpphavArena.tiltaksgjennomforingId)
                     },
-                    Ignored,
                 )
 
                 processor.handleEvent(event).shouldBeRight()
