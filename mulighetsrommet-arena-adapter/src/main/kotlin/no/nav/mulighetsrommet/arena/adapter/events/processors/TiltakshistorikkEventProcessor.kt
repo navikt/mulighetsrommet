@@ -64,8 +64,11 @@ class TiltakshistorikkEventProcessor(
 
         val norskIdent = ords.getFnr(data.PERSON_ID)
             .mapLeft { ProcessingError.fromResponseException(it) }
-            .flatMap { it?.right() ?: ProcessingError.ProcessingFailed("Fant ikke norsk ident i Arena ORDS").left() }
-            .map { NorskIdent(it.fnr) }
+            .flatMap { response ->
+                response?.fnr
+                    ?.let { NorskIdent(it) }?.right()
+                    ?: ProcessingError.ProcessingFailed("Fant ikke norsk ident i Arena ORDS").left()
+            }
             .bind()
 
         val organisasjonsnummer = ords.getArbeidsgiver(tiltaksgjennomforing.arrangorId)

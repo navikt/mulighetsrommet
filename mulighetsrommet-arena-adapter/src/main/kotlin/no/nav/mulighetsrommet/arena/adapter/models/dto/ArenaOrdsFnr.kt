@@ -4,5 +4,5 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class ArenaOrdsFnr(
-    val fnr: String,
+    val fnr: String?,
 )
