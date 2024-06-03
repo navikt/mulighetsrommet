@@ -14,10 +14,10 @@
     "sanity"
   ],
   "dependencies": {
-    "@navikt/aksel-icons": "6.8.0",
     "@portabletext/react": "3.1.0",
     "@sanity/client": "6.19.1",
     "@sanity/vision": "3.44.0",
+    "@navikt/aksel-icons": "6.10.0",
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "react-icons": "5.2.1",
@@ -27,6 +27,6 @@
   },
   "devDependencies": {
     "@types/react": "18.3.3",
-    "sass": "1.77.2"
+    "sass": "1.77.4"
   }
 }
