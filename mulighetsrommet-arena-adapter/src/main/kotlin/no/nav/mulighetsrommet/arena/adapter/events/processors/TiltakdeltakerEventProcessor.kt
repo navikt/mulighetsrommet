@@ -69,6 +69,11 @@ class TiltakdeltakerEventProcessor(
                 }
                 .map { it.fnr }
                 .bind()
+
+            if (norskIdent == null) {
+                return@either ProcessingResult(Ignored, "Deltaker ignorert fordi fødselsnummer mangler i Arena")
+            }
+
             val tiltakstypeMapping = entities
                 .getMapping(ArenaTable.Tiltakstype, tiltaksgjennomforing.tiltakskode)
                 .bind()
