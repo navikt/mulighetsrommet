@@ -52,8 +52,15 @@ class AvtaleValidator(
                 add(ValidationError.of(AvtaleDbo::administratorer, "Du må velge minst én administrator"))
             }
 
-            if (avtale.sluttDato != null && avtale.sluttDato.isBefore(avtale.startDato)) {
-                add(ValidationError.of(AvtaleDbo::startDato, "Startdato må være før sluttdato"))
+            if (avtale.sluttDato != null) {
+                if (avtale.sluttDato.isBefore(avtale.startDato)) {
+                    add(ValidationError.of(AvtaleDbo::startDato, "Startdato må være før sluttdato"))
+                }
+                if (!listOf(Tiltakskode.ARBEIDSFORBEREDENDE_TRENING, Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET).contains(Tiltakskode.fromArenaKode(tiltakstype.arenaKode)) &&
+                    avtale.startDato.plusYears(5).isBefore(avtale.sluttDato)
+                ) {
+                    add(ValidationError.of(AvtaleDbo::sluttDato, "Avtaleperioden kan ikke vare lenger enn 5 år for anskaffede tiltak"))
+                }
             }
 
             if (currentAvtale?.tiltakstype?.arenaKode == Tiltakskode.toArenaKode(Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING) && currentAvtale.nusData == null) {
