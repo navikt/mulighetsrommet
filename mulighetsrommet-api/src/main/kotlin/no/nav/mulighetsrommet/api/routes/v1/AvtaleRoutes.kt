@@ -29,6 +29,18 @@ fun Route.avtaleRoutes() {
     val avtaler: AvtaleService by inject()
     val excelService: ExcelService by inject()
 
+    route("/api/v1/intern/personopplysninger") {
+        get {
+            call.respond(
+                Personopplysning
+                    .values()
+                    .toList()
+                    .sortedBy { it.sortKey }
+                    .map { it.toPersonopplysningData() },
+            )
+        }
+    }
+
     route("/api/v1/intern/avtaler") {
         authenticate(AuthProvider.AZURE_AD_AVTALER_SKRIV.name, strategy = AuthenticationStrategy.Required) {
             put {

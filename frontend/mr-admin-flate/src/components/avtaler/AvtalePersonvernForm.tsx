@@ -1,4 +1,3 @@
-import { useTiltakstype } from "@/api/tiltakstyper/useTiltakstype";
 import {
   Alert,
   BodyShort,
@@ -11,14 +10,14 @@ import {
   Radio,
   VStack,
 } from "@navikt/ds-react";
-import { PersonopplysningMedBeskrivelse } from "mulighetsrommet-api-client";
 import { addOrRemove } from "mulighetsrommet-frontend-common/utils/utils";
-import { useEffect } from "react";
 import { useFormContext } from "react-hook-form";
 import { Separator } from "../detaljside/Metadata";
 import { InferredAvtaleSchema } from "../redaksjonelt-innhold/AvtaleSchema";
 import { ControlledRadioGroup } from "../skjema/ControlledRadioGroup";
 import styles from "./AvtalePersonvernForm.module.scss";
+import { usePersonopplysninger } from "@/api/avtaler/usePersonopplysninger";
+import { PersonopplysningData } from "mulighetsrommet-api-client";
 
 interface Props {
   tiltakstypeId?: string;
@@ -26,17 +25,9 @@ interface Props {
 
 export function AvtalePersonvernForm({ tiltakstypeId }: Props) {
   const { register, setValue, watch } = useFormContext<InferredAvtaleSchema>();
-  const { data: tiltakstype } = useTiltakstype(tiltakstypeId);
+  const { data: personopplysninger } = usePersonopplysninger();
 
   const watchPersonopplysninger = watch("personopplysninger");
-  useEffect(() => {
-    if (watchPersonopplysninger.length === 0 && tiltakstype) {
-      setValue(
-        "personopplysninger",
-        tiltakstype.personopplysninger.ALLTID.map((p) => p.personopplysning) ?? [],
-      );
-    }
-  }, [watchPersonopplysninger, tiltakstype]);
 
   if (!tiltakstypeId) {
     return (
@@ -49,15 +40,15 @@ export function AvtalePersonvernForm({ tiltakstypeId }: Props) {
   function PersonopplysningCheckboxList(props: {
     label: string;
     description: string;
-    personopplysninger?: PersonopplysningMedBeskrivelse[];
+    personopplysninger?: PersonopplysningData[];
   }) {
     return (
       <VStack>
         <Label size="small">{props.label}</Label>
-        <BodyShort size="small" textColor="subtle">
+        <BodyShort spacing size="small" textColor="subtle">
           {props.description}
         </BodyShort>
-        {props.personopplysninger?.map((p: PersonopplysningMedBeskrivelse) => (
+        {props.personopplysninger?.map((p: PersonopplysningData) => (
           <HStack align="start" gap="1" key={p.personopplysning}>
             <Checkbox
               checked={watchPersonopplysninger.includes(p.personopplysning)}
@@ -69,7 +60,7 @@ export function AvtalePersonvernForm({ tiltakstypeId }: Props) {
               }
               size="small"
             >
-              <span className={styles.max_length_text}> {p.beskrivelse}</span>
+              <span className={styles.max_length_text}> {p.tittel}</span>
             </Checkbox>
             {p.hjelpetekst && <HelpText>{p.hjelpetekst}</HelpText>}
           </HStack>
@@ -85,23 +76,11 @@ export function AvtalePersonvernForm({ tiltakstypeId }: Props) {
         er ansvarlig for at listen er i samsvar med gjeldende databehandleravtale.
       </GuidePanel>
       <HStack wrap gap="10">
-        <VStack>
+        <VStack gap="5">
           <PersonopplysningCheckboxList
-            label="Opplysninger om brukeren som alltid kan/må behandles"
-            description="Fjern avhukingen hvis noen av opplysningene ikke er relevante for denne avtalen."
-            personopplysninger={tiltakstype?.personopplysninger?.ALLTID}
-          />
-        </VStack>
-        <VStack justify="space-between" gap="10">
-          <PersonopplysningCheckboxList
-            label="Opplysninger om brukeren som ofte er nødvendig og relevant å behandle"
-            description="Huk av for de opplysningene som er avtalt i databehandleravtalen."
-            personopplysninger={tiltakstype?.personopplysninger?.OFTE}
-          />
-          <PersonopplysningCheckboxList
-            label="Opplysninger om brukeren som sjelden eller i helt spesielle tilfeller er nødvendig og relevant å behandle"
-            description="Huk av for de opplysningene som er avtalt i databehandleravtalen."
-            personopplysninger={tiltakstype?.personopplysninger?.SJELDEN}
+            label="Personopplysninger om deltager"
+            description="Huk av de personopplysningene som kan behandles i denne avtalen."
+            personopplysninger={personopplysninger}
           />
           <BodyShort size="small">
             *Se egne retningslinjer om dette i{" "}

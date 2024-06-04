@@ -616,42 +616,26 @@ class AvtaleRepository(private val db: Database) {
             .let { db.run(it) }
     }
 
-    fun getBehandlingAvPersonopplysninger(id: UUID): Map<PersonopplysningFrekvens, List<PersonopplysningMedBeskrivelse>> {
+    fun getBehandlingAvPersonopplysninger(id: UUID): List<PersonopplysningData> {
         @Language("PostgreSQL")
         val valgtePersonopplysningerQuery = """
-            select tp.personopplysning, tp.frekvens, tp.hjelpetekst
+            select ap.personopplysning
             from avtale
-                inner join tiltakstype on tiltakstype.id = avtale.tiltakstype_id
                 inner join avtale_personopplysning ap on avtale.id = ap.avtale_id
-                inner join tiltakstype_personopplysning tp on tp.personopplysning = ap.personopplysning
             where
                 avtale.id = ?::uuid
-                and avtale.personvern_bekreftet
-                and tp.tiltakskode = tiltakstype.tiltakskode;
+                and avtale.personvern_bekreftet;
         """.trimIndent()
 
         val valgtePersonopplysninger = queryOf(valgtePersonopplysningerQuery, id)
             .map {
-                PersonopplysningMedFrekvens(
-                    personopplysning = Personopplysning.valueOf(it.string("personopplysning")),
-                    frekvens = PersonopplysningFrekvens.valueOf(it.string("frekvens")),
-                    hjelpetekst = it.stringOrNull("hjelpetekst"),
-
-                )
+                Personopplysning.valueOf(it.string("personopplysning"))
             }
             .asList
             .let { db.run(it) }
 
-        return mapOf(
-            PersonopplysningFrekvens.ALLTID to valgtePersonopplysninger
-                .filter { it.frekvens == PersonopplysningFrekvens.ALLTID }
-                .map { it.personopplysning.toPersonopplysningMedBeskrivelse(it.hjelpetekst) },
-            PersonopplysningFrekvens.OFTE to valgtePersonopplysninger
-                .filter { it.frekvens == PersonopplysningFrekvens.OFTE }
-                .map { it.personopplysning.toPersonopplysningMedBeskrivelse(it.hjelpetekst) },
-            PersonopplysningFrekvens.SJELDEN to valgtePersonopplysninger
-                .filter { it.frekvens == PersonopplysningFrekvens.SJELDEN }
-                .map { it.personopplysning.toPersonopplysningMedBeskrivelse(it.hjelpetekst) },
-        )
+        return valgtePersonopplysninger
+            .sortedBy { it.sortKey }
+            .map { it.toPersonopplysningData() }
     }
 }

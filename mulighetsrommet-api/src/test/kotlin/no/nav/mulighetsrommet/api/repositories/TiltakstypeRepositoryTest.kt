@@ -16,8 +16,6 @@ import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
-import no.nav.mulighetsrommet.domain.dto.Personopplysning
-import no.nav.mulighetsrommet.domain.dto.PersonopplysningFrekvens
 import no.nav.mulighetsrommet.domain.dto.TiltakstypeStatus
 import org.intellij.lang.annotations.Language
 import java.time.LocalDate
@@ -208,27 +206,6 @@ class TiltakstypeRepositoryTest : FunSpec({
 
         tiltakstyper.getBySanityId(sanityId).shouldNotBeNull().should {
             it.id shouldBe TiltakstypeFixtures.Oppfolging.id
-        }
-    }
-
-    test("personopplysninger hentes") {
-        val tiltakstyper = TiltakstypeRepository(database.db)
-        tiltakstyper.upsert(TiltakstypeFixtures.Oppfolging)
-
-        @Language("PostgreSQL")
-        val query = """
-                insert into tiltakstype_personopplysning (tiltakskode, personopplysning, frekvens) values
-                    ('OPPFOLGING', 'NAVN', 'ALLTID'),
-                    ('OPPFOLGING', 'KJONN', 'ALLTID'),
-                    ('OPPFOLGING', 'ADFERD', 'OFTE');
-        """.trimIndent()
-        queryOf(
-            query,
-        ).asExecute.let { database.db.run(it) }
-
-        tiltakstyper.get(TiltakstypeFixtures.Oppfolging.id) should {
-            it!!.personopplysninger[PersonopplysningFrekvens.ALLTID]!!.map { it.personopplysning } shouldContainExactlyInAnyOrder listOf(Personopplysning.NAVN, Personopplysning.KJONN)
-            it.personopplysninger[PersonopplysningFrekvens.OFTE]!!.map { it.personopplysning } shouldContainExactlyInAnyOrder listOf(Personopplysning.ADFERD)
         }
     }
 })

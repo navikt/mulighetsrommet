@@ -3,8 +3,6 @@ package no.nav.mulighetsrommet.api.domain.dto
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.dto.Innsatsgruppe
-import no.nav.mulighetsrommet.domain.dto.PersonopplysningFrekvens
-import no.nav.mulighetsrommet.domain.dto.PersonopplysningMedBeskrivelse
 import no.nav.mulighetsrommet.domain.dto.TiltakstypeStatus
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
@@ -26,5 +24,4 @@ data class TiltakstypeAdminDto(
     val status: TiltakstypeStatus,
     @Serializable(with = UUIDSerializer::class)
     val sanityId: UUID?,
-    val personopplysninger: Map<PersonopplysningFrekvens, List<PersonopplysningMedBeskrivelse>>,
 )

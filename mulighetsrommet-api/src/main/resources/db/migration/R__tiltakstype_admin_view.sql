@@ -13,17 +13,6 @@ select
     case
         when slutt_dato is not null and date(now()) > slutt_dato then 'AVSLUTTET'
         else 'AKTIV'
-    end as status,
-    coalesce(
-        jsonb_agg(
-            jsonb_build_object(
-                'personopplysning', tiltakstype_personopplysning.personopplysning,
-                'frekvens', tiltakstype_personopplysning.frekvens,
-                'hjelpetekst', tiltakstype_personopplysning.hjelpetekst
-            )
-        )
-        filter (where tiltakstype_personopplysning.tiltakskode is not null), '[]'
-    ) as personopplysninger
+    end as status
 from tiltakstype
-    left join tiltakstype_personopplysning on tiltakstype_personopplysning.tiltakskode = tiltakstype.tiltakskode
 group by tiltakstype.id
