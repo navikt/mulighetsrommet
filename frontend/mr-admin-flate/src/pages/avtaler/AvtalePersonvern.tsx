@@ -50,7 +50,7 @@ export function AvtalePersonvern() {
             as="ul"
             title="Følgende personopplysninger om deltager kan behandles i denne avtalen"
           >
-            {personopplysninger?.map((p: PersonopplysningData) => (
+            {checkedPersonopplysninger?.map((p: PersonopplysningData) => (
               <ListWithHelpText hjelpetekst={p.hjelpetekst} key={p.personopplysning}>
                 {p.tittel}
               </ListWithHelpText>
