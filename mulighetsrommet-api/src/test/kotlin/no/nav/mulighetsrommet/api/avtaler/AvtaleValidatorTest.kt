@@ -188,6 +188,21 @@ class AvtaleValidatorTest : FunSpec({
         )
     }
 
+    test("Avtalens lengde er maks 5 år for ikke AFT/VTA") {
+        val validator = AvtaleValidator(tiltakstyper, gjennomforinger, navEnheterService, arrangorer)
+
+        val dagensDato = LocalDate.now()
+        val dbo = avtaleDbo.copy(startDato = dagensDato, sluttDato = dagensDato.plusYears(5))
+
+        validator.validate(dbo, null).shouldBeRight()
+
+        val dbo2 = avtaleDbo.copy(startDato = dagensDato, sluttDato = dagensDato.plusYears(6))
+
+        validator.validate(dbo2, null).shouldBeLeft().shouldContainExactlyInAnyOrder(
+            listOf(ValidationError("sluttDato", "Avtaleperioden kan ikke vare lenger enn 5 år for anskaffede tiltak")),
+        )
+    }
+
     test("Avtalens sluttdato være lik eller etter startdato") {
         val validator = AvtaleValidator(tiltakstyper, gjennomforinger, navEnheterService, arrangorer)
 

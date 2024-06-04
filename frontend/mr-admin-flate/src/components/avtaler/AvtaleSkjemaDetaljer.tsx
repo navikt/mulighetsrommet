@@ -81,7 +81,7 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
 
   const { startDato } = watch("startOgSluttDato") ?? {};
   const sluttDatoFraDato = startDato ? new Date(startDato) : minStartdato;
-  const sluttDatoTilDato = addYear(startDato ? new Date(startDato) : new Date(), 5);
+  const sluttDatoTilDato = addYear(startDato ? new Date(startDato) : new Date(), 20);
 
   return (
     <div className={skjemastyles.container}>
@@ -204,9 +204,7 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
                 toDate={sluttDatoTilDato}
                 {...register("startOgSluttDato.sluttDato")}
                 format={"iso-string"}
-                invalidDatoEtterPeriode={
-                  "Avtaleperioden kan ikke vare lenger enn 5 år for anskaffede tiltak"
-                }
+                invalidDatoEtterPeriode={"Avtaleperioden kan ikke vare lenger enn 20 år"}
               />
             </HGrid>
           </FormGroup>
