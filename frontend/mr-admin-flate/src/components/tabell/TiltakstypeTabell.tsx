@@ -105,7 +105,7 @@ interface ColumnHeader {
 const headers: ColumnHeader[] = [
   {
     sortKey: "navn",
-    tittel: "Avtalenavn",
+    tittel: "Navn",
     sortable: true,
     width: "3fr",
   },
