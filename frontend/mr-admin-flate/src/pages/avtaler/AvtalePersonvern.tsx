@@ -2,11 +2,12 @@ import { Alert, HGrid, HStack, HelpText, List, VStack } from "@navikt/ds-react";
 import { useAvtale } from "@/api/avtaler/useAvtale";
 import { Laster } from "../../components/laster/Laster";
 import styles from "../DetaljerInfo.module.scss";
-import { useTiltakstype } from "@/api/tiltakstyper/useTiltakstype";
+import { usePersonopplysninger } from "@/api/avtaler/usePersonopplysninger";
+import { PersonopplysningData } from "mulighetsrommet-api-client";
 
 export function AvtalePersonvern() {
   const { data: avtale, isPending, error } = useAvtale();
-  const { data: tiltakstype } = useTiltakstype(avtale?.tiltakstype.id);
+  const { data: personopplysninger } = usePersonopplysninger();
 
   if (isPending) {
     return <Laster tekst="Laster avtale..." />;
@@ -36,22 +37,22 @@ export function AvtalePersonvern() {
     );
   }
 
-  const personopplysninger = tiltakstype?.personopplysninger?.filter((p) =>
+  const checkedPersonopplysninger = personopplysninger?.filter((p) =>
     avtale.personopplysninger.includes(p.personopplysning),
   );
 
   return (
     <VStack gap="4" className={styles.info_container}>
       <HGrid columns={2}>
-        {personopplysninger && (
+        {checkedPersonopplysninger && (
           <List
             size="small"
             as="ul"
             title="Følgende personopplysninger om deltager kan behandles i denne avtalen"
           >
-            {personopplysninger?.map((p) => (
+            {personopplysninger?.map((p: PersonopplysningData) => (
               <ListWithHelpText hjelpetekst={p.hjelpetekst} key={p.personopplysning}>
-                {p.beskrivelse}
+                {p.tittel}
               </ListWithHelpText>
             ))}
           </List>

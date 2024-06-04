@@ -1,4 +1,3 @@
-import { useTiltakstype } from "@/api/tiltakstyper/useTiltakstype";
 import {
   Alert,
   BodyShort,
@@ -11,13 +10,14 @@ import {
   Radio,
   VStack,
 } from "@navikt/ds-react";
-import { PersonopplysningMedBeskrivelse } from "mulighetsrommet-api-client";
 import { addOrRemove } from "mulighetsrommet-frontend-common/utils/utils";
 import { useFormContext } from "react-hook-form";
 import { Separator } from "../detaljside/Metadata";
 import { InferredAvtaleSchema } from "../redaksjonelt-innhold/AvtaleSchema";
 import { ControlledRadioGroup } from "../skjema/ControlledRadioGroup";
 import styles from "./AvtalePersonvernForm.module.scss";
+import { usePersonopplysninger } from "@/api/avtaler/usePersonopplysninger";
+import { PersonopplysningData } from "mulighetsrommet-api-client";
 
 interface Props {
   tiltakstypeId?: string;
@@ -25,7 +25,7 @@ interface Props {
 
 export function AvtalePersonvernForm({ tiltakstypeId }: Props) {
   const { register, setValue, watch } = useFormContext<InferredAvtaleSchema>();
-  const { data: tiltakstype } = useTiltakstype(tiltakstypeId);
+  const { data: personopplysninger } = usePersonopplysninger();
 
   const watchPersonopplysninger = watch("personopplysninger");
 
@@ -40,7 +40,7 @@ export function AvtalePersonvernForm({ tiltakstypeId }: Props) {
   function PersonopplysningCheckboxList(props: {
     label: string;
     description: string;
-    personopplysninger?: PersonopplysningMedBeskrivelse[];
+    personopplysninger?: PersonopplysningData[];
   }) {
     return (
       <VStack>
@@ -48,7 +48,7 @@ export function AvtalePersonvernForm({ tiltakstypeId }: Props) {
         <BodyShort spacing size="small" textColor="subtle">
           {props.description}
         </BodyShort>
-        {props.personopplysninger?.map((p: PersonopplysningMedBeskrivelse) => (
+        {props.personopplysninger?.map((p: PersonopplysningData) => (
           <HStack align="start" gap="1" key={p.personopplysning}>
             <Checkbox
               checked={watchPersonopplysninger.includes(p.personopplysning)}
@@ -60,7 +60,7 @@ export function AvtalePersonvernForm({ tiltakstypeId }: Props) {
               }
               size="small"
             >
-              <span className={styles.max_length_text}> {p.beskrivelse}</span>
+              <span className={styles.max_length_text}> {p.tittel}</span>
             </Checkbox>
             {p.hjelpetekst && <HelpText>{p.hjelpetekst}</HelpText>}
           </HStack>
@@ -78,9 +78,9 @@ export function AvtalePersonvernForm({ tiltakstypeId }: Props) {
       <HStack wrap gap="10">
         <VStack gap="5">
           <PersonopplysningCheckboxList
-            label="Følgende personopplysninger om deltager kan behandles i denne avtalen"
-            description="Fjern avhukingen hvis noen av opplysningene ikke er relevante for denne avtalen."
-            personopplysninger={tiltakstype?.personopplysninger}
+            label="Personopplysninger om deltager"
+            description="Huk av de personopplysningene som kan behandles i denne avtalen."
+            personopplysninger={personopplysninger}
           />
           <BodyShort size="small">
             *Se egne retningslinjer om dette i{" "}

@@ -957,17 +957,6 @@ class AvtaleRepositoryTest : FunSpec({
 
         beforeEach {
             domain.initialize(database.db)
-
-            @Language("PostgreSQL")
-            val insertPersonopplysningerForTiltakstypeQuery = """
-                insert into tiltakstype_personopplysning(tiltakskode, personopplysning) values
-                ('OPPFOLGING'::tiltakskode, 'NAVN'),
-                ('OPPFOLGING'::tiltakskode, 'KJONN'),
-                ('OPPFOLGING'::tiltakskode, 'IP_ADRESSE'),
-                ('OPPFOLGING'::tiltakskode, 'ADFERD')
-            """.trimIndent()
-
-            queryOf(insertPersonopplysningerForTiltakstypeQuery).asExecute.let { database.db.run(it) }
         }
 
         afterEach {
@@ -976,29 +965,6 @@ class AvtaleRepositoryTest : FunSpec({
 
         test("Skal hente korrekt grupperte opplysninger om behandling av personopplysninger") {
             val avtaleId = AvtaleFixtures.oppfolging.id
-            val expectedPersonopplysningerMedBeskrivelse = listOf(
-                PersonopplysningMedBeskrivelse(
-                    personopplysning = Personopplysning.NAVN,
-                    beskrivelse = "Navn",
-                    hjelpetekst = null,
-                ),
-                PersonopplysningMedBeskrivelse(
-                    personopplysning = Personopplysning.KJONN,
-                    beskrivelse = "Kjønn",
-                    hjelpetekst = null,
-                ),
-                PersonopplysningMedBeskrivelse(
-                    personopplysning = Personopplysning.IP_ADRESSE,
-                    beskrivelse = "IP-adresse",
-                    hjelpetekst = null,
-                ),
-                PersonopplysningMedBeskrivelse(
-                    personopplysning = Personopplysning.ADFERD,
-                    beskrivelse = "Opplysninger om atferd som kan ha betydning for tiltaksgjennomføring og jobbmuligheter (eks. truende adferd, vanskelig å samarbeide med osv.)",
-                    hjelpetekst = null,
-                ),
-
-            )
 
             avtaler.upsert(
                 AvtaleFixtures.oppfolging.copy(
@@ -1015,12 +981,17 @@ class AvtaleRepositoryTest : FunSpec({
 
             val result = avtaler.getBehandlingAvPersonopplysninger(avtaleId)
 
-            result shouldBe expectedPersonopplysningerMedBeskrivelse
+            result shouldBe listOf(
+                Personopplysning.NAVN.toPersonopplysningData(),
+                Personopplysning.KJONN.toPersonopplysningData(),
+                Personopplysning.IP_ADRESSE.toPersonopplysningData(),
+                Personopplysning.ADFERD.toPersonopplysningData(),
+            )
         }
 
         test("Skal ikke hente noe info om behandling av personopplysninger hvis personvern ikke er bekreftet for avtalen") {
             val avtaleId = AvtaleFixtures.oppfolging.id
-            val expectedPersonopplysningerMedBeskrivelse: List<PersonopplysningMedBeskrivelse> = emptyList()
+            val expectedPersonopplysninger: List<Personopplysning> = emptyList()
 
             avtaler.upsert(
                 AvtaleFixtures.oppfolging.copy(
@@ -1037,7 +1008,7 @@ class AvtaleRepositoryTest : FunSpec({
 
             val result = avtaler.getBehandlingAvPersonopplysninger(avtaleId)
 
-            result shouldBe expectedPersonopplysningerMedBeskrivelse
+            result shouldBe expectedPersonopplysninger
         }
     }
 })

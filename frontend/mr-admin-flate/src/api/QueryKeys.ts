@@ -47,4 +47,5 @@ export const QueryKeys = {
   migrerteTiltakstyper: () => ["migrerteTiltakstyper"],
   navRegioner: () => ["navRegioner"],
   nusData: (tiltakskode: Tiltakskode, version: string) => ["nus-data", tiltakskode, version],
+  personopplysninger: () => ["personopplysninger"],
 };

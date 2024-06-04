@@ -1,122 +1,10 @@
 import {
   Innsatsgruppe,
   PaginertTiltakstype,
-  Personopplysning,
-  PersonopplysningMedBeskrivelse,
   TiltakskodeArena,
   TiltakstypeStatus,
   VeilederflateTiltakstype,
 } from "mulighetsrommet-api-client";
-
-const personopplysninger: PersonopplysningMedBeskrivelse[] = [
-  {
-    personopplysning: Personopplysning.NAVN,
-    beskrivelse: "Navn",
-    hjelpetekst: null,
-  },
-  {
-    personopplysning: Personopplysning.KJONN,
-    beskrivelse: "Kjønn",
-    hjelpetekst: null,
-  },
-  {
-    personopplysning: Personopplysning.ADRESSE,
-    beskrivelse: "Adresse",
-    hjelpetekst: null,
-  },
-  {
-    personopplysning: Personopplysning.TELEFONNUMMER,
-    beskrivelse: "Tlf",
-    hjelpetekst: null,
-  },
-  {
-    personopplysning: Personopplysning.FOLKEREGISTER_IDENTIFIKATOR,
-    beskrivelse: "Fnummer",
-    hjelpetekst: null,
-  },
-  {
-    personopplysning: Personopplysning.FODSELSDATO,
-    beskrivelse: "Fødselsdato",
-    hjelpetekst: null,
-  },
-  {
-    personopplysning: Personopplysning.BEHOV_FOR_BISTAND_FRA_NAV,
-    beskrivelse: "Bistand fra nav",
-    hjelpetekst: null,
-  },
-  {
-    personopplysning: Personopplysning.YTELSER_FRA_NAV,
-    beskrivelse: "Ytelser fra nav",
-    hjelpetekst: null,
-  },
-  {
-    personopplysning: Personopplysning.BILDE,
-    beskrivelse: "Bilde",
-    hjelpetekst: null,
-  },
-  {
-    personopplysning: Personopplysning.EPOST,
-    beskrivelse: "Epost",
-    hjelpetekst: null,
-  },
-  {
-    personopplysning: Personopplysning.BRUKERNAVN,
-    beskrivelse: "Brukernavn",
-    hjelpetekst: null,
-  },
-  {
-    personopplysning: Personopplysning.ARBEIDSERFARING_OG_VERV,
-    beskrivelse: "Arbeidserfaring",
-    hjelpetekst: null,
-  },
-  {
-    personopplysning: Personopplysning.SERTIFIKATER_OG_KURS,
-    beskrivelse: "Sertifikater",
-    hjelpetekst: null,
-  },
-  {
-    personopplysning: Personopplysning.UTDANNING_OG_FAGBREV,
-    beskrivelse: "Utdanning og fagbrev",
-    hjelpetekst: null,
-  },
-  {
-    personopplysning: Personopplysning.PERSONLIGE_EGENSKAPER_OG_INTERESSER,
-    beskrivelse: "Personelige egenskaper",
-    hjelpetekst: null,
-  },
-  {
-    personopplysning: Personopplysning.SPRAKKUNNSKAP,
-    beskrivelse: "Språkkunnskap",
-    hjelpetekst: null,
-  },
-
-  {
-    personopplysning: Personopplysning.IP_ADRESSE,
-    beskrivelse: "IP-adresse",
-    hjelpetekst: null,
-  },
-  {
-    personopplysning: Personopplysning.SOSIALE_FORHOLD,
-    beskrivelse: "Sosiale forhold",
-    hjelpetekst: null,
-  },
-  {
-    personopplysning: Personopplysning.HELSEOPPLYSNINGER,
-    beskrivelse: "Helseopplysninger",
-    hjelpetekst: null,
-  },
-
-  {
-    personopplysning: Personopplysning.ADFERD,
-    beskrivelse: "Adferd",
-    hjelpetekst: null,
-  },
-  {
-    personopplysning: Personopplysning.RELIGION,
-    beskrivelse: "Religion",
-    hjelpetekst: null,
-  },
-];
 
 export const mockTiltakstyper = {
   ARBFORB: {
@@ -127,7 +15,6 @@ export const mockTiltakstyper = {
     sluttDato: "2099-01-01",
     status: TiltakstypeStatus.AKTIV,
     sanityId: "d03363e0-7d46-411b-aec4-fb9449e30eb8",
-    personopplysninger,
   },
   ARBRRHDAG: {
     id: "1d5bf722-02aa-4aa5-97e2-f359ea307a14",
@@ -137,7 +24,6 @@ export const mockTiltakstyper = {
     sluttDato: "2099-01-01",
     status: TiltakstypeStatus.AKTIV,
     sanityId: "29c3d3cb-ffbf-4c22-8ffc-fea5d7f6c822",
-    personopplysninger,
   },
   AVKLARAG: {
     id: "938c2e7b-91d6-4eee-97d3-a110ccbc5968",
@@ -147,7 +33,6 @@ export const mockTiltakstyper = {
     sluttDato: "2099-01-01",
     status: TiltakstypeStatus.AKTIV,
     sanityId: "f9618e97-4510-49e2-b748-29cae84d9019",
-    personopplysninger,
   },
   DIGIOPPARB: {
     id: "e47447e3-bbe4-4c41-839d-f352130b2e8a",
@@ -157,7 +42,6 @@ export const mockTiltakstyper = {
     sluttDato: "2099-01-01",
     status: TiltakstypeStatus.AKTIV,
     sanityId: "3526de0d-ad4c-4b81-b072-a13b3a4b4ed3",
-    personopplysninger,
   },
   GRUPPEAMO: {
     id: "9b52265c-914c-413d-bca4-e9d7b3f1bd8d",
@@ -167,7 +51,6 @@ export const mockTiltakstyper = {
     sluttDato: "2099-01-01",
     status: TiltakstypeStatus.AKTIV,
     sanityId: "eadeb22c-bd89-4298-a5c2-145f112f8e7d",
-    personopplysninger,
   },
   GRUFAGYRKE: {
     id: "53ecc473-c0ce-40ea-88c3-9f4a3131080b",
@@ -177,7 +60,6 @@ export const mockTiltakstyper = {
     sluttDato: "2099-01-01",
     status: TiltakstypeStatus.AKTIV,
     sanityId: "7f353dcd-37c2-42f8-bab6-ac2a60669839",
-    personopplysninger,
   },
   JOBBK: {
     id: "95766f55-a456-4c4b-9a77-ca61ae214409",
@@ -187,7 +69,6 @@ export const mockTiltakstyper = {
     sluttDato: "2099-01-01",
     status: TiltakstypeStatus.AKTIV,
     sanityId: "31e72dd8-ad05-4e81-a7f9-fd4c8f295864",
-    personopplysninger,
   },
   INDOPPFAG: {
     id: "71a51692-35c5-4951-84eb-a338b0a57210",
@@ -197,7 +78,6 @@ export const mockTiltakstyper = {
     sluttDato: "2099-01-01",
     status: TiltakstypeStatus.AKTIV,
     sanityId: "5ac48c03-1f4c-4d4b-b862-050caca92080",
-    personopplysninger,
   },
   VASV: {
     id: "6fb921d6-0a87-4b8a-82a4-067477c1e113",
@@ -207,7 +87,6 @@ export const mockTiltakstyper = {
     sluttDato: "2099-01-01",
     status: TiltakstypeStatus.AKTIV,
     sanityId: "02509279-0a0f-4bd6-b506-f40111e4ba14",
-    personopplysninger,
   },
 };
 

@@ -1,6 +1,5 @@
 package no.nav.mulighetsrommet.api.repositories
 
-import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
@@ -13,7 +12,6 @@ import no.nav.mulighetsrommet.database.utils.*
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
 import no.nav.mulighetsrommet.domain.dto.Innsatsgruppe
-import no.nav.mulighetsrommet.domain.dto.PersonopplysningMedHjelpetekst
 import no.nav.mulighetsrommet.domain.dto.TiltakstypeStatus
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
@@ -227,11 +225,6 @@ class TiltakstypeRepository(private val db: Database) {
             ?.toSet()
             ?: emptySet()
 
-        val personopplysninger =
-            Json.decodeFromString<List<PersonopplysningMedHjelpetekst>>(string("personopplysninger"))
-                .map { it.personopplysning.toPersonopplysningMedBeskrivelse(it.hjelpetekst) }
-                .sortedBy { it.beskrivelse }
-
         return TiltakstypeAdminDto(
             id = uuid("id"),
             navn = string("navn"),
@@ -242,7 +235,6 @@ class TiltakstypeRepository(private val db: Database) {
             sluttDato = localDateOrNull("slutt_dato"),
             sanityId = uuidOrNull("sanity_id"),
             status = TiltakstypeStatus.valueOf(string("status")),
-            personopplysninger = personopplysninger,
         )
     }
 

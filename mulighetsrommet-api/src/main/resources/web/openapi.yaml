@@ -72,7 +72,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/PersonopplysningMedBeskrivelse"
+                  $ref: "#/components/schemas/PersonopplysningData"
 
   /api/v1/intern/avtaler/{id}/avbryt:
     parameters:
@@ -1539,6 +1539,21 @@ paths:
               schema:
                 $ref: "#/components/schemas/NusDataResponse"
 
+  /api/v1/intern/personopplysninger:
+    get:
+      tags:
+        - Personopplysninger
+      operationId: getPersonopplysninger
+      responses:
+        200:
+          description: "Personopplysninger"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PersonopplysningData"
+
 components:
   securitySchemes:
     bearerAuth:
@@ -1803,17 +1818,12 @@ components:
           $ref: "#/components/schemas/TiltakstypeStatus"
         sanityId:
           type: string
-        personopplysninger:
-          type: array
-          items:
-            $ref: "#/components/schemas/PersonopplysningMedBeskrivelse"
       required:
         - id
         - navn
         - arenaKode
         - startDato
         - status
-        - personopplysninger
 
     Avtale:
       type: object
@@ -3716,19 +3726,19 @@ components:
         - kontaktpersonId
         - dokumentId
 
-    PersonopplysningMedBeskrivelse:
+    PersonopplysningData:
       type: object
       properties:
         personopplysning:
           $ref: "#/components/schemas/Personopplysning"
-        beskrivelse:
+        tittel:
           type: string
         hjelpetekst:
           type: string
           nullable: true
       required:
         - personopplysning
-        - beskrivelse
+        - tittel
         - hjelpetekst
 
     NusDataRequest:

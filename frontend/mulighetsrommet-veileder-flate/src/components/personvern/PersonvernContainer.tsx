@@ -12,7 +12,7 @@ import {
 } from "@navikt/ds-react";
 import { ModalBody, ModalHeader } from "@navikt/ds-react/Modal";
 import {
-  PersonopplysningMedBeskrivelse,
+  PersonopplysningData,
   VeilederflateTiltaksgjennomforing,
 } from "mulighetsrommet-api-client";
 import { useState } from "react";
@@ -79,6 +79,17 @@ export function PersonvernContainer({ tiltaksgjennomforing }: Props) {
             tilfelle om det er nødvendig å dele opplysningene. Husk prinsippet om dataminimering, og
             at vi ikke skal sende flere opplysninger enn det som er nødvendig.
           </BodyLong>
+          <BodyLong spacing className={styles.lesebredde}>
+            Personopplysninger om deltakers nærstående skal i utgangspunktet ikke behandles. I
+            enkelte tilfeller kan det likevel være nødvendig å behandle indirekte opplysninger om
+            deltakers nærstående, fordi det kan ha betydning for tiltaksgjennomføringen.{" "}
+            <HelpText>
+              {" "}
+              Dataminimeringsprinsippet gjelder også her: man kan for eksempel opplyse om at
+              deltaker har et nært familiemedlem med stort omsorgsbehov, uten å opplyse om
+              vedkommendes relasjon til deltaker, diagnose, navn og alder.{" "}
+            </HelpText>
+          </BodyLong>
           <VStack gap="5">
             <ListeOverPersonopplysninger
               title="Følgende personopplysninger om deltager kan behandles i denne avtalen"
@@ -93,7 +104,7 @@ export function PersonvernContainer({ tiltaksgjennomforing }: Props) {
 
 interface ListeOverPersonopplysningerProps {
   title: string;
-  personopplysninger: PersonopplysningMedBeskrivelse[];
+  personopplysninger: PersonopplysningData[];
 }
 
 function ListeOverPersonopplysninger({
@@ -109,7 +120,7 @@ function ListeOverPersonopplysninger({
       {personopplysninger.map((personopplysning) => (
         <List.Item key={personopplysning.personopplysning} className={styles.lesebredde}>
           <HStack align={"end"} gap="1">
-            {personopplysning.beskrivelse}{" "}
+            {personopplysning.tittel}{" "}
             {personopplysning.hjelpetekst ? (
               <HelpText>{personopplysning.hjelpetekst}</HelpText>
             ) : null}
