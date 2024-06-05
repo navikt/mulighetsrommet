@@ -26,6 +26,7 @@ import no.nav.mulighetsrommet.domain.dbo.ArenaAvtaleDbo
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
 import no.nav.mulighetsrommet.env.NaisEnv
+import java.time.LocalDate
 import java.util.*
 
 class AvtaleInfoEventProcessor(
@@ -136,8 +137,14 @@ class AvtaleInfoEventProcessor(
         val sluttDato = avtale.tilDato.toLocalDate()
 
         val avslutningsstatus = when (avtale.status) {
-            Avtale.Status.Avsluttet -> Avslutningsstatus.AVSLUTTET
+            Avtale.Status.Avsluttet -> if (sluttDato.isAfter(LocalDate.now())) {
+                Avslutningsstatus.AVBRUTT
+            } else {
+                Avslutningsstatus.AVSLUTTET
+            }
+
             Avtale.Status.Avbrutt -> Avslutningsstatus.AVBRUTT
+
             else -> Avslutningsstatus.IKKE_AVSLUTTET
         }
 
