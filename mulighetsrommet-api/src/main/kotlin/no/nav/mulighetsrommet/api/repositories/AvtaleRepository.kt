@@ -264,6 +264,7 @@ class AvtaleRepository(private val db: Database) {
                                arena_ansvarlig_enhet,
                                avtaletype,
                                avbrutt_tidspunkt,
+                               avbrutt_aarsak,
                                prisbetingelser,
                                opphav)
             values (:id::uuid,
