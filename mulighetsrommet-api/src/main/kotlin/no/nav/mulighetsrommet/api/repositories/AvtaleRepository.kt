@@ -276,6 +276,7 @@ class AvtaleRepository(private val db: Database) {
                     :arena_ansvarlig_enhet,
                     :avtaletype::avtaletype,
                     :avbrutt_tidspunkt,
+                    :avbrutt_aarsak,
                     :prisbetingelser,
                     :opphav::opphav)
             on conflict (id) do update set navn                     = excluded.navn,
