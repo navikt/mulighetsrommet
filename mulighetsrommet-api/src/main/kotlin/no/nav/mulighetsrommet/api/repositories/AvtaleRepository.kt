@@ -287,6 +287,7 @@ class AvtaleRepository(private val db: Database) {
                                            arena_ansvarlig_enhet    = excluded.arena_ansvarlig_enhet,
                                            avtaletype               = excluded.avtaletype,
                                            avbrutt_tidspunkt        = excluded.avbrutt_tidspunkt,
+                                           avbrutt_aarsak           = excluded.avbrutt_aarsak,
                                            prisbetingelser          = excluded.prisbetingelser,
                                            antall_plasser           = excluded.antall_plasser,
                                            opphav                   = coalesce(avtale.opphav, excluded.opphav)
@@ -479,25 +480,29 @@ class AvtaleRepository(private val db: Database) {
         "nusdata" to nusData?.let { Json.encodeToString(it) },
     )
 
-    private fun ArenaAvtaleDbo.toSqlParameters(arrangorId: UUID) = mapOf(
-        "opphav" to ArenaMigrering.Opphav.ARENA.name,
-        "id" to id,
-        "navn" to navn,
-        "tiltakstype_id" to tiltakstypeId,
-        "avtalenummer" to avtalenummer,
-        "arrangor_hovedenhet_id" to arrangorId,
-        "start_dato" to startDato,
-        "slutt_dato" to sluttDato,
-        "arena_ansvarlig_enhet" to arenaAnsvarligEnhet,
-        "avtaletype" to avtaletype.name,
-        "avbrutt_tidspunkt" to when (avslutningsstatus) {
+    private fun ArenaAvtaleDbo.toSqlParameters(arrangorId: UUID): Map<String, Any?> {
+        val avbruttTidspunkt = when (avslutningsstatus) {
             Avslutningsstatus.AVLYST -> startDato.atStartOfDay().minusDays(1)
             Avslutningsstatus.AVBRUTT -> startDato.atStartOfDay()
             Avslutningsstatus.AVSLUTTET -> null
             Avslutningsstatus.IKKE_AVSLUTTET -> null
-        },
-        "prisbetingelser" to prisbetingelser,
-    )
+        }
+        return mapOf(
+            "opphav" to ArenaMigrering.Opphav.ARENA.name,
+            "id" to id,
+            "navn" to navn,
+            "tiltakstype_id" to tiltakstypeId,
+            "avtalenummer" to avtalenummer,
+            "arrangor_hovedenhet_id" to arrangorId,
+            "start_dato" to startDato,
+            "slutt_dato" to sluttDato,
+            "arena_ansvarlig_enhet" to arenaAnsvarligEnhet,
+            "avtaletype" to avtaletype.name,
+            "avbrutt_tidspunkt" to avbruttTidspunkt,
+            "avbrutt_aarsak" to if (avbruttTidspunkt != null) "AVBRUTT_I_ARENA" else null,
+            "prisbetingelser" to prisbetingelser,
+        )
+    }
 
     private fun Row.toAvtaleAdminDto(): AvtaleAdminDto {
         val startDato = localDate("start_dato")
