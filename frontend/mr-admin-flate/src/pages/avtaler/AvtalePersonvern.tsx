@@ -1,4 +1,4 @@
-import { Alert, HGrid, HStack, HelpText, List, VStack } from "@navikt/ds-react";
+import { Alert, HStack, HelpText, List, VStack } from "@navikt/ds-react";
 import { useAvtale } from "@/api/avtaler/useAvtale";
 import { Laster } from "../../components/laster/Laster";
 import styles from "../DetaljerInfo.module.scss";
@@ -43,21 +43,19 @@ export function AvtalePersonvern() {
 
   return (
     <VStack gap="4" className={styles.info_container}>
-      <HGrid columns={2}>
-        {checkedPersonopplysninger && (
-          <List
-            size="small"
-            as="ul"
-            title="Følgende personopplysninger om deltager kan behandles i denne avtalen"
-          >
-            {checkedPersonopplysninger?.map((p: PersonopplysningData) => (
-              <ListWithHelpText hjelpetekst={p.hjelpetekst} key={p.personopplysning}>
-                {p.tittel}
-              </ListWithHelpText>
-            ))}
-          </List>
-        )}
-      </HGrid>
+      {checkedPersonopplysninger && (
+        <List
+          size="small"
+          as="ul"
+          title="Følgende personopplysninger om deltager kan behandles i denne avtalen"
+        >
+          {checkedPersonopplysninger?.map((p: PersonopplysningData) => (
+            <ListWithHelpText hjelpetekst={p.hjelpetekst} key={p.personopplysning}>
+              {p.tittel}
+            </ListWithHelpText>
+          ))}
+        </List>
+      )}
     </VStack>
   );
 }
@@ -71,7 +69,7 @@ function ListWithHelpText({
 }) {
   return (
     <List.Item>
-      <HStack align="end" gap="1">
+      <HStack align="center" gap="1">
         {children}
         {hjelpetekst && <HelpText>{hjelpetekst}</HelpText>}
       </HStack>
