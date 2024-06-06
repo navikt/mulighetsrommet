@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.tiltakshistorikk.kafka.amt
+package no.nav.mulighetsrommet.tiltakshistorikk.kafka.consumers
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
@@ -11,13 +11,12 @@ import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.domain.dto.amt.AmtDeltakerStatus
 import no.nav.mulighetsrommet.domain.dto.amt.AmtDeltakerV1Dto
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
-import no.nav.mulighetsrommet.tiltakshistorikk.DeltakerRepository
 import no.nav.mulighetsrommet.tiltakshistorikk.createDatabaseTestConfig
-import no.nav.mulighetsrommet.tiltakshistorikk.kafka.consumers.amt.AmtDeltakerV1TopicConsumer
+import no.nav.mulighetsrommet.tiltakshistorikk.repositories.DeltakerRepository
 import java.time.LocalDateTime
 import java.util.*
 
-class AmtDeltakerV1TopicConsumerTest : FunSpec({
+class AmtDeltakerV1ConsumerTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
 
     context("consume deltakere") {
@@ -26,7 +25,7 @@ class AmtDeltakerV1TopicConsumerTest : FunSpec({
         }
 
         val deltakere = DeltakerRepository(database.db)
-        val deltakerConsumer = AmtDeltakerV1TopicConsumer(
+        val deltakerConsumer = AmtDeltakerV1Consumer(
             config = KafkaTopicConsumer.Config(id = "deltaker", topic = "deltaker"),
             deltakere,
         )

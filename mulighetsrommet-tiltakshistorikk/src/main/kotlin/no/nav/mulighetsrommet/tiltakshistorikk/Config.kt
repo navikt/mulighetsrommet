@@ -36,4 +36,5 @@ data class KafkaConfig(
 
 data class KafkaConsumers(
     val amtDeltakerV1: KafkaTopicConsumer.Config,
+    val sisteTiltaksgjennomforingerV1: KafkaTopicConsumer.Config,
 )

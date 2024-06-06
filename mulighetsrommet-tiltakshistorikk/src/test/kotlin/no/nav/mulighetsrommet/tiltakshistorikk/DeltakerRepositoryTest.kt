@@ -8,6 +8,7 @@ import no.nav.mulighetsrommet.domain.dbo.ArenaDeltakerDbo
 import no.nav.mulighetsrommet.domain.dbo.ArenaDeltakerStatus
 import no.nav.mulighetsrommet.domain.dto.NorskIdent
 import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
+import no.nav.mulighetsrommet.tiltakshistorikk.repositories.DeltakerRepository
 import java.time.LocalDateTime
 import java.util.*
 

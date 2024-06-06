@@ -39,6 +39,10 @@ fun createTestApplicationConfig(oauth: MockOAuth2Server) = AppConfig(
         consumerGroupId = "1",
         consumers = KafkaConsumers(
             amtDeltakerV1 = KafkaTopicConsumer.Config(id = "amt-deltaker", topic = "amt-deltaker"),
+            sisteTiltaksgjennomforingerV1 = KafkaTopicConsumer.Config(
+                id = "siste-tiltaksgjennomforinger",
+                topic = "siste-tiltaksgjennomforinger",
+            ),
         ),
     ),
 )
