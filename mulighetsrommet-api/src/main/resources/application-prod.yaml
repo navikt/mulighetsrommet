@@ -10,7 +10,13 @@ app:
     strategy: Migrate
 
   migrerteTiltak:
+    - ARBEIDSFORBEREDENDE_TRENING
+    - ARBEIDSRETTET_REHABILITERING
+    - AVKLARING
+    - DIGITALT_OPPFOLGINGSTILTAK
     - JOBBKLUBB
+    - OPPFOLGING
+    - VARIG_TILRETTELAGT_ARBEID_SKJERMET
 
   kafka:
     producerId: mulighetsrommet-api-kafka-producer.v1
