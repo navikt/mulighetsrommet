@@ -22,11 +22,7 @@ import no.nav.mulighetsrommet.api.routes.v1.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.services.TiltaksgjennomforingService
 import no.nav.mulighetsrommet.domain.dbo.Deltakerstatus
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
-import no.nav.mulighetsrommet.domain.dto.AmoKategorisering
-import no.nav.mulighetsrommet.domain.dto.AvbruttAarsak
-import no.nav.mulighetsrommet.domain.dto.Faneinnhold
-import no.nav.mulighetsrommet.domain.dto.NavIdent
-import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus
+import no.nav.mulighetsrommet.domain.dto.*
 import no.nav.mulighetsrommet.domain.serializers.AvbruttAarsakSerializer
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
@@ -75,6 +71,22 @@ fun Route.tiltaksgjennomforingRoutes() {
                 val request = call.receive<PublisertRequest>()
                 service.setPublisert(id, request.publisert, navIdent)
                 call.respond(HttpStatusCode.OK)
+            }
+
+            put("{id}/tilgjengelig-for-arrangor") {
+                val id = call.parameters.getOrFail<UUID>("id")
+                val request = call.receive<SetTilgjengligForArrangorRequest>()
+                val navIdent = getNavIdent()
+
+                val response = service
+                    .setTilgjengeligForArrangorDato(
+                        id,
+                        request.tilgjengeligForArrangorDato,
+                        navIdent,
+                    )
+                    .mapLeft { BadRequest(errors = it) }
+
+                call.respondWithStatusResponse(response)
             }
 
             delete("kontaktperson") {
@@ -299,6 +311,12 @@ data class NavKontaktpersonForGjennomforing(
 @Serializable
 data class PublisertRequest(
     val publisert: Boolean,
+)
+
+@Serializable
+data class SetTilgjengligForArrangorRequest(
+    @Serializable(with = LocalDateSerializer::class)
+    val tilgjengeligForArrangorDato: LocalDate,
 )
 
 @Serializable

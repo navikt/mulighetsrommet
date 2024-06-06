@@ -653,6 +653,22 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         return queryOf(query, publisert, id).asUpdate.let { tx.run(it) }
     }
 
+    fun setTilgjengeligForArrangorFraOgMedDato(tx: TransactionalSession, id: UUID, date: LocalDate) {
+        @Language("PostgreSQL")
+        val query = """
+            update tiltaksgjennomforing
+            set tilgjengelig_for_arrangor_fra_og_med_dato = :date
+            where id = :id
+        """.trimIndent()
+
+        val parameters = mapOf(
+            "id" to id,
+            "date" to date,
+        )
+
+        tx.run(queryOf(query, parameters).asUpdate)
+    }
+
     fun setAvtaleId(tx: Session, gjennomforingId: UUID, avtaleId: UUID?) {
         @Language("PostgreSQL")
         val query = """

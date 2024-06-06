@@ -13,7 +13,7 @@ import { Bolk } from "@/components/detaljside/Bolk";
 import { Metadata, Separator } from "@/components/detaljside/Metadata";
 import { tiltaktekster } from "@/components/ledetekster/tiltaksgjennomforingLedetekster";
 import { Link } from "react-router-dom";
-import { Alert, BodyShort, Button, Heading, HelpText, HStack, List, Tag } from "@navikt/ds-react";
+import { BodyShort, Button, HelpText, HStack, List, Tag } from "@navikt/ds-react";
 import { formaterDato, formatertVentetid } from "@/utils/Utils";
 import { isTiltakMedFellesOppstart } from "@/utils/tiltakskoder";
 import { NOM_ANSATT_SIDE } from "mulighetsrommet-frontend-common/constants";
@@ -26,7 +26,8 @@ import { HarSkrivetilgang } from "@/components/authActions/HarSkrivetilgang";
 import { AvbrytGjennomforingModal } from "@/components/modal/AvbrytGjennomforingModal";
 import { usePollTiltaksnummer } from "@/api/tiltaksgjennomforing/usePollTiltaksnummer";
 import { Laster } from "@/components/laster/Laster";
-import { NokkeltallDeltakere } from "../../components/tiltaksgjennomforinger/NokkeltallDeltakere";
+import { NokkeltallDeltakere } from "@/components/tiltaksgjennomforinger/NokkeltallDeltakere";
+import { TiltakTilgjengeligForArrangor } from "@/components/tiltaksgjennomforinger/TilgjengeligTiltakForArrangor";
 
 interface Props {
   tiltaksgjennomforing: Tiltaksgjennomforing;
@@ -37,6 +38,7 @@ export function TiltaksgjennomforingDetaljer({ tiltaksgjennomforing, avtale }: P
   useTitle(
     `Tiltaksgjennomføring ${tiltaksgjennomforing.navn ? `- ${tiltaksgjennomforing.navn}` : null}`,
   );
+
   const { data: enableTilgjengeligForArrangor } = useFeatureToggle(
     Toggles.MULIGHETSROMMET_ADMIN_FLATE_TILGJENGELIGGJORE_TILTAK_FOR_ARRANGOR,
   );
@@ -323,19 +325,9 @@ export function TiltaksgjennomforingDetaljer({ tiltaksgjennomforing, avtale }: P
               </Bolk>
             </>
           )}
-          {enableTilgjengeligForArrangor &&
-          tiltaksgjennomforing?.tilgjengeligForArrangorFraOgMedDato &&
-          new Date() < new Date(tiltaksgjennomforing?.startDato) ? (
-            <>
-              <Alert variant="info">
-                <Heading spacing size="small" level="3">
-                  Når ser arrangør tiltaket?
-                </Heading>
-                Arrangør vil ha tilgang til tiltaket i Deltakeroversikten på nav.no fra{" "}
-                {formaterDato(new Date(tiltaksgjennomforing.tilgjengeligForArrangorFraOgMedDato))}
-              </Alert>
-            </>
-          ) : null}
+          {enableTilgjengeligForArrangor && (
+            <TiltakTilgjengeligForArrangor gjennomforing={tiltaksgjennomforing} />
+          )}
         </div>
       </div>
       {!erArenaOpphavOgIngenEierskap(tiltaksgjennomforing, migrerteTiltakstyper) &&

@@ -11,9 +11,9 @@ import {
   Alert,
   Button,
   DatePicker,
+  HelpText,
   HGrid,
   HStack,
-  HelpText,
   Select,
   Switch,
   TextField,
@@ -39,7 +39,6 @@ import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { FormGroup } from "../skjema/FormGroup";
 import skjemastyles from "../skjema/Skjema.module.scss";
 import { SelectOppstartstype } from "./SelectOppstartstype";
-import { TiltakTilgjengeligForArrangor } from "./TilgjengeligTiltakForArrangor";
 import { TiltaksgjennomforingArrangorSkjema } from "./TiltaksgjennomforingArrangorSkjema";
 import { erArenaOpphavOgIngenEierskap } from "./TiltaksgjennomforingSkjemaConst";
 import { TiltaksgjennomforingAmoKategoriseringSkjema } from "./TiltaksgjennomforingAmoKategoriseringSkjema";
@@ -65,9 +64,6 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
   const { data: migrerteTiltakstyper = [] } = useMigrerteTiltakstyper();
   const { data: deltakerSummary } = useTiltaksgjennomforingDeltakerSummary(
     tiltaksgjennomforing?.id,
-  );
-  const { data: enableTilgjengeligForArrangor } = useFeatureToggle(
-    Toggles.MULIGHETSROMMET_ADMIN_FLATE_TILGJENGELIGGJORE_TILTAK_FOR_ARRANGOR,
   );
   const { data: enableNuskategorier } = useFeatureToggle(
     Toggles.MULIGHETSROMMET_ADMIN_FLATE_ENABLE_NUSKATEGORIER,
@@ -450,14 +446,6 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
           <FormGroup>
             <TiltaksgjennomforingArrangorSkjema readOnly={eierIkkeGjennomforing} avtale={avtale} />
           </FormGroup>
-          {enableTilgjengeligForArrangor && watch("startOgSluttDato.startDato") ? (
-            <TiltakTilgjengeligForArrangor
-              gjennomforingStartdato={new Date(watch("startOgSluttDato.startDato"))}
-              lagretDatoForTilgjengeligForArrangor={
-                tiltaksgjennomforing?.tilgjengeligForArrangorFraOgMedDato
-              }
-            />
-          ) : null}
         </div>
       </div>
       <EndreDatoAdvarselModal

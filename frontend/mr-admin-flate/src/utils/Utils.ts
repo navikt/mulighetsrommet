@@ -141,6 +141,10 @@ export function avtaleHarRegioner(avtale: Avtale): boolean {
   return avtale.kontorstruktur.some((stru) => stru.region);
 }
 
+export function max(a: Date, b: Date): Date {
+  return a > b ? a : b;
+}
+
 export function formaterNavEnheter(
   navRegionNavn: string = "",
   navEnheter?: {

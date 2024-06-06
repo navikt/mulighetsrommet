@@ -30,12 +30,15 @@ class TiltaksgjennomforingValidator(
     private val avtaler: AvtaleRepository,
     private val arrangorer: ArrangorRepository,
 ) {
-    val maksAntallTegnStedForGjennomforing = 100
+    private val maksAntallTegnStedForGjennomforing = 100
+
     fun validate(
         dbo: TiltaksgjennomforingDbo,
         previous: TiltaksgjennomforingAdminDto?,
     ): Either<List<ValidationError>, TiltaksgjennomforingDbo> = either {
-        val tiltakstype = tiltakstyper.getById(dbo.tiltakstypeId)
+        var next = dbo
+
+        val tiltakstype = tiltakstyper.getById(next.tiltakstypeId)
             ?: raise(ValidationError.of(TiltaksgjennomforingDbo::tiltakstypeId, "Tiltakstypen finnes ikke").nel())
 
         if (isTiltakstypeDisabled(previous, tiltakstype)) {
@@ -48,11 +51,11 @@ class TiltaksgjennomforingValidator(
                 .left()
         }
 
-        val avtale = avtaler.get(dbo.avtaleId)
+        val avtale = avtaler.get(next.avtaleId)
             ?: raise(ValidationError.of(TiltaksgjennomforingDbo::avtaleId, "Avtalen finnes ikke").nel())
 
         val errors = buildList {
-            if (avtale.tiltakstype.id != dbo.tiltakstypeId) {
+            if (avtale.tiltakstype.id != next.tiltakstypeId) {
                 add(
                     ValidationError.of(
                         TiltaksgjennomforingDbo::tiltakstypeId,
@@ -61,7 +64,7 @@ class TiltaksgjennomforingValidator(
                 )
             }
 
-            if (dbo.administratorer.isEmpty()) {
+            if (next.administratorer.isEmpty()) {
                 add(
                     ValidationError.of(
                         TiltaksgjennomforingDbo::administratorer,
@@ -70,22 +73,27 @@ class TiltaksgjennomforingValidator(
                 )
             }
 
-            if (avtale.avtaletype != Avtaletype.Forhaandsgodkjent && dbo.sluttDato == null) {
+            if (avtale.avtaletype != Avtaletype.Forhaandsgodkjent && next.sluttDato == null) {
                 add(ValidationError.of(AvtaleDbo::sluttDato, "Du må legge inn sluttdato for gjennomføringen"))
             }
 
-            if (dbo.sluttDato != null && dbo.startDato.isAfter(dbo.sluttDato)) {
+            if (next.sluttDato != null && next.startDato.isAfter(next.sluttDato)) {
                 add(ValidationError.of(TiltaksgjennomforingDbo::startDato, "Startdato må være før sluttdato"))
             }
 
-            if (dbo.antallPlasser <= 0) {
-                add(ValidationError.of(TiltaksgjennomforingDbo::antallPlasser, "Du må legge inn antall plasser større enn 0"))
+            if (next.antallPlasser <= 0) {
+                add(
+                    ValidationError.of(
+                        TiltaksgjennomforingDbo::antallPlasser,
+                        "Du må legge inn antall plasser større enn 0",
+                    ),
+                )
             }
 
             if (Tiltakskoder.isKursTiltak(avtale.tiltakstype.arenaKode)) {
-                validateKursTiltak(dbo)
+                validateKursTiltak(next)
             } else {
-                if (dbo.oppstart == TiltaksgjennomforingOppstartstype.FELLES) {
+                if (next.oppstart == TiltaksgjennomforingOppstartstype.FELLES) {
                     add(
                         ValidationError.of(
                             TiltaksgjennomforingDbo::oppstart,
@@ -95,21 +103,21 @@ class TiltaksgjennomforingValidator(
                 }
             }
 
-            if (dbo.navEnheter.isEmpty()) {
+            if (next.navEnheter.isEmpty()) {
                 add(ValidationError.of(TiltaksgjennomforingDbo::navEnheter, "Du må velge minst ett NAV-kontor"))
             }
 
-            if (!avtale.kontorstruktur.any { it.region.enhetsnummer == dbo.navRegion }) {
+            if (!avtale.kontorstruktur.any { it.region.enhetsnummer == next.navRegion }) {
                 add(
                     ValidationError.of(
                         TiltaksgjennomforingDbo::navEnheter,
-                        "NAV-region ${dbo.navRegion} mangler i avtalen",
+                        "NAV-region ${next.navRegion} mangler i avtalen",
                     ),
                 )
             }
 
             val avtaleNavEnheter = avtale.kontorstruktur.flatMap { it.kontorer }.associateBy { it.enhetsnummer }
-            dbo.navEnheter.forEach { enhetsnummer ->
+            next.navEnheter.forEach { enhetsnummer ->
                 if (!avtaleNavEnheter.containsKey(enhetsnummer)) {
                     add(
                         ValidationError.of(
@@ -121,47 +129,72 @@ class TiltaksgjennomforingValidator(
             }
 
             val avtaleHasArrangor = avtale.arrangor.underenheter.any {
-                it.id == dbo.arrangorId
+                it.id == next.arrangorId
             }
             if (!avtaleHasArrangor) {
                 add(ValidationError.of(TiltaksgjennomforingDbo::arrangorId, "Du må velge en arrangør for avtalen"))
             }
 
             if (avtale.tiltakstype.arenaKode == Tiltakskode.toArenaKode(Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING)) {
-                val nusdata = dbo.nusData?.let { Json.decodeFromJsonElement<TiltaksgjennomforingAdminDto.NusData>(it) }
+                val nusdata = next.nusData?.let { Json.decodeFromJsonElement<TiltaksgjennomforingAdminDto.NusData>(it) }
                 if (nusdata != null && nusdata.utdanningskategorier.isEmpty()) {
                     add(ValidationError.of(TiltaksgjennomforingDbo::nusData, "Du må velge minst én utdanningskategori"))
                 }
             }
 
-            if (dbo.tilgjengeligForArrangorFraOgMedDato != null) {
-                if (dbo.tilgjengeligForArrangorFraOgMedDato.isAfter(dbo.startDato)) {
-                    add(
-                        ValidationError.of(
-                            TiltaksgjennomforingDbo::tilgjengeligForArrangorFraOgMedDato,
-                            "Du må velge en dato som er før oppstartsdato",
-                        ),
-                    )
-                }
-
-                if (dbo.tilgjengeligForArrangorFraOgMedDato.isBefore(dbo.startDato.minusMonths(2))) {
-                    add(
-                        ValidationError.of(
-                            TiltaksgjennomforingDbo::tilgjengeligForArrangorFraOgMedDato,
-                            "Du må velge en dato som er tidligst to måneder før oppstartsdato",
-                        ),
-                    )
-                }
-            }
+            next = validateOrResetTilgjengeligForArrangorDato(next)
 
             if (previous == null) {
-                validateCreateGjennomforing(dbo, avtale)
+                validateCreateGjennomforing(next, avtale)
             } else {
-                validateUpdateGjennomforing(dbo, previous, avtale)
+                validateUpdateGjennomforing(next, previous, avtale)
             }
         }
 
-        return errors.takeIf { it.isNotEmpty() }?.left() ?: dbo.right()
+        return errors.takeIf { it.isNotEmpty() }?.left() ?: next.right()
+    }
+
+    private fun validateOrResetTilgjengeligForArrangorDato(
+        next: TiltaksgjennomforingDbo,
+    ): TiltaksgjennomforingDbo {
+        val nextTilgjengeligForArrangorDato = next.tilgjengeligForArrangorFraOgMedDato?.let { date ->
+            validateTilgjengeligForArrangorDato(date, next.startDato).fold({ null }, { it })
+        }
+        return next.copy(tilgjengeligForArrangorFraOgMedDato = nextTilgjengeligForArrangorDato)
+    }
+
+    fun validateTilgjengeligForArrangorDato(
+        tilgjengeligForArrangorDato: LocalDate,
+        startDato: LocalDate,
+    ): Either<List<ValidationError>, LocalDate> {
+        val errors = buildList {
+            if (tilgjengeligForArrangorDato < LocalDate.now()) {
+                add(
+                    ValidationError.of(
+                        TiltaksgjennomforingDbo::tilgjengeligForArrangorFraOgMedDato,
+                        "Du må velge en dato som er etter dagens dato",
+                    ),
+                )
+            } else if (tilgjengeligForArrangorDato < startDato.minusMonths(2)) {
+                add(
+                    ValidationError.of(
+                        TiltaksgjennomforingDbo::tilgjengeligForArrangorFraOgMedDato,
+                        "Du må velge en dato som er tidligst to måneder før gjennomføringens oppstartsdato",
+                    ),
+                )
+            }
+
+            if (tilgjengeligForArrangorDato > startDato) {
+                add(
+                    ValidationError.of(
+                        TiltaksgjennomforingDbo::tilgjengeligForArrangorFraOgMedDato,
+                        "Du må velge en dato som er før gjennomføringens oppstartsdato",
+                    ),
+                )
+            }
+        }
+
+        return errors.takeIf { it.isNotEmpty() }?.left() ?: tilgjengeligForArrangorDato.right()
     }
 
     private fun MutableList<ValidationError>.validateCreateGjennomforing(
