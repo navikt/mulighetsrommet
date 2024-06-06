@@ -47,9 +47,9 @@ spec:
           for: 3m
           annotations:
             consequence: Klienter kan oppleve ustabilitet mot tjenesten.
-            action: "Sjekk <https://logs.adeo.no/app/discover#/view/a6a558c0-e657-11ec-a21b-2f67f808c51c?_g=()|loggene> til '{{ $labels.deployment }}' i namespace '{{ $labels.namespace }}' for å se hvorfor det er så mye feil"
+            action: "Sjekk <https://logs.adeo.no/app/discover#/view/a6a558c0-e657-11ec-a21b-2f67f808c51c?_g=()|loggene> til '{{ $labels.app }}' i namespace '{{ $labels.namespace }}' for å se hvorfor det er så mye feil"
             summary: |
-              Det er mange feilmeldinger i loggene til '{{ $labels.deployment }}'.
+              Det er mange feilmeldinger i loggene til '{{ $labels.app }}'.
 
               Vi bør undersøke hvorfor, da det kan tyde på en feil som må rettes opp i.
           labels:
@@ -61,9 +61,9 @@ spec:
           for: 3m
           annotations:
             consequence: Tjenesten kan være utilgjengelig inntil problemet løses.
-            action: "Sjekk <https://logs.adeo.no/app/discover#/view/cf0fbc84-c0db-4c07-9fb2-bcb91e522f85?_g=()|loggene> til '{{ $labels.deployment }}' for å se hvorfor '{{ $labels.route }}' returnerer feilkoder."
+            action: "Sjekk <https://logs.adeo.no/app/discover#/view/cf0fbc84-c0db-4c07-9fb2-bcb91e522f85?_g=()|loggene> til '{{ $labels.app }}' for å se hvorfor '{{ $labels.route }}' returnerer feilkoder."
             summary: |
-              Vi ser mange 5XX-responser fra '{{ $labels.deployment }}' på endepunktet '{{ $labels.route }}'.
+              Vi ser mange 5XX-responser fra '{{ $labels.app }}' på endepunktet '{{ $labels.route }}'.
 
               Vi bør undersøke hvorfor, da det kan tyde på en feil som må rettes opp i.
           labels:
@@ -90,7 +90,7 @@ spec:
           annotations:
             action: "Sjekk <https://logs.adeo.no/app/discover#/view/9ba27a70-0443-11ed-a503-d3f90a22c586?_g=()|loggene> for å se hvorfor '{{ $labels.route }}' returnerer feilkoder"
             summary: |-
-              Vi ser mange 404-responser fra '{{ $labels.deployment }}' på endepunktet '{{ $labels.route }}'.
+              Vi ser mange 404-responser fra '{{ $labels.app }}' på endepunktet '{{ $labels.route }}'.
 
               Vi bør undersøke hvorfor, da det kan tyde på en feil som må rettes opp i.
 
