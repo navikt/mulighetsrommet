@@ -130,6 +130,7 @@ export const AvtaleSchema = z
     }
 
     if (
+      data.tiltakstype.arenaKode === TiltakskodeArena.GRUPPEAMO &&
       data.amoKategorisering?.kurstype !== Kurstype.STUDIESPESIALISERING &&
       !data.amoKategorisering?.spesifisering
     ) {
