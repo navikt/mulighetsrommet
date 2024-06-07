@@ -125,19 +125,20 @@ export const AvtaleSchema = z
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: "Du må velge en kurstype",
-        path: ["gruppeAmoKategori.kurstype"],
+        path: ["amoKategorisering.kurstype"],
       });
     }
 
     if (
       data.tiltakstype.arenaKode === TiltakskodeArena.GRUPPEAMO &&
-      data.amoKategorisering?.kurstype !== Kurstype.STUDIESPESIALISERING &&
+      data.amoKategorisering?.kurstype &&
+      data.amoKategorisering.kurstype !== Kurstype.STUDIESPESIALISERING &&
       !data.amoKategorisering?.spesifisering
     ) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: "Du må velge en spesifisering",
-        path: ["gruppeAmoKategori.spesifisering"],
+        path: ["amoKategorisering.spesifisering"],
       });
     }
   });
