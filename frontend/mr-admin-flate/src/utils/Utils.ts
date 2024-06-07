@@ -4,6 +4,7 @@ import {
   Avtale,
   Avtaletype,
   EstimertVentetidEnhet,
+  ForerkortKlasse,
 } from "mulighetsrommet-api-client";
 import { AvtaleFilter } from "@/api/atoms";
 
@@ -232,5 +233,46 @@ export function avbrytGjennomforingAarsakToString(
       return "For få deltakere";
     default:
       return aarsak;
+  }
+}
+
+export function forerkortKlasseToString(klasse: ForerkortKlasse): string {
+  switch (klasse) {
+    case ForerkortKlasse.A:
+      return "A - Motorsykkel";
+    case ForerkortKlasse.A1:
+      return "A1 - Lett motorsykkel";
+    case ForerkortKlasse.A2:
+      return "A2 - Mellomtung motorsykkel";
+    case ForerkortKlasse.AM:
+      return "AM - Moped";
+    case ForerkortKlasse.AM_147:
+      return "AM 147 - Mopedbil";
+    case ForerkortKlasse.B:
+      return "B - Personbil";
+    case ForerkortKlasse.B_78:
+      return "B 78 - Personbil med automatgir";
+    case ForerkortKlasse.BE:
+      return "BE - Personbil med tilhenger";
+    case ForerkortKlasse.C:
+      return "C - Lastebil";
+    case ForerkortKlasse.C1:
+      return "C1 - Lett lastebil";
+    case ForerkortKlasse.C1E:
+      return "C1E - Lett lastebil med tilhenger";
+    case ForerkortKlasse.CE:
+      return "CE - Lastebil med tilhenger";
+    case ForerkortKlasse.D:
+      return "D - Buss";
+    case ForerkortKlasse.D1:
+      return "D1 - Minibuss";
+    case ForerkortKlasse.D1E:
+      return "D1E - Minibuss med tilhenger";
+    case ForerkortKlasse.DE:
+      return "DE - Buss med tilhenger";
+    case ForerkortKlasse.S:
+      return "S - Snøscooter";
+    case ForerkortKlasse.T:
+      return "T - Traktor";
   }
 }

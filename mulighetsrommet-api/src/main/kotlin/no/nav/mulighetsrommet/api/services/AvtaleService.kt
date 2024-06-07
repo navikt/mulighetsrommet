@@ -70,6 +70,7 @@ class AvtaleService(
                         personopplysninger = personopplysninger,
                         personvernBekreftet = personvernBekreftet,
                         nusData = nusData,
+                        amoKategorisering = amoKategorisering,
                     )
                 }
                 validator.validate(dbo, previous)

@@ -59,5 +59,6 @@ export function defaultAvtaleData(
     personvernBekreftet: avtale?.personvernBekreftet,
     personopplysninger: avtale?.personopplysninger ?? [],
     nusData: avtale?.nusData ?? undefined,
+    amoKategorisering: avtale?.amoKategorisering ?? undefined,
   };
 }

@@ -1,6 +1,10 @@
 import {
   Avtaletype,
+  ForerkortKlasse,
+  InnholdElement,
+  Kurstype,
   Personopplysning,
+  Spesifisering,
   Tiltakskode,
   TiltakskodeArena,
 } from "mulighetsrommet-api-client";
@@ -70,6 +74,15 @@ export const AvtaleSchema = z
           .optional(),
       })
       .optional(),
+    amoKategorisering: z
+      .object({
+        kurstype: z.nativeEnum(Kurstype, { required_error: "Du må velge en kurstype" }),
+        spesifisering: z.nativeEnum(Spesifisering).optional(),
+        forerkort: z.nativeEnum(ForerkortKlasse).array().optional(),
+        norskprove: z.boolean().nullable().optional(),
+        innholdElementer: z.nativeEnum(InnholdElement).array().optional(),
+      })
+      .optional(),
   })
   .superRefine((data, ctx) => {
     if (
@@ -102,6 +115,28 @@ export const AvtaleSchema = z
         code: z.ZodIssueCode.custom,
         message: "Du må velge minst én utdanningskategori",
         path: ["nusData.utdanningskategorier"],
+      });
+    }
+
+    if (
+      data.tiltakstype.arenaKode === TiltakskodeArena.GRUPPEAMO &&
+      !data.amoKategorisering?.kurstype
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Du må velge en kurstype",
+        path: ["gruppeAmoKategori.kurstype"],
+      });
+    }
+
+    if (
+      data.amoKategorisering?.kurstype !== Kurstype.STUDIESPESIALISERING &&
+      !data.amoKategorisering?.spesifisering
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Du må velge en spesifisering",
+        path: ["gruppeAmoKategori.spesifisering"],
       });
     }
   });

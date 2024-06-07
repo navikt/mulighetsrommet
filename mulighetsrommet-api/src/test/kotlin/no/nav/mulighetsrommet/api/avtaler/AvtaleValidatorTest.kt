@@ -95,6 +95,7 @@ class AvtaleValidatorTest : FunSpec({
         personopplysninger = emptyList(),
         personvernBekreftet = false,
         nusData = null,
+        amoKategorisering = null,
     )
 
     lateinit var navEnheterService: NavEnhetService
@@ -391,6 +392,7 @@ class AvtaleValidatorTest : FunSpec({
                 personopplysninger = emptyList(),
                 personvernBekreftet = false,
                 nusData = null,
+                amoKategorisering = null,
             )
 
             avtaler.upsert(avtaleDbo.copy(administratorer = listOf()))
@@ -432,6 +434,7 @@ class AvtaleValidatorTest : FunSpec({
                 personopplysninger = emptyList(),
                 personvernBekreftet = false,
                 nusData = null,
+                amoKategorisering = null,
             )
 
             avtaler.upsert(avtaleDbo.copy(administratorer = listOf(), tiltakstypeId = TiltakstypeFixtures.Jobbklubb.id))

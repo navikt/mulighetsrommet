@@ -61,7 +61,8 @@ select avtale.id,
        ) as personopplysninger,
        avtale.personvern_bekreftet,
        avtale.avbrutt_aarsak,
-       avtale.nusdata
+       avtale.nusdata,
+       avtale.amo_kategorisering
 from avtale
          join tiltakstype on tiltakstype.id = avtale.tiltakstype_id
          left join avtale_administrator on avtale.id = avtale_administrator.avtale_id

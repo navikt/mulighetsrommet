@@ -22,6 +22,16 @@
           "name": "mulighetsrommet.admin-flate.rediger-oppstart",
           "enabled": true,
           "strategies": []
+        },
+        {
+          "name": "mulighetsrommet.admin-flate.enable_gruppe_amo_kategorier",
+          "enabled": true,
+          "strategies": []
+        },
+        {
+          "name": "mulighetsrommet.admin-flate.enable_nuskategorier",
+          "enabled": true,
+          "strategies": []
         }
       ]
     },

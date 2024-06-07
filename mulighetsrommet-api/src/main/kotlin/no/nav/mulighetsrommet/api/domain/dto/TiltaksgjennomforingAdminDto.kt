@@ -10,6 +10,7 @@ import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingKontaktpersonDbo
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
+import no.nav.mulighetsrommet.domain.dto.AmoKategorisering
 import no.nav.mulighetsrommet.domain.dto.Faneinnhold
 import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus
@@ -59,7 +60,8 @@ data class TiltaksgjennomforingAdminDto(
     val personvernBekreftet: Boolean,
     @Serializable(with = LocalDateSerializer::class)
     val tilgjengeligForArrangorFraOgMedDato: LocalDate?,
-    val nusData: NusData? = null,
+    val nusData: NusData?,
+    val amoKategorisering: AmoKategorisering?,
 ) {
     fun isAktiv(): Boolean = status in listOf(
         TiltaksgjennomforingStatus.PLANLAGT,
@@ -139,5 +141,6 @@ data class TiltaksgjennomforingAdminDto(
             estimertVentetidEnhet = estimertVentetid?.enhet,
             tilgjengeligForArrangorFraOgMedDato = tilgjengeligForArrangorFraOgMedDato,
             nusData = nusData?.let { Json.encodeToJsonElement(it).jsonObject },
+            amoKategorisering = amoKategorisering,
         )
 }

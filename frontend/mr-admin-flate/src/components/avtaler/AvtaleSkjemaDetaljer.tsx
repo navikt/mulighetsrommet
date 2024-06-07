@@ -2,6 +2,8 @@ import { useAvtaleAdministratorer } from "@/api/ansatt/useAvtaleAdministratorer"
 import { useMigrerteTiltakstyperForAvtaler } from "@/api/tiltakstyper/useMigrerteTiltakstyper";
 import {
   Alert,
+  Checkbox,
+  CheckboxGroup,
   Heading,
   HGrid,
   Loader,
@@ -13,10 +15,14 @@ import {
 import {
   Avtale,
   Avtaletype,
+  ForerkortKlasse,
+  InnholdElement,
+  Kurstype,
   NavAnsatt,
   NavEnhet,
   NavEnhetType,
   Opphav,
+  Spesifisering,
   Tiltakskode,
   TiltakskodeArena,
   Tiltakstype,
@@ -30,7 +36,7 @@ import { MultiValue } from "react-select";
 import { useFeatureToggle } from "../../api/features/useFeatureToggle";
 import { useNusData } from "../../api/nusdata/useNusData";
 import { erAnskaffetTiltak } from "../../utils/tiltakskoder";
-import { addYear, avtaletypeTilTekst } from "../../utils/Utils";
+import { addYear, avtaletypeTilTekst, forerkortKlasseToString } from "../../utils/Utils";
 import { avtaletekster } from "../ledetekster/avtaleLedetekster";
 import { InferredAvtaleSchema } from "../redaksjonelt-innhold/AvtaleSchema";
 import { AdministratorOptions } from "../skjema/AdministratorOptions";
@@ -149,6 +155,8 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
                 label={avtaletekster.tiltakstypeLabel}
                 {...register("tiltakstype")}
                 onChange={(event) => {
+                  setValue("amoKategorisering", undefined);
+                  setValue("nusData", undefined);
                   const options = event.target.value?.arenaKode
                     ? avtaletypeOptions(event.target.value.arenaKode)
                     : [];
@@ -178,7 +186,10 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
               />
             </HGrid>
             {watch("tiltakstype")?.tiltakskode === Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING ? (
-              <AvtaleKategoriVelger />
+              <AvtaleNUSKategoriVelger />
+            ) : null}
+            {watch("tiltakstype")?.tiltakskode === Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING ? (
+              <AvtaleGruppeAmoKategoriVelger />
             ) : null}
           </FormGroup>
 
@@ -324,7 +335,7 @@ function avtaletypeOptions(arenaKode: TiltakskodeArena): { value: Avtaletype; la
   }
 }
 
-function AvtaleKategoriVelger() {
+function AvtaleNUSKategoriVelger() {
   const { data: enableNusKategorier } = useFeatureToggle(
     Toggles.MULIGHETSROMMET_ADMIN_FLATE_ENABLE_NUSKATEGORIER,
   );
@@ -403,6 +414,174 @@ function AvtaleKategoriVelger() {
               )
         }
       ></UNSAFE_Combobox>
+    </HGrid>
+  );
+}
+
+function AvtaleGruppeAmoKategoriVelger() {
+  const { data: isEnabled } = useFeatureToggle(
+    Toggles.MULIGHETSROMMET_ADMIN_FLATE_ENABLE_GRUPPE_AMO_KATEGORIER,
+  );
+
+  const {
+    setValue,
+    watch,
+    formState: { errors },
+  } = useFormContext<InferredAvtaleSchema>();
+
+  if (!isEnabled) {
+    return null;
+  }
+
+  const kurstype = watch("amoKategorisering.kurstype");
+  const spesifisering = watch("amoKategorisering.spesifisering");
+  const isBransjeSpesifisering =
+    spesifisering &&
+    [
+      Spesifisering.SERVERING_OVERNATTING,
+      Spesifisering.TRANSPORT,
+      Spesifisering.INDUSTRI,
+      Spesifisering.ANDRE_BRANSJER,
+    ].includes(spesifisering);
+  const forerkort = watch("amoKategorisering.forerkort");
+  const norskprove = watch("amoKategorisering.norskprove");
+  const innholdElementer = watch("amoKategorisering.innholdElementer");
+
+  return (
+    <HGrid gap="4" columns={1}>
+      <Select
+        size="small"
+        label="Kurstype"
+        value={kurstype}
+        error={errors?.amoKategorisering?.kurstype?.message}
+        onChange={(type) => {
+          setValue("amoKategorisering.kurstype", type.target.value as Kurstype);
+          setValue("amoKategorisering.norskprove", undefined);
+          setValue("amoKategorisering.spesifisering", undefined);
+          setValue("amoKategorisering.innholdElementer", undefined);
+        }}
+      >
+        <option value={undefined}>Velg kurstype</option>
+        <option value={Kurstype.BRANSJE}>Bransje-/yrkesrettede kurs</option>
+        <option value={Kurstype.NORSKOPPLAERING}>Norskopplæring/grunnleggende ferdigheter</option>
+        <option value={Kurstype.STUDIESPESIALISERING}>Studiespesialisering</option>
+      </Select>
+      {kurstype === Kurstype.BRANSJE && (
+        <Select
+          size="small"
+          label="Spesifisering"
+          hideLabel
+          value={spesifisering}
+          error={errors?.amoKategorisering?.spesifisering?.message}
+          onChange={(type) => {
+            setValue("amoKategorisering.spesifisering", type.target.value as Spesifisering);
+            setValue("amoKategorisering.norskprove", undefined);
+            setValue("amoKategorisering.innholdElementer", undefined);
+          }}
+        >
+          <option value={undefined}>Velg spesifisering</option>
+          <option value={Spesifisering.SERVERING_OVERNATTING}>Servering/overnatting</option>
+          <option value={Spesifisering.TRANSPORT}>Transport</option>
+          <option value={Spesifisering.INDUSTRI}>Industri</option>
+          <option value={Spesifisering.ANDRE_BRANSJER}>Andre bransjer</option>
+        </Select>
+      )}
+      {kurstype === Kurstype.NORSKOPPLAERING && (
+        <Select
+          size="small"
+          label="Spesifisering"
+          hideLabel
+          value={spesifisering}
+          error={errors?.amoKategorisering?.spesifisering?.message}
+          onChange={(type) => {
+            setValue("amoKategorisering.spesifisering", type.target.value as Spesifisering);
+            setValue("amoKategorisering.norskprove", undefined);
+            setValue("amoKategorisering.innholdElementer", undefined);
+          }}
+        >
+          <option value={undefined}>Velg spesifisering</option>
+          <option value={Spesifisering.NORSKOPPLAERING}>Norskopplæring</option>
+          <option value={Spesifisering.FOV}>Forberedende opplæring for voksne</option>
+          <option value={Spesifisering.GRUNNLEGGENDE_FERDIGHETER}>Grunnleggende ferdigheter</option>
+        </Select>
+      )}
+      {isBransjeSpesifisering && (
+        <UNSAFE_Combobox
+          clearButton
+          size="small"
+          label="Førerkort"
+          isMultiSelect
+          options={[
+            ForerkortKlasse.A,
+            ForerkortKlasse.A1,
+            ForerkortKlasse.A2,
+            ForerkortKlasse.AM,
+            ForerkortKlasse.AM_147,
+            ForerkortKlasse.B,
+            ForerkortKlasse.B_78,
+            ForerkortKlasse.BE,
+            ForerkortKlasse.C,
+            ForerkortKlasse.C1,
+            ForerkortKlasse.C1E,
+            ForerkortKlasse.CE,
+            ForerkortKlasse.D,
+            ForerkortKlasse.D1,
+            ForerkortKlasse.D1E,
+            ForerkortKlasse.DE,
+            ForerkortKlasse.S,
+            ForerkortKlasse.T,
+          ].map((f) => ({
+            label: forerkortKlasseToString(f),
+            value: f,
+          }))}
+          selectedOptions={
+            forerkort?.map((f) => ({
+              label: forerkortKlasseToString(f),
+              value: f,
+            })) ?? []
+          }
+          onToggleSelected={(option, isSelected) =>
+            isSelected
+              ? setValue("amoKategorisering.forerkort", [
+                  ...(forerkort ?? []),
+                  option as ForerkortKlasse,
+                ])
+              : setValue(
+                  "amoKategorisering.forerkort",
+                  forerkort?.filter((f) => f !== option),
+                )
+          }
+        ></UNSAFE_Combobox>
+      )}
+      {spesifisering === Spesifisering.NORSKOPPLAERING && (
+        <Checkbox
+          value={norskprove ?? false}
+          onChange={() => setValue("amoKategorisering.norskprove", !(norskprove ?? false))}
+          size="small"
+        >
+          Norskprøve
+        </Checkbox>
+      )}
+      {spesifisering && (
+        <CheckboxGroup
+          size="small"
+          legend="Elementer i kurset"
+          onChange={(values) => {
+            setValue("amoKategorisering.innholdElementer", values);
+          }}
+          value={innholdElementer ?? []}
+        >
+          <HGrid columns={2}>
+            <Checkbox value={InnholdElement.GRUNNLEGGENDE_FERDIGHETER}>
+              Grunnleggende ferdigheter
+            </Checkbox>
+            <Checkbox value={InnholdElement.JOBBSOKER_KOMPETANSE}>Jobbsøkerkompetanse</Checkbox>
+            <Checkbox value={InnholdElement.TEORETISK_OPPLAERING}>Teoretisk opplæring</Checkbox>
+            <Checkbox value={InnholdElement.PRAKTISK_OPPLAERING}>Praktisk opplæring</Checkbox>
+            <Checkbox value={InnholdElement.ARBEIDSLIVSKUNNSKAP}>Arbeidslivskunnskap</Checkbox>
+          </HGrid>
+        </CheckboxGroup>
+      )}
     </HGrid>
   );
 }

@@ -26,4 +26,5 @@ data class AvtaleDbo(
     val personopplysninger: List<Personopplysning>,
     val personvernBekreftet: Boolean,
     val nusData: JsonObject?,
+    val amoKategorisering: AmoKategorisering?,
 )

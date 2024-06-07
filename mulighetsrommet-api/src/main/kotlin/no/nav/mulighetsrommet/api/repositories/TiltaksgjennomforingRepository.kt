@@ -61,7 +61,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                                   estimert_ventetid_verdi,
                                   estimert_ventetid_enhet,
                                   tilgjengelig_for_arrangor_fra_og_med_dato,
-                                  nusdata
+                                  nusdata,
+                                  amo_kategorisering
             )
             values (:id::uuid,
                     :navn,
@@ -82,7 +83,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                     :estimert_ventetid_verdi,
                     :estimert_ventetid_enhet,
                     :tilgjengelig_for_arrangor_fra_dato,
-                    :nusdata::jsonb
+                    :nusdata::jsonb,
+                    :amo_kategorisering::jsonb
             )
             on conflict (id)
                 do update set navn                               = excluded.navn,
@@ -103,7 +105,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                               estimert_ventetid_verdi            = excluded.estimert_ventetid_verdi,
                               estimert_ventetid_enhet            = excluded.estimert_ventetid_enhet,
                               tilgjengelig_for_arrangor_fra_og_med_dato = excluded.tilgjengelig_for_arrangor_fra_og_med_dato,
-                              nusdata                           = excluded.nusdata
+                              nusdata                           = excluded.nusdata,
+                              amo_kategorisering                = excluded.amo_kategorisering
         """.trimIndent()
 
         @Language("PostgreSQL")
@@ -714,6 +717,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         "estimert_ventetid_enhet" to estimertVentetidEnhet,
         "tilgjengelig_for_arrangor_fra_dato" to tilgjengeligForArrangorFraOgMedDato,
         "nusdata" to nusData?.let { Json.encodeToString(it) },
+        "amo_kategorisering" to amoKategorisering?.let { Json.encodeToString(it) },
     )
 
     private fun ArenaTiltaksgjennomforingDbo.toSqlParameters(arrangorId: UUID) = mapOf(
@@ -859,6 +863,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             personvernBekreftet = boolean("personvern_bekreftet"),
             tilgjengeligForArrangorFraOgMedDato = localDateOrNull("tilgjengelig_for_arrangor_fra_og_med_dato"),
             nusData = stringOrNull("nusdata")?.let { Json.decodeFromString(it) },
+            amoKategorisering = stringOrNull("amo_kategorisering")?.let { Json.decodeFromString(it) },
         )
     }
 

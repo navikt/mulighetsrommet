@@ -22,6 +22,7 @@ import no.nav.mulighetsrommet.api.routes.v1.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.services.TiltaksgjennomforingService
 import no.nav.mulighetsrommet.domain.dbo.Deltakerstatus
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
+import no.nav.mulighetsrommet.domain.dto.AmoKategorisering
 import no.nav.mulighetsrommet.domain.dto.AvbruttAarsak
 import no.nav.mulighetsrommet.domain.dto.Faneinnhold
 import no.nav.mulighetsrommet.domain.dto.NavIdent
@@ -240,6 +241,7 @@ data class TiltaksgjennomforingRequest(
     @Serializable(with = LocalDateSerializer::class)
     val tilgjengeligForArrangorFraOgMedDato: LocalDate?,
     val nusData: JsonObject?,
+    val amoKategorisering: AmoKategorisering?,
 ) {
     fun toDbo() = TiltaksgjennomforingDbo(
         id = id,
@@ -271,6 +273,7 @@ data class TiltaksgjennomforingRequest(
         estimertVentetidEnhet = estimertVentetid?.enhet,
         tilgjengeligForArrangorFraOgMedDato = tilgjengeligForArrangorFraOgMedDato,
         nusData = nusData,
+        amoKategorisering = amoKategorisering,
     )
 }
 
