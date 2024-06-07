@@ -1,4 +1,9 @@
-import { Opphav, TiltaksgjennomforingOppstartstype } from "mulighetsrommet-api-client";
+import {
+  ForerkortKlasse,
+  InnholdElement,
+  Opphav,
+  TiltaksgjennomforingOppstartstype,
+} from "mulighetsrommet-api-client";
 import z from "zod";
 import { FaneinnholdSchema } from "./FaneinnholdSchema";
 import { STED_FOR_GJENNOMFORING_MAX_LENGTH } from "../../constants";
@@ -101,6 +106,13 @@ export const TiltaksgjennomforingSchema = z
           )
           .array()
           .optional(),
+      })
+      .optional(),
+    amoKategorisering: z
+      .object({
+        forerkort: z.nativeEnum(ForerkortKlasse).array().optional(),
+        norskprove: z.boolean().nullable().optional(),
+        innholdElementer: z.nativeEnum(InnholdElement).array().optional(),
       })
       .optional(),
   })

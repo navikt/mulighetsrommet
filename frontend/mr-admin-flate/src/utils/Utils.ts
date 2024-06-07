@@ -5,6 +5,8 @@ import {
   Avtaletype,
   EstimertVentetidEnhet,
   ForerkortKlasse,
+  Kurstype,
+  Spesifisering,
 } from "mulighetsrommet-api-client";
 import { AvtaleFilter } from "@/api/atoms";
 
@@ -274,5 +276,35 @@ export function forerkortKlasseToString(klasse: ForerkortKlasse): string {
       return "S - Snøscooter";
     case ForerkortKlasse.T:
       return "T - Traktor";
+  }
+}
+
+export function kurstypeToString(kurstype: Kurstype): string {
+  switch (kurstype) {
+    case Kurstype.BRANSJE:
+      return "Bransje-/yrkesrettede kurs";
+    case Kurstype.NORSKOPPLAERING:
+      return "Norskopplæring/grunnleggende ferdigheter";
+    case Kurstype.STUDIESPESIALISERING:
+      return "Studiespesialisering";
+  }
+}
+
+export function spesifiseringToString(spesifisering: Spesifisering): string {
+  switch (spesifisering) {
+    case Spesifisering.SERVERING_OVERNATTING:
+      return "Serviering/overnatting";
+    case Spesifisering.TRANSPORT:
+      return "Transport";
+    case Spesifisering.INDUSTRI:
+      return "Industri";
+    case Spesifisering.ANDRE_BRANSJER:
+      return "Andre bransjer";
+    case Spesifisering.NORSKOPPLAERING:
+      return "Norskopplæring";
+    case Spesifisering.FORBEREDENDE_OPPLAERING_FOR_VOKSNE:
+      return "Forberedende opplæring for voksne";
+    case Spesifisering.GRUNNLEGGENDE_FERDIGHETER:
+      return "Grunnleggende ferdigheter";
   }
 }

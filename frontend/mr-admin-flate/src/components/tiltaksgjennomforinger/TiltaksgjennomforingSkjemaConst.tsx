@@ -110,5 +110,7 @@ export function defaultTiltaksgjennomforingData(
     tilgjengeligForArrangorFraOgMedDato:
       tiltaksgjennomforing?.tilgjengeligForArrangorFraOgMedDato ?? null,
     nusData: tiltaksgjennomforing?.nusData || undefined,
+    amoKategorisering:
+      tiltaksgjennomforing?.amoKategorisering ?? avtale.amoKategorisering ?? undefined,
   };
 }

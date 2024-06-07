@@ -23,7 +23,7 @@ data class AmoKategorisering(
         ANDRE_BRANSJER,
         NORSKOPPLAERING,
         GRUNNLEGGENDE_FERDIGHETER,
-        FOV,
+        FORBEREDENDE_OPPLAERING_FOR_VOKSNE,
     }
 
     enum class ForerkortKlasse {

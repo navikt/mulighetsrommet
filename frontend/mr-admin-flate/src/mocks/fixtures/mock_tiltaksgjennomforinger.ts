@@ -86,6 +86,7 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     },
     tilgjengeligForArrangorFraOgMedDato: null,
     nusData: null,
+    amoKategorisering: null,
   },
   {
     id: "a7d63fb0-4366-412c-84b7-7c15518ee362",
@@ -118,6 +119,7 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
 
     tilgjengeligForArrangorFraOgMedDato: null,
     nusData: null,
+    amoKategorisering: null,
   },
   {
     id: "a7d63fb0-4366-412c-84b7-7c15518ee363",
@@ -150,6 +152,7 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
 
     tilgjengeligForArrangorFraOgMedDato: null,
     nusData: null,
+    amoKategorisering: null,
   },
   {
     id: "a7d63fb0-4366-412c-84b7-7c15518ee364",
@@ -177,6 +180,7 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
 
     tilgjengeligForArrangorFraOgMedDato: null,
     nusData: null,
+    amoKategorisering: null,
   },
 ];
 
@@ -219,5 +223,6 @@ for (let i = 0; i < x; i++) {
 
     tilgjengeligForArrangorFraOgMedDato: null,
     nusData: null,
+    amoKategorisering: null,
   });
 }

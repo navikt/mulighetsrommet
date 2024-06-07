@@ -2225,6 +2225,9 @@ components:
                   - code
                   - name
           nullable: true
+        amoKategorisering:
+          $ref: "#/components/schemas/AmoKategorisering"
+          nullable: true
       required:
         - id
         - tiltakstype
@@ -2244,6 +2247,7 @@ components:
         - deltidsprosent
         - tilgjengeligForArrangorFraOgMedDato
         - nusData
+        - amoKategorisering
 
     TiltaksnummerResponse:
       type: object
@@ -2339,6 +2343,9 @@ components:
                     type: string
               nullable: true
           nullable: true
+        amoKategorisering:
+          $ref: "#/components/schemas/AmoKategorisering"
+          nullable: true
       required:
         - id
         - tiltakstypeId
@@ -2362,6 +2369,7 @@ components:
         - estimertVentetid
         - tilgjengeligForArrangorFraOgMedDato
         - nusData
+        - amoKategorisering
 
     TiltaksgjennomforingStatusResponse:
       oneOf:
@@ -3734,7 +3742,7 @@ components:
         - INDUSTRI
         - ANDRE_BRANSJER
         - NORSKOPPLAERING
-        - FOV
+        - FORBEREDENDE_OPPLAERING_FOR_VOKSNE
         - GRUNNLEGGENDE_FERDIGHETER
 
     InnholdElement:
