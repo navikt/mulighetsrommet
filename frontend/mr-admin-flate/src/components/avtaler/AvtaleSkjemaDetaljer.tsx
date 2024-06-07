@@ -39,6 +39,7 @@ import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { FormGroup } from "../skjema/FormGroup";
 import skjemastyles from "../skjema/Skjema.module.scss";
 import { AvtaleArrangorSkjema } from "./AvtaleArrangorSkjema";
+import { AvtaleAmoKategoriseringSkjema } from "./AvtaleAmoKategoriseringSkjema";
 import { getLokaleUnderenheterAsSelectOptions } from "./AvtaleSkjemaConst";
 
 const minStartdato = new Date(2000, 0, 1);
@@ -149,6 +150,8 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
                 label={avtaletekster.tiltakstypeLabel}
                 {...register("tiltakstype")}
                 onChange={(event) => {
+                  setValue("amoKategorisering", undefined);
+                  setValue("nusData", undefined);
                   const options = event.target.value?.arenaKode
                     ? avtaletypeOptions(event.target.value.arenaKode)
                     : [];
@@ -178,7 +181,10 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
               />
             </HGrid>
             {watch("tiltakstype")?.tiltakskode === Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING ? (
-              <AvtaleKategoriVelger />
+              <AvtaleNUSKategoriVelger />
+            ) : null}
+            {watch("tiltakstype")?.tiltakskode === Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING ? (
+              <AvtaleAmoKategoriseringSkjema />
             ) : null}
           </FormGroup>
 
@@ -324,7 +330,7 @@ function avtaletypeOptions(arenaKode: TiltakskodeArena): { value: Avtaletype; la
   }
 }
 
-function AvtaleKategoriVelger() {
+function AvtaleNUSKategoriVelger() {
   const { data: enableNusKategorier } = useFeatureToggle(
     Toggles.MULIGHETSROMMET_ADMIN_FLATE_ENABLE_NUSKATEGORIER,
   );

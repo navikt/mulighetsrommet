@@ -269,6 +269,23 @@ class AvtaleRepositoryTest : FunSpec({
             avtaler.upsert(avtale1)
             avtaler.getAvtaleIdsByAdministrator(NavAnsattFixture.ansatt1.navIdent) shouldBe listOf(avtale1.id)
         }
+
+        test("gruppe amo kategorier") {
+            val avtaler = AvtaleRepository(database.db)
+            val amoKategorisering = AmoKategorisering(
+                kurstype = AmoKategorisering.Kurstype.BRANSJE,
+                spesifisering = AmoKategorisering.Spesifisering.INDUSTRI,
+                norskprove = null,
+                forerkort = null,
+                innholdElementer = listOf(AmoKategorisering.InnholdElement.PRAKTISK_OPPLAERING),
+            )
+
+            val avtale = AvtaleFixtures.oppfolging.copy(amoKategorisering = amoKategorisering)
+            avtaler.upsert(avtale)
+            avtaler.get(avtale.id).shouldNotBeNull().should {
+                it.amoKategorisering shouldBe amoKategorisering
+            }
+        }
     }
 
     context("Filter for avtaler") {

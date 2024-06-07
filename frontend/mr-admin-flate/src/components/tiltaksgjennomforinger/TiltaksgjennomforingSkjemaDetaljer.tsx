@@ -42,6 +42,7 @@ import { SelectOppstartstype } from "./SelectOppstartstype";
 import { TiltakTilgjengeligForArrangor } from "./TilgjengeligTiltakForArrangor";
 import { TiltaksgjennomforingArrangorSkjema } from "./TiltaksgjennomforingArrangorSkjema";
 import { erArenaOpphavOgIngenEierskap } from "./TiltaksgjennomforingSkjemaConst";
+import { TiltaksgjennomforingAmoKategoriseringSkjema } from "./TiltaksgjennomforingAmoKategoriseringSkjema";
 
 interface Props {
   tiltaksgjennomforing?: Tiltaksgjennomforing;
@@ -199,6 +200,9 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
             ) : null}
             {avtale.tiltakstype.arenaKode === TiltakskodeArena.GRUFAGYRKE ? (
               <VelgUtdanningskategori avtale={avtale} />
+            ) : null}
+            {avtale.tiltakstype.arenaKode === TiltakskodeArena.GRUPPEAMO ? (
+              <TiltaksgjennomforingAmoKategoriseringSkjema avtale={avtale} />
             ) : null}
           </FormGroup>
 

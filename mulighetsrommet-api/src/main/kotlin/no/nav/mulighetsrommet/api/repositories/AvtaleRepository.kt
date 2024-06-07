@@ -56,7 +56,8 @@ class AvtaleRepository(private val db: Database) {
                 beskrivelse,
                 faneinnhold,
                 personvern_bekreftet,
-                nusdata
+                nusdata,
+                amo_kategorisering
             ) values (
                 :id::uuid,
                 :navn,
@@ -73,7 +74,8 @@ class AvtaleRepository(private val db: Database) {
                 :beskrivelse,
                 :faneinnhold::jsonb,
                 :personvern_bekreftet,
-                :nusdata::jsonb
+                :nusdata::jsonb,
+                :amo_kategorisering::jsonb
             ) on conflict (id) do update set
                 navn                        = excluded.navn,
                 tiltakstype_id              = excluded.tiltakstype_id,
@@ -89,7 +91,8 @@ class AvtaleRepository(private val db: Database) {
                 beskrivelse                 = excluded.beskrivelse,
                 faneinnhold                 = excluded.faneinnhold,
                 personvern_bekreftet        = excluded.personvern_bekreftet,
-                nusdata                     = excluded.nusdata
+                nusdata                     = excluded.nusdata,
+                amo_kategorisering          = excluded.amo_kategorisering
         """.trimIndent()
 
         @Language("PostgreSQL")
@@ -480,6 +483,7 @@ class AvtaleRepository(private val db: Database) {
         "faneinnhold" to faneinnhold?.let { Json.encodeToString(it) },
         "personvern_bekreftet" to personvernBekreftet,
         "nusdata" to nusData?.let { Json.encodeToString(it) },
+        "amo_kategorisering" to amoKategorisering?.let { Json.encodeToString(it) },
     )
 
     private fun ArenaAvtaleDbo.toSqlParameters(arrangorId: UUID): Map<String, Any?> {
@@ -575,6 +579,7 @@ class AvtaleRepository(private val db: Database) {
             personopplysninger = personopplysninger,
             personvernBekreftet = boolean("personvern_bekreftet"),
             nusData = stringOrNull("nusdata")?.let { Json.decodeFromString(it) },
+            amoKategorisering = stringOrNull("amo_kategorisering")?.let { Json.decodeFromString(it) },
         )
     }
 

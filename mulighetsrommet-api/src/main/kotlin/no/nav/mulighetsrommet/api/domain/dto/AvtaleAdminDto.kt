@@ -44,7 +44,8 @@ data class AvtaleAdminDto(
     val faneinnhold: Faneinnhold? = null,
     val personopplysninger: List<Personopplysning>,
     val personvernBekreftet: Boolean,
-    val nusData: NusData? = null,
+    val nusData: NusData?,
+    val amoKategorisering: AmoKategorisering?,
 ) {
     @Serializable
     data class Tiltakstype(
@@ -119,6 +120,7 @@ data class AvtaleAdminDto(
             personopplysninger = personopplysninger,
             personvernBekreftet = personvernBekreftet,
             nusData = nusData?.let { Json.encodeToJsonElement(it).jsonObject },
+            amoKategorisering = amoKategorisering,
         )
 
     fun toArenaAvtaleDbo() =

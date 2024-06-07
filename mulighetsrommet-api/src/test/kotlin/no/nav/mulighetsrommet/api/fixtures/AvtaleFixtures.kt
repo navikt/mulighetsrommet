@@ -30,6 +30,7 @@ object AvtaleFixtures {
         personopplysninger = emptyList(),
         personvernBekreftet = false,
         nusData = null,
+        amoKategorisering = null,
     )
 
     val oppfolgingMedAvtale = AvtaleDbo(
@@ -52,6 +53,7 @@ object AvtaleFixtures {
         faneinnhold = null,
         personopplysninger = emptyList(),
         personvernBekreftet = false,
+        amoKategorisering = null,
         nusData = null,
     )
 
@@ -76,6 +78,7 @@ object AvtaleFixtures {
         personopplysninger = emptyList(),
         personvernBekreftet = false,
         nusData = null,
+        amoKategorisering = null,
     )
 
     val VTA = AvtaleDbo(
@@ -99,6 +102,7 @@ object AvtaleFixtures {
         personopplysninger = emptyList(),
         personvernBekreftet = false,
         nusData = null,
+        amoKategorisering = null,
     )
 
     val AFT = AvtaleDbo(
@@ -122,6 +126,7 @@ object AvtaleFixtures {
         personopplysninger = emptyList(),
         personvernBekreftet = false,
         nusData = null,
+        amoKategorisering = null,
     )
 
     val EnkelAmo = AvtaleDbo(
@@ -145,6 +150,7 @@ object AvtaleFixtures {
         personopplysninger = emptyList(),
         personvernBekreftet = false,
         nusData = null,
+        amoKategorisering = null,
     )
 
     val avtaleRequest = AvtaleRequest(
@@ -167,5 +173,6 @@ object AvtaleFixtures {
         personopplysninger = emptyList(),
         personvernBekreftet = false,
         nusData = null,
+        amoKategorisering = null,
     )
 }
