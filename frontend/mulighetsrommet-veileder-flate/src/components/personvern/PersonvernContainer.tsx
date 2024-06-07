@@ -92,7 +92,7 @@ export function PersonvernContainer({ tiltaksgjennomforing }: Props) {
           </BodyLong>
           <VStack gap="5">
             <ListeOverPersonopplysninger
-              title="Følgende personopplysninger om deltager kan behandles i denne avtalen"
+              title="Opplysninger om deltaker som kan behandles"
               personopplysninger={data}
             />
           </VStack>

@@ -22,7 +22,7 @@ enum class Personopplysning(val tittel: String, val hjelpetekst: String?, val so
     SPRAKKUNNSKAP("Opplysninger om språkkunnskap", null, 17),
     ADFERD(
         "Opplysninger om atferd som kan ha betydning for tiltaksgjennomføring og jobbmuligheter",
-        "For eksempel truende adferd, vanskelig å samarbeide med osv. Det kan for eksempel være tilfeller hvor det er nødvendig å informere tiltaksarrangør om at bruker har et sikkerhetstiltak hos NAV",
+        "For eksempel truende adferd, vanskelig å samarbeide med osv. Det kan for eksempel være tilfeller hvor det er nødvendig å informere tiltaksarrangør om at bruker har et sikkerhetstiltak hos NAV.",
         18,
     ),
     SOSIALE_FORHOLD(
