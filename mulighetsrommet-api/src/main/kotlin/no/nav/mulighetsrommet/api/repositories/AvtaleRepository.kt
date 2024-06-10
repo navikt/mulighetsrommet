@@ -574,7 +574,7 @@ class AvtaleRepository(private val db: Database) {
                 id = uuid("tiltakstype_id"),
                 navn = string("tiltakstype_navn"),
                 arenaKode = string("tiltakstype_arena_kode"),
-                tiltakskode = stringOrNull("tiltakstype_tiltakskode")?.let { Tiltakskode.valueOf(it) },
+                tiltakskode = Tiltakskode.valueOf(string("tiltakstype_tiltakskode")),
             ),
             personopplysninger = personopplysninger,
             personvernBekreftet = boolean("personvern_bekreftet"),

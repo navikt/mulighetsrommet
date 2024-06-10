@@ -87,6 +87,7 @@ class TiltakstypeRepositoryTest : FunSpec({
                     id = UUID.randomUUID(),
                     navn = "$it".padStart(2, '0'),
                     arenaKode = "$it",
+                    tiltakskode = null,
                 ),
             )
         }

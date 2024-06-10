@@ -33,6 +33,7 @@ import no.nav.mulighetsrommet.api.domain.dto.SanityResponse
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
+import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.repositories.NavAnsattRepository
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
@@ -370,12 +371,14 @@ class NavAnsattServiceTest : FunSpec({
                 id = AvtaleFixtures.AFT.id,
                 navn = AvtaleFixtures.AFT.navn,
                 avtalenummer = AvtaleFixtures.AFT.avtalenummer,
-                tiltakstype = AvtaleAdminDto.Tiltakstype(
-                    id = UUID.randomUUID(),
-                    navn = "",
-                    arenaKode = "",
-                    tiltakskode = null,
-                ),
+                tiltakstype = TiltakstypeFixtures.AFT.run {
+                    AvtaleAdminDto.Tiltakstype(
+                        id = id,
+                        navn = navn,
+                        arenaKode = arenaKode,
+                        tiltakskode = tiltakskode!!,
+                    )
+                },
                 arrangor = AvtaleAdminDto.ArrangorHovedenhet(
                     id = UUID.randomUUID(),
                     organisasjonsnummer = "123",
