@@ -45,6 +45,7 @@ class UpdateTiltaksgjennomforingStatusTest : FunSpec({
                     id = tiltakstype.id,
                     navn = tiltakstype.navn,
                     arenaKode = tiltakstype.arenaKode,
+                    tiltakskode = tiltakstype.tiltakskode!!,
                 ),
                 navn = navn,
                 virksomhetsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,

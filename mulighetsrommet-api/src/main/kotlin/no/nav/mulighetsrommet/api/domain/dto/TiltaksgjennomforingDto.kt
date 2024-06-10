@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.domain.dto
 
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
@@ -31,6 +32,7 @@ data class TiltaksgjennomforingDto(
         val id: UUID,
         val navn: String,
         val arenaKode: String,
+        val tiltakskode: Tiltakskode,
     )
 
     companion object {
@@ -41,6 +43,7 @@ data class TiltaksgjennomforingDto(
                     id = tiltakstype.id,
                     navn = tiltakstype.navn,
                     arenaKode = tiltakstype.arenaKode,
+                    tiltakskode = tiltakstype.tiltakskode,
                 ),
                 navn = navn,
                 startDato = startDato,

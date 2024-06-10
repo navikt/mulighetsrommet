@@ -36,6 +36,7 @@ import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.VTA1
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.database.utils.Pagination
+import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.ArenaTiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
@@ -109,6 +110,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                     id = TiltakstypeFixtures.Oppfolging.id,
                     navn = TiltakstypeFixtures.Oppfolging.navn,
                     arenaKode = TiltakstypeFixtures.Oppfolging.arenaKode,
+                    tiltakskode = Tiltakskode.fromArenaKodeOrFail(TiltakstypeFixtures.Oppfolging.arenaKode),
                 )
                 it.tiltaksnummer shouldBe "2023#1"
                 it.arrangor shouldBe TiltaksgjennomforingAdminDto.ArrangorUnderenhet(
@@ -223,6 +225,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                     id = TiltakstypeFixtures.Oppfolging.id,
                     navn = TiltakstypeFixtures.Oppfolging.navn,
                     arenaKode = TiltakstypeFixtures.Oppfolging.arenaKode,
+                    tiltakskode = Tiltakskode.fromArenaKodeOrFail(TiltakstypeFixtures.Oppfolging.arenaKode),
                 )
                 it.navn shouldBe Oppfolging1.navn
                 it.tiltaksnummer shouldBe null

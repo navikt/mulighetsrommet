@@ -15,7 +15,6 @@ import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListe
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.domain.Tiltakskode
-import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
 import no.nav.mulighetsrommet.domain.dto.TiltakstypeStatus
 import org.intellij.lang.annotations.Language
 import java.time.LocalDate
@@ -41,36 +40,19 @@ class TiltakstypeRepositoryTest : FunSpec({
 
     context("filtrering") {
         val tiltakstyper = TiltakstypeRepository(database.db)
-        val tiltakstypeStarterIFremtiden = TiltakstypeDbo(
-            id = UUID.randomUUID(),
-            navn = "Arbeidsforberedende trening",
-            arenaKode = "ARBFORB",
-            rettPaaTiltakspenger = true,
+        val tiltakstypeStarterIFremtiden = TiltakstypeFixtures.AFT.copy(
             startDato = LocalDate.now().plusDays(1),
             sluttDato = LocalDate.now().plusMonths(1),
         )
-        val tiltakstypeHarStartet = TiltakstypeDbo(
-            id = UUID.randomUUID(),
-            navn = "Jobbklubb",
-            arenaKode = "JOBBK",
-            rettPaaTiltakspenger = true,
+        val tiltakstypeHarStartet = TiltakstypeFixtures.Jobbklubb.copy(
             startDato = LocalDate.now(),
             sluttDato = LocalDate.now().plusMonths(1),
         )
-        val tiltakstypeErAvsluttet = TiltakstypeDbo(
-            id = UUID.randomUUID(),
-            navn = "Oppfølgning",
-            arenaKode = "INDOPPFAG",
-            rettPaaTiltakspenger = true,
+        val tiltakstypeErAvsluttet = TiltakstypeFixtures.Oppfolging.copy(
             startDato = LocalDate.now().minusMonths(1),
             sluttDato = LocalDate.now().minusDays(1),
         )
-        val idSkalIkkeMigreres = UUID.randomUUID()
-        val tiltakstypeSkalIkkeMigreres = TiltakstypeDbo(
-            id = idSkalIkkeMigreres,
-            navn = "AMOY",
-            arenaKode = "AMOY",
-            rettPaaTiltakspenger = true,
+        val tiltakstypeSkalIkkeMigreres = TiltakstypeFixtures.EnkelAmo.copy(
             startDato = LocalDate.now(),
             sluttDato = LocalDate.now().plusMonths(1),
         )

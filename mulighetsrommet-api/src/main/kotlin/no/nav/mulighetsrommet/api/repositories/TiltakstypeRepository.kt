@@ -212,7 +212,7 @@ class TiltakstypeRepository(private val db: Database) {
     private fun TiltakstypeDbo.toSqlParameters() = mapOf(
         "id" to id,
         "navn" to navn,
-        "tiltakskode" to Tiltakskode.fromArenaKode(arenaKode)?.name,
+        "tiltakskode" to tiltakskode?.name,
         "arena_kode" to arenaKode,
         "start_dato" to startDato,
         "slutt_dato" to sluttDato,
