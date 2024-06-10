@@ -34,33 +34,6 @@ data class TiltaksgjennomforingDto(
         val arenaKode: String,
         val tiltakskode: Tiltakskode,
     )
-
-    companion object {
-        fun from(tiltaksgjennomforing: TiltaksgjennomforingAdminDto) = tiltaksgjennomforing.run {
-            TiltaksgjennomforingDto(
-                id = id,
-                tiltakstype = Tiltakstype(
-                    id = tiltakstype.id,
-                    navn = tiltakstype.navn,
-                    arenaKode = tiltakstype.arenaKode,
-                    tiltakskode = tiltakstype.tiltakskode,
-                ),
-                navn = navn,
-                startDato = startDato,
-                sluttDato = sluttDato,
-                status = status.enum,
-                virksomhetsnummer = arrangor.organisasjonsnummer,
-                oppstart = oppstart,
-                tilgjengeligForArrangorFraOgMedDato = tilgjengeligForArrangorFraOgMedDato,
-                nusData = nusData?.let {
-                    NusDataTilDvh(
-                        versjon = it.versjon,
-                        kategorier = it.utdanningskategorier.map { kat -> kat.code },
-                    )
-                },
-            )
-        }
-    }
 }
 
 @Serializable

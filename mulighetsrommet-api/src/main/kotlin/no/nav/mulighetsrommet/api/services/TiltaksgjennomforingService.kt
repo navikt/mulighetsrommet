@@ -67,7 +67,7 @@ class TiltaksgjennomforingService(
                         "Redigerte gjennomføring"
                     }
                     logEndring(operation, dto, navIdent, tx)
-                    tiltaksgjennomforingKafkaProducer.publish(TiltaksgjennomforingDto.from(dto))
+                    tiltaksgjennomforingKafkaProducer.publish(dto.toTiltaksgjennomforingDto())
                     dto
                 }
             }
@@ -115,7 +115,7 @@ class TiltaksgjennomforingService(
     )
 
     fun getEkstern(id: UUID): TiltaksgjennomforingDto? {
-        return tiltaksgjennomforinger.get(id)?.let { TiltaksgjennomforingDto.from(it) }
+        return tiltaksgjennomforinger.get(id)?.toTiltaksgjennomforingDto()
     }
 
     fun getAllEkstern(
@@ -127,7 +127,7 @@ class TiltaksgjennomforingService(
             arrangorOrgnr = filter.arrangorOrgnr,
         )
         .let { (totalCount, items) ->
-            val data = items.map { dto -> TiltaksgjennomforingDto.from(dto) }
+            val data = items.map { dto -> dto.toTiltaksgjennomforingDto() }
             PaginatedResponse.of(pagination, totalCount, data)
         }
 
@@ -162,7 +162,7 @@ class TiltaksgjennomforingService(
                 val dto = getOrError(id, tx)
                 val operation = "Endret dato for tilgang til Deltakeroversikten"
                 logEndring(operation, dto, navIdent, tx)
-                tiltaksgjennomforingKafkaProducer.publish(TiltaksgjennomforingDto.from(dto))
+                tiltaksgjennomforingKafkaProducer.publish(dto.toTiltaksgjennomforingDto())
             }
     }
 
@@ -216,7 +216,7 @@ class TiltaksgjennomforingService(
             tiltaksgjennomforinger.avbryt(tx, id, LocalDateTime.now(), aarsak)
             val dto = getOrError(id, tx)
             logEndring("Gjennomføring ble avbrutt", dto, navIdent, tx)
-            tiltaksgjennomforingKafkaProducer.publish(TiltaksgjennomforingDto.from(dto))
+            tiltaksgjennomforingKafkaProducer.publish(dto.toTiltaksgjennomforingDto())
         }
 
         return Either.Right(Unit)
