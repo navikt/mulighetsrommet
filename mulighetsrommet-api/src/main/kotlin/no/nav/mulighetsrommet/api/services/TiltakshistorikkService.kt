@@ -9,7 +9,7 @@ import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakelserRequest
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakelserResponse
 import no.nav.mulighetsrommet.api.clients.pdl.PdlClient
 import no.nav.mulighetsrommet.api.clients.pdl.PdlError
-import no.nav.mulighetsrommet.api.domain.dto.TiltakshistorikkDto
+import no.nav.mulighetsrommet.api.domain.dto.TiltakshistorikkAdminDto
 import no.nav.mulighetsrommet.api.repositories.TiltakshistorikkRepository
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -22,7 +22,7 @@ class TiltakshistorikkService(
 ) {
     val log: Logger = LoggerFactory.getLogger(javaClass)
 
-    suspend fun hentHistorikkForBruker(norskIdent: String, obo: AccessType.OBO): List<TiltakshistorikkDto> {
+    suspend fun hentHistorikkForBruker(norskIdent: String, obo: AccessType.OBO): List<TiltakshistorikkAdminDto> {
         val identer = pdlClient.hentIdenter(norskIdent, obo)
             .map { list -> list.map { it.ident } }
             .getOrElse {
@@ -35,10 +35,10 @@ class TiltakshistorikkService(
         return tiltakshistorikkRepository.getTiltakshistorikkForBruker(identer).map {
             val arrangor = it.arrangorOrganisasjonsnummer?.let { orgnr ->
                 val navn = hentArrangorNavn(orgnr)
-                TiltakshistorikkDto.Arrangor(organisasjonsnummer = orgnr, navn = navn)
+                TiltakshistorikkAdminDto.Arrangor(organisasjonsnummer = orgnr, navn = navn)
             }
             it.run {
-                TiltakshistorikkDto(
+                TiltakshistorikkAdminDto(
                     id = id,
                     fraDato = fraDato,
                     tilDato = tilDato,

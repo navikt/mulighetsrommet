@@ -44,19 +44,19 @@ class DeltakerRepositoryTest : FunSpec({
         tiltakshistorikk.upsertArenaDeltaker(arbeidstrening)
         tiltakshistorikk.upsertArenaDeltaker(mentor)
 
-        tiltakshistorikk.getArenaDeltakelser(identer = listOf(NorskIdent("12345678910"))) shouldBe listOf(
+        tiltakshistorikk.getArenaDeltakelser(identer = listOf("12345678910")) shouldBe listOf(
             mentor,
             arbeidstrening,
         )
 
         tiltakshistorikk.deleteArenaDeltaker(mentor.id)
 
-        tiltakshistorikk.getArenaDeltakelser(identer = listOf(NorskIdent("12345678910"))) shouldBe listOf(
+        tiltakshistorikk.getArenaDeltakelser(identer = listOf("12345678910")) shouldBe listOf(
             arbeidstrening,
         )
 
         tiltakshistorikk.deleteArenaDeltaker(arbeidstrening.id)
 
-        tiltakshistorikk.getArenaDeltakelser(identer = listOf(NorskIdent("12345678910"))).shouldBeEmpty()
+        tiltakshistorikk.getArenaDeltakelser(identer = listOf("12345678910")).shouldBeEmpty()
     }
 })
