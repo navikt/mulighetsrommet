@@ -56,15 +56,19 @@ class AvtaleValidator(
                 if (avtale.sluttDato.isBefore(avtale.startDato)) {
                     add(ValidationError.of(AvtaleDbo::startDato, "Startdato må være før sluttdato"))
                 }
-                if (!listOf(Tiltakskode.ARBEIDSFORBEREDENDE_TRENING, Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET).contains(Tiltakskode.fromArenaKode(tiltakstype.arenaKode)) &&
+                if (!listOf(
+                        Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
+                        Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET,
+                    ).contains(Tiltakskode.fromArenaKode(tiltakstype.arenaKode)) &&
                     avtale.startDato.plusYears(5).isBefore(avtale.sluttDato)
                 ) {
-                    add(ValidationError.of(AvtaleDbo::sluttDato, "Avtaleperioden kan ikke vare lenger enn 5 år for anskaffede tiltak"))
+                    add(
+                        ValidationError.of(
+                            AvtaleDbo::sluttDato,
+                            "Avtaleperioden kan ikke vare lenger enn 5 år for anskaffede tiltak",
+                        ),
+                    )
                 }
-            }
-
-            if (currentAvtale?.tiltakstype?.arenaKode == Tiltakskode.toArenaKode(Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING) && currentAvtale.nusData == null) {
-                add(ValidationError.of(AvtaleDbo::nusData, "Du må velge minst én utdanningskategori for avtalen"))
             }
 
             if (avtale.avtaletype.kreverWebsaknummer() && avtale.websaknummer == null) {

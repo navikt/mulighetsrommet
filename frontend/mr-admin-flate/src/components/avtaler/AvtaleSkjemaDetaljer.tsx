@@ -64,7 +64,15 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
     setValue,
   } = useFormContext<DeepPartial<InferredAvtaleSchema>>();
 
+  const { data: enableNusKategorier } = useFeatureToggle(
+    Toggles.MULIGHETSROMMET_ADMIN_FLATE_ENABLE_NUSKATEGORIER,
+  );
+  const { data: enableGruppeAmoKategorier } = useFeatureToggle(
+    Toggles.MULIGHETSROMMET_ADMIN_FLATE_ENABLE_GRUPPE_AMO_KATEGORIER,
+  );
+
   const watchedTiltakstype = watch("tiltakstype");
+  const tiltakskode = watchedTiltakstype?.tiltakskode;
   const arenaKode = watchedTiltakstype?.arenaKode;
 
   const valgtTiltakstypeFraArena = !migrerteTiltakstyper?.includes(
@@ -180,10 +188,11 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
                 options={arenaKode ? avtaletypeOptions(arenaKode) : []}
               />
             </HGrid>
-            {watch("tiltakstype")?.tiltakskode === Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING ? (
+            {enableNusKategorier && tiltakskode === Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING ? (
               <AvtaleNUSKategoriVelger />
             ) : null}
-            {watch("tiltakstype")?.tiltakskode === Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING ? (
+            {enableGruppeAmoKategorier &&
+            tiltakskode === Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING ? (
               <AvtaleAmoKategoriseringSkjema />
             ) : null}
           </FormGroup>
@@ -332,10 +341,6 @@ function avtaletypeOptions(arenaKode: TiltakskodeArena): { value: Avtaletype; la
 }
 
 function AvtaleNUSKategoriVelger() {
-  const { data: enableNusKategorier } = useFeatureToggle(
-    Toggles.MULIGHETSROMMET_ADMIN_FLATE_ENABLE_NUSKATEGORIER,
-  );
-
   const {
     setValue,
     watch,
@@ -350,10 +355,6 @@ function AvtaleNUSKategoriVelger() {
 
   if (isError) {
     return <Alert variant="error">Kunne ikke hente data fra SSB</Alert>;
-  }
-
-  if (!enableNusKategorier) {
-    return null;
   }
 
   const utdanningsnivaa = watch("nusData.utdanningsnivaa");
