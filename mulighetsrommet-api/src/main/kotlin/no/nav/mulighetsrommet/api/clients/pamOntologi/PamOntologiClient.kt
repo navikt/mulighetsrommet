@@ -7,10 +7,13 @@ import io.ktor.client.plugins.*
 import io.ktor.client.plugins.cache.*
 import io.ktor.client.request.*
 import io.ktor.http.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.clients.AccessType
 import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
 import org.slf4j.LoggerFactory
+import java.net.URLEncoder
 
 class PamOntologiClient(
     private val baseUrl: String,
@@ -43,7 +46,10 @@ class PamOntologiClient(
     }
 
     private suspend fun typeahead(query: String, domene: String, accessType: AccessType.OBO): List<Typeahead> {
-        val response = client.get("$baseUrl/rest/typeahead/$domene?q=$query") {
+        val urlEncodedQuery = withContext(Dispatchers.IO) {
+            URLEncoder.encode(query, "UTF-8")
+        }
+        val response = client.get("$baseUrl/rest/typeahead/$domene?q=$urlEncodedQuery") {
             bearerAuth(tokenProvider.invoke(accessType))
             header(HttpHeaders.ContentType, ContentType.Application.Json)
         }
