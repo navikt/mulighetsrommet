@@ -79,6 +79,7 @@ export function AvtaleArrangorSkjema({ readOnly }: Props) {
           helpText="Bestemmer hvilke arrangører som kan velges i gjennomføringene til avtalen."
           readOnly={underenheterIsEmpty}
           {...register("arrangorUnderenheter")}
+          velgAlle
           options={arrangorUnderenhetOptions}
         />
       </FormGroup>

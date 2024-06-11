@@ -270,6 +270,7 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
               />
               <ControlledMultiSelect
                 size="small"
+                velgAlle
                 placeholder="Velg en"
                 label={avtaletekster.navEnheterLabel}
                 helpText="Bestemmer hvilke NAV-enheter som kan velges i gjennomføringene til avtalen."
