@@ -24,6 +24,7 @@ import no.nav.mulighetsrommet.api.clients.dialog.VeilarbdialogClient
 import no.nav.mulighetsrommet.api.clients.msgraph.MicrosoftGraphClient
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Client
 import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClient
+import no.nav.mulighetsrommet.api.clients.pamOntologi.PamOntologiClient
 import no.nav.mulighetsrommet.api.clients.pdl.PdlClient
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.clients.ssb.SsbNusClient
@@ -264,6 +265,15 @@ private fun services(appConfig: AppConfig) = module {
     single {
         AmtDeltakerClient(
             baseUrl = appConfig.amtDeltakerConfig.url,
+            clientEngine = appConfig.engine,
+            tokenProvider = { obo ->
+                oboTokenProvider.exchangeOnBehalfOfToken(appConfig.amtDeltakerConfig.scope, obo.token)
+            },
+        )
+    }
+    single {
+        PamOntologiClient(
+            baseUrl = appConfig.pamOntologi.baseUrl,
             clientEngine = appConfig.engine,
             tokenProvider = { obo ->
                 oboTokenProvider.exchangeOnBehalfOfToken(appConfig.amtDeltakerConfig.scope, obo.token)

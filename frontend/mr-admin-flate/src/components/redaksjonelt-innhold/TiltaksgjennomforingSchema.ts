@@ -111,6 +111,13 @@ export const TiltaksgjennomforingSchema = z
     amoKategorisering: z
       .object({
         forerkort: z.nativeEnum(ForerkortKlasse).array().optional(),
+        sertifiseringer: z
+          .object({
+            konseptId: z.number(),
+            label: z.string(),
+          })
+          .array()
+          .optional(),
         norskprove: z.boolean().nullable().optional(),
         innholdElementer: z.nativeEnum(InnholdElement).array().optional(),
       })

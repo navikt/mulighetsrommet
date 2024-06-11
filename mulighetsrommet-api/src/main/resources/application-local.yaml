@@ -138,12 +138,14 @@ app:
       disabled: true
       cronPattern: "0 */1 * * * *" # Hvert 1 minutt
 
-
   norg2:
     baseUrl: https://norg2.dev-fss-pub.nais.io/norg2/api/v1
 
   brreg:
     baseUrl: https://data.brreg.no/enhetsregisteret/api
+
+  pamOntologi:
+    baseUrl: http://localhost:8090
 
   slack:
     token: ${SLACK_TOKEN:-}

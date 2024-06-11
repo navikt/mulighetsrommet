@@ -293,7 +293,7 @@ export function kurstypeToString(kurstype: Kurstype): string {
 export function spesifiseringToString(spesifisering: Spesifisering): string {
   switch (spesifisering) {
     case Spesifisering.SERVERING_OVERNATTING:
-      return "Serviering/overnatting";
+      return "Servering/overnatting";
     case Spesifisering.TRANSPORT:
       return "Transport";
     case Spesifisering.INDUSTRI:

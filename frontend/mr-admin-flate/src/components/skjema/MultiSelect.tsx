@@ -1,33 +1,38 @@
 import { SelectOption } from "mulighetsrommet-frontend-common/components/SokeSelect";
-import React, { ReactNode } from "react";
+import { ReactNode, Ref } from "react";
 import ReactSelect from "react-select";
+import Select from "react-select/base";
 
-export interface MultiSelectProps {
+export interface MultiSelectProps<T> {
   name: string;
-  childRef: React.Ref<any>;
   placeholder: string;
-  options: SelectOption[];
+  options: SelectOption<T>[];
   noOptionsMessage?: ReactNode;
   size?: "small" | "medium";
-  value: SelectOption[];
+  value: SelectOption<T>[];
   readOnly?: boolean;
   onChange: (e: any) => void;
+  onInputChange?: (value: string) => void;
   error: boolean;
+  velgAlle?: boolean;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export const MultiSelect = React.forwardRef(function MultiSelect(props: MultiSelectProps, _) {
+export const MultiSelect = <T,>(
+  props: MultiSelectProps<T | null> & { childRef?: Ref<Select<SelectOption<T | null>>> },
+) => {
   const {
     name,
     placeholder,
     options,
     noOptionsMessage,
     onChange,
+    onInputChange,
     value,
     childRef,
     error,
     readOnly,
     size,
+    velgAlle = false,
   } = props;
 
   const customStyles = (isError: boolean) => ({
@@ -40,7 +45,7 @@ export const MultiSelect = React.forwardRef(function MultiSelect(props: MultiSel
     }),
     multiValue: (provided: any) => ({
       ...provided,
-      backgroundColor: "#005b82",
+      backgroundColor: "#01449C",
       borderRadius: "15px",
       color: "white",
     }),
@@ -72,7 +77,7 @@ export const MultiSelect = React.forwardRef(function MultiSelect(props: MultiSel
   });
 
   const allOptions =
-    options.length > 1 ? [{ label: "Velg alle", value: "*" }, ...options] : options;
+    velgAlle && options.length > 1 ? [{ label: "Velg alle", value: null }, ...options] : options;
 
   return (
     <ReactSelect
@@ -83,8 +88,9 @@ export const MultiSelect = React.forwardRef(function MultiSelect(props: MultiSel
       noOptionsMessage={() => (noOptionsMessage ? noOptionsMessage : "Ingen funnet")}
       name={name}
       value={value}
+      onInputChange={onInputChange}
       onChange={(e) => {
-        if (e.find((o) => o.value === "*")) {
+        if (velgAlle && e && "find" in e && e.find((o) => o.value === null)) {
           if (value.length === options.length) {
             onChange([]);
           } else {
@@ -114,4 +120,4 @@ export const MultiSelect = React.forwardRef(function MultiSelect(props: MultiSel
       })}
     />
   );
-});
+};

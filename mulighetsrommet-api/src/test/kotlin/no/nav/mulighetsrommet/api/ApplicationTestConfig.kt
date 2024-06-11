@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api
 import io.ktor.server.application.*
 import io.ktor.server.testing.*
 import no.nav.mulighetsrommet.api.clients.brreg.BrregClient
+import no.nav.mulighetsrommet.api.clients.pamOntologi.PamOntologiClient
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.clients.ssb.SsbNusClient
 import no.nav.mulighetsrommet.api.tasks.*
@@ -97,6 +98,7 @@ fun createTestApplicationConfig() = AppConfig(
     ssbNusConfig = SsbNusClient.Config(
         baseUrl = "",
     ),
+    pamOntologi = PamOntologiClient.Config(baseUrl = "pam-ontologi"),
 )
 
 fun createKafkaConfig(): KafkaConfig {

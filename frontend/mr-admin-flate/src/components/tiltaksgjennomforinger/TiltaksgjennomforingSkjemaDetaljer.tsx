@@ -368,6 +368,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
               />
               <ControlledMultiSelect
                 size="small"
+                velgAlle
                 placeholder={"Velg en"}
                 label={tiltaktekster.navEnheterKontorerLabel}
                 helpText="Bestemmer hvem gjennomføringen skal vises til i Modia, basert på hvilket kontor brukeren har tilhørighet til."

@@ -8,6 +8,7 @@ data class AmoKategorisering(
     val spesifisering: Spesifisering? = null,
     val norskprove: Boolean? = null,
     val forerkort: List<ForerkortKlasse>? = emptyList(),
+    val sertifiseringer: List<Sertifisering>? = emptyList(),
     val innholdElementer: List<InnholdElement>? = emptyList(),
 ) {
     enum class Kurstype {
@@ -37,4 +38,7 @@ data class AmoKategorisering(
         PRAKTISK_OPPLAERING,
         ARBEIDSLIVSKUNNSKAP,
     }
+
+    @Serializable
+    data class Sertifisering(val konseptId: Long, val label: String)
 }
