@@ -73,7 +73,9 @@ function ControlledMultiSelect<T>(props: MultiSelectProps<T>, _: ForwardedRef<HT
                 onInputChange={onInputChange}
                 childRef={ref}
                 name={name}
-                value={options.filter((c: SelectOption<T>) => value?.some((v: T) => shallowEquals(v, c.value)))}
+                value={options.filter((c: SelectOption<T>) =>
+                  value?.some((v: T) => shallowEquals(v, c.value)),
+                )}
                 onChange={(e) => {
                   onChange(e?.map((option: SelectOption) => option.value));
                   additionalOnChange?.(e);

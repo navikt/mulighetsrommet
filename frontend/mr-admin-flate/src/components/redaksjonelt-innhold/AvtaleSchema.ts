@@ -78,6 +78,13 @@ export const AvtaleSchema = z
       .object({
         kurstype: z.nativeEnum(Kurstype, { required_error: "Du må velge en kurstype" }),
         spesifisering: z.nativeEnum(Spesifisering).optional(),
+        sertifiseringer: z
+          .object({
+            konseptId: z.number(),
+            label: z.string(),
+          })
+          .array()
+          .optional(),
         forerkort: z.nativeEnum(ForerkortKlasse).array().optional(),
         norskprove: z.boolean().nullable().optional(),
         innholdElementer: z.nativeEnum(InnholdElement).array().optional(),

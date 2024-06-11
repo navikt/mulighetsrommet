@@ -3,6 +3,7 @@ import {
   Avtale,
   ForerkortKlasse,
   InnholdElement,
+  Sertifisering,
   Spesifisering,
   Toggles,
 } from "mulighetsrommet-api-client";
@@ -14,6 +15,7 @@ import {
   spesifiseringToString,
 } from "../../utils/Utils";
 import { InferredTiltaksgjennomforingSchema } from "../redaksjonelt-innhold/TiltaksgjennomforingSchema";
+import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 
 interface Props {
   avtale: Avtale;
@@ -25,7 +27,7 @@ export function TiltaksgjennomforingAmoKategoriseringSkjema(props: Props) {
     Toggles.MULIGHETSROMMET_ADMIN_FLATE_ENABLE_GRUPPE_AMO_KATEGORIER,
   );
 
-  const { setValue, watch } = useFormContext<InferredTiltaksgjennomforingSchema>();
+  const { setValue, register, watch } = useFormContext<InferredTiltaksgjennomforingSchema>();
 
   if (!isEnabled || !avtale.amoKategorisering) {
     return null;
@@ -85,6 +87,20 @@ export function TiltaksgjennomforingAmoKategoriseringSkjema(props: Props) {
                 )
           }
         ></UNSAFE_Combobox>
+      )}
+      {isBransjeSpesifisering && (
+        <ControlledMultiSelect<{ konseptId: number; label: string }>
+          size="small"
+          placeholder="Søk etter sertifiseringer"
+          label={"Sertifiseringer"}
+          {...register("amoKategorisering.sertifiseringer")}
+          options={
+            avtale.amoKategorisering.sertifiseringer?.map((s: Sertifisering) => ({
+              value: s,
+              label: s.label,
+            })) ?? []
+          }
+        />
       )}
       {spesifisering === Spesifisering.NORSKOPPLAERING && (
         <Checkbox

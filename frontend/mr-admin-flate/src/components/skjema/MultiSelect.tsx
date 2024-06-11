@@ -1,5 +1,5 @@
 import { SelectOption } from "mulighetsrommet-frontend-common/components/SokeSelect";
-import React, { ReactNode, Ref } from "react";
+import { ReactNode, Ref } from "react";
 import ReactSelect from "react-select";
 import Select from "react-select/base";
 
@@ -76,9 +76,8 @@ export const MultiSelect = <T,>(
     }),
   });
 
-  const allOptions = (velgAlle && options.length > 1)
-    ? [{ label: "Velg alle", value: null }, ...options]
-    : options;
+  const allOptions =
+    velgAlle && options.length > 1 ? [{ label: "Velg alle", value: null }, ...options] : options;
 
   return (
     <ReactSelect
