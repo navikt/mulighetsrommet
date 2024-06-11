@@ -76,7 +76,7 @@ export const AvtaleSchema = z
       .optional(),
     amoKategorisering: z
       .object({
-        kurstype: z.nativeEnum(Kurstype, { required_error: "Du må velge en kurstype" }),
+        kurstype: z.nativeEnum(Kurstype).optional(),
         spesifisering: z.nativeEnum(Spesifisering).optional(),
         forerkort: z.nativeEnum(ForerkortKlasse).array().optional(),
         norskprove: z.boolean().nullable().optional(),
@@ -115,17 +115,6 @@ export const AvtaleSchema = z
         code: z.ZodIssueCode.custom,
         message: "Du må velge minst én utdanningskategori",
         path: ["nusData.utdanningskategorier"],
-      });
-    }
-
-    if (
-      data.tiltakstype.arenaKode === TiltakskodeArena.GRUPPEAMO &&
-      !data.amoKategorisering?.kurstype
-    ) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Du må velge en kurstype",
-        path: ["amoKategorisering.kurstype"],
       });
     }
 
