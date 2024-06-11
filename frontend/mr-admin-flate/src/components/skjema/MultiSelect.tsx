@@ -45,7 +45,7 @@ export const MultiSelect = <T,>(
     }),
     multiValue: (provided: any) => ({
       ...provided,
-      backgroundColor: "#005b82",
+      backgroundColor: "#01449C",
       borderRadius: "15px",
       color: "white",
     }),
