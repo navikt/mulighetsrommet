@@ -76,7 +76,7 @@ export const AvtaleSchema = z
       .optional(),
     amoKategorisering: z
       .object({
-        kurstype: z.nativeEnum(Kurstype).optional(),
+        kurstype: z.nativeEnum(Kurstype, { required_error: "Du må velge en kurstype" }),
         spesifisering: z.nativeEnum(Spesifisering).optional(),
         forerkort: z.nativeEnum(ForerkortKlasse).array().optional(),
         norskprove: z.boolean().nullable().optional(),
