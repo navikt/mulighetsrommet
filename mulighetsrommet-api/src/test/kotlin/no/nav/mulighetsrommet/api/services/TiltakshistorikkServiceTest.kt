@@ -12,7 +12,7 @@ import no.nav.mulighetsrommet.api.clients.pdl.IdentInformasjon
 import no.nav.mulighetsrommet.api.clients.pdl.PdlClient
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dto.ArrangorDto
-import no.nav.mulighetsrommet.api.domain.dto.TiltakshistorikkDto
+import no.nav.mulighetsrommet.api.domain.dto.TiltakshistorikkAdminDto
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.repositories.TiltakshistorikkRepository
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
@@ -90,26 +90,26 @@ class TiltakshistorikkServiceTest : FunSpec({
         val historikkService = TiltakshistorikkService(arrangorService, amtDeltakerClient, tiltakshistorikk, pdlClient)
 
         val forventetHistorikk = listOf(
-            TiltakshistorikkDto(
+            TiltakshistorikkAdminDto(
                 id = tiltakshistorikkGruppe.id,
                 fraDato = LocalDateTime.of(2018, 12, 3, 0, 0),
                 tilDato = LocalDateTime.of(2019, 12, 3, 0, 0),
                 status = Deltakerstatus.VENTER,
                 tiltaksnavn = tiltaksgjennomforing.navn,
                 tiltakstype = tiltakstype.navn,
-                arrangor = TiltakshistorikkDto.Arrangor(
+                arrangor = TiltakshistorikkAdminDto.Arrangor(
                     organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
                     navn = ArrangorFixtures.underenhet1.navn,
                 ),
             ),
-            TiltakshistorikkDto(
+            TiltakshistorikkAdminDto(
                 id = tiltakshistorikkIndividuell.id,
                 fraDato = LocalDateTime.of(2018, 12, 3, 0, 0),
                 tilDato = LocalDateTime.of(2019, 12, 3, 0, 0),
                 status = Deltakerstatus.VENTER,
                 tiltaksnavn = tiltakshistorikkIndividuell.beskrivelse,
                 tiltakstype = tiltakstypeIndividuell.navn,
-                arrangor = TiltakshistorikkDto.Arrangor(
+                arrangor = TiltakshistorikkAdminDto.Arrangor(
                     organisasjonsnummer = tiltakshistorikkIndividuell.arrangorOrganisasjonsnummer,
                     navn = "Bedriftsnavn 2",
                 ),

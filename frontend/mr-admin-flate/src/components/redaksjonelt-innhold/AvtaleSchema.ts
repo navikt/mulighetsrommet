@@ -127,17 +127,6 @@ export const AvtaleSchema = z
 
     if (
       data.tiltakstype.arenaKode === TiltakskodeArena.GRUPPEAMO &&
-      !data.amoKategorisering?.kurstype
-    ) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Du må velge en kurstype",
-        path: ["amoKategorisering.kurstype"],
-      });
-    }
-
-    if (
-      data.tiltakstype.arenaKode === TiltakskodeArena.GRUPPEAMO &&
       data.amoKategorisering?.kurstype &&
       data.amoKategorisering.kurstype !== Kurstype.STUDIESPESIALISERING &&
       !data.amoKategorisering?.spesifisering
