@@ -69,6 +69,9 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
   const { data: enableTilgjengeligForArrangor } = useFeatureToggle(
     Toggles.MULIGHETSROMMET_ADMIN_FLATE_TILGJENGELIGGJORE_TILTAK_FOR_ARRANGOR,
   );
+  const { data: enableNuskategorier } = useFeatureToggle(
+    Toggles.MULIGHETSROMMET_ADMIN_FLATE_ENABLE_NUSKATEGORIER,
+  );
   const endreStartDatoModalRef = useRef<HTMLDialogElement>(null);
   const endreSluttDatoModalRef = useRef<HTMLDialogElement>(null);
 
@@ -198,7 +201,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
             {errors.avtaleId?.message ? (
               <Alert variant="warning">{errors.avtaleId.message as string}</Alert>
             ) : null}
-            {avtale.tiltakstype.arenaKode === TiltakskodeArena.GRUFAGYRKE ? (
+            {enableNuskategorier && avtale.tiltakstype.arenaKode === TiltakskodeArena.GRUFAGYRKE ? (
               <VelgUtdanningskategori avtale={avtale} />
             ) : null}
             {avtale.tiltakstype.arenaKode === TiltakskodeArena.GRUPPEAMO ? (
@@ -481,13 +484,6 @@ function VelgUtdanningskategori({ avtale }: VelgUtdanningskategoriProps) {
     watch,
     formState: { errors },
   } = useFormContext<InferredTiltaksgjennomforingSchema>();
-  const { data: enableNuskategorier } = useFeatureToggle(
-    Toggles.MULIGHETSROMMET_ADMIN_FLATE_ENABLE_NUSKATEGORIER,
-  );
-
-  if (!enableNuskategorier) {
-    return null;
-  }
 
   if (avtale?.nusData?.versjon) {
     setValue("nusData.versjon", avtale.nusData.versjon);

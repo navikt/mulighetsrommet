@@ -5,10 +5,8 @@ import {
   Kurstype,
   Sertifisering,
   Spesifisering,
-  Toggles,
 } from "mulighetsrommet-api-client";
 import { useFormContext } from "react-hook-form";
-import { useFeatureToggle } from "../../api/features/useFeatureToggle";
 import {
   forerkortKlasseToString,
   kurstypeToString,
@@ -20,10 +18,6 @@ import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { useSokSertifiseringer } from "@/api/janzz/useSokSertifiseringer";
 
 export function AvtaleAmoKategoriseringSkjema() {
-  const { data: isEnabled } = useFeatureToggle(
-    Toggles.MULIGHETSROMMET_ADMIN_FLATE_ENABLE_GRUPPE_AMO_KATEGORIER,
-  );
-
   const [janzzQuery, setJanzzQuery] = useState<string>("");
   const { data: sertifiseringerFraSok } = useSokSertifiseringer(janzzQuery);
 
@@ -33,10 +27,6 @@ export function AvtaleAmoKategoriseringSkjema() {
     register,
     formState: { errors },
   } = useFormContext<InferredAvtaleSchema>();
-
-  if (!isEnabled) {
-    return null;
-  }
 
   const kurstype = watch("amoKategorisering.kurstype");
   const spesifisering = watch("amoKategorisering.spesifisering");

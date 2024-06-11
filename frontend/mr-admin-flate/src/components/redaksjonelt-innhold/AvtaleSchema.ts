@@ -104,28 +104,6 @@ export const AvtaleSchema = z
     }
 
     if (
-      data.tiltakstype.arenaKode === TiltakskodeArena.GRUFAGYRKE &&
-      !data.nusData?.utdanningsnivaa
-    ) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Du må velge et utdanningsnivå",
-        path: ["nusData.utdanningsnivaa"],
-      });
-    }
-
-    if (
-      data.tiltakstype.arenaKode === TiltakskodeArena.GRUFAGYRKE &&
-      data.nusData?.utdanningskategorier?.length === 0
-    ) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Du må velge minst én utdanningskategori",
-        path: ["nusData.utdanningskategorier"],
-      });
-    }
-
-    if (
       data.tiltakstype.arenaKode === TiltakskodeArena.GRUPPEAMO &&
       data.amoKategorisering?.kurstype &&
       data.amoKategorisering.kurstype !== Kurstype.STUDIESPESIALISERING &&
