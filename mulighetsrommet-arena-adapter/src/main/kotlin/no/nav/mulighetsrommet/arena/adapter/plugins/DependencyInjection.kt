@@ -102,6 +102,7 @@ private fun kafka(config: KafkaConfig) = module {
             ArenaEventConsumer(config.consumers.arenaTiltakEndret, get()),
             ArenaEventConsumer(config.consumers.arenaTiltakgjennomforingEndret, get()),
             ArenaEventConsumer(config.consumers.arenaTiltakdeltakerEndret, get()),
+            ArenaEventConsumer(config.consumers.arenaHistTiltakdeltakerEndret, get()),
             ArenaEventConsumer(config.consumers.arenaSakEndret, get()),
             ArenaEventConsumer(config.consumers.arenaAvtaleInfoEndret, get()),
         )
@@ -158,6 +159,7 @@ private fun services(services: ServiceConfig, tokenClient: MachineToMachineToken
             ),
             TiltakdeltakerEventProcessor(get(), get(), get()),
             TiltakshistorikkEventProcessor(get(), get(), get()),
+            HistTiltakdeltakerEventProcessor(get(), get(), get()),
         )
         ArenaEventService(
             config = services.arenaEventService,
