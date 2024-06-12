@@ -9,8 +9,7 @@ spec:
   image: europe-north1-docker.pkg.dev/nais-management-233d/poao/poao-frontend:2024.05.07_13.29-a2e3b56408a1
   port: 8080
   ingresses:
-    - "{{ internIngress }}"
-    - "{{ ansattIngress }}"
+    - "{{ingress}}"
   liveness:
     path: /internal/alive
     initialDelay: 10
