@@ -5,7 +5,7 @@ info:
   title: Mulighetsrommet API
 
 security:
-  - bearerAuth: [ ]
+  - bearerAuth: []
 
 paths:
   /api/v1/intern/bruker:
@@ -659,6 +659,22 @@ paths:
       responses:
         200:
           description: Update for 'tilgjengelig for veileder' was successful
+
+  /api/v1/intern/tiltaksgjennomforinger/{id}/tilgjengelig-for-arrangor:
+    parameters:
+      - $ref: "#/components/parameters/ID"
+    put:
+      tags:
+        - Tiltaksgjennomforinger
+      operationId: setTilgjengeligForArrangor
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SetTilgjengligForArrangorRequest"
+      responses:
+        200:
+          description: OK
 
   /api/v1/intern/tiltaksgjennomforinger/kontaktperson:
     delete:
@@ -1912,17 +1928,17 @@ components:
             utdanningskategorier:
               type: array
               items:
-                  type: object
-                  properties:
-                    code:
-                      type: string
-                      nullable: false
-                    name:
-                      type: string
-                      nullable: false
-                  required:
-                    - code
-                    - name
+                type: object
+                properties:
+                  code:
+                    type: string
+                    nullable: false
+                  name:
+                    type: string
+                    nullable: false
+                required:
+                  - code
+                  - name
           nullable: true
         amoKategorisering:
           $ref: "#/components/schemas/AmoKategorisering"
@@ -2012,12 +2028,12 @@ components:
             utdanningskategorier:
               type: array
               items:
-                  type: object
-                  properties:
-                    code:
-                      type: string
-                    name:
-                      type: string
+                type: object
+                properties:
+                  code:
+                    type: string
+                  name:
+                    type: string
           nullable: true
         amoKategorisering:
           $ref: "#/components/schemas/AmoKategorisering"
@@ -3569,6 +3585,15 @@ components:
       required:
         - publisert
 
+    SetTilgjengligForArrangorRequest:
+      type: object
+      properties:
+        tilgjengeligForArrangorDato:
+          type: string
+          format: date
+      required:
+        - tilgjengeligForArrangorDato
+
     NavKontorStruktur:
       type: array
       items:
@@ -3690,7 +3715,6 @@ components:
         - AVKLARING
         - ARBEIDSRETTET_REHABILITERING
         - ARBEIDSFORBEREDENDE_TRENING
-
 
     Gruppetiltak:
       type: object

@@ -148,6 +148,23 @@ class TiltaksgjennomforingService(
         }
     }
 
+    fun setTilgjengeligForArrangorDato(
+        id: UUID,
+        tilgjengeligForArrangorDato: LocalDate,
+        navIdent: NavIdent,
+    ): Either<List<ValidationError>, Unit> = db.transaction { tx ->
+        val gjennomforing = getOrError(id, tx)
+
+        validator
+            .validateTilgjengeligForArrangorDato(tilgjengeligForArrangorDato, gjennomforing.startDato)
+            .map {
+                tiltaksgjennomforinger.setTilgjengeligForArrangorFraOgMedDato(tx, id, tilgjengeligForArrangorDato)
+                val dto = getOrError(id, tx)
+                val operation = "Endret dato for tilgang til Deltakeroversikten"
+                logEndring(operation, dto, navIdent, tx)
+            }
+    }
+
     fun setAvtale(id: UUID, avtaleId: UUID?, navIdent: NavIdent): StatusResponse<Unit> {
         val gjennomforing = get(id) ?: return NotFound("Gjennomføringen finnes ikke").left()
 
