@@ -1,3 +1,4 @@
-ingress: https://nav-arbeidsmarkedstiltak.intern.dev.nav.no
+ansattIngress: https://nav-arbeidsmarkedstiltak.intern.dev.nav.no
+internIngress: https://nav-arbeidsmarkedstiltak.ansatt.dev.nav.no
 bucketName: arbeidsmarkedstiltak-nav-dev
 cluster: dev-gcp
