@@ -1,3 +1,4 @@
-ingress: https://nav-arbeidsmarkedstiltak.intern.nav.no
+ansattIngress: https://nav-arbeidsmarkedstiltak.ansatt.nav.no
+internIngress: https://nav-arbeidsmarkedstiltak.intern.nav.no
 bucketName: arbeidsmarkedstiltak-nav-prod
 cluster: prod-gcp
