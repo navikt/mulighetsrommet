@@ -10,7 +10,6 @@ spec:
   port: 8080
   ingresses:
     - https://tiltaksadministrasjon.intern.nav.no
-    - https://tiltaksadministrasjon.ansatt.nav.no
   liveness:
     path: /internal/alive
     initialDelay: 10
