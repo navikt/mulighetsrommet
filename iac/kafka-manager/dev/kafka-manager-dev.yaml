@@ -79,6 +79,12 @@ spec:
               "valueDeserializerType": "STRING"
             },
             {
+              "name": "teamarenanais.aapen-arena-histtiltakdeltakerendret-v1-q2",
+              "location": "AIVEN",
+              "keyDeserializerType": "STRING",
+              "valueDeserializerType": "STRING"
+            },
+            {
               "name": "team-mulighetsrommet.siste-tiltaksgjennomforinger-v1",
               "location": "AIVEN",
               "keyDeserializerType": "STRING",
