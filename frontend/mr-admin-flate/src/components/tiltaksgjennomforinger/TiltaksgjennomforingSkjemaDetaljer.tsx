@@ -405,6 +405,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
                         />
                         <ControlledMultiSelect
                           size="small"
+                          velgAlle
                           placeholder={
                             isLoadingKontaktpersoner
                               ? "Laster enheter..."
