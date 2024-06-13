@@ -63,5 +63,6 @@ data class AmtDeltakerStatus(
         FEILREGISTRERT,
         OPPFYLLER_IKKE_KRAVENE,
         ANNET,
+        SAMARBEIDET_MED_ARRANGOREN_ER_AVBRUTT,
     }
 }
