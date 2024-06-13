@@ -8,6 +8,7 @@ import { ControlledDateInput } from "@/components/skjema/ControlledDateInput";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useSetTilgjengeligForArrangor } from "@/api/tiltaksgjennomforing/useSetTilgjengeligForArrangor";
 import { useHandleApiUpsertResponse } from "@/api/effects";
+import { HarSkrivetilgang } from "../authActions/HarSkrivetilgang";
 
 interface Props {
   gjennomforing: Tiltaksgjennomforing;
@@ -86,13 +87,16 @@ export function TiltakTilgjengeligForArrangor({ gjennomforing }: Props) {
 
       <TilgjengeligForArrangorInfo tilgjengeligForArrangorDato={tilgjengeligForArrangorDato} />
 
-      <Button size="small" variant="secondary" onClick={() => modalRef.current?.showModal()}>
-        Endre dato
-      </Button>
+      <HarSkrivetilgang ressurs="Tiltaksgjennomføring">
+        <Button size="small" variant="secondary" onClick={() => modalRef.current?.showModal()}>
+          Endre dato
+        </Button>
+      </HarSkrivetilgang>
 
       <Modal
         ref={modalRef}
         header={{ heading: "Når skal arrangør ha tilgang til tiltaket?", closeButton: false }}
+        closeOnBackdropClick
       >
         <Modal.Body>
           <FormProvider {...form}>
