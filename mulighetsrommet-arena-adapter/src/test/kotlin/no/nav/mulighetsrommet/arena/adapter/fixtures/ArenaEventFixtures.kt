@@ -50,6 +50,21 @@ fun createArenaTiltakdeltakerEvent(
     )
 }
 
+fun createArenaHistTiltakdeltakerEvent(
+    operation: ArenaEvent.Operation,
+    deltaker: ArenaHistTiltakdeltaker = DeltakerFixtures.ArenaHistTiltakdeltaker,
+    status: ArenaEvent.ProcessingStatus = ArenaEvent.ProcessingStatus.Pending,
+    modify: (deltaker: ArenaHistTiltakdeltaker) -> ArenaHistTiltakdeltaker = { it },
+): ArenaEvent = modify(deltaker).let {
+    createArenaEvent(
+        ArenaTable.Deltaker,
+        it.HIST_TILTAKDELTAKER_ID.toString(),
+        operation,
+        Json.encodeToJsonElement(it).toString(),
+        status,
+    )
+}
+
 fun createArenaTiltakEvent(
     operation: ArenaEvent.Operation,
     tiltak: ArenaTiltak = TiltakstypeFixtures.ArenaGruppetiltak,

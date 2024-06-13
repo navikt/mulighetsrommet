@@ -63,7 +63,7 @@ class HistTiltakdeltakerEventProcessor(
             .bind()
 
         if (norskIdent == null) {
-            return@either ProcessingResult(Ignored, "Deltaker ignorert fordi fødselsnummer mangler i Arena")
+            return@either ProcessingResult(Ignored, "Historikk ikke relevant fordi fødselsnummer mangler i Arena")
         }
 
         val organisasjonsnummer = ords.getArbeidsgiver(tiltaksgjennomforing.arrangorId)
