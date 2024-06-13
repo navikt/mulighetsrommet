@@ -159,7 +159,6 @@ private fun services(services: ServiceConfig, tokenClient: MachineToMachineToken
             ),
             TiltakdeltakerEventProcessor(get(), get(), get()),
             TiltakshistorikkEventProcessor(get(), get(), get()),
-            HistTiltakdeltakerEventProcessor(get(), get(), get()),
         )
         ArenaEventService(
             config = services.arenaEventService,

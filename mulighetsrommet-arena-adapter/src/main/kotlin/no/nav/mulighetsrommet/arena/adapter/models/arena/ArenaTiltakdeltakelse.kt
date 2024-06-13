@@ -4,16 +4,38 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Suppress("PropertyName")
+interface ArenaTiltakdeltakelse {
+    val PERSON_ID: Int
+    val TILTAKGJENNOMFORING_ID: Int
+    val DELTAKERSTATUSKODE: ArenaTiltakdeltakerStatus
+    val DATO_FRA: String?
+    val DATO_TIL: String?
+    val REG_DATO: String
+}
+
+@Suppress("PropertyName")
 @Serializable
 data class ArenaTiltakdeltaker(
     val TILTAKDELTAKER_ID: Int,
-    val PERSON_ID: Int,
-    val TILTAKGJENNOMFORING_ID: Int,
-    val DELTAKERSTATUSKODE: ArenaTiltakdeltakerStatus,
-    val DATO_FRA: String?,
-    val DATO_TIL: String?,
-    val REG_DATO: String,
-)
+    override val PERSON_ID: Int,
+    override val TILTAKGJENNOMFORING_ID: Int,
+    override val DELTAKERSTATUSKODE: ArenaTiltakdeltakerStatus,
+    override val DATO_FRA: String?,
+    override val DATO_TIL: String?,
+    override val REG_DATO: String,
+) : ArenaTiltakdeltakelse
+
+@Suppress("PropertyName")
+@Serializable
+data class ArenaHistTiltakdeltaker(
+    val HIST_TILTAKDELTAKER_ID: Int,
+    override val PERSON_ID: Int,
+    override val TILTAKGJENNOMFORING_ID: Int,
+    override val DELTAKERSTATUSKODE: ArenaTiltakdeltakerStatus,
+    override val DATO_FRA: String?,
+    override val DATO_TIL: String?,
+    override val REG_DATO: String,
+) : ArenaTiltakdeltakelse
 
 @Serializable
 enum class ArenaTiltakdeltakerStatus {

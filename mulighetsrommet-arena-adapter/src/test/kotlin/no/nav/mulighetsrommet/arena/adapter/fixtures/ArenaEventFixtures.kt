@@ -57,7 +57,7 @@ fun createArenaHistTiltakdeltakerEvent(
     modify: (deltaker: ArenaHistTiltakdeltaker) -> ArenaHistTiltakdeltaker = { it },
 ): ArenaEvent = modify(deltaker).let {
     createArenaEvent(
-        ArenaTable.Deltaker,
+        ArenaTable.HistDeltaker,
         it.HIST_TILTAKDELTAKER_ID.toString(),
         operation,
         Json.encodeToJsonElement(it).toString(),
