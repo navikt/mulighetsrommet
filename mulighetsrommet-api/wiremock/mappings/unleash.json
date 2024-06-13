@@ -32,11 +32,6 @@
           "name": "mulighetsrommet.admin-flate.enable_nuskategorier",
           "enabled": true,
           "strategies": []
-        },
-        {
-          "name": "mulighetsrommet.admin-flate.tilgjengeliggjore-tiltak-for-arrangor",
-          "enabled": true,
-          "strategies": []
         }
       ]
     },
