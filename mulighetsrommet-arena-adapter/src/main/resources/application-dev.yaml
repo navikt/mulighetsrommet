@@ -51,6 +51,9 @@ app:
       arenaTiltakdeltakerEndret:
         id: arena-tiltakdeltaker-endret
         topic: teamarenanais.aapen-arena-tiltakdeltakerendret-v1-q2
+      arenaHistTiltakdeltakerEndret:
+        id: arena-hist-tiltakdeltaker-endret
+        topic: teamarenanais.aapen-arena-histtiltakdeltakerendret-v1-q2
       arenaSakEndret:
         id: arena-sakendret-endret
         topic: teamarenanais.aapen-arena-sakendret-v1-q2
