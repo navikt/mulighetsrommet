@@ -162,6 +162,7 @@ class TiltaksgjennomforingService(
                 val dto = getOrError(id, tx)
                 val operation = "Endret dato for tilgang til Deltakeroversikten"
                 logEndring(operation, dto, navIdent, tx)
+                tiltaksgjennomforingKafkaProducer.publish(TiltaksgjennomforingDto.from(dto))
             }
     }
 
