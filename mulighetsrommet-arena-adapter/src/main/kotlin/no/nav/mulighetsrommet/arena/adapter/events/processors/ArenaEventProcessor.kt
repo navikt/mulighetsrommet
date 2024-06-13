@@ -8,7 +8,7 @@ import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
 
 interface ArenaEventProcessor {
-    val arenaTable: ArenaTable
+    suspend fun shouldHandleEvent(event: ArenaEvent): Boolean
 
     suspend fun handleEvent(event: ArenaEvent): Either<ProcessingError, ProcessingResult>
 

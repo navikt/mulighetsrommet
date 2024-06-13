@@ -115,8 +115,7 @@ class ArenaEventServiceTest : FunSpec({
         test("should not replay dependent events when event gets processed successfully") {
             val dependentEvent = ArenaEvent(
                 status = ProcessingStatus.Processed,
-                // En vilkårlig tabell som ikke er brukt i [processedEvent]
-                arenaTable = ArenaTable.AvtaleInfo,
+                arenaTable = table,
                 operation = ArenaEvent.Operation.Insert,
                 arenaId = "5",
                 payload = JsonObject(mapOf("after" to JsonObject(mapOf("name" to JsonPrimitive("Dependent Bar"))))),
@@ -127,6 +126,7 @@ class ArenaEventServiceTest : FunSpec({
 
             val processor = spyk(
                 ArenaEventTestProcessor(
+                    eventIsRelevant = { it == processedEvent },
                     getDependentEntities = { listOf(dependentEventMapping) },
                 ) {
                     ProcessingResult(Handled).right()
@@ -134,7 +134,7 @@ class ArenaEventServiceTest : FunSpec({
             )
 
             val dependentEventProcessor = spyk(
-                ArenaEventTestProcessor(arenaTable = dependentEvent.arenaTable) {
+                ArenaEventTestProcessor({ it == dependentEvent }) {
                     ProcessingResult(Handled).right()
                 },
             )
@@ -155,8 +155,14 @@ class ArenaEventServiceTest : FunSpec({
             coVerify(exactly = 1) {
                 processor.handleEvent(processedEvent)
             }
+            coVerify(exactly = 0) {
+                processor.handleEvent(dependentEvent)
+            }
 
             // Verifiser at [dependentEvent] har blitt prosessert én gang
+            coVerify(exactly = 0) {
+                dependentEventProcessor.handleEvent(processedEvent)
+            }
             coVerify(exactly = 1) {
                 dependentEventProcessor.handleEvent(dependentEvent)
             }
@@ -164,20 +170,21 @@ class ArenaEventServiceTest : FunSpec({
             // Verifiser tilstand i underliggende tabeller
             database.assertThat("arena_events")
                 .row()
-                .value("arena_id").isEqualTo(dependentEvent.arenaId)
-                .value("processing_status").isEqualTo(ProcessingStatus.Processed.name)
-                .value("message").isNull
-                .row()
                 .value("arena_id").isEqualTo(processedEvent.arenaId)
                 .value("processing_status").isEqualTo(ProcessingStatus.Processed.name)
                 .value("message").isNull
+                .row()
+                .value("arena_id").isEqualTo(dependentEvent.arenaId)
+                .value("processing_status").isEqualTo(ProcessingStatus.Processed.name)
+                .value("message").isNull
+
             database.assertThat("arena_entity_mapping")
                 .row()
-                .value("entity_id").isEqualTo(dependentEventMapping.entityId)
+                .value("entity_id").isEqualTo(processedEventMapping.entityId)
                 .value("status").isEqualTo(Handled.name)
                 .value("message").isNull
                 .row()
-                .value("entity_id").isEqualTo(processedEventMapping.entityId)
+                .value("entity_id").isEqualTo(dependentEventMapping.entityId)
                 .value("status").isEqualTo(Handled.name)
                 .value("message").isNull
         }
@@ -242,12 +249,11 @@ class ArenaEventServiceTest : FunSpec({
                 .value("message").isEqualTo(":/")
         }
 
-        test("should not process the event when it corresponds to a different Arena entity than the processor's configured ArenaTable") {
-            val sakEvent = pendingEvent.copy(arenaTable = ArenaTable.Sak)
-            val processor = spyk(ArenaEventTestProcessor(arenaTable = ArenaTable.Tiltakstype))
+        test("should not process the event when it's rejected by a all processors") {
+            val processor = spyk(ArenaEventTestProcessor(eventIsRelevant = { false }))
 
             val service = ArenaEventService(events = events, processors = listOf(processor), entities = entities)
-            service.processEvent(sakEvent)
+            service.processEvent(pendingEvent)
 
             coVerify(exactly = 0) {
                 processor.handleEvent(any())
@@ -335,6 +341,7 @@ class ArenaEventServiceTest : FunSpec({
 
             val processor = spyk(
                 ArenaEventTestProcessor(
+                    eventIsRelevant = { it == processedEvent },
                     deleteEntityError = { ProcessingError.ForeignKeyViolation(":(") },
                     getDependentEntities = { listOf(dependentEventMapping) },
                 ) {
@@ -343,7 +350,7 @@ class ArenaEventServiceTest : FunSpec({
             )
 
             val dependentEventProcessor = spyk(
-                ArenaEventTestProcessor(arenaTable = dependentEvent.arenaTable) {
+                ArenaEventTestProcessor({ it == dependentEvent }) {
                     ProcessingResult(Handled).right()
                 },
             )
@@ -544,11 +551,15 @@ class ArenaEventServiceTest : FunSpec({
 })
 
 class ArenaEventTestProcessor(
-    override val arenaTable: ArenaTable = ArenaTable.Tiltakstype,
+    private val eventIsRelevant: (ArenaEvent) -> Boolean = { true },
     private val deleteEntityError: (() -> ProcessingError)? = null,
     private val getDependentEntities: (() -> List<ArenaEntityMapping>)? = null,
     private val handleEvent: (() -> Either<ProcessingError, ProcessingResult>)? = null,
 ) : ArenaEventProcessor {
+
+    override suspend fun shouldHandleEvent(event: ArenaEvent): Boolean {
+        return eventIsRelevant(event)
+    }
 
     override suspend fun handleEvent(event: ArenaEvent): Either<ProcessingError, ProcessingResult> {
         return handleEvent?.invoke() ?: Either.Right(ProcessingResult(Handled))

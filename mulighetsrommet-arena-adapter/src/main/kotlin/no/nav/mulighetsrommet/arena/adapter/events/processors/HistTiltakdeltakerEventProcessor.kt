@@ -27,7 +27,10 @@ class HistTiltakdeltakerEventProcessor(
     private val client: TiltakshistorikkClient,
     private val ords: ArenaOrdsProxyClient,
 ) : ArenaEventProcessor {
-    override val arenaTable: ArenaTable = ArenaTable.HistDeltaker
+
+    override suspend fun shouldHandleEvent(event: ArenaEvent): Boolean {
+        return event.arenaTable === ArenaTable.HistDeltaker
+    }
 
     override suspend fun handleEvent(event: ArenaEvent) = either {
         val data = event.decodePayload<ArenaHistTiltakdeltaker>()

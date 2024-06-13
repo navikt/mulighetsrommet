@@ -28,7 +28,10 @@ class TiltakshistorikkEventProcessor(
     private val client: TiltakshistorikkClient,
     private val ords: ArenaOrdsProxyClient,
 ) : ArenaEventProcessor {
-    override val arenaTable: ArenaTable = ArenaTable.Deltaker
+
+    override suspend fun shouldHandleEvent(event: ArenaEvent): Boolean {
+        return event.arenaTable === ArenaTable.Deltaker
+    }
 
     override suspend fun handleEvent(event: ArenaEvent): Either<ProcessingError, ProcessingResult> = either {
         val data = event.decodePayload<ArenaTiltakdeltaker>()
