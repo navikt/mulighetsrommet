@@ -24,7 +24,6 @@ import no.nav.mulighetsrommet.database.utils.QueryResult
 import no.nav.mulighetsrommet.database.utils.query
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.Tiltakskoder
-import no.nav.mulighetsrommet.domain.Tiltakskoder.isEgenRegiTiltak
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering.TiltaksgjennomforingSluttDatoCutoffDate
 import no.nav.mulighetsrommet.domain.dbo.ArenaAvtaleDbo
@@ -99,6 +98,38 @@ class ArenaAdapterService(
 
         syncArrangorFromBrreg(arenaGjennomforing.arrangorOrganisasjonsnummer)
 
+        if (Tiltakskoder.isEgenRegiTiltak(tiltakstype.arenaKode)) {
+            upsertEgenRegiTiltak(tiltakstype, arenaGjennomforing)
+        } else {
+            upsertGruppetiltak(tiltakstype, arenaGjennomforing)
+        }
+    }
+
+    private suspend fun upsertEgenRegiTiltak(
+        tiltakstype: TiltakstypeAdminDto,
+        arenaGjennomforing: ArenaTiltaksgjennomforingDbo,
+    ) {
+        require(Tiltakskoder.isEgenRegiTiltak(tiltakstype.arenaKode)) {
+            "Gjennomføring for tiltakstype ${tiltakstype.arenaKode} skal ikke skrives til Sanity"
+        }
+
+        val sluttDato = arenaGjennomforing.sluttDato
+        if (sluttDato == null || sluttDato.isAfter(TiltaksgjennomforingSluttDatoCutoffDate)) {
+            db.transactionSuspend { tx ->
+                tiltaksgjennomforinger.upsertArenaTiltaksgjennomforing(arenaGjennomforing, tx)
+                sanityTiltakService.createOrPatchSanityTiltaksgjennomforing(arenaGjennomforing, tx)
+            }
+        }
+    }
+
+    private suspend fun upsertGruppetiltak(
+        tiltakstype: TiltakstypeAdminDto,
+        arenaGjennomforing: ArenaTiltaksgjennomforingDbo,
+    ) {
+        require(Tiltakskoder.isAmtTiltak(tiltakstype.arenaKode)) {
+            "Gjennomføringer er ikke støttet for tiltakstype ${tiltakstype.arenaKode}"
+        }
+
         val previous = tiltaksgjennomforinger.get(arenaGjennomforing.id)
 
         val mergedArenaGjennomforing = if (previous != null) {
@@ -122,11 +153,6 @@ class ArenaAdapterService(
                 )
             } else {
                 tiltaksgjennomforinger.upsertArenaTiltaksgjennomforing(mergedArenaGjennomforing, tx)
-            }
-
-            if (shouldBeManagedInSanity(mergedArenaGjennomforing, tiltakstype)) {
-                sanityTiltakService.createOrPatchSanityTiltaksgjennomforing(mergedArenaGjennomforing, tx)
-                return@transactionSuspend
             }
 
             val next = requireNotNull(tiltaksgjennomforinger.get(mergedArenaGjennomforing.id, tx)) {
@@ -248,15 +274,6 @@ class ArenaAdapterService(
             deltidsprosent = current.deltidsprosent,
         )
         return currentAsArenaGjennomforing == arenaGjennomforing
-    }
-
-    private fun shouldBeManagedInSanity(
-        gjennomforing: ArenaTiltaksgjennomforingDbo,
-        tiltakstype: TiltakstypeAdminDto,
-    ): Boolean {
-        val sluttDato = gjennomforing.sluttDato
-        return isEgenRegiTiltak(tiltakstype.arenaKode) &&
-            (sluttDato == null || sluttDato.isAfter(TiltaksgjennomforingSluttDatoCutoffDate))
     }
 
     private fun maybeNotifyRelevantAdministrators(avtale: AvtaleAdminDto) {
