@@ -187,6 +187,19 @@ components:
         type: integer
 
   schemas:
+    Tiltakskode:
+      type: string
+      enum:
+        - VARIG_TILRETTELAGT_ARBEID_SKJERMET
+        - OPPFOLGING
+        - JOBBKLUBB
+        - GRUPPE_FAG_OG_YRKESOPPLAERING
+        - GRUPPE_ARBEIDSMARKEDSOPPLAERING
+        - DIGITALT_OPPFOLGINGSTILTAK
+        - AVKLARING
+        - ARBEIDSRETTET_REHABILITERING
+        - ARBEIDSFORBEREDENDE_TRENING
+
     EmbeddedTiltakstype:
       type: object
       properties:
@@ -197,10 +210,13 @@ components:
           type: string
         arenaKode:
           type: string
+        tiltakskode:
+          $ref: "#/components/schemas/Tiltakskode"
       required:
         - id
         - navn
         - arenaKode
+        - tiltakskode
 
     Tiltaksgjennomforing:
       type: object
