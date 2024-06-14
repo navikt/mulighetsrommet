@@ -3,12 +3,12 @@ common-java-modules = "3.2024.01.24_10.14-f70bae69bd65"
 flyway = "10.15.0"
 hoplite = "2.7.5"
 koin = "3.5.6"
-kotest = "5.9.0"
+kotest = "5.9.1"
 kotest-testcontainers = "2.0.2"
 kotlin = "2.0.0"
 ktor = "2.3.11"
 logback = "1.5.6"
-metrics = "4.2.25"
+metrics = "4.2.26"
 arrow = "1.2.4"
 
 [plugins]
@@ -36,7 +36,7 @@ assertj-db = "org.assertj:assertj-db:2.0.2"
 
 caffeine = "com.github.ben-manes.caffeine:caffeine:3.1.8"
 
-dbScheduler = "com.github.kagkarlsson:db-scheduler:14.0.0"
+dbScheduler = "com.github.kagkarlsson:db-scheduler:14.0.1"
 
 flyway-core = { module = "org.flywaydb:flyway-core", version.ref = "flyway" }
 flyway-database-postgresql = { module = "org.flywaydb:flyway-database-postgresql", version.ref = "flyway" }
