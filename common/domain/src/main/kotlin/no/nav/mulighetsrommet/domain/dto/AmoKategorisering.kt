@@ -28,7 +28,24 @@ data class AmoKategorisering(
     }
 
     enum class ForerkortKlasse {
-        A, A1, A2, AM, AM_147, B, B_78, BE, C, C1, C1E, CE, D, D1, D1E, DE, S, T,
+        A,
+        A1,
+        A2,
+        AM,
+        AM_147,
+        B,
+        B_78,
+        BE,
+        C,
+        C1,
+        C1E,
+        CE,
+        D,
+        D1,
+        D1E,
+        DE,
+        S,
+        T,
     }
 
     enum class InnholdElement {
