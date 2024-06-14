@@ -93,7 +93,7 @@ class ArenaAdapterService(
         }
     }
 
-    suspend fun upsertTiltaksgjennomforing(arenaGjennomforing: ArenaTiltaksgjennomforingDbo): QueryResult<TiltaksgjennomforingAdminDto> {
+    suspend fun upsertTiltaksgjennomforing(arenaGjennomforing: ArenaTiltaksgjennomforingDbo) {
         val tiltakstype = tiltakstyper.get(arenaGjennomforing.tiltakstypeId)
             ?: throw IllegalStateException("Ukjent tiltakstype id=${arenaGjennomforing.tiltakstypeId}")
 
@@ -108,10 +108,11 @@ class ArenaAdapterService(
         }
 
         if (previous != null && hasNoRelevantChanges(mergedArenaGjennomforing, previous)) {
-            return query { previous }
+            logger.info("Gjennomføring hadde ingen endringer")
+            return
         }
 
-        val gjennomforing = db.transactionSuspend { tx ->
+        db.transactionSuspend { tx ->
             if (previous != null && tiltakstypeService.isEnabled(Tiltakskode.fromArenaKode(tiltakstype.arenaKode))) {
                 tiltaksgjennomforinger.updateArenaData(
                     previous.id,
@@ -123,7 +124,18 @@ class ArenaAdapterService(
                 tiltaksgjennomforinger.upsertArenaTiltaksgjennomforing(mergedArenaGjennomforing, tx)
             }
 
-            val next = tiltaksgjennomforinger.get(mergedArenaGjennomforing.id, tx)!!
+            if (shouldBeManagedInSanity(mergedArenaGjennomforing, tiltakstype)) {
+                sanityTiltakService.createOrPatchSanityTiltaksgjennomforing(mergedArenaGjennomforing, tx)
+                return@transactionSuspend
+            }
+
+            val next = requireNotNull(tiltaksgjennomforinger.get(mergedArenaGjennomforing.id, tx)) {
+                "Gjennomføring burde ikke være null siden den nettopp ble lagt til"
+            }
+
+            if (next.isAktiv() && next.administratorer.isEmpty()) {
+                maybeNotifyRelevantAdministrators(next)
+            }
 
             if (previous != null && previous.tiltaksnummer == null) {
                 logTiltaksnummerHentetFraArena(tx, next)
@@ -135,18 +147,8 @@ class ArenaAdapterService(
                 avtaler.setArrangorUnderenhet(tx, avtaleId, next.arrangor.id)
             }
 
-            if (shouldBeManagedInSanity(next)) {
-                sanityTiltakService.createOrPatchSanityTiltaksgjennomforing(next, tx)
-            } else if (next.isAktiv() && next.administratorer.isEmpty()) {
-                maybeNotifyRelevantAdministrators(next)
-            }
-
             tiltaksgjennomforingKafkaProducer.publish(next.toTiltaksgjennomforingDto())
-
-            next
         }
-
-        return query { gjennomforing }
     }
 
     private suspend fun syncArrangorFromBrreg(orgnr: String) {
@@ -175,33 +177,26 @@ class ArenaAdapterService(
         }
     }
 
-    suspend fun upsertTiltakshistorikk(tiltakshistorikk: ArenaTiltakshistorikkDbo): Either<ErUnderOppfolgingError, Boolean> {
-        return veilarboppfolgingClient.erBrukerUnderOppfolging(tiltakshistorikk.norskIdent, AccessType.M2M)
+    suspend fun upsertTiltakshistorikk(tiltakshistorikk: ArenaTiltakshistorikkDbo): Either<ErUnderOppfolgingError, Boolean> =
+        veilarboppfolgingClient.erBrukerUnderOppfolging(tiltakshistorikk.norskIdent, AccessType.M2M)
             .onRight {
                 if (it) {
                     this.tiltakshistorikk.upsert(tiltakshistorikk)
                 }
             }
-    }
 
-    fun removeTiltakshistorikk(id: UUID): QueryResult<Unit> {
-        return tiltakshistorikk.delete(id)
-    }
+    fun removeTiltakshistorikk(id: UUID): QueryResult<Unit> = tiltakshistorikk.delete(id)
 
-    fun upsertDeltaker(deltaker: DeltakerDbo): QueryResult<DeltakerDbo> {
-        return query { deltakere.upsert(deltaker) }
-    }
+    fun upsertDeltaker(deltaker: DeltakerDbo): QueryResult<DeltakerDbo> = query { deltakere.upsert(deltaker) }
 
-    fun removeDeltaker(id: UUID): QueryResult<Unit> {
-        return query { deltakere.delete(id) }
-    }
+    fun removeDeltaker(id: UUID): QueryResult<Unit> = query { deltakere.delete(id) }
 
     private fun mergeWithCurrentGjennomforing(
         tiltaksgjennomforing: ArenaTiltaksgjennomforingDbo,
         current: TiltaksgjennomforingAdminDto,
         tiltakstype: TiltakstypeAdminDto,
-    ): ArenaTiltaksgjennomforingDbo {
-        return if (tiltakstypeService.isEnabled(Tiltakskode.fromArenaKode(tiltakstype.arenaKode))) {
+    ): ArenaTiltaksgjennomforingDbo =
+        if (tiltakstypeService.isEnabled(Tiltakskode.fromArenaKode(tiltakstype.arenaKode))) {
             ArenaTiltaksgjennomforingDbo(
                 // Behold felter som settes i Arena
                 tiltaksnummer = tiltaksgjennomforing.tiltaksnummer,
@@ -232,7 +227,6 @@ class ArenaAdapterService(
             }
             tiltaksgjennomforing.copy(avtaleId = avtaleId)
         }
-    }
 
     private fun hasNoRelevantChanges(
         arenaGjennomforing: ArenaTiltaksgjennomforingDbo,
@@ -256,9 +250,12 @@ class ArenaAdapterService(
         return currentAsArenaGjennomforing == arenaGjennomforing
     }
 
-    private fun shouldBeManagedInSanity(gjennomforing: TiltaksgjennomforingAdminDto): Boolean {
+    private fun shouldBeManagedInSanity(
+        gjennomforing: ArenaTiltaksgjennomforingDbo,
+        tiltakstype: TiltakstypeAdminDto,
+    ): Boolean {
         val sluttDato = gjennomforing.sluttDato
-        return isEgenRegiTiltak(gjennomforing.tiltakstype.arenaKode) &&
+        return isEgenRegiTiltak(tiltakstype.arenaKode) &&
             (sluttDato == null || sluttDato.isAfter(TiltaksgjennomforingSluttDatoCutoffDate))
     }
 
