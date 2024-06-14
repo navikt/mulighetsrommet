@@ -38,7 +38,7 @@
     "highcharts": "^11.4.3",
     "highcharts-react-official": "^3.2.1",
     "is-url": "1.2.4",
-    "jotai": "2.8.2",
+    "jotai": "2.8.3",
     "mulighetsrommet-api-client": "*",
     "mulighetsrommet-frontend-common": "*",
     "react": "18.3.1",
