@@ -2075,6 +2075,7 @@ components:
         - id
         - navn
         - arenaKode
+        - tiltakskode
 
     Avtaletype:
       type: string

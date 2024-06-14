@@ -701,14 +701,7 @@ class ArenaAdapterServiceTest : FunSpec({
             registrertIArenaDato = LocalDateTime.of(2018, 12, 3, 0, 0),
         )
 
-        val tiltakstypeIndividuell = TiltakstypeDbo(
-            id = UUID.randomUUID(),
-            navn = "Høyere utdanning",
-            arenaKode = "HOYEREUTD",
-            rettPaaTiltakspenger = true,
-            startDato = LocalDate.of(2023, 1, 11),
-            sluttDato = LocalDate.of(2023, 1, 12),
-        )
+        val tiltakstypeIndividuell = TiltakstypeFixtures.EnkelAmo
 
         val tiltakshistorikkIndividuell = ArenaTiltakshistorikkDbo.IndividueltTiltak(
             id = UUID.randomUUID(),
@@ -815,6 +808,7 @@ private fun toTiltaksgjennomforingDto(dbo: ArenaTiltaksgjennomforingDbo, tiltaks
             id = tiltakstypeId,
             navn = tiltakstype.navn,
             arenaKode = tiltakstype.arenaKode,
+            tiltakskode = tiltakstype.tiltakskode!!,
         ),
         navn = navn,
         startDato = startDato,

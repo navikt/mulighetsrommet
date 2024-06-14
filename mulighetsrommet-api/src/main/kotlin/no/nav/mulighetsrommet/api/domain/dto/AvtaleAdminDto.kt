@@ -53,7 +53,7 @@ data class AvtaleAdminDto(
         val id: UUID,
         val navn: String,
         val arenaKode: String,
-        val tiltakskode: Tiltakskode?,
+        val tiltakskode: Tiltakskode,
     )
 
     @Serializable

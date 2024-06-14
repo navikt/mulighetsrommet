@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.domain.dto
 
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
@@ -31,33 +32,8 @@ data class TiltaksgjennomforingDto(
         val id: UUID,
         val navn: String,
         val arenaKode: String,
+        val tiltakskode: Tiltakskode,
     )
-
-    companion object {
-        fun from(tiltaksgjennomforing: TiltaksgjennomforingAdminDto) = tiltaksgjennomforing.run {
-            TiltaksgjennomforingDto(
-                id = id,
-                tiltakstype = Tiltakstype(
-                    id = tiltakstype.id,
-                    navn = tiltakstype.navn,
-                    arenaKode = tiltakstype.arenaKode,
-                ),
-                navn = navn,
-                startDato = startDato,
-                sluttDato = sluttDato,
-                status = status.enum,
-                virksomhetsnummer = arrangor.organisasjonsnummer,
-                oppstart = oppstart,
-                tilgjengeligForArrangorFraOgMedDato = tilgjengeligForArrangorFraOgMedDato,
-                nusData = nusData?.let {
-                    NusDataTilDvh(
-                        versjon = it.versjon,
-                        kategorier = it.utdanningskategorier.map { kat -> kat.code },
-                    )
-                },
-            )
-        }
-    }
 }
 
 @Serializable

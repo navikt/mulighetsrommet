@@ -28,6 +28,12 @@ enum class Tiltakskode {
             }
         }
 
+        fun fromArenaKodeOrFail(arenaKode: String): Tiltakskode {
+            return requireNotNull(fromArenaKode(arenaKode)) {
+                "Tiltakskode er ikke definert for $arenaKode"
+            }
+        }
+
         fun toArenaKode(tiltakskode: Tiltakskode): String {
             return when (tiltakskode) {
                 ARBEIDSFORBEREDENDE_TRENING -> "ARBFORB"

@@ -8,7 +8,6 @@ import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingDto
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.database.Database
@@ -93,7 +92,7 @@ class InitialLoadTiltaksgjennomforinger(
                 result.items
             },
         ) {
-            gjennomforingProducer.publish(TiltaksgjennomforingDto.from(it))
+            gjennomforingProducer.publish(it.toTiltaksgjennomforingDto())
         }
     }
 }

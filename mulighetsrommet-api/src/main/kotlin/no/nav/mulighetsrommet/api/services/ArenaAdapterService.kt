@@ -16,7 +16,6 @@ import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
 import no.nav.mulighetsrommet.api.domain.dto.AvtaleAdminDto
 import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingAdminDto
-import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingDto
 import no.nav.mulighetsrommet.api.domain.dto.TiltakstypeAdminDto
 import no.nav.mulighetsrommet.api.repositories.*
 import no.nav.mulighetsrommet.api.utils.EnhetFilter
@@ -142,7 +141,7 @@ class ArenaAdapterService(
                 maybeNotifyRelevantAdministrators(next)
             }
 
-            tiltaksgjennomforingKafkaProducer.publish(TiltaksgjennomforingDto.from(next))
+            tiltaksgjennomforingKafkaProducer.publish(next.toTiltaksgjennomforingDto())
 
             next
         }
