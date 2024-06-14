@@ -34,7 +34,10 @@ class TiltakgjennomforingEventProcessor(
     private val ords: ArenaOrdsProxyClient,
     private val config: Config = Config(),
 ) : ArenaEventProcessor {
-    override val arenaTable: ArenaTable = ArenaTable.Tiltaksgjennomforing
+
+    override suspend fun shouldHandleEvent(event: ArenaEvent): Boolean {
+        return event.arenaTable === ArenaTable.Tiltaksgjennomforing
+    }
 
     data class Config(
         val retryUpsertTimes: Int = 1,

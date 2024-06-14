@@ -52,6 +52,9 @@ app:
       arenaTiltakdeltakerEndret:
         id: arena-tiltakdeltaker-endret
         topic: tiltakdeltakerendret
+      arenaHistTiltakdeltakerEndret:
+        id: arena-hist-tiltakdeltaker-endret
+        topic: histtiltakdeltakerendret
       arenaSakEndret:
         id: arena-sakendret-endret
         topic: sakendret

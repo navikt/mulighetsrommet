@@ -9,12 +9,14 @@ enum class ArenaTable(val table: String) {
 
     Deltaker("SIAMO.TILTAKDELTAKER"),
 
+    HistDeltaker("SIAMO.HIST_TILTAKDELTAKER"),
+
     AvtaleInfo("SIAMO.AVTALE_INFO"),
     ;
 
     companion object {
         fun fromTable(table: String): ArenaTable {
-            return values()
+            return entries
                 .firstOrNull { it.table == table }
                 ?: throw IllegalArgumentException("Unsupported Arena table: $table")
         }

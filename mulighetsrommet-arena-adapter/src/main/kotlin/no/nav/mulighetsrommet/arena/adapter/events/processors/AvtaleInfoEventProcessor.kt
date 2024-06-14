@@ -34,7 +34,10 @@ class AvtaleInfoEventProcessor(
     private val client: MulighetsrommetApiClient,
     private val ords: ArenaOrdsProxyClient,
 ) : ArenaEventProcessor {
-    override val arenaTable: ArenaTable = ArenaTable.AvtaleInfo
+
+    override suspend fun shouldHandleEvent(event: ArenaEvent): Boolean {
+        return event.arenaTable === ArenaTable.AvtaleInfo
+    }
 
     override suspend fun handleEvent(event: ArenaEvent) = either {
         val data = event.decodePayload<ArenaAvtaleInfo>()

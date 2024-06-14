@@ -34,7 +34,10 @@ class TiltakdeltakerEventProcessor(
     private val client: MulighetsrommetApiClient,
     private val ords: ArenaOrdsProxyClient,
 ) : ArenaEventProcessor {
-    override val arenaTable: ArenaTable = ArenaTable.Deltaker
+
+    override suspend fun shouldHandleEvent(event: ArenaEvent): Boolean {
+        return event.arenaTable === ArenaTable.Deltaker
+    }
 
     override suspend fun handleEvent(event: ArenaEvent) = either {
         val data = event.decodePayload<ArenaTiltakdeltaker>()

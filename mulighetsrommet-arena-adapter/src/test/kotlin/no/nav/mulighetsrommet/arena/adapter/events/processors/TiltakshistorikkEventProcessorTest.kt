@@ -13,13 +13,15 @@ import no.nav.mulighetsrommet.arena.adapter.clients.ArenaOrdsProxyClientImpl
 import no.nav.mulighetsrommet.arena.adapter.clients.TiltakshistorikkClient
 import no.nav.mulighetsrommet.arena.adapter.createDatabaseTestConfig
 import no.nav.mulighetsrommet.arena.adapter.fixtures.TiltakstypeFixtures
+import no.nav.mulighetsrommet.arena.adapter.fixtures.createArenaHistTiltakdeltakerEvent
 import no.nav.mulighetsrommet.arena.adapter.fixtures.createArenaTiltakdeltakerEvent
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping.Status.Handled
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping.Status.Ignored
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
-import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.Operation.*
+import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.Operation.Delete
+import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.Operation.Insert
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent.ProcessingStatus.Failed
 import no.nav.mulighetsrommet.arena.adapter.models.db.Sak
 import no.nav.mulighetsrommet.arena.adapter.models.db.Tiltaksgjennomforing
@@ -142,8 +144,8 @@ class TiltakshistorikkEventProcessorTest : FunSpec({
                 }
             }
 
-            test("should upsert tiltakshistorikk when all services responds with success") {
-                val (event, mapping) = prepareEvent(createArenaTiltakdeltakerEvent(Insert), Ignored)
+            test("should upsert tiltakshistorikk for ArenaDeltaker events") {
+                val (deltakerEvent, mapping) = prepareEvent(createArenaTiltakdeltakerEvent(Insert), Ignored)
 
                 val engine = createMockEngine(
                     "/ords/arbeidsgiver" to { respondJson(ArenaOrdsArrangor("123456789", "000000000")) },
@@ -153,7 +155,7 @@ class TiltakshistorikkEventProcessorTest : FunSpec({
                 )
                 val processor = createProcessor(engine)
 
-                processor.handleEvent(event).shouldBeRight().should { it.status shouldBe Handled }
+                processor.handleEvent(deltakerEvent).shouldBeRight().should { it.status shouldBe Handled }
 
                 engine.requestHistory.last().apply {
                     method shouldBe HttpMethod.Put
@@ -170,6 +172,31 @@ class TiltakshistorikkEventProcessorTest : FunSpec({
                     method shouldBe HttpMethod.Delete
 
                     url.getLastPathParameterAsUUID() shouldBe mapping.entityId
+                }
+            }
+
+            test("should upsert tiltakshistorikk for ArenaHistDeltaker events") {
+                val (histDeltakerEvent, histDeltakerMapping) = prepareEvent(
+                    createArenaHistTiltakdeltakerEvent(Insert),
+                    Ignored,
+                )
+
+                val engine = createMockEngine(
+                    "/ords/arbeidsgiver" to { respondJson(ArenaOrdsArrangor("123456789", "000000000")) },
+                    "/ords/fnr" to { respondJson(ArenaOrdsFnr("12345678910")) },
+                    "/api/v1/intern/arena/deltaker" to { respondOk() },
+                )
+                val processor = createProcessor(engine)
+
+                processor.handleEvent(histDeltakerEvent).shouldBeRight()
+
+                engine.requestHistory.last().apply {
+                    method shouldBe HttpMethod.Put
+
+                    decodeRequestBody<ArenaDeltakerDbo>().apply {
+                        id shouldBe histDeltakerMapping.entityId
+                        norskIdent shouldBe NorskIdent("12345678910")
+                    }
                 }
             }
         }
