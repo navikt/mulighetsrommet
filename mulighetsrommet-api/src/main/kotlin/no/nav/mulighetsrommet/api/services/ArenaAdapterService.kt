@@ -188,18 +188,16 @@ class ArenaAdapterService(
     }
 
     suspend fun removeTiltaksgjennomforing(id: UUID) {
-        val gjennomforing = tiltaksgjennomforinger.get(id)
-            ?: return
-        val sanityId = gjennomforing.sanityId
+        db.transactionSuspend { tx ->
+            tiltaksgjennomforinger.getSanityTiltaksgjennomforingId(id, tx)?.let {
+                sanityTiltakService.deleteSanityTiltaksgjennomforing(it)
+            }
 
-        db.transaction { tx ->
-            tiltaksgjennomforinger.delete(id, tx)
-            logDelete(tx, DocumentClass.TILTAKSGJENNOMFORING, id)
-            tiltaksgjennomforingKafkaProducer.retract(id)
-        }
-
-        if (sanityId != null) {
-            sanityTiltakService.deleteSanityTiltaksgjennomforing(sanityId)
+            val numDeleted = tiltaksgjennomforinger.delete(id, tx)
+            if (numDeleted > 0) {
+                logDelete(tx, DocumentClass.TILTAKSGJENNOMFORING, id)
+                tiltaksgjennomforingKafkaProducer.retract(id)
+            }
         }
     }
 
