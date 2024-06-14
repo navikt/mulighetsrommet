@@ -9,10 +9,10 @@ import { Laster } from "../../components/laster/Laster";
 import styles from "../../components/skjema/Skjema.module.scss";
 import { TiltaksgjennomforingSkjemaContainer } from "../../components/tiltaksgjennomforinger/TiltaksgjennomforingSkjemaContainer";
 import { ErrorMeldinger } from "../../components/tiltaksgjennomforinger/TiltaksgjennomforingSkjemaErrors";
-import { TiltaksgjennomforingstatusTag } from "../../components/statuselementer/TiltaksgjennomforingstatusTag";
 import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
 import { Brodsmule, Brodsmuler } from "../../components/navigering/Brodsmuler";
 import { TiltaksgjennomforingIkon } from "../../components/ikoner/TiltaksgjennomforingIkon";
+import { TiltaksgjennomforingStatusTag } from "mulighetsrommet-frontend-common";
 
 const TiltaksgjennomforingSkjemaPage = () => {
   const navigate = useNavigate();
@@ -107,10 +107,7 @@ const TiltaksgjennomforingSkjemaPage = () => {
           {redigeringsModus ? "Rediger tiltaksgjennomføring" : "Opprett ny tiltaksgjennomføring"}
         </Heading>
         {tiltaksgjennomforing ? (
-          <TiltaksgjennomforingstatusTag
-            tiltaksgjennomforing={tiltaksgjennomforing}
-            showAvbruttAarsak
-          />
+          <TiltaksgjennomforingStatusTag status={tiltaksgjennomforing.status} showAvbruttAarsak />
         ) : null}
       </Header>
       <ContainerLayout>

@@ -1,18 +1,16 @@
-import { avbrytGjennomforingAarsakToString } from "@/utils/Utils";
 import { Tag } from "@navikt/ds-react";
-import { Tiltaksgjennomforing } from "mulighetsrommet-api-client";
+import { AvbrytGjennomforingAarsak, TiltaksgjennomforingStatusResponse } from "mulighetsrommet-api-client";
 import { useState } from "react";
 
 interface Props {
-  tiltaksgjennomforing: Tiltaksgjennomforing;
+  status: TiltaksgjennomforingStatusResponse;
   showAvbruttAarsak?: boolean;
 }
 
-export function TiltaksgjennomforingstatusTag({
-  tiltaksgjennomforing,
+export function TiltaksgjennomforingStatusTag({
+  status,
   showAvbruttAarsak = false,
 }: Props) {
-  const { status } = tiltaksgjennomforing;
   const [expandLabel, setExpandLabel] = useState<boolean>(false);
 
   function variantAndName(): { variant: "alt1" | "success" | "neutral" | "error"; name: string } {
@@ -57,3 +55,23 @@ export function TiltaksgjennomforingstatusTag({
     </Tag>
   );
 }
+
+function avbrytGjennomforingAarsakToString(
+  aarsak: AvbrytGjennomforingAarsak | string,
+): string {
+  switch (aarsak) {
+    case AvbrytGjennomforingAarsak.AVBRUTT_I_ARENA:
+      return "Avbrutt i Arena";
+    case AvbrytGjennomforingAarsak.BUDSJETT_HENSYN:
+      return "Budsjetthensyn";
+    case AvbrytGjennomforingAarsak.ENDRING_HOS_ARRANGOR:
+      return "Endring hos arrangør";
+    case AvbrytGjennomforingAarsak.FEILREGISTRERING:
+      return "Feilregistrering";
+    case AvbrytGjennomforingAarsak.FOR_FAA_DELTAKERE:
+      return "For få deltakere";
+    default:
+      return aarsak;
+  }
+}
+

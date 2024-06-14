@@ -30,6 +30,7 @@ import {
 } from "mulighetsrommet-api-client";
 import { useTitle } from "mulighetsrommet-frontend-common";
 import { PameldingForGruppetiltak } from "../../../components/pamelding/PameldingForGruppetiltak";
+import { gjennomforingIsAktiv } from "@/utils/Utils";
 
 export function ModiaArbeidsmarkedstiltakDetaljer() {
   const { fnr } = useModiaContext();
@@ -128,7 +129,7 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
               </Button>
             )}
 
-            {enableDeltakerRegistrering ? (
+            {enableDeltakerRegistrering && gjennomforingIsAktiv(tiltaksgjennomforing) ? (
               <PameldingForGruppetiltak
                 kanOppretteAvtaleForTiltak={kanOppretteAvtaleForTiltak}
                 brukerHarRettPaaValgtTiltak={brukerHarRettPaaValgtTiltak}
@@ -136,7 +137,7 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
               />
             ) : null}
 
-            {brukerdata.erUnderOppfolging ? (
+            {brukerdata.erUnderOppfolging && gjennomforingIsAktiv(tiltaksgjennomforing) ? (
               <DelMedBruker
                 delMedBrukerInfo={delMedBrukerInfo ?? undefined}
                 veiledernavn={resolveName(veilederdata)}

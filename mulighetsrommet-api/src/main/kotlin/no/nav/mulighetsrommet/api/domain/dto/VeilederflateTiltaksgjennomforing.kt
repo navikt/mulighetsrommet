@@ -6,7 +6,9 @@ import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dto.Faneinnhold
 import no.nav.mulighetsrommet.domain.dto.Innsatsgruppe
+import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
+import no.nav.mulighetsrommet.domain.serializers.TiltaksgjennomforingStatusSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import java.time.LocalDate
 import java.util.*
@@ -22,6 +24,8 @@ data class VeilederflateInnsatsgruppe(
 data class VeilederflateTiltaksgjennomforing(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID? = null,
+    @Serializable(with = TiltaksgjennomforingStatusSerializer::class)
+    val status: TiltaksgjennomforingStatus,
     @Serializable(with = UUIDSerializer::class)
     val avtaleId: UUID? = null,
     val sanityId: String? = null,

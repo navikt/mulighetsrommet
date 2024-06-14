@@ -3080,11 +3080,14 @@ components:
           nullable: true
         personvernBekreftet:
           type: boolean
+        status:
+          $ref: "#/components/schemas/TiltaksgjennomforingStatusResponse"
       required:
         - navn
         - tiltakstype
         - apentForInnsok
         - oppstart
+        - status
 
     SanityRegelverkLenke:
       type: object
