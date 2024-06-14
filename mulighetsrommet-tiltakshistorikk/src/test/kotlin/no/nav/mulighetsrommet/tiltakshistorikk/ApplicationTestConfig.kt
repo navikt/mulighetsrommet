@@ -49,13 +49,11 @@ fun createAuthConfig(
     oauth: MockOAuth2Server,
     issuer: String = "default",
     audience: String = "default",
-): AuthConfig {
-    return AuthConfig(
-        azure = AuthProvider(
-            issuer = oauth.issuerUrl(issuer).toString(),
-            jwksUri = oauth.jwksUrl(issuer).toUri().toString(),
-            audience = audience,
-            tokenEndpointUrl = oauth.tokenEndpointUrl(issuer).toString(),
-        ),
-    )
-}
+): AuthConfig = AuthConfig(
+    azure = AuthProvider(
+        issuer = oauth.issuerUrl(issuer).toString(),
+        jwksUri = oauth.jwksUrl(issuer).toUri().toString(),
+        audience = audience,
+        tokenEndpointUrl = oauth.tokenEndpointUrl(issuer).toString(),
+    ),
+)

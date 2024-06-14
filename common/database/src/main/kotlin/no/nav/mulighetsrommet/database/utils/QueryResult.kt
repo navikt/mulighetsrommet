@@ -12,9 +12,7 @@ typealias QueryResult<T> = Either<DatabaseOperationError, T>
  *
  * It's best to avoid using this method, but it can be convenient during e.g. testing.
  */
-fun <T> QueryResult<T>.getOrThrow(): T {
-    return getOrElse { throw it.error }
-}
+fun <T> QueryResult<T>.getOrThrow(): T = getOrElse { throw it.error }
 
 /**
  * Runs the provided [queryRunner] and returns a [QueryResult] with the value [T] when it runs successfully,
@@ -38,9 +36,7 @@ sealed class DatabaseOperationError(val error: PSQLException) {
     class ForeignKeyViolation(error: PSQLException) : DatabaseOperationError(error)
     class DatabaseError(error: PSQLException) : DatabaseOperationError(error)
 
-    override fun toString(): String {
-        return "$javaClass: $error"
-    }
+    override fun toString(): String = "$javaClass: $error"
 
     companion object {
         /**

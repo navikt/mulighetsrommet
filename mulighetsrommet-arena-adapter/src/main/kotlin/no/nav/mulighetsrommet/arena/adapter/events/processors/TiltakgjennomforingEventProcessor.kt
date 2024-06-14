@@ -35,9 +35,7 @@ class TiltakgjennomforingEventProcessor(
     private val config: Config = Config(),
 ) : ArenaEventProcessor {
 
-    override suspend fun shouldHandleEvent(event: ArenaEvent): Boolean {
-        return event.arenaTable === ArenaTable.Tiltaksgjennomforing
-    }
+    override suspend fun shouldHandleEvent(event: ArenaEvent): Boolean = event.arenaTable === ArenaTable.Tiltaksgjennomforing
 
     data class Config(
         val retryUpsertTimes: Int = 1,
@@ -86,22 +84,18 @@ class TiltakgjennomforingEventProcessor(
             .bind()
     }
 
-    override fun getDependentEntities(event: ArenaEvent): List<ArenaEntityMapping> {
-        return entities.getDeltakereByTiltaksgjennomforingId(event.arenaId.toInt()).mapNotNull {
-            entities.getMapping(ArenaTable.Deltaker, it.tiltaksdeltakerId.toString()).getOrNull()
-        }
+    override fun getDependentEntities(event: ArenaEvent): List<ArenaEntityMapping> = entities.getDeltakereByTiltaksgjennomforingId(event.arenaId.toInt()).mapNotNull {
+        entities.getMapping(ArenaTable.Deltaker, it.tiltaksdeltakerId.toString()).getOrNull()
     }
 
-    private fun resolveFromMappingStatus(avtaleId: Int): Either<ProcessingError, Int?> {
-        return entities.getMapping(ArenaTable.AvtaleInfo, avtaleId.toString())
-            .flatMap { mapping ->
-                when (mapping.status) {
-                    ArenaEntityMapping.Status.Handled -> avtaleId.right()
-                    ArenaEntityMapping.Status.Ignored -> null.right()
-                    else -> ProcessingError.ForeignKeyViolation("Avtale har enda ikke blitt prosessert").left()
-                }
+    private fun resolveFromMappingStatus(avtaleId: Int): Either<ProcessingError, Int?> = entities.getMapping(ArenaTable.AvtaleInfo, avtaleId.toString())
+        .flatMap { mapping ->
+            when (mapping.status) {
+                ArenaEntityMapping.Status.Handled -> avtaleId.right()
+                ArenaEntityMapping.Status.Ignored -> null.right()
+                else -> ProcessingError.ForeignKeyViolation("Avtale har enda ikke blitt prosessert").left()
             }
-    }
+        }
 
     private suspend fun upsertTiltaksgjennomforing(
         operation: ArenaEvent.Operation,

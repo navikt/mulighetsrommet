@@ -39,9 +39,7 @@ class ArrangorService(
         cacheMetrics.addCache("brregServiceCache", brregCache)
     }
 
-    suspend fun getOrSyncArrangorFromBrreg(orgnr: String): Either<BrregError, ArrangorDto> {
-        return arrangorRepository.get(orgnr)?.right() ?: syncArrangorFromBrreg(orgnr)
-    }
+    suspend fun getOrSyncArrangorFromBrreg(orgnr: String): Either<BrregError, ArrangorDto> = arrangorRepository.get(orgnr)?.right() ?: syncArrangorFromBrreg(orgnr)
 
     private suspend fun syncArrangorFromBrreg(orgnr: String): Either<BrregError, ArrangorDto> {
         log.info("Synkroniserer enhet fra brreg orgnr=$orgnr")

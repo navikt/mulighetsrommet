@@ -42,13 +42,11 @@ class ArenaEntityMappingRepository(private val db: Database) {
             .let { db.run(it) }
     }
 
-    private fun Row.toMapping(): ArenaEntityMapping {
-        return ArenaEntityMapping(
-            arenaTable = ArenaTable.fromTable(string("arena_table")),
-            arenaId = string("arena_id"),
-            entityId = uuid("entity_id"),
-            status = ArenaEntityMapping.Status.valueOf(string("status")),
-            message = stringOrNull("message"),
-        )
-    }
+    private fun Row.toMapping(): ArenaEntityMapping = ArenaEntityMapping(
+        arenaTable = ArenaTable.fromTable(string("arena_table")),
+        arenaId = string("arena_id"),
+        entityId = uuid("entity_id"),
+        status = ArenaEntityMapping.Status.valueOf(string("status")),
+        message = stringOrNull("message"),
+    )
 }

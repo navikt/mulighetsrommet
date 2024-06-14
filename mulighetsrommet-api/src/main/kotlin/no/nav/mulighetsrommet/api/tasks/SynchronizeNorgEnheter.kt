@@ -21,12 +21,10 @@ class SynchronizeNorgEnheter(
         val delayOfMinutes: Int,
         val disabled: Boolean = false,
     ) {
-        fun toSchedule(): Schedule {
-            return if (disabled) {
-                DisabledSchedule()
-            } else {
-                FixedDelay.ofMinutes(delayOfMinutes)
-            }
+        fun toSchedule(): Schedule = if (disabled) {
+            DisabledSchedule()
+        } else {
+            FixedDelay.ofMinutes(delayOfMinutes)
         }
     }
 

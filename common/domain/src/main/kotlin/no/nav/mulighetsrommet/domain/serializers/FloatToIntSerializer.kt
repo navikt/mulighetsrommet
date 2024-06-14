@@ -9,9 +9,7 @@ import kotlin.math.roundToInt
 object FloatToIntSerializer : KSerializer<Int> {
     override val descriptor = Int.serializer().descriptor
 
-    override fun deserialize(decoder: Decoder): Int {
-        return decoder.decodeDouble().roundToInt()
-    }
+    override fun deserialize(decoder: Decoder): Int = decoder.decodeDouble().roundToInt()
 
     override fun serialize(encoder: Encoder, value: Int) {
         encoder.encodeString(value.toString())

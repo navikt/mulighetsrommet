@@ -61,9 +61,7 @@ fun validateOrgnr(orgnr: String) {
     }
 }
 
-fun isUtenlandskOrgnr(orgnr: String): Boolean {
-    return orgnr.matches("^[1-7][0-9]{8}\$".toRegex())
-}
+fun isUtenlandskOrgnr(orgnr: String): Boolean = orgnr.matches("^[1-7][0-9]{8}\$".toRegex())
 
 fun toStatusResponseError(it: BrregError) = when (it) {
     BrregError.NotFound -> NotFound()

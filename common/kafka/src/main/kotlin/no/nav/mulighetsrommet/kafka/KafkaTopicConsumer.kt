@@ -18,22 +18,20 @@ abstract class KafkaTopicConsumer<K, V>(
         val initialRunningState: Boolean = false,
     )
 
-    internal fun toTopicConfig(kafkaConsumerRepository: KafkaConsumerRepositoryImpl): TopicConfig<K, V> {
-        return TopicConfig<K, V>()
-            .withMetrics(Metrikker.appMicrometerRegistry)
-            .withLogging()
-            .withStoreOnFailure(kafkaConsumerRepository)
-            .withConsumerConfig(
-                config.topic,
-                keyDeserializer,
-                valueDeserializer,
-                Consumer { event ->
-                    runBlocking {
-                        consume(event.key(), event.value())
-                    }
-                },
-            )
-    }
+    internal fun toTopicConfig(kafkaConsumerRepository: KafkaConsumerRepositoryImpl): TopicConfig<K, V> = TopicConfig<K, V>()
+        .withMetrics(Metrikker.appMicrometerRegistry)
+        .withLogging()
+        .withStoreOnFailure(kafkaConsumerRepository)
+        .withConsumerConfig(
+            config.topic,
+            keyDeserializer,
+            valueDeserializer,
+            Consumer { event ->
+                runBlocking {
+                    consume(event.key(), event.value())
+                }
+            },
+        )
 
     abstract suspend fun consume(key: K, message: V)
 }

@@ -13,39 +13,33 @@ enum class Tiltakskode {
     ;
 
     companion object {
-        fun fromArenaKode(arenaKode: String): Tiltakskode? {
-            return when (arenaKode) {
-                "ARBFORB" -> ARBEIDSFORBEREDENDE_TRENING
-                "ARBRRHDAG" -> ARBEIDSRETTET_REHABILITERING
-                "AVKLARAG" -> AVKLARING
-                "DIGIOPPARB" -> DIGITALT_OPPFOLGINGSTILTAK
-                "GRUFAGYRKE" -> GRUPPE_FAG_OG_YRKESOPPLAERING
-                "GRUPPEAMO" -> GRUPPE_ARBEIDSMARKEDSOPPLAERING
-                "INDOPPFAG" -> OPPFOLGING
-                "JOBBK" -> JOBBKLUBB
-                "VASV" -> VARIG_TILRETTELAGT_ARBEID_SKJERMET
-                else -> null
-            }
+        fun fromArenaKode(arenaKode: String): Tiltakskode? = when (arenaKode) {
+            "ARBFORB" -> ARBEIDSFORBEREDENDE_TRENING
+            "ARBRRHDAG" -> ARBEIDSRETTET_REHABILITERING
+            "AVKLARAG" -> AVKLARING
+            "DIGIOPPARB" -> DIGITALT_OPPFOLGINGSTILTAK
+            "GRUFAGYRKE" -> GRUPPE_FAG_OG_YRKESOPPLAERING
+            "GRUPPEAMO" -> GRUPPE_ARBEIDSMARKEDSOPPLAERING
+            "INDOPPFAG" -> OPPFOLGING
+            "JOBBK" -> JOBBKLUBB
+            "VASV" -> VARIG_TILRETTELAGT_ARBEID_SKJERMET
+            else -> null
         }
 
-        fun fromArenaKodeOrFail(arenaKode: String): Tiltakskode {
-            return requireNotNull(fromArenaKode(arenaKode)) {
-                "Tiltakskode er ikke definert for $arenaKode"
-            }
+        fun fromArenaKodeOrFail(arenaKode: String): Tiltakskode = requireNotNull(fromArenaKode(arenaKode)) {
+            "Tiltakskode er ikke definert for $arenaKode"
         }
 
-        fun toArenaKode(tiltakskode: Tiltakskode): String {
-            return when (tiltakskode) {
-                ARBEIDSFORBEREDENDE_TRENING -> "ARBFORB"
-                ARBEIDSRETTET_REHABILITERING -> "ARBRRHDAG"
-                AVKLARING -> "AVKLARAG"
-                DIGITALT_OPPFOLGINGSTILTAK -> "DIGIOPPARB"
-                GRUPPE_FAG_OG_YRKESOPPLAERING -> "GRUFAGYRKE"
-                GRUPPE_ARBEIDSMARKEDSOPPLAERING -> "GRUPPEAMO"
-                OPPFOLGING -> "INDOPPFAG"
-                JOBBKLUBB -> "JOBBK"
-                VARIG_TILRETTELAGT_ARBEID_SKJERMET -> "VASV"
-            }
+        fun toArenaKode(tiltakskode: Tiltakskode): String = when (tiltakskode) {
+            ARBEIDSFORBEREDENDE_TRENING -> "ARBFORB"
+            ARBEIDSRETTET_REHABILITERING -> "ARBRRHDAG"
+            AVKLARING -> "AVKLARAG"
+            DIGITALT_OPPFOLGINGSTILTAK -> "DIGIOPPARB"
+            GRUPPE_FAG_OG_YRKESOPPLAERING -> "GRUFAGYRKE"
+            GRUPPE_ARBEIDSMARKEDSOPPLAERING -> "GRUPPEAMO"
+            OPPFOLGING -> "INDOPPFAG"
+            JOBBKLUBB -> "JOBBK"
+            VARIG_TILRETTELAGT_ARBEID_SKJERMET -> "VASV"
         }
     }
 }
@@ -109,23 +103,13 @@ object Tiltakskoder {
         "VASV",
     )
 
-    fun isGruppetiltak(arenaKode: String): Boolean {
-        return arenaKode in GruppetiltakArenaKoder
-    }
+    fun isGruppetiltak(arenaKode: String): Boolean = arenaKode in GruppetiltakArenaKoder
 
-    fun isEgenRegiTiltak(arenaKode: String): Boolean {
-        return arenaKode in EgenRegiTiltak
-    }
+    fun isEgenRegiTiltak(arenaKode: String): Boolean = arenaKode in EgenRegiTiltak
 
-    fun isKursTiltak(arenaKode: String): Boolean {
-        return arenaKode in TiltakMedFellesOppstart
-    }
+    fun isKursTiltak(arenaKode: String): Boolean = arenaKode in TiltakMedFellesOppstart
 
-    fun isAmtTiltak(arenaKode: String): Boolean {
-        return arenaKode in AmtTiltak
-    }
+    fun isAmtTiltak(arenaKode: String): Boolean = arenaKode in AmtTiltak
 
-    fun isTiltakMedAvtalerFraMulighetsrommet(arenaKode: String): Boolean {
-        return arenaKode in TiltakMedAvtalerFraMulighetsrommet
-    }
+    fun isTiltakMedAvtalerFraMulighetsrommet(arenaKode: String): Boolean = arenaKode in TiltakMedAvtalerFraMulighetsrommet
 }

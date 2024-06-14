@@ -46,9 +46,7 @@ class Pagination private constructor(
             )
         }
 
-    override fun toString(): String {
-        return "Pagination(page=$page, pageSize=$pageSize)"
-    }
+    override fun toString(): String = "Pagination(page=$page, pageSize=$pageSize)"
 }
 
 data class PaginatedResult<T>(val totalCount: Int, val items: List<T>)
@@ -63,9 +61,7 @@ data class PaginatedResult<T>(val totalCount: Int, val items: List<T>)
 fun <A> Query.mapPaginated(
     totalCountColumn: String = "total_count",
     extractor: (Row) -> A,
-): PaginatedListResultQueryAction<A> {
-    return PaginatedListResultQueryAction(this, totalCountColumn, extractor)
-}
+): PaginatedListResultQueryAction<A> = PaginatedListResultQueryAction(this, totalCountColumn, extractor)
 
 data class PaginatedListResultQueryAction<A>(
     val query: Query,

@@ -101,18 +101,16 @@ class KafkaConsumerRepositoryImpl(private val db: Database) : KafkaConsumerRepos
         return db.run(queryResult).toMutableList()
     }
 
-    private fun toStoredConsumerRecord(row: Row): StoredConsumerRecord {
-        return StoredConsumerRecord(
-            row.long("id"),
-            row.string("topic"),
-            row.int("partition"),
-            row.long("record_offset"),
-            row.bytesOrNull("key"),
-            row.bytesOrNull("value"),
-            row.stringOrNull("headers_json"),
-            row.int("retries"),
-            row.sqlTimestampOrNull("last_retry"),
-            row.long("record_timestamp"),
-        )
-    }
+    private fun toStoredConsumerRecord(row: Row): StoredConsumerRecord = StoredConsumerRecord(
+        row.long("id"),
+        row.string("topic"),
+        row.int("partition"),
+        row.long("record_offset"),
+        row.bytesOrNull("key"),
+        row.bytesOrNull("value"),
+        row.stringOrNull("headers_json"),
+        row.int("retries"),
+        row.sqlTimestampOrNull("last_retry"),
+        row.long("record_timestamp"),
+    )
 }

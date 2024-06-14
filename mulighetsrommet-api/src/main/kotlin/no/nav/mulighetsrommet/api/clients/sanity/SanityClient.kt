@@ -144,8 +144,6 @@ class SanityParam private constructor(val key: String, val value: String) {
             return SanityParam(key, encodedValue)
         }
 
-        internal fun of(key: String, value: UUID): SanityParam {
-            return SanityParam(key, "\"$value\"")
-        }
+        internal fun of(key: String, value: UUID): SanityParam = SanityParam(key, "\"$value\"")
     }
 }

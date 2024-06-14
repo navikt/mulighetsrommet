@@ -16,7 +16,5 @@ object CacheUtils {
         return value
     }
 
-    inline fun <K : Any, V : Any> tryCacheFirstNotNull(cache: Cache<K, V>, key: K, valueSupplier: () -> V): V {
-        return tryCacheFirstNullable(cache, key) { valueSupplier.invoke() }!!
-    }
+    inline fun <K : Any, V : Any> tryCacheFirstNotNull(cache: Cache<K, V>, key: K, valueSupplier: () -> V): V = tryCacheFirstNullable(cache, key) { valueSupplier.invoke() }!!
 }

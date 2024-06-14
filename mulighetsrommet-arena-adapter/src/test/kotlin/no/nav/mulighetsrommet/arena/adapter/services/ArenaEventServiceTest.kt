@@ -557,19 +557,11 @@ class ArenaEventTestProcessor(
     private val handleEvent: (() -> Either<ProcessingError, ProcessingResult>)? = null,
 ) : ArenaEventProcessor {
 
-    override suspend fun shouldHandleEvent(event: ArenaEvent): Boolean {
-        return eventIsRelevant(event)
-    }
+    override suspend fun shouldHandleEvent(event: ArenaEvent): Boolean = eventIsRelevant(event)
 
-    override suspend fun handleEvent(event: ArenaEvent): Either<ProcessingError, ProcessingResult> {
-        return handleEvent?.invoke() ?: Either.Right(ProcessingResult(Handled))
-    }
+    override suspend fun handleEvent(event: ArenaEvent): Either<ProcessingError, ProcessingResult> = handleEvent?.invoke() ?: Either.Right(ProcessingResult(Handled))
 
-    override suspend fun deleteEntity(event: ArenaEvent): Either<ProcessingError, Unit> {
-        return deleteEntityError?.invoke()?.left() ?: Either.Right(Unit)
-    }
+    override suspend fun deleteEntity(event: ArenaEvent): Either<ProcessingError, Unit> = deleteEntityError?.invoke()?.left() ?: Either.Right(Unit)
 
-    override fun getDependentEntities(event: ArenaEvent): List<ArenaEntityMapping> {
-        return getDependentEntities?.invoke() ?: emptyList()
-    }
+    override fun getDependentEntities(event: ArenaEvent): List<ArenaEntityMapping> = getDependentEntities?.invoke() ?: emptyList()
 }

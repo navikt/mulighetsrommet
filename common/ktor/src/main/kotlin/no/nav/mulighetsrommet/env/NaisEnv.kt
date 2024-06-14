@@ -15,15 +15,9 @@ enum class NaisEnv(val clusterName: String) {
         }
     }
 
-    fun isLocal(): Boolean {
-        return this === Local
-    }
+    fun isLocal(): Boolean = this === Local
 
-    fun isDevGCP(): Boolean {
-        return this === DevGCP
-    }
+    fun isDevGCP(): Boolean = this === DevGCP
 
-    fun isProdGCP(): Boolean {
-        return this === ProdGCP
-    }
+    fun isProdGCP(): Boolean = this === ProdGCP
 }

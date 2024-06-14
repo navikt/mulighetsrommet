@@ -73,13 +73,9 @@ class KafkaConsumerOrchestrator(
         logger.info("Stopped kafka processors")
     }
 
-    fun getTopics(): List<Topic> {
-        return topicRepository.getAll()
-    }
+    fun getTopics(): List<Topic> = topicRepository.getAll()
 
-    fun getConsumers(): List<KafkaConsumerClient> {
-        return consumerClients.toList().map { it.second }
-    }
+    fun getConsumers(): List<KafkaConsumerClient> = consumerClients.toList().map { it.second }
 
     fun updateRunningTopics(topics: List<Topic>): List<Topic> {
         val current = getTopics()

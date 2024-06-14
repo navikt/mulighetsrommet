@@ -57,7 +57,5 @@ class TiltaksgjennomforingTopicConsumer(
         arenaMigreringTiltaksgjennomforingKafkaProducer.publish(migrertGjennomforing)
     }
 
-    private fun gjennomforingSkalDelesMedArena(gjennomforing: TiltaksgjennomforingDto): Boolean {
-        return tiltakstyper.isEnabled(Tiltakskode.fromArenaKode(gjennomforing.tiltakstype.arenaKode))
-    }
+    private fun gjennomforingSkalDelesMedArena(gjennomforing: TiltaksgjennomforingDto): Boolean = tiltakstyper.isEnabled(Tiltakskode.fromArenaKode(gjennomforing.tiltakstype.arenaKode))
 }

@@ -149,25 +149,23 @@ class BrregClient(
             }
     }
 
-    private suspend inline fun <reified T> parseResponse(response: HttpResponse, orgnr: String): Either<BrregError, T> {
-        return when (response.status) {
-            HttpStatusCode.OK -> response.body<T>().right()
+    private suspend inline fun <reified T> parseResponse(response: HttpResponse, orgnr: String): Either<BrregError, T> = when (response.status) {
+        HttpStatusCode.OK -> response.body<T>().right()
 
-            HttpStatusCode.BadRequest -> {
-                val bodyAsText = response.bodyAsText()
-                log.warn("BadRequest: orgnr=$orgnr response=$bodyAsText")
-                BrregError.BadRequest.left()
-            }
+        HttpStatusCode.BadRequest -> {
+            val bodyAsText = response.bodyAsText()
+            log.warn("BadRequest: orgnr=$orgnr response=$bodyAsText")
+            BrregError.BadRequest.left()
+        }
 
-            HttpStatusCode.NotFound -> {
-                BrregError.NotFound.left()
-            }
+        HttpStatusCode.NotFound -> {
+            BrregError.NotFound.left()
+        }
 
-            else -> {
-                val bodyAsText = response.bodyAsText()
-                log.error("Error: orgnr=$orgnr response=$bodyAsText")
-                BrregError.Error.left()
-            }
+        else -> {
+            val bodyAsText = response.bodyAsText()
+            log.error("Error: orgnr=$orgnr response=$bodyAsText")
+            BrregError.Error.left()
         }
     }
 }

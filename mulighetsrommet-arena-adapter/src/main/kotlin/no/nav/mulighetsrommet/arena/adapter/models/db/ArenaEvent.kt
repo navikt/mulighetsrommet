@@ -54,18 +54,14 @@ data class ArenaEvent(
         Replay,
     }
 
-    inline fun <reified T> decodePayload(): T {
-        return if (operation == Operation.Delete) {
-            JsonIgnoreUnknownKeys.decodeFromJsonElement(payload.jsonObject["before"]!!)
-        } else {
-            JsonIgnoreUnknownKeys.decodeFromJsonElement(payload.jsonObject["after"]!!)
-        }
+    inline fun <reified T> decodePayload(): T = if (operation == Operation.Delete) {
+        JsonIgnoreUnknownKeys.decodeFromJsonElement(payload.jsonObject["before"]!!)
+    } else {
+        JsonIgnoreUnknownKeys.decodeFromJsonElement(payload.jsonObject["after"]!!)
     }
 
-    fun getEksternID(): UUID? {
-        return decodePayload<EksternIdPayload>().EKSTERN_ID?.let {
-            UUID.fromString(it)
-        }
+    fun getEksternID(): UUID? = decodePayload<EksternIdPayload>().EKSTERN_ID?.let {
+        UUID.fromString(it)
     }
 }
 

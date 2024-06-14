@@ -15,10 +15,8 @@ enum class ArenaTable(val table: String) {
     ;
 
     companion object {
-        fun fromTable(table: String): ArenaTable {
-            return entries
-                .firstOrNull { it.table == table }
-                ?: throw IllegalArgumentException("Unsupported Arena table: $table")
-        }
+        fun fromTable(table: String): ArenaTable = entries
+            .firstOrNull { it.table == table }
+            ?: throw IllegalArgumentException("Unsupported Arena table: $table")
     }
 }

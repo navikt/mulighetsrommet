@@ -32,12 +32,10 @@ class SynchronizeNavAnsatte(
         val cronPattern: String? = null,
         val deleteNavAnsattGracePeriod: Period = Period.ofDays(30),
     ) {
-        fun toSchedule(): Schedule {
-            return if (disabled) {
-                DisabledSchedule()
-            } else {
-                Schedules.cron(cronPattern)
-            }
+        fun toSchedule(): Schedule = if (disabled) {
+            DisabledSchedule()
+        } else {
+            Schedules.cron(cronPattern)
         }
     }
 

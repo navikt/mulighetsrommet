@@ -248,13 +248,11 @@ class SsbNusServiceTest : FunSpec(
     },
 )
 
-private fun createNusElement(code: String, name: String, parent: String, level: String): NusElement {
-    return NusElement(
-        tiltakskode = Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
-        code = code,
-        version = "2437",
-        name = name,
-        parent = parent,
-        level = level,
-    )
-}
+private fun createNusElement(code: String, name: String, parent: String, level: String): NusElement = NusElement(
+    tiltakskode = Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
+    code = code,
+    version = "2437",
+    name = name,
+    parent = parent,
+    level = level,
+)

@@ -211,16 +211,12 @@ class BrukerServiceTest : FunSpec({
     }
 })
 
-fun mockManuellStatus(): ManuellStatusDto {
-    return ManuellStatusDto(
-        erUnderManuellOppfolging = false,
-        krrStatus = ManuellStatusDto.KrrStatus(
-            kanVarsles = true,
-            erReservert = false,
-        ),
-    )
-}
+fun mockManuellStatus(): ManuellStatusDto = ManuellStatusDto(
+    erUnderManuellOppfolging = false,
+    krrStatus = ManuellStatusDto.KrrStatus(
+        kanVarsles = true,
+        erReservert = false,
+    ),
+)
 
-fun mockOppfolgingsenhet(): Oppfolgingsenhet {
-    return Oppfolgingsenhet(navn = "NAV Fredrikstad", enhetId = "0106")
-}
+fun mockOppfolgingsenhet(): Oppfolgingsenhet = Oppfolgingsenhet(navn = "NAV Fredrikstad", enhetId = "0106")

@@ -81,11 +81,9 @@ fun Application.configureDependencyInjection(appConfig: AppConfig) {
     }
 }
 
-fun slack(slack: SlackConfig): Module {
-    return module(createdAtStart = true) {
-        single<SlackNotifier> {
-            SlackNotifierImpl(slack.token, slack.channel, slack.enable)
-        }
+fun slack(slack: SlackConfig): Module = module(createdAtStart = true) {
+    single<SlackNotifier> {
+        SlackNotifierImpl(slack.token, slack.channel, slack.enable)
     }
 }
 
@@ -423,28 +421,24 @@ private fun tasks(config: TaskConfig) = module {
     }
 }
 
-private fun createOboTokenClient(config: AppConfig): OnBehalfOfTokenClient {
-    return when (NaisEnv.current()) {
-        NaisEnv.Local -> AzureAdTokenClientBuilder.builder()
-            .withClientId(config.auth.azure.audience)
-            .withPrivateJwk(createMockRSAKey("azure").toJSONString())
-            .withTokenEndpointUrl(config.auth.azure.tokenEndpointUrl)
-            .buildOnBehalfOfTokenClient()
+private fun createOboTokenClient(config: AppConfig): OnBehalfOfTokenClient = when (NaisEnv.current()) {
+    NaisEnv.Local -> AzureAdTokenClientBuilder.builder()
+        .withClientId(config.auth.azure.audience)
+        .withPrivateJwk(createMockRSAKey("azure").toJSONString())
+        .withTokenEndpointUrl(config.auth.azure.tokenEndpointUrl)
+        .buildOnBehalfOfTokenClient()
 
-        else -> AzureAdTokenClientBuilder.builder().withNaisDefaults().buildOnBehalfOfTokenClient()
-    }
+    else -> AzureAdTokenClientBuilder.builder().withNaisDefaults().buildOnBehalfOfTokenClient()
 }
 
-private fun createM2mTokenClient(config: AppConfig): MachineToMachineTokenClient {
-    return when (NaisEnv.current()) {
-        NaisEnv.Local -> AzureAdTokenClientBuilder.builder()
-            .withClientId(config.auth.azure.audience)
-            .withPrivateJwk(createMockRSAKey("azure").toJSONString())
-            .withTokenEndpointUrl(config.auth.azure.tokenEndpointUrl)
-            .buildMachineToMachineTokenClient()
+private fun createM2mTokenClient(config: AppConfig): MachineToMachineTokenClient = when (NaisEnv.current()) {
+    NaisEnv.Local -> AzureAdTokenClientBuilder.builder()
+        .withClientId(config.auth.azure.audience)
+        .withPrivateJwk(createMockRSAKey("azure").toJSONString())
+        .withTokenEndpointUrl(config.auth.azure.tokenEndpointUrl)
+        .buildMachineToMachineTokenClient()
 
-        else -> AzureAdTokenClientBuilder.builder().withNaisDefaults().buildMachineToMachineTokenClient()
-    }
+    else -> AzureAdTokenClientBuilder.builder().withNaisDefaults().buildMachineToMachineTokenClient()
 }
 
 private fun createMockRSAKey(keyID: String): RSAKey = KeyPairGenerator

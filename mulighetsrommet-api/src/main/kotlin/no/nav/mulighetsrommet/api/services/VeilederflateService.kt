@@ -187,20 +187,18 @@ class VeilederflateService(
         id: UUID,
         enheter: List<String>,
         sanityPerspective: SanityPerspective,
-    ): VeilederflateTiltaksgjennomforing {
-        return tiltaksgjennomforingService.get(id)
-            ?.let { gjennomforing ->
-                val tiltakstype = tiltakstypeService.getById(gjennomforing.tiltakstype.id)
-                val sanityTiltakstype = hentTiltakstyper()
-                    .find { it.sanityId == tiltakstype?.sanityId.toString() }
-                    ?: throw NotFoundException("Fant ikke tiltakstype for gjennomføring med id: '$id'")
-                toVeilederTiltaksgjennomforing(gjennomforing, sanityTiltakstype, enheter)
-            }
-            ?: run {
-                val gjennomforing = getSanityTiltaksgjennomforing(id, sanityPerspective)
-                toVeilederTiltaksgjennomforing(gjennomforing, enheter)
-            }
-    }
+    ): VeilederflateTiltaksgjennomforing = tiltaksgjennomforingService.get(id)
+        ?.let { gjennomforing ->
+            val tiltakstype = tiltakstypeService.getById(gjennomforing.tiltakstype.id)
+            val sanityTiltakstype = hentTiltakstyper()
+                .find { it.sanityId == tiltakstype?.sanityId.toString() }
+                ?: throw NotFoundException("Fant ikke tiltakstype for gjennomføring med id: '$id'")
+            toVeilederTiltaksgjennomforing(gjennomforing, sanityTiltakstype, enheter)
+        }
+        ?: run {
+            val gjennomforing = getSanityTiltaksgjennomforing(id, sanityPerspective)
+            toVeilederTiltaksgjennomforing(gjennomforing, enheter)
+        }
 
     private suspend fun getSanityTiltaksgjennomforing(
         id: UUID,
@@ -380,19 +378,17 @@ class VeilederflateService(
     private fun utledKontaktpersonerForEnhet(
         tiltaksgjennomforingAdminDto: TiltaksgjennomforingAdminDto,
         enheter: List<String>,
-    ): List<VeilederflateKontaktinfoTiltaksansvarlig> {
-        return tiltaksgjennomforingAdminDto.kontaktpersoner
-            .filter { enheter.isEmpty() || it.navEnheter.isEmpty() || it.navEnheter.any { enhet -> enhet in enheter } }
-            .map {
-                VeilederflateKontaktinfoTiltaksansvarlig(
-                    navn = it.navn,
-                    telefonnummer = it.mobilnummer,
-                    enhet = navEnhetService.hentEnhet(it.hovedenhet),
-                    epost = it.epost,
-                    beskrivelse = it.beskrivelse,
-                )
-            }
-    }
+    ): List<VeilederflateKontaktinfoTiltaksansvarlig> = tiltaksgjennomforingAdminDto.kontaktpersoner
+        .filter { enheter.isEmpty() || it.navEnheter.isEmpty() || it.navEnheter.any { enhet -> enhet in enheter } }
+        .map {
+            VeilederflateKontaktinfoTiltaksansvarlig(
+                navn = it.navn,
+                telefonnummer = it.mobilnummer,
+                enhet = navEnhetService.hentEnhet(it.hovedenhet),
+                epost = it.epost,
+                beskrivelse = it.beskrivelse,
+            )
+        }
 
     suspend fun hentOppskrifterForTiltakstype(
         tiltakstypeId: UUID,

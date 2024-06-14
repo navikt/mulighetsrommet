@@ -33,19 +33,13 @@ class MicrosoftGraphService(private val client: MicrosoftGraphClient) {
         cacheMetrics.addCache("brukerAzureIdToAdGruppeCache", navAnsattAdGrupperCache)
     }
 
-    suspend fun getNavAnsatt(navAnsattAzureId: UUID, accessType: AccessType): AzureAdNavAnsatt {
-        return CacheUtils.tryCacheFirstNotNull(ansattDataCache, navAnsattAzureId) {
-            client.getNavAnsatt(navAnsattAzureId, accessType)
-        }
+    suspend fun getNavAnsatt(navAnsattAzureId: UUID, accessType: AccessType): AzureAdNavAnsatt = CacheUtils.tryCacheFirstNotNull(ansattDataCache, navAnsattAzureId) {
+        client.getNavAnsatt(navAnsattAzureId, accessType)
     }
 
-    suspend fun getNavAnsattAdGrupper(navAnsattAzureId: UUID, accessType: AccessType): List<AdGruppe> {
-        return CacheUtils.tryCacheFirstNotNull(navAnsattAdGrupperCache, navAnsattAzureId) {
-            client.getMemberGroups(navAnsattAzureId, accessType)
-        }
+    suspend fun getNavAnsattAdGrupper(navAnsattAzureId: UUID, accessType: AccessType): List<AdGruppe> = CacheUtils.tryCacheFirstNotNull(navAnsattAdGrupperCache, navAnsattAzureId) {
+        client.getMemberGroups(navAnsattAzureId, accessType)
     }
 
-    suspend fun getNavAnsatteInGroup(groupId: UUID): List<AzureAdNavAnsatt> {
-        return client.getGroupMembers(groupId)
-    }
+    suspend fun getNavAnsatteInGroup(groupId: UUID): List<AzureAdNavAnsatt> = client.getGroupMembers(groupId)
 }

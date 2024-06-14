@@ -35,9 +35,7 @@ class TiltakdeltakerEventProcessor(
     private val ords: ArenaOrdsProxyClient,
 ) : ArenaEventProcessor {
 
-    override suspend fun shouldHandleEvent(event: ArenaEvent): Boolean {
-        return event.arenaTable === ArenaTable.Deltaker
-    }
+    override suspend fun shouldHandleEvent(event: ArenaEvent): Boolean = event.arenaTable === ArenaTable.Deltaker
 
     override suspend fun handleEvent(event: ArenaEvent) = either {
         val data = event.decodePayload<ArenaTiltakdeltaker>()

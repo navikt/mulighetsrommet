@@ -34,9 +34,7 @@ class TiltakEventProcessorTest : FunSpec({
             avtaler = AvtaleRepository(database.db),
         )
 
-        fun createProcessor(): TiltakEventProcessor {
-            return TiltakEventProcessor(entities)
-        }
+        fun createProcessor(): TiltakEventProcessor = TiltakEventProcessor(entities)
 
         fun prepareEvent(event: ArenaEvent): Pair<ArenaEvent, ArenaEntityMapping> {
             val mapping = entities.getOrCreateMapping(event)

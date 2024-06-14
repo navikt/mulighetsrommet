@@ -54,19 +54,15 @@ class TiltakshistorikkService(
     suspend fun hentDeltakelserFraKomet(
         norskIdent: String,
         obo: AccessType.OBO,
-    ): Either<AmtDeltakerError, DeltakelserResponse> {
-        return amtDeltakerClient.hentDeltakelser(DeltakelserRequest(norskIdent), obo)
-    }
+    ): Either<AmtDeltakerError, DeltakelserResponse> = amtDeltakerClient.hentDeltakelser(DeltakelserRequest(norskIdent), obo)
 
     fun slettHistorikkForIdenter(identer: List<String>) =
         tiltakshistorikkRepository.deleteTiltakshistorikkForIdenter(identer)
 
-    private suspend fun hentArrangorNavn(orgnr: String): String? {
-        return arrangorService.getOrSyncArrangorFromBrreg(orgnr).fold({ error ->
-            log.warn("Klarte ikke hente arrangør. BrregError: $error")
-            null
-        }, { virksomhet ->
-            virksomhet.navn
-        })
-    }
+    private suspend fun hentArrangorNavn(orgnr: String): String? = arrangorService.getOrSyncArrangorFromBrreg(orgnr).fold({ error ->
+        log.warn("Klarte ikke hente arrangør. BrregError: $error")
+        null
+    }, { virksomhet ->
+        virksomhet.navn
+    })
 }

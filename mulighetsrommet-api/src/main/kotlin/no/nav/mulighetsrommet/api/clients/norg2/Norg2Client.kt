@@ -37,18 +37,16 @@ class Norg2Client(
         .recordStats()
         .build()
 
-    suspend fun hentEnheter(): List<Norg2Response> {
-        return try {
-            val response = client.get("$baseUrl/enhet/kontaktinformasjon/organisering/all") {
-                headers {
-                    this.append("consumerId", "team-mulighetsrommet-enhet-sync")
-                }
+    suspend fun hentEnheter(): List<Norg2Response> = try {
+        val response = client.get("$baseUrl/enhet/kontaktinformasjon/organisering/all") {
+            headers {
+                this.append("consumerId", "team-mulighetsrommet-enhet-sync")
             }
-            response.body()
-        } catch (exe: Exception) {
-            log.error("Klarte ikke hente enheter fra NORG2. Konsekvensen er at oppdatering av enheter mot database ikke blir kjørt")
-            throw exe
         }
+        response.body()
+    } catch (exe: Exception) {
+        log.error("Klarte ikke hente enheter fra NORG2. Konsekvensen er at oppdatering av enheter mot database ikke blir kjørt")
+        throw exe
     }
 
     suspend fun hentEnhetByGeografiskOmraade(geografiskOmraade: String): Either<NorgError, Norg2EnhetDto> {

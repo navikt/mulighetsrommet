@@ -7,16 +7,12 @@ import no.nav.mulighetsrommet.domain.dto.JaNeiStatus
 import java.time.LocalDateTime
 
 object ArenaUtils {
-    fun parseTimestamp(value: String): LocalDateTime {
-        return LocalDateTime.parse(value, ArenaTimestampFormatter)
-    }
+    fun parseTimestamp(value: String): LocalDateTime = LocalDateTime.parse(value, ArenaTimestampFormatter)
 
-    fun parseNullableTimestamp(value: String?): LocalDateTime? {
-        return if (value != null && value != "null") {
-            parseTimestamp(value)
-        } else {
-            null
-        }
+    fun parseNullableTimestamp(value: String?): LocalDateTime? = if (value != null && value != "null") {
+        parseTimestamp(value)
+    } else {
+        null
     }
 
     fun toDeltakerstatus(arenaStatus: ArenaTiltakdeltakerStatus): Deltakerstatus = when (arenaStatus) {
@@ -42,11 +38,9 @@ object ArenaUtils {
         -> Deltakerstatus.AVSLUTTET
     }
 
-    fun parseJaNei(jaNeiStreng: JaNeiStatus): Boolean {
-        return when (jaNeiStreng) {
-            JaNeiStatus.Ja -> true
-            JaNeiStatus.Nei -> false
-        }
+    fun parseJaNei(jaNeiStreng: JaNeiStatus): Boolean = when (jaNeiStreng) {
+        JaNeiStatus.Ja -> true
+        JaNeiStatus.Nei -> false
     }
 
     fun parseNulleableJaNei(jaNeiStreng: JaNeiStatus?): Boolean? {

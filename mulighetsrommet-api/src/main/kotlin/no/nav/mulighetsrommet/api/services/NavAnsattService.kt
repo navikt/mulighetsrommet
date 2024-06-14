@@ -43,18 +43,14 @@ class NavAnsattService(
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    suspend fun getOrSynchronizeNavAnsatt(azureId: UUID): NavAnsattDto {
-        return navAnsattRepository.getByAzureId(azureId) ?: run {
-            logger.info("Fant ikke NavAnsatt for azureId=$azureId i databasen, forsøker Azure AD i stedet")
-            val ansatt = getNavAnsattFromAzure(azureId)
-            navAnsattRepository.upsert(NavAnsattDbo.fromNavAnsattDto(ansatt))
-            ansatt
-        }
+    suspend fun getOrSynchronizeNavAnsatt(azureId: UUID): NavAnsattDto = navAnsattRepository.getByAzureId(azureId) ?: run {
+        logger.info("Fant ikke NavAnsatt for azureId=$azureId i databasen, forsøker Azure AD i stedet")
+        val ansatt = getNavAnsattFromAzure(azureId)
+        navAnsattRepository.upsert(NavAnsattDbo.fromNavAnsattDto(ansatt))
+        ansatt
     }
 
-    fun getNavAnsatte(filter: NavAnsattFilter): List<NavAnsattDto> {
-        return navAnsattRepository.getAll(roller = filter.roller)
-    }
+    fun getNavAnsatte(filter: NavAnsattFilter): List<NavAnsattDto> = navAnsattRepository.getAll(roller = filter.roller)
 
     suspend fun getNavAnsattFromAzure(azureId: UUID): NavAnsattDto {
         val rolesDirectory = roles.associateBy { it.adGruppeId }
@@ -73,22 +69,20 @@ class NavAnsattService(
         return NavAnsattDto.fromAzureAdNavAnsatt(ansatt, roller)
     }
 
-    suspend fun getNavAnsatteFromAzure(): List<NavAnsattDto> {
-        return roles
-            .flatMap {
-                val members = microsoftGraphService.getNavAnsatteInGroup(it.adGruppeId)
-                logger.info("Fant ${members.size} i AD gruppe id=${it.adGruppeId}")
-                members.map { ansatt ->
-                    NavAnsattDto.fromAzureAdNavAnsatt(ansatt, setOf(it.rolle))
-                }
+    suspend fun getNavAnsatteFromAzure(): List<NavAnsattDto> = roles
+        .flatMap {
+            val members = microsoftGraphService.getNavAnsatteInGroup(it.adGruppeId)
+            logger.info("Fant ${members.size} i AD gruppe id=${it.adGruppeId}")
+            members.map { ansatt ->
+                NavAnsattDto.fromAzureAdNavAnsatt(ansatt, setOf(it.rolle))
             }
-            .groupBy { it.navIdent }
-            .map { (_, value) ->
-                value.reduce { a1, a2 ->
-                    a1.copy(roller = a1.roller + a2.roller)
-                }
+        }
+        .groupBy { it.navIdent }
+        .map { (_, value) ->
+            value.reduce { a1, a2 ->
+                a1.copy(roller = a1.roller + a2.roller)
             }
-    }
+        }
 
     suspend fun synchronizeNavAnsatte(today: LocalDate, deletionDate: LocalDate) {
         val ansatteToUpsert = getNavAnsatteFromAzure()

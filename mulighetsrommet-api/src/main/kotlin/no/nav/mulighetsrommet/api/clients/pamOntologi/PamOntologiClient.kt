@@ -37,13 +37,9 @@ class PamOntologiClient(
         }
     }
 
-    suspend fun sokAutorisasjon(query: String, accessType: AccessType.OBO): List<Typeahead> {
-        return typeahead(query, "autorisasjon", accessType)
-    }
+    suspend fun sokAutorisasjon(query: String, accessType: AccessType.OBO): List<Typeahead> = typeahead(query, "autorisasjon", accessType)
 
-    suspend fun sokAndreGodkjenninger(query: String, accessType: AccessType.OBO): List<Typeahead> {
-        return typeahead(query, "andre_godkjenninger", accessType)
-    }
+    suspend fun sokAndreGodkjenninger(query: String, accessType: AccessType.OBO): List<Typeahead> = typeahead(query, "andre_godkjenninger", accessType)
 
     private suspend fun typeahead(query: String, domene: String, accessType: AccessType.OBO): List<Typeahead> {
         val urlEncodedQuery = withContext(Dispatchers.IO) {

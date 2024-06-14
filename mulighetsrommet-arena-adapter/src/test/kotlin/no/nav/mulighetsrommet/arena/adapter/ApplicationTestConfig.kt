@@ -65,20 +65,18 @@ fun createTestApplicationConfig(oauth: MockOAuth2Server) = AppConfig(
     ),
 )
 
-fun createKafkaConfig(): KafkaConfig {
-    return KafkaConfig(
-        brokerUrl = "localhost:29092",
-        consumerGroupId = "mulighetsrommet-kafka-consumer.v1",
-        consumers = KafkaConsumers(
-            KafkaTopicConsumer.Config("tiltakendret", "tiltakendret"),
-            KafkaTopicConsumer.Config("tiltakgjennomforingendret", "tiltakgjennomforingendret"),
-            KafkaTopicConsumer.Config("tiltakdeltakerendret", "tiltakdeltakerendret"),
-            KafkaTopicConsumer.Config("hist-tiltakdeltakerendret", "hist-tiltakdeltakerendret"),
-            KafkaTopicConsumer.Config("sakendret", "sakendret"),
-            KafkaTopicConsumer.Config("avtaleinfoendret", "avtaleinfoendret"),
-        ),
-    )
-}
+fun createKafkaConfig(): KafkaConfig = KafkaConfig(
+    brokerUrl = "localhost:29092",
+    consumerGroupId = "mulighetsrommet-kafka-consumer.v1",
+    consumers = KafkaConsumers(
+        KafkaTopicConsumer.Config("tiltakendret", "tiltakendret"),
+        KafkaTopicConsumer.Config("tiltakgjennomforingendret", "tiltakgjennomforingendret"),
+        KafkaTopicConsumer.Config("tiltakdeltakerendret", "tiltakdeltakerendret"),
+        KafkaTopicConsumer.Config("hist-tiltakdeltakerendret", "hist-tiltakdeltakerendret"),
+        KafkaTopicConsumer.Config("sakendret", "sakendret"),
+        KafkaTopicConsumer.Config("avtaleinfoendret", "avtaleinfoendret"),
+    ),
+)
 
 // Default values for 'iss' og 'aud' in tokens issued by mock-oauth2-server is 'default'.
 // These values are set as the default here so that standard tokens issued by MockOAuth2Server works with a minimal amount of setup.
@@ -86,13 +84,11 @@ fun createAuthConfig(
     oauth: MockOAuth2Server,
     issuer: String = "default",
     audience: String = "default",
-): AuthConfig {
-    return AuthConfig(
-        azure = AuthProvider(
-            issuer = oauth.issuerUrl(issuer).toString(),
-            jwksUri = oauth.jwksUrl(issuer).toUri().toString(),
-            audience = audience,
-            tokenEndpointUrl = oauth.tokenEndpointUrl(issuer).toString(),
-        ),
-    )
-}
+): AuthConfig = AuthConfig(
+    azure = AuthProvider(
+        issuer = oauth.issuerUrl(issuer).toString(),
+        jwksUri = oauth.jwksUrl(issuer).toUri().toString(),
+        audience = audience,
+        tokenEndpointUrl = oauth.tokenEndpointUrl(issuer).toString(),
+    ),
+)

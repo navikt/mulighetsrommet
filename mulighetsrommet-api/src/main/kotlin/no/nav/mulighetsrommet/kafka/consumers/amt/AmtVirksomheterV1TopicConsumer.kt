@@ -49,7 +49,5 @@ class AmtVirksomheterV1TopicConsumer(
             }
     }
 
-    private fun shouldIgnoreMessage(key: String): Boolean {
-        return arrangorRepository.get(key) == null
-    }
+    private fun shouldIgnoreMessage(key: String): Boolean = arrangorRepository.get(key) == null
 }

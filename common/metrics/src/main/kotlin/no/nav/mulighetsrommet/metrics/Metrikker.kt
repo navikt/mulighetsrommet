@@ -10,8 +10,6 @@ object Metrikker {
     /**
      * Custom metrikk for å registrere HTTP status fra responser vi får fra http-kall
      */
-    fun clientResponseMetrics(service: String, status: Int): Counter {
-        return Counter.builder("http.client.response").tag("service", service).tag("status", status.toString())
-            .register(appMicrometerRegistry)
-    }
+    fun clientResponseMetrics(service: String, status: Int): Counter = Counter.builder("http.client.response").tag("service", service).tag("status", status.toString())
+        .register(appMicrometerRegistry)
 }

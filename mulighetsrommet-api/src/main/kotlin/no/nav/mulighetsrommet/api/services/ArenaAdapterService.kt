@@ -175,63 +175,53 @@ class ArenaAdapterService(
         }
     }
 
-    suspend fun upsertTiltakshistorikk(tiltakshistorikk: ArenaTiltakshistorikkDbo): Either<ErUnderOppfolgingError, Boolean> {
-        return veilarboppfolgingClient.erBrukerUnderOppfolging(tiltakshistorikk.norskIdent, AccessType.M2M)
-            .onRight {
-                if (it) {
-                    this.tiltakshistorikk.upsert(tiltakshistorikk)
-                }
+    suspend fun upsertTiltakshistorikk(tiltakshistorikk: ArenaTiltakshistorikkDbo): Either<ErUnderOppfolgingError, Boolean> = veilarboppfolgingClient.erBrukerUnderOppfolging(tiltakshistorikk.norskIdent, AccessType.M2M)
+        .onRight {
+            if (it) {
+                this.tiltakshistorikk.upsert(tiltakshistorikk)
             }
-    }
+        }
 
-    fun removeTiltakshistorikk(id: UUID): QueryResult<Unit> {
-        return tiltakshistorikk.delete(id)
-    }
+    fun removeTiltakshistorikk(id: UUID): QueryResult<Unit> = tiltakshistorikk.delete(id)
 
-    fun upsertDeltaker(deltaker: DeltakerDbo): QueryResult<DeltakerDbo> {
-        return query { deltakere.upsert(deltaker) }
-    }
+    fun upsertDeltaker(deltaker: DeltakerDbo): QueryResult<DeltakerDbo> = query { deltakere.upsert(deltaker) }
 
-    fun removeDeltaker(id: UUID): QueryResult<Unit> {
-        return query { deltakere.delete(id) }
-    }
+    fun removeDeltaker(id: UUID): QueryResult<Unit> = query { deltakere.delete(id) }
 
     private fun mergeWithCurrentGjennomforing(
         tiltaksgjennomforing: ArenaTiltaksgjennomforingDbo,
         current: TiltaksgjennomforingAdminDto,
         tiltakstype: TiltakstypeAdminDto,
-    ): ArenaTiltaksgjennomforingDbo {
-        return if (tiltakstypeService.isEnabled(Tiltakskode.fromArenaKode(tiltakstype.arenaKode))) {
-            ArenaTiltaksgjennomforingDbo(
-                // Behold felter som settes i Arena
-                tiltaksnummer = tiltaksgjennomforing.tiltaksnummer,
-                arenaAnsvarligEnhet = tiltaksgjennomforing.arenaAnsvarligEnhet,
+    ): ArenaTiltaksgjennomforingDbo = if (tiltakstypeService.isEnabled(Tiltakskode.fromArenaKode(tiltakstype.arenaKode))) {
+        ArenaTiltaksgjennomforingDbo(
+            // Behold felter som settes i Arena
+            tiltaksnummer = tiltaksgjennomforing.tiltaksnummer,
+            arenaAnsvarligEnhet = tiltaksgjennomforing.arenaAnsvarligEnhet,
 
-                // Resten av feltene skal ikke overskrives med data fra Arena
-                id = current.id,
-                avtaleId = current.avtaleId ?: tiltaksgjennomforing.avtaleId,
-                navn = current.navn,
-                tiltakstypeId = current.tiltakstype.id,
-                arrangorOrganisasjonsnummer = current.arrangor.organisasjonsnummer,
-                startDato = current.startDato,
-                sluttDato = current.sluttDato,
-                apentForInnsok = current.apentForInnsok,
-                antallPlasser = current.antallPlasser,
-                deltidsprosent = current.deltidsprosent,
-                avslutningsstatus = current.status.toAvslutningsstatus(),
-            )
+            // Resten av feltene skal ikke overskrives med data fra Arena
+            id = current.id,
+            avtaleId = current.avtaleId ?: tiltaksgjennomforing.avtaleId,
+            navn = current.navn,
+            tiltakstypeId = current.tiltakstype.id,
+            arrangorOrganisasjonsnummer = current.arrangor.organisasjonsnummer,
+            startDato = current.startDato,
+            sluttDato = current.sluttDato,
+            apentForInnsok = current.apentForInnsok,
+            antallPlasser = current.antallPlasser,
+            deltidsprosent = current.deltidsprosent,
+            avslutningsstatus = current.status.toAvslutningsstatus(),
+        )
+    } else {
+        // Pass på at man ikke mister referansen til Avtalen
+        val avtaleId = if (
+            current.opphav == ArenaMigrering.Opphav.MR_ADMIN_FLATE ||
+            Tiltakskoder.isTiltakMedAvtalerFraMulighetsrommet(tiltakstype.arenaKode)
+        ) {
+            current.avtaleId ?: tiltaksgjennomforing.avtaleId
         } else {
-            // Pass på at man ikke mister referansen til Avtalen
-            val avtaleId = if (
-                current.opphav == ArenaMigrering.Opphav.MR_ADMIN_FLATE ||
-                Tiltakskoder.isTiltakMedAvtalerFraMulighetsrommet(tiltakstype.arenaKode)
-            ) {
-                current.avtaleId ?: tiltaksgjennomforing.avtaleId
-            } else {
-                tiltaksgjennomforing.avtaleId
-            }
-            tiltaksgjennomforing.copy(avtaleId = avtaleId)
+            tiltaksgjennomforing.avtaleId
         }
+        tiltaksgjennomforing.copy(avtaleId = avtaleId)
     }
 
     private fun hasNoRelevantChanges(

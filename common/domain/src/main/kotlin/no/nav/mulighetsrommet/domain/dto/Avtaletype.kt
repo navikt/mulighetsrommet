@@ -9,9 +9,7 @@ enum class Avtaletype {
     Forhaandsgodkjent,
     OffentligOffentlig, ;
 
-    fun kreverWebsaknummer(): Boolean {
-        return listOf(Rammeavtale, Avtale).contains(this)
-    }
+    fun kreverWebsaknummer(): Boolean = listOf(Rammeavtale, Avtale).contains(this)
 }
 
 fun allowedAvtaletypes(tiltakskode: Tiltakskode?): List<Avtaletype> =

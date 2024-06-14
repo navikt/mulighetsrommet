@@ -423,9 +423,7 @@ class AvtaleRepository(private val db: Database) {
             .let { db.run(it) }
     }
 
-    fun avbryt(id: UUID, tidspunkt: LocalDateTime, aarsak: AvbruttAarsak): Int {
-        return db.transaction { avbryt(it, id, tidspunkt, aarsak) }
-    }
+    fun avbryt(id: UUID, tidspunkt: LocalDateTime, aarsak: AvbruttAarsak): Int = db.transaction { avbryt(it, id, tidspunkt, aarsak) }
 
     fun avbryt(tx: Session, id: UUID, tidspunkt: LocalDateTime, aarsak: AvbruttAarsak): Int {
         @Language("PostgreSQL")

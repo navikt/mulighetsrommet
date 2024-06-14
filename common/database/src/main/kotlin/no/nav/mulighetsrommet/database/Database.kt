@@ -46,73 +46,47 @@ class Database(val config: DatabaseConfig) {
         }
     }
 
-    fun getDatasource(): DataSource {
-        return dataSource
+    fun getDatasource(): DataSource = dataSource
+
+    fun isHealthy(): Boolean = (dataSource.healthCheckRegistry as? HealthCheckRegistry)
+        ?.runHealthChecks()
+        ?.all { it.value.isHealthy }
+        ?: false
+
+    fun <T> useSession(operation: (Session) -> T): T = session.use { operation(it) }
+
+    fun createArrayOf(arrayType: String, list: Collection<Any>): Array = useSession {
+        it.createArrayOf(arrayType, list)
     }
 
-    fun isHealthy(): Boolean {
-        return (dataSource.healthCheckRegistry as? HealthCheckRegistry)
-            ?.runHealthChecks()
-            ?.all { it.value.isHealthy }
-            ?: false
+    fun createTextArray(list: Collection<String>): Array = createArrayOf("text", list)
+
+    fun createUuidArray(list: Collection<UUID>): Array = createArrayOf("uuid", list)
+
+    fun createIntArray(list: Collection<Int>): Array = createArrayOf("integer", list)
+
+    fun <T> run(query: NullableResultQueryAction<T>): T? = useSession {
+        it.run(query)
     }
 
-    fun <T> useSession(operation: (Session) -> T): T {
-        return session.use { operation(it) }
+    fun <T> run(query: ListResultQueryAction<T>): List<T> = useSession {
+        it.run(query)
     }
 
-    fun createArrayOf(arrayType: String, list: Collection<Any>): Array {
-        return useSession {
-            it.createArrayOf(arrayType, list)
-        }
+    fun run(query: ExecuteQueryAction): Boolean = useSession {
+        it.run(query)
     }
 
-    fun createTextArray(list: Collection<String>): Array {
-        return createArrayOf("text", list)
+    fun run(query: UpdateQueryAction): Int = useSession {
+        it.run(query)
     }
 
-    fun createUuidArray(list: Collection<UUID>): Array {
-        return createArrayOf("uuid", list)
+    fun run(query: UpdateAndReturnGeneratedKeyQueryAction): Long? = useSession {
+        it.run(query)
     }
 
-    fun createIntArray(list: Collection<Int>): Array {
-        return createArrayOf("integer", list)
-    }
-
-    fun <T> run(query: NullableResultQueryAction<T>): T? {
-        return useSession {
-            it.run(query)
-        }
-    }
-
-    fun <T> run(query: ListResultQueryAction<T>): List<T> {
-        return useSession {
-            it.run(query)
-        }
-    }
-
-    fun run(query: ExecuteQueryAction): Boolean {
-        return useSession {
-            it.run(query)
-        }
-    }
-
-    fun run(query: UpdateQueryAction): Int {
-        return useSession {
-            it.run(query)
-        }
-    }
-
-    fun run(query: UpdateAndReturnGeneratedKeyQueryAction): Long? {
-        return useSession {
-            it.run(query)
-        }
-    }
-
-    fun <T> transaction(operation: (TransactionalSession) -> T): T {
-        return useSession {
-            it.transaction(operation)
-        }
+    fun <T> transaction(operation: (TransactionalSession) -> T): T = useSession {
+        it.transaction(operation)
     }
 
     // Dette er basically en kopi av session.transaction metoden bare i en suspend variant

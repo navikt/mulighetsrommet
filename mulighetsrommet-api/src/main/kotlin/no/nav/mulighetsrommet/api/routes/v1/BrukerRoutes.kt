@@ -117,16 +117,14 @@ data class GetHistorikkForBrukerRequest(
     val norskIdent: String,
 )
 
-private fun createAuditMessage(msg: String, topic: String, navIdent: NavIdent, norskIdent: String): CefMessage {
-    return CefMessage.builder()
-        .applicationName("modia")
-        .loggerName("mulighetsrommet-api")
-        .event(CefMessageEvent.ACCESS)
-        .name("Arbeidsmarkedstiltak - $topic")
-        .severity(CefMessageSeverity.INFO)
-        .sourceUserId(navIdent.value)
-        .destinationUserId(norskIdent)
-        .timeEnded(System.currentTimeMillis())
-        .extension("msg", msg)
-        .build()
-}
+private fun createAuditMessage(msg: String, topic: String, navIdent: NavIdent, norskIdent: String): CefMessage = CefMessage.builder()
+    .applicationName("modia")
+    .loggerName("mulighetsrommet-api")
+    .event(CefMessageEvent.ACCESS)
+    .name("Arbeidsmarkedstiltak - $topic")
+    .severity(CefMessageSeverity.INFO)
+    .sourceUserId(navIdent.value)
+    .destinationUserId(norskIdent)
+    .timeEnded(System.currentTimeMillis())
+    .extension("msg", msg)
+    .build()

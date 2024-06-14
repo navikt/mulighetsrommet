@@ -97,17 +97,15 @@ class VeilarboppfolgingClient(
         }
     }
 
-    suspend fun erBrukerUnderOppfolging(fnr: String, accessType: AccessType): Either<ErUnderOppfolgingError, Boolean> {
-        return hentGjeldendePeriode(fnr, accessType)
-            .map { (it.sluttDato == null).right() }
-            .getOrElse {
-                when (it) {
-                    OppfolgingError.Forbidden -> ErUnderOppfolgingError.Forbidden.left()
-                    OppfolgingError.Error -> ErUnderOppfolgingError.Error.left()
-                    OppfolgingError.NotFound -> false.right()
-                }
+    suspend fun erBrukerUnderOppfolging(fnr: String, accessType: AccessType): Either<ErUnderOppfolgingError, Boolean> = hentGjeldendePeriode(fnr, accessType)
+        .map { (it.sluttDato == null).right() }
+        .getOrElse {
+            when (it) {
+                OppfolgingError.Forbidden -> ErUnderOppfolgingError.Forbidden.left()
+                OppfolgingError.Error -> ErUnderOppfolgingError.Error.left()
+                OppfolgingError.NotFound -> false.right()
             }
-    }
+        }
 
     private suspend fun hentGjeldendePeriode(fnr: String, accessType: AccessType): Either<OppfolgingError, OppfolgingPeriodeMinimalDTO> {
         gjeldendePeriodeCache.getIfPresent(fnr)?.let { return@hentGjeldendePeriode it.right() }

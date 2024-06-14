@@ -638,9 +638,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             .let { db.run(it) }
     }
 
-    fun setPublisert(id: UUID, publisert: Boolean): Int {
-        return db.transaction { setPublisert(it, id, publisert) }
-    }
+    fun setPublisert(id: UUID, publisert: Boolean): Int = db.transaction { setPublisert(it, id, publisert) }
 
     fun setPublisert(tx: Session, id: UUID, publisert: Boolean): Int {
         logger.info("Setter publisert '$publisert' for gjennomføring med id: $id")
@@ -681,9 +679,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         return queryOf(query, avtaleId, gjennomforingId).asUpdate.let { tx.run(it) }
     }
 
-    fun avbryt(id: UUID, tidspunkt: LocalDateTime, aarsak: AvbruttAarsak): Int {
-        return db.transaction { avbryt(it, id, tidspunkt, aarsak) }
-    }
+    fun avbryt(id: UUID, tidspunkt: LocalDateTime, aarsak: AvbruttAarsak): Int = db.transaction { avbryt(it, id, tidspunkt, aarsak) }
 
     fun avbryt(tx: Session, id: UUID, tidspunkt: LocalDateTime, aarsak: AvbruttAarsak): Int {
         @Language("PostgreSQL")

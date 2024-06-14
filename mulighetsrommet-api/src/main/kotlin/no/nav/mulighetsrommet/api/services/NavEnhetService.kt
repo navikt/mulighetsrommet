@@ -27,10 +27,8 @@ class NavEnhetService(private val enhetRepository: NavEnhetRepository) {
         cacheMetrics.addCache("enhetCache", cache)
     }
 
-    fun hentEnhet(enhetsnummer: String): NavEnhetDbo? {
-        return CacheUtils.tryCacheFirstNullable(cache, enhetsnummer) {
-            enhetRepository.get(enhetsnummer)
-        }
+    fun hentEnhet(enhetsnummer: String): NavEnhetDbo? = CacheUtils.tryCacheFirstNullable(cache, enhetsnummer) {
+        enhetRepository.get(enhetsnummer)
     }
 
     fun hentOverordnetFylkesenhet(enhetsnummer: String): NavEnhetDbo? {
@@ -47,9 +45,7 @@ class NavEnhetService(private val enhetRepository: NavEnhetRepository) {
         }
     }
 
-    fun hentAlleEnheter(filter: EnhetFilter): List<NavEnhetDbo> {
-        return enhetRepository.getAll(filter.statuser, filter.typer, filter.overordnetEnhet)
-    }
+    fun hentAlleEnheter(filter: EnhetFilter): List<NavEnhetDbo> = enhetRepository.getAll(filter.statuser, filter.typer, filter.overordnetEnhet)
 
     fun hentRegioner(): List<NavRegionDto> {
         val alleEnheter = hentAlleEnheter(

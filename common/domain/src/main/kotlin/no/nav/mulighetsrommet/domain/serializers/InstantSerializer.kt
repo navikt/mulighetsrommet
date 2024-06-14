@@ -11,9 +11,7 @@ import java.time.Instant
 object InstantSerializer : KSerializer<Instant> {
     override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("Instant", PrimitiveKind.LONG)
 
-    override fun deserialize(decoder: Decoder): Instant {
-        return Instant.ofEpochMilli(decoder.decodeLong())
-    }
+    override fun deserialize(decoder: Decoder): Instant = Instant.ofEpochMilli(decoder.decodeLong())
 
     override fun serialize(encoder: Encoder, value: Instant) {
         encoder.encodeLong(value.toEpochMilli())

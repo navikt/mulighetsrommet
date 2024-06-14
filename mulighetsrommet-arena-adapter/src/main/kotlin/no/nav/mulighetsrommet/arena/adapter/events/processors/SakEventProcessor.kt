@@ -17,9 +17,7 @@ class SakEventProcessor(
     private val entities: ArenaEntityService,
 ) : ArenaEventProcessor {
 
-    override suspend fun shouldHandleEvent(event: ArenaEvent): Boolean {
-        return event.arenaTable === ArenaTable.Sak
-    }
+    override suspend fun shouldHandleEvent(event: ArenaEvent): Boolean = event.arenaTable === ArenaTable.Sak
 
     override suspend fun handleEvent(event: ArenaEvent) = either {
         val data = event.decodePayload<ArenaSak>()

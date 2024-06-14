@@ -24,12 +24,10 @@ class DeleteExpiredTiltakshistorikk(
         val disabled: Boolean = false,
         val cronPattern: String? = null,
     ) {
-        fun toSchedule(): Schedule {
-            return if (disabled) {
-                DisabledSchedule()
-            } else {
-                Schedules.cron(cronPattern)
-            }
+        fun toSchedule(): Schedule = if (disabled) {
+            DisabledSchedule()
+        } else {
+            Schedules.cron(cronPattern)
         }
     }
 

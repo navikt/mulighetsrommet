@@ -60,21 +60,17 @@ class NotificationService(
         client.schedule(instance, instant)
     }
 
-    fun getNotifications(userId: NavIdent, filter: NotificationFilter): List<UserNotification> {
-        return notifications.getUserNotifications(userId, filter.status)
-            .getOrElse {
-                logger.error("Failed to get notifications for user=$userId", it.error)
-                throw StatusException(InternalServerError, "Klarte ikke hente notifikasjoner")
-            }
-    }
+    fun getNotifications(userId: NavIdent, filter: NotificationFilter): List<UserNotification> = notifications.getUserNotifications(userId, filter.status)
+        .getOrElse {
+            logger.error("Failed to get notifications for user=$userId", it.error)
+            throw StatusException(InternalServerError, "Klarte ikke hente notifikasjoner")
+        }
 
-    fun getNotificationSummary(userId: NavIdent): UserNotificationSummary {
-        return notifications.getUserNotificationSummary(userId)
-            .getOrElse {
-                logger.error("Failed to get summary for user=$userId", it.error)
-                throw StatusException(InternalServerError, "Klarte ikke hente notifikasjoner")
-            }
-    }
+    fun getNotificationSummary(userId: NavIdent): UserNotificationSummary = notifications.getUserNotificationSummary(userId)
+        .getOrElse {
+            logger.error("Failed to get summary for user=$userId", it.error)
+            throw StatusException(InternalServerError, "Klarte ikke hente notifikasjoner")
+        }
 
     fun setNotificationStatus(id: UUID, userId: NavIdent, status: NotificationStatus) {
         val doneAt = when (status) {

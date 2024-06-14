@@ -99,9 +99,7 @@ class NavEnheterSyncService(
         }
     }
 
-    private fun isRelevantEnhetForSanity(it: Norg2Response): Boolean {
-        return NavEnhetUtils.isRelevantEnhetStatus(it.enhet.status) && NavEnhetUtils.isRelevantEnhetType(it.enhet.type)
-    }
+    private fun isRelevantEnhetForSanity(it: Norg2Response): Boolean = NavEnhetUtils.isRelevantEnhetStatus(it.enhet.status) && NavEnhetUtils.isRelevantEnhetType(it.enhet.type)
 
     private suspend fun lagreEnheterTilSanity(sanityEnheter: List<SanityEnhet>) {
         logger.info("Oppdaterer Sanity-enheter - Antall: ${sanityEnheter.size}")

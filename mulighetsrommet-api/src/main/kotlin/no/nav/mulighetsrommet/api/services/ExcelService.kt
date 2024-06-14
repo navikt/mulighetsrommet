@@ -55,7 +55,5 @@ class ExcelService {
         row.createCell(cellIndex).setCellValue(verdi)
     }
 
-    private fun LocalDate.formaterDato(): String {
-        return this.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT))
-    }
+    private fun LocalDate.formaterDato(): String = this.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT))
 }

@@ -17,112 +17,72 @@ class ArenaEntityService(
     private val deltakere: DeltakerRepository,
     private val avtaler: AvtaleRepository,
 ) {
-    fun getOrCreateMapping(event: ArenaEvent): ArenaEntityMapping {
-        return mappings.get(event.arenaTable, event.arenaId)
-            ?: mappings.upsert(
-                ArenaEntityMapping(
-                    event.arenaTable,
-                    event.arenaId,
-                    event.getEksternID() ?: UUID.randomUUID(),
-                    when (event.status) {
-                        ArenaEvent.ProcessingStatus.Processed -> ArenaEntityMapping.Status.Handled
-                        else -> ArenaEntityMapping.Status.Unhandled
-                    },
-                ),
-            )
-    }
+    fun getOrCreateMapping(event: ArenaEvent): ArenaEntityMapping = mappings.get(event.arenaTable, event.arenaId)
+        ?: mappings.upsert(
+            ArenaEntityMapping(
+                event.arenaTable,
+                event.arenaId,
+                event.getEksternID() ?: UUID.randomUUID(),
+                when (event.status) {
+                    ArenaEvent.ProcessingStatus.Processed -> ArenaEntityMapping.Status.Handled
+                    else -> ArenaEntityMapping.Status.Unhandled
+                },
+            ),
+        )
 
-    fun upsertMapping(arenaEntityMapping: ArenaEntityMapping): ArenaEntityMapping {
-        return mappings.upsert(arenaEntityMapping)
-    }
+    fun upsertMapping(arenaEntityMapping: ArenaEntityMapping): ArenaEntityMapping = mappings.upsert(arenaEntityMapping)
 
-    fun getMapping(arenaTable: ArenaTable, arenaId: String): Either<ProcessingError, ArenaEntityMapping> {
-        return mappings.get(arenaTable, arenaId)?.right() ?: ProcessingError
-            .ForeignKeyViolation("ArenaEntityMapping mangler for arenaTable=$arenaTable og arenaId=$arenaId")
-            .left()
-    }
+    fun getMapping(arenaTable: ArenaTable, arenaId: String): Either<ProcessingError, ArenaEntityMapping> = mappings.get(arenaTable, arenaId)?.right() ?: ProcessingError
+        .ForeignKeyViolation("ArenaEntityMapping mangler for arenaTable=$arenaTable og arenaId=$arenaId")
+        .left()
 
-    fun getMappingIfHandled(arenaTable: ArenaTable, arenaId: String): ArenaEntityMapping? {
-        return mappings.get(arenaTable, arenaId)
-            .takeIf { it?.status == ArenaEntityMapping.Status.Handled }
-    }
+    fun getMappingIfHandled(arenaTable: ArenaTable, arenaId: String): ArenaEntityMapping? = mappings.get(arenaTable, arenaId)
+        .takeIf { it?.status == ArenaEntityMapping.Status.Handled }
 
-    fun upsertTiltakstype(tiltakstype: Tiltakstype): Either<ProcessingError, Tiltakstype> {
-        return tiltakstyper.upsert(tiltakstype)
-            .mapLeft { ProcessingError.fromDatabaseOperationError(it) }
-    }
+    fun upsertTiltakstype(tiltakstype: Tiltakstype): Either<ProcessingError, Tiltakstype> = tiltakstyper.upsert(tiltakstype)
+        .mapLeft { ProcessingError.fromDatabaseOperationError(it) }
 
-    fun deleteTiltakstype(id: UUID): Either<ProcessingError, Unit> {
-        return tiltakstyper.delete(id)
-            .mapLeft { ProcessingError.fromDatabaseOperationError(it) }
-    }
+    fun deleteTiltakstype(id: UUID): Either<ProcessingError, Unit> = tiltakstyper.delete(id)
+        .mapLeft { ProcessingError.fromDatabaseOperationError(it) }
 
-    fun getTiltakstype(id: UUID): Either<ProcessingError, Tiltakstype> {
-        return tiltakstyper.get(id)?.right() ?: ProcessingError
-            .ForeignKeyViolation("Tiltakstype med id=$id mangler")
-            .left()
-    }
+    fun getTiltakstype(id: UUID): Either<ProcessingError, Tiltakstype> = tiltakstyper.get(id)?.right() ?: ProcessingError
+        .ForeignKeyViolation("Tiltakstype med id=$id mangler")
+        .left()
 
-    fun upsertSak(sak: Sak): Either<ProcessingError, Sak> {
-        return saker.upsert(sak)
-            .mapLeft { ProcessingError.fromDatabaseOperationError(it) }
-    }
+    fun upsertSak(sak: Sak): Either<ProcessingError, Sak> = saker.upsert(sak)
+        .mapLeft { ProcessingError.fromDatabaseOperationError(it) }
 
-    fun getSak(id: Int): Either<ProcessingError.ForeignKeyViolation, Sak> {
-        return saker.get(id)?.right() ?: ProcessingError.ForeignKeyViolation("Sak med id=$id mangler").left()
-    }
+    fun getSak(id: Int): Either<ProcessingError.ForeignKeyViolation, Sak> = saker.get(id)?.right() ?: ProcessingError.ForeignKeyViolation("Sak med id=$id mangler").left()
 
-    fun deleteSak(id: Int): Either<ProcessingError, Unit> {
-        return saker.delete(id)
-            .mapLeft { ProcessingError.fromDatabaseOperationError(it) }
-    }
+    fun deleteSak(id: Int): Either<ProcessingError, Unit> = saker.delete(id)
+        .mapLeft { ProcessingError.fromDatabaseOperationError(it) }
 
-    fun upsertTiltaksgjennomforing(tiltaksgjennomforing: Tiltaksgjennomforing): Either<ProcessingError, Tiltaksgjennomforing> {
-        return tiltaksgjennomforinger.upsert(tiltaksgjennomforing)
-            .mapLeft { ProcessingError.fromDatabaseOperationError(it) }
-    }
+    fun upsertTiltaksgjennomforing(tiltaksgjennomforing: Tiltaksgjennomforing): Either<ProcessingError, Tiltaksgjennomforing> = tiltaksgjennomforinger.upsert(tiltaksgjennomforing)
+        .mapLeft { ProcessingError.fromDatabaseOperationError(it) }
 
-    fun deleteTiltaksgjennomforing(id: UUID): Either<ProcessingError, Unit> {
-        return tiltaksgjennomforinger.delete(id)
-            .mapLeft { ProcessingError.fromDatabaseOperationError(it) }
-    }
+    fun deleteTiltaksgjennomforing(id: UUID): Either<ProcessingError, Unit> = tiltaksgjennomforinger.delete(id)
+        .mapLeft { ProcessingError.fromDatabaseOperationError(it) }
 
-    fun getTiltaksgjennomforingOrNull(id: UUID): Tiltaksgjennomforing? {
-        return tiltaksgjennomforinger.get(id)
-    }
+    fun getTiltaksgjennomforingOrNull(id: UUID): Tiltaksgjennomforing? = tiltaksgjennomforinger.get(id)
 
-    fun getTiltaksgjennomforing(id: UUID): Either<ProcessingError, Tiltaksgjennomforing> {
-        return tiltaksgjennomforinger.get(id)?.right() ?: ProcessingError
-            .ForeignKeyViolation("Tiltaksgjennomforing med id=$id mangler")
-            .left()
-    }
+    fun getTiltaksgjennomforing(id: UUID): Either<ProcessingError, Tiltaksgjennomforing> = tiltaksgjennomforinger.get(id)?.right() ?: ProcessingError
+        .ForeignKeyViolation("Tiltaksgjennomforing med id=$id mangler")
+        .left()
 
-    fun isIgnored(arenaTable: ArenaTable, arenaId: String): Either<ProcessingError, Boolean> {
-        return getMapping(arenaTable, arenaId)
-            .map { it.status == ArenaEntityMapping.Status.Ignored }
-    }
+    fun isIgnored(arenaTable: ArenaTable, arenaId: String): Either<ProcessingError, Boolean> = getMapping(arenaTable, arenaId)
+        .map { it.status == ArenaEntityMapping.Status.Ignored }
 
-    fun upsertDeltaker(deltaker: Deltaker): Either<ProcessingError, Deltaker> {
-        return deltakere.upsert(deltaker)
-            .mapLeft { ProcessingError.fromDatabaseOperationError(it) }
-    }
+    fun upsertDeltaker(deltaker: Deltaker): Either<ProcessingError, Deltaker> = deltakere.upsert(deltaker)
+        .mapLeft { ProcessingError.fromDatabaseOperationError(it) }
 
-    fun getDeltakereByTiltaksgjennomforingId(id: Int): List<Deltaker> {
-        return deltakere.getByTiltaksgjennomforingId(id)
-    }
+    fun getDeltakereByTiltaksgjennomforingId(id: Int): List<Deltaker> = deltakere.getByTiltaksgjennomforingId(id)
 
-    fun deleteDeltaker(id: UUID): Either<ProcessingError, Unit> {
-        return deltakere.delete(id)
-            .mapLeft { ProcessingError.fromDatabaseOperationError(it) }
-    }
+    fun deleteDeltaker(id: UUID): Either<ProcessingError, Unit> = deltakere.delete(id)
+        .mapLeft { ProcessingError.fromDatabaseOperationError(it) }
 
-    fun upsertAvtale(avtale: Avtale): Either<ProcessingError, Avtale> {
-        return avtaler.upsert(avtale)
-            .mapLeft { ProcessingError.fromDatabaseOperationError(it) }
-    }
+    fun upsertAvtale(avtale: Avtale): Either<ProcessingError, Avtale> = avtaler.upsert(avtale)
+        .mapLeft { ProcessingError.fromDatabaseOperationError(it) }
 
-    fun deleteAvtale(id: UUID): Either<ProcessingError, Unit> {
-        return avtaler.delete(id)
-            .mapLeft { ProcessingError.fromDatabaseOperationError(it) }
-    }
+    fun deleteAvtale(id: UUID): Either<ProcessingError, Unit> = avtaler.delete(id)
+        .mapLeft { ProcessingError.fromDatabaseOperationError(it) }
 }

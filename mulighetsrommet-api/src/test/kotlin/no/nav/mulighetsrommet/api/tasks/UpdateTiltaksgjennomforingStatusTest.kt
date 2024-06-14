@@ -38,25 +38,23 @@ class UpdateTiltaksgjennomforingStatusTest : FunSpec({
             tiltaksgjennomforingKafkaProducer,
         )
 
-        fun TiltaksgjennomforingDbo.toDto(status: TiltaksgjennomforingStatus.Enum): TiltaksgjennomforingDto {
-            return TiltaksgjennomforingDto(
-                id = id,
-                tiltakstype = TiltaksgjennomforingDto.Tiltakstype(
-                    id = tiltakstype.id,
-                    navn = tiltakstype.navn,
-                    arenaKode = tiltakstype.arenaKode,
-                    tiltakskode = tiltakstype.tiltakskode!!,
-                ),
-                navn = navn,
-                virksomhetsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
-                startDato = startDato,
-                sluttDato = sluttDato,
-                status = status,
-                oppstart = oppstart,
-                tilgjengeligForArrangorFraOgMedDato = null,
-                nusData = null,
-            )
-        }
+        fun TiltaksgjennomforingDbo.toDto(status: TiltaksgjennomforingStatus.Enum): TiltaksgjennomforingDto = TiltaksgjennomforingDto(
+            id = id,
+            tiltakstype = TiltaksgjennomforingDto.Tiltakstype(
+                id = tiltakstype.id,
+                navn = tiltakstype.navn,
+                arenaKode = tiltakstype.arenaKode,
+                tiltakskode = tiltakstype.tiltakskode!!,
+            ),
+            navn = navn,
+            virksomhetsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
+            startDato = startDato,
+            sluttDato = sluttDato,
+            status = status,
+            oppstart = oppstart,
+            tilgjengeligForArrangorFraOgMedDato = null,
+            nusData = null,
+        )
 
         val startdatoInnenforMenAvsluttetStatus = TiltaksgjennomforingFixtures.Oppfolging1.copy(
             id = UUID.randomUUID(),

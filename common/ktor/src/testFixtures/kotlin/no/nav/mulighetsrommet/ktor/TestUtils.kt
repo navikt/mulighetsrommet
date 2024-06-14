@@ -14,9 +14,7 @@ import java.util.*
  * Utility to decode the body of [HttpRequestData] to the type [T].
  */
 @OptIn(InternalSerializationApi::class)
-inline fun <reified T : Any> HttpRequestData.decodeRequestBody(): T {
-    return JsonIgnoreUnknownKeys.decodeFromString(T::class.serializer(), (body as TextContent).text)
-}
+inline fun <reified T : Any> HttpRequestData.decodeRequestBody(): T = JsonIgnoreUnknownKeys.decodeFromString(T::class.serializer(), (body as TextContent).text)
 
 /**
  * Utility extension to be used in combination with the ktor [MockEngine] to create an HTTP response with the type [T]
@@ -79,6 +77,4 @@ private fun parametersMatches(expectedParameters: Parameters, actualParameters: 
         }
 }
 
-fun Url.getLastPathParameterAsUUID(): UUID {
-    return encodedPath.split("/").last().toUUID()
-}
+fun Url.getLastPathParameterAsUUID(): UUID = encodedPath.split("/").last().toUUID()

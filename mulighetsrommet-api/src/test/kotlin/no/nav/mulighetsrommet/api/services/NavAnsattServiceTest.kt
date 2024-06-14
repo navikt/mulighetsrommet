@@ -452,6 +452,4 @@ class NavAnsattServiceTest : FunSpec({
     }
 })
 
-inline fun <reified T> sanityContentResult(value: T): SanityResponse.Result {
-    return SanityResponse.Result(ms = 100, query = "", result = Json.encodeToJsonElement(value))
-}
+inline fun <reified T> sanityContentResult(value: T): SanityResponse.Result = SanityResponse.Result(ms = 100, query = "", result = Json.encodeToJsonElement(value))

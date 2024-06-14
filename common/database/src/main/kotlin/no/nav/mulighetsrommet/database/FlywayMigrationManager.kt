@@ -97,24 +97,22 @@ class FlywayMigrationManager(
         }
     }
 
-    private fun runAsync(run: suspend CoroutineScope.() -> Unit): Job {
-        return CoroutineScope(Job()).launch {
-            logger.info("Running async flyway task...")
-            try {
-                val time = measureTime {
-                    run()
-                }
-                logger.info("Flyway task finished in $time")
-            } catch (e: Throwable) {
-                slackNotifier?.sendMessage(
-                    """
+    private fun runAsync(run: suspend CoroutineScope.() -> Unit): Job = CoroutineScope(Job()).launch {
+        logger.info("Running async flyway task...")
+        try {
+            val time = measureTime {
+                run()
+            }
+            logger.info("Flyway task finished in $time")
+        } catch (e: Throwable) {
+            slackNotifier?.sendMessage(
+                """
                     Async Flyway-migrering feilet.
                     Sjekk med utviklerne på teamet om noen kjører en stor async migrering.
-                    """.trimIndent(),
-                )
-                logger.warn("Flyway task was cancelled with exception", e)
-                throw e
-            }
+                """.trimIndent(),
+            )
+            logger.warn("Flyway task was cancelled with exception", e)
+            throw e
         }
     }
 }

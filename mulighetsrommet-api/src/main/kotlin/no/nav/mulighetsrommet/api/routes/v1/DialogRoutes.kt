@@ -52,16 +52,14 @@ fun Route.dialogRoutes() {
     }
 }
 
-private fun createAuditMessage(msg: String, navIdent: NavIdent, norskIdent: String): CefMessage {
-    return CefMessage.builder()
-        .applicationName("modia")
-        .loggerName("mulighetsrommet-api")
-        .event(CefMessageEvent.CREATE)
-        .name("Arbeidsmarkedstiltak - Del med bruker")
-        .severity(CefMessageSeverity.INFO)
-        .sourceUserId(navIdent.value)
-        .destinationUserId(norskIdent)
-        .timeEnded(System.currentTimeMillis())
-        .extension("msg", msg)
-        .build()
-}
+private fun createAuditMessage(msg: String, navIdent: NavIdent, norskIdent: String): CefMessage = CefMessage.builder()
+    .applicationName("modia")
+    .loggerName("mulighetsrommet-api")
+    .event(CefMessageEvent.CREATE)
+    .name("Arbeidsmarkedstiltak - Del med bruker")
+    .severity(CefMessageSeverity.INFO)
+    .sourceUserId(navIdent.value)
+    .destinationUserId(norskIdent)
+    .timeEnded(System.currentTimeMillis())
+    .extension("msg", msg)
+    .build()

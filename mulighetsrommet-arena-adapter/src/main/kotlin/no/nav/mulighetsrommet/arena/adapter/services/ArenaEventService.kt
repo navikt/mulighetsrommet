@@ -139,17 +139,15 @@ class ArenaEventService(
             }
     }
 
-    private suspend fun deleteEntity(processor: ArenaEventProcessor, event: ArenaEvent): Either<ProcessingError, Unit> {
-        return processor.deleteEntity(event)
-            .onLeft {
-                logger.warn("Klarte ikke slette entity: table=${event.arenaTable}, id=${event.arenaId}, status=${it.status}, message=${it.message}")
+    private suspend fun deleteEntity(processor: ArenaEventProcessor, event: ArenaEvent): Either<ProcessingError, Unit> = processor.deleteEntity(event)
+        .onLeft {
+            logger.warn("Klarte ikke slette entity: table=${event.arenaTable}, id=${event.arenaId}, status=${it.status}, message=${it.message}")
 
-                if (it is ProcessingError.ForeignKeyViolation) {
-                    logger.info("Forsøker å gjenspille avhengigheter til event: table=${event.arenaTable}, id=${event.arenaId}")
-                    replayDependentEntities(processor, event)
-                }
+            if (it is ProcessingError.ForeignKeyViolation) {
+                logger.info("Forsøker å gjenspille avhengigheter til event: table=${event.arenaTable}, id=${event.arenaId}")
+                replayDependentEntities(processor, event)
             }
-    }
+        }
 
     private suspend fun replayDependentEntities(
         processor: ArenaEventProcessor,
@@ -211,10 +209,8 @@ class ArenaEventService(
         logger.info("Consumed $count events in $time")
     }
 
-    fun getStaleEvents(retriesGreaterThanOrEqual: Int): List<ArenaEvent> {
-        return events.getAll(
-            retriesGreaterThanOrEqual = retriesGreaterThanOrEqual,
-            status = ArenaEvent.ProcessingStatus.Failed,
-        )
-    }
+    fun getStaleEvents(retriesGreaterThanOrEqual: Int): List<ArenaEvent> = events.getAll(
+        retriesGreaterThanOrEqual = retriesGreaterThanOrEqual,
+        status = ArenaEvent.ProcessingStatus.Failed,
+    )
 }

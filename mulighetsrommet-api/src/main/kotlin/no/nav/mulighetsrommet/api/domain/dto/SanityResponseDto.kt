@@ -82,9 +82,7 @@ sealed class SanityResponse {
         val query: String,
         val result: JsonElement,
     ) : SanityResponse() {
-        inline fun <reified T> decode(): T {
-            return JsonIgnoreUnknownKeys.decodeFromJsonElement(result)
-        }
+        inline fun <reified T> decode(): T = JsonIgnoreUnknownKeys.decodeFromJsonElement(result)
     }
 
     @Serializable

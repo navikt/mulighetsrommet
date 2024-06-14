@@ -296,9 +296,7 @@ class AvtaleValidator(
     private fun skalValidereArenafelter(
         avtale: AvtaleAdminDto,
         tiltakstype: TiltakstypeAdminDto,
-    ): Boolean {
-        return avtale.opphav == ArenaMigrering.Opphav.ARENA && !isEnabled(tiltakstype.arenaKode)
-    }
+    ): Boolean = avtale.opphav == ArenaMigrering.Opphav.ARENA && !isEnabled(tiltakstype.arenaKode)
 
     private fun isTiltakstypeDisabled(
         previous: AvtaleAdminDto?,

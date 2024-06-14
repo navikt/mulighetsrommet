@@ -50,29 +50,25 @@ class SsbNusRepository(private val db: Database) {
     }
 }
 
-private fun ClassificationItem.toSqlParams(): Map<String, String?> {
-    return mapOf(
-        "code" to code,
-        "name" to name,
-        "parent" to if (parentCode?.isEmpty() == true) {
-            null
-        } else {
-            parentCode
-        },
-        "level" to level,
-    )
-}
+private fun ClassificationItem.toSqlParams(): Map<String, String?> = mapOf(
+    "code" to code,
+    "name" to name,
+    "parent" to if (parentCode?.isEmpty() == true) {
+        null
+    } else {
+        parentCode
+    },
+    "level" to level,
+)
 
-private fun Row.toNusElement(): NusElement {
-    return NusElement(
-        tiltakskode = Tiltakskode.valueOf(string("tiltakskode")),
-        code = string("code"),
-        name = string("name"),
-        parent = stringOrNull("parent"),
-        version = string("version"),
-        level = string("level"),
-    )
-}
+private fun Row.toNusElement(): NusElement = NusElement(
+    tiltakskode = Tiltakskode.valueOf(string("tiltakskode")),
+    code = string("code"),
+    name = string("name"),
+    parent = stringOrNull("parent"),
+    version = string("version"),
+    level = string("level"),
+)
 
 @Serializable
 data class NusElement(

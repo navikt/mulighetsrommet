@@ -8,9 +8,7 @@ const val FIRST_PAGE = 1
 
 const val DEFAULT_PAGE_SIZE = 50
 
-fun <T : Any> PipelineContext<T, ApplicationCall>.getPaginationParams(): Pagination {
-    return Pagination.of(
-        page = call.parameters["page"]?.toIntOrNull() ?: FIRST_PAGE,
-        size = call.parameters["size"]?.toIntOrNull() ?: DEFAULT_PAGE_SIZE,
-    )
-}
+fun <T : Any> PipelineContext<T, ApplicationCall>.getPaginationParams(): Pagination = Pagination.of(
+    page = call.parameters["page"]?.toIntOrNull() ?: FIRST_PAGE,
+    size = call.parameters["size"]?.toIntOrNull() ?: DEFAULT_PAGE_SIZE,
+)

@@ -37,13 +37,9 @@ class TiltakstypeService(
         return PaginatedResponse.of(pagination, totalCount, items)
     }
 
-    fun getById(id: UUID): TiltakstypeAdminDto? {
-        return tiltakstypeRepository.get(id)
-    }
+    fun getById(id: UUID): TiltakstypeAdminDto? = tiltakstypeRepository.get(id)
 
-    fun getBySanityId(sanityId: UUID): TiltakstypeAdminDto? {
-        return CacheUtils.tryCacheFirstNullable(cacheBySanityId, sanityId) {
-            tiltakstypeRepository.getBySanityId(sanityId)
-        }
+    fun getBySanityId(sanityId: UUID): TiltakstypeAdminDto? = CacheUtils.tryCacheFirstNullable(cacheBySanityId, sanityId) {
+        tiltakstypeRepository.getBySanityId(sanityId)
     }
 }

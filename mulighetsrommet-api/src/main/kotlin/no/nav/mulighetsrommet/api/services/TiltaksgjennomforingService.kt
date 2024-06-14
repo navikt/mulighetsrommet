@@ -73,9 +73,7 @@ class TiltaksgjennomforingService(
             }
     }
 
-    fun get(id: UUID): TiltaksgjennomforingAdminDto? {
-        return tiltaksgjennomforinger.get(id)
-    }
+    fun get(id: UUID): TiltaksgjennomforingAdminDto? = tiltaksgjennomforinger.get(id)
 
     fun getAllSkalMigreres(
         pagination: Pagination,
@@ -114,9 +112,7 @@ class TiltaksgjennomforingService(
         enheter,
     )
 
-    fun getEkstern(id: UUID): TiltaksgjennomforingDto? {
-        return tiltaksgjennomforinger.get(id)?.toTiltaksgjennomforingDto()
-    }
+    fun getEkstern(id: UUID): TiltaksgjennomforingDto? = tiltaksgjennomforinger.get(id)?.toTiltaksgjennomforingDto()
 
     fun getAllEkstern(
         pagination: Pagination,
@@ -131,9 +127,7 @@ class TiltaksgjennomforingService(
             PaginatedResponse.of(pagination, totalCount, data)
         }
 
-    fun getAllGjennomforingerSomNarmerSegSluttdato(): List<TiltaksgjennomforingNotificationDto> {
-        return tiltaksgjennomforinger.getAllGjennomforingerSomNarmerSegSluttdato()
-    }
+    fun getAllGjennomforingerSomNarmerSegSluttdato(): List<TiltaksgjennomforingNotificationDto> = tiltaksgjennomforinger.getAllGjennomforingerSomNarmerSegSluttdato()
 
     fun setPublisert(id: UUID, publisert: Boolean, navIdent: NavIdent) {
         db.transaction { tx ->
@@ -236,9 +230,7 @@ class TiltaksgjennomforingService(
         }
     }
 
-    fun getEndringshistorikk(id: UUID): EndringshistorikkDto {
-        return documentHistoryService.getEndringshistorikk(DocumentClass.TILTAKSGJENNOMFORING, id)
-    }
+    fun getEndringshistorikk(id: UUID): EndringshistorikkDto = documentHistoryService.getEndringshistorikk(DocumentClass.TILTAKSGJENNOMFORING, id)
 
     private fun getOrError(id: UUID, tx: TransactionalSession): TiltaksgjennomforingAdminDto {
         val gjennomforing = tiltaksgjennomforinger.get(id, tx)

@@ -23,12 +23,10 @@ class NotifyFailedKafkaEvents(
         val cronPattern: String,
         val maxRetries: Int,
     ) {
-        fun toSchedule(): Schedule {
-            return if (disabled) {
-                DisabledSchedule()
-            } else {
-                Schedules.cron(cronPattern)
-            }
+        fun toSchedule(): Schedule = if (disabled) {
+            DisabledSchedule()
+        } else {
+            Schedules.cron(cronPattern)
         }
     }
 

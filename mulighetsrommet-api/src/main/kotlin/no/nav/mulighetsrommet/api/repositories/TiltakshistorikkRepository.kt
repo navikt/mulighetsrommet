@@ -99,52 +99,48 @@ class TiltakshistorikkRepository(private val db: Database) {
         db.run(queryOf(query, db.createTextArray(identer)).asExecute)
     }
 
-    private fun ArenaTiltakshistorikkDbo.toSqlParameters(): Map<String, *> {
-        return mapOf(
-            "id" to id,
-            "norsk_ident" to norskIdent,
-            "status" to status.name,
-            "fra_dato" to fraDato,
-            "til_dato" to tilDato,
-            "registrert_i_arena_dato" to registrertIArenaDato,
-        ) + when (this) {
-            is ArenaTiltakshistorikkDbo.Gruppetiltak -> listOfNotNull(
-                "tiltaksgjennomforing_id" to tiltaksgjennomforingId,
-            )
+    private fun ArenaTiltakshistorikkDbo.toSqlParameters(): Map<String, *> = mapOf(
+        "id" to id,
+        "norsk_ident" to norskIdent,
+        "status" to status.name,
+        "fra_dato" to fraDato,
+        "til_dato" to tilDato,
+        "registrert_i_arena_dato" to registrertIArenaDato,
+    ) + when (this) {
+        is ArenaTiltakshistorikkDbo.Gruppetiltak -> listOfNotNull(
+            "tiltaksgjennomforing_id" to tiltaksgjennomforingId,
+        )
 
-            is ArenaTiltakshistorikkDbo.IndividueltTiltak -> listOfNotNull(
-                "beskrivelse" to beskrivelse,
-                "arrangor_organisasjonsnummer" to arrangorOrganisasjonsnummer,
-                "tiltakstypeid" to tiltakstypeId,
-            )
-        }
+        is ArenaTiltakshistorikkDbo.IndividueltTiltak -> listOfNotNull(
+            "beskrivelse" to beskrivelse,
+            "arrangor_organisasjonsnummer" to arrangorOrganisasjonsnummer,
+            "tiltakstypeid" to tiltakstypeId,
+        )
     }
 
-    private fun Row.toTiltakshistorikkDbo(): ArenaTiltakshistorikkDbo {
-        return uuidOrNull("tiltaksgjennomforing_id")
-            ?.let {
-                ArenaTiltakshistorikkDbo.Gruppetiltak(
-                    id = uuid("id"),
-                    tiltaksgjennomforingId = it,
-                    norskIdent = string("norsk_ident"),
-                    status = Deltakerstatus.valueOf(string("status")),
-                    fraDato = localDateTimeOrNull("fra_dato"),
-                    tilDato = localDateTimeOrNull("til_dato"),
-                    registrertIArenaDato = localDateTime("registrert_i_arena_dato"),
-                )
-            }
-            ?: ArenaTiltakshistorikkDbo.IndividueltTiltak(
+    private fun Row.toTiltakshistorikkDbo(): ArenaTiltakshistorikkDbo = uuidOrNull("tiltaksgjennomforing_id")
+        ?.let {
+            ArenaTiltakshistorikkDbo.Gruppetiltak(
                 id = uuid("id"),
+                tiltaksgjennomforingId = it,
                 norskIdent = string("norsk_ident"),
                 status = Deltakerstatus.valueOf(string("status")),
                 fraDato = localDateTimeOrNull("fra_dato"),
                 tilDato = localDateTimeOrNull("til_dato"),
                 registrertIArenaDato = localDateTime("registrert_i_arena_dato"),
-                beskrivelse = string("beskrivelse"),
-                tiltakstypeId = uuid("tiltakstypeid"),
-                arrangorOrganisasjonsnummer = string("arrangor_organisasjonsnummer"),
             )
-    }
+        }
+        ?: ArenaTiltakshistorikkDbo.IndividueltTiltak(
+            id = uuid("id"),
+            norskIdent = string("norsk_ident"),
+            status = Deltakerstatus.valueOf(string("status")),
+            fraDato = localDateTimeOrNull("fra_dato"),
+            tilDato = localDateTimeOrNull("til_dato"),
+            registrertIArenaDato = localDateTime("registrert_i_arena_dato"),
+            beskrivelse = string("beskrivelse"),
+            tiltakstypeId = uuid("tiltakstypeid"),
+            arrangorOrganisasjonsnummer = string("arrangor_organisasjonsnummer"),
+        )
 
     private fun Row.toTiltakshistorikk() = TiltakshistorikkDbo(
         id = uuid("id"),

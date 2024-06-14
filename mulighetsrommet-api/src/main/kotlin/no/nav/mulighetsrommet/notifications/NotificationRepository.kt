@@ -189,10 +189,8 @@ class NotificationRepository(private val db: Database) {
         metadata = stringOrNull("metadata")?.let { Json.decodeFromString(it) },
     )
 
-    private fun NotificationStatus.toDbStatement(): String {
-        return when (this) {
-            NotificationStatus.DONE -> "un.done_at is not null"
-            NotificationStatus.NOT_DONE -> "un.done_at is null"
-        }
+    private fun NotificationStatus.toDbStatement(): String = when (this) {
+        NotificationStatus.DONE -> "un.done_at is not null"
+        NotificationStatus.NOT_DONE -> "un.done_at is null"
     }
 }

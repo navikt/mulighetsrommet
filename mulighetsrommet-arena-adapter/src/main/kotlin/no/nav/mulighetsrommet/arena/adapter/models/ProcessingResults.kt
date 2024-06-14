@@ -22,9 +22,7 @@ sealed class ProcessingError(val status: ArenaEvent.ProcessingStatus, val messag
             else -> ProcessingFailed(error.error.localizedMessage)
         }
 
-        fun fromResponseException(exception: ResponseException): ProcessingError {
-            return ProcessingFailed(exception.localizedMessage)
-        }
+        fun fromResponseException(exception: ResponseException): ProcessingError = ProcessingFailed(exception.localizedMessage)
     }
 }
 

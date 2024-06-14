@@ -36,9 +36,7 @@ sealed class StatusResponseError(
         return result
     }
 
-    override fun toString(): String {
-        return "StatusResponseError(status=$status, message=$message, errors=$errors)"
-    }
+    override fun toString(): String = "StatusResponseError(status=$status, message=$message, errors=$errors)"
 }
 
 class ServerError(message: String? = null) : StatusResponseError(HttpStatusCode.InternalServerError, message, null)
@@ -65,9 +63,7 @@ data class ValidationError(
     val message: String,
 ) {
     companion object {
-        fun of(property: KProperty1<*, *>, message: String): ValidationError {
-            return ValidationError(name = property.name, message = message)
-        }
+        fun of(property: KProperty1<*, *>, message: String): ValidationError = ValidationError(name = property.name, message = message)
     }
 }
 
