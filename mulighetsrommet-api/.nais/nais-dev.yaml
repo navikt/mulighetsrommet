@@ -106,6 +106,7 @@ spec:
     outbound:
       rules:
         - application: mulighetsrommet-arena-adapter
+        - application: tiltakshistorikk
         - application: poao-tilgang
           namespace: poao
         - application: amt-enhetsregister
