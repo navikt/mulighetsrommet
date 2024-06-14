@@ -42,6 +42,10 @@ updates:
       timezone: Europe/Oslo
     open-pull-requests-limit: 10
     groups:
+      hey-api:
+        patterns:
+          - "@hey-api/openapi-ts"
+
       playwright:
         patterns:
           - "playwright"
