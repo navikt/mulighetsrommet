@@ -1,7 +1,6 @@
 package no.nav.mulighetsrommet.api.services
 
 import arrow.core.right
-import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.common.runBlocking
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.data.blocking.forAll
@@ -113,9 +112,10 @@ class ArenaAdapterServiceTest : FunSpec({
 
             verify(exactly = 1) {
                 val expectedNotification: ScheduledNotification = match<ScheduledNotification> {
-                    it.type == NotificationType.TASK && it.targets.containsAll(
-                        listOf(NavAnsattFixture.ansatt1.navIdent, NavAnsattFixture.ansatt2.navIdent),
-                    )
+                    it.type == NotificationType.TASK &&
+                        it.targets.containsAll(
+                            listOf(NavAnsattFixture.ansatt1.navIdent, NavAnsattFixture.ansatt2.navIdent),
+                        )
                 }
                 notificationService.scheduleNotification(expectedNotification, any())
             }
@@ -153,9 +153,8 @@ class ArenaAdapterServiceTest : FunSpec({
 
             verify(exactly = 1) {
                 val expectedNotification: ScheduledNotification = match<ScheduledNotification> {
-                    it.type == NotificationType.TASK && it.targets.containsAll(
-                        listOf(NavAnsattFixture.ansatt1.navIdent),
-                    )
+                    it.type == NotificationType.TASK &&
+                        it.targets.containsAll(listOf(NavAnsattFixture.ansatt1.navIdent))
                 }
                 notificationService.scheduleNotification(expectedNotification, any())
             }
@@ -513,7 +512,7 @@ class ArenaAdapterServiceTest : FunSpec({
 
                     val avtaleId = domain.avtaler[0].id
 
-                    service.upsertTiltaksgjennomforing(tiltaksgjennomforing.copy(avtaleId = avtaleId)).shouldBeRight()
+                    service.upsertTiltaksgjennomforing(tiltaksgjennomforing.copy(avtaleId = avtaleId))
                     gjennomforinger.get(tiltaksgjennomforing.id).shouldNotBeNull().should {
                         it.avtaleId shouldBe avtaleId
                     }
@@ -604,9 +603,10 @@ class ArenaAdapterServiceTest : FunSpec({
 
             verify(exactly = 1) {
                 val expectedNotification: ScheduledNotification = match<ScheduledNotification> {
-                    it.type == NotificationType.TASK && it.targets.containsAll(
-                        listOf(NavAnsattFixture.ansatt1.navIdent, NavAnsattFixture.ansatt2.navIdent),
-                    )
+                    it.type == NotificationType.TASK &&
+                        it.targets.containsAll(
+                            listOf(NavAnsattFixture.ansatt1.navIdent, NavAnsattFixture.ansatt2.navIdent),
+                        )
                 }
                 notificationService.scheduleNotification(expectedNotification, any())
             }
@@ -645,9 +645,8 @@ class ArenaAdapterServiceTest : FunSpec({
 
             verify(exactly = 1) {
                 val expectedNotification: ScheduledNotification = match<ScheduledNotification> {
-                    it.type == NotificationType.TASK && it.targets.containsAll(
-                        listOf(NavAnsattFixture.ansatt1.navIdent),
-                    )
+                    it.type == NotificationType.TASK &&
+                        it.targets.containsAll(listOf(NavAnsattFixture.ansatt1.navIdent))
                 }
                 notificationService.scheduleNotification(expectedNotification, any())
             }

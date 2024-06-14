@@ -9,6 +9,7 @@ import no.nav.mulighetsrommet.api.clients.sanity.SanityPerspective
 import no.nav.mulighetsrommet.api.domain.dto.*
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
+import no.nav.mulighetsrommet.domain.dbo.ArenaTiltaksgjennomforingDbo
 import org.slf4j.LoggerFactory
 import java.util.*
 
@@ -49,27 +50,29 @@ class SanityTiltakService(
     }
 
     suspend fun createOrPatchSanityTiltaksgjennomforing(
-        tiltaksgjennomforing: TiltaksgjennomforingAdminDto,
+        tiltaksgjennomforing: ArenaTiltaksgjennomforingDbo,
         tx: Session,
     ) {
-        val tiltakstype = tiltakstypeRepository.get(tiltaksgjennomforing.tiltakstype.id)
+        val tiltakstype = tiltakstypeRepository.get(tiltaksgjennomforing.tiltakstypeId)
 
         val sanityTiltaksgjennomforingFields = SanityTiltaksgjennomforingFields(
             tiltaksgjennomforingNavn = tiltaksgjennomforing.navn,
             tiltakstype = tiltakstype?.sanityId?.let { TiltakstypeRef(_ref = it.toString()) },
-            tiltaksnummer = tiltaksgjennomforing.tiltaksnummer?.let { TiltaksnummerSlug(current = it) },
-            stedForGjennomforing = tiltaksgjennomforing.stedForGjennomforing,
+            tiltaksnummer = TiltaksnummerSlug(current = tiltaksgjennomforing.tiltaksnummer),
         )
 
-        if (tiltaksgjennomforing.sanityId != null) {
-            patchSanityTiltaksgjennomforing(tiltaksgjennomforing.sanityId, sanityTiltaksgjennomforingFields)
+        val sanityId = tiltaksgjennomforingRepository.getSanityTiltaksgjennomforingId(tiltaksgjennomforing.id, tx)
+
+        if (sanityId != null) {
+            patchSanityTiltaksgjennomforing(sanityId, sanityTiltaksgjennomforingFields)
         } else {
-            val sanityId = UUID.randomUUID()
-            createSanityTiltaksgjennomforing(sanityId, sanityTiltaksgjennomforingFields)
+            val newSanityId = UUID.randomUUID()
+
+            createSanityTiltaksgjennomforing(newSanityId, sanityTiltaksgjennomforingFields)
 
             tiltaksgjennomforingRepository.updateSanityTiltaksgjennomforingId(
                 tiltaksgjennomforing.id,
-                sanityId,
+                newSanityId,
                 tx,
             )
         }

@@ -378,6 +378,20 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             .let { db.run(it) }
     }
 
+    fun getSanityTiltaksgjennomforingId(id: UUID, tx: Session): UUID? {
+        @Language("PostgreSQL")
+        val query = """
+            select sanity_id
+            from tiltaksgjennomforing
+            where id = :id::uuid
+        """.trimIndent()
+
+        return queryOf(query, mapOf("id" to id))
+            .map { it.uuid("sanity_id") }
+            .asSingle
+            .runWithSession(tx)
+    }
+
     fun updateSanityTiltaksgjennomforingId(id: UUID, sanityId: UUID) =
         db.transaction { updateSanityTiltaksgjennomforingId(id, sanityId, it) }
 
