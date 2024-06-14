@@ -360,6 +360,7 @@ private fun tasks(config: TaskConfig) = module {
     single { InitialLoadTiltaksgjennomforinger(get(), get(), get(), get()) }
     single { InitialLoadTiltakstyper(get(), get(), get(), get()) }
     single { SynchronizeNavAnsatte(config.synchronizeNavAnsatte, get(), get(), get()) }
+    single { RetractEgenRegiTiltak(get(), get(), get(), get()) }
     single {
         val deleteExpiredTiltakshistorikk = DeleteExpiredTiltakshistorikk(
             config.deleteExpiredTiltakshistorikk,
@@ -396,6 +397,7 @@ private fun tasks(config: TaskConfig) = module {
         val initialLoadTiltaksgjennomforinger: InitialLoadTiltaksgjennomforinger by inject()
         val initialLoadTiltakstyper: InitialLoadTiltakstyper by inject()
         val synchronizeNavAnsatte: SynchronizeNavAnsatte by inject()
+        val retractEgenRegiTiltak: RetractEgenRegiTiltak by inject()
 
         val db: Database by inject()
 
@@ -406,6 +408,7 @@ private fun tasks(config: TaskConfig) = module {
                 generateValidationReport.task,
                 initialLoadTiltaksgjennomforinger.task,
                 initialLoadTiltakstyper.task,
+                retractEgenRegiTiltak.task,
             )
             .startTasks(
                 deleteExpiredTiltakshistorikk.task,
