@@ -4,7 +4,7 @@
     "frontend/*"
   ],
   "devDependencies": {
-    "prettier": "3.3.1",
+    "prettier": "3.3.2",
     "turbo": "1.13.3"
   }
 }
