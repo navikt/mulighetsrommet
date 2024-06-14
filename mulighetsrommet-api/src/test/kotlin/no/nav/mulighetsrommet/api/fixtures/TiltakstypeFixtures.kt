@@ -115,4 +115,14 @@ object TiltakstypeFixtures {
         startDato = LocalDate.of(2023, 1, 11),
         sluttDato = null,
     )
+
+    val IPS = TiltakstypeDbo(
+        id = UUID.randomUUID(),
+        navn = "IPS",
+        tiltakskode = null,
+        arenaKode = "INDJOBSTOT",
+        rettPaaTiltakspenger = true,
+        startDato = LocalDate.of(2023, 1, 11),
+        sluttDato = null,
+    )
 }

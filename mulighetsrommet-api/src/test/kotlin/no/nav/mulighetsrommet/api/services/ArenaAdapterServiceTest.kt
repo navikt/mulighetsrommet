@@ -9,10 +9,7 @@ import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
-import io.mockk.clearAllMocks
-import io.mockk.coEvery
-import io.mockk.mockk
-import io.mockk.verify
+import io.mockk.*
 import kotliquery.Query
 import no.nav.mulighetsrommet.api.clients.AccessType
 import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClient
@@ -190,10 +187,113 @@ class ArenaAdapterServiceTest : FunSpec({
         }
     }
 
-    context("tiltaksgjennomføring") {
+    context("tiltak i egen regi") {
         val gjennomforinger = TiltaksgjennomforingRepository(database.db)
 
-        val tiltaksgjennomforing = ArenaTiltaksgjennomforingDbo(
+        val gjennomforing = ArenaTiltaksgjennomforingDbo(
+            id = UUID.randomUUID(),
+            navn = "IPS",
+            tiltakstypeId = TiltakstypeFixtures.IPS.id,
+            tiltaksnummer = "12345",
+            arrangorOrganisasjonsnummer = "976663934",
+            startDato = LocalDate.now(),
+            sluttDato = LocalDate.now().plusYears(1),
+            arenaAnsvarligEnhet = null,
+            avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
+            apentForInnsok = true,
+            antallPlasser = null,
+            avtaleId = null,
+            deltidsprosent = 100.0,
+        )
+
+        beforeEach {
+            MulighetsrommetTestDomain(
+                enheter = listOf(NavEnhetFixtures.IT, NavEnhetFixtures.Innlandet, NavEnhetFixtures.Gjovik),
+                tiltakstyper = listOf(TiltakstypeFixtures.IPS),
+                avtaler = listOf(),
+            ).initialize(database.db)
+        }
+
+        afterEach {
+            database.db.truncateAll()
+
+            clearAllMocks()
+        }
+
+        test("should upsert egen regi-tiltak") {
+            val service = createArenaAdapterService(database.db)
+
+            service.upsertTiltaksgjennomforing(gjennomforing)
+
+            database.assertThat("tiltaksgjennomforing")
+                .row()
+                .value("id").isEqualTo(gjennomforing.id)
+                .value("navn").isEqualTo(gjennomforing.navn)
+                .value("tiltakstype_id").isEqualTo(TiltakstypeFixtures.IPS.id)
+                .value("tiltaksnummer").isEqualTo(gjennomforing.tiltaksnummer)
+                .value("arrangor_id").isEqualTo(ArrangorFixtures.underenhet1.id)
+                .value("start_dato").isEqualTo(gjennomforing.startDato)
+                .value("slutt_dato").isEqualTo(gjennomforing.sluttDato)
+                .value("deltidsprosent").isEqualTo(gjennomforing.deltidsprosent)
+                .value("opphav").isEqualTo(ArenaMigrering.Opphav.ARENA.name)
+
+            service.removeTiltaksgjennomforing(gjennomforing.id)
+
+            database.assertThat("tiltaksgjennomforing").isEmpty
+        }
+
+        test("should publish egen regi-tiltak to sanity") {
+            val sanityTiltakService = mockk<SanityTiltakService>(relaxed = true)
+            val service = createArenaAdapterService(
+                database.db,
+                sanityTiltakService = sanityTiltakService,
+            )
+
+            service.upsertTiltaksgjennomforing(gjennomforing)
+
+            coVerify(exactly = 1) {
+                sanityTiltakService.createOrPatchSanityTiltaksgjennomforing(gjennomforing, any())
+            }
+        }
+
+        test("should delete egen regi-tiltak from sanity") {
+            val sanityTiltakService = mockk<SanityTiltakService>(relaxed = true)
+            val service = createArenaAdapterService(
+                database.db,
+                sanityTiltakService = sanityTiltakService,
+            )
+
+            service.upsertTiltaksgjennomforing(gjennomforing)
+
+            val sanityId = UUID.randomUUID()
+            gjennomforinger.updateSanityTiltaksgjennomforingId(gjennomforing.id, sanityId)
+
+            service.removeTiltaksgjennomforing(gjennomforing.id)
+
+            coVerify(exactly = 1) {
+                sanityTiltakService.deleteSanityTiltaksgjennomforing(sanityId)
+            }
+        }
+
+        test("should not publish egen regi-tiltak to kafka") {
+            val tiltaksgjennomforingKafkaProducer = mockk<TiltaksgjennomforingKafkaProducer>(relaxed = true)
+            val service = createArenaAdapterService(
+                database.db,
+                tiltaksgjennomforingKafkaProducer = tiltaksgjennomforingKafkaProducer,
+            )
+
+            service.upsertTiltaksgjennomforing(gjennomforing)
+
+            verify(exactly = 0) {
+                tiltaksgjennomforingKafkaProducer.publish(any())
+            }
+        }
+    }
+
+    context("gruppetiltak") {
+        val gjennomforinger = TiltaksgjennomforingRepository(database.db)
+
+        val gjennomforing = ArenaTiltaksgjennomforingDbo(
             id = UUID.randomUUID(),
             navn = "Oppfølging",
             tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
@@ -226,20 +326,20 @@ class ArenaAdapterServiceTest : FunSpec({
         test("CRUD") {
             val service = createArenaAdapterService(database.db)
 
-            service.upsertTiltaksgjennomforing(tiltaksgjennomforing)
+            service.upsertTiltaksgjennomforing(gjennomforing)
 
             database.assertThat("tiltaksgjennomforing").row()
-                .value("id").isEqualTo(tiltaksgjennomforing.id)
-                .value("navn").isEqualTo(tiltaksgjennomforing.navn)
+                .value("id").isEqualTo(gjennomforing.id)
+                .value("navn").isEqualTo(gjennomforing.navn)
                 .value("tiltakstype_id").isEqualTo(TiltakstypeFixtures.Oppfolging.id)
-                .value("tiltaksnummer").isEqualTo(tiltaksgjennomforing.tiltaksnummer)
+                .value("tiltaksnummer").isEqualTo(gjennomforing.tiltaksnummer)
                 .value("arrangor_id").isEqualTo(ArrangorFixtures.underenhet1.id)
-                .value("start_dato").isEqualTo(tiltaksgjennomforing.startDato)
-                .value("slutt_dato").isEqualTo(tiltaksgjennomforing.sluttDato)
-                .value("deltidsprosent").isEqualTo(tiltaksgjennomforing.deltidsprosent)
+                .value("start_dato").isEqualTo(gjennomforing.startDato)
+                .value("slutt_dato").isEqualTo(gjennomforing.sluttDato)
+                .value("deltidsprosent").isEqualTo(gjennomforing.deltidsprosent)
                 .value("opphav").isEqualTo(ArenaMigrering.Opphav.ARENA.name)
 
-            val updated = tiltaksgjennomforing.copy(navn = "Oppdatert arbeidstrening")
+            val updated = gjennomforing.copy(navn = "Oppdatert arbeidstrening")
             service.upsertTiltaksgjennomforing(updated)
 
             database.assertThat("tiltaksgjennomforing").row()
@@ -248,6 +348,20 @@ class ArenaAdapterServiceTest : FunSpec({
             service.removeTiltaksgjennomforing(updated.id)
 
             database.assertThat("tiltaksgjennomforing").isEmpty
+        }
+
+        test("should publish gruppetiltak to sanity") {
+            val sanityTiltakService = mockk<SanityTiltakService>(relaxed = true)
+            val service = createArenaAdapterService(
+                database.db,
+                sanityTiltakService = sanityTiltakService,
+            )
+
+            service.upsertTiltaksgjennomforing(gjennomforing)
+
+            coVerify(exactly = 0) {
+                sanityTiltakService.createOrPatchSanityTiltaksgjennomforing(any(), any())
+            }
         }
 
         test("should not retract from kafka if tiltak did not exist") {
@@ -269,22 +383,22 @@ class ArenaAdapterServiceTest : FunSpec({
                 tiltaksgjennomforingKafkaProducer = tiltaksgjennomforingKafkaProducer,
             )
 
-            service.upsertTiltaksgjennomforing(tiltaksgjennomforing)
+            service.upsertTiltaksgjennomforing(gjennomforing)
 
             verify(exactly = 1) {
                 tiltaksgjennomforingKafkaProducer.publish(
                     toTiltaksgjennomforingDto(
-                        tiltaksgjennomforing,
+                        gjennomforing,
                         TiltakstypeFixtures.Oppfolging,
                     ),
                 )
             }
 
-            service.removeTiltaksgjennomforing(tiltaksgjennomforing.id)
+            service.removeTiltaksgjennomforing(gjennomforing.id)
 
             verify(exactly = 1) {
                 tiltaksgjennomforingKafkaProducer.retract(
-                    tiltaksgjennomforing.id,
+                    gjennomforing.id,
                 )
             }
         }
@@ -296,13 +410,13 @@ class ArenaAdapterServiceTest : FunSpec({
                 tiltaksgjennomforingKafkaProducer = tiltaksgjennomforingKafkaProducer,
             )
 
-            service.upsertTiltaksgjennomforing(tiltaksgjennomforing)
-            service.upsertTiltaksgjennomforing(tiltaksgjennomforing)
+            service.upsertTiltaksgjennomforing(gjennomforing)
+            service.upsertTiltaksgjennomforing(gjennomforing)
 
             verify(exactly = 1) {
                 tiltaksgjennomforingKafkaProducer.publish(
                     toTiltaksgjennomforingDto(
-                        tiltaksgjennomforing,
+                        gjennomforing,
                         TiltakstypeFixtures.Oppfolging,
                     ),
                 )
@@ -310,36 +424,36 @@ class ArenaAdapterServiceTest : FunSpec({
         }
 
         test("skal ikke overskrive opphav når gjennomføring allerede eksisterer") {
-            val gjennomforing = TiltaksgjennomforingFixtures.Oppfolging1
+            val gjennomforing1 = TiltaksgjennomforingFixtures.Oppfolging1
 
             MulighetsrommetTestDomain(
                 arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
                 tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
                 avtaler = listOf(AvtaleFixtures.oppfolging),
-                gjennomforinger = listOf(gjennomforing),
+                gjennomforinger = listOf(gjennomforing1),
             ).initialize(database.db)
 
             val service = createArenaAdapterService(database.db)
 
             service.upsertTiltaksgjennomforing(
                 ArenaTiltaksgjennomforingDbo(
-                    id = gjennomforing.id,
+                    id = gjennomforing1.id,
                     navn = "Endret navn",
-                    tiltakstypeId = gjennomforing.tiltakstypeId,
+                    tiltakstypeId = gjennomforing1.tiltakstypeId,
                     tiltaksnummer = "2024#1",
                     arrangorOrganisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
-                    startDato = gjennomforing.startDato,
-                    sluttDato = gjennomforing.sluttDato,
+                    startDato = gjennomforing1.startDato,
+                    sluttDato = gjennomforing1.sluttDato,
                     arenaAnsvarligEnhet = null,
                     avslutningsstatus = Avslutningsstatus.AVSLUTTET,
-                    apentForInnsok = gjennomforing.apentForInnsok,
-                    antallPlasser = gjennomforing.antallPlasser,
-                    avtaleId = gjennomforing.avtaleId,
-                    deltidsprosent = gjennomforing.deltidsprosent,
+                    apentForInnsok = gjennomforing1.apentForInnsok,
+                    antallPlasser = gjennomforing1.antallPlasser,
+                    avtaleId = gjennomforing1.avtaleId,
+                    deltidsprosent = gjennomforing1.deltidsprosent,
                 ),
             )
 
-            gjennomforinger.get(gjennomforing.id).shouldNotBeNull().should {
+            gjennomforinger.get(gjennomforing1.id).shouldNotBeNull().should {
                 it.navn shouldBe "Endret navn"
                 it.opphav shouldBe ArenaMigrering.Opphav.MR_ADMIN_FLATE
             }
@@ -356,7 +470,7 @@ class ArenaAdapterServiceTest : FunSpec({
             val service = createArenaAdapterService(database.db)
 
             // Upsert som har passert sluttdato, men med avslutningsstatus IKKE_AVSLUTTET
-            val arenaGjennomforing = tiltaksgjennomforing.copy(
+            val arenaGjennomforing = gjennomforing.copy(
                 startDato = LocalDate.now().minusDays(1),
                 sluttDato = LocalDate.now().minusDays(1),
                 avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
@@ -379,7 +493,7 @@ class ArenaAdapterServiceTest : FunSpec({
         }
 
         test("skal bare oppdatere arena-felter når tiltakstype har endret eierskap") {
-            val gjennomforing = TiltaksgjennomforingFixtures.Oppfolging1.copy(
+            val gjennomforing1 = TiltaksgjennomforingFixtures.Oppfolging1.copy(
                 startDato = LocalDate.now(),
                 sluttDato = LocalDate.now().plusDays(1),
             )
@@ -395,11 +509,11 @@ class ArenaAdapterServiceTest : FunSpec({
                 arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
                 tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
                 avtaler = listOf(AvtaleFixtures.oppfolging),
-                gjennomforinger = listOf(gjennomforing),
+                gjennomforinger = listOf(gjennomforing1),
             ).initialize(database.db)
 
             val arenaDbo = ArenaTiltaksgjennomforingDbo(
-                id = gjennomforing.id,
+                id = gjennomforing1.id,
                 navn = "Endet navn",
                 tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
                 tiltaksnummer = "2024#2024",
@@ -421,26 +535,26 @@ class ArenaAdapterServiceTest : FunSpec({
 
             service.upsertTiltaksgjennomforing(arenaDbo)
 
-            gjennomforinger.get(gjennomforing.id).shouldNotBeNull().should {
+            gjennomforinger.get(gjennomforing1.id).shouldNotBeNull().should {
                 it.tiltaksnummer shouldBe "2024#2024"
                 it.arenaAnsvarligEnhet shouldBe ArenaNavEnhet(navn = "NAV Tiltak Oslo", enhetsnummer = "0387")
                 it.status shouldBe TiltaksgjennomforingStatus.GJENNOMFORES
 
                 it.opphav shouldBe ArenaMigrering.Opphav.MR_ADMIN_FLATE
-                it.avtaleId shouldBe gjennomforing.avtaleId
-                it.navn shouldBe gjennomforing.navn
+                it.avtaleId shouldBe gjennomforing1.avtaleId
+                it.navn shouldBe gjennomforing1.navn
                 it.arrangor.organisasjonsnummer shouldBe ArrangorFixtures.underenhet1.organisasjonsnummer
-                it.startDato shouldBe gjennomforing.startDato
-                it.sluttDato shouldBe gjennomforing.sluttDato
-                it.apentForInnsok shouldBe gjennomforing.apentForInnsok
-                it.antallPlasser shouldBe gjennomforing.antallPlasser
-                it.oppstart shouldBe gjennomforing.oppstart
-                it.deltidsprosent shouldBe gjennomforing.deltidsprosent
+                it.startDato shouldBe gjennomforing1.startDato
+                it.sluttDato shouldBe gjennomforing1.sluttDato
+                it.apentForInnsok shouldBe gjennomforing1.apentForInnsok
+                it.antallPlasser shouldBe gjennomforing1.antallPlasser
+                it.oppstart shouldBe gjennomforing1.oppstart
+                it.deltidsprosent shouldBe gjennomforing1.deltidsprosent
             }
         }
 
         test("skal ikke overskrive avbrutt_tidspunkt") {
-            val gjennomforing = TiltaksgjennomforingFixtures.Oppfolging1.copy(
+            val gjennomforing1 = TiltaksgjennomforingFixtures.Oppfolging1.copy(
                 startDato = LocalDate.now(),
                 sluttDato = LocalDate.now().plusDays(1),
             )
@@ -456,15 +570,15 @@ class ArenaAdapterServiceTest : FunSpec({
                 arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
                 tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
                 avtaler = listOf(AvtaleFixtures.oppfolging),
-                gjennomforinger = listOf(gjennomforing),
+                gjennomforinger = listOf(gjennomforing1),
             ).initialize(database.db)
 
             // Setter den til custom avbrutt tidspunkt for å sjekke at den ikke overskrives med en "fake" en
             val jan2023 = LocalDateTime.of(2023, 1, 1, 0, 0, 0)
-            gjennomforinger.avbryt(gjennomforing.id, jan2023, AvbruttAarsak.EndringHosArrangor)
+            gjennomforinger.avbryt(gjennomforing1.id, jan2023, AvbruttAarsak.EndringHosArrangor)
 
             val arenaDbo = ArenaTiltaksgjennomforingDbo(
-                id = gjennomforing.id,
+                id = gjennomforing1.id,
                 navn = "Endet navn",
                 tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
                 tiltaksnummer = "2024#2024",
@@ -487,7 +601,7 @@ class ArenaAdapterServiceTest : FunSpec({
             service.upsertTiltaksgjennomforing(arenaDbo)
 
             val avbruttTidspunkt =
-                Query("select avbrutt_tidspunkt, avbrutt_aarsak from tiltaksgjennomforing where id = '${gjennomforing.id}'")
+                Query("select avbrutt_tidspunkt, avbrutt_aarsak from tiltaksgjennomforing where id = '${gjennomforing1.id}'")
                     .map { it.localDateTime("avbrutt_tidspunkt") to it.string("avbrutt_aarsak") }
                     .asSingle
                     .let { database.db.run(it) }
@@ -512,13 +626,13 @@ class ArenaAdapterServiceTest : FunSpec({
 
                     val avtaleId = domain.avtaler[0].id
 
-                    service.upsertTiltaksgjennomforing(tiltaksgjennomforing.copy(avtaleId = avtaleId))
-                    gjennomforinger.get(tiltaksgjennomforing.id).shouldNotBeNull().should {
+                    service.upsertTiltaksgjennomforing(gjennomforing.copy(avtaleId = avtaleId))
+                    gjennomforinger.get(gjennomforing.id).shouldNotBeNull().should {
                         it.avtaleId shouldBe avtaleId
                     }
 
-                    service.upsertTiltaksgjennomforing(tiltaksgjennomforing.copy(avtaleId = null))
-                    gjennomforinger.get(tiltaksgjennomforing.id).shouldNotBeNull().should {
+                    service.upsertTiltaksgjennomforing(gjennomforing.copy(avtaleId = null))
+                    gjennomforinger.get(gjennomforing.id).shouldNotBeNull().should {
                         it.avtaleId shouldBe avtaleId
                     }
 
@@ -542,13 +656,13 @@ class ArenaAdapterServiceTest : FunSpec({
 
                     val avtaleId = domain.avtaler[0].id
 
-                    service.upsertTiltaksgjennomforing(tiltaksgjennomforing.copy(avtaleId = avtaleId))
-                    gjennomforinger.get(tiltaksgjennomforing.id).shouldNotBeNull().should {
+                    service.upsertTiltaksgjennomforing(gjennomforing.copy(avtaleId = avtaleId))
+                    gjennomforinger.get(gjennomforing.id).shouldNotBeNull().should {
                         it.avtaleId shouldBe avtaleId
                     }
 
-                    service.upsertTiltaksgjennomforing(tiltaksgjennomforing.copy(avtaleId = null))
-                    gjennomforinger.get(tiltaksgjennomforing.id).shouldNotBeNull().should {
+                    service.upsertTiltaksgjennomforing(gjennomforing.copy(avtaleId = null))
+                    gjennomforinger.get(gjennomforing.id).shouldNotBeNull().should {
                         it.avtaleId shouldBe null
                     }
                 }
@@ -565,7 +679,7 @@ class ArenaAdapterServiceTest : FunSpec({
             avtaler.get(AvtaleFixtures.oppfolging.id).shouldNotBeNull().arrangor.underenheter.shouldBeEmpty()
 
             val service = createArenaAdapterService(database.db)
-            service.upsertTiltaksgjennomforing(tiltaksgjennomforing.copy(avtaleId = AvtaleFixtures.oppfolging.id))
+            service.upsertTiltaksgjennomforing(gjennomforing.copy(avtaleId = AvtaleFixtures.oppfolging.id))
 
             avtaler.get(AvtaleFixtures.oppfolging.id).shouldNotBeNull().arrangor.underenheter shouldBe listOf(
                 AvtaleAdminDto.ArrangorUnderenhet(
@@ -595,7 +709,7 @@ class ArenaAdapterServiceTest : FunSpec({
             )
 
             service.upsertTiltaksgjennomforing(
-                tiltaksgjennomforing.copy(
+                gjennomforing.copy(
                     avtaleId = AvtaleFixtures.oppfolging.id,
                     arenaAnsvarligEnhet = NavEnhetFixtures.IT.enhetsnummer,
                 ),
@@ -637,7 +751,7 @@ class ArenaAdapterServiceTest : FunSpec({
             )
 
             service.upsertTiltaksgjennomforing(
-                tiltaksgjennomforing.copy(
+                gjennomforing.copy(
                     avtaleId = AvtaleFixtures.oppfolging.id,
                     arenaAnsvarligEnhet = NavEnhetFixtures.TiltakOslo.enhetsnummer,
                 ),
@@ -670,7 +784,7 @@ class ArenaAdapterServiceTest : FunSpec({
             )
 
             service.upsertTiltaksgjennomforing(
-                tiltaksgjennomforing.copy(
+                gjennomforing.copy(
                     avtaleId = AvtaleFixtures.oppfolging.id,
                     arenaAnsvarligEnhet = NavEnhetFixtures.IT.enhetsnummer,
                     avslutningsstatus = Avslutningsstatus.AVBRUTT,
@@ -779,6 +893,7 @@ class ArenaAdapterServiceTest : FunSpec({
 private fun createArenaAdapterService(
     db: Database,
     tiltaksgjennomforingKafkaProducer: TiltaksgjennomforingKafkaProducer = mockk(relaxed = true),
+    sanityTiltakService: SanityTiltakService = mockk(relaxed = true),
     notificationService: NotificationService = mockk(relaxed = true),
     veilarboppfolgingClient: VeilarboppfolgingClient = mockk(),
     migrerteTiltakstyper: List<Tiltakskode> = listOf(),
@@ -791,7 +906,7 @@ private fun createArenaAdapterService(
     tiltakshistorikk = TiltakshistorikkRepository(db),
     deltakere = DeltakerRepository(db),
     tiltaksgjennomforingKafkaProducer = tiltaksgjennomforingKafkaProducer,
-    sanityTiltakService = mockk(relaxed = true),
+    sanityTiltakService = sanityTiltakService,
     arrangorService = mockk(relaxed = true),
     navEnhetService = NavEnhetService(NavEnhetRepository(db)),
     notificationService = notificationService,
