@@ -25,7 +25,7 @@ set deltaker_registrering_ledetekst = 'Varig tilrettelagt arbeid er et tilbud fo
 where tiltakskode = 'VARIG_TILRETTELAGT_ARBEID_SKJERMET';
 
 insert into deltaker_registrering_innholdselement(innholdskode, tekst)
-values ('jobbsoking', 'Støtte til jobbsøking'),
+values ('jobbsoking', 'Støtte til å søke jobber'),
        ('arbeidspraksis', 'Arbeidspraksis'),
        ('karriereveiledning', 'Karriereveiledning'),
        ('kartlegge-helse', 'Kartlegge hvordan helsen din påvirker muligheten din til å jobbe'),
@@ -33,7 +33,7 @@ values ('jobbsoking', 'Støtte til jobbsøking'),
        ('kartlegge-arbeidsplassen', 'Kartlegge hvilken støtte og tilpasning du trenger på arbeidsplassen'),
        ('kartlegge-delta-tiltak', 'Kartlegge hvilken støtte du trenger for å delta på et arbeidsmarkedstiltak'),
        ('kartlegge-grunnleggende-ferdigheter',
-        'Kartlegging av grunnleggende ferdigheter: lesing, skriving, regning, muntlige ferdigheter og digitale ferdigheter'),
+        'Kartlegge grunnleggende ferdigheter som språk og hvordan du leser, skriver, regner og bruker datamaskin'),
        ('veiledning-livsstil', 'Veiledning om livsstil og kosthold'),
        ('motivasjon', 'Motivasjons- og mestringsaktiviteter'),
        ('veiledning-sosialt', 'Veiledning i sosial mestring'),
@@ -51,7 +51,6 @@ from (values ('arbeidspraksis', 'ARBEIDSFORBEREDENDE_TRENING'::tiltakskode),
              ('karriereveiledning', 'ARBEIDSFORBEREDENDE_TRENING'::tiltakskode),
              ('kartlegge-helse', 'ARBEIDSFORBEREDENDE_TRENING'::tiltakskode),
              ('kartlegge-grunnleggende-ferdigheter', 'ARBEIDSFORBEREDENDE_TRENING'::tiltakskode),
-             ('motivasjon', 'ARBEIDSFORBEREDENDE_TRENING'::tiltakskode),
              ('veiledning-sosialt', 'ARBEIDSFORBEREDENDE_TRENING'::tiltakskode),
              ('oppfolging-arbeidsplassen', 'ARBEIDSFORBEREDENDE_TRENING'::tiltakskode),
              ('tilpasse-arbeidsoppgaver', 'ARBEIDSFORBEREDENDE_TRENING'::tiltakskode)) as t(innholdskode, tiltakskode)
