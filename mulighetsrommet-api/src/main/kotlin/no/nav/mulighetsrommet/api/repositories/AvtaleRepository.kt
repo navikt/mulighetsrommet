@@ -332,6 +332,7 @@ class AvtaleRepository(private val db: Database) {
     ): PaginatedResult<AvtaleAdminDto> {
         val parameters = mapOf(
             "search" to search?.replace("/", "#")?.trim()?.let { "%$it%" },
+            "searchLopenummer" to search?.trim()?.let { "%$it%" },
             "administrator_nav_ident" to administratorNavIdent?.let { """[{ "navIdent": "${it.value}" }]""" },
             "tiltakstype_ids" to tiltakstypeIder.ifEmpty { null }?.let { db.createUuidArray(it) },
             "arrangor_ids" to arrangorIds.ifEmpty { null }?.let { db.createUuidArray(it) },
@@ -361,7 +362,7 @@ class AvtaleRepository(private val db: Database) {
             select *, count(*) over() as total_count
             from avtale_admin_dto_view
             where (:tiltakstype_ids::uuid[] is null or tiltakstype_id = any (:tiltakstype_ids))
-              and (:search::text is null or (navn ilike :search or avtalenummer ilike :search or arrangor_hovedenhet_navn ilike :search))
+              and (:search::text is null or (navn ilike :search or avtalenummer ilike :search or lopenummer ilike :searchLopenummer or arrangor_hovedenhet_navn ilike :search))
               and (:nav_enheter::text[] is null or (
                    exists(select true
                           from jsonb_array_elements(nav_enheter_json) as nav_enhet
@@ -423,9 +424,7 @@ class AvtaleRepository(private val db: Database) {
             .let { db.run(it) }
     }
 
-    fun avbryt(id: UUID, tidspunkt: LocalDateTime, aarsak: AvbruttAarsak): Int {
-        return db.transaction { avbryt(it, id, tidspunkt, aarsak) }
-    }
+    fun avbryt(id: UUID, tidspunkt: LocalDateTime, aarsak: AvbruttAarsak): Int = db.transaction { avbryt(it, id, tidspunkt, aarsak) }
 
     fun avbryt(tx: Session, id: UUID, tidspunkt: LocalDateTime, aarsak: AvbruttAarsak): Int {
         @Language("PostgreSQL")
