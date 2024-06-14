@@ -387,7 +387,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         """.trimIndent()
 
         return queryOf(query, mapOf("id" to id))
-            .map { it.uuid("sanity_id") }
+            .map { it.uuidOrNull("sanity_id") }
             .asSingle
             .runWithSession(tx)
     }
