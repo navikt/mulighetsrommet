@@ -15,181 +15,182 @@ import java.time.ZoneId
 import java.time.temporal.ChronoUnit
 import java.util.*
 
-class NotificationRepositoryTest : FunSpec({
+class NotificationRepositoryTest :
+    FunSpec({
 
-    val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
+        val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
 
-    val domain = MulighetsrommetTestDomain()
+        val domain = MulighetsrommetTestDomain()
 
-    beforeEach {
-        domain.initialize(database.db)
-    }
+        beforeEach {
+            domain.initialize(database.db)
+        }
 
-    afterEach {
-        database.db.truncateAll()
-    }
+        afterEach {
+            database.db.truncateAll()
+        }
 
-    val user1 = NavAnsattFixture.ansatt1.navIdent
-    val user2 = NavAnsattFixture.ansatt2.navIdent
+        val user1 = NavAnsattFixture.ansatt1.navIdent
+        val user2 = NavAnsattFixture.ansatt2.navIdent
 
-    val now = Instant.now().truncatedTo(ChronoUnit.MILLIS)
+        val now = Instant.now().truncatedTo(ChronoUnit.MILLIS)
 
-    val notification1 = ScheduledNotification(
-        id = UUID.randomUUID(),
-        type = NotificationType.NOTIFICATION,
-        title = "Notifikasjon for flere brukere",
-        createdAt = now,
-        targets = nonEmptyListOf(user1, user2),
-    )
-    val notification2 = ScheduledNotification(
-        id = UUID.randomUUID(),
-        type = NotificationType.NOTIFICATION,
-        title = "Notifikasjon for spesifikk bruker",
-        createdAt = now,
-        targets = nonEmptyListOf(user1),
-    )
-
-    fun ScheduledNotification.asUserNotification(userId: NavIdent, doneAt: LocalDateTime? = null) = run {
-        UserNotification(
-            id = id,
-            type = type,
-            title = title,
-            description = description,
-            user = userId,
-            createdAt = LocalDateTime.ofInstant(createdAt, ZoneId.systemDefault()),
-            doneAt = doneAt,
+        val notification1 = ScheduledNotification(
+            id = UUID.randomUUID(),
+            type = NotificationType.NOTIFICATION,
+            title = "Notifikasjon for flere brukere",
+            createdAt = now,
+            targets = nonEmptyListOf(user1, user2),
         )
-    }
-
-    test("CRUD") {
-        val notifications = NotificationRepository(database.db)
-
-        notifications.insert(notification1)
-        notifications.insert(notification2)
-
-        notifications.getAll() shouldBeRight listOf(
-            notification1.asUserNotification(user1),
-            notification1.asUserNotification(user2),
-            notification2.asUserNotification(user1),
+        val notification2 = ScheduledNotification(
+            id = UUID.randomUUID(),
+            type = NotificationType.NOTIFICATION,
+            title = "Notifikasjon for spesifikk bruker",
+            createdAt = now,
+            targets = nonEmptyListOf(user1),
         )
 
-        notifications.delete(notification2.id).shouldBeRight()
+        fun ScheduledNotification.asUserNotification(userId: NavIdent, doneAt: LocalDateTime? = null) = run {
+            UserNotification(
+                id = id,
+                type = type,
+                title = title,
+                description = description,
+                user = userId,
+                createdAt = LocalDateTime.ofInstant(createdAt, ZoneId.systemDefault()),
+                doneAt = doneAt,
+            )
+        }
 
-        notifications.getAll() shouldBeRight listOf(
-            notification1.asUserNotification(user1),
-            notification1.asUserNotification(user2),
-        )
-    }
+        test("CRUD") {
+            val notifications = NotificationRepository(database.db)
 
-    test("get notifications for specified user") {
-        val notifications = NotificationRepository(database.db)
+            notifications.insert(notification1)
+            notifications.insert(notification2)
 
-        notifications.insert(notification1)
-        notifications.insert(notification2)
+            notifications.getAll() shouldBeRight listOf(
+                notification1.asUserNotification(user1),
+                notification1.asUserNotification(user2),
+                notification2.asUserNotification(user1),
+            )
 
-        notifications.getUserNotifications(user1) shouldBeRight listOf(
-            notification1.asUserNotification(user1),
-            notification2.asUserNotification(user1),
-        )
+            notifications.delete(notification2.id).shouldBeRight()
 
-        notifications.getUserNotifications(user2) shouldBeRight listOf(
-            notification1.asUserNotification(user2),
-        )
-    }
+            notifications.getAll() shouldBeRight listOf(
+                notification1.asUserNotification(user1),
+                notification1.asUserNotification(user2),
+            )
+        }
 
-    test("should only set done_at for the specific user when the notification type is NOTIFICATION") {
-        val doneAtTime = LocalDateTime.of(2023, 1, 1, 0, 0, 0)
-        val notifications = NotificationRepository(database.db)
+        test("get notifications for specified user") {
+            val notifications = NotificationRepository(database.db)
 
-        notifications.insert(notification1)
-        notifications.insert(notification2)
+            notifications.insert(notification1)
+            notifications.insert(notification2)
 
-        notifications.setNotificationDoneAt(notification1.id, user1, doneAtTime).shouldBeRight()
+            notifications.getUserNotifications(user1) shouldBeRight listOf(
+                notification1.asUserNotification(user1),
+                notification2.asUserNotification(user1),
+            )
 
-        notifications.getUserNotifications() shouldBeRight listOf(
-            notification1.asUserNotification(user2),
-            notification2.asUserNotification(user1),
-            notification1.asUserNotification(user1, doneAtTime),
-        )
-    }
+            notifications.getUserNotifications(user2) shouldBeRight listOf(
+                notification1.asUserNotification(user2),
+            )
+        }
 
-    test("should set done_at for all users when the notification type is TASK") {
-        val doneAtTime = LocalDateTime.of(2023, 1, 1, 0, 0, 0)
-        val notifications = NotificationRepository(database.db)
+        test("should only set done_at for the specific user when the notification type is NOTIFICATION") {
+            val doneAtTime = LocalDateTime.of(2023, 1, 1, 0, 0, 0)
+            val notifications = NotificationRepository(database.db)
 
-        val task = notification1.copy(type = NotificationType.TASK)
-        notifications.insert(task)
-        notifications.insert(notification2)
+            notifications.insert(notification1)
+            notifications.insert(notification2)
 
-        notifications.setNotificationDoneAt(task.id, user1, doneAtTime).shouldBeRight()
+            notifications.setNotificationDoneAt(notification1.id, user1, doneAtTime).shouldBeRight()
 
-        notifications.getUserNotifications() shouldBeRight listOf(
-            notification2.asUserNotification(user1),
-            task.asUserNotification(user1, doneAtTime),
-            task.asUserNotification(user2, doneAtTime),
-        )
-    }
+            notifications.getUserNotifications() shouldBeRight listOf(
+                notification1.asUserNotification(user2),
+                notification2.asUserNotification(user1),
+                notification1.asUserNotification(user1, doneAtTime),
+            )
+        }
 
-    test("filter on notification status") {
-        val doneAtTime = LocalDateTime.of(2023, 1, 1, 0, 0, 0)
-        val notifications = NotificationRepository(database.db)
+        test("should set done_at for all users when the notification type is TASK") {
+            val doneAtTime = LocalDateTime.of(2023, 1, 1, 0, 0, 0)
+            val notifications = NotificationRepository(database.db)
 
-        notifications.insert(notification1)
-        notifications.insert(notification2)
+            val task = notification1.copy(type = NotificationType.TASK)
+            notifications.insert(task)
+            notifications.insert(notification2)
 
-        notifications.getUserNotifications(user1, NotificationStatus.NOT_DONE) shouldBeRight listOf(
-            notification1.asUserNotification(user1),
-            notification2.asUserNotification(user1),
-        )
+            notifications.setNotificationDoneAt(task.id, user1, doneAtTime).shouldBeRight()
 
-        notifications.getUserNotifications(user1, NotificationStatus.DONE) shouldBeRight emptyList()
+            notifications.getUserNotifications() shouldBeRight listOf(
+                notification2.asUserNotification(user1),
+                task.asUserNotification(user1, doneAtTime),
+                task.asUserNotification(user2, doneAtTime),
+            )
+        }
 
-        notifications.setNotificationDoneAt(notification2.id, user1, doneAtTime).shouldBeRight(1)
-        notifications.setNotificationDoneAt(notification1.id, user1, doneAtTime).shouldBeRight(1)
+        test("filter on notification status") {
+            val doneAtTime = LocalDateTime.of(2023, 1, 1, 0, 0, 0)
+            val notifications = NotificationRepository(database.db)
 
-        notifications.getUserNotifications(user1, NotificationStatus.NOT_DONE) shouldBeRight emptyList()
+            notifications.insert(notification1)
+            notifications.insert(notification2)
 
-        notifications.getUserNotifications(user1, NotificationStatus.DONE) shouldBeRight listOf(
-            notification1.asUserNotification(user1, doneAtTime),
-            notification2.asUserNotification(user1, doneAtTime),
-        )
-    }
+            notifications.getUserNotifications(user1, NotificationStatus.NOT_DONE) shouldBeRight listOf(
+                notification1.asUserNotification(user1),
+                notification2.asUserNotification(user1),
+            )
 
-    test("should not be able to set notification status for another user's notification") {
-        val doneAtTime = LocalDateTime.of(2023, 1, 1, 0, 0, 0)
-        val notifications = NotificationRepository(database.db)
+            notifications.getUserNotifications(user1, NotificationStatus.DONE) shouldBeRight emptyList()
 
-        notifications.insert(notification2)
+            notifications.setNotificationDoneAt(notification2.id, user1, doneAtTime).shouldBeRight(1)
+            notifications.setNotificationDoneAt(notification1.id, user1, doneAtTime).shouldBeRight(1)
 
-        notifications.setNotificationDoneAt(notification2.id, user2, doneAtTime).shouldBeRight(0)
+            notifications.getUserNotifications(user1, NotificationStatus.NOT_DONE) shouldBeRight emptyList()
 
-        notifications.getUserNotifications(user1) shouldBeRight listOf(
-            notification2.asUserNotification(user1, null),
-        )
-        notifications.getUserNotifications(user2) shouldBeRight listOf()
-    }
+            notifications.getUserNotifications(user1, NotificationStatus.DONE) shouldBeRight listOf(
+                notification1.asUserNotification(user1, doneAtTime),
+                notification2.asUserNotification(user1, doneAtTime),
+            )
+        }
 
-    test("get notification summary for user") {
-        val notifications = NotificationRepository(database.db)
+        test("should not be able to set notification status for another user's notification") {
+            val doneAtTime = LocalDateTime.of(2023, 1, 1, 0, 0, 0)
+            val notifications = NotificationRepository(database.db)
 
-        notifications.insert(notification1)
-        notifications.insert(notification2)
+            notifications.insert(notification2)
 
-        notifications.getUserNotificationSummary(user1) shouldBeRight UserNotificationSummary(
-            notDoneCount = 2,
-        )
-        notifications.getUserNotificationSummary(user2) shouldBeRight UserNotificationSummary(
-            notDoneCount = 1,
-        )
+            notifications.setNotificationDoneAt(notification2.id, user2, doneAtTime).shouldBeRight(0)
 
-        notifications.setNotificationDoneAt(notification1.id, user1, LocalDateTime.now())
-            .shouldBeRight()
+            notifications.getUserNotifications(user1) shouldBeRight listOf(
+                notification2.asUserNotification(user1, null),
+            )
+            notifications.getUserNotifications(user2) shouldBeRight listOf()
+        }
 
-        notifications.getUserNotificationSummary(user1) shouldBeRight UserNotificationSummary(
-            notDoneCount = 1,
-        )
-        notifications.getUserNotificationSummary(user2) shouldBeRight UserNotificationSummary(
-            notDoneCount = 1,
-        )
-    }
-})
+        test("get notification summary for user") {
+            val notifications = NotificationRepository(database.db)
+
+            notifications.insert(notification1)
+            notifications.insert(notification2)
+
+            notifications.getUserNotificationSummary(user1) shouldBeRight UserNotificationSummary(
+                notDoneCount = 2,
+            )
+            notifications.getUserNotificationSummary(user2) shouldBeRight UserNotificationSummary(
+                notDoneCount = 1,
+            )
+
+            notifications.setNotificationDoneAt(notification1.id, user1, LocalDateTime.now())
+                .shouldBeRight()
+
+            notifications.getUserNotificationSummary(user1) shouldBeRight UserNotificationSummary(
+                notDoneCount = 1,
+            )
+            notifications.getUserNotificationSummary(user2) shouldBeRight UserNotificationSummary(
+                notDoneCount = 1,
+            )
+        }
+    })

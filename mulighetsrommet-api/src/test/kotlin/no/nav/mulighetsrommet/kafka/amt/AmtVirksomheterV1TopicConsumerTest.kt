@@ -21,80 +21,81 @@ import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.kafka.consumers.amt.AmtVirksomhetV1Dto
 import no.nav.mulighetsrommet.kafka.consumers.amt.AmtVirksomheterV1TopicConsumer
 
-class AmtVirksomheterV1TopicConsumerTest : FunSpec({
-    val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
+class AmtVirksomheterV1TopicConsumerTest :
+    FunSpec({
+        val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
 
-    context("consume virksomheter") {
-        val amtVirksomhet = AmtVirksomhetV1Dto(
-            navn = "REMA 1000 AS",
-            organisasjonsnummer = "982254604",
-            overordnetEnhetOrganisasjonsnummer = null,
-        )
+        context("consume virksomheter") {
+            val amtVirksomhet = AmtVirksomhetV1Dto(
+                navn = "REMA 1000 AS",
+                organisasjonsnummer = "982254604",
+                overordnetEnhetOrganisasjonsnummer = null,
+            )
 
-        val amtUnderenhet = AmtVirksomhetV1Dto(
-            navn = "REMA 1000 underenhet",
-            organisasjonsnummer = "9923354699",
-            overordnetEnhetOrganisasjonsnummer = amtVirksomhet.organisasjonsnummer,
-        )
+            val amtUnderenhet = AmtVirksomhetV1Dto(
+                navn = "REMA 1000 underenhet",
+                organisasjonsnummer = "9923354699",
+                overordnetEnhetOrganisasjonsnummer = amtVirksomhet.organisasjonsnummer,
+            )
 
-        val underenhetDto = BrregVirksomhetDto(
-            navn = amtUnderenhet.navn,
-            organisasjonsnummer = amtUnderenhet.organisasjonsnummer,
-            overordnetEnhet = amtVirksomhet.organisasjonsnummer,
-            postnummer = "1000",
-            poststed = "Andeby",
-        )
+            val underenhetDto = BrregVirksomhetDto(
+                navn = amtUnderenhet.navn,
+                organisasjonsnummer = amtUnderenhet.organisasjonsnummer,
+                overordnetEnhet = amtVirksomhet.organisasjonsnummer,
+                postnummer = "1000",
+                poststed = "Andeby",
+            )
 
-        val virksomhetDto = BrregVirksomhetDto(
-            organisasjonsnummer = amtVirksomhet.organisasjonsnummer,
-            navn = amtVirksomhet.navn,
-            overordnetEnhet = null,
-            underenheter = listOf(),
-            postnummer = "1000",
-            poststed = "Andeby",
-        )
+            val virksomhetDto = BrregVirksomhetDto(
+                organisasjonsnummer = amtVirksomhet.organisasjonsnummer,
+                navn = amtVirksomhet.navn,
+                overordnetEnhet = null,
+                underenheter = listOf(),
+                postnummer = "1000",
+                poststed = "Andeby",
+            )
 
-        val arrangorRepository = ArrangorRepository(database.db)
+            val arrangorRepository = ArrangorRepository(database.db)
 
-        val brregClient: BrregClient = mockk()
-        coEvery { brregClient.getBrregVirksomhet(amtVirksomhet.organisasjonsnummer) } returns virksomhetDto.right()
-        coEvery { brregClient.getBrregVirksomhet(amtUnderenhet.organisasjonsnummer) } returns underenhetDto.right()
+            val brregClient: BrregClient = mockk()
+            coEvery { brregClient.getBrregVirksomhet(amtVirksomhet.organisasjonsnummer) } returns virksomhetDto.right()
+            coEvery { brregClient.getBrregVirksomhet(amtUnderenhet.organisasjonsnummer) } returns underenhetDto.right()
 
-        val virksomhetConsumer = AmtVirksomheterV1TopicConsumer(
-            config = KafkaTopicConsumer.Config(id = "virksomheter", topic = "virksomheter"),
-            arrangorRepository = arrangorRepository,
-            brregClient = brregClient,
-        )
+            val virksomhetConsumer = AmtVirksomheterV1TopicConsumer(
+                config = KafkaTopicConsumer.Config(id = "virksomheter", topic = "virksomheter"),
+                arrangorRepository = arrangorRepository,
+                brregClient = brregClient,
+            )
 
-        test("ignorer virksomheter når de ikke allerede er lagret i databasen") {
-            virksomhetConsumer.consume(amtVirksomhet.organisasjonsnummer, Json.encodeToJsonElement(amtVirksomhet))
-            virksomhetConsumer.consume(amtUnderenhet.organisasjonsnummer, Json.encodeToJsonElement(amtUnderenhet))
+            test("ignorer virksomheter når de ikke allerede er lagret i databasen") {
+                virksomhetConsumer.consume(amtVirksomhet.organisasjonsnummer, Json.encodeToJsonElement(amtVirksomhet))
+                virksomhetConsumer.consume(amtUnderenhet.organisasjonsnummer, Json.encodeToJsonElement(amtUnderenhet))
 
-            arrangorRepository.getAll().items.shouldBeEmpty()
-        }
+                arrangorRepository.getAll().items.shouldBeEmpty()
+            }
 
-        test("oppdaterer bare virksomheter som er lagret i databasen") {
-            arrangorRepository.upsert(virksomhetDto.copy(navn = "Kiwi", postnummer = "9999", poststed = "Gåseby"))
+            test("oppdaterer bare virksomheter som er lagret i databasen") {
+                arrangorRepository.upsert(virksomhetDto.copy(navn = "Kiwi", postnummer = "9999", poststed = "Gåseby"))
 
-            virksomhetConsumer.consume(amtVirksomhet.organisasjonsnummer, Json.encodeToJsonElement(amtVirksomhet))
-            virksomhetConsumer.consume(amtUnderenhet.organisasjonsnummer, Json.encodeToJsonElement(amtUnderenhet))
+                virksomhetConsumer.consume(amtVirksomhet.organisasjonsnummer, Json.encodeToJsonElement(amtVirksomhet))
+                virksomhetConsumer.consume(amtUnderenhet.organisasjonsnummer, Json.encodeToJsonElement(amtUnderenhet))
 
-            arrangorRepository.getAll().should {
-                it.items.shouldHaveSize(1)
-                it.items[0].navn shouldBe "REMA 1000 AS"
-                it.items[0].postnummer shouldBe "1000"
-                it.items[0].poststed shouldBe "Andeby"
+                arrangorRepository.getAll().should {
+                    it.items.shouldHaveSize(1)
+                    it.items[0].navn shouldBe "REMA 1000 AS"
+                    it.items[0].postnummer shouldBe "1000"
+                    it.items[0].poststed shouldBe "Andeby"
+                }
+            }
+
+            test("delete virksomheter for tombstone messages") {
+                arrangorRepository.upsert(underenhetDto)
+
+                arrangorRepository.get(underenhetDto.organisasjonsnummer).shouldNotBeNull()
+
+                virksomhetConsumer.consume(amtUnderenhet.organisasjonsnummer, JsonNull)
+
+                arrangorRepository.get(underenhetDto.organisasjonsnummer) shouldBe null
             }
         }
-
-        test("delete virksomheter for tombstone messages") {
-            arrangorRepository.upsert(underenhetDto)
-
-            arrangorRepository.get(underenhetDto.organisasjonsnummer).shouldNotBeNull()
-
-            virksomhetConsumer.consume(amtUnderenhet.organisasjonsnummer, JsonNull)
-
-            arrangorRepository.get(underenhetDto.organisasjonsnummer) shouldBe null
-        }
-    }
-})
+    })

@@ -12,56 +12,57 @@ import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.ktor.respondJson
 import java.util.*
 
-class SanityClientTest : FunSpec({
+class SanityClientTest :
+    FunSpec({
 
-    val testConfig = SanityClient.Config(projectId = "123", dataset = "test", token = null, apiVersion = "v2024-01-01")
+        val testConfig = SanityClient.Config(projectId = "123", dataset = "test", token = null, apiVersion = "v2024-01-01")
 
-    val mockResponse = SanityResponse.Result(
-        ms = 100,
-        query = "",
-        result = Json.decodeFromString("""["foo", "bar"]"""),
-    )
-
-    test("should query url generated from the Config with default sanity perspective") {
-        val engine = createMockEngine(
-            "/v2024-01-01/data/query/test?query=*[_type == 'foo']&perspective=published" to {
-                respondJson(mockResponse)
-            },
+        val mockResponse = SanityResponse.Result(
+            ms = 100,
+            query = "",
+            result = Json.decodeFromString("""["foo", "bar"]"""),
         )
-        val client = SanityClient(engine, testConfig)
 
-        val result = client.query("*[_type == 'foo']")
+        test("should query url generated from the Config with default sanity perspective") {
+            val engine = createMockEngine(
+                "/v2024-01-01/data/query/test?query=*[_type == 'foo']&perspective=published" to {
+                    respondJson(mockResponse)
+                },
+            )
+            val client = SanityClient(engine, testConfig)
 
-        result.shouldBeTypeOf<SanityResponse.Result> {
-            it.decode<List<String>>() shouldBe listOf("foo", "bar")
+            val result = client.query("*[_type == 'foo']")
+
+            result.shouldBeTypeOf<SanityResponse.Result> {
+                it.decode<List<String>>() shouldBe listOf("foo", "bar")
+            }
         }
-    }
 
-    test("should add additional parameters as query parameters prefixed with $") {
-        val engine = createMockEngine(
-            "/v2024-01-01/data/query/test?query=*[]&\$id=\"b97b6d59-09af-44e3-bbd5-09c7030f4be2\"&\$string=\"foo\"&\$boolean=true&\$number=1.2&\$array=[\"bar\"]" to {
-                respondJson(mockResponse)
-            },
-        )
-        val client = SanityClient(engine, testConfig)
+        test("should add additional parameters as query parameters prefixed with $") {
+            val engine = createMockEngine(
+                "/v2024-01-01/data/query/test?query=*[]&\$id=\"b97b6d59-09af-44e3-bbd5-09c7030f4be2\"&\$string=\"foo\"&\$boolean=true&\$number=1.2&\$array=[\"bar\"]" to {
+                    respondJson(mockResponse)
+                },
+            )
+            val client = SanityClient(engine, testConfig)
 
-        val result = client.query(
-            "*[]",
-            params = listOf(
-                SanityParam.of("id", UUID.fromString("b97b6d59-09af-44e3-bbd5-09c7030f4be2")),
-                SanityParam.of("string", "foo"),
-                SanityParam.of("boolean", true),
-                SanityParam.of("number", 1.2),
-                SanityParam.of("array", listOf("bar")),
-            ),
-        )
+            val result = client.query(
+                "*[]",
+                params = listOf(
+                    SanityParam.of("id", UUID.fromString("b97b6d59-09af-44e3-bbd5-09c7030f4be2")),
+                    SanityParam.of("string", "foo"),
+                    SanityParam.of("boolean", true),
+                    SanityParam.of("number", 1.2),
+                    SanityParam.of("array", listOf("bar")),
+                ),
+            )
 
-        result.shouldBeTypeOf<SanityResponse.Result>()
-    }
+            result.shouldBeTypeOf<SanityResponse.Result>()
+        }
 
-    test("returns error response when query fails") {
-        val error = Json.decodeFromString<JsonElement>(
-            """
+        test("returns error response when query fails") {
+            val error = Json.decodeFromString<JsonElement>(
+                """
             {
                 "error": {
                     "query": "*[_type == ${'$'}type][0]",
@@ -71,20 +72,20 @@ class SanityClientTest : FunSpec({
                     "type": "queryParseError"
                 }
             }
-            """.trimIndent(),
-        )
+                """.trimIndent(),
+            )
 
-        val engine = createMockEngine(
-            "/v2024-01-01/data/query/test?query=*[_type == \$type]" to {
-                respondJson(error, status = HttpStatusCode.BadRequest)
-            },
-        )
-        val client = SanityClient(engine, testConfig)
+            val engine = createMockEngine(
+                "/v2024-01-01/data/query/test?query=*[_type == \$type]" to {
+                    respondJson(error, status = HttpStatusCode.BadRequest)
+                },
+            )
+            val client = SanityClient(engine, testConfig)
 
-        val result = client.query("*[_type == \$type]")
+            val result = client.query("*[_type == \$type]")
 
-        result.shouldBeTypeOf<SanityResponse.Error> {
-            it.error.getValue("type").jsonPrimitive.content shouldBe "queryParseError"
+            result.shouldBeTypeOf<SanityResponse.Error> {
+                it.error.getValue("type").jsonPrimitive.content shouldBe "queryParseError"
+            }
         }
-    }
-})
+    })

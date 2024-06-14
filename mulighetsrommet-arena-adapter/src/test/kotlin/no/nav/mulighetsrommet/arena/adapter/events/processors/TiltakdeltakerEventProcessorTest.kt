@@ -48,365 +48,366 @@ import no.nav.mulighetsrommet.ktor.respondJson
 import java.time.LocalDateTime
 import java.util.*
 
-class TiltakdeltakerEventProcessorTest : FunSpec({
-    val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
+class TiltakdeltakerEventProcessorTest :
+    FunSpec({
+        val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
 
-    afterEach {
-        database.db.truncateAll()
-    }
-
-    context("handleEvent") {
-        val entities = ArenaEntityService(
-            mappings = ArenaEntityMappingRepository(database.db),
-            tiltakstyper = TiltakstypeRepository(database.db),
-            saker = SakRepository(database.db),
-            tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db),
-            deltakere = DeltakerRepository(database.db),
-            avtaler = AvtaleRepository(database.db),
-        )
-
-        fun createProcessor(engine: HttpClientEngine = createMockEngine()): TiltakdeltakerEventProcessor {
-            val client = MulighetsrommetApiClient(engine, baseUri = "api") {
-                "Bearer token"
-            }
-
-            val ords = ArenaOrdsProxyClientImpl(engine, baseUrl = "") {
-                "Bearer token"
-            }
-
-            return TiltakdeltakerEventProcessor(entities, client, ords)
+        afterEach {
+            database.db.truncateAll()
         }
 
-        fun prepareEvent(
-            event: ArenaEvent,
-        ): Pair<ArenaEvent, ArenaEntityMapping> {
-            val mapping = entities.getOrCreateMapping(event)
-            return Pair(event, mapping)
-        }
+        context("handleEvent") {
+            val entities = ArenaEntityService(
+                mappings = ArenaEntityMappingRepository(database.db),
+                tiltakstyper = TiltakstypeRepository(database.db),
+                saker = SakRepository(database.db),
+                tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db),
+                deltakere = DeltakerRepository(database.db),
+                avtaler = AvtaleRepository(database.db),
+            )
 
-        context("when dependent events has not been processed") {
-            test("should save the event with status Failed when the dependent tiltaksgjennomføring is missing") {
-                val processor = createProcessor()
-
-                val (event) = prepareEvent(createArenaTiltakdeltakerEvent(Insert))
-                val result = processor.handleEvent(event)
-
-                result.shouldBeLeft().should {
-                    it.status shouldBe Failed
-                    it.message shouldContain "ArenaEntityMapping mangler for arenaTable=Tiltaksgjennomforing og arenaId=3"
+            fun createProcessor(engine: HttpClientEngine = createMockEngine()): TiltakdeltakerEventProcessor {
+                val client = MulighetsrommetApiClient(engine, baseUri = "api") {
+                    "Bearer token"
                 }
-                database.assertThat("deltaker").isEmpty
+
+                val ords = ArenaOrdsProxyClientImpl(engine, baseUrl = "") {
+                    "Bearer token"
+                }
+
+                return TiltakdeltakerEventProcessor(entities, client, ords)
             }
-        }
 
-        context("when dependent events has been processed") {
-            val tiltakstypeGruppe = TiltakstypeFixtures.Gruppe
-            val sak = Sak(sakId = 1, lopenummer = 1, aar = 2022, enhet = "2990")
-            val tiltaksgjennomforing = Tiltaksgjennomforing(
-                id = UUID.randomUUID(),
-                tiltaksgjennomforingId = 3,
-                sakId = 1,
-                tiltakskode = "INDOPPFAG",
-                arrangorId = 123,
-                navn = "Gjennomføring gruppe",
-                status = "GJENNOMFOR",
-                fraDato = LocalDateTime.of(2023, 1, 1, 0, 0),
-                tilDato = null,
-                apentForInnsok = true,
-                antallPlasser = null,
-                avtaleId = null,
-                deltidsprosent = 100.0,
-            )
+            fun prepareEvent(
+                event: ArenaEvent,
+            ): Pair<ArenaEvent, ArenaEntityMapping> {
+                val mapping = entities.getOrCreateMapping(event)
+                return Pair(event, mapping)
+            }
 
-            val tiltakstypeIndividuell = TiltakstypeFixtures.Individuell
-            val sakIndividuell = Sak(sakId = 2, lopenummer = 2, aar = 2022, enhet = "2990")
-            val tiltaksgjennomforingIndividuell = Tiltaksgjennomforing(
-                id = UUID.randomUUID(),
-                tiltaksgjennomforingId = 4,
-                sakId = 2,
-                tiltakskode = "AMO",
-                arrangorId = 123,
-                navn = "Gjennomføring individuell",
-                status = "GJENNOMFOR",
-                fraDato = LocalDateTime.of(2023, 1, 1, 0, 0),
-                tilDato = null,
-                apentForInnsok = true,
-                antallPlasser = null,
-                avtaleId = null,
-                deltidsprosent = 100.0,
-            )
+            context("when dependent events has not been processed") {
+                test("should save the event with status Failed when the dependent tiltaksgjennomføring is missing") {
+                    val processor = createProcessor()
 
-            /**
-             * Tiltakskode er ikke en del av av [Tiltakskoder.AmtTiltak] og opphav på deltakelser for denne tiltakstypen
-             * er dermed Arena (og ikke Komet)
-             */
-            val tiltakstypeGruppeOpphavArena = TiltakstypeFixtures.Gruppe.copy(
-                id = UUID.randomUUID(),
-                tiltakskode = "IPSUNG",
-            )
-            val sakOpphavArena = Sak(sakId = 3, lopenummer = 3, aar = 2022, enhet = "2990")
-            val tiltaksgjennomforingOpphavArena = tiltaksgjennomforing.copy(
-                id = UUID.randomUUID(),
-                tiltaksgjennomforingId = 5,
-                sakId = 3,
-                tiltakskode = tiltakstypeGruppeOpphavArena.tiltakskode,
-                navn = "Gjennomføring opphav Arena",
-            )
+                    val (event) = prepareEvent(createArenaTiltakdeltakerEvent(Insert))
+                    val result = processor.handleEvent(event)
 
-            beforeEach {
-                val mappings = ArenaEntityMappingRepository(database.db)
+                    result.shouldBeLeft().should {
+                        it.status shouldBe Failed
+                        it.message shouldContain "ArenaEntityMapping mangler for arenaTable=Tiltaksgjennomforing og arenaId=3"
+                    }
+                    database.assertThat("deltaker").isEmpty
+                }
+            }
 
-                val tiltakstyper = TiltakstypeRepository(database.db)
-                listOf(tiltakstypeGruppe, tiltakstypeIndividuell, tiltakstypeGruppeOpphavArena).forEach {
-                    tiltakstyper.upsert(it).getOrThrow()
-                    mappings.upsert(
-                        ArenaEntityMapping(ArenaTable.Tiltakstype, it.tiltakskode, it.id, Handled),
-                    )
+            context("when dependent events has been processed") {
+                val tiltakstypeGruppe = TiltakstypeFixtures.Gruppe
+                val sak = Sak(sakId = 1, lopenummer = 1, aar = 2022, enhet = "2990")
+                val tiltaksgjennomforing = Tiltaksgjennomforing(
+                    id = UUID.randomUUID(),
+                    tiltaksgjennomforingId = 3,
+                    sakId = 1,
+                    tiltakskode = "INDOPPFAG",
+                    arrangorId = 123,
+                    navn = "Gjennomføring gruppe",
+                    status = "GJENNOMFOR",
+                    fraDato = LocalDateTime.of(2023, 1, 1, 0, 0),
+                    tilDato = null,
+                    apentForInnsok = true,
+                    antallPlasser = null,
+                    avtaleId = null,
+                    deltidsprosent = 100.0,
+                )
+
+                val tiltakstypeIndividuell = TiltakstypeFixtures.Individuell
+                val sakIndividuell = Sak(sakId = 2, lopenummer = 2, aar = 2022, enhet = "2990")
+                val tiltaksgjennomforingIndividuell = Tiltaksgjennomforing(
+                    id = UUID.randomUUID(),
+                    tiltaksgjennomforingId = 4,
+                    sakId = 2,
+                    tiltakskode = "AMO",
+                    arrangorId = 123,
+                    navn = "Gjennomføring individuell",
+                    status = "GJENNOMFOR",
+                    fraDato = LocalDateTime.of(2023, 1, 1, 0, 0),
+                    tilDato = null,
+                    apentForInnsok = true,
+                    antallPlasser = null,
+                    avtaleId = null,
+                    deltidsprosent = 100.0,
+                )
+
+                /**
+                 * Tiltakskode er ikke en del av av [Tiltakskoder.AmtTiltak] og opphav på deltakelser for denne tiltakstypen
+                 * er dermed Arena (og ikke Komet)
+                 */
+                val tiltakstypeGruppeOpphavArena = TiltakstypeFixtures.Gruppe.copy(
+                    id = UUID.randomUUID(),
+                    tiltakskode = "IPSUNG",
+                )
+                val sakOpphavArena = Sak(sakId = 3, lopenummer = 3, aar = 2022, enhet = "2990")
+                val tiltaksgjennomforingOpphavArena = tiltaksgjennomforing.copy(
+                    id = UUID.randomUUID(),
+                    tiltaksgjennomforingId = 5,
+                    sakId = 3,
+                    tiltakskode = tiltakstypeGruppeOpphavArena.tiltakskode,
+                    navn = "Gjennomføring opphav Arena",
+                )
+
+                beforeEach {
+                    val mappings = ArenaEntityMappingRepository(database.db)
+
+                    val tiltakstyper = TiltakstypeRepository(database.db)
+                    listOf(tiltakstypeGruppe, tiltakstypeIndividuell, tiltakstypeGruppeOpphavArena).forEach {
+                        tiltakstyper.upsert(it).getOrThrow()
+                        mappings.upsert(
+                            ArenaEntityMapping(ArenaTable.Tiltakstype, it.tiltakskode, it.id, Handled),
+                        )
+                    }
+
+                    val saker = SakRepository(database.db)
+                    listOf(sak, sakIndividuell, sakOpphavArena).forEach {
+                        saker.upsert(it).getOrThrow()
+                    }
+
+                    val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
+                    listOf(tiltaksgjennomforing, tiltaksgjennomforingIndividuell, tiltaksgjennomforingOpphavArena).forEach {
+                        tiltaksgjennomforinger.upsert(it).getOrThrow()
+                        mappings.upsert(
+                            ArenaEntityMapping(
+                                ArenaTable.Tiltaksgjennomforing,
+                                it.tiltaksgjennomforingId.toString(),
+                                it.id,
+                                Handled,
+                            ),
+                        )
+                    }
                 }
 
-                val saker = SakRepository(database.db)
-                listOf(sak, sakIndividuell, sakOpphavArena).forEach {
-                    saker.upsert(it).getOrThrow()
-                }
+                test("should be ignored when dependent tiltaksgjennomforing is ignored") {
+                    val processor = createProcessor()
 
-                val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
-                listOf(tiltaksgjennomforing, tiltaksgjennomforingIndividuell, tiltaksgjennomforingOpphavArena).forEach {
-                    tiltaksgjennomforinger.upsert(it).getOrThrow()
-                    mappings.upsert(
+                    entities.upsertMapping(
                         ArenaEntityMapping(
                             ArenaTable.Tiltaksgjennomforing,
-                            it.tiltaksgjennomforingId.toString(),
-                            it.id,
-                            Handled,
+                            tiltaksgjennomforing.tiltaksgjennomforingId.toString(),
+                            UUID.randomUUID(),
+                            Ignored,
                         ),
                     )
-                }
-            }
+                    val event = createArenaTiltakdeltakerEvent(Insert)
 
-            test("should be ignored when dependent tiltaksgjennomforing is ignored") {
-                val processor = createProcessor()
-
-                entities.upsertMapping(
-                    ArenaEntityMapping(
-                        ArenaTable.Tiltaksgjennomforing,
-                        tiltaksgjennomforing.tiltaksgjennomforingId.toString(),
-                        UUID.randomUUID(),
-                        Ignored,
-                    ),
-                )
-                val event = createArenaTiltakdeltakerEvent(Insert)
-
-                processor.handleEvent(event).shouldBeRight().should { it.status shouldBe Ignored }
-            }
-
-            test("should treat all operations as upserts") {
-                val (e1, mapping) = prepareEvent(
-                    createArenaTiltakdeltakerEvent(Insert) { it.copy(DELTAKERSTATUSKODE = ArenaTiltakdeltakerStatus.GJENNOMFORES) },
-                )
-
-                val engine = createMockEngine(
-                    "/ords/fnr" to { respondJson(ArenaOrdsFnr("12345678910")) },
-                    "/api/v1/intern/arena/tiltakshistorikk" to { respondOk() },
-                    "/api/v1/intern/arena/tiltakshistorikk/${mapping.entityId}" to { respondOk() },
-                )
-                val processor = createProcessor(engine)
-
-                processor.handleEvent(e1).shouldBeRight().should { it.status shouldBe Handled }
-                database.assertThat("deltaker").row()
-                    .value("id").isEqualTo(mapping.entityId)
-                    .value("status").isEqualTo("DELTAR")
-
-                val e2 = createArenaTiltakdeltakerEvent(Update) {
-                    it.copy(DELTAKERSTATUSKODE = ArenaTiltakdeltakerStatus.FULLFORT)
-                }
-                processor.handleEvent(e2).shouldBeRight().should { it.status shouldBe Handled }
-                database.assertThat("deltaker").row()
-                    .value("id").isEqualTo(mapping.entityId)
-                    .value("status").isEqualTo("AVSLUTTET")
-
-                val e3 = createArenaTiltakdeltakerEvent(Delete) {
-                    it.copy(DELTAKERSTATUSKODE = ArenaTiltakdeltakerStatus.FULLFORT)
-                }
-                processor.handleEvent(e3).shouldBeRight().should { it.status shouldBe Handled }
-                database.assertThat("deltaker").row()
-                    .value("id").isEqualTo(mapping.entityId)
-                    .value("status").isEqualTo("AVSLUTTET")
-            }
-
-            test("should not write to API when it's no longer relevant for brukers tiltakshistorikk") {
-                val datoBeforeTiltakshistorikkStart = LocalDateTime.now()
-                    .minus(Tiltakshistorikk.TiltakshistorikkTimePeriod)
-                    .minusDays(1)
-                    .format(ArenaTimestampFormatter)
-
-                val engine = createMockEngine(
-                    "/ords/fnr" to { respondJson(ArenaOrdsFnr("12345678910")) },
-                )
-                val processor = createProcessor(engine)
-
-                val eventWithOldSluttDato = createArenaTiltakdeltakerEvent(Insert) {
-                    it.copy(DATO_TIL = datoBeforeTiltakshistorikkStart)
-                }
-                val eventWithOldRegDato = createArenaTiltakdeltakerEvent(Insert) {
-                    it.copy(REG_DATO = datoBeforeTiltakshistorikkStart)
+                    processor.handleEvent(event).shouldBeRight().should { it.status shouldBe Ignored }
                 }
 
-                forAll(row(eventWithOldSluttDato), row(eventWithOldRegDato)) { event ->
-                    runBlocking {
-                        prepareEvent(event)
+                test("should treat all operations as upserts") {
+                    val (e1, mapping) = prepareEvent(
+                        createArenaTiltakdeltakerEvent(Insert) { it.copy(DELTAKERSTATUSKODE = ArenaTiltakdeltakerStatus.GJENNOMFORES) },
+                    )
 
-                        processor.handleEvent(event).shouldBeRight().should { it.status shouldBe Handled }
+                    val engine = createMockEngine(
+                        "/ords/fnr" to { respondJson(ArenaOrdsFnr("12345678910")) },
+                        "/api/v1/intern/arena/tiltakshistorikk" to { respondOk() },
+                        "/api/v1/intern/arena/tiltakshistorikk/${mapping.entityId}" to { respondOk() },
+                    )
+                    val processor = createProcessor(engine)
 
-                        engine.requestHistory.forEach { it.url.encodedPath shouldContain "/ords/fnr" }
+                    processor.handleEvent(e1).shouldBeRight().should { it.status shouldBe Handled }
+                    database.assertThat("deltaker").row()
+                        .value("id").isEqualTo(mapping.entityId)
+                        .value("status").isEqualTo("DELTAR")
+
+                    val e2 = createArenaTiltakdeltakerEvent(Update) {
+                        it.copy(DELTAKERSTATUSKODE = ArenaTiltakdeltakerStatus.FULLFORT)
                     }
+                    processor.handleEvent(e2).shouldBeRight().should { it.status shouldBe Handled }
+                    database.assertThat("deltaker").row()
+                        .value("id").isEqualTo(mapping.entityId)
+                        .value("status").isEqualTo("AVSLUTTET")
+
+                    val e3 = createArenaTiltakdeltakerEvent(Delete) {
+                        it.copy(DELTAKERSTATUSKODE = ArenaTiltakdeltakerStatus.FULLFORT)
+                    }
+                    processor.handleEvent(e3).shouldBeRight().should { it.status shouldBe Handled }
+                    database.assertThat("deltaker").row()
+                        .value("id").isEqualTo(mapping.entityId)
+                        .value("status").isEqualTo("AVSLUTTET")
                 }
-            }
 
-            test("should mark the event as Failed when arena ords proxy responds with an error") {
-                val engine = createMockEngine(
-                    "/ords/fnr" to { respondError(HttpStatusCode.InternalServerError) },
-                    "/api/v1/intern/arena/deltaker" to { respondOk() },
-                )
-                val processor = createProcessor(engine)
+                test("should not write to API when it's no longer relevant for brukers tiltakshistorikk") {
+                    val datoBeforeTiltakshistorikkStart = LocalDateTime.now()
+                        .minus(Tiltakshistorikk.TiltakshistorikkTimePeriod)
+                        .minusDays(1)
+                        .format(ArenaTimestampFormatter)
 
-                val (event) = prepareEvent(createArenaTiltakdeltakerEvent(Insert))
+                    val engine = createMockEngine(
+                        "/ords/fnr" to { respondJson(ArenaOrdsFnr("12345678910")) },
+                    )
+                    val processor = createProcessor(engine)
 
-                processor.handleEvent(event).shouldBeLeft().should {
-                    it.status shouldBe Failed
-                    it.message shouldContain "Internal Server Error"
-                }
-            }
+                    val eventWithOldSluttDato = createArenaTiltakdeltakerEvent(Insert) {
+                        it.copy(DATO_TIL = datoBeforeTiltakshistorikkStart)
+                    }
+                    val eventWithOldRegDato = createArenaTiltakdeltakerEvent(Insert) {
+                        it.copy(REG_DATO = datoBeforeTiltakshistorikkStart)
+                    }
 
-            test("should mark the event as Ignored when arena ords proxy responds with NotFound") {
-                val engine = createMockEngine(
-                    "/ords/fnr" to { respondError(HttpStatusCode.NotFound) },
-                    "/api/v1/intern/arena/tiltakshistorikk" to { respondOk() },
-                )
+                    forAll(row(eventWithOldSluttDato), row(eventWithOldRegDato)) { event ->
+                        runBlocking {
+                            prepareEvent(event)
 
-                val processor = createProcessor(engine)
-                val (event) = prepareEvent(createArenaTiltakdeltakerEvent(Insert))
-                processor.handleEvent(event).shouldBeRight().should {
-                    it.status shouldBe Ignored
-                    it.message shouldContain "Deltaker ignorert fordi fødselsnummer mangler i Arena"
-                }
-            }
+                            processor.handleEvent(event).shouldBeRight().should { it.status shouldBe Handled }
 
-            test("should mark the event as Failed when api responds with an error") {
-                val engine = createMockEngine(
-                    "/ords/fnr" to { respondJson(ArenaOrdsFnr("12345678910")) },
-                    "/api/v1/intern/arena/tiltakshistorikk" to {
-                        respondError(
-                            HttpStatusCode.InternalServerError,
-                        )
-                    },
-                )
-                val processor = createProcessor(engine)
-
-                val (event) = prepareEvent(createArenaTiltakdeltakerEvent(Insert))
-
-                processor.handleEvent(event).shouldBeLeft().should {
-                    it.status shouldBe Failed
-                    it.message shouldContain "Internal Server Error"
-                }
-            }
-
-            test("should call api with tiltakshistorikk when all services responds with success") {
-                val (event, mapping) = prepareEvent(createArenaTiltakdeltakerEvent(Insert))
-
-                val engine = createMockEngine(
-                    "/ords/fnr" to { respondJson(ArenaOrdsFnr("12345678910")) },
-                    "/api/v1/intern/arena/tiltakshistorikk" to { respondOk() },
-                    "/api/v1/intern/arena/tiltakshistorikk/${mapping.entityId}" to { respondOk() },
-                )
-                val processor = createProcessor(engine)
-
-                processor.handleEvent(event).shouldBeRight()
-
-                engine.requestHistory.last().apply {
-                    method shouldBe HttpMethod.Put
-
-                    decodeRequestBody<ArenaTiltakshistorikkDbo>().apply {
-                        shouldBeInstanceOf<ArenaTiltakshistorikkDbo.Gruppetiltak>()
-                        id shouldBe mapping.entityId
-                        tiltaksgjennomforingId shouldBe tiltaksgjennomforing.id
-                        norskIdent shouldBe "12345678910"
+                            engine.requestHistory.forEach { it.url.encodedPath shouldContain "/ords/fnr" }
+                        }
                     }
                 }
 
-                processor.handleEvent(createArenaTiltakdeltakerEvent(Delete)).shouldBeRight()
+                test("should mark the event as Failed when arena ords proxy responds with an error") {
+                    val engine = createMockEngine(
+                        "/ords/fnr" to { respondError(HttpStatusCode.InternalServerError) },
+                        "/api/v1/intern/arena/deltaker" to { respondOk() },
+                    )
+                    val processor = createProcessor(engine)
 
-                engine.requestHistory.last().apply {
-                    method shouldBe HttpMethod.Delete
+                    val (event) = prepareEvent(createArenaTiltakdeltakerEvent(Insert))
 
-                    url.getLastPathParameterAsUUID() shouldBe mapping.entityId
-                }
-            }
-
-            test("should include arbeidsgiver from ORDS when deltakelse is individuelt tiltak") {
-                val engine = createMockEngine(
-                    "/ords/fnr" to { respondJson(ArenaOrdsFnr("12345678910")) },
-                    "/api/v1/intern/arena/tiltakshistorikk" to { respondOk() },
-                    "/ords/arbeidsgiver" to {
-                        respondJson(
-                            ArenaOrdsArrangor("123456", "000000"),
-                        )
-                    },
-                )
-                val processor = createProcessor(engine)
-
-                val (event, mapping) = prepareEvent(
-                    createArenaTiltakdeltakerEvent(Insert) {
-                        it.copy(
-                            TILTAKDELTAKER_ID = 2,
-                            TILTAKGJENNOMFORING_ID = tiltaksgjennomforingIndividuell.tiltaksgjennomforingId,
-                        )
-                    },
-                )
-
-                processor.handleEvent(event).shouldBeRight()
-
-                engine.requestHistory.last().apply {
-                    method shouldBe HttpMethod.Put
-
-                    decodeRequestBody<ArenaTiltakshistorikkDbo>().apply {
-                        shouldBeInstanceOf<ArenaTiltakshistorikkDbo.IndividueltTiltak>()
-                        id shouldBe mapping.entityId
-                        beskrivelse shouldBe tiltaksgjennomforingIndividuell.navn
-                        arrangorOrganisasjonsnummer shouldBe "123456"
-                        tiltakstypeId shouldBe tiltakstypeIndividuell.id
-                        norskIdent shouldBe "12345678910"
+                    processor.handleEvent(event).shouldBeLeft().should {
+                        it.status shouldBe Failed
+                        it.message shouldContain "Internal Server Error"
                     }
                 }
-            }
 
-            test("should call api with deltaker when deltakelse has opphav=Arena") {
-                val engine = createMockEngine(
-                    "/ords/fnr" to { respondJson(ArenaOrdsFnr("12345678910")) },
-                    "/api/v1/intern/arena/tiltakshistorikk" to { respondOk() },
-                    "/api/v1/intern/arena/deltaker" to { respondOk() },
-                )
-                val processor = createProcessor(engine)
+                test("should mark the event as Ignored when arena ords proxy responds with NotFound") {
+                    val engine = createMockEngine(
+                        "/ords/fnr" to { respondError(HttpStatusCode.NotFound) },
+                        "/api/v1/intern/arena/tiltakshistorikk" to { respondOk() },
+                    )
 
-                val (event, mapping) = prepareEvent(
-                    createArenaTiltakdeltakerEvent(Insert) {
-                        it.copy(TILTAKGJENNOMFORING_ID = tiltaksgjennomforingOpphavArena.tiltaksgjennomforingId)
-                    },
-                )
-
-                processor.handleEvent(event).shouldBeRight()
-
-                engine.requestHistory shouldHaveSingleElement {
-                    it.method == HttpMethod.Put &&
-                        it.url.encodedPath == "/api/v1/intern/arena/tiltakshistorikk" &&
-                        it.decodeRequestBody<ArenaTiltakshistorikkDbo>().id == mapping.entityId
+                    val processor = createProcessor(engine)
+                    val (event) = prepareEvent(createArenaTiltakdeltakerEvent(Insert))
+                    processor.handleEvent(event).shouldBeRight().should {
+                        it.status shouldBe Ignored
+                        it.message shouldContain "Deltaker ignorert fordi fødselsnummer mangler i Arena"
+                    }
                 }
 
-                engine.requestHistory shouldHaveSingleElement {
-                    it.method == HttpMethod.Put &&
-                        it.url.encodedPath == "/api/v1/intern/arena/deltaker" &&
-                        it.decodeRequestBody<DeltakerDbo>().id == mapping.entityId
+                test("should mark the event as Failed when api responds with an error") {
+                    val engine = createMockEngine(
+                        "/ords/fnr" to { respondJson(ArenaOrdsFnr("12345678910")) },
+                        "/api/v1/intern/arena/tiltakshistorikk" to {
+                            respondError(
+                                HttpStatusCode.InternalServerError,
+                            )
+                        },
+                    )
+                    val processor = createProcessor(engine)
+
+                    val (event) = prepareEvent(createArenaTiltakdeltakerEvent(Insert))
+
+                    processor.handleEvent(event).shouldBeLeft().should {
+                        it.status shouldBe Failed
+                        it.message shouldContain "Internal Server Error"
+                    }
+                }
+
+                test("should call api with tiltakshistorikk when all services responds with success") {
+                    val (event, mapping) = prepareEvent(createArenaTiltakdeltakerEvent(Insert))
+
+                    val engine = createMockEngine(
+                        "/ords/fnr" to { respondJson(ArenaOrdsFnr("12345678910")) },
+                        "/api/v1/intern/arena/tiltakshistorikk" to { respondOk() },
+                        "/api/v1/intern/arena/tiltakshistorikk/${mapping.entityId}" to { respondOk() },
+                    )
+                    val processor = createProcessor(engine)
+
+                    processor.handleEvent(event).shouldBeRight()
+
+                    engine.requestHistory.last().apply {
+                        method shouldBe HttpMethod.Put
+
+                        decodeRequestBody<ArenaTiltakshistorikkDbo>().apply {
+                            shouldBeInstanceOf<ArenaTiltakshistorikkDbo.Gruppetiltak>()
+                            id shouldBe mapping.entityId
+                            tiltaksgjennomforingId shouldBe tiltaksgjennomforing.id
+                            norskIdent shouldBe "12345678910"
+                        }
+                    }
+
+                    processor.handleEvent(createArenaTiltakdeltakerEvent(Delete)).shouldBeRight()
+
+                    engine.requestHistory.last().apply {
+                        method shouldBe HttpMethod.Delete
+
+                        url.getLastPathParameterAsUUID() shouldBe mapping.entityId
+                    }
+                }
+
+                test("should include arbeidsgiver from ORDS when deltakelse is individuelt tiltak") {
+                    val engine = createMockEngine(
+                        "/ords/fnr" to { respondJson(ArenaOrdsFnr("12345678910")) },
+                        "/api/v1/intern/arena/tiltakshistorikk" to { respondOk() },
+                        "/ords/arbeidsgiver" to {
+                            respondJson(
+                                ArenaOrdsArrangor("123456", "000000"),
+                            )
+                        },
+                    )
+                    val processor = createProcessor(engine)
+
+                    val (event, mapping) = prepareEvent(
+                        createArenaTiltakdeltakerEvent(Insert) {
+                            it.copy(
+                                TILTAKDELTAKER_ID = 2,
+                                TILTAKGJENNOMFORING_ID = tiltaksgjennomforingIndividuell.tiltaksgjennomforingId,
+                            )
+                        },
+                    )
+
+                    processor.handleEvent(event).shouldBeRight()
+
+                    engine.requestHistory.last().apply {
+                        method shouldBe HttpMethod.Put
+
+                        decodeRequestBody<ArenaTiltakshistorikkDbo>().apply {
+                            shouldBeInstanceOf<ArenaTiltakshistorikkDbo.IndividueltTiltak>()
+                            id shouldBe mapping.entityId
+                            beskrivelse shouldBe tiltaksgjennomforingIndividuell.navn
+                            arrangorOrganisasjonsnummer shouldBe "123456"
+                            tiltakstypeId shouldBe tiltakstypeIndividuell.id
+                            norskIdent shouldBe "12345678910"
+                        }
+                    }
+                }
+
+                test("should call api with deltaker when deltakelse has opphav=Arena") {
+                    val engine = createMockEngine(
+                        "/ords/fnr" to { respondJson(ArenaOrdsFnr("12345678910")) },
+                        "/api/v1/intern/arena/tiltakshistorikk" to { respondOk() },
+                        "/api/v1/intern/arena/deltaker" to { respondOk() },
+                    )
+                    val processor = createProcessor(engine)
+
+                    val (event, mapping) = prepareEvent(
+                        createArenaTiltakdeltakerEvent(Insert) {
+                            it.copy(TILTAKGJENNOMFORING_ID = tiltaksgjennomforingOpphavArena.tiltaksgjennomforingId)
+                        },
+                    )
+
+                    processor.handleEvent(event).shouldBeRight()
+
+                    engine.requestHistory shouldHaveSingleElement {
+                        it.method == HttpMethod.Put &&
+                            it.url.encodedPath == "/api/v1/intern/arena/tiltakshistorikk" &&
+                            it.decodeRequestBody<ArenaTiltakshistorikkDbo>().id == mapping.entityId
+                    }
+
+                    engine.requestHistory shouldHaveSingleElement {
+                        it.method == HttpMethod.Put &&
+                            it.url.encodedPath == "/api/v1/intern/arena/deltaker" &&
+                            it.decodeRequestBody<DeltakerDbo>().id == mapping.entityId
+                    }
                 }
             }
         }
-    }
-})
+    })

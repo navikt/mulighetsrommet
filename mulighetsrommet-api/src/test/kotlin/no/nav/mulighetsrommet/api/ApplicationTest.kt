@@ -5,14 +5,15 @@ import io.kotest.matchers.shouldBe
 import io.ktor.client.request.*
 import io.ktor.http.*
 
-class ApplicationTest : FunSpec({
-    context("liveness") {
-        test("should respond with 200 OK") {
-            withTestApplication {
-                val response = client.get("/internal/liveness")
+class ApplicationTest :
+    FunSpec({
+        context("liveness") {
+            test("should respond with 200 OK") {
+                withTestApplication {
+                    val response = client.get("/internal/liveness")
 
-                response.status shouldBe HttpStatusCode.OK
+                    response.status shouldBe HttpStatusCode.OK
+                }
             }
         }
-    }
-})
+    })

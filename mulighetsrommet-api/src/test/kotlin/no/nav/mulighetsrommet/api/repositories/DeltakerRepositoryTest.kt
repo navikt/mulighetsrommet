@@ -12,62 +12,63 @@ import no.nav.mulighetsrommet.domain.dbo.Deltakerstatus
 import java.time.LocalDateTime
 import java.util.*
 
-class DeltakerRepositoryTest : FunSpec({
+class DeltakerRepositoryTest :
+    FunSpec({
 
-    val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
+        val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
 
-    val domain = MulighetsrommetTestDomain(
-        gjennomforinger = listOf(TiltaksgjennomforingFixtures.Oppfolging1, TiltaksgjennomforingFixtures.Oppfolging2),
-    )
-
-    beforeEach {
-        domain.initialize(database.db)
-    }
-
-    context("consume deltakere") {
-        val deltakere = DeltakerRepository(database.db)
-
-        val deltaker1 = DeltakerDbo(
-            id = UUID.randomUUID(),
-            tiltaksgjennomforingId = TiltaksgjennomforingFixtures.Oppfolging1.id,
-            status = Deltakerstatus.VENTER,
-            opphav = Deltakeropphav.AMT,
-            startDato = null,
-            sluttDato = null,
-            registrertDato = LocalDateTime.of(2023, 3, 1, 0, 0, 0),
-        )
-        val deltaker2 = deltaker1.copy(
-            id = UUID.randomUUID(),
-            tiltaksgjennomforingId = TiltaksgjennomforingFixtures.Oppfolging2.id,
+        val domain = MulighetsrommetTestDomain(
+            gjennomforinger = listOf(TiltaksgjennomforingFixtures.Oppfolging1, TiltaksgjennomforingFixtures.Oppfolging2),
         )
 
-        test("CRUD") {
-            deltakere.upsert(deltaker1)
-            deltakere.upsert(deltaker2)
-
-            deltakere.getAll().shouldContainExactly(deltaker1, deltaker2)
-
-            val avsluttetDeltaker2 = deltaker2.copy(status = Deltakerstatus.AVSLUTTET)
-            deltakere.upsert(avsluttetDeltaker2)
-
-            deltakere.getAll().shouldContainExactly(deltaker1, avsluttetDeltaker2)
-
-            deltakere.delete(deltaker1.id)
-
-            deltakere.getAll().shouldContainExactly(avsluttetDeltaker2)
+        beforeEach {
+            domain.initialize(database.db)
         }
 
-        test("get by tiltaksgjennomforing") {
-            deltakere.upsert(deltaker1)
-            deltakere.upsert(deltaker2)
+        context("consume deltakere") {
+            val deltakere = DeltakerRepository(database.db)
 
-            deltakere
-                .getAll(tiltaksgjennomforingId = TiltaksgjennomforingFixtures.Oppfolging1.id)
-                .shouldContainExactly(deltaker1)
+            val deltaker1 = DeltakerDbo(
+                id = UUID.randomUUID(),
+                tiltaksgjennomforingId = TiltaksgjennomforingFixtures.Oppfolging1.id,
+                status = Deltakerstatus.VENTER,
+                opphav = Deltakeropphav.AMT,
+                startDato = null,
+                sluttDato = null,
+                registrertDato = LocalDateTime.of(2023, 3, 1, 0, 0, 0),
+            )
+            val deltaker2 = deltaker1.copy(
+                id = UUID.randomUUID(),
+                tiltaksgjennomforingId = TiltaksgjennomforingFixtures.Oppfolging2.id,
+            )
 
-            deltakere
-                .getAll(tiltaksgjennomforingId = TiltaksgjennomforingFixtures.Oppfolging2.id)
-                .shouldContainExactly(deltaker2)
+            test("CRUD") {
+                deltakere.upsert(deltaker1)
+                deltakere.upsert(deltaker2)
+
+                deltakere.getAll().shouldContainExactly(deltaker1, deltaker2)
+
+                val avsluttetDeltaker2 = deltaker2.copy(status = Deltakerstatus.AVSLUTTET)
+                deltakere.upsert(avsluttetDeltaker2)
+
+                deltakere.getAll().shouldContainExactly(deltaker1, avsluttetDeltaker2)
+
+                deltakere.delete(deltaker1.id)
+
+                deltakere.getAll().shouldContainExactly(avsluttetDeltaker2)
+            }
+
+            test("get by tiltaksgjennomforing") {
+                deltakere.upsert(deltaker1)
+                deltakere.upsert(deltaker2)
+
+                deltakere
+                    .getAll(tiltaksgjennomforingId = TiltaksgjennomforingFixtures.Oppfolging1.id)
+                    .shouldContainExactly(deltaker1)
+
+                deltakere
+                    .getAll(tiltaksgjennomforingId = TiltaksgjennomforingFixtures.Oppfolging2.id)
+                    .shouldContainExactly(deltaker2)
+            }
         }
-    }
-})
+    })

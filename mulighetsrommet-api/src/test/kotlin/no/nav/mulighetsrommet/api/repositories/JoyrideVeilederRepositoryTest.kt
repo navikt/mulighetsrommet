@@ -10,66 +10,67 @@ import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListe
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.domain.dto.NavIdent
 
-class JoyrideVeilederRepositoryTest : FunSpec({
-    val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
+class JoyrideVeilederRepositoryTest :
+    FunSpec({
+        val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
 
-    afterEach {
-        database.db.truncateAll()
-    }
+        afterEach {
+            database.db.truncateAll()
+        }
 
-    context("crud") {
-        test("Lagre kjørt-status for Joyride fra veileder") {
+        context("crud") {
+            test("Lagre kjørt-status for Joyride fra veileder") {
+                val veilederJoyrideRepository = VeilederJoyrideRepository(database.db)
+
+                val joyrideKjortForOversikten = VeilederJoyrideDto(
+                    navIdent = NavIdent("S123456"),
+                    fullfort = true,
+                    type = JoyrideType.OVERSIKT,
+                )
+
+                val joyrideKjortForDetaljside = VeilederJoyrideDto(
+                    navIdent = NavIdent("S123456"),
+                    fullfort = true,
+                    type = JoyrideType.DETALJER,
+                )
+                veilederJoyrideRepository.upsert(joyrideKjortForOversikten).shouldBeRight()
+                veilederJoyrideRepository.upsert(joyrideKjortForDetaljside).shouldBeRight()
+            }
+        }
+
+        test("Returnerer true hvis veileder har kjørt en spesifkk joyride tidligere") {
             val veilederJoyrideRepository = VeilederJoyrideRepository(database.db)
-
+            val navident = NavIdent("S123456")
             val joyrideKjortForOversikten = VeilederJoyrideDto(
-                navIdent = NavIdent("S123456"),
+                navIdent = navident,
                 fullfort = true,
                 type = JoyrideType.OVERSIKT,
             )
 
-            val joyrideKjortForDetaljside = VeilederJoyrideDto(
-                navIdent = NavIdent("S123456"),
-                fullfort = true,
-                type = JoyrideType.DETALJER,
-            )
             veilederJoyrideRepository.upsert(joyrideKjortForOversikten).shouldBeRight()
-            veilederJoyrideRepository.upsert(joyrideKjortForDetaljside).shouldBeRight()
+
+            val result = veilederJoyrideRepository.harFullfortJoyride(
+                navIdent = navident,
+                type = JoyrideType.OVERSIKT,
+            )
+            result shouldBe true
         }
-    }
 
-    test("Returnerer true hvis veileder har kjørt en spesifkk joyride tidligere") {
-        val veilederJoyrideRepository = VeilederJoyrideRepository(database.db)
-        val navident = NavIdent("S123456")
-        val joyrideKjortForOversikten = VeilederJoyrideDto(
-            navIdent = navident,
-            fullfort = true,
-            type = JoyrideType.OVERSIKT,
-        )
+        test("Returnerer false hvis veileder ikke har kjørt en spesifkk joyride tidligere") {
+            val veilederJoyrideRepository = VeilederJoyrideRepository(database.db)
+            val navident = NavIdent("S123456")
+            val joyrideKjortForOversikten = VeilederJoyrideDto(
+                navIdent = navident,
+                fullfort = false,
+                type = JoyrideType.OVERSIKT,
+            )
 
-        veilederJoyrideRepository.upsert(joyrideKjortForOversikten).shouldBeRight()
+            veilederJoyrideRepository.upsert(joyrideKjortForOversikten).shouldBeRight()
 
-        val result = veilederJoyrideRepository.harFullfortJoyride(
-            navIdent = navident,
-            type = JoyrideType.OVERSIKT,
-        )
-        result shouldBe true
-    }
-
-    test("Returnerer false hvis veileder ikke har kjørt en spesifkk joyride tidligere") {
-        val veilederJoyrideRepository = VeilederJoyrideRepository(database.db)
-        val navident = NavIdent("S123456")
-        val joyrideKjortForOversikten = VeilederJoyrideDto(
-            navIdent = navident,
-            fullfort = false,
-            type = JoyrideType.OVERSIKT,
-        )
-
-        veilederJoyrideRepository.upsert(joyrideKjortForOversikten).shouldBeRight()
-
-        val result = veilederJoyrideRepository.harFullfortJoyride(
-            navIdent = navident,
-            type = JoyrideType.OVERSIKT,
-        )
-        result shouldBe false
-    }
-})
+            val result = veilederJoyrideRepository.harFullfortJoyride(
+                navIdent = navident,
+                type = JoyrideType.OVERSIKT,
+            )
+            result shouldBe false
+        }
+    })

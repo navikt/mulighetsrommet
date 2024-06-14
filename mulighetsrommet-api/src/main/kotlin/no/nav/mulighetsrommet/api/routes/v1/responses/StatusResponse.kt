@@ -43,11 +43,12 @@ sealed class StatusResponseError(
 
 class ServerError(message: String? = null) : StatusResponseError(HttpStatusCode.InternalServerError, message, null)
 
-class BadRequest(message: String? = null, errors: List<ValidationError>? = null) : StatusResponseError(
-    HttpStatusCode.BadRequest,
-    message,
-    errors,
-)
+class BadRequest(message: String? = null, errors: List<ValidationError>? = null) :
+    StatusResponseError(
+        HttpStatusCode.BadRequest,
+        message,
+        errors,
+    )
 
 class NotFound(message: String? = null) : StatusResponseError(HttpStatusCode.NotFound, message, null)
 

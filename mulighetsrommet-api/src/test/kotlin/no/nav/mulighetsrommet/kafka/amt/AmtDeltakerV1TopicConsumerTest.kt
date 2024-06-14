@@ -23,99 +23,100 @@ import no.nav.mulighetsrommet.kafka.consumers.amt.AmtDeltakerV1TopicConsumer
 import java.time.LocalDateTime
 import java.util.*
 
-class AmtDeltakerV1TopicConsumerTest : FunSpec({
-    val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
+class AmtDeltakerV1TopicConsumerTest :
+    FunSpec({
+        val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
 
-    context("consume deltakere") {
-        beforeTest {
-            MulighetsrommetTestDomain().initialize(database.db)
+        context("consume deltakere") {
+            beforeTest {
+                MulighetsrommetTestDomain().initialize(database.db)
 
-            val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
-            tiltaksgjennomforinger.upsert(TiltaksgjennomforingFixtures.Oppfolging1)
-        }
+                val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
+                tiltaksgjennomforinger.upsert(TiltaksgjennomforingFixtures.Oppfolging1)
+            }
 
-        afterEach {
-            database.db.truncateAll()
-        }
+            afterEach {
+                database.db.truncateAll()
+            }
 
-        val deltakere = DeltakerRepository(database.db)
-        val deltakerConsumer = AmtDeltakerV1TopicConsumer(
-            config = KafkaTopicConsumer.Config(id = "deltaker", topic = "deltaker"),
-            deltakere,
-        )
-
-        val deltakelsesdato = LocalDateTime.of(2023, 3, 1, 0, 0, 0)
-
-        val amtDeltaker1 = AmtDeltakerV1Dto(
-            id = UUID.randomUUID(),
-            gjennomforingId = TiltaksgjennomforingFixtures.Oppfolging1.id,
-            personIdent = "10101010100",
-            startDato = null,
-            sluttDato = null,
-            status = AmtDeltakerStatus(
-                type = AmtDeltakerStatus.Type.VENTER_PA_OPPSTART,
-                aarsak = null,
-                opprettetDato = deltakelsesdato,
-            ),
-            registrertDato = deltakelsesdato,
-            endretDato = deltakelsesdato,
-            dagerPerUke = 2.5f,
-            prosentStilling = null,
-        )
-        val amtDeltaker2 = amtDeltaker1.copy(
-            id = UUID.randomUUID(),
-            personIdent = "10101010101",
-            dagerPerUke = 1f,
-        )
-        val deltaker1Dbo = DeltakerDbo(
-            id = amtDeltaker1.id,
-            tiltaksgjennomforingId = amtDeltaker1.gjennomforingId,
-            status = Deltakerstatus.VENTER,
-            opphav = Deltakeropphav.AMT,
-            startDato = null,
-            sluttDato = null,
-            registrertDato = amtDeltaker1.registrertDato,
-        )
-        val deltaker2Dbo = deltaker1Dbo.copy(
-            id = amtDeltaker2.id,
-        )
-
-        test("upsert deltakere from topic") {
-            deltakerConsumer.consume(amtDeltaker1.id, Json.encodeToJsonElement(amtDeltaker1))
-            deltakerConsumer.consume(amtDeltaker2.id, Json.encodeToJsonElement(amtDeltaker2))
-
-            deltakere.getAll().shouldContainExactly(deltaker1Dbo, deltaker2Dbo)
-        }
-
-        test("ignore deltakere with invalid foreign key reference to gjennomforing") {
-            val deltakerForUnknownGjennomforing = amtDeltaker1.copy(gjennomforingId = UUID.randomUUID())
-
-            deltakerConsumer.consume(amtDeltaker1.id, Json.encodeToJsonElement(deltakerForUnknownGjennomforing))
-
-            deltakere.getAll().shouldBeEmpty()
-        }
-
-        test("delete deltakere for tombstone messages") {
-            deltakere.upsert(deltaker1Dbo)
-
-            deltakerConsumer.consume(amtDeltaker1.id, JsonNull)
-
-            deltakere.getAll().shouldBeEmpty()
-        }
-
-        test("delete deltakere that have status FEILREGISTRERT") {
-            deltakere.upsert(deltaker1Dbo)
-
-            val feilregistrertDeltaker1 = amtDeltaker1.copy(
-                status = AmtDeltakerStatus(
-                    type = AmtDeltakerStatus.Type.FEILREGISTRERT,
-                    aarsak = null,
-                    opprettetDato = LocalDateTime.now(),
-                ),
+            val deltakere = DeltakerRepository(database.db)
+            val deltakerConsumer = AmtDeltakerV1TopicConsumer(
+                config = KafkaTopicConsumer.Config(id = "deltaker", topic = "deltaker"),
+                deltakere,
             )
-            deltakerConsumer.consume(feilregistrertDeltaker1.id, Json.encodeToJsonElement(feilregistrertDeltaker1))
 
-            deltakere.getAll().shouldBeEmpty()
+            val deltakelsesdato = LocalDateTime.of(2023, 3, 1, 0, 0, 0)
+
+            val amtDeltaker1 = AmtDeltakerV1Dto(
+                id = UUID.randomUUID(),
+                gjennomforingId = TiltaksgjennomforingFixtures.Oppfolging1.id,
+                personIdent = "10101010100",
+                startDato = null,
+                sluttDato = null,
+                status = AmtDeltakerStatus(
+                    type = AmtDeltakerStatus.Type.VENTER_PA_OPPSTART,
+                    aarsak = null,
+                    opprettetDato = deltakelsesdato,
+                ),
+                registrertDato = deltakelsesdato,
+                endretDato = deltakelsesdato,
+                dagerPerUke = 2.5f,
+                prosentStilling = null,
+            )
+            val amtDeltaker2 = amtDeltaker1.copy(
+                id = UUID.randomUUID(),
+                personIdent = "10101010101",
+                dagerPerUke = 1f,
+            )
+            val deltaker1Dbo = DeltakerDbo(
+                id = amtDeltaker1.id,
+                tiltaksgjennomforingId = amtDeltaker1.gjennomforingId,
+                status = Deltakerstatus.VENTER,
+                opphav = Deltakeropphav.AMT,
+                startDato = null,
+                sluttDato = null,
+                registrertDato = amtDeltaker1.registrertDato,
+            )
+            val deltaker2Dbo = deltaker1Dbo.copy(
+                id = amtDeltaker2.id,
+            )
+
+            test("upsert deltakere from topic") {
+                deltakerConsumer.consume(amtDeltaker1.id, Json.encodeToJsonElement(amtDeltaker1))
+                deltakerConsumer.consume(amtDeltaker2.id, Json.encodeToJsonElement(amtDeltaker2))
+
+                deltakere.getAll().shouldContainExactly(deltaker1Dbo, deltaker2Dbo)
+            }
+
+            test("ignore deltakere with invalid foreign key reference to gjennomforing") {
+                val deltakerForUnknownGjennomforing = amtDeltaker1.copy(gjennomforingId = UUID.randomUUID())
+
+                deltakerConsumer.consume(amtDeltaker1.id, Json.encodeToJsonElement(deltakerForUnknownGjennomforing))
+
+                deltakere.getAll().shouldBeEmpty()
+            }
+
+            test("delete deltakere for tombstone messages") {
+                deltakere.upsert(deltaker1Dbo)
+
+                deltakerConsumer.consume(amtDeltaker1.id, JsonNull)
+
+                deltakere.getAll().shouldBeEmpty()
+            }
+
+            test("delete deltakere that have status FEILREGISTRERT") {
+                deltakere.upsert(deltaker1Dbo)
+
+                val feilregistrertDeltaker1 = amtDeltaker1.copy(
+                    status = AmtDeltakerStatus(
+                        type = AmtDeltakerStatus.Type.FEILREGISTRERT,
+                        aarsak = null,
+                        opprettetDato = LocalDateTime.now(),
+                    ),
+                )
+                deltakerConsumer.consume(feilregistrertDeltaker1.id, Json.encodeToJsonElement(feilregistrertDeltaker1))
+
+                deltakere.getAll().shouldBeEmpty()
+            }
         }
-    }
-})
+    })

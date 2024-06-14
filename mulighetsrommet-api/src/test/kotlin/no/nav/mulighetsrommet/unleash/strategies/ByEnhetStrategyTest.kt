@@ -10,32 +10,33 @@ import no.nav.common.client.axsys.AxsysEnhet
 import no.nav.common.types.identer.EnhetId
 import no.nav.common.types.identer.NavIdent
 
-class ByEnhetStrategyTest : FunSpec({
-    context("Unleash - ByEnhetStrategy") {
-        val axsysClient = mockk<AxsysClient>(relaxed = true)
-        coEvery { axsysClient.hentTilganger(NavIdent("N123456")) } returns mockEnheter()
-        coEvery { axsysClient.hentTilganger(NavIdent("N666666")) } returns mockAvskruddeEnheter()
-        val byEnhetStrategy = ByEnhetStrategy(axsysClient = axsysClient)
+class ByEnhetStrategyTest :
+    FunSpec({
+        context("Unleash - ByEnhetStrategy") {
+            val axsysClient = mockk<AxsysClient>(relaxed = true)
+            coEvery { axsysClient.hentTilganger(NavIdent("N123456")) } returns mockEnheter()
+            coEvery { axsysClient.hentTilganger(NavIdent("N666666")) } returns mockAvskruddeEnheter()
+            val byEnhetStrategy = ByEnhetStrategy(axsysClient = axsysClient)
 
-        test("Skal returnere false når ingen UnleashContext er sendt inn") {
-            byEnhetStrategy.isEnabled(mutableMapOf()) shouldBe false
-        }
+            test("Skal returnere false når ingen UnleashContext er sendt inn") {
+                byEnhetStrategy.isEnabled(mutableMapOf()) shouldBe false
+            }
 
-        test("Skal returnere false når brukers enhet ikke finnes i liste med påskrudde enheter") {
-            byEnhetStrategy.isEnabled(
-                mutableMapOf(ByEnhetStrategy.VALGT_ENHET_PARAM to "987"),
-                UnleashContext("N666666", "", "", emptyMap()),
-            ) shouldBe false
-        }
+            test("Skal returnere false når brukers enhet ikke finnes i liste med påskrudde enheter") {
+                byEnhetStrategy.isEnabled(
+                    mutableMapOf(ByEnhetStrategy.VALGT_ENHET_PARAM to "987"),
+                    UnleashContext("N666666", "", "", emptyMap()),
+                ) shouldBe false
+            }
 
-        test("Skal returnere true når brukers enhet finnes i listen over påskrudde enheter") {
-            byEnhetStrategy.isEnabled(
-                mutableMapOf(ByEnhetStrategy.VALGT_ENHET_PARAM to "123,456"),
-                UnleashContext("N123456", "", "", emptyMap()),
-            ) shouldBe true
+            test("Skal returnere true når brukers enhet finnes i listen over påskrudde enheter") {
+                byEnhetStrategy.isEnabled(
+                    mutableMapOf(ByEnhetStrategy.VALGT_ENHET_PARAM to "123,456"),
+                    UnleashContext("N123456", "", "", emptyMap()),
+                ) shouldBe true
+            }
         }
-    }
-})
+    })
 
 private fun mockEnheter(): List<AxsysEnhet> {
     val enhet1 = AxsysEnhet()

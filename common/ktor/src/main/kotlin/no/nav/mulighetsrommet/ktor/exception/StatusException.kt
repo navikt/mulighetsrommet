@@ -7,5 +7,4 @@ import io.ktor.http.*
  * [no.nav.mulighetsrommet.ktor.plugins.configureStatusPagesForStatusException] ktor plugin, as long
  * as it's installed in the current application.
  */
-open class StatusException(val status: HttpStatusCode, val description: String? = null) :
-    Exception("Request failed with status: $status. Description: $description")
+open class StatusException(val status: HttpStatusCode, val description: String? = null) : Exception("Request failed with status: $status. Description: $description")

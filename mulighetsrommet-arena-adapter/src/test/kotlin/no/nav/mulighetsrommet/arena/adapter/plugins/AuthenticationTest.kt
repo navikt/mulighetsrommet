@@ -7,57 +7,58 @@ import io.ktor.http.*
 import no.nav.mulighetsrommet.arena.adapter.withTestApplication
 import no.nav.security.mock.oauth2.MockOAuth2Server
 
-class AuthenticationTest : FunSpec({
-    val oauth = MockOAuth2Server()
-    val apiUrl = "/topics"
+class AuthenticationTest :
+    FunSpec({
+        val oauth = MockOAuth2Server()
+        val apiUrl = "/topics"
 
-    beforeSpec {
-        oauth.start()
-    }
-
-    afterSpec {
-        oauth.shutdown()
-    }
-
-    context("protected endpoints") {
-        test("should respond with 401 when request is not authenticated") {
-            withTestApplication(oauth) {
-                val response = client.get(apiUrl)
-
-                response.status shouldBe HttpStatusCode.Unauthorized
-            }
+        beforeSpec {
+            oauth.start()
         }
 
-        test("should respond with 401 when the token has the wrong audience") {
-            withTestApplication(oauth) {
-                val response = client.get(apiUrl) {
-                    bearerAuth(
-                        oauth.issueToken(audience = "skatteetaten").serialize(),
-                    )
+        afterSpec {
+            oauth.shutdown()
+        }
+
+        context("protected endpoints") {
+            test("should respond with 401 when request is not authenticated") {
+                withTestApplication(oauth) {
+                    val response = client.get(apiUrl)
+
+                    response.status shouldBe HttpStatusCode.Unauthorized
                 }
-                response.status shouldBe HttpStatusCode.Unauthorized
             }
-        }
 
-        test("should respond with 401 when the token has the wrong issuer") {
-            withTestApplication(oauth) {
-
-                val response = client.get(apiUrl) {
-                    bearerAuth(
-                        oauth.issueToken(audience = "skatteetaten").serialize(),
-                    )
+            test("should respond with 401 when the token has the wrong audience") {
+                withTestApplication(oauth) {
+                    val response = client.get(apiUrl) {
+                        bearerAuth(
+                            oauth.issueToken(audience = "skatteetaten").serialize(),
+                        )
+                    }
+                    response.status shouldBe HttpStatusCode.Unauthorized
                 }
-                response.status shouldBe HttpStatusCode.Unauthorized
             }
-        }
 
-        test("should respond with 200 when request is authenticated") {
-            withTestApplication(oauth) {
-                val response = client.get(apiUrl) {
-                    bearerAuth(oauth.issueToken().serialize())
+            test("should respond with 401 when the token has the wrong issuer") {
+                withTestApplication(oauth) {
+
+                    val response = client.get(apiUrl) {
+                        bearerAuth(
+                            oauth.issueToken(audience = "skatteetaten").serialize(),
+                        )
+                    }
+                    response.status shouldBe HttpStatusCode.Unauthorized
                 }
-                response.status shouldBe HttpStatusCode.OK
+            }
+
+            test("should respond with 200 when request is authenticated") {
+                withTestApplication(oauth) {
+                    val response = client.get(apiUrl) {
+                        bearerAuth(oauth.issueToken().serialize())
+                    }
+                    response.status shouldBe HttpStatusCode.OK
+                }
             }
         }
-    }
-})
+    })

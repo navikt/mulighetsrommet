@@ -15,28 +15,29 @@ import no.nav.mulighetsrommet.api.domain.dto.SanityResponse
 import no.nav.mulighetsrommet.api.routes.v1.ApentForInnsok
 import java.util.*
 
-class VeilederflateServiceTest : FunSpec({
-    val sanityClient: SanityClient = mockk(relaxed = true)
-    val tiltaksgjennomforingService: TiltaksgjennomforingService = mockk(relaxed = true)
-    val tiltakstypeService: TiltakstypeService = mockk(relaxed = true)
-    val navEnhetService: NavEnhetService = mockk()
+class VeilederflateServiceTest :
+    FunSpec({
+        val sanityClient: SanityClient = mockk(relaxed = true)
+        val tiltaksgjennomforingService: TiltaksgjennomforingService = mockk(relaxed = true)
+        val tiltakstypeService: TiltakstypeService = mockk(relaxed = true)
+        val navEnhetService: NavEnhetService = mockk()
 
-    every { navEnhetService.hentOverordnetFylkesenhet("0430") } returns NavEnhetDbo(
-        navn = "NAV Innlandet",
-        enhetsnummer = "0400",
-        status = NavEnhetStatus.AKTIV,
-        type = Norg2Type.FYLKE,
-        overordnetEnhet = null,
-    )
+        every { navEnhetService.hentOverordnetFylkesenhet("0430") } returns NavEnhetDbo(
+            navn = "NAV Innlandet",
+            enhetsnummer = "0400",
+            status = NavEnhetStatus.AKTIV,
+            type = Norg2Type.FYLKE,
+            overordnetEnhet = null,
+        )
 
-    val sanityGjennomforingInnlandet = UUID.fromString("8d8a73bc-b661-4efd-90fc-2c59b258200e")
-    val sanityGjennomforingStorElvdal = UUID.fromString("f21d1e35-d63b-4de7-a0a5-589e57111527")
+        val sanityGjennomforingInnlandet = UUID.fromString("8d8a73bc-b661-4efd-90fc-2c59b258200e")
+        val sanityGjennomforingStorElvdal = UUID.fromString("f21d1e35-d63b-4de7-a0a5-589e57111527")
 
-    val sanityResult = SanityResponse.Result(
-        ms = 12,
-        query = "",
-        result = Json.parseToJsonElement(
-            """
+        val sanityResult = SanityResponse.Result(
+            ms = 12,
+            query = "",
+            result = Json.parseToJsonElement(
+                """
         [
             {
                 "_id": "8d8a5020-329d-4fbf-9eb2-20fc8a753a57",
@@ -83,41 +84,41 @@ class VeilederflateServiceTest : FunSpec({
             }
         ]
     """,
-        ),
-    )
-
-    test("henter ikke gjennomføringer fra Sanity når filter for 'Åpent for innsøk' er STENGT") {
-        val veilederFlateService = VeilederflateService(
-            sanityClient,
-            tiltaksgjennomforingService,
-            tiltakstypeService,
-            navEnhetService,
+            ),
         )
-        every {
-            tiltaksgjennomforingService.getAllVeilederflateTiltaksgjennomforing(
-                any(),
-                any(),
-                any(),
-                any(),
-                any(),
+
+        test("henter ikke gjennomføringer fra Sanity når filter for 'Åpent for innsøk' er STENGT") {
+            val veilederFlateService = VeilederflateService(
+                sanityClient,
+                tiltaksgjennomforingService,
+                tiltakstypeService,
+                navEnhetService,
             )
-        } returns listOf()
+            every {
+                tiltaksgjennomforingService.getAllVeilederflateTiltaksgjennomforing(
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                )
+            } returns listOf()
 
-        coEvery { sanityClient.query(any(), any()) } returns sanityResult
+            coEvery { sanityClient.query(any(), any()) } returns sanityResult
 
-        veilederFlateService.hentTiltaksgjennomforinger(
-            enheter = nonEmptyListOf("0430"),
-            apentForInnsok = ApentForInnsok.APENT,
-        ) shouldHaveSize 2
+            veilederFlateService.hentTiltaksgjennomforinger(
+                enheter = nonEmptyListOf("0430"),
+                apentForInnsok = ApentForInnsok.APENT,
+            ) shouldHaveSize 2
 
-        veilederFlateService.hentTiltaksgjennomforinger(
-            enheter = nonEmptyListOf("0430"),
-            apentForInnsok = ApentForInnsok.APENT_ELLER_STENGT,
-        ) shouldHaveSize 2
+            veilederFlateService.hentTiltaksgjennomforinger(
+                enheter = nonEmptyListOf("0430"),
+                apentForInnsok = ApentForInnsok.APENT_ELLER_STENGT,
+            ) shouldHaveSize 2
 
-        veilederFlateService.hentTiltaksgjennomforinger(
-            enheter = nonEmptyListOf("0430"),
-            apentForInnsok = ApentForInnsok.STENGT,
-        ) shouldHaveSize 0
-    }
-})
+            veilederFlateService.hentTiltaksgjennomforinger(
+                enheter = nonEmptyListOf("0430"),
+                apentForInnsok = ApentForInnsok.STENGT,
+            ) shouldHaveSize 0
+        }
+    })

@@ -15,49 +15,50 @@ import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 
-class SakEventProcessorTest : FunSpec({
-    val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
+class SakEventProcessorTest :
+    FunSpec({
+        val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
 
-    afterEach {
-        database.db.truncateAll()
-    }
-
-    context("handleEvent") {
-        val entities = ArenaEntityService(
-            mappings = ArenaEntityMappingRepository(database.db),
-            tiltakstyper = TiltakstypeRepository(database.db),
-            saker = SakRepository(database.db),
-            tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db),
-            deltakere = DeltakerRepository(database.db),
-            avtaler = AvtaleRepository(database.db),
-        )
-
-        context("when sakskode is not TILT") {
-            test("should ignore events") {
-                val processor = SakEventProcessor(entities)
-                val event = createArenaSakEvent(Insert, SakFixtures.ArenaIkkeTiltakSak)
-
-                processor.handleEvent(event).shouldBeRight()
-                    .should { it.status shouldBe ArenaEntityMapping.Status.Ignored }
-            }
+        afterEach {
+            database.db.truncateAll()
         }
 
-        context("when sakskode is TILT") {
-            test("should treat all operations as upserts") {
-                val processor = SakEventProcessor(entities)
+        context("handleEvent") {
+            val entities = ArenaEntityService(
+                mappings = ArenaEntityMappingRepository(database.db),
+                tiltakstyper = TiltakstypeRepository(database.db),
+                saker = SakRepository(database.db),
+                tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db),
+                deltakere = DeltakerRepository(database.db),
+                avtaler = AvtaleRepository(database.db),
+            )
 
-                val e1 = createArenaSakEvent(Insert) { it.copy(LOPENRSAK = 1) }
-                processor.handleEvent(e1).shouldBeRight().should { it.status shouldBe Handled }
-                database.assertThat("sak").row().value("lopenummer").isEqualTo(1)
+            context("when sakskode is not TILT") {
+                test("should ignore events") {
+                    val processor = SakEventProcessor(entities)
+                    val event = createArenaSakEvent(Insert, SakFixtures.ArenaIkkeTiltakSak)
 
-                val e2 = createArenaSakEvent(Insert) { it.copy(LOPENRSAK = 2) }
-                processor.handleEvent(e2).shouldBeRight().should { it.status shouldBe Handled }
-                database.assertThat("sak").row().value("lopenummer").isEqualTo(2)
+                    processor.handleEvent(event).shouldBeRight()
+                        .should { it.status shouldBe ArenaEntityMapping.Status.Ignored }
+                }
+            }
 
-                val e3 = createArenaSakEvent(Insert) { it.copy(LOPENRSAK = 3) }
-                processor.handleEvent(e3).shouldBeRight().should { it.status shouldBe Handled }
-                database.assertThat("sak").row().value("lopenummer").isEqualTo(3)
+            context("when sakskode is TILT") {
+                test("should treat all operations as upserts") {
+                    val processor = SakEventProcessor(entities)
+
+                    val e1 = createArenaSakEvent(Insert) { it.copy(LOPENRSAK = 1) }
+                    processor.handleEvent(e1).shouldBeRight().should { it.status shouldBe Handled }
+                    database.assertThat("sak").row().value("lopenummer").isEqualTo(1)
+
+                    val e2 = createArenaSakEvent(Insert) { it.copy(LOPENRSAK = 2) }
+                    processor.handleEvent(e2).shouldBeRight().should { it.status shouldBe Handled }
+                    database.assertThat("sak").row().value("lopenummer").isEqualTo(2)
+
+                    val e3 = createArenaSakEvent(Insert) { it.copy(LOPENRSAK = 3) }
+                    processor.handleEvent(e3).shouldBeRight().should { it.status shouldBe Handled }
+                    database.assertThat("sak").row().value("lopenummer").isEqualTo(3)
+                }
             }
         }
-    }
-})
+    })

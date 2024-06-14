@@ -6,10 +6,11 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromJsonElement
 import no.nav.mulighetsrommet.domain.dto.JaNeiStatus
 
-class ArenaTiltaksgjennomforingTest : FunSpec({
+class ArenaTiltaksgjennomforingTest :
+    FunSpec({
 
-    fun createTiltaksgjennomforingJson(antallDeltakere: Number = 5) = Json.parseToJsonElement(
-        """{
+        fun createTiltaksgjennomforingJson(antallDeltakere: Number = 5) = Json.parseToJsonElement(
+            """{
             "TILTAKGJENNOMFORING_ID": 3780431,
             "LOKALTNAVN": "Testenavn",
             "TILTAKSKODE": "INDOPPFAG",
@@ -24,34 +25,34 @@ class ArenaTiltaksgjennomforingTest : FunSpec({
             "AVTALE_ID": "1000",
             "PROSENT_DELTID": 55.33
         }""",
-    )
+        )
 
-    context("decode from JSON") {
-        test("should decode event from JSON") {
-            Json.decodeFromJsonElement<ArenaTiltaksgjennomforing>(createTiltaksgjennomforingJson()) shouldBe ArenaTiltaksgjennomforing(
-                TILTAKGJENNOMFORING_ID = 3780431,
-                SAK_ID = 13572352,
-                TILTAKSKODE = "INDOPPFAG",
-                LOKALTNAVN = "Testenavn",
-                REG_DATO = "2022-10-10 00:00:00",
-                ARBGIV_ID_ARRANGOR = 49612,
-                DATO_FRA = null,
-                DATO_TIL = null,
-                STATUS_TREVERDIKODE_INNSOKNING = JaNeiStatus.Ja,
-                ANTALL_DELTAKERE = 5,
-                TILTAKSTATUSKODE = "GJENNOMFOR",
-                AVTALE_ID = 1000,
-                PROSENT_DELTID = 55.33,
-                EKSTERN_ID = null,
-            )
+        context("decode from JSON") {
+            test("should decode event from JSON") {
+                Json.decodeFromJsonElement<ArenaTiltaksgjennomforing>(createTiltaksgjennomforingJson()) shouldBe ArenaTiltaksgjennomforing(
+                    TILTAKGJENNOMFORING_ID = 3780431,
+                    SAK_ID = 13572352,
+                    TILTAKSKODE = "INDOPPFAG",
+                    LOKALTNAVN = "Testenavn",
+                    REG_DATO = "2022-10-10 00:00:00",
+                    ARBGIV_ID_ARRANGOR = 49612,
+                    DATO_FRA = null,
+                    DATO_TIL = null,
+                    STATUS_TREVERDIKODE_INNSOKNING = JaNeiStatus.Ja,
+                    ANTALL_DELTAKERE = 5,
+                    TILTAKSTATUSKODE = "GJENNOMFOR",
+                    AVTALE_ID = 1000,
+                    PROSENT_DELTID = 55.33,
+                    EKSTERN_ID = null,
+                )
+            }
+
+            test("should decode ANTALL_DELTAKERE to nearest integer") {
+                val json = createTiltaksgjennomforingJson(antallDeltakere = 5.5)
+
+                val decoded = Json.decodeFromJsonElement<ArenaTiltaksgjennomforing>(json)
+
+                decoded.ANTALL_DELTAKERE shouldBe 6
+            }
         }
-
-        test("should decode ANTALL_DELTAKERE to nearest integer") {
-            val json = createTiltaksgjennomforingJson(antallDeltakere = 5.5)
-
-            val decoded = Json.decodeFromJsonElement<ArenaTiltaksgjennomforing>(json)
-
-            decoded.ANTALL_DELTAKERE shouldBe 6
-        }
-    }
-})
+    })

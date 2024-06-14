@@ -22,111 +22,112 @@ import no.nav.mulighetsrommet.domain.dto.ArenaTiltaksgjennomforingDto
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.kafka.producers.ArenaMigreringTiltaksgjennomforingKafkaProducer
 
-class TiltaksgjennomforingTopicConsumerTest : FunSpec({
-    val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
+class TiltaksgjennomforingTopicConsumerTest :
+    FunSpec({
+        val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
 
-    context("migrerte gjennomføringer") {
-        val producerClient = mockk<KafkaProducerClient<String, String?>>(relaxed = true)
-        val producer = spyk(
-            ArenaMigreringTiltaksgjennomforingKafkaProducer(
-                producerClient,
-                config = ArenaMigreringTiltaksgjennomforingKafkaProducer.Config(topic = "topic"),
-            ),
-        )
+        context("migrerte gjennomføringer") {
+            val producerClient = mockk<KafkaProducerClient<String, String?>>(relaxed = true)
+            val producer = spyk(
+                ArenaMigreringTiltaksgjennomforingKafkaProducer(
+                    producerClient,
+                    config = ArenaMigreringTiltaksgjennomforingKafkaProducer.Config(topic = "topic"),
+                ),
+            )
 
-        val gjennomforinger = TiltaksgjennomforingRepository(database.db)
+            val gjennomforinger = TiltaksgjennomforingRepository(database.db)
 
-        MulighetsrommetTestDomain(
-            tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
-            avtaler = listOf(AvtaleFixtures.oppfolging),
-            gjennomforinger = listOf(TiltaksgjennomforingFixtures.Oppfolging1),
-        ).initialize(database.db)
+            MulighetsrommetTestDomain(
+                tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
+                avtaler = listOf(AvtaleFixtures.oppfolging),
+                gjennomforinger = listOf(TiltaksgjennomforingFixtures.Oppfolging1),
+            ).initialize(database.db)
 
-        val gjennomforing = gjennomforinger.get(TiltaksgjennomforingFixtures.Oppfolging1.id)
-        gjennomforing.shouldNotBeNull()
+            val gjennomforing = gjennomforinger.get(TiltaksgjennomforingFixtures.Oppfolging1.id)
+            gjennomforing.shouldNotBeNull()
 
-        val endretTidspunkt = gjennomforinger.getUpdatedAt(gjennomforing.id)
-        endretTidspunkt.shouldNotBeNull()
+            val endretTidspunkt = gjennomforinger.getUpdatedAt(gjennomforing.id)
+            endretTidspunkt.shouldNotBeNull()
 
-        afterEach {
-            clearAllMocks()
+            afterEach {
+                clearAllMocks()
+            }
+
+            test("skal ikke publisere gjennomføringer til migreringstopic før tiltakstype er migrert") {
+                val arenaAdapterClient = mockk<ArenaAdapterClient>()
+                coEvery { arenaAdapterClient.hentArenadata(gjennomforing.id) } returns null
+
+                val tiltakstyper = TiltakstypeService(TiltakstypeRepository(database.db), enabledTiltakskoder = emptyList())
+
+                val consumer = TiltaksgjennomforingTopicConsumer(
+                    KafkaTopicConsumer.Config(id = "id", topic = "topic"),
+                    tiltakstyper,
+                    gjennomforinger,
+                    producer,
+                    arenaAdapterClient,
+                )
+
+                consumer.consume(
+                    gjennomforing.id.toString(),
+                    Json.encodeToJsonElement(gjennomforing.toTiltaksgjennomforingDto()),
+                )
+
+                verify(exactly = 0) { producer.publish(any()) }
+                verify(exactly = 0) { producerClient.sendSync(any()) }
+            }
+
+            test("skal publisere gjennomføringer til tiltaksgjennomføringer når tiltakstype er migrert") {
+                val arenaAdapterClient = mockk<ArenaAdapterClient>()
+                coEvery { arenaAdapterClient.hentArenadata(gjennomforing.id) } returns null
+
+                val tiltakstyper = TiltakstypeService(TiltakstypeRepository(database.db), listOf(Tiltakskode.OPPFOLGING))
+
+                val consumer = TiltaksgjennomforingTopicConsumer(
+                    KafkaTopicConsumer.Config(id = "id", topic = "topic"),
+                    tiltakstyper,
+                    gjennomforinger,
+                    producer,
+                    arenaAdapterClient,
+                )
+
+                consumer.consume(
+                    gjennomforing.id.toString(),
+                    Json.encodeToJsonElement(gjennomforing.toTiltaksgjennomforingDto()),
+                )
+
+                val expectedMessage = ArenaMigreringTiltaksgjennomforingDto.from(gjennomforing, null, endretTidspunkt)
+                verify(exactly = 1) { producer.publish(expectedMessage) }
+                verify(exactly = 1) { producerClient.sendSync(any()) }
+            }
+
+            test("skal inkludere eksisterende arenaId når gjennomføring allerede eksisterer i Arena") {
+                val arenaAdapterClient = mockk<ArenaAdapterClient>()
+                coEvery { arenaAdapterClient.hentArenadata(gjennomforing.id) } returns ArenaTiltaksgjennomforingDto(
+                    arenaId = 123,
+                    status = "AVSLU",
+                )
+
+                val tiltakstyper = TiltakstypeService(
+                    TiltakstypeRepository(database.db),
+                    enabledTiltakskoder = listOf(Tiltakskode.OPPFOLGING),
+                )
+
+                val consumer = TiltaksgjennomforingTopicConsumer(
+                    KafkaTopicConsumer.Config(id = "id", topic = "topic"),
+                    tiltakstyper,
+                    gjennomforinger,
+                    producer,
+                    arenaAdapterClient,
+                )
+
+                consumer.consume(
+                    gjennomforing.id.toString(),
+                    Json.encodeToJsonElement(gjennomforing.toTiltaksgjennomforingDto()),
+                )
+
+                val expectedMessage = ArenaMigreringTiltaksgjennomforingDto.from(gjennomforing, 123, endretTidspunkt)
+                verify(exactly = 1) { producer.publish(expectedMessage) }
+                verify(exactly = 1) { producerClient.sendSync(any()) }
+            }
         }
-
-        test("skal ikke publisere gjennomføringer til migreringstopic før tiltakstype er migrert") {
-            val arenaAdapterClient = mockk<ArenaAdapterClient>()
-            coEvery { arenaAdapterClient.hentArenadata(gjennomforing.id) } returns null
-
-            val tiltakstyper = TiltakstypeService(TiltakstypeRepository(database.db), enabledTiltakskoder = emptyList())
-
-            val consumer = TiltaksgjennomforingTopicConsumer(
-                KafkaTopicConsumer.Config(id = "id", topic = "topic"),
-                tiltakstyper,
-                gjennomforinger,
-                producer,
-                arenaAdapterClient,
-            )
-
-            consumer.consume(
-                gjennomforing.id.toString(),
-                Json.encodeToJsonElement(gjennomforing.toTiltaksgjennomforingDto()),
-            )
-
-            verify(exactly = 0) { producer.publish(any()) }
-            verify(exactly = 0) { producerClient.sendSync(any()) }
-        }
-
-        test("skal publisere gjennomføringer til tiltaksgjennomføringer når tiltakstype er migrert") {
-            val arenaAdapterClient = mockk<ArenaAdapterClient>()
-            coEvery { arenaAdapterClient.hentArenadata(gjennomforing.id) } returns null
-
-            val tiltakstyper = TiltakstypeService(TiltakstypeRepository(database.db), listOf(Tiltakskode.OPPFOLGING))
-
-            val consumer = TiltaksgjennomforingTopicConsumer(
-                KafkaTopicConsumer.Config(id = "id", topic = "topic"),
-                tiltakstyper,
-                gjennomforinger,
-                producer,
-                arenaAdapterClient,
-            )
-
-            consumer.consume(
-                gjennomforing.id.toString(),
-                Json.encodeToJsonElement(gjennomforing.toTiltaksgjennomforingDto()),
-            )
-
-            val expectedMessage = ArenaMigreringTiltaksgjennomforingDto.from(gjennomforing, null, endretTidspunkt)
-            verify(exactly = 1) { producer.publish(expectedMessage) }
-            verify(exactly = 1) { producerClient.sendSync(any()) }
-        }
-
-        test("skal inkludere eksisterende arenaId når gjennomføring allerede eksisterer i Arena") {
-            val arenaAdapterClient = mockk<ArenaAdapterClient>()
-            coEvery { arenaAdapterClient.hentArenadata(gjennomforing.id) } returns ArenaTiltaksgjennomforingDto(
-                arenaId = 123,
-                status = "AVSLU",
-            )
-
-            val tiltakstyper = TiltakstypeService(
-                TiltakstypeRepository(database.db),
-                enabledTiltakskoder = listOf(Tiltakskode.OPPFOLGING),
-            )
-
-            val consumer = TiltaksgjennomforingTopicConsumer(
-                KafkaTopicConsumer.Config(id = "id", topic = "topic"),
-                tiltakstyper,
-                gjennomforinger,
-                producer,
-                arenaAdapterClient,
-            )
-
-            consumer.consume(
-                gjennomforing.id.toString(),
-                Json.encodeToJsonElement(gjennomforing.toTiltaksgjennomforingDto()),
-            )
-
-            val expectedMessage = ArenaMigreringTiltaksgjennomforingDto.from(gjennomforing, 123, endretTidspunkt)
-            verify(exactly = 1) { producer.publish(expectedMessage) }
-            verify(exactly = 1) { producerClient.sendSync(any()) }
-        }
-    }
-})
+    })

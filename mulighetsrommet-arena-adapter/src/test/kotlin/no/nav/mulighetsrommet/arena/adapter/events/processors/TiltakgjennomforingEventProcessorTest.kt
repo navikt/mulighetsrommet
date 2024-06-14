@@ -45,480 +45,481 @@ import no.nav.mulighetsrommet.ktor.respondJson
 import java.time.LocalDate
 import java.time.LocalDateTime
 
-class TiltakgjennomforingEventProcessorTest : FunSpec({
-    val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
+class TiltakgjennomforingEventProcessorTest :
+    FunSpec({
+        val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
 
-    afterEach {
-        database.db.truncateAll()
-    }
-
-    val tiltakshistorikkStartDate = LocalDateTime.now().minus(Tiltakshistorikk.TiltakshistorikkTimePeriod)
-
-    val dateBeforeTiltakshistorikkStartDate = tiltakshistorikkStartDate.minusDays(1)
-
-    context("handleEvent") {
-        val entities = ArenaEntityService(
-            mappings = ArenaEntityMappingRepository(database.db),
-            tiltakstyper = TiltakstypeRepository(database.db),
-            saker = SakRepository(database.db),
-            tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db),
-            deltakere = DeltakerRepository(database.db),
-            avtaler = AvtaleRepository(database.db),
-        )
-
-        fun createProcessor(engine: HttpClientEngine = createMockEngine()): TiltakgjennomforingEventProcessor {
-            val client = MulighetsrommetApiClient(engine, baseUri = "") {
-                "Bearer token"
-            }
-
-            val ords = ArenaOrdsProxyClientImpl(engine, baseUrl = "") {
-                "Bearer token"
-            }
-
-            return TiltakgjennomforingEventProcessor(entities, client, ords)
+        afterEach {
+            database.db.truncateAll()
         }
 
-        fun prepareEvent(
-            event: ArenaEvent,
-            status: ArenaEntityMapping.Status? = null,
-        ): Pair<ArenaEvent, ArenaEntityMapping> {
-            val mapping = entities.getOrCreateMapping(event)
-            if (status != null) {
-                entities.upsertMapping(mapping.copy(status = status))
-            }
-            return Pair(event, mapping)
-        }
+        val tiltakshistorikkStartDate = LocalDateTime.now().minus(Tiltakshistorikk.TiltakshistorikkTimePeriod)
 
-        fun upsertAvtale(event: ArenaEvent, mapping: ArenaEntityMapping) {
-            event.decodePayload<ArenaAvtaleInfo>()
-                .toAvtale(mapping.entityId)
-                .flatMap { entities.upsertAvtale(it) }
-                .shouldBeRight()
-        }
+        val dateBeforeTiltakshistorikkStartDate = tiltakshistorikkStartDate.minusDays(1)
 
-        context("when dependent events has not been processed") {
-            test("should save the event with status Failed when dependent sak is missing") {
-                val tiltakstyper = TiltakstypeRepository(database.db)
-                tiltakstyper.upsert(TiltakstypeFixtures.Gruppe)
+        context("handleEvent") {
+            val entities = ArenaEntityService(
+                mappings = ArenaEntityMappingRepository(database.db),
+                tiltakstyper = TiltakstypeRepository(database.db),
+                saker = SakRepository(database.db),
+                tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db),
+                deltakere = DeltakerRepository(database.db),
+                avtaler = AvtaleRepository(database.db),
+            )
 
-                val processor = createProcessor()
-
-                val (event) = prepareEvent(createArenaTiltakgjennomforingEvent(Insert))
-                processor.handleEvent(event).shouldBeLeft().should {
-                    it.status shouldBe Failed
-                    it.message shouldContain "insert or update on table \"tiltaksgjennomforing\" violates foreign key constraint \"tiltaksgjennomforing_sak_id_fkey\""
+            fun createProcessor(engine: HttpClientEngine = createMockEngine()): TiltakgjennomforingEventProcessor {
+                val client = MulighetsrommetApiClient(engine, baseUri = "") {
+                    "Bearer token"
                 }
-                database.assertThat("tiltaksgjennomforing").isEmpty
-            }
 
-            test("should save the event with status Failed when dependent tiltakstype is missing") {
-                val saker = SakRepository(database.db)
-                saker.upsert(
-                    Sak(
-                        sakId = 13572352,
-                        lopenummer = 123,
-                        aar = 2022,
-                        enhet = "2990",
-                    ),
-                )
-
-                val processor = createProcessor()
-                val (event) = prepareEvent(createArenaTiltakgjennomforingEvent(Insert))
-
-                processor.handleEvent(event).shouldBeLeft().should {
-                    it.status shouldBe Failed
-                    it.message shouldContain "insert or update on table \"tiltaksgjennomforing\" violates foreign key constraint \"tiltaksgjennomforing_tiltakskode_fkey\""
+                val ords = ArenaOrdsProxyClientImpl(engine, baseUrl = "") {
+                    "Bearer token"
                 }
-                database.assertThat("tiltaksgjennomforing").isEmpty
+
+                return TiltakgjennomforingEventProcessor(entities, client, ords)
             }
-        }
 
-        test("should ignore gjennomføringer when required fields are missing") {
-            val processor = createProcessor()
-
-            listOf(
-                createArenaTiltakgjennomforingEvent(Insert) {
-                    it.copy(DATO_FRA = null)
-                },
-                createArenaTiltakgjennomforingEvent(Insert) {
-                    it.copy(LOKALTNAVN = null)
-                },
-                createArenaTiltakgjennomforingEvent(Insert) {
-                    it.copy(ARBGIV_ID_ARRANGOR = null)
-                },
-            ).forEach { event ->
-                processor.handleEvent(event).shouldBeRight().should {
-                    it.status shouldBe Ignored
+            fun prepareEvent(
+                event: ArenaEvent,
+                status: ArenaEntityMapping.Status? = null,
+            ): Pair<ArenaEvent, ArenaEntityMapping> {
+                val mapping = entities.getOrCreateMapping(event)
+                if (status != null) {
+                    entities.upsertMapping(mapping.copy(status = status))
                 }
+                return Pair(event, mapping)
             }
 
-            database.assertThat("tiltaksgjennomforing").isEmpty
-        }
-
-        context("when tiltaksgjennomføring is individuell") {
-            val tiltakstype = TiltakstypeFixtures.Individuell
-
-            beforeEach {
-                val saker = SakRepository(database.db)
-                saker.upsert(Sak(sakId = 13572352, lopenummer = 123, aar = 2022, enhet = "2990"))
-
-                val tiltakstyper = TiltakstypeRepository(database.db)
-                tiltakstyper.upsert(tiltakstype)
-                entities.upsertMapping(
-                    ArenaEntityMapping(ArenaTable.Tiltakstype, tiltakstype.tiltakskode, tiltakstype.id, Handled),
-                )
+            fun upsertAvtale(event: ArenaEvent, mapping: ArenaEntityMapping) {
+                event.decodePayload<ArenaAvtaleInfo>()
+                    .toAvtale(mapping.entityId)
+                    .flatMap { entities.upsertAvtale(it) }
+                    .shouldBeRight()
             }
 
-            context("when tiltaksgjennomføring is individuelt tiltak") {
-                test("should upsert gjennomføringer") {
+            context("when dependent events has not been processed") {
+                test("should save the event with status Failed when dependent sak is missing") {
+                    val tiltakstyper = TiltakstypeRepository(database.db)
+                    tiltakstyper.upsert(TiltakstypeFixtures.Gruppe)
+
                     val processor = createProcessor()
 
-                    val eventWithOldSluttDato = createArenaTiltakgjennomforingEvent(
-                        Insert,
-                        TiltaksgjennomforingFixtures.ArenaTiltaksgjennomforingIndividuell,
-                    ) {
-                        it.copy(DATO_TIL = dateBeforeTiltakshistorikkStartDate.format(ArenaTimestampFormatter))
+                    val (event) = prepareEvent(createArenaTiltakgjennomforingEvent(Insert))
+                    processor.handleEvent(event).shouldBeLeft().should {
+                        it.status shouldBe Failed
+                        it.message shouldContain "insert or update on table \"tiltaksgjennomforing\" violates foreign key constraint \"tiltaksgjennomforing_sak_id_fkey\""
                     }
-                    val eventCreatedAfterAktivitetsplanen = createArenaTiltakgjennomforingEvent(
-                        Insert,
-                        TiltaksgjennomforingFixtures.ArenaTiltaksgjennomforingIndividuell,
-                    ) {
-                        it.copy(REG_DATO = tiltakshistorikkStartDate.format(ArenaTimestampFormatter))
-                    }
-
-                    forAll(row(eventWithOldSluttDato), row(eventCreatedAfterAktivitetsplanen)) { event ->
-                        runBlocking {
-                            val (e) = prepareEvent(event)
-                            processor.handleEvent(e).shouldBeRight().should { it.status shouldBe Handled }
-                        }
-                    }
+                    database.assertThat("tiltaksgjennomforing").isEmpty
                 }
 
-                test("should not send gjennomføringer to mr-api") {
-                    val engine = MockEngine { respondOk() }
-                    val processor = createProcessor(engine)
-
-                    val (event) = prepareEvent(
-                        createArenaTiltakgjennomforingEvent(
-                            Insert,
-                            TiltaksgjennomforingFixtures.ArenaTiltaksgjennomforingIndividuell,
+                test("should save the event with status Failed when dependent tiltakstype is missing") {
+                    val saker = SakRepository(database.db)
+                    saker.upsert(
+                        Sak(
+                            sakId = 13572352,
+                            lopenummer = 123,
+                            aar = 2022,
+                            enhet = "2990",
                         ),
                     )
 
-                    processor.handleEvent(event).shouldBeRight()
-                    engine.requestHistory.shouldBeEmpty()
+                    val processor = createProcessor()
+                    val (event) = prepareEvent(createArenaTiltakgjennomforingEvent(Insert))
+
+                    processor.handleEvent(event).shouldBeLeft().should {
+                        it.status shouldBe Failed
+                        it.message shouldContain "insert or update on table \"tiltaksgjennomforing\" violates foreign key constraint \"tiltaksgjennomforing_tiltakskode_fkey\""
+                    }
+                    database.assertThat("tiltaksgjennomforing").isEmpty
                 }
             }
-        }
 
-        context("when tiltaksgjennomføring is gruppetiltak") {
-            val tiltakstype = TiltakstypeFixtures.Gruppe
+            test("should ignore gjennomføringer when required fields are missing") {
+                val processor = createProcessor()
 
-            beforeEach {
-                val saker = SakRepository(database.db)
-                saker.upsert(Sak(sakId = 13572352, lopenummer = 123, aar = 2022, enhet = "2990"))
-
-                val tiltakstyper = TiltakstypeRepository(database.db)
-                tiltakstyper.upsert(tiltakstype)
-                entities.upsertMapping(
-                    ArenaEntityMapping(ArenaTable.Tiltakstype, tiltakstype.tiltakskode, tiltakstype.id, Handled),
-                )
-            }
-
-            test("should treat all operations on gruppetiltak as upserts") {
-                val (e1, mapping) = prepareEvent(
+                listOf(
                     createArenaTiltakgjennomforingEvent(Insert) {
-                        it.copy(
-                            REG_DATO = dateBeforeTiltakshistorikkStartDate.format(ArenaTimestampFormatter),
-                            LOKALTNAVN = "Navn 1",
-                        )
+                        it.copy(DATO_FRA = null)
                     },
-                )
-
-                val engine = createMockEngine(
-                    "/ords/arbeidsgiver" to {
-                        respondJson(
-                            ArenaOrdsArrangor("123456", "000000"),
-                        )
-                    },
-                    "/api/v1/intern/arena/tiltaksgjennomforing" to { respondOk() },
-                    "/api/v1/intern/arena/tiltaksgjennomforing/${mapping.entityId}" to { respondOk() },
-                )
-                val processor = createProcessor(engine)
-
-                processor.handleEvent(e1).shouldBeRight().should { it.status shouldBe Handled }
-                database.assertThat("tiltaksgjennomforing").row()
-                    .value("id").isEqualTo(mapping.entityId)
-                    .value("navn").isEqualTo("Navn 1")
-
-                val e2 = createArenaTiltakgjennomforingEvent(Update) {
-                    it.copy(
-                        REG_DATO = tiltakshistorikkStartDate.format(ArenaTimestampFormatter),
-                        LOKALTNAVN = "Navn 2",
-                    )
-                }
-                processor.handleEvent(e2).shouldBeRight().should { it.status shouldBe Handled }
-                database.assertThat("tiltaksgjennomforing").row()
-                    .value("id").isEqualTo(mapping.entityId)
-                    .value("navn").isEqualTo("Navn 2")
-
-                val e3 = createArenaTiltakgjennomforingEvent(Delete) {
-                    it.copy(LOKALTNAVN = "Navn 1")
-                }
-                processor.handleEvent(e3).shouldBeRight().should { it.status shouldBe Handled }
-                database.assertThat("tiltaksgjennomforing").row()
-                    .value("id").isEqualTo(mapping.entityId)
-                    .value("navn").isEqualTo("Navn 1")
-            }
-
-            test("should mark the event as Failed when arena ords proxy responds with an error") {
-                val engine = createMockEngine(
-                    "/ords/arbeidsgiver" to {
-                        respondError(HttpStatusCode.InternalServerError)
-                    },
-                )
-                val processor = createProcessor(engine)
-
-                val (event) = prepareEvent(createArenaTiltakgjennomforingEvent(Insert))
-
-                processor.handleEvent(event).shouldBeLeft().should {
-                    it.status shouldBe Failed
-                    it.message shouldContain "Internal Server Error"
-                }
-            }
-
-            test("should mark the event as Invalid when arena ords proxy responds with NotFound") {
-                val engine = createMockEngine(
-                    "/ords/arbeidsgiver" to {
-                        respondError(HttpStatusCode.NotFound)
-                    },
-                )
-                val processor = createProcessor(engine)
-                val (event) = prepareEvent(createArenaTiltakgjennomforingEvent(Insert))
-
-                processor.handleEvent(event).shouldBeLeft().should {
-                    it.status shouldBe Failed
-                    it.message shouldContain "Fant ikke arrangør i Arena ORDS"
-                }
-            }
-
-            test("should mark the event as Failed when api responds with an error") {
-                val engine = createMockEngine(
-                    "/ords/arbeidsgiver" to {
-                        respondJson(
-                            ArenaOrdsArrangor("123456", "000000"),
-                        )
-                    },
-                    "/api/v1/intern/arena/tiltaksgjennomforing" to {
-                        respondError(HttpStatusCode.InternalServerError)
-                    },
-                )
-                val processor = createProcessor(engine)
-
-                val (event) = prepareEvent(createArenaTiltakgjennomforingEvent(Insert))
-
-                processor.handleEvent(event).shouldBeLeft().should {
-                    it.status shouldBe Failed
-                    it.message shouldContain "Internal Server Error"
-                }
-            }
-
-            test("should call api with mapped event payload when all services responds with success") {
-                val (event, mapping) = prepareEvent(
                     createArenaTiltakgjennomforingEvent(Insert) {
-                        it.copy(
-                            DATO_FRA = "2022-11-11 00:00:00",
-                            DATO_TIL = "2023-11-11 00:00:00",
-                            PROSENT_DELTID = 55.33,
-                        )
+                        it.copy(LOKALTNAVN = null)
                     },
-                )
-
-                val engine = createMockEngine(
-                    "/ords/arbeidsgiver" to {
-                        respondJson(
-                            ArenaOrdsArrangor("123456", "000000"),
-                        )
+                    createArenaTiltakgjennomforingEvent(Insert) {
+                        it.copy(ARBGIV_ID_ARRANGOR = null)
                     },
-                    "/api/v1/intern/arena/tiltaksgjennomforing" to { respondOk() },
-                    "/api/v1/intern/arena/tiltaksgjennomforing/${mapping.entityId}" to { respondOk() },
-                )
-                val processor = createProcessor(engine)
-
-                processor.handleEvent(event).shouldBeRight()
-
-                engine.requestHistory.last().apply {
-                    method shouldBe HttpMethod.Put
-
-                    decodeRequestBody<ArenaTiltaksgjennomforingDbo>().apply {
-                        id shouldBe mapping.entityId
-                        tiltakstypeId shouldBe tiltakstype.id
-                        tiltaksnummer shouldBe "2022#123"
-                        arrangorOrganisasjonsnummer shouldBe "123456"
-                        startDato shouldBe LocalDate.of(2022, 11, 11)
-                        sluttDato shouldBe LocalDate.of(2023, 11, 11)
-                        avslutningsstatus shouldBe Avslutningsstatus.IKKE_AVSLUTTET
-                        deltidsprosent shouldBe 55.33
+                ).forEach { event ->
+                    processor.handleEvent(event).shouldBeRight().should {
+                        it.status shouldBe Ignored
                     }
                 }
 
-                processor.handleEvent(createArenaTiltakgjennomforingEvent(Delete)).shouldBeRight()
+                database.assertThat("tiltaksgjennomforing").isEmpty
+            }
 
-                engine.requestHistory.last().apply {
-                    method shouldBe HttpMethod.Delete
+            context("when tiltaksgjennomføring is individuell") {
+                val tiltakstype = TiltakstypeFixtures.Individuell
 
-                    url.getLastPathParameterAsUUID() shouldBe mapping.entityId
+                beforeEach {
+                    val saker = SakRepository(database.db)
+                    saker.upsert(Sak(sakId = 13572352, lopenummer = 123, aar = 2022, enhet = "2990"))
+
+                    val tiltakstyper = TiltakstypeRepository(database.db)
+                    tiltakstyper.upsert(tiltakstype)
+                    entities.upsertMapping(
+                        ArenaEntityMapping(ArenaTable.Tiltakstype, tiltakstype.tiltakskode, tiltakstype.id, Handled),
+                    )
+                }
+
+                context("when tiltaksgjennomføring is individuelt tiltak") {
+                    test("should upsert gjennomføringer") {
+                        val processor = createProcessor()
+
+                        val eventWithOldSluttDato = createArenaTiltakgjennomforingEvent(
+                            Insert,
+                            TiltaksgjennomforingFixtures.ArenaTiltaksgjennomforingIndividuell,
+                        ) {
+                            it.copy(DATO_TIL = dateBeforeTiltakshistorikkStartDate.format(ArenaTimestampFormatter))
+                        }
+                        val eventCreatedAfterAktivitetsplanen = createArenaTiltakgjennomforingEvent(
+                            Insert,
+                            TiltaksgjennomforingFixtures.ArenaTiltaksgjennomforingIndividuell,
+                        ) {
+                            it.copy(REG_DATO = tiltakshistorikkStartDate.format(ArenaTimestampFormatter))
+                        }
+
+                        forAll(row(eventWithOldSluttDato), row(eventCreatedAfterAktivitetsplanen)) { event ->
+                            runBlocking {
+                                val (e) = prepareEvent(event)
+                                processor.handleEvent(e).shouldBeRight().should { it.status shouldBe Handled }
+                            }
+                        }
+                    }
+
+                    test("should not send gjennomføringer to mr-api") {
+                        val engine = MockEngine { respondOk() }
+                        val processor = createProcessor(engine)
+
+                        val (event) = prepareEvent(
+                            createArenaTiltakgjennomforingEvent(
+                                Insert,
+                                TiltaksgjennomforingFixtures.ArenaTiltaksgjennomforingIndividuell,
+                            ),
+                        )
+
+                        processor.handleEvent(event).shouldBeRight()
+                        engine.requestHistory.shouldBeEmpty()
+                    }
                 }
             }
 
-            test("should map status to avslutningsstatus") {
-                val gjennomfores = createArenaTiltakgjennomforingEvent(Insert) {
-                    it.copy(TILTAKSTATUSKODE = "GJENNOMFOR")
-                }
-                val avlyst = createArenaTiltakgjennomforingEvent(Insert) {
-                    it.copy(TILTAKSTATUSKODE = "AVLYST")
-                }
-                val avbrutt = createArenaTiltakgjennomforingEvent(Insert) {
-                    it.copy(TILTAKSTATUSKODE = "AVBRUTT")
-                }
-                val avsluttetBeforeSluttdato = createArenaTiltakgjennomforingEvent(Insert) {
-                    it.copy(
-                        TILTAKSTATUSKODE = "AVSLUTT",
-                        DATO_FRA = "2022-11-11 00:00:00",
-                        DATO_TIL = LocalDateTime.now().plusYears(1).format(ArenaTimestampFormatter),
-                    )
-                }
-                val avsluttetAfterSluttdato = createArenaTiltakgjennomforingEvent(Insert) {
-                    it.copy(
-                        TILTAKSTATUSKODE = "AVSLUTT",
-                        DATO_FRA = "2022-11-11 00:00:00",
-                        DATO_TIL = "2023-11-11 00:00:00",
-                    )
-                }
-                forAll(
-                    row(gjennomfores, Avslutningsstatus.IKKE_AVSLUTTET),
-                    row(avlyst, Avslutningsstatus.AVLYST),
-                    row(avbrutt, Avslutningsstatus.AVBRUTT),
-                    row(avsluttetBeforeSluttdato, Avslutningsstatus.AVBRUTT),
-                    row(avsluttetAfterSluttdato, Avslutningsstatus.AVSLUTTET),
-                ) { event2, expectedStatus ->
-                    runBlocking {
-                        val (event, mapping) = prepareEvent(event2)
+            context("when tiltaksgjennomføring is gruppetiltak") {
+                val tiltakstype = TiltakstypeFixtures.Gruppe
 
-                        val engine = createMockEngine(
-                            "/ords/arbeidsgiver" to {
-                                respondJson(
-                                    ArenaOrdsArrangor("123456", "000000"),
-                                )
-                            },
-                            "/api/v1/intern/arena/tiltaksgjennomforing" to { respondOk() },
-                            "/api/v1/intern/arena/tiltaksgjennomforing/${mapping.entityId}" to { respondOk() },
+                beforeEach {
+                    val saker = SakRepository(database.db)
+                    saker.upsert(Sak(sakId = 13572352, lopenummer = 123, aar = 2022, enhet = "2990"))
+
+                    val tiltakstyper = TiltakstypeRepository(database.db)
+                    tiltakstyper.upsert(tiltakstype)
+                    entities.upsertMapping(
+                        ArenaEntityMapping(ArenaTable.Tiltakstype, tiltakstype.tiltakskode, tiltakstype.id, Handled),
+                    )
+                }
+
+                test("should treat all operations on gruppetiltak as upserts") {
+                    val (e1, mapping) = prepareEvent(
+                        createArenaTiltakgjennomforingEvent(Insert) {
+                            it.copy(
+                                REG_DATO = dateBeforeTiltakshistorikkStartDate.format(ArenaTimestampFormatter),
+                                LOKALTNAVN = "Navn 1",
+                            )
+                        },
+                    )
+
+                    val engine = createMockEngine(
+                        "/ords/arbeidsgiver" to {
+                            respondJson(
+                                ArenaOrdsArrangor("123456", "000000"),
+                            )
+                        },
+                        "/api/v1/intern/arena/tiltaksgjennomforing" to { respondOk() },
+                        "/api/v1/intern/arena/tiltaksgjennomforing/${mapping.entityId}" to { respondOk() },
+                    )
+                    val processor = createProcessor(engine)
+
+                    processor.handleEvent(e1).shouldBeRight().should { it.status shouldBe Handled }
+                    database.assertThat("tiltaksgjennomforing").row()
+                        .value("id").isEqualTo(mapping.entityId)
+                        .value("navn").isEqualTo("Navn 1")
+
+                    val e2 = createArenaTiltakgjennomforingEvent(Update) {
+                        it.copy(
+                            REG_DATO = tiltakshistorikkStartDate.format(ArenaTimestampFormatter),
+                            LOKALTNAVN = "Navn 2",
                         )
-                        val processor = createProcessor(engine)
+                    }
+                    processor.handleEvent(e2).shouldBeRight().should { it.status shouldBe Handled }
+                    database.assertThat("tiltaksgjennomforing").row()
+                        .value("id").isEqualTo(mapping.entityId)
+                        .value("navn").isEqualTo("Navn 2")
 
-                        processor.handleEvent(event).shouldBeRight()
+                    val e3 = createArenaTiltakgjennomforingEvent(Delete) {
+                        it.copy(LOKALTNAVN = "Navn 1")
+                    }
+                    processor.handleEvent(e3).shouldBeRight().should { it.status shouldBe Handled }
+                    database.assertThat("tiltaksgjennomforing").row()
+                        .value("id").isEqualTo(mapping.entityId)
+                        .value("navn").isEqualTo("Navn 1")
+                }
 
-                        engine.requestHistory.last().apply {
-                            method shouldBe HttpMethod.Put
+                test("should mark the event as Failed when arena ords proxy responds with an error") {
+                    val engine = createMockEngine(
+                        "/ords/arbeidsgiver" to {
+                            respondError(HttpStatusCode.InternalServerError)
+                        },
+                    )
+                    val processor = createProcessor(engine)
 
-                            decodeRequestBody<ArenaTiltaksgjennomforingDbo>().apply {
-                                id shouldBe mapping.entityId
-                                avslutningsstatus shouldBe expectedStatus
+                    val (event) = prepareEvent(createArenaTiltakgjennomforingEvent(Insert))
+
+                    processor.handleEvent(event).shouldBeLeft().should {
+                        it.status shouldBe Failed
+                        it.message shouldContain "Internal Server Error"
+                    }
+                }
+
+                test("should mark the event as Invalid when arena ords proxy responds with NotFound") {
+                    val engine = createMockEngine(
+                        "/ords/arbeidsgiver" to {
+                            respondError(HttpStatusCode.NotFound)
+                        },
+                    )
+                    val processor = createProcessor(engine)
+                    val (event) = prepareEvent(createArenaTiltakgjennomforingEvent(Insert))
+
+                    processor.handleEvent(event).shouldBeLeft().should {
+                        it.status shouldBe Failed
+                        it.message shouldContain "Fant ikke arrangør i Arena ORDS"
+                    }
+                }
+
+                test("should mark the event as Failed when api responds with an error") {
+                    val engine = createMockEngine(
+                        "/ords/arbeidsgiver" to {
+                            respondJson(
+                                ArenaOrdsArrangor("123456", "000000"),
+                            )
+                        },
+                        "/api/v1/intern/arena/tiltaksgjennomforing" to {
+                            respondError(HttpStatusCode.InternalServerError)
+                        },
+                    )
+                    val processor = createProcessor(engine)
+
+                    val (event) = prepareEvent(createArenaTiltakgjennomforingEvent(Insert))
+
+                    processor.handleEvent(event).shouldBeLeft().should {
+                        it.status shouldBe Failed
+                        it.message shouldContain "Internal Server Error"
+                    }
+                }
+
+                test("should call api with mapped event payload when all services responds with success") {
+                    val (event, mapping) = prepareEvent(
+                        createArenaTiltakgjennomforingEvent(Insert) {
+                            it.copy(
+                                DATO_FRA = "2022-11-11 00:00:00",
+                                DATO_TIL = "2023-11-11 00:00:00",
+                                PROSENT_DELTID = 55.33,
+                            )
+                        },
+                    )
+
+                    val engine = createMockEngine(
+                        "/ords/arbeidsgiver" to {
+                            respondJson(
+                                ArenaOrdsArrangor("123456", "000000"),
+                            )
+                        },
+                        "/api/v1/intern/arena/tiltaksgjennomforing" to { respondOk() },
+                        "/api/v1/intern/arena/tiltaksgjennomforing/${mapping.entityId}" to { respondOk() },
+                    )
+                    val processor = createProcessor(engine)
+
+                    processor.handleEvent(event).shouldBeRight()
+
+                    engine.requestHistory.last().apply {
+                        method shouldBe HttpMethod.Put
+
+                        decodeRequestBody<ArenaTiltaksgjennomforingDbo>().apply {
+                            id shouldBe mapping.entityId
+                            tiltakstypeId shouldBe tiltakstype.id
+                            tiltaksnummer shouldBe "2022#123"
+                            arrangorOrganisasjonsnummer shouldBe "123456"
+                            startDato shouldBe LocalDate.of(2022, 11, 11)
+                            sluttDato shouldBe LocalDate.of(2023, 11, 11)
+                            avslutningsstatus shouldBe Avslutningsstatus.IKKE_AVSLUTTET
+                            deltidsprosent shouldBe 55.33
+                        }
+                    }
+
+                    processor.handleEvent(createArenaTiltakgjennomforingEvent(Delete)).shouldBeRight()
+
+                    engine.requestHistory.last().apply {
+                        method shouldBe HttpMethod.Delete
+
+                        url.getLastPathParameterAsUUID() shouldBe mapping.entityId
+                    }
+                }
+
+                test("should map status to avslutningsstatus") {
+                    val gjennomfores = createArenaTiltakgjennomforingEvent(Insert) {
+                        it.copy(TILTAKSTATUSKODE = "GJENNOMFOR")
+                    }
+                    val avlyst = createArenaTiltakgjennomforingEvent(Insert) {
+                        it.copy(TILTAKSTATUSKODE = "AVLYST")
+                    }
+                    val avbrutt = createArenaTiltakgjennomforingEvent(Insert) {
+                        it.copy(TILTAKSTATUSKODE = "AVBRUTT")
+                    }
+                    val avsluttetBeforeSluttdato = createArenaTiltakgjennomforingEvent(Insert) {
+                        it.copy(
+                            TILTAKSTATUSKODE = "AVSLUTT",
+                            DATO_FRA = "2022-11-11 00:00:00",
+                            DATO_TIL = LocalDateTime.now().plusYears(1).format(ArenaTimestampFormatter),
+                        )
+                    }
+                    val avsluttetAfterSluttdato = createArenaTiltakgjennomforingEvent(Insert) {
+                        it.copy(
+                            TILTAKSTATUSKODE = "AVSLUTT",
+                            DATO_FRA = "2022-11-11 00:00:00",
+                            DATO_TIL = "2023-11-11 00:00:00",
+                        )
+                    }
+                    forAll(
+                        row(gjennomfores, Avslutningsstatus.IKKE_AVSLUTTET),
+                        row(avlyst, Avslutningsstatus.AVLYST),
+                        row(avbrutt, Avslutningsstatus.AVBRUTT),
+                        row(avsluttetBeforeSluttdato, Avslutningsstatus.AVBRUTT),
+                        row(avsluttetAfterSluttdato, Avslutningsstatus.AVSLUTTET),
+                    ) { event2, expectedStatus ->
+                        runBlocking {
+                            val (event, mapping) = prepareEvent(event2)
+
+                            val engine = createMockEngine(
+                                "/ords/arbeidsgiver" to {
+                                    respondJson(
+                                        ArenaOrdsArrangor("123456", "000000"),
+                                    )
+                                },
+                                "/api/v1/intern/arena/tiltaksgjennomforing" to { respondOk() },
+                                "/api/v1/intern/arena/tiltaksgjennomforing/${mapping.entityId}" to { respondOk() },
+                            )
+                            val processor = createProcessor(engine)
+
+                            processor.handleEvent(event).shouldBeRight()
+
+                            engine.requestHistory.last().apply {
+                                method shouldBe HttpMethod.Put
+
+                                decodeRequestBody<ArenaTiltaksgjennomforingDbo>().apply {
+                                    id shouldBe mapping.entityId
+                                    avslutningsstatus shouldBe expectedStatus
+                                }
                             }
                         }
                     }
                 }
-            }
 
-            test("should fail when dependent avtale is missing") {
-                val processor = createProcessor()
+                test("should fail when dependent avtale is missing") {
+                    val processor = createProcessor()
 
-                val (event) = prepareEvent(
-                    createArenaTiltakgjennomforingEvent(Insert) { it.copy(AVTALE_ID = 1) },
-                )
+                    val (event) = prepareEvent(
+                        createArenaTiltakgjennomforingEvent(Insert) { it.copy(AVTALE_ID = 1) },
+                    )
 
-                processor.handleEvent(event).shouldBeLeft().should {
-                    it.status shouldBe Failed
-                    it.message shouldContain "ArenaEntityMapping mangler for arenaTable=AvtaleInfo og arenaId=1"
+                    processor.handleEvent(event).shouldBeLeft().should {
+                        it.status shouldBe Failed
+                        it.message shouldContain "ArenaEntityMapping mangler for arenaTable=AvtaleInfo og arenaId=1"
+                    }
                 }
-            }
 
-            test("should fail when dependent avtale is Unhandled") {
-                val processor = createProcessor()
+                test("should fail when dependent avtale is Unhandled") {
+                    val processor = createProcessor()
 
-                prepareEvent(
-                    createArenaAvtaleInfoEvent(Insert) { it.copy(AVTALE_ID = 1) },
-                    Unhandled,
-                )
+                    prepareEvent(
+                        createArenaAvtaleInfoEvent(Insert) { it.copy(AVTALE_ID = 1) },
+                        Unhandled,
+                    )
 
-                val (event) = prepareEvent(
-                    createArenaTiltakgjennomforingEvent(Insert) { it.copy(AVTALE_ID = 1) },
-                )
+                    val (event) = prepareEvent(
+                        createArenaTiltakgjennomforingEvent(Insert) { it.copy(AVTALE_ID = 1) },
+                    )
 
-                processor.handleEvent(event).shouldBeLeft().should {
-                    it.status shouldBe Failed
-                    it.message shouldContain "Avtale har enda ikke blitt prosessert"
+                    processor.handleEvent(event).shouldBeLeft().should {
+                        it.status shouldBe Failed
+                        it.message shouldContain "Avtale har enda ikke blitt prosessert"
+                    }
                 }
-            }
 
-            test("should not keep reference to avtale when avtale is Ignored") {
-                val engine = createMockEngine(
-                    "/ords/arbeidsgiver" to {
-                        respondJson(ArenaOrdsArrangor("123456", "000000"))
-                    },
-                    "/api/v1/intern/arena/tiltaksgjennomforing" to { respondOk() },
-                )
-                val processor = createProcessor(engine)
+                test("should not keep reference to avtale when avtale is Ignored") {
+                    val engine = createMockEngine(
+                        "/ords/arbeidsgiver" to {
+                            respondJson(ArenaOrdsArrangor("123456", "000000"))
+                        },
+                        "/api/v1/intern/arena/tiltaksgjennomforing" to { respondOk() },
+                    )
+                    val processor = createProcessor(engine)
 
-                val (avtaleEvent, avtaleMapping) = prepareEvent(
-                    createArenaAvtaleInfoEvent(Insert) { it.copy(AVTALE_ID = 1) },
-                    Ignored,
-                )
-                upsertAvtale(avtaleEvent, avtaleMapping)
+                    val (avtaleEvent, avtaleMapping) = prepareEvent(
+                        createArenaAvtaleInfoEvent(Insert) { it.copy(AVTALE_ID = 1) },
+                        Ignored,
+                    )
+                    upsertAvtale(avtaleEvent, avtaleMapping)
 
-                val (event, mapping) = prepareEvent(
-                    createArenaTiltakgjennomforingEvent(Insert) { it.copy(AVTALE_ID = 1) },
-                )
-                processor.handleEvent(event).shouldBeRight()
+                    val (event, mapping) = prepareEvent(
+                        createArenaTiltakgjennomforingEvent(Insert) { it.copy(AVTALE_ID = 1) },
+                    )
+                    processor.handleEvent(event).shouldBeRight()
 
-                database.assertThat("tiltaksgjennomforing").row()
-                    .value("id").isEqualTo(mapping.entityId)
-                    .value("avtale_id").isNull
-            }
+                    database.assertThat("tiltaksgjennomforing").row()
+                        .value("id").isEqualTo(mapping.entityId)
+                        .value("avtale_id").isNull
+                }
 
-            test("should keep reference to avtale when avtale is Handled") {
-                val engine = createMockEngine(
-                    "/ords/arbeidsgiver" to {
-                        respondJson(
-                            ArenaOrdsArrangor("123456", "000000"),
-                        )
-                    },
-                    "/api/v1/intern/arena/tiltaksgjennomforing" to { respondOk() },
-                )
-                val processor = createProcessor(engine)
+                test("should keep reference to avtale when avtale is Handled") {
+                    val engine = createMockEngine(
+                        "/ords/arbeidsgiver" to {
+                            respondJson(
+                                ArenaOrdsArrangor("123456", "000000"),
+                            )
+                        },
+                        "/api/v1/intern/arena/tiltaksgjennomforing" to { respondOk() },
+                    )
+                    val processor = createProcessor(engine)
 
-                val (avtaleEvent, avtaleMapping) = prepareEvent(
-                    createArenaAvtaleInfoEvent(Insert) { it.copy(AVTALE_ID = 1) },
-                    Handled,
-                )
-                upsertAvtale(avtaleEvent, avtaleMapping)
+                    val (avtaleEvent, avtaleMapping) = prepareEvent(
+                        createArenaAvtaleInfoEvent(Insert) { it.copy(AVTALE_ID = 1) },
+                        Handled,
+                    )
+                    upsertAvtale(avtaleEvent, avtaleMapping)
 
-                val (event, mapping) = prepareEvent(
-                    createArenaTiltakgjennomforingEvent(Insert) { it.copy(AVTALE_ID = 1) },
-                )
-                processor.handleEvent(event).shouldBeRight()
+                    val (event, mapping) = prepareEvent(
+                        createArenaTiltakgjennomforingEvent(Insert) { it.copy(AVTALE_ID = 1) },
+                    )
+                    processor.handleEvent(event).shouldBeRight()
 
-                database.assertThat("tiltaksgjennomforing").row()
-                    .value("id").isEqualTo(mapping.entityId)
-                    .value("avtale_id").isEqualTo(1)
+                    database.assertThat("tiltaksgjennomforing").row()
+                        .value("id").isEqualTo(mapping.entityId)
+                        .value("avtale_id").isEqualTo(1)
 
-                engine.requestHistory.last().apply {
-                    decodeRequestBody<ArenaTiltaksgjennomforingDbo>().apply {
-                        id shouldBe mapping.entityId
-                        avtaleId shouldBe avtaleMapping.entityId
+                    engine.requestHistory.last().apply {
+                        decodeRequestBody<ArenaTiltaksgjennomforingDbo>().apply {
+                            id shouldBe mapping.entityId
+                            avtaleId shouldBe avtaleMapping.entityId
+                        }
                     }
                 }
             }
         }
-    }
-})
+    })
