@@ -68,24 +68,10 @@ updates:
       patches:
         update-types:
           - "patch"
-        exclude-patterns:
-          - "playwright"
-          - "@playwright/test"
-          - "react"
-          - "react-dom"
-          - "@navikt/aksel-*"
-          - "@navikt/ds-*"
 
       minorversions:
         update-types:
           - "minor"
-        exclude-patterns:
-          - "playwright"
-          - "@playwright/test"
-          - "react"
-          - "react-dom"
-          - "@navikt/aksel-*"
-          - "@navikt/ds-*"
 
   # Test versjonsoppdatering av docker images i nais config
   - package-ecosystem: docker
