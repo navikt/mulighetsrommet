@@ -1,6 +1,5 @@
 import {
   AvbrytAvtaleAarsak,
-  AvbrytGjennomforingAarsak,
   Avtale,
   Avtaletype,
   EstimertVentetidEnhet,
@@ -218,25 +217,6 @@ export function avbrytAvtaleAarsakToString(aarsak: AvbrytAvtaleAarsak | string):
       return "Endring hos arrangør";
     case AvbrytAvtaleAarsak.FEILREGISTRERING:
       return "Feilregistrering";
-    default:
-      return aarsak;
-  }
-}
-
-export function avbrytGjennomforingAarsakToString(
-  aarsak: AvbrytGjennomforingAarsak | string,
-): string {
-  switch (aarsak) {
-    case AvbrytGjennomforingAarsak.AVBRUTT_I_ARENA:
-      return "Avbrutt i Arena";
-    case AvbrytGjennomforingAarsak.BUDSJETT_HENSYN:
-      return "Budsjetthensyn";
-    case AvbrytGjennomforingAarsak.ENDRING_HOS_ARRANGOR:
-      return "Endring hos arrangør";
-    case AvbrytGjennomforingAarsak.FEILREGISTRERING:
-      return "Feilregistrering";
-    case AvbrytGjennomforingAarsak.FOR_FAA_DELTAKERE:
-      return "For få deltakere";
     default:
       return aarsak;
   }
