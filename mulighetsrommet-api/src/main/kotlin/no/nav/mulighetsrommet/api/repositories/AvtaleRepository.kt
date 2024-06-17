@@ -362,7 +362,7 @@ class AvtaleRepository(private val db: Database) {
             select *, count(*) over() as total_count
             from avtale_admin_dto_view
             where (:tiltakstype_ids::uuid[] is null or tiltakstype_id = any (:tiltakstype_ids))
-              and (:search::text is null or (navn ilike :search or avtalenummer ilike :search or lopenummer ilike :searchLopenummer or arrangor_hovedenhet_navn ilike :search))
+              and (:search::text is null or (navn ilike :search or avtalenummer ilike :search or avtalenummer ilike :searchLopenummer or arrangor_hovedenhet_navn ilike :search))
               and (:nav_enheter::text[] is null or (
                    exists(select true
                           from jsonb_array_elements(nav_enheter_json) as nav_enhet
