@@ -1,10 +1,12 @@
 {
   "private": true,
+  "name": "mulighetsrommet",
   "workspaces": [
     "frontend/*"
   ],
   "devDependencies": {
     "prettier": "3.3.2",
-    "turbo": "1.13.3"
-  }
+    "turbo": "2.0.4"
+  },
+  "packageManager": "npm@10.1.0"
 }
