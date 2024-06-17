@@ -1878,8 +1878,6 @@ components:
           type: string
         websaknummer:
           type: string
-        lopenummer:
-          type: string
         arrangor:
           $ref: "#/components/schemas/ArrangorHovedenhet"
         startDato:
