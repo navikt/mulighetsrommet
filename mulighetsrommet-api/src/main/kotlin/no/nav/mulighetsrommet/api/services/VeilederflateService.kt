@@ -5,6 +5,8 @@ import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
 import io.ktor.server.plugins.*
 import io.prometheus.client.cache.caffeine.CacheMetricsCollector
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.clients.sanity.SanityParam
 import no.nav.mulighetsrommet.api.clients.sanity.SanityPerspective
@@ -112,11 +114,34 @@ class VeilederflateService(
 
     suspend fun hentTiltaksgjennomforinger(
         enheter: NonEmptyList<String>,
-        innsatsgruppe: Innsatsgruppe? = null,
         tiltakstypeIds: List<String>? = null,
-        search: String? = null,
+        innsatsgruppe: Innsatsgruppe? = null,
         apentForInnsok: ApentForInnsok = ApentForInnsok.APENT_ELLER_STENGT,
+        search: String? = null,
+    ): List<VeilederflateTiltaksgjennomforing> = coroutineScope {
+        val individuelleGjennomforinger = async {
+            getSanityTiltak(enheter, tiltakstypeIds, innsatsgruppe, apentForInnsok, search)
+        }
+
+        val gruppeGjennomforinger = async {
+            getGruppetiltak(enheter, tiltakstypeIds, innsatsgruppe, apentForInnsok, search)
+        }
+
+        (individuelleGjennomforinger.await() + gruppeGjennomforinger.await())
+    }
+
+    private suspend fun getSanityTiltak(
+        enheter: NonEmptyList<String>,
+        tiltakstypeIds: List<String>?,
+        innsatsgruppe: Innsatsgruppe?,
+        apentForInnsok: ApentForInnsok,
+        search: String?,
     ): List<VeilederflateTiltaksgjennomforing> {
+        if (apentForInnsok == ApentForInnsok.STENGT) {
+            // Det er foreløpig ikke noe egen funksjonalitet for å markere tiltak som midlertidig stengt i Sanity
+            return emptyList()
+        }
+
         val query = """
             *[_type == "tiltaksgjennomforing" && ${'$'}innsatsgruppe in tiltakstype->innsatsgrupper
               ${if (tiltakstypeIds != null) "&& tiltakstype->_id in \$tiltakstyper" else ""}
@@ -152,7 +177,29 @@ class VeilederflateService(
             is SanityResponse.Error -> throw Exception(result.error.toString())
         }
 
-        val gruppeGjennomforinger = tiltaksgjennomforingService.getAllVeilederflateTiltaksgjennomforing(
+        val fylker = enheter.map {
+            navEnhetService.hentOverordnetFylkesenhet(it)?.enhetsnummer
+        }
+
+        return sanityGjennomforinger
+            .map { toVeilederTiltaksgjennomforing(it, enheter) }
+            .filter {
+                if (it.enheter.isNullOrEmpty()) {
+                    it.fylke in fylker
+                } else {
+                    it.enheter.any { enhet -> enhet in enheter }
+                }
+            }
+    }
+
+    private fun getGruppetiltak(
+        enheter: NonEmptyList<String>,
+        tiltakstypeIds: List<String>?,
+        innsatsgruppe: Innsatsgruppe?,
+        apentForInnsok: ApentForInnsok,
+        search: String?,
+    ): List<VeilederflateTiltaksgjennomforing> {
+        return tiltaksgjennomforingService.getAllVeilederflateTiltaksgjennomforing(
             search = search,
             sanityTiltakstypeIds = tiltakstypeIds?.map { UUID.fromString(it) },
             innsatsgruppe = innsatsgruppe,
@@ -163,26 +210,6 @@ class VeilederflateService(
                 ApentForInnsok.APENT_ELLER_STENGT -> null
             },
         )
-
-        val individuelleGjennomforinger = if (apentForInnsok == ApentForInnsok.STENGT) {
-            // Det er foreløpig ikke noe egen funksjonalitet for å markere tiltak som midlertidig stengt i Sanity
-            emptyList()
-        } else {
-            sanityGjennomforinger.map { toVeilederTiltaksgjennomforing(it, enheter) }
-        }
-
-        val fylker = enheter.map {
-            navEnhetService.hentOverordnetFylkesenhet(it)?.enhetsnummer
-        }
-
-        return (individuelleGjennomforinger + gruppeGjennomforinger)
-            .filter {
-                if (it.enheter.isNullOrEmpty()) {
-                    it.fylke in fylker
-                } else {
-                    it.enheter.any { enhet -> enhet in enheter }
-                }
-            }
     }
 
     suspend fun hentTiltaksgjennomforing(
