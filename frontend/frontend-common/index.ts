@@ -8,11 +8,12 @@ import { NavEnhetFilterTag } from "./components/filter/filterTag/NavEnhetFilterT
 import { FilterTag } from "./components/filter/filterTag/FilterTag";
 import { FilterTagsContainer } from "./components/filter/filterTag/FilterTagsContainer";
 import { FilterAccordionHeader } from "./components/filter/accordionHeader/FilterAccordionHeader";
+import { FilterSkeleton } from "./components/skeleton/FilterSkeleton";
 import { Drawer } from "./components/drawer/Drawer";
 import {
-  ReloadAppErrorBoundary,
   InlineErrorBoundary,
   InlineFallback,
+  ReloadAppErrorBoundary,
   ReloadAppFallback,
 } from "./components/error-handling/ErrorBoundary";
 
@@ -27,6 +28,7 @@ export {
   FilterTag,
   FilterTagsContainer,
   FilterAccordionHeader,
+  FilterSkeleton,
   Drawer,
   ReloadAppErrorBoundary,
   InlineErrorBoundary,

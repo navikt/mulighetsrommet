@@ -1,22 +1,10 @@
-import { Skeleton, VStack } from "@navikt/ds-react";
 import { Suspense } from "react";
-import { Filtermeny } from "./Filtermeny";
-
-function FilterSkeletonLoader() {
-  return (
-    <VStack gap="2">
-      <Skeleton height={50} variant="rounded" />
-      <Skeleton height={50} variant="rounded" />
-      <Skeleton height={200} variant="rounded" />
-      <Skeleton height={110} variant="rounded" />
-      <Skeleton height={110} variant="rounded" />
-    </VStack>
-  );
-}
+import { FilterSkeleton } from "mulighetsrommet-frontend-common";
+import { Filtermeny } from "@/components/filtrering/Filtermeny";
 
 export function FilterMenyMedSkeletonLoader() {
   return (
-    <Suspense fallback={<FilterSkeletonLoader />}>
+    <Suspense fallback={<FilterSkeleton />}>
       <Filtermeny />
     </Suspense>
   );

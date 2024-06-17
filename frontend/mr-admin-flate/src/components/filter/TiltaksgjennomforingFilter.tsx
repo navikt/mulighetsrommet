@@ -1,4 +1,4 @@
-import { Accordion, Search, Skeleton, Switch, VStack } from "@navikt/ds-react";
+import { Accordion, Search, Switch } from "@navikt/ds-react";
 import { useAtom, WritableAtom } from "jotai";
 import { ArrangorTil, NavEnhet } from "mulighetsrommet-api-client";
 import { useEffect } from "react";
@@ -10,13 +10,17 @@ import { useAvtale } from "@/api/avtaler/useAvtale";
 import { useNavEnheter } from "@/api/enhet/useNavEnheter";
 import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
 import { useArrangorer } from "@/api/arrangor/useArrangorer";
-import { addOrRemove } from "../../utils/Utils";
+import { addOrRemove } from "@/utils/Utils";
 import {
   arrangorOptions,
   TILTAKSGJENNOMFORING_STATUS_OPTIONS,
   tiltakstypeOptions,
-} from "../../utils/filterUtils";
-import { FilterAccordionHeader, NavEnhetFilter } from "mulighetsrommet-frontend-common";
+} from "@/utils/filterUtils";
+import {
+  FilterAccordionHeader,
+  FilterSkeleton,
+  NavEnhetFilter,
+} from "mulighetsrommet-frontend-common";
 import { useRegioner } from "@/api/enhet/useRegioner";
 import { CheckboxList } from "./CheckboxList";
 
@@ -59,16 +63,7 @@ export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
     !tiltakstyper ||
     isLoadingTiltakstyper
   ) {
-    return (
-      <VStack gap="2">
-        <Skeleton height={50} variant="rounded" />
-        <Skeleton height={200} variant="rounded" />
-        <Skeleton height={50} variant="rounded" />
-        <Skeleton height={50} variant="rounded" />
-        <Skeleton height={50} variant="rounded" />
-        <Skeleton height={50} variant="rounded" />
-      </VStack>
-    );
+    return <FilterSkeleton />;
   }
 
   return (
