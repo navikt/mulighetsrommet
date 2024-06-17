@@ -470,28 +470,28 @@ class ArenaAdapterServiceTest :
 
                 val service = createArenaAdapterService(database.db)
 
-            // Upsert som har passert sluttdato, men med avslutningsstatus IKKE_AVSLUTTET
-            val arenaGjennomforing = gjennomforing.copy(
-                startDato = LocalDate.now().minusDays(1),
-                sluttDato = LocalDate.now().minusDays(1),
-                avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
-            )
-            service.upsertTiltaksgjennomforing(arenaGjennomforing)
-            // Verifiser status utledet fra datoer og ikke avslutningsstatus
-            gjennomforinger.get(arenaGjennomforing.id)?.status?.status shouldBe TiltaksgjennomforingStatus.AVSLUTTET
+                // Upsert som har passert sluttdato, men med avslutningsstatus IKKE_AVSLUTTET
+                val arenaGjennomforing = gjennomforing.copy(
+                    startDato = LocalDate.now().minusDays(1),
+                    sluttDato = LocalDate.now().minusDays(1),
+                    avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
+                )
+                service.upsertTiltaksgjennomforing(arenaGjennomforing)
+                // Verifiser status utledet fra datoer og ikke avslutningsstatus
+                gjennomforinger.get(arenaGjennomforing.id)?.status?.status shouldBe TiltaksgjennomforingStatus.AVSLUTTET
 
-            // Verifiser at avbrutt_tidspunkt blir lagret
-            service.upsertTiltaksgjennomforing(arenaGjennomforing.copy(avslutningsstatus = Avslutningsstatus.AVBRUTT))
-            gjennomforinger.get(arenaGjennomforing.id)?.status?.status shouldBe TiltaksgjennomforingStatus.AVBRUTT
+                // Verifiser at avbrutt_tidspunkt blir lagret
+                service.upsertTiltaksgjennomforing(arenaGjennomforing.copy(avslutningsstatus = Avslutningsstatus.AVBRUTT))
+                gjennomforinger.get(arenaGjennomforing.id)?.status?.status shouldBe TiltaksgjennomforingStatus.AVBRUTT
 
-            // Verifiser at man kan endre statusen
-            service.upsertTiltaksgjennomforing(arenaGjennomforing.copy(avslutningsstatus = Avslutningsstatus.AVLYST))
-            gjennomforinger.get(arenaGjennomforing.id)?.status?.status shouldBe TiltaksgjennomforingStatus.AVLYST
+                // Verifiser at man kan endre statusen
+                service.upsertTiltaksgjennomforing(arenaGjennomforing.copy(avslutningsstatus = Avslutningsstatus.AVLYST))
+                gjennomforinger.get(arenaGjennomforing.id)?.status?.status shouldBe TiltaksgjennomforingStatus.AVLYST
 
-            // Verifiser at man kan endre statusen
-            service.upsertTiltaksgjennomforing(arenaGjennomforing.copy(avslutningsstatus = Avslutningsstatus.AVSLUTTET))
-            gjennomforinger.get(arenaGjennomforing.id)?.status?.status shouldBe TiltaksgjennomforingStatus.AVSLUTTET
-        }
+                // Verifiser at man kan endre statusen
+                service.upsertTiltaksgjennomforing(arenaGjennomforing.copy(avslutningsstatus = Avslutningsstatus.AVSLUTTET))
+                gjennomforinger.get(arenaGjennomforing.id)?.status?.status shouldBe TiltaksgjennomforingStatus.AVSLUTTET
+            }
 
             test("skal bare oppdatere arena-felter når tiltakstype har endret eierskap") {
                 val gjennomforing1 = TiltaksgjennomforingFixtures.Oppfolging1.copy(
@@ -536,10 +536,10 @@ class ArenaAdapterServiceTest :
 
                 service.upsertTiltaksgjennomforing(arenaDbo)
 
-            gjennomforinger.get(gjennomforing1.id).shouldNotBeNull().should {
-                it.tiltaksnummer shouldBe "2024#2024"
-                it.arenaAnsvarligEnhet shouldBe ArenaNavEnhet(navn = "NAV Tiltak Oslo", enhetsnummer = "0387")
-                it.status.status shouldBe TiltaksgjennomforingStatus.GJENNOMFORES
+                gjennomforinger.get(gjennomforing1.id).shouldNotBeNull().should {
+                    it.tiltaksnummer shouldBe "2024#2024"
+                    it.arenaAnsvarligEnhet shouldBe ArenaNavEnhet(navn = "NAV Tiltak Oslo", enhetsnummer = "0387")
+                    it.status.status shouldBe TiltaksgjennomforingStatus.GJENNOMFORES
 
                     it.opphav shouldBe ArenaMigrering.Opphav.MR_ADMIN_FLATE
                     it.avtaleId shouldBe gjennomforing1.avtaleId
