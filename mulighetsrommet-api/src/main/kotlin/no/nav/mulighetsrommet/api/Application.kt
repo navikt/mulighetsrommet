@@ -61,7 +61,6 @@ fun Application.configure(config: AppConfig) {
             notificationRoutes()
             featureTogglesRoute()
             veilederJoyrideRoutes()
-            nusDataRoutes()
             janzzRoutes()
         }
 

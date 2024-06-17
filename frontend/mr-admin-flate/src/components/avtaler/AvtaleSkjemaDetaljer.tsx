@@ -1,15 +1,6 @@
 import { useAvtaleAdministratorer } from "@/api/ansatt/useAvtaleAdministratorer";
 import { useMigrerteTiltakstyperForAvtaler } from "@/api/tiltakstyper/useMigrerteTiltakstyper";
-import {
-  Alert,
-  Heading,
-  HGrid,
-  Loader,
-  Select,
-  Textarea,
-  TextField,
-  UNSAFE_Combobox,
-} from "@navikt/ds-react";
+import { Heading, HGrid, Textarea, TextField } from "@navikt/ds-react";
 import {
   Avtale,
   Avtaletype,
@@ -28,7 +19,6 @@ import { SelectOption } from "mulighetsrommet-frontend-common/components/SokeSel
 import { DeepPartial, useFormContext } from "react-hook-form";
 import { MultiValue } from "react-select";
 import { useFeatureToggle } from "../../api/features/useFeatureToggle";
-import { useNusData } from "../../api/nusdata/useNusData";
 import { erAnskaffetTiltak } from "../../utils/tiltakskoder";
 import { addYear, avtaletypeTilTekst } from "../../utils/Utils";
 import { avtaletekster } from "../ledetekster/avtaleLedetekster";
@@ -38,12 +28,11 @@ import { ControlledDateInput } from "../skjema/ControlledDateInput";
 import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { FormGroup } from "../skjema/FormGroup";
 import skjemastyles from "../skjema/Skjema.module.scss";
-import { AvtaleArrangorSkjema } from "./AvtaleArrangorSkjema";
 import { AvtaleAmoKategoriseringSkjema } from "./AvtaleAmoKategoriseringSkjema";
+import { AvtaleArrangorSkjema } from "./AvtaleArrangorSkjema";
 import { getLokaleUnderenheterAsSelectOptions } from "./AvtaleSkjemaConst";
 
 const minStartdato = new Date(2000, 0, 1);
-const nusDataVersjon = "2437";
 
 interface Props {
   tiltakstyper: Tiltakstype[];
@@ -64,9 +53,6 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
     setValue,
   } = useFormContext<DeepPartial<InferredAvtaleSchema>>();
 
-  const { data: enableNusKategorier } = useFeatureToggle(
-    Toggles.MULIGHETSROMMET_ADMIN_FLATE_ENABLE_NUSKATEGORIER,
-  );
   const { data: enableGruppeAmoKategorier } = useFeatureToggle(
     Toggles.MULIGHETSROMMET_ADMIN_FLATE_ENABLE_GRUPPE_AMO_KATEGORIER,
   );
@@ -159,7 +145,6 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
                 {...register("tiltakstype")}
                 onChange={(event) => {
                   setValue("amoKategorisering", undefined);
-                  setValue("nusData", undefined);
                   const options = event.target.value?.arenaKode
                     ? avtaletypeOptions(event.target.value.arenaKode)
                     : [];
@@ -188,9 +173,6 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
                 options={arenaKode ? avtaletypeOptions(arenaKode) : []}
               />
             </HGrid>
-            {enableNusKategorier && tiltakskode === Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING ? (
-              <AvtaleNUSKategoriVelger />
-            ) : null}
             {enableGruppeAmoKategorier &&
             tiltakskode === Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING ? (
               <AvtaleAmoKategoriseringSkjema />
@@ -338,79 +320,4 @@ function avtaletypeOptions(arenaKode: TiltakskodeArena): { value: Avtaletype; la
     default:
       return [];
   }
-}
-
-function AvtaleNUSKategoriVelger() {
-  const {
-    setValue,
-    watch,
-    formState: { errors },
-  } = useFormContext<InferredAvtaleSchema>();
-
-  const { data, isLoading, isError } = useNusData(watch("tiltakstype.tiltakskode"), nusDataVersjon);
-  setValue("nusData.versjon", nusDataVersjon);
-  if (!data?.data || isLoading) {
-    return <Loader />;
-  }
-
-  if (isError) {
-    return <Alert variant="error">Kunne ikke hente data fra SSB</Alert>;
-  }
-
-  const utdanningsnivaa = watch("nusData.utdanningsnivaa");
-  const utdanningskategorier = watch("nusData.utdanningskategorier", []) || [];
-
-  const options =
-    data.data
-      .find(({ nivaa }) => nivaa === utdanningsnivaa)
-      ?.kategorier.map(({ name, code }) => ({ label: name, value: code })) || [];
-
-  return (
-    <HGrid gap="4" columns={1}>
-      <Select
-        size="small"
-        label="Utdanningsnivå"
-        value={utdanningsnivaa}
-        error={errors?.nusData?.utdanningsnivaa?.message}
-        onChange={(utdanningsnivaa) => {
-          setValue("nusData.utdanningsnivaa", utdanningsnivaa.target.value);
-          setValue("nusData.utdanningskategorier", []);
-        }}
-      >
-        <option value={""}>Velg utdanningsnivå...</option>
-        {data.data.map(({ nivaa }) => (
-          <option key={nivaa} value={nivaa}>
-            {nivaa}
-          </option>
-        ))}
-      </Select>
-      <UNSAFE_Combobox
-        clearButton
-        size="small"
-        label="Utdanningskategori"
-        disabled={!utdanningsnivaa}
-        isMultiSelect
-        error={errors.nusData?.utdanningskategorier?.message}
-        options={options}
-        selectedOptions={utdanningskategorier.map((kategori) => ({
-          value: kategori.code,
-          label: kategori.name,
-        }))}
-        onToggleSelected={(option, isSelected) =>
-          isSelected
-            ? setValue("nusData.utdanningskategorier", [
-                ...utdanningskategorier,
-                {
-                  code: option,
-                  name: options.find((o) => o.value === option)?.label || "",
-                },
-              ])
-            : setValue(
-                "nusData.utdanningskategorier",
-                utdanningskategorier.filter((o) => o.code !== option),
-              )
-        }
-      ></UNSAFE_Combobox>
-    </HGrid>
-  );
 }

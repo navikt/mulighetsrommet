@@ -9,7 +9,6 @@ import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import io.ktor.util.pipeline.*
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.JsonObject
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingKontaktpersonDbo
 import no.nav.mulighetsrommet.api.domain.dto.FrikobleKontaktpersonRequest
@@ -252,7 +251,6 @@ data class TiltaksgjennomforingRequest(
     val estimertVentetid: EstimertVentetid?,
     @Serializable(with = LocalDateSerializer::class)
     val tilgjengeligForArrangorFraOgMedDato: LocalDate?,
-    val nusData: JsonObject?,
     val amoKategorisering: AmoKategorisering?,
 ) {
     fun toDbo() = TiltaksgjennomforingDbo(
@@ -284,7 +282,6 @@ data class TiltaksgjennomforingRequest(
         estimertVentetidVerdi = estimertVentetid?.verdi,
         estimertVentetidEnhet = estimertVentetid?.enhet,
         tilgjengeligForArrangorFraOgMedDato = tilgjengeligForArrangorFraOgMedDato,
-        nusData = nusData,
         amoKategorisering = amoKategorisering,
     )
 }

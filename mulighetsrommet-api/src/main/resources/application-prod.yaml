@@ -156,6 +156,3 @@ app:
     token: ${UNLEASH_SERVER_API_TOKEN}
     instanceId: ${NAIS_CLIENT_ID}
     environment: production
-
-  ssbNusConfig:
-    baseUrl: "https://data.ssb.no/api"

@@ -56,7 +56,6 @@ class AvtaleRepository(private val db: Database) {
                 beskrivelse,
                 faneinnhold,
                 personvern_bekreftet,
-                nusdata,
                 amo_kategorisering
             ) values (
                 :id::uuid,
@@ -74,7 +73,6 @@ class AvtaleRepository(private val db: Database) {
                 :beskrivelse,
                 :faneinnhold::jsonb,
                 :personvern_bekreftet,
-                :nusdata::jsonb,
                 :amo_kategorisering::jsonb
             ) on conflict (id) do update set
                 navn                        = excluded.navn,
@@ -91,7 +89,6 @@ class AvtaleRepository(private val db: Database) {
                 beskrivelse                 = excluded.beskrivelse,
                 faneinnhold                 = excluded.faneinnhold,
                 personvern_bekreftet        = excluded.personvern_bekreftet,
-                nusdata                     = excluded.nusdata,
                 amo_kategorisering          = excluded.amo_kategorisering
         """.trimIndent()
 
@@ -481,7 +478,6 @@ class AvtaleRepository(private val db: Database) {
         "beskrivelse" to beskrivelse,
         "faneinnhold" to faneinnhold?.let { Json.encodeToString(it) },
         "personvern_bekreftet" to personvernBekreftet,
-        "nusdata" to nusData?.let { Json.encodeToString(it) },
         "amo_kategorisering" to amoKategorisering?.let { Json.encodeToString(it) },
     )
 
@@ -577,7 +573,6 @@ class AvtaleRepository(private val db: Database) {
             ),
             personopplysninger = personopplysninger,
             personvernBekreftet = boolean("personvern_bekreftet"),
-            nusData = stringOrNull("nusdata")?.let { Json.decodeFromString(it) },
             amoKategorisering = stringOrNull("amo_kategorisering")?.let { Json.decodeFromString(it) },
         )
     }

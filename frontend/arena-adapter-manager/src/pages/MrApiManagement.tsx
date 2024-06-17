@@ -69,22 +69,6 @@ export function MrApiManagement() {
         <RunTask base={ApiBase.MR_API} task={"sync-navansatte"}>
           Synkroniserer NAV-ansatte fra relevante AD-grupper.
         </RunTask>
-        <RunTask
-          base={ApiBase.MR_API}
-          task={"sync-nusdata"}
-          input={{
-            type: "object",
-            description: "Synkroniserer NUS-data basert på valgt versjon",
-            properties: {
-              version: {
-                title: "Versjon",
-                type: "string",
-                enum: ["2437"],
-              },
-            },
-            required: ["version"],
-          }}
-        />
       </VStack>
     </Box>
   );

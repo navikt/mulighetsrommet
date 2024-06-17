@@ -15,7 +15,7 @@ import { Kontaktperson } from "@/pages/tiltaksgjennomforinger/Kontaktperson";
 import { formaterDato, formatertVentetid } from "@/utils/Utils";
 import { isTiltakMedFellesOppstart } from "@/utils/tiltakskoder";
 import { ExternalLinkIcon } from "@navikt/aksel-icons";
-import { BodyShort, Button, HStack, HelpText, List, Tag } from "@navikt/ds-react";
+import { BodyShort, Button, HStack, HelpText, Tag } from "@navikt/ds-react";
 import {
   Avtale,
   Tiltaksgjennomforing,
@@ -116,23 +116,6 @@ export function TiltaksgjennomforingDetaljer({ tiltaksgjennomforing, avtale }: P
             />
             <Metadata header={tiltaktekster.tiltakstypeLabel} verdi={tiltakstype.navn} />
           </Bolk>
-
-          {tiltaksgjennomforing.nusData ? (
-            <Bolk>
-              <Metadata
-                header="Utdanningskategorier"
-                verdi={
-                  <>
-                    <List>
-                      {tiltaksgjennomforing.nusData.utdanningskategorier?.map((k) => (
-                        <List.Item key={k.code}>{k.name}</List.Item>
-                      ))}
-                    </List>
-                  </>
-                }
-              />
-            </Bolk>
-          ) : null}
 
           <Separator />
 

@@ -1,3 +1,5 @@
+import { nikolineKontaktperson, petrusKontaktperson } from "@/mocks/fixtures/mock_ansatt";
+import { mockAvtaler } from "@/mocks/fixtures/mock_avtaler";
 import {
   EstimertVentetidEnhet,
   Opphav,
@@ -5,12 +7,10 @@ import {
   Tiltaksgjennomforing,
   TiltaksgjennomforingOppstartstype,
 } from "mulighetsrommet-api-client";
-import { mockTiltakstyper } from "./mock_tiltakstyper";
-import { mockEnheter } from "./mock_enheter";
-import { mockArrangorer } from "./mock_arrangorer";
 import { mockArrangorKontaktpersoner } from "./mock_arrangorKontaktperson";
-import { mockAvtaler } from "@/mocks/fixtures/mock_avtaler";
-import { nikolineKontaktperson, petrusKontaktperson } from "@/mocks/fixtures/mock_ansatt";
+import { mockArrangorer } from "./mock_arrangorer";
+import { mockEnheter } from "./mock_enheter";
+import { mockTiltakstyper } from "./mock_tiltakstyper";
 
 export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
   {
@@ -85,7 +85,6 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
         "Nullam lobortis massa nibh, luctus molestie lacus venenatis sed.",
     },
     tilgjengeligForArrangorFraOgMedDato: null,
-    nusData: null,
     amoKategorisering: null,
   },
   {
@@ -118,7 +117,6 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     publisert: false,
 
     tilgjengeligForArrangorFraOgMedDato: null,
-    nusData: null,
     amoKategorisering: null,
   },
   {
@@ -151,7 +149,6 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     publisert: false,
 
     tilgjengeligForArrangorFraOgMedDato: null,
-    nusData: null,
     amoKategorisering: null,
   },
   {
@@ -179,7 +176,6 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     publisert: false,
 
     tilgjengeligForArrangorFraOgMedDato: null,
-    nusData: null,
     amoKategorisering: null,
   },
 ];
@@ -222,7 +218,6 @@ for (let i = 0; i < x; i++) {
     publisert: false,
 
     tilgjengeligForArrangorFraOgMedDato: null,
-    nusData: null,
     amoKategorisering: null,
   });
 }

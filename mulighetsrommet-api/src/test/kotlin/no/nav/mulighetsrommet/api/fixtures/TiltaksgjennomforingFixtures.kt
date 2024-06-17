@@ -50,7 +50,6 @@ object TiltaksgjennomforingFixtures {
         estimertVentetidVerdi = 3,
         estimertVentetidEnhet = "dag",
         tilgjengeligForArrangorFraOgMedDato = null,
-        nusData = null,
         amoKategorisering = null,
     )
 
@@ -77,7 +76,6 @@ object TiltaksgjennomforingFixtures {
         estimertVentetidVerdi = 3,
         estimertVentetidEnhet = "dag",
         tilgjengeligForArrangorFraOgMedDato = null,
-        nusData = null,
         amoKategorisering = null,
     )
 
@@ -106,7 +104,6 @@ object TiltaksgjennomforingFixtures {
             verdi = 3,
             enhet = "dag",
         ),
-        nusData = null,
         amoKategorisering = null,
     )
 
@@ -133,7 +130,6 @@ object TiltaksgjennomforingFixtures {
         estimertVentetidVerdi = 3,
         estimertVentetidEnhet = "dag",
         tilgjengeligForArrangorFraOgMedDato = null,
-        nusData = null,
         amoKategorisering = null,
     )
 
@@ -160,7 +156,6 @@ object TiltaksgjennomforingFixtures {
         estimertVentetidVerdi = 3,
         estimertVentetidEnhet = "dag",
         tilgjengeligForArrangorFraOgMedDato = null,
-        nusData = null,
         amoKategorisering = null,
     )
 
@@ -187,7 +182,6 @@ object TiltaksgjennomforingFixtures {
         estimertVentetidVerdi = 3,
         estimertVentetidEnhet = "dag",
         tilgjengeligForArrangorFraOgMedDato = null,
-        nusData = null,
         amoKategorisering = null,
     )
 
@@ -214,7 +208,6 @@ object TiltaksgjennomforingFixtures {
         estimertVentetidVerdi = 3,
         estimertVentetidEnhet = "dag",
         tilgjengeligForArrangorFraOgMedDato = null,
-        nusData = null,
         amoKategorisering = null,
     )
 
@@ -241,7 +234,6 @@ object TiltaksgjennomforingFixtures {
         estimertVentetidVerdi = 3,
         estimertVentetidEnhet = "dag",
         tilgjengeligForArrangorFraOgMedDato = null,
-        nusData = null,
         amoKategorisering = null,
     )
 }

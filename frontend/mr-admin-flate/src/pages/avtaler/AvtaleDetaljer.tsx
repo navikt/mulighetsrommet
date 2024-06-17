@@ -1,21 +1,21 @@
 import { useAvtale } from "@/api/avtaler/useAvtale";
-import { Fragment, useRef } from "react";
-import { Laster } from "@/components/laster/Laster";
-import { Alert, BodyShort, Button, Heading, HelpText, List, VStack } from "@navikt/ds-react";
-import { ExternalLinkIcon } from "@navikt/aksel-icons";
-import { NavEnhet, Opphav } from "mulighetsrommet-api-client";
+import { getDisplayName } from "@/api/enhet/helpers";
+import { HarSkrivetilgang } from "@/components/authActions/HarSkrivetilgang";
 import { Bolk } from "@/components/detaljside/Bolk";
 import { Metadata, Separator } from "@/components/detaljside/Metadata";
+import { Laster } from "@/components/laster/Laster";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
-import styles from "../DetaljerInfo.module.scss";
+import { AvbrytAvtaleModal } from "@/components/modal/AvbrytAvtaleModal";
+import { ArrangorKontaktpersonDetaljer } from "@/pages/arrangor/ArrangorKontaktpersonDetaljer";
 import { avtaletypeTilTekst, formaterDato } from "@/utils/Utils";
 import { erAnskaffetTiltak } from "@/utils/tiltakskoder";
+import { ExternalLinkIcon } from "@navikt/aksel-icons";
+import { Alert, Button, Heading, HelpText, VStack } from "@navikt/ds-react";
+import { NavEnhet, Opphav } from "mulighetsrommet-api-client";
 import { NOM_ANSATT_SIDE } from "mulighetsrommet-frontend-common/constants";
-import { getDisplayName } from "@/api/enhet/helpers";
-import { ArrangorKontaktpersonDetaljer } from "@/pages/arrangor/ArrangorKontaktpersonDetaljer";
-import { HarSkrivetilgang } from "@/components/authActions/HarSkrivetilgang";
-import { AvbrytAvtaleModal } from "@/components/modal/AvbrytAvtaleModal";
+import { Fragment, useRef } from "react";
 import { Link } from "react-router-dom";
+import styles from "../DetaljerInfo.module.scss";
 
 export function AvtaleDetaljer() {
   const { data: avtale, isPending, error } = useAvtale();
@@ -82,23 +82,6 @@ export function AvtaleDetaljer() {
               verdi={avtaletypeTilTekst(avtaletype)}
             />
           </Bolk>
-          {avtale?.nusData && (
-            <Bolk>
-              <Metadata
-                header="Utdanningskategorier"
-                verdi={
-                  <>
-                    <BodyShort spacing>{avtale.nusData?.utdanningsnivaa}</BodyShort>
-                    <List>
-                      {avtale.nusData?.utdanningskategorier?.map((k) => (
-                        <List.Item key={k.code}>{k.name}</List.Item>
-                      ))}
-                    </List>
-                  </>
-                }
-              />
-            </Bolk>
-          )}
 
           <Separator />
 

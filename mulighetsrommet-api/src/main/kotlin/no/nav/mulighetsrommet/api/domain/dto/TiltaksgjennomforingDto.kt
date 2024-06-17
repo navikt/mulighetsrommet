@@ -24,7 +24,6 @@ data class TiltaksgjennomforingDto(
     val oppstart: TiltaksgjennomforingOppstartstype,
     @Serializable(with = LocalDateSerializer::class)
     val tilgjengeligForArrangorFraOgMedDato: LocalDate?,
-    val nusData: NusDataTilDvh?,
 ) {
     @Serializable
     data class Tiltakstype(
@@ -35,9 +34,3 @@ data class TiltaksgjennomforingDto(
         val tiltakskode: Tiltakskode,
     )
 }
-
-@Serializable
-data class NusDataTilDvh(
-    val versjon: String,
-    val kategorier: List<String>,
-)
