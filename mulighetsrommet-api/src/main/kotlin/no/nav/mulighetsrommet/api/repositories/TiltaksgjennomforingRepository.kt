@@ -24,9 +24,11 @@ import no.nav.mulighetsrommet.domain.dbo.ArenaTiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dto.AvbruttAarsak
+import no.nav.mulighetsrommet.domain.dto.AvbruttDto
 import no.nav.mulighetsrommet.domain.dto.Innsatsgruppe
 import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus
+import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatusDto
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
 import java.time.LocalDate
@@ -417,7 +419,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         search: String? = null,
         navEnheter: List<String> = emptyList(),
         tiltakstypeIder: List<UUID> = emptyList(),
-        statuser: List<TiltaksgjennomforingStatus.Enum> = emptyList(),
+        statuser: List<TiltaksgjennomforingStatus> = emptyList(),
         sortering: String? = null,
         sluttDatoGreaterThanOrEqualTo: LocalDate? = null,
         avtaleId: UUID? = null,
@@ -543,7 +545,11 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 ) as arrangor_kontaktpersoner_json,
                 tiltakstype.sanity_id as tiltakstype_sanity_id,
                 tiltakstype.navn as tiltakstype_navn,
-                a.personvern_bekreftet
+                a.personvern_bekreftet,
+                gjennomforing.avbrutt_tidspunkt,
+                tiltaksgjennomforing_status(gjennomforing.start_dato, gjennomforing.slutt_dato, gjennomforing.avbrutt_tidspunkt) as status,
+                gjennomforing.avbrutt_tidspunkt,
+                gjennomforing.avbrutt_aarsak
             from tiltaksgjennomforing gjennomforing
                 inner join tiltakstype on gjennomforing.tiltakstype_id = tiltakstype.id
                 left join tiltaksgjennomforing_nav_enhet nav_enhet on nav_enhet.tiltaksgjennomforing_id = gjennomforing.id
@@ -775,6 +781,9 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             .decodeFromString<List<VeilederflateArrangorKontaktperson?>>(string("arrangor_kontaktpersoner_json"))
             .filterNotNull()
 
+        val avbruttTidspunkt = localDateTimeOrNull("avbrutt_tidspunkt")
+        val avbruttAarsak = stringOrNull("avbrutt_aarsak")?.let { AvbruttAarsak.fromString(it) }
+
         return VeilederflateTiltaksgjennomforing(
             sanityId = uuidOrNull("sanity_id").toString(),
             id = uuidOrNull("id"),
@@ -807,6 +816,17 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 )
             },
             personvernBekreftet = boolean("personvern_bekreftet"),
+            status = TiltaksgjennomforingStatusDto(
+                TiltaksgjennomforingStatus.valueOf(string("status")),
+                avbruttTidspunkt?.let {
+                    requireNotNull(avbruttAarsak)
+                    AvbruttDto(
+                        tidspunkt = avbruttTidspunkt,
+                        aarsak = avbruttAarsak,
+                        beskrivelse = avbruttAarsak.beskrivelse,
+                    )
+                },
+            ),
         )
     }
 
@@ -834,7 +854,17 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             tiltaksnummer = stringOrNull("tiltaksnummer"),
             startDato = startDato,
             sluttDato = sluttDato,
-            status = TiltaksgjennomforingStatus.fromString(string("status"), avbruttTidspunkt, avbruttAarsak),
+            status = TiltaksgjennomforingStatusDto(
+                TiltaksgjennomforingStatus.valueOf(string("status")),
+                avbruttTidspunkt?.let {
+                    requireNotNull(avbruttAarsak)
+                    AvbruttDto(
+                        tidspunkt = avbruttTidspunkt,
+                        aarsak = avbruttAarsak,
+                        beskrivelse = avbruttAarsak.beskrivelse,
+                    )
+                },
+            ),
             apentForInnsok = boolean("apent_for_innsok"),
             sanityId = uuidOrNull("sanity_id"),
             antallPlasser = intOrNull("antall_plasser"),

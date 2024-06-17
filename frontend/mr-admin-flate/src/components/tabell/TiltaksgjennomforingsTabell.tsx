@@ -12,10 +12,10 @@ import { ShowOpphavValue } from "../debug/ShowOpphavValue";
 import { Laster } from "../laster/Laster";
 import { PagineringContainer } from "../paginering/PagineringContainer";
 import { PagineringsOversikt } from "../paginering/PagineringOversikt";
-import { TiltaksgjennomforingstatusTag } from "../statuselementer/TiltaksgjennomforingstatusTag";
 import styles from "./Tabell.module.scss";
 import { ToolbarContainer } from "mulighetsrommet-frontend-common/components/toolbar/toolbarContainer/ToolbarContainer";
 import { TabellWrapper } from "@/components/tabell/TabellWrapper";
+import { TiltaksgjennomforingStatusTag } from "mulighetsrommet-frontend-common";
 
 const SkjulKolonne = ({ children, skjul }: { children: React.ReactNode; skjul: boolean }) => {
   return skjul ? null : <>{children}</>;
@@ -211,9 +211,7 @@ export function TiltaksgjennomforingsTabell({
 
                       <SkjulKolonne skjul={!!skjulKolonner?.status}>
                         <Table.DataCell>
-                          <TiltaksgjennomforingstatusTag
-                            tiltaksgjennomforing={tiltaksgjennomforing}
-                          />
+                          <TiltaksgjennomforingStatusTag status={tiltaksgjennomforing.status} />
                         </Table.DataCell>
                       </SkjulKolonne>
                       <Table.DataCell>

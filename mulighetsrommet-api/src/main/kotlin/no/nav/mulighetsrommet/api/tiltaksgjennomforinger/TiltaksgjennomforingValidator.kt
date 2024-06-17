@@ -253,7 +253,7 @@ class TiltaksgjennomforingValidator(
             )
         }
 
-        if (previous.status is TiltaksgjennomforingStatus.GJENNOMFORES) {
+        if (previous.status.status == TiltaksgjennomforingStatus.GJENNOMFORES) {
             if (gjennomforing.avtaleId != previous.avtaleId) {
                 add(
                     ValidationError.of(

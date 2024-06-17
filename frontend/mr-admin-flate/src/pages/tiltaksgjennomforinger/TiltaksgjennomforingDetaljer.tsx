@@ -23,6 +23,7 @@ import {
 } from "mulighetsrommet-api-client";
 import { useTitle } from "mulighetsrommet-frontend-common";
 import { NOM_ANSATT_SIDE } from "mulighetsrommet-frontend-common/constants";
+import { gjennomforingIsAktiv } from "mulighetsrommet-frontend-common/utils/utils";
 import { useRef } from "react";
 import { Link } from "react-router-dom";
 import styles from "../DetaljerInfo.module.scss";
@@ -39,10 +40,6 @@ export function TiltaksgjennomforingDetaljer({ tiltaksgjennomforing, avtale }: P
 
   const { data: migrerteTiltakstyper = [] } = useMigrerteTiltakstyper();
   const avbrytModalRef = useRef<HTMLDialogElement>(null);
-
-  const gjennomforingIsActive = ["PLANLAGT", "GJENNOMFORES"].includes(
-    tiltaksgjennomforing.status.name,
-  );
 
   const navnPaaNavEnheterForKontaktperson = (enheterForKontaktperson: string[]): string => {
     return (
@@ -306,7 +303,7 @@ export function TiltaksgjennomforingDetaljer({ tiltaksgjennomforing, avtale }: P
         </div>
       </div>
       {!erArenaOpphavOgIngenEierskap(tiltaksgjennomforing, migrerteTiltakstyper) &&
-        gjennomforingIsActive && (
+        gjennomforingIsAktiv(tiltaksgjennomforing.status.status) && (
           <>
             <HarSkrivetilgang ressurs="Tiltaksgjennomføring">
               <Button

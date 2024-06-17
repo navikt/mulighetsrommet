@@ -1,39 +1,37 @@
-import { avbrytGjennomforingAarsakToString } from "@/utils/Utils";
 import { Tag } from "@navikt/ds-react";
-import { Tiltaksgjennomforing } from "mulighetsrommet-api-client";
+import { TiltaksgjennomforingStatus, TiltaksgjennomforingStatusDto } from "mulighetsrommet-api-client";
 import { useState } from "react";
 
 interface Props {
-  tiltaksgjennomforing: Tiltaksgjennomforing;
+  status: TiltaksgjennomforingStatusDto;
   showAvbruttAarsak?: boolean;
 }
 
-export function TiltaksgjennomforingstatusTag({
-  tiltaksgjennomforing,
+export function TiltaksgjennomforingStatusTag({
+  status,
   showAvbruttAarsak = false,
 }: Props) {
-  const { status } = tiltaksgjennomforing;
   const [expandLabel, setExpandLabel] = useState<boolean>(false);
 
   function variantAndName(): { variant: "alt1" | "success" | "neutral" | "error"; name: string } {
-    switch (status.name) {
-      case "GJENNOMFORES":
+    switch (status.status) {
+      case TiltaksgjennomforingStatus.GJENNOMFORES:
         return { variant: "success", name: "Gjennomføres" };
-      case "AVSLUTTET":
+      case TiltaksgjennomforingStatus.AVSLUTTET:
         return { variant: "neutral", name: "Avsluttet" };
-      case "AVBRUTT":
+      case TiltaksgjennomforingStatus.AVBRUTT:
         return { variant: "error", name: "Avbrutt" };
-      case "AVLYST":
+      case TiltaksgjennomforingStatus.AVLYST:
         return { variant: "error", name: "Avlyst" };
-      case "PLANLAGT":
+      case TiltaksgjennomforingStatus.PLANLAGT:
         return { variant: "alt1", name: "Planlagt" };
     }
   }
   const { variant, name } = variantAndName();
 
   function labelText(): string {
-    if ((status.name === "AVBRUTT" || status.name === "AVLYST") && showAvbruttAarsak) {
-      return `${name} - ${avbrytGjennomforingAarsakToString(status.aarsak)}`;
+    if ((status.status === TiltaksgjennomforingStatus.AVBRUTT || status.status === TiltaksgjennomforingStatus.AVLYST) && showAvbruttAarsak) {
+      return `${name} - ${status.avbrutt?.beskrivelse}`;
     }
 
     return name;

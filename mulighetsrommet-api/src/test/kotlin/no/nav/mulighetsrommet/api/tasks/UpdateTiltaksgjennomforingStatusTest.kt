@@ -39,7 +39,7 @@ class UpdateTiltaksgjennomforingStatusTest :
                 tiltaksgjennomforingKafkaProducer,
             )
 
-            fun TiltaksgjennomforingDbo.toDto(status: TiltaksgjennomforingStatus.Enum): TiltaksgjennomforingDto = TiltaksgjennomforingDto(
+            fun TiltaksgjennomforingDbo.toDto(status: TiltaksgjennomforingStatus): TiltaksgjennomforingDto = TiltaksgjennomforingDto(
                 id = id,
                 tiltakstype = TiltaksgjennomforingDto.Tiltakstype(
                     id = tiltakstype.id,
@@ -118,8 +118,8 @@ class UpdateTiltaksgjennomforingStatusTest :
                 task.oppdaterTiltaksgjennomforingStatus(today, lastSuccessDate)
 
                 verifyAll {
-                    tiltaksgjennomforingKafkaProducer.publish(startdatoInnenfor.toDto(TiltaksgjennomforingStatus.Enum.GJENNOMFORES))
-                    tiltaksgjennomforingKafkaProducer.publish(sluttdatoInnenfor.toDto(TiltaksgjennomforingStatus.Enum.AVSLUTTET))
+                    tiltaksgjennomforingKafkaProducer.publish(startdatoInnenfor.toDto(TiltaksgjennomforingStatus.GJENNOMFORES))
+                    tiltaksgjennomforingKafkaProducer.publish(sluttdatoInnenfor.toDto(TiltaksgjennomforingStatus.AVSLUTTET))
                 }
             }
 
@@ -129,8 +129,8 @@ class UpdateTiltaksgjennomforingStatusTest :
                 task.oppdaterTiltaksgjennomforingStatus(today, lastSuccessDate)
 
                 verifyAll {
-                    tiltaksgjennomforingKafkaProducer.publish(startdatoInnenfor.toDto(TiltaksgjennomforingStatus.Enum.GJENNOMFORES))
-                    tiltaksgjennomforingKafkaProducer.publish(sluttdatoInnenfor.toDto(TiltaksgjennomforingStatus.Enum.AVSLUTTET))
+                    tiltaksgjennomforingKafkaProducer.publish(startdatoInnenfor.toDto(TiltaksgjennomforingStatus.GJENNOMFORES))
+                    tiltaksgjennomforingKafkaProducer.publish(sluttdatoInnenfor.toDto(TiltaksgjennomforingStatus.AVSLUTTET))
                 }
                 gjennomforinger.get(startdatoInnenfor.id)?.publisert shouldBe true
                 gjennomforinger.get(sluttdatoInnenfor.id)?.publisert shouldBe false

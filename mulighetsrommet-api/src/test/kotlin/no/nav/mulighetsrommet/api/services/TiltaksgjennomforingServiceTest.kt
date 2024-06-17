@@ -321,7 +321,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
             shouldThrow<Throwable> { tiltaksgjennomforingService.avbrytGjennomforing(gjennomforing.id, bertilNavIdent, AvbruttAarsak.Feilregistrering) }
 
             tiltaksgjennomforingService.get(gjennomforing.id) should {
-                it!!.status shouldBe TiltaksgjennomforingStatus.GJENNOMFORES
+                it!!.status.status shouldBe TiltaksgjennomforingStatus.GJENNOMFORES
             }
         }
     }

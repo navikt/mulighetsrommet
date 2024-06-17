@@ -9,6 +9,7 @@ import { ViewEndringshistorikk } from "@/components/endringshistorikk/ViewEndrin
 import { useNavigate } from "react-router-dom";
 import { HarSkrivetilgang } from "@/components/authActions/HarSkrivetilgang";
 import { VarselModal } from "@/components/modal/VarselModal";
+import { gjennomforingIsAktiv } from "mulighetsrommet-frontend-common/utils/utils";
 
 interface Props {
   bruker: NavAnsatt;
@@ -24,13 +25,12 @@ export function TiltaksgjennomforingKnapperad({ bruker, tiltaksgjennomforing }: 
     mutate({ id: tiltaksgjennomforing.id, publisert: e.currentTarget.checked });
   }
 
-  const gjennomforingIsActive = ["PLANLAGT", "GJENNOMFORES"].includes(
-    tiltaksgjennomforing.status.name,
-  );
-
   return (
     <div className={styles.knapperad}>
-      <HarSkrivetilgang ressurs="Tiltaksgjennomføring" condition={gjennomforingIsActive}>
+      <HarSkrivetilgang
+        ressurs="Tiltaksgjennomføring"
+        condition={gjennomforingIsAktiv(tiltaksgjennomforing.status.status)}
+      >
         <Switch checked={tiltaksgjennomforing.publisert} onClick={handleClick}>
           Publiser
         </Switch>
@@ -40,7 +40,10 @@ export function TiltaksgjennomforingKnapperad({ bruker, tiltaksgjennomforing }: 
         <TiltaksgjennomforingEndringshistorikk id={tiltaksgjennomforing.id} />
       </EndringshistorikkPopover>
 
-      <HarSkrivetilgang ressurs="Tiltaksgjennomføring" condition={gjennomforingIsActive}>
+      <HarSkrivetilgang
+        ressurs="Tiltaksgjennomføring"
+        condition={gjennomforingIsAktiv(tiltaksgjennomforing.status.status)}
+      >
         <Button
           size="small"
           variant="primary"

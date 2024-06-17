@@ -126,7 +126,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 it.apentForInnsok shouldBe false
                 it.antallPlasser shouldBe 10
                 it.avtaleId shouldBe null
-                it.status shouldBe TiltaksgjennomforingStatus.AVSLUTTET
+                it.status.status shouldBe TiltaksgjennomforingStatus.AVSLUTTET
                 it.administratorer shouldBe emptyList()
                 it.navEnheter shouldBe emptyList()
                 it.navRegion shouldBe null
@@ -239,7 +239,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 it.startDato shouldBe Oppfolging1.startDato
                 it.sluttDato shouldBe Oppfolging1.sluttDato
                 it.arenaAnsvarligEnhet shouldBe null
-                it.status shouldBe TiltaksgjennomforingStatus.AVSLUTTET
+                it.status.status shouldBe TiltaksgjennomforingStatus.AVSLUTTET
                 it.apentForInnsok shouldBe true
                 it.antallPlasser shouldBe 12
                 it.avtaleId shouldBe Oppfolging1.avtaleId
@@ -578,7 +578,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
 
             val result = tiltaksgjennomforingRepository.getAll(
-                statuser = listOf(TiltaksgjennomforingStatus.Enum.AVBRUTT),
+                statuser = listOf(TiltaksgjennomforingStatus.AVBRUTT),
             )
 
             result.totalCount shouldBe 1
@@ -589,7 +589,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
 
             val result = tiltaksgjennomforingRepository.getAll(
-                statuser = listOf(TiltaksgjennomforingStatus.Enum.AVSLUTTET),
+                statuser = listOf(TiltaksgjennomforingStatus.AVSLUTTET),
             )
 
             result.totalCount shouldBe 1
@@ -600,7 +600,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
 
             val result = tiltaksgjennomforingRepository.getAll(
-                statuser = listOf(TiltaksgjennomforingStatus.Enum.GJENNOMFORES),
+                statuser = listOf(TiltaksgjennomforingStatus.GJENNOMFORES),
             )
 
             result.totalCount shouldBe 1
@@ -611,7 +611,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
 
             val result = tiltaksgjennomforingRepository.getAll(
-                statuser = listOf(TiltaksgjennomforingStatus.Enum.AVLYST),
+                statuser = listOf(TiltaksgjennomforingStatus.AVLYST),
             )
 
             result.totalCount shouldBe 1
@@ -622,7 +622,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
 
             val result = tiltaksgjennomforingRepository.getAll(
-                statuser = listOf(TiltaksgjennomforingStatus.Enum.PLANLAGT),
+                statuser = listOf(TiltaksgjennomforingStatus.PLANLAGT),
             )
 
             result.totalCount shouldBe 1
@@ -1199,11 +1199,11 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
 
         test("status AVLYST og AVBRUTT utledes fra avbrutt-tidspunkt") {
             forAll(
-                row(enManedTilbake, enManedFrem, enManedTilbake.minusDays(1), TiltaksgjennomforingStatus.Enum.AVLYST),
-                row(enManedFrem, toManederFrem, dagensDato, TiltaksgjennomforingStatus.Enum.AVLYST),
-                row(dagensDato, toManederFrem, dagensDato, TiltaksgjennomforingStatus.Enum.AVBRUTT),
-                row(enManedTilbake, enManedFrem, enManedTilbake.plusDays(3), TiltaksgjennomforingStatus.Enum.AVBRUTT),
-                row(enManedFrem, toManederFrem, enManedFrem.plusMonths(2), TiltaksgjennomforingStatus.Enum.AVBRUTT),
+                row(enManedTilbake, enManedFrem, enManedTilbake.minusDays(1), TiltaksgjennomforingStatus.AVLYST),
+                row(enManedFrem, toManederFrem, dagensDato, TiltaksgjennomforingStatus.AVLYST),
+                row(dagensDato, toManederFrem, dagensDato, TiltaksgjennomforingStatus.AVBRUTT),
+                row(enManedTilbake, enManedFrem, enManedTilbake.plusDays(3), TiltaksgjennomforingStatus.AVBRUTT),
+                row(enManedFrem, toManederFrem, enManedFrem.plusMonths(2), TiltaksgjennomforingStatus.AVBRUTT),
             ) { startDato, sluttDato, avbruttDato, expectedStatus ->
                 tiltaksgjennomforinger.upsert(AFT1.copy(startDato = startDato, sluttDato = sluttDato))
 
@@ -1213,23 +1213,23 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                     AvbruttAarsak.Feilregistrering,
                 )
 
-                tiltaksgjennomforinger.get(AFT1.id).shouldNotBeNull().status.enum shouldBe expectedStatus
+                tiltaksgjennomforinger.get(AFT1.id).shouldNotBeNull().status.status shouldBe expectedStatus
             }
         }
 
         test("hvis ikke avbrutt så blir status utledet basert på dagens dato") {
             forAll(
-                row(toManederTilbake, enManedTilbake, TiltaksgjennomforingStatus.Enum.AVSLUTTET),
-                row(toManederTilbake, enManedTilbake, TiltaksgjennomforingStatus.Enum.AVSLUTTET),
-                row(enManedTilbake, enManedFrem, TiltaksgjennomforingStatus.Enum.GJENNOMFORES),
-                row(enManedTilbake, null, TiltaksgjennomforingStatus.Enum.GJENNOMFORES),
-                row(dagensDato, dagensDato, TiltaksgjennomforingStatus.Enum.GJENNOMFORES),
-                row(enManedFrem, toManederFrem, TiltaksgjennomforingStatus.Enum.PLANLAGT),
-                row(enManedFrem, null, TiltaksgjennomforingStatus.Enum.PLANLAGT),
+                row(toManederTilbake, enManedTilbake, TiltaksgjennomforingStatus.AVSLUTTET),
+                row(toManederTilbake, enManedTilbake, TiltaksgjennomforingStatus.AVSLUTTET),
+                row(enManedTilbake, enManedFrem, TiltaksgjennomforingStatus.GJENNOMFORES),
+                row(enManedTilbake, null, TiltaksgjennomforingStatus.GJENNOMFORES),
+                row(dagensDato, dagensDato, TiltaksgjennomforingStatus.GJENNOMFORES),
+                row(enManedFrem, toManederFrem, TiltaksgjennomforingStatus.PLANLAGT),
+                row(enManedFrem, null, TiltaksgjennomforingStatus.PLANLAGT),
             ) { startDato, sluttDato, status ->
                 tiltaksgjennomforinger.upsert(AFT1.copy(startDato = startDato, sluttDato = sluttDato))
 
-                tiltaksgjennomforinger.get(AFT1.id).shouldNotBeNull().status.enum shouldBe status
+                tiltaksgjennomforinger.get(AFT1.id).shouldNotBeNull().status.status shouldBe status
             }
         }
     }

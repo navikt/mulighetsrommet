@@ -1,11 +1,11 @@
 import { Alert, BodyShort } from "@navikt/ds-react";
 import { useAdminTiltaksgjennomforinger } from "@/api/tiltaksgjennomforing/useAdminTiltaksgjennomforinger";
 import { Laster } from "../laster/Laster";
-import { TiltaksgjennomforingstatusTag } from "../statuselementer/TiltaksgjennomforingstatusTag";
 import styles from "./TiltaksgjennomforingerListe.module.scss";
 import { TiltaksgjennomforingFilter } from "@/api/atoms";
 import { Tiltaksgjennomforing } from "mulighetsrommet-api-client";
 import { ReactNode } from "react";
+import { TiltaksgjennomforingStatusTag } from "mulighetsrommet-frontend-common";
 
 interface Props {
   filter: Partial<TiltaksgjennomforingFilter>;
@@ -38,7 +38,7 @@ export function TiltaksgjennomforingerListe(props: Props) {
           <li key={gjennomforing.id} className={styles.gjennomforingsliste_element}>
             <BodyShort>{gjennomforing.navn}</BodyShort>
             <BodyShort>{gjennomforing.tiltaksnummer}</BodyShort>
-            <TiltaksgjennomforingstatusTag tiltaksgjennomforing={gjennomforing} />
+            <TiltaksgjennomforingStatusTag status={gjennomforing.status} />
             {props.action(gjennomforing)}
           </li>
         ))}

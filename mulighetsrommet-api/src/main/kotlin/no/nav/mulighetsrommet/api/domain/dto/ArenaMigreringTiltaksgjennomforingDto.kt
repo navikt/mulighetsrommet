@@ -27,7 +27,7 @@ data class ArenaMigreringTiltaksgjennomforingDto(
     val navn: String,
     val orgnummer: String,
     val antallPlasser: Int?,
-    val status: TiltaksgjennomforingStatus.Enum,
+    val status: TiltaksgjennomforingStatus,
     val enhet: String,
     val apentForInnsok: Boolean,
     val deltidsprosent: Double,
@@ -47,9 +47,9 @@ data class ArenaMigreringTiltaksgjennomforingDto(
                 "navRegion or arenaAnsvarligEnhet was null! Should not be possible!"
             }
 
-            val status = when (tiltaksgjennomforing.status) {
-                TiltaksgjennomforingStatus.PLANLAGT, TiltaksgjennomforingStatus.GJENNOMFORES -> TiltaksgjennomforingStatus.GJENNOMFORES.enum
-                else -> tiltaksgjennomforing.status.enum
+            val status = when (tiltaksgjennomforing.status.status) {
+                TiltaksgjennomforingStatus.PLANLAGT, TiltaksgjennomforingStatus.GJENNOMFORES -> TiltaksgjennomforingStatus.GJENNOMFORES
+                else -> tiltaksgjennomforing.status.status
             }
 
             return ArenaMigreringTiltaksgjennomforingDto(
