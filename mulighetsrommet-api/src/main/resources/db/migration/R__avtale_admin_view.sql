@@ -4,8 +4,7 @@ drop view if exists avtale_admin_dto_view;
 create view avtale_admin_dto_view as
 select avtale.id,
        avtale.navn,
-       avtale.avtalenummer,
-       avtale.lopenummer,
+       coalesce(avtale.avtalenummer, avtale.lopenummer) as avtalenummer,
        avtale.websaknummer,
        avtale.start_dato,
        avtale.slutt_dato,

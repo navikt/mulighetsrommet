@@ -542,7 +542,6 @@ class AvtaleRepository(private val db: Database) {
             id = uuid("id"),
             navn = string("navn"),
             avtalenummer = stringOrNull("avtalenummer"),
-            lopenummer = stringOrNull("lopenummer")?.let { Lopenummer(it) },
             websaknummer = stringOrNull("websaknummer")?.let { Websaknummer(it) },
             startDato = startDato,
             sluttDato = sluttDato,
