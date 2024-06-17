@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api.tasks
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.mockk
+import io.mockk.verify
 import io.mockk.verifyAll
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
@@ -25,11 +26,6 @@ class UpdateTiltaksgjennomforingStatusTest : FunSpec({
     val lastSuccessDate = LocalDate.of(2023, 2, 14)
     val today = LocalDate.of(2023, 2, 16)
 
-    val tiltakstype = TiltakstypeFixtures.Oppfolging.copy(
-        startDato = LocalDate.of(2023, 1, 11),
-        sluttDato = LocalDate.now().plusYears(1),
-    )
-
     context("oppdater statuser på tiltaksgjennomføringer") {
         val tiltaksgjennomforingKafkaProducer = mockk<TiltaksgjennomforingKafkaProducer>(relaxed = true)
         val task = UpdateTiltaksgjennomforingStatus(
@@ -41,12 +37,14 @@ class UpdateTiltaksgjennomforingStatusTest : FunSpec({
         fun TiltaksgjennomforingDbo.toDto(status: TiltaksgjennomforingStatus): TiltaksgjennomforingDto {
             return TiltaksgjennomforingDto(
                 id = id,
-                tiltakstype = TiltaksgjennomforingDto.Tiltakstype(
-                    id = tiltakstype.id,
-                    navn = tiltakstype.navn,
-                    arenaKode = tiltakstype.arenaKode,
-                    tiltakskode = tiltakstype.tiltakskode!!,
-                ),
+                tiltakstype = TiltakstypeFixtures.Oppfolging.run {
+                    TiltaksgjennomforingDto.Tiltakstype(
+                        id = id,
+                        navn = navn,
+                        arenaKode = arenaKode,
+                        tiltakskode = tiltakskode!!,
+                    )
+                },
                 navn = navn,
                 virksomhetsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
                 startDato = startDato,
@@ -84,7 +82,7 @@ class UpdateTiltaksgjennomforingStatusTest : FunSpec({
             sluttDato = LocalDate.now().plusYears(1),
         )
         val domain = MulighetsrommetTestDomain(
-            tiltakstyper = listOf(tiltakstype),
+            tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
             avtaler = listOf(AvtaleFixtures.oppfolging),
             gjennomforinger = listOf(
                 startdatoInnenforMenAvsluttetStatus,
@@ -116,7 +114,6 @@ class UpdateTiltaksgjennomforingStatusTest : FunSpec({
         }
 
         test("oppdater statuser på kafka på relevante tiltaksgjennomføringer") {
-
             task.oppdaterTiltaksgjennomforingStatus(today, lastSuccessDate)
 
             verifyAll {
@@ -136,6 +133,43 @@ class UpdateTiltaksgjennomforingStatusTest : FunSpec({
             }
             gjennomforinger.get(startdatoInnenfor.id)?.publisert shouldBe true
             gjennomforinger.get(sluttdatoInnenfor.id)?.publisert shouldBe false
+        }
+    }
+
+    context("tiltak i egen regi") {
+        val tiltaksgjennomforingKafkaProducer = mockk<TiltaksgjennomforingKafkaProducer>(relaxed = true)
+        val task = UpdateTiltaksgjennomforingStatus(
+            mockk(),
+            TiltaksgjennomforingRepository(database.db),
+            tiltaksgjennomforingKafkaProducer,
+        )
+
+        val startdatoInnenfor = TiltaksgjennomforingFixtures.IPS1.copy(
+            id = UUID.randomUUID(),
+            startDato = LocalDate.of(2023, 2, 15),
+            sluttDato = LocalDate.now().plusYears(1),
+        )
+
+        val domain = MulighetsrommetTestDomain(
+            tiltakstyper = listOf(TiltakstypeFixtures.IPS),
+            avtaler = listOf(AvtaleFixtures.IPS),
+            gjennomforinger = listOf(startdatoInnenfor),
+        )
+
+        beforeEach {
+            domain.initialize(database.db)
+        }
+
+        afterEach {
+            database.db.truncateAll()
+        }
+
+        test("oppdaterer ikke status på kafka") {
+            task.oppdaterTiltaksgjennomforingStatus(today, lastSuccessDate)
+
+            verify(exactly = 0) {
+                tiltaksgjennomforingKafkaProducer.publish(any())
+            }
         }
     }
 })

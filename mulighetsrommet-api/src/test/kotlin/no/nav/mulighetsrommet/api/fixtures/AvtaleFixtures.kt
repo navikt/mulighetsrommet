@@ -81,6 +81,30 @@ object AvtaleFixtures {
         amoKategorisering = null,
     )
 
+    val IPS = AvtaleDbo(
+        id = UUID.randomUUID(),
+        navn = "IPS",
+        avtalenummer = "2024#9",
+        websaknummer = Websaknummer("24/1234"),
+        tiltakstypeId = TiltakstypeFixtures.IPS.id,
+        arrangorId = ArrangorFixtures.hovedenhet.id,
+        arrangorUnderenheter = listOf(ArrangorFixtures.underenhet1.id),
+        arrangorKontaktpersoner = emptyList(),
+        startDato = LocalDate.of(2023, 1, 1),
+        sluttDato = LocalDate.now().plusMonths(3),
+        avtaletype = Avtaletype.OffentligOffentlig,
+        prisbetingelser = "Alt er dyrt",
+        administratorer = listOf(NavIdent("DD1")),
+        navEnheter = listOf("0400", "0502"),
+        antallPlasser = null,
+        beskrivelse = null,
+        faneinnhold = null,
+        personopplysninger = emptyList(),
+        personvernBekreftet = false,
+        nusData = null,
+        amoKategorisering = null,
+    )
+
     val VTA = AvtaleDbo(
         id = UUID.randomUUID(),
         navn = "Avtalenavn for VTA",
