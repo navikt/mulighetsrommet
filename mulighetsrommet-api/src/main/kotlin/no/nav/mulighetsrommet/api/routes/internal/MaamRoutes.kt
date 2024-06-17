@@ -8,7 +8,10 @@ import io.ktor.server.routing.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.clients.ssb.SsbNusClient
 import no.nav.mulighetsrommet.api.services.SsbNusService
-import no.nav.mulighetsrommet.api.tasks.*
+import no.nav.mulighetsrommet.api.tasks.GenerateValidationReport
+import no.nav.mulighetsrommet.api.tasks.InitialLoadTiltaksgjennomforinger
+import no.nav.mulighetsrommet.api.tasks.InitialLoadTiltakstyper
+import no.nav.mulighetsrommet.api.tasks.SynchronizeNavAnsatte
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.kafka.KafkaConsumerOrchestrator
 import no.nav.mulighetsrommet.kafka.Topic
@@ -18,18 +21,11 @@ import java.util.*
 fun Route.maamRoutes() {
     route("/api/intern/maam") {
         route("/tasks") {
-            val retractEgenRegiTiltak: RetractEgenRegiTiltak by inject()
             val generateValidationReport: GenerateValidationReport by inject()
             val initialLoadTiltaksgjennomforinger: InitialLoadTiltaksgjennomforinger by inject()
             val initialLoadTiltakstyper: InitialLoadTiltakstyper by inject()
             val synchronizeNavAnsatte: SynchronizeNavAnsatte by inject()
             val ssbNusService: SsbNusService by inject()
-
-            post("retract-egen-regi") {
-                val taskId = retractEgenRegiTiltak.schedule()
-
-                call.respond(HttpStatusCode.Accepted, ScheduleTaskResponse(id = taskId))
-            }
 
             post("generate-validation-report") {
                 val taskId = generateValidationReport.schedule()
