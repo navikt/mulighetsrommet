@@ -120,7 +120,7 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
                 <TextField
                   size="small"
                   readOnly
-                  label={avtaletekster.lopenummerLabel}
+                  label={avtaletekster.avtalenummerLabel}
                   value={avtale?.lopenummer}
                 />
               )}
