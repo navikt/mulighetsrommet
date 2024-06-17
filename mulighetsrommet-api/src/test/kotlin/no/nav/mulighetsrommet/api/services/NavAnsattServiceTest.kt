@@ -444,9 +444,7 @@ class NavAnsattServiceTest : FunSpec({
 
             verify(exactly = 1) {
                 val expectedNotification: ScheduledNotification = match {
-                    it.type == NotificationType.TASK && it.targets.containsAll(
-                        listOf(ansatt2.navIdent),
-                    )
+                    it.type == NotificationType.TASK && it.targets.containsAll(listOf(ansatt2.navIdent))
                 }
                 notificationService.scheduleNotification(expectedNotification, any())
             }

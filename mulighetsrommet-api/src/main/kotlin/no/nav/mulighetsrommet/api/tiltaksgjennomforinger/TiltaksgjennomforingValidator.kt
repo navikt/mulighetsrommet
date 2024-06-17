@@ -281,9 +281,9 @@ class TiltaksgjennomforingValidator(
                 )
             }
 
-            if (gjennomforing.sluttDato != null && previous.sluttDato != null && gjennomforing.sluttDato.isBefore(
-                    LocalDate.now(),
-                )
+            if (gjennomforing.sluttDato != null &&
+                previous.sluttDato != null &&
+                gjennomforing.sluttDato.isBefore(LocalDate.now())
             ) {
                 add(
                     ValidationError.of(

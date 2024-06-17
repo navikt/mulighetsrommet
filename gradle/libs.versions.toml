@@ -1,14 +1,14 @@
 [versions]
 common-java-modules = "3.2024.01.24_10.14-f70bae69bd65"
-flyway = "10.12.0"
+flyway = "10.15.0"
 hoplite = "2.7.5"
 koin = "3.5.6"
-kotest = "5.9.0"
+kotest = "5.9.1"
 kotest-testcontainers = "2.0.2"
 kotlin = "2.0.0"
 ktor = "2.3.11"
 logback = "1.5.6"
-metrics = "4.2.25"
+metrics = "4.2.26"
 arrow = "1.2.4"
 
 [plugins]
@@ -17,7 +17,7 @@ kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 ktlint = "org.jlleitschuh.gradle.ktlint:12.1.1"
 shadow = "com.github.johnrengelman.shadow:8.1.1"
-openapi-generator = "org.openapi.generator:7.5.0"
+openapi-generator = "org.openapi.generator:7.6.0"
 
 [bundles]
 logging = [
@@ -36,13 +36,13 @@ assertj-db = "org.assertj:assertj-db:2.0.2"
 
 caffeine = "com.github.ben-manes.caffeine:caffeine:3.1.8"
 
-dbScheduler = "com.github.kagkarlsson:db-scheduler:14.0.0"
+dbScheduler = "com.github.kagkarlsson:db-scheduler:14.0.1"
 
 flyway-core = { module = "org.flywaydb:flyway-core", version.ref = "flyway" }
 flyway-database-postgresql = { module = "org.flywaydb:flyway-database-postgresql", version.ref = "flyway" }
 
-google-cloud-postgresSocketFactory = "com.google.cloud.sql:postgres-socket-factory:1.18.1"
-google-cloud-storage = "com.google.cloud:google-cloud-storage:2.38.0"
+google-cloud-postgresSocketFactory = "com.google.cloud.sql:postgres-socket-factory:1.19.0"
+google-cloud-storage = "com.google.cloud:google-cloud-storage:2.40.0"
 
 hikaricp = "com.zaxxer:HikariCP:5.1.0"
 
@@ -58,12 +58,12 @@ kotest-extensions-testcontainers = { module = "io.kotest.extensions:kotest-exten
 kotest-extensions-testcontainers-kafka = { module = "io.kotest.extensions:kotest-extensions-testcontainers-kafka", version.ref = "kotest-testcontainers" }
 kotest-junit = { module = "io.kotest:kotest-runner-junit5", version.ref = "kotest" }
 
-kotlinx-serialization-json = "org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3"
+kotlinx-serialization-json = "org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.0"
 kotlinx-coroutines-core = "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1"
 
 kotliquery = "com.github.seratch:kotliquery:1.9.0"
 
-ktlint = "com.pinterest.ktlint:ktlint-cli:1.2.1"
+ktlint = "com.pinterest.ktlint:ktlint-cli:1.3.0"
 
 ktor-client-cio = { module = "io.ktor:ktor-client-cio", version.ref = "ktor" }
 ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
@@ -108,7 +108,7 @@ nav-common-auditLog = { module = "no.nav.common:audit-log", version.ref = "commo
 nav-common-kafka = { module = "no.nav.common:kafka", version.ref = "common-java-modules" }
 nav-common-tokenClient = { module = "no.nav.common:token-client", version.ref = "common-java-modules" }
 nav-common-client = { module = "no.nav.common:client", version.ref = "common-java-modules" }
-nav-poaoTilgang-client = "no.nav.poao-tilgang:client:2024.05.07_14.27-eac60fc351e3"
+nav-poaoTilgang-client = "no.nav.poao-tilgang:client:2024.06.04_10.37-1840eecf1495"
 nav-mockOauth2Server = "no.nav.security:mock-oauth2-server:2.1.5"
 
 postgresql = "org.postgresql:postgresql:42.7.3"
@@ -117,7 +117,7 @@ prometheus-caffeine = "io.prometheus:simpleclient_caffeine:0.16.0"
 
 shedlock-jdbc = "net.javacrumbs.shedlock:shedlock-provider-jdbc:5.13.0"
 
-slack-client = "com.slack.api:slack-api-client:1.39.2"
+slack-client = "com.slack.api:slack-api-client:1.40.0"
 
 slf4j = "org.slf4j:slf4j-api:2.0.13"
 

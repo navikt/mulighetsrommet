@@ -54,7 +54,10 @@ fun Route.maamRoutes() {
             post("sync-nusdata") {
                 val input = call.receive<SsbNusClient.Input>()
                 ssbNusService.syncData(version = input.version)
-                call.respond(HttpStatusCode.Accepted, GeneralTaskResponse(id = "NUS data synced for version ${input.version}"))
+                call.respond(
+                    HttpStatusCode.Accepted,
+                    GeneralTaskResponse(id = "NUS data synced for version ${input.version}"),
+                )
             }
         }
 

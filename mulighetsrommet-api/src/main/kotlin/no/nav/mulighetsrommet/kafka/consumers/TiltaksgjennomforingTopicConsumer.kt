@@ -13,7 +13,6 @@ import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.kafka.producers.ArenaMigreringTiltaksgjennomforingKafkaProducer
 import no.nav.mulighetsrommet.kafka.serialization.JsonElementDeserializer
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
-import no.nav.mulighetsrommet.utils.toUUID
 import java.util.*
 
 class TiltaksgjennomforingTopicConsumer(
@@ -29,11 +28,7 @@ class TiltaksgjennomforingTopicConsumer(
 ) {
     override suspend fun consume(key: String, message: JsonElement) {
         val gjennomforing = JsonIgnoreUnknownKeys.decodeFromJsonElement<TiltaksgjennomforingDto?>(message)
-
-        if (gjennomforing == null) {
-            arenaMigreringTiltaksgjennomforingKafkaProducer.retract(key.toUUID())
-            return
-        }
+            ?: throw UnsupportedOperationException("Arena støtter ikke sletting av gjennomføringer. Tombstone-meldinger er derfor ikke tillatt så lenge data må deles med Arena.")
 
         if (gjennomforingSkalDelesMedArena(gjennomforing)) {
             publishMigrertGjennomforing(gjennomforing.id)

@@ -26,12 +26,22 @@ updates:
       timezone: Europe/Oslo
     open-pull-requests-limit: 10
     groups:
+      # Trukket ut til egen gruppe siden nye versjoner av biblioteket kan introdusere regler som gjør at bygget feiler
+      ktlint:
+        patterns:
+          - "com.pinterest.ktlint:ktlint-cli"
+
       patches:
         update-types:
           - "patch"
+        exclude-patterns:
+          - "com.pinterest.ktlint:ktlint-cli"
+
       minorversions:
         update-types:
           - "minor"
+        exclude-patterns:
+          - "com.pinterest.ktlint:ktlint-cli"
 
   - package-ecosystem: npm
     directory: "/"
@@ -42,6 +52,7 @@ updates:
       timezone: Europe/Oslo
     open-pull-requests-limit: 10
     groups:
+      # Trukket ut til egen gruppe siden biblioteket enda ikke er stabilt
       hey-api:
         patterns:
           - "@hey-api/openapi-ts"
@@ -68,10 +79,26 @@ updates:
       patches:
         update-types:
           - "patch"
+        exclude-patterns:
+          - "playwright"
+          - "@playwright/test"
+          - "react"
+          - "react-dom"
+          - "@navikt/aksel-*"
+          - "@navikt/ds-*"
+          - "@rjsf/*"
 
       minorversions:
         update-types:
           - "minor"
+        exclude-patterns:
+          - "playwright"
+          - "@playwright/test"
+          - "react"
+          - "react-dom"
+          - "@navikt/aksel-*"
+          - "@navikt/ds-*"
+          - "@rjsf/*"
 
   # Test versjonsoppdatering av docker images i nais config
   - package-ecosystem: docker

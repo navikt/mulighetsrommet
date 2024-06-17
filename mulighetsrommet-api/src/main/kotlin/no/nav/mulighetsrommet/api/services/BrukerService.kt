@@ -239,10 +239,9 @@ fun getRelevanteEnheterForBruker(
         geografiskEnhet
     }
 
-    val virtuellOppfolgingsenhet = if (oppfolgingsenhet != null && oppfolgingsenhet.type !in listOf(
-            Norg2Type.FYLKE,
-            Norg2Type.LOKAL,
-        )
+    val virtuellOppfolgingsenhet = if (
+        oppfolgingsenhet != null &&
+        oppfolgingsenhet.type !in listOf(Norg2Type.FYLKE, Norg2Type.LOKAL)
     ) {
         oppfolgingsenhet
     } else {

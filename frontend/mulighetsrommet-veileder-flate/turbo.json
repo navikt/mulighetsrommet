@@ -1,6 +1,6 @@
 {
   "extends": ["//"],
-  "pipeline": {
+  "tasks": {
     "build:modia": {
       "dependsOn": ["^build"],
       "outputs": ["dist/**"]

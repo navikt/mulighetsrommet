@@ -40,11 +40,8 @@ fun Route.arenaAdapterRoutes() {
             val tiltaksgjennomforing = call.receive<ArenaTiltaksgjennomforingDbo>()
 
             arenaAdapterService.upsertTiltaksgjennomforing(tiltaksgjennomforing)
-                .map { call.respond(it) }
-                .mapLeft {
-                    logError(logger, it.error)
-                    call.respond(HttpStatusCode.InternalServerError, "Kunne ikke opprette tiltak")
-                }
+
+            call.respond(HttpStatusCode.OK)
         }
 
         delete("tiltaksgjennomforing/{id}") {

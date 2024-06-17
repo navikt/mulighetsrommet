@@ -24,7 +24,6 @@ import no.nav.mulighetsrommet.database.utils.QueryResult
 import no.nav.mulighetsrommet.database.utils.query
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.Tiltakskoder
-import no.nav.mulighetsrommet.domain.Tiltakskoder.isEgenRegiTiltak
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering.TiltaksgjennomforingSluttDatoCutoffDate
 import no.nav.mulighetsrommet.domain.dbo.ArenaAvtaleDbo
@@ -93,11 +92,43 @@ class ArenaAdapterService(
         }
     }
 
-    suspend fun upsertTiltaksgjennomforing(arenaGjennomforing: ArenaTiltaksgjennomforingDbo): QueryResult<TiltaksgjennomforingAdminDto> {
+    suspend fun upsertTiltaksgjennomforing(arenaGjennomforing: ArenaTiltaksgjennomforingDbo) {
         val tiltakstype = tiltakstyper.get(arenaGjennomforing.tiltakstypeId)
             ?: throw IllegalStateException("Ukjent tiltakstype id=${arenaGjennomforing.tiltakstypeId}")
 
         syncArrangorFromBrreg(arenaGjennomforing.arrangorOrganisasjonsnummer)
+
+        if (Tiltakskoder.isEgenRegiTiltak(tiltakstype.arenaKode)) {
+            upsertEgenRegiTiltak(tiltakstype, arenaGjennomforing)
+        } else {
+            upsertGruppetiltak(tiltakstype, arenaGjennomforing)
+        }
+    }
+
+    private suspend fun upsertEgenRegiTiltak(
+        tiltakstype: TiltakstypeAdminDto,
+        arenaGjennomforing: ArenaTiltaksgjennomforingDbo,
+    ) {
+        require(Tiltakskoder.isEgenRegiTiltak(tiltakstype.arenaKode)) {
+            "Gjennomføring for tiltakstype ${tiltakstype.arenaKode} skal ikke skrives til Sanity"
+        }
+
+        val sluttDato = arenaGjennomforing.sluttDato
+        if (sluttDato == null || sluttDato.isAfter(TiltaksgjennomforingSluttDatoCutoffDate)) {
+            db.transactionSuspend { tx ->
+                tiltaksgjennomforinger.upsertArenaTiltaksgjennomforing(arenaGjennomforing, tx)
+                sanityTiltakService.createOrPatchSanityTiltaksgjennomforing(arenaGjennomforing, tx)
+            }
+        }
+    }
+
+    private suspend fun upsertGruppetiltak(
+        tiltakstype: TiltakstypeAdminDto,
+        arenaGjennomforing: ArenaTiltaksgjennomforingDbo,
+    ) {
+        require(Tiltakskoder.isAmtTiltak(tiltakstype.arenaKode)) {
+            "Gjennomføringer er ikke støttet for tiltakstype ${tiltakstype.arenaKode}"
+        }
 
         val previous = tiltaksgjennomforinger.get(arenaGjennomforing.id)
 
@@ -108,10 +139,11 @@ class ArenaAdapterService(
         }
 
         if (previous != null && hasNoRelevantChanges(mergedArenaGjennomforing, previous)) {
-            return query { previous }
+            logger.info("Gjennomføring hadde ingen endringer")
+            return
         }
 
-        val gjennomforing = db.transactionSuspend { tx ->
+        db.transactionSuspend { tx ->
             if (previous != null && tiltakstypeService.isEnabled(Tiltakskode.fromArenaKode(tiltakstype.arenaKode))) {
                 tiltaksgjennomforinger.updateArenaData(
                     previous.id,
@@ -123,7 +155,13 @@ class ArenaAdapterService(
                 tiltaksgjennomforinger.upsertArenaTiltaksgjennomforing(mergedArenaGjennomforing, tx)
             }
 
-            val next = tiltaksgjennomforinger.get(mergedArenaGjennomforing.id, tx)!!
+            val next = requireNotNull(tiltaksgjennomforinger.get(mergedArenaGjennomforing.id, tx)) {
+                "Gjennomføring burde ikke være null siden den nettopp ble lagt til"
+            }
+
+            if (next.isAktiv() && next.administratorer.isEmpty()) {
+                maybeNotifyRelevantAdministrators(next)
+            }
 
             if (previous != null && previous.tiltaksnummer == null) {
                 logTiltaksnummerHentetFraArena(tx, next)
@@ -135,18 +173,8 @@ class ArenaAdapterService(
                 avtaler.setArrangorUnderenhet(tx, avtaleId, next.arrangor.id)
             }
 
-            if (shouldBeManagedInSanity(next)) {
-                sanityTiltakService.createOrPatchSanityTiltaksgjennomforing(next, tx)
-            } else if (next.isAktiv() && next.administratorer.isEmpty()) {
-                maybeNotifyRelevantAdministrators(next)
-            }
-
             tiltaksgjennomforingKafkaProducer.publish(next.toTiltaksgjennomforingDto())
-
-            next
         }
-
-        return query { gjennomforing }
     }
 
     private suspend fun syncArrangorFromBrreg(orgnr: String) {
@@ -160,48 +188,39 @@ class ArenaAdapterService(
     }
 
     suspend fun removeTiltaksgjennomforing(id: UUID) {
-        val gjennomforing = tiltaksgjennomforinger.get(id)
-            ?: return
-        val sanityId = gjennomforing.sanityId
+        db.transactionSuspend { tx ->
+            tiltaksgjennomforinger.getSanityTiltaksgjennomforingId(id, tx)?.let {
+                sanityTiltakService.deleteSanityTiltaksgjennomforing(it)
+            }
 
-        db.transaction { tx ->
-            tiltaksgjennomforinger.delete(id, tx)
-            logDelete(tx, DocumentClass.TILTAKSGJENNOMFORING, id)
-            tiltaksgjennomforingKafkaProducer.retract(id)
-        }
-
-        if (sanityId != null) {
-            sanityTiltakService.deleteSanityTiltaksgjennomforing(sanityId)
+            val numDeleted = tiltaksgjennomforinger.delete(id, tx)
+            if (numDeleted > 0) {
+                logDelete(tx, DocumentClass.TILTAKSGJENNOMFORING, id)
+                tiltaksgjennomforingKafkaProducer.retract(id)
+            }
         }
     }
 
-    suspend fun upsertTiltakshistorikk(tiltakshistorikk: ArenaTiltakshistorikkDbo): Either<ErUnderOppfolgingError, Boolean> {
-        return veilarboppfolgingClient.erBrukerUnderOppfolging(tiltakshistorikk.norskIdent, AccessType.M2M)
+    suspend fun upsertTiltakshistorikk(tiltakshistorikk: ArenaTiltakshistorikkDbo): Either<ErUnderOppfolgingError, Boolean> =
+        veilarboppfolgingClient.erBrukerUnderOppfolging(tiltakshistorikk.norskIdent, AccessType.M2M)
             .onRight {
                 if (it) {
                     this.tiltakshistorikk.upsert(tiltakshistorikk)
                 }
             }
-    }
 
-    fun removeTiltakshistorikk(id: UUID): QueryResult<Unit> {
-        return tiltakshistorikk.delete(id)
-    }
+    fun removeTiltakshistorikk(id: UUID): QueryResult<Unit> = tiltakshistorikk.delete(id)
 
-    fun upsertDeltaker(deltaker: DeltakerDbo): QueryResult<DeltakerDbo> {
-        return query { deltakere.upsert(deltaker) }
-    }
+    fun upsertDeltaker(deltaker: DeltakerDbo): QueryResult<DeltakerDbo> = query { deltakere.upsert(deltaker) }
 
-    fun removeDeltaker(id: UUID): QueryResult<Unit> {
-        return query { deltakere.delete(id) }
-    }
+    fun removeDeltaker(id: UUID): QueryResult<Unit> = query { deltakere.delete(id) }
 
     private fun mergeWithCurrentGjennomforing(
         tiltaksgjennomforing: ArenaTiltaksgjennomforingDbo,
         current: TiltaksgjennomforingAdminDto,
         tiltakstype: TiltakstypeAdminDto,
-    ): ArenaTiltaksgjennomforingDbo {
-        return if (tiltakstypeService.isEnabled(Tiltakskode.fromArenaKode(tiltakstype.arenaKode))) {
+    ): ArenaTiltaksgjennomforingDbo =
+        if (tiltakstypeService.isEnabled(Tiltakskode.fromArenaKode(tiltakstype.arenaKode))) {
             ArenaTiltaksgjennomforingDbo(
                 // Behold felter som settes i Arena
                 tiltaksnummer = tiltaksgjennomforing.tiltaksnummer,
@@ -232,7 +251,6 @@ class ArenaAdapterService(
             }
             tiltaksgjennomforing.copy(avtaleId = avtaleId)
         }
-    }
 
     private fun hasNoRelevantChanges(
         arenaGjennomforing: ArenaTiltaksgjennomforingDbo,
@@ -254,12 +272,6 @@ class ArenaAdapterService(
             deltidsprosent = current.deltidsprosent,
         )
         return currentAsArenaGjennomforing == arenaGjennomforing
-    }
-
-    private fun shouldBeManagedInSanity(gjennomforing: TiltaksgjennomforingAdminDto): Boolean {
-        val sluttDato = gjennomforing.sluttDato
-        return isEgenRegiTiltak(gjennomforing.tiltakstype.arenaKode) &&
-            (sluttDato == null || sluttDato.isAfter(TiltaksgjennomforingSluttDatoCutoffDate))
     }
 
     private fun maybeNotifyRelevantAdministrators(avtale: AvtaleAdminDto) {
