@@ -5,10 +5,10 @@ import kotlinx.serialization.json.decodeFromJsonElement
 import no.nav.common.kafka.consumer.util.deserializer.Deserializers.stringDeserializer
 import no.nav.mulighetsrommet.api.clients.arenaadapter.ArenaAdapterClient
 import no.nav.mulighetsrommet.api.domain.dto.ArenaMigreringTiltaksgjennomforingDto
-import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingDto
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.services.TiltakstypeService
 import no.nav.mulighetsrommet.domain.Tiltakskode
+import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingV1Dto
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.kafka.producers.ArenaMigreringTiltaksgjennomforingKafkaProducer
 import no.nav.mulighetsrommet.kafka.serialization.JsonElementDeserializer
@@ -27,7 +27,7 @@ class TiltaksgjennomforingTopicConsumer(
     JsonElementDeserializer(),
 ) {
     override suspend fun consume(key: String, message: JsonElement) {
-        val gjennomforing = JsonIgnoreUnknownKeys.decodeFromJsonElement<TiltaksgjennomforingDto?>(message)
+        val gjennomforing = JsonIgnoreUnknownKeys.decodeFromJsonElement<TiltaksgjennomforingV1Dto?>(message)
             ?: throw UnsupportedOperationException("Arena støtter ikke sletting av gjennomføringer. Tombstone-meldinger er derfor ikke tillatt så lenge data må deles med Arena.")
 
         if (gjennomforingSkalDelesMedArena(gjennomforing)) {
@@ -52,7 +52,7 @@ class TiltaksgjennomforingTopicConsumer(
         arenaMigreringTiltaksgjennomforingKafkaProducer.publish(migrertGjennomforing)
     }
 
-    private fun gjennomforingSkalDelesMedArena(gjennomforing: TiltaksgjennomforingDto): Boolean {
+    private fun gjennomforingSkalDelesMedArena(gjennomforing: TiltaksgjennomforingV1Dto): Boolean {
         return tiltakstyper.isEnabled(Tiltakskode.fromArenaKode(gjennomforing.tiltakstype.arenaKode))
     }
 }

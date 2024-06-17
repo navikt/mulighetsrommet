@@ -173,7 +173,7 @@ class ArenaAdapterService(
                 avtaler.setArrangorUnderenhet(tx, avtaleId, next.arrangor.id)
             }
 
-            tiltaksgjennomforingKafkaProducer.publish(next.toTiltaksgjennomforingDto())
+            tiltaksgjennomforingKafkaProducer.publish(next.toTiltaksgjennomforingV1Dto())
         }
     }
 

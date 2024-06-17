@@ -92,7 +92,7 @@ class InitialLoadTiltaksgjennomforinger(
                 result.items
             },
         ) {
-            gjennomforingProducer.publish(it.toTiltaksgjennomforingDto())
+            gjennomforingProducer.publish(it.toTiltaksgjennomforingV1Dto())
         }
     }
 }

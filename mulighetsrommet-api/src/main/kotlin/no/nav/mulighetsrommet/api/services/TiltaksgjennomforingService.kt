@@ -23,6 +23,7 @@ import no.nav.mulighetsrommet.domain.constants.ArenaMigrering.Tiltaksgjennomfori
 import no.nav.mulighetsrommet.domain.dto.AvbruttAarsak
 import no.nav.mulighetsrommet.domain.dto.Innsatsgruppe
 import no.nav.mulighetsrommet.domain.dto.NavIdent
+import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingV1Dto
 import no.nav.mulighetsrommet.kafka.producers.TiltaksgjennomforingKafkaProducer
 import no.nav.mulighetsrommet.notifications.NotificationRepository
 import no.nav.mulighetsrommet.notifications.NotificationType
@@ -67,7 +68,7 @@ class TiltaksgjennomforingService(
                         "Redigerte gjennomføring"
                     }
                     logEndring(operation, dto, navIdent, tx)
-                    tiltaksgjennomforingKafkaProducer.publish(dto.toTiltaksgjennomforingDto())
+                    tiltaksgjennomforingKafkaProducer.publish(dto.toTiltaksgjennomforingV1Dto())
                     dto
                 }
             }
@@ -114,20 +115,20 @@ class TiltaksgjennomforingService(
         enheter,
     )
 
-    fun getEkstern(id: UUID): TiltaksgjennomforingDto? {
-        return tiltaksgjennomforinger.get(id)?.toTiltaksgjennomforingDto()
+    fun getEkstern(id: UUID): TiltaksgjennomforingV1Dto? {
+        return tiltaksgjennomforinger.get(id)?.toTiltaksgjennomforingV1Dto()
     }
 
     fun getAllEkstern(
         pagination: Pagination,
         filter: EksternTiltaksgjennomforingFilter,
-    ): PaginatedResponse<TiltaksgjennomforingDto> = tiltaksgjennomforinger
+    ): PaginatedResponse<TiltaksgjennomforingV1Dto> = tiltaksgjennomforinger
         .getAll(
             pagination,
             arrangorOrgnr = filter.arrangorOrgnr,
         )
         .let { (totalCount, items) ->
-            val data = items.map { dto -> dto.toTiltaksgjennomforingDto() }
+            val data = items.map { dto -> dto.toTiltaksgjennomforingV1Dto() }
             PaginatedResponse.of(pagination, totalCount, data)
         }
 
@@ -162,7 +163,7 @@ class TiltaksgjennomforingService(
                 val dto = getOrError(id, tx)
                 val operation = "Endret dato for tilgang til Deltakeroversikten"
                 logEndring(operation, dto, navIdent, tx)
-                tiltaksgjennomforingKafkaProducer.publish(dto.toTiltaksgjennomforingDto())
+                tiltaksgjennomforingKafkaProducer.publish(dto.toTiltaksgjennomforingV1Dto())
             }
     }
 
@@ -216,7 +217,7 @@ class TiltaksgjennomforingService(
             tiltaksgjennomforinger.avbryt(tx, id, LocalDateTime.now(), aarsak)
             val dto = getOrError(id, tx)
             logEndring("Gjennomføring ble avbrutt", dto, navIdent, tx)
-            tiltaksgjennomforingKafkaProducer.publish(dto.toTiltaksgjennomforingDto())
+            tiltaksgjennomforingKafkaProducer.publish(dto.toTiltaksgjennomforingV1Dto())
         }
 
         return Either.Right(Unit)

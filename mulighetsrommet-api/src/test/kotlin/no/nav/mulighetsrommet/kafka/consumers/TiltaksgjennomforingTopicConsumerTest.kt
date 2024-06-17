@@ -68,7 +68,7 @@ class TiltaksgjennomforingTopicConsumerTest : FunSpec({
 
             consumer.consume(
                 gjennomforing.id.toString(),
-                Json.encodeToJsonElement(gjennomforing.toTiltaksgjennomforingDto()),
+                Json.encodeToJsonElement(gjennomforing.toTiltaksgjennomforingV1Dto()),
             )
 
             verify(exactly = 0) { producer.publish(any()) }
@@ -91,7 +91,7 @@ class TiltaksgjennomforingTopicConsumerTest : FunSpec({
 
             consumer.consume(
                 gjennomforing.id.toString(),
-                Json.encodeToJsonElement(gjennomforing.toTiltaksgjennomforingDto()),
+                Json.encodeToJsonElement(gjennomforing.toTiltaksgjennomforingV1Dto()),
             )
 
             val expectedMessage = ArenaMigreringTiltaksgjennomforingDto.from(gjennomforing, null, endretTidspunkt)
@@ -121,7 +121,7 @@ class TiltaksgjennomforingTopicConsumerTest : FunSpec({
 
             consumer.consume(
                 gjennomforing.id.toString(),
-                Json.encodeToJsonElement(gjennomforing.toTiltaksgjennomforingDto()),
+                Json.encodeToJsonElement(gjennomforing.toTiltaksgjennomforingV1Dto()),
             )
 
             val expectedMessage = ArenaMigreringTiltaksgjennomforingDto.from(gjennomforing, 123, endretTidspunkt)

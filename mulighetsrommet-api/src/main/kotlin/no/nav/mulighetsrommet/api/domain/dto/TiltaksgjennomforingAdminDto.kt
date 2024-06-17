@@ -8,11 +8,7 @@ import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingKontaktpersonDb
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
-import no.nav.mulighetsrommet.domain.dto.AmoKategorisering
-import no.nav.mulighetsrommet.domain.dto.Faneinnhold
-import no.nav.mulighetsrommet.domain.dto.NavIdent
-import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus
-import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatusDto
+import no.nav.mulighetsrommet.domain.dto.*
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.domain.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
@@ -95,10 +91,10 @@ data class TiltaksgjennomforingAdminDto(
         val enhet: String,
     )
 
-    fun toTiltaksgjennomforingDto() =
-        TiltaksgjennomforingDto(
+    fun toTiltaksgjennomforingV1Dto() =
+        TiltaksgjennomforingV1Dto(
             id = id,
-            tiltakstype = TiltaksgjennomforingDto.Tiltakstype(
+            tiltakstype = TiltaksgjennomforingV1Dto.Tiltakstype(
                 id = tiltakstype.id,
                 navn = tiltakstype.navn,
                 arenaKode = tiltakstype.arenaKode,

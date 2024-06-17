@@ -16,7 +16,6 @@ import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClient
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dbo.ArenaNavEnhet
 import no.nav.mulighetsrommet.api.domain.dto.AvtaleAdminDto
-import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingDto
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.repositories.*
 import no.nav.mulighetsrommet.database.Database
@@ -28,6 +27,7 @@ import no.nav.mulighetsrommet.domain.dbo.*
 import no.nav.mulighetsrommet.domain.dto.AvbruttAarsak
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus
+import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingV1Dto
 import no.nav.mulighetsrommet.kafka.producers.TiltaksgjennomforingKafkaProducer
 import no.nav.mulighetsrommet.notifications.NotificationService
 import no.nav.mulighetsrommet.notifications.NotificationType
@@ -917,9 +917,9 @@ private fun createArenaAdapterService(
 )
 
 private fun toTiltaksgjennomforingDto(dbo: ArenaTiltaksgjennomforingDbo, tiltakstype: TiltakstypeDbo) = dbo.run {
-    TiltaksgjennomforingDto(
+    TiltaksgjennomforingV1Dto(
         id = id,
-        tiltakstype = TiltaksgjennomforingDto.Tiltakstype(
+        tiltakstype = TiltaksgjennomforingV1Dto.Tiltakstype(
             id = tiltakstypeId,
             navn = tiltakstype.navn,
             arenaKode = tiltakstype.arenaKode,
