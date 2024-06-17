@@ -4,6 +4,7 @@ import { useFeatureToggle } from "@/api/feature-toggles";
 import { useOppskrifter } from "@/api/queries/useOppskrifter";
 import { formaterDato } from "@/utils/Utils";
 import styles from "./Oppskriftsoversikt.module.scss";
+import { Suspense } from "react";
 
 interface Props {
   tiltakstypeId: string;
@@ -15,11 +16,7 @@ export function Oppskriftsoversikt({ tiltakstypeId, setOppskriftId }: Props) {
     Toggles.MULIGHETSROMMET_VEILEDERFLATE_ARENA_OPPSKRIFTER,
   );
 
-  const { data: oppskrifter, isLoading } = useOppskrifter(tiltakstypeId);
-
-  if (isLoading) {
-    return <OppskriftSkeleton />;
-  }
+  const { data: oppskrifter } = useOppskrifter(tiltakstypeId);
 
   if (!enableOppskrifter) return null;
 
@@ -30,17 +27,19 @@ export function Oppskriftsoversikt({ tiltakstypeId, setOppskriftId }: Props) {
   }
 
   return (
-    <ul className={styles.container}>
-      {oppskrifter.data.map((oppskrift) => {
-        return (
-          <li className={styles.item} key={oppskrift._id}>
-            <span role="button" onClick={() => setOppskriftId(oppskrift._id)}>
-              <Oppskriftskort oppskrift={oppskrift} />
-            </span>
-          </li>
-        );
-      })}
-    </ul>
+    <Suspense fallback={<Skeleton variant="rectangle" width="15rem" height={200} />}>
+      <ul className={styles.container}>
+        {oppskrifter.data.map((oppskrift) => {
+          return (
+            <li className={styles.item} key={oppskrift._id}>
+              <span role="button" onClick={() => setOppskriftId(oppskrift._id)}>
+                <Oppskriftskort oppskrift={oppskrift} />
+              </span>
+            </li>
+          );
+        })}
+      </ul>
+    </Suspense>
   );
 }
 
@@ -56,14 +55,6 @@ function Oppskriftskort({ oppskrift: { navn, beskrivelse, _updatedAt } }: Oppskr
         <p>{beskrivelse}</p>
       </div>
       <small>Oppdatert: {formaterDato(new Date(_updatedAt))}</small>
-    </div>
-  );
-}
-
-function OppskriftSkeleton() {
-  return (
-    <div>
-      <Skeleton variant="rectangle" width="15rem" height={200} />
     </div>
   );
 }
