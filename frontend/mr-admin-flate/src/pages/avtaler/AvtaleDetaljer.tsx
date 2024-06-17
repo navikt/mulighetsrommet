@@ -61,9 +61,9 @@ export function AvtaleDetaljer() {
 
           <Bolk aria-label="Eksterne referanser">
             {opphav === Opphav.MR_ADMIN_FLATE ? (
-              <Metadata header={avtaletekster.lopenummerLabel} verdi={lopenummer} />
+              <Metadata header={avtaletekster.avtalenummerLabel} verdi={lopenummer} />
             ) : (
-              <Metadata header={avtaletekster.arenaAvtalenummerLabel} verdi={avtalenummer} />
+              <Metadata header={avtaletekster.avtalenummerLabel} verdi={avtalenummer} />
             )}
             {websaknummer ? (
               <Metadata header={avtaletekster.websaknummerLabel} verdi={websaknummer} />
