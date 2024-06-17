@@ -39,7 +39,6 @@ import no.nav.mulighetsrommet.api.repositories.NavAnsattRepository
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dto.AvtaleStatus
-import no.nav.mulighetsrommet.domain.dto.Lopenummer
 import no.nav.mulighetsrommet.ktor.respondJson
 import no.nav.mulighetsrommet.notifications.NotificationService
 import no.nav.mulighetsrommet.notifications.NotificationType
@@ -401,7 +400,6 @@ class NavAnsattServiceTest :
                     arenaAnsvarligEnhet = null,
                     opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
                     status = AvtaleStatus.AKTIV,
-                    lopenummer = Lopenummer(value = "2024/1"),
                     administratorer = emptyList(),
                     kontorstruktur = emptyList(),
                     amoKategorisering = null,

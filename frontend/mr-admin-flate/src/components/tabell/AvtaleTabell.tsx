@@ -185,10 +185,8 @@ export function AvtaleTabell({ filterAtom, tagsHeight, filterOpen }: Props) {
                         <ShowOpphavValue value={avtale.opphav} />
                       </VStack>
                     </Table.DataCell>
-                    <Table.DataCell
-                      aria-label={`Avtalenummer: ${avtale?.avtalenummer ?? avtale?.lopenummer ?? "N/A"}`}
-                    >
-                      {avtale?.avtalenummer ?? avtale?.lopenummer}
+                    <Table.DataCell aria-label={`Avtalenummer: ${avtale?.avtalenummer ?? "N/A"}`}>
+                      {avtale?.avtalenummer}
                     </Table.DataCell>
                     <Table.DataCell aria-label={`Tiltaksarrangør: ${avtale.arrangor.navn}`}>
                       {capitalizeEveryWord(avtale.arrangor.navn, ["og", "i"]) || ""}

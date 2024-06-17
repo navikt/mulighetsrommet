@@ -11,7 +11,7 @@ import { avtaletypeTilTekst, formaterDato } from "@/utils/Utils";
 import { erAnskaffetTiltak } from "@/utils/tiltakskoder";
 import { ExternalLinkIcon } from "@navikt/aksel-icons";
 import { Alert, Button, Heading, HelpText, VStack } from "@navikt/ds-react";
-import { NavEnhet, Opphav } from "mulighetsrommet-api-client";
+import { NavEnhet } from "mulighetsrommet-api-client";
 import { NOM_ANSATT_SIDE } from "mulighetsrommet-frontend-common/constants";
 import { Fragment, useRef } from "react";
 import { Link } from "react-router-dom";
@@ -36,7 +36,6 @@ export function AvtaleDetaljer() {
   const {
     navn,
     avtalenummer,
-    lopenummer,
     tiltakstype,
     avtaletype,
     startDato,
@@ -46,7 +45,6 @@ export function AvtaleDetaljer() {
     kontorstruktur,
     arenaAnsvarligEnhet,
     arrangor,
-    opphav,
   } = avtale;
 
   return (
@@ -60,11 +58,7 @@ export function AvtaleDetaljer() {
           <Separator />
 
           <Bolk aria-label="Eksterne referanser">
-            {opphav === Opphav.MR_ADMIN_FLATE ? (
-              <Metadata header={avtaletekster.avtalenummerLabel} verdi={lopenummer} />
-            ) : (
-              <Metadata header={avtaletekster.avtalenummerLabel} verdi={avtalenummer} />
-            )}
+            <Metadata header={avtaletekster.avtalenummerLabel} verdi={avtalenummer} />
             {websaknummer ? (
               <Metadata header={avtaletekster.websaknummerLabel} verdi={websaknummer} />
             ) : null}

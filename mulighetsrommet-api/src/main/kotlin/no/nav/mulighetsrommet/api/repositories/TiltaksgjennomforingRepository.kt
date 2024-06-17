@@ -582,12 +582,12 @@ class TiltaksgjennomforingRepository(private val db: Database) {
 
         @Language("PostgreSQL")
         val query = """
-            select tg.id::uuid
-            from tiltaksgjennomforing tg
-            where avbrutt_tidspunkt is null and (
-                (start_dato > :date_interval_start and start_dato <= :date_interval_end) or
-                (slutt_dato >= :date_interval_start and slutt_dato < :date_interval_end))
-            order by id
+            select g.id::uuid
+            from tiltaksgjennomforing g join tiltakstype t on g.tiltakstype_id = t.id
+            where t.tiltakskode is not null and g.avbrutt_tidspunkt is null and (
+                (g.start_dato > :date_interval_start and g.start_dato <= :date_interval_end) or
+                (g.slutt_dato >= :date_interval_start and g.slutt_dato < :date_interval_end))
+            order by g.id
             limit :limit offset :offset
         """.trimIndent()
 

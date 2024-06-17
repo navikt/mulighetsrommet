@@ -22,7 +22,6 @@ data class AvtaleAdminDto(
     val navn: String,
     val avtalenummer: String?,
     val websaknummer: Websaknummer?,
-    val lopenummer: Lopenummer?,
     val arrangor: ArrangorHovedenhet,
     @Serializable(with = LocalDateSerializer::class)
     val startDato: LocalDate,
