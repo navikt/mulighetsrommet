@@ -113,7 +113,7 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
                 <TextField
                   size="small"
                   readOnly
-                  label={avtaletekster.arenaAvtalenummerLabel}
+                  label={avtaletekster.avtalenummerLabel}
                   value={avtale.avtalenummer}
                 />
               ) : (
