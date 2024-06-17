@@ -52,7 +52,7 @@ class TiltaksgjennomforingService(
         return validator.validate(request.toDbo(), previous)
             .map { dbo ->
                 db.transactionSuspend { tx ->
-                    if (previous?.toDbo() == dbo) {
+                    if (previous?.toTiltaksgjennomforingDbo() == dbo) {
                         return@transactionSuspend previous
                     }
 

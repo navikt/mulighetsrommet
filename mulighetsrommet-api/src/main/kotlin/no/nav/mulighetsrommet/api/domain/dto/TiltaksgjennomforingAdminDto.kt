@@ -5,7 +5,6 @@ import no.nav.mulighetsrommet.api.domain.dbo.ArenaNavEnhet
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingKontaktpersonDbo
-import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingDto.Tiltakstype
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
@@ -114,7 +113,7 @@ data class TiltaksgjennomforingAdminDto(
             tilgjengeligForArrangorFraOgMedDato = tilgjengeligForArrangorFraOgMedDato,
         )
 
-    fun toDbo() =
+    fun toTiltaksgjennomforingDbo() =
         TiltaksgjennomforingDbo(
             id = id,
             navn = navn,
