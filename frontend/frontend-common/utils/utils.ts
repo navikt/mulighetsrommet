@@ -1,3 +1,4 @@
+import { TiltaksgjennomforingStatus } from "mulighetsrommet-api-client";
 import { shallowEquals } from "./shallow-equals";
 
 export function addOrRemove<T>(array: T[], item: T): T[] {
@@ -13,3 +14,18 @@ export function addOrRemove<T>(array: T[], item: T): T[] {
     return result;
   }
 }
+
+export function gjennomforingIsAktiv(
+  status: TiltaksgjennomforingStatus,
+): boolean {
+  switch (status) {
+    case TiltaksgjennomforingStatus.PLANLAGT:
+    case TiltaksgjennomforingStatus.GJENNOMFORES:
+      return true;
+    case TiltaksgjennomforingStatus.AVBRUTT:
+    case TiltaksgjennomforingStatus.AVLYST:
+    case TiltaksgjennomforingStatus.AVSLUTTET:
+      return false;
+  }
+}
+

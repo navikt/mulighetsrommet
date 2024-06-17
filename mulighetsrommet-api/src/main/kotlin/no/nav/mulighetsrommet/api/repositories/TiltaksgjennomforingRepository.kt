@@ -24,9 +24,11 @@ import no.nav.mulighetsrommet.domain.dbo.ArenaTiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dto.AvbruttAarsak
+import no.nav.mulighetsrommet.domain.dto.AvbruttDto
 import no.nav.mulighetsrommet.domain.dto.Innsatsgruppe
 import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus
+import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatusDto
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
 import java.time.LocalDate
@@ -406,7 +408,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         search: String? = null,
         navEnheter: List<String> = emptyList(),
         tiltakstypeIder: List<UUID> = emptyList(),
-        statuser: List<TiltaksgjennomforingStatus.Enum> = emptyList(),
+        statuser: List<TiltaksgjennomforingStatus> = emptyList(),
         sortering: String? = null,
         sluttDatoGreaterThanOrEqualTo: LocalDate? = null,
         avtaleId: UUID? = null,
@@ -808,7 +810,17 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 )
             },
             personvernBekreftet = boolean("personvern_bekreftet"),
-            status = TiltaksgjennomforingStatus.fromString(string("status"), avbruttTidspunkt, avbruttAarsak),
+            status = TiltaksgjennomforingStatusDto(
+                TiltaksgjennomforingStatus.valueOf(string("status")),
+                avbruttTidspunkt?.let {
+                    requireNotNull(avbruttAarsak)
+                    AvbruttDto(
+                        tidspunkt = avbruttTidspunkt,
+                        aarsak = avbruttAarsak,
+                        beskrivelse = avbruttAarsak.beskrivelse,
+                    )
+                },
+            ),
         )
     }
 
@@ -836,7 +848,17 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             tiltaksnummer = stringOrNull("tiltaksnummer"),
             startDato = startDato,
             sluttDato = sluttDato,
-            status = TiltaksgjennomforingStatus.fromString(string("status"), avbruttTidspunkt, avbruttAarsak),
+            status = TiltaksgjennomforingStatusDto(
+                TiltaksgjennomforingStatus.valueOf(string("status")),
+                avbruttTidspunkt?.let {
+                    requireNotNull(avbruttAarsak)
+                    AvbruttDto(
+                        tidspunkt = avbruttTidspunkt,
+                        aarsak = avbruttAarsak,
+                        beskrivelse = avbruttAarsak.beskrivelse,
+                    )
+                },
+            ),
             apentForInnsok = boolean("apent_for_innsok"),
             sanityId = uuidOrNull("sanity_id"),
             antallPlasser = intOrNull("antall_plasser"),

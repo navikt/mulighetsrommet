@@ -19,7 +19,7 @@ data class TiltaksgjennomforingDto(
     val startDato: LocalDate,
     @Serializable(with = LocalDateSerializer::class)
     val sluttDato: LocalDate?,
-    val status: TiltaksgjennomforingStatus.Enum,
+    val status: TiltaksgjennomforingStatus,
     val virksomhetsnummer: String,
     val oppstart: TiltaksgjennomforingOppstartstype,
     @Serializable(with = LocalDateSerializer::class)

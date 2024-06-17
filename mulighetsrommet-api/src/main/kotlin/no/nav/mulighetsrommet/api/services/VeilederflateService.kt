@@ -13,6 +13,7 @@ import no.nav.mulighetsrommet.api.routes.v1.ApentForInnsok
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dto.Innsatsgruppe
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus
+import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatusDto
 import no.nav.mulighetsrommet.metrics.Metrikker
 import no.nav.mulighetsrommet.utils.CacheUtils
 import java.util.*
@@ -292,7 +293,10 @@ class VeilederflateService(
 
             VeilederflateTiltaksgjennomforing(
                 avtaleId = UUID.randomUUID(),
-                status = TiltaksgjennomforingStatus.GJENNOMFORES,
+                status = TiltaksgjennomforingStatusDto(
+                    status = TiltaksgjennomforingStatus.GJENNOMFORES,
+                    avbrutt = null,
+                ),
                 sanityId = _id,
                 tiltakstype = tiltakstype.run {
                     VeilederflateTiltakstype(

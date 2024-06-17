@@ -167,12 +167,12 @@ class AvtaleService(
         val (_, gjennomforinger) = tiltaksgjennomforinger.getAll(
             avtaleId = id,
             statuser = listOf(
-                TiltaksgjennomforingStatus.Enum.GJENNOMFORES,
-                TiltaksgjennomforingStatus.Enum.PLANLAGT,
+                TiltaksgjennomforingStatus.GJENNOMFORES,
+                TiltaksgjennomforingStatus.PLANLAGT,
             ),
         )
 
-        val (antallAktiveGjennomforinger, antallPlanlagteGjennomforinger) = gjennomforinger.partition { it.status is TiltaksgjennomforingStatus.GJENNOMFORES }
+        val (antallAktiveGjennomforinger, antallPlanlagteGjennomforinger) = gjennomforinger.partition { it.status.status == TiltaksgjennomforingStatus.GJENNOMFORES }
         if (antallAktiveGjennomforinger.isNotEmpty()) {
             return Either.Left(
                 BadRequest(

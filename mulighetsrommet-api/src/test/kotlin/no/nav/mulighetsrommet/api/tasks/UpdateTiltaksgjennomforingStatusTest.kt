@@ -38,7 +38,7 @@ class UpdateTiltaksgjennomforingStatusTest : FunSpec({
             tiltaksgjennomforingKafkaProducer,
         )
 
-        fun TiltaksgjennomforingDbo.toDto(status: TiltaksgjennomforingStatus.Enum): TiltaksgjennomforingDto {
+        fun TiltaksgjennomforingDbo.toDto(status: TiltaksgjennomforingStatus): TiltaksgjennomforingDto {
             return TiltaksgjennomforingDto(
                 id = id,
                 tiltakstype = TiltaksgjennomforingDto.Tiltakstype(
@@ -120,8 +120,8 @@ class UpdateTiltaksgjennomforingStatusTest : FunSpec({
             task.oppdaterTiltaksgjennomforingStatus(today, lastSuccessDate)
 
             verifyAll {
-                tiltaksgjennomforingKafkaProducer.publish(startdatoInnenfor.toDto(TiltaksgjennomforingStatus.Enum.GJENNOMFORES))
-                tiltaksgjennomforingKafkaProducer.publish(sluttdatoInnenfor.toDto(TiltaksgjennomforingStatus.Enum.AVSLUTTET))
+                tiltaksgjennomforingKafkaProducer.publish(startdatoInnenfor.toDto(TiltaksgjennomforingStatus.GJENNOMFORES))
+                tiltaksgjennomforingKafkaProducer.publish(sluttdatoInnenfor.toDto(TiltaksgjennomforingStatus.AVSLUTTET))
             }
         }
 
@@ -131,8 +131,8 @@ class UpdateTiltaksgjennomforingStatusTest : FunSpec({
             task.oppdaterTiltaksgjennomforingStatus(today, lastSuccessDate)
 
             verifyAll {
-                tiltaksgjennomforingKafkaProducer.publish(startdatoInnenfor.toDto(TiltaksgjennomforingStatus.Enum.GJENNOMFORES))
-                tiltaksgjennomforingKafkaProducer.publish(sluttdatoInnenfor.toDto(TiltaksgjennomforingStatus.Enum.AVSLUTTET))
+                tiltaksgjennomforingKafkaProducer.publish(startdatoInnenfor.toDto(TiltaksgjennomforingStatus.GJENNOMFORES))
+                tiltaksgjennomforingKafkaProducer.publish(sluttdatoInnenfor.toDto(TiltaksgjennomforingStatus.AVSLUTTET))
             }
             gjennomforinger.get(startdatoInnenfor.id)?.publisert shouldBe true
             gjennomforinger.get(sluttdatoInnenfor.id)?.publisert shouldBe false

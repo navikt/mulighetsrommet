@@ -15,6 +15,7 @@ import { useNavigateAndReplaceUrl } from "../../hooks/useNavigateWithoutReplacin
 import { ContainerLayout } from "../../layouts/ContainerLayout";
 import commonStyles from "../Page.module.scss";
 import { TiltaksgjennomforingStatusTag } from "mulighetsrommet-frontend-common";
+import { TiltaksgjennomforingStatus } from "mulighetsrommet-api-client";
 
 function useTiltaksgjennomforingBrodsmuler(
   tiltaksgjennomforingId: string,
@@ -93,7 +94,9 @@ export function TiltaksgjennomforingPage() {
             <DupliserTiltak tiltaksgjennomforing={tiltaksgjennomforing} />
           </div>
           {tiltaksgjennomforing?.id &&
-            ["GJENNOMFORES", "PLANLAGT"].includes(tiltaksgjennomforing.status.name) && (
+            [TiltaksgjennomforingStatus.GJENNOMFORES, TiltaksgjennomforingStatus.PLANLAGT].includes(
+              tiltaksgjennomforing.status.status,
+            ) && (
               <div className={headerStyles.forhandsvisningsknapp}>
                 <Lenkeknapp
                   size="small"

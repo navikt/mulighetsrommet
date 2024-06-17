@@ -3,7 +3,7 @@ import { VeilederflateTiltaksgjennomforing } from "mulighetsrommet-api-client";
 import styles from "./TiltaksgjennomforingsHeader.module.scss";
 import classnames from "classnames";
 import { TiltaksgjennomforingStatusTag } from "mulighetsrommet-frontend-common";
-import { gjennomforingIsAktiv } from "@/utils/Utils";
+import { gjennomforingIsAktiv } from "mulighetsrommet-frontend-common/utils/utils";
 
 interface Props {
   tiltaksgjennomforing: VeilederflateTiltaksgjennomforing;
@@ -17,7 +17,7 @@ const TiltaksgjennomforingsHeader = ({ tiltaksgjennomforing }: Props) => {
         <Heading level="1" size="xlarge">
           {navn}
         </Heading>
-        {!gjennomforingIsAktiv(tiltaksgjennomforing) && (
+        {!gjennomforingIsAktiv(tiltaksgjennomforing.status.status) && (
           <TiltaksgjennomforingStatusTag status={tiltaksgjennomforing.status} />
         )}
       </HStack>

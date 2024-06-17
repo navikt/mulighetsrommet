@@ -28,6 +28,7 @@ import { usePollTiltaksnummer } from "@/api/tiltaksgjennomforing/usePollTiltaksn
 import { Laster } from "@/components/laster/Laster";
 import { NokkeltallDeltakere } from "@/components/tiltaksgjennomforinger/NokkeltallDeltakere";
 import { TiltakTilgjengeligForArrangor } from "@/components/tiltaksgjennomforinger/TilgjengeligTiltakForArrangor";
+import { gjennomforingIsAktiv } from "mulighetsrommet-frontend-common/utils/utils";
 
 interface Props {
   tiltaksgjennomforing: Tiltaksgjennomforing;
@@ -45,10 +46,6 @@ export function TiltaksgjennomforingDetaljer({ tiltaksgjennomforing, avtale }: P
 
   const { data: migrerteTiltakstyper = [] } = useMigrerteTiltakstyper();
   const avbrytModalRef = useRef<HTMLDialogElement>(null);
-
-  const gjennomforingIsActive = ["PLANLAGT", "GJENNOMFORES"].includes(
-    tiltaksgjennomforing.status.name,
-  );
 
   const navnPaaNavEnheterForKontaktperson = (enheterForKontaktperson: string[]): string => {
     return (
@@ -331,7 +328,7 @@ export function TiltaksgjennomforingDetaljer({ tiltaksgjennomforing, avtale }: P
         </div>
       </div>
       {!erArenaOpphavOgIngenEierskap(tiltaksgjennomforing, migrerteTiltakstyper) &&
-        gjennomforingIsActive && (
+        gjennomforingIsAktiv(tiltaksgjennomforing.status.status) && (
           <>
             <HarSkrivetilgang ressurs="Tiltaksgjennomføring">
               <Button

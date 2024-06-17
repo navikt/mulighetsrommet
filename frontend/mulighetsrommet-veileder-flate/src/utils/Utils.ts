@@ -1,7 +1,4 @@
-import {
-  EstimertVentetidEnhet,
-  VeilederflateTiltaksgjennomforing,
-} from "mulighetsrommet-api-client";
+import { EstimertVentetidEnhet } from "mulighetsrommet-api-client";
 
 export const inneholderUrl = (string: string) => {
   return window.location.href.indexOf(string) > -1;
@@ -56,19 +53,5 @@ export function formatertVentetid(verdi: number, enhet: EstimertVentetidEnhet): 
       return `${verdi} ${verdi === 1 ? "måned" : "måneder"}`;
     default:
       return "Ukjent enhet for ventetid";
-  }
-}
-
-export function gjennomforingIsAktiv(
-  tiltaksgjennomforing: VeilederflateTiltaksgjennomforing,
-): boolean {
-  switch (tiltaksgjennomforing.status.name) {
-    case "PLANLAGT":
-    case "GJENNOMFORES":
-      return true;
-    case "AVSLUTTET":
-    case "AVBRUTT":
-    case "AVLYST":
-      return false;
   }
 }

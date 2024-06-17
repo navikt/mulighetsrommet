@@ -2203,7 +2203,7 @@ components:
         arenaAnsvarligEnhet:
           $ref: "#/components/schemas/ArenaNavEnhet"
         status:
-          $ref: "#/components/schemas/TiltaksgjennomforingStatusResponse"
+          $ref: "#/components/schemas/TiltaksgjennomforingStatusDto"
         apentForInnsok:
           type: boolean
         antallPlasser:
@@ -2411,42 +2411,29 @@ components:
         - nusData
         - amoKategorisering
 
-    TiltaksgjennomforingStatusResponse:
-      oneOf:
-        - $ref: "#/components/schemas/GjennomforingIkkeAvbruttStatus"
-        - $ref: "#/components/schemas/GjennomforingAvbruttStatus"
-
-    GjennomforingIkkeAvbruttStatus:
+    TiltaksgjennomforingStatusDto:
       type: object
       properties:
-        name:
-          type: string
-          enum:
-            - PLANLAGT
-            - GJENNOMFORES
-            - AVSLUTTET
+        status:
+          $ref: "#/components/schemas/TiltaksgjennomforingStatus"
+        avbrutt:
+          type: object
+          properties:
+            tidspunkt:
+              type: string
+              format: date-time
+            aarsak:
+              oneOf:
+                - type: string
+                - $ref: "#/components/schemas/AvbrytGjennomforingAarsak"
+            beskrivelse:
+              type: string
+          required:
+            - tidspunkt
+            - aarsak
+            - beskrivelse
       required:
-        - name
-
-    GjennomforingAvbruttStatus:
-      type: object
-      properties:
-        name:
-          type: string
-          enum:
-            - AVBRUTT
-            - AVLYST
-        tidspunkt:
-          type: string
-          format: date-time
-        aarsak:
-          oneOf:
-            - type: string
-            - $ref: "#/components/schemas/AvbrytGjennomforingAarsak"
-      required:
-        - name
-        - tidspunkt
-        - aarsak
+        - status
 
     TiltaksgjennomforingStatus:
       type: string
@@ -3081,7 +3068,7 @@ components:
         personvernBekreftet:
           type: boolean
         status:
-          $ref: "#/components/schemas/TiltaksgjennomforingStatusResponse"
+          $ref: "#/components/schemas/TiltaksgjennomforingStatusDto"
       required:
         - navn
         - tiltakstype
