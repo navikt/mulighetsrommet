@@ -27,7 +27,7 @@ import java.util.concurrent.TimeUnit
 
 class VeilarboppfolgingClient(
     private val baseUrl: String,
-    private val tokenProvider: suspend (accessType: AccessType) -> String,
+    private val tokenProvider: (accessType: AccessType) -> String,
     clientEngine: HttpClientEngine = CIO.create(),
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
