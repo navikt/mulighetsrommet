@@ -7,6 +7,8 @@ import io.ktor.client.plugins.*
 import io.ktor.client.plugins.cache.*
 import io.ktor.client.request.*
 import io.ktor.http.*
+import no.nav.mulighetsrommet.api.clients.AccessType
+import no.nav.mulighetsrommet.api.clients.TokenProvider
 import no.nav.mulighetsrommet.domain.dto.ArenaTiltaksgjennomforingDto
 import no.nav.mulighetsrommet.domain.dto.ExchangeArenaIdForIdResponse
 import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
@@ -17,7 +19,7 @@ private val log = LoggerFactory.getLogger(ArenaAdapterClient::class.java)
 
 class ArenaAdapterClient(
     private val baseUrl: String,
-    private val machineToMachineTokenClient: () -> String,
+    private val tokenProvider: TokenProvider,
     clientEngine: HttpClientEngine = CIO.create(),
 ) {
     val client = httpJsonClient(clientEngine).config {
@@ -26,9 +28,7 @@ class ArenaAdapterClient(
 
     suspend fun exchangeTiltaksgjennomforingsArenaIdForId(arenaId: String): ExchangeArenaIdForIdResponse? {
         val response = client.get("$baseUrl/api/exchange/$arenaId") {
-            bearerAuth(
-                machineToMachineTokenClient.invoke(),
-            )
+            bearerAuth(tokenProvider.exchange(AccessType.M2M))
         }
 
         return when (response.status) {
@@ -43,9 +43,7 @@ class ArenaAdapterClient(
 
     suspend fun hentArenadata(id: UUID): ArenaTiltaksgjennomforingDto? {
         val response = client.get("$baseUrl/api/arenadata/$id") {
-            bearerAuth(
-                machineToMachineTokenClient.invoke(),
-            )
+            bearerAuth(tokenProvider.exchange(AccessType.M2M))
         }
 
         return when (response.status) {

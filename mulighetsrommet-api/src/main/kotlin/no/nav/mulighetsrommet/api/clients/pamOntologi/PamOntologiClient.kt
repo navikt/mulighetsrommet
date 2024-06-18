@@ -11,21 +11,15 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.clients.AccessType
+import no.nav.mulighetsrommet.api.clients.TokenProvider
 import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
-import org.slf4j.LoggerFactory
 import java.net.URLEncoder
 
 class PamOntologiClient(
     private val baseUrl: String,
-    private val tokenProvider: (accessType: AccessType.OBO) -> String,
+    private val tokenProvider: TokenProvider,
     clientEngine: HttpClientEngine = CIO.create(),
 ) {
-    private val log = LoggerFactory.getLogger(javaClass)
-
-    data class Config(
-        val baseUrl: String,
-    )
-
     private val client = httpJsonClient(clientEngine).config {
         install(HttpCache)
         install(HttpRequestRetry) {
@@ -50,7 +44,7 @@ class PamOntologiClient(
             URLEncoder.encode(query, "UTF-8")
         }
         val response = client.get("$baseUrl/rest/typeahead/$domene?q=$urlEncodedQuery") {
-            bearerAuth(tokenProvider.invoke(accessType))
+            bearerAuth(tokenProvider.exchange(accessType))
             header(HttpHeaders.ContentType, ContentType.Application.Json)
         }
 

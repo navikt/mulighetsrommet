@@ -16,6 +16,7 @@ import io.ktor.http.*
 import kotlinx.serialization.Serializable
 import no.nav.common.client.pdl.Tema
 import no.nav.mulighetsrommet.api.clients.AccessType
+import no.nav.mulighetsrommet.api.clients.TokenProvider
 import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
 import org.slf4j.LoggerFactory
 import java.util.concurrent.TimeUnit
@@ -24,7 +25,7 @@ const val VALP_BEHANDLINGSNUMMER: String = "B450" // Team Valps behandlingsnumme
 
 class PdlClient(
     private val baseUrl: String,
-    private val tokenProvider: (accessType: AccessType) -> String,
+    private val tokenProvider: TokenProvider,
     clientEngine: HttpClientEngine = CIO.create(),
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
@@ -167,7 +168,7 @@ class PdlClient(
 
     private suspend inline fun <reified T, reified V> graphqlRequest(req: GraphqlRequest<T>, accessType: AccessType): Either<PdlError, V> {
         val response = client.post("$baseUrl/graphql") {
-            bearerAuth(tokenProvider.invoke(accessType))
+            bearerAuth(tokenProvider.exchange(accessType))
             header(HttpHeaders.ContentType, ContentType.Application.Json)
             header("Behandlingsnummer", VALP_BEHANDLINGSNUMMER)
             header("Tema", Tema.GEN)

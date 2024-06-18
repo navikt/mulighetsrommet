@@ -11,6 +11,7 @@ import io.ktor.client.statement.*
 import io.ktor.http.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.clients.AccessType
+import no.nav.mulighetsrommet.api.clients.TokenProvider
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
@@ -20,7 +21,7 @@ import java.util.*
 
 class AmtDeltakerClient(
     private val baseUrl: String,
-    private val tokenProvider: (obo: AccessType.OBO) -> String,
+    private val tokenProvider: TokenProvider,
     clientEngine: HttpClientEngine = CIO.create(),
 ) {
     private val log = SecureLog.logger
@@ -33,7 +34,7 @@ class AmtDeltakerClient(
         obo: AccessType.OBO,
     ): Either<AmtDeltakerError, DeltakelserResponse> {
         val response = client.post("$baseUrl/deltakelser") {
-            bearerAuth(tokenProvider.invoke(obo))
+            bearerAuth(tokenProvider.exchange(obo))
             header(HttpHeaders.ContentType, ContentType.Application.Json)
             setBody(requestBody)
         }
