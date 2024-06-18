@@ -4,6 +4,8 @@ import com.github.kagkarlsson.scheduler.Scheduler
 import com.nimbusds.jose.jwk.KeyUse
 import com.nimbusds.jose.jwk.RSAKey
 import io.ktor.server.application.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import no.nav.common.client.axsys.AxsysClient
 import no.nav.common.client.axsys.AxsysV2ClientImpl
 import no.nav.common.kafka.producer.util.KafkaProducerClientBuilder
@@ -181,12 +183,14 @@ private fun services(appConfig: AppConfig) = module {
         VeilarboppfolgingClient(
             baseUrl = appConfig.veilarboppfolgingConfig.url,
             tokenProvider = { accessType ->
-                when (accessType) {
-                    AccessType.M2M -> m2mTokenProvider.createMachineToMachineToken(appConfig.veilarboppfolgingConfig.scope)
-                    is AccessType.OBO -> oboTokenProvider.exchangeOnBehalfOfToken(
-                        appConfig.veilarboppfolgingConfig.scope,
-                        accessType.token,
-                    )
+                withContext(Dispatchers.IO) {
+                    when (accessType) {
+                        AccessType.M2M -> m2mTokenProvider.createMachineToMachineToken(appConfig.veilarboppfolgingConfig.scope)
+                        is AccessType.OBO -> oboTokenProvider.exchangeOnBehalfOfToken(
+                            appConfig.veilarboppfolgingConfig.scope,
+                            accessType.token,
+                        )
+                    }
                 }
             },
         )
@@ -195,7 +199,9 @@ private fun services(appConfig: AppConfig) = module {
         VeilarbvedtaksstotteClient(
             baseUrl = appConfig.veilarbvedtaksstotteConfig.url,
             tokenProvider = { obo ->
-                oboTokenProvider.exchangeOnBehalfOfToken(appConfig.veilarbvedtaksstotteConfig.scope, obo.token)
+                withContext(Dispatchers.IO) {
+                    oboTokenProvider.exchangeOnBehalfOfToken(appConfig.veilarbvedtaksstotteConfig.scope, obo.token)
+                }
             },
         )
     }
@@ -211,9 +217,14 @@ private fun services(appConfig: AppConfig) = module {
         PdlClient(
             baseUrl = appConfig.pdl.url,
             tokenProvider = { accessType ->
-                when (accessType) {
-                    AccessType.M2M -> m2mTokenProvider.createMachineToMachineToken(appConfig.pdl.scope)
-                    is AccessType.OBO -> oboTokenProvider.exchangeOnBehalfOfToken(appConfig.pdl.scope, accessType.token)
+                withContext(Dispatchers.IO) {
+                    when (accessType) {
+                        AccessType.M2M -> m2mTokenProvider.createMachineToMachineToken(appConfig.pdl.scope)
+                        is AccessType.OBO -> oboTokenProvider.exchangeOnBehalfOfToken(
+                            appConfig.pdl.scope,
+                            accessType.token,
+                        )
+                    }
                 }
             },
         )
