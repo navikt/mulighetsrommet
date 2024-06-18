@@ -402,7 +402,6 @@ class NavAnsattServiceTest :
                     status = AvtaleStatus.AKTIV,
                     administratorer = emptyList(),
                     kontorstruktur = emptyList(),
-                    nusData = null,
                     amoKategorisering = null,
                 )
 

@@ -29,7 +29,6 @@ object AvtaleFixtures {
         faneinnhold = null,
         personopplysninger = emptyList(),
         personvernBekreftet = false,
-        nusData = null,
         amoKategorisering = null,
     )
 
@@ -54,7 +53,6 @@ object AvtaleFixtures {
         personopplysninger = emptyList(),
         personvernBekreftet = false,
         amoKategorisering = null,
-        nusData = null,
     )
 
     val gruppeAmo = AvtaleDbo(
@@ -77,7 +75,6 @@ object AvtaleFixtures {
         faneinnhold = null,
         personopplysninger = emptyList(),
         personvernBekreftet = false,
-        nusData = null,
         amoKategorisering = null,
     )
 
@@ -101,7 +98,6 @@ object AvtaleFixtures {
         faneinnhold = null,
         personopplysninger = emptyList(),
         personvernBekreftet = false,
-        nusData = null,
         amoKategorisering = null,
     )
 
@@ -125,7 +121,6 @@ object AvtaleFixtures {
         faneinnhold = null,
         personopplysninger = emptyList(),
         personvernBekreftet = false,
-        nusData = null,
         amoKategorisering = null,
     )
 
@@ -149,7 +144,6 @@ object AvtaleFixtures {
         faneinnhold = null,
         personopplysninger = emptyList(),
         personvernBekreftet = false,
-        nusData = null,
         amoKategorisering = null,
     )
 
@@ -173,7 +167,6 @@ object AvtaleFixtures {
         faneinnhold = null,
         personopplysninger = emptyList(),
         personvernBekreftet = false,
-        nusData = null,
         amoKategorisering = null,
     )
 
@@ -196,7 +189,6 @@ object AvtaleFixtures {
         faneinnhold = null,
         personopplysninger = emptyList(),
         personvernBekreftet = false,
-        nusData = null,
         amoKategorisering = null,
     )
 }

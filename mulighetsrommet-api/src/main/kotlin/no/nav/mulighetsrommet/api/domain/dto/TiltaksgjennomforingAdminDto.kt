@@ -1,9 +1,6 @@
 package no.nav.mulighetsrommet.api.domain.dto
 
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.encodeToJsonElement
-import kotlinx.serialization.json.jsonObject
 import no.nav.mulighetsrommet.api.domain.dbo.ArenaNavEnhet
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
@@ -61,7 +58,6 @@ data class TiltaksgjennomforingAdminDto(
     val personvernBekreftet: Boolean,
     @Serializable(with = LocalDateSerializer::class)
     val tilgjengeligForArrangorFraOgMedDato: LocalDate?,
-    val nusData: NusData?,
     val amoKategorisering: AmoKategorisering?,
 ) {
     fun isAktiv(): Boolean = status.status in listOf(
@@ -100,18 +96,6 @@ data class TiltaksgjennomforingAdminDto(
         val enhet: String,
     )
 
-    @Serializable
-    data class NusData(
-        val versjon: String,
-        val utdanningskategorier: List<NusDataElement> = emptyList(),
-    )
-
-    @Serializable
-    data class NusDataElement(
-        val code: String,
-        val name: String,
-    )
-
     fun toTiltaksgjennomforingDto() =
         TiltaksgjennomforingDto(
             id = id,
@@ -128,12 +112,6 @@ data class TiltaksgjennomforingAdminDto(
             virksomhetsnummer = arrangor.organisasjonsnummer,
             oppstart = oppstart,
             tilgjengeligForArrangorFraOgMedDato = tilgjengeligForArrangorFraOgMedDato,
-            nusData = nusData?.let {
-                NusDataTilDvh(
-                    versjon = it.versjon,
-                    kategorier = it.utdanningskategorier.map { kat -> kat.code },
-                )
-            },
         )
 
     fun toDbo() =
@@ -166,7 +144,6 @@ data class TiltaksgjennomforingAdminDto(
             estimertVentetidVerdi = estimertVentetid?.verdi,
             estimertVentetidEnhet = estimertVentetid?.enhet,
             tilgjengeligForArrangorFraOgMedDato = tilgjengeligForArrangorFraOgMedDato,
-            nusData = nusData?.let { Json.encodeToJsonElement(it).jsonObject },
             amoKategorisering = amoKategorisering,
         )
 }

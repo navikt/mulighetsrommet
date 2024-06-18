@@ -64,7 +64,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                                   estimert_ventetid_verdi,
                                   estimert_ventetid_enhet,
                                   tilgjengelig_for_arrangor_fra_og_med_dato,
-                                  nusdata,
                                   amo_kategorisering
             )
             values (:id::uuid,
@@ -86,7 +85,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                     :estimert_ventetid_verdi,
                     :estimert_ventetid_enhet,
                     :tilgjengelig_for_arrangor_fra_dato,
-                    :nusdata::jsonb,
                     :amo_kategorisering::jsonb
             )
             on conflict (id)
@@ -108,7 +106,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                               estimert_ventetid_verdi            = excluded.estimert_ventetid_verdi,
                               estimert_ventetid_enhet            = excluded.estimert_ventetid_enhet,
                               tilgjengelig_for_arrangor_fra_og_med_dato = excluded.tilgjengelig_for_arrangor_fra_og_med_dato,
-                              nusdata                           = excluded.nusdata,
                               amo_kategorisering                = excluded.amo_kategorisering
         """.trimIndent()
 
@@ -658,9 +655,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             .let { db.run(it) }
     }
 
-    fun setPublisert(id: UUID, publisert: Boolean): Int {
-        return db.transaction { setPublisert(it, id, publisert) }
-    }
+    fun setPublisert(id: UUID, publisert: Boolean): Int = db.transaction { setPublisert(it, id, publisert) }
 
     fun setPublisert(tx: Session, id: UUID, publisert: Boolean): Int {
         logger.info("Setter publisert '$publisert' for gjennomføring med id: $id")
@@ -701,9 +696,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         return queryOf(query, avtaleId, gjennomforingId).asUpdate.let { tx.run(it) }
     }
 
-    fun avbryt(id: UUID, tidspunkt: LocalDateTime, aarsak: AvbruttAarsak): Int {
-        return db.transaction { avbryt(it, id, tidspunkt, aarsak) }
-    }
+    fun avbryt(id: UUID, tidspunkt: LocalDateTime, aarsak: AvbruttAarsak): Int = db.transaction { avbryt(it, id, tidspunkt, aarsak) }
 
     fun avbryt(tx: Session, id: UUID, tidspunkt: LocalDateTime, aarsak: AvbruttAarsak): Int {
         @Language("PostgreSQL")
@@ -753,7 +746,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         "estimert_ventetid_verdi" to estimertVentetidVerdi,
         "estimert_ventetid_enhet" to estimertVentetidEnhet,
         "tilgjengelig_for_arrangor_fra_dato" to tilgjengeligForArrangorFraOgMedDato,
-        "nusdata" to nusData?.let { Json.encodeToString(it) },
         "amo_kategorisering" to amoKategorisering?.let { Json.encodeToString(it) },
     )
 
@@ -924,7 +916,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             ),
             personvernBekreftet = boolean("personvern_bekreftet"),
             tilgjengeligForArrangorFraOgMedDato = localDateOrNull("tilgjengelig_for_arrangor_fra_og_med_dato"),
-            nusData = stringOrNull("nusdata")?.let { Json.decodeFromString(it) },
             amoKategorisering = stringOrNull("amo_kategorisering")?.let { Json.decodeFromString(it) },
         )
     }

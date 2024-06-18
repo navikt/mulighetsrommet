@@ -1,2 +1,2 @@
 alter table tiltaksgjennomforing
-    add column nusdata jsonb;
+add column nusdata jsonb;

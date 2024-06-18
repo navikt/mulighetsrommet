@@ -1,6 +1,5 @@
 package no.nav.mulighetsrommet.api.domain.dbo
 
-import kotlinx.serialization.json.JsonObject
 import no.nav.mulighetsrommet.domain.dto.*
 import java.time.LocalDate
 import java.util.*
@@ -25,6 +24,5 @@ data class AvtaleDbo(
     val faneinnhold: Faneinnhold?,
     val personopplysninger: List<Personopplysning>,
     val personvernBekreftet: Boolean,
-    val nusData: JsonObject?,
     val amoKategorisering: AmoKategorisering?,
 )

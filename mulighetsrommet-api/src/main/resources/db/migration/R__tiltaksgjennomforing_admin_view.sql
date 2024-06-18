@@ -88,7 +88,6 @@ select gjennomforing.id,
        tiltaksgjennomforing_status(gjennomforing.start_dato, gjennomforing.slutt_dato, gjennomforing.avbrutt_tidspunkt) as status,
        a.personvern_bekreftet,
        gjennomforing.avbrutt_aarsak,
-       gjennomforing.nusdata,
        gjennomforing.amo_kategorisering
 from tiltaksgjennomforing gjennomforing
          inner join tiltakstype on gjennomforing.tiltakstype_id = tiltakstype.id

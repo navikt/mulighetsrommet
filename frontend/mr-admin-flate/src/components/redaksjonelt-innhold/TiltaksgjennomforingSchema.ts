@@ -93,21 +93,6 @@ export const TiltaksgjennomforingSchema = z
       })
       .nullable(),
     tilgjengeligForArrangorFraOgMedDato: z.string().nullable().optional(),
-    nusData: z
-      .object({
-        versjon: z.string(),
-        utdanningskategorier: z
-          .object(
-            {
-              code: z.string(),
-              name: z.string(),
-            },
-            { required_error: "Du må velge minst én utdanningskategori" },
-          )
-          .array()
-          .optional(),
-      })
-      .optional(),
     amoKategorisering: z
       .object({
         forerkort: z.nativeEnum(ForerkortKlasse).array().optional(),

@@ -109,7 +109,6 @@ export function defaultTiltaksgjennomforingData(
     estimertVentetid: tiltaksgjennomforing?.estimertVentetid ?? null,
     tilgjengeligForArrangorFraOgMedDato:
       tiltaksgjennomforing?.tilgjengeligForArrangorFraOgMedDato ?? null,
-    nusData: tiltaksgjennomforing?.nusData || undefined,
     amoKategorisering:
       tiltaksgjennomforing?.amoKategorisering ?? avtale.amoKategorisering ?? undefined,
   };

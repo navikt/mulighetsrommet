@@ -1560,24 +1560,6 @@ paths:
               schema:
                 type: boolean
 
-  /api/v1/intern/nus-data:
-    post:
-      tags:
-        - Nus
-      operationId: getNusDataByTiltakstypeAndVersion
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/NusDataRequest"
-      responses:
-        200:
-          description: "Nus data for tiltakstype og versjon"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/NusDataResponse"
-
   /api/v1/intern/personopplysninger:
     get:
       tags:
@@ -1916,28 +1898,6 @@ components:
             $ref: "#/components/schemas/Personopplysning"
         personvernBekreftet:
           type: boolean
-        nusData:
-          type: object
-          properties:
-            versjon:
-              type: string
-            utdanningsnivaa:
-              type: string
-            utdanningskategorier:
-              type: array
-              items:
-                type: object
-                properties:
-                  code:
-                    type: string
-                    nullable: false
-                  name:
-                    type: string
-                    nullable: false
-                required:
-                  - code
-                  - name
-          nullable: true
         amoKategorisering:
           $ref: "#/components/schemas/AmoKategorisering"
           nullable: true
@@ -2017,22 +1977,6 @@ components:
             $ref: "#/components/schemas/Personopplysning"
         personvernBekreftet:
           type: boolean
-        nusData:
-          type: object
-          properties:
-            utdanningsnivaa:
-              type: string
-              nullable: true
-            utdanningskategorier:
-              type: array
-              items:
-                type: object
-                properties:
-                  code:
-                    type: string
-                  name:
-                    type: string
-          nullable: true
         amoKategorisering:
           $ref: "#/components/schemas/AmoKategorisering"
           nullable: true
@@ -2054,7 +1998,6 @@ components:
         - faneinnhold
         - personopplysninger
         - personvernBekreftet
-        - nusData
         - amoKategorisering
 
     EmbeddedTiltakstype:
@@ -2247,22 +2190,6 @@ components:
           type: string
           format: date
           nullable: true
-        nusData:
-          type: object
-          properties:
-            utdanningskategorier:
-              type: array
-              items:
-                type: object
-                properties:
-                  code:
-                    type: string
-                  name:
-                    type: string
-                required:
-                  - code
-                  - name
-          nullable: true
         amoKategorisering:
           $ref: "#/components/schemas/AmoKategorisering"
           nullable: true
@@ -2284,7 +2211,6 @@ components:
         - publisert
         - deltidsprosent
         - tilgjengeligForArrangorFraOgMedDato
-        - nusData
         - amoKategorisering
 
     TiltaksnummerResponse:
@@ -2367,20 +2293,6 @@ components:
           type: string
           format: date
           nullable: true
-        nusData:
-          type: object
-          properties:
-            utdanningskategorier:
-              type: array
-              items:
-                type: object
-                properties:
-                  code:
-                    type: string
-                  name:
-                    type: string
-              nullable: true
-          nullable: true
         amoKategorisering:
           $ref: "#/components/schemas/AmoKategorisering"
           nullable: true
@@ -2406,7 +2318,6 @@ components:
         - deltidsprosent
         - estimertVentetid
         - tilgjengeligForArrangorFraOgMedDato
-        - nusData
         - amoKategorisering
 
     TiltaksgjennomforingStatusDto:
@@ -3880,53 +3791,3 @@ components:
         - tittel
         - hjelpetekst
 
-    NusDataRequest:
-      type: object
-      properties:
-        tiltakskode:
-          $ref: "#/components/schemas/Tiltakskode"
-        version:
-          type: string
-      required:
-        - tiltakskode
-        - version
-
-    NusDataResponse:
-      type: object
-      properties:
-        data:
-          type: array
-          items:
-            type: object
-            properties:
-              nivaa:
-                type: string
-              kategorier:
-                type: array
-                items:
-                  $ref: "#/components/schemas/NusElement"
-            required:
-              - nivaa
-              - kategorier
-      required:
-        - data
-
-    NusElement:
-      type: object
-      properties:
-        tiltakskode:
-          $ref: "#/components/schemas/Tiltakskode"
-        code:
-          type: string
-        version:
-          type: string
-        name:
-          type: string
-        parent:
-          type: string
-      required:
-        - tiltakskode
-        - code
-        - version
-        - name
-        - parent

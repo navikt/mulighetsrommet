@@ -27,7 +27,6 @@ import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClient
 import no.nav.mulighetsrommet.api.clients.pamOntologi.PamOntologiClient
 import no.nav.mulighetsrommet.api.clients.pdl.PdlClient
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
-import no.nav.mulighetsrommet.api.clients.ssb.SsbNusClient
 import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClient
 import no.nav.mulighetsrommet.api.repositories.*
 import no.nav.mulighetsrommet.api.services.*
@@ -81,11 +80,9 @@ fun Application.configureDependencyInjection(appConfig: AppConfig) {
     }
 }
 
-fun slack(slack: SlackConfig): Module {
-    return module(createdAtStart = true) {
-        single<SlackNotifier> {
-            SlackNotifierImpl(slack.token, slack.channel, slack.enable)
-        }
+fun slack(slack: SlackConfig): Module = module(createdAtStart = true) {
+    single<SlackNotifier> {
+        SlackNotifierImpl(slack.token, slack.channel, slack.enable)
     }
 }
 
@@ -174,7 +171,6 @@ private fun repositories() = module {
     single { ArrangorRepository(get()) }
     single { KafkaConsumerRepositoryImpl(get()) }
     single { VeilederJoyrideRepository(get()) }
-    single { SsbNusRepository(get()) }
 }
 
 private fun services(appConfig: AppConfig) = module {
@@ -351,8 +347,6 @@ private fun services(appConfig: AppConfig) = module {
     }
     single { AvtaleValidator(get(), get(), get(), get()) }
     single { TiltaksgjennomforingValidator(get(), get(), get()) }
-    single { SsbNusClient(engine = appConfig.engine, config = appConfig.ssbNusConfig) }
-    single { SsbNusService(get(), get()) }
 }
 
 private fun tasks(config: TaskConfig) = module {
@@ -423,28 +417,24 @@ private fun tasks(config: TaskConfig) = module {
     }
 }
 
-private fun createOboTokenClient(config: AppConfig): OnBehalfOfTokenClient {
-    return when (NaisEnv.current()) {
-        NaisEnv.Local -> AzureAdTokenClientBuilder.builder()
-            .withClientId(config.auth.azure.audience)
-            .withPrivateJwk(createMockRSAKey("azure").toJSONString())
-            .withTokenEndpointUrl(config.auth.azure.tokenEndpointUrl)
-            .buildOnBehalfOfTokenClient()
+private fun createOboTokenClient(config: AppConfig): OnBehalfOfTokenClient = when (NaisEnv.current()) {
+    NaisEnv.Local -> AzureAdTokenClientBuilder.builder()
+        .withClientId(config.auth.azure.audience)
+        .withPrivateJwk(createMockRSAKey("azure").toJSONString())
+        .withTokenEndpointUrl(config.auth.azure.tokenEndpointUrl)
+        .buildOnBehalfOfTokenClient()
 
-        else -> AzureAdTokenClientBuilder.builder().withNaisDefaults().buildOnBehalfOfTokenClient()
-    }
+    else -> AzureAdTokenClientBuilder.builder().withNaisDefaults().buildOnBehalfOfTokenClient()
 }
 
-private fun createM2mTokenClient(config: AppConfig): MachineToMachineTokenClient {
-    return when (NaisEnv.current()) {
-        NaisEnv.Local -> AzureAdTokenClientBuilder.builder()
-            .withClientId(config.auth.azure.audience)
-            .withPrivateJwk(createMockRSAKey("azure").toJSONString())
-            .withTokenEndpointUrl(config.auth.azure.tokenEndpointUrl)
-            .buildMachineToMachineTokenClient()
+private fun createM2mTokenClient(config: AppConfig): MachineToMachineTokenClient = when (NaisEnv.current()) {
+    NaisEnv.Local -> AzureAdTokenClientBuilder.builder()
+        .withClientId(config.auth.azure.audience)
+        .withPrivateJwk(createMockRSAKey("azure").toJSONString())
+        .withTokenEndpointUrl(config.auth.azure.tokenEndpointUrl)
+        .buildMachineToMachineTokenClient()
 
-        else -> AzureAdTokenClientBuilder.builder().withNaisDefaults().buildMachineToMachineTokenClient()
-    }
+    else -> AzureAdTokenClientBuilder.builder().withNaisDefaults().buildMachineToMachineTokenClient()
 }
 
 private fun createMockRSAKey(keyID: String): RSAKey = KeyPairGenerator

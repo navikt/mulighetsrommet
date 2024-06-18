@@ -10,7 +10,7 @@ import { ArrangorKontaktpersonDetaljer } from "@/pages/arrangor/ArrangorKontaktp
 import { avtaletypeTilTekst, formaterDato } from "@/utils/Utils";
 import { erAnskaffetTiltak } from "@/utils/tiltakskoder";
 import { ExternalLinkIcon } from "@navikt/aksel-icons";
-import { Alert, BodyShort, Button, Heading, HelpText, List, VStack } from "@navikt/ds-react";
+import { Alert, Button, Heading, HelpText, VStack } from "@navikt/ds-react";
 import { NavEnhet } from "mulighetsrommet-api-client";
 import { NOM_ANSATT_SIDE } from "mulighetsrommet-frontend-common/constants";
 import { Fragment, useRef } from "react";
@@ -76,23 +76,6 @@ export function AvtaleDetaljer() {
               verdi={avtaletypeTilTekst(avtaletype)}
             />
           </Bolk>
-          {avtale?.nusData && (
-            <Bolk>
-              <Metadata
-                header="Utdanningskategorier"
-                verdi={
-                  <>
-                    <BodyShort spacing>{avtale.nusData?.utdanningsnivaa}</BodyShort>
-                    <List>
-                      {avtale.nusData?.utdanningskategorier?.map((k) => (
-                        <List.Item key={k.code}>{k.name}</List.Item>
-                      ))}
-                    </List>
-                  </>
-                }
-              />
-            </Bolk>
-          )}
 
           <Separator />
 

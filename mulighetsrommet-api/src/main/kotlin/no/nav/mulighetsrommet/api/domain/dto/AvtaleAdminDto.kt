@@ -1,9 +1,6 @@
 package no.nav.mulighetsrommet.api.domain.dto
 
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.encodeToJsonElement
-import kotlinx.serialization.json.jsonObject
 import no.nav.mulighetsrommet.api.domain.dbo.ArenaNavEnhet
 import no.nav.mulighetsrommet.api.domain.dbo.AvtaleDbo
 import no.nav.mulighetsrommet.domain.Tiltakskode
@@ -43,7 +40,6 @@ data class AvtaleAdminDto(
     val faneinnhold: Faneinnhold? = null,
     val personopplysninger: List<Personopplysning>,
     val personvernBekreftet: Boolean,
-    val nusData: NusData?,
     val amoKategorisering: AmoKategorisering?,
 ) {
     @Serializable
@@ -84,19 +80,6 @@ data class AvtaleAdminDto(
         val navn: String,
     )
 
-    @Serializable
-    data class NusData(
-        val versjon: String,
-        val utdanningsnivaa: String,
-        val utdanningskategorier: List<NusDataElement>,
-    )
-
-    @Serializable
-    data class NusDataElement(
-        val code: String,
-        val name: String,
-    )
-
     fun toDbo() =
         AvtaleDbo(
             id = id,
@@ -118,7 +101,6 @@ data class AvtaleAdminDto(
             faneinnhold = null,
             personopplysninger = personopplysninger,
             personvernBekreftet = personvernBekreftet,
-            nusData = nusData?.let { Json.encodeToJsonElement(it).jsonObject },
             amoKategorisering = amoKategorisering,
         )
 

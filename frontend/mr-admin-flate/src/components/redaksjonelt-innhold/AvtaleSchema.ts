@@ -58,22 +58,6 @@ export const AvtaleSchema = z
     faneinnhold: FaneinnholdSchema.nullable(),
     personvernBekreftet: z.boolean({ required_error: "Du må ta stilling til personvern" }),
     personopplysninger: z.nativeEnum(Personopplysning).array(),
-    nusData: z
-      .object({
-        versjon: z.string(),
-        utdanningsnivaa: z.string({ required_error: "Du må velge et utdanningsnivå" }),
-        utdanningskategorier: z
-          .object(
-            {
-              code: z.string(),
-              name: z.string(),
-            },
-            { required_error: "Du må velge minst én utdanningskategori" },
-          )
-          .array()
-          .optional(),
-      })
-      .optional(),
     amoKategorisering: z
       .object({
         kurstype: z.nativeEnum(Kurstype, { required_error: "Du må velge en kurstype" }),
