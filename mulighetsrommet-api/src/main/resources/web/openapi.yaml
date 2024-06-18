@@ -3473,7 +3473,6 @@ components:
         - mulighetsrommet-veilederflate-landingsside
         - mulighetsrommet-veilederflate-arena-oppskrifter
         - mulighetsrommet.admin-flate.enableDebugger
-        - mulighetsrommet.admin-flate.enable_nuskategorier
         - mulighetsrommet.admin-flate.enable_gruppe_amo_kategorier
 
     PublisertRequest:
