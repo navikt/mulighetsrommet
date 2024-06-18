@@ -160,7 +160,7 @@ class GenerateValidationReport(
                 sluttDatoGreaterThanOrEqualTo = ArenaMigrering.TiltaksgjennomforingSluttDatoCutoffDate,
             ).items
         }) {
-            val dbo = it.toDbo()
+            val dbo = it.toTiltaksgjennomforingDbo()
             gjennomforingValidator.validate(dbo, it)
                 .onLeft { validationErrors ->
                     put(it, validationErrors)

@@ -50,7 +50,7 @@ class UpdateTiltaksgjennomforingStatus(
 
             tiltaksgjennomforinger.forEach { id ->
                 val gjennomforing = requireNotNull(tiltaksgjennomforingRepository.get(id))
-                tiltaksgjennomforingKafkaProducer.publish(gjennomforing.toTiltaksgjennomforingDto())
+                tiltaksgjennomforingKafkaProducer.publish(gjennomforing.toTiltaksgjennomforingV1Dto())
                 if (gjennomforing.status.status == TiltaksgjennomforingStatus.AVSLUTTET) {
                     tiltaksgjennomforingRepository.setPublisert(gjennomforing.id, false)
                 }
