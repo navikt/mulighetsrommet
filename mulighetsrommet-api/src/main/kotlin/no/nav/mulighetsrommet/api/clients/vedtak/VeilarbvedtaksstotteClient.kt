@@ -23,7 +23,7 @@ import java.util.concurrent.TimeUnit
 
 class VeilarbvedtaksstotteClient(
     private val baseUrl: String,
-    private val tokenProvider: (obo: AccessType.OBO) -> String,
+    private val tokenProvider: suspend (obo: AccessType.OBO) -> String,
     clientEngine: HttpClientEngine = CIO.create(),
 ) {
     private val log = LoggerFactory.getLogger(javaClass)

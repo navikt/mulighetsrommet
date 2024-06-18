@@ -24,7 +24,7 @@ const val VALP_BEHANDLINGSNUMMER: String = "B450" // Team Valps behandlingsnumme
 
 class PdlClient(
     private val baseUrl: String,
-    private val tokenProvider: (accessType: AccessType) -> String,
+    private val tokenProvider: suspend (accessType: AccessType) -> String,
     clientEngine: HttpClientEngine = CIO.create(),
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
