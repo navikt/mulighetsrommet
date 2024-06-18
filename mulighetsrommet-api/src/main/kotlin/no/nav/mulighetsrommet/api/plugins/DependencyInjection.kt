@@ -177,25 +177,26 @@ private fun services(appConfig: AppConfig) = module {
     val m2mTokenProvider = createM2mTokenClient(appConfig)
     val oboTokenProvider = createOboTokenClient(appConfig)
 
-    fun createTokenProvider(scope: String) =
-        TokenProvider(
-            m2mTokenClient = createM2mTokenClient(appConfig),
-            oboTokenClient = createOboTokenClient(appConfig),
-            scope = scope,
-        )
-
-    val veilarboppfolgingClientTokenProvider = createTokenProvider(appConfig.veilarboppfolgingConfig.scope)
     single {
         VeilarboppfolgingClient(
             baseUrl = appConfig.veilarboppfolgingConfig.url,
-            tokenProvider = { accessType -> veilarboppfolgingClientTokenProvider.invoke(accessType) },
+            tokenProvider = { accessType ->
+                when (accessType) {
+                    AccessType.M2M -> m2mTokenProvider.createMachineToMachineToken(appConfig.veilarboppfolgingConfig.scope)
+                    is AccessType.OBO -> oboTokenProvider.exchangeOnBehalfOfToken(
+                        appConfig.veilarboppfolgingConfig.scope,
+                        accessType.token,
+                    )
+                }
+            },
         )
     }
-    val veilarbvedtaksstotteClientTokeProvider = createTokenProvider(appConfig.veilarbvedtaksstotteConfig.scope)
     single {
         VeilarbvedtaksstotteClient(
             baseUrl = appConfig.veilarbvedtaksstotteConfig.url,
-            tokenProvider = { obo -> veilarbvedtaksstotteClientTokeProvider.invoke(obo) },
+            tokenProvider = { obo ->
+                oboTokenProvider.exchangeOnBehalfOfToken(appConfig.veilarbvedtaksstotteConfig.scope, obo.token)
+            },
         )
     }
     single {
@@ -206,11 +207,15 @@ private fun services(appConfig: AppConfig) = module {
             },
         )
     }
-    val pdlClientTokenProvider = createTokenProvider(appConfig.pdl.scope)
     single {
         PdlClient(
             baseUrl = appConfig.pdl.url,
-            tokenProvider = { accessType -> pdlClientTokenProvider.invoke(accessType) },
+            tokenProvider = { accessType ->
+                when (accessType) {
+                    AccessType.M2M -> m2mTokenProvider.createMachineToMachineToken(appConfig.pdl.scope)
+                    is AccessType.OBO -> oboTokenProvider.exchangeOnBehalfOfToken(appConfig.pdl.scope, accessType.token)
+                }
+            },
         )
     }
 
@@ -410,18 +415,6 @@ private fun tasks(config: TaskConfig) = module {
             .registerShutdownHook()
             .build()
     }
-}
-
-data class TokenProvider(
-    val m2mTokenClient: MachineToMachineTokenClient,
-    val oboTokenClient: OnBehalfOfTokenClient,
-    val scope: String,
-) {
-    fun invoke(accessType: AccessType) =
-        when (accessType) {
-            AccessType.M2M -> m2mTokenClient.createMachineToMachineToken(scope)
-            is AccessType.OBO -> oboTokenClient.exchangeOnBehalfOfToken(scope, accessType.token)
-        }
 }
 
 private fun createOboTokenClient(config: AppConfig): OnBehalfOfTokenClient = when (NaisEnv.current()) {
