@@ -3,29 +3,24 @@ package no.nav.mulighetsrommet.kafka.producers
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import no.nav.common.kafka.producer.KafkaProducerClient
-import no.nav.mulighetsrommet.api.domain.dto.ArenaMigreringTiltaksgjennomforingDto
+import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingV1Dto
 import org.apache.kafka.clients.producer.ProducerRecord
-import org.slf4j.LoggerFactory
 import java.util.*
 
-class ArenaMigreringTiltaksgjennomforingKafkaProducer(
+class SisteTiltaksgjennomforingerV1KafkaProducer(
     private val kafkaProducerClient: KafkaProducerClient<String, String?>,
     private val config: Config,
 ) {
-    private val logger = LoggerFactory.getLogger(javaClass)
-
     data class Config(
         val topic: String,
     )
 
-    fun publish(value: ArenaMigreringTiltaksgjennomforingDto) {
+    fun publish(value: TiltaksgjennomforingV1Dto) {
         val record: ProducerRecord<String, String?> = ProducerRecord(
             config.topic,
             value.id.toString(),
             Json.encodeToString(value),
         )
-
-        logger.info("publish på ${config.topic} id: ${value.id}")
         kafkaProducerClient.sendSync(record)
     }
 
@@ -35,8 +30,6 @@ class ArenaMigreringTiltaksgjennomforingKafkaProducer(
             id.toString(),
             null,
         )
-
-        logger.info("retract på ${config.topic} id: $id")
         kafkaProducerClient.sendSync(record)
     }
 }

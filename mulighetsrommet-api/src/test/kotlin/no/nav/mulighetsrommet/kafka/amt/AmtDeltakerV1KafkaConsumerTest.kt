@@ -19,11 +19,11 @@ import no.nav.mulighetsrommet.domain.dbo.Deltakerstatus
 import no.nav.mulighetsrommet.domain.dto.amt.AmtDeltakerStatus
 import no.nav.mulighetsrommet.domain.dto.amt.AmtDeltakerV1Dto
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
-import no.nav.mulighetsrommet.kafka.consumers.amt.AmtDeltakerV1TopicConsumer
+import no.nav.mulighetsrommet.kafka.consumers.amt.AmtDeltakerV1KafkaConsumer
 import java.time.LocalDateTime
 import java.util.*
 
-class AmtDeltakerV1TopicConsumerTest : FunSpec({
+class AmtDeltakerV1KafkaConsumerTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
 
     context("consume deltakere") {
@@ -39,7 +39,7 @@ class AmtDeltakerV1TopicConsumerTest : FunSpec({
         }
 
         val deltakere = DeltakerRepository(database.db)
-        val deltakerConsumer = AmtDeltakerV1TopicConsumer(
+        val deltakerConsumer = AmtDeltakerV1KafkaConsumer(
             config = KafkaTopicConsumer.Config(id = "deltaker", topic = "deltaker"),
             deltakere,
         )

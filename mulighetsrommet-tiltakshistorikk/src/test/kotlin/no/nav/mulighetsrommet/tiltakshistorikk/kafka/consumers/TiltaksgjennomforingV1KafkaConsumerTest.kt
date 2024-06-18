@@ -16,7 +16,7 @@ import no.nav.mulighetsrommet.tiltakshistorikk.repositories.GruppetiltakReposito
 import java.time.LocalDate
 import java.util.*
 
-class TiltaksgjennomforingV1ConsumerTest : FunSpec({
+class TiltaksgjennomforingV1KafkaConsumerTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
 
     context("konsumer gjennomføringer") {
@@ -25,7 +25,7 @@ class TiltaksgjennomforingV1ConsumerTest : FunSpec({
         }
 
         val gruppetiltak = GruppetiltakRepository(database.db)
-        val consumer = TiltaksgjennomforingV1Consumer(
+        val consumer = SisteTiltaksgjennomforingerV1KafkaConsumer(
             config = KafkaTopicConsumer.Config(id = "deltaker", topic = "deltaker"),
             gruppetiltak,
         )

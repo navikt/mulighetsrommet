@@ -6,7 +6,7 @@ import no.nav.common.kafka.producer.KafkaProducerClient
 import no.nav.mulighetsrommet.domain.dto.TiltakstypeV2Dto
 import org.apache.kafka.clients.producer.ProducerRecord
 
-class TiltakstypeKafkaProducer(
+class SisteTiltakstyperV2KafkaProducer(
     private val kafkaProducerClient: KafkaProducerClient<String, String?>,
     private val config: Config,
 ) {

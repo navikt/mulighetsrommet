@@ -13,7 +13,7 @@ import no.nav.mulighetsrommet.tiltakshistorikk.repositories.DeltakerRepository
 import org.slf4j.LoggerFactory
 import java.util.*
 
-class AmtDeltakerV1Consumer(
+class AmtDeltakerV1KafkaConsumer(
     config: Config,
     private val deltakerRepository: DeltakerRepository,
 ) : KafkaTopicConsumer<UUID, JsonElement>(

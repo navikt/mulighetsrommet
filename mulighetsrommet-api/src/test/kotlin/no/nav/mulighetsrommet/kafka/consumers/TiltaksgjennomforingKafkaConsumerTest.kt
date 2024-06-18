@@ -20,17 +20,17 @@ import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListe
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.dto.ArenaTiltaksgjennomforingDto
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
-import no.nav.mulighetsrommet.kafka.producers.ArenaMigreringTiltaksgjennomforingKafkaProducer
+import no.nav.mulighetsrommet.kafka.producers.ArenaMigreringTiltaksgjennomforingerV1KafkaProducer
 
-class TiltaksgjennomforingTopicConsumerTest : FunSpec({
+class TiltaksgjennomforingKafkaConsumerTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
 
     context("migrerte gjennomføringer") {
         val producerClient = mockk<KafkaProducerClient<String, String?>>(relaxed = true)
         val producer = spyk(
-            ArenaMigreringTiltaksgjennomforingKafkaProducer(
+            ArenaMigreringTiltaksgjennomforingerV1KafkaProducer(
                 producerClient,
-                config = ArenaMigreringTiltaksgjennomforingKafkaProducer.Config(topic = "topic"),
+                config = ArenaMigreringTiltaksgjennomforingerV1KafkaProducer.Config(topic = "topic"),
             ),
         )
 
@@ -61,7 +61,7 @@ class TiltaksgjennomforingTopicConsumerTest : FunSpec({
                 enabledTiltakskoder = emptyList(),
             )
 
-            val consumer = TiltaksgjennomforingTopicConsumer(
+            val consumer = SisteTiltaksgjennomforingerV1KafkaConsumer(
                 KafkaTopicConsumer.Config(id = "id", topic = "topic"),
                 tiltakstyper,
                 gjennomforinger,
@@ -87,7 +87,7 @@ class TiltaksgjennomforingTopicConsumerTest : FunSpec({
                 listOf(Tiltakskode.OPPFOLGING),
             )
 
-            val consumer = TiltaksgjennomforingTopicConsumer(
+            val consumer = SisteTiltaksgjennomforingerV1KafkaConsumer(
                 KafkaTopicConsumer.Config(id = "id", topic = "topic"),
                 tiltakstyper,
                 gjennomforinger,
@@ -117,7 +117,7 @@ class TiltaksgjennomforingTopicConsumerTest : FunSpec({
                 enabledTiltakskoder = listOf(Tiltakskode.OPPFOLGING),
             )
 
-            val consumer = TiltaksgjennomforingTopicConsumer(
+            val consumer = SisteTiltaksgjennomforingerV1KafkaConsumer(
                 KafkaTopicConsumer.Config(id = "id", topic = "topic"),
                 tiltakstyper,
                 gjennomforinger,

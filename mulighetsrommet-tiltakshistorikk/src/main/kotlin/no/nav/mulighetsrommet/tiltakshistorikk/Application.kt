@@ -11,8 +11,8 @@ import no.nav.mulighetsrommet.hoplite.loadConfiguration
 import no.nav.mulighetsrommet.kafka.KafkaConsumerOrchestrator
 import no.nav.mulighetsrommet.ktor.plugins.configureMonitoring
 import no.nav.mulighetsrommet.ktor.startKtorApplication
-import no.nav.mulighetsrommet.tiltakshistorikk.kafka.consumers.AmtDeltakerV1Consumer
-import no.nav.mulighetsrommet.tiltakshistorikk.kafka.consumers.TiltaksgjennomforingV1Consumer
+import no.nav.mulighetsrommet.tiltakshistorikk.kafka.consumers.AmtDeltakerV1KafkaConsumer
+import no.nav.mulighetsrommet.tiltakshistorikk.kafka.consumers.SisteTiltaksgjennomforingerV1KafkaConsumer
 import no.nav.mulighetsrommet.tiltakshistorikk.plugins.configureAuthentication
 import no.nav.mulighetsrommet.tiltakshistorikk.plugins.configureHTTP
 import no.nav.mulighetsrommet.tiltakshistorikk.plugins.configureSerialization
@@ -75,11 +75,11 @@ fun configureKafka(
     }
 
     val consumers = listOf(
-        AmtDeltakerV1Consumer(
+        AmtDeltakerV1KafkaConsumer(
             config = config.consumers.amtDeltakerV1,
             deltakerRepository = deltakerRepository,
         ),
-        TiltaksgjennomforingV1Consumer(
+        SisteTiltaksgjennomforingerV1KafkaConsumer(
             config = config.consumers.sisteTiltaksgjennomforingerV1,
             gruppetiltakRepository = gruppetiltakRepository,
         ),
