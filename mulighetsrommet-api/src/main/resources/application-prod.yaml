@@ -156,3 +156,6 @@ app:
     token: ${UNLEASH_SERVER_API_TOKEN}
     instanceId: ${NAIS_CLIENT_ID}
     environment: production
+
+  utdanning:
+    baseurl: https://utdanning.no
