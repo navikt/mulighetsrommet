@@ -34,8 +34,8 @@ class BrukerService(
         val deferredErUnderOppfolging = async { veilarboppfolgingClient.erBrukerUnderOppfolging(fnr, obo) }
         val deferredOppfolgingsenhet = async { veilarboppfolgingClient.hentOppfolgingsenhet(fnr, obo) }
         val deferredManuellStatus = async { veilarboppfolgingClient.hentManuellStatus(fnr, obo) }
-        val deferredPdlPerson = async { pdlClient.hentPerson(fnr, obo) }
         val deferredSisteVedtak = async { veilarbvedtaksstotteClient.hentSiste14AVedtak(fnr, obo) }
+        val deferredPdlPerson = async { pdlClient.hentPerson(fnr, obo) }
         val deferredGeografiskTilknytning = async { pdlClient.hentGeografiskTilknytning(fnr, obo) }
 
         val erUnderOppfolging = deferredErUnderOppfolging.await()
