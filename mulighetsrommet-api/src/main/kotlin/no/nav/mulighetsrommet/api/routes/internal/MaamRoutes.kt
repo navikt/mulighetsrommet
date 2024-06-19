@@ -52,7 +52,7 @@ fun Route.maamRoutes() {
 
             post("sync-utdanning") {
                 utdanningService.syncUtdanning()
-                call.respond(HttpStatusCode.OK, ScheduleTaskResponse(id = UUID.randomUUID()))
+                call.respond(HttpStatusCode.OK, GeneralTaskResponse(id = "Synkronisering av utdanning.no OK"))
             }
         }
 
