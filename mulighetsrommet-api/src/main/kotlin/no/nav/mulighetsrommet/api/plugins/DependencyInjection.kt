@@ -4,8 +4,7 @@ import com.github.kagkarlsson.scheduler.Scheduler
 import com.nimbusds.jose.jwk.KeyUse
 import com.nimbusds.jose.jwk.RSAKey
 import io.ktor.server.application.*
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.runBlocking
 import no.nav.common.client.axsys.AxsysClient
 import no.nav.common.client.axsys.AxsysV2ClientImpl
 import no.nav.common.kafka.producer.util.KafkaProducerClientBuilder
@@ -19,6 +18,7 @@ import no.nav.mulighetsrommet.api.SlackConfig
 import no.nav.mulighetsrommet.api.TaskConfig
 import no.nav.mulighetsrommet.api.avtaler.AvtaleValidator
 import no.nav.mulighetsrommet.api.clients.AccessType
+import no.nav.mulighetsrommet.api.clients.CachedTokenProvider
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
 import no.nav.mulighetsrommet.api.clients.arenaadapter.ArenaAdapterClient
 import no.nav.mulighetsrommet.api.clients.brreg.BrregClient
@@ -178,84 +178,52 @@ private fun repositories() = module {
 }
 
 private fun services(appConfig: AppConfig) = module {
-    val m2mTokenProvider = createM2mTokenClient(appConfig)
-    val oboTokenProvider = createOboTokenClient(appConfig)
+    val cachedTokenProvider = CachedTokenProvider(
+        m2mTokenProvider = createM2mTokenClient(appConfig),
+        oboTokenProvider = createOboTokenClient(appConfig),
+    )
 
     single {
         VeilarboppfolgingClient(
             baseUrl = appConfig.veilarboppfolgingConfig.url,
-            tokenProvider = { accessType ->
-                withContext(Dispatchers.IO) {
-                    when (accessType) {
-                        AccessType.M2M -> m2mTokenProvider.createMachineToMachineToken(appConfig.veilarboppfolgingConfig.scope)
-                        is AccessType.OBO -> oboTokenProvider.exchangeOnBehalfOfToken(
-                            appConfig.veilarboppfolgingConfig.scope,
-                            accessType.token,
-                        )
-                    }
-                }
-            },
+            tokenProvider = cachedTokenProvider.withScope(appConfig.veilarboppfolgingConfig.scope),
         )
     }
     single {
         VeilarbvedtaksstotteClient(
             baseUrl = appConfig.veilarbvedtaksstotteConfig.url,
-            tokenProvider = { obo ->
-                withContext(Dispatchers.IO) {
-                    oboTokenProvider.exchangeOnBehalfOfToken(appConfig.veilarbvedtaksstotteConfig.scope, obo.token)
-                }
-            },
+            tokenProvider = cachedTokenProvider.withScope(appConfig.veilarbvedtaksstotteConfig.scope),
         )
     }
     single {
         VeilarbdialogClient(
             baseUrl = appConfig.veilarbdialogConfig.url,
-            tokenProvider = { token ->
-                oboTokenProvider.exchangeOnBehalfOfToken(appConfig.veilarbdialogConfig.scope, token)
-            },
+            tokenProvider = cachedTokenProvider.withScope(appConfig.veilarbdialogConfig.scope),
         )
     }
     single {
         PdlClient(
             baseUrl = appConfig.pdl.url,
-            tokenProvider = { accessType ->
-                withContext(Dispatchers.IO) {
-                    when (accessType) {
-                        AccessType.M2M -> m2mTokenProvider.createMachineToMachineToken(appConfig.pdl.scope)
-                        is AccessType.OBO -> oboTokenProvider.exchangeOnBehalfOfToken(
-                            appConfig.pdl.scope,
-                            accessType.token,
-                        )
-                    }
-                }
-            },
+            tokenProvider = cachedTokenProvider.withScope(appConfig.pdl.scope),
         )
     }
 
     single<PoaoTilgangClient> {
         PoaoTilgangHttpClient(
             baseUrl = appConfig.poaoTilgang.url,
-            tokenProvider = { m2mTokenProvider.createMachineToMachineToken(appConfig.poaoTilgang.scope) },
+            tokenProvider = { runBlocking { cachedTokenProvider.withScope(appConfig.poaoTilgang.scope).exchange(AccessType.M2M) } },
         )
     }
     single {
         MicrosoftGraphClient(
             baseUrl = appConfig.msGraphConfig.url,
-            tokenProvider = { accessType ->
-                when (accessType) {
-                    AccessType.M2M -> m2mTokenProvider.createMachineToMachineToken(appConfig.msGraphConfig.scope)
-                    is AccessType.OBO -> oboTokenProvider.exchangeOnBehalfOfToken(
-                        appConfig.msGraphConfig.scope,
-                        accessType.token,
-                    )
-                }
-            },
+            tokenProvider = cachedTokenProvider.withScope(appConfig.msGraphConfig.scope),
         )
     }
     single {
         ArenaAdapterClient(
             baseUrl = appConfig.arenaAdapter.url,
-            machineToMachineTokenClient = { m2mTokenProvider.createMachineToMachineToken(appConfig.arenaAdapter.scope) },
+            tokenProvider = cachedTokenProvider.withScope(appConfig.arenaAdapter.scope),
         )
     }
     single {
@@ -275,18 +243,14 @@ private fun services(appConfig: AppConfig) = module {
         AmtDeltakerClient(
             baseUrl = appConfig.amtDeltakerConfig.url,
             clientEngine = appConfig.engine,
-            tokenProvider = { obo ->
-                oboTokenProvider.exchangeOnBehalfOfToken(appConfig.amtDeltakerConfig.scope, obo.token)
-            },
+            tokenProvider = cachedTokenProvider.withScope(appConfig.amtDeltakerConfig.scope),
         )
     }
     single {
         PamOntologiClient(
-            baseUrl = appConfig.pamOntologi.baseUrl,
+            baseUrl = appConfig.pamOntologi.url,
             clientEngine = appConfig.engine,
-            tokenProvider = { obo ->
-                oboTokenProvider.exchangeOnBehalfOfToken(appConfig.amtDeltakerConfig.scope, obo.token)
-            },
+            tokenProvider = cachedTokenProvider.withScope(appConfig.pamOntologi.scope),
         )
     }
     single { UtdanningClient(config = appConfig.utdanning) }
@@ -355,9 +319,10 @@ private fun services(appConfig: AppConfig) = module {
         UnleashService(appConfig.unleash, byEnhetStrategy, byNavidentStrategy)
     }
     single<AxsysClient> {
-        AxsysV2ClientImpl(appConfig.axsys.url) {
-            m2mTokenProvider.createMachineToMachineToken(appConfig.axsys.scope)
-        }
+        AxsysV2ClientImpl(
+            appConfig.axsys.url,
+            { runBlocking { cachedTokenProvider.withScope(appConfig.axsys.scope).exchange(AccessType.M2M) } },
+        )
     }
     single { AvtaleValidator(get(), get(), get(), get()) }
     single { TiltaksgjennomforingValidator(get(), get(), get()) }

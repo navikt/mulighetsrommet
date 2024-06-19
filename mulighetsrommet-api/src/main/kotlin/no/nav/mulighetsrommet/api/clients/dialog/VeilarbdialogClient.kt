@@ -7,13 +7,15 @@ import io.ktor.client.plugins.cache.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.clients.AccessType
+import no.nav.mulighetsrommet.api.clients.TokenProvider
 import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
 import no.nav.mulighetsrommet.securelog.SecureLog
 import org.slf4j.LoggerFactory
 
 class VeilarbdialogClient(
     private val baseUrl: String,
-    private val tokenProvider: (accessToken: String) -> String,
+    private val tokenProvider: TokenProvider,
     clientEngine: HttpClientEngine = CIO.create(),
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
@@ -23,12 +25,12 @@ class VeilarbdialogClient(
     }
 
     suspend fun sendMeldingTilDialogen(
-        accessToken: String,
+        obo: AccessType.OBO,
         requestBody: DialogRequest,
     ): DialogResponse? {
         return try {
             val response = client.post("$baseUrl/dialog") {
-                bearerAuth(tokenProvider.invoke(accessToken))
+                bearerAuth(tokenProvider.exchange(obo))
                 header(HttpHeaders.ContentType, ContentType.Application.Json)
                 setBody(requestBody)
             }

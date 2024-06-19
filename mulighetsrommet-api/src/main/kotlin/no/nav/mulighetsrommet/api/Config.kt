@@ -3,7 +3,6 @@ package no.nav.mulighetsrommet.api
 import io.ktor.client.engine.*
 import io.ktor.client.engine.cio.*
 import no.nav.mulighetsrommet.api.clients.brreg.BrregClient
-import no.nav.mulighetsrommet.api.clients.pamOntologi.PamOntologiClient
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.clients.utdanning.UtdanningClient
 import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattRolle
@@ -43,7 +42,7 @@ data class AppConfig(
     val norg2: Norg2Config,
     val slack: SlackConfig,
     val brreg: BrregClient.Config,
-    val pamOntologi: PamOntologiClient.Config,
+    val pamOntologi: ServiceClientConfig,
     val unleash: UnleashService.Config,
     val axsys: ServiceClientConfig,
     val pdl: ServiceClientConfig,

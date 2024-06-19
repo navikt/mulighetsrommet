@@ -3,7 +3,6 @@ package no.nav.mulighetsrommet.api
 import io.ktor.server.application.*
 import io.ktor.server.testing.*
 import no.nav.mulighetsrommet.api.clients.brreg.BrregClient
-import no.nav.mulighetsrommet.api.clients.pamOntologi.PamOntologiClient
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.clients.utdanning.UtdanningClient
 import no.nav.mulighetsrommet.api.tasks.*
@@ -95,7 +94,7 @@ fun createTestApplicationConfig() = AppConfig(
     axsys = ServiceClientConfig(url = "", scope = ""),
     pdl = ServiceClientConfig(url = "", scope = ""),
     migrerteTiltak = emptyList(),
-    pamOntologi = PamOntologiClient.Config(baseUrl = "pam-ontologi"),
+    pamOntologi = createServiceClientConfig("pam-ontologi"),
     utdanning = UtdanningClient.Config(
         baseurl = "",
     ),

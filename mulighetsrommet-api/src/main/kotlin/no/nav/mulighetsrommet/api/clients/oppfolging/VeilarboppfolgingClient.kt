@@ -16,6 +16,7 @@ import io.ktor.http.*
 import io.prometheus.client.cache.caffeine.CacheMetricsCollector
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.clients.AccessType
+import no.nav.mulighetsrommet.api.clients.TokenProvider
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.domain.serializers.ZonedDateTimeSerializer
 import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
@@ -27,7 +28,7 @@ import java.util.concurrent.TimeUnit
 
 class VeilarboppfolgingClient(
     private val baseUrl: String,
-    private val tokenProvider: suspend (accessType: AccessType) -> String,
+    private val tokenProvider: TokenProvider,
     clientEngine: HttpClientEngine = CIO.create(),
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
@@ -73,7 +74,7 @@ class VeilarboppfolgingClient(
         oppfolgingsenhetCache.getIfPresent(fnr)?.let { return@hentOppfolgingsenhet it.right() }
 
         val response = client.post("$baseUrl/v2/person/hent-oppfolgingsstatus") {
-            bearerAuth(tokenProvider.invoke(obo))
+            bearerAuth(tokenProvider.exchange(obo))
             header(HttpHeaders.ContentType, ContentType.Application.Json)
             setBody(HentOppfolgingsstatusRequest(fnr = fnr))
         }
@@ -113,7 +114,7 @@ class VeilarboppfolgingClient(
         gjeldendePeriodeCache.getIfPresent(fnr)?.let { return@hentGjeldendePeriode it.right() }
 
         val response = client.post("$baseUrl/v3/oppfolging/hent-gjeldende-periode") {
-            bearerAuth(tokenProvider.invoke(accessType))
+            bearerAuth(tokenProvider.exchange(accessType))
             header(HttpHeaders.ContentType, ContentType.Application.Json)
             setBody(HentOppfolgingsstatusRequest(fnr = fnr))
         }
@@ -144,7 +145,7 @@ class VeilarboppfolgingClient(
         manuellStatusCache.getIfPresent(fnr)?.let { return@hentManuellStatus it.right() }
 
         val response = client.post("$baseUrl/v3/manuell/hent-status") {
-            bearerAuth(tokenProvider.invoke(obo))
+            bearerAuth(tokenProvider.exchange(obo))
             header(HttpHeaders.ContentType, ContentType.Application.Json)
             setBody(ManuellStatusRequest(fnr = fnr))
         }

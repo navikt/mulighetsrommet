@@ -118,6 +118,10 @@ app:
     url: https://pdl-api.dev-fss-pub.nais.io
     scope: api://dev-fss.pdl.pdl-api/.default
 
+  pamOntologi:
+    url: http://pam-ontologi.teampam
+    scope: api://dev-gcp.teampam.pam-ontologi/.default
+
   tasks:
     deleteExpiredTiltakshistorikk:
       cronPattern: "0 0 1 * * *" # Hver morgen kl. 01:00
@@ -143,9 +147,6 @@ app:
 
   brreg:
     baseUrl: https://data.brreg.no/enhetsregisteret/api
-
-  pamOntologi:
-    baseUrl: http://pam-ontologi.teampam
 
   slack:
     token: ${SLACK_TOKEN}

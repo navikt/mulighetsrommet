@@ -9,6 +9,7 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import no.nav.mulighetsrommet.api.clients.AccessType
+import no.nav.mulighetsrommet.api.clients.TokenProvider
 import no.nav.mulighetsrommet.api.domain.dto.AdGruppe
 import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
@@ -28,7 +29,7 @@ import java.util.*
 class MicrosoftGraphClient(
     engine: HttpClientEngine = CIO.create(),
     private val baseUrl: String,
-    private val tokenProvider: (accessType: AccessType) -> String,
+    private val tokenProvider: TokenProvider,
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
 
@@ -43,7 +44,7 @@ class MicrosoftGraphClient(
 
     suspend fun getNavAnsatt(navAnsattAzureId: UUID, accessType: AccessType): AzureAdNavAnsatt {
         val response = client.get("$baseUrl/v1.0/users/$navAnsattAzureId") {
-            bearerAuth(tokenProvider(accessType))
+            bearerAuth(tokenProvider.exchange(accessType))
             parameter("\$select", "id,streetAddress,city,givenName,surname,onPremisesSamAccountName,mail,mobilePhone")
         }
 
@@ -59,7 +60,7 @@ class MicrosoftGraphClient(
 
     suspend fun getMemberGroups(navAnsattAzureId: UUID, accessType: AccessType): List<AdGruppe> {
         val response = client.get("$baseUrl/v1.0/users/$navAnsattAzureId/transitiveMemberOf/microsoft.graph.group") {
-            bearerAuth(tokenProvider.invoke(accessType))
+            bearerAuth(tokenProvider.exchange(accessType))
             parameter("\$select", "id,displayName")
         }
 
@@ -77,7 +78,7 @@ class MicrosoftGraphClient(
 
     suspend fun getGroupMembers(groupId: UUID): List<AzureAdNavAnsatt> {
         val response = client.get("$baseUrl/v1.0/groups/$groupId/members") {
-            bearerAuth(tokenProvider.invoke(AccessType.M2M))
+            bearerAuth(tokenProvider.exchange(AccessType.M2M))
             parameter("\$select", "id,streetAddress,city,givenName,surname,onPremisesSamAccountName,mail,mobilePhone")
             parameter("\$top", "999")
         }
