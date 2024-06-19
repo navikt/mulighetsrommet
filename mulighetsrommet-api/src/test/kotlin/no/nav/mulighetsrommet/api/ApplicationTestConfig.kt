@@ -4,6 +4,7 @@ import io.ktor.server.application.*
 import io.ktor.server.testing.*
 import no.nav.mulighetsrommet.api.clients.brreg.BrregClient
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
+import no.nav.mulighetsrommet.api.clients.utdanning.UtdanningClient
 import no.nav.mulighetsrommet.api.tasks.*
 import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.database.FlywayMigrationManager
@@ -94,6 +95,9 @@ fun createTestApplicationConfig() = AppConfig(
     pdl = ServiceClientConfig(url = "", scope = ""),
     migrerteTiltak = emptyList(),
     pamOntologi = createServiceClientConfig("pam-ontologi"),
+    utdanning = UtdanningClient.Config(
+        baseurl = "",
+    ),
 )
 
 fun createKafkaConfig(): KafkaConfig = KafkaConfig(

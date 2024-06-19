@@ -29,9 +29,11 @@ import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClient
 import no.nav.mulighetsrommet.api.clients.pamOntologi.PamOntologiClient
 import no.nav.mulighetsrommet.api.clients.pdl.PdlClient
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
+import no.nav.mulighetsrommet.api.clients.utdanning.UtdanningClient
 import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClient
 import no.nav.mulighetsrommet.api.repositories.*
 import no.nav.mulighetsrommet.api.services.*
+import no.nav.mulighetsrommet.api.services.utdanning.UtdanningService
 import no.nav.mulighetsrommet.api.tasks.*
 import no.nav.mulighetsrommet.api.tiltaksgjennomforinger.TiltaksgjennomforingValidator
 import no.nav.mulighetsrommet.database.Database
@@ -251,6 +253,7 @@ private fun services(appConfig: AppConfig) = module {
             tokenProvider = cachedTokenProvider.withScope(appConfig.pamOntologi.scope),
         )
     }
+    single { UtdanningClient(config = appConfig.utdanning) }
     single { EndringshistorikkService(get()) }
     single {
         ArenaAdapterService(
@@ -323,6 +326,7 @@ private fun services(appConfig: AppConfig) = module {
     }
     single { AvtaleValidator(get(), get(), get(), get()) }
     single { TiltaksgjennomforingValidator(get(), get(), get()) }
+    single { UtdanningService(get()) }
 }
 
 private fun tasks(config: TaskConfig) = module {
