@@ -6,6 +6,7 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.services.utdanning.UtdanningService
 import no.nav.mulighetsrommet.api.tasks.GenerateValidationReport
 import no.nav.mulighetsrommet.api.tasks.InitialLoadTiltaksgjennomforinger
 import no.nav.mulighetsrommet.api.tasks.InitialLoadTiltakstyper
@@ -23,6 +24,7 @@ fun Route.maamRoutes() {
             val initialLoadTiltaksgjennomforinger: InitialLoadTiltaksgjennomforinger by inject()
             val initialLoadTiltakstyper: InitialLoadTiltakstyper by inject()
             val synchronizeNavAnsatte: SynchronizeNavAnsatte by inject()
+            val utdanningService: UtdanningService by inject()
 
             post("generate-validation-report") {
                 val taskId = generateValidationReport.schedule()
@@ -46,6 +48,11 @@ fun Route.maamRoutes() {
             post("sync-navansatte") {
                 val taskId = synchronizeNavAnsatte.schedule()
                 call.respond(HttpStatusCode.Accepted, ScheduleTaskResponse(id = taskId))
+            }
+
+            post("sync-utdanning") {
+                utdanningService.syncUtdanning()
+                call.respond(HttpStatusCode.OK, GeneralTaskResponse(id = "Synkronisering av utdanning.no OK"))
             }
         }
 

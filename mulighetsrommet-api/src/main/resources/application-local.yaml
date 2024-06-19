@@ -158,3 +158,6 @@ app:
     token: ${UNLEASH_SERVER_API_TOKEN:-}
     instanceId: mulighetsrommet-api
     environment: development
+
+  utdanning:
+    baseurl: https://utdanning.no
