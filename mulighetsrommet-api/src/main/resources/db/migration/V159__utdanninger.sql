@@ -23,25 +23,25 @@ create trigger set_timestamp
     for each row
 execute procedure trigger_set_timestamp();
 
-create table utdanning_nus_kode
-(
-    utdanning_id uuid not null references utdanning (id),
-    nus_kode_id  uuid not null references utdanning_nus_kode_innhold (id)
-);
-
 create table utdanning_nus_kode_innhold
 (
-    id         uuid primary key default gen_random_uuid(),
-    title      text                           not null,
-    nus_kode   text unique                    not null,
-    aktiv      boolean                        not null,
-    created_at timestamp        default now() not null,
-    updated_at timestamp        default now() not null
+    title      text                    not null,
+    nus_kode   text primary key        not null,
+    aktiv      boolean                 not null,
+    created_at timestamp default now() not null,
+    updated_at timestamp default now() not null
 );
 
 create trigger set_timestamp
     before update
-    on utdanning_nus_kode
+    on utdanning_nus_kode_innhold
     for each row
 execute procedure trigger_set_timestamp();
+
+create table utdanning_nus_kode
+(
+    utdanning_id text not null references utdanning (id),
+    nus_kode_id  text not null references utdanning_nus_kode_innhold (nus_kode)
+);
+
 

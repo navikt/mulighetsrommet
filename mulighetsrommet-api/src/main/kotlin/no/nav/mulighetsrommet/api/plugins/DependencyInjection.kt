@@ -289,7 +289,7 @@ private fun services(appConfig: AppConfig) = module {
             },
         )
     }
-    single { UtdanningClient(config = appConfig.utdanning) }
+    single { UtdanningClient(database = get(), config = appConfig.utdanning) }
     single { EndringshistorikkService(get()) }
     single {
         ArenaAdapterService(
