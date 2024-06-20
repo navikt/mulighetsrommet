@@ -200,7 +200,12 @@ class AvtaleValidatorTest :
             val dbo2 = avtaleDbo.copy(startDato = dagensDato, sluttDato = dagensDato.plusYears(6))
 
             validator.validate(dbo2, null).shouldBeLeft().shouldContainExactlyInAnyOrder(
-                listOf(ValidationError("sluttDato", "Avtaleperioden kan ikke vare lenger enn 5 år for anskaffede tiltak")),
+                listOf(
+                    ValidationError(
+                        "sluttDato",
+                        "Avtaleperioden kan ikke vare lenger enn 5 år for anskaffede tiltak",
+                    ),
+                ),
             )
         }
 
@@ -435,7 +440,12 @@ class AvtaleValidatorTest :
                     amoKategorisering = null,
                 )
 
-                avtaler.upsert(avtaleDbo.copy(administratorer = listOf(), tiltakstypeId = TiltakstypeFixtures.Jobbklubb.id))
+                avtaler.upsert(
+                    avtaleDbo.copy(
+                        administratorer = listOf(),
+                        tiltakstypeId = TiltakstypeFixtures.Jobbklubb.id,
+                    ),
+                )
                 avtaler.setOpphav(avtaleDbo.id, ArenaMigrering.Opphav.ARENA)
 
                 val validator = AvtaleValidator(tiltakstyper, gjennomforinger, navEnheterService, arrangorer)
@@ -452,18 +462,15 @@ class AvtaleValidatorTest :
 
             context("når avtalen har gjennomføringer") {
                 val startDatoForGjennomforing = avtaleDbo.startDato
+                val gjennomforing = TiltaksgjennomforingFixtures.Oppfolging1.copy(
+                    avtaleId = avtaleDbo.id,
+                    administratorer = emptyList(),
+                    navRegion = "0400",
+                    startDato = startDatoForGjennomforing,
+                )
+
                 beforeAny {
                     avtaler.upsert(avtaleDbo.copy(administratorer = listOf()))
-                    gjennomforinger.upsert(
-                        TiltaksgjennomforingFixtures.Oppfolging1.copy(
-                            administratorer = emptyList(),
-                            avtaleId = avtaleDbo.id,
-                            arrangorId = ArrangorFixtures.underenhet2.id,
-                            navRegion = "0400",
-                            navEnheter = listOf("0502"),
-                            startDato = startDatoForGjennomforing,
-                        ),
-                    )
                 }
 
                 afterAny {
@@ -471,6 +478,10 @@ class AvtaleValidatorTest :
                 }
 
                 test("skal validere at data samsvarer med avtalens gjennomføringer") {
+                    gjennomforinger.upsert(
+                        gjennomforing.copy(arrangorId = ArrangorFixtures.underenhet2.id),
+                    )
+
                     val validator = AvtaleValidator(
                         TiltakstypeService(
                             TiltakstypeRepository(database.db),
@@ -484,7 +495,6 @@ class AvtaleValidatorTest :
                     val dbo = avtaleDbo.copy(
                         tiltakstypeId = TiltakstypeFixtures.AFT.id,
                         avtaletype = Avtaletype.Forhaandsgodkjent,
-                        navEnheter = listOf("0400"),
                         startDato = avtaleDbo.startDato.plusDays(4),
                     )
 
@@ -509,15 +519,34 @@ class AvtaleValidatorTest :
                                 "Arrangøren Underenhet 2 AS er i bruk på en av avtalens gjennomføringer, men mangler blant tiltaksarrangørens underenheter",
                             ),
                             ValidationError(
-                                "navEnheter",
-                                "NAV-enheten 0502 er i bruk på en av avtalens gjennomføringer, men mangler blant avtalens NAV-enheter",
-                            ),
-                            ValidationError(
                                 "startDato",
                                 "Startdato kan ikke være før startdatoen til tiltaksgjennomføringer koblet til avtalen. Minst en gjennomføring har startdato: $formatertDato",
                             ),
                         ),
                     )
+                }
+
+                test("skal godta at gjennomføring har andre NAV-enheter enn avtalen") {
+                    gjennomforinger.upsert(
+                        gjennomforing.copy(navRegion = "0400"),
+                    )
+
+                    val validator = AvtaleValidator(
+                        TiltakstypeService(
+                            TiltakstypeRepository(database.db),
+                            listOf(Tiltakskode.OPPFOLGING),
+                        ),
+                        gjennomforinger,
+                        navEnheterService,
+                        arrangorer,
+                    )
+
+                    val dbo = avtaleDbo.copy(
+                        navEnheter = listOf("0400"),
+                    )
+
+                    val previous = avtaler.get(avtaleDbo.id)
+                    validator.validate(dbo, previous).shouldBeRight()
                 }
             }
         }
