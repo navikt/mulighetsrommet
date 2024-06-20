@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.tiltakshistorikk.kafka.consumers.amt
+package no.nav.mulighetsrommet.tiltakshistorikk.kafka.consumers
 
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.decodeFromJsonElement
@@ -9,11 +9,11 @@ import no.nav.mulighetsrommet.domain.dto.amt.AmtDeltakerV1Dto
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.kafka.serialization.JsonElementDeserializer
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
-import no.nav.mulighetsrommet.tiltakshistorikk.DeltakerRepository
+import no.nav.mulighetsrommet.tiltakshistorikk.repositories.DeltakerRepository
 import org.slf4j.LoggerFactory
 import java.util.*
 
-class AmtDeltakerV1TopicConsumer(
+class AmtDeltakerV1Consumer(
     config: Config,
     private val deltakerRepository: DeltakerRepository,
 ) : KafkaTopicConsumer<UUID, JsonElement>(

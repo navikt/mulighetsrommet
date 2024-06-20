@@ -11,10 +11,13 @@ import no.nav.mulighetsrommet.hoplite.loadConfiguration
 import no.nav.mulighetsrommet.kafka.KafkaConsumerOrchestrator
 import no.nav.mulighetsrommet.ktor.plugins.configureMonitoring
 import no.nav.mulighetsrommet.ktor.startKtorApplication
-import no.nav.mulighetsrommet.tiltakshistorikk.kafka.consumers.amt.AmtDeltakerV1TopicConsumer
+import no.nav.mulighetsrommet.tiltakshistorikk.kafka.consumers.AmtDeltakerV1Consumer
+import no.nav.mulighetsrommet.tiltakshistorikk.kafka.consumers.TiltaksgjennomforingV1Consumer
 import no.nav.mulighetsrommet.tiltakshistorikk.plugins.configureAuthentication
 import no.nav.mulighetsrommet.tiltakshistorikk.plugins.configureHTTP
 import no.nav.mulighetsrommet.tiltakshistorikk.plugins.configureSerialization
+import no.nav.mulighetsrommet.tiltakshistorikk.repositories.DeltakerRepository
+import no.nav.mulighetsrommet.tiltakshistorikk.repositories.GruppetiltakRepository
 import org.apache.kafka.common.serialization.ByteArrayDeserializer
 
 fun main() {
@@ -35,9 +38,10 @@ fun Application.configure(config: AppConfig) {
     configureMonitoring({ db.isHealthy() })
     configureHTTP()
 
+    val gruppetiltakRepository = GruppetiltakRepository(db)
     val deltakerRepository = DeltakerRepository(db)
 
-    configureKafka(config.kafka, db, deltakerRepository)
+    configureKafka(config.kafka, db, deltakerRepository, gruppetiltakRepository)
 
     routing {
         tiltakshistorikkRoutes(deltakerRepository)
@@ -48,6 +52,7 @@ fun configureKafka(
     config: KafkaConfig,
     db: Database,
     deltakerRepository: DeltakerRepository,
+    gruppetiltakRepository: GruppetiltakRepository,
 ) {
     val properties = when (NaisEnv.current()) {
         NaisEnv.Local -> KafkaPropertiesBuilder.consumerBuilder()
@@ -61,8 +66,16 @@ fun configureKafka(
     }
 
     val consumers = listOf(
-        AmtDeltakerV1TopicConsumer(config = config.consumers.amtDeltakerV1, deltakerRepository = deltakerRepository),
+        AmtDeltakerV1Consumer(
+            config = config.consumers.amtDeltakerV1,
+            deltakerRepository = deltakerRepository,
+        ),
+        TiltaksgjennomforingV1Consumer(
+            config = config.consumers.sisteTiltaksgjennomforingerV1,
+            gruppetiltakRepository = gruppetiltakRepository,
+        ),
     )
+
     KafkaConsumerOrchestrator(
         consumerPreset = properties,
         db = db,
