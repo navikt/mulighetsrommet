@@ -17,12 +17,6 @@ create table utdanning
     updated_at                    timestamp default now() not null
 );
 
-create trigger set_timestamp
-    before update
-    on utdanning
-    for each row
-execute procedure trigger_set_timestamp();
-
 create table utdanning_nus_kode_innhold
 (
     nus_kode   text primary key,
@@ -32,16 +26,8 @@ create table utdanning_nus_kode_innhold
     updated_at timestamp default now() not null
 );
 
-create trigger set_timestamp
-    before update
-    on utdanning_nus_kode_innhold
-    for each row
-execute procedure trigger_set_timestamp();
-
 create table utdanning_nus_kode
 (
     utdanning_id text not null references utdanning (id),
     nus_kode_id  text not null references utdanning_nus_kode_innhold (nus_kode)
 );
-
-
