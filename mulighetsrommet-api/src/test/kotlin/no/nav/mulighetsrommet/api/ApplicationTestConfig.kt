@@ -64,6 +64,9 @@ fun createTestApplicationConfig() = AppConfig(
         synchronizeNavAnsatte = SynchronizeNavAnsatte.Config(
             disabled = true,
         ),
+        synchronizeUtdanninger = SynchronizeUtdanninger.Config(
+            disabled = true,
+        ),
         notifySluttdatoForGjennomforingerNarmerSeg = NotifySluttdatoForGjennomforingerNarmerSeg.Config(
             disabled = true,
         ),

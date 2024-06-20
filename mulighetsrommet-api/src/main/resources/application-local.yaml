@@ -127,6 +127,9 @@ app:
     synchronizeNavAnsatte:
       disabled: true
       cronPattern: "0 */1 * * * *" # Hvert 1 minutt
+    synchronizeUtdanninger:
+      disabled: true
+      cronPattern: "0 */1 * * * *" # Hvert 1 minutt
     notifySluttdatoForGjennomforingerNarmerSeg:
       disabled: true
       cronPattern: "0 */1 * * * *" # Hvert 1 minutt
