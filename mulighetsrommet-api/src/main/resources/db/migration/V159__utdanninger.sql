@@ -25,8 +25,8 @@ execute procedure trigger_set_timestamp();
 
 create table utdanning_nus_kode_innhold
 (
+    nus_kode   text primary key,
     title      text                    not null,
-    nus_kode   text primary key        not null,
     aktiv      boolean                 not null,
     created_at timestamp default now() not null,
     updated_at timestamp default now() not null

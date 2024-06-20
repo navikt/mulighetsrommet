@@ -33,7 +33,6 @@ import no.nav.mulighetsrommet.api.clients.utdanning.UtdanningClient
 import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClient
 import no.nav.mulighetsrommet.api.repositories.*
 import no.nav.mulighetsrommet.api.services.*
-import no.nav.mulighetsrommet.api.services.utdanning.UtdanningService
 import no.nav.mulighetsrommet.api.tasks.*
 import no.nav.mulighetsrommet.api.tiltaksgjennomforinger.TiltaksgjennomforingValidator
 import no.nav.mulighetsrommet.database.Database
@@ -289,7 +288,7 @@ private fun services(appConfig: AppConfig) = module {
             },
         )
     }
-    single { UtdanningClient(database = get(), config = appConfig.utdanning) }
+    single { UtdanningClient(config = appConfig.utdanning) }
     single { EndringshistorikkService(get()) }
     single {
         ArenaAdapterService(
@@ -361,7 +360,6 @@ private fun services(appConfig: AppConfig) = module {
     }
     single { AvtaleValidator(get(), get(), get(), get()) }
     single { TiltaksgjennomforingValidator(get(), get(), get()) }
-    single { UtdanningService(get()) }
 }
 
 private fun tasks(config: TaskConfig) = module {
@@ -369,6 +367,7 @@ private fun tasks(config: TaskConfig) = module {
     single { InitialLoadTiltaksgjennomforinger(get(), get(), get(), get()) }
     single { InitialLoadTiltakstyper(get(), get(), get(), get()) }
     single { SynchronizeNavAnsatte(config.synchronizeNavAnsatte, get(), get(), get()) }
+    single { SynchronizeUtdanninger(get(), get(), config.synchronizeUtdanninger, get()) }
     single {
         val deleteExpiredTiltakshistorikk = DeleteExpiredTiltakshistorikk(
             config.deleteExpiredTiltakshistorikk,
@@ -405,6 +404,7 @@ private fun tasks(config: TaskConfig) = module {
         val initialLoadTiltaksgjennomforinger: InitialLoadTiltaksgjennomforinger by inject()
         val initialLoadTiltakstyper: InitialLoadTiltakstyper by inject()
         val synchronizeNavAnsatte: SynchronizeNavAnsatte by inject()
+        val synchronizeUtdanninger: SynchronizeUtdanninger by inject()
 
         val db: Database by inject()
 
@@ -421,6 +421,7 @@ private fun tasks(config: TaskConfig) = module {
                 synchronizeNorgEnheterTask.task,
                 updateTiltaksgjennomforingStatus.task,
                 synchronizeNavAnsatte.task,
+                synchronizeUtdanninger.task,
                 notifySluttdatoForGjennomforingerNarmerSeg.task,
                 notifySluttdatoForAvtalerNarmerSeg.task,
                 notifyFailedKafkaEvents.task,
