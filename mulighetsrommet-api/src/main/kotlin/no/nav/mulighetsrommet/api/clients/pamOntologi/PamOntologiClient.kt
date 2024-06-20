@@ -31,20 +31,20 @@ class PamOntologiClient(
         }
     }
 
-    suspend fun sokAutorisasjon(query: String, accessType: AccessType.OBO): List<Typeahead> {
-        return typeahead(query, "autorisasjon", accessType)
+    suspend fun sokAutorisasjon(query: String): List<Typeahead> {
+        return typeahead(query, "autorisasjon")
     }
 
-    suspend fun sokAndreGodkjenninger(query: String, accessType: AccessType.OBO): List<Typeahead> {
-        return typeahead(query, "andre_godkjenninger", accessType)
+    suspend fun sokAndreGodkjenninger(query: String): List<Typeahead> {
+        return typeahead(query, "andre_godkjenninger")
     }
 
-    private suspend fun typeahead(query: String, domene: String, accessType: AccessType.OBO): List<Typeahead> {
+    private suspend fun typeahead(query: String, domene: String): List<Typeahead> {
         val urlEncodedQuery = withContext(Dispatchers.IO) {
             URLEncoder.encode(query, "UTF-8")
         }
         val response = client.get("$baseUrl/rest/typeahead/$domene?q=$urlEncodedQuery") {
-            bearerAuth(tokenProvider.exchange(accessType))
+            bearerAuth(tokenProvider.exchange(AccessType.M2M))
             header(HttpHeaders.ContentType, ContentType.Application.Json)
         }
 
