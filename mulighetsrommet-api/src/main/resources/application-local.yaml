@@ -114,6 +114,9 @@ app:
     url: http://localhost:8090/pdl
     scope: default
 
+  pamOntologi:
+    url: http://localhost:8090
+    scope: default
 
   tasks:
     deleteExpiredTiltakshistorikk:
@@ -143,9 +146,6 @@ app:
 
   brreg:
     baseUrl: https://data.brreg.no/enhetsregisteret/api
-
-  pamOntologi:
-    baseUrl: http://localhost:8090
 
   slack:
     token: ${SLACK_TOKEN:-}
