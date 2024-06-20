@@ -76,7 +76,7 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
 
   const { startDato } = watch("startOgSluttDato") ?? {};
   const sluttDatoFraDato = startDato ? new Date(startDato) : minStartdato;
-  const sluttDatoTilDato = addYear(startDato ? new Date(startDato) : new Date(), 20);
+  const sluttDatoTilDato = addYear(startDato ? new Date(startDato) : new Date(), 35);
 
   return (
     <div className={skjemastyles.container}>
