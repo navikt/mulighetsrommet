@@ -10,7 +10,9 @@ import no.nav.mulighetsrommet.arena.adapter.clients.ArenaOrdsProxyClient
 import no.nav.mulighetsrommet.arena.adapter.clients.TiltakshistorikkClient
 import no.nav.mulighetsrommet.arena.adapter.models.ProcessingError
 import no.nav.mulighetsrommet.arena.adapter.models.ProcessingResult
+import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaHistTiltakdeltaker
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable
+import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTiltakdeltakelse
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTiltakdeltaker
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping.Status.Handled
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping.Status.Ignored
@@ -28,10 +30,17 @@ class TiltakshistorikkEventProcessor(
     private val client: TiltakshistorikkClient,
     private val ords: ArenaOrdsProxyClient,
 ) : ArenaEventProcessor {
-    override val arenaTable: ArenaTable = ArenaTable.Deltaker
+
+    override suspend fun shouldHandleEvent(event: ArenaEvent): Boolean {
+        return event.arenaTable === ArenaTable.Deltaker || event.arenaTable === ArenaTable.HistDeltaker
+    }
 
     override suspend fun handleEvent(event: ArenaEvent): Either<ProcessingError, ProcessingResult> = either {
-        val data = event.decodePayload<ArenaTiltakdeltaker>()
+        val data: ArenaTiltakdeltakelse = when (event.arenaTable) {
+            ArenaTable.Deltaker -> event.decodePayload<ArenaTiltakdeltaker>()
+            ArenaTable.HistDeltaker -> event.decodePayload<ArenaHistTiltakdeltaker>()
+            else -> raise(ProcessingError.ProcessingFailed("Unexpected table: ${event.arenaTable}"))
+        }
 
         val tiltaksgjennomforingIsIgnored = entities
             .isIgnored(ArenaTable.Tiltaksgjennomforing, data.TILTAKGJENNOMFORING_ID.toString())
@@ -60,7 +69,7 @@ class TiltakshistorikkEventProcessor(
             return@either ProcessingResult(Handled)
         }
 
-        val deltakerMapping = entities.getMapping(event.arenaTable, event.arenaId).bind()
+        val mapping = entities.getMapping(event.arenaTable, event.arenaId).bind()
 
         val norskIdent = ords.getFnr(data.PERSON_ID)
             .mapLeft { ProcessingError.fromResponseException(it) }
@@ -78,7 +87,7 @@ class TiltakshistorikkEventProcessor(
             .bind()
 
         val deltaker = ArenaDeltakerDbo(
-            id = deltakerMapping.entityId,
+            id = mapping.entityId,
             norskIdent = NorskIdent(norskIdent),
             arenaTiltakskode = tiltakstype.tiltakskode,
             status = ArenaDeltakerStatus.valueOf(data.DELTAKERSTATUSKODE.name),

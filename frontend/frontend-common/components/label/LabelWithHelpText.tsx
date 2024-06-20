@@ -12,7 +12,7 @@ export function LabelWithHelpText(props: LabelWithHelpTextProps) {
   return (
     <HStack gap="1">
       <legend>{label}</legend>
-      <HelpText title={helpTextTitle}>{children}</HelpText>
+      <HelpText style={{ marginTop: "-4px", }} title={helpTextTitle}>{children}</HelpText>
     </HStack>
   );
 }

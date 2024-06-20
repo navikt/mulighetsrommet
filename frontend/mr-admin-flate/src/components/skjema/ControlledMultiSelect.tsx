@@ -1,27 +1,27 @@
-import React, { ReactNode } from "react";
+import React, { ForwardedRef, ReactNode } from "react";
 import { Controller } from "react-hook-form";
 import { MultiValue } from "react-select";
 import { MultiSelect } from "./MultiSelect";
 import { SelectOption } from "mulighetsrommet-frontend-common/components/SokeSelect";
 import { HelpText } from "@navikt/ds-react";
+import { shallowEquals } from "mulighetsrommet-frontend-common";
 
-export interface MultiSelectProps {
+export interface MultiSelectProps<T> {
   label: string;
   placeholder: string;
-  options: SelectOption[];
+  options: SelectOption<T>[];
   readOnly?: boolean;
   size?: "small" | "medium";
-  additionalOnChange?: (values: MultiValue<SelectOption<string>>) => void;
+  additionalOnChange?: (values: MultiValue<SelectOption<T>>) => void;
+  onInputChange?: (value: string) => void;
   name: string;
   helpText?: string;
   noOptionsMessage?: ReactNode;
+  velgAlle?: boolean;
 }
 
-export const ControlledMultiSelect = React.forwardRef(function ControlledMultiSelect(
-  props: MultiSelectProps,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  _,
-) {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function ControlledMultiSelect<T>(props: MultiSelectProps<T>, _: ForwardedRef<HTMLElement>) {
   const {
     name,
     size,
@@ -32,6 +32,8 @@ export const ControlledMultiSelect = React.forwardRef(function ControlledMultiSe
     options,
     readOnly,
     additionalOnChange,
+    onInputChange,
+    velgAlle = false,
     ...rest
   } = props;
 
@@ -62,14 +64,18 @@ export const ControlledMultiSelect = React.forwardRef(function ControlledMultiSe
                 </label>
                 {helpText && <HelpText>{helpText}</HelpText>}
               </div>
-              <MultiSelect
+              <MultiSelect<T>
                 size={size}
+                velgAlle={velgAlle}
                 error={Boolean(error)}
                 placeholder={placeholder}
                 noOptionsMessage={noOptionsMessage}
+                onInputChange={onInputChange}
                 childRef={ref}
                 name={name}
-                value={options.filter((c) => value?.includes(c.value))}
+                value={options.filter((c: SelectOption<T>) =>
+                  value?.some((v: T) => shallowEquals(v, c.value)),
+                )}
                 onChange={(e) => {
                   onChange(e?.map((option: SelectOption) => option.value));
                   additionalOnChange?.(e);
@@ -94,4 +100,8 @@ export const ControlledMultiSelect = React.forwardRef(function ControlledMultiSe
       />
     </div>
   );
-});
+}
+
+const Component = React.forwardRef(ControlledMultiSelect);
+
+export { Component as ControlledMultiSelect };

@@ -1,32 +1,32 @@
+import { getDisplayName } from "@/api/enhet/helpers";
+import { usePollTiltaksnummer } from "@/api/tiltaksgjennomforing/usePollTiltaksnummer";
+import { useMigrerteTiltakstyper } from "@/api/tiltakstyper/useMigrerteTiltakstyper";
+import { HarSkrivetilgang } from "@/components/authActions/HarSkrivetilgang";
+import { Bolk } from "@/components/detaljside/Bolk";
+import { Metadata, Separator } from "@/components/detaljside/Metadata";
+import { Laster } from "@/components/laster/Laster";
+import { tiltaktekster } from "@/components/ledetekster/tiltaksgjennomforingLedetekster";
+import { AvbrytGjennomforingModal } from "@/components/modal/AvbrytGjennomforingModal";
+import { NokkeltallDeltakere } from "@/components/tiltaksgjennomforinger/NokkeltallDeltakere";
+import { TiltakTilgjengeligForArrangor } from "@/components/tiltaksgjennomforinger/TilgjengeligTiltakForArrangor";
+import { erArenaOpphavOgIngenEierskap } from "@/components/tiltaksgjennomforinger/TiltaksgjennomforingSkjemaConst";
+import { ArrangorKontaktpersonDetaljer } from "@/pages/arrangor/ArrangorKontaktpersonDetaljer";
+import { Kontaktperson } from "@/pages/tiltaksgjennomforinger/Kontaktperson";
+import { formaterDato, formatertVentetid } from "@/utils/Utils";
+import { isTiltakMedFellesOppstart } from "@/utils/tiltakskoder";
+import { ExternalLinkIcon } from "@navikt/aksel-icons";
+import { BodyShort, Button, HStack, HelpText, Tag } from "@navikt/ds-react";
 import {
   Avtale,
   Tiltaksgjennomforing,
   TiltaksgjennomforingOppstartstype,
-  Toggles,
 } from "mulighetsrommet-api-client";
-import styles from "../DetaljerInfo.module.scss";
-import { useFeatureToggle } from "@/api/features/useFeatureToggle";
 import { useTitle } from "mulighetsrommet-frontend-common";
-import { useMigrerteTiltakstyper } from "@/api/tiltakstyper/useMigrerteTiltakstyper";
-import { useRef } from "react";
-import { Bolk } from "@/components/detaljside/Bolk";
-import { Metadata, Separator } from "@/components/detaljside/Metadata";
-import { tiltaktekster } from "@/components/ledetekster/tiltaksgjennomforingLedetekster";
-import { Link } from "react-router-dom";
-import { Alert, BodyShort, Button, Heading, HelpText, HStack, List, Tag } from "@navikt/ds-react";
-import { formaterDato, formatertVentetid } from "@/utils/Utils";
-import { isTiltakMedFellesOppstart } from "@/utils/tiltakskoder";
 import { NOM_ANSATT_SIDE } from "mulighetsrommet-frontend-common/constants";
-import { ExternalLinkIcon } from "@navikt/aksel-icons";
-import { getDisplayName } from "@/api/enhet/helpers";
-import { Kontaktperson } from "@/pages/tiltaksgjennomforinger/Kontaktperson";
-import { ArrangorKontaktpersonDetaljer } from "@/pages/arrangor/ArrangorKontaktpersonDetaljer";
-import { erArenaOpphavOgIngenEierskap } from "@/components/tiltaksgjennomforinger/TiltaksgjennomforingSkjemaConst";
-import { HarSkrivetilgang } from "@/components/authActions/HarSkrivetilgang";
-import { AvbrytGjennomforingModal } from "@/components/modal/AvbrytGjennomforingModal";
-import { usePollTiltaksnummer } from "@/api/tiltaksgjennomforing/usePollTiltaksnummer";
-import { Laster } from "@/components/laster/Laster";
-import { NokkeltallDeltakere } from "../../components/tiltaksgjennomforinger/NokkeltallDeltakere";
+import { gjennomforingIsAktiv } from "mulighetsrommet-frontend-common/utils/utils";
+import { useRef } from "react";
+import { Link } from "react-router-dom";
+import styles from "../DetaljerInfo.module.scss";
 
 interface Props {
   tiltaksgjennomforing: Tiltaksgjennomforing;
@@ -37,16 +37,9 @@ export function TiltaksgjennomforingDetaljer({ tiltaksgjennomforing, avtale }: P
   useTitle(
     `Tiltaksgjennomføring ${tiltaksgjennomforing.navn ? `- ${tiltaksgjennomforing.navn}` : null}`,
   );
-  const { data: enableTilgjengeligForArrangor } = useFeatureToggle(
-    Toggles.MULIGHETSROMMET_ADMIN_FLATE_TILGJENGELIGGJORE_TILTAK_FOR_ARRANGOR,
-  );
 
   const { data: migrerteTiltakstyper = [] } = useMigrerteTiltakstyper();
   const avbrytModalRef = useRef<HTMLDialogElement>(null);
-
-  const gjennomforingIsActive = ["PLANLAGT", "GJENNOMFORES"].includes(
-    tiltaksgjennomforing.status.name,
-  );
 
   const navnPaaNavEnheterForKontaktperson = (enheterForKontaktperson: string[]): string => {
     return (
@@ -120,23 +113,6 @@ export function TiltaksgjennomforingDetaljer({ tiltaksgjennomforing, avtale }: P
             />
             <Metadata header={tiltaktekster.tiltakstypeLabel} verdi={tiltakstype.navn} />
           </Bolk>
-
-          {tiltaksgjennomforing.nusData ? (
-            <Bolk>
-              <Metadata
-                header="Utdanningskategorier"
-                verdi={
-                  <>
-                    <List>
-                      {tiltaksgjennomforing.nusData.utdanningskategorier?.map((k) => (
-                        <List.Item key={k.code}>{k.name}</List.Item>
-                      ))}
-                    </List>
-                  </>
-                }
-              />
-            </Bolk>
-          ) : null}
 
           <Separator />
 
@@ -323,23 +299,11 @@ export function TiltaksgjennomforingDetaljer({ tiltaksgjennomforing, avtale }: P
               </Bolk>
             </>
           )}
-          {enableTilgjengeligForArrangor &&
-          tiltaksgjennomforing?.tilgjengeligForArrangorFraOgMedDato &&
-          new Date() < new Date(tiltaksgjennomforing?.startDato) ? (
-            <>
-              <Alert variant="info">
-                <Heading spacing size="small" level="3">
-                  Når ser arrangør tiltaket?
-                </Heading>
-                Arrangør vil ha tilgang til tiltaket i Deltakeroversikten på nav.no fra{" "}
-                {formaterDato(new Date(tiltaksgjennomforing.tilgjengeligForArrangorFraOgMedDato))}
-              </Alert>
-            </>
-          ) : null}
+          <TiltakTilgjengeligForArrangor gjennomforing={tiltaksgjennomforing} />
         </div>
       </div>
       {!erArenaOpphavOgIngenEierskap(tiltaksgjennomforing, migrerteTiltakstyper) &&
-        gjennomforingIsActive && (
+        gjennomforingIsAktiv(tiltaksgjennomforing.status.status) && (
           <>
             <HarSkrivetilgang ressurs="Tiltaksgjennomføring">
               <Button

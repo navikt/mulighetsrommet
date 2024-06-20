@@ -83,7 +83,7 @@ class ArenaEventService(
             val mapping = entities.getOrCreateMapping(event)
 
             processors
-                .filter { it.arenaTable == event.arenaTable }
+                .filter { it.shouldHandleEvent(event) }
                 .fold<ArenaEventProcessor, Either<ProcessingError, ProcessingResult>>(ProcessingResult(Unhandled).right()) { result, processor ->
                     handleEventWithProcessor(result, processor, event, mapping)
                 }
@@ -130,7 +130,7 @@ class ArenaEventService(
 
     private suspend fun handleDeleteEntityForEvent(event: ArenaEvent) {
         processors
-            .filter { it.arenaTable == event.arenaTable }
+            .filter { it.shouldHandleEvent(event) }
             .forEach { processor ->
                 logger.info("Deleting entity: table=${event.arenaTable}, id=${event.arenaId}")
                 deleteEntity(processor, event).onLeft {

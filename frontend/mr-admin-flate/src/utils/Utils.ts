@@ -1,6 +1,5 @@
 import {
   AvbrytAvtaleAarsak,
-  AvbrytGjennomforingAarsak,
   Avtale,
   Avtaletype,
   EstimertVentetidEnhet,
@@ -141,6 +140,10 @@ export function avtaleHarRegioner(avtale: Avtale): boolean {
   return avtale.kontorstruktur.some((stru) => stru.region);
 }
 
+export function max(a: Date, b: Date): Date {
+  return a > b ? a : b;
+}
+
 export function formaterNavEnheter(
   navRegionNavn: string = "",
   navEnheter?: {
@@ -219,25 +222,6 @@ export function avbrytAvtaleAarsakToString(aarsak: AvbrytAvtaleAarsak | string):
   }
 }
 
-export function avbrytGjennomforingAarsakToString(
-  aarsak: AvbrytGjennomforingAarsak | string,
-): string {
-  switch (aarsak) {
-    case AvbrytGjennomforingAarsak.AVBRUTT_I_ARENA:
-      return "Avbrutt i Arena";
-    case AvbrytGjennomforingAarsak.BUDSJETT_HENSYN:
-      return "Budsjetthensyn";
-    case AvbrytGjennomforingAarsak.ENDRING_HOS_ARRANGOR:
-      return "Endring hos arrangør";
-    case AvbrytGjennomforingAarsak.FEILREGISTRERING:
-      return "Feilregistrering";
-    case AvbrytGjennomforingAarsak.FOR_FAA_DELTAKERE:
-      return "For få deltakere";
-    default:
-      return aarsak;
-  }
-}
-
 export function forerkortKlasseToString(klasse: ForerkortKlasse): string {
   switch (klasse) {
     case ForerkortKlasse.A:
@@ -293,7 +277,7 @@ export function kurstypeToString(kurstype: Kurstype): string {
 export function spesifiseringToString(spesifisering: Spesifisering): string {
   switch (spesifisering) {
     case Spesifisering.SERVERING_OVERNATTING:
-      return "Serviering/overnatting";
+      return "Servering/overnatting";
     case Spesifisering.TRANSPORT:
       return "Transport";
     case Spesifisering.INDUSTRI:

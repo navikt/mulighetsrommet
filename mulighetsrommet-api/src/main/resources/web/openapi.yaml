@@ -5,7 +5,7 @@ info:
   title: Mulighetsrommet API
 
 security:
-  - bearerAuth: [ ]
+  - bearerAuth: []
 
 paths:
   /api/v1/intern/bruker:
@@ -313,6 +313,29 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Endringshistorikk"
+
+  /api/v1/intern/janzz/sertifiseringer/sok:
+    get:
+      tags:
+        - sertifiseringer
+        - janzz
+      operationId: sokSertifiseringer
+      parameters:
+        - in: query
+          name: q
+          required: true
+          schema:
+            type: string
+          description: search query
+      responses:
+        200:
+          description: sertifiseringer etter søk
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Sertifisering"
 
   /api/v1/intern/tiltaksgjennomforinger/{id}/historikk:
     get:
@@ -636,6 +659,22 @@ paths:
       responses:
         200:
           description: Update for 'tilgjengelig for veileder' was successful
+
+  /api/v1/intern/tiltaksgjennomforinger/{id}/tilgjengelig-for-arrangor:
+    parameters:
+      - $ref: "#/components/parameters/ID"
+    put:
+      tags:
+        - Tiltaksgjennomforinger
+      operationId: setTilgjengeligForArrangor
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SetTilgjengligForArrangorRequest"
+      responses:
+        200:
+          description: OK
 
   /api/v1/intern/tiltaksgjennomforinger/kontaktperson:
     delete:
@@ -1521,24 +1560,6 @@ paths:
               schema:
                 type: boolean
 
-  /api/v1/intern/nus-data:
-    post:
-      tags:
-        - Nus
-      operationId: getNusDataByTiltakstypeAndVersion
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/NusDataRequest"
-      responses:
-        200:
-          description: "Nus data for tiltakstype og versjon"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/NusDataResponse"
-
   /api/v1/intern/personopplysninger:
     get:
       tags:
@@ -1839,8 +1860,6 @@ components:
           type: string
         websaknummer:
           type: string
-        lopenummer:
-          type: string
         arrangor:
           $ref: "#/components/schemas/ArrangorHovedenhet"
         startDato:
@@ -1879,28 +1898,6 @@ components:
             $ref: "#/components/schemas/Personopplysning"
         personvernBekreftet:
           type: boolean
-        nusData:
-          type: object
-          properties:
-            versjon:
-              type: string
-            utdanningsnivaa:
-              type: string
-            utdanningskategorier:
-              type: array
-              items:
-                  type: object
-                  properties:
-                    code:
-                      type: string
-                      nullable: false
-                    name:
-                      type: string
-                      nullable: false
-                  required:
-                    - code
-                    - name
-          nullable: true
         amoKategorisering:
           $ref: "#/components/schemas/AmoKategorisering"
           nullable: true
@@ -1980,22 +1977,6 @@ components:
             $ref: "#/components/schemas/Personopplysning"
         personvernBekreftet:
           type: boolean
-        nusData:
-          type: object
-          properties:
-            utdanningsnivaa:
-              type: string
-              nullable: true
-            utdanningskategorier:
-              type: array
-              items:
-                  type: object
-                  properties:
-                    code:
-                      type: string
-                    name:
-                      type: string
-          nullable: true
         amoKategorisering:
           $ref: "#/components/schemas/AmoKategorisering"
           nullable: true
@@ -2017,7 +1998,6 @@ components:
         - faneinnhold
         - personopplysninger
         - personvernBekreftet
-        - nusData
         - amoKategorisering
 
     EmbeddedTiltakstype:
@@ -2036,6 +2016,7 @@ components:
         - id
         - navn
         - arenaKode
+        - tiltakskode
 
     Avtaletype:
       type: string
@@ -2163,7 +2144,7 @@ components:
         arenaAnsvarligEnhet:
           $ref: "#/components/schemas/ArenaNavEnhet"
         status:
-          $ref: "#/components/schemas/TiltaksgjennomforingStatusResponse"
+          $ref: "#/components/schemas/TiltaksgjennomforingStatusDto"
         apentForInnsok:
           type: boolean
         antallPlasser:
@@ -2209,22 +2190,6 @@ components:
           type: string
           format: date
           nullable: true
-        nusData:
-          type: object
-          properties:
-            utdanningskategorier:
-              type: array
-              items:
-                type: object
-                properties:
-                  code:
-                    type: string
-                  name:
-                    type: string
-                required:
-                  - code
-                  - name
-          nullable: true
         amoKategorisering:
           $ref: "#/components/schemas/AmoKategorisering"
           nullable: true
@@ -2246,7 +2211,6 @@ components:
         - publisert
         - deltidsprosent
         - tilgjengeligForArrangorFraOgMedDato
-        - nusData
         - amoKategorisering
 
     TiltaksnummerResponse:
@@ -2329,20 +2293,6 @@ components:
           type: string
           format: date
           nullable: true
-        nusData:
-          type: object
-          properties:
-            utdanningskategorier:
-              type: array
-              items:
-                type: object
-                properties:
-                  code:
-                    type: string
-                  name:
-                    type: string
-              nullable: true
-          nullable: true
         amoKategorisering:
           $ref: "#/components/schemas/AmoKategorisering"
           nullable: true
@@ -2368,45 +2318,31 @@ components:
         - deltidsprosent
         - estimertVentetid
         - tilgjengeligForArrangorFraOgMedDato
-        - nusData
         - amoKategorisering
 
-    TiltaksgjennomforingStatusResponse:
-      oneOf:
-        - $ref: "#/components/schemas/GjennomforingIkkeAvbruttStatus"
-        - $ref: "#/components/schemas/GjennomforingAvbruttStatus"
-
-    GjennomforingIkkeAvbruttStatus:
+    TiltaksgjennomforingStatusDto:
       type: object
       properties:
-        name:
-          type: string
-          enum:
-            - PLANLAGT
-            - GJENNOMFORES
-            - AVSLUTTET
+        status:
+          $ref: "#/components/schemas/TiltaksgjennomforingStatus"
+        avbrutt:
+          type: object
+          properties:
+            tidspunkt:
+              type: string
+              format: date-time
+            aarsak:
+              oneOf:
+                - type: string
+                - $ref: "#/components/schemas/AvbrytGjennomforingAarsak"
+            beskrivelse:
+              type: string
+          required:
+            - tidspunkt
+            - aarsak
+            - beskrivelse
       required:
-        - name
-
-    GjennomforingAvbruttStatus:
-      type: object
-      properties:
-        name:
-          type: string
-          enum:
-            - AVBRUTT
-            - AVLYST
-        tidspunkt:
-          type: string
-          format: date-time
-        aarsak:
-          oneOf:
-            - type: string
-            - $ref: "#/components/schemas/AvbrytGjennomforingAarsak"
-      required:
-        - name
-        - tidspunkt
-        - aarsak
+        - status
 
     TiltaksgjennomforingStatus:
       type: string
@@ -3040,11 +2976,14 @@ components:
           nullable: true
         personvernBekreftet:
           type: boolean
+        status:
+          $ref: "#/components/schemas/TiltaksgjennomforingStatusDto"
       required:
         - navn
         - tiltakstype
         - apentForInnsok
         - oppstart
+        - status
 
     SanityRegelverkLenke:
       type: object
@@ -3534,8 +3473,6 @@ components:
         - mulighetsrommet-veilederflate-landingsside
         - mulighetsrommet-veilederflate-arena-oppskrifter
         - mulighetsrommet.admin-flate.enableDebugger
-        - mulighetsrommet.admin-flate.tilgjengeliggjore-tiltak-for-arrangor
-        - mulighetsrommet.admin-flate.enable_nuskategorier
         - mulighetsrommet.admin-flate.enable_gruppe_amo_kategorier
 
     PublisertRequest:
@@ -3545,6 +3482,15 @@ components:
           type: boolean
       required:
         - publisert
+
+    SetTilgjengligForArrangorRequest:
+      type: object
+      properties:
+        tilgjengeligForArrangorDato:
+          type: string
+          format: date
+      required:
+        - tilgjengeligForArrangorDato
 
     NavKontorStruktur:
       type: array
@@ -3668,7 +3614,6 @@ components:
         - ARBEIDSRETTET_REHABILITERING
         - ARBEIDSFORBEREDENDE_TRENING
 
-
     Gruppetiltak:
       type: object
       properties:
@@ -3768,12 +3713,27 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/ForerkortKlasse"
+        sertifiseringer:
+          type: array
+          items:
+            $ref: "#/components/schemas/Sertifisering"
         innholdElementer:
           type: array
           items:
             $ref: "#/components/schemas/InnholdElement"
       required:
         - kurstype
+
+    Sertifisering:
+      type: object
+      properties:
+        konseptId:
+          type: number
+        label:
+          type: string
+      required:
+        - konseptId
+        - label
 
     KoblingerForKontaktperson:
       type: object
@@ -3830,53 +3790,3 @@ components:
         - tittel
         - hjelpetekst
 
-    NusDataRequest:
-      type: object
-      properties:
-        tiltakskode:
-          $ref: "#/components/schemas/Tiltakskode"
-        version:
-          type: string
-      required:
-        - tiltakskode
-        - version
-
-    NusDataResponse:
-      type: object
-      properties:
-        data:
-          type: array
-          items:
-            type: object
-            properties:
-              nivaa:
-                type: string
-              kategorier:
-                type: array
-                items:
-                  $ref: "#/components/schemas/NusElement"
-            required:
-              - nivaa
-              - kategorier
-      required:
-        - data
-
-    NusElement:
-      type: object
-      properties:
-        tiltakskode:
-          $ref: "#/components/schemas/Tiltakskode"
-        code:
-          type: string
-        version:
-          type: string
-        name:
-          type: string
-        parent:
-          type: string
-      required:
-        - tiltakskode
-        - code
-        - version
-        - name
-        - parent

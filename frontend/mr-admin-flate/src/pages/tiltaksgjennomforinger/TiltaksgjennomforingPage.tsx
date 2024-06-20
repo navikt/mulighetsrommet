@@ -9,12 +9,13 @@ import headerStyles from "../../components/detaljside/Header.module.scss";
 import { TiltaksgjennomforingIkon } from "../../components/ikoner/TiltaksgjennomforingIkon";
 import { Laster } from "../../components/laster/Laster";
 import { Brodsmule, Brodsmuler } from "../../components/navigering/Brodsmuler";
-import { TiltaksgjennomforingstatusTag } from "../../components/statuselementer/TiltaksgjennomforingstatusTag";
 import { DupliserTiltak } from "../../components/tiltaksgjennomforinger/DupliserTiltak";
 import { PREVIEW_ARBEIDSMARKEDSTILTAK_URL } from "../../constants";
 import { useNavigateAndReplaceUrl } from "../../hooks/useNavigateWithoutReplacingUrl";
 import { ContainerLayout } from "../../layouts/ContainerLayout";
 import commonStyles from "../Page.module.scss";
+import { TiltaksgjennomforingStatusTag } from "mulighetsrommet-frontend-common";
+import { TiltaksgjennomforingStatus } from "mulighetsrommet-api-client";
 
 function useTiltaksgjennomforingBrodsmuler(
   tiltaksgjennomforingId: string,
@@ -89,14 +90,13 @@ export function TiltaksgjennomforingPage() {
               </Heading>
               <ShowOpphavValue value={tiltaksgjennomforing?.opphav} />
             </VStack>
-            <TiltaksgjennomforingstatusTag
-              tiltaksgjennomforing={tiltaksgjennomforing}
-              showAvbruttAarsak
-            />
+            <TiltaksgjennomforingStatusTag status={tiltaksgjennomforing.status} showAvbruttAarsak />
             <DupliserTiltak tiltaksgjennomforing={tiltaksgjennomforing} />
           </div>
           {tiltaksgjennomforing?.id &&
-            ["GJENNOMFORES", "PLANLAGT"].includes(tiltaksgjennomforing.status.name) && (
+            [TiltaksgjennomforingStatus.GJENNOMFORES, TiltaksgjennomforingStatus.PLANLAGT].includes(
+              tiltaksgjennomforing.status.status,
+            ) && (
               <div className={headerStyles.forhandsvisningsknapp}>
                 <Lenkeknapp
                   size="small"

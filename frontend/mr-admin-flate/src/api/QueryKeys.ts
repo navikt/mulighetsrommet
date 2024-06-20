@@ -1,9 +1,4 @@
-import {
-  ArrangorTil,
-  NavAnsattRolle,
-  NotificationStatus,
-  Tiltakskode,
-} from "mulighetsrommet-api-client";
+import { ArrangorTil, NavAnsattRolle, NotificationStatus } from "mulighetsrommet-api-client";
 import { ArrangorerFilter, AvtaleFilter, TiltaksgjennomforingFilter } from "./atoms";
 
 export const QueryKeys = {
@@ -41,11 +36,11 @@ export const QueryKeys = {
   antallUlesteNotifikasjoner: () => ["antallUlesteNotifikasjoner"],
   notifikasjonerForAnsatt: (status: NotificationStatus) => ["notifikasjoner", status] as const,
   brregVirksomheter: (sokestreng: string) => ["virksomhet", "sok", sokestreng],
+  sokSertifiseringer: (q: string) => ["sokSertifiseringer", "q", q],
   brregVirksomhetUnderenheter: (id: string) => ["virksomet", id, "underenheter"],
   navansatt: (rolle: NavAnsattRolle) => ["nav-ansatte", rolle],
   features: (feature: string) => ["feature", feature],
   migrerteTiltakstyper: () => ["migrerteTiltakstyper"],
   navRegioner: () => ["navRegioner"],
-  nusData: (tiltakskode: Tiltakskode, version: string) => ["nus-data", tiltakskode, version],
   personopplysninger: () => ["personopplysninger"],
 };

@@ -9,7 +9,6 @@ import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import io.ktor.util.pipeline.*
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.JsonObject
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingKontaktpersonDbo
 import no.nav.mulighetsrommet.api.domain.dto.FrikobleKontaktpersonRequest
@@ -22,11 +21,7 @@ import no.nav.mulighetsrommet.api.routes.v1.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.services.TiltaksgjennomforingService
 import no.nav.mulighetsrommet.domain.dbo.Deltakerstatus
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
-import no.nav.mulighetsrommet.domain.dto.AmoKategorisering
-import no.nav.mulighetsrommet.domain.dto.AvbruttAarsak
-import no.nav.mulighetsrommet.domain.dto.Faneinnhold
-import no.nav.mulighetsrommet.domain.dto.NavIdent
-import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus
+import no.nav.mulighetsrommet.domain.dto.*
 import no.nav.mulighetsrommet.domain.serializers.AvbruttAarsakSerializer
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
@@ -75,6 +70,22 @@ fun Route.tiltaksgjennomforingRoutes() {
                 val request = call.receive<PublisertRequest>()
                 service.setPublisert(id, request.publisert, navIdent)
                 call.respond(HttpStatusCode.OK)
+            }
+
+            put("{id}/tilgjengelig-for-arrangor") {
+                val id = call.parameters.getOrFail<UUID>("id")
+                val request = call.receive<SetTilgjengligForArrangorRequest>()
+                val navIdent = getNavIdent()
+
+                val response = service
+                    .setTilgjengeligForArrangorDato(
+                        id,
+                        request.tilgjengeligForArrangorDato,
+                        navIdent,
+                    )
+                    .mapLeft { BadRequest(errors = it) }
+
+                call.respondWithStatusResponse(response)
             }
 
             delete("kontaktperson") {
@@ -159,7 +170,7 @@ data class AdminTiltaksgjennomforingFilter(
     val search: String? = null,
     val navEnheter: List<String> = emptyList(),
     val tiltakstypeIder: List<UUID> = emptyList(),
-    val statuser: List<TiltaksgjennomforingStatus.Enum> = emptyList(),
+    val statuser: List<TiltaksgjennomforingStatus> = emptyList(),
     val sortering: String? = null,
     val avtaleId: UUID? = null,
     val arrangorIds: List<UUID> = emptyList(),
@@ -172,7 +183,7 @@ fun <T : Any> PipelineContext<T, ApplicationCall>.getAdminTiltaksgjennomforingsF
     val navEnheter = call.parameters.getAll("navEnheter") ?: emptyList()
     val tiltakstypeIder = call.parameters.getAll("tiltakstyper")?.map { UUID.fromString(it) } ?: emptyList()
     val statuser = call.parameters.getAll("statuser")
-        ?.map { TiltaksgjennomforingStatus.Enum.valueOf(it) }
+        ?.map { TiltaksgjennomforingStatus.valueOf(it) }
         ?: emptyList()
     val sortering = call.request.queryParameters["sort"]
     val avtaleId = call.request.queryParameters["avtaleId"]?.let { if (it.isEmpty()) null else UUID.fromString(it) }
@@ -240,7 +251,6 @@ data class TiltaksgjennomforingRequest(
     val estimertVentetid: EstimertVentetid?,
     @Serializable(with = LocalDateSerializer::class)
     val tilgjengeligForArrangorFraOgMedDato: LocalDate?,
-    val nusData: JsonObject?,
     val amoKategorisering: AmoKategorisering?,
 ) {
     fun toDbo() = TiltaksgjennomforingDbo(
@@ -272,7 +282,6 @@ data class TiltaksgjennomforingRequest(
         estimertVentetidVerdi = estimertVentetid?.verdi,
         estimertVentetidEnhet = estimertVentetid?.enhet,
         tilgjengeligForArrangorFraOgMedDato = tilgjengeligForArrangorFraOgMedDato,
-        nusData = nusData,
         amoKategorisering = amoKategorisering,
     )
 }
@@ -299,6 +308,12 @@ data class NavKontaktpersonForGjennomforing(
 @Serializable
 data class PublisertRequest(
     val publisert: Boolean,
+)
+
+@Serializable
+data class SetTilgjengligForArrangorRequest(
+    @Serializable(with = LocalDateSerializer::class)
+    val tilgjengeligForArrangorDato: LocalDate,
 )
 
 @Serializable

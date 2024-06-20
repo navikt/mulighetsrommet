@@ -4,8 +4,7 @@ drop view if exists avtale_admin_dto_view;
 create view avtale_admin_dto_view as
 select avtale.id,
        avtale.navn,
-       avtale.avtalenummer,
-       avtale.lopenummer,
+       coalesce(avtale.avtalenummer, avtale.lopenummer) as avtalenummer,
        avtale.websaknummer,
        avtale.start_dato,
        avtale.slutt_dato,
@@ -61,7 +60,6 @@ select avtale.id,
        ) as personopplysninger,
        avtale.personvern_bekreftet,
        avtale.avbrutt_aarsak,
-       avtale.nusdata,
        avtale.amo_kategorisering
 from avtale
          join tiltakstype on tiltakstype.id = avtale.tiltakstype_id

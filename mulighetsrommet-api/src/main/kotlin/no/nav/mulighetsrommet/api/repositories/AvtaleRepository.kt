@@ -56,7 +56,6 @@ class AvtaleRepository(private val db: Database) {
                 beskrivelse,
                 faneinnhold,
                 personvern_bekreftet,
-                nusdata,
                 amo_kategorisering
             ) values (
                 :id::uuid,
@@ -74,7 +73,6 @@ class AvtaleRepository(private val db: Database) {
                 :beskrivelse,
                 :faneinnhold::jsonb,
                 :personvern_bekreftet,
-                :nusdata::jsonb,
                 :amo_kategorisering::jsonb
             ) on conflict (id) do update set
                 navn                        = excluded.navn,
@@ -91,7 +89,6 @@ class AvtaleRepository(private val db: Database) {
                 beskrivelse                 = excluded.beskrivelse,
                 faneinnhold                 = excluded.faneinnhold,
                 personvern_bekreftet        = excluded.personvern_bekreftet,
-                nusdata                     = excluded.nusdata,
                 amo_kategorisering          = excluded.amo_kategorisering
         """.trimIndent()
 
@@ -332,6 +329,7 @@ class AvtaleRepository(private val db: Database) {
     ): PaginatedResult<AvtaleAdminDto> {
         val parameters = mapOf(
             "search" to search?.replace("/", "#")?.trim()?.let { "%$it%" },
+            "searchLopenummer" to search?.trim()?.let { "%$it%" },
             "administrator_nav_ident" to administratorNavIdent?.let { """[{ "navIdent": "${it.value}" }]""" },
             "tiltakstype_ids" to tiltakstypeIder.ifEmpty { null }?.let { db.createUuidArray(it) },
             "arrangor_ids" to arrangorIds.ifEmpty { null }?.let { db.createUuidArray(it) },
@@ -361,7 +359,7 @@ class AvtaleRepository(private val db: Database) {
             select *, count(*) over() as total_count
             from avtale_admin_dto_view
             where (:tiltakstype_ids::uuid[] is null or tiltakstype_id = any (:tiltakstype_ids))
-              and (:search::text is null or (navn ilike :search or avtalenummer ilike :search or arrangor_hovedenhet_navn ilike :search))
+              and (:search::text is null or (navn ilike :search or avtalenummer ilike :search or avtalenummer ilike :searchLopenummer or arrangor_hovedenhet_navn ilike :search))
               and (:nav_enheter::text[] is null or (
                    exists(select true
                           from jsonb_array_elements(nav_enheter_json) as nav_enhet
@@ -423,9 +421,7 @@ class AvtaleRepository(private val db: Database) {
             .let { db.run(it) }
     }
 
-    fun avbryt(id: UUID, tidspunkt: LocalDateTime, aarsak: AvbruttAarsak): Int {
-        return db.transaction { avbryt(it, id, tidspunkt, aarsak) }
-    }
+    fun avbryt(id: UUID, tidspunkt: LocalDateTime, aarsak: AvbruttAarsak): Int = db.transaction { avbryt(it, id, tidspunkt, aarsak) }
 
     fun avbryt(tx: Session, id: UUID, tidspunkt: LocalDateTime, aarsak: AvbruttAarsak): Int {
         @Language("PostgreSQL")
@@ -482,7 +478,6 @@ class AvtaleRepository(private val db: Database) {
         "beskrivelse" to beskrivelse,
         "faneinnhold" to faneinnhold?.let { Json.encodeToString(it) },
         "personvern_bekreftet" to personvernBekreftet,
-        "nusdata" to nusData?.let { Json.encodeToString(it) },
         "amo_kategorisering" to amoKategorisering?.let { Json.encodeToString(it) },
     )
 
@@ -543,7 +538,6 @@ class AvtaleRepository(private val db: Database) {
             id = uuid("id"),
             navn = string("navn"),
             avtalenummer = stringOrNull("avtalenummer"),
-            lopenummer = stringOrNull("lopenummer")?.let { Lopenummer(it) },
             websaknummer = stringOrNull("websaknummer")?.let { Websaknummer(it) },
             startDato = startDato,
             sluttDato = sluttDato,
@@ -574,11 +568,10 @@ class AvtaleRepository(private val db: Database) {
                 id = uuid("tiltakstype_id"),
                 navn = string("tiltakstype_navn"),
                 arenaKode = string("tiltakstype_arena_kode"),
-                tiltakskode = stringOrNull("tiltakstype_tiltakskode")?.let { Tiltakskode.valueOf(it) },
+                tiltakskode = Tiltakskode.valueOf(string("tiltakstype_tiltakskode")),
             ),
             personopplysninger = personopplysninger,
             personvernBekreftet = boolean("personvern_bekreftet"),
-            nusData = stringOrNull("nusdata")?.let { Json.decodeFromString(it) },
             amoKategorisering = stringOrNull("amo_kategorisering")?.let { Json.decodeFromString(it) },
         )
     }

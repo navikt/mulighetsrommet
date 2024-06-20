@@ -4,6 +4,7 @@ import com.github.kagkarlsson.scheduler.Scheduler
 import com.nimbusds.jose.jwk.KeyUse
 import com.nimbusds.jose.jwk.RSAKey
 import io.ktor.server.application.*
+import kotlinx.coroutines.runBlocking
 import no.nav.common.client.axsys.AxsysClient
 import no.nav.common.client.axsys.AxsysV2ClientImpl
 import no.nav.common.kafka.producer.util.KafkaProducerClientBuilder
@@ -17,6 +18,7 @@ import no.nav.mulighetsrommet.api.SlackConfig
 import no.nav.mulighetsrommet.api.TaskConfig
 import no.nav.mulighetsrommet.api.avtaler.AvtaleValidator
 import no.nav.mulighetsrommet.api.clients.AccessType
+import no.nav.mulighetsrommet.api.clients.CachedTokenProvider
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
 import no.nav.mulighetsrommet.api.clients.arenaadapter.ArenaAdapterClient
 import no.nav.mulighetsrommet.api.clients.brreg.BrregClient
@@ -24,12 +26,14 @@ import no.nav.mulighetsrommet.api.clients.dialog.VeilarbdialogClient
 import no.nav.mulighetsrommet.api.clients.msgraph.MicrosoftGraphClient
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Client
 import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClient
+import no.nav.mulighetsrommet.api.clients.pamOntologi.PamOntologiClient
 import no.nav.mulighetsrommet.api.clients.pdl.PdlClient
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
-import no.nav.mulighetsrommet.api.clients.ssb.SsbNusClient
+import no.nav.mulighetsrommet.api.clients.utdanning.UtdanningClient
 import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClient
 import no.nav.mulighetsrommet.api.repositories.*
 import no.nav.mulighetsrommet.api.services.*
+import no.nav.mulighetsrommet.api.services.utdanning.UtdanningService
 import no.nav.mulighetsrommet.api.tasks.*
 import no.nav.mulighetsrommet.api.tiltaksgjennomforinger.TiltaksgjennomforingValidator
 import no.nav.mulighetsrommet.database.Database
@@ -80,11 +84,9 @@ fun Application.configureDependencyInjection(appConfig: AppConfig) {
     }
 }
 
-fun slack(slack: SlackConfig): Module {
-    return module(createdAtStart = true) {
-        single<SlackNotifier> {
-            SlackNotifierImpl(slack.token, slack.channel, slack.enable)
-        }
+fun slack(slack: SlackConfig): Module = module(createdAtStart = true) {
+    single<SlackNotifier> {
+        SlackNotifierImpl(slack.token, slack.channel, slack.enable)
     }
 }
 
@@ -173,79 +175,55 @@ private fun repositories() = module {
     single { ArrangorRepository(get()) }
     single { KafkaConsumerRepositoryImpl(get()) }
     single { VeilederJoyrideRepository(get()) }
-    single { SsbNusRepository(get()) }
 }
 
 private fun services(appConfig: AppConfig) = module {
-    val m2mTokenProvider = createM2mTokenClient(appConfig)
-    val oboTokenProvider = createOboTokenClient(appConfig)
+    val cachedTokenProvider = CachedTokenProvider(
+        m2mTokenProvider = createM2mTokenClient(appConfig),
+        oboTokenProvider = createOboTokenClient(appConfig),
+    )
 
     single {
         VeilarboppfolgingClient(
             baseUrl = appConfig.veilarboppfolgingConfig.url,
-            tokenProvider = { accessType ->
-                when (accessType) {
-                    AccessType.M2M -> m2mTokenProvider.createMachineToMachineToken(appConfig.veilarboppfolgingConfig.scope)
-                    is AccessType.OBO -> oboTokenProvider.exchangeOnBehalfOfToken(
-                        appConfig.veilarboppfolgingConfig.scope,
-                        accessType.token,
-                    )
-                }
-            },
+            tokenProvider = cachedTokenProvider.withScope(appConfig.veilarboppfolgingConfig.scope),
         )
     }
     single {
         VeilarbvedtaksstotteClient(
             baseUrl = appConfig.veilarbvedtaksstotteConfig.url,
-            tokenProvider = { obo ->
-                oboTokenProvider.exchangeOnBehalfOfToken(appConfig.veilarbvedtaksstotteConfig.scope, obo.token)
-            },
+            tokenProvider = cachedTokenProvider.withScope(appConfig.veilarbvedtaksstotteConfig.scope),
         )
     }
     single {
         VeilarbdialogClient(
             baseUrl = appConfig.veilarbdialogConfig.url,
-            tokenProvider = { token ->
-                oboTokenProvider.exchangeOnBehalfOfToken(appConfig.veilarbdialogConfig.scope, token)
-            },
+            tokenProvider = cachedTokenProvider.withScope(appConfig.veilarbdialogConfig.scope),
         )
     }
     single {
         PdlClient(
             baseUrl = appConfig.pdl.url,
-            tokenProvider = { accessType ->
-                when (accessType) {
-                    AccessType.M2M -> m2mTokenProvider.createMachineToMachineToken(appConfig.pdl.scope)
-                    is AccessType.OBO -> oboTokenProvider.exchangeOnBehalfOfToken(appConfig.pdl.scope, accessType.token)
-                }
-            },
+            tokenProvider = cachedTokenProvider.withScope(appConfig.pdl.scope),
         )
     }
 
     single<PoaoTilgangClient> {
         PoaoTilgangHttpClient(
             baseUrl = appConfig.poaoTilgang.url,
-            tokenProvider = { m2mTokenProvider.createMachineToMachineToken(appConfig.poaoTilgang.scope) },
+            tokenProvider = { runBlocking { cachedTokenProvider.withScope(appConfig.poaoTilgang.scope).exchange(AccessType.M2M) } },
         )
     }
     single {
         MicrosoftGraphClient(
             baseUrl = appConfig.msGraphConfig.url,
-            tokenProvider = { accessType ->
-                when (accessType) {
-                    AccessType.M2M -> m2mTokenProvider.createMachineToMachineToken(appConfig.msGraphConfig.scope)
-                    is AccessType.OBO -> oboTokenProvider.exchangeOnBehalfOfToken(
-                        appConfig.msGraphConfig.scope,
-                        accessType.token,
-                    )
-                }
-            },
+            tokenProvider = cachedTokenProvider.withScope(appConfig.msGraphConfig.scope),
         )
     }
     single {
         ArenaAdapterClient(
             baseUrl = appConfig.arenaAdapter.url,
-            machineToMachineTokenClient = { m2mTokenProvider.createMachineToMachineToken(appConfig.arenaAdapter.scope) },
+            tokenProvider = cachedTokenProvider.withScope(appConfig.arenaAdapter.scope),
         )
     }
     single {
@@ -265,11 +243,17 @@ private fun services(appConfig: AppConfig) = module {
         AmtDeltakerClient(
             baseUrl = appConfig.amtDeltakerConfig.url,
             clientEngine = appConfig.engine,
-            tokenProvider = { obo ->
-                oboTokenProvider.exchangeOnBehalfOfToken(appConfig.amtDeltakerConfig.scope, obo.token)
-            },
+            tokenProvider = cachedTokenProvider.withScope(appConfig.amtDeltakerConfig.scope),
         )
     }
+    single {
+        PamOntologiClient(
+            baseUrl = appConfig.pamOntologi.url,
+            clientEngine = appConfig.engine,
+            tokenProvider = cachedTokenProvider.withScope(appConfig.pamOntologi.scope),
+        )
+    }
+    single { UtdanningClient(config = appConfig.utdanning) }
     single { EndringshistorikkService(get()) }
     single {
         ArenaAdapterService(
@@ -335,14 +319,14 @@ private fun services(appConfig: AppConfig) = module {
         UnleashService(appConfig.unleash, byEnhetStrategy, byNavidentStrategy)
     }
     single<AxsysClient> {
-        AxsysV2ClientImpl(appConfig.axsys.url) {
-            m2mTokenProvider.createMachineToMachineToken(appConfig.axsys.scope)
-        }
+        AxsysV2ClientImpl(
+            appConfig.axsys.url,
+            { runBlocking { cachedTokenProvider.withScope(appConfig.axsys.scope).exchange(AccessType.M2M) } },
+        )
     }
     single { AvtaleValidator(get(), get(), get(), get()) }
     single { TiltaksgjennomforingValidator(get(), get(), get()) }
-    single { SsbNusClient(engine = appConfig.engine, config = appConfig.ssbNusConfig) }
-    single { SsbNusService(get(), get()) }
+    single { UtdanningService(get()) }
 }
 
 private fun tasks(config: TaskConfig) = module {
@@ -413,28 +397,24 @@ private fun tasks(config: TaskConfig) = module {
     }
 }
 
-private fun createOboTokenClient(config: AppConfig): OnBehalfOfTokenClient {
-    return when (NaisEnv.current()) {
-        NaisEnv.Local -> AzureAdTokenClientBuilder.builder()
-            .withClientId(config.auth.azure.audience)
-            .withPrivateJwk(createMockRSAKey("azure").toJSONString())
-            .withTokenEndpointUrl(config.auth.azure.tokenEndpointUrl)
-            .buildOnBehalfOfTokenClient()
+private fun createOboTokenClient(config: AppConfig): OnBehalfOfTokenClient = when (NaisEnv.current()) {
+    NaisEnv.Local -> AzureAdTokenClientBuilder.builder()
+        .withClientId(config.auth.azure.audience)
+        .withPrivateJwk(createMockRSAKey("azure").toJSONString())
+        .withTokenEndpointUrl(config.auth.azure.tokenEndpointUrl)
+        .buildOnBehalfOfTokenClient()
 
-        else -> AzureAdTokenClientBuilder.builder().withNaisDefaults().buildOnBehalfOfTokenClient()
-    }
+    else -> AzureAdTokenClientBuilder.builder().withNaisDefaults().buildOnBehalfOfTokenClient()
 }
 
-private fun createM2mTokenClient(config: AppConfig): MachineToMachineTokenClient {
-    return when (NaisEnv.current()) {
-        NaisEnv.Local -> AzureAdTokenClientBuilder.builder()
-            .withClientId(config.auth.azure.audience)
-            .withPrivateJwk(createMockRSAKey("azure").toJSONString())
-            .withTokenEndpointUrl(config.auth.azure.tokenEndpointUrl)
-            .buildMachineToMachineTokenClient()
+private fun createM2mTokenClient(config: AppConfig): MachineToMachineTokenClient = when (NaisEnv.current()) {
+    NaisEnv.Local -> AzureAdTokenClientBuilder.builder()
+        .withClientId(config.auth.azure.audience)
+        .withPrivateJwk(createMockRSAKey("azure").toJSONString())
+        .withTokenEndpointUrl(config.auth.azure.tokenEndpointUrl)
+        .buildMachineToMachineTokenClient()
 
-        else -> AzureAdTokenClientBuilder.builder().withNaisDefaults().buildMachineToMachineTokenClient()
-    }
+    else -> AzureAdTokenClientBuilder.builder().withNaisDefaults().buildMachineToMachineTokenClient()
 }
 
 private fun createMockRSAKey(keyID: String): RSAKey = KeyPairGenerator

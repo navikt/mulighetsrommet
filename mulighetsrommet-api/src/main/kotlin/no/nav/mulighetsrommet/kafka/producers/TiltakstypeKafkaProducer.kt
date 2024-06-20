@@ -3,9 +3,8 @@ package no.nav.mulighetsrommet.kafka.producers
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import no.nav.common.kafka.producer.KafkaProducerClient
-import no.nav.mulighetsrommet.api.domain.dto.TiltakstypeEksternDto
+import no.nav.mulighetsrommet.domain.dto.TiltakstypeV2Dto
 import org.apache.kafka.clients.producer.ProducerRecord
-import java.util.*
 
 class TiltakstypeKafkaProducer(
     private val kafkaProducerClient: KafkaProducerClient<String, String?>,
@@ -15,20 +14,11 @@ class TiltakstypeKafkaProducer(
         val topic: String,
     )
 
-    fun publish(value: TiltakstypeEksternDto) {
+    fun publish(value: TiltakstypeV2Dto) {
         val record: ProducerRecord<String, String?> = ProducerRecord(
             config.topic,
             value.id.toString(),
             Json.encodeToString(value),
-        )
-        kafkaProducerClient.sendSync(record)
-    }
-
-    fun retract(id: UUID) {
-        val record: ProducerRecord<String, String?> = ProducerRecord(
-            config.topic,
-            id.toString(),
-            null,
         )
         kafkaProducerClient.sendSync(record)
     }

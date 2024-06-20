@@ -3,16 +3,16 @@ package no.nav.mulighetsrommet.api.repositories
 import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.api.domain.dto.DeltakerRegistreringInnholdDto
-import no.nav.mulighetsrommet.api.domain.dto.Innholdselement
 import no.nav.mulighetsrommet.api.domain.dto.TiltakstypeAdminDto
-import no.nav.mulighetsrommet.api.domain.dto.TiltakstypeEksternDto
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.*
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
+import no.nav.mulighetsrommet.domain.dto.DeltakerRegistreringInnholdDto
+import no.nav.mulighetsrommet.domain.dto.Innholdselement
 import no.nav.mulighetsrommet.domain.dto.Innsatsgruppe
 import no.nav.mulighetsrommet.domain.dto.TiltakstypeStatus
+import no.nav.mulighetsrommet.domain.dto.TiltakstypeV2Dto
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
 import java.util.*
@@ -68,7 +68,7 @@ class TiltakstypeRepository(private val db: Database) {
         return db.run(queryResult)
     }
 
-    fun getEksternTiltakstype(id: UUID): TiltakstypeEksternDto? = db.useSession { session ->
+    fun getEksternTiltakstype(id: UUID): TiltakstypeV2Dto? = db.useSession { session ->
         @Language("PostgreSQL")
         val query = """
             select id, navn, tiltakskode, arena_kode, innsatsgrupper
@@ -212,7 +212,7 @@ class TiltakstypeRepository(private val db: Database) {
     private fun TiltakstypeDbo.toSqlParameters() = mapOf(
         "id" to id,
         "navn" to navn,
-        "tiltakskode" to Tiltakskode.fromArenaKode(arenaKode)?.name,
+        "tiltakskode" to tiltakskode?.name,
         "arena_kode" to arenaKode,
         "start_dato" to startDato,
         "slutt_dato" to sluttDato,
@@ -240,12 +240,12 @@ class TiltakstypeRepository(private val db: Database) {
 
     private fun Row.tiltakstypeEksternDto(
         deltakerRegistreringInnhold: DeltakerRegistreringInnholdDto?,
-    ): TiltakstypeEksternDto {
+    ): TiltakstypeV2Dto {
         val innsatsgrupper = arrayOrNull<String>("innsatsgrupper")
             ?.map { Innsatsgruppe.valueOf(it) }
             ?.toSet()
             ?: emptySet()
-        return TiltakstypeEksternDto(
+        return TiltakstypeV2Dto(
             id = uuid("id"),
             navn = string("navn"),
             tiltakskode = Tiltakskode.valueOf(string("tiltakskode")),

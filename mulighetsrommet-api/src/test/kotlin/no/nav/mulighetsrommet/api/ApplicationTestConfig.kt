@@ -4,7 +4,7 @@ import io.ktor.server.application.*
 import io.ktor.server.testing.*
 import no.nav.mulighetsrommet.api.clients.brreg.BrregClient
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
-import no.nav.mulighetsrommet.api.clients.ssb.SsbNusClient
+import no.nav.mulighetsrommet.api.clients.utdanning.UtdanningClient
 import no.nav.mulighetsrommet.api.tasks.*
 import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.database.FlywayMigrationManager
@@ -94,44 +94,41 @@ fun createTestApplicationConfig() = AppConfig(
     axsys = ServiceClientConfig(url = "", scope = ""),
     pdl = ServiceClientConfig(url = "", scope = ""),
     migrerteTiltak = emptyList(),
-    ssbNusConfig = SsbNusClient.Config(
-        baseUrl = "",
+    pamOntologi = createServiceClientConfig("pam-ontologi"),
+    utdanning = UtdanningClient.Config(
+        baseurl = "",
     ),
 )
 
-fun createKafkaConfig(): KafkaConfig {
-    return KafkaConfig(
-        brokerUrl = "localhost:29092",
-        producerId = "mulighetsrommet-api-producer",
-        producers = KafkaProducers(
-            tiltaksgjennomforinger = TiltaksgjennomforingKafkaProducer.Config(topic = "siste-tiltaksgjennomforinger-v1"),
-            tiltakstyper = TiltakstypeKafkaProducer.Config(topic = "siste-tiltakstyper-v2"),
-            arenaMigreringTiltaksgjennomforinger = ArenaMigreringTiltaksgjennomforingKafkaProducer.Config(
-                topic = "arena-migrering-tiltaksgjennomforinger-v1",
-            ),
+fun createKafkaConfig(): KafkaConfig = KafkaConfig(
+    brokerUrl = "localhost:29092",
+    producerId = "mulighetsrommet-api-producer",
+    producers = KafkaProducers(
+        tiltaksgjennomforinger = TiltaksgjennomforingKafkaProducer.Config(topic = "siste-tiltaksgjennomforinger-v1"),
+        tiltakstyper = TiltakstypeKafkaProducer.Config(topic = "siste-tiltakstyper-v2"),
+        arenaMigreringTiltaksgjennomforinger = ArenaMigreringTiltaksgjennomforingKafkaProducer.Config(
+            topic = "arena-migrering-tiltaksgjennomforinger-v1",
         ),
-        consumerGroupId = "mulighetsrommet-api-consumer",
-        consumers = KafkaConsumers(
-            tiltaksgjennomforingerV1 = KafkaTopicConsumer.Config(
-                id = "siste-tiltaksgjennomforinger",
-                topic = "siste-tiltaksgjennomforinger-v1",
-            ),
-            amtDeltakerV1 = KafkaTopicConsumer.Config(id = "amt-deltaker", topic = "amt-deltaker"),
-            amtVirksomheterV1 = KafkaTopicConsumer.Config(id = "amt-virksomheter", topic = "amt-virksomheter"),
-            ptoSisteOppfolgingsperiodeV1 = KafkaTopicConsumer.Config(
-                id = "pto-sisteoppfolgingsperiode",
-                topic = "pto-sisteoppfolgingsperiode",
-            ),
+    ),
+    consumerGroupId = "mulighetsrommet-api-consumer",
+    consumers = KafkaConsumers(
+        tiltaksgjennomforingerV1 = KafkaTopicConsumer.Config(
+            id = "siste-tiltaksgjennomforinger",
+            topic = "siste-tiltaksgjennomforinger-v1",
         ),
-    )
-}
+        amtDeltakerV1 = KafkaTopicConsumer.Config(id = "amt-deltaker", topic = "amt-deltaker"),
+        amtVirksomheterV1 = KafkaTopicConsumer.Config(id = "amt-virksomheter", topic = "amt-virksomheter"),
+        ptoSisteOppfolgingsperiodeV1 = KafkaTopicConsumer.Config(
+            id = "pto-sisteoppfolgingsperiode",
+            topic = "pto-sisteoppfolgingsperiode",
+        ),
+    ),
+)
 
-fun createServiceClientConfig(url: String): ServiceClientConfig {
-    return ServiceClientConfig(
-        url = url,
-        scope = "",
-    )
-}
+fun createServiceClientConfig(url: String): ServiceClientConfig = ServiceClientConfig(
+    url = url,
+    scope = "",
+)
 
 // Default values for 'iss' og 'aud' in tokens issued by mock-oauth2-server is 'default'.
 // These values are set as the default here so that standard tokens issued by MockOAuth2Server works with a minimal amount of setup.
@@ -140,14 +137,12 @@ fun createAuthConfig(
     issuer: String = "default",
     audience: String = "default",
     roles: List<AdGruppeNavAnsattRolleMapping>,
-): AuthConfig {
-    return AuthConfig(
-        azure = AuthProvider(
-            issuer = oauth?.issuerUrl(issuer)?.toString() ?: issuer,
-            audience = audience,
-            jwksUri = oauth?.jwksUrl(issuer)?.toUri()?.toString() ?: "http://localhost",
-            tokenEndpointUrl = oauth?.tokenEndpointUrl(issuer)?.toString() ?: "http://localhost",
-        ),
-        roles = roles,
-    )
-}
+): AuthConfig = AuthConfig(
+    azure = AuthProvider(
+        issuer = oauth?.issuerUrl(issuer)?.toString() ?: issuer,
+        audience = audience,
+        jwksUri = oauth?.jwksUrl(issuer)?.toUri()?.toString() ?: "http://localhost",
+        tokenEndpointUrl = oauth?.tokenEndpointUrl(issuer)?.toString() ?: "http://localhost",
+    ),
+    roles = roles,
+)

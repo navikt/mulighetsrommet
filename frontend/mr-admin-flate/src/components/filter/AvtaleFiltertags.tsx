@@ -26,7 +26,7 @@ export function AvtaleFiltertags({ filterAtom, tiltakstypeId, filterOpen, setTag
     <FilterTagsContainer filterOpen={filterOpen} setTagsHeight={setTagsHeight}>
       {filter.sok && (
         <FilterTag
-          label={`Søkt på: '${filter.sok}`}
+          label={`Søkt på: '${filter.sok}'`}
           onClose={() => {
             setFilter({
               ...filter,

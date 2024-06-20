@@ -1,0 +1,28 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPathPattern": "/rest/typeahead.*"
+},
+  "response": {
+    "status": 200,
+    "jsonBody": [
+      {
+        "konseptId": 1,
+        "styrk08": "",
+        "esco": "",
+        "escoLabel": "Truckfører T1",
+        "label": "Truckfører T1"
+      },
+      {
+        "konseptId": 2,
+        "styrk08": "",
+        "esco": "",
+        "escoLabel": "Sveis Metallrør",
+        "label": "Sveis Metallrør"
+      }
+    ],
+    "headers": {
+      "Content-Type": "application/json"
+    }
+  }
+}

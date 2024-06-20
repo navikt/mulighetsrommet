@@ -42,8 +42,8 @@ fun Application.configure(config: AppConfig) {
     FlywayMigrationManager(config.flyway).migrate(db)
 
     routing {
-        maamRoutes()
         authenticate(AuthProvider.AZURE_AD_TEAM_MULIGHETSROMMET.name) {
+            maamRoutes()
         }
 
         authenticate(AuthProvider.AZURE_AD_NAV_IDENT.name, AuthProvider.AZURE_AD_TILTAKSADMINISTRASJON_GENERELL.name) {
@@ -61,7 +61,7 @@ fun Application.configure(config: AppConfig) {
             notificationRoutes()
             featureTogglesRoute()
             veilederJoyrideRoutes()
-            nusDataRoutes()
+            janzzRoutes()
         }
 
         authenticate(AuthProvider.AZURE_AD_DEFAULT_APP.name) {

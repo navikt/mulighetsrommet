@@ -50,7 +50,6 @@ object TiltaksgjennomforingFixtures {
         estimertVentetidVerdi = 3,
         estimertVentetidEnhet = "dag",
         tilgjengeligForArrangorFraOgMedDato = null,
-        nusData = null,
         amoKategorisering = null,
     )
 
@@ -77,7 +76,6 @@ object TiltaksgjennomforingFixtures {
         estimertVentetidVerdi = 3,
         estimertVentetidEnhet = "dag",
         tilgjengeligForArrangorFraOgMedDato = null,
-        nusData = null,
         amoKategorisering = null,
     )
 
@@ -106,7 +104,6 @@ object TiltaksgjennomforingFixtures {
             verdi = 3,
             enhet = "dag",
         ),
-        nusData = null,
         amoKategorisering = null,
     )
 
@@ -133,7 +130,6 @@ object TiltaksgjennomforingFixtures {
         estimertVentetidVerdi = 3,
         estimertVentetidEnhet = "dag",
         tilgjengeligForArrangorFraOgMedDato = null,
-        nusData = null,
         amoKategorisering = null,
     )
 
@@ -160,7 +156,6 @@ object TiltaksgjennomforingFixtures {
         estimertVentetidVerdi = 3,
         estimertVentetidEnhet = "dag",
         tilgjengeligForArrangorFraOgMedDato = null,
-        nusData = null,
         amoKategorisering = null,
     )
 
@@ -187,7 +182,6 @@ object TiltaksgjennomforingFixtures {
         estimertVentetidVerdi = 3,
         estimertVentetidEnhet = "dag",
         tilgjengeligForArrangorFraOgMedDato = null,
-        nusData = null,
         amoKategorisering = null,
     )
 
@@ -214,7 +208,6 @@ object TiltaksgjennomforingFixtures {
         estimertVentetidVerdi = 3,
         estimertVentetidEnhet = "dag",
         tilgjengeligForArrangorFraOgMedDato = null,
-        nusData = null,
         amoKategorisering = null,
     )
 
@@ -241,7 +234,32 @@ object TiltaksgjennomforingFixtures {
         estimertVentetidVerdi = 3,
         estimertVentetidEnhet = "dag",
         tilgjengeligForArrangorFraOgMedDato = null,
-        nusData = null,
+        amoKategorisering = null,
+    )
+
+    val IPS1 = TiltaksgjennomforingDbo(
+        id = UUID.randomUUID(),
+        navn = "IPS 1",
+        tiltakstypeId = TiltakstypeFixtures.IPS.id,
+        arrangorId = ArrangorFixtures.underenhet1.id,
+        startDato = LocalDate.of(2023, 1, 1),
+        sluttDato = LocalDate.of(2023, 2, 1),
+        apentForInnsok = true,
+        antallPlasser = 12,
+        administratorer = listOf(NavIdent("DD1")),
+        navRegion = "0400",
+        navEnheter = listOf("0502"),
+        oppstart = TiltaksgjennomforingOppstartstype.FELLES,
+        kontaktpersoner = emptyList(),
+        arrangorKontaktpersoner = emptyList(),
+        stedForGjennomforing = "Oslo",
+        avtaleId = AvtaleFixtures.IPS.id,
+        faneinnhold = null,
+        beskrivelse = null,
+        deltidsprosent = 100.0,
+        estimertVentetidVerdi = 3,
+        estimertVentetidEnhet = "dag",
+        tilgjengeligForArrangorFraOgMedDato = null,
         amoKategorisering = null,
     )
 }

@@ -8,6 +8,7 @@ import io.ktor.server.routing.*
 import no.nav.common.audit_log.cef.CefMessage
 import no.nav.common.audit_log.cef.CefMessageEvent
 import no.nav.common.audit_log.cef.CefMessageSeverity
+import no.nav.mulighetsrommet.api.clients.AccessType
 import no.nav.mulighetsrommet.api.clients.dialog.DialogRequest
 import no.nav.mulighetsrommet.api.clients.dialog.VeilarbdialogClient
 import no.nav.mulighetsrommet.api.plugins.getNavAnsattAzureId
@@ -29,8 +30,8 @@ fun Route.dialogRoutes() {
 
             poaoTilgangService.verifyAccessToUserFromVeileder(getNavAnsattAzureId(), request.fnr)
 
-            val accessToken = call.getAccessToken()
-            val response = dialogClient.sendMeldingTilDialogen(accessToken, request)
+            val obo = AccessType.OBO(call.getAccessToken())
+            val response = dialogClient.sendMeldingTilDialogen(obo, request)
             response?.let {
                 val message = createAuditMessage(
                     msg = "NAV-ansatt med ident: '$navIdent' har delt informasjon om tiltaket '${request.overskrift}' til bruker med ident: '${request.fnr}'.",

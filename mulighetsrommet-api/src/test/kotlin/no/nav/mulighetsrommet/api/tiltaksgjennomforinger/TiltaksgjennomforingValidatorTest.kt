@@ -6,6 +6,9 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.data.forAll
 import io.kotest.data.row
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
+import io.kotest.matchers.nulls.shouldBeNull
+import io.kotest.matchers.should
+import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
@@ -194,30 +197,30 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
         )
     }
 
-    test("kan ikke opprette dersom tilgjengeligForArrangor er mer enn 2 måneder før startdato") {
+    test("skal returnere en ny verdi for 'tilgjengelig for arrangør'-dato når datoen er utenfor gyldig tidsrom") {
+        val startDato = LocalDate.now().plusMonths(1)
+        val dbo = gjennomforing.copy(startDato = startDato)
+        tiltaksgjennomforinger.upsert(dbo)
+
         val validator = TiltaksgjennomforingValidator(tiltakstyper, avtaler, arrangorer)
-        val startdato = avtale.startDato.plusDays(1)
-        val dbo = gjennomforing.copy(
-            startDato = startdato,
-            tilgjengeligForArrangorFraOgMedDato = startdato.minusMonths(2).minusDays(1),
-        )
 
-        validator.validate(dbo, null).shouldBeLeft(
-            listOf(ValidationError("tilgjengeligForArrangorFraOgMedDato", "Du må velge en dato som er tidligst to måneder før oppstartsdato")),
-        )
-    }
+        val beforeAllowedDato = startDato.minusMonths(3)
+        validator.validate(gjennomforing.copy(tilgjengeligForArrangorFraOgMedDato = beforeAllowedDato), null)
+            .shouldBeRight().should {
+                it.tilgjengeligForArrangorFraOgMedDato.shouldBeNull()
+            }
 
-    test("kan ikke opprette dersom tilgjengeligForArrangor er etter gjennomføringens startdato") {
-        val validator = TiltaksgjennomforingValidator(tiltakstyper, avtaler, arrangorer)
-        val startdato = avtale.startDato.plusDays(1)
-        val dbo = gjennomforing.copy(
-            startDato = startdato,
-            tilgjengeligForArrangorFraOgMedDato = startdato.plusDays(1),
-        )
+        val afterStartDato = startDato.plusDays(1)
+        validator.validate(dbo.copy(tilgjengeligForArrangorFraOgMedDato = afterStartDato), null)
+            .shouldBeRight().should {
+                it.tilgjengeligForArrangorFraOgMedDato.shouldBeNull()
+            }
 
-        validator.validate(dbo, null).shouldBeLeft(
-            listOf(ValidationError("tilgjengeligForArrangorFraOgMedDato", "Du må velge en dato som er før oppstartsdato")),
-        )
+        val beforeStartDato = startDato.minusDays(1)
+        validator.validate(dbo.copy(tilgjengeligForArrangorFraOgMedDato = beforeStartDato), null)
+            .shouldBeRight().should {
+                it.tilgjengeligForArrangorFraOgMedDato shouldBe beforeStartDato
+            }
     }
 
     test("sluttDato er påkrevd hvis ikke forhåndsgodkjent avtale") {
@@ -358,7 +361,13 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
             val previous = tiltaksgjennomforinger.get(gjennomforing.id)
             avtaler.upsert(avtale.copy(startDato = LocalDate.now().minusDays(3)))
             validator.validate(gjennomforing.copy(sluttDato = avtaleSluttDato.plusDays(5)), previous).shouldBeRight()
-            validator.validate(gjennomforing.copy(startDato = LocalDate.now().minusDays(2), sluttDato = LocalDate.now().minusDays(1)), previous).shouldBeLeft(
+            validator.validate(
+                gjennomforing.copy(
+                    startDato = LocalDate.now().minusDays(2),
+                    sluttDato = LocalDate.now().minusDays(1),
+                ),
+                previous,
+            ).shouldBeLeft(
                 listOf(
                     ValidationError(
                         "sluttDato",

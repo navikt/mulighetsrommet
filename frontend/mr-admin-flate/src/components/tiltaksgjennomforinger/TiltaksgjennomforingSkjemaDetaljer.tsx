@@ -1,7 +1,6 @@
 import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
 import { useHentKontaktpersoner } from "@/api/ansatt/useHentKontaktpersoner";
 import { useTiltaksgjennomforingAdministratorer } from "@/api/ansatt/useTiltaksgjennomforingAdministratorer";
-import { useFeatureToggle } from "@/api/features/useFeatureToggle";
 import { useTiltaksgjennomforingDeltakerSummary } from "@/api/tiltaksgjennomforing/useTiltaksgjennomforingDeltakerSummary";
 import { useMigrerteTiltakstyper } from "@/api/tiltakstyper/useMigrerteTiltakstyper";
 import { addYear, formaterDato } from "@/utils/Utils";
@@ -17,7 +16,6 @@ import {
   Select,
   Switch,
   TextField,
-  UNSAFE_Combobox,
 } from "@navikt/ds-react";
 import {
   Avtale,
@@ -25,7 +23,6 @@ import {
   TiltaksgjennomforingKontaktperson,
   TiltaksgjennomforingOppstartstype,
   TiltakskodeArena,
-  Toggles,
 } from "mulighetsrommet-api-client";
 import { ControlledSokeSelect } from "mulighetsrommet-frontend-common";
 import { useEffect, useRef } from "react";
@@ -39,10 +36,9 @@ import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { FormGroup } from "../skjema/FormGroup";
 import skjemastyles from "../skjema/Skjema.module.scss";
 import { SelectOppstartstype } from "./SelectOppstartstype";
-import { TiltakTilgjengeligForArrangor } from "./TilgjengeligTiltakForArrangor";
+import { TiltaksgjennomforingAmoKategoriseringSkjema } from "./TiltaksgjennomforingAmoKategoriseringSkjema";
 import { TiltaksgjennomforingArrangorSkjema } from "./TiltaksgjennomforingArrangorSkjema";
 import { erArenaOpphavOgIngenEierskap } from "./TiltaksgjennomforingSkjemaConst";
-import { TiltaksgjennomforingAmoKategoriseringSkjema } from "./TiltaksgjennomforingAmoKategoriseringSkjema";
 
 interface Props {
   tiltaksgjennomforing?: Tiltaksgjennomforing;
@@ -66,9 +62,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
   const { data: deltakerSummary } = useTiltaksgjennomforingDeltakerSummary(
     tiltaksgjennomforing?.id,
   );
-  const { data: enableTilgjengeligForArrangor } = useFeatureToggle(
-    Toggles.MULIGHETSROMMET_ADMIN_FLATE_TILGJENGELIGGJORE_TILTAK_FOR_ARRANGOR,
-  );
+
   const endreStartDatoModalRef = useRef<HTMLDialogElement>(null);
   const endreSluttDatoModalRef = useRef<HTMLDialogElement>(null);
 
@@ -197,9 +191,6 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
             />
             {errors.avtaleId?.message ? (
               <Alert variant="warning">{errors.avtaleId.message as string}</Alert>
-            ) : null}
-            {avtale.tiltakstype.arenaKode === TiltakskodeArena.GRUFAGYRKE ? (
-              <VelgUtdanningskategori avtale={avtale} />
             ) : null}
             {avtale.tiltakstype.arenaKode === TiltakskodeArena.GRUPPEAMO ? (
               <TiltaksgjennomforingAmoKategoriseringSkjema avtale={avtale} />
@@ -368,6 +359,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
               />
               <ControlledMultiSelect
                 size="small"
+                velgAlle
                 placeholder={"Velg en"}
                 label={tiltaktekster.navEnheterKontorerLabel}
                 helpText="Bestemmer hvem gjennomføringen skal vises til i Modia, basert på hvilket kontor brukeren har tilhørighet til."
@@ -405,6 +397,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
                         />
                         <ControlledMultiSelect
                           size="small"
+                          velgAlle
                           placeholder={
                             isLoadingKontaktpersoner
                               ? "Laster enheter..."
@@ -446,14 +439,6 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
           <FormGroup>
             <TiltaksgjennomforingArrangorSkjema readOnly={eierIkkeGjennomforing} avtale={avtale} />
           </FormGroup>
-          {enableTilgjengeligForArrangor && watch("startOgSluttDato.startDato") ? (
-            <TiltakTilgjengeligForArrangor
-              gjennomforingStartdato={new Date(watch("startOgSluttDato.startDato"))}
-              lagretDatoForTilgjengeligForArrangor={
-                tiltaksgjennomforing?.tilgjengeligForArrangorFraOgMedDato
-              }
-            />
-          ) : null}
         </div>
       </div>
       <EndreDatoAdvarselModal
@@ -469,56 +454,3 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
     </div>
   );
 };
-
-interface VelgUtdanningskategoriProps {
-  avtale: Avtale;
-}
-
-function VelgUtdanningskategori({ avtale }: VelgUtdanningskategoriProps) {
-  const {
-    setValue,
-    watch,
-    formState: { errors },
-  } = useFormContext<InferredTiltaksgjennomforingSchema>();
-  const { data: enableNuskategorier } = useFeatureToggle(
-    Toggles.MULIGHETSROMMET_ADMIN_FLATE_ENABLE_NUSKATEGORIER,
-  );
-
-  if (!enableNuskategorier) {
-    return null;
-  }
-
-  if (avtale?.nusData?.versjon) {
-    setValue("nusData.versjon", avtale.nusData.versjon);
-  }
-
-  const utdanningskategorier = avtale?.nusData?.utdanningskategorier || [];
-
-  const valgteKategorier = watch("nusData.utdanningskategorier", []) || [];
-  const options = utdanningskategorier?.map((k) => ({ label: k.name, value: k.code }));
-
-  return (
-    <UNSAFE_Combobox
-      label="Velg utdanningskategorier"
-      size="small"
-      isMultiSelect
-      error={errors.nusData?.utdanningskategorier?.message || (errors.nusData?.message as string)}
-      options={options}
-      selectedOptions={valgteKategorier.map((k) => ({ label: k.name, value: k.code }))}
-      onToggleSelected={(option, isSelected) =>
-        isSelected
-          ? setValue("nusData.utdanningskategorier", [
-              ...valgteKategorier,
-              {
-                code: option,
-                name: options.find((o) => o.value === option)?.label || "",
-              },
-            ])
-          : setValue(
-              "nusData.utdanningskategorier",
-              valgteKategorier.filter((o) => o.code !== option),
-            )
-      }
-    ></UNSAFE_Combobox>
-  );
-}

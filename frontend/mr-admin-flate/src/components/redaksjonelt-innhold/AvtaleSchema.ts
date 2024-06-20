@@ -58,26 +58,17 @@ export const AvtaleSchema = z
     faneinnhold: FaneinnholdSchema.nullable(),
     personvernBekreftet: z.boolean({ required_error: "Du må ta stilling til personvern" }),
     personopplysninger: z.nativeEnum(Personopplysning).array(),
-    nusData: z
-      .object({
-        versjon: z.string(),
-        utdanningsnivaa: z.string({ required_error: "Du må velge et utdanningsnivå" }),
-        utdanningskategorier: z
-          .object(
-            {
-              code: z.string(),
-              name: z.string(),
-            },
-            { required_error: "Du må velge minst én utdanningskategori" },
-          )
-          .array()
-          .optional(),
-      })
-      .optional(),
     amoKategorisering: z
       .object({
         kurstype: z.nativeEnum(Kurstype, { required_error: "Du må velge en kurstype" }),
         spesifisering: z.nativeEnum(Spesifisering).optional(),
+        sertifiseringer: z
+          .object({
+            konseptId: z.number(),
+            label: z.string(),
+          })
+          .array()
+          .optional(),
         forerkort: z.nativeEnum(ForerkortKlasse).array().optional(),
         norskprove: z.boolean().nullable().optional(),
         innholdElementer: z.nativeEnum(InnholdElement).array().optional(),
@@ -93,28 +84,6 @@ export const AvtaleSchema = z
         code: z.ZodIssueCode.custom,
         message: "Du må skrive inn Websaknummer til avtalesaken",
         path: ["websaknummer"],
-      });
-    }
-
-    if (
-      data.tiltakstype.arenaKode === TiltakskodeArena.GRUFAGYRKE &&
-      !data.nusData?.utdanningsnivaa
-    ) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Du må velge et utdanningsnivå",
-        path: ["nusData.utdanningsnivaa"],
-      });
-    }
-
-    if (
-      data.tiltakstype.arenaKode === TiltakskodeArena.GRUFAGYRKE &&
-      data.nusData?.utdanningskategorier?.length === 0
-    ) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Du må velge minst én utdanningskategori",
-        path: ["nusData.utdanningskategorier"],
       });
     }
 

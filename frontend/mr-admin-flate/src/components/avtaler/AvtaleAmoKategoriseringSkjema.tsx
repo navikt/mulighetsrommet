@@ -3,32 +3,30 @@ import {
   ForerkortKlasse,
   InnholdElement,
   Kurstype,
+  Sertifisering,
   Spesifisering,
-  Toggles,
 } from "mulighetsrommet-api-client";
 import { useFormContext } from "react-hook-form";
-import { useFeatureToggle } from "../../api/features/useFeatureToggle";
 import {
   forerkortKlasseToString,
   kurstypeToString,
   spesifiseringToString,
 } from "../../utils/Utils";
 import { InferredAvtaleSchema } from "../redaksjonelt-innhold/AvtaleSchema";
+import { useState } from "react";
+import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
+import { useSokSertifiseringer } from "@/api/janzz/useSokSertifiseringer";
 
 export function AvtaleAmoKategoriseringSkjema() {
-  const { data: isEnabled } = useFeatureToggle(
-    Toggles.MULIGHETSROMMET_ADMIN_FLATE_ENABLE_GRUPPE_AMO_KATEGORIER,
-  );
+  const [janzzQuery, setJanzzQuery] = useState<string>("");
+  const { data: sertifiseringerFraSok } = useSokSertifiseringer(janzzQuery);
 
   const {
     setValue,
     watch,
+    register,
     formState: { errors },
   } = useFormContext<InferredAvtaleSchema>();
-
-  if (!isEnabled) {
-    return null;
-  }
 
   const kurstype = watch("amoKategorisering.kurstype");
   const spesifisering = watch("amoKategorisering.spesifisering");
@@ -43,6 +41,26 @@ export function AvtaleAmoKategoriseringSkjema() {
   const forerkort = watch("amoKategorisering.forerkort");
   const norskprove = watch("amoKategorisering.norskprove");
   const innholdElementer = watch("amoKategorisering.innholdElementer");
+  const sertifiseringer = watch("amoKategorisering.sertifiseringer");
+
+  function sertifiseringerOptions() {
+    const options =
+      sertifiseringer?.map((s) => ({
+        label: s.label,
+        value: s,
+      })) ?? [];
+
+    sertifiseringerFraSok
+      ?.filter((s: Sertifisering) => !options.some((o) => o.value.konseptId === s.konseptId))
+      ?.forEach((s: Sertifisering) =>
+        options.push({
+          label: s.label,
+          value: { konseptId: s.konseptId, label: s.label },
+        }),
+      );
+
+    return options;
+  }
 
   return (
     <HGrid gap="4" columns={1}>
@@ -55,6 +73,8 @@ export function AvtaleAmoKategoriseringSkjema() {
           setValue("amoKategorisering.kurstype", type.target.value as Kurstype);
           setValue("amoKategorisering.norskprove", undefined);
           setValue("amoKategorisering.spesifisering", undefined);
+          setValue("amoKategorisering.forerkort", undefined);
+          setValue("amoKategorisering.sertifiseringer", undefined);
           setValue("amoKategorisering.innholdElementer", undefined);
         }}
       >
@@ -76,8 +96,6 @@ export function AvtaleAmoKategoriseringSkjema() {
           error={errors?.amoKategorisering?.spesifisering?.message}
           onChange={(type) => {
             setValue("amoKategorisering.spesifisering", type.target.value as Spesifisering);
-            setValue("amoKategorisering.norskprove", undefined);
-            setValue("amoKategorisering.innholdElementer", undefined);
           }}
         >
           <option value={undefined}>Velg spesifisering</option>
@@ -167,6 +185,18 @@ export function AvtaleAmoKategoriseringSkjema() {
                 )
           }
         ></UNSAFE_Combobox>
+      )}
+      {isBransjeSpesifisering && (
+        <ControlledMultiSelect<{ konseptId: number; label: string }>
+          size="small"
+          placeholder="Søk etter sertifiseringer"
+          label={"Sertifiseringer"}
+          {...register("amoKategorisering.sertifiseringer")}
+          onInputChange={(s: string) => {
+            setJanzzQuery(s);
+          }}
+          options={sertifiseringerOptions()}
+        />
       )}
       {spesifisering === Spesifisering.NORSKOPPLAERING && (
         <Checkbox

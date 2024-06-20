@@ -40,7 +40,7 @@ export function AvtalePersonvernForm({ tiltakstypeId }: Props) {
   function PersonopplysningCheckboxList(props: {
     label: string;
     description: string;
-    personopplysninger?: PersonopplysningData[];
+    personopplysninger: PersonopplysningData[];
   }) {
     return (
       <VStack>
@@ -48,6 +48,23 @@ export function AvtalePersonvernForm({ tiltakstypeId }: Props) {
         <BodyShort spacing size="small" textColor="subtle">
           {props.description}
         </BodyShort>
+        <Checkbox
+          checked={watchPersonopplysninger.length === props.personopplysninger.length}
+          onChange={() => {
+            if (watchPersonopplysninger.length < props.personopplysninger.length) {
+              setValue(
+                "personopplysninger",
+                props.personopplysninger.map((p) => p.personopplysning),
+              );
+            } else {
+              setValue("personopplysninger", []);
+            }
+          }}
+          size="small"
+        >
+          Velg alle
+        </Checkbox>
+        <Separator />
         {props.personopplysninger?.map((p: PersonopplysningData) => (
           <HStack align="start" gap="1" key={p.personopplysning}>
             <Checkbox
@@ -77,11 +94,13 @@ export function AvtalePersonvernForm({ tiltakstypeId }: Props) {
       </GuidePanel>
       <HStack wrap gap="10">
         <VStack gap="5">
-          <PersonopplysningCheckboxList
-            label="Personopplysninger om deltager"
-            description="Huk av de personopplysningene som kan behandles i denne avtalen."
-            personopplysninger={personopplysninger}
-          />
+          {personopplysninger && (
+            <PersonopplysningCheckboxList
+              label="Personopplysninger om deltager"
+              description="Huk av de personopplysningene som kan behandles i denne avtalen."
+              personopplysninger={personopplysninger}
+            />
+          )}
           <BodyShort size="small">
             *Se egne retningslinjer om dette i{" "}
             <Link

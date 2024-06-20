@@ -7,7 +7,7 @@ app:
     jdbcUrl: ${DB_JDBC_URL}
     maximumPoolSize: 10
   flyway:
-    strategy: Migrate
+    strategy: RepairAndMigrate
 
   migrerteTiltak:
     - AVKLARING
@@ -118,6 +118,10 @@ app:
     url: https://pdl-api.dev-fss-pub.nais.io
     scope: api://dev-fss.pdl.pdl-api/.default
 
+  pamOntologi:
+    url: http://pam-ontologi.teampam
+    scope: api://dev-gcp.teampam.pam-ontologi/.default
+
   tasks:
     deleteExpiredTiltakshistorikk:
       cronPattern: "0 0 1 * * *" # Hver morgen kl. 01:00
@@ -156,5 +160,5 @@ app:
     instanceId: ${NAIS_CLIENT_ID}
     environment: development
 
-  ssbNusConfig:
-    baseUrl: "https://data.ssb.no/api"
+  utdanning:
+    baseurl: https://utdanning.no

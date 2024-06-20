@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.clients.ssb
+package no.nav.mulighetsrommet.api.clients.utdanning
 
 import io.ktor.client.*
 import io.ktor.client.call.*
@@ -15,26 +15,23 @@ import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.ktor.clients.ClientResponseMetricPlugin
 import org.slf4j.LoggerFactory
 
-class SsbNusClient(engine: HttpClientEngine = CIO.create(), val config: Config) {
+class UtdanningClient(engine: HttpClientEngine = CIO.create(), val config: Config) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    @Serializable
-    data class Input(
-        val version: String,
-    )
-
     data class Config(
-        val baseUrl: String,
+        val baseurl: String,
     )
 
     private val client: HttpClient = HttpClient(engine) {
         expectSuccess = false
+
         install(Logging) {
             logger = Logger.DEFAULT
             level = LogLevel.INFO
         }
 
         install(ClientResponseMetricPlugin)
+
         install(HttpRequestRetry) {
             retryOnException(maxRetries = 3, retryOnTimeout = true)
             exponentialDelay()
@@ -47,7 +44,7 @@ class SsbNusClient(engine: HttpClientEngine = CIO.create(), val config: Config) 
         }
 
         install(HttpTimeout) {
-            requestTimeoutMillis = 5000
+            requestTimeoutMillis = 30000
         }
 
         install(ContentNegotiation) {
@@ -63,10 +60,38 @@ class SsbNusClient(engine: HttpClientEngine = CIO.create(), val config: Config) 
         }
     }
 
-    internal suspend fun fetchNusData(version: String): SsbNusData {
-        val response = client.get {
-            url("${config.baseUrl}/klass/v1/versions/$version")
-        }
-        return response.body()
+    suspend fun getUtdanninger(): List<Utdanning> {
+        val response = client.get("${config.baseurl}/api/v1/data_norge--utdanningsbeskrivelse")
+        val utdanninger = response.body<List<String>>()
+        return utdanninger.subList(0, 1).map { getUtdanning(it) } // TODO Ta med alle utdanninger
     }
+
+    private suspend fun getUtdanning(url: String): Utdanning {
+        val utdanning = client.get(url)
+        return utdanning.body()
+    }
+}
+
+@Serializable
+data class Utdanning(
+    val title: String,
+    val utdtype: List<Utdanningstype>,
+    val nus: List<Nuskodeverk>,
+    val interesse: List<Interesse>,
+) {
+    @Serializable
+    data class Utdanningstype(
+        val title: String,
+        val utdt_kode: String,
+    )
+
+    @Serializable
+    data class Nuskodeverk(
+        val nus_kode: String,
+    )
+
+    @Serializable
+    data class Interesse(
+        val title: String,
+    )
 }

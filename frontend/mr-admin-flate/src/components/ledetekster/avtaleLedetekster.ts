@@ -1,7 +1,6 @@
 export const avtaletekster = {
   avtalenavnLabel: "Avtalenavn",
-  lopenummerLabel: "Løpenummer",
-  arenaAvtalenummerLabel: "Avtalenummer i Arena",
+  avtalenummerLabel: "Avtalenummer",
   tiltakstypeLabel: "Tiltakstype",
   avtaletypeLabel: "Avtaletype",
   startdatoLabel: "Startdato",

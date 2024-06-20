@@ -4,7 +4,6 @@ import com.github.kagkarlsson.scheduler.task.helper.RecurringTask
 import com.github.kagkarlsson.scheduler.task.helper.Tasks
 import com.github.kagkarlsson.scheduler.task.schedule.Daily
 import kotlinx.coroutines.runBlocking
-import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingDto
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.database.utils.DatabaseUtils
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus
@@ -51,8 +50,8 @@ class UpdateTiltaksgjennomforingStatus(
 
             tiltaksgjennomforinger.forEach { id ->
                 val gjennomforing = requireNotNull(tiltaksgjennomforingRepository.get(id))
-                tiltaksgjennomforingKafkaProducer.publish(TiltaksgjennomforingDto.from(gjennomforing))
-                if (gjennomforing.status == TiltaksgjennomforingStatus.AVSLUTTET) {
+                tiltaksgjennomforingKafkaProducer.publish(gjennomforing.toTiltaksgjennomforingV1Dto())
+                if (gjennomforing.status.status == TiltaksgjennomforingStatus.AVSLUTTET) {
                     tiltaksgjennomforingRepository.setPublisert(gjennomforing.id, false)
                 }
             }

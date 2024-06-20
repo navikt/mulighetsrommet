@@ -106,12 +106,15 @@ spec:
     outbound:
       rules:
         - application: mulighetsrommet-arena-adapter
+        - application: tiltakshistorikk
         - application: poao-tilgang
           namespace: poao
         - application: amt-enhetsregister
           namespace: amt
         - application: amt-deltaker
           namespace: amt
+        - application: pam-ontologi
+          namespace: teampam
       external:
         - host: norg2.dev-fss-pub.nais.io
         - host: slack.com
@@ -121,7 +124,7 @@ spec:
         - host: team-mulighetsrommet-unleash-api.nav.cloud.nais.io
         - host: axsys.dev-fss-pub.nais.io
         - host: pdl-api.dev-fss-pub.nais.io
-        - host: data.ssb.no
+        - host: utdanning.no
   envFrom:
     - secret: mulighetsrommet-api
     - secret: mr-admin-flate-unleash-api-token
