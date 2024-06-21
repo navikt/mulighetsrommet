@@ -18,6 +18,7 @@ import {
   ReloadAppFallback,
 } from "./components/error-handling/ErrorBoundary";
 import { OversiktSkeleton } from "./components/skeleton/OversiktSkeleton";
+import { DetaljerSkeleton } from "./components/skeleton/DetaljerSkeleton";
 
 export {
   useDebounce,
@@ -38,4 +39,5 @@ export {
   ReloadAppFallback,
   TiltaksgjennomforingStatusTag,
   OversiktSkeleton,
+  DetaljerSkeleton,
 };
