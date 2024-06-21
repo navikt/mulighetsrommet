@@ -2,17 +2,18 @@ import { TiltakLoader } from "@/components/TiltakLoader";
 import { FilterAndTableLayout } from "mulighetsrommet-frontend-common/components/filterAndTableLayout/FilterAndTableLayout";
 import { Tiltaksgjennomforingsoversikt } from "@/components/oversikt/Tiltaksgjennomforingsoversikt";
 import { useNavTiltaksgjennomforinger } from "@/api/queries/useTiltaksgjennomforinger";
-import { FilterMenyMedSkeletonLoader } from "@/components/filtrering/FilterMenyMedSkeletonLoader";
 import {
   isFilterReady,
   useArbeidsmarkedstiltakFilterValue,
   useResetArbeidsmarkedstiltakFilterUtenBrukerIKontekst,
 } from "@/hooks/useArbeidsmarkedstiltakFilter";
 import { NavFiltertags } from "@/apps/nav/filtrering/NavFiltertags";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { Feilmelding } from "@/components/feilmelding/Feilmelding";
 import { TilToppenKnapp } from "mulighetsrommet-frontend-common/components/tilToppenKnapp/TilToppenKnapp";
 import { NullstillFilterKnapp } from "mulighetsrommet-frontend-common/components/nullstillFilterKnapp/NullstillFilterKnapp";
+import { FilterSkeleton } from "mulighetsrommet-frontend-common";
+import { Filtermeny } from "@/components/filtrering/Filtermeny";
 
 interface Props {
   preview?: boolean;
@@ -34,7 +35,11 @@ export const NavArbeidsmarkedstiltakOversikt = ({ preview = false }: Props) => {
         filterOpen={filterOpen}
         setFilterOpen={setFilterOpen}
         buttons={null}
-        filter={<FilterMenyMedSkeletonLoader />}
+        filter={
+          <Suspense fallback={<FilterSkeleton />}>
+            <Filtermeny />
+          </Suspense>
+        }
         tags={<NavFiltertags filterOpen={filterOpen} setTagsHeight={setTagsHeight} />}
         nullstillFilterButton={
           filterHasChanged && <NullstillFilterKnapp onClick={resetFilterToDefaults} />

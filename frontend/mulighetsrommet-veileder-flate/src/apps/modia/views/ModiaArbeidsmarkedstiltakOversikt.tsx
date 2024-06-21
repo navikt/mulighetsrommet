@@ -7,20 +7,20 @@ import { FiltrertFeilInnsatsgruppeVarsel } from "@/apps/modia/varsler/FiltrertFe
 import { PortenLink } from "@/components/PortenLink";
 import { TiltakLoader } from "@/components/TiltakLoader";
 import { Feilmelding } from "@/components/feilmelding/Feilmelding";
-import { FilterMenyMedSkeletonLoader } from "@/components/filtrering/FilterMenyMedSkeletonLoader";
 import { OversiktenJoyride } from "@/components/joyride/OversiktenJoyride";
 import { Tiltaksgjennomforingsoversikt } from "@/components/oversikt/Tiltaksgjennomforingsoversikt";
 import { Tilbakeknapp } from "@/components/tilbakeknapp/Tilbakeknapp";
 import { useResetArbeidsmarkedstiltakFilterMedBrukerIKontekst } from "@/hooks/useArbeidsmarkedstiltakFilter";
 import { Alert } from "@navikt/ds-react";
 import { ApiError, Toggles } from "mulighetsrommet-api-client";
-import { useTitle } from "mulighetsrommet-frontend-common";
+import { FilterSkeleton, useTitle } from "mulighetsrommet-frontend-common";
 import { TilToppenKnapp } from "mulighetsrommet-frontend-common/components/tilToppenKnapp/TilToppenKnapp";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { ModiaOversiktBrukerVarsler } from "../varsler/ModiaOversiktBrukerVarsler";
 import { FilterAndTableLayout } from "mulighetsrommet-frontend-common/components/filterAndTableLayout/FilterAndTableLayout";
 import { NullstillFilterKnapp } from "mulighetsrommet-frontend-common/components/nullstillFilterKnapp/NullstillFilterKnapp";
 import { HistorikkButton } from "../historikk/HistorikkButton";
+import { Filtermeny } from "@/components/filtrering/Filtermeny";
 
 export const ModiaArbeidsmarkedstiltakOversikt = () => {
   useTitle("Arbeidsmarkedstiltak - Oversikt");
@@ -91,7 +91,11 @@ export const ModiaArbeidsmarkedstiltakOversikt = () => {
             />
           </>
         }
-        filter={<FilterMenyMedSkeletonLoader />}
+        filter={
+          <Suspense fallback={<FilterSkeleton />}>
+            <Filtermeny />
+          </Suspense>
+        }
         tags={<ModiaFiltertags filterOpen={filterOpen} setTagsHeight={setTagsHeight} />}
         table={
           <>

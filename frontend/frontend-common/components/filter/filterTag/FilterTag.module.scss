@@ -33,6 +33,8 @@
     padding: 0.5rem 0.5rem 1rem 0;
   }
   &_filter_open {
-    margin-left: 20rem;
+    @media (max-width: 1450px) {
+      margin-left: 20rem;
+    }
   }
 }
