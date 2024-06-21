@@ -39,6 +39,9 @@ export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
   const { data: regioner, isLoading: isLoadingRegioner } = useRegioner();
   const { data: arrangorer, isLoading: isLoadingArrangorer } = useArrangorer(
     ArrangorTil.TILTAKSGJENNOMFORING,
+    {
+      pageSize: 10000,
+    },
   );
   const { data: tiltakstyper, isLoading: isLoadingTiltakstyper } = useTiltakstyper();
 
