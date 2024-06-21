@@ -95,16 +95,13 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
 
           <FormGroup>
             <HGrid align="start" gap="4" columns={2}>
-              {avtale?.avtalenummer ? (
-                <TextField
-                  size="small"
-                  readOnly
-                  label={avtaletekster.avtalenummerLabel}
-                  value={avtale.avtalenummer}
-                />
-              ) : (
-                "-"
-              )}
+              <TextField
+                size="small"
+                readOnly
+                label={avtaletekster.avtalenummerLabel}
+                value={avtale?.avtalenummer}
+                placeholder="Genereres automatisk ved opprettelse"
+              />
               <TextField
                 size="small"
                 placeholder="åå/12345"
