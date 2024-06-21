@@ -17,6 +17,7 @@ import {
   ReloadAppErrorBoundary,
   ReloadAppFallback,
 } from "./components/error-handling/ErrorBoundary";
+import { OversiktSkeleton } from "./components/skeleton/OversiktSkeleton";
 
 export {
   useDebounce,
@@ -36,4 +37,5 @@ export {
   InlineFallback,
   ReloadAppFallback,
   TiltaksgjennomforingStatusTag,
+  OversiktSkeleton,
 };

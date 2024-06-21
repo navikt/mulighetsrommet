@@ -1,9 +1,10 @@
+import React, { Suspense } from "react";
 import classNames from "classnames";
-import React from "react";
 import { Filter } from "../filter/Filter";
 import { ToolbarButtonRow } from "../toolbar/toolbarButtonRow/ToolbarButtonRow";
 import styles from "./FilterAndTableLayout.module.scss";
 import { InlineErrorBoundary } from "../error-handling/ErrorBoundary";
+import { OversiktSkeleton } from "../skeleton/OversiktSkeleton";
 
 interface Props {
   filter: React.ReactNode;
@@ -25,29 +26,31 @@ export const FilterAndTableLayout = ({
   nullstillFilterButton,
 }: Props) => {
   return (
-    <div className={styles.filter_table_layout_container}>
-      <Filter setFilterOpen={setFilterOpen} filterOpen={filterOpen}>
-        <InlineErrorBoundary>{filter}</InlineErrorBoundary>
-      </Filter>
+    <Suspense fallback={<OversiktSkeleton />}>
+      <div className={styles.filter_table_layout_container}>
+        <Filter setFilterOpen={setFilterOpen} filterOpen={filterOpen}>
+          <InlineErrorBoundary>{filter}</InlineErrorBoundary>
+        </Filter>
 
-      <InlineErrorBoundary>
-        <ToolbarButtonRow>
-          <div className={styles.button_row_left}>{nullstillFilterButton}</div>
-          <div className={styles.button_row_right}>{buttons}</div>
-        </ToolbarButtonRow>
-      </InlineErrorBoundary>
-
-      <div
-        className={classNames(
-          styles.tags_and_table_container,
-          !filterOpen && styles.tags_and_table_container_filter_hidden,
-        )}
-      >
         <InlineErrorBoundary>
-          {tags}
-          <>{table}</>
+          <ToolbarButtonRow>
+            <div className={styles.button_row_left}>{nullstillFilterButton}</div>
+            <div className={styles.button_row_right}>{buttons}</div>
+          </ToolbarButtonRow>
         </InlineErrorBoundary>
+
+        <div
+          className={classNames(
+            styles.tags_and_table_container,
+            !filterOpen && styles.tags_and_table_container_filter_hidden,
+          )}
+        >
+          <InlineErrorBoundary>
+            {tags}
+            <>{table}</>
+          </InlineErrorBoundary>
+        </div>
       </div>
-    </div>
+    </Suspense>
   );
 };

@@ -9,6 +9,7 @@ export function FilterSkeleton() {
       <Skeleton height={50} variant="rounded" />
       <Skeleton height={50} variant="rounded" />
       <Skeleton height={50} variant="rounded" />
+      <Skeleton height={50} variant="rounded" />
     </VStack>
   );
 }

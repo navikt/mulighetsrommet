@@ -5,7 +5,6 @@ import { useHentAlleTiltakDeltMedBruker } from "@/apps/modia/hooks/useHentAlleTi
 import { useHentBrukerdata } from "@/apps/modia/hooks/useHentBrukerdata";
 import { FiltrertFeilInnsatsgruppeVarsel } from "@/apps/modia/varsler/FiltrertFeilInnsatsgruppeVarsel";
 import { PortenLink } from "@/components/PortenLink";
-import { TiltakLoader } from "@/components/TiltakLoader";
 import { Feilmelding } from "@/components/feilmelding/Feilmelding";
 import { OversiktenJoyride } from "@/components/joyride/OversiktenJoyride";
 import { Tiltaksgjennomforingsoversikt } from "@/components/oversikt/Tiltaksgjennomforingsoversikt";
@@ -13,9 +12,9 @@ import { Tilbakeknapp } from "@/components/tilbakeknapp/Tilbakeknapp";
 import { useResetArbeidsmarkedstiltakFilterMedBrukerIKontekst } from "@/hooks/useArbeidsmarkedstiltakFilter";
 import { Alert } from "@navikt/ds-react";
 import { ApiError, Toggles } from "mulighetsrommet-api-client";
-import { FilterSkeleton, useTitle } from "mulighetsrommet-frontend-common";
+import { useTitle } from "mulighetsrommet-frontend-common";
 import { TilToppenKnapp } from "mulighetsrommet-frontend-common/components/tilToppenKnapp/TilToppenKnapp";
-import { Suspense, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { ModiaOversiktBrukerVarsler } from "../varsler/ModiaOversiktBrukerVarsler";
 import { FilterAndTableLayout } from "mulighetsrommet-frontend-common/components/filterAndTableLayout/FilterAndTableLayout";
 import { NullstillFilterKnapp } from "mulighetsrommet-frontend-common/components/nullstillFilterKnapp/NullstillFilterKnapp";
@@ -36,12 +35,7 @@ export const ModiaArbeidsmarkedstiltakOversikt = () => {
   const [isHistorikkModalOpen, setIsHistorikkModalOpen] = useState(false);
   const [tagsHeight, setTagsHeight] = useState(0);
 
-  const {
-    data: tiltaksgjennomforinger = [],
-    isLoading,
-    isError,
-    error,
-  } = useVeilederTiltaksgjennomforinger();
+  const { data: tiltaksgjennomforinger = [], isError, error } = useVeilederTiltaksgjennomforinger();
 
   useEffect(() => {
     setIsHistorikkModalOpen(isHistorikkModalOpen);
@@ -91,39 +85,31 @@ export const ModiaArbeidsmarkedstiltakOversikt = () => {
             />
           </>
         }
-        filter={
-          <Suspense fallback={<FilterSkeleton />}>
-            <Filtermeny />
-          </Suspense>
-        }
+        filter={<Filtermeny />}
         tags={<ModiaFiltertags filterOpen={filterOpen} setTagsHeight={setTagsHeight} />}
         table={
           <>
-            {isLoading ? (
-              <TiltakLoader />
-            ) : (
-              <Tiltaksgjennomforingsoversikt
-                tiltaksgjennomforinger={tiltaksgjennomforinger}
-                deltMedBruker={alleTiltakDeltMedBruker ?? undefined}
-                filterOpen={filterOpen}
-                varsler={
-                  <>
-                    <ModiaOversiktBrukerVarsler brukerdata={brukerdata} />
-                    <FiltrertFeilInnsatsgruppeVarsel filter={filter} />
-                  </>
-                }
-                feilmelding={
-                  tiltaksgjennomforinger.length === 0 ? (
-                    <Feilmelding
-                      header="Ingen tiltaksgjennomføringer funnet"
-                      beskrivelse="Prøv å justere søket eller filteret for å finne det du leter etter"
-                      ikonvariant="warning"
-                    />
-                  ) : null
-                }
-                tagsHeight={tagsHeight}
-              />
-            )}
+            <Tiltaksgjennomforingsoversikt
+              tiltaksgjennomforinger={tiltaksgjennomforinger}
+              deltMedBruker={alleTiltakDeltMedBruker ?? undefined}
+              filterOpen={filterOpen}
+              varsler={
+                <>
+                  <ModiaOversiktBrukerVarsler brukerdata={brukerdata} />
+                  <FiltrertFeilInnsatsgruppeVarsel filter={filter} />
+                </>
+              }
+              feilmelding={
+                tiltaksgjennomforinger.length === 0 ? (
+                  <Feilmelding
+                    header="Ingen tiltaksgjennomføringer funnet"
+                    beskrivelse="Prøv å justere søket eller filteret for å finne det du leter etter"
+                    ikonvariant="warning"
+                  />
+                ) : null
+              }
+              tagsHeight={tagsHeight}
+            />
           </>
         }
       />
