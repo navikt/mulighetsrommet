@@ -9,13 +9,16 @@ import { FilterTag } from "./components/filter/filterTag/FilterTag";
 import { FilterTagsContainer } from "./components/filter/filterTag/FilterTagsContainer";
 import { FilterAccordionHeader } from "./components/filter/accordionHeader/FilterAccordionHeader";
 import { TiltaksgjennomforingStatusTag } from "./components/tags/TiltaksgjennomforingStatusTag";
+import { FilterSkeleton } from "./components/skeleton/FilterSkeleton";
 import { Drawer } from "./components/drawer/Drawer";
 import {
-  ReloadAppErrorBoundary,
   InlineErrorBoundary,
   InlineFallback,
+  ReloadAppErrorBoundary,
   ReloadAppFallback,
 } from "./components/error-handling/ErrorBoundary";
+import { OversiktSkeleton } from "./components/skeleton/OversiktSkeleton";
+import { DetaljerSkeleton } from "./components/skeleton/DetaljerSkeleton";
 
 export {
   useDebounce,
@@ -28,10 +31,13 @@ export {
   FilterTag,
   FilterTagsContainer,
   FilterAccordionHeader,
+  FilterSkeleton,
   Drawer,
   ReloadAppErrorBoundary,
   InlineErrorBoundary,
   InlineFallback,
   ReloadAppFallback,
   TiltaksgjennomforingStatusTag,
+  OversiktSkeleton,
+  DetaljerSkeleton,
 };

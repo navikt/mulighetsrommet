@@ -5,9 +5,7 @@ import { useHentAlleTiltakDeltMedBruker } from "@/apps/modia/hooks/useHentAlleTi
 import { useHentBrukerdata } from "@/apps/modia/hooks/useHentBrukerdata";
 import { FiltrertFeilInnsatsgruppeVarsel } from "@/apps/modia/varsler/FiltrertFeilInnsatsgruppeVarsel";
 import { PortenLink } from "@/components/PortenLink";
-import { TiltakLoader } from "@/components/TiltakLoader";
 import { Feilmelding } from "@/components/feilmelding/Feilmelding";
-import { FilterMenyMedSkeletonLoader } from "@/components/filtrering/FilterMenyMedSkeletonLoader";
 import { OversiktenJoyride } from "@/components/joyride/OversiktenJoyride";
 import { Tiltaksgjennomforingsoversikt } from "@/components/oversikt/Tiltaksgjennomforingsoversikt";
 import { Tilbakeknapp } from "@/components/tilbakeknapp/Tilbakeknapp";
@@ -21,6 +19,7 @@ import { ModiaOversiktBrukerVarsler } from "../varsler/ModiaOversiktBrukerVarsle
 import { FilterAndTableLayout } from "mulighetsrommet-frontend-common/components/filterAndTableLayout/FilterAndTableLayout";
 import { NullstillFilterKnapp } from "mulighetsrommet-frontend-common/components/nullstillFilterKnapp/NullstillFilterKnapp";
 import { HistorikkButton } from "../historikk/HistorikkButton";
+import { Filtermeny } from "@/components/filtrering/Filtermeny";
 
 export const ModiaArbeidsmarkedstiltakOversikt = () => {
   useTitle("Arbeidsmarkedstiltak - Oversikt");
@@ -36,12 +35,7 @@ export const ModiaArbeidsmarkedstiltakOversikt = () => {
   const [isHistorikkModalOpen, setIsHistorikkModalOpen] = useState(false);
   const [tagsHeight, setTagsHeight] = useState(0);
 
-  const {
-    data: tiltaksgjennomforinger = [],
-    isLoading,
-    isError,
-    error,
-  } = useVeilederTiltaksgjennomforinger();
+  const { data: tiltaksgjennomforinger = [], isError, error } = useVeilederTiltaksgjennomforinger();
 
   useEffect(() => {
     setIsHistorikkModalOpen(isHistorikkModalOpen);
@@ -91,35 +85,31 @@ export const ModiaArbeidsmarkedstiltakOversikt = () => {
             />
           </>
         }
-        filter={<FilterMenyMedSkeletonLoader />}
+        filter={<Filtermeny />}
         tags={<ModiaFiltertags filterOpen={filterOpen} setTagsHeight={setTagsHeight} />}
         table={
           <>
-            {isLoading ? (
-              <TiltakLoader />
-            ) : (
-              <Tiltaksgjennomforingsoversikt
-                tiltaksgjennomforinger={tiltaksgjennomforinger}
-                deltMedBruker={alleTiltakDeltMedBruker ?? undefined}
-                filterOpen={filterOpen}
-                varsler={
-                  <>
-                    <ModiaOversiktBrukerVarsler brukerdata={brukerdata} />
-                    <FiltrertFeilInnsatsgruppeVarsel filter={filter} />
-                  </>
-                }
-                feilmelding={
-                  tiltaksgjennomforinger.length === 0 ? (
-                    <Feilmelding
-                      header="Ingen tiltaksgjennomføringer funnet"
-                      beskrivelse="Prøv å justere søket eller filteret for å finne det du leter etter"
-                      ikonvariant="warning"
-                    />
-                  ) : null
-                }
-                tagsHeight={tagsHeight}
-              />
-            )}
+            <Tiltaksgjennomforingsoversikt
+              tiltaksgjennomforinger={tiltaksgjennomforinger}
+              deltMedBruker={alleTiltakDeltMedBruker ?? undefined}
+              filterOpen={filterOpen}
+              varsler={
+                <>
+                  <ModiaOversiktBrukerVarsler brukerdata={brukerdata} />
+                  <FiltrertFeilInnsatsgruppeVarsel filter={filter} />
+                </>
+              }
+              feilmelding={
+                tiltaksgjennomforinger.length === 0 ? (
+                  <Feilmelding
+                    header="Ingen tiltaksgjennomføringer funnet"
+                    beskrivelse="Prøv å justere søket eller filteret for å finne det du leter etter"
+                    ikonvariant="warning"
+                  />
+                ) : null
+              }
+              tagsHeight={tagsHeight}
+            />
           </>
         }
       />
