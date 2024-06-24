@@ -18,6 +18,7 @@ import no.nav.mulighetsrommet.api.services.TiltakstypeService
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.Tiltakskoder
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
+import no.nav.mulighetsrommet.domain.dto.AmoKategorisering
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
 import no.nav.mulighetsrommet.domain.dto.allowedAvtaletypes
 import java.time.format.DateTimeFormatter
@@ -95,6 +96,24 @@ class AvtaleValidator(
                 if (avtale.avtaletype != Avtaletype.Forhaandsgodkjent && avtale.sluttDato == null) {
                     add(ValidationError.of(AvtaleDbo::sluttDato, "Du må legge inn sluttdato for avtalen"))
                 }
+            }
+
+            if (
+                Tiltakskode.fromArenaKode(tiltakstype.arenaKode) == Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING &&
+                avtale.amoKategorisering?.kurstype != null &&
+                avtale.amoKategorisering.kurstype !== AmoKategorisering.Kurstype.STUDIESPESIALISERING &&
+                avtale.amoKategorisering.spesifisering == null
+            ) {
+                add(ValidationError.ofCustomLocation("amoKategorisering.spesifisering", "Du må velge en spesifisering"))
+            }
+
+            if (
+                Tiltakskode.fromArenaKode(tiltakstype.arenaKode) == Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING &&
+                avtale.amoKategorisering?.kurstype != null &&
+                avtale.amoKategorisering.kurstype !== AmoKategorisering.Kurstype.STUDIESPESIALISERING &&
+                avtale.amoKategorisering.innholdElementer.isNullOrEmpty()
+            ) {
+                add(ValidationError.ofCustomLocation("amoKategorisering.innholdElementer", "Du må velge minst étt element"))
             }
 
             validateNavEnheter(avtale.navEnheter)

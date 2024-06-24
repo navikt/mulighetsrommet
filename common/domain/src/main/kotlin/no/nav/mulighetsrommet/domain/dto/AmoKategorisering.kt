@@ -24,7 +24,6 @@ data class AmoKategorisering(
         ANDRE_BRANSJER,
         NORSKOPPLAERING,
         GRUNNLEGGENDE_FERDIGHETER,
-        FORBEREDENDE_OPPLAERING_FOR_VOKSNE,
     }
 
     enum class ForerkortKlasse {
@@ -50,10 +49,11 @@ data class AmoKategorisering(
 
     enum class InnholdElement {
         GRUNNLEGGENDE_FERDIGHETER,
-        JOBBSOKER_KOMPETANSE,
         TEORETISK_OPPLAERING,
-        PRAKTISK_OPPLAERING,
+        JOBBSOKER_KOMPETANSE,
+        PRAKSISPLASS,
         ARBEIDSLIVSKUNNSKAP,
+        SPRAKKUNNSKAPER,
     }
 
     @Serializable

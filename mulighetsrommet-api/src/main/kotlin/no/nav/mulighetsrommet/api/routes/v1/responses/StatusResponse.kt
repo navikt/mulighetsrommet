@@ -68,6 +68,10 @@ data class ValidationError(
         fun of(property: KProperty1<*, *>, message: String): ValidationError {
             return ValidationError(name = property.name, message = message)
         }
+
+        fun ofCustomLocation(location: String, message: String): ValidationError {
+            return ValidationError(name = location, message = message)
+        }
     }
 }
 

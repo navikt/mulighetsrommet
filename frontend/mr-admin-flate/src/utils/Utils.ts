@@ -286,8 +286,6 @@ export function spesifiseringToString(spesifisering: Spesifisering): string {
       return "Andre bransjer";
     case Spesifisering.NORSKOPPLAERING:
       return "Norskopplæring";
-    case Spesifisering.FORBEREDENDE_OPPLAERING_FOR_VOKSNE:
-      return "Forberedende opplæring for voksne";
     case Spesifisering.GRUNNLEGGENDE_FERDIGHETER:
       return "Grunnleggende ferdigheter";
   }

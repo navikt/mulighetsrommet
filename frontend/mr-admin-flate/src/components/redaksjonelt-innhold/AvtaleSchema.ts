@@ -86,19 +86,6 @@ export const AvtaleSchema = z
         path: ["websaknummer"],
       });
     }
-
-    if (
-      data.tiltakstype.arenaKode === TiltakskodeArena.GRUPPEAMO &&
-      data.amoKategorisering?.kurstype &&
-      data.amoKategorisering.kurstype !== Kurstype.STUDIESPESIALISERING &&
-      !data.amoKategorisering?.spesifisering
-    ) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Du må velge en spesifisering",
-        path: ["amoKategorisering.spesifisering"],
-      });
-    }
   });
 
 export type InferredAvtaleSchema = z.infer<typeof AvtaleSchema>;

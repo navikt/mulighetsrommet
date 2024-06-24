@@ -27,7 +27,12 @@ export function TiltaksgjennomforingAmoKategoriseringSkjema(props: Props) {
     Toggles.MULIGHETSROMMET_ADMIN_FLATE_ENABLE_GRUPPE_AMO_KATEGORIER,
   );
 
-  const { setValue, register, watch } = useFormContext<InferredTiltaksgjennomforingSchema>();
+  const {
+    setValue,
+    register,
+    watch,
+    formState: { errors },
+  } = useFormContext<InferredTiltaksgjennomforingSchema>();
 
   if (!isEnabled || !avtale.amoKategorisering) {
     return null;
@@ -35,14 +40,8 @@ export function TiltaksgjennomforingAmoKategoriseringSkjema(props: Props) {
 
   const kurstype = avtale.amoKategorisering.kurstype;
   const spesifisering = avtale.amoKategorisering.spesifisering;
-  const isBransjeSpesifisering =
-    spesifisering &&
-    [
-      Spesifisering.SERVERING_OVERNATTING,
-      Spesifisering.TRANSPORT,
-      Spesifisering.INDUSTRI,
-      Spesifisering.ANDRE_BRANSJER,
-    ].includes(spesifisering);
+  const avtaleSertifiseringer = avtale.amoKategorisering.sertifiseringer;
+  const avtaleForerkort = avtale.amoKategorisering.forerkort;
   const forerkort = watch("amoKategorisering.forerkort");
   const norskprove = watch("amoKategorisering.norskprove");
   const innholdElementer = watch("amoKategorisering.innholdElementer");
@@ -57,18 +56,16 @@ export function TiltaksgjennomforingAmoKategoriseringSkjema(props: Props) {
           <option>{spesifiseringToString(spesifisering)}</option>
         </Select>
       )}
-      {isBransjeSpesifisering && (
+      {avtaleForerkort && avtaleForerkort.length > 0 && (
         <UNSAFE_Combobox
           clearButton
           size="small"
           label="Førerkort"
           isMultiSelect
-          options={
-            avtale.amoKategorisering.forerkort?.map((f) => ({
-              label: forerkortKlasseToString(f),
-              value: f,
-            })) ?? []
-          }
+          options={avtaleForerkort.map((f) => ({
+            label: forerkortKlasseToString(f),
+            value: f,
+          }))}
           selectedOptions={
             forerkort?.map((f) => ({
               label: forerkortKlasseToString(f),
@@ -88,14 +85,14 @@ export function TiltaksgjennomforingAmoKategoriseringSkjema(props: Props) {
           }
         ></UNSAFE_Combobox>
       )}
-      {isBransjeSpesifisering && (
+      {avtaleSertifiseringer && avtaleSertifiseringer.length > 0 && (
         <ControlledMultiSelect<{ konseptId: number; label: string }>
           size="small"
           placeholder="Søk etter sertifiseringer"
           label={"Sertifiseringer"}
           {...register("amoKategorisering.sertifiseringer")}
           options={
-            avtale.amoKategorisering.sertifiseringer?.map((s: Sertifisering) => ({
+            avtaleSertifiseringer.map((s: Sertifisering) => ({
               value: s,
               label: s.label,
             })) ?? []
@@ -115,6 +112,7 @@ export function TiltaksgjennomforingAmoKategoriseringSkjema(props: Props) {
         <CheckboxGroup
           size="small"
           legend="Elementer i kurset"
+          error={errors?.amoKategorisering?.innholdElementer?.message}
           onChange={(values) => {
             setValue("amoKategorisering.innholdElementer", values);
           }}
@@ -126,8 +124,9 @@ export function TiltaksgjennomforingAmoKategoriseringSkjema(props: Props) {
             </Checkbox>
             <Checkbox value={InnholdElement.JOBBSOKER_KOMPETANSE}>Jobbsøkerkompetanse</Checkbox>
             <Checkbox value={InnholdElement.TEORETISK_OPPLAERING}>Teoretisk opplæring</Checkbox>
-            <Checkbox value={InnholdElement.PRAKTISK_OPPLAERING}>Praktisk opplæring</Checkbox>
+            <Checkbox value={InnholdElement.PRAKSISPLASS}>Praksisplass</Checkbox>
             <Checkbox value={InnholdElement.ARBEIDSLIVSKUNNSKAP}>Arbeidslivskunnskap</Checkbox>
+            <Checkbox value={InnholdElement.SPRAKKUNNSKAPER}>Språkkunnskaper</Checkbox>
           </HGrid>
         </CheckboxGroup>
       )}
