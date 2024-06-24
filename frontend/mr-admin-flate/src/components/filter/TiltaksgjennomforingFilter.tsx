@@ -95,7 +95,7 @@ export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
             search,
           });
         }}
-        onBlur={(e) => {
+        onBlur={() => {
           loggBrukAvFilter("sok", "REDACTED");
         }}
         value={filter.search}
