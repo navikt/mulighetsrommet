@@ -95,6 +95,9 @@ export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
             search,
           });
         }}
+        onBlur={(e) => {
+          loggBrukAvFilter("sok", "REDACTED");
+        }}
         value={filter.search}
         aria-label="Søk etter tiltaksgjennomføring"
       />

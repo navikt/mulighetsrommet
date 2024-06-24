@@ -62,6 +62,9 @@ export function AvtaleFilter({ filterAtom, skjulFilter }: Props) {
         size="small"
         variant="simple"
         placeholder="Navn, tiltaksnr., tiltaksarrangør"
+        onBlur={(e) => {
+          loggBrukAvFilter("sok", "REDACTED");
+        }}
         onChange={(search: string) => {
           setFilter({
             ...filter,
