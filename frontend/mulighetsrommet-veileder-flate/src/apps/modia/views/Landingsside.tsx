@@ -7,10 +7,6 @@ import { Link, useLocation } from "react-router-dom";
 import { DeltakelseKort } from "../historikk/DeltakelseKort";
 import styles from "./Landingsside.module.scss";
 
-function SkeletonLoader() {
-  return <Skeleton variant="rounded" height={"10rem"} width={"40rem"} />;
-}
-
 function Feilmelding({ message }: { message: string }) {
   return (
     <Alert aria-live="polite" variant="error">
@@ -31,7 +27,7 @@ export function Landingsside() {
             })
           }
         >
-          <Suspense fallback={<SkeletonLoader />}>
+          <Suspense fallback={<Skeleton variant="rounded" height="10rem" width="40rem" />}>
             <FeedbackFraUrl />
             <Utkast />
           </Suspense>
@@ -51,8 +47,8 @@ export function Landingsside() {
           <Suspense
             fallback={
               <VStack gap="5">
-                <SkeletonLoader />
-                <SkeletonLoader />
+                <Skeleton variant="rounded" height="10rem" width="40rem" />
+                <Skeleton variant="rounded" height="10rem" width="40rem" />
               </VStack>
             }
           >

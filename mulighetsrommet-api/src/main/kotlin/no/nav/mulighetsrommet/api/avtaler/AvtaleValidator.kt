@@ -210,18 +210,6 @@ class AvtaleValidator(
                     )
                 }
 
-                gjennomforing.navEnheter.forEach { enhet: NavEnhetDbo ->
-                    val enhetsnummer = enhet.enhetsnummer
-                    if (enhetsnummer !in avtale.navEnheter) {
-                        add(
-                            ValidationError.of(
-                                AvtaleDbo::navEnheter,
-                                "NAV-enheten $enhetsnummer er i bruk på en av avtalens gjennomføringer, men mangler blant avtalens NAV-enheter",
-                            ),
-                        )
-                    }
-                }
-
                 if (gjennomforing.startDato.isBefore(avtale.startDato)) {
                     val gjennomforingsStartDato = gjennomforing.startDato.format(
                         DateTimeFormatter.ofLocalizedDate(
@@ -288,7 +276,6 @@ class AvtaleValidator(
         val actualNavEnheter = resolveNavEnheter(navEnheter)
 
         if (!actualNavEnheter.any { it.value.type == Norg2Type.FYLKE }) {
-            add(ValidationError.of(AvtaleDbo::navEnheter, "Du må velge minst én NAV-region"))
             add(ValidationError.of(AvtaleDbo::navEnheter, "Du må velge minst én NAV-region"))
         }
 

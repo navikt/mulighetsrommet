@@ -1,4 +1,4 @@
-import { Accordion, Search, Skeleton, Switch, VStack } from "@navikt/ds-react";
+import { Accordion, Search, Switch } from "@navikt/ds-react";
 import { useAtom, WritableAtom } from "jotai";
 import { ArrangorTil, NavEnhet } from "mulighetsrommet-api-client";
 import { useEffect } from "react";
@@ -10,15 +10,20 @@ import { useAvtale } from "@/api/avtaler/useAvtale";
 import { useNavEnheter } from "@/api/enhet/useNavEnheter";
 import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
 import { useArrangorer } from "@/api/arrangor/useArrangorer";
-import { addOrRemove } from "../../utils/Utils";
+import { addOrRemove } from "@/utils/Utils";
 import {
   arrangorOptions,
   TILTAKSGJENNOMFORING_STATUS_OPTIONS,
   tiltakstypeOptions,
-} from "../../utils/filterUtils";
-import { FilterAccordionHeader, NavEnhetFilter } from "mulighetsrommet-frontend-common";
+} from "@/utils/filterUtils";
+import {
+  FilterAccordionHeader,
+  FilterSkeleton,
+  NavEnhetFilter,
+} from "mulighetsrommet-frontend-common";
 import { useRegioner } from "@/api/enhet/useRegioner";
 import { CheckboxList } from "./CheckboxList";
+import { logEvent } from "../../logging/amplitude";
 
 type Filters = "tiltakstype";
 
@@ -31,6 +36,16 @@ interface Props {
   skjulFilter?: Record<Filters, boolean>;
 }
 
+function loggBrukAvFilter(filter: string, value: any) {
+  logEvent({
+    name: "tiltaksadministrasjon.velg-tiltaksgjennomforing-filter",
+    data: {
+      filter,
+      value,
+    },
+  });
+}
+
 export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
   const [filter, setFilter] = useAtom(filterAtom);
   const [accordionsOpen, setAccordionsOpen] = useAtom(gjennomforingFilterAccordionAtom);
@@ -39,6 +54,9 @@ export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
   const { data: regioner, isLoading: isLoadingRegioner } = useRegioner();
   const { data: arrangorer, isLoading: isLoadingArrangorer } = useArrangorer(
     ArrangorTil.TILTAKSGJENNOMFORING,
+    {
+      pageSize: 10000,
+    },
   );
   const { data: tiltakstyper, isLoading: isLoadingTiltakstyper } = useTiltakstyper();
 
@@ -59,16 +77,7 @@ export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
     !tiltakstyper ||
     isLoadingTiltakstyper
   ) {
-    return (
-      <VStack gap="2">
-        <Skeleton height={50} variant="rounded" />
-        <Skeleton height={200} variant="rounded" />
-        <Skeleton height={50} variant="rounded" />
-        <Skeleton height={50} variant="rounded" />
-        <Skeleton height={50} variant="rounded" />
-        <Skeleton height={50} variant="rounded" />
-      </VStack>
-    );
+    return <FilterSkeleton />;
   }
 
   return (
@@ -86,6 +95,9 @@ export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
             search,
           });
         }}
+        onBlur={() => {
+          loggBrukAvFilter("sok", "REDACTED");
+        }}
         value={filter.search}
         aria-label="Søk etter tiltaksgjennomføring"
       />
@@ -100,6 +112,7 @@ export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
               page: 1,
               visMineGjennomforinger: event.currentTarget.checked,
             });
+            loggBrukAvFilter("visMineGjennomforinger", event.currentTarget.checked);
           }}
         >
           <span style={{ fontWeight: "bold" }}>Vis kun mine gjennomføringer</span>
@@ -124,6 +137,10 @@ export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
                   page: 1,
                   statuser: addOrRemove(filter.statuser, status),
                 });
+                loggBrukAvFilter(
+                  "status",
+                  TILTAKSGJENNOMFORING_STATUS_OPTIONS.find((s) => s.value === status)?.label,
+                );
               }}
             />
           </Accordion.Content>
@@ -151,6 +168,10 @@ export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
                     page: 1,
                     tiltakstyper: addOrRemove(filter.tiltakstyper, tiltakstype),
                   });
+                  loggBrukAvFilter(
+                    "status",
+                    tiltakstyper.data.find((s) => s.id === tiltakstype)?.navn,
+                  );
                 }}
               />
             </Accordion.Content>
@@ -171,9 +192,13 @@ export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
             <div style={{ marginLeft: "-2rem" }}>
               <NavEnhetFilter
                 navEnheter={filter.navEnheter}
-                setNavEnheter={(navEnheter: NavEnhet[]) =>
-                  setFilter({ ...filter, page: 1, navEnheter })
-                }
+                setNavEnheter={(navEnheter: NavEnhet[]) => {
+                  setFilter({ ...filter, page: 1, navEnheter });
+                  loggBrukAvFilter(
+                    "navEnheter",
+                    navEnheter.map((n) => n.navn),
+                  );
+                }}
                 regioner={regioner}
               />
             </div>
@@ -201,6 +226,7 @@ export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
                   page: 1,
                   arrangorer: addOrRemove(filter.arrangorer, id),
                 });
+                loggBrukAvFilter("arrangorer", arrangorer.data.find((a) => a.id === id)?.navn);
               }}
             />
           </Accordion.Content>
@@ -229,6 +255,7 @@ export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
                   page: 1,
                   publisert: addOrRemove(filter.publisert, id),
                 });
+                loggBrukAvFilter("publisert", id);
               }}
             />
           </Accordion.Content>

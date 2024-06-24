@@ -20,3 +20,6 @@ app:
       amtDeltakerV1:
         id: amt-deltaker
         topic: amt.deltaker-v1
+      sisteTiltaksgjennomforingerV1:
+        id: siste-tiltaksgjennomforinger
+        topic: team-mulighetsrommet.siste-tiltaksgjennomforinger-v1

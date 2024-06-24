@@ -333,7 +333,6 @@ class AvtaleRepository(private val db: Database) {
             "administrator_nav_ident" to administratorNavIdent?.let { """[{ "navIdent": "${it.value}" }]""" },
             "tiltakstype_ids" to tiltakstypeIder.ifEmpty { null }?.let { db.createUuidArray(it) },
             "arrangor_ids" to arrangorIds.ifEmpty { null }?.let { db.createUuidArray(it) },
-            "arrangor_ids" to arrangorIds.ifEmpty { null }?.let { db.createUuidArray(it) },
             "nav_enheter" to navRegioner.ifEmpty { null }?.let { db.createTextArray(it) },
             "avtaletyper" to avtaletyper.ifEmpty { null }?.let { db.createArrayOf("avtaletype", it) },
             "statuser" to statuser.ifEmpty { null }?.let { db.createArrayOf("text", statuser) },
@@ -368,7 +367,7 @@ class AvtaleRepository(private val db: Database) {
                    arena_nav_enhet_enhetsnummer in (select enhetsnummer
                                                     from nav_enhet
                                                     where overordnet_enhet = any (:nav_enheter))))
-              and (:arrangor_hovedenhet_id::text is null or :arrangor_hovedenhet_id = any (:arrangor_ids))
+              and (:arrangor_ids::text[] is null or arrangor_hovedenhet_id = any (:arrangor_ids))
               and (:administrator_nav_ident::text is null or administratorer_json @> :administrator_nav_ident::jsonb)
               and (:avtaletyper::avtaletype[] is null or avtaletype = any (:avtaletyper))
               and (:statuser::text[] is null or status = any(:statuser))

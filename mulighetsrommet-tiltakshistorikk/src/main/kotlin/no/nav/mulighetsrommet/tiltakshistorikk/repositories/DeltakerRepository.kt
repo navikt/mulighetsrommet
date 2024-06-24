@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.tiltakshistorikk
+package no.nav.mulighetsrommet.tiltakshistorikk.repositories
 
 import kotliquery.Row
 import kotliquery.queryOf

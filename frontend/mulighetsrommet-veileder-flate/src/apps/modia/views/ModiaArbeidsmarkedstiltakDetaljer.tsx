@@ -9,7 +9,6 @@ import { useHentDeltMedBrukerStatus } from "@/apps/modia/hooks/useHentDeltMedbru
 import { useHentVeilederdata } from "@/apps/modia/hooks/useHentVeilederdata";
 import { useModiaContext } from "@/apps/modia/hooks/useModiaContext";
 import { BrukerKvalifisererIkkeVarsel } from "@/apps/modia/varsler/BrukerKvalifisererIkkeVarsel";
-import { TiltakLoader } from "@/components/TiltakLoader";
 import { DetaljerJoyride } from "@/components/joyride/DetaljerJoyride";
 import { OpprettAvtaleJoyride } from "@/components/joyride/OpprettAvtaleJoyride";
 import { PersonvernContainer } from "@/components/personvern/PersonvernContainer";
@@ -28,7 +27,7 @@ import {
   Toggles,
   VeilederflateTiltakstype,
 } from "mulighetsrommet-api-client";
-import { useTitle } from "mulighetsrommet-frontend-common";
+import { DetaljerSkeleton, useTitle } from "mulighetsrommet-frontend-common";
 import { PameldingForGruppetiltak } from "../../../components/pamelding/PameldingForGruppetiltak";
 import { gjennomforingIsAktiv } from "mulighetsrommet-frontend-common/utils/utils";
 
@@ -68,7 +67,7 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
   const pagination = useAtomValue(paginationAtom);
 
   if (isPendingTiltak || isPendingVeilederdata || isPendingBrukerdata) {
-    return <TiltakLoader />;
+    return <DetaljerSkeleton />;
   }
 
   if (isError || isErrorVeilederdata || isErrorBrukerdata) {

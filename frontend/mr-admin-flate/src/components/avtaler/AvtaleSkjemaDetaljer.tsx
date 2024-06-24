@@ -76,7 +76,7 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
 
   const { startDato } = watch("startOgSluttDato") ?? {};
   const sluttDatoFraDato = startDato ? new Date(startDato) : minStartdato;
-  const sluttDatoTilDato = addYear(startDato ? new Date(startDato) : new Date(), 20);
+  const sluttDatoTilDato = addYear(startDato ? new Date(startDato) : new Date(), 35);
 
   return (
     <div className={skjemastyles.container}>
@@ -95,16 +95,13 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
 
           <FormGroup>
             <HGrid align="start" gap="4" columns={2}>
-              {avtale?.avtalenummer ? (
-                <TextField
-                  size="small"
-                  readOnly
-                  label={avtaletekster.avtalenummerLabel}
-                  value={avtale.avtalenummer}
-                />
-              ) : (
-                "-"
-              )}
+              <TextField
+                size="small"
+                readOnly
+                label={avtaletekster.avtalenummerLabel}
+                value={avtale?.avtalenummer}
+                placeholder="Genereres automatisk ved opprettelse"
+              />
               <TextField
                 size="small"
                 placeholder="åå/12345"

@@ -1,11 +1,13 @@
-import { ContainerLayout } from "../../layouts/ContainerLayout";
-import { MainContainer } from "../../layouts/MainContainer";
-import { TiltakstypeTabell } from "../../components/tabell/TiltakstypeTabell";
-import { HeaderBanner } from "../../layouts/HeaderBanner";
+import { ContainerLayout } from "@/layouts/ContainerLayout";
+import { MainContainer } from "@/layouts/MainContainer";
+import { HeaderBanner } from "@/layouts/HeaderBanner";
 import { ReloadAppErrorBoundary, useTitle } from "mulighetsrommet-frontend-common";
 import { TilToppenKnapp } from "mulighetsrommet-frontend-common/components/tilToppenKnapp/TilToppenKnapp";
-import { Brodsmuler } from "../../components/navigering/Brodsmuler";
-import { TiltakstypeIkon } from "../../components/ikoner/TiltakstypeIkon";
+import { Brodsmuler } from "@/components/navigering/Brodsmuler";
+import { TiltakstypeIkon } from "@/components/ikoner/TiltakstypeIkon";
+import { Skeleton } from "@navikt/ds-react";
+import { Suspense } from "react";
+import { TiltakstypeTabell } from "@/components/tabell/TiltakstypeTabell";
 
 export function TiltakstyperPage() {
   useTitle("Tiltakstyper");
@@ -21,7 +23,9 @@ export function TiltakstyperPage() {
       <MainContainer>
         <ContainerLayout>
           <ReloadAppErrorBoundary>
-            <TiltakstypeTabell />
+            <Suspense fallback={<Skeleton height={500} variant="rounded" />}>
+              <TiltakstypeTabell />
+            </Suspense>
           </ReloadAppErrorBoundary>
         </ContainerLayout>
       </MainContainer>

@@ -13,6 +13,7 @@ import no.nav.mulighetsrommet.domain.dbo.Deltakerstatus
 import no.nav.mulighetsrommet.domain.dto.TiltakshistorikkDto
 import no.nav.mulighetsrommet.domain.dto.amt.AmtDeltakerStatus
 import no.nav.mulighetsrommet.domain.dto.amt.AmtDeltakerV1Dto
+import no.nav.mulighetsrommet.tiltakshistorikk.repositories.DeltakerRepository
 import java.util.*
 
 fun Route.tiltakshistorikkRoutes(deltakerRepository: DeltakerRepository) {
