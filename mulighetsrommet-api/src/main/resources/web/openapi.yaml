@@ -3687,7 +3687,6 @@ components:
         - INDUSTRI
         - ANDRE_BRANSJER
         - NORSKOPPLAERING
-        - FORBEREDENDE_OPPLAERING_FOR_VOKSNE
         - GRUNNLEGGENDE_FERDIGHETER
 
     InnholdElement:
@@ -3696,8 +3695,9 @@ components:
         - GRUNNLEGGENDE_FERDIGHETER
         - JOBBSOKER_KOMPETANSE
         - TEORETISK_OPPLAERING
-        - PRAKTISK_OPPLAERING
+        - PRAKSISPLASS
         - ARBEIDSLIVSKUNNSKAP
+        - SPRAKKUNNSKAPER
 
     AmoKategorisering:
       type: object

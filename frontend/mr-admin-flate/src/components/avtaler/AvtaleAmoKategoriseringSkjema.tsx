@@ -130,9 +130,6 @@ export function AvtaleAmoKategoriseringSkjema() {
           <option value={Spesifisering.NORSKOPPLAERING}>
             {spesifiseringToString(Spesifisering.NORSKOPPLAERING)}
           </option>
-          <option value={Spesifisering.FORBEREDENDE_OPPLAERING_FOR_VOKSNE}>
-            {spesifiseringToString(Spesifisering.FORBEREDENDE_OPPLAERING_FOR_VOKSNE)}
-          </option>
           <option value={Spesifisering.GRUNNLEGGENDE_FERDIGHETER}>
             {spesifiseringToString(Spesifisering.GRUNNLEGGENDE_FERDIGHETER)}
           </option>
@@ -211,6 +208,7 @@ export function AvtaleAmoKategoriseringSkjema() {
         <CheckboxGroup
           size="small"
           legend="Elementer i kurset"
+          error={errors?.amoKategorisering?.innholdElementer?.message}
           onChange={(values) => {
             setValue("amoKategorisering.innholdElementer", values);
           }}
@@ -222,8 +220,9 @@ export function AvtaleAmoKategoriseringSkjema() {
             </Checkbox>
             <Checkbox value={InnholdElement.JOBBSOKER_KOMPETANSE}>Jobbsøkerkompetanse</Checkbox>
             <Checkbox value={InnholdElement.TEORETISK_OPPLAERING}>Teoretisk opplæring</Checkbox>
-            <Checkbox value={InnholdElement.PRAKTISK_OPPLAERING}>Praktisk opplæring</Checkbox>
+            <Checkbox value={InnholdElement.PRAKSISPLASS}>Praksisplass</Checkbox>
             <Checkbox value={InnholdElement.ARBEIDSLIVSKUNNSKAP}>Arbeidslivskunnskap</Checkbox>
+            <Checkbox value={InnholdElement.SPRAKKUNNSKAPER}>Språkkunnskaper</Checkbox>
           </HGrid>
         </CheckboxGroup>
       )}
