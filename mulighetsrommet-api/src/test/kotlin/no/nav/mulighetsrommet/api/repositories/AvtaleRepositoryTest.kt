@@ -278,7 +278,7 @@ class AvtaleRepositoryTest :
                     spesifisering = AmoKategorisering.Spesifisering.INDUSTRI,
                     norskprove = null,
                     forerkort = null,
-                    innholdElementer = listOf(AmoKategorisering.InnholdElement.PRAKTISK_OPPLAERING),
+                    innholdElementer = listOf(AmoKategorisering.InnholdElement.TEORETISK_OPPLAERING),
                 )
 
                 val avtale = AvtaleFixtures.oppfolging.copy(amoKategorisering = amoKategorisering)
