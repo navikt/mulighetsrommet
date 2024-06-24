@@ -60,7 +60,7 @@ fun Application.configure(config: AppConfig) {
     val kafka = configureKafka(config.kafka, db, deltakerRepository, gruppetiltakRepository)
 
     routing {
-        tiltakshistorikkRoutes(deltakerRepository, tiltakshistorikkService)
+        tiltakshistorikkRoutes(kafka, deltakerRepository, tiltakshistorikkService)
     }
 
     monitor.subscribe(ApplicationStarted) {

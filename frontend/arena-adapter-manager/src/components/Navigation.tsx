@@ -31,17 +31,17 @@ function NavButton({ children, icon, to }: { children: string; icon: IconType; t
   );
 }
 
-function Navigation() {
+interface Props {
+  apps: { name: string; path: string }[];
+}
+
+function Navigation({ apps }: Props) {
   return (
     <Box w="inherit" bg="pink.600">
       <Container pt="8" maxW="container.xl">
         <Flex w="100%">
           <LinkBox mb="8" w="fit-content" mr="10">
-            <LinkOverlay
-              color="white"
-              _hover={{ color: "pink.500" }}
-              href="https://youtu.be/RJHctyXPmkg?t=5"
-            >
+            <LinkOverlay color="white" _hover={{ color: "pink.500" }} href="/">
               <Heading size="4xl">MAAM</Heading>
             </LinkOverlay>
             <Heading color="pink.300" size="xs">
@@ -50,12 +50,11 @@ function Navigation() {
           </LinkBox>
           <Box flex="auto" p="5" rounded="md">
             <HStack spacing={4}>
-              <NavButton to="/mr-arena-adapter" icon={AiOutlineSetting}>
-                mr-arena-adapter
-              </NavButton>
-              <NavButton to="/mr-api" icon={AiOutlineSetting}>
-                mr-api
-              </NavButton>
+              {apps.map((app) => (
+                <NavButton key={app.name} to={app.path} icon={AiOutlineSetting}>
+                  {app.name}
+                </NavButton>
+              ))}
             </HStack>
           </Box>
           <Box>

@@ -16,6 +16,8 @@ export class ApiError extends Error {
 export enum ApiBase {
   ARENA_ADAPTER = "/mulighetsrommet-arena-adapter",
   MR_API = "/mulighetsrommet-api/api/intern/maam",
+  TILTAKSHISTORIKK = "/tiltakshistorikk/maam",
+  TILTAKSOKONOMI = "/tiltaksokonomi/maam",
 }
 
 export const getTopics = (base: ApiBase) =>

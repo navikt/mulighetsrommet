@@ -3,7 +3,7 @@ import { RunTask } from "../sections/RunTask";
 import TopicOverview from "../sections/TopicOverview.tsx";
 import { ApiBase } from "../core/api.tsx";
 
-export function MrApiManagement() {
+export function MrApi() {
   return (
     <Box>
       <Heading mb="10">mr-api</Heading>

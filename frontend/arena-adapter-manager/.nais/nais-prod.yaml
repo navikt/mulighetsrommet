@@ -76,6 +76,16 @@ spec:
                 "namespace": "team-mulighetsrommet",
                 "cluster": "prod-gcp"
               }
+            },
+            {
+              "fromPath": "/tiltakshistorikk",
+              "toUrl": "http://tiltakshistorikk",
+              "preserveFromPath": false,
+              "toApp": {
+                "name": "tiltakshistorikk",
+                "namespace": "team-mulighetsrommet",
+                "cluster": "prod-gcp"
+              }
             }
           ]
         }
