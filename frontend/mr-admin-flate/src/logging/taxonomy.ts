@@ -12,4 +12,24 @@ type SETT_TILGJENGELIG_FOR_REDAKTOR = {
   };
 };
 
-export type Event = KLIKK_FORSIDE_KORT | SETT_TILGJENGELIG_FOR_REDAKTOR;
+type VELG_AVTALE_FILTER = {
+  name: "tiltaksadministrasjon.velg-avtale-filter";
+  data: {
+    filter: string;
+    value: any;
+  };
+};
+
+type VELG_TILTAKSGJENNOMFORING_FILTER = {
+  name: "tiltaksadministrasjon.velg-tiltaksgjennomforing-filter";
+  data: {
+    filter: string;
+    value: any;
+  };
+};
+
+export type Event =
+  | KLIKK_FORSIDE_KORT
+  | SETT_TILGJENGELIG_FOR_REDAKTOR
+  | VELG_AVTALE_FILTER
+  | VELG_TILTAKSGJENNOMFORING_FILTER;
