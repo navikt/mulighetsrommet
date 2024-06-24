@@ -23,6 +23,7 @@ import {
 } from "mulighetsrommet-frontend-common";
 import { useRegioner } from "@/api/enhet/useRegioner";
 import { CheckboxList } from "./CheckboxList";
+import { logEvent } from "../../logging/amplitude";
 
 type Filters = "tiltakstype";
 
@@ -33,6 +34,16 @@ interface Props {
     void
   >;
   skjulFilter?: Record<Filters, boolean>;
+}
+
+function loggBrukAvFilter(filter: string, value: any) {
+  logEvent({
+    name: "tiltaksadministrasjon.velg-tiltaksgjennomforing-filter",
+    data: {
+      filter,
+      value,
+    },
+  });
 }
 
 export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
@@ -98,6 +109,7 @@ export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
               page: 1,
               visMineGjennomforinger: event.currentTarget.checked,
             });
+            loggBrukAvFilter("visMineGjennomforinger", event.currentTarget.checked);
           }}
         >
           <span style={{ fontWeight: "bold" }}>Vis kun mine gjennomføringer</span>
@@ -122,6 +134,10 @@ export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
                   page: 1,
                   statuser: addOrRemove(filter.statuser, status),
                 });
+                loggBrukAvFilter(
+                  "status",
+                  TILTAKSGJENNOMFORING_STATUS_OPTIONS.find((s) => s.value === status)?.label,
+                );
               }}
             />
           </Accordion.Content>
@@ -149,6 +165,10 @@ export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
                     page: 1,
                     tiltakstyper: addOrRemove(filter.tiltakstyper, tiltakstype),
                   });
+                  loggBrukAvFilter(
+                    "status",
+                    tiltakstyper.data.find((s) => s.id === tiltakstype)?.navn,
+                  );
                 }}
               />
             </Accordion.Content>
@@ -169,9 +189,13 @@ export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
             <div style={{ marginLeft: "-2rem" }}>
               <NavEnhetFilter
                 navEnheter={filter.navEnheter}
-                setNavEnheter={(navEnheter: NavEnhet[]) =>
-                  setFilter({ ...filter, page: 1, navEnheter })
-                }
+                setNavEnheter={(navEnheter: NavEnhet[]) => {
+                  setFilter({ ...filter, page: 1, navEnheter });
+                  loggBrukAvFilter(
+                    "navEnheter",
+                    navEnheter.map((n) => n.navn),
+                  );
+                }}
                 regioner={regioner}
               />
             </div>
@@ -199,6 +223,7 @@ export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
                   page: 1,
                   arrangorer: addOrRemove(filter.arrangorer, id),
                 });
+                loggBrukAvFilter("arrangorer", arrangorer.data.find((a) => a.id === id)?.navn);
               }}
             />
           </Accordion.Content>
@@ -227,6 +252,7 @@ export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
                   page: 1,
                   publisert: addOrRemove(filter.publisert, id),
                 });
+                loggBrukAvFilter("publisert", id);
               }}
             />
           </Accordion.Content>
