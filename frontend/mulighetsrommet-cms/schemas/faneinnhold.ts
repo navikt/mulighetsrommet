@@ -132,6 +132,12 @@ export const faneinnhold = defineType({
         ),
     }),
     defineField({
+      name: "oppskrift",
+      title: "Oppskrift",
+      description: `Ekstra tekst som legger seg over oppskriftene. Makslengde er ${MAKS_LENGDE_INNHOLD} tegn.`,
+      type: "oppskriftContent",
+    }),
+    defineField({
       name: "lenker",
       title: "Lenker",
       description: "Legg til lenker som blir synlig for NAV-ansatte",

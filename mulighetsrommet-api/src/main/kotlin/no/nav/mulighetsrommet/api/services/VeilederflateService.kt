@@ -252,7 +252,7 @@ class VeilederflateService(
                   detaljerOgInnholdInfoboks,
                   detaljerOgInnhold,
                   pameldingOgVarighetInfoboks,
-                  pameldingOgVarighet,
+                  pameldingOgVarighet
                 },
                 delingMedBruker,
                 "oppskrifter":  coalesce(oppskrifter[] -> {
@@ -283,7 +283,8 @@ class VeilederflateService(
                 pameldingOgVarighet,
                 kontaktinfoInfoboks,
                 kontaktinfo,
-                lenker
+                lenker,
+                oppskrift
               },
               delingMedBruker,
             }[0]

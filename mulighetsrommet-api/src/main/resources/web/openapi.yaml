@@ -3037,6 +3037,10 @@ components:
             $ref: "#/components/schemas/PortableTextTypedObject"
         kontaktinfoInfoboks:
           type: string
+        oppskrift:
+          type: array
+          items:
+            $ref: "#/components/schemas/PortableTextTypedObject"
         lenker:
           type: array
           items:
