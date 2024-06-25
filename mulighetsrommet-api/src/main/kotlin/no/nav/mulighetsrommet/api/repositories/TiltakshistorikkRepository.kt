@@ -153,8 +153,8 @@ class TiltakshistorikkRepository(private val db: Database) {
 
     private fun Row.toTiltakshistorikk() = TiltakshistorikkDbo(
         id = uuid("id"),
-        fraDato = localDateTimeOrNull("fra_dato"),
-        tilDato = localDateTimeOrNull("til_dato"),
+        fraDato = localDateOrNull("fra_dato"),
+        tilDato = localDateOrNull("til_dato"),
         status = Deltakerstatus.valueOf(string("status")),
         tiltaksnavn = stringOrNull("navn"),
         tiltakstype = string("tiltakstype"),

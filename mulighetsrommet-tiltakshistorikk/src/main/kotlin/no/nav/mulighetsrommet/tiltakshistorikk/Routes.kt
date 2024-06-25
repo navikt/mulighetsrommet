@@ -7,11 +7,10 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
+import kotlinx.coroutines.async
 import no.nav.mulighetsrommet.domain.dbo.ArenaDeltakerDbo
-import no.nav.mulighetsrommet.domain.dbo.ArenaDeltakerStatus
-import no.nav.mulighetsrommet.domain.dbo.Deltakerstatus
-import no.nav.mulighetsrommet.domain.dto.TiltakshistorikkDto
 import no.nav.mulighetsrommet.domain.dto.TiltakshistorikkRequest
+import no.nav.mulighetsrommet.domain.dto.TiltakshistorikkResponse
 import no.nav.mulighetsrommet.tiltakshistorikk.repositories.DeltakerRepository
 import java.util.*
 
@@ -20,13 +19,13 @@ fun Route.tiltakshistorikkRoutes(deltakerRepository: DeltakerRepository) {
         route("/api/v1/historikk") {
             post {
                 val request = call.receive<TiltakshistorikkRequest>()
-                val arenaHistorikk = deltakerRepository
-                    .getArenaDeltakelser(request.identer)
-                    .map { it.toTiltakshistorikkDto() }
-                val kometHistorikk = deltakerRepository
-                    .getKometHistorikk(request.identer)
 
-                call.respond(arenaHistorikk + kometHistorikk)
+                val arenaDeltakelser = async { deltakerRepository.getArenaHistorikk(request.identer) }
+                val gruppetiltakDeltakelser = async { deltakerRepository.getKometHistorikk(request.identer) }
+                val tiltakshistorikk = arenaDeltakelser.await() + gruppetiltakDeltakelser.await()
+
+                val historikk = tiltakshistorikk.sortedWith(compareBy(nullsLast()) { it.startDato })
+                call.respond(TiltakshistorikkResponse(historikk = historikk))
             }
         }
 
@@ -49,38 +48,3 @@ fun Route.tiltakshistorikkRoutes(deltakerRepository: DeltakerRepository) {
         }
     }
 }
-
-fun ArenaDeltakerDbo.toTiltakshistorikkDto() =
-    TiltakshistorikkDto(
-        id = this.id,
-        startDato = this.startDato,
-        sluttDato = this.sluttDato,
-        status = this.status.toDeltakerstatus(),
-        tiltaksnavn = this.beskrivelse,
-        arenaTiltakskode = this.arenaTiltakskode,
-        arrangorOrganisasjonsnummer = this.arrangorOrganisasjonsnummer,
-    )
-
-fun ArenaDeltakerStatus.toDeltakerstatus() =
-    when (this) {
-        ArenaDeltakerStatus.AVSLAG,
-        ArenaDeltakerStatus.IKKE_AKTUELL,
-        ArenaDeltakerStatus.TAKKET_NEI_TIL_TILBUD,
-        -> Deltakerstatus.IKKE_AKTUELL
-
-        ArenaDeltakerStatus.TILBUD,
-        ArenaDeltakerStatus.TAKKET_JA_TIL_TILBUD,
-        ArenaDeltakerStatus.INFORMASJONSMOTE,
-        ArenaDeltakerStatus.AKTUELL,
-        ArenaDeltakerStatus.VENTELISTE,
-        -> Deltakerstatus.VENTER
-
-        ArenaDeltakerStatus.GJENNOMFORES -> Deltakerstatus.DELTAR
-
-        ArenaDeltakerStatus.DELTAKELSE_AVBRUTT,
-        ArenaDeltakerStatus.GJENNOMFORING_AVBRUTT,
-        ArenaDeltakerStatus.GJENNOMFORING_AVLYST,
-        ArenaDeltakerStatus.FULLFORT,
-        ArenaDeltakerStatus.IKKE_MOTT,
-        -> Deltakerstatus.AVSLUTTET
-    }

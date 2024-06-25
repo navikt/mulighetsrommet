@@ -4,13 +4,11 @@ import kotliquery.Row
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.Tiltakskode
-import no.nav.mulighetsrommet.domain.Tiltakskode.Companion.toArenaKode
 import no.nav.mulighetsrommet.domain.dbo.ArenaDeltakerDbo
 import no.nav.mulighetsrommet.domain.dbo.ArenaDeltakerStatus
-import no.nav.mulighetsrommet.domain.dbo.Deltakerstatus
 import no.nav.mulighetsrommet.domain.dto.NorskIdent
 import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
-import no.nav.mulighetsrommet.domain.dto.TiltakshistorikkDto
+import no.nav.mulighetsrommet.domain.dto.Tiltakshistorikk
 import no.nav.mulighetsrommet.domain.dto.amt.AmtDeltakerStatus
 import no.nav.mulighetsrommet.domain.dto.amt.AmtDeltakerV1Dto
 import org.intellij.lang.annotations.Language
@@ -58,20 +56,28 @@ class DeltakerRepository(private val db: Database) {
         queryOf(query, deltaker.toSqlParameters()).asExecute.runWithSession(session)
     }
 
-    fun getArenaDeltakelser(identer: List<NorskIdent>): List<ArenaDeltakerDbo> = db.useSession { session ->
+    fun getArenaHistorikk(identer: List<NorskIdent>) = db.useSession { session ->
         @Language("PostgreSQL")
         val query = """
-            select *
-            from arena_deltaker
-            where norsk_ident = any(:identer)
-            order by start_dato desc nulls last;
+                select
+                    id,
+                    norsk_ident,
+                    arena_tiltakskode,
+                    status,
+                    start_dato,
+                    slutt_dato,
+                    beskrivelse,
+                    arrangor_organisasjonsnummer
+                from arena_deltaker
+                where norsk_ident = any(:identer)
+                order by start_dato desc nulls last;
         """.trimIndent()
 
         val params = mapOf(
             "identer" to session.createArrayOf("text", identer.map { it.value }),
         )
 
-        queryOf(query, params).map { it.toArenaDeltaker() }.asList.runWithSession(session)
+        queryOf(query, params).map { it.toArenaDeltakelse() }.asList.runWithSession(session)
     }
 
     fun deleteArenaDeltaker(id: UUID) = db.useSession { session ->
@@ -135,30 +141,31 @@ class DeltakerRepository(private val db: Database) {
         queryOf(query, deltaker.toSqlParameters()).asExecute.runWithSession(session)
     }
 
-    fun getKometHistorikk(identer: List<NorskIdent>): List<TiltakshistorikkDto> = db.useSession { session ->
+    fun getKometHistorikk(identer: List<NorskIdent>) = db.useSession { session ->
         @Language("PostgreSQL")
         val query = """
-            select
-                komet_deltaker.id,
-                komet_deltaker.start_dato,
-                komet_deltaker.slutt_dato,
-                komet_deltaker.status_type,
-                komet_deltaker.status_opprettet_dato,
-                komet_deltaker.status_aarsak,
-                gruppetiltak.navn,
-                gruppetiltak.tiltakskode,
-                gruppetiltak.arrangor_organisasjonsnummer
-            from komet_deltaker
-                inner join gruppetiltak on gruppetiltak.id = komet_deltaker.gjennomforing_id
-            where person_ident = any(:identer)
-            order by start_dato desc nulls last;
+                select
+                    deltaker.person_ident as norsk_ident,
+                    deltaker.id,
+                    deltaker.start_dato,
+                    deltaker.slutt_dato,
+                    deltaker.status_type,
+                    deltaker.status_aarsak,
+                    deltaker.status_opprettet_dato,
+                    gruppetiltak.id as gruppetiltak_id,
+                    gruppetiltak.navn as gruppetiltak_navn,
+                    gruppetiltak.tiltakskode as gruppetiltak_tiltakskode,
+                    gruppetiltak.arrangor_organisasjonsnummer
+                from komet_deltaker deltaker join gruppetiltak on deltaker.gjennomforing_id = gruppetiltak.id
+                where deltaker.person_ident = any(:identer)
+                order by deltaker.start_dato desc nulls last;
         """.trimIndent()
 
         val params = mapOf(
             "identer" to session.createArrayOf("text", identer.map { it.value }),
         )
 
-        queryOf(query, params).map { it.toKometTiltakshistorikkDto() }.asList.runWithSession(session)
+        queryOf(query, params).map { it.toGruppetiltakDeltakelse() }.asList.runWithSession(session)
     }
 
     fun deleteKometDeltaker(id: UUID) = db.useSession { session ->
@@ -186,16 +193,17 @@ private fun ArenaDeltakerDbo.toSqlParameters() = mapOf(
     "arrangor_organisasjonsnummer" to arrangorOrganisasjonsnummer.value,
 )
 
-private fun Row.toArenaDeltaker(): ArenaDeltakerDbo = ArenaDeltakerDbo(
-    id = uuid("id"),
+private fun Row.toArenaDeltakelse() = Tiltakshistorikk.ArenaDeltakelse(
     norskIdent = NorskIdent(string("norsk_ident")),
+    id = uuid("id"),
     arenaTiltakskode = string("arena_tiltakskode"),
     status = ArenaDeltakerStatus.valueOf(string("status")),
-    startDato = localDateTimeOrNull("start_dato"),
-    sluttDato = localDateTimeOrNull("slutt_dato"),
-    registrertIArenaDato = localDateTime("registrert_i_arena_dato"),
+    startDato = localDateOrNull("start_dato"),
+    sluttDato = localDateOrNull("slutt_dato"),
     beskrivelse = string("beskrivelse"),
-    arrangorOrganisasjonsnummer = Organisasjonsnummer(string("arrangor_organisasjonsnummer")),
+    arrangor = Tiltakshistorikk.Arrangor(
+        organisasjonsnummer = Organisasjonsnummer(string("arrangor_organisasjonsnummer")),
+    ),
 )
 
 private fun AmtDeltakerV1Dto.toSqlParameters() = mapOf(
@@ -213,42 +221,24 @@ private fun AmtDeltakerV1Dto.toSqlParameters() = mapOf(
     "prosent_stilling" to prosentStilling,
 )
 
-private fun Row.toKometTiltakshistorikkDto(): TiltakshistorikkDto = TiltakshistorikkDto(
+private fun Row.toGruppetiltakDeltakelse() = Tiltakshistorikk.GruppetiltakDeltakelse(
+    norskIdent = NorskIdent(string("norsk_ident")),
     id = uuid("id"),
+    startDato = localDateOrNull("start_dato"),
+    sluttDato = localDateOrNull("slutt_dato"),
     status = AmtDeltakerStatus(
         type = AmtDeltakerStatus.Type.valueOf(string("status_type")),
-        aarsak = stringOrNull("status_aarsak")?.let {
-            AmtDeltakerStatus.Aarsak.valueOf(it)
+        aarsak = stringOrNull("status_aarsak")?.let { aarsak ->
+            AmtDeltakerStatus.Aarsak.valueOf(aarsak)
         },
         opprettetDato = localDateTime("status_opprettet_dato"),
-    ).toDeltakerstatus(),
-    startDato = localDateOrNull("start_dato")?.atStartOfDay(),
-    sluttDato = localDateOrNull("slutt_dato")?.atStartOfDay(),
-    tiltaksnavn = string("navn"),
-    arenaTiltakskode = toArenaKode(Tiltakskode.valueOf(string("tiltakskode"))),
-    arrangorOrganisasjonsnummer = Organisasjonsnummer(string("arrangor_organisasjonsnummer")),
+    ),
+    gjennomforing = Tiltakshistorikk.Gjennomforing(
+        id = uuid("gruppetiltak_id"),
+        navn = string("gruppetiltak_navn"),
+        tiltakskode = Tiltakskode.valueOf(string("gruppetiltak_tiltakskode")),
+    ),
+    arrangor = Tiltakshistorikk.Arrangor(
+        organisasjonsnummer = Organisasjonsnummer(string("arrangor_organisasjonsnummer")),
+    ),
 )
-
-fun AmtDeltakerStatus.toDeltakerstatus() =
-    when (this.type) {
-        AmtDeltakerStatus.Type.PABEGYNT_REGISTRERING -> Deltakerstatus.PABEGYNT_REGISTRERING
-
-        AmtDeltakerStatus.Type.UTKAST_TIL_PAMELDING, // TODO: Skal denne her? Dette er vel før påbegynt registrering egentlig?
-        AmtDeltakerStatus.Type.VURDERES, // TODO: Skal denne her? Dette er vel før påbegynt registrering egentlig?
-        AmtDeltakerStatus.Type.SOKT_INN,
-        AmtDeltakerStatus.Type.VENTELISTE,
-        AmtDeltakerStatus.Type.VENTER_PA_OPPSTART,
-        -> Deltakerstatus.VENTER
-
-        AmtDeltakerStatus.Type.AVBRUTT_UTKAST,
-        AmtDeltakerStatus.Type.IKKE_AKTUELL,
-        AmtDeltakerStatus.Type.FEILREGISTRERT,
-        -> Deltakerstatus.IKKE_AKTUELL
-
-        AmtDeltakerStatus.Type.DELTAR -> Deltakerstatus.DELTAR
-
-        AmtDeltakerStatus.Type.HAR_SLUTTET,
-        AmtDeltakerStatus.Type.AVBRUTT,
-        AmtDeltakerStatus.Type.FULLFORT,
-        -> Deltakerstatus.AVSLUTTET
-    }

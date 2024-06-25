@@ -96,6 +96,19 @@ class TiltakstypeRepository(private val db: Database) {
         }
     }
 
+    fun getByArenaTiltakskode(arenaTiltakskode: String): TiltakstypeAdminDto {
+        @Language("PostgreSQL")
+        val query = """
+            select *
+            from tiltakstype_admin_dto_view
+            where arena_kode = ?
+        """.trimIndent()
+        val queryResult = queryOf(query, arenaTiltakskode).map { it.toTiltakstypeAdminDto() }.asSingle
+        return requireNotNull(db.run(queryResult)) {
+            "Det finnes ingen tiltakstype med arena_kode $arenaTiltakskode"
+        }
+    }
+
     fun getBySanityId(sanityId: UUID): TiltakstypeAdminDto? {
         @Language("PostgreSQL")
         val query = """

@@ -151,7 +151,7 @@ private fun kafka(appConfig: AppConfig) = module {
             ),
             PtoSisteOppfolgingsperiodeV1TopicConsumer(
                 config = config.consumers.ptoSisteOppfolgingsperiodeV1,
-                tiltakshistorikkService = get(),
+                tiltakshistorikk = get(),
                 pdlClient = get(),
             ),
         )
@@ -211,7 +211,11 @@ private fun services(appConfig: AppConfig) = module {
     single<PoaoTilgangClient> {
         PoaoTilgangHttpClient(
             baseUrl = appConfig.poaoTilgang.url,
-            tokenProvider = { runBlocking { cachedTokenProvider.withScope(appConfig.poaoTilgang.scope).exchange(AccessType.M2M) } },
+            tokenProvider = {
+                runBlocking {
+                    cachedTokenProvider.withScope(appConfig.poaoTilgang.scope).exchange(AccessType.M2M)
+                }
+            },
         )
     }
     single {
@@ -292,7 +296,7 @@ private fun services(appConfig: AppConfig) = module {
             get(),
         )
     }
-    single { TiltakshistorikkService(get(), get(), get(), get(), get()) }
+    single { TiltakshistorikkService(get(), get(), get(), get(), get(), get()) }
     single { VeilederflateService(get(), get(), get(), get()) }
     single { BrukerService(get(), get(), get(), get(), get()) }
     single { NavAnsattService(appConfig.auth.roles, get(), get(), get(), get(), get(), get(), get()) }

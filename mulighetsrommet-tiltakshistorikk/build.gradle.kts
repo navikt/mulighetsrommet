@@ -35,6 +35,7 @@ dependencies {
 
     // Ktor
     testImplementation(libs.ktor.client.mock)
+    testImplementation(libs.ktor.client.contentNegotiation)
     implementation(libs.ktor.serialization.json)
     implementation(libs.ktor.server.auth)
     implementation(libs.ktor.server.authJwt)

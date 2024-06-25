@@ -2,17 +2,13 @@ package no.nav.mulighetsrommet.tiltakshistorikk
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
-import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.dbo.ArenaDeltakerDbo
 import no.nav.mulighetsrommet.domain.dbo.ArenaDeltakerStatus
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
-import no.nav.mulighetsrommet.domain.dto.NorskIdent
-import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
-import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus
-import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingV1Dto
+import no.nav.mulighetsrommet.domain.dto.*
 import no.nav.mulighetsrommet.domain.dto.amt.AmtDeltakerStatus
 import no.nav.mulighetsrommet.domain.dto.amt.AmtDeltakerV1Dto
 import no.nav.mulighetsrommet.tiltakshistorikk.repositories.DeltakerRepository
@@ -54,20 +50,47 @@ class DeltakerRepositoryTest : FunSpec({
         tiltakshistorikk.upsertArenaDeltaker(arbeidstrening)
         tiltakshistorikk.upsertArenaDeltaker(mentor)
 
-        tiltakshistorikk.getArenaDeltakelser(identer = listOf(NorskIdent("12345678910"))) shouldBe listOf(
-            mentor,
-            arbeidstrening,
+        tiltakshistorikk.getArenaHistorikk(identer = listOf(NorskIdent("12345678910"))) shouldBe listOf(
+            Tiltakshistorikk.ArenaDeltakelse(
+                id = mentor.id,
+                norskIdent = NorskIdent("12345678910"),
+                arenaTiltakskode = "MENTOR",
+                status = ArenaDeltakerStatus.GJENNOMFORES,
+                startDato = LocalDate.of(2024, 2, 1),
+                sluttDato = LocalDate.of(2024, 2, 29),
+                beskrivelse = "Mentortiltak hos Joblearn",
+                arrangor = Tiltakshistorikk.Arrangor(Organisasjonsnummer("123123123")),
+            ),
+            Tiltakshistorikk.ArenaDeltakelse(
+                id = arbeidstrening.id,
+                norskIdent = NorskIdent("12345678910"),
+                arenaTiltakskode = "ARBTREN",
+                status = ArenaDeltakerStatus.GJENNOMFORES,
+                startDato = LocalDate.of(2024, 1, 1),
+                sluttDato = LocalDate.of(2024, 1, 31),
+                beskrivelse = "Arbeidstrening hos Fretex",
+                arrangor = Tiltakshistorikk.Arrangor(Organisasjonsnummer("123123123")),
+            ),
         )
 
         tiltakshistorikk.deleteArenaDeltaker(mentor.id)
 
-        tiltakshistorikk.getArenaDeltakelser(identer = listOf(NorskIdent("12345678910"))) shouldBe listOf(
-            arbeidstrening,
+        tiltakshistorikk.getArenaHistorikk(identer = listOf(NorskIdent("12345678910"))) shouldBe listOf(
+            Tiltakshistorikk.ArenaDeltakelse(
+                id = arbeidstrening.id,
+                norskIdent = NorskIdent("12345678910"),
+                arenaTiltakskode = "ARBTREN",
+                status = ArenaDeltakerStatus.GJENNOMFORES,
+                startDato = LocalDate.of(2024, 1, 1),
+                sluttDato = LocalDate.of(2024, 1, 31),
+                beskrivelse = "Arbeidstrening hos Fretex",
+                arrangor = Tiltakshistorikk.Arrangor(Organisasjonsnummer("123123123")),
+            ),
         )
 
         tiltakshistorikk.deleteArenaDeltaker(arbeidstrening.id)
 
-        tiltakshistorikk.getArenaDeltakelser(identer = listOf(NorskIdent("12345678910"))).shouldBeEmpty()
+        tiltakshistorikk.getArenaHistorikk(identer = listOf(NorskIdent("12345678910"))).shouldBeEmpty()
     }
 
     test("kometHistorikk") {
@@ -111,9 +134,24 @@ class DeltakerRepositoryTest : FunSpec({
         )
         deltakerRepository.upsertKometDeltaker(amtDeltaker1)
 
-        deltakerRepository.getKometHistorikk(listOf(NorskIdent(amtDeltaker1.personIdent)))[0] should {
-            it.id shouldBe amtDeltaker1.id
-            it.tiltaksnavn shouldBe tiltak.navn
-        }
+        deltakerRepository.getKometHistorikk(listOf(NorskIdent(amtDeltaker1.personIdent))) shouldBe listOf(
+            Tiltakshistorikk.GruppetiltakDeltakelse(
+                id = amtDeltaker1.id,
+                norskIdent = NorskIdent("10101010100"),
+                startDato = null,
+                sluttDato = null,
+                status = AmtDeltakerStatus(
+                    type = AmtDeltakerStatus.Type.VENTER_PA_OPPSTART,
+                    aarsak = null,
+                    opprettetDato = deltakelsesdato,
+                ),
+                gjennomforing = Tiltakshistorikk.Gjennomforing(
+                    id = tiltak.id,
+                    navn = tiltak.navn,
+                    tiltakskode = tiltak.tiltakstype.tiltakskode,
+                ),
+                arrangor = Tiltakshistorikk.Arrangor(Organisasjonsnummer("123123123")),
+            ),
+        )
     }
 })
