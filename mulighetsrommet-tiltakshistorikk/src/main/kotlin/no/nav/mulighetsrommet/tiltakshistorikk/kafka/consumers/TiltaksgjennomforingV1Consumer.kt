@@ -26,8 +26,6 @@ class TiltaksgjennomforingV1Consumer(
 
         if (gjennomforing == null) {
             gruppetiltakRepository.delete(key)
-        } else if (gjennomforing.tiltakstype.tiltakskode == null) {
-            log.info("Tiltakskode mangler, event kastes")
         } else {
             gruppetiltakRepository.upsert(gjennomforing)
         }

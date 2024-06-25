@@ -30,6 +30,6 @@ data class TiltaksgjennomforingV1Dto(
         val id: UUID,
         val navn: String,
         val arenaKode: String,
-        val tiltakskode: Tiltakskode?,
+        val tiltakskode: Tiltakskode,
     )
 }
