@@ -10,6 +10,7 @@ import io.ktor.server.util.*
 import no.nav.mulighetsrommet.domain.dbo.ArenaDeltakerDbo
 import no.nav.mulighetsrommet.domain.dbo.ArenaDeltakerStatus
 import no.nav.mulighetsrommet.domain.dbo.Deltakerstatus
+import no.nav.mulighetsrommet.domain.dto.NorskIdent
 import no.nav.mulighetsrommet.domain.dto.TiltakshistorikkDto
 import no.nav.mulighetsrommet.domain.dto.amt.AmtDeltakerStatus
 import no.nav.mulighetsrommet.domain.dto.amt.AmtDeltakerV1Dto
@@ -53,7 +54,7 @@ fun Route.tiltakshistorikkRoutes(deltakerRepository: DeltakerRepository) {
 }
 
 data class TiltakshistorikkRequest(
-    val identer: List<String>,
+    val identer: List<NorskIdent>,
 )
 
 fun ArenaDeltakerDbo.toTiltakshistorikkDto() =

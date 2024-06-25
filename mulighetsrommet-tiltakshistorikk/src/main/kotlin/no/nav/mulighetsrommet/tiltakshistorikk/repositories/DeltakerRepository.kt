@@ -18,7 +18,7 @@ class DeltakerRepository(private val db: Database) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
     fun upsertArenaDeltaker(deltaker: ArenaDeltakerDbo) = db.useSession { session ->
-        logger.info("Lagrer deltaker id=${deltaker.id}")
+        logger.info("Lagrer arena_deltaker id=${deltaker.id}")
 
         @Language("PostgreSQL")
         val query = """
@@ -54,7 +54,7 @@ class DeltakerRepository(private val db: Database) {
         queryOf(query, deltaker.toSqlParameters()).asExecute.runWithSession(session)
     }
 
-    fun getArenaDeltakelser(identer: List<String>) = db.useSession { session ->
+    fun getArenaDeltakelser(identer: List<NorskIdent>): List<ArenaDeltakerDbo> = db.useSession { session ->
         @Language("PostgreSQL")
         val query = """
             select *
@@ -64,14 +64,14 @@ class DeltakerRepository(private val db: Database) {
         """.trimIndent()
 
         val params = mapOf(
-            "identer" to session.createArrayOf("text", identer),
+            "identer" to session.createArrayOf("text", identer.map { it.value }),
         )
 
         queryOf(query, params).map { it.toArenaDeltaker() }.asList.runWithSession(session)
     }
 
     fun deleteArenaDeltaker(id: UUID) = db.useSession { session ->
-        logger.info("Sletter deltaker id=$id")
+        logger.info("Sletter arena_deltaker id=$id")
 
         @Language("PostgreSQL")
         val query = """
@@ -83,7 +83,7 @@ class DeltakerRepository(private val db: Database) {
     }
 
     fun upsertKometDeltaker(deltaker: AmtDeltakerV1Dto) = db.useSession { session ->
-        logger.info("Lagrer deltaker id=${deltaker.id}")
+        logger.info("Lagrer komet_deltaker id=${deltaker.id}")
 
         @Language("PostgreSQL")
         val query = """
@@ -131,7 +131,7 @@ class DeltakerRepository(private val db: Database) {
         queryOf(query, deltaker.toSqlParameters()).asExecute.runWithSession(session)
     }
 
-    fun getKometDeltakelser(identer: List<String>) = db.useSession { session ->
+    fun getKometDeltakelser(identer: List<NorskIdent>): List<AmtDeltakerV1Dto> = db.useSession { session ->
         @Language("PostgreSQL")
         val query = """
             select *
@@ -141,14 +141,14 @@ class DeltakerRepository(private val db: Database) {
         """.trimIndent()
 
         val params = mapOf(
-            "identer" to session.createArrayOf("text", identer),
+            "identer" to session.createArrayOf("text", identer.map { it.value }),
         )
 
         queryOf(query, params).map { it.toAmtDeltakerV1Dto() }.asList.runWithSession(session)
     }
 
     fun deleteKometDeltaker(id: UUID) = db.useSession { session ->
-        logger.info("Sletter deltaker id=$id")
+        logger.info("Sletter komet_deltaker id=$id")
 
         @Language("PostgreSQL")
         val query = """
