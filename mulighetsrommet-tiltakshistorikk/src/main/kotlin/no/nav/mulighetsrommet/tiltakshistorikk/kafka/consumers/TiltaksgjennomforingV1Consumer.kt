@@ -8,6 +8,7 @@ import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.kafka.serialization.JsonElementDeserializer
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import no.nav.mulighetsrommet.tiltakshistorikk.repositories.GruppetiltakRepository
+import org.slf4j.LoggerFactory
 import java.util.*
 
 class TiltaksgjennomforingV1Consumer(
@@ -18,11 +19,15 @@ class TiltaksgjennomforingV1Consumer(
     uuidDeserializer(),
     JsonElementDeserializer(),
 ) {
+    private val log = LoggerFactory.getLogger(javaClass)
+
     override suspend fun consume(key: UUID, message: JsonElement) {
         val gjennomforing = JsonIgnoreUnknownKeys.decodeFromJsonElement<TiltaksgjennomforingV1Dto?>(message)
 
         if (gjennomforing == null) {
             gruppetiltakRepository.delete(key)
+        } else if (gjennomforing.tiltakstype.tiltakskode == null) {
+            log.info("Tiltakskode mangler, event kastes")
         } else {
             gruppetiltakRepository.upsert(gjennomforing)
         }
