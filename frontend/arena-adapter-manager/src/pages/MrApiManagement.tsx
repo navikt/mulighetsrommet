@@ -43,8 +43,7 @@ export function MrApiManagement() {
               },
               tiltakstyper: {
                 title: "Tiltakstyper",
-                description:
-                  "For hvilke tiltakstyper skal gjennomføringer relastes på topic? Hvis ingen er valgt vil gjennomføringer relastes for alle tiltakstyper.",
+                description: "For hvilke tiltakstyper skal gjennomføringer relastes på topic?",
                 type: "array",
                 items: {
                   type: "string",
@@ -61,8 +60,10 @@ export function MrApiManagement() {
                   ],
                 },
                 uniqueItems: true,
+                minItems: 1,
               },
             },
+            required: ["tiltakstyper"],
           }}
         />
 
