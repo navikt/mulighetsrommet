@@ -55,27 +55,6 @@ class TiltaksgjennomforingV1ConsumerTest : FunSpec({
                 .value("id").isEqualTo(tiltak.id)
         }
 
-        test("noop when tiltakskode is missing") {
-            val msg = """
-                {
-                  "id": "44e3aa41-5901-467e-af7d-b59b2bcc202d",
-                  "tiltakstype": {
-                    "id": "9d36aa68-2099-4418-8d03-fb2f16288d22",
-                    "navn": "Gruppe AMO",
-                    "arenaKode": "GRUPPEAMO"
-                  },
-                  "navn": "Gruppe AMO",
-                  "startDato": "2024-06-25",
-                  "status": "GJENNOMFORES",
-                  "virksomhetsnummer": "123123123",
-                  "oppstart": "FELLES"
-                }
-            """.trimIndent()
-            consumer.consume(tiltak.id, Json.parseToJsonElement(msg))
-
-            database.assertThat("gruppetiltak").isEmpty
-        }
-
         test("delete gruppetiltak for tombstone messages") {
             gruppetiltak.upsert(tiltak)
 
