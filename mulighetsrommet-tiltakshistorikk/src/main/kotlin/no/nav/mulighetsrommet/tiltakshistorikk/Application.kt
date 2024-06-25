@@ -41,10 +41,19 @@ fun Application.configure(config: AppConfig) {
     val gruppetiltakRepository = GruppetiltakRepository(db)
     val deltakerRepository = DeltakerRepository(db)
 
-    configureKafka(config.kafka, db, deltakerRepository, gruppetiltakRepository)
+    val kafka = configureKafka(config.kafka, db, deltakerRepository, gruppetiltakRepository)
 
     routing {
         tiltakshistorikkRoutes(deltakerRepository)
+    }
+
+    environment.monitor.subscribe(ApplicationStarted) {
+        kafka.enableFailedRecordProcessor()
+    }
+
+    environment.monitor.subscribe(ApplicationStopPreparing) {
+        kafka.disableFailedRecordProcessor()
+        kafka.stopPollingTopicChanges()
     }
 }
 
@@ -53,7 +62,7 @@ fun configureKafka(
     db: Database,
     deltakerRepository: DeltakerRepository,
     gruppetiltakRepository: GruppetiltakRepository,
-) {
+): KafkaConsumerOrchestrator {
     val properties = when (NaisEnv.current()) {
         NaisEnv.Local -> KafkaPropertiesBuilder.consumerBuilder()
             .withBaseProperties()
@@ -76,7 +85,7 @@ fun configureKafka(
         ),
     )
 
-    KafkaConsumerOrchestrator(
+    return KafkaConsumerOrchestrator(
         consumerPreset = properties,
         db = db,
         consumers = consumers,
