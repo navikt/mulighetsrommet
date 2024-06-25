@@ -51,9 +51,9 @@ data class AmoKategorisering(
         GRUNNLEGGENDE_FERDIGHETER,
         TEORETISK_OPPLAERING,
         JOBBSOKER_KOMPETANSE,
-        PRAKSISPLASS,
-        ARBEIDSLIVSKUNNSKAP,
-        SPRAKKUNNSKAPER,
+        PRAKSIS,
+        ARBEIDSMARKEDSKUNNSKAP,
+        NORSKOPPLAERING,
     }
 
     @Serializable

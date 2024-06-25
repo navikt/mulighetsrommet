@@ -3695,9 +3695,9 @@ components:
         - GRUNNLEGGENDE_FERDIGHETER
         - JOBBSOKER_KOMPETANSE
         - TEORETISK_OPPLAERING
-        - PRAKSISPLASS
-        - ARBEIDSLIVSKUNNSKAP
-        - SPRAKKUNNSKAPER
+        - PRAKSIS
+        - ARBEIDSMARKEDSKUNNSKAP
+        - NORSKOPPLAERING
 
     AmoKategorisering:
       type: object

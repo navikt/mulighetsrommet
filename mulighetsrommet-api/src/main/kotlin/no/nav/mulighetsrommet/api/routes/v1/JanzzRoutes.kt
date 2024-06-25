@@ -29,6 +29,7 @@ fun Route.janzzRoutes() {
                         )
                     }
                 }
+                .distinctBy { it.konseptId }
 
             call.respond(sertifiseringer)
         }

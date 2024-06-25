@@ -124,9 +124,11 @@ export function TiltaksgjennomforingAmoKategoriseringSkjema(props: Props) {
             </Checkbox>
             <Checkbox value={InnholdElement.JOBBSOKER_KOMPETANSE}>Jobbsøkerkompetanse</Checkbox>
             <Checkbox value={InnholdElement.TEORETISK_OPPLAERING}>Teoretisk opplæring</Checkbox>
-            <Checkbox value={InnholdElement.PRAKSISPLASS}>Praksisplass</Checkbox>
-            <Checkbox value={InnholdElement.ARBEIDSLIVSKUNNSKAP}>Arbeidslivskunnskap</Checkbox>
-            <Checkbox value={InnholdElement.SPRAKKUNNSKAPER}>Språkkunnskaper</Checkbox>
+            <Checkbox value={InnholdElement.PRAKSIS}>Praksis</Checkbox>
+            <Checkbox value={InnholdElement.ARBEIDSMARKEDSKUNNSKAP}>
+              Arbeidsmarkedskunnskap
+            </Checkbox>
+            <Checkbox value={InnholdElement.NORSKOPPLAERING}>Norskopplæring</Checkbox>
           </HGrid>
         </CheckboxGroup>
       )}
