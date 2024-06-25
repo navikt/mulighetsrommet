@@ -32,4 +32,5 @@ export const QueryKeys = {
     "behandlingAvPersonopplysninger",
     avtaleId,
   ],
+  deltMedBrukerHistorikk: (norskIdent: string) => ["deltMedBrukerHistorikk", norskIdent],
 };

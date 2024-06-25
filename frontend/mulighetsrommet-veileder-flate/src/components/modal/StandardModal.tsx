@@ -47,6 +47,7 @@ const StandardModal = ({
       aria-label="modal"
       id={id}
       data-testid={id}
+      closeOnBackdropClick
     >
       <Modal.Header closeButton={closeButton}>
         <Heading spacing size="medium">

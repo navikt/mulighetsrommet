@@ -8,6 +8,8 @@ import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import io.ktor.server.plugins.*
+import io.mockk.mockk
+import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dbo.DelMedBrukerDbo
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
@@ -19,13 +21,14 @@ import java.util.*
 
 class DelMedBrukerServiceTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
+    val sanityClient: SanityClient = mockk(relaxed = true)
 
     afterEach {
         database.db.truncateAll()
     }
 
     context("DelMedBrukerService") {
-        val service = DelMedBrukerService(database.db)
+        val service = DelMedBrukerService(database.db, sanityClient)
 
         val payload = DelMedBrukerDbo(
             id = "123",
