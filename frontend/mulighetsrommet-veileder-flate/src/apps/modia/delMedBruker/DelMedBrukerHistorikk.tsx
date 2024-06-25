@@ -1,4 +1,4 @@
-import { Accordion, Alert, Button, Skeleton, Table, VStack } from "@navikt/ds-react";
+import { Accordion, Alert, Button, HGrid, Skeleton, VStack } from "@navikt/ds-react";
 import { TiltakDeltMedBruker } from "mulighetsrommet-api-client";
 import { formaterDato } from "../../../utils/Utils";
 import { ModiaRoute, navigateToModiaApp } from "../ModiaRoute";
@@ -48,7 +48,7 @@ export function DelMedBrukerHistorikk() {
   });
 
   return (
-    <VStack gap="5">
+    <VStack gap="2">
       {Object.keys(gruppertHistorikk).map((tiltakId) => {
         const tiltakHistorikk = gruppertHistorikk[tiltakId];
         const sistDelt = tiltakHistorikk[0];
@@ -61,39 +61,34 @@ export function DelMedBrukerHistorikk() {
                 {sistDelt.navn} - Sist delt {formaterDato(sistDelt.createdAt)}
               </Accordion.Header>
               <Accordion.Content>
-                <Table size="small">
-                  <Table.Header>
-                    <Table.Row>
-                      <Table.HeaderCell scope="col"></Table.HeaderCell>
-                      <Table.HeaderCell scope="col"></Table.HeaderCell>
-                    </Table.Row>
-                  </Table.Header>
-                  <Table.Body>
-                    {tiltakHistorikk.map(({ createdAt, dialogId }, index) => {
-                      return (
-                        <Table.Row key={dialogId}>
-                          <Table.DataCell>
-                            {formaterDato(createdAt)} {index === 0 ? " - Siste melding delt" : null}
-                          </Table.DataCell>
-                          <Table.DataCell>
+                <ul>
+                  {tiltakHistorikk.map((delt, index) => {
+                    return (
+                      <li key={delt.dialogId}>
+                        <HGrid columns={3} align="center">
+                          <div>
+                            {formaterDato(delt.createdAt)}
+                            {index === 0 ? " - Siste melding delt" : null}
+                          </div>
+                          <div>
                             <Button
                               variant="tertiary-neutral"
                               onClick={(e) => {
                                 e.preventDefault();
                                 navigateToModiaApp({
                                   route: ModiaRoute.DIALOG,
-                                  dialogId,
+                                  dialogId: delt.dialogId,
                                 });
                               }}
                             >
                               Gå til dialogen
                             </Button>
-                          </Table.DataCell>
-                        </Table.Row>
-                      );
-                    })}
-                  </Table.Body>
-                </Table>
+                          </div>
+                        </HGrid>
+                      </li>
+                    );
+                  })}
+                </ul>
               </Accordion.Content>
             </Accordion.Item>
           </Accordion>
