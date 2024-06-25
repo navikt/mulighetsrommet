@@ -29,7 +29,13 @@ fun Route.janzzRoutes() {
                         )
                     }
                 }
+                // Det finnes noen konsepter med lik label som vi vil filtrere vekk. Det er ikke så
+                // viktig hvilken som blir igjen, men sorterer først sånn at det alltid er den samme
+                // som blir igjen.
+                .sortedBy { it.konseptId }
+                .sortedBy { it.label }
                 .distinctBy { it.konseptId }
+                .distinctBy { it.label }
 
             call.respond(sertifiseringer)
         }
