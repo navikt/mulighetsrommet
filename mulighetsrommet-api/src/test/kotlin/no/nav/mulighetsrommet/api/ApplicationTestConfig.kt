@@ -55,6 +55,7 @@ fun createTestApplicationConfig() = AppConfig(
     poaoTilgang = createServiceClientConfig("poaotilgang"),
     msGraphConfig = createServiceClientConfig("ms-graph"),
     arenaAdapter = createServiceClientConfig("arena-adapter"),
+    tiltakshistorikk = createServiceClientConfig("tiltakshistorikk"),
     tasks = TaskConfig(
         deleteExpiredTiltakshistorikk = DeleteExpiredTiltakshistorikk.Config(disabled = true),
         synchronizeNorgEnheter = SynchronizeNorgEnheter.Config(

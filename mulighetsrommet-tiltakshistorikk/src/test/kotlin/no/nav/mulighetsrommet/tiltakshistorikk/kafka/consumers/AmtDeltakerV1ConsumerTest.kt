@@ -8,7 +8,6 @@ import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListe
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
-import no.nav.mulighetsrommet.domain.dto.NorskIdent
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingV1Dto
 import no.nav.mulighetsrommet.domain.dto.amt.AmtDeltakerStatus

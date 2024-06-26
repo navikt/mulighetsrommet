@@ -58,7 +58,7 @@ class DeltakerRepository(private val db: Database) {
         queryOf(query, deltaker.toSqlParameters()).asExecute.runWithSession(session)
     }
 
-    fun getArenaDeltakelser(identer: List<String>): List<ArenaDeltakerDbo> = db.useSession { session ->
+    fun getArenaDeltakelser(identer: List<NorskIdent>): List<ArenaDeltakerDbo> = db.useSession { session ->
         @Language("PostgreSQL")
         val query = """
             select *
@@ -68,7 +68,7 @@ class DeltakerRepository(private val db: Database) {
         """.trimIndent()
 
         val params = mapOf(
-            "identer" to session.createArrayOf("text", identer),
+            "identer" to session.createArrayOf("text", identer.map { it.value }),
         )
 
         queryOf(query, params).map { it.toArenaDeltaker() }.asList.runWithSession(session)

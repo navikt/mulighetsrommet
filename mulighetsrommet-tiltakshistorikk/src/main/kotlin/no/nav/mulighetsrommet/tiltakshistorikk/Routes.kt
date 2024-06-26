@@ -22,7 +22,7 @@ fun Route.tiltakshistorikkRoutes(deltakerRepository: DeltakerRepository) {
             post {
                 val request = call.receive<TiltakshistorikkRequest>()
                 val arenaHistorikk = deltakerRepository
-                    .getArenaDeltakelser(request.identer)
+                    .getArenaDeltakelser(request.identer.map { NorskIdent(it) })
                     .map { it.toTiltakshistorikkDto() }
                 val kometHistorikk = deltakerRepository
                     .getKometHistorikk(request.identer)
