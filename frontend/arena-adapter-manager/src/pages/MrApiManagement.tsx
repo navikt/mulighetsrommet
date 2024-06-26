@@ -70,9 +70,80 @@ export function MrApiManagement() {
         <RunTask base={ApiBase.MR_API} task={"sync-navansatte"}>
           Synkroniserer NAV-ansatte fra relevante AD-grupper.
         </RunTask>
+
         <RunTask base={ApiBase.MR_API} task={"sync-utdanning"}>
           Synkroniserer data fra utdanning.no.
         </RunTask>
+
+        <RunTask
+          base={ApiBase.MR_API}
+          task="initial-load-tiltaksgjennomforinger"
+          input={{
+            oneOf: [
+              { $ref: "#/definitions/tiltakstyperInput" },
+              { $ref: "#/definitions/idsInput" },
+            ],
+            definitions: {
+              tiltakstyperInput: {
+                type: "object",
+                title: "Initial load basert på tiltakstyper",
+                description:
+                  "Starter en initial load av gjennomføringer filtrert basert på input fra skjemaet.",
+                properties: {
+                  opphav: {
+                    title: "Opphav",
+                    description:
+                      "For hvilket opphav skal gjennomføringer relastes på topic? Hvis feltet er tomt vil gjennomføringer relastes uavhengig av opphav.",
+                    type: "string",
+                    enum: ["MR_ADMIN_FLATE", "ARENA"],
+                  },
+                  tiltakstyper: {
+                    title: "Tiltakstyper",
+                    description: "For hvilke tiltakstyper skal gjennomføringer relastes på topic?",
+                    type: "array",
+                    items: {
+                      type: "string",
+                      enum: [
+                        "AVKLARING",
+                        "OPPFOLGING",
+                        "GRUPPE_ARBEIDSMARKEDSOPPLAERING",
+                        "JOBBKLUBB",
+                        "DIGITALT_OPPFOLGINGSTILTAK",
+                        "ARBEIDSFORBEREDENDE_TRENING",
+                        "GRUPPE_FAG_OG_YRKESOPPLAERING",
+                        "ARBEIDSRETTET_REHABILITERING",
+                        "VARIG_TILRETTELAGT_ARBEID_SKJERMET",
+                      ],
+                    },
+                    uniqueItems: true,
+                    minItems: 1,
+                  },
+                },
+                required: ["tiltakstyper"],
+              },
+              idsInput: {
+                type: "object",
+                title: "Send ny melding basert på id",
+                description:
+                  "Hvis det ikke finnes gjennomdøring for gitt id blir det sendt en tombstone-melding i stedet.",
+                properties: {
+                  id: {
+                    title: "ID til gjennomføring",
+                    description: "Flere id'er kan separeres med et komma (,)",
+                    type: "string",
+                  },
+                  bekreftelse: {
+                    title:
+                      "Jeg forstår at tombstone-melding vil bli sendt om det ikke finnes noen gjennomføring for gitt id",
+                    type: "boolean",
+                    enum: [true],
+                  },
+                },
+                required: ["id", "bekreftelse"],
+              },
+            },
+          }}
+        />
       </VStack>
     </Box>
   );
