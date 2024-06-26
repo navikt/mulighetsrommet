@@ -46,14 +46,10 @@ class GruppetiltakRepository(private val db: Database) {
         """.trimIndent()
 
         val params = tiltak.run {
-            val tiltakskode = requireNotNull(tiltakstype.tiltakskode) {
-                "Tiltakstype mangler tiltakskode"
-            }
-
             mapOf(
                 "id" to id,
                 "navn" to navn,
-                "tiltakskode" to tiltakskode.name,
+                "tiltakskode" to tiltakstype.tiltakskode.name,
                 "arrangor_organisasjonsnummer" to virksomhetsnummer,
                 "start_dato" to startDato,
                 "slutt_dato" to sluttDato,

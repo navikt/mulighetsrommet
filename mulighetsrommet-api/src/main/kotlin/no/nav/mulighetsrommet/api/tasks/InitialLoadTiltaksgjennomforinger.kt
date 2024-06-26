@@ -34,7 +34,7 @@ class InitialLoadTiltaksgjennomforinger(
     @Serializable
     data class Input(
         val opphav: ArenaMigrering.Opphav? = null,
-        val tiltakstyper: List<Tiltakskode>? = null,
+        val tiltakstyper: List<Tiltakskode>,
     )
 
     val task: OneTimeTask<Input> = Tasks
@@ -78,8 +78,7 @@ class InitialLoadTiltaksgjennomforinger(
     }
 
     private suspend fun initialLoadTiltaksgjennomforinger(input: Input): Int {
-        val tiltakstypeIder = (input.tiltakstyper ?: emptyList())
-            .map { tiltakstyper.getByTiltakskode(it).id }
+        val tiltakstypeIder = input.tiltakstyper.map { tiltakstyper.getByTiltakskode(it).id }
 
         return paginateFanOut(
             { pagination: Pagination ->

@@ -1,13 +1,13 @@
+import { PortenLink } from "@/components/PortenLink";
+import { formaterDato } from "@/utils/Utils";
 import { ExternalLinkIcon } from "@navikt/aksel-icons";
 import { Alert, BodyShort, Detail, Loader } from "@navikt/ds-react";
 import { HistorikkForBruker as IHistorikkForBruker, Toggles } from "mulighetsrommet-api-client";
-import { formaterDato } from "@/utils/Utils";
 import styles from "./HistorikkForBrukerModal.module.scss";
 import { StatusBadge } from "./Statusbadge";
-import { PortenLink } from "@/components/PortenLink";
-import { useTiltakshistorikkForBruker } from "@/api/queries/useTiltakshistorikkForBruker";
 import { useFeatureToggle } from "@/api/feature-toggles";
 import { useTiltakshistorikkForBrukerV2 } from "@/api/queries/useTiltakshistorikkForBrukerV2";
+import { useTiltakshistorikkForBruker } from "@/api/queries/useTiltakshistorikkForBruker";
 
 export function HistorikkForBrukerModalInnhold() {
   const { data: enableV2Historikk } = useFeatureToggle(
@@ -42,7 +42,7 @@ export function HistorikkForBrukerModalInnhold() {
   const tiltak = [...venter, ...deltar, ...avsluttet, ...ikkeAktuell];
 
   return (
-    <>
+    <div style={{ marginTop: "1rem" }}>
       {tiltak.length === 0 ? (
         <Alert variant="info" style={{ marginBottom: "1rem" }}>
           Vi finner ingen registrerte tiltak på brukeren
@@ -81,7 +81,7 @@ export function HistorikkForBrukerModalInnhold() {
         })}
       </ul>
       <ViVilHoreFraDeg />
-    </>
+    </div>
   );
 }
 

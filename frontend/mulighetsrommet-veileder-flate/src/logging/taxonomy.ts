@@ -25,6 +25,13 @@ type HISTORIKK_EVENT = {
   };
 };
 
+type HISTORIKK__FANE_VALGT_EVENT = {
+  name: "arbeidsmarkedstiltak.historikk.fane-valgt";
+  data: {
+    action: string;
+  };
+};
+
 type VIS_ANTALL_TILTAK_EVENT = {
   name: "arbeidsmarkedstiltak.vis-antall-tiltak";
   data: {
@@ -38,4 +45,5 @@ export type Event =
   | KLIKK_PA_FANE_EVENT
   | UNIKE_BRUKERE
   | HISTORIKK_EVENT
-  | VIS_ANTALL_TILTAK_EVENT;
+  | VIS_ANTALL_TILTAK_EVENT
+  | HISTORIKK__FANE_VALGT_EVENT;

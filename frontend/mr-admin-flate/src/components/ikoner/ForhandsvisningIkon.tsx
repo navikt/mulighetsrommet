@@ -8,7 +8,9 @@ export function ForhandsvisningIkon({ inkluderBakgrunn = false }: IkonTypeProps)
       viewBox="0 0 100 100"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
+      role="img"
     >
+      <title>Forhåndsvisning</title>
       <circle cx="50" cy="50" r="50" fill="#99C4DD" />
       <path
         fillRule="evenodd"
@@ -24,7 +26,15 @@ export function ForhandsvisningIkon({ inkluderBakgrunn = false }: IkonTypeProps)
       />
     </svg>
   ) : (
-    <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      width="40"
+      height="40"
+      viewBox="0 0 40 40"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      role="img"
+    >
+      <title>Forhåndsvisning</title>
       <path
         fillRule="evenodd"
         clipRule="evenodd"

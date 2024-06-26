@@ -10,6 +10,7 @@ import io.ktor.server.util.*
 import no.nav.mulighetsrommet.domain.dbo.ArenaDeltakerDbo
 import no.nav.mulighetsrommet.domain.dbo.ArenaDeltakerStatus
 import no.nav.mulighetsrommet.domain.dbo.Deltakerstatus
+import no.nav.mulighetsrommet.domain.dto.NorskIdent
 import no.nav.mulighetsrommet.domain.dto.TiltakshistorikkDto
 import no.nav.mulighetsrommet.domain.dto.TiltakshistorikkRequest
 import no.nav.mulighetsrommet.tiltakshistorikk.repositories.DeltakerRepository

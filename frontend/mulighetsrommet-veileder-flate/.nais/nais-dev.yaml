@@ -1,7 +1,7 @@
-apiVersion: "nais.io/v1alpha1"
-kind: "Application"
+apiVersion: nais.io/v1alpha1
+kind: Application
 metadata:
-  name: mr-admin-flate
+  name: nav-arbeidsmarkedstiltak
   namespace: team-mulighetsrommet
   labels:
     team: team-mulighetsrommet
@@ -9,7 +9,8 @@ spec:
   image: europe-north1-docker.pkg.dev/nais-management-233d/poao/poao-frontend:2024.05.07_13.29-a2e3b56408a1
   port: 8080
   ingresses:
-    - https://tiltaksadministrasjon.intern.nav.no
+    - https://nav-arbeidsmarkedstiltak.intern.dev.nav.no
+    - https://nav-arbeidsmarkedstiltak.ansatt.dev.nav.no
   liveness:
     path: /internal/alive
     initialDelay: 10
@@ -17,8 +18,8 @@ spec:
     path: /internal/ready
     initialDelay: 10
   replicas:
-    min: 2
-    max: 3
+    min: 1
+    max: 1
     scalingStrategy:
       cpu:
         thresholdPercentage: 75
@@ -35,46 +36,37 @@ spec:
   azure:
     application:
       enabled: true
-      tenant: nav.no
-      allowAllUsers: false
-      claims:
-        extra:
-          - NAVident
-        groups:
-          - id: debefa6e-1865-446d-b22b-9579fc735de3 # team-mulighetsrommet
-          - id: 33053061-86da-4d6b-9372-33238fabd25f # 0000-GA-TILTAK-tiltaksgjennomforinger_skriv
-          - id: 46ba8787-eb24-4f7b-830f-4c5e9256de65 # 0000-GA-TILTAK-avtaler_skriv
-          - id: 2cf8d881-c2da-47b5-b409-fa088440a629 # 0000-GA-TILTAK-ANSVARLIG
-
+      allowAllUsers: true
     sidecar:
       enabled: true
       autoLogin: true
       autoLoginIgnorePaths:
         - /assets/*
         - /asset-manifest.json
-        - /mulighetsrommet-api/**
-  gcp:
-    buckets:
-      - name: mr-admin-flate-prod
-        cascadingDelete: false
   accessPolicy:
     outbound:
       rules:
         - application: mulighetsrommet-api
+  gcp:
+    buckets:
+      - name: arbeidsmarkedstiltak-nav-dev
+        cascadingDelete: false
   env:
     - name: JSON_CONFIG
       value: >
         {
           "gcs": {
-            "bucketName": "mr-admin-flate-prod"
+            "bucketName": "arbeidsmarkedstiltak-nav-dev"
           },
           "auth": {
             "loginProvider": "AZURE_AD"
           },
           "header": {
             "csp": {
-              "scriptSrc": ["'self'", "'unsafe-inline'", "*.nav.no", "*.nav.no"],
-              "connectSrc": ["'self'", "'unsafe-inline'", "*.nav.no", "login.microsoftonline.com"]
+              "imgSrc": ["'self'", "*.nav.no", "cdn.sanity.io"]
+            },
+            "corp": {
+              "policy": "cross-origin"
             }
           },
           "proxies": [
@@ -85,7 +77,7 @@ spec:
               "toApp": {
                 "name": "mulighetsrommet-api",
                 "namespace": "team-mulighetsrommet",
-                "cluster": "prod-gcp"
+                "cluster": "dev-gcp"
               }
             }
           ]

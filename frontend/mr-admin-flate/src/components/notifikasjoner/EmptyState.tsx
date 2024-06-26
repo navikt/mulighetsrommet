@@ -9,14 +9,14 @@ interface Props {
 export function EmptyState({ tittel, beskrivelse }: Props) {
   return (
     <div style={{ textAlign: "center" }}>
-      <Ikon />
+      <VarslerIkon />
       <Heading size={"xsmall"}>{tittel}</Heading>
       <BodyShort>{beskrivelse}</BodyShort>
     </div>
   );
 }
 
-const Ikon = () => {
+const VarslerIkon = () => {
   return (
     <svg
       width="96"
@@ -26,7 +26,9 @@ const Ikon = () => {
       xmlns="http://www.w3.org/2000/svg"
       xmlnsXlink="http://www.w3.org/1999/xlink"
       className={styles.bell}
+      role="img"
     >
+      <title>Varsler</title>
       <rect width="96" height="96" fill="url(#pattern0)" />
       <defs>
         <pattern id="pattern0" patternContentUnits="objectBoundingBox" width="1" height="1">
