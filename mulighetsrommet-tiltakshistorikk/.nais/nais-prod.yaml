@@ -22,14 +22,14 @@ spec:
     path: /internal/liveness
     initialDelay: 20
   replicas:
-    min: 1
-    max: 2
+    min: 2
+    max: 4
     scalingStrategy:
       cpu:
         thresholdPercentage: 75
   resources:
     requests:
-      cpu: 250m
+      cpu: 100m
       memory: 512Mi
     limits:
       memory: 8192Mi

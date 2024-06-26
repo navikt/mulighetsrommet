@@ -30,7 +30,7 @@ spec:
     limits:
       memory: 1024Mi
     requests:
-      cpu: 250m
+      cpu: 50m
       memory: 512Mi
   secureLogs:
     enabled: true
