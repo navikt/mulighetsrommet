@@ -1,5 +1,6 @@
-import { Accordion, Alert, Button, HGrid, Skeleton, VStack } from "@navikt/ds-react";
+import { Alert, Button, HGrid, List, Skeleton, Table, VStack } from "@navikt/ds-react";
 import { TiltakDeltMedBruker } from "mulighetsrommet-api-client";
+import { ReactNode } from "react";
 import { formaterDato } from "../../../utils/Utils";
 import { ModiaRoute, navigateToModiaApp } from "../ModiaRoute";
 import { useDeltMedBrukerHistorikk } from "../hooks/useDeltMedBrukerHistorikk";
@@ -49,51 +50,86 @@ export function DelMedBrukerHistorikk() {
 
   return (
     <VStack gap="2">
-      {Object.keys(gruppertHistorikk).map((tiltakId) => {
-        const tiltakHistorikk = gruppertHistorikk[tiltakId];
-        const sistDelt = tiltakHistorikk[0];
-        if (!sistDelt) return null;
+      <Table>
+        <Table.Header>
+          <Table.Row>
+            <Table.HeaderCell />
+            <Table.HeaderCell scope="col">Tiltak</Table.HeaderCell>
+            <Table.HeaderCell scope="col">Delt</Table.HeaderCell>
+            <Table.HeaderCell scope="col"></Table.HeaderCell>
+          </Table.Row>
+        </Table.Header>
+        <Table.Body>
+          {Object.keys(gruppertHistorikk).map((tiltakId) => {
+            const delteTiltak = gruppertHistorikk[tiltakId];
+            const sisteDelt = delteTiltak[0];
 
+            if (delteTiltak.length === 1) {
+              return (
+                <Table.Row key={tiltakId}>{createCells(delteTiltak.length, sisteDelt)}</Table.Row>
+              );
+            } else {
+              return (
+                <Table.ExpandableRow
+                  expandOnRowClick
+                  key={tiltakId}
+                  content={contentForRow(delteTiltak)}
+                >
+                  {createCells(delteTiltak.length, sisteDelt)}
+                </Table.ExpandableRow>
+              );
+            }
+          })}
+        </Table.Body>
+      </Table>
+    </VStack>
+  );
+}
+
+function navigateToDialogButton(tiltak: TiltakDeltMedBruker): ReactNode {
+  return (
+    <Button
+      style={{ textDecoration: "underline", margin: 0, padding: 0, color: "#0067c5" }}
+      variant="tertiary-neutral"
+      onClick={(e) => {
+        e.preventDefault();
+        navigateToModiaApp({
+          route: ModiaRoute.DIALOG,
+          dialogId: tiltak.dialogId,
+        });
+      }}
+    >
+      Gå til dialogen
+    </Button>
+  );
+}
+
+function contentForRow(delteTiltak: TiltakDeltMedBruker[]): ReactNode {
+  return (
+    <List>
+      {delteTiltak.map((delt) => {
         return (
-          <Accordion key={tiltakId}>
-            <Accordion.Item>
-              <Accordion.Header>
-                {sistDelt.navn} - Sist delt {formaterDato(sistDelt.createdAt)}
-              </Accordion.Header>
-              <Accordion.Content>
-                <ul>
-                  {tiltakHistorikk.map((delt, index) => {
-                    return (
-                      <li key={delt.dialogId}>
-                        <HGrid columns={3} align="center">
-                          <div>
-                            {formaterDato(delt.createdAt)}
-                            {index === 0 ? " - Siste melding delt" : null}
-                          </div>
-                          <div>
-                            <Button
-                              variant="tertiary-neutral"
-                              onClick={(e) => {
-                                e.preventDefault();
-                                navigateToModiaApp({
-                                  route: ModiaRoute.DIALOG,
-                                  dialogId: delt.dialogId,
-                                });
-                              }}
-                            >
-                              Gå til dialogen
-                            </Button>
-                          </div>
-                        </HGrid>
-                      </li>
-                    );
-                  })}
-                </ul>
-              </Accordion.Content>
-            </Accordion.Item>
-          </Accordion>
+          <List.Item key={delt.dialogId}>
+            <HGrid columns={2} gap="2" align="start">
+              <div>
+                {delt.navn} - {formaterDato(delt.createdAt)}
+              </div>
+              <div>{navigateToDialogButton(delt)}</div>
+            </HGrid>
+          </List.Item>
         );
       })}
-    </VStack>
+    </List>
+  );
+}
+
+function createCells(antallTiltakDelt: number, tiltak: TiltakDeltMedBruker): ReactNode {
+  return (
+    <>
+      {antallTiltakDelt === 1 ? <Table.DataCell></Table.DataCell> : null}
+      <Table.DataCell>{tiltak.navn}</Table.DataCell>
+      <Table.DataCell title={tiltak.createdAt}>{formaterDato(tiltak.createdAt)}</Table.DataCell>
+      <Table.DataCell>{navigateToDialogButton(tiltak)}</Table.DataCell>
+    </>
   );
 }

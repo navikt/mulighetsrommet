@@ -1,13 +1,37 @@
 import { Tabs } from "@navikt/ds-react";
 import { HistorikkForBrukerModalInnhold } from "./HistorikkForBrukerModalInnhold";
 import { DelMedBrukerHistorikk } from "../delMedBruker/DelMedBrukerHistorikk";
+import { useLogEvent } from "../../../logging/amplitude";
 
 export function HistorikkModal() {
+  const { logEvent } = useLogEvent();
   return (
     <Tabs defaultValue="tiltakshistorikk">
       <Tabs.List>
-        <Tabs.Tab value="tiltakshistorikk" label="Tiltakshistorikk" />
-        <Tabs.Tab value="deltMedBruker" label="Delt med bruker" />
+        <Tabs.Tab
+          value="tiltakshistorikk"
+          label="Tiltakshistorikk"
+          onClick={() =>
+            logEvent({
+              name: "arbeidsmarkedstiltak.historikk.fane-valgt",
+              data: {
+                action: "Tiltakshistorikk",
+              },
+            })
+          }
+        />
+        <Tabs.Tab
+          value="deltMedBruker"
+          label="Delt med bruker"
+          onClick={() =>
+            logEvent({
+              name: "arbeidsmarkedstiltak.historikk.fane-valgt",
+              data: {
+                action: "Delt med bruker",
+              },
+            })
+          }
+        />
       </Tabs.List>
       <Tabs.Panel value="tiltakshistorikk">
         <HistorikkForBrukerModalInnhold />
