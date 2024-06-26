@@ -29,6 +29,7 @@ import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClient
 import no.nav.mulighetsrommet.api.clients.pamOntologi.PamOntologiClient
 import no.nav.mulighetsrommet.api.clients.pdl.PdlClient
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
+import no.nav.mulighetsrommet.api.clients.tiltakshistorikk.TiltakshistorikkClient
 import no.nav.mulighetsrommet.api.clients.utdanning.UtdanningClient
 import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClient
 import no.nav.mulighetsrommet.api.repositories.*
@@ -226,6 +227,12 @@ private fun services(appConfig: AppConfig) = module {
         )
     }
     single {
+        TiltakshistorikkClient(
+            baseUrl = appConfig.tiltakshistorikk.url,
+            tokenProvider = cachedTokenProvider.withScope(appConfig.tiltakshistorikk.scope),
+        )
+    }
+    single {
         Norg2Client(
             baseUrl = appConfig.norg2.baseUrl,
         )
@@ -285,7 +292,7 @@ private fun services(appConfig: AppConfig) = module {
             get(),
         )
     }
-    single { TiltakshistorikkService(get(), get(), get(), get()) }
+    single { TiltakshistorikkService(get(), get(), get(), get(), get()) }
     single { VeilederflateService(get(), get(), get(), get()) }
     single { BrukerService(get(), get(), get(), get(), get()) }
     single { NavAnsattService(appConfig.auth.roles, get(), get(), get(), get(), get(), get(), get()) }

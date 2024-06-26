@@ -135,7 +135,7 @@ class DeltakerRepository(private val db: Database) {
         queryOf(query, deltaker.toSqlParameters()).asExecute.runWithSession(session)
     }
 
-    fun getKometHistorikk(identer: List<NorskIdent>): List<AmtDeltakerV1Dto> = db.useSession { session ->
+    fun getKometHistorikk(identer: List<NorskIdent>): List<TiltakshistorikkDto> = db.useSession { session ->
         @Language("PostgreSQL")
         val query = """
             select

@@ -38,6 +38,7 @@ data class AppConfig(
     val amtDeltakerConfig: ServiceClientConfig,
     val poaoTilgang: ServiceClientConfig,
     val arenaAdapter: ServiceClientConfig,
+    val tiltakshistorikk: ServiceClientConfig,
     val msGraphConfig: ServiceClientConfig,
     val tasks: TaskConfig,
     val norg2: Norg2Config,

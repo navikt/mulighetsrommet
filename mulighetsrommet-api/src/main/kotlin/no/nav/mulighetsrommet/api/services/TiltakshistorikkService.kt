@@ -8,9 +8,11 @@ import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerError
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakelserRequest
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakelserResponse
 import no.nav.mulighetsrommet.api.clients.pdl.*
+import no.nav.mulighetsrommet.api.clients.tiltakshistorikk.TiltakshistorikkClient
 import no.nav.mulighetsrommet.api.domain.dto.TiltakshistorikkAdminDto
 import no.nav.mulighetsrommet.api.repositories.TiltakshistorikkRepository
 import no.nav.mulighetsrommet.domain.dto.NorskIdent
+import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -18,9 +20,32 @@ class TiltakshistorikkService(
     private val arrangorService: ArrangorService,
     private val amtDeltakerClient: AmtDeltakerClient,
     private val tiltakshistorikkRepository: TiltakshistorikkRepository,
+    private val tiltakshistorikkClient: TiltakshistorikkClient,
     private val pdlClient: PdlClient,
 ) {
     val log: Logger = LoggerFactory.getLogger(javaClass)
+
+    suspend fun hentHistorikkForBrukerV2(norskIdent: NorskIdent, obo: AccessType.OBO): List<TiltakshistorikkAdminDto> {
+        val identer = hentHistoriskeNorskIdent(norskIdent, obo)
+
+        return tiltakshistorikkClient.historikk(identer).map {
+            val arrangor = it.arrangorOrganisasjonsnummer?.let { orgnr ->
+                val navn = hentArrangorNavn(orgnr.value)
+                TiltakshistorikkAdminDto.Arrangor(organisasjonsnummer = orgnr, navn = navn)
+            }
+            it.run {
+                TiltakshistorikkAdminDto(
+                    id = id,
+                    fraDato = startDato,
+                    tilDato = sluttDato,
+                    status = status,
+                    tiltaksnavn = tiltaksnavn,
+                    tiltakstype = arenaTiltakskode,
+                    arrangor = arrangor,
+                )
+            }
+        }
+    }
 
     suspend fun hentHistorikkForBruker(norskIdent: NorskIdent, obo: AccessType.OBO): List<TiltakshistorikkAdminDto> {
         val identer = hentHistoriskeNorskIdent(norskIdent, obo)
@@ -28,7 +53,7 @@ class TiltakshistorikkService(
         return tiltakshistorikkRepository.getTiltakshistorikkForBruker(identer).map {
             val arrangor = it.arrangorOrganisasjonsnummer?.let { orgnr ->
                 val navn = hentArrangorNavn(orgnr)
-                TiltakshistorikkAdminDto.Arrangor(organisasjonsnummer = orgnr, navn = navn)
+                TiltakshistorikkAdminDto.Arrangor(organisasjonsnummer = Organisasjonsnummer(orgnr), navn = navn)
             }
             it.run {
                 TiltakshistorikkAdminDto(

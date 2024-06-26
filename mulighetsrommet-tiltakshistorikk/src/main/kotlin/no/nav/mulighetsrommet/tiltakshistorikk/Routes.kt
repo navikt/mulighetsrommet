@@ -10,10 +10,8 @@ import io.ktor.server.util.*
 import no.nav.mulighetsrommet.domain.dbo.ArenaDeltakerDbo
 import no.nav.mulighetsrommet.domain.dbo.ArenaDeltakerStatus
 import no.nav.mulighetsrommet.domain.dbo.Deltakerstatus
-import no.nav.mulighetsrommet.domain.dto.NorskIdent
 import no.nav.mulighetsrommet.domain.dto.TiltakshistorikkDto
-import no.nav.mulighetsrommet.domain.dto.amt.AmtDeltakerStatus
-import no.nav.mulighetsrommet.domain.dto.amt.AmtDeltakerV1Dto
+import no.nav.mulighetsrommet.domain.dto.TiltakshistorikkRequest
 import no.nav.mulighetsrommet.tiltakshistorikk.repositories.DeltakerRepository
 import java.util.*
 
@@ -52,10 +50,6 @@ fun Route.tiltakshistorikkRoutes(deltakerRepository: DeltakerRepository) {
     }
 }
 
-data class TiltakshistorikkRequest(
-    val identer: List<NorskIdent>,
-)
-
 fun ArenaDeltakerDbo.toTiltakshistorikkDto() =
     TiltakshistorikkDto(
         id = this.id,
@@ -90,4 +84,3 @@ fun ArenaDeltakerStatus.toDeltakerstatus() =
         ArenaDeltakerStatus.IKKE_MOTT,
         -> Deltakerstatus.AVSLUTTET
     }
-
