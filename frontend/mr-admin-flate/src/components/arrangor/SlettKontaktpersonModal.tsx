@@ -45,6 +45,7 @@ export function SlettKontaktpersonModal({ onClose, kontaktperson, modalRef }: Pr
       open={!!kontaktperson}
       handleClose={onClose}
       headingText="Slett kontaktperson"
+      headingIconType="warning"
       body={
         !data || isLoading ? (
           <Laster tekst="Henter koblinger til dokumenter..." />
@@ -59,7 +60,7 @@ export function SlettKontaktpersonModal({ onClose, kontaktperson, modalRef }: Pr
                 gjennomforinger={gjennomforinger}
               />
             ) : (
-              <Alert variant="success" size="small">
+              <Alert variant="info" size="small">
                 {kontaktperson.navn} er ikke kontaktperson for noen avtaler eller gjennomføringer
               </Alert>
             )}
