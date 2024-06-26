@@ -1,8 +1,7 @@
-import { BodyLong, BodyShort, Heading, Link, Tag } from "@navikt/ds-react";
+import { Alert, BodyLong, BodyShort, Heading, Link, Tag, VStack } from "@navikt/ds-react";
 import classNames from "classnames";
 import { NotificationType, UserNotification } from "mulighetsrommet-api-client";
 import { ReactNode, useState } from "react";
-import { Slide, ToastContainer } from "react-toastify";
 import { formaterDatoTid } from "../../utils/Utils";
 import { CheckmarkButton } from "./CheckmarkButton";
 import styles from "./Notifikasjoner.module.scss";
@@ -33,12 +32,20 @@ export function Notifikasjonssrad({ notifikasjon, lest }: NotifikasjonssradProps
   const { title, description, createdAt, type, metadata } = notifikasjon;
 
   const [read, setRead] = useState<boolean>(lest);
+  const [error, setError] = useState("");
 
   return (
     <li className={classNames(styles.list_element, lest ? styles.leste : styles.uleste)}>
       <div className={styles.flex}>
         <BodyShort>{tag(type, lest)}</BodyShort>
-        <Heading level="2" size="small" title={title} className={styles.truncate}>
+        <Heading
+          level="2"
+          size="small"
+          title={title}
+          className={classNames(styles.truncate, {
+            [styles.read]: read,
+          })}
+        >
           {title}
         </Heading>
         <BodyLong size="small">{description}</BodyLong>
@@ -52,17 +59,14 @@ export function Notifikasjonssrad({ notifikasjon, lest }: NotifikasjonssradProps
         <BodyShort size="small" title={createdAt} className={styles.muted}>
           {formaterDatoTid(createdAt)}
         </BodyShort>
-        <CheckmarkButton id={notifikasjon.id} read={read} setRead={setRead} />
-        <ToastContainer
-          position="bottom-left"
-          newestOnTop={true}
-          closeOnClick
-          rtl={false}
-          pauseOnFocusLoss
-          draggable
-          pauseOnHover
-          transition={Slide}
-        />
+        <VStack>
+          <CheckmarkButton id={notifikasjon.id} read={read} setRead={setRead} setError={setError} />
+          {error && (
+            <Alert inline variant="error" size="small">
+              {error}
+            </Alert>
+          )}
+        </VStack>
       </div>
     </li>
   );

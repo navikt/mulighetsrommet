@@ -4,7 +4,6 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter as Router } from "react-router-dom";
-import "react-toastify/dist/ReactToastify.css";
 import { App } from "./App";
 import { AdministratorHeader } from "./components/administrator/AdministratorHeader";
 import { DemoBanner } from "@/components/demo/DemoBanner";
