@@ -8,10 +8,13 @@ import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import io.ktor.server.plugins.*
+import io.mockk.coEvery
 import io.mockk.mockk
+import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dbo.DelMedBrukerDbo
+import no.nav.mulighetsrommet.api.domain.dto.SanityResponse
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
@@ -103,6 +106,60 @@ class DelMedBrukerServiceTest : FunSpec({
             delMedBruker.shouldBeRight().should {
                 it.shouldNotBeNull()
                 it.tiltaksgjennomforingId shouldBe TiltaksgjennomforingFixtures.Oppfolging1.id
+            }
+        }
+
+        test("Hent Del med bruker-historikk fra database og Sanity") {
+            MulighetsrommetTestDomain().initialize(database.db)
+            val sanityId = UUID.randomUUID()
+
+            coEvery {
+                sanityClient.query(any(), any())
+            } returns SanityResponse.Result(
+                500,
+                "",
+                Json.parseToJsonElement(
+                    """
+                        [
+                            {
+                                "_id": "$sanityId",
+                                "tiltaksgjennomforingNavn": "Delt med bruker - Sanity"
+                            }
+                        ]
+                    """.trimIndent(),
+                ),
+            )
+
+            val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
+            tiltaksgjennomforingRepository.upsert(TiltaksgjennomforingFixtures.Oppfolging1.copy(navn = "Delt med bruker - tabell"))
+            val request1 = DelMedBrukerDbo(
+                id = "123",
+                norskIdent = "12345678910",
+                navident = "nav123",
+                sanityId = null,
+                tiltaksgjennomforingId = TiltaksgjennomforingFixtures.Oppfolging1.id,
+                dialogId = "1234",
+            )
+
+            val request2 = DelMedBrukerDbo(
+                id = "1234",
+                norskIdent = "12345678910",
+                navident = "nav123",
+                sanityId = sanityId,
+                tiltaksgjennomforingId = null,
+                dialogId = "1235",
+            )
+
+            service.lagreDelMedBruker(request1).shouldBeRight()
+            service.lagreDelMedBruker(request2).shouldBeRight()
+
+            val delMedBruker = service.getDelMedBrukerHistorikk("12345678910")
+
+            delMedBruker.shouldBeRight().should {
+                it.shouldNotBeNull()
+                it.size shouldBe 2
+                it[0].navn shouldBe "Delt med bruker - tabell"
+                it[1].navn shouldBe "Delt med bruker - Sanity"
             }
         }
     }
