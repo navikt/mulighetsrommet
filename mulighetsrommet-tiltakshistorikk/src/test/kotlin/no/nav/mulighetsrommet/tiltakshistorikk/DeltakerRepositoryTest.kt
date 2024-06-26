@@ -111,7 +111,7 @@ class DeltakerRepositoryTest : FunSpec({
         )
         deltakerRepository.upsertKometDeltaker(amtDeltaker1)
 
-        deltakerRepository.getKometHistorikk(listOf(amtDeltaker1.personIdent))[0] should {
+        deltakerRepository.getKometHistorikk(listOf(NorskIdent(amtDeltaker1.personIdent)))[0] should {
             it.id shouldBe amtDeltaker1.id
             it.tiltaksnavn shouldBe tiltak.navn
         }
