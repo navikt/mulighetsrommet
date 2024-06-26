@@ -1,8 +1,6 @@
 package no.nav.mulighetsrommet.tiltakshistorikk.kafka.consumers
 
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.matchers.collections.shouldBeEmpty
-import io.kotest.matchers.collections.shouldContainExactly
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.encodeToJsonElement
@@ -81,8 +79,9 @@ class AmtDeltakerV1ConsumerTest : FunSpec({
         test("upsert deltakere from topic") {
             deltakerConsumer.consume(amtDeltaker1.id, Json.encodeToJsonElement(amtDeltaker1))
 
-            deltakere.getKometDeltakelser(listOf(NorskIdent(amtDeltaker1.personIdent)))
-                .shouldContainExactly(amtDeltaker1)
+            database.assertThat("komet_deltaker")
+                .row()
+                .value("id").isEqualTo(amtDeltaker1.id)
         }
 
         test("delete deltakere for tombstone messages") {
@@ -90,7 +89,7 @@ class AmtDeltakerV1ConsumerTest : FunSpec({
 
             deltakerConsumer.consume(amtDeltaker1.id, JsonNull)
 
-            deltakere.getKometDeltakelser(listOf(NorskIdent(amtDeltaker1.personIdent))).shouldBeEmpty()
+            database.assertThat("komet_deltaker").isEmpty
         }
 
         test("delete deltakere that have status FEILREGISTRERT") {
@@ -105,7 +104,7 @@ class AmtDeltakerV1ConsumerTest : FunSpec({
             )
             deltakerConsumer.consume(feilregistrertDeltaker1.id, Json.encodeToJsonElement(feilregistrertDeltaker1))
 
-            deltakere.getKometDeltakelser(listOf(NorskIdent(amtDeltaker1.personIdent))).shouldBeEmpty()
+            database.assertThat("komet_deltaker").isEmpty
         }
     }
 })

@@ -26,8 +26,7 @@ fun Route.tiltakshistorikkRoutes(deltakerRepository: DeltakerRepository) {
                     .getArenaDeltakelser(request.identer)
                     .map { it.toTiltakshistorikkDto() }
                 val kometHistorikk = deltakerRepository
-                    .getKometDeltakelser(request.identer)
-                    .map { it.toTiltakshistorikkDto() }
+                    .getKometHistorikk(request.identer)
 
                 call.respond(arenaHistorikk + kometHistorikk)
             }
@@ -60,12 +59,11 @@ data class TiltakshistorikkRequest(
 fun ArenaDeltakerDbo.toTiltakshistorikkDto() =
     TiltakshistorikkDto(
         id = this.id,
-        gjennomforingId = null,
         startDato = this.startDato,
         sluttDato = this.sluttDato,
         status = this.status.toDeltakerstatus(),
         tiltaksnavn = this.beskrivelse,
-        tiltakstype = this.arenaTiltakskode,
+        arenaTiltakskode = this.arenaTiltakskode,
         arrangorOrganisasjonsnummer = this.arrangorOrganisasjonsnummer,
     )
 
@@ -93,38 +91,3 @@ fun ArenaDeltakerStatus.toDeltakerstatus() =
         -> Deltakerstatus.AVSLUTTET
     }
 
-fun AmtDeltakerV1Dto.toTiltakshistorikkDto() =
-    TiltakshistorikkDto(
-        id = this.id,
-        gjennomforingId = this.gjennomforingId,
-        startDato = this.startDato?.atStartOfDay(),
-        sluttDato = this.sluttDato?.atStartOfDay(),
-        status = this.status.toDeltakerstatus(),
-        tiltaksnavn = null,
-        tiltakstype = null,
-        arrangorOrganisasjonsnummer = null,
-    )
-
-fun AmtDeltakerStatus.toDeltakerstatus() =
-    when (this.type) {
-        AmtDeltakerStatus.Type.PABEGYNT_REGISTRERING -> Deltakerstatus.PABEGYNT_REGISTRERING
-
-        AmtDeltakerStatus.Type.UTKAST_TIL_PAMELDING, // TODO: Skal denne her? Dette er vel før påbegynt registrering egentlig?
-        AmtDeltakerStatus.Type.VURDERES, // TODO: Skal denne her? Dette er vel før påbegynt registrering egentlig?
-        AmtDeltakerStatus.Type.SOKT_INN,
-        AmtDeltakerStatus.Type.VENTELISTE,
-        AmtDeltakerStatus.Type.VENTER_PA_OPPSTART,
-        -> Deltakerstatus.VENTER
-
-        AmtDeltakerStatus.Type.AVBRUTT_UTKAST,
-        AmtDeltakerStatus.Type.IKKE_AKTUELL,
-        AmtDeltakerStatus.Type.FEILREGISTRERT,
-        -> Deltakerstatus.IKKE_AKTUELL
-
-        AmtDeltakerStatus.Type.DELTAR -> Deltakerstatus.DELTAR
-
-        AmtDeltakerStatus.Type.HAR_SLUTTET,
-        AmtDeltakerStatus.Type.AVBRUTT,
-        AmtDeltakerStatus.Type.FULLFORT,
-        -> Deltakerstatus.AVSLUTTET
-    }

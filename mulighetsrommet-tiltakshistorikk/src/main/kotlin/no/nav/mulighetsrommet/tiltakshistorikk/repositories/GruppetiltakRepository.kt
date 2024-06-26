@@ -11,8 +11,8 @@ class GruppetiltakRepository(private val db: Database) {
 
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    fun upsert(gjennomforing: TiltaksgjennomforingV1Dto) = db.useSession { session ->
-        logger.info("Lagrer gjennomforing id=${gjennomforing.id}")
+    fun upsert(tiltak: TiltaksgjennomforingV1Dto) = db.useSession { session ->
+        logger.info("Lagrer tiltak id=${tiltak.id}")
 
         @Language("PostgreSQL")
         val query = """
@@ -45,7 +45,7 @@ class GruppetiltakRepository(private val db: Database) {
                 oppstart = excluded.oppstart
         """.trimIndent()
 
-        val params = gjennomforing.run {
+        val params = tiltak.run {
             mapOf(
                 "id" to id,
                 "navn" to navn,
@@ -62,7 +62,7 @@ class GruppetiltakRepository(private val db: Database) {
     }
 
     fun delete(id: UUID) = db.useSession { session ->
-        logger.info("Sletter gjennomforing id=$id")
+        logger.info("Sletter tiltak id=$id")
 
         @Language("PostgreSQL")
         val query = """
