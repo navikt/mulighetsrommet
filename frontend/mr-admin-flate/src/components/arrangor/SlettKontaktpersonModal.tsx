@@ -59,15 +59,8 @@ export function SlettKontaktpersonModal({ onClose, kontaktperson, modalRef }: Pr
                 avtaler={avtaler}
                 gjennomforinger={gjennomforinger}
               />
-            ) : (
-              <Alert variant="info" size="small">
-                {kontaktperson.navn} er ikke kontaktperson for noen avtaler eller gjennomføringer
-              </Alert>
-            )}
+            ) : null}
             <BodyShort>Er du sikker på at du vil slette kontaktpersonen?</BodyShort>
-            <BodyShort>
-              <i>Dette kan ikke angres.</i>
-            </BodyShort>
           </>
         )
       }
