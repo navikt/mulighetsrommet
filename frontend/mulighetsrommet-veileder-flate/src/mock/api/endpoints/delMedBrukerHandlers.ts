@@ -4,8 +4,10 @@ import {
   DialogResponse,
   GetAlleDeltMedBrukerRequest,
   GetDelMedBrukerRequest,
+  TiltakDeltMedBruker,
 } from "mulighetsrommet-api-client";
 import { mockDeltMedBruker } from "../../fixtures/mockDeltMedBruker";
+import { mockHistorikkDeltMedBruker } from "../../fixtures/mockHistorikkDeltMedBruker";
 
 export const delMedBrukerHandlers = [
   http.put<PathParams, DelMedBruker, DelMedBruker>(
@@ -37,6 +39,13 @@ export const delMedBrukerHandlers = [
     "*/api/v1/intern/del-med-bruker/alle",
     () => {
       return HttpResponse.json(mockDeltMedBruker);
+    },
+  ),
+
+  http.post<PathParams, GetAlleDeltMedBrukerRequest, TiltakDeltMedBruker[]>(
+    "*/api/v1/intern/del-med-bruker/historikk",
+    () => {
+      return HttpResponse.json(mockHistorikkDeltMedBruker);
     },
   ),
 

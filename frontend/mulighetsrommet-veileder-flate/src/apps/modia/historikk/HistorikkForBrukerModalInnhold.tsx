@@ -1,14 +1,15 @@
+import { useTiltakshistorikkForBruker } from "@/apps/modia/hooks/useTiltakshistorikkForBruker";
+import { PortenLink } from "@/components/PortenLink";
+import { formaterDato } from "@/utils/Utils";
 import { ExternalLinkIcon } from "@navikt/aksel-icons";
 import { Alert, BodyShort, Detail, Loader } from "@navikt/ds-react";
 import { HistorikkForBruker as IHistorikkForBruker } from "mulighetsrommet-api-client";
-import { useTiltakshistorikkForBruker } from "@/apps/modia/hooks/useTiltakshistorikkForBruker";
-import { formaterDato } from "@/utils/Utils";
 import styles from "./HistorikkForBrukerModal.module.scss";
 import { StatusBadge } from "./Statusbadge";
-import { PortenLink } from "@/components/PortenLink";
 
 export function HistorikkForBrukerModalInnhold() {
   const { data, isLoading, isError } = useTiltakshistorikkForBruker();
+
   if (isLoading && !data) return <Loader />;
 
   if (isError) return <Alert variant="error">Kunne ikke hente brukerens tiltakshistorikk</Alert>;
@@ -34,7 +35,7 @@ export function HistorikkForBrukerModalInnhold() {
   const tiltak = [...venter, ...deltar, ...avsluttet, ...ikkeAktuell];
 
   return (
-    <>
+    <div style={{ marginTop: "1rem" }}>
       {tiltak.length === 0 ? (
         <Alert variant="info" style={{ marginBottom: "1rem" }}>
           Vi finner ingen registrerte tiltak på brukeren
@@ -73,7 +74,7 @@ export function HistorikkForBrukerModalInnhold() {
         })}
       </ul>
       <ViVilHoreFraDeg />
-    </>
+    </div>
   );
 }
 

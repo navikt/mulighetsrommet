@@ -1123,6 +1123,29 @@ paths:
         204:
           description: "No content found"
 
+  /api/v1/intern/del-med-bruker/historikk:
+    post:
+      tags:
+        - Del med bruker
+      operationId: getHistorikkForDeltMedBruker
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GetAlleDeltMedBrukerRequest"
+        required: true
+      responses:
+        200:
+          description: "Alle tiltak delt med bruker"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TiltakDeltMedBruker"
+        204:
+          description: "No content found"
+
   /api/v1/intern/nav-enheter:
     get:
       tags:
@@ -3794,3 +3817,20 @@ components:
         - tittel
         - hjelpetekst
 
+    TiltakDeltMedBruker:
+        type: object
+        properties:
+            navn:
+              type: string
+            createdAt:
+              type: string
+              format: date
+            dialogId:
+              type: string
+            tiltakId:
+              type: string
+        required:
+          - navn
+          - createdAt
+          - dialogId
+          - tiltakId
