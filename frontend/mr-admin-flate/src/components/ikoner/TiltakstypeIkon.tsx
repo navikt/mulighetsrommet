@@ -8,7 +8,9 @@ export function TiltakstypeIkon({ inkluderBakgrunn = false }: IkonTypeProps) {
       viewBox="0 0 100 100"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
+      role="img"
     >
+      <title>Tiltakstype</title>
       <circle cx="50" cy="50" r="50" fill="#A18DBB" />
       <path
         fillRule="evenodd"
@@ -22,7 +24,15 @@ export function TiltakstypeIkon({ inkluderBakgrunn = false }: IkonTypeProps) {
       />
     </svg>
   ) : (
-    <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      width="40"
+      height="40"
+      viewBox="0 0 40 40"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      role="img"
+    >
+      <title>Tiltakstype</title>
       <path
         fillRule="evenodd"
         clipRule="evenodd"

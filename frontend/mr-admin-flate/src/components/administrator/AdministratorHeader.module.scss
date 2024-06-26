@@ -1,20 +1,10 @@
-@use "@navikt/ds-tokens/dist/tokens" as *;
-
-:global(.navds-header) {
-  @media (max-width: $a-breakpoint-md) {
-    flex-wrap: wrap;
-  }
-}
-
 .link {
   text-decoration: none;
   color: white;
 }
 
-.user {
-  @media (min-width: $a-breakpoint-md) {
-    margin-left: auto;
-  }
+.menylenke {
+  color: var(--a-blue-600);
 }
 
 .content {

@@ -8,6 +8,7 @@ export function EndringsmeldingerIkon({ inkluderBakgrunn = false }: IkonTypeProp
       viewBox="0 0 100 100"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
+      role="img"
     >
       <circle cx="50" cy="50" r="50" fill="#99C4DD" />
       <path
@@ -48,7 +49,15 @@ export function EndringsmeldingerIkon({ inkluderBakgrunn = false }: IkonTypeProp
       />
     </svg>
   ) : (
-    <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      width="40"
+      height="40"
+      viewBox="0 0 40 40"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      role="img"
+    >
+      <title>Endringsmeldinger</title>
       <path
         fillRule="evenodd"
         clipRule="evenodd"
