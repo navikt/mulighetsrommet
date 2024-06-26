@@ -5,15 +5,15 @@ import classNames from "classnames";
 import styles from "./CheckmarkButton.module.scss";
 import { useSetNotificationStatus } from "@/api/notifikasjoner/useSetNotificationStatus";
 import { Button } from "@navikt/ds-react";
-import { toast } from "react-toastify";
 
 interface Props {
   id: string;
   read: boolean;
   setRead: Dispatch<SetStateAction<boolean>>;
+  setError: Dispatch<SetStateAction<string>>;
 }
 
-export function CheckmarkButton({ id, read, setRead }: Props) {
+export function CheckmarkButton({ id, read, setRead, setError }: Props) {
   const { mutate } = useSetNotificationStatus(id);
 
   const setStatus = async (status: NotificationStatus) => {
@@ -22,16 +22,9 @@ export function CheckmarkButton({ id, read, setRead }: Props) {
       {
         onSuccess: () => {
           setRead(status === NotificationStatus.DONE);
-          toast.success(
-            `Notifikasjon markert som ${status === NotificationStatus.DONE ? "lest" : "ulest"}`,
-            {
-              hideProgressBar: true,
-              autoClose: 1000,
-            },
-          );
         },
         onError: () => {
-          toast.error("Klarte ikke oppdatere notifikasjon");
+          setError("Klarte ikke lagre endring");
         },
       },
     );
