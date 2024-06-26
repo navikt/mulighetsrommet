@@ -115,7 +115,7 @@ export function AvbrytAvtaleModal({ modalRef, avtale }: Props) {
     <VarselModal
       modalRef={modalRef}
       handleClose={onClose}
-      headingIconType="error"
+      headingIconType="info"
       headingText={
         mutation.isError || avtalenHarGjennomforinger
           ? `Kan ikke avbryte «${avtale?.navn}»`
@@ -124,12 +124,12 @@ export function AvbrytAvtaleModal({ modalRef, avtale }: Props) {
       body={
         <>
           {avtalenHarGjennomforinger ? (
-            <Alert variant="warning">
-              {`Avtaler med aktive gjennomføringer kan ikke avbrytes. Det er 
-                ${tiltaksgjennomforingerMedAvtaleId.data.length} 
-                aktiv${pluralGjennomforingTekst(1, "e")} 
-                gjennomføring${pluralGjennomforingTekst(1, "er")} 
-                under denne avtalen. Vurder om du vil avbryte 
+            <Alert variant="info">
+              {`Avtaler med aktive gjennomføringer kan ikke avbrytes. Det er
+                ${tiltaksgjennomforingerMedAvtaleId.data.length}
+                aktiv${pluralGjennomforingTekst(1, "e")}
+                gjennomføring${pluralGjennomforingTekst(1, "er")}
+                under denne avtalen. Vurder om du vil avbryte
                 gjennomføringen${pluralGjennomforingTekst(0, "e")}. `}
             </Alert>
           ) : (

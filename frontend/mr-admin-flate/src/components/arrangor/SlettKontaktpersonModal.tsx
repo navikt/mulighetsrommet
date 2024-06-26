@@ -45,7 +45,7 @@ export function SlettKontaktpersonModal({ onClose, kontaktperson, modalRef }: Pr
       open={!!kontaktperson}
       handleClose={onClose}
       headingText="Slett kontaktperson"
-      headingIconType="warning"
+      headingIconType="error"
       body={
         !data || isLoading ? (
           <Laster tekst="Henter koblinger til dokumenter..." />

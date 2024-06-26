@@ -46,7 +46,7 @@ export function AvtaleKnapperad({ bruker, avtale }: Props) {
       <VarselModal
         modalRef={advarselModal}
         handleClose={() => advarselModal.current?.close()}
-        headingIconType="warning"
+        headingIconType="info"
         headingText="Du er ikke eier av denne avtalen"
         body={<BodyShort>Vil du fortsette til redigeringen?</BodyShort>}
         secondaryButton

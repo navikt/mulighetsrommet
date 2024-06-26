@@ -65,7 +65,7 @@ export function TiltaksgjennomforingKnapperad({ bruker, tiltaksgjennomforing }: 
       <VarselModal
         modalRef={advarselModal}
         handleClose={() => advarselModal.current?.close()}
-        headingIconType="warning"
+        headingIconType="info"
         headingText="Du er ikke eier av denne tiltaksgjennomføringen"
         body={<BodyShort>Vil du fortsette til redigeringen?</BodyShort>}
         secondaryButton
