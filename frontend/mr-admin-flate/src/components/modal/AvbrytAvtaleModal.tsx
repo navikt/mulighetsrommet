@@ -1,18 +1,18 @@
+import { AnnetEnum } from "@/api/annetEnum";
+import { useAvbrytAvtale } from "@/api/avtaler/useAvbrytAvtale";
+import { useAktiveTiltaksgjennomforingerByAvtaleId } from "@/api/tiltaksgjennomforing/useAktiveTiltaksgjennomforingerByAvtaleId";
+import { HarSkrivetilgang } from "@/components/authActions/HarSkrivetilgang";
+import { Laster } from "@/components/laster/Laster";
+import { AvbrytModalAarsaker } from "@/components/modal/AvbrytModalAarsaker";
+import { AvbrytModalError } from "@/components/modal/AvbrytModalError";
+import { VarselModal } from "@/components/modal/VarselModal";
+import { avbrytAvtaleAarsakToString } from "@/utils/Utils";
+import { BodyShort, Button, Radio } from "@navikt/ds-react";
 import { AvbrytAvtaleAarsak, Avtale } from "mulighetsrommet-api-client";
 import { RefObject, useEffect, useState } from "react";
-import { useAvbrytAvtale } from "@/api/avtaler/useAvbrytAvtale";
 import { useNavigate } from "react-router-dom";
-import { useAktiveTiltaksgjennomforingerByAvtaleId } from "@/api/tiltaksgjennomforing/useAktiveTiltaksgjennomforingerByAvtaleId";
-import { VarselModal } from "@/components/modal/VarselModal";
-import { Alert, BodyShort, Button, Radio } from "@navikt/ds-react";
-import { AvbrytModalError } from "@/components/modal/AvbrytModalError";
-import { AvbrytModalAarsaker } from "@/components/modal/AvbrytModalAarsaker";
-import { avbrytAvtaleAarsakToString } from "@/utils/Utils";
 import z from "zod";
-import { HarSkrivetilgang } from "@/components/authActions/HarSkrivetilgang";
 import style from "./AvbrytGjennomforingAvtaleModal.module.scss";
-import { AnnetEnum } from "@/api/annetEnum";
-import { Laster } from "@/components/laster/Laster";
 
 export const AvbrytAvtaleModalSchema = z
   .object({
