@@ -976,7 +976,7 @@ paths:
                 items:
                   $ref: "#/components/schemas/HistorikkForBruker"
 
-  /api/v1/intern/bruker/historikk/ny:
+  /api/v2/intern/bruker/historikk:
     post:
       tags:
         - Historikk
@@ -993,7 +993,28 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/BrukerdataV2"
+                type: array
+                items:
+                  $ref: "#/components/schemas/HistorikkForBruker"
+
+  /api/v1/intern/bruker/historikk/ny:
+    post:
+      tags:
+        - Historikk
+      operationId: hentDeltakelserFraKomet
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GetHistorikkForBrukerRequest"
+        required: true
+      responses:
+        200:
+          description: Deltakelser fra komet
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeltakelserResponse"
 
   /api/v1/intern/ansatt:
     get:
@@ -2572,7 +2593,7 @@ components:
         - tiltakstype
         - arrangor
 
-    BrukerdataV2:
+    DeltakelserResponse:
       type: object
       properties:
         aktive:
@@ -3473,6 +3494,7 @@ components:
     Toggles:
       type: string
       enum:
+        - mulighetsrommet.veilederflate.enableV2Historikk
         - mulighetsrommet.veilederflate.visDeltakerRegistrering
         - mulighetsrommet-veilederflate-landingsside
         - mulighetsrommet-veilederflate-arena-oppskrifter

@@ -1,14 +1,22 @@
 import { ExternalLinkIcon } from "@navikt/aksel-icons";
 import { Alert, BodyShort, Detail, Loader } from "@navikt/ds-react";
-import { HistorikkForBruker as IHistorikkForBruker } from "mulighetsrommet-api-client";
-import { useTiltakshistorikkForBruker } from "@/apps/modia/hooks/useTiltakshistorikkForBruker";
+import { HistorikkForBruker as IHistorikkForBruker, Toggles } from "mulighetsrommet-api-client";
 import { formaterDato } from "@/utils/Utils";
 import styles from "./HistorikkForBrukerModal.module.scss";
 import { StatusBadge } from "./Statusbadge";
 import { PortenLink } from "@/components/PortenLink";
+import { useTiltakshistorikkForBruker } from "@/api/queries/useTiltakshistorikkForBruker";
+import { useFeatureToggle } from "@/api/feature-toggles";
+import { useTiltakshistorikkForBrukerV2 } from "@/api/queries/useTiltakshistorikkForBrukerV2";
 
 export function HistorikkForBrukerModalInnhold() {
-  const { data, isLoading, isError } = useTiltakshistorikkForBruker();
+  const { data: enableV2Historikk } = useFeatureToggle(
+    Toggles.MULIGHETSROMMET_VEILEDERFLATE_ENABLE_V2HISTORIKK
+  );
+  const { data, isLoading, isError } = enableV2Historikk
+    ? useTiltakshistorikkForBrukerV2()
+    : useTiltakshistorikkForBruker();
+
   if (isLoading && !data) return <Loader />;
 
   if (isError) return <Alert variant="error">Kunne ikke hente brukerens tiltakshistorikk</Alert>;

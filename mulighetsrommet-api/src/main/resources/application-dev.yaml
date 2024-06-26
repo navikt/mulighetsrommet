@@ -110,6 +110,10 @@ app:
     url: http://mulighetsrommet-arena-adapter
     scope: api://dev-gcp.team-mulighetsrommet.mulighetsrommet-arena-adapter/.default
 
+  tiltakshistorikk:
+    url: http://tiltakshistorikk
+    scope: api://dev-gcp.team-mulighetsrommet.tiltakshistorikk/.default
+
   axsys:
     url: https://axsys.dev-fss-pub.nais.io
     scope: api://dev-fss.org.axsys/.default

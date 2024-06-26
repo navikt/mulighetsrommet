@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
-import { useModiaContext } from "./useModiaContext";
 import { mulighetsrommetClient } from "@/api/client";
 import { QueryKeys } from "@/api/query-keys";
+import { useModiaContext } from "@/apps/modia/hooks/useModiaContext";
 
 export function useTiltakshistorikkForBruker() {
   const { fnr } = useModiaContext();

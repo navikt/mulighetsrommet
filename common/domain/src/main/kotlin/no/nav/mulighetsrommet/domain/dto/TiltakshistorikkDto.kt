@@ -20,3 +20,8 @@ data class TiltakshistorikkDto(
     val arenaTiltakskode: String,
     val arrangorOrganisasjonsnummer: Organisasjonsnummer?,
 )
+
+@Serializable
+data class TiltakshistorikkRequest(
+    val identer: List<String>,
+)

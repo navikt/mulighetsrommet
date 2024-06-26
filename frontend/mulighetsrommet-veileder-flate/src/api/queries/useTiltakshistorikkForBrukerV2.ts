@@ -3,7 +3,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { mulighetsrommetClient } from "../client";
 import { QueryKeys } from "../query-keys";
 
-export function useHistorikkV2() {
+export function useTiltakshistorikkForBrukerV2() {
   const { fnr } = useModiaContext();
 
   const requestBody = { norskIdent: fnr };
