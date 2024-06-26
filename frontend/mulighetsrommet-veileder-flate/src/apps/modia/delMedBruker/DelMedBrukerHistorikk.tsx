@@ -86,7 +86,7 @@ export function DelMedBrukerHistorikk() {
   );
 }
 
-function navigateToDialogButton(tiltak: TiltakDeltMedBruker): ReactNode {
+function NavigateToDialogButton({ tiltak }: { tiltak: TiltakDeltMedBruker }): ReactNode {
   return (
     <Button
       style={{ textDecoration: "underline", margin: 0, padding: 0, color: "#0067c5" }}
@@ -105,16 +105,17 @@ function navigateToDialogButton(tiltak: TiltakDeltMedBruker): ReactNode {
 }
 
 function contentForRow(delteTiltak: TiltakDeltMedBruker[]): ReactNode {
+  const tidligereDelte = delteTiltak.slice(1);
+
   return (
-    <List>
-      {delteTiltak.map((delt) => {
+    <List title="Tidligere delinger">
+      {tidligereDelte.map((delt) => {
         return (
           <List.Item key={delt.dialogId}>
             <HGrid columns={2} gap="2" align="start">
-              <div>
+              <div title={delt.createdAt}>
                 {delt.navn} - {formaterDato(delt.createdAt)}
               </div>
-              <div>{navigateToDialogButton(delt)}</div>
             </HGrid>
           </List.Item>
         );
@@ -129,7 +130,9 @@ function createCells(antallTiltakDelt: number, tiltak: TiltakDeltMedBruker): Rea
       {antallTiltakDelt === 1 ? <Table.DataCell></Table.DataCell> : null}
       <Table.DataCell>{tiltak.navn}</Table.DataCell>
       <Table.DataCell title={tiltak.createdAt}>{formaterDato(tiltak.createdAt)}</Table.DataCell>
-      <Table.DataCell>{navigateToDialogButton(tiltak)}</Table.DataCell>
+      <Table.DataCell>
+        <NavigateToDialogButton tiltak={tiltak} />
+      </Table.DataCell>
     </>
   );
 }
