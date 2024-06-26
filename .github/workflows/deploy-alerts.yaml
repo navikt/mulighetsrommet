@@ -33,8 +33,10 @@ jobs:
         env:
           CLUSTER: dev-gcp
           RESOURCE: iac/alerts/alerts.yaml
+          VARS: iac/alerts/dev.yaml
       - name: deploy to prod
         uses: nais/deploy/actions/deploy@v2
         env:
           CLUSTER: prod-gcp
           RESOURCE: iac/alerts/alerts.yaml
+          VARS: iac/alerts/prod.yaml
