@@ -91,7 +91,7 @@ class FlywayMigrationManager(
         """.trimIndent()
 
         database.useSession { session ->
-            flyway.info().all().filter { !it.isVersioned }.forEach {
+            flyway.info().applied().filter { !it.isVersioned }.forEach {
                 queryOf(deleteRepeatableEntry, it.installedRank, it.checksum).asExecute.runWithSession(session)
             }
         }
