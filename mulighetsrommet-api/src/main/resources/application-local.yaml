@@ -55,6 +55,9 @@ app:
       audience: mulighetsrommet-api
       tokenEndpointUrl: http://localhost:8081/azure/token
     roles:
+      # Mocket team-mulighetsrommet
+      - adGruppeId: 52bb9196-b071-4cc7-9472-be4942d33c4b
+        rolle: TEAM_MULIGHETSROMMET
       # Mocket 0000-GA-TILTAK-ANSVARLIG
       - adGruppeId: 52bb9196-b071-4cc7-9472-be4942d33c4b
         rolle: TILTAKADMINISTRASJON_GENERELL
