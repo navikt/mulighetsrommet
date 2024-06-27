@@ -5,14 +5,16 @@ import { Alert } from "@navikt/ds-react";
 import { InlineErrorBoundary } from "@/ErrorBoundary";
 import { PersonvernContainer } from "@/components/personvern/PersonvernContainer";
 import { LenkeListe } from "@/components/sidemeny/Lenker";
+import { DetaljerSkeleton } from "mulighetsrommet-frontend-common";
 
 export function NavArbeidsmarkedstiltakDetaljer() {
-  const { data, isError } = useNavTiltaksgjennomforingById();
+  const { data, isError, isPending } = useNavTiltaksgjennomforingById();
 
   if (isError) {
     return <Alert variant="error">Det har skjedd en feil</Alert>;
   }
 
+  if (isPending) return <DetaljerSkeleton />;
   if (!data) return <Alert variant="error">Klarte ikke finne tiltaksgjennomføringen</Alert>;
 
   return (
