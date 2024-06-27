@@ -11,7 +11,7 @@ import { mockTiltakstyper } from "./mockTiltakstyper";
 export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
   {
     sanityId: "f4cea25b-c372-4d4c-8106-535ab10cd586",
-    navn: "Avklaring - Fredrikstad",
+    navn: "Avklaring - Fredrikstad med ganske langt navn som strekker seg bortover",
     status: { status: TiltaksgjennomforingStatus.GJENNOMFORES },
     oppstart: TiltaksgjennomforingOppstartstype.LOPENDE,
     estimertVentetid: {
