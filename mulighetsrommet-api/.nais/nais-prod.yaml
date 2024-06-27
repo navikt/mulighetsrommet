@@ -5,6 +5,8 @@ metadata:
   namespace: team-mulighetsrommet
   labels:
     team: team-mulighetsrommet
+  annotations:
+    config.linkerd.io/proxy-outbound-connect-timeout: "2s"
 spec:
   image: "{{image}}"
   port: 8080
@@ -131,5 +133,3 @@ spec:
   env:
     - name: OTEL_JAVAAGENT_EXCLUDE_CLASSES
       value: "no.nav.mulighetsrommet.api.clients.dialog.*,no.nav.mulighetsrommet.api.services.BrukerService"
-  annotations:
-   config.linkerd.io/proxy-outbound-connect-timeout: "2s"
