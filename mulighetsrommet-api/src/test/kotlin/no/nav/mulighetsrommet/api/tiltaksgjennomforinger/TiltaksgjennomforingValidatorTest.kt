@@ -115,14 +115,18 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
     beforeEach {
         domain.initialize(database.db)
 
-        tiltakstyper = TiltakstypeService(TiltakstypeRepository(database.db), listOf(Tiltakskode.OPPFOLGING))
+        tiltakstyper = TiltakstypeService(
+            TiltakstypeRepository(database.db),
+            listOf(Tiltakskode.OPPFOLGING),
+            appConfig.pameldingIModia,
+        )
         avtaler = AvtaleRepository(database.db)
         tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
         arrangorer = ArrangorRepository(database.db)
     }
 
     test("should fail when tiltakstype is not enabled") {
-        tiltakstyper = TiltakstypeService(TiltakstypeRepository(database.db), emptyList())
+        tiltakstyper = TiltakstypeService(TiltakstypeRepository(database.db), emptyList(), appConfig.pameldingIModia)
         val validator = TiltaksgjennomforingValidator(tiltakstyper, avtaler, arrangorer)
 
         validator.validate(gjennomforing, null).shouldBeLeft().shouldContainExactlyInAnyOrder(
@@ -225,7 +229,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
 
     test("sluttDato er påkrevd hvis ikke forhåndsgodkjent avtale") {
         val validator = TiltaksgjennomforingValidator(
-            TiltakstypeService(TiltakstypeRepository(database.db), Tiltakskode.entries),
+            TiltakstypeService(TiltakstypeRepository(database.db), Tiltakskode.entries, appConfig.pameldingIModia),
             avtaler,
             arrangorer,
         )
@@ -321,7 +325,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
             tiltaksgjennomforinger.setOpphav(gjennomforing.id, ArenaMigrering.Opphav.ARENA)
 
             val validator = TiltaksgjennomforingValidator(
-                TiltakstypeService(TiltakstypeRepository(database.db), listOf()),
+                TiltakstypeService(TiltakstypeRepository(database.db), listOf(), appConfig.pameldingIModia),
                 avtaler,
                 arrangorer,
             )

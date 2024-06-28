@@ -9,6 +9,7 @@ import {
 import { ReactNode } from "react";
 import { useGetTiltaksgjennomforingIdFraUrl } from "../../api/queries/useGetTiltaksgjennomforingIdFraUrl";
 import { useHistorikkV2 } from "../../api/queries/useHistorikkV2";
+import { useTiltakstyperSomStotterPameldingIModia } from "../../api/queries/useTiltakstyperSomStotterPameldingIModia";
 import { ModiaRoute, resolveModiaRoute } from "../../apps/modia/ModiaRoute";
 import styles from "./PameldingForGruppetiltak.module.scss";
 
@@ -24,6 +25,7 @@ export function PameldingForGruppetiltak({
   tiltaksgjennomforing,
 }: PameldingProps): ReactNode {
   const { data: deltakerHistorikk } = useHistorikkV2();
+  const { data: stotterPameldingIModia = [] } = useTiltakstyperSomStotterPameldingIModia();
   const gjennomforingId = useGetTiltaksgjennomforingIdFraUrl();
 
   const { aktive = [] } = deltakerHistorikk || {};
@@ -41,7 +43,7 @@ export function PameldingForGruppetiltak({
   const skalVisePameldingslenke =
     !kanOppretteAvtaleForTiltak &&
     brukerHarRettPaaValgtTiltak &&
-    tiltakstypeStotterPamelding(tiltaksgjennomforing.tiltakstype) &&
+    tiltakstypeStotterPamelding(stotterPameldingIModia, tiltaksgjennomforing.tiltakstype) &&
     !aktivDeltakelse;
 
   const opprettDeltakelseRoute = resolveModiaRoute({
@@ -130,15 +132,9 @@ function utledTekster(deltakelse: DeltakerKort): Tekst {
   }
 }
 
-function tiltakstypeStotterPamelding(tiltakstype: VeilederflateTiltakstype): boolean {
-  const whitelistTiltakstypeStotterPamelding = [
-    TiltakskodeArena.ARBFORB,
-    TiltakskodeArena.ARBRRHDAG,
-    TiltakskodeArena.AVKLARAG,
-    TiltakskodeArena.INDOPPFAG,
-    TiltakskodeArena.VASV,
-  ];
-  return (
-    !!tiltakstype.arenakode && whitelistTiltakstypeStotterPamelding.includes(tiltakstype.arenakode)
-  );
+function tiltakstypeStotterPamelding(
+  tiltakstyperSomStotterPamelding: string[],
+  tiltakstype: VeilederflateTiltakstype,
+): boolean {
+  return !!tiltakstype.arenakode && tiltakstyperSomStotterPamelding.includes(tiltakstype.arenakode);
 }

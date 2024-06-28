@@ -56,7 +56,11 @@ class TiltaksgjennomforingTopicConsumerTest : FunSpec({
             val arenaAdapterClient = mockk<ArenaAdapterClient>()
             coEvery { arenaAdapterClient.hentArenadata(gjennomforing.id) } returns null
 
-            val tiltakstyper = TiltakstypeService(TiltakstypeRepository(database.db), enabledTiltakskoder = emptyList())
+            val tiltakstyper = TiltakstypeService(
+                TiltakstypeRepository(database.db),
+                enabledTiltakskoder = emptyList(),
+                appConfig.pameldingIModia,
+            )
 
             val consumer = TiltaksgjennomforingTopicConsumer(
                 KafkaTopicConsumer.Config(id = "id", topic = "topic"),
@@ -79,7 +83,11 @@ class TiltaksgjennomforingTopicConsumerTest : FunSpec({
             val arenaAdapterClient = mockk<ArenaAdapterClient>()
             coEvery { arenaAdapterClient.hentArenadata(gjennomforing.id) } returns null
 
-            val tiltakstyper = TiltakstypeService(TiltakstypeRepository(database.db), listOf(Tiltakskode.OPPFOLGING))
+            val tiltakstyper = TiltakstypeService(
+                TiltakstypeRepository(database.db),
+                listOf(Tiltakskode.OPPFOLGING),
+                appConfig.pameldingIModia,
+            )
 
             val consumer = TiltaksgjennomforingTopicConsumer(
                 KafkaTopicConsumer.Config(id = "id", topic = "topic"),
@@ -109,6 +117,7 @@ class TiltaksgjennomforingTopicConsumerTest : FunSpec({
             val tiltakstyper = TiltakstypeService(
                 TiltakstypeRepository(database.db),
                 enabledTiltakskoder = listOf(Tiltakskode.OPPFOLGING),
+                appConfig.pameldingIModia,
             )
 
             val consumer = TiltaksgjennomforingTopicConsumer(

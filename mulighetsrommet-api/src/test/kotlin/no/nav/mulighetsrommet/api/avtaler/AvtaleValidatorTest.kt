@@ -107,7 +107,11 @@ class AvtaleValidatorTest :
         beforeEach {
             domain.initialize(database.db)
 
-            tiltakstyper = TiltakstypeService(TiltakstypeRepository(database.db), listOf(Tiltakskode.OPPFOLGING))
+            tiltakstyper = TiltakstypeService(
+                TiltakstypeRepository(database.db),
+                listOf(Tiltakskode.OPPFOLGING),
+                appConfig.pameldingIModia,
+            )
             navEnheterService = NavEnhetService(NavEnhetRepository(database.db))
             avtaler = AvtaleRepository(database.db)
             gjennomforinger = TiltaksgjennomforingRepository(database.db)
@@ -119,7 +123,11 @@ class AvtaleValidatorTest :
         }
 
         test("skal feile når tiltakstypen ikke er aktivert") {
-            tiltakstyper = TiltakstypeService(TiltakstypeRepository(database.db), emptyList())
+            tiltakstyper = TiltakstypeService(
+                TiltakstypeRepository(database.db),
+                emptyList(),
+                appConfig.pameldingIModia,
+            )
             val validator = AvtaleValidator(tiltakstyper, gjennomforinger, navEnheterService, arrangorer)
 
             val dbo = avtaleDbo.copy(
@@ -135,7 +143,11 @@ class AvtaleValidatorTest :
         }
 
         test("skal ikke feile når tiltakstypen er AFT, VTA, eller aktivert") {
-            tiltakstyper = TiltakstypeService(TiltakstypeRepository(database.db), listOf(Tiltakskode.OPPFOLGING))
+            tiltakstyper = TiltakstypeService(
+                TiltakstypeRepository(database.db),
+                listOf(Tiltakskode.OPPFOLGING),
+                appConfig.pameldingIModia,
+            )
             val validator = AvtaleValidator(tiltakstyper, gjennomforinger, navEnheterService, arrangorer)
 
             validator.validate(AvtaleFixtures.AFT, null).shouldBeRight()
@@ -239,7 +251,11 @@ class AvtaleValidatorTest :
 
         test("sluttDato er påkrevd hvis ikke forhåndsgodkjent") {
             val validator = AvtaleValidator(
-                TiltakstypeService(TiltakstypeRepository(database.db), Tiltakskode.values().toList()),
+                TiltakstypeService(
+                    TiltakstypeRepository(database.db),
+                    Tiltakskode.values().toList(),
+                    appConfig.pameldingIModia,
+                ),
                 gjennomforinger,
                 navEnheterService,
                 arrangorer,
@@ -263,7 +279,7 @@ class AvtaleValidatorTest :
 
         test("avtaletype må være allowed") {
             val validator = AvtaleValidator(
-                TiltakstypeService(TiltakstypeRepository(database.db), Tiltakskode.entries),
+                TiltakstypeService(TiltakstypeRepository(database.db), Tiltakskode.entries, appConfig.pameldingIModia),
                 gjennomforinger,
                 navEnheterService,
                 arrangorer,
@@ -308,7 +324,7 @@ class AvtaleValidatorTest :
 
         test("Websak-referanse må være med når avtalen er avtale eller rammeavtale") {
             val validator = AvtaleValidator(
-                TiltakstypeService(TiltakstypeRepository(database.db), Tiltakskode.entries),
+                TiltakstypeService(TiltakstypeRepository(database.db), Tiltakskode.entries, appConfig.pameldingIModia),
                 gjennomforinger,
                 navEnheterService,
                 arrangorer,
@@ -406,6 +422,7 @@ class AvtaleValidatorTest :
                     TiltakstypeService(
                         TiltakstypeRepository(database.db),
                         listOf(Tiltakskode.OPPFOLGING, Tiltakskode.ARBEIDSFORBEREDENDE_TRENING),
+                        appConfig.pameldingIModia,
                     ),
                     gjennomforinger,
                     navEnheterService,
@@ -486,6 +503,7 @@ class AvtaleValidatorTest :
                         TiltakstypeService(
                             TiltakstypeRepository(database.db),
                             listOf(Tiltakskode.OPPFOLGING, Tiltakskode.ARBEIDSFORBEREDENDE_TRENING),
+                            appConfig.pameldingIModia,
                         ),
                         gjennomforinger,
                         navEnheterService,
@@ -535,6 +553,7 @@ class AvtaleValidatorTest :
                         TiltakstypeService(
                             TiltakstypeRepository(database.db),
                             listOf(Tiltakskode.OPPFOLGING),
+                            appConfig.pameldingIModia,
                         ),
                         gjennomforinger,
                         navEnheterService,

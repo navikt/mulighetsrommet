@@ -913,7 +913,7 @@ private fun createArenaAdapterService(
     notificationService = notificationService,
     endringshistorikk = EndringshistorikkService(db),
     veilarboppfolgingClient = veilarboppfolgingClient,
-    tiltakstypeService = TiltakstypeService(TiltakstypeRepository(db), migrerteTiltakstyper),
+    tiltakstypeService = TiltakstypeService(TiltakstypeRepository(db), migrerteTiltakstyper, appConfig.pameldingIModia),
 )
 
 private fun toTiltaksgjennomforingDto(dbo: ArenaTiltaksgjennomforingDbo, tiltakstype: TiltakstypeDbo) = dbo.run {

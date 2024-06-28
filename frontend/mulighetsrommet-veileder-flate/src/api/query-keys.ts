@@ -33,4 +33,5 @@ export const QueryKeys = {
     avtaleId,
   ],
   deltMedBrukerHistorikk: (norskIdent: string) => ["deltMedBrukerHistorikk", norskIdent],
+  tiltakstyperSomStotterPameldingIModia: () => ["tiltakstyperSomStotterPameldingIModia"],
 };
