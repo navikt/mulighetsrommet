@@ -115,7 +115,11 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
     beforeEach {
         domain.initialize(database.db)
 
-        tiltakstyper = TiltakstypeService(TiltakstypeRepository(database.db), listOf(Tiltakskode.OPPFOLGING))
+        tiltakstyper = TiltakstypeService(
+            TiltakstypeRepository(database.db),
+            listOf(Tiltakskode.OPPFOLGING),
+
+        )
         avtaler = AvtaleRepository(database.db)
         tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
         arrangorer = ArrangorRepository(database.db)

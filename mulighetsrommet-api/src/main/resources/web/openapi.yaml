@@ -791,6 +791,21 @@ paths:
                 items:
                   type: string
 
+  /api/v1/intern/tiltakstyper/stotterPameldingIModia:
+    get:
+      tags:
+        - Tiltakstyper
+      operationId: getTiltakstyperSomStotterPameldingIModia
+      responses:
+        200:
+          description: Liste over tiltak som støtter påmelding i Modia
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+
   /api/v1/intern/veileder/innsatsgrupper:
     get:
       tags:

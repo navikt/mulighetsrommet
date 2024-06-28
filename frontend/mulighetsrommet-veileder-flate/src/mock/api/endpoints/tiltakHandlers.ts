@@ -17,6 +17,21 @@ export const tiltakHandlers = [
     return HttpResponse.json(Object.values(mockTiltakstyper));
   }),
 
+  http.get("*/api/v1/intern/tiltakstyper/stotterPameldingIModia", async () => {
+    const tiltakstyperMedPamelding = [
+      "ARBFORB",
+      "ARBRRHDAG",
+      "AVKLARAG",
+      "DIGIOPPARB",
+      "GRUFAGYRKE",
+      "GRUPPEAMO",
+      "INDOPPFAG",
+      "JOBB",
+      "VASV",
+    ];
+    return HttpResponse.json(tiltakstyperMedPamelding);
+  }),
+
   http.get("*/api/v1/intern/veileder/tiltaksgjennomforinger", async ({ request }) => {
     const url = new URL(request.url);
     const results = getFilteredArbeidsmarkedstiltak(url);

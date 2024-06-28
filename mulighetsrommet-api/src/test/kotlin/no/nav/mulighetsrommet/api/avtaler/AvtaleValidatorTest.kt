@@ -107,7 +107,10 @@ class AvtaleValidatorTest :
         beforeEach {
             domain.initialize(database.db)
 
-            tiltakstyper = TiltakstypeService(TiltakstypeRepository(database.db), listOf(Tiltakskode.OPPFOLGING))
+            tiltakstyper = TiltakstypeService(
+                TiltakstypeRepository(database.db),
+                listOf(Tiltakskode.OPPFOLGING),
+            )
             navEnheterService = NavEnhetService(NavEnhetRepository(database.db))
             avtaler = AvtaleRepository(database.db)
             gjennomforinger = TiltaksgjennomforingRepository(database.db)
@@ -119,7 +122,10 @@ class AvtaleValidatorTest :
         }
 
         test("skal feile når tiltakstypen ikke er aktivert") {
-            tiltakstyper = TiltakstypeService(TiltakstypeRepository(database.db), emptyList())
+            tiltakstyper = TiltakstypeService(
+                TiltakstypeRepository(database.db),
+                emptyList(),
+            )
             val validator = AvtaleValidator(tiltakstyper, gjennomforinger, navEnheterService, arrangorer)
 
             val dbo = avtaleDbo.copy(
@@ -135,7 +141,10 @@ class AvtaleValidatorTest :
         }
 
         test("skal ikke feile når tiltakstypen er AFT, VTA, eller aktivert") {
-            tiltakstyper = TiltakstypeService(TiltakstypeRepository(database.db), listOf(Tiltakskode.OPPFOLGING))
+            tiltakstyper = TiltakstypeService(
+                TiltakstypeRepository(database.db),
+                listOf(Tiltakskode.OPPFOLGING),
+            )
             val validator = AvtaleValidator(tiltakstyper, gjennomforinger, navEnheterService, arrangorer)
 
             validator.validate(AvtaleFixtures.AFT, null).shouldBeRight()
@@ -239,7 +248,10 @@ class AvtaleValidatorTest :
 
         test("sluttDato er påkrevd hvis ikke forhåndsgodkjent") {
             val validator = AvtaleValidator(
-                TiltakstypeService(TiltakstypeRepository(database.db), Tiltakskode.values().toList()),
+                TiltakstypeService(
+                    TiltakstypeRepository(database.db),
+                    Tiltakskode.values().toList(),
+                ),
                 gjennomforinger,
                 navEnheterService,
                 arrangorer,
