@@ -2,7 +2,6 @@ import { Alert, BodyShort, Button, Heading, VStack } from "@navikt/ds-react";
 import {
   DeltakerKort,
   DeltakerStatusType,
-  TiltakskodeArena,
   VeilederflateTiltaksgjennomforing,
   VeilederflateTiltakstype,
 } from "mulighetsrommet-api-client";
