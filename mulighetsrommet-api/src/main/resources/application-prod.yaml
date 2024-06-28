@@ -18,7 +18,7 @@ app:
     - OPPFOLGING
     - VARIG_TILRETTELAGT_ARBEID_SKJERMET
 
-  pameldingIModia:
+  pameldingIModia: []
 
   kafka:
     producerId: mulighetsrommet-api-kafka-producer.v1
