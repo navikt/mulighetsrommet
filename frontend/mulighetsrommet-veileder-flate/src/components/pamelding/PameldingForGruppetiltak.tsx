@@ -6,11 +6,11 @@ import {
   VeilederflateTiltakstype,
 } from "mulighetsrommet-api-client";
 import { ReactNode } from "react";
-import { useGetTiltaksgjennomforingIdFraUrl } from "../../api/queries/useGetTiltaksgjennomforingIdFraUrl";
-import { useHistorikkV2 } from "../../api/queries/useHistorikkV2";
-import { useTiltakstyperSomStotterPameldingIModia } from "../../api/queries/useTiltakstyperSomStotterPameldingIModia";
-import { ModiaRoute, resolveModiaRoute } from "../../apps/modia/ModiaRoute";
+import { useGetTiltaksgjennomforingIdFraUrl } from "@/api/queries/useGetTiltaksgjennomforingIdFraUrl";
+import { useTiltakstyperSomStotterPameldingIModia } from "@/api/queries/useTiltakstyperSomStotterPameldingIModia";
+import { ModiaRoute, resolveModiaRoute } from "@/apps/modia/ModiaRoute";
 import styles from "./PameldingForGruppetiltak.module.scss";
+import { useDeltakelserFraKomet } from "@/api/queries/useDeltakelserFraKomet";
 
 interface PameldingProps {
   kanOppretteAvtaleForTiltak: boolean;
@@ -23,7 +23,7 @@ export function PameldingForGruppetiltak({
   brukerHarRettPaaValgtTiltak,
   tiltaksgjennomforing,
 }: PameldingProps): ReactNode {
-  const { data: deltakerHistorikk } = useHistorikkV2();
+  const { data: deltakerHistorikk } = useDeltakelserFraKomet();
   const { data: stotterPameldingIModia = [] } = useTiltakstyperSomStotterPameldingIModia();
   const gjennomforingId = useGetTiltaksgjennomforingIdFraUrl();
 

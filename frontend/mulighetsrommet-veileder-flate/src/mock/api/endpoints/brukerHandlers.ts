@@ -1,8 +1,8 @@
-import { HttpResponse, PathParams, http } from "msw";
+import { http, HttpResponse, PathParams } from "msw";
 import {
   Bruker,
   BrukerVarsel,
-  BrukerdataV2,
+  DeltakelserResponse,
   GetBrukerRequest,
   HistorikkForBruker,
   Innsatsgruppe,
@@ -55,7 +55,8 @@ export const brukerHandlers = [
     HttpResponse.json(historikk),
   ),
 
-  http.post<PathParams, BrukerdataV2, BrukerdataV2>("*/api/v1/intern/bruker/historikk/ny", () =>
-    HttpResponse.json({ historikk: historikkFraKomet, aktive: utkastFraKomet }),
+  http.post<PathParams, DeltakelserResponse, DeltakelserResponse>(
+    "*/api/v1/intern/bruker/historikk/ny",
+    () => HttpResponse.json({ historikk: historikkFraKomet, aktive: utkastFraKomet }),
   ),
 ];
