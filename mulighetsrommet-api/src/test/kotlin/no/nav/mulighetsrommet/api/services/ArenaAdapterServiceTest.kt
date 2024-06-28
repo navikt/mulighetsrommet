@@ -24,10 +24,7 @@ import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.*
-import no.nav.mulighetsrommet.domain.dto.AvbruttAarsak
-import no.nav.mulighetsrommet.domain.dto.Avtaletype
-import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus
-import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingV1Dto
+import no.nav.mulighetsrommet.domain.dto.*
 import no.nav.mulighetsrommet.kafka.producers.TiltaksgjennomforingKafkaProducer
 import no.nav.mulighetsrommet.notifications.NotificationService
 import no.nav.mulighetsrommet.notifications.NotificationType
@@ -808,7 +805,7 @@ class ArenaAdapterServiceTest :
             val tiltakshistorikkGruppe = ArenaTiltakshistorikkDbo.Gruppetiltak(
                 id = UUID.randomUUID(),
                 tiltaksgjennomforingId = TiltaksgjennomforingFixtures.Oppfolging1.id,
-                norskIdent = "12345678910",
+                norskIdent = NorskIdent("12345678910"),
                 status = Deltakerstatus.VENTER,
                 fraDato = LocalDateTime.of(2018, 12, 3, 0, 0),
                 tilDato = LocalDateTime.of(2019, 12, 3, 0, 0),
@@ -819,7 +816,7 @@ class ArenaAdapterServiceTest :
 
             val tiltakshistorikkIndividuell = ArenaTiltakshistorikkDbo.IndividueltTiltak(
                 id = UUID.randomUUID(),
-                norskIdent = "12345678910",
+                norskIdent = NorskIdent("12345678910"),
                 status = Deltakerstatus.VENTER,
                 fraDato = LocalDateTime.of(2018, 12, 3, 0, 0),
                 tilDato = LocalDateTime.of(2019, 12, 3, 0, 0),
@@ -839,7 +836,7 @@ class ArenaAdapterServiceTest :
 
                 coEvery {
                     veilarboppfolgingClient.erBrukerUnderOppfolging(
-                        "12345678910",
+                        NorskIdent("12345678910"),
                         AccessType.M2M,
                     )
                 } returns true.right()

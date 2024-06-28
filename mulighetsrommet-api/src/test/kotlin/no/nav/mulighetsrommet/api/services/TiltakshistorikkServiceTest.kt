@@ -18,6 +18,7 @@ import no.nav.mulighetsrommet.api.repositories.TiltakshistorikkRepository
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.domain.dbo.ArenaTiltakshistorikkDbo
 import no.nav.mulighetsrommet.domain.dbo.Deltakerstatus
+import no.nav.mulighetsrommet.domain.dto.NorskIdent
 import java.time.LocalDateTime
 import java.util.*
 
@@ -35,7 +36,7 @@ class TiltakshistorikkServiceTest : FunSpec({
     val tiltakshistorikkGruppe = ArenaTiltakshistorikkDbo.Gruppetiltak(
         id = UUID.randomUUID(),
         tiltaksgjennomforingId = tiltaksgjennomforing.id,
-        norskIdent = "12345678910",
+        norskIdent = NorskIdent("12345678910"),
         status = Deltakerstatus.VENTER,
         fraDato = LocalDateTime.of(2018, 12, 3, 0, 0),
         tilDato = LocalDateTime.of(2019, 12, 3, 0, 0),
@@ -46,7 +47,7 @@ class TiltakshistorikkServiceTest : FunSpec({
 
     val tiltakshistorikkIndividuell = ArenaTiltakshistorikkDbo.IndividueltTiltak(
         id = UUID.randomUUID(),
-        norskIdent = "12345678910",
+        norskIdent = NorskIdent("12345678910"),
         status = Deltakerstatus.VENTER,
         fraDato = LocalDateTime.of(2018, 12, 3, 0, 0),
         tilDato = LocalDateTime.of(2019, 12, 3, 0, 0),
@@ -116,6 +117,9 @@ class TiltakshistorikkServiceTest : FunSpec({
             ),
         )
 
-        historikkService.hentHistorikkForBruker("12345678910", AccessType.OBO("token")) shouldBe forventetHistorikk
+        historikkService.hentHistorikkForBruker(
+            NorskIdent("12345678910"),
+            AccessType.OBO("token"),
+        ) shouldBe forventetHistorikk
     }
 })

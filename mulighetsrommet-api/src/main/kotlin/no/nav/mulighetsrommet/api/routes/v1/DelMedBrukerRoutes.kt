@@ -10,6 +10,7 @@ import no.nav.mulighetsrommet.api.domain.dbo.DelMedBrukerDbo
 import no.nav.mulighetsrommet.api.plugins.getNavAnsattAzureId
 import no.nav.mulighetsrommet.api.services.DelMedBrukerService
 import no.nav.mulighetsrommet.api.services.PoaoTilgangService
+import no.nav.mulighetsrommet.domain.dto.NorskIdent
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.securelog.SecureLog
 import org.koin.ktor.ext.inject
@@ -109,10 +110,10 @@ fun Route.delMedBrukerRoutes() {
 data class GetDelMedBrukerRequest(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
-    val norskIdent: String,
+    val norskIdent: NorskIdent,
 )
 
 @Serializable
 data class GetAlleDeltMedBrukerRequest(
-    val norskIdent: String,
+    val norskIdent: NorskIdent,
 )

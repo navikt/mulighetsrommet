@@ -21,6 +21,7 @@ import no.nav.mulighetsrommet.api.services.PoaoTilgangService
 import no.nav.mulighetsrommet.api.services.TiltakshistorikkService
 import no.nav.mulighetsrommet.auditlog.AuditLog
 import no.nav.mulighetsrommet.domain.dto.NavIdent
+import no.nav.mulighetsrommet.domain.dto.NorskIdent
 import no.nav.mulighetsrommet.ktor.extensions.getAccessToken
 import org.koin.ktor.ext.inject
 
@@ -42,8 +43,7 @@ fun Route.brukerRoutes() {
 
     route("/api/v1/intern/bruker/historikk") {
         post {
-            val request = call.receive<GetHistorikkForBrukerRequest>()
-            val norskIdent = request.norskIdent
+            val (norskIdent) = call.receive<GetHistorikkForBrukerRequest>()
             val navIdent = getNavIdent()
             val obo = AccessType.OBO(call.getAccessToken())
 
@@ -71,8 +71,7 @@ fun Route.brukerRoutes() {
         }
 
         post("ny") {
-            val request = call.receive<GetHistorikkForBrukerRequest>()
-            val norskIdent = request.norskIdent
+            val (norskIdent) = call.receive<GetHistorikkForBrukerRequest>()
             val navIdent = getNavIdent()
             val obo = AccessType.OBO(call.getAccessToken())
 
@@ -109,15 +108,15 @@ private fun toStatusResponseError(it: AmtDeltakerError) = when (it) {
 
 @Serializable
 data class GetBrukerRequest(
-    val norskIdent: String,
+    val norskIdent: NorskIdent,
 )
 
 @Serializable
 data class GetHistorikkForBrukerRequest(
-    val norskIdent: String,
+    val norskIdent: NorskIdent,
 )
 
-private fun createAuditMessage(msg: String, topic: String, navIdent: NavIdent, norskIdent: String): CefMessage {
+private fun createAuditMessage(msg: String, topic: String, navIdent: NavIdent, norskIdent: NorskIdent): CefMessage {
     return CefMessage.builder()
         .applicationName("modia")
         .loggerName("mulighetsrommet-api")
@@ -125,7 +124,7 @@ private fun createAuditMessage(msg: String, topic: String, navIdent: NavIdent, n
         .name("Arbeidsmarkedstiltak - $topic")
         .severity(CefMessageSeverity.INFO)
         .sourceUserId(navIdent.value)
-        .destinationUserId(norskIdent)
+        .destinationUserId(norskIdent.value)
         .timeEnded(System.currentTimeMillis())
         .extension("msg", msg)
         .build()

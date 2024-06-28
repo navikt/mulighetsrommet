@@ -8,6 +8,7 @@ import no.nav.mulighetsrommet.database.utils.QueryResult
 import no.nav.mulighetsrommet.database.utils.query
 import no.nav.mulighetsrommet.domain.dbo.ArenaTiltakshistorikkDbo
 import no.nav.mulighetsrommet.domain.dbo.Deltakerstatus
+import no.nav.mulighetsrommet.domain.dto.NorskIdent
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
 import java.time.LocalDate
@@ -69,7 +70,7 @@ class TiltakshistorikkRepository(private val db: Database) {
             .let { db.run(it) }
     }
 
-    fun getTiltakshistorikkForBruker(identer: List<String>): List<TiltakshistorikkDbo> {
+    fun getTiltakshistorikkForBruker(identer: List<NorskIdent>): List<TiltakshistorikkDbo> {
         @Language("PostgreSQL")
         val query = """
             select h.id,
@@ -86,23 +87,27 @@ class TiltakshistorikkRepository(private val db: Database) {
             where h.norsk_ident = any(?)
             order by h.fra_dato desc nulls last;
         """.trimIndent()
-        val queryResult = queryOf(query, db.createTextArray(identer)).map { it.toTiltakshistorikk() }.asList
+
+        val queryResult = queryOf(query, db.createTextArray(identer.map { it.value }))
+            .map { it.toTiltakshistorikk() }
+            .asList
+
         return db.run(queryResult)
     }
 
-    fun deleteTiltakshistorikkForIdenter(identer: List<String>) {
+    fun deleteTiltakshistorikkForIdenter(identer: List<NorskIdent>) {
         @Language("PostgreSQL")
         val query = """
             delete from tiltakshistorikk where norsk_ident = any(?);
         """.trimIndent()
 
-        db.run(queryOf(query, db.createTextArray(identer)).asExecute)
+        db.run(queryOf(query, db.createTextArray(identer.map { it.value })).asExecute)
     }
 
     private fun ArenaTiltakshistorikkDbo.toSqlParameters(): Map<String, *> {
         return mapOf(
             "id" to id,
-            "norsk_ident" to norskIdent,
+            "norsk_ident" to norskIdent.value,
             "status" to status.name,
             "fra_dato" to fraDato,
             "til_dato" to tilDato,
@@ -126,7 +131,7 @@ class TiltakshistorikkRepository(private val db: Database) {
                 ArenaTiltakshistorikkDbo.Gruppetiltak(
                     id = uuid("id"),
                     tiltaksgjennomforingId = it,
-                    norskIdent = string("norsk_ident"),
+                    norskIdent = NorskIdent(string("norsk_ident")),
                     status = Deltakerstatus.valueOf(string("status")),
                     fraDato = localDateTimeOrNull("fra_dato"),
                     tilDato = localDateTimeOrNull("til_dato"),
@@ -135,7 +140,7 @@ class TiltakshistorikkRepository(private val db: Database) {
             }
             ?: ArenaTiltakshistorikkDbo.IndividueltTiltak(
                 id = uuid("id"),
-                norskIdent = string("norsk_ident"),
+                norskIdent = NorskIdent(string("norsk_ident")),
                 status = Deltakerstatus.valueOf(string("status")),
                 fraDato = localDateTimeOrNull("fra_dato"),
                 tilDato = localDateTimeOrNull("til_dato"),

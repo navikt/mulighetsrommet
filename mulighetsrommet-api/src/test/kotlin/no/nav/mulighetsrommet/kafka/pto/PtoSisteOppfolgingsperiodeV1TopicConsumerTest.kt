@@ -19,6 +19,7 @@ import no.nav.mulighetsrommet.api.services.TiltakshistorikkService
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.domain.dbo.ArenaTiltakshistorikkDbo
 import no.nav.mulighetsrommet.domain.dbo.Deltakerstatus
+import no.nav.mulighetsrommet.domain.dto.NorskIdent
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.kafka.consumers.pto.PtoSisteOppfolgingsperiodeV1TopicConsumer
 import no.nav.mulighetsrommet.kafka.consumers.pto.SisteOppfolgingsperiodeV1
@@ -67,7 +68,7 @@ class PtoSisteOppfolgingsperiodeV1TopicConsumerTest : FunSpec({
             tiltakshistorikkRepository.upsert(
                 ArenaTiltakshistorikkDbo.Gruppetiltak(
                     id = UUID.randomUUID(),
-                    norskIdent = "12345678910",
+                    norskIdent = NorskIdent("12345678910"),
                     status = Deltakerstatus.DELTAR,
                     fraDato = LocalDateTime.now(),
                     tilDato = null,
@@ -96,14 +97,14 @@ class PtoSisteOppfolgingsperiodeV1TopicConsumerTest : FunSpec({
                 periodeUtenSlutt.uuid.toString(),
                 Json.encodeToJsonElement(periodeUtenSlutt),
             )
-            tiltakshistorikkRepository.getTiltakshistorikkForBruker(listOf("12345678910")).shouldHaveSize(1)
+            tiltakshistorikkRepository.getTiltakshistorikkForBruker(listOf(NorskIdent("12345678910"))).shouldHaveSize(1)
         }
 
         test("periode med slutt sletter") {
             tiltakshistorikkRepository.upsert(
                 ArenaTiltakshistorikkDbo.Gruppetiltak(
                     id = UUID.randomUUID(),
-                    norskIdent = "12345678910",
+                    norskIdent = NorskIdent("12345678910"),
                     status = Deltakerstatus.DELTAR,
                     fraDato = LocalDateTime.now(),
                     tilDato = null,
@@ -132,7 +133,7 @@ class PtoSisteOppfolgingsperiodeV1TopicConsumerTest : FunSpec({
                 periodeUtenSlutt.uuid.toString(),
                 Json.encodeToJsonElement(periodeUtenSlutt),
             )
-            tiltakshistorikkRepository.getTiltakshistorikkForBruker(listOf("12345678910")).shouldHaveSize(0)
+            tiltakshistorikkRepository.getTiltakshistorikkForBruker(listOf(NorskIdent("12345678910"))).shouldHaveSize(0)
         }
     }
 })

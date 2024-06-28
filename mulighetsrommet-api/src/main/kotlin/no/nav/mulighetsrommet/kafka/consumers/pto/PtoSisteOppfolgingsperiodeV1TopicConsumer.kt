@@ -9,6 +9,7 @@ import no.nav.mulighetsrommet.api.clients.AccessType
 import no.nav.mulighetsrommet.api.clients.pdl.PdlClient
 import no.nav.mulighetsrommet.api.clients.pdl.PdlError
 import no.nav.mulighetsrommet.api.services.TiltakshistorikkService
+import no.nav.mulighetsrommet.domain.dto.NorskIdent
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.domain.serializers.ZonedDateTimeSerializer
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
@@ -30,14 +31,17 @@ class PtoSisteOppfolgingsperiodeV1TopicConsumer(
     private val log = LoggerFactory.getLogger(javaClass)
 
     override suspend fun consume(key: String, message: JsonElement) {
-        when (val sisteOppfolgingsperiode = JsonIgnoreUnknownKeys.decodeFromJsonElement<SisteOppfolgingsperiodeV1?>(message)) {
+        val sisteOppfolgingsperiode = JsonIgnoreUnknownKeys.decodeFromJsonElement<SisteOppfolgingsperiodeV1?>(message)
+        when (sisteOppfolgingsperiode) {
             null -> {}
             else -> {
                 if (sisteOppfolgingsperiode.aktorId.isEmpty() || sisteOppfolgingsperiode.startDato == null) {
                     log.error("Ugyldig data for siste oppfolging periode på bruker")
                     return
                 }
-                if (sisteOppfolgingsperiode.sluttDato != null && sisteOppfolgingsperiode.startDato.isAfter(sisteOppfolgingsperiode.sluttDato)) {
+                if (sisteOppfolgingsperiode.sluttDato != null &&
+                    sisteOppfolgingsperiode.startDato.isAfter(sisteOppfolgingsperiode.sluttDato)
+                ) {
                     log.error("Ugyldig start/slutt dato for siste oppfolging periode på bruker")
                     return
                 }
@@ -46,17 +50,22 @@ class PtoSisteOppfolgingsperiodeV1TopicConsumer(
                     return // Oppfolging er ikke avsluttet - Noop
                 }
 
-                val identer = pdlClient.hentIdenter(sisteOppfolgingsperiode.aktorId, AccessType.M2M)
-                    .map { list -> list.map { it.ident } }
+                pdlClient.hentIdenter(sisteOppfolgingsperiode.aktorId, AccessType.M2M)
+                    .map { list -> list.map { NorskIdent(it.ident) } }
                     .getOrElse {
                         when (it) {
                             PdlError.Error -> throw Exception("Error mot pdl i konsumering av siste oppfolgingsperiode")
-                            PdlError.NotFound -> listOf(sisteOppfolgingsperiode.aktorId)
+                            PdlError.NotFound -> {
+                                log.warn("Fant ikke folkeregister ident for bruker")
+                                listOf()
+                            }
                         }
                     }
-
-                log.debug("Avslutter oppfolging for bruker")
-                tiltakshistorikkService.slettHistorikkForIdenter(identer)
+                    .takeIf { it.isNotEmpty() }
+                    ?.let { identer ->
+                        log.debug("Oppfølging avsluttet, sletter brukers tiltakshistorikk")
+                        tiltakshistorikkService.slettHistorikkForIdenter(identer)
+                    }
             }
         }
     }

@@ -15,6 +15,7 @@ import io.prometheus.client.cache.caffeine.CacheMetricsCollector
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.clients.AccessType
 import no.nav.mulighetsrommet.api.clients.TokenProvider
+import no.nav.mulighetsrommet.domain.dto.NorskIdent
 import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
 import no.nav.mulighetsrommet.metrics.Metrikker
 import no.nav.mulighetsrommet.securelog.SecureLog
@@ -33,7 +34,7 @@ class VeilarbvedtaksstotteClient(
         install(HttpCache)
     }
 
-    private val siste14aVedtakCache: Cache<String, VedtakDto> = Caffeine.newBuilder()
+    private val siste14aVedtakCache: Cache<NorskIdent, VedtakDto> = Caffeine.newBuilder()
         .expireAfterWrite(1, TimeUnit.MINUTES)
         .maximumSize(10_000)
         .recordStats()
@@ -45,13 +46,13 @@ class VeilarbvedtaksstotteClient(
         cacheMetrics.addCache("siste14aVedtakCache", siste14aVedtakCache)
     }
 
-    suspend fun hentSiste14AVedtak(fnr: String, obo: AccessType.OBO): Either<VedtakError, VedtakDto> {
+    suspend fun hentSiste14AVedtak(fnr: NorskIdent, obo: AccessType.OBO): Either<VedtakError, VedtakDto> {
         siste14aVedtakCache.getIfPresent(fnr)?.let { return@hentSiste14AVedtak it.right() }
 
         val response = client.post("$baseUrl/v2/hent-siste-14a-vedtak") {
             bearerAuth(tokenProvider.exchange(obo))
             header(HttpHeaders.ContentType, ContentType.Application.Json)
-            setBody(VedtakRequest(fnr = fnr))
+            setBody(VedtakRequest(fnr = fnr.value))
         }
 
         return if (response.status == HttpStatusCode.Forbidden) {

@@ -8,6 +8,7 @@ import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListe
 import no.nav.mulighetsrommet.domain.dbo.ArenaTiltakshistorikkDbo
 import no.nav.mulighetsrommet.domain.dbo.Deltakerstatus
 import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
+import no.nav.mulighetsrommet.domain.dto.NorskIdent
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
@@ -34,7 +35,7 @@ class TiltakshistorikkRepositoryTest : FunSpec({
         val historikkUtenTilDato = ArenaTiltakshistorikkDbo.IndividueltTiltak(
             id = UUID.randomUUID(),
             tiltakstypeId = tiltakstypeIndividuell.id,
-            norskIdent = "12345678910",
+            norskIdent = NorskIdent("12345678910"),
             status = Deltakerstatus.VENTER,
             fraDato = null,
             tilDato = null,
@@ -46,7 +47,7 @@ class TiltakshistorikkRepositoryTest : FunSpec({
         val historikkMedTilDato = ArenaTiltakshistorikkDbo.IndividueltTiltak(
             id = UUID.randomUUID(),
             tiltakstypeId = tiltakstypeIndividuell.id,
-            norskIdent = "12345678910",
+            norskIdent = NorskIdent("12345678910"),
             status = Deltakerstatus.VENTER,
             fraDato = LocalDateTime.of(2019, 1, 1, 0, 0),
             tilDato = LocalDateTime.of(2019, 12, 1, 0, 0),
@@ -62,7 +63,7 @@ class TiltakshistorikkRepositoryTest : FunSpec({
 
             tiltakshistorikk.deleteByExpirationDate(LocalDate.of(2015, 1, 1)).shouldBeRight(0)
 
-            tiltakshistorikk.getTiltakshistorikkForBruker(listOf("12345678910")).shouldHaveSize(2)
+            tiltakshistorikk.getTiltakshistorikkForBruker(listOf(NorskIdent("12345678910"))).shouldHaveSize(2)
         }
 
         test("should delete historikk that is older than the specified expiration date") {
@@ -72,11 +73,11 @@ class TiltakshistorikkRepositoryTest : FunSpec({
 
             tiltakshistorikk.deleteByExpirationDate(LocalDate.of(2019, 1, 1)).shouldBeRight(1)
 
-            tiltakshistorikk.getTiltakshistorikkForBruker(listOf("12345678910")).shouldHaveSize(1)
+            tiltakshistorikk.getTiltakshistorikkForBruker(listOf(NorskIdent("12345678910"))).shouldHaveSize(1)
 
             tiltakshistorikk.deleteByExpirationDate(LocalDate.of(2020, 1, 1)).shouldBeRight(1)
 
-            tiltakshistorikk.getTiltakshistorikkForBruker(listOf("12345678910")).shouldHaveSize(0)
+            tiltakshistorikk.getTiltakshistorikkForBruker(listOf(NorskIdent("12345678910"))).shouldHaveSize(0)
         }
     }
 
@@ -84,7 +85,7 @@ class TiltakshistorikkRepositoryTest : FunSpec({
         val historikk1 = ArenaTiltakshistorikkDbo.IndividueltTiltak(
             id = UUID.randomUUID(),
             tiltakstypeId = tiltakstypeIndividuell.id,
-            norskIdent = "12345678910",
+            norskIdent = NorskIdent("12345678910"),
             status = Deltakerstatus.VENTER,
             fraDato = null,
             tilDato = null,
@@ -96,7 +97,7 @@ class TiltakshistorikkRepositoryTest : FunSpec({
         val historikk2 = ArenaTiltakshistorikkDbo.IndividueltTiltak(
             id = UUID.randomUUID(),
             tiltakstypeId = tiltakstypeIndividuell.id,
-            norskIdent = "22222678910",
+            norskIdent = NorskIdent("22222678910"),
             status = Deltakerstatus.VENTER,
             fraDato = LocalDateTime.of(2019, 1, 1, 0, 0),
             tilDato = LocalDateTime.of(2019, 12, 1, 0, 0),
@@ -109,9 +110,9 @@ class TiltakshistorikkRepositoryTest : FunSpec({
         tiltakshistorikk.upsert(historikk1)
         tiltakshistorikk.upsert(historikk2)
 
-        tiltakshistorikk.deleteTiltakshistorikkForIdenter(listOf("12345678910", "xyz", "123456789101234567"))
+        tiltakshistorikk.deleteTiltakshistorikkForIdenter(listOf(NorskIdent("12345678910")))
 
-        tiltakshistorikk.getTiltakshistorikkForBruker(listOf("12345678910")).shouldHaveSize(0)
-        tiltakshistorikk.getTiltakshistorikkForBruker(listOf("22222678910")).shouldHaveSize(1)
+        tiltakshistorikk.getTiltakshistorikkForBruker(listOf(NorskIdent("12345678910"))).shouldHaveSize(0)
+        tiltakshistorikk.getTiltakshistorikkForBruker(listOf(NorskIdent("22222678910"))).shouldHaveSize(1)
     }
 })

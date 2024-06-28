@@ -12,6 +12,7 @@ import io.ktor.http.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.clients.AccessType
 import no.nav.mulighetsrommet.api.clients.TokenProvider
+import no.nav.mulighetsrommet.domain.dto.NorskIdent
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
@@ -60,7 +61,7 @@ enum class AmtDeltakerError {
 
 @Serializable
 data class DeltakelserRequest(
-    val norskIdent: String,
+    val norskIdent: NorskIdent,
 )
 
 @Serializable

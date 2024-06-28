@@ -21,6 +21,7 @@ import no.nav.mulighetsrommet.api.clients.vedtak.VedtakError
 import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClient
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.domain.dto.Innsatsgruppe
+import no.nav.mulighetsrommet.domain.dto.NorskIdent
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 
 class BrukerService(
@@ -30,13 +31,13 @@ class BrukerService(
     private val pdlClient: PdlClient,
     private val norg2Client: Norg2Client,
 ) {
-    suspend fun hentBrukerdata(fnr: String, obo: AccessType.OBO): Brukerdata = coroutineScope {
+    suspend fun hentBrukerdata(fnr: NorskIdent, obo: AccessType.OBO): Brukerdata = coroutineScope {
         val deferredErUnderOppfolging = async { veilarboppfolgingClient.erBrukerUnderOppfolging(fnr, obo) }
         val deferredOppfolgingsenhet = async { veilarboppfolgingClient.hentOppfolgingsenhet(fnr, obo) }
         val deferredManuellStatus = async { veilarboppfolgingClient.hentManuellStatus(fnr, obo) }
         val deferredSisteVedtak = async { veilarbvedtaksstotteClient.hentSiste14AVedtak(fnr, obo) }
-        val deferredPdlPerson = async { pdlClient.hentPerson(fnr, obo) }
-        val deferredGeografiskTilknytning = async { pdlClient.hentGeografiskTilknytning(fnr, obo) }
+        val deferredPdlPerson = async { pdlClient.hentPerson(fnr.value, obo) }
+        val deferredGeografiskTilknytning = async { pdlClient.hentGeografiskTilknytning(fnr.value, obo) }
 
         val erUnderOppfolging = deferredErUnderOppfolging.await()
             .getOrElse {
@@ -196,7 +197,7 @@ class BrukerService(
 
     @Serializable
     data class Brukerdata(
-        val fnr: String,
+        val fnr: NorskIdent,
         val innsatsgruppe: Innsatsgruppe?,
         val enheter: List<NavEnhetDbo>,
         val fornavn: String?,

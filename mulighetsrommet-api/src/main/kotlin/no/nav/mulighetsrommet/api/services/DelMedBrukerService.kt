@@ -13,6 +13,7 @@ import no.nav.mulighetsrommet.api.domain.dto.SanityResponse
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.QueryResult
 import no.nav.mulighetsrommet.database.utils.query
+import no.nav.mulighetsrommet.domain.dto.NorskIdent
 import no.nav.mulighetsrommet.domain.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.securelog.SecureLog
 import org.intellij.lang.annotations.Language
@@ -26,13 +27,8 @@ class DelMedBrukerService(private val db: Database, private val sanityClient: Sa
     fun lagreDelMedBruker(data: DelMedBrukerDbo): QueryResult<DelMedBrukerDbo> = query {
         SecureLog.logger.info(
             "Veileder (${data.navident}) deler tiltak med id: '${data.sanityId ?: data.tiltaksgjennomforingId}' " +
-                "med bruker (${data.norskIdent})",
+                "med bruker (${data.norskIdent.value})",
         )
-
-        if (data.norskIdent.trim().length != 11) {
-            SecureLog.logger.warn("Brukers fnr er ikke 11 tegn. Innsendt: ${data.norskIdent}")
-            throw BadRequestException("Brukers fnr er ikke 11 tegn")
-        }
 
         if (data.navident.trim().isEmpty()) {
             SecureLog.logger.warn(
@@ -75,22 +71,22 @@ class DelMedBrukerService(private val db: Database, private val sanityClient: Sa
             .let { db.run(it)!! }
     }
 
-    fun getDeltMedBruker(fnr: String, id: UUID): QueryResult<DelMedBrukerDbo?> = query {
+    fun getDeltMedBruker(fnr: NorskIdent, sanityOrGjennomforingId: UUID): QueryResult<DelMedBrukerDbo?> = query {
         @Language("PostgreSQL")
         val query = """
             select * from del_med_bruker
             where
-                norsk_ident = ?
-                and (sanity_id = ?::uuid or tiltaksgjennomforing_id = ?::uuid)
+                norsk_ident = :norsk_ident
+                and (sanity_id = :id::uuid or tiltaksgjennomforing_id = :id::uuid)
             order by created_at desc limit 1
         """.trimIndent()
-        queryOf(query, fnr, id.toString(), id)
+        queryOf(query, mapOf("norsk_ident" to fnr.value, "id" to sanityOrGjennomforingId))
             .map { it.toDelMedBruker() }
             .asSingle
             .let { db.run(it) }
     }
 
-    fun getAlleDistinkteTiltakDeltMedBruker(fnr: String): QueryResult<List<DelMedBrukerDbo>?> = query {
+    fun getAlleDistinkteTiltakDeltMedBruker(fnr: NorskIdent): QueryResult<List<DelMedBrukerDbo>?> = query {
         @Language("PostgreSQL")
         val query = """
             select distinct on (tiltaksgjennomforing_id, sanity_id) *
@@ -98,13 +94,13 @@ class DelMedBrukerService(private val db: Database, private val sanityClient: Sa
             where norsk_ident = ?
             order by tiltaksgjennomforing_id, sanity_id, created_at desc;
         """.trimIndent()
-        queryOf(query, fnr)
+        queryOf(query, fnr.value)
             .map { it.toDelMedBruker() }
             .asList
             .let { db.run(it) }
     }
 
-    private fun getAlleTiltakDeltMedBruker(fnr: String): QueryResult<List<DelMedBrukerDbo>?> = query {
+    private fun getAlleTiltakDeltMedBruker(fnr: NorskIdent): QueryResult<List<DelMedBrukerDbo>?> = query {
         @Language("PostgreSQL")
         val query = """
             select *
@@ -112,13 +108,13 @@ class DelMedBrukerService(private val db: Database, private val sanityClient: Sa
             where norsk_ident = ?
             order by tiltaksgjennomforing_id, sanity_id, created_at desc;
         """.trimIndent()
-        queryOf(query, fnr)
+        queryOf(query, fnr.value)
             .map { it.toDelMedBruker() }
             .asList
             .let { db.run(it) }
     }
 
-    suspend fun getDelMedBrukerHistorikk(norskIdent: String): Either<Error, List<DeltTiltak>> {
+    suspend fun getDelMedBrukerHistorikk(norskIdent: NorskIdent): Either<Error, List<DeltTiltak>> {
         // Hent delt med bruker-historikk fra database
         val alleTiltakDeltForBruker = getAlleTiltakDeltMedBruker(norskIdent).getOrNull() ?: emptyList()
         val tiltakFraDb = getTiltakFraDb(alleTiltakDeltForBruker)
@@ -138,9 +134,12 @@ class DelMedBrukerService(private val db: Database, private val sanityClient: Sa
             where id = any(:ids::uuid[])
         """.trimIndent()
 
+        val gjennomforingerIds = alleTiltakDelt
+            .mapNotNull { it.tiltaksgjennomforingId }
+            .let { db.createUuidArray(it) }
+
         val tiltakFraDbParams = mapOf(
-            "ids" to alleTiltakDelt.mapNotNull { it.tiltaksgjennomforingId }
-                .let { db.createUuidArray(it) },
+            "ids" to gjennomforingerIds,
         )
 
         return queryOf(tiltakFraDbQuery, tiltakFraDbParams)
@@ -184,7 +183,7 @@ class DelMedBrukerService(private val db: Database, private val sanityClient: Sa
 }
 
 private fun DelMedBrukerDbo.toParameters() = mapOf(
-    "norsk_ident" to norskIdent,
+    "norsk_ident" to norskIdent.value,
     "navident" to navident,
     "sanity_id" to sanityId,
     "tiltaksgjennomforing_id" to tiltaksgjennomforingId,
@@ -195,7 +194,7 @@ private fun DelMedBrukerDbo.toParameters() = mapOf(
 
 private fun Row.toDelMedBruker(): DelMedBrukerDbo = DelMedBrukerDbo(
     id = string("id"),
-    norskIdent = string("norsk_ident"),
+    norskIdent = NorskIdent(string("norsk_ident")),
     navident = string("navident"),
     sanityId = uuidOrNull("sanity_id"),
     tiltaksgjennomforingId = uuidOrNull("tiltaksgjennomforing_id"),

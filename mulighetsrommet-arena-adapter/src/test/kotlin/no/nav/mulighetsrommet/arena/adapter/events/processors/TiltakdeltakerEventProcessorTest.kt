@@ -41,6 +41,7 @@ import no.nav.mulighetsrommet.domain.Tiltakskoder
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering.ArenaTimestampFormatter
 import no.nav.mulighetsrommet.domain.dbo.ArenaTiltakshistorikkDbo
 import no.nav.mulighetsrommet.domain.dbo.DeltakerDbo
+import no.nav.mulighetsrommet.domain.dto.NorskIdent
 import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.ktor.decodeRequestBody
 import no.nav.mulighetsrommet.ktor.getLastPathParameterAsUUID
@@ -329,7 +330,7 @@ class TiltakdeltakerEventProcessorTest : FunSpec({
                         shouldBeInstanceOf<ArenaTiltakshistorikkDbo.Gruppetiltak>()
                         id shouldBe mapping.entityId
                         tiltaksgjennomforingId shouldBe tiltaksgjennomforing.id
-                        norskIdent shouldBe "12345678910"
+                        norskIdent shouldBe NorskIdent("12345678910")
                     }
                 }
 
@@ -374,7 +375,7 @@ class TiltakdeltakerEventProcessorTest : FunSpec({
                         beskrivelse shouldBe tiltaksgjennomforingIndividuell.navn
                         arrangorOrganisasjonsnummer shouldBe "123456"
                         tiltakstypeId shouldBe tiltakstypeIndividuell.id
-                        norskIdent shouldBe "12345678910"
+                        norskIdent shouldBe NorskIdent("12345678910")
                     }
                 }
             }
