@@ -13,6 +13,7 @@ import io.ktor.client.plugins.cache.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import no.nav.common.client.pdl.Tema
 import no.nav.mulighetsrommet.api.clients.AccessType
@@ -199,7 +200,7 @@ class PdlClient(
         val graphqlResponse: GraphqlResponse<V> = response.body()
 
         return if (graphqlResponse.errors.isNotEmpty()) {
-            if (graphqlResponse.errors.any { error -> error.extensions?.code == "not_found" }) {
+            if (graphqlResponse.errors.any { error -> error.extensions?.code == PdlErrorCode.NOT_FOUND }) {
                 PdlError.NotFound.left()
             } else {
                 log.error("Error fra pdl: ${graphqlResponse.errors}")
@@ -241,13 +242,55 @@ data class GraphqlResponse<T>(
     @Serializable
     data class GraphqlError(
         val message: String? = null,
+        /**
+         * Ekstra metadata relatert til feilen
+         */
         val extensions: Extensions? = null,
     )
 
     @Serializable
     data class Extensions(
-        val code: String? = null,
+        /**
+         * Feilkode fra PDL, kun til til stedet om dette er en feil spesifikt for PDL
+         */
+        val code: PdlErrorCode? = null,
+        /**
+         * Kategori av feilkode
+         */
+        val classification: String? = null,
     )
+}
+
+enum class PdlErrorCode {
+    /**
+     * Ikke gyldig token.
+     */
+    @SerialName("unauthenticated")
+    UNAUTHENTICATED,
+
+    /**
+     * Gyldig, men feil type token eller ikke tilgang til tjenesten.
+     */
+    @SerialName("unauthorized")
+    UNAUTHORIZED,
+
+    /**
+     * Fant ikke person i PDL.
+     */
+    @SerialName("not_found")
+    NOT_FOUND,
+
+    /**
+     * Ugyldig ident. Ugyldig spørring. For stor bolkspørring.
+     */
+    @SerialName("bad_request")
+    BAD_REQUEST,
+
+    /**
+     * Intern feil i Api.
+     */
+    @SerialName("server_error")
+    SERVER_ERROR,
 }
 
 @Serializable

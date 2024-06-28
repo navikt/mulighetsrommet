@@ -46,7 +46,7 @@ class PdlClientTest : FunSpec({
                                 "data": { "hentIdenter": null },
                                 "errors": [
                                     { "extensions": { "code": "not_found" } },
-                                    { "extensions": { "code": "another_error" } }
+                                    { "extensions": { "code": "bad_request" } }
                                 ]
                             }
                         """.trimIndent(),
