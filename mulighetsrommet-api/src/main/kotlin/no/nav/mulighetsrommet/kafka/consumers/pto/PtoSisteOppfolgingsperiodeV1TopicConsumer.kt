@@ -53,7 +53,7 @@ class PtoSisteOppfolgingsperiodeV1TopicConsumer(
                     ident = PdlIdent(sisteOppfolgingsperiode.aktorId),
                     grupper = listOf(IdentGruppe.FOLKEREGISTERIDENT),
                 )
-                val identer = pdlClient.hentHistoriskeIdenter(request, AccessType.M2M)
+                pdlClient.hentHistoriskeIdenter(request, AccessType.M2M)
                     .map { list -> list.map { NorskIdent(it.ident.value) } }
                     .getOrElse {
                         when (it) {
