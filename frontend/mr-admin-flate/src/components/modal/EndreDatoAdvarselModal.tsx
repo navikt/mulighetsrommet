@@ -17,7 +17,7 @@ export function EndreDatoAdvarselModal({ modalRef, onCancel, antallDeltakere }: 
     <VarselModal
       modalRef={modalRef}
       handleClose={onClose}
-      headingIconType="warning"
+      headingIconType="info"
       headingText="Det finnes brukere påmeldt denne gjennomføringen"
       body={
         <BodyShort>
@@ -29,7 +29,7 @@ export function EndreDatoAdvarselModal({ modalRef, onCancel, antallDeltakere }: 
       secondaryButton
       secondaryButtonHandleAction={onCancel}
       primaryButton={
-        <Button type="button" variant="danger" onClick={onClose}>
+        <Button type="button" variant="primary" onClick={onClose}>
           Ja, jeg vil endre dato
         </Button>
       }

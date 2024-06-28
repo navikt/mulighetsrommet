@@ -115,7 +115,7 @@ export const AvbrytGjennomforingModal = ({ modalRef, tiltaksgjennomforing }: Pro
     <VarselModal
       modalRef={modalRef}
       handleClose={onClose}
-      headingIconType="error"
+      headingIconType="warning"
       headingText={
         mutation.isError
           ? `Kan ikke avbryte «${tiltaksgjennomforing?.navn}»`

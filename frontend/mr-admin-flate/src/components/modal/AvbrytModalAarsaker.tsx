@@ -29,6 +29,7 @@ export function AvbrytModalAarsaker({
 }: Props) {
   return (
     <RadioGroup
+      style={{ textAlign: "left" }}
       size="small"
       legend="Velg årsak"
       onChange={setAarsak}
