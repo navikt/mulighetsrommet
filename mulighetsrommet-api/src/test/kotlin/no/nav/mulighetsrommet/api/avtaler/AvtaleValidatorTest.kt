@@ -110,7 +110,6 @@ class AvtaleValidatorTest :
             tiltakstyper = TiltakstypeService(
                 TiltakstypeRepository(database.db),
                 listOf(Tiltakskode.OPPFOLGING),
-                appConfig.pameldingIModia,
             )
             navEnheterService = NavEnhetService(NavEnhetRepository(database.db))
             avtaler = AvtaleRepository(database.db)
@@ -126,7 +125,6 @@ class AvtaleValidatorTest :
             tiltakstyper = TiltakstypeService(
                 TiltakstypeRepository(database.db),
                 emptyList(),
-                appConfig.pameldingIModia,
             )
             val validator = AvtaleValidator(tiltakstyper, gjennomforinger, navEnheterService, arrangorer)
 
@@ -146,7 +144,6 @@ class AvtaleValidatorTest :
             tiltakstyper = TiltakstypeService(
                 TiltakstypeRepository(database.db),
                 listOf(Tiltakskode.OPPFOLGING),
-                appConfig.pameldingIModia,
             )
             val validator = AvtaleValidator(tiltakstyper, gjennomforinger, navEnheterService, arrangorer)
 
@@ -254,7 +251,6 @@ class AvtaleValidatorTest :
                 TiltakstypeService(
                     TiltakstypeRepository(database.db),
                     Tiltakskode.values().toList(),
-                    appConfig.pameldingIModia,
                 ),
                 gjennomforinger,
                 navEnheterService,
@@ -279,7 +275,7 @@ class AvtaleValidatorTest :
 
         test("avtaletype må være allowed") {
             val validator = AvtaleValidator(
-                TiltakstypeService(TiltakstypeRepository(database.db), Tiltakskode.entries, appConfig.pameldingIModia),
+                TiltakstypeService(TiltakstypeRepository(database.db), Tiltakskode.entries),
                 gjennomforinger,
                 navEnheterService,
                 arrangorer,
@@ -324,7 +320,7 @@ class AvtaleValidatorTest :
 
         test("Websak-referanse må være med når avtalen er avtale eller rammeavtale") {
             val validator = AvtaleValidator(
-                TiltakstypeService(TiltakstypeRepository(database.db), Tiltakskode.entries, appConfig.pameldingIModia),
+                TiltakstypeService(TiltakstypeRepository(database.db), Tiltakskode.entries),
                 gjennomforinger,
                 navEnheterService,
                 arrangorer,
@@ -422,7 +418,6 @@ class AvtaleValidatorTest :
                     TiltakstypeService(
                         TiltakstypeRepository(database.db),
                         listOf(Tiltakskode.OPPFOLGING, Tiltakskode.ARBEIDSFORBEREDENDE_TRENING),
-                        appConfig.pameldingIModia,
                     ),
                     gjennomforinger,
                     navEnheterService,
@@ -503,7 +498,6 @@ class AvtaleValidatorTest :
                         TiltakstypeService(
                             TiltakstypeRepository(database.db),
                             listOf(Tiltakskode.OPPFOLGING, Tiltakskode.ARBEIDSFORBEREDENDE_TRENING),
-                            appConfig.pameldingIModia,
                         ),
                         gjennomforinger,
                         navEnheterService,
@@ -553,7 +547,6 @@ class AvtaleValidatorTest :
                         TiltakstypeService(
                             TiltakstypeRepository(database.db),
                             listOf(Tiltakskode.OPPFOLGING),
-                            appConfig.pameldingIModia,
                         ),
                         gjennomforinger,
                         navEnheterService,

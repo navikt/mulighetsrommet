@@ -59,7 +59,6 @@ class TiltaksgjennomforingTopicConsumerTest : FunSpec({
             val tiltakstyper = TiltakstypeService(
                 TiltakstypeRepository(database.db),
                 enabledTiltakskoder = emptyList(),
-                appConfig.pameldingIModia,
             )
 
             val consumer = TiltaksgjennomforingTopicConsumer(
@@ -86,7 +85,6 @@ class TiltaksgjennomforingTopicConsumerTest : FunSpec({
             val tiltakstyper = TiltakstypeService(
                 TiltakstypeRepository(database.db),
                 listOf(Tiltakskode.OPPFOLGING),
-                appConfig.pameldingIModia,
             )
 
             val consumer = TiltaksgjennomforingTopicConsumer(
@@ -117,7 +115,6 @@ class TiltaksgjennomforingTopicConsumerTest : FunSpec({
             val tiltakstyper = TiltakstypeService(
                 TiltakstypeRepository(database.db),
                 enabledTiltakskoder = listOf(Tiltakskode.OPPFOLGING),
-                appConfig.pameldingIModia,
             )
 
             val consumer = TiltaksgjennomforingTopicConsumer(
