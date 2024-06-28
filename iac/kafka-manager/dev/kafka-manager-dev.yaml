@@ -91,12 +91,6 @@ spec:
               "valueDeserializerType": "STRING"
             },
             {
-              "name": "team-mulighetsrommet.siste-tiltakstyper-v1",
-              "location": "AIVEN",
-              "keyDeserializerType": "STRING",
-              "valueDeserializerType": "STRING"
-            },
-            {
               "name": "team-mulighetsrommet.siste-tiltakstyper-v2",
               "location": "AIVEN",
               "keyDeserializerType": "STRING",
