@@ -16,6 +16,7 @@ import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClient
 import no.nav.mulighetsrommet.api.clients.pdl.GeografiskTilknytning
 import no.nav.mulighetsrommet.api.clients.pdl.PdlClient
 import no.nav.mulighetsrommet.api.clients.pdl.PdlError
+import no.nav.mulighetsrommet.api.clients.pdl.PdlIdent
 import no.nav.mulighetsrommet.api.clients.vedtak.VedtakDto
 import no.nav.mulighetsrommet.api.clients.vedtak.VedtakError
 import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClient
@@ -36,8 +37,8 @@ class BrukerService(
         val deferredOppfolgingsenhet = async { veilarboppfolgingClient.hentOppfolgingsenhet(fnr, obo) }
         val deferredManuellStatus = async { veilarboppfolgingClient.hentManuellStatus(fnr, obo) }
         val deferredSisteVedtak = async { veilarbvedtaksstotteClient.hentSiste14AVedtak(fnr, obo) }
-        val deferredPdlPerson = async { pdlClient.hentPerson(fnr.value, obo) }
-        val deferredGeografiskTilknytning = async { pdlClient.hentGeografiskTilknytning(fnr.value, obo) }
+        val deferredPdlPerson = async { pdlClient.hentPerson(PdlIdent(fnr.value), obo) }
+        val deferredGeografiskTilknytning = async { pdlClient.hentGeografiskTilknytning(PdlIdent(fnr.value), obo) }
 
         val erUnderOppfolging = deferredErUnderOppfolging.await()
             .getOrElse {

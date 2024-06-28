@@ -68,7 +68,7 @@ class BrukerServiceTest : FunSpec({
 
         coEvery { pdlClient.hentGeografiskTilknytning(any(), any()) } returns GeografiskTilknytning.GtKommune(value = "0301").right()
 
-        coEvery { pdlClient.hentPerson(fnr1.value, any()) } returns PdlPerson(
+        coEvery { pdlClient.hentPerson(PdlIdent(fnr1.value), any()) } returns PdlPerson(
             navn = listOf(PdlPerson.PdlNavn(fornavn = "Ola")),
         ).right()
 
@@ -89,7 +89,7 @@ class BrukerServiceTest : FunSpec({
             innsatsgruppe = VedtakDto.Innsatsgruppe.GRADERT_VARIG_TILPASSET_INNSATS,
         ).right()
 
-        coEvery { pdlClient.hentPerson(fnr2.value, any()) } returns PdlPerson(
+        coEvery { pdlClient.hentPerson(PdlIdent(fnr2.value), any()) } returns PdlPerson(
             navn = listOf(PdlPerson.PdlNavn(fornavn = "Petter")),
         ).right()
 
@@ -130,7 +130,7 @@ class BrukerServiceTest : FunSpec({
     }
 
     test("Exception kastes ved tom enhetsliste") {
-        coEvery { pdlClient.hentGeografiskTilknytning(fnr1.value, any()) } returns PdlError.NotFound.left()
+        coEvery { pdlClient.hentGeografiskTilknytning(PdlIdent(fnr1.value), any()) } returns PdlError.NotFound.left()
         coEvery { veilarboppfolgingClient.hentOppfolgingsenhet(fnr1, any()) } returns OppfolgingError.NotFound.left()
 
         shouldThrow<StatusException> {
@@ -139,7 +139,7 @@ class BrukerServiceTest : FunSpec({
     }
 
     test("Exception kastes hvis personinfo mangler") {
-        coEvery { pdlClient.hentPerson(fnr1.value, any()) } returns PdlError.Error.left()
+        coEvery { pdlClient.hentPerson(PdlIdent(fnr1.value), any()) } returns PdlError.Error.left()
 
         shouldThrow<StatusException> {
             brukerService.hentBrukerdata(fnr1, AccessType.OBO(""))

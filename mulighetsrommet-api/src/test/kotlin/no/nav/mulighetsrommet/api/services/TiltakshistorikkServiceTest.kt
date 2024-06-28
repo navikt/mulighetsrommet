@@ -10,6 +10,7 @@ import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
 import no.nav.mulighetsrommet.api.clients.pdl.IdentGruppe
 import no.nav.mulighetsrommet.api.clients.pdl.IdentInformasjon
 import no.nav.mulighetsrommet.api.clients.pdl.PdlClient
+import no.nav.mulighetsrommet.api.clients.pdl.PdlIdent
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dto.ArrangorDto
 import no.nav.mulighetsrommet.api.domain.dto.TiltakshistorikkAdminDto
@@ -79,9 +80,9 @@ class TiltakshistorikkServiceTest : FunSpec({
             postnummer = null,
             poststed = null,
         ).right()
-        coEvery { pdlClient.hentIdenter(any(), any()) } returns listOf(
+        coEvery { pdlClient.hentHistoriskeIdenter(any(), any()) } returns listOf(
             IdentInformasjon(
-                ident = "12345678910",
+                ident = PdlIdent("12345678910"),
                 gruppe = IdentGruppe.FOLKEREGISTERIDENT,
                 historisk = false,
             ),

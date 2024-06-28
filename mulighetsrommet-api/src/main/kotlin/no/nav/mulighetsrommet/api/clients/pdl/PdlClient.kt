@@ -11,7 +11,6 @@ import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.*
 import io.ktor.client.plugins.cache.*
 import io.ktor.client.request.*
-import io.ktor.client.statement.*
 import io.ktor.http.*
 import kotlinx.serialization.Serializable
 import no.nav.common.client.pdl.Tema
@@ -21,7 +20,10 @@ import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
 import org.slf4j.LoggerFactory
 import java.util.concurrent.TimeUnit
 
-const val VALP_BEHANDLINGSNUMMER: String = "B450" // Team Valps behandlingsnummer for behandling av data for løsningen Arbeidsmarkedstiltak i Modia
+/**
+ * Team Valps behandlingsnummer for behandling av data for løsningen Arbeidsmarkedstiltak i Modia
+ */
+const val VALP_BEHANDLINGSNUMMER: String = "B450"
 
 class PdlClient(
     private val baseUrl: String,
@@ -41,32 +43,35 @@ class PdlClient(
         }
     }
 
-    private val hentIdenterCache: Cache<String, List<IdentInformasjon>> = Caffeine.newBuilder()
+    private val hentIdenterCache: Cache<PdlIdent, List<IdentInformasjon>> = Caffeine.newBuilder()
         .expireAfterWrite(1, TimeUnit.HOURS)
         .maximumSize(10_000)
         .recordStats()
         .build()
 
-    private val hentPersonCache: Cache<String, PdlPerson> = Caffeine.newBuilder()
+    private val hentPersonCache: Cache<PdlIdent, PdlPerson> = Caffeine.newBuilder()
         .expireAfterWrite(1, TimeUnit.HOURS)
         .maximumSize(10_000)
         .recordStats()
         .build()
 
-    private val hentGeografiskTilknytningCache: Cache<String, GeografiskTilknytning> = Caffeine.newBuilder()
+    private val hentGeografiskTilknytningCache: Cache<PdlIdent, GeografiskTilknytning> = Caffeine.newBuilder()
         .expireAfterWrite(1, TimeUnit.HOURS)
         .maximumSize(10_000)
         .recordStats()
         .build()
 
-    suspend fun hentIdenter(ident: String, accessType: AccessType): Either<PdlError, List<IdentInformasjon>> {
-        hentIdenterCache.getIfPresent(ident)?.let { return@hentIdenter it.right() }
+    suspend fun hentHistoriskeIdenter(
+        request: GraphqlRequest.HentHistoriskeIdenter,
+        accessType: AccessType,
+    ): Either<PdlError, List<IdentInformasjon>> {
+        hentIdenterCache.getIfPresent(request.ident)?.let { return@hentHistoriskeIdenter it.right() }
 
-        return graphqlRequest<GraphqlRequest.Ident, HentIdenterResponse>(
+        return graphqlRequest<GraphqlRequest.HentHistoriskeIdenter, HentIdenterResponse>(
             GraphqlRequest(
                 query = """
                     query(${'$'}ident: ID!) {
-                        hentIdenter(ident: ${'$'}ident, historikk: true) {
+                        hentIdenter(ident: ${'$'}ident, grupper: ${'$'}grupper, historikk: true) {
                             identer {
                                 ident,
                                 historisk,
@@ -75,7 +80,7 @@ class PdlClient(
                         }
                     }
                 """.trimIndent(),
-                variables = GraphqlRequest.Ident(ident = ident),
+                variables = request,
             ),
             accessType = accessType,
         )
@@ -85,10 +90,10 @@ class PdlClient(
                 }
                 it.hentIdenter.identer
             }
-            .onRight { hentIdenterCache.put(ident, it) }
+            .onRight { hentIdenterCache.put(request.ident, it) }
     }
 
-    suspend fun hentPerson(ident: String, accessType: AccessType): Either<PdlError, PdlPerson> {
+    suspend fun hentPerson(ident: PdlIdent, accessType: AccessType): Either<PdlError, PdlPerson> {
         hentPersonCache.getIfPresent(ident)?.let { return@hentPerson it.right() }
 
         return graphqlRequest<GraphqlRequest.Ident, HentPersonResponse>(
@@ -104,7 +109,7 @@ class PdlClient(
                         }
                     }
                 """.trimIndent(),
-                variables = GraphqlRequest.Ident(ident = ident),
+                variables = GraphqlRequest.Ident(ident = ident.value),
             ),
             accessType = accessType,
         )
@@ -119,7 +124,10 @@ class PdlClient(
             }
     }
 
-    suspend fun hentGeografiskTilknytning(ident: String, accessType: AccessType): Either<PdlError, GeografiskTilknytning> {
+    suspend fun hentGeografiskTilknytning(
+        ident: PdlIdent,
+        accessType: AccessType,
+    ): Either<PdlError, GeografiskTilknytning> {
         hentGeografiskTilknytningCache.getIfPresent(ident)?.let { return@hentGeografiskTilknytning it.right() }
 
         return graphqlRequest<GraphqlRequest.Ident, HentGeografiskTilknytningResponse>(
@@ -134,7 +142,7 @@ class PdlClient(
                         }
                     }
                 """.trimIndent(),
-                variables = GraphqlRequest.Ident(ident = ident),
+                variables = GraphqlRequest.Ident(ident = ident.value),
             ),
             accessType = accessType,
         )
@@ -147,14 +155,17 @@ class PdlClient(
                         requireNotNull(it.hentGeografiskTilknytning.gtBydel)
                         GeografiskTilknytning.GtBydel(it.hentGeografiskTilknytning.gtBydel)
                     }
+
                     TypeGeografiskTilknytning.KOMMUNE -> {
                         requireNotNull(it.hentGeografiskTilknytning.gtKommune)
                         GeografiskTilknytning.GtKommune(it.hentGeografiskTilknytning.gtKommune)
                     }
+
                     TypeGeografiskTilknytning.UTLAND -> {
                         log.warn("Pdl returnerte UTLAND geografisk tilkytning. Da kan man ikke hente enhet fra norg.")
                         GeografiskTilknytning.GtUtland(it.hentGeografiskTilknytning.gtLand)
                     }
+
                     TypeGeografiskTilknytning.UDEFINERT -> {
                         log.warn("Pdl returnerte UDEFINERT geografisk tilkytning. Da kan man ikke hente enhet fra norg.")
                         GeografiskTilknytning.GtUdefinert
@@ -166,7 +177,10 @@ class PdlClient(
             }
     }
 
-    private suspend inline fun <reified T, reified V> graphqlRequest(req: GraphqlRequest<T>, accessType: AccessType): Either<PdlError, V> {
+    private suspend inline fun <reified T, reified V> graphqlRequest(
+        req: GraphqlRequest<T>,
+        accessType: AccessType,
+    ): Either<PdlError, V> {
         val response = client.post("$baseUrl/graphql") {
             bearerAuth(tokenProvider.exchange(accessType))
             header(HttpHeaders.ContentType, ContentType.Application.Json)
@@ -207,6 +221,12 @@ data class GraphqlRequest<T>(
     data class Ident(
         val ident: String,
     )
+
+    @Serializable
+    data class HentHistoriskeIdenter(
+        val ident: PdlIdent,
+        val grupper: List<IdentGruppe>,
+    )
 }
 
 @Serializable
@@ -238,8 +258,12 @@ data class HentIdenterResponse(
 }
 
 @Serializable
+@JvmInline
+value class PdlIdent(val value: String)
+
+@Serializable
 data class IdentInformasjon(
-    val ident: String,
+    val ident: PdlIdent,
     val gruppe: IdentGruppe,
     val historisk: Boolean,
 )
@@ -277,7 +301,7 @@ sealed class GeografiskTilknytning {
     data class GtKommune(val value: String) : GeografiskTilknytning()
     data class GtBydel(val value: String) : GeografiskTilknytning()
     data class GtUtland(val value: String?) : GeografiskTilknytning()
-    object GtUdefinert : GeografiskTilknytning()
+    data object GtUdefinert : GeografiskTilknytning()
 }
 
 @Serializable

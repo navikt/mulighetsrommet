@@ -6,8 +6,7 @@ import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.decodeFromJsonElement
 import no.nav.common.kafka.consumer.util.deserializer.Deserializers.stringDeserializer
 import no.nav.mulighetsrommet.api.clients.AccessType
-import no.nav.mulighetsrommet.api.clients.pdl.PdlClient
-import no.nav.mulighetsrommet.api.clients.pdl.PdlError
+import no.nav.mulighetsrommet.api.clients.pdl.*
 import no.nav.mulighetsrommet.api.services.TiltakshistorikkService
 import no.nav.mulighetsrommet.domain.dto.NorskIdent
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
@@ -50,8 +49,12 @@ class PtoSisteOppfolgingsperiodeV1TopicConsumer(
                     return // Oppfolging er ikke avsluttet - Noop
                 }
 
-                pdlClient.hentIdenter(sisteOppfolgingsperiode.aktorId, AccessType.M2M)
-                    .map { list -> list.map { NorskIdent(it.ident) } }
+                val request = GraphqlRequest.HentHistoriskeIdenter(
+                    ident = PdlIdent(sisteOppfolgingsperiode.aktorId),
+                    grupper = listOf(IdentGruppe.FOLKEREGISTERIDENT),
+                )
+                val identer = pdlClient.hentHistoriskeIdenter(request, AccessType.M2M)
+                    .map { list -> list.map { NorskIdent(it.ident.value) } }
                     .getOrElse {
                         when (it) {
                             PdlError.Error -> throw Exception("Error mot pdl i konsumering av siste oppfolgingsperiode")

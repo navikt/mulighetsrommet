@@ -11,6 +11,7 @@ import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
 import no.nav.mulighetsrommet.api.clients.pdl.IdentGruppe
 import no.nav.mulighetsrommet.api.clients.pdl.IdentInformasjon
 import no.nav.mulighetsrommet.api.clients.pdl.PdlClient
+import no.nav.mulighetsrommet.api.clients.pdl.PdlIdent
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.repositories.TiltakshistorikkRepository
@@ -84,9 +85,9 @@ class PtoSisteOppfolgingsperiodeV1TopicConsumerTest : FunSpec({
                 sluttDato = null,
             )
 
-            coEvery { pdlClient.hentIdenter(any(), any()) } returns listOf(
+            coEvery { pdlClient.hentHistoriskeIdenter(any(), any()) } returns listOf(
                 IdentInformasjon(
-                    ident = "12345678910",
+                    ident = PdlIdent("12345678910"),
                     gruppe = IdentGruppe.FOLKEREGISTERIDENT,
                     historisk = false,
                 ),
@@ -120,9 +121,9 @@ class PtoSisteOppfolgingsperiodeV1TopicConsumerTest : FunSpec({
                 sluttDato = ZonedDateTime.now(),
             )
 
-            coEvery { pdlClient.hentIdenter(any(), any()) } returns listOf(
+            coEvery { pdlClient.hentHistoriskeIdenter(any(), any()) } returns listOf(
                 IdentInformasjon(
-                    ident = "12345678910",
+                    ident = PdlIdent("12345678910"),
                     gruppe = IdentGruppe.FOLKEREGISTERIDENT,
                     historisk = false,
                 ),

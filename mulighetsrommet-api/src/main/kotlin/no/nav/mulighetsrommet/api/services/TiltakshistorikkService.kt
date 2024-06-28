@@ -7,9 +7,7 @@ import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerError
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakelserRequest
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakelserResponse
-import no.nav.mulighetsrommet.api.clients.pdl.IdentGruppe
-import no.nav.mulighetsrommet.api.clients.pdl.PdlClient
-import no.nav.mulighetsrommet.api.clients.pdl.PdlError
+import no.nav.mulighetsrommet.api.clients.pdl.*
 import no.nav.mulighetsrommet.api.domain.dto.TiltakshistorikkAdminDto
 import no.nav.mulighetsrommet.api.repositories.TiltakshistorikkRepository
 import no.nav.mulighetsrommet.domain.dto.NorskIdent
@@ -60,12 +58,12 @@ class TiltakshistorikkService(
         norskIdent: NorskIdent,
         obo: AccessType.OBO,
     ): List<NorskIdent> {
-        return pdlClient.hentIdenter(norskIdent.value, obo)
-            .map { identer ->
-                identer
-                    .filter { it.gruppe == IdentGruppe.FOLKEREGISTERIDENT }
-                    .map { NorskIdent(it.ident) }
-            }
+        val request = GraphqlRequest.HentHistoriskeIdenter(
+            ident = PdlIdent(norskIdent.value),
+            grupper = listOf(IdentGruppe.FOLKEREGISTERIDENT),
+        )
+        return pdlClient.hentHistoriskeIdenter(request, obo)
+            .map { identer -> identer.map { NorskIdent(it.ident.value) } }
             .getOrElse {
                 when (it) {
                     PdlError.Error -> throw Exception("Feil mot pdl!")
