@@ -115,7 +115,7 @@ export function AvbrytAvtaleModal({ modalRef, avtale }: Props) {
     <VarselModal
       modalRef={modalRef}
       handleClose={onClose}
-      headingIconType="error"
+      headingIconType="warning"
       headingText={
         mutation.isError || avtalenHarGjennomforinger
           ? `Kan ikke avbryte «${avtale?.navn}»`

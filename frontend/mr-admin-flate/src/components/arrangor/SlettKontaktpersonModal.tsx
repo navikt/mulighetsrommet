@@ -76,7 +76,7 @@ export function SlettKontaktpersonModal({ onClose, kontaktperson, modalRef }: Pr
           variant="danger"
           onClick={slettKontaktperson}
         >
-          Ja, jeg vil slette kontaktperson
+          Ja, jeg vil slette kontaktpersonen
         </Button>
       }
     />
