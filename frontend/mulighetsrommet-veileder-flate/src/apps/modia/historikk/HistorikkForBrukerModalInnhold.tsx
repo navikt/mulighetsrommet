@@ -20,17 +20,12 @@ export function HistorikkForBrukerModalInnhold() {
     return new Date(a.fraDato ?? "").getTime() - new Date(b.fraDato ?? "").getTime();
   };
 
-  const venter =
-    data?.filter((deltak) => ["VENTER"].includes(deltak.status ?? "")).sort(sorterPaaFraDato) ?? [];
-  const deltar =
-    data?.filter((deltak) => ["DELTAR"].includes(deltak.status ?? "")).sort(sorterPaaFraDato) ?? [];
+  const venter = data?.filter(({ status }) => status === "VENTER").sort(sorterPaaFraDato) ?? [];
+  const deltar = data?.filter(({ status }) => status === "DELTAR").sort(sorterPaaFraDato) ?? [];
   const avsluttet =
-    data?.filter((deltak) => ["AVSLUTTET"].includes(deltak.status ?? "")).sort(sorterPaaFraDato) ??
-    [];
+    data?.filter(({ status }) => status === "AVSLUTTET").sort(sorterPaaFraDato) ?? [];
   const ikkeAktuell =
-    data
-      ?.filter((deltak) => ["IKKE_AKTUELL"].includes(deltak.status ?? ""))
-      .sort(sorterPaaFraDato) ?? [];
+    data?.filter(({ status }) => status === "IKKE_AKTUELL").sort(sorterPaaFraDato) ?? [];
 
   const tiltak = [...venter, ...deltar, ...avsluttet, ...ikkeAktuell];
 
@@ -46,7 +41,7 @@ export function HistorikkForBrukerModalInnhold() {
         Arena kan mangle i historikken.
       </Alert>
       <ul className={styles.historikk_for_bruker_liste}>
-        {tiltak?.map((historikk) => {
+        {tiltak.map((historikk) => {
           return (
             <li key={historikk.id} className={styles.historikk_for_bruker_listeelement}>
               <div className={styles.historikk_for_bruker_data}>
