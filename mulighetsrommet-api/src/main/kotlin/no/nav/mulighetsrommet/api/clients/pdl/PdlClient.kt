@@ -71,7 +71,7 @@ class PdlClient(
         return graphqlRequest<GraphqlRequest.HentHistoriskeIdenter, HentIdenterResponse>(
             GraphqlRequest(
                 query = """
-                    query(${'$'}ident: ID!) {
+                    query(${'$'}ident: ID!, ${'$'}grupper: [IdentGruppe!]) {
                         hentIdenter(ident: ${'$'}ident, grupper: ${'$'}grupper, historikk: true) {
                             identer {
                                 ident,
