@@ -8,7 +8,7 @@ metadata:
   annotations:
     kafka.nais.io/removeDataWhenResourceIsDeleted: "true"
 spec:
-  pool: nav-dev
+  pool: nav-prod
   config:
     cleanupPolicy: compact
     minimumInSyncReplicas: 2
