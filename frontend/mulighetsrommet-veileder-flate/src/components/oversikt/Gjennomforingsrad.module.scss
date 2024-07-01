@@ -23,7 +23,7 @@
 
   .gjennomforing_container {
     display: grid;
-    grid-template-columns: 0 20% 1fr 2%;
+    grid-template-columns: 0 40% 1fr 2%;
     grid-template-areas: "status navn metadata ikon";
     align-items: center;
     min-height: 4rem;

@@ -19,7 +19,7 @@ test.describe("Tiltaksoversikt", () => {
     await page.getByLabel("NAV Oslo").click();
     const rows = page.getByTestId("oversikt_tiltaksgjennomforinger").getByRole("link");
     await expect(page.getByTestId("oversikt_tiltaksgjennomforinger")).toContainText(
-      "Avklaring - Fredrikstad",
+      "Avklaring - Fredrikstad med ganske langt navn som strekker seg bortover",
     );
     expect(await rows.count()).toBeGreaterThan(5);
   });
