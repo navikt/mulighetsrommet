@@ -50,6 +50,8 @@ fun httpJsonClient(engine: HttpClientEngine = CIO.create()) = HttpClient(engine)
     install(ClientResponseMetricPlugin)
 
     defaultRequest {
+        contentType(ContentType.Application.Json)
+
         System.getenv("NAIS_APP_NAME")?.let {
             header("Nav-Consumer-Id", it)
         }
