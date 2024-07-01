@@ -48,9 +48,15 @@ export const AvtaleSchema = z
     websaknummer: z
       .string()
       .nullable()
-      .refine((value) => !value || /^\d{2}\/\d+$/.test(value), {
-        message: "Websaknummer må være på formatet 'år/løpenummer'",
-      }),
+      .refine(
+        (value) => {
+          if (!value) return true;
+          return /^\d{2}\/\d+$/.test(value);
+        },
+        {
+          message: "Websaknummer må være på formatet 'år/løpenummer'",
+        },
+      ),
     prisbetingelser: z.string().optional(),
     beskrivelse: z
       .string({ required_error: "En avtale trenger en beskrivelse i det redaksjonelle innholdet" })
