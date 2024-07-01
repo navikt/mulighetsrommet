@@ -19,7 +19,7 @@ export function useTiltakshistorikkForBruker() {
     : () => mulighetsrommetClient.historikk.hentHistorikkForBruker({ requestBody });
 
   return useQuery({
-    queryKey: [QueryKeys.Historikk, fnr],
+    queryKey: QueryKeys.BrukerHistorikk(enableV2Historikk, fnr),
     queryFn,
   });
 }

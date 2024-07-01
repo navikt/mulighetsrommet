@@ -11,7 +11,7 @@ app:
     azure:
       issuer: http://localhost:8081/azure
       jwksUri: http://localhost:8081/azure/jwks
-      audience: mulighetsrommet-tiltakshisstorikk
+      audience: mr-tiltakshistorikk
       tokenEndpointUrl: http://localhost:8081/azure/token
 
   kafka:
