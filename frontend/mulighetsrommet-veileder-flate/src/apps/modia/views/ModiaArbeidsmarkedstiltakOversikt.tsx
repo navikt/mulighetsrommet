@@ -12,7 +12,7 @@ import { Tilbakeknapp } from "@/components/tilbakeknapp/Tilbakeknapp";
 import { useResetArbeidsmarkedstiltakFilterMedBrukerIKontekst } from "@/hooks/useArbeidsmarkedstiltakFilter";
 import { Alert } from "@navikt/ds-react";
 import { ApiError, Toggles } from "mulighetsrommet-api-client";
-import { useTitle } from "mulighetsrommet-frontend-common";
+import { OversiktSkeleton, useTitle } from "mulighetsrommet-frontend-common";
 import { TilToppenKnapp } from "mulighetsrommet-frontend-common/components/tilToppenKnapp/TilToppenKnapp";
 import { useEffect, useState } from "react";
 import { ModiaOversiktBrukerVarsler } from "../varsler/ModiaOversiktBrukerVarsler";
@@ -35,7 +35,12 @@ export const ModiaArbeidsmarkedstiltakOversikt = () => {
   const [isHistorikkModalOpen, setIsHistorikkModalOpen] = useState(false);
   const [tagsHeight, setTagsHeight] = useState(0);
 
-  const { data: tiltaksgjennomforinger = [], isError, error } = useVeilederTiltaksgjennomforinger();
+  const {
+    data: tiltaksgjennomforinger = [],
+    isPending,
+    isError,
+    error,
+  } = useVeilederTiltaksgjennomforinger();
 
   useEffect(() => {
     setIsHistorikkModalOpen(isHistorikkModalOpen);
@@ -101,11 +106,15 @@ export const ModiaArbeidsmarkedstiltakOversikt = () => {
               }
               feilmelding={
                 tiltaksgjennomforinger.length === 0 ? (
-                  <Feilmelding
-                    header="Ingen tiltaksgjennomføringer funnet"
-                    beskrivelse="Prøv å justere søket eller filteret for å finne det du leter etter"
-                    ikonvariant="warning"
-                  />
+                  isPending ? (
+                    <OversiktSkeleton />
+                  ) : (
+                    <Feilmelding
+                      header="Ingen tiltaksgjennomføringer funnet"
+                      beskrivelse="Prøv å justere søket eller filteret for å finne det du leter etter"
+                      ikonvariant="warning"
+                    />
+                  )
                 ) : null
               }
               tagsHeight={tagsHeight}

@@ -12,13 +12,14 @@ import { Feilmelding } from "@/components/feilmelding/Feilmelding";
 import { TilToppenKnapp } from "mulighetsrommet-frontend-common/components/tilToppenKnapp/TilToppenKnapp";
 import { NullstillFilterKnapp } from "mulighetsrommet-frontend-common/components/nullstillFilterKnapp/NullstillFilterKnapp";
 import { Filtermeny } from "@/components/filtrering/Filtermeny";
+import { OversiktSkeleton } from "mulighetsrommet-frontend-common";
 
 interface Props {
   preview?: boolean;
 }
 
 export const NavArbeidsmarkedstiltakOversikt = ({ preview = false }: Props) => {
-  const { data: tiltaksgjennomforinger = [] } = useNavTiltaksgjennomforinger({
+  const { data: tiltaksgjennomforinger = [], isPending } = useNavTiltaksgjennomforinger({
     preview,
   });
   const [filterOpen, setFilterOpen] = useState<boolean>(true);
@@ -50,11 +51,15 @@ export const NavArbeidsmarkedstiltakOversikt = ({ preview = false }: Props) => {
                   ikonvariant="info"
                 />
               ) : tiltaksgjennomforinger.length === 0 ? (
-                <Feilmelding
-                  header="Ingen tiltaksgjennomføringer funnet"
-                  beskrivelse="Prøv å justere søket eller filteret for å finne det du leter etter"
-                  ikonvariant="warning"
-                />
+                isPending ? (
+                  <OversiktSkeleton />
+                ) : (
+                  <Feilmelding
+                    header="Ingen tiltaksgjennomføringer funnet"
+                    beskrivelse="Prøv å justere søket eller filteret for å finne det du leter etter"
+                    ikonvariant="warning"
+                  />
+                )
               ) : null
             }
             tagsHeight={tagsHeight}
