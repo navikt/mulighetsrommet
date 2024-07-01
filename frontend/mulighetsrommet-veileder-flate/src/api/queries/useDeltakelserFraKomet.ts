@@ -8,7 +8,7 @@ export function useDeltakelserFraKomet() {
 
   const requestBody = { norskIdent: fnr };
   return useSuspenseQuery({
-    queryKey: [QueryKeys.HistorikkV2, fnr],
+    queryKey: QueryKeys.BrukerDeltakelser(fnr),
     queryFn: () => mulighetsrommetClient.historikk.hentDeltakelserFraKomet({ requestBody }),
   });
 }

@@ -2,9 +2,14 @@ import { JoyrideType, NavEnhetStatus, NavEnhetType } from "mulighetsrommet-api-c
 
 export const QueryKeys = {
   SanityQuery: "sanityQuery",
-  Brukerdata: "brukerdata",
   Veilederdata: "veilederdata",
-  Historikk: (v2: boolean | undefined, fnr: string) => ["historikk", fnr, v2],
+  Bruker: (fnr: string) => ["bruker", fnr],
+  BrukerHistorikk: (v2: boolean | undefined, fnr: string) => [
+    ...QueryKeys.Bruker(fnr),
+    "historikk",
+    v2,
+  ],
+  BrukerDeltakelser: (fnr: string) => [...QueryKeys.Bruker(fnr), "deltakelser"],
   DeltMedBrukerStatus: "deltMedBrukerStatus",
   AlleDeltMedBrukerStatus: "alleDeltMedBrukerStatus",
   sanity: {
