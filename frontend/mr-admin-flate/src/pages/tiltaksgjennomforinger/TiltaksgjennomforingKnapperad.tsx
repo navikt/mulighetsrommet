@@ -1,5 +1,5 @@
 import React, { useRef } from "react";
-import { BodyShort, Button, Switch } from "@navikt/ds-react";
+import { BodyShort, Button, Dropdown, Switch } from "@navikt/ds-react";
 import { useMutatePublisert } from "@/api/tiltaksgjennomforing/useMutatePublisert";
 import styles from "../DetaljerInfo.module.scss";
 import { NavAnsatt, Tiltaksgjennomforing } from "mulighetsrommet-api-client";
@@ -44,23 +44,32 @@ export function TiltaksgjennomforingKnapperad({ bruker, tiltaksgjennomforing }: 
         ressurs="Tiltaksgjennomføring"
         condition={gjennomforingIsAktiv(tiltaksgjennomforing.status.status)}
       >
-        <Button
-          size="small"
-          variant="primary"
-          onClick={() => {
-            if (
-              tiltaksgjennomforing.administratorer &&
-              tiltaksgjennomforing.administratorer.length > 0 &&
-              !tiltaksgjennomforing.administratorer.map((a) => a.navIdent).includes(bruker.navIdent)
-            ) {
-              advarselModal.current?.showModal();
-            } else {
-              navigate("skjema");
-            }
-          }}
-        >
-          Rediger
-        </Button>
+        <Dropdown>
+          <Button size="small" as={Dropdown.Toggle}>
+            Handlinger
+          </Button>
+          <Dropdown.Menu>
+            <Dropdown.Menu.GroupedList>
+              <Dropdown.Menu.GroupedList.Item
+                onClick={() => {
+                  if (
+                    tiltaksgjennomforing.administratorer &&
+                    tiltaksgjennomforing.administratorer.length > 0 &&
+                    !tiltaksgjennomforing.administratorer
+                      .map((a) => a.navIdent)
+                      .includes(bruker.navIdent)
+                  ) {
+                    advarselModal.current?.showModal();
+                  } else {
+                    navigate("skjema");
+                  }
+                }}
+              >
+                Rediger
+              </Dropdown.Menu.GroupedList.Item>
+            </Dropdown.Menu.GroupedList>
+          </Dropdown.Menu>
+        </Dropdown>
       </HarSkrivetilgang>
       <VarselModal
         modalRef={advarselModal}

@@ -3,7 +3,7 @@ import styles from "../DetaljerInfo.module.scss";
 import { useAvtaleEndringshistorikk } from "@/api/avtaler/useAvtaleEndringshistorikk";
 import { ViewEndringshistorikk } from "@/components/endringshistorikk/ViewEndringshistorikk";
 import { EndringshistorikkPopover } from "@/components/endringshistorikk/EndringshistorikkPopover";
-import { BodyShort, Button } from "@navikt/ds-react";
+import { BodyShort, Button, Dropdown } from "@navikt/ds-react";
 import { useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { HarSkrivetilgang } from "@/components/authActions/HarSkrivetilgang";
@@ -23,25 +23,31 @@ export function AvtaleKnapperad({ bruker, avtale }: Props) {
       <EndringshistorikkPopover>
         <AvtaleEndringshistorikk id={avtale.id} />
       </EndringshistorikkPopover>
-
       <HarSkrivetilgang ressurs="Avtale">
-        <Button
-          size="small"
-          variant="primary"
-          onClick={() => {
-            if (
-              avtale.administratorer &&
-              avtale.administratorer.length > 0 &&
-              !avtale.administratorer.map((a) => a.navIdent).includes(bruker.navIdent)
-            ) {
-              advarselModal.current?.showModal();
-            } else {
-              navigate("skjema");
-            }
-          }}
-        >
-          Rediger
-        </Button>
+        <Dropdown>
+          <Button size="small" as={Dropdown.Toggle}>
+            Handlinger
+          </Button>
+          <Dropdown.Menu>
+            <Dropdown.Menu.GroupedList>
+              <Dropdown.Menu.GroupedList.Item
+                onClick={() => {
+                  if (
+                    avtale.administratorer &&
+                    avtale.administratorer.length > 0 &&
+                    !avtale.administratorer.map((a) => a.navIdent).includes(bruker.navIdent)
+                  ) {
+                    advarselModal.current?.showModal();
+                  } else {
+                    navigate("skjema");
+                  }
+                }}
+              >
+                Rediger
+              </Dropdown.Menu.GroupedList.Item>
+            </Dropdown.Menu.GroupedList>
+          </Dropdown.Menu>
+        </Dropdown>
       </HarSkrivetilgang>
       <VarselModal
         modalRef={advarselModal}
