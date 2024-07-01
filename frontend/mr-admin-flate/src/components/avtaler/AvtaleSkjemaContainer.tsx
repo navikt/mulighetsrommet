@@ -67,25 +67,25 @@ export function AvtaleSkjemaContainer({
     const requestBody: AvtaleRequest = {
       id: avtale?.id ?? uuidv4(),
       navEnheter: data.navEnheter.concat(data.navRegioner),
-      avtalenummer: avtale?.avtalenummer ?? null,
-      websaknummer: data.websaknummer ?? null,
+      avtalenummer: avtale?.avtalenummer || null,
+      websaknummer: data.websaknummer || null,
       arrangorOrganisasjonsnummer: data.arrangorOrganisasjonsnummer,
       arrangorUnderenheter: data.arrangorUnderenheter,
       arrangorKontaktpersoner: data.arrangorKontaktpersoner,
       navn: data.navn,
-      sluttDato: data.startOgSluttDato.sluttDato ?? null,
+      sluttDato: data.startOgSluttDato.sluttDato || null,
       startDato: data.startOgSluttDato.startDato,
       tiltakstypeId: data.tiltakstype.id,
       administratorer: data.administratorer,
       avtaletype: data.avtaletype,
       prisbetingelser: erAnskaffetTiltak(data.tiltakstype.arenaKode)
-        ? data.prisbetingelser ?? null
+        ? data.prisbetingelser || null
         : null,
       beskrivelse: data.beskrivelse,
       faneinnhold: data.faneinnhold,
       personopplysninger: data.personvernBekreftet ? data.personopplysninger : [],
       personvernBekreftet: data.personvernBekreftet,
-      amoKategorisering: data.amoKategorisering ?? null,
+      amoKategorisering: data.amoKategorisering || null,
     };
 
     mutation.mutate(requestBody);
