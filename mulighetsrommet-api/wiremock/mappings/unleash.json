@@ -32,6 +32,11 @@
           "name": "mulighetsrommet.admin-flate.enable_nuskategorier",
           "enabled": true,
           "strategies": []
+        },
+        {
+          "name": "mulighetsrommet.veilederflate.enableV2Historikk",
+          "enabled": true,
+          "strategies": []
         }
       ]
     },
