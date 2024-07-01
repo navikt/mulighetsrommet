@@ -8,6 +8,7 @@ import { useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { HarSkrivetilgang } from "@/components/authActions/HarSkrivetilgang";
 import { VarselModal } from "@/components/modal/VarselModal";
+import { AvbrytAvtaleModal } from "../../components/modal/AvbrytAvtaleModal";
 
 interface Props {
   bruker: NavAnsatt;
@@ -17,6 +18,7 @@ interface Props {
 export function AvtaleKnapperad({ bruker, avtale }: Props) {
   const navigate = useNavigate();
   const advarselModal = useRef<HTMLDialogElement>(null);
+  const avbrytModalRef = useRef<HTMLDialogElement>(null);
 
   return (
     <div className={styles.knapperad}>
@@ -45,6 +47,15 @@ export function AvtaleKnapperad({ bruker, avtale }: Props) {
               >
                 Rediger
               </Dropdown.Menu.GroupedList.Item>
+              {avtale && avtale.status.name === "AKTIV" && (
+                <Dropdown.Menu.GroupedList.Item
+                  onClick={() => {
+                    avbrytModalRef.current?.showModal();
+                  }}
+                >
+                  Avbryt avtale
+                </Dropdown.Menu.GroupedList.Item>
+              )}
             </Dropdown.Menu.GroupedList>
           </Dropdown.Menu>
         </Dropdown>
@@ -62,6 +73,7 @@ export function AvtaleKnapperad({ bruker, avtale }: Props) {
           </Button>
         }
       />
+      <AvbrytAvtaleModal modalRef={avbrytModalRef} avtale={avtale} />
     </div>
   );
 }

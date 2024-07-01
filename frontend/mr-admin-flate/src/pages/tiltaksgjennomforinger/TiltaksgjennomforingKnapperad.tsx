@@ -10,6 +10,9 @@ import { useNavigate } from "react-router-dom";
 import { HarSkrivetilgang } from "@/components/authActions/HarSkrivetilgang";
 import { VarselModal } from "@/components/modal/VarselModal";
 import { gjennomforingIsAktiv } from "mulighetsrommet-frontend-common/utils/utils";
+import { erArenaOpphavOgIngenEierskap } from "../../components/tiltaksgjennomforinger/TiltaksgjennomforingSkjemaConst";
+import { useMigrerteTiltakstyper } from "../../api/tiltakstyper/useMigrerteTiltakstyper";
+import { AvbrytGjennomforingModal } from "../../components/modal/AvbrytGjennomforingModal";
 
 interface Props {
   bruker: NavAnsatt;
@@ -20,6 +23,8 @@ export function TiltaksgjennomforingKnapperad({ bruker, tiltaksgjennomforing }: 
   const navigate = useNavigate();
   const { mutate } = useMutatePublisert();
   const advarselModal = useRef<HTMLDialogElement>(null);
+  const { data: migrerteTiltakstyper = [] } = useMigrerteTiltakstyper();
+  const avbrytModalRef = useRef<HTMLDialogElement>(null);
 
   function handleClick(e: React.MouseEvent<HTMLInputElement>) {
     mutate({ id: tiltaksgjennomforing.id, publisert: e.currentTarget.checked });
@@ -67,6 +72,14 @@ export function TiltaksgjennomforingKnapperad({ bruker, tiltaksgjennomforing }: 
               >
                 Rediger
               </Dropdown.Menu.GroupedList.Item>
+              {!erArenaOpphavOgIngenEierskap(tiltaksgjennomforing, migrerteTiltakstyper) &&
+                gjennomforingIsAktiv(tiltaksgjennomforing.status.status) && (
+                  <Dropdown.Menu.GroupedList.Item
+                    onClick={() => avbrytModalRef.current?.showModal()}
+                  >
+                    Avbryt gjennomføring
+                  </Dropdown.Menu.GroupedList.Item>
+                )}
             </Dropdown.Menu.GroupedList>
           </Dropdown.Menu>
         </Dropdown>
@@ -83,6 +96,10 @@ export function TiltaksgjennomforingKnapperad({ bruker, tiltaksgjennomforing }: 
             Ja, jeg vil redigere
           </Button>
         }
+      />
+      <AvbrytGjennomforingModal
+        modalRef={avbrytModalRef}
+        tiltaksgjennomforing={tiltaksgjennomforing}
       />
     </div>
   );

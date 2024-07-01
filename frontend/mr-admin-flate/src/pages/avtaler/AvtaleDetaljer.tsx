@@ -1,25 +1,22 @@
 import { useAvtale } from "@/api/avtaler/useAvtale";
 import { getDisplayName } from "@/api/enhet/helpers";
-import { HarSkrivetilgang } from "@/components/authActions/HarSkrivetilgang";
 import { Bolk } from "@/components/detaljside/Bolk";
 import { Metadata, Separator } from "@/components/detaljside/Metadata";
 import { Laster } from "@/components/laster/Laster";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
-import { AvbrytAvtaleModal } from "@/components/modal/AvbrytAvtaleModal";
 import { ArrangorKontaktpersonDetaljer } from "@/pages/arrangor/ArrangorKontaktpersonDetaljer";
 import { avtaletypeTilTekst, formaterDato } from "@/utils/Utils";
 import { erAnskaffetTiltak } from "@/utils/tiltakskoder";
 import { ExternalLinkIcon } from "@navikt/aksel-icons";
-import { Alert, Button, Heading, HelpText, VStack } from "@navikt/ds-react";
+import { Alert, Heading, HelpText, VStack } from "@navikt/ds-react";
 import { NavEnhet } from "mulighetsrommet-api-client";
 import { NOM_ANSATT_SIDE } from "mulighetsrommet-frontend-common/constants";
-import { Fragment, useRef } from "react";
+import { Fragment } from "react";
 import { Link } from "react-router-dom";
 import styles from "../DetaljerInfo.module.scss";
 
 export function AvtaleDetaljer() {
   const { data: avtale, isPending, error } = useAvtale();
-  const avbrytModalRef = useRef<HTMLDialogElement>(null);
 
   if (isPending) {
     return <Laster tekst="Laster avtale..." />;
@@ -235,20 +232,6 @@ export function AvtaleDetaljer() {
           )}
         </div>
       </div>
-      <Separator />
-      <HarSkrivetilgang ressurs="Avtale">
-        {avtale && avtale.status.name === "AKTIV" && (
-          <Button
-            size="small"
-            variant="danger"
-            type="button"
-            onClick={() => avbrytModalRef.current?.showModal()}
-          >
-            Avbryt avtale
-          </Button>
-        )}
-      </HarSkrivetilgang>
-      <AvbrytAvtaleModal modalRef={avbrytModalRef} avtale={avtale} />
     </>
   );
 }
