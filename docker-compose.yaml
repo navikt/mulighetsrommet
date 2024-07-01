@@ -33,6 +33,13 @@ services:
                   "claims": {
                     "aud": ["mulighetsrommet-api"]
                   }
+                },
+                {
+                  "requestParam": "scope",
+                  "match": "mr-tiltakshistorikk",
+                  "claims": {
+                    "aud": ["mr-tiltakshistorikk"]
+                  }
                 }
               ]
             }
