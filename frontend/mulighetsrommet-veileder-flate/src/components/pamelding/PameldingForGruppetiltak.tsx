@@ -135,5 +135,7 @@ function tiltakstypeStotterPamelding(
   tiltakstyperSomStotterPamelding: string[],
   tiltakstype: VeilederflateTiltakstype,
 ): boolean {
-  return !!tiltakstype.arenakode && tiltakstyperSomStotterPamelding.includes(tiltakstype.arenakode);
+  return (
+    !!tiltakstype.tiltakskode && tiltakstyperSomStotterPamelding.includes(tiltakstype.tiltakskode)
+  );
 }
