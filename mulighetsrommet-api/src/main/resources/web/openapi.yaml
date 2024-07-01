@@ -2965,6 +2965,8 @@ components:
           type: string
         arenakode:
           $ref: "#/components/schemas/TiltakskodeArena"
+        tiltakskode:
+          $ref: "#/components/schemas/Tiltakskode"
         kanKombineresMed:
           type: array
           items:

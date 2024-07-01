@@ -107,6 +107,7 @@ class VeilederflateService(
                     faneinnhold = it.faneinnhold,
                     delingMedBruker = it.delingMedBruker,
                     arenakode = tiltakstype?.arenaKode,
+                    tiltakskode = tiltakstype?.tiltakskode,
                     kanKombineresMed = it.kanKombineresMed,
                 )
             }
@@ -302,8 +303,7 @@ class VeilederflateService(
         sanityGjennomforing: SanityTiltaksgjennomforing,
         enheter: List<String>,
     ): VeilederflateTiltaksgjennomforing {
-        val arenaKode = tiltakstypeService.getBySanityId(UUID.fromString(sanityGjennomforing.tiltakstype._id))
-            ?.arenaKode
+        val tiltakstypeFraSanity = tiltakstypeService.getBySanityId(UUID.fromString(sanityGjennomforing.tiltakstype._id))
 
         return sanityGjennomforing.run {
             val kontaktpersoner = kontaktpersoner
@@ -335,7 +335,8 @@ class VeilederflateService(
                         regelverkLenker = regelverkLenker,
                         faneinnhold = faneinnhold,
                         delingMedBruker = delingMedBruker,
-                        arenakode = arenaKode,
+                        arenakode = tiltakstypeFraSanity?.arenaKode,
+                        tiltakskode = tiltakstypeFraSanity?.tiltakskode,
                         kanKombineresMed = kanKombineresMed,
                     )
                 },

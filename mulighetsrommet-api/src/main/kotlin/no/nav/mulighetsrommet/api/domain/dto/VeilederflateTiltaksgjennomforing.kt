@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api.domain.dto
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonObject
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
+import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dto.Faneinnhold
 import no.nav.mulighetsrommet.domain.dto.Innsatsgruppe
@@ -76,6 +77,7 @@ data class VeilederflateTiltakstype(
     val faneinnhold: Faneinnhold? = null,
     val delingMedBruker: String? = null,
     val arenakode: String? = null,
+    val tiltakskode: Tiltakskode? = null,
     val kanKombineresMed: List<String> = emptyList(),
 )
 

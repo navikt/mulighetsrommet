@@ -60,7 +60,7 @@ fun Route.tiltakstypeRoutes(migrerteTiltak: List<Tiltakskode>, pameldingIModia: 
         }
 
         get("stotterPameldingIModia") {
-            call.respond(pameldingIModia.map { toArenaKode(it) })
+            call.respond(pameldingIModia)
         }
     }
 }

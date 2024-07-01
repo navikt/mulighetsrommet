@@ -19,15 +19,15 @@ export const tiltakHandlers = [
 
   http.get("*/api/v1/intern/tiltakstyper/stotterPameldingIModia", async () => {
     const tiltakstyperMedPamelding = [
-      "ARBFORB",
-      "ARBRRHDAG",
-      "AVKLARAG",
-      "DIGIOPPARB",
-      "GRUFAGYRKE",
-      "GRUPPEAMO",
-      "INDOPPFAG",
-      "JOBB",
-      "VASV",
+      "AVKLARING",
+      "OPPFOLGING",
+      "GRUPPE_ARBEIDSMARKEDSOPPLAERING",
+      "JOBBKLUBB",
+      "DIGITALT_OPPFOLGINGSTILTAK",
+      "ARBEIDSFORBEREDENDE_TRENING",
+      "GRUPPE_FAG_OG_YRKESOPPLAERING",
+      "ARBEIDSRETTET_REHABILITERING",
+      "VARIG_TILRETTELAGT_ARBEID_SKJERMET",
     ];
     return HttpResponse.json(tiltakstyperMedPamelding);
   }),
