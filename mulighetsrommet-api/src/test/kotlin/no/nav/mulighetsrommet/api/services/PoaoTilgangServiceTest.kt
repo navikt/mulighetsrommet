@@ -5,6 +5,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import no.nav.mulighetsrommet.domain.dto.NorskIdent
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.poao_tilgang.client.Decision
 import no.nav.poao_tilgang.client.NavAnsattTilgangTilEksternBrukerPolicyInput
@@ -42,7 +43,7 @@ class PoaoTilgangServiceTest : FunSpec(
                 val service = PoaoTilgangService(client)
 
                 shouldThrow<StatusException> {
-                    service.verifyAccessToUserFromVeileder(navAnsattAzureId1, "12345678910")
+                    service.verifyAccessToUserFromVeileder(navAnsattAzureId1, NorskIdent("12345678910"))
                 }
 
                 verify(exactly = 1) {
@@ -75,7 +76,7 @@ class PoaoTilgangServiceTest : FunSpec(
 
                 val service = PoaoTilgangService(client)
 
-                service.verifyAccessToUserFromVeileder(navAnsattAzureId1, "12345678910")
+                service.verifyAccessToUserFromVeileder(navAnsattAzureId1, NorskIdent("12345678910"))
 
                 verify(exactly = 1) {
                     client.evaluatePolicy(
@@ -125,12 +126,12 @@ class PoaoTilgangServiceTest : FunSpec(
 
                 val service = PoaoTilgangService(client)
 
-                service.verifyAccessToUserFromVeileder(navAnsattAzureId1, "12345678910")
-                service.verifyAccessToUserFromVeileder(navAnsattAzureId1, "12345678910")
+                service.verifyAccessToUserFromVeileder(navAnsattAzureId1, NorskIdent("12345678910"))
+                service.verifyAccessToUserFromVeileder(navAnsattAzureId1, NorskIdent("12345678910"))
 
-                service.verifyAccessToUserFromVeileder(navAnsattAzureId2, "12345678910")
-                service.verifyAccessToUserFromVeileder(navAnsattAzureId2, "12345678910")
-                service.verifyAccessToUserFromVeileder(navAnsattAzureId2, "10987654321")
+                service.verifyAccessToUserFromVeileder(navAnsattAzureId2, NorskIdent("12345678910"))
+                service.verifyAccessToUserFromVeileder(navAnsattAzureId2, NorskIdent("12345678910"))
+                service.verifyAccessToUserFromVeileder(navAnsattAzureId2, NorskIdent("10987654321"))
 
                 verify(exactly = 1) {
                     client.evaluatePolicy(

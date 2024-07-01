@@ -4,6 +4,7 @@ import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
 import io.ktor.http.*
 import io.prometheus.client.cache.caffeine.CacheMetricsCollector
+import no.nav.mulighetsrommet.domain.dto.NorskIdent
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.metrics.Metrikker
 import no.nav.mulighetsrommet.securelog.SecureLog
@@ -30,15 +31,15 @@ class PoaoTilgangService(
 
     suspend fun verifyAccessToUserFromVeileder(
         navAnsattAzureId: UUID,
-        norskIdent: String,
+        norskIdent: NorskIdent,
         errorBlock: (suspend () -> Unit)? = null,
     ) {
-        val access = CacheUtils.tryCacheFirstNotNull(tilgangCache, "$navAnsattAzureId-$norskIdent") {
+        val access = CacheUtils.tryCacheFirstNotNull(tilgangCache, "$navAnsattAzureId-${norskIdent.value}") {
             client.evaluatePolicy(
                 NavAnsattTilgangTilEksternBrukerPolicyInput(
                     navAnsattAzureId,
                     TilgangType.LESE,
-                    norskIdent,
+                    norskIdent.value,
                 ),
             )
                 .getOrDefault(Decision.Deny("Veileder har ikke tilgang til bruker", "")).isPermit

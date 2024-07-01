@@ -27,6 +27,7 @@ import no.nav.mulighetsrommet.domain.Tiltakskoder.isGruppetiltak
 import no.nav.mulighetsrommet.domain.dbo.ArenaTiltakshistorikkDbo
 import no.nav.mulighetsrommet.domain.dbo.DeltakerDbo
 import no.nav.mulighetsrommet.domain.dbo.Deltakeropphav
+import no.nav.mulighetsrommet.domain.dto.NorskIdent
 import java.util.*
 
 class TiltakdeltakerEventProcessor(
@@ -81,7 +82,7 @@ class TiltakdeltakerEventProcessor(
                 .getTiltakstype(tiltakstypeMapping.entityId)
                 .bind()
 
-            upsertTiltakshistorikk(deltaker, event, tiltakstype, tiltaksgjennomforing, norskIdent)
+            upsertTiltakshistorikk(deltaker, event, tiltakstype, tiltaksgjennomforing, NorskIdent(norskIdent))
                 .bind()
 
             if (isGruppetiltak(tiltakstype.tiltakskode) && !isAmtTiltak(tiltakstype.tiltakskode)) {
@@ -98,7 +99,7 @@ class TiltakdeltakerEventProcessor(
         event: ArenaEvent,
         tiltakstype: Tiltakstype,
         tiltaksgjennomforing: Tiltaksgjennomforing,
-        norskIdent: String,
+        norskIdent: NorskIdent,
     ): Either<ProcessingError, HttpResponse> = deltaker
         .toTiltakshistorikkDbo(tiltakstype, tiltaksgjennomforing, norskIdent)
         .flatMap { tiltakshistorikk ->
@@ -164,7 +165,7 @@ class TiltakdeltakerEventProcessor(
     private suspend fun Deltaker.toTiltakshistorikkDbo(
         tiltakstype: Tiltakstype,
         tiltaksgjennomforing: Tiltaksgjennomforing,
-        norskIdent: String,
+        norskIdent: NorskIdent,
     ) = either<ProcessingError, ArenaTiltakshistorikkDbo> {
         if (isGruppetiltak(tiltakstype.tiltakskode)) {
             ArenaTiltakshistorikkDbo.Gruppetiltak(

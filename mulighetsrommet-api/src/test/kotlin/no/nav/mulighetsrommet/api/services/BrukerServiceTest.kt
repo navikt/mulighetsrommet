@@ -19,15 +19,13 @@ import no.nav.mulighetsrommet.api.clients.oppfolging.ManuellStatusDto
 import no.nav.mulighetsrommet.api.clients.oppfolging.OppfolgingError
 import no.nav.mulighetsrommet.api.clients.oppfolging.Oppfolgingsenhet
 import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClient
-import no.nav.mulighetsrommet.api.clients.pdl.GeografiskTilknytning
-import no.nav.mulighetsrommet.api.clients.pdl.PdlClient
-import no.nav.mulighetsrommet.api.clients.pdl.PdlError
-import no.nav.mulighetsrommet.api.clients.pdl.PdlPerson
+import no.nav.mulighetsrommet.api.clients.pdl.*
 import no.nav.mulighetsrommet.api.clients.vedtak.VedtakDto
 import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClient
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
 import no.nav.mulighetsrommet.domain.dto.Innsatsgruppe
+import no.nav.mulighetsrommet.domain.dto.NorskIdent
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 
 class BrukerServiceTest : FunSpec({
@@ -39,8 +37,8 @@ class BrukerServiceTest : FunSpec({
 
     val brukerService =
         BrukerService(veilarboppfolgingClient, veilarbvedtaksstotteClient, navEnhetService, pdlClient, norg2Client)
-    val fnr1 = "12345678910"
-    val fnr2 = "99887766554"
+    val fnr1 = NorskIdent("12345678910")
+    val fnr2 = NorskIdent("99887766554")
 
     val navEgneAnsatteEnhet = NavEnhetDbo(
         navn = "Nav egne ansatte Lerkendal",
@@ -70,7 +68,7 @@ class BrukerServiceTest : FunSpec({
 
         coEvery { pdlClient.hentGeografiskTilknytning(any(), any()) } returns GeografiskTilknytning.GtKommune(value = "0301").right()
 
-        coEvery { pdlClient.hentPerson(fnr1, any()) } returns PdlPerson(
+        coEvery { pdlClient.hentPerson(PdlIdent(fnr1.value), any()) } returns PdlPerson(
             navn = listOf(PdlPerson.PdlNavn(fornavn = "Ola")),
         ).right()
 
@@ -91,7 +89,7 @@ class BrukerServiceTest : FunSpec({
             innsatsgruppe = VedtakDto.Innsatsgruppe.GRADERT_VARIG_TILPASSET_INNSATS,
         ).right()
 
-        coEvery { pdlClient.hentPerson(fnr2, any()) } returns PdlPerson(
+        coEvery { pdlClient.hentPerson(PdlIdent(fnr2.value), any()) } returns PdlPerson(
             navn = listOf(PdlPerson.PdlNavn(fornavn = "Petter")),
         ).right()
 
@@ -132,7 +130,7 @@ class BrukerServiceTest : FunSpec({
     }
 
     test("Exception kastes ved tom enhetsliste") {
-        coEvery { pdlClient.hentGeografiskTilknytning(fnr1, any()) } returns PdlError.NotFound.left()
+        coEvery { pdlClient.hentGeografiskTilknytning(PdlIdent(fnr1.value), any()) } returns PdlError.NotFound.left()
         coEvery { veilarboppfolgingClient.hentOppfolgingsenhet(fnr1, any()) } returns OppfolgingError.NotFound.left()
 
         shouldThrow<StatusException> {
@@ -141,7 +139,7 @@ class BrukerServiceTest : FunSpec({
     }
 
     test("Exception kastes hvis personinfo mangler") {
-        coEvery { pdlClient.hentPerson(fnr1, any()) } returns PdlError.Error.left()
+        coEvery { pdlClient.hentPerson(PdlIdent(fnr1.value), any()) } returns PdlError.Error.left()
 
         shouldThrow<StatusException> {
             brukerService.hentBrukerdata(fnr1, AccessType.OBO(""))
