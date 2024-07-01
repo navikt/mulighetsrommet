@@ -45,11 +45,12 @@ class PdlClient(
         }
     }
 
-    private val hentIdenterCache: Cache<PdlIdent, List<IdentInformasjon>> = Caffeine.newBuilder()
-        .expireAfterWrite(1, TimeUnit.HOURS)
-        .maximumSize(10_000)
-        .recordStats()
-        .build()
+    private val hentIdenterCache: Cache<GraphqlRequest.HentHistoriskeIdenter, List<IdentInformasjon>> =
+        Caffeine.newBuilder()
+            .expireAfterWrite(1, TimeUnit.HOURS)
+            .maximumSize(10_000)
+            .recordStats()
+            .build()
 
     private val hentPersonCache: Cache<PdlIdent, PdlPerson> = Caffeine.newBuilder()
         .expireAfterWrite(1, TimeUnit.HOURS)
@@ -67,7 +68,7 @@ class PdlClient(
         request: GraphqlRequest.HentHistoriskeIdenter,
         accessType: AccessType,
     ): Either<PdlError, List<IdentInformasjon>> {
-        hentIdenterCache.getIfPresent(request.ident)?.let { return@hentHistoriskeIdenter it.right() }
+        hentIdenterCache.getIfPresent(request)?.let { return@hentHistoriskeIdenter it.right() }
 
         return graphqlRequest<GraphqlRequest.HentHistoriskeIdenter, HentIdenterResponse>(
             GraphqlRequest(
@@ -92,7 +93,7 @@ class PdlClient(
                 }
                 it.hentIdenter.identer
             }
-            .onRight { hentIdenterCache.put(request.ident, it) }
+            .onRight { hentIdenterCache.put(request, it) }
     }
 
     suspend fun hentPerson(ident: PdlIdent, accessType: AccessType): Either<PdlError, PdlPerson> {
