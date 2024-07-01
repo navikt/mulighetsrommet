@@ -1,21 +1,17 @@
 import { getDisplayName } from "@/api/enhet/helpers";
 import { usePollTiltaksnummer } from "@/api/tiltaksgjennomforing/usePollTiltaksnummer";
-import { useMigrerteTiltakstyper } from "@/api/tiltakstyper/useMigrerteTiltakstyper";
-import { HarSkrivetilgang } from "@/components/authActions/HarSkrivetilgang";
 import { Bolk } from "@/components/detaljside/Bolk";
 import { Metadata, Separator } from "@/components/detaljside/Metadata";
 import { Laster } from "@/components/laster/Laster";
 import { tiltaktekster } from "@/components/ledetekster/tiltaksgjennomforingLedetekster";
-import { AvbrytGjennomforingModal } from "@/components/modal/AvbrytGjennomforingModal";
 import { NokkeltallDeltakere } from "@/components/tiltaksgjennomforinger/NokkeltallDeltakere";
 import { TiltakTilgjengeligForArrangor } from "@/components/tiltaksgjennomforinger/TilgjengeligTiltakForArrangor";
-import { erArenaOpphavOgIngenEierskap } from "@/components/tiltaksgjennomforinger/TiltaksgjennomforingSkjemaConst";
 import { ArrangorKontaktpersonDetaljer } from "@/pages/arrangor/ArrangorKontaktpersonDetaljer";
 import { Kontaktperson } from "@/pages/tiltaksgjennomforinger/Kontaktperson";
 import { formaterDato, formatertVentetid } from "@/utils/Utils";
 import { isTiltakMedFellesOppstart } from "@/utils/tiltakskoder";
 import { ExternalLinkIcon } from "@navikt/aksel-icons";
-import { BodyShort, Button, HStack, HelpText, Tag } from "@navikt/ds-react";
+import { BodyShort, HStack, HelpText, Tag } from "@navikt/ds-react";
 import {
   Avtale,
   Tiltaksgjennomforing,
@@ -23,8 +19,6 @@ import {
 } from "mulighetsrommet-api-client";
 import { useTitle } from "mulighetsrommet-frontend-common";
 import { NOM_ANSATT_SIDE } from "mulighetsrommet-frontend-common/constants";
-import { gjennomforingIsAktiv } from "mulighetsrommet-frontend-common/utils/utils";
-import { useRef } from "react";
 import { Link } from "react-router-dom";
 import styles from "../DetaljerInfo.module.scss";
 
@@ -37,9 +31,6 @@ export function TiltaksgjennomforingDetaljer({ tiltaksgjennomforing, avtale }: P
   useTitle(
     `Tiltaksgjennomføring ${tiltaksgjennomforing.navn ? `- ${tiltaksgjennomforing.navn}` : null}`,
   );
-
-  const { data: migrerteTiltakstyper = [] } = useMigrerteTiltakstyper();
-  const avbrytModalRef = useRef<HTMLDialogElement>(null);
 
   const navnPaaNavEnheterForKontaktperson = (enheterForKontaktperson: string[]): string => {
     return (
@@ -302,24 +293,7 @@ export function TiltaksgjennomforingDetaljer({ tiltaksgjennomforing, avtale }: P
           <TiltakTilgjengeligForArrangor gjennomforing={tiltaksgjennomforing} />
         </div>
       </div>
-      {!erArenaOpphavOgIngenEierskap(tiltaksgjennomforing, migrerteTiltakstyper) &&
-        gjennomforingIsAktiv(tiltaksgjennomforing.status.status) && (
-          <>
-            <HarSkrivetilgang ressurs="Tiltaksgjennomføring">
-              <Button
-                size="small"
-                variant="danger"
-                onClick={() => avbrytModalRef.current?.showModal()}
-              >
-                Avbryt gjennomføring
-              </Button>
-            </HarSkrivetilgang>
-            <AvbrytGjennomforingModal
-              modalRef={avbrytModalRef}
-              tiltaksgjennomforing={tiltaksgjennomforing}
-            />
-          </>
-        )}
+
       <NokkeltallDeltakere tiltaksgjennomforingId={tiltaksgjennomforing.id} />
     </>
   );
