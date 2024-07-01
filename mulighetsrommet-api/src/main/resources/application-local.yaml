@@ -92,6 +92,10 @@ app:
     url: http://0.0.0.0:8084
     scope: default
 
+  tiltakshistorikk:
+    url: http://0.0.0.0:8090/tiltakshistorikk
+    scope: default
+
   veilarbvedtaksstotteConfig:
     url: http://localhost:8090/veilarbvedtaksstotte/api
     scope: default

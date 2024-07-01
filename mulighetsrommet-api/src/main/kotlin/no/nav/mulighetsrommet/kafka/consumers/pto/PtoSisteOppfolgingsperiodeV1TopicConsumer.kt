@@ -7,7 +7,7 @@ import kotlinx.serialization.json.decodeFromJsonElement
 import no.nav.common.kafka.consumer.util.deserializer.Deserializers.stringDeserializer
 import no.nav.mulighetsrommet.api.clients.AccessType
 import no.nav.mulighetsrommet.api.clients.pdl.*
-import no.nav.mulighetsrommet.api.services.TiltakshistorikkService
+import no.nav.mulighetsrommet.api.repositories.TiltakshistorikkRepository
 import no.nav.mulighetsrommet.domain.dto.NorskIdent
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.domain.serializers.ZonedDateTimeSerializer
@@ -20,7 +20,7 @@ import java.util.*
 
 class PtoSisteOppfolgingsperiodeV1TopicConsumer(
     config: Config,
-    private val tiltakshistorikkService: TiltakshistorikkService,
+    private val tiltakshistorikk: TiltakshistorikkRepository,
     private val pdlClient: PdlClient,
 ) : KafkaTopicConsumer<String, JsonElement>(
     config,
@@ -67,7 +67,7 @@ class PtoSisteOppfolgingsperiodeV1TopicConsumer(
                     .takeIf { it.isNotEmpty() }
                     ?.let { identer ->
                         log.debug("Oppfølging avsluttet, sletter brukers tiltakshistorikk")
-                        tiltakshistorikkService.slettHistorikkForIdenter(identer)
+                        tiltakshistorikk.deleteTiltakshistorikkForIdenter(identer)
                     }
             }
         }

@@ -41,6 +41,36 @@ fun Route.brukerRoutes() {
         }
     }
 
+    route("/api/v2/intern/bruker/historikk") {
+        post {
+            val (norskIdent) = call.receive<GetHistorikkForBrukerRequest>()
+            val navIdent = getNavIdent()
+            val obo = AccessType.OBO(call.getAccessToken())
+
+            poaoTilgangService.verifyAccessToUserFromVeileder(getNavAnsattAzureId(), norskIdent) {
+                val message = createAuditMessage(
+                    msg = "NAV-ansatt med ident: '$navIdent' forsøkte, men fikk ikke sett tiltakshistorikken for bruker med ident: '$norskIdent'.",
+                    topic = "Vis tiltakshistorikk",
+                    navIdent = navIdent,
+                    norskIdent = norskIdent,
+                )
+                AuditLog.auditLogger.log(message)
+            }
+
+            historikkService.hentHistorikkForBrukerV2(norskIdent, obo).let {
+                val message = createAuditMessage(
+                    msg = "NAV-ansatt med ident: '$navIdent' har sett på tiltakshistorikken for bruker med ident: '$norskIdent'.",
+                    topic = "Vis tiltakshistorikk",
+                    navIdent = navIdent,
+                    norskIdent = norskIdent,
+                )
+                AuditLog.auditLogger.log(message)
+
+                call.respond(it)
+            }
+        }
+    }
+
     route("/api/v1/intern/bruker/historikk") {
         post {
             val (norskIdent) = call.receive<GetHistorikkForBrukerRequest>()
@@ -69,8 +99,10 @@ fun Route.brukerRoutes() {
                 call.respond(it)
             }
         }
+    }
 
-        post("ny") {
+    route("/api/v1/intern/bruker/komet-deltakelser") {
+        post {
             val (norskIdent) = call.receive<GetHistorikkForBrukerRequest>()
             val navIdent = getNavIdent()
             val obo = AccessType.OBO(call.getAccessToken())

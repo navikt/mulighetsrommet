@@ -3,10 +3,12 @@ package no.nav.mulighetsrommet.tiltakshistorikk.repositories
 import kotliquery.Row
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.database.Database
+import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.dbo.ArenaDeltakerDbo
 import no.nav.mulighetsrommet.domain.dbo.ArenaDeltakerStatus
 import no.nav.mulighetsrommet.domain.dto.NorskIdent
 import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
+import no.nav.mulighetsrommet.domain.dto.Tiltakshistorikk
 import no.nav.mulighetsrommet.domain.dto.amt.AmtDeltakerStatus
 import no.nav.mulighetsrommet.domain.dto.amt.AmtDeltakerV1Dto
 import org.intellij.lang.annotations.Language
@@ -54,20 +56,28 @@ class DeltakerRepository(private val db: Database) {
         queryOf(query, deltaker.toSqlParameters()).asExecute.runWithSession(session)
     }
 
-    fun getArenaDeltakelser(identer: List<NorskIdent>): List<ArenaDeltakerDbo> = db.useSession { session ->
+    fun getArenaHistorikk(identer: List<NorskIdent>) = db.useSession { session ->
         @Language("PostgreSQL")
         val query = """
-            select *
-            from arena_deltaker
-            where norsk_ident = any(:identer)
-            order by start_dato desc nulls last;
+                select
+                    id,
+                    norsk_ident,
+                    arena_tiltakskode,
+                    status,
+                    start_dato,
+                    slutt_dato,
+                    beskrivelse,
+                    arrangor_organisasjonsnummer
+                from arena_deltaker
+                where norsk_ident = any(:identer)
+                order by start_dato desc nulls last;
         """.trimIndent()
 
         val params = mapOf(
             "identer" to session.createArrayOf("text", identer.map { it.value }),
         )
 
-        queryOf(query, params).map { it.toArenaDeltaker() }.asList.runWithSession(session)
+        queryOf(query, params).map { it.toArenaDeltakelse() }.asList.runWithSession(session)
     }
 
     fun deleteArenaDeltaker(id: UUID) = db.useSession { session ->
@@ -131,20 +141,31 @@ class DeltakerRepository(private val db: Database) {
         queryOf(query, deltaker.toSqlParameters()).asExecute.runWithSession(session)
     }
 
-    fun getKometDeltakelser(identer: List<NorskIdent>): List<AmtDeltakerV1Dto> = db.useSession { session ->
+    fun getKometHistorikk(identer: List<NorskIdent>) = db.useSession { session ->
         @Language("PostgreSQL")
         val query = """
-            select *
-            from komet_deltaker
-            where person_ident = any(:identer)
-            order by start_dato desc nulls last;
+                select
+                    deltaker.person_ident as norsk_ident,
+                    deltaker.id,
+                    deltaker.start_dato,
+                    deltaker.slutt_dato,
+                    deltaker.status_type,
+                    deltaker.status_aarsak,
+                    deltaker.status_opprettet_dato,
+                    gruppetiltak.id as gruppetiltak_id,
+                    gruppetiltak.navn as gruppetiltak_navn,
+                    gruppetiltak.tiltakskode as gruppetiltak_tiltakskode,
+                    gruppetiltak.arrangor_organisasjonsnummer
+                from komet_deltaker deltaker join gruppetiltak on deltaker.gjennomforing_id = gruppetiltak.id
+                where deltaker.person_ident = any(:identer)
+                order by deltaker.start_dato desc nulls last;
         """.trimIndent()
 
         val params = mapOf(
             "identer" to session.createArrayOf("text", identer.map { it.value }),
         )
 
-        queryOf(query, params).map { it.toAmtDeltakerV1Dto() }.asList.runWithSession(session)
+        queryOf(query, params).map { it.toGruppetiltakDeltakelse() }.asList.runWithSession(session)
     }
 
     fun deleteKometDeltaker(id: UUID) = db.useSession { session ->
@@ -172,16 +193,17 @@ private fun ArenaDeltakerDbo.toSqlParameters() = mapOf(
     "arrangor_organisasjonsnummer" to arrangorOrganisasjonsnummer.value,
 )
 
-private fun Row.toArenaDeltaker(): ArenaDeltakerDbo = ArenaDeltakerDbo(
-    id = uuid("id"),
+private fun Row.toArenaDeltakelse() = Tiltakshistorikk.ArenaDeltakelse(
     norskIdent = NorskIdent(string("norsk_ident")),
+    id = uuid("id"),
     arenaTiltakskode = string("arena_tiltakskode"),
     status = ArenaDeltakerStatus.valueOf(string("status")),
-    startDato = localDateTimeOrNull("start_dato"),
-    sluttDato = localDateTimeOrNull("slutt_dato"),
-    registrertIArenaDato = localDateTime("registrert_i_arena_dato"),
+    startDato = localDateOrNull("start_dato"),
+    sluttDato = localDateOrNull("slutt_dato"),
     beskrivelse = string("beskrivelse"),
-    arrangorOrganisasjonsnummer = Organisasjonsnummer(string("arrangor_organisasjonsnummer")),
+    arrangor = Tiltakshistorikk.Arrangor(
+        organisasjonsnummer = Organisasjonsnummer(string("arrangor_organisasjonsnummer")),
+    ),
 )
 
 private fun AmtDeltakerV1Dto.toSqlParameters() = mapOf(
@@ -199,21 +221,24 @@ private fun AmtDeltakerV1Dto.toSqlParameters() = mapOf(
     "prosent_stilling" to prosentStilling,
 )
 
-private fun Row.toAmtDeltakerV1Dto(): AmtDeltakerV1Dto = AmtDeltakerV1Dto(
+private fun Row.toGruppetiltakDeltakelse() = Tiltakshistorikk.GruppetiltakDeltakelse(
+    norskIdent = NorskIdent(string("norsk_ident")),
     id = uuid("id"),
-    gjennomforingId = uuid("gjennomforing_id"),
-    personIdent = string("person_ident"),
+    startDato = localDateOrNull("start_dato"),
+    sluttDato = localDateOrNull("slutt_dato"),
     status = AmtDeltakerStatus(
         type = AmtDeltakerStatus.Type.valueOf(string("status_type")),
-        aarsak = stringOrNull("status_aarsak")?.let {
-            AmtDeltakerStatus.Aarsak.valueOf(it)
+        aarsak = stringOrNull("status_aarsak")?.let { aarsak ->
+            AmtDeltakerStatus.Aarsak.valueOf(aarsak)
         },
         opprettetDato = localDateTime("status_opprettet_dato"),
     ),
-    startDato = localDateOrNull("start_dato"),
-    sluttDato = localDateOrNull("slutt_dato"),
-    registrertDato = localDateTime("registrert_dato"),
-    endretDato = localDateTime("endret_dato"),
-    dagerPerUke = floatOrNull("dager_per_uke"),
-    prosentStilling = floatOrNull("prosent_stilling"),
+    gjennomforing = Tiltakshistorikk.Gjennomforing(
+        id = uuid("gruppetiltak_id"),
+        navn = string("gruppetiltak_navn"),
+        tiltakskode = Tiltakskode.valueOf(string("gruppetiltak_tiltakskode")),
+    ),
+    arrangor = Tiltakshistorikk.Arrangor(
+        organisasjonsnummer = Organisasjonsnummer(string("arrangor_organisasjonsnummer")),
+    ),
 )

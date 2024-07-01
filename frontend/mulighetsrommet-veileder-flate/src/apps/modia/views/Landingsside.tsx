@@ -1,4 +1,3 @@
-import { useHistorikkV2 } from "@/api/queries/useHistorikkV2";
 import { InformationSquareFillIcon, PlusIcon } from "@navikt/aksel-icons";
 import { Alert, BodyShort, Heading, Skeleton, VStack } from "@navikt/ds-react";
 import { Suspense, useState } from "react";
@@ -6,6 +5,7 @@ import { ErrorBoundary } from "react-error-boundary";
 import { Link, useLocation } from "react-router-dom";
 import { DeltakelseKort } from "../historikk/DeltakelseKort";
 import styles from "./Landingsside.module.scss";
+import { useDeltakelserFraKomet } from "@/api/queries/useDeltakelserFraKomet";
 
 function Feilmelding({ message }: { message: string }) {
   return (
@@ -66,7 +66,7 @@ export function Landingsside() {
 }
 
 function Historikk() {
-  const { data } = useHistorikkV2();
+  const { data } = useDeltakelserFraKomet();
   if (!data) {
     return null;
   }
@@ -90,7 +90,7 @@ function Historikk() {
 }
 
 function Utkast() {
-  const { data } = useHistorikkV2();
+  const { data } = useDeltakelserFraKomet();
   if (!data) {
     return null;
   }
