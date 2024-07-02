@@ -19,6 +19,7 @@ import {
 } from "./components/error-handling/ErrorBoundary";
 import { OversiktSkeleton } from "./components/skeleton/OversiktSkeleton";
 import { DetaljerSkeleton } from "./components/skeleton/DetaljerSkeleton";
+import { ListSkeleton } from "./components/skeleton/ListSkeleton";
 
 export {
   useDebounce,
@@ -40,4 +41,5 @@ export {
   TiltaksgjennomforingStatusTag,
   OversiktSkeleton,
   DetaljerSkeleton,
+  ListSkeleton,
 };

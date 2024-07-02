@@ -12,7 +12,7 @@ import { Tilbakeknapp } from "@/components/tilbakeknapp/Tilbakeknapp";
 import { useResetArbeidsmarkedstiltakFilterMedBrukerIKontekst } from "@/hooks/useArbeidsmarkedstiltakFilter";
 import { Alert } from "@navikt/ds-react";
 import { ApiError, Toggles } from "mulighetsrommet-api-client";
-import { OversiktSkeleton, useTitle } from "mulighetsrommet-frontend-common";
+import { ListSkeleton, useTitle } from "mulighetsrommet-frontend-common";
 import { TilToppenKnapp } from "mulighetsrommet-frontend-common/components/tilToppenKnapp/TilToppenKnapp";
 import { useEffect, useState } from "react";
 import { ModiaOversiktBrukerVarsler } from "../varsler/ModiaOversiktBrukerVarsler";
@@ -107,7 +107,7 @@ export const ModiaArbeidsmarkedstiltakOversikt = () => {
               feilmelding={
                 tiltaksgjennomforinger.length === 0 ? (
                   isPending ? (
-                    <OversiktSkeleton />
+                    <ListSkeleton />
                   ) : (
                     <Feilmelding
                       header="Ingen tiltaksgjennomføringer funnet"
