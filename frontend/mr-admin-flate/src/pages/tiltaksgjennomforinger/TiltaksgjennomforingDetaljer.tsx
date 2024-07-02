@@ -21,6 +21,7 @@ import { useTitle } from "mulighetsrommet-frontend-common";
 import { NOM_ANSATT_SIDE } from "mulighetsrommet-frontend-common/constants";
 import { Link } from "react-router-dom";
 import styles from "../DetaljerInfo.module.scss";
+import { AmoKategoriseringDetaljer } from "@/components/amoKategorisering/AmoKategoriseringDetaljer";
 
 interface Props {
   tiltaksgjennomforing: Tiltaksgjennomforing;
@@ -67,6 +68,7 @@ export function TiltaksgjennomforingDetaljer({ tiltaksgjennomforing, avtale }: P
     arenaAnsvarligEnhet,
     arrangor,
     stedForGjennomforing,
+    amoKategorisering,
   } = tiltaksgjennomforing;
 
   return (
@@ -104,9 +106,13 @@ export function TiltaksgjennomforingDetaljer({ tiltaksgjennomforing, avtale }: P
             />
             <Metadata header={tiltaktekster.tiltakstypeLabel} verdi={tiltakstype.navn} />
           </Bolk>
-
           <Separator />
-
+          {amoKategorisering && (
+            <>
+              <AmoKategoriseringDetaljer amoKategorisering={amoKategorisering} />
+              <Separator />
+            </>
+          )}
           <Bolk aria-label={tiltaktekster.oppstartstypeLabel}>
             <Metadata
               header={tiltaktekster.oppstartstypeLabel}

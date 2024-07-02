@@ -4,6 +4,7 @@ import {
   Avtaletype,
   EstimertVentetidEnhet,
   ForerkortKlasse,
+  InnholdElement,
   Kurstype,
   Spesifisering,
 } from "mulighetsrommet-api-client";
@@ -288,5 +289,22 @@ export function spesifiseringToString(spesifisering: Spesifisering): string {
       return "Norskopplæring";
     case Spesifisering.GRUNNLEGGENDE_FERDIGHETER:
       return "Grunnleggende ferdigheter";
+  }
+}
+
+export function innholdElementToString(innholdElement: InnholdElement): string {
+  switch (innholdElement) {
+    case InnholdElement.GRUNNLEGGENDE_FERDIGHETER:
+      return "Grunnleggende ferdigheter";
+    case InnholdElement.JOBBSOKER_KOMPETANSE:
+      return "Jobbsøkerkompetanse";
+    case InnholdElement.TEORETISK_OPPLAERING:
+      return "Teoretisk opplæring";
+    case InnholdElement.PRAKSIS:
+      return "Praksis";
+    case InnholdElement.ARBEIDSMARKEDSKUNNSKAP:
+      return "Arbeidsmarkedskunnskap";
+    case InnholdElement.NORSKOPPLAERING:
+      return "Norskopplæring";
   }
 }

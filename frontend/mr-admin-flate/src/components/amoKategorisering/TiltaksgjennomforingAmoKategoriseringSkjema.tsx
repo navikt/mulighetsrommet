@@ -11,11 +11,13 @@ import { useFormContext } from "react-hook-form";
 import { useFeatureToggle } from "../../api/features/useFeatureToggle";
 import {
   forerkortKlasseToString,
+  innholdElementToString,
   kurstypeToString,
   spesifiseringToString,
-} from "../../utils/Utils";
+} from "@/utils/Utils";
 import { InferredTiltaksgjennomforingSchema } from "../redaksjonelt-innhold/TiltaksgjennomforingSchema";
 import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
+import { tiltaktekster } from "../ledetekster/tiltaksgjennomforingLedetekster";
 
 interface Props {
   avtale: Avtale;
@@ -48,7 +50,7 @@ export function TiltaksgjennomforingAmoKategoriseringSkjema(props: Props) {
 
   return (
     <HGrid gap="4" columns={1}>
-      <Select readOnly size="small" label="Kurstype" value={kurstype}>
+      <Select readOnly size="small" label={tiltaktekster.kurstypeLabel} value={kurstype}>
         <option>{kurstypeToString(kurstype)}</option>
       </Select>
       {spesifisering && (
@@ -60,7 +62,7 @@ export function TiltaksgjennomforingAmoKategoriseringSkjema(props: Props) {
         <UNSAFE_Combobox
           clearButton
           size="small"
-          label="Førerkort"
+          label={tiltaktekster.forerkortLabel}
           isMultiSelect
           options={avtaleForerkort.map((f) => ({
             label: forerkortKlasseToString(f),
@@ -89,7 +91,7 @@ export function TiltaksgjennomforingAmoKategoriseringSkjema(props: Props) {
         <ControlledMultiSelect<{ konseptId: number; label: string }>
           size="small"
           placeholder="Søk etter sertifiseringer"
-          label={"Sertifiseringer"}
+          label={tiltaktekster.sertifiseringerLabel}
           {...register("amoKategorisering.sertifiseringer")}
           options={
             avtaleSertifiseringer.map((s: Sertifisering) => ({
@@ -105,13 +107,13 @@ export function TiltaksgjennomforingAmoKategoriseringSkjema(props: Props) {
           onChange={() => setValue("amoKategorisering.norskprove", !(norskprove ?? false))}
           size="small"
         >
-          Norskprøve
+          {tiltaktekster.norskproveLabel}
         </Checkbox>
       )}
       {spesifisering && (
         <CheckboxGroup
           size="small"
-          legend="Elementer i kurset"
+          legend={tiltaktekster.innholdElementerLabel}
           error={errors?.amoKategorisering?.innholdElementer?.message}
           onChange={(values) => {
             setValue("amoKategorisering.innholdElementer", values);
@@ -120,15 +122,23 @@ export function TiltaksgjennomforingAmoKategoriseringSkjema(props: Props) {
         >
           <HGrid columns={2}>
             <Checkbox value={InnholdElement.GRUNNLEGGENDE_FERDIGHETER}>
-              Grunnleggende ferdigheter
+              {innholdElementToString(InnholdElement.GRUNNLEGGENDE_FERDIGHETER)}
             </Checkbox>
-            <Checkbox value={InnholdElement.JOBBSOKER_KOMPETANSE}>Jobbsøkerkompetanse</Checkbox>
-            <Checkbox value={InnholdElement.TEORETISK_OPPLAERING}>Teoretisk opplæring</Checkbox>
-            <Checkbox value={InnholdElement.PRAKSIS}>Praksis</Checkbox>
+            <Checkbox value={InnholdElement.JOBBSOKER_KOMPETANSE}>
+              {innholdElementToString(InnholdElement.JOBBSOKER_KOMPETANSE)}
+            </Checkbox>
+            <Checkbox value={InnholdElement.TEORETISK_OPPLAERING}>
+              {innholdElementToString(InnholdElement.TEORETISK_OPPLAERING)}
+            </Checkbox>
+            <Checkbox value={InnholdElement.PRAKSIS}>
+              {innholdElementToString(InnholdElement.PRAKSIS)}
+            </Checkbox>
             <Checkbox value={InnholdElement.ARBEIDSMARKEDSKUNNSKAP}>
-              Arbeidsmarkedskunnskap
+              {innholdElementToString(InnholdElement.ARBEIDSMARKEDSKUNNSKAP)}
             </Checkbox>
-            <Checkbox value={InnholdElement.NORSKOPPLAERING}>Norskopplæring</Checkbox>
+            <Checkbox value={InnholdElement.NORSKOPPLAERING}>
+              {innholdElementToString(InnholdElement.NORSKOPPLAERING)}
+            </Checkbox>
           </HGrid>
         </CheckboxGroup>
       )}
