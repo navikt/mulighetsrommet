@@ -56,7 +56,7 @@ export const brukerHandlers = [
   ),
 
   http.post<PathParams, DeltakelserResponse, DeltakelserResponse>(
-    "*/api/v1/intern/bruker/historikk/ny",
+    "*/api/v1/intern/bruker/komet-deltakelser",
     () => HttpResponse.json({ historikk: historikkFraKomet, aktive: utkastFraKomet }),
   ),
 ];

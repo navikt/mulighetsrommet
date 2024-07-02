@@ -1012,7 +1012,7 @@ paths:
                 items:
                   $ref: "#/components/schemas/HistorikkForBruker"
 
-  /api/v1/intern/bruker/historikk/ny:
+  /api/v1/intern/bruker/komet-deltakelser:
     post:
       tags:
         - Historikk
