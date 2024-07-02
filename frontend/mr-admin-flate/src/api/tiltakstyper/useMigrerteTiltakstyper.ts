@@ -1,11 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
 import { QueryKeys } from "@/api/QueryKeys";
-import { mulighetsrommetClient } from "@/api/client";
+import { TiltakstyperService } from "mulighetsrommet-api-client";
 
 export function useMigrerteTiltakstyper() {
   return useQuery({
     queryKey: QueryKeys.migrerteTiltakstyper(),
-    queryFn: () => mulighetsrommetClient.tiltakstyper.getMigrerteTiltakstyper(),
+    queryFn: () => TiltakstyperService.getMigrerteTiltakstyper(),
   });
 }
 

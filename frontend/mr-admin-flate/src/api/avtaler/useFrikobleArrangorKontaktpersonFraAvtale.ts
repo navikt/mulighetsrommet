@@ -1,12 +1,12 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { mulighetsrommetClient } from "../client";
 import { QueryKeys } from "../QueryKeys";
+import { AvtalerService } from "mulighetsrommet-api-client";
 
 export function useFrikobleArrangorKontaktpersonFraAvtale() {
   const client = useQueryClient();
   return useMutation({
     mutationFn: (body: { kontaktpersonId: string; dokumentId: string }) => {
-      return mulighetsrommetClient.avtaler.frikobleKontaktpersonFraAvtale({
+      return AvtalerService.frikobleKontaktpersonFraAvtale({
         requestBody: { ...body },
       });
     },

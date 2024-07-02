@@ -1,5 +1,4 @@
-import { mulighetsrommetClient } from "@/api/client";
-import { NotificationStatus } from "mulighetsrommet-api-client";
+import { NotificationsService, NotificationStatus } from "mulighetsrommet-api-client";
 import { useMutation } from "@tanstack/react-query";
 import { useNotificationSummary } from "./useNotificationSummary";
 
@@ -12,7 +11,7 @@ export function useSetNotificationStatus(id: string) {
 
   return useMutation({
     mutationFn: async ({ status }: SetNotificationStatusParams): Promise<void> => {
-      await mulighetsrommetClient.notifications.setNotificationStatus({
+      await NotificationsService.setNotificationStatus({
         id,
         requestBody: { status },
       });

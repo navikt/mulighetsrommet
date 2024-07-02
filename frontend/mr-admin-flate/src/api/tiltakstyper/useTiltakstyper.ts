@@ -1,8 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
-import { PAGE_SIZE } from "../../constants";
+import { PAGE_SIZE } from "@/constants";
 import { TiltakstypeFilter } from "../atoms";
-import { mulighetsrommetClient } from "@/api/client";
 import { QueryKeys } from "@/api/QueryKeys";
+import { TiltakstyperService } from "mulighetsrommet-api-client";
 
 export function useTiltakstyper(filter: TiltakstypeFilter = {}, page: number = 1) {
   const queryFilter = {
@@ -13,6 +13,6 @@ export function useTiltakstyper(filter: TiltakstypeFilter = {}, page: number = 1
 
   return useQuery({
     queryKey: QueryKeys.tiltakstyper(queryFilter),
-    queryFn: () => mulighetsrommetClient.tiltakstyper.getTiltakstyper(queryFilter),
+    queryFn: () => TiltakstyperService.getTiltakstyper(queryFilter),
   });
 }

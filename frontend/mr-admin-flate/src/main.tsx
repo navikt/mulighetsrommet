@@ -10,6 +10,12 @@ import { DemoBanner } from "@/components/demo/DemoBanner";
 import "./index.css";
 import { isDemo } from "@/environment";
 import { ReloadAppErrorBoundary } from "mulighetsrommet-frontend-common";
+import { setupOpenAPIClient } from "@/api/setup-openapi-client";
+
+setupOpenAPIClient({
+  base: import.meta.env.VITE_MULIGHETSROMMET_API_BASE ?? "",
+  authToken: import.meta.env.VITE_MULIGHETSROMMET_API_AUTH_TOKEN,
+});
 
 const queryClient = new QueryClient({
   defaultOptions: {

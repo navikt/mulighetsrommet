@@ -1,11 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
 import { QueryKeys } from "../QueryKeys";
-import { mulighetsrommetClient } from "../client";
+import { ArrangorService } from "mulighetsrommet-api-client";
 
 export function useKoblingerTilDokumenterForKontaktpersonHosArrangor(kontaktpersonId: string) {
   return useQuery({
     queryKey: QueryKeys.arrangorKontaktpersonKoblinger(kontaktpersonId),
-    queryFn: () =>
-      mulighetsrommetClient.arrangor.getKoblingerTilDokumenter({ id: kontaktpersonId }),
+    queryFn: () => ArrangorService.getKoblingerTilDokumenter({ id: kontaktpersonId }),
   });
 }
