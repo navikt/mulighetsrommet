@@ -27,7 +27,7 @@ export function AmoKategoriseringDetaljer({ amoKategorisering }: Props) {
         />
       </Bolk>
       <Bolk>
-        {amoKategorisering.forerkort && (
+        {amoKategorisering.forerkort && amoKategorisering.forerkort.length > 0 && (
           <Metadata
             header={tiltaktekster.forerkortLabel}
             verdi={
@@ -39,7 +39,7 @@ export function AmoKategoriseringDetaljer({ amoKategorisering }: Props) {
             }
           />
         )}
-        {amoKategorisering.sertifiseringer && (
+        {amoKategorisering.sertifiseringer && amoKategorisering.sertifiseringer.length > 0 && (
           <Metadata
             header={tiltaktekster.sertifiseringerLabel}
             verdi={
@@ -56,7 +56,7 @@ export function AmoKategoriseringDetaljer({ amoKategorisering }: Props) {
         )}
       </Bolk>
       <Bolk>
-        {amoKategorisering.innholdElementer && (
+        {amoKategorisering.innholdElementer && amoKategorisering.innholdElementer.length > 0 && (
           <Metadata
             header={tiltaktekster.innholdElementerLabel}
             verdi={
