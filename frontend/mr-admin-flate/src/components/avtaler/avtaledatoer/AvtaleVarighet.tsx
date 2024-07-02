@@ -1,4 +1,4 @@
-import { HGrid, Select, TextField } from "@navikt/ds-react";
+import { HGrid, Heading, Select, TextField } from "@navikt/ds-react";
 import { useEffect, useState } from "react";
 import { useFormContext } from "react-hook-form";
 import { avtaletekster } from "../../ledetekster/avtaleLedetekster";
@@ -78,6 +78,9 @@ export function AvtaleVarighet({
 
   return (
     <>
+      <Heading size="small" as="h3">
+        Avtalens varighet
+      </Heading>
       <HGrid columns={2}>
         <Select
           label="Opsjonsmodell"
