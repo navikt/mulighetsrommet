@@ -63,7 +63,7 @@ export function DelMedBrukerContent({
       ) : null}
 
       {!enableRedigerDeletekst ? (
-        <div className={styles.markdown}>
+        <div className={styles.markdown} data-testid="textarea_deletekst">
           <Markdown remarkPlugins={[remarkGfm]}>{state.deletekst}</Markdown>
         </div>
       ) : (
