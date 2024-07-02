@@ -12,7 +12,7 @@ import { Feilmelding } from "@/components/feilmelding/Feilmelding";
 import { TilToppenKnapp } from "mulighetsrommet-frontend-common/components/tilToppenKnapp/TilToppenKnapp";
 import { NullstillFilterKnapp } from "mulighetsrommet-frontend-common/components/nullstillFilterKnapp/NullstillFilterKnapp";
 import { Filtermeny } from "@/components/filtrering/Filtermeny";
-import { OversiktSkeleton } from "mulighetsrommet-frontend-common";
+import { ListSkeleton } from "mulighetsrommet-frontend-common";
 
 interface Props {
   preview?: boolean;
@@ -52,7 +52,7 @@ export const NavArbeidsmarkedstiltakOversikt = ({ preview = false }: Props) => {
                 />
               ) : tiltaksgjennomforinger.length === 0 ? (
                 isPending ? (
-                  <OversiktSkeleton />
+                  <ListSkeleton />
                 ) : (
                   <Feilmelding
                     header="Ingen tiltaksgjennomføringer funnet"
