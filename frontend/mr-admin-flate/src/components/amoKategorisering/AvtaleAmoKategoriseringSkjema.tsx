@@ -9,6 +9,7 @@ import {
 import { useFormContext } from "react-hook-form";
 import {
   forerkortKlasseToString,
+  innholdElementToString,
   kurstypeToString,
   spesifiseringToString,
 } from "../../utils/Utils";
@@ -16,6 +17,7 @@ import { InferredAvtaleSchema } from "../redaksjonelt-innhold/AvtaleSchema";
 import { useState } from "react";
 import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { useSokSertifiseringer } from "@/api/janzz/useSokSertifiseringer";
+import { tiltaktekster } from "../ledetekster/tiltaksgjennomforingLedetekster";
 
 export function AvtaleAmoKategoriseringSkjema() {
   const [janzzQuery, setJanzzQuery] = useState<string>("");
@@ -66,7 +68,7 @@ export function AvtaleAmoKategoriseringSkjema() {
     <HGrid gap="4" columns={1}>
       <Select
         size="small"
-        label="Kurstype"
+        label={tiltaktekster.kurstypeLabel}
         value={kurstype}
         error={errors?.amoKategorisering?.kurstype?.message}
         onChange={(type) => {
@@ -139,7 +141,7 @@ export function AvtaleAmoKategoriseringSkjema() {
         <UNSAFE_Combobox
           clearButton
           size="small"
-          label="Førerkort"
+          label={tiltaktekster.forerkortLabel}
           isMultiSelect
           options={[
             ForerkortKlasse.A,
@@ -187,7 +189,7 @@ export function AvtaleAmoKategoriseringSkjema() {
         <ControlledMultiSelect<{ konseptId: number; label: string }>
           size="small"
           placeholder="Søk etter sertifiseringer"
-          label={"Sertifiseringer"}
+          label={tiltaktekster.sertifiseringerLabel}
           {...register("amoKategorisering.sertifiseringer")}
           onInputChange={(s: string) => {
             setJanzzQuery(s);
@@ -207,7 +209,7 @@ export function AvtaleAmoKategoriseringSkjema() {
       {spesifisering && (
         <CheckboxGroup
           size="small"
-          legend="Elementer i kurset"
+          legend={tiltaktekster.innholdElementerLabel}
           error={errors?.amoKategorisering?.innholdElementer?.message}
           onChange={(values) => {
             setValue("amoKategorisering.innholdElementer", values);
@@ -216,15 +218,23 @@ export function AvtaleAmoKategoriseringSkjema() {
         >
           <HGrid columns={2}>
             <Checkbox value={InnholdElement.GRUNNLEGGENDE_FERDIGHETER}>
-              Grunnleggende ferdigheter
+              {innholdElementToString(InnholdElement.GRUNNLEGGENDE_FERDIGHETER)}
             </Checkbox>
-            <Checkbox value={InnholdElement.JOBBSOKER_KOMPETANSE}>Jobbsøkerkompetanse</Checkbox>
-            <Checkbox value={InnholdElement.TEORETISK_OPPLAERING}>Teoretisk opplæring</Checkbox>
-            <Checkbox value={InnholdElement.PRAKSIS}>Praksis</Checkbox>
+            <Checkbox value={InnholdElement.JOBBSOKER_KOMPETANSE}>
+              {innholdElementToString(InnholdElement.JOBBSOKER_KOMPETANSE)}
+            </Checkbox>
+            <Checkbox value={InnholdElement.TEORETISK_OPPLAERING}>
+              {innholdElementToString(InnholdElement.TEORETISK_OPPLAERING)}
+            </Checkbox>
+            <Checkbox value={InnholdElement.PRAKSIS}>
+              {innholdElementToString(InnholdElement.PRAKSIS)}
+            </Checkbox>
             <Checkbox value={InnholdElement.ARBEIDSMARKEDSKUNNSKAP}>
-              Arbeidsmarkedskunnskap
+              {innholdElementToString(InnholdElement.ARBEIDSMARKEDSKUNNSKAP)}
             </Checkbox>
-            <Checkbox value={InnholdElement.NORSKOPPLAERING}>Norskopplæring</Checkbox>
+            <Checkbox value={InnholdElement.NORSKOPPLAERING}>
+              {innholdElementToString(InnholdElement.NORSKOPPLAERING)}
+            </Checkbox>
           </HGrid>
         </CheckboxGroup>
       )}

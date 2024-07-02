@@ -36,9 +36,9 @@ import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { FormGroup } from "../skjema/FormGroup";
 import skjemastyles from "../skjema/Skjema.module.scss";
 import { SelectOppstartstype } from "./SelectOppstartstype";
-import { TiltaksgjennomforingAmoKategoriseringSkjema } from "./TiltaksgjennomforingAmoKategoriseringSkjema";
 import { TiltaksgjennomforingArrangorSkjema } from "./TiltaksgjennomforingArrangorSkjema";
 import { erArenaOpphavOgIngenEierskap } from "./TiltaksgjennomforingSkjemaConst";
+import { TiltaksgjennomforingAmoKategoriseringSkjema } from "@/components/amoKategorisering/TiltaksgjennomforingAmoKategoriseringSkjema";
 
 interface Props {
   tiltaksgjennomforing?: Tiltaksgjennomforing;
