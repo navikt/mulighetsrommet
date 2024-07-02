@@ -1,11 +1,11 @@
 import { HGrid, Heading } from "@navikt/ds-react";
-import { FormGroup } from "../../skjema/FormGroup";
-import { avtaletekster } from "../../ledetekster/avtaleLedetekster";
-import { ControlledDateInput } from "../../skjema/ControlledDateInput";
-import { useFormContext, DeepPartial } from "react-hook-form";
+import { Avtaletype } from "mulighetsrommet-api-client";
+import { DeepPartial, useFormContext } from "react-hook-form";
 import { addYear } from "../../../utils/Utils";
+import { avtaletekster } from "../../ledetekster/avtaleLedetekster";
 import { InferredAvtaleSchema } from "../../redaksjonelt-innhold/AvtaleSchema";
-import { Tiltakskode } from "mulighetsrommet-api-client";
+import { ControlledDateInput } from "../../skjema/ControlledDateInput";
+import { FormGroup } from "../../skjema/FormGroup";
 import { AvtaleVarighet } from "./AvtaleVarighet";
 
 const MIN_START_DATO = new Date(2000, 0, 1);
@@ -17,19 +17,18 @@ interface Props {
 
 export function AvtaleDatoContainer({ arenaOpphavOgIngenEierskap }: Props) {
   const { register, watch } = useFormContext<DeepPartial<InferredAvtaleSchema>>();
-  const tiltakstype = watch("tiltakstype");
+  const avtaletype = watch("avtaletype");
   const { startDato } = watch("startOgSluttDato") ?? {};
   const sluttDatoFraDato = startDato ? new Date(startDato) : MIN_START_DATO;
   const sluttDatoTilDato = addYear(startDato ? new Date(startDato) : new Date(), MAKS_AAR);
 
-  function erForhandsgodkjent(tiltakskode: Tiltakskode): boolean {
-    return [
-      Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
-      Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET,
-    ].includes(tiltakskode);
+  function erForhandsgodkjent(avtaletype: Avtaletype): boolean {
+    return [Avtaletype.FORHAANDSGODKJENT].includes(avtaletype);
   }
 
-  if (tiltakstype?.tiltakskode && erForhandsgodkjent(tiltakstype.tiltakskode)) {
+  if (!avtaletype) return null;
+
+  if (avtaletype && erForhandsgodkjent(avtaletype)) {
     return (
       <FormGroup>
         <Heading size="small" as="h3">

@@ -45,6 +45,8 @@ export const AvtaleSchema = z
         path: ["startDato"],
       }),
     maksVarighet: z.string().optional().nullable(),
+    opsjonsmodell: z.string().optional().nullable(),
+    custom_opsjonsmodellnavn: z.string().optional().nullable(),
     administratorer: z.string().array().min(1, "Du må velge minst én administrator"),
     websaknummer: z
       .string()

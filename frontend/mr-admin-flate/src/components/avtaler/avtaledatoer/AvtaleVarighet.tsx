@@ -1,12 +1,14 @@
-import { HGrid, Select } from "@navikt/ds-react";
-import { avtaletekster } from "../../ledetekster/avtaleLedetekster";
-import { ControlledDateInput } from "../../skjema/ControlledDateInput";
-import { useFormContext } from "react-hook-form";
-import { InferredAvtaleSchema } from "../../redaksjonelt-innhold/AvtaleSchema";
+import { HGrid, Select, TextField } from "@navikt/ds-react";
 import { useEffect, useState } from "react";
+import { useFormContext } from "react-hook-form";
+import { avtaletekster } from "../../ledetekster/avtaleLedetekster";
+import { InferredAvtaleSchema } from "../../redaksjonelt-innhold/AvtaleSchema";
+import { ControlledDateInput } from "../../skjema/ControlledDateInput";
 
-interface Avtalemodell {
-  value: "2+1" | "2+1+1" | "2+1+1+1" | "Annet";
+type AvtaleOpsjonsnokkel = "2+1" | "2+1+1" | "2+1+1+1" | "Annet";
+
+export interface Opsjonsmodell {
+  value: AvtaleOpsjonsnokkel;
   label: string;
   maksVarighetAar: number;
   initialSluttdatoEkstraAar?: number;
@@ -28,10 +30,10 @@ export function AvtaleVarighet({
   maksAar,
 }: Props) {
   const { register, setValue, watch } = useFormContext<InferredAvtaleSchema>();
-  const [avtalemodell, setAvtalemodell] = useState<Avtalemodell | undefined>(undefined);
+  const [opsjonsmodell, setOpsjonsmodell] = useState<Opsjonsmodell | undefined>(undefined);
   const { startDato } = watch("startOgSluttDato") ?? {};
 
-  const avtalemodeller: Avtalemodell[] = [
+  const opsjonsmodeller: Opsjonsmodell[] = [
     { value: "2+1", label: "2 år + 1 år", maksVarighetAar: 3, initialSluttdatoEkstraAar: 2 },
     {
       value: "2+1+1",
@@ -48,48 +50,64 @@ export function AvtaleVarighet({
     { value: "Annet", label: "Annet", maksVarighetAar: 5, initialSluttdatoEkstraAar: undefined },
   ];
 
-  const readonly = avtalemodell?.value !== "Annet" || arenaOpphavOgIngenEierskap;
+  const readonly = opsjonsmodell?.value !== "Annet" || arenaOpphavOgIngenEierskap;
 
   useEffect(() => {
-    setValue("startOgSluttDato.startDato", "");
-    setValue("startOgSluttDato.sluttDato", "");
-    setValue("maksVarighet", "");
-  }, [avtalemodell]);
-
-  useEffect(() => {
-    if (startDato && avtalemodell && avtalemodell.initialSluttdatoEkstraAar) {
+    if (startDato && opsjonsmodell && opsjonsmodell.initialSluttdatoEkstraAar) {
       setValue(
         "startOgSluttDato.sluttDato",
-        kalkulerMaksDato(sluttDatoFraDato, avtalemodell.initialSluttdatoEkstraAar).toISOString(),
+        kalkulerMaksDato(sluttDatoFraDato, opsjonsmodell.initialSluttdatoEkstraAar).toISOString(),
       );
       setValue(
         "maksVarighet",
-        kalkulerMaksDato(sluttDatoFraDato, avtalemodell.maksVarighetAar).toISOString(),
+        kalkulerMaksDato(sluttDatoFraDato, opsjonsmodell.maksVarighetAar).toISOString(),
       );
     }
-  }, [avtalemodell, startDato]);
+  }, [opsjonsmodell, startDato]);
+
+  useEffect(() => {
+    // Reset verdier når opsjonsmodell endres
+    setValue("startOgSluttDato.startDato", "");
+    setValue("startOgSluttDato.sluttDato", "");
+    setValue("maksVarighet", "");
+    setValue("custom_opsjonsmodellnavn", "");
+  }, [opsjonsmodell]);
+
+  const maksVarighetAar = opsjonsmodell?.maksVarighetAar ?? 5;
+  const maksVarighetDato = kalkulerMaksDato(new Date(startDato), maksVarighetAar);
 
   return (
     <>
-      <pre>{JSON.stringify(watch("startOgSluttDato"), null, 2)}</pre>
       <HGrid columns={2}>
         <Select
-          label="Avtalemodell"
+          label="Opsjonsmodell"
           size="small"
           onChange={(e) => {
-            const avtalemodell = avtalemodeller.find((modell) => modell.value === e.target.value);
-            setAvtalemodell(avtalemodell);
+            const opsjonsmodel = opsjonsmodeller.find((modell) => modell.value === e.target.value);
+            setOpsjonsmodell(opsjonsmodel);
+            setValue("opsjonsmodell", opsjonsmodel?.value);
           }}
         >
-          <option value={undefined}>Velg avtalemodell</option>
-          {avtalemodeller.map((modell) => (
+          <option value={undefined}>Velg opsjonsmodell</option>
+          {opsjonsmodeller.map((modell) => (
             <option key={modell.value} value={modell.value}>
               {modell.label}
             </option>
           ))}
         </Select>
       </HGrid>
-      {avtalemodell ? (
+
+      {opsjonsmodell?.value === "Annet" ? (
+        <TextField
+          label="Opsjonsnavn"
+          hideLabel
+          placeholder="Skriv inn eget navn på opsjonsmodellen"
+          size="small"
+          {...register("custom_opsjonsmodellnavn")}
+        />
+      ) : null}
+
+      {opsjonsmodell ? (
         <HGrid columns={3}>
           <ControlledDateInput
             size="small"
@@ -104,7 +122,7 @@ export function AvtaleVarighet({
             label={avtaletekster.sluttdatoLabel}
             readOnly={readonly}
             fromDate={sluttDatoFraDato}
-            toDate={sluttDatoTilDato}
+            toDate={maksVarighetDato}
             {...register("startOgSluttDato.sluttDato")}
             format={"iso-string"}
             invalidDatoEtterPeriode={`Avtaleperioden kan ikke vare lenger enn ${maksAar} år`}
@@ -114,7 +132,7 @@ export function AvtaleVarighet({
             label={avtaletekster.maksVarighetLabel}
             readOnly={readonly}
             fromDate={sluttDatoFraDato}
-            toDate={sluttDatoTilDato}
+            toDate={maksVarighetDato}
             {...register("maksVarighet")}
             format={"iso-string"}
           />
