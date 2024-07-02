@@ -2984,8 +2984,11 @@ components:
           $ref: "#/components/schemas/SanityFaneinnhold"
         delingMedBruker:
           type: string
+<<<<<<< Updated upstream
         arenakode:
           $ref: "#/components/schemas/TiltakskodeArena"
+=======
+>>>>>>> Stashed changes
         tiltakskode:
           $ref: "#/components/schemas/Tiltakskode"
         kanKombineresMed:
@@ -3679,6 +3682,12 @@ components:
         - AVKLARING
         - ARBEIDSRETTET_REHABILITERING
         - ARBEIDSFORBEREDENDE_TRENING
+
+    TiltakskodeIndividuell:
+      type: string
+      enum:
+        - MIDLERTIDIG_LONNSTILSKUDD
+        - 
 
     Gruppetiltak:
       type: object

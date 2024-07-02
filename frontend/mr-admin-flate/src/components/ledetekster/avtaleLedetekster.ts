@@ -5,6 +5,7 @@ export const avtaletekster = {
   avtaletypeLabel: "Avtaletype",
   startdatoLabel: "Startdato",
   sluttdatoLabel: "Sluttdato",
+  maksVarighetLabel: "Maks varighet",
   prisOgBetalingLabel: "Pris- og betalingsbetingelser",
   administratorerForAvtalenLabel: "Administratorer for avtalen",
   ingenAdministratorerSattLabel: "Ingen administratorer satt for avtalen",

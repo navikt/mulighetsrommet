@@ -71,6 +71,8 @@ export const DateInput = forwardRef(function DateInput(
   useEffect(() => {
     if (value) {
       setSelected(new Date(value));
+    } else {
+      setSelected(undefined);
     }
   }, [value]);
 

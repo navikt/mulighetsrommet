@@ -1,6 +1,6 @@
 import { useAvtaleAdministratorer } from "@/api/ansatt/useAvtaleAdministratorer";
 import { useMigrerteTiltakstyperForAvtaler } from "@/api/tiltakstyper/useMigrerteTiltakstyper";
-import { Heading, HGrid, Textarea, TextField } from "@navikt/ds-react";
+import { HGrid, Textarea, TextField } from "@navikt/ds-react";
 import {
   Avtale,
   Avtaletype,
@@ -20,19 +20,17 @@ import { DeepPartial, useFormContext } from "react-hook-form";
 import { MultiValue } from "react-select";
 import { useFeatureToggle } from "../../api/features/useFeatureToggle";
 import { erAnskaffetTiltak } from "../../utils/tiltakskoder";
-import { addYear, avtaletypeTilTekst } from "../../utils/Utils";
+import { avtaletypeTilTekst } from "../../utils/Utils";
 import { avtaletekster } from "../ledetekster/avtaleLedetekster";
 import { InferredAvtaleSchema } from "../redaksjonelt-innhold/AvtaleSchema";
 import { AdministratorOptions } from "../skjema/AdministratorOptions";
-import { ControlledDateInput } from "../skjema/ControlledDateInput";
 import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { FormGroup } from "../skjema/FormGroup";
 import skjemastyles from "../skjema/Skjema.module.scss";
 import { AvtaleAmoKategoriseringSkjema } from "./AvtaleAmoKategoriseringSkjema";
 import { AvtaleArrangorSkjema } from "./AvtaleArrangorSkjema";
 import { getLokaleUnderenheterAsSelectOptions } from "./AvtaleSkjemaConst";
-
-const minStartdato = new Date(2000, 0, 1);
+import { AvtaleDatoContainer } from "./avtaledatoer/AvtaleDatoContainer";
 
 interface Props {
   tiltakstyper: Tiltakstype[];
@@ -73,10 +71,6 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
       value: enhet.enhetsnummer,
       label: enhet.navn,
     }));
-
-  const { startDato } = watch("startOgSluttDato") ?? {};
-  const sluttDatoFraDato = startDato ? new Date(startDato) : minStartdato;
-  const sluttDatoTilDato = addYear(startDato ? new Date(startDato) : new Date(), 35);
 
   return (
     <div className={skjemastyles.container}>
@@ -171,32 +165,7 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
             ) : null}
           </FormGroup>
 
-          <FormGroup>
-            <Heading size="small" as="h3">
-              Avtalens varighet
-            </Heading>
-            <HGrid columns={2}>
-              <ControlledDateInput
-                size="small"
-                label={avtaletekster.startdatoLabel}
-                readOnly={arenaOpphavOgIngenEierskap}
-                fromDate={minStartdato}
-                toDate={sluttDatoTilDato}
-                {...register("startOgSluttDato.startDato")}
-                format={"iso-string"}
-              />
-              <ControlledDateInput
-                size="small"
-                label={avtaletekster.sluttdatoLabel}
-                readOnly={arenaOpphavOgIngenEierskap}
-                fromDate={sluttDatoFraDato}
-                toDate={sluttDatoTilDato}
-                {...register("startOgSluttDato.sluttDato")}
-                format={"iso-string"}
-                invalidDatoEtterPeriode={"Avtaleperioden kan ikke vare lenger enn 20 år"}
-              />
-            </HGrid>
-          </FormGroup>
+          <AvtaleDatoContainer arenaOpphavOgIngenEierskap={arenaOpphavOgIngenEierskap} />
 
           {arenaKode && erAnskaffetTiltak(arenaKode) && (
             <>

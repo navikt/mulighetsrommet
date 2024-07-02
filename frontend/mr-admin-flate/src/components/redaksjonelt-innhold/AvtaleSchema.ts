@@ -44,6 +44,7 @@ export const AvtaleSchema = z
         message: "Startdato må være før sluttdato",
         path: ["startDato"],
       }),
+    maksVarighet: z.string().optional().nullable(),
     administratorer: z.string().array().min(1, "Du må velge minst én administrator"),
     websaknummer: z
       .string()
