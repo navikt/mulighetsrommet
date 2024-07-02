@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
-import { mulighetsrommetClient } from "@/api/client";
 import { QueryKeys } from "@/api/query-keys";
 import { useModiaContext } from "./useModiaContext";
+import { DelMedBrukerService } from "mulighetsrommet-api-client";
 
 export function useHentAlleTiltakDeltMedBruker() {
   const { fnr: norskIdent } = useModiaContext();
@@ -9,7 +9,7 @@ export function useHentAlleTiltakDeltMedBruker() {
   const { data: alleTiltakDeltMedBruker } = useQuery({
     queryKey: [QueryKeys.AlleDeltMedBrukerStatus, norskIdent],
     queryFn: async () => {
-      const result = await mulighetsrommetClient.delMedBruker.getAlleTiltakDeltMedBruker({
+      const result = await DelMedBrukerService.getAlleTiltakDeltMedBruker({
         requestBody: { norskIdent },
       });
       return result || null; // Returner null hvis API returnerer 204 No Content = undefined;
