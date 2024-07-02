@@ -1,6 +1,6 @@
 import { InlineErrorBoundary } from "@/ErrorBoundary";
 import { useFeatureToggle } from "@/api/feature-toggles";
-import { useGetTiltaksgjennomforingIdFraUrl } from "@/api/queries/useGetTiltaksgjennomforingIdFraUrl";
+import { useGetTiltaksgjennomforingIdFraUrl } from "@/hooks/useGetTiltaksgjennomforingIdFraUrl";
 import { useTiltaksgjennomforingById } from "@/api/queries/useTiltaksgjennomforingById";
 import { ModiaRoute, resolveModiaRoute } from "@/apps/modia/ModiaRoute";
 import { DelMedBruker } from "@/apps/modia/delMedBruker/DelMedBruker";
