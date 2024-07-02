@@ -2011,6 +2011,10 @@ components:
           type: string
           format: date
           nullable: true
+        maksVarighet:
+          type: string
+          format: date
+          nullable: true
         administratorer:
           type: array
           items:
@@ -2039,6 +2043,9 @@ components:
         amoKategorisering:
           $ref: "#/components/schemas/AmoKategorisering"
           nullable: true
+        opsjonsmodellData:
+          $ref: "#/components/schemas/OpsjonsmodellData"
+          nullable: true
       required:
         - id
         - navn
@@ -2049,6 +2056,7 @@ components:
         - avtalenummer
         - startDato
         - sluttDato
+        - maksVarighet
         - administrator
         - avtaletype
         - prisbetingelser
@@ -2058,6 +2066,7 @@ components:
         - personopplysninger
         - personvernBekreftet
         - amoKategorisering
+        - opsjonsmodellData
 
     EmbeddedTiltakstype:
       type: object
@@ -3879,3 +3888,24 @@ components:
           - createdAt
           - dialogId
           - tiltakId
+
+
+    OpsjonsmodellData:
+      type: object
+      properties:
+        opsjonsmodell:
+          $ref: "#/components/schemas/OpsjonsmodellKey"
+        customOpsjonsmodellNavn:
+          type: string
+          nullable: true
+      required:
+        - opsjonsmodell
+        - customOpsjonsmodellNavn
+
+    OpsjonsmodellKey:
+      type: string
+      enum:
+        - TO_PLUSS_EN
+        - TO_PLUSS_EN_PLUSS_EN
+        - TO_PLUSS_EN_PLUSS_EN_PLUSS_EN
+        - ANNET

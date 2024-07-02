@@ -1,3 +1,7 @@
+import { avtaleDetaljerTabAtom } from "@/api/atoms";
+import { useUpsertAvtale } from "@/api/avtaler/useUpsertAvtale";
+import { useHandleApiUpsertResponse } from "@/api/effects";
+import { erAnskaffetTiltak } from "@/utils/tiltakskoder";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ExclamationmarkTriangleFillIcon } from "@navikt/aksel-icons";
 import { Tabs } from "@navikt/ds-react";
@@ -8,25 +12,22 @@ import {
   EmbeddedTiltakstype,
   NavAnsatt,
   NavEnhet,
+  OpsjonsmodellKey,
   Tiltakstype,
 } from "mulighetsrommet-api-client";
+import { InlineErrorBoundary } from "mulighetsrommet-frontend-common";
 import React from "react";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { v4 as uuidv4 } from "uuid";
-import { avtaleDetaljerTabAtom } from "@/api/atoms";
-import { useUpsertAvtale } from "@/api/avtaler/useUpsertAvtale";
-import { useHandleApiUpsertResponse } from "@/api/effects";
-import { erAnskaffetTiltak } from "@/utils/tiltakskoder";
 import { Separator } from "../detaljside/Metadata";
+import { Laster } from "../laster/Laster";
 import { AvtaleSchema, InferredAvtaleSchema } from "../redaksjonelt-innhold/AvtaleSchema";
 import skjemastyles from "../skjema/Skjema.module.scss";
+import { AvtalePersonvernForm } from "./AvtalePersonvernForm";
 import { AvtaleRedaksjoneltInnholdForm } from "./AvtaleRedaksjoneltInnholdForm";
 import { defaultAvtaleData } from "./AvtaleSkjemaConst";
 import { AvtaleSkjemaDetaljer } from "./AvtaleSkjemaDetaljer";
 import { AvtaleSkjemaKnapperad } from "./AvtaleSkjemaKnapperad";
-import { AvtalePersonvernForm } from "./AvtalePersonvernForm";
-import { Laster } from "../laster/Laster";
-import { InlineErrorBoundary } from "mulighetsrommet-frontend-common";
 
 interface Props {
   onClose: () => void;
@@ -75,6 +76,7 @@ export function AvtaleSkjemaContainer({
       navn: data.navn,
       sluttDato: data.startOgSluttDato.sluttDato || null,
       startDato: data.startOgSluttDato.startDato,
+      maksVarighet: data.maksVarighet || null,
       tiltakstypeId: data.tiltakstype.id,
       administratorer: data.administratorer,
       avtaletype: data.avtaletype,
@@ -86,10 +88,16 @@ export function AvtaleSkjemaContainer({
       personopplysninger: data.personvernBekreftet ? data.personopplysninger : [],
       personvernBekreftet: data.personvernBekreftet,
       amoKategorisering: data.amoKategorisering || null,
+      opsjonsmodellData: {
+        opsjonsmodell: data.opsjonsmodell || OpsjonsmodellKey.ANNET,
+        customOpsjonsmodellNavn: data.custom_opsjonsmodellnavn || null,
+      },
     };
 
     mutation.mutate(requestBody);
   };
+
+  console.log(watch());
 
   useHandleApiUpsertResponse(
     mutation,

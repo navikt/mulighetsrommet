@@ -1,14 +1,13 @@
 import { HGrid, Heading, Select, TextField } from "@navikt/ds-react";
+import { OpsjonsmodellKey } from "mulighetsrommet-api-client";
 import { useEffect, useState } from "react";
 import { useFormContext } from "react-hook-form";
 import { avtaletekster } from "../../ledetekster/avtaleLedetekster";
 import { InferredAvtaleSchema } from "../../redaksjonelt-innhold/AvtaleSchema";
 import { ControlledDateInput } from "../../skjema/ControlledDateInput";
 
-type AvtaleOpsjonsnokkel = "2+1" | "2+1+1" | "2+1+1+1" | "Annet";
-
 export interface Opsjonsmodell {
-  value: AvtaleOpsjonsnokkel;
+  value: OpsjonsmodellKey;
   label: string;
   maksVarighetAar: number;
   initialSluttdatoEkstraAar?: number;
@@ -29,28 +28,44 @@ export function AvtaleVarighet({
   sluttDatoTilDato,
   maksAar,
 }: Props) {
-  const { register, setValue, watch } = useFormContext<InferredAvtaleSchema>();
+  const {
+    register,
+    setValue,
+    resetField,
+    watch,
+    formState: { errors },
+  } = useFormContext<InferredAvtaleSchema>();
   const [opsjonsmodell, setOpsjonsmodell] = useState<Opsjonsmodell | undefined>(undefined);
   const { startDato } = watch("startOgSluttDato") ?? {};
 
   const opsjonsmodeller: Opsjonsmodell[] = [
-    { value: "2+1", label: "2 år + 1 år", maksVarighetAar: 3, initialSluttdatoEkstraAar: 2 },
     {
-      value: "2+1+1",
+      value: OpsjonsmodellKey.TO_PLUSS_EN,
+      label: "2 år + 1 år",
+      maksVarighetAar: 3,
+      initialSluttdatoEkstraAar: 2,
+    },
+    {
+      value: OpsjonsmodellKey.TO_PLUSS_EN_PLUSS_EN,
       label: "2 år + 1 år + 1 år",
       maksVarighetAar: 4,
       initialSluttdatoEkstraAar: 2,
     },
     {
-      value: "2+1+1+1",
+      value: OpsjonsmodellKey.TO_PLUSS_EN_PLUSS_EN_PLUSS_EN,
       label: "2 år + 1 år + 1 år + 1 år",
       maksVarighetAar: 5,
       initialSluttdatoEkstraAar: 2,
     },
-    { value: "Annet", label: "Annet", maksVarighetAar: 5, initialSluttdatoEkstraAar: undefined },
+    {
+      value: OpsjonsmodellKey.ANNET,
+      label: "Annet",
+      maksVarighetAar: 5,
+      initialSluttdatoEkstraAar: undefined,
+    },
   ];
 
-  const readonly = opsjonsmodell?.value !== "Annet" || arenaOpphavOgIngenEierskap;
+  const readonly = opsjonsmodell?.value !== "ANNET" || arenaOpphavOgIngenEierskap;
 
   useEffect(() => {
     if (startDato && opsjonsmodell && opsjonsmodell.initialSluttdatoEkstraAar) {
@@ -67,15 +82,14 @@ export function AvtaleVarighet({
 
   useEffect(() => {
     // Reset verdier når opsjonsmodell endres
-    setValue("startOgSluttDato.startDato", "");
-    setValue("startOgSluttDato.sluttDato", "");
-    setValue("maksVarighet", "");
-    setValue("custom_opsjonsmodellnavn", "");
+    resetField("startOgSluttDato.startDato");
+    resetField("startOgSluttDato.sluttDato");
+    resetField("maksVarighet");
+    resetField("custom_opsjonsmodellnavn");
   }, [opsjonsmodell]);
 
   const maksVarighetAar = opsjonsmodell?.maksVarighetAar ?? 5;
   const maksVarighetDato = kalkulerMaksDato(new Date(startDato), maksVarighetAar);
-
   return (
     <>
       <Heading size="small" as="h3">
@@ -85,6 +99,7 @@ export function AvtaleVarighet({
         <Select
           label="Opsjonsmodell"
           size="small"
+          error={errors.opsjonsmodell?.message}
           onChange={(e) => {
             const opsjonsmodel = opsjonsmodeller.find((modell) => modell.value === e.target.value);
             setOpsjonsmodell(opsjonsmodel);
@@ -100,7 +115,7 @@ export function AvtaleVarighet({
         </Select>
       </HGrid>
 
-      {opsjonsmodell?.value === "Annet" ? (
+      {opsjonsmodell?.value === "ANNET" ? (
         <TextField
           label="Opsjonsnavn"
           hideLabel
