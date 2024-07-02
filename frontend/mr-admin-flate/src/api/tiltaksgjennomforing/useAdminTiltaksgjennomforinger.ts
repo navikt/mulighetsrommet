@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useDebounce } from "mulighetsrommet-frontend-common";
 import { QueryKeys } from "@/api/QueryKeys";
 import { TiltaksgjennomforingFilter } from "../atoms";
-import { mulighetsrommetClient } from "@/api/client";
+import { TiltaksgjennomforingerService } from "mulighetsrommet-api-client";
 
 function getPublisertStatus(statuser: string[] = []): boolean | null {
   if (statuser.length === 0) return null;
@@ -37,7 +37,7 @@ export function useAdminTiltaksgjennomforinger(filter: Partial<Tiltaksgjennomfor
     }),
     queryFn: () =>
       filter.visMineGjennomforinger
-        ? mulighetsrommetClient.tiltaksgjennomforinger.getMineTiltaksgjennomforinger(queryFilter)
-        : mulighetsrommetClient.tiltaksgjennomforinger.getTiltaksgjennomforinger(queryFilter),
+        ? TiltaksgjennomforingerService.getMineTiltaksgjennomforinger(queryFilter)
+        : TiltaksgjennomforingerService.getTiltaksgjennomforinger(queryFilter),
   });
 }

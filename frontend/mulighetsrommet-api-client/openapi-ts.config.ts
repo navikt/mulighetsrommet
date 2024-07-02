@@ -7,4 +7,7 @@ export default defineConfig({
   types: {
     enums: "typescript",
   },
+  services: {
+    asClass: true,
+  },
 });

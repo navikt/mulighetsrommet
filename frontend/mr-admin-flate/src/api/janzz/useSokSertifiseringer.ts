@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useDebounce } from "mulighetsrommet-frontend-common";
 import { QueryKeys } from "@/api/QueryKeys";
-import { mulighetsrommetClient } from "@/api/client";
+import { JanzzService } from "mulighetsrommet-api-client";
 
 export function useSokSertifiseringer(q: string) {
   const debouncedSok = useDebounce(q, 300);
@@ -9,7 +9,7 @@ export function useSokSertifiseringer(q: string) {
   return useQuery({
     queryKey: QueryKeys.sokSertifiseringer(debouncedSok),
     queryFn: () =>
-      mulighetsrommetClient.janzz.sokSertifiseringer({
+      JanzzService.sokSertifiseringer({
         q: debouncedSok.trim(),
       }),
     enabled: !!debouncedSok,

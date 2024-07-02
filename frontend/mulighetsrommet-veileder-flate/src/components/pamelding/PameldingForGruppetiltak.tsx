@@ -6,7 +6,7 @@ import {
   VeilederflateTiltakstype,
 } from "mulighetsrommet-api-client";
 import { ReactNode } from "react";
-import { useGetTiltaksgjennomforingIdFraUrl } from "@/api/queries/useGetTiltaksgjennomforingIdFraUrl";
+import { useGetTiltaksgjennomforingIdFraUrl } from "@/hooks/useGetTiltaksgjennomforingIdFraUrl";
 import { useTiltakstyperSomStotterPameldingIModia } from "@/api/queries/useTiltakstyperSomStotterPameldingIModia";
 import { ModiaRoute, resolveModiaRoute } from "@/apps/modia/ModiaRoute";
 import styles from "./PameldingForGruppetiltak.module.scss";

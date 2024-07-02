@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useDebounce } from "mulighetsrommet-frontend-common";
 import { QueryKeys } from "@/api/QueryKeys";
-import { mulighetsrommetClient } from "@/api/client";
+import { VirksomhetService } from "mulighetsrommet-api-client";
 
 export function useSokBrregVirksomheter(sokestreng: string) {
   const debouncedSok = useDebounce(sokestreng, 300);
@@ -9,7 +9,7 @@ export function useSokBrregVirksomheter(sokestreng: string) {
   return useQuery({
     queryKey: QueryKeys.brregVirksomheter(debouncedSok),
     queryFn: () =>
-      mulighetsrommetClient.virksomhet.sokBrregVirksomheter({
+      VirksomhetService.sokBrregVirksomheter({
         sok: debouncedSok.trim(),
       }),
     enabled: !!debouncedSok,

@@ -1,6 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { NavEnhetStatus } from "mulighetsrommet-api-client";
-import { mulighetsrommetClient } from "@/api/client";
+import { NavEnheterService, NavEnhetStatus } from "mulighetsrommet-api-client";
 import { QueryKeys } from "@/api/QueryKeys";
 
 export function useNavEnheter(
@@ -14,7 +13,7 @@ export function useNavEnheter(
     queryKey: QueryKeys.enheter(),
 
     queryFn: () => {
-      return mulighetsrommetClient.navEnheter.getEnheter({
+      return NavEnheterService.getEnheter({
         statuser,
       });
     },

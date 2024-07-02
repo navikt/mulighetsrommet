@@ -1,6 +1,9 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { mulighetsrommetClient } from "@/api/client";
-import { ApiError, AvbrytGjennomforingAarsak } from "mulighetsrommet-api-client";
+import {
+  ApiError,
+  AvbrytGjennomforingAarsak,
+  TiltaksgjennomforingerService,
+} from "mulighetsrommet-api-client";
 import { QueryKeys } from "@/api/QueryKeys";
 
 export function useAvbrytTiltaksgjennomforing() {
@@ -9,7 +12,7 @@ export function useAvbrytTiltaksgjennomforing() {
   return useMutation<unknown, ApiError, { id: string; aarsak: AvbrytGjennomforingAarsak | string }>(
     {
       mutationFn: (data: { id: string; aarsak?: AvbrytGjennomforingAarsak | string }) => {
-        return mulighetsrommetClient.tiltaksgjennomforinger.avbrytTiltaksgjennomforing({
+        return TiltaksgjennomforingerService.avbrytTiltaksgjennomforing({
           id: data.id,
           requestBody: { aarsak: data.aarsak },
         });

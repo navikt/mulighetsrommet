@@ -1,10 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
-import { mulighetsrommetClient } from "@/api/client";
 import { QueryKeys } from "@/api/QueryKeys";
+import { PersonopplysningerService } from "mulighetsrommet-api-client";
 
 export function usePersonopplysninger() {
   return useQuery({
     queryKey: QueryKeys.personopplysninger(),
-    queryFn: () => mulighetsrommetClient.personopplysninger.getPersonopplysninger(),
+    queryFn: () => PersonopplysningerService.getPersonopplysninger(),
   });
 }

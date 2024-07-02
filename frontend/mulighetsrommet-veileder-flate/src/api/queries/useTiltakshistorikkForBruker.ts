@@ -1,9 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
-import { mulighetsrommetClient } from "@/api/client";
 import { QueryKeys } from "@/api/query-keys";
 import { useModiaContext } from "@/apps/modia/hooks/useModiaContext";
 import { useFeatureToggle } from "@/api/feature-toggles";
-import { Toggles } from "mulighetsrommet-api-client";
+import { HistorikkService, Toggles } from "mulighetsrommet-api-client";
 
 export function useTiltakshistorikkForBruker() {
   const { fnr } = useModiaContext();
@@ -15,8 +14,8 @@ export function useTiltakshistorikkForBruker() {
   const requestBody = { norskIdent: fnr };
 
   const queryFn = enableV2Historikk
-    ? () => mulighetsrommetClient.historikk.hentHistorikkForBrukerV2({ requestBody })
-    : () => mulighetsrommetClient.historikk.hentHistorikkForBruker({ requestBody });
+    ? () => HistorikkService.hentHistorikkForBrukerV2({ requestBody })
+    : () => HistorikkService.hentHistorikkForBruker({ requestBody });
 
   return useQuery({
     queryKey: QueryKeys.BrukerHistorikk(enableV2Historikk, fnr),

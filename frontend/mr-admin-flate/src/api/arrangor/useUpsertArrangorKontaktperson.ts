@@ -3,8 +3,8 @@ import {
   ApiError,
   ArrangorKontaktperson,
   ArrangorKontaktpersonRequest,
+  ArrangorService,
 } from "mulighetsrommet-api-client";
-import { mulighetsrommetClient } from "@/api/client";
 import { QueryKeys } from "@/api/QueryKeys";
 
 export function useUpsertArrangorKontaktperson(arrangorId: string) {
@@ -12,7 +12,7 @@ export function useUpsertArrangorKontaktperson(arrangorId: string) {
 
   return useMutation<ArrangorKontaktperson, ApiError, ArrangorKontaktpersonRequest>({
     mutationFn: (requestBody: ArrangorKontaktpersonRequest) =>
-      mulighetsrommetClient.arrangor.upsertArrangorKontaktperson({
+      ArrangorService.upsertArrangorKontaktperson({
         id: arrangorId,
         requestBody,
       }),

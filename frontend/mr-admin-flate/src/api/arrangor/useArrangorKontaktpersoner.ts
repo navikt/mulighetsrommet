@@ -1,13 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
 import { QueryKeys } from "@/api/QueryKeys";
-import { mulighetsrommetClient } from "@/api/client";
+import { ArrangorService } from "mulighetsrommet-api-client";
 
 export const useArrangorKontaktpersoner = (arrangorId?: string) => {
   return useQuery({
     queryKey: QueryKeys.arrangorKontaktpersoner(arrangorId ?? ""),
 
     queryFn: () =>
-      mulighetsrommetClient.arrangor.getArrangorKontaktpersoner({
+      ArrangorService.getArrangorKontaktpersoner({
         id: arrangorId!,
       }),
 

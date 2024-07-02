@@ -1,14 +1,13 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { JoyrideType } from "mulighetsrommet-api-client";
 import { useEffect, useState } from "react";
-import { mulighetsrommetClient } from "../client";
 import { QueryKeys } from "../query-keys";
+import { JoyrideService, JoyrideType } from "mulighetsrommet-api-client";
 
 export function useJoyride(joyrideType: JoyrideType) {
   const query = useQuery({
     queryKey: QueryKeys.harFullfortJoyride(joyrideType),
-    queryFn: async () => {
-      return await mulighetsrommetClient.joyride.veilederHarFullfortJoyride({
+    queryFn: () => {
+      return JoyrideService.veilederHarFullfortJoyride({
         joyrideType,
       });
     },
@@ -22,7 +21,7 @@ export function useJoyride(joyrideType: JoyrideType) {
 
   const mutation = useMutation({
     mutationFn: (data: { joyrideType: JoyrideType; fullfort: boolean }) =>
-      mulighetsrommetClient.joyride.lagreJoyrideHarKjort({
+      JoyrideService.lagreJoyrideHarKjort({
         requestBody: { ...data },
       }),
   });

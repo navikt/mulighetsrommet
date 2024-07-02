@@ -1,4 +1,3 @@
-import { mulighetsrommetClient } from "@/api/client";
 import { ModiaRoute, navigateToModiaApp } from "@/apps/modia/ModiaRoute";
 import { PortenLink } from "@/components/PortenLink";
 import { StatusModal } from "@/components/modal/StatusModal";
@@ -8,6 +7,7 @@ import { BodyShort, Button, Checkbox, Heading, HelpText, Modal } from "@navikt/d
 import {
   Bruker,
   DelMedBruker,
+  DialogenService,
   VeilederflateTiltaksgjennomforing,
 } from "mulighetsrommet-api-client";
 import { DelMedBrukerContent, MAKS_ANTALL_TEGN_DEL_MED_BRUKER } from "./DelMedBrukerContent";
@@ -77,7 +77,7 @@ export function Delemodal({
     const overskrift = `Tiltak gjennom NAV: ${tiltaksgjennomforing.navn}`;
     const tekst = state.deletekst;
     try {
-      const res = await mulighetsrommetClient.dialogen.delMedDialogen({
+      const res = await DialogenService.delMedDialogen({
         requestBody: {
           fnr: bruker.fnr,
           overskrift,

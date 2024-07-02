@@ -2,9 +2,9 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   ApiError,
   Tiltaksgjennomforing,
+  TiltaksgjennomforingerService,
   TiltaksgjennomforingRequest,
 } from "mulighetsrommet-api-client";
-import { mulighetsrommetClient } from "@/api/client";
 import { QueryKeys } from "@/api/QueryKeys";
 
 export function useUpsertTiltaksgjennomforing() {
@@ -12,7 +12,7 @@ export function useUpsertTiltaksgjennomforing() {
 
   return useMutation<Tiltaksgjennomforing, ApiError, TiltaksgjennomforingRequest>({
     mutationFn: (requestBody: TiltaksgjennomforingRequest) =>
-      mulighetsrommetClient.tiltaksgjennomforinger.upsertTiltaksgjennomforing({
+      TiltaksgjennomforingerService.upsertTiltaksgjennomforing({
         requestBody,
       }),
 

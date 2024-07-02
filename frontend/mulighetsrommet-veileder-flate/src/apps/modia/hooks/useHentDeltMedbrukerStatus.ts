@@ -1,5 +1,4 @@
-import { VeilederflateTiltaksgjennomforing } from "mulighetsrommet-api-client";
-import { mulighetsrommetClient } from "@/api/client";
+import { DelMedBrukerService, VeilederflateTiltaksgjennomforing } from "mulighetsrommet-api-client";
 import { QueryKeys } from "@/api/query-keys";
 import { useHentVeilederdata } from "@/apps/modia/hooks/useHentVeilederdata";
 import { useQuery } from "@tanstack/react-query";
@@ -10,7 +9,7 @@ export function useHentDeltMedBrukerStatus(norskIdent: string, gjennomforingId: 
   const { data: delMedBrukerInfo, refetch: refetchDelMedBruker } = useQuery({
     queryKey: [QueryKeys.DeltMedBrukerStatus, norskIdent, gjennomforingId],
     queryFn: async () => {
-      const result = await mulighetsrommetClient.delMedBruker.getDelMedBruker({
+      const result = await DelMedBrukerService.getDelMedBruker({
         requestBody: { norskIdent, id: gjennomforingId },
       });
       return result || null; // Returner null hvis API returnerer 204 No Content = undefined;
@@ -31,7 +30,7 @@ export function useHentDeltMedBrukerStatus(norskIdent: string, gjennomforingId: 
       dialogId,
     };
 
-    await mulighetsrommetClient.delMedBruker.delMedBruker({ requestBody });
+    await DelMedBrukerService.delMedBruker({ requestBody });
 
     await refetchDelMedBruker();
   }

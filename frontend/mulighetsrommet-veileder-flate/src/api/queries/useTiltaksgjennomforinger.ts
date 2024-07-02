@@ -1,18 +1,17 @@
 import { useQuery } from "@tanstack/react-query";
-import { mulighetsrommetClient } from "../client";
 import { QueryKeys } from "../query-keys";
 import {
   isFilterReady,
   useArbeidsmarkedstiltakFilterValue,
 } from "@/hooks/useArbeidsmarkedstiltakFilter";
-import { NavEnhet } from "mulighetsrommet-api-client";
+import { NavEnhet, VeilederTiltakService } from "mulighetsrommet-api-client";
 
 export function useVeilederTiltaksgjennomforinger() {
   const { isFilterReady, filter } = useGetArbeidsmarkedstiltakFilterAsQuery();
 
   return useQuery({
     queryKey: QueryKeys.sanity.tiltaksgjennomforinger(filter),
-    queryFn: () => mulighetsrommetClient.veilederTiltak.getVeilederTiltaksgjennomforinger(filter),
+    queryFn: () => VeilederTiltakService.getVeilederTiltaksgjennomforinger(filter),
     enabled: isFilterReady,
   });
 }
@@ -24,8 +23,8 @@ export function useNavTiltaksgjennomforinger({ preview }: { preview: boolean }) 
     queryKey: QueryKeys.sanity.tiltaksgjennomforinger(filter),
     queryFn() {
       return preview
-        ? mulighetsrommetClient.veilederTiltak.getPreviewTiltaksgjennomforinger(filter)
-        : mulighetsrommetClient.veilederTiltak.getNavTiltaksgjennomforinger(filter);
+        ? VeilederTiltakService.getPreviewTiltaksgjennomforinger(filter)
+        : VeilederTiltakService.getNavTiltaksgjennomforinger(filter);
     },
     enabled: isFilterReady,
   });

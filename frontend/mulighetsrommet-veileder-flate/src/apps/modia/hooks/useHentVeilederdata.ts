@@ -1,10 +1,10 @@
-import { mulighetsrommetClient } from "@/api/client";
 import { QueryKeys } from "@/api/query-keys";
 import { useQuery } from "@tanstack/react-query";
+import { VeilederService } from "mulighetsrommet-api-client";
 
 export function useHentVeilederdata() {
   return useQuery({
     queryKey: [QueryKeys.Veilederdata],
-    queryFn: () => mulighetsrommetClient.veileder.getVeileder(),
+    queryFn: () => VeilederService.getVeileder(),
   });
 }

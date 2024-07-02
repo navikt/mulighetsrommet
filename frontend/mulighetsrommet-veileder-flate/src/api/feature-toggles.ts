@@ -1,7 +1,6 @@
-import { Toggles } from "mulighetsrommet-api-client";
-import { mulighetsrommetClient } from "./client";
 import { QueryKeys } from "./query-keys";
 import { useQuery } from "@tanstack/react-query";
+import { FeatureToggleService, Toggles } from "mulighetsrommet-api-client";
 
 export type Features = Record<Toggles, boolean>;
 
@@ -13,6 +12,6 @@ export type Features = Record<Toggles, boolean>;
 export const useFeatureToggle = (feature: Toggles) => {
   return useQuery({
     queryKey: QueryKeys.features(feature),
-    queryFn: () => mulighetsrommetClient.features.getFeatureToggle({ feature }),
+    queryFn: () => FeatureToggleService.getFeatureToggle({ feature }),
   });
 };
