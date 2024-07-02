@@ -99,7 +99,7 @@ logback-logstashLogbackEncoder = "net.logstash.logback:logstash-logback-encoder:
 metrics-core = { module = "io.dropwizard.metrics:metrics-core", version.ref = "metrics" }
 metrics-healthchecks = { module = "io.dropwizard.metrics:metrics-healthchecks", version.ref = "metrics" }
 
-micrometer-registry-prometheus = "io.micrometer:micrometer-registry-prometheus:1.12.5"
+micrometer-registry-prometheus = "io.micrometer:micrometer-registry-prometheus:1.13.1"
 
 mockk = "io.mockk:mockk:1.13.11"
 
