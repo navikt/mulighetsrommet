@@ -7,6 +7,7 @@ import { InferredAvtaleSchema } from "../../redaksjonelt-innhold/AvtaleSchema";
 import { ControlledDateInput } from "../../skjema/ControlledDateInput";
 import { FormGroup } from "../../skjema/FormGroup";
 import { AvtaleVarighet } from "./AvtaleVarighet";
+import { useEffect } from "react";
 
 const MIN_START_DATO = new Date(2000, 0, 1);
 const MAKS_AAR = 35;
@@ -17,7 +18,7 @@ interface Props {
 }
 
 export function AvtaleDatoContainer({ avtale, arenaOpphavOgIngenEierskap }: Props) {
-  const { register, watch } = useFormContext<DeepPartial<InferredAvtaleSchema>>();
+  const { register, watch, setValue } = useFormContext<DeepPartial<InferredAvtaleSchema>>();
   const avtaletype = watch("avtaletype");
   const { startDato } = watch("startOgSluttDato") ?? {};
   const sluttDatoFraDato = startDato ? new Date(startDato) : MIN_START_DATO;
@@ -26,6 +27,12 @@ export function AvtaleDatoContainer({ avtale, arenaOpphavOgIngenEierskap }: Prop
   function erForhandsgodkjent(avtaletype: Avtaletype): boolean {
     return [Avtaletype.FORHAANDSGODKJENT].includes(avtaletype);
   }
+
+  useEffect(() => {
+    setValue("opsjonsmodell", undefined);
+    setValue("opsjonMaksVarighet", undefined);
+    setValue("customOpsjonsmodellNavn", undefined);
+  }, [avtaletype]);
 
   if (!avtaletype) return null;
 

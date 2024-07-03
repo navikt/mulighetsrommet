@@ -173,8 +173,8 @@ data class AvtaleRequest(
 @Serializable
 data class OpsjonsmodellData(
     @Serializable(with = LocalDateSerializer::class)
-    val maksVarighet: LocalDate?,
-    val opsjonsmodell: Opsjonsmodell,
+    val opsjonMaksVarighet: LocalDate?,
+    val opsjonsmodell: Opsjonsmodell?,
     val customOpsjonsmodellNavn: String? = null,
 )
 

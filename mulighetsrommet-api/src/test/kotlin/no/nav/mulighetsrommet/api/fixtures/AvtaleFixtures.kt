@@ -214,7 +214,7 @@ object AvtaleFixtures {
         personvernBekreftet = false,
         amoKategorisering = null,
         opsjonsmodellData = OpsjonsmodellData(
-            maksVarighet = LocalDate.now().plusYears(5),
+            opsjonMaksVarighet = LocalDate.now().plusYears(5),
             opsjonsmodell = Opsjonsmodell.TO_PLUSS_EN,
             customOpsjonsmodellNavn = null,
         ),

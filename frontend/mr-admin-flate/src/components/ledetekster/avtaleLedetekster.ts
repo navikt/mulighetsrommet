@@ -5,7 +5,7 @@ export const avtaletekster = {
   avtaletypeLabel: "Avtaletype",
   startdatoLabel: "Startdato",
   sluttdatoLabel: "Sluttdato",
-  maksVarighetLabel: "Maks varighet",
+  maksVarighetLabel: "Maks varighet inkl. opsjon",
   prisOgBetalingLabel: "Pris- og betalingsbetingelser",
   administratorerForAvtalenLabel: "Administratorer for avtalen",
   ingenAdministratorerSattLabel: "Ingen administratorer satt for avtalen",
@@ -18,4 +18,5 @@ export const avtaletekster = {
   tiltaksarrangorHovedenhetLabel: "Tiltaksarrangør hovedenhet",
   tiltaksarrangorUnderenheterLabel: "Tiltaksarrangør underenheter",
   kontaktpersonerHosTiltaksarrangorLabel: "Kontaktpersoner hos tiltaksarrangør",
+  opsjonsmodellLabel: "Opsjonsmodell",
 } as const;

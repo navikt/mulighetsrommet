@@ -12,7 +12,6 @@ import {
   EmbeddedTiltakstype,
   NavAnsatt,
   NavEnhet,
-  OpsjonsmodellKey,
   Tiltakstype,
 } from "mulighetsrommet-api-client";
 import { InlineErrorBoundary } from "mulighetsrommet-frontend-common";
@@ -88,8 +87,8 @@ export function AvtaleSkjemaContainer({
       personvernBekreftet: data.personvernBekreftet,
       amoKategorisering: data.amoKategorisering || null,
       opsjonsmodellData: {
-        maksVarighet: data.opsjonMaksVarighet || null,
-        opsjonsmodell: data.opsjonsmodell || OpsjonsmodellKey.ANNET,
+        opsjonMaksVarighet: data.opsjonMaksVarighet || null,
+        opsjonsmodell: data.opsjonsmodell || null,
         customOpsjonsmodellNavn: data.customOpsjonsmodellNavn || null,
       },
     };

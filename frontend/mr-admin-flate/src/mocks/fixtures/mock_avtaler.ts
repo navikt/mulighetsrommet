@@ -63,11 +63,7 @@ export const mockAvtaler: Avtale[] = [
     personopplysninger: [],
     personvernBekreftet: false,
     amoKategorisering: null,
-    opsjonsmodellData: {
-      opsjonsmodell: OpsjonsmodellKey.TO_PLUSS_EN,
-      maksVarighet: null,
-      customOpsjonsmodellNavn: null,
-    },
+    opsjonsmodellData: null,
   },
   {
     id: "d1f163b7-1a41-4547-af16-03fd4492b7bc",
@@ -112,7 +108,7 @@ export const mockAvtaler: Avtale[] = [
     amoKategorisering: null,
     opsjonsmodellData: {
       opsjonsmodell: OpsjonsmodellKey.TO_PLUSS_EN,
-      maksVarighet: null,
+      opsjonMaksVarighet: "2026-08-01",
       customOpsjonsmodellNavn: null,
     },
   },
@@ -155,7 +151,7 @@ export const mockAvtaler: Avtale[] = [
     amoKategorisering: null,
     opsjonsmodellData: {
       opsjonsmodell: OpsjonsmodellKey.TO_PLUSS_EN,
-      maksVarighet: null,
+      opsjonMaksVarighet: "2025-06-30",
       customOpsjonsmodellNavn: null,
     },
   },
@@ -198,9 +194,9 @@ export const mockAvtaler: Avtale[] = [
     personvernBekreftet: false,
     amoKategorisering: null,
     opsjonsmodellData: {
-      opsjonsmodell: OpsjonsmodellKey.TO_PLUSS_EN,
-      maksVarighet: null,
-      customOpsjonsmodellNavn: null,
+      opsjonsmodell: OpsjonsmodellKey.ANNET,
+      opsjonMaksVarighet: "2021-06-30",
+      customOpsjonsmodellNavn: "1 år + 6 mnd",
     },
   },
 ];
@@ -248,7 +244,7 @@ for (let i = 0; i < x; i++) {
     amoKategorisering: null,
     opsjonsmodellData: {
       opsjonsmodell: OpsjonsmodellKey.TO_PLUSS_EN,
-      maksVarighet: null,
+      opsjonMaksVarighet: null,
       customOpsjonsmodellNavn: null,
     },
   });

@@ -1,17 +1,11 @@
 import { HGrid, Heading, Select, TextField } from "@navikt/ds-react";
-import { Avtale, OpsjonsmodellKey } from "mulighetsrommet-api-client";
+import { Avtale } from "mulighetsrommet-api-client";
 import { useEffect, useState } from "react";
 import { useFormContext } from "react-hook-form";
 import { avtaletekster } from "../../ledetekster/avtaleLedetekster";
 import { InferredAvtaleSchema } from "../../redaksjonelt-innhold/AvtaleSchema";
 import { ControlledDateInput } from "../../skjema/ControlledDateInput";
-
-export interface Opsjonsmodell {
-  value: OpsjonsmodellKey;
-  label: string;
-  maksVarighetAar: number;
-  initialSluttdatoEkstraAar?: number;
-}
+import { Opsjonsmodell, opsjonsmodeller } from "./opsjonsmodeller";
 
 interface Props {
   avtale?: Avtale;
@@ -21,33 +15,6 @@ interface Props {
   sluttDatoTilDato: Date;
   maksAar: number;
 }
-
-const opsjonsmodeller: Opsjonsmodell[] = [
-  {
-    value: OpsjonsmodellKey.TO_PLUSS_EN,
-    label: "2 år + 1 år",
-    maksVarighetAar: 3,
-    initialSluttdatoEkstraAar: 2,
-  },
-  {
-    value: OpsjonsmodellKey.TO_PLUSS_EN_PLUSS_EN,
-    label: "2 år + 1 år + 1 år",
-    maksVarighetAar: 4,
-    initialSluttdatoEkstraAar: 2,
-  },
-  {
-    value: OpsjonsmodellKey.TO_PLUSS_EN_PLUSS_EN_PLUSS_EN,
-    label: "2 år + 1 år + 1 år + 1 år",
-    maksVarighetAar: 5,
-    initialSluttdatoEkstraAar: 2,
-  },
-  {
-    value: OpsjonsmodellKey.ANNET,
-    label: "Annet",
-    maksVarighetAar: 5,
-    initialSluttdatoEkstraAar: undefined,
-  },
-];
 
 export function AvtaleVarighet({
   avtale,
@@ -100,6 +67,7 @@ export function AvtaleVarighet({
       <Heading size="small" as="h3">
         Avtalens varighet
       </Heading>
+
       <HGrid columns={2}>
         <Select
           label="Opsjonsmodell"

@@ -1962,6 +1962,7 @@ components:
           nullable: true
         opsjonsmodellData:
           $ref: "#/components/schemas/OpsjonsmodellData"
+          nullable: true
       required:
         - id
         - tiltakstype
@@ -3891,17 +3892,18 @@ components:
     OpsjonsmodellData:
       type: object
       properties:
-        maksVarighet:
+        opsjonMaksVarighet:
           type: string
           format: date
           nullable: true
         opsjonsmodell:
           $ref: "#/components/schemas/OpsjonsmodellKey"
+          nullable: true
         customOpsjonsmodellNavn:
           type: string
           nullable: true
       required:
-        - maksVarighet
+        - opsjonMaksVarighet
         - opsjonsmodell
         - customOpsjonsmodellNavn
 
