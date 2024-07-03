@@ -28,7 +28,6 @@ import no.nav.mulighetsrommet.domain.dto.Websaknummer
 import no.nav.mulighetsrommet.unleash.UnleashService
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-import java.time.format.FormatStyle
 import java.util.*
 
 class AvtaleValidatorTest :
@@ -589,9 +588,7 @@ class AvtaleValidatorTest :
 
                     val previous = avtaler.get(avtaleDbo.id)
                     val formatertDato = startDatoForGjennomforing.format(
-                        DateTimeFormatter.ofLocalizedDate(
-                            FormatStyle.SHORT,
-                        ),
+                        DateTimeFormatter.ofPattern("dd.MM.yyyy"),
                     )
                     validator.validate(dbo, previous).shouldBeLeft().shouldContainExactlyInAnyOrder(
                         listOf(
