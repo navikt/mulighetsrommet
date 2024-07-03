@@ -100,17 +100,6 @@ export const AvtaleSchema = z
         path: ["websaknummer"],
       });
     }
-
-    if (
-      data.avtaletype !== Avtaletype.FORHAANDSGODKJENT &&
-      !data.opsjonsmodellData?.opsjonsmodell
-    ) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Du må velge en opsjonsmodell",
-        path: ["opsjonsmodellData.opsjonsmodell"],
-      });
-    }
   });
 
 export type InferredAvtaleSchema = z.infer<typeof AvtaleSchema>;
