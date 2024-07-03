@@ -1,5 +1,5 @@
 import { HGrid, Heading } from "@navikt/ds-react";
-import { Avtale, Avtaletype } from "mulighetsrommet-api-client";
+import { Avtale, Avtaletype, Toggles } from "mulighetsrommet-api-client";
 import { DeepPartial, useFormContext } from "react-hook-form";
 import { addYear } from "../../../utils/Utils";
 import { avtaletekster } from "../../ledetekster/avtaleLedetekster";
@@ -8,6 +8,7 @@ import { ControlledDateInput } from "../../skjema/ControlledDateInput";
 import { FormGroup } from "../../skjema/FormGroup";
 import { AvtaleVarighet } from "./AvtaleVarighet";
 import { useEffect } from "react";
+import { useFeatureToggle } from "../../../api/features/useFeatureToggle";
 
 const MIN_START_DATO = new Date(2000, 0, 1);
 const MAKS_AAR = 35;
@@ -23,20 +24,25 @@ export function AvtaleDatoContainer({ avtale, arenaOpphavOgIngenEierskap }: Prop
   const { startDato } = watch("startOgSluttDato") ?? {};
   const sluttDatoFraDato = startDato ? new Date(startDato) : MIN_START_DATO;
   const sluttDatoTilDato = addYear(startDato ? new Date(startDato) : new Date(), MAKS_AAR);
+  const { data: registrereOpsjonsmodellIsEnabled } = useFeatureToggle(
+    Toggles.MULIGHETSROMMET_ADMIN_FLATE_REGISTRERE_OPSJONSMODELL,
+  );
 
   function erForhandsgodkjent(avtaletype: Avtaletype): boolean {
     return [Avtaletype.FORHAANDSGODKJENT].includes(avtaletype);
   }
 
   useEffect(() => {
-    setValue("opsjonsmodell", undefined);
-    setValue("opsjonMaksVarighet", undefined);
-    setValue("customOpsjonsmodellNavn", undefined);
+    if (!avtaletype) {
+      setValue("opsjonsmodell", undefined);
+      setValue("opsjonMaksVarighet", undefined);
+      setValue("customOpsjonsmodellNavn", undefined);
+    }
   }, [avtaletype]);
 
   if (!avtaletype) return null;
 
-  if (avtaletype && erForhandsgodkjent(avtaletype)) {
+  if (avtaletype && (erForhandsgodkjent(avtaletype) || !registrereOpsjonsmodellIsEnabled)) {
     return (
       <FormGroup>
         <Heading size="small" as="h3">
@@ -65,7 +71,7 @@ export function AvtaleDatoContainer({ avtale, arenaOpphavOgIngenEierskap }: Prop
         </HGrid>
       </FormGroup>
     );
-  } else {
+  } else if (registrereOpsjonsmodellIsEnabled) {
     return (
       <FormGroup>
         <AvtaleVarighet
@@ -78,5 +84,7 @@ export function AvtaleDatoContainer({ avtale, arenaOpphavOgIngenEierskap }: Prop
         />
       </FormGroup>
     );
+  } else {
+    return null;
   }
 }

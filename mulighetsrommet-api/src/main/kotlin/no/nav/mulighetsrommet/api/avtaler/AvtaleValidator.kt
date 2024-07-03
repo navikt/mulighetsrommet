@@ -22,6 +22,7 @@ import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dto.AmoKategorisering
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
 import no.nav.mulighetsrommet.domain.dto.allowedAvtaletypes
+import no.nav.mulighetsrommet.unleash.UnleashService
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 
@@ -30,6 +31,7 @@ class AvtaleValidator(
     private val tiltaksgjennomforinger: TiltaksgjennomforingRepository,
     private val navEnheterService: NavEnhetService,
     private val arrangorer: ArrangorRepository,
+    private val unleashService: UnleashService,
 ) {
 
     fun validate(avtale: AvtaleDbo, currentAvtale: AvtaleAdminDto?): Either<List<ValidationError>, AvtaleDbo> = either {
@@ -71,18 +73,20 @@ class AvtaleValidator(
                 }
             }
 
-            if (!avtaleTypeErForhandsgodkjent(avtale.avtaletype)) {
-                if (avtale.opsjonMaksVarighet == null) {
-                    add(ValidationError.of(AvtaleDbo::opsjonMaksVarighet, "Du må legge inn maks varighet for opsjonen"))
-                }
+            if (unleashService.isEnabled("mulighetsrommet.admin-flate.registrere-opsjonsmodell")) {
+                if (!avtaleTypeErForhandsgodkjent(avtale.avtaletype)) {
+                    if (avtale.opsjonMaksVarighet == null) {
+                        add(ValidationError.of(AvtaleDbo::opsjonMaksVarighet, "Du må legge inn maks varighet for opsjonen"))
+                    }
 
-                if (avtale.opsjonsmodell == null) {
-                    add(ValidationError.of(AvtaleDbo::opsjonsmodell, "Du må velge en opsjonsmodell"))
-                }
+                    if (avtale.opsjonsmodell == null) {
+                        add(ValidationError.of(AvtaleDbo::opsjonsmodell, "Du må velge en opsjonsmodell"))
+                    }
 
-                if (avtale.opsjonsmodell != null && avtale.opsjonsmodell == Opsjonsmodell.ANNET) {
-                    if (avtale.customOpsjonsmodellNavn.isNullOrBlank()) {
-                        add(ValidationError.of(AvtaleDbo::customOpsjonsmodellNavn, "Du må skrive en beskrivelse for opsjonsmodellen"))
+                    if (avtale.opsjonsmodell != null && avtale.opsjonsmodell == Opsjonsmodell.ANNET) {
+                        if (avtale.customOpsjonsmodellNavn.isNullOrBlank()) {
+                            add(ValidationError.of(AvtaleDbo::customOpsjonsmodellNavn, "Du må beskrive opsjonsmodellen"))
+                        }
                     }
                 }
             }

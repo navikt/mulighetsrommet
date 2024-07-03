@@ -33,6 +33,7 @@ export function AvtaleVarighet({
   const [opsjonsmodell, setOpsjonsmodell] = useState<Opsjonsmodell | undefined>(
     opsjonsmodeller?.find((modell) => modell.value === avtale?.opsjonsmodellData?.opsjonsmodell),
   );
+
   const { startDato } = watch("startOgSluttDato") ?? {};
   const readonly = opsjonsmodell?.value !== "ANNET" || arenaOpphavOgIngenEierskap;
 
@@ -94,7 +95,7 @@ export function AvtaleVarighet({
           label="Opsjonsnavn"
           hideLabel
           error={errors.customOpsjonsmodellNavn?.message}
-          placeholder="Skriv inn eget navn på opsjonsmodellen"
+          placeholder="Beskriv opsjonsmodellen"
           size="small"
           {...register("customOpsjonsmodellNavn")}
         />

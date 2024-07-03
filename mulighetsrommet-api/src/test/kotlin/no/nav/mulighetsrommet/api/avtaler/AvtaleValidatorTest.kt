@@ -327,7 +327,7 @@ class AvtaleValidatorTest :
 
             validator.validate(rammeAvtale, null).shouldBeLeft(
                 listOf(
-                    ValidationError("customOpsjonsmodellNavn", "Du må skrive en beskrivelse for opsjonsmodellen"),
+                    ValidationError("customOpsjonsmodellNavn", "Du må beskrive opsjonsmodellen"),
                 ),
             )
         }

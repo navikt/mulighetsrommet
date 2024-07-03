@@ -9,15 +9,19 @@ import { avtaletypeTilTekst, formaterDato } from "@/utils/Utils";
 import { erAnskaffetTiltak } from "@/utils/tiltakskoder";
 import { ExternalLinkIcon } from "@navikt/aksel-icons";
 import { Alert, Heading, HelpText, VStack } from "@navikt/ds-react";
-import { NavEnhet } from "mulighetsrommet-api-client";
+import { NavEnhet, Toggles } from "mulighetsrommet-api-client";
 import { NOM_ANSATT_SIDE } from "mulighetsrommet-frontend-common/constants";
 import { Fragment } from "react";
 import { Link } from "react-router-dom";
 import styles from "../DetaljerInfo.module.scss";
 import { opsjonsmodellTilTekst } from "../../components/avtaler/avtaledatoer/opsjonsmodeller";
+import { useFeatureToggle } from "../../api/features/useFeatureToggle";
 
 export function AvtaleDetaljer() {
   const { data: avtale, isPending, error } = useAvtale();
+  const { data: registrereOpsjonsmodellIsEnabled } = useFeatureToggle(
+    Toggles.MULIGHETSROMMET_ADMIN_FLATE_REGISTRERE_OPSJONSMODELL,
+  );
 
   if (isPending) {
     return <Laster tekst="Laster avtale..." />;
@@ -81,7 +85,7 @@ export function AvtaleDetaljer() {
             Avtalens varighet
           </Heading>
 
-          {avtale?.opsjonsmodellData?.opsjonsmodell ? (
+          {registrereOpsjonsmodellIsEnabled && avtale?.opsjonsmodellData?.opsjonsmodell ? (
             <>
               <Bolk aria-label="Opsjonsmodell">
                 <Metadata
@@ -98,7 +102,7 @@ export function AvtaleDetaljer() {
               header={avtaletekster.sluttdatoLabel}
               verdi={sluttDato ? formaterDato(sluttDato) : "-"}
             />
-            {avtale?.opsjonsmodellData?.opsjonMaksVarighet ? (
+            {registrereOpsjonsmodellIsEnabled && avtale?.opsjonsmodellData?.opsjonMaksVarighet ? (
               <Metadata
                 header={avtaletekster.maksVarighetLabel}
                 verdi={

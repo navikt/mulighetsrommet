@@ -3548,6 +3548,7 @@ components:
         - mulighetsrommet-veilederflate-arena-oppskrifter
         - mulighetsrommet.admin-flate.enableDebugger
         - mulighetsrommet.admin-flate.enable_gruppe_amo_kategorier
+        - mulighetsrommet.admin-flate.registrere-opsjonsmodell
 
     PublisertRequest:
       type: object
