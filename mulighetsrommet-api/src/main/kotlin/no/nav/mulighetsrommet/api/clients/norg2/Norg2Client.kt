@@ -28,7 +28,6 @@ class Norg2Client(
             retryOnException(maxRetries = 5, retryOnTimeout = true)
             exponentialDelay()
         }
-        install(HttpTimeout)
     }
 
     private val hentEnhetByGeografiskOmraadeCache: Cache<String, Norg2EnhetDto> = Caffeine.newBuilder()

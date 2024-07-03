@@ -26,9 +26,6 @@ class PamOntologiClient(
             retryOnException(maxRetries = 3, retryOnTimeout = true)
             exponentialDelay()
         }
-        install(HttpTimeout) {
-            requestTimeoutMillis = 5000
-        }
     }
 
     suspend fun sokAutorisasjon(query: String): List<Typeahead> {

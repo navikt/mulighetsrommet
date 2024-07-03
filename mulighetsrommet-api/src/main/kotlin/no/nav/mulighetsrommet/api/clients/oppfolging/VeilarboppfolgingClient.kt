@@ -40,9 +40,6 @@ class VeilarboppfolgingClient(
             retryOnException(maxRetries = 3, retryOnTimeout = true)
             exponentialDelay()
         }
-        install(HttpTimeout) {
-            requestTimeoutMillis = 5000
-        }
     }
 
     private val oppfolgingsenhetCache: Cache<NorskIdent, Oppfolgingsenhet> = Caffeine.newBuilder()

@@ -58,6 +58,10 @@ class SanityClient(engine: HttpClientEngine = CIO.create(), val config: Config) 
 
         install(ClientResponseMetricPlugin)
 
+        install(HttpTimeout) {
+            requestTimeoutMillis = 30000
+        }
+
         install(HttpRequestRetry) {
             retryOnException(maxRetries = 3, retryOnTimeout = true)
             exponentialDelay()
@@ -67,10 +71,6 @@ class SanityClient(engine: HttpClientEngine = CIO.create(), val config: Config) 
                 }
                 logger.info("Retrying request method=${request.method.value}, url=${request.url.buildString()}")
             }
-        }
-
-        install(HttpTimeout) {
-            requestTimeoutMillis = 30000
         }
 
         install(ContentNegotiation) {
