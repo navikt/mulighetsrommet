@@ -213,8 +213,8 @@ object AvtaleFixtures {
         personopplysninger = emptyList(),
         personvernBekreftet = false,
         amoKategorisering = null,
-        maksVarighet = LocalDate.now().plusYears(5),
         opsjonsmodellData = OpsjonsmodellData(
+            maksVarighet = LocalDate.now().plusYears(5),
             opsjonsmodell = Opsjonsmodell.TO_PLUSS_EN,
             customOpsjonsmodellNavn = null,
         ),

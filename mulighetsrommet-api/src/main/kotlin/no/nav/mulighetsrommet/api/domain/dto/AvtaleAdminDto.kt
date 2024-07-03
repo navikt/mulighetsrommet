@@ -42,7 +42,7 @@ data class AvtaleAdminDto(
     val personopplysninger: List<Personopplysning>,
     val personvernBekreftet: Boolean,
     val amoKategorisering: AmoKategorisering?,
-    val opsjonsdata: Opsjonsdata? = null,
+    val opsjonsmodellData: OpsjonsmodellData? = null,
 ) {
     @Serializable
     data class Tiltakstype(
@@ -83,7 +83,7 @@ data class AvtaleAdminDto(
     )
 
     @Serializable
-    data class Opsjonsdata(
+    data class OpsjonsmodellData(
         @Serializable(with = LocalDateSerializer::class)
         val opsjonMaksVarighet: LocalDate?,
         val opsjonsmodell: Opsjonsmodell?,
@@ -112,9 +112,9 @@ data class AvtaleAdminDto(
             personopplysninger = personopplysninger,
             personvernBekreftet = personvernBekreftet,
             amoKategorisering = amoKategorisering,
-            opsjonMaksVarighet = opsjonsdata?.opsjonMaksVarighet,
-            opsjonsmodell = opsjonsdata?.opsjonsmodell,
-            customOpsjonsmodellNavn = opsjonsdata?.customOpsjonsmodellNavn,
+            opsjonMaksVarighet = opsjonsmodellData?.opsjonMaksVarighet,
+            opsjonsmodell = opsjonsmodellData?.opsjonsmodell,
+            customOpsjonsmodellNavn = opsjonsmodellData?.customOpsjonsmodellNavn,
         )
 
     fun toArenaAvtaleDbo() =

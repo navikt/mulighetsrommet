@@ -158,8 +158,6 @@ data class AvtaleRequest(
     val startDato: LocalDate,
     @Serializable(with = LocalDateSerializer::class)
     val sluttDato: LocalDate?,
-    @Serializable(with = LocalDateSerializer::class)
-    val maksVarighet: LocalDate?,
     val administratorer: List<NavIdent>,
     val avtaletype: Avtaletype,
     val prisbetingelser: String?,
@@ -174,6 +172,8 @@ data class AvtaleRequest(
 
 @Serializable
 data class OpsjonsmodellData(
+    @Serializable(with = LocalDateSerializer::class)
+    val maksVarighet: LocalDate?,
     val opsjonsmodell: Opsjonsmodell,
     val customOpsjonsmodellNavn: String? = null,
 )

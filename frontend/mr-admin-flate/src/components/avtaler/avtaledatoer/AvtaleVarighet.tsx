@@ -1,5 +1,5 @@
 import { HGrid, Heading, Select, TextField } from "@navikt/ds-react";
-import { OpsjonsmodellKey } from "mulighetsrommet-api-client";
+import { Avtale, OpsjonsmodellKey } from "mulighetsrommet-api-client";
 import { useEffect, useState } from "react";
 import { useFormContext } from "react-hook-form";
 import { avtaletekster } from "../../ledetekster/avtaleLedetekster";
@@ -14,6 +14,7 @@ export interface Opsjonsmodell {
 }
 
 interface Props {
+  avtale?: Avtale;
   arenaOpphavOgIngenEierskap: boolean;
   minStartDato: Date;
   sluttDatoFraDato: Date;
@@ -21,7 +22,35 @@ interface Props {
   maksAar: number;
 }
 
+const opsjonsmodeller: Opsjonsmodell[] = [
+  {
+    value: OpsjonsmodellKey.TO_PLUSS_EN,
+    label: "2 år + 1 år",
+    maksVarighetAar: 3,
+    initialSluttdatoEkstraAar: 2,
+  },
+  {
+    value: OpsjonsmodellKey.TO_PLUSS_EN_PLUSS_EN,
+    label: "2 år + 1 år + 1 år",
+    maksVarighetAar: 4,
+    initialSluttdatoEkstraAar: 2,
+  },
+  {
+    value: OpsjonsmodellKey.TO_PLUSS_EN_PLUSS_EN_PLUSS_EN,
+    label: "2 år + 1 år + 1 år + 1 år",
+    maksVarighetAar: 5,
+    initialSluttdatoEkstraAar: 2,
+  },
+  {
+    value: OpsjonsmodellKey.ANNET,
+    label: "Annet",
+    maksVarighetAar: 5,
+    initialSluttdatoEkstraAar: undefined,
+  },
+];
+
 export function AvtaleVarighet({
+  avtale,
   arenaOpphavOgIngenEierskap,
   minStartDato,
   sluttDatoFraDato,
@@ -31,48 +60,31 @@ export function AvtaleVarighet({
   const {
     register,
     setValue,
-    resetField,
     watch,
     formState: { errors },
   } = useFormContext<InferredAvtaleSchema>();
-  const [opsjonsmodell, setOpsjonsmodell] = useState<Opsjonsmodell | undefined>(undefined);
+  const [opsjonsmodell, setOpsjonsmodell] = useState<Opsjonsmodell | undefined>(
+    opsjonsmodeller?.find((modell) => modell.value === avtale?.opsjonsmodellData?.opsjonsmodell),
+  );
   const { startDato } = watch("startOgSluttDato") ?? {};
-
-  const opsjonsmodeller: Opsjonsmodell[] = [
-    {
-      value: OpsjonsmodellKey.TO_PLUSS_EN,
-      label: "2 år + 1 år",
-      maksVarighetAar: 3,
-      initialSluttdatoEkstraAar: 2,
-    },
-    {
-      value: OpsjonsmodellKey.TO_PLUSS_EN_PLUSS_EN,
-      label: "2 år + 1 år + 1 år",
-      maksVarighetAar: 4,
-      initialSluttdatoEkstraAar: 2,
-    },
-    {
-      value: OpsjonsmodellKey.TO_PLUSS_EN_PLUSS_EN_PLUSS_EN,
-      label: "2 år + 1 år + 1 år + 1 år",
-      maksVarighetAar: 5,
-      initialSluttdatoEkstraAar: 2,
-    },
-    {
-      value: OpsjonsmodellKey.ANNET,
-      label: "Annet",
-      maksVarighetAar: 5,
-      initialSluttdatoEkstraAar: undefined,
-    },
-  ];
-
   const readonly = opsjonsmodell?.value !== "ANNET" || arenaOpphavOgIngenEierskap;
 
   useEffect(() => {
-    if (startDato && opsjonsmodell && opsjonsmodell.initialSluttdatoEkstraAar) {
-      setValue(
-        "startOgSluttDato.sluttDato",
-        kalkulerMaksDato(sluttDatoFraDato, opsjonsmodell.initialSluttdatoEkstraAar).toISOString(),
-      );
+    if (!opsjonsmodell) {
+      setValue("opsjonsmodell", undefined);
+      setValue("opsjonMaksVarighet", undefined);
+      setValue("customOpsjonsmodellNavn", undefined);
+    }
+  }, [opsjonsmodell]);
+
+  useEffect(() => {
+    if (startDato && opsjonsmodell) {
+      if (opsjonsmodell.initialSluttdatoEkstraAar) {
+        setValue(
+          "startOgSluttDato.sluttDato",
+          kalkulerMaksDato(sluttDatoFraDato, opsjonsmodell.initialSluttdatoEkstraAar).toISOString(),
+        );
+      }
       setValue(
         "opsjonMaksVarighet",
         kalkulerMaksDato(sluttDatoFraDato, opsjonsmodell.maksVarighetAar).toISOString(),
@@ -80,16 +92,9 @@ export function AvtaleVarighet({
     }
   }, [opsjonsmodell, startDato]);
 
-  useEffect(() => {
-    // Reset verdier når opsjonsmodell endres
-    resetField("startOgSluttDato.startDato");
-    resetField("startOgSluttDato.sluttDato");
-    resetField("opsjonMaksVarighet");
-    resetField("customOpsjonsmodellNavn");
-  }, [opsjonsmodell]);
-
   const maksVarighetAar = opsjonsmodell?.maksVarighetAar ?? 5;
   const maksVarighetDato = kalkulerMaksDato(new Date(startDato), maksVarighetAar);
+
   return (
     <>
       <Heading size="small" as="h3">
@@ -99,6 +104,7 @@ export function AvtaleVarighet({
         <Select
           label="Opsjonsmodell"
           size="small"
+          value={opsjonsmodell?.value}
           error={errors.opsjonsmodell?.message}
           onChange={(e) => {
             const opsjonsmodel = opsjonsmodeller.find((modell) => modell.value === e.target.value);
@@ -119,6 +125,7 @@ export function AvtaleVarighet({
         <TextField
           label="Opsjonsnavn"
           hideLabel
+          error={errors.customOpsjonsmodellNavn?.message}
           placeholder="Skriv inn eget navn på opsjonsmodellen"
           size="small"
           {...register("customOpsjonsmodellNavn")}

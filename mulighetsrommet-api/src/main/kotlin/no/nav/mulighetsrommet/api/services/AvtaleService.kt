@@ -58,7 +58,7 @@ class AvtaleService(
                         arrangorKontaktpersoner = arrangorKontaktpersoner,
                         startDato = startDato,
                         sluttDato = sluttDato,
-                        opsjonMaksVarighet = maksVarighet,
+                        opsjonMaksVarighet = opsjonsmodellData?.maksVarighet,
                         avtaletype = avtaletype,
                         antallPlasser = null,
                         administratorer = administratorer,

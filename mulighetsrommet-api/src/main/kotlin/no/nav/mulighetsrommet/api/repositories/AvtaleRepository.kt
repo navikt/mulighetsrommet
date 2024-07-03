@@ -546,7 +546,7 @@ class AvtaleRepository(private val db: Database) {
         val avbruttTidspunkt = localDateTimeOrNull("avbrutt_tidspunkt")
         val avbruttAarsak = stringOrNull("avbrutt_aarsak")?.let { AvbruttAarsak.fromString(it) }
 
-        val opsjonsdata = AvtaleAdminDto.Opsjonsdata(
+        val opsjonsmodellData = AvtaleAdminDto.OpsjonsmodellData(
             opsjonMaksVarighet = localDateOrNull("opsjon_maks_varighet"),
             opsjonsmodell = stringOrNull("opsjonsmodell")?.let { Opsjonsmodell.valueOf(it) },
             customOpsjonsmodellNavn = stringOrNull("opsjon_custom_opsjonsmodell_navn"),
@@ -591,7 +591,7 @@ class AvtaleRepository(private val db: Database) {
             personopplysninger = personopplysninger,
             personvernBekreftet = boolean("personvern_bekreftet"),
             amoKategorisering = stringOrNull("amo_kategorisering")?.let { Json.decodeFromString(it) },
-            opsjonsdata = opsjonsdata,
+            opsjonsmodellData = opsjonsmodellData,
         )
     }
 

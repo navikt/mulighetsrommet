@@ -1,5 +1,5 @@
 import { HGrid, Heading } from "@navikt/ds-react";
-import { Avtaletype } from "mulighetsrommet-api-client";
+import { Avtale, Avtaletype } from "mulighetsrommet-api-client";
 import { DeepPartial, useFormContext } from "react-hook-form";
 import { addYear } from "../../../utils/Utils";
 import { avtaletekster } from "../../ledetekster/avtaleLedetekster";
@@ -12,10 +12,11 @@ const MIN_START_DATO = new Date(2000, 0, 1);
 const MAKS_AAR = 35;
 
 interface Props {
+  avtale?: Avtale;
   arenaOpphavOgIngenEierskap: boolean;
 }
 
-export function AvtaleDatoContainer({ arenaOpphavOgIngenEierskap }: Props) {
+export function AvtaleDatoContainer({ avtale, arenaOpphavOgIngenEierskap }: Props) {
   const { register, watch } = useFormContext<DeepPartial<InferredAvtaleSchema>>();
   const avtaletype = watch("avtaletype");
   const { startDato } = watch("startOgSluttDato") ?? {};
@@ -61,6 +62,7 @@ export function AvtaleDatoContainer({ arenaOpphavOgIngenEierskap }: Props) {
     return (
       <FormGroup>
         <AvtaleVarighet
+          avtale={avtale}
           arenaOpphavOgIngenEierskap={arenaOpphavOgIngenEierskap}
           minStartDato={MIN_START_DATO}
           sluttDatoFraDato={sluttDatoFraDato}

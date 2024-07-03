@@ -76,7 +76,6 @@ export function AvtaleSkjemaContainer({
       navn: data.navn,
       sluttDato: data.startOgSluttDato.sluttDato || null,
       startDato: data.startOgSluttDato.startDato,
-      maksVarighet: data.opsjonMaksVarighet || null,
       tiltakstypeId: data.tiltakstype.id,
       administratorer: data.administratorer,
       avtaletype: data.avtaletype,
@@ -89,6 +88,7 @@ export function AvtaleSkjemaContainer({
       personvernBekreftet: data.personvernBekreftet,
       amoKategorisering: data.amoKategorisering || null,
       opsjonsmodellData: {
+        maksVarighet: data.opsjonMaksVarighet || null,
         opsjonsmodell: data.opsjonsmodell || OpsjonsmodellKey.ANNET,
         customOpsjonsmodellNavn: data.customOpsjonsmodellNavn || null,
       },

@@ -1960,6 +1960,8 @@ components:
         amoKategorisering:
           $ref: "#/components/schemas/AmoKategorisering"
           nullable: true
+        opsjonsmodellData:
+          $ref: "#/components/schemas/OpsjonsmodellData"
       required:
         - id
         - tiltakstype
@@ -1975,6 +1977,7 @@ components:
         - personopplysninger
         - personvernBekreftet
         - amoKategorisering
+        - opsjonsmodellData
 
     AvtaleRequest:
       type: object
@@ -2008,10 +2011,6 @@ components:
           type: string
           format: date
         sluttDato:
-          type: string
-          format: date
-          nullable: true
-        maksVarighet:
           type: string
           format: date
           nullable: true
@@ -2056,7 +2055,6 @@ components:
         - avtalenummer
         - startDato
         - sluttDato
-        - maksVarighet
         - administrator
         - avtaletype
         - prisbetingelser
@@ -3893,12 +3891,17 @@ components:
     OpsjonsmodellData:
       type: object
       properties:
+        maksVarighet:
+          type: string
+          format: date
+          nullable: true
         opsjonsmodell:
           $ref: "#/components/schemas/OpsjonsmodellKey"
         customOpsjonsmodellNavn:
           type: string
           nullable: true
       required:
+        - maksVarighet
         - opsjonsmodell
         - customOpsjonsmodellNavn
 

@@ -165,7 +165,10 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
             ) : null}
           </FormGroup>
 
-          <AvtaleDatoContainer arenaOpphavOgIngenEierskap={arenaOpphavOgIngenEierskap} />
+          <AvtaleDatoContainer
+            avtale={avtale}
+            arenaOpphavOgIngenEierskap={arenaOpphavOgIngenEierskap}
+          />
 
           {arenaKode && erAnskaffetTiltak(arenaKode) && (
             <>
