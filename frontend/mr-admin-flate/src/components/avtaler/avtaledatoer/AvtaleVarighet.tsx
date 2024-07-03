@@ -39,9 +39,9 @@ export function AvtaleVarighet({
 
   useEffect(() => {
     if (!opsjonsmodell) {
-      setValue("opsjonsmodell", undefined);
-      setValue("opsjonMaksVarighet", undefined);
-      setValue("customOpsjonsmodellNavn", undefined);
+      setValue("opsjonsmodellData.opsjonsmodell", undefined);
+      setValue("opsjonsmodellData.opsjonMaksVarighet", undefined);
+      setValue("opsjonsmodellData.customOpsjonsmodellNavn", undefined);
     }
   }, [opsjonsmodell]);
 
@@ -54,7 +54,7 @@ export function AvtaleVarighet({
         );
       }
       setValue(
-        "opsjonMaksVarighet",
+        "opsjonsmodellData.opsjonMaksVarighet",
         kalkulerMaksDato(sluttDatoFraDato, opsjonsmodell.maksVarighetAar).toISOString(),
       );
     }
@@ -74,11 +74,11 @@ export function AvtaleVarighet({
           label="Opsjonsmodell"
           size="small"
           value={opsjonsmodell?.value}
-          error={errors.opsjonsmodell?.message}
+          error={errors.opsjonsmodellData?.opsjonsmodell?.message}
           onChange={(e) => {
             const opsjonsmodel = opsjonsmodeller.find((modell) => modell.value === e.target.value);
             setOpsjonsmodell(opsjonsmodel);
-            setValue("opsjonsmodell", opsjonsmodel?.value);
+            setValue("opsjonsmodellData.opsjonsmodell", opsjonsmodel?.value);
           }}
         >
           <option value={undefined}>Velg opsjonsmodell</option>
@@ -94,10 +94,10 @@ export function AvtaleVarighet({
         <TextField
           label="Opsjonsnavn"
           hideLabel
-          error={errors.customOpsjonsmodellNavn?.message}
+          error={errors.opsjonsmodellData?.customOpsjonsmodellNavn?.message}
           placeholder="Beskriv opsjonsmodellen"
           size="small"
-          {...register("customOpsjonsmodellNavn")}
+          {...register("opsjonsmodellData.customOpsjonsmodellNavn")}
         />
       ) : null}
 
@@ -127,7 +127,7 @@ export function AvtaleVarighet({
             readOnly={readonly}
             fromDate={sluttDatoFraDato}
             toDate={maksVarighetDato}
-            {...register("opsjonMaksVarighet")}
+            {...register("opsjonsmodellData.opsjonMaksVarighet")}
             format={"iso-string"}
           />
         </HGrid>

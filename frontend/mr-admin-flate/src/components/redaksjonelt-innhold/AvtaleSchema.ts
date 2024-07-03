@@ -47,9 +47,11 @@ export const AvtaleSchema = z
         message: "Startdato må være før sluttdato",
         path: ["startDato"],
       }),
-    opsjonMaksVarighet: z.string().optional().nullable(),
-    opsjonsmodell: z.nativeEnum(OpsjonsmodellKey).optional().nullable(),
-    customOpsjonsmodellNavn: z.string().optional().nullable(),
+    opsjonsmodellData: z.object({
+      opsjonMaksVarighet: z.string().optional().nullable(),
+      opsjonsmodell: z.nativeEnum(OpsjonsmodellKey).optional().nullable(),
+      customOpsjonsmodellNavn: z.string().optional().nullable(),
+    }),
     administratorer: z.string().array().min(1, "Du må velge minst én administrator"),
     websaknummer: z
       .string()
@@ -99,11 +101,14 @@ export const AvtaleSchema = z
       });
     }
 
-    if (data.avtaletype !== Avtaletype.FORHAANDSGODKJENT && !data.opsjonsmodell) {
+    if (
+      data.avtaletype !== Avtaletype.FORHAANDSGODKJENT &&
+      !data.opsjonsmodellData?.opsjonsmodell
+    ) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: "Du må velge en opsjonsmodell",
-        path: ["opsjonsmodell"],
+        path: ["opsjonsmodellData.opsjonsmodell"],
       });
     }
   });

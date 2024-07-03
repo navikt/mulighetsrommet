@@ -59,8 +59,10 @@ export function defaultAvtaleData(
     personvernBekreftet: avtale?.personvernBekreftet,
     personopplysninger: avtale?.personopplysninger ?? [],
     amoKategorisering: avtale?.amoKategorisering ?? undefined,
-    opsjonMaksVarighet: avtale?.opsjonsmodellData?.opsjonMaksVarighet ?? undefined,
-    opsjonsmodell: avtale?.opsjonsmodellData?.opsjonsmodell ?? undefined,
-    customOpsjonsmodellNavn: avtale?.opsjonsmodellData?.customOpsjonsmodellNavn ?? undefined,
+    opsjonsmodellData: {
+      opsjonMaksVarighet: avtale?.opsjonsmodellData?.opsjonMaksVarighet ?? undefined,
+      opsjonsmodell: avtale?.opsjonsmodellData?.opsjonsmodell ?? undefined,
+      customOpsjonsmodellNavn: avtale?.opsjonsmodellData?.customOpsjonsmodellNavn ?? undefined,
+    },
   };
 }

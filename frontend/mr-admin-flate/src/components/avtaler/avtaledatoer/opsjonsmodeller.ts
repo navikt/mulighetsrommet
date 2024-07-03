@@ -41,9 +41,5 @@ export function opsjonsmodellTilTekst(
     (modell) => modell.value === opsjonsmodell?.opsjonsmodell,
   );
 
-  if (opsjonsmodellFunnet && opsjonsmodell?.opsjonsmodell === OpsjonsmodellKey.ANNET) {
-    return opsjonsmodell?.customOpsjonsmodellNavn;
-  }
-
-  return opsjonsmodellFunnet?.label;
+  return opsjonsmodell?.customOpsjonsmodellNavn || opsjonsmodellFunnet?.label;
 }

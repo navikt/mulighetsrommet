@@ -34,9 +34,9 @@ export function AvtaleDatoContainer({ avtale, arenaOpphavOgIngenEierskap }: Prop
 
   useEffect(() => {
     if (!avtaletype) {
-      setValue("opsjonsmodell", undefined);
-      setValue("opsjonMaksVarighet", undefined);
-      setValue("customOpsjonsmodellNavn", undefined);
+      setValue("opsjonsmodellData.opsjonsmodell", undefined);
+      setValue("opsjonsmodellData.opsjonMaksVarighet", undefined);
+      setValue("opsjonsmodellData.customOpsjonsmodellNavn", undefined);
     }
   }, [avtaletype]);
 

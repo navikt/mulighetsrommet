@@ -135,7 +135,7 @@ class AvtaleValidator(
                 add(
                     ValidationError.ofCustomLocation(
                         "amoKategorisering.innholdElementer",
-                        "Du må velge minst étt element",
+                        "Du må velge minst ett element",
                     ),
                 )
             }

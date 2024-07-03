@@ -87,9 +87,9 @@ export function AvtaleSkjemaContainer({
       personvernBekreftet: data.personvernBekreftet,
       amoKategorisering: data.amoKategorisering || null,
       opsjonsmodellData: {
-        opsjonMaksVarighet: data.opsjonMaksVarighet || null,
-        opsjonsmodell: data.opsjonsmodell || null,
-        customOpsjonsmodellNavn: data.customOpsjonsmodellNavn || null,
+        opsjonMaksVarighet: data?.opsjonsmodellData?.opsjonMaksVarighet || null,
+        opsjonsmodell: data?.opsjonsmodellData?.opsjonsmodell || null,
+        customOpsjonsmodellNavn: data?.opsjonsmodellData?.customOpsjonsmodellNavn || null,
       },
     };
 
