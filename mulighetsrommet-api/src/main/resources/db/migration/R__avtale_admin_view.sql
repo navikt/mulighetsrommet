@@ -8,6 +8,7 @@ select avtale.id,
        avtale.websaknummer,
        avtale.start_dato,
        avtale.slutt_dato,
+       avtale.opsjon_maks_varighet,
        avtale.opphav,
        avtale.avtaletype,
        avtale.avbrutt_tidspunkt,
@@ -15,6 +16,8 @@ select avtale.id,
        avtale.antall_plasser,
        avtale.beskrivelse,
        avtale.faneinnhold,
+       avtale.opsjonsmodell,
+       avtale.opsjon_custom_opsjonsmodell_navn,
        jsonb_agg(
                distinct
                case

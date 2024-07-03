@@ -76,7 +76,7 @@ export function AvtaleSkjemaContainer({
       navn: data.navn,
       sluttDato: data.startOgSluttDato.sluttDato || null,
       startDato: data.startOgSluttDato.startDato,
-      maksVarighet: data.maksVarighet || null,
+      maksVarighet: data.opsjonMaksVarighet || null,
       tiltakstypeId: data.tiltakstype.id,
       administratorer: data.administratorer,
       avtaletype: data.avtaletype,
@@ -90,14 +90,12 @@ export function AvtaleSkjemaContainer({
       amoKategorisering: data.amoKategorisering || null,
       opsjonsmodellData: {
         opsjonsmodell: data.opsjonsmodell || OpsjonsmodellKey.ANNET,
-        customOpsjonsmodellNavn: data.custom_opsjonsmodellnavn || null,
+        customOpsjonsmodellNavn: data.customOpsjonsmodellNavn || null,
       },
     };
 
     mutation.mutate(requestBody);
   };
-
-  console.log(watch());
 
   useHandleApiUpsertResponse(
     mutation,

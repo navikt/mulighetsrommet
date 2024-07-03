@@ -12,6 +12,7 @@ import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.repositories.*
+import no.nav.mulighetsrommet.api.routes.v1.Opsjonsmodell
 import no.nav.mulighetsrommet.api.routes.v1.responses.ValidationError
 import no.nav.mulighetsrommet.api.services.NavEnhetService
 import no.nav.mulighetsrommet.api.services.TiltakstypeService
@@ -96,6 +97,9 @@ class AvtaleValidatorTest :
             personopplysninger = emptyList(),
             personvernBekreftet = false,
             amoKategorisering = null,
+            opsjonMaksVarighet = LocalDate.now().plusYears(3),
+            opsjonsmodell = Opsjonsmodell.TO_PLUSS_EN,
+            customOpsjonsmodellNavn = null,
         )
 
         lateinit var navEnheterService: NavEnhetService
@@ -273,6 +277,61 @@ class AvtaleValidatorTest :
             )
         }
 
+        test("Opsjonsdata må være satt hvis ikke avtaletypen er forhåndsgodkjent") {
+            val validator = AvtaleValidator(
+                TiltakstypeService(
+                    TiltakstypeRepository(database.db),
+                    Tiltakskode.values().toList(),
+                ),
+                gjennomforinger,
+                navEnheterService,
+                arrangorer,
+            )
+            val forhaandsgodkjent = AvtaleFixtures.AFT
+            val rammeAvtale = AvtaleFixtures.oppfolging.copy(opsjonsmodell = null, opsjonMaksVarighet = null)
+            val avtale = AvtaleFixtures.oppfolgingMedAvtale.copy(opsjonsmodell = null, opsjonMaksVarighet = null)
+            val offentligOffentlig = AvtaleFixtures.gruppeAmo.copy(opsjonsmodell = null, opsjonMaksVarighet = null)
+
+            validator.validate(forhaandsgodkjent, null).shouldBeRight()
+            validator.validate(rammeAvtale, null).shouldBeLeft(
+                listOf(
+                    ValidationError("opsjonMaksVarighet", "Du må legge inn maks varighet for opsjonen"),
+                    ValidationError("opsjonsmodell", "Du må velge en opsjonsmodell"),
+                ),
+            )
+            validator.validate(avtale, null).shouldBeLeft(
+                listOf(
+                    ValidationError("opsjonMaksVarighet", "Du må legge inn maks varighet for opsjonen"),
+                    ValidationError("opsjonsmodell", "Du må velge en opsjonsmodell"),
+                ),
+            )
+            validator.validate(offentligOffentlig, null).shouldBeLeft(
+                listOf(
+                    ValidationError("opsjonMaksVarighet", "Du må legge inn maks varighet for opsjonen"),
+                    ValidationError("opsjonsmodell", "Du må velge en opsjonsmodell"),
+                ),
+            )
+        }
+
+        test("Custom navn for opsjon må være satt hvis opsjonsmodell er ANNET") {
+            val validator = AvtaleValidator(
+                TiltakstypeService(
+                    TiltakstypeRepository(database.db),
+                    Tiltakskode.values().toList(),
+                ),
+                gjennomforinger,
+                navEnheterService,
+                arrangorer,
+            )
+            val rammeAvtale = AvtaleFixtures.oppfolging.copy(opsjonsmodell = Opsjonsmodell.ANNET, opsjonMaksVarighet = LocalDate.now())
+
+            validator.validate(rammeAvtale, null).shouldBeLeft(
+                listOf(
+                    ValidationError("customOpsjonsmodellNavn", "Du må skrive en beskrivelse for opsjonsmodellen"),
+                ),
+            )
+        }
+
         test("avtaletype må være allowed") {
             val validator = AvtaleValidator(
                 TiltakstypeService(TiltakstypeRepository(database.db), Tiltakskode.entries),
@@ -281,8 +340,8 @@ class AvtaleValidatorTest :
                 arrangorer,
             )
 
-            val aft = AvtaleFixtures.AFT.copy(avtaletype = Avtaletype.Rammeavtale)
-            val vta = AvtaleFixtures.VTA.copy(avtaletype = Avtaletype.Avtale)
+            val aft = AvtaleFixtures.AFT.copy(avtaletype = Avtaletype.Rammeavtale, opsjonMaksVarighet = LocalDate.now(), opsjonsmodell = Opsjonsmodell.TO_PLUSS_EN)
+            val vta = AvtaleFixtures.VTA.copy(avtaletype = Avtaletype.Avtale, opsjonMaksVarighet = LocalDate.now(), opsjonsmodell = Opsjonsmodell.TO_PLUSS_EN)
             val oppfolging = AvtaleFixtures.oppfolging.copy(avtaletype = Avtaletype.OffentligOffentlig)
             val gruppeAmo = AvtaleFixtures.gruppeAmo.copy(avtaletype = Avtaletype.Forhaandsgodkjent)
             validator.validate(aft, null).shouldBeLeft(
@@ -409,6 +468,9 @@ class AvtaleValidatorTest :
                     personopplysninger = emptyList(),
                     personvernBekreftet = false,
                     amoKategorisering = null,
+                    opsjonMaksVarighet = LocalDate.now().plusYears(3),
+                    opsjonsmodell = Opsjonsmodell.TO_PLUSS_EN,
+                    customOpsjonsmodellNavn = null,
                 )
 
                 avtaler.upsert(avtaleDbo.copy(administratorer = listOf()))
@@ -450,6 +512,9 @@ class AvtaleValidatorTest :
                     personopplysninger = emptyList(),
                     personvernBekreftet = false,
                     amoKategorisering = null,
+                    opsjonMaksVarighet = LocalDate.now().plusYears(3),
+                    opsjonsmodell = Opsjonsmodell.TO_PLUSS_EN,
+                    customOpsjonsmodellNavn = null,
                 )
 
                 avtaler.upsert(

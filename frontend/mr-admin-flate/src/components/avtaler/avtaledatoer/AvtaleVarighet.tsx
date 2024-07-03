@@ -74,7 +74,7 @@ export function AvtaleVarighet({
         kalkulerMaksDato(sluttDatoFraDato, opsjonsmodell.initialSluttdatoEkstraAar).toISOString(),
       );
       setValue(
-        "maksVarighet",
+        "opsjonMaksVarighet",
         kalkulerMaksDato(sluttDatoFraDato, opsjonsmodell.maksVarighetAar).toISOString(),
       );
     }
@@ -84,8 +84,8 @@ export function AvtaleVarighet({
     // Reset verdier når opsjonsmodell endres
     resetField("startOgSluttDato.startDato");
     resetField("startOgSluttDato.sluttDato");
-    resetField("maksVarighet");
-    resetField("custom_opsjonsmodellnavn");
+    resetField("opsjonMaksVarighet");
+    resetField("customOpsjonsmodellNavn");
   }, [opsjonsmodell]);
 
   const maksVarighetAar = opsjonsmodell?.maksVarighetAar ?? 5;
@@ -121,7 +121,7 @@ export function AvtaleVarighet({
           hideLabel
           placeholder="Skriv inn eget navn på opsjonsmodellen"
           size="small"
-          {...register("custom_opsjonsmodellnavn")}
+          {...register("customOpsjonsmodellNavn")}
         />
       ) : null}
 
@@ -151,7 +151,7 @@ export function AvtaleVarighet({
             readOnly={readonly}
             fromDate={sluttDatoFraDato}
             toDate={maksVarighetDato}
-            {...register("maksVarighet")}
+            {...register("opsjonMaksVarighet")}
             format={"iso-string"}
           />
         </HGrid>

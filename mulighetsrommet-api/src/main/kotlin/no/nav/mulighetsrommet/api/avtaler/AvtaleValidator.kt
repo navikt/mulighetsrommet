@@ -12,6 +12,7 @@ import no.nav.mulighetsrommet.api.domain.dto.AvtaleAdminDto
 import no.nav.mulighetsrommet.api.domain.dto.TiltakstypeAdminDto
 import no.nav.mulighetsrommet.api.repositories.ArrangorRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
+import no.nav.mulighetsrommet.api.routes.v1.Opsjonsmodell
 import no.nav.mulighetsrommet.api.routes.v1.responses.ValidationError
 import no.nav.mulighetsrommet.api.services.NavEnhetService
 import no.nav.mulighetsrommet.api.services.TiltakstypeService
@@ -30,6 +31,7 @@ class AvtaleValidator(
     private val navEnheterService: NavEnhetService,
     private val arrangorer: ArrangorRepository,
 ) {
+
     fun validate(avtale: AvtaleDbo, currentAvtale: AvtaleAdminDto?): Either<List<ValidationError>, AvtaleDbo> = either {
         val tiltakstype = tiltakstyper.getById(avtale.tiltakstypeId)
             ?: raise(ValidationError.of(AvtaleDbo::tiltakstypeId, "Tiltakstypen finnes ikke").nel())
@@ -57,10 +59,7 @@ class AvtaleValidator(
                 if (avtale.sluttDato.isBefore(avtale.startDato)) {
                     add(ValidationError.of(AvtaleDbo::startDato, "Startdato må være før sluttdato"))
                 }
-                if (!listOf(
-                        Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
-                        Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET,
-                    ).contains(Tiltakskode.fromArenaKode(tiltakstype.arenaKode)) &&
+                if (!avtaleTypeErForhandsgodkjent(avtale.avtaletype) &&
                     avtale.startDato.plusYears(5).isBefore(avtale.sluttDato)
                 ) {
                     add(
@@ -69,6 +68,22 @@ class AvtaleValidator(
                             "Avtaleperioden kan ikke vare lenger enn 5 år for anskaffede tiltak",
                         ),
                     )
+                }
+            }
+
+            if (!avtaleTypeErForhandsgodkjent(avtale.avtaletype)) {
+                if (avtale.opsjonMaksVarighet == null) {
+                    add(ValidationError.of(AvtaleDbo::opsjonMaksVarighet, "Du må legge inn maks varighet for opsjonen"))
+                }
+
+                if (avtale.opsjonsmodell == null) {
+                    add(ValidationError.of(AvtaleDbo::opsjonsmodell, "Du må velge en opsjonsmodell"))
+                }
+
+                if (avtale.opsjonsmodell != null && avtale.opsjonsmodell == Opsjonsmodell.ANNET) {
+                    if (avtale.customOpsjonsmodellNavn.isNullOrBlank()) {
+                        add(ValidationError.of(AvtaleDbo::customOpsjonsmodellNavn, "Du må skrive en beskrivelse for opsjonsmodellen"))
+                    }
                 }
             }
 
@@ -113,7 +128,12 @@ class AvtaleValidator(
                 avtale.amoKategorisering.kurstype !== AmoKategorisering.Kurstype.STUDIESPESIALISERING &&
                 avtale.amoKategorisering.innholdElementer.isNullOrEmpty()
             ) {
-                add(ValidationError.ofCustomLocation("amoKategorisering.innholdElementer", "Du må velge minst étt element"))
+                add(
+                    ValidationError.ofCustomLocation(
+                        "amoKategorisering.innholdElementer",
+                        "Du må velge minst étt element",
+                    ),
+                )
             }
 
             validateNavEnheter(avtale.navEnheter)
@@ -322,4 +342,8 @@ class AvtaleValidator(
     private fun isEnabled(arenakode: String) =
         tiltakstyper.isEnabled(Tiltakskode.fromArenaKode(arenakode)) ||
             Tiltakskoder.TiltakMedAvtalerFraMulighetsrommet.contains(arenakode)
+}
+
+private fun avtaleTypeErForhandsgodkjent(avtaletype: Avtaletype): Boolean {
+    return listOf(Avtaletype.Forhaandsgodkjent).contains(avtaletype)
 }
