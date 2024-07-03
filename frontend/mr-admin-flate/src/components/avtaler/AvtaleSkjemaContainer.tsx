@@ -1,3 +1,7 @@
+import { avtaleDetaljerTabAtom } from "@/api/atoms";
+import { useUpsertAvtale } from "@/api/avtaler/useUpsertAvtale";
+import { useHandleApiUpsertResponse } from "@/api/effects";
+import { erAnskaffetTiltak } from "@/utils/tiltakskoder";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ExclamationmarkTriangleFillIcon } from "@navikt/aksel-icons";
 import { Tabs } from "@navikt/ds-react";
@@ -10,23 +14,19 @@ import {
   NavEnhet,
   Tiltakstype,
 } from "mulighetsrommet-api-client";
+import { InlineErrorBoundary } from "mulighetsrommet-frontend-common";
 import React from "react";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { v4 as uuidv4 } from "uuid";
-import { avtaleDetaljerTabAtom } from "@/api/atoms";
-import { useUpsertAvtale } from "@/api/avtaler/useUpsertAvtale";
-import { useHandleApiUpsertResponse } from "@/api/effects";
-import { erAnskaffetTiltak } from "@/utils/tiltakskoder";
 import { Separator } from "../detaljside/Metadata";
+import { Laster } from "../laster/Laster";
 import { AvtaleSchema, InferredAvtaleSchema } from "../redaksjonelt-innhold/AvtaleSchema";
 import skjemastyles from "../skjema/Skjema.module.scss";
+import { AvtalePersonvernForm } from "./AvtalePersonvernForm";
 import { AvtaleRedaksjoneltInnholdForm } from "./AvtaleRedaksjoneltInnholdForm";
 import { defaultAvtaleData } from "./AvtaleSkjemaConst";
 import { AvtaleSkjemaDetaljer } from "./AvtaleSkjemaDetaljer";
 import { AvtaleSkjemaKnapperad } from "./AvtaleSkjemaKnapperad";
-import { AvtalePersonvernForm } from "./AvtalePersonvernForm";
-import { Laster } from "../laster/Laster";
-import { InlineErrorBoundary } from "mulighetsrommet-frontend-common";
 
 interface Props {
   onClose: () => void;
@@ -86,6 +86,11 @@ export function AvtaleSkjemaContainer({
       personopplysninger: data.personvernBekreftet ? data.personopplysninger : [],
       personvernBekreftet: data.personvernBekreftet,
       amoKategorisering: data.amoKategorisering || null,
+      opsjonsmodellData: {
+        opsjonMaksVarighet: data?.opsjonsmodellData?.opsjonMaksVarighet || null,
+        opsjonsmodell: data?.opsjonsmodellData?.opsjonsmodell || null,
+        customOpsjonsmodellNavn: data?.opsjonsmodellData?.customOpsjonsmodellNavn || null,
+      },
     };
 
     mutation.mutate(requestBody);

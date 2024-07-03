@@ -140,7 +140,7 @@ class TiltaksgjennomforingValidator(
                 avtale.amoKategorisering.kurstype !== AmoKategorisering.Kurstype.STUDIESPESIALISERING &&
                 next.amoKategorisering?.innholdElementer.isNullOrEmpty()
             ) {
-                add(ValidationError.ofCustomLocation("amoKategorisering.innholdElementer", "Du må velge minst étt element"))
+                add(ValidationError.ofCustomLocation("amoKategorisering.innholdElementer", "Du må velge minst ett element"))
             }
 
             next = validateOrResetTilgjengeligForArrangorDato(next)

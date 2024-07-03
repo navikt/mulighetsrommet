@@ -90,7 +90,7 @@ fun createTestApplicationConfig() = AppConfig(
     brreg = BrregClient.Config(baseUrl = "brreg"),
     unleash = UnleashService.Config(
         appName = "",
-        url = "",
+        url = "http://localhost:8090",
         token = "",
         instanceId = "",
         environment = "",

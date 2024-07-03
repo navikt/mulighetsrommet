@@ -3,6 +3,7 @@ import {
   ForerkortKlasse,
   InnholdElement,
   Kurstype,
+  OpsjonsmodellKey,
   Personopplysning,
   Spesifisering,
   Tiltakskode,
@@ -37,13 +38,20 @@ export const AvtaleSchema = z
     navEnheter: z.string().array().nonempty({ message: "Du må velge minst én enhet" }),
     startOgSluttDato: z
       .object({
-        startDato: z.string({ required_error: "Du må legge inn startdato for avtalen" }),
+        startDato: z
+          .string({ required_error: "Du må legge inn startdato for avtalen" })
+          .min(10, "Du må legge inn startdato for avtalen"),
         sluttDato: z.string().optional().nullable(),
       })
       .refine((data) => !data.startDato || !data.sluttDato || data.sluttDato >= data.startDato, {
         message: "Startdato må være før sluttdato",
         path: ["startDato"],
       }),
+    opsjonsmodellData: z.object({
+      opsjonMaksVarighet: z.string().optional().nullable(),
+      opsjonsmodell: z.nativeEnum(OpsjonsmodellKey).optional().nullable(),
+      customOpsjonsmodellNavn: z.string().optional().nullable(),
+    }),
     administratorer: z.string().array().min(1, "Du må velge minst én administrator"),
     websaknummer: z
       .string()
@@ -90,6 +98,17 @@ export const AvtaleSchema = z
         code: z.ZodIssueCode.custom,
         message: "Du må skrive inn Websaknummer til avtalesaken",
         path: ["websaknummer"],
+      });
+    }
+
+    if (
+      data.avtaletype !== Avtaletype.FORHAANDSGODKJENT &&
+      !data.opsjonsmodellData?.opsjonsmodell
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Du må velge en opsjonsmodell",
+        path: ["opsjonsmodellData.opsjonsmodell"],
       });
     }
   });

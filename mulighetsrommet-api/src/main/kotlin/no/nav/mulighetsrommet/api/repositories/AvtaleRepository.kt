@@ -14,6 +14,7 @@ import no.nav.mulighetsrommet.api.domain.dto.ArrangorKontaktperson
 import no.nav.mulighetsrommet.api.domain.dto.AvtaleAdminDto
 import no.nav.mulighetsrommet.api.domain.dto.AvtaleNotificationDto
 import no.nav.mulighetsrommet.api.domain.dto.Kontorstruktur
+import no.nav.mulighetsrommet.api.routes.v1.Opsjonsmodell
 import no.nav.mulighetsrommet.api.routes.v1.responses.StatusResponseError
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.PaginatedResult
@@ -49,6 +50,7 @@ class AvtaleRepository(private val db: Database) {
                 arrangor_hovedenhet_id,
                 start_dato,
                 slutt_dato,
+                opsjon_maks_varighet,
                 avtaletype,
                 prisbetingelser,
                 antall_plasser,
@@ -56,7 +58,9 @@ class AvtaleRepository(private val db: Database) {
                 beskrivelse,
                 faneinnhold,
                 personvern_bekreftet,
-                amo_kategorisering
+                amo_kategorisering,
+                opsjonsmodell,
+                opsjon_custom_opsjonsmodell_navn
             ) values (
                 :id::uuid,
                 :navn,
@@ -66,6 +70,7 @@ class AvtaleRepository(private val db: Database) {
                 :arrangor_hovedenhet_id,
                 :start_dato,
                 :slutt_dato,
+                :opsjonMaksVarighet,
                 :avtaletype::avtaletype,
                 :prisbetingelser,
                 :antall_plasser,
@@ -73,7 +78,9 @@ class AvtaleRepository(private val db: Database) {
                 :beskrivelse,
                 :faneinnhold::jsonb,
                 :personvern_bekreftet,
-                :amo_kategorisering::jsonb
+                :amo_kategorisering::jsonb,
+                :opsjonsmodell::opsjonsmodell,
+                :opsjonCustomOpsjonsmodellNavn
             ) on conflict (id) do update set
                 navn                        = excluded.navn,
                 tiltakstype_id              = excluded.tiltakstype_id,
@@ -82,6 +89,7 @@ class AvtaleRepository(private val db: Database) {
                 arrangor_hovedenhet_id      = excluded.arrangor_hovedenhet_id,
                 start_dato                  = excluded.start_dato,
                 slutt_dato                  = excluded.slutt_dato,
+                opsjon_maks_varighet        = excluded.opsjon_maks_varighet,
                 avtaletype                  = excluded.avtaletype,
                 prisbetingelser             = excluded.prisbetingelser,
                 antall_plasser              = excluded.antall_plasser,
@@ -89,7 +97,9 @@ class AvtaleRepository(private val db: Database) {
                 beskrivelse                 = excluded.beskrivelse,
                 faneinnhold                 = excluded.faneinnhold,
                 personvern_bekreftet        = excluded.personvern_bekreftet,
-                amo_kategorisering          = excluded.amo_kategorisering
+                amo_kategorisering          = excluded.amo_kategorisering,
+                opsjonsmodell               = excluded.opsjonsmodell,
+                opsjon_custom_opsjonsmodell_navn = excluded.opsjon_custom_opsjonsmodell_navn
         """.trimIndent()
 
         @Language("PostgreSQL")
@@ -471,6 +481,7 @@ class AvtaleRepository(private val db: Database) {
         "arrangor_hovedenhet_id" to arrangorId,
         "start_dato" to startDato,
         "slutt_dato" to sluttDato,
+        "opsjonMaksVarighet" to opsjonMaksVarighet,
         "avtaletype" to avtaletype.name,
         "prisbetingelser" to prisbetingelser,
         "antall_plasser" to antallPlasser,
@@ -478,6 +489,8 @@ class AvtaleRepository(private val db: Database) {
         "faneinnhold" to faneinnhold?.let { Json.encodeToString(it) },
         "personvern_bekreftet" to personvernBekreftet,
         "amo_kategorisering" to amoKategorisering?.let { Json.encodeToString(it) },
+        "opsjonsmodell" to opsjonsmodell?.name,
+        "opsjonCustomOpsjonsmodellNavn" to customOpsjonsmodellNavn,
     )
 
     private fun ArenaAvtaleDbo.toSqlParameters(arrangorId: UUID): Map<String, Any?> {
@@ -533,6 +546,12 @@ class AvtaleRepository(private val db: Database) {
         val avbruttTidspunkt = localDateTimeOrNull("avbrutt_tidspunkt")
         val avbruttAarsak = stringOrNull("avbrutt_aarsak")?.let { AvbruttAarsak.fromString(it) }
 
+        val opsjonsmodellData = AvtaleAdminDto.OpsjonsmodellData(
+            opsjonMaksVarighet = localDateOrNull("opsjon_maks_varighet"),
+            opsjonsmodell = stringOrNull("opsjonsmodell")?.let { Opsjonsmodell.valueOf(it) },
+            customOpsjonsmodellNavn = stringOrNull("opsjon_custom_opsjonsmodell_navn"),
+        )
+
         return AvtaleAdminDto(
             id = uuid("id"),
             navn = string("navn"),
@@ -572,6 +591,7 @@ class AvtaleRepository(private val db: Database) {
             personopplysninger = personopplysninger,
             personvernBekreftet = boolean("personvern_bekreftet"),
             amoKategorisering = stringOrNull("amo_kategorisering")?.let { Json.decodeFromString(it) },
+            opsjonsmodellData = opsjonsmodellData,
         )
     }
 

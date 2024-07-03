@@ -1960,6 +1960,9 @@ components:
         amoKategorisering:
           $ref: "#/components/schemas/AmoKategorisering"
           nullable: true
+        opsjonsmodellData:
+          $ref: "#/components/schemas/OpsjonsmodellData"
+          nullable: true
       required:
         - id
         - tiltakstype
@@ -1975,6 +1978,7 @@ components:
         - personopplysninger
         - personvernBekreftet
         - amoKategorisering
+        - opsjonsmodellData
 
     AvtaleRequest:
       type: object
@@ -2039,6 +2043,9 @@ components:
         amoKategorisering:
           $ref: "#/components/schemas/AmoKategorisering"
           nullable: true
+        opsjonsmodellData:
+          $ref: "#/components/schemas/OpsjonsmodellData"
+          nullable: true
       required:
         - id
         - navn
@@ -2058,6 +2065,7 @@ components:
         - personopplysninger
         - personvernBekreftet
         - amoKategorisering
+        - opsjonsmodellData
 
     EmbeddedTiltakstype:
       type: object
@@ -3540,6 +3548,7 @@ components:
         - mulighetsrommet-veilederflate-arena-oppskrifter
         - mulighetsrommet.admin-flate.enableDebugger
         - mulighetsrommet.admin-flate.enable_gruppe_amo_kategorier
+        - mulighetsrommet.admin-flate.registrere-opsjonsmodell
 
     PublisertRequest:
       type: object
@@ -3679,6 +3688,12 @@ components:
         - AVKLARING
         - ARBEIDSRETTET_REHABILITERING
         - ARBEIDSFORBEREDENDE_TRENING
+
+    TiltakskodeIndividuell:
+      type: string
+      enum:
+        - MIDLERTIDIG_LONNSTILSKUDD
+        -
 
     Gruppetiltak:
       type: object
@@ -3873,3 +3888,30 @@ components:
           - createdAt
           - dialogId
           - tiltakId
+
+
+    OpsjonsmodellData:
+      type: object
+      properties:
+        opsjonMaksVarighet:
+          type: string
+          format: date
+          nullable: true
+        opsjonsmodell:
+          $ref: "#/components/schemas/OpsjonsmodellKey"
+          nullable: true
+        customOpsjonsmodellNavn:
+          type: string
+          nullable: true
+      required:
+        - opsjonMaksVarighet
+        - opsjonsmodell
+        - customOpsjonsmodellNavn
+
+    OpsjonsmodellKey:
+      type: string
+      enum:
+        - TO_PLUSS_EN
+        - TO_PLUSS_EN_PLUSS_EN
+        - TO_PLUSS_EN_PLUSS_EN_PLUSS_EN
+        - ANNET

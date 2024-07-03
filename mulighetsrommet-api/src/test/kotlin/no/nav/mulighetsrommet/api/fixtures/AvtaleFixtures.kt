@@ -2,6 +2,8 @@ package no.nav.mulighetsrommet.api.fixtures
 
 import no.nav.mulighetsrommet.api.domain.dbo.AvtaleDbo
 import no.nav.mulighetsrommet.api.routes.v1.AvtaleRequest
+import no.nav.mulighetsrommet.api.routes.v1.Opsjonsmodell
+import no.nav.mulighetsrommet.api.routes.v1.OpsjonsmodellData
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
 import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.domain.dto.Websaknummer
@@ -30,6 +32,9 @@ object AvtaleFixtures {
         personopplysninger = emptyList(),
         personvernBekreftet = false,
         amoKategorisering = null,
+        opsjonMaksVarighet = LocalDate.now().plusYears(3),
+        opsjonsmodell = Opsjonsmodell.TO_PLUSS_EN,
+        customOpsjonsmodellNavn = null,
     )
 
     val oppfolgingMedAvtale = AvtaleDbo(
@@ -53,6 +58,9 @@ object AvtaleFixtures {
         personopplysninger = emptyList(),
         personvernBekreftet = false,
         amoKategorisering = null,
+        opsjonMaksVarighet = LocalDate.now().plusYears(3),
+        opsjonsmodell = Opsjonsmodell.TO_PLUSS_EN,
+        customOpsjonsmodellNavn = null,
     )
 
     val gruppeAmo = AvtaleDbo(
@@ -76,6 +84,9 @@ object AvtaleFixtures {
         personopplysninger = emptyList(),
         personvernBekreftet = false,
         amoKategorisering = null,
+        opsjonMaksVarighet = LocalDate.now().plusYears(3),
+        opsjonsmodell = Opsjonsmodell.TO_PLUSS_EN,
+        customOpsjonsmodellNavn = null,
     )
 
     val IPS = AvtaleDbo(
@@ -99,6 +110,9 @@ object AvtaleFixtures {
         personopplysninger = emptyList(),
         personvernBekreftet = false,
         amoKategorisering = null,
+        opsjonMaksVarighet = LocalDate.now().plusYears(3),
+        opsjonsmodell = Opsjonsmodell.TO_PLUSS_EN,
+        customOpsjonsmodellNavn = null,
     )
 
     val VTA = AvtaleDbo(
@@ -122,6 +136,9 @@ object AvtaleFixtures {
         personopplysninger = emptyList(),
         personvernBekreftet = false,
         amoKategorisering = null,
+        opsjonMaksVarighet = null,
+        opsjonsmodell = null,
+        customOpsjonsmodellNavn = null,
     )
 
     val AFT = AvtaleDbo(
@@ -145,6 +162,9 @@ object AvtaleFixtures {
         personopplysninger = emptyList(),
         personvernBekreftet = false,
         amoKategorisering = null,
+        opsjonMaksVarighet = null,
+        opsjonsmodell = null,
+        customOpsjonsmodellNavn = null,
     )
 
     val EnkelAmo = AvtaleDbo(
@@ -168,6 +188,9 @@ object AvtaleFixtures {
         personopplysninger = emptyList(),
         personvernBekreftet = false,
         amoKategorisering = null,
+        opsjonMaksVarighet = LocalDate.now().plusYears(3),
+        opsjonsmodell = Opsjonsmodell.TO_PLUSS_EN,
+        customOpsjonsmodellNavn = null,
     )
 
     val avtaleRequest = AvtaleRequest(
@@ -190,5 +213,10 @@ object AvtaleFixtures {
         personopplysninger = emptyList(),
         personvernBekreftet = false,
         amoKategorisering = null,
+        opsjonsmodellData = OpsjonsmodellData(
+            opsjonMaksVarighet = LocalDate.now().plusYears(5),
+            opsjonsmodell = Opsjonsmodell.TO_PLUSS_EN,
+            customOpsjonsmodellNavn = null,
+        ),
     )
 }

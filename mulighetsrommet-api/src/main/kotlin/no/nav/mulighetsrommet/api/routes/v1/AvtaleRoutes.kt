@@ -167,4 +167,21 @@ data class AvtaleRequest(
     val personopplysninger: List<Personopplysning>,
     val personvernBekreftet: Boolean,
     val amoKategorisering: AmoKategorisering?,
+    val opsjonsmodellData: OpsjonsmodellData?,
 )
+
+@Serializable
+data class OpsjonsmodellData(
+    @Serializable(with = LocalDateSerializer::class)
+    val opsjonMaksVarighet: LocalDate?,
+    val opsjonsmodell: Opsjonsmodell?,
+    val customOpsjonsmodellNavn: String? = null,
+)
+
+@Serializable
+enum class Opsjonsmodell {
+    TO_PLUSS_EN,
+    TO_PLUSS_EN_PLUSS_EN,
+    TO_PLUSS_EN_PLUSS_EN_PLUSS_EN,
+    ANNET,
+}

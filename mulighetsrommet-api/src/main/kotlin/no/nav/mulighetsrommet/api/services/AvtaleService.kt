@@ -58,6 +58,7 @@ class AvtaleService(
                         arrangorKontaktpersoner = arrangorKontaktpersoner,
                         startDato = startDato,
                         sluttDato = sluttDato,
+                        opsjonMaksVarighet = opsjonsmodellData?.opsjonMaksVarighet,
                         avtaletype = avtaletype,
                         antallPlasser = null,
                         administratorer = administratorer,
@@ -68,6 +69,8 @@ class AvtaleService(
                         personopplysninger = personopplysninger,
                         personvernBekreftet = personvernBekreftet,
                         amoKategorisering = amoKategorisering,
+                        opsjonsmodell = opsjonsmodellData?.opsjonsmodell,
+                        customOpsjonsmodellNavn = opsjonsmodellData?.customOpsjonsmodellNavn,
                     )
                 }
                 validator.validate(dbo, previous)
