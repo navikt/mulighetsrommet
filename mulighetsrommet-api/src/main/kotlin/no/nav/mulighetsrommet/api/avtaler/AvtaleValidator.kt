@@ -24,7 +24,6 @@ import no.nav.mulighetsrommet.domain.dto.Avtaletype
 import no.nav.mulighetsrommet.domain.dto.allowedAvtaletypes
 import no.nav.mulighetsrommet.unleash.UnleashService
 import java.time.format.DateTimeFormatter
-import java.time.format.FormatStyle
 
 class AvtaleValidator(
     private val tiltakstyper: TiltakstypeService,
@@ -236,9 +235,7 @@ class AvtaleValidator(
 
                 if (gjennomforing.startDato.isBefore(avtale.startDato)) {
                     val gjennomforingsStartDato = gjennomforing.startDato.format(
-                        DateTimeFormatter.ofLocalizedDate(
-                            FormatStyle.SHORT,
-                        ),
+                        DateTimeFormatter.ofPattern("dd.MM.yyyy"),
                     )
                     add(
                         ValidationError.of(
