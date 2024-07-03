@@ -1,5 +1,4 @@
 import { HGrid, Heading, Select, TextField } from "@navikt/ds-react";
-import { Avtale } from "mulighetsrommet-api-client";
 import { useEffect, useState } from "react";
 import { useFormContext } from "react-hook-form";
 import { avtaletekster } from "../../ledetekster/avtaleLedetekster";
@@ -8,7 +7,6 @@ import { ControlledDateInput } from "../../skjema/ControlledDateInput";
 import { Opsjonsmodell, opsjonsmodeller } from "./opsjonsmodeller";
 
 interface Props {
-  avtale?: Avtale;
   arenaOpphavOgIngenEierskap: boolean;
   minStartDato: Date;
   sluttDatoFraDato: Date;
@@ -17,7 +15,6 @@ interface Props {
 }
 
 export function AvtaleVarighet({
-  avtale,
   arenaOpphavOgIngenEierskap,
   minStartDato,
   sluttDatoFraDato,
@@ -31,7 +28,7 @@ export function AvtaleVarighet({
     formState: { errors },
   } = useFormContext<InferredAvtaleSchema>();
   const [opsjonsmodell, setOpsjonsmodell] = useState<Opsjonsmodell | undefined>(
-    opsjonsmodeller?.find((modell) => modell.value === avtale?.opsjonsmodellData?.opsjonsmodell),
+    opsjonsmodeller?.find((modell) => modell.value === watch("opsjonsmodellData.opsjonsmodell")),
   );
 
   const { startDato } = watch("startOgSluttDato") ?? {};

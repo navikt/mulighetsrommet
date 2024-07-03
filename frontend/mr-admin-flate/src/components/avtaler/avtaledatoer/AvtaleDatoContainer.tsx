@@ -1,24 +1,23 @@
 import { HGrid, Heading } from "@navikt/ds-react";
-import { Avtale, Avtaletype, Toggles } from "mulighetsrommet-api-client";
+import { Avtaletype, Toggles } from "mulighetsrommet-api-client";
+import { useEffect } from "react";
 import { DeepPartial, useFormContext } from "react-hook-form";
+import { useFeatureToggle } from "../../../api/features/useFeatureToggle";
 import { addYear } from "../../../utils/Utils";
 import { avtaletekster } from "../../ledetekster/avtaleLedetekster";
 import { InferredAvtaleSchema } from "../../redaksjonelt-innhold/AvtaleSchema";
 import { ControlledDateInput } from "../../skjema/ControlledDateInput";
 import { FormGroup } from "../../skjema/FormGroup";
 import { AvtaleVarighet } from "./AvtaleVarighet";
-import { useEffect } from "react";
-import { useFeatureToggle } from "../../../api/features/useFeatureToggle";
 
 const MIN_START_DATO = new Date(2000, 0, 1);
 const MAKS_AAR = 35;
 
 interface Props {
-  avtale?: Avtale;
   arenaOpphavOgIngenEierskap: boolean;
 }
 
-export function AvtaleDatoContainer({ avtale, arenaOpphavOgIngenEierskap }: Props) {
+export function AvtaleDatoContainer({ arenaOpphavOgIngenEierskap }: Props) {
   const { register, watch, setValue } = useFormContext<DeepPartial<InferredAvtaleSchema>>();
   const avtaletype = watch("avtaletype");
   const { startDato } = watch("startOgSluttDato") ?? {};
@@ -75,7 +74,6 @@ export function AvtaleDatoContainer({ avtale, arenaOpphavOgIngenEierskap }: Prop
     return (
       <FormGroup>
         <AvtaleVarighet
-          avtale={avtale}
           arenaOpphavOgIngenEierskap={arenaOpphavOgIngenEierskap}
           minStartDato={MIN_START_DATO}
           sluttDatoFraDato={sluttDatoFraDato}
