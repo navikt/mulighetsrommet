@@ -2,8 +2,12 @@ import { nikolineKontaktperson, petrusKontaktperson } from "@/mocks/fixtures/moc
 import { mockAvtaler } from "@/mocks/fixtures/mock_avtaler";
 import {
   EstimertVentetidEnhet,
+  ForerkortKlasse,
+  InnholdElement,
+  Kurstype,
   Opphav,
   PaginertTiltaksgjennomforing,
+  Spesifisering,
   Tiltaksgjennomforing,
   TiltaksgjennomforingOppstartstype,
   TiltaksgjennomforingStatus,
@@ -126,7 +130,7 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
   },
   {
     id: "a7d63fb0-4366-412c-84b7-7c15518ee363",
-    navn: "AFT",
+    navn: "Gruppe AMO",
     tiltaksnummer: "654434",
     sanityId: "1234",
     deltidsprosent: 100,
@@ -135,7 +139,7 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
       slettet: false,
       kontaktpersoner: mockArrangorKontaktpersoner,
     },
-    tiltakstype: mockTiltakstyper.ARBFORB,
+    tiltakstype: mockTiltakstyper.GRUPPEAMO,
     administratorer: [
       {
         navIdent: "B815493",
@@ -147,14 +151,20 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     arenaAnsvarligEnhet: mockEnheter._0313,
     navEnheter: [],
     status: { status: TiltaksgjennomforingStatus.GJENNOMFORES },
-    oppstart: TiltaksgjennomforingOppstartstype.LOPENDE,
+    oppstart: TiltaksgjennomforingOppstartstype.FELLES,
     opphav: Opphav.MR_ADMIN_FLATE,
     apentForInnsok: true,
+    antallPlasser: 10,
     kontaktpersoner: [],
     publisert: false,
-
     tilgjengeligForArrangorFraOgMedDato: null,
-    amoKategorisering: null,
+    amoKategorisering: {
+      kurstype: Kurstype.BRANSJE,
+      spesifisering: Spesifisering.ANDRE_BRANSJER,
+      forerkort: [ForerkortKlasse.A, ForerkortKlasse.S],
+      innholdElementer: [InnholdElement.GRUNNLEGGENDE_FERDIGHETER],
+      sertifiseringer: [{ konseptId: 12, label: "Truckførerkurs" }],
+    },
   },
   {
     id: "a7d63fb0-4366-412c-84b7-7c15518ee364",

@@ -14,6 +14,7 @@ import { NOM_ANSATT_SIDE } from "mulighetsrommet-frontend-common/constants";
 import { Fragment } from "react";
 import { Link } from "react-router-dom";
 import styles from "../DetaljerInfo.module.scss";
+import { AmoKategoriseringDetaljer } from "@/components/amoKategorisering/AmoKategoriseringDetaljer";
 import { opsjonsmodellTilTekst } from "../../components/avtaler/avtaledatoer/opsjonsmodeller";
 import { useFeatureToggle } from "../../api/features/useFeatureToggle";
 
@@ -47,6 +48,7 @@ export function AvtaleDetaljer() {
     kontorstruktur,
     arenaAnsvarligEnhet,
     arrangor,
+    amoKategorisering,
   } = avtale;
 
   return (
@@ -78,8 +80,13 @@ export function AvtaleDetaljer() {
               verdi={avtaletypeTilTekst(avtaletype)}
             />
           </Bolk>
-
           <Separator />
+          {amoKategorisering && (
+            <>
+              <AmoKategoriseringDetaljer amoKategorisering={amoKategorisering} />
+              <Separator />
+            </>
+          )}
 
           <Heading size="small" as="h3">
             Avtalens varighet

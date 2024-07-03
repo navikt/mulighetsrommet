@@ -28,4 +28,9 @@ export const tiltaktekster = {
   tiltaksarrangorUnderenhetLabel: "Tiltaksarrangør underenhet",
   kontaktpersonerHosTiltaksarrangorLabel: "Kontaktpersoner hos tiltaksarrangør",
   stedForGjennomforingLabel: "Sted for gjennomføring",
+  kurstypeLabel: "Kurstype",
+  forerkortLabel: "Førerkort",
+  sertifiseringerLabel: "Sertifiseringer",
+  norskproveLabel: "Norskprøve",
+  innholdElementerLabel: "Elementer i kurset",
 } as const;
