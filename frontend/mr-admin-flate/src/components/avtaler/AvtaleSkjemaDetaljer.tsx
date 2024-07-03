@@ -134,7 +134,7 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
                   const options = event.target.value?.arenaKode
                     ? avtaletypeOptions(event.target.value.arenaKode)
                     : [];
-                  const avtaletype = options[0].value;
+                  const avtaletype = options[0]?.value;
                   setValue("avtaletype", avtaletype);
                 }}
                 options={tiltakstyper.map((tiltakstype) => ({
