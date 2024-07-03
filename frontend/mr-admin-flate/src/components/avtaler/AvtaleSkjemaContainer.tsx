@@ -109,6 +109,8 @@ export function AvtaleSkjemaContainer({
         const mapping: { [name: string]: string } = {
           startDato: "startOgSluttDato.startDato",
           sluttDato: "startOgSluttDato.sluttDato",
+          opsjonsmodell: "opsjonsmodellData.opsjonsmodell",
+          opsjonMaksVarighet: "opsjonsmodellData.opsjonMaksVarighet",
           tiltakstypeId: "tiltakstype",
         };
         return (mapping[name] ?? name) as keyof InferredAvtaleSchema;
