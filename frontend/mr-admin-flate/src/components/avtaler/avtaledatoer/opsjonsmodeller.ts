@@ -9,9 +9,9 @@ export interface Opsjonsmodell {
 
 export const opsjonsmodeller: Opsjonsmodell[] = [
   {
-    value: OpsjonsmodellKey.TO_PLUSS_EN,
-    label: "2 år + 1 år",
-    maksVarighetAar: 3,
+    value: OpsjonsmodellKey.TO_PLUSS_EN_PLUSS_EN_PLUSS_EN,
+    label: "2 år + 1 år + 1 år + 1 år",
+    maksVarighetAar: 5,
     initialSluttdatoEkstraAar: 2,
   },
   {
@@ -21,14 +21,14 @@ export const opsjonsmodeller: Opsjonsmodell[] = [
     initialSluttdatoEkstraAar: 2,
   },
   {
-    value: OpsjonsmodellKey.TO_PLUSS_EN_PLUSS_EN_PLUSS_EN,
-    label: "2 år + 1 år + 1 år + 1 år",
-    maksVarighetAar: 5,
+    value: OpsjonsmodellKey.TO_PLUSS_EN,
+    label: "2 år + 1 år",
+    maksVarighetAar: 3,
     initialSluttdatoEkstraAar: 2,
   },
   {
     value: OpsjonsmodellKey.ANNET,
-    label: "Annet",
+    label: "Annen opsjonsmodell",
     maksVarighetAar: 5,
     initialSluttdatoEkstraAar: undefined,
   },

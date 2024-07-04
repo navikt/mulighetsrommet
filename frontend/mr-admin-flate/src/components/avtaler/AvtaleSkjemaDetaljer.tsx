@@ -1,5 +1,6 @@
 import { useAvtaleAdministratorer } from "@/api/ansatt/useAvtaleAdministratorer";
 import { useMigrerteTiltakstyperForAvtaler } from "@/api/tiltakstyper/useMigrerteTiltakstyper";
+import { AvtaleAmoKategoriseringSkjema } from "@/components/amoKategorisering/AvtaleAmoKategoriseringSkjema";
 import { HGrid, Textarea, TextField } from "@navikt/ds-react";
 import {
   Avtale,
@@ -28,9 +29,8 @@ import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { FormGroup } from "../skjema/FormGroup";
 import skjemastyles from "../skjema/Skjema.module.scss";
 import { AvtaleArrangorSkjema } from "./AvtaleArrangorSkjema";
-import { getLokaleUnderenheterAsSelectOptions } from "./AvtaleSkjemaConst";
-import { AvtaleAmoKategoriseringSkjema } from "@/components/amoKategorisering/AvtaleAmoKategoriseringSkjema";
 import { AvtaleDatoContainer } from "./avtaledatoer/AvtaleDatoContainer";
+import { getLokaleUnderenheterAsSelectOptions } from "./AvtaleSkjemaConst";
 
 interface Props {
   tiltakstyper: Tiltakstype[];
@@ -165,10 +165,7 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
             ) : null}
           </FormGroup>
 
-          <AvtaleDatoContainer
-            avtale={avtale}
-            arenaOpphavOgIngenEierskap={arenaOpphavOgIngenEierskap}
-          />
+          <AvtaleDatoContainer arenaOpphavOgIngenEierskap={arenaOpphavOgIngenEierskap} />
 
           {arenaKode && erAnskaffetTiltak(arenaKode) && (
             <>
