@@ -5,7 +5,7 @@ info:
   title: Mulighetsrommet API
 
 security:
-  - bearerAuth: []
+  - bearerAuth: [ ]
 
 paths:
   /api/v1/intern/bruker:
@@ -1633,6 +1633,24 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/PersonopplysningData"
+
+  /api/v1/intern/opsjoner:
+    post:
+      tags:
+        - Opsjoner
+      operationId: lagreOpsjon
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OpsjonLoggRequest"
+      responses:
+        204:
+          description: "Lagret ok"
+          content:
+            text/plain:
+              schema:
+                type: string
 
 components:
   securitySchemes:
@@ -3549,6 +3567,7 @@ components:
         - mulighetsrommet.admin-flate.enableDebugger
         - mulighetsrommet.admin-flate.enable_gruppe_amo_kategorier
         - mulighetsrommet.admin-flate.registrere-opsjonsmodell
+        - mulighetsrommet.admin-flate.registrere-opsjon
 
     PublisertRequest:
       type: object
@@ -3872,22 +3891,22 @@ components:
         - hjelpetekst
 
     TiltakDeltMedBruker:
-        type: object
-        properties:
-            navn:
-              type: string
-            createdAt:
-              type: string
-              format: date
-            dialogId:
-              type: string
-            tiltakId:
-              type: string
-        required:
-          - navn
-          - createdAt
-          - dialogId
-          - tiltakId
+      type: object
+      properties:
+        navn:
+          type: string
+        createdAt:
+          type: string
+          format: date
+        dialogId:
+          type: string
+        tiltakId:
+          type: string
+      required:
+        - navn
+        - createdAt
+        - dialogId
+        - tiltakId
 
 
     OpsjonsmodellData:
@@ -3915,3 +3934,27 @@ components:
         - TO_PLUSS_EN_PLUSS_EN
         - TO_PLUSS_EN_PLUSS_EN_PLUSS_EN
         - ANNET
+
+    OpsjonLoggRequest:
+      type: object
+      properties:
+        avtaleId:
+          type: string
+          format: uuid
+        nySluttdato:
+          type: string
+          format: date
+          nullable: true
+        status:
+          $ref: "#/components/schemas/OpsjonStatus"
+      required:
+        - avtaleId
+        - nySluttdato
+        - status
+
+    OpsjonStatus:
+      type: string
+      enum:
+        - OPSJON_UTLØST
+        - SKAL_IKKE_UTLØSE_OPSJON
+        - PÅGÅENDE_OPSJONSPROSESS
