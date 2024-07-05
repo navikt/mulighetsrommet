@@ -40,7 +40,10 @@ export function RegistrerOpsjonSkjema({ avtale }: Props) {
   return (
     <div className={styles.container}>
       <ControlledRadioGroup legend="Registrer opsjon" hideLegend {...register("opsjonsvalg")}>
-        <Radio value="1">
+        <Radio
+          value="1"
+          disabled={addYear(new Date(sluttdato), 1) > new Date(maksVarighetForOpsjon)}
+        >
           + 1 år (Forleng til: {formaterDato(addYear(new Date(sluttdato), 1))})
         </Radio>
         <Radio value="Annet">Annen lengde (maks dato: {formaterDato(maksVarighetForOpsjon)})</Radio>

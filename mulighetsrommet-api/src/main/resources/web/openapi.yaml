@@ -1651,6 +1651,22 @@ paths:
             text/plain:
               schema:
                 type: string
+    delete:
+      tags:
+        - Opsjoner
+      operationId: slettOpsjon
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SlettOpsjonLoggRequest"
+      responses:
+        204:
+          description: "Sletting ok"
+          content:
+            text/plain:
+              schema:
+                type: string
 
 components:
   securitySchemes:
@@ -3988,3 +4004,16 @@ components:
         - aktivertDato
         - sluttDato
         - status
+
+    SlettOpsjonLoggRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        avtaleId:
+          type: string
+          format: uuid
+      required:
+        - id
+        - avtaleId
