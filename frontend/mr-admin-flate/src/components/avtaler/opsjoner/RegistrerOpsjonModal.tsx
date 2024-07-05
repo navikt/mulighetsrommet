@@ -1,12 +1,12 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Alert, BodyLong, Button, Modal } from "@navikt/ds-react";
 import { Avtale, OpsjonLoggRequest, OpsjonStatus } from "mulighetsrommet-api-client";
-import { RefObject, useEffect, useRef } from "react";
+import { RefObject, useEffect } from "react";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
-import { InferredRegistrerOpsjonSchema, RegistrerOpsjonSchema } from "./RegistrerOpsjonSchema";
-import { RegistrerOpsjonSkjema } from "./RegistrerOpsjonSkjema";
 import { useRegistrerOpsjon } from "../../../api/avtaler/useRegistrerOpsjon";
 import { VarselModal } from "../../modal/VarselModal";
+import { InferredRegistrerOpsjonSchema, RegistrerOpsjonSchema } from "./RegistrerOpsjonSchema";
+import { RegistrerOpsjonSkjema } from "./RegistrerOpsjonSkjema";
 
 interface Props {
   modalRef: RefObject<HTMLDialogElement>;
@@ -19,7 +19,6 @@ export function RegistrerOpsjonModal({ modalRef, avtale }: Props) {
     resolver: zodResolver(RegistrerOpsjonSchema),
     defaultValues: {},
   });
-  const ref = useRef<HTMLDialogElement>(null);
 
   const { handleSubmit, reset } = form;
 
@@ -49,7 +48,7 @@ export function RegistrerOpsjonModal({ modalRef, avtale }: Props) {
     if (avtale?.opsjonsmodellData?.opsjonMaksVarighet && avtale?.sluttDato) {
       return new Date(avtale?.sluttDato) >= new Date(avtale?.opsjonsmodellData?.opsjonMaksVarighet);
     }
-    return true;
+    return false;
   }
 
   if (sluttDatoErLikEllerPassererMaksVarighet()) {
