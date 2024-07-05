@@ -5,8 +5,8 @@ import { useFormContext } from "react-hook-form";
 import { addYear, formaterDato, formaterDatoSomYYYYMMDD } from "../../../utils/Utils";
 import { ControlledDateInput } from "../../skjema/ControlledDateInput";
 import { ControlledRadioGroup } from "../../skjema/ControlledRadioGroup";
-import styles from "./RegistrerOpsjonSkjema.module.scss";
 import { InferredRegistrerOpsjonSchema } from "./RegistrerOpsjonSchema";
+import styles from "./RegistrerOpsjonSkjema.module.scss";
 
 interface Props {
   avtale: Avtale;
@@ -39,10 +39,7 @@ export function RegistrerOpsjonSkjema({ avtale }: Props) {
   return (
     <div className={styles.container}>
       <ControlledRadioGroup legend="Registrer opsjon" hideLegend {...register("opsjonsvalg")}>
-        <Radio
-          value="1"
-          disabled={addYear(new Date(sluttdato), 1) > new Date(maksVarighetForOpsjon)}
-        >
+        <Radio value="1">
           + 1 år (Forleng til: {formaterDato(addYear(new Date(sluttdato), 1))})
         </Radio>
         <Radio value="Annet">Annen lengde (maks dato: {formaterDato(maksVarighetForOpsjon)})</Radio>

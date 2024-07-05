@@ -1,11 +1,12 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Alert, BodyLong, Button, Modal } from "@navikt/ds-react";
 import { Avtale, OpsjonLoggRequest, OpsjonStatus } from "mulighetsrommet-api-client";
-import { RefObject, useEffect } from "react";
+import { RefObject, useEffect, useRef } from "react";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { InferredRegistrerOpsjonSchema, RegistrerOpsjonSchema } from "./RegistrerOpsjonSchema";
 import { RegistrerOpsjonSkjema } from "./RegistrerOpsjonSkjema";
 import { useRegistrerOpsjon } from "../../../api/avtaler/useRegistrerOpsjon";
+import { VarselModal } from "../../modal/VarselModal";
 
 interface Props {
   modalRef: RefObject<HTMLDialogElement>;
@@ -18,6 +19,7 @@ export function RegistrerOpsjonModal({ modalRef, avtale }: Props) {
     resolver: zodResolver(RegistrerOpsjonSchema),
     defaultValues: {},
   });
+  const ref = useRef<HTMLDialogElement>(null);
 
   const { handleSubmit, reset } = form;
 
@@ -41,6 +43,17 @@ export function RegistrerOpsjonModal({ modalRef, avtale }: Props) {
     reset();
     mutation.reset();
     modalRef?.current?.close();
+  }
+
+  function sluttDatoErLikEllerPassererMaksVarighet(): boolean {
+    if (avtale?.opsjonsmodellData?.opsjonMaksVarighet && avtale?.sluttDato) {
+      return new Date(avtale?.sluttDato) >= new Date(avtale?.opsjonsmodellData?.opsjonMaksVarighet);
+    }
+    return true;
+  }
+
+  if (sluttDatoErLikEllerPassererMaksVarighet()) {
+    return <SluttDatoErLikEllerPassererMaksVarighetModal modalRef={modalRef} />;
   }
 
   return (
@@ -72,5 +85,23 @@ export function RegistrerOpsjonModal({ modalRef, avtale }: Props) {
         </form>
       </FormProvider>
     </Modal>
+  );
+}
+
+function SluttDatoErLikEllerPassererMaksVarighetModal({
+  modalRef,
+}: {
+  modalRef: RefObject<HTMLDialogElement>;
+}) {
+  return (
+    <VarselModal
+      headingIconType="info"
+      headingText="Kan ikke registrere opsjon"
+      handleClose={() => modalRef?.current?.close()}
+      modalRef={modalRef}
+      primaryButton={<Button onClick={() => modalRef?.current?.close()}>Ok</Button>}
+      body="Du kan ikke registrere flere opsjoner for avtalen. Avtalens sluttdato er samme som maks varighet for
+        avtalen."
+    />
   );
 }
