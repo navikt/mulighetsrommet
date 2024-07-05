@@ -672,7 +672,7 @@ class AvtaleRepository(private val db: Database) {
             .map { it.toPersonopplysningData() }
     }
 
-    fun oppdaterSluttdato(avtaleId: UUID, nySluttdato: LocalDate) {
+    fun oppdaterSluttdato(avtaleId: UUID, nySluttdato: LocalDate, tx: Session? = null) {
         @Language("PostgreSQL")
         val query = """
             update avtale
@@ -686,6 +686,8 @@ class AvtaleRepository(private val db: Database) {
                 "nySluttdato" to nySluttdato,
                 "avtaleId" to avtaleId,
             ),
-        ).asUpdate.let { db.run(it) }
+        ).asUpdate.let {
+            tx?.run(it) ?: db.run(it)
+        }
     }
 }

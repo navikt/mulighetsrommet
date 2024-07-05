@@ -78,7 +78,7 @@ export function AvtaleVarighet({
 
       <HGrid columns={2}>
         <Select
-          readOnly={readonly}
+          readOnly={skalIkkeKunneRedigereOpsjoner}
           label="Opsjonsmodell"
           size="small"
           value={opsjonsmodell?.value}
@@ -115,7 +115,7 @@ export function AvtaleVarighet({
           <ControlledDateInput
             size="small"
             label={avtaletekster.startdatoLabel}
-            readOnly={readonly}
+            readOnly={skalIkkeKunneRedigereOpsjoner}
             fromDate={minStartDato}
             toDate={sluttDatoTilDato}
             {...register("startOgSluttDato.startDato")}
@@ -142,7 +142,9 @@ export function AvtaleVarighet({
           />
         </HGrid>
       ) : null}
-      {avtale && avtale.opsjonerRegistrert.length > 0 && <OpsjonerRegistrert avtale={avtale} />}
+      {avtale && avtale.opsjonerRegistrert.length > 0 && (
+        <OpsjonerRegistrert readOnly avtale={avtale} />
+      )}
     </>
   );
 }

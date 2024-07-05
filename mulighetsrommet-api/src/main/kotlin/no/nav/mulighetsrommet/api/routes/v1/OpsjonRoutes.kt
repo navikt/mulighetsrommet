@@ -35,6 +35,17 @@ fun Route.opsjonRoutes() {
                 opsjonLoggService.lagreOpsjonLoggEntry(opsjonLoggEntry)
                 call.respond(HttpStatusCode.OK)
             }
+
+            delete {
+                val request = call.receive<SlettOpsjonLoggRequest>()
+                val userId = getNavIdent()
+                opsjonLoggService.delete(
+                    opsjonLoggEntryId = request.id,
+                    avtaleId = request.avtaleId,
+                    slettesAv = userId,
+                )
+                call.respond(HttpStatusCode.OK)
+            }
         }
     }
 }
@@ -53,3 +64,11 @@ data class OpsjonLoggRequest(
         PÅGÅENDE_OPSJONSPROSESS,
     }
 }
+
+@Serializable
+data class SlettOpsjonLoggRequest(
+    @Serializable(with = UUIDSerializer::class)
+    val id: UUID,
+    @Serializable(with = UUIDSerializer::class)
+    val avtaleId: UUID,
+)
