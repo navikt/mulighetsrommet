@@ -59,7 +59,7 @@ export function AvtaleDatoContainer({ arenaOpphavOgIngenEierskap }: Props) {
           />
           <ControlledDateInput
             size="small"
-            label={avtaletekster.sluttdatoLabel}
+            label={avtaletekster.sluttdatoLabel(false)}
             readOnly={arenaOpphavOgIngenEierskap}
             fromDate={sluttDatoFraDato}
             toDate={sluttDatoTilDato}

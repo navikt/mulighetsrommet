@@ -110,7 +110,7 @@ export function AvtaleVarighet({
           />
           <ControlledDateInput
             size="small"
-            label={avtaletekster.sluttdatoLabel}
+            label={avtaletekster.sluttdatoLabel(false)}
             readOnly={readonly}
             fromDate={sluttDatoFraDato}
             toDate={maksVarighetDato}

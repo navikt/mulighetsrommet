@@ -1945,6 +1945,10 @@ components:
         sluttDato:
           type: string
           format: date
+        opprinneligSluttDato:
+          type: string
+          format: date
+          nullable: true
         avtaletype:
           $ref: "#/components/schemas/Avtaletype"
         status:
@@ -1981,6 +1985,11 @@ components:
         opsjonsmodellData:
           $ref: "#/components/schemas/OpsjonsmodellData"
           nullable: true
+        opsjonerRegistrert:
+          type:
+            array
+          items:
+            $ref: "#/components/schemas/OpsjonLoggRegistrert"
       required:
         - id
         - tiltakstype
@@ -1997,6 +2006,7 @@ components:
         - personvernBekreftet
         - amoKategorisering
         - opsjonsmodellData
+        - opsjonerRegistrert
 
     AvtaleRequest:
       type: object
@@ -3958,3 +3968,23 @@ components:
         - OPSJON_UTLØST
         - SKAL_IKKE_UTLØSE_OPSJON
         - PÅGÅENDE_OPSJONSPROSESS
+
+    OpsjonLoggRegistrert:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        aktivertDato:
+          type: string
+          format: date
+        sluttDato:
+          type: string
+          format: date
+        status:
+          $ref: "#/components/schemas/OpsjonStatus"
+      required:
+        - id
+        - aktivertDato
+        - sluttDato
+        - status

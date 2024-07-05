@@ -4,7 +4,8 @@ export const avtaletekster = {
   tiltakstypeLabel: "Tiltakstype",
   avtaletypeLabel: "Avtaletype",
   startdatoLabel: "Startdato",
-  sluttdatoLabel: "Sluttdato",
+  sluttdatoLabel: (opsjonerRegistrert: boolean) =>
+    opsjonerRegistrert ? "Sluttdato*" : "Sluttdato",
   maksVarighetLabel: "Maks varighet inkl. opsjon",
   prisOgBetalingLabel: "Pris- og betalingsbetingelser",
   administratorerForAvtalenLabel: "Administratorer for avtalen",
