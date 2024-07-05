@@ -142,7 +142,7 @@ export function AvtaleVarighet({
           />
         </HGrid>
       ) : null}
-      {OpsjonerRegistrert.length > 0 && avtale && <OpsjonerRegistrert avtale={avtale} />}
+      {avtale && avtale.opsjonerRegistrert.length > 0 && <OpsjonerRegistrert avtale={avtale} />}
     </>
   );
 }
