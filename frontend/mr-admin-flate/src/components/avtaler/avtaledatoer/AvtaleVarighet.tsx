@@ -5,8 +5,11 @@ import { avtaletekster } from "../../ledetekster/avtaleLedetekster";
 import { InferredAvtaleSchema } from "../../redaksjonelt-innhold/AvtaleSchema";
 import { ControlledDateInput } from "../../skjema/ControlledDateInput";
 import { Opsjonsmodell, opsjonsmodeller } from "./opsjonsmodeller";
+import { Avtale, OpsjonStatus } from "mulighetsrommet-api-client";
+import { OpsjonerRegistrert } from "../opsjoner/OpsjonerRegistrert";
 
 interface Props {
+  avtale?: Avtale;
   arenaOpphavOgIngenEierskap: boolean;
   minStartDato: Date;
   sluttDatoFraDato: Date;
@@ -15,6 +18,7 @@ interface Props {
 }
 
 export function AvtaleVarighet({
+  avtale,
   arenaOpphavOgIngenEierskap,
   minStartDato,
   sluttDatoFraDato,
@@ -30,9 +34,15 @@ export function AvtaleVarighet({
   const [opsjonsmodell, setOpsjonsmodell] = useState<Opsjonsmodell | undefined>(
     opsjonsmodeller?.find((modell) => modell.value === watch("opsjonsmodellData.opsjonsmodell")),
   );
+  const antallOpsjonerUtlost = (
+    avtale?.opsjonerRegistrert?.filter((log) => log.status === OpsjonStatus.OPSJON_UTLØST) || []
+  ).length;
+
+  const skalIkkeKunneRedigereOpsjoner = antallOpsjonerUtlost > 0;
 
   const { startDato } = watch("startOgSluttDato") ?? {};
-  const readonly = opsjonsmodell?.value !== "ANNET" || arenaOpphavOgIngenEierskap;
+  const readonly =
+    opsjonsmodell?.value !== "ANNET" || arenaOpphavOgIngenEierskap || skalIkkeKunneRedigereOpsjoner;
 
   useEffect(() => {
     if (!opsjonsmodell) {
@@ -43,7 +53,7 @@ export function AvtaleVarighet({
   }, [opsjonsmodell]);
 
   useEffect(() => {
-    if (startDato && opsjonsmodell) {
+    if (startDato && opsjonsmodell && antallOpsjonerUtlost === 0) {
       if (opsjonsmodell.initialSluttdatoEkstraAar) {
         setValue(
           "startOgSluttDato.sluttDato",
@@ -68,6 +78,7 @@ export function AvtaleVarighet({
 
       <HGrid columns={2}>
         <Select
+          readOnly={readonly}
           label="Opsjonsmodell"
           size="small"
           value={opsjonsmodell?.value}
@@ -90,6 +101,7 @@ export function AvtaleVarighet({
       {opsjonsmodell?.value === "ANNET" ? (
         <TextField
           label="Opsjonsnavn"
+          readOnly={readonly}
           hideLabel
           error={errors.opsjonsmodellData?.customOpsjonsmodellNavn?.message}
           placeholder="Beskriv opsjonsmodellen"
@@ -103,6 +115,7 @@ export function AvtaleVarighet({
           <ControlledDateInput
             size="small"
             label={avtaletekster.startdatoLabel}
+            readOnly={readonly}
             fromDate={minStartDato}
             toDate={sluttDatoTilDato}
             {...register("startOgSluttDato.startDato")}
@@ -129,6 +142,7 @@ export function AvtaleVarighet({
           />
         </HGrid>
       ) : null}
+      {OpsjonerRegistrert.length > 0 && avtale && <OpsjonerRegistrert avtale={avtale} />}
     </>
   );
 }

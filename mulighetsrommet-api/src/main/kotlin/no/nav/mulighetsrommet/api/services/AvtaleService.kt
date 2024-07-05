@@ -26,7 +26,6 @@ import no.nav.mulighetsrommet.notifications.NotificationType
 import no.nav.mulighetsrommet.notifications.ScheduledNotification
 import org.slf4j.LoggerFactory
 import java.time.Instant
-import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 
@@ -260,8 +259,4 @@ class AvtaleService(
     }
 
     fun getBehandlingAvPersonopplysninger(id: UUID): List<PersonopplysningData> = avtaler.getBehandlingAvPersonopplysninger(id = id)
-
-    fun oppdaterSluttdato(avtaleId: UUID, nySluttdato: LocalDate) {
-        avtaler.oppdaterSluttdato(avtaleId, nySluttdato)
-    }
 }

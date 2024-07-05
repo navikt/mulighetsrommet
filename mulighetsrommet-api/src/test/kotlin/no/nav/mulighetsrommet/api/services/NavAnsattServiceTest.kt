@@ -389,6 +389,7 @@ class NavAnsattServiceTest :
                     ),
                     startDato = AvtaleFixtures.AFT.startDato,
                     sluttDato = AvtaleFixtures.AFT.sluttDato,
+                    opprinneligSluttDato = AvtaleFixtures.AFT.sluttDato,
                     avtaletype = AvtaleFixtures.AFT.avtaletype,
                     prisbetingelser = AvtaleFixtures.AFT.prisbetingelser,
                     antallPlasser = AvtaleFixtures.AFT.antallPlasser,
@@ -403,6 +404,7 @@ class NavAnsattServiceTest :
                     administratorer = emptyList(),
                     kontorstruktur = emptyList(),
                     amoKategorisering = null,
+                    opsjonerRegistrert = emptyList(),
                 )
 
                 every { navEnhetService.hentOverordnetFylkesenhet(any()) } returns
