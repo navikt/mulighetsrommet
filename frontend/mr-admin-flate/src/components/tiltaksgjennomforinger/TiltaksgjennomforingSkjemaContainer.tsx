@@ -14,16 +14,17 @@ import { gjennomforingDetaljerTabAtom } from "@/api/atoms";
 import { useHandleApiUpsertResponse } from "@/api/effects";
 import { useUpsertTiltaksgjennomforing } from "@/api/tiltaksgjennomforing/useUpsertTiltaksgjennomforing";
 import { Separator } from "../detaljside/Metadata";
-import skjemastyles from "../skjema/Skjema.module.scss";
+import styles from "./TiltaksgjennomforingSkjemaContainer.module.scss";
 import { TiltakgjennomforingRedaksjoneltInnholdForm } from "./TiltaksgjennomforingRedaksjoneltInnholdForm";
 import {
   InferredTiltaksgjennomforingSchema,
   TiltaksgjennomforingSchema,
-} from "../redaksjonelt-innhold/TiltaksgjennomforingSchema";
+} from "@/components/redaksjoneltInnhold/TiltaksgjennomforingSchema";
 import { defaultTiltaksgjennomforingData } from "./TiltaksgjennomforingSkjemaConst";
 import { TiltaksgjennomforingSkjemaDetaljer } from "./TiltaksgjennomforingSkjemaDetaljer";
 import { TiltaksgjennomforingSkjemaKnapperad } from "./TiltaksgjennomforingSkjemaKnapperad";
-import { logEvent } from "../../logging/amplitude";
+import { logEvent } from "@/logging/amplitude";
+import { RedaksjoneltInnholdBunnKnapperad } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdBunnKnapperad";
 
 interface Props {
   onClose: () => void;
@@ -140,7 +141,7 @@ export const TiltaksgjennomforingSkjemaContainer = ({
     <FormProvider {...form}>
       <form onSubmit={handleSubmit(postData)}>
         <Tabs defaultValue={activeTab}>
-          <Tabs.List className={skjemastyles.tabslist}>
+          <Tabs.List className={styles.tabslist}>
             <div>
               <Tabs.Tab
                 onClick={() => setActiveTab("detaljer")}
@@ -182,13 +183,13 @@ export const TiltaksgjennomforingSkjemaContainer = ({
           </Tabs.Panel>
         </Tabs>
         <Separator />
-        <div className={skjemastyles.flex_container}>
+        <RedaksjoneltInnholdBunnKnapperad>
           <TiltaksgjennomforingSkjemaKnapperad
             redigeringsModus={redigeringsModus}
             onClose={onClose}
             mutation={mutation}
           />
-        </div>
+        </RedaksjoneltInnholdBunnKnapperad>
       </form>
     </FormProvider>
   );

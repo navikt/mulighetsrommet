@@ -1,35 +1,5 @@
-.tiltaksdetaljer {
-  &_alert {
-    :global(.navds-body-long) {
-      font-size: 16px;
-      min-width: 0;
-    }
-  }
-
-  &_innsiktheader {
-    font-size: 16px;
-    font-weight: bold;
-    margin-top: 1rem;
-  }
-}
-
 .faneinnhold_container {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-}
-
-.lokal_informasjon {
-  background-color: var(--a-gray-100);
-  margin: 1rem 0rem 1rem 0rem;
-  border-top: 1px solid var(--a-border-divider);
-  border-bottom: 1px solid var(--a-border-divider);
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  padding: 0.5rem;
-}
-
-.preWrap {
-  white-space: pre-wrap;
 }

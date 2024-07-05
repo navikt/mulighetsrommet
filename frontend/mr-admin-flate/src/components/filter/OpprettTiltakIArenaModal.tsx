@@ -1,7 +1,8 @@
 import { useMigrerteTiltakstyper } from "@/api/tiltakstyper/useMigrerteTiltakstyper";
 import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
 import { BodyShort, Heading, Modal, VStack } from "@navikt/ds-react";
-import styles from "@/components/modal/Modal.module.scss";
+import { RedaksjoneltInnholdModalBody } from "@/components/modal/RedaksjoneltInnholdModalBody";
+import { RedaksjoneltInnholdModalContainer } from "@/components/modal/RedaksjoneltInnholdModalContainer";
 
 interface OpprettTiltakIArenaModalProps {
   open: boolean;
@@ -23,18 +24,11 @@ export function OpprettTiltakIArenaModal({
       .map((tiltakstype) => tiltakstype.navn) ?? [];
 
   return (
-    <Modal
-      open={open}
-      onClose={onClose}
-      closeOnBackdropClick
-      className={styles.modal_container}
-      aria-label="modal"
-      width="50rem"
-    >
+    <RedaksjoneltInnholdModalContainer modalOpen={open} onClose={onClose}>
       <Modal.Header closeButton>
         <Heading size="medium">Tiltaksgjennomføring kan ikke opprettes her</Heading>
       </Modal.Header>
-      <Modal.Body className={styles.modal_content}>
+      <RedaksjoneltInnholdModalBody>
         <VStack gap="2">
           <BodyShort>
             Tiltak knyttet til tiltakstypen <code>{tiltakstype}</code> kan ikke opprettes her enda.
@@ -53,7 +47,7 @@ export function OpprettTiltakIArenaModal({
             </>
           ) : null}
         </VStack>
-      </Modal.Body>
-    </Modal>
+      </RedaksjoneltInnholdModalBody>
+    </RedaksjoneltInnholdModalContainer>
   );
 }

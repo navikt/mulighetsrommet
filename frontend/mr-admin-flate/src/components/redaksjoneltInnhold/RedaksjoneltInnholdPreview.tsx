@@ -2,11 +2,12 @@ import { useTiltakstypeFaneinnhold } from "@/api/tiltaksgjennomforing/useTiltaks
 import { Alert, BodyLong, Heading } from "@navikt/ds-react";
 import { PortableText } from "@portabletext/react";
 import { SanityFaneinnhold } from "mulighetsrommet-api-client";
-import { InlineErrorBoundary } from "mulighetsrommet-frontend-common";
+import { InlineErrorBoundary, LokalInformasjonContainer } from "mulighetsrommet-frontend-common";
 import React from "react";
 import styles from "../../pages/DetaljerInfo.module.scss";
 import { Laster } from "../laster/Laster";
 import { Lenkeliste } from "../lenker/Lenkeliste";
+import { RedaksjoneltInnholdContainer } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdContainer";
 
 interface RedaksjoneltInnholdPreviewProps {
   tiltakstypeId: string;
@@ -28,18 +29,18 @@ function RedaksjoneltInnhold(props: RedaksjoneltInnholdPreviewProps) {
   const { tiltakstypeId, beskrivelse, faneinnhold } = props;
   const { data: tiltakstypeSanityData } = useTiltakstypeFaneinnhold(tiltakstypeId);
   return (
-    <div className={styles.red_innhold_container}>
+    <RedaksjoneltInnholdContainer>
       {tiltakstypeSanityData?.beskrivelse && (
-        <BodyLong size="large" spacing className={styles.preWrap}>
+        <BodyLong size="large" spacing style={{ whiteSpace: "pre-wrap" }}>
           {tiltakstypeSanityData.beskrivelse}
         </BodyLong>
       )}
       {beskrivelse && (
-        <div className={styles.lokal_informasjon}>
-          <BodyLong className={styles.preWrap} textColor="subtle" size="medium">
+        <LokalInformasjonContainer>
+          <BodyLong style={{ whiteSpace: "pre-wrap" }} textColor="subtle" size="medium">
             {beskrivelse}
           </BodyLong>
-        </div>
+        </LokalInformasjonContainer>
       )}
       {someValuesExists([
         faneinnhold?.forHvem,
@@ -117,7 +118,7 @@ function RedaksjoneltInnhold(props: RedaksjoneltInnholdPreviewProps) {
           </BodyLong>
         </>
       ) : null}
-    </div>
+    </RedaksjoneltInnholdContainer>
   );
 }
 
@@ -150,7 +151,7 @@ const DetaljerFane = ({
             Generell Informasjon
           </Heading>
           {tiltakstypeAlert && (
-            <Alert className={styles.preWrap} variant="info">
+            <Alert style={{ whiteSpace: "pre-wrap" }} variant="info">
               {tiltakstypeAlert}
             </Alert>
           )}
@@ -160,19 +161,19 @@ const DetaljerFane = ({
         </>
       )}
       {(tiltaksgjennomforing || tiltaksgjennomforingAlert) && (
-        <div className={styles.lokal_informasjon}>
+        <LokalInformasjonContainer>
           <Heading level="2" size="small">
             Lokal Informasjon
           </Heading>
           {tiltaksgjennomforingAlert && (
-            <Alert className={styles.preWrap} variant="info">
+            <Alert style={{ whiteSpace: "pre-wrap" }} variant="info">
               {tiltaksgjennomforingAlert}
             </Alert>
           )}
           <BodyLong as="div" size="small">
             <PortableText value={tiltaksgjennomforing} />
           </BodyLong>
-        </div>
+        </LokalInformasjonContainer>
       )}
     </div>
   );

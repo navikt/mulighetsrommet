@@ -15,7 +15,7 @@ import {
   kurstypeToString,
   spesifiseringToString,
 } from "@/utils/Utils";
-import { InferredTiltaksgjennomforingSchema } from "../redaksjonelt-innhold/TiltaksgjennomforingSchema";
+import { InferredTiltaksgjennomforingSchema } from "@/components/redaksjoneltInnhold/TiltaksgjennomforingSchema";
 import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { tiltaktekster } from "../ledetekster/tiltaksgjennomforingLedetekster";
 

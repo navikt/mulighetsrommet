@@ -14,19 +14,20 @@ import {
   NavEnhet,
   Tiltakstype,
 } from "mulighetsrommet-api-client";
-import { InlineErrorBoundary } from "mulighetsrommet-frontend-common";
 import React from "react";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { v4 as uuidv4 } from "uuid";
 import { Separator } from "../detaljside/Metadata";
-import { Laster } from "../laster/Laster";
-import { AvtaleSchema, InferredAvtaleSchema } from "../redaksjonelt-innhold/AvtaleSchema";
-import skjemastyles from "../skjema/Skjema.module.scss";
-import { AvtalePersonvernForm } from "./AvtalePersonvernForm";
+import { AvtaleSchema, InferredAvtaleSchema } from "@/components/redaksjoneltInnhold/AvtaleSchema";
 import { AvtaleRedaksjoneltInnholdForm } from "./AvtaleRedaksjoneltInnholdForm";
 import { defaultAvtaleData } from "./AvtaleSkjemaConst";
 import { AvtaleSkjemaDetaljer } from "./AvtaleSkjemaDetaljer";
 import { AvtaleSkjemaKnapperad } from "./AvtaleSkjemaKnapperad";
+import { AvtalePersonvernForm } from "./AvtalePersonvernForm";
+import { Laster } from "../laster/Laster";
+import { InlineErrorBoundary } from "mulighetsrommet-frontend-common";
+import { RedaksjoneltInnholdBunnKnapperad } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdBunnKnapperad";
+import styles from "./AvtaleSkjemaContainer.module.scss";
 
 interface Props {
   onClose: () => void;
@@ -125,7 +126,7 @@ export function AvtaleSkjemaContainer({
     <FormProvider {...form}>
       <form onSubmit={handleSubmit(postData)}>
         <Tabs defaultValue={activeTab}>
-          <Tabs.List className={skjemastyles.tabslist}>
+          <Tabs.List className={styles.tabslist}>
             <div>
               <Tabs.Tab
                 onClick={() => setActiveTab("detaljer")}
@@ -189,9 +190,9 @@ export function AvtaleSkjemaContainer({
           </Tabs.Panel>
         </Tabs>
         <Separator />
-        <div className={skjemastyles.flex_container}>
+        <RedaksjoneltInnholdBunnKnapperad>
           <AvtaleSkjemaKnapperad redigeringsModus={redigeringsModus!} onClose={onClose} />
-        </div>
+        </RedaksjoneltInnholdBunnKnapperad>
       </form>
     </FormProvider>
   );

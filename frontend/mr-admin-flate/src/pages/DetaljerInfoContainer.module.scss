@@ -1,0 +1,15 @@
+.detaljer_info_container {
+  flex-grow: 1;
+  flex-basis: 0;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+
+  &:first-of-type {
+    border-right: 1px solid var(--a-border-divider);
+  }
+
+  @media (width <= 1700px) {
+    width: 100%;
+  }
+}
