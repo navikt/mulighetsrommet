@@ -1,4 +1,4 @@
-import { Avtale, NavAnsatt } from "mulighetsrommet-api-client";
+import { Avtale, NavAnsatt, Toggles } from "mulighetsrommet-api-client";
 import styles from "../DetaljerInfo.module.scss";
 import { useAvtaleEndringshistorikk } from "@/api/avtaler/useAvtaleEndringshistorikk";
 import { ViewEndringshistorikk } from "@/components/endringshistorikk/ViewEndringshistorikk";
@@ -9,6 +9,8 @@ import { useNavigate } from "react-router-dom";
 import { HarSkrivetilgang } from "@/components/authActions/HarSkrivetilgang";
 import { VarselModal } from "@/components/modal/VarselModal";
 import { AvbrytAvtaleModal } from "../../components/modal/AvbrytAvtaleModal";
+import { useFeatureToggle } from "../../api/features/useFeatureToggle";
+import { RegistrerOpsjonModal } from "../../components/avtaler/opsjoner/RegistrerOpsjonModal";
 
 interface Props {
   bruker: NavAnsatt;
@@ -19,6 +21,22 @@ export function AvtaleKnapperad({ bruker, avtale }: Props) {
   const navigate = useNavigate();
   const advarselModal = useRef<HTMLDialogElement>(null);
   const avbrytModalRef = useRef<HTMLDialogElement>(null);
+  const registrerOpsjonModalRef = useRef<HTMLDialogElement>(null);
+  const { data: registrereOpsjonIsEnabled } = useFeatureToggle(
+    Toggles.MULIGHETSROMMET_ADMIN_FLATE_REGISTRERE_OPSJON,
+  );
+
+  function avtaleErAktiv(avtale: Avtale): boolean {
+    return ["AKTIV"].includes(avtale.status.name);
+  }
+
+  function kanRegistrereOpsjon(avtale: Avtale): boolean {
+    return (
+      avtaleErAktiv(avtale) &&
+      !!avtale?.opsjonsmodellData?.opsjonsmodell &&
+      !!registrereOpsjonIsEnabled
+    );
+  }
 
   return (
     <div className={styles.knapperad}>
@@ -47,6 +65,15 @@ export function AvtaleKnapperad({ bruker, avtale }: Props) {
               >
                 Rediger
               </Dropdown.Menu.GroupedList.Item>
+              {kanRegistrereOpsjon(avtale) && (
+                <Dropdown.Menu.GroupedList.Item
+                  onClick={() => {
+                    registrerOpsjonModalRef.current?.showModal();
+                  }}
+                >
+                  Registrer opsjon
+                </Dropdown.Menu.GroupedList.Item>
+              )}
               {avtale && avtale.status.name === "AKTIV" && (
                 <Dropdown.Menu.GroupedList.Item
                   onClick={() => {
@@ -74,6 +101,7 @@ export function AvtaleKnapperad({ bruker, avtale }: Props) {
         }
       />
       <AvbrytAvtaleModal modalRef={avbrytModalRef} avtale={avtale} />
+      <RegistrerOpsjonModal modalRef={registrerOpsjonModalRef} avtale={avtale} />
     </div>
   );
 }

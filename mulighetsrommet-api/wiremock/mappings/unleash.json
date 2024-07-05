@@ -42,6 +42,11 @@
           "name": "mulighetsrommet.admin-flate.registrere-opsjonsmodell",
           "enabled": true,
           "strategies": []
+        },
+        {
+          "name": "mulighetsrommet.admin-flate.registrere-opsjon",
+          "enabled": true,
+          "strategies": []
         }
       ]
     },

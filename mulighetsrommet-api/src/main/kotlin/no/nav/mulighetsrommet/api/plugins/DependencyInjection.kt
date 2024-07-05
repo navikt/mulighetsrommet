@@ -17,6 +17,7 @@ import no.nav.mulighetsrommet.api.AppConfig
 import no.nav.mulighetsrommet.api.SlackConfig
 import no.nav.mulighetsrommet.api.TaskConfig
 import no.nav.mulighetsrommet.api.avtaler.AvtaleValidator
+import no.nav.mulighetsrommet.api.avtaler.OpsjonLoggValidator
 import no.nav.mulighetsrommet.api.clients.AccessType
 import no.nav.mulighetsrommet.api.clients.CachedTokenProvider
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
@@ -336,6 +337,8 @@ private fun services(appConfig: AppConfig) = module {
     }
     single { AvtaleValidator(get(), get(), get(), get(), get()) }
     single { TiltaksgjennomforingValidator(get(), get(), get()) }
+    single { OpsjonLoggValidator() }
+    single { OpsjonLoggService(get(), get(), get(), get()) }
 }
 
 private fun tasks(config: TaskConfig) = module {

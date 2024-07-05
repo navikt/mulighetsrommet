@@ -111,6 +111,7 @@ export function AvtaleSkjemaContainer({
           sluttDato: "startOgSluttDato.sluttDato",
           opsjonsmodell: "opsjonsmodellData.opsjonsmodell",
           opsjonMaksVarighet: "opsjonsmodellData.opsjonMaksVarighet",
+          customOpsjonsmodellNavn: "opsjonsmodellData.customOpsjonsmodellNavn",
           tiltakstypeId: "tiltakstype",
         };
         return (mapping[name] ?? name) as keyof InferredAvtaleSchema;
