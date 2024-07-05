@@ -17,6 +17,7 @@ import styles from "../DetaljerInfo.module.scss";
 import { AmoKategoriseringDetaljer } from "@/components/amoKategorisering/AmoKategoriseringDetaljer";
 import { opsjonsmodellTilTekst } from "../../components/avtaler/avtaledatoer/opsjonsmodeller";
 import { useFeatureToggle } from "../../api/features/useFeatureToggle";
+import { OpsjonerRegistrert } from "../../components/avtaler/opsjoner/OpsjonerRegistrert";
 
 export function AvtaleDetaljer() {
   const { data: avtale, isPending, error } = useAvtale();
@@ -106,7 +107,7 @@ export function AvtaleDetaljer() {
           <Bolk aria-label="Start- og sluttdato">
             <Metadata header={avtaletekster.startdatoLabel} verdi={formaterDato(startDato)} />
             <Metadata
-              header={avtaletekster.sluttdatoLabel}
+              header={avtaletekster.sluttdatoLabel(avtale.opsjonerRegistrert.length > 0)}
               verdi={sluttDato ? formaterDato(sluttDato) : "-"}
             />
             {registrereOpsjonsmodellIsEnabled && avtale?.opsjonsmodellData?.opsjonMaksVarighet ? (
@@ -120,6 +121,8 @@ export function AvtaleDetaljer() {
               />
             ) : null}
           </Bolk>
+
+          {avtale.opsjonerRegistrert.length > 0 ? <OpsjonerRegistrert avtale={avtale} /> : null}
 
           <Separator />
 

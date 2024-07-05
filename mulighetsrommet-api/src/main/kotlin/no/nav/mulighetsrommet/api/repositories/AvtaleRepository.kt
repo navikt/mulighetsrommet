@@ -522,6 +522,7 @@ class AvtaleRepository(private val db: Database) {
     private fun Row.toAvtaleAdminDto(): AvtaleAdminDto {
         val startDato = localDate("start_dato")
         val sluttDato = localDateOrNull("slutt_dato")
+        val opprinneligSluttdato = localDateOrNull("opprinnelig_sluttdato")
         val personopplysninger = Json.decodeFromString<List<Personopplysning>>(string("personopplysninger"))
 
         val underenheter = stringOrNull("arrangor_underenheter")
@@ -545,6 +546,10 @@ class AvtaleRepository(private val db: Database) {
                 Kontorstruktur(region = region, kontorer = kontorer)
             }
 
+        val opsjonerRegistrert = stringOrNull("avtaleopsjonslogg")
+            ?.let { Json.decodeFromString<List<AvtaleAdminDto.OpsjonLoggRegistrert?>>(it).filterNotNull() }
+            ?: emptyList()
+
         val avbruttTidspunkt = localDateTimeOrNull("avbrutt_tidspunkt")
         val avbruttAarsak = stringOrNull("avbrutt_aarsak")?.let { AvbruttAarsak.fromString(it) }
 
@@ -561,6 +566,7 @@ class AvtaleRepository(private val db: Database) {
             websaknummer = stringOrNull("websaknummer")?.let { Websaknummer(it) },
             startDato = startDato,
             sluttDato = sluttDato,
+            opprinneligSluttDato = opprinneligSluttdato,
             opphav = ArenaMigrering.Opphav.valueOf(string("opphav")),
             avtaletype = Avtaletype.valueOf(string("avtaletype")),
             status = AvtaleStatus.fromString(string("status"), avbruttTidspunkt, avbruttAarsak),
@@ -594,6 +600,7 @@ class AvtaleRepository(private val db: Database) {
             personvernBekreftet = boolean("personvern_bekreftet"),
             amoKategorisering = stringOrNull("amo_kategorisering")?.let { Json.decodeFromString(it) },
             opsjonsmodellData = opsjonsmodellData,
+            opsjonerRegistrert = opsjonerRegistrert.sortedBy { it.aktivertDato },
         )
     }
 

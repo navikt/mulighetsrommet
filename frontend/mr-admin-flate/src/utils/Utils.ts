@@ -131,6 +131,12 @@ export function subtractMonths(date: Date, numMonths: number): Date {
   return newDate;
 }
 
+export function addDays(date: Date, numDays: number): Date {
+  const newDate = new Date(date);
+  newDate.setDate(date.getDate() + numDays);
+  return newDate;
+}
+
 export function subtractDays(date: Date, numDays: number): Date {
   const newDate = new Date(date);
   newDate.setDate(date.getDate() - numDays);

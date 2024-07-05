@@ -6,6 +6,7 @@ import kotlinx.serialization.json.encodeToJsonElement
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.avtaler.OpsjonLoggValidator
 import no.nav.mulighetsrommet.api.domain.dto.OpsjonLoggEntry
+import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.routes.v1.OpsjonLoggRequest
 import no.nav.mulighetsrommet.database.Database
 import org.intellij.lang.annotations.Language
@@ -13,7 +14,7 @@ import org.intellij.lang.annotations.Language
 class OpsjonLoggService(
     private val db: Database,
     private val opsjonLoggValidator: OpsjonLoggValidator,
-    private val avtaleService: AvtaleService,
+    private val avtaleRepository: AvtaleRepository,
     private val endringshistorikkService: EndringshistorikkService,
 ) {
     fun lagreOpsjonLoggEntry(entry: OpsjonLoggEntry) {
@@ -24,12 +25,12 @@ class OpsjonLoggService(
         """.trimIndent()
 
         val avtale =
-            avtaleService.get(entry.avtaleId) ?: throw NotFoundException("Fant ikke avtale med id ${entry.avtaleId}")
+            avtaleRepository.get(entry.avtaleId) ?: throw NotFoundException("Fant ikke avtale med id ${entry.avtaleId}")
 
         opsjonLoggValidator.validate(entry, avtale.opsjonsmodellData).map {
             db.transaction { tx ->
                 if (entry.sluttdato != null) {
-                    avtaleService.oppdaterSluttdato(entry.avtaleId, entry.sluttdato)
+                    avtaleRepository.oppdaterSluttdato(entry.avtaleId, entry.sluttdato)
                 }
                 queryOf(
                     query,

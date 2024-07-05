@@ -88,6 +88,10 @@ class AvtaleValidator(
                         }
                     }
                 }
+
+                if (currentAvtale?.opsjonerRegistrert?.isNotEmpty() == true && avtale.opsjonsmodell != currentAvtale.opsjonsmodellData?.opsjonsmodell) {
+                    add(ValidationError.of(AvtaleDbo::opsjonsmodell, "Du kan ikke endre opsjonsmodell når opsjoner er registrert"))
+                }
             }
 
             if (avtale.avtaletype.kreverWebsaknummer() && avtale.websaknummer == null) {
