@@ -39,8 +39,8 @@ export const mockAvtaler: Avtale[] = [
       ],
     },
     startDato: "2021-08-02",
-    sluttDato: "2026-08-01",
-    avtaletype: Avtaletype.FORHAANDSGODKJENT,
+    sluttDato: "2023-08-01",
+    avtaletype: Avtaletype.RAMMEAVTALE,
     status: { name: "AKTIV" },
     arenaAnsvarligEnhet: mockEnheter._0300,
     prisbetingelser: `Nye priser fra 21.03.23, gamle priser i parentes
@@ -63,7 +63,11 @@ export const mockAvtaler: Avtale[] = [
     personopplysninger: [],
     personvernBekreftet: false,
     amoKategorisering: null,
-    opsjonsmodellData: null,
+    opsjonsmodellData: {
+      opsjonsmodell: OpsjonsmodellKey.TO_PLUSS_EN_PLUSS_EN_PLUSS_EN,
+      opsjonMaksVarighet: "2026-08-02",
+      customOpsjonsmodellNavn: null,
+    },
   },
   {
     id: "d1f163b7-1a41-4547-af16-03fd4492b7bc",

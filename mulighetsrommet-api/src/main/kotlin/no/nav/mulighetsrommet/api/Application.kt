@@ -62,6 +62,7 @@ fun Application.configure(config: AppConfig) {
             featureTogglesRoute()
             veilederJoyrideRoutes()
             janzzRoutes()
+            opsjonRoutes()
         }
 
         authenticate(AuthProvider.AZURE_AD_DEFAULT_APP.name) {

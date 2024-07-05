@@ -15,6 +15,7 @@ import no.nav.mulighetsrommet.api.domain.dto.AvtaleAdminDto
 import no.nav.mulighetsrommet.api.domain.dto.AvtaleNotificationDto
 import no.nav.mulighetsrommet.api.domain.dto.Kontorstruktur
 import no.nav.mulighetsrommet.api.routes.v1.Opsjonsmodell
+import no.nav.mulighetsrommet.api.routes.v1.OpsjonsmodellData
 import no.nav.mulighetsrommet.api.routes.v1.responses.StatusResponseError
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.PaginatedResult
@@ -430,7 +431,8 @@ class AvtaleRepository(private val db: Database) {
             .let { db.run(it) }
     }
 
-    fun avbryt(id: UUID, tidspunkt: LocalDateTime, aarsak: AvbruttAarsak): Int = db.transaction { avbryt(it, id, tidspunkt, aarsak) }
+    fun avbryt(id: UUID, tidspunkt: LocalDateTime, aarsak: AvbruttAarsak): Int =
+        db.transaction { avbryt(it, id, tidspunkt, aarsak) }
 
     fun avbryt(tx: Session, id: UUID, tidspunkt: LocalDateTime, aarsak: AvbruttAarsak): Int {
         @Language("PostgreSQL")
@@ -546,7 +548,7 @@ class AvtaleRepository(private val db: Database) {
         val avbruttTidspunkt = localDateTimeOrNull("avbrutt_tidspunkt")
         val avbruttAarsak = stringOrNull("avbrutt_aarsak")?.let { AvbruttAarsak.fromString(it) }
 
-        val opsjonsmodellData = AvtaleAdminDto.OpsjonsmodellData(
+        val opsjonsmodellData = OpsjonsmodellData(
             opsjonMaksVarighet = localDateOrNull("opsjon_maks_varighet"),
             opsjonsmodell = stringOrNull("opsjonsmodell")?.let { Opsjonsmodell.valueOf(it) },
             customOpsjonsmodellNavn = stringOrNull("opsjon_custom_opsjonsmodell_navn"),
@@ -661,5 +663,22 @@ class AvtaleRepository(private val db: Database) {
         return valgtePersonopplysninger
             .sortedBy { it.sortKey }
             .map { it.toPersonopplysningData() }
+    }
+
+    fun oppdaterSluttdato(avtaleId: UUID, nySluttdato: LocalDate) {
+        @Language("PostgreSQL")
+        val query = """
+            update avtale
+            set slutt_dato = :nySluttdato
+            where id = :avtaleId::uuid
+            """
+
+        queryOf(
+            query,
+            mapOf(
+                "nySluttdato" to nySluttdato,
+                "avtaleId" to avtaleId,
+            ),
+        ).asUpdate.let { db.run(it) }
     }
 }
