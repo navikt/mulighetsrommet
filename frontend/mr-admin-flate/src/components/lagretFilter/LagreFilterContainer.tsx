@@ -21,7 +21,7 @@ interface Props {
 }
 
 // TODO Rename komponent
-export function LagreFilterKnapp({ dokumenttype }: Props) {
+export function LagreFilterContainer({ dokumenttype }: Props) {
   const [isOpen, setIsOpen] = useState(false);
   const avtaleFilter = useAtomValue(avtaleFilterAtom);
   const tiltaksgjennomforingFilter = useAtomValue(tiltaksgjennomforingfilterAtom);
@@ -88,7 +88,6 @@ export function LagreFilterKnapp({ dokumenttype }: Props) {
             <Modal.Body>
               <TextField
                 {...register("navn")}
-                autoFocus
                 size="small"
                 error={errors.navn?.message}
                 label="Navn på filter"

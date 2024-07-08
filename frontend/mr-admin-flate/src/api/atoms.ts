@@ -1,6 +1,7 @@
 import {
   Avtalestatus,
   Avtaletype,
+  LagretDokumenttype,
   NavEnhet,
   SorteringArrangorer,
   SorteringAvtaler,
@@ -8,7 +9,7 @@ import {
   SorteringTiltakstyper,
   TiltaksgjennomforingStatus,
 } from "mulighetsrommet-api-client";
-import { atom, WritableAtom } from "jotai";
+import { atom, useAtomValue, WritableAtom } from "jotai";
 import { atomFamily } from "jotai/utils";
 import { ARRANGORER_PAGE_SIZE, AVTALE_PAGE_SIZE, PAGE_SIZE } from "@/constants";
 import { RESET } from "jotai/vanilla/utils";
@@ -278,3 +279,15 @@ export const avtaleDetaljerTabAtom = atom<"detaljer" | "personvern" | "redaksjon
 
 export const gjennomforingFilterAccordionAtom = atom<string[]>(["status"]);
 export const avtaleFilterAccordionAtom = atom<string[]>(["status"]);
+
+export function useFilterBasedOnDokumenttype(dokumenttype: LagretDokumenttype) {
+  const avtaleFilter = useAtomValue(avtaleFilterAtom);
+  const tiltaksgjennomforingFilter = useAtomValue(tiltaksgjennomforingfilterAtom);
+
+  switch (dokumenttype) {
+    case LagretDokumenttype.AVTALE:
+      return avtaleFilter;
+    case LagretDokumenttype.TILTAKSGJENNOMFØRING:
+      return tiltaksgjennomforingFilter;
+  }
+}

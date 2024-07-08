@@ -1,11 +1,13 @@
 import { TrashFillIcon } from "@navikt/aksel-icons";
-import { Accordion, BodyShort, Button, HStack, Radio, RadioGroup } from "@navikt/ds-react";
+import { Accordion, BodyShort, Button, HGrid, HStack, Radio, RadioGroup } from "@navikt/ds-react";
+import isEqual from "lodash.isequal";
 import { LagretDokumenttype, LagretFilter } from "mulighetsrommet-api-client";
 import { FilterAccordionHeader } from "mulighetsrommet-frontend-common";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useFilterBasedOnDokumenttype } from "../../api/atoms";
 import { useGetLagredeFilterForDokumenttype } from "../../api/lagretFilter/getLagredeFilterForDokumenttype";
-import { VarselModal } from "../modal/VarselModal";
 import { useSlettFilter } from "../../api/lagretFilter/useSlettFilter";
+import { VarselModal } from "../modal/VarselModal";
 
 interface Props {
   dokumenttype: LagretDokumenttype;
@@ -13,19 +15,29 @@ interface Props {
 }
 
 export function LagredeFilterOversikt({ dokumenttype, setFilter }: Props) {
+  const filter = useFilterBasedOnDokumenttype(dokumenttype);
   const { data: lagredeFilter = [] } = useGetLagredeFilterForDokumenttype(dokumenttype);
   const [valgtFilter, setValgtFilter] = useState<LagretFilter | undefined>(undefined);
+  const [filterForSletting, setFilterForSletting] = useState<LagretFilter | undefined>(undefined);
   const sletteFilterModalRef = useRef<HTMLDialogElement>(null);
   const mutation = useSlettFilter(LagretDokumenttype.AVTALE);
+
+  useEffect(() => {
+    lagredeFilter.forEach((f) => {
+      if (isEqual(filter, f.filter)) {
+        setValgtFilter(f);
+      }
+    });
+  }, [filter, lagredeFilter]);
 
   function oppdaterFilter(filterValgt: any) {
     setFilter(filterValgt);
   }
 
   function slettFilter() {
-    if (valgtFilter) {
+    if (filterForSletting) {
       {
-        mutation.mutate(valgtFilter.id);
+        mutation.mutate(filterForSletting.id);
         setValgtFilter(undefined);
         sletteFilterModalRef.current?.close();
       }
@@ -35,7 +47,7 @@ export function LagredeFilterOversikt({ dokumenttype, setFilter }: Props) {
   return (
     <>
       <Accordion>
-        <Accordion.Item>
+        <Accordion.Item defaultOpen={!!valgtFilter}>
           <Accordion.Header>
             <FilterAccordionHeader tittel="Lagrede filter" antallValgteFilter={0} />
           </Accordion.Header>
@@ -48,10 +60,11 @@ export function LagredeFilterOversikt({ dokumenttype, setFilter }: Props) {
                   legend="Mine filter"
                   hideLegend
                   onChange={(filterValgt) => oppdaterFilter(filterValgt)}
+                  value={valgtFilter?.filter}
                 >
                   {lagredeFilter?.map((filter) => {
                     return (
-                      <HStack key={filter.id} align={"center"} justify={"space-between"}>
+                      <HGrid key={filter.id} align={"start"} columns={"10rem auto"}>
                         <Radio size="small" value={filter.filter}>
                           {filter.navn}
                         </Radio>
@@ -64,7 +77,7 @@ export function LagredeFilterOversikt({ dokumenttype, setFilter }: Props) {
                         >
                           <TrashFillIcon />
                         </Button>
-                      </HStack>
+                      </HGrid>
                     );
                   })}
                 </RadioGroup>
@@ -74,12 +87,12 @@ export function LagredeFilterOversikt({ dokumenttype, setFilter }: Props) {
         </Accordion.Item>
       </Accordion>
       <VarselModal
-        open={!!valgtFilter}
+        open={!!filterForSletting}
         headingIconType="warning"
         headingText="Slette filter?"
         modalRef={sletteFilterModalRef}
         handleClose={() => {
-          setValgtFilter(undefined);
+          setFilterForSletting(undefined);
           sletteFilterModalRef.current?.close();
         }}
         body={
