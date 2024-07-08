@@ -3,7 +3,9 @@ package no.nav.mulighetsrommet.api.services
 import arrow.core.nonEmptyListOf
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldHaveSize
+import io.mockk.clearMocks
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.serialization.json.Json
@@ -13,6 +15,7 @@ import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
 import no.nav.mulighetsrommet.api.domain.dto.SanityResponse
 import no.nav.mulighetsrommet.api.routes.v1.ApentForInnsok
+import no.nav.mulighetsrommet.domain.dto.Innsatsgruppe
 import java.util.*
 
 class VeilederflateServiceTest : FunSpec({
@@ -32,6 +35,10 @@ class VeilederflateServiceTest : FunSpec({
     val sanityGjennomforingInnlandet = UUID.fromString("8d8a73bc-b661-4efd-90fc-2c59b258200e")
     val sanityGjennomforingStorElvdal = UUID.fromString("f21d1e35-d63b-4de7-a0a5-589e57111527")
 
+    beforeEach {
+        clearMocks(sanityClient)
+    }
+
     val sanityResult = SanityResponse.Result(
         ms = 12,
         query = "",
@@ -48,7 +55,8 @@ class VeilederflateServiceTest : FunSpec({
                 "tiltaksnummer": "2023#176408",
                 "tiltakstype": {
                     "_id": "${UUID.randomUUID()}",
-                    "tiltakstypeNavn": "Opplæring - Gruppe AMO"
+                    "tiltakstypeNavn": "Opplæring - Gruppe AMO",
+                    "innsatsgrupper": ["SITUASJONSBESTEMT_INNSATS", "SPESIELT_TILPASSET_INNSATS", "GRADERT_VARIG_TILPASSET_INNSATS", "VARIG_TILPASSET_INNSATS"]
                 },
                 "fylke": null
             },
@@ -59,7 +67,8 @@ class VeilederflateServiceTest : FunSpec({
                 "stedForGjennomforing": "Oslo",
                 "tiltakstype": {
                     "_id": "${UUID.randomUUID()}",
-                    "tiltakstypeNavn": "Individuelt Tiltak"
+                    "tiltakstypeNavn": "Individuelt Tiltak",
+                    "innsatsgrupper": ["SITUASJONSBESTEMT_INNSATS", "SPESIELT_TILPASSET_INNSATS", "GRADERT_VARIG_TILPASSET_INNSATS", "VARIG_TILPASSET_INNSATS"]
                 },
                 "fylke": "0400",
                 "oppstart": null,
@@ -76,7 +85,8 @@ class VeilederflateServiceTest : FunSpec({
                 "fylke": "0400",
                 "tiltakstype": {
                     "_id": "${UUID.randomUUID()}",
-                    "tiltakstypeNavn": "Oppfølging"
+                    "tiltakstypeNavn": "Oppfølging",
+                    "innsatsgrupper": ["SITUASJONSBESTEMT_INNSATS", "SPESIELT_TILPASSET_INNSATS", "GRADERT_VARIG_TILPASSET_INNSATS", "VARIG_TILPASSET_INNSATS"]
                 },
                 "enheter": ["0430"],
                 "faneinnhold": { "forHvemInfoboks": "infoboks" }
@@ -108,16 +118,60 @@ class VeilederflateServiceTest : FunSpec({
         veilederFlateService.hentTiltaksgjennomforinger(
             enheter = nonEmptyListOf("0430"),
             apentForInnsok = ApentForInnsok.APENT,
+            innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
+            cacheUsage = CacheUsage.NoCache,
         ) shouldHaveSize 2
 
         veilederFlateService.hentTiltaksgjennomforinger(
             enheter = nonEmptyListOf("0430"),
             apentForInnsok = ApentForInnsok.APENT_ELLER_STENGT,
+            innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
+            cacheUsage = CacheUsage.NoCache,
         ) shouldHaveSize 2
 
         veilederFlateService.hentTiltaksgjennomforinger(
             enheter = nonEmptyListOf("0430"),
             apentForInnsok = ApentForInnsok.STENGT,
+            innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
+            cacheUsage = CacheUsage.NoCache,
         ) shouldHaveSize 0
+    }
+
+    test("Med UseCache kalles sanity kun én gang") {
+        val veilederFlateService = VeilederflateService(
+            sanityClient,
+            tiltaksgjennomforingService,
+            tiltakstypeService,
+            navEnhetService,
+        )
+        every {
+            tiltaksgjennomforingService.getAllVeilederflateTiltaksgjennomforing(
+                any(),
+                any(),
+                any(),
+                any(),
+                any(),
+            )
+        } returns listOf()
+
+        coEvery { sanityClient.query(any(), any()) } returns sanityResult
+
+        veilederFlateService.hentTiltaksgjennomforinger(
+            enheter = nonEmptyListOf("0430"),
+            apentForInnsok = ApentForInnsok.APENT,
+            innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
+            cacheUsage = CacheUsage.UseCache,
+        ) shouldHaveSize 2
+
+        veilederFlateService.hentTiltaksgjennomforinger(
+            enheter = nonEmptyListOf("0430"),
+            apentForInnsok = ApentForInnsok.APENT,
+            innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
+            cacheUsage = CacheUsage.UseCache,
+        ) shouldHaveSize 2
+
+        coVerify(exactly = 1) {
+            sanityClient.query(any(), any())
+        }
     }
 })

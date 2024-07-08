@@ -500,14 +500,14 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         search: String? = null,
         apentForInnsok: Boolean? = null,
         sanityTiltakstypeIds: List<UUID>? = null,
-        innsatsgruppe: Innsatsgruppe? = null,
+        innsatsgruppe: Innsatsgruppe,
         brukersEnheter: List<String>,
     ): List<VeilederflateTiltaksgjennomforing> {
         val parameters = mapOf(
             "search" to search?.let { "%${it.replace("/", "#").trim()}%" },
             "apent_for_innsok" to apentForInnsok,
             "sanityTiltakstypeIds" to sanityTiltakstypeIds?.let { db.createUuidArray(it) },
-            "innsatsgruppe" to innsatsgruppe?.name,
+            "innsatsgruppe" to innsatsgruppe.name,
             "brukersEnheter" to db.createTextArray(brukersEnheter),
         )
 
