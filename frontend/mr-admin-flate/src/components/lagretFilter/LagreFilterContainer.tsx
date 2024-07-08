@@ -27,7 +27,7 @@ export function LagreFilterContainer({ dokumenttype }: Props) {
   const tiltaksgjennomforingFilter = useAtomValue(tiltaksgjennomforingfilterAtom);
   const mutation = useLagreFilter({
     onSuccess: () => setIsOpen(false),
-    dokumenttype: LagretDokumenttype.AVTALE,
+    dokumenttype,
   });
 
   const form = useForm<InferredLagreFilterSchema>({

@@ -1,8 +1,9 @@
 import { defaultTiltaksgjennomforingfilter, TiltaksgjennomforingFilter } from "@/api/atoms";
 import { useAtom } from "jotai/index";
 import { NullstillFilterKnapp } from "mulighetsrommet-frontend-common/components/nullstillFilterKnapp/NullstillFilterKnapp";
-import { Avtale } from "mulighetsrommet-api-client";
+import { Avtale, LagretDokumenttype } from "mulighetsrommet-api-client";
 import { WritableAtom } from "jotai";
+import { LagreFilterContainer } from "../../components/lagretFilter/LagreFilterContainer";
 
 interface Props {
   filterAtom: WritableAtom<
@@ -21,13 +22,16 @@ export const NullstillKnappForTiltaksgjennomforinger = ({ filterAtom, avtale }: 
     filter.navEnheter.length > 0 ||
     filter.statuser.length > 0 ||
     filter.arrangorer.length > 0 ? (
-    <NullstillFilterKnapp
-      onClick={() => {
-        setFilter({
-          ...defaultTiltaksgjennomforingfilter,
-          avtale: avtale?.id ?? defaultTiltaksgjennomforingfilter.avtale,
-        });
-      }}
-    />
+    <>
+      <NullstillFilterKnapp
+        onClick={() => {
+          setFilter({
+            ...defaultTiltaksgjennomforingfilter,
+            avtale: avtale?.id ?? defaultTiltaksgjennomforingfilter.avtale,
+          });
+        }}
+      />
+      <LagreFilterContainer dokumenttype={LagretDokumenttype.TILTAKSGJENNOMFØRING} />
+    </>
   ) : null;
 };

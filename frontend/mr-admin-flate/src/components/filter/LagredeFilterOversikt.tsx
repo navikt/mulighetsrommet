@@ -17,7 +17,7 @@ export function LagredeFilterOversikt({ dokumenttype, filter, setFilter }: Props
   const { data: lagredeFilter = [] } = useGetLagredeFilterForDokumenttype(dokumenttype);
   const [filterForSletting, setFilterForSletting] = useState<LagretFilter | undefined>(undefined);
   const sletteFilterModalRef = useRef<HTMLDialogElement>(null);
-  const mutation = useSlettFilter(LagretDokumenttype.AVTALE);
+  const mutation = useSlettFilter(dokumenttype);
 
   function oppdaterFilter(id: string) {
     const valgtFilter = lagredeFilter.find((f) => f.id === id);
@@ -93,7 +93,7 @@ export function LagredeFilterOversikt({ dokumenttype, filter, setFilter }: Props
           }}
           body={
             <BodyShort>
-              Vil du slette <b>{filterForSletting?.navn}</b>
+              Vil du slette filteret: <b>{filterForSletting?.navn}</b>
             </BodyShort>
           }
           primaryButton={
@@ -103,6 +103,8 @@ export function LagredeFilterOversikt({ dokumenttype, filter, setFilter }: Props
               </HStack>
             </Button>
           }
+          secondaryButton
+          secondaryButtonHandleAction={() => sletteFilterModalRef.current?.close()}
         ></VarselModal>
       ) : null}
     </>
