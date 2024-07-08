@@ -113,6 +113,7 @@ class AvtaleValidatorTest :
         lateinit var navEnheterService: NavEnhetService
         lateinit var tiltakstyper: TiltakstypeService
         lateinit var avtaler: AvtaleRepository
+        lateinit var opsjonslogg: OpsjonLoggRepository
         lateinit var gjennomforinger: TiltaksgjennomforingRepository
         lateinit var arrangorer: ArrangorRepository
 
@@ -125,6 +126,7 @@ class AvtaleValidatorTest :
             )
             navEnheterService = NavEnhetService(NavEnhetRepository(database.db))
             avtaler = AvtaleRepository(database.db)
+            opsjonslogg = OpsjonLoggRepository(database.db)
             gjennomforinger = TiltaksgjennomforingRepository(database.db)
             arrangorer = ArrangorRepository(database.db)
         }
@@ -567,7 +569,7 @@ class AvtaleValidatorTest :
                 val opsjonValidator = OpsjonLoggValidator()
 
                 val opsjonLoggService =
-                    OpsjonLoggService(database.db, opsjonValidator, avtaler, endringshistorikkService)
+                    OpsjonLoggService(database.db, opsjonValidator, avtaler, opsjonslogg, endringshistorikkService)
                 val avtaleMedEndringer = AvtaleDbo(
                     id = avtaleDbo.id,
                     navn = "Nytt navn",
