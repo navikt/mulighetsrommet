@@ -2,22 +2,28 @@ import { TrashFillIcon } from "@navikt/aksel-icons";
 import { Accordion, BodyShort, Button, HGrid, HStack, Radio, RadioGroup } from "@navikt/ds-react";
 import { LagretDokumenttype, LagretFilter } from "mulighetsrommet-api-client";
 import { FilterAccordionHeader } from "mulighetsrommet-frontend-common";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useGetLagredeFilterForDokumenttype } from "../../api/lagretFilter/getLagredeFilterForDokumenttype";
 import { useSlettFilter } from "../../api/lagretFilter/useSlettFilter";
 import { VarselModal } from "../modal/VarselModal";
+import styles from "./LagretFilterOversikt.module.scss";
 
 interface Props {
   dokumenttype: LagretDokumenttype;
-  filter: any; // TODO Vurdere å ikke ha disse som any
+  filter: any;
   setFilter: (filter: any) => void;
 }
 
 export function LagredeFilterOversikt({ dokumenttype, filter, setFilter }: Props) {
   const { data: lagredeFilter = [] } = useGetLagredeFilterForDokumenttype(dokumenttype);
+  const [openLagrede, setOpenLagrede] = useState(lagredeFilter.length > 0);
   const [filterForSletting, setFilterForSletting] = useState<LagretFilter | undefined>(undefined);
   const sletteFilterModalRef = useRef<HTMLDialogElement>(null);
   const mutation = useSlettFilter(dokumenttype);
+
+  useEffect(() => {
+    setOpenLagrede(lagredeFilter.length > 0);
+  }, [lagredeFilter]);
 
   function oppdaterFilter(id: string) {
     const valgtFilter = lagredeFilter.find((f) => f.id === id);
@@ -37,7 +43,7 @@ export function LagredeFilterOversikt({ dokumenttype, filter, setFilter }: Props
   return (
     <>
       <Accordion>
-        <Accordion.Item defaultOpen={!!filter.lagretFilterIdValgt}>
+        <Accordion.Item open={openLagrede} onOpenChange={() => setOpenLagrede(!openLagrede)}>
           <Accordion.Header>
             <FilterAccordionHeader
               tittel="Lagrede filter"
@@ -55,26 +61,28 @@ export function LagredeFilterOversikt({ dokumenttype, filter, setFilter }: Props
                   onChange={(id) => oppdaterFilter(id)}
                   value={filter.lagretFilterIdValgt ? filter.lagretFilterIdValgt : null}
                 >
-                  {lagredeFilter?.map((lagretFilter) => {
-                    return (
-                      <HGrid key={lagretFilter.id} align={"start"} columns={"10rem auto"}>
-                        <Radio size="small" value={lagretFilter.id}>
-                          {lagretFilter.navn}
-                        </Radio>
-                        <Button
-                          variant="tertiary-neutral"
-                          size="small"
-                          onClick={() => {
-                            setFilterForSletting(
-                              lagredeFilter.find((f) => f.id === lagretFilter.id),
-                            );
-                          }}
-                        >
-                          <TrashFillIcon />
-                        </Button>
-                      </HGrid>
-                    );
-                  })}
+                  <div className={styles.overflow}>
+                    {lagredeFilter?.map((lagretFilter) => {
+                      return (
+                        <HGrid key={lagretFilter.id} align={"start"} columns={"10rem auto"}>
+                          <Radio size="small" value={lagretFilter.id}>
+                            {lagretFilter.navn}
+                          </Radio>
+                          <Button
+                            variant="tertiary-neutral"
+                            size="small"
+                            onClick={() => {
+                              setFilterForSletting(
+                                lagredeFilter.find((f) => f.id === lagretFilter.id),
+                              );
+                            }}
+                          >
+                            <TrashFillIcon />
+                          </Button>
+                        </HGrid>
+                      );
+                    })}
+                  </div>
                 </RadioGroup>
               )}
             </>
