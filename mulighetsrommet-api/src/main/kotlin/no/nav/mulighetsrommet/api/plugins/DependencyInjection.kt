@@ -176,6 +176,7 @@ private fun repositories() = module {
     single { ArrangorRepository(get()) }
     single { KafkaConsumerRepositoryImpl(get()) }
     single { VeilederJoyrideRepository(get()) }
+    single { OpsjonLoggRepository(get()) }
 }
 
 private fun services(appConfig: AppConfig) = module {
@@ -338,7 +339,7 @@ private fun services(appConfig: AppConfig) = module {
     single { AvtaleValidator(get(), get(), get(), get(), get()) }
     single { TiltaksgjennomforingValidator(get(), get(), get()) }
     single { OpsjonLoggValidator() }
-    single { OpsjonLoggService(get(), get(), get(), get()) }
+    single { OpsjonLoggService(get(), get(), get(), get(), get()) }
 }
 
 private fun tasks(config: TaskConfig) = module {

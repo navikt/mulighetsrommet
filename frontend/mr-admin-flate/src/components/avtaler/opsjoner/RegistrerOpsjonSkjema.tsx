@@ -2,7 +2,7 @@ import { Alert, Radio } from "@navikt/ds-react";
 import { Avtale } from "mulighetsrommet-api-client";
 import { useEffect } from "react";
 import { useFormContext } from "react-hook-form";
-import { addYear, formaterDato, formaterDatoSomYYYYMMDD } from "../../../utils/Utils";
+import { addDays, addYear, formaterDato, formaterDatoSomYYYYMMDD } from "../../../utils/Utils";
 import { ControlledDateInput } from "../../skjema/ControlledDateInput";
 import { ControlledRadioGroup } from "../../skjema/ControlledRadioGroup";
 import { InferredRegistrerOpsjonSchema } from "./RegistrerOpsjonSchema";
@@ -14,6 +14,7 @@ interface Props {
 
 export function RegistrerOpsjonSkjema({ avtale }: Props) {
   const maksVarighetForOpsjon = avtale?.opsjonsmodellData?.opsjonMaksVarighet;
+  const sluttDatoSisteOpsjon = avtale?.opsjonerRegistrert?.at(-1)?.sluttDato;
   const sluttdato = avtale?.sluttDato;
   const { watch, setValue, register } = useFormContext<InferredRegistrerOpsjonSchema>();
 
@@ -39,7 +40,10 @@ export function RegistrerOpsjonSkjema({ avtale }: Props) {
   return (
     <div className={styles.container}>
       <ControlledRadioGroup legend="Registrer opsjon" hideLegend {...register("opsjonsvalg")}>
-        <Radio value="1">
+        <Radio
+          value="1"
+          disabled={addYear(new Date(sluttdato), 1) > new Date(maksVarighetForOpsjon)}
+        >
           + 1 år (Forleng til: {formaterDato(addYear(new Date(sluttdato), 1))})
         </Radio>
         <Radio value="Annet">Annen lengde (maks dato: {formaterDato(maksVarighetForOpsjon)})</Radio>
@@ -48,7 +52,7 @@ export function RegistrerOpsjonSkjema({ avtale }: Props) {
         <ControlledDateInput
           size="small"
           label={"Velg ny sluttdato"}
-          fromDate={new Date()}
+          fromDate={sluttDatoSisteOpsjon ? addDays(new Date(sluttDatoSisteOpsjon), 1) : new Date()}
           toDate={new Date(maksVarighetForOpsjon)}
           {...register("opsjonsdatoValgt")}
           format={"iso-string"}

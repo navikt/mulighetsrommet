@@ -12,11 +12,15 @@ import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dbo.AvtaleDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
+import no.nav.mulighetsrommet.api.domain.dto.OpsjonLoggEntry
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.repositories.*
+import no.nav.mulighetsrommet.api.routes.v1.OpsjonLoggRequest
 import no.nav.mulighetsrommet.api.routes.v1.Opsjonsmodell
 import no.nav.mulighetsrommet.api.routes.v1.responses.ValidationError
+import no.nav.mulighetsrommet.api.services.EndringshistorikkService
 import no.nav.mulighetsrommet.api.services.NavEnhetService
+import no.nav.mulighetsrommet.api.services.OpsjonLoggService
 import no.nav.mulighetsrommet.api.services.TiltakstypeService
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
@@ -109,6 +113,7 @@ class AvtaleValidatorTest :
         lateinit var navEnheterService: NavEnhetService
         lateinit var tiltakstyper: TiltakstypeService
         lateinit var avtaler: AvtaleRepository
+        lateinit var opsjonslogg: OpsjonLoggRepository
         lateinit var gjennomforinger: TiltaksgjennomforingRepository
         lateinit var arrangorer: ArrangorRepository
 
@@ -121,6 +126,7 @@ class AvtaleValidatorTest :
             )
             navEnheterService = NavEnhetService(NavEnhetRepository(database.db))
             avtaler = AvtaleRepository(database.db)
+            opsjonslogg = OpsjonLoggRepository(database.db)
             gjennomforinger = TiltaksgjennomforingRepository(database.db)
             arrangorer = ArrangorRepository(database.db)
         }
@@ -330,7 +336,10 @@ class AvtaleValidatorTest :
                 arrangorer,
                 unleash,
             )
-            val rammeAvtale = AvtaleFixtures.oppfolging.copy(opsjonsmodell = Opsjonsmodell.ANNET, opsjonMaksVarighet = LocalDate.now())
+            val rammeAvtale = AvtaleFixtures.oppfolging.copy(
+                opsjonsmodell = Opsjonsmodell.ANNET,
+                opsjonMaksVarighet = LocalDate.now(),
+            )
 
             validator.validate(rammeAvtale, null).shouldBeLeft(
                 listOf(
@@ -348,8 +357,16 @@ class AvtaleValidatorTest :
                 unleash,
             )
 
-            val aft = AvtaleFixtures.AFT.copy(avtaletype = Avtaletype.Rammeavtale, opsjonMaksVarighet = LocalDate.now(), opsjonsmodell = Opsjonsmodell.TO_PLUSS_EN)
-            val vta = AvtaleFixtures.VTA.copy(avtaletype = Avtaletype.Avtale, opsjonMaksVarighet = LocalDate.now(), opsjonsmodell = Opsjonsmodell.TO_PLUSS_EN)
+            val aft = AvtaleFixtures.AFT.copy(
+                avtaletype = Avtaletype.Rammeavtale,
+                opsjonMaksVarighet = LocalDate.now(),
+                opsjonsmodell = Opsjonsmodell.TO_PLUSS_EN,
+            )
+            val vta = AvtaleFixtures.VTA.copy(
+                avtaletype = Avtaletype.Avtale,
+                opsjonMaksVarighet = LocalDate.now(),
+                opsjonsmodell = Opsjonsmodell.TO_PLUSS_EN,
+            )
             val oppfolging = AvtaleFixtures.oppfolging.copy(avtaletype = Avtaletype.OffentligOffentlig)
             val gruppeAmo = AvtaleFixtures.gruppeAmo.copy(avtaletype = Avtaletype.Forhaandsgodkjent)
             validator.validate(aft, null).shouldBeLeft(
@@ -544,6 +561,79 @@ class AvtaleValidatorTest :
                     ValidationError("sluttDato", "Sluttdato kan ikke endres utenfor Arena"),
                     ValidationError("avtaletype", "Avtaletype kan ikke endres utenfor Arena"),
                     ValidationError("arrangorId", "Tiltaksarrangøren kan ikke endres utenfor Arena"),
+                )
+            }
+
+            test("Skal ikke kunne endre opsjonsmodell når opsjon er registrert") {
+                val endringshistorikkService: EndringshistorikkService = mockk(relaxed = true)
+                val opsjonValidator = OpsjonLoggValidator()
+
+                val opsjonLoggService =
+                    OpsjonLoggService(database.db, opsjonValidator, avtaler, opsjonslogg, endringshistorikkService)
+                val avtaleMedEndringer = AvtaleDbo(
+                    id = avtaleDbo.id,
+                    navn = "Nytt navn",
+                    tiltakstypeId = TiltakstypeFixtures.Jobbklubb.id,
+                    arrangorId = ArrangorFixtures.underenhet1.id,
+                    arrangorUnderenheter = listOf(ArrangorFixtures.underenhet1.id),
+                    arrangorKontaktpersoner = emptyList(),
+                    avtalenummer = "123456",
+                    websaknummer = Websaknummer("24/1234"),
+                    startDato = LocalDate.of(2024, 5, 7),
+                    sluttDato = LocalDate.of(2024, 5, 7).plusYears(1),
+                    administratorer = listOf(NavIdent("B123456")),
+                    avtaletype = Avtaletype.Avtale,
+                    prisbetingelser = null,
+                    navEnheter = listOf("0300"),
+                    antallPlasser = null,
+                    beskrivelse = null,
+                    faneinnhold = null,
+                    personopplysninger = emptyList(),
+                    personvernBekreftet = false,
+                    amoKategorisering = null,
+                    opsjonMaksVarighet = LocalDate.of(2024, 5, 7).plusYears(3),
+                    opsjonsmodell = Opsjonsmodell.TO_PLUSS_EN,
+                    customOpsjonsmodellNavn = null,
+                )
+
+                avtaler.upsert(
+                    avtaleDbo.copy(
+                        administratorer = listOf(),
+                        tiltakstypeId = TiltakstypeFixtures.Jobbklubb.id,
+                        opsjonsmodell = Opsjonsmodell.TO_PLUSS_EN_PLUSS_EN,
+                        opsjonMaksVarighet = LocalDate.of(2024, 5, 7).plusYears(3),
+                        startDato = LocalDate.of(2024, 5, 7),
+                        sluttDato = LocalDate.of(2024, 5, 7).plusYears(1),
+                    ),
+                )
+                avtaler.setOpphav(avtaleDbo.id, ArenaMigrering.Opphav.MR_ADMIN_FLATE)
+
+                opsjonLoggService.lagreOpsjonLoggEntry(
+                    OpsjonLoggEntry(
+                        avtaleId = avtaleDbo.id,
+                        sluttdato = avtaleDbo.sluttDato?.plusYears(1),
+                        status = OpsjonLoggRequest.OpsjonsLoggStatus.OPSJON_UTLØST,
+                        registrertAv = NavIdent("M123456"),
+                    ),
+                )
+
+                val previous = avtaler.get(avtaleDbo.id)
+
+                val validator = AvtaleValidator(
+                    TiltakstypeService(
+                        TiltakstypeRepository(database.db),
+                        Tiltakskode.values().toList(),
+                    ),
+                    gjennomforinger,
+                    navEnheterService,
+                    arrangorer,
+                    unleash,
+                )
+
+                validator.validate(avtaleMedEndringer, previous).shouldBeLeft(
+                    listOf(
+                        ValidationError("opsjonsmodell", "Du kan ikke endre opsjonsmodell når opsjoner er registrert"),
+                    ),
                 )
             }
 

@@ -45,6 +45,7 @@ class OpsjonLoggValidatorTest : FunSpec({
         ),
         startDato = LocalDate.of(2024, 7, 5),
         sluttDato = LocalDate.of(2024, 7, 5).plusYears(2),
+        opprinneligSluttDato = LocalDate.of(2024, 7, 5).plusYears(2),
         arenaAnsvarligEnhet = ArenaNavEnhet(
             navn = "NAV Oslo",
             enhetsnummer = "0100",
@@ -66,6 +67,7 @@ class OpsjonLoggValidatorTest : FunSpec({
             opsjonsmodell = Opsjonsmodell.TO_PLUSS_EN_PLUSS_EN_PLUSS_EN,
             customOpsjonsmodellNavn = null,
         ),
+        opsjonerRegistrert = emptyList(),
     )
 
     test("Skal kaste en feil hvis opsjonsmodell ikke finnes") {

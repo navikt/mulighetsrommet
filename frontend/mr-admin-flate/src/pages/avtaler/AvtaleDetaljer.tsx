@@ -20,6 +20,7 @@ import { useFeatureToggle } from "@/api/features/useFeatureToggle";
 import { DetaljerContainer } from "@/pages/DetaljerContainer";
 import { DetaljerInfoContainer } from "@/pages/DetaljerInfoContainer";
 import { ArrangorKontaktinfoContainer } from "@/pages/arrangor/ArrangorKontaktinfoContainer";
+import { OpsjonerRegistrert } from "@/components/avtaler/opsjoner/OpsjonerRegistrert";
 
 export function AvtaleDetaljer() {
   const { data: avtale, isPending, error } = useAvtale();
@@ -105,7 +106,7 @@ export function AvtaleDetaljer() {
         <Bolk aria-label="Start- og sluttdato">
           <Metadata header={avtaletekster.startdatoLabel} verdi={formaterDato(startDato)} />
           <Metadata
-            header={avtaletekster.sluttdatoLabel}
+            header={avtaletekster.sluttdatoLabel(avtale.opsjonerRegistrert.length > 0)}
             verdi={sluttDato ? formaterDato(sluttDato) : "-"}
           />
           {registrereOpsjonsmodellIsEnabled && avtale?.opsjonsmodellData?.opsjonMaksVarighet ? (
@@ -119,6 +120,10 @@ export function AvtaleDetaljer() {
             />
           ) : null}
         </Bolk>
+
+        {avtale.opsjonerRegistrert.length > 0 ? (
+          <OpsjonerRegistrert readOnly={false} avtale={avtale} />
+        ) : null}
 
         <Separator />
 
