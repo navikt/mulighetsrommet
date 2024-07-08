@@ -156,7 +156,7 @@ class VeilederflateService(
             return emptyList()
         }
 
-        val sanityGjennomforinger = sgetSanityTiltak(search, cacheUsage)
+        val sanityGjennomforinger = getSanityTiltak(search, cacheUsage)
 
         val fylker = enheter.map {
             navEnhetService.hentOverordnetFylkesenhet(it)?.enhetsnummer
@@ -175,10 +175,10 @@ class VeilederflateService(
             }
     }
 
-    private suspend fun sgetSanityTiltak(search: String?, cacheUsage: CacheUsage): List<SanityTiltaksgjennomforing> {
+    private suspend fun getSanityTiltak(search: String?, cacheUsage: CacheUsage): List<SanityTiltaksgjennomforing> {
         sanityTiltaksgjennomforingerCache.getIfPresent(search ?: "")?.let {
             if (cacheUsage == CacheUsage.UseCache) {
-                return@sgetSanityTiltak it
+                return@getSanityTiltak it
             }
         }
 
@@ -189,7 +189,8 @@ class VeilederflateService(
               _id,
               tiltakstype->{
                 _id,
-                tiltakstypeNavn
+                tiltakstypeNavn,
+                innsatsgrupper,
               },
               tiltaksgjennomforingNavn,
               "tiltaksnummer": tiltaksnummer.current,
