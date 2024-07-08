@@ -20,7 +20,6 @@ interface Props {
   dokumenttype: LagretDokumenttype;
 }
 
-// TODO Rename komponent
 export function LagreFilterContainer({ dokumenttype }: Props) {
   const [isOpen, setIsOpen] = useState(false);
   const avtaleFilter = useAtomValue(avtaleFilterAtom);
