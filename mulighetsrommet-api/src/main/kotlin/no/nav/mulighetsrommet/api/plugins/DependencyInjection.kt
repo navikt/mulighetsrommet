@@ -340,6 +340,7 @@ private fun services(appConfig: AppConfig) = module {
     single { TiltaksgjennomforingValidator(get(), get(), get()) }
     single { OpsjonLoggValidator() }
     single { OpsjonLoggService(get(), get(), get(), get(), get()) }
+    single { LagretFilterService(get()) }
 }
 
 private fun tasks(config: TaskConfig) = module {

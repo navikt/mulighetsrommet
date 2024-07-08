@@ -94,3 +94,13 @@ create trigger set_timestamp
     on avtale_opsjon_logg
     for each row
 execute procedure trigger_set_timestamp();
+
+drop trigger if exists set_timestamp on lagret_filter;
+
+create trigger set_timestamp
+    before update
+    on lagret_filter
+    for each row
+execute procedure trigger_set_timestamp();
+
+

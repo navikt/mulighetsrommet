@@ -5,8 +5,8 @@ import { QueryKeys } from "../QueryKeys";
 export function useRegistrerOpsjon() {
   const queryClient = useQueryClient();
 
-  return useMutation<String, ApiError, OpsjonLoggRequest>({
-    mutationFn: (requestBody: OpsjonLoggRequest) => OpsjonerService.lagreOpsjon({ requestBody }),
+  return useMutation<string, ApiError, OpsjonLoggRequest>({
+    mutationFn: (requestBody) => OpsjonerService.lagreOpsjon({ requestBody }),
     onSuccess(_, request) {
       return Promise.all([
         queryClient.invalidateQueries({
