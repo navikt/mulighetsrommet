@@ -6,7 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import { useGetLagredeFilterForDokumenttype } from "../../api/lagretFilter/getLagredeFilterForDokumenttype";
 import { useSlettFilter } from "../../api/lagretFilter/useSlettFilter";
 import { VarselModal } from "../modal/VarselModal";
-import styles from "./LagretFilterOversikt.module.scss";
+import styles from "./LagredeFilterOversikt.module.scss";
 
 interface Props {
   dokumenttype: LagretDokumenttype;
@@ -69,6 +69,7 @@ export function LagredeFilterOversikt({ dokumenttype, filter, setFilter }: Props
                             {lagretFilter.navn}
                           </Radio>
                           <Button
+                            aria-label="Slett filter"
                             variant="tertiary-neutral"
                             size="small"
                             onClick={() => {
