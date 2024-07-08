@@ -1,3 +1,7 @@
+import { ARRANGORER_PAGE_SIZE, AVTALE_PAGE_SIZE, PAGE_SIZE } from "@/constants";
+import { atom, WritableAtom } from "jotai";
+import { atomFamily } from "jotai/utils";
+import { RESET } from "jotai/vanilla/utils";
 import {
   Avtalestatus,
   Avtaletype,
@@ -8,11 +12,7 @@ import {
   SorteringTiltakstyper,
   TiltaksgjennomforingStatus,
 } from "mulighetsrommet-api-client";
-import { atom, WritableAtom } from "jotai";
-import { atomFamily } from "jotai/utils";
-import { ARRANGORER_PAGE_SIZE, AVTALE_PAGE_SIZE, PAGE_SIZE } from "@/constants";
-import { RESET } from "jotai/vanilla/utils";
-import { ZodType, z } from "zod";
+import { z, ZodType } from "zod";
 
 type SetStateActionWithReset<Value> =
   | Value
@@ -158,6 +158,7 @@ const tiltaksgjennomforingFilterSchema = z.object({
   publisert: z.string().array(),
   page: z.number(),
   pageSize: z.number(),
+  lagretFilterIdValgt: z.string().optional(),
 });
 export type TiltaksgjennomforingFilter = z.infer<typeof tiltaksgjennomforingFilterSchema>;
 
@@ -209,6 +210,7 @@ const avtaleFilterSchema = z.object({
   personvernBekreftet: z.boolean().array(),
   page: z.number(),
   pageSize: z.number(),
+  lagretFilterIdValgt: z.string().optional(),
 });
 export type AvtaleFilter = z.infer<typeof avtaleFilterSchema>;
 
@@ -224,6 +226,7 @@ export const defaultAvtaleFilter: AvtaleFilter = {
   personvernBekreftet: [],
   page: 1,
   pageSize: AVTALE_PAGE_SIZE,
+  lagretFilterIdValgt: undefined,
 };
 
 export const avtaleFilterAtom = atomWithHashAndStorage<AvtaleFilter>(

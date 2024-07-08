@@ -1668,6 +1668,68 @@ paths:
               schema:
                 type: string
 
+  /api/v1/intern/lagret-filter:
+    post:
+      tags:
+        - LagretFilter
+      operationId: upsertFilter
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LagretFilterRequest"
+      responses:
+        204:
+          description: "Lagret ok"
+          content:
+            text/plain:
+              schema:
+                type: string
+
+  /api/v1/intern/lagret-filter/mine/{dokumenttype}:
+    get:
+      tags:
+        - LagretFilter
+      operationId: getMineFilterForDokumenttype
+      parameters:
+        - in: path
+          name: dokumenttype
+          description: type dokument
+          schema:
+            $ref: "#/components/schemas/LagretDokumenttype"
+          required: true
+      responses:
+        200:
+          description: "Lagrede filter for bruker for gitt dokumenttype"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                    $ref: "#/components/schemas/LagretFilter"
+
+  /api/v1/intern/lagret-filter/{id}:
+    delete:
+      tags:
+        - LagretFilter
+      operationId: slettLagretFilter
+      parameters:
+        - in: path
+          name: id
+          description: Id for filter
+          schema:
+            type: string
+            format: uuid
+          required: true
+      responses:
+        204:
+          description: "Ok ved sletting"
+          content:
+            text/plain:
+              schema:
+                type: string
+
+
 components:
   securitySchemes:
     bearerAuth:
@@ -4017,3 +4079,51 @@ components:
       required:
         - id
         - avtaleId
+
+    LagretFilterRequest:
+      type: object
+      properties:
+        navn:
+          type: string
+        "type":
+          $ref: "#/components/schemas/LagretDokumenttype"
+        filter:
+          type: object
+        sortOrder:
+          type: number
+      required:
+        - type
+        - navn
+        - filter
+        - sortOrder
+
+    LagretDokumenttype:
+      type: string
+      enum:
+        - Avtale
+        - Tiltaksgjennomføring
+
+
+    LagretFilter:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        brukerId:
+          type: string
+        navn:
+          type: string
+        "type":
+          $ref: "#/components/schemas/LagretDokumenttype"
+        filter:
+          type: object
+        sortOrder:
+          type: number
+      required:
+        - id
+        - brukerId
+        - type
+        - navn
+        - filter
+        - sortOrder

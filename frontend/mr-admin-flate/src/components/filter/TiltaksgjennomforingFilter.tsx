@@ -1,6 +1,6 @@
 import { Accordion, Search, Switch } from "@navikt/ds-react";
 import { useAtom, WritableAtom } from "jotai";
-import { ArrangorTil, NavEnhet } from "mulighetsrommet-api-client";
+import { ArrangorTil, LagretDokumenttype, NavEnhet } from "mulighetsrommet-api-client";
 import { useEffect } from "react";
 import {
   gjennomforingFilterAccordionAtom,
@@ -24,6 +24,7 @@ import {
 import { useRegioner } from "@/api/enhet/useRegioner";
 import { CheckboxList } from "./CheckboxList";
 import { logEvent } from "../../logging/amplitude";
+import { LagredeFilterOversikt } from "./LagredeFilterOversikt";
 
 type Filters = "tiltakstype";
 
@@ -82,6 +83,11 @@ export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
 
   return (
     <>
+      <LagredeFilterOversikt
+        setFilter={setFilter}
+        filter={filter}
+        dokumenttype={LagretDokumenttype.TILTAKSGJENNOMFØRING}
+      />
       <Search
         label="Søk etter tiltaksgjennomføring"
         hideLabel

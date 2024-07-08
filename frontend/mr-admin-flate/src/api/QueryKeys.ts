@@ -1,4 +1,9 @@
-import { ArrangorTil, NavAnsattRolle, NotificationStatus } from "mulighetsrommet-api-client";
+import {
+  ArrangorTil,
+  LagretDokumenttype,
+  NavAnsattRolle,
+  NotificationStatus,
+} from "mulighetsrommet-api-client";
 import { ArrangorerFilter, AvtaleFilter, TiltaksgjennomforingFilter } from "./atoms";
 
 export const QueryKeys = {
@@ -43,4 +48,5 @@ export const QueryKeys = {
   migrerteTiltakstyper: () => ["migrerteTiltakstyper"],
   navRegioner: () => ["navRegioner"],
   personopplysninger: () => ["personopplysninger"],
+  lagredeFilter: (dokumenttype?: LagretDokumenttype) => ["lagrede-filter", dokumenttype],
 };
