@@ -105,7 +105,7 @@ class TiltaksgjennomforingService(
         search: String?,
         apentForInnsok: Boolean?,
         sanityTiltakstypeIds: List<UUID>?,
-        innsatsgruppe: Innsatsgruppe?,
+        innsatsgruppe: Innsatsgruppe,
         enheter: List<String>,
     ): List<VeilederflateTiltaksgjennomforing> = tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
         search,
