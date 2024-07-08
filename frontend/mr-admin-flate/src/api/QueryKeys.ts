@@ -48,5 +48,5 @@ export const QueryKeys = {
   migrerteTiltakstyper: () => ["migrerteTiltakstyper"],
   navRegioner: () => ["navRegioner"],
   personopplysninger: () => ["personopplysninger"],
-  lagredeFilter: (dokumenttype: LagretDokumenttype) => ["lagrede-filter", dokumenttype],
+  lagredeFilter: (dokumenttype?: LagretDokumenttype) => ["lagrede-filter", dokumenttype],
 };

@@ -25,7 +25,10 @@ export function LagreFilterKnapp({ dokumenttype }: Props) {
   const [isOpen, setIsOpen] = useState(false);
   const avtaleFilter = useAtomValue(avtaleFilterAtom);
   const tiltaksgjennomforingFilter = useAtomValue(tiltaksgjennomforingfilterAtom);
-  const mutation = useLagreFilter({ onSuccess: () => setIsOpen(false) });
+  const mutation = useLagreFilter({
+    onSuccess: () => setIsOpen(false),
+    dokumenttype: LagretDokumenttype.AVTALE,
+  });
 
   const form = useForm<InferredLagreFilterSchema>({
     resolver: zodResolver(LagreFilterSchema),

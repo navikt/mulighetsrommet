@@ -1708,6 +1708,27 @@ paths:
                 items:
                     $ref: "#/components/schemas/LagretFilter"
 
+  /api/v1/intern/lagret-filter/{id}:
+    delete:
+      tags:
+        - LagretFilter
+      operationId: slettLagretFilter
+      parameters:
+        - in: path
+          name: id
+          description: Id for filter
+          schema:
+            type: string
+            format: uuid
+          required: true
+      responses:
+        204:
+          description: "Ok ved sletting"
+          content:
+            text/plain:
+              schema:
+                type: string
+
 
 components:
   securitySchemes:

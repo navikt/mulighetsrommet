@@ -48,6 +48,13 @@ class LagretFilterService(private val db: Database) {
             .asList
             .let { db.run(it) }
     }
+
+    fun deleteFilter(id: String) {
+        @Language("PostgreSQL")
+        val query = "delete from lagret_filter where id = :id::uuid"
+
+        queryOf(query, mapOf("id" to id)).asExecute.let { db.run(it) }
+    }
 }
 
 private fun UpsertFilterEntry.toSqlParams(): Map<String, Any?> {

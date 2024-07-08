@@ -28,6 +28,12 @@ fun Route.lagretFilterRoutes() {
             lagretFilterService.upsertFilter(request.toLagretFilter(getNavIdent()))
             call.respond(HttpStatusCode.Created)
         }
+
+        delete("{id}") {
+            val id = call.parameters.getOrFail("id")
+            lagretFilterService.deleteFilter(id)
+            call.respond(HttpStatusCode.NoContent)
+        }
     }
 }
 

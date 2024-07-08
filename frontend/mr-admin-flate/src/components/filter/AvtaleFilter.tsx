@@ -10,13 +10,13 @@ import {
   regionOptions,
   tiltakstypeOptions,
 } from "@/utils/filterUtils";
-import { Accordion, Radio, RadioGroup, Search, Switch } from "@navikt/ds-react";
+import { Accordion, Search, Switch } from "@navikt/ds-react";
 import { useAtom, WritableAtom } from "jotai";
 import { ArrangorTil, LagretDokumenttype } from "mulighetsrommet-api-client";
 import { FilterAccordionHeader, FilterSkeleton } from "mulighetsrommet-frontend-common";
-import { useGetLagredeFilterForDokumenttype } from "../../api/lagretFilter/getLagredeFilterForDokumenttype";
 import { logEvent } from "../../logging/amplitude";
 import { CheckboxList } from "./CheckboxList";
+import { LagredeFilterOversikt } from "./LagredeFilterOversikt";
 
 type Filters = "tiltakstype";
 
@@ -43,13 +43,6 @@ export function AvtaleFilter({ filterAtom, skjulFilter }: Props) {
     pageSize: 10000,
   });
   const { data: tiltakstyper, isLoading: isLoadingTiltakstyper } = useTiltakstyper();
-  const { data: lagredeFilter = [] } = useGetLagredeFilterForDokumenttype(
-    LagretDokumenttype.AVTALE,
-  );
-
-  function oppdaterFilter(filterValgt: any) {
-    setFilter(filterValgt);
-  }
 
   if (
     !enheter ||
@@ -64,29 +57,7 @@ export function AvtaleFilter({ filterAtom, skjulFilter }: Props) {
 
   return (
     <div>
-      <>
-        <Accordion>
-          <Accordion.Item defaultOpen={lagredeFilter.length > 0}>
-            <Accordion.Header>
-              <FilterAccordionHeader tittel="Lagrede filter" antallValgteFilter={0} />
-            </Accordion.Header>
-            <Accordion.Content>
-              <RadioGroup
-                legend="Mine filter"
-                onChange={(filterValgt) => oppdaterFilter(filterValgt)}
-              >
-                {lagredeFilter?.map((filter) => {
-                  return (
-                    <Radio size="small" key={filter.id} value={filter.filter}>
-                      {filter.navn}
-                    </Radio>
-                  );
-                })}
-              </RadioGroup>
-            </Accordion.Content>
-          </Accordion.Item>
-        </Accordion>
-      </>
+      <LagredeFilterOversikt setFilter={setFilter} dokumenttype={LagretDokumenttype.AVTALE} />
       <Search
         label="Søk etter tiltaksgjennomføring"
         hideLabel
