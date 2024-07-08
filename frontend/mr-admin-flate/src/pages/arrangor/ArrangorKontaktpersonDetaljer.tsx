@@ -1,5 +1,5 @@
 import { ArrangorKontaktperson } from "mulighetsrommet-api-client";
-import styles from "../DetaljerInfo.module.scss";
+import styles from "./ArrangorKontaktpersonDetaljer.module.scss";
 import { BodyShort } from "@navikt/ds-react";
 
 interface Props {

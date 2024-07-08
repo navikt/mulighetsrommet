@@ -1,0 +1,12 @@
+.redaksjonelt_innhold_topp_knapperad {
+  max-width: 900px;
+  margin-top: 1rem;
+  .separator {
+    background-color: var(--a-border-divider);
+    height: 1px;
+    border: none;
+    width: 100%;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+  }
+}

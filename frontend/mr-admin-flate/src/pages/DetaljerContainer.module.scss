@@ -1,0 +1,8 @@
+.detaljer_container {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr) auto;
+  flex-direction: row;
+  justify-content: start;
+  max-width: 1440px;
+  background: white;
+}

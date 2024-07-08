@@ -5,12 +5,16 @@ import { useFormContext } from "react-hook-form";
 import { useTiltakstypeFaneinnhold } from "@/api/tiltaksgjennomforing/useTiltakstypeFaneinnhold";
 import { Separator } from "../detaljside/Metadata";
 import { PortableTextEditor } from "../portableText/PortableTextEditor";
-import skjemastyles from "../skjema/Skjema.module.scss";
 import { Laster } from "../laster/Laster";
 import React, { useState } from "react";
 import { FileTextIcon, LinkIcon, PaperplaneIcon } from "@navikt/aksel-icons";
 import { Lenker } from "../lenker/Lenker";
 import { InlineErrorBoundary } from "mulighetsrommet-frontend-common";
+import { RedaksjoneltInnholdContainer } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdContainer";
+import { SkjemaDetaljerContainer } from "@/components/skjema/SkjemaDetaljerContainer";
+import { FaneinnholdContainer } from "@/components/redaksjoneltInnhold/FaneinnholdContainer";
+import { DescriptionRichtextContainer } from "@/components/redaksjoneltInnhold/DescriptionRichtextContainer";
+import { RedaksjoneltInnholdTabTittel } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdTabTittel";
 
 interface RedaksjoneltInnholdFormProps {
   tiltakstype: EmbeddedTiltakstype;
@@ -31,17 +35,17 @@ function RedaksjoneltInnhold({ tiltakstype }: { tiltakstype: EmbeddedTiltakstype
   const { data: tiltakstypeSanityData } = useTiltakstypeFaneinnhold(tiltakstype.id);
 
   return (
-    <div className={skjemastyles.container}>
+    <SkjemaDetaljerContainer>
       <HStack justify="space-between" align="start" gap="2">
         <Alert size="small" variant="info">
           Ikke del personopplysninger i fritekstfeltene
         </Alert>
       </HStack>
-      <div className={skjemastyles.red_innhold_container}>
+      <RedaksjoneltInnholdContainer>
         {tiltakstypeSanityData?.beskrivelse && (
           <>
             <Heading size="medium">Beskrivelse</Heading>
-            <BodyLong className={skjemastyles.preWrap}>
+            <BodyLong style={{ whiteSpace: "pre-wrap" }}>
               {tiltakstypeSanityData?.beskrivelse}
             </BodyLong>
           </>
@@ -57,49 +61,49 @@ function RedaksjoneltInnhold({ tiltakstype }: { tiltakstype: EmbeddedTiltakstype
             <Tabs.Tab
               value="for_hvem"
               label={
-                <div className={skjemastyles.red_tab_title}>
+                <RedaksjoneltInnholdTabTittel>
                   <FileTextIcon style={{ fontSize: "1.5rem" }} /> For hvem
-                </div>
+                </RedaksjoneltInnholdTabTittel>
               }
             />
             <Tabs.Tab
               value="detaljer_og_innhold"
               label={
-                <div className={skjemastyles.red_tab_title}>
+                <RedaksjoneltInnholdTabTittel>
                   <FileTextIcon style={{ fontSize: "1.5rem" }} /> Detaljer og innhold
-                </div>
+                </RedaksjoneltInnholdTabTittel>
               }
             />
             <Tabs.Tab
               value="pamelding_og_varighet"
               label={
-                <div className={skjemastyles.red_tab_title}>
+                <RedaksjoneltInnholdTabTittel>
                   <FileTextIcon style={{ fontSize: "1.5rem" }} /> Påmelding og varighet
-                </div>
+                </RedaksjoneltInnholdTabTittel>
               }
             />
             <Tabs.Tab
               value="kontaktinfo"
               label={
-                <div className={skjemastyles.red_tab_title}>
+                <RedaksjoneltInnholdTabTittel>
                   <FileTextIcon style={{ fontSize: "1.5rem" }} /> Kontaktinfo
-                </div>
+                </RedaksjoneltInnholdTabTittel>
               }
             />
             <Tabs.Tab
               value="lenker"
               label={
-                <div className={skjemastyles.red_tab_title}>
+                <RedaksjoneltInnholdTabTittel>
                   <LinkIcon style={{ fontSize: "1.5rem" }} /> Lenker
-                </div>
+                </RedaksjoneltInnholdTabTittel>
               }
             />
             <Tabs.Tab
               value="del_med_bruker"
               label={
-                <div className={skjemastyles.red_tab_title}>
+                <RedaksjoneltInnholdTabTittel>
                   <PaperplaneIcon style={{ fontSize: "1.5rem" }} /> Del med bruker
-                </div>
+                </RedaksjoneltInnholdTabTittel>
               }
             />
           </Tabs.List>
@@ -122,8 +126,8 @@ function RedaksjoneltInnhold({ tiltakstype }: { tiltakstype: EmbeddedTiltakstype
             <DelMedBruker tiltakstype={tiltakstypeSanityData} />
           </Tabs.Panel>
         </Tabs>
-      </div>
-    </div>
+      </RedaksjoneltInnholdContainer>
+    </SkjemaDetaljerContainer>
   );
 }
 
@@ -131,9 +135,9 @@ const ForHvem = ({ tiltakstype }: { tiltakstype?: VeilederflateTiltakstype }) =>
   const { register } = useFormContext();
 
   return (
-    <div className={skjemastyles.faneinnhold_container}>
+    <FaneinnholdContainer>
       {tiltakstype?.faneinnhold?.forHvemInfoboks && (
-        <Alert className={skjemastyles.preWrap} variant="info">
+        <Alert style={{ whiteSpace: "pre-wrap" }} variant="info">
           {tiltakstype?.faneinnhold?.forHvemInfoboks}
         </Alert>
       )}
@@ -142,7 +146,7 @@ const ForHvem = ({ tiltakstype }: { tiltakstype?: VeilederflateTiltakstype }) =>
       )}
       <Separator />
 
-      <div className={skjemastyles.description_richtext_container}>
+      <DescriptionRichtextContainer>
         <Textarea
           {...register("faneinnhold.forHvemInfoboks")}
           label="Fremhevet informasjon til veileder som legger seg i blå infoboks i fanen «For hvem»"
@@ -153,8 +157,8 @@ const ForHvem = ({ tiltakstype }: { tiltakstype?: VeilederflateTiltakstype }) =>
           label="For hvem"
           description="Beskrivelse av hvem tiltakstypen passer for. Husk å bruke et kort og konsist språk."
         />
-      </div>
-    </div>
+      </DescriptionRichtextContainer>
+    </FaneinnholdContainer>
   );
 };
 
@@ -162,7 +166,7 @@ const DetaljerOgInnhold = ({ tiltakstype }: { tiltakstype?: VeilederflateTiltaks
   const { register } = useFormContext();
 
   return (
-    <div className={skjemastyles.faneinnhold_container}>
+    <FaneinnholdContainer>
       {tiltakstype?.faneinnhold?.detaljerOgInnholdInfoboks && (
         <Alert variant="info">{tiltakstype?.faneinnhold?.detaljerOgInnholdInfoboks}</Alert>
       )}
@@ -171,7 +175,7 @@ const DetaljerOgInnhold = ({ tiltakstype }: { tiltakstype?: VeilederflateTiltaks
       )}
       <Separator />
 
-      <div className={skjemastyles.description_richtext_container}>
+      <DescriptionRichtextContainer>
         <Textarea
           {...register("faneinnhold.detaljerOgInnholdInfoboks")}
           label="Fremhevet informasjon til veileder som legger seg i blå infoboks i fanen «Detaljer og innhold»"
@@ -182,8 +186,8 @@ const DetaljerOgInnhold = ({ tiltakstype }: { tiltakstype?: VeilederflateTiltaks
           label="Detaljer og innhold"
           description="Beskrivelse av detaljer og innhold for tiltakstypen. Husk å bruke et kort og konsist språk."
         />
-      </div>
-    </div>
+      </DescriptionRichtextContainer>
+    </FaneinnholdContainer>
   );
 };
 
@@ -191,7 +195,7 @@ const PameldingOgVarighet = ({ tiltakstype }: { tiltakstype?: VeilederflateTilta
   const { register } = useFormContext();
 
   return (
-    <div className={skjemastyles.faneinnhold_container}>
+    <FaneinnholdContainer>
       {tiltakstype?.faneinnhold?.pameldingOgVarighetInfoboks && (
         <Alert variant="info">{tiltakstype?.faneinnhold?.pameldingOgVarighetInfoboks}</Alert>
       )}
@@ -200,7 +204,7 @@ const PameldingOgVarighet = ({ tiltakstype }: { tiltakstype?: VeilederflateTilta
       )}
       <Separator />
 
-      <div className={skjemastyles.description_richtext_container}>
+      <DescriptionRichtextContainer>
         <Textarea
           {...register("faneinnhold.pameldingOgVarighetInfoboks")}
           label="Fremhevet informasjon til veileder som legger seg i blå infoboks i fanen «Påmelding og varighet»"
@@ -211,8 +215,8 @@ const PameldingOgVarighet = ({ tiltakstype }: { tiltakstype?: VeilederflateTilta
           label="Påmelding og varighet"
           description="Beskrivelse av rutiner rundt påmelding og varighet i tiltaket. Husk å bruke et kort og konsist språk."
         />
-      </div>
-    </div>
+      </DescriptionRichtextContainer>
+    </FaneinnholdContainer>
   );
 };
 
@@ -220,7 +224,7 @@ const Kontaktinfo = () => {
   const { register } = useFormContext();
 
   return (
-    <div className={skjemastyles.faneinnhold_container}>
+    <FaneinnholdContainer>
       <VStack gap="5">
         <Textarea
           {...register("faneinnhold.kontaktinfoInfoboks")}
@@ -233,7 +237,7 @@ const Kontaktinfo = () => {
           description="Ekstra tekst om kontaktinfo."
         />
       </VStack>
-    </div>
+    </FaneinnholdContainer>
   );
 };
 
@@ -251,7 +255,7 @@ const DelMedBruker = ({ tiltakstype }: { tiltakstype?: VeilederflateTiltakstype 
   }
 
   return (
-    <div className={skjemastyles.faneinnhold_container}>
+    <FaneinnholdContainer>
       <Textarea
         onChange={(e) => {
           onChange(e.target.value);
@@ -261,6 +265,6 @@ const DelMedBruker = ({ tiltakstype }: { tiltakstype?: VeilederflateTiltakstype 
         label="Del med bruker"
         description="Bruk denne tekstboksen for å redigere teksten som sendes til bruker når man deler et tiltak. Det blir automatisk lagt til en ”Hei” og en “Hilsen”."
       />
-    </div>
+    </FaneinnholdContainer>
   );
 };

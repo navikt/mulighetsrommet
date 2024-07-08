@@ -1,7 +1,6 @@
-import { BodyLong, HStack, Heading } from "@navikt/ds-react";
+import { BodyLong, Heading, HStack } from "@navikt/ds-react";
 import { VeilederflateTiltaksgjennomforing } from "mulighetsrommet-api-client";
 import styles from "./TiltaksgjennomforingsHeader.module.scss";
-import classnames from "classnames";
 import { TiltaksgjennomforingStatusTag } from "mulighetsrommet-frontend-common";
 import { gjennomforingIsAktiv } from "mulighetsrommet-frontend-common/utils/utils";
 
@@ -22,12 +21,12 @@ const TiltaksgjennomforingsHeader = ({ tiltaksgjennomforing }: Props) => {
         )}
       </HStack>
       {tiltakstype.beskrivelse && (
-        <BodyLong size="large" className={classnames(styles.beskrivelse, styles.preWrap)}>
+        <BodyLong size="large" className={styles.beskrivelse} style={{ whiteSpace: "pre-wrap" }}>
           {tiltakstype.beskrivelse}
         </BodyLong>
       )}
       {beskrivelse && (
-        <BodyLong className={styles.preWrap} textColor="subtle" size="medium">
+        <BodyLong style={{ whiteSpace: "pre-wrap" }} textColor="subtle" size="medium">
           {beskrivelse}
         </BodyLong>
       )}

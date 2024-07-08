@@ -1,8 +1,8 @@
 import { Button } from "@navikt/ds-react";
 import { UseMutationResult } from "@tanstack/react-query";
 import { Tiltaksgjennomforing, TiltaksgjennomforingRequest } from "mulighetsrommet-api-client";
-import styles from "../skjema/Skjema.module.scss";
 import { ValideringsfeilOppsummering } from "../skjema/ValideringsfeilOppsummering";
+import { SkjemaKnapperad } from "@/components/skjema/SkjemaKnapperad";
 
 interface Props {
   redigeringsModus: boolean;
@@ -15,11 +15,10 @@ export function TiltaksgjennomforingSkjemaKnapperad({
   mutation,
 }: Props) {
   return (
-    <div className={styles.knapperad}>
+    <SkjemaKnapperad>
       <ValideringsfeilOppsummering />
       <Button
         size="small"
-        className={styles.button}
         onClick={onClose}
         variant="tertiary"
         type="button"
@@ -27,9 +26,9 @@ export function TiltaksgjennomforingSkjemaKnapperad({
       >
         Avbryt
       </Button>
-      <Button size="small" className={styles.button} type="submit" disabled={mutation.isPending}>
+      <Button size="small" type="submit" disabled={mutation.isPending}>
         {mutation.isPending ? "Lagrer..." : redigeringsModus ? "Lagre gjennomføring" : "Opprett"}
       </Button>
-    </div>
+    </SkjemaKnapperad>
   );
 }

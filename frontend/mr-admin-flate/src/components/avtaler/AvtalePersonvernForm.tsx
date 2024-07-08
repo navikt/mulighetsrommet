@@ -13,7 +13,7 @@ import {
 import { addOrRemove } from "mulighetsrommet-frontend-common/utils/utils";
 import { useFormContext } from "react-hook-form";
 import { Separator } from "../detaljside/Metadata";
-import { InferredAvtaleSchema } from "../redaksjonelt-innhold/AvtaleSchema";
+import { InferredAvtaleSchema } from "@/components/redaksjoneltInnhold/AvtaleSchema";
 import { ControlledRadioGroup } from "../skjema/ControlledRadioGroup";
 import styles from "./AvtalePersonvernForm.module.scss";
 import { usePersonopplysninger } from "@/api/avtaler/usePersonopplysninger";

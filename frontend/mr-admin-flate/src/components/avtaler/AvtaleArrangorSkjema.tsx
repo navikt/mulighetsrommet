@@ -15,10 +15,11 @@ import { useRef, useState } from "react";
 import { DeepPartial, useFormContext } from "react-hook-form";
 import { ArrangorKontaktpersonerModal } from "../arrangor/ArrangorKontaktpersonerModal";
 import { avtaletekster } from "../ledetekster/avtaleLedetekster";
-import { InferredAvtaleSchema } from "../redaksjonelt-innhold/AvtaleSchema";
+import { InferredAvtaleSchema } from "@/components/redaksjoneltInnhold/AvtaleSchema";
 import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
-import { FormGroup } from "../skjema/FormGroup";
-import skjemastyles from "../skjema/Skjema.module.scss";
+import { FormGroup } from "@/components/skjema/FormGroup";
+import { ArrangorKontaktpersonContainer } from "@/components/skjema/ArrangorKontaktpersonContainer";
+import { KontaktpersonButton } from "@/components/kontaktperson/KontaktpersonButton";
 
 interface Props {
   readOnly: boolean;
@@ -84,7 +85,7 @@ export function AvtaleArrangorSkjema({ readOnly }: Props) {
         />
       </FormGroup>
       <FormGroup>
-        <div className={skjemastyles.arrangor_kontaktperson_container}>
+        <ArrangorKontaktpersonContainer>
           <ControlledMultiSelect
             size="small"
             placeholder="Velg kontaktpersoner"
@@ -103,16 +104,11 @@ export function AvtaleArrangorSkjema({ readOnly }: Props) {
               </Button>
             }
           />
-          <Button
-            className={skjemastyles.kontaktperson_button}
-            size="small"
-            type="button"
-            variant="tertiary"
+          <KontaktpersonButton
             onClick={() => arrangorKontaktpersonerModalRef.current?.showModal()}
-          >
-            Opprett eller rediger kontaktpersoner
-          </Button>
-        </div>
+            knappetekst="Opprett eller rediger kontaktpersoner"
+          />
+        </ArrangorKontaktpersonContainer>
       </FormGroup>
       {arrangor && (
         <ArrangorKontaktpersonerModal

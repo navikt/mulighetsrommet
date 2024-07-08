@@ -1,5 +1,5 @@
 import { useArrangorKontaktpersoner } from "@/api/arrangor/useArrangorKontaktpersoner";
-import { Button, TextField, Textarea, VStack } from "@navikt/ds-react";
+import { Button, Textarea, TextField, VStack } from "@navikt/ds-react";
 import {
   ArrangorKontaktperson,
   ArrangorKontaktpersonAnsvar,
@@ -10,10 +10,11 @@ import { useRef } from "react";
 import { useFormContext } from "react-hook-form";
 import { ArrangorKontaktpersonerModal } from "../arrangor/ArrangorKontaktpersonerModal";
 import { tiltaktekster } from "../ledetekster/tiltaksgjennomforingLedetekster";
-import { InferredTiltaksgjennomforingSchema } from "../redaksjonelt-innhold/TiltaksgjennomforingSchema";
+import { InferredTiltaksgjennomforingSchema } from "@/components/redaksjoneltInnhold/TiltaksgjennomforingSchema";
 import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
-import skjemastyles from "../skjema/Skjema.module.scss";
-import { STED_FOR_GJENNOMFORING_MAX_LENGTH } from "../../constants";
+import { STED_FOR_GJENNOMFORING_MAX_LENGTH } from "@/constants";
+import { ArrangorKontaktpersonContainer } from "@/components/skjema/ArrangorKontaktpersonContainer";
+import { KontaktpersonButton } from "@/components/kontaktperson/KontaktpersonButton";
 
 interface Props {
   avtale: Avtale;
@@ -55,7 +56,7 @@ export function TiltaksgjennomforingArrangorSkjema({ readOnly, avtale }: Props) 
           readOnly={readOnly}
           options={arrangorOptions}
         />
-        <div className={skjemastyles.arrangor_kontaktperson_container}>
+        <ArrangorKontaktpersonContainer>
           <ControlledMultiSelect
             size="small"
             placeholder="Velg kontaktpersoner"
@@ -73,16 +74,11 @@ export function TiltaksgjennomforingArrangorSkjema({ readOnly, avtale }: Props) 
               </Button>
             }
           />
-          <Button
-            className={skjemastyles.kontaktperson_button}
-            size="small"
-            type="button"
-            variant="tertiary"
+          <KontaktpersonButton
             onClick={() => arrangorKontaktpersonerModalRef.current?.showModal()}
-          >
-            Opprett eller rediger kontaktpersoner
-          </Button>
-        </div>
+            knappetekst="Opprett eller rediger kontaktpersoner"
+          />
+        </ArrangorKontaktpersonContainer>
         <Textarea
           size="small"
           resize

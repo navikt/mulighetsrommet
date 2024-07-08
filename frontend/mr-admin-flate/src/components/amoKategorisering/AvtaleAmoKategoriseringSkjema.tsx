@@ -13,7 +13,7 @@ import {
   kurstypeToString,
   spesifiseringToString,
 } from "../../utils/Utils";
-import { InferredAvtaleSchema } from "../redaksjonelt-innhold/AvtaleSchema";
+import { InferredAvtaleSchema } from "@/components/redaksjoneltInnhold/AvtaleSchema";
 import { useState } from "react";
 import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { useSokSertifiseringer } from "@/api/janzz/useSokSertifiseringer";

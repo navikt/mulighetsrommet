@@ -1,0 +1,12 @@
+.vertikal_separator {
+  background-color: var(--a-border-divider);
+  width: 1px;
+  border: none;
+  margin: 0 1.5rem;
+  @media (max-width: 900px) {
+    height: 1px;
+    border: none;
+    margin: 1.5rem 0;
+    width: 100%;
+  }
+}

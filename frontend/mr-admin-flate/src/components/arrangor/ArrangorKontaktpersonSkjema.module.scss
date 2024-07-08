@@ -1,11 +1,3 @@
-.input_container {
-  margin-top: 8px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  gap: 0.5rem;
-}
-
 .telefonepost_input {
   margin: 8px 0;
   display: flex;
@@ -21,13 +13,6 @@
 .epost_input {
   align-items: start;
   flex: 2 1 auto;
-}
-
-.button_container {
-  margin-top: 8px;
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
 }
 
 .error_msg {

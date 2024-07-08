@@ -1,8 +1,8 @@
-import { HGrid, Heading, Select, TextField } from "@navikt/ds-react";
+import { Heading, HGrid, Select, TextField } from "@navikt/ds-react";
 import { useEffect, useState } from "react";
 import { useFormContext } from "react-hook-form";
 import { avtaletekster } from "../../ledetekster/avtaleLedetekster";
-import { InferredAvtaleSchema } from "../../redaksjonelt-innhold/AvtaleSchema";
+import { InferredAvtaleSchema } from "../../redaksjoneltInnhold/AvtaleSchema";
 import { ControlledDateInput } from "../../skjema/ControlledDateInput";
 import { Opsjonsmodell, opsjonsmodeller } from "./opsjonsmodeller";
 import { Avtale, OpsjonStatus } from "mulighetsrommet-api-client";

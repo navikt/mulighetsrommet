@@ -1,9 +1,8 @@
 import { Button, TextField, UNSAFE_Combobox } from "@navikt/ds-react";
 import { useEffect, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
-import styles from "./ArrangorKontaktpersonSkjema.module.scss";
 import { useUpsertArrangorKontaktperson } from "@/api/arrangor/useUpsertArrangorKontaktperson";
-import { validEmail } from "../../utils/Utils";
+import { validEmail } from "@/utils/Utils";
 import {
   ArrangorKontaktperson as ArrangorKontaktperson,
   ArrangorKontaktpersonAnsvar,
@@ -12,6 +11,8 @@ import { useDeleteArrangorKontaktperson } from "@/api/arrangor/useDeleteArrangor
 import { useHandleApiUpsertResponse } from "@/api/effects";
 import { navnForAnsvar } from "./ArrangorKontaktpersonUtils";
 import { resolveErrorMessage } from "mulighetsrommet-frontend-common/components/error-handling/errors";
+import { SkjemaInputContainer } from "@/components/skjema/SkjemaInputContainer";
+import styles from "./ArrangorKontaktpersonSkjema.module.scss";
 
 type ArrangorKontaktpersonErrors = Partial<Record<keyof ArrangorKontaktperson, string>>;
 
@@ -103,7 +104,7 @@ export const ArrangorKontaktpersonSkjema = (props: VirksomhetKontaktpersonerProp
   }
 
   return (
-    <div className={styles.input_container}>
+    <SkjemaInputContainer>
       <TextField
         size="small"
         label={"Navn"}
@@ -198,10 +199,10 @@ export const ArrangorKontaktpersonSkjema = (props: VirksomhetKontaktpersonerProp
         )}
       </div>
       {deleteMutation.isError && (
-        <div className={styles.error_msg} style={{}}>
+        <div className={styles.error_msg}>
           <b>• {resolveErrorMessage(deleteMutation.error)}</b>
         </div>
       )}
-    </div>
+    </SkjemaInputContainer>
   );
 };

@@ -1,41 +1,8 @@
-.input_container {
-  margin-top: 8px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-
-.telefonepost_input {
-  margin: 8px 0;
-  display: flex;
-  justify-content: space-between;
-}
-
-.telefon_input {
-  display: flex;
-  align-items: start;
-  flex: 1 1 auto;
-}
-
-.epost_input {
-  align-items: start;
-  flex: 2 1 auto;
-}
-
 .button_container {
   margin-top: 8px;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-}
-
-.button_container_left {
-  display: flex;
-  gap: 8px;
-}
-
-.rediger_button {
-  width: 30%;
 }
 
 .modal {
@@ -46,7 +13,7 @@
   padding: 0.5rem;
   display: flex;
   flex-direction: column;
-  max-height: 600;
+  max-height: 600px;
   overflow: auto;
   gap: 1rem;
 }
