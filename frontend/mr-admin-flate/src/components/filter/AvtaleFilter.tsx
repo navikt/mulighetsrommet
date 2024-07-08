@@ -57,7 +57,11 @@ export function AvtaleFilter({ filterAtom, skjulFilter }: Props) {
 
   return (
     <div>
-      <LagredeFilterOversikt setFilter={setFilter} dokumenttype={LagretDokumenttype.AVTALE} />
+      <LagredeFilterOversikt
+        setFilter={setFilter}
+        filter={filter}
+        dokumenttype={LagretDokumenttype.AVTALE}
+      />
       <Search
         label="Søk etter tiltaksgjennomføring"
         hideLabel

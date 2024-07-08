@@ -9,7 +9,7 @@ import {
   SorteringTiltakstyper,
   TiltaksgjennomforingStatus,
 } from "mulighetsrommet-api-client";
-import { atom, useAtomValue, WritableAtom } from "jotai";
+import { atom, useAtom, useAtomValue, WritableAtom } from "jotai";
 import { atomFamily } from "jotai/utils";
 import { ARRANGORER_PAGE_SIZE, AVTALE_PAGE_SIZE, PAGE_SIZE } from "@/constants";
 import { RESET } from "jotai/vanilla/utils";
@@ -159,6 +159,7 @@ const tiltaksgjennomforingFilterSchema = z.object({
   publisert: z.string().array(),
   page: z.number(),
   pageSize: z.number(),
+  lagretFilterIdValgt: z.string().optional(),
 });
 export type TiltaksgjennomforingFilter = z.infer<typeof tiltaksgjennomforingFilterSchema>;
 
@@ -210,6 +211,7 @@ const avtaleFilterSchema = z.object({
   personvernBekreftet: z.boolean().array(),
   page: z.number(),
   pageSize: z.number(),
+  lagretFilterIdValgt: z.string().optional(),
 });
 export type AvtaleFilter = z.infer<typeof avtaleFilterSchema>;
 
@@ -225,6 +227,7 @@ export const defaultAvtaleFilter: AvtaleFilter = {
   personvernBekreftet: [],
   page: 1,
   pageSize: AVTALE_PAGE_SIZE,
+  lagretFilterIdValgt: undefined,
 };
 
 export const avtaleFilterAtom = atomWithHashAndStorage<AvtaleFilter>(
@@ -279,15 +282,3 @@ export const avtaleDetaljerTabAtom = atom<"detaljer" | "personvern" | "redaksjon
 
 export const gjennomforingFilterAccordionAtom = atom<string[]>(["status"]);
 export const avtaleFilterAccordionAtom = atom<string[]>(["status"]);
-
-export function useFilterBasedOnDokumenttype(dokumenttype: LagretDokumenttype) {
-  const avtaleFilter = useAtomValue(avtaleFilterAtom);
-  const tiltaksgjennomforingFilter = useAtomValue(tiltaksgjennomforingfilterAtom);
-
-  switch (dokumenttype) {
-    case LagretDokumenttype.AVTALE:
-      return avtaleFilter;
-    case LagretDokumenttype.TILTAKSGJENNOMFØRING:
-      return tiltaksgjennomforingFilter;
-  }
-}

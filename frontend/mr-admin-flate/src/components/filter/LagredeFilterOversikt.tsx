@@ -1,44 +1,34 @@
 import { TrashFillIcon } from "@navikt/aksel-icons";
 import { Accordion, BodyShort, Button, HGrid, HStack, Radio, RadioGroup } from "@navikt/ds-react";
-import isEqual from "lodash.isequal";
 import { LagretDokumenttype, LagretFilter } from "mulighetsrommet-api-client";
 import { FilterAccordionHeader } from "mulighetsrommet-frontend-common";
-import { useEffect, useRef, useState } from "react";
-import { useFilterBasedOnDokumenttype } from "../../api/atoms";
+import { useRef, useState } from "react";
 import { useGetLagredeFilterForDokumenttype } from "../../api/lagretFilter/getLagredeFilterForDokumenttype";
 import { useSlettFilter } from "../../api/lagretFilter/useSlettFilter";
 import { VarselModal } from "../modal/VarselModal";
 
 interface Props {
   dokumenttype: LagretDokumenttype;
+  filter: any; // TODO Vurdere å ikke ha disse som any
   setFilter: (filter: any) => void;
 }
 
-export function LagredeFilterOversikt({ dokumenttype, setFilter }: Props) {
-  const filter = useFilterBasedOnDokumenttype(dokumenttype);
+export function LagredeFilterOversikt({ dokumenttype, filter, setFilter }: Props) {
   const { data: lagredeFilter = [] } = useGetLagredeFilterForDokumenttype(dokumenttype);
-  const [valgtFilter, setValgtFilter] = useState<LagretFilter | undefined>(undefined);
   const [filterForSletting, setFilterForSletting] = useState<LagretFilter | undefined>(undefined);
   const sletteFilterModalRef = useRef<HTMLDialogElement>(null);
   const mutation = useSlettFilter(LagretDokumenttype.AVTALE);
 
-  useEffect(() => {
-    lagredeFilter.forEach((f) => {
-      if (isEqual(filter, f.filter)) {
-        setValgtFilter(f);
-      }
-    });
-  }, [filter, lagredeFilter]);
-
-  function oppdaterFilter(filterValgt: any) {
-    setFilter(filterValgt);
+  function oppdaterFilter(id: string) {
+    const valgtFilter = lagredeFilter.find((f) => f.id === id);
+    setFilter({ ...valgtFilter?.filter, lagretFilterIdValgt: valgtFilter?.id });
   }
 
-  function slettFilter() {
+  function slettFilter(id: string) {
     if (filterForSletting) {
       {
-        mutation.mutate(filterForSletting.id);
-        setValgtFilter(undefined);
+        mutation.mutate(id);
+        setFilter({ ...filter, lagretFilterIdValgt: undefined });
         sletteFilterModalRef.current?.close();
       }
     }
@@ -47,9 +37,12 @@ export function LagredeFilterOversikt({ dokumenttype, setFilter }: Props) {
   return (
     <>
       <Accordion>
-        <Accordion.Item defaultOpen={!!valgtFilter}>
+        <Accordion.Item defaultOpen={!!filter.lagretFilterIdValgt}>
           <Accordion.Header>
-            <FilterAccordionHeader tittel="Lagrede filter" antallValgteFilter={0} />
+            <FilterAccordionHeader
+              tittel="Lagrede filter"
+              antallValgteFilter={filter.lagretFilterIdValgt ? 1 : 0}
+            />
           </Accordion.Header>
           <Accordion.Content>
             <>
@@ -59,20 +52,22 @@ export function LagredeFilterOversikt({ dokumenttype, setFilter }: Props) {
                 <RadioGroup
                   legend="Mine filter"
                   hideLegend
-                  onChange={(filterValgt) => oppdaterFilter(filterValgt)}
-                  value={valgtFilter?.filter}
+                  onChange={(id) => oppdaterFilter(id)}
+                  value={filter.lagretFilterIdValgt ? filter.lagretFilterIdValgt : null}
                 >
-                  {lagredeFilter?.map((filter) => {
+                  {lagredeFilter?.map((lagretFilter) => {
                     return (
-                      <HGrid key={filter.id} align={"start"} columns={"10rem auto"}>
-                        <Radio size="small" value={filter.filter}>
-                          {filter.navn}
+                      <HGrid key={lagretFilter.id} align={"start"} columns={"10rem auto"}>
+                        <Radio size="small" value={lagretFilter.id}>
+                          {lagretFilter.navn}
                         </Radio>
                         <Button
                           variant="tertiary-neutral"
                           size="small"
                           onClick={() => {
-                            setValgtFilter(lagredeFilter.find((f) => f.id === filter.id));
+                            setFilterForSletting(
+                              lagredeFilter.find((f) => f.id === lagretFilter.id),
+                            );
                           }}
                         >
                           <TrashFillIcon />
@@ -86,28 +81,30 @@ export function LagredeFilterOversikt({ dokumenttype, setFilter }: Props) {
           </Accordion.Content>
         </Accordion.Item>
       </Accordion>
-      <VarselModal
-        open={!!filterForSletting}
-        headingIconType="warning"
-        headingText="Slette filter?"
-        modalRef={sletteFilterModalRef}
-        handleClose={() => {
-          setFilterForSletting(undefined);
-          sletteFilterModalRef.current?.close();
-        }}
-        body={
-          <BodyShort>
-            Vil du slette <b>{valgtFilter?.navn}</b>
-          </BodyShort>
-        }
-        primaryButton={
-          <Button variant="danger" size="small" onClick={slettFilter}>
-            <HStack align="center">
-              <TrashFillIcon /> Slett
-            </HStack>
-          </Button>
-        }
-      ></VarselModal>
+      {filterForSletting ? (
+        <VarselModal
+          open={!!filterForSletting}
+          headingIconType="warning"
+          headingText="Slette filter?"
+          modalRef={sletteFilterModalRef}
+          handleClose={() => {
+            setFilterForSletting(undefined);
+            sletteFilterModalRef.current?.close();
+          }}
+          body={
+            <BodyShort>
+              Vil du slette <b>{filterForSletting?.navn}</b>
+            </BodyShort>
+          }
+          primaryButton={
+            <Button variant="danger" size="small" onClick={() => slettFilter(filterForSletting.id)}>
+              <HStack align="center">
+                <TrashFillIcon /> Slett
+              </HStack>
+            </Button>
+          }
+        ></VarselModal>
+      ) : null}
     </>
   );
 }
