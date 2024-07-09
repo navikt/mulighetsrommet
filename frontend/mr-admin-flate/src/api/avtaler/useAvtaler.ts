@@ -13,7 +13,7 @@ export function useAvtaler(filter: Partial<AvtaleFilter>) {
     statuser: filter.statuser,
     avtaletyper: filter.avtaletyper,
     navRegioner: filter.navRegioner,
-    sort: filter.sortering,
+    sort: filter.sortering?.sortString,
     page: filter.page ?? 1,
     size: filter.pageSize,
     arrangorer: filter.arrangorer,

@@ -1,21 +1,20 @@
+import { TiltaksgjennomforingFilter } from "@/api/atoms";
+import { useAdminTiltaksgjennomforinger } from "@/api/tiltaksgjennomforing/useAdminTiltaksgjennomforinger";
+import { TabellWrapper } from "@/components/tabell/TabellWrapper";
+import { formaterDato, formaterNavEnheter } from "@/utils/Utils";
 import { Alert, Pagination, Table, Tag, VStack } from "@navikt/ds-react";
 import { useAtom, WritableAtom } from "jotai";
 import { SorteringTiltaksgjennomforinger } from "mulighetsrommet-api-client";
+import { TiltaksgjennomforingStatusTag } from "mulighetsrommet-frontend-common";
 import { Lenke } from "mulighetsrommet-frontend-common/components/lenke/Lenke";
+import { ToolbarContainer } from "mulighetsrommet-frontend-common/components/toolbar/toolbarContainer/ToolbarContainer";
 import React from "react";
-import { TiltaksgjennomforingFilter } from "@/api/atoms";
-import { useAdminTiltaksgjennomforinger } from "@/api/tiltaksgjennomforing/useAdminTiltaksgjennomforinger";
-import { useSort } from "@/hooks/useSort";
 import pageStyles from "../../pages/Page.module.scss";
-import { formaterDato, formaterNavEnheter } from "@/utils/Utils";
 import { ShowOpphavValue } from "../debug/ShowOpphavValue";
 import { Laster } from "../laster/Laster";
 import { PagineringContainer } from "../paginering/PagineringContainer";
 import { PagineringsOversikt } from "../paginering/PagineringOversikt";
 import styles from "./Tabell.module.scss";
-import { ToolbarContainer } from "mulighetsrommet-frontend-common/components/toolbar/toolbarContainer/ToolbarContainer";
-import { TabellWrapper } from "@/components/tabell/TabellWrapper";
-import { TiltaksgjennomforingStatusTag } from "mulighetsrommet-frontend-common";
 
 const SkjulKolonne = ({ children, skjul }: { children: React.ReactNode; skjul: boolean }) => {
   return skjul ? null : <>{children}</>;
@@ -34,9 +33,8 @@ export function TiltaksgjennomforingsTabell({
   tagsHeight,
   filterOpen,
 }: Props) {
-  const [sort, setSort] = useSort("navn");
   const [filter, setFilter] = useAtom(filterAtom);
-
+  const sort = filter.sortering.tableSort;
   const { data, isLoading } = useAdminTiltaksgjennomforinger(filter);
 
   function updateFilter(newFilter: Partial<TiltaksgjennomforingFilter>) {
@@ -52,13 +50,11 @@ export function TiltaksgjennomforingsTabell({
           : "descending"
         : "ascending";
 
-    setSort({
-      orderBy: sortKey,
-      direction,
-    });
-
     updateFilter({
-      sortering: `${sortKey}-${direction}` as SorteringTiltaksgjennomforinger,
+      sortering: {
+        sortString: `${sortKey}-${direction}` as SorteringTiltaksgjennomforinger,
+        tableSort: { orderBy: sortKey, direction },
+      },
       page: sort.orderBy !== sortKey || sort.direction !== direction ? 1 : filter.page,
     });
   };

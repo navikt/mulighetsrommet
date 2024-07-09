@@ -6,7 +6,7 @@ import { TiltakstyperService } from "mulighetsrommet-api-client";
 
 export function useTiltakstyper(filter: TiltakstypeFilter = {}, page: number = 1) {
   const queryFilter = {
-    sort: filter.sort,
+    sort: filter.sort?.sortString,
     page,
     size: PAGE_SIZE,
   };
