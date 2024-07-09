@@ -145,7 +145,7 @@ export type TiltakstypeFilter = z.infer<typeof tiltakstypeFilterSchema>;
 
 export const defaultTiltakstypeFilter: TiltakstypeFilter = {
   sort: {
-    sortString: "navn-ascending",
+    sortString: SorteringTiltakstyper.NAVN_ASCENDING,
     tableSort: {
       orderBy: "navn",
       direction: "ascending",
@@ -182,7 +182,7 @@ export const defaultTiltaksgjennomforingfilter: TiltaksgjennomforingFilter = {
   tiltakstyper: [],
   statuser: [],
   sortering: {
-    sortString: "navn-ascending",
+    sortString: SorteringTiltaksgjennomforinger.NAVN_ASCENDING,
     tableSort: {
       orderBy: "navn",
       direction: "ascending",
@@ -274,7 +274,7 @@ export type ArrangorerFilter = z.infer<typeof arrangorerFilterSchema>;
 export const defaultArrangorerFilter: ArrangorerFilter = {
   sok: "",
   sortering: {
-    sortString: "navn-ascending",
+    sortString: SorteringArrangorer.NAVN_ASCENDING,
     tableSort: {
       orderBy: "navn",
       direction: "ascending",

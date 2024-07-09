@@ -1,5 +1,5 @@
 import { AvtaleFilter } from "@/api/atoms";
-import { Avtalestatus, Avtaletype } from "mulighetsrommet-api-client";
+import { Avtalestatus, Avtaletype, SorteringAvtaler } from "mulighetsrommet-api-client";
 import { describe, expect, test } from "vitest";
 import {
   capitalizeEveryWord,
@@ -86,7 +86,7 @@ describe("Avtaletabell", () => {
       navRegioner: ["0600"],
       tiltakstyper: ["123"],
       sortering: {
-        sortString: "navn-ascending",
+        sortString: SorteringAvtaler.NAVN_ASCENDING,
         tableSort: {
           orderBy: "navn",
           direction: "ascending",
