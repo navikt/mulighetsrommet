@@ -407,7 +407,8 @@ class AvtaleRepository(private val db: Database) {
             select a.id::uuid, a.navn, a.start_dato, a.slutt_dato, array_agg(distinct aa.nav_ident) as administratorer
             from avtale a
                      left join avtale_administrator aa on a.id = aa.avtale_id
-            where (:currentDate::timestamp + interval '6' month) = a.slutt_dato
+            where (:currentDate::timestamp + interval '8' month) = a.slutt_dato
+               or (:currentDate::timestamp + interval '6' month) = a.slutt_dato
                or (:currentDate::timestamp + interval '3' month) = a.slutt_dato
                or (:currentDate::timestamp + interval '14' day) = a.slutt_dato
                or (:currentDate::timestamp + interval '7' day) = a.slutt_dato
