@@ -6,13 +6,15 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.database.Database
+import no.nav.mulighetsrommet.database.utils.QueryResult
+import no.nav.mulighetsrommet.database.utils.query
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import org.intellij.lang.annotations.Language
 import java.util.*
 
 class LagretFilterService(private val db: Database) {
 
-    fun upsertFilter(filter: UpsertFilterEntry) {
+    fun upsertFilter(filter: UpsertFilterEntry): QueryResult<Unit> = query {
         @Language("PostgreSQL")
         val query = """
             insert into lagret_filter (bruker_id, navn, type, filter, sort_order)
@@ -26,7 +28,7 @@ class LagretFilterService(private val db: Database) {
         queryOf(query, filter.toSqlParams()).asExecute.let { db.run(it) }
     }
 
-    fun getLagredeFiltereForBruker(brukerId: String, dokumentType: UpsertFilterEntry.FilterDokumentType): List<LagretFilter> {
+    fun getLagredeFiltereForBruker(brukerId: String, dokumentType: UpsertFilterEntry.FilterDokumentType): QueryResult<List<LagretFilter>> = query {
         @Language("PostgreSQL")
         val query = """
             select * from lagret_filter
@@ -34,7 +36,7 @@ class LagretFilterService(private val db: Database) {
             order by sort_order, created_at
         """.trimIndent()
 
-        return queryOf(query, mapOf("brukerId" to brukerId, "dokumentType" to dokumentType.name))
+        queryOf(query, mapOf("brukerId" to brukerId, "dokumentType" to dokumentType.name))
             .map { it ->
                 LagretFilter(
                     id = it.string("id").let { UUID.fromString(it) },
@@ -49,7 +51,7 @@ class LagretFilterService(private val db: Database) {
             .let { db.run(it) }
     }
 
-    fun deleteFilter(id: String) {
+    fun deleteFilter(id: UUID): QueryResult<Unit> = query {
         @Language("PostgreSQL")
         val query = "delete from lagret_filter where id = :id::uuid"
 

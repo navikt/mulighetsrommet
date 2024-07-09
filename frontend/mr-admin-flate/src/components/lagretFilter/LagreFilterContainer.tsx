@@ -11,7 +11,8 @@ import { useLagreFilter } from "../../api/lagretFilter/useLagreFilter";
 const LagreFilterSchema = z.object({
   navn: z
     .string({ required_error: "Du må gi filteret et navn" })
-    .min(3, "Du må gi filteret et navn"),
+    .min(3, "Du må gi filteret et navn")
+    .max(100, "Navnet kan ikke være lengre enn 100 tegn"),
 });
 
 type InferredLagreFilterSchema = z.infer<typeof LagreFilterSchema>;
@@ -37,7 +38,12 @@ export function LagreFilterContainer({ dokumenttype }: Props) {
     handleSubmit,
     register,
     formState: { errors },
+    setFocus,
   } = form;
+
+  useEffect(() => {
+    setFocus("navn");
+  }, [setFocus, isOpen]);
 
   useEffect(() => {
     if (mutation.isSuccess) {

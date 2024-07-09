@@ -13,6 +13,7 @@ import no.nav.mulighetsrommet.api.services.LagretFilterService
 import no.nav.mulighetsrommet.api.services.UpsertFilterEntry
 import no.nav.mulighetsrommet.domain.dto.NavIdent
 import org.koin.ktor.ext.inject
+import java.util.*
 
 fun Route.lagretFilterRoutes() {
     val lagretFilterService: LagretFilterService by inject()
@@ -20,7 +21,15 @@ fun Route.lagretFilterRoutes() {
         get("mine/{dokumenttype}") {
             val navIdent = getNavIdent()
             val dokumenttype = call.parameters.getOrFail("dokumenttype")
-            call.respond(lagretFilterService.getLagredeFiltereForBruker(navIdent.value, UpsertFilterEntry.FilterDokumentType.valueOf(dokumenttype)))
+            lagretFilterService.getLagredeFiltereForBruker(
+                navIdent.value,
+                UpsertFilterEntry.FilterDokumentType.valueOf(dokumenttype),
+            )
+                .onRight {
+                    call.respond(it)
+                }.onLeft {
+                    call.respondText("Klarte ikke hente lagrede filter", status = HttpStatusCode.InternalServerError)
+                }
         }
 
         post {
@@ -31,7 +40,7 @@ fun Route.lagretFilterRoutes() {
 
         delete("{id}") {
             val id = call.parameters.getOrFail("id")
-            lagretFilterService.deleteFilter(id)
+            lagretFilterService.deleteFilter(UUID.fromString(id))
             call.respond(HttpStatusCode.NoContent)
         }
     }
