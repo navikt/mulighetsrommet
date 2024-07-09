@@ -15,7 +15,7 @@ spec:
       rules:
         - alert: applikasjon nede
           expr: kube_deployment_status_replicas_available{namespace="team-mulighetsrommet"} == 0
-          for: "{{applikasjon_nede_duration}}"
+          for: 12m
           annotations:
             consequence: "'{{ $labels.deployment }}' er utilgjengelig"
             action: "`kubectl describe pod -l app={{ $labels.deployment }} -n {{ $labels.namespace }}` for events, og `kubectl logs -l app={{ $labels.deployment }} -n {{ $labels.namespace }}` for logger"

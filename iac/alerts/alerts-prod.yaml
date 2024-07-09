@@ -1,0 +1,100 @@
+# Se docs for hvordan definere rules:
+# - https://docs.nais.io/observability/alerting/
+# - https://docs.nais.io/observability/alerting/reference/prometheusrule/#prometheusrule
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: mulighetsrommet-alerts
+  namespace: team-mulighetsrommet
+  labels:
+    team: team-mulighetsrommet
+spec:
+  groups:
+    - name: Deployment
+      rules:
+        - alert: applikasjon nede
+          expr: kube_deployment_status_replicas_available{namespace="team-mulighetsrommet"} == 0
+          for: 1m
+          annotations:
+            consequence: "'{{ $labels.deployment }}' er utilgjengelig"
+            action: "`kubectl describe pod -l app={{ $labels.deployment }} -n {{ $labels.namespace }}` for events, og `kubectl logs -l app={{ $labels.deployment }} -n {{ $labels.namespace }}` for logger"
+            summary: |-
+              '{{ $labels.deployment }}' er utilgjengelig. Dette burde fikses asap!
+
+              Dette kan ha skjedd som følge av endringer i NAIS config eller at det er noe galt i plattformen.
+          labels:
+            namespace: team-mulighetsrommet
+            severity: critical
+        - alert: "Applikasjon starter ikke"
+          expr: kube_deployment_status_replicas_unavailable{namespace="team-mulighetsrommet"} > 0
+          for: 5m
+          annotations:
+            consequence: Minst én pod er utilgjengelig og nye kodeendringer har sannsynligvis ikke blitt produksjonssatt.
+            action: "`kubectl describe pod -l app={{ $labels.deployment }} -n {{ $labels.namespace }}` for events, og `kubectl logs -l app={{ $labels.deployment }} -n {{ $labels.namespace }}` for logger"
+            summary: |
+              '{{ $labels.deployment }}' kunne ikke startes og har sannsynligvis havnet i CashLoopBackoff under deployment.
+
+              Sjekk loggene for å finne ut hva som er galt.
+          labels:
+            namespace: team-mulighetsrommet
+            severity: critical
+
+    - name: Feilrate
+      rules:
+        - alert: "Høy andel feil i loggene"
+          expr: sum by (app, namespace) (rate(log_messages_errors{namespace="team-mulighetsrommet", level=~"Error|Warning"}[3m])) > 0
+          for: 3m
+          annotations:
+            consequence: Klienter kan oppleve ustabilitet mot tjenesten.
+            action: "Sjekk <https://logs.adeo.no/app/discover#/view/a6a558c0-e657-11ec-a21b-2f67f808c51c?_g=()|loggene> til '{{ $labels.app }}' i namespace '{{ $labels.namespace }}' for å se hvorfor det er så mye feil"
+            summary: |
+              Det er mange feilmeldinger i loggene til '{{ $labels.app }}'.
+
+              Vi bør undersøke hvorfor, da det kan tyde på en feil som må rettes opp i.
+          labels:
+            namespace: team-mulighetsrommet
+            severity: warning
+
+        - alert: Høy andel HTTP 5XX-responser
+          expr: sum by (app, route) (rate(ktor_http_server_requests_seconds_count{namespace="team-mulighetsrommet", status=~"^5\\d\\d"}[3m])) > 0
+          for: 3m
+          annotations:
+            consequence: Tjenesten kan være utilgjengelig inntil problemet løses.
+            action: "Sjekk <https://logs.adeo.no/app/discover#/view/cf0fbc84-c0db-4c07-9fb2-bcb91e522f85?_g=()|loggene> til '{{ $labels.app }}' for å se hvorfor '{{ $labels.route }}' returnerer feilkoder."
+            summary: |
+              Vi ser mange 5XX-responser fra '{{ $labels.app }}' på endepunktet '{{ $labels.route }}'.
+
+              Vi bør undersøke hvorfor, da det kan tyde på en feil som må rettes opp i.
+          labels:
+            namespace: team-mulighetsrommet
+            severity: warning
+
+        - alert: Høy andel HTTP 404-responser
+          # Følgende endepunkt er unntatt fra denne alarmen:
+          #  - /api/v1/tiltaksgjennomforinger/{id}: endepunktet blir kalt av Komet for alle endringer på deltakere og vil resultere i mye 404
+          #  - /api/v1/tiltaksgjennomforinger/id/{arenaId}: endepunktet blir kalt av Komet for alle endringer på deltakere og vil resultere i mye 404
+          #  - /api/v1/tiltaksgjennomforinger/arenadata/{id}: endepunktet blir kalt av Komet for alle endringer på deltakere og vil resultere i mye 404
+          expr: |
+            sum by (app, route) (
+              rate(
+                ktor_http_server_requests_seconds_count{
+                  status=~"^404",
+                  namespace="team-mulighetsrommet",
+                  app="mulighetsrommet-api",
+                  route!~'.*(/api/v1/tiltaksgjennomforinger/{id}|/api/v1/tiltaksgjennomforinger/id/{arenaId}|/api/v1/tiltaksgjennomforinger/arenadata/{id})'
+                }[3m]
+              )
+            ) > 0
+          for: 3m
+          annotations:
+            action: "Sjekk <https://logs.adeo.no/app/discover#/view/9ba27a70-0443-11ed-a503-d3f90a22c586?_g=()|loggene> for å se hvorfor '{{ $labels.route }}' returnerer feilkoder"
+            summary: |-
+              Vi ser mange 404-responser fra '{{ $labels.app }}' på endepunktet '{{ $labels.route }}'.
+
+              Vi bør undersøke hvorfor, da det kan tyde på en feil som må rettes opp i.
+
+              Hvis oppførselen er som forventet kan vi vurdere å filtrere vekk '{{ $labels.route }}' fra alarmen i stedet.
+          labels:
+            namespace: team-mulighetsrommet
+            severity: warning
