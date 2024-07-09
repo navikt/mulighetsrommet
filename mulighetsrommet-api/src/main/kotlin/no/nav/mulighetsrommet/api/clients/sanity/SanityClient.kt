@@ -3,7 +3,7 @@ package no.nav.mulighetsrommet.api.clients.sanity
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.engine.*
-import io.ktor.client.engine.cio.*
+import io.ktor.client.engine.okhttp.*
 import io.ktor.client.plugins.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.plugins.logging.*
@@ -20,7 +20,7 @@ import no.nav.mulighetsrommet.ktor.clients.ClientResponseMetricPlugin
 import org.slf4j.LoggerFactory
 import java.util.*
 
-class SanityClient(engine: HttpClientEngine = CIO.create(), val config: Config) {
+class SanityClient(engine: HttpClientEngine = OkHttp.create(), val config: Config) {
 
     private val logger = LoggerFactory.getLogger(javaClass)
 

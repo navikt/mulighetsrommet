@@ -6,6 +6,7 @@ plugins {
 dependencies {
     implementation(projects.common.metrics)
     api(libs.ktor.client.cio)
+    api(libs.ktor.client.okhttp)
     api(libs.ktor.client.core)
     api(libs.ktor.client.contentNegotiation)
     api(libs.ktor.client.logging)
