@@ -16,7 +16,7 @@ export function useArrangorer(til?: ArrangorTil, filter?: Partial<ArrangorerFilt
         sok: debouncedSok || undefined,
         page: filter?.page,
         size: filter?.pageSize,
-        sortering: filter?.sortering,
+        sortering: filter?.sortering?.sortString,
       });
     },
   });

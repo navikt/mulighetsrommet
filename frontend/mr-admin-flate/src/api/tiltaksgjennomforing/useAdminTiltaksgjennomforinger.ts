@@ -22,7 +22,7 @@ export function useAdminTiltaksgjennomforinger(filter: Partial<Tiltaksgjennomfor
     navEnheter: filter.navEnheter?.map((e) => e.enhetsnummer) ?? [],
     tiltakstyper: filter.tiltakstyper,
     statuser: filter.statuser,
-    sort: filter.sortering ? filter.sortering : undefined,
+    sort: filter.sortering ? filter.sortering.sortString : undefined,
     page: filter.page ?? 1,
     size: filter.pageSize,
     avtaleId: filter.avtale ? filter.avtale : undefined,
