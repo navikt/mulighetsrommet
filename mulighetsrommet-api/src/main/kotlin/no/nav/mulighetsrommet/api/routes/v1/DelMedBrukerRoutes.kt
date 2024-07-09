@@ -6,13 +6,11 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.api.domain.dbo.DelMedBrukerDbo
 import no.nav.mulighetsrommet.api.plugins.getNavAnsattAzureId
 import no.nav.mulighetsrommet.api.services.DelMedBrukerService
 import no.nav.mulighetsrommet.api.services.PoaoTilgangService
 import no.nav.mulighetsrommet.domain.dto.NorskIdent
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
-import no.nav.mulighetsrommet.securelog.SecureLog
 import org.koin.ktor.ext.inject
 import java.util.*
 
@@ -21,24 +19,6 @@ fun Route.delMedBrukerRoutes() {
     val poaoTilgang: PoaoTilgangService by inject()
 
     route("/api/v1/intern/del-med-bruker") {
-        put {
-            val payload = call.receive<DelMedBrukerDbo>()
-
-            poaoTilgang.verifyAccessToUserFromVeileder(getNavAnsattAzureId(), payload.norskIdent)
-
-            delMedBrukerService.lagreDelMedBruker(payload)
-                .onRight {
-                    call.respond(it)
-                }
-                .onLeft {
-                    SecureLog.logger.error("Klarte ikke lagre informasjon om deling med bruker", it.error)
-                    call.respondText(
-                        "Klarte ikke lagre informasjon om deling med bruker",
-                        status = HttpStatusCode.InternalServerError,
-                    )
-                }
-        }
-
         post {
             val request = call.receive<GetDelMedBrukerRequest>()
 

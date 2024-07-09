@@ -53,10 +53,6 @@ export function PreviewArbeidsmarkedstiltakDetaljer() {
                   },
                 ],
               }}
-              lagreVeilederHarDeltTiltakMedBruker={async (dialogId, gjennomforing) => {
-                // eslint-disable-next-line no-console
-                console.log("Del med bruker", dialogId, gjennomforing);
-              }}
             />
             {data && data?.personvernBekreftet ? (
               <InlineErrorBoundary>

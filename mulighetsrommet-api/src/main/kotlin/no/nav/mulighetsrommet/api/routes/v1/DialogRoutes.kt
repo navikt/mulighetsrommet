@@ -11,8 +11,10 @@ import no.nav.common.audit_log.cef.CefMessageSeverity
 import no.nav.mulighetsrommet.api.clients.AccessType
 import no.nav.mulighetsrommet.api.clients.dialog.DialogRequest
 import no.nav.mulighetsrommet.api.clients.dialog.VeilarbdialogClient
+import no.nav.mulighetsrommet.api.domain.dbo.DelMedBrukerDbo
 import no.nav.mulighetsrommet.api.plugins.getNavAnsattAzureId
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
+import no.nav.mulighetsrommet.api.services.DelMedBrukerService
 import no.nav.mulighetsrommet.api.services.PoaoTilgangService
 import no.nav.mulighetsrommet.auditlog.AuditLog
 import no.nav.mulighetsrommet.domain.dto.NavIdent
@@ -23,6 +25,7 @@ import org.koin.ktor.ext.inject
 fun Route.dialogRoutes() {
     val dialogClient: VeilarbdialogClient by inject()
     val poaoTilgangService: PoaoTilgangService by inject()
+    val delMedBrukerService: DelMedBrukerService by inject()
 
     route("/api/v1/intern/dialog") {
         post {
@@ -34,6 +37,15 @@ fun Route.dialogRoutes() {
             val obo = AccessType.OBO(call.getAccessToken())
             val response = dialogClient.sendMeldingTilDialogen(obo, request)
             response?.let {
+                delMedBrukerService.lagreDelMedBruker(
+                    data = DelMedBrukerDbo(
+                        norskIdent = request.fnr,
+                        navident = navIdent.value,
+                        dialogId = it.id,
+                        sanityId = request.sanityId,
+                        tiltaksgjennomforingId = request.tiltaksgjennomforingId,
+                    ),
+                )
                 val message = createAuditMessage(
                     msg = "NAV-ansatt med ident: '$navIdent' har delt informasjon om tiltaket '${request.overskrift}' til bruker med ident: '${request.fnr}'.",
                     navIdent = navIdent,
