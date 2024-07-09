@@ -199,7 +199,7 @@ export function AvtaleAmoKategoriseringSkjema() {
       )}
       {spesifisering === Spesifisering.NORSKOPPLAERING && (
         <Checkbox
-          value={norskprove ?? false}
+          checked={norskprove ?? false}
           onChange={() => setValue("amoKategorisering.norskprove", !(norskprove ?? false))}
           size="small"
         >
