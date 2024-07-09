@@ -1,17 +1,25 @@
 import { TrashFillIcon } from "@navikt/aksel-icons";
-import { Accordion, BodyShort, Button, HGrid, HStack, Radio, RadioGroup } from "@navikt/ds-react";
+import {
+  Accordion,
+  Alert,
+  BodyShort,
+  Button,
+  HGrid,
+  HStack,
+  Radio,
+  RadioGroup,
+} from "@navikt/ds-react";
 import { LagretDokumenttype, LagretFilter } from "mulighetsrommet-api-client";
 import { FilterAccordionHeader } from "mulighetsrommet-frontend-common";
 import { useEffect, useRef, useState } from "react";
-import { useGetLagredeFilterForDokumenttype } from "../../api/lagretFilter/getLagredeFilterForDokumenttype";
-import { useSlettFilter } from "../../api/lagretFilter/useSlettFilter";
-import { VarselModal } from "../modal/VarselModal";
+import { useGetLagredeFilterForDokumenttype } from "./getLagredeFilterForDokumenttype";
+import { useSlettFilter } from "./useSlettFilter";
+import { VarselModal } from "../../../mr-admin-flate/src/components/modal/VarselModal";
 import styles from "./LagredeFilterOversikt.module.scss";
-import { AvtaleFilter, TiltaksgjennomforingFilter } from "../../api/atoms";
 
 interface Props {
   dokumenttype: LagretDokumenttype;
-  filter: TiltaksgjennomforingFilter | AvtaleFilter;
+  filter: any;
   setFilter: (filter: any) => void;
 }
 
@@ -56,7 +64,9 @@ export function LagredeFilterOversikt({ dokumenttype, filter, setFilter }: Props
           <Accordion.Content>
             <>
               {lagredeFilter.length === 0 ? (
-                <BodyShort>Du har ingen lagrede filter</BodyShort>
+                <Alert variant="info" inline>
+                  Du har ingen lagrede filter
+                </Alert>
               ) : (
                 <RadioGroup
                   legend="Mine filter"

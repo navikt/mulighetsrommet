@@ -80,6 +80,9 @@ data class UpsertFilterEntry(
     enum class FilterDokumentType {
         Avtale,
         Tiltaksgjennomføring,
+
+        @Suppress("ktlint:standard:enum-entry-name-case")
+        Tiltaksgjennomføring_Modia,
     }
 }
 

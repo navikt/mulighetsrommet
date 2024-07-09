@@ -3,9 +3,9 @@ import { AvtaleFilter, defaultAvtaleFilter } from "@/api/atoms";
 import { useAtom } from "jotai/index";
 import { NullstillFilterKnapp } from "mulighetsrommet-frontend-common/components/nullstillFilterKnapp/NullstillFilterKnapp";
 import { WritableAtom } from "jotai";
-import { LagreFilterContainer } from "../../components/lagretFilter/LagreFilterContainer";
 import { LagretDokumenttype } from "mulighetsrommet-api-client";
 import { HStack } from "@navikt/ds-react";
+import { LagreFilterContainer } from "mulighetsrommet-frontend-common";
 
 interface Props {
   filterAtom: WritableAtom<AvtaleFilter, [newValue: AvtaleFilter], void>;
@@ -34,7 +34,7 @@ export const NullstillKnappForAvtaler = ({ filterAtom, tiltakstypeId }: Props) =
               });
             }}
           />
-          <LagreFilterContainer dokumenttype={LagretDokumenttype.AVTALE} />
+          <LagreFilterContainer dokumenttype={LagretDokumenttype.AVTALE} filter={filter} />
         </HStack>
       ) : null}
     </div>

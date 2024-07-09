@@ -19,12 +19,12 @@ import {
 import {
   FilterAccordionHeader,
   FilterSkeleton,
+  LagredeFilterOversikt,
   NavEnhetFilter,
 } from "mulighetsrommet-frontend-common";
 import { useRegioner } from "@/api/enhet/useRegioner";
 import { CheckboxList } from "./CheckboxList";
 import { logEvent } from "../../logging/amplitude";
-import { LagredeFilterOversikt } from "./LagredeFilterOversikt";
 
 type Filters = "tiltakstype";
 

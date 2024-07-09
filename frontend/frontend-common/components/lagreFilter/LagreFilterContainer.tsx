@@ -1,12 +1,10 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button, Heading, Modal, TextField } from "@navikt/ds-react";
-import { useAtomValue } from "jotai";
 import { LagretDokumenttype } from "mulighetsrommet-api-client";
 import { useEffect, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import z from "zod";
-import { avtaleFilterAtom, tiltaksgjennomforingfilterAtom } from "../../api/atoms";
-import { useLagreFilter } from "../../api/lagretFilter/useLagreFilter";
+import { useLagreFilter } from "./useLagreFilter";
 
 const LagreFilterSchema = z.object({
   navn: z
@@ -19,12 +17,11 @@ type InferredLagreFilterSchema = z.infer<typeof LagreFilterSchema>;
 
 interface Props {
   dokumenttype: LagretDokumenttype;
+  filter: any;
 }
 
-export function LagreFilterContainer({ dokumenttype }: Props) {
+export function LagreFilterContainer({ dokumenttype, filter }: Props) {
   const [isOpen, setIsOpen] = useState(false);
-  const avtaleFilter = useAtomValue(avtaleFilterAtom);
-  const tiltaksgjennomforingFilter = useAtomValue(tiltaksgjennomforingfilterAtom);
   const mutation = useLagreFilter({
     onSuccess: () => setIsOpen(false),
     dokumenttype,
@@ -55,21 +52,10 @@ export function LagreFilterContainer({ dokumenttype }: Props) {
   function lagreFilter(data: InferredLagreFilterSchema) {
     mutation.mutate({
       navn: data.navn,
-      filter: utledFilterForLagring(dokumenttype),
+      filter,
       type: dokumenttype,
       sortOrder: 0,
     });
-  }
-
-  function utledFilterForLagring(dokumenttype: LagretDokumenttype) {
-    switch (dokumenttype) {
-      case LagretDokumenttype.AVTALE:
-        return avtaleFilter;
-      case LagretDokumenttype.TILTAKSGJENNOMFØRING:
-        return tiltaksgjennomforingFilter;
-      default:
-        throw new Error(`Ukjent dokumenttype: ${dokumenttype}`);
-    }
   }
 
   return (

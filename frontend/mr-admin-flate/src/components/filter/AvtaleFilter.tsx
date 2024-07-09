@@ -13,10 +13,13 @@ import {
 import { Accordion, Search, Switch } from "@navikt/ds-react";
 import { useAtom, WritableAtom } from "jotai";
 import { ArrangorTil, LagretDokumenttype } from "mulighetsrommet-api-client";
-import { FilterAccordionHeader, FilterSkeleton } from "mulighetsrommet-frontend-common";
+import {
+  FilterAccordionHeader,
+  FilterSkeleton,
+  LagredeFilterOversikt,
+} from "mulighetsrommet-frontend-common";
 import { logEvent } from "../../logging/amplitude";
 import { CheckboxList } from "./CheckboxList";
-import { LagredeFilterOversikt } from "./LagredeFilterOversikt";
 
 type Filters = "tiltakstype";
 

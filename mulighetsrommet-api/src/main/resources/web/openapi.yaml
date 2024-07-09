@@ -4102,6 +4102,7 @@ components:
       enum:
         - Avtale
         - Tiltaksgjennomføring
+        - Tiltaksgjennomføring_Modia
 
 
     LagretFilter:
