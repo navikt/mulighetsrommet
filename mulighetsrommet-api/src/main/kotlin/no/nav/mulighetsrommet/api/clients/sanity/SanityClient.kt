@@ -165,7 +165,7 @@ object LogResolvedIPAddressFeature : HttpClientPlugin<Unit, LogResolvedIPAddress
     override fun install(plugin: LogResolvedIPAddressFeature, scope: HttpClient) {
         scope.requestPipeline.intercept(HttpRequestPipeline.Before) {
             val ips = getAllByName("xegcworx.apicdn.sanity.io")
-            logger.warn("Resolved ip's of xegcworx.apicdn.sanity.io: ${ips.map {it.hostAddress }}")
+            logger.info("Resolved ip's of xegcworx.apicdn.sanity.io: ${ips.map {it.hostAddress }}")
 
             proceedWith(subject)
         }
