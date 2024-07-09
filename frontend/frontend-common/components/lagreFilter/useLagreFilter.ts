@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ApiError, LagretDokumenttype, LagretFilterRequest } from "mulighetsrommet-api-client";
 import { LagretFilterService } from "mulighetsrommet-api-client";
-import { QueryKeys } from "../QueryKeys";
+import { QueryKeys } from "../../QueryKeys";
 
 interface Props {
   onSuccess: () => void;

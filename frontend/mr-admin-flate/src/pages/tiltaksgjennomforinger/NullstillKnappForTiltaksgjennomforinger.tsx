@@ -3,7 +3,7 @@ import { useAtom } from "jotai/index";
 import { NullstillFilterKnapp } from "mulighetsrommet-frontend-common/components/nullstillFilterKnapp/NullstillFilterKnapp";
 import { Avtale, LagretDokumenttype } from "mulighetsrommet-api-client";
 import { WritableAtom } from "jotai";
-import { LagreFilterContainer } from "../../components/lagretFilter/LagreFilterContainer";
+import { LagreFilterContainer } from "mulighetsrommet-frontend-common";
 
 interface Props {
   filterAtom: WritableAtom<
@@ -31,7 +31,10 @@ export const NullstillKnappForTiltaksgjennomforinger = ({ filterAtom, avtale }: 
           });
         }}
       />
-      <LagreFilterContainer dokumenttype={LagretDokumenttype.TILTAKSGJENNOMFØRING} />
+      <LagreFilterContainer
+        dokumenttype={LagretDokumenttype.TILTAKSGJENNOMFØRING}
+        filter={filter}
+      />
     </>
   ) : null;
 };

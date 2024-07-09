@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ApiError, LagretDokumenttype, LagretFilterService } from "mulighetsrommet-api-client";
-import { QueryKeys } from "../QueryKeys";
+import { QueryKeys } from "../../QueryKeys";
 
 export function useSlettFilter(dokumenttype: LagretDokumenttype) {
   const queryClient = useQueryClient();
