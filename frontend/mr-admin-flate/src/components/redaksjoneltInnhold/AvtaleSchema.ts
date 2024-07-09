@@ -14,7 +14,7 @@ import { FaneinnholdSchema } from "./FaneinnholdSchema";
 
 export const AvtaleSchema = z
   .object({
-    navn: z.string(),
+    navn: z.string().min(5, "Avtalenavn må være minst 5 tegn langt"),
     tiltakstype: z.object(
       {
         navn: z.string(),
