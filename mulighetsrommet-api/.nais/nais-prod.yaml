@@ -120,13 +120,71 @@ spec:
       external:
         - host: norg2.prod-fss-pub.nais.io
         - host: slack.com
-        - host: xegcworx.apicdn.sanity.io
-        - host: xegcworx.api.sanity.io
         - host: data.brreg.no
         - host: team-mulighetsrommet-unleash-api.nav.cloud.nais.io
         - host: axsys.prod-fss-pub.nais.io
         - host: pdl-api.prod-fss-pub.nais.io
         - host: utdanning.no
+        - host: xegcworx.apicdn.sanity.io
+        - host: xegcworx.api.sanity.io
+        # Sanity IPs https://www.sanity.io/docs/api-cdn#5fa01dfe1285
+        - host: 35.241.31.122
+        - host: 35.190.70.79
+        - host: 35.186.208.30
+        - host: 34.102.229.159
+        - host: 34.102.211.197
+        - host: 34.102.168.221
+        - host: 34.102.220.13
+        - host: 34.102.190.179
+        - host: 34.102.233.224
+        - host: 34.117.95.95
+        - host: 34.160.140.40
+        - host: 34.111.181.219
+        - host: 34.111.150.233
+        - host: 34.107.216.191
+        - host: 34.102.242.91
+        - host: 35.201.85.63
+        - host: 35.190.90.94
+        - host: 34.117.92.90
+        - host: 34.149.250.58
+        - host: 34.160.166.218
+        - host: 34.160.171.86
+        - host: 34.36.58.112
+        - host: 34.117.0.159
+        - host: 34.117.101.53
+        - host: 34.49.170.196
+        - host: 34.49.206.188
+        - host: 35.201.69.243
+        - host: 34.149.200.141
+        - host: 34.98.114.57
+        - host: 34.36.101.172
+        - host: 2600:1901:0:3fe::
+        - host: 2600:1901:0:d1fd::
+        - host: 2600:1901:0:da70::
+        - host: 2600:1901:0:179a::
+        - host: 2600:1901:0:1ec0::
+        - host: 2600:1901:0:d4::
+        - host: 2600:1901:0:9126::
+        - host: 2600:1901:0:90d5::
+        - host: 2600:1901:0:34e0::
+        - host: 2600:1901:0:7657::
+        - host: 2600:1901:0:acc5::
+        - host: 2600:1901:0:9b23::
+        - host: 2600:1901:0:100a::
+        - host: 2600:1901:0:c870::
+        - host: 2600:1901:0:a1f5::
+        - host: 2600:1901:0:d758::
+        - host: 2600:1901:0:28f7::
+        - host: 2600:1901:0:bcc8::
+        - host: 2600:1901:0:505e::
+        - host: 2600:1901:0:99a1::
+        - host: 2600:1901:0:903f::
+        - host: 34.49.15.205
+        - host: 34.117.26.18
+        - host: 34.95.108.139
+        - host: 34.49.19.79
+        - host: 34.49.99.193
+        - host: 34.110.228.169
   envFrom:
     - secret: mulighetsrommet-api
     - secret: mr-admin-flate-unleash-api-token
