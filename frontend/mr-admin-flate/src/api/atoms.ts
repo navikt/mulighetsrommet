@@ -174,6 +174,7 @@ export const defaultTiltaksgjennomforingfilter: TiltaksgjennomforingFilter = {
   visMineGjennomforinger: false,
   page: 1,
   pageSize: PAGE_SIZE,
+  lagretFilterIdValgt: undefined,
 };
 
 export const tiltaksgjennomforingfilterAtom = atomWithStorage<TiltaksgjennomforingFilter>(

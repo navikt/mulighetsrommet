@@ -7,10 +7,11 @@ import { useGetLagredeFilterForDokumenttype } from "../../api/lagretFilter/getLa
 import { useSlettFilter } from "../../api/lagretFilter/useSlettFilter";
 import { VarselModal } from "../modal/VarselModal";
 import styles from "./LagredeFilterOversikt.module.scss";
+import { AvtaleFilter, TiltaksgjennomforingFilter } from "../../api/atoms";
 
 interface Props {
   dokumenttype: LagretDokumenttype;
-  filter: any;
+  filter: TiltaksgjennomforingFilter | AvtaleFilter;
   setFilter: (filter: any) => void;
 }
 
@@ -27,7 +28,9 @@ export function LagredeFilterOversikt({ dokumenttype, filter, setFilter }: Props
 
   function oppdaterFilter(id: string) {
     const valgtFilter = lagredeFilter.find((f) => f.id === id);
-    setFilter({ ...valgtFilter?.filter, lagretFilterIdValgt: valgtFilter?.id });
+    if (valgtFilter) {
+      setFilter({ ...valgtFilter.filter, lagretFilterIdValgt: valgtFilter.id });
+    }
   }
 
   function slettFilter(id: string) {
@@ -114,7 +117,7 @@ export function LagredeFilterOversikt({ dokumenttype, filter, setFilter }: Props
           }
           secondaryButton
           secondaryButtonHandleAction={() => sletteFilterModalRef.current?.close()}
-        ></VarselModal>
+        />
       ) : null}
     </>
   );
