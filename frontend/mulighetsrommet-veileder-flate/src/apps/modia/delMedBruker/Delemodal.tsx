@@ -7,9 +7,9 @@ import { BodyShort, Button, Checkbox, Heading, HelpText, Modal } from "@navikt/d
 import {
   Bruker,
   DelMedBruker,
-  DialogenService,
   VeilederflateTiltaksgjennomforing,
 } from "mulighetsrommet-api-client";
+import { useDelTiltakViaDialogen } from "../../../api/queries/useDelTiltakViaDialogen";
 import { DelMedBrukerContent, MAKS_ANTALL_TEGN_DEL_MED_BRUKER } from "./DelMedBrukerContent";
 import style from "./Delemodal.module.scss";
 import { Actions, State } from "./DelemodalActions";
@@ -21,11 +21,6 @@ interface DelemodalProps {
   harDeltMedBruker?: DelMedBruker;
   dispatch: (action: Actions) => void;
   state: State;
-
-  lagreVeilederHarDeltTiltakMedBruker(
-    dialogId: string,
-    gjennomforing: VeilederflateTiltaksgjennomforing,
-  ): Promise<void>;
 }
 
 export function Delemodal({
@@ -35,9 +30,14 @@ export function Delemodal({
   harDeltMedBruker,
   dispatch,
   state,
-  lagreVeilederHarDeltTiltakMedBruker,
 }: DelemodalProps) {
   const { logEvent } = useLogEvent();
+  const mutation = useDelTiltakViaDialogen({
+    onSuccess: (response) => {
+      dispatch({ type: "Sendt ok", payload: response.id });
+      mutation.reset();
+    },
+  });
 
   const senderTilDialogen = state.sendtStatus === "SENDER";
   const { enableRedigerDeletekst } = state;
@@ -77,16 +77,14 @@ export function Delemodal({
     const overskrift = `Tiltak gjennom NAV: ${tiltaksgjennomforing.navn}`;
     const tekst = state.deletekst;
     try {
-      const res = await DialogenService.delMedDialogen({
-        requestBody: {
-          fnr: bruker.fnr,
-          overskrift,
-          tekst,
-          venterPaaSvarFraBruker,
-        },
+      mutation.mutate({
+        fnr: bruker.fnr,
+        overskrift,
+        tekst,
+        venterPaaSvarFraBruker,
+        tiltaksgjennomforingId: tiltaksgjennomforing?.id || null,
+        sanityId: tiltaksgjennomforing?.sanityId || null,
       });
-      await lagreVeilederHarDeltTiltakMedBruker(res.id, tiltaksgjennomforing);
-      dispatch({ type: "Sendt ok", payload: res.id });
     } catch {
       dispatch({ type: "Sending feilet" });
       logDelMedbrukerEvent("Del med bruker feilet", tiltaksgjennomforing.tiltakstype.navn);

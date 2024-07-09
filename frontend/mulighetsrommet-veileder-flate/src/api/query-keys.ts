@@ -10,7 +10,7 @@ export const QueryKeys = {
     v2,
   ],
   BrukerDeltakelser: (fnr: string) => [...QueryKeys.Bruker(fnr), "deltakelser"],
-  DeltMedBrukerStatus: "deltMedBrukerStatus",
+  DeltMedBrukerStatus: ["deltMedBrukerStatus"],
   AlleDeltMedBrukerStatus: "alleDeltMedBrukerStatus",
   sanity: {
     innsatsgrupper: ["innsatsgrupper"],

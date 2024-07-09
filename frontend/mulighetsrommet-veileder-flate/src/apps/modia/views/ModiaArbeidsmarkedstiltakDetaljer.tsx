@@ -34,10 +34,7 @@ import { gjennomforingIsAktiv } from "mulighetsrommet-frontend-common/utils/util
 export function ModiaArbeidsmarkedstiltakDetaljer() {
   const { fnr } = useModiaContext();
   const id = useGetTiltaksgjennomforingIdFraUrl();
-  const { delMedBrukerInfo, lagreVeilederHarDeltTiltakMedBruker } = useHentDeltMedBrukerStatus(
-    fnr,
-    id,
-  );
+  const { delMedBrukerInfo } = useHentDeltMedBrukerStatus(fnr, id);
   const { data: enableDeltakerRegistrering } = useFeatureToggle(
     Toggles.MULIGHETSROMMET_VEILEDERFLATE_VIS_DELTAKER_REGISTRERING,
   );
@@ -144,7 +141,6 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
                 veiledernavn={resolveName(veilederdata)}
                 tiltaksgjennomforing={tiltaksgjennomforing}
                 bruker={brukerdata}
-                lagreVeilederHarDeltTiltakMedBruker={lagreVeilederHarDeltTiltakMedBruker}
               />
             ) : null}
 

@@ -1107,35 +1107,6 @@ paths:
         204:
           description: "No content found"
 
-    put:
-      tags:
-        - Del med bruker
-      operationId: delMedBruker
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/DelMedBruker"
-      responses:
-        200:
-          description: "Stored data from insertion in database"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/DelMedBruker"
-        204:
-          description: ""
-          content:
-            text/plain:
-              schema:
-                type: string
-        500:
-          description: Failed to store DelMedBruker
-          content:
-            text/plain:
-              schema:
-                type: string
-
   /api/v1/intern/del-med-bruker/alle:
     post:
       tags:
@@ -2691,11 +2662,21 @@ components:
           type: string
         venterPaaSvarFraBruker:
           type: boolean
+        tiltaksgjennomforingId:
+          type: string
+          format: uuid
+          nullable: true
+        sanityId:
+          type: string
+          format: uuid
+          nullable: true
       required:
         - fnr
         - overskrift
         - tekst
         - venterPaaSvarFraBruker
+        - tiltaksgjennomforingId
+        - sanityId
 
     DialogResponse:
       type: object
