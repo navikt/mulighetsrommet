@@ -22,8 +22,8 @@ interface Props {
 
 export function LagreFilterContainer({ dokumenttype, filter }: Props) {
   const [isOpen, setIsOpen] = useState(false);
+
   const mutation = useLagreFilter({
-    onSuccess: () => setIsOpen(false),
     dokumenttype,
   });
 
@@ -53,6 +53,7 @@ export function LagreFilterContainer({ dokumenttype, filter }: Props) {
       },
       {
         onSuccess: () => {
+          setIsOpen(false);
           mutation.reset();
           form.reset();
         },
@@ -92,8 +93,8 @@ export function LagreFilterContainer({ dokumenttype, filter }: Props) {
               ) : null}
             </Modal.Body>
             <Modal.Footer>
-              <Button type="submit" size="small" variant="primary">
-                Lagre
+              <Button type="submit" size="small" variant="primary" disabled={mutation.isPending}>
+                {mutation.isPending ? "Lagrer..." : "Lagre"}
               </Button>
             </Modal.Footer>
           </form>
