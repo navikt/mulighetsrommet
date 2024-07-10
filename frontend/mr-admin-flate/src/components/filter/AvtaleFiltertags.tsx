@@ -20,7 +20,9 @@ export function AvtaleFiltertags({ filterAtom, tiltakstypeId, filterOpen, setTag
 
   const { data: enheter } = useNavEnheter();
   const { data: tiltakstyper } = useTiltakstyper();
-  const { data: arrangorer } = useArrangorer(ArrangorTil.AVTALE);
+  const { data: arrangorer } = useArrangorer(ArrangorTil.AVTALE, {
+    pageSize: 10000,
+  });
 
   return (
     <FilterTagsContainer filterOpen={filterOpen} setTagsHeight={setTagsHeight}>

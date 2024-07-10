@@ -1,7 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Alert, BodyLong, Button, Modal } from "@navikt/ds-react";
 import { Avtale, OpsjonLoggRequest, OpsjonStatus } from "mulighetsrommet-api-client";
-import { RefObject, useEffect } from "react";
+import { RefObject } from "react";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { useRegistrerOpsjon } from "../../../api/avtaler/useRegistrerOpsjon";
 import { VarselModal } from "../../modal/VarselModal";
@@ -22,12 +22,6 @@ export function RegistrerOpsjonModal({ modalRef, avtale }: Props) {
 
   const { handleSubmit, reset } = form;
 
-  useEffect(() => {
-    if (mutation.isSuccess) {
-      closeAndResetForm();
-    }
-  }, [mutation]);
-
   const postData: SubmitHandler<InferredRegistrerOpsjonSchema> = async (data): Promise<void> => {
     const request: OpsjonLoggRequest = {
       avtaleId: avtale.id,
@@ -35,7 +29,11 @@ export function RegistrerOpsjonModal({ modalRef, avtale }: Props) {
       status: OpsjonStatus.OPSJON_UTLØST,
     };
 
-    await mutation.mutate(request);
+    mutation.mutate(request, {
+      onSuccess: () => {
+        closeAndResetForm();
+      },
+    });
   };
 
   function closeAndResetForm() {

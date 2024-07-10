@@ -12,12 +12,10 @@ import {
 import { LagretDokumenttype, LagretFilter } from "mulighetsrommet-api-client";
 import { FilterAccordionHeader } from "mulighetsrommet-frontend-common";
 import { useEffect, useRef, useState } from "react";
-import { useGetLagredeFilterForDokumenttype } from "./getLagredeFilterForDokumenttype";
-import { useSlettFilter } from "./useSlettFilter";
 import { VarselModal } from "../../../mr-admin-flate/src/components/modal/VarselModal";
+import { useGetLagredeFilterForDokumenttype } from "./getLagredeFilterForDokumenttype";
 import styles from "./LagredeFilterOversikt.module.scss";
-import _isEqual from "lodash.isequal";
-import { useLagreFilter } from "./useLagreFilter";
+import { useSlettFilter } from "./useSlettFilter";
 
 interface Props {
   dokumenttype: LagretDokumenttype;
@@ -29,9 +27,9 @@ export function LagredeFilterOversikt({ dokumenttype, filter, setFilter }: Props
   const { data: lagredeFilter = [] } = useGetLagredeFilterForDokumenttype(dokumenttype);
   const [openLagrede, setOpenLagrede] = useState(lagredeFilter.length > 0);
   const [filterForSletting, setFilterForSletting] = useState<LagretFilter | undefined>(undefined);
+
   const sletteFilterModalRef = useRef<HTMLDialogElement>(null);
   const mutation = useSlettFilter(dokumenttype);
-  const lagreFilterMutation = useLagreFilter({ dokumenttype, onSuccess: () => {} });
 
   useEffect(() => {
     setOpenLagrede(lagredeFilter.length > 0);
@@ -40,31 +38,18 @@ export function LagredeFilterOversikt({ dokumenttype, filter, setFilter }: Props
   function oppdaterFilter(id: string) {
     const valgtFilter = lagredeFilter.find((f) => f.id === id);
     if (valgtFilter) {
-      if (getDifferentKeys(valgtFilter.filter, filter).length === 0) {
-        setFilter({ ...valgtFilter.filter, lagretFilterIdValgt: valgtFilter.id });
-      } else {
-        const ok = confirm(
-          "Filterstrukturen har endret seg. Du må oppdatere for å bruke dette filteret. Vil du oppdatere?",
-        );
-        if (ok) {
-          lagreFilterMutation.mutate({
-            ...valgtFilter,
-            filter: { ...valgtFilter.filter },
-          });
-          setFilter({ ...valgtFilter.filter, lagretFilterIdValgt: valgtFilter.id });
-        }
-      }
+      setFilter({ ...valgtFilter.filter, lagretFilterIdValgt: valgtFilter.id });
     }
   }
 
   function slettFilter(id: string) {
-    if (filterForSletting) {
-      {
-        mutation.mutate(id);
+    mutation.mutate(id, {
+      onSuccess: () => {
         setFilter({ ...filter, lagretFilterIdValgt: undefined });
+        setFilterForSletting(undefined);
         sletteFilterModalRef.current?.close();
-      }
-    }
+      },
+    });
   }
 
   return (
@@ -147,24 +132,4 @@ export function LagredeFilterOversikt({ dokumenttype, filter, setFilter }: Props
       ) : null}
     </>
   );
-}
-
-function getDifferentKeys<T extends object>(obj1: T, obj2: T): Array<keyof T> {
-  const keysObj1 = new Set<keyof T>(Object.keys(obj1) as Array<keyof T>);
-  const keysObj2 = new Set<keyof T>(Object.keys(obj2) as Array<keyof T>);
-  const differentKeys: Array<keyof T> = [];
-
-  keysObj1.forEach((key) => {
-    if (!keysObj2.has(key)) {
-      differentKeys.push(key);
-    }
-  });
-
-  keysObj2.forEach((key) => {
-    if (!keysObj1.has(key)) {
-      differentKeys.push(key);
-    }
-  });
-
-  return differentKeys;
 }

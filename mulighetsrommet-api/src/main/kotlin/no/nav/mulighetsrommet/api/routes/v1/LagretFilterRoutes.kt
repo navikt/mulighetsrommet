@@ -50,7 +50,7 @@ fun Route.lagretFilterRoutes() {
 @Serializable
 data class LagretFilterRequest(
     @Serializable(with = UUIDSerializer::class)
-    val id: UUID? = UUID.randomUUID(),
+    val id: UUID,
     val navn: String,
     val type: UpsertFilterEntry.FilterDokumentType,
     val filter: JsonElement,

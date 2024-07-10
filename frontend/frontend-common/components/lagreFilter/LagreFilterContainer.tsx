@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button, Heading, Modal, TextField } from "@navikt/ds-react";
+import { Alert, Button, Heading, Modal, TextField } from "@navikt/ds-react";
 import { LagretDokumenttype } from "mulighetsrommet-api-client";
 import { useEffect, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
@@ -42,20 +42,22 @@ export function LagreFilterContainer({ dokumenttype, filter }: Props) {
     setFocus("navn");
   }, [setFocus, isOpen]);
 
-  useEffect(() => {
-    if (mutation.isSuccess) {
-      mutation.reset();
-      form.reset();
-    }
-  }, [mutation]);
-
   function lagreFilter(data: InferredLagreFilterSchema) {
-    mutation.mutate({
-      navn: data.navn,
-      filter,
-      type: dokumenttype,
-      sortOrder: 0,
-    });
+    mutation.mutate(
+      {
+        navn: data.navn,
+        filter,
+        type: dokumenttype,
+        sortOrder: 0,
+        id: window.crypto.randomUUID(),
+      },
+      {
+        onSuccess: () => {
+          mutation.reset();
+          form.reset();
+        },
+      },
+    );
   }
 
   return (
@@ -83,6 +85,11 @@ export function LagreFilterContainer({ dokumenttype, filter }: Props) {
                 error={errors.navn?.message}
                 label="Navn på filter"
               />
+              {mutation.error ? (
+                <Alert style={{ marginTop: "2rem" }} variant="error">
+                  Klarte ikke lagre filter
+                </Alert>
+              ) : null}
             </Modal.Body>
             <Modal.Footer>
               <Button type="submit" size="small" variant="primary">
