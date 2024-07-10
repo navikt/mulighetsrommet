@@ -121,7 +121,6 @@ class NavAnsattService(
 
         db.transactionSuspend { tx ->
             navAnsattRepository.deleteByAzureId(ansatt.azureId, tx)
-            // Remove ansatt fra alle gjennomføringer i Sanity den ansatte er kontaktperson for (og gi beskjed via notifikasjon til de andre administratorene)
             deleteSanityAnsatt(ansatt)
         }
 
