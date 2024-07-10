@@ -9,7 +9,7 @@ import { VarselModal } from "@/components/modal/VarselModal";
 import { avbrytAvtaleAarsakToString } from "@/utils/Utils";
 import { BodyShort, Button, Radio } from "@navikt/ds-react";
 import { AvbrytAvtaleAarsak, Avtale } from "mulighetsrommet-api-client";
-import { RefObject, useEffect, useState } from "react";
+import { RefObject, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import z from "zod";
 import style from "./AvbrytGjennomforingAvtaleModal.module.scss";
@@ -66,13 +66,11 @@ export function AvbrytAvtaleModal({ modalRef, avtale }: Props) {
     modalRef.current?.close();
   };
 
-  useEffect(() => {
-    if (mutation.isSuccess) {
-      setState(initialState);
-      modalRef.current?.close();
-      navigate(`/avtaler/${avtale.id}`);
-    }
-  }, [mutation]);
+  function navigateOnSuccess() {
+    setState(initialState);
+    modalRef.current?.close();
+    navigate(`/avtaler/${avtale.id}`);
+  }
 
   const handleAvbrytAvtale = () => {
     const parsed = AvbrytAvtaleModalSchema.safeParse({
@@ -92,15 +90,21 @@ export function AvbrytAvtaleModal({ modalRef, avtale }: Props) {
 
     if (parsed.success && avtale?.id && state?.aarsak) {
       if (state.aarsak === AnnetEnum.ANNET && state.customAarsak) {
-        mutation.mutate({
-          id: avtale.id,
-          aarsak: state.customAarsak,
-        });
+        mutation.mutate(
+          {
+            id: avtale.id,
+            aarsak: state.customAarsak,
+          },
+          { onSuccess: navigateOnSuccess },
+        );
       } else
-        mutation.mutate({
-          id: avtale?.id,
-          aarsak: state.aarsak,
-        });
+        mutation.mutate(
+          {
+            id: avtale?.id,
+            aarsak: state.aarsak,
+          },
+          { onSuccess: navigateOnSuccess },
+        );
     }
   };
 

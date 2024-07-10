@@ -17,8 +17,8 @@ class LagretFilterService(private val db: Database) {
     fun upsertFilter(filter: UpsertFilterEntry): QueryResult<Unit> = query {
         @Language("PostgreSQL")
         val query = """
-            insert into lagret_filter (bruker_id, navn, type, filter, sort_order)
-            values (:brukerId, :navn, :type::filter_dokument_type, :filter::jsonb, :sortOrder)
+            insert into lagret_filter (id, bruker_id, navn, type, filter, sort_order)
+            values (:id::uuid, :brukerId, :navn, :type::filter_dokument_type, :filter::jsonb, :sortOrder)
             on conflict (id) do update set
                 navn = excluded.navn,
                 filter = excluded.filter,
@@ -61,6 +61,7 @@ class LagretFilterService(private val db: Database) {
 
 private fun UpsertFilterEntry.toSqlParams(): Map<String, Any?> {
     return mapOf(
+        "id" to id,
         "brukerId" to brukerId,
         "navn" to navn,
         "type" to type.name,
@@ -71,6 +72,8 @@ private fun UpsertFilterEntry.toSqlParams(): Map<String, Any?> {
 
 @Serializable
 data class UpsertFilterEntry(
+    @Serializable(with = UUIDSerializer::class)
+    val id: UUID? = UUID.randomUUID(),
     val brukerId: String,
     val navn: String,
     val type: FilterDokumentType,

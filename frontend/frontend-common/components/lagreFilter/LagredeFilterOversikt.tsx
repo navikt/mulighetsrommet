@@ -12,10 +12,10 @@ import {
 import { LagretDokumenttype, LagretFilter } from "mulighetsrommet-api-client";
 import { FilterAccordionHeader } from "mulighetsrommet-frontend-common";
 import { useEffect, useRef, useState } from "react";
-import { useGetLagredeFilterForDokumenttype } from "./getLagredeFilterForDokumenttype";
-import { useSlettFilter } from "./useSlettFilter";
 import { VarselModal } from "../../../mr-admin-flate/src/components/modal/VarselModal";
+import { useGetLagredeFilterForDokumenttype } from "./getLagredeFilterForDokumenttype";
 import styles from "./LagredeFilterOversikt.module.scss";
+import { useSlettFilter } from "./useSlettFilter";
 
 interface Props {
   dokumenttype: LagretDokumenttype;
@@ -27,6 +27,7 @@ export function LagredeFilterOversikt({ dokumenttype, filter, setFilter }: Props
   const { data: lagredeFilter = [] } = useGetLagredeFilterForDokumenttype(dokumenttype);
   const [openLagrede, setOpenLagrede] = useState(lagredeFilter.length > 0);
   const [filterForSletting, setFilterForSletting] = useState<LagretFilter | undefined>(undefined);
+
   const sletteFilterModalRef = useRef<HTMLDialogElement>(null);
   const mutation = useSlettFilter(dokumenttype);
 
@@ -42,13 +43,13 @@ export function LagredeFilterOversikt({ dokumenttype, filter, setFilter }: Props
   }
 
   function slettFilter(id: string) {
-    if (filterForSletting) {
-      {
-        mutation.mutate(id);
+    mutation.mutate(id, {
+      onSuccess: () => {
         setFilter({ ...filter, lagretFilterIdValgt: undefined });
+        setFilterForSletting(undefined);
         sletteFilterModalRef.current?.close();
-      }
-    }
+      },
+    });
   }
 
   return (

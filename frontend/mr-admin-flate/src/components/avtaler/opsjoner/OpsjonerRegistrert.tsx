@@ -1,9 +1,8 @@
 import { Alert, BodyShort, Button, Heading, HStack, Table } from "@navikt/ds-react";
 import { Avtale, OpsjonLoggRegistrert, OpsjonStatus } from "mulighetsrommet-api-client";
+import { useSlettOpsjon } from "../../../api/avtaler/useSlettOpsjon";
 import { formaterDato } from "../../../utils/Utils";
 import styles from "./OpsjonerRegistrert.module.scss";
-import { useSlettOpsjon } from "../../../api/avtaler/useSlettOpsjon";
-import { useEffect } from "react";
 
 interface Props {
   avtale: Avtale;
@@ -14,12 +13,6 @@ export function OpsjonerRegistrert({ avtale, readOnly }: Props) {
   const logg = avtale.opsjonerRegistrert;
   const mutation = useSlettOpsjon();
 
-  useEffect(() => {
-    if (mutation.isSuccess) {
-      mutation.reset();
-    }
-  }, [mutation]);
-
   function kanSletteOpsjon(opsjon: OpsjonLoggRegistrert): boolean {
     const sisteUtlosteOpsjon = logg
       .filter((log) => log.status === OpsjonStatus.OPSJON_UTLØST)
@@ -29,7 +22,14 @@ export function OpsjonerRegistrert({ avtale, readOnly }: Props) {
   }
 
   function fjernSisteOpsjon(id: string) {
-    mutation.mutate({ id, avtaleId: avtale.id });
+    mutation.mutate(
+      { id, avtaleId: avtale.id },
+      {
+        onSuccess: () => {
+          mutation.reset();
+        },
+      },
+    );
   }
 
   return (
