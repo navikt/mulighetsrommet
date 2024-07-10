@@ -4064,6 +4064,10 @@ components:
     LagretFilterRequest:
       type: object
       properties:
+        id:
+          type: string
+          format: uuid
+          nullable: true
         navn:
           type: string
         "type":
@@ -4073,6 +4077,7 @@ components:
         sortOrder:
           type: number
       required:
+        - id
         - type
         - navn
         - filter

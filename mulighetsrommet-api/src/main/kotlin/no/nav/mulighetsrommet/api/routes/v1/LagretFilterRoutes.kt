@@ -12,6 +12,7 @@ import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.services.LagretFilterService
 import no.nav.mulighetsrommet.api.services.UpsertFilterEntry
 import no.nav.mulighetsrommet.domain.dto.NavIdent
+import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import org.koin.ktor.ext.inject
 import java.util.*
 
@@ -34,7 +35,7 @@ fun Route.lagretFilterRoutes() {
 
         post {
             val request = call.receive<LagretFilterRequest>()
-            lagretFilterService.upsertFilter(request.toLagretFilter(getNavIdent()))
+            lagretFilterService.upsertFilter(request.toLagretFilter(id = request.id, brukerId = getNavIdent()))
             call.respond(HttpStatusCode.Created)
         }
 
@@ -48,13 +49,16 @@ fun Route.lagretFilterRoutes() {
 
 @Serializable
 data class LagretFilterRequest(
+    @Serializable(with = UUIDSerializer::class)
+    val id: UUID? = UUID.randomUUID(),
     val navn: String,
     val type: UpsertFilterEntry.FilterDokumentType,
     val filter: JsonElement,
     val sortOrder: Int,
 ) {
-    fun toLagretFilter(brukerId: NavIdent): UpsertFilterEntry {
+    fun toLagretFilter(id: UUID?, brukerId: NavIdent): UpsertFilterEntry {
         return UpsertFilterEntry(
+            id = id,
             brukerId = brukerId.value,
             navn = navn,
             type = type,
