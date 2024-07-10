@@ -4,11 +4,10 @@ import { LagretFilterService } from "mulighetsrommet-api-client";
 import { QueryKeys } from "../../QueryKeys";
 
 interface Props {
-  onSuccess: () => void;
   dokumenttype: LagretDokumenttype;
 }
 
-export function useLagreFilter({ onSuccess, dokumenttype }: Props) {
+export function useLagreFilter({ dokumenttype }: Props) {
   const queryClient = useQueryClient();
   return useMutation<any, ApiError, LagretFilterRequest>({
     mutationFn: (requestBody) => LagretFilterService.upsertFilter({ requestBody }),
@@ -16,7 +15,6 @@ export function useLagreFilter({ onSuccess, dokumenttype }: Props) {
       queryClient.invalidateQueries({
         queryKey: QueryKeys.lagredeFilter(dokumenttype),
       });
-      onSuccess();
     },
   });
 }
