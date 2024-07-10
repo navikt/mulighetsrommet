@@ -95,12 +95,14 @@ export const avtaleHandlers = [
         personopplysning: Personopplysning.SOSIALE_FORHOLD,
         tittel:
           "Sosiale eller personlige forhold som kan ha betydning for tiltaksgjennomføring og jobbmuligheter (eks. Aleneforsørger og kan derfor ikke jobbe kveldstid, eller økonomiske forhold som går ut over tiltaksgjennomføringen)",
-        hjelpetekst: null,
+        hjelpetekst:
+          "For eksempel aleneomsorg for barn og kan derfor ikke jobbe kveldstid, eller økonomiske forhold som går utover tiltaksgjennomføringen.",
       },
       {
         personopplysning: Personopplysning.HELSEOPPLYSNINGER,
         tittel: "Helseopplysninger",
-        hjelpetekst: null,
+        hjelpetekst:
+          "Kan være nødvendig dersom deltaker har helseutfordringer som påvirker hvilke jobber han/hun kan ta, og dersom det er behov for tilrettelegging hos leverandør/arbeidsplass på grunn av helse.",
       },
       {
         personopplysning: Personopplysning.RELIGION,

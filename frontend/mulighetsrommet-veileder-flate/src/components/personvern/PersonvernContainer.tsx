@@ -80,15 +80,16 @@ export function PersonvernContainer({ tiltaksgjennomforing }: Props) {
             at vi ikke skal sende flere opplysninger enn det som er nødvendig.
           </BodyLong>
           <BodyLong spacing className={styles.lesebredde}>
-            Personopplysninger om deltakers nærstående skal i utgangspunktet ikke behandles. I
-            enkelte tilfeller kan det likevel være nødvendig å behandle indirekte opplysninger om
-            deltakers nærstående, fordi det kan ha betydning for tiltaksgjennomføringen.{" "}
-            <HelpText>
-              {" "}
-              Dataminimeringsprinsippet gjelder også her: man kan for eksempel opplyse om at
-              deltaker har et nært familiemedlem med stort omsorgsbehov, uten å opplyse om
-              vedkommendes relasjon til deltaker, diagnose, navn og alder.{" "}
-            </HelpText>
+            <div className={styles.flex}>
+              Personopplysninger om deltakers nærstående skal i utgangspunktet ikke behandles. I
+              enkelte tilfeller kan det likevel være nødvendig å behandle indirekte opplysninger om
+              deltakers nærstående, fordi det kan ha betydning for tiltaksgjennomføringen.
+              <HelpText>
+                Dataminimeringsprinsippet gjelder også her: man kan for eksempel opplyse om at
+                deltaker har et nært familiemedlem med stort omsorgsbehov, uten å opplyse om
+                vedkommendes relasjon til deltaker, diagnose, navn og alder.{" "}
+              </HelpText>
+            </div>
           </BodyLong>
           <VStack gap="5">
             <ListeOverPersonopplysninger
@@ -120,10 +121,12 @@ function ListeOverPersonopplysninger({
       {personopplysninger.map((personopplysning) => (
         <List.Item key={personopplysning.personopplysning} className={styles.lesebredde}>
           <HStack align={"end"} gap="1">
-            {personopplysning.tittel}{" "}
-            {personopplysning.hjelpetekst ? (
-              <HelpText>{personopplysning.hjelpetekst}</HelpText>
-            ) : null}
+            <div className={styles.flex}>
+              {personopplysning.tittel}{" "}
+              {personopplysning.hjelpetekst ? (
+                <HelpText>{personopplysning.hjelpetekst}</HelpText>
+              ) : null}
+            </div>
           </HStack>
         </List.Item>
       ))}
