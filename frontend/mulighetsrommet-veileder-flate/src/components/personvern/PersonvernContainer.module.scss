@@ -1,3 +1,9 @@
 .lesebredde {
   max-width: 75ch;
 }
+
+.flex {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+}
