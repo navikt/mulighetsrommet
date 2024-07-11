@@ -99,25 +99,29 @@ class NavAnsattServiceTest :
                     respondJson(
                         content = sanityContentResult(
                             listOf(
-                                NavAnsattService.GjennomforingAndKontaktpersoner(
+                                GjennomforingAndKontaktpersoner(
                                     kontaktpersoner = listOf(
-                                        SanityNavKontaktperson(
-                                            _id = "123",
-                                            _type = "navKontaktperson",
-                                            enhet = ansatt1.hovedenhetKode,
-                                            telefonnummer = ansatt1.mobilnummer,
-                                            epost = ansatt1.epost,
-                                            navn = ansatt1.fornavn + " " + ansatt1.etternavn,
-                                            navIdent = Slug(current = ansatt1.navIdent.value),
+                                        GjennomforingAndKontaktpersoner.NavKontaktperson(
+                                            SanityNavKontaktperson(
+                                                _id = "123",
+                                                _type = "navKontaktperson",
+                                                enhet = ansatt1.hovedenhetKode,
+                                                telefonnummer = ansatt1.mobilnummer,
+                                                epost = ansatt1.epost,
+                                                navn = ansatt1.fornavn + " " + ansatt1.etternavn,
+                                                navIdent = Slug(current = ansatt1.navIdent.value),
+                                            ),
                                         ),
-                                        SanityNavKontaktperson(
-                                            _id = "456",
-                                            _type = "navKontaktperson",
-                                            enhet = ansatt2.hovedenhetKode,
-                                            telefonnummer = ansatt2.mobilnummer,
-                                            epost = ansatt2.epost,
-                                            navn = ansatt2.fornavn + " " + ansatt2.etternavn,
-                                            navIdent = Slug(current = ansatt2.navIdent.value),
+                                        GjennomforingAndKontaktpersoner.NavKontaktperson(
+                                            SanityNavKontaktperson(
+                                                _id = "456",
+                                                _type = "navKontaktperson",
+                                                enhet = ansatt2.hovedenhetKode,
+                                                telefonnummer = ansatt2.mobilnummer,
+                                                epost = ansatt2.epost,
+                                                navn = ansatt2.fornavn + " " + ansatt2.etternavn,
+                                                navIdent = Slug(current = ansatt2.navIdent.value),
+                                            ),
                                         ),
                                     ),
                                     redaktor = listOf(

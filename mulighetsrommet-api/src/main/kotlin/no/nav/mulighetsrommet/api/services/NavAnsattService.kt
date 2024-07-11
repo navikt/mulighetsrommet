@@ -147,8 +147,8 @@ class NavAnsattService(
     private suspend fun getGjennomforingerFraSanityForAnsatt(ansatt: NavAnsattDto): List<GjennomforingAndKontaktpersoner> {
         val queryResponse = sanityClient.query(
             """
-                *[_type == "tiltaksgjennomforing" && (${'$'}navIdent in kontaktpersoner[].navKontaktperson->navIdent.current || ${'$'}navIdent in redaktor[]->navIdent.current)]
-            {kontaktpersoner[]{navKontaktperson->}, "gjennomforingsId": _id, tiltaksgjennomforingNavn, redaktor[]->}
+            *[_type == "tiltaksgjennomforing" && (${'$'}navIdent in kontaktpersoner[].navKontaktperson->navIdent.current || ${'$'}navIdent in redaktor[]->navIdent.current)]
+            {kontaktpersoner[]{navKontaktperson->}, _id, tiltaksgjennomforingNavn, redaktor[]->}
 
             """.trimIndent(),
             params = listOf(SanityParam.of("navIdent", ansatt.navIdent.value)),
@@ -168,7 +168,7 @@ class NavAnsattService(
         }
 
         val mutations = gjennomforinger.map { gjennomforing ->
-            val kontaktpersoner = gjennomforing.kontaktpersoner.filter { it.navIdent.current != ansatt.navIdent.value }
+            val kontaktpersoner = gjennomforing.kontaktpersoner.filter { it.navKontaktperson.navIdent.current != ansatt.navIdent.value }
             val redaktorer = gjennomforing.redaktor.filter { it.navIdent.current != ansatt.navIdent.value }
             createPatchGjennomforingsKontaktpersonMutation(gjennomforing, kontaktpersoner, redaktorer)
         }
@@ -178,7 +178,7 @@ class NavAnsattService(
 
     private fun createPatchGjennomforingsKontaktpersonMutation(
         gjennomforing: GjennomforingAndKontaktpersoner,
-        kontaktpersoner: List<SanityNavKontaktperson>,
+        kontaktpersoner: List<GjennomforingAndKontaktpersoner.NavKontaktperson>,
         redaktorer: List<SanityRedaktor>,
     ): Mutation<Mutation.Patch<GjennomforingAndKontaktpersoner>> {
         val patch = GjennomforingAndKontaktpersoner(
@@ -190,15 +190,6 @@ class NavAnsattService(
 
         return Mutation.patch(gjennomforing._id.toString(), patch)
     }
-
-    @Serializable
-    data class GjennomforingAndKontaktpersoner(
-        val kontaktpersoner: List<SanityNavKontaktperson>,
-        val redaktor: List<SanityRedaktor>,
-        val tiltaksgjennomforingNavn: String,
-        @Serializable(with = UUIDSerializer::class)
-        val _id: UUID,
-    )
 
     private fun notifyRelevantAdministrators(
         avtale: AvtaleAdminDto,
@@ -419,3 +410,17 @@ data class Slug(
     val _type: String = "slug",
     val current: String,
 )
+
+@Serializable
+data class GjennomforingAndKontaktpersoner(
+    val kontaktpersoner: List<NavKontaktperson>,
+    val redaktor: List<SanityRedaktor>,
+    val tiltaksgjennomforingNavn: String,
+    @Serializable(with = UUIDSerializer::class)
+    val _id: UUID,
+) {
+    @Serializable
+    data class NavKontaktperson(
+        val navKontaktperson: SanityNavKontaktperson,
+    )
+}
