@@ -11,7 +11,6 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
-import io.ktor.util.*
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.api.domain.dto.Mutation
@@ -19,7 +18,6 @@ import no.nav.mulighetsrommet.api.domain.dto.Mutations
 import no.nav.mulighetsrommet.api.domain.dto.SanityResponse
 import no.nav.mulighetsrommet.ktor.clients.ClientResponseMetricPlugin
 import org.slf4j.LoggerFactory
-import java.net.InetAddress.getAllByName
 import java.util.*
 
 class SanityClient(engine: HttpClientEngine = CIO.create(), val config: Config) {
@@ -55,9 +53,8 @@ class SanityClient(engine: HttpClientEngine = CIO.create(), val config: Config) 
 
         install(Logging) {
             logger = Logger.DEFAULT
-            level = LogLevel.HEADERS
+            level = LogLevel.INFO
         }
-        install(LogResolvedIPAddressFeature)
 
         install(ClientResponseMetricPlugin)
 
@@ -149,25 +146,6 @@ class SanityParam private constructor(val key: String, val value: String) {
 
         internal fun of(key: String, value: UUID): SanityParam {
             return SanityParam(key, "\"$value\"")
-        }
-    }
-}
-
-object LogResolvedIPAddressFeature : HttpClientPlugin<Unit, LogResolvedIPAddressFeature> {
-    private val logger = LoggerFactory.getLogger(javaClass)
-
-    override val key: AttributeKey<LogResolvedIPAddressFeature> = AttributeKey("LogResolvedIPAddressFeature")
-
-    override fun prepare(block: Unit.() -> Unit): LogResolvedIPAddressFeature {
-        return this
-    }
-
-    override fun install(plugin: LogResolvedIPAddressFeature, scope: HttpClient) {
-        scope.requestPipeline.intercept(HttpRequestPipeline.Before) {
-            val ips = getAllByName("xegcworx.apicdn.sanity.io")
-            logger.info("Resolved ip's of xegcworx.apicdn.sanity.io: ${ips.map {it.hostAddress }}")
-
-            proceedWith(subject)
         }
     }
 }
