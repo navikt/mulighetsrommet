@@ -148,7 +148,7 @@ class NavAnsattService(
         val queryResponse = sanityClient.query(
             """
             *[_type == "tiltaksgjennomforing" && (${'$'}navIdent in kontaktpersoner[].navKontaktperson->navIdent.current || ${'$'}navIdent in redaktor[]->navIdent.current)]
-            {kontaktpersoner[]{navKontaktperson->, enheter}, _id, tiltaksgjennomforingNavn, redaktor[]->}
+            {kontaktpersoner[]{navKontaktperson->, enheter, _key}, _id, tiltaksgjennomforingNavn, redaktor[]->}
 
             """.trimIndent(),
             params = listOf(SanityParam.of("navIdent", ansatt.navIdent.value)),
