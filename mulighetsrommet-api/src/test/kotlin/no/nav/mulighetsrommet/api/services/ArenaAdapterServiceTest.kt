@@ -1,6 +1,5 @@
 package no.nav.mulighetsrommet.api.services
 
-import arrow.core.right
 import io.kotest.common.runBlocking
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.data.blocking.forAll
@@ -11,8 +10,6 @@ import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.mockk.*
 import kotliquery.Query
-import no.nav.mulighetsrommet.api.clients.AccessType
-import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClient
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dbo.ArenaNavEnhet
 import no.nav.mulighetsrommet.api.domain.dto.AvtaleAdminDto
@@ -794,98 +791,6 @@ class ArenaAdapterServiceTest :
                 }
             }
         }
-
-        context("tiltakshistorikk") {
-            val veilarboppfolgingClient: VeilarboppfolgingClient = mockk()
-            val service = createArenaAdapterService(
-                database.db,
-                veilarboppfolgingClient = veilarboppfolgingClient,
-            )
-
-            val tiltakshistorikkGruppe = ArenaTiltakshistorikkDbo.Gruppetiltak(
-                id = UUID.randomUUID(),
-                tiltaksgjennomforingId = TiltaksgjennomforingFixtures.Oppfolging1.id,
-                norskIdent = NorskIdent("12345678910"),
-                status = Deltakerstatus.VENTER,
-                fraDato = LocalDateTime.of(2018, 12, 3, 0, 0),
-                tilDato = LocalDateTime.of(2019, 12, 3, 0, 0),
-                registrertIArenaDato = LocalDateTime.of(2018, 12, 3, 0, 0),
-            )
-
-            val tiltakstypeIndividuell = TiltakstypeFixtures.EnkelAmo
-
-            val tiltakshistorikkIndividuell = ArenaTiltakshistorikkDbo.IndividueltTiltak(
-                id = UUID.randomUUID(),
-                norskIdent = NorskIdent("12345678910"),
-                status = Deltakerstatus.VENTER,
-                fraDato = LocalDateTime.of(2018, 12, 3, 0, 0),
-                tilDato = LocalDateTime.of(2019, 12, 3, 0, 0),
-                registrertIArenaDato = LocalDateTime.of(2018, 12, 3, 0, 0),
-                beskrivelse = "Utdanning",
-                tiltakstypeId = tiltakstypeIndividuell.id,
-                arrangorOrganisasjonsnummer = "12343",
-            )
-
-            beforeTest {
-                val domain = MulighetsrommetTestDomain(
-                    tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging, tiltakstypeIndividuell),
-                    avtaler = listOf(AvtaleFixtures.oppfolging),
-                    gjennomforinger = listOf(TiltaksgjennomforingFixtures.Oppfolging1),
-                )
-                domain.initialize(database.db)
-
-                coEvery {
-                    veilarboppfolgingClient.erBrukerUnderOppfolging(
-                        NorskIdent("12345678910"),
-                        AccessType.M2M,
-                    )
-                } returns true.right()
-            }
-
-            test("CRUD gruppe") {
-                service.upsertTiltakshistorikk(tiltakshistorikkGruppe)
-
-                database.assertThat("tiltakshistorikk").row()
-                    .value("id").isEqualTo(tiltakshistorikkGruppe.id)
-                    .value("status").isEqualTo(tiltakshistorikkGruppe.status.name)
-                    .value("tiltaksgjennomforing_id").isEqualTo(tiltakshistorikkGruppe.tiltaksgjennomforingId)
-                    .value("beskrivelse").isNull
-                    .value("arrangor_organisasjonsnummer").isNull
-                    .value("tiltakstypeid").isNull
-
-                val updated = tiltakshistorikkGruppe.copy(status = Deltakerstatus.DELTAR)
-                service.upsertTiltakshistorikk(updated)
-
-                database.assertThat("tiltakshistorikk").row()
-                    .value("status").isEqualTo(updated.status.name)
-
-                service.removeTiltakshistorikk(updated.id)
-
-                database.assertThat("tiltakshistorikk").isEmpty
-            }
-
-            test("CRUD individuell") {
-                service.upsertTiltakshistorikk(tiltakshistorikkIndividuell)
-
-                database.assertThat("tiltakshistorikk").row()
-                    .value("id").isEqualTo(tiltakshistorikkIndividuell.id)
-                    .value("beskrivelse").isEqualTo(tiltakshistorikkIndividuell.beskrivelse)
-                    .value("arrangor_organisasjonsnummer")
-                    .isEqualTo(tiltakshistorikkIndividuell.arrangorOrganisasjonsnummer)
-                    .value("tiltakstypeid").isEqualTo(tiltakshistorikkIndividuell.tiltakstypeId)
-                    .value("tiltaksgjennomforing_id").isNull
-
-                val updated = tiltakshistorikkIndividuell.copy(beskrivelse = "Ny beskrivelse")
-                service.upsertTiltakshistorikk(updated)
-
-                database.assertThat("tiltakshistorikk").row()
-                    .value("beskrivelse").isEqualTo("Ny beskrivelse")
-
-                service.removeTiltakshistorikk(updated.id)
-
-                database.assertThat("tiltakshistorikk").isEmpty
-            }
-        }
     })
 
 private fun createArenaAdapterService(
@@ -893,7 +798,6 @@ private fun createArenaAdapterService(
     tiltaksgjennomforingKafkaProducer: TiltaksgjennomforingKafkaProducer = mockk(relaxed = true),
     sanityTiltakService: SanityTiltakService = mockk(relaxed = true),
     notificationService: NotificationService = mockk(relaxed = true),
-    veilarboppfolgingClient: VeilarboppfolgingClient = mockk(),
     migrerteTiltakstyper: List<Tiltakskode> = listOf(),
 ) = ArenaAdapterService(
     db = db,
@@ -901,7 +805,6 @@ private fun createArenaAdapterService(
     tiltakstyper = TiltakstypeRepository(db),
     avtaler = AvtaleRepository(db),
     tiltaksgjennomforinger = TiltaksgjennomforingRepository(db),
-    tiltakshistorikk = TiltakshistorikkRepository(db),
     deltakere = DeltakerRepository(db),
     tiltaksgjennomforingKafkaProducer = tiltaksgjennomforingKafkaProducer,
     sanityTiltakService = sanityTiltakService,
@@ -909,7 +812,6 @@ private fun createArenaAdapterService(
     navEnhetService = NavEnhetService(NavEnhetRepository(db)),
     notificationService = notificationService,
     endringshistorikk = EndringshistorikkService(db),
-    veilarboppfolgingClient = veilarboppfolgingClient,
     tiltakstypeService = TiltakstypeService(TiltakstypeRepository(db), migrerteTiltakstyper),
 )
 
