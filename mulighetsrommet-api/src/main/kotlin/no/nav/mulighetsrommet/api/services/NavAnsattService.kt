@@ -22,6 +22,7 @@ import no.nav.mulighetsrommet.api.repositories.NavAnsattRepository
 import no.nav.mulighetsrommet.api.utils.EnhetFilter
 import no.nav.mulighetsrommet.api.utils.NavAnsattFilter
 import no.nav.mulighetsrommet.database.Database
+import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.notifications.NotificationMetadata
 import no.nav.mulighetsrommet.notifications.NotificationService
 import no.nav.mulighetsrommet.notifications.NotificationType
@@ -118,11 +119,21 @@ class NavAnsattService(
 
     private suspend fun deleteNavAnsatt(ansatt: NavAnsattDto) {
         val avtaleIds = avtaleRepository.getAvtaleIdsByAdministrator(ansatt.navIdent)
+        val gjennomforinger = getGjennomforingerFraSanityForAnsatt(ansatt)
 
         db.transactionSuspend { tx ->
             navAnsattRepository.deleteByAzureId(ansatt.azureId, tx)
+            removeSanityAnsattFraTiltaksgjennomforing(ansatt)
             deleteSanityAnsatt(ansatt)
         }
+
+        gjennomforinger
+            .forEach { gjennomforing ->
+                notifyRelevantAdministratorsForSanityGjennomforing(
+                    gjennomforing,
+                    ansatt.hovedenhet,
+                )
+            }
 
         avtaleIds
             .forEach {
@@ -131,6 +142,69 @@ class NavAnsattService(
                     notifyRelevantAdministrators(avtale, ansatt.hovedenhet)
                 }
             }
+    }
+
+    private suspend fun getGjennomforingerFraSanityForAnsatt(ansatt: NavAnsattDto): List<GjennomforingAndKontaktpersoner> {
+        val queryResponse = sanityClient.query(
+            """
+            *[_type == "tiltaksgjennomforing" && (${'$'}navIdent in kontaktpersoner[].navKontaktperson->navIdent.current || ${'$'}navIdent in redaktor[]->navIdent.current)]
+            {kontaktpersoner[]{navKontaktperson->, enheter, _key}, _id, tiltaksgjennomforingNavn, redaktor[]->}
+
+            """.trimIndent(),
+            params = listOf(SanityParam.of("navIdent", ansatt.navIdent.value)),
+        )
+
+        return when (queryResponse) {
+            is SanityResponse.Result -> queryResponse.decode<List<GjennomforingAndKontaktpersoner>>()
+            is SanityResponse.Error -> throw Exception("Klarte ikke hente ut id'er til sletting fra Sanity: ${queryResponse.error}")
+        }
+    }
+
+    private suspend fun removeSanityAnsattFraTiltaksgjennomforing(ansatt: NavAnsattDto) {
+        val gjennomforinger = getGjennomforingerFraSanityForAnsatt(ansatt)
+
+        if (gjennomforinger.isEmpty()) {
+            return
+        }
+
+        val mutations = gjennomforinger.map { gjennomforing ->
+            val kontaktpersoner =
+                gjennomforing.kontaktpersoner.filter { it.navKontaktperson.navIdent.current != ansatt.navIdent.value }
+            val redaktorer = gjennomforing.redaktor.filter { it.navIdent.current != ansatt.navIdent.value }
+            createPatchGjennomforingsKontaktpersonMutation(gjennomforing, kontaktpersoner, redaktorer)
+        }
+        val response = sanityClient.mutate(mutations)
+        checkResponse(response)
+    }
+
+    private fun createPatchGjennomforingsKontaktpersonMutation(
+        gjennomforing: GjennomforingAndKontaktpersoner,
+        kontaktpersoner: List<GjennomforingAndKontaktpersoner.NavKontaktperson<SanityNavKontaktperson>>,
+        redaktorer: List<SanityRedaktor>,
+    ): Mutation<Mutation.Patch<PatchGjennomforingAndKontaktpersoner>> {
+        val patches = PatchGjennomforingAndKontaktpersoner(
+            kontaktpersoner = kontaktpersoner.map {
+                GjennomforingAndKontaktpersoner.NavKontaktperson(
+                    navKontaktperson = SanityReference(
+                        _type = "reference",
+                        _key = it.navKontaktperson._id,
+                        _ref = it.navKontaktperson._id,
+                    ),
+                    enheter = it.enheter,
+                    _key = UUID.randomUUID().toString(),
+                )
+            },
+            redaktor = redaktorer.map {
+                SanityReference(
+                    _type = "reference",
+                    _key = it._id,
+                    _ref = it._id,
+                )
+            },
+            _id = gjennomforing._id,
+        )
+
+        return Mutation.patch(gjennomforing._id.toString(), patches)
     }
 
     private fun notifyRelevantAdministrators(
@@ -164,6 +238,44 @@ class NavAnsattService(
             metadata = NotificationMetadata(
                 linkText = "Gå til avtalen",
                 link = "/avtaler/${avtale.id}",
+            ),
+            targets = administrators,
+            createdAt = Instant.now(),
+        )
+        notificationService.scheduleNotification(notification)
+    }
+
+    private fun notifyRelevantAdministratorsForSanityGjennomforing(
+        gjennomforing: GjennomforingAndKontaktpersoner,
+        hovedenhet: NavAnsattDto.Hovedenhet,
+    ) {
+        val region = navEnhetService.hentOverordnetFylkesenhet(hovedenhet.enhetsnummer)
+            ?: return
+
+        val potentialAdministratorHovedenheter = navEnhetService.hentAlleEnheter(
+            EnhetFilter(
+                statuser = listOf(NavEnhetStatus.AKTIV),
+                overordnetEnhet = region.enhetsnummer,
+            ),
+        )
+            .map { it.enhetsnummer }
+            .plus(region.enhetsnummer)
+
+        val administrators = navAnsattRepository
+            .getAll(
+                roller = listOf(NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV),
+                hovedenhetIn = potentialAdministratorHovedenheter,
+            )
+            .map { it.navIdent }
+            .toNonEmptyListOrNull() ?: return
+
+        val notification = ScheduledNotification(
+            type = NotificationType.TASK,
+            title = """Kontaktperson eller redaktør for tiltak: "${gjennomforing.tiltaksgjennomforingNavn}" ble fjernet i Sanity""",
+            description = "Du har blitt varslet fordi din NAV-hovedenhet er i samme fylke som forrige kontaktperson/redaktørs NAV-hovedenhet. Gå til tiltaksgjennomføringen i Sanity og sjekk at kontaktpersonene og redaktørene for tiltaket er korrekt og oppdatert.",
+            metadata = NotificationMetadata(
+                linkText = "Gå til gjennomføringen i Sanity",
+                link = "https://mulighetsrommet-sanity-studio.intern.nav.no/prod/structure/tiltaksgjennomforinger;alleTiltaksgjennomforinger;${gjennomforing._id}",
             ),
             targets = administrators,
             createdAt = Instant.now(),
@@ -313,4 +425,35 @@ data class Slug(
     @EncodeDefault
     val _type: String = "slug",
     val current: String,
+)
+
+@Serializable
+data class GjennomforingAndKontaktpersoner(
+    val kontaktpersoner: List<NavKontaktperson<SanityNavKontaktperson>>,
+    val redaktor: List<SanityRedaktor>,
+    val tiltaksgjennomforingNavn: String,
+    @Serializable(with = UUIDSerializer::class)
+    val _id: UUID,
+) {
+    @Serializable
+    data class NavKontaktperson<T>(
+        val navKontaktperson: T,
+        val enheter: List<SanityReference>,
+        val _key: String,
+    )
+}
+
+@Serializable
+data class PatchGjennomforingAndKontaktpersoner(
+    val kontaktpersoner: List<GjennomforingAndKontaktpersoner.NavKontaktperson<SanityReference>>,
+    val redaktor: List<SanityReference>,
+    @Serializable(with = UUIDSerializer::class)
+    val _id: UUID,
+)
+
+@Serializable
+data class SanityReference(
+    val _type: String = "reference",
+    val _key: String,
+    val _ref: String,
 )

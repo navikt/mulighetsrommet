@@ -95,7 +95,56 @@ class NavAnsattServiceTest :
                 }
 
                 val query = request.url.parameters.getOrFail<String>("query")
-                if (query.contains("redaktor") && query.contains("navKontaktperson")) {
+                if (query.contains("tiltaksgjennomforing") && query.contains("redaktor") && query.contains("navKontaktperson")) {
+                    respondJson(
+                        content = sanityContentResult(
+                            listOf(
+                                GjennomforingAndKontaktpersoner(
+                                    kontaktpersoner = listOf(
+                                        GjennomforingAndKontaktpersoner.NavKontaktperson(
+                                            navKontaktperson = SanityNavKontaktperson(
+                                                _id = "123",
+                                                _type = "navKontaktperson",
+                                                enhet = ansatt1.hovedenhetKode,
+                                                telefonnummer = ansatt1.mobilnummer,
+                                                epost = ansatt1.epost,
+                                                navn = ansatt1.fornavn + " " + ansatt1.etternavn,
+                                                navIdent = Slug(current = ansatt1.navIdent.value),
+                                            ),
+                                            enheter = emptyList(),
+                                            _key = UUID.randomUUID().toString(),
+                                        ),
+                                        GjennomforingAndKontaktpersoner.NavKontaktperson(
+                                            navKontaktperson = SanityNavKontaktperson(
+                                                _id = "456",
+                                                _type = "navKontaktperson",
+                                                enhet = ansatt2.hovedenhetKode,
+                                                telefonnummer = ansatt2.mobilnummer,
+                                                epost = ansatt2.epost,
+                                                navn = ansatt2.fornavn + " " + ansatt2.etternavn,
+                                                navIdent = Slug(current = ansatt2.navIdent.value),
+                                            ),
+                                            enheter = emptyList(),
+                                            _key = UUID.randomUUID().toString(),
+                                        ),
+                                    ),
+                                    redaktor = listOf(
+                                        SanityRedaktor(
+                                            _id = "123",
+                                            _type = "redaktor",
+                                            enhet = ansatt1.hovedenhetKode,
+                                            epost = Slug(current = ansatt1.epost),
+                                            navIdent = Slug(current = ansatt1.navIdent.value),
+                                            navn = ansatt1.fornavn + " " + ansatt1.etternavn,
+                                        ),
+                                    ),
+                                    _id = UUID.randomUUID(),
+                                    tiltaksgjennomforingNavn = "Tiltaksgjennomforing",
+                                ),
+                            ),
+                        ),
+                    )
+                } else if (query.contains("redaktor") && query.contains("navKontaktperson")) {
                     respondJson(
                         content = sanityContentResult(listOf("123", "456")),
                     )
@@ -210,7 +259,10 @@ class NavAnsattServiceTest :
                         listOf(tiltaksadministrasjon, kontaktperson),
                         listOf(
                             NavAnsattDto.fromAzureAdNavAnsatt(ansatt1, setOf(TILTAKADMINISTRASJON_GENERELL)),
-                            NavAnsattDto.fromAzureAdNavAnsatt(ansatt2, setOf(TILTAKADMINISTRASJON_GENERELL, KONTAKTPERSON)),
+                            NavAnsattDto.fromAzureAdNavAnsatt(
+                                ansatt2,
+                                setOf(TILTAKADMINISTRASJON_GENERELL, KONTAKTPERSON),
+                            ),
                         ),
                     ),
                 ) { roles, ansatteMedRoller ->
@@ -273,7 +325,10 @@ class NavAnsattServiceTest :
                         listOf(tiltaksadministrasjon, kontaktperson),
                         listOf(
                             NavAnsattDto.fromAzureAdNavAnsatt(ansatt1, setOf(TILTAKADMINISTRASJON_GENERELL)),
-                            NavAnsattDto.fromAzureAdNavAnsatt(ansatt2, setOf(TILTAKADMINISTRASJON_GENERELL, KONTAKTPERSON)),
+                            NavAnsattDto.fromAzureAdNavAnsatt(
+                                ansatt2,
+                                setOf(TILTAKADMINISTRASJON_GENERELL, KONTAKTPERSON),
+                            ),
                         ),
                     ),
                     row(
@@ -325,6 +380,8 @@ class NavAnsattServiceTest :
 
             test("should delete nav_ansatt when their deletion date matches the provided deletion date") {
                 every { avtaleRepository.getAvtaleIdsByAdministrator(any()) } returns emptyList()
+
+                every { navEnhetService.hentOverordnetFylkesenhet(any()) } returns null
                 val today = LocalDate.now()
 
                 forAll(
@@ -332,7 +389,10 @@ class NavAnsattServiceTest :
                         listOf(tiltaksadministrasjon, kontaktperson),
                         listOf(
                             NavAnsattDto.fromAzureAdNavAnsatt(ansatt1, setOf(TILTAKADMINISTRASJON_GENERELL)),
-                            NavAnsattDto.fromAzureAdNavAnsatt(ansatt2, setOf(TILTAKADMINISTRASJON_GENERELL, KONTAKTPERSON)),
+                            NavAnsattDto.fromAzureAdNavAnsatt(
+                                ansatt2,
+                                setOf(TILTAKADMINISTRASJON_GENERELL, KONTAKTPERSON),
+                            ),
                         ),
                     ),
                     row(
@@ -452,4 +512,5 @@ class NavAnsattServiceTest :
         }
     })
 
-inline fun <reified T> sanityContentResult(value: T): SanityResponse.Result = SanityResponse.Result(ms = 100, query = "", result = Json.encodeToJsonElement(value))
+inline fun <reified T> sanityContentResult(value: T): SanityResponse.Result =
+    SanityResponse.Result(ms = 100, query = "", result = Json.encodeToJsonElement(value))
