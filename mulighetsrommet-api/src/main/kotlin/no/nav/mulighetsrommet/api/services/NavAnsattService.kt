@@ -272,7 +272,7 @@ class NavAnsattService(
         val notification = ScheduledNotification(
             type = NotificationType.TASK,
             title = """Kontaktperson eller redaktør for tiltak: "${gjennomforing.tiltaksgjennomforingNavn}" ble fjernet i Sanity""",
-            description = "Du har blitt varslet fordi din NAV-hovedenhet er i samme fylke som forrige kontaktperson/redaktørs NAV-hovedenhet. Gå til tiltaksgjennomføringen i Sanity og sjekk at kontaktpersonene og redaktørene for tiltaket er korrekt og oppdatert.",
+            description = "Du har blitt varslet fordi din NAV-hovedenhet er i samme fylke som den slettede kontaktpersons/redaktørs NAV-hovedenhet. Gå til tiltaksgjennomføringen i Sanity og sjekk at kontaktpersonene og redaktørene for tiltaket er korrekt.",
             metadata = NotificationMetadata(
                 linkText = "Gå til gjennomføringen i Sanity",
                 link = "https://mulighetsrommet-sanity-studio.intern.nav.no/prod/structure/tiltaksgjennomforinger;alleTiltaksgjennomforinger;${gjennomforing._id}",
