@@ -21,14 +21,24 @@ interface Props {
   dokumenttype: LagretDokumenttype;
   filter: any;
   setFilter: (filter: any) => void;
+  validateFilterStructure: (filter: any) => boolean;
 }
 
-export function LagredeFilterOversikt({ dokumenttype, filter, setFilter }: Props) {
+export function LagredeFilterOversikt({
+  dokumenttype,
+  filter,
+  setFilter,
+  validateFilterStructure,
+}: Props) {
   const { data: lagredeFilter = [] } = useGetLagredeFilterForDokumenttype(dokumenttype);
   const [openLagrede, setOpenLagrede] = useState(lagredeFilter.length > 0);
   const [filterForSletting, setFilterForSletting] = useState<LagretFilter | undefined>(undefined);
+  const [filterHarUgyldigStruktur, setFilterHarUgyldigStruktur] = useState<
+    LagretFilter | undefined
+  >(undefined);
 
   const sletteFilterModalRef = useRef<HTMLDialogElement>(null);
+  const filterHarUgyldigStrukturModalRef = useRef<HTMLDialogElement>(null);
   const mutation = useSlettFilter(dokumenttype);
 
   useEffect(() => {
@@ -38,7 +48,11 @@ export function LagredeFilterOversikt({ dokumenttype, filter, setFilter }: Props
   function oppdaterFilter(id: string) {
     const valgtFilter = lagredeFilter.find((f) => f.id === id);
     if (valgtFilter) {
-      setFilter({ ...valgtFilter.filter, lagretFilterIdValgt: valgtFilter.id });
+      if (!validateFilterStructure(valgtFilter.filter)) {
+        setFilterHarUgyldigStruktur(valgtFilter);
+      } else {
+        setFilter({ ...valgtFilter.filter, lagretFilterIdValgt: valgtFilter.id });
+      }
     }
   }
 
@@ -47,7 +61,9 @@ export function LagredeFilterOversikt({ dokumenttype, filter, setFilter }: Props
       onSuccess: () => {
         setFilter({ ...filter, lagretFilterIdValgt: undefined });
         setFilterForSletting(undefined);
+        setFilterHarUgyldigStruktur(undefined);
         sletteFilterModalRef.current?.close();
+        filterHarUgyldigStrukturModalRef.current?.close();
       },
     });
   }
@@ -128,6 +144,45 @@ export function LagredeFilterOversikt({ dokumenttype, filter, setFilter }: Props
           }
           secondaryButton
           secondaryButtonHandleAction={() => sletteFilterModalRef.current?.close()}
+        />
+      ) : null}
+      {filterHarUgyldigStruktur ? (
+        <VarselModal
+          open={!!filterHarUgyldigStruktur}
+          headingIconType="warning"
+          headingText="Filteret er ugyldig"
+          modalRef={filterHarUgyldigStrukturModalRef}
+          handleClose={() => {
+            setFilterForSletting(undefined);
+            filterHarUgyldigStrukturModalRef.current?.close();
+          }}
+          body={
+            <>
+              <BodyShort>
+                Det lagrede filteret har en ugyldig struktur og kan ikke lastes inn. Du kan slette
+                filteret og lagre et nytt med samme navn.
+              </BodyShort>
+              <BodyShort>
+                Vil du slette filteret: <b>{filterHarUgyldigStruktur?.navn}</b>
+              </BodyShort>
+            </>
+          }
+          primaryButton={
+            <Button
+              variant="danger"
+              size="small"
+              onClick={() => slettFilter(filterHarUgyldigStruktur.id)}
+            >
+              <HStack align="center">
+                <TrashFillIcon /> Slett
+              </HStack>
+            </Button>
+          }
+          secondaryButton
+          secondaryButtonHandleAction={() => {
+            setFilterHarUgyldigStruktur(undefined);
+            filterHarUgyldigStrukturModalRef.current?.close();
+          }}
         />
       ) : null}
     </>

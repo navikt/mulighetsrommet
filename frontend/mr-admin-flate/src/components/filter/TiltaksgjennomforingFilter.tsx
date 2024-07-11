@@ -5,6 +5,7 @@ import { useEffect } from "react";
 import {
   gjennomforingFilterAccordionAtom,
   TiltaksgjennomforingFilter as TiltaksgjennomforingFilterProps,
+  TiltaksgjennomforingFilterSchema,
 } from "@/api/atoms";
 import { useAvtale } from "@/api/avtaler/useAvtale";
 import { useNavEnheter } from "@/api/enhet/useNavEnheter";
@@ -87,6 +88,9 @@ export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
         setFilter={setFilter}
         filter={filter}
         dokumenttype={LagretDokumenttype.TILTAKSGJENNOMFØRING}
+        validateFilterStructure={(filter) => {
+          return TiltaksgjennomforingFilterSchema.safeParse(filter).success;
+        }}
       />
       <Search
         label="Søk etter tiltaksgjennomføring"

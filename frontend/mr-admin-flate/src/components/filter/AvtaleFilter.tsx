@@ -1,5 +1,9 @@
 import { useArrangorer } from "@/api/arrangor/useArrangorer";
-import { avtaleFilterAccordionAtom, AvtaleFilter as AvtaleFilterProps } from "@/api/atoms";
+import {
+  avtaleFilterAccordionAtom,
+  AvtaleFilter as AvtaleFilterProps,
+  AvtaleFilterSchema,
+} from "@/api/atoms";
 import { useNavEnheter } from "@/api/enhet/useNavEnheter";
 import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
 import { addOrRemove } from "@/utils/Utils";
@@ -64,6 +68,9 @@ export function AvtaleFilter({ filterAtom, skjulFilter }: Props) {
         setFilter={setFilter}
         filter={filter}
         dokumenttype={LagretDokumenttype.AVTALE}
+        validateFilterStructure={(filter) => {
+          return AvtaleFilterSchema.safeParse(filter).success;
+        }}
       />
       <Search
         label="Søk etter tiltaksgjennomføring"

@@ -1,7 +1,10 @@
 import { PadlockLockedFillIcon } from "@navikt/aksel-icons";
 import { Accordion } from "@navikt/ds-react";
 import { ApentForInnsok, LagretDokumenttype, NavEnhet } from "mulighetsrommet-api-client";
-import { useArbeidsmarkedstiltakFilter } from "@/hooks/useArbeidsmarkedstiltakFilter";
+import {
+  ArbeidsmarkedstiltakFilterSchema,
+  useArbeidsmarkedstiltakFilter,
+} from "@/hooks/useArbeidsmarkedstiltakFilter";
 import { FilterToggle } from "./FilterToggle";
 import styles from "./Filtermeny.module.scss";
 import { InnsatsgruppeFilter } from "./InnsatsgruppeFilter";
@@ -28,6 +31,9 @@ export const Filtermeny = () => {
         dokumenttype={LagretDokumenttype.TILTAKSGJENNOMFØRING_MODIA}
         filter={filter}
         setFilter={setFilter}
+        validateFilterStructure={(filter) => {
+          return ArbeidsmarkedstiltakFilterSchema.safeParse(filter).success;
+        }}
       />
       <Sokefelt
         sokefilter={filter.search}
