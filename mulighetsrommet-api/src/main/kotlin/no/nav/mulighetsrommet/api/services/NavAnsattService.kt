@@ -148,7 +148,7 @@ class NavAnsattService(
         val queryResponse = sanityClient.query(
             """
             *[_type == "tiltaksgjennomforing" && (${'$'}navIdent in kontaktpersoner[].navKontaktperson->navIdent.current || ${'$'}navIdent in redaktor[]->navIdent.current)]
-            {kontaktpersoner[]{navKontaktperson->}, _id, tiltaksgjennomforingNavn, redaktor[]->}
+            {kontaktpersoner[]{navKontaktperson->, enheter}, _id, tiltaksgjennomforingNavn, redaktor[]->}
 
             """.trimIndent(),
             params = listOf(SanityParam.of("navIdent", ansatt.navIdent.value)),
@@ -179,15 +179,18 @@ class NavAnsattService(
 
     private fun createPatchGjennomforingsKontaktpersonMutation(
         gjennomforing: GjennomforingAndKontaktpersoner,
-        kontaktpersoner: List<GjennomforingAndKontaktpersoner.NavKontaktperson>,
+        kontaktpersoner: List<GjennomforingAndKontaktpersoner.NavKontaktperson<SanityNavKontaktperson>>,
         redaktorer: List<SanityRedaktor>,
     ): Mutation<Mutation.Patch<PatchGjennomforingAndKontaktpersoner>> {
         val patches = PatchGjennomforingAndKontaktpersoner(
             kontaktpersoner = kontaktpersoner.map {
-                SanityReference(
-                    _type = "reference",
-                    _key = it.navKontaktperson._id,
-                    _ref = it.navKontaktperson._id,
+                GjennomforingAndKontaktpersoner.NavKontaktperson(
+                    navKontaktperson = SanityReference(
+                        _type = "reference",
+                        _key = it.navKontaktperson._id,
+                        _ref = it.navKontaktperson._id,
+                    ),
+                    enheter = it.enheter,
                 )
             },
             redaktor = redaktorer.map {
@@ -425,21 +428,22 @@ data class Slug(
 
 @Serializable
 data class GjennomforingAndKontaktpersoner(
-    val kontaktpersoner: List<NavKontaktperson>,
+    val kontaktpersoner: List<NavKontaktperson<SanityNavKontaktperson>>,
     val redaktor: List<SanityRedaktor>,
     val tiltaksgjennomforingNavn: String,
     @Serializable(with = UUIDSerializer::class)
     val _id: UUID,
 ) {
     @Serializable
-    data class NavKontaktperson(
-        val navKontaktperson: SanityNavKontaktperson,
+    data class NavKontaktperson<T>(
+        val navKontaktperson: T,
+        val enheter: List<SanityReference>,
     )
 }
 
 @Serializable
 data class PatchGjennomforingAndKontaktpersoner(
-    val kontaktpersoner: List<SanityReference>,
+    val kontaktpersoner: List<GjennomforingAndKontaktpersoner.NavKontaktperson<SanityReference>>,
     val redaktor: List<SanityReference>,
     @Serializable(with = UUIDSerializer::class)
     val _id: UUID,

@@ -102,7 +102,7 @@ class NavAnsattServiceTest :
                                 GjennomforingAndKontaktpersoner(
                                     kontaktpersoner = listOf(
                                         GjennomforingAndKontaktpersoner.NavKontaktperson(
-                                            SanityNavKontaktperson(
+                                            navKontaktperson = SanityNavKontaktperson(
                                                 _id = "123",
                                                 _type = "navKontaktperson",
                                                 enhet = ansatt1.hovedenhetKode,
@@ -111,9 +111,10 @@ class NavAnsattServiceTest :
                                                 navn = ansatt1.fornavn + " " + ansatt1.etternavn,
                                                 navIdent = Slug(current = ansatt1.navIdent.value),
                                             ),
+                                            enheter = emptyList(),
                                         ),
                                         GjennomforingAndKontaktpersoner.NavKontaktperson(
-                                            SanityNavKontaktperson(
+                                            navKontaktperson = SanityNavKontaktperson(
                                                 _id = "456",
                                                 _type = "navKontaktperson",
                                                 enhet = ansatt2.hovedenhetKode,
@@ -122,6 +123,7 @@ class NavAnsattServiceTest :
                                                 navn = ansatt2.fornavn + " " + ansatt2.etternavn,
                                                 navIdent = Slug(current = ansatt2.navIdent.value),
                                             ),
+                                            enheter = emptyList(),
                                         ),
                                     ),
                                     redaktor = listOf(
