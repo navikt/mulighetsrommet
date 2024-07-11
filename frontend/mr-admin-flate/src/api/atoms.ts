@@ -160,7 +160,7 @@ export const tiltakstypeFilterAtom = atomWithHashAndStorage<TiltakstypeFilter>(
   tiltakstypeFilterSchema,
 );
 
-const tiltaksgjennomforingFilterSchema = z.object({
+export const TiltaksgjennomforingFilterSchema = z.object({
   search: z.string(),
   navEnheter: z.custom<NavEnhet>().array(),
   tiltakstyper: z.string().array(),
@@ -174,7 +174,7 @@ const tiltaksgjennomforingFilterSchema = z.object({
   pageSize: z.number(),
   lagretFilterIdValgt: z.string().optional(),
 });
-export type TiltaksgjennomforingFilter = z.infer<typeof tiltaksgjennomforingFilterSchema>;
+export type TiltaksgjennomforingFilter = z.infer<typeof TiltaksgjennomforingFilterSchema>;
 
 export const defaultTiltaksgjennomforingfilter: TiltaksgjennomforingFilter = {
   search: "",
@@ -201,7 +201,7 @@ export const tiltaksgjennomforingfilterAtom = atomWithStorage<Tiltaksgjennomfori
   "tiltaksgjennomforing-filter",
   defaultTiltaksgjennomforingfilter,
   sessionStorage,
-  tiltaksgjennomforingFilterSchema,
+  TiltaksgjennomforingFilterSchema,
 );
 
 export const gjennomforingerForAvtaleFilterAtomFamily = atomFamily<
@@ -215,11 +215,11 @@ export const gjennomforingerForAvtaleFilterAtomFamily = atomFamily<
       avtale: avtaleId,
     },
     sessionStorage,
-    tiltaksgjennomforingFilterSchema,
+    TiltaksgjennomforingFilterSchema,
   );
 });
 
-const avtaleFilterSchema = z.object({
+export const AvtaleFilterSchema = z.object({
   sok: z.string(),
   statuser: z.custom<Avtalestatus>().array(),
   avtaletyper: z.custom<Avtaletype>().array(),
@@ -233,7 +233,7 @@ const avtaleFilterSchema = z.object({
   pageSize: z.number(),
   lagretFilterIdValgt: z.string().optional(),
 });
-export type AvtaleFilter = z.infer<typeof avtaleFilterSchema>;
+export type AvtaleFilter = z.infer<typeof AvtaleFilterSchema>;
 
 export const defaultAvtaleFilter: AvtaleFilter = {
   sok: "",
@@ -260,7 +260,7 @@ export const avtaleFilterAtom = atomWithHashAndStorage<AvtaleFilter>(
   "avtale-filter",
   defaultAvtaleFilter,
   sessionStorage,
-  avtaleFilterSchema,
+  AvtaleFilterSchema,
 );
 
 const arrangorerFilterSchema = z.object({
@@ -302,7 +302,7 @@ export const getAvtalerForTiltakstypeFilterAtom = atomFamily<
       tiltakstyper: [tiltakstypeId],
     },
     sessionStorage,
-    avtaleFilterSchema,
+    AvtaleFilterSchema,
   );
 });
 
