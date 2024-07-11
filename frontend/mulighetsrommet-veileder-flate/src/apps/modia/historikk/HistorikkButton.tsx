@@ -31,16 +31,18 @@ export function HistorikkButton({ setHistorikkModalOpen, isHistorikkModalOpen }:
         <ClockDashedIcon aria-label="Historikk" />
         Historikk
       </Button>
-      <StandardModal
-        className={styles.historikk_modal}
-        hideButtons
-        modalOpen={isHistorikkModalOpen}
-        setModalOpen={() => setHistorikkModalOpen(false)}
-        heading="Historikk"
-        id="historikk_modal"
-      >
-        <HistorikkModal />
-      </StandardModal>
+      {isHistorikkModalOpen && (
+        <StandardModal
+          className={styles.historikk_modal}
+          hideButtons
+          modalOpen={isHistorikkModalOpen}
+          setModalOpen={() => setHistorikkModalOpen(false)}
+          heading="Historikk"
+          id="historikk_modal"
+        >
+          <HistorikkModal />
+        </StandardModal>
+      )}
     </>
   );
 }
