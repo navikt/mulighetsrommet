@@ -101,6 +101,7 @@ class TiltakshistorikkEventProcessorTest : FunSpec({
             val tiltaksgjennomforingIndividuell = Tiltaksgjennomforing(
                 id = UUID.randomUUID(),
                 tiltaksgjennomforingId = 3,
+                sanityId = null,
                 sakId = 2,
                 tiltakskode = "AMO",
                 arrangorId = 123456789,

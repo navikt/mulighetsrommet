@@ -5,6 +5,7 @@ import java.util.*
 
 data class Tiltaksgjennomforing(
     val id: UUID,
+    val sanityId: UUID?,
     val tiltaksgjennomforingId: Int,
     val sakId: Int,
     val tiltakskode: String,

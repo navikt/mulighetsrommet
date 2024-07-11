@@ -13,6 +13,7 @@ import java.util.*
 object TiltaksgjennomforingFixtures {
     val ArenaOppfolging1 = ArenaTiltaksgjennomforingDbo(
         id = UUID.randomUUID(),
+        sanityId = null,
         navn = "Oppfølging 1",
         tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
         tiltaksnummer = "2023#1",
