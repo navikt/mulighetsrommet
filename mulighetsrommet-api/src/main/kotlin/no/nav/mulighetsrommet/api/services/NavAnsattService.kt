@@ -168,7 +168,8 @@ class NavAnsattService(
         }
 
         val mutations = gjennomforinger.map { gjennomforing ->
-            val kontaktpersoner = gjennomforing.kontaktpersoner.filter { it.navKontaktperson.navIdent.current != ansatt.navIdent.value }
+            val kontaktpersoner =
+                gjennomforing.kontaktpersoner.filter { it.navKontaktperson.navIdent.current != ansatt.navIdent.value }
             val redaktorer = gjennomforing.redaktor.filter { it.navIdent.current != ansatt.navIdent.value }
             createPatchGjennomforingsKontaktpersonMutation(gjennomforing, kontaktpersoner, redaktorer)
         }
@@ -180,15 +181,26 @@ class NavAnsattService(
         gjennomforing: GjennomforingAndKontaktpersoner,
         kontaktpersoner: List<GjennomforingAndKontaktpersoner.NavKontaktperson>,
         redaktorer: List<SanityRedaktor>,
-    ): Mutation<Mutation.Patch<GjennomforingAndKontaktpersoner>> {
-        val patch = GjennomforingAndKontaktpersoner(
-            kontaktpersoner = kontaktpersoner,
-            redaktor = redaktorer,
+    ): Mutation<Mutation.Patch<PatchGjennomforingAndKontaktpersoner>> {
+        val patches = PatchGjennomforingAndKontaktpersoner(
+            kontaktpersoner = kontaktpersoner.map {
+                SanityReference(
+                    _type = "reference",
+                    _key = it.navKontaktperson._id,
+                    _ref = it.navKontaktperson._id,
+                )
+            },
+            redaktor = redaktorer.map {
+                SanityReference(
+                    _type = "reference",
+                    _key = it._id,
+                    _ref = it._id,
+                )
+            },
             _id = gjennomforing._id,
-            tiltaksgjennomforingNavn = gjennomforing.tiltaksgjennomforingNavn,
         )
 
-        return Mutation.patch(gjennomforing._id.toString(), patch)
+        return Mutation.patch(gjennomforing._id.toString(), patches)
     }
 
     private fun notifyRelevantAdministrators(
@@ -424,3 +436,18 @@ data class GjennomforingAndKontaktpersoner(
         val navKontaktperson: SanityNavKontaktperson,
     )
 }
+
+@Serializable
+data class PatchGjennomforingAndKontaktpersoner(
+    val kontaktpersoner: List<SanityReference>,
+    val redaktor: List<SanityReference>,
+    @Serializable(with = UUIDSerializer::class)
+    val _id: UUID,
+)
+
+@Serializable
+data class SanityReference(
+    val _type: String = "reference",
+    val _key: String,
+    val _ref: String,
+)
