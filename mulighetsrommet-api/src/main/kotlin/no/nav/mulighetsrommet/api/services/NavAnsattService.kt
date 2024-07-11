@@ -19,7 +19,6 @@ import no.nav.mulighetsrommet.api.domain.dto.NavAnsattDto
 import no.nav.mulighetsrommet.api.domain.dto.SanityResponse
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.repositories.NavAnsattRepository
-import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.utils.EnhetFilter
 import no.nav.mulighetsrommet.api.utils.NavAnsattFilter
 import no.nav.mulighetsrommet.database.Database
@@ -40,7 +39,6 @@ class NavAnsattService(
     private val navAnsattRepository: NavAnsattRepository,
     private val sanityClient: SanityClient,
     private val avtaleRepository: AvtaleRepository,
-    private val tiltaksgjennomforingRepository: TiltaksgjennomforingRepository,
     private val navEnhetService: NavEnhetService,
     private val notificationService: NotificationService,
 ) {
