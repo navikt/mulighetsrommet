@@ -112,6 +112,7 @@ class NavAnsattServiceTest :
                                                 navIdent = Slug(current = ansatt1.navIdent.value),
                                             ),
                                             enheter = emptyList(),
+                                            _key = UUID.randomUUID().toString(),
                                         ),
                                         GjennomforingAndKontaktpersoner.NavKontaktperson(
                                             navKontaktperson = SanityNavKontaktperson(
@@ -124,6 +125,7 @@ class NavAnsattServiceTest :
                                                 navIdent = Slug(current = ansatt2.navIdent.value),
                                             ),
                                             enheter = emptyList(),
+                                            _key = UUID.randomUUID().toString(),
                                         ),
                                     ),
                                     redaktor = listOf(

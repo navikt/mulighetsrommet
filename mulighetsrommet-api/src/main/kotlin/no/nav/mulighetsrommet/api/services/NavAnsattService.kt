@@ -191,6 +191,7 @@ class NavAnsattService(
                         _ref = it.navKontaktperson._id,
                     ),
                     enheter = it.enheter,
+                    _key = UUID.randomUUID().toString(),
                 )
             },
             redaktor = redaktorer.map {
@@ -438,6 +439,7 @@ data class GjennomforingAndKontaktpersoner(
     data class NavKontaktperson<T>(
         val navKontaktperson: T,
         val enheter: List<SanityReference>,
+        val _key: String,
     )
 }
 
