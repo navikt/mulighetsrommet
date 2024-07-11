@@ -22,28 +22,32 @@ import no.nav.mulighetsrommet.api.clients.msgraph.AzureAdNavAnsatt
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
+import no.nav.mulighetsrommet.api.domain.dbo.ArenaNavEnhet
 import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattRolle.*
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
-import no.nav.mulighetsrommet.api.domain.dto.AdGruppe
-import no.nav.mulighetsrommet.api.domain.dto.AvtaleAdminDto
-import no.nav.mulighetsrommet.api.domain.dto.NavAnsattDto
-import no.nav.mulighetsrommet.api.domain.dto.SanityResponse
+import no.nav.mulighetsrommet.api.domain.dto.*
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.repositories.NavAnsattRepository
+import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
+import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
+import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dto.AvtaleStatus
+import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus
+import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatusDto
 import no.nav.mulighetsrommet.ktor.respondJson
 import no.nav.mulighetsrommet.notifications.NotificationService
 import no.nav.mulighetsrommet.notifications.NotificationType
 import no.nav.mulighetsrommet.notifications.ScheduledNotification
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.*
 
 class NavAnsattServiceTest :
@@ -85,6 +89,7 @@ class NavAnsattServiceTest :
         coEvery { msGraph.getNavAnsatteInGroup(kontaktperson.adGruppeId) } returns listOf(ansatt2)
 
         val avtaleRepository: AvtaleRepository = mockk()
+        val tiltaksgjennomforingRepository: TiltaksgjennomforingRepository = mockk()
         val navEnhetService: NavEnhetService = mockk()
         val notificationService: NotificationService = mockk()
 
@@ -95,7 +100,48 @@ class NavAnsattServiceTest :
                 }
 
                 val query = request.url.parameters.getOrFail<String>("query")
-                if (query.contains("redaktor") && query.contains("navKontaktperson")) {
+                if (query.contains("tiltaksgjennomforing") && query.contains("redaktor") && query.contains("navKontaktperson")) {
+                    respondJson(
+                        content = sanityContentResult(
+                            listOf(
+                                NavAnsattService.GjennomforingAndKontaktpersoner(
+                                    kontaktpersoner = listOf(
+                                        SanityNavKontaktperson(
+                                            _id = "123",
+                                            _type = "navKontaktperson",
+                                            enhet = ansatt1.hovedenhetKode,
+                                            telefonnummer = ansatt1.mobilnummer,
+                                            epost = ansatt1.epost,
+                                            navn = ansatt1.fornavn + " " + ansatt1.etternavn,
+                                            navIdent = Slug(current = ansatt1.navIdent.value),
+                                        ),
+                                        SanityNavKontaktperson(
+                                            _id = "456",
+                                            _type = "navKontaktperson",
+                                            enhet = ansatt2.hovedenhetKode,
+                                            telefonnummer = ansatt2.mobilnummer,
+                                            epost = ansatt2.epost,
+                                            navn = ansatt2.fornavn + " " + ansatt2.etternavn,
+                                            navIdent = Slug(current = ansatt2.navIdent.value),
+                                        ),
+                                    ),
+                                    redaktor = listOf(
+                                        SanityRedaktor(
+                                            _id = "123",
+                                            _type = "redaktor",
+                                            enhet = ansatt1.hovedenhetKode,
+                                            epost = Slug(current = ansatt1.epost),
+                                            navIdent = Slug(current = ansatt1.navIdent.value),
+                                            navn = ansatt1.fornavn + " " + ansatt1.etternavn,
+                                        ),
+                                    ),
+                                    _id = UUID.randomUUID(),
+                                    tiltaksgjennomforingNavn = "Tiltaksgjennomforing",
+                                ),
+                            ),
+                        ),
+                    )
+                } else if (query.contains("redaktor") && query.contains("navKontaktperson")) {
                     respondJson(
                         content = sanityContentResult(listOf("123", "456")),
                     )
@@ -146,6 +192,7 @@ class NavAnsattServiceTest :
                     navAnsattRepository = NavAnsattRepository(database.db),
                     sanityClient = sanityClient,
                     avtaleRepository = avtaleRepository,
+                    tiltaksgjennomforingRepository = tiltaksgjennomforingRepository,
                     navEnhetService = navEnhetService,
                     notificationService = notificationService,
                 )
@@ -175,6 +222,7 @@ class NavAnsattServiceTest :
                     navAnsattRepository = NavAnsattRepository(database.db),
                     sanityClient = sanityClient,
                     avtaleRepository = avtaleRepository,
+                    tiltaksgjennomforingRepository = tiltaksgjennomforingRepository,
                     navEnhetService = navEnhetService,
                     notificationService = notificationService,
                 )
@@ -210,7 +258,10 @@ class NavAnsattServiceTest :
                         listOf(tiltaksadministrasjon, kontaktperson),
                         listOf(
                             NavAnsattDto.fromAzureAdNavAnsatt(ansatt1, setOf(TILTAKADMINISTRASJON_GENERELL)),
-                            NavAnsattDto.fromAzureAdNavAnsatt(ansatt2, setOf(TILTAKADMINISTRASJON_GENERELL, KONTAKTPERSON)),
+                            NavAnsattDto.fromAzureAdNavAnsatt(
+                                ansatt2,
+                                setOf(TILTAKADMINISTRASJON_GENERELL, KONTAKTPERSON),
+                            ),
                         ),
                     ),
                 ) { roles, ansatteMedRoller ->
@@ -222,6 +273,7 @@ class NavAnsattServiceTest :
                             navAnsattRepository = NavAnsattRepository(database.db),
                             sanityClient = sanityClient,
                             avtaleRepository = avtaleRepository,
+                            tiltaksgjennomforingRepository = tiltaksgjennomforingRepository,
                             navEnhetService = navEnhetService,
                             notificationService = notificationService,
                         )
@@ -248,6 +300,7 @@ class NavAnsattServiceTest :
                     navAnsattRepository = NavAnsattRepository(database.db),
                     sanityClient = sanityClient,
                     avtaleRepository = avtaleRepository,
+                    tiltaksgjennomforingRepository = tiltaksgjennomforingRepository,
                     navEnhetService = navEnhetService,
                     notificationService = notificationService,
                 )
@@ -273,7 +326,10 @@ class NavAnsattServiceTest :
                         listOf(tiltaksadministrasjon, kontaktperson),
                         listOf(
                             NavAnsattDto.fromAzureAdNavAnsatt(ansatt1, setOf(TILTAKADMINISTRASJON_GENERELL)),
-                            NavAnsattDto.fromAzureAdNavAnsatt(ansatt2, setOf(TILTAKADMINISTRASJON_GENERELL, KONTAKTPERSON)),
+                            NavAnsattDto.fromAzureAdNavAnsatt(
+                                ansatt2,
+                                setOf(TILTAKADMINISTRASJON_GENERELL, KONTAKTPERSON),
+                            ),
                         ),
                     ),
                     row(
@@ -312,6 +368,7 @@ class NavAnsattServiceTest :
                             navAnsattRepository = ansatte,
                             sanityClient = sanityClient,
                             avtaleRepository = avtaleRepository,
+                            tiltaksgjennomforingRepository = tiltaksgjennomforingRepository,
                             navEnhetService = navEnhetService,
                             notificationService = notificationService,
                         )
@@ -325,6 +382,77 @@ class NavAnsattServiceTest :
 
             test("should delete nav_ansatt when their deletion date matches the provided deletion date") {
                 every { avtaleRepository.getAvtaleIdsByAdministrator(any()) } returns emptyList()
+                every { tiltaksgjennomforingRepository.get(any()) } returns TiltaksgjennomforingAdminDto(
+                    id = UUID.randomUUID(),
+                    tiltakstype = TiltaksgjennomforingAdminDto.Tiltakstype(
+                        id = UUID.randomUUID(),
+                        navn = "Avklaring",
+                        arenaKode = "AVKLAR",
+                        tiltakskode = Tiltakskode.AVKLARING,
+                    ),
+                    navn = "Avklaringstiltaket",
+                    tiltaksnummer = null,
+                    arrangor = TiltaksgjennomforingAdminDto.ArrangorUnderenhet(
+                        id = UUID.randomUUID(),
+                        organisasjonsnummer = "12345678910",
+                        navn = "Fretex",
+                        kontaktpersoner = emptyList(),
+                        slettet = false,
+                    ),
+                    startDato = LocalDate.of(2024, 1, 1),
+                    sluttDato = LocalDate.of(2025, 1, 1),
+                    arenaAnsvarligEnhet = ArenaNavEnhet(
+                        navn = "Nav Fredrikstad",
+                        enhetsnummer = "0106",
+                    ),
+                    status = TiltaksgjennomforingStatusDto(
+                        status = TiltaksgjennomforingStatus.GJENNOMFORES,
+                        avbrutt = null,
+                    ),
+                    apentForInnsok = true,
+                    antallPlasser = 10,
+                    avtaleId = UUID.randomUUID(),
+                    administratorer = listOf(
+                        TiltaksgjennomforingAdminDto.Administrator(
+                            navIdent = ansatt1.navIdent,
+                            navn = ansatt1.fornavn + " " + ansatt1.etternavn,
+
+                        ),
+                    ),
+                    navRegion = NavEnhetDbo(
+                        navn = "Nav Fredrikstad",
+                        enhetsnummer = "0106",
+                        status = NavEnhetStatus.AKTIV,
+                        type = Norg2Type.LOKAL,
+                        overordnetEnhet = null,
+                    ),
+                    navEnheter = emptyList(),
+                    sanityId = UUID.randomUUID(),
+                    oppstart = TiltaksgjennomforingOppstartstype.FELLES,
+                    opphav = ArenaMigrering.Opphav.MR_ADMIN_FLATE,
+                    kontaktpersoner = listOf(
+                        TiltaksgjennomforingKontaktperson(
+                            navIdent = ansatt2.navIdent,
+                            navn = ansatt2.fornavn + " " + ansatt2.etternavn,
+                            epost = ansatt2.epost,
+                            mobilnummer = null,
+                            navEnheter = emptyList(),
+                            hovedenhet = ansatt2.hovedenhetKode,
+                            beskrivelse = null,
+                        ),
+                    ),
+                    stedForGjennomforing = null,
+                    faneinnhold = null,
+                    beskrivelse = null,
+                    createdAt = LocalDateTime.now(),
+                    publisert = false,
+                    deltidsprosent = 100.toDouble(),
+                    estimertVentetid = null,
+                    personvernBekreftet = false,
+                    tilgjengeligForArrangorFraOgMedDato = null,
+                    amoKategorisering = null,
+                )
+                every { navEnhetService.hentOverordnetFylkesenhet(any()) } returns null
                 val today = LocalDate.now()
 
                 forAll(
@@ -332,7 +460,10 @@ class NavAnsattServiceTest :
                         listOf(tiltaksadministrasjon, kontaktperson),
                         listOf(
                             NavAnsattDto.fromAzureAdNavAnsatt(ansatt1, setOf(TILTAKADMINISTRASJON_GENERELL)),
-                            NavAnsattDto.fromAzureAdNavAnsatt(ansatt2, setOf(TILTAKADMINISTRASJON_GENERELL, KONTAKTPERSON)),
+                            NavAnsattDto.fromAzureAdNavAnsatt(
+                                ansatt2,
+                                setOf(TILTAKADMINISTRASJON_GENERELL, KONTAKTPERSON),
+                            ),
                         ),
                     ),
                     row(
@@ -354,6 +485,7 @@ class NavAnsattServiceTest :
                             navAnsattRepository = ansatte,
                             sanityClient = sanityClient,
                             avtaleRepository = avtaleRepository,
+                            tiltaksgjennomforingRepository = tiltaksgjennomforingRepository,
                             navEnhetService = navEnhetService,
                             notificationService = notificationService,
                         )
@@ -437,6 +569,7 @@ class NavAnsattServiceTest :
                     navAnsattRepository = ansatte,
                     sanityClient = sanityClient,
                     avtaleRepository = avtaleRepository,
+                    tiltaksgjennomforingRepository = tiltaksgjennomforingRepository,
                     navEnhetService = navEnhetService,
                     notificationService = notificationService,
                 )
@@ -452,4 +585,5 @@ class NavAnsattServiceTest :
         }
     })
 
-inline fun <reified T> sanityContentResult(value: T): SanityResponse.Result = SanityResponse.Result(ms = 100, query = "", result = Json.encodeToJsonElement(value))
+inline fun <reified T> sanityContentResult(value: T): SanityResponse.Result =
+    SanityResponse.Result(ms = 100, query = "", result = Json.encodeToJsonElement(value))
