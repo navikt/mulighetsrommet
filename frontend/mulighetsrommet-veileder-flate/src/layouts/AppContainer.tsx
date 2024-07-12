@@ -9,7 +9,7 @@ interface Props {
   children: ReactNode;
 }
 
-export const AppContainer = ({ children, header }: Props) => {
+export function AppContainer({ children, header }: Props) {
   return (
     <div className={styles.app_container}>
       {header}
@@ -20,4 +20,4 @@ export const AppContainer = ({ children, header }: Props) => {
       </ErrorBoundary>
     </div>
   );
-};
+}

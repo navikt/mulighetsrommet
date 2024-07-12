@@ -5,7 +5,7 @@ interface Props {
   onClick: () => void;
 }
 
-export const NullstillFilterKnapp = ({ onClick }: Props) => {
+export function NullstillFilterKnapp({ onClick }: Props) {
   return (
     <Button
       type="button"
@@ -18,4 +18,4 @@ export const NullstillFilterKnapp = ({ onClick }: Props) => {
       Nullstill filter
     </Button>
   );
-};
+}

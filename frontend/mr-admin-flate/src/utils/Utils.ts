@@ -85,9 +85,9 @@ export function kalkulerStatusBasertPaaFraOgTilDato(
   }
 }
 
-export const inneholderUrl = (string: string) => {
+export function inneholderUrl(string: string) {
   return window.location.href.indexOf(string) > -1;
-};
+}
 
 export function avtaletypeTilTekst(
   type: Avtaletype,
@@ -108,7 +108,7 @@ export function valueOrDefault<T, X>(value: T | undefined, defaultValue: X): T |
   return value !== undefined ? value : defaultValue;
 }
 
-export const validEmail = (email: string | undefined): Boolean => {
+export function validEmail(email: string | undefined): Boolean {
   if (!email) return false;
   return Boolean(
     email
@@ -117,7 +117,7 @@ export const validEmail = (email: string | undefined): Boolean => {
         /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
       ),
   );
-};
+}
 
 export function addYear(date: Date, numYears: number): Date {
   const newDate = new Date(date);

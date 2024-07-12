@@ -8,10 +8,10 @@ import {
 import { DeepPartial } from "react-hook-form";
 import { InferredAvtaleSchema } from "@/components/redaksjoneltInnhold/AvtaleSchema";
 
-export const getLokaleUnderenheterAsSelectOptions = (
+export function getLokaleUnderenheterAsSelectOptions(
   navRegioner: (string | undefined)[],
   enheter: NavEnhet[],
-) => {
+) {
   return enheter
     .filter((enhet: NavEnhet) => {
       return (
@@ -24,7 +24,7 @@ export const getLokaleUnderenheterAsSelectOptions = (
       label: enhet.navn,
       value: enhet.enhetsnummer,
     }));
-};
+}
 
 export function defaultAvtaleData(
   ansatt: NavAnsatt,

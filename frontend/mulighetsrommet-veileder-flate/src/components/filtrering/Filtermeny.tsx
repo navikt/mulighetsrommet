@@ -20,7 +20,7 @@ import {
   NavEnhetFilter,
 } from "mulighetsrommet-frontend-common";
 
-export const Filtermeny = () => {
+export function Filtermeny() {
   const [filter, setFilter] = useArbeidsmarkedstiltakFilter();
   const [accordionsOpen, setAccordionsOpen] = useAtom(filterAccordionAtom);
   const { data: regioner } = useRegioner();
@@ -83,4 +83,4 @@ export const Filtermeny = () => {
       </Accordion>
     </div>
   );
-};
+}

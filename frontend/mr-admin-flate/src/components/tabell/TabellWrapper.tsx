@@ -6,7 +6,7 @@ interface Props {
   children: React.ReactNode;
   className?: string;
 }
-export const TabellWrapper = ({ filterOpen = false, children, className }: Props) => {
+export function TabellWrapper({ filterOpen = false, children, className }: Props) {
   return (
     <div
       className={classnames(styles.tabell_wrapper, className, {
@@ -17,4 +17,4 @@ export const TabellWrapper = ({ filterOpen = false, children, className }: Props
       {children}
     </div>
   );
-};
+}

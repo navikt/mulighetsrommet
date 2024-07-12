@@ -13,7 +13,7 @@ interface Props {
   >;
   avtale?: Avtale;
 }
-export const NullstillKnappForTiltaksgjennomforinger = ({ filterAtom, avtale }: Props) => {
+export function NullstillKnappForTiltaksgjennomforinger({ filterAtom, avtale }: Props) {
   const [filter, setFilter] = useAtom(filterAtom);
 
   return filter.visMineGjennomforinger ||
@@ -37,4 +37,4 @@ export const NullstillKnappForTiltaksgjennomforinger = ({ filterAtom, avtale }: 
       />
     </>
   ) : null;
-};
+}

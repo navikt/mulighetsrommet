@@ -7,7 +7,7 @@ interface Props {
   children: React.ReactNode;
 }
 
-export const ToolbarContainer = ({ tagsHeight, filterOpen, children }: Props) => {
+export function ToolbarContainer({ tagsHeight, filterOpen, children }: Props) {
   return (
     <div
       style={{ top: `calc(${tagsHeight}px + 4.4rem)` }}
@@ -18,4 +18,4 @@ export const ToolbarContainer = ({ tagsHeight, filterOpen, children }: Props) =>
       {children}
     </div>
   );
-};
+}

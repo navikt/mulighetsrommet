@@ -6,7 +6,7 @@ interface Props {
   tiltaksgjennomforing: VeilederflateTiltaksgjennomforing;
 }
 
-export const SidemenyKanKombineresMed = ({ tiltaksgjennomforing }: Props) => {
+export function SidemenyKanKombineresMed({ tiltaksgjennomforing }: Props) {
   const { tiltakstype } = tiltaksgjennomforing;
 
   return (
@@ -18,4 +18,4 @@ export const SidemenyKanKombineresMed = ({ tiltaksgjennomforing }: Props) => {
       </ul>
     </Box>
   );
-};
+}
