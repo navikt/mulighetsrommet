@@ -10,9 +10,9 @@ import {
   Alert,
   Button,
   DatePicker,
+  HelpText,
   HGrid,
   HStack,
-  HelpText,
   Select,
   Switch,
   TextField,
@@ -29,16 +29,21 @@ import { useEffect, useRef } from "react";
 import { useFieldArray, useFormContext } from "react-hook-form";
 import { tiltaktekster } from "../ledetekster/tiltaksgjennomforingLedetekster";
 import { EndreDatoAdvarselModal } from "../modal/EndreDatoAdvarselModal";
-import { InferredTiltaksgjennomforingSchema } from "../redaksjonelt-innhold/TiltaksgjennomforingSchema";
+import { InferredTiltaksgjennomforingSchema } from "@/components/redaksjoneltInnhold/TiltaksgjennomforingSchema";
 import { AdministratorOptions } from "../skjema/AdministratorOptions";
 import { ControlledDateInput } from "../skjema/ControlledDateInput";
 import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
-import { FormGroup } from "../skjema/FormGroup";
-import skjemastyles from "../skjema/Skjema.module.scss";
+import { FormGroup } from "@/components/skjema/FormGroup";
 import { SelectOppstartstype } from "./SelectOppstartstype";
 import { TiltaksgjennomforingArrangorSkjema } from "./TiltaksgjennomforingArrangorSkjema";
 import { erArenaOpphavOgIngenEierskap } from "./TiltaksgjennomforingSkjemaConst";
 import { TiltaksgjennomforingAmoKategoriseringSkjema } from "@/components/amoKategorisering/TiltaksgjennomforingAmoKategoriseringSkjema";
+import styles from "./TiltaksgjennomforingSkjemaDetaljer.module.scss";
+import { SkjemaDetaljerContainer } from "@/components/skjema/SkjemaDetaljerContainer";
+import { SkjemaInputContainer } from "@/components/skjema/SkjemaInputContainer";
+import { SkjemaKolonne } from "@/components/skjema/SkjemaKolonne";
+import { VertikalSeparator } from "@/components/skjema/VertikalSeparator";
+import { KontaktpersonButton } from "@/components/kontaktperson/KontaktpersonButton";
 
 interface Props {
   tiltaksgjennomforing?: Tiltaksgjennomforing;
@@ -159,9 +164,9 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
   );
 
   return (
-    <div className={skjemastyles.container}>
-      <div className={skjemastyles.input_container}>
-        <div className={skjemastyles.column}>
+    <SkjemaDetaljerContainer>
+      <SkjemaInputContainer>
+        <SkjemaKolonne>
           <FormGroup>
             <TextField
               size="small"
@@ -285,7 +290,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
             </HGrid>
             {watch("oppstart") === TiltaksgjennomforingOppstartstype.LOPENDE ? (
               <>
-                <fieldset className={skjemastyles.fieldset_no_styling}>
+                <fieldset className={styles.fieldset_no_styling}>
                   <HStack gap="1">
                     <legend>Estimert ventetid</legend>
                     <HelpText title="Hva er estimert ventetid?">
@@ -342,9 +347,9 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
               )}
             />
           </FormGroup>
-        </div>
-        <div className={skjemastyles.vertical_separator} />
-        <div className={skjemastyles.column}>
+        </SkjemaKolonne>
+        <VertikalSeparator />
+        <SkjemaKolonne>
           <div>
             <FormGroup>
               <ControlledSokeSelect
@@ -372,9 +377,9 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
               <div>
                 {kontaktpersonFields?.map((field, index) => {
                   return (
-                    <div className={skjemastyles.kontaktperson_container} key={field.id}>
+                    <div className={styles.kontaktperson_container} key={field.id}>
                       <Button
-                        className={skjemastyles.kontaktperson_fjern_button}
+                        className={styles.kontaktperson_fjern_button}
                         variant="tertiary"
                         size="small"
                         type="button"
@@ -382,7 +387,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
                       >
                         <XMarkIcon fontSize="1.5rem" />
                       </Button>
-                      <div className={skjemastyles.kontaktperson_inputs}>
+                      <div className={styles.kontaktperson_inputs}>
                         <ControlledSokeSelect
                           helpText="Bestemmer kontaktperson som veilederene kan hendvende seg til for informasjon om gjennomføringen. Kan gjelde for én eller flere enheter."
                           size="small"
@@ -424,23 +429,22 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
                     </div>
                   );
                 })}
-                <Button
-                  className={skjemastyles.kontaktperson_button}
-                  type="button"
-                  size="small"
-                  variant="tertiary"
+                <KontaktpersonButton
                   onClick={() => appendKontaktperson({} as TiltaksgjennomforingKontaktperson)}
-                >
-                  <PlusIcon aria-label="Legg til ny kontaktperson" /> Legg til ny kontaktperson
-                </Button>
+                  knappetekst={
+                    <>
+                      <PlusIcon aria-label="Legg til ny kontaktperson" /> Legg til ny kontaktperson
+                    </>
+                  }
+                />
               </div>
             </FormGroup>
           </div>
           <FormGroup>
             <TiltaksgjennomforingArrangorSkjema readOnly={eierIkkeGjennomforing} avtale={avtale} />
           </FormGroup>
-        </div>
-      </div>
+        </SkjemaKolonne>
+      </SkjemaInputContainer>
       <EndreDatoAdvarselModal
         modalRef={endreStartDatoModalRef}
         onCancel={() => setValue("startOgSluttDato.startDato", tiltaksgjennomforing!!.startDato)}
@@ -451,6 +455,6 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
         onCancel={() => setValue("startOgSluttDato.sluttDato", tiltaksgjennomforing!!.sluttDato)}
         antallDeltakere={deltakerSummary?.antallDeltakere ?? 0}
       />
-    </div>
+    </SkjemaDetaljerContainer>
   );
 };

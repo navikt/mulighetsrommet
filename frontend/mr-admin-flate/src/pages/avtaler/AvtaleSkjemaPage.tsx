@@ -2,17 +2,18 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
 import { useNavEnheter } from "@/api/enhet/useNavEnheter";
 import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
-import { ContainerLayout } from "../../layouts/ContainerLayout";
-import { inneholderUrl } from "../../utils/Utils";
-import { Header } from "../../components/detaljside/Header";
-import { Laster } from "../../components/laster/Laster";
-import styles from "../../components/skjema/Skjema.module.scss";
-import { AvtaleSkjemaContainer } from "../../components/avtaler/AvtaleSkjemaContainer";
+import { ContainerLayout } from "@/layouts/ContainerLayout";
+import { inneholderUrl } from "@/utils/Utils";
+import { Header } from "@/components/detaljside/Header";
+import { Laster } from "@/components/laster/Laster";
+import { AvtaleSkjemaContainer } from "@/components/avtaler/AvtaleSkjemaContainer";
 import { useAvtale } from "@/api/avtaler/useAvtale";
-import { AvtalestatusTag } from "../../components/statuselementer/AvtalestatusTag";
+import { AvtalestatusTag } from "@/components/statuselementer/AvtalestatusTag";
 import { Heading } from "@navikt/ds-react";
-import { Brodsmule, Brodsmuler } from "../../components/navigering/Brodsmuler";
-import { AvtaleIkon } from "../../components/ikoner/AvtaleIkon";
+import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
+import { AvtaleIkon } from "@/components/ikoner/AvtaleIkon";
+import { SkjemaContainer } from "@/components/skjema/SkjemaContainer";
+import { SkjemaContent } from "@/components/skjema/SkjemaContent";
 
 const AvtaleSkjemaPage = () => {
   const navigate = useNavigate();
@@ -60,9 +61,9 @@ const AvtaleSkjemaPage = () => {
       </Header>
 
       <ContainerLayout>
-        <div className={styles.skjema}>
+        <SkjemaContainer>
           {isLoadingAnsatt || isLoadingTiltakstyper || isLoadingEnheter ? <Laster /> : null}
-          <div className={styles.skjema_content}>
+          <SkjemaContent>
             {!tiltakstyper?.data || !ansatt || !enheter ? null : (
               <AvtaleSkjemaContainer
                 onClose={() => {
@@ -76,8 +77,8 @@ const AvtaleSkjemaPage = () => {
                 redigeringsModus={redigeringsModus!}
               />
             )}
-          </div>
-        </div>
+          </SkjemaContent>
+        </SkjemaContainer>
       </ContainerLayout>
     </main>
   );

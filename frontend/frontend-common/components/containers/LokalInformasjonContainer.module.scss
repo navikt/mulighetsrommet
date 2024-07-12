@@ -1,0 +1,10 @@
+.lokal_informasjon_container {
+  background-color: var(--a-gray-100);
+  margin: 1rem 0 1rem 0;
+  border-top: 1px solid var(--a-border-divider);
+  border-bottom: 1px solid var(--a-border-divider);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.5rem;
+}

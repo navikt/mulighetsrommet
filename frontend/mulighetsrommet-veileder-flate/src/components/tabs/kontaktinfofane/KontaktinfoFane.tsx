@@ -16,7 +16,7 @@ const KontaktinfoFane = ({ tiltaksgjennomforing }: Props) => {
       className={styles.kontaktinfo_container}
     >
       {tiltaksgjennomforing.faneinnhold?.kontaktinfoInfoboks && (
-        <Alert variant="info" className={styles.preWrap}>
+        <Alert variant="info" style={{ whiteSpace: "pre-wrap" }}>
           {tiltaksgjennomforing.faneinnhold.kontaktinfoInfoboks}
         </Alert>
       )}

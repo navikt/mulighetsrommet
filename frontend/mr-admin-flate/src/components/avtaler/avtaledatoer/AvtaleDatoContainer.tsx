@@ -1,11 +1,11 @@
-import { HGrid, Heading } from "@navikt/ds-react";
+import { Heading, HGrid } from "@navikt/ds-react";
 import { Avtale, Avtaletype, Toggles } from "mulighetsrommet-api-client";
 import { useEffect } from "react";
 import { DeepPartial, useFormContext } from "react-hook-form";
-import { useFeatureToggle } from "../../../api/features/useFeatureToggle";
-import { addYear } from "../../../utils/Utils";
+import { useFeatureToggle } from "@/api/features/useFeatureToggle";
+import { addYear } from "@/utils/Utils";
 import { avtaletekster } from "../../ledetekster/avtaleLedetekster";
-import { InferredAvtaleSchema } from "../../redaksjonelt-innhold/AvtaleSchema";
+import { InferredAvtaleSchema } from "../../redaksjoneltInnhold/AvtaleSchema";
 import { ControlledDateInput } from "../../skjema/ControlledDateInput";
 import { FormGroup } from "../../skjema/FormGroup";
 import { AvtaleVarighet } from "./AvtaleVarighet";

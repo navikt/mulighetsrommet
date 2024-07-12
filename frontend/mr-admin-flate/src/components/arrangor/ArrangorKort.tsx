@@ -1,6 +1,6 @@
 import { BodyShort, CopyButton, List, Tabs } from "@navikt/ds-react";
 import { Arrangor } from "mulighetsrommet-api-client";
-import { ArrangorKontaktpersonOversikt } from "./ArrangorKontaktpersonerOversikts";
+import { ArrangorKontaktpersonOversikt } from "./ArrangorKontaktpersonerOversikt";
 import styles from "./ArrangorKort.module.scss";
 
 interface Props {

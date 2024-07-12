@@ -1,4 +1,4 @@
-openapi: 3.0.1
+openapi: 3.1.0
 
 info:
   version: 1.0.0
@@ -1107,35 +1107,6 @@ paths:
         204:
           description: "No content found"
 
-    put:
-      tags:
-        - Del med bruker
-      operationId: delMedBruker
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/DelMedBruker"
-      responses:
-        200:
-          description: "Stored data from insertion in database"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/DelMedBruker"
-        204:
-          description: ""
-          content:
-            text/plain:
-              schema:
-                type: string
-        500:
-          description: Failed to store DelMedBruker
-          content:
-            text/plain:
-              schema:
-                type: string
-
   /api/v1/intern/del-med-bruker/alle:
     post:
       tags:
@@ -1667,6 +1638,68 @@ paths:
             text/plain:
               schema:
                 type: string
+
+  /api/v1/intern/lagret-filter:
+    post:
+      tags:
+        - LagretFilter
+      operationId: upsertFilter
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LagretFilterRequest"
+      responses:
+        204:
+          description: "Lagret ok"
+          content:
+            text/plain:
+              schema:
+                type: string
+
+  /api/v1/intern/lagret-filter/mine/{dokumenttype}:
+    get:
+      tags:
+        - LagretFilter
+      operationId: getMineFilterForDokumenttype
+      parameters:
+        - in: path
+          name: dokumenttype
+          description: type dokument
+          schema:
+            $ref: "#/components/schemas/LagretDokumenttype"
+          required: true
+      responses:
+        200:
+          description: "Lagrede filter for bruker for gitt dokumenttype"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                    $ref: "#/components/schemas/LagretFilter"
+
+  /api/v1/intern/lagret-filter/{id}:
+    delete:
+      tags:
+        - LagretFilter
+      operationId: slettLagretFilter
+      parameters:
+        - in: path
+          name: id
+          description: Id for filter
+          schema:
+            type: string
+            format: uuid
+          required: true
+      responses:
+        204:
+          description: "Ok ved sletting"
+          content:
+            text/plain:
+              schema:
+                type: string
+
 
 components:
   securitySchemes:
@@ -2629,11 +2662,21 @@ components:
           type: string
         venterPaaSvarFraBruker:
           type: boolean
+        tiltaksgjennomforingId:
+          type: string
+          format: uuid
+          nullable: true
+        sanityId:
+          type: string
+          format: uuid
+          nullable: true
       required:
         - fnr
         - overskrift
         - tekst
         - venterPaaSvarFraBruker
+        - tiltaksgjennomforingId
+        - sanityId
 
     DialogResponse:
       type: object
@@ -4017,3 +4060,57 @@ components:
       required:
         - id
         - avtaleId
+
+    LagretFilterRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          nullable: true
+        navn:
+          type: string
+        "type":
+          $ref: "#/components/schemas/LagretDokumenttype"
+        filter:
+          type: object
+        sortOrder:
+          type: number
+      required:
+        - id
+        - type
+        - navn
+        - filter
+        - sortOrder
+
+    LagretDokumenttype:
+      type: string
+      enum:
+        - Avtale
+        - Tiltaksgjennomføring
+        - Tiltaksgjennomføring_Modia
+
+
+    LagretFilter:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        brukerId:
+          type: string
+        navn:
+          type: string
+        "type":
+          $ref: "#/components/schemas/LagretDokumenttype"
+        filter:
+          type: object
+        sortOrder:
+          type: number
+      required:
+        - id
+        - brukerId
+        - type
+        - navn
+        - filter
+        - sortOrder

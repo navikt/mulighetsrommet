@@ -1,16 +1,16 @@
 import { Alert, Tabs } from "@navikt/ds-react";
 import { useAvtale } from "@/api/avtaler/useAvtale";
 import { useTiltaksgjennomforingById } from "@/api/tiltaksgjennomforing/useTiltaksgjennomforingById";
-import { Laster } from "../../components/laster/Laster";
-import skjemaStyles from "../../components/skjema/Skjema.module.scss";
-import styles from "../DetaljerInfo.module.scss";
+import { Laster } from "@/components/laster/Laster";
+import styles from "./TiltaksgjennomforingInfo.module.scss";
 import { TiltaksgjennomforingDetaljer } from "./TiltaksgjennomforingDetaljer";
 import { TiltaksgjennomforingKnapperad } from "./TiltaksgjennomforingKnapperad";
-import { RedaksjoneltInnholdPreview } from "../../components/redaksjonelt-innhold/RedaksjoneltInnholdPreview";
+import { RedaksjoneltInnholdPreview } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdPreview";
 import { gjennomforingDetaljerTabAtom } from "@/api/atoms";
 import { useAtom } from "jotai";
 import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
 import { InlineErrorBoundary } from "mulighetsrommet-frontend-common";
+import { InfoContainer } from "@/components/skjema/InfoContainer";
 
 export function TiltaksgjennomforingInfo() {
   const { data: bruker } = useHentAnsatt();
@@ -34,9 +34,9 @@ export function TiltaksgjennomforingInfo() {
   }
 
   return (
-    <div className={styles.info_container} data-testid="tiltaksgjennomforing_info-container">
+    <InfoContainer dataTestId="tiltaksgjennomforing_info-container">
       <Tabs defaultValue={activeTab}>
-        <Tabs.List className={skjemaStyles.tabslist}>
+        <Tabs.List className={styles.tabslist}>
           <div>
             <Tabs.Tab onClick={() => setActiveTab("detaljer")} value="detaljer" label="Detaljer" />
             <Tabs.Tab
@@ -68,6 +68,6 @@ export function TiltaksgjennomforingInfo() {
           </InlineErrorBoundary>
         </Tabs.Panel>
       </Tabs>
-    </div>
+    </InfoContainer>
   );
 }

@@ -1,13 +1,13 @@
 import { Alert, Button, Heading, HStack, Modal, Search } from "@navikt/ds-react";
 import { Avtale, EmbeddedTiltakstype } from "mulighetsrommet-api-client";
-import { RedaksjoneltInnholdForm } from "../redaksjonelt-innhold/RedaksjoneltInnholdForm";
+import { RedaksjoneltInnholdForm } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdForm";
 import { useFormContext } from "react-hook-form";
 import { useState } from "react";
-import { RedaksjoneltInnholdContainer } from "../redaksjonelt-innhold/RedaksjoneltInnholdContainer";
-import styles from "../modal/LeggTilGjennomforingModal.module.scss";
 import { AvtaleListe } from "./AvtaleListe";
-import { InferredAvtaleSchema } from "../redaksjonelt-innhold/AvtaleSchema";
-import skjemastyles from "../skjema/Skjema.module.scss";
+import { InferredAvtaleSchema } from "@/components/redaksjoneltInnhold/AvtaleSchema";
+import { RedaksjoneltInnholdModalContainer } from "@/components/modal/RedaksjoneltInnholdModalContainer";
+import { RedaksjoneltInnholdModalBody } from "@/components/modal/RedaksjoneltInnholdModalBody";
+import { RedaksjoneltInnholdToppKnapperad } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdToppKnapperad";
 
 interface Props {
   tiltakstype?: EmbeddedTiltakstype;
@@ -28,7 +28,7 @@ export function AvtaleRedaksjoneltInnholdForm({ tiltakstype }: Props) {
 
   if (!tiltakstype) {
     return (
-      <div className={skjemastyles.container}>
+      <div style={{ margin: "1rem 0 1rem 0" }}>
         <Alert variant="info">Tiltakstype må velges før redaksjonelt innhold kan redigeres.</Alert>
       </div>
     );
@@ -36,7 +36,7 @@ export function AvtaleRedaksjoneltInnholdForm({ tiltakstype }: Props) {
 
   return (
     <>
-      <RedaksjoneltInnholdContainer>
+      <RedaksjoneltInnholdToppKnapperad>
         <HStack justify="end">
           <Button
             size="small"
@@ -48,25 +48,16 @@ export function AvtaleRedaksjoneltInnholdForm({ tiltakstype }: Props) {
             Kopier redaksjonelt innhold fra avtale
           </Button>
         </HStack>
-      </RedaksjoneltInnholdContainer>
+      </RedaksjoneltInnholdToppKnapperad>
 
       <RedaksjoneltInnholdForm key={`redaksjonelt-innhold-${key}`} tiltakstype={tiltakstype} />
 
-      <Modal
-        open={modalOpen}
-        onClose={() => {
-          setSearch("");
-          setModalOpen(false);
-        }}
-        className={styles.modal_container}
-        aria-label="modal"
-        width="50rem"
-      >
+      <RedaksjoneltInnholdModalContainer modalOpen={modalOpen} onClose={() => setModalOpen(false)}>
         <Modal.Header closeButton>
           <Heading size="medium">Kopier redaksjonelt innhold fra avtale</Heading>
         </Modal.Header>
 
-        <Modal.Body className={styles.modal_content}>
+        <RedaksjoneltInnholdModalBody>
           <Search
             label="Søk på navn eller avtalenummer"
             variant="simple"
@@ -97,8 +88,8 @@ export function AvtaleRedaksjoneltInnholdForm({ tiltakstype }: Props) {
               </Button>
             )}
           />
-        </Modal.Body>
-      </Modal>
+        </RedaksjoneltInnholdModalBody>
+      </RedaksjoneltInnholdModalContainer>
     </>
   );
 }

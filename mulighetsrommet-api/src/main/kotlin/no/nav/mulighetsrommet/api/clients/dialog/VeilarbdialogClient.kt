@@ -10,9 +10,11 @@ import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.clients.AccessType
 import no.nav.mulighetsrommet.api.clients.TokenProvider
 import no.nav.mulighetsrommet.domain.dto.NorskIdent
+import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
 import no.nav.mulighetsrommet.securelog.SecureLog
 import org.slf4j.LoggerFactory
+import java.util.*
 
 class VeilarbdialogClient(
     private val baseUrl: String,
@@ -56,6 +58,10 @@ data class DialogRequest(
     val tekst: String,
     val venterPaaSvarFraBruker: Boolean,
     val fnr: NorskIdent,
+    @Serializable(with = UUIDSerializer::class)
+    val tiltaksgjennomforingId: UUID?,
+    @Serializable(with = UUIDSerializer::class)
+    val sanityId: UUID?,
 )
 
 @Serializable

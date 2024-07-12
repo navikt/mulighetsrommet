@@ -10,13 +10,26 @@ import { useHentBrukerdata } from "@/apps/modia/hooks/useHentBrukerdata";
 import { brukersEnhetFilterHasChanged } from "@/apps/modia/delMedBruker/helpers";
 import { z } from "zod";
 
-export interface ArbeidsmarkedstiltakFilter {
-  search: string;
-  navEnheter: NavEnhet[];
-  innsatsgruppe?: { tittel: string; nokkel: Innsatsgruppe };
-  tiltakstyper: { id: string; tittel: string; nokkel?: string }[];
-  apentForInnsok: ApentForInnsok;
-}
+export const ArbeidsmarkedstiltakFilterSchema = z.object({
+  search: z.string(),
+  navEnheter: z.custom<NavEnhet>().array(),
+  innsatsgruppe: z
+    .object({
+      tittel: z.string(),
+      nokkel: z.custom<Innsatsgruppe>(),
+    })
+    .optional(),
+  tiltakstyper: z
+    .object({
+      id: z.string(),
+      tittel: z.string(),
+      nokkel: z.string().optional(),
+    })
+    .array(),
+  apentForInnsok: z.custom<ApentForInnsok>(),
+});
+
+export type ArbeidsmarkedstiltakFilter = z.infer<typeof ArbeidsmarkedstiltakFilterSchema>;
 
 export function useArbeidsmarkedstiltakFilter(): [
   ArbeidsmarkedstiltakFilter,

@@ -960,6 +960,9 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             Query("update tiltakstype set sanity_id = '$arbeidstreningSanityId' where id = '${TiltakstypeFixtures.AFT.id}'")
                 .asUpdate
                 .let { database.db.run(it) }
+            Query("update tiltakstype set innsatsgrupper = array ['${Innsatsgruppe.VARIG_TILPASSET_INNSATS}'::innsatsgruppe]")
+                .asUpdate
+                .let { database.db.run(it) }
 
             tiltaksgjennomforinger.upsert(Oppfolging1.copy(sluttDato = null, navEnheter = listOf("2990")))
             tiltaksgjennomforinger.setPublisert(Oppfolging1.id, true)
@@ -971,24 +974,28 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         test("skal filtrere basert på om tiltaket er publisert") {
             tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
                 brukersEnheter = listOf("2990"),
+                innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
             ) shouldHaveSize 2
 
             tiltaksgjennomforinger.setPublisert(Oppfolging1.id, false)
 
             tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
                 brukersEnheter = listOf("2990"),
+                innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
             ) shouldHaveSize 1
 
             tiltaksgjennomforinger.setPublisert(AFT1.id, false)
 
             tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
                 brukersEnheter = listOf("2990"),
+                innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
             ) shouldHaveSize 0
         }
 
         test("skal bare returnere tiltak markert med tiltakskode definert") {
             tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
                 brukersEnheter = listOf("2990"),
+                innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
             ) shouldHaveSize 2
 
             Query("update tiltakstype set tiltakskode = null where id = '${TiltakstypeFixtures.Oppfolging.id}'")
@@ -997,6 +1004,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
 
             tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
                 brukersEnheter = listOf("2990"),
+                innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
             ) shouldHaveSize 1
 
             Query("update tiltakstype set tiltakskode = null where id = '${TiltakstypeFixtures.AFT.id}'")
@@ -1005,6 +1013,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
 
             tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
                 brukersEnheter = listOf("2990"),
+                innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
             ) shouldHaveSize 0
         }
 
@@ -1015,11 +1024,6 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             Query("update tiltakstype set innsatsgrupper = array ['${Innsatsgruppe.STANDARD_INNSATS}'::innsatsgruppe, '${Innsatsgruppe.SPESIELT_TILPASSET_INNSATS}'::innsatsgruppe] where id = '${TiltakstypeFixtures.AFT.id}'")
                 .asUpdate
                 .let { database.db.run(it) }
-
-            tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
-                innsatsgruppe = null,
-                brukersEnheter = listOf("2990"),
-            ) shouldHaveSize 2
 
             tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
                 innsatsgruppe = Innsatsgruppe.STANDARD_INNSATS,
@@ -1041,12 +1045,14 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
 
             tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
                 brukersEnheter = listOf("0400"),
+                innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
             ).should {
                 it shouldHaveSize 1
                 it[0].navn shouldBe Oppfolging1.navn
             }
 
             tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
+                innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
                 brukersEnheter = listOf("0300"),
             ).should {
                 it shouldHaveSize 1
@@ -1054,10 +1060,12 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             }
 
             tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
+                innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
                 brukersEnheter = listOf("0400", "0300"),
             ) shouldHaveSize 2
 
             tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
+                innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
                 brukersEnheter = listOf("2990"),
             ) shouldHaveSize 2
         }
@@ -1066,9 +1074,11 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
                 sanityTiltakstypeIds = null,
                 brukersEnheter = listOf("2990"),
+                innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
             ) shouldHaveSize 2
 
             tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
+                innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
                 sanityTiltakstypeIds = listOf(oppfolgingSanityId),
                 brukersEnheter = listOf("2990"),
             ).should {
@@ -1077,6 +1087,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             }
 
             tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
+                innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
                 sanityTiltakstypeIds = listOf(arbeidstreningSanityId),
                 brukersEnheter = listOf("2990"),
             ).should {
@@ -1090,6 +1101,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             tiltaksgjennomforinger.upsert(AFT1.copy(navn = "frank"))
 
             tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
+                innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
                 search = "rik",
                 brukersEnheter = listOf("0502"),
             ).should {
@@ -1109,6 +1121,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             tiltaksgjennomforinger.upsert(AFT1.copy(apentForInnsok = false, navEnheter = listOf("2990")))
 
             tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
+                innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
                 apentForInnsok = true,
                 brukersEnheter = listOf("2990"),
             ).should {
@@ -1117,6 +1130,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             }
 
             tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
+                innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
                 apentForInnsok = false,
                 brukersEnheter = listOf("2990"),
             ).should {
@@ -1125,6 +1139,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             }
 
             tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
+                innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
                 apentForInnsok = null,
                 brukersEnheter = listOf("2990"),
             ) shouldHaveSize 2

@@ -1,10 +1,11 @@
 import { Accordion, Search, Switch } from "@navikt/ds-react";
 import { useAtom, WritableAtom } from "jotai";
-import { ArrangorTil, NavEnhet } from "mulighetsrommet-api-client";
+import { ArrangorTil, LagretDokumenttype, NavEnhet } from "mulighetsrommet-api-client";
 import { useEffect } from "react";
 import {
   gjennomforingFilterAccordionAtom,
   TiltaksgjennomforingFilter as TiltaksgjennomforingFilterProps,
+  TiltaksgjennomforingFilterSchema,
 } from "@/api/atoms";
 import { useAvtale } from "@/api/avtaler/useAvtale";
 import { useNavEnheter } from "@/api/enhet/useNavEnheter";
@@ -19,6 +20,7 @@ import {
 import {
   FilterAccordionHeader,
   FilterSkeleton,
+  LagredeFilterOversikt,
   NavEnhetFilter,
 } from "mulighetsrommet-frontend-common";
 import { useRegioner } from "@/api/enhet/useRegioner";
@@ -82,6 +84,14 @@ export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
 
   return (
     <>
+      <LagredeFilterOversikt
+        setFilter={setFilter}
+        filter={filter}
+        dokumenttype={LagretDokumenttype.TILTAKSGJENNOMFØRING}
+        validateFilterStructure={(filter) => {
+          return TiltaksgjennomforingFilterSchema.safeParse(filter).success;
+        }}
+      />
       <Search
         label="Søk etter tiltaksgjennomføring"
         hideLabel

@@ -1,15 +1,14 @@
+import { Alert, Pagination, Table } from "@navikt/ds-react";
 import { WritableAtom, useAtom } from "jotai";
-import { ArrangorerFilter } from "../../api/atoms";
-import { useArrangorer } from "../../api/arrangor/useArrangorer";
-import { useSort } from "../../hooks/useSort";
+import { ArrangorTil, SorteringArrangorer } from "mulighetsrommet-api-client";
 import { ToolbarContainer } from "mulighetsrommet-frontend-common/components/toolbar/toolbarContainer/ToolbarContainer";
+import { Link } from "react-router-dom";
+import { useArrangorer } from "../../api/arrangor/useArrangorer";
+import { ArrangorerFilter } from "../../api/atoms";
+import { Laster } from "../laster/Laster";
+import { PagineringContainer } from "../paginering/PagineringContainer";
 import { PagineringsOversikt } from "../paginering/PagineringOversikt";
 import { TabellWrapper } from "./TabellWrapper";
-import { Laster } from "../laster/Laster";
-import { Alert, Pagination, Table } from "@navikt/ds-react";
-import { ArrangorTil, SorteringArrangorer } from "mulighetsrommet-api-client";
-import { Link } from "react-router-dom";
-import { PagineringContainer } from "../paginering/PagineringContainer";
 
 interface Props {
   filterAtom: WritableAtom<ArrangorerFilter, [newValue: ArrangorerFilter], void>;
@@ -18,9 +17,8 @@ interface Props {
 }
 
 export function ArrangorerTabell({ filterAtom, tagsHeight, filterOpen }: Props) {
-  const [sort, setSort] = useSort("navn");
   const [filter, setFilter] = useAtom(filterAtom);
-
+  const sort = filter.sortering.tableSort;
   const { data, isLoading } = useArrangorer(ArrangorTil.AVTALE, filter);
 
   function updateFilter(newFilter: Partial<ArrangorerFilter>) {
@@ -36,13 +34,11 @@ export function ArrangorerTabell({ filterAtom, tagsHeight, filterOpen }: Props) 
           : "descending"
         : "ascending";
 
-    setSort({
-      orderBy: sortKey,
-      direction,
-    });
-
     updateFilter({
-      sortering: `${sortKey}-${direction}` as SorteringArrangorer,
+      sortering: {
+        sortString: `${sortKey}-${direction}` as SorteringArrangorer,
+        tableSort: { orderBy: sortKey, direction },
+      },
       page: sort.orderBy !== sortKey || sort.direction !== direction ? 1 : filter.page,
     });
   };

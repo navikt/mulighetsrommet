@@ -1,7 +1,7 @@
-import { Alert, HStack, HelpText, List, VStack } from "@navikt/ds-react";
+import { Alert, HelpText, HStack, List, VStack } from "@navikt/ds-react";
 import { useAvtale } from "@/api/avtaler/useAvtale";
-import { Laster } from "../../components/laster/Laster";
-import styles from "../DetaljerInfo.module.scss";
+import { Laster } from "@/components/laster/Laster";
+import styles from "./AvtalePersonvern.module.scss";
 import { usePersonopplysninger } from "@/api/avtaler/usePersonopplysninger";
 import { PersonopplysningData } from "mulighetsrommet-api-client";
 

@@ -1,5 +1,9 @@
 import { useArrangorer } from "@/api/arrangor/useArrangorer";
-import { AvtaleFilter as AvtaleFilterProps, avtaleFilterAccordionAtom } from "@/api/atoms";
+import {
+  avtaleFilterAccordionAtom,
+  AvtaleFilter as AvtaleFilterProps,
+  AvtaleFilterSchema,
+} from "@/api/atoms";
 import { useNavEnheter } from "@/api/enhet/useNavEnheter";
 import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
 import { addOrRemove } from "@/utils/Utils";
@@ -12,10 +16,14 @@ import {
 } from "@/utils/filterUtils";
 import { Accordion, Search, Switch } from "@navikt/ds-react";
 import { useAtom, WritableAtom } from "jotai";
-import { ArrangorTil } from "mulighetsrommet-api-client";
-import { FilterAccordionHeader, FilterSkeleton } from "mulighetsrommet-frontend-common";
-import { CheckboxList } from "./CheckboxList";
+import { ArrangorTil, LagretDokumenttype } from "mulighetsrommet-api-client";
+import {
+  FilterAccordionHeader,
+  FilterSkeleton,
+  LagredeFilterOversikt,
+} from "mulighetsrommet-frontend-common";
 import { logEvent } from "../../logging/amplitude";
+import { CheckboxList } from "./CheckboxList";
 
 type Filters = "tiltakstype";
 
@@ -56,6 +64,14 @@ export function AvtaleFilter({ filterAtom, skjulFilter }: Props) {
 
   return (
     <div>
+      <LagredeFilterOversikt
+        setFilter={setFilter}
+        filter={filter}
+        dokumenttype={LagretDokumenttype.AVTALE}
+        validateFilterStructure={(filter) => {
+          return AvtaleFilterSchema.safeParse(filter).success;
+        }}
+      />
       <Search
         label="Søk etter tiltaksgjennomføring"
         hideLabel

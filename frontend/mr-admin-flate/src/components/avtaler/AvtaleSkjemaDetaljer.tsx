@@ -19,18 +19,21 @@ import { LabelWithHelpText } from "mulighetsrommet-frontend-common/components/la
 import { SelectOption } from "mulighetsrommet-frontend-common/components/SokeSelect";
 import { DeepPartial, useFormContext } from "react-hook-form";
 import { MultiValue } from "react-select";
-import { useFeatureToggle } from "../../api/features/useFeatureToggle";
-import { erAnskaffetTiltak } from "../../utils/tiltakskoder";
-import { avtaletypeTilTekst } from "../../utils/Utils";
+import { useFeatureToggle } from "@/api/features/useFeatureToggle";
+import { erAnskaffetTiltak } from "@/utils/tiltakskoder";
+import { avtaletypeTilTekst } from "@/utils/Utils";
 import { avtaletekster } from "../ledetekster/avtaleLedetekster";
-import { InferredAvtaleSchema } from "../redaksjonelt-innhold/AvtaleSchema";
+import { InferredAvtaleSchema } from "@/components/redaksjoneltInnhold/AvtaleSchema";
 import { AdministratorOptions } from "../skjema/AdministratorOptions";
 import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
-import { FormGroup } from "../skjema/FormGroup";
-import skjemastyles from "../skjema/Skjema.module.scss";
+import { FormGroup } from "@/components/skjema/FormGroup";
 import { AvtaleArrangorSkjema } from "./AvtaleArrangorSkjema";
 import { AvtaleDatoContainer } from "./avtaledatoer/AvtaleDatoContainer";
 import { getLokaleUnderenheterAsSelectOptions } from "./AvtaleSkjemaConst";
+import { SkjemaDetaljerContainer } from "@/components/skjema/SkjemaDetaljerContainer";
+import { SkjemaInputContainer } from "@/components/skjema/SkjemaInputContainer";
+import { SkjemaKolonne } from "@/components/skjema/SkjemaKolonne";
+import { VertikalSeparator } from "@/components/skjema/VertikalSeparator";
 
 interface Props {
   tiltakstyper: Tiltakstype[];
@@ -73,9 +76,9 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
     }));
 
   return (
-    <div className={skjemastyles.container}>
-      <div className={skjemastyles.input_container}>
-        <div className={skjemastyles.column}>
+    <SkjemaDetaljerContainer>
+      <SkjemaInputContainer>
+        <SkjemaKolonne>
           <FormGroup>
             <TextField
               size="small"
@@ -193,9 +196,9 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
               options={AdministratorOptions(ansatt, avtale?.administratorer, administratorer)}
             />
           </FormGroup>
-        </div>
-        <div className={skjemastyles.vertical_separator} />
-        <div className={skjemastyles.column}>
+        </SkjemaKolonne>
+        <VertikalSeparator />
+        <SkjemaKolonne>
           <div>
             <FormGroup>
               <ControlledMultiSelect
@@ -237,9 +240,9 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
           <FormGroup>
             <AvtaleArrangorSkjema readOnly={arenaOpphavOgIngenEierskap} />
           </FormGroup>
-        </div>
-      </div>
-    </div>
+        </SkjemaKolonne>
+      </SkjemaInputContainer>
+    </SkjemaDetaljerContainer>
   );
 }
 

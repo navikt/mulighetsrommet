@@ -11,7 +11,7 @@ import { Kontaktperson } from "@/pages/tiltaksgjennomforinger/Kontaktperson";
 import { formaterDato, formatertVentetid } from "@/utils/Utils";
 import { isTiltakMedFellesOppstart } from "@/utils/tiltakskoder";
 import { ExternalLinkIcon } from "@navikt/aksel-icons";
-import { BodyShort, HStack, HelpText, Tag } from "@navikt/ds-react";
+import { BodyShort, HelpText, HStack, Tag } from "@navikt/ds-react";
 import {
   Avtale,
   Tiltaksgjennomforing,
@@ -20,8 +20,11 @@ import {
 import { useTitle } from "mulighetsrommet-frontend-common";
 import { NOM_ANSATT_SIDE } from "mulighetsrommet-frontend-common/constants";
 import { Link } from "react-router-dom";
-import styles from "../DetaljerInfo.module.scss";
+import styles from "./TiltaksgjennomforingDetaljer.module.scss";
 import { AmoKategoriseringDetaljer } from "@/components/amoKategorisering/AmoKategoriseringDetaljer";
+import { DetaljerContainer } from "@/pages/DetaljerContainer";
+import { DetaljerInfoContainer } from "@/pages/DetaljerInfoContainer";
+import { ArrangorKontaktinfoContainer } from "@/pages/arrangor/ArrangorKontaktinfoContainer";
 
 interface Props {
   tiltaksgjennomforing: Tiltaksgjennomforing;
@@ -73,8 +76,8 @@ export function TiltaksgjennomforingDetaljer({ tiltaksgjennomforing, avtale }: P
 
   return (
     <>
-      <div className={styles.container}>
-        <div className={styles.detaljer}>
+      <DetaljerContainer>
+        <DetaljerInfoContainer>
           <Bolk aria-label="Tiltaksnavn og tiltaksnummer" data-testid="tiltaksnavn">
             <Metadata header={tiltaktekster.tiltaksnavnLabel} verdi={tiltaksgjennomforing.navn} />
             <Metadata
@@ -190,9 +193,9 @@ export function TiltaksgjennomforingDetaljer({ tiltaksgjennomforing, avtale }: P
               }
             />
           </Bolk>
-        </div>
+        </DetaljerInfoContainer>
 
-        <div className={styles.detaljer}>
+        <DetaljerInfoContainer>
           <Bolk aria-label={tiltaktekster.navRegionLabel}>
             <Metadata header={tiltaktekster.navRegionLabel} verdi={navRegion?.navn} />
           </Bolk>
@@ -274,14 +277,14 @@ export function TiltaksgjennomforingDetaljer({ tiltaksgjennomforing, avtale }: P
             <Metadata
               header={tiltaktekster.kontaktpersonerHosTiltaksarrangorLabel}
               verdi={
-                <div className={styles.arrangor_kontaktinfo_container}>
+                <ArrangorKontaktinfoContainer>
                   {arrangor.kontaktpersoner.map((kontaktperson) => (
                     <ArrangorKontaktpersonDetaljer
                       key={kontaktperson.id}
                       kontaktperson={kontaktperson}
                     />
                   ))}
-                </div>
+                </ArrangorKontaktinfoContainer>
               }
             />
           )}
@@ -297,8 +300,8 @@ export function TiltaksgjennomforingDetaljer({ tiltaksgjennomforing, avtale }: P
             </>
           )}
           <TiltakTilgjengeligForArrangor gjennomforing={tiltaksgjennomforing} />
-        </div>
-      </div>
+        </DetaljerInfoContainer>
+      </DetaljerContainer>
 
       <NokkeltallDeltakere tiltaksgjennomforingId={tiltaksgjennomforing.id} />
     </>

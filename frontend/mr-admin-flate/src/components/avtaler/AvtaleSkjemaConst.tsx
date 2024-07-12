@@ -6,7 +6,7 @@ import {
   NavEnhetType,
 } from "mulighetsrommet-api-client";
 import { DeepPartial } from "react-hook-form";
-import { InferredAvtaleSchema } from "../redaksjonelt-innhold/AvtaleSchema";
+import { InferredAvtaleSchema } from "@/components/redaksjoneltInnhold/AvtaleSchema";
 
 export const getLokaleUnderenheterAsSelectOptions = (
   navRegioner: (string | undefined)[],
@@ -58,7 +58,16 @@ export function defaultAvtaleData(
     faneinnhold: avtale?.faneinnhold ?? null,
     personvernBekreftet: avtale?.personvernBekreftet,
     personopplysninger: avtale?.personopplysninger ?? [],
-    amoKategorisering: avtale?.amoKategorisering ?? undefined,
+    amoKategorisering: avtale?.amoKategorisering
+      ? {
+          kurstype: avtale.amoKategorisering.kurstype,
+          spesifisering: avtale.amoKategorisering.spesifisering ?? undefined,
+          sertifiseringer: avtale.amoKategorisering.sertifiseringer ?? undefined,
+          forerkort: avtale.amoKategorisering.forerkort ?? undefined,
+          norskprove: avtale.amoKategorisering.norskprove ?? undefined,
+          innholdElementer: avtale.amoKategorisering.innholdElementer ?? undefined,
+        }
+      : undefined,
     opsjonsmodellData: {
       opsjonMaksVarighet: avtale?.opsjonsmodellData?.opsjonMaksVarighet ?? undefined,
       opsjonsmodell: avtale?.opsjonsmodellData?.opsjonsmodell ?? undefined,

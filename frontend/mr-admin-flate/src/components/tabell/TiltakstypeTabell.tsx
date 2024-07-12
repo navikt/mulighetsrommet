@@ -1,20 +1,19 @@
+import { tiltakstypeFilterAtom } from "@/api/atoms";
+import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
+import { TabellWrapper } from "@/components/tabell/TabellWrapper";
+import { formaterDato } from "@/utils/Utils";
 import { Alert, Table } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import { SorteringTiltakstyper } from "mulighetsrommet-api-client";
 import { Lenke } from "mulighetsrommet-frontend-common/components/lenke/Lenke";
-import { tiltakstypeFilterAtom } from "@/api/atoms";
-import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
-import { useSort } from "@/hooks/useSort";
-import { formaterDato } from "@/utils/Utils";
 import { Laster } from "../laster/Laster";
 import { TiltakstypestatusTag } from "../statuselementer/TiltakstypestatusTag";
 import styles from "./Tabell.module.scss";
-import { TabellWrapper } from "@/components/tabell/TabellWrapper";
 
 export function TiltakstypeTabell() {
   const [filter, setFilter] = useAtom(tiltakstypeFilterAtom);
   const { data, isLoading } = useTiltakstyper(filter);
-  const [sort, setSort] = useSort("navn");
+  const sort = filter.sort?.tableSort;
   const tiltakstyper = data?.data ?? [];
 
   if ((!tiltakstyper || tiltakstyper.length === 0) && isLoading) {
@@ -26,16 +25,17 @@ export function TiltakstypeTabell() {
   }
 
   const handleSort = (sortKey: string) => {
-    const direction = sort.direction === "ascending" ? "descending" : "ascending";
-
-    setSort({
-      orderBy: sortKey,
-      direction,
-    });
+    const direction = sort?.direction === "ascending" ? "descending" : "ascending";
 
     setFilter({
       ...filter,
-      sort: `${sortKey}-${direction}` as SorteringTiltakstyper,
+      sort: {
+        sortString: `${sortKey}-${direction}` as SorteringTiltakstyper,
+        tableSort: {
+          orderBy: sortKey,
+          direction,
+        },
+      },
     });
   };
   return (

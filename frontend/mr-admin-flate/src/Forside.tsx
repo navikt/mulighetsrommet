@@ -5,7 +5,7 @@ import { ForsidekortListe } from "./components/forsidekort/ForsidekortListe";
 import { useTitle } from "mulighetsrommet-frontend-common";
 
 export function Forside() {
-  useTitle("NAV Arbeidsmarkedstiltak");
+  useTitle("NAV Tiltaksadministrasjon");
   return (
     <main>
       <div className={styles.hero}>

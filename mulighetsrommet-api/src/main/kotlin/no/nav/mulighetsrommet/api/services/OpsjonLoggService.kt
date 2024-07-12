@@ -3,58 +3,37 @@ package no.nav.mulighetsrommet.api.services
 import io.ktor.server.plugins.*
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
-import kotliquery.queryOf
+import kotliquery.TransactionalSession
 import no.nav.mulighetsrommet.api.avtaler.OpsjonLoggValidator
+import no.nav.mulighetsrommet.api.domain.dto.AvtaleAdminDto
 import no.nav.mulighetsrommet.api.domain.dto.OpsjonLoggEntry
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
+import no.nav.mulighetsrommet.api.repositories.OpsjonLoggRepository
 import no.nav.mulighetsrommet.api.routes.v1.OpsjonLoggRequest
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.dto.NavIdent
-import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
+import java.time.LocalDate
 import java.util.*
 
 class OpsjonLoggService(
     private val db: Database,
     private val opsjonLoggValidator: OpsjonLoggValidator,
     private val avtaleRepository: AvtaleRepository,
+    private val opsjonLoggRepository: OpsjonLoggRepository,
     private val endringshistorikkService: EndringshistorikkService,
 ) {
-    val logger = LoggerFactory.getLogger(this::class.java)
+    private val logger = LoggerFactory.getLogger(javaClass)
     fun lagreOpsjonLoggEntry(entry: OpsjonLoggEntry) {
-        @Language("PostgreSQL")
-        val query = """
-            insert into avtale_opsjon_logg(avtale_id, sluttdato, status, registrert_av)
-            values (:avtaleId, :sluttdato, :status::opsjonstatus, :registrertAv)
-        """.trimIndent()
-
-        val avtale =
-            avtaleRepository.get(entry.avtaleId) ?: throw NotFoundException("Fant ikke avtale med id ${entry.avtaleId}")
-
+        val avtale = getAvtaleOrThrow(entry.avtaleId)
         opsjonLoggValidator.validate(entry, avtale.opsjonsmodellData).map {
             logger.info("Lagrer opsjon og setter ny sluttdato for avtale med id: '${entry.avtaleId}'. Opsjonsdata: $entry")
             db.transaction { tx ->
                 if (entry.sluttdato != null) {
                     avtaleRepository.oppdaterSluttdato(entry.avtaleId, entry.sluttdato, tx)
                 }
-                queryOf(
-                    query,
-                    mapOf(
-                        "avtaleId" to entry.avtaleId,
-                        "sluttdato" to entry.sluttdato,
-                        "status" to entry.status.name,
-                        "registrertAv" to entry.registrertAv.value,
-                    ),
-                ).asExecute.let { tx.run(it) }
-
-                endringshistorikkService.logEndring(
-                    documentClass = DocumentClass.AVTALE,
-                    operation = getEndringsmeldingstekst(entry),
-                    userId = entry.registrertAv.value,
-                    documentId = entry.avtaleId,
-                ) {
-                    Json.encodeToJsonElement(entry)
-                }
+                opsjonLoggRepository.insert(entry, tx)
+                loggEndring(tx, entry.registrertAv, getEndringsmeldingstekst(entry), entry.avtaleId, entry)
             }
         }.mapLeft {
             logger.debug("Klarte ikke å lagre opsjon: {})", it)
@@ -62,58 +41,53 @@ class OpsjonLoggService(
     }
 
     fun delete(opsjonLoggEntryId: UUID, avtaleId: UUID, slettesAv: NavIdent) {
-        @Language("PostgreSQL")
-        val getSisteOpsjonerQuery = """
-            select * from avtale_opsjon_logg
-            where avtale_id = :avtaleId::uuid and status = 'OPSJON_UTLØST'
-            order by registrert_dato desc
-        """.trimIndent()
-
-        val opsjoner = queryOf(getSisteOpsjonerQuery, mapOf("avtaleId" to avtaleId)).map { row ->
-            OpsjonLoggEntry(
-                avtaleId = row.uuid("avtale_id"),
-                sluttdato = row.localDate("sluttdato"),
-                status = OpsjonLoggRequest.OpsjonsLoggStatus.valueOf(row.string("status")),
-                registrertAv = NavIdent(row.string("registrert_av")),
-            )
-        }.asList.let { db.run(it) }
-
-        if (opsjoner.isEmpty()) {
-            throw NotFoundException("Fant ingen utløst opsjon for avtale med id '$opsjonLoggEntryId'")
-        }
-
-        val avtale = avtaleRepository.get(avtaleId) ?: throw NotFoundException("Fant ingen avtale med id '$avtaleId'")
-
-        if (avtale.opprinneligSluttDato == null) {
-            throw NotFoundException("Fant ingen opprinnelig sluttdato for avtale med id '$avtaleId'")
-        }
-
-        @Language("PostgreSQL")
-        val deleteOpsjonLoggEntryQuery = """
-            delete from avtale_opsjon_logg where id = :id
-        """.trimIndent()
+        val opsjoner = opsjonLoggRepository.getOpsjoner(avtaleId)
+        val avtale = getAvtaleOrThrow(avtaleId)
+        validateAvtale(avtale)
 
         db.transaction { tx ->
             logger.info("Fjerner opsjons med id: '$opsjonLoggEntryId' for avtale med id: '$avtaleId'")
-            val forrigeSluttdato =
-                if (opsjoner.size > 1) opsjoner[1].sluttdato else avtale.opprinneligSluttDato
+            val forrigeSluttdato = kalkulerNySluttdato(opsjoner, avtale)
 
             forrigeSluttdato?.let {
                 avtaleRepository.oppdaterSluttdato(avtaleId, it, tx)
             }
 
-            queryOf(deleteOpsjonLoggEntryQuery, mapOf("id" to opsjonLoggEntryId)).asExecute.let { tx.run(it) }
-
-            endringshistorikkService.logEndring(
-                tx = tx,
-                documentClass = DocumentClass.AVTALE,
-                operation = "Opsjon slettet",
-                userId = slettesAv.value,
-                documentId = avtaleId,
-            ) {
-                Json.encodeToJsonElement(opsjoner.first())
-            }
+            opsjonLoggRepository.delete(opsjonLoggEntryId, tx)
+            loggEndring(tx, slettesAv, "Opsjon slettet", avtaleId, opsjoner.first())
         }
+    }
+
+    private fun kalkulerNySluttdato(opsjoner: List<OpsjonLoggEntry>, avtale: AvtaleAdminDto): LocalDate? {
+        return if (opsjoner.size > 1) opsjoner[1].sluttdato else avtale.opprinneligSluttDato
+    }
+
+    private fun validateAvtale(avtale: AvtaleAdminDto) {
+        if (avtale.opprinneligSluttDato == null) {
+            throw NotFoundException("Fant ingen opprinnelig sluttdato for avtale med id '${avtale.id}'")
+        }
+    }
+
+    private fun loggEndring(
+        tx: TransactionalSession,
+        slettesAv: NavIdent,
+        operation: String,
+        avtaleId: UUID,
+        opsjon: OpsjonLoggEntry,
+    ) {
+        endringshistorikkService.logEndring(
+            tx = tx,
+            documentClass = DocumentClass.AVTALE,
+            operation = operation,
+            userId = slettesAv.value,
+            documentId = avtaleId,
+        ) {
+            Json.encodeToJsonElement(opsjon)
+        }
+    }
+
+    private fun getAvtaleOrThrow(avtaleId: UUID): AvtaleAdminDto {
+        return avtaleRepository.get(avtaleId) ?: throw NotFoundException("Fant ingen avtale med id '$avtaleId'")
     }
 
     private fun getEndringsmeldingstekst(entry: OpsjonLoggEntry): String {

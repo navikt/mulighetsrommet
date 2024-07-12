@@ -1,7 +1,10 @@
 import { PadlockLockedFillIcon } from "@navikt/aksel-icons";
 import { Accordion } from "@navikt/ds-react";
-import { ApentForInnsok, NavEnhet } from "mulighetsrommet-api-client";
-import { useArbeidsmarkedstiltakFilter } from "@/hooks/useArbeidsmarkedstiltakFilter";
+import { ApentForInnsok, LagretDokumenttype, NavEnhet } from "mulighetsrommet-api-client";
+import {
+  ArbeidsmarkedstiltakFilterSchema,
+  useArbeidsmarkedstiltakFilter,
+} from "@/hooks/useArbeidsmarkedstiltakFilter";
 import { FilterToggle } from "./FilterToggle";
 import styles from "./Filtermeny.module.scss";
 import { InnsatsgruppeFilter } from "./InnsatsgruppeFilter";
@@ -11,7 +14,11 @@ import { useAtom } from "jotai";
 import { filterAccordionAtom } from "@/core/atoms";
 import { useRegioner } from "@/api/queries/useRegioner";
 import { addOrRemove } from "mulighetsrommet-frontend-common/utils/utils";
-import { FilterAccordionHeader, NavEnhetFilter } from "mulighetsrommet-frontend-common";
+import {
+  FilterAccordionHeader,
+  LagredeFilterOversikt,
+  NavEnhetFilter,
+} from "mulighetsrommet-frontend-common";
 
 export const Filtermeny = () => {
   const [filter, setFilter] = useArbeidsmarkedstiltakFilter();
@@ -20,6 +27,14 @@ export const Filtermeny = () => {
 
   return (
     <div className={styles.tiltakstype_oversikt_filtermeny} data-testid="filtertabs">
+      <LagredeFilterOversikt
+        dokumenttype={LagretDokumenttype.TILTAKSGJENNOMFØRING_MODIA}
+        filter={filter}
+        setFilter={setFilter}
+        validateFilterStructure={(filter) => {
+          return ArbeidsmarkedstiltakFilterSchema.safeParse(filter).success;
+        }}
+      />
       <Sokefelt
         sokefilter={filter.search}
         setSokefilter={(search: string) => setFilter({ ...filter, search })}

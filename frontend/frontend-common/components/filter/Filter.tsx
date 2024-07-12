@@ -1,9 +1,9 @@
-import { Tabs } from "@navikt/ds-react";
-import React from "react";
 import { FunnelIcon } from "@navikt/aksel-icons";
+import { Tabs } from "@navikt/ds-react";
+import classNames from "classnames";
+import React from "react";
 import { useOutsideClick } from "../../hooks/useOutsideClick";
 import styles from "./Filter.module.scss";
-import classNames from "classnames";
 
 interface Props {
   children: React.ReactNode;

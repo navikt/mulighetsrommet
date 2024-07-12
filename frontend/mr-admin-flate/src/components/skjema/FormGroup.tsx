@@ -1,5 +1,5 @@
 import { PropsWithChildren } from "react";
-import styles from "../skjema/Skjema.module.scss";
+import styles from "./FormGroup.module.scss";
 import classNames from "classnames";
 
 export function FormGroup(props: PropsWithChildren) {

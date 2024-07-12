@@ -1,5 +1,4 @@
 import { Avtale, NavAnsatt, Toggles } from "mulighetsrommet-api-client";
-import styles from "../DetaljerInfo.module.scss";
 import { useAvtaleEndringshistorikk } from "@/api/avtaler/useAvtaleEndringshistorikk";
 import { ViewEndringshistorikk } from "@/components/endringshistorikk/ViewEndringshistorikk";
 import { EndringshistorikkPopover } from "@/components/endringshistorikk/EndringshistorikkPopover";
@@ -8,9 +7,10 @@ import { useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { HarSkrivetilgang } from "@/components/authActions/HarSkrivetilgang";
 import { VarselModal } from "@/components/modal/VarselModal";
-import { AvbrytAvtaleModal } from "../../components/modal/AvbrytAvtaleModal";
-import { useFeatureToggle } from "../../api/features/useFeatureToggle";
-import { RegistrerOpsjonModal } from "../../components/avtaler/opsjoner/RegistrerOpsjonModal";
+import { useFeatureToggle } from "@/api/features/useFeatureToggle";
+import { RegistrerOpsjonModal } from "@/components/avtaler/opsjoner/RegistrerOpsjonModal";
+import { AvbrytAvtaleModal } from "@/components/modal/AvbrytAvtaleModal";
+import { KnapperadContainer } from "@/pages/KnapperadContainer";
 
 interface Props {
   bruker: NavAnsatt;
@@ -39,7 +39,7 @@ export function AvtaleKnapperad({ bruker, avtale }: Props) {
   }
 
   return (
-    <div className={styles.knapperad}>
+    <KnapperadContainer>
       <EndringshistorikkPopover>
         <AvtaleEndringshistorikk id={avtale.id} />
       </EndringshistorikkPopover>
@@ -102,7 +102,7 @@ export function AvtaleKnapperad({ bruker, avtale }: Props) {
       />
       <AvbrytAvtaleModal modalRef={avbrytModalRef} avtale={avtale} />
       <RegistrerOpsjonModal modalRef={registrerOpsjonModalRef} avtale={avtale} />
-    </div>
+    </KnapperadContainer>
   );
 }
 
