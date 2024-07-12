@@ -9,6 +9,7 @@ import com.github.kagkarlsson.scheduler.task.schedule.Schedules
 import kotlinx.coroutines.runBlocking
 import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingNotificationDto
 import no.nav.mulighetsrommet.api.services.TiltaksgjennomforingService
+import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
 import no.nav.mulighetsrommet.notifications.NotificationMetadata
 import no.nav.mulighetsrommet.notifications.NotificationService
 import no.nav.mulighetsrommet.notifications.NotificationType
@@ -16,7 +17,6 @@ import no.nav.mulighetsrommet.notifications.ScheduledNotification
 import no.nav.mulighetsrommet.slack.SlackNotifier
 import org.slf4j.LoggerFactory
 import java.time.Instant
-import java.time.format.DateTimeFormatter
 import kotlin.jvm.optionals.getOrNull
 
 class NotifySluttdatoForGjennomforingerNarmerSeg(
@@ -58,15 +58,12 @@ class NotifySluttdatoForGjennomforingerNarmerSeg(
             runBlocking {
                 val tiltaksgjennomforinger: List<TiltaksgjennomforingNotificationDto> =
                     tiltaksgjennomforingService.getAllGjennomforingerSomNarmerSegSluttdato()
-                val europeanDatePattern = "dd.MM.yyyy"
                 tiltaksgjennomforinger.forEach {
                     it.administratorer.toNonEmptyListOrNull()?.let { administratorer ->
                         val notification = ScheduledNotification(
                             type = NotificationType.NOTIFICATION,
                             title = "Gjennomføringen \"${it.navn} ${if (it.tiltaksnummer != null) "(${it.tiltaksnummer})" else ""}\" utløper ${
-                                it.sluttDato?.format(
-                                    DateTimeFormatter.ofPattern(europeanDatePattern),
-                                )
+                                it.sluttDato?.formaterDatoTilEuropeiskDatoformat()
                             }",
                             targets = administratorer,
                             createdAt = Instant.now(),
