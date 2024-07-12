@@ -26,14 +26,14 @@ interface Props {
   tagsHeight: number;
 }
 
-export const Tiltaksgjennomforingsoversikt = ({
+export function Tiltaksgjennomforingsoversikt({
   tiltaksgjennomforinger,
   deltMedBruker,
   varsler,
   filterOpen,
   feilmelding,
   tagsHeight,
-}: Props) => {
+}: Props) {
   const [pageData, setPages] = useAtom(paginationAtom);
   const filter = useArbeidsmarkedstiltakFilterValue();
   const pagination = (tiltaksgjennomforing: VeilederflateTiltaksgjennomforing[]) => {
@@ -208,4 +208,4 @@ export const Tiltaksgjennomforingsoversikt = ({
       ) : null}
     </>
   );
-};
+}

@@ -29,8 +29,12 @@ interface VirksomhetKontaktpersonerProps {
   onOpprettSuccess: (kontaktperson: ArrangorKontaktperson) => void;
 }
 
-export const ArrangorKontaktpersonSkjema = (props: VirksomhetKontaktpersonerProps) => {
-  const { arrangorId, person, onSubmit, onOpprettSuccess } = props;
+export function ArrangorKontaktpersonSkjema({
+  arrangorId,
+  person,
+  onSubmit,
+  onOpprettSuccess,
+}: VirksomhetKontaktpersonerProps) {
   const putMutation = useUpsertArrangorKontaktperson(arrangorId);
   const deleteMutation = useDeleteArrangorKontaktperson();
 
@@ -202,4 +206,4 @@ export const ArrangorKontaktpersonSkjema = (props: VirksomhetKontaktpersonerProp
       )}
     </SkjemaInputContainer>
   );
-};
+}

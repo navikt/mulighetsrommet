@@ -17,13 +17,13 @@ interface FeilmeldingProps {
   utenMargin?: boolean;
 }
 
-export const Feilmelding = ({
+export function Feilmelding({
   header,
   beskrivelse,
   children,
   ikonvariant,
   utenMargin,
-}: FeilmeldingProps) => {
+}: FeilmeldingProps) {
   const ikon = () => {
     if (ikonvariant === "info") {
       return (
@@ -61,4 +61,4 @@ export const Feilmelding = ({
       {children}
     </div>
   );
-};
+}

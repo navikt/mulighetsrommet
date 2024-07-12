@@ -16,7 +16,7 @@ interface Props {
   nullstillFilterButton: React.ReactNode;
 }
 
-export const FilterAndTableLayout = ({
+export function FilterAndTableLayout({
   filter,
   buttons,
   tags,
@@ -24,7 +24,7 @@ export const FilterAndTableLayout = ({
   filterOpen,
   setFilterOpen,
   nullstillFilterButton,
-}: Props) => {
+}: Props) {
   return (
     <Suspense fallback={<OversiktSkeleton />}>
       <div className={styles.filter_table_layout_container}>
@@ -53,4 +53,4 @@ export const FilterAndTableLayout = ({
       </div>
     </Suspense>
   );
-};
+}

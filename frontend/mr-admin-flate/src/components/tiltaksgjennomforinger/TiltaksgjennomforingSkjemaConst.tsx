@@ -21,15 +21,15 @@ export function defaultOppstartType(avtale?: Avtale): TiltaksgjennomforingOppsta
     : TiltaksgjennomforingOppstartstype.LOPENDE;
 }
 
-export const erArenaOpphavOgIngenEierskap = (
+export function erArenaOpphavOgIngenEierskap(
   tiltaksgjennomforing: Tiltaksgjennomforing | undefined,
   migrerteTiltakstyper: string[],
-) => {
+) {
   return (
     tiltaksgjennomforing?.opphav === Opphav.ARENA &&
     !migrerteTiltakstyper?.includes(tiltaksgjennomforing.tiltakstype.arenaKode)
   );
-};
+}
 
 function defaultNavRegion(
   avtale: Avtale,

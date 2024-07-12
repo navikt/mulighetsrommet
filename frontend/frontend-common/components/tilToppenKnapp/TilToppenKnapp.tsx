@@ -4,7 +4,7 @@ import { ChevronRightLastIcon } from "@navikt/aksel-icons";
 import styles from "./TilToppenKnapp.module.scss";
 import classNames from "classnames";
 
-export const TilToppenKnapp = () => {
+export function TilToppenKnapp() {
   const [synlig, setSynlig] = useState(false);
 
   const synlighet = () => {
@@ -29,4 +29,4 @@ export const TilToppenKnapp = () => {
       )}
     </>
   );
-};
+}

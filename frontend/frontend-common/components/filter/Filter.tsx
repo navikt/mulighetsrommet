@@ -11,7 +11,7 @@ interface Props {
   filterOpen: boolean;
 }
 
-export const Filter = ({ children, setFilterOpen, filterOpen }: Props) => {
+export function Filter({ children, setFilterOpen, filterOpen }: Props) {
   const ref = useOutsideClick(() => {
     if (window?.innerWidth < 1440) {
       setFilterOpen(false);
@@ -44,4 +44,4 @@ export const Filter = ({ children, setFilterOpen, filterOpen }: Props) => {
       </aside>
     </div>
   );
-};
+}

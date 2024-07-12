@@ -6,7 +6,7 @@ interface Props {
   children?: ReactNode;
 }
 
-export const ArbeidsmarkedstiltakHeader = (props: Props) => {
+export function ArbeidsmarkedstiltakHeader(props: Props) {
   return (
     <header>
       <InternalHeader>
@@ -15,4 +15,4 @@ export const ArbeidsmarkedstiltakHeader = (props: Props) => {
       </InternalHeader>
     </header>
   );
-};
+}

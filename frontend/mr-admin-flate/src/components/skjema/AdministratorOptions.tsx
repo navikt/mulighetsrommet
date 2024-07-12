@@ -1,14 +1,14 @@
 import { NavAnsatt } from "mulighetsrommet-api-client";
 import { SelectOption } from "mulighetsrommet-frontend-common/components/SokeSelect";
 
-export const AdministratorOptions = (
+export function AdministratorOptions(
   ansatt?: NavAnsatt,
   administratorer?: {
     navIdent: string;
     navn: string;
   }[],
   eksisterendeAdministratorer?: NavAnsatt[],
-): SelectOption[] => {
+): SelectOption[] {
   if (!ansatt || !eksisterendeAdministratorer) {
     return [{ value: "", label: "Laster..." }];
   }
@@ -44,4 +44,4 @@ export const AdministratorOptions = (
       });
     });
   return options;
-};
+}

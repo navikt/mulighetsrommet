@@ -21,7 +21,7 @@ import { NullstillFilterKnapp } from "mulighetsrommet-frontend-common/components
 import { HistorikkButton } from "../historikk/HistorikkButton";
 import { Filtermeny } from "@/components/filtrering/Filtermeny";
 
-export const ModiaArbeidsmarkedstiltakOversikt = () => {
+export function ModiaArbeidsmarkedstiltakOversikt() {
   useTitle("Arbeidsmarkedstiltak - Oversikt");
   const [filterOpen, setFilterOpen] = useState<boolean>(true);
   const { data: brukerdata } = useHentBrukerdata();
@@ -133,4 +133,4 @@ export const ModiaArbeidsmarkedstiltakOversikt = () => {
       <TilToppenKnapp />
     </>
   );
-};
+}

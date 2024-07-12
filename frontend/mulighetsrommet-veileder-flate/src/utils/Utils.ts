@@ -1,8 +1,8 @@
 import { EstimertVentetidEnhet } from "mulighetsrommet-api-client";
 
-export const inneholderUrl = (string: string) => {
+export function inneholderUrl(string: string) {
   return window.location.href.indexOf(string) > -1;
-};
+}
 
 export function erPreview() {
   return inneholderUrl("/preview");

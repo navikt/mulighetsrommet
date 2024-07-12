@@ -9,10 +9,10 @@ export type Features = Record<Toggles, boolean>;
  * @param feature Navn på feature-toggle du vil bruke
  * @returns true hvis toggle er skrudd på, eller false hvis ikke
  */
-export const useFeatureToggle = (feature: Toggles) => {
+export function useFeatureToggle(feature: Toggles) {
   return useQuery({
     queryKey: QueryKeys.features(feature),
     queryFn: () => FeatureToggleService.getFeatureToggle({ feature }),
     throwOnError: false,
   });
-};
+}
