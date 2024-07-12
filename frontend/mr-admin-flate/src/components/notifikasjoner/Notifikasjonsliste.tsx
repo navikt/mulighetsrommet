@@ -23,7 +23,7 @@ export function Notifikasjonsliste({ lest }: Props) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
-  function markerAlleSomlest() {
+  function toggleMarkertSomlestUlest() {
     if (paginertResultat) {
       const notifikasjoner = paginertResultat.data.map((n) => ({
         id: n.id,
@@ -72,7 +72,7 @@ export function Notifikasjonsliste({ lest }: Props) {
   return (
     <ReloadAppErrorBoundary>
       <HStack align={"end"} justify={"end"}>
-        <Button variant="tertiary-neutral" size="small" onClick={markerAlleSomlest}>
+        <Button variant="tertiary-neutral" size="small" onClick={toggleMarkertSomlestUlest}>
           Merk alle som {lest ? "ulest" : "lest"}
         </Button>
       </HStack>
