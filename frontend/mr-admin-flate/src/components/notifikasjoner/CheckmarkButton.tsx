@@ -5,6 +5,8 @@ import classNames from "classnames";
 import styles from "./CheckmarkButton.module.scss";
 import { useSetNotificationStatus } from "@/api/notifikasjoner/useSetNotificationStatus";
 import { Button } from "@navikt/ds-react";
+import { useQueryClient } from "@tanstack/react-query";
+import { QueryKeys } from "../../api/QueryKeys";
 
 interface Props {
   id: string;
@@ -15,6 +17,7 @@ interface Props {
 
 export function CheckmarkButton({ id, read, setRead, setError }: Props) {
   const { mutate } = useSetNotificationStatus(id);
+  const queryClient = useQueryClient();
 
   const setStatus = async (status: NotificationStatus) => {
     mutate(
@@ -22,6 +25,12 @@ export function CheckmarkButton({ id, read, setRead, setError }: Props) {
       {
         onSuccess: () => {
           setRead(status === NotificationStatus.DONE);
+          queryClient.invalidateQueries({
+            queryKey: QueryKeys.notifikasjonerForAnsatt(NotificationStatus.NOT_DONE),
+          });
+          queryClient.invalidateQueries({
+            queryKey: QueryKeys.notifikasjonerForAnsatt(NotificationStatus.DONE),
+          });
         },
         onError: () => {
           setError("Klarte ikke lagre endring");

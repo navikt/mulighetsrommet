@@ -12,8 +12,9 @@ export function useSetNotificationStatus(id: string) {
   return useMutation({
     mutationFn: async ({ status }: SetNotificationStatusParams): Promise<void> => {
       await NotificationsService.setNotificationStatus({
-        id,
-        requestBody: { status },
+        requestBody: {
+          notifikasjoner: [{ status, id }],
+        },
       });
 
       await refetchNotificationSummary();

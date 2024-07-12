@@ -5,7 +5,6 @@ import { NotificationsService, NotificationStatus } from "mulighetsrommet-api-cl
 export function useNotifikasjonerForAnsatt(status: NotificationStatus) {
   return useQuery({
     queryKey: QueryKeys.notifikasjonerForAnsatt(status),
-
     queryFn: () => NotificationsService.getNotifications({ status }),
   });
 }
