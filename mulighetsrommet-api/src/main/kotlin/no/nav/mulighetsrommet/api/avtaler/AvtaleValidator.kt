@@ -16,6 +16,7 @@ import no.nav.mulighetsrommet.api.routes.v1.Opsjonsmodell
 import no.nav.mulighetsrommet.api.routes.v1.responses.ValidationError
 import no.nav.mulighetsrommet.api.services.NavEnhetService
 import no.nav.mulighetsrommet.api.services.TiltakstypeService
+import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.Tiltakskoder
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
@@ -23,7 +24,6 @@ import no.nav.mulighetsrommet.domain.dto.AmoKategorisering
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
 import no.nav.mulighetsrommet.domain.dto.allowedAvtaletypes
 import no.nav.mulighetsrommet.unleash.UnleashService
-import java.time.format.DateTimeFormatter
 
 class AvtaleValidator(
     private val tiltakstyper: TiltakstypeService,
@@ -75,7 +75,12 @@ class AvtaleValidator(
             if (unleashService.isEnabled("mulighetsrommet.admin-flate.registrere-opsjonsmodell")) {
                 if (!avtaleTypeErForhandsgodkjent(avtale.avtaletype)) {
                     if (avtale.opsjonMaksVarighet == null) {
-                        add(ValidationError.of(AvtaleDbo::opsjonMaksVarighet, "Du må legge inn maks varighet for opsjonen"))
+                        add(
+                            ValidationError.of(
+                                AvtaleDbo::opsjonMaksVarighet,
+                                "Du må legge inn maks varighet for opsjonen",
+                            ),
+                        )
                     }
 
                     if (avtale.opsjonsmodell == null) {
@@ -84,13 +89,23 @@ class AvtaleValidator(
 
                     if (avtale.opsjonsmodell != null && avtale.opsjonsmodell == Opsjonsmodell.ANNET) {
                         if (avtale.customOpsjonsmodellNavn.isNullOrBlank()) {
-                            add(ValidationError.of(AvtaleDbo::customOpsjonsmodellNavn, "Du må beskrive opsjonsmodellen"))
+                            add(
+                                ValidationError.of(
+                                    AvtaleDbo::customOpsjonsmodellNavn,
+                                    "Du må beskrive opsjonsmodellen",
+                                ),
+                            )
                         }
                     }
                 }
 
                 if (currentAvtale?.opsjonerRegistrert?.isNotEmpty() == true && avtale.opsjonsmodell != currentAvtale.opsjonsmodellData?.opsjonsmodell) {
-                    add(ValidationError.of(AvtaleDbo::opsjonsmodell, "Du kan ikke endre opsjonsmodell når opsjoner er registrert"))
+                    add(
+                        ValidationError.of(
+                            AvtaleDbo::opsjonsmodell,
+                            "Du kan ikke endre opsjonsmodell når opsjoner er registrert",
+                        ),
+                    )
                 }
             }
 
@@ -238,9 +253,7 @@ class AvtaleValidator(
                 }
 
                 if (gjennomforing.startDato.isBefore(avtale.startDato)) {
-                    val gjennomforingsStartDato = gjennomforing.startDato.format(
-                        DateTimeFormatter.ofPattern("dd.MM.yyyy"),
-                    )
+                    val gjennomforingsStartDato = gjennomforing.startDato.formaterDatoTilEuropeiskDatoformat()
                     add(
                         ValidationError.of(
                             AvtaleDbo::startDato,

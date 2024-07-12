@@ -22,6 +22,7 @@ import no.nav.mulighetsrommet.api.services.EndringshistorikkService
 import no.nav.mulighetsrommet.api.services.NavEnhetService
 import no.nav.mulighetsrommet.api.services.OpsjonLoggService
 import no.nav.mulighetsrommet.api.services.TiltakstypeService
+import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.domain.Tiltakskode
@@ -31,7 +32,6 @@ import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.domain.dto.Websaknummer
 import no.nav.mulighetsrommet.unleash.UnleashService
 import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 import java.util.*
 
 class AvtaleValidatorTest :
@@ -677,9 +677,7 @@ class AvtaleValidatorTest :
                     )
 
                     val previous = avtaler.get(avtaleDbo.id)
-                    val formatertDato = startDatoForGjennomforing.format(
-                        DateTimeFormatter.ofPattern("dd.MM.yyyy"),
-                    )
+                    val formatertDato = startDatoForGjennomforing.formaterDatoTilEuropeiskDatoformat()
                     validator.validate(dbo, previous).shouldBeLeft().shouldContainExactlyInAnyOrder(
                         listOf(
                             ValidationError(

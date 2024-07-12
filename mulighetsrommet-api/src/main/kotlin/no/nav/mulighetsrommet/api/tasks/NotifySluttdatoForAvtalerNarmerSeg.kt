@@ -9,6 +9,7 @@ import com.github.kagkarlsson.scheduler.task.schedule.Schedules
 import kotlinx.coroutines.runBlocking
 import no.nav.mulighetsrommet.api.domain.dto.AvtaleNotificationDto
 import no.nav.mulighetsrommet.api.services.AvtaleService
+import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
 import no.nav.mulighetsrommet.notifications.NotificationMetadata
 import no.nav.mulighetsrommet.notifications.NotificationService
 import no.nav.mulighetsrommet.notifications.NotificationType
@@ -16,7 +17,6 @@ import no.nav.mulighetsrommet.notifications.ScheduledNotification
 import no.nav.mulighetsrommet.slack.SlackNotifier
 import org.slf4j.LoggerFactory
 import java.time.Instant
-import java.time.format.DateTimeFormatter
 import kotlin.jvm.optionals.getOrNull
 
 class NotifySluttdatoForAvtalerNarmerSeg(
@@ -57,16 +57,13 @@ class NotifySluttdatoForAvtalerNarmerSeg(
 
             runBlocking {
                 val avtaler: List<AvtaleNotificationDto> = avtaleService.getAllAvtalerSomNarmerSegSluttdato()
-                val europeanDatePattern = "dd.MM.yyyy"
 
                 avtaler.forEach {
                     it.administratorer.toNonEmptyListOrNull()?.let { administratorer ->
                         val notification = ScheduledNotification(
                             type = NotificationType.NOTIFICATION,
                             title = "Avtalen \"${it.navn}\" utløper ${
-                                it.sluttDato?.format(
-                                    DateTimeFormatter.ofPattern(europeanDatePattern),
-                                )
+                                it.sluttDato?.formaterDatoTilEuropeiskDatoformat()
                             }",
                             targets = administratorer,
                             createdAt = Instant.now(),
