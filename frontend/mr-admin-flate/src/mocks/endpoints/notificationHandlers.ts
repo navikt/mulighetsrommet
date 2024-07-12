@@ -10,7 +10,5 @@ export const notificationHandlers = [
   http.get<PathParams, UserNotificationSummary>("*/api/v1/intern/notifications/summary", () =>
     HttpResponse.json(mockUserNotificationSummary),
   ),
-  http.post<PathParams, null>("*/api/v1/intern/notifications/:id/status", () =>
-    HttpResponse.json(),
-  ),
+  http.post<PathParams, null>("*/api/v1/intern/notifications/status", () => HttpResponse.json()),
 ];

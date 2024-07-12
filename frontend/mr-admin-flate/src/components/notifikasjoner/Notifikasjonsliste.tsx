@@ -5,6 +5,11 @@ import { EmptyState } from "./EmptyState";
 import styles from "./Notifikasjoner.module.scss";
 import { Notifikasjonssrad } from "./Notifikasjonsrad";
 import { ReloadAppErrorBoundary } from "mulighetsrommet-frontend-common/components/error-handling/ErrorBoundary";
+import { Button, HStack } from "@navikt/ds-react";
+import { useMutateNotifikasjoner } from "../../api/notifikasjoner/useMutateNotifikasjoner";
+import { useNavigate } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
+import { QueryKeys } from "../../api/QueryKeys";
 
 interface Props {
   lest: boolean;
@@ -14,6 +19,32 @@ export function Notifikasjonsliste({ lest }: Props) {
   const { isLoading, data: paginertResultat } = useNotifikasjonerForAnsatt(
     lest ? NotificationStatus.DONE : NotificationStatus.NOT_DONE,
   );
+  const mutation = useMutateNotifikasjoner();
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+
+  function markerAlleSomlest() {
+    if (paginertResultat) {
+      const notifikasjoner = paginertResultat.data.map((n) => ({
+        id: n.id,
+        status: lest ? NotificationStatus.NOT_DONE : NotificationStatus.DONE,
+      }));
+      mutation.mutate(
+        { notifikasjoner },
+        {
+          onSuccess: () => {
+            navigate(`/notifikasjoner${lest ? "" : "/tidligere"}`);
+            queryClient.invalidateQueries({
+              queryKey: QueryKeys.notifikasjonerForAnsatt(NotificationStatus.NOT_DONE),
+            });
+            queryClient.invalidateQueries({
+              queryKey: QueryKeys.notifikasjonerForAnsatt(NotificationStatus.DONE),
+            });
+          },
+        },
+      );
+    }
+  }
 
   if (isLoading && !paginertResultat) {
     return <Laster />;
@@ -40,6 +71,11 @@ export function Notifikasjonsliste({ lest }: Props) {
 
   return (
     <ReloadAppErrorBoundary>
+      <HStack align={"end"} justify={"end"}>
+        <Button variant="tertiary-neutral" size="small" onClick={markerAlleSomlest}>
+          Merk alle som {lest ? "ulest" : "lest"}
+        </Button>
+      </HStack>
       <ul className={styles.notifikasjonsliste_ul}>
         {data.map((n) => {
           return <Notifikasjonssrad lest={lest} key={n.id} notifikasjon={n} />;
