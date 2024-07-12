@@ -3777,12 +3777,6 @@ components:
         - ARBEIDSRETTET_REHABILITERING
         - ARBEIDSFORBEREDENDE_TRENING
 
-    TiltakskodeIndividuell:
-      type: string
-      enum:
-        - MIDLERTIDIG_LONNSTILSKUDD
-        -
-
     Gruppetiltak:
       type: object
       properties:
