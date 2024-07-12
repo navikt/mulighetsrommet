@@ -11,13 +11,11 @@ import io.ktor.client.plugins.cache.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
-import io.prometheus.client.cache.caffeine.CacheMetricsCollector
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.clients.AccessType
 import no.nav.mulighetsrommet.api.clients.TokenProvider
 import no.nav.mulighetsrommet.domain.dto.NorskIdent
 import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
-import no.nav.mulighetsrommet.metrics.Metrikker
 import no.nav.mulighetsrommet.securelog.SecureLog
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import org.slf4j.LoggerFactory
@@ -39,12 +37,6 @@ class VeilarbvedtaksstotteClient(
         .maximumSize(10_000)
         .recordStats()
         .build()
-
-    init {
-        val cacheMetrics: CacheMetricsCollector =
-            CacheMetricsCollector().register(Metrikker.appMicrometerRegistry.prometheusRegistry)
-        cacheMetrics.addCache("siste14aVedtakCache", siste14aVedtakCache)
-    }
 
     suspend fun hentSiste14AVedtak(fnr: NorskIdent, obo: AccessType.OBO): Either<VedtakError, VedtakDto> {
         siste14aVedtakCache.getIfPresent(fnr)?.let { return@hentSiste14AVedtak it.right() }
