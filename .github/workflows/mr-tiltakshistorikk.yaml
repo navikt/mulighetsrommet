@@ -34,7 +34,7 @@ jobs:
   ci:
     name: CI
     runs-on:
-      labels: ubuntu-latest-16-cores
+      labels: ubuntu-latest-8-cores
     permissions:
       id-token: write # Needed for `nais/docker-build-push`
     steps:
