@@ -9,7 +9,7 @@ import {
   NavEnhetStatus,
   NavEnhetType,
 } from "mulighetsrommet-api-client";
-import { historikk } from "../../fixtures/historikk";
+import { historikk } from "../../fixtures/mockHistorikk";
 import { historikkFraKomet } from "../../fixtures/mockKometHistorikk";
 import { utkastFraKomet } from "@/mock/fixtures/mockKometUtkast";
 
