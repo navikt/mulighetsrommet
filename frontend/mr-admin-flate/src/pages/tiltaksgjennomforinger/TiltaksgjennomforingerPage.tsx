@@ -7,7 +7,7 @@ import { TiltaksgjennomforingsTabell } from "@/components/tabell/Tiltaksgjennomf
 import { ContainerLayout } from "@/layouts/ContainerLayout";
 import { HeaderBanner } from "@/layouts/HeaderBanner";
 import { MainContainer } from "@/layouts/MainContainer";
-import { AvtaleFilterSchema, tiltaksgjennomforingfilterAtom } from "@/api/atoms";
+import { tiltaksgjennomforingfilterAtom, TiltaksgjennomforingFilterSchema } from "@/api/atoms";
 import { FilterAndTableLayout } from "mulighetsrommet-frontend-common/components/filterAndTableLayout/FilterAndTableLayout";
 import { TiltaksgjennomforingFilterButtons } from "@/components/filter/TiltaksgjennomforingFilterButtons";
 import { TiltaksgjennomforingFiltertags } from "@/components/filter/TiltaksgjennomforingFiltertags";
@@ -48,7 +48,7 @@ export function TiltaksgjennomforingerPage() {
                 filter={filter}
                 dokumenttype={LagretDokumenttype.TILTAKSGJENNOMFØRING}
                 validateFilterStructure={(filter) => {
-                  return AvtaleFilterSchema.safeParse(filter).success;
+                  return TiltaksgjennomforingFilterSchema.safeParse(filter).success;
                 }}
               />
             }

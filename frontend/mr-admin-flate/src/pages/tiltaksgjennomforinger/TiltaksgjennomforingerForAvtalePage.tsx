@@ -1,9 +1,9 @@
 import { FilterAndTableLayout } from "mulighetsrommet-frontend-common/components/filterAndTableLayout/FilterAndTableLayout";
 import { TiltaksgjennomforingFilter } from "@/components/filter/TiltaksgjennomforingFilter";
 import {
-  AvtaleFilterSchema,
   gjennomforingerForAvtaleFilterAtomFamily,
   tiltaksgjennomforingfilterAtom,
+  TiltaksgjennomforingFilterSchema,
 } from "@/api/atoms";
 import { TiltaksgjennomforingFiltertags } from "@/components/filter/TiltaksgjennomforingFiltertags";
 import { TiltaksgjennomforingFilterButtons } from "@/components/filter/TiltaksgjennomforingFilterButtons";
@@ -43,7 +43,7 @@ export function TiltaksgjennomforingerForAvtalePage() {
             filter={filter}
             dokumenttype={LagretDokumenttype.AVTALE}
             validateFilterStructure={(filter) => {
-              return AvtaleFilterSchema.safeParse(filter).success;
+              return TiltaksgjennomforingFilterSchema.safeParse(filter).success;
             }}
           />
         }
