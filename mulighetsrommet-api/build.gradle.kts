@@ -120,7 +120,7 @@ dependencies {
         implementation("org.yaml:snakeyaml:2.2") {
             because("sikkerhetshull i transitiv avhengighet rapportert via snyk")
         }
-        implementation("org.apache.tomcat.embed:tomcat-embed-core:9.0.89") {
+        implementation("org.apache.tomcat.embed:tomcat-embed-core:9.0.91") {
             because("sikkerhetshull i transitiv avhengighet rapportert via snyk")
         }
     }
