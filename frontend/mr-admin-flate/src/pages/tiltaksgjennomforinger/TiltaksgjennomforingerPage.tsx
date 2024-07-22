@@ -1,9 +1,13 @@
-import { ReloadAppErrorBoundary, useTitle } from "mulighetsrommet-frontend-common";
+import {
+  LagredeFilterOversikt,
+  ReloadAppErrorBoundary,
+  useTitle,
+} from "mulighetsrommet-frontend-common";
 import { TiltaksgjennomforingsTabell } from "@/components/tabell/TiltaksgjennomforingsTabell";
 import { ContainerLayout } from "@/layouts/ContainerLayout";
 import { HeaderBanner } from "@/layouts/HeaderBanner";
 import { MainContainer } from "@/layouts/MainContainer";
-import { tiltaksgjennomforingfilterAtom } from "@/api/atoms";
+import { AvtaleFilterSchema, tiltaksgjennomforingfilterAtom } from "@/api/atoms";
 import { FilterAndTableLayout } from "mulighetsrommet-frontend-common/components/filterAndTableLayout/FilterAndTableLayout";
 import { TiltaksgjennomforingFilterButtons } from "@/components/filter/TiltaksgjennomforingFilterButtons";
 import { TiltaksgjennomforingFiltertags } from "@/components/filter/TiltaksgjennomforingFiltertags";
@@ -13,11 +17,15 @@ import { Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { TiltaksgjennomforingIkon } from "@/components/ikoner/TiltaksgjennomforingIkon";
 import { useState } from "react";
 import { NullstillKnappForTiltaksgjennomforinger } from "@/pages/tiltaksgjennomforinger/NullstillKnappForTiltaksgjennomforinger";
+import { LagretDokumenttype } from "mulighetsrommet-api-client";
+import { useAtom } from "jotai/index";
+import { filterAtom } from "mulighetsrommet-veileder-flate/src/hooks/useArbeidsmarkedstiltakFilter";
 
 export function TiltaksgjennomforingerPage() {
   useTitle("Tiltaksgjennomføringer");
   const [filterOpen, setFilterOpen] = useState<boolean>(true);
   const [tagsHeight, setTagsHeight] = useState(0);
+  const [filter, setFilter] = useAtom(filterAtom);
 
   return (
     <>
@@ -35,6 +43,16 @@ export function TiltaksgjennomforingerPage() {
         <ContainerLayout>
           <FilterAndTableLayout
             filter={<TiltaksgjennomforingFilter filterAtom={tiltaksgjennomforingfilterAtom} />}
+            lagredeFilter={
+              <LagredeFilterOversikt
+                setFilter={setFilter}
+                filter={filter}
+                dokumenttype={LagretDokumenttype.TILTAKSGJENNOMFØRING}
+                validateFilterStructure={(filter) => {
+                  return AvtaleFilterSchema.safeParse(filter).success;
+                }}
+              />
+            }
             tags={
               <TiltaksgjennomforingFiltertags
                 filterAtom={tiltaksgjennomforingfilterAtom}

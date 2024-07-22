@@ -1,5 +1,5 @@
-import { useTitle } from "mulighetsrommet-frontend-common";
-import { getAvtalerForTiltakstypeFilterAtom } from "@/api/atoms";
+import { LagredeFilterOversikt, useTitle } from "mulighetsrommet-frontend-common";
+import { AvtaleFilterSchema, getAvtalerForTiltakstypeFilterAtom } from "@/api/atoms";
 import { AvtaleTabell } from "@/components/tabell/AvtaleTabell";
 import { useGetTiltakstypeIdFromUrlOrThrow } from "@/hooks/useGetTiltakstypeIdFromUrl";
 import { ContainerLayout } from "@/layouts/ContainerLayout";
@@ -10,14 +10,17 @@ import { AvtaleFilter } from "@/components/filter/AvtaleFilter";
 import { useState } from "react";
 import { NullstillKnappForAvtaler } from "@/pages/avtaler/NullstillKnappForAvtaler";
 import { TilToppenKnapp } from "mulighetsrommet-frontend-common/components/tilToppenKnapp/TilToppenKnapp";
+import { useAtom } from "jotai/index";
+import { LagretDokumenttype } from "mulighetsrommet-api-client";
 
-export function AvtalerForTiltakstype() {
+export function AvtalerForTiltakstypePage() {
   useTitle("Tiltakstyper - Avtaler");
 
   const tiltakstypeId = useGetTiltakstypeIdFromUrlOrThrow();
   const filterAtom = getAvtalerForTiltakstypeFilterAtom(tiltakstypeId);
   const [filterOpen, setFilterOpen] = useState<boolean>(true);
   const [tagsHeight, setTagsHeight] = useState(0);
+  const [filter, setFilter] = useAtom(filterAtom);
 
   return (
     <>
@@ -28,6 +31,16 @@ export function AvtalerForTiltakstype() {
               filterAtom={filterAtom}
               skjulFilter={{
                 tiltakstype: true,
+              }}
+            />
+          }
+          lagredeFilter={
+            <LagredeFilterOversikt
+              setFilter={setFilter}
+              filter={filter}
+              dokumenttype={LagretDokumenttype.AVTALE}
+              validateFilterStructure={(filter) => {
+                return AvtaleFilterSchema.safeParse(filter).success;
               }}
             />
           }

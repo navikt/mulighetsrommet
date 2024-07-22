@@ -1,6 +1,6 @@
 import { FilterAndTableLayout } from "mulighetsrommet-frontend-common/components/filterAndTableLayout/FilterAndTableLayout";
 import { TiltaksgjennomforingFilter } from "@/components/filter/TiltaksgjennomforingFilter";
-import { gjennomforingerForAvtaleFilterAtomFamily } from "@/api/atoms";
+import { AvtaleFilterSchema, gjennomforingerForAvtaleFilterAtomFamily } from "@/api/atoms";
 import { TiltaksgjennomforingFiltertags } from "@/components/filter/TiltaksgjennomforingFiltertags";
 import { TiltaksgjennomforingFilterButtons } from "@/components/filter/TiltaksgjennomforingFilterButtons";
 import { TiltaksgjennomforingsTabell } from "@/components/tabell/TiltaksgjennomforingsTabell";
@@ -9,29 +9,44 @@ import { useState } from "react";
 import { useAvtale } from "@/api/avtaler/useAvtale";
 import { NullstillKnappForTiltaksgjennomforinger } from "@/pages/tiltaksgjennomforinger/NullstillKnappForTiltaksgjennomforinger";
 import { TilToppenKnapp } from "mulighetsrommet-frontend-common/components/tilToppenKnapp/TilToppenKnapp";
+import { LagredeFilterOversikt } from "mulighetsrommet-frontend-common";
+import { LagretDokumenttype } from "mulighetsrommet-api-client";
+import { useAtom } from "jotai/index";
+import { filterAtom } from "mulighetsrommet-veileder-flate/src/hooks/useArbeidsmarkedstiltakFilter";
 
 export function TiltaksgjennomforingerForAvtalePage() {
   const id = useGetAvtaleIdFromUrlOrThrow();
 
-  const filterAtom = gjennomforingerForAvtaleFilterAtomFamily(id);
+  const filterAtomTiltaksgjennomforinger = gjennomforingerForAvtaleFilterAtomFamily(id);
   const [filterOpen, setFilterOpen] = useState<boolean>(true);
   const { data: avtale } = useAvtale();
   const [tagsHeight, setTagsHeight] = useState(0);
+  const [filter, setFilter] = useAtom(filterAtom);
 
   return (
     <>
       <FilterAndTableLayout
         filter={
           <TiltaksgjennomforingFilter
-            filterAtom={filterAtom}
+            filterAtom={filterAtomTiltaksgjennomforinger}
             skjulFilter={{
               tiltakstype: true,
             }}
           />
         }
+        lagredeFilter={
+          <LagredeFilterOversikt
+            setFilter={setFilter}
+            filter={filter}
+            dokumenttype={LagretDokumenttype.AVTALE}
+            validateFilterStructure={(filter) => {
+              return AvtaleFilterSchema.safeParse(filter).success;
+            }}
+          />
+        }
         tags={
           <TiltaksgjennomforingFiltertags
-            filterAtom={filterAtom}
+            filterAtom={filterAtomTiltaksgjennomforinger}
             filterOpen={filterOpen}
             setTagsHeight={setTagsHeight}
           />
@@ -43,7 +58,7 @@ export function TiltaksgjennomforingerForAvtalePage() {
               tiltakstype: true,
               arrangor: true,
             }}
-            filterAtom={filterAtom}
+            filterAtom={filterAtomTiltaksgjennomforinger}
             tagsHeight={tagsHeight}
             filterOpen={filterOpen}
           />
@@ -51,7 +66,10 @@ export function TiltaksgjennomforingerForAvtalePage() {
         filterOpen={filterOpen}
         setFilterOpen={setFilterOpen}
         nullstillFilterButton={
-          <NullstillKnappForTiltaksgjennomforinger avtale={avtale} filterAtom={filterAtom} />
+          <NullstillKnappForTiltaksgjennomforinger
+            avtale={avtale}
+            filterAtom={filterAtomTiltaksgjennomforinger}
+          />
         }
       />
       <TilToppenKnapp />

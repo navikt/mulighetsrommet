@@ -9,10 +9,14 @@ import { Feilmelding } from "@/components/feilmelding/Feilmelding";
 import { OversiktenJoyride } from "@/components/joyride/OversiktenJoyride";
 import { Tiltaksgjennomforingsoversikt } from "@/components/oversikt/Tiltaksgjennomforingsoversikt";
 import { Tilbakeknapp } from "@/components/tilbakeknapp/Tilbakeknapp";
-import { useResetArbeidsmarkedstiltakFilterMedBrukerIKontekst } from "@/hooks/useArbeidsmarkedstiltakFilter";
+import {
+  ArbeidsmarkedstiltakFilterSchema,
+  useArbeidsmarkedstiltakFilter,
+  useResetArbeidsmarkedstiltakFilterMedBrukerIKontekst,
+} from "@/hooks/useArbeidsmarkedstiltakFilter";
 import { Alert, HStack } from "@navikt/ds-react";
 import { ApiError, LagretDokumenttype, Toggles } from "mulighetsrommet-api-client";
-import { LagreFilterContainer, ListSkeleton, useTitle } from "mulighetsrommet-frontend-common";
+import { LagredeFilterOversikt, LagreFilterContainer } from "mulighetsrommet-frontend-common";
 import { TilToppenKnapp } from "mulighetsrommet-frontend-common/components/tilToppenKnapp/TilToppenKnapp";
 import { useEffect, useState } from "react";
 import { ModiaOversiktBrukerVarsler } from "../varsler/ModiaOversiktBrukerVarsler";
@@ -26,6 +30,7 @@ export function ModiaArbeidsmarkedstiltakOversikt() {
   const [filterOpen, setFilterOpen] = useState<boolean>(true);
   const { data: brukerdata } = useHentBrukerdata();
   const { alleTiltakDeltMedBruker } = useHentAlleTiltakDeltMedBruker();
+  const [lagredeFilter, setLagredeFilter] = useArbeidsmarkedstiltakFilter();
 
   const { filter, filterHasChanged, resetFilterToDefaults } =
     useResetArbeidsmarkedstiltakFilterMedBrukerIKontekst();
@@ -99,6 +104,16 @@ export function ModiaArbeidsmarkedstiltakOversikt() {
           </>
         }
         filter={<Filtermeny />}
+        lagredeFilter={
+          <LagredeFilterOversikt
+            dokumenttype={LagretDokumenttype.TILTAKSGJENNOMFØRING_MODIA}
+            filter={lagredeFilter}
+            setFilter={setLagredeFilter}
+            validateFilterStructure={(filter) => {
+              return ArbeidsmarkedstiltakFilterSchema.safeParse(filter).success;
+            }}
+          />
+        }
         tags={<ModiaFiltertags filterOpen={filterOpen} setTagsHeight={setTagsHeight} />}
         table={
           <>
