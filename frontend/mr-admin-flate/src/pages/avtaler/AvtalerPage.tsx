@@ -19,13 +19,13 @@ import { AvtaleFilterButtons } from "@/components/filter/AvtaleFilterButtons";
 import { NullstillKnappForAvtaler } from "@/pages/avtaler/NullstillKnappForAvtaler";
 import { LagretDokumenttype } from "mulighetsrommet-api-client";
 import { useAtom } from "jotai/index";
-import { filterAtom } from "mulighetsrommet-veileder-flate/src/hooks/useArbeidsmarkedstiltakFilter";
 
 export function AvtalerPage() {
   useTitle("Avtaler");
   const [filterOpen, setFilterOpen] = useState<boolean>(true);
   const [tagsHeight, setTagsHeight] = useState(0);
-  const [filter, setFilter] = useAtom(filterAtom);
+
+  const [filter, setFilter] = useAtom(avtaleFilterAtom);
 
   return (
     <>

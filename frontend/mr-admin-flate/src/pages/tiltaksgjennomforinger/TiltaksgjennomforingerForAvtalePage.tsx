@@ -1,6 +1,10 @@
 import { FilterAndTableLayout } from "mulighetsrommet-frontend-common/components/filterAndTableLayout/FilterAndTableLayout";
 import { TiltaksgjennomforingFilter } from "@/components/filter/TiltaksgjennomforingFilter";
-import { AvtaleFilterSchema, gjennomforingerForAvtaleFilterAtomFamily } from "@/api/atoms";
+import {
+  AvtaleFilterSchema,
+  gjennomforingerForAvtaleFilterAtomFamily,
+  tiltaksgjennomforingfilterAtom,
+} from "@/api/atoms";
 import { TiltaksgjennomforingFiltertags } from "@/components/filter/TiltaksgjennomforingFiltertags";
 import { TiltaksgjennomforingFilterButtons } from "@/components/filter/TiltaksgjennomforingFilterButtons";
 import { TiltaksgjennomforingsTabell } from "@/components/tabell/TiltaksgjennomforingsTabell";
@@ -12,7 +16,6 @@ import { TilToppenKnapp } from "mulighetsrommet-frontend-common/components/tilTo
 import { LagredeFilterOversikt } from "mulighetsrommet-frontend-common";
 import { LagretDokumenttype } from "mulighetsrommet-api-client";
 import { useAtom } from "jotai/index";
-import { filterAtom } from "mulighetsrommet-veileder-flate/src/hooks/useArbeidsmarkedstiltakFilter";
 
 export function TiltaksgjennomforingerForAvtalePage() {
   const id = useGetAvtaleIdFromUrlOrThrow();
@@ -21,7 +24,7 @@ export function TiltaksgjennomforingerForAvtalePage() {
   const [filterOpen, setFilterOpen] = useState<boolean>(true);
   const { data: avtale } = useAvtale();
   const [tagsHeight, setTagsHeight] = useState(0);
-  const [filter, setFilter] = useAtom(filterAtom);
+  const [filter, setFilter] = useAtom(tiltaksgjennomforingfilterAtom);
 
   return (
     <>
