@@ -6,9 +6,9 @@ import {
 } from "jotai/utils";
 import { useAtom, useAtomValue } from "jotai";
 import { SyncStorage } from "jotai/vanilla/utils/atomWithStorage";
-import { useHentBrukerdata } from "@/apps/modia/hooks/useHentBrukerdata";
-import { brukersEnhetFilterHasChanged } from "@/apps/modia/delMedBruker/helpers";
 import { z } from "zod";
+import { brukersEnhetFilterHasChanged } from "@/apps/modia/delMedBruker/helpers";
+import { useHentBrukerdata } from "@/apps/modia/hooks/useHentBrukerdata";
 
 export const ArbeidsmarkedstiltakFilterSchema = z.object({
   search: z.string(),
