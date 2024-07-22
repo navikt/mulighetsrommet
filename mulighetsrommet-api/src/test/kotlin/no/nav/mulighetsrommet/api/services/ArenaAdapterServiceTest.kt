@@ -190,6 +190,7 @@ class ArenaAdapterServiceTest :
 
             val gjennomforing = ArenaTiltaksgjennomforingDbo(
                 id = UUID.randomUUID(),
+                sanityId = null,
                 navn = "IPS",
                 tiltakstypeId = TiltakstypeFixtures.IPS.id,
                 tiltaksnummer = "12345",
@@ -218,24 +219,10 @@ class ArenaAdapterServiceTest :
                 clearAllMocks()
             }
 
-            test("should upsert egen regi-tiltak") {
+            test("should not upsert egen regi-tiltak") {
                 val service = createArenaAdapterService(database.db)
 
                 service.upsertTiltaksgjennomforing(gjennomforing)
-
-                database.assertThat("tiltaksgjennomforing")
-                    .row()
-                    .value("id").isEqualTo(gjennomforing.id)
-                    .value("navn").isEqualTo(gjennomforing.navn)
-                    .value("tiltakstype_id").isEqualTo(TiltakstypeFixtures.IPS.id)
-                    .value("tiltaksnummer").isEqualTo(gjennomforing.tiltaksnummer)
-                    .value("arrangor_id").isEqualTo(ArrangorFixtures.underenhet1.id)
-                    .value("start_dato").isEqualTo(gjennomforing.startDato)
-                    .value("slutt_dato").isEqualTo(gjennomforing.sluttDato)
-                    .value("deltidsprosent").isEqualTo(gjennomforing.deltidsprosent)
-                    .value("opphav").isEqualTo(ArenaMigrering.Opphav.ARENA.name)
-
-                service.removeTiltaksgjennomforing(gjennomforing.id)
 
                 database.assertThat("tiltaksgjennomforing").isEmpty
             }
@@ -261,12 +248,9 @@ class ArenaAdapterServiceTest :
                     sanityTiltakService = sanityTiltakService,
                 )
 
-                service.upsertTiltaksgjennomforing(gjennomforing)
-
                 val sanityId = UUID.randomUUID()
-                gjennomforinger.updateSanityTiltaksgjennomforingId(gjennomforing.id, sanityId)
 
-                service.removeTiltaksgjennomforing(gjennomforing.id)
+                service.removeSanityTiltaksgjennomforing(sanityId)
 
                 coVerify(exactly = 1) {
                     sanityTiltakService.deleteSanityTiltaksgjennomforing(sanityId)
@@ -294,6 +278,7 @@ class ArenaAdapterServiceTest :
             val gjennomforing = ArenaTiltaksgjennomforingDbo(
                 id = UUID.randomUUID(),
                 navn = "Oppfølging",
+                sanityId = null,
                 tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
                 tiltaksnummer = "12345",
                 arrangorOrganisasjonsnummer = "976663934",
@@ -436,6 +421,7 @@ class ArenaAdapterServiceTest :
                 service.upsertTiltaksgjennomforing(
                     ArenaTiltaksgjennomforingDbo(
                         id = gjennomforing1.id,
+                        sanityId = null,
                         navn = "Endret navn",
                         tiltakstypeId = gjennomforing1.tiltakstypeId,
                         tiltaksnummer = "2024#1",
@@ -512,6 +498,7 @@ class ArenaAdapterServiceTest :
 
                 val arenaDbo = ArenaTiltaksgjennomforingDbo(
                     id = gjennomforing1.id,
+                    sanityId = null,
                     navn = "Endet navn",
                     tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
                     tiltaksnummer = "2024#2024",
@@ -577,6 +564,7 @@ class ArenaAdapterServiceTest :
 
                 val arenaDbo = ArenaTiltaksgjennomforingDbo(
                     id = gjennomforing1.id,
+                    sanityId = null,
                     navn = "Endet navn",
                     tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
                     tiltaksnummer = "2024#2024",

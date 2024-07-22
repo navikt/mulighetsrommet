@@ -87,6 +87,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         test("CRUD ArenaTiltaksgjennomforing") {
             val gjennomforingFraArena = ArenaTiltaksgjennomforingDbo(
                 id = UUID.randomUUID(),
+                sanityId = null,
                 navn = "Tiltak for dovne giraffer",
                 tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
                 tiltaksnummer = "2023#1",

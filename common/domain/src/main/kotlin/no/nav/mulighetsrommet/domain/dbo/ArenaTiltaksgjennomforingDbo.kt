@@ -10,6 +10,8 @@ import java.util.*
 data class ArenaTiltaksgjennomforingDbo(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
+    @Serializable(with = UUIDSerializer::class)
+    val sanityId: UUID?,
     val navn: String,
     @Serializable(with = UUIDSerializer::class)
     val tiltakstypeId: UUID,

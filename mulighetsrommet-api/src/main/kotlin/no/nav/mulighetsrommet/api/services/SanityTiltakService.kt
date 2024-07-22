@@ -52,7 +52,7 @@ class SanityTiltakService(
     suspend fun createOrPatchSanityTiltaksgjennomforing(
         tiltaksgjennomforing: ArenaTiltaksgjennomforingDbo,
         tx: Session,
-    ) {
+    ): UUID? {
         val tiltakstype = tiltakstypeRepository.get(tiltaksgjennomforing.tiltakstypeId)
 
         val sanityTiltaksgjennomforingFields = SanityTiltaksgjennomforingFields(
@@ -61,20 +61,20 @@ class SanityTiltakService(
             tiltaksnummer = TiltaksnummerSlug(current = tiltaksgjennomforing.tiltaksnummer),
         )
 
-        val sanityId = tiltaksgjennomforingRepository.getSanityTiltaksgjennomforingId(tiltaksgjennomforing.id, tx)
+        val sanityId = tiltaksgjennomforing.sanityId
+            // Fallback mens egen regi tiltak fortsatt er i api, og sanity_id ikke har blitt flyttet
+            // over til arena-adapter (som gjøres via denne metoden)
+            ?: tiltaksgjennomforingRepository.getSanityTiltaksgjennomforingId(tiltaksgjennomforing.id, tx)
 
-        if (sanityId != null) {
+        return if (sanityId != null) {
             patchSanityTiltaksgjennomforing(sanityId, sanityTiltaksgjennomforingFields)
+            sanityId
         } else {
             val newSanityId = UUID.randomUUID()
 
             createSanityTiltaksgjennomforing(newSanityId, sanityTiltaksgjennomforingFields)
 
-            tiltaksgjennomforingRepository.updateSanityTiltaksgjennomforingId(
-                tiltaksgjennomforing.id,
-                newSanityId,
-                tx,
-            )
+            newSanityId
         }
     }
 

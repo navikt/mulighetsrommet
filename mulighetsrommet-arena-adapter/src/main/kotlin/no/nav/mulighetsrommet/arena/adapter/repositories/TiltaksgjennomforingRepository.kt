@@ -19,8 +19,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
 
         @Language("PostgreSQL")
         val query = """
-            insert into tiltaksgjennomforing (id, tiltaksgjennomforing_id, sak_id, tiltakskode, arrangor_id, navn, fra_dato, til_dato, apent_for_innsok, antall_plasser, status, avtale_id, deltidsprosent)
-            values (:id::uuid, :tiltaksgjennomforing_id, :sak_id, :tiltakskode, :arrangor_id, :navn, :fra_dato, :til_dato, :apent_for_innsok, :antall_plasser, :status, :avtale_id, :deltidsprosent)
+            insert into tiltaksgjennomforing (id, sanity_id, tiltaksgjennomforing_id, sak_id, tiltakskode, arrangor_id, navn, fra_dato, til_dato, apent_for_innsok, antall_plasser, status, avtale_id, deltidsprosent)
+            values (:id::uuid, :sanity_id::uuid, :tiltaksgjennomforing_id, :sak_id, :tiltakskode, :arrangor_id, :navn, :fra_dato, :til_dato, :apent_for_innsok, :antall_plasser, :status, :avtale_id, :deltidsprosent)
             on conflict (id)
                 do update set tiltaksgjennomforing_id = excluded.tiltaksgjennomforing_id,
                               sak_id                  = excluded.sak_id,
@@ -33,7 +33,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                               antall_plasser          = excluded.antall_plasser,
                               status                  = excluded.status,
                               avtale_id               = excluded.avtale_id,
-                              deltidsprosent          = excluded.deltidsprosent
+                              deltidsprosent          = excluded.deltidsprosent,
+                              sanity_id               = excluded.sanity_id
             returning *
         """.trimIndent()
 
@@ -41,6 +42,17 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             .map { it.toTiltaksgjennomforing() }
             .asSingle
             .let { db.run(it)!! }
+    }
+
+    fun upsertSanityId(id: UUID, sanityId: UUID) = query {
+        logger.info("Lagrer sanityId for tiltaksgjennomføring id=$id, sanityId=$sanityId")
+
+        @Language("PostgreSQL")
+        val query = """ update tiltaksgjennomforing set sanity_id = :sanity_id::uuid where id = :id::uuid """.trimIndent()
+
+        queryOf(query, mapOf("id" to id, "sanity_id" to sanityId))
+            .asExecute
+            .let { db.run(it) }
     }
 
     fun delete(id: UUID): QueryResult<Unit> = query {
@@ -63,6 +75,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             select
                 id,
                 tiltaksgjennomforing_id,
+                sanity_id,
                 sak_id,
                 tiltakskode,
                 arrangor_id,
@@ -86,6 +99,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
 
     private fun Tiltaksgjennomforing.toSqlParameters() = mapOf(
         "id" to id,
+        "sanity_id" to sanityId,
         "tiltaksgjennomforing_id" to tiltaksgjennomforingId,
         "navn" to navn,
         "sak_id" to sakId,
@@ -103,6 +117,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
     private fun Row.toTiltaksgjennomforing() = Tiltaksgjennomforing(
         id = uuid("id"),
         tiltaksgjennomforingId = int("tiltaksgjennomforing_id"),
+        sanityId = uuidOrNull("sanity_id"),
         navn = string("navn"),
         sakId = int("sak_id"),
         tiltakskode = string("tiltakskode"),

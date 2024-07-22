@@ -106,6 +106,7 @@ class TiltakdeltakerEventProcessorTest : FunSpec({
             val tiltaksgjennomforing = Tiltaksgjennomforing(
                 id = UUID.randomUUID(),
                 tiltaksgjennomforingId = 3,
+                sanityId = UUID.randomUUID(),
                 sakId = 1,
                 tiltakskode = "INDOPPFAG",
                 arrangorId = 123,
@@ -124,6 +125,7 @@ class TiltakdeltakerEventProcessorTest : FunSpec({
             val tiltaksgjennomforingIndividuell = Tiltaksgjennomforing(
                 id = UUID.randomUUID(),
                 tiltaksgjennomforingId = 4,
+                sanityId = null,
                 sakId = 2,
                 tiltakskode = "AMO",
                 arrangorId = 123,
