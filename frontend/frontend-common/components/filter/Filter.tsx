@@ -35,7 +35,6 @@ export function Filter({ filterTab, lagredeFilterTab, setFilterOpen, filterOpen 
               data-testid="filtertab"
               label="Filter"
               icon={<FunnelIcon title="filter" />}
-              aria-controls="filter"
             />
             {lagredeFilterTab && (
               <Tabs.Tab
@@ -49,7 +48,6 @@ export function Filter({ filterTab, lagredeFilterTab, setFilterOpen, filterOpen 
                 value="lagrede_filter"
                 label="Lagrede filter"
                 icon={<StarIcon title="stjerne" />}
-                aria-controls="lagrede_filter"
               />
             )}
           </Tabs.List>
