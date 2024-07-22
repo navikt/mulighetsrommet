@@ -24,7 +24,7 @@ import { TiltaksgjennomforingerPage } from "./pages/tiltaksgjennomforinger/Tilta
 import { DetaljerTiltakstypePage } from "./pages/tiltakstyper/DetaljerTiltakstypePage";
 import { TiltakstypeInfo } from "./pages/tiltakstyper/TiltakstypeInfo";
 import { TiltakstyperPage } from "./pages/tiltakstyper/TiltakstyperPage";
-import { AvtalerForTiltakstype } from "./pages/tiltakstyper/avtaler/AvtalerForTiltakstype";
+import { AvtalerForTiltakstypePage } from "./pages/tiltakstyper/avtaler/AvtalerForTiltakstypePage";
 
 if (import.meta.env.PROD) {
   initializeFaro({
@@ -81,7 +81,11 @@ export function App() {
         errorElement={<ErrorPage />}
       >
         <Route index element={<TiltakstypeInfo />} errorElement={<ErrorPage />} />
-        <Route path="avtaler" element={<AvtalerForTiltakstype />} errorElement={<ErrorPage />} />
+        <Route
+          path="avtaler"
+          element={<AvtalerForTiltakstypePage />}
+          errorElement={<ErrorPage />}
+        />
       </Route>
       <Route path="avtaler" element={<AvtalerPage />} errorElement={<ErrorPage />} />
       <Route path="avtaler/:avtaleId" element={<AvtalePage />} errorElement={<ErrorPage />}>

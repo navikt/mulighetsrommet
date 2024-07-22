@@ -2,7 +2,9 @@ import { FilterAndTableLayout } from "mulighetsrommet-frontend-common/components
 import { Tiltaksgjennomforingsoversikt } from "@/components/oversikt/Tiltaksgjennomforingsoversikt";
 import { useNavTiltaksgjennomforinger } from "@/api/queries/useTiltaksgjennomforinger";
 import {
+  ArbeidsmarkedstiltakFilterSchema,
   isFilterReady,
+  useArbeidsmarkedstiltakFilter,
   useArbeidsmarkedstiltakFilterValue,
   useResetArbeidsmarkedstiltakFilterUtenBrukerIKontekst,
 } from "@/hooks/useArbeidsmarkedstiltakFilter";
@@ -12,7 +14,8 @@ import { Feilmelding } from "@/components/feilmelding/Feilmelding";
 import { TilToppenKnapp } from "mulighetsrommet-frontend-common/components/tilToppenKnapp/TilToppenKnapp";
 import { NullstillFilterKnapp } from "mulighetsrommet-frontend-common/components/nullstillFilterKnapp/NullstillFilterKnapp";
 import { Filtermeny } from "@/components/filtrering/Filtermeny";
-import { ListSkeleton } from "mulighetsrommet-frontend-common";
+import { LagredeFilterOversikt, ListSkeleton } from "mulighetsrommet-frontend-common";
+import { LagretDokumenttype } from "mulighetsrommet-api-client";
 
 interface Props {
   preview?: boolean;
@@ -23,6 +26,7 @@ export function NavArbeidsmarkedstiltakOversikt({ preview = false }: Props) {
     preview,
   });
   const [filterOpen, setFilterOpen] = useState<boolean>(true);
+  const [lagredeFilter, setLagredeFilter] = useArbeidsmarkedstiltakFilter();
   const filter = useArbeidsmarkedstiltakFilterValue();
   const { filterHasChanged, resetFilterToDefaults } =
     useResetArbeidsmarkedstiltakFilterUtenBrukerIKontekst();
@@ -35,6 +39,16 @@ export function NavArbeidsmarkedstiltakOversikt({ preview = false }: Props) {
         setFilterOpen={setFilterOpen}
         buttons={null}
         filter={<Filtermeny />}
+        lagredeFilter={
+          <LagredeFilterOversikt
+            dokumenttype={LagretDokumenttype.TILTAKSGJENNOMFØRING_MODIA}
+            filter={lagredeFilter}
+            setFilter={setLagredeFilter}
+            validateFilterStructure={(filter) => {
+              return ArbeidsmarkedstiltakFilterSchema.safeParse(filter).success;
+            }}
+          />
+        }
         tags={<NavFiltertags filterOpen={filterOpen} setTagsHeight={setTagsHeight} />}
         nullstillFilterButton={
           filterHasChanged && <NullstillFilterKnapp onClick={resetFilterToDefaults} />
