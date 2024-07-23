@@ -70,6 +70,7 @@ export function AvtaleFilter({ filterAtom, skjulFilter }: Props) {
             ...filter,
             page: 1,
             sok: search,
+            lagretFilterIdValgt: undefined,
           });
         }}
         value={filter.sok}
@@ -85,6 +86,7 @@ export function AvtaleFilter({ filterAtom, skjulFilter }: Props) {
               ...filter,
               page: 1,
               visMineAvtaler: event.currentTarget.checked,
+              lagretFilterIdValgt: undefined,
             });
             loggBrukAvFilter("visMineAvtaler", event.currentTarget.checked);
           }}
@@ -110,6 +112,7 @@ export function AvtaleFilter({ filterAtom, skjulFilter }: Props) {
                   ...filter,
                   page: 1,
                   statuser: addOrRemove(filter.statuser, status),
+                  lagretFilterIdValgt: undefined,
                 });
                 loggBrukAvFilter(
                   "statuser",
@@ -139,6 +142,7 @@ export function AvtaleFilter({ filterAtom, skjulFilter }: Props) {
                   ...filter,
                   page: 1,
                   avtaletyper: addOrRemove(filter.avtaletyper, type),
+                  lagretFilterIdValgt: undefined,
                 });
                 loggBrukAvFilter(
                   "avtaletyper",
@@ -169,6 +173,7 @@ export function AvtaleFilter({ filterAtom, skjulFilter }: Props) {
                     ...filter,
                     page: 1,
                     tiltakstyper: addOrRemove(filter.tiltakstyper, tiltakstype),
+                    lagretFilterIdValgt: undefined,
                   });
                   loggBrukAvFilter(
                     "tiltakstyper",
@@ -196,6 +201,7 @@ export function AvtaleFilter({ filterAtom, skjulFilter }: Props) {
                   ...filter,
                   page: 1,
                   navRegioner: addOrRemove(filter.navRegioner, region),
+                  lagretFilterIdValgt: undefined,
                 });
                 loggBrukAvFilter(
                   "navRegioner",
@@ -226,6 +232,7 @@ export function AvtaleFilter({ filterAtom, skjulFilter }: Props) {
                   ...filter,
                   page: 1,
                   arrangorer: addOrRemove(filter.arrangorer, id),
+                  lagretFilterIdValgt: undefined,
                 });
                 loggBrukAvFilter("arrangorer", arrangorData.data.find((a) => a.id === id)?.navn);
               }}
@@ -261,6 +268,7 @@ export function AvtaleFilter({ filterAtom, skjulFilter }: Props) {
                   ...filter,
                   page: 1,
                   personvernBekreftet: addOrRemove(filter.personvernBekreftet, bekreftet),
+                  lagretFilterIdValgt: undefined,
                 });
                 loggBrukAvFilter("personvernBekreftet", bekreftet);
               }}
