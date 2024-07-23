@@ -33,6 +33,8 @@ export function AvtaleFiltertags({ filterAtom, tiltakstypeId, filterOpen, setTag
             setFilter({
               ...filter,
               sok: "",
+              page: 1,
+              lagretFilterIdValgt: undefined,
             });
           }}
         />
@@ -45,6 +47,8 @@ export function AvtaleFiltertags({ filterAtom, tiltakstypeId, filterOpen, setTag
             setFilter({
               ...filter,
               statuser: addOrRemove(filter.statuser, status),
+              page: 1,
+              lagretFilterIdValgt: undefined,
             });
           }}
         />
@@ -57,6 +61,8 @@ export function AvtaleFiltertags({ filterAtom, tiltakstypeId, filterOpen, setTag
             setFilter({
               ...filter,
               avtaletyper: addOrRemove(filter.avtaletyper, avtaletype),
+              page: 1,
+              lagretFilterIdValgt: undefined,
             });
           }}
         />
@@ -68,6 +74,8 @@ export function AvtaleFiltertags({ filterAtom, tiltakstypeId, filterOpen, setTag
             setFilter({
               ...filter,
               visMineAvtaler: false,
+              page: 1,
+              lagretFilterIdValgt: undefined,
             });
           }}
         />
@@ -80,6 +88,8 @@ export function AvtaleFiltertags({ filterAtom, tiltakstypeId, filterOpen, setTag
             setFilter({
               ...filter,
               navRegioner: addOrRemove(filter.navRegioner, enhetsnummer),
+              page: 1,
+              lagretFilterIdValgt: undefined,
             });
           }}
         />
@@ -93,6 +103,8 @@ export function AvtaleFiltertags({ filterAtom, tiltakstypeId, filterOpen, setTag
               setFilter({
                 ...filter,
                 tiltakstyper: addOrRemove(filter.tiltakstyper, tiltakstype),
+                page: 1,
+                lagretFilterIdValgt: undefined,
               });
             }}
           />
@@ -105,6 +117,8 @@ export function AvtaleFiltertags({ filterAtom, tiltakstypeId, filterOpen, setTag
             setFilter({
               ...filter,
               arrangorer: addOrRemove(filter.arrangorer, id),
+              page: 1,
+              lagretFilterIdValgt: undefined,
             });
           }}
         />
@@ -115,7 +129,12 @@ export function AvtaleFiltertags({ filterAtom, tiltakstypeId, filterOpen, setTag
             key={i}
             label={p ? "Personvern bekreftet" : "Personvern ikke bekreftet"}
             onClose={() => {
-              setFilter({ ...filter, personvernBekreftet: [] });
+              setFilter({
+                ...filter,
+                personvernBekreftet: [],
+                page: 1,
+                lagretFilterIdValgt: undefined,
+              });
             }}
           />
         );

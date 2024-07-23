@@ -92,6 +92,7 @@ export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
           setFilter({
             ...filter,
             page: 1,
+            lagretFilterIdValgt: undefined,
             search,
           });
         }}
@@ -110,6 +111,7 @@ export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
             setFilter({
               ...filter,
               page: 1,
+              lagretFilterIdValgt: undefined,
               visMineGjennomforinger: event.currentTarget.checked,
             });
             loggBrukAvFilter("visMineGjennomforinger", event.currentTarget.checked);
@@ -135,6 +137,7 @@ export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
                 setFilter({
                   ...filter,
                   page: 1,
+                  lagretFilterIdValgt: undefined,
                   statuser: addOrRemove(filter.statuser, status),
                 });
                 loggBrukAvFilter(
@@ -166,6 +169,7 @@ export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
                   setFilter({
                     ...filter,
                     page: 1,
+                    lagretFilterIdValgt: undefined,
                     tiltakstyper: addOrRemove(filter.tiltakstyper, tiltakstype),
                   });
                   loggBrukAvFilter(
@@ -193,7 +197,12 @@ export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
               <NavEnhetFilter
                 navEnheter={filter.navEnheter}
                 setNavEnheter={(navEnheter: NavEnhet[]) => {
-                  setFilter({ ...filter, page: 1, navEnheter });
+                  setFilter({
+                    ...filter,
+                    page: 1,
+                    lagretFilterIdValgt: undefined,
+                    navEnheter,
+                  });
                   loggBrukAvFilter(
                     "navEnheter",
                     navEnheter.map((n) => n.navn),
@@ -224,6 +233,7 @@ export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
                 setFilter({
                   ...filter,
                   page: 1,
+                  lagretFilterIdValgt: undefined,
                   arrangorer: addOrRemove(filter.arrangorer, id),
                 });
                 loggBrukAvFilter("arrangorer", arrangorer.data.find((a) => a.id === id)?.navn);
@@ -253,6 +263,7 @@ export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
                 setFilter({
                   ...filter,
                   page: 1,
+                  lagretFilterIdValgt: undefined,
                   publisert: addOrRemove(filter.publisert, id),
                 });
                 loggBrukAvFilter("publisert", id);
