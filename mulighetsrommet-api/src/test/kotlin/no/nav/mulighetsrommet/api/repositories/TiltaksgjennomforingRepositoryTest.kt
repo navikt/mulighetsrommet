@@ -131,7 +131,6 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 it.administratorer shouldBe emptyList()
                 it.navEnheter shouldBe emptyList()
                 it.navRegion shouldBe null
-                it.sanityId shouldBe null
                 it.opphav shouldBe ArenaMigrering.Opphav.ARENA
                 it.kontaktpersoner shouldBe emptyList()
                 it.stedForGjennomforing shouldBe null
@@ -251,7 +250,6 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                     ),
                 )
                 it.navEnheter shouldBe listOf(Gjovik)
-                it.sanityId shouldBe null
                 it.oppstart shouldBe TiltaksgjennomforingOppstartstype.LOPENDE
                 it.opphav shouldBe ArenaMigrering.Opphav.MR_ADMIN_FLATE
                 it.kontaktpersoner shouldBe listOf()
@@ -423,16 +421,6 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                     beskrivelse = null,
                 ),
             )
-        }
-
-        test("update sanity_id") {
-            val id = UUID.randomUUID()
-
-            tiltaksgjennomforinger.upsert(Oppfolging1)
-            tiltaksgjennomforinger.updateSanityTiltaksgjennomforingId(Oppfolging1.id, id)
-            tiltaksgjennomforinger.get(Oppfolging1.id).should {
-                it!!.sanityId.shouldBe(id)
-            }
         }
 
         test("arrangør kontaktperson") {

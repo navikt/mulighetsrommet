@@ -62,9 +62,6 @@ class SanityTiltakService(
         )
 
         val sanityId = tiltaksgjennomforing.sanityId
-            // Fallback mens egen regi tiltak fortsatt er i api, og sanity_id ikke har blitt flyttet
-            // over til arena-adapter (som gjøres via denne metoden)
-            ?: tiltaksgjennomforingRepository.getSanityTiltaksgjennomforingId(tiltaksgjennomforing.id, tx)
 
         return if (sanityId != null) {
             patchSanityTiltaksgjennomforing(sanityId, sanityTiltaksgjennomforingFields)

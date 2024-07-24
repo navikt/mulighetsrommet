@@ -377,43 +377,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             .let { db.run(it) }
     }
 
-    fun getSanityTiltaksgjennomforingId(id: UUID, tx: Session): UUID? {
-        @Language("PostgreSQL")
-        val query = """
-            select sanity_id
-            from tiltaksgjennomforing
-            where id = :id::uuid
-        """.trimIndent()
-
-        return queryOf(query, mapOf("id" to id))
-            .map { it.uuidOrNull("sanity_id") }
-            .asSingle
-            .runWithSession(tx)
-    }
-
-    fun updateSanityTiltaksgjennomforingId(id: UUID, sanityId: UUID) =
-        db.transaction { updateSanityTiltaksgjennomforingId(id, sanityId, it) }
-
-    fun updateSanityTiltaksgjennomforingId(id: UUID, sanityId: UUID, tx: Session) {
-        @Language("PostgreSQL")
-        val query = """
-            update tiltaksgjennomforing
-                set sanity_id = :sanity_id::uuid
-                where id = :id::uuid
-                and sanity_id is null
-        """.trimIndent()
-
-        queryOf(
-            query,
-            mapOf(
-                "sanity_id" to sanityId,
-                "id" to id,
-            ),
-        )
-            .asUpdate
-            .let { tx.run(it) }
-    }
-
     fun getAll(
         pagination: Pagination = Pagination.all(),
         search: String? = null,
@@ -516,7 +479,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             select
                 gjennomforing.id,
                 a.id as avtale_id,
-                gjennomforing.sanity_id,
                 gjennomforing.navn,
                 gjennomforing.sted_for_gjennomforing,
                 gjennomforing.apent_for_innsok,
@@ -785,7 +747,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         val avbruttAarsak = stringOrNull("avbrutt_aarsak")?.let { AvbruttAarsak.fromString(it) }
 
         return VeilederflateTiltaksgjennomforing(
-            sanityId = uuidOrNull("sanity_id").toString(),
             id = uuidOrNull("id"),
             avtaleId = uuidOrNull("avtale_id"),
             tiltakstype = VeilederflateTiltakstype(
@@ -866,7 +827,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 },
             ),
             apentForInnsok = boolean("apent_for_innsok"),
-            sanityId = uuidOrNull("sanity_id"),
             antallPlasser = intOrNull("antall_plasser"),
             avtaleId = uuidOrNull("avtale_id"),
             oppstart = TiltaksgjennomforingOppstartstype.valueOf(string("oppstart")),

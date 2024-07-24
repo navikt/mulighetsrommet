@@ -37,8 +37,6 @@ data class TiltaksgjennomforingAdminDto(
     val administratorer: List<Administrator>,
     val navRegion: NavEnhetDbo?,
     val navEnheter: List<NavEnhetDbo>,
-    @Serializable(with = UUIDSerializer::class)
-    val sanityId: UUID?,
     val oppstart: TiltaksgjennomforingOppstartstype,
     val opphav: ArenaMigrering.Opphav,
     val kontaktpersoner: List<TiltaksgjennomforingKontaktperson>,
