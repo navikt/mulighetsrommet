@@ -7,7 +7,10 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import kotliquery.TransactionalSession
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
-import no.nav.mulighetsrommet.api.domain.dto.*
+import no.nav.mulighetsrommet.api.domain.dto.EndringshistorikkDto
+import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingAdminDto
+import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingNotificationDto
+import no.nav.mulighetsrommet.api.domain.dto.VeilederflateTiltaksgjennomforing
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.routes.v1.AdminTiltaksgjennomforingFilter
@@ -76,6 +79,26 @@ class TiltaksgjennomforingService(
 
     fun get(id: UUID): TiltaksgjennomforingAdminDto? {
         return tiltaksgjennomforinger.get(id)
+    }
+
+    fun getAllAdmin(
+        filter: AdminTiltaksgjennomforingFilter,
+        pagination: Pagination,
+    ): PaginatedResponse<TiltaksgjennomforingAdminDto> {
+        val (totalCount, items) = tiltaksgjennomforinger.getAll(
+            pagination = pagination,
+            tiltakstypeIder = filter.tiltakstypeIder,
+            search = filter.search,
+            statuser = filter.statuser,
+            sortering = filter.sortering,
+            arrangorIds = filter.arrangorIds,
+            administratorNavIdent = filter.administratorNavIdent,
+            navEnheter = filter.navEnheter,
+            avtaleId = filter.avtaleId,
+            publisert = filter.publisert
+        )
+
+        return PaginatedResponse.of(pagination, totalCount, items)
     }
 
     fun getAllSkalMigreres(

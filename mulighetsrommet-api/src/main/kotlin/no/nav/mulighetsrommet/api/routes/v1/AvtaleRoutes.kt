@@ -103,7 +103,7 @@ fun Route.avtaleRoutes() {
                 administratorNavIdent = navIdent,
             )
             val result = avtaler.getAll(overstyrtFilter, pagination)
-            val file = excelService.createExcelFile(result.data)
+            val file = excelService.createExcelFileForAvtale(result.data)
             call.response.header(
                 HttpHeaders.ContentDisposition,
                 ContentDisposition.Attachment.withParameter(ContentDisposition.Parameters.FileName, "avtaler.xlsx")
