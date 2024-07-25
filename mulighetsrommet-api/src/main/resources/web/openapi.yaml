@@ -563,7 +563,7 @@ paths:
       operationId: lastNedTiltaksgjennomforingerSomExcel
       responses:
         200:
-          description: Excel-fil med avtaler
+          description: Excel-fil med tiltaksgjennomforinger
           content:
             application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
               schema:
