@@ -8,7 +8,7 @@ import {
   Kurstype,
   Spesifisering,
 } from "mulighetsrommet-api-client";
-import { AvtaleFilter } from "@/api/atoms";
+import { AvtaleFilter, TiltaksgjennomforingFilter } from "@/api/atoms";
 
 export function capitalize(text?: string): string {
   return text ? text.slice(0, 1).toUpperCase() + text.slice(1, text.length).toLowerCase() : "";
@@ -179,7 +179,7 @@ export function addOrRemove<T>(array: T[], item: T): T[] {
   }
 }
 
-export function createQueryParamsForExcelDownload(filter: AvtaleFilter): URLSearchParams {
+export function createQueryParamsForExcelDownloadForAvtale(filter: AvtaleFilter): URLSearchParams {
   const queryParams = new URLSearchParams();
 
   if (filter.sok) {
@@ -197,6 +197,33 @@ export function createQueryParamsForExcelDownload(filter: AvtaleFilter): URLSear
 
   if (filter.visMineAvtaler) {
     queryParams.set("visMineAvtaler", "true");
+  }
+
+  queryParams.set("size", "10000");
+  return queryParams;
+}
+
+export function createQueryParamsForExcelDownloadForTiltaksgjennomforing(
+  filter: TiltaksgjennomforingFilter,
+): URLSearchParams {
+  const queryParams = new URLSearchParams();
+
+  if (filter.search) {
+    queryParams.set("search", filter.search);
+  }
+
+  filter.navEnheter.forEach((navEnhet) => queryParams.append("navEnheter", navEnhet));
+  filter.tiltakstyper.forEach((tiltakstype) => queryParams.append("tiltakstyper", tiltakstype));
+  filter.statuser.forEach((status) => queryParams.append("statuser", status));
+
+  if (filter.avtale) {
+    queryParams.set("avtale", filter.avtale);
+  }
+
+  filter.arrangorer.forEach((arrangorId) => queryParams.append("arrangorer", arrangorId));
+
+  if (filter.visMineGjennomforinger) {
+    queryParams.set("visMineGjennomforinger", "true");
   }
 
   queryParams.set("size", "10000");

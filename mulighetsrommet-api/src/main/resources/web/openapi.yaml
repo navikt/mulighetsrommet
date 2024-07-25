@@ -556,6 +556,20 @@ paths:
               schema:
                 $ref: "#/components/schemas/PaginertTiltaksgjennomforing"
 
+  /api/v1/intern/tiltaksgjennomforinger/excel:
+    get:
+      tags:
+        - Tiltaksgjennomforinger
+      operationId: lastNedTiltaksgjennomforingerSomExcel
+      responses:
+        200:
+          description: Excel-fil med avtaler
+          content:
+            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+              schema:
+                type: string
+                format: binary
+
   /api/v1/intern/tiltaksgjennomforinger/{id}:
     parameters:
       - $ref: "#/components/parameters/ID"
