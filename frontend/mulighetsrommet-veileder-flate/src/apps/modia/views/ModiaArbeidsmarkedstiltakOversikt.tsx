@@ -9,19 +9,10 @@ import { Feilmelding } from "@/components/feilmelding/Feilmelding";
 import { OversiktenJoyride } from "@/components/joyride/OversiktenJoyride";
 import { Tiltaksgjennomforingsoversikt } from "@/components/oversikt/Tiltaksgjennomforingsoversikt";
 import { Tilbakeknapp } from "@/components/tilbakeknapp/Tilbakeknapp";
-import {
-  ArbeidsmarkedstiltakFilterSchema,
-  useArbeidsmarkedstiltakFilter,
-  useResetArbeidsmarkedstiltakFilterMedBrukerIKontekst,
-} from "@/hooks/useArbeidsmarkedstiltakFilter";
-import { Alert, HStack } from "@navikt/ds-react";
-import { ApiError, LagretDokumenttype, Toggles } from "mulighetsrommet-api-client";
-import {
-  LagredeFilterOversikt,
-  LagreFilterContainer,
-  ListSkeleton,
-  useTitle,
-} from "mulighetsrommet-frontend-common";
+import { useResetArbeidsmarkedstiltakFilterMedBrukerIKontekst } from "@/hooks/useArbeidsmarkedstiltakFilter";
+import { Alert } from "@navikt/ds-react";
+import { ApiError, Toggles } from "mulighetsrommet-api-client";
+import { ListSkeleton, useTitle } from "mulighetsrommet-frontend-common";
 import { TilToppenKnapp } from "mulighetsrommet-frontend-common/components/tilToppenKnapp/TilToppenKnapp";
 import { useEffect, useState } from "react";
 import { ModiaOversiktBrukerVarsler } from "../varsler/ModiaOversiktBrukerVarsler";
@@ -35,7 +26,6 @@ export function ModiaArbeidsmarkedstiltakOversikt() {
   const [filterOpen, setFilterOpen] = useState<boolean>(true);
   const { data: brukerdata } = useHentBrukerdata();
   const { alleTiltakDeltMedBruker } = useHentAlleTiltakDeltMedBruker();
-  const [lagredeFilter, setLagredeFilter] = useArbeidsmarkedstiltakFilter();
 
   const { filter, filterHasChanged, resetFilterToDefaults } =
     useResetArbeidsmarkedstiltakFilterMedBrukerIKontekst();
@@ -89,15 +79,7 @@ export function ModiaArbeidsmarkedstiltakOversikt() {
         filterOpen={filterOpen}
         setFilterOpen={setFilterOpen}
         nullstillFilterButton={
-          filterHasChanged && (
-            <HStack gap="2">
-              <NullstillFilterKnapp onClick={resetFilterToDefaults} />
-              <LagreFilterContainer
-                dokumenttype={LagretDokumenttype.TILTAKSGJENNOMFØRING_MODIA}
-                filter={filter}
-              />
-            </HStack>
-          )
+          filterHasChanged && <NullstillFilterKnapp onClick={resetFilterToDefaults} />
         }
         buttons={
           <>
@@ -109,16 +91,6 @@ export function ModiaArbeidsmarkedstiltakOversikt() {
           </>
         }
         filter={<Filtermeny />}
-        lagredeFilter={
-          <LagredeFilterOversikt
-            dokumenttype={LagretDokumenttype.TILTAKSGJENNOMFØRING_MODIA}
-            filter={lagredeFilter}
-            setFilter={setLagredeFilter}
-            validateFilterStructure={(filter) => {
-              return ArbeidsmarkedstiltakFilterSchema.safeParse(filter).success;
-            }}
-          />
-        }
         tags={<ModiaFiltertags filterOpen={filterOpen} setTagsHeight={setTagsHeight} />}
         table={
           <>
