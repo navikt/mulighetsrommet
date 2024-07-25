@@ -135,8 +135,7 @@ fun Route.tiltaksgjennomforingRoutes() {
             val file = excelService.createExcelFileForTiltaksgjennomforing(result.data)
             call.response.header(
                 HttpHeaders.ContentDisposition,
-                ContentDisposition.Attachment.withParameter(ContentDisposition.Parameters
-                    .FileName, "tiltaksgjennomforinger.xlsx")
+                ContentDisposition.Attachment.withParameter(ContentDisposition.Parameters.FileName, "tiltaksgjennomforinger.xlsx")
                     .toString(),
             )
             call.response.header("Access-Control-Expose-Headers", HttpHeaders.ContentDisposition)

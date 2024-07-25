@@ -95,7 +95,7 @@ class TiltaksgjennomforingService(
             administratorNavIdent = filter.administratorNavIdent,
             navEnheter = filter.navEnheter,
             avtaleId = filter.avtaleId,
-            publisert = filter.publisert
+            publisert = filter.publisert,
         )
 
         return PaginatedResponse.of(pagination, totalCount, items)
@@ -130,13 +130,14 @@ class TiltaksgjennomforingService(
         sanityTiltakstypeIds: List<UUID>?,
         innsatsgruppe: Innsatsgruppe,
         enheter: List<String>,
-    ): List<VeilederflateTiltaksgjennomforing> = tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
-        search,
-        apentForInnsok,
-        sanityTiltakstypeIds,
-        innsatsgruppe,
-        enheter,
-    )
+    ): List<VeilederflateTiltaksgjennomforing> =
+        tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
+            search,
+            apentForInnsok,
+            sanityTiltakstypeIds,
+            innsatsgruppe,
+            enheter,
+        )
 
     fun getEkstern(id: UUID): TiltaksgjennomforingV1Dto? {
         return tiltaksgjennomforinger.get(id)?.toTiltaksgjennomforingV1Dto()
@@ -180,9 +181,16 @@ class TiltaksgjennomforingService(
         val gjennomforing = getOrError(id, tx)
 
         validator
-            .validateTilgjengeligForArrangorDato(tilgjengeligForArrangorDato, gjennomforing.startDato)
+            .validateTilgjengeligForArrangorDato(
+                tilgjengeligForArrangorDato,
+                gjennomforing.startDato,
+            )
             .map {
-                tiltaksgjennomforinger.setTilgjengeligForArrangorFraOgMedDato(tx, id, tilgjengeligForArrangorDato)
+                tiltaksgjennomforinger.setTilgjengeligForArrangorFraOgMedDato(
+                    tx,
+                    id,
+                    tilgjengeligForArrangorDato,
+                )
                 val dto = getOrError(id, tx)
                 val operation = "Endret dato for tilgang til Deltakeroversikten"
                 logEndring(operation, dto, navIdent, tx)
@@ -198,7 +206,8 @@ class TiltaksgjennomforingService(
         }
 
         if (avtaleId != null) {
-            val avtale = avtaler.get(avtaleId) ?: return BadRequest("Avtale med id=$avtaleId finnes ikke").left()
+            val avtale = avtaler.get(avtaleId)
+                ?: return BadRequest("Avtale med id=$avtaleId finnes ikke").left()
             if (gjennomforing.tiltakstype.id != avtale.tiltakstype.id) {
                 return BadRequest("Tiltaksgjennomføringen må ha samme tiltakstype som avtalen").left()
             }
@@ -213,7 +222,11 @@ class TiltaksgjennomforingService(
         return Either.Right(Unit)
     }
 
-    fun avbrytGjennomforing(id: UUID, navIdent: NavIdent, aarsak: AvbruttAarsak?): StatusResponse<Unit> {
+    fun avbrytGjennomforing(
+        id: UUID,
+        navIdent: NavIdent,
+        aarsak: AvbruttAarsak?,
+    ): StatusResponse<Unit> {
         if (aarsak == null) {
             return Either.Left(BadRequest(message = "Årsak mangler"))
         }
@@ -248,7 +261,10 @@ class TiltaksgjennomforingService(
 
     fun batchApentForInnsokForAlleMedStarttdatoForDato(dagensDato: LocalDate) {
         db.transaction { tx ->
-            val tiltak = tiltaksgjennomforinger.lukkApentForInnsokForTiltakMedStartdatoForDato(dagensDato, tx)
+            val tiltak = tiltaksgjennomforinger.lukkApentForInnsokForTiltakMedStartdatoForDato(
+                dagensDato,
+                tx,
+            )
             tiltak.forEach { gjennomforing ->
                 logEndringSomSystembruker(
                     operation = "Stengte for innsøk",
@@ -274,10 +290,12 @@ class TiltaksgjennomforingService(
         dbo: TiltaksgjennomforingDbo,
         navIdent: NavIdent,
     ) {
-        val currentAdministratorer = get(dbo.id)?.administratorer?.map { it.navIdent }?.toSet() ?: setOf()
+        val currentAdministratorer =
+            get(dbo.id)?.administratorer?.map { it.navIdent }?.toSet() ?: setOf()
 
         val administratorsToNotify =
-            (dbo.administratorer - currentAdministratorer - navIdent).toNonEmptyListOrNull() ?: return
+            (dbo.administratorer - currentAdministratorer - navIdent).toNonEmptyListOrNull()
+                ?: return
 
         val notification = ScheduledNotification(
             type = NotificationType.NOTIFICATION,
@@ -294,7 +312,13 @@ class TiltaksgjennomforingService(
         navIdent: NavIdent,
         tx: TransactionalSession,
     ) {
-        documentHistoryService.logEndring(tx, DocumentClass.TILTAKSGJENNOMFORING, operation, navIdent.value, dto.id) {
+        documentHistoryService.logEndring(
+            tx,
+            DocumentClass.TILTAKSGJENNOMFORING,
+            operation,
+            navIdent.value,
+            dto.id,
+        ) {
             Json.encodeToJsonElement(dto)
         }
     }
@@ -321,7 +345,8 @@ class TiltaksgjennomforingService(
         navIdent: NavIdent,
     ): Either<StatusResponseError, String> {
         val gjennomforing =
-            tiltaksgjennomforinger.get(gjennomforingId) ?: return Either.Left(NotFound("Gjennomføringen finnes ikke"))
+            tiltaksgjennomforinger.get(gjennomforingId)
+                ?: return Either.Left(NotFound("Gjennomføringen finnes ikke"))
 
         return db.transaction { tx ->
             tiltaksgjennomforinger.frikobleKontaktpersonFraGjennomforing(
