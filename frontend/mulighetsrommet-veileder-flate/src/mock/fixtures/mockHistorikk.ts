@@ -7,7 +7,7 @@ export const historikk: HistorikkForBruker[] = [
     fraDato: "2024.10.15",
     tilDato: "2025.06.10",
     status: HistorikkForBrukerStatus.VENTER,
-    tiltaksnavn: "Mentor",
+    tiltaksnavn: "Mentortiltak hos fretex",
     tiltakstype: "Mentor",
     arrangor: {
       navn: "Adecco",
@@ -20,7 +20,7 @@ export const historikk: HistorikkForBruker[] = [
     fraDato: "2024.01.01",
     tilDato: "2025.01.01",
     status: HistorikkForBrukerStatus.DELTAR,
-    tiltaksnavn: "Avklaring",
+    tiltaksnavn: "Avklaring hos noen",
     tiltakstype: "Avklaring",
     arrangor: {
       navn: "Fretex AS",

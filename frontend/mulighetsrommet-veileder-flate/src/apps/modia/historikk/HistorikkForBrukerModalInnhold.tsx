@@ -1,7 +1,7 @@
 import { PortenLink } from "@/components/PortenLink";
 import { formaterDato } from "@/utils/Utils";
 import { ExternalLinkIcon } from "@navikt/aksel-icons";
-import { Alert, BodyShort, Detail, Loader } from "@navikt/ds-react";
+import { Alert, BodyShort, HStack, Heading, Loader, VStack } from "@navikt/ds-react";
 import { HistorikkForBruker as IHistorikkForBruker } from "mulighetsrommet-api-client";
 import styles from "./HistorikkForBrukerModal.module.scss";
 import { StatusBadge } from "./Statusbadge";
@@ -44,26 +44,25 @@ export function HistorikkForBrukerModalInnhold() {
         {tiltak.map((historikk) => {
           return (
             <li key={historikk.id} className={styles.historikk_for_bruker_listeelement}>
-              <div className={styles.historikk_for_bruker_data}>
-                <BodyShort size="small">{historikk.tiltaksnavn}</BodyShort>
-
-                <div className={styles.historikk_for_bruker_arrangor_tiltakstype}>
-                  <Detail className={styles.historikk_for_bruker_tiltakstype}>
-                    {historikk.tiltakstype}
-                  </Detail>
-                  <Detail>•</Detail>
-                  <Detail className={styles.historikk_for_bruker_arrangor}>
-                    {historikk.arrangor?.navn}
-                  </Detail>
-                </div>
-              </div>
-              <div className={styles.historikk_for_bruker_status_dato}>
-                <StatusBadge status={historikk.status} />
-                <div className={styles.historikk_datoer}>
-                  <Detail>{formaterDato(historikk.fraDato ?? "")}</Detail> -{" "}
-                  <Detail>{formaterDato(historikk.tilDato ?? "")}</Detail>
-                </div>
-              </div>
+              <VStack>
+                <HStack gap="10">{<small>{historikk.tiltakstype.toUpperCase()}</small>}</HStack>
+                <Heading size="small" level="4">
+                  {historikk.tiltaksnavn}
+                </Heading>
+                <HStack align={"end"} gap="5">
+                  <StatusBadge status={historikk.status} />
+                  {historikk.fraDato ? (
+                    <BodyShort size="small">
+                      {historikk.fraDato && !historikk.tilDato
+                        ? `Oppstartsdato ${formaterDato(historikk.fraDato)}`
+                        : [historikk.fraDato, historikk.tilDato]
+                            .filter(Boolean)
+                            .map((dato) => dato && formaterDato(dato))
+                            .join(" - ")}
+                    </BodyShort>
+                  ) : null}
+                </HStack>
+              </VStack>
             </li>
           );
         })}
