@@ -33,7 +33,6 @@ import java.util.*
 fun Route.tiltaksgjennomforingRoutes() {
     val deltakere: DeltakerRepository by inject()
     val service: TiltaksgjennomforingService by inject()
-    val excelService: ExcelService by inject()
 
     route("/api/v1/intern/tiltaksgjennomforinger") {
         authenticate(
@@ -132,7 +131,7 @@ fun Route.tiltaksgjennomforingRoutes() {
                 administratorNavIdent = navIdent,
             )
             val result = service.getAllAdmin(overstyrtFilter, pagination)
-            val file = excelService.createExcelFileForTiltaksgjennomforing(result.data)
+            val file = ExcelService.createExcelFileForTiltaksgjennomforing(result.data)
             call.response.header(
                 HttpHeaders.ContentDisposition,
                 ContentDisposition.Attachment.withParameter(ContentDisposition.Parameters.FileName, "tiltaksgjennomforinger.xlsx")

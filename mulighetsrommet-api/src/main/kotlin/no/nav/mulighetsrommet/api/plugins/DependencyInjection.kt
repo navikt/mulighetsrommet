@@ -324,7 +324,6 @@ private fun services(appConfig: AppConfig) = module {
     single { NavVeilederService(get()) }
     single { NotificationService(get(), get(), get()) }
     single { ArrangorService(get(), get()) }
-    single { ExcelService() }
     single {
         val byEnhetStrategy = ByEnhetStrategy(get())
         val byNavidentStrategy = ByNavIdentStrategy()
@@ -333,8 +332,7 @@ private fun services(appConfig: AppConfig) = module {
     single<AxsysClient> {
         AxsysV2ClientImpl(
             appConfig.axsys.url,
-            { runBlocking { cachedTokenProvider.withScope(appConfig.axsys.scope).exchange(AccessType.M2M) } },
-        )
+        ) { runBlocking { cachedTokenProvider.withScope(appConfig.axsys.scope).exchange(AccessType.M2M) } }
     }
     single { AvtaleValidator(get(), get(), get(), get(), get()) }
     single { TiltaksgjennomforingValidator(get(), get(), get()) }

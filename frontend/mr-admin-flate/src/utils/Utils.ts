@@ -211,7 +211,7 @@ export function createQueryParamsForExcelDownloadForTiltaksgjennomforing(
   if (filter.search) {
     queryParams.set("search", filter.search);
   }
-  filter.navEnheter.forEach((navEnhet) => queryParams.append("navEnheter", navEnhet.navn));
+  filter.navEnheter.forEach((navEnhet) => queryParams.append("navEnheter", navEnhet.enhetsnummer));
   filter.tiltakstyper.forEach((tiltakstype) => queryParams.append("tiltakstyper", tiltakstype));
   filter.statuser.forEach((status) => queryParams.append("statuser", status));
 
