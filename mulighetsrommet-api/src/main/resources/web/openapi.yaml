@@ -984,27 +984,6 @@ paths:
               schema:
                 type: string
 
-  /api/v1/intern/bruker/historikk:
-    post:
-      tags:
-        - Historikk
-      operationId: hentHistorikkForBruker
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/GetHistorikkForBrukerRequest"
-        required: true
-      responses:
-        200:
-          description: Historical data about the user
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/HistorikkForBruker"
-
   /api/v2/intern/bruker/historikk:
     post:
       tags:
@@ -3641,7 +3620,6 @@ components:
     Toggles:
       type: string
       enum:
-        - mulighetsrommet.veilederflate.enableV2Historikk
         - mulighetsrommet.veilederflate.visDeltakerRegistrering
         - mulighetsrommet-veilederflate-landingsside
         - mulighetsrommet-veilederflate-arena-oppskrifter
