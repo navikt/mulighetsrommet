@@ -57,7 +57,6 @@ fun createTestApplicationConfig() = AppConfig(
     arenaAdapter = createServiceClientConfig("arena-adapter"),
     tiltakshistorikk = createServiceClientConfig("tiltakshistorikk"),
     tasks = TaskConfig(
-        deleteExpiredTiltakshistorikk = DeleteExpiredTiltakshistorikk.Config(disabled = true),
         synchronizeNorgEnheter = SynchronizeNorgEnheter.Config(
             delayOfMinutes = 10,
             disabled = true,

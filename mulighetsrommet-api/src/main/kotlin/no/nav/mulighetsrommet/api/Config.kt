@@ -96,7 +96,6 @@ data class ServiceClientConfig(
 )
 
 data class TaskConfig(
-    val deleteExpiredTiltakshistorikk: DeleteExpiredTiltakshistorikk.Config,
     val synchronizeNorgEnheter: SynchronizeNorgEnheter.Config,
     val synchronizeNavAnsatte: SynchronizeNavAnsatte.Config,
     val synchronizeUtdanninger: SynchronizeUtdanninger.Config = SynchronizeUtdanninger.Config(cronPattern = ""),

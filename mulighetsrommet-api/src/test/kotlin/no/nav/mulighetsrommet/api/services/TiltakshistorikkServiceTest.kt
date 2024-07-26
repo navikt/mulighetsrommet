@@ -16,13 +16,17 @@ import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dto.ArrangorDto
 import no.nav.mulighetsrommet.api.domain.dto.TiltakshistorikkAdminDto
 import no.nav.mulighetsrommet.api.fixtures.*
-import no.nav.mulighetsrommet.api.repositories.TiltakshistorikkRepository
 import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
-import no.nav.mulighetsrommet.domain.dbo.ArenaTiltakshistorikkDbo
+import no.nav.mulighetsrommet.domain.dbo.ArenaDeltakerStatus
 import no.nav.mulighetsrommet.domain.dbo.Deltakerstatus
 import no.nav.mulighetsrommet.domain.dto.NorskIdent
 import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
+import no.nav.mulighetsrommet.domain.dto.Tiltakshistorikk
+import no.nav.mulighetsrommet.domain.dto.Tiltakshistorikk.Arrangor
+import no.nav.mulighetsrommet.domain.dto.Tiltakshistorikk.Gjennomforing
+import no.nav.mulighetsrommet.domain.dto.TiltakshistorikkResponse
+import no.nav.mulighetsrommet.domain.dto.amt.AmtDeltakerStatus
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
@@ -38,28 +42,35 @@ class TiltakshistorikkServiceTest : FunSpec({
 
     val tiltaksgjennomforing = TiltaksgjennomforingFixtures.Oppfolging1
 
-    val tiltakshistorikkGruppe = ArenaTiltakshistorikkDbo.Gruppetiltak(
+    val gruppetiltakDeltakelse = Tiltakshistorikk.GruppetiltakDeltakelse(
         id = UUID.randomUUID(),
-        tiltaksgjennomforingId = tiltaksgjennomforing.id,
+        gjennomforing = Gjennomforing(
+            id = tiltaksgjennomforing.id,
+            navn = tiltaksgjennomforing.navn,
+            tiltakskode = tiltakstype.tiltakskode!!,
+        ),
         norskIdent = NorskIdent("12345678910"),
-        status = Deltakerstatus.VENTER,
-        fraDato = LocalDateTime.of(2018, 12, 3, 0, 0),
-        tilDato = LocalDateTime.of(2019, 12, 3, 0, 0),
-        registrertIArenaDato = LocalDateTime.of(2018, 12, 3, 0, 0),
+        status = AmtDeltakerStatus(
+            type = AmtDeltakerStatus.Type.VENTELISTE,
+            opprettetDato = LocalDateTime.of(2018, 12, 3, 0, 0),
+            aarsak = null,
+        ),
+        startDato = LocalDate.of(2018, 12, 3),
+        sluttDato = LocalDate.of(2019, 12, 3),
+        arrangor = Arrangor(Organisasjonsnummer(ArrangorFixtures.underenhet1.organisasjonsnummer)),
     )
 
     val tiltakstypeIndividuell = TiltakstypeFixtures.Arbeidstrening
 
-    val tiltakshistorikkIndividuell = ArenaTiltakshistorikkDbo.IndividueltTiltak(
+    val arenaDeltakelse = Tiltakshistorikk.ArenaDeltakelse(
         id = UUID.randomUUID(),
         norskIdent = NorskIdent("12345678910"),
-        status = Deltakerstatus.VENTER,
-        fraDato = LocalDateTime.of(2018, 12, 3, 0, 0),
-        tilDato = LocalDateTime.of(2019, 12, 3, 0, 0),
-        registrertIArenaDato = LocalDateTime.of(2018, 12, 3, 0, 0),
+        status = ArenaDeltakerStatus.VENTELISTE,
+        startDato = LocalDate.of(2018, 12, 3),
+        sluttDato = LocalDate.of(2019, 12, 3),
+        arenaTiltakskode = tiltakstypeIndividuell.arenaKode,
         beskrivelse = "Utdanning",
-        tiltakstypeId = tiltakstypeIndividuell.id,
-        arrangorOrganisasjonsnummer = "123456789",
+        arrangor = Arrangor(Organisasjonsnummer("123456789")),
     )
 
     beforeAny {
@@ -69,18 +80,14 @@ class TiltakshistorikkServiceTest : FunSpec({
             avtaler = listOf(AvtaleFixtures.oppfolging),
             gjennomforinger = listOf(tiltaksgjennomforing),
         ).initialize(database.db)
-
-        val tiltakshistorikk = TiltakshistorikkRepository(database.db)
-        tiltakshistorikk.upsert(tiltakshistorikkGruppe)
-        tiltakshistorikk.upsert(tiltakshistorikkIndividuell)
     }
 
     test("henter historikk for bruker basert på person id med arrangørnavn") {
         coEvery { arrangorService.getOrSyncArrangorFromBrreg(ArrangorFixtures.underenhet1.organisasjonsnummer) } returns ArrangorFixtures.underenhet1.right()
-        coEvery { arrangorService.getOrSyncArrangorFromBrreg(tiltakshistorikkIndividuell.arrangorOrganisasjonsnummer) } returns ArrangorDto(
+        coEvery { arrangorService.getOrSyncArrangorFromBrreg(arenaDeltakelse.arrangor.organisasjonsnummer.value) } returns ArrangorDto(
             id = UUID.randomUUID(),
             navn = "Bedriftsnavn 2",
-            organisasjonsnummer = tiltakshistorikkIndividuell.arrangorOrganisasjonsnummer,
+            organisasjonsnummer = arenaDeltakelse.arrangor.organisasjonsnummer.value,
             postnummer = null,
             poststed = null,
         ).right()
@@ -91,21 +98,22 @@ class TiltakshistorikkServiceTest : FunSpec({
                 historisk = false,
             ),
         ).right()
+        coEvery { tiltakshistorikkClient.historikk(any()) } returns TiltakshistorikkResponse(
+            historikk = listOf(gruppetiltakDeltakelse, arenaDeltakelse),
+        )
 
-        val tiltakshistorikk = TiltakshistorikkRepository(database.db)
         val tiltakstyper = TiltakstypeRepository(database.db)
         val historikkService = TiltakshistorikkService(
             pdlClient,
             arrangorService,
             amtDeltakerClient,
-            tiltakshistorikk,
             tiltakshistorikkClient,
             tiltakstyper,
         )
 
         val forventetHistorikk = listOf(
             TiltakshistorikkAdminDto(
-                id = tiltakshistorikkGruppe.id,
+                id = gruppetiltakDeltakelse.id,
                 fraDato = LocalDate.of(2018, 12, 3),
                 tilDato = LocalDate.of(2019, 12, 3),
                 status = Deltakerstatus.VENTER,
@@ -117,20 +125,20 @@ class TiltakshistorikkServiceTest : FunSpec({
                 ),
             ),
             TiltakshistorikkAdminDto(
-                id = tiltakshistorikkIndividuell.id,
+                id = arenaDeltakelse.id,
                 fraDato = LocalDate.of(2018, 12, 3),
                 tilDato = LocalDate.of(2019, 12, 3),
                 status = Deltakerstatus.VENTER,
-                tiltaksnavn = tiltakshistorikkIndividuell.beskrivelse,
+                tiltaksnavn = arenaDeltakelse.beskrivelse,
                 tiltakstype = tiltakstypeIndividuell.navn,
                 arrangor = TiltakshistorikkAdminDto.Arrangor(
-                    organisasjonsnummer = Organisasjonsnummer(tiltakshistorikkIndividuell.arrangorOrganisasjonsnummer),
+                    organisasjonsnummer = arenaDeltakelse.arrangor.organisasjonsnummer,
                     navn = "Bedriftsnavn 2",
                 ),
             ),
         )
 
-        historikkService.hentHistorikkForBruker(
+        historikkService.hentHistorikkForBrukerV2(
             NorskIdent("12345678910"),
             AccessType.OBO("token"),
         ) shouldBe forventetHistorikk

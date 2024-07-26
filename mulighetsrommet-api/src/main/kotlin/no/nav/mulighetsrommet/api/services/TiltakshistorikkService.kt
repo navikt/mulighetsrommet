@@ -10,7 +10,6 @@ import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakelserResponse
 import no.nav.mulighetsrommet.api.clients.pdl.*
 import no.nav.mulighetsrommet.api.clients.tiltakshistorikk.TiltakshistorikkClient
 import no.nav.mulighetsrommet.api.domain.dto.TiltakshistorikkAdminDto
-import no.nav.mulighetsrommet.api.repositories.TiltakshistorikkRepository
 import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.domain.dbo.ArenaDeltakerStatus
 import no.nav.mulighetsrommet.domain.dbo.Deltakerstatus
@@ -25,7 +24,6 @@ class TiltakshistorikkService(
     private val pdlClient: PdlClient,
     private val arrangorService: ArrangorService,
     private val amtDeltakerClient: AmtDeltakerClient,
-    private val tiltakshistorikkRepository: TiltakshistorikkRepository,
     private val tiltakshistorikkClient: TiltakshistorikkClient,
     private val tiltakstyper: TiltakstypeRepository,
 ) {
@@ -65,28 +63,6 @@ class TiltakshistorikkService(
                 }
 
                 is Tiltakshistorikk.ArbeidsgiverAvtale -> throw IllegalStateException("ArbeidsgiverAvtale er enda ikke støttet")
-            }
-        }
-    }
-
-    suspend fun hentHistorikkForBruker(norskIdent: NorskIdent, obo: AccessType.OBO): List<TiltakshistorikkAdminDto> {
-        val identer = hentHistoriskeNorskIdent(norskIdent, obo)
-
-        return tiltakshistorikkRepository.getTiltakshistorikkForBruker(identer).map { deltakelse ->
-            val arrangor = deltakelse.arrangorOrganisasjonsnummer?.let { orgnr ->
-                getArrangor(Organisasjonsnummer(orgnr))
-            }
-
-            deltakelse.run {
-                TiltakshistorikkAdminDto(
-                    id = id,
-                    fraDato = fraDato,
-                    tilDato = tilDato,
-                    status = status,
-                    tiltaksnavn = tiltaksnavn,
-                    tiltakstype = tiltakstype,
-                    arrangor = arrangor,
-                )
             }
         }
     }
