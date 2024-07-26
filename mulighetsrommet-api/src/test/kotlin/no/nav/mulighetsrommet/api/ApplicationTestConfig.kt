@@ -122,10 +122,6 @@ fun createKafkaConfig(): KafkaConfig = KafkaConfig(
         ),
         amtDeltakerV1 = KafkaTopicConsumer.Config(id = "amt-deltaker", topic = "amt-deltaker"),
         amtVirksomheterV1 = KafkaTopicConsumer.Config(id = "amt-virksomheter", topic = "amt-virksomheter"),
-        ptoSisteOppfolgingsperiodeV1 = KafkaTopicConsumer.Config(
-            id = "pto-sisteoppfolgingsperiode",
-            topic = "pto-sisteoppfolgingsperiode",
-        ),
     ),
 )
 
