@@ -14,6 +14,24 @@ export const lagretFilterHandlers = [
           sortOrder: 0,
           type: LagretDokumenttype.AVTALE,
         },
+        {
+          id: window.crypto.randomUUID(),
+          brukerId: "B123456",
+          filter: {},
+          navn:
+            "Et mocket tiltaksgjennomføringsfilter med et ganske langt navn så vi kan teste" +
+            " hvordan det ser ut også",
+          sortOrder: 0,
+          type: LagretDokumenttype.TILTAKSGJENNOMFØRING,
+        },
+        {
+          id: window.crypto.randomUUID(),
+          brukerId: "B123456",
+          filter: {},
+          navn: "Et mocket modia/nav-filter",
+          sortOrder: 0,
+          type: LagretDokumenttype.TILTAKSGJENNOMFØRING_MODIA,
+        },
       ]);
     },
   ),

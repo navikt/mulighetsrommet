@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.tiltakshistorikk
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.domain.Tiltakskode
@@ -20,49 +21,81 @@ import java.util.*
 class DeltakerRepositoryTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
 
+    val gruppetiltak = TiltaksgjennomforingV1Dto(
+        id = UUID.randomUUID(),
+        tiltakstype = TiltaksgjennomforingV1Dto.Tiltakstype(
+            id = UUID.randomUUID(),
+            navn = "Gruppe AMO",
+            arenaKode = "GRUPPEAMO",
+            tiltakskode = Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
+        ),
+        navn = "Gruppe AMO",
+        virksomhetsnummer = "123123123",
+        startDato = LocalDate.now(),
+        sluttDato = null,
+        status = TiltaksgjennomforingStatus.GJENNOMFORES,
+        oppstart = TiltaksgjennomforingOppstartstype.FELLES,
+        tilgjengeligForArrangorFraOgMedDato = null,
+    )
+    val amtDeltaker = AmtDeltakerV1Dto(
+        id = UUID.randomUUID(),
+        gjennomforingId = gruppetiltak.id,
+        personIdent = "10101010100",
+        startDato = null,
+        sluttDato = null,
+        status = AmtDeltakerStatus(
+            type = AmtDeltakerStatus.Type.VENTER_PA_OPPSTART,
+            aarsak = null,
+            opprettetDato = LocalDateTime.of(2022, 1, 1, 0, 0),
+        ),
+        registrertDato = LocalDateTime.of(2022, 1, 1, 0, 0),
+        endretDato = LocalDateTime.of(2022, 1, 1, 0, 0),
+        dagerPerUke = 2.5f,
+        prosentStilling = null,
+    )
+    val arbeidstreningArenaDeltakelse = ArenaDeltakerDbo(
+        id = UUID.randomUUID(),
+        norskIdent = NorskIdent("12345678910"),
+        arenaTiltakskode = "ARBTREN",
+        status = ArenaDeltakerStatus.GJENNOMFORES,
+        startDato = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
+        sluttDato = LocalDateTime.of(2024, 1, 31, 0, 0, 0),
+        beskrivelse = "Arbeidstrening hos Fretex",
+        arrangorOrganisasjonsnummer = Organisasjonsnummer("123123123"),
+        registrertIArenaDato = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
+
+    )
+    val mentorArenaDeltakelse = ArenaDeltakerDbo(
+        id = UUID.randomUUID(),
+        norskIdent = NorskIdent("12345678910"),
+        arenaTiltakskode = "MENTOR",
+        status = ArenaDeltakerStatus.GJENNOMFORES,
+        startDato = LocalDateTime.of(2002, 2, 1, 0, 0, 0),
+        sluttDato = LocalDateTime.of(2002, 2, 1, 0, 0, 0),
+        beskrivelse = "Mentortiltak hos Joblearn",
+        arrangorOrganisasjonsnummer = Organisasjonsnummer("123123123"),
+        registrertIArenaDato = LocalDateTime.of(2002, 1, 1, 0, 0, 0),
+    )
+
     test("CRUD") {
-        val tiltakshistorikk = DeltakerRepository(database.db)
+        val deltakerRepository = DeltakerRepository(database.db)
 
-        val arbeidstrening = ArenaDeltakerDbo(
-            id = UUID.randomUUID(),
-            norskIdent = NorskIdent("12345678910"),
-            arenaTiltakskode = "ARBTREN",
-            status = ArenaDeltakerStatus.GJENNOMFORES,
-            startDato = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
-            sluttDato = LocalDateTime.of(2024, 1, 31, 0, 0, 0),
-            beskrivelse = "Arbeidstrening hos Fretex",
-            arrangorOrganisasjonsnummer = Organisasjonsnummer("123123123"),
-            registrertIArenaDato = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
-        )
+        deltakerRepository.upsertArenaDeltaker(arbeidstreningArenaDeltakelse)
+        deltakerRepository.upsertArenaDeltaker(mentorArenaDeltakelse)
 
-        val mentor = ArenaDeltakerDbo(
-            id = UUID.randomUUID(),
-            norskIdent = NorskIdent("12345678910"),
-            arenaTiltakskode = "MENTOR",
-            status = ArenaDeltakerStatus.GJENNOMFORES,
-            startDato = LocalDateTime.of(2024, 2, 1, 0, 0, 0),
-            sluttDato = LocalDateTime.of(2024, 2, 29, 0, 0, 0),
-            beskrivelse = "Mentortiltak hos Joblearn",
-            arrangorOrganisasjonsnummer = Organisasjonsnummer("123123123"),
-            registrertIArenaDato = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
-        )
-
-        tiltakshistorikk.upsertArenaDeltaker(arbeidstrening)
-        tiltakshistorikk.upsertArenaDeltaker(mentor)
-
-        tiltakshistorikk.getArenaHistorikk(identer = listOf(NorskIdent("12345678910"))) shouldBe listOf(
+        deltakerRepository.getArenaHistorikk(identer = listOf(NorskIdent("12345678910")), null) shouldContainExactlyInAnyOrder listOf(
             Tiltakshistorikk.ArenaDeltakelse(
-                id = mentor.id,
+                id = mentorArenaDeltakelse.id,
                 norskIdent = NorskIdent("12345678910"),
                 arenaTiltakskode = "MENTOR",
+                startDato = LocalDate.of(2002, 2, 1),
+                sluttDato = LocalDate.of(2002, 2, 1),
                 status = ArenaDeltakerStatus.GJENNOMFORES,
-                startDato = LocalDate.of(2024, 2, 1),
-                sluttDato = LocalDate.of(2024, 2, 29),
                 beskrivelse = "Mentortiltak hos Joblearn",
                 arrangor = Tiltakshistorikk.Arrangor(Organisasjonsnummer("123123123")),
             ),
             Tiltakshistorikk.ArenaDeltakelse(
-                id = arbeidstrening.id,
+                id = arbeidstreningArenaDeltakelse.id,
                 norskIdent = NorskIdent("12345678910"),
                 arenaTiltakskode = "ARBTREN",
                 status = ArenaDeltakerStatus.GJENNOMFORES,
@@ -73,11 +106,11 @@ class DeltakerRepositoryTest : FunSpec({
             ),
         )
 
-        tiltakshistorikk.deleteArenaDeltaker(mentor.id)
+        deltakerRepository.deleteArenaDeltaker(mentorArenaDeltakelse.id)
 
-        tiltakshistorikk.getArenaHistorikk(identer = listOf(NorskIdent("12345678910"))) shouldBe listOf(
+        deltakerRepository.getArenaHistorikk(identer = listOf(NorskIdent("12345678910")), null) shouldBe listOf(
             Tiltakshistorikk.ArenaDeltakelse(
-                id = arbeidstrening.id,
+                id = arbeidstreningArenaDeltakelse.id,
                 norskIdent = NorskIdent("12345678910"),
                 arenaTiltakskode = "ARBTREN",
                 status = ArenaDeltakerStatus.GJENNOMFORES,
@@ -88,70 +121,121 @@ class DeltakerRepositoryTest : FunSpec({
             ),
         )
 
-        tiltakshistorikk.deleteArenaDeltaker(arbeidstrening.id)
+        deltakerRepository.deleteArenaDeltaker(arbeidstreningArenaDeltakelse.id)
 
-        tiltakshistorikk.getArenaHistorikk(identer = listOf(NorskIdent("12345678910"))).shouldBeEmpty()
+        deltakerRepository.getArenaHistorikk(identer = listOf(NorskIdent("12345678910")), null).shouldBeEmpty()
     }
 
     test("kometHistorikk") {
         val deltakerRepository = DeltakerRepository(database.db)
         val gruppetiltakRepository = GruppetiltakRepository(database.db)
 
-        val tiltak = TiltaksgjennomforingV1Dto(
-            id = UUID.randomUUID(),
-            tiltakstype = TiltaksgjennomforingV1Dto.Tiltakstype(
-                id = UUID.randomUUID(),
-                navn = "Gruppe AMO",
-                arenaKode = "GRUPPEAMO",
-                tiltakskode = Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
-            ),
-            navn = "Gruppe AMO",
-            virksomhetsnummer = "123123123",
-            startDato = LocalDate.now(),
-            sluttDato = null,
-            status = TiltaksgjennomforingStatus.GJENNOMFORES,
-            oppstart = TiltaksgjennomforingOppstartstype.FELLES,
-            tilgjengeligForArrangorFraOgMedDato = null,
-        )
-        gruppetiltakRepository.upsert(tiltak)
+        gruppetiltakRepository.upsert(gruppetiltak)
 
-        val deltakelsesdato = LocalDateTime.of(2023, 3, 1, 0, 0, 0)
-        val amtDeltaker1 = AmtDeltakerV1Dto(
-            id = UUID.randomUUID(),
-            gjennomforingId = tiltak.id,
-            personIdent = "10101010100",
-            startDato = null,
-            sluttDato = null,
-            status = AmtDeltakerStatus(
-                type = AmtDeltakerStatus.Type.VENTER_PA_OPPSTART,
-                aarsak = null,
-                opprettetDato = deltakelsesdato,
-            ),
-            registrertDato = deltakelsesdato,
-            endretDato = deltakelsesdato,
-            dagerPerUke = 2.5f,
-            prosentStilling = null,
-        )
-        deltakerRepository.upsertKometDeltaker(amtDeltaker1)
+        deltakerRepository.upsertKometDeltaker(amtDeltaker)
 
-        deltakerRepository.getKometHistorikk(listOf(NorskIdent(amtDeltaker1.personIdent))) shouldBe listOf(
+        deltakerRepository.getKometHistorikk(listOf(NorskIdent(amtDeltaker.personIdent)), null) shouldBe listOf(
             Tiltakshistorikk.GruppetiltakDeltakelse(
-                id = amtDeltaker1.id,
+                id = amtDeltaker.id,
                 norskIdent = NorskIdent("10101010100"),
                 startDato = null,
                 sluttDato = null,
                 status = AmtDeltakerStatus(
                     type = AmtDeltakerStatus.Type.VENTER_PA_OPPSTART,
                     aarsak = null,
-                    opprettetDato = deltakelsesdato,
+                    opprettetDato = LocalDateTime.of(2022, 1, 1, 0, 0),
                 ),
                 gjennomforing = Tiltakshistorikk.Gjennomforing(
-                    id = tiltak.id,
-                    navn = tiltak.navn,
-                    tiltakskode = tiltak.tiltakstype.tiltakskode,
+                    id = gruppetiltak.id,
+                    navn = gruppetiltak.navn,
+                    tiltakskode = gruppetiltak.tiltakstype.tiltakskode,
                 ),
                 arrangor = Tiltakshistorikk.Arrangor(Organisasjonsnummer("123123123")),
             ),
+        )
+    }
+
+    test("maxAgeYears komet") {
+        val deltakerRepository = DeltakerRepository(database.db)
+        val gruppetiltakRepository = GruppetiltakRepository(database.db)
+
+        gruppetiltakRepository.upsert(gruppetiltak)
+
+        val amtDeltakerReg2005 = AmtDeltakerV1Dto(
+            id = UUID.randomUUID(),
+            gjennomforingId = gruppetiltak.id,
+            personIdent = "10101010100",
+            startDato = null,
+            sluttDato = null,
+            status = AmtDeltakerStatus(
+                type = AmtDeltakerStatus.Type.VENTER_PA_OPPSTART,
+                aarsak = null,
+                opprettetDato = LocalDateTime.of(2005, 3, 1, 0, 0, 0),
+            ),
+            registrertDato = LocalDateTime.of(2005, 3, 1, 0, 0, 0),
+            endretDato = LocalDateTime.of(2005, 3, 1, 0, 0, 0),
+            dagerPerUke = 2.5f,
+            prosentStilling = null,
+        )
+        val amtDeltakerReg2005Slutt2024 = AmtDeltakerV1Dto(
+            id = UUID.randomUUID(),
+            gjennomforingId = gruppetiltak.id,
+            personIdent = "10101010100",
+            startDato = null,
+            sluttDato = LocalDate.of(2024, 1, 1),
+            status = AmtDeltakerStatus(
+                type = AmtDeltakerStatus.Type.VENTER_PA_OPPSTART,
+                aarsak = null,
+                opprettetDato = LocalDateTime.of(2005, 3, 1, 0, 0, 0),
+            ),
+            registrertDato = LocalDateTime.of(2005, 3, 1, 0, 0, 0),
+            endretDato = LocalDateTime.of(2005, 3, 1, 0, 0, 0),
+            dagerPerUke = 2.5f,
+            prosentStilling = null,
+        )
+        deltakerRepository.upsertKometDeltaker(amtDeltaker)
+        deltakerRepository.upsertKometDeltaker(amtDeltakerReg2005)
+        deltakerRepository.upsertKometDeltaker(amtDeltakerReg2005Slutt2024)
+
+        deltakerRepository.getKometHistorikk(listOf(NorskIdent(amtDeltaker.personIdent)), null)
+            .map { it.id } shouldContainExactlyInAnyOrder listOf(
+            amtDeltaker.id,
+            amtDeltakerReg2005.id,
+            amtDeltakerReg2005Slutt2024.id,
+        )
+        deltakerRepository.getKometHistorikk(listOf(NorskIdent(amtDeltaker.personIdent)), 5)
+            .map { it.id } shouldContainExactlyInAnyOrder listOf(
+            amtDeltaker.id,
+            amtDeltakerReg2005Slutt2024.id,
+        )
+    }
+
+    test("maxAgeYears arena") {
+        val deltakerRepository = DeltakerRepository(database.db)
+        val mentorArenaDeltakelseUtenSlutt = ArenaDeltakerDbo(
+            id = UUID.randomUUID(),
+            norskIdent = NorskIdent("12345678910"),
+            arenaTiltakskode = "MENTOR",
+            status = ArenaDeltakerStatus.GJENNOMFORES,
+            startDato = LocalDateTime.of(2002, 2, 1, 0, 0, 0),
+            sluttDato = null,
+            beskrivelse = "Mentortiltak hos Joblearn",
+            arrangorOrganisasjonsnummer = Organisasjonsnummer("123123123"),
+            registrertIArenaDato = LocalDateTime.of(2002, 1, 1, 0, 0, 0),
+        )
+
+        deltakerRepository.upsertArenaDeltaker(arbeidstreningArenaDeltakelse)
+        deltakerRepository.upsertArenaDeltaker(mentorArenaDeltakelse)
+        deltakerRepository.upsertArenaDeltaker(mentorArenaDeltakelseUtenSlutt)
+
+        deltakerRepository.getArenaHistorikk(listOf(arbeidstreningArenaDeltakelse.norskIdent), 5)
+            .map { it.id } shouldContainExactlyInAnyOrder listOf(arbeidstreningArenaDeltakelse.id)
+
+        deltakerRepository.getArenaHistorikk(listOf(arbeidstreningArenaDeltakelse.norskIdent), null)
+            .map { it.id } shouldContainExactlyInAnyOrder listOf(
+            arbeidstreningArenaDeltakelse.id,
+            mentorArenaDeltakelse.id,
+            mentorArenaDeltakelseUtenSlutt.id,
         )
     }
 })

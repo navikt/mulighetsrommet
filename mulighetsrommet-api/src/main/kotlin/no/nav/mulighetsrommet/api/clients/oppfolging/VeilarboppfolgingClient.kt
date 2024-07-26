@@ -13,7 +13,6 @@ import io.ktor.client.plugins.*
 import io.ktor.client.plugins.cache.*
 import io.ktor.client.request.*
 import io.ktor.http.*
-import io.prometheus.client.cache.caffeine.CacheMetricsCollector
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.clients.AccessType
 import no.nav.mulighetsrommet.api.clients.TokenProvider
@@ -21,7 +20,6 @@ import no.nav.mulighetsrommet.domain.dto.NorskIdent
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.domain.serializers.ZonedDateTimeSerializer
 import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
-import no.nav.mulighetsrommet.metrics.Metrikker
 import org.slf4j.LoggerFactory
 import java.time.ZonedDateTime
 import java.util.*
@@ -62,14 +60,6 @@ class VeilarboppfolgingClient(
         .maximumSize(10_000)
         .recordStats()
         .build()
-
-    init {
-        val cacheMetrics: CacheMetricsCollector =
-            CacheMetricsCollector().register(Metrikker.appMicrometerRegistry.prometheusRegistry)
-        cacheMetrics.addCache("oppfolgingsenhetCache", oppfolgingsenhetCache)
-        cacheMetrics.addCache("gjeldendePeriodeCache", gjeldendePeriodeCache)
-        cacheMetrics.addCache("manuellStatusCache", manuellStatusCache)
-    }
 
     suspend fun hentOppfolgingsenhet(fnr: NorskIdent, obo: AccessType.OBO): Either<OppfolgingError, Oppfolgingsenhet> {
         oppfolgingsenhetCache.getIfPresent(fnr)?.let { return@hentOppfolgingsenhet it.right() }

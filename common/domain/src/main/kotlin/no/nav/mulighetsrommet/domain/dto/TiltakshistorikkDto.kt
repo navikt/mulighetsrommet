@@ -84,6 +84,7 @@ sealed class Tiltakshistorikk {
 @Serializable
 data class TiltakshistorikkRequest(
     val identer: List<NorskIdent>,
+    val maxAgeYears: Int?,
 )
 
 @Serializable

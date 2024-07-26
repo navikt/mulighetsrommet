@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { QueryKeys } from "@/api/QueryKeys";
 import { ArrangorService } from "mulighetsrommet-api-client";
 
-export const useArrangorKontaktpersoner = (arrangorId?: string) => {
+export function useArrangorKontaktpersoner(arrangorId?: string) {
   return useQuery({
     queryKey: QueryKeys.arrangorKontaktpersoner(arrangorId ?? ""),
 
@@ -13,4 +13,4 @@ export const useArrangorKontaktpersoner = (arrangorId?: string) => {
 
     enabled: !!arrangorId,
   });
-};
+}

@@ -7,7 +7,7 @@ interface Props {
   setSortValue: (a: Sorteringer) => void;
 }
 
-export const Sorteringsmeny = ({ sortValue, setSortValue }: Props) => {
+export function Sorteringsmeny({ sortValue, setSortValue }: Props) {
   return (
     <Select
       className={styles.sorteringsmeny}
@@ -26,4 +26,4 @@ export const Sorteringsmeny = ({ sortValue, setSortValue }: Props) => {
       <option value="navn-descending">Tittel Å-A</option>
     </Select>
   );
-};
+}

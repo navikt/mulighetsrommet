@@ -12,6 +12,7 @@ import no.nav.mulighetsrommet.api.services.ArenaAdapterService
 import no.nav.mulighetsrommet.domain.dbo.ArenaAvtaleDbo
 import no.nav.mulighetsrommet.domain.dbo.ArenaTiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.dbo.DeltakerDbo
+import no.nav.mulighetsrommet.domain.dto.UpsertTiltaksgjennomforingResponse
 import org.koin.ktor.ext.inject
 import org.postgresql.util.PSQLException
 import java.util.*
@@ -38,15 +39,22 @@ fun Route.arenaAdapterRoutes() {
         put("tiltaksgjennomforing") {
             val tiltaksgjennomforing = call.receive<ArenaTiltaksgjennomforingDbo>()
 
-            arenaAdapterService.upsertTiltaksgjennomforing(tiltaksgjennomforing)
+            val sanityId = arenaAdapterService.upsertTiltaksgjennomforing(tiltaksgjennomforing)
 
-            call.respond(HttpStatusCode.OK)
+            call.respond(UpsertTiltaksgjennomforingResponse(sanityId))
         }
 
         delete("tiltaksgjennomforing/{id}") {
             val id = call.parameters.getOrFail<UUID>("id")
 
             arenaAdapterService.removeTiltaksgjennomforing(id)
+            call.response.status(HttpStatusCode.OK)
+        }
+
+        delete("sanity/tiltaksgjennomforing/{sanityId}") {
+            val sanityId = call.parameters.getOrFail<UUID>("sanityId")
+
+            arenaAdapterService.removeSanityTiltaksgjennomforing(sanityId)
             call.response.status(HttpStatusCode.OK)
         }
 

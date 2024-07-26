@@ -31,6 +31,8 @@ export function TiltaksgjennomforingFiltertags({ filterAtom, filterOpen, setTags
             setFilter({
               ...filter,
               search: "",
+              page: 1,
+              lagretFilterIdValgt: undefined,
             });
           }}
         />
@@ -38,7 +40,9 @@ export function TiltaksgjennomforingFiltertags({ filterAtom, filterOpen, setTags
       {filter.navEnheter.length > 0 && (
         <NavEnhetFilterTag
           navEnheter={filter.navEnheter}
-          onClose={() => setFilter({ ...filter, navEnheter: [] })}
+          onClose={() =>
+            setFilter({ ...filter, navEnheter: [], page: 1, lagretFilterIdValgt: undefined })
+          }
         />
       )}
       {filter.tiltakstyper.map((tiltakstype) => (
@@ -49,6 +53,8 @@ export function TiltaksgjennomforingFiltertags({ filterAtom, filterOpen, setTags
             setFilter({
               ...filter,
               tiltakstyper: addOrRemove(filter.tiltakstyper, tiltakstype),
+              page: 1,
+              lagretFilterIdValgt: undefined,
             });
           }}
         />
@@ -63,6 +69,8 @@ export function TiltaksgjennomforingFiltertags({ filterAtom, filterOpen, setTags
             setFilter({
               ...filter,
               statuser: addOrRemove(filter.statuser, status),
+              page: 1,
+              lagretFilterIdValgt: undefined,
             });
           }}
         />
@@ -74,6 +82,8 @@ export function TiltaksgjennomforingFiltertags({ filterAtom, filterOpen, setTags
             setFilter({
               ...filter,
               visMineGjennomforinger: false,
+              page: 1,
+              lagretFilterIdValgt: undefined,
             });
           }}
         />
@@ -86,6 +96,8 @@ export function TiltaksgjennomforingFiltertags({ filterAtom, filterOpen, setTags
             setFilter({
               ...filter,
               arrangorer: addOrRemove(filter.arrangorer, id),
+              page: 1,
+              lagretFilterIdValgt: undefined,
             });
           }}
         />

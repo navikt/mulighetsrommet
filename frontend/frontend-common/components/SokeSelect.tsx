@@ -33,9 +33,7 @@ export interface SelectProps<T> {
   helpText?: string;
 }
 
-export const SokeSelect = <T,>(
-  props: SelectProps<T> & { childRef?: Ref<Select<SelectOption<T>>> },
-) => {
+export function SokeSelect<T>(props: SelectProps<T> & { childRef?: Ref<Select<SelectOption<T>>> }) {
   const {
     label,
     hideLabel = false,
@@ -152,7 +150,7 @@ export const SokeSelect = <T,>(
       )}
     </div>
   );
-};
+}
 
 const customStyles = (readOnly: boolean, isError: boolean) => ({
   control: (provided: any, state: any) => {

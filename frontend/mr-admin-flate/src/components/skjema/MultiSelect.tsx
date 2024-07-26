@@ -17,9 +17,9 @@ export interface MultiSelectProps<T> {
   velgAlle?: boolean;
 }
 
-export const MultiSelect = <T,>(
+export function MultiSelect<T>(
   props: MultiSelectProps<T | null> & { childRef?: Ref<Select<SelectOption<T | null>>> },
-) => {
+) {
   const {
     name,
     placeholder,
@@ -120,4 +120,4 @@ export const MultiSelect = <T,>(
       })}
     />
   );
-};
+}

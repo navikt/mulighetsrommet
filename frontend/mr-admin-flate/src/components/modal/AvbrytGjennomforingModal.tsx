@@ -1,15 +1,15 @@
+import { AnnetEnum } from "@/api/annetEnum";
 import { useAvbrytTiltaksgjennomforing } from "@/api/tiltaksgjennomforing/useAvbrytTiltaksgjennomforing";
+import { useTiltaksgjennomforingDeltakerSummary } from "@/api/tiltaksgjennomforing/useTiltaksgjennomforingDeltakerSummary";
+import { Laster } from "@/components/laster/Laster";
+import { AvbrytModalAarsaker } from "@/components/modal/AvbrytModalAarsaker";
+import { AvbrytModalError } from "@/components/modal/AvbrytModalError";
+import { VarselModal } from "@/components/modal/VarselModal";
 import { Alert, BodyShort, Button, Radio } from "@navikt/ds-react";
 import { AvbrytGjennomforingAarsak, Tiltaksgjennomforing } from "mulighetsrommet-api-client";
-import { RefObject, useEffect, useState } from "react";
+import { RefObject, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useTiltaksgjennomforingDeltakerSummary } from "@/api/tiltaksgjennomforing/useTiltaksgjennomforingDeltakerSummary";
-import { AvbrytModalError } from "@/components/modal/AvbrytModalError";
-import { AvbrytModalAarsaker } from "@/components/modal/AvbrytModalAarsaker";
-import { VarselModal } from "@/components/modal/VarselModal";
 import z from "zod";
-import { AnnetEnum } from "@/api/annetEnum";
-import { Laster } from "@/components/laster/Laster";
 
 export const AvbrytGjennomforingModalSchema = z
   .object({
@@ -58,13 +58,11 @@ export const AvbrytGjennomforingModal = ({ modalRef, tiltaksgjennomforing }: Pro
     modalRef.current?.close();
   };
 
-  useEffect(() => {
-    if (mutation.isSuccess) {
-      setState(initialState);
-      modalRef.current?.close();
-      navigate(`/tiltaksgjennomforinger/${tiltaksgjennomforing?.id}`);
-    }
-  }, [mutation.isSuccess]);
+  function onSuccessMutation() {
+    setState(initialState);
+    modalRef.current?.close();
+    navigate(`/tiltaksgjennomforinger/${tiltaksgjennomforing?.id}`);
+  }
 
   const handleAvbrytGjennomforing = () => {
     const parsed = AvbrytGjennomforingModalSchema.safeParse({
@@ -84,15 +82,21 @@ export const AvbrytGjennomforingModal = ({ modalRef, tiltaksgjennomforing }: Pro
 
     if (parsed.success && tiltaksgjennomforing?.id && state?.aarsak) {
       if (state.aarsak === AnnetEnum.ANNET && state.customAarsak) {
-        mutation.mutate({
-          id: tiltaksgjennomforing.id,
-          aarsak: state.customAarsak,
-        });
+        mutation.mutate(
+          {
+            id: tiltaksgjennomforing.id,
+            aarsak: state.customAarsak,
+          },
+          { onSuccess: onSuccessMutation },
+        );
       } else
-        mutation.mutate({
-          id: tiltaksgjennomforing?.id,
-          aarsak: state.aarsak,
-        });
+        mutation.mutate(
+          {
+            id: tiltaksgjennomforing?.id,
+            aarsak: state.aarsak,
+          },
+          { onSuccess: onSuccessMutation },
+        );
     }
   };
 

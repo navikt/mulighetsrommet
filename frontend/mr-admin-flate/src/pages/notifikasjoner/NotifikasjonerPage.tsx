@@ -1,13 +1,17 @@
-import { Tabs } from "@navikt/ds-react";
-import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { ContainerLayout } from "@/layouts/ContainerLayout";
 import { HeaderBanner } from "@/layouts/HeaderBanner";
-import styles from "../Page.module.scss";
-import { useTitle } from "mulighetsrommet-frontend-common";
 import { BellDotFillIcon } from "@navikt/aksel-icons";
+import { Tabs } from "@navikt/ds-react";
+import { useTitle } from "mulighetsrommet-frontend-common";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
+import styles from "../Page.module.scss";
+import { useNotifikasjonerForAnsatt } from "../../api/notifikasjoner/useNotifikasjonerForAnsatt";
+import { NotificationStatus } from "mulighetsrommet-api-client";
 
 export function NotifikasjonerPage() {
   const { pathname } = useLocation();
+  const { data: lesteNotifikasjoner } = useNotifikasjonerForAnsatt(NotificationStatus.DONE);
+  const { data: ulesteNotifikasjoner } = useNotifikasjonerForAnsatt(NotificationStatus.NOT_DONE);
   const navigate = useNavigate();
   useTitle("Notifikasjoner");
 
@@ -22,13 +26,13 @@ export function NotifikasjonerPage() {
         <Tabs.List id="fane_liste" className={styles.list}>
           <Tabs.Tab
             value="nye"
-            label="Nye notifikasjoner"
+            label={`Nye notifikasjoner ${ulesteNotifikasjoner?.pagination.totalCount ? `(${ulesteNotifikasjoner?.pagination.totalCount})` : ""}`}
             onClick={() => navigate("/notifikasjoner")}
             aria-controls="panel"
           />
           <Tabs.Tab
             value="tidligere"
-            label="Tidligere notifikasjoner"
+            label={`Tidligere notifikasjoner ${lesteNotifikasjoner?.pagination.totalCount ? `(${lesteNotifikasjoner?.pagination.totalCount})` : ""}`}
             onClick={() => navigate("/notifikasjoner/tidligere")}
             aria-controls="panel"
           />

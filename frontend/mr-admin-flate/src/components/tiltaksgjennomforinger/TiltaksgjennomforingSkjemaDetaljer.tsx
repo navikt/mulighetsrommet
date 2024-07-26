@@ -59,7 +59,7 @@ function visApentForInnsok(arenaKode: TiltakskodeArena) {
   ].includes(arenaKode);
 }
 
-export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtale }: Props) => {
+export function TiltaksgjennomforingSkjemaDetaljer({ tiltaksgjennomforing, avtale }: Props) {
   const { data: administratorer } = useTiltaksgjennomforingAdministratorer();
   const { data: ansatt, isLoading: isLoadingAnsatt } = useHentAnsatt();
   const { data: kontaktpersoner, isLoading: isLoadingKontaktpersoner } = useHentKontaktpersoner();
@@ -457,4 +457,4 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
       />
     </SkjemaDetaljerContainer>
   );
-};
+}

@@ -19,11 +19,11 @@ interface Props {
   knapperad: ReactNode;
 }
 
-export const ViewTiltaksgjennomforingDetaljer = ({
+export function ViewTiltaksgjennomforingDetaljer({
   tiltaksgjennomforing,
   brukerActions,
   knapperad,
-}: Props) => {
+}: Props) {
   const gjennomforingsId = useGetTiltaksgjennomforingIdFraUrl();
   const innsatsgrupper = useInnsatsgrupper();
 
@@ -94,4 +94,4 @@ export const ViewTiltaksgjennomforingDetaljer = ({
       </Suspense>
     </div>
   );
-};
+}

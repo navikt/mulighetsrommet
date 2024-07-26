@@ -1,11 +1,10 @@
 import { Accordion, Search, Switch } from "@navikt/ds-react";
 import { useAtom, WritableAtom } from "jotai";
-import { ArrangorTil, LagretDokumenttype, NavEnhet } from "mulighetsrommet-api-client";
+import { ArrangorTil, NavEnhet } from "mulighetsrommet-api-client";
 import { useEffect } from "react";
 import {
   gjennomforingFilterAccordionAtom,
   TiltaksgjennomforingFilter as TiltaksgjennomforingFilterProps,
-  TiltaksgjennomforingFilterSchema,
 } from "@/api/atoms";
 import { useAvtale } from "@/api/avtaler/useAvtale";
 import { useNavEnheter } from "@/api/enhet/useNavEnheter";
@@ -20,12 +19,11 @@ import {
 import {
   FilterAccordionHeader,
   FilterSkeleton,
-  LagredeFilterOversikt,
   NavEnhetFilter,
 } from "mulighetsrommet-frontend-common";
 import { useRegioner } from "@/api/enhet/useRegioner";
 import { CheckboxList } from "./CheckboxList";
-import { logEvent } from "../../logging/amplitude";
+import { logEvent } from "@/logging/amplitude";
 
 type Filters = "tiltakstype";
 
@@ -84,14 +82,6 @@ export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
 
   return (
     <>
-      <LagredeFilterOversikt
-        setFilter={setFilter}
-        filter={filter}
-        dokumenttype={LagretDokumenttype.TILTAKSGJENNOMFØRING}
-        validateFilterStructure={(filter) => {
-          return TiltaksgjennomforingFilterSchema.safeParse(filter).success;
-        }}
-      />
       <Search
         label="Søk etter tiltaksgjennomføring"
         hideLabel
@@ -102,6 +92,7 @@ export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
           setFilter({
             ...filter,
             page: 1,
+            lagretFilterIdValgt: undefined,
             search,
           });
         }}
@@ -120,6 +111,7 @@ export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
             setFilter({
               ...filter,
               page: 1,
+              lagretFilterIdValgt: undefined,
               visMineGjennomforinger: event.currentTarget.checked,
             });
             loggBrukAvFilter("visMineGjennomforinger", event.currentTarget.checked);
@@ -145,6 +137,7 @@ export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
                 setFilter({
                   ...filter,
                   page: 1,
+                  lagretFilterIdValgt: undefined,
                   statuser: addOrRemove(filter.statuser, status),
                 });
                 loggBrukAvFilter(
@@ -176,6 +169,7 @@ export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
                   setFilter({
                     ...filter,
                     page: 1,
+                    lagretFilterIdValgt: undefined,
                     tiltakstyper: addOrRemove(filter.tiltakstyper, tiltakstype),
                   });
                   loggBrukAvFilter(
@@ -203,7 +197,12 @@ export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
               <NavEnhetFilter
                 navEnheter={filter.navEnheter}
                 setNavEnheter={(navEnheter: NavEnhet[]) => {
-                  setFilter({ ...filter, page: 1, navEnheter });
+                  setFilter({
+                    ...filter,
+                    page: 1,
+                    lagretFilterIdValgt: undefined,
+                    navEnheter,
+                  });
                   loggBrukAvFilter(
                     "navEnheter",
                     navEnheter.map((n) => n.navn),
@@ -234,6 +233,7 @@ export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
                 setFilter({
                   ...filter,
                   page: 1,
+                  lagretFilterIdValgt: undefined,
                   arrangorer: addOrRemove(filter.arrangorer, id),
                 });
                 loggBrukAvFilter("arrangorer", arrangorer.data.find((a) => a.id === id)?.navn);
@@ -263,6 +263,7 @@ export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
                 setFilter({
                   ...filter,
                   page: 1,
+                  lagretFilterIdValgt: undefined,
                   publisert: addOrRemove(filter.publisert, id),
                 });
                 loggBrukAvFilter("publisert", id);

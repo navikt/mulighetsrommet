@@ -556,6 +556,20 @@ paths:
               schema:
                 $ref: "#/components/schemas/PaginertTiltaksgjennomforing"
 
+  /api/v1/intern/tiltaksgjennomforinger/excel:
+    get:
+      tags:
+        - Tiltaksgjennomforinger
+      operationId: lastNedTiltaksgjennomforingerSomExcel
+      responses:
+        200:
+          description: Excel-fil med tiltaksgjennomforinger
+          content:
+            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+              schema:
+                type: string
+                format: binary
+
   /api/v1/intern/tiltaksgjennomforinger/{id}:
     parameters:
       - $ref: "#/components/parameters/ID"
@@ -1474,9 +1488,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/UserNotificationSummary"
 
-  /api/v1/intern/notifications/{id}/status:
-    parameters:
-      - $ref: "#/components/parameters/ID"
+  /api/v1/intern/notifications/status:
     post:
       tags:
         - Notifications
@@ -1485,16 +1497,16 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                status:
-                  $ref: "#/components/schemas/NotificationStatus"
-              required:
-                - status
+                $ref: "#/components/schemas/SetNotificationStatusRequest"
         required: true
       responses:
         200:
           description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+
 
   /api/v1/intern/features:
     parameters:
@@ -3777,12 +3789,6 @@ components:
         - ARBEIDSRETTET_REHABILITERING
         - ARBEIDSFORBEREDENDE_TRENING
 
-    TiltakskodeIndividuell:
-      type: string
-      enum:
-        - MIDLERTIDIG_LONNSTILSKUDD
-        -
-
     Gruppetiltak:
       type: object
       properties:
@@ -4114,3 +4120,20 @@ components:
         - navn
         - filter
         - sortOrder
+
+    SetNotificationStatusRequest:
+      type: object
+      properties:
+        notifikasjoner:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                format: uuid
+              status:
+                $ref: "#/components/schemas/NotificationStatus"
+            required:
+              - id
+              - status

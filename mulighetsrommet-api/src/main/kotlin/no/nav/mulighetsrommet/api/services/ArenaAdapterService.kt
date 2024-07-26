@@ -85,33 +85,35 @@ class ArenaAdapterService(
         }
     }
 
-    suspend fun upsertTiltaksgjennomforing(arenaGjennomforing: ArenaTiltaksgjennomforingDbo) {
+    suspend fun upsertTiltaksgjennomforing(arenaGjennomforing: ArenaTiltaksgjennomforingDbo): UUID? {
         val tiltakstype = tiltakstyper.get(arenaGjennomforing.tiltakstypeId)
             ?: throw IllegalStateException("Ukjent tiltakstype id=${arenaGjennomforing.tiltakstypeId}")
 
         syncArrangorFromBrreg(arenaGjennomforing.arrangorOrganisasjonsnummer)
 
-        if (Tiltakskoder.isEgenRegiTiltak(tiltakstype.arenaKode)) {
+        return if (Tiltakskoder.isEgenRegiTiltak(tiltakstype.arenaKode)) {
             upsertEgenRegiTiltak(tiltakstype, arenaGjennomforing)
         } else {
             upsertGruppetiltak(tiltakstype, arenaGjennomforing)
+            null
         }
     }
 
     private suspend fun upsertEgenRegiTiltak(
         tiltakstype: TiltakstypeAdminDto,
         arenaGjennomforing: ArenaTiltaksgjennomforingDbo,
-    ) {
+    ): UUID? {
         require(Tiltakskoder.isEgenRegiTiltak(tiltakstype.arenaKode)) {
             "Gjennomføring for tiltakstype ${tiltakstype.arenaKode} skal ikke skrives til Sanity"
         }
 
         val sluttDato = arenaGjennomforing.sluttDato
-        if (sluttDato == null || sluttDato.isAfter(TiltaksgjennomforingSluttDatoCutoffDate)) {
+        return if (sluttDato == null || sluttDato.isAfter(TiltaksgjennomforingSluttDatoCutoffDate)) {
             db.transactionSuspend { tx ->
-                tiltaksgjennomforinger.upsertArenaTiltaksgjennomforing(arenaGjennomforing, tx)
                 sanityTiltakService.createOrPatchSanityTiltaksgjennomforing(arenaGjennomforing, tx)
             }
+        } else {
+            null
         }
     }
 
@@ -194,6 +196,10 @@ class ArenaAdapterService(
         }
     }
 
+    suspend fun removeSanityTiltaksgjennomforing(sanityId: UUID) {
+        sanityTiltakService.deleteSanityTiltaksgjennomforing(sanityId)
+    }
+
     fun upsertDeltaker(deltaker: DeltakerDbo): QueryResult<DeltakerDbo> = query { deltakere.upsert(deltaker) }
 
     fun removeDeltaker(id: UUID): QueryResult<Unit> = query { deltakere.delete(id) }
@@ -207,6 +213,7 @@ class ArenaAdapterService(
             ArenaTiltaksgjennomforingDbo(
                 // Behold felter som settes i Arena
                 tiltaksnummer = tiltaksgjennomforing.tiltaksnummer,
+                sanityId = tiltaksgjennomforing.sanityId,
                 arenaAnsvarligEnhet = tiltaksgjennomforing.arenaAnsvarligEnhet,
 
                 // Resten av feltene skal ikke overskrives med data fra Arena
@@ -241,6 +248,7 @@ class ArenaAdapterService(
     ): Boolean {
         val currentAsArenaGjennomforing = ArenaTiltaksgjennomforingDbo(
             id = current.id,
+            sanityId = null,
             navn = current.navn,
             tiltakstypeId = current.tiltakstype.id,
             tiltaksnummer = current.tiltaksnummer ?: "",

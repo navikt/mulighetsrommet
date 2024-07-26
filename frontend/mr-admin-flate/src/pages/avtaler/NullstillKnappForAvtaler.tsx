@@ -12,7 +12,7 @@ interface Props {
   tiltakstypeId?: string;
 }
 
-export const NullstillKnappForAvtaler = ({ filterAtom, tiltakstypeId }: Props) => {
+export function NullstillKnappForAvtaler({ filterAtom, tiltakstypeId }: Props) {
   const [filter, setFilter] = useAtom(filterAtom);
 
   return (
@@ -39,4 +39,4 @@ export const NullstillKnappForAvtaler = ({ filterAtom, tiltakstypeId }: Props) =
       ) : null}
     </div>
   );
-};
+}

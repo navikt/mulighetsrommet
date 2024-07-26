@@ -10,9 +10,9 @@ import { OversiktenJoyride } from "@/components/joyride/OversiktenJoyride";
 import { Tiltaksgjennomforingsoversikt } from "@/components/oversikt/Tiltaksgjennomforingsoversikt";
 import { Tilbakeknapp } from "@/components/tilbakeknapp/Tilbakeknapp";
 import { useResetArbeidsmarkedstiltakFilterMedBrukerIKontekst } from "@/hooks/useArbeidsmarkedstiltakFilter";
-import { Alert, HStack } from "@navikt/ds-react";
-import { ApiError, LagretDokumenttype, Toggles } from "mulighetsrommet-api-client";
-import { LagreFilterContainer, ListSkeleton, useTitle } from "mulighetsrommet-frontend-common";
+import { Alert } from "@navikt/ds-react";
+import { ApiError, Toggles } from "mulighetsrommet-api-client";
+import { ListSkeleton, useTitle } from "mulighetsrommet-frontend-common";
 import { TilToppenKnapp } from "mulighetsrommet-frontend-common/components/tilToppenKnapp/TilToppenKnapp";
 import { useEffect, useState } from "react";
 import { ModiaOversiktBrukerVarsler } from "../varsler/ModiaOversiktBrukerVarsler";
@@ -21,7 +21,7 @@ import { NullstillFilterKnapp } from "mulighetsrommet-frontend-common/components
 import { HistorikkButton } from "../historikk/HistorikkButton";
 import { Filtermeny } from "@/components/filtrering/Filtermeny";
 
-export const ModiaArbeidsmarkedstiltakOversikt = () => {
+export function ModiaArbeidsmarkedstiltakOversikt() {
   useTitle("Arbeidsmarkedstiltak - Oversikt");
   const [filterOpen, setFilterOpen] = useState<boolean>(true);
   const { data: brukerdata } = useHentBrukerdata();
@@ -79,15 +79,7 @@ export const ModiaArbeidsmarkedstiltakOversikt = () => {
         filterOpen={filterOpen}
         setFilterOpen={setFilterOpen}
         nullstillFilterButton={
-          filterHasChanged && (
-            <HStack gap="2">
-              <NullstillFilterKnapp onClick={resetFilterToDefaults} />
-              <LagreFilterContainer
-                dokumenttype={LagretDokumenttype.TILTAKSGJENNOMFØRING_MODIA}
-                filter={filter}
-              />
-            </HStack>
-          )
+          filterHasChanged && <NullstillFilterKnapp onClick={resetFilterToDefaults} />
         }
         buttons={
           <>
@@ -133,4 +125,4 @@ export const ModiaArbeidsmarkedstiltakOversikt = () => {
       <TilToppenKnapp />
     </>
   );
-};
+}

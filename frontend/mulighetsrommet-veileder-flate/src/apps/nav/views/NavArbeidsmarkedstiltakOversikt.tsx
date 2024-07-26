@@ -18,7 +18,7 @@ interface Props {
   preview?: boolean;
 }
 
-export const NavArbeidsmarkedstiltakOversikt = ({ preview = false }: Props) => {
+export function NavArbeidsmarkedstiltakOversikt({ preview = false }: Props) {
   const { data: tiltaksgjennomforinger = [], isPending } = useNavTiltaksgjennomforinger({
     preview,
   });
@@ -69,4 +69,4 @@ export const NavArbeidsmarkedstiltakOversikt = ({ preview = false }: Props) => {
       <TilToppenKnapp />
     </>
   );
-};
+}

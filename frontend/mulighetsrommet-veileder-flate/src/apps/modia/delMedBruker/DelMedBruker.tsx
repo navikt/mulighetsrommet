@@ -21,12 +21,12 @@ interface Props {
   delMedBrukerInfo?: DelMedBrukerInfo;
 }
 
-export const DelMedBruker = ({
+export function DelMedBruker({
   veiledernavn,
   bruker,
   tiltaksgjennomforing,
   delMedBrukerInfo,
-}: Props) => {
+}: Props) {
   const { logEvent } = useLogEvent();
   const { reservert, melding } = erBrukerReservertMotDigitalKommunikasjon(bruker);
 
@@ -73,4 +73,4 @@ export const DelMedBruker = ({
       )}
     </>
   );
-};
+}

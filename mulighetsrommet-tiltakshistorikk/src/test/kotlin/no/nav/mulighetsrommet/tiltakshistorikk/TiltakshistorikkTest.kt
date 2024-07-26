@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.tiltakshistorikk
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import io.ktor.client.call.*
@@ -52,7 +53,7 @@ class TiltakshistorikkTest : FunSpec({
 
                 val response = client.post("/api/v1/historikk") {
                     contentType(ContentType.Application.Json)
-                    setBody(TiltakshistorikkRequest(identer = listOf(NorskIdent("12345678910"))))
+                    setBody(TiltakshistorikkRequest(identer = listOf(NorskIdent("12345678910")), maxAgeYears = null))
                 }
 
                 response.status shouldBe HttpStatusCode.Unauthorized
@@ -70,7 +71,7 @@ class TiltakshistorikkTest : FunSpec({
                 val response = client.post("/api/v1/historikk") {
                     bearerAuth(oauth.issueToken().serialize())
                     contentType(ContentType.Application.Json)
-                    setBody(TiltakshistorikkRequest(identer = listOf(NorskIdent("12345123456"))))
+                    setBody(TiltakshistorikkRequest(identer = listOf(NorskIdent("22345623456")), maxAgeYears = null))
                 }
 
                 response.status shouldBe HttpStatusCode.OK
@@ -90,7 +91,7 @@ class TiltakshistorikkTest : FunSpec({
                 val response = client.post("/api/v1/historikk") {
                     bearerAuth(oauth.issueToken().serialize())
                     contentType(ContentType.Application.Json)
-                    setBody(TiltakshistorikkRequest(identer = listOf(NorskIdent("12345678910"))))
+                    setBody(TiltakshistorikkRequest(identer = listOf(NorskIdent("12345678910")), maxAgeYears = null))
                 }
 
                 response.status shouldBe HttpStatusCode.OK
@@ -124,7 +125,7 @@ class TiltakshistorikkTest : FunSpec({
                         status = AmtDeltakerStatus(
                             type = AmtDeltakerStatus.Type.VENTER_PA_OPPSTART,
                             aarsak = null,
-                            opprettetDato = LocalDateTime.of(2023, 3, 1, 0, 0),
+                            opprettetDato = LocalDateTime.of(2002, 3, 1, 0, 0),
                         ),
                         gjennomforing = Tiltakshistorikk.Gjennomforing(
                             id = UUID.fromString("566b89b0-4ed0-43cf-84a8-39085428f7e6"),
@@ -134,6 +135,29 @@ class TiltakshistorikkTest : FunSpec({
                         arrangor = Tiltakshistorikk.Arrangor(Organisasjonsnummer("123123123")),
                     ),
                 )
+            }
+        }
+
+        test("maxAgeYears til å filtrere historikk") {
+            withTestApplication(oauth) {
+                val client = createClient {
+                    install(ContentNegotiation) {
+                        json()
+                    }
+                }
+
+                val response = client.post("/api/v1/historikk") {
+                    bearerAuth(oauth.issueToken().serialize())
+                    contentType(ContentType.Application.Json)
+                    setBody(TiltakshistorikkRequest(identer = listOf(NorskIdent("12345678910")), maxAgeYears = 15))
+                }
+
+                response.status shouldBe HttpStatusCode.OK
+
+                response.body<TiltakshistorikkResponse>()
+                    .historikk
+                    // Amt deltakelsen er fra 2002
+                    .map { it.opphav } shouldContainExactly listOf(Tiltakshistorikk.Opphav.ARENA, Tiltakshistorikk.Opphav.ARENA)
             }
         }
     }
@@ -187,7 +211,7 @@ private fun inititalizeData(database: FlywayDatabaseTestListener) {
     )
     deltakere.upsertArenaDeltaker(mentor)
 
-    val deltakelsesdato = LocalDateTime.of(2023, 3, 1, 0, 0, 0)
+    val deltakelsesdato = LocalDateTime.of(2002, 3, 1, 0, 0, 0)
     val amtDeltaker = AmtDeltakerV1Dto(
         id = UUID.fromString("6d54228f-534f-4b4b-9160-65eae26a3b06"),
         gjennomforingId = tiltak.id,

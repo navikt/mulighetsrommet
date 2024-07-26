@@ -8,6 +8,7 @@ import { OversiktSkeleton } from "../skeleton/OversiktSkeleton";
 
 interface Props {
   filter: React.ReactNode;
+  lagredeFilter?: React.ReactNode;
   buttons: React.ReactNode;
   tags: React.ReactNode;
   table: React.ReactNode;
@@ -16,21 +17,27 @@ interface Props {
   nullstillFilterButton: React.ReactNode;
 }
 
-export const FilterAndTableLayout = ({
+export function FilterAndTableLayout({
   filter,
+  lagredeFilter,
   buttons,
   tags,
   table,
   filterOpen,
   setFilterOpen,
   nullstillFilterButton,
-}: Props) => {
+}: Props) {
   return (
     <Suspense fallback={<OversiktSkeleton />}>
       <div className={styles.filter_table_layout_container}>
-        <Filter setFilterOpen={setFilterOpen} filterOpen={filterOpen}>
-          <InlineErrorBoundary>{filter}</InlineErrorBoundary>
-        </Filter>
+        <Filter
+          setFilterOpen={setFilterOpen}
+          filterOpen={filterOpen}
+          filterTab={<InlineErrorBoundary>{filter}</InlineErrorBoundary>}
+          lagredeFilterTab={
+            lagredeFilter ? <InlineErrorBoundary>{lagredeFilter}</InlineErrorBoundary> : null
+          }
+        />
 
         <InlineErrorBoundary>
           <ToolbarButtonRow>
@@ -47,10 +54,10 @@ export const FilterAndTableLayout = ({
         >
           <InlineErrorBoundary>
             {tags}
-            <>{table}</>
+            {table}
           </InlineErrorBoundary>
         </div>
       </div>
     </Suspense>
   );
-};
+}

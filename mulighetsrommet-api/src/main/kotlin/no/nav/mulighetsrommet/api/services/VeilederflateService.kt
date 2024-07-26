@@ -4,7 +4,6 @@ import arrow.core.NonEmptyList
 import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
 import io.ktor.server.plugins.*
-import io.prometheus.client.cache.caffeine.CacheMetricsCollector
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
@@ -16,7 +15,6 @@ import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dto.Innsatsgruppe
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatusDto
-import no.nav.mulighetsrommet.metrics.Metrikker
 import java.util.*
 import java.util.concurrent.TimeUnit
 
@@ -37,13 +35,6 @@ class VeilederflateService(
         .maximumSize(10_000)
         .recordStats()
         .build()
-
-    init {
-        val cacheMetrics: CacheMetricsCollector =
-            CacheMetricsCollector().register(Metrikker.appMicrometerRegistry.prometheusRegistry)
-        cacheMetrics.addCache("sanityTiltakstyperCache", sanityTiltakstyperCache)
-        cacheMetrics.addCache("sanityTiltaksgjennomforingerCache", sanityTiltaksgjennomforingerCache)
-    }
 
     fun hentInnsatsgrupper(): List<VeilederflateInnsatsgruppe> {
         // TODO: benytt verdi for GRADERT_VARIG_TILPASSET_INNSATS når ny 14a-løsning er lansert nasjonalt
@@ -325,7 +316,8 @@ class VeilederflateService(
         sanityGjennomforing: SanityTiltaksgjennomforing,
         enheter: List<String>,
     ): VeilederflateTiltaksgjennomforing {
-        val tiltakstypeFraSanity = tiltakstypeService.getBySanityId(UUID.fromString(sanityGjennomforing.tiltakstype._id))
+        val tiltakstypeFraSanity =
+            tiltakstypeService.getBySanityId(UUID.fromString(sanityGjennomforing.tiltakstype._id))
 
         return sanityGjennomforing.run {
             val kontaktpersoner = kontaktpersoner

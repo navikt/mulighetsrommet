@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Alert, Button, Heading, Modal, TextField } from "@navikt/ds-react";
+import { Alert, BodyShort, Button, Heading, Modal, TextField } from "@navikt/ds-react";
 import { LagretDokumenttype } from "mulighetsrommet-api-client";
 import { useEffect, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
@@ -71,21 +71,17 @@ export function LagreFilterContainer({ dokumenttype, filter }: Props) {
         closeOnBackdropClick
         onClose={() => setIsOpen(false)}
         open={isOpen}
-        aria-label="Lagre filter"
-        title="Lagre filter"
+        aria-label="Lagre nytt filter"
+        title="Lagre nytt filter"
       >
         <FormProvider {...form}>
           <form onSubmit={handleSubmit(lagreFilter)}>
             <Modal.Header closeButton>
-              <Heading size="medium">Lagre filter</Heading>
+              <Heading size="medium">Lagre nytt filter</Heading>
             </Modal.Header>
             <Modal.Body>
-              <TextField
-                {...register("navn")}
-                size="small"
-                error={errors.navn?.message}
-                label="Navn på filter"
-              />
+              <BodyShort>Du vil finne igjen filteret under "Lagrede filter".</BodyShort>
+              <TextField {...register("navn")} error={errors.navn?.message} label="Navn:" />
               {mutation.error ? (
                 <Alert style={{ marginTop: "2rem" }} variant="error">
                   Klarte ikke lagre filter
@@ -93,7 +89,7 @@ export function LagreFilterContainer({ dokumenttype, filter }: Props) {
               ) : null}
             </Modal.Body>
             <Modal.Footer>
-              <Button type="submit" size="small" variant="primary" disabled={mutation.isPending}>
+              <Button type="submit" variant="primary" disabled={mutation.isPending}>
                 {mutation.isPending ? "Lagrer..." : "Lagre"}
               </Button>
             </Modal.Footer>

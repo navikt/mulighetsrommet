@@ -43,13 +43,13 @@ function loggRedaktorEndrerTilgjengeligForArrangor(datoValgt: string) {
   });
 }
 
-export const TiltaksgjennomforingSkjemaContainer = ({
+export function TiltaksgjennomforingSkjemaContainer({
   avtale,
   ansatt,
   tiltaksgjennomforing,
   onClose,
   onSuccess,
-}: Props) => {
+}: Props) {
   const redigeringsModus = !!tiltaksgjennomforing;
   const mutation = useUpsertTiltaksgjennomforing();
   const [activeTab, setActiveTab] = useAtom(gjennomforingDetaljerTabAtom);
@@ -193,4 +193,4 @@ export const TiltaksgjennomforingSkjemaContainer = ({
       </form>
     </FormProvider>
   );
-};
+}

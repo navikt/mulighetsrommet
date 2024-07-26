@@ -1,9 +1,5 @@
 import { useArrangorer } from "@/api/arrangor/useArrangorer";
-import {
-  avtaleFilterAccordionAtom,
-  AvtaleFilter as AvtaleFilterProps,
-  AvtaleFilterSchema,
-} from "@/api/atoms";
+import { AvtaleFilter as AvtaleFilterProps, avtaleFilterAccordionAtom } from "@/api/atoms";
 import { useNavEnheter } from "@/api/enhet/useNavEnheter";
 import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
 import { addOrRemove } from "@/utils/Utils";
@@ -16,13 +12,9 @@ import {
 } from "@/utils/filterUtils";
 import { Accordion, Search, Switch } from "@navikt/ds-react";
 import { useAtom, WritableAtom } from "jotai";
-import { ArrangorTil, LagretDokumenttype } from "mulighetsrommet-api-client";
-import {
-  FilterAccordionHeader,
-  FilterSkeleton,
-  LagredeFilterOversikt,
-} from "mulighetsrommet-frontend-common";
-import { logEvent } from "../../logging/amplitude";
+import { ArrangorTil } from "mulighetsrommet-api-client";
+import { FilterAccordionHeader, FilterSkeleton } from "mulighetsrommet-frontend-common";
+import { logEvent } from "@/logging/amplitude";
 import { CheckboxList } from "./CheckboxList";
 
 type Filters = "tiltakstype";
@@ -63,15 +55,7 @@ export function AvtaleFilter({ filterAtom, skjulFilter }: Props) {
   }
 
   return (
-    <div>
-      <LagredeFilterOversikt
-        setFilter={setFilter}
-        filter={filter}
-        dokumenttype={LagretDokumenttype.AVTALE}
-        validateFilterStructure={(filter) => {
-          return AvtaleFilterSchema.safeParse(filter).success;
-        }}
-      />
+    <>
       <Search
         label="Søk etter tiltaksgjennomføring"
         hideLabel
@@ -86,6 +70,7 @@ export function AvtaleFilter({ filterAtom, skjulFilter }: Props) {
             ...filter,
             page: 1,
             sok: search,
+            lagretFilterIdValgt: undefined,
           });
         }}
         value={filter.sok}
@@ -101,6 +86,7 @@ export function AvtaleFilter({ filterAtom, skjulFilter }: Props) {
               ...filter,
               page: 1,
               visMineAvtaler: event.currentTarget.checked,
+              lagretFilterIdValgt: undefined,
             });
             loggBrukAvFilter("visMineAvtaler", event.currentTarget.checked);
           }}
@@ -126,6 +112,7 @@ export function AvtaleFilter({ filterAtom, skjulFilter }: Props) {
                   ...filter,
                   page: 1,
                   statuser: addOrRemove(filter.statuser, status),
+                  lagretFilterIdValgt: undefined,
                 });
                 loggBrukAvFilter(
                   "statuser",
@@ -155,6 +142,7 @@ export function AvtaleFilter({ filterAtom, skjulFilter }: Props) {
                   ...filter,
                   page: 1,
                   avtaletyper: addOrRemove(filter.avtaletyper, type),
+                  lagretFilterIdValgt: undefined,
                 });
                 loggBrukAvFilter(
                   "avtaletyper",
@@ -185,6 +173,7 @@ export function AvtaleFilter({ filterAtom, skjulFilter }: Props) {
                     ...filter,
                     page: 1,
                     tiltakstyper: addOrRemove(filter.tiltakstyper, tiltakstype),
+                    lagretFilterIdValgt: undefined,
                   });
                   loggBrukAvFilter(
                     "tiltakstyper",
@@ -212,6 +201,7 @@ export function AvtaleFilter({ filterAtom, skjulFilter }: Props) {
                   ...filter,
                   page: 1,
                   navRegioner: addOrRemove(filter.navRegioner, region),
+                  lagretFilterIdValgt: undefined,
                 });
                 loggBrukAvFilter(
                   "navRegioner",
@@ -242,6 +232,7 @@ export function AvtaleFilter({ filterAtom, skjulFilter }: Props) {
                   ...filter,
                   page: 1,
                   arrangorer: addOrRemove(filter.arrangorer, id),
+                  lagretFilterIdValgt: undefined,
                 });
                 loggBrukAvFilter("arrangorer", arrangorData.data.find((a) => a.id === id)?.navn);
               }}
@@ -277,6 +268,7 @@ export function AvtaleFilter({ filterAtom, skjulFilter }: Props) {
                   ...filter,
                   page: 1,
                   personvernBekreftet: addOrRemove(filter.personvernBekreftet, bekreftet),
+                  lagretFilterIdValgt: undefined,
                 });
                 loggBrukAvFilter("personvernBekreftet", bekreftet);
               }}
@@ -284,6 +276,6 @@ export function AvtaleFilter({ filterAtom, skjulFilter }: Props) {
           </Accordion.Content>
         </Accordion.Item>
       </Accordion>
-    </div>
+    </>
   );
 }

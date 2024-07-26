@@ -63,7 +63,6 @@ export function VarselModal({
         {secondaryButton && (
           <Button
             variant="secondary"
-            size="small"
             onClick={() => {
               handleClose();
               secondaryButtonHandleAction && secondaryButtonHandleAction();

@@ -18,6 +18,7 @@ import no.nav.mulighetsrommet.api.repositories.DeltakerRepository
 import no.nav.mulighetsrommet.api.routes.v1.parameters.getPaginationParams
 import no.nav.mulighetsrommet.api.routes.v1.responses.BadRequest
 import no.nav.mulighetsrommet.api.routes.v1.responses.respondWithStatusResponse
+import no.nav.mulighetsrommet.api.services.ExcelService
 import no.nav.mulighetsrommet.api.services.TiltaksgjennomforingService
 import no.nav.mulighetsrommet.domain.dbo.Deltakerstatus
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
@@ -113,6 +114,35 @@ fun Route.tiltaksgjennomforingRoutes() {
             val filter = getAdminTiltaksgjennomforingsFilter().copy(administratorNavIdent = getNavIdent())
 
             call.respond(service.getAllSkalMigreres(pagination, filter))
+        }
+
+        get("/excel") {
+            val pagination = getPaginationParams()
+            val filter = getAdminTiltaksgjennomforingsFilter()
+            val navIdent = call.parameters["visMineTiltaksgjennomforinger"]?.let {
+                if (it == "true") {
+                    getNavIdent()
+                } else {
+                    null
+                }
+            }
+            val overstyrtFilter = filter.copy(
+                sortering = "tiltakstype_navn-ascending",
+                administratorNavIdent = navIdent,
+            )
+            val result = service.getAllAdmin(overstyrtFilter, pagination)
+            val file = ExcelService.createExcelFileForTiltaksgjennomforing(result.data)
+            call.response.header(
+                HttpHeaders.ContentDisposition,
+                ContentDisposition.Attachment.withParameter(ContentDisposition.Parameters.FileName, "tiltaksgjennomforinger.xlsx")
+                    .toString(),
+            )
+            call.response.header("Access-Control-Expose-Headers", HttpHeaders.ContentDisposition)
+            call.response.header(
+                HttpHeaders.ContentType,
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            )
+            call.respondFile(file)
         }
 
         get("{id}") {
