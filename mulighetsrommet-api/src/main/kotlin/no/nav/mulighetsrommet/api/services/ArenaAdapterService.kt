@@ -1,16 +1,12 @@
 package no.nav.mulighetsrommet.api.services
 
-import arrow.core.Either
 import arrow.core.NonEmptyList
 import arrow.core.toNonEmptyListOrNull
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.encodeToJsonElement
 import kotliquery.TransactionalSession
-import no.nav.mulighetsrommet.api.clients.AccessType
 import no.nav.mulighetsrommet.api.clients.brreg.BrregError
-import no.nav.mulighetsrommet.api.clients.oppfolging.ErUnderOppfolgingError
-import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClient
 import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattRolle
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
@@ -28,7 +24,6 @@ import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering.TiltaksgjennomforingSluttDatoCutoffDate
 import no.nav.mulighetsrommet.domain.dbo.ArenaAvtaleDbo
 import no.nav.mulighetsrommet.domain.dbo.ArenaTiltaksgjennomforingDbo
-import no.nav.mulighetsrommet.domain.dbo.ArenaTiltakshistorikkDbo
 import no.nav.mulighetsrommet.domain.dbo.DeltakerDbo
 import no.nav.mulighetsrommet.domain.dto.AvtaleStatus
 import no.nav.mulighetsrommet.domain.dto.NavIdent
@@ -47,7 +42,6 @@ class ArenaAdapterService(
     private val tiltakstyper: TiltakstypeRepository,
     private val avtaler: AvtaleRepository,
     private val tiltaksgjennomforinger: TiltaksgjennomforingRepository,
-    private val tiltakshistorikk: TiltakshistorikkRepository,
     private val deltakere: DeltakerRepository,
     private val tiltaksgjennomforingKafkaProducer: TiltaksgjennomforingKafkaProducer,
     private val sanityTiltakService: SanityTiltakService,
@@ -55,7 +49,6 @@ class ArenaAdapterService(
     private val navEnhetService: NavEnhetService,
     private val notificationService: NotificationService,
     private val endringshistorikk: EndringshistorikkService,
-    private val veilarboppfolgingClient: VeilarboppfolgingClient,
     private val tiltakstypeService: TiltakstypeService,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
@@ -202,16 +195,6 @@ class ArenaAdapterService(
     suspend fun removeSanityTiltaksgjennomforing(sanityId: UUID) {
         sanityTiltakService.deleteSanityTiltaksgjennomforing(sanityId)
     }
-
-    suspend fun upsertTiltakshistorikk(tiltakshistorikk: ArenaTiltakshistorikkDbo): Either<ErUnderOppfolgingError, Boolean> =
-        veilarboppfolgingClient.erBrukerUnderOppfolging(tiltakshistorikk.norskIdent, AccessType.M2M)
-            .onRight {
-                if (it) {
-                    this.tiltakshistorikk.upsert(tiltakshistorikk)
-                }
-            }
-
-    fun removeTiltakshistorikk(id: UUID): QueryResult<Unit> = tiltakshistorikk.delete(id)
 
     fun upsertDeltaker(deltaker: DeltakerDbo): QueryResult<DeltakerDbo> = query { deltakere.upsert(deltaker) }
 

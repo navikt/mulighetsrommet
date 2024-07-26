@@ -11,7 +11,6 @@ import io.ktor.util.pipeline.*
 import no.nav.mulighetsrommet.api.services.ArenaAdapterService
 import no.nav.mulighetsrommet.domain.dbo.ArenaAvtaleDbo
 import no.nav.mulighetsrommet.domain.dbo.ArenaTiltaksgjennomforingDbo
-import no.nav.mulighetsrommet.domain.dbo.ArenaTiltakshistorikkDbo
 import no.nav.mulighetsrommet.domain.dbo.DeltakerDbo
 import no.nav.mulighetsrommet.domain.dto.UpsertTiltaksgjennomforingResponse
 import org.koin.ktor.ext.inject
@@ -57,27 +56,6 @@ fun Route.arenaAdapterRoutes() {
 
             arenaAdapterService.removeSanityTiltaksgjennomforing(sanityId)
             call.response.status(HttpStatusCode.OK)
-        }
-
-        put("tiltakshistorikk") {
-            val tiltakshistorikk = call.receive<ArenaTiltakshistorikkDbo>()
-
-            arenaAdapterService.upsertTiltakshistorikk(tiltakshistorikk)
-                .map { call.respond(HttpStatusCode.OK, it) }
-                .mapLeft {
-                    logger.warn("Error during upsertTiltakshistorikk: $it")
-                    call.respond(HttpStatusCode.InternalServerError, "Kunne ikke opprette tiltakshistorikk")
-                }
-        }
-
-        delete("tiltakshistorikk/{id}") {
-            val id = call.parameters.getOrFail<UUID>("id")
-            arenaAdapterService.removeTiltakshistorikk(id)
-                .map { call.response.status(HttpStatusCode.OK) }
-                .mapLeft {
-                    logError(logger, it.error)
-                    call.respond(HttpStatusCode.InternalServerError, "Kunne ikke slette tiltakshistorikk")
-                }
         }
 
         put("deltaker") {

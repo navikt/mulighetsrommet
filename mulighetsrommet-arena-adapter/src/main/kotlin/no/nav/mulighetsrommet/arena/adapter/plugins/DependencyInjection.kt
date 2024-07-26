@@ -157,7 +157,6 @@ private fun services(services: ServiceConfig, tokenClient: MachineToMachineToken
                 get(),
                 config = TiltakgjennomforingEventProcessor.Config(retryUpsertTimes = 10),
             ),
-            TiltakdeltakerEventProcessor(get(), get(), get()),
             TiltakshistorikkEventProcessor(get(), get(), get()),
         )
         ArenaEventService(

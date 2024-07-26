@@ -80,7 +80,6 @@ data class KafkaConsumers(
     val tiltaksgjennomforingerV1: KafkaTopicConsumer.Config,
     val amtDeltakerV1: KafkaTopicConsumer.Config,
     val amtVirksomheterV1: KafkaTopicConsumer.Config,
-    val ptoSisteOppfolgingsperiodeV1: KafkaTopicConsumer.Config,
 )
 
 data class AuthProvider(
@@ -96,7 +95,6 @@ data class ServiceClientConfig(
 )
 
 data class TaskConfig(
-    val deleteExpiredTiltakshistorikk: DeleteExpiredTiltakshistorikk.Config,
     val synchronizeNorgEnheter: SynchronizeNorgEnheter.Config,
     val synchronizeNavAnsatte: SynchronizeNavAnsatte.Config,
     val synchronizeUtdanninger: SynchronizeUtdanninger.Config = SynchronizeUtdanninger.Config(cronPattern = ""),

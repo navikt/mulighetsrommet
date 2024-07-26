@@ -45,7 +45,6 @@ import no.nav.mulighetsrommet.kafka.KafkaConsumerRepositoryImpl
 import no.nav.mulighetsrommet.kafka.consumers.TiltaksgjennomforingTopicConsumer
 import no.nav.mulighetsrommet.kafka.consumers.amt.AmtDeltakerV1TopicConsumer
 import no.nav.mulighetsrommet.kafka.consumers.amt.AmtVirksomheterV1TopicConsumer
-import no.nav.mulighetsrommet.kafka.consumers.pto.PtoSisteOppfolgingsperiodeV1TopicConsumer
 import no.nav.mulighetsrommet.kafka.producers.ArenaMigreringTiltaksgjennomforingKafkaProducer
 import no.nav.mulighetsrommet.kafka.producers.TiltaksgjennomforingKafkaProducer
 import no.nav.mulighetsrommet.kafka.producers.TiltakstypeKafkaProducer
@@ -150,11 +149,6 @@ private fun kafka(appConfig: AppConfig) = module {
                 arrangorRepository = get(),
                 brregClient = get(),
             ),
-            PtoSisteOppfolgingsperiodeV1TopicConsumer(
-                config = config.consumers.ptoSisteOppfolgingsperiodeV1,
-                tiltakshistorikk = get(),
-                pdlClient = get(),
-            ),
         )
         KafkaConsumerOrchestrator(
             consumerPreset = properties,
@@ -168,7 +162,6 @@ private fun repositories() = module {
     single { AvtaleRepository(get()) }
     single { TiltaksgjennomforingRepository(get()) }
     single { TiltakstypeRepository(get()) }
-    single { TiltakshistorikkRepository(get()) }
     single { NavEnhetRepository(get()) }
     single { DeltakerRepository(get()) }
     single { NotificationRepository(get()) }
@@ -282,8 +275,6 @@ private fun services(appConfig: AppConfig) = module {
             get(),
             get(),
             get(),
-            get(),
-            get(),
         )
     }
     single {
@@ -298,7 +289,7 @@ private fun services(appConfig: AppConfig) = module {
             get(),
         )
     }
-    single { TiltakshistorikkService(get(), get(), get(), get(), get(), get()) }
+    single { TiltakshistorikkService(get(), get(), get(), get(), get()) }
     single { VeilederflateService(get(), get(), get(), get()) }
     single { BrukerService(get(), get(), get(), get(), get()) }
     single { NavAnsattService(appConfig.auth.roles, get(), get(), get(), get(), get(), get(), get()) }
@@ -324,7 +315,6 @@ private fun services(appConfig: AppConfig) = module {
     single { NavVeilederService(get()) }
     single { NotificationService(get(), get(), get()) }
     single { ArrangorService(get(), get()) }
-    single { ExcelService() }
     single {
         val byEnhetStrategy = ByEnhetStrategy(get())
         val byNavidentStrategy = ByNavIdentStrategy()
@@ -333,8 +323,7 @@ private fun services(appConfig: AppConfig) = module {
     single<AxsysClient> {
         AxsysV2ClientImpl(
             appConfig.axsys.url,
-            { runBlocking { cachedTokenProvider.withScope(appConfig.axsys.scope).exchange(AccessType.M2M) } },
-        )
+        ) { runBlocking { cachedTokenProvider.withScope(appConfig.axsys.scope).exchange(AccessType.M2M) } }
     }
     single { AvtaleValidator(get(), get(), get(), get(), get()) }
     single { TiltaksgjennomforingValidator(get(), get(), get()) }
@@ -350,11 +339,6 @@ private fun tasks(config: TaskConfig) = module {
     single { SynchronizeNavAnsatte(config.synchronizeNavAnsatte, get(), get(), get()) }
     single { SynchronizeUtdanninger(get(), get(), config.synchronizeUtdanninger, get()) }
     single {
-        val deleteExpiredTiltakshistorikk = DeleteExpiredTiltakshistorikk(
-            config.deleteExpiredTiltakshistorikk,
-            get(),
-            get(),
-        )
         val updateTiltaksgjennomforingStatus = UpdateTiltaksgjennomforingStatus(
             get(),
             get(),
@@ -398,7 +382,6 @@ private fun tasks(config: TaskConfig) = module {
                 initialLoadTiltakstyper.task,
             )
             .startTasks(
-                deleteExpiredTiltakshistorikk.task,
                 synchronizeNorgEnheterTask.task,
                 updateTiltaksgjennomforingStatus.task,
                 synchronizeNavAnsatte.task,

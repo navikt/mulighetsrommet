@@ -57,7 +57,6 @@ fun createTestApplicationConfig() = AppConfig(
     arenaAdapter = createServiceClientConfig("arena-adapter"),
     tiltakshistorikk = createServiceClientConfig("tiltakshistorikk"),
     tasks = TaskConfig(
-        deleteExpiredTiltakshistorikk = DeleteExpiredTiltakshistorikk.Config(disabled = true),
         synchronizeNorgEnheter = SynchronizeNorgEnheter.Config(
             delayOfMinutes = 10,
             disabled = true,
@@ -123,10 +122,6 @@ fun createKafkaConfig(): KafkaConfig = KafkaConfig(
         ),
         amtDeltakerV1 = KafkaTopicConsumer.Config(id = "amt-deltaker", topic = "amt-deltaker"),
         amtVirksomheterV1 = KafkaTopicConsumer.Config(id = "amt-virksomheter", topic = "amt-virksomheter"),
-        ptoSisteOppfolgingsperiodeV1 = KafkaTopicConsumer.Config(
-            id = "pto-sisteoppfolgingsperiode",
-            topic = "pto-sisteoppfolgingsperiode",
-        ),
     ),
 )
 
