@@ -8,4 +8,5 @@ using tiltakstype
 where tiltaksgjennomforing.tiltakstype_id = tiltakstype.id
   and tiltakstype.arena_kode in ('IPSUNG', 'UTVAOONAV', 'INDJOBSTOT');
 
+drop view if exists tiltaksgjennomforing_admin_dto_view;
 alter table tiltaksgjennomforing drop column sanity_id;
