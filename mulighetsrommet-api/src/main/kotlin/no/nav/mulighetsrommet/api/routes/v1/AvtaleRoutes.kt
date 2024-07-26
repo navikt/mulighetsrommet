@@ -26,14 +26,12 @@ import java.util.*
 
 fun Route.avtaleRoutes() {
     val avtaler: AvtaleService by inject()
-    val excelService: ExcelService by inject()
 
     route("/api/v1/intern/personopplysninger") {
         get {
             call.respond(
                 Personopplysning
-                    .values()
-                    .toList()
+                    .entries
                     .sortedBy { it.sortKey }
                     .map { it.toPersonopplysningData() },
             )
@@ -103,7 +101,7 @@ fun Route.avtaleRoutes() {
                 administratorNavIdent = navIdent,
             )
             val result = avtaler.getAll(overstyrtFilter, pagination)
-            val file = excelService.createExcelFile(result.data)
+            val file = ExcelService.createExcelFileForAvtale(result.data)
             call.response.header(
                 HttpHeaders.ContentDisposition,
                 ContentDisposition.Attachment.withParameter(ContentDisposition.Parameters.FileName, "avtaler.xlsx")
