@@ -184,10 +184,6 @@ class ArenaAdapterService(
 
     suspend fun removeTiltaksgjennomforing(id: UUID) {
         db.transactionSuspend { tx ->
-            tiltaksgjennomforinger.getSanityTiltaksgjennomforingId(id, tx)?.let {
-                sanityTiltakService.deleteSanityTiltaksgjennomforing(it)
-            }
-
             val numDeleted = tiltaksgjennomforinger.delete(id, tx)
             if (numDeleted > 0) {
                 logDelete(tx, DocumentClass.TILTAKSGJENNOMFORING, id)
