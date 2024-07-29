@@ -19,7 +19,6 @@ import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.domain.dbo.ArenaDeltakerStatus
-import no.nav.mulighetsrommet.domain.dbo.Deltakerstatus
 import no.nav.mulighetsrommet.domain.dto.NorskIdent
 import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
 import no.nav.mulighetsrommet.domain.dto.Tiltakshistorikk
@@ -112,25 +111,29 @@ class TiltakshistorikkServiceTest : FunSpec({
         )
 
         val forventetHistorikk = listOf(
-            TiltakshistorikkAdminDto(
+            TiltakshistorikkAdminDto.GruppetiltakDeltakelse(
                 id = gruppetiltakDeltakelse.id,
-                fraDato = LocalDate.of(2018, 12, 3),
-                tilDato = LocalDate.of(2019, 12, 3),
-                status = Deltakerstatus.VENTER,
-                tiltaksnavn = tiltaksgjennomforing.navn,
-                tiltakstype = tiltakstype.navn,
+                startDato = LocalDate.of(2018, 12, 3),
+                sluttDato = LocalDate.of(2019, 12, 3),
+                status = AmtDeltakerStatus(
+                    type = AmtDeltakerStatus.Type.VENTELISTE,
+                    opprettetDato = LocalDateTime.of(2018, 12, 3, 0, 0),
+                    aarsak = null,
+                ),
+                tiltakNavn = tiltaksgjennomforing.navn,
+                tiltakstypeNavn = tiltakstype.navn,
                 arrangor = TiltakshistorikkAdminDto.Arrangor(
                     organisasjonsnummer = Organisasjonsnummer(ArrangorFixtures.underenhet1.organisasjonsnummer),
                     navn = ArrangorFixtures.underenhet1.navn,
                 ),
             ),
-            TiltakshistorikkAdminDto(
+            TiltakshistorikkAdminDto.ArenaDeltakelse(
                 id = arenaDeltakelse.id,
-                fraDato = LocalDate.of(2018, 12, 3),
-                tilDato = LocalDate.of(2019, 12, 3),
-                status = Deltakerstatus.VENTER,
-                tiltaksnavn = arenaDeltakelse.beskrivelse,
-                tiltakstype = tiltakstypeIndividuell.navn,
+                startDato = LocalDate.of(2018, 12, 3),
+                sluttDato = LocalDate.of(2019, 12, 3),
+                status = ArenaDeltakerStatus.VENTELISTE,
+                tiltakNavn = arenaDeltakelse.beskrivelse,
+                tiltakstypeNavn = tiltakstypeIndividuell.navn,
                 arrangor = TiltakshistorikkAdminDto.Arrangor(
                     organisasjonsnummer = arenaDeltakelse.arrangor.organisasjonsnummer,
                     navn = "Bedriftsnavn 2",
