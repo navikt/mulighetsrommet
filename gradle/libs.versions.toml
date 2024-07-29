@@ -94,7 +94,7 @@ ktor-server-tests = { module = "io.ktor:ktor-server-tests-jvm", version.ref = "k
 
 logback-core = { module = "ch.qos.logback:logback-core", version.ref = "logback" }
 logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
-logback-logstashLogbackEncoder = "net.logstash.logback:logstash-logback-encoder:7.4"
+logback-logstashLogbackEncoder = "net.logstash.logback:logstash-logback-encoder:8.0"
 
 metrics-core = { module = "io.dropwizard.metrics:metrics-core", version.ref = "metrics" }
 metrics-healthchecks = { module = "io.dropwizard.metrics:metrics-healthchecks", version.ref = "metrics" }
