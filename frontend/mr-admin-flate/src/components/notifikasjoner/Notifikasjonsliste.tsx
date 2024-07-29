@@ -71,16 +71,18 @@ export function Notifikasjonsliste({ lest }: Props) {
 
   return (
     <ReloadAppErrorBoundary>
-      <HStack align={"end"} justify={"end"}>
-        <Button variant="tertiary-neutral" size="small" onClick={toggleMarkertSomlestUlest}>
-          Merk alle som {lest ? "ulest" : "lest"}
-        </Button>
-      </HStack>
-      <ul className={styles.notifikasjonsliste_ul}>
-        {data.map((n) => {
-          return <Notifikasjonssrad lest={lest} key={n.id} notifikasjon={n} />;
-        })}
-      </ul>
+      <div className={styles.max_width}>
+        <HStack align={"end"} justify={"end"}>
+          <Button variant="tertiary-neutral" size="small" onClick={toggleMarkertSomlestUlest}>
+            Merk alle som {lest ? "ulest" : "lest"}
+          </Button>
+        </HStack>
+        <ul className={styles.notifikasjonsliste_ul}>
+          {data.map((n) => {
+            return <Notifikasjonssrad lest={lest} key={n.id} notifikasjon={n} />;
+          })}
+        </ul>
+      </div>
     </ReloadAppErrorBoundary>
   );
 }
