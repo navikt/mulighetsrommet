@@ -130,7 +130,7 @@ fun Route.tiltaksgjennomforingRoutes() {
                 sortering = "tiltakstype_navn-ascending",
                 administratorNavIdent = navIdent,
             )
-            val result = service.getAllAdmin(overstyrtFilter, pagination)
+            val result = service.getAllSkalMigreres(pagination, overstyrtFilter)
             val file = ExcelService.createExcelFileForTiltaksgjennomforing(result.data)
             call.response.header(
                 HttpHeaders.ContentDisposition,
