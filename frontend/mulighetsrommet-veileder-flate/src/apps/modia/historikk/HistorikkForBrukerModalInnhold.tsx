@@ -2,36 +2,29 @@ import { PortenLink } from "@/components/PortenLink";
 import { formaterDato } from "@/utils/Utils";
 import { ExternalLinkIcon } from "@navikt/aksel-icons";
 import { Alert, BodyShort, HStack, Heading, Loader, VStack } from "@navikt/ds-react";
-import { HistorikkForBruker as IHistorikkForBruker } from "mulighetsrommet-api-client";
 import styles from "./HistorikkForBrukerModal.module.scss";
 import { StatusBadge } from "./Statusbadge";
 import { useTiltakshistorikkForBruker } from "@/api/queries/useTiltakshistorikkForBruker";
+import { TiltakshistorikkAdminDto } from "mulighetsrommet-api-client";
 
 export function HistorikkForBrukerModalInnhold() {
-  const { data, isLoading, isError } = useTiltakshistorikkForBruker();
+  const { data: historikk, isPending, isError } = useTiltakshistorikkForBruker();
 
-  if (isLoading && !data) return <Loader />;
+  if (isPending) return <Loader />;
 
-  if (isError) return <Alert variant="error">Kunne ikke hente brukerens tiltakshistorikk</Alert>;
+  if (isError || !historikk)
+    return <Alert variant="error">Kunne ikke hente brukerens tiltakshistorikk</Alert>;
 
-  const sorterPaaFraDato = (a: IHistorikkForBruker, b: IHistorikkForBruker) => {
-    if (!a.fraDato || !b.fraDato) return -1; // Flytt deltakelser uten fraDato bakerst
+  const sorterPaaFraDato = (a: TiltakshistorikkAdminDto, b: TiltakshistorikkAdminDto) => {
+    if (!a.startDato) return 1;
+    if (!b.startDato) return -1;
 
-    return new Date(a.fraDato ?? "").getTime() - new Date(b.fraDato ?? "").getTime();
+    return new Date(b.startDato ?? "").getTime() - new Date(a.startDato ?? "").getTime();
   };
-
-  const venter = data?.filter(({ status }) => status === "VENTER").sort(sorterPaaFraDato) ?? [];
-  const deltar = data?.filter(({ status }) => status === "DELTAR").sort(sorterPaaFraDato) ?? [];
-  const avsluttet =
-    data?.filter(({ status }) => status === "AVSLUTTET").sort(sorterPaaFraDato) ?? [];
-  const ikkeAktuell =
-    data?.filter(({ status }) => status === "IKKE_AKTUELL").sort(sorterPaaFraDato) ?? [];
-
-  const tiltak = [...venter, ...deltar, ...avsluttet, ...ikkeAktuell];
 
   return (
     <div style={{ marginTop: "1rem" }}>
-      {tiltak.length === 0 ? (
+      {historikk.length === 0 ? (
         <Alert variant="info" style={{ marginBottom: "1rem" }}>
           Vi finner ingen registrerte tiltak på brukeren
         </Alert>
@@ -41,21 +34,21 @@ export function HistorikkForBrukerModalInnhold() {
         Arena kan mangle i historikken.
       </Alert>
       <ul className={styles.historikk_for_bruker_liste}>
-        {tiltak.map((historikk) => {
+        {historikk.sort(sorterPaaFraDato).map((historikk) => {
           return (
             <li key={historikk.id} className={styles.historikk_for_bruker_listeelement}>
               <VStack>
-                <HStack gap="10">{<small>{historikk.tiltakstype.toUpperCase()}</small>}</HStack>
+                <HStack gap="10">{<small>{historikk.tiltakstypeNavn.toUpperCase()}</small>}</HStack>
                 <Heading size="small" level="4">
-                  {historikk.tiltaksnavn}
+                  {historikk.tiltakNavn}
                 </Heading>
                 <HStack align={"end"} gap="5">
                   <StatusBadge status={historikk.status} />
-                  {historikk.fraDato ? (
+                  {historikk.startDato ? (
                     <BodyShort size="small">
-                      {historikk.fraDato && !historikk.tilDato
-                        ? `Oppstartsdato ${formaterDato(historikk.fraDato)}`
-                        : [historikk.fraDato, historikk.tilDato]
+                      {historikk.startDato && !historikk.sluttDato
+                        ? `Oppstartsdato ${formaterDato(historikk.startDato)}`
+                        : [historikk.startDato, historikk.sluttDato]
                             .filter(Boolean)
                             .map((dato) => dato && formaterDato(dato))
                             .join(" - ")}

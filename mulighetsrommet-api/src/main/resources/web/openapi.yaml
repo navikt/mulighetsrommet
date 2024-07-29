@@ -1003,7 +1003,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/HistorikkForBruker"
+                  $ref: "#/components/schemas/TiltakshistorikkAdminDto"
 
   /api/v1/intern/bruker/komet-deltakelser:
     post:
@@ -2685,37 +2685,133 @@ components:
         - DELTAR
         - IKKE_AKTUELL
 
-    HistorikkForBruker:
+    TiltakshistorikkAdminDto:
+      oneOf:
+        - $ref: "#/components/schemas/ArenaDeltakelse"
+        - $ref: "#/components/schemas/GruppetiltakDeltakelse"
+
+    ArenaDeltakelse:
       type: object
       properties:
         id:
           type: string
-        fnr:
+          format: uuid
+        startDato:
           type: string
-        fraDato:
+          format: date
+        sluttDato:
           type: string
-          nullable: true
-        tilDato:
+          format: date
+        tiltakNavn:
           type: string
-          nullable: true
+        tiltakstypeNavn:
+          type: string
         status:
-          $ref: "#/components/schemas/HistorikkForBrukerStatus"
-        tiltaksnavn:
-          type: string
-          nullable: true
-        tiltakstype:
-          type: string
+          $ref: "#/components/schemas/ArenaDeltakerStatus"
         arrangor:
           $ref: "#/components/schemas/TiltakshistorikkArrangor"
+        opphav:
+          type: string
+          enum:
+            - ARENA
       required:
         - id
-        - fnr
-        - fraDato
-        - tilDato
+        - tiltakstypeNavn
+        - tiltakNavn
         - status
-        - tiltaksnavn
-        - tiltakstype
         - arrangor
+        - opphav
+
+    ArenaDeltakerStatus:
+      type: string
+      enum:
+        - AVSLAG
+        - IKKE_AKTUELL
+        - TAKKET_NEI_TIL_TILBUD
+        - TILBUD
+        - TAKKET_JA_TIL_TILBUD
+        - INFORMASJONSMOTE
+        - AKTUELL
+        - VENTELISTE
+        - GJENNOMFORES
+        - DELTAKELSE_AVBRUTT
+        - GJENNOMFORING_AVBRUTT
+        - GJENNOMFORING_AVLYST
+        - FULLFORT
+        - IKKE_MOTT
+
+    GruppetiltakDeltakelse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        startDato:
+          type: string
+          format: date
+        sluttDato:
+          type: string
+          format: date
+        tiltakNavn:
+          type: string
+        tiltakstypeNavn:
+          type: string
+        status:
+          $ref: "#/components/schemas/AmtDeltakerStatus"
+        arrangor:
+          $ref: "#/components/schemas/TiltakshistorikkArrangor"
+        opphav:
+          type: string
+          enum:
+            - TEAM_KOMET
+      required:
+        - id
+        - tiltakNavn
+        - tiltakstypeNavn
+        - status
+        - arrangor
+        - opphav
+
+    AmtDeltakerStatus:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - VENTER_PA_OPPSTART
+            - DELTAR
+            - HAR_SLUTTET
+            - IKKE_AKTUELL
+            - FEILREGISTRERT
+            - PABEGYNT_REGISTRERING
+            - SOKT_INN
+            - VURDERES
+            - VENTELISTE
+            - AVBRUTT
+            - FULLFORT
+            - UTKAST_TIL_PAMELDING
+            - AVBRUTT_UTKAST
+        aarsak:
+          type: string
+          enum:
+            - SYK
+            - FATT_JOBB
+            - TRENGER_ANNEN_STOTTE
+            - FIKK_IKKE_PLASS
+            - UTDANNING
+            - FERDIG
+            - AVLYST_KONTRAKT
+            - IKKE_MOTT
+            - FEILREGISTRERT
+            - OPPFYLLER_IKKE_KRAVENE
+            - ANNET
+            - SAMARBEIDET_MED_ARRANGOREN_ER_AVBRUTT
+        opprettetDato:
+          type: string
+          format: date-time
+      required:
+        - type
+        - opprettetDato
 
     DeltakelserResponse:
       type: object
