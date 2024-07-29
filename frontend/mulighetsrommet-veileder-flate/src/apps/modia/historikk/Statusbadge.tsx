@@ -1,4 +1,8 @@
-import { AmtDeltakerStatus, ArenaDeltakerStatus } from "mulighetsrommet-api-client";
+import {
+  AmtDeltakerStatus,
+  AmtDeltakerStatusType,
+  ArenaDeltakerStatus,
+} from "mulighetsrommet-api-client";
 import { Tag } from "@navikt/ds-react";
 import styles from "./Statusbadge.module.scss";
 import classNames from "classnames";
@@ -37,7 +41,7 @@ export function StatusBadge({ status }: { status: AmtDeltakerStatus | ArenaDelta
     <Tag
       size="small"
       variant={variant === "white" ? "neutral" : variant}
-      className={classNames(variant === "white" && styles.white)}
+      className={classNames({ [styles.white]: variant === "white" })}
     >
       {title}
     </Tag>
@@ -56,31 +60,31 @@ function variantAndTitle(status: AmtDeltakerStatus | ArenaDeltakerStatus): {
 } {
   if (isAmtDeltakerStatus(status)) {
     switch (status.type) {
-      case "VENTER_PA_OPPSTART":
+      case AmtDeltakerStatusType.VENTER_PA_OPPSTART:
         return { variant: "alt3", title: "Venter på oppstart" };
-      case "DELTAR":
+      case AmtDeltakerStatusType.DELTAR:
         return { variant: "white", title: "Deltar" };
-      case "HAR_SLUTTET":
+      case AmtDeltakerStatusType.HAR_SLUTTET:
         return { variant: "neutral", title: "Har sluttet" };
-      case "IKKE_AKTUELL":
+      case AmtDeltakerStatusType.IKKE_AKTUELL:
         return { variant: "neutral", title: "Ikke aktuell" };
-      case "FEILREGISTRERT":
+      case AmtDeltakerStatusType.FEILREGISTRERT:
         return { variant: "neutral", title: "Feilregistrert" };
-      case "PABEGYNT_REGISTRERING":
+      case AmtDeltakerStatusType.PABEGYNT_REGISTRERING:
         return { variant: "info", title: "Påbegynt registrering" };
-      case "SOKT_INN":
+      case AmtDeltakerStatusType.SOKT_INN:
         return { variant: "alt3", title: "Søkt om plass" };
-      case "VURDERES":
+      case AmtDeltakerStatusType.VURDERES:
         return { variant: "alt2", title: "Vurderes" };
-      case "VENTELISTE":
+      case AmtDeltakerStatusType.VENTELISTE:
         return { variant: "neutral", title: "På venteliste" };
-      case "AVBRUTT":
+      case AmtDeltakerStatusType.AVBRUTT:
         return { variant: "neutral", title: "Avbrutt" };
-      case "FULLFORT":
+      case AmtDeltakerStatusType.FULLFORT:
         return { variant: "alt1", title: "Fullført" };
-      case "UTKAST_TIL_PAMELDING":
+      case AmtDeltakerStatusType.UTKAST_TIL_PAMELDING:
         return { variant: "info", title: "Utkast til påmelding" };
-      case "AVBRUTT_UTKAST":
+      case AmtDeltakerStatusType.AVBRUTT_UTKAST:
         return { variant: "neutral", title: "Avbrutt utkast" };
     }
   } else {

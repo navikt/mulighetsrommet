@@ -2677,14 +2677,6 @@ components:
       required:
         - id
 
-    HistorikkForBrukerStatus:
-      type: string
-      enum:
-        - VENTER
-        - AVSLUTTET
-        - DELTAR
-        - IKKE_AKTUELL
-
     TiltakshistorikkAdminDto:
       oneOf:
         - $ref: "#/components/schemas/ArenaDeltakelse"
@@ -2776,42 +2768,47 @@ components:
       type: object
       properties:
         type:
-          type: string
-          enum:
-            - VENTER_PA_OPPSTART
-            - DELTAR
-            - HAR_SLUTTET
-            - IKKE_AKTUELL
-            - FEILREGISTRERT
-            - PABEGYNT_REGISTRERING
-            - SOKT_INN
-            - VURDERES
-            - VENTELISTE
-            - AVBRUTT
-            - FULLFORT
-            - UTKAST_TIL_PAMELDING
-            - AVBRUTT_UTKAST
+          $ref: "#/components/schemas/AmtDeltakerStatusType"
         aarsak:
-          type: string
-          enum:
-            - SYK
-            - FATT_JOBB
-            - TRENGER_ANNEN_STOTTE
-            - FIKK_IKKE_PLASS
-            - UTDANNING
-            - FERDIG
-            - AVLYST_KONTRAKT
-            - IKKE_MOTT
-            - FEILREGISTRERT
-            - OPPFYLLER_IKKE_KRAVENE
-            - ANNET
-            - SAMARBEIDET_MED_ARRANGOREN_ER_AVBRUTT
+          $ref: "#/components/schemas/AmtDeltakerStatusAarsak"
         opprettetDato:
           type: string
           format: date-time
       required:
         - type
-        - opprettetDato
+
+    AmtDeltakerStatusType:
+      type: string
+      enum:
+        - VENTER_PA_OPPSTART
+        - DELTAR
+        - HAR_SLUTTET
+        - IKKE_AKTUELL
+        - FEILREGISTRERT
+        - PABEGYNT_REGISTRERING
+        - SOKT_INN
+        - VURDERES
+        - VENTELISTE
+        - AVBRUTT
+        - FULLFORT
+        - UTKAST_TIL_PAMELDING
+        - AVBRUTT_UTKAST
+
+    AmtDeltakerStatusAarsak:
+      type: string
+      enum:
+        - SYK
+        - FATT_JOBB
+        - TRENGER_ANNEN_STOTTE
+        - FIKK_IKKE_PLASS
+        - UTDANNING
+        - FERDIG
+        - AVLYST_KONTRAKT
+        - IKKE_MOTT
+        - FEILREGISTRERT
+        - OPPFYLLER_IKKE_KRAVENE
+        - ANNET
+        - SAMARBEIDET_MED_ARRANGOREN_ER_AVBRUTT
 
     DeltakelserResponse:
       type: object

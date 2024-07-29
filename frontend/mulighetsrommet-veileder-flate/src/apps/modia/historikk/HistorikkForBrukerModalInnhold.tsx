@@ -1,11 +1,11 @@
 import { PortenLink } from "@/components/PortenLink";
 import { formaterDato } from "@/utils/Utils";
 import { ExternalLinkIcon } from "@navikt/aksel-icons";
-import { Alert, BodyShort, HStack, Heading, Loader, VStack } from "@navikt/ds-react";
+import { Alert, BodyShort, Detail, HStack, Heading, Loader, VStack } from "@navikt/ds-react";
 import styles from "./HistorikkForBrukerModal.module.scss";
 import { StatusBadge } from "./Statusbadge";
 import { useTiltakshistorikkForBruker } from "@/api/queries/useTiltakshistorikkForBruker";
-import { TiltakshistorikkAdminDto } from "mulighetsrommet-api-client";
+import { AmtDeltakerStatusAarsak, TiltakshistorikkAdminDto } from "mulighetsrommet-api-client";
 
 export function HistorikkForBrukerModalInnhold() {
   const { data: historikk, isPending, isError } = useTiltakshistorikkForBruker();
@@ -44,6 +44,9 @@ export function HistorikkForBrukerModalInnhold() {
                 </Heading>
                 <HStack align={"end"} gap="5">
                   <StatusBadge status={historikk.status} />
+                  {historikk.opphav === "TEAM_KOMET" && historikk.status.aarsak && (
+                    <Detail>{`Årsak: ${amtAarsakToString(historikk.status.aarsak)}`}</Detail>
+                  )}
                   {historikk.startDato ? (
                     <BodyShort size="small">
                       {historikk.startDato && !historikk.sluttDato
@@ -78,4 +81,33 @@ function ViVilHoreFraDeg() {
       </BodyShort>
     </>
   );
+}
+
+function amtAarsakToString(aarsak: AmtDeltakerStatusAarsak): string {
+  switch (aarsak) {
+    case AmtDeltakerStatusAarsak.SYK:
+      return "Syk";
+    case AmtDeltakerStatusAarsak.FATT_JOBB:
+      return "Fått jobb";
+    case AmtDeltakerStatusAarsak.TRENGER_ANNEN_STOTTE:
+      return "Trenger anne støtte";
+    case AmtDeltakerStatusAarsak.FIKK_IKKE_PLASS:
+      return "Fikk ikke plass";
+    case AmtDeltakerStatusAarsak.UTDANNING:
+      return "Utdanning";
+    case AmtDeltakerStatusAarsak.FERDIG:
+      return "Ferdig";
+    case AmtDeltakerStatusAarsak.AVLYST_KONTRAKT:
+      return "Avlyst kontrakt";
+    case AmtDeltakerStatusAarsak.IKKE_MOTT:
+      return "Ikke møtt";
+    case AmtDeltakerStatusAarsak.FEILREGISTRERT:
+      return "Feilregistrert";
+    case AmtDeltakerStatusAarsak.OPPFYLLER_IKKE_KRAVENE:
+      return "Oppfyller ikke kravene";
+    case AmtDeltakerStatusAarsak.ANNET:
+      return "Annet";
+    case AmtDeltakerStatusAarsak.SAMARBEIDET_MED_ARRANGOREN_ER_AVBRUTT:
+      return "Samarbeidet med arrangøren er avbrutt";
+  }
 }

@@ -4,10 +4,10 @@ import {
   BrukerVarsel,
   DeltakelserResponse,
   GetBrukerRequest,
-  HistorikkForBruker,
   Innsatsgruppe,
   NavEnhetStatus,
   NavEnhetType,
+  TiltakshistorikkAdminDto,
 } from "mulighetsrommet-api-client";
 import { historikk } from "../../fixtures/mockHistorikk";
 import { historikkFraKomet } from "../../fixtures/mockKometHistorikk";
@@ -51,11 +51,7 @@ export const brukerHandlers = [
     },
   ),
 
-  http.post<PathParams, HistorikkForBruker[]>("*/api/v1/intern/bruker/historikk", () =>
-    HttpResponse.json(historikk),
-  ),
-
-  http.post<PathParams, HistorikkForBruker[]>("*/api/v2/intern/bruker/historikk", () =>
+  http.post<PathParams, TiltakshistorikkAdminDto[]>("*/api/v2/intern/bruker/historikk", () =>
     HttpResponse.json(historikk),
   ),
 

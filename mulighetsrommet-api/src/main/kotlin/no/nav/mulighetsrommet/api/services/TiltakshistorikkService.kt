@@ -20,9 +20,9 @@ import org.slf4j.LoggerFactory
 class TiltakshistorikkService(
     private val pdlClient: PdlClient,
     private val arrangorService: ArrangorService,
-    private val tiltakstypeRepository: TiltakstypeRepository,
     private val amtDeltakerClient: AmtDeltakerClient,
     private val tiltakshistorikkClient: TiltakshistorikkClient,
+    private val tiltakstypeRepository: TiltakstypeRepository,
 ) {
     val log: Logger = LoggerFactory.getLogger(javaClass)
 
