@@ -55,9 +55,6 @@ app:
       amtVirksomheterV1:
         id: amt-virksomheter
         topic: amt.virksomheter-v1
-      ptoSisteOppfolgingsperiodeV1:
-        id: pto-virksomheter
-        topic: pto.siste-oppfolgingsperiode-v1
 
   auth:
     azure:
@@ -137,8 +134,6 @@ app:
     scope: default
 
   tasks:
-    deleteExpiredTiltakshistorikk:
-      disabled: true
     synchronizeNorgEnheter:
       disabled: true
       delayOfMinutes: 360 # Hver 6. time

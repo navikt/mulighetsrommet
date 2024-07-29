@@ -4,12 +4,11 @@ import { TabellWrapper } from "@/components/tabell/TabellWrapper";
 import { APPLICATION_NAME } from "@/constants";
 import {
   capitalizeEveryWord,
-  createQueryParamsForExcelDownload,
+  createQueryParamsForExcelDownloadForAvtale,
   formaterDato,
   formaterNavEnheter,
 } from "@/utils/Utils";
-import { FileExcelIcon } from "@navikt/aksel-icons";
-import { Alert, Button, Pagination, Table, VStack } from "@navikt/ds-react";
+import { Alert, Pagination, Table, VStack } from "@navikt/ds-react";
 import { useAtom, WritableAtom } from "jotai";
 import { OpenAPI, SorteringAvtaler } from "mulighetsrommet-api-client";
 import { Lenke } from "mulighetsrommet-frontend-common/components/lenke/Lenke";
@@ -22,25 +21,7 @@ import { PagineringContainer } from "../paginering/PagineringContainer";
 import { PagineringsOversikt } from "../paginering/PagineringOversikt";
 import { AvtalestatusTag } from "../statuselementer/AvtalestatusTag";
 import styles from "./Tabell.module.scss";
-
-async function lastNedFil(filter: AvtaleFilter) {
-  const headers = new Headers();
-  headers.append("Nav-Consumer-Id", APPLICATION_NAME);
-
-  if (import.meta.env.VITE_MULIGHETSROMMET_API_AUTH_TOKEN) {
-    headers.append(
-      "Authorization",
-      `Bearer ${import.meta.env.VITE_MULIGHETSROMMET_API_AUTH_TOKEN}`,
-    );
-  }
-  headers.append("accept", "application/json");
-
-  const queryParams = createQueryParamsForExcelDownload(filter);
-
-  return await fetch(`${OpenAPI.BASE}/api/v1/intern/avtaler/excel?${queryParams}`, {
-    headers,
-  });
-}
+import { EksporterTabellKnapp } from "@/components/eksporterTabell/EksporterTabellKnapp";
 
 interface Props {
   filterAtom: WritableAtom<AvtaleFilter, [newValue: AvtaleFilter], void>;
@@ -56,6 +37,25 @@ export function AvtaleTabell({ filterAtom, tagsHeight, filterOpen }: Props) {
   const { data, isLoading } = useAvtaler(filter);
 
   const link = createRef<HTMLAnchorElement>();
+
+  async function lastNedFil(filter: AvtaleFilter) {
+    const headers = new Headers();
+    headers.append("Nav-Consumer-Id", APPLICATION_NAME);
+
+    if (import.meta.env.VITE_MULIGHETSROMMET_API_AUTH_TOKEN) {
+      headers.append(
+        "Authorization",
+        `Bearer ${import.meta.env.VITE_MULIGHETSROMMET_API_AUTH_TOKEN}`,
+      );
+    }
+    headers.append("accept", "application/json");
+
+    const queryParams = createQueryParamsForExcelDownloadForAvtale(filter);
+
+    return await fetch(`${OpenAPI.BASE}/api/v1/intern/avtaler/excel?${queryParams}`, {
+      headers,
+    });
+  }
 
   async function lastNedExcel() {
     setLasterExcel(true);
@@ -125,15 +125,7 @@ export function AvtaleTabell({ filterAtom, tagsHeight, filterOpen }: Props) {
               });
             }}
           />
-          <Button
-            icon={<FileExcelIcon title="Excelikon" />}
-            variant="tertiary"
-            onClick={lastNedExcel}
-            disabled={lasterExcel}
-            type="button"
-          >
-            {lasterExcel ? "Henter Excel-fil..." : "Eksporter tabellen til Excel"}
-          </Button>
+          <EksporterTabellKnapp lastNedExcel={lastNedExcel} lasterExcel={lasterExcel} />
           <a style={{ display: "none" }} ref={link}></a>
         </ToolbarMeny>
       </ToolbarContainer>

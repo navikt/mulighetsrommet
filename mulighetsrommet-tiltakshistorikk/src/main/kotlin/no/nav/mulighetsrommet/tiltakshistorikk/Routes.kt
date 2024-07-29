@@ -20,8 +20,8 @@ fun Route.tiltakshistorikkRoutes(deltakerRepository: DeltakerRepository) {
             post {
                 val request = call.receive<TiltakshistorikkRequest>()
 
-                val arenaDeltakelser = async { deltakerRepository.getArenaHistorikk(request.identer) }
-                val gruppetiltakDeltakelser = async { deltakerRepository.getKometHistorikk(request.identer) }
+                val arenaDeltakelser = async { deltakerRepository.getArenaHistorikk(request.identer, request.maxAgeYears) }
+                val gruppetiltakDeltakelser = async { deltakerRepository.getKometHistorikk(request.identer, request.maxAgeYears) }
                 val tiltakshistorikk = arenaDeltakelser.await() + gruppetiltakDeltakelser.await()
 
                 val historikk = tiltakshistorikk.sortedWith(compareBy(nullsLast()) { it.startDato })

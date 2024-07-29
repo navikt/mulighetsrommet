@@ -34,11 +34,6 @@
           "strategies": []
         },
         {
-          "name": "mulighetsrommet.veilederflate.enableV2Historikk",
-          "enabled": true,
-          "strategies": []
-        },
-        {
           "name": "mulighetsrommet.admin-flate.registrere-opsjonsmodell",
           "enabled": true,
           "strategies": []

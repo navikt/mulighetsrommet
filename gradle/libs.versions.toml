@@ -36,7 +36,7 @@ assertj-db = "org.assertj:assertj-db:2.0.2"
 
 caffeine = "com.github.ben-manes.caffeine:caffeine:3.1.8"
 
-dbScheduler = "com.github.kagkarlsson:db-scheduler:14.0.2"
+dbScheduler = "com.github.kagkarlsson:db-scheduler:14.0.3"
 
 flyway-core = { module = "org.flywaydb:flyway-core", version.ref = "flyway" }
 flyway-database-postgresql = { module = "org.flywaydb:flyway-database-postgresql", version.ref = "flyway" }
@@ -94,7 +94,7 @@ ktor-server-tests = { module = "io.ktor:ktor-server-tests-jvm", version.ref = "k
 
 logback-core = { module = "ch.qos.logback:logback-core", version.ref = "logback" }
 logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
-logback-logstashLogbackEncoder = "net.logstash.logback:logstash-logback-encoder:7.4"
+logback-logstashLogbackEncoder = "net.logstash.logback:logstash-logback-encoder:8.0"
 
 metrics-core = { module = "io.dropwizard.metrics:metrics-core", version.ref = "metrics" }
 metrics-healthchecks = { module = "io.dropwizard.metrics:metrics-healthchecks", version.ref = "metrics" }
@@ -124,4 +124,4 @@ slf4j = "org.slf4j:slf4j-api:2.0.13"
 apache-poi = "org.apache.poi:poi:5.3.0"
 apache-poi-ooxml = "org.apache.poi:poi-ooxml:5.3.0"
 
-unleash = "io.getunleash:unleash-client-java:9.2.2"
+unleash = "io.getunleash:unleash-client-java:9.2.3"

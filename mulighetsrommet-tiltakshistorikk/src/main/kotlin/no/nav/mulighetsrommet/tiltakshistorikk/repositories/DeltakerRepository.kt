@@ -56,7 +56,7 @@ class DeltakerRepository(private val db: Database) {
         queryOf(query, deltaker.toSqlParameters()).asExecute.runWithSession(session)
     }
 
-    fun getArenaHistorikk(identer: List<NorskIdent>) = db.useSession { session ->
+    fun getArenaHistorikk(identer: List<NorskIdent>, maxAgeYears: Int?) = db.useSession { session ->
         @Language("PostgreSQL")
         val query = """
                 select
@@ -70,11 +70,13 @@ class DeltakerRepository(private val db: Database) {
                     arrangor_organisasjonsnummer
                 from arena_deltaker
                 where norsk_ident = any(:identer)
+                and (:max_age_years::integer is null or age(coalesce(slutt_dato, registrert_i_arena_dato)) < make_interval(years => :max_age_years::integer))
                 order by start_dato desc nulls last;
         """.trimIndent()
 
         val params = mapOf(
             "identer" to session.createArrayOf("text", identer.map { it.value }),
+            "max_age_years" to maxAgeYears,
         )
 
         queryOf(query, params).map { it.toArenaDeltakelse() }.asList.runWithSession(session)
@@ -141,7 +143,7 @@ class DeltakerRepository(private val db: Database) {
         queryOf(query, deltaker.toSqlParameters()).asExecute.runWithSession(session)
     }
 
-    fun getKometHistorikk(identer: List<NorskIdent>) = db.useSession { session ->
+    fun getKometHistorikk(identer: List<NorskIdent>, maxAgeYears: Int?) = db.useSession { session ->
         @Language("PostgreSQL")
         val query = """
                 select
@@ -158,11 +160,13 @@ class DeltakerRepository(private val db: Database) {
                     gruppetiltak.arrangor_organisasjonsnummer
                 from komet_deltaker deltaker join gruppetiltak on deltaker.gjennomforing_id = gruppetiltak.id
                 where deltaker.person_ident = any(:identer)
+                and (:max_age_years::integer is null or age(coalesce(deltaker.slutt_dato::timestamp, deltaker.registrert_dato)) < make_interval(years => :max_age_years::integer))
                 order by deltaker.start_dato desc nulls last;
         """.trimIndent()
 
         val params = mapOf(
             "identer" to session.createArrayOf("text", identer.map { it.value }),
+            "max_age_years" to maxAgeYears,
         )
 
         queryOf(query, params).map { it.toGruppetiltakDeltakelse() }.asList.runWithSession(session)

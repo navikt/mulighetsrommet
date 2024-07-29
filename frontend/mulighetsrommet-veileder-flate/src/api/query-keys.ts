@@ -4,11 +4,7 @@ export const QueryKeys = {
   SanityQuery: "sanityQuery",
   Veilederdata: "veilederdata",
   Bruker: (fnr: string) => ["bruker", fnr],
-  BrukerHistorikk: (v2: boolean | undefined, fnr: string) => [
-    ...QueryKeys.Bruker(fnr),
-    "historikk",
-    v2,
-  ],
+  BrukerHistorikk: (fnr: string) => [...QueryKeys.Bruker(fnr), "historikk"],
   BrukerDeltakelser: (fnr: string) => [...QueryKeys.Bruker(fnr), "deltakelser"],
   DeltMedBrukerStatus: ["deltMedBrukerStatus"],
   AlleDeltMedBrukerStatus: "alleDeltMedBrukerStatus",

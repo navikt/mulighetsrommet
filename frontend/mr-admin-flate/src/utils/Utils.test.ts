@@ -3,7 +3,7 @@ import { Avtalestatus, Avtaletype, SorteringAvtaler } from "mulighetsrommet-api-
 import { describe, expect, test } from "vitest";
 import {
   capitalizeEveryWord,
-  createQueryParamsForExcelDownload,
+  createQueryParamsForExcelDownloadForAvtale,
   kalkulerStatusBasertPaaFraOgTilDato,
 } from "./Utils";
 
@@ -99,7 +99,7 @@ describe("Avtaletabell", () => {
       pageSize: 0,
     };
 
-    const queryParams = createQueryParamsForExcelDownload(filter);
+    const queryParams = createQueryParamsForExcelDownloadForAvtale(filter);
     expect(queryParams.get("tiltakstyper")).toEqual("123");
     expect(queryParams.get("statuser")).toEqual("AKTIV");
     expect(queryParams.get("avtaletyper")).toEqual("Avtale");

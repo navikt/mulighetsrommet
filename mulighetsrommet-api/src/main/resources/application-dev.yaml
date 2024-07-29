@@ -43,9 +43,6 @@ app:
       amtVirksomheterV1:
         id: amt-virksomheter
         topic: amt.virksomheter-v1
-      ptoSisteOppfolgingsperiodeV1:
-        id: pto-virksomheter
-        topic: pto.siste-oppfolgingsperiode-v1
 
   auth:
     azure:
@@ -130,8 +127,6 @@ app:
     scope: api://dev-gcp.teampam.pam-ontologi/.default
 
   tasks:
-    deleteExpiredTiltakshistorikk:
-      cronPattern: "0 0 1 * * *" # Hver morgen kl. 01:00
     synchronizeNorgEnheter:
       delayOfMinutes: 360 # Hver 6. time
     synchronizeNavAnsatte:

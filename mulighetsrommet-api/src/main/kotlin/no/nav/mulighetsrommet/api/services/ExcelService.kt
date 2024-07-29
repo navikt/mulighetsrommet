@@ -1,7 +1,7 @@
 package no.nav.mulighetsrommet.api.services
 
 import no.nav.mulighetsrommet.api.domain.dto.AvtaleAdminDto
-import org.apache.poi.xssf.usermodel.XSSFRow
+import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingAdminDto
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import java.io.File
 import java.time.LocalDate
@@ -9,53 +9,69 @@ import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 import kotlin.io.path.outputStream
 
-class ExcelService {
-    fun createExcelFile(result: List<AvtaleAdminDto>): File {
+object ExcelService {
+    fun createExcelFile(block: XSSFWorkbook.() -> Unit): File {
         val workbook = XSSFWorkbook()
-        val workSheet = workbook.createSheet()
-        val headers = workSheet.createRow(0)
-        opprettHeaders(headers)
-        result.forEachIndexed { index, avtaleAdminDto ->
-            val row = workSheet.createRow(index + 1)
-            opprettCelle(row, 0, avtaleAdminDto.navn)
-            opprettCelle(row, 1, avtaleAdminDto.tiltakstype.navn)
-            opprettCelle(row, 2, avtaleAdminDto.avtalenummer ?: "")
-            opprettCelle(row, 3, avtaleAdminDto.arrangor.navn)
-            opprettCelle(row, 4, avtaleAdminDto.arrangor.organisasjonsnummer)
-            opprettCelle(
-                row,
-                5,
-                avtaleAdminDto.startDato.formaterDato(),
-            )
-            opprettCelle(
-                row,
-                6,
-                avtaleAdminDto.sluttDato?.formaterDato() ?: "",
-            )
-        }
+        block(workbook)
 
-        val tempFile = kotlin.io.path.createTempFile("avtaler", ".xlsx")
+        val tempFile = kotlin.io.path.createTempFile()
         workbook.write(tempFile.outputStream())
         workbook.close()
 
         return tempFile.toFile()
     }
 
-    private fun opprettHeaders(headers: XSSFRow) {
-        opprettCelle(headers, 0, "Avtalenavn")
-        opprettCelle(headers, 1, "Tiltakstype")
-        opprettCelle(headers, 2, "Avtalenummer")
-        opprettCelle(headers, 3, "Tiltaksarrangør")
-        opprettCelle(headers, 4, "Tiltaksarrangør orgnr")
-        opprettCelle(headers, 5, "Startdato")
-        opprettCelle(headers, 6, "Sluttdato")
-    }
+    fun createExcelFileForAvtale(result: List<AvtaleAdminDto>): File =
+        createExcelFile {
+            val sheet = this.createSheet()
 
-    private fun opprettCelle(row: XSSFRow, cellIndex: Int, verdi: String) {
-        row.createCell(cellIndex).setCellValue(verdi)
-    }
+            val headerRow = sheet.createRow(0)
+            headerRow.createCell(0).setCellValue("Avtalenavn")
+            headerRow.createCell(1).setCellValue("Tiltakstype")
+            headerRow.createCell(2).setCellValue("Avtalenummer")
+            headerRow.createCell(3).setCellValue("Tiltaksarrangør")
+            headerRow.createCell(4).setCellValue("Tiltaksarrangør orgnr")
+            headerRow.createCell(5).setCellValue("Startdato")
+            headerRow.createCell(6).setCellValue("Sluttdato")
 
-    private fun LocalDate.formaterDato(): String {
+            result.forEachIndexed { index, avtaleAdminDto ->
+                val row = sheet.createRow(index + 1)
+                row.createCell(0).setCellValue(avtaleAdminDto.navn)
+                row.createCell(1).setCellValue(avtaleAdminDto.tiltakstype.navn)
+                row.createCell(2).setCellValue(avtaleAdminDto.avtalenummer ?: "")
+                row.createCell(3).setCellValue(avtaleAdminDto.arrangor.navn)
+                row.createCell(4).setCellValue(avtaleAdminDto.arrangor.organisasjonsnummer)
+                row.createCell(5).setCellValue(avtaleAdminDto.startDato.formaterDatoShort())
+                row.createCell(6).setCellValue(avtaleAdminDto.sluttDato?.formaterDatoShort() ?: "")
+            }
+        }
+
+    fun createExcelFileForTiltaksgjennomforing(result: List<TiltaksgjennomforingAdminDto>): File =
+        createExcelFile {
+            val sheet = this.createSheet()
+
+            val headerRow = sheet.createRow(0)
+            headerRow.createCell(0).setCellValue("Tiltaksnavn")
+            headerRow.createCell(1).setCellValue("Tiltakstype")
+            headerRow.createCell(2).setCellValue("Tiltaksnummer")
+            headerRow.createCell(3).setCellValue("Tiltaksarrangør")
+            headerRow.createCell(4).setCellValue("Tiltaksarrangør orgnr")
+            headerRow.createCell(5).setCellValue("Startdato")
+            headerRow.createCell(6).setCellValue("Sluttdato")
+
+            result.forEachIndexed { index, tiltaksgjennomforingAdminDto ->
+                val row = sheet.createRow(index + 1)
+                row.createCell(0).setCellValue(tiltaksgjennomforingAdminDto.navn)
+                row.createCell(1).setCellValue(tiltaksgjennomforingAdminDto.tiltakstype.navn)
+                row.createCell(2).setCellValue(tiltaksgjennomforingAdminDto.tiltaksnummer ?: "")
+                row.createCell(3).setCellValue(tiltaksgjennomforingAdminDto.arrangor.navn)
+                row.createCell(4).setCellValue(tiltaksgjennomforingAdminDto.arrangor.organisasjonsnummer)
+                row.createCell(5).setCellValue(tiltaksgjennomforingAdminDto.startDato.formaterDatoShort())
+                row.createCell(6).setCellValue(tiltaksgjennomforingAdminDto.sluttDato?.formaterDatoShort() ?: "")
+            }
+        }
+
+    private fun LocalDate.formaterDatoShort(): String {
         return this.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT))
     }
 }
