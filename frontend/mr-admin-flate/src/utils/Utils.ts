@@ -222,7 +222,7 @@ export function createQueryParamsForExcelDownloadForTiltaksgjennomforing(
   filter.arrangorer.forEach((arrangorId) => queryParams.append("arrangorer", arrangorId));
 
   if (filter.visMineGjennomforinger) {
-    queryParams.set("visMineGjennomforinger", "true");
+    queryParams.set("visMineTiltaksgjennomforinger", "true");
   }
 
   queryParams.set("size", "10000");
