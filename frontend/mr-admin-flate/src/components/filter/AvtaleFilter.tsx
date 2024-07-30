@@ -54,6 +54,26 @@ export function AvtaleFilter({ filterAtom, skjulFilter }: Props) {
     return <FilterSkeleton />;
   }
 
+  function selectDeselectAll(checked: boolean, key: string, values: string[]) {
+    if (checked) {
+      setFilter({
+        ...filter,
+        page: 1,
+        [key]: values,
+        lagretFilterIdValgt: undefined,
+      });
+      loggBrukAvFilter(key, "Velg alle");
+    } else {
+      setFilter({
+        ...filter,
+        page: 1,
+        [key]: [],
+        lagretFilterIdValgt: undefined,
+      });
+      loggBrukAvFilter(key, "Fjern alle");
+    }
+  }
+
   return (
     <>
       <Search
@@ -106,23 +126,11 @@ export function AvtaleFilter({ filterAtom, skjulFilter }: Props) {
           <Accordion.Content>
             <CheckboxList
               onSelectAll={(checked) => {
-                if (checked) {
-                  setFilter({
-                    ...filter,
-                    page: 1,
-                    statuser: AVTALE_STATUS_OPTIONS.map((s) => s.value),
-                    lagretFilterIdValgt: undefined,
-                  });
-                  loggBrukAvFilter("statuser", "Velg alle");
-                } else {
-                  setFilter({
-                    ...filter,
-                    page: 1,
-                    statuser: [],
-                    lagretFilterIdValgt: undefined,
-                  });
-                  loggBrukAvFilter("statuser", "Fjern alle");
-                }
+                selectDeselectAll(
+                  checked,
+                  "statuser",
+                  AVTALE_STATUS_OPTIONS.map((s) => s.value),
+                );
               }}
               items={AVTALE_STATUS_OPTIONS}
               isChecked={(status) => filter.statuser.includes(status)}
@@ -155,23 +163,11 @@ export function AvtaleFilter({ filterAtom, skjulFilter }: Props) {
           <Accordion.Content>
             <CheckboxList
               onSelectAll={(checked) => {
-                if (checked) {
-                  setFilter({
-                    ...filter,
-                    page: 1,
-                    avtaletyper: AVTALE_TYPE_OPTIONS.map((a) => a.value),
-                    lagretFilterIdValgt: undefined,
-                  });
-                  loggBrukAvFilter("avtaletyper", "Velg alle");
-                } else {
-                  setFilter({
-                    ...filter,
-                    page: 1,
-                    avtaletyper: [],
-                    lagretFilterIdValgt: undefined,
-                  });
-                  loggBrukAvFilter("avtaletyper", "Fjern alle");
-                }
+                selectDeselectAll(
+                  checked,
+                  "avtaletyper",
+                  AVTALE_TYPE_OPTIONS.map((a) => a.value),
+                );
               }}
               items={AVTALE_TYPE_OPTIONS}
               isChecked={(type) => filter.avtaletyper.includes(type)}
@@ -205,23 +201,11 @@ export function AvtaleFilter({ filterAtom, skjulFilter }: Props) {
             <Accordion.Content>
               <CheckboxList
                 onSelectAll={(checked) => {
-                  if (checked) {
-                    setFilter({
-                      ...filter,
-                      page: 1,
-                      tiltakstyper: tiltakstyper.data.map((t) => t.id),
-                      lagretFilterIdValgt: undefined,
-                    });
-                    loggBrukAvFilter("tiltakstyper", "Velg alle");
-                  } else {
-                    setFilter({
-                      ...filter,
-                      page: 1,
-                      tiltakstyper: [],
-                      lagretFilterIdValgt: undefined,
-                    });
-                    loggBrukAvFilter("tiltakstyper", "Fjern alle");
-                  }
+                  selectDeselectAll(
+                    checked,
+                    "tiltakstyper",
+                    tiltakstyper.data.map((t) => t.id),
+                  );
                 }}
                 items={tiltakstypeOptions(tiltakstyper.data)}
                 isChecked={(tiltakstype) => filter.tiltakstyper.includes(tiltakstype)}

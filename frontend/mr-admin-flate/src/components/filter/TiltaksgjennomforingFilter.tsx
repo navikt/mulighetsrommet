@@ -80,6 +80,26 @@ export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
     return <FilterSkeleton />;
   }
 
+  function selectDeselectAll(checked: boolean, key: string, values: string[]) {
+    if (checked) {
+      setFilter({
+        ...filter,
+        page: 1,
+        [key]: values,
+        lagretFilterIdValgt: undefined,
+      });
+      loggBrukAvFilter(key, "Velg alle");
+    } else {
+      setFilter({
+        ...filter,
+        page: 1,
+        [key]: [],
+        lagretFilterIdValgt: undefined,
+      });
+      loggBrukAvFilter(key, "Fjern alle");
+    }
+  }
+
   return (
     <>
       <Search
@@ -132,23 +152,11 @@ export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
           <Accordion.Content>
             <CheckboxList
               onSelectAll={(checked) => {
-                if (checked) {
-                  setFilter({
-                    ...filter,
-                    page: 1,
-                    lagretFilterIdValgt: undefined,
-                    statuser: TILTAKSGJENNOMFORING_STATUS_OPTIONS.map((s) => s.value),
-                  });
-                  loggBrukAvFilter("status", "Velg alle");
-                } else {
-                  setFilter({
-                    ...filter,
-                    page: 1,
-                    lagretFilterIdValgt: undefined,
-                    statuser: [],
-                  });
-                  loggBrukAvFilter("status", "Fjern alle");
-                }
+                selectDeselectAll(
+                  checked,
+                  "statuser",
+                  TILTAKSGJENNOMFORING_STATUS_OPTIONS.map((s) => s.value),
+                );
               }}
               items={TILTAKSGJENNOMFORING_STATUS_OPTIONS}
               isChecked={(status) => filter.statuser.includes(status)}
@@ -183,23 +191,11 @@ export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
             <Accordion.Content>
               <CheckboxList
                 onSelectAll={(checked) => {
-                  if (checked) {
-                    setFilter({
-                      ...filter,
-                      page: 1,
-                      lagretFilterIdValgt: undefined,
-                      tiltakstyper: tiltakstyper.data.map((t) => t.id),
-                    });
-                    loggBrukAvFilter("status", "Velg alle");
-                  } else {
-                    setFilter({
-                      ...filter,
-                      page: 1,
-                      lagretFilterIdValgt: undefined,
-                      tiltakstyper: [],
-                    });
-                    loggBrukAvFilter("status", "Fjern alle");
-                  }
+                  selectDeselectAll(
+                    checked,
+                    "tiltakstyper",
+                    tiltakstyper.data.map((t) => t.id),
+                  );
                 }}
                 items={tiltakstypeOptions(tiltakstyper.data)}
                 isChecked={(tiltakstype) => filter.tiltakstyper.includes(tiltakstype)}
