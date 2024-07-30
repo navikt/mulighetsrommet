@@ -264,7 +264,7 @@ class AvtaleValidatorTest :
             val validator = AvtaleValidator(
                 TiltakstypeService(
                     TiltakstypeRepository(database.db),
-                    Tiltakskode.values().toList(),
+                    Tiltakskode.entries.toList(),
                 ),
                 gjennomforinger,
                 navEnheterService,
@@ -292,7 +292,7 @@ class AvtaleValidatorTest :
             val validator = AvtaleValidator(
                 TiltakstypeService(
                     TiltakstypeRepository(database.db),
-                    Tiltakskode.values().toList(),
+                    Tiltakskode.entries.toList(),
                 ),
                 gjennomforinger,
                 navEnheterService,
@@ -329,7 +329,7 @@ class AvtaleValidatorTest :
             val validator = AvtaleValidator(
                 TiltakstypeService(
                     TiltakstypeRepository(database.db),
-                    Tiltakskode.values().toList(),
+                    Tiltakskode.entries.toList(),
                 ),
                 gjennomforinger,
                 navEnheterService,
@@ -622,7 +622,7 @@ class AvtaleValidatorTest :
                 val validator = AvtaleValidator(
                     TiltakstypeService(
                         TiltakstypeRepository(database.db),
-                        Tiltakskode.values().toList(),
+                        Tiltakskode.entries.toList(),
                     ),
                     gjennomforinger,
                     navEnheterService,

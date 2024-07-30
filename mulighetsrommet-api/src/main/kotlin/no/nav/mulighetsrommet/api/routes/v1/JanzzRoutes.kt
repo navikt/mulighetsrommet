@@ -21,6 +21,7 @@ fun Route.janzzRoutes() {
             val andreGodkjenninger = async { pam.sokAndreGodkjenninger(q) }
 
             val sertifiseringer = awaitAll(autoriseringer, andreGodkjenninger)
+                .asSequence()
                 .flatMap { typeaheads ->
                     typeaheads.map {
                         AmoKategorisering.Sertifisering(
@@ -36,6 +37,7 @@ fun Route.janzzRoutes() {
                 .sortedBy { it.label }
                 .distinctBy { it.konseptId }
                 .distinctBy { it.label }
+                .toList()
 
             call.respond(sertifiseringer)
         }

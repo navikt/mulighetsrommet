@@ -677,7 +677,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             tiltaksgjennomforinger.upsert(Oppfolging1)
             tiltaksgjennomforinger.upsert(EnkelAmo1)
 
-            tiltaksgjennomforinger.getAll(skalMigreres = true).should {
+            tiltaksgjennomforinger.getAll().should {
                 it.totalCount shouldBe 1
                 it.items[0].id shouldBe Oppfolging1.id
             }

@@ -106,14 +106,14 @@ fun Route.tiltaksgjennomforingRoutes() {
             val pagination = getPaginationParams()
             val filter = getAdminTiltaksgjennomforingsFilter()
 
-            call.respond(service.getAllSkalMigreres(pagination, filter))
+            call.respond(service.getAll(pagination, filter))
         }
 
         get("mine") {
             val pagination = getPaginationParams()
             val filter = getAdminTiltaksgjennomforingsFilter().copy(administratorNavIdent = getNavIdent())
 
-            call.respond(service.getAllSkalMigreres(pagination, filter))
+            call.respond(service.getAll(pagination, filter))
         }
 
         get("/excel") {
@@ -130,7 +130,7 @@ fun Route.tiltaksgjennomforingRoutes() {
                 sortering = "tiltakstype_navn-ascending",
                 administratorNavIdent = navIdent,
             )
-            val result = service.getAllSkalMigreres(pagination, overstyrtFilter)
+            val result = service.getAll(pagination, overstyrtFilter)
             val file = ExcelService.createExcelFileForTiltaksgjennomforing(result.data)
             call.response.header(
                 HttpHeaders.ContentDisposition,

@@ -253,7 +253,7 @@ class AvtaleRepositoryTest :
                 avtaler.upsert(avtale1)
                 avtaler.get(avtale1.id).shouldNotBeNull().should {
                     it.arrangor.organisasjonsnummer shouldBe ArrangorFixtures.hovedenhet.organisasjonsnummer
-                    it.arrangor.underenheter.map { it.organisasjonsnummer } shouldContainExactlyInAnyOrder listOf(
+                    it.arrangor.underenheter.map { enhet -> enhet.organisasjonsnummer } shouldContainExactlyInAnyOrder listOf(
                         ArrangorFixtures.underenhet1.organisasjonsnummer,
                         ArrangorFixtures.underenhet2.organisasjonsnummer,
                     )

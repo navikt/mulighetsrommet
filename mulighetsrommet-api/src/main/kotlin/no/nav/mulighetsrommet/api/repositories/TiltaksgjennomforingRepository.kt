@@ -45,68 +45,70 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         logger.info("Lagrer tiltaksgjennomføring id=${tiltaksgjennomforing.id}")
         @Language("PostgreSQL")
         val query = """
-            insert into tiltaksgjennomforing (id,
-                                  navn,
-                                  tiltakstype_id,
-                                  arrangor_id,
-                                  start_dato,
-                                  slutt_dato,
-                                  apent_for_innsok,
-                                  antall_plasser,
-                                  avtale_id,
-                                  oppstart,
-                                  opphav,
-                                  sted_for_gjennomforing,
-                                  faneinnhold,
-                                  beskrivelse,
-                                  nav_region,
-                                  deltidsprosent,
-                                  estimert_ventetid_verdi,
-                                  estimert_ventetid_enhet,
-                                  tilgjengelig_for_arrangor_fra_og_med_dato,
-                                  amo_kategorisering
+            insert into tiltaksgjennomforing (
+                id,
+                navn,
+                tiltakstype_id,
+                arrangor_id,
+                start_dato,
+                slutt_dato,
+                apent_for_innsok,
+                antall_plasser,
+                avtale_id,
+                oppstart,
+                opphav,
+                sted_for_gjennomforing,
+                faneinnhold,
+                beskrivelse,
+                nav_region,
+                deltidsprosent,
+                estimert_ventetid_verdi,
+                estimert_ventetid_enhet,
+                tilgjengelig_for_arrangor_fra_og_med_dato,
+                amo_kategorisering
             )
-            values (:id::uuid,
-                    :navn,
-                    :tiltakstype_id::uuid,
-                    :arrangor_id,
-                    :start_dato,
-                    :slutt_dato,
-                    :apent_for_innsok,
-                    :antall_plasser,
-                    :avtale_id,
-                    :oppstart::tiltaksgjennomforing_oppstartstype,
-                    :opphav::opphav,
-                    :sted_for_gjennomforing,
-                    :faneinnhold::jsonb,
-                    :beskrivelse,
-                    :nav_region,
-                    :deltidsprosent,
-                    :estimert_ventetid_verdi,
-                    :estimert_ventetid_enhet,
-                    :tilgjengelig_for_arrangor_fra_dato,
-                    :amo_kategorisering::jsonb
+            values (
+                :id::uuid,
+                :navn,
+                :tiltakstype_id::uuid,
+                :arrangor_id,
+                :start_dato,
+                :slutt_dato,
+                :apent_for_innsok,
+                :antall_plasser,
+                :avtale_id,
+                :oppstart::tiltaksgjennomforing_oppstartstype,
+                :opphav::opphav,
+                :sted_for_gjennomforing,
+                :faneinnhold::jsonb,
+                :beskrivelse,
+                :nav_region,
+                :deltidsprosent,
+                :estimert_ventetid_verdi,
+                :estimert_ventetid_enhet,
+                :tilgjengelig_for_arrangor_fra_dato,
+                :amo_kategorisering::jsonb
             )
-            on conflict (id)
-                do update set navn                               = excluded.navn,
-                              tiltakstype_id                     = excluded.tiltakstype_id,
-                              arrangor_id                        = excluded.arrangor_id,
-                              start_dato                         = excluded.start_dato,
-                              slutt_dato                         = excluded.slutt_dato,
-                              apent_for_innsok                   = excluded.apent_for_innsok,
-                              antall_plasser                     = excluded.antall_plasser,
-                              avtale_id                          = excluded.avtale_id,
-                              oppstart                           = excluded.oppstart,
-                              opphav                             = coalesce(tiltaksgjennomforing.opphav, excluded.opphav),
-                              sted_for_gjennomforing             = excluded.sted_for_gjennomforing,
-                              faneinnhold                        = excluded.faneinnhold,
-                              beskrivelse                        = excluded.beskrivelse,
-                              nav_region                         = excluded.nav_region,
-                              deltidsprosent                     = excluded.deltidsprosent,
-                              estimert_ventetid_verdi            = excluded.estimert_ventetid_verdi,
-                              estimert_ventetid_enhet            = excluded.estimert_ventetid_enhet,
-                              tilgjengelig_for_arrangor_fra_og_med_dato = excluded.tilgjengelig_for_arrangor_fra_og_med_dato,
-                              amo_kategorisering                = excluded.amo_kategorisering
+            on conflict (id) do update set
+                navn                               = excluded.navn,
+                tiltakstype_id                     = excluded.tiltakstype_id,
+                arrangor_id                        = excluded.arrangor_id,
+                start_dato                         = excluded.start_dato,
+                slutt_dato                         = excluded.slutt_dato,
+                apent_for_innsok                   = excluded.apent_for_innsok,
+                antall_plasser                     = excluded.antall_plasser,
+                avtale_id                          = excluded.avtale_id,
+                oppstart                           = excluded.oppstart,
+                opphav                             = coalesce(tiltaksgjennomforing.opphav, excluded.opphav),
+                sted_for_gjennomforing             = excluded.sted_for_gjennomforing,
+                faneinnhold                        = excluded.faneinnhold,
+                beskrivelse                        = excluded.beskrivelse,
+                nav_region                         = excluded.nav_region,
+                deltidsprosent                     = excluded.deltidsprosent,
+                estimert_ventetid_verdi            = excluded.estimert_ventetid_verdi,
+                estimert_ventetid_enhet            = excluded.estimert_ventetid_enhet,
+                tilgjengelig_for_arrangor_fra_og_med_dato = excluded.tilgjengelig_for_arrangor_fra_og_med_dato,
+                amo_kategorisering                = excluded.amo_kategorisering
         """.trimIndent()
 
         @Language("PostgreSQL")
@@ -389,7 +391,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         arrangorIds: List<UUID> = emptyList(),
         arrangorOrgnr: List<String> = emptyList(),
         administratorNavIdent: NavIdent? = null,
-        skalMigreres: Boolean? = null,
         opphav: ArenaMigrering.Opphav? = null,
         publisert: Boolean? = null,
     ): PaginatedResult<TiltaksgjennomforingAdminDto> {
@@ -403,7 +404,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             "arrangor_orgnrs" to arrangorOrgnr.ifEmpty { null }?.let { db.createTextArray(it) },
             "statuser" to statuser.ifEmpty { null }?.let { db.createArrayOf("text", statuser) },
             "administrator_nav_ident" to administratorNavIdent?.let { """[{ "navIdent": "${it.value}" }]""" },
-            "skal_migreres" to skalMigreres,
             "opphav" to opphav?.name,
             "publisert" to publisert,
         )
@@ -443,7 +443,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                    arena_nav_enhet_enhetsnummer = any (:nav_enheter)))
               and (:administrator_nav_ident::text is null or administratorer_json @> :administrator_nav_ident::jsonb)
               and (:slutt_dato_cutoff::date is null or slutt_dato >= :slutt_dato_cutoff or slutt_dato is null)
-              and (:skal_migreres::boolean is null or tiltakstype_tiltakskode is not null)
+              and (tiltakstype_tiltakskode is not null)
               and (:opphav::opphav is null or opphav = :opphav::opphav)
               and (:statuser::text[] is null or status = any(:statuser))
               and (:publisert::boolean is null or publisert = :publisert::boolean)
