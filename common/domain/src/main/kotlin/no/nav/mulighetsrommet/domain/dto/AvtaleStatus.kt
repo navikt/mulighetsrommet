@@ -5,10 +5,10 @@ import java.time.LocalDateTime
 sealed class AvtaleStatus {
     abstract val enum: Enum
 
-    object AKTIV : AvtaleStatus() {
+    data object AKTIV : AvtaleStatus() {
         override val enum = Enum.AKTIV
     }
-    object AVSLUTTET : AvtaleStatus() {
+    data object AVSLUTTET : AvtaleStatus() {
         override val enum = Enum.AVSLUTTET
     }
     data class AVBRUTT(val tidspunkt: LocalDateTime, val aarsak: AvbruttAarsak) : AvtaleStatus() {

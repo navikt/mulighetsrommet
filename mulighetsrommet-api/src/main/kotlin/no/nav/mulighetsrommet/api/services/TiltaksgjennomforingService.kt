@@ -48,6 +48,7 @@ class TiltaksgjennomforingService(
     private val db: Database,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
+
     suspend fun upsert(
         request: TiltaksgjennomforingRequest,
         navIdent: NavIdent,

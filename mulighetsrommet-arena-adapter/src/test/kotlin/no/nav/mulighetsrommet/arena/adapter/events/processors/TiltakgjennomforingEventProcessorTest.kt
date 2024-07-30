@@ -35,7 +35,6 @@ import no.nav.mulighetsrommet.arena.adapter.repositories.*
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
-import no.nav.mulighetsrommet.domain.Tiltakshistorikk
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering.ArenaTimestampFormatter
 import no.nav.mulighetsrommet.domain.dbo.ArenaTiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
@@ -46,6 +45,7 @@ import no.nav.mulighetsrommet.ktor.getLastPathParameterAsUUID
 import no.nav.mulighetsrommet.ktor.respondJson
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.Period
 import java.util.*
 
 class TiltakgjennomforingEventProcessorTest : FunSpec({
@@ -55,7 +55,7 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
         database.db.truncateAll()
     }
 
-    val tiltakshistorikkStartDate = LocalDateTime.now().minus(Tiltakshistorikk.TiltakshistorikkTimePeriod)
+    val tiltakshistorikkStartDate = LocalDateTime.now().minus(Period.ofYears(5))
 
     val dateBeforeTiltakshistorikkStartDate = tiltakshistorikkStartDate.minusDays(1)
 

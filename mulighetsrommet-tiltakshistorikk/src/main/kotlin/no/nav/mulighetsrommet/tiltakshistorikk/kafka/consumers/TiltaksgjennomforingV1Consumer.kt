@@ -8,7 +8,6 @@ import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.kafka.serialization.JsonElementDeserializer
 import no.nav.mulighetsrommet.serialization.json.JsonRelaxExplicitNulls
 import no.nav.mulighetsrommet.tiltakshistorikk.repositories.GruppetiltakRepository
-import org.slf4j.LoggerFactory
 import java.util.*
 
 class TiltaksgjennomforingV1Consumer(
@@ -19,8 +18,6 @@ class TiltaksgjennomforingV1Consumer(
     uuidDeserializer(),
     JsonElementDeserializer(),
 ) {
-    private val log = LoggerFactory.getLogger(javaClass)
-
     override suspend fun consume(key: UUID, message: JsonElement) {
         val gjennomforing = JsonRelaxExplicitNulls.decodeFromJsonElement<TiltaksgjennomforingV1Dto?>(message)
 

@@ -48,13 +48,6 @@ fun Application.configureAuthentication(
         }
     }
 
-    fun hasAnyNavAnsattRoles(credentials: JWTCredential, vararg requiredRoles: NavAnsattRolle): Boolean {
-        val navAnsattGroups = credentials.getListClaim("groups", UUID::class)
-        return requiredRoles.any { requiredRole ->
-            auth.roles.any { (groupId, role) -> role == requiredRole && groupId in navAnsattGroups }
-        }
-    }
-
     install(Authentication) {
         jwt(AuthProvider.AZURE_AD_TEAM_MULIGHETSROMMET.name) {
             verifier(jwkProvider, azure.issuer) {
