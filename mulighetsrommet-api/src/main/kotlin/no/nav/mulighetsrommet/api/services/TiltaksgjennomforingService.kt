@@ -81,27 +81,7 @@ class TiltaksgjennomforingService(
         return tiltaksgjennomforinger.get(id)
     }
 
-    fun getAllAdmin(
-        filter: AdminTiltaksgjennomforingFilter,
-        pagination: Pagination,
-    ): PaginatedResponse<TiltaksgjennomforingAdminDto> {
-        val (totalCount, items) = tiltaksgjennomforinger.getAll(
-            pagination = pagination,
-            tiltakstypeIder = filter.tiltakstypeIder,
-            search = filter.search,
-            statuser = filter.statuser,
-            sortering = filter.sortering,
-            arrangorIds = filter.arrangorIds,
-            administratorNavIdent = filter.administratorNavIdent,
-            navEnheter = filter.navEnheter,
-            avtaleId = filter.avtaleId,
-            publisert = filter.publisert,
-        )
-
-        return PaginatedResponse.of(pagination, totalCount, items)
-    }
-
-    fun getAllSkalMigreres(
+    fun getAll(
         pagination: Pagination,
         filter: AdminTiltaksgjennomforingFilter,
     ): PaginatedResponse<TiltaksgjennomforingAdminDto> = tiltaksgjennomforinger.getAll(
@@ -115,10 +95,6 @@ class TiltaksgjennomforingService(
         arrangorIds = filter.arrangorIds,
         administratorNavIdent = filter.administratorNavIdent,
         publisert = filter.publisert,
-        /**
-         * Hardkodet filter så man kun viser relevante gjennomføringer i Tiltaksadmin
-         */
-        skalMigreres = true,
         sluttDatoGreaterThanOrEqualTo = TiltaksgjennomforingSluttDatoCutoffDate,
     ).let { (totalCount, data) ->
         PaginatedResponse.of(pagination, totalCount, data)

@@ -389,7 +389,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         arrangorIds: List<UUID> = emptyList(),
         arrangorOrgnr: List<String> = emptyList(),
         administratorNavIdent: NavIdent? = null,
-        skalMigreres: Boolean? = null,
         opphav: ArenaMigrering.Opphav? = null,
         publisert: Boolean? = null,
     ): PaginatedResult<TiltaksgjennomforingAdminDto> {
@@ -403,7 +402,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             "arrangor_orgnrs" to arrangorOrgnr.ifEmpty { null }?.let { db.createTextArray(it) },
             "statuser" to statuser.ifEmpty { null }?.let { db.createArrayOf("text", statuser) },
             "administrator_nav_ident" to administratorNavIdent?.let { """[{ "navIdent": "${it.value}" }]""" },
-            "skal_migreres" to skalMigreres,
             "opphav" to opphav?.name,
             "publisert" to publisert,
         )
@@ -443,7 +441,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                    arena_nav_enhet_enhetsnummer = any (:nav_enheter)))
               and (:administrator_nav_ident::text is null or administratorer_json @> :administrator_nav_ident::jsonb)
               and (:slutt_dato_cutoff::date is null or slutt_dato >= :slutt_dato_cutoff or slutt_dato is null)
-              and (:skal_migreres::boolean is null or tiltakstype_tiltakskode is not null)
+              and (tiltakstype_tiltakskode is not null)
               and (:opphav::opphav is null or opphav = :opphav::opphav)
               and (:statuser::text[] is null or status = any(:statuser))
               and (:publisert::boolean is null or publisert = :publisert::boolean)
