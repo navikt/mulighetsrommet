@@ -105,6 +105,25 @@ export function AvtaleFilter({ filterAtom, skjulFilter }: Props) {
           </Accordion.Header>
           <Accordion.Content>
             <CheckboxList
+              onSelectAll={(checked) => {
+                if (checked) {
+                  setFilter({
+                    ...filter,
+                    page: 1,
+                    statuser: AVTALE_STATUS_OPTIONS.map((s) => s.value),
+                    lagretFilterIdValgt: undefined,
+                  });
+                  loggBrukAvFilter("statuser", "Velg alle");
+                } else {
+                  setFilter({
+                    ...filter,
+                    page: 1,
+                    statuser: [],
+                    lagretFilterIdValgt: undefined,
+                  });
+                  loggBrukAvFilter("statuser", "Fjern alle");
+                }
+              }}
               items={AVTALE_STATUS_OPTIONS}
               isChecked={(status) => filter.statuser.includes(status)}
               onChange={(status) => {
@@ -135,6 +154,25 @@ export function AvtaleFilter({ filterAtom, skjulFilter }: Props) {
           </Accordion.Header>
           <Accordion.Content>
             <CheckboxList
+              onSelectAll={(checked) => {
+                if (checked) {
+                  setFilter({
+                    ...filter,
+                    page: 1,
+                    avtaletyper: AVTALE_TYPE_OPTIONS.map((a) => a.value),
+                    lagretFilterIdValgt: undefined,
+                  });
+                  loggBrukAvFilter("avtaletyper", "Velg alle");
+                } else {
+                  setFilter({
+                    ...filter,
+                    page: 1,
+                    avtaletyper: [],
+                    lagretFilterIdValgt: undefined,
+                  });
+                  loggBrukAvFilter("avtaletyper", "Fjern alle");
+                }
+              }}
               items={AVTALE_TYPE_OPTIONS}
               isChecked={(type) => filter.avtaletyper.includes(type)}
               onChange={(type) => {
@@ -166,6 +204,25 @@ export function AvtaleFilter({ filterAtom, skjulFilter }: Props) {
             </Accordion.Header>
             <Accordion.Content>
               <CheckboxList
+                onSelectAll={(checked) => {
+                  if (checked) {
+                    setFilter({
+                      ...filter,
+                      page: 1,
+                      tiltakstyper: tiltakstyper.data.map((t) => t.id),
+                      lagretFilterIdValgt: undefined,
+                    });
+                    loggBrukAvFilter("tiltakstyper", "Velg alle");
+                  } else {
+                    setFilter({
+                      ...filter,
+                      page: 1,
+                      tiltakstyper: [],
+                      lagretFilterIdValgt: undefined,
+                    });
+                    loggBrukAvFilter("tiltakstyper", "Fjern alle");
+                  }
+                }}
                 items={tiltakstypeOptions(tiltakstyper.data)}
                 isChecked={(tiltakstype) => filter.tiltakstyper.includes(tiltakstype)}
                 onChange={(tiltakstype) => {

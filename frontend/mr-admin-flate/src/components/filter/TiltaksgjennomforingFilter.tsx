@@ -131,6 +131,25 @@ export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
           </Accordion.Header>
           <Accordion.Content>
             <CheckboxList
+              onSelectAll={(checked) => {
+                if (checked) {
+                  setFilter({
+                    ...filter,
+                    page: 1,
+                    lagretFilterIdValgt: undefined,
+                    statuser: TILTAKSGJENNOMFORING_STATUS_OPTIONS.map((s) => s.value),
+                  });
+                  loggBrukAvFilter("status", "Velg alle");
+                } else {
+                  setFilter({
+                    ...filter,
+                    page: 1,
+                    lagretFilterIdValgt: undefined,
+                    statuser: [],
+                  });
+                  loggBrukAvFilter("status", "Fjern alle");
+                }
+              }}
               items={TILTAKSGJENNOMFORING_STATUS_OPTIONS}
               isChecked={(status) => filter.statuser.includes(status)}
               onChange={(status) => {
@@ -163,6 +182,25 @@ export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
             </Accordion.Header>
             <Accordion.Content>
               <CheckboxList
+                onSelectAll={(checked) => {
+                  if (checked) {
+                    setFilter({
+                      ...filter,
+                      page: 1,
+                      lagretFilterIdValgt: undefined,
+                      tiltakstyper: tiltakstyper.data.map((t) => t.id),
+                    });
+                    loggBrukAvFilter("status", "Velg alle");
+                  } else {
+                    setFilter({
+                      ...filter,
+                      page: 1,
+                      lagretFilterIdValgt: undefined,
+                      tiltakstyper: [],
+                    });
+                    loggBrukAvFilter("status", "Fjern alle");
+                  }
+                }}
                 items={tiltakstypeOptions(tiltakstyper.data)}
                 isChecked={(tiltakstype) => filter.tiltakstyper.includes(tiltakstype)}
                 onChange={(tiltakstype) => {
