@@ -1,3 +1,13 @@
 .main {
+  width: 50%;
+  margin: 0 auto;
+  margin-top: 1rem;
+  display: flex;
+  justify-content: center;
+}
+.content {
   padding: 1rem;
+  background-color: white;
+  border-radius: 0.5rem;
+  text-align: center;
 }
