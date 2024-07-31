@@ -25,6 +25,7 @@ import { DetaljerTiltakstypePage } from "./pages/tiltakstyper/DetaljerTiltakstyp
 import { TiltakstypeInfo } from "./pages/tiltakstyper/TiltakstypeInfo";
 import { TiltakstyperPage } from "./pages/tiltakstyper/TiltakstyperPage";
 import { AvtalerForTiltakstypePage } from "./pages/tiltakstyper/avtaler/AvtalerForTiltakstypePage";
+import { IngenLesetilgang } from "./IngenLesetilgang";
 
 if (import.meta.env.PROD) {
   initializeFaro({
@@ -58,6 +59,10 @@ export function App() {
         <Laster tekst="Laster..." size="xlarge" />
       </main>
     );
+  }
+
+  if (!ansatt.roller.includes(NavAnsattRolle.TILTAKADMINISTRASJON_GENERELL)) {
+    return <IngenLesetilgang />;
   }
 
   if (
