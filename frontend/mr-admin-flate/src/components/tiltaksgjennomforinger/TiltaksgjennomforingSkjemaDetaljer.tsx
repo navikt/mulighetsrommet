@@ -22,7 +22,7 @@ import {
   Tiltaksgjennomforing,
   TiltaksgjennomforingKontaktperson,
   TiltaksgjennomforingOppstartstype,
-  TiltakskodeArena,
+  Tiltakskode,
 } from "mulighetsrommet-api-client";
 import { ControlledSokeSelect } from "mulighetsrommet-frontend-common";
 import { useEffect, useRef } from "react";
@@ -50,13 +50,13 @@ interface Props {
   avtale: Avtale;
 }
 
-function visApentForInnsok(arenaKode: TiltakskodeArena) {
+function visApentForInnsok(tiltakskode: Tiltakskode) {
   return [
-    TiltakskodeArena.JOBBK,
-    TiltakskodeArena.DIGIOPPARB,
-    TiltakskodeArena.GRUPPEAMO,
-    TiltakskodeArena.GRUFAGYRKE,
-  ].includes(arenaKode);
+    Tiltakskode.JOBBKLUBB,
+    Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK,
+    Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
+    Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
+  ].includes(tiltakskode);
 }
 
 export function TiltaksgjennomforingSkjemaDetaljer({ tiltaksgjennomforing, avtale }: Props) {
@@ -197,7 +197,7 @@ export function TiltaksgjennomforingSkjemaDetaljer({ tiltaksgjennomforing, avtal
             {errors.avtaleId?.message ? (
               <Alert variant="warning">{errors.avtaleId.message as string}</Alert>
             ) : null}
-            {avtale.tiltakstype.arenaKode === TiltakskodeArena.GRUPPEAMO ? (
+            {avtale.tiltakstype.tiltakskode === Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING ? (
               <TiltaksgjennomforingAmoKategoriseringSkjema avtale={avtale} />
             ) : null}
           </FormGroup>
@@ -205,7 +205,7 @@ export function TiltaksgjennomforingSkjemaDetaljer({ tiltaksgjennomforing, avtal
           <FormGroup>
             <SelectOppstartstype
               name="oppstart"
-              readonly={!isTiltakMedFellesOppstart(avtale.tiltakstype.arenaKode)}
+              readonly={!isTiltakMedFellesOppstart(avtale.tiltakstype.tiltakskode)}
             />
             <HGrid columns={2}>
               <DatePicker>
@@ -249,7 +249,7 @@ export function TiltaksgjennomforingSkjemaDetaljer({ tiltaksgjennomforing, avtal
                 format={"iso-string"}
               />
             </HGrid>
-            {visApentForInnsok(avtale.tiltakstype.arenaKode) ? (
+            {visApentForInnsok(avtale.tiltakstype.tiltakskode) ? (
               <Switch
                 size="small"
                 readOnly={eierIkkeGjennomforing}
@@ -271,7 +271,7 @@ export function TiltaksgjennomforingSkjemaDetaljer({ tiltaksgjennomforing, avtal
                   valueAsNumber: true,
                 })}
               />
-              {isTiltakMedFellesOppstart(avtale.tiltakstype.arenaKode) && (
+              {isTiltakMedFellesOppstart(avtale.tiltakstype.tiltakskode) && (
                 <TextField
                   size="small"
                   readOnly={eierIkkeGjennomforing}

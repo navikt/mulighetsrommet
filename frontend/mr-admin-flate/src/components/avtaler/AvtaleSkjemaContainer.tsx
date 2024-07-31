@@ -79,7 +79,7 @@ export function AvtaleSkjemaContainer({
       tiltakstypeId: data.tiltakstype.id,
       administratorer: data.administratorer,
       avtaletype: data.avtaletype,
-      prisbetingelser: erAnskaffetTiltak(data.tiltakstype.arenaKode)
+      prisbetingelser: erAnskaffetTiltak(data.tiltakstype.tiltakskode)
         ? data.prisbetingelser || null
         : null,
       beskrivelse: data.beskrivelse,

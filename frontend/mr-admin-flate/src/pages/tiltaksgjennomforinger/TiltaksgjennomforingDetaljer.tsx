@@ -136,7 +136,7 @@ export function TiltaksgjennomforingDetaljer({ tiltaksgjennomforing, avtale }: P
 
           <Bolk>
             <Metadata header={tiltaktekster.antallPlasserLabel} verdi={antallPlasser} />
-            {isTiltakMedFellesOppstart(tiltakstype.arenaKode) && (
+            {isTiltakMedFellesOppstart(tiltakstype.tiltakskode) && (
               <Metadata header={tiltaktekster.deltidsprosentLabel} verdi={deltidsprosent} />
             )}
           </Bolk>

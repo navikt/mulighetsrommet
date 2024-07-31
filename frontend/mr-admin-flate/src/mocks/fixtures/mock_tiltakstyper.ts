@@ -311,17 +311,14 @@ export const mockVeilederflateTiltakstypeAFT: VeilederflateTiltakstype = {
   kanKombineresMed: [],
 };
 
-export const mockMigrerteTiltakstyper: string[] = [
-  "ARBFORB",
-  "ARBRRHDAG",
-  "AVKLARAG",
-  "DIGIOPPARB",
-  "GRUFAGYRKE",
-  "GRUPPEAMO",
-  "INDJOBSTOT",
-  "INDOPPFAG",
-  "IPSUNG",
-  "JOBBK",
-  "UTVAOONAV",
-  "VASV",
+export const mockMigrerteTiltakstyper: Tiltakskode[] = [
+  Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
+  Tiltakskode.ARBEIDSRETTET_REHABILITERING,
+  Tiltakskode.AVKLARING,
+  Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK,
+  Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
+  Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
+  Tiltakskode.OPPFOLGING,
+  Tiltakskode.JOBBKLUBB,
+  Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET,
 ];

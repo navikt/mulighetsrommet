@@ -20,7 +20,6 @@ import no.nav.mulighetsrommet.api.tiltaksgjennomforinger.TiltaksgjennomforingVal
 import no.nav.mulighetsrommet.api.utils.EksternTiltaksgjennomforingFilter
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.Pagination
-import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.Tiltakskoder.isTiltakMedAvtalerFraMulighetsrommet
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering.TiltaksgjennomforingSluttDatoCutoffDate
 import no.nav.mulighetsrommet.domain.dto.AvbruttAarsak
@@ -178,7 +177,7 @@ class TiltaksgjennomforingService(
     fun setAvtale(id: UUID, avtaleId: UUID?, navIdent: NavIdent): StatusResponse<Unit> {
         val gjennomforing = get(id) ?: return NotFound("Gjennomføringen finnes ikke").left()
 
-        if (!isTiltakMedAvtalerFraMulighetsrommet(gjennomforing.tiltakstype.arenaKode)) {
+        if (!isTiltakMedAvtalerFraMulighetsrommet(gjennomforing.tiltakstype.tiltakskode)) {
             return BadRequest("Avtale kan bare settes for tiltaksgjennomføringer av type AFT eller VTA").left()
         }
 
@@ -210,7 +209,7 @@ class TiltaksgjennomforingService(
 
         val gjennomforing = get(id) ?: return Either.Left(NotFound("Gjennomføringen finnes ikke"))
 
-        if (!tiltakstypeService.isEnabled(Tiltakskode.fromArenaKode(gjennomforing.tiltakstype.arenaKode))) {
+        if (!tiltakstypeService.isEnabled(gjennomforing.tiltakstype.tiltakskode)) {
             return Either.Left(BadRequest(message = "Tiltakstype '${gjennomforing.tiltakstype.navn}' må avbrytes i Arena."))
         }
 

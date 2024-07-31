@@ -89,7 +89,7 @@ class TiltaksgjennomforingValidator(
                 )
             }
 
-            if (Tiltakskoder.isKursTiltak(avtale.tiltakstype.arenaKode)) {
+            if (Tiltakskoder.isKursTiltak(avtale.tiltakstype.tiltakskode)) {
                 validateKursTiltak(next)
             } else {
                 if (next.oppstart == TiltaksgjennomforingOppstartstype.FELLES) {
@@ -135,7 +135,7 @@ class TiltaksgjennomforingValidator(
             }
 
             if (
-                Tiltakskode.fromArenaKode(tiltakstype.arenaKode) == Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING &&
+                tiltakstype.tiltakskode == Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING &&
                 avtale.amoKategorisering?.kurstype != null &&
                 avtale.amoKategorisering.kurstype !== AmoKategorisering.Kurstype.STUDIESPESIALISERING &&
                 next.amoKategorisering?.innholdElementer.isNullOrEmpty()
@@ -358,10 +358,9 @@ class TiltaksgjennomforingValidator(
     private fun isTiltakstypeDisabled(
         previous: TiltaksgjennomforingAdminDto?,
         tiltakstype: TiltakstypeAdminDto,
-    ) = previous == null && !tiltakstyper.isEnabled(Tiltakskode.fromArenaKode(tiltakstype.arenaKode))
+    ) = previous == null && !tiltakstyper.isEnabled(tiltakstype.tiltakskode)
 
     private fun isOwnedByArena(previous: TiltaksgjennomforingAdminDto): Boolean {
-        val tiltakskode = Tiltakskode.fromArenaKode(previous.tiltakstype.arenaKode)
-        return previous.opphav == ArenaMigrering.Opphav.ARENA && !tiltakstyper.isEnabled(tiltakskode)
+        return previous.opphav == ArenaMigrering.Opphav.ARENA && !tiltakstyper.isEnabled(previous.tiltakstype.tiltakskode)
     }
 }

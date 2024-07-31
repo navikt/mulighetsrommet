@@ -29,7 +29,6 @@ class OpsjonLoggValidatorTest : FunSpec({
         tiltakstype = AvtaleAdminDto.Tiltakstype(
             id = UUID.randomUUID(),
             navn = "Oppfølging",
-            arenaKode = "OPPF",
             tiltakskode = Tiltakskode.OPPFOLGING,
         ),
         navn = "Avtale for opsjoner",
