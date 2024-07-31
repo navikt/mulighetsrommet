@@ -54,6 +54,26 @@ export function AvtaleFilter({ filterAtom, skjulFilter }: Props) {
     return <FilterSkeleton />;
   }
 
+  function selectDeselectAll(checked: boolean, key: string, values: string[]) {
+    if (checked) {
+      setFilter({
+        ...filter,
+        page: 1,
+        [key]: values,
+        lagretFilterIdValgt: undefined,
+      });
+      loggBrukAvFilter(key, "Velg alle");
+    } else {
+      setFilter({
+        ...filter,
+        page: 1,
+        [key]: [],
+        lagretFilterIdValgt: undefined,
+      });
+      loggBrukAvFilter(key, "Fjern alle");
+    }
+  }
+
   return (
     <>
       <Search
@@ -105,6 +125,13 @@ export function AvtaleFilter({ filterAtom, skjulFilter }: Props) {
           </Accordion.Header>
           <Accordion.Content>
             <CheckboxList
+              onSelectAll={(checked) => {
+                selectDeselectAll(
+                  checked,
+                  "statuser",
+                  AVTALE_STATUS_OPTIONS.map((s) => s.value),
+                );
+              }}
               items={AVTALE_STATUS_OPTIONS}
               isChecked={(status) => filter.statuser.includes(status)}
               onChange={(status) => {
@@ -135,6 +162,13 @@ export function AvtaleFilter({ filterAtom, skjulFilter }: Props) {
           </Accordion.Header>
           <Accordion.Content>
             <CheckboxList
+              onSelectAll={(checked) => {
+                selectDeselectAll(
+                  checked,
+                  "avtaletyper",
+                  AVTALE_TYPE_OPTIONS.map((a) => a.value),
+                );
+              }}
               items={AVTALE_TYPE_OPTIONS}
               isChecked={(type) => filter.avtaletyper.includes(type)}
               onChange={(type) => {
@@ -166,6 +200,13 @@ export function AvtaleFilter({ filterAtom, skjulFilter }: Props) {
             </Accordion.Header>
             <Accordion.Content>
               <CheckboxList
+                onSelectAll={(checked) => {
+                  selectDeselectAll(
+                    checked,
+                    "tiltakstyper",
+                    tiltakstyper.data.map((t) => t.id),
+                  );
+                }}
                 items={tiltakstypeOptions(tiltakstyper.data)}
                 isChecked={(tiltakstype) => filter.tiltakstyper.includes(tiltakstype)}
                 onChange={(tiltakstype) => {
