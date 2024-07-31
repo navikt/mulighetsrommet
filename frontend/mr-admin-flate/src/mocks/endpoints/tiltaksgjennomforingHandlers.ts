@@ -110,23 +110,6 @@ export const tiltaksgjennomforingHandlers = [
     },
   ),
 
-  http.get<{ tiltakskode: string }, PaginertTiltaksgjennomforing>(
-    "*/api/v1/intern/tiltaksgjennomforinger/tiltakskode/:tiltakskode",
-    ({ params }) => {
-      const { tiltakskode } = params;
-      const gjennomforinger = mockTiltaksgjennomforinger.filter(
-        (gj) => gj.tiltakstype.arenaKode === tiltakskode,
-      );
-      return HttpResponse.json({
-        pagination: {
-          totalCount: gjennomforinger.length,
-          pageSize: 50,
-        },
-        data: gjennomforinger,
-      });
-    },
-  ),
-
   http.get<{ enhet: string }, PaginertTiltaksgjennomforing>(
     "*/api/v1/intern/tiltaksgjennomforinger/enhet/:enhet",
     ({ params }) => {

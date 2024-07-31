@@ -599,10 +599,10 @@ class ArenaAdapterServiceTest :
                     tiltaksgjennomforingKafkaProducer = tiltaksgjennomforingKafkaProducer,
                 )
 
-                forAll(row("VASV"), row("ARBFORB")) { arenaKode ->
+                forAll(row(Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET), row(Tiltakskode.ARBEIDSFORBEREDENDE_TRENING)) { tiltakskode ->
                     runBlocking {
                         val domain = MulighetsrommetTestDomain(
-                            tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging.copy(arenaKode = arenaKode)),
+                            tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging.copy(tiltakskode = tiltakskode)),
                             avtaler = listOf(AvtaleFixtures.oppfolging),
                         )
                         domain.initialize(database.db)

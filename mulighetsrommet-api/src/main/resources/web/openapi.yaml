@@ -803,7 +803,7 @@ paths:
               schema:
                 type: array
                 items:
-                  type: string
+                  $ref: "#/components/schemas/Tiltakskode"
 
   /api/v1/intern/tiltakstyper/stotterPameldingIModia:
     get:
@@ -2143,8 +2143,6 @@ components:
           format: uuid
         navn:
           type: string
-        arenaKode:
-          $ref: "#/components/schemas/TiltakskodeArena"
         tiltakskode:
           $ref: "#/components/schemas/Tiltakskode"
       required:

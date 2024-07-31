@@ -129,7 +129,7 @@ export function AvtaleDetaljer() {
 
         <VStack gap="5">
           <Bolk aria-label={avtaletekster.prisOgBetalingLabel}>
-            {erAnskaffetTiltak(tiltakstype.arenaKode) && (
+            {erAnskaffetTiltak(tiltakstype.tiltakskode) && (
               <Metadata
                 header={avtaletekster.prisOgBetalingLabel}
                 verdi={avtale.prisbetingelser ?? "-"}

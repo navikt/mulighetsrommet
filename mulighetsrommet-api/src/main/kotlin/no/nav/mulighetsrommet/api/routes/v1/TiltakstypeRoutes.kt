@@ -11,7 +11,6 @@ import no.nav.mulighetsrommet.api.routes.v1.parameters.getPaginationParams
 import no.nav.mulighetsrommet.api.services.TiltakstypeService
 import no.nav.mulighetsrommet.api.services.VeilederflateService
 import no.nav.mulighetsrommet.domain.Tiltakskode
-import no.nav.mulighetsrommet.domain.Tiltakskode.Companion.toArenaKode
 import org.koin.ktor.ext.inject
 import java.util.*
 
@@ -56,7 +55,7 @@ fun Route.tiltakstypeRoutes(migrerteTiltak: List<Tiltakskode>, pameldingIModia: 
         }
 
         get("migrerte") {
-            call.respond(migrerteTiltak.map { toArenaKode(it) })
+            call.respond(migrerteTiltak)
         }
 
         get("stotterPameldingIModia") {

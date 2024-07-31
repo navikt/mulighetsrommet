@@ -20,7 +20,10 @@ export function OpprettTiltakIArenaModal({
 
   const migrerteTiltakstyperNavn =
     tiltakstyper?.data
-      .filter((tiltakstype) => migrerteTiltakstyper?.includes(tiltakstype.arenaKode))
+      .filter(
+        (tiltakstype) =>
+          tiltakstype.tiltakskode && migrerteTiltakstyper?.includes(tiltakstype.tiltakskode),
+      )
       .map((tiltakstype) => tiltakstype.navn) ?? [];
 
   return (

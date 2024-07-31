@@ -62,7 +62,7 @@ class AvtaleValidator(
                 }
                 if (
                     // Unntak for de som ikke er tatt over fra arena siden man ikke får endre avtaletype på de
-                    !listOf(Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING, Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING).contains(Tiltakskode.fromArenaKode(tiltakstype.arenaKode)) &&
+                    !listOf(Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING, Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING).contains(tiltakstype.tiltakskode) &&
                     !avtaleTypeErForhandsgodkjent(avtale.avtaletype) &&
                     avtale.startDato.plusYears(5).isBefore(avtale.sluttDato)
                 ) {
@@ -125,7 +125,7 @@ class AvtaleValidator(
                 )
             }
 
-            if (!allowedAvtaletypes(Tiltakskode.fromArenaKode(tiltakstype.arenaKode)).contains(avtale.avtaletype)) {
+            if (!allowedAvtaletypes(tiltakstype.tiltakskode).contains(avtale.avtaletype)) {
                 add(
                     ValidationError.of(
                         AvtaleDbo::avtaletype,
@@ -139,7 +139,7 @@ class AvtaleValidator(
             }
 
             if (
-                Tiltakskode.fromArenaKode(tiltakstype.arenaKode) == Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING &&
+                tiltakstype.tiltakskode == Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING &&
                 avtale.amoKategorisering?.kurstype != null &&
                 avtale.amoKategorisering.kurstype !== AmoKategorisering.Kurstype.STUDIESPESIALISERING &&
                 avtale.amoKategorisering.spesifisering == null
@@ -148,7 +148,7 @@ class AvtaleValidator(
             }
 
             if (
-                Tiltakskode.fromArenaKode(tiltakstype.arenaKode) == Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING &&
+                tiltakstype.tiltakskode == Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING &&
                 avtale.amoKategorisering?.kurstype != null &&
                 avtale.amoKategorisering.kurstype !== AmoKategorisering.Kurstype.STUDIESPESIALISERING &&
                 avtale.amoKategorisering.innholdElementer.isNullOrEmpty()
@@ -344,25 +344,25 @@ class AvtaleValidator(
         avtale: AvtaleAdminDto,
         tiltakstype: TiltakstypeAdminDto,
     ): Boolean {
-        return avtale.opphav == ArenaMigrering.Opphav.ARENA && !isEnabled(tiltakstype.arenaKode)
+        return avtale.opphav == ArenaMigrering.Opphav.ARENA && !isEnabled(tiltakstype.tiltakskode)
     }
 
     private fun isTiltakstypeDisabled(
         previous: AvtaleAdminDto?,
         tiltakstype: TiltakstypeAdminDto,
     ): Boolean {
-        val kanIkkeOppretteAvtale = previous == null && !isEnabled(tiltakstype.arenaKode)
+        val kanIkkeOppretteAvtale = previous == null && !isEnabled(tiltakstype.tiltakskode)
 
         val kanIkkeRedigereTiltakstypeForAvtale = previous != null &&
-            tiltakstype.arenaKode != previous.tiltakstype.arenaKode &&
-            !isEnabled(tiltakstype.arenaKode)
+            tiltakstype.tiltakskode != previous.tiltakstype.tiltakskode &&
+            !isEnabled(tiltakstype.tiltakskode)
 
         return kanIkkeOppretteAvtale || kanIkkeRedigereTiltakstypeForAvtale
     }
 
-    private fun isEnabled(arenakode: String) =
-        tiltakstyper.isEnabled(Tiltakskode.fromArenaKode(arenakode)) ||
-            Tiltakskoder.TiltakMedAvtalerFraMulighetsrommet.contains(arenakode)
+    private fun isEnabled(tiltakskode: Tiltakskode?) =
+        tiltakstyper.isEnabled(tiltakskode) ||
+            Tiltakskoder.TiltakMedAvtalerFraMulighetsrommet.contains(tiltakskode)
 }
 
 private fun avtaleTypeErForhandsgodkjent(avtaletype: Avtaletype): Boolean {

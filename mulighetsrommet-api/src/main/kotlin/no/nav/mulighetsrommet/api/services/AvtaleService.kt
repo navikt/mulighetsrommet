@@ -144,7 +144,7 @@ class AvtaleService(
         }
         val avtale = avtaler.get(id) ?: return Either.Left(NotFound("Avtalen finnes ikke"))
 
-        if (avtale.opphav == Opphav.ARENA && !tiltakstyperMigrert.contains(Tiltakskode.fromArenaKode(avtale.tiltakstype.arenaKode))) {
+        if (avtale.opphav == Opphav.ARENA && !tiltakstyperMigrert.contains(avtale.tiltakstype.tiltakskode)) {
             return Either.Left(BadRequest(message = "Avtalen har opprinnelse fra Arena og kan ikke bli avbrutt fra admin-flate."))
         }
 

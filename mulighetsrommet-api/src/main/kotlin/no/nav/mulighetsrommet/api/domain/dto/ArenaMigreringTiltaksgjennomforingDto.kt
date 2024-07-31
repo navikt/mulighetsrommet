@@ -54,7 +54,7 @@ data class ArenaMigreringTiltaksgjennomforingDto(
 
             return ArenaMigreringTiltaksgjennomforingDto(
                 id = tiltaksgjennomforing.id,
-                tiltakskode = tiltaksgjennomforing.tiltakstype.arenaKode,
+                tiltakskode = tiltaksgjennomforing.tiltakstype.tiltakskode.toArenaKode(),
                 startDato = tiltaksgjennomforing.startDato,
                 sluttDato = tiltaksgjennomforing.sluttDato,
                 opprettetTidspunkt = tiltaksgjennomforing.createdAt,

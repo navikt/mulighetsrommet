@@ -7,7 +7,6 @@ import kotlinx.coroutines.runBlocking
 import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.api.services.SanityTiltakService
 import no.nav.mulighetsrommet.database.Database
-import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.kafka.producers.TiltakstypeKafkaProducer
 import org.slf4j.LoggerFactory
 import org.slf4j.MDC
@@ -51,7 +50,7 @@ class InitialLoadTiltakstyper(
         tiltakstyper.getAll()
             .items
             .forEach { tiltakstype ->
-                val tiltakskode = Tiltakskode.fromArenaKode(tiltakstype.arenaKode)
+                val tiltakskode = tiltakstype.tiltakskode
                 if (tiltakskode != null) {
                     val eksternDto = requireNotNull(tiltakstyper.getEksternTiltakstype(tiltakstype.id)) {
                         "Klarte ikke hente ekstern tiltakstype for tiltakskode $tiltakskode"

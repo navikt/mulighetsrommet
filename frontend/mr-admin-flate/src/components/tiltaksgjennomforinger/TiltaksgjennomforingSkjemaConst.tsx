@@ -6,6 +6,7 @@ import {
   Opphav,
   Tiltaksgjennomforing,
   TiltaksgjennomforingOppstartstype,
+  Tiltakskode,
 } from "mulighetsrommet-api-client";
 import { InferredTiltaksgjennomforingSchema } from "@/components/redaksjoneltInnhold/TiltaksgjennomforingSchema";
 import { DeepPartial } from "react-hook-form";
@@ -15,7 +16,7 @@ export function defaultOppstartType(avtale?: Avtale): TiltaksgjennomforingOppsta
     return TiltaksgjennomforingOppstartstype.LOPENDE;
   }
 
-  const tiltakskode = avtale.tiltakstype.arenaKode;
+  const tiltakskode = avtale.tiltakstype.tiltakskode;
   return isTiltakMedFellesOppstart(tiltakskode)
     ? TiltaksgjennomforingOppstartstype.FELLES
     : TiltaksgjennomforingOppstartstype.LOPENDE;
@@ -23,11 +24,11 @@ export function defaultOppstartType(avtale?: Avtale): TiltaksgjennomforingOppsta
 
 export function erArenaOpphavOgIngenEierskap(
   tiltaksgjennomforing: Tiltaksgjennomforing | undefined,
-  migrerteTiltakstyper: string[],
+  migrerteTiltakstyper: Tiltakskode[],
 ) {
   return (
     tiltaksgjennomforing?.opphav === Opphav.ARENA &&
-    !migrerteTiltakstyper?.includes(tiltaksgjennomforing.tiltakstype.arenaKode)
+    !migrerteTiltakstyper?.includes(tiltaksgjennomforing.tiltakstype.tiltakskode)
   );
 }
 

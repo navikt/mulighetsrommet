@@ -55,7 +55,6 @@ data class AvtaleAdminDto(
         @Serializable(with = UUIDSerializer::class)
         val id: UUID,
         val navn: String,
-        val arenaKode: String,
         val tiltakskode: Tiltakskode,
     )
 

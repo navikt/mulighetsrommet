@@ -18,7 +18,6 @@ import no.nav.mulighetsrommet.api.utils.EnhetFilter
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.QueryResult
 import no.nav.mulighetsrommet.database.utils.query
-import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.Tiltakskoder
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering.TiltaksgjennomforingSluttDatoCutoffDate
@@ -139,7 +138,7 @@ class ArenaAdapterService(
         }
 
         db.transactionSuspend { tx ->
-            if (previous != null && tiltakstypeService.isEnabled(Tiltakskode.fromArenaKode(tiltakstype.arenaKode))) {
+            if (previous != null && tiltakstypeService.isEnabled(tiltakstype.tiltakskode)) {
                 tiltaksgjennomforinger.updateArenaData(
                     previous.id,
                     mergedArenaGjennomforing.tiltaksnummer,
@@ -205,7 +204,7 @@ class ArenaAdapterService(
         current: TiltaksgjennomforingAdminDto,
         tiltakstype: TiltakstypeAdminDto,
     ): ArenaTiltaksgjennomforingDbo =
-        if (tiltakstypeService.isEnabled(Tiltakskode.fromArenaKode(tiltakstype.arenaKode))) {
+        if (tiltakstypeService.isEnabled(tiltakstype.tiltakskode)) {
             ArenaTiltaksgjennomforingDbo(
                 // Behold felter som settes i Arena
                 tiltaksnummer = tiltaksgjennomforing.tiltaksnummer,
@@ -229,7 +228,7 @@ class ArenaAdapterService(
             // Pass på at man ikke mister referansen til Avtalen
             val avtaleId = if (
                 current.opphav == ArenaMigrering.Opphav.MR_ADMIN_FLATE ||
-                Tiltakskoder.isTiltakMedAvtalerFraMulighetsrommet(tiltakstype.arenaKode)
+                Tiltakskoder.isTiltakMedAvtalerFraMulighetsrommet(tiltakstype.tiltakskode)
             ) {
                 current.avtaleId ?: tiltaksgjennomforing.avtaleId
             } else {

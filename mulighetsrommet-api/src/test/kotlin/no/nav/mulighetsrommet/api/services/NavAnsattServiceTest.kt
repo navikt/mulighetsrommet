@@ -435,7 +435,6 @@ class NavAnsattServiceTest :
                         AvtaleAdminDto.Tiltakstype(
                             id = id,
                             navn = navn,
-                            arenaKode = arenaKode,
                             tiltakskode = tiltakskode!!,
                         )
                     },

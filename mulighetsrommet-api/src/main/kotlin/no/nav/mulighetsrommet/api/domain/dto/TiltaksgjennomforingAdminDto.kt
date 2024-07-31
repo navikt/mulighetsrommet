@@ -63,7 +63,6 @@ data class TiltaksgjennomforingAdminDto(
         @Serializable(with = UUIDSerializer::class)
         val id: UUID,
         val navn: String,
-        val arenaKode: String,
         val tiltakskode: Tiltakskode,
     )
 
@@ -95,7 +94,7 @@ data class TiltaksgjennomforingAdminDto(
             tiltakstype = TiltaksgjennomforingV1Dto.Tiltakstype(
                 id = tiltakstype.id,
                 navn = tiltakstype.navn,
-                arenaKode = tiltakstype.arenaKode,
+                arenaKode = tiltakstype.tiltakskode.toArenaKode(),
                 tiltakskode = tiltakstype.tiltakskode,
             ),
             navn = navn,

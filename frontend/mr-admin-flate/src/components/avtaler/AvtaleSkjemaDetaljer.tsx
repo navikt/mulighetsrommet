@@ -10,7 +10,6 @@ import {
   NavEnhetType,
   Opphav,
   Tiltakskode,
-  TiltakskodeArena,
   Tiltakstype,
   Toggles,
 } from "mulighetsrommet-api-client";
@@ -60,13 +59,8 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
 
   const watchedTiltakstype = watch("tiltakstype");
   const tiltakskode = watchedTiltakstype?.tiltakskode;
-  const arenaKode = watchedTiltakstype?.arenaKode;
 
-  const valgtTiltakstypeFraArena = !migrerteTiltakstyper?.includes(
-    watchedTiltakstype?.arenaKode ?? "",
-  );
-
-  const arenaOpphavOgIngenEierskap = avtale?.opphav === Opphav.ARENA && valgtTiltakstypeFraArena;
+  const arenaOpphavOgIngenEierskap = avtale?.opphav === Opphav.ARENA && !erMigrert(tiltakskode);
 
   const navRegionerOptions = enheter
     .filter((enhet) => enhet.type === NavEnhetType.FYLKE)
@@ -74,6 +68,11 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
       value: enhet.enhetsnummer,
       label: enhet.navn,
     }));
+
+  function erMigrert(tiltakskode?: Tiltakskode | null): boolean {
+    if (!tiltakskode) return false;
+    return migrerteTiltakstyper.includes(tiltakskode);
+  }
 
   return (
     <SkjemaDetaljerContainer>
@@ -134,8 +133,8 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
                 {...register("tiltakstype")}
                 onChange={(event) => {
                   setValue("amoKategorisering", undefined);
-                  const options = event.target.value?.arenaKode
-                    ? avtaletypeOptions(event.target.value.arenaKode)
+                  const options = event.target.value?.tiltakskode
+                    ? avtaletypeOptions(event.target.value.tiltakskode)
                     : [];
                   const avtaletype = options[0]?.value;
                   setValue("avtaletype", avtaletype);
@@ -147,10 +146,10 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
                     id: tiltakstype.id,
                     tiltakskode: tiltakstype.tiltakskode,
                   },
-                  label: !migrerteTiltakstyper?.includes(tiltakstype.arenaKode)
+                  label: !erMigrert(tiltakstype.tiltakskode)
                     ? `${tiltakstype.navn} må opprettes i Arena`
                     : tiltakstype.navn,
-                  isDisabled: !migrerteTiltakstyper?.includes(tiltakstype.arenaKode),
+                  isDisabled: !erMigrert(tiltakstype.tiltakskode),
                 }))}
               />
               <ControlledSokeSelect
@@ -159,7 +158,7 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
                 placeholder="Velg en"
                 label={avtaletekster.avtaletypeLabel}
                 {...register("avtaletype")}
-                options={arenaKode ? avtaletypeOptions(arenaKode) : []}
+                options={tiltakskode ? avtaletypeOptions(tiltakskode) : []}
               />
             </HGrid>
             {enableGruppeAmoKategorier &&
@@ -173,7 +172,7 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
             arenaOpphavOgIngenEierskap={arenaOpphavOgIngenEierskap}
           />
 
-          {arenaKode && erAnskaffetTiltak(arenaKode) && (
+          {tiltakskode && erAnskaffetTiltak(tiltakskode) && (
             <>
               <FormGroup>
                 <Textarea
@@ -254,7 +253,7 @@ function velgAlleLokaleUnderenheter(
   return getLokaleUnderenheterAsSelectOptions(regioner, enheter).map((option) => option.value);
 }
 
-function avtaletypeOptions(arenaKode: TiltakskodeArena): { value: Avtaletype; label: string }[] {
+function avtaletypeOptions(tiltakskode: Tiltakskode): { value: Avtaletype; label: string }[] {
   const forhaandsgodkjent = {
     value: Avtaletype.FORHAANDSGODKJENT,
     label: avtaletypeTilTekst(Avtaletype.FORHAANDSGODKJENT),
@@ -271,18 +270,18 @@ function avtaletypeOptions(arenaKode: TiltakskodeArena): { value: Avtaletype; la
     value: Avtaletype.OFFENTLIG_OFFENTLIG,
     label: avtaletypeTilTekst(Avtaletype.OFFENTLIG_OFFENTLIG),
   };
-  switch (arenaKode) {
-    case "ARBFORB":
-    case "VASV":
+  switch (tiltakskode) {
+    case Tiltakskode.ARBEIDSFORBEREDENDE_TRENING:
+    case Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET:
       return [forhaandsgodkjent];
-    case "AVKLARAG":
-    case "INDOPPFAG":
-    case "ARBRRHDAG":
-    case "DIGIOPPARB":
-    case "JOBBK":
+    case Tiltakskode.OPPFOLGING:
+    case Tiltakskode.JOBBKLUBB:
+    case Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK:
+    case Tiltakskode.AVKLARING:
+    case Tiltakskode.ARBEIDSRETTET_REHABILITERING:
       return [avtale, rammeavtale];
-    case "GRUFAGYRKE":
-    case "GRUPPEAMO":
+    case Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING:
+    case Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING:
       return [avtale, offentligOffentlig, rammeavtale];
     default:
       return [];
