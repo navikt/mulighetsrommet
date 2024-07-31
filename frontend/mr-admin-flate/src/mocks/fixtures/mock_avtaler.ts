@@ -6,7 +6,11 @@ import { mockTiltakstyper } from "./mock_tiltakstyper";
 export const mockAvtaler: Avtale[] = [
   {
     id: "d1f163b7-1a41-4547-af16-03fd4492b7ba",
-    tiltakstype: mockTiltakstyper.AVKLARAG,
+    tiltakstype: {
+      id: mockTiltakstyper.AVKLARAG.id,
+      navn: mockTiltakstyper.AVKLARAG.navn,
+      tiltakskode: mockTiltakstyper.AVKLARAG.tiltakskode,
+    },
     navn: "Testtiltak Varig",
     administratorer: [
       {
@@ -72,7 +76,11 @@ export const mockAvtaler: Avtale[] = [
   },
   {
     id: "d1f163b7-1a41-4547-af16-03fd4492b7bc",
-    tiltakstype: mockTiltakstyper.ARBFORB,
+    tiltakstype: {
+      id: mockTiltakstyper.ARBFORB.id,
+      navn: mockTiltakstyper.ARBFORB.navn,
+      tiltakskode: mockTiltakstyper.ARBFORB.tiltakskode,
+    },
     navn: "Avtale hos ÅMLI KOMMUNE SAMFUNNSAVDELINGA",
     avtalenummer: "2021#10579",
     arrangor: {
@@ -127,7 +135,11 @@ export const mockAvtaler: Avtale[] = [
         navn: "Test Testesen",
       },
     ],
-    tiltakstype: mockTiltakstyper.INDOPPFAG,
+    tiltakstype: {
+      id: mockTiltakstyper.INDOPPFAG.id,
+      navn: mockTiltakstyper.INDOPPFAG.navn,
+      tiltakskode: mockTiltakstyper.INDOPPFAG.tiltakskode,
+    },
     navn: "Avtale hos Åna Fengsel",
     avtalenummer: "2020#4929",
     arrangor: {
@@ -171,7 +183,11 @@ export const mockAvtaler: Avtale[] = [
         navn: "Bertil Bengtson",
       },
     ],
-    tiltakstype: mockTiltakstyper.GRUFAGYRKE,
+    tiltakstype: {
+      id: mockTiltakstyper.GRUFAGYRKE.id,
+      navn: mockTiltakstyper.GRUFAGYRKE.navn,
+      tiltakskode: mockTiltakstyper.GRUFAGYRKE.tiltakskode,
+    },
     navn: "Avtale hos Kulinarisk akademi",
     avtalenummer: "2020#4929",
     websaknummer: "24/12345",
@@ -222,7 +238,11 @@ for (let i = 0; i < x; i++) {
         navn: "Bertil Bengtson",
       },
     ],
-    tiltakstype: mockTiltakstyper.INDOPPFAG,
+    tiltakstype: {
+      id: mockTiltakstyper.INDOPPFAG.id,
+      navn: mockTiltakstyper.INDOPPFAG.navn,
+      tiltakskode: mockTiltakstyper.INDOPPFAG.tiltakskode,
+    },
     navn: "Avtale hos Åna Fengsel",
     avtalenummer: "2020#4929",
     arrangor: {
