@@ -122,7 +122,6 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
               />
             </HGrid>
           </FormGroup>
-
           <FormGroup>
             <HGrid gap="4" columns={2}>
               <ControlledSokeSelect
@@ -141,7 +140,6 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
                 }}
                 options={tiltakstyper.map((tiltakstype) => ({
                   value: {
-                    arenaKode: tiltakstype.arenaKode,
                     navn: tiltakstype.navn,
                     id: tiltakstype.id,
                     tiltakskode: tiltakstype.tiltakskode,
