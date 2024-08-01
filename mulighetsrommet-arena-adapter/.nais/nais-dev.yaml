@@ -43,7 +43,7 @@ spec:
         - id: loki
   gcp:
     sqlInstances:
-      - type: POSTGRES_15
+      - type: POSTGRES_16
         databases:
           - name: mulighetsrommet-arena-adapter-db
             envVarPrefix: DB
