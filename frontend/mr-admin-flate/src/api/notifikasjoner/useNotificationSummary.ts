@@ -6,7 +6,8 @@ export function useNotificationSummary() {
   return useQuery({
     queryKey: QueryKeys.antallUlesteNotifikasjoner(),
     queryFn: () => NotificationsService.getNotificationSummary(),
-    refetchInterval: 1000 * 60 * 5, // Hvert 5. minutt
+    refetchOnWindowFocus: true,
+    refetchOnMount: true,
     throwOnError: false,
   });
 }
