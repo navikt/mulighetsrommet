@@ -2613,6 +2613,7 @@ components:
         - TILTAKSGJENNOMFORINGER_SKRIV
         - AVTALER_SKRIV
         - TILTAKADMINISTRASJON_GENERELL
+        - OKONOMI_BESLUTTER
 
     NavAnsattHovedenhet:
       type: object
@@ -3719,6 +3720,7 @@ components:
         - mulighetsrommet.admin-flate.enable_gruppe_amo_kategorier
         - mulighetsrommet.admin-flate.registrere-opsjonsmodell
         - mulighetsrommet.admin-flate.registrere-opsjon
+        - mulighetsrommet.admin-flate.opprett-tilsagn
 
     PublisertRequest:
       type: object

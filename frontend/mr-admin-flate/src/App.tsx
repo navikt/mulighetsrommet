@@ -26,6 +26,7 @@ import { TiltakstypeInfo } from "./pages/tiltakstyper/TiltakstypeInfo";
 import { TiltakstyperPage } from "./pages/tiltakstyper/TiltakstyperPage";
 import { AvtalerForTiltakstypePage } from "./pages/tiltakstyper/avtaler/AvtalerForTiltakstypePage";
 import { IngenLesetilgang } from "./IngenLesetilgang";
+import { OpprettTilsagnSkjemaPage } from "./pages/tiltaksgjennomforinger/OpprettTilsagnSkjemaPage";
 
 if (import.meta.env.PROD) {
   initializeFaro({
@@ -137,6 +138,11 @@ export function App() {
         errorElement={<ErrorPage />}
       />
       <Route
+        path="avtaler/:avtaleId/tiltaksgjennomforinger/:tiltaksgjennomforingId/opprett-tilsagn"
+        element={<OpprettTilsagnSkjemaPage />}
+        errorElement={<ErrorPage />}
+      />
+      <Route
         path="avtaler/:avtaleId/tiltaksgjennomforinger/skjema"
         element={<TiltaksgjennomforingSkjemaPage />}
         errorElement={<ErrorPage />}
@@ -144,6 +150,11 @@ export function App() {
       <Route
         path="tiltaksgjennomforinger/:tiltaksgjennomforingId/skjema"
         element={<TiltaksgjennomforingSkjemaPage />}
+        errorElement={<ErrorPage />}
+      />
+      <Route
+        path="tiltaksgjennomforinger/:tiltaksgjennomforingId/opprett-tilsagn"
+        element={<OpprettTilsagnSkjemaPage />}
         errorElement={<ErrorPage />}
       />
       <Route path="arrangorer" element={<ArrangorerPage />} errorElement={<ErrorPage />} />
