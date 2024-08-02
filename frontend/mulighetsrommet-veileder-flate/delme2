@@ -1,0 +1,37 @@
+  /api/v1/intern/avtaler/{id}/behandle-personopplysninger:
+
+  /api/v1/intern/bruker/komet-deltakelser:
+  /api/v1/intern/bruker:
+  /api/v2/intern/bruker/historikk:
+
+  /api/v1/intern/del-med-bruker/alle:
+  /api/v1/intern/del-med-bruker/historikk:
+  /api/v1/intern/del-med-bruker:
+
+  /api/v1/intern/dialog:
+
+  /api/v1/intern/features:
+
+  /api/v1/intern/joyride/lagre:
+  /api/v1/intern/joyride/{joyrideType}/har-fullfort:
+
+  /api/v1/intern/nav-enheter/regioner:
+  /api/v1/intern/nav-enheter/{enhetsnummer}/overordnet:
+
+  /api/v1/intern/tiltakstyper/stotterPameldingIModia:
+
+  /api/v1/intern/veileder/innsatsgrupper:
+  /api/v1/intern/veileder/me:
+  /api/v1/intern/veileder/nav/tiltaksgjennomforinger/{id}:
+  /api/v1/intern/veileder/nav/tiltaksgjennomforinger:
+  /api/v1/intern/veileder/oppskrifter/{tiltakstypeId}:
+  /api/v1/intern/veileder/preview/tiltaksgjennomforinger/{id}:
+  /api/v1/intern/veileder/preview/tiltaksgjennomforinger:
+  /api/v1/intern/veileder/tiltaksgjennomforinger/{id}:
+  /api/v1/intern/veileder/tiltaksgjennomforinger:
+  /api/v1/intern/veileder/tiltakstyper:
+
+
+
+
+
