@@ -76,7 +76,7 @@ export function TiltaksgjennomforingKnapperad({ bruker, tiltaksgjennomforing }: 
               >
                 Rediger
               </Dropdown.Menu.GroupedList.Item>
-              {enableOpprettTilsagn ? (
+              {enableOpprettTilsagn && gjennomforingIsAktiv(tiltaksgjennomforing.status.status) ? (
                 <Dropdown.Menu.GroupedList.Item
                   onClick={() => {
                     navigate("opprett-tilsagn");
