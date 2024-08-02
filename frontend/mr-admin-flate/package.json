@@ -45,6 +45,7 @@
     "react-dom": "18.3.1",
     "react-error-boundary": "4.0.13",
     "react-hook-form": "7.52.0",
+    "react-number-format": "^5.4.0",
     "react-router-dom": "6.23.1",
     "react-select": "5.8.0",
     "slate": "0.103.0",

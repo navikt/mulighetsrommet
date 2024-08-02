@@ -1,7 +1,7 @@
 import React, { useRef } from "react";
 import { BodyShort, Button, Dropdown, Switch } from "@navikt/ds-react";
 import { useMutatePublisert } from "@/api/tiltaksgjennomforing/useMutatePublisert";
-import { NavAnsatt, Tiltaksgjennomforing } from "mulighetsrommet-api-client";
+import { NavAnsatt, Tiltaksgjennomforing, Toggles } from "mulighetsrommet-api-client";
 import { useTiltaksgjennomforingEndringshistorikk } from "@/api/tiltaksgjennomforing/useTiltaksgjennomforingEndringshistorikk";
 import { EndringshistorikkPopover } from "@/components/endringshistorikk/EndringshistorikkPopover";
 import { ViewEndringshistorikk } from "@/components/endringshistorikk/ViewEndringshistorikk";
@@ -13,6 +13,7 @@ import { erArenaOpphavOgIngenEierskap } from "@/components/tiltaksgjennomforinge
 import { useMigrerteTiltakstyper } from "@/api/tiltakstyper/useMigrerteTiltakstyper";
 import { AvbrytGjennomforingModal } from "@/components/modal/AvbrytGjennomforingModal";
 import { KnapperadContainer } from "@/pages/KnapperadContainer";
+import { useFeatureToggle } from "../../api/features/useFeatureToggle";
 
 interface Props {
   bruker: NavAnsatt;
@@ -25,6 +26,9 @@ export function TiltaksgjennomforingKnapperad({ bruker, tiltaksgjennomforing }: 
   const advarselModal = useRef<HTMLDialogElement>(null);
   const { data: migrerteTiltakstyper = [] } = useMigrerteTiltakstyper();
   const avbrytModalRef = useRef<HTMLDialogElement>(null);
+  const { data: enableOpprettTilsagn } = useFeatureToggle(
+    Toggles.MULIGHETSROMMET_ADMIN_FLATE_OPPRETT_TILSAGN,
+  );
 
   function handleClick(e: React.MouseEvent<HTMLInputElement>) {
     mutate({ id: tiltaksgjennomforing.id, publisert: e.currentTarget.checked });
@@ -72,6 +76,15 @@ export function TiltaksgjennomforingKnapperad({ bruker, tiltaksgjennomforing }: 
               >
                 Rediger
               </Dropdown.Menu.GroupedList.Item>
+              {enableOpprettTilsagn ? (
+                <Dropdown.Menu.GroupedList.Item
+                  onClick={() => {
+                    navigate("opprett-tilsagn");
+                  }}
+                >
+                  Opprett tilsagn
+                </Dropdown.Menu.GroupedList.Item>
+              ) : null}
               {!erArenaOpphavOgIngenEierskap(tiltaksgjennomforing, migrerteTiltakstyper) &&
                 gjennomforingIsAktiv(tiltaksgjennomforing.status.status) && (
                   <Dropdown.Menu.GroupedList.Item
