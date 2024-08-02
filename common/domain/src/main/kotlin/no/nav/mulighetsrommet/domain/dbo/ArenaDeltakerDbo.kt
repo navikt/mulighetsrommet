@@ -40,4 +40,5 @@ enum class ArenaDeltakerStatus {
     GJENNOMFORING_AVLYST,
     FULLFORT,
     IKKE_MOTT,
+    FEILREGISTRERT,
 }

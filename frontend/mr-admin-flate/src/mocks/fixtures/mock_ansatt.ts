@@ -20,6 +20,7 @@ const bertil: NavAnsatt = {
     NavAnsattRolle.AVTALER_SKRIV,
     NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV,
     NavAnsattRolle.TILTAKADMINISTRASJON_GENERELL,
+    NavAnsattRolle.OKONOMI_BESLUTTER,
   ],
   skalSlettesDato: null,
 };

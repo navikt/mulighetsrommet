@@ -7,7 +7,7 @@ export const ansattHandlers = [
     const url = new URL(request.url);
     const roller = url.searchParams.getAll("roller");
     return HttpResponse.json(
-      mockKontaktpersoner.filter((k) => k.roller.every((r) => roller.includes(r))),
+      mockKontaktpersoner.filter((k) => k.roller.some((r) => roller.includes(r))),
     );
   }),
 
