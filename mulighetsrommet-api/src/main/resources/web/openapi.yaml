@@ -2729,6 +2729,7 @@ components:
         - GJENNOMFORING_AVLYST
         - FULLFORT
         - IKKE_MOTT
+        - FEILREGISTRERT
 
     GruppetiltakDeltakelse:
       type: object

@@ -117,6 +117,8 @@ function variantAndTitle(status: AmtDeltakerStatus | ArenaDeltakerStatus): {
         return { variant: "alt1", title: "Fullført" };
       case ArenaDeltakerStatus.IKKE_MOTT:
         return { variant: "neutral", title: "Ikke møtt" };
+      case ArenaDeltakerStatus.FEILREGISTRERT:
+        return { variant: "neutral", title: "Feilregistrert" };
     }
   }
 }
