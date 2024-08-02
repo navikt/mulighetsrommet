@@ -80,4 +80,7 @@ enum class ArenaTiltakdeltakerStatus {
 
     @SerialName("IKKEM")
     IKKE_MOTT,
+
+    @SerialName("FEILREG")
+    FEILREGISTRERT,
 }
