@@ -2613,6 +2613,7 @@ components:
         - TILTAKSGJENNOMFORINGER_SKRIV
         - AVTALER_SKRIV
         - TILTAKADMINISTRASJON_GENERELL
+        - OKONOMI_BESLUTTER
 
     NavAnsattHovedenhet:
       type: object
