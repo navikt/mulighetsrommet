@@ -2,7 +2,9 @@ import { FilterAndTableLayout } from "mulighetsrommet-frontend-common/components
 import { Tiltaksgjennomforingsoversikt } from "@/components/oversikt/Tiltaksgjennomforingsoversikt";
 import { useNavTiltaksgjennomforinger } from "@/api/queries/useTiltaksgjennomforinger";
 import {
+  ArbeidsmarkedstiltakFilterSchema,
   isFilterReady,
+  useArbeidsmarkedstiltakFilter,
   useArbeidsmarkedstiltakFilterValue,
   useResetArbeidsmarkedstiltakFilterUtenBrukerIKontekst,
 } from "@/hooks/useArbeidsmarkedstiltakFilter";
@@ -12,7 +14,13 @@ import { Feilmelding } from "@/components/feilmelding/Feilmelding";
 import { TilToppenKnapp } from "mulighetsrommet-frontend-common/components/tilToppenKnapp/TilToppenKnapp";
 import { NullstillFilterKnapp } from "mulighetsrommet-frontend-common/components/nullstillFilterKnapp/NullstillFilterKnapp";
 import { Filtermeny } from "@/components/filtrering/Filtermeny";
-import { ListSkeleton } from "mulighetsrommet-frontend-common";
+import {
+  LagredeFilterOversikt,
+  LagreFilterContainer,
+  ListSkeleton,
+} from "mulighetsrommet-frontend-common";
+import { LagretDokumenttype } from "mulighetsrommet-api-client";
+import { HStack } from "@navikt/ds-react";
 
 interface Props {
   preview?: boolean;
@@ -23,6 +31,7 @@ export function NavArbeidsmarkedstiltakOversikt({ preview = false }: Props) {
     preview,
   });
   const [filterOpen, setFilterOpen] = useState<boolean>(true);
+  const [lagredeFilter, setLagredeFilter] = useArbeidsmarkedstiltakFilter();
   const filter = useArbeidsmarkedstiltakFilterValue();
   const { filterHasChanged, resetFilterToDefaults } =
     useResetArbeidsmarkedstiltakFilterUtenBrukerIKontekst();
@@ -37,7 +46,25 @@ export function NavArbeidsmarkedstiltakOversikt({ preview = false }: Props) {
         filter={<Filtermeny />}
         tags={<NavFiltertags filterOpen={filterOpen} setTagsHeight={setTagsHeight} />}
         nullstillFilterButton={
-          filterHasChanged && <NullstillFilterKnapp onClick={resetFilterToDefaults} />
+          filterHasChanged && (
+            <HStack gap="2">
+              <NullstillFilterKnapp onClick={resetFilterToDefaults} />
+              <LagreFilterContainer
+                dokumenttype={LagretDokumenttype.TILTAKSGJENNOMFØRING_MODIA}
+                filter={filter}
+              />
+            </HStack>
+          )
+        }
+        lagredeFilter={
+          <LagredeFilterOversikt
+            dokumenttype={LagretDokumenttype.TILTAKSGJENNOMFØRING_MODIA}
+            filter={lagredeFilter}
+            setFilter={setLagredeFilter}
+            validateFilterStructure={(filter) => {
+              return ArbeidsmarkedstiltakFilterSchema.safeParse(filter).success;
+            }}
+          />
         }
         table={
           <Tiltaksgjennomforingsoversikt
