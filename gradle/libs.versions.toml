@@ -1,6 +1,6 @@
 [versions]
 common-java-modules = "3.2024.01.24_10.14-f70bae69bd65"
-flyway = "10.16.0"
+flyway = "10.17.0"
 hoplite = "2.7.5"
 koin = "3.5.6"
 kotest = "5.9.1"
@@ -42,7 +42,7 @@ flyway-core = { module = "org.flywaydb:flyway-core", version.ref = "flyway" }
 flyway-database-postgresql = { module = "org.flywaydb:flyway-database-postgresql", version.ref = "flyway" }
 
 google-cloud-postgresSocketFactory = "com.google.cloud.sql:postgres-socket-factory:1.19.1"
-google-cloud-storage = "com.google.cloud:google-cloud-storage:2.40.1"
+google-cloud-storage = "com.google.cloud:google-cloud-storage:2.41.0"
 
 hikaricp = "com.zaxxer:HikariCP:5.1.0"
 
