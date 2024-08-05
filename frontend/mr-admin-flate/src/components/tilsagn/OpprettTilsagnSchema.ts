@@ -5,7 +5,6 @@ const tekster = {
   manglerSluttdato: "Du må velg en sluttdato",
   manglerKostnadssted: "Du må velge et kostnadssted",
   manglerBelop: "Du må skrive inn et beløp for tilsagnet",
-  manglerBeslutter: "Du må velg en beslutter",
 } as const;
 
 export const OpprettTilsagnSchema = z.object({
@@ -15,7 +14,6 @@ export const OpprettTilsagnSchema = z.object({
   }),
   kostnadssted: z.string().length(4, tekster.manglerKostnadssted),
   belop: z.number({ required_error: tekster.manglerBelop }).positive(),
-  beslutter: z.string().length(7, tekster.manglerBeslutter),
 });
 
 export type InferredOpprettTilsagnSchema = z.infer<typeof OpprettTilsagnSchema>;

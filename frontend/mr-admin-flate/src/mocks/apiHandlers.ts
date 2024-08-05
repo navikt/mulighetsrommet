@@ -8,6 +8,7 @@ import { tiltaksgjennomforingHandlers } from "./endpoints/tiltaksgjennomforingHa
 import { tiltakstypeHandlers } from "./endpoints/tiltakstyperHandlers";
 import { virksomhetHandlers } from "./endpoints/virksomhetHandlers";
 import { lagretFilterHandlers } from "./endpoints/lagretFilterHandlers";
+import { tilsagnHandlers } from "./endpoints/tilsagnHandler";
 
 export const apiHandlers = [
   ...arrangorHandlers,
@@ -20,4 +21,5 @@ export const apiHandlers = [
   ...virksomhetHandlers,
   ...featureToggleHandlers,
   ...lagretFilterHandlers,
+  ...tilsagnHandlers,
 ];
