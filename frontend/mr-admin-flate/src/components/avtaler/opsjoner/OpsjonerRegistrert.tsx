@@ -67,6 +67,7 @@ export function OpsjonerRegistrert({ avtale, readOnly }: Props) {
                         size="small"
                         variant="primary"
                         type="button"
+                        className={styles.button_as_link}
                       >
                         Fjern
                       </Button>
