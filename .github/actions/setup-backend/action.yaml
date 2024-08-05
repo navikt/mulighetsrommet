@@ -12,5 +12,5 @@ runs:
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v3
     - name: Set up test environment
-      run: docker-compose --profile ci up -d
+      run: docker compose --profile ci up -d
       shell: bash
