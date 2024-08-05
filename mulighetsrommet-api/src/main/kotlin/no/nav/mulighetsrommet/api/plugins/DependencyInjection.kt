@@ -35,6 +35,7 @@ import no.nav.mulighetsrommet.api.clients.utdanning.UtdanningClient
 import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClient
 import no.nav.mulighetsrommet.api.okonomi.tilsagn.TilsagnRepository
 import no.nav.mulighetsrommet.api.okonomi.tilsagn.TilsagnService
+import no.nav.mulighetsrommet.api.okonomi.tilsagn.TilsagnValidator
 import no.nav.mulighetsrommet.api.repositories.*
 import no.nav.mulighetsrommet.api.services.*
 import no.nav.mulighetsrommet.api.tasks.*
@@ -331,6 +332,7 @@ private fun services(appConfig: AppConfig) = module {
     single { AvtaleValidator(get(), get(), get(), get(), get()) }
     single { TiltaksgjennomforingValidator(get(), get(), get()) }
     single { OpsjonLoggValidator() }
+    single { TilsagnValidator(get()) }
     single { OpsjonLoggService(get(), get(), get(), get(), get()) }
     single { LagretFilterService(get()) }
     single { TilsagnService(get(), get(), get(), get()) }
