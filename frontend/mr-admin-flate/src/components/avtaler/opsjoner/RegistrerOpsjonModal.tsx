@@ -1,13 +1,13 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Alert, BodyLong, Button, HStack, Modal, VStack } from "@navikt/ds-react";
+import { Alert, BodyLong, Button, Modal, VStack } from "@navikt/ds-react";
 import { Avtale, OpsjonLoggRequest, OpsjonStatus } from "mulighetsrommet-api-client";
 import { RefObject } from "react";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { useRegistrerOpsjon } from "../../../api/avtaler/useRegistrerOpsjon";
 import { VarselModal } from "../../modal/VarselModal";
+import { OpsjonerRegistrert } from "./OpsjonerRegistrert";
 import { InferredRegistrerOpsjonSchema, RegistrerOpsjonSchema } from "./RegistrerOpsjonSchema";
 import { RegistrerOpsjonSkjema } from "./RegistrerOpsjonSkjema";
-import { OpsjonerRegistrert } from "./OpsjonerRegistrert";
 
 interface Props {
   modalRef: RefObject<HTMLDialogElement>;
