@@ -9,3 +9,17 @@
   background-color: var(--a-border-strong);
   border: none;
 }
+
+.button_as_link {
+  background: none;
+  color: var(--a-surface-inverted);
+
+  &:hover,
+  :focus-visible {
+    text-decoration: underline;
+    outline: none;
+    outline-offset: 0;
+    box-shadow: initial;
+    background-color: var(--a-bg-subtle);
+  }
+}
