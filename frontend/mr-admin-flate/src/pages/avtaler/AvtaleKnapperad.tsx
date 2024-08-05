@@ -26,16 +26,8 @@ export function AvtaleKnapperad({ bruker, avtale }: Props) {
     Toggles.MULIGHETSROMMET_ADMIN_FLATE_REGISTRERE_OPSJON,
   );
 
-  function avtaleErAktiv(avtale: Avtale): boolean {
-    return ["AKTIV"].includes(avtale.status.name);
-  }
-
   function kanRegistrereOpsjon(avtale: Avtale): boolean {
-    return (
-      avtaleErAktiv(avtale) &&
-      !!avtale?.opsjonsmodellData?.opsjonsmodell &&
-      !!registrereOpsjonIsEnabled
-    );
+    return !!avtale?.opsjonsmodellData?.opsjonsmodell && !!registrereOpsjonIsEnabled;
   }
 
   return (

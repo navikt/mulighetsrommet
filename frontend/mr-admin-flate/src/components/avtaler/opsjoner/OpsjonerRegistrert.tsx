@@ -66,6 +66,7 @@ export function OpsjonerRegistrert({ avtale, readOnly }: Props) {
                         onClick={() => fjernSisteOpsjon(log.id)}
                         size="small"
                         variant="primary"
+                        type="button"
                       >
                         Fjern
                       </Button>

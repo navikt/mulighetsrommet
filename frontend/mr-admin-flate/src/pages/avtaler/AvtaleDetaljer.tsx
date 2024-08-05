@@ -122,7 +122,7 @@ export function AvtaleDetaljer() {
         </Bolk>
 
         {avtale.opsjonerRegistrert.length > 0 ? (
-          <OpsjonerRegistrert readOnly={false} avtale={avtale} />
+          <OpsjonerRegistrert readOnly avtale={avtale} />
         ) : null}
 
         <Separator />
