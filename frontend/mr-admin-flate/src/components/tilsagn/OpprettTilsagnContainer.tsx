@@ -125,27 +125,9 @@ export function OpprettTilsagnContainer({ tiltaksgjennomforing }: Props) {
                 />
               </HGrid>
             </FormGroup>
-            <FormGroup>
-              <Select
-                {...register("beslutter")}
-                error={errors.beslutter?.message}
-                label="Beslutter"
-                size="small"
-              >
-                <option value={undefined}>Velg beslutter</option>
-                {besluttere?.map((b) => {
-                  return (
-                    <option
-                      key={b.navIdent}
-                      value={b.navIdent}
-                    >{`${b.fornavn} ${b.etternavn} (${b.navIdent})`}</option>
-                  );
-                })}
-              </Select>
-            </FormGroup>
             <HStack gap="2">
               <Button size="small" type="submit">
-                Send til beslutter
+                Opprett tilsagn
               </Button>
               <Button
                 onClick={() => navigate(`/tiltaksgjennomforinger/${tiltaksgjennomforing.id}`)}
