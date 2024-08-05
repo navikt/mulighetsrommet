@@ -708,6 +708,63 @@ paths:
               schema:
                 type: string
 
+  /api/v1/intern/tiltaksgjennomforinger/{tiltaksgjennomforingId}/tilsagn:
+    parameters:
+      - $ref: "#/components/parameters/tiltaksgjennomforingId"
+    put:
+      tags:
+        - Tilsagn
+      operationId: opprettTilsagn
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TilsagnRequest"
+      responses:
+        200:
+          description: TiltagnDto
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TilsagnDto"
+    get:
+      tags:
+        - Tilsagn
+      operationId: tilsagnByTiltaksgjennomforing
+      responses:
+        200:
+          description: TiltagnDto
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TilsagnDto"
+
+  /api/v1/intern/tiltaksgjennomforinger/{tiltaksgjennomforingId}/tilsagn/{id}:
+    parameters:
+      - $ref: "#/components/parameters/tiltaksgjennomforingId"
+      - $ref: "#/components/parameters/ID"
+    get:
+      tags:
+        - Tilsagn
+      operationId: getTilsagn
+      responses:
+        200:
+          description: TilsagnDto
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TilsagnDto"
+    delete:
+      tags:
+        - Tilsagn
+      operationId: deleteTilsagn
+      responses:
+        200:
+          description: OK
+
+
   /api/v1/intern/tiltakstyper:
     get:
       tags:
@@ -1704,6 +1761,15 @@ components:
       name: id
       in: path
       description: ID
+      required: true
+      schema:
+        type: string
+        format: uuid
+
+    tiltaksgjennomforingId:
+      name: tiltaksgjennomforingId
+      in: path
+      description: Tiltaksgjennomforing Id
       required: true
       schema:
         type: string
@@ -4209,3 +4275,85 @@ components:
             required:
               - id
               - status
+
+    TilsagnRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        tiltaksgjennomforingId:
+          type: string
+          format: uuid
+        periodeStart:
+          type: string
+          format: date
+        periodeSlutt:
+          type: string
+          format: date
+        kostnadssted:
+          type: string
+        belop:
+          type: integer
+      required:
+        - id
+        - tiltaksgjennomforingId
+        - periodeStart
+        - periodeSlutt
+        - kostnadssted
+        - belop
+
+    TilsagnDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        tiltaksgjennomforingId:
+          type: string
+          format: uuid
+        periodeStart:
+          type: string
+          format: date
+        periodeSlutt:
+          type: string
+          format: date
+        kostnadssted:
+          $ref: "#/components/schemas/NavEnhet"
+        belop:
+          type: integer
+        sendtTidspunkt:
+          type: string
+          format: date-time
+        annullertTidspunkt:
+          type: string
+          format: date-time
+        lopenummer:
+          type: integer
+        arrangor:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            organisasjonsnummer:
+              type: string
+            navn:
+              type: string
+            overordnetEnhet:
+              type: string
+              nullable: true
+          required:
+            - id
+            - organisasjonsnummer
+            - navn
+            - overordnetEnhet
+      required:
+        - id
+        - tiltaksgjennomforingId
+        - periodeStart
+        - periodeSlutt
+        - kostnadssted
+        - belop
+        - arrangor
+        - lopenummer

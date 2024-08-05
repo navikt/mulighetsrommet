@@ -33,6 +33,8 @@ import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.clients.tiltakshistorikk.TiltakshistorikkClient
 import no.nav.mulighetsrommet.api.clients.utdanning.UtdanningClient
 import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClient
+import no.nav.mulighetsrommet.api.okonomi.tilsagn.TilsagnRepository
+import no.nav.mulighetsrommet.api.okonomi.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.repositories.*
 import no.nav.mulighetsrommet.api.services.*
 import no.nav.mulighetsrommet.api.tasks.*
@@ -170,6 +172,7 @@ private fun repositories() = module {
     single { KafkaConsumerRepositoryImpl(get()) }
     single { VeilederJoyrideRepository(get()) }
     single { OpsjonLoggRepository(get()) }
+    single { TilsagnRepository(get()) }
 }
 
 private fun services(appConfig: AppConfig) = module {
@@ -330,6 +333,7 @@ private fun services(appConfig: AppConfig) = module {
     single { OpsjonLoggValidator() }
     single { OpsjonLoggService(get(), get(), get(), get(), get()) }
     single { LagretFilterService(get()) }
+    single { TilsagnService(get(), get(), get(), get()) }
 }
 
 private fun tasks(config: TaskConfig) = module {
