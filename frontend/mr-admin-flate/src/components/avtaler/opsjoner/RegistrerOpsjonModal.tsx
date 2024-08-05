@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Alert, BodyLong, Button, Modal } from "@navikt/ds-react";
+import { Alert, BodyLong, Button, HStack, Modal, VStack } from "@navikt/ds-react";
 import { Avtale, OpsjonLoggRequest, OpsjonStatus } from "mulighetsrommet-api-client";
 import { RefObject } from "react";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
@@ -7,6 +7,7 @@ import { useRegistrerOpsjon } from "../../../api/avtaler/useRegistrerOpsjon";
 import { VarselModal } from "../../modal/VarselModal";
 import { InferredRegistrerOpsjonSchema, RegistrerOpsjonSchema } from "./RegistrerOpsjonSchema";
 import { RegistrerOpsjonSkjema } from "./RegistrerOpsjonSkjema";
+import { OpsjonerRegistrert } from "./OpsjonerRegistrert";
 
 interface Props {
   modalRef: RefObject<HTMLDialogElement>;
@@ -64,12 +65,17 @@ export function RegistrerOpsjonModal({ modalRef, avtale }: Props) {
       <FormProvider {...form}>
         <form onSubmit={handleSubmit(postData)}>
           <Modal.Body>
-            <BodyLong>
-              <RegistrerOpsjonSkjema avtale={avtale} />
-              {mutation.isError && (
-                <Alert variant="error">Noe gikk galt ved registrering av opsjon</Alert>
-              )}
-            </BodyLong>
+            <VStack gap="5">
+              <BodyLong>
+                <RegistrerOpsjonSkjema avtale={avtale} />
+                {mutation.isError && (
+                  <Alert variant="error">Noe gikk galt ved registrering av opsjon</Alert>
+                )}
+              </BodyLong>
+              {avtale.opsjonerRegistrert.length > 0 ? (
+                <OpsjonerRegistrert readOnly={false} avtale={avtale} />
+              ) : null}
+            </VStack>
           </Modal.Body>
           <Modal.Footer>
             <Button type="submit" disabled={mutation.isPending}>
