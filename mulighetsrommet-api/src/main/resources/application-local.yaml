@@ -72,12 +72,15 @@ app:
       # Mocket 0000-ZA-TILTAK-avtaler_skriv
       - adGruppeId: 48026f54-6259-4c35-a148-bc4257bcaf03
         rolle: AVTALER_SKRIV
-      # Mocket 0000-ZA-TILTAK-tiltaksgjennomforinger_skriv
+      # Mocket 0000-AZ-TILTAK-tiltaksgjennomforinger_skriv
       - adGruppeId: 279039a0-39fd-4860-afdd-a1a2ccaa6323
         rolle: TILTAKSGJENNOMFORINGER_SKRIV
       # 0000-GA-TILTAK-ENDRINGSMELDING
       - adGruppeId: d9f317a1-2444-4fcd-b696-df8dbd6cc942
         rolle: TILTAKADMINISTRASJON_ENDRINGSMELDING
+      # 0000-AZ-TILTAK-okonomi_beslutter
+      - adGruppeId: b00ba197-c90a-4ff9-966e-6c9cf1c882bf
+        rolle: OKONOMI_BESLUTTER
 
   sanity:
     dataset: test
