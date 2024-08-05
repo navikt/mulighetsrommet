@@ -3537,6 +3537,7 @@ components:
         - id
         - organisasjonsnummer
         - navn
+        - overordnetEnhet
 
     PaginertUserNotifications:
       type: object

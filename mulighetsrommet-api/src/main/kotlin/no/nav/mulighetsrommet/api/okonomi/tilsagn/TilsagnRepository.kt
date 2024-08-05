@@ -90,7 +90,27 @@ class TilsagnRepository(private val db: Database) {
     fun getByGjennomforingId(gjennomforingId: UUID): List<TilsagnDto> {
         @Language("PostgreSQL")
         val query = """
-            select * from tilsagn
+            select
+                tilsagn.id,
+                tilsagn.tiltaksgjennomforing_id,
+                tilsagn.periode_start,
+                tilsagn.periode_slutt,
+                tilsagn.belop,
+                tilsagn.sendt_tidspunkt,
+                tilsagn.annullert_tidspunkt,
+                tilsagn.lopenummer,
+                tilsagn.kostnadssted,
+                nav_enhet.navn              as kostnadssted_navn,
+                nav_enhet.overordnet_enhet  as kostnadssted_overordnet_enhet,
+                nav_enhet.type              as kostnadssted_type,
+                nav_enhet.status            as kostnadssted_status,
+                arrangor.id                         as arrangor_id,
+                arrangor.organisasjonsnummer        as arrangor_organisasjonsnummer,
+                arrangor.navn                       as arrangor_navn,
+                arrangor.slettet_dato is not null   as arrangor_slettet
+            from tilsagn
+                inner join nav_enhet on nav_enhet.enhetsnummer = tilsagn.kostnadssted
+                inner join arrangor on arrangor.id = tilsagn.arrangor_id
             where tiltaksgjennomforing_id = :gjennomforing_id::uuid
         """.trimIndent()
 
