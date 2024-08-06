@@ -741,9 +741,8 @@ paths:
                 items:
                   $ref: "#/components/schemas/TilsagnDto"
 
-  /api/v1/intern/tiltaksgjennomforinger/{tiltaksgjennomforingId}/tilsagn/{id}:
+  /api/v1/intern/tilsagn/{id}:
     parameters:
-      - $ref: "#/components/parameters/tiltaksgjennomforingId"
       - $ref: "#/components/parameters/ID"
     get:
       tags:
@@ -4331,6 +4330,8 @@ components:
           format: date-time
         lopenummer:
           type: integer
+        opprettetAv:
+          type: string
         arrangor:
           type: object
           properties:
@@ -4358,3 +4359,4 @@ components:
         - belop
         - arrangor
         - lopenummer
+        - opprettetAv

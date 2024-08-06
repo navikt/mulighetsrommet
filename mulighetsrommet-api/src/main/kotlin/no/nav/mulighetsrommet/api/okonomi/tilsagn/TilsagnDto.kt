@@ -27,6 +27,7 @@ data class TilsagnDto(
     val annullertTidspunkt: LocalDateTime?,
     val lopenummer: Int,
     val arrangor: Arrangor,
+    val opprettetAv: String,
 ) {
     @Serializable
     data class Arrangor(

@@ -5,6 +5,7 @@ import { NavAnsattRolle } from "mulighetsrommet-api-client";
 import { Route, Routes } from "react-router-dom";
 import { Forside } from "./Forside";
 import IkkeAutentisertApp from "./IkkeAutentisertApp";
+import { IngenLesetilgang } from "./IngenLesetilgang";
 import { Laster } from "./components/laster/Laster";
 import { Notifikasjonsliste } from "./components/notifikasjoner/Notifikasjonsliste";
 import { initializeAmplitude } from "./logging/amplitude";
@@ -21,13 +22,12 @@ import { TiltaksgjennomforingPage } from "./pages/tiltaksgjennomforinger/Tiltaks
 import TiltaksgjennomforingSkjemaPage from "./pages/tiltaksgjennomforinger/TiltaksgjennomforingSkjemaPage";
 import { TiltaksgjennomforingerForAvtalePage } from "./pages/tiltaksgjennomforinger/TiltaksgjennomforingerForAvtalePage";
 import { TiltaksgjennomforingerPage } from "./pages/tiltaksgjennomforinger/TiltaksgjennomforingerPage";
+import { TilsagnForGjennomforingContainer } from "./pages/tiltaksgjennomforinger/tilsagn/TilsagnForGjennomforingContainer";
 import { DetaljerTiltakstypePage } from "./pages/tiltakstyper/DetaljerTiltakstypePage";
 import { TiltakstypeInfo } from "./pages/tiltakstyper/TiltakstypeInfo";
 import { TiltakstyperPage } from "./pages/tiltakstyper/TiltakstyperPage";
 import { AvtalerForTiltakstypePage } from "./pages/tiltakstyper/avtaler/AvtalerForTiltakstypePage";
-import { IngenLesetilgang } from "./IngenLesetilgang";
-import { OpprettTilsagnSkjemaPage } from "./pages/tiltaksgjennomforinger/OpprettTilsagnSkjemaPage";
-import { TilsagnForGjennomforingContainer } from "./pages/tiltaksgjennomforinger/TilsagnForGjennomforingContainer";
+import { OpprettTilsagnSkjemaPage } from "./pages/tiltaksgjennomforinger/tilsagn/OpprettTilsagnSkjemaPage";
 
 if (import.meta.env.PROD) {
   initializeFaro({
@@ -151,6 +151,11 @@ export function App() {
         errorElement={<ErrorPage />}
       />
       <Route
+        path="avtaler/:avtaleId/tiltaksgjennomforinger/:tiltaksgjennomforingId/tilsagn/:tilsagnId"
+        element={<OpprettTilsagnSkjemaPage />}
+        errorElement={<ErrorPage />}
+      />
+      <Route
         path="avtaler/:avtaleId/tiltaksgjennomforinger/skjema"
         element={<TiltaksgjennomforingSkjemaPage />}
         errorElement={<ErrorPage />}
@@ -162,6 +167,11 @@ export function App() {
       />
       <Route
         path="tiltaksgjennomforinger/:tiltaksgjennomforingId/opprett-tilsagn"
+        element={<OpprettTilsagnSkjemaPage />}
+        errorElement={<ErrorPage />}
+      />
+      <Route
+        path="tiltaksgjennomforinger/:tiltaksgjennomforingId/tilsagn/:tilsagnId"
         element={<OpprettTilsagnSkjemaPage />}
         errorElement={<ErrorPage />}
       />

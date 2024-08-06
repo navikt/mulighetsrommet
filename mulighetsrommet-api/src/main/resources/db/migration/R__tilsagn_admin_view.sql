@@ -11,6 +11,7 @@ select
     tilsagn.annullert_tidspunkt,
     tilsagn.lopenummer,
     tilsagn.kostnadssted,
+    tilsagn.opprettet_av,
     nav_enhet.navn              as kostnadssted_navn,
     nav_enhet.overordnet_enhet  as kostnadssted_overordnet_enhet,
     nav_enhet.type              as kostnadssted_type,
