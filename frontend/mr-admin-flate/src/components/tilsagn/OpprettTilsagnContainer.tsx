@@ -1,10 +1,18 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button, DatePicker, HGrid, HStack, Select, TextField } from "@navikt/ds-react";
-import { Tiltaksgjennomforing } from "mulighetsrommet-api-client";
+import {
+  Alert,
+  BodyShort,
+  Button,
+  DatePicker,
+  HGrid,
+  HStack,
+  Select,
+  TextField,
+} from "@navikt/ds-react";
+import { TilsagnRequest, Tiltaksgjennomforing } from "mulighetsrommet-api-client";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { NumericFormat } from "react-number-format";
 import { useNavigate } from "react-router-dom";
-import { useHentBesluttere } from "../../api/ansatt/useHentBesluttere";
 import { useNavEnheter } from "../../api/enhet/useNavEnheter";
 import { addYear } from "../../utils/Utils";
 import { ControlledDateInput } from "../skjema/ControlledDateInput";
@@ -12,6 +20,7 @@ import { FormGroup } from "../skjema/FormGroup";
 import { SkjemaDetaljerContainer } from "../skjema/SkjemaDetaljerContainer";
 import { SkjemaKolonne } from "../skjema/SkjemaKolonne";
 import { InferredOpprettTilsagnSchema, OpprettTilsagnSchema } from "./OpprettTilsagnSchema";
+import { useOpprettTilsagn } from "./useOpprettTilsagn";
 
 interface Props {
   tiltaksgjennomforing: Tiltaksgjennomforing;
@@ -23,7 +32,8 @@ export function OpprettTilsagnContainer({ tiltaksgjennomforing }: Props) {
   const form = useForm<InferredOpprettTilsagnSchema>({
     resolver: zodResolver(OpprettTilsagnSchema),
   });
-  const { data: besluttere } = useHentBesluttere();
+
+  const mutation = useOpprettTilsagn();
 
   const {
     handleSubmit,
@@ -34,17 +44,23 @@ export function OpprettTilsagnContainer({ tiltaksgjennomforing }: Props) {
   } = form;
 
   const postData: SubmitHandler<InferredOpprettTilsagnSchema> = async (data): Promise<void> => {
-    const request = {
+    const request: TilsagnRequest = {
       id: window.crypto.randomUUID(),
-      tiltaksgjennomforingId: tiltaksgjennomforing.id,
       periodeStart: data.periode.start,
       periodeSlutt: data.periode.slutt,
       kostnadssted: data.kostnadssted,
       belop: data.belop,
+      tiltaksgjennomforingId: tiltaksgjennomforing.id,
     };
 
-    alert(`Sending til beslutter er ikke implementert enda: ${JSON.stringify(request, null, 2)}`);
+    mutation.mutate(request, {
+      onSuccess: navigerTilGjennomforing,
+    });
   };
+
+  function navigerTilGjennomforing() {
+    navigate(`/tiltaksgjennomforinger/${tiltaksgjennomforing.id}`);
+  }
 
   return (
     <SkjemaDetaljerContainer>
@@ -125,30 +141,19 @@ export function OpprettTilsagnContainer({ tiltaksgjennomforing }: Props) {
                 />
               </HGrid>
             </FormGroup>
-            <FormGroup>
-              <Select
-                {...register("beslutter")}
-                error={errors.beslutter?.message}
-                label="Beslutter"
-                size="small"
-              >
-                <option value={undefined}>Velg beslutter</option>
-                {besluttere?.map((b) => {
-                  return (
-                    <option
-                      key={b.navIdent}
-                      value={b.navIdent}
-                    >{`${b.fornavn} ${b.etternavn} (${b.navIdent})`}</option>
-                  );
-                })}
-              </Select>
-            </FormGroup>
+            <BodyShort spacing>
+              {mutation.error ? (
+                <Alert variant="error" size="small">
+                  Klarte ikke opprette tilsagn
+                </Alert>
+              ) : null}
+            </BodyShort>
             <HStack gap="2">
-              <Button size="small" type="submit">
-                Send til beslutter
+              <Button size="small" type="submit" disabled={mutation.isPending}>
+                {mutation.isPending ? "Oppretter tilsagn" : "Opprett tilsagn"}
               </Button>
               <Button
-                onClick={() => navigate(`/tiltaksgjennomforinger/${tiltaksgjennomforing.id}`)}
+                onClick={navigerTilGjennomforing}
                 size="small"
                 type="button"
                 variant="primary-neutral"

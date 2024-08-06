@@ -15,7 +15,8 @@ import { useNavigateAndReplaceUrl } from "../../hooks/useNavigateWithoutReplacin
 import { ContainerLayout } from "../../layouts/ContainerLayout";
 import commonStyles from "../Page.module.scss";
 import { TiltaksgjennomforingStatusTag } from "mulighetsrommet-frontend-common";
-import { TiltaksgjennomforingStatus } from "mulighetsrommet-api-client";
+import { TiltaksgjennomforingStatus, Toggles } from "mulighetsrommet-api-client";
+import { useFeatureToggle } from "../../api/features/useFeatureToggle";
 
 function useTiltaksgjennomforingBrodsmuler(
   tiltaksgjennomforingId: string,
@@ -46,6 +47,9 @@ export function TiltaksgjennomforingPage() {
   const { navigateAndReplaceUrl } = useNavigateAndReplaceUrl();
   const { data: tiltaksgjennomforing, isLoading } = useTiltaksgjennomforingById();
   const brodsmuler = useTiltaksgjennomforingBrodsmuler(tiltaksgjennomforing?.id!!, avtaleId);
+  const { data: enableOpprettTilsagn } = useFeatureToggle(
+    Toggles.MULIGHETSROMMET_ADMIN_FLATE_OPPRETT_TILSAGN,
+  );
 
   if (!tiltaksgjennomforing && isLoading) {
     return <Laster tekst="Laster tiltaksgjennomføring" />;
@@ -63,7 +67,9 @@ export function TiltaksgjennomforingPage() {
   }
 
   const currentTab = () => {
-    if (pathname.includes("deltakere")) {
+    if (pathname.includes("tilsagn")) {
+      return "tilsagn";
+    } else if (pathname.includes("deltakere")) {
       return "poc";
     } else {
       return "info";
@@ -121,6 +127,16 @@ export function TiltaksgjennomforingPage() {
             }
             aria-controls="panel"
           />
+          {enableOpprettTilsagn ? (
+            <Tabs.Tab
+              value="tilsagn"
+              label="Tilsagn"
+              onClick={() =>
+                navigateAndReplaceUrl(`/tiltaksgjennomforinger/${tiltaksgjennomforing.id}/tilsagn`)
+              }
+              aria-controls="panel"
+            />
+          ) : null}
         </Tabs.List>
         <ContainerLayout>
           <div id="panel">

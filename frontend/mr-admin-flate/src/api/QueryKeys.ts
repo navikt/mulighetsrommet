@@ -43,4 +43,6 @@ export const QueryKeys = {
   migrerteTiltakstyper: () => ["migrerteTiltakstyper"],
   navRegioner: () => ["navRegioner"],
   personopplysninger: () => ["personopplysninger"],
+  opprettTilsagn: () => ["opprett-tilsagn"],
+  getTilsagn: (tiltaksgjennomforingId: string) => ["tilsagn", tiltaksgjennomforingId],
 };

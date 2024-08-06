@@ -108,6 +108,8 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+drop trigger  if exists set_tilsagn_lopenummer on tilsagn;
+
 CREATE TRIGGER set_tilsagn_lopenummer
 BEFORE INSERT ON tilsagn
 FOR EACH ROW
