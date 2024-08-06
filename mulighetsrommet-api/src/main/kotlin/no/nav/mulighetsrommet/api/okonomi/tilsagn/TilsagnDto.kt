@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.okonomi.tilsagn
 
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
+import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.domain.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
@@ -22,11 +23,10 @@ data class TilsagnDto(
     val kostnadssted: NavEnhetDbo,
     val belop: Int,
     @Serializable(with = LocalDateTimeSerializer::class)
-    val sendtTidspunkt: LocalDateTime?,
-    @Serializable(with = LocalDateTimeSerializer::class)
     val annullertTidspunkt: LocalDateTime?,
     val lopenummer: Int,
     val arrangor: Arrangor,
+    val besluttelse: Besluttelse?,
 ) {
     @Serializable
     data class Arrangor(
@@ -35,5 +35,13 @@ data class TilsagnDto(
         val organisasjonsnummer: String,
         val navn: String,
         val slettet: Boolean,
+    )
+
+    @Serializable
+    data class Besluttelse(
+        val navIdent: NavIdent,
+        @Serializable(with = LocalDateTimeSerializer::class)
+        val tidspunkt: LocalDateTime?,
+        val utfall: TilsagnBesluttelse,
     )
 }

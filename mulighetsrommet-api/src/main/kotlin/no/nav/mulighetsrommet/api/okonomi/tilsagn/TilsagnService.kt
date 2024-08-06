@@ -24,7 +24,8 @@ class TilsagnService(
     private val logger = LoggerFactory.getLogger(javaClass)
 
     suspend fun upsert(request: TilsagnRequest, navIdent: NavIdent): Either<List<ValidationError>, TilsagnDto> {
-        return validator.validate(request, navIdent)
+        val previous = tilsagnRepository.get(request.id)
+        return validator.validate(request, previous, navIdent)
             .map {
                 db.transactionSuspend { tx ->
                     tilsagnRepository.upsert(it, tx)
@@ -32,12 +33,27 @@ class TilsagnService(
                     val dto = tilsagnRepository.get(it.id, tx)
                     requireNotNull(dto) { "Fant ikke tilsagn etter upsert id=${it.id}" }
 
-                    // TODO: Sender med én gang, men her skal vi nok ha noe steg med beslutter
-                    // TODO: i mellom, og sende i et annet endepunkt senere.
-                    lagOgSendBestilling(dto, tx)
                     dto
                 }
             }
+    }
+
+    suspend fun beslutt(id: UUID, besluttelse: TilsagnBesluttelse, navIdent: NavIdent): StatusResponse<Unit> {
+        val tilsagn = tilsagnRepository.get(id)
+            ?: return NotFound("Fant ikke tilsagn").left()
+
+        if (tilsagn.besluttelse != null) {
+            return BadRequest("Tilsagn allerede besluttet").left()
+        }
+
+        return db.transactionSuspend { tx ->
+            tilsagnRepository.setBesluttelse(tilsagn.id, besluttelse, navIdent, LocalDateTime.now(), tx)
+            if (besluttelse == TilsagnBesluttelse.GODKJENT) {
+                lagOgSendBestilling(tilsagn, tx)
+            }
+
+            Unit
+        }.right()
     }
 
     suspend fun annuller(id: UUID): StatusResponse<Unit> {
@@ -50,7 +66,7 @@ class TilsagnService(
             // TODO: Setter som annullert uavhengig om den er sendt til okonomi. Man kunne
             // TODO: f. eks sjekket og satt som "avbrutt" i stedet.
             tilsagnRepository.setAnnullertTidspunkt(id, LocalDateTime.now(), tx)
-            OkonomiClient.annullerOrder(lagOkonomiId(dto.lopenummer))
+            OkonomiClient.annullerOrder(lagOkonomiId(dto))
         }.right()
     }
 
@@ -60,8 +76,8 @@ class TilsagnService(
     fun get(id: UUID): TilsagnDto? =
         tilsagnRepository.get(id)
 
-    private fun lagOkonomiId(lopenummer: Int): String {
-        return "T-$lopenummer" // TODO: Inkluder mer ting, som f. eks tiltaksnummer
+    private fun lagOkonomiId(tilsagn: TilsagnDto): String {
+        return "T-${tilsagn.id}"
     }
 
     private suspend fun lagOgSendBestilling(tilsagn: TilsagnDto, tx: Session) {
@@ -70,7 +86,7 @@ class TilsagnService(
 
         OkonomiClient.sendBestilling(
             BestillingDto(
-                okonomiId = lagOkonomiId(tilsagn.lopenummer),
+                okonomiId = lagOkonomiId(tilsagn),
                 periodeStart = tilsagn.periodeStart,
                 periodeSlutt = tilsagn.periodeSlutt,
                 organisasjonsnummer = Organisasjonsnummer(gjennomforing.arrangor.organisasjonsnummer),
@@ -78,6 +94,5 @@ class TilsagnService(
                 belop = tilsagn.belop,
             ),
         )
-        tilsagnRepository.setSendtTidspunkt(tilsagn.id, LocalDateTime.now(), tx)
     }
 }

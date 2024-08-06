@@ -708,63 +708,6 @@ paths:
               schema:
                 type: string
 
-  /api/v1/intern/tiltaksgjennomforinger/{tiltaksgjennomforingId}/tilsagn:
-    parameters:
-      - $ref: "#/components/parameters/tiltaksgjennomforingId"
-    put:
-      tags:
-        - Tilsagn
-      operationId: opprettTilsagn
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/TilsagnRequest"
-      responses:
-        200:
-          description: TiltagnDto
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/TilsagnDto"
-    get:
-      tags:
-        - Tilsagn
-      operationId: tilsagnByTiltaksgjennomforing
-      responses:
-        200:
-          description: TiltagnDto
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/TilsagnDto"
-
-  /api/v1/intern/tiltaksgjennomforinger/{tiltaksgjennomforingId}/tilsagn/{id}:
-    parameters:
-      - $ref: "#/components/parameters/tiltaksgjennomforingId"
-      - $ref: "#/components/parameters/ID"
-    get:
-      tags:
-        - Tilsagn
-      operationId: getTilsagn
-      responses:
-        200:
-          description: TilsagnDto
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/TilsagnDto"
-    delete:
-      tags:
-        - Tilsagn
-      operationId: deleteTilsagn
-      responses:
-        200:
-          description: OK
-
-
   /api/v1/intern/tiltakstyper:
     get:
       tags:
@@ -1748,6 +1691,78 @@ paths:
               schema:
                 type: string
 
+  /api/v1/intern/tilsagn:
+    put:
+      tags:
+        - Tilsagn
+      operationId: opprettTilsagn
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TilsagnRequest"
+      responses:
+        200:
+          description: TiltagnDto
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TilsagnDto"
+
+  /api/v1/intern/tiltaksgjennomforinger/{tiltaksgjennomforingId}/tilsagn:
+    parameters:
+      - $ref: "#/components/parameters/tiltaksgjennomforingId"
+    get:
+      tags:
+        - Tilsagn
+      operationId: tilsagnByTiltaksgjennomforing
+      responses:
+        200:
+          description: TiltagnDto
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TilsagnDto"
+
+  /api/v1/intern/tilsagn/{id}:
+    parameters:
+      - $ref: "#/components/parameters/ID"
+    get:
+      tags:
+        - Tilsagn
+      operationId: getTilsagn
+      responses:
+        200:
+          description: TilsagnDto
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TilsagnDto"
+    delete:
+      tags:
+        - Tilsagn
+      operationId: deleteTilsagn
+      responses:
+        200:
+          description: OK
+
+  /api/v1/intern/tilsagn/{id}/beslutt:
+    parameters:
+      - $ref: "#/components/parameters/ID"
+    put:
+      tags:
+        - Tilsagn
+      operationId: besluttTilsagn
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BesluttTilsagnRequest"
+      responses:
+        200:
+          description: OK
 
 components:
   securitySchemes:
@@ -4323,9 +4338,20 @@ components:
           $ref: "#/components/schemas/NavEnhet"
         belop:
           type: integer
-        sendtTidspunkt:
-          type: string
-          format: date-time
+        besluttelse:
+          type: object
+          properties:
+            navIdent:
+              type: string
+            tidspunkt:
+              type: string
+              format: date-time
+            utfall:
+              $ref: "#/components/schemas/TilsagnBesluttelse"
+          required:
+            - navIdent
+            - tidspunkt
+            - utfall
         annullertTidspunkt:
           type: string
           format: date-time
@@ -4358,3 +4384,15 @@ components:
         - belop
         - arrangor
         - lopenummer
+
+    TilsagnBesluttelse:
+      type: string
+      enum:
+        - GODKJENT
+        - AVVIST
+
+    BesluttTilsagnRequest:
+      type: object
+      properties:
+        besluttelse:
+          $ref: "#/components/schemas/TilsagnBesluttelse"
