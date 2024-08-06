@@ -22,7 +22,15 @@ import java.util.*
 fun Route.tilsagnRoutes() {
     val service: TilsagnService by inject()
 
-    route("/api/v1/intern/tiltaksgjennomforinger/{tiltaksgjennomforingId}/tilsagn") {
+    route("/api/v1/intern/tilsagn") {
+        get("/{id}") {
+            val id = call.parameters.getOrFail<UUID>("id")
+
+            val result = service.get(id) ?: NotFound()
+
+            call.respond(result)
+        }
+
         authenticate(
             AuthProvider.AZURE_AD_TILTAKSJENNOMFORINGER_SKRIV.name,
             strategy = AuthenticationStrategy.Required,
@@ -37,26 +45,38 @@ fun Route.tilsagnRoutes() {
                 call.respondWithStatusResponse(result)
             }
 
+            delete("/{id}") {
+                val id = call.parameters.getOrFail<UUID>("id")
+
+                call.respondWithStatusResponse(service.annuller(id))
+            }
+        }
+
+        authenticate(
+            AuthProvider.AZURE_AD_OKONOMI_BESLUTTER.name,
+            strategy = AuthenticationStrategy.Required,
+        ) {
+            post("/{id}/beslutt") {
+                val id = call.parameters.getOrFail<UUID>("id")
+                val request = call.receive<BesluttTilsagnRequest>()
+                val navIdent = getNavIdent()
+
+                call.respondWithStatusResponse(service.beslutt(id, request.besluttelse, navIdent))
+            }
+        }
+    }
+
+    route("/api/v1/intern/tiltaksgjennomforinger/{tiltaksgjennomforingId}/tilsagn") {
+        authenticate(
+            AuthProvider.AZURE_AD_TILTAKSJENNOMFORINGER_SKRIV.name,
+            strategy = AuthenticationStrategy.Required,
+        ) {
             get {
                 val tiltaksgjennomforingId = call.parameters.getOrFail<UUID>("tiltaksgjennomforingId")
 
                 val result = service.getByGjennomforingId(tiltaksgjennomforingId)
 
                 call.respond(result)
-            }
-
-            get("/{id}") {
-                val id = call.parameters.getOrFail<UUID>("id")
-
-                val result = service.get(id) ?: NotFound()
-
-                call.respond(result)
-            }
-
-            delete("/{id}") {
-                val id = call.parameters.getOrFail<UUID>("id")
-
-                call.respondWithStatusResponse(service.annuller(id))
             }
         }
     }
@@ -85,4 +105,14 @@ data class TilsagnRequest(
         opprettetAv = opprettetAv,
         arrangorId = arrangorId,
     )
+}
+
+@Serializable
+data class BesluttTilsagnRequest(
+    val besluttelse: TilsagnBesluttelse,
+)
+
+enum class TilsagnBesluttelse {
+    GODKJENT,
+    AVVIST,
 }

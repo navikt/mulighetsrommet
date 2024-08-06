@@ -11,6 +11,7 @@ import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.*
 
 class TilsagnRepositoryTest : FunSpec({
@@ -53,7 +54,7 @@ class TilsagnRepositoryTest : FunSpec({
                 periodeSlutt = LocalDate.of(2023, 2, 1),
                 kostnadssted = Gjovik,
                 belop = 123,
-                sendtTidspunkt = null,
+                besluttelse = null,
                 annullertTidspunkt = null,
                 lopenummer = 1,
                 opprettetAv = NavAnsattFixture.ansatt1.navIdent.value,
@@ -64,6 +65,60 @@ class TilsagnRepositoryTest : FunSpec({
                     slettet = ArrangorFixtures.underenhet1.slettetDato != null,
                 ),
             )
+        }
+
+        test("besluttelse set and get") {
+            val repository = TilsagnRepository(database.db)
+
+            val tilsagn = TilsagnDbo(
+                id = UUID.randomUUID(),
+                tiltaksgjennomforingId = AFT1.id,
+                periodeStart = LocalDate.of(2023, 1, 1),
+                periodeSlutt = LocalDate.of(2023, 2, 1),
+                kostnadssted = Gjovik.enhetsnummer,
+                belop = 123,
+                opprettetAv = NavAnsattFixture.ansatt1.navIdent,
+                arrangorId = ArrangorFixtures.underenhet1.id,
+            )
+
+            repository.upsert(tilsagn)
+            repository.setBesluttelse(
+                tilsagn.id,
+                TilsagnBesluttelse.AVVIST,
+                NavIdent("Z123456"),
+                LocalDateTime.of(2023, 2, 2, 0, 0, 0),
+            )
+
+            repository.get(tilsagn.id)?.besluttelse shouldBe TilsagnDto.Besluttelse(
+                navIdent = NavIdent("Z123456"),
+                tidspunkt = LocalDateTime.of(2023, 2, 2, 0, 0, 0),
+                utfall = TilsagnBesluttelse.AVVIST,
+            )
+        }
+
+        test("upsert nuller ut besluttelse") {
+            val repository = TilsagnRepository(database.db)
+
+            val tilsagn = TilsagnDbo(
+                id = UUID.randomUUID(),
+                tiltaksgjennomforingId = AFT1.id,
+                periodeStart = LocalDate.of(2023, 1, 1),
+                periodeSlutt = LocalDate.of(2023, 2, 1),
+                kostnadssted = Gjovik.enhetsnummer,
+                belop = 123,
+                opprettetAv = NavAnsattFixture.ansatt1.navIdent,
+                arrangorId = ArrangorFixtures.underenhet1.id,
+            )
+
+            repository.upsert(tilsagn)
+            repository.setBesluttelse(
+                tilsagn.id,
+                TilsagnBesluttelse.AVVIST,
+                NavIdent("Z123456"),
+                LocalDateTime.of(2023, 2, 2, 0, 0, 0),
+            )
+            repository.upsert(tilsagn)
+            repository.get(tilsagn.id)?.besluttelse shouldBe null
         }
     }
 })

@@ -7,6 +7,7 @@ import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
 import no.nav.mulighetsrommet.database.Database
+import no.nav.mulighetsrommet.domain.dto.NavIdent
 import org.intellij.lang.annotations.Language
 import java.time.LocalDateTime
 import java.util.*
@@ -26,7 +27,10 @@ class TilsagnRepository(private val db: Database) {
                 kostnadssted,
                 opprettet_av,
                 arrangor_id,
-                belop
+                belop,
+                besluttet_av,
+                besluttet_tidspunkt,
+                besluttelse
             ) values (
                 :id::uuid,
                 :tiltaksgjennomforing_id::uuid,
@@ -35,7 +39,10 @@ class TilsagnRepository(private val db: Database) {
                 :kostnadssted,
                 :opprettet_av,
                 :arrangor_id::uuid,
-                :belop
+                :belop,
+                :besluttet_av,
+                :besluttet_tidspunkt,
+                :besluttelse
             )
             on conflict (id) do update set
                 tiltaksgjennomforing_id = excluded.tiltaksgjennomforing_id,
@@ -44,7 +51,10 @@ class TilsagnRepository(private val db: Database) {
                 kostnadssted            = excluded.kostnadssted,
                 opprettet_av            = excluded.opprettet_av,
                 arrangor_id             = excluded.arrangor_id,
-                belop                   = excluded.belop
+                belop                   = excluded.belop,
+                besluttelse             = excluded.besluttelse,
+                besluttet_av            = excluded.besluttet_av,
+                besluttet_tidspunkt     = excluded.besluttet_tidspunkt
             returning *
         """.trimIndent()
 
@@ -95,19 +105,48 @@ class TilsagnRepository(private val db: Database) {
         return tx.run(queryOf(query, mapOf("id" to id, "tidspunkt" to tidspunkt)).asUpdate)
     }
 
-    fun setSendtTidspunkt(id: UUID, tidspunkt: LocalDateTime) = db.transaction {
-        setSendtTidspunkt(id, tidspunkt, it)
+    fun setBesluttelse(
+        id: UUID,
+        besluttelse: TilsagnBesluttelse,
+        navIdent: NavIdent,
+        tidspunkt: LocalDateTime,
+    ): Int = db.transaction { tx ->
+        setBesluttelse(
+            id,
+            besluttelse,
+            navIdent,
+            tidspunkt,
+            tx,
+        )
     }
 
-    fun setSendtTidspunkt(id: UUID, tidspunkt: LocalDateTime, tx: Session): Int {
+    fun setBesluttelse(
+        id: UUID,
+        besluttelse: TilsagnBesluttelse,
+        navIdent: NavIdent,
+        tidspunkt: LocalDateTime,
+        tx: Session,
+    ): Int {
         @Language("PostgreSQL")
         val query = """
             update tilsagn set
-                sendt_tidspunkt = :tidspunkt
+                besluttelse = :besluttelse::tilsagn_besluttelse,
+                besluttet_av = :nav_ident,
+                besluttet_tidspunkt = :tidspunkt
             where id = :id::uuid
         """.trimIndent()
 
-        return tx.run(queryOf(query, mapOf("id" to id, "tidspunkt" to tidspunkt)).asUpdate)
+        return tx.run(
+            queryOf(
+                query,
+                mapOf(
+                    "id" to id,
+                    "besluttelse" to besluttelse.name,
+                    "nav_ident" to navIdent.value,
+                    "tidspunkt" to tidspunkt,
+                ),
+            ).asUpdate,
+        )
     }
 
     private fun TilsagnDbo.toSqlParameters() = mapOf(
@@ -119,6 +158,9 @@ class TilsagnRepository(private val db: Database) {
         "opprettet_av" to opprettetAv.value,
         "arrangor_id" to arrangorId,
         "belop" to belop,
+        "besluttelse" to null,
+        "besluttet_tidspunkt" to null,
+        "besluttet_av" to null,
     )
 
     private fun Row.toTilsagnDto(): TilsagnDto {
@@ -128,7 +170,13 @@ class TilsagnRepository(private val db: Database) {
             periodeSlutt = localDate("periode_slutt"),
             periodeStart = localDate("periode_start"),
             belop = int("belop"),
-            sendtTidspunkt = localDateTimeOrNull("sendt_tidspunkt"),
+            besluttelse = stringOrNull("besluttelse")?.let {
+                TilsagnDto.Besluttelse(
+                    navIdent = NavIdent(string("besluttet_av")),
+                    utfall = TilsagnBesluttelse.valueOf(it),
+                    tidspunkt = localDateTime("besluttet_tidspunkt"),
+                )
+            },
             annullertTidspunkt = localDateTimeOrNull("annullert_tidspunkt"),
             lopenummer = int("lopenummer"),
             kostnadssted = NavEnhetDbo(
