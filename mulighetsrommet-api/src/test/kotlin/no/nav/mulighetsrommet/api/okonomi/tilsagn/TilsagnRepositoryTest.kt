@@ -33,20 +33,20 @@ class TilsagnRepositoryTest : FunSpec({
     }
 
     context("CRUD") {
+        val repository = TilsagnRepository(database.db)
+
+        val tilsagn = TilsagnDbo(
+            id = UUID.randomUUID(),
+            tiltaksgjennomforingId = AFT1.id,
+            periodeStart = LocalDate.of(2023, 1, 1),
+            periodeSlutt = LocalDate.of(2023, 2, 1),
+            kostnadssted = Gjovik.enhetsnummer,
+            belop = 123,
+            opprettetAv = NavAnsattFixture.ansatt1.navIdent,
+            arrangorId = ArrangorFixtures.underenhet1.id,
+        )
+
         test("upsert and get") {
-            val repository = TilsagnRepository(database.db)
-
-            val tilsagn = TilsagnDbo(
-                id = UUID.randomUUID(),
-                tiltaksgjennomforingId = AFT1.id,
-                periodeStart = LocalDate.of(2023, 1, 1),
-                periodeSlutt = LocalDate.of(2023, 2, 1),
-                kostnadssted = Gjovik.enhetsnummer,
-                belop = 123,
-                opprettetAv = NavAnsattFixture.ansatt1.navIdent,
-                arrangorId = ArrangorFixtures.underenhet1.id,
-            )
-
             repository.upsert(tilsagn)
             repository.get(tilsagn.id) shouldBe TilsagnDto(
                 id = tilsagn.id,
@@ -58,7 +58,7 @@ class TilsagnRepositoryTest : FunSpec({
                 besluttelse = null,
                 annullertTidspunkt = null,
                 lopenummer = 1,
-                opprettetAv = NavAnsattFixture.ansatt1.navIdent.value,
+                opprettetAv = NavAnsattFixture.ansatt1.navIdent,
                 arrangor = TilsagnDto.Arrangor(
                     navn = ArrangorFixtures.underenhet1.navn,
                     id = ArrangorFixtures.underenhet1.id,
@@ -69,19 +69,6 @@ class TilsagnRepositoryTest : FunSpec({
         }
 
         test("besluttelse set and get") {
-            val repository = TilsagnRepository(database.db)
-
-            val tilsagn = TilsagnDbo(
-                id = UUID.randomUUID(),
-                tiltaksgjennomforingId = AFT1.id,
-                periodeStart = LocalDate.of(2023, 1, 1),
-                periodeSlutt = LocalDate.of(2023, 2, 1),
-                kostnadssted = Gjovik.enhetsnummer,
-                belop = 123,
-                opprettetAv = NavAnsattFixture.ansatt1.navIdent,
-                arrangorId = ArrangorFixtures.underenhet1.id,
-            )
-
             repository.upsert(tilsagn)
             repository.setBesluttelse(
                 tilsagn.id,
@@ -98,19 +85,6 @@ class TilsagnRepositoryTest : FunSpec({
         }
 
         test("upsert nuller ut besluttelse") {
-            val repository = TilsagnRepository(database.db)
-
-            val tilsagn = TilsagnDbo(
-                id = UUID.randomUUID(),
-                tiltaksgjennomforingId = AFT1.id,
-                periodeStart = LocalDate.of(2023, 1, 1),
-                periodeSlutt = LocalDate.of(2023, 2, 1),
-                kostnadssted = Gjovik.enhetsnummer,
-                belop = 123,
-                opprettetAv = NavAnsattFixture.ansatt1.navIdent,
-                arrangorId = ArrangorFixtures.underenhet1.id,
-            )
-
             repository.upsert(tilsagn)
             repository.setBesluttelse(
                 tilsagn.id,

@@ -13,18 +13,24 @@ class TilsagnValidator(
     private val tiltaksgjennomforingRepository: TiltaksgjennomforingRepository,
 ) {
     fun validate(request: TilsagnRequest, previous: TilsagnDto?, navIdent: NavIdent): Either<List<ValidationError>, TilsagnDbo> = either {
+        val gjennomforing = tiltaksgjennomforingRepository.get(request.tiltaksgjennomforingId)
+            ?: return@validate ValidationError
+                .of(TilsagnRequest::tiltaksgjennomforingId, "Tiltaksgjennomforingen finnes ikke")
+                .nel()
+                .left()
+
         if (previous?.besluttelse?.utfall == TilsagnBesluttelse.GODKJENT) {
             return ValidationError
                 .of(TilsagnDto::id, "Tilsagnet er godkjent og kan ikke endres.")
                 .nel()
                 .left()
         }
-
-        val gjennomforing = tiltaksgjennomforingRepository.get(request.tiltaksgjennomforingId)
-            ?: raise(
-                ValidationError.of(TilsagnRequest::tiltaksgjennomforingId, "Tiltaksgjennomforingen finnes ikke").nel(),
-            )
-
+        if (previous?.annullertTidspunkt != null) {
+            return ValidationError
+                .of(TilsagnDto::id, "Tilsagnet er annullert og kan ikke endres.")
+                .nel()
+                .left()
+        }
         val next = request.toDbo(navIdent, gjennomforing.arrangor.id)
 
         return next.right()

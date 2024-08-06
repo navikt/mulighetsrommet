@@ -20,13 +20,13 @@ data class TilsagnDto(
     val periodeStart: LocalDate,
     @Serializable(with = LocalDateSerializer::class)
     val periodeSlutt: LocalDate,
+    val opprettetAv: NavIdent,
     val kostnadssted: NavEnhetDbo,
     val belop: Int,
     @Serializable(with = LocalDateTimeSerializer::class)
     val annullertTidspunkt: LocalDateTime?,
     val lopenummer: Int,
     val arrangor: Arrangor,
-    val opprettetAv: String,
     val besluttelse: Besluttelse?,
 ) {
     @Serializable

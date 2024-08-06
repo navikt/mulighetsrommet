@@ -169,6 +169,7 @@ class TilsagnRepository(private val db: Database) {
             tiltaksgjennomforingId = uuid("tiltaksgjennomforing_id"),
             periodeSlutt = localDate("periode_slutt"),
             periodeStart = localDate("periode_start"),
+            opprettetAv = NavIdent(string("opprettet_av")),
             belop = int("belop"),
             besluttelse = stringOrNull("besluttelse")?.let {
                 TilsagnDto.Besluttelse(
@@ -192,7 +193,6 @@ class TilsagnRepository(private val db: Database) {
                 navn = string("arrangor_navn"),
                 slettet = boolean("arrangor_slettet"),
             ),
-            opprettetAv = string("opprettet_av"),
         )
     }
 }
