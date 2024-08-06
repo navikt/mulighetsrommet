@@ -4357,6 +4357,8 @@ components:
           format: date-time
         lopenummer:
           type: integer
+        opprettetAv:
+          type: string
         arrangor:
           type: object
           properties:
@@ -4384,6 +4386,7 @@ components:
         - belop
         - arrangor
         - lopenummer
+        - opprettetAv
 
     TilsagnBesluttelse:
       type: string

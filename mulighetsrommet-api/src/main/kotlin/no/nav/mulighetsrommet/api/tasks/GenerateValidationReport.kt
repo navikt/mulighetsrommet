@@ -79,7 +79,7 @@ class GenerateValidationReport(
 
     fun schedule(startTime: Instant = Instant.now()): UUID {
         val id = UUID.randomUUID()
-        client.schedule(task.instance(id.toString()), startTime)
+        client.scheduleIfNotExists(task.instance(id.toString()), startTime)
         return id
     }
 

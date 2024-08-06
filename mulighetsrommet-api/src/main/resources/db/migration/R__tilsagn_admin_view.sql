@@ -10,6 +10,7 @@ select
     tilsagn.annullert_tidspunkt,
     tilsagn.lopenummer,
     tilsagn.kostnadssted,
+    tilsagn.opprettet_av,
     tilsagn.besluttelse,
     tilsagn.besluttet_tidspunkt,
     tilsagn.besluttet_av,

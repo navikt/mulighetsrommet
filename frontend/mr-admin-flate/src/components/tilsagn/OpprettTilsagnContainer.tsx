@@ -9,7 +9,7 @@ import {
   Select,
   TextField,
 } from "@navikt/ds-react";
-import { TilsagnRequest, Tiltaksgjennomforing } from "mulighetsrommet-api-client";
+import { TilsagnDto, TilsagnRequest, Tiltaksgjennomforing } from "mulighetsrommet-api-client";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { NumericFormat } from "react-number-format";
 import { useNavigate } from "react-router-dom";
@@ -21,19 +21,36 @@ import { SkjemaDetaljerContainer } from "../skjema/SkjemaDetaljerContainer";
 import { SkjemaKolonne } from "../skjema/SkjemaKolonne";
 import { InferredOpprettTilsagnSchema, OpprettTilsagnSchema } from "./OpprettTilsagnSchema";
 import { useOpprettTilsagn } from "./useOpprettTilsagn";
+import { useEffect } from "react";
 
 interface Props {
   tiltaksgjennomforing: Tiltaksgjennomforing;
+  tilsagn?: TilsagnDto;
+  tilsagnSkalGodkjennes: boolean;
 }
 
-export function OpprettTilsagnContainer({ tiltaksgjennomforing }: Props) {
+export function OpprettTilsagnContainer({
+  tiltaksgjennomforing,
+  tilsagn,
+  tilsagnSkalGodkjennes,
+}: Props) {
   const { data: navEnheter } = useNavEnheter();
   const navigate = useNavigate();
+  const mutation = useOpprettTilsagn();
+
   const form = useForm<InferredOpprettTilsagnSchema>({
     resolver: zodResolver(OpprettTilsagnSchema),
+    defaultValues: tilsagn
+      ? {
+          belop: tilsagn.belop,
+          kostnadssted: tilsagn.kostnadssted.enhetsnummer,
+          periode: {
+            start: tilsagn.periodeStart,
+            slutt: tilsagn.periodeSlutt,
+          },
+        }
+      : {},
   });
-
-  const mutation = useOpprettTilsagn();
 
   const {
     handleSubmit,
@@ -42,6 +59,15 @@ export function OpprettTilsagnContainer({ tiltaksgjennomforing }: Props) {
     setValue,
     formState: { errors },
   } = form;
+
+  useEffect(() => {
+    if (tilsagn) {
+      setValue("kostnadssted", tilsagn?.kostnadssted.enhetsnummer);
+      setValue("belop", tilsagn.belop);
+      setValue("periode.start", tilsagn.periodeStart);
+      setValue("periode.slutt", tilsagn.periodeSlutt);
+    }
+  }, [navEnheter, tilsagn]);
 
   const postData: SubmitHandler<InferredOpprettTilsagnSchema> = async (data): Promise<void> => {
     const request: TilsagnRequest = {
@@ -59,7 +85,15 @@ export function OpprettTilsagnContainer({ tiltaksgjennomforing }: Props) {
   };
 
   function navigerTilGjennomforing() {
-    navigate(`/tiltaksgjennomforinger/${tiltaksgjennomforing.id}`);
+    navigate(`/tiltaksgjennomforinger/${tiltaksgjennomforing.id}/tilsagn`);
+  }
+
+  function godkjennTilsagn() {
+    alert("Godkjenning av tilsagn er ikke implementert enda");
+  }
+
+  function avvisTilsagn() {
+    alert("Avvisning av tilsagn er ikke implementert enda");
   }
 
   return (
@@ -94,6 +128,7 @@ export function OpprettTilsagnContainer({ tiltaksgjennomforing }: Props) {
                     format="iso-string"
                     {...register("periode.start")}
                     size="small"
+                    readOnly={tilsagnSkalGodkjennes}
                   />
                   <ControlledDateInput
                     label="Sluttdato"
@@ -102,6 +137,7 @@ export function OpprettTilsagnContainer({ tiltaksgjennomforing }: Props) {
                     format="iso-string"
                     {...register("periode.slutt")}
                     size="small"
+                    readOnly={tilsagnSkalGodkjennes}
                   />
                 </HGrid>
               </DatePicker>
@@ -113,14 +149,15 @@ export function OpprettTilsagnContainer({ tiltaksgjennomforing }: Props) {
                   label="Kostnadssted"
                   {...register("kostnadssted")}
                   error={errors.kostnadssted?.message}
+                  readOnly={tilsagnSkalGodkjennes}
                 >
                   <option value={undefined}>Velg kostnadssted</option>
                   {navEnheter
                     ?.sort((a, b) => a.navn.localeCompare(b.navn))
-                    .map((enhet) => {
+                    .map(({ navn, enhetsnummer }) => {
                       return (
-                        <option key={enhet.enhetsnummer} value={enhet.enhetsnummer}>
-                          {enhet.navn} - {enhet.enhetsnummer}
+                        <option key={enhetsnummer} value={enhetsnummer}>
+                          {navn} - {enhetsnummer}
                         </option>
                       );
                     })}
@@ -138,6 +175,7 @@ export function OpprettTilsagnContainer({ tiltaksgjennomforing }: Props) {
                   onValueChange={(e) => {
                     setValue("belop", Number.parseInt(e.value));
                   }}
+                  readOnly={tilsagnSkalGodkjennes}
                 />
               </HGrid>
             </FormGroup>
@@ -148,10 +186,18 @@ export function OpprettTilsagnContainer({ tiltaksgjennomforing }: Props) {
                 </Alert>
               ) : null}
             </BodyShort>
-            <HStack gap="2">
-              <Button size="small" type="submit" disabled={mutation.isPending}>
-                {mutation.isPending ? "Oppretter tilsagn" : "Opprett tilsagn"}
-              </Button>
+            <HStack gap="2" justify={"space-between"}>
+              {tilsagnSkalGodkjennes ? (
+                <GodkjennAvvisTilsagnButtons
+                  onGodkjennTilsagn={godkjennTilsagn}
+                  onAvvisTilsagn={avvisTilsagn}
+                />
+              ) : (
+                <Button size="small" type="submit" disabled={mutation.isPending}>
+                  {mutation.isPending ? "Oppretter tilsagn" : "Opprett tilsagn"}
+                </Button>
+              )}
+
               <Button
                 onClick={navigerTilGjennomforing}
                 size="small"
@@ -165,5 +211,26 @@ export function OpprettTilsagnContainer({ tiltaksgjennomforing }: Props) {
         </FormProvider>
       </SkjemaKolonne>
     </SkjemaDetaljerContainer>
+  );
+}
+
+interface GodkjennAvvisButtonProps {
+  onGodkjennTilsagn: () => void;
+  onAvvisTilsagn: () => void;
+}
+
+function GodkjennAvvisTilsagnButtons({
+  onGodkjennTilsagn,
+  onAvvisTilsagn,
+}: GodkjennAvvisButtonProps) {
+  return (
+    <HStack gap="2">
+      <Button size="small" type="submit" onClick={onGodkjennTilsagn}>
+        Godkjenn tilsagn
+      </Button>
+      <Button variant="secondary" size="small" type="submit" onClick={onAvvisTilsagn}>
+        Avvis tilsagn
+      </Button>
+    </HStack>
   );
 }

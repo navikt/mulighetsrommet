@@ -1,24 +1,28 @@
 import { Heading } from "@navikt/ds-react";
-import { TiltaksgjennomforingStatusTag } from "mulighetsrommet-frontend-common";
-import { Header } from "../../components/detaljside/Header";
-import { TiltaksgjennomforingIkon } from "../../components/ikoner/TiltaksgjennomforingIkon";
-import { Brodsmule, Brodsmuler } from "../../components/navigering/Brodsmuler";
-import { SkjemaContainer } from "../../components/skjema/SkjemaContainer";
-import { SkjemaContent } from "../../components/skjema/SkjemaContent";
-import { ContainerLayout } from "../../layouts/ContainerLayout";
 import { useMatch, useParams } from "react-router-dom";
-import { inneholderUrl } from "../../utils/Utils";
-import { useTiltaksgjennomforingById } from "../../api/tiltaksgjennomforing/useTiltaksgjennomforingById";
-import { OpprettTilsagnContainer } from "../../components/tilsagn/OpprettTilsagnContainer";
+import { useHentAnsatt } from "../../../api/ansatt/useHentAnsatt";
+import { useTiltaksgjennomforingById } from "../../../api/tiltaksgjennomforing/useTiltaksgjennomforingById";
+import { Header } from "../../../components/detaljside/Header";
+import { TiltaksgjennomforingIkon } from "../../../components/ikoner/TiltaksgjennomforingIkon";
+import { Brodsmule, Brodsmuler } from "../../../components/navigering/Brodsmuler";
+import { SkjemaContainer } from "../../../components/skjema/SkjemaContainer";
+import { SkjemaContent } from "../../../components/skjema/SkjemaContent";
+import { OpprettTilsagnContainer } from "../../../components/tilsagn/OpprettTilsagnContainer";
+import { ContainerLayout } from "../../../layouts/ContainerLayout";
+import { inneholderUrl } from "../../../utils/Utils";
+import { useGetTilsagnById } from "./useGetTilsagnById";
 
 export function OpprettTilsagnSkjemaPage() {
   const { avtaleId } = useParams();
   const { data: tiltaksgjennomforing } = useTiltaksgjennomforingById();
+  const { data: tilsagn } = useGetTilsagnById();
+  const { data: saksbehandler } = useHentAnsatt();
 
   const erPaaGjennomforingerForAvtale = useMatch(
     "/avtaler/:avtaleId/tiltaksgjennomforinger/:tiltaksgjennomforingId/opprett-tilsagn",
   );
-  const redigeringsModus = tiltaksgjennomforing && inneholderUrl(tiltaksgjennomforing?.id);
+  const redigeringsModus = tilsagn && inneholderUrl(tilsagn.id);
+  const godkjenningsModus = Boolean(tilsagn && tilsagn.opprettetAv !== saksbehandler?.navIdent);
 
   const brodsmuler: Array<Brodsmule | undefined> = [
     { tittel: "Forside", lenke: "/" },
@@ -52,23 +56,25 @@ export function OpprettTilsagnSkjemaPage() {
         : "/tiltaksgjennomforinger/opprett-tilsagn",
     },
   ];
+
   return (
     <main>
       <Brodsmuler brodsmuler={brodsmuler} />
       <Header>
         <TiltaksgjennomforingIkon />
         <Heading size="large" level="2">
-          Opprett tilsagn
+          {godkjenningsModus ? "Godkjenn tilsagn" : "Opprett tilsagn"}
         </Heading>
-        {tiltaksgjennomforing ? (
-          <TiltaksgjennomforingStatusTag status={tiltaksgjennomforing.status} showAvbruttAarsak />
-        ) : null}
       </Header>
       <ContainerLayout>
         <SkjemaContainer>
           <SkjemaContent>
             {tiltaksgjennomforing ? (
-              <OpprettTilsagnContainer tiltaksgjennomforing={tiltaksgjennomforing} />
+              <OpprettTilsagnContainer
+                tiltaksgjennomforing={tiltaksgjennomforing}
+                tilsagnSkalGodkjennes={godkjenningsModus}
+                tilsagn={tilsagn}
+              />
             ) : null}
           </SkjemaContent>
         </SkjemaContainer>

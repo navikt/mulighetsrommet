@@ -16,4 +16,13 @@ export const tilsagnHandlers = [
       return HttpResponse.json(mockTilsagn);
     },
   ),
+  http.get<PathParams, any, TilsagnDto>(
+    "*/api/v1/intern/tilsagn/:tilsagnId",
+    async ({ params }) => {
+      const { tilsagnId } = params;
+
+      const tilsagn = mockTilsagn.find((t) => t.id === tilsagnId);
+      return HttpResponse.json(tilsagn);
+    },
+  ),
 ];

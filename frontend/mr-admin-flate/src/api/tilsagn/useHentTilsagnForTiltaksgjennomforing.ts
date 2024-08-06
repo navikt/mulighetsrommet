@@ -8,7 +8,7 @@ export function useHentTilsagnForTiltaksgjennomforing(tiltaksgjennomforingId?: s
       TilsagnService.tilsagnByTiltaksgjennomforing({
         tiltaksgjennomforingId: tiltaksgjennomforingId!!,
       }),
-    queryKey: QueryKeys.getTilsagn(tiltaksgjennomforingId!!),
+    queryKey: QueryKeys.getTilsagnForGjennomforing(tiltaksgjennomforingId!!),
     enabled: !!tiltaksgjennomforingId,
   });
 }

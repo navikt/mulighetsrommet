@@ -3,12 +3,14 @@ package no.nav.mulighetsrommet.api.okonomi.tilsagn
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
-import no.nav.mulighetsrommet.api.fixtures.*
+import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
+import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
+import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Gjovik
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
-import no.nav.mulighetsrommet.domain.dto.*
+import no.nav.mulighetsrommet.domain.dto.NavIdent
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
@@ -56,6 +58,7 @@ class TilsagnRepositoryTest : FunSpec({
                 besluttelse = null,
                 annullertTidspunkt = null,
                 lopenummer = 1,
+                opprettetAv = NavAnsattFixture.ansatt1.navIdent.value,
                 arrangor = TilsagnDto.Arrangor(
                     navn = ArrangorFixtures.underenhet1.navn,
                     id = ArrangorFixtures.underenhet1.id,

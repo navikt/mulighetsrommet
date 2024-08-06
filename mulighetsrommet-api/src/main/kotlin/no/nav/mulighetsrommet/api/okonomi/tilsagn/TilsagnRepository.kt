@@ -192,6 +192,7 @@ class TilsagnRepository(private val db: Database) {
                 navn = string("arrangor_navn"),
                 slettet = boolean("arrangor_slettet"),
             ),
+            opprettetAv = string("opprettet_av"),
         )
     }
 }

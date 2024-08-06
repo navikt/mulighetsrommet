@@ -68,7 +68,7 @@ class InitialLoadTiltaksgjennomforinger(
     fun schedule(input: TaskInput, startTime: Instant = Instant.now()): UUID {
         val id = UUID.randomUUID()
         val instance = task.instance(id.toString(), input)
-        client.schedule(instance, startTime)
+        client.scheduleIfNotExists(instance, startTime)
         return id
     }
 
