@@ -3,7 +3,6 @@ package no.nav.mulighetsrommet.api.okonomi.tilsagn
 import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
-import kotliquery.Session
 import no.nav.mulighetsrommet.api.okonomi.BestillingDto
 import no.nav.mulighetsrommet.api.okonomi.OkonomiClient
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
@@ -42,17 +41,23 @@ class TilsagnService(
         val tilsagn = tilsagnRepository.get(id)
             ?: return NotFound("Fant ikke tilsagn").left()
 
+        if (tilsagn.opprettetAv == navIdent) {
+            return Forbidden("Kan ikke beslutte eget tilsagn").left()
+        }
+
         if (tilsagn.besluttelse != null) {
             return BadRequest("Tilsagn allerede besluttet").left()
+        }
+
+        if (tilsagn.annullertTidspunkt != null) {
+            return BadRequest("Tilsagn er annullert").left()
         }
 
         return db.transactionSuspend { tx ->
             tilsagnRepository.setBesluttelse(tilsagn.id, besluttelse, navIdent, LocalDateTime.now(), tx)
             if (besluttelse == TilsagnBesluttelse.GODKJENT) {
-                lagOgSendBestilling(tilsagn, tx)
+                lagOgSendBestilling(tilsagn)
             }
-
-            Unit
         }.right()
     }
 
@@ -80,7 +85,7 @@ class TilsagnService(
         return "T-${tilsagn.id}"
     }
 
-    private suspend fun lagOgSendBestilling(tilsagn: TilsagnDto, tx: Session) {
+    private suspend fun lagOgSendBestilling(tilsagn: TilsagnDto) {
         val gjennomforing = tiltaksgjennomforingRepository.get(tilsagn.tiltaksgjennomforingId)
         requireNotNull(gjennomforing) { "Fant ikke gjennomforing til tilsagn" }
 
