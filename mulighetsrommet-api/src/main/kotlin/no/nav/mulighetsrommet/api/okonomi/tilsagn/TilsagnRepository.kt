@@ -82,6 +82,7 @@ class TilsagnRepository(private val db: Database) {
         val query = """
             select * from tilsagn_admin_dto_view
             where tiltaksgjennomforing_id = :gjennomforing_id::uuid
+            order by lopenummer desc
         """.trimIndent()
 
         return queryOf(query, mapOf("gjennomforing_id" to gjennomforingId))

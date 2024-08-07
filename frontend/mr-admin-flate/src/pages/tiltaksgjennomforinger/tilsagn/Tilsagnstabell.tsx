@@ -1,6 +1,11 @@
 import { ClockIcon } from "@navikt/aksel-icons";
 import { Alert, Button, HelpText, HStack, Table } from "@navikt/ds-react";
-import { NavAnsatt, TilsagnBesluttelse, TilsagnDto } from "mulighetsrommet-api-client";
+import {
+  NavAnsatt,
+  NavAnsattRolle,
+  TilsagnBesluttelse,
+  TilsagnDto,
+} from "mulighetsrommet-api-client";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useHentAnsatt } from "../../../api/ansatt/useHentAnsatt";
 import { formaterDato, formaterTall } from "../../../utils/Utils";
@@ -53,6 +58,10 @@ export function Tilsagnstabell({ tilsagn }: Props) {
     };
 
     const besluttKnapp = () => {
+      if (!ansatt?.roller.includes(NavAnsattRolle.OKONOMI_BESLUTTER)) {
+        return null;
+      }
+
       return (
         <>
           {statuser()}
@@ -91,6 +100,7 @@ export function Tilsagnstabell({ tilsagn }: Props) {
     <Table>
       <Table.Header>
         <Table.Row>
+          <Table.HeaderCell>Løpenummer</Table.HeaderCell>
           <Table.HeaderCell>Periodestart</Table.HeaderCell>
           <Table.HeaderCell>Periodeslutt</Table.HeaderCell>
           <Table.HeaderCell>Kostnadssted</Table.HeaderCell>
@@ -104,9 +114,11 @@ export function Tilsagnstabell({ tilsagn }: Props) {
       </Table.Header>
       <Table.Body>
         {tilsagn.map((tilsagn) => {
-          const { periodeStart, periodeSlutt, kostnadssted, belop, id, besluttelse } = tilsagn;
+          const { periodeStart, periodeSlutt, kostnadssted, belop, id, besluttelse, lopenummer } =
+            tilsagn;
           return (
             <Table.Row key={id}>
+              <Table.DataCell>{lopenummer}</Table.DataCell>
               <Table.DataCell>{formaterDato(periodeStart)}</Table.DataCell>
               <Table.DataCell>{formaterDato(periodeSlutt)}</Table.DataCell>
               <Table.DataCell>
