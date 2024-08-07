@@ -1,5 +1,5 @@
-import { Button, Heading, HStack, Tag } from "@navikt/ds-react";
-import { TilsagnBesluttelse } from "mulighetsrommet-api-client";
+import { Alert, BodyShort, Button, Heading, HStack, Tag } from "@navikt/ds-react";
+import { NavAnsattRolle, TilsagnBesluttelse } from "mulighetsrommet-api-client";
 import { Link, useMatch, useNavigate, useParams } from "react-router-dom";
 import { useTiltaksgjennomforingById } from "../../../api/tiltaksgjennomforing/useTiltaksgjennomforingById";
 import { Bolk } from "../../../components/detaljside/Bolk";
@@ -86,7 +86,7 @@ export function TilsagnDetaljer() {
         <TiltaksgjennomforingIkon />
         <Heading size="large" level="2">
           <HStack gap="2" align={"center"}>
-            Tilsagn{""}
+            Tilsagn for {tiltaksgjennomforing.navn}
             {tilsagn.besluttelse?.utfall ? (
               tilsagn.besluttelse.utfall === TilsagnBesluttelse.GODKJENT ? (
                 <Tag variant="success" size="small">
@@ -129,7 +129,17 @@ export function TilsagnDetaljer() {
               />
               <Metadata header="Beløp" verdi={`${formaterTall(tilsagn.belop)} kr`} />
             </Bolk>
-            {!tilsagn?.besluttelse && ansatt?.navIdent !== tilsagn.opprettetAv ? (
+            <Bolk>
+              <Metadata header="Løpenummer" verdi={tilsagn.lopenummer} />
+            </Bolk>
+            {besluttMutation.error ? (
+              <BodyShort spacing>
+                <Alert variant="error">Klarte ikke lagre beslutning</Alert>
+              </BodyShort>
+            ) : null}
+            {!tilsagn?.besluttelse &&
+            ansatt?.navIdent !== tilsagn.opprettetAv &&
+            ansatt?.roller.includes(NavAnsattRolle.OKONOMI_BESLUTTER) ? (
               <HStack gap="2" justify={"space-between"}>
                 <GodkjennAvvisTilsagnButtons
                   onGodkjennTilsagn={() => besluttTilsagn(TilsagnBesluttelse.GODKJENT)}

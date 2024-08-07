@@ -25,4 +25,8 @@ export const tilsagnHandlers = [
       return HttpResponse.json(tilsagn);
     },
   ),
+
+  http.post<PathParams, any, string>("*/api/v1/intern/tilsagn/:tilsagnId/beslutt", async () => {
+    return HttpResponse.text("OK");
+  }),
 ];
