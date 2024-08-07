@@ -37,7 +37,7 @@ export function ModiaArbeidsmarkedstiltakOversikt() {
 
   const {
     data: tiltaksgjennomforinger = [],
-    isPending,
+    isLoading,
     isError,
     error,
   } = useVeilederTiltaksgjennomforinger();
@@ -106,7 +106,7 @@ export function ModiaArbeidsmarkedstiltakOversikt() {
               }
               feilmelding={
                 tiltaksgjennomforinger.length === 0 ? (
-                  isPending ? (
+                  isLoading ? (
                     <ListSkeleton />
                   ) : (
                     <Feilmelding
