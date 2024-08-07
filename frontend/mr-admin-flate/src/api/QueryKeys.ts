@@ -49,4 +49,5 @@ export const QueryKeys = {
     tiltaksgjennomforingId,
   ],
   getTilsagn: (id?: string) => ["tilsagn", id],
+  besluttTilsagn: () => ["beslutt-tilsagn"],
 };

@@ -1751,7 +1751,7 @@ paths:
   /api/v1/intern/tilsagn/{id}/beslutt:
     parameters:
       - $ref: "#/components/parameters/ID"
-    put:
+    post:
       tags:
         - Tilsagn
       operationId: besluttTilsagn
@@ -1763,6 +1763,11 @@ paths:
       responses:
         200:
           description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+
 
 components:
   securitySchemes:
