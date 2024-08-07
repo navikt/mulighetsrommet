@@ -59,6 +59,7 @@ export function TilsagnSkjema({
 
   useEffect(() => {
     if (tilsagn) {
+      setValue("id", tilsagn.id);
       setValue("kostnadssted", tilsagn?.kostnadssted.enhetsnummer);
       setValue("belop", tilsagn.belop);
       setValue("periode.start", tilsagn.periodeStart);

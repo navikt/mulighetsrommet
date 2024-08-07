@@ -2,7 +2,7 @@ import z, { ZodIssueCode } from "zod";
 
 const tekster = {
   manglerStartdato: "Du må velge en startdato",
-  manglerSluttdato: "Du må velg en sluttdato",
+  manglerSluttdato: "Du må velge en sluttdato",
   manglerKostnadssted: "Du må velge et kostnadssted",
   manglerBelop: "Du må skrive inn et beløp for tilsagnet",
 } as const;
@@ -26,7 +26,7 @@ export const OpprettTilsagnSchema = z
       ctx.addIssue({
         code: ZodIssueCode.custom,
         message: "Sluttdato kan ikke være før startdato",
-        path: ["periode.sluttdato"],
+        path: ["periode.slutt"],
       });
     }
   });

@@ -59,29 +59,13 @@ export function TilsagnDetaljer() {
     navigate(`/tiltaksgjennomforinger/${tiltaksgjennomforingId}/tilsagn`);
   }
 
-  function godkjennTilsagn() {
+  function besluttTilsagn(besluttelse: TilsagnBesluttelse) {
     if (tilsagn) {
       besluttMutation.mutate(
         {
           id: tilsagn.id,
           requestBody: {
-            besluttelse: TilsagnBesluttelse.GODKJENT,
-          },
-        },
-        {
-          onSuccess: navigerTilGjennomforing,
-        },
-      );
-    }
-  }
-
-  function avvisTilsagn() {
-    if (tilsagn) {
-      besluttMutation.mutate(
-        {
-          id: tilsagn.id,
-          requestBody: {
-            besluttelse: TilsagnBesluttelse.AVVIST,
+            besluttelse,
           },
         },
         {
@@ -148,8 +132,8 @@ export function TilsagnDetaljer() {
             {!tilsagn?.besluttelse && ansatt?.navIdent !== tilsagn.opprettetAv ? (
               <HStack gap="2" justify={"space-between"}>
                 <GodkjennAvvisTilsagnButtons
-                  onGodkjennTilsagn={godkjennTilsagn}
-                  onAvvisTilsagn={avvisTilsagn}
+                  onGodkjennTilsagn={() => besluttTilsagn(TilsagnBesluttelse.GODKJENT)}
+                  onAvvisTilsagn={() => besluttTilsagn(TilsagnBesluttelse.AVVIST)}
                 />
                 <Button variant="tertiary" size="small" onClick={navigerTilGjennomforing}>
                   Avbryt
