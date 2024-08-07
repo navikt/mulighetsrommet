@@ -80,6 +80,8 @@ spec:
           - id: "46ba8787-eb24-4f7b-830f-4c5e9256de65"
           # (GRP) mr-nav_kontaktperson
           - id: "0fdd133a-f47f-4b95-9a5e-f3a5ec87a472"
+          # 0000-GA-TILTAK-okonomi_beslutter
+          - id: "6a1f1984-0fe3-4a0e-ac6e-19225b604a52"
         extra:
           - NAVident
           - azp_name
