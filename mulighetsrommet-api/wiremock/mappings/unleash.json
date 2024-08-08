@@ -9,6 +9,11 @@
       "version": 1,
       "features": [
         {
+          "name": "mulighetsrommet-veilederflate-landingsside",
+          "enabled": true,
+          "strategies": []
+        },
+        {
           "name": "mulighetsrommet.admin-flate-opprett-tiltaksgjennomforing",
           "enabled": true,
           "strategies": []

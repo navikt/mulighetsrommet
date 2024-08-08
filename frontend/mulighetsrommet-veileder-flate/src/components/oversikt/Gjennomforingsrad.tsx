@@ -1,17 +1,18 @@
+import { paginationAtom } from "@/core/atoms";
+import { formaterDato } from "@/utils/Utils";
 import { ChevronRightIcon, PadlockLockedFillIcon } from "@navikt/aksel-icons";
-import { BodyShort } from "@navikt/ds-react";
+import { BodyShort, VStack } from "@navikt/ds-react";
 import classNames from "classnames";
+import { useAtomValue } from "jotai";
 import {
   DelMedBruker,
   TiltaksgjennomforingOppstartstype,
   VeilederflateTiltaksgjennomforing,
 } from "mulighetsrommet-api-client";
 import { Lenke } from "mulighetsrommet-frontend-common/components/lenke/Lenke";
-import { paginationAtom } from "@/core/atoms";
-import { formaterDato } from "@/utils/Utils";
 import { kebabCase } from "mulighetsrommet-frontend-common/utils/TestUtils";
 import styles from "./Gjennomforingsrad.module.scss";
-import { useAtomValue } from "jotai";
+import { VisningsnavnForTiltak } from "./VisningsnavnForTiltak";
 
 interface Props {
   tiltaksgjennomforing: VeilederflateTiltaksgjennomforing;
@@ -69,16 +70,9 @@ export function Gjennomforingsrad({ tiltaksgjennomforing, index, delMedBruker }:
           )}
 
           <div className={classNames(styles.flex, styles.navn)}>
-            <BodyShort
-              size="small"
-              title={navn}
-              className={classNames(styles.truncate, styles.as_link)}
-            >
-              {navn}
-            </BodyShort>
-            <BodyShort size="small" title={arrangor?.selskapsnavn} className={styles.muted}>
-              {arrangor?.selskapsnavn}
-            </BodyShort>
+            <VStack>
+              <VisningsnavnForTiltak navn={navn} tiltakstype={tiltakstype} arrangor={arrangor} />
+            </VStack>
           </div>
 
           <div className={classNames(styles.infogrid, styles.metadata)}>

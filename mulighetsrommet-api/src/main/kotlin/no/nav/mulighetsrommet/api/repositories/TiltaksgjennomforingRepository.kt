@@ -507,6 +507,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 ) as arrangor_kontaktpersoner_json,
                 tiltakstype.sanity_id as tiltakstype_sanity_id,
                 tiltakstype.navn as tiltakstype_navn,
+                tiltakstype.tiltakskode as tiltakstype_tiltakskode,
                 a.personvern_bekreftet,
                 gjennomforing.avbrutt_tidspunkt,
                 tiltaksgjennomforing_status(gjennomforing.start_dato, gjennomforing.slutt_dato, gjennomforing.avbrutt_tidspunkt) as status,
@@ -752,6 +753,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             tiltakstype = VeilederflateTiltakstype(
                 sanityId = uuid("tiltakstype_sanity_id").toString(),
                 navn = string("tiltakstype_navn"),
+                tiltakskode = stringOrNull("tiltakstype_tiltakskode")?.let { Tiltakskode.valueOf(it) },
             ),
             navn = string("navn"),
             stedForGjennomforing = stringOrNull("sted_for_gjennomforing"),
