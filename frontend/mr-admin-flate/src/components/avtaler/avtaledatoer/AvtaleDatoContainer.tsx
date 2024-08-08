@@ -9,9 +9,7 @@ import { InferredAvtaleSchema } from "../../redaksjoneltInnhold/AvtaleSchema";
 import { ControlledDateInput } from "../../skjema/ControlledDateInput";
 import { FormGroup } from "../../skjema/FormGroup";
 import { AvtaleVarighet } from "./AvtaleVarighet";
-
-const MIN_START_DATO = new Date(2000, 0, 1);
-const MAKS_AAR = 35;
+import { MIN_START_DATO, MAKS_AAR } from "../../../constants";
 
 interface Props {
   avtale?: Avtale;
@@ -60,7 +58,7 @@ export function AvtaleDatoContainer({ avtale, arenaOpphavOgIngenEierskap }: Prop
           />
           <ControlledDateInput
             size="small"
-            label={avtaletekster.sluttdatoLabel(false)}
+            label={avtaletekster.sluttdatoForhandsgodkjentLabel}
             readOnly={arenaOpphavOgIngenEierskap}
             fromDate={sluttDatoFraDato}
             toDate={sluttDatoTilDato}

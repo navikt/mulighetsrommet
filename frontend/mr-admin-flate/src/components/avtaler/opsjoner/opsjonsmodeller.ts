@@ -3,7 +3,7 @@ import { OpsjonsmodellData, OpsjonsmodellKey } from "mulighetsrommet-api-client"
 export interface Opsjonsmodell {
   value: OpsjonsmodellKey;
   label: string;
-  maksVarighetAar: number;
+  maksVarighetAar: number | null;
   initialSluttdatoEkstraAar?: number;
 }
 
@@ -30,6 +30,18 @@ export const opsjonsmodeller: Opsjonsmodell[] = [
     value: OpsjonsmodellKey.ANNET,
     label: "Annen opsjonsmodell",
     maksVarighetAar: 5,
+    initialSluttdatoEkstraAar: undefined,
+  },
+  {
+    value: OpsjonsmodellKey.AVTALE_UTEN_OPSJONSMODELL,
+    label: "Avtale uten opsjonsmodell",
+    maksVarighetAar: null,
+    initialSluttdatoEkstraAar: undefined,
+  },
+  {
+    value: OpsjonsmodellKey.AVTALE_VALGFRI_SLUTTDATO,
+    label: "Åpen avtale med valgfri sluttdato",
+    maksVarighetAar: null,
     initialSluttdatoEkstraAar: undefined,
   },
 ];

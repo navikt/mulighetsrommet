@@ -15,12 +15,12 @@ import { Fragment } from "react";
 import { Link } from "react-router-dom";
 import styles from "./AvtaleDetaljer.module.scss";
 import { AmoKategoriseringDetaljer } from "@/components/amoKategorisering/AmoKategoriseringDetaljer";
-import { opsjonsmodellTilTekst } from "@/components/avtaler/avtaledatoer/opsjonsmodeller";
 import { useFeatureToggle } from "@/api/features/useFeatureToggle";
 import { DetaljerContainer } from "@/pages/DetaljerContainer";
 import { DetaljerInfoContainer } from "@/pages/DetaljerInfoContainer";
 import { ArrangorKontaktinfoContainer } from "@/pages/arrangor/ArrangorKontaktinfoContainer";
 import { OpsjonerRegistrert } from "@/components/avtaler/opsjoner/OpsjonerRegistrert";
+import { opsjonsmodellTilTekst } from "../../components/avtaler/opsjoner/opsjonsmodeller";
 
 export function AvtaleDetaljer() {
   const { data: avtale, isPending, error } = useAvtale();
