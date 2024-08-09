@@ -1,9 +1,4 @@
-import {
-  EstimertVentetidEnhet,
-  Tiltakskode,
-  VeilderflateArrangor,
-  VeilederflateTiltakstype,
-} from "mulighetsrommet-api-client";
+import { EstimertVentetidEnhet } from "mulighetsrommet-api-client";
 
 export function inneholderUrl(string: string) {
   return window.location.href.indexOf(string) > -1;
@@ -59,29 +54,4 @@ export function formatertVentetid(verdi: number, enhet: EstimertVentetidEnhet): 
     default:
       return "Ukjent enhet for ventetid";
   }
-}
-
-export function lesbareTiltaksnavn(
-  navn: string,
-  tiltakstype: VeilederflateTiltakstype,
-  arrangor?: VeilderflateArrangor,
-): string {
-  if (arrangor?.selskapsnavn) {
-    const { selskapsnavn } = arrangor;
-    const konstruerteNavn = {
-      [Tiltakskode.ARBEIDSFORBEREDENDE_TRENING]: `Arbeidsforberedende trening hos ${selskapsnavn}`,
-      [Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET]: `Varig tilrettelagt arbeid i skjermet virksomhet hos ${selskapsnavn}`,
-      [Tiltakskode.OPPFOLGING]: `Oppfølging hos ${selskapsnavn}`,
-      [Tiltakskode.AVKLARING]: `Avklaring hos ${selskapsnavn}`,
-      [Tiltakskode.ARBEIDSRETTET_REHABILITERING]: `Arbeidsrettet rehabilitering hos ${selskapsnavn}`,
-      [Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK]: `Digital oppfølging hos ${selskapsnavn}`,
-      [Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING]: `Kurs: ${navn} hos ${selskapsnavn}`,
-      [Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING]: navn,
-      [Tiltakskode.JOBBKLUBB]: `Jobbsøkerkurs hos ${selskapsnavn}`,
-    };
-
-    return (tiltakstype.tiltakskode && konstruerteNavn[tiltakstype.tiltakskode]) || navn;
-  }
-
-  return navn;
 }

@@ -77,7 +77,7 @@ export function Gjennomforingsrad({ tiltaksgjennomforing, index, delMedBruker }:
 
           <div className={classNames(styles.infogrid, styles.metadata)}>
             <BodyShort size="small" title={tiltakstype.navn}>
-              {tiltakstype.navn}
+              {arrangor?.selskapsnavn}
             </BodyShort>
             <BodyShort
               size="small"
