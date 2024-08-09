@@ -43,10 +43,9 @@ class OpsjonLoggService(
     fun delete(opsjonLoggEntryId: UUID, avtaleId: UUID, slettesAv: NavIdent) {
         val opsjoner = opsjonLoggRepository.getOpsjoner(avtaleId)
         val avtale = getAvtaleOrThrow(avtaleId)
-        validateAvtale(avtale)
 
         db.transaction { tx ->
-            logger.info("Fjerner opsjons med id: '$opsjonLoggEntryId' for avtale med id: '$avtaleId'")
+            logger.info("Fjerner opsjon med id: '$opsjonLoggEntryId' for avtale med id: '$avtaleId'")
             val forrigeSluttdato = kalkulerNySluttdato(opsjoner, avtale)
 
             forrigeSluttdato?.let {
@@ -59,12 +58,11 @@ class OpsjonLoggService(
     }
 
     private fun kalkulerNySluttdato(opsjoner: List<OpsjonLoggEntry>, avtale: AvtaleAdminDto): LocalDate? {
-        return if (opsjoner.size > 1) opsjoner[1].sluttdato else avtale.opprinneligSluttDato
-    }
-
-    private fun validateAvtale(avtale: AvtaleAdminDto) {
-        if (avtale.opprinneligSluttDato == null) {
-            throw NotFoundException("Fant ingen opprinnelig sluttdato for avtale med id '${avtale.id}'")
+        val utlosteOpsjoner = opsjoner.filter { it.status == OpsjonLoggRequest.OpsjonsLoggStatus.OPSJON_UTLØST }
+        return if (utlosteOpsjoner.size > 1) {
+            utlosteOpsjoner[1].sluttdato
+        } else {
+            avtale.opprinneligSluttDato ?: avtale.sluttDato
         }
     }
 

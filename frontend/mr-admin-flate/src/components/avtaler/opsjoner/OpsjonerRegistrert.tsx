@@ -1,4 +1,4 @@
-import { Alert, BodyShort, Button, Heading, HStack, Table } from "@navikt/ds-react";
+import { Alert, BodyShort, Button, Heading, HStack, Table, VStack } from "@navikt/ds-react";
 import { Avtale, OpsjonLoggRegistrert, OpsjonStatus } from "mulighetsrommet-api-client";
 import { useSlettOpsjon } from "../../../api/avtaler/useSlettOpsjon";
 import { formaterDato } from "../../../utils/Utils";
@@ -70,9 +70,14 @@ export function OpsjonerRegistrert({ avtale, readOnly }: Props) {
                         Fjern
                       </Button>
                       {mutation.error && (
-                        <Alert inline variant="error">
-                          Klarte ikke fjerne opsjonen
-                        </Alert>
+                        <VStack>
+                          <Alert inline variant="error">
+                            Klarte ikke fjerne opsjonen
+                          </Alert>
+                          <Button size="small" type="button" onClick={() => fjernOpsjon(log.id)}>
+                            Prøv igjen
+                          </Button>
+                        </VStack>
                       )}
                     </>
                   ) : null}
