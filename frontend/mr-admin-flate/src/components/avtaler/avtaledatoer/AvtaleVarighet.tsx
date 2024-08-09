@@ -18,11 +18,6 @@ interface Props {
   maksAar: number;
 }
 
-const opsjonsmodellerUtenMaksVarighetOgCustomNavn = [
-  OpsjonsmodellKey.AVTALE_UTEN_OPSJONSMODELL,
-  OpsjonsmodellKey.AVTALE_VALGFRI_SLUTTDATO,
-];
-
 export function AvtaleVarighet({
   avtale,
   arenaOpphavOgIngenEierskap,
@@ -55,10 +50,7 @@ export function AvtaleVarighet({
       setValue("opsjonsmodellData.opsjonsmodell", undefined);
       setValue("opsjonsmodellData.opsjonMaksVarighet", undefined);
       setValue("opsjonsmodellData.customOpsjonsmodellNavn", undefined);
-    } else if (
-      opsjonsmodell &&
-      opsjonsmodellerUtenMaksVarighetOgCustomNavn.includes(opsjonsmodell.value)
-    ) {
+    } else if (opsjonsmodell && !opsjonsmodell.kreverMaksVarighet) {
       setValue("opsjonsmodellData.customOpsjonsmodellNavn", undefined);
       setValue("opsjonsmodellData.opsjonMaksVarighet", undefined);
     }
@@ -103,6 +95,7 @@ export function AvtaleVarighet({
             const opsjonsmodel = opsjonsmodeller.find((modell) => modell.value === e.target.value);
             setOpsjonsmodell(opsjonsmodel);
             setValue("opsjonsmodellData.opsjonsmodell", opsjonsmodel?.value);
+            setValue("opsjonsmodellData.customOpsjonsmodellNavn", undefined);
           }}
         >
           <option value={undefined}>Velg avtalt mulighet for forlengelse</option>
@@ -126,8 +119,7 @@ export function AvtaleVarighet({
         />
       ) : null}
 
-      {opsjonsmodell &&
-      !opsjonsmodellerUtenMaksVarighetOgCustomNavn.includes(opsjonsmodell.value) ? (
+      {opsjonsmodell && opsjonsmodell.kreverMaksVarighet ? (
         <HGrid columns={3}>
           <ControlledDateInput
             size="small"
@@ -158,8 +150,7 @@ export function AvtaleVarighet({
             format={"iso-string"}
           />
         </HGrid>
-      ) : opsjonsmodell?.value &&
-        opsjonsmodellerUtenMaksVarighetOgCustomNavn.includes(opsjonsmodell?.value) ? (
+      ) : opsjonsmodell?.value && !opsjonsmodell.kreverMaksVarighet ? (
         <HGrid columns={3}>
           <ControlledDateInput
             size="small"
