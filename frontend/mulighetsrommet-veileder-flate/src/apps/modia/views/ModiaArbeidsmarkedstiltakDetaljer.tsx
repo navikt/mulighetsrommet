@@ -1,3 +1,4 @@
+import { useRegioner } from "@/api/queries/useRegioner";
 import { DelMedBruker } from "@/apps/modia/delMedBruker/DelMedBruker";
 import { useHentBrukerdata } from "@/apps/modia/hooks/useHentBrukerdata";
 import { useHentDeltMedBrukerStatus } from "@/apps/modia/hooks/useHentDeltMedbrukerStatus";
@@ -9,6 +10,7 @@ import { OpprettAvtaleJoyride } from "@/components/joyride/OpprettAvtaleJoyride"
 import { PersonvernContainer } from "@/components/personvern/PersonvernContainer";
 import { LenkeListe } from "@/components/sidemeny/Lenker";
 import { Tilbakeknapp } from "@/components/tilbakeknapp/Tilbakeknapp";
+import { PORTEN_URL_FOR_TILBAKEMELDING } from "@/constants";
 import { paginationAtom } from "@/core/atoms";
 import { isProduction } from "@/environment";
 import { ViewTiltaksgjennomforingDetaljer } from "@/layouts/ViewTiltaksgjennomforingDetaljer";
@@ -28,14 +30,13 @@ import {
   TilbakemeldingLenke,
   useTitle,
 } from "mulighetsrommet-frontend-common";
-import { PameldingForGruppetiltak } from "../../../components/pamelding/PameldingForGruppetiltak";
 import { gjennomforingIsAktiv } from "mulighetsrommet-frontend-common/utils/utils";
-import { PORTEN_URL_FOR_TILBAKEMELDING } from "@/constants";
-import { useRegioner } from "@/api/queries/useRegioner";
 import { useFeatureToggle } from "../../../api/feature-toggles";
 import { useTiltaksgjennomforingById } from "../../../api/queries/useTiltaksgjennomforingById";
+import { PameldingForGruppetiltak } from "../../../components/pamelding/PameldingForGruppetiltak";
+import { VisibleWhenToggledOn } from "../../../components/toggles/VisibleWhenToggledOn";
 import { useGetTiltaksgjennomforingIdFraUrl } from "../../../hooks/useGetTiltaksgjennomforingIdFraUrl";
-import { resolveModiaRoute, ModiaRoute } from "../ModiaRoute";
+import { ModiaRoute, resolveModiaRoute } from "../ModiaRoute";
 
 export function ModiaArbeidsmarkedstiltakDetaljer() {
   const { fnr } = useModiaContext();
@@ -43,9 +44,6 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
   const { delMedBrukerInfo } = useHentDeltMedBrukerStatus(fnr, id);
   const { data: enableDeltakerRegistrering } = useFeatureToggle(
     Toggles.MULIGHETSROMMET_VEILEDERFLATE_VIS_DELTAKER_REGISTRERING,
-  );
-  const { data: enableTilbakemelding } = useFeatureToggle(
-    Toggles.MULIGHETSROMMET_VEILEDERFLATE_VIS_TILBAKEMELDING,
   );
 
   const {
@@ -181,7 +179,7 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
             ) : null}
 
             <LenkeListe lenker={tiltaksgjennomforing.faneinnhold?.lenker} />
-            {enableTilbakemelding && (
+            <VisibleWhenToggledOn toggle={Toggles.MULIGHETSROMMET_VEILEDERFLATE_VIS_TILBAKEMELDING}>
               <TilbakemeldingLenke
                 url={PORTEN_URL_FOR_TILBAKEMELDING(
                   tiltaksgjennomforing.tiltaksnummer,
@@ -189,7 +187,7 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
                 )}
                 tekst="Gi tilbakemelding via Porten"
               />
-            )}
+            </VisibleWhenToggledOn>
           </>
         }
       />
