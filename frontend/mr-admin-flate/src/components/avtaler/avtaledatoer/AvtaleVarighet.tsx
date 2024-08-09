@@ -7,7 +7,7 @@ import { ControlledDateInput } from "../../skjema/ControlledDateInput";
 import { Opsjonsmodell, opsjonsmodeller } from "../opsjoner/opsjonsmodeller";
 import { Avtale, Avtaletype, OpsjonsmodellKey, OpsjonStatus } from "mulighetsrommet-api-client";
 import { OpsjonerRegistrert } from "../opsjoner/OpsjonerRegistrert";
-import { MIN_START_DATO } from "../../../constants";
+import { MIN_START_DATO_FOR_AVTALER } from "../../../constants";
 
 interface Props {
   avtale?: Avtale;
@@ -150,13 +150,13 @@ export function AvtaleVarighet({
             format={"iso-string"}
           />
         </HGrid>
-      ) : opsjonsmodell?.value && !opsjonsmodell.kreverMaksVarighet ? (
+      ) : opsjonsmodell && !opsjonsmodell.kreverMaksVarighet ? (
         <HGrid columns={3}>
           <ControlledDateInput
             size="small"
             label={avtaletekster.startdatoLabel}
             readOnly={arenaOpphavOgIngenEierskap}
-            fromDate={MIN_START_DATO}
+            fromDate={MIN_START_DATO_FOR_AVTALER}
             toDate={sluttDatoTilDato}
             {...register("startOgSluttDato.startDato")}
             format={"iso-string"}
