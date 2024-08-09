@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Alert, BodyLong, Button, Modal, VStack } from "@navikt/ds-react";
+import { Alert, BodyLong, BodyShort, Button, Modal, VStack } from "@navikt/ds-react";
 import { Avtale, OpsjonLoggRequest, OpsjonStatus } from "mulighetsrommet-api-client";
 import { RefObject } from "react";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
@@ -66,8 +66,12 @@ export function RegistrerOpsjonModal({ modalRef, avtale }: Props) {
   }
 
   if (sluttDatoErLikEllerPassererMaksVarighet()) {
-    return <SluttDatoErLikEllerPassererMaksVarighetModal modalRef={modalRef} />;
+    return <SluttDatoErLikEllerPassererMaksVarighetModal modalRef={modalRef} avtale={avtale} />;
   }
+
+  const avtaleSkalIkkeUtloseOpsjoner = avtale?.opsjonerRegistrert?.some(
+    (l) => l.status === OpsjonStatus.SKAL_IKKE_UTLØSE_OPSJON,
+  );
 
   return (
     <Modal
@@ -82,7 +86,8 @@ export function RegistrerOpsjonModal({ modalRef, avtale }: Props) {
           <Modal.Body>
             <VStack gap="5">
               <BodyLong>
-                <RegistrerOpsjonSkjema avtale={avtale} />
+                {!avtaleSkalIkkeUtloseOpsjoner && <RegistrerOpsjonSkjema avtale={avtale} />}
+
                 {mutation.isError && (
                   <Alert variant="error">Noe gikk galt ved registrering av opsjon</Alert>
                 )}
@@ -108,8 +113,10 @@ export function RegistrerOpsjonModal({ modalRef, avtale }: Props) {
 
 function SluttDatoErLikEllerPassererMaksVarighetModal({
   modalRef,
+  avtale,
 }: {
   modalRef: RefObject<HTMLDialogElement>;
+  avtale: Avtale;
 }) {
   return (
     <VarselModal
@@ -118,8 +125,15 @@ function SluttDatoErLikEllerPassererMaksVarighetModal({
       handleClose={() => modalRef?.current?.close()}
       modalRef={modalRef}
       primaryButton={<Button onClick={() => modalRef?.current?.close()}>Ok</Button>}
-      body="Du kan ikke registrere flere opsjoner for avtalen. Avtalens sluttdato er samme som maks varighet for
-        avtalen."
+      body={
+        <VStack gap="5">
+          <BodyShort>
+            Du kan ikke registrere flere opsjoner for avtalen. Avtalens sluttdato er samme som maks
+            varighet for avtalen.
+          </BodyShort>
+          <OpsjonerRegistrert readOnly={false} avtale={avtale} />
+        </VStack>
+      }
     />
   );
 }

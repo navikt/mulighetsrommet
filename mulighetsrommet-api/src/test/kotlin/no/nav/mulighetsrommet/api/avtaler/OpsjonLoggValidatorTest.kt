@@ -4,7 +4,6 @@ import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainAll
-import io.mockk.mockk
 import no.nav.mulighetsrommet.api.domain.dbo.ArenaNavEnhet
 import no.nav.mulighetsrommet.api.domain.dto.AvtaleAdminDto
 import no.nav.mulighetsrommet.api.domain.dto.OpsjonLoggEntry
@@ -12,7 +11,6 @@ import no.nav.mulighetsrommet.api.routes.v1.OpsjonLoggRequest
 import no.nav.mulighetsrommet.api.routes.v1.Opsjonsmodell
 import no.nav.mulighetsrommet.api.routes.v1.OpsjonsmodellData
 import no.nav.mulighetsrommet.api.routes.v1.responses.ValidationError
-import no.nav.mulighetsrommet.api.services.AvtaleService
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dto.AvtaleStatus
@@ -20,10 +18,10 @@ import no.nav.mulighetsrommet.domain.dto.Avtaletype
 import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.domain.dto.Websaknummer
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.*
 
 class OpsjonLoggValidatorTest : FunSpec({
-    val avtaleService = mockk<AvtaleService>(relaxed = true)
     val avtale = AvtaleAdminDto(
         id = UUID.randomUUID(),
         tiltakstype = AvtaleAdminDto.Tiltakstype(
@@ -78,7 +76,7 @@ class OpsjonLoggValidatorTest : FunSpec({
             registrertAv = NavIdent("M123456"),
         )
         val validator = OpsjonLoggValidator()
-        validator.validate(entry, avtaleUtenOpsjonsmodell.opsjonsmodellData).shouldBeLeft().shouldContainAll(
+        validator.validate(entry, avtaleUtenOpsjonsmodell).shouldBeLeft().shouldContainAll(
             ValidationError.of(OpsjonsmodellData::opsjonsmodell, "Kan ikke registrer opsjon uten en opsjonsmodell"),
         )
     }
@@ -101,10 +99,44 @@ class OpsjonLoggValidatorTest : FunSpec({
         )
 
         val validator = OpsjonLoggValidator()
-        validator.validate(entry, avtale2Pluss1.opsjonsmodellData).shouldBeLeft().shouldContainAll(
+        validator.validate(entry, avtale2Pluss1).shouldBeLeft().shouldContainAll(
             ValidationError.of(
                 OpsjonLoggEntry::sluttdato,
                 "Ny sluttdato er forbi maks varighet av avtalen",
+            ),
+        )
+    }
+
+    test("Skal kaste en feil hvis status for entry er UTLØST_OPSJON og det allerede er registrert at det ikke skal utløses opsjon for avtalen") {
+        val avtale2Pluss1 = avtale.copy(
+            sluttDato = LocalDate.of(2024, 7, 5).plusYears(3),
+            opsjonsmodellData = OpsjonsmodellData(
+                opsjonMaksVarighet = LocalDate.of(2024, 7, 5).plusYears(3),
+                opsjonsmodell = Opsjonsmodell.TO_PLUSS_EN,
+                customOpsjonsmodellNavn = null,
+            ),
+            opsjonerRegistrert = listOf(
+                AvtaleAdminDto.OpsjonLoggRegistrert(
+                    id = UUID.randomUUID(),
+                    status = OpsjonLoggRequest.OpsjonsLoggStatus.SKAL_IKKE_UTLØSE_OPSJON,
+                    aktivertDato = LocalDateTime.of(2024, 8, 8, 10, 0, 0),
+                    sluttDato = null,
+                ),
+            ),
+        )
+
+        val entry = OpsjonLoggEntry(
+            avtaleId = UUID.randomUUID(),
+            sluttdato = LocalDate.of(2027, 7, 6),
+            status = OpsjonLoggRequest.OpsjonsLoggStatus.OPSJON_UTLØST,
+            registrertAv = NavIdent("M123456"),
+        )
+
+        val validator = OpsjonLoggValidator()
+        validator.validate(entry, avtale2Pluss1).shouldBeLeft().shouldContainAll(
+            ValidationError.of(
+                OpsjonLoggEntry::status,
+                "Kan ikke utløse opsjon for avtale som har en opsjon som ikke skal utløses",
             ),
         )
     }
@@ -127,6 +159,6 @@ class OpsjonLoggValidatorTest : FunSpec({
         )
 
         val validator = OpsjonLoggValidator()
-        validator.validate(entry, avtale2Pluss1.opsjonsmodellData).shouldBeRight()
+        validator.validate(entry, avtale2Pluss1).shouldBeRight()
     }
 })
