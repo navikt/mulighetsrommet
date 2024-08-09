@@ -96,7 +96,7 @@ export function AvtaleDetaljer() {
           <>
             <Bolk aria-label="Opsjonsmodell">
               <Metadata
-                header={avtaletekster.opsjonsmodellLabel}
+                header={avtaletekster.avtaltForlengelseLabel}
                 verdi={opsjonsmodellTilTekst(avtale?.opsjonsmodellData)}
               />
             </Bolk>

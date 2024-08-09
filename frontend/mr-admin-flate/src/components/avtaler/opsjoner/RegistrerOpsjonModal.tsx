@@ -6,7 +6,11 @@ import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { useRegistrerOpsjon } from "../../../api/avtaler/useRegistrerOpsjon";
 import { VarselModal } from "../../modal/VarselModal";
 import { OpsjonerRegistrert } from "./OpsjonerRegistrert";
-import { InferredRegistrerOpsjonSchema, RegistrerOpsjonSchema } from "./RegistrerOpsjonSchema";
+import {
+  InferredRegistrerOpsjonSchema,
+  Opsjonsvalg,
+  RegistrerOpsjonSchema,
+} from "./RegistrerOpsjonSchema";
 import { RegistrerOpsjonSkjema } from "./RegistrerOpsjonSkjema";
 
 interface Props {
@@ -27,7 +31,7 @@ export function RegistrerOpsjonModal({ modalRef, avtale }: Props) {
     const request: OpsjonLoggRequest = {
       avtaleId: avtale.id,
       nySluttdato: data.opsjonsdatoValgt || null,
-      status: OpsjonStatus.OPSJON_UTLØST,
+      status: getStatus(data.opsjonsvalg),
     };
 
     mutation.mutate(request, {
@@ -36,6 +40,17 @@ export function RegistrerOpsjonModal({ modalRef, avtale }: Props) {
       },
     });
   };
+
+  function getStatus(opsjonsvalg: Opsjonsvalg): OpsjonStatus {
+    switch (opsjonsvalg) {
+      case "1":
+        return OpsjonStatus.OPSJON_UTLØST;
+      case "Annet":
+        return OpsjonStatus.OPSJON_UTLØST;
+      case "Opsjon_skal_ikke_utloses":
+        return OpsjonStatus.SKAL_IKKE_UTLØSE_OPSJON;
+    }
+  }
 
   function closeAndResetForm() {
     reset();

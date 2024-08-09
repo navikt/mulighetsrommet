@@ -1,8 +1,14 @@
 import z from "zod";
 
+const opsjonsvalg = z.enum(["1", "Annet", "Opsjon_skal_ikke_utloses"], {
+  required_error: "Du må gjøre et opsjonsvalg",
+});
+
+export type Opsjonsvalg = z.infer<typeof opsjonsvalg>;
+
 export const RegistrerOpsjonSchema = z
   .object({
-    opsjonsvalg: z.enum(["1", "Annet"], { required_error: "Du må gjøre et opsjonsvalg" }),
+    opsjonsvalg,
     opsjonsdatoValgt: z.string({ required_error: "Ny sluttdato for avtalen må settes" }).optional(),
   })
   .superRefine((data, ctx) => {

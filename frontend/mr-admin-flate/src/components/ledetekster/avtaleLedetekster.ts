@@ -23,5 +23,5 @@ export const avtaletekster = {
   tiltaksarrangorHovedenhetLabel: "Tiltaksarrangør hovedenhet",
   tiltaksarrangorUnderenheterLabel: "Tiltaksarrangør underenheter",
   kontaktpersonerHosTiltaksarrangorLabel: "Kontaktpersoner hos tiltaksarrangør",
-  opsjonsmodellLabel: "Opsjonsmodell",
+  avtaltForlengelseLabel: "Avtalt mulighet for forlengelse",
 } as const;

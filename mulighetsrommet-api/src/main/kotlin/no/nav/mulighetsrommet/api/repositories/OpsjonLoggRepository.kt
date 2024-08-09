@@ -45,7 +45,7 @@ class OpsjonLoggRepository(private val db: Database) {
         @Language("PostgreSQL")
         val getSisteOpsjonerQuery = """
             select * from avtale_opsjon_logg
-            where avtale_id = :avtaleId::uuid and status = 'OPSJON_UTLØST'
+            where avtale_id = :avtaleId::uuid
             order by registrert_dato desc
         """.trimIndent()
 
@@ -63,7 +63,7 @@ class OpsjonLoggRepository(private val db: Database) {
     private fun Row.toOpsjonLoggEntry(): OpsjonLoggEntry {
         return OpsjonLoggEntry(
             avtaleId = this.uuid("avtale_id"),
-            sluttdato = this.localDate("sluttdato"),
+            sluttdato = this.localDateOrNull("sluttdato"),
             status = OpsjonLoggRequest.OpsjonsLoggStatus.valueOf(this.string("status")),
             registrertAv = NavIdent(this.string("registrert_av")),
         )

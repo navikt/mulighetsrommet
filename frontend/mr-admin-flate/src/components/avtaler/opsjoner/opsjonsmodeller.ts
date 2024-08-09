@@ -39,7 +39,7 @@ export const opsjonsmodeller: Opsjonsmodell[] = [
   },
   {
     value: OpsjonsmodellKey.AVTALE_UTEN_OPSJONSMODELL,
-    label: "Avtale uten opsjonsmodell",
+    label: "Avtale uten opsjonsmulighet",
     maksVarighetAar: null,
     initialSluttdatoEkstraAar: undefined,
     kreverMaksVarighet: false,
