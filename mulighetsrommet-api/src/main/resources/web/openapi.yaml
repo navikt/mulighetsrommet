@@ -4207,6 +4207,7 @@ components:
         sluttDato:
           type: string
           format: date
+          nullable: true
         status:
           $ref: "#/components/schemas/OpsjonStatus"
       required:

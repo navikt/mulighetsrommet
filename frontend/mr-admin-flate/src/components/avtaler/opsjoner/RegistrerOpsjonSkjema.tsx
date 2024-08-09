@@ -22,6 +22,8 @@ export function RegistrerOpsjonSkjema({ avtale }: Props) {
 
   useEffect(() => {
     function settNySluttdato() {
+      if (watchedOpsjonsvalg === "Opsjon_skal_ikke_utloses") return;
+
       if (watchedOpsjonsvalg && watchedOpsjonsvalg !== "Annet" && sluttdato) {
         setValue("opsjonsdatoValgt", formaterDatoSomYYYYMMDD(addYear(new Date(sluttdato), 1)));
       }
@@ -40,6 +42,7 @@ export function RegistrerOpsjonSkjema({ avtale }: Props) {
   return (
     <div className={styles.container}>
       <ControlledRadioGroup legend="Registrer opsjon" hideLegend {...register("opsjonsvalg")}>
+        <Radio value="Opsjon_skal_ikke_utloses">Avklart at opsjon ikke skal utløses</Radio>
         <Radio
           value="1"
           disabled={addYear(new Date(sluttdato), 1) > new Date(maksVarighetForOpsjon)}
