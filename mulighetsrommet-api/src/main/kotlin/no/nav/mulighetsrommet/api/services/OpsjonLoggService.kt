@@ -26,7 +26,7 @@ class OpsjonLoggService(
     private val logger = LoggerFactory.getLogger(javaClass)
     fun lagreOpsjonLoggEntry(entry: OpsjonLoggEntry) {
         val avtale = getAvtaleOrThrow(entry.avtaleId)
-        opsjonLoggValidator.validate(entry, avtale.opsjonsmodellData).map {
+        opsjonLoggValidator.validate(entry, avtale).map {
             logger.info("Lagrer opsjon og setter ny sluttdato for avtale med id: '${entry.avtaleId}'. Opsjonsdata: $entry")
             db.transaction { tx ->
                 if (entry.sluttdato != null) {
