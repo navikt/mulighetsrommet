@@ -3302,6 +3302,8 @@ components:
           nullable: true
         personvernBekreftet:
           type: boolean
+        fylke:
+          type: string
         status:
           $ref: "#/components/schemas/TiltaksgjennomforingStatusDto"
       required:
@@ -3803,11 +3805,13 @@ components:
         - mulighetsrommet.veilederflate.visDeltakerRegistrering
         - mulighetsrommet-veilederflate-landingsside
         - mulighetsrommet-veilederflate-arena-oppskrifter
+        - mulighetsrommet-veilederflate.vis-tilbakemelding
         - mulighetsrommet.admin-flate.enableDebugger
         - mulighetsrommet.admin-flate.enable_gruppe_amo_kategorier
         - mulighetsrommet.admin-flate.registrere-opsjonsmodell
         - mulighetsrommet.admin-flate.registrere-opsjon
         - mulighetsrommet.admin-flate.opprett-tilsagn
+        - mulighetsrommet-veilederflate.vis-tilbakemelding
 
     PublisertRequest:
       type: object
