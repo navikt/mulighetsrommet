@@ -1,0 +1,84 @@
+apiVersion: nais.io/v1alpha1
+kind: Application
+metadata:
+  name: nav-arbeidsmarkedstiltak
+  namespace: team-mulighetsrommet
+  labels:
+    team: team-mulighetsrommet
+spec:
+  image: europe-north1-docker.pkg.dev/nais-management-233d/poao/poao-frontend:2024.05.07_13.29-a2e3b56408a1
+  port: 8080
+  ingresses:
+    - https://nav-arbeidsmarkedstiltak.intern.dev.nav.no
+    - https://nav-arbeidsmarkedstiltak.ansatt.dev.nav.no
+  liveness:
+    path: /internal/alive
+    initialDelay: 10
+  readiness:
+    path: /internal/ready
+    initialDelay: 10
+  replicas:
+    min: 1
+    max: 1
+    scalingStrategy:
+      cpu:
+        thresholdPercentage: 75
+  observability:
+    autoInstrumentation:
+      enabled: true
+      runtime: nodejs
+  resources:
+    limits:
+      memory: 512Mi
+    requests:
+      cpu: 10m
+      memory: 256Mi
+  azure:
+    application:
+      enabled: true
+      allowAllUsers: true
+    sidecar:
+      enabled: true
+      autoLogin: true
+      autoLoginIgnorePaths:
+        - /assets/*
+        - /asset-manifest.json
+  accessPolicy:
+    outbound:
+      rules:
+        - application: mulighetsrommet-api
+  gcp:
+    buckets:
+      - name: arbeidsmarkedstiltak-nav-dev
+        cascadingDelete: false
+  env:
+    - name: JSON_CONFIG
+      value: >
+        {
+          "gcs": {
+            "bucketName": "arbeidsmarkedstiltak-nav-dev"
+          },
+          "auth": {
+            "loginProvider": "AZURE_AD"
+          },
+          "header": {
+            "csp": {
+              "imgSrc": ["'self'", "*.nav.no", "cdn.sanity.io"]
+            },
+            "corp": {
+              "policy": "cross-origin"
+            }
+          },
+          "proxies": [
+            {
+              "fromPath": "/mulighetsrommet-api",
+              "toUrl": "http://mulighetsrommet-api",
+              "preserveFromPath": false,
+              "toApp": {
+                "name": "mulighetsrommet-api",
+                "namespace": "team-mulighetsrommet",
+                "cluster": "dev-gcp"
+              }
+            }
+          ]
+        }

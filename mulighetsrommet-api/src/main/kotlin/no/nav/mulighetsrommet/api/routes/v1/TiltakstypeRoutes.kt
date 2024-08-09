@@ -11,15 +11,14 @@ import no.nav.mulighetsrommet.api.routes.v1.parameters.getPaginationParams
 import no.nav.mulighetsrommet.api.services.TiltakstypeService
 import no.nav.mulighetsrommet.api.services.VeilederflateService
 import no.nav.mulighetsrommet.domain.Tiltakskode
-import no.nav.mulighetsrommet.domain.Tiltakskode.Companion.toArenaKode
 import org.koin.ktor.ext.inject
 import java.util.*
 
-fun Route.tiltakstypeRoutes(migrerteTiltak: List<Tiltakskode>) {
+fun Route.tiltakstypeRoutes(migrerteTiltak: List<Tiltakskode>, pameldingIModia: List<Tiltakskode>) {
     val tiltakstypeService: TiltakstypeService by inject()
     val veilederflateService: VeilederflateService by inject()
 
-    route("/api/v1/internal/tiltakstyper") {
+    route("/api/v1/intern/tiltakstyper") {
         get {
             val filter = getTiltakstypeFilter()
             val pagination = getPaginationParams()
@@ -56,7 +55,11 @@ fun Route.tiltakstypeRoutes(migrerteTiltak: List<Tiltakskode>) {
         }
 
         get("migrerte") {
-            call.respond(migrerteTiltak.map { toArenaKode(it) })
+            call.respond(migrerteTiltak)
+        }
+
+        get("stotterPameldingIModia") {
+            call.respond(pameldingIModia)
         }
     }
 }

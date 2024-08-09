@@ -17,6 +17,9 @@ spec:
       application: mulighetsrommet-api
       access: readwrite
     - team: team-mulighetsrommet
+      application: tiltakshistorikk
+      access: read
+    - team: team-mulighetsrommet
       application: mulighetsrommet-kafka-manager
       access: read
 

@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { mulighetsrommetClient } from "@/api/client";
+import { TiltaksgjennomforingerService } from "mulighetsrommet-api-client";
 
 const FANT_IKKE_TILTAKSNUMMER_MESSAGE = "Fant ikke tiltaksnummer";
 
@@ -11,7 +11,7 @@ export function usePollTiltaksnummer(id: string) {
   const tiltaksnummer = useQuery({
     queryKey: ["tiltakgjennomforing", id, "tiltaksnummer"],
     async queryFn() {
-      const tiltaksnummer = await mulighetsrommetClient.tiltaksgjennomforinger.getTiltaksnummer({
+      const tiltaksnummer = await TiltaksgjennomforingerService.getTiltaksnummer({
         id,
       });
 

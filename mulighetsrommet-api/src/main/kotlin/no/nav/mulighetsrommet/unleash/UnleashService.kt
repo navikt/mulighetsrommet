@@ -37,4 +37,7 @@ class UnleashService(config: Config, byEnhetStrategy: ByEnhetStrategy, byNaviden
             .build()
         return unleash.isEnabled(feature, ctx)
     }
+    fun isEnabled(feature: String): Boolean {
+        return unleash.isEnabled(feature)
+    }
 }

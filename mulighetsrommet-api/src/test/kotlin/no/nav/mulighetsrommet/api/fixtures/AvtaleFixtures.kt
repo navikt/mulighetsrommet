@@ -2,6 +2,8 @@ package no.nav.mulighetsrommet.api.fixtures
 
 import no.nav.mulighetsrommet.api.domain.dbo.AvtaleDbo
 import no.nav.mulighetsrommet.api.routes.v1.AvtaleRequest
+import no.nav.mulighetsrommet.api.routes.v1.Opsjonsmodell
+import no.nav.mulighetsrommet.api.routes.v1.OpsjonsmodellData
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
 import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.domain.dto.Websaknummer
@@ -29,6 +31,10 @@ object AvtaleFixtures {
         faneinnhold = null,
         personopplysninger = emptyList(),
         personvernBekreftet = false,
+        amoKategorisering = null,
+        opsjonMaksVarighet = LocalDate.now().plusYears(3),
+        opsjonsmodell = Opsjonsmodell.TO_PLUSS_EN,
+        customOpsjonsmodellNavn = null,
     )
 
     val oppfolgingMedAvtale = AvtaleDbo(
@@ -51,6 +57,10 @@ object AvtaleFixtures {
         faneinnhold = null,
         personopplysninger = emptyList(),
         personvernBekreftet = false,
+        amoKategorisering = null,
+        opsjonMaksVarighet = LocalDate.now().plusYears(3),
+        opsjonsmodell = Opsjonsmodell.TO_PLUSS_EN,
+        customOpsjonsmodellNavn = null,
     )
 
     val gruppeAmo = AvtaleDbo(
@@ -73,6 +83,36 @@ object AvtaleFixtures {
         faneinnhold = null,
         personopplysninger = emptyList(),
         personvernBekreftet = false,
+        amoKategorisering = null,
+        opsjonMaksVarighet = LocalDate.now().plusYears(3),
+        opsjonsmodell = Opsjonsmodell.TO_PLUSS_EN,
+        customOpsjonsmodellNavn = null,
+    )
+
+    val IPS = AvtaleDbo(
+        id = UUID.randomUUID(),
+        navn = "IPS",
+        avtalenummer = "2024#9",
+        websaknummer = Websaknummer("24/1234"),
+        tiltakstypeId = TiltakstypeFixtures.IPS.id,
+        arrangorId = ArrangorFixtures.hovedenhet.id,
+        arrangorUnderenheter = listOf(ArrangorFixtures.underenhet1.id),
+        arrangorKontaktpersoner = emptyList(),
+        startDato = LocalDate.of(2023, 1, 1),
+        sluttDato = LocalDate.now().plusMonths(3),
+        avtaletype = Avtaletype.OffentligOffentlig,
+        prisbetingelser = "Alt er dyrt",
+        administratorer = listOf(NavIdent("DD1")),
+        navEnheter = listOf("0400", "0502"),
+        antallPlasser = null,
+        beskrivelse = null,
+        faneinnhold = null,
+        personopplysninger = emptyList(),
+        personvernBekreftet = false,
+        amoKategorisering = null,
+        opsjonMaksVarighet = LocalDate.now().plusYears(3),
+        opsjonsmodell = Opsjonsmodell.TO_PLUSS_EN,
+        customOpsjonsmodellNavn = null,
     )
 
     val VTA = AvtaleDbo(
@@ -95,6 +135,10 @@ object AvtaleFixtures {
         faneinnhold = null,
         personopplysninger = emptyList(),
         personvernBekreftet = false,
+        amoKategorisering = null,
+        opsjonMaksVarighet = null,
+        opsjonsmodell = null,
+        customOpsjonsmodellNavn = null,
     )
 
     val AFT = AvtaleDbo(
@@ -117,6 +161,10 @@ object AvtaleFixtures {
         faneinnhold = null,
         personopplysninger = emptyList(),
         personvernBekreftet = false,
+        amoKategorisering = null,
+        opsjonMaksVarighet = null,
+        opsjonsmodell = null,
+        customOpsjonsmodellNavn = null,
     )
 
     val EnkelAmo = AvtaleDbo(
@@ -139,6 +187,10 @@ object AvtaleFixtures {
         faneinnhold = null,
         personopplysninger = emptyList(),
         personvernBekreftet = false,
+        amoKategorisering = null,
+        opsjonMaksVarighet = LocalDate.now().plusYears(3),
+        opsjonsmodell = Opsjonsmodell.TO_PLUSS_EN,
+        customOpsjonsmodellNavn = null,
     )
 
     val avtaleRequest = AvtaleRequest(
@@ -160,5 +212,11 @@ object AvtaleFixtures {
         faneinnhold = null,
         personopplysninger = emptyList(),
         personvernBekreftet = false,
+        amoKategorisering = null,
+        opsjonsmodellData = OpsjonsmodellData(
+            opsjonMaksVarighet = LocalDate.now().plusYears(5),
+            opsjonsmodell = Opsjonsmodell.TO_PLUSS_EN,
+            customOpsjonsmodellNavn = null,
+        ),
     )
 }

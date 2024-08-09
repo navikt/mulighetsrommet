@@ -15,7 +15,7 @@ export function DupliserTiltak({ tiltaksgjennomforing }: Props) {
   const { data: migrerteTiltakstyper } = useMigrerteTiltakstyper();
   const setGjennomforingDetaljerTab = useSetAtom(gjennomforingDetaljerTabAtom);
 
-  if (!migrerteTiltakstyper?.includes(tiltaksgjennomforing.tiltakstype.arenaKode)) return null;
+  if (!migrerteTiltakstyper?.includes(tiltaksgjennomforing.tiltakstype.tiltakskode)) return null;
 
   function apneRedigeringForDupliseringAvTiltak() {
     setGjennomforingDetaljerTab("detaljer");

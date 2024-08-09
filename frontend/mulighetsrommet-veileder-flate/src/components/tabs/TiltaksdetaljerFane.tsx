@@ -8,6 +8,7 @@ import KontaktinfoFane from "./kontaktinfofane/KontaktinfoFane";
 import { ErrorBoundary } from "react-error-boundary";
 import { ErrorFallback } from "../../utils/ErrorFallback";
 import { useLogEvent } from "../../logging/amplitude";
+import { RedaksjoneltInnhold } from "../RedaksjoneltInnhold";
 
 interface Props {
   tiltaksgjennomforing: VeilederflateTiltaksgjennomforing;
@@ -101,6 +102,9 @@ const TiltaksdetaljerFane = ({ tiltaksgjennomforing, setOppskriftId }: Props) =>
             <KontaktinfoFane tiltaksgjennomforing={tiltaksgjennomforing} />
           </Tabs.Panel>
           <Tabs.Panel value="tab5">
+            {tiltaksgjennomforing?.faneinnhold?.oppskrift ? (
+              <RedaksjoneltInnhold value={tiltaksgjennomforing.faneinnhold.oppskrift} />
+            ) : null}
             <Oppskriftsoversikt
               tiltakstypeId={tiltaksgjennomforing.tiltakstype.sanityId}
               setOppskriftId={setOppskriftId}

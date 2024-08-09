@@ -1,21 +1,21 @@
-import { HttpResponse, PathParams, http } from "msw";
+import { http, HttpResponse, PathParams } from "msw";
 import {
   Bruker,
   BrukerVarsel,
-  BrukerdataV2,
+  DeltakelserResponse,
   GetBrukerRequest,
-  HistorikkForBruker,
   Innsatsgruppe,
   NavEnhetStatus,
   NavEnhetType,
+  TiltakshistorikkAdminDto,
 } from "mulighetsrommet-api-client";
-import { historikk } from "../../fixtures/historikk";
-import { historikkFraKomet } from "../../fixtures/mockHistorikkFraKomet";
-import { utkastFraKomet } from "@/mock/fixtures/utkastFraKomet";
+import { historikk } from "../../fixtures/mockHistorikk";
+import { historikkFraKomet } from "../../fixtures/mockKometHistorikk";
+import { utkastFraKomet } from "@/mock/fixtures/mockKometUtkast";
 
 export const brukerHandlers = [
   http.post<PathParams, GetBrukerRequest, Bruker | String>(
-    "*/api/v1/internal/bruker",
+    "*/api/v1/intern/bruker",
     async ({ request }) => {
       const { norskIdent } = await request.json();
 
@@ -51,11 +51,12 @@ export const brukerHandlers = [
     },
   ),
 
-  http.post<PathParams, HistorikkForBruker[]>("*/api/v1/internal/bruker/historikk", () =>
+  http.post<PathParams, TiltakshistorikkAdminDto[]>("*/api/v2/intern/bruker/historikk", () =>
     HttpResponse.json(historikk),
   ),
 
-  http.post<PathParams, BrukerdataV2, BrukerdataV2>("*/api/v1/internal/bruker/historikk/ny", () =>
-    HttpResponse.json({ historikk: historikkFraKomet, aktive: utkastFraKomet }),
+  http.post<PathParams, DeltakelserResponse, DeltakelserResponse>(
+    "*/api/v1/intern/bruker/komet-deltakelser",
+    () => HttpResponse.json({ historikk: historikkFraKomet, aktive: utkastFraKomet }),
   ),
 ];

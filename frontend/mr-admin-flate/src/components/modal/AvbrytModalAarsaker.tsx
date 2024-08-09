@@ -1,14 +1,21 @@
 import { Radio, RadioGroup, Textarea } from "@navikt/ds-react";
 import { UseMutationResult } from "@tanstack/react-query";
-import { ApiError } from "mulighetsrommet-api-client";
+import {
+  ApiError,
+  AvbrytAvtaleAarsak,
+  AvbrytGjennomforingAarsak,
+} from "mulighetsrommet-api-client";
+import { AnnetEnum } from "@/api/annetEnum";
 
 interface Props {
-  aarsak: string | null;
+  aarsak?: AvbrytAvtaleAarsak | AnnetEnum | AvbrytGjennomforingAarsak;
   setAarsak: (a: string) => void;
-  customAarsak: string | null;
-  setCustomAarsak: (a: string | null) => void;
+  customAarsak?: string;
+  setCustomAarsak: (a: string | undefined) => void;
   radioknapp: React.ReactNode;
-  mutation: UseMutationResult<unknown, ApiError, { id: string; aarsak: string | null }, unknown>;
+  mutation: UseMutationResult<unknown, ApiError, { id: string; aarsak: string }, unknown>;
+  aarsakError?: string;
+  customAarsakError?: string;
 }
 export function AvbrytModalAarsaker({
   aarsak,
@@ -17,15 +24,24 @@ export function AvbrytModalAarsaker({
   setCustomAarsak,
   radioknapp,
   mutation,
+  aarsakError,
+  customAarsakError,
 }: Props) {
   return (
-    <RadioGroup size="small" legend="Velg årsak" onChange={setAarsak} value={aarsak} required>
+    <RadioGroup
+      style={{ textAlign: "left" }}
+      size="small"
+      legend="Velg årsak"
+      onChange={setAarsak}
+      value={aarsak}
+      error={aarsakError}
+    >
       {radioknapp}
-      <Radio value="annet">
+      <Radio value="annet" style={{ width: "25rem" }}>
         Annet
         {aarsak === "annet" && (
           <Textarea
-            style={{ width: "22rem", minHeight: "4rem" }}
+            style={{ width: "25rem", minHeight: "4rem" }}
             size="small"
             placeholder="Beskrivelse"
             onChange={(e) => {
@@ -34,8 +50,8 @@ export function AvbrytModalAarsaker({
             }}
             value={customAarsak ?? undefined}
             label={undefined}
-            required={aarsak === "annet"}
             maxLength={100}
+            error={customAarsakError}
           />
         )}
       </Radio>

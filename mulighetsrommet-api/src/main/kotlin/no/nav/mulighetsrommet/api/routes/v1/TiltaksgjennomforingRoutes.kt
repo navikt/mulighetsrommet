@@ -18,13 +18,11 @@ import no.nav.mulighetsrommet.api.repositories.DeltakerRepository
 import no.nav.mulighetsrommet.api.routes.v1.parameters.getPaginationParams
 import no.nav.mulighetsrommet.api.routes.v1.responses.BadRequest
 import no.nav.mulighetsrommet.api.routes.v1.responses.respondWithStatusResponse
+import no.nav.mulighetsrommet.api.services.ExcelService
 import no.nav.mulighetsrommet.api.services.TiltaksgjennomforingService
 import no.nav.mulighetsrommet.domain.dbo.Deltakerstatus
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
-import no.nav.mulighetsrommet.domain.dto.AvbruttAarsak
-import no.nav.mulighetsrommet.domain.dto.Faneinnhold
-import no.nav.mulighetsrommet.domain.dto.NavIdent
-import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus
+import no.nav.mulighetsrommet.domain.dto.*
 import no.nav.mulighetsrommet.domain.serializers.AvbruttAarsakSerializer
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
@@ -36,7 +34,7 @@ fun Route.tiltaksgjennomforingRoutes() {
     val deltakere: DeltakerRepository by inject()
     val service: TiltaksgjennomforingService by inject()
 
-    route("/api/v1/internal/tiltaksgjennomforinger") {
+    route("/api/v1/intern/tiltaksgjennomforinger") {
         authenticate(
             AuthProvider.AZURE_AD_TILTAKSJENNOMFORINGER_SKRIV.name,
             strategy = AuthenticationStrategy.Required,
@@ -75,6 +73,22 @@ fun Route.tiltaksgjennomforingRoutes() {
                 call.respond(HttpStatusCode.OK)
             }
 
+            put("{id}/tilgjengelig-for-arrangor") {
+                val id = call.parameters.getOrFail<UUID>("id")
+                val request = call.receive<SetTilgjengligForArrangorRequest>()
+                val navIdent = getNavIdent()
+
+                val response = service
+                    .setTilgjengeligForArrangorDato(
+                        id,
+                        request.tilgjengeligForArrangorDato,
+                        navIdent,
+                    )
+                    .mapLeft { BadRequest(errors = it) }
+
+                call.respondWithStatusResponse(response)
+            }
+
             delete("kontaktperson") {
                 val request = call.receive<FrikobleKontaktpersonRequest>()
                 val navIdent = getNavIdent()
@@ -92,14 +106,43 @@ fun Route.tiltaksgjennomforingRoutes() {
             val pagination = getPaginationParams()
             val filter = getAdminTiltaksgjennomforingsFilter()
 
-            call.respond(service.getAllSkalMigreres(pagination, filter))
+            call.respond(service.getAll(pagination, filter))
         }
 
         get("mine") {
             val pagination = getPaginationParams()
             val filter = getAdminTiltaksgjennomforingsFilter().copy(administratorNavIdent = getNavIdent())
 
-            call.respond(service.getAllSkalMigreres(pagination, filter))
+            call.respond(service.getAll(pagination, filter))
+        }
+
+        get("/excel") {
+            val pagination = getPaginationParams()
+            val filter = getAdminTiltaksgjennomforingsFilter()
+            val navIdent = call.parameters["visMineTiltaksgjennomforinger"]?.let {
+                if (it == "true") {
+                    getNavIdent()
+                } else {
+                    null
+                }
+            }
+            val overstyrtFilter = filter.copy(
+                sortering = "tiltakstype_navn-ascending",
+                administratorNavIdent = navIdent,
+            )
+            val result = service.getAll(pagination, overstyrtFilter)
+            val file = ExcelService.createExcelFileForTiltaksgjennomforing(result.data)
+            call.response.header(
+                HttpHeaders.ContentDisposition,
+                ContentDisposition.Attachment.withParameter(ContentDisposition.Parameters.FileName, "tiltaksgjennomforinger.xlsx")
+                    .toString(),
+            )
+            call.response.header("Access-Control-Expose-Headers", HttpHeaders.ContentDisposition)
+            call.response.header(
+                HttpHeaders.ContentType,
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            )
+            call.respondFile(file)
         }
 
         get("{id}") {
@@ -157,11 +200,12 @@ data class AdminTiltaksgjennomforingFilter(
     val search: String? = null,
     val navEnheter: List<String> = emptyList(),
     val tiltakstypeIder: List<UUID> = emptyList(),
-    val statuser: List<TiltaksgjennomforingStatus.Enum> = emptyList(),
+    val statuser: List<TiltaksgjennomforingStatus> = emptyList(),
     val sortering: String? = null,
     val avtaleId: UUID? = null,
     val arrangorIds: List<UUID> = emptyList(),
     val administratorNavIdent: NavIdent? = null,
+    val publisert: Boolean? = null,
 )
 
 fun <T : Any> PipelineContext<T, ApplicationCall>.getAdminTiltaksgjennomforingsFilter(): AdminTiltaksgjennomforingFilter {
@@ -169,11 +213,12 @@ fun <T : Any> PipelineContext<T, ApplicationCall>.getAdminTiltaksgjennomforingsF
     val navEnheter = call.parameters.getAll("navEnheter") ?: emptyList()
     val tiltakstypeIder = call.parameters.getAll("tiltakstyper")?.map { UUID.fromString(it) } ?: emptyList()
     val statuser = call.parameters.getAll("statuser")
-        ?.map { TiltaksgjennomforingStatus.Enum.valueOf(it) }
+        ?.map { TiltaksgjennomforingStatus.valueOf(it) }
         ?: emptyList()
     val sortering = call.request.queryParameters["sort"]
     val avtaleId = call.request.queryParameters["avtaleId"]?.let { if (it.isEmpty()) null else UUID.fromString(it) }
     val arrangorIds = call.parameters.getAll("arrangorer")?.map { UUID.fromString(it) } ?: emptyList()
+    val publisert = call.request.queryParameters["publisert"]?.let { it.toBoolean() }
 
     return AdminTiltaksgjennomforingFilter(
         search = search,
@@ -184,6 +229,7 @@ fun <T : Any> PipelineContext<T, ApplicationCall>.getAdminTiltaksgjennomforingsF
         avtaleId = avtaleId,
         arrangorIds = arrangorIds,
         administratorNavIdent = null,
+        publisert = publisert,
     )
 }
 
@@ -235,6 +281,7 @@ data class TiltaksgjennomforingRequest(
     val estimertVentetid: EstimertVentetid?,
     @Serializable(with = LocalDateSerializer::class)
     val tilgjengeligForArrangorFraOgMedDato: LocalDate?,
+    val amoKategorisering: AmoKategorisering?,
 ) {
     fun toDbo() = TiltaksgjennomforingDbo(
         id = id,
@@ -265,6 +312,7 @@ data class TiltaksgjennomforingRequest(
         estimertVentetidVerdi = estimertVentetid?.verdi,
         estimertVentetidEnhet = estimertVentetid?.enhet,
         tilgjengeligForArrangorFraOgMedDato = tilgjengeligForArrangorFraOgMedDato,
+        amoKategorisering = amoKategorisering,
     )
 }
 
@@ -290,6 +338,12 @@ data class NavKontaktpersonForGjennomforing(
 @Serializable
 data class PublisertRequest(
     val publisert: Boolean,
+)
+
+@Serializable
+data class SetTilgjengligForArrangorRequest(
+    @Serializable(with = LocalDateSerializer::class)
+    val tilgjengeligForArrangorDato: LocalDate,
 )
 
 @Serializable

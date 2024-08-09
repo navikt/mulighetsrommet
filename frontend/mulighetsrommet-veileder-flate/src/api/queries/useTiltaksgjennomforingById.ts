@@ -1,9 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
-import { mulighetsrommetClient } from "../client";
 import { QueryKeys } from "../query-keys";
-import { useGetTiltaksgjennomforingIdFraUrl } from "./useGetTiltaksgjennomforingIdFraUrl";
+import { useGetTiltaksgjennomforingIdFraUrl } from "@/hooks/useGetTiltaksgjennomforingIdFraUrl";
 import { useArbeidsmarkedstiltakFilterValue } from "@/hooks/useArbeidsmarkedstiltakFilter";
-import { NavEnhet } from "mulighetsrommet-api-client";
+import { NavEnhet, VeilederTiltakService } from "mulighetsrommet-api-client";
 
 export function useTiltaksgjennomforingById() {
   const id = useGetTiltaksgjennomforingIdFraUrl();
@@ -12,7 +11,7 @@ export function useTiltaksgjennomforingById() {
   return useQuery({
     queryKey: QueryKeys.sanity.tiltaksgjennomforing(id),
     queryFn: () =>
-      mulighetsrommetClient.veilederTiltak.getVeilederTiltaksgjennomforing({
+      VeilederTiltakService.getVeilederTiltaksgjennomforing({
         id,
         enheter: filter.navEnheter.map((enhet: NavEnhet) => enhet.enhetsnummer),
       }),
@@ -24,7 +23,7 @@ export function useNavTiltaksgjennomforingById() {
 
   return useQuery({
     queryKey: QueryKeys.sanity.tiltaksgjennomforing(id),
-    queryFn: () => mulighetsrommetClient.veilederTiltak.getNavTiltaksgjennomforing({ id }),
+    queryFn: () => VeilederTiltakService.getNavTiltaksgjennomforing({ id }),
   });
 }
 
@@ -35,7 +34,7 @@ export function usePreviewTiltaksgjennomforingById() {
   return useQuery({
     queryKey: QueryKeys.sanity.tiltaksgjennomforingPreview(id),
     queryFn: () =>
-      mulighetsrommetClient.veilederTiltak.getPreviewTiltaksgjennomforing({
+      VeilederTiltakService.getPreviewTiltaksgjennomforing({
         id,
         enheter: filter.navEnheter.map((enhet: NavEnhet) => enhet.enhetsnummer),
       }),

@@ -26,6 +26,7 @@ import no.nav.mulighetsrommet.domain.dbo.ArenaAvtaleDbo
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
 import no.nav.mulighetsrommet.env.NaisEnv
+import java.time.LocalDate
 import java.util.*
 
 class AvtaleInfoEventProcessor(
@@ -33,7 +34,10 @@ class AvtaleInfoEventProcessor(
     private val client: MulighetsrommetApiClient,
     private val ords: ArenaOrdsProxyClient,
 ) : ArenaEventProcessor {
-    override val arenaTable: ArenaTable = ArenaTable.AvtaleInfo
+
+    override suspend fun shouldHandleEvent(event: ArenaEvent): Boolean {
+        return event.arenaTable === ArenaTable.AvtaleInfo
+    }
 
     override suspend fun handleEvent(event: ArenaEvent) = either {
         val data = event.decodePayload<ArenaAvtaleInfo>()
@@ -76,9 +80,9 @@ class AvtaleInfoEventProcessor(
             .flatMap { toAvtaleDbo(it) }
             .flatMap { avtale ->
                 val response = if (event.operation == ArenaEvent.Operation.Delete) {
-                    client.request<Any>(HttpMethod.Delete, "/api/v1/internal/arena/avtale/${avtale.id}")
+                    client.request<Any>(HttpMethod.Delete, "/api/v1/intern/arena/avtale/${avtale.id}")
                 } else {
-                    client.request(HttpMethod.Put, "/api/v1/internal/arena/avtale", avtale)
+                    client.request(HttpMethod.Put, "/api/v1/intern/arena/avtale", avtale)
                 }
                 response.mapLeft { ProcessingError.fromResponseException(it) }
             }
@@ -88,7 +92,7 @@ class AvtaleInfoEventProcessor(
 
     override suspend fun deleteEntity(event: ArenaEvent): Either<ProcessingError, Unit> = either {
         val mapping = entities.getMapping(event.arenaTable, event.arenaId).bind()
-        client.request<Any>(HttpMethod.Delete, "/api/v1/internal/arena/avtale/${mapping.entityId}")
+        client.request<Any>(HttpMethod.Delete, "/api/v1/intern/arena/avtale/${mapping.entityId}")
             .mapLeft { ProcessingError.fromResponseException(it) }
             .flatMap { entities.deleteAvtale(mapping.entityId) }
             .bind()
@@ -136,8 +140,14 @@ class AvtaleInfoEventProcessor(
         val sluttDato = avtale.tilDato.toLocalDate()
 
         val avslutningsstatus = when (avtale.status) {
-            Avtale.Status.Avsluttet -> Avslutningsstatus.AVSLUTTET
+            Avtale.Status.Avsluttet -> if (sluttDato.isAfter(LocalDate.now())) {
+                Avslutningsstatus.AVBRUTT
+            } else {
+                Avslutningsstatus.AVSLUTTET
+            }
+
             Avtale.Status.Avbrutt -> Avslutningsstatus.AVBRUTT
+
             else -> Avslutningsstatus.IKKE_AVSLUTTET
         }
 

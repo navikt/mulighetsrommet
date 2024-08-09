@@ -8,30 +8,44 @@ import io.ktor.server.routing.*
 import no.nav.common.audit_log.cef.CefMessage
 import no.nav.common.audit_log.cef.CefMessageEvent
 import no.nav.common.audit_log.cef.CefMessageSeverity
+import no.nav.mulighetsrommet.api.clients.AccessType
 import no.nav.mulighetsrommet.api.clients.dialog.DialogRequest
 import no.nav.mulighetsrommet.api.clients.dialog.VeilarbdialogClient
+import no.nav.mulighetsrommet.api.domain.dbo.DelMedBrukerDbo
 import no.nav.mulighetsrommet.api.plugins.getNavAnsattAzureId
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
+import no.nav.mulighetsrommet.api.services.DelMedBrukerService
 import no.nav.mulighetsrommet.api.services.PoaoTilgangService
 import no.nav.mulighetsrommet.auditlog.AuditLog
 import no.nav.mulighetsrommet.domain.dto.NavIdent
+import no.nav.mulighetsrommet.domain.dto.NorskIdent
 import no.nav.mulighetsrommet.ktor.extensions.getAccessToken
 import org.koin.ktor.ext.inject
 
 fun Route.dialogRoutes() {
     val dialogClient: VeilarbdialogClient by inject()
     val poaoTilgangService: PoaoTilgangService by inject()
+    val delMedBrukerService: DelMedBrukerService by inject()
 
-    route("/api/v1/internal/dialog") {
+    route("/api/v1/intern/dialog") {
         post {
             val request = call.receive<DialogRequest>()
             val navIdent = getNavIdent()
 
             poaoTilgangService.verifyAccessToUserFromVeileder(getNavAnsattAzureId(), request.fnr)
 
-            val accessToken = call.getAccessToken()
-            val response = dialogClient.sendMeldingTilDialogen(accessToken, request)
+            val obo = AccessType.OBO(call.getAccessToken())
+            val response = dialogClient.sendMeldingTilDialogen(obo, request)
             response?.let {
+                delMedBrukerService.lagreDelMedBruker(
+                    data = DelMedBrukerDbo(
+                        norskIdent = request.fnr,
+                        navident = navIdent.value,
+                        dialogId = it.id,
+                        sanityId = request.sanityId,
+                        tiltaksgjennomforingId = request.tiltaksgjennomforingId,
+                    ),
+                )
                 val message = createAuditMessage(
                     msg = "NAV-ansatt med ident: '$navIdent' har delt informasjon om tiltaket '${request.overskrift}' til bruker med ident: '${request.fnr}'.",
                     navIdent = navIdent,
@@ -52,7 +66,7 @@ fun Route.dialogRoutes() {
     }
 }
 
-private fun createAuditMessage(msg: String, navIdent: NavIdent, norskIdent: String): CefMessage {
+private fun createAuditMessage(msg: String, navIdent: NavIdent, norskIdent: NorskIdent): CefMessage {
     return CefMessage.builder()
         .applicationName("modia")
         .loggerName("mulighetsrommet-api")
@@ -60,7 +74,7 @@ private fun createAuditMessage(msg: String, navIdent: NavIdent, norskIdent: Stri
         .name("Arbeidsmarkedstiltak - Del med bruker")
         .severity(CefMessageSeverity.INFO)
         .sourceUserId(navIdent.value)
-        .destinationUserId(norskIdent)
+        .destinationUserId(norskIdent.value)
         .timeEnded(System.currentTimeMillis())
         .extension("msg", msg)
         .build()

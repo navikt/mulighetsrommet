@@ -4,6 +4,7 @@ import io.ktor.server.testing.*
 import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.database.FlywayMigrationManager
 import no.nav.mulighetsrommet.database.kotest.extensions.createDatabaseTestSchema
+import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.security.mock.oauth2.MockOAuth2Server
 
 var databaseConfig: DatabaseConfig? = null
@@ -33,6 +34,17 @@ fun createTestApplicationConfig(oauth: MockOAuth2Server) = AppConfig(
     database = createDatabaseTestConfig(),
     flyway = FlywayMigrationManager.MigrationConfig(),
     auth = createAuthConfig(oauth),
+    kafka = KafkaConfig(
+        brokerUrl = "1",
+        consumerGroupId = "1",
+        consumers = KafkaConsumers(
+            amtDeltakerV1 = KafkaTopicConsumer.Config(id = "amt-deltaker", topic = "amt-deltaker"),
+            sisteTiltaksgjennomforingerV1 = KafkaTopicConsumer.Config(
+                id = "siste-tiltaksgjennomforinger",
+                topic = "siste-tiltaksgjennomforinger",
+            ),
+        ),
+    ),
 )
 
 // Default values for 'iss' og 'aud' in tokens issued by mock-oauth2-server is 'default'.

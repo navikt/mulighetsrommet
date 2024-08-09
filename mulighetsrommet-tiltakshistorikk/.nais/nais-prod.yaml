@@ -22,14 +22,14 @@ spec:
     path: /internal/liveness
     initialDelay: 20
   replicas:
-    min: 1
-    max: 2
+    min: 2
+    max: 4
     scalingStrategy:
       cpu:
         thresholdPercentage: 75
   resources:
     requests:
-      cpu: 250m
+      cpu: 50m
       memory: 512Mi
     limits:
       memory: 8192Mi
@@ -43,7 +43,7 @@ spec:
         - id: loki
   gcp:
     sqlInstances:
-      - type: POSTGRES_15
+      - type: POSTGRES_16
         tier: db-custom-1-3840
         diskAutoresize: true
         pointInTimeRecovery: true
@@ -62,7 +62,10 @@ spec:
           - id: debefa6e-1865-446d-b22b-9579fc735de3 # team-mulighetsrommet
         extra:
           - azp_name
+  kafka:
+    pool: nav-prod
   accessPolicy:
     inbound:
       rules:
         - application: mulighetsrommet-api
+        - application: mulighetsrommet-arena-adapter

@@ -4,16 +4,17 @@ import { useNavEnheter } from "@/api/enhet/useNavEnheter";
 import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
 import { addOrRemove } from "@/utils/Utils";
 import {
+  arrangorOptions,
   AVTALE_STATUS_OPTIONS,
   AVTALE_TYPE_OPTIONS,
-  arrangorOptions,
   regionOptions,
   tiltakstypeOptions,
 } from "@/utils/filterUtils";
-import { Accordion, Search, Skeleton, Switch, VStack } from "@navikt/ds-react";
-import { WritableAtom, useAtom } from "jotai";
+import { Accordion, Search, Switch } from "@navikt/ds-react";
+import { useAtom, WritableAtom } from "jotai";
 import { ArrangorTil } from "mulighetsrommet-api-client";
-import { FilterAccordionHeader } from "mulighetsrommet-frontend-common";
+import { FilterAccordionHeader, FilterSkeleton } from "mulighetsrommet-frontend-common";
+import { logEvent } from "@/logging/amplitude";
 import { CheckboxList } from "./CheckboxList";
 
 type Filters = "tiltakstype";
@@ -23,11 +24,23 @@ interface Props {
   skjulFilter?: Record<Filters, boolean>;
 }
 
+function loggBrukAvFilter(filter: string, value: any) {
+  logEvent({
+    name: "tiltaksadministrasjon.velg-avtale-filter",
+    data: {
+      filter,
+      value,
+    },
+  });
+}
+
 export function AvtaleFilter({ filterAtom, skjulFilter }: Props) {
   const [filter, setFilter] = useAtom(filterAtom);
   const [accordionsOpen, setAccordionsOpen] = useAtom(avtaleFilterAccordionAtom);
   const { data: enheter, isLoading: isLoadingEnheter } = useNavEnheter();
-  const { data: arrangorData, isLoading: isLoadingArrangorer } = useArrangorer(ArrangorTil.AVTALE);
+  const { data: arrangorData, isLoading: isLoadingArrangorer } = useArrangorer(ArrangorTil.AVTALE, {
+    pageSize: 10000,
+  });
   const { data: tiltakstyper, isLoading: isLoadingTiltakstyper } = useTiltakstyper();
 
   if (
@@ -38,30 +51,46 @@ export function AvtaleFilter({ filterAtom, skjulFilter }: Props) {
     !tiltakstyper ||
     isLoadingTiltakstyper
   ) {
-    return (
-      <VStack gap="2">
-        <Skeleton height={50} variant="rounded" />
-        <Skeleton height={200} variant="rounded" />
-        <Skeleton height={50} variant="rounded" />
-        <Skeleton height={50} variant="rounded" />
-        <Skeleton height={50} variant="rounded" />
-      </VStack>
-    );
+    return <FilterSkeleton />;
+  }
+
+  function selectDeselectAll(checked: boolean, key: string, values: string[]) {
+    if (checked) {
+      setFilter({
+        ...filter,
+        page: 1,
+        [key]: values,
+        lagretFilterIdValgt: undefined,
+      });
+      loggBrukAvFilter(key, "Velg alle");
+    } else {
+      setFilter({
+        ...filter,
+        page: 1,
+        [key]: [],
+        lagretFilterIdValgt: undefined,
+      });
+      loggBrukAvFilter(key, "Fjern alle");
+    }
   }
 
   return (
-    <div>
+    <>
       <Search
         label="Søk etter tiltaksgjennomføring"
         hideLabel
         size="small"
         variant="simple"
         placeholder="Navn, tiltaksnr., tiltaksarrangør"
+        onBlur={() => {
+          loggBrukAvFilter("sok", "REDACTED");
+        }}
         onChange={(search: string) => {
           setFilter({
             ...filter,
             page: 1,
             sok: search,
+            lagretFilterIdValgt: undefined,
           });
         }}
         value={filter.sok}
@@ -77,7 +106,9 @@ export function AvtaleFilter({ filterAtom, skjulFilter }: Props) {
               ...filter,
               page: 1,
               visMineAvtaler: event.currentTarget.checked,
+              lagretFilterIdValgt: undefined,
             });
+            loggBrukAvFilter("visMineAvtaler", event.currentTarget.checked);
           }}
         >
           <span style={{ fontWeight: "bold" }}>Vis kun mine avtaler</span>
@@ -94,6 +125,13 @@ export function AvtaleFilter({ filterAtom, skjulFilter }: Props) {
           </Accordion.Header>
           <Accordion.Content>
             <CheckboxList
+              onSelectAll={(checked) => {
+                selectDeselectAll(
+                  checked,
+                  "statuser",
+                  AVTALE_STATUS_OPTIONS.map((s) => s.value),
+                );
+              }}
               items={AVTALE_STATUS_OPTIONS}
               isChecked={(status) => filter.statuser.includes(status)}
               onChange={(status) => {
@@ -101,7 +139,12 @@ export function AvtaleFilter({ filterAtom, skjulFilter }: Props) {
                   ...filter,
                   page: 1,
                   statuser: addOrRemove(filter.statuser, status),
+                  lagretFilterIdValgt: undefined,
                 });
+                loggBrukAvFilter(
+                  "statuser",
+                  AVTALE_STATUS_OPTIONS.find((s) => s.value === status)?.label,
+                );
               }}
             />
           </Accordion.Content>
@@ -119,6 +162,13 @@ export function AvtaleFilter({ filterAtom, skjulFilter }: Props) {
           </Accordion.Header>
           <Accordion.Content>
             <CheckboxList
+              onSelectAll={(checked) => {
+                selectDeselectAll(
+                  checked,
+                  "avtaletyper",
+                  AVTALE_TYPE_OPTIONS.map((a) => a.value),
+                );
+              }}
               items={AVTALE_TYPE_OPTIONS}
               isChecked={(type) => filter.avtaletyper.includes(type)}
               onChange={(type) => {
@@ -126,7 +176,12 @@ export function AvtaleFilter({ filterAtom, skjulFilter }: Props) {
                   ...filter,
                   page: 1,
                   avtaletyper: addOrRemove(filter.avtaletyper, type),
+                  lagretFilterIdValgt: undefined,
                 });
+                loggBrukAvFilter(
+                  "avtaletyper",
+                  AVTALE_TYPE_OPTIONS.find((a) => a.value === type)?.label,
+                );
               }}
             />
           </Accordion.Content>
@@ -145,6 +200,13 @@ export function AvtaleFilter({ filterAtom, skjulFilter }: Props) {
             </Accordion.Header>
             <Accordion.Content>
               <CheckboxList
+                onSelectAll={(checked) => {
+                  selectDeselectAll(
+                    checked,
+                    "tiltakstyper",
+                    tiltakstyper.data.map((t) => t.id),
+                  );
+                }}
                 items={tiltakstypeOptions(tiltakstyper.data)}
                 isChecked={(tiltakstype) => filter.tiltakstyper.includes(tiltakstype)}
                 onChange={(tiltakstype) => {
@@ -152,7 +214,12 @@ export function AvtaleFilter({ filterAtom, skjulFilter }: Props) {
                     ...filter,
                     page: 1,
                     tiltakstyper: addOrRemove(filter.tiltakstyper, tiltakstype),
+                    lagretFilterIdValgt: undefined,
                   });
+                  loggBrukAvFilter(
+                    "tiltakstyper",
+                    tiltakstyper.data.find((t) => t.id === tiltakstype)?.navn,
+                  );
                 }}
               />
             </Accordion.Content>
@@ -175,7 +242,12 @@ export function AvtaleFilter({ filterAtom, skjulFilter }: Props) {
                   ...filter,
                   page: 1,
                   navRegioner: addOrRemove(filter.navRegioner, region),
+                  lagretFilterIdValgt: undefined,
                 });
+                loggBrukAvFilter(
+                  "navRegioner",
+                  enheter.find((e) => e.enhetsnummer === region)?.navn,
+                );
               }}
             />
           </Accordion.Content>
@@ -187,7 +259,7 @@ export function AvtaleFilter({ filterAtom, skjulFilter }: Props) {
             }}
           >
             <FilterAccordionHeader
-              tittel="Tiltaksarrangør"
+              tittel="Arrangør"
               antallValgteFilter={filter.arrangorer.length}
             />
           </Accordion.Header>
@@ -201,7 +273,9 @@ export function AvtaleFilter({ filterAtom, skjulFilter }: Props) {
                   ...filter,
                   page: 1,
                   arrangorer: addOrRemove(filter.arrangorer, id),
+                  lagretFilterIdValgt: undefined,
                 });
+                loggBrukAvFilter("arrangorer", arrangorData.data.find((a) => a.id === id)?.navn);
               }}
             />
           </Accordion.Content>
@@ -230,17 +304,19 @@ export function AvtaleFilter({ filterAtom, skjulFilter }: Props) {
                 },
               ]}
               isChecked={(b) => filter.personvernBekreftet.includes(b)}
-              onChange={(b) => {
+              onChange={(bekreftet) => {
                 setFilter({
                   ...filter,
                   page: 1,
-                  personvernBekreftet: addOrRemove(filter.personvernBekreftet, b),
+                  personvernBekreftet: addOrRemove(filter.personvernBekreftet, bekreftet),
+                  lagretFilterIdValgt: undefined,
                 });
+                loggBrukAvFilter("personvernBekreftet", bekreftet);
               }}
             />
           </Accordion.Content>
         </Accordion.Item>
       </Accordion>
-    </div>
+    </>
   );
 }

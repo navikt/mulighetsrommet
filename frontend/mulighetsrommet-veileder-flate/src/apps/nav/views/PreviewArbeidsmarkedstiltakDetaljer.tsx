@@ -1,6 +1,5 @@
 import { usePreviewTiltaksgjennomforingById } from "@/api/queries/useTiltaksgjennomforingById";
 import { DelMedBruker } from "@/apps/modia/delMedBruker/DelMedBruker";
-import { TiltakLoader } from "@/components/TiltakLoader";
 import { Tilbakeknapp } from "@/components/tilbakeknapp/Tilbakeknapp";
 import { ViewTiltaksgjennomforingDetaljer } from "@/layouts/ViewTiltaksgjennomforingDetaljer";
 import { Alert } from "@navikt/ds-react";
@@ -8,12 +7,13 @@ import { Innsatsgruppe, NavEnhetStatus, NavEnhetType } from "mulighetsrommet-api
 import { InlineErrorBoundary } from "@/ErrorBoundary";
 import { PersonvernContainer } from "@/components/personvern/PersonvernContainer";
 import { LenkeListe } from "@/components/sidemeny/Lenker";
+import { DetaljerSkeleton } from "mulighetsrommet-frontend-common";
 
 export function PreviewArbeidsmarkedstiltakDetaljer() {
   const { data, isPending, isError } = usePreviewTiltaksgjennomforingById();
 
   if (isPending) {
-    return <TiltakLoader />;
+    return <DetaljerSkeleton />;
   }
 
   if (isError) {
@@ -27,7 +27,7 @@ export function PreviewArbeidsmarkedstiltakDetaljer() {
       </Alert>
       <ViewTiltaksgjennomforingDetaljer
         tiltaksgjennomforing={data}
-        knapperad={<Tilbakeknapp tilbakelenke=".." tekst="Tilbake til tiltaksoversikten" />}
+        knapperad={<Tilbakeknapp tilbakelenke=".." tekst="Gå til oversikt over aktuelle tiltak" />}
         brukerActions={
           <>
             <DelMedBruker
@@ -52,10 +52,6 @@ export function PreviewArbeidsmarkedstiltakDetaljer() {
                     status: NavEnhetStatus.AKTIV,
                   },
                 ],
-              }}
-              lagreVeilederHarDeltTiltakMedBruker={async (dialogId, gjennomforing) => {
-                // eslint-disable-next-line no-console
-                console.log("Del med bruker", dialogId, gjennomforing);
               }}
             />
             {data && data?.personvernBekreftet ? (

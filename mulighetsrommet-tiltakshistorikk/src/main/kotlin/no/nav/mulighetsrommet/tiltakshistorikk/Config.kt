@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.tiltakshistorikk
 
 import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.database.FlywayMigrationManager
+import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.ktor.ServerConfig
 
 data class Config(
@@ -13,6 +14,7 @@ data class AppConfig(
     val database: DatabaseConfig,
     val flyway: FlywayMigrationManager.MigrationConfig = FlywayMigrationManager.MigrationConfig(),
     val auth: AuthConfig,
+    val kafka: KafkaConfig,
 )
 
 data class AuthConfig(
@@ -24,4 +26,15 @@ data class AuthProvider(
     val jwksUri: String,
     val audience: String,
     val tokenEndpointUrl: String,
+)
+
+data class KafkaConfig(
+    val brokerUrl: String? = null,
+    val consumerGroupId: String,
+    val consumers: KafkaConsumers,
+)
+
+data class KafkaConsumers(
+    val amtDeltakerV1: KafkaTopicConsumer.Config,
+    val sisteTiltaksgjennomforingerV1: KafkaTopicConsumer.Config,
 )

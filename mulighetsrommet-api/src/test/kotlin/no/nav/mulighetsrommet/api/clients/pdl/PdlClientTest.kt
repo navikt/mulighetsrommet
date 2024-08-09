@@ -30,7 +30,8 @@ class PdlClientTest : FunSpec({
             ),
         )
 
-        pdlClient.hentIdenter("12345678910", AccessType.M2M).shouldBeRight(emptyList())
+        val request = GraphqlRequest.HentHistoriskeIdenter(ident = PdlIdent("12345678910"), grupper = listOf())
+        pdlClient.hentHistoriskeIdenter(request, AccessType.M2M).shouldBeRight(emptyList())
     }
 
     test("not_found gives NotFound") {
@@ -45,7 +46,7 @@ class PdlClientTest : FunSpec({
                                 "data": { "hentIdenter": null },
                                 "errors": [
                                     { "extensions": { "code": "not_found" } },
-                                    { "extensions": { "code": "another_error" } }
+                                    { "extensions": { "code": "bad_request" } }
                                 ]
                             }
                         """.trimIndent(),
@@ -56,7 +57,8 @@ class PdlClientTest : FunSpec({
             ),
         )
 
-        pdlClient.hentIdenter("12345678910", AccessType.M2M).shouldBeLeft(PdlError.NotFound)
+        val request = GraphqlRequest.HentHistoriskeIdenter(ident = PdlIdent("12345678910"), grupper = listOf())
+        pdlClient.hentHistoriskeIdenter(request, AccessType.M2M).shouldBeLeft(PdlError.NotFound)
     }
 
     test("happy case hentIdenter") {
@@ -99,20 +101,24 @@ class PdlClientTest : FunSpec({
             ),
         )
 
-        val identer = pdlClient.hentIdenter("12345678910", AccessType.M2M).shouldBeRight()
+        val request = GraphqlRequest.HentHistoriskeIdenter(
+            ident = PdlIdent("12345678910"),
+            grupper = IdentGruppe.entries,
+        )
+        val identer = pdlClient.hentHistoriskeIdenter(request, AccessType.M2M).shouldBeRight()
         identer shouldContainExactlyInAnyOrder listOf(
             IdentInformasjon(
-                ident = "12345678910",
+                ident = PdlIdent("12345678910"),
                 gruppe = IdentGruppe.FOLKEREGISTERIDENT,
                 historisk = false,
             ),
             IdentInformasjon(
-                ident = "123",
+                ident = PdlIdent("123"),
                 gruppe = IdentGruppe.AKTORID,
                 historisk = true,
             ),
             IdentInformasjon(
-                ident = "99999999999",
+                ident = PdlIdent("99999999999"),
                 gruppe = IdentGruppe.NPID,
                 historisk = true,
             ),
@@ -148,7 +154,7 @@ class PdlClientTest : FunSpec({
             ),
         )
 
-        val person = pdlClient.hentPerson("12345678910", AccessType.M2M).shouldBeRight()
+        val person = pdlClient.hentPerson(PdlIdent("12345678910"), AccessType.M2M).shouldBeRight()
         person shouldBe PdlPerson(navn = listOf(PdlPerson.PdlNavn(fornavn = "Ola", etternavn = "Normann")))
     }
 
@@ -178,7 +184,8 @@ class PdlClientTest : FunSpec({
             ),
         )
 
-        val geografiskTilknytning = pdlClient.hentGeografiskTilknytning("12345678910", AccessType.M2M).shouldBeRight()
+        val geografiskTilknytning =
+            pdlClient.hentGeografiskTilknytning(PdlIdent("12345678910"), AccessType.M2M).shouldBeRight()
         geografiskTilknytning shouldBe GeografiskTilknytning.GtBydel(value = "030102")
     }
 })

@@ -14,11 +14,14 @@ import no.nav.mulighetsrommet.api.domain.dto.ArrangorKontaktperson
 import no.nav.mulighetsrommet.api.domain.dto.AvtaleAdminDto
 import no.nav.mulighetsrommet.api.domain.dto.AvtaleNotificationDto
 import no.nav.mulighetsrommet.api.domain.dto.Kontorstruktur
+import no.nav.mulighetsrommet.api.routes.v1.Opsjonsmodell
+import no.nav.mulighetsrommet.api.routes.v1.OpsjonsmodellData
 import no.nav.mulighetsrommet.api.routes.v1.responses.StatusResponseError
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.PaginatedResult
 import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.database.utils.mapPaginated
+import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.ArenaAvtaleDbo
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
@@ -48,13 +51,18 @@ class AvtaleRepository(private val db: Database) {
                 arrangor_hovedenhet_id,
                 start_dato,
                 slutt_dato,
+                opprinnelig_sluttdato,
+                opsjon_maks_varighet,
                 avtaletype,
                 prisbetingelser,
                 antall_plasser,
                 opphav,
                 beskrivelse,
                 faneinnhold,
-                personvern_bekreftet
+                personvern_bekreftet,
+                amo_kategorisering,
+                opsjonsmodell,
+                opsjon_custom_opsjonsmodell_navn
             ) values (
                 :id::uuid,
                 :navn,
@@ -64,13 +72,18 @@ class AvtaleRepository(private val db: Database) {
                 :arrangor_hovedenhet_id,
                 :start_dato,
                 :slutt_dato,
+                :opprinnelig_sluttdato,
+                :opsjonMaksVarighet,
                 :avtaletype::avtaletype,
                 :prisbetingelser,
                 :antall_plasser,
                 :opphav::opphav,
                 :beskrivelse,
                 :faneinnhold::jsonb,
-                :personvern_bekreftet
+                :personvern_bekreftet,
+                :amo_kategorisering::jsonb,
+                :opsjonsmodell::opsjonsmodell,
+                :opsjonCustomOpsjonsmodellNavn
             ) on conflict (id) do update set
                 navn                        = excluded.navn,
                 tiltakstype_id              = excluded.tiltakstype_id,
@@ -79,13 +92,17 @@ class AvtaleRepository(private val db: Database) {
                 arrangor_hovedenhet_id      = excluded.arrangor_hovedenhet_id,
                 start_dato                  = excluded.start_dato,
                 slutt_dato                  = excluded.slutt_dato,
+                opsjon_maks_varighet        = excluded.opsjon_maks_varighet,
                 avtaletype                  = excluded.avtaletype,
                 prisbetingelser             = excluded.prisbetingelser,
                 antall_plasser              = excluded.antall_plasser,
                 opphav                      = coalesce(avtale.opphav, excluded.opphav),
                 beskrivelse                 = excluded.beskrivelse,
                 faneinnhold                 = excluded.faneinnhold,
-                personvern_bekreftet        = excluded.personvern_bekreftet
+                personvern_bekreftet        = excluded.personvern_bekreftet,
+                amo_kategorisering          = excluded.amo_kategorisering,
+                opsjonsmodell               = excluded.opsjonsmodell,
+                opsjon_custom_opsjonsmodell_navn = excluded.opsjon_custom_opsjonsmodell_navn
         """.trimIndent()
 
         @Language("PostgreSQL")
@@ -260,6 +277,7 @@ class AvtaleRepository(private val db: Database) {
                                arena_ansvarlig_enhet,
                                avtaletype,
                                avbrutt_tidspunkt,
+                               avbrutt_aarsak,
                                prisbetingelser,
                                opphav)
             values (:id::uuid,
@@ -272,6 +290,7 @@ class AvtaleRepository(private val db: Database) {
                     :arena_ansvarlig_enhet,
                     :avtaletype::avtaletype,
                     :avbrutt_tidspunkt,
+                    :avbrutt_aarsak,
                     :prisbetingelser,
                     :opphav::opphav)
             on conflict (id) do update set navn                     = excluded.navn,
@@ -283,6 +302,7 @@ class AvtaleRepository(private val db: Database) {
                                            arena_ansvarlig_enhet    = excluded.arena_ansvarlig_enhet,
                                            avtaletype               = excluded.avtaletype,
                                            avbrutt_tidspunkt        = excluded.avbrutt_tidspunkt,
+                                           avbrutt_aarsak           = excluded.avbrutt_aarsak,
                                            prisbetingelser          = excluded.prisbetingelser,
                                            antall_plasser           = excluded.antall_plasser,
                                            opphav                   = coalesce(avtale.opphav, excluded.opphav)
@@ -322,9 +342,9 @@ class AvtaleRepository(private val db: Database) {
     ): PaginatedResult<AvtaleAdminDto> {
         val parameters = mapOf(
             "search" to search?.replace("/", "#")?.trim()?.let { "%$it%" },
+            "searchLopenummer" to search?.trim()?.let { "%$it%" },
             "administrator_nav_ident" to administratorNavIdent?.let { """[{ "navIdent": "${it.value}" }]""" },
             "tiltakstype_ids" to tiltakstypeIder.ifEmpty { null }?.let { db.createUuidArray(it) },
-            "arrangor_ids" to arrangorIds.ifEmpty { null }?.let { db.createUuidArray(it) },
             "arrangor_ids" to arrangorIds.ifEmpty { null }?.let { db.createUuidArray(it) },
             "nav_enheter" to navRegioner.ifEmpty { null }?.let { db.createTextArray(it) },
             "avtaletyper" to avtaletyper.ifEmpty { null }?.let { db.createArrayOf("avtaletype", it) },
@@ -351,7 +371,7 @@ class AvtaleRepository(private val db: Database) {
             select *, count(*) over() as total_count
             from avtale_admin_dto_view
             where (:tiltakstype_ids::uuid[] is null or tiltakstype_id = any (:tiltakstype_ids))
-              and (:search::text is null or (navn ilike :search or avtalenummer ilike :search or arrangor_hovedenhet_navn ilike :search))
+              and (:search::text is null or (navn ilike :search or avtalenummer ilike :search or avtalenummer ilike :searchLopenummer or arrangor_hovedenhet_navn ilike :search))
               and (:nav_enheter::text[] is null or (
                    exists(select true
                           from jsonb_array_elements(nav_enheter_json) as nav_enhet
@@ -360,7 +380,7 @@ class AvtaleRepository(private val db: Database) {
                    arena_nav_enhet_enhetsnummer in (select enhetsnummer
                                                     from nav_enhet
                                                     where overordnet_enhet = any (:nav_enheter))))
-              and (:arrangor_hovedenhet_id::text is null or :arrangor_hovedenhet_id = any (:arrangor_ids))
+              and (:arrangor_ids::text[] is null or arrangor_hovedenhet_id = any (:arrangor_ids))
               and (:administrator_nav_ident::text is null or administratorer_json @> :administrator_nav_ident::jsonb)
               and (:avtaletyper::avtaletype[] is null or avtaletype = any (:avtaletyper))
               and (:statuser::text[] is null or status = any(:statuser))
@@ -387,7 +407,8 @@ class AvtaleRepository(private val db: Database) {
             select a.id::uuid, a.navn, a.start_dato, a.slutt_dato, array_agg(distinct aa.nav_ident) as administratorer
             from avtale a
                      left join avtale_administrator aa on a.id = aa.avtale_id
-            where (:currentDate::timestamp + interval '6' month) = a.slutt_dato
+            where (:currentDate::timestamp + interval '8' month) = a.slutt_dato
+               or (:currentDate::timestamp + interval '6' month) = a.slutt_dato
                or (:currentDate::timestamp + interval '3' month) = a.slutt_dato
                or (:currentDate::timestamp + interval '14' day) = a.slutt_dato
                or (:currentDate::timestamp + interval '7' day) = a.slutt_dato
@@ -413,9 +434,8 @@ class AvtaleRepository(private val db: Database) {
             .let { db.run(it) }
     }
 
-    fun avbryt(id: UUID, tidspunkt: LocalDateTime, aarsak: AvbruttAarsak): Int {
-        return db.transaction { avbryt(it, id, tidspunkt, aarsak) }
-    }
+    fun avbryt(id: UUID, tidspunkt: LocalDateTime, aarsak: AvbruttAarsak): Int =
+        db.transaction { avbryt(it, id, tidspunkt, aarsak) }
 
     fun avbryt(tx: Session, id: UUID, tidspunkt: LocalDateTime, aarsak: AvbruttAarsak): Int {
         @Language("PostgreSQL")
@@ -466,37 +486,47 @@ class AvtaleRepository(private val db: Database) {
         "arrangor_hovedenhet_id" to arrangorId,
         "start_dato" to startDato,
         "slutt_dato" to sluttDato,
+        "opprinnelig_sluttdato" to sluttDato,
+        "opsjonMaksVarighet" to opsjonMaksVarighet,
         "avtaletype" to avtaletype.name,
         "prisbetingelser" to prisbetingelser,
         "antall_plasser" to antallPlasser,
         "beskrivelse" to beskrivelse,
         "faneinnhold" to faneinnhold?.let { Json.encodeToString(it) },
         "personvern_bekreftet" to personvernBekreftet,
+        "amo_kategorisering" to amoKategorisering?.let { Json.encodeToString(it) },
+        "opsjonsmodell" to opsjonsmodell?.name,
+        "opsjonCustomOpsjonsmodellNavn" to customOpsjonsmodellNavn,
     )
 
-    private fun ArenaAvtaleDbo.toSqlParameters(arrangorId: UUID) = mapOf(
-        "opphav" to ArenaMigrering.Opphav.ARENA.name,
-        "id" to id,
-        "navn" to navn,
-        "tiltakstype_id" to tiltakstypeId,
-        "avtalenummer" to avtalenummer,
-        "arrangor_hovedenhet_id" to arrangorId,
-        "start_dato" to startDato,
-        "slutt_dato" to sluttDato,
-        "arena_ansvarlig_enhet" to arenaAnsvarligEnhet,
-        "avtaletype" to avtaletype.name,
-        "avbrutt_tidspunkt" to when (avslutningsstatus) {
+    private fun ArenaAvtaleDbo.toSqlParameters(arrangorId: UUID): Map<String, Any?> {
+        val avbruttTidspunkt = when (avslutningsstatus) {
             Avslutningsstatus.AVLYST -> startDato.atStartOfDay().minusDays(1)
             Avslutningsstatus.AVBRUTT -> startDato.atStartOfDay()
             Avslutningsstatus.AVSLUTTET -> null
             Avslutningsstatus.IKKE_AVSLUTTET -> null
-        },
-        "prisbetingelser" to prisbetingelser,
-    )
+        }
+        return mapOf(
+            "opphav" to ArenaMigrering.Opphav.ARENA.name,
+            "id" to id,
+            "navn" to navn,
+            "tiltakstype_id" to tiltakstypeId,
+            "avtalenummer" to avtalenummer,
+            "arrangor_hovedenhet_id" to arrangorId,
+            "start_dato" to startDato,
+            "slutt_dato" to sluttDato,
+            "arena_ansvarlig_enhet" to arenaAnsvarligEnhet,
+            "avtaletype" to avtaletype.name,
+            "avbrutt_tidspunkt" to avbruttTidspunkt,
+            "avbrutt_aarsak" to if (avbruttTidspunkt != null) "AVBRUTT_I_ARENA" else null,
+            "prisbetingelser" to prisbetingelser,
+        )
+    }
 
     private fun Row.toAvtaleAdminDto(): AvtaleAdminDto {
         val startDato = localDate("start_dato")
         val sluttDato = localDateOrNull("slutt_dato")
+        val opprinneligSluttdato = localDateOrNull("opprinnelig_sluttdato")
         val personopplysninger = Json.decodeFromString<List<Personopplysning>>(string("personopplysninger"))
 
         val underenheter = stringOrNull("arrangor_underenheter")
@@ -520,17 +550,27 @@ class AvtaleRepository(private val db: Database) {
                 Kontorstruktur(region = region, kontorer = kontorer)
             }
 
+        val opsjonerRegistrert = stringOrNull("avtaleopsjonslogg")
+            ?.let { Json.decodeFromString<List<AvtaleAdminDto.OpsjonLoggRegistrert?>>(it).filterNotNull() }
+            ?: emptyList()
+
         val avbruttTidspunkt = localDateTimeOrNull("avbrutt_tidspunkt")
         val avbruttAarsak = stringOrNull("avbrutt_aarsak")?.let { AvbruttAarsak.fromString(it) }
+
+        val opsjonsmodellData = OpsjonsmodellData(
+            opsjonMaksVarighet = localDateOrNull("opsjon_maks_varighet"),
+            opsjonsmodell = stringOrNull("opsjonsmodell")?.let { Opsjonsmodell.valueOf(it) },
+            customOpsjonsmodellNavn = stringOrNull("opsjon_custom_opsjonsmodell_navn"),
+        )
 
         return AvtaleAdminDto(
             id = uuid("id"),
             navn = string("navn"),
             avtalenummer = stringOrNull("avtalenummer"),
-            lopenummer = stringOrNull("lopenummer")?.let { Lopenummer(it) },
             websaknummer = stringOrNull("websaknummer")?.let { Websaknummer(it) },
             startDato = startDato,
             sluttDato = sluttDato,
+            opprinneligSluttDato = opprinneligSluttdato,
             opphav = ArenaMigrering.Opphav.valueOf(string("opphav")),
             avtaletype = Avtaletype.valueOf(string("avtaletype")),
             status = AvtaleStatus.fromString(string("status"), avbruttTidspunkt, avbruttAarsak),
@@ -557,10 +597,13 @@ class AvtaleRepository(private val db: Database) {
             tiltakstype = AvtaleAdminDto.Tiltakstype(
                 id = uuid("tiltakstype_id"),
                 navn = string("tiltakstype_navn"),
-                arenaKode = string("tiltakstype_arena_kode"),
+                tiltakskode = Tiltakskode.valueOf(string("tiltakstype_tiltakskode")),
             ),
             personopplysninger = personopplysninger,
             personvernBekreftet = boolean("personvern_bekreftet"),
+            amoKategorisering = stringOrNull("amo_kategorisering")?.let { Json.decodeFromString(it) },
+            opsjonsmodellData = opsjonsmodellData,
+            opsjonerRegistrert = opsjonerRegistrert.sortedBy { it.aktivertDato },
         )
     }
 
@@ -601,7 +644,7 @@ class AvtaleRepository(private val db: Database) {
             select avtale_id from avtale_administrator where nav_ident = ?
         """.trimIndent()
 
-        return queryOf(query, navIdent)
+        return queryOf(query, navIdent.value)
             .map {
                 it.uuid("avtale_id")
             }
@@ -609,40 +652,45 @@ class AvtaleRepository(private val db: Database) {
             .let { db.run(it) }
     }
 
-    fun getBehandlingAvPersonopplysninger(id: UUID): Map<PersonopplysningFrekvens, List<PersonopplysningMedBeskrivelse>> {
+    fun getBehandlingAvPersonopplysninger(id: UUID): List<PersonopplysningData> {
         @Language("PostgreSQL")
         val valgtePersonopplysningerQuery = """
-            select tp.personopplysning, tp.frekvens
+            select ap.personopplysning
             from avtale
-                inner join tiltakstype on tiltakstype.id = avtale.tiltakstype_id
                 inner join avtale_personopplysning ap on avtale.id = ap.avtale_id
-                inner join tiltakstype_personopplysning tp on tp.personopplysning = ap.personopplysning
             where
                 avtale.id = ?::uuid
-                and avtale.personvern_bekreftet
-                and tp.tiltakskode = tiltakstype.tiltakskode;
+                and avtale.personvern_bekreftet;
         """.trimIndent()
 
         val valgtePersonopplysninger = queryOf(valgtePersonopplysningerQuery, id)
             .map {
-                PersonopplysningMedFrekvens(
-                    personopplysning = Personopplysning.valueOf(it.string("personopplysning")),
-                    frekvens = PersonopplysningFrekvens.valueOf(it.string("frekvens")),
-                )
+                Personopplysning.valueOf(it.string("personopplysning"))
             }
             .asList
             .let { db.run(it) }
 
-        return mapOf(
-            PersonopplysningFrekvens.ALLTID to valgtePersonopplysninger
-                .filter { it.frekvens == PersonopplysningFrekvens.ALLTID }
-                .map { it.personopplysning.toPersonopplysningMedBeskrivelse() },
-            PersonopplysningFrekvens.OFTE to valgtePersonopplysninger
-                .filter { it.frekvens == PersonopplysningFrekvens.OFTE }
-                .map { it.personopplysning.toPersonopplysningMedBeskrivelse() },
-            PersonopplysningFrekvens.SJELDEN to valgtePersonopplysninger
-                .filter { it.frekvens == PersonopplysningFrekvens.SJELDEN }
-                .map { it.personopplysning.toPersonopplysningMedBeskrivelse() },
-        )
+        return valgtePersonopplysninger
+            .sortedBy { it.sortKey }
+            .map { it.toPersonopplysningData() }
+    }
+
+    fun oppdaterSluttdato(avtaleId: UUID, nySluttdato: LocalDate, tx: Session? = null) {
+        @Language("PostgreSQL")
+        val query = """
+            update avtale
+            set slutt_dato = :nySluttdato
+            where id = :avtaleId::uuid
+            """
+
+        queryOf(
+            query,
+            mapOf(
+                "nySluttdato" to nySluttdato,
+                "avtaleId" to avtaleId,
+            ),
+        ).asUpdate.let {
+            tx?.run(it) ?: db.run(it)
+        }
     }
 }

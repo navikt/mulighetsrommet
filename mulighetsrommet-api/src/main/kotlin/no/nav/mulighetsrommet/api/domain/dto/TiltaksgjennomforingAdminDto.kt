@@ -5,14 +5,12 @@ import no.nav.mulighetsrommet.api.domain.dbo.ArenaNavEnhet
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingKontaktpersonDbo
+import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
-import no.nav.mulighetsrommet.domain.dto.Faneinnhold
-import no.nav.mulighetsrommet.domain.dto.NavIdent
-import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus
+import no.nav.mulighetsrommet.domain.dto.*
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.domain.serializers.LocalDateTimeSerializer
-import no.nav.mulighetsrommet.domain.serializers.TiltaksgjennomforingStatusSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -31,8 +29,7 @@ data class TiltaksgjennomforingAdminDto(
     @Serializable(with = LocalDateSerializer::class)
     val sluttDato: LocalDate?,
     val arenaAnsvarligEnhet: ArenaNavEnhet?,
-    @Serializable(with = TiltaksgjennomforingStatusSerializer::class)
-    val status: TiltaksgjennomforingStatus,
+    val status: TiltaksgjennomforingStatusDto,
     val apentForInnsok: Boolean,
     val antallPlasser: Int?,
     @Serializable(with = UUIDSerializer::class)
@@ -40,8 +37,6 @@ data class TiltaksgjennomforingAdminDto(
     val administratorer: List<Administrator>,
     val navRegion: NavEnhetDbo?,
     val navEnheter: List<NavEnhetDbo>,
-    @Serializable(with = UUIDSerializer::class)
-    val sanityId: UUID?,
     val oppstart: TiltaksgjennomforingOppstartstype,
     val opphav: ArenaMigrering.Opphav,
     val kontaktpersoner: List<TiltaksgjennomforingKontaktperson>,
@@ -51,14 +46,14 @@ data class TiltaksgjennomforingAdminDto(
     @Serializable(with = LocalDateTimeSerializer::class)
     val createdAt: LocalDateTime,
     val publisert: Boolean,
-    val publisertForAlle: Boolean,
     val deltidsprosent: Double,
     val estimertVentetid: EstimertVentetid?,
     val personvernBekreftet: Boolean,
     @Serializable(with = LocalDateSerializer::class)
     val tilgjengeligForArrangorFraOgMedDato: LocalDate?,
+    val amoKategorisering: AmoKategorisering?,
 ) {
-    fun isAktiv(): Boolean = status in listOf(
+    fun isAktiv(): Boolean = status.status in listOf(
         TiltaksgjennomforingStatus.PLANLAGT,
         TiltaksgjennomforingStatus.GJENNOMFORES,
     )
@@ -68,7 +63,7 @@ data class TiltaksgjennomforingAdminDto(
         @Serializable(with = UUIDSerializer::class)
         val id: UUID,
         val navn: String,
-        val arenaKode: String,
+        val tiltakskode: Tiltakskode,
     )
 
     @Serializable
@@ -93,7 +88,25 @@ data class TiltaksgjennomforingAdminDto(
         val enhet: String,
     )
 
-    fun toDbo() =
+    fun toTiltaksgjennomforingV1Dto() =
+        TiltaksgjennomforingV1Dto(
+            id = id,
+            tiltakstype = TiltaksgjennomforingV1Dto.Tiltakstype(
+                id = tiltakstype.id,
+                navn = tiltakstype.navn,
+                arenaKode = tiltakstype.tiltakskode.toArenaKode(),
+                tiltakskode = tiltakstype.tiltakskode,
+            ),
+            navn = navn,
+            startDato = startDato,
+            sluttDato = sluttDato,
+            status = status.status,
+            virksomhetsnummer = arrangor.organisasjonsnummer,
+            oppstart = oppstart,
+            tilgjengeligForArrangorFraOgMedDato = tilgjengeligForArrangorFraOgMedDato,
+        )
+
+    fun toTiltaksgjennomforingDbo() =
         TiltaksgjennomforingDbo(
             id = id,
             navn = navn,
@@ -123,5 +136,6 @@ data class TiltaksgjennomforingAdminDto(
             estimertVentetidVerdi = estimertVentetid?.verdi,
             estimertVentetidEnhet = estimertVentetid?.enhet,
             tilgjengeligForArrangorFraOgMedDato = tilgjengeligForArrangorFraOgMedDato,
+            amoKategorisering = amoKategorisering,
         )
 }

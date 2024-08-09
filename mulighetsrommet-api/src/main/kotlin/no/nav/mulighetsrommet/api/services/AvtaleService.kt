@@ -40,9 +40,7 @@ class AvtaleService(
     private val db: Database,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
-    fun get(id: UUID): AvtaleAdminDto? {
-        return avtaler.get(id)
-    }
+    fun get(id: UUID): AvtaleAdminDto? = avtaler.get(id)
 
     suspend fun upsert(request: AvtaleRequest, navIdent: NavIdent): Either<List<ValidationError>, AvtaleAdminDto> {
         val previous = avtaler.get(request.id)
@@ -60,6 +58,7 @@ class AvtaleService(
                         arrangorKontaktpersoner = arrangorKontaktpersoner,
                         startDato = startDato,
                         sluttDato = sluttDato,
+                        opsjonMaksVarighet = opsjonsmodellData?.opsjonMaksVarighet,
                         avtaletype = avtaletype,
                         antallPlasser = null,
                         administratorer = administratorer,
@@ -69,6 +68,9 @@ class AvtaleService(
                         faneinnhold = faneinnhold,
                         personopplysninger = personopplysninger,
                         personvernBekreftet = personvernBekreftet,
+                        amoKategorisering = amoKategorisering,
+                        opsjonsmodell = opsjonsmodellData?.opsjonsmodell,
+                        customOpsjonsmodellNavn = opsjonsmodellData?.customOpsjonsmodellNavn,
                     )
                 }
                 validator.validate(dbo, previous)
@@ -105,16 +107,14 @@ class AvtaleService(
             Pair(arrangor, underenheter)
         }
 
-    private suspend fun syncArrangorFromBrreg(orgnr: String): Either<List<ValidationError>, ArrangorDto> {
-        return arrangorService
-            .getOrSyncArrangorFromBrreg(orgnr)
-            .mapLeft {
-                ValidationError.of(
-                    AvtaleRequest::arrangorOrganisasjonsnummer,
-                    "Tiltaksarrangøren finnes ikke i Brønnøysundregistrene",
-                ).nel()
-            }
-    }
+    private suspend fun syncArrangorFromBrreg(orgnr: String): Either<List<ValidationError>, ArrangorDto> = arrangorService
+        .getOrSyncArrangorFromBrreg(orgnr)
+        .mapLeft {
+            ValidationError.of(
+                AvtaleRequest::arrangorOrganisasjonsnummer,
+                "Tiltaksarrangøren finnes ikke i Brønnøysundregistrene",
+            ).nel()
+        }
 
     fun getAll(
         filter: AvtaleFilter,
@@ -136,9 +136,7 @@ class AvtaleService(
         return PaginatedResponse.of(pagination, totalCount, items)
     }
 
-    fun getAllAvtalerSomNarmerSegSluttdato(): List<AvtaleNotificationDto> {
-        return avtaler.getAllAvtalerSomNarmerSegSluttdato()
-    }
+    fun getAllAvtalerSomNarmerSegSluttdato(): List<AvtaleNotificationDto> = avtaler.getAllAvtalerSomNarmerSegSluttdato()
 
     fun avbrytAvtale(id: UUID, navIdent: NavIdent, aarsak: AvbruttAarsak?): StatusResponse<Unit> {
         if (aarsak == null) {
@@ -146,8 +144,16 @@ class AvtaleService(
         }
         val avtale = avtaler.get(id) ?: return Either.Left(NotFound("Avtalen finnes ikke"))
 
-        if (avtale.opphav == Opphav.ARENA && !tiltakstyperMigrert.contains(Tiltakskode.fromArenaKode(avtale.tiltakstype.arenaKode))) {
+        if (avtale.opphav == Opphav.ARENA && !tiltakstyperMigrert.contains(avtale.tiltakstype.tiltakskode)) {
             return Either.Left(BadRequest(message = "Avtalen har opprinnelse fra Arena og kan ikke bli avbrutt fra admin-flate."))
+        }
+
+        if (aarsak is AvbruttAarsak.Annet && aarsak.name.length > 100) {
+            return Either.Left(BadRequest(message = "Beskrivelse kan ikke inneholde mer enn 100 tegn"))
+        }
+
+        if (aarsak is AvbruttAarsak.Annet && aarsak.name.isEmpty()) {
+            return Either.Left(BadRequest(message = "Beskrivelse er obligatorisk når “Annet” er valgt som årsak"))
         }
 
         if (avtale.status != AvtaleStatus.AKTIV) {
@@ -157,12 +163,12 @@ class AvtaleService(
         val (_, gjennomforinger) = tiltaksgjennomforinger.getAll(
             avtaleId = id,
             statuser = listOf(
-                TiltaksgjennomforingStatus.Enum.GJENNOMFORES,
-                TiltaksgjennomforingStatus.Enum.PLANLAGT,
+                TiltaksgjennomforingStatus.GJENNOMFORES,
+                TiltaksgjennomforingStatus.PLANLAGT,
             ),
         )
 
-        val (antallAktiveGjennomforinger, antallPlanlagteGjennomforinger) = gjennomforinger.partition { it.status is TiltaksgjennomforingStatus.GJENNOMFORES }
+        val (antallAktiveGjennomforinger, antallPlanlagteGjennomforinger) = gjennomforinger.partition { it.status.status == TiltaksgjennomforingStatus.GJENNOMFORES }
         if (antallAktiveGjennomforinger.isNotEmpty()) {
             return Either.Left(
                 BadRequest(
@@ -196,9 +202,7 @@ class AvtaleService(
         return Either.Right(Unit)
     }
 
-    fun getEndringshistorikk(id: UUID): EndringshistorikkDto {
-        return endringshistorikkService.getEndringshistorikk(DocumentClass.AVTALE, id)
-    }
+    fun getEndringshistorikk(id: UUID): EndringshistorikkDto = endringshistorikkService.getEndringshistorikk(DocumentClass.AVTALE, id)
 
     private fun getOrError(id: UUID, tx: TransactionalSession): AvtaleAdminDto {
         val dto = avtaler.get(id, tx)
@@ -254,7 +258,5 @@ class AvtaleService(
         }
     }
 
-    fun getBehandlingAvPersonopplysninger(id: UUID): Map<PersonopplysningFrekvens, List<PersonopplysningMedBeskrivelse>> {
-        return avtaler.getBehandlingAvPersonopplysninger(id = id)
-    }
+    fun getBehandlingAvPersonopplysninger(id: UUID): List<PersonopplysningData> = avtaler.getBehandlingAvPersonopplysninger(id = id)
 }

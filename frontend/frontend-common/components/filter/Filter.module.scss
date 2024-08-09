@@ -8,6 +8,10 @@
     width: 100%;
   }
 
+  :global(.navds-tabs__tablist-wrapper) {
+    margin-bottom: 5px; //samme som i oversikten
+  }
+
   .filtertab {
     background-color: white;
     width: var(--filter-width);
@@ -36,7 +40,7 @@
     display: none;
   }
 
-  @media screen and (min-width: 1200px) {
+  @media screen and (min-width: 1450px) {
     .filter {
       box-shadow: none;
     }

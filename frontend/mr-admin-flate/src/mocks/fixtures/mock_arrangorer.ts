@@ -11,6 +11,7 @@ export const mockArrangorer: PaginertArrangor = {
       id: "c95e836f-a381-4d82-b8e3-74257b14f26c",
       organisasjonsnummer: "123456789",
       navn: "FRETEX AS",
+      overordnetEnhet: null,
       underenheter: [
         {
           id: "d9d4db51-3564-4493-b897-4fc38dc48965",
@@ -36,11 +37,13 @@ export const mockArrangorer: PaginertArrangor = {
       id: "2dd86798-7a93-4d51-80ce-3e63f8e2daf3",
       organisasjonsnummer: "987654321",
       navn: "Ikea AS",
+      overordnetEnhet: null,
     },
     {
       id: "a1a5191f-1478-4ad8-9a82-47182a28a19d",
       organisasjonsnummer: "134256789",
       navn: "Røde Kors AS",
+      overordnetEnhet: null,
     },
   ],
 };

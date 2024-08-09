@@ -9,6 +9,7 @@ import io.kotest.data.row
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.string.shouldContain
 import io.ktor.client.engine.*
 import io.ktor.client.engine.mock.*
@@ -21,7 +22,6 @@ import no.nav.mulighetsrommet.arena.adapter.fixtures.TiltaksgjennomforingFixture
 import no.nav.mulighetsrommet.arena.adapter.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.arena.adapter.fixtures.createArenaAvtaleInfoEvent
 import no.nav.mulighetsrommet.arena.adapter.fixtures.createArenaTiltakgjennomforingEvent
-import no.nav.mulighetsrommet.arena.adapter.models.ProcessingResult
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaAvtaleInfo
 import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping
@@ -35,16 +35,18 @@ import no.nav.mulighetsrommet.arena.adapter.repositories.*
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
-import no.nav.mulighetsrommet.domain.Tiltakshistorikk
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering.ArenaTimestampFormatter
 import no.nav.mulighetsrommet.domain.dbo.ArenaTiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
+import no.nav.mulighetsrommet.domain.dto.UpsertTiltaksgjennomforingResponse
 import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.ktor.decodeRequestBody
 import no.nav.mulighetsrommet.ktor.getLastPathParameterAsUUID
 import no.nav.mulighetsrommet.ktor.respondJson
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.Period
+import java.util.*
 
 class TiltakgjennomforingEventProcessorTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
@@ -53,7 +55,7 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
         database.db.truncateAll()
     }
 
-    val tiltakshistorikkStartDate = LocalDateTime.now().minus(Tiltakshistorikk.TiltakshistorikkTimePeriod)
+    val tiltakshistorikkStartDate = LocalDateTime.now().minus(Period.ofYears(5))
 
     val dateBeforeTiltakshistorikkStartDate = tiltakshistorikkStartDate.minusDays(1)
 
@@ -68,7 +70,7 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
         )
 
         fun createProcessor(engine: HttpClientEngine = createMockEngine()): TiltakgjennomforingEventProcessor {
-            val client = MulighetsrommetApiClient(engine, baseUri = "api") {
+            val client = MulighetsrommetApiClient(engine, baseUri = "") {
                 "Bearer token"
             }
 
@@ -171,7 +173,7 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
             }
 
             context("when tiltaksgjennomføring is individuelt tiltak") {
-                test("should ignore gjennomføringer when they're no longer relevant for tiltakshistorikk") {
+                test("should upsert gjennomføringer") {
                     val processor = createProcessor()
 
                     val eventWithOldSluttDato = createArenaTiltakgjennomforingEvent(
@@ -180,37 +182,19 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                     ) {
                         it.copy(DATO_TIL = dateBeforeTiltakshistorikkStartDate.format(ArenaTimestampFormatter))
                     }
-                    val eventWithOldRegDato = createArenaTiltakgjennomforingEvent(
+                    val eventCreatedAfterAktivitetsplanen = createArenaTiltakgjennomforingEvent(
                         Insert,
                         TiltaksgjennomforingFixtures.ArenaTiltaksgjennomforingIndividuell,
                     ) {
-                        it.copy(REG_DATO = dateBeforeTiltakshistorikkStartDate.format(ArenaTimestampFormatter))
+                        it.copy(REG_DATO = tiltakshistorikkStartDate.format(ArenaTimestampFormatter))
                     }
 
-                    forAll(row(eventWithOldSluttDato), row(eventWithOldRegDato)) { event ->
+                    forAll(row(eventWithOldSluttDato), row(eventCreatedAfterAktivitetsplanen)) { event ->
                         runBlocking {
                             val (e) = prepareEvent(event)
-                            processor.handleEvent(e) shouldBeRight ProcessingResult(
-                                Ignored,
-                                "Tiltaksgjennomføring ignorert fordi den ikke lengre er relevant for brukers tiltakshistorikk",
-                            )
+                            processor.handleEvent(e).shouldBeRight().should { it.status shouldBe Handled }
                         }
                     }
-                }
-
-                test("should upsert gjennomføringer created after Aktivitetsplanen") {
-                    val processor = createProcessor()
-
-                    val (event) = prepareEvent(
-                        createArenaTiltakgjennomforingEvent(
-                            Insert,
-                            TiltaksgjennomforingFixtures.ArenaTiltaksgjennomforingIndividuell,
-                        ) {
-                            it.copy(REG_DATO = tiltakshistorikkStartDate.format(ArenaTimestampFormatter))
-                        },
-                    )
-
-                    processor.handleEvent(event).shouldBeRight().should { it.status shouldBe Handled }
                 }
 
                 test("should not send gjennomføringer to mr-api") {
@@ -260,8 +244,10 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                             ArenaOrdsArrangor("123456", "000000"),
                         )
                     },
-                    "/api/v1/internal/arena/tiltaksgjennomforing" to { respondOk() },
-                    "/api/v1/internal/arena/tiltaksgjennomforing/${mapping.entityId}" to { respondOk() },
+                    "/api/v1/intern/arena/tiltaksgjennomforing" to {
+                        respondJson(UpsertTiltaksgjennomforingResponse(sanityId = null))
+                    },
+                    "/api/v1/intern/arena/tiltaksgjennomforing/${mapping.entityId}" to { respondOk() },
                 )
                 val processor = createProcessor(engine)
 
@@ -328,7 +314,7 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                             ArenaOrdsArrangor("123456", "000000"),
                         )
                     },
-                    "/api/v1/internal/arena/tiltaksgjennomforing" to {
+                    "/api/v1/intern/arena/tiltaksgjennomforing" to {
                         respondError(HttpStatusCode.InternalServerError)
                     },
                 )
@@ -359,8 +345,10 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                             ArenaOrdsArrangor("123456", "000000"),
                         )
                     },
-                    "/api/v1/internal/arena/tiltaksgjennomforing" to { respondOk() },
-                    "/api/v1/internal/arena/tiltaksgjennomforing/${mapping.entityId}" to { respondOk() },
+                    "/api/v1/intern/arena/tiltaksgjennomforing" to {
+                        respondJson(UpsertTiltaksgjennomforingResponse(null))
+                    },
+                    "/api/v1/intern/arena/tiltaksgjennomforing/${mapping.entityId}" to { respondOk() },
                 )
                 val processor = createProcessor(engine)
 
@@ -430,8 +418,10 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                                     ArenaOrdsArrangor("123456", "000000"),
                                 )
                             },
-                            "/api/v1/internal/arena/tiltaksgjennomforing" to { respondOk() },
-                            "/api/v1/internal/arena/tiltaksgjennomforing/${mapping.entityId}" to { respondOk() },
+                            "/api/v1/intern/arena/tiltaksgjennomforing" to {
+                                respondJson(UpsertTiltaksgjennomforingResponse(null))
+                            },
+                            "/api/v1/intern/arena/tiltaksgjennomforing/${mapping.entityId}" to { respondOk() },
                         )
                         val processor = createProcessor(engine)
 
@@ -485,7 +475,9 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                     "/ords/arbeidsgiver" to {
                         respondJson(ArenaOrdsArrangor("123456", "000000"))
                     },
-                    "/api/v1/internal/arena/tiltaksgjennomforing" to { respondOk() },
+                    "/api/v1/intern/arena/tiltaksgjennomforing" to {
+                        respondJson(UpsertTiltaksgjennomforingResponse(null))
+                    },
                 )
                 val processor = createProcessor(engine)
 
@@ -512,7 +504,9 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                             ArenaOrdsArrangor("123456", "000000"),
                         )
                     },
-                    "/api/v1/internal/arena/tiltaksgjennomforing" to { respondOk() },
+                    "/api/v1/intern/arena/tiltaksgjennomforing" to {
+                        respondJson(UpsertTiltaksgjennomforingResponse(null))
+                    },
                 )
                 val processor = createProcessor(engine)
 
@@ -537,6 +531,35 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                         avtaleId shouldBe avtaleMapping.entityId
                     }
                 }
+            }
+
+            test("should save sanityId when it is returned from api") {
+                val (event, mapping) = prepareEvent(
+                    createArenaTiltakgjennomforingEvent(Insert) {
+                        it.copy(
+                            DATO_FRA = "2022-11-11 00:00:00",
+                            DATO_TIL = "2023-11-11 00:00:00",
+                        )
+                    },
+                )
+
+                val sanityId = UUID.randomUUID()
+                val engine = createMockEngine(
+                    "/ords/arbeidsgiver" to {
+                        respondJson(
+                            ArenaOrdsArrangor("123456", "000000"),
+                        )
+                    },
+                    "/api/v1/intern/arena/tiltaksgjennomforing" to {
+                        respondJson(UpsertTiltaksgjennomforingResponse(sanityId))
+                    },
+                    "/api/v1/intern/arena/tiltaksgjennomforing/${mapping.entityId}" to { respondOk() },
+                )
+                val processor = createProcessor(engine)
+
+                processor.handleEvent(event).shouldBeRight()
+                entities.getTiltaksgjennomforingOrNull(mapping.entityId) shouldNotBe null
+                entities.getTiltaksgjennomforingOrNull(mapping.entityId)?.sanityId shouldBe sanityId
             }
         }
     }

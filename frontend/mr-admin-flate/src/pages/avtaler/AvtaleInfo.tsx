@@ -1,9 +1,8 @@
 import { Alert, Tabs } from "@navikt/ds-react";
 import { useAvtale } from "@/api/avtaler/useAvtale";
-import { Laster } from "../../components/laster/Laster";
-import skjemaStyles from "../../components/skjema/Skjema.module.scss";
-import styles from "../DetaljerInfo.module.scss";
-import { RedaksjoneltInnholdPreview } from "../../components/redaksjonelt-innhold/RedaksjoneltInnholdPreview";
+import { Laster } from "@/components/laster/Laster";
+import styles from "./AvtaleInfo.module.scss";
+import { RedaksjoneltInnholdPreview } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdPreview";
 import { AvtaleKnapperad } from "./AvtaleKnapperad";
 import { AvtaleDetaljer } from "./AvtaleDetaljer";
 import { useAtom } from "jotai";
@@ -11,6 +10,7 @@ import { avtaleDetaljerTabAtom } from "@/api/atoms";
 import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
 import { AvtalePersonvern } from "./AvtalePersonvern";
 import { InlineErrorBoundary } from "mulighetsrommet-frontend-common";
+import { InfoContainer } from "@/components/skjema/InfoContainer";
 
 export function AvtaleInfo() {
   const { data: bruker } = useHentAnsatt();
@@ -27,9 +27,9 @@ export function AvtaleInfo() {
   }
 
   return (
-    <div className={styles.info_container} data-testid="avtale_info-container">
+    <InfoContainer dataTestId="avtale_info-container">
       <Tabs defaultValue={activeTab}>
-        <Tabs.List className={skjemaStyles.tabslist}>
+        <Tabs.List className={styles.tabslist}>
           <div>
             <Tabs.Tab label="Detaljer" value="detaljer" onClick={() => setActiveTab("detaljer")} />
             <Tabs.Tab
@@ -65,6 +65,6 @@ export function AvtaleInfo() {
           </InlineErrorBoundary>
         </Tabs.Panel>
       </Tabs>
-    </div>
+    </InfoContainer>
   );
 }

@@ -13,7 +13,7 @@ import { useRegioner } from "@/api/queries/useRegioner";
 import { addOrRemove } from "mulighetsrommet-frontend-common/utils/utils";
 import { FilterAccordionHeader, NavEnhetFilter } from "mulighetsrommet-frontend-common";
 
-export const Filtermeny = () => {
+export function Filtermeny() {
   const [filter, setFilter] = useArbeidsmarkedstiltakFilter();
   const [accordionsOpen, setAccordionsOpen] = useAtom(filterAccordionAtom);
   const { data: regioner } = useRegioner();
@@ -68,4 +68,4 @@ export const Filtermeny = () => {
       </Accordion>
     </div>
   );
-};
+}

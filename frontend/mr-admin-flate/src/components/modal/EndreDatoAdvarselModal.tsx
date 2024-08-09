@@ -1,6 +1,6 @@
-import { BodyShort, Button, Heading, Modal } from "@navikt/ds-react";
+import { BodyShort, Button } from "@navikt/ds-react";
 import { RefObject } from "react";
-import styles from "./EndreDatoAdvarselModal.module.scss";
+import { VarselModal } from "@/components/modal/VarselModal";
 
 interface Props {
   modalRef: RefObject<HTMLDialogElement>;
@@ -14,34 +14,25 @@ export function EndreDatoAdvarselModal({ modalRef, onCancel, antallDeltakere }: 
   };
 
   return (
-    <Modal ref={modalRef} onClose={onClose} closeOnBackdropClick aria-label="modal">
-      <Modal.Header closeButton={false}>
-        <div className={styles.heading}>
-          <Heading size="medium">Det finnes brukere påmeldt denne gjennomføringen</Heading>
-        </div>
-      </Modal.Header>
-      <Modal.Body>
+    <VarselModal
+      modalRef={modalRef}
+      handleClose={onClose}
+      headingIconType="info"
+      headingText="Det finnes brukere påmeldt denne gjennomføringen"
+      body={
         <BodyShort>
           {`Det finnes ${antallDeltakere} deltaker${antallDeltakere > 1 ? "e" : ""}
             på gjennomføringen. Ved å endre dato for gjennomføringen kan det medføre
-            at datoer for deltakerne også oppdateres automatisk.`}
+            at datoer for deltakerne også oppdateres automatisk.  Ønsker du å endre dato?`}
         </BodyShort>
-      </Modal.Body>
-      <Modal.Footer className={styles.footer}>
-        <Button
-          type="button"
-          variant="tertiary"
-          onClick={() => {
-            onCancel();
-            onClose();
-          }}
-        >
-          Nei, takk
-        </Button>
+      }
+      secondaryButton
+      secondaryButtonHandleAction={onCancel}
+      primaryButton={
         <Button type="button" variant="primary" onClick={onClose}>
           Ja, jeg vil endre dato
         </Button>
-      </Modal.Footer>
-    </Modal>
+      }
+    />
   );
 }

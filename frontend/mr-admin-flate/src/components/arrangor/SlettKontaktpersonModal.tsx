@@ -1,21 +1,24 @@
 import { ExternalLinkIcon } from "@navikt/aksel-icons";
-import { Alert, BodyShort, Button, HStack, Heading, Modal, Table, VStack } from "@navikt/ds-react";
+import { Alert, BodyShort, Button, Heading, Table, VStack } from "@navikt/ds-react";
 import { UseMutationResult } from "@tanstack/react-query";
 import { ArrangorKontaktperson, DokumentKoblingForKontaktperson } from "mulighetsrommet-api-client";
 import { Link } from "react-router-dom";
-import { useDeleteArrangorKontaktperson } from "../../api/arrangor/useDeleteArrangorKontaktperson";
-import { useKoblingerTilDokumenterForKontaktpersonHosArrangor } from "../../api/arrangor/useKoblingerTilDokumenterForKontaktpersonHosArrangor";
-import { useFrikobleArrangorKontaktpersonFraAvtale } from "../../api/avtaler/useFrikobleArrangorKontaktpersonFraAvtale";
-import { useFrikobleArrangorKontaktpersonFraTiltaksgjennomforing } from "../../api/tiltaksgjennomforing/useFrikobleArrangorKontaktpersonFraTiltaksgjennomforing";
+import { useDeleteArrangorKontaktperson } from "@/api/arrangor/useDeleteArrangorKontaktperson";
+import { useKoblingerTilDokumenterForKontaktpersonHosArrangor } from "@/api/arrangor/useKoblingerTilDokumenterForKontaktpersonHosArrangor";
+import { useFrikobleArrangorKontaktpersonFraAvtale } from "@/api/avtaler/useFrikobleArrangorKontaktpersonFraAvtale";
+import { useFrikobleArrangorKontaktpersonFraTiltaksgjennomforing } from "@/api/tiltaksgjennomforing/useFrikobleArrangorKontaktpersonFraTiltaksgjennomforing";
 import { Laster } from "../laster/Laster";
 import styles from "./SlettKontaktpersonModal.module.scss";
+import { RefObject } from "react";
+import { VarselModal } from "@/components/modal/VarselModal";
 
 interface Props {
   onClose: () => void;
   kontaktperson: ArrangorKontaktperson;
+  modalRef: RefObject<HTMLDialogElement>;
 }
 
-export function SlettKontaktpersonModal({ onClose, kontaktperson }: Props) {
+export function SlettKontaktpersonModal({ onClose, kontaktperson, modalRef }: Props) {
   const { data, isLoading } = useKoblingerTilDokumenterForKontaktpersonHosArrangor(
     kontaktperson.id,
   );
@@ -37,19 +40,14 @@ export function SlettKontaktpersonModal({ onClose, kontaktperson }: Props) {
   }
 
   return (
-    <Modal
+    <VarselModal
+      modalRef={modalRef}
       open={!!kontaktperson}
-      onClose={onClose}
-      aria-label="Slettemodal"
-      width="50rem"
-      closeOnBackdropClick
-    >
-      <Modal.Header closeButton>
-        <Heading size="medium">Slett kontaktperson</Heading>
-      </Modal.Header>
-
-      <Modal.Body>
-        {!data || isLoading ? (
+      handleClose={onClose}
+      headingText="Slett kontaktperson"
+      headingIconType="error"
+      body={
+        !data || isLoading ? (
           <Laster tekst="Henter koblinger til dokumenter..." />
         ) : (
           <>
@@ -61,36 +59,27 @@ export function SlettKontaktpersonModal({ onClose, kontaktperson }: Props) {
                 avtaler={avtaler}
                 gjennomforinger={gjennomforinger}
               />
-            ) : (
-              <Alert variant="success" size="small">
-                {kontaktperson.navn} er ikke kontaktperson for noen avtaler eller gjennomføringer
-              </Alert>
-            )}
-            <p>Er du sikker på at du vil slette kontaktpersonen?</p>
-            <BodyShort>
-              <i>Dette kan ikke angres.</i>
-            </BodyShort>
-            <HStack justify={"space-between"} style={{ marginTop: "1rem" }}>
-              <Button variant="tertiary" onClick={onClose}>
-                Nei, avbryt
-              </Button>
-              <Button
-                title={
-                  erKobletTilDokumenter
-                    ? "Du må fjerne kontaktpersonen fra avtaler og/eller gjennomføringer før du kan slette hen"
-                    : ""
-                }
-                disabled={erKobletTilDokumenter}
-                variant="danger"
-                onClick={slettKontaktperson}
-              >
-                Slett kontaktperson
-              </Button>
-            </HStack>
+            ) : null}
+            <BodyShort>Er du sikker på at du vil slette kontaktpersonen?</BodyShort>
           </>
-        )}
-      </Modal.Body>
-    </Modal>
+        )
+      }
+      secondaryButton
+      primaryButton={
+        <Button
+          title={
+            erKobletTilDokumenter
+              ? "Du må fjerne kontaktpersonen fra avtaler og/eller gjennomføringer før du kan slette hen"
+              : ""
+          }
+          disabled={erKobletTilDokumenter}
+          variant="danger"
+          onClick={slettKontaktperson}
+        >
+          Ja, jeg vil slette kontaktpersonen
+        </Button>
+      }
+    />
   );
 }
 

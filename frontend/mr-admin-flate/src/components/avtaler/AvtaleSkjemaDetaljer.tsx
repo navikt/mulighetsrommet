@@ -1,4 +1,7 @@
-import { Heading, HGrid, Textarea, TextField } from "@navikt/ds-react";
+import { useAvtaleAdministratorer } from "@/api/ansatt/useAvtaleAdministratorer";
+import { useMigrerteTiltakstyperForAvtaler } from "@/api/tiltakstyper/useMigrerteTiltakstyper";
+import { AvtaleAmoKategoriseringSkjema } from "@/components/amoKategorisering/AvtaleAmoKategoriseringSkjema";
+import { HGrid, Textarea, TextField } from "@navikt/ds-react";
 import {
   Avtale,
   Avtaletype,
@@ -6,30 +9,30 @@ import {
   NavEnhet,
   NavEnhetType,
   Opphav,
-  TiltakskodeArena,
+  Tiltakskode,
   Tiltakstype,
+  Toggles,
 } from "mulighetsrommet-api-client";
 import { ControlledSokeSelect } from "mulighetsrommet-frontend-common/components/ControlledSokeSelect";
-import { SelectOption } from "mulighetsrommet-frontend-common/components/SokeSelect";
 import { LabelWithHelpText } from "mulighetsrommet-frontend-common/components/label/LabelWithHelpText";
+import { SelectOption } from "mulighetsrommet-frontend-common/components/SokeSelect";
 import { DeepPartial, useFormContext } from "react-hook-form";
 import { MultiValue } from "react-select";
-import { useAvtaleAdministratorer } from "@/api/ansatt/useAvtaleAdministratorer";
-import { useMigrerteTiltakstyperForAvtaler } from "@/api/tiltakstyper/useMigrerteTiltakstyper";
+import { useFeatureToggle } from "@/api/features/useFeatureToggle";
 import { erAnskaffetTiltak } from "@/utils/tiltakskoder";
-import { addYear, avtaletypeTilTekst } from "@/utils/Utils";
-import { Separator } from "../detaljside/Metadata";
+import { avtaletypeTilTekst } from "@/utils/Utils";
+import { avtaletekster } from "../ledetekster/avtaleLedetekster";
+import { InferredAvtaleSchema } from "@/components/redaksjoneltInnhold/AvtaleSchema";
 import { AdministratorOptions } from "../skjema/AdministratorOptions";
 import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
-import { FormGroup } from "../skjema/FormGroup";
-import skjemastyles from "../skjema/Skjema.module.scss";
-import { InferredAvtaleSchema } from "../redaksjonelt-innhold/AvtaleSchema";
-import { getLokaleUnderenheterAsSelectOptions } from "./AvtaleSkjemaConst";
+import { FormGroup } from "@/components/skjema/FormGroup";
 import { AvtaleArrangorSkjema } from "./AvtaleArrangorSkjema";
-import { avtaletekster } from "../ledetekster/avtaleLedetekster";
-import { ControlledDateInput } from "../skjema/ControlledDateInput";
-
-const minStartdato = new Date(2000, 0, 1);
+import { AvtaleDatoContainer } from "./avtaledatoer/AvtaleDatoContainer";
+import { getLokaleUnderenheterAsSelectOptions } from "./AvtaleSkjemaConst";
+import { SkjemaDetaljerContainer } from "@/components/skjema/SkjemaDetaljerContainer";
+import { SkjemaInputContainer } from "@/components/skjema/SkjemaInputContainer";
+import { SkjemaKolonne } from "@/components/skjema/SkjemaKolonne";
+import { VertikalSeparator } from "@/components/skjema/VertikalSeparator";
 
 interface Props {
   tiltakstyper: Tiltakstype[];
@@ -50,14 +53,14 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
     setValue,
   } = useFormContext<DeepPartial<InferredAvtaleSchema>>();
 
-  const watchedTiltakstype = watch("tiltakstype");
-  const arenaKode = watchedTiltakstype?.arenaKode;
-
-  const valgtTiltakstypeFraArena = !migrerteTiltakstyper?.includes(
-    watchedTiltakstype?.arenaKode ?? "",
+  const { data: enableGruppeAmoKategorier } = useFeatureToggle(
+    Toggles.MULIGHETSROMMET_ADMIN_FLATE_ENABLE_GRUPPE_AMO_KATEGORIER,
   );
 
-  const arenaOpphavOgIngenEierskap = avtale?.opphav === Opphav.ARENA && valgtTiltakstypeFraArena;
+  const watchedTiltakstype = watch("tiltakstype");
+  const tiltakskode = watchedTiltakstype?.tiltakskode;
+
+  const arenaOpphavOgIngenEierskap = avtale?.opphav === Opphav.ARENA && !erMigrert(tiltakskode);
 
   const navRegionerOptions = enheter
     .filter((enhet) => enhet.type === NavEnhetType.FYLKE)
@@ -66,14 +69,15 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
       label: enhet.navn,
     }));
 
-  const { startDato } = watch("startOgSluttDato") ?? {};
-  const sluttDatoFraDato = startDato ? new Date(startDato) : minStartdato;
-  const sluttDatoTilDato = addYear(startDato ? new Date(startDato) : new Date(), 5);
+  function erMigrert(tiltakskode?: Tiltakskode | null): boolean {
+    if (!tiltakskode) return false;
+    return migrerteTiltakstyper.includes(tiltakskode);
+  }
 
   return (
-    <div className={skjemastyles.container}>
-      <div className={skjemastyles.input_container}>
-        <div className={skjemastyles.column}>
+    <SkjemaDetaljerContainer>
+      <SkjemaInputContainer>
+        <SkjemaKolonne>
           <FormGroup>
             <TextField
               size="small"
@@ -85,25 +89,15 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
             />
           </FormGroup>
 
-          <Separator />
-
           <FormGroup>
             <HGrid align="start" gap="4" columns={2}>
-              {avtale?.avtalenummer ? (
-                <TextField
-                  size="small"
-                  readOnly
-                  label={avtaletekster.arenaAvtalenummerLabel}
-                  value={avtale.avtalenummer}
-                />
-              ) : (
-                <TextField
-                  size="small"
-                  readOnly
-                  label={avtaletekster.lopenummerLabel}
-                  value={avtale?.lopenummer}
-                />
-              )}
+              <TextField
+                size="small"
+                readOnly
+                label={avtaletekster.avtalenummerLabel}
+                value={avtale?.avtalenummer}
+                placeholder="Genereres automatisk ved opprettelse"
+              />
               <TextField
                 size="small"
                 placeholder="åå/12345"
@@ -128,9 +122,6 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
               />
             </HGrid>
           </FormGroup>
-
-          <Separator />
-
           <FormGroup>
             <HGrid gap="4" columns={2}>
               <ControlledSokeSelect
@@ -140,22 +131,23 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
                 label={avtaletekster.tiltakstypeLabel}
                 {...register("tiltakstype")}
                 onChange={(event) => {
-                  const options = event.target.value?.arenaKode
-                    ? avtaletypeOptions(event.target.value.arenaKode)
+                  setValue("amoKategorisering", undefined);
+                  const options = event.target.value?.tiltakskode
+                    ? avtaletypeOptions(event.target.value.tiltakskode)
                     : [];
-                  const avtaletype = options.length === 1 ? options[0].value : undefined;
+                  const avtaletype = options[0]?.value;
                   setValue("avtaletype", avtaletype);
                 }}
                 options={tiltakstyper.map((tiltakstype) => ({
                   value: {
-                    arenaKode: tiltakstype.arenaKode,
                     navn: tiltakstype.navn,
                     id: tiltakstype.id,
+                    tiltakskode: tiltakstype.tiltakskode,
                   },
-                  label: !migrerteTiltakstyper?.includes(tiltakstype.arenaKode)
+                  label: !erMigrert(tiltakstype.tiltakskode)
                     ? `${tiltakstype.navn} må opprettes i Arena`
                     : tiltakstype.navn,
-                  isDisabled: !migrerteTiltakstyper?.includes(tiltakstype.arenaKode),
+                  isDisabled: !erMigrert(tiltakstype.tiltakskode),
                 }))}
               />
               <ControlledSokeSelect
@@ -164,45 +156,21 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
                 placeholder="Velg en"
                 label={avtaletekster.avtaletypeLabel}
                 {...register("avtaletype")}
-                options={arenaKode ? avtaletypeOptions(arenaKode) : []}
+                options={tiltakskode ? avtaletypeOptions(tiltakskode) : []}
               />
             </HGrid>
+            {enableGruppeAmoKategorier &&
+            tiltakskode === Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING ? (
+              <AvtaleAmoKategoriseringSkjema />
+            ) : null}
           </FormGroup>
 
-          <Separator />
+          <AvtaleDatoContainer
+            avtale={avtale}
+            arenaOpphavOgIngenEierskap={arenaOpphavOgIngenEierskap}
+          />
 
-          <FormGroup>
-            <Heading size="small" as="h3">
-              Avtalens varighet
-            </Heading>
-            <HGrid columns={2}>
-              <ControlledDateInput
-                size="small"
-                label={avtaletekster.startdatoLabel}
-                readOnly={arenaOpphavOgIngenEierskap}
-                fromDate={minStartdato}
-                toDate={sluttDatoTilDato}
-                {...register("startOgSluttDato.startDato")}
-                format={"iso-string"}
-              />
-              <ControlledDateInput
-                size="small"
-                label={avtaletekster.sluttdatoLabel}
-                readOnly={arenaOpphavOgIngenEierskap}
-                fromDate={sluttDatoFraDato}
-                toDate={sluttDatoTilDato}
-                {...register("startOgSluttDato.sluttDato")}
-                format={"iso-string"}
-                invalidDatoEtterPeriode={
-                  "Avtaleperioden kan ikke vare lenger enn 5 år for anskaffede tiltak"
-                }
-              />
-            </HGrid>
-          </FormGroup>
-
-          <Separator />
-
-          {arenaKode && erAnskaffetTiltak(arenaKode) && (
+          {tiltakskode && erAnskaffetTiltak(tiltakskode) && (
             <>
               <FormGroup>
                 <Textarea
@@ -213,7 +181,6 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
                   {...register("prisbetingelser")}
                 />
               </FormGroup>
-              <Separator />
             </>
           )}
           <FormGroup>
@@ -226,10 +193,10 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
               options={AdministratorOptions(ansatt, avtale?.administratorer, administratorer)}
             />
           </FormGroup>
-        </div>
-        <div className={skjemastyles.vertical_separator} />
-        <div className={skjemastyles.column}>
-          <div className={skjemastyles.gray_container}>
+        </SkjemaKolonne>
+        <VertikalSeparator />
+        <SkjemaKolonne>
+          <div>
             <FormGroup>
               <ControlledMultiSelect
                 size="small"
@@ -258,6 +225,7 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
               />
               <ControlledMultiSelect
                 size="small"
+                velgAlle
                 placeholder="Velg en"
                 label={avtaletekster.navEnheterLabel}
                 helpText="Bestemmer hvilke NAV-enheter som kan velges i gjennomføringene til avtalen."
@@ -266,12 +234,12 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
               />
             </FormGroup>
           </div>
-          <div className={skjemastyles.gray_container}>
+          <FormGroup>
             <AvtaleArrangorSkjema readOnly={arenaOpphavOgIngenEierskap} />
-          </div>
-        </div>
-      </div>
-    </div>
+          </FormGroup>
+        </SkjemaKolonne>
+      </SkjemaInputContainer>
+    </SkjemaDetaljerContainer>
   );
 }
 
@@ -283,7 +251,7 @@ function velgAlleLokaleUnderenheter(
   return getLokaleUnderenheterAsSelectOptions(regioner, enheter).map((option) => option.value);
 }
 
-function avtaletypeOptions(arenaKode: TiltakskodeArena): { value: Avtaletype; label: string }[] {
+function avtaletypeOptions(tiltakskode: Tiltakskode): { value: Avtaletype; label: string }[] {
   const forhaandsgodkjent = {
     value: Avtaletype.FORHAANDSGODKJENT,
     label: avtaletypeTilTekst(Avtaletype.FORHAANDSGODKJENT),
@@ -300,18 +268,18 @@ function avtaletypeOptions(arenaKode: TiltakskodeArena): { value: Avtaletype; la
     value: Avtaletype.OFFENTLIG_OFFENTLIG,
     label: avtaletypeTilTekst(Avtaletype.OFFENTLIG_OFFENTLIG),
   };
-  switch (arenaKode) {
-    case "ARBFORB":
-    case "VASV":
+  switch (tiltakskode) {
+    case Tiltakskode.ARBEIDSFORBEREDENDE_TRENING:
+    case Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET:
       return [forhaandsgodkjent];
-    case "AVKLARAG":
-    case "INDOPPFAG":
-    case "ARBRRHDAG":
-    case "DIGIOPPARB":
-    case "JOBBK":
+    case Tiltakskode.OPPFOLGING:
+    case Tiltakskode.JOBBKLUBB:
+    case Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK:
+    case Tiltakskode.AVKLARING:
+    case Tiltakskode.ARBEIDSRETTET_REHABILITERING:
       return [avtale, rammeavtale];
-    case "GRUFAGYRKE":
-    case "GRUPPEAMO":
+    case Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING:
+    case Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING:
       return [avtale, offentligOffentlig, rammeavtale];
     default:
       return [];

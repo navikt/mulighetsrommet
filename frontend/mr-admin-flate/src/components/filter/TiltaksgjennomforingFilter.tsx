@@ -1,4 +1,4 @@
-import { Accordion, Search, Skeleton, Switch, VStack } from "@navikt/ds-react";
+import { Accordion, Search, Switch } from "@navikt/ds-react";
 import { useAtom, WritableAtom } from "jotai";
 import { ArrangorTil, NavEnhet } from "mulighetsrommet-api-client";
 import { useEffect } from "react";
@@ -10,15 +10,20 @@ import { useAvtale } from "@/api/avtaler/useAvtale";
 import { useNavEnheter } from "@/api/enhet/useNavEnheter";
 import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
 import { useArrangorer } from "@/api/arrangor/useArrangorer";
-import { addOrRemove } from "../../utils/Utils";
+import { addOrRemove } from "@/utils/Utils";
 import {
   arrangorOptions,
   TILTAKSGJENNOMFORING_STATUS_OPTIONS,
   tiltakstypeOptions,
-} from "../../utils/filterUtils";
-import { FilterAccordionHeader, NavEnhetFilter } from "mulighetsrommet-frontend-common";
+} from "@/utils/filterUtils";
+import {
+  FilterAccordionHeader,
+  FilterSkeleton,
+  NavEnhetFilter,
+} from "mulighetsrommet-frontend-common";
 import { useRegioner } from "@/api/enhet/useRegioner";
 import { CheckboxList } from "./CheckboxList";
+import { logEvent } from "@/logging/amplitude";
 
 type Filters = "tiltakstype";
 
@@ -31,6 +36,16 @@ interface Props {
   skjulFilter?: Record<Filters, boolean>;
 }
 
+function loggBrukAvFilter(filter: string, value: any) {
+  logEvent({
+    name: "tiltaksadministrasjon.velg-tiltaksgjennomforing-filter",
+    data: {
+      filter,
+      value,
+    },
+  });
+}
+
 export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
   const [filter, setFilter] = useAtom(filterAtom);
   const [accordionsOpen, setAccordionsOpen] = useAtom(gjennomforingFilterAccordionAtom);
@@ -39,6 +54,9 @@ export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
   const { data: regioner, isLoading: isLoadingRegioner } = useRegioner();
   const { data: arrangorer, isLoading: isLoadingArrangorer } = useArrangorer(
     ArrangorTil.TILTAKSGJENNOMFORING,
+    {
+      pageSize: 10000,
+    },
   );
   const { data: tiltakstyper, isLoading: isLoadingTiltakstyper } = useTiltakstyper();
 
@@ -59,16 +77,27 @@ export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
     !tiltakstyper ||
     isLoadingTiltakstyper
   ) {
-    return (
-      <VStack gap="2">
-        <Skeleton height={50} variant="rounded" />
-        <Skeleton height={200} variant="rounded" />
-        <Skeleton height={50} variant="rounded" />
-        <Skeleton height={50} variant="rounded" />
-        <Skeleton height={50} variant="rounded" />
-        <Skeleton height={50} variant="rounded" />
-      </VStack>
-    );
+    return <FilterSkeleton />;
+  }
+
+  function selectDeselectAll(checked: boolean, key: string, values: string[]) {
+    if (checked) {
+      setFilter({
+        ...filter,
+        page: 1,
+        [key]: values,
+        lagretFilterIdValgt: undefined,
+      });
+      loggBrukAvFilter(key, "Velg alle");
+    } else {
+      setFilter({
+        ...filter,
+        page: 1,
+        [key]: [],
+        lagretFilterIdValgt: undefined,
+      });
+      loggBrukAvFilter(key, "Fjern alle");
+    }
   }
 
   return (
@@ -83,8 +112,12 @@ export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
           setFilter({
             ...filter,
             page: 1,
+            lagretFilterIdValgt: undefined,
             search,
           });
+        }}
+        onBlur={() => {
+          loggBrukAvFilter("sok", "REDACTED");
         }}
         value={filter.search}
         aria-label="Søk etter tiltaksgjennomføring"
@@ -98,8 +131,10 @@ export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
             setFilter({
               ...filter,
               page: 1,
+              lagretFilterIdValgt: undefined,
               visMineGjennomforinger: event.currentTarget.checked,
             });
+            loggBrukAvFilter("visMineGjennomforinger", event.currentTarget.checked);
           }}
         >
           <span style={{ fontWeight: "bold" }}>Vis kun mine gjennomføringer</span>
@@ -116,14 +151,26 @@ export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
           </Accordion.Header>
           <Accordion.Content>
             <CheckboxList
+              onSelectAll={(checked) => {
+                selectDeselectAll(
+                  checked,
+                  "statuser",
+                  TILTAKSGJENNOMFORING_STATUS_OPTIONS.map((s) => s.value),
+                );
+              }}
               items={TILTAKSGJENNOMFORING_STATUS_OPTIONS}
               isChecked={(status) => filter.statuser.includes(status)}
               onChange={(status) => {
                 setFilter({
                   ...filter,
                   page: 1,
+                  lagretFilterIdValgt: undefined,
                   statuser: addOrRemove(filter.statuser, status),
                 });
+                loggBrukAvFilter(
+                  "status",
+                  TILTAKSGJENNOMFORING_STATUS_OPTIONS.find((s) => s.value === status)?.label,
+                );
               }}
             />
           </Accordion.Content>
@@ -143,14 +190,26 @@ export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
             </Accordion.Header>
             <Accordion.Content>
               <CheckboxList
+                onSelectAll={(checked) => {
+                  selectDeselectAll(
+                    checked,
+                    "tiltakstyper",
+                    tiltakstyper.data.map((t) => t.id),
+                  );
+                }}
                 items={tiltakstypeOptions(tiltakstyper.data)}
                 isChecked={(tiltakstype) => filter.tiltakstyper.includes(tiltakstype)}
                 onChange={(tiltakstype) => {
                   setFilter({
                     ...filter,
                     page: 1,
+                    lagretFilterIdValgt: undefined,
                     tiltakstyper: addOrRemove(filter.tiltakstyper, tiltakstype),
                   });
+                  loggBrukAvFilter(
+                    "status",
+                    tiltakstyper.data.find((s) => s.id === tiltakstype)?.navn,
+                  );
                 }}
               />
             </Accordion.Content>
@@ -171,9 +230,18 @@ export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
             <div style={{ marginLeft: "-2rem" }}>
               <NavEnhetFilter
                 navEnheter={filter.navEnheter}
-                setNavEnheter={(navEnheter: NavEnhet[]) =>
-                  setFilter({ ...filter, page: 1, navEnheter })
-                }
+                setNavEnheter={(navEnheter: NavEnhet[]) => {
+                  setFilter({
+                    ...filter,
+                    page: 1,
+                    lagretFilterIdValgt: undefined,
+                    navEnheter,
+                  });
+                  loggBrukAvFilter(
+                    "navEnheter",
+                    navEnheter.map((n) => n.navn),
+                  );
+                }}
                 regioner={regioner}
               />
             </div>
@@ -199,8 +267,40 @@ export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
                 setFilter({
                   ...filter,
                   page: 1,
+                  lagretFilterIdValgt: undefined,
                   arrangorer: addOrRemove(filter.arrangorer, id),
                 });
+                loggBrukAvFilter("arrangorer", arrangorer.data.find((a) => a.id === id)?.navn);
+              }}
+            />
+          </Accordion.Content>
+        </Accordion.Item>
+        <Accordion.Item open={accordionsOpen.includes("publiserteStatuser")}>
+          <Accordion.Header
+            onClick={() => {
+              setAccordionsOpen([...addOrRemove(accordionsOpen, "publiserteStatuser")]);
+            }}
+          >
+            <FilterAccordionHeader
+              tittel="Publisert"
+              antallValgteFilter={filter.publisert.length}
+            />
+          </Accordion.Header>
+          <Accordion.Content>
+            <CheckboxList
+              items={[
+                { value: "publisert", label: "Publisert" },
+                { value: "ikke-publisert", label: "Ikke publisert" },
+              ]}
+              isChecked={(id) => filter.publisert.includes(id)}
+              onChange={(id) => {
+                setFilter({
+                  ...filter,
+                  page: 1,
+                  lagretFilterIdValgt: undefined,
+                  publisert: addOrRemove(filter.publisert, id),
+                });
+                loggBrukAvFilter("publisert", id);
               }}
             />
           </Accordion.Content>

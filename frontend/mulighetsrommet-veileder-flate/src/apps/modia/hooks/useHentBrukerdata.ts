@@ -1,8 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
-import { Bruker } from "mulighetsrommet-api-client";
 import { useModiaContext } from "./useModiaContext";
-import { mulighetsrommetClient } from "@/api/client";
 import { QueryKeys } from "@/api/query-keys";
+import { Bruker, BrukerService } from "mulighetsrommet-api-client";
 
 export function useHentBrukerdata() {
   const { fnr } = useModiaContext();
@@ -10,7 +9,7 @@ export function useHentBrukerdata() {
   const requestBody = { norskIdent: fnr };
 
   return useQuery<Bruker>({
-    queryKey: [QueryKeys.Brukerdata, fnr],
-    queryFn: () => mulighetsrommetClient.bruker.getBrukerdata({ requestBody }),
+    queryKey: QueryKeys.Bruker(fnr),
+    queryFn: () => BrukerService.getBrukerdata({ requestBody }),
   });
 }

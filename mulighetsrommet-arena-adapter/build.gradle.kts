@@ -19,7 +19,9 @@ flyway {
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
     // Needed to use the `@OptIn` annotation for experimental features
-    kotlinOptions.freeCompilerArgs += "-opt-in=kotlin.RequiresOptIn"
+    compilerOptions {
+        freeCompilerArgs.add("-opt-in=kotlin.RequiresOptIn")
+    }
 }
 
 tasks.shadowJar {

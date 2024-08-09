@@ -1,44 +1,82 @@
-import { Alert, Button, HStack, Heading, Switch, VStack } from "@navikt/ds-react";
-import { useState } from "react";
-import { useFormContext } from "react-hook-form";
-import {
-  formaterDato,
-  formaterDatoSomYYYYMMDD,
-  subtractDays,
-  subtractMonths,
-} from "../../utils/Utils";
-import { InferredTiltaksgjennomforingSchema } from "../redaksjonelt-innhold/TiltaksgjennomforingSchema";
-import { ControlledDateInput } from "../skjema/ControlledDateInput";
+import { Alert, Button, Heading, HStack, Modal } from "@navikt/ds-react";
+import { useRef } from "react";
+import { formaterDato, max, subtractDays, subtractMonths } from "@/utils/Utils";
+import { Tiltaksgjennomforing } from "mulighetsrommet-api-client";
+import { FormProvider, useForm } from "react-hook-form";
+import z from "zod";
+import { ControlledDateInput } from "@/components/skjema/ControlledDateInput";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useSetTilgjengeligForArrangor } from "@/api/tiltaksgjennomforing/useSetTilgjengeligForArrangor";
+import { useHandleApiUpsertResponse } from "@/api/effects";
+import { HarSkrivetilgang } from "../authActions/HarSkrivetilgang";
 
 interface Props {
-  gjennomforingStartdato: Date;
-  lagretDatoForTilgjengeligForArrangor?: String | null;
+  gjennomforing: Tiltaksgjennomforing;
 }
 
-export function TiltakTilgjengeligForArrangor({
-  gjennomforingStartdato,
-  lagretDatoForTilgjengeligForArrangor,
-}: Props) {
-  const [tilgjengeliggjorForArrangor, setTilgjengeliggjorForArrangor] = useState(
-    !!lagretDatoForTilgjengeligForArrangor,
-  );
-  const { register, setValue, watch } = useFormContext<InferredTiltaksgjennomforingSchema>();
-  const selectedDay = watch("tilgjengeligForArrangorFraOgMedDato") || gjennomforingStartdato;
+export const EditTilgjengeligForArrangorSchema = z.object({
+  tilgjengeligForArrangorFraOgMedDato: z.string({ required_error: "Feltet er påkrevd" }).date(),
+});
 
-  function subtractDate(type: "month" | "days", date: Date, value: number) {
-    switch (type) {
-      case "days":
-        setValue(
-          "tilgjengeligForArrangorFraOgMedDato",
-          formaterDatoSomYYYYMMDD(subtractDays(date, value)),
-        );
-        return;
-      case "month":
-        setValue(
-          "tilgjengeligForArrangorFraOgMedDato",
-          formaterDatoSomYYYYMMDD(subtractMonths(date, value)),
-        );
-    }
+export type InferredEditTilgjengeligForArrangorSchema = z.infer<
+  typeof EditTilgjengeligForArrangorSchema
+>;
+
+export function TiltakTilgjengeligForArrangor({ gjennomforing }: Props) {
+  const modalRef = useRef<HTMLDialogElement>(null);
+
+  const form = useForm<Partial<InferredEditTilgjengeligForArrangorSchema>>({
+    resolver: zodResolver(EditTilgjengeligForArrangorSchema),
+    defaultValues: {
+      tilgjengeligForArrangorFraOgMedDato:
+        gjennomforing.tilgjengeligForArrangorFraOgMedDato ?? undefined,
+    },
+  });
+
+  const setTilgjengeligForArrangor = useSetTilgjengeligForArrangor();
+
+  useHandleApiUpsertResponse(
+    setTilgjengeligForArrangor,
+    () => {
+      modalRef.current?.close();
+    },
+    (validation) => {
+      validation.errors.forEach((error) => {
+        form.setError(error.name as keyof InferredEditTilgjengeligForArrangorSchema, {
+          type: "custom",
+          message: error.message,
+        });
+      });
+    },
+  );
+
+  const submit = form.handleSubmit(async (values) => {
+    setTilgjengeligForArrangor.mutate({
+      id: gjennomforing.id,
+      tilgjengeligForArrangorDato: values.tilgjengeligForArrangorFraOgMedDato!,
+    });
+  });
+
+  const cancel = () => {
+    form.reset({});
+    modalRef.current?.close();
+  };
+
+  const dagensDato = new Date();
+
+  const gjennomforingStartDato = new Date(gjennomforing.startDato);
+
+  const tilgjengeligForArrangorDato = gjennomforing.tilgjengeligForArrangorFraOgMedDato
+    ? new Date(gjennomforing.tilgjengeligForArrangorFraOgMedDato)
+    : max(subtractDays(gjennomforingStartDato, 14), dagensDato);
+
+  const minTilgjengeligForArrangorFraOgMedDato = max(
+    subtractMonths(gjennomforingStartDato, 2),
+    dagensDato,
+  );
+
+  if (dagensDato > gjennomforingStartDato) {
+    return null;
   }
 
   return (
@@ -46,69 +84,60 @@ export function TiltakTilgjengeligForArrangor({
       <Heading level="4" size="small">
         Når ser arrangør tiltaket?
       </Heading>
-      <p>
-        Tiltaket blir automatisk tilgjengelig for arrangør i Deltakeroversikten på nav.no den{" "}
-        <b>{formaterDato(gjennomforingStartdato)}</b>.
-      </p>
-      <p>
-        Hvis arrangør har behov for å se opplysninger om deltakere før oppstartdato, kan du endre
-        dette.
-      </p>
-      <VStack gap="2">
-        <Switch
-          checked={tilgjengeliggjorForArrangor}
-          size="small"
-          onChange={(event) => {
-            if (!event.target.checked) {
-              setValue("tilgjengeligForArrangorFraOgMedDato", null);
-            } else {
-              setValue(
-                "tilgjengeligForArrangorFraOgMedDato",
-                formaterDatoSomYYYYMMDD(new Date(selectedDay)),
-              );
-            }
-            setTilgjengeliggjorForArrangor(event.target.checked);
-          }}
-        >
-          Ja, arrangør må få tilgang til tiltaket før oppstartsdato
-        </Switch>
-        {tilgjengeliggjorForArrangor ? (
-          <>
-            <HStack gap="2" align={"end"}>
-              <Button
-                variant="primary"
-                size="xsmall"
-                onClick={() => subtractDate("month", new Date(gjennomforingStartdato), 1)}
-                type="button"
-              >
-                1 måned før
-              </Button>
-              <Button
-                variant="primary"
-                size="xsmall"
-                onClick={() => subtractDate("days", new Date(gjennomforingStartdato), 14)}
-                type="button"
-              >
-                2 uker før
-              </Button>
-              <ControlledDateInput
-                label="Annen dato"
-                size="small"
-                fromDate={subtractMonths(gjennomforingStartdato, 1)}
-                toDate={gjennomforingStartdato}
-                {...register("tilgjengeligForArrangorFraOgMedDato")}
-                format="iso-string"
-              />
-            </HStack>
-            {selectedDay && (
-              <Alert variant="success" inline style={{ marginTop: "1rem" }}>
-                Arrangør vil ha tilgang til tiltaket <abbr title="Fra og med">fom.</abbr>{" "}
-                <b>{formaterDato(selectedDay!!)}</b> i Deltakeroversikten på nav.no
-              </Alert>
-            )}
-          </>
-        ) : null}
-      </VStack>
+
+      <TilgjengeligForArrangorInfo tilgjengeligForArrangorDato={tilgjengeligForArrangorDato} />
+
+      <HarSkrivetilgang ressurs="Tiltaksgjennomføring">
+        <Button size="small" variant="secondary" onClick={() => modalRef.current?.showModal()}>
+          Endre dato
+        </Button>
+      </HarSkrivetilgang>
+
+      <Modal
+        ref={modalRef}
+        header={{ heading: "Når skal arrangør ha tilgang til tiltaket?", closeButton: false }}
+        closeOnBackdropClick
+      >
+        <Modal.Body>
+          <FormProvider {...form}>
+            <form>
+              <HStack gap="2" align={"end"}>
+                <ControlledDateInput
+                  label="Når skal arrangør ha tilgang?"
+                  size="small"
+                  fromDate={minTilgjengeligForArrangorFraOgMedDato}
+                  toDate={gjennomforingStartDato}
+                  format="iso-string"
+                  invalidDatoEtterPeriode="Du må velge en dato som er før oppstartsdato"
+                  {...form.register("tilgjengeligForArrangorFraOgMedDato")}
+                />
+              </HStack>
+            </form>
+          </FormProvider>
+        </Modal.Body>
+
+        <Modal.Footer>
+          <Button type="submit" onClick={submit}>
+            Endre dato
+          </Button>
+          <Button type="button" variant="secondary" onClick={cancel}>
+            Avbryt endring
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </Alert>
+  );
+}
+
+function TilgjengeligForArrangorInfo({
+  tilgjengeligForArrangorDato,
+}: {
+  tilgjengeligForArrangorDato: Date;
+}) {
+  return (
+    <p>
+      Arrangør har tilgang til tiltaket i Deltakeroversikten på nav.no fra{" "}
+      <b>{formaterDato(tilgjengeligForArrangorDato)}</b>.
+    </p>
   );
 }

@@ -6,7 +6,7 @@ metadata:
   labels:
     team: team-mulighetsrommet
 spec:
-  image: europe-north1-docker.pkg.dev/nais-management-233d/poao/poao-frontend:2024.01.12_07.12-9746fba905ca
+  image: europe-north1-docker.pkg.dev/nais-management-233d/poao/poao-frontend:2024.05.07_13.29-a2e3b56408a1
   port: 8080
   ingresses:
     - https://mulighetsrommet-arena-adapter-manager.intern.dev.nav.no
@@ -26,7 +26,7 @@ spec:
     limits:
       memory: 512Mi
     requests:
-      cpu: 250m
+      cpu: 1m
       memory: 256Mi
   azure:
     application:

@@ -1,47 +1,27 @@
-import { Alert, Button, Pagination, Table, VStack } from "@navikt/ds-react";
-import { useAtom, WritableAtom } from "jotai";
-import { OpenAPI, SorteringAvtaler } from "mulighetsrommet-api-client";
-import { Lenke } from "mulighetsrommet-frontend-common/components/lenke/Lenke";
-import { createRef, useEffect, useState } from "react";
 import { AvtaleFilter } from "@/api/atoms";
 import { useAvtaler } from "@/api/avtaler/useAvtaler";
+import { TabellWrapper } from "@/components/tabell/TabellWrapper";
 import { APPLICATION_NAME } from "@/constants";
-import { useSort } from "@/hooks/useSort";
 import {
   capitalizeEveryWord,
-  createQueryParamsForExcelDownload,
+  createQueryParamsForExcelDownloadForAvtale,
   formaterDato,
   formaterNavEnheter,
 } from "@/utils/Utils";
+import { Alert, Pagination, Table, VStack } from "@navikt/ds-react";
+import { useAtom, WritableAtom } from "jotai";
+import { OpenAPI, SorteringAvtaler } from "mulighetsrommet-api-client";
+import { Lenke } from "mulighetsrommet-frontend-common/components/lenke/Lenke";
+import { ToolbarContainer } from "mulighetsrommet-frontend-common/components/toolbar/toolbarContainer/ToolbarContainer";
+import { ToolbarMeny } from "mulighetsrommet-frontend-common/components/toolbar/toolbarMeny/ToolbarMeny";
+import { createRef, useEffect, useState } from "react";
 import { ShowOpphavValue } from "../debug/ShowOpphavValue";
 import { Laster } from "../laster/Laster";
 import { PagineringContainer } from "../paginering/PagineringContainer";
 import { PagineringsOversikt } from "../paginering/PagineringOversikt";
 import { AvtalestatusTag } from "../statuselementer/AvtalestatusTag";
 import styles from "./Tabell.module.scss";
-import { FileExcelIcon } from "@navikt/aksel-icons";
-import { ToolbarContainer } from "mulighetsrommet-frontend-common/components/toolbar/toolbarContainer/ToolbarContainer";
-import { TabellWrapper } from "@/components/tabell/TabellWrapper";
-import { ToolbarMeny } from "mulighetsrommet-frontend-common/components/toolbar/toolbarMeny/ToolbarMeny";
-
-async function lastNedFil(filter: AvtaleFilter) {
-  const headers = new Headers();
-  headers.append("Nav-Consumer-Id", APPLICATION_NAME);
-
-  if (import.meta.env.VITE_MULIGHETSROMMET_API_AUTH_TOKEN) {
-    headers.append(
-      "Authorization",
-      `Bearer ${import.meta.env.VITE_MULIGHETSROMMET_API_AUTH_TOKEN}`,
-    );
-  }
-  headers.append("accept", "application/json");
-
-  const queryParams = createQueryParamsForExcelDownload(filter);
-
-  return await fetch(`${OpenAPI.BASE}/api/v1/internal/avtaler/excel?${queryParams}`, {
-    headers,
-  });
-}
+import { EksporterTabellKnapp } from "@/components/eksporterTabell/EksporterTabellKnapp";
 
 interface Props {
   filterAtom: WritableAtom<AvtaleFilter, [newValue: AvtaleFilter], void>;
@@ -50,14 +30,32 @@ interface Props {
 }
 
 export function AvtaleTabell({ filterAtom, tagsHeight, filterOpen }: Props) {
-  const [sort, setSort] = useSort("navn");
   const [filter, setFilter] = useAtom(filterAtom);
   const [lasterExcel, setLasterExcel] = useState(false);
   const [excelUrl, setExcelUrl] = useState("");
-
+  const sort = filter.sortering.tableSort;
   const { data, isLoading } = useAvtaler(filter);
 
   const link = createRef<HTMLAnchorElement>();
+
+  async function lastNedFil(filter: AvtaleFilter) {
+    const headers = new Headers();
+    headers.append("Nav-Consumer-Id", APPLICATION_NAME);
+
+    if (import.meta.env.VITE_MULIGHETSROMMET_API_AUTH_TOKEN) {
+      headers.append(
+        "Authorization",
+        `Bearer ${import.meta.env.VITE_MULIGHETSROMMET_API_AUTH_TOKEN}`,
+      );
+    }
+    headers.append("accept", "application/json");
+
+    const queryParams = createQueryParamsForExcelDownloadForAvtale(filter);
+
+    return await fetch(`${OpenAPI.BASE}/api/v1/intern/avtaler/excel?${queryParams}`, {
+      headers,
+    });
+  }
 
   async function lastNedExcel() {
     setLasterExcel(true);
@@ -95,13 +93,11 @@ export function AvtaleTabell({ filterAtom, tagsHeight, filterOpen }: Props) {
           : "descending"
         : "ascending";
 
-    setSort({
-      orderBy: sortKey,
-      direction,
-    });
-
     updateFilter({
-      sortering: `${sortKey}-${direction}` as SorteringAvtaler,
+      sortering: {
+        sortString: `${sortKey}-${direction}` as SorteringAvtaler,
+        tableSort: { orderBy: sortKey, direction },
+      },
       page: sort.orderBy !== sortKey || sort.direction !== direction ? 1 : filter.page,
     });
   };
@@ -129,15 +125,7 @@ export function AvtaleTabell({ filterAtom, tagsHeight, filterOpen }: Props) {
               });
             }}
           />
-          <Button
-            icon={<FileExcelIcon title="Excelikon" />}
-            variant="tertiary"
-            onClick={lastNedExcel}
-            disabled={lasterExcel}
-            type="button"
-          >
-            {lasterExcel ? "Henter Excel-fil..." : "Eksporter tabellen til Excel"}
-          </Button>
+          <EksporterTabellKnapp lastNedExcel={lastNedExcel} lasterExcel={lasterExcel} />
           <a style={{ display: "none" }} ref={link}></a>
         </ToolbarMeny>
       </ToolbarContainer>

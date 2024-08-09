@@ -39,6 +39,7 @@ internal fun decodeArenaEvent(payload: JsonElement): ArenaEvent {
         ArenaTable.Sak -> data.getString("SAK_ID")
         ArenaTable.AvtaleInfo -> data.getString("AVTALE_ID")
         ArenaTable.Deltaker -> data.getString("TILTAKDELTAKER_ID")
+        ArenaTable.HistDeltaker -> data.getString("HIST_TILTAKDELTAKER_ID")
         ArenaTable.Tiltaksgjennomforing -> data.getString("TILTAKGJENNOMFORING_ID")
     }
 

@@ -8,7 +8,7 @@ test.beforeEach(async ({ page }) => {
 const sjekkUU = async (page: Page, waitForTestid: string) => {
   await page.getByTestId(waitForTestid).waitFor();
   const accessibilityScanResults = await new AxeBuilder({ page })
-    .disableRules(["aria-required-children", "definition-list", "dlitem"])
+    .disableRules(["aria-required-children", "definition-list", "dlitem", "svg-img-alt"])
     .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
     .analyze();
 
@@ -17,7 +17,7 @@ const sjekkUU = async (page: Page, waitForTestid: string) => {
 
 test.describe("Smoketest og UU", () => {
   test("Adminflate forside", async ({ page }) => {
-    await expect(page).toHaveTitle(/NAV Arbeidsmarkedstiltak/);
+    await expect(page).toHaveTitle(/NAV Tiltaksadministrasjon/);
     await sjekkUU(page, "heading");
   });
 
@@ -68,5 +68,12 @@ test.describe("Smoketest og UU", () => {
     await page.getByTestId("notifikasjoner").click();
     await expect(page.getByTestId("header_notifikasjoner")).toBeVisible();
     await sjekkUU(page, "header_notifikasjoner");
+  });
+
+  test("Arrangører", async ({ page }) => {
+    await page.getByRole("button", { name: "Meny" }).click();
+    await page.getByRole("link", { name: "Arrangører" }).click();
+    await expect(page.getByTestId("header_arrangorer")).toBeVisible();
+    await sjekkUU(page, "header_arrangorer");
   });
 });

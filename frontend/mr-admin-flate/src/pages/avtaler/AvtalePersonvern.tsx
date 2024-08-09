@@ -1,12 +1,13 @@
-import { Alert, HGrid, List, VStack } from "@navikt/ds-react";
+import { Alert, HelpText, HStack, List, VStack } from "@navikt/ds-react";
 import { useAvtale } from "@/api/avtaler/useAvtale";
-import { Laster } from "../../components/laster/Laster";
-import styles from "../DetaljerInfo.module.scss";
-import { useTiltakstype } from "@/api/tiltakstyper/useTiltakstype";
+import { Laster } from "@/components/laster/Laster";
+import styles from "./AvtalePersonvern.module.scss";
+import { usePersonopplysninger } from "@/api/avtaler/usePersonopplysninger";
+import { PersonopplysningData } from "mulighetsrommet-api-client";
 
 export function AvtalePersonvern() {
   const { data: avtale, isPending, error } = useAvtale();
-  const { data: tiltakstype } = useTiltakstype(avtale?.tiltakstype.id);
+  const { data: personopplysninger } = usePersonopplysninger();
 
   if (isPending) {
     return <Laster tekst="Laster avtale..." />;
@@ -20,7 +21,7 @@ export function AvtalePersonvern() {
     );
   }
 
-  if (avtale.personopplysninger.length === 0) {
+  if (!avtale.personvernBekreftet) {
     return (
       <Alert style={{ margin: "1rem" }} variant="info">
         Hvilke personopplysninger som kan behandles er ikke bekreftet
@@ -28,54 +29,50 @@ export function AvtalePersonvern() {
     );
   }
 
-  const alltid =
-    tiltakstype?.personopplysninger?.ALLTID.filter((p) =>
-      avtale.personopplysninger.includes(p.personopplysning),
-    ) ?? [];
-  const ofte =
-    tiltakstype?.personopplysninger?.OFTE.filter((p) =>
-      avtale.personopplysninger.includes(p.personopplysning),
-    ) ?? [];
-  const sjelden =
-    tiltakstype?.personopplysninger?.SJELDEN.filter((p) =>
-      avtale.personopplysninger.includes(p.personopplysning),
-    ) ?? [];
+  if (avtale.personopplysninger.length === 0) {
+    return (
+      <Alert style={{ margin: "1rem" }} variant="info">
+        Ingen personopplysninger kan behandles i denne avtalen
+      </Alert>
+    );
+  }
+
+  const checkedPersonopplysninger = personopplysninger?.filter((p) =>
+    avtale.personopplysninger.includes(p.personopplysning),
+  );
 
   return (
     <VStack gap="4" className={styles.info_container}>
-      <HGrid columns={2}>
-        {alltid.length > 0 && (
-          <List size="small" as="ul" title="Opplysninger om brukeren som alltid kan/må behandles">
-            {alltid.map((p) => (
-              <List.Item key={p.personopplysning}>{p.beskrivelse}</List.Item>
-            ))}
-          </List>
-        )}
-        <VStack justify="start">
-          {ofte.length > 0 && (
-            <List
-              size="small"
-              as="ul"
-              title="Opplysninger om brukeren som ofte er nødvendig og relevant å behandle"
-            >
-              {ofte.map((p) => (
-                <List.Item key={p.personopplysning}>{p.beskrivelse}</List.Item>
-              ))}
-            </List>
-          )}
-          {sjelden.length > 0 && (
-            <List
-              size="small"
-              as="ul"
-              title="Opplysninger om brukeren som sjelden eller i helt spesielle tilfeller er nødvendig og relevant å behandle"
-            >
-              {sjelden.map((p) => (
-                <List.Item key={p.personopplysning}>{p.beskrivelse}</List.Item>
-              ))}
-            </List>
-          )}
-        </VStack>
-      </HGrid>
+      {checkedPersonopplysninger && (
+        <List
+          size="small"
+          as="ul"
+          title="Følgende personopplysninger om deltager kan behandles i denne avtalen"
+        >
+          {checkedPersonopplysninger?.map((p: PersonopplysningData) => (
+            <ListWithHelpText hjelpetekst={p.hjelpetekst} key={p.personopplysning}>
+              {p.tittel}
+            </ListWithHelpText>
+          ))}
+        </List>
+      )}
     </VStack>
+  );
+}
+
+function ListWithHelpText({
+  hjelpetekst,
+  children,
+}: {
+  hjelpetekst: String | null;
+  children: React.ReactNode;
+}) {
+  return (
+    <List.Item>
+      <HStack align="center" gap="1">
+        {children}
+        {hjelpetekst && <HelpText>{hjelpetekst}</HelpText>}
+      </HStack>
+    </List.Item>
   );
 }

@@ -1,49 +1,50 @@
 package no.nav.mulighetsrommet.api.tasks
 
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.shouldBe
 import io.mockk.mockk
+import io.mockk.verify
 import io.mockk.verifyAll
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
-import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingDto
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
+import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.domain.dto.AvbruttAarsak
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus
+import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingV1Dto
 import no.nav.mulighetsrommet.kafka.producers.TiltaksgjennomforingKafkaProducer
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 
-class UpdateTiltaksgjennomforingStatusTest : FunSpec({
+class UpdateTiltaksgjennomforingStatusTest :
+    FunSpec({
 
-    val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
+        val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
 
-    val lastSuccessDate = LocalDate.of(2023, 2, 14)
-    val today = LocalDate.of(2023, 2, 16)
+        val lastSuccessDate = LocalDate.of(2023, 2, 14)
+        val today = LocalDate.of(2023, 2, 16)
 
-    val tiltakstype = TiltakstypeFixtures.Oppfolging.copy(
-        startDato = LocalDate.of(2023, 1, 11),
-        sluttDato = LocalDate.now().plusYears(1),
-    )
+        context("oppdater statuser på tiltaksgjennomføringer") {
+            val tiltaksgjennomforingKafkaProducer = mockk<TiltaksgjennomforingKafkaProducer>(relaxed = true)
+            val task = UpdateTiltaksgjennomforingStatus(
+                mockk(),
+                TiltaksgjennomforingRepository(database.db),
+                tiltaksgjennomforingKafkaProducer,
+            )
 
-    context("oppdater statuser på tiltaksgjennomføringer") {
-        val tiltaksgjennomforingKafkaProducer = mockk<TiltaksgjennomforingKafkaProducer>(relaxed = true)
-        val task = UpdateTiltaksgjennomforingStatus(
-            mockk(),
-            TiltaksgjennomforingRepository(database.db),
-            tiltaksgjennomforingKafkaProducer,
-        )
-
-        fun TiltaksgjennomforingDbo.toDto(status: TiltaksgjennomforingStatus.Enum): TiltaksgjennomforingDto {
-            return TiltaksgjennomforingDto(
+            fun TiltaksgjennomforingDbo.toDto(status: TiltaksgjennomforingStatus) = TiltaksgjennomforingV1Dto(
                 id = id,
-                tiltakstype = TiltaksgjennomforingDto.Tiltakstype(
-                    id = tiltakstype.id,
-                    navn = tiltakstype.navn,
-                    arenaKode = tiltakstype.arenaKode,
-                ),
+                tiltakstype = TiltakstypeFixtures.Oppfolging.run {
+                    TiltaksgjennomforingV1Dto.Tiltakstype(
+                        id = id,
+                        navn = navn,
+                        arenaKode = arenaKode,
+                        tiltakskode = tiltakskode!!,
+                    )
+                },
                 navn = navn,
                 virksomhetsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
                 startDato = startDato,
@@ -52,58 +53,121 @@ class UpdateTiltaksgjennomforingStatusTest : FunSpec({
                 oppstart = oppstart,
                 tilgjengeligForArrangorFraOgMedDato = null,
             )
-        }
 
-        val startdatoInnenforMenAvsluttetStatus = TiltaksgjennomforingFixtures.Oppfolging1.copy(
-            id = UUID.randomUUID(),
-            startDato = LocalDate.of(2023, 2, 15),
-            sluttDato = LocalDate.now().plusYears(1),
-        )
-        val startdatoInnenfor = TiltaksgjennomforingFixtures.Oppfolging1.copy(
-            id = UUID.randomUUID(),
-            startDato = LocalDate.of(2023, 2, 15),
-            sluttDato = LocalDate.now().plusYears(1),
-        )
-        val sluttdatoInnenforMenAvbruttStatus = TiltaksgjennomforingFixtures.Oppfolging1.copy(
-            id = UUID.randomUUID(),
-            startDato = lastSuccessDate,
-            sluttDato = lastSuccessDate,
-        )
-        val sluttdatoInnenfor = TiltaksgjennomforingFixtures.Oppfolging1.copy(
-            id = UUID.randomUUID(),
-            startDato = lastSuccessDate,
-            sluttDato = lastSuccessDate,
-        )
-        val datoerUtenfor = TiltaksgjennomforingFixtures.Oppfolging1.copy(
-            id = UUID.randomUUID(),
-            startDato = lastSuccessDate,
-            sluttDato = LocalDate.now().plusYears(1),
-        )
-        val domain = MulighetsrommetTestDomain(
-            tiltakstyper = listOf(tiltakstype),
-            avtaler = listOf(AvtaleFixtures.oppfolging),
-            gjennomforinger = listOf(
-                startdatoInnenforMenAvsluttetStatus,
-                startdatoInnenfor,
-                sluttdatoInnenforMenAvbruttStatus,
-                sluttdatoInnenfor,
-                datoerUtenfor,
-            ),
-        )
-
-        test("oppdater statuser på kafka på relevante tiltaksgjennomføringer") {
-            domain.initialize(database.db)
+            val startdatoInnenforMenAvsluttetStatus = TiltaksgjennomforingFixtures.Oppfolging1.copy(
+                id = UUID.randomUUID(),
+                startDato = LocalDate.of(2023, 2, 15),
+                sluttDato = LocalDate.now().plusYears(1),
+            )
+            val startdatoInnenfor = TiltaksgjennomforingFixtures.Oppfolging1.copy(
+                id = UUID.randomUUID(),
+                startDato = LocalDate.of(2023, 2, 15),
+                sluttDato = LocalDate.now().plusYears(1),
+            )
+            val sluttdatoInnenforMenAvbruttStatus = TiltaksgjennomforingFixtures.Oppfolging1.copy(
+                id = UUID.randomUUID(),
+                startDato = lastSuccessDate,
+                sluttDato = lastSuccessDate,
+            )
+            val sluttdatoInnenfor = TiltaksgjennomforingFixtures.Oppfolging1.copy(
+                id = UUID.randomUUID(),
+                startDato = lastSuccessDate,
+                sluttDato = lastSuccessDate,
+            )
+            val datoerUtenfor = TiltaksgjennomforingFixtures.Oppfolging1.copy(
+                id = UUID.randomUUID(),
+                startDato = lastSuccessDate,
+                sluttDato = LocalDate.now().plusYears(1),
+            )
+            val domain = MulighetsrommetTestDomain(
+                tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
+                avtaler = listOf(AvtaleFixtures.oppfolging),
+                gjennomforinger = listOf(
+                    startdatoInnenforMenAvsluttetStatus,
+                    startdatoInnenfor,
+                    sluttdatoInnenforMenAvbruttStatus,
+                    sluttdatoInnenfor,
+                    datoerUtenfor,
+                ),
+            )
 
             val gjennomforinger = TiltaksgjennomforingRepository(database.db)
-            gjennomforinger.avbryt(startdatoInnenforMenAvsluttetStatus.id, LocalDateTime.now(), AvbruttAarsak.Feilregistrering)
-            gjennomforinger.avbryt(sluttdatoInnenforMenAvbruttStatus.id, LocalDateTime.now(), AvbruttAarsak.Feilregistrering)
 
-            task.oppdaterTiltaksgjennomforingStatus(today, lastSuccessDate)
+            beforeEach {
+                domain.initialize(database.db)
+                gjennomforinger.avbryt(
+                    startdatoInnenforMenAvsluttetStatus.id,
+                    LocalDateTime.now(),
+                    AvbruttAarsak.Feilregistrering,
+                )
+                gjennomforinger.avbryt(
+                    sluttdatoInnenforMenAvbruttStatus.id,
+                    LocalDateTime.now(),
+                    AvbruttAarsak.Feilregistrering,
+                )
+            }
 
-            verifyAll {
-                tiltaksgjennomforingKafkaProducer.publish(startdatoInnenfor.toDto(TiltaksgjennomforingStatus.Enum.GJENNOMFORES))
-                tiltaksgjennomforingKafkaProducer.publish(sluttdatoInnenfor.toDto(TiltaksgjennomforingStatus.Enum.AVSLUTTET))
+            afterEach {
+                database.db.truncateAll()
+            }
+
+            test("oppdater statuser på kafka på relevante tiltaksgjennomføringer") {
+                task.oppdaterTiltaksgjennomforingStatus(today, lastSuccessDate)
+
+                verifyAll {
+                    tiltaksgjennomforingKafkaProducer.publish(startdatoInnenfor.toDto(TiltaksgjennomforingStatus.GJENNOMFORES))
+                    tiltaksgjennomforingKafkaProducer.publish(sluttdatoInnenfor.toDto(TiltaksgjennomforingStatus.AVSLUTTET))
+                }
+            }
+
+            test("avpubliserer når tiltak blir avsluttet på relevante tiltaksgjennomføringer") {
+                gjennomforinger.setPublisert(startdatoInnenfor.id, true)
+                gjennomforinger.setPublisert(sluttdatoInnenfor.id, true)
+                task.oppdaterTiltaksgjennomforingStatus(today, lastSuccessDate)
+
+                verifyAll {
+                    tiltaksgjennomforingKafkaProducer.publish(startdatoInnenfor.toDto(TiltaksgjennomforingStatus.GJENNOMFORES))
+                    tiltaksgjennomforingKafkaProducer.publish(sluttdatoInnenfor.toDto(TiltaksgjennomforingStatus.AVSLUTTET))
+                }
+                gjennomforinger.get(startdatoInnenfor.id)?.publisert shouldBe true
+                gjennomforinger.get(sluttdatoInnenfor.id)?.publisert shouldBe false
             }
         }
-    }
-})
+
+        context("tiltak i egen regi") {
+            val tiltaksgjennomforingKafkaProducer = mockk<TiltaksgjennomforingKafkaProducer>(relaxed = true)
+            val task = UpdateTiltaksgjennomforingStatus(
+                mockk(),
+                TiltaksgjennomforingRepository(database.db),
+                tiltaksgjennomforingKafkaProducer,
+            )
+
+            val startdatoInnenfor = TiltaksgjennomforingFixtures.IPS1.copy(
+                id = UUID.randomUUID(),
+                startDato = LocalDate.of(2023, 2, 15),
+                sluttDato = LocalDate.now().plusYears(1),
+            )
+
+            val domain = MulighetsrommetTestDomain(
+                tiltakstyper = listOf(TiltakstypeFixtures.IPS),
+                avtaler = listOf(AvtaleFixtures.IPS),
+                gjennomforinger = listOf(startdatoInnenfor),
+            )
+
+            beforeEach {
+                domain.initialize(database.db)
+            }
+
+            afterEach {
+                database.db.truncateAll()
+            }
+
+            test("oppdaterer ikke status på kafka") {
+                task.oppdaterTiltaksgjennomforingStatus(today, lastSuccessDate)
+
+                verify(exactly = 0) {
+                    tiltaksgjennomforingKafkaProducer.publish(any())
+                }
+            }
+        }
+    })

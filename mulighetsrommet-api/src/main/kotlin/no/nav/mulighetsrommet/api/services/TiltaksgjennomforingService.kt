@@ -7,7 +7,10 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import kotliquery.TransactionalSession
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
-import no.nav.mulighetsrommet.api.domain.dto.*
+import no.nav.mulighetsrommet.api.domain.dto.EndringshistorikkDto
+import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingAdminDto
+import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingNotificationDto
+import no.nav.mulighetsrommet.api.domain.dto.VeilederflateTiltaksgjennomforing
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.routes.v1.AdminTiltaksgjennomforingFilter
@@ -17,12 +20,12 @@ import no.nav.mulighetsrommet.api.tiltaksgjennomforinger.TiltaksgjennomforingVal
 import no.nav.mulighetsrommet.api.utils.EksternTiltaksgjennomforingFilter
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.Pagination
-import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.Tiltakskoder.isTiltakMedAvtalerFraMulighetsrommet
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering.TiltaksgjennomforingSluttDatoCutoffDate
 import no.nav.mulighetsrommet.domain.dto.AvbruttAarsak
 import no.nav.mulighetsrommet.domain.dto.Innsatsgruppe
 import no.nav.mulighetsrommet.domain.dto.NavIdent
+import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingV1Dto
 import no.nav.mulighetsrommet.kafka.producers.TiltaksgjennomforingKafkaProducer
 import no.nav.mulighetsrommet.notifications.NotificationRepository
 import no.nav.mulighetsrommet.notifications.NotificationType
@@ -44,6 +47,7 @@ class TiltaksgjennomforingService(
     private val db: Database,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
+
     suspend fun upsert(
         request: TiltaksgjennomforingRequest,
         navIdent: NavIdent,
@@ -52,7 +56,7 @@ class TiltaksgjennomforingService(
         return validator.validate(request.toDbo(), previous)
             .map { dbo ->
                 db.transactionSuspend { tx ->
-                    if (previous?.toDbo() == dbo) {
+                    if (previous?.toTiltaksgjennomforingDbo() == dbo) {
                         return@transactionSuspend previous
                     }
 
@@ -67,7 +71,7 @@ class TiltaksgjennomforingService(
                         "Redigerte gjennomføring"
                     }
                     logEndring(operation, dto, navIdent, tx)
-                    tiltaksgjennomforingKafkaProducer.publish(TiltaksgjennomforingDto.from(dto))
+                    tiltaksgjennomforingKafkaProducer.publish(dto.toTiltaksgjennomforingV1Dto())
                     dto
                 }
             }
@@ -77,7 +81,7 @@ class TiltaksgjennomforingService(
         return tiltaksgjennomforinger.get(id)
     }
 
-    fun getAllSkalMigreres(
+    fun getAll(
         pagination: Pagination,
         filter: AdminTiltaksgjennomforingFilter,
     ): PaginatedResponse<TiltaksgjennomforingAdminDto> = tiltaksgjennomforinger.getAll(
@@ -90,10 +94,7 @@ class TiltaksgjennomforingService(
         avtaleId = filter.avtaleId,
         arrangorIds = filter.arrangorIds,
         administratorNavIdent = filter.administratorNavIdent,
-        /**
-         * Hardkodet filter så man kun viser relevante gjennomføringer i Tiltaksadmin
-         */
-        skalMigreres = true,
+        publisert = filter.publisert,
         sluttDatoGreaterThanOrEqualTo = TiltaksgjennomforingSluttDatoCutoffDate,
     ).let { (totalCount, data) ->
         PaginatedResponse.of(pagination, totalCount, data)
@@ -103,30 +104,31 @@ class TiltaksgjennomforingService(
         search: String?,
         apentForInnsok: Boolean?,
         sanityTiltakstypeIds: List<UUID>?,
-        innsatsgruppe: Innsatsgruppe?,
+        innsatsgruppe: Innsatsgruppe,
         enheter: List<String>,
-    ): List<VeilederflateTiltaksgjennomforing> = tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
-        search,
-        apentForInnsok,
-        sanityTiltakstypeIds,
-        innsatsgruppe,
-        enheter,
-    )
+    ): List<VeilederflateTiltaksgjennomforing> =
+        tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
+            search,
+            apentForInnsok,
+            sanityTiltakstypeIds,
+            innsatsgruppe,
+            enheter,
+        )
 
-    fun getEkstern(id: UUID): TiltaksgjennomforingDto? {
-        return tiltaksgjennomforinger.get(id)?.let { TiltaksgjennomforingDto.from(it) }
+    fun getEkstern(id: UUID): TiltaksgjennomforingV1Dto? {
+        return tiltaksgjennomforinger.get(id)?.toTiltaksgjennomforingV1Dto()
     }
 
     fun getAllEkstern(
         pagination: Pagination,
         filter: EksternTiltaksgjennomforingFilter,
-    ): PaginatedResponse<TiltaksgjennomforingDto> = tiltaksgjennomforinger
+    ): PaginatedResponse<TiltaksgjennomforingV1Dto> = tiltaksgjennomforinger
         .getAll(
             pagination,
             arrangorOrgnr = filter.arrangorOrgnr,
         )
         .let { (totalCount, items) ->
-            val data = items.map { dto -> TiltaksgjennomforingDto.from(dto) }
+            val data = items.map { dto -> dto.toTiltaksgjennomforingV1Dto() }
             PaginatedResponse.of(pagination, totalCount, data)
         }
 
@@ -147,15 +149,41 @@ class TiltaksgjennomforingService(
         }
     }
 
+    fun setTilgjengeligForArrangorDato(
+        id: UUID,
+        tilgjengeligForArrangorDato: LocalDate,
+        navIdent: NavIdent,
+    ): Either<List<ValidationError>, Unit> = db.transaction { tx ->
+        val gjennomforing = getOrError(id, tx)
+
+        validator
+            .validateTilgjengeligForArrangorDato(
+                tilgjengeligForArrangorDato,
+                gjennomforing.startDato,
+            )
+            .map {
+                tiltaksgjennomforinger.setTilgjengeligForArrangorFraOgMedDato(
+                    tx,
+                    id,
+                    tilgjengeligForArrangorDato,
+                )
+                val dto = getOrError(id, tx)
+                val operation = "Endret dato for tilgang til Deltakeroversikten"
+                logEndring(operation, dto, navIdent, tx)
+                tiltaksgjennomforingKafkaProducer.publish(dto.toTiltaksgjennomforingV1Dto())
+            }
+    }
+
     fun setAvtale(id: UUID, avtaleId: UUID?, navIdent: NavIdent): StatusResponse<Unit> {
         val gjennomforing = get(id) ?: return NotFound("Gjennomføringen finnes ikke").left()
 
-        if (!isTiltakMedAvtalerFraMulighetsrommet(gjennomforing.tiltakstype.arenaKode)) {
+        if (!isTiltakMedAvtalerFraMulighetsrommet(gjennomforing.tiltakstype.tiltakskode)) {
             return BadRequest("Avtale kan bare settes for tiltaksgjennomføringer av type AFT eller VTA").left()
         }
 
         if (avtaleId != null) {
-            val avtale = avtaler.get(avtaleId) ?: return BadRequest("Avtale med id=$avtaleId finnes ikke").left()
+            val avtale = avtaler.get(avtaleId)
+                ?: return BadRequest("Avtale med id=$avtaleId finnes ikke").left()
             if (gjennomforing.tiltakstype.id != avtale.tiltakstype.id) {
                 return BadRequest("Tiltaksgjennomføringen må ha samme tiltakstype som avtalen").left()
             }
@@ -170,26 +198,38 @@ class TiltaksgjennomforingService(
         return Either.Right(Unit)
     }
 
-    fun avbrytGjennomforing(id: UUID, navIdent: NavIdent, aarsak: AvbruttAarsak?): StatusResponse<Unit> {
+    fun avbrytGjennomforing(
+        id: UUID,
+        navIdent: NavIdent,
+        aarsak: AvbruttAarsak?,
+    ): StatusResponse<Unit> {
         if (aarsak == null) {
             return Either.Left(BadRequest(message = "Årsak mangler"))
         }
 
         val gjennomforing = get(id) ?: return Either.Left(NotFound("Gjennomføringen finnes ikke"))
 
-        if (!tiltakstypeService.isEnabled(Tiltakskode.fromArenaKode(gjennomforing.tiltakstype.arenaKode))) {
+        if (!tiltakstypeService.isEnabled(gjennomforing.tiltakstype.tiltakskode)) {
             return Either.Left(BadRequest(message = "Tiltakstype '${gjennomforing.tiltakstype.navn}' må avbrytes i Arena."))
         }
 
+        if (aarsak is AvbruttAarsak.Annet && aarsak.name.length > 100) {
+            return Either.Left(BadRequest(message = "Beskrivelse kan ikke inneholde mer enn 100 tegn"))
+        }
+
+        if (aarsak is AvbruttAarsak.Annet && aarsak.name.isEmpty()) {
+            return Either.Left(BadRequest(message = "Beskrivelse er obligatorisk når “Annet” er valgt som årsak"))
+        }
+
         if (!gjennomforing.isAktiv()) {
-            return Either.Left(BadRequest(message = "Gjennomføringen kan ikke avbrytes fordi den allerede er avsluttet."))
+            return Either.Left(BadRequest(message = "Gjennomføringen er allerede avsluttet og kan derfor ikke avbrytes."))
         }
 
         db.transaction { tx ->
             tiltaksgjennomforinger.avbryt(tx, id, LocalDateTime.now(), aarsak)
             val dto = getOrError(id, tx)
             logEndring("Gjennomføring ble avbrutt", dto, navIdent, tx)
-            tiltaksgjennomforingKafkaProducer.publish(TiltaksgjennomforingDto.from(dto))
+            tiltaksgjennomforingKafkaProducer.publish(dto.toTiltaksgjennomforingV1Dto())
         }
 
         return Either.Right(Unit)
@@ -197,7 +237,10 @@ class TiltaksgjennomforingService(
 
     fun batchApentForInnsokForAlleMedStarttdatoForDato(dagensDato: LocalDate) {
         db.transaction { tx ->
-            val tiltak = tiltaksgjennomforinger.lukkApentForInnsokForTiltakMedStartdatoForDato(dagensDato, tx)
+            val tiltak = tiltaksgjennomforinger.lukkApentForInnsokForTiltakMedStartdatoForDato(
+                dagensDato,
+                tx,
+            )
             tiltak.forEach { gjennomforing ->
                 logEndringSomSystembruker(
                     operation = "Stengte for innsøk",
@@ -223,10 +266,12 @@ class TiltaksgjennomforingService(
         dbo: TiltaksgjennomforingDbo,
         navIdent: NavIdent,
     ) {
-        val currentAdministratorer = get(dbo.id)?.administratorer?.map { it.navIdent }?.toSet() ?: setOf()
+        val currentAdministratorer =
+            get(dbo.id)?.administratorer?.map { it.navIdent }?.toSet() ?: setOf()
 
         val administratorsToNotify =
-            (dbo.administratorer - currentAdministratorer - navIdent).toNonEmptyListOrNull() ?: return
+            (dbo.administratorer - currentAdministratorer - navIdent).toNonEmptyListOrNull()
+                ?: return
 
         val notification = ScheduledNotification(
             type = NotificationType.NOTIFICATION,
@@ -243,7 +288,13 @@ class TiltaksgjennomforingService(
         navIdent: NavIdent,
         tx: TransactionalSession,
     ) {
-        documentHistoryService.logEndring(tx, DocumentClass.TILTAKSGJENNOMFORING, operation, navIdent.value, dto.id) {
+        documentHistoryService.logEndring(
+            tx,
+            DocumentClass.TILTAKSGJENNOMFORING,
+            operation,
+            navIdent.value,
+            dto.id,
+        ) {
             Json.encodeToJsonElement(dto)
         }
     }
@@ -270,7 +321,8 @@ class TiltaksgjennomforingService(
         navIdent: NavIdent,
     ): Either<StatusResponseError, String> {
         val gjennomforing =
-            tiltaksgjennomforinger.get(gjennomforingId) ?: return Either.Left(NotFound("Gjennomføringen finnes ikke"))
+            tiltaksgjennomforinger.get(gjennomforingId)
+                ?: return Either.Left(NotFound("Gjennomføringen finnes ikke"))
 
         return db.transaction { tx ->
             tiltaksgjennomforinger.frikobleKontaktpersonFraGjennomforing(

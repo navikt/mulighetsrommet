@@ -1,21 +1,27 @@
-import { Alert, Pagination, Table, Tag, VStack } from "@navikt/ds-react";
-import { useAtom, WritableAtom } from "jotai";
-import { SorteringTiltaksgjennomforinger } from "mulighetsrommet-api-client";
-import { Lenke } from "mulighetsrommet-frontend-common/components/lenke/Lenke";
-import React from "react";
 import { TiltaksgjennomforingFilter } from "@/api/atoms";
 import { useAdminTiltaksgjennomforinger } from "@/api/tiltaksgjennomforing/useAdminTiltaksgjennomforinger";
-import { useSort } from "@/hooks/useSort";
+import { TabellWrapper } from "@/components/tabell/TabellWrapper";
+import {
+  createQueryParamsForExcelDownloadForTiltaksgjennomforing,
+  formaterDato,
+  formaterNavEnheter,
+} from "@/utils/Utils";
+import { Alert, Pagination, Table, Tag, VStack } from "@navikt/ds-react";
+import { useAtom, WritableAtom } from "jotai";
+import { OpenAPI, SorteringTiltaksgjennomforinger } from "mulighetsrommet-api-client";
+import { TiltaksgjennomforingStatusTag } from "mulighetsrommet-frontend-common";
+import { Lenke } from "mulighetsrommet-frontend-common/components/lenke/Lenke";
+import { ToolbarContainer } from "mulighetsrommet-frontend-common/components/toolbar/toolbarContainer/ToolbarContainer";
+import { ToolbarMeny } from "mulighetsrommet-frontend-common/components/toolbar/toolbarMeny/ToolbarMeny";
+import React, { createRef, useEffect, useState } from "react";
 import pageStyles from "../../pages/Page.module.scss";
-import { formaterDato, formaterNavEnheter } from "@/utils/Utils";
 import { ShowOpphavValue } from "../debug/ShowOpphavValue";
 import { Laster } from "../laster/Laster";
 import { PagineringContainer } from "../paginering/PagineringContainer";
 import { PagineringsOversikt } from "../paginering/PagineringOversikt";
-import { TiltaksgjennomforingstatusTag } from "../statuselementer/TiltaksgjennomforingstatusTag";
 import styles from "./Tabell.module.scss";
-import { ToolbarContainer } from "mulighetsrommet-frontend-common/components/toolbar/toolbarContainer/ToolbarContainer";
-import { TabellWrapper } from "@/components/tabell/TabellWrapper";
+import { APPLICATION_NAME } from "@/constants";
+import { EksporterTabellKnapp } from "@/components/eksporterTabell/EksporterTabellKnapp";
 
 const SkjulKolonne = ({ children, skjul }: { children: React.ReactNode; skjul: boolean }) => {
   return skjul ? null : <>{children}</>;
@@ -34,10 +40,57 @@ export function TiltaksgjennomforingsTabell({
   tagsHeight,
   filterOpen,
 }: Props) {
-  const [sort, setSort] = useSort("navn");
   const [filter, setFilter] = useAtom(filterAtom);
-
+  const [lasterExcel, setLasterExcel] = useState(false);
+  const [excelUrl, setExcelUrl] = useState("");
+  const sort = filter.sortering.tableSort;
   const { data, isLoading } = useAdminTiltaksgjennomforinger(filter);
+  const link = createRef<HTMLAnchorElement>();
+
+  async function lastNedFil(filter: TiltaksgjennomforingFilter) {
+    const headers = new Headers();
+    headers.append("Nav-Consumer-Id", APPLICATION_NAME);
+
+    if (import.meta.env.VITE_MULIGHETSROMMET_API_AUTH_TOKEN) {
+      headers.append(
+        "Authorization",
+        `Bearer ${import.meta.env.VITE_MULIGHETSROMMET_API_AUTH_TOKEN}`,
+      );
+    }
+    headers.append("accept", "application/json");
+
+    const queryParams = createQueryParamsForExcelDownloadForTiltaksgjennomforing(filter);
+
+    return await fetch(
+      `${OpenAPI.BASE}/api/v1/intern/tiltaksgjennomforinger/excel?${queryParams}`,
+      {
+        headers,
+      },
+    );
+  }
+
+  async function lastNedExcel() {
+    setLasterExcel(true);
+    if (excelUrl) {
+      setExcelUrl("");
+    }
+
+    const excelFil = await lastNedFil(filter);
+    const blob = await excelFil.blob();
+    const url = URL.createObjectURL(blob);
+    setExcelUrl(url);
+    setLasterExcel(false);
+  }
+
+  useEffect(() => {
+    if (link.current && excelUrl) {
+      link.current.download = "tiltaksgjennomforinger.xlsx";
+      link.current.href = excelUrl;
+
+      link.current.click();
+      URL.revokeObjectURL(excelUrl);
+    }
+  }, [excelUrl]);
 
   function updateFilter(newFilter: Partial<TiltaksgjennomforingFilter>) {
     setFilter({ ...filter, ...newFilter });
@@ -52,13 +105,11 @@ export function TiltaksgjennomforingsTabell({
           : "descending"
         : "ascending";
 
-    setSort({
-      orderBy: sortKey,
-      direction,
-    });
-
     updateFilter({
-      sortering: `${sortKey}-${direction}` as SorteringTiltaksgjennomforinger,
+      sortering: {
+        sortString: `${sortKey}-${direction}` as SorteringTiltaksgjennomforinger,
+        tableSort: { orderBy: sortKey, direction },
+      },
       page: sort.orderBy !== sortKey || sort.direction !== direction ? 1 : filter.page,
     });
   };
@@ -72,19 +123,23 @@ export function TiltaksgjennomforingsTabell({
   return (
     <>
       <ToolbarContainer tagsHeight={tagsHeight} filterOpen={filterOpen}>
-        <PagineringsOversikt
-          page={filter.page}
-          pageSize={filter.pageSize}
-          antall={tiltaksgjennomforinger.length}
-          maksAntall={pagination.totalCount}
-          type="tiltaksgjennomføringer"
-          onChangePageSize={(size) => {
-            updateFilter({
-              page: 1,
-              pageSize: size,
-            });
-          }}
-        />
+        <ToolbarMeny>
+          <PagineringsOversikt
+            page={filter.page}
+            pageSize={filter.pageSize}
+            antall={tiltaksgjennomforinger.length}
+            maksAntall={pagination.totalCount}
+            type="tiltaksgjennomføringer"
+            onChangePageSize={(size) => {
+              updateFilter({
+                page: 1,
+                pageSize: size,
+              });
+            }}
+          />
+          <EksporterTabellKnapp lastNedExcel={lastNedExcel} lasterExcel={lasterExcel} />
+          <a style={{ display: "none" }} ref={link}></a>
+        </ToolbarMeny>
       </ToolbarContainer>
       <TabellWrapper filterOpen={filterOpen}>
         {tiltaksgjennomforinger.length === 0 ? (
@@ -211,14 +266,12 @@ export function TiltaksgjennomforingsTabell({
 
                       <SkjulKolonne skjul={!!skjulKolonner?.status}>
                         <Table.DataCell>
-                          <TiltaksgjennomforingstatusTag
-                            tiltaksgjennomforing={tiltaksgjennomforing}
-                          />
+                          <TiltaksgjennomforingStatusTag status={tiltaksgjennomforing.status} />
                         </Table.DataCell>
                       </SkjulKolonne>
                       <Table.DataCell>
                         <VStack align={"center"}>
-                          {tiltaksgjennomforing.publisertForAlle ? (
+                          {tiltaksgjennomforing.publisert ? (
                             <Tag
                               aria-label="Tiltaket er publisert for alle"
                               title="Tiltaket er publisert for alle"

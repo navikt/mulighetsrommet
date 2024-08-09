@@ -9,22 +9,37 @@ import { mockTiltaksgjennomforinger } from "@/mock/fixtures/mockTiltaksgjennomfo
 import { mockTiltakstyper } from "@/mock/fixtures/mockTiltakstyper";
 
 export const tiltakHandlers = [
-  http.get("*/api/v1/internal/veileder/innsatsgrupper", async () => {
+  http.get("*/api/v1/intern/veileder/innsatsgrupper", async () => {
     return HttpResponse.json(mockInnsatsgrupper);
   }),
 
-  http.get("*/api/v1/internal/veileder/tiltakstyper", async () => {
+  http.get("*/api/v1/intern/veileder/tiltakstyper", async () => {
     return HttpResponse.json(Object.values(mockTiltakstyper));
   }),
 
-  http.get("*/api/v1/internal/veileder/tiltaksgjennomforinger", async ({ request }) => {
+  http.get("*/api/v1/intern/tiltakstyper/stotterPameldingIModia", async () => {
+    const tiltakstyperMedPamelding = [
+      "AVKLARING",
+      "OPPFOLGING",
+      "GRUPPE_ARBEIDSMARKEDSOPPLAERING",
+      "JOBBKLUBB",
+      "DIGITALT_OPPFOLGINGSTILTAK",
+      "ARBEIDSFORBEREDENDE_TRENING",
+      "GRUPPE_FAG_OG_YRKESOPPLAERING",
+      "ARBEIDSRETTET_REHABILITERING",
+      "VARIG_TILRETTELAGT_ARBEID_SKJERMET",
+    ];
+    return HttpResponse.json(tiltakstyperMedPamelding);
+  }),
+
+  http.get("*/api/v1/intern/veileder/tiltaksgjennomforinger", async ({ request }) => {
     const url = new URL(request.url);
     const results = getFilteredArbeidsmarkedstiltak(url);
     return HttpResponse.json(results);
   }),
 
   http.get<{ id: string }>(
-    "*/api/v1/internal/veileder/tiltaksgjennomforinger/:id",
+    "*/api/v1/intern/veileder/tiltaksgjennomforinger/:id",
     async ({ params }) => {
       const { id } = params;
       const gjennomforing = findArbeidsmarkedstiltak(id);
@@ -32,14 +47,14 @@ export const tiltakHandlers = [
     },
   ),
 
-  http.get("*/api/v1/internal/veileder/nav/tiltaksgjennomforinger", async ({ request }) => {
+  http.get("*/api/v1/intern/veileder/nav/tiltaksgjennomforinger", async ({ request }) => {
     const url = new URL(request.url);
     const results = getFilteredArbeidsmarkedstiltak(url);
     return HttpResponse.json(results);
   }),
 
   http.get<{ id: string }>(
-    "*/api/v1/internal/veileder/nav/tiltaksgjennomforinger/:id",
+    "*/api/v1/intern/veileder/nav/tiltaksgjennomforinger/:id",
     async ({ params }) => {
       const { id } = params;
 
@@ -56,14 +71,14 @@ export const tiltakHandlers = [
     },
   ),
 
-  http.get("*/api/v1/internal/veileder/preview/tiltaksgjennomforinger", async ({ request }) => {
+  http.get("*/api/v1/intern/veileder/preview/tiltaksgjennomforinger", async ({ request }) => {
     const url = new URL(request.url);
     const results = getFilteredArbeidsmarkedstiltak(url);
     return HttpResponse.json(results);
   }),
 
   http.get<{ id: string }>(
-    "*/api/v1/internal/veileder/preview/tiltaksgjennomforinger/:id",
+    "*/api/v1/intern/veileder/preview/tiltaksgjennomforinger/:id",
     async ({ params }) => {
       const { id } = params;
       const gjennomforing = findArbeidsmarkedstiltak(id);

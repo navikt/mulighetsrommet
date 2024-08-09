@@ -7,6 +7,12 @@ import { PreviewArbeidsmarkedstiltak } from "@/apps/nav/PreviewArbeidsmarkedstil
 import { ModiaArbeidsmarkedstiltak } from "@/apps/modia/ModiaArbeidsmarkedstiltak";
 import { ReactQueryProvider } from "@/ReactQueryProvider";
 import "../../index.css";
+import { setupOpenAPIClient } from "@/api/setup-openapi-client";
+
+setupOpenAPIClient({
+  base: import.meta.env.VITE_MULIGHETSROMMET_API_BASE ?? "",
+  authToken: import.meta.env.VITE_MULIGHETSROMMET_API_AUTH_TOKEN,
+});
 
 if (import.meta.env.VITE_MULIGHETSROMMET_API_MOCK === "true") {
   import("../../mock/worker")

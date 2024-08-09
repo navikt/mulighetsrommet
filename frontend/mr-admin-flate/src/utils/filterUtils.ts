@@ -69,7 +69,7 @@ export const AVTALE_TYPE_OPTIONS: { label: string; value: Avtaletype }[] = [
   },
 ];
 
-export const regionOptions = (enheter: NavEnhet[]) => {
+export function regionOptions(enheter: NavEnhet[]) {
   return enheter
     .filter((enhet) => enhet.type === NavEnhetType.FYLKE)
     .sort()
@@ -77,20 +77,20 @@ export const regionOptions = (enheter: NavEnhet[]) => {
       label: enhet.navn,
       value: enhet.enhetsnummer,
     }));
-};
+}
 
-export const tiltakstypeOptions = (tiltakstyper: Tiltakstype[]) => {
+export function tiltakstypeOptions(tiltakstyper: Tiltakstype[]) {
   return (
     tiltakstyper.sort().map((tiltakstype) => ({
       label: tiltakstype.navn,
       value: tiltakstype.id,
     })) || []
   );
-};
+}
 
-export const arrangorOptions = (arrangorer: Arrangor[]) => {
+export function arrangorOptions(arrangorer: Arrangor[]) {
   return arrangorer.sort().map((arrangor) => ({
     label: arrangor.navn,
     value: arrangor.id,
   }));
-};
+}

@@ -2,7 +2,17 @@ import { useQuery } from "@tanstack/react-query";
 import { useDebounce } from "mulighetsrommet-frontend-common";
 import { QueryKeys } from "@/api/QueryKeys";
 import { TiltaksgjennomforingFilter } from "../atoms";
-import { mulighetsrommetClient } from "@/api/client";
+import { TiltaksgjennomforingerService } from "mulighetsrommet-api-client";
+
+function getPublisertStatus(statuser: string[] = []): boolean | null {
+  if (statuser.length === 0) return null;
+
+  if (statuser.every((status) => status === "publisert")) return true;
+
+  if (statuser.every((status) => status === "ikke-publisert")) return false;
+
+  return null;
+}
 
 export function useAdminTiltaksgjennomforinger(filter: Partial<TiltaksgjennomforingFilter>) {
   const debouncedSok = useDebounce(filter.search?.trim(), 300);
@@ -12,10 +22,11 @@ export function useAdminTiltaksgjennomforinger(filter: Partial<Tiltaksgjennomfor
     navEnheter: filter.navEnheter?.map((e) => e.enhetsnummer) ?? [],
     tiltakstyper: filter.tiltakstyper,
     statuser: filter.statuser,
-    sort: filter.sortering ? filter.sortering : undefined,
+    sort: filter.sortering ? filter.sortering.sortString : undefined,
     page: filter.page ?? 1,
     size: filter.pageSize,
     avtaleId: filter.avtale ? filter.avtale : undefined,
+    publisert: getPublisertStatus(filter.publisert),
     arrangorer: filter.arrangorer,
   };
 
@@ -26,7 +37,7 @@ export function useAdminTiltaksgjennomforinger(filter: Partial<Tiltaksgjennomfor
     }),
     queryFn: () =>
       filter.visMineGjennomforinger
-        ? mulighetsrommetClient.tiltaksgjennomforinger.getMineTiltaksgjennomforinger(queryFilter)
-        : mulighetsrommetClient.tiltaksgjennomforinger.getTiltaksgjennomforinger(queryFilter),
+        ? TiltaksgjennomforingerService.getMineTiltaksgjennomforinger(queryFilter)
+        : TiltaksgjennomforingerService.getTiltaksgjennomforinger(queryFilter),
   });
 }

@@ -1,16 +1,14 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { mulighetsrommetClient } from "../client";
 import { QueryKeys } from "../QueryKeys";
+import { TiltaksgjennomforingerService } from "mulighetsrommet-api-client";
 
 export function useFrikobleArrangorKontaktpersonFraTiltaksgjennomforing() {
   const client = useQueryClient();
   return useMutation({
     mutationFn: (body: { kontaktpersonId: string; dokumentId: string }) => {
-      return mulighetsrommetClient.tiltaksgjennomforinger.frikobleKontaktpersonFraTiltaksgjennomforing(
-        {
-          requestBody: { ...body },
-        },
-      );
+      return TiltaksgjennomforingerService.frikobleKontaktpersonFraTiltaksgjennomforing({
+        requestBody: { ...body },
+      });
     },
     async onSuccess(_, request) {
       await client.invalidateQueries({

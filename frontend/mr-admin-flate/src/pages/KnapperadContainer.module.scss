@@ -1,0 +1,8 @@
+.knapperad_container {
+  display: flex;
+  flex-direction: row;
+  justify-content: end;
+  align-items: center;
+  grid-area: knapperad;
+  gap: 0.5rem;
+}

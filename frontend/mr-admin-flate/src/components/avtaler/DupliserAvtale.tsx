@@ -15,7 +15,7 @@ export function DupliserAvtale({ avtale }: Props) {
   const { data: migrerteTiltakstyper } = useMigrerteTiltakstyperForAvtaler();
   const setAvtaleDetaljerTab = useSetAtom(avtaleDetaljerTabAtom);
 
-  if (!migrerteTiltakstyper.includes(avtale.tiltakstype.arenaKode)) return null;
+  if (!migrerteTiltakstyper.includes(avtale.tiltakstype.tiltakskode)) return null;
 
   function apneRedigeringForDupliseringAvAvtale() {
     setAvtaleDetaljerTab("detaljer");

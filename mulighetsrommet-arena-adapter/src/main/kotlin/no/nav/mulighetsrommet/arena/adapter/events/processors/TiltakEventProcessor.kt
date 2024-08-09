@@ -17,7 +17,10 @@ import java.util.*
 class TiltakEventProcessor(
     private val entities: ArenaEntityService,
 ) : ArenaEventProcessor {
-    override val arenaTable: ArenaTable = ArenaTable.Tiltakstype
+
+    override suspend fun shouldHandleEvent(event: ArenaEvent): Boolean {
+        return event.arenaTable === ArenaTable.Tiltakstype
+    }
 
     override suspend fun handleEvent(event: ArenaEvent) = either {
         val mapping = entities.getMapping(event.arenaTable, event.arenaId).bind()

@@ -1,0 +1,25 @@
+.container {
+  background-color: var(--a-surface-subtle);
+  padding: 1rem;
+  border-radius: 0.5rem;
+}
+
+.separator {
+  height: 0.2rem;
+  background-color: var(--a-border-strong);
+  border: none;
+}
+
+.button_as_link {
+  background: none;
+  color: var(--a-surface-inverted);
+
+  &:hover,
+  :focus-visible {
+    text-decoration: underline;
+    outline: none;
+    outline-offset: 0;
+    box-shadow: initial;
+    background-color: var(--a-bg-subtle);
+  }
+}

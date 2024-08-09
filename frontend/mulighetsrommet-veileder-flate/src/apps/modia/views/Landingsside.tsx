@@ -1,15 +1,11 @@
-import { useHistorikkV2 } from "@/api/queries/useHistorikkV2";
 import { InformationSquareFillIcon, PlusIcon } from "@navikt/aksel-icons";
 import { Alert, BodyShort, Heading, Skeleton, VStack } from "@navikt/ds-react";
-import { Suspense } from "react";
+import { Suspense, useState } from "react";
 import { ErrorBoundary } from "react-error-boundary";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { DeltakelseKort } from "../historikk/DeltakelseKort";
 import styles from "./Landingsside.module.scss";
-
-function SkeletonLoader() {
-  return <Skeleton variant="rounded" height={"10rem"} width={"40rem"} />;
-}
+import { useDeltakelserFraKomet } from "@/api/queries/useDeltakelserFraKomet";
 
 function Feilmelding({ message }: { message: string }) {
   return (
@@ -22,7 +18,7 @@ function Feilmelding({ message }: { message: string }) {
 export function Landingsside() {
   return (
     <main className="mulighetsrommet-veileder-flate">
-      <VStack gap="10" className={styles.container}>
+      <VStack gap="5" className={styles.container}>
         <ErrorBoundary
           FallbackComponent={() =>
             Feilmelding({
@@ -31,7 +27,8 @@ export function Landingsside() {
             })
           }
         >
-          <Suspense fallback={<SkeletonLoader />}>
+          <Suspense fallback={<Skeleton variant="rounded" height="10rem" width="40rem" />}>
+            <FeedbackFraUrl />
             <Utkast />
           </Suspense>
         </ErrorBoundary>
@@ -50,8 +47,8 @@ export function Landingsside() {
           <Suspense
             fallback={
               <VStack gap="5">
-                <SkeletonLoader />
-                <SkeletonLoader />
+                <Skeleton variant="rounded" height="10rem" width="40rem" />
+                <Skeleton variant="rounded" height="10rem" width="40rem" />
               </VStack>
             }
           >
@@ -69,7 +66,7 @@ export function Landingsside() {
 }
 
 function Historikk() {
-  const { data } = useHistorikkV2();
+  const { data } = useDeltakelserFraKomet();
   if (!data) {
     return null;
   }
@@ -93,7 +90,7 @@ function Historikk() {
 }
 
 function Utkast() {
-  const { data } = useHistorikkV2();
+  const { data } = useDeltakelserFraKomet();
   if (!data) {
     return null;
   }
@@ -110,5 +107,40 @@ function Utkast() {
         );
       })}
     </VStack>
+  );
+}
+
+function FeedbackFraUrl() {
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const successFeedbackHeading = queryParams.get("success_feedback_heading");
+  const successFeedbackBody = queryParams.get("success_feedback_body");
+  const [show, setShow] = useState(true);
+
+  function onClose() {
+    const searchParams = new URLSearchParams(location.search);
+    searchParams.delete("success_feedback_heading");
+    searchParams.delete("success_feedback_body");
+    window.history.replaceState(null, "", `${location.pathname}?${searchParams}`);
+    setShow(false);
+  }
+
+  if (!successFeedbackBody) {
+    return null;
+  }
+
+  if (!show) {
+    return null;
+  }
+
+  return (
+    <Alert size="small" closeButton variant="success" onClose={onClose}>
+      {successFeedbackHeading ? (
+        <Heading size="small" spacing>
+          {decodeURIComponent(successFeedbackHeading)}
+        </Heading>
+      ) : null}
+      {decodeURIComponent(successFeedbackBody)}
+    </Alert>
   );
 }

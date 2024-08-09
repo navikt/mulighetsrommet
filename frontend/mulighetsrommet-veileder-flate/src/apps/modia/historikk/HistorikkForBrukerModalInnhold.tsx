@@ -1,41 +1,30 @@
-import { ExternalLinkIcon } from "@navikt/aksel-icons";
-import { Alert, BodyShort, Detail, Loader } from "@navikt/ds-react";
-import { HistorikkForBruker as IHistorikkForBruker } from "mulighetsrommet-api-client";
-import { useTiltakshistorikkForBruker } from "@/apps/modia/hooks/useTiltakshistorikkForBruker";
+import { PortenLink } from "@/components/PortenLink";
 import { formaterDato } from "@/utils/Utils";
+import { ExternalLinkIcon } from "@navikt/aksel-icons";
+import { Alert, BodyShort, Detail, HStack, Heading, Loader, VStack } from "@navikt/ds-react";
 import styles from "./HistorikkForBrukerModal.module.scss";
 import { StatusBadge } from "./Statusbadge";
-import { PortenLink } from "@/components/PortenLink";
+import { useTiltakshistorikkForBruker } from "@/api/queries/useTiltakshistorikkForBruker";
+import { AmtDeltakerStatusAarsak, TiltakshistorikkAdminDto } from "mulighetsrommet-api-client";
 
 export function HistorikkForBrukerModalInnhold() {
-  const { data, isLoading, isError } = useTiltakshistorikkForBruker();
-  if (isLoading && !data) return <Loader />;
+  const { data: historikk, isPending, isError } = useTiltakshistorikkForBruker();
 
-  if (isError) return <Alert variant="error">Kunne ikke hente brukerens tiltakshistorikk</Alert>;
+  if (isPending) return <Loader />;
 
-  const sorterPaaFraDato = (a: IHistorikkForBruker, b: IHistorikkForBruker) => {
-    if (!a.fraDato || !b.fraDato) return -1; // Flytt deltakelser uten fraDato bakerst
+  if (isError || !historikk)
+    return <Alert variant="error">Kunne ikke hente brukerens tiltakshistorikk</Alert>;
 
-    return new Date(a.fraDato ?? "").getTime() - new Date(b.fraDato ?? "").getTime();
+  const sorterPaaFraDato = (a: TiltakshistorikkAdminDto, b: TiltakshistorikkAdminDto) => {
+    if (!a.startDato) return 1;
+    if (!b.startDato) return -1;
+
+    return new Date(b.startDato ?? "").getTime() - new Date(a.startDato ?? "").getTime();
   };
 
-  const venter =
-    data?.filter((deltak) => ["VENTER"].includes(deltak.status ?? "")).sort(sorterPaaFraDato) ?? [];
-  const deltar =
-    data?.filter((deltak) => ["DELTAR"].includes(deltak.status ?? "")).sort(sorterPaaFraDato) ?? [];
-  const avsluttet =
-    data?.filter((deltak) => ["AVSLUTTET"].includes(deltak.status ?? "")).sort(sorterPaaFraDato) ??
-    [];
-  const ikkeAktuell =
-    data
-      ?.filter((deltak) => ["IKKE_AKTUELL"].includes(deltak.status ?? ""))
-      .sort(sorterPaaFraDato) ?? [];
-
-  const tiltak = [...venter, ...deltar, ...avsluttet, ...ikkeAktuell];
-
   return (
-    <>
-      {tiltak.length === 0 ? (
+    <div style={{ marginTop: "1rem" }}>
+      {historikk.length === 0 ? (
         <Alert variant="info" style={{ marginBottom: "1rem" }}>
           Vi finner ingen registrerte tiltak på brukeren
         </Alert>
@@ -45,35 +34,37 @@ export function HistorikkForBrukerModalInnhold() {
         Arena kan mangle i historikken.
       </Alert>
       <ul className={styles.historikk_for_bruker_liste}>
-        {tiltak?.map((historikk) => {
+        {historikk.sort(sorterPaaFraDato).map((historikk) => {
           return (
             <li key={historikk.id} className={styles.historikk_for_bruker_listeelement}>
-              <div className={styles.historikk_for_bruker_data}>
-                <BodyShort size="small">{historikk.tiltaksnavn}</BodyShort>
-
-                <div className={styles.historikk_for_bruker_arrangor_tiltakstype}>
-                  <Detail className={styles.historikk_for_bruker_tiltakstype}>
-                    {historikk.tiltakstype}
-                  </Detail>
-                  <Detail>•</Detail>
-                  <Detail className={styles.historikk_for_bruker_arrangor}>
-                    {historikk.arrangor?.navn}
-                  </Detail>
-                </div>
-              </div>
-              <div className={styles.historikk_for_bruker_status_dato}>
-                <StatusBadge status={historikk.status} />
-                <div className={styles.historikk_datoer}>
-                  <Detail>{formaterDato(historikk.fraDato ?? "")}</Detail> -{" "}
-                  <Detail>{formaterDato(historikk.tilDato ?? "")}</Detail>
-                </div>
-              </div>
+              <VStack>
+                <HStack gap="10">{<small>{historikk.tiltakstypeNavn.toUpperCase()}</small>}</HStack>
+                <Heading size="small" level="4">
+                  {historikk.tiltakNavn}
+                </Heading>
+                <HStack align={"end"} gap="5">
+                  <StatusBadge status={historikk.status} />
+                  {historikk.opphav === "TEAM_KOMET" && historikk.status.aarsak && (
+                    <Detail>{`Årsak: ${amtAarsakToString(historikk.status.aarsak)}`}</Detail>
+                  )}
+                  {historikk.startDato ? (
+                    <BodyShort size="small">
+                      {historikk.startDato && !historikk.sluttDato
+                        ? `Oppstartsdato ${formaterDato(historikk.startDato)}`
+                        : [historikk.startDato, historikk.sluttDato]
+                            .filter(Boolean)
+                            .map((dato) => dato && formaterDato(dato))
+                            .join(" - ")}
+                    </BodyShort>
+                  ) : null}
+                </HStack>
+              </VStack>
             </li>
           );
         })}
       </ul>
       <ViVilHoreFraDeg />
-    </>
+    </div>
   );
 }
 
@@ -90,4 +81,33 @@ function ViVilHoreFraDeg() {
       </BodyShort>
     </>
   );
+}
+
+function amtAarsakToString(aarsak: AmtDeltakerStatusAarsak): string {
+  switch (aarsak) {
+    case AmtDeltakerStatusAarsak.SYK:
+      return "Syk";
+    case AmtDeltakerStatusAarsak.FATT_JOBB:
+      return "Fått jobb";
+    case AmtDeltakerStatusAarsak.TRENGER_ANNEN_STOTTE:
+      return "Trenger anne støtte";
+    case AmtDeltakerStatusAarsak.FIKK_IKKE_PLASS:
+      return "Fikk ikke plass";
+    case AmtDeltakerStatusAarsak.UTDANNING:
+      return "Utdanning";
+    case AmtDeltakerStatusAarsak.FERDIG:
+      return "Ferdig";
+    case AmtDeltakerStatusAarsak.AVLYST_KONTRAKT:
+      return "Avlyst kontrakt";
+    case AmtDeltakerStatusAarsak.IKKE_MOTT:
+      return "Ikke møtt";
+    case AmtDeltakerStatusAarsak.FEILREGISTRERT:
+      return "Feilregistrert";
+    case AmtDeltakerStatusAarsak.OPPFYLLER_IKKE_KRAVENE:
+      return "Oppfyller ikke kravene";
+    case AmtDeltakerStatusAarsak.ANNET:
+      return "Annet";
+    case AmtDeltakerStatusAarsak.SAMARBEIDET_MED_ARRANGOREN_ER_AVBRUTT:
+      return "Samarbeidet med arrangøren er avbrutt";
+  }
 }

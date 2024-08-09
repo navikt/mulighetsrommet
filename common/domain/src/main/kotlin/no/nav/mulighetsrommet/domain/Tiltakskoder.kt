@@ -12,6 +12,20 @@ enum class Tiltakskode {
     VARIG_TILRETTELAGT_ARBEID_SKJERMET,
     ;
 
+    fun toArenaKode(): String {
+        return when (this) {
+            ARBEIDSFORBEREDENDE_TRENING -> "ARBFORB"
+            ARBEIDSRETTET_REHABILITERING -> "ARBRRHDAG"
+            AVKLARING -> "AVKLARAG"
+            DIGITALT_OPPFOLGINGSTILTAK -> "DIGIOPPARB"
+            GRUPPE_FAG_OG_YRKESOPPLAERING -> "GRUFAGYRKE"
+            GRUPPE_ARBEIDSMARKEDSOPPLAERING -> "GRUPPEAMO"
+            OPPFOLGING -> "INDOPPFAG"
+            JOBBKLUBB -> "JOBBK"
+            VARIG_TILRETTELAGT_ARBEID_SKJERMET -> "VASV"
+        }
+    }
+
     companion object {
         fun fromArenaKode(arenaKode: String): Tiltakskode? {
             return when (arenaKode) {
@@ -28,17 +42,9 @@ enum class Tiltakskode {
             }
         }
 
-        fun toArenaKode(tiltakskode: Tiltakskode): String {
-            return when (tiltakskode) {
-                ARBEIDSFORBEREDENDE_TRENING -> "ARBFORB"
-                ARBEIDSRETTET_REHABILITERING -> "ARBRRHDAG"
-                AVKLARING -> "AVKLARAG"
-                DIGITALT_OPPFOLGINGSTILTAK -> "DIGIOPPARB"
-                GRUPPE_FAG_OG_YRKESOPPLAERING -> "GRUFAGYRKE"
-                GRUPPE_ARBEIDSMARKEDSOPPLAERING -> "GRUPPEAMO"
-                OPPFOLGING -> "INDOPPFAG"
-                JOBBKLUBB -> "JOBBK"
-                VARIG_TILRETTELAGT_ARBEID_SKJERMET -> "VASV"
+        fun fromArenaKodeOrFail(arenaKode: String): Tiltakskode {
+            return requireNotNull(fromArenaKode(arenaKode)) {
+                "Tiltakskode er ikke definert for $arenaKode"
             }
         }
     }
@@ -78,9 +84,9 @@ object Tiltakskoder {
      * Disse har blitt referert til som "kurs" av komet.
      */
     val TiltakMedFellesOppstart = listOf(
-        "GRUPPEAMO",
-        "JOBBK",
-        "GRUFAGYRKE",
+        Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
+        Tiltakskode.JOBBKLUBB,
+        Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
     )
 
     /**
@@ -99,8 +105,8 @@ object Tiltakskoder {
     )
 
     val TiltakMedAvtalerFraMulighetsrommet = listOf(
-        "ARBFORB",
-        "VASV",
+        Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
+        Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET,
     )
 
     fun isGruppetiltak(arenaKode: String): Boolean {
@@ -111,15 +117,15 @@ object Tiltakskoder {
         return arenaKode in EgenRegiTiltak
     }
 
-    fun isKursTiltak(arenaKode: String): Boolean {
-        return arenaKode in TiltakMedFellesOppstart
+    fun isKursTiltak(tiltakskode: Tiltakskode?): Boolean {
+        return tiltakskode in TiltakMedFellesOppstart
     }
 
     fun isAmtTiltak(arenaKode: String): Boolean {
         return arenaKode in AmtTiltak
     }
 
-    fun isTiltakMedAvtalerFraMulighetsrommet(arenaKode: String): Boolean {
-        return arenaKode in TiltakMedAvtalerFraMulighetsrommet
+    fun isTiltakMedAvtalerFraMulighetsrommet(tiltakskode: Tiltakskode?): Boolean {
+        return tiltakskode in TiltakMedAvtalerFraMulighetsrommet
     }
 }

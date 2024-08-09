@@ -42,7 +42,7 @@ export function getDelMedBrukerTekst(
   );
 }
 
-export function erBrukerReservertMotElektroniskKommunikasjon(brukerdata: Bruker): {
+export function erBrukerReservertMotDigitalKommunikasjon(brukerdata: Bruker): {
   reservert: boolean;
   melding: string | null;
 } {
@@ -50,7 +50,7 @@ export function erBrukerReservertMotElektroniskKommunikasjon(brukerdata: Bruker)
     return {
       reservert: true,
       melding:
-        "Vi kunne ikke opprette kontakt med KRR og vet derfor ikke om brukeren har reservert seg mot elektronisk kommunikasjon.",
+        "Vi kunne ikke opprette kontakt med KRR og vet derfor ikke om brukeren har reservert seg mot digital kommunikasjon.",
     };
   } else if (brukerdata.manuellStatus.erUnderManuellOppfolging) {
     return {
@@ -62,13 +62,12 @@ export function erBrukerReservertMotElektroniskKommunikasjon(brukerdata: Bruker)
     return {
       reservert: true,
       melding:
-        "Brukeren har reservert seg mot elektronisk kommunikasjon i Kontakt- og reservasjonsregisteret (KRR).",
+        "Brukeren har reservert seg mot digital kommunikasjon i Kontakt- og reservasjonsregisteret (KRR).",
     };
   } else if (brukerdata.manuellStatus.krrStatus && !brukerdata.manuellStatus.krrStatus.kanVarsles) {
     return {
       reservert: true,
-      melding:
-        "Brukeren er reservert mot elektronisk kommunikasjon i KRR. Vi kan derfor ikke kommunisere digitalt med denne brukeren.",
+      melding: "Brukeren er reservert mot digital kommunikasjon i KRR.",
     };
   } else {
     return {

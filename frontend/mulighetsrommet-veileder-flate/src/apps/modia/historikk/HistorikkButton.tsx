@@ -1,9 +1,9 @@
+import StandardModal from "@/components/modal/StandardModal";
+import { useLogEvent } from "@/logging/amplitude";
 import { ClockDashedIcon } from "@navikt/aksel-icons";
 import { Button } from "@navikt/ds-react";
-import StandardModal from "@/components/modal/StandardModal";
 import styles from "./HistorikkForBrukerModal.module.scss";
-import { HistorikkForBrukerModalInnhold } from "./HistorikkForBrukerModalInnhold";
-import { useLogEvent } from "@/logging/amplitude";
+import { HistorikkModal } from "./HistorikkModal";
 
 interface Props {
   setHistorikkModalOpen: (state: boolean) => void;
@@ -31,16 +31,18 @@ export function HistorikkButton({ setHistorikkModalOpen, isHistorikkModalOpen }:
         <ClockDashedIcon aria-label="Historikk" />
         Historikk
       </Button>
-      <StandardModal
-        className={styles.historikk_modal}
-        hideButtons
-        modalOpen={isHistorikkModalOpen}
-        setModalOpen={() => setHistorikkModalOpen(false)}
-        heading="Historikk"
-        id="historikk_modal"
-      >
-        <HistorikkForBrukerModalInnhold />
-      </StandardModal>
+      {isHistorikkModalOpen && (
+        <StandardModal
+          className={styles.historikk_modal}
+          hideButtons
+          modalOpen={isHistorikkModalOpen}
+          setModalOpen={() => setHistorikkModalOpen(false)}
+          heading="Historikk"
+          id="historikk_modal"
+        >
+          <HistorikkModal />
+        </StandardModal>
+      )}
     </>
   );
 }

@@ -1,17 +1,15 @@
+import { useDeleteArrangorKontaktperson } from "@/api/arrangor/useDeleteArrangorKontaktperson";
+import { useUpsertArrangorKontaktperson } from "@/api/arrangor/useUpsertArrangorKontaktperson";
+import { useHandleApiUpsertResponse } from "@/api/effects";
+import { SkjemaInputContainer } from "@/components/skjema/SkjemaInputContainer";
+import { validEmail } from "@/utils/Utils";
 import { Button, TextField, UNSAFE_Combobox } from "@navikt/ds-react";
-import { useEffect, useState } from "react";
+import { ArrangorKontaktperson, ArrangorKontaktpersonAnsvar } from "mulighetsrommet-api-client";
+import { resolveErrorMessage } from "mulighetsrommet-frontend-common/components/error-handling/errors";
+import { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import styles from "./ArrangorKontaktpersonSkjema.module.scss";
-import { useUpsertArrangorKontaktperson } from "@/api/arrangor/useUpsertArrangorKontaktperson";
-import { validEmail } from "../../utils/Utils";
-import {
-  ArrangorKontaktperson as ArrangorKontaktperson,
-  ArrangorKontaktpersonAnsvar,
-} from "mulighetsrommet-api-client";
-import { useDeleteArrangorKontaktperson } from "@/api/arrangor/useDeleteArrangorKontaktperson";
-import { useHandleApiUpsertResponse } from "@/api/effects";
 import { navnForAnsvar } from "./ArrangorKontaktpersonUtils";
-import { resolveErrorMessage } from "mulighetsrommet-frontend-common/components/error-handling/errors";
 
 type ArrangorKontaktpersonErrors = Partial<Record<keyof ArrangorKontaktperson, string>>;
 
@@ -31,8 +29,12 @@ interface VirksomhetKontaktpersonerProps {
   onOpprettSuccess: (kontaktperson: ArrangorKontaktperson) => void;
 }
 
-export const ArrangorKontaktpersonSkjema = (props: VirksomhetKontaktpersonerProps) => {
-  const { arrangorId, person, onSubmit, onOpprettSuccess } = props;
+export function ArrangorKontaktpersonSkjema({
+  arrangorId,
+  person,
+  onSubmit,
+  onOpprettSuccess,
+}: VirksomhetKontaktpersonerProps) {
   const putMutation = useUpsertArrangorKontaktperson(arrangorId);
   const deleteMutation = useDeleteArrangorKontaktperson();
 
@@ -45,17 +47,17 @@ export const ArrangorKontaktpersonSkjema = (props: VirksomhetKontaktpersonerProp
     errors: {},
   });
 
-  useEffect(() => {
-    if (deleteMutation.isSuccess) {
-      deleteMutation.reset();
-      onSubmit();
-      return;
-    }
-  }, [deleteMutation]);
-
   function deleteKontaktperson() {
     if (person) {
-      deleteMutation.mutate({ arrangorId, kontaktpersonId: person.id });
+      deleteMutation.mutate(
+        { arrangorId, kontaktpersonId: person.id },
+        {
+          onSuccess: () => {
+            deleteMutation.reset();
+            onSubmit();
+          },
+        },
+      );
     }
   }
 
@@ -103,7 +105,7 @@ export const ArrangorKontaktpersonSkjema = (props: VirksomhetKontaktpersonerProp
   }
 
   return (
-    <div className={styles.input_container}>
+    <SkjemaInputContainer>
       <TextField
         size="small"
         label={"Navn"}
@@ -198,10 +200,10 @@ export const ArrangorKontaktpersonSkjema = (props: VirksomhetKontaktpersonerProp
         )}
       </div>
       {deleteMutation.isError && (
-        <div className={styles.error_msg} style={{}}>
+        <div className={styles.error_msg}>
           <b>• {resolveErrorMessage(deleteMutation.error)}</b>
         </div>
       )}
-    </div>
+    </SkjemaInputContainer>
   );
-};
+}

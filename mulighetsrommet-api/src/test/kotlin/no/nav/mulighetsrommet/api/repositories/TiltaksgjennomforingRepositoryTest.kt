@@ -36,6 +36,7 @@ import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.VTA1
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.database.utils.Pagination
+import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.ArenaTiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
@@ -86,6 +87,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         test("CRUD ArenaTiltaksgjennomforing") {
             val gjennomforingFraArena = ArenaTiltaksgjennomforingDbo(
                 id = UUID.randomUUID(),
+                sanityId = null,
                 navn = "Tiltak for dovne giraffer",
                 tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
                 tiltaksnummer = "2023#1",
@@ -108,7 +110,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 it.tiltakstype shouldBe TiltaksgjennomforingAdminDto.Tiltakstype(
                     id = TiltakstypeFixtures.Oppfolging.id,
                     navn = TiltakstypeFixtures.Oppfolging.navn,
-                    arenaKode = TiltakstypeFixtures.Oppfolging.arenaKode,
+                    tiltakskode = Tiltakskode.fromArenaKodeOrFail(TiltakstypeFixtures.Oppfolging.arenaKode),
                 )
                 it.tiltaksnummer shouldBe "2023#1"
                 it.arrangor shouldBe TiltaksgjennomforingAdminDto.ArrangorUnderenhet(
@@ -124,11 +126,10 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 it.apentForInnsok shouldBe false
                 it.antallPlasser shouldBe 10
                 it.avtaleId shouldBe null
-                it.status shouldBe TiltaksgjennomforingStatus.AVSLUTTET
+                it.status.status shouldBe TiltaksgjennomforingStatus.AVSLUTTET
                 it.administratorer shouldBe emptyList()
                 it.navEnheter shouldBe emptyList()
                 it.navRegion shouldBe null
-                it.sanityId shouldBe null
                 it.opphav shouldBe ArenaMigrering.Opphav.ARENA
                 it.kontaktpersoner shouldBe emptyList()
                 it.stedForGjennomforing shouldBe null
@@ -222,7 +223,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 it.tiltakstype shouldBe TiltaksgjennomforingAdminDto.Tiltakstype(
                     id = TiltakstypeFixtures.Oppfolging.id,
                     navn = TiltakstypeFixtures.Oppfolging.navn,
-                    arenaKode = TiltakstypeFixtures.Oppfolging.arenaKode,
+                    tiltakskode = Tiltakskode.fromArenaKodeOrFail(TiltakstypeFixtures.Oppfolging.arenaKode),
                 )
                 it.navn shouldBe Oppfolging1.navn
                 it.tiltaksnummer shouldBe null
@@ -236,7 +237,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 it.startDato shouldBe Oppfolging1.startDato
                 it.sluttDato shouldBe Oppfolging1.sluttDato
                 it.arenaAnsvarligEnhet shouldBe null
-                it.status shouldBe TiltaksgjennomforingStatus.AVSLUTTET
+                it.status.status shouldBe TiltaksgjennomforingStatus.AVSLUTTET
                 it.apentForInnsok shouldBe true
                 it.antallPlasser shouldBe 12
                 it.avtaleId shouldBe Oppfolging1.avtaleId
@@ -247,7 +248,6 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                     ),
                 )
                 it.navEnheter shouldBe listOf(Gjovik)
-                it.sanityId shouldBe null
                 it.oppstart shouldBe TiltaksgjennomforingOppstartstype.LOPENDE
                 it.opphav shouldBe ArenaMigrering.Opphav.MR_ADMIN_FLATE
                 it.kontaktpersoner shouldBe listOf()
@@ -421,16 +421,6 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             )
         }
 
-        test("update sanity_id") {
-            val id = UUID.randomUUID()
-
-            tiltaksgjennomforinger.upsert(Oppfolging1)
-            tiltaksgjennomforinger.updateSanityTiltaksgjennomforingId(Oppfolging1.id, id)
-            tiltaksgjennomforinger.get(Oppfolging1.id).should {
-                it!!.sanityId.shouldBe(id)
-            }
-        }
-
         test("arrangør kontaktperson") {
             val arrangorRepository = ArrangorRepository(database.db)
 
@@ -495,15 +485,15 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             val gjennomforing = Oppfolging1.copy(id = UUID.randomUUID())
             tiltaksgjennomforinger.upsert(gjennomforing)
             tiltaksgjennomforinger.setPublisert(gjennomforing.id, true)
-            tiltaksgjennomforinger.get(gjennomforing.id)?.publisertForAlle shouldBe true
+            tiltaksgjennomforinger.get(gjennomforing.id)?.publisert shouldBe true
 
             tiltaksgjennomforinger.setPublisert(gjennomforing.id, false)
-            tiltaksgjennomforinger.get(gjennomforing.id)?.publisertForAlle shouldBe false
+            tiltaksgjennomforinger.get(gjennomforing.id)?.publisert shouldBe false
 
             tiltaksgjennomforinger.setPublisert(gjennomforing.id, true)
             tiltaksgjennomforinger.avbryt(gjennomforing.id, LocalDateTime.now(), AvbruttAarsak.Feilregistrering)
 
-            tiltaksgjennomforinger.get(gjennomforing.id)?.publisertForAlle shouldBe false
+            tiltaksgjennomforinger.get(gjennomforing.id)?.publisert shouldBe false
         }
 
         test("faneinnhold") {
@@ -575,7 +565,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
 
             val result = tiltaksgjennomforingRepository.getAll(
-                statuser = listOf(TiltaksgjennomforingStatus.Enum.AVBRUTT),
+                statuser = listOf(TiltaksgjennomforingStatus.AVBRUTT),
             )
 
             result.totalCount shouldBe 1
@@ -586,7 +576,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
 
             val result = tiltaksgjennomforingRepository.getAll(
-                statuser = listOf(TiltaksgjennomforingStatus.Enum.AVSLUTTET),
+                statuser = listOf(TiltaksgjennomforingStatus.AVSLUTTET),
             )
 
             result.totalCount shouldBe 1
@@ -597,7 +587,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
 
             val result = tiltaksgjennomforingRepository.getAll(
-                statuser = listOf(TiltaksgjennomforingStatus.Enum.GJENNOMFORES),
+                statuser = listOf(TiltaksgjennomforingStatus.GJENNOMFORES),
             )
 
             result.totalCount shouldBe 1
@@ -608,7 +598,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
 
             val result = tiltaksgjennomforingRepository.getAll(
-                statuser = listOf(TiltaksgjennomforingStatus.Enum.AVLYST),
+                statuser = listOf(TiltaksgjennomforingStatus.AVLYST),
             )
 
             result.totalCount shouldBe 1
@@ -619,7 +609,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             val tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db)
 
             val result = tiltaksgjennomforingRepository.getAll(
-                statuser = listOf(TiltaksgjennomforingStatus.Enum.PLANLAGT),
+                statuser = listOf(TiltaksgjennomforingStatus.PLANLAGT),
             )
 
             result.totalCount shouldBe 1
@@ -685,7 +675,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             tiltaksgjennomforinger.upsert(Oppfolging1)
             tiltaksgjennomforinger.upsert(EnkelAmo1)
 
-            tiltaksgjennomforinger.getAll(skalMigreres = true).should {
+            tiltaksgjennomforinger.getAll().should {
                 it.totalCount shouldBe 1
                 it.items[0].id shouldBe Oppfolging1.id
             }
@@ -957,6 +947,9 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             Query("update tiltakstype set sanity_id = '$arbeidstreningSanityId' where id = '${TiltakstypeFixtures.AFT.id}'")
                 .asUpdate
                 .let { database.db.run(it) }
+            Query("update tiltakstype set innsatsgrupper = array ['${Innsatsgruppe.VARIG_TILPASSET_INNSATS}'::innsatsgruppe]")
+                .asUpdate
+                .let { database.db.run(it) }
 
             tiltaksgjennomforinger.upsert(Oppfolging1.copy(sluttDato = null, navEnheter = listOf("2990")))
             tiltaksgjennomforinger.setPublisert(Oppfolging1.id, true)
@@ -968,24 +961,28 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         test("skal filtrere basert på om tiltaket er publisert") {
             tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
                 brukersEnheter = listOf("2990"),
+                innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
             ) shouldHaveSize 2
 
             tiltaksgjennomforinger.setPublisert(Oppfolging1.id, false)
 
             tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
                 brukersEnheter = listOf("2990"),
+                innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
             ) shouldHaveSize 1
 
             tiltaksgjennomforinger.setPublisert(AFT1.id, false)
 
             tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
                 brukersEnheter = listOf("2990"),
+                innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
             ) shouldHaveSize 0
         }
 
         test("skal bare returnere tiltak markert med tiltakskode definert") {
             tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
                 brukersEnheter = listOf("2990"),
+                innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
             ) shouldHaveSize 2
 
             Query("update tiltakstype set tiltakskode = null where id = '${TiltakstypeFixtures.Oppfolging.id}'")
@@ -994,6 +991,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
 
             tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
                 brukersEnheter = listOf("2990"),
+                innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
             ) shouldHaveSize 1
 
             Query("update tiltakstype set tiltakskode = null where id = '${TiltakstypeFixtures.AFT.id}'")
@@ -1002,6 +1000,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
 
             tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
                 brukersEnheter = listOf("2990"),
+                innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
             ) shouldHaveSize 0
         }
 
@@ -1012,11 +1011,6 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             Query("update tiltakstype set innsatsgrupper = array ['${Innsatsgruppe.STANDARD_INNSATS}'::innsatsgruppe, '${Innsatsgruppe.SPESIELT_TILPASSET_INNSATS}'::innsatsgruppe] where id = '${TiltakstypeFixtures.AFT.id}'")
                 .asUpdate
                 .let { database.db.run(it) }
-
-            tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
-                innsatsgruppe = null,
-                brukersEnheter = listOf("2990"),
-            ) shouldHaveSize 2
 
             tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
                 innsatsgruppe = Innsatsgruppe.STANDARD_INNSATS,
@@ -1038,12 +1032,14 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
 
             tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
                 brukersEnheter = listOf("0400"),
+                innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
             ).should {
                 it shouldHaveSize 1
                 it[0].navn shouldBe Oppfolging1.navn
             }
 
             tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
+                innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
                 brukersEnheter = listOf("0300"),
             ).should {
                 it shouldHaveSize 1
@@ -1051,10 +1047,12 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             }
 
             tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
+                innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
                 brukersEnheter = listOf("0400", "0300"),
             ) shouldHaveSize 2
 
             tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
+                innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
                 brukersEnheter = listOf("2990"),
             ) shouldHaveSize 2
         }
@@ -1063,9 +1061,11 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
                 sanityTiltakstypeIds = null,
                 brukersEnheter = listOf("2990"),
+                innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
             ) shouldHaveSize 2
 
             tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
+                innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
                 sanityTiltakstypeIds = listOf(oppfolgingSanityId),
                 brukersEnheter = listOf("2990"),
             ).should {
@@ -1074,6 +1074,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             }
 
             tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
+                innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
                 sanityTiltakstypeIds = listOf(arbeidstreningSanityId),
                 brukersEnheter = listOf("2990"),
             ).should {
@@ -1087,6 +1088,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             tiltaksgjennomforinger.upsert(AFT1.copy(navn = "frank"))
 
             tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
+                innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
                 search = "rik",
                 brukersEnheter = listOf("0502"),
             ).should {
@@ -1106,6 +1108,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             tiltaksgjennomforinger.upsert(AFT1.copy(apentForInnsok = false, navEnheter = listOf("2990")))
 
             tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
+                innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
                 apentForInnsok = true,
                 brukersEnheter = listOf("2990"),
             ).should {
@@ -1114,6 +1117,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             }
 
             tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
+                innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
                 apentForInnsok = false,
                 brukersEnheter = listOf("2990"),
             ).should {
@@ -1122,6 +1126,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             }
 
             tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
+                innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
                 apentForInnsok = null,
                 brukersEnheter = listOf("2990"),
             ) shouldHaveSize 2
@@ -1196,11 +1201,11 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
 
         test("status AVLYST og AVBRUTT utledes fra avbrutt-tidspunkt") {
             forAll(
-                row(enManedTilbake, enManedFrem, enManedTilbake.minusDays(1), TiltaksgjennomforingStatus.Enum.AVLYST),
-                row(enManedFrem, toManederFrem, dagensDato, TiltaksgjennomforingStatus.Enum.AVLYST),
-                row(dagensDato, toManederFrem, dagensDato, TiltaksgjennomforingStatus.Enum.AVBRUTT),
-                row(enManedTilbake, enManedFrem, enManedTilbake.plusDays(3), TiltaksgjennomforingStatus.Enum.AVBRUTT),
-                row(enManedFrem, toManederFrem, enManedFrem.plusMonths(2), TiltaksgjennomforingStatus.Enum.AVBRUTT),
+                row(enManedTilbake, enManedFrem, enManedTilbake.minusDays(1), TiltaksgjennomforingStatus.AVLYST),
+                row(enManedFrem, toManederFrem, dagensDato, TiltaksgjennomforingStatus.AVLYST),
+                row(dagensDato, toManederFrem, dagensDato, TiltaksgjennomforingStatus.AVBRUTT),
+                row(enManedTilbake, enManedFrem, enManedTilbake.plusDays(3), TiltaksgjennomforingStatus.AVBRUTT),
+                row(enManedFrem, toManederFrem, enManedFrem.plusMonths(2), TiltaksgjennomforingStatus.AVBRUTT),
             ) { startDato, sluttDato, avbruttDato, expectedStatus ->
                 tiltaksgjennomforinger.upsert(AFT1.copy(startDato = startDato, sluttDato = sluttDato))
 
@@ -1210,23 +1215,23 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                     AvbruttAarsak.Feilregistrering,
                 )
 
-                tiltaksgjennomforinger.get(AFT1.id).shouldNotBeNull().status.enum shouldBe expectedStatus
+                tiltaksgjennomforinger.get(AFT1.id).shouldNotBeNull().status.status shouldBe expectedStatus
             }
         }
 
         test("hvis ikke avbrutt så blir status utledet basert på dagens dato") {
             forAll(
-                row(toManederTilbake, enManedTilbake, TiltaksgjennomforingStatus.Enum.AVSLUTTET),
-                row(toManederTilbake, enManedTilbake, TiltaksgjennomforingStatus.Enum.AVSLUTTET),
-                row(enManedTilbake, enManedFrem, TiltaksgjennomforingStatus.Enum.GJENNOMFORES),
-                row(enManedTilbake, null, TiltaksgjennomforingStatus.Enum.GJENNOMFORES),
-                row(dagensDato, dagensDato, TiltaksgjennomforingStatus.Enum.GJENNOMFORES),
-                row(enManedFrem, toManederFrem, TiltaksgjennomforingStatus.Enum.PLANLAGT),
-                row(enManedFrem, null, TiltaksgjennomforingStatus.Enum.PLANLAGT),
+                row(toManederTilbake, enManedTilbake, TiltaksgjennomforingStatus.AVSLUTTET),
+                row(toManederTilbake, enManedTilbake, TiltaksgjennomforingStatus.AVSLUTTET),
+                row(enManedTilbake, enManedFrem, TiltaksgjennomforingStatus.GJENNOMFORES),
+                row(enManedTilbake, null, TiltaksgjennomforingStatus.GJENNOMFORES),
+                row(dagensDato, dagensDato, TiltaksgjennomforingStatus.GJENNOMFORES),
+                row(enManedFrem, toManederFrem, TiltaksgjennomforingStatus.PLANLAGT),
+                row(enManedFrem, null, TiltaksgjennomforingStatus.PLANLAGT),
             ) { startDato, sluttDato, status ->
                 tiltaksgjennomforinger.upsert(AFT1.copy(startDato = startDato, sluttDato = sluttDato))
 
-                tiltaksgjennomforinger.get(AFT1.id).shouldNotBeNull().status.enum shouldBe status
+                tiltaksgjennomforinger.get(AFT1.id).shouldNotBeNull().status.status shouldBe status
             }
         }
     }

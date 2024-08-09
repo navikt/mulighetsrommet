@@ -37,6 +37,19 @@ export const tiltakstype = defineType({
       validation: (rule) => rule.required().unique(),
     }),
     defineField({
+      name: "kombinasjon",
+      title: "Kan kombineres med",
+      description: "Her kan man legge til tiltakstyper som kan kombineres med denne tiltakstypen.",
+      type: "array",
+      of: [
+        {
+          type: "reference",
+          to: [{ type: "tiltakstype" }],
+        },
+      ],
+      validation: (Rule) => Rule.unique().error("Du kan bare ha én av hver tiltakstype"),
+    }),
+    defineField({
       name: "beskrivelse",
       title: "Beskrivelse",
       type: "text",
@@ -50,7 +63,7 @@ export const tiltakstype = defineType({
       type: "array",
       readOnly: true,
       options: {
-        layout: "tags"
+        layout: "tags",
       },
       of: [
         {

@@ -1,11 +1,14 @@
 import {
   AvbrytAvtaleAarsak,
-  AvbrytGjennomforingAarsak,
   Avtale,
   Avtaletype,
   EstimertVentetidEnhet,
+  ForerkortKlasse,
+  InnholdElement,
+  Kurstype,
+  Spesifisering,
 } from "mulighetsrommet-api-client";
-import { AvtaleFilter } from "@/api/atoms";
+import { AvtaleFilter, TiltaksgjennomforingFilter } from "@/api/atoms";
 
 export function capitalize(text?: string): string {
   return text ? text.slice(0, 1).toUpperCase() + text.slice(1, text.length).toLowerCase() : "";
@@ -82,9 +85,9 @@ export function kalkulerStatusBasertPaaFraOgTilDato(
   }
 }
 
-export const inneholderUrl = (string: string) => {
+export function inneholderUrl(string: string) {
   return window.location.href.indexOf(string) > -1;
-};
+}
 
 export function avtaletypeTilTekst(
   type: Avtaletype,
@@ -105,7 +108,7 @@ export function valueOrDefault<T, X>(value: T | undefined, defaultValue: X): T |
   return value !== undefined ? value : defaultValue;
 }
 
-export const validEmail = (email: string | undefined): Boolean => {
+export function validEmail(email: string | undefined): Boolean {
   if (!email) return false;
   return Boolean(
     email
@@ -114,7 +117,7 @@ export const validEmail = (email: string | undefined): Boolean => {
         /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
       ),
   );
-};
+}
 
 export function addYear(date: Date, numYears: number): Date {
   const newDate = new Date(date);
@@ -128,6 +131,12 @@ export function subtractMonths(date: Date, numMonths: number): Date {
   return newDate;
 }
 
+export function addDays(date: Date, numDays: number): Date {
+  const newDate = new Date(date);
+  newDate.setDate(date.getDate() + numDays);
+  return newDate;
+}
+
 export function subtractDays(date: Date, numDays: number): Date {
   const newDate = new Date(date);
   newDate.setDate(date.getDate() - numDays);
@@ -136,6 +145,10 @@ export function subtractDays(date: Date, numDays: number): Date {
 
 export function avtaleHarRegioner(avtale: Avtale): boolean {
   return avtale.kontorstruktur.some((stru) => stru.region);
+}
+
+export function max(a: Date, b: Date): Date {
+  return a > b ? a : b;
 }
 
 export function formaterNavEnheter(
@@ -166,7 +179,7 @@ export function addOrRemove<T>(array: T[], item: T): T[] {
   }
 }
 
-export function createQueryParamsForExcelDownload(filter: AvtaleFilter): URLSearchParams {
+export function createQueryParamsForExcelDownloadForAvtale(filter: AvtaleFilter): URLSearchParams {
   const queryParams = new URLSearchParams();
 
   if (filter.sok) {
@@ -184,6 +197,32 @@ export function createQueryParamsForExcelDownload(filter: AvtaleFilter): URLSear
 
   if (filter.visMineAvtaler) {
     queryParams.set("visMineAvtaler", "true");
+  }
+
+  queryParams.set("size", "10000");
+  return queryParams;
+}
+
+export function createQueryParamsForExcelDownloadForTiltaksgjennomforing(
+  filter: TiltaksgjennomforingFilter,
+): URLSearchParams {
+  const queryParams = new URLSearchParams();
+
+  if (filter.search) {
+    queryParams.set("search", filter.search);
+  }
+  filter.navEnheter.forEach((navEnhet) => queryParams.append("navEnheter", navEnhet.enhetsnummer));
+  filter.tiltakstyper.forEach((tiltakstype) => queryParams.append("tiltakstyper", tiltakstype));
+  filter.statuser.forEach((status) => queryParams.append("statuser", status));
+
+  if (filter.avtale) {
+    queryParams.set("avtale", filter.avtale);
+  }
+
+  filter.arrangorer.forEach((arrangorId) => queryParams.append("arrangorer", arrangorId));
+
+  if (filter.visMineGjennomforinger) {
+    queryParams.set("visMineTiltaksgjennomforinger", "true");
   }
 
   queryParams.set("size", "10000");
@@ -216,21 +255,88 @@ export function avbrytAvtaleAarsakToString(aarsak: AvbrytAvtaleAarsak | string):
   }
 }
 
-export function avbrytGjennomforingAarsakToString(
-  aarsak: AvbrytGjennomforingAarsak | string,
-): string {
-  switch (aarsak) {
-    case AvbrytGjennomforingAarsak.AVBRUTT_I_ARENA:
-      return "Avbrutt i Arena";
-    case AvbrytGjennomforingAarsak.BUDSJETT_HENSYN:
-      return "Budsjetthensyn";
-    case AvbrytGjennomforingAarsak.ENDRING_HOS_ARRANGOR:
-      return "Endring hos arrangør";
-    case AvbrytGjennomforingAarsak.FEILREGISTRERING:
-      return "Feilregistrering";
-    case AvbrytGjennomforingAarsak.FOR_FAA_DELTAKERE:
-      return "For få deltakere";
-    default:
-      return aarsak;
+export function forerkortKlasseToString(klasse: ForerkortKlasse): string {
+  switch (klasse) {
+    case ForerkortKlasse.A:
+      return "A - Motorsykkel";
+    case ForerkortKlasse.A1:
+      return "A1 - Lett motorsykkel";
+    case ForerkortKlasse.A2:
+      return "A2 - Mellomtung motorsykkel";
+    case ForerkortKlasse.AM:
+      return "AM - Moped";
+    case ForerkortKlasse.AM_147:
+      return "AM 147 - Mopedbil";
+    case ForerkortKlasse.B:
+      return "B - Personbil";
+    case ForerkortKlasse.B_78:
+      return "B 78 - Personbil med automatgir";
+    case ForerkortKlasse.BE:
+      return "BE - Personbil med tilhenger";
+    case ForerkortKlasse.C:
+      return "C - Lastebil";
+    case ForerkortKlasse.C1:
+      return "C1 - Lett lastebil";
+    case ForerkortKlasse.C1E:
+      return "C1E - Lett lastebil med tilhenger";
+    case ForerkortKlasse.CE:
+      return "CE - Lastebil med tilhenger";
+    case ForerkortKlasse.D:
+      return "D - Buss";
+    case ForerkortKlasse.D1:
+      return "D1 - Minibuss";
+    case ForerkortKlasse.D1E:
+      return "D1E - Minibuss med tilhenger";
+    case ForerkortKlasse.DE:
+      return "DE - Buss med tilhenger";
+    case ForerkortKlasse.S:
+      return "S - Snøscooter";
+    case ForerkortKlasse.T:
+      return "T - Traktor";
+  }
+}
+
+export function kurstypeToString(kurstype: Kurstype): string {
+  switch (kurstype) {
+    case Kurstype.BRANSJE:
+      return "Bransje-/yrkesrettede kurs";
+    case Kurstype.NORSKOPPLAERING:
+      return "Norskopplæring/grunnleggende ferdigheter";
+    case Kurstype.STUDIESPESIALISERING:
+      return "Studiespesialisering";
+  }
+}
+
+export function spesifiseringToString(spesifisering: Spesifisering): string {
+  switch (spesifisering) {
+    case Spesifisering.SERVERING_OVERNATTING:
+      return "Servering/overnatting";
+    case Spesifisering.TRANSPORT:
+      return "Transport";
+    case Spesifisering.INDUSTRI:
+      return "Industri";
+    case Spesifisering.ANDRE_BRANSJER:
+      return "Andre bransjer";
+    case Spesifisering.NORSKOPPLAERING:
+      return "Norskopplæring";
+    case Spesifisering.GRUNNLEGGENDE_FERDIGHETER:
+      return "Grunnleggende ferdigheter";
+  }
+}
+
+export function innholdElementToString(innholdElement: InnholdElement): string {
+  switch (innholdElement) {
+    case InnholdElement.GRUNNLEGGENDE_FERDIGHETER:
+      return "Grunnleggende ferdigheter";
+    case InnholdElement.JOBBSOKER_KOMPETANSE:
+      return "Jobbsøkerkompetanse";
+    case InnholdElement.TEORETISK_OPPLAERING:
+      return "Teoretisk opplæring";
+    case InnholdElement.PRAKSIS:
+      return "Praksis";
+    case InnholdElement.ARBEIDSMARKEDSKUNNSKAP:
+      return "Arbeidsmarkedskunnskap";
+    case InnholdElement.NORSKOPPLAERING:
+      return "Norskopplæring";
   }
 }

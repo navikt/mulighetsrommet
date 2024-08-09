@@ -6,7 +6,7 @@ metadata:
   labels:
     team: team-mulighetsrommet
 spec:
-  image: europe-north1-docker.pkg.dev/nais-management-233d/poao/kafka-manager:2024.02.22-13.54-8f3d052
+  image: europe-north1-docker.pkg.dev/nais-management-233d/poao/kafka-manager:2024.07.04-07.33-95a395b
   port: 8080
   webproxy: true
   ingresses:
@@ -30,7 +30,7 @@ spec:
     limits:
       memory: 1024Mi
     requests:
-      cpu: 250m
+      cpu: 1m
       memory: 512Mi
   secureLogs:
     enabled: true
@@ -79,13 +79,13 @@ spec:
               "valueDeserializerType": "STRING"
             },
             {
-              "name": "team-mulighetsrommet.siste-tiltaksgjennomforinger-v1",
+              "name": "teamarenanais.aapen-arena-histtiltakdeltakerendret-v1-q2",
               "location": "AIVEN",
               "keyDeserializerType": "STRING",
               "valueDeserializerType": "STRING"
             },
             {
-              "name": "team-mulighetsrommet.siste-tiltakstyper-v1",
+              "name": "team-mulighetsrommet.siste-tiltaksgjennomforinger-v1",
               "location": "AIVEN",
               "keyDeserializerType": "STRING",
               "valueDeserializerType": "STRING"
@@ -98,12 +98,6 @@ spec:
             },
             {
               "name": "team-mulighetsrommet.arena-migrering-tiltaksgjennomforinger-v1",
-              "location": "AIVEN",
-              "keyDeserializerType": "STRING",
-              "valueDeserializerType": "STRING"
-            },
-            {
-              "name": "pto.siste-oppfolgingsperiode-v1",
               "location": "AIVEN",
               "keyDeserializerType": "STRING",
               "valueDeserializerType": "STRING"

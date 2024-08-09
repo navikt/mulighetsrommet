@@ -1,15 +1,9 @@
-import { InlineErrorBoundary } from "@/ErrorBoundary";
-import { useFeatureToggle } from "@/api/feature-toggles";
-import { useGetTiltaksgjennomforingIdFraUrl } from "@/api/queries/useGetTiltaksgjennomforingIdFraUrl";
-import { useTiltaksgjennomforingById } from "@/api/queries/useTiltaksgjennomforingById";
-import { ModiaRoute, resolveModiaRoute } from "@/apps/modia/ModiaRoute";
 import { DelMedBruker } from "@/apps/modia/delMedBruker/DelMedBruker";
 import { useHentBrukerdata } from "@/apps/modia/hooks/useHentBrukerdata";
 import { useHentDeltMedBrukerStatus } from "@/apps/modia/hooks/useHentDeltMedbrukerStatus";
 import { useHentVeilederdata } from "@/apps/modia/hooks/useHentVeilederdata";
 import { useModiaContext } from "@/apps/modia/hooks/useModiaContext";
 import { BrukerKvalifisererIkkeVarsel } from "@/apps/modia/varsler/BrukerKvalifisererIkkeVarsel";
-import { TiltakLoader } from "@/components/TiltakLoader";
 import { DetaljerJoyride } from "@/components/joyride/DetaljerJoyride";
 import { OpprettAvtaleJoyride } from "@/components/joyride/OpprettAvtaleJoyride";
 import { PersonvernContainer } from "@/components/personvern/PersonvernContainer";
@@ -28,16 +22,30 @@ import {
   Toggles,
   VeilederflateTiltakstype,
 } from "mulighetsrommet-api-client";
-import { TilbakemeldingLenke, useTitle } from "mulighetsrommet-frontend-common";
+import {
+  DetaljerSkeleton,
+  InlineErrorBoundary,
+  TilbakemeldingLenke,
+  useTitle,
+} from "mulighetsrommet-frontend-common";
+import { PameldingForGruppetiltak } from "../../../components/pamelding/PameldingForGruppetiltak";
+import { gjennomforingIsAktiv } from "mulighetsrommet-frontend-common/utils/utils";
 import { PORTEN_URL_FOR_TILBAKEMELDING } from "@/constants";
 import { useRegioner } from "@/api/queries/useRegioner";
+import { useFeatureToggle } from "../../../api/feature-toggles";
+import { useTiltaksgjennomforingById } from "../../../api/queries/useTiltaksgjennomforingById";
+import { useGetTiltaksgjennomforingIdFraUrl } from "../../../hooks/useGetTiltaksgjennomforingIdFraUrl";
+import { resolveModiaRoute, ModiaRoute } from "../ModiaRoute";
 
 export function ModiaArbeidsmarkedstiltakDetaljer() {
   const { fnr } = useModiaContext();
   const id = useGetTiltaksgjennomforingIdFraUrl();
-  const { delMedBrukerInfo, lagreVeilederHarDeltTiltakMedBruker } = useHentDeltMedBrukerStatus(
-    fnr,
-    id,
+  const { delMedBrukerInfo } = useHentDeltMedBrukerStatus(fnr, id);
+  const { data: enableDeltakerRegistrering } = useFeatureToggle(
+    Toggles.MULIGHETSROMMET_VEILEDERFLATE_VIS_DELTAKER_REGISTRERING,
+  );
+  const { data: enableTilbakemelding } = useFeatureToggle(
+    Toggles.MULIGHETSROMMET_VEILEDERFLATE_VIS_TILBAKEMELDING,
   );
 
   const {
@@ -65,12 +73,8 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
 
   const pagination = useAtomValue(paginationAtom);
 
-  const { data: enableDeltakerRegistrering } = useFeatureToggle(
-    Toggles.MULIGHETSROMMET_VEILEDERFLATE_VIS_DELTAKER_REGISTRERING,
-  );
-
   if (isPendingTiltak || isPendingVeilederdata || isPendingBrukerdata) {
-    return <TiltakLoader />;
+    return <DetaljerSkeleton />;
   }
 
   if (isError || isErrorVeilederdata || isErrorBrukerdata) {
@@ -81,16 +85,6 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
   const kanOppretteAvtaleForTiltak =
     isIndividueltTiltak(tiltakstype) && brukerdata.erUnderOppfolging;
   const brukerHarRettPaaValgtTiltak = harBrukerRettPaaValgtTiltak(brukerdata, tiltakstype);
-  const skalVisePameldingslenke =
-    enableDeltakerRegistrering &&
-    !kanOppretteAvtaleForTiltak &&
-    brukerHarRettPaaValgtTiltak &&
-    tiltakstypeStotterPamelding(tiltakstype);
-
-  const opprettDeltakelseRoute = resolveModiaRoute({
-    route: ModiaRoute.ARBEIDSMARKEDSTILTAK_OPPRETT_DELTAKELSE,
-    gjennomforingId: id,
-  });
 
   const dialogRoute = delMedBrukerInfo
     ? resolveModiaRoute({
@@ -114,7 +108,7 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
               tilbakelenke={`/arbeidsmarkedstiltak/oversikt#pagination=${encodeURIComponent(
                 JSON.stringify({ ...pagination }),
               )}`}
-              tekst="Tilbake til tiltaksoversikten"
+              tekst="Gå til oversikt over aktuelle tiltak"
             />
             <div>
               <DetaljerJoyride opprettAvtale={kanOppretteAvtaleForTiltak} />
@@ -141,32 +135,35 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
               </Button>
             )}
 
-            {skalVisePameldingslenke ? (
-              <Button variant={"primary"} onClick={opprettDeltakelseRoute.navigate}>
-                Start påmelding
-              </Button>
+            {enableDeltakerRegistrering &&
+            gjennomforingIsAktiv(tiltaksgjennomforing.status.status) ? (
+              <PameldingForGruppetiltak
+                kanOppretteAvtaleForTiltak={kanOppretteAvtaleForTiltak}
+                brukerHarRettPaaValgtTiltak={brukerHarRettPaaValgtTiltak}
+                tiltaksgjennomforing={tiltaksgjennomforing}
+              />
             ) : null}
 
-            {brukerdata.erUnderOppfolging ? (
+            {brukerdata.erUnderOppfolging &&
+            gjennomforingIsAktiv(tiltaksgjennomforing.status.status) ? (
               <DelMedBruker
                 delMedBrukerInfo={delMedBrukerInfo ?? undefined}
                 veiledernavn={resolveName(veilederdata)}
                 tiltaksgjennomforing={tiltaksgjennomforing}
                 bruker={brukerdata}
-                lagreVeilederHarDeltTiltakMedBruker={lagreVeilederHarDeltTiltakMedBruker}
               />
             ) : null}
 
             {!brukerdata?.manuellStatus && (
               <Alert
-                title="Vi kunne ikke opprette kontakt med KRR og vet derfor ikke om brukeren har reservert seg mot elektronisk kommunikasjon"
+                title="Vi kunne ikke opprette kontakt med KRR og vet derfor ikke om brukeren har reservert seg mot digital kommunikasjon"
                 key="alert-innsatsgruppe"
                 data-testid="alert-innsatsgruppe"
                 size="small"
                 variant="error"
               >
                 Vi kunne ikke opprette kontakt med KRR og vet derfor ikke om brukeren har reservert
-                seg mot elektronisk kommunikasjon
+                seg mot digital kommunikasjon
               </Alert>
             )}
 
@@ -184,7 +181,7 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
             ) : null}
 
             <LenkeListe lenker={tiltaksgjennomforing.faneinnhold?.lenker} />
-            {Toggles.MULIGHETSROMMET_VEILEDERFLATE_VIS_TILBAKEMELDING && (
+            {enableTilbakemelding && (
               <TilbakemeldingLenke
                 url={PORTEN_URL_FOR_TILBAKEMELDING(
                   tiltaksgjennomforing.tiltaksnummer,
@@ -236,17 +233,4 @@ function harBrukerRettPaaValgtTiltak(
   }
 
   return (tiltakstype.innsatsgrupper ?? []).includes(bruker.innsatsgruppe);
-}
-
-function tiltakstypeStotterPamelding(tiltakstype: VeilederflateTiltakstype): boolean {
-  const whitelistTiltakstypeStotterPamelding = [
-    TiltakskodeArena.ARBFORB,
-    TiltakskodeArena.ARBRRHDAG,
-    TiltakskodeArena.AVKLARAG,
-    TiltakskodeArena.INDOPPFAG,
-    TiltakskodeArena.VASV,
-  ];
-  return (
-    !!tiltakstype.arenakode && whitelistTiltakstypeStotterPamelding.includes(tiltakstype.arenakode)
-  );
 }

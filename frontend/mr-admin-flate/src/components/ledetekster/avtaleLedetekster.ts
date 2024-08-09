@@ -1,11 +1,16 @@
+import { Avtaletype } from "mulighetsrommet-api-client";
+
 export const avtaletekster = {
   avtalenavnLabel: "Avtalenavn",
-  lopenummerLabel: "Løpenummer",
-  arenaAvtalenummerLabel: "Avtalenummer i Arena",
+  avtalenummerLabel: "Avtalenummer",
   tiltakstypeLabel: "Tiltakstype",
   avtaletypeLabel: "Avtaletype",
   startdatoLabel: "Startdato",
-  sluttdatoLabel: "Sluttdato",
+  sluttdatoLabel: (opsjonerRegistrert: boolean) =>
+    opsjonerRegistrert ? "Sluttdato*" : "Sluttdato",
+  valgfriSluttdatoLabel: (avtaletype: Avtaletype) =>
+    avtaletype === Avtaletype.FORHAANDSGODKJENT ? "Sluttdato (valgfri)" : "Sluttdato",
+  maksVarighetLabel: "Maks varighet inkl. opsjon",
   prisOgBetalingLabel: "Pris- og betalingsbetingelser",
   administratorerForAvtalenLabel: "Administratorer for avtalen",
   ingenAdministratorerSattLabel: "Ingen administratorer satt for avtalen",
@@ -18,4 +23,5 @@ export const avtaletekster = {
   tiltaksarrangorHovedenhetLabel: "Tiltaksarrangør hovedenhet",
   tiltaksarrangorUnderenheterLabel: "Tiltaksarrangør underenheter",
   kontaktpersonerHosTiltaksarrangorLabel: "Kontaktpersoner hos tiltaksarrangør",
+  avtaltForlengelseLabel: "Avtalt mulighet for forlengelse",
 } as const;

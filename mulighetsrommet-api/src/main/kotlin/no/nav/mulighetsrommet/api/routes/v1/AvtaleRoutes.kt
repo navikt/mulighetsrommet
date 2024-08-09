@@ -26,9 +26,19 @@ import java.util.*
 
 fun Route.avtaleRoutes() {
     val avtaler: AvtaleService by inject()
-    val excelService: ExcelService by inject()
 
-    route("/api/v1/internal/avtaler") {
+    route("/api/v1/intern/personopplysninger") {
+        get {
+            call.respond(
+                Personopplysning
+                    .entries
+                    .sortedBy { it.sortKey }
+                    .map { it.toPersonopplysningData() },
+            )
+        }
+    }
+
+    route("/api/v1/intern/avtaler") {
         authenticate(AuthProvider.AZURE_AD_AVTALER_SKRIV.name, strategy = AuthenticationStrategy.Required) {
             put {
                 val navIdent = getNavIdent()
@@ -91,7 +101,7 @@ fun Route.avtaleRoutes() {
                 administratorNavIdent = navIdent,
             )
             val result = avtaler.getAll(overstyrtFilter, pagination)
-            val file = excelService.createExcelFile(result.data)
+            val file = ExcelService.createExcelFileForAvtale(result.data)
             call.response.header(
                 HttpHeaders.ContentDisposition,
                 ContentDisposition.Attachment.withParameter(ContentDisposition.Parameters.FileName, "avtaler.xlsx")
@@ -154,4 +164,24 @@ data class AvtaleRequest(
     val faneinnhold: Faneinnhold?,
     val personopplysninger: List<Personopplysning>,
     val personvernBekreftet: Boolean,
+    val amoKategorisering: AmoKategorisering?,
+    val opsjonsmodellData: OpsjonsmodellData?,
 )
+
+@Serializable
+data class OpsjonsmodellData(
+    @Serializable(with = LocalDateSerializer::class)
+    val opsjonMaksVarighet: LocalDate?,
+    val opsjonsmodell: Opsjonsmodell?,
+    val customOpsjonsmodellNavn: String? = null,
+)
+
+@Serializable
+enum class Opsjonsmodell {
+    TO_PLUSS_EN,
+    TO_PLUSS_EN_PLUSS_EN,
+    TO_PLUSS_EN_PLUSS_EN_PLUSS_EN,
+    ANNET,
+    AVTALE_UTEN_OPSJONSMODELL,
+    AVTALE_VALGFRI_SLUTTDATO,
+}

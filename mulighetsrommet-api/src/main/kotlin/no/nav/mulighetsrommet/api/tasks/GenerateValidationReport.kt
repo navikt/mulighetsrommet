@@ -79,7 +79,7 @@ class GenerateValidationReport(
 
     fun schedule(startTime: Instant = Instant.now()): UUID {
         val id = UUID.randomUUID()
-        client.schedule(task.instance(id.toString()), startTime)
+        client.scheduleIfNotExists(task.instance(id.toString()), startTime)
         return id
     }
 
@@ -160,7 +160,7 @@ class GenerateValidationReport(
                 sluttDatoGreaterThanOrEqualTo = ArenaMigrering.TiltaksgjennomforingSluttDatoCutoffDate,
             ).items
         }) {
-            val dbo = it.toDbo()
+            val dbo = it.toTiltaksgjennomforingDbo()
             gjennomforingValidator.validate(dbo, it)
                 .onLeft { validationErrors ->
                     put(it, validationErrors)
@@ -178,7 +178,7 @@ class GenerateValidationReport(
         var rowNumber = 1
         result.forEach { (dto, errors) ->
             errors.forEach { error ->
-                createRow(workSheet, rowNumber++, dto.id, dto.navn, dto.opphav.name, dto.status.enum.name, error)
+                createRow(workSheet, rowNumber++, dto.id, dto.navn, dto.opphav.name, dto.status.status.name, error)
             }
         }
     }

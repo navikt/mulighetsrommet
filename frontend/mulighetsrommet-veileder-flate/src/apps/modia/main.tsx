@@ -5,6 +5,11 @@ import { APPLICATION_NAME, APPLICATION_WEB_COMPONENT_NAME } from "@/constants";
 import { ModiaArbeidsmarkedstiltakWrapper } from "./ModiaArbeidsmarkedstiltakWrapper";
 import { initAmplitudeModia } from "@/logging/amplitude";
 import "../../index.css";
+import { setupOpenAPIClient } from "@/api/setup-openapi-client";
+
+setupOpenAPIClient({
+  base: import.meta.env.VITE_MULIGHETSROMMET_API_BASE ?? "",
+});
 
 if (import.meta.env.VITE_FARO_URL) {
   initializeFaro({

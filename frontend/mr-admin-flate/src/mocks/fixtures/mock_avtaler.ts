@@ -1,12 +1,16 @@
-import { Avtale, Avtaletype, Opphav } from "mulighetsrommet-api-client";
+import { Avtale, Avtaletype, Opphav, OpsjonsmodellKey } from "mulighetsrommet-api-client";
+import { mockArrangorer } from "./mock_arrangorer";
 import { mockEnheter } from "./mock_enheter";
 import { mockTiltakstyper } from "./mock_tiltakstyper";
-import { mockArrangorer } from "./mock_arrangorer";
 
 export const mockAvtaler: Avtale[] = [
   {
     id: "d1f163b7-1a41-4547-af16-03fd4492b7ba",
-    tiltakstype: mockTiltakstyper.AVKLARAG,
+    tiltakstype: {
+      id: mockTiltakstyper.AVKLARAG.id,
+      navn: mockTiltakstyper.AVKLARAG.navn,
+      tiltakskode: mockTiltakstyper.AVKLARAG.tiltakskode,
+    },
     navn: "Testtiltak Varig",
     administratorer: [
       {
@@ -39,8 +43,8 @@ export const mockAvtaler: Avtale[] = [
       ],
     },
     startDato: "2021-08-02",
-    sluttDato: "2026-08-01",
-    avtaletype: Avtaletype.FORHAANDSGODKJENT,
+    sluttDato: "2023-08-01",
+    avtaletype: Avtaletype.RAMMEAVTALE,
     status: { name: "AKTIV" },
     arenaAnsvarligEnhet: mockEnheter._0300,
     prisbetingelser: `Nye priser fra 21.03.23, gamle priser i parentes
@@ -62,10 +66,21 @@ export const mockAvtaler: Avtale[] = [
     ],
     personopplysninger: [],
     personvernBekreftet: false,
+    amoKategorisering: null,
+    opsjonsmodellData: {
+      opsjonsmodell: OpsjonsmodellKey.TO_PLUSS_EN_PLUSS_EN_PLUSS_EN,
+      opsjonMaksVarighet: "2026-08-02",
+      customOpsjonsmodellNavn: null,
+    },
+    opsjonerRegistrert: [],
   },
   {
     id: "d1f163b7-1a41-4547-af16-03fd4492b7bc",
-    tiltakstype: mockTiltakstyper.ARBFORB,
+    tiltakstype: {
+      id: mockTiltakstyper.ARBFORB.id,
+      navn: mockTiltakstyper.ARBFORB.navn,
+      tiltakskode: mockTiltakstyper.ARBFORB.tiltakskode,
+    },
     navn: "Avtale hos ÅMLI KOMMUNE SAMFUNNSAVDELINGA",
     avtalenummer: "2021#10579",
     arrangor: {
@@ -103,17 +118,28 @@ export const mockAvtaler: Avtale[] = [
     ],
     personopplysninger: [],
     personvernBekreftet: false,
+    amoKategorisering: null,
+    opsjonsmodellData: {
+      opsjonsmodell: OpsjonsmodellKey.TO_PLUSS_EN,
+      opsjonMaksVarighet: "2026-08-01",
+      customOpsjonsmodellNavn: null,
+    },
+    opsjonerRegistrert: [],
   },
   {
     id: "6374b285-989d-4f78-a59e-29481b64ba92",
     opphav: Opphav.ARENA,
     administratorer: [
       {
-        navIdent: "B123456",
-        navn: "Bertil Bengtson",
+        navIdent: "B815493",
+        navn: "Test Testesen",
       },
     ],
-    tiltakstype: mockTiltakstyper.INDOPPFAG,
+    tiltakstype: {
+      id: mockTiltakstyper.INDOPPFAG.id,
+      navn: mockTiltakstyper.INDOPPFAG.navn,
+      tiltakskode: mockTiltakstyper.INDOPPFAG.tiltakskode,
+    },
     navn: "Avtale hos Åna Fengsel",
     avtalenummer: "2020#4929",
     arrangor: {
@@ -140,6 +166,62 @@ export const mockAvtaler: Avtale[] = [
     ],
     personopplysninger: [],
     personvernBekreftet: false,
+    amoKategorisering: null,
+    opsjonsmodellData: {
+      opsjonsmodell: OpsjonsmodellKey.TO_PLUSS_EN,
+      opsjonMaksVarighet: "2025-06-30",
+      customOpsjonsmodellNavn: null,
+    },
+    opsjonerRegistrert: [],
+  },
+  {
+    id: "6374b285-989d-4f78-a59e-29481b64ba93",
+    opphav: Opphav.MR_ADMIN_FLATE,
+    administratorer: [
+      {
+        navIdent: "B123456",
+        navn: "Bertil Bengtson",
+      },
+    ],
+    tiltakstype: {
+      id: mockTiltakstyper.GRUFAGYRKE.id,
+      navn: mockTiltakstyper.GRUFAGYRKE.navn,
+      tiltakskode: mockTiltakstyper.GRUFAGYRKE.tiltakskode,
+    },
+    navn: "Avtale hos Kulinarisk akademi",
+    avtalenummer: "2020#4929",
+    websaknummer: "24/12345",
+    arrangor: {
+      ...mockArrangorer.data[0],
+      slettet: false,
+      kontaktpersoner: [],
+      underenheter: mockArrangorer.data[0].underenheter!.map((v) => ({
+        id: v.id,
+        organisasjonsnummer: v.organisasjonsnummer,
+        navn: v.navn,
+        slettet: false,
+        kontaktpersoner: [],
+      })),
+    },
+    startDato: "2020-07-01",
+    sluttDato: "2024-06-30",
+    avtaletype: Avtaletype.RAMMEAVTALE,
+    status: { name: "AKTIV" },
+    arenaAnsvarligEnhet: mockEnheter._0313,
+    prisbetingelser: "Maskert prisbetingelser",
+    kontorstruktur: [
+      { region: mockEnheter._0400, kontorer: [mockEnheter._0415, mockEnheter._0402] },
+      { region: mockEnheter._0300, kontorer: [mockEnheter._0313, mockEnheter._0318] },
+    ],
+    personopplysninger: [],
+    personvernBekreftet: false,
+    amoKategorisering: null,
+    opsjonsmodellData: {
+      opsjonsmodell: OpsjonsmodellKey.ANNET,
+      opsjonMaksVarighet: "2021-06-30",
+      customOpsjonsmodellNavn: "1 år + 6 mnd",
+    },
+    opsjonerRegistrert: [],
   },
 ];
 
@@ -156,7 +238,11 @@ for (let i = 0; i < x; i++) {
         navn: "Bertil Bengtson",
       },
     ],
-    tiltakstype: mockTiltakstyper.INDOPPFAG,
+    tiltakstype: {
+      id: mockTiltakstyper.INDOPPFAG.id,
+      navn: mockTiltakstyper.INDOPPFAG.navn,
+      tiltakskode: mockTiltakstyper.INDOPPFAG.tiltakskode,
+    },
     navn: "Avtale hos Åna Fengsel",
     avtalenummer: "2020#4929",
     arrangor: {
@@ -183,5 +269,12 @@ for (let i = 0; i < x; i++) {
     ],
     personopplysninger: [],
     personvernBekreftet: false,
+    amoKategorisering: null,
+    opsjonsmodellData: {
+      opsjonsmodell: OpsjonsmodellKey.TO_PLUSS_EN,
+      opsjonMaksVarighet: null,
+      customOpsjonsmodellNavn: null,
+    },
+    opsjonerRegistrert: [],
   });
 }

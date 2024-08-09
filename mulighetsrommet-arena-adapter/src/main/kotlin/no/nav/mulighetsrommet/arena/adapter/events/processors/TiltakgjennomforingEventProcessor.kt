@@ -5,6 +5,7 @@ import arrow.core.flatMap
 import arrow.core.left
 import arrow.core.raise.either
 import arrow.core.right
+import io.ktor.client.call.*
 import io.ktor.http.*
 import kotlinx.coroutines.delay
 import no.nav.mulighetsrommet.arena.adapter.MulighetsrommetApiClient
@@ -21,11 +22,11 @@ import no.nav.mulighetsrommet.arena.adapter.models.db.Sak
 import no.nav.mulighetsrommet.arena.adapter.models.db.Tiltaksgjennomforing
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
 import no.nav.mulighetsrommet.arena.adapter.utils.ArenaUtils
-import no.nav.mulighetsrommet.domain.Tiltakshistorikk
 import no.nav.mulighetsrommet.domain.Tiltakskoder.isGruppetiltak
 import no.nav.mulighetsrommet.domain.dbo.ArenaTiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dto.JaNeiStatus
+import no.nav.mulighetsrommet.domain.dto.UpsertTiltaksgjennomforingResponse
 import java.time.LocalDateTime
 import java.util.*
 
@@ -35,7 +36,10 @@ class TiltakgjennomforingEventProcessor(
     private val ords: ArenaOrdsProxyClient,
     private val config: Config = Config(),
 ) : ArenaEventProcessor {
-    override val arenaTable: ArenaTable = ArenaTable.Tiltaksgjennomforing
+
+    override suspend fun shouldHandleEvent(event: ArenaEvent): Boolean {
+        return event.arenaTable === ArenaTable.Tiltaksgjennomforing
+    }
 
     data class Config(
         val retryUpsertTimes: Int = 1,
@@ -56,17 +60,12 @@ class TiltakgjennomforingEventProcessor(
             return@either ProcessingResult(Ignored, "Tiltaksgjennomføring ignorert fordi ARBGIV_ID_ARRANGOR er null")
         }
 
-        val isGruppetiltak = isGruppetiltak(data.TILTAKSKODE)
-        if (!isGruppetiltak && !isRelevantForBrukersTiltakshistorikk(data)) {
-            return@either ProcessingResult(
-                Ignored,
-                "Tiltaksgjennomføring ignorert fordi den ikke lengre er relevant for brukers tiltakshistorikk",
-            )
-        }
-
         val avtaleId = data.AVTALE_ID?.let { resolveFromMappingStatus(it).bind() }
         val tiltaksgjennomforing = entities.getMapping(event.arenaTable, event.arenaId)
-            .flatMap { data.toTiltaksgjennomforing(it.entityId, avtaleId) }
+            .flatMap {
+                val previous = entities.getTiltaksgjennomforingOrNull(it.entityId)
+                data.toTiltaksgjennomforing(it.entityId, avtaleId, previous?.sanityId)
+            }
             .flatMap {
                 retry(
                     times = config.retryUpsertTimes,
@@ -77,7 +76,7 @@ class TiltakgjennomforingEventProcessor(
             }
             .bind()
 
-        if (isGruppetiltak) {
+        if (isGruppetiltak(data.TILTAKSKODE)) {
             upsertTiltaksgjennomforing(event.operation, tiltaksgjennomforing).bind()
         } else {
             ProcessingResult(Handled)
@@ -86,7 +85,7 @@ class TiltakgjennomforingEventProcessor(
 
     override suspend fun deleteEntity(event: ArenaEvent) = either {
         val mapping = entities.getMapping(event.arenaTable, event.arenaId).bind()
-        client.request<Any>(HttpMethod.Delete, "/api/v1/internal/arena/tiltaksgjennomforing/${mapping.entityId}")
+        client.request<Any>(HttpMethod.Delete, "/api/v1/intern/arena/tiltaksgjennomforing/${mapping.entityId}")
             .mapLeft { ProcessingError.fromResponseException(it) }
             .flatMap { entities.deleteTiltaksgjennomforing(mapping.entityId) }
             .bind()
@@ -135,37 +134,33 @@ class TiltakgjennomforingEventProcessor(
         val dbo =
             tiltaksgjennomforing.toDbo(tiltakstypeMapping.entityId, sak, virksomhetsnummer, avtaleMapping?.entityId)
 
-        val response = if (operation == ArenaEvent.Operation.Delete) {
-            client.request<Any>(HttpMethod.Delete, "/api/v1/internal/arena/tiltaksgjennomforing/${dbo.id}")
+        if (operation == ArenaEvent.Operation.Delete) {
+            client.request<Any>(HttpMethod.Delete, "/api/v1/intern/arena/tiltaksgjennomforing/${dbo.id}")
+                .flatMap {
+                    if (dbo.sanityId != null) {
+                        client.request<Any>(
+                            HttpMethod.Delete,
+                            "/api/v1/intern/arena/sanity/tiltaksgjennomforing/${dbo.sanityId}",
+                        )
+                    } else {
+                        it.right()
+                    }
+                }
         } else {
-            client.request(HttpMethod.Put, "/api/v1/internal/arena/tiltaksgjennomforing", dbo)
+            client.request(HttpMethod.Put, "/api/v1/intern/arena/tiltaksgjennomforing", dbo)
+                .onRight {
+                    val sanityId = it.body<UpsertTiltaksgjennomforingResponse>().sanityId
+                    if (sanityId != null && tiltaksgjennomforing.sanityId == null) {
+                        entities.upsertSanityId(tiltaksgjennomforing.id, sanityId)
+                    }
+                }
         }
-        response.mapLeft { ProcessingError.fromResponseException(it) }.map { ProcessingResult(Handled) }.bind()
+            .mapLeft { ProcessingError.fromResponseException(it) }
+            .map { ProcessingResult(Handled) }
+            .bind()
     }
 
-    private fun isRelevantForBrukersTiltakshistorikk(data: ArenaTiltaksgjennomforing): Boolean {
-        // Siden nye instanser av applikasjonen må lese gjennomføringene før deltakelsene vil man ha tilfenner
-        // der denne sjekken returnerer `false` selv om gjennomføringen _egentlig_ har relevante deltakelser
-        // i Arena.
-        // Vi har vurdert denne mangelen som OK og planlegger å ta en nytt sjau på tiltakshistorikken etter hvert.
-        if (anyDeltakereIsRelevantForBrukersTiltakshistorikk(data)) {
-            return true
-        }
-
-        val date = ArenaUtils.parseNullableTimestamp(data.DATO_TIL) ?: ArenaUtils.parseTimestamp(data.REG_DATO)
-        return Tiltakshistorikk.isRelevantTiltakshistorikk(date)
-    }
-
-    private fun anyDeltakereIsRelevantForBrukersTiltakshistorikk(data: ArenaTiltaksgjennomforing): Boolean {
-        val deltakere = entities.getDeltakereByTiltaksgjennomforingId(data.TILTAKGJENNOMFORING_ID)
-
-        return deltakere.any { deltaker ->
-            val date = deltaker.tilDato ?: deltaker.registrertDato
-            Tiltakshistorikk.isRelevantTiltakshistorikk(date)
-        }
-    }
-
-    private fun ArenaTiltaksgjennomforing.toTiltaksgjennomforing(id: UUID, avtaleId: Int?) = Either
+    private fun ArenaTiltaksgjennomforing.toTiltaksgjennomforing(id: UUID, avtaleId: Int?, sanityId: UUID?) = Either
         .catch {
             requireNotNull(DATO_FRA)
             requireNotNull(LOKALTNAVN)
@@ -173,6 +168,7 @@ class TiltakgjennomforingEventProcessor(
 
             Tiltaksgjennomforing(
                 id = id,
+                sanityId = sanityId,
                 tiltaksgjennomforingId = TILTAKGJENNOMFORING_ID,
                 sakId = SAK_ID,
                 tiltakskode = TILTAKSKODE,
@@ -191,6 +187,7 @@ class TiltakgjennomforingEventProcessor(
     private fun Tiltaksgjennomforing.toDbo(tiltakstypeId: UUID, sak: Sak, virksomhetsnummer: String, avtaleId: UUID?) =
         ArenaTiltaksgjennomforingDbo(
             id = id,
+            sanityId = sanityId,
             navn = navn,
             tiltakstypeId = tiltakstypeId,
             tiltaksnummer = "${sak.aar}#${sak.lopenummer}",

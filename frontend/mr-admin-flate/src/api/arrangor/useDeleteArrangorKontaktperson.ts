@@ -1,6 +1,9 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { mulighetsrommetClient } from "@/api/client";
-import { ApiError, ArrangorKontaktpersonRequest } from "mulighetsrommet-api-client";
+import {
+  ApiError,
+  ArrangorKontaktpersonRequest,
+  ArrangorService,
+} from "mulighetsrommet-api-client";
 import { QueryKeys } from "@/api/QueryKeys";
 
 export function useDeleteArrangorKontaktperson() {
@@ -8,7 +11,7 @@ export function useDeleteArrangorKontaktperson() {
 
   return useMutation<unknown, ApiError, { arrangorId: string; kontaktpersonId: string }>({
     mutationFn({ kontaktpersonId }) {
-      return mulighetsrommetClient.arrangor.deleteArrangorKontaktperson({
+      return ArrangorService.deleteArrangorKontaktperson({
         id: kontaktpersonId,
       });
     },

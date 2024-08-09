@@ -4,6 +4,7 @@ import com.github.kagkarlsson.scheduler.Scheduler
 import com.nimbusds.jose.jwk.KeyUse
 import com.nimbusds.jose.jwk.RSAKey
 import io.ktor.server.application.*
+import kotlinx.coroutines.runBlocking
 import no.nav.common.client.axsys.AxsysClient
 import no.nav.common.client.axsys.AxsysV2ClientImpl
 import no.nav.common.kafka.producer.util.KafkaProducerClientBuilder
@@ -16,7 +17,9 @@ import no.nav.mulighetsrommet.api.AppConfig
 import no.nav.mulighetsrommet.api.SlackConfig
 import no.nav.mulighetsrommet.api.TaskConfig
 import no.nav.mulighetsrommet.api.avtaler.AvtaleValidator
+import no.nav.mulighetsrommet.api.avtaler.OpsjonLoggValidator
 import no.nav.mulighetsrommet.api.clients.AccessType
+import no.nav.mulighetsrommet.api.clients.CachedTokenProvider
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
 import no.nav.mulighetsrommet.api.clients.arenaadapter.ArenaAdapterClient
 import no.nav.mulighetsrommet.api.clients.brreg.BrregClient
@@ -24,10 +27,15 @@ import no.nav.mulighetsrommet.api.clients.dialog.VeilarbdialogClient
 import no.nav.mulighetsrommet.api.clients.msgraph.MicrosoftGraphClient
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Client
 import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClient
+import no.nav.mulighetsrommet.api.clients.pamOntologi.PamOntologiClient
 import no.nav.mulighetsrommet.api.clients.pdl.PdlClient
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
-import no.nav.mulighetsrommet.api.clients.ssb.SsbNusClient
+import no.nav.mulighetsrommet.api.clients.tiltakshistorikk.TiltakshistorikkClient
+import no.nav.mulighetsrommet.api.clients.utdanning.UtdanningClient
 import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClient
+import no.nav.mulighetsrommet.api.okonomi.tilsagn.TilsagnRepository
+import no.nav.mulighetsrommet.api.okonomi.tilsagn.TilsagnService
+import no.nav.mulighetsrommet.api.okonomi.tilsagn.TilsagnValidator
 import no.nav.mulighetsrommet.api.repositories.*
 import no.nav.mulighetsrommet.api.services.*
 import no.nav.mulighetsrommet.api.tasks.*
@@ -40,7 +48,6 @@ import no.nav.mulighetsrommet.kafka.KafkaConsumerRepositoryImpl
 import no.nav.mulighetsrommet.kafka.consumers.TiltaksgjennomforingTopicConsumer
 import no.nav.mulighetsrommet.kafka.consumers.amt.AmtDeltakerV1TopicConsumer
 import no.nav.mulighetsrommet.kafka.consumers.amt.AmtVirksomheterV1TopicConsumer
-import no.nav.mulighetsrommet.kafka.consumers.pto.PtoSisteOppfolgingsperiodeV1TopicConsumer
 import no.nav.mulighetsrommet.kafka.producers.ArenaMigreringTiltaksgjennomforingKafkaProducer
 import no.nav.mulighetsrommet.kafka.producers.TiltaksgjennomforingKafkaProducer
 import no.nav.mulighetsrommet.kafka.producers.TiltakstypeKafkaProducer
@@ -80,11 +87,9 @@ fun Application.configureDependencyInjection(appConfig: AppConfig) {
     }
 }
 
-fun slack(slack: SlackConfig): Module {
-    return module(createdAtStart = true) {
-        single<SlackNotifier> {
-            SlackNotifierImpl(slack.token, slack.channel, slack.enable)
-        }
+fun slack(slack: SlackConfig): Module = module(createdAtStart = true) {
+    single<SlackNotifier> {
+        SlackNotifierImpl(slack.token, slack.channel, slack.enable)
     }
 }
 
@@ -147,11 +152,6 @@ private fun kafka(appConfig: AppConfig) = module {
                 arrangorRepository = get(),
                 brregClient = get(),
             ),
-            PtoSisteOppfolgingsperiodeV1TopicConsumer(
-                config = config.consumers.ptoSisteOppfolgingsperiodeV1,
-                tiltakshistorikkService = get(),
-                pdlClient = get(),
-            ),
         )
         KafkaConsumerOrchestrator(
             consumerPreset = properties,
@@ -165,7 +165,6 @@ private fun repositories() = module {
     single { AvtaleRepository(get()) }
     single { TiltaksgjennomforingRepository(get()) }
     single { TiltakstypeRepository(get()) }
-    single { TiltakshistorikkRepository(get()) }
     single { NavEnhetRepository(get()) }
     single { DeltakerRepository(get()) }
     single { NotificationRepository(get()) }
@@ -173,79 +172,67 @@ private fun repositories() = module {
     single { ArrangorRepository(get()) }
     single { KafkaConsumerRepositoryImpl(get()) }
     single { VeilederJoyrideRepository(get()) }
-    single { SsbNusRepository(get()) }
+    single { OpsjonLoggRepository(get()) }
+    single { TilsagnRepository(get()) }
 }
 
 private fun services(appConfig: AppConfig) = module {
-    val m2mTokenProvider = createM2mTokenClient(appConfig)
-    val oboTokenProvider = createOboTokenClient(appConfig)
+    val cachedTokenProvider = CachedTokenProvider(
+        m2mTokenProvider = createM2mTokenClient(appConfig),
+        oboTokenProvider = createOboTokenClient(appConfig),
+    )
 
     single {
         VeilarboppfolgingClient(
             baseUrl = appConfig.veilarboppfolgingConfig.url,
-            tokenProvider = { accessType ->
-                when (accessType) {
-                    AccessType.M2M -> m2mTokenProvider.createMachineToMachineToken(appConfig.veilarboppfolgingConfig.scope)
-                    is AccessType.OBO -> oboTokenProvider.exchangeOnBehalfOfToken(
-                        appConfig.veilarboppfolgingConfig.scope,
-                        accessType.token,
-                    )
-                }
-            },
+            tokenProvider = cachedTokenProvider.withScope(appConfig.veilarboppfolgingConfig.scope),
         )
     }
     single {
         VeilarbvedtaksstotteClient(
             baseUrl = appConfig.veilarbvedtaksstotteConfig.url,
-            tokenProvider = { obo ->
-                oboTokenProvider.exchangeOnBehalfOfToken(appConfig.veilarbvedtaksstotteConfig.scope, obo.token)
-            },
+            tokenProvider = cachedTokenProvider.withScope(appConfig.veilarbvedtaksstotteConfig.scope),
         )
     }
     single {
         VeilarbdialogClient(
             baseUrl = appConfig.veilarbdialogConfig.url,
-            tokenProvider = { token ->
-                oboTokenProvider.exchangeOnBehalfOfToken(appConfig.veilarbdialogConfig.scope, token)
-            },
+            tokenProvider = cachedTokenProvider.withScope(appConfig.veilarbdialogConfig.scope),
         )
     }
     single {
         PdlClient(
             baseUrl = appConfig.pdl.url,
-            tokenProvider = { accessType ->
-                when (accessType) {
-                    AccessType.M2M -> m2mTokenProvider.createMachineToMachineToken(appConfig.pdl.scope)
-                    is AccessType.OBO -> oboTokenProvider.exchangeOnBehalfOfToken(appConfig.pdl.scope, accessType.token)
-                }
-            },
+            tokenProvider = cachedTokenProvider.withScope(appConfig.pdl.scope),
         )
     }
 
     single<PoaoTilgangClient> {
         PoaoTilgangHttpClient(
             baseUrl = appConfig.poaoTilgang.url,
-            tokenProvider = { m2mTokenProvider.createMachineToMachineToken(appConfig.poaoTilgang.scope) },
-        )
-    }
-    single {
-        MicrosoftGraphClient(
-            baseUrl = appConfig.msGraphConfig.url,
-            tokenProvider = { accessType ->
-                when (accessType) {
-                    AccessType.M2M -> m2mTokenProvider.createMachineToMachineToken(appConfig.msGraphConfig.scope)
-                    is AccessType.OBO -> oboTokenProvider.exchangeOnBehalfOfToken(
-                        appConfig.msGraphConfig.scope,
-                        accessType.token,
-                    )
+            tokenProvider = {
+                runBlocking {
+                    cachedTokenProvider.withScope(appConfig.poaoTilgang.scope).exchange(AccessType.M2M)
                 }
             },
         )
     }
     single {
+        MicrosoftGraphClient(
+            baseUrl = appConfig.msGraphConfig.url,
+            tokenProvider = cachedTokenProvider.withScope(appConfig.msGraphConfig.scope),
+        )
+    }
+    single {
         ArenaAdapterClient(
             baseUrl = appConfig.arenaAdapter.url,
-            machineToMachineTokenClient = { m2mTokenProvider.createMachineToMachineToken(appConfig.arenaAdapter.scope) },
+            tokenProvider = cachedTokenProvider.withScope(appConfig.arenaAdapter.scope),
+        )
+    }
+    single {
+        TiltakshistorikkClient(
+            baseUrl = appConfig.tiltakshistorikk.url,
+            tokenProvider = cachedTokenProvider.withScope(appConfig.tiltakshistorikk.scope),
         )
     }
     single {
@@ -265,16 +252,20 @@ private fun services(appConfig: AppConfig) = module {
         AmtDeltakerClient(
             baseUrl = appConfig.amtDeltakerConfig.url,
             clientEngine = appConfig.engine,
-            tokenProvider = { obo ->
-                oboTokenProvider.exchangeOnBehalfOfToken(appConfig.amtDeltakerConfig.scope, obo.token)
-            },
+            tokenProvider = cachedTokenProvider.withScope(appConfig.amtDeltakerConfig.scope),
         )
     }
+    single {
+        PamOntologiClient(
+            baseUrl = appConfig.pamOntologi.url,
+            clientEngine = appConfig.engine,
+            tokenProvider = cachedTokenProvider.withScope(appConfig.pamOntologi.scope),
+        )
+    }
+    single { UtdanningClient(config = appConfig.utdanning) }
     single { EndringshistorikkService(get()) }
     single {
         ArenaAdapterService(
-            get(),
-            get(),
             get(),
             get(),
             get(),
@@ -302,12 +293,12 @@ private fun services(appConfig: AppConfig) = module {
             get(),
         )
     }
-    single { TiltakshistorikkService(get(), get(), get(), get()) }
+    single { TiltakshistorikkService(get(), get(), get(), get(), get()) }
     single { VeilederflateService(get(), get(), get(), get()) }
     single { BrukerService(get(), get(), get(), get(), get()) }
     single { NavAnsattService(appConfig.auth.roles, get(), get(), get(), get(), get(), get(), get()) }
     single { PoaoTilgangService(get()) }
-    single { DelMedBrukerService(get()) }
+    single { DelMedBrukerService(get(), get()) }
     single { MicrosoftGraphService(get()) }
     single {
         TiltaksgjennomforingService(
@@ -328,21 +319,23 @@ private fun services(appConfig: AppConfig) = module {
     single { NavVeilederService(get()) }
     single { NotificationService(get(), get(), get()) }
     single { ArrangorService(get(), get()) }
-    single { ExcelService() }
     single {
         val byEnhetStrategy = ByEnhetStrategy(get())
         val byNavidentStrategy = ByNavIdentStrategy()
         UnleashService(appConfig.unleash, byEnhetStrategy, byNavidentStrategy)
     }
     single<AxsysClient> {
-        AxsysV2ClientImpl(appConfig.axsys.url) {
-            m2mTokenProvider.createMachineToMachineToken(appConfig.axsys.scope)
-        }
+        AxsysV2ClientImpl(
+            appConfig.axsys.url,
+        ) { runBlocking { cachedTokenProvider.withScope(appConfig.axsys.scope).exchange(AccessType.M2M) } }
     }
-    single { AvtaleValidator(get(), get(), get(), get()) }
+    single { AvtaleValidator(get(), get(), get(), get(), get()) }
     single { TiltaksgjennomforingValidator(get(), get(), get()) }
-    single { SsbNusClient(engine = appConfig.engine, config = appConfig.ssbNusConfig) }
-    single { SsbNusService(get(), get()) }
+    single { OpsjonLoggValidator() }
+    single { TilsagnValidator(get()) }
+    single { OpsjonLoggService(get(), get(), get(), get(), get()) }
+    single { LagretFilterService(get()) }
+    single { TilsagnService(get(), get(), get(), get()) }
 }
 
 private fun tasks(config: TaskConfig) = module {
@@ -350,12 +343,8 @@ private fun tasks(config: TaskConfig) = module {
     single { InitialLoadTiltaksgjennomforinger(get(), get(), get(), get()) }
     single { InitialLoadTiltakstyper(get(), get(), get(), get()) }
     single { SynchronizeNavAnsatte(config.synchronizeNavAnsatte, get(), get(), get()) }
+    single { SynchronizeUtdanninger(get(), get(), config.synchronizeUtdanninger, get()) }
     single {
-        val deleteExpiredTiltakshistorikk = DeleteExpiredTiltakshistorikk(
-            config.deleteExpiredTiltakshistorikk,
-            get(),
-            get(),
-        )
         val updateTiltaksgjennomforingStatus = UpdateTiltaksgjennomforingStatus(
             get(),
             get(),
@@ -386,6 +375,7 @@ private fun tasks(config: TaskConfig) = module {
         val initialLoadTiltaksgjennomforinger: InitialLoadTiltaksgjennomforinger by inject()
         val initialLoadTiltakstyper: InitialLoadTiltakstyper by inject()
         val synchronizeNavAnsatte: SynchronizeNavAnsatte by inject()
+        val synchronizeUtdanninger: SynchronizeUtdanninger by inject()
 
         val db: Database by inject()
 
@@ -398,10 +388,10 @@ private fun tasks(config: TaskConfig) = module {
                 initialLoadTiltakstyper.task,
             )
             .startTasks(
-                deleteExpiredTiltakshistorikk.task,
                 synchronizeNorgEnheterTask.task,
                 updateTiltaksgjennomforingStatus.task,
                 synchronizeNavAnsatte.task,
+                synchronizeUtdanninger.task,
                 notifySluttdatoForGjennomforingerNarmerSeg.task,
                 notifySluttdatoForAvtalerNarmerSeg.task,
                 notifyFailedKafkaEvents.task,
@@ -413,28 +403,24 @@ private fun tasks(config: TaskConfig) = module {
     }
 }
 
-private fun createOboTokenClient(config: AppConfig): OnBehalfOfTokenClient {
-    return when (NaisEnv.current()) {
-        NaisEnv.Local -> AzureAdTokenClientBuilder.builder()
-            .withClientId(config.auth.azure.audience)
-            .withPrivateJwk(createMockRSAKey("azure").toJSONString())
-            .withTokenEndpointUrl(config.auth.azure.tokenEndpointUrl)
-            .buildOnBehalfOfTokenClient()
+private fun createOboTokenClient(config: AppConfig): OnBehalfOfTokenClient = when (NaisEnv.current()) {
+    NaisEnv.Local -> AzureAdTokenClientBuilder.builder()
+        .withClientId(config.auth.azure.audience)
+        .withPrivateJwk(createMockRSAKey("azure").toJSONString())
+        .withTokenEndpointUrl(config.auth.azure.tokenEndpointUrl)
+        .buildOnBehalfOfTokenClient()
 
-        else -> AzureAdTokenClientBuilder.builder().withNaisDefaults().buildOnBehalfOfTokenClient()
-    }
+    else -> AzureAdTokenClientBuilder.builder().withNaisDefaults().buildOnBehalfOfTokenClient()
 }
 
-private fun createM2mTokenClient(config: AppConfig): MachineToMachineTokenClient {
-    return when (NaisEnv.current()) {
-        NaisEnv.Local -> AzureAdTokenClientBuilder.builder()
-            .withClientId(config.auth.azure.audience)
-            .withPrivateJwk(createMockRSAKey("azure").toJSONString())
-            .withTokenEndpointUrl(config.auth.azure.tokenEndpointUrl)
-            .buildMachineToMachineTokenClient()
+private fun createM2mTokenClient(config: AppConfig): MachineToMachineTokenClient = when (NaisEnv.current()) {
+    NaisEnv.Local -> AzureAdTokenClientBuilder.builder()
+        .withClientId(config.auth.azure.audience)
+        .withPrivateJwk(createMockRSAKey("azure").toJSONString())
+        .withTokenEndpointUrl(config.auth.azure.tokenEndpointUrl)
+        .buildMachineToMachineTokenClient()
 
-        else -> AzureAdTokenClientBuilder.builder().withNaisDefaults().buildMachineToMachineTokenClient()
-    }
+    else -> AzureAdTokenClientBuilder.builder().withNaisDefaults().buildMachineToMachineTokenClient()
 }
 
 private fun createMockRSAKey(keyID: String): RSAKey = KeyPairGenerator

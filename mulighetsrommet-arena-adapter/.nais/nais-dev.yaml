@@ -29,7 +29,7 @@ spec:
         thresholdPercentage: 75
   resources:
     requests:
-      cpu: 250m
+      cpu: 100m
       memory: 512Mi
     limits:
       memory: 8192Mi
@@ -43,7 +43,7 @@ spec:
         - id: loki
   gcp:
     sqlInstances:
-      - type: POSTGRES_14
+      - type: POSTGRES_16
         databases:
           - name: mulighetsrommet-arena-adapter-db
             envVarPrefix: DB
@@ -69,6 +69,7 @@ spec:
     outbound:
       rules:
         - application: mulighetsrommet-api
+        - application: tiltakshistorikk
       external:
         - host: amt-arena-ords-proxy.dev-fss-pub.nais.io
         - host: slack.com

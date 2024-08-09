@@ -5,6 +5,7 @@ import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.plugins.swagger.*
 import io.ktor.server.routing.*
+import no.nav.mulighetsrommet.api.okonomi.tilsagn.tilsagnRoutes
 import no.nav.mulighetsrommet.api.plugins.*
 import no.nav.mulighetsrommet.api.plugins.AuthProvider
 import no.nav.mulighetsrommet.api.routes.featuretoggles.featureTogglesRoute
@@ -47,7 +48,7 @@ fun Application.configure(config: AppConfig) {
         }
 
         authenticate(AuthProvider.AZURE_AD_NAV_IDENT.name, AuthProvider.AZURE_AD_TILTAKSADMINISTRASJON_GENERELL.name) {
-            tiltakstypeRoutes(config.migrerteTiltak)
+            tiltakstypeRoutes(config.migrerteTiltak, config.pameldingIModia)
             tiltaksgjennomforingRoutes()
             avtaleRoutes()
             veilederflateRoutes()
@@ -61,6 +62,10 @@ fun Application.configure(config: AppConfig) {
             notificationRoutes()
             featureTogglesRoute()
             veilederJoyrideRoutes()
+            janzzRoutes()
+            opsjonRoutes()
+            lagretFilterRoutes()
+            tilsagnRoutes()
         }
 
         authenticate(AuthProvider.AZURE_AD_DEFAULT_APP.name) {

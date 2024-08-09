@@ -29,7 +29,7 @@ spec:
         thresholdPercentage: 75
   resources:
     requests:
-      cpu: 250m
+      cpu: 50m
       memory: 512Mi
     limits:
       memory: 8192Mi
@@ -43,7 +43,7 @@ spec:
         - id: loki
   gcp:
     sqlInstances:
-      - type: POSTGRES_15
+      - type: POSTGRES_16
         databases:
           - name: tiltakshistorikk
             envVarPrefix: DB
@@ -59,7 +59,10 @@ spec:
           - id: debefa6e-1865-446d-b22b-9579fc735de3 # team-mulighetsrommet
         extra:
           - azp_name
+  kafka:
+    pool: nav-dev
   accessPolicy:
     inbound:
       rules:
         - application: mulighetsrommet-api
+        - application: mulighetsrommet-arena-adapter

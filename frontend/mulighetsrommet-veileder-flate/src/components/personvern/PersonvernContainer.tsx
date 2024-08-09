@@ -3,14 +3,16 @@ import {
   BodyLong,
   Button,
   GuidePanel,
+  HStack,
   Heading,
+  HelpText,
   List,
   Modal,
   VStack,
 } from "@navikt/ds-react";
 import { ModalBody, ModalHeader } from "@navikt/ds-react/Modal";
 import {
-  PersonopplysningMedBeskrivelse,
+  PersonopplysningData,
   VeilederflateTiltaksgjennomforing,
 } from "mulighetsrommet-api-client";
 import { useState } from "react";
@@ -77,18 +79,22 @@ export function PersonvernContainer({ tiltaksgjennomforing }: Props) {
             tilfelle om det er nødvendig å dele opplysningene. Husk prinsippet om dataminimering, og
             at vi ikke skal sende flere opplysninger enn det som er nødvendig.
           </BodyLong>
+          <BodyLong spacing className={styles.lesebredde}>
+            <div className={styles.flex}>
+              Personopplysninger om deltakers nærstående skal i utgangspunktet ikke behandles. I
+              enkelte tilfeller kan det likevel være nødvendig å behandle indirekte opplysninger om
+              deltakers nærstående, fordi det kan ha betydning for tiltaksgjennomføringen.
+              <HelpText>
+                Dataminimeringsprinsippet gjelder også her: man kan for eksempel opplyse om at
+                deltaker har et nært familiemedlem med stort omsorgsbehov, uten å opplyse om
+                vedkommendes relasjon til deltaker, diagnose, navn og alder.{" "}
+              </HelpText>
+            </div>
+          </BodyLong>
           <VStack gap="5">
             <ListeOverPersonopplysninger
-              title="Opplysninger om bruker som alltid kan/må behandles"
-              personopplysninger={data.ALLTID}
-            />
-            <ListeOverPersonopplysninger
-              title="Opplysninger om bruker som ofte er nødvendig og relevant å behandle"
-              personopplysninger={data.OFTE}
-            />
-            <ListeOverPersonopplysninger
-              title="Opplysninger om bruker som sjelden eller i helt spesielle tilfeller er nødvendig og relevant å behandle"
-              personopplysninger={data.SJELDEN}
+              title="Opplysninger om deltaker som kan behandles"
+              personopplysninger={data}
             />
           </VStack>
         </ModalBody>
@@ -99,7 +105,7 @@ export function PersonvernContainer({ tiltaksgjennomforing }: Props) {
 
 interface ListeOverPersonopplysningerProps {
   title: string;
-  personopplysninger: PersonopplysningMedBeskrivelse[];
+  personopplysninger: PersonopplysningData[];
 }
 
 function ListeOverPersonopplysninger({
@@ -114,7 +120,14 @@ function ListeOverPersonopplysninger({
     <List title={title} size="small">
       {personopplysninger.map((personopplysning) => (
         <List.Item key={personopplysning.personopplysning} className={styles.lesebredde}>
-          {personopplysning.beskrivelse}
+          <HStack align={"end"} gap="1">
+            <div className={styles.flex}>
+              {personopplysning.tittel}{" "}
+              {personopplysning.hjelpetekst ? (
+                <HelpText>{personopplysning.hjelpetekst}</HelpText>
+              ) : null}
+            </div>
+          </HStack>
         </List.Item>
       ))}
     </List>

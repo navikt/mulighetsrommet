@@ -11,8 +11,8 @@ import io.ktor.util.pipeline.*
 import no.nav.mulighetsrommet.api.services.ArenaAdapterService
 import no.nav.mulighetsrommet.domain.dbo.ArenaAvtaleDbo
 import no.nav.mulighetsrommet.domain.dbo.ArenaTiltaksgjennomforingDbo
-import no.nav.mulighetsrommet.domain.dbo.ArenaTiltakshistorikkDbo
 import no.nav.mulighetsrommet.domain.dbo.DeltakerDbo
+import no.nav.mulighetsrommet.domain.dto.UpsertTiltaksgjennomforingResponse
 import org.koin.ktor.ext.inject
 import org.postgresql.util.PSQLException
 import java.util.*
@@ -22,7 +22,7 @@ fun Route.arenaAdapterRoutes() {
 
     val arenaAdapterService: ArenaAdapterService by inject()
 
-    route("/api/v1/internal/arena/") {
+    route("/api/v1/intern/arena/") {
         put("avtale") {
             val dbo = call.receive<ArenaAvtaleDbo>()
 
@@ -39,12 +39,9 @@ fun Route.arenaAdapterRoutes() {
         put("tiltaksgjennomforing") {
             val tiltaksgjennomforing = call.receive<ArenaTiltaksgjennomforingDbo>()
 
-            arenaAdapterService.upsertTiltaksgjennomforing(tiltaksgjennomforing)
-                .map { call.respond(it) }
-                .mapLeft {
-                    logError(logger, it.error)
-                    call.respond(HttpStatusCode.InternalServerError, "Kunne ikke opprette tiltak")
-                }
+            val sanityId = arenaAdapterService.upsertTiltaksgjennomforing(tiltaksgjennomforing)
+
+            call.respond(UpsertTiltaksgjennomforingResponse(sanityId))
         }
 
         delete("tiltaksgjennomforing/{id}") {
@@ -54,25 +51,11 @@ fun Route.arenaAdapterRoutes() {
             call.response.status(HttpStatusCode.OK)
         }
 
-        put("tiltakshistorikk") {
-            val tiltakshistorikk = call.receive<ArenaTiltakshistorikkDbo>()
+        delete("sanity/tiltaksgjennomforing/{sanityId}") {
+            val sanityId = call.parameters.getOrFail<UUID>("sanityId")
 
-            arenaAdapterService.upsertTiltakshistorikk(tiltakshistorikk)
-                .map { call.respond(HttpStatusCode.OK, it) }
-                .mapLeft {
-                    logger.warn("Error during upsertTiltakshistorikk: $it")
-                    call.respond(HttpStatusCode.InternalServerError, "Kunne ikke opprette tiltakshistorikk")
-                }
-        }
-
-        delete("tiltakshistorikk/{id}") {
-            val id = call.parameters.getOrFail<UUID>("id")
-            arenaAdapterService.removeTiltakshistorikk(id)
-                .map { call.response.status(HttpStatusCode.OK) }
-                .mapLeft {
-                    logError(logger, it.error)
-                    call.respond(HttpStatusCode.InternalServerError, "Kunne ikke slette tiltakshistorikk")
-                }
+            arenaAdapterService.removeSanityTiltaksgjennomforing(sanityId)
+            call.response.status(HttpStatusCode.OK)
         }
 
         put("deltaker") {

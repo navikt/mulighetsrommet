@@ -3,6 +3,7 @@ import {
   NavEnhetStatus,
   NavEnhetType,
   TiltaksgjennomforingOppstartstype,
+  TiltaksgjennomforingStatus,
   VeilederflateTiltaksgjennomforing,
 } from "mulighetsrommet-api-client";
 import { mockTiltakstyper } from "./mockTiltakstyper";
@@ -11,7 +12,8 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
   {
     tiltaksnummer: "123123",
     sanityId: "f4cea25b-c372-4d4c-8106-535ab10cd586",
-    navn: "Avklaring - Fredrikstad",
+    navn: "Avklaring - Fredrikstad med ganske langt navn som strekker seg bortover",
+    status: { status: TiltaksgjennomforingStatus.GJENNOMFORES },
     oppstart: TiltaksgjennomforingOppstartstype.LOPENDE,
     estimertVentetid: {
       verdi: 3,
@@ -108,6 +110,7 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
   {
     sanityId: "91205ff2-ec72-4a7f-80b8-1c99d8535a06",
     navn: "Sindres mentorordning med Yoda",
+    status: { status: TiltaksgjennomforingStatus.GJENNOMFORES },
     estimertVentetid: {
       verdi: 5,
       enhet: EstimertVentetidEnhet.UKE,
@@ -138,6 +141,7 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
   },
   {
     id: "00097090-1ba8-47a4-a82f-6aaad488994e",
+    status: { status: TiltaksgjennomforingStatus.GJENNOMFORES },
     avtaleId: "9a11a2ff-dd9c-42f7-b85f-b07522bb55f8",
     personvernBekreftet: true,
     tiltaksnummer: "2024/123",
@@ -245,6 +249,7 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
   {
     sanityId: "3b597090-1ba8-47a4-a82f-6aaad488994e",
     navn: "VTA hos Fretex",
+    status: { status: TiltaksgjennomforingStatus.GJENNOMFORES },
     stedForGjennomforing: "2050",
     apentForInnsok: true,
     tiltakstype: mockTiltakstyper.VTA,
@@ -333,6 +338,7 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
   {
     sanityId: "ff887090-1ba8-47a4-a82f-6aaad488994e",
     navn: "Jobbklubb (med Lars Monsen)",
+    status: { status: TiltaksgjennomforingStatus.GJENNOMFORES },
     stedForGjennomforing: "Kautokeino",
     apentForInnsok: true,
     tiltakstype: mockTiltakstyper.jobbklubb,
@@ -380,6 +386,7 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
     sanityId: "bdfa7090-1ba8-47a4-a82f-6aaad488994e",
     navn: "AFT",
     stedForGjennomforing: "Sinsen",
+    status: { status: TiltaksgjennomforingStatus.GJENNOMFORES },
     apentForInnsok: true,
     tiltakstype: mockTiltakstyper.AFT,
     oppstart: TiltaksgjennomforingOppstartstype.LOPENDE,
@@ -418,6 +425,7 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
   },
   {
     sanityId: "f1887090-1ba8-47a4-a82f-6aaad488994e",
+    status: { status: TiltaksgjennomforingStatus.GJENNOMFORES },
     navn: "Oppæring Fag og Yrke",
     stedForGjennomforing: "Oslo",
     apentForInnsok: true,
@@ -438,6 +446,7 @@ const x = 0;
 for (let i = 0; i < x; i++) {
   mockTiltaksgjennomforinger.push({
     sanityId: window.crypto.randomUUID(),
+    status: { status: TiltaksgjennomforingStatus.GJENNOMFORES },
     navn: "Oppæring Fag og Yrke" + i,
     stedForGjennomforing: "Oslo",
     apentForInnsok: true,

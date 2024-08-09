@@ -1,3 +1,8 @@
+import { ARRANGORER_PAGE_SIZE, AVTALE_PAGE_SIZE, PAGE_SIZE } from "@/constants";
+import { SortState } from "@navikt/ds-react";
+import { atom, WritableAtom } from "jotai";
+import { atomFamily } from "jotai/utils";
+import { RESET } from "jotai/vanilla/utils";
 import {
   Avtalestatus,
   Avtaletype,
@@ -8,11 +13,7 @@ import {
   SorteringTiltakstyper,
   TiltaksgjennomforingStatus,
 } from "mulighetsrommet-api-client";
-import { atom, WritableAtom } from "jotai";
-import { atomFamily } from "jotai/utils";
-import { ARRANGORER_PAGE_SIZE, AVTALE_PAGE_SIZE, PAGE_SIZE } from "@/constants";
-import { RESET } from "jotai/vanilla/utils";
-import { ZodType, z } from "zod";
+import { z, ZodType } from "zod";
 
 type SetStateActionWithReset<Value> =
   | Value
@@ -130,13 +131,26 @@ function atomWithHashAndStorage<Value>(
   );
 }
 
+function createSorteringProps(sortItems: z.ZodType) {
+  return z.object({
+    tableSort: z.custom<SortState>(),
+    sortString: sortItems,
+  });
+}
+
 const tiltakstypeFilterSchema = z.object({
-  sort: z.custom<SorteringTiltakstyper>().optional(),
+  sort: createSorteringProps(z.custom<SorteringTiltakstyper>()).optional(),
 });
 export type TiltakstypeFilter = z.infer<typeof tiltakstypeFilterSchema>;
 
 export const defaultTiltakstypeFilter: TiltakstypeFilter = {
-  sort: SorteringTiltakstyper.NAVN_ASCENDING,
+  sort: {
+    sortString: SorteringTiltakstyper.NAVN_ASCENDING,
+    tableSort: {
+      orderBy: "navn",
+      direction: "ascending",
+    },
+  },
 };
 
 export const tiltakstypeFilterAtom = atomWithHashAndStorage<TiltakstypeFilter>(
@@ -146,38 +160,48 @@ export const tiltakstypeFilterAtom = atomWithHashAndStorage<TiltakstypeFilter>(
   tiltakstypeFilterSchema,
 );
 
-const tiltaksgjennomforingFilterSchema = z.object({
+export const TiltaksgjennomforingFilterSchema = z.object({
   search: z.string(),
   navEnheter: z.custom<NavEnhet>().array(),
   tiltakstyper: z.string().array(),
   statuser: z.custom<TiltaksgjennomforingStatus>().array(),
-  sortering: z.custom<SorteringTiltaksgjennomforinger>(),
+  sortering: createSorteringProps(z.custom<SorteringTiltaksgjennomforinger>()),
   avtale: z.string(),
   arrangorer: z.string().array(),
   visMineGjennomforinger: z.boolean(),
+  publisert: z.string().array(),
   page: z.number(),
   pageSize: z.number(),
+  lagretFilterIdValgt: z.string().optional(),
 });
-export type TiltaksgjennomforingFilter = z.infer<typeof tiltaksgjennomforingFilterSchema>;
+export type TiltaksgjennomforingFilter = z.infer<typeof TiltaksgjennomforingFilterSchema>;
 
 export const defaultTiltaksgjennomforingfilter: TiltaksgjennomforingFilter = {
   search: "",
   navEnheter: [],
   tiltakstyper: [],
   statuser: [],
-  sortering: SorteringTiltaksgjennomforinger.NAVN_ASCENDING,
+  sortering: {
+    sortString: SorteringTiltaksgjennomforinger.NAVN_ASCENDING,
+    tableSort: {
+      orderBy: "navn",
+      direction: "ascending",
+    },
+  },
   avtale: "",
   arrangorer: [],
+  publisert: [],
   visMineGjennomforinger: false,
   page: 1,
   pageSize: PAGE_SIZE,
+  lagretFilterIdValgt: undefined,
 };
 
 export const tiltaksgjennomforingfilterAtom = atomWithStorage<TiltaksgjennomforingFilter>(
   "tiltaksgjennomforing-filter",
   defaultTiltaksgjennomforingfilter,
   sessionStorage,
-  tiltaksgjennomforingFilterSchema,
+  TiltaksgjennomforingFilterSchema,
 );
 
 export const gjennomforingerForAvtaleFilterAtomFamily = atomFamily<
@@ -191,24 +215,25 @@ export const gjennomforingerForAvtaleFilterAtomFamily = atomFamily<
       avtale: avtaleId,
     },
     sessionStorage,
-    tiltaksgjennomforingFilterSchema,
+    TiltaksgjennomforingFilterSchema,
   );
 });
 
-const avtaleFilterSchema = z.object({
+export const AvtaleFilterSchema = z.object({
   sok: z.string(),
   statuser: z.custom<Avtalestatus>().array(),
   avtaletyper: z.custom<Avtaletype>().array(),
   navRegioner: z.string().array(),
   tiltakstyper: z.string().array(),
-  sortering: z.custom<SorteringAvtaler>(),
+  sortering: createSorteringProps(z.custom<SorteringAvtaler>()),
   arrangorer: z.string().array(),
   visMineAvtaler: z.boolean(),
   personvernBekreftet: z.boolean().array(),
   page: z.number(),
   pageSize: z.number(),
+  lagretFilterIdValgt: z.string().optional(),
 });
-export type AvtaleFilter = z.infer<typeof avtaleFilterSchema>;
+export type AvtaleFilter = z.infer<typeof AvtaleFilterSchema>;
 
 export const defaultAvtaleFilter: AvtaleFilter = {
   sok: "",
@@ -216,32 +241,45 @@ export const defaultAvtaleFilter: AvtaleFilter = {
   avtaletyper: [],
   navRegioner: [],
   tiltakstyper: [],
-  sortering: SorteringAvtaler.NAVN_ASCENDING,
+  sortering: {
+    sortString: SorteringAvtaler.NAVN_ASCENDING,
+    tableSort: {
+      orderBy: "navn",
+      direction: "ascending",
+    },
+  },
   arrangorer: [],
   visMineAvtaler: false,
   personvernBekreftet: [],
   page: 1,
   pageSize: AVTALE_PAGE_SIZE,
+  lagretFilterIdValgt: undefined,
 };
 
 export const avtaleFilterAtom = atomWithHashAndStorage<AvtaleFilter>(
   "avtale-filter",
   defaultAvtaleFilter,
   sessionStorage,
-  avtaleFilterSchema,
+  AvtaleFilterSchema,
 );
 
 const arrangorerFilterSchema = z.object({
   sok: z.string(),
   page: z.number(),
   pageSize: z.number(),
-  sortering: z.custom<SorteringArrangorer>(),
+  sortering: createSorteringProps(z.custom<SorteringArrangorer>()),
 });
 
 export type ArrangorerFilter = z.infer<typeof arrangorerFilterSchema>;
 export const defaultArrangorerFilter: ArrangorerFilter = {
   sok: "",
-  sortering: SorteringArrangorer.NAVN_ASCENDING,
+  sortering: {
+    sortString: SorteringArrangorer.NAVN_ASCENDING,
+    tableSort: {
+      orderBy: "navn",
+      direction: "ascending",
+    },
+  },
   page: 1,
   pageSize: ARRANGORER_PAGE_SIZE,
 };
@@ -264,7 +302,7 @@ export const getAvtalerForTiltakstypeFilterAtom = atomFamily<
       tiltakstyper: [tiltakstypeId],
     },
     sessionStorage,
-    avtaleFilterSchema,
+    AvtaleFilterSchema,
   );
 });
 

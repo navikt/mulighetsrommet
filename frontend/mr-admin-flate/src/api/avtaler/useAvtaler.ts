@@ -1,8 +1,8 @@
+import { QueryKeys } from "@/api/QueryKeys";
 import { useQuery } from "@tanstack/react-query";
 import { useDebounce } from "mulighetsrommet-frontend-common";
-import { QueryKeys } from "@/api/QueryKeys";
 import { AvtaleFilter } from "../atoms";
-import { mulighetsrommetClient } from "@/api/client";
+import { AvtalerService } from "mulighetsrommet-api-client";
 
 export function useAvtaler(filter: Partial<AvtaleFilter>) {
   const debouncedSok = useDebounce(filter.sok?.trim(), 300);
@@ -13,7 +13,7 @@ export function useAvtaler(filter: Partial<AvtaleFilter>) {
     statuser: filter.statuser,
     avtaletyper: filter.avtaletyper,
     navRegioner: filter.navRegioner,
-    sort: filter.sortering,
+    sort: filter.sortering?.sortString,
     page: filter.page ?? 1,
     size: filter.pageSize,
     arrangorer: filter.arrangorer,
@@ -29,8 +29,8 @@ export function useAvtaler(filter: Partial<AvtaleFilter>) {
 
     queryFn: () => {
       return filter.visMineAvtaler
-        ? mulighetsrommetClient.avtaler.getMineAvtaler({ ...queryFilter })
-        : mulighetsrommetClient.avtaler.getAvtaler({ ...queryFilter });
+        ? AvtalerService.getMineAvtaler({ ...queryFilter })
+        : AvtalerService.getAvtaler({ ...queryFilter });
     },
   });
 }

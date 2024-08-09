@@ -1,16 +1,21 @@
+import { nikolineKontaktperson, petrusKontaktperson } from "@/mocks/fixtures/mock_ansatt";
+import { mockAvtaler } from "@/mocks/fixtures/mock_avtaler";
 import {
   EstimertVentetidEnhet,
+  ForerkortKlasse,
+  InnholdElement,
+  Kurstype,
   Opphav,
   PaginertTiltaksgjennomforing,
+  Spesifisering,
   Tiltaksgjennomforing,
   TiltaksgjennomforingOppstartstype,
+  TiltaksgjennomforingStatus,
 } from "mulighetsrommet-api-client";
-import { mockTiltakstyper } from "./mock_tiltakstyper";
-import { mockEnheter } from "./mock_enheter";
-import { mockArrangorer } from "./mock_arrangorer";
 import { mockArrangorKontaktpersoner } from "./mock_arrangorKontaktperson";
-import { mockAvtaler } from "@/mocks/fixtures/mock_avtaler";
-import { nikolineKontaktperson, petrusKontaktperson } from "@/mocks/fixtures/mock_ansatt";
+import { mockArrangorer } from "./mock_arrangorer";
+import { mockEnheter } from "./mock_enheter";
+import { mockTiltakstyper } from "./mock_tiltakstyper";
 
 export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
   {
@@ -41,14 +46,14 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     deltidsprosent: 100,
     arenaAnsvarligEnhet: mockEnheter._0313,
     navEnheter: [mockEnheter._0313, mockEnheter._0315, mockEnheter._0330],
-    status: { name: "GJENNOMFORES" },
+    status: { status: TiltaksgjennomforingStatus.GJENNOMFORES },
     oppstart: TiltaksgjennomforingOppstartstype.LOPENDE,
     opphav: Opphav.MR_ADMIN_FLATE,
     apentForInnsok: false,
     stedForGjennomforing: "Brummundal",
     kontaktpersoner: [petrusKontaktperson, nikolineKontaktperson],
     publisert: true,
-    publisertForAlle: true,
+
     beskrivelse: "bla bla bla beskrivelse",
     faneinnhold: {
       forHvem: [
@@ -85,6 +90,7 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
         "Nullam lobortis massa nibh, luctus molestie lacus venenatis sed.",
     },
     tilgjengeligForArrangorFraOgMedDato: null,
+    amoKategorisering: null,
   },
   {
     id: "a7d63fb0-4366-412c-84b7-7c15518ee362",
@@ -104,22 +110,27 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     administratorer: [],
     navEnheter: [],
     status: {
-      name: "AVLYST",
-      aarsak:
-        "Denne gjennomføringen ble avbrutt pga av noe som ikke var listen opp i listen over mulige årsaker.",
-      tidspunkt: "2020-03-04T12:00:00",
+      status: TiltaksgjennomforingStatus.AVLYST,
+      avbrutt: {
+        aarsak:
+          "Denne gjennomføringen ble avbrutt pga av noe som ikke var listen opp i listen over mulige årsaker.",
+        beskrivelse:
+          "Denne gjennomføringen ble avbrutt pga av noe som ikke var listen opp i listen over mulige årsaker.",
+        tidspunkt: "2020-03-04T12:00:00",
+      },
     },
     oppstart: TiltaksgjennomforingOppstartstype.LOPENDE,
     opphav: Opphav.MR_ADMIN_FLATE,
     apentForInnsok: true,
     kontaktpersoner: [],
     publisert: false,
-    publisertForAlle: false,
+
     tilgjengeligForArrangorFraOgMedDato: null,
+    amoKategorisering: null,
   },
   {
     id: "a7d63fb0-4366-412c-84b7-7c15518ee363",
-    navn: "AFT",
+    navn: "Gruppe AMO",
     tiltaksnummer: "654434",
     sanityId: "1234",
     deltidsprosent: 100,
@@ -128,20 +139,59 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
       slettet: false,
       kontaktpersoner: mockArrangorKontaktpersoner,
     },
-    tiltakstype: mockTiltakstyper.ARBFORB,
+    tiltakstype: mockTiltakstyper.GRUPPEAMO,
+    administratorer: [
+      {
+        navIdent: "B815493",
+        navn: "Test Testesen",
+      },
+    ],
+    startDato: "2022-01-01",
+    sluttDato: "2022-12-12",
+    arenaAnsvarligEnhet: mockEnheter._0313,
+    navEnheter: [],
+    status: { status: TiltaksgjennomforingStatus.GJENNOMFORES },
+    oppstart: TiltaksgjennomforingOppstartstype.FELLES,
+    opphav: Opphav.MR_ADMIN_FLATE,
+    apentForInnsok: true,
+    antallPlasser: 10,
+    kontaktpersoner: [],
+    publisert: false,
+    tilgjengeligForArrangorFraOgMedDato: null,
+    amoKategorisering: {
+      kurstype: Kurstype.BRANSJE,
+      spesifisering: Spesifisering.ANDRE_BRANSJER,
+      forerkort: [ForerkortKlasse.A, ForerkortKlasse.S],
+      innholdElementer: [InnholdElement.GRUNNLEGGENDE_FERDIGHETER],
+      sertifiseringer: [{ konseptId: 12, label: "Truckførerkurs" }],
+    },
+  },
+  {
+    id: "a7d63fb0-4366-412c-84b7-7c15518ee364",
+    navn: "Tiltak hos Kulinarisk akademi",
+    tiltaksnummer: "654432",
+    sanityId: "1234",
+    deltidsprosent: 100,
+    arrangor: {
+      ...mockArrangorer.data[0].underenheter![0],
+      slettet: false,
+      kontaktpersoner: mockArrangorKontaktpersoner,
+    },
+    tiltakstype: mockTiltakstyper.GRUFAGYRKE,
     startDato: "2022-01-01",
     sluttDato: "2022-12-12",
     arenaAnsvarligEnhet: mockEnheter._0313,
     administratorer: [],
     navEnheter: [],
-    status: { name: "GJENNOMFORES" },
+    status: { status: TiltaksgjennomforingStatus.GJENNOMFORES },
     oppstart: TiltaksgjennomforingOppstartstype.LOPENDE,
     opphav: Opphav.MR_ADMIN_FLATE,
     apentForInnsok: true,
     kontaktpersoner: [],
     publisert: false,
-    publisertForAlle: true,
+
     tilgjengeligForArrangorFraOgMedDato: null,
+    amoKategorisering: null,
   },
 ];
 
@@ -175,13 +225,14 @@ for (let i = 0; i < x; i++) {
     arenaAnsvarligEnhet: mockEnheter._0313,
     administratorer: [],
     navEnheter: [],
-    status: { name: "GJENNOMFORES" },
+    status: { status: TiltaksgjennomforingStatus.GJENNOMFORES },
     oppstart: TiltaksgjennomforingOppstartstype.LOPENDE,
     opphav: Opphav.MR_ADMIN_FLATE,
     apentForInnsok: true,
     kontaktpersoner: [],
     publisert: false,
-    publisertForAlle: true,
+
     tilgjengeligForArrangorFraOgMedDato: null,
+    amoKategorisering: null,
   });
 }

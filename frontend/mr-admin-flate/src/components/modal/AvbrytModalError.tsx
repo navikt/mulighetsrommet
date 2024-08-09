@@ -1,10 +1,12 @@
 import styles from "@/components/modal/Modal.module.scss";
 import { resolveErrorMessage } from "mulighetsrommet-frontend-common/components/error-handling/errors";
+import { AvbrytAvtaleAarsak, AvbrytGjennomforingAarsak } from "mulighetsrommet-api-client";
+import { AnnetEnum } from "@/api/annetEnum";
 
 interface Props {
   mutation: any;
-  aarsak: string | null;
-  customAarsak: string | null;
+  aarsak?: AvbrytAvtaleAarsak | AvbrytGjennomforingAarsak | AnnetEnum;
+  customAarsak?: string;
 }
 export function AvbrytModalError({ mutation, aarsak, customAarsak }: Props) {
   const beskrivelser = () => {
@@ -13,7 +15,7 @@ export function AvbrytModalError({ mutation, aarsak, customAarsak }: Props) {
       return "Beskrivelse er obligatorisk når “Annet” er valgt som årsak";
     else if (aarsak === "annet" && customAarsak!.length > 100)
       return "Beskrivelse kan ikke inneholde mer enn 100 tegn";
-    else return resolveErrorMessage(mutation.error);
+    return resolveErrorMessage(mutation.error);
   };
 
   return (

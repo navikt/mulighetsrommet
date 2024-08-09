@@ -11,11 +11,11 @@ import io.ktor.client.plugins.cache.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
-import io.prometheus.client.cache.caffeine.CacheMetricsCollector
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.clients.AccessType
+import no.nav.mulighetsrommet.api.clients.TokenProvider
+import no.nav.mulighetsrommet.domain.dto.NorskIdent
 import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
-import no.nav.mulighetsrommet.metrics.Metrikker
 import no.nav.mulighetsrommet.securelog.SecureLog
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import org.slf4j.LoggerFactory
@@ -23,7 +23,7 @@ import java.util.concurrent.TimeUnit
 
 class VeilarbvedtaksstotteClient(
     private val baseUrl: String,
-    private val tokenProvider: (obo: AccessType.OBO) -> String,
+    private val tokenProvider: TokenProvider,
     clientEngine: HttpClientEngine = CIO.create(),
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
@@ -32,25 +32,19 @@ class VeilarbvedtaksstotteClient(
         install(HttpCache)
     }
 
-    private val siste14aVedtakCache: Cache<String, VedtakDto> = Caffeine.newBuilder()
-        .expireAfterWrite(30, TimeUnit.MINUTES)
+    private val siste14aVedtakCache: Cache<NorskIdent, VedtakDto> = Caffeine.newBuilder()
+        .expireAfterWrite(1, TimeUnit.MINUTES)
         .maximumSize(10_000)
         .recordStats()
         .build()
 
-    init {
-        val cacheMetrics: CacheMetricsCollector =
-            CacheMetricsCollector().register(Metrikker.appMicrometerRegistry.prometheusRegistry)
-        cacheMetrics.addCache("siste14aVedtakCache", siste14aVedtakCache)
-    }
-
-    suspend fun hentSiste14AVedtak(fnr: String, obo: AccessType.OBO): Either<VedtakError, VedtakDto> {
+    suspend fun hentSiste14AVedtak(fnr: NorskIdent, obo: AccessType.OBO): Either<VedtakError, VedtakDto> {
         siste14aVedtakCache.getIfPresent(fnr)?.let { return@hentSiste14AVedtak it.right() }
 
         val response = client.post("$baseUrl/v2/hent-siste-14a-vedtak") {
-            bearerAuth(tokenProvider.invoke(obo))
+            bearerAuth(tokenProvider.exchange(obo))
             header(HttpHeaders.ContentType, ContentType.Application.Json)
-            setBody(VedtakRequest(fnr = fnr))
+            setBody(VedtakRequest(fnr = fnr.value))
         }
 
         return if (response.status == HttpStatusCode.Forbidden) {

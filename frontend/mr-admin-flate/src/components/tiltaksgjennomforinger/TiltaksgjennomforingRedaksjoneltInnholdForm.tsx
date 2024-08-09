@@ -1,12 +1,13 @@
-import { Button, Heading, HStack, Modal } from "@navikt/ds-react";
+import { Button, Heading, HStack, Modal, Search } from "@navikt/ds-react";
 import { Avtale, Tiltaksgjennomforing } from "mulighetsrommet-api-client";
-import { RedaksjoneltInnholdForm } from "../redaksjonelt-innhold/RedaksjoneltInnholdForm";
+import { RedaksjoneltInnholdForm } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdForm";
 import { useFormContext } from "react-hook-form";
-import { InferredTiltaksgjennomforingSchema } from "../redaksjonelt-innhold/TiltaksgjennomforingSchema";
+import { InferredTiltaksgjennomforingSchema } from "@/components/redaksjoneltInnhold/TiltaksgjennomforingSchema";
 import { useState } from "react";
-import { RedaksjoneltInnholdContainer } from "../redaksjonelt-innhold/RedaksjoneltInnholdContainer";
-import styles from "../modal/LeggTilGjennomforingModal.module.scss";
 import { TiltaksgjennomforingerListe } from "./TiltaksgjennomforingerListe";
+import { RedaksjoneltInnholdModalContainer } from "@/components/modal/RedaksjoneltInnholdModalContainer";
+import { RedaksjoneltInnholdModalBody } from "@/components/modal/RedaksjoneltInnholdModalBody";
+import { RedaksjoneltInnholdToppKnapperad } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdToppKnapperad";
 
 interface Props {
   avtale: Avtale;
@@ -15,6 +16,7 @@ interface Props {
 export function TiltakgjennomforingRedaksjoneltInnholdForm({ avtale }: Props) {
   const [key, setKey] = useState(0);
   const [modalOpen, setModalOpen] = useState<boolean>(false);
+  const [search, setSearch] = useState("");
 
   const { setValue } = useFormContext<InferredTiltaksgjennomforingSchema>();
 
@@ -28,7 +30,7 @@ export function TiltakgjennomforingRedaksjoneltInnholdForm({ avtale }: Props) {
 
   return (
     <>
-      <RedaksjoneltInnholdContainer>
+      <RedaksjoneltInnholdToppKnapperad>
         <HStack justify="end">
           <Button
             size="small"
@@ -51,26 +53,28 @@ export function TiltakgjennomforingRedaksjoneltInnholdForm({ avtale }: Props) {
             Kopier redaksjonelt innhold fra gjennomføring
           </Button>
         </HStack>
-      </RedaksjoneltInnholdContainer>
+      </RedaksjoneltInnholdToppKnapperad>
 
       <RedaksjoneltInnholdForm
         key={`redaksjonelt-innhold-${key}`}
         tiltakstype={avtale.tiltakstype}
       />
 
-      <Modal
-        open={modalOpen}
-        onClose={() => setModalOpen(false)}
-        className={styles.modal_container}
-        aria-label="modal"
-        width="50rem"
-      >
+      <RedaksjoneltInnholdModalContainer modalOpen={modalOpen} onClose={() => setModalOpen(false)}>
         <Modal.Header closeButton>
           <Heading size="medium">Kopier redaksjonelt innhold fra gjennomføring</Heading>
         </Modal.Header>
-        <Modal.Body className={styles.modal_content}>
+        <RedaksjoneltInnholdModalBody>
+          <Search
+            label="Søk på navn eller tiltaksnummer"
+            variant="simple"
+            hideLabel={false}
+            autoFocus
+            onChange={(search) => setSearch(search)}
+            value={search}
+          />
           <TiltaksgjennomforingerListe
-            filter={{ avtale: avtale.id }}
+            filter={{ search, avtale: avtale.id, pageSize: 1000 }}
             action={(gjennomforing) => (
               <Button
                 size="small"
@@ -85,8 +89,8 @@ export function TiltakgjennomforingRedaksjoneltInnholdForm({ avtale }: Props) {
               </Button>
             )}
           />
-        </Modal.Body>
-      </Modal>
+        </RedaksjoneltInnholdModalBody>
+      </RedaksjoneltInnholdModalContainer>
     </>
   );
 }

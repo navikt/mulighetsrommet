@@ -1,10 +1,11 @@
 import { Alert, Button, Heading, HelpText, Modal, Search } from "@navikt/ds-react";
-import styles from "./LeggTilGjennomforingModal.module.scss";
 import { useSetAvtaleForGjennomforing } from "@/api/tiltaksgjennomforing/useSetAvtaleForGjennomforing";
 import { useState } from "react";
 import { Avtale, Tiltaksgjennomforing } from "mulighetsrommet-api-client";
 import { TiltaksgjennomforingerListe } from "../tiltaksgjennomforinger/TiltaksgjennomforingerListe";
 import { Link } from "react-router-dom";
+import { RedaksjoneltInnholdModalContainer } from "@/components/modal/RedaksjoneltInnholdModalContainer";
+import { RedaksjoneltInnholdModalBody } from "@/components/modal/RedaksjoneltInnholdModalBody";
 
 interface Props {
   avtale: Avtale;
@@ -38,18 +39,12 @@ export function LeggTilGjennomforingModal({ avtale, modalOpen, onClose }: Props)
   };
 
   return (
-    <Modal
-      open={modalOpen}
-      onClose={clickCancel}
-      className={styles.modal_container}
-      aria-label="modal"
-      width="50rem"
-    >
+    <RedaksjoneltInnholdModalContainer modalOpen={modalOpen} onClose={clickCancel}>
       <Modal.Header closeButton>
         <Heading size="medium">Legg til eller fjern gjennomføring fra avtalen</Heading>
       </Modal.Header>
 
-      <Modal.Body className={styles.modal_content}>
+      <RedaksjoneltInnholdModalBody>
         <Search
           label="Søk på navn eller tiltaksnummer"
           variant="simple"
@@ -99,7 +94,7 @@ export function LeggTilGjennomforingModal({ avtale, modalOpen, onClose }: Props)
             }
           />
         )}
-      </Modal.Body>
-    </Modal>
+      </RedaksjoneltInnholdModalBody>
+    </RedaksjoneltInnholdModalContainer>
   );
 }

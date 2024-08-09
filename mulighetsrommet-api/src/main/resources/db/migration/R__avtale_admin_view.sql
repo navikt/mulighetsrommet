@@ -4,11 +4,12 @@ drop view if exists avtale_admin_dto_view;
 create view avtale_admin_dto_view as
 select avtale.id,
        avtale.navn,
-       avtale.avtalenummer,
-       avtale.lopenummer,
+       coalesce(avtale.avtalenummer, avtale.lopenummer) as avtalenummer,
        avtale.websaknummer,
        avtale.start_dato,
        avtale.slutt_dato,
+       avtale.opprinnelig_sluttdato,
+       avtale.opsjon_maks_varighet,
        avtale.opphav,
        avtale.avtaletype,
        avtale.avbrutt_tidspunkt,
@@ -16,6 +17,17 @@ select avtale.id,
        avtale.antall_plasser,
        avtale.beskrivelse,
        avtale.faneinnhold,
+       avtale.opsjonsmodell,
+       avtale.opsjon_custom_opsjonsmodell_navn,
+       jsonb_agg(
+               distinct case when avtale_opsjon_logg.id is null then null::jsonb
+                             else jsonb_build_object(
+                                     'id', avtale_opsjon_logg.id,
+                                     'aktivertDato', avtale_opsjon_logg.registrert_dato,
+                                     'sluttDato', avtale_opsjon_logg.sluttdato,
+                                     'status', avtale_opsjon_logg.status
+                                  ) end
+       ) as avtaleopsjonslogg,
        jsonb_agg(
                distinct
                case
@@ -60,11 +72,13 @@ select avtale.id,
            filter (WHERE avtale_personopplysning.avtale_id IS NOT NULL), '[]'
        ) as personopplysninger,
        avtale.personvern_bekreftet,
-       avtale.avbrutt_aarsak
+       avtale.avbrutt_aarsak,
+       avtale.amo_kategorisering
 from avtale
          join tiltakstype on tiltakstype.id = avtale.tiltakstype_id
          left join avtale_administrator on avtale.id = avtale_administrator.avtale_id
          left join nav_ansatt on nav_ansatt.nav_ident = avtale_administrator.nav_ident
+         left join avtale_opsjon_logg on avtale.id = avtale_opsjon_logg.avtale_id
          left join nav_enhet arena_nav_enhet on avtale.arena_ansvarlig_enhet = arena_nav_enhet.enhetsnummer
          left join arrangor on arrangor.id = avtale.arrangor_hovedenhet_id
          left join avtale_arrangor_kontaktperson on avtale_arrangor_kontaktperson.avtale_id = avtale.id

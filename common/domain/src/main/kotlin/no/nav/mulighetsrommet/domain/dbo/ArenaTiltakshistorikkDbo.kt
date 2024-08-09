@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.domain.dbo
 
 import kotlinx.serialization.Polymorphic
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.domain.dto.NorskIdent
 import no.nav.mulighetsrommet.domain.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import java.time.LocalDateTime
@@ -12,7 +13,7 @@ import java.util.*
 sealed class ArenaTiltakshistorikkDbo {
     @Serializable(with = UUIDSerializer::class)
     abstract val id: UUID
-    abstract val norskIdent: String
+    abstract val norskIdent: NorskIdent
     abstract val status: Deltakerstatus
 
     @Serializable(with = LocalDateTimeSerializer::class)
@@ -28,7 +29,7 @@ sealed class ArenaTiltakshistorikkDbo {
     data class Gruppetiltak(
         @Serializable(with = UUIDSerializer::class)
         override val id: UUID,
-        override val norskIdent: String,
+        override val norskIdent: NorskIdent,
         override val status: Deltakerstatus,
         @Serializable(with = LocalDateTimeSerializer::class)
         override val fraDato: LocalDateTime?,
@@ -44,7 +45,7 @@ sealed class ArenaTiltakshistorikkDbo {
     data class IndividueltTiltak(
         @Serializable(with = UUIDSerializer::class)
         override val id: UUID,
-        override val norskIdent: String,
+        override val norskIdent: NorskIdent,
         override val status: Deltakerstatus,
         @Serializable(with = LocalDateTimeSerializer::class)
         override val fraDato: LocalDateTime?,

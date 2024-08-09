@@ -11,5 +11,16 @@ app:
     azure:
       issuer: http://localhost:8081/azure
       jwksUri: http://localhost:8081/azure/jwks
-      audience: mulighetsrommet-tiltakshisstorikk
+      audience: mr-tiltakshistorikk
       tokenEndpointUrl: http://localhost:8081/azure/token
+
+  kafka:
+    brokerUrl: localhost:29092
+    consumerGroupId: tiltakshistorikk-kafka-consumer.v1
+    consumers:
+      amtDeltakerV1:
+        id: amt-deltaker
+        topic: amt-deltaker-v1
+      sisteTiltaksgjennomforingerV1:
+        id: siste-tiltaksgjennomforinger
+        topic: siste-tiltaksgjennomforinger

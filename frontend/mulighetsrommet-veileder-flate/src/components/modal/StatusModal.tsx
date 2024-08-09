@@ -75,13 +75,13 @@ export function StatusModal({
       aria-label={heading || "Statusmodal"}
     >
       <Modal.Header closeButton={false}>
-        <Heading size="medium" className={modalStyles.heading}>
+        <Heading align="center" size="medium" className={modalStyles.heading}>
           {ikon()}
           {heading}
         </Heading>
       </Modal.Header>
       <Modal.Body>
-        <BodyShort>{text}</BodyShort>
+        <BodyShort align="center">{text}</BodyShort>
       </Modal.Body>
       <Modal.Footer>{footerInnhold()}</Modal.Footer>
     </Modal>

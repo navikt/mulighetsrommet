@@ -8,7 +8,9 @@ export function TiltaksgjennomforingIkon({ inkluderBakgrunn = false }: IkonTypeP
       viewBox="0 0 100 100"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
+      role="img"
     >
+      <title>Tiltaksgjennomføring</title>
       <circle cx="50" cy="50" r="50" fill="#66C786" />
       <path
         fillRule="evenodd"
@@ -26,7 +28,15 @@ export function TiltaksgjennomforingIkon({ inkluderBakgrunn = false }: IkonTypeP
       />
     </svg>
   ) : (
-    <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      width="40"
+      height="40"
+      viewBox="0 0 40 40"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      role="img"
+    >
+      <title>Tiltaksgjennomføring</title>
       <path
         fillRule="evenodd"
         clipRule="evenodd"

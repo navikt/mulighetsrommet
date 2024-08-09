@@ -1,11 +1,11 @@
+import { AvtaleFilter } from "@/api/atoms";
+import { Avtalestatus, Avtaletype, SorteringAvtaler } from "mulighetsrommet-api-client";
 import { describe, expect, test } from "vitest";
 import {
   capitalizeEveryWord,
-  createQueryParamsForExcelDownload,
+  createQueryParamsForExcelDownloadForAvtale,
   kalkulerStatusBasertPaaFraOgTilDato,
 } from "./Utils";
-import { Avtalestatus, Avtaletype, SorteringAvtaler } from "mulighetsrommet-api-client";
-import { AvtaleFilter } from "@/api/atoms";
 
 describe("Utils - kalkulerStatusBasertPaaFraOgTilDato", () => {
   test("Skal returnere status 'Aktiv' når nå er større eller lik fra-dato og nå er mindre eller lik til-dato", () => {
@@ -85,7 +85,13 @@ describe("Avtaletabell", () => {
       avtaletyper: [Avtaletype.AVTALE],
       navRegioner: ["0600"],
       tiltakstyper: ["123"],
-      sortering: SorteringAvtaler.NAVN_ASCENDING,
+      sortering: {
+        sortString: SorteringAvtaler.NAVN_ASCENDING,
+        tableSort: {
+          orderBy: "navn",
+          direction: "ascending",
+        },
+      },
       arrangorer: ["123456789"],
       visMineAvtaler: true,
       personvernBekreftet: [true],
@@ -93,7 +99,7 @@ describe("Avtaletabell", () => {
       pageSize: 0,
     };
 
-    const queryParams = createQueryParamsForExcelDownload(filter);
+    const queryParams = createQueryParamsForExcelDownloadForAvtale(filter);
     expect(queryParams.get("tiltakstyper")).toEqual("123");
     expect(queryParams.get("statuser")).toEqual("AKTIV");
     expect(queryParams.get("avtaletyper")).toEqual("Avtale");

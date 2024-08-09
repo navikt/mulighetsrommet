@@ -2,6 +2,8 @@ package no.nav.mulighetsrommet.api.services
 
 import arrow.core.getOrElse
 import io.ktor.http.*
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.clients.AccessType
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Client
@@ -14,11 +16,13 @@ import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClient
 import no.nav.mulighetsrommet.api.clients.pdl.GeografiskTilknytning
 import no.nav.mulighetsrommet.api.clients.pdl.PdlClient
 import no.nav.mulighetsrommet.api.clients.pdl.PdlError
+import no.nav.mulighetsrommet.api.clients.pdl.PdlIdent
 import no.nav.mulighetsrommet.api.clients.vedtak.VedtakDto
 import no.nav.mulighetsrommet.api.clients.vedtak.VedtakError
 import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClient
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.domain.dto.Innsatsgruppe
+import no.nav.mulighetsrommet.domain.dto.NorskIdent
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 
 class BrukerService(
@@ -28,8 +32,15 @@ class BrukerService(
     private val pdlClient: PdlClient,
     private val norg2Client: Norg2Client,
 ) {
-    suspend fun hentBrukerdata(fnr: String, obo: AccessType.OBO): Brukerdata {
-        val erUnderOppfolging = veilarboppfolgingClient.erBrukerUnderOppfolging(fnr, obo)
+    suspend fun hentBrukerdata(fnr: NorskIdent, obo: AccessType.OBO): Brukerdata = coroutineScope {
+        val deferredErUnderOppfolging = async { veilarboppfolgingClient.erBrukerUnderOppfolging(fnr, obo) }
+        val deferredOppfolgingsenhet = async { veilarboppfolgingClient.hentOppfolgingsenhet(fnr, obo) }
+        val deferredManuellStatus = async { veilarboppfolgingClient.hentManuellStatus(fnr, obo) }
+        val deferredSisteVedtak = async { veilarbvedtaksstotteClient.hentSiste14AVedtak(fnr, obo) }
+        val deferredPdlPerson = async { pdlClient.hentPerson(PdlIdent(fnr.value), obo) }
+        val deferredGeografiskTilknytning = async { pdlClient.hentGeografiskTilknytning(PdlIdent(fnr.value), obo) }
+
+        val erUnderOppfolging = deferredErUnderOppfolging.await()
             .getOrElse {
                 when (it) {
                     ErUnderOppfolgingError.Forbidden -> throw StatusException(
@@ -44,7 +55,7 @@ class BrukerService(
                 }
             }
 
-        val oppfolgingsenhet = veilarboppfolgingClient.hentOppfolgingsenhet(fnr, obo)
+        val oppfolgingsenhet = deferredOppfolgingsenhet.await()
             .getOrElse {
                 when (it) {
                     OppfolgingError.Forbidden -> throw StatusException(
@@ -60,7 +71,8 @@ class BrukerService(
                     OppfolgingError.NotFound -> null
                 }
             }
-        val manuellStatus = veilarboppfolgingClient.hentManuellStatus(fnr, obo)
+
+        val manuellStatus = deferredManuellStatus.await()
             .getOrElse {
                 when (it) {
                     OppfolgingError.Forbidden -> throw StatusException(
@@ -79,7 +91,8 @@ class BrukerService(
                     )
                 }
             }
-        val pdlPerson = pdlClient.hentPerson(fnr, obo)
+
+        val pdlPerson = deferredPdlPerson.await()
             .getOrElse {
                 when (it) {
                     PdlError.Error -> throw StatusException(
@@ -93,7 +106,8 @@ class BrukerService(
                     )
                 }
             }
-        val sisteVedtak = veilarbvedtaksstotteClient.hentSiste14AVedtak(fnr, obo)
+
+        val sisteVedtak = deferredSisteVedtak.await()
             .getOrElse {
                 when (it) {
                     VedtakError.Forbidden -> throw StatusException(
@@ -110,11 +124,7 @@ class BrukerService(
                 }
             }
 
-        val brukersOppfolgingsenhet = oppfolgingsenhet?.enhetId?.let {
-            navEnhetService.hentEnhet(it)
-        }
-
-        val geografiskTilknytning = pdlClient.hentGeografiskTilknytning(fnr, obo)
+        val geografiskTilknytning = deferredGeografiskTilknytning.await()
             .getOrElse {
                 when (it) {
                     PdlError.Error -> {
@@ -128,6 +138,10 @@ class BrukerService(
                 }
             }
 
+        val brukersOppfolgingsenhet = oppfolgingsenhet?.enhetId?.let {
+            navEnhetService.hentEnhet(it)
+        }
+
         val brukersGeografiskeEnhet = geografiskTilknytning?.let { hentBrukersGeografiskeEnhet(it) }
 
         val enheter = getRelevanteEnheterForBruker(brukersGeografiskeEnhet, brukersOppfolgingsenhet)
@@ -139,7 +153,7 @@ class BrukerService(
             )
         }
 
-        return Brukerdata(
+        Brukerdata(
             fnr = fnr,
             innsatsgruppe = sisteVedtak?.innsatsgruppe?.let { toInnsatsgruppe(it) },
             enheter = enheter,
@@ -184,7 +198,7 @@ class BrukerService(
 
     @Serializable
     data class Brukerdata(
-        val fnr: String,
+        val fnr: NorskIdent,
         val innsatsgruppe: Innsatsgruppe?,
         val enheter: List<NavEnhetDbo>,
         val fornavn: String?,
@@ -227,10 +241,9 @@ fun getRelevanteEnheterForBruker(
         geografiskEnhet
     }
 
-    val virtuellOppfolgingsenhet = if (oppfolgingsenhet != null && oppfolgingsenhet.type !in listOf(
-            Norg2Type.FYLKE,
-            Norg2Type.LOKAL,
-        )
+    val virtuellOppfolgingsenhet = if (
+        oppfolgingsenhet != null &&
+        oppfolgingsenhet.type !in listOf(Norg2Type.FYLKE, Norg2Type.LOKAL)
     ) {
         oppfolgingsenhet
     } else {

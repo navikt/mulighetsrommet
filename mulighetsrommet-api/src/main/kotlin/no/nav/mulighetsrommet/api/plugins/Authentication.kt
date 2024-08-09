@@ -22,6 +22,7 @@ enum class AuthProvider {
     AZURE_AD_AVTALER_SKRIV,
     AZURE_AD_TILTAKSJENNOMFORINGER_SKRIV,
     AZURE_AD_TILTAKSADMINISTRASJON_GENERELL,
+    AZURE_AD_OKONOMI_BESLUTTER,
 }
 
 object AppRoles {
@@ -44,13 +45,6 @@ fun Application.configureAuthentication(
     fun hasNavAnsattRoles(credentials: JWTCredential, vararg requiredRoles: NavAnsattRolle): Boolean {
         val navAnsattGroups = credentials.getListClaim("groups", UUID::class)
         return requiredRoles.all { requiredRole ->
-            auth.roles.any { (groupId, role) -> role == requiredRole && groupId in navAnsattGroups }
-        }
-    }
-
-    fun hasAnyNavAnsattRoles(credentials: JWTCredential, vararg requiredRoles: NavAnsattRolle): Boolean {
-        val navAnsattGroups = credentials.getListClaim("groups", UUID::class)
-        return requiredRoles.any { requiredRole ->
             auth.roles.any { (groupId, role) -> role == requiredRole && groupId in navAnsattGroups }
         }
     }
@@ -124,6 +118,27 @@ fun Application.configureAuthentication(
                 if (!hasNavAnsattRoles(
                         credentials,
                         NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV,
+                        NavAnsattRolle.TILTAKADMINISTRASJON_GENERELL,
+                    )
+                ) {
+                    return@validate null
+                }
+
+                JWTPrincipal(credentials.payload)
+            }
+        }
+
+        jwt(AuthProvider.AZURE_AD_OKONOMI_BESLUTTER.name) {
+            verifier(jwkProvider, azure.issuer) {
+                withAudience(azure.audience)
+            }
+
+            validate { credentials ->
+                credentials["NAVident"] ?: return@validate null
+
+                if (!hasNavAnsattRoles(
+                        credentials,
+                        NavAnsattRolle.OKONOMI_BESLUTTER,
                         NavAnsattRolle.TILTAKADMINISTRASJON_GENERELL,
                     )
                 ) {

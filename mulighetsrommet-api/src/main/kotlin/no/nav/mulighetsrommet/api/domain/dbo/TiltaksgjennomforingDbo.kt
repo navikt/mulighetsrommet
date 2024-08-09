@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.domain.dbo
 
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
+import no.nav.mulighetsrommet.domain.dto.AmoKategorisering
 import no.nav.mulighetsrommet.domain.dto.Faneinnhold
 import no.nav.mulighetsrommet.domain.dto.NavIdent
 import java.time.LocalDate
@@ -29,6 +30,7 @@ data class TiltaksgjennomforingDbo(
     val estimertVentetidVerdi: Int?,
     val estimertVentetidEnhet: String?,
     val tilgjengeligForArrangorFraOgMedDato: LocalDate?,
+    val amoKategorisering: AmoKategorisering?,
 )
 
 data class TiltaksgjennomforingKontaktpersonDbo(

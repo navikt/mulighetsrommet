@@ -49,7 +49,6 @@
 
 .sidemeny {
   height: fit-content;
-  margin-top: 3rem;
   grid-row-start: 1;
   grid-row-end: 3;
   grid-column: 2;
@@ -58,6 +57,14 @@
   display: flex;
   flex-direction: column;
   gap: 1rem;
+
+  :global(.navds-tabs__tab[aria-selected="true"]) {
+    background-color: var(--a-gray-100);
+  }
+
+  :global(.navds-tabs__tabpanel) {
+    border-top: 1px solid var(--a-gray-300);
+  }
 }
 
 :global(.navds-panel) {
@@ -71,7 +78,12 @@
 
 .oppskriftContainer {
   background-color: white;
-  padding: 0 5rem;
+  padding: 0 2rem;
+}
+
+.oppskrift_border {
+  border: 1px solid var(--a-border-subtle);
+  padding: 0;
 }
 
 @media (width <= 1200px) {

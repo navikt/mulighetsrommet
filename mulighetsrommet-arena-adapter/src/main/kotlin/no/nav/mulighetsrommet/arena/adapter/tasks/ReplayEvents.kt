@@ -56,6 +56,6 @@ class ReplayEvents(
 
     fun schedule(startTime: Instant = Instant.now()) {
         // Id er alltid det samme slik at bare en instans kan kjøre samtidig
-        client.schedule(task.instance("1"), startTime)
+        client.scheduleIfNotExists(task.instance("1"), startTime)
     }
 }

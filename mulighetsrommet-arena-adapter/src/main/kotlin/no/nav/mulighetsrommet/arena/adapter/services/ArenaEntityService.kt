@@ -82,6 +82,11 @@ class ArenaEntityService(
             .mapLeft { ProcessingError.fromDatabaseOperationError(it) }
     }
 
+    fun upsertSanityId(entityId: UUID, sanityId: UUID): Either<ProcessingError, Boolean> {
+        return tiltaksgjennomforinger.upsertSanityId(entityId, sanityId)
+            .mapLeft { ProcessingError.fromDatabaseOperationError(it) }
+    }
+
     fun deleteTiltaksgjennomforing(id: UUID): Either<ProcessingError, Unit> {
         return tiltaksgjennomforinger.delete(id)
             .mapLeft { ProcessingError.fromDatabaseOperationError(it) }
@@ -102,18 +107,8 @@ class ArenaEntityService(
             .map { it.status == ArenaEntityMapping.Status.Ignored }
     }
 
-    fun upsertDeltaker(deltaker: Deltaker): Either<ProcessingError, Deltaker> {
-        return deltakere.upsert(deltaker)
-            .mapLeft { ProcessingError.fromDatabaseOperationError(it) }
-    }
-
     fun getDeltakereByTiltaksgjennomforingId(id: Int): List<Deltaker> {
         return deltakere.getByTiltaksgjennomforingId(id)
-    }
-
-    fun deleteDeltaker(id: UUID): Either<ProcessingError, Unit> {
-        return deltakere.delete(id)
-            .mapLeft { ProcessingError.fromDatabaseOperationError(it) }
     }
 
     fun upsertAvtale(avtale: Avtale): Either<ProcessingError, Avtale> {

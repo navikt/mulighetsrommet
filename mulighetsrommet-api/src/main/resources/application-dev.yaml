@@ -7,7 +7,7 @@ app:
     jdbcUrl: ${DB_JDBC_URL}
     maximumPoolSize: 10
   flyway:
-    strategy: Migrate
+    strategy: RepairAndMigrate
 
   migrerteTiltak:
     - AVKLARING
@@ -19,6 +19,9 @@ app:
     - GRUPPE_FAG_OG_YRKESOPPLAERING
     - ARBEIDSRETTET_REHABILITERING
     - VARIG_TILRETTELAGT_ARBEID_SKJERMET
+
+  pameldingIModia:
+    - ARBEIDSFORBEREDENDE_TRENING
 
   kafka:
     producerId: mulighetsrommet-api-kafka-producer.v1
@@ -40,9 +43,6 @@ app:
       amtVirksomheterV1:
         id: amt-virksomheter
         topic: amt.virksomheter-v1
-      ptoSisteOppfolgingsperiodeV1:
-        id: pto-virksomheter
-        topic: pto.siste-oppfolgingsperiode-v1
 
   auth:
     azure:
@@ -60,7 +60,7 @@ app:
       # 0000-GA-TILTAK-ANSVARLIG
       - adGruppeId: 52bb9196-b071-4cc7-9472-be4942d33c4b
         rolle: TILTAKADMINISTRASJON_GENERELL
-      # 0000-ZA-TILTAK-tiltaksgjennomforinger_skriv
+      # 0000-AZ-TILTAK-tiltaksgjennomforinger_skriv
       - adGruppeId: 279039a0-39fd-4860-afdd-a1a2ccaa6323
         rolle: TILTAKSGJENNOMFORINGER_SKRIV
       # 0000-GA-TILTAK-avtaler_skriv
@@ -72,6 +72,9 @@ app:
       # (GRP) mr-nav_kontaktperson
       - adGruppeId: 7b1d209a-f6c1-4c6e-84f2-02a1bb4c92ba
         rolle: KONTAKTPERSON
+      # 0000-AZ-TILTAK-okonomi_beslutter
+      - adGruppeId: b00ba197-c90a-4ff9-966e-6c9cf1c882bf
+        rolle: OKONOMI_BESLUTTER
 
   sanity:
     dataset: ${SANITY_DATASET}
@@ -110,6 +113,10 @@ app:
     url: http://mulighetsrommet-arena-adapter
     scope: api://dev-gcp.team-mulighetsrommet.mulighetsrommet-arena-adapter/.default
 
+  tiltakshistorikk:
+    url: http://tiltakshistorikk
+    scope: api://dev-gcp.team-mulighetsrommet.tiltakshistorikk/.default
+
   axsys:
     url: https://axsys.dev-fss-pub.nais.io
     scope: api://dev-fss.org.axsys/.default
@@ -118,12 +125,16 @@ app:
     url: https://pdl-api.dev-fss-pub.nais.io
     scope: api://dev-fss.pdl.pdl-api/.default
 
+  pamOntologi:
+    url: http://pam-ontologi.teampam
+    scope: api://dev-gcp.teampam.pam-ontologi/.default
+
   tasks:
-    deleteExpiredTiltakshistorikk:
-      cronPattern: "0 0 1 * * *" # Hver morgen kl. 01:00
     synchronizeNorgEnheter:
       delayOfMinutes: 360 # Hver 6. time
     synchronizeNavAnsatte:
+      cronPattern: "0 0 6 * * *" # Hver morgen kl. 06:00
+    synchronizeUtdanninger:
       cronPattern: "0 0 6 * * *" # Hver morgen kl. 06:00
     notifySluttdatoForGjennomforingerNarmerSeg:
       cronPattern: "0 0 6 * * *" # Hver morgen kl. 06:00
@@ -156,5 +167,5 @@ app:
     instanceId: ${NAIS_CLIENT_ID}
     environment: development
 
-  ssbNusConfig:
-    baseUrl: "https://data.ssb.no/api"
+  utdanning:
+    baseurl: https://utdanning.no

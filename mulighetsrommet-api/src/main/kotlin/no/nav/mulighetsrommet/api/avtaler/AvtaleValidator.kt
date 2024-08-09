@@ -12,23 +12,29 @@ import no.nav.mulighetsrommet.api.domain.dto.AvtaleAdminDto
 import no.nav.mulighetsrommet.api.domain.dto.TiltakstypeAdminDto
 import no.nav.mulighetsrommet.api.repositories.ArrangorRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
+import no.nav.mulighetsrommet.api.routes.v1.Opsjonsmodell
 import no.nav.mulighetsrommet.api.routes.v1.responses.ValidationError
 import no.nav.mulighetsrommet.api.services.NavEnhetService
 import no.nav.mulighetsrommet.api.services.TiltakstypeService
+import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.Tiltakskoder
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
+import no.nav.mulighetsrommet.domain.dto.AmoKategorisering
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
 import no.nav.mulighetsrommet.domain.dto.allowedAvtaletypes
-import java.time.format.DateTimeFormatter
-import java.time.format.FormatStyle
+import no.nav.mulighetsrommet.unleash.UnleashService
 
 class AvtaleValidator(
     private val tiltakstyper: TiltakstypeService,
     private val tiltaksgjennomforinger: TiltaksgjennomforingRepository,
     private val navEnheterService: NavEnhetService,
     private val arrangorer: ArrangorRepository,
+    private val unleashService: UnleashService,
 ) {
+
+    val opsjonsmodellerUtenValidering = listOf(Opsjonsmodell.AVTALE_UTEN_OPSJONSMODELL, Opsjonsmodell.AVTALE_VALGFRI_SLUTTDATO)
+
     fun validate(avtale: AvtaleDbo, currentAvtale: AvtaleAdminDto?): Either<List<ValidationError>, AvtaleDbo> = either {
         val tiltakstype = tiltakstyper.getById(avtale.tiltakstypeId)
             ?: raise(ValidationError.of(AvtaleDbo::tiltakstypeId, "Tiltakstypen finnes ikke").nel())
@@ -49,27 +55,79 @@ class AvtaleValidator(
             }
 
             if (avtale.administratorer.isEmpty()) {
-                add(ValidationError.of(AvtaleDbo::administratorer, "Minst én administrator må være valgt"))
+                add(ValidationError.of(AvtaleDbo::administratorer, "Du må velge minst én administrator"))
             }
 
-            if (avtale.sluttDato != null && avtale.sluttDato.isBefore(avtale.startDato)) {
-                add(ValidationError.of(AvtaleDbo::startDato, "Startdato må være før sluttdato"))
+            if (avtale.sluttDato != null) {
+                if (avtale.sluttDato.isBefore(avtale.startDato)) {
+                    add(ValidationError.of(AvtaleDbo::startDato, "Startdato må være før sluttdato"))
+                }
+                if (
+                    // Unntak for de som ikke er tatt over fra arena siden man ikke får endre avtaletype på de
+                    !listOf(Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING, Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING).contains(tiltakstype.tiltakskode) &&
+                    !avtaleTypeErForhandsgodkjent(avtale.avtaletype) &&
+                    avtale.startDato.plusYears(5).isBefore(avtale.sluttDato)
+                ) {
+                    add(
+                        ValidationError.of(
+                            AvtaleDbo::sluttDato,
+                            "Avtaleperioden kan ikke vare lenger enn 5 år for anskaffede tiltak",
+                        ),
+                    )
+                }
+            }
+
+            if (unleashService.isEnabled("mulighetsrommet.admin-flate.registrere-opsjonsmodell")) {
+                if (!avtaleTypeErForhandsgodkjent(avtale.avtaletype) && !opsjonsmodellerUtenValidering.contains(avtale.opsjonsmodell)) {
+                    if (avtale.opsjonMaksVarighet == null) {
+                        add(
+                            ValidationError.of(
+                                AvtaleDbo::opsjonMaksVarighet,
+                                "Du må legge inn maks varighet for opsjonen",
+                            ),
+                        )
+                    }
+
+                    if (avtale.opsjonsmodell == null) {
+                        add(ValidationError.of(AvtaleDbo::opsjonsmodell, "Du må velge en opsjonsmodell"))
+                    }
+
+                    if (avtale.opsjonsmodell != null && avtale.opsjonsmodell == Opsjonsmodell.ANNET) {
+                        if (avtale.customOpsjonsmodellNavn.isNullOrBlank()) {
+                            add(
+                                ValidationError.of(
+                                    AvtaleDbo::customOpsjonsmodellNavn,
+                                    "Du må beskrive opsjonsmodellen",
+                                ),
+                            )
+                        }
+                    }
+                }
+
+                if (currentAvtale?.opsjonerRegistrert?.isNotEmpty() == true && avtale.opsjonsmodell != currentAvtale.opsjonsmodellData?.opsjonsmodell) {
+                    add(
+                        ValidationError.of(
+                            AvtaleDbo::opsjonsmodell,
+                            "Du kan ikke endre opsjonsmodell når opsjoner er registrert",
+                        ),
+                    )
+                }
             }
 
             if (avtale.avtaletype.kreverWebsaknummer() && avtale.websaknummer == null) {
-                add(ValidationError.of(AvtaleDbo::websaknummer, "Websaknummer til avtalesaken er påkrevd"))
+                add(ValidationError.of(AvtaleDbo::websaknummer, "Du må skrive inn Websaknummer til avtalesaken"))
             }
 
             if (avtale.arrangorUnderenheter.isEmpty()) {
                 add(
                     ValidationError.of(
                         AvtaleDbo::arrangorUnderenheter,
-                        "Minst én underenhet til tiltaksarrangøren må være valgt",
+                        "Du må velge minst én underenhet for tiltaksarrangør",
                     ),
                 )
             }
 
-            if (!allowedAvtaletypes(Tiltakskode.fromArenaKode(tiltakstype.arenaKode)).contains(avtale.avtaletype)) {
+            if (!allowedAvtaletypes(tiltakstype.tiltakskode).contains(avtale.avtaletype)) {
                 add(
                     ValidationError.of(
                         AvtaleDbo::avtaletype,
@@ -77,9 +135,32 @@ class AvtaleValidator(
                     ),
                 )
             } else {
-                if (avtale.avtaletype != Avtaletype.Forhaandsgodkjent && avtale.sluttDato == null) {
-                    add(ValidationError.of(AvtaleDbo::sluttDato, "Sluttdato må være satt"))
+                if (avtale.avtaletype != Avtaletype.Forhaandsgodkjent && avtale.opsjonsmodell != Opsjonsmodell.AVTALE_VALGFRI_SLUTTDATO && avtale.sluttDato == null) {
+                    add(ValidationError.of(AvtaleDbo::sluttDato, "Du må legge inn sluttdato for avtalen"))
                 }
+            }
+
+            if (
+                tiltakstype.tiltakskode == Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING &&
+                avtale.amoKategorisering?.kurstype != null &&
+                avtale.amoKategorisering.kurstype !== AmoKategorisering.Kurstype.STUDIESPESIALISERING &&
+                avtale.amoKategorisering.spesifisering == null
+            ) {
+                add(ValidationError.ofCustomLocation("amoKategorisering.spesifisering", "Du må velge en spesifisering"))
+            }
+
+            if (
+                tiltakstype.tiltakskode == Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING &&
+                avtale.amoKategorisering?.kurstype != null &&
+                avtale.amoKategorisering.kurstype !== AmoKategorisering.Kurstype.STUDIESPESIALISERING &&
+                avtale.amoKategorisering.innholdElementer.isNullOrEmpty()
+            ) {
+                add(
+                    ValidationError.ofCustomLocation(
+                        "amoKategorisering.innholdElementer",
+                        "Du må velge minst ett element",
+                    ),
+                )
             }
 
             validateNavEnheter(avtale.navEnheter)
@@ -176,24 +257,8 @@ class AvtaleValidator(
                     )
                 }
 
-                gjennomforing.navEnheter.forEach { enhet: NavEnhetDbo ->
-                    val enhetsnummer = enhet.enhetsnummer
-                    if (enhetsnummer !in avtale.navEnheter) {
-                        add(
-                            ValidationError.of(
-                                AvtaleDbo::navEnheter,
-                                "NAV-enheten $enhetsnummer er i bruk på en av avtalens gjennomføringer, men mangler blant avtalens NAV-enheter",
-                            ),
-                        )
-                    }
-                }
-
                 if (gjennomforing.startDato.isBefore(avtale.startDato)) {
-                    val gjennomforingsStartDato = gjennomforing.startDato.format(
-                        DateTimeFormatter.ofLocalizedDate(
-                            FormatStyle.SHORT,
-                        ),
-                    )
+                    val gjennomforingsStartDato = gjennomforing.startDato.formaterDatoTilEuropeiskDatoformat()
                     add(
                         ValidationError.of(
                             AvtaleDbo::startDato,
@@ -254,7 +319,7 @@ class AvtaleValidator(
         val actualNavEnheter = resolveNavEnheter(navEnheter)
 
         if (!actualNavEnheter.any { it.value.type == Norg2Type.FYLKE }) {
-            add(ValidationError.of(AvtaleDbo::navEnheter, "Minst én NAV-region må være valgt"))
+            add(ValidationError.of(AvtaleDbo::navEnheter, "Du må velge minst én NAV-region"))
         }
 
         navEnheter.forEach { enhet ->
@@ -281,23 +346,27 @@ class AvtaleValidator(
         avtale: AvtaleAdminDto,
         tiltakstype: TiltakstypeAdminDto,
     ): Boolean {
-        return avtale.opphav == ArenaMigrering.Opphav.ARENA && !isEnabled(tiltakstype.arenaKode)
+        return avtale.opphav == ArenaMigrering.Opphav.ARENA && !isEnabled(tiltakstype.tiltakskode)
     }
 
     private fun isTiltakstypeDisabled(
         previous: AvtaleAdminDto?,
         tiltakstype: TiltakstypeAdminDto,
     ): Boolean {
-        val kanIkkeOppretteAvtale = previous == null && !isEnabled(tiltakstype.arenaKode)
+        val kanIkkeOppretteAvtale = previous == null && !isEnabled(tiltakstype.tiltakskode)
 
         val kanIkkeRedigereTiltakstypeForAvtale = previous != null &&
-            tiltakstype.arenaKode != previous.tiltakstype.arenaKode &&
-            !isEnabled(tiltakstype.arenaKode)
+            tiltakstype.tiltakskode != previous.tiltakstype.tiltakskode &&
+            !isEnabled(tiltakstype.tiltakskode)
 
         return kanIkkeOppretteAvtale || kanIkkeRedigereTiltakstypeForAvtale
     }
 
-    private fun isEnabled(arenakode: String) =
-        tiltakstyper.isEnabled(Tiltakskode.fromArenaKode(arenakode)) ||
-            Tiltakskoder.TiltakMedAvtalerFraMulighetsrommet.contains(arenakode)
+    private fun isEnabled(tiltakskode: Tiltakskode?) =
+        tiltakstyper.isEnabled(tiltakskode) ||
+            Tiltakskoder.TiltakMedAvtalerFraMulighetsrommet.contains(tiltakskode)
+}
+
+private fun avtaleTypeErForhandsgodkjent(avtaletype: Avtaletype): Boolean {
+    return listOf(Avtaletype.Forhaandsgodkjent).contains(avtaletype)
 }

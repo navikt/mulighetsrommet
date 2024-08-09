@@ -1,3 +1,7 @@
+import { avtaleDetaljerTabAtom } from "@/api/atoms";
+import { useUpsertAvtale } from "@/api/avtaler/useUpsertAvtale";
+import { useHandleApiUpsertResponse } from "@/api/effects";
+import { erAnskaffetTiltak } from "@/utils/tiltakskoder";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ExclamationmarkTriangleFillIcon } from "@navikt/aksel-icons";
 import { Tabs } from "@navikt/ds-react";
@@ -13,13 +17,8 @@ import {
 import React from "react";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { v4 as uuidv4 } from "uuid";
-import { avtaleDetaljerTabAtom } from "@/api/atoms";
-import { useUpsertAvtale } from "@/api/avtaler/useUpsertAvtale";
-import { useHandleApiUpsertResponse } from "@/api/effects";
-import { erAnskaffetTiltak } from "@/utils/tiltakskoder";
 import { Separator } from "../detaljside/Metadata";
-import { AvtaleSchema, InferredAvtaleSchema } from "../redaksjonelt-innhold/AvtaleSchema";
-import skjemastyles from "../skjema/Skjema.module.scss";
+import { AvtaleSchema, InferredAvtaleSchema } from "@/components/redaksjoneltInnhold/AvtaleSchema";
 import { AvtaleRedaksjoneltInnholdForm } from "./AvtaleRedaksjoneltInnholdForm";
 import { defaultAvtaleData } from "./AvtaleSkjemaConst";
 import { AvtaleSkjemaDetaljer } from "./AvtaleSkjemaDetaljer";
@@ -27,6 +26,8 @@ import { AvtaleSkjemaKnapperad } from "./AvtaleSkjemaKnapperad";
 import { AvtalePersonvernForm } from "./AvtalePersonvernForm";
 import { Laster } from "../laster/Laster";
 import { InlineErrorBoundary } from "mulighetsrommet-frontend-common";
+import { RedaksjoneltInnholdBunnKnapperad } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdBunnKnapperad";
+import styles from "./AvtaleSkjemaContainer.module.scss";
 
 interface Props {
   onClose: () => void;
@@ -73,18 +74,24 @@ export function AvtaleSkjemaContainer({
       arrangorUnderenheter: data.arrangorUnderenheter,
       arrangorKontaktpersoner: data.arrangorKontaktpersoner,
       navn: data.navn,
-      sluttDato: data.startOgSluttDato.sluttDato ?? null,
+      sluttDato: data.startOgSluttDato.sluttDato || null,
       startDato: data.startOgSluttDato.startDato,
       tiltakstypeId: data.tiltakstype.id,
       administratorer: data.administratorer,
       avtaletype: data.avtaletype,
-      prisbetingelser: erAnskaffetTiltak(data.tiltakstype.arenaKode)
+      prisbetingelser: erAnskaffetTiltak(data.tiltakstype.tiltakskode)
         ? data.prisbetingelser || null
         : null,
       beskrivelse: data.beskrivelse,
       faneinnhold: data.faneinnhold,
       personopplysninger: data.personvernBekreftet ? data.personopplysninger : [],
       personvernBekreftet: data.personvernBekreftet,
+      amoKategorisering: data.amoKategorisering || null,
+      opsjonsmodellData: {
+        opsjonMaksVarighet: data?.opsjonsmodellData?.opsjonMaksVarighet || null,
+        opsjonsmodell: data?.opsjonsmodellData?.opsjonsmodell || null,
+        customOpsjonsmodellNavn: data?.opsjonsmodellData?.customOpsjonsmodellNavn || null,
+      },
     };
 
     mutation.mutate(requestBody);
@@ -103,6 +110,9 @@ export function AvtaleSkjemaContainer({
         const mapping: { [name: string]: string } = {
           startDato: "startOgSluttDato.startDato",
           sluttDato: "startOgSluttDato.sluttDato",
+          opsjonsmodell: "opsjonsmodellData.opsjonsmodell",
+          opsjonMaksVarighet: "opsjonsmodellData.opsjonMaksVarighet",
+          customOpsjonsmodellNavn: "opsjonsmodellData.customOpsjonsmodellNavn",
           tiltakstypeId: "tiltakstype",
         };
         return (mapping[name] ?? name) as keyof InferredAvtaleSchema;
@@ -117,7 +127,7 @@ export function AvtaleSkjemaContainer({
     <FormProvider {...form}>
       <form onSubmit={handleSubmit(postData)}>
         <Tabs defaultValue={activeTab}>
-          <Tabs.List className={skjemastyles.tabslist}>
+          <Tabs.List className={styles.tabslist}>
             <div>
               <Tabs.Tab
                 onClick={() => setActiveTab("detaljer")}
@@ -181,9 +191,9 @@ export function AvtaleSkjemaContainer({
           </Tabs.Panel>
         </Tabs>
         <Separator />
-        <div className={skjemastyles.flex_container}>
+        <RedaksjoneltInnholdBunnKnapperad>
           <AvtaleSkjemaKnapperad redigeringsModus={redigeringsModus!} onClose={onClose} />
-        </div>
+        </RedaksjoneltInnholdBunnKnapperad>
       </form>
     </FormProvider>
   );

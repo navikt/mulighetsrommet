@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useGetTiltakstypeIdFromUrlOrThrow } from "../../hooks/useGetTiltakstypeIdFromUrl";
-import { mulighetsrommetClient } from "@/api/client";
 import { QueryKeys } from "@/api/QueryKeys";
+import { TiltakstyperService } from "mulighetsrommet-api-client";
 
 export function useTiltakstypeById() {
   const tiltakstypeId = useGetTiltakstypeIdFromUrlOrThrow();
@@ -9,7 +9,7 @@ export function useTiltakstypeById() {
   return useQuery({
     queryKey: QueryKeys.tiltakstype(tiltakstypeId),
     queryFn: () =>
-      mulighetsrommetClient.tiltakstyper.getTiltakstypeById({
+      TiltakstyperService.getTiltakstypeById({
         id: tiltakstypeId,
       }),
     staleTime: 1000,

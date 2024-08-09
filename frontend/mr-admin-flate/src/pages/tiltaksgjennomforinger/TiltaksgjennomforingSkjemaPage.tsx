@@ -2,17 +2,18 @@ import { Alert, Heading } from "@navikt/ds-react";
 import { useLocation, useMatch, useNavigate, useParams } from "react-router-dom";
 import { useAvtale } from "@/api/avtaler/useAvtale";
 import { useTiltaksgjennomforingById } from "@/api/tiltaksgjennomforing/useTiltaksgjennomforingById";
-import { ContainerLayout } from "../../layouts/ContainerLayout";
-import { avtaleHarRegioner, inneholderUrl } from "../../utils/Utils";
-import { Header } from "../../components/detaljside/Header";
-import { Laster } from "../../components/laster/Laster";
-import styles from "../../components/skjema/Skjema.module.scss";
-import { TiltaksgjennomforingSkjemaContainer } from "../../components/tiltaksgjennomforinger/TiltaksgjennomforingSkjemaContainer";
-import { ErrorMeldinger } from "../../components/tiltaksgjennomforinger/TiltaksgjennomforingSkjemaErrors";
-import { TiltaksgjennomforingstatusTag } from "../../components/statuselementer/TiltaksgjennomforingstatusTag";
+import { ContainerLayout } from "@/layouts/ContainerLayout";
+import { avtaleHarRegioner, inneholderUrl } from "@/utils/Utils";
+import { Header } from "@/components/detaljside/Header";
+import { Laster } from "@/components/laster/Laster";
+import { TiltaksgjennomforingSkjemaContainer } from "@/components/tiltaksgjennomforinger/TiltaksgjennomforingSkjemaContainer";
+import { ErrorMeldinger } from "@/components/tiltaksgjennomforinger/TiltaksgjennomforingSkjemaErrors";
 import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
-import { Brodsmule, Brodsmuler } from "../../components/navigering/Brodsmuler";
-import { TiltaksgjennomforingIkon } from "../../components/ikoner/TiltaksgjennomforingIkon";
+import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
+import { TiltaksgjennomforingIkon } from "@/components/ikoner/TiltaksgjennomforingIkon";
+import { TiltaksgjennomforingStatusTag } from "mulighetsrommet-frontend-common";
+import { SkjemaContainer } from "@/components/skjema/SkjemaContainer";
+import { SkjemaContent } from "@/components/skjema/SkjemaContent";
 
 const TiltaksgjennomforingSkjemaPage = () => {
   const navigate = useNavigate();
@@ -107,16 +108,13 @@ const TiltaksgjennomforingSkjemaPage = () => {
           {redigeringsModus ? "Rediger tiltaksgjennomføring" : "Opprett ny tiltaksgjennomføring"}
         </Heading>
         {tiltaksgjennomforing ? (
-          <TiltaksgjennomforingstatusTag
-            tiltaksgjennomforing={tiltaksgjennomforing}
-            showAvbruttAarsak
-          />
+          <TiltaksgjennomforingStatusTag status={tiltaksgjennomforing.status} showAvbruttAarsak />
         ) : null}
       </Header>
       <ContainerLayout>
-        <div className={styles.skjema}>
-          <div className={styles.skjema_content}>{content}</div>
-        </div>
+        <SkjemaContainer>
+          <SkjemaContent>{content}</SkjemaContent>
+        </SkjemaContainer>
       </ContainerLayout>
     </main>
   );

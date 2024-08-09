@@ -31,6 +31,7 @@ data class TaskConfig(
 
 data class ServiceConfig(
     val mulighetsrommetApi: ServiceClientConfig,
+    val tiltakshistorikk: ServiceClientConfig,
     val arenaEventService: ArenaEventService.Config,
     val arenaOrdsProxy: ServiceClientConfig,
 )
@@ -61,6 +62,7 @@ data class KafkaConsumers(
     val arenaTiltakEndret: KafkaTopicConsumer.Config,
     val arenaTiltakgjennomforingEndret: KafkaTopicConsumer.Config,
     val arenaTiltakdeltakerEndret: KafkaTopicConsumer.Config,
+    val arenaHistTiltakdeltakerEndret: KafkaTopicConsumer.Config,
     val arenaSakEndret: KafkaTopicConsumer.Config,
     val arenaAvtaleInfoEndret: KafkaTopicConsumer.Config,
 )

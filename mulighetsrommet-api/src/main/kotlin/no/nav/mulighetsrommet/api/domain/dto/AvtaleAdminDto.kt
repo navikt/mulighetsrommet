@@ -3,14 +3,19 @@ package no.nav.mulighetsrommet.api.domain.dto
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.domain.dbo.ArenaNavEnhet
 import no.nav.mulighetsrommet.api.domain.dbo.AvtaleDbo
+import no.nav.mulighetsrommet.api.routes.v1.OpsjonLoggRequest
+import no.nav.mulighetsrommet.api.routes.v1.OpsjonsmodellData
+import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.ArenaAvtaleDbo
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dto.*
 import no.nav.mulighetsrommet.domain.serializers.AvtaleStatusSerializer
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
+import no.nav.mulighetsrommet.domain.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.*
 
 @Serializable
@@ -21,12 +26,13 @@ data class AvtaleAdminDto(
     val navn: String,
     val avtalenummer: String?,
     val websaknummer: Websaknummer?,
-    val lopenummer: Lopenummer?,
     val arrangor: ArrangorHovedenhet,
     @Serializable(with = LocalDateSerializer::class)
     val startDato: LocalDate,
     @Serializable(with = LocalDateSerializer::class)
     val sluttDato: LocalDate?,
+    @Serializable(with = LocalDateSerializer::class)
+    val opprinneligSluttDato: LocalDate?,
     val arenaAnsvarligEnhet: ArenaNavEnhet?,
     val avtaletype: Avtaletype,
     @Serializable(with = AvtaleStatusSerializer::class)
@@ -40,13 +46,16 @@ data class AvtaleAdminDto(
     val faneinnhold: Faneinnhold? = null,
     val personopplysninger: List<Personopplysning>,
     val personvernBekreftet: Boolean,
+    val amoKategorisering: AmoKategorisering?,
+    val opsjonsmodellData: OpsjonsmodellData? = null,
+    val opsjonerRegistrert: List<OpsjonLoggRegistrert>?,
 ) {
     @Serializable
     data class Tiltakstype(
         @Serializable(with = UUIDSerializer::class)
         val id: UUID,
         val navn: String,
-        val arenaKode: String,
+        val tiltakskode: Tiltakskode,
     )
 
     @Serializable
@@ -78,6 +87,17 @@ data class AvtaleAdminDto(
         val navn: String,
     )
 
+    @Serializable
+    data class OpsjonLoggRegistrert(
+        @Serializable(with = UUIDSerializer::class)
+        val id: UUID,
+        @Serializable(with = LocalDateTimeSerializer::class)
+        val aktivertDato: LocalDateTime,
+        @Serializable(with = LocalDateTimeSerializer::class)
+        val sluttDato: LocalDateTime?,
+        val status: OpsjonLoggRequest.OpsjonsLoggStatus,
+    )
+
     fun toDbo() =
         AvtaleDbo(
             id = id,
@@ -99,6 +119,10 @@ data class AvtaleAdminDto(
             faneinnhold = null,
             personopplysninger = personopplysninger,
             personvernBekreftet = personvernBekreftet,
+            amoKategorisering = amoKategorisering,
+            opsjonMaksVarighet = opsjonsmodellData?.opsjonMaksVarighet,
+            opsjonsmodell = opsjonsmodellData?.opsjonsmodell,
+            customOpsjonsmodellNavn = opsjonsmodellData?.customOpsjonsmodellNavn,
         )
 
     fun toArenaAvtaleDbo() =

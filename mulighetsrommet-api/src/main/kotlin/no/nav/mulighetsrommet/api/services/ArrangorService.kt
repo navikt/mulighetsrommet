@@ -5,7 +5,6 @@ import arrow.core.flatMap
 import arrow.core.right
 import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
-import io.prometheus.client.cache.caffeine.CacheMetricsCollector
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.clients.brreg.BrregClient
 import no.nav.mulighetsrommet.api.clients.brreg.BrregError
@@ -16,7 +15,6 @@ import no.nav.mulighetsrommet.api.repositories.ArrangorRepository
 import no.nav.mulighetsrommet.api.repositories.DokumentKoblingForKontaktperson
 import no.nav.mulighetsrommet.api.routes.v1.responses.BadRequest
 import no.nav.mulighetsrommet.api.routes.v1.responses.StatusResponse
-import no.nav.mulighetsrommet.metrics.Metrikker
 import org.slf4j.LoggerFactory
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -32,12 +30,6 @@ class ArrangorService(
         .maximumSize(20_000)
         .recordStats()
         .build()
-
-    init {
-        val cacheMetrics: CacheMetricsCollector = CacheMetricsCollector()
-            .register(Metrikker.appMicrometerRegistry.prometheusRegistry)
-        cacheMetrics.addCache("brregServiceCache", brregCache)
-    }
 
     suspend fun getOrSyncArrangorFromBrreg(orgnr: String): Either<BrregError, ArrangorDto> {
         return arrangorRepository.get(orgnr)?.right() ?: syncArrangorFromBrreg(orgnr)

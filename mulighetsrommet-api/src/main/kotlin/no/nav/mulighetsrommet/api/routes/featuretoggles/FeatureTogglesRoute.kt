@@ -15,7 +15,7 @@ import java.util.*
 fun Route.featureTogglesRoute() {
     val unleashService: UnleashService by inject()
 
-    route("/api/v1/internal/features") {
+    route("/api/v1/intern/features") {
         get {
             val feature: String = call.request.queryParameters.getOrFail("feature")
 

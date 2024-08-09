@@ -7,10 +7,18 @@ app:
     jdbcUrl: ${DB_JDBC_URL}
     maximumPoolSize: 10
   flyway:
-    strategy: Migrate
+    strategy: RepairAndMigrate
 
   migrerteTiltak:
+    - ARBEIDSFORBEREDENDE_TRENING
+    - ARBEIDSRETTET_REHABILITERING
+    - AVKLARING
+    - DIGITALT_OPPFOLGINGSTILTAK
     - JOBBKLUBB
+    - OPPFOLGING
+    - VARIG_TILRETTELAGT_ARBEID_SKJERMET
+
+  pameldingIModia: []
 
   kafka:
     producerId: mulighetsrommet-api-kafka-producer.v1
@@ -32,9 +40,6 @@ app:
       amtVirksomheterV1:
         id: amt-virksomheter
         topic: amt.virksomheter-v1
-      ptoSisteOppfolgingsperiodeV1:
-        id: pto-virksomheter
-        topic: pto.siste-oppfolgingsperiode-v1
 
   auth:
     azure:
@@ -64,6 +69,9 @@ app:
       # (GRP) mr-nav_kontaktperson
       - adGruppeId: 0fdd133a-f47f-4b95-9a5e-f3a5ec87a472
         rolle: KONTAKTPERSON
+      # 0000-GA-TILTAK-okonomi_beslutter
+      - adGruppeId: 6a1f1984-0fe3-4a0e-ac6e-19225b604a52
+        rolle: OKONOMI_BESLUTTER
 
   sanity:
     dataset: ${SANITY_DATASET}
@@ -102,6 +110,10 @@ app:
     url: http://mulighetsrommet-arena-adapter
     scope: api://prod-gcp.team-mulighetsrommet.mulighetsrommet-arena-adapter/.default
 
+  tiltakshistorikk:
+    url: http://tiltakshistorikk
+    scope: api://prod-gcp.team-mulighetsrommet.tiltakshistorikk/.default
+
   axsys:
     url: https://axsys.prod-fss-pub.nais.io
     scope: api://prod-fss.org.axsys/.default
@@ -110,12 +122,16 @@ app:
     url: https://pdl-api.prod-fss-pub.nais.io
     scope: api://prod-fss.pdl.pdl-api/.default
 
+  pamOntologi:
+    url: http://pam-ontologi.teampam
+    scope: api://prod-gcp.teampam.pam-ontologi/.default
+
   tasks:
-    deleteExpiredTiltakshistorikk:
-      cronPattern: "0 0 1 * * *" # Hver morgen kl. 01:00
     synchronizeNorgEnheter:
       delayOfMinutes: 360 # Hver 6. time
     synchronizeNavAnsatte:
+      cronPattern: "0 0 6 * * *" # Hver morgen kl. 06:00
+    synchronizeUtdanninger:
       cronPattern: "0 0 6 * * *" # Hver morgen kl. 06:00
     notifySluttdatoForGjennomforingerNarmerSeg:
       cronPattern: "0 0 6 * * *" # Hver morgen kl. 06:00
@@ -148,5 +164,5 @@ app:
     instanceId: ${NAIS_CLIENT_ID}
     environment: production
 
-  ssbNusConfig:
-    baseUrl: "https://data.ssb.no/api"
+  utdanning:
+    baseurl: https://utdanning.no

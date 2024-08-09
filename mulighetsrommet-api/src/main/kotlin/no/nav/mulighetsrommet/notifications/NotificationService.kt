@@ -57,7 +57,7 @@ class NotificationService(
         logger.info("Scheduling notification id=$id for time=$instant")
 
         val instance = handleScheduledNotification.instance(id.toString(), notification)
-        client.schedule(instance, instant)
+        client.scheduleIfNotExists(instance, instant)
     }
 
     fun getNotifications(userId: NavIdent, filter: NotificationFilter): List<UserNotification> {

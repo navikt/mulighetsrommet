@@ -31,7 +31,7 @@ spec:
     limits:
       memory: 1024Mi
     requests:
-      cpu: 250m
+      cpu: 100m
       memory: 512Mi
   observability:
     autoInstrumentation:
@@ -46,7 +46,7 @@ spec:
       - name: mulighetsrommet-api-uploads-dev
         cascadingDelete: true
     sqlInstances:
-      - type: POSTGRES_14
+      - type: POSTGRES_16
         databases:
           - name: mulighetsrommet-api-db
             envVarPrefix: DB
@@ -70,12 +70,14 @@ spec:
           - id: "639e2806-4cc2-484c-a72a-51b4308c52a1"
           # 0000-GA-TILTAK-ANSVARLIG
           - id: "52bb9196-b071-4cc7-9472-be4942d33c4b"
-          # 0000-ZA-TILTAK-tiltaksgjennomforinger_skriv
+          # 0000-AZ-TILTAK-tiltaksgjennomforinger_skriv
           - id: "279039a0-39fd-4860-afdd-a1a2ccaa6323"
           # 0000-AZ-TILTAK-avtaler_skriv
           - id: "48026f54-6259-4c35-a148-bc4257bcaf03"
           # (GRP) mr-nav_kontaktperson
           - id: "7b1d209a-f6c1-4c6e-84f2-02a1bb4c92ba"
+          # 0000-AZ-TILTAK-okonomi_beslutter
+          - id: "b00ba197-c90a-4ff9-966e-6c9cf1c882bf"
         extra:
           - NAVident
           - azp_name
@@ -106,12 +108,15 @@ spec:
     outbound:
       rules:
         - application: mulighetsrommet-arena-adapter
+        - application: tiltakshistorikk
         - application: poao-tilgang
           namespace: poao
         - application: amt-enhetsregister
           namespace: amt
         - application: amt-deltaker
           namespace: amt
+        - application: pam-ontologi
+          namespace: teampam
       external:
         - host: norg2.dev-fss-pub.nais.io
         - host: slack.com
@@ -121,7 +126,7 @@ spec:
         - host: team-mulighetsrommet-unleash-api.nav.cloud.nais.io
         - host: axsys.dev-fss-pub.nais.io
         - host: pdl-api.dev-fss-pub.nais.io
-        - host: data.ssb.no
+        - host: utdanning.no
   envFrom:
     - secret: mulighetsrommet-api
     - secret: mr-admin-flate-unleash-api-token

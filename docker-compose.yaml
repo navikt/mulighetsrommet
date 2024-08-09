@@ -33,6 +33,13 @@ services:
                   "claims": {
                     "aud": ["mulighetsrommet-api"]
                   }
+                },
+                {
+                  "requestParam": "scope",
+                  "match": "mr-tiltakshistorikk",
+                  "claims": {
+                    "aud": ["mr-tiltakshistorikk"]
+                  }
                 }
               ]
             }
@@ -40,7 +47,7 @@ services:
         }
 
   mulighetsrommet-db:
-    image: "postgres:15.6-alpine"
+    image: "postgres:16.3-alpine"
     restart: "always"
     volumes:
       - "mulighetsrommet-db:/var/lib/postgresql/data"

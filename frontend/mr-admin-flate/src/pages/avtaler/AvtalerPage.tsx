@@ -1,10 +1,14 @@
-import { avtaleFilterAtom } from "@/api/atoms";
+import { avtaleFilterAtom, AvtaleFilterSchema } from "@/api/atoms";
 import { AvtaleFilter } from "@/components/filter/AvtaleFilter";
 import { AvtaleTabell } from "@/components/tabell/AvtaleTabell";
 import { HeaderBanner } from "@/layouts/HeaderBanner";
 import { ContainerLayout } from "@/layouts/ContainerLayout";
 import { MainContainer } from "@/layouts/MainContainer";
-import { ReloadAppErrorBoundary, useTitle } from "mulighetsrommet-frontend-common";
+import {
+  LagredeFilterOversikt,
+  ReloadAppErrorBoundary,
+  useTitle,
+} from "mulighetsrommet-frontend-common";
 import { AvtaleFiltertags } from "@/components/filter/AvtaleFiltertags";
 import { TilToppenKnapp } from "mulighetsrommet-frontend-common/components/tilToppenKnapp/TilToppenKnapp";
 import { Brodsmuler } from "@/components/navigering/Brodsmuler";
@@ -13,11 +17,15 @@ import { useState } from "react";
 import { FilterAndTableLayout } from "mulighetsrommet-frontend-common/components/filterAndTableLayout/FilterAndTableLayout";
 import { AvtaleFilterButtons } from "@/components/filter/AvtaleFilterButtons";
 import { NullstillKnappForAvtaler } from "@/pages/avtaler/NullstillKnappForAvtaler";
+import { LagretDokumenttype } from "mulighetsrommet-api-client";
+import { useAtom } from "jotai/index";
 
 export function AvtalerPage() {
   useTitle("Avtaler");
   const [filterOpen, setFilterOpen] = useState<boolean>(true);
   const [tagsHeight, setTagsHeight] = useState(0);
+
+  const [filter, setFilter] = useAtom(avtaleFilterAtom);
 
   return (
     <>
@@ -34,6 +42,16 @@ export function AvtalerPage() {
             <FilterAndTableLayout
               nullstillFilterButton={<NullstillKnappForAvtaler filterAtom={avtaleFilterAtom} />}
               filter={<AvtaleFilter filterAtom={avtaleFilterAtom} />}
+              lagredeFilter={
+                <LagredeFilterOversikt
+                  setFilter={setFilter}
+                  filter={filter}
+                  dokumenttype={LagretDokumenttype.AVTALE}
+                  validateFilterStructure={(filter) => {
+                    return AvtaleFilterSchema.safeParse(filter).success;
+                  }}
+                />
+              }
               tags={
                 <AvtaleFiltertags
                   filterAtom={avtaleFilterAtom}

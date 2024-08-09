@@ -11,6 +11,9 @@ app:
     mulighetsrommetApi:
       url: http://localhost:8080
       scope: default
+    tiltakshistorikk:
+      url: http://localhost:8080
+      scope: default
     arenaEventService:
       channelCapacity: 100
       numChannelConsumers: 10
@@ -49,6 +52,9 @@ app:
       arenaTiltakdeltakerEndret:
         id: arena-tiltakdeltaker-endret
         topic: tiltakdeltakerendret
+      arenaHistTiltakdeltakerEndret:
+        id: arena-hist-tiltakdeltaker-endret
+        topic: histtiltakdeltakerendret
       arenaSakEndret:
         id: arena-sakendret-endret
         topic: sakendret

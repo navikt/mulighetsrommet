@@ -10,112 +10,140 @@ import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
 import no.nav.mulighetsrommet.api.clients.pdl.IdentGruppe
 import no.nav.mulighetsrommet.api.clients.pdl.IdentInformasjon
 import no.nav.mulighetsrommet.api.clients.pdl.PdlClient
+import no.nav.mulighetsrommet.api.clients.pdl.PdlIdent
+import no.nav.mulighetsrommet.api.clients.tiltakshistorikk.TiltakshistorikkClient
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dto.ArrangorDto
-import no.nav.mulighetsrommet.api.domain.dto.TiltakshistorikkDto
+import no.nav.mulighetsrommet.api.domain.dto.TiltakshistorikkAdminDto
 import no.nav.mulighetsrommet.api.fixtures.*
-import no.nav.mulighetsrommet.api.repositories.TiltakshistorikkRepository
+import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
-import no.nav.mulighetsrommet.domain.dbo.ArenaTiltakshistorikkDbo
-import no.nav.mulighetsrommet.domain.dbo.Deltakerstatus
+import no.nav.mulighetsrommet.domain.dbo.ArenaDeltakerStatus
+import no.nav.mulighetsrommet.domain.dto.NorskIdent
+import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
+import no.nav.mulighetsrommet.domain.dto.Tiltakshistorikk
+import no.nav.mulighetsrommet.domain.dto.Tiltakshistorikk.Arrangor
+import no.nav.mulighetsrommet.domain.dto.Tiltakshistorikk.Gjennomforing
+import no.nav.mulighetsrommet.domain.dto.TiltakshistorikkResponse
+import no.nav.mulighetsrommet.domain.dto.amt.AmtDeltakerStatus
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 
 class TiltakshistorikkServiceTest : FunSpec({
-    val arrangorService: ArrangorService = mockk()
-
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
 
+    val arrangorService: ArrangorService = mockk()
     val pdlClient: PdlClient = mockk()
+    val tiltakshistorikkClient: TiltakshistorikkClient = mockk()
     val amtDeltakerClient: AmtDeltakerClient = mockk()
     val tiltakstype = TiltakstypeFixtures.Oppfolging
 
     val tiltaksgjennomforing = TiltaksgjennomforingFixtures.Oppfolging1
 
-    val tiltakshistorikkGruppe = ArenaTiltakshistorikkDbo.Gruppetiltak(
+    val gruppetiltakDeltakelse = Tiltakshistorikk.GruppetiltakDeltakelse(
         id = UUID.randomUUID(),
-        tiltaksgjennomforingId = tiltaksgjennomforing.id,
-        norskIdent = "12345678910",
-        status = Deltakerstatus.VENTER,
-        fraDato = LocalDateTime.of(2018, 12, 3, 0, 0),
-        tilDato = LocalDateTime.of(2019, 12, 3, 0, 0),
-        registrertIArenaDato = LocalDateTime.of(2018, 12, 3, 0, 0),
+        gjennomforing = Gjennomforing(
+            id = tiltaksgjennomforing.id,
+            navn = tiltaksgjennomforing.navn,
+            tiltakskode = tiltakstype.tiltakskode!!,
+        ),
+        norskIdent = NorskIdent("12345678910"),
+        status = AmtDeltakerStatus(
+            type = AmtDeltakerStatus.Type.VENTELISTE,
+            opprettetDato = LocalDateTime.of(2018, 12, 3, 0, 0),
+            aarsak = null,
+        ),
+        startDato = LocalDate.of(2018, 12, 3),
+        sluttDato = LocalDate.of(2019, 12, 3),
+        arrangor = Arrangor(Organisasjonsnummer(ArrangorFixtures.underenhet1.organisasjonsnummer)),
     )
 
     val tiltakstypeIndividuell = TiltakstypeFixtures.Arbeidstrening
 
-    val tiltakshistorikkIndividuell = ArenaTiltakshistorikkDbo.IndividueltTiltak(
+    val arenaDeltakelse = Tiltakshistorikk.ArenaDeltakelse(
         id = UUID.randomUUID(),
-        norskIdent = "12345678910",
-        status = Deltakerstatus.VENTER,
-        fraDato = LocalDateTime.of(2018, 12, 3, 0, 0),
-        tilDato = LocalDateTime.of(2019, 12, 3, 0, 0),
-        registrertIArenaDato = LocalDateTime.of(2018, 12, 3, 0, 0),
+        norskIdent = NorskIdent("12345678910"),
+        status = ArenaDeltakerStatus.VENTELISTE,
+        startDato = LocalDate.of(2018, 12, 3),
+        sluttDato = LocalDate.of(2019, 12, 3),
+        arenaTiltakskode = tiltakstypeIndividuell.arenaKode,
         beskrivelse = "Utdanning",
-        tiltakstypeId = tiltakstypeIndividuell.id,
-        arrangorOrganisasjonsnummer = "12343",
+        arrangor = Arrangor(Organisasjonsnummer("123456789")),
     )
 
-    beforeSpec {
+    beforeAny {
         MulighetsrommetTestDomain(
             arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
             tiltakstyper = listOf(tiltakstype, tiltakstypeIndividuell),
             avtaler = listOf(AvtaleFixtures.oppfolging),
             gjennomforinger = listOf(tiltaksgjennomforing),
         ).initialize(database.db)
-
-        val tiltakshistorikk = TiltakshistorikkRepository(database.db)
-        tiltakshistorikk.upsert(tiltakshistorikkGruppe)
-        tiltakshistorikk.upsert(tiltakshistorikkIndividuell)
     }
 
     test("henter historikk for bruker basert på person id med arrangørnavn") {
         coEvery { arrangorService.getOrSyncArrangorFromBrreg(ArrangorFixtures.underenhet1.organisasjonsnummer) } returns ArrangorFixtures.underenhet1.right()
-        coEvery { arrangorService.getOrSyncArrangorFromBrreg(tiltakshistorikkIndividuell.arrangorOrganisasjonsnummer) } returns ArrangorDto(
+        coEvery { arrangorService.getOrSyncArrangorFromBrreg(arenaDeltakelse.arrangor.organisasjonsnummer.value) } returns ArrangorDto(
             id = UUID.randomUUID(),
             navn = "Bedriftsnavn 2",
-            organisasjonsnummer = tiltakshistorikkIndividuell.arrangorOrganisasjonsnummer,
+            organisasjonsnummer = arenaDeltakelse.arrangor.organisasjonsnummer.value,
             postnummer = null,
             poststed = null,
         ).right()
-        coEvery { pdlClient.hentIdenter(any(), any()) } returns listOf(
+        coEvery { pdlClient.hentHistoriskeIdenter(any(), any()) } returns listOf(
             IdentInformasjon(
-                ident = "12345678910",
+                ident = PdlIdent("12345678910"),
                 gruppe = IdentGruppe.FOLKEREGISTERIDENT,
                 historisk = false,
             ),
         ).right()
+        coEvery { tiltakshistorikkClient.historikk(any()) } returns TiltakshistorikkResponse(
+            historikk = listOf(gruppetiltakDeltakelse, arenaDeltakelse),
+        )
 
-        val tiltakshistorikk = TiltakshistorikkRepository(database.db)
-        val historikkService = TiltakshistorikkService(arrangorService, amtDeltakerClient, tiltakshistorikk, pdlClient)
+        val tiltakstyper = TiltakstypeRepository(database.db)
+        val historikkService = TiltakshistorikkService(
+            pdlClient,
+            arrangorService,
+            amtDeltakerClient,
+            tiltakshistorikkClient,
+            tiltakstyper,
+        )
 
         val forventetHistorikk = listOf(
-            TiltakshistorikkDto(
-                id = tiltakshistorikkGruppe.id,
-                fraDato = LocalDateTime.of(2018, 12, 3, 0, 0),
-                tilDato = LocalDateTime.of(2019, 12, 3, 0, 0),
-                status = Deltakerstatus.VENTER,
-                tiltaksnavn = tiltaksgjennomforing.navn,
-                tiltakstype = tiltakstype.navn,
-                arrangor = TiltakshistorikkDto.Arrangor(
-                    organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
+            TiltakshistorikkAdminDto.GruppetiltakDeltakelse(
+                id = gruppetiltakDeltakelse.id,
+                startDato = LocalDate.of(2018, 12, 3),
+                sluttDato = LocalDate.of(2019, 12, 3),
+                status = AmtDeltakerStatus(
+                    type = AmtDeltakerStatus.Type.VENTELISTE,
+                    opprettetDato = LocalDateTime.of(2018, 12, 3, 0, 0),
+                    aarsak = null,
+                ),
+                tiltakNavn = tiltaksgjennomforing.navn,
+                tiltakstypeNavn = tiltakstype.navn,
+                arrangor = TiltakshistorikkAdminDto.Arrangor(
+                    organisasjonsnummer = Organisasjonsnummer(ArrangorFixtures.underenhet1.organisasjonsnummer),
                     navn = ArrangorFixtures.underenhet1.navn,
                 ),
             ),
-            TiltakshistorikkDto(
-                id = tiltakshistorikkIndividuell.id,
-                fraDato = LocalDateTime.of(2018, 12, 3, 0, 0),
-                tilDato = LocalDateTime.of(2019, 12, 3, 0, 0),
-                status = Deltakerstatus.VENTER,
-                tiltaksnavn = tiltakshistorikkIndividuell.beskrivelse,
-                tiltakstype = tiltakstypeIndividuell.navn,
-                arrangor = TiltakshistorikkDto.Arrangor(
-                    organisasjonsnummer = tiltakshistorikkIndividuell.arrangorOrganisasjonsnummer,
+            TiltakshistorikkAdminDto.ArenaDeltakelse(
+                id = arenaDeltakelse.id,
+                startDato = LocalDate.of(2018, 12, 3),
+                sluttDato = LocalDate.of(2019, 12, 3),
+                status = ArenaDeltakerStatus.VENTELISTE,
+                tiltakNavn = arenaDeltakelse.beskrivelse,
+                tiltakstypeNavn = tiltakstypeIndividuell.navn,
+                arrangor = TiltakshistorikkAdminDto.Arrangor(
+                    organisasjonsnummer = arenaDeltakelse.arrangor.organisasjonsnummer,
                     navn = "Bedriftsnavn 2",
                 ),
             ),
         )
 
-        historikkService.hentHistorikkForBruker("12345678910", AccessType.OBO("token")) shouldBe forventetHistorikk
+        historikkService.hentHistorikkForBrukerV2(
+            NorskIdent("12345678910"),
+            AccessType.OBO("token"),
+        ) shouldBe forventetHistorikk
     }
 })

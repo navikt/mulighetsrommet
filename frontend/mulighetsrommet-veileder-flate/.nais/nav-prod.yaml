@@ -1,3 +1,0 @@
-ingress: https://nav-arbeidsmarkedstiltak.intern.nav.no
-bucketName: arbeidsmarkedstiltak-nav-prod
-cluster: prod-gcp

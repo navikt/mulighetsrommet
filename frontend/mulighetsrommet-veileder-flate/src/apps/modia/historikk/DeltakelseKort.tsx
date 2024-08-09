@@ -36,22 +36,25 @@ export function DeltakelseKort({ deltakelse }: Props) {
             {tittel}
           </Heading>
         ) : null}
-        <HStack align={"center"} gap="5">
+        <HStack align={"end"} gap="5">
           {deltakelse?.status ? <Status status={deltakelse.status} /> : null}
           {deltakelse.status.aarsak ? (
             <BodyShort size="small">Årsak: {deltakelse.status.aarsak}</BodyShort>
           ) : null}
           {deltakelse.periode?.startdato ? (
             <BodyShort size="small">
-              {[deltakelse.periode.startdato, deltakelse.periode.sluttdato]
-                .filter(Boolean)
-                .map((dato) => dato && formaterDato(dato))
-                .join(" - ") +
-                (deltakelse.periode?.startdato && !deltakelse.periode?.sluttdato ? " - " : "")}
+              {deltakelse.periode?.startdato && !deltakelse.periode?.sluttdato
+                ? `Oppstartsdato ${formaterDato(deltakelse.periode.startdato)}`
+                : [deltakelse.periode.startdato, deltakelse.periode.sluttdato]
+                    .filter(Boolean)
+                    .map((dato) => dato && formaterDato(dato))
+                    .join(" - ")}
             </BodyShort>
           ) : null}
           {deltakelse.sistEndretDato ? (
-            <span>Sist endret: {formaterDato(deltakelse.sistEndretDato)}</span>
+            <BodyShort size="small">
+              Sist endret: {formaterDato(deltakelse.sistEndretDato)}
+            </BodyShort>
           ) : null}
         </HStack>
       </VStack>
@@ -75,6 +78,7 @@ function Status({ status }: StatusProps) {
     case DeltakerStatusType.IKKE_AKTUELL:
     case DeltakerStatusType.AVBRUTT_UTKAST:
     case DeltakerStatusType.AVBRUTT:
+    case DeltakerStatusType.FEILREGISTRERT:
       return (
         <Tag size="small" variant="neutral">
           {visningstekst}

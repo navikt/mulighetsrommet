@@ -1,6 +1,6 @@
 import { ApiError } from "../core/api.tsx";
 
-export const ErrorToast = (props: { title: string; error?: ApiError | Error }) => {
+export function ErrorToast(props: { title: string; error?: ApiError | Error }) {
   const status =
     props.error instanceof ApiError ? `${props.error.status} ${props.error.statusText}` : null;
   return (
@@ -18,4 +18,4 @@ export const ErrorToast = (props: { title: string; error?: ApiError | Error }) =
       )}
     </div>
   );
-};
+}

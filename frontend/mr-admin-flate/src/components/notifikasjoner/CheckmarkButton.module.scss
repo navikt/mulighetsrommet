@@ -9,7 +9,8 @@ $lest: var(--a-icon-success);
   display: flex;
   justify-content: center;
   align-items: center;
-  padding-top: 0;
+  padding: 0.5rem;
+  margin-top: -10px;
 }
 
 .icon {

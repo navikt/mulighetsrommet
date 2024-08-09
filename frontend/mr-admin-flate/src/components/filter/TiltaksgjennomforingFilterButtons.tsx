@@ -21,13 +21,14 @@ export function TiltaksgjennomforingFilterButtons() {
   const visOpprettTiltaksgjennomforingKnapp = inneholderUrl("/avtaler/");
 
   const avtaleErOpprettetIAdminFlate = avtale?.opphav === Opphav.MR_ADMIN_FLATE;
-  const avtaleErAftEllerVta = avtale?.tiltakstype?.arenaKode
-    ? ["ARBFORB", "VASV"].includes(avtale?.tiltakstype?.arenaKode)
+  const avtaleErAftEllerVta = avtale?.tiltakstype?.tiltakskode
+    ? ["ARBFORB", "VASV"].includes(avtale?.tiltakstype?.tiltakskode)
     : false;
   const avtalenErAktiv = avtale?.status.name === "AKTIV";
 
   const kanOppretteTiltak =
-    avtale?.tiltakstype?.arenaKode && migrerteTiltakstyper?.includes(avtale.tiltakstype.arenaKode);
+    avtale?.tiltakstype?.tiltakskode &&
+    migrerteTiltakstyper?.includes(avtale.tiltakstype.tiltakskode);
 
   return (
     <div

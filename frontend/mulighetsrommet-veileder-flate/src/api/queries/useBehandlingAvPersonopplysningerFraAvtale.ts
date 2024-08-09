@@ -1,12 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
 import { QueryKeys } from "../query-keys";
-import { mulighetsrommetClient } from "../client";
+import { AvtalerService } from "mulighetsrommet-api-client";
 
 export function useBehandlingAvPersonopplysningerFraAvtale(avtaleId?: string) {
   return useQuery({
     queryKey: QueryKeys.behandlingAvPersonopplysninger(avtaleId),
-    queryFn: () =>
-      mulighetsrommetClient.avtaler.getBehandlingAvPersonopplysninger({ id: avtaleId!! }),
+    queryFn: () => AvtalerService.getBehandlingAvPersonopplysninger({ id: avtaleId!! }),
     enabled: !!avtaleId,
   });
 }

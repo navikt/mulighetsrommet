@@ -3,14 +3,16 @@ import { useHentKontaktpersoner } from "@/api/ansatt/useHentKontaktpersoner";
 import { useTiltaksgjennomforingAdministratorer } from "@/api/ansatt/useTiltaksgjennomforingAdministratorer";
 import { useTiltaksgjennomforingDeltakerSummary } from "@/api/tiltaksgjennomforing/useTiltaksgjennomforingDeltakerSummary";
 import { useMigrerteTiltakstyper } from "@/api/tiltakstyper/useMigrerteTiltakstyper";
+import { addYear, formaterDato } from "@/utils/Utils";
+import { isTiltakMedFellesOppstart } from "@/utils/tiltakskoder";
 import { PlusIcon, XMarkIcon } from "@navikt/aksel-icons";
 import {
   Alert,
   Button,
   DatePicker,
+  HelpText,
   HGrid,
   HStack,
-  HelpText,
   Select,
   Switch,
   TextField,
@@ -20,44 +22,44 @@ import {
   Tiltaksgjennomforing,
   TiltaksgjennomforingKontaktperson,
   TiltaksgjennomforingOppstartstype,
-  TiltakskodeArena,
-  Toggles,
+  Tiltakskode,
 } from "mulighetsrommet-api-client";
 import { ControlledSokeSelect } from "mulighetsrommet-frontend-common";
 import { useEffect, useRef } from "react";
 import { useFieldArray, useFormContext } from "react-hook-form";
-import { addYear, formaterDato } from "../../utils/Utils";
-import { isTiltakMedFellesOppstart } from "../../utils/tiltakskoder";
-import { Separator } from "../detaljside/Metadata";
 import { tiltaktekster } from "../ledetekster/tiltaksgjennomforingLedetekster";
 import { EndreDatoAdvarselModal } from "../modal/EndreDatoAdvarselModal";
-import { InferredTiltaksgjennomforingSchema } from "../redaksjonelt-innhold/TiltaksgjennomforingSchema";
+import { InferredTiltaksgjennomforingSchema } from "@/components/redaksjoneltInnhold/TiltaksgjennomforingSchema";
 import { AdministratorOptions } from "../skjema/AdministratorOptions";
 import { ControlledDateInput } from "../skjema/ControlledDateInput";
 import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
-import { FormGroup } from "../skjema/FormGroup";
-import skjemastyles from "../skjema/Skjema.module.scss";
+import { FormGroup } from "@/components/skjema/FormGroup";
 import { SelectOppstartstype } from "./SelectOppstartstype";
-import { TiltakTilgjengeligForArrangor } from "./TilgjengeligTiltakForArrangor";
 import { TiltaksgjennomforingArrangorSkjema } from "./TiltaksgjennomforingArrangorSkjema";
 import { erArenaOpphavOgIngenEierskap } from "./TiltaksgjennomforingSkjemaConst";
-import { useFeatureToggle } from "../../api/features/useFeatureToggle";
+import { TiltaksgjennomforingAmoKategoriseringSkjema } from "@/components/amoKategorisering/TiltaksgjennomforingAmoKategoriseringSkjema";
+import styles from "./TiltaksgjennomforingSkjemaDetaljer.module.scss";
+import { SkjemaDetaljerContainer } from "@/components/skjema/SkjemaDetaljerContainer";
+import { SkjemaInputContainer } from "@/components/skjema/SkjemaInputContainer";
+import { SkjemaKolonne } from "@/components/skjema/SkjemaKolonne";
+import { VertikalSeparator } from "@/components/skjema/VertikalSeparator";
+import { KontaktpersonButton } from "@/components/kontaktperson/KontaktpersonButton";
 
 interface Props {
   tiltaksgjennomforing?: Tiltaksgjennomforing;
   avtale: Avtale;
 }
 
-function visApentForInnsok(arenaKode: TiltakskodeArena) {
+function visApentForInnsok(tiltakskode: Tiltakskode) {
   return [
-    TiltakskodeArena.JOBBK,
-    TiltakskodeArena.DIGIOPPARB,
-    TiltakskodeArena.GRUPPEAMO,
-    TiltakskodeArena.GRUFAGYRKE,
-  ].includes(arenaKode);
+    Tiltakskode.JOBBKLUBB,
+    Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK,
+    Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
+    Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
+  ].includes(tiltakskode);
 }
 
-export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtale }: Props) => {
+export function TiltaksgjennomforingSkjemaDetaljer({ tiltaksgjennomforing, avtale }: Props) {
   const { data: administratorer } = useTiltaksgjennomforingAdministratorer();
   const { data: ansatt, isLoading: isLoadingAnsatt } = useHentAnsatt();
   const { data: kontaktpersoner, isLoading: isLoadingKontaktpersoner } = useHentKontaktpersoner();
@@ -65,9 +67,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
   const { data: deltakerSummary } = useTiltaksgjennomforingDeltakerSummary(
     tiltaksgjennomforing?.id,
   );
-  const { data: enableTilgjengeligForArrangor } = useFeatureToggle(
-    Toggles.MULIGHETSROMMET_ADMIN_FLATE_TILGJENGELIGGJORE_TILTAK_FOR_ARRANGOR,
-  );
+
   const endreStartDatoModalRef = useRef<HTMLDialogElement>(null);
   const endreSluttDatoModalRef = useRef<HTMLDialogElement>(null);
 
@@ -126,6 +126,12 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
     }
   }, [watchStartDato]);
 
+  useEffect(() => {
+    if (watchStartDato && new Date(watchStartDato) < new Date()) {
+      setValue("tilgjengeligForArrangorFraOgMedDato", null);
+    }
+  }, [watchStartDato]);
+
   const watchSluttDato = watch("startOgSluttDato.sluttDato");
   useEffect(() => {
     if (
@@ -148,7 +154,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
     .map((kontor) => ({ label: kontor.navn, value: kontor.enhetsnummer }));
 
   const minStartdato = new Date(avtale.startDato);
-  const maxSluttdato = addYear(minStartdato, 5);
+  const maxSluttdato = addYear(minStartdato, 35);
 
   const valgteNavEnheter = watch("navEnheter");
 
@@ -158,9 +164,9 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
   );
 
   return (
-    <div className={skjemastyles.container}>
-      <div className={skjemastyles.input_container}>
-        <div className={skjemastyles.column}>
+    <SkjemaDetaljerContainer>
+      <SkjemaInputContainer>
+        <SkjemaKolonne>
           <FormGroup>
             <TextField
               size="small"
@@ -180,7 +186,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
               />
             ) : null}
           </FormGroup>
-          <Separator />
+
           <FormGroup>
             <TextField
               size="small"
@@ -191,12 +197,15 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
             {errors.avtaleId?.message ? (
               <Alert variant="warning">{errors.avtaleId.message as string}</Alert>
             ) : null}
+            {avtale.tiltakstype.tiltakskode === Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING ? (
+              <TiltaksgjennomforingAmoKategoriseringSkjema avtale={avtale} />
+            ) : null}
           </FormGroup>
-          <Separator />
+
           <FormGroup>
             <SelectOppstartstype
               name="oppstart"
-              readonly={!isTiltakMedFellesOppstart(avtale.tiltakstype.arenaKode)}
+              readonly={!isTiltakMedFellesOppstart(avtale.tiltakstype.tiltakskode)}
             />
             <HGrid columns={2}>
               <DatePicker>
@@ -240,7 +249,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
                 format={"iso-string"}
               />
             </HGrid>
-            {visApentForInnsok(avtale.tiltakstype.arenaKode) ? (
+            {visApentForInnsok(avtale.tiltakstype.tiltakskode) ? (
               <Switch
                 size="small"
                 readOnly={eierIkkeGjennomforing}
@@ -262,7 +271,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
                   valueAsNumber: true,
                 })}
               />
-              {isTiltakMedFellesOppstart(avtale.tiltakstype.arenaKode) && (
+              {isTiltakMedFellesOppstart(avtale.tiltakstype.tiltakskode) && (
                 <TextField
                   size="small"
                   readOnly={eierIkkeGjennomforing}
@@ -281,8 +290,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
             </HGrid>
             {watch("oppstart") === TiltaksgjennomforingOppstartstype.LOPENDE ? (
               <>
-                <Separator />
-                <fieldset className={skjemastyles.fieldset_no_styling}>
+                <fieldset className={styles.fieldset_no_styling}>
                   <HStack gap="1">
                     <legend>Estimert ventetid</legend>
                     <HelpText title="Hva er estimert ventetid?">
@@ -324,7 +332,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
               </>
             ) : null}
           </FormGroup>
-          <Separator />
+
           <FormGroup>
             <ControlledMultiSelect
               size="small"
@@ -339,10 +347,10 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
               )}
             />
           </FormGroup>
-        </div>
-        <div className={skjemastyles.vertical_separator} />
-        <div className={skjemastyles.column}>
-          <div className={skjemastyles.gray_container}>
+        </SkjemaKolonne>
+        <VertikalSeparator />
+        <SkjemaKolonne>
+          <div>
             <FormGroup>
               <ControlledSokeSelect
                 size="small"
@@ -356,6 +364,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
               />
               <ControlledMultiSelect
                 size="small"
+                velgAlle
                 placeholder={"Velg en"}
                 label={tiltaktekster.navEnheterKontorerLabel}
                 helpText="Bestemmer hvem gjennomføringen skal vises til i Modia, basert på hvilket kontor brukeren har tilhørighet til."
@@ -363,14 +372,14 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
                 options={navEnheterOptions}
               />
             </FormGroup>
-            <Separator />
+
             <FormGroup>
               <div>
                 {kontaktpersonFields?.map((field, index) => {
                   return (
-                    <div className={skjemastyles.kontaktperson_container} key={field.id}>
+                    <div className={styles.kontaktperson_container} key={field.id}>
                       <Button
-                        className={skjemastyles.kontaktperson_fjern_button}
+                        className={styles.kontaktperson_fjern_button}
                         variant="tertiary"
                         size="small"
                         type="button"
@@ -378,7 +387,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
                       >
                         <XMarkIcon fontSize="1.5rem" />
                       </Button>
-                      <div className={skjemastyles.kontaktperson_inputs}>
+                      <div className={styles.kontaktperson_inputs}>
                         <ControlledSokeSelect
                           helpText="Bestemmer kontaktperson som veilederene kan hendvende seg til for informasjon om gjennomføringen. Kan gjelde for én eller flere enheter."
                           size="small"
@@ -393,6 +402,7 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
                         />
                         <ControlledMultiSelect
                           size="small"
+                          velgAlle
                           placeholder={
                             isLoadingKontaktpersoner
                               ? "Laster enheter..."
@@ -419,31 +429,22 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
                     </div>
                   );
                 })}
-                <Button
-                  className={skjemastyles.kontaktperson_button}
-                  type="button"
-                  size="small"
-                  variant="tertiary"
+                <KontaktpersonButton
                   onClick={() => appendKontaktperson({} as TiltaksgjennomforingKontaktperson)}
-                >
-                  <PlusIcon aria-label="Legg til ny kontaktperson" /> Legg til ny kontaktperson
-                </Button>
+                  knappetekst={
+                    <>
+                      <PlusIcon aria-label="Legg til ny kontaktperson" /> Legg til ny kontaktperson
+                    </>
+                  }
+                />
               </div>
             </FormGroup>
           </div>
-          <div className={skjemastyles.gray_container}>
+          <FormGroup>
             <TiltaksgjennomforingArrangorSkjema readOnly={eierIkkeGjennomforing} avtale={avtale} />
-          </div>
-          {enableTilgjengeligForArrangor && watch("oppstart") === "LOPENDE" ? (
-            <TiltakTilgjengeligForArrangor
-              gjennomforingStartdato={new Date(watch("startOgSluttDato.startDato"))}
-              lagretDatoForTilgjengeligForArrangor={
-                tiltaksgjennomforing?.tilgjengeligForArrangorFraOgMedDato
-              }
-            />
-          ) : null}
-        </div>
-      </div>
+          </FormGroup>
+        </SkjemaKolonne>
+      </SkjemaInputContainer>
       <EndreDatoAdvarselModal
         modalRef={endreStartDatoModalRef}
         onCancel={() => setValue("startOgSluttDato.startDato", tiltaksgjennomforing!!.startDato)}
@@ -454,6 +455,6 @@ export const TiltaksgjennomforingSkjemaDetaljer = ({ tiltaksgjennomforing, avtal
         onCancel={() => setValue("startOgSluttDato.sluttDato", tiltaksgjennomforing!!.sluttDato)}
         antallDeltakere={deltakerSummary?.antallDeltakere ?? 0}
       />
-    </div>
+    </SkjemaDetaljerContainer>
   );
-};
+}

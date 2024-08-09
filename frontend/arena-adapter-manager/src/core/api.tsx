@@ -15,7 +15,7 @@ export class ApiError extends Error {
 
 export enum ApiBase {
   ARENA_ADAPTER = "/mulighetsrommet-arena-adapter",
-  MR_API = "/mulighetsrommet-api/api/internal/maam",
+  MR_API = "/mulighetsrommet-api/api/intern/maam",
 }
 
 export const getTopics = (base: ApiBase) =>
@@ -111,7 +111,7 @@ export type MrApiTask =
   | "initial-load-tiltakstyper"
   | "initial-load-tiltaksgjennomforinger"
   | "sync-navansatte"
-  | "sync-nusdata";
+  | "sync-utdanning";
 
 export const runTask = (base: ApiBase, task: MrApiTask, input?: object) =>
   fetch(`${base}/tasks/${task}`, {

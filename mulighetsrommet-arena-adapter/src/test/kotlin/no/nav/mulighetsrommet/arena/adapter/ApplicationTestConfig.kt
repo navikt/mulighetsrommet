@@ -50,6 +50,7 @@ fun createTestApplicationConfig(oauth: MockOAuth2Server) = AppConfig(
     ),
     services = ServiceConfig(
         mulighetsrommetApi = ServiceClientConfig(url = "mulighetsrommet-api", scope = ""),
+        tiltakshistorikk = ServiceClientConfig(url = "tiltakshistorikk", scope = ""),
         arenaEventService = ArenaEventService.Config(
             channelCapacity = 0,
             numChannelConsumers = 0,
@@ -72,6 +73,7 @@ fun createKafkaConfig(): KafkaConfig {
             KafkaTopicConsumer.Config("tiltakendret", "tiltakendret"),
             KafkaTopicConsumer.Config("tiltakgjennomforingendret", "tiltakgjennomforingendret"),
             KafkaTopicConsumer.Config("tiltakdeltakerendret", "tiltakdeltakerendret"),
+            KafkaTopicConsumer.Config("hist-tiltakdeltakerendret", "hist-tiltakdeltakerendret"),
             KafkaTopicConsumer.Config("sakendret", "sakendret"),
             KafkaTopicConsumer.Config("avtaleinfoendret", "avtaleinfoendret"),
         ),

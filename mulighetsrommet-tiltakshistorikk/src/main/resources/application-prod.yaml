@@ -13,3 +13,13 @@ app:
       jwksUri: ${AZURE_OPENID_CONFIG_JWKS_URI}
       audience: ${AZURE_APP_CLIENT_ID}
       tokenEndpointUrl: ${AZURE_OPENID_CONFIG_TOKEN_ENDPOINT}
+
+  kafka:
+    consumerGroupId: tiltakshistorikk-kafka-consumer.v1
+    consumers:
+      amtDeltakerV1:
+        id: amt-deltaker
+        topic: amt.deltaker-v1
+      sisteTiltaksgjennomforingerV1:
+        id: siste-tiltaksgjennomforinger
+        topic: team-mulighetsrommet.siste-tiltaksgjennomforinger-v1

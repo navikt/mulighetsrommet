@@ -13,13 +13,13 @@ import io.ktor.client.plugins.*
 import io.ktor.client.plugins.cache.*
 import io.ktor.client.request.*
 import io.ktor.http.*
-import io.prometheus.client.cache.caffeine.CacheMetricsCollector
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.clients.AccessType
+import no.nav.mulighetsrommet.api.clients.TokenProvider
+import no.nav.mulighetsrommet.domain.dto.NorskIdent
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.domain.serializers.ZonedDateTimeSerializer
 import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
-import no.nav.mulighetsrommet.metrics.Metrikker
 import org.slf4j.LoggerFactory
 import java.time.ZonedDateTime
 import java.util.*
@@ -27,7 +27,7 @@ import java.util.concurrent.TimeUnit
 
 class VeilarboppfolgingClient(
     private val baseUrl: String,
-    private val tokenProvider: (accessType: AccessType) -> String,
+    private val tokenProvider: TokenProvider,
     clientEngine: HttpClientEngine = CIO.create(),
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
@@ -43,39 +43,31 @@ class VeilarboppfolgingClient(
         }
     }
 
-    private val oppfolgingsenhetCache: Cache<String, Oppfolgingsenhet> = Caffeine.newBuilder()
-        .expireAfterWrite(30, TimeUnit.MINUTES)
+    private val oppfolgingsenhetCache: Cache<NorskIdent, Oppfolgingsenhet> = Caffeine.newBuilder()
+        .expireAfterWrite(1, TimeUnit.MINUTES)
         .maximumSize(10_000)
         .recordStats()
         .build()
 
-    private val gjeldendePeriodeCache: Cache<String, OppfolgingPeriodeMinimalDTO> = Caffeine.newBuilder()
-        .expireAfterWrite(30, TimeUnit.MINUTES)
+    private val gjeldendePeriodeCache: Cache<NorskIdent, OppfolgingPeriodeMinimalDTO> = Caffeine.newBuilder()
+        .expireAfterWrite(1, TimeUnit.MINUTES)
         .maximumSize(10_000)
         .recordStats()
         .build()
 
-    private val manuellStatusCache: Cache<String, ManuellStatusDto> = Caffeine.newBuilder()
-        .expireAfterWrite(30, TimeUnit.MINUTES)
+    private val manuellStatusCache: Cache<NorskIdent, ManuellStatusDto> = Caffeine.newBuilder()
+        .expireAfterWrite(1, TimeUnit.MINUTES)
         .maximumSize(10_000)
         .recordStats()
         .build()
 
-    init {
-        val cacheMetrics: CacheMetricsCollector =
-            CacheMetricsCollector().register(Metrikker.appMicrometerRegistry.prometheusRegistry)
-        cacheMetrics.addCache("oppfolgingsenhetCache", oppfolgingsenhetCache)
-        cacheMetrics.addCache("gjeldendePeriodeCache", gjeldendePeriodeCache)
-        cacheMetrics.addCache("manuellStatusCache", manuellStatusCache)
-    }
-
-    suspend fun hentOppfolgingsenhet(fnr: String, obo: AccessType.OBO): Either<OppfolgingError, Oppfolgingsenhet> {
+    suspend fun hentOppfolgingsenhet(fnr: NorskIdent, obo: AccessType.OBO): Either<OppfolgingError, Oppfolgingsenhet> {
         oppfolgingsenhetCache.getIfPresent(fnr)?.let { return@hentOppfolgingsenhet it.right() }
 
         val response = client.post("$baseUrl/v2/person/hent-oppfolgingsstatus") {
-            bearerAuth(tokenProvider.invoke(obo))
+            bearerAuth(tokenProvider.exchange(obo))
             header(HttpHeaders.ContentType, ContentType.Application.Json)
-            setBody(HentOppfolgingsstatusRequest(fnr = fnr))
+            setBody(HentOppfolgingsstatusRequest(fnr = fnr.value))
         }
 
         return when (response.status) {
@@ -83,10 +75,12 @@ class VeilarboppfolgingClient(
                 log.info("Fant ikke oppfølgingsstatus for bruker. Det kan være fordi bruker ikke er under oppfølging eller ikke finnes i Arena")
                 OppfolgingError.NotFound.left()
             }
+
             HttpStatusCode.Forbidden -> {
                 log.info("Manglet tilgang til å hente oppfølgingsstatus for bruker.")
                 OppfolgingError.Forbidden.left()
             }
+
             else -> if (!response.status.isSuccess()) {
                 log.warn("Klarte ikke hente oppfølgingsstatus for bruker. Status: ${response.status}")
                 OppfolgingError.Error.left()
@@ -97,7 +91,10 @@ class VeilarboppfolgingClient(
         }
     }
 
-    suspend fun erBrukerUnderOppfolging(fnr: String, accessType: AccessType): Either<ErUnderOppfolgingError, Boolean> {
+    suspend fun erBrukerUnderOppfolging(
+        fnr: NorskIdent,
+        accessType: AccessType,
+    ): Either<ErUnderOppfolgingError, Boolean> {
         return hentGjeldendePeriode(fnr, accessType)
             .map { (it.sluttDato == null).right() }
             .getOrElse {
@@ -109,13 +106,16 @@ class VeilarboppfolgingClient(
             }
     }
 
-    private suspend fun hentGjeldendePeriode(fnr: String, accessType: AccessType): Either<OppfolgingError, OppfolgingPeriodeMinimalDTO> {
+    private suspend fun hentGjeldendePeriode(
+        fnr: NorskIdent,
+        accessType: AccessType,
+    ): Either<OppfolgingError, OppfolgingPeriodeMinimalDTO> {
         gjeldendePeriodeCache.getIfPresent(fnr)?.let { return@hentGjeldendePeriode it.right() }
 
         val response = client.post("$baseUrl/v3/oppfolging/hent-gjeldende-periode") {
-            bearerAuth(tokenProvider.invoke(accessType))
+            bearerAuth(tokenProvider.exchange(accessType))
             header(HttpHeaders.ContentType, ContentType.Application.Json)
-            setBody(HentOppfolgingsstatusRequest(fnr = fnr))
+            setBody(HentOppfolgingsstatusRequest(fnr = fnr.value))
         }
 
         return when (response.status) {
@@ -123,13 +123,16 @@ class VeilarboppfolgingClient(
                 log.warn("Fikk not found i hentGjeldendePeriode. Trodde ikke dette kunne skje")
                 OppfolgingError.NotFound.left()
             }
+
             HttpStatusCode.Forbidden -> {
                 log.info("Manglet tilgang til å hente oppfølgingsstatus for bruker.")
                 OppfolgingError.Forbidden.left()
             }
+
             HttpStatusCode.NoContent -> {
                 OppfolgingError.NotFound.left()
             }
+
             else -> if (!response.status.isSuccess()) {
                 log.warn("Klarte ikke hente oppfølgingsstatus for bruker. Status: ${response.status}")
                 OppfolgingError.Error.left()
@@ -140,13 +143,13 @@ class VeilarboppfolgingClient(
         }
     }
 
-    suspend fun hentManuellStatus(fnr: String, obo: AccessType.OBO): Either<OppfolgingError, ManuellStatusDto> {
+    suspend fun hentManuellStatus(fnr: NorskIdent, obo: AccessType.OBO): Either<OppfolgingError, ManuellStatusDto> {
         manuellStatusCache.getIfPresent(fnr)?.let { return@hentManuellStatus it.right() }
 
         val response = client.post("$baseUrl/v3/manuell/hent-status") {
-            bearerAuth(tokenProvider.invoke(obo))
+            bearerAuth(tokenProvider.exchange(obo))
             header(HttpHeaders.ContentType, ContentType.Application.Json)
-            setBody(ManuellStatusRequest(fnr = fnr))
+            setBody(ManuellStatusRequest(fnr = fnr.value))
         }
 
         return if (response.status == HttpStatusCode.Forbidden) {

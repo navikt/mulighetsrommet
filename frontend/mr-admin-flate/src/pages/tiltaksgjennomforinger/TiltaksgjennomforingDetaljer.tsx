@@ -1,32 +1,30 @@
+import { getDisplayName } from "@/api/enhet/helpers";
+import { usePollTiltaksnummer } from "@/api/tiltaksgjennomforing/usePollTiltaksnummer";
+import { Bolk } from "@/components/detaljside/Bolk";
+import { Metadata, Separator } from "@/components/detaljside/Metadata";
+import { Laster } from "@/components/laster/Laster";
+import { tiltaktekster } from "@/components/ledetekster/tiltaksgjennomforingLedetekster";
+import { NokkeltallDeltakere } from "@/components/tiltaksgjennomforinger/NokkeltallDeltakere";
+import { TiltakTilgjengeligForArrangor } from "@/components/tiltaksgjennomforinger/TilgjengeligTiltakForArrangor";
+import { ArrangorKontaktpersonDetaljer } from "@/pages/arrangor/ArrangorKontaktpersonDetaljer";
+import { Kontaktperson } from "@/pages/tiltaksgjennomforinger/Kontaktperson";
+import { formaterDato, formatertVentetid } from "@/utils/Utils";
+import { isTiltakMedFellesOppstart } from "@/utils/tiltakskoder";
+import { ExternalLinkIcon } from "@navikt/aksel-icons";
+import { BodyShort, HelpText, HStack, Tag } from "@navikt/ds-react";
 import {
   Avtale,
   Tiltaksgjennomforing,
   TiltaksgjennomforingOppstartstype,
-  Toggles,
 } from "mulighetsrommet-api-client";
-import styles from "../DetaljerInfo.module.scss";
-import { useFeatureToggle } from "@/api/features/useFeatureToggle";
 import { useTitle } from "mulighetsrommet-frontend-common";
-import { useMigrerteTiltakstyper } from "@/api/tiltakstyper/useMigrerteTiltakstyper";
-import { useRef } from "react";
-import { Bolk } from "@/components/detaljside/Bolk";
-import { Metadata, Separator } from "@/components/detaljside/Metadata";
-import { tiltaktekster } from "@/components/ledetekster/tiltaksgjennomforingLedetekster";
-import { Link } from "react-router-dom";
-import { Alert, BodyShort, Button, Heading, HelpText, HStack, Tag } from "@navikt/ds-react";
-import { formaterDato, formatertVentetid } from "@/utils/Utils";
-import { isTiltakMedFellesOppstart } from "@/utils/tiltakskoder";
 import { NOM_ANSATT_SIDE } from "mulighetsrommet-frontend-common/constants";
-import { ExternalLinkIcon } from "@navikt/aksel-icons";
-import { getDisplayName } from "@/api/enhet/helpers";
-import { Kontaktperson } from "@/pages/tiltaksgjennomforinger/Kontaktperson";
-import { ArrangorKontaktpersonDetaljer } from "@/pages/arrangor/ArrangorKontaktpersonDetaljer";
-import { erArenaOpphavOgIngenEierskap } from "@/components/tiltaksgjennomforinger/TiltaksgjennomforingSkjemaConst";
-import { HarSkrivetilgang } from "@/components/authActions/HarSkrivetilgang";
-import { AvbrytGjennomforingModal } from "@/components/modal/AvbrytGjennomforingModal";
-import { usePollTiltaksnummer } from "@/api/tiltaksgjennomforing/usePollTiltaksnummer";
-import { Laster } from "@/components/laster/Laster";
-import { NokkeltallDeltakere } from "../../components/tiltaksgjennomforinger/NokkeltallDeltakere";
+import { Link } from "react-router-dom";
+import styles from "./TiltaksgjennomforingDetaljer.module.scss";
+import { AmoKategoriseringDetaljer } from "@/components/amoKategorisering/AmoKategoriseringDetaljer";
+import { DetaljerContainer } from "@/pages/DetaljerContainer";
+import { DetaljerInfoContainer } from "@/pages/DetaljerInfoContainer";
+import { ArrangorKontaktinfoContainer } from "@/pages/arrangor/ArrangorKontaktinfoContainer";
 
 interface Props {
   tiltaksgjennomforing: Tiltaksgjennomforing;
@@ -36,16 +34,6 @@ interface Props {
 export function TiltaksgjennomforingDetaljer({ tiltaksgjennomforing, avtale }: Props) {
   useTitle(
     `Tiltaksgjennomføring ${tiltaksgjennomforing.navn ? `- ${tiltaksgjennomforing.navn}` : null}`,
-  );
-  const { data: enableTilgjengeligForArrangor } = useFeatureToggle(
-    Toggles.MULIGHETSROMMET_ADMIN_FLATE_TILGJENGELIGGJORE_TILTAK_FOR_ARRANGOR,
-  );
-
-  const { data: migrerteTiltakstyper = [] } = useMigrerteTiltakstyper();
-  const avbrytModalRef = useRef<HTMLDialogElement>(null);
-
-  const gjennomforingIsActive = ["PLANLAGT", "GJENNOMFORES"].includes(
-    tiltaksgjennomforing.status.name,
   );
 
   const navnPaaNavEnheterForKontaktperson = (enheterForKontaktperson: string[]): string => {
@@ -83,12 +71,13 @@ export function TiltaksgjennomforingDetaljer({ tiltaksgjennomforing, avtale }: P
     arenaAnsvarligEnhet,
     arrangor,
     stedForGjennomforing,
+    amoKategorisering,
   } = tiltaksgjennomforing;
 
   return (
     <>
-      <div className={styles.container}>
-        <div className={styles.detaljer}>
+      <DetaljerContainer>
+        <DetaljerInfoContainer>
           <Bolk aria-label="Tiltaksnavn og tiltaksnummer" data-testid="tiltaksnavn">
             <Metadata header={tiltaktekster.tiltaksnavnLabel} verdi={tiltaksgjennomforing.navn} />
             <Metadata
@@ -120,9 +109,13 @@ export function TiltaksgjennomforingDetaljer({ tiltaksgjennomforing, avtale }: P
             />
             <Metadata header={tiltaktekster.tiltakstypeLabel} verdi={tiltakstype.navn} />
           </Bolk>
-
           <Separator />
-
+          {amoKategorisering && (
+            <>
+              <AmoKategoriseringDetaljer amoKategorisering={amoKategorisering} />
+              <Separator />
+            </>
+          )}
           <Bolk aria-label={tiltaktekster.oppstartstypeLabel}>
             <Metadata
               header={tiltaktekster.oppstartstypeLabel}
@@ -143,7 +136,7 @@ export function TiltaksgjennomforingDetaljer({ tiltaksgjennomforing, avtale }: P
 
           <Bolk>
             <Metadata header={tiltaktekster.antallPlasserLabel} verdi={antallPlasser} />
-            {isTiltakMedFellesOppstart(tiltakstype.arenaKode) && (
+            {isTiltakMedFellesOppstart(tiltakstype.tiltakskode) && (
               <Metadata header={tiltaktekster.deltidsprosentLabel} verdi={deltidsprosent} />
             )}
           </Bolk>
@@ -200,9 +193,9 @@ export function TiltaksgjennomforingDetaljer({ tiltaksgjennomforing, avtale }: P
               }
             />
           </Bolk>
-        </div>
+        </DetaljerInfoContainer>
 
-        <div className={styles.detaljer}>
+        <DetaljerInfoContainer>
           <Bolk aria-label={tiltaktekster.navRegionLabel}>
             <Metadata header={tiltaktekster.navRegionLabel} verdi={navRegion?.navn} />
           </Bolk>
@@ -211,7 +204,7 @@ export function TiltaksgjennomforingDetaljer({ tiltaksgjennomforing, avtale }: P
             <Metadata
               header={tiltaktekster.navEnheterKontorerLabel}
               verdi={
-                <ul>
+                <ul className={styles.two_columns}>
                   {navEnheter
                     .sort((a, b) => a.navn.localeCompare(b.navn))
                     .map((enhet) => (
@@ -284,14 +277,14 @@ export function TiltaksgjennomforingDetaljer({ tiltaksgjennomforing, avtale }: P
             <Metadata
               header={tiltaktekster.kontaktpersonerHosTiltaksarrangorLabel}
               verdi={
-                <div className={styles.arrangor_kontaktinfo_container}>
+                <ArrangorKontaktinfoContainer>
                   {arrangor.kontaktpersoner.map((kontaktperson) => (
                     <ArrangorKontaktpersonDetaljer
                       key={kontaktperson.id}
                       kontaktperson={kontaktperson}
                     />
                   ))}
-                </div>
+                </ArrangorKontaktinfoContainer>
               }
             />
           )}
@@ -306,44 +299,11 @@ export function TiltaksgjennomforingDetaljer({ tiltaksgjennomforing, avtale }: P
               </Bolk>
             </>
           )}
-          <Separator />
-          {enableTilgjengeligForArrangor &&
-          tiltaksgjennomforing?.tilgjengeligForArrangorFraOgMedDato ? (
-            <>
-              <Alert variant="info">
-                <Heading spacing size="small" level="3">
-                  Når ser arrangør tiltaket?
-                </Heading>
-                Arrangør vil ha tilgang til tiltaket i Deltakeroversikten på nav.no{" "}
-                <abbr title="Fra og med">fom.</abbr>{" "}
-                {formaterDato(new Date(tiltaksgjennomforing.tilgjengeligForArrangorFraOgMedDato))}
-              </Alert>
-            </>
-          ) : null}
-        </div>
-        <div className={styles.detaljer}>
-          <NokkeltallDeltakere tiltaksgjennomforingId={tiltaksgjennomforing.id} />
-        </div>
-      </div>
-      {!erArenaOpphavOgIngenEierskap(tiltaksgjennomforing, migrerteTiltakstyper) &&
-        gjennomforingIsActive && (
-          <>
-            <Separator />
-            <HarSkrivetilgang ressurs="Tiltaksgjennomføring">
-              <Button
-                size="small"
-                variant="danger"
-                onClick={() => avbrytModalRef.current?.showModal()}
-              >
-                Avbryt gjennomføring
-              </Button>
-            </HarSkrivetilgang>
-            <AvbrytGjennomforingModal
-              modalRef={avbrytModalRef}
-              tiltaksgjennomforing={tiltaksgjennomforing}
-            />
-          </>
-        )}
+          <TiltakTilgjengeligForArrangor gjennomforing={tiltaksgjennomforing} />
+        </DetaljerInfoContainer>
+      </DetaljerContainer>
+
+      <NokkeltallDeltakere tiltaksgjennomforingId={tiltaksgjennomforing.id} />
     </>
   );
 }

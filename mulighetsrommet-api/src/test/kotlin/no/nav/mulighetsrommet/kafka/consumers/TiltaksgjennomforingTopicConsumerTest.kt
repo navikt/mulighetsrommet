@@ -9,7 +9,6 @@ import no.nav.common.kafka.producer.KafkaProducerClient
 import no.nav.mulighetsrommet.api.clients.arenaadapter.ArenaAdapterClient
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dto.ArenaMigreringTiltaksgjennomforingDto
-import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingDto
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures
@@ -57,7 +56,10 @@ class TiltaksgjennomforingTopicConsumerTest : FunSpec({
             val arenaAdapterClient = mockk<ArenaAdapterClient>()
             coEvery { arenaAdapterClient.hentArenadata(gjennomforing.id) } returns null
 
-            val tiltakstyper = TiltakstypeService(TiltakstypeRepository(database.db), enabledTiltakskoder = emptyList())
+            val tiltakstyper = TiltakstypeService(
+                TiltakstypeRepository(database.db),
+                enabledTiltakskoder = emptyList(),
+            )
 
             val consumer = TiltaksgjennomforingTopicConsumer(
                 KafkaTopicConsumer.Config(id = "id", topic = "topic"),
@@ -69,7 +71,7 @@ class TiltaksgjennomforingTopicConsumerTest : FunSpec({
 
             consumer.consume(
                 gjennomforing.id.toString(),
-                Json.encodeToJsonElement(TiltaksgjennomforingDto.from(gjennomforing)),
+                Json.encodeToJsonElement(gjennomforing.toTiltaksgjennomforingV1Dto()),
             )
 
             verify(exactly = 0) { producer.publish(any()) }
@@ -80,7 +82,10 @@ class TiltaksgjennomforingTopicConsumerTest : FunSpec({
             val arenaAdapterClient = mockk<ArenaAdapterClient>()
             coEvery { arenaAdapterClient.hentArenadata(gjennomforing.id) } returns null
 
-            val tiltakstyper = TiltakstypeService(TiltakstypeRepository(database.db), listOf(Tiltakskode.OPPFOLGING))
+            val tiltakstyper = TiltakstypeService(
+                TiltakstypeRepository(database.db),
+                listOf(Tiltakskode.OPPFOLGING),
+            )
 
             val consumer = TiltaksgjennomforingTopicConsumer(
                 KafkaTopicConsumer.Config(id = "id", topic = "topic"),
@@ -92,7 +97,7 @@ class TiltaksgjennomforingTopicConsumerTest : FunSpec({
 
             consumer.consume(
                 gjennomforing.id.toString(),
-                Json.encodeToJsonElement(TiltaksgjennomforingDto.from(gjennomforing)),
+                Json.encodeToJsonElement(gjennomforing.toTiltaksgjennomforingV1Dto()),
             )
 
             val expectedMessage = ArenaMigreringTiltaksgjennomforingDto.from(gjennomforing, null, endretTidspunkt)
@@ -107,7 +112,10 @@ class TiltaksgjennomforingTopicConsumerTest : FunSpec({
                 status = "AVSLU",
             )
 
-            val tiltakstyper = TiltakstypeService(TiltakstypeRepository(database.db), enabledTiltakskoder = listOf(Tiltakskode.OPPFOLGING))
+            val tiltakstyper = TiltakstypeService(
+                TiltakstypeRepository(database.db),
+                enabledTiltakskoder = listOf(Tiltakskode.OPPFOLGING),
+            )
 
             val consumer = TiltaksgjennomforingTopicConsumer(
                 KafkaTopicConsumer.Config(id = "id", topic = "topic"),
@@ -119,7 +127,7 @@ class TiltaksgjennomforingTopicConsumerTest : FunSpec({
 
             consumer.consume(
                 gjennomforing.id.toString(),
-                Json.encodeToJsonElement(TiltaksgjennomforingDto.from(gjennomforing)),
+                Json.encodeToJsonElement(gjennomforing.toTiltaksgjennomforingV1Dto()),
             )
 
             val expectedMessage = ArenaMigreringTiltaksgjennomforingDto.from(gjennomforing, 123, endretTidspunkt)

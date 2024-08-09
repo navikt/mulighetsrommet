@@ -1,7 +1,7 @@
 import { ExternalLinkIcon } from "@navikt/aksel-icons";
 import { Link } from "@navikt/ds-react";
 import { SanityRegelverkLenke } from "mulighetsrommet-api-client";
-import styles from "./Sidemenydetaljer.module.scss";
+import styles from "./SidemenyInfo.module.scss";
 
 interface RegelverksinfoProps {
   regelverkLenker?: SanityRegelverkLenke[];

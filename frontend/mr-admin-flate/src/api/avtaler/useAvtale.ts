@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
-import { useGetAvtaleIdFromUrl } from "../../hooks/useGetAvtaleIdFromUrl";
+import { useGetAvtaleIdFromUrl } from "@/hooks/useGetAvtaleIdFromUrl";
 import { QueryKeys } from "@/api/QueryKeys";
-import { mulighetsrommetClient } from "@/api/client";
+import { AvtalerService } from "mulighetsrommet-api-client";
 
 export function useAvtale(overstyrAvtaleId?: string) {
   const avtaleIdFromUrl = useGetAvtaleIdFromUrl();
@@ -9,7 +9,7 @@ export function useAvtale(overstyrAvtaleId?: string) {
 
   const query = useQuery({
     queryKey: QueryKeys.avtale(avtaleId!!),
-    queryFn: () => mulighetsrommetClient.avtaler.getAvtale({ id: avtaleId! }),
+    queryFn: () => AvtalerService.getAvtale({ id: avtaleId! }),
     enabled: !!avtaleId,
   });
 

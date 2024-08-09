@@ -9,12 +9,14 @@ import headerStyles from "../../components/detaljside/Header.module.scss";
 import { TiltaksgjennomforingIkon } from "../../components/ikoner/TiltaksgjennomforingIkon";
 import { Laster } from "../../components/laster/Laster";
 import { Brodsmule, Brodsmuler } from "../../components/navigering/Brodsmuler";
-import { TiltaksgjennomforingstatusTag } from "../../components/statuselementer/TiltaksgjennomforingstatusTag";
 import { DupliserTiltak } from "../../components/tiltaksgjennomforinger/DupliserTiltak";
 import { PREVIEW_ARBEIDSMARKEDSTILTAK_URL } from "../../constants";
 import { useNavigateAndReplaceUrl } from "../../hooks/useNavigateWithoutReplacingUrl";
 import { ContainerLayout } from "../../layouts/ContainerLayout";
 import commonStyles from "../Page.module.scss";
+import { TiltaksgjennomforingStatusTag } from "mulighetsrommet-frontend-common";
+import { TiltaksgjennomforingStatus, Toggles } from "mulighetsrommet-api-client";
+import { useFeatureToggle } from "../../api/features/useFeatureToggle";
 
 function useTiltaksgjennomforingBrodsmuler(
   tiltaksgjennomforingId: string,
@@ -45,6 +47,9 @@ export function TiltaksgjennomforingPage() {
   const { navigateAndReplaceUrl } = useNavigateAndReplaceUrl();
   const { data: tiltaksgjennomforing, isLoading } = useTiltaksgjennomforingById();
   const brodsmuler = useTiltaksgjennomforingBrodsmuler(tiltaksgjennomforing?.id!!, avtaleId);
+  const { data: enableOpprettTilsagn } = useFeatureToggle(
+    Toggles.MULIGHETSROMMET_ADMIN_FLATE_OPPRETT_TILSAGN,
+  );
 
   if (!tiltaksgjennomforing && isLoading) {
     return <Laster tekst="Laster tiltaksgjennomføring" />;
@@ -62,7 +67,9 @@ export function TiltaksgjennomforingPage() {
   }
 
   const currentTab = () => {
-    if (pathname.includes("deltakere")) {
+    if (pathname.includes("tilsagn")) {
+      return "tilsagn";
+    } else if (pathname.includes("deltakere")) {
       return "poc";
     } else {
       return "info";
@@ -89,24 +96,24 @@ export function TiltaksgjennomforingPage() {
               </Heading>
               <ShowOpphavValue value={tiltaksgjennomforing?.opphav} />
             </VStack>
-            <TiltaksgjennomforingstatusTag
-              tiltaksgjennomforing={tiltaksgjennomforing}
-              showAvbruttAarsak
-            />
+            <TiltaksgjennomforingStatusTag status={tiltaksgjennomforing.status} showAvbruttAarsak />
             <DupliserTiltak tiltaksgjennomforing={tiltaksgjennomforing} />
           </div>
-          {tiltaksgjennomforing?.id && (
-            <div className={headerStyles.forhandsvisningsknapp}>
-              <Lenkeknapp
-                size="small"
-                isExternal={true}
-                variant="secondary"
-                to={`${PREVIEW_ARBEIDSMARKEDSTILTAK_URL}/tiltak/${tiltaksgjennomforing.id}`}
-              >
-                Forhåndsvis i Modia
-              </Lenkeknapp>
-            </div>
-          )}
+          {tiltaksgjennomforing?.id &&
+            [TiltaksgjennomforingStatus.GJENNOMFORES, TiltaksgjennomforingStatus.PLANLAGT].includes(
+              tiltaksgjennomforing.status.status,
+            ) && (
+              <div className={headerStyles.forhandsvisningsknapp}>
+                <Lenkeknapp
+                  size="small"
+                  isExternal={true}
+                  variant="secondary"
+                  to={`${PREVIEW_ARBEIDSMARKEDSTILTAK_URL}/tiltak/${tiltaksgjennomforing.id}`}
+                >
+                  Forhåndsvis i Modia
+                </Lenkeknapp>
+              </div>
+            )}
         </div>
       </Header>
 
@@ -120,6 +127,16 @@ export function TiltaksgjennomforingPage() {
             }
             aria-controls="panel"
           />
+          {enableOpprettTilsagn ? (
+            <Tabs.Tab
+              value="tilsagn"
+              label="Tilsagn"
+              onClick={() =>
+                navigateAndReplaceUrl(`/tiltaksgjennomforinger/${tiltaksgjennomforing.id}/tilsagn`)
+              }
+              aria-controls="panel"
+            />
+          ) : null}
         </Tabs.List>
         <ContainerLayout>
           <div id="panel">

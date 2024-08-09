@@ -5,6 +5,7 @@ import { NavAnsattRolle } from "mulighetsrommet-api-client";
 import { Route, Routes } from "react-router-dom";
 import { Forside } from "./Forside";
 import IkkeAutentisertApp from "./IkkeAutentisertApp";
+import { IngenLesetilgang } from "./IngenLesetilgang";
 import { Laster } from "./components/laster/Laster";
 import { Notifikasjonsliste } from "./components/notifikasjoner/Notifikasjonsliste";
 import { initializeAmplitude } from "./logging/amplitude";
@@ -21,10 +22,13 @@ import { TiltaksgjennomforingPage } from "./pages/tiltaksgjennomforinger/Tiltaks
 import TiltaksgjennomforingSkjemaPage from "./pages/tiltaksgjennomforinger/TiltaksgjennomforingSkjemaPage";
 import { TiltaksgjennomforingerForAvtalePage } from "./pages/tiltaksgjennomforinger/TiltaksgjennomforingerForAvtalePage";
 import { TiltaksgjennomforingerPage } from "./pages/tiltaksgjennomforinger/TiltaksgjennomforingerPage";
+import { TilsagnForGjennomforingContainer } from "./pages/tiltaksgjennomforinger/tilsagn/TilsagnForGjennomforingContainer";
 import { DetaljerTiltakstypePage } from "./pages/tiltakstyper/DetaljerTiltakstypePage";
 import { TiltakstypeInfo } from "./pages/tiltakstyper/TiltakstypeInfo";
 import { TiltakstyperPage } from "./pages/tiltakstyper/TiltakstyperPage";
-import { AvtalerForTiltakstype } from "./pages/tiltakstyper/avtaler/AvtalerForTiltakstype";
+import { AvtalerForTiltakstypePage } from "./pages/tiltakstyper/avtaler/AvtalerForTiltakstypePage";
+import { OpprettTilsagnSkjemaPage } from "./pages/tiltaksgjennomforinger/tilsagn/OpprettTilsagnSkjemaPage";
+import { TilsagnDetaljer } from "./pages/tiltaksgjennomforinger/tilsagn/TilsagnDetaljer";
 
 if (import.meta.env.PROD) {
   initializeFaro({
@@ -60,6 +64,10 @@ export function App() {
     );
   }
 
+  if (!ansatt.roller.includes(NavAnsattRolle.TILTAKADMINISTRASJON_GENERELL)) {
+    return <IngenLesetilgang />;
+  }
+
   if (
     !ansatt.roller?.some(
       (rolle) =>
@@ -81,7 +89,11 @@ export function App() {
         errorElement={<ErrorPage />}
       >
         <Route index element={<TiltakstypeInfo />} errorElement={<ErrorPage />} />
-        <Route path="avtaler" element={<AvtalerForTiltakstype />} errorElement={<ErrorPage />} />
+        <Route
+          path="avtaler"
+          element={<AvtalerForTiltakstypePage />}
+          errorElement={<ErrorPage />}
+        />
       </Route>
       <Route path="avtaler" element={<AvtalerPage />} errorElement={<ErrorPage />} />
       <Route path="avtaler/:avtaleId" element={<AvtalePage />} errorElement={<ErrorPage />}>
@@ -123,8 +135,30 @@ export function App() {
         <Route index element={<TiltaksgjennomforingInfo />} errorElement={<ErrorPage />} />
       </Route>
       <Route
+        path="tiltaksgjennomforinger/:tiltaksgjennomforingId/tilsagn"
+        element={<TiltaksgjennomforingPage />}
+        errorElement={<ErrorPage />}
+      >
+        <Route index element={<TilsagnForGjennomforingContainer />} errorElement={<ErrorPage />} />
+      </Route>
+      <Route
         path="avtaler/:avtaleId/tiltaksgjennomforinger/:tiltaksgjennomforingId/skjema"
         element={<TiltaksgjennomforingSkjemaPage />}
+        errorElement={<ErrorPage />}
+      />
+      <Route
+        path="avtaler/:avtaleId/tiltaksgjennomforinger/:tiltaksgjennomforingId/opprett-tilsagn"
+        element={<OpprettTilsagnSkjemaPage />}
+        errorElement={<ErrorPage />}
+      />
+      <Route
+        path="avtaler/:avtaleId/tiltaksgjennomforinger/:tiltaksgjennomforingId/tilsagn/:tilsagnId"
+        element={<TilsagnDetaljer />}
+        errorElement={<ErrorPage />}
+      />
+      <Route
+        path="avtaler/:avtaleId/tiltaksgjennomforinger/:tiltaksgjennomforingId/tilsagn/:tilsagnId/rediger-tilsagn"
+        element={<OpprettTilsagnSkjemaPage />}
         errorElement={<ErrorPage />}
       />
       <Route
@@ -135,6 +169,21 @@ export function App() {
       <Route
         path="tiltaksgjennomforinger/:tiltaksgjennomforingId/skjema"
         element={<TiltaksgjennomforingSkjemaPage />}
+        errorElement={<ErrorPage />}
+      />
+      <Route
+        path="tiltaksgjennomforinger/:tiltaksgjennomforingId/opprett-tilsagn"
+        element={<OpprettTilsagnSkjemaPage />}
+        errorElement={<ErrorPage />}
+      />
+      <Route
+        path="tiltaksgjennomforinger/:tiltaksgjennomforingId/tilsagn/:tilsagnId"
+        element={<TilsagnDetaljer />}
+        errorElement={<ErrorPage />}
+      />
+      <Route
+        path="tiltaksgjennomforinger/:tiltaksgjennomforingId/tilsagn/:tilsagnId/rediger-tilsagn"
+        element={<OpprettTilsagnSkjemaPage />}
         errorElement={<ErrorPage />}
       />
       <Route path="arrangorer" element={<ArrangorerPage />} errorElement={<ErrorPage />} />

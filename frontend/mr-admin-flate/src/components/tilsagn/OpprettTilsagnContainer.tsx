@@ -1,0 +1,52 @@
+import { TilsagnDto, TilsagnRequest, Tiltaksgjennomforing } from "mulighetsrommet-api-client";
+import { SubmitHandler } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
+import { SkjemaDetaljerContainer } from "../skjema/SkjemaDetaljerContainer";
+import { SkjemaKolonne } from "../skjema/SkjemaKolonne";
+import { InferredOpprettTilsagnSchema } from "./OpprettTilsagnSchema";
+import { TilsagnSkjema } from "./TilsagnSkjema";
+import { useOpprettTilsagn } from "./useOpprettTilsagn";
+
+interface Props {
+  tiltaksgjennomforing: Tiltaksgjennomforing;
+  tilsagn?: TilsagnDto;
+  tilsagnSkalGodkjennes: boolean;
+}
+
+export function OpprettTilsagnContainer({ tiltaksgjennomforing, tilsagn }: Props) {
+  const navigate = useNavigate();
+  const mutation = useOpprettTilsagn();
+
+  const postData: SubmitHandler<InferredOpprettTilsagnSchema> = async (data): Promise<void> => {
+    const request: TilsagnRequest = {
+      id: data.id || window.crypto.randomUUID(),
+      periodeStart: data.periode.start,
+      periodeSlutt: data.periode.slutt,
+      kostnadssted: data.kostnadssted,
+      belop: data.belop,
+      tiltaksgjennomforingId: tiltaksgjennomforing.id,
+    };
+
+    mutation.mutate(request, {
+      onSuccess: navigerTilGjennomforing,
+    });
+  };
+
+  function navigerTilGjennomforing() {
+    navigate(`/tiltaksgjennomforinger/${tiltaksgjennomforing.id}/tilsagn`);
+  }
+
+  return (
+    <SkjemaDetaljerContainer>
+      <SkjemaKolonne>
+        <TilsagnSkjema
+          tiltaksgjennomforing={tiltaksgjennomforing}
+          tilsagn={tilsagn}
+          onSubmit={postData}
+          mutation={mutation}
+          onAvbryt={navigerTilGjennomforing}
+        />
+      </SkjemaKolonne>
+    </SkjemaDetaljerContainer>
+  );
+}

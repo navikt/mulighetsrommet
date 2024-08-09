@@ -16,6 +16,7 @@ import no.nav.mulighetsrommet.api.domain.dto.VeilederflateKontaktinfo
 import no.nav.mulighetsrommet.api.domain.dto.VeilederflateTiltaksgjennomforing
 import no.nav.mulighetsrommet.api.plugins.AuthProvider
 import no.nav.mulighetsrommet.api.plugins.getNavAnsattAzureId
+import no.nav.mulighetsrommet.api.services.CacheUsage
 import no.nav.mulighetsrommet.api.services.PoaoTilgangService
 import no.nav.mulighetsrommet.api.services.VeilederflateService
 import no.nav.mulighetsrommet.domain.dto.Innsatsgruppe
@@ -33,19 +34,22 @@ fun Route.veilederflateRoutes() {
         val enheter = queryParameters.getAll("enheter")
             ?.toNonEmptyListOrNull()
             ?: throw StatusException(HttpStatusCode.BadRequest, "NAV-enheter er påkrevd")
+        val innsatsgruppe = queryParameters["innsatsgruppe"]
+            ?.let { Innsatsgruppe.valueOf(it) }
+            ?: throw StatusException(HttpStatusCode.BadRequest, "Innsatsgruppe er påkrevd")
 
         val apentForInnsok: ApentForInnsok by queryParameters
 
         return ArbeidsmarkedstiltakFilter(
             enheter = enheter,
-            innsatsgruppe = queryParameters["innsatsgruppe"]?.let { Innsatsgruppe.valueOf(it) },
+            innsatsgruppe = innsatsgruppe,
             tiltakstyper = queryParameters.getAll("tiltakstyper"),
             search = queryParameters["search"],
             apentForInnsok = apentForInnsok,
         )
     }
 
-    route("/api/v1/internal/veileder") {
+    route("/api/v1/intern/veileder") {
         get("/innsatsgrupper") {
             val innsatsgrupper = veilederflateService.hentInnsatsgrupper()
 
@@ -69,6 +73,7 @@ fun Route.veilederflateRoutes() {
                 tiltakstypeIds = filter.tiltakstyper,
                 search = filter.search,
                 apentForInnsok = filter.apentForInnsok,
+                cacheUsage = CacheUsage.UseCache,
             )
 
             call.respond(result)
@@ -127,6 +132,7 @@ fun Route.veilederflateRoutes() {
                     tiltakstypeIds = filter.tiltakstyper,
                     search = filter.search,
                     apentForInnsok = filter.apentForInnsok,
+                    cacheUsage = CacheUsage.UseCache,
                 ).map { utenKontaktInfo(it) }
 
                 call.respond(result)
@@ -159,6 +165,7 @@ fun Route.veilederflateRoutes() {
                         tiltakstypeIds = filter.tiltakstyper,
                         search = filter.search,
                         apentForInnsok = filter.apentForInnsok,
+                        cacheUsage = CacheUsage.NoCache,
                     )
 
                     call.respond(result)
@@ -185,7 +192,7 @@ fun Route.veilederflateRoutes() {
 
 data class ArbeidsmarkedstiltakFilter(
     val enheter: NonEmptyList<String>,
-    val innsatsgruppe: Innsatsgruppe?,
+    val innsatsgruppe: Innsatsgruppe,
     val tiltakstyper: List<String>?,
     val search: String?,
     val apentForInnsok: ApentForInnsok,

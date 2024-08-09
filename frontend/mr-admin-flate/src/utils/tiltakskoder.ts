@@ -1,25 +1,25 @@
-import { TiltakskodeArena } from "mulighetsrommet-api-client";
+import { Tiltakskode } from "mulighetsrommet-api-client";
 
-export const TILTAK_MED_FELLES_OPPSTART: TiltakskodeArena[] = [
-  TiltakskodeArena.GRUPPEAMO,
-  TiltakskodeArena.JOBBK,
-  TiltakskodeArena.GRUFAGYRKE,
+export const TILTAK_MED_FELLES_OPPSTART: Tiltakskode[] = [
+  Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
+  Tiltakskode.JOBBKLUBB,
+  Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
 ];
 
-export function isTiltakMedFellesOppstart(tiltakskode: TiltakskodeArena): boolean {
+export function isTiltakMedFellesOppstart(tiltakskode: Tiltakskode): boolean {
   return TILTAK_MED_FELLES_OPPSTART.includes(tiltakskode);
 }
 
-export const ANSKAFFEDE_TILTAK: TiltakskodeArena[] = [
-  TiltakskodeArena.ARBRRHDAG,
-  TiltakskodeArena.AVKLARAG,
-  TiltakskodeArena.DIGIOPPARB,
-  TiltakskodeArena.GRUFAGYRKE,
-  TiltakskodeArena.GRUPPEAMO,
-  TiltakskodeArena.INDOPPFAG,
-  TiltakskodeArena.JOBBK,
+export const ANSKAFFEDE_TILTAK: Tiltakskode[] = [
+  Tiltakskode.ARBEIDSRETTET_REHABILITERING,
+  Tiltakskode.AVKLARING,
+  Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK,
+  Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
+  Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
+  Tiltakskode.OPPFOLGING,
+  Tiltakskode.JOBBKLUBB,
 ];
 
-export function erAnskaffetTiltak(tiltakskode: TiltakskodeArena): boolean {
+export function erAnskaffetTiltak(tiltakskode: Tiltakskode): boolean {
   return ANSKAFFEDE_TILTAK.includes(tiltakskode);
 }

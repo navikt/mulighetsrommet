@@ -17,7 +17,6 @@ import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping.Status.
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
 import no.nav.mulighetsrommet.arena.adapter.repositories.ArenaEventRepository
 import org.slf4j.LoggerFactory
-import kotlin.time.ExperimentalTime
 import kotlin.time.measureTime
 
 class ArenaEventService(
@@ -84,7 +83,7 @@ class ArenaEventService(
             val mapping = entities.getOrCreateMapping(event)
 
             processors
-                .filter { it.arenaTable == event.arenaTable }
+                .filter { it.shouldHandleEvent(event) }
                 .fold<ArenaEventProcessor, Either<ProcessingError, ProcessingResult>>(ProcessingResult(Unhandled).right()) { result, processor ->
                     handleEventWithProcessor(result, processor, event, mapping)
                 }
@@ -131,7 +130,7 @@ class ArenaEventService(
 
     private suspend fun handleDeleteEntityForEvent(event: ArenaEvent) {
         processors
-            .filter { it.arenaTable == event.arenaTable }
+            .filter { it.shouldHandleEvent(event) }
             .forEach { processor ->
                 logger.info("Deleting entity: table=${event.arenaTable}, id=${event.arenaId}")
                 deleteEntity(processor, event).onLeft {
@@ -165,7 +164,7 @@ class ArenaEventService(
         }
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class, ExperimentalTime::class)
+    @OptIn(ExperimentalCoroutinesApi::class)
     private suspend fun consumeEvents(
         table: ArenaTable?,
         status: ArenaEvent.ProcessingStatus?,

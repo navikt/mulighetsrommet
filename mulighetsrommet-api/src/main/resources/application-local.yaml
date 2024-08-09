@@ -23,6 +23,17 @@ app:
     - ARBEIDSRETTET_REHABILITERING
     - VARIG_TILRETTELAGT_ARBEID_SKJERMET
 
+  pameldingIModia:
+    - AVKLARING
+    - OPPFOLGING
+    - GRUPPE_ARBEIDSMARKEDSOPPLAERING
+    - JOBBKLUBB
+    - DIGITALT_OPPFOLGINGSTILTAK
+    - ARBEIDSFORBEREDENDE_TRENING
+    - GRUPPE_FAG_OG_YRKESOPPLAERING
+    - ARBEIDSRETTET_REHABILITERING
+    - VARIG_TILRETTELAGT_ARBEID_SKJERMET
+
   kafka:
     brokerUrl: localhost:29092
     producerId: mulighetsrommet-api-kafka-producer.v1
@@ -44,9 +55,6 @@ app:
       amtVirksomheterV1:
         id: amt-virksomheter
         topic: amt.virksomheter-v1
-      ptoSisteOppfolgingsperiodeV1:
-        id: pto-virksomheter
-        topic: pto.siste-oppfolgingsperiode-v1
 
   auth:
     azure:
@@ -55,18 +63,24 @@ app:
       audience: mulighetsrommet-api
       tokenEndpointUrl: http://localhost:8081/azure/token
     roles:
+      # Mocket team-mulighetsrommet
+      - adGruppeId: 52bb9196-b071-4cc7-9472-be4942d33c4b
+        rolle: TEAM_MULIGHETSROMMET
       # Mocket 0000-GA-TILTAK-ANSVARLIG
       - adGruppeId: 52bb9196-b071-4cc7-9472-be4942d33c4b
         rolle: TILTAKADMINISTRASJON_GENERELL
       # Mocket 0000-ZA-TILTAK-avtaler_skriv
       - adGruppeId: 48026f54-6259-4c35-a148-bc4257bcaf03
         rolle: AVTALER_SKRIV
-      # Mocket 0000-ZA-TILTAK-tiltaksgjennomforinger_skriv
+      # Mocket 0000-AZ-TILTAK-tiltaksgjennomforinger_skriv
       - adGruppeId: 279039a0-39fd-4860-afdd-a1a2ccaa6323
         rolle: TILTAKSGJENNOMFORINGER_SKRIV
       # 0000-GA-TILTAK-ENDRINGSMELDING
       - adGruppeId: d9f317a1-2444-4fcd-b696-df8dbd6cc942
         rolle: TILTAKADMINISTRASJON_ENDRINGSMELDING
+      # 0000-AZ-TILTAK-okonomi_beslutter
+      - adGruppeId: b00ba197-c90a-4ff9-966e-6c9cf1c882bf
+        rolle: OKONOMI_BESLUTTER
 
   sanity:
     dataset: test
@@ -77,6 +91,10 @@ app:
   arenaAdapter:
     url: http://0.0.0.0:8084
     scope: default
+
+  tiltakshistorikk:
+    url: http://0.0.0.0:8070
+    scope: mr-tiltakshistorikk
 
   veilarbvedtaksstotteConfig:
     url: http://localhost:8090/veilarbvedtaksstotte/api
@@ -114,14 +132,18 @@ app:
     url: http://localhost:8090/pdl
     scope: default
 
+  pamOntologi:
+    url: http://localhost:8090
+    scope: default
 
   tasks:
-    deleteExpiredTiltakshistorikk:
-      disabled: true
     synchronizeNorgEnheter:
       disabled: true
       delayOfMinutes: 360 # Hver 6. time
     synchronizeNavAnsatte:
+      disabled: true
+      cronPattern: "0 */1 * * * *" # Hvert 1 minutt
+    synchronizeUtdanninger:
       disabled: true
       cronPattern: "0 */1 * * * *" # Hvert 1 minutt
     notifySluttdatoForGjennomforingerNarmerSeg:
@@ -138,7 +160,6 @@ app:
       disabled: true
       cronPattern: "0 */1 * * * *" # Hvert 1 minutt
 
-
   norg2:
     baseUrl: https://norg2.dev-fss-pub.nais.io/norg2/api/v1
 
@@ -152,10 +173,10 @@ app:
 
   unleash:
     appName: mulighetsrommet-api
-    url: ${UNLEASH_SERVER_API_URL:-http://localhost:8090/unleash}
-    token: ${UNLEASH_SERVER_API_TOKEN:-}
+    url: http://localhost:8090/unleash
+    token: ''
     instanceId: mulighetsrommet-api
-    environment: development
+    environment: local
 
-  ssbNusConfig:
-    baseUrl: "https://data.ssb.no/api"
+  utdanning:
+    baseurl: https://utdanning.no

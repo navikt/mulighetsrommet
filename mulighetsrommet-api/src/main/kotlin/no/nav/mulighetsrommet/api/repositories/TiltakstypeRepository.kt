@@ -1,20 +1,18 @@
 package no.nav.mulighetsrommet.api.repositories
 
-import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.api.domain.dto.DeltakerRegistreringInnholdDto
-import no.nav.mulighetsrommet.api.domain.dto.Innholdselement
 import no.nav.mulighetsrommet.api.domain.dto.TiltakstypeAdminDto
-import no.nav.mulighetsrommet.api.domain.dto.TiltakstypeEksternDto
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.*
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
+import no.nav.mulighetsrommet.domain.dto.DeltakerRegistreringInnholdDto
+import no.nav.mulighetsrommet.domain.dto.Innholdselement
 import no.nav.mulighetsrommet.domain.dto.Innsatsgruppe
-import no.nav.mulighetsrommet.domain.dto.PersonopplysningMedFrekvens
 import no.nav.mulighetsrommet.domain.dto.TiltakstypeStatus
+import no.nav.mulighetsrommet.domain.dto.TiltakstypeV2Dto
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
 import java.util.*
@@ -70,7 +68,7 @@ class TiltakstypeRepository(private val db: Database) {
         return db.run(queryResult)
     }
 
-    fun getEksternTiltakstype(id: UUID): TiltakstypeEksternDto? = db.useSession { session ->
+    fun getEksternTiltakstype(id: UUID): TiltakstypeV2Dto? = db.useSession { session ->
         @Language("PostgreSQL")
         val query = """
             select id, navn, tiltakskode, arena_kode, innsatsgrupper
@@ -95,6 +93,19 @@ class TiltakstypeRepository(private val db: Database) {
         val queryResult = queryOf(query, tiltakskode.name).map { it.toTiltakstypeAdminDto() }.asSingle
         return requireNotNull(db.run(queryResult)) {
             "Det finnes ingen tiltakstype for tiltakskode $tiltakskode"
+        }
+    }
+
+    fun getByArenaTiltakskode(arenaTiltakskode: String): TiltakstypeAdminDto {
+        @Language("PostgreSQL")
+        val query = """
+            select *
+            from tiltakstype_admin_dto_view
+            where arena_kode = ?
+        """.trimIndent()
+        val queryResult = queryOf(query, arenaTiltakskode).map { it.toTiltakstypeAdminDto() }.asSingle
+        return requireNotNull(db.run(queryResult)) {
+            "Det finnes ingen tiltakstype med arena_kode $arenaTiltakskode"
         }
     }
 
@@ -214,7 +225,7 @@ class TiltakstypeRepository(private val db: Database) {
     private fun TiltakstypeDbo.toSqlParameters() = mapOf(
         "id" to id,
         "navn" to navn,
-        "tiltakskode" to Tiltakskode.fromArenaKode(arenaKode)?.name,
+        "tiltakskode" to tiltakskode?.name,
         "arena_kode" to arenaKode,
         "start_dato" to startDato,
         "slutt_dato" to sluttDato,
@@ -227,30 +238,27 @@ class TiltakstypeRepository(private val db: Database) {
             ?.toSet()
             ?: emptySet()
 
-        val personopplysninger = Json.decodeFromString<List<PersonopplysningMedFrekvens>>(string("personopplysninger"))
-            .groupBy({ it.frekvens }, { it.personopplysning.toPersonopplysningMedBeskrivelse() })
-
         return TiltakstypeAdminDto(
             id = uuid("id"),
             navn = string("navn"),
             innsatsgrupper = innsatsgrupper,
             arenaKode = string("arena_kode"),
+            tiltakskode = stringOrNull("tiltakskode")?.let { Tiltakskode.valueOf(it) },
             startDato = localDate("start_dato"),
             sluttDato = localDateOrNull("slutt_dato"),
             sanityId = uuidOrNull("sanity_id"),
             status = TiltakstypeStatus.valueOf(string("status")),
-            personopplysninger = personopplysninger,
         )
     }
 
     private fun Row.tiltakstypeEksternDto(
         deltakerRegistreringInnhold: DeltakerRegistreringInnholdDto?,
-    ): TiltakstypeEksternDto {
+    ): TiltakstypeV2Dto {
         val innsatsgrupper = arrayOrNull<String>("innsatsgrupper")
             ?.map { Innsatsgruppe.valueOf(it) }
             ?.toSet()
             ?: emptySet()
-        return TiltakstypeEksternDto(
+        return TiltakstypeV2Dto(
             id = uuid("id"),
             navn = string("navn"),
             tiltakskode = Tiltakskode.valueOf(string("tiltakskode")),
