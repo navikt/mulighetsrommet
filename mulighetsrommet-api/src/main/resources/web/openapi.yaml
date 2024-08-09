@@ -4168,6 +4168,8 @@ components:
         - TO_PLUSS_EN_PLUSS_EN
         - TO_PLUSS_EN_PLUSS_EN_PLUSS_EN
         - ANNET
+        - AVTALE_UTEN_OPSJONSMODELL
+        - AVTALE_VALGFRI_SLUTTDATO
 
     OpsjonLoggRequest:
       type: object

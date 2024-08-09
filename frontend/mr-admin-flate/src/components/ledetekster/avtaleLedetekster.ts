@@ -1,3 +1,5 @@
+import { Avtaletype } from "mulighetsrommet-api-client";
+
 export const avtaletekster = {
   avtalenavnLabel: "Avtalenavn",
   avtalenummerLabel: "Avtalenummer",
@@ -6,6 +8,8 @@ export const avtaletekster = {
   startdatoLabel: "Startdato",
   sluttdatoLabel: (opsjonerRegistrert: boolean) =>
     opsjonerRegistrert ? "Sluttdato*" : "Sluttdato",
+  valgfriSluttdatoLabel: (avtaletype: Avtaletype) =>
+    avtaletype === Avtaletype.FORHAANDSGODKJENT ? "Sluttdato (valgfri)" : "Sluttdato",
   maksVarighetLabel: "Maks varighet inkl. opsjon",
   prisOgBetalingLabel: "Pris- og betalingsbetingelser",
   administratorerForAvtalenLabel: "Administratorer for avtalen",

@@ -33,6 +33,8 @@ class AvtaleValidator(
     private val unleashService: UnleashService,
 ) {
 
+    val opsjonsmodellerUtenValidering = listOf(Opsjonsmodell.AVTALE_UTEN_OPSJONSMODELL, Opsjonsmodell.AVTALE_VALGFRI_SLUTTDATO)
+
     fun validate(avtale: AvtaleDbo, currentAvtale: AvtaleAdminDto?): Either<List<ValidationError>, AvtaleDbo> = either {
         val tiltakstype = tiltakstyper.getById(avtale.tiltakstypeId)
             ?: raise(ValidationError.of(AvtaleDbo::tiltakstypeId, "Tiltakstypen finnes ikke").nel())
@@ -76,7 +78,7 @@ class AvtaleValidator(
             }
 
             if (unleashService.isEnabled("mulighetsrommet.admin-flate.registrere-opsjonsmodell")) {
-                if (!avtaleTypeErForhandsgodkjent(avtale.avtaletype)) {
+                if (!avtaleTypeErForhandsgodkjent(avtale.avtaletype) && !opsjonsmodellerUtenValidering.contains(avtale.opsjonsmodell)) {
                     if (avtale.opsjonMaksVarighet == null) {
                         add(
                             ValidationError.of(
@@ -133,7 +135,7 @@ class AvtaleValidator(
                     ),
                 )
             } else {
-                if (avtale.avtaletype != Avtaletype.Forhaandsgodkjent && avtale.sluttDato == null) {
+                if (avtale.avtaletype != Avtaletype.Forhaandsgodkjent && avtale.opsjonsmodell != Opsjonsmodell.AVTALE_VALGFRI_SLUTTDATO && avtale.sluttDato == null) {
                     add(ValidationError.of(AvtaleDbo::sluttDato, "Du må legge inn sluttdato for avtalen"))
                 }
             }

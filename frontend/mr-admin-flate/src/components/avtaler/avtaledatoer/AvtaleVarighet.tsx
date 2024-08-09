@@ -4,9 +4,10 @@ import { useFormContext } from "react-hook-form";
 import { avtaletekster } from "../../ledetekster/avtaleLedetekster";
 import { InferredAvtaleSchema } from "../../redaksjoneltInnhold/AvtaleSchema";
 import { ControlledDateInput } from "../../skjema/ControlledDateInput";
-import { Opsjonsmodell, opsjonsmodeller } from "./opsjonsmodeller";
-import { Avtale, OpsjonStatus } from "mulighetsrommet-api-client";
+import { Opsjonsmodell, opsjonsmodeller } from "../opsjoner/opsjonsmodeller";
+import { Avtale, Avtaletype, OpsjonsmodellKey, OpsjonStatus } from "mulighetsrommet-api-client";
 import { OpsjonerRegistrert } from "../opsjoner/OpsjonerRegistrert";
+import { MIN_START_DATO_FOR_AVTALER } from "../../../constants";
 
 interface Props {
   avtale?: Avtale;
@@ -49,6 +50,9 @@ export function AvtaleVarighet({
       setValue("opsjonsmodellData.opsjonsmodell", undefined);
       setValue("opsjonsmodellData.opsjonMaksVarighet", undefined);
       setValue("opsjonsmodellData.customOpsjonsmodellNavn", undefined);
+    } else if (opsjonsmodell && !opsjonsmodell.kreverMaksVarighet) {
+      setValue("opsjonsmodellData.customOpsjonsmodellNavn", undefined);
+      setValue("opsjonsmodellData.opsjonMaksVarighet", undefined);
     }
   }, [opsjonsmodell]);
 
@@ -60,15 +64,19 @@ export function AvtaleVarighet({
           kalkulerMaksDato(sluttDatoFraDato, opsjonsmodell.initialSluttdatoEkstraAar).toISOString(),
         );
       }
-      setValue(
-        "opsjonsmodellData.opsjonMaksVarighet",
-        kalkulerMaksDato(sluttDatoFraDato, opsjonsmodell.maksVarighetAar).toISOString(),
-      );
+      if (opsjonsmodell.maksVarighetAar) {
+        setValue(
+          "opsjonsmodellData.opsjonMaksVarighet",
+          kalkulerMaksDato(sluttDatoFraDato, opsjonsmodell.maksVarighetAar).toISOString(),
+        );
+      }
     }
   }, [opsjonsmodell, startDato]);
 
   const maksVarighetAar = opsjonsmodell?.maksVarighetAar ?? 5;
   const maksVarighetDato = kalkulerMaksDato(new Date(startDato), maksVarighetAar);
+
+  const gjeldendeOpsjonsmodeller = hentModeller(watch("avtaletype"));
 
   return (
     <>
@@ -79,7 +87,7 @@ export function AvtaleVarighet({
       <HGrid columns={2}>
         <Select
           readOnly={skalIkkeKunneRedigereOpsjoner}
-          label="Opsjonsmodell"
+          label="Avtalt mulighet for forlengelse"
           size="small"
           value={opsjonsmodell?.value}
           error={errors.opsjonsmodellData?.opsjonsmodell?.message}
@@ -87,10 +95,11 @@ export function AvtaleVarighet({
             const opsjonsmodel = opsjonsmodeller.find((modell) => modell.value === e.target.value);
             setOpsjonsmodell(opsjonsmodel);
             setValue("opsjonsmodellData.opsjonsmodell", opsjonsmodel?.value);
+            setValue("opsjonsmodellData.customOpsjonsmodellNavn", undefined);
           }}
         >
-          <option value={undefined}>Velg opsjonsmodell</option>
-          {opsjonsmodeller.map((modell) => (
+          <option value={undefined}>Velg avtalt mulighet for forlengelse</option>
+          {gjeldendeOpsjonsmodeller.map((modell) => (
             <option key={modell.value} value={modell.value}>
               {modell.label}
             </option>
@@ -110,7 +119,7 @@ export function AvtaleVarighet({
         />
       ) : null}
 
-      {opsjonsmodell ? (
+      {opsjonsmodell && opsjonsmodell.kreverMaksVarighet ? (
         <HGrid columns={3}>
           <ControlledDateInput
             size="small"
@@ -141,6 +150,27 @@ export function AvtaleVarighet({
             format={"iso-string"}
           />
         </HGrid>
+      ) : opsjonsmodell && !opsjonsmodell.kreverMaksVarighet ? (
+        <HGrid columns={3}>
+          <ControlledDateInput
+            size="small"
+            label={avtaletekster.startdatoLabel}
+            readOnly={arenaOpphavOgIngenEierskap}
+            fromDate={MIN_START_DATO_FOR_AVTALER}
+            toDate={sluttDatoTilDato}
+            {...register("startOgSluttDato.startDato")}
+            format={"iso-string"}
+          />
+          <ControlledDateInput
+            size="small"
+            label={avtaletekster.sluttdatoLabel(false)}
+            readOnly={arenaOpphavOgIngenEierskap}
+            fromDate={sluttDatoFraDato}
+            toDate={sluttDatoTilDato}
+            {...register("startOgSluttDato.sluttDato")}
+            format={"iso-string"}
+          />
+        </HGrid>
       ) : null}
       {avtale && avtale.opsjonerRegistrert.length > 0 && (
         <OpsjonerRegistrert readOnly avtale={avtale} />
@@ -154,4 +184,17 @@ function kalkulerMaksDato(date: Date, addYears: number): Date {
   resultDate.setFullYear(resultDate.getFullYear() + addYears);
   const daysInMilliseconds = 1 * 24 * 60 * 60 * 1000;
   return new Date(resultDate.getTime() - daysInMilliseconds);
+}
+
+function hentModeller(avtaletype: Avtaletype | undefined): Opsjonsmodell[] {
+  if (!avtaletype) {
+    return [];
+  }
+
+  if (avtaletype !== Avtaletype.OFFENTLIG_OFFENTLIG) {
+    return opsjonsmodeller.filter(
+      (modell) => modell.value !== OpsjonsmodellKey.AVTALE_VALGFRI_SLUTTDATO,
+    );
+  }
+  return opsjonsmodeller;
 }
