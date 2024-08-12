@@ -28,6 +28,7 @@ fun Route.opsjonRoutes() {
                 val opsjonLoggEntry = OpsjonLoggEntry(
                     avtaleId = request.avtaleId,
                     sluttdato = request.nySluttdato,
+                    forrigeSluttdato = request.forrigeSluttdato,
                     status = request.status,
                     registrertAv = userId,
                 )
@@ -56,6 +57,8 @@ data class OpsjonLoggRequest(
     val avtaleId: UUID,
     @Serializable(with = LocalDateSerializer::class)
     val nySluttdato: LocalDate?,
+    @Serializable(with = LocalDateSerializer::class)
+    val forrigeSluttdato: LocalDate?,
     val status: OpsjonsLoggStatus,
 ) {
     enum class OpsjonsLoggStatus {

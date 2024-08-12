@@ -31,6 +31,7 @@ export function RegistrerOpsjonModal({ modalRef, avtale }: Props) {
     const request: OpsjonLoggRequest = {
       avtaleId: avtale.id,
       nySluttdato: data.opsjonsdatoValgt || null,
+      forrigeSluttdato: avtale?.sluttDato || null,
       status: getStatus(data.opsjonsvalg),
     };
 
@@ -70,7 +71,7 @@ export function RegistrerOpsjonModal({ modalRef, avtale }: Props) {
   }
 
   const avtaleSkalIkkeUtloseOpsjoner = avtale?.opsjonerRegistrert?.some(
-    (l) => l.status === OpsjonStatus.SKAL_IKKE_UTLØSE_OPSJON,
+    (opsjon) => opsjon.status === OpsjonStatus.SKAL_IKKE_UTLØSE_OPSJON,
   );
 
   return (

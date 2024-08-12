@@ -59,11 +59,9 @@ class OpsjonLoggService(
 
     private fun kalkulerNySluttdato(opsjoner: List<OpsjonLoggEntry>, avtale: AvtaleAdminDto): LocalDate? {
         val utlosteOpsjoner = opsjoner.filter { it.status == OpsjonLoggRequest.OpsjonsLoggStatus.OPSJON_UTLØST }
-        return if (utlosteOpsjoner.size > 1) {
-            utlosteOpsjoner[1].sluttdato
-        } else {
-            avtale.opprinneligSluttDato ?: avtale.sluttDato
-        }
+            .sortedByDescending { it.forrigeSluttdato }
+
+        return utlosteOpsjoner[0].forrigeSluttdato ?: avtale.opprinneligSluttDato ?: avtale.sluttDato
     }
 
     private fun loggEndring(

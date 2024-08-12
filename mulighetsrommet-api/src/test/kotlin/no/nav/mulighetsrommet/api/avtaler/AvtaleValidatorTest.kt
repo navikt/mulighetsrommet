@@ -612,6 +612,7 @@ class AvtaleValidatorTest :
                     OpsjonLoggEntry(
                         avtaleId = avtaleDbo.id,
                         sluttdato = avtaleDbo.sluttDato?.plusYears(1),
+                        forrigeSluttdato = avtaleDbo.sluttDato,
                         status = OpsjonLoggRequest.OpsjonsLoggStatus.OPSJON_UTLØST,
                         registrertAv = NavIdent("M123456"),
                     ),
