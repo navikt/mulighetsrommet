@@ -5,7 +5,7 @@ hoplite = "2.7.5"
 koin = "3.5.6"
 kotest = "5.9.1"
 kotest-testcontainers = "2.0.2"
-kotlin = "2.0.0"
+kotlin = "2.0.10"
 ktor = "2.3.12"
 logback = "1.5.6"
 metrics = "4.2.26"
@@ -119,9 +119,9 @@ shedlock-jdbc = "net.javacrumbs.shedlock:shedlock-provider-jdbc:5.14.0"
 
 slack-client = "com.slack.api:slack-api-client:1.40.3"
 
-slf4j = "org.slf4j:slf4j-api:2.0.13"
+slf4j = "org.slf4j:slf4j-api:2.0.16"
 
 apache-poi = "org.apache.poi:poi:5.3.0"
 apache-poi-ooxml = "org.apache.poi:poi-ooxml:5.3.0"
 
-unleash = "io.getunleash:unleash-client-java:9.2.3"
+unleash = "io.getunleash:unleash-client-java:9.2.4"
