@@ -94,8 +94,8 @@ app:
     scope: api://dev-fss.pto.veilarbveileder/.default
 
   veilarbdialogConfig:
-    url: https://veilarbdialog.dev-fss-pub.nais.io/veilarbdialog/api
-    scope: api://dev-fss.pto.veilarbdialog/.default
+    url: http://veilarbdialog.dab/veilarbdialog/api
+    scope: api://dev-gcp.veilarbdialog.dab/.default
 
   amtDeltakerConfig:
     url: http://amt-deltaker.amt
