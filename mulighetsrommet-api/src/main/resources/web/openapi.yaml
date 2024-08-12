@@ -4181,11 +4181,16 @@ components:
           type: string
           format: date
           nullable: true
+        forrigeSluttdato:
+          type: string
+          format: date
+          nullable: true
         status:
           $ref: "#/components/schemas/OpsjonStatus"
       required:
         - avtaleId
         - nySluttdato
+        - forrigeSluttdato
         - status
 
     OpsjonStatus:

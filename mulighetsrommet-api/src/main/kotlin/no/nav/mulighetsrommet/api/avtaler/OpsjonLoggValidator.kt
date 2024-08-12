@@ -28,6 +28,10 @@ class OpsjonLoggValidator {
                 if (entry.sluttdato != null && entry.sluttdato.isAfter(maksVarighet)) {
                     add(ValidationError.of(OpsjonLoggEntry::sluttdato, "Ny sluttdato er forbi maks varighet av avtalen"))
                 }
+
+                if (entry.forrigeSluttdato == null) {
+                    add(ValidationError.of(OpsjonLoggEntry::forrigeSluttdato, "Forrige sluttdato må være satt"))
+                }
             }
         }
         return errors.takeIf { it.isNotEmpty() }?.left() ?: entry.right()

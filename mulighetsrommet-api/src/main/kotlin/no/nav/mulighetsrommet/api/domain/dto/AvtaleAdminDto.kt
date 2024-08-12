@@ -95,6 +95,8 @@ data class AvtaleAdminDto(
         val aktivertDato: LocalDateTime,
         @Serializable(with = LocalDateTimeSerializer::class)
         val sluttDato: LocalDateTime?,
+        @Serializable(with = LocalDateTimeSerializer::class)
+        val forrigeSluttdato: LocalDateTime?,
         val status: OpsjonLoggRequest.OpsjonsLoggStatus,
     )
 

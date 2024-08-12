@@ -72,6 +72,7 @@ class OpsjonLoggValidatorTest : FunSpec({
         val entry = OpsjonLoggEntry(
             avtaleId = UUID.randomUUID(),
             sluttdato = null,
+            forrigeSluttdato = null,
             status = OpsjonLoggRequest.OpsjonsLoggStatus.OPSJON_UTLØST,
             registrertAv = NavIdent("M123456"),
         )
@@ -94,6 +95,7 @@ class OpsjonLoggValidatorTest : FunSpec({
         val entry = OpsjonLoggEntry(
             avtaleId = UUID.randomUUID(),
             sluttdato = LocalDate.of(2027, 7, 6),
+            forrigeSluttdato = LocalDate.of(2026, 7, 6),
             status = OpsjonLoggRequest.OpsjonsLoggStatus.OPSJON_UTLØST,
             registrertAv = NavIdent("M123456"),
         )
@@ -103,6 +105,33 @@ class OpsjonLoggValidatorTest : FunSpec({
             ValidationError.of(
                 OpsjonLoggEntry::sluttdato,
                 "Ny sluttdato er forbi maks varighet av avtalen",
+            ),
+        )
+    }
+
+    test("Skal kaste en feil hvis status for entry er UTLØST_OPSJON og forrige sluttdato mangler") {
+        val avtale2Pluss1 = avtale.copy(
+            sluttDato = LocalDate.of(2024, 7, 5).plusYears(3),
+            opsjonsmodellData = OpsjonsmodellData(
+                opsjonMaksVarighet = LocalDate.of(2024, 7, 5).plusYears(1),
+                opsjonsmodell = Opsjonsmodell.TO_PLUSS_EN,
+                customOpsjonsmodellNavn = null,
+            ),
+        )
+
+        val entry = OpsjonLoggEntry(
+            avtaleId = UUID.randomUUID(),
+            sluttdato = LocalDate.of(2025, 7, 6),
+            forrigeSluttdato = null,
+            status = OpsjonLoggRequest.OpsjonsLoggStatus.OPSJON_UTLØST,
+            registrertAv = NavIdent("M123456"),
+        )
+
+        val validator = OpsjonLoggValidator()
+        validator.validate(entry, avtale2Pluss1).shouldBeLeft().shouldContainAll(
+            ValidationError.of(
+                OpsjonLoggEntry::forrigeSluttdato,
+                "Forrige sluttdato må være satt",
             ),
         )
     }
@@ -121,6 +150,7 @@ class OpsjonLoggValidatorTest : FunSpec({
                     status = OpsjonLoggRequest.OpsjonsLoggStatus.SKAL_IKKE_UTLØSE_OPSJON,
                     aktivertDato = LocalDateTime.of(2024, 8, 8, 10, 0, 0),
                     sluttDato = null,
+                    forrigeSluttdato = null,
                 ),
             ),
         )
@@ -128,6 +158,7 @@ class OpsjonLoggValidatorTest : FunSpec({
         val entry = OpsjonLoggEntry(
             avtaleId = UUID.randomUUID(),
             sluttdato = LocalDate.of(2027, 7, 6),
+            forrigeSluttdato = LocalDate.of(2026, 7, 6),
             status = OpsjonLoggRequest.OpsjonsLoggStatus.OPSJON_UTLØST,
             registrertAv = NavIdent("M123456"),
         )
@@ -154,6 +185,7 @@ class OpsjonLoggValidatorTest : FunSpec({
         val entry = OpsjonLoggEntry(
             avtaleId = UUID.randomUUID(),
             sluttdato = LocalDate.of(2025, 7, 6),
+            forrigeSluttdato = LocalDate.of(2024, 7, 6),
             status = OpsjonLoggRequest.OpsjonsLoggStatus.OPSJON_UTLØST,
             registrertAv = NavIdent("M123456"),
         )
