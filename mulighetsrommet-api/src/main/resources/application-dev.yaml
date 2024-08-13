@@ -95,7 +95,7 @@ app:
 
   veilarbdialogConfig:
     url: http://veilarbdialog.dab/veilarbdialog/api
-    scope: api://dev-gcp.veilarbdialog.dab/.default
+    scope: api://dev-gcp.dab.veilarbdialog/.default
 
   amtDeltakerConfig:
     url: http://amt-deltaker.amt
