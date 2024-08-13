@@ -27,7 +27,7 @@ const safeZodParse = (zodSchema: ZodType, initialValue: unknown, str: string) =>
       return initialValue;
     }
     return result.data;
-  } catch (e) {
+  } catch {
     return initialValue;
   }
 };

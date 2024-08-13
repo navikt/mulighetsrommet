@@ -1,13 +1,14 @@
-import { Box, Button, HStack, Heading, Switch, TextField, VStack } from "@navikt/ds-react";
+import { Box, Button, Heading, HStack, Switch, TextField, VStack } from "@navikt/ds-react";
 import { useFieldArray, useFormContext } from "react-hook-form";
 import z from "zod";
 import styles from "./Lenker.module.scss";
-import { FaneinnholdSchema } from "@/components/redaksjoneltInnhold/FaneinnholdSchema";
+import { FaneinnholdLenkerSchema } from "@/components/redaksjoneltInnhold/FaneinnholdSchema";
 
-const LenkeSchema = z.object({
-  faneinnhold: FaneinnholdSchema.pick({ lenker: true }),
-});
-type Lenke = z.infer<typeof LenkeSchema>;
+type Lenke = {
+  faneinnhold: {
+    lenker: z.infer<typeof FaneinnholdLenkerSchema>;
+  };
+};
 
 export function Lenker() {
   return (

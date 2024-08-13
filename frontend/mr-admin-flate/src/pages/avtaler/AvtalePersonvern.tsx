@@ -64,7 +64,7 @@ function ListWithHelpText({
   hjelpetekst,
   children,
 }: {
-  hjelpetekst: String | null;
+  hjelpetekst: string | null;
   children: React.ReactNode;
 }) {
   return (

@@ -447,12 +447,12 @@ export function TiltaksgjennomforingSkjemaDetaljer({ tiltaksgjennomforing, avtal
       </SkjemaInputContainer>
       <EndreDatoAdvarselModal
         modalRef={endreStartDatoModalRef}
-        onCancel={() => setValue("startOgSluttDato.startDato", tiltaksgjennomforing!!.startDato)}
+        onCancel={() => setValue("startOgSluttDato.startDato", tiltaksgjennomforing!.startDato)}
         antallDeltakere={deltakerSummary?.antallDeltakere ?? 0}
       />
       <EndreDatoAdvarselModal
         modalRef={endreSluttDatoModalRef}
-        onCancel={() => setValue("startOgSluttDato.sluttDato", tiltaksgjennomforing!!.sluttDato)}
+        onCancel={() => setValue("startOgSluttDato.sluttDato", tiltaksgjennomforing!.sluttDato)}
         antallDeltakere={deltakerSummary?.antallDeltakere ?? 0}
       />
     </SkjemaDetaljerContainer>

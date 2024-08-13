@@ -6,9 +6,9 @@ export function useHentTilsagnForTiltaksgjennomforing(tiltaksgjennomforingId?: s
   return useQuery({
     queryFn: () =>
       TilsagnService.tilsagnByTiltaksgjennomforing({
-        tiltaksgjennomforingId: tiltaksgjennomforingId!!,
+        tiltaksgjennomforingId: tiltaksgjennomforingId!,
       }),
-    queryKey: QueryKeys.getTilsagnForGjennomforing(tiltaksgjennomforingId!!),
+    queryKey: QueryKeys.getTilsagnForGjennomforing(tiltaksgjennomforingId!),
     enabled: !!tiltaksgjennomforingId,
   });
 }

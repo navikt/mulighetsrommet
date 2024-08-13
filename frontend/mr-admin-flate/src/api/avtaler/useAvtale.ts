@@ -8,7 +8,7 @@ export function useAvtale(overstyrAvtaleId?: string) {
   const avtaleId = overstyrAvtaleId ?? avtaleIdFromUrl;
 
   const query = useQuery({
-    queryKey: QueryKeys.avtale(avtaleId!!),
+    queryKey: QueryKeys.avtale(avtaleId!),
     queryFn: () => AvtalerService.getAvtale({ id: avtaleId! }),
     enabled: !!avtaleId,
   });

@@ -91,11 +91,13 @@ export function TiltaksgjennomforingFilterButtons() {
           </HarSkrivetilgang>
         </div>
       )}
-      <OpprettTiltakIArenaModal
-        open={visKanIkkeOppretteTiltakModal}
-        onClose={() => setVisKanIkkeOppretteTiltakModal(false)}
-        tiltakstype={avtale?.tiltakstype.navn!!}
-      />
+      {avtale && (
+        <OpprettTiltakIArenaModal
+          open={visKanIkkeOppretteTiltakModal}
+          onClose={() => setVisKanIkkeOppretteTiltakModal(false)}
+          tiltakstype={avtale.tiltakstype.navn}
+        />
+      )}
     </div>
   );
 }
