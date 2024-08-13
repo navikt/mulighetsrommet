@@ -11,6 +11,6 @@
   },
   "devDependencies": {
     "@hey-api/openapi-ts": "0.48.0",
-    "typescript": "5.4.5"
+    "typescript": "5.5.4"
   }
 }
