@@ -30,16 +30,21 @@ export function OpsjonerRegistrert({ avtale, readOnly }: Props) {
     );
   }
 
+  const opprinneligSluttDato = avtale.opsjonerRegistrert
+    .filter((o) => o.status === OpsjonStatus.OPSJON_UTLØST && !!o.forrigeSluttdato)
+    .sort(
+      (a, b) => new Date(a.forrigeSluttdato!).getTime() - new Date(b.forrigeSluttdato!).getTime(),
+    )
+    .at(0)?.forrigeSluttdato;
+
   return (
     <section className={styles.container}>
       <HStack justify={"space-between"} align={"center"}>
         <Heading level="4" size="xsmall">
           Opsjoner
         </Heading>
-        {avtale.opprinneligSluttDato && (
-          <BodyShort>
-            * Opprinnelig sluttdato: {formaterDato(avtale.opprinneligSluttDato)}
-          </BodyShort>
+        {opprinneligSluttDato && (
+          <BodyShort>* Opprinnelig sluttdato: {formaterDato(opprinneligSluttDato)}</BodyShort>
         )}
       </HStack>
       <hr className={styles.separator} />
