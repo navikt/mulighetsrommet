@@ -1,5 +1,4 @@
 import { useAvtaleEndringshistorikk } from "@/api/avtaler/useAvtaleEndringshistorikk";
-import { useFeatureToggle } from "@/api/features/useFeatureToggle";
 import { HarSkrivetilgang } from "@/components/authActions/HarSkrivetilgang";
 import { RegistrerOpsjonModal } from "@/components/avtaler/opsjoner/RegistrerOpsjonModal";
 import { EndringshistorikkPopover } from "@/components/endringshistorikk/EndringshistorikkPopover";
@@ -8,7 +7,7 @@ import { AvbrytAvtaleModal } from "@/components/modal/AvbrytAvtaleModal";
 import { VarselModal } from "@/components/modal/VarselModal";
 import { KnapperadContainer } from "@/pages/KnapperadContainer";
 import { BodyShort, Button, Dropdown } from "@navikt/ds-react";
-import { Avtale, NavAnsatt, Toggles } from "mulighetsrommet-api-client";
+import { Avtale, NavAnsatt } from "mulighetsrommet-api-client";
 import { useRef } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -22,12 +21,9 @@ export function AvtaleKnapperad({ bruker, avtale }: Props) {
   const advarselModal = useRef<HTMLDialogElement>(null);
   const avbrytModalRef = useRef<HTMLDialogElement>(null);
   const registrerOpsjonModalRef = useRef<HTMLDialogElement>(null);
-  const { data: registrereOpsjonIsEnabled } = useFeatureToggle(
-    Toggles.MULIGHETSROMMET_ADMIN_FLATE_REGISTRERE_OPSJON,
-  );
 
   function kanRegistrereOpsjon(avtale: Avtale): boolean {
-    return !!avtale?.opsjonsmodellData?.opsjonMaksVarighet && !!registrereOpsjonIsEnabled;
+    return !!avtale?.opsjonsmodellData?.opsjonMaksVarighet;
   }
 
   return (
