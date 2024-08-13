@@ -1,5 +1,6 @@
 import js from "@eslint/js";
 import ts from "typescript-eslint";
+import pluginPromise from "eslint-plugin-promise";
 import prettier from "eslint-plugin-prettier";
 import react from "eslint-plugin-react";
 import reactHooks from "eslint-plugin-react-hooks";
@@ -10,6 +11,7 @@ export default ts.config(
     ignores: ["**/dist", "**/.eslintrc.cjs"],
   },
   js.configs.recommended,
+  pluginPromise.configs["flat/recommended"],
   ...ts.configs.recommended,
   {
     ...react.configs.flat.recommended,
