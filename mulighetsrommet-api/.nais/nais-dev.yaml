@@ -117,6 +117,8 @@ spec:
           namespace: amt
         - application: pam-ontologi
           namespace: teampam
+        - application: veilarbdialog
+          namespace: dab
       external:
         - host: norg2.dev-fss-pub.nais.io
         - host: slack.com
