@@ -10,6 +10,7 @@ import { mockTiltakstyper } from "./mockTiltakstyper";
 
 export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
   {
+    tiltaksnummer: "123123",
     sanityId: "f4cea25b-c372-4d4c-8106-535ab10cd586",
     navn: "Avklaring - Fredrikstad med ganske langt navn som strekker seg bortover",
     status: { status: TiltaksgjennomforingStatus.GJENNOMFORES },
@@ -36,6 +37,7 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
         },
       ],
     },
+    fylke: "0200",
     kontaktinfo: {
       tiltaksansvarlige: [
         {
@@ -142,6 +144,7 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
     status: { status: TiltaksgjennomforingStatus.GJENNOMFORES },
     avtaleId: "9a11a2ff-dd9c-42f7-b85f-b07522bb55f8",
     personvernBekreftet: true,
+    tiltaksnummer: "2024/123",
     navn: "Kurs i overlevelsesteknikk (Gruppe AMO)",
     stedForGjennomforing: "2050 JESSHEIM",
     apentForInnsok: true,
