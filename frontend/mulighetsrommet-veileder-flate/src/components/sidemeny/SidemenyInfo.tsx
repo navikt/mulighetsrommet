@@ -39,7 +39,7 @@ const SidemenyInfo = ({ innsatsgrupper, tiltaksgjennomforing }: Props) => {
         </BodyShort>
         <BodyShort size="small">
           {visSluttdato(tiltakstype, sluttdato, oppstartsdato)
-            ? `${formaterDato(oppstartsdato!!)} - ${formaterDato(sluttdato!!)}`
+            ? `${formaterDato(oppstartsdato!)} - ${formaterDato(sluttdato!)}`
             : oppstart}
         </BodyShort>
       </div>

@@ -6,7 +6,7 @@ export const joyrideHandlers = [
     return HttpResponse.text("ok");
   }),
 
-  http.get<{ type: JoyrideType }, Boolean>("*/api/v1/intern/joyride/:type/har-fullfort", () => {
+  http.get<{ type: JoyrideType }, boolean>("*/api/v1/intern/joyride/:type/har-fullfort", () => {
     return HttpResponse.json(true);
   }),
 ];

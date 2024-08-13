@@ -14,7 +14,7 @@ import { historikkFraKomet } from "../../fixtures/mockKometHistorikk";
 import { utkastFraKomet } from "@/mock/fixtures/mockKometUtkast";
 
 export const brukerHandlers = [
-  http.post<PathParams, GetBrukerRequest, Bruker | String>(
+  http.post<PathParams, GetBrukerRequest, Bruker | string>(
     "*/api/v1/intern/bruker",
     async ({ request }) => {
       const { norskIdent } = await request.json();

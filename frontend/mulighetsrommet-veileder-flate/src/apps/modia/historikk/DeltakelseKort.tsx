@@ -14,7 +14,7 @@ export function DeltakelseKort({ deltakelse }: Props) {
 
   const deltakelseRoute = resolveModiaRoute({
     route: ModiaRoute.ARBEIDSMARKEDSTILTAK_DELTAKELSE,
-    deltakerId: deltakerId!!,
+    deltakerId: deltakerId!,
   });
 
   return (
