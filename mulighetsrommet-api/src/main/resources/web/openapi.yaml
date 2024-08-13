@@ -2071,10 +2071,6 @@ components:
         sluttDato:
           type: string
           format: date
-        opprinneligSluttDato:
-          type: string
-          format: date
-          nullable: true
         avtaletype:
           $ref: "#/components/schemas/Avtaletype"
         status:
@@ -4213,12 +4209,17 @@ components:
           type: string
           format: date
           nullable: true
+        forrigeSluttdato:
+          type: string
+          format: date
+          nullable: true
         status:
           $ref: "#/components/schemas/OpsjonStatus"
       required:
         - id
         - aktivertDato
         - sluttDato
+        - forrigeSluttdato
         - status
 
     SlettOpsjonLoggRequest:
