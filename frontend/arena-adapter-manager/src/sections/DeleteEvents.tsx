@@ -10,11 +10,7 @@ function DeleteEvents() {
   const [table, setTable] = useState<string>("");
 
   return (
-    <Section
-      headerText="Delete Events"
-      loadingText={"Laster"}
-      isLoading={isArenaTablesLoading}
-    >
+    <Section headerText="Delete Events" loadingText={"Laster"} isLoading={isArenaTablesLoading}>
       <Select
         placeholder="Velg tabell"
         value={table}
@@ -35,9 +31,7 @@ function DeleteEvents() {
           setArenaIds(currentTarget.value);
         }}
       />
-      <Button onClick={() => deleteEvents(table, arenaIds)}>
-        Delete Events
-      </Button>
+      <Button onClick={() => deleteEvents(table, arenaIds)}>Delete Events</Button>
     </Section>
   );
 }

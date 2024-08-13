@@ -10,11 +10,7 @@ function ReplayEvents() {
   const [table, setTable] = useState<string>("");
 
   return (
-    <Section
-      headerText="Replay Events"
-      loadingText={"Laster"}
-      isLoading={isArenaTablesLoading}
-    >
+    <Section headerText="Replay Events" loadingText={"Laster"} isLoading={isArenaTablesLoading}>
       <Select
         placeholder="Velg tabell"
         value={table}
