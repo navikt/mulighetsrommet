@@ -3,11 +3,11 @@ import { DelMedBruker } from "@/apps/modia/delMedBruker/DelMedBruker";
 import { Tilbakeknapp } from "@/components/tilbakeknapp/Tilbakeknapp";
 import { ViewTiltaksgjennomforingDetaljer } from "@/layouts/ViewTiltaksgjennomforingDetaljer";
 import { Alert } from "@navikt/ds-react";
-import { Innsatsgruppe, NavEnhetStatus, NavEnhetType } from "mulighetsrommet-api-client";
+import { Innsatsgruppe, NavEnhetStatus, NavEnhetType } from "@mr/api-client";
 import { InlineErrorBoundary } from "@/ErrorBoundary";
 import { PersonvernContainer } from "@/components/personvern/PersonvernContainer";
 import { LenkeListe } from "@/components/sidemeny/Lenker";
-import { DetaljerSkeleton } from "mulighetsrommet-frontend-common";
+import { DetaljerSkeleton } from "@mr/frontend-common";
 
 export function PreviewArbeidsmarkedstiltakDetaljer() {
   const { data, isPending, isError } = usePreviewTiltaksgjennomforingById();

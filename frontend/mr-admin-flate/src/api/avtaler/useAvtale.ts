@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useGetAvtaleIdFromUrl } from "@/hooks/useGetAvtaleIdFromUrl";
 import { QueryKeys } from "@/api/QueryKeys";
-import { AvtalerService } from "mulighetsrommet-api-client";
+import { AvtalerService } from "@mr/api-client";
 
 export function useAvtale(overstyrAvtaleId?: string) {
   const avtaleIdFromUrl = useGetAvtaleIdFromUrl();

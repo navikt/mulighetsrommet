@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Alert, BodyShort, Button, Heading, Modal, TextField } from "@navikt/ds-react";
-import { LagretDokumenttype } from "mulighetsrommet-api-client";
+import { LagretDokumenttype } from "@mr/api-client";
 import { useEffect, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import z from "zod";

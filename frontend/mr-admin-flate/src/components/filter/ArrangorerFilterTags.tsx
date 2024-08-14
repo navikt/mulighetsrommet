@@ -1,6 +1,6 @@
 import { ArrangorerFilter } from "@/api/atoms";
 import { useAtom, WritableAtom } from "jotai";
-import { FilterTag, FilterTagsContainer } from "mulighetsrommet-frontend-common";
+import { FilterTag, FilterTagsContainer } from "@mr/frontend-common";
 
 interface Props {
   filterAtom: WritableAtom<ArrangorerFilter, [newValue: ArrangorerFilter], void>;

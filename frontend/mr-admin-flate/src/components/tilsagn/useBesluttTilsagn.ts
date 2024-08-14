@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
-import { ApiError, BesluttTilsagnRequest, TilsagnService } from "mulighetsrommet-api-client";
+import { ApiError, BesluttTilsagnRequest, TilsagnService } from "@mr/api-client";
 import { QueryKeys } from "../../api/QueryKeys";
 
 export function useBesluttTilsagn() {

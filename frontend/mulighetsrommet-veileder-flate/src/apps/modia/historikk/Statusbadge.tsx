@@ -1,8 +1,4 @@
-import {
-  AmtDeltakerStatus,
-  AmtDeltakerStatusType,
-  ArenaDeltakerStatus,
-} from "mulighetsrommet-api-client";
+import { AmtDeltakerStatus, AmtDeltakerStatusType, ArenaDeltakerStatus } from "@mr/api-client";
 import { Tag } from "@navikt/ds-react";
 import styles from "./Statusbadge.module.scss";
 import classNames from "classnames";

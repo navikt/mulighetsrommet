@@ -1,4 +1,4 @@
-import { Avtaletype } from "mulighetsrommet-api-client";
+import { Avtaletype } from "@mr/api-client";
 
 export const avtaletekster = {
   avtalenavnLabel: "Avtalenavn",

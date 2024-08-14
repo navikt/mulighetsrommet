@@ -105,14 +105,14 @@ Det finnes noen tilgjengelige dashboards, men nytten med disse kan variere:
 | README          | <https://github.com/navikt/mulighetsrommet/blob/main/frontend/mulighetsrommet-veileder-flate/README.md> |
 | Url (dev-miljø) | <https://veilarbpersonflate.intern.dev.nav.no/12118323058>                                              |
 
-### `mulighetsrommet-api-client`
+### `@mr/api-client`
 
 Klient til frontend for å snakke med backend. Auto-generert med OpenAPI via `openapi.yaml` i `mulighetsrommet-api`.
 
-|              |                                                                                                               |
-|--------------|---------------------------------------------------------------------------------------------------------------|
-| Kildekode    | <https://github.com/navikt/mulighetsrommet/tree/main/frontend/mulighetsrommet-api-client>                     |
-| README       | <https://github.com/navikt/mulighetsrommet/blob/main/frontend/mulighetsrommet-api-client/README.md>           |
+|              |                                                                                                              |
+|--------------|--------------------------------------------------------------------------------------------------------------|
+| Kildekode    | <https://github.com/navikt/mulighetsrommet/tree/main/frontend/api-client>                   |
+| README       | <https://github.com/navikt/mulighetsrommet/blob/main/frontend/api-client/README.md>          |
 | openapi.yaml | <https://github.com/navikt/mulighetsrommet/tree/main/mulighetsrommet-api/src/main/resources/web/openapi.yaml> |
 
 ### `mulighetsrommet-veileder-cms`

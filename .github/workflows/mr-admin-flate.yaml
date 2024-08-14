@@ -8,7 +8,7 @@ on:
       - package-lock.json
       - turbo.json
       - frontend/mr-admin-flate/**
-      - frontend/mulighetsrommet-api-client/**
+      - frontend/api-client/**
       - mulighetsrommet-api/src/main/resources/web/openapi.yaml
   workflow_dispatch:
     inputs:

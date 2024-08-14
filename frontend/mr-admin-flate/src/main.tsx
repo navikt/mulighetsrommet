@@ -9,7 +9,7 @@ import { AdministratorHeader } from "./components/administrator/AdministratorHea
 import { DemoBanner } from "@/components/demo/DemoBanner";
 import "./index.css";
 import { isDemo } from "@/environment";
-import { ReloadAppErrorBoundary } from "mulighetsrommet-frontend-common";
+import { ReloadAppErrorBoundary } from "@mr/frontend-common";
 import { setupOpenAPIClient } from "@/api/setup-openapi-client";
 
 setupOpenAPIClient({

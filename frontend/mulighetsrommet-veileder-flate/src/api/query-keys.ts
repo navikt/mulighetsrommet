@@ -1,4 +1,4 @@
-import { JoyrideType, NavEnhetStatus, NavEnhetType } from "mulighetsrommet-api-client";
+import { JoyrideType, NavEnhetStatus, NavEnhetType } from "@mr/api-client";
 
 export const QueryKeys = {
   SanityQuery: "sanityQuery",

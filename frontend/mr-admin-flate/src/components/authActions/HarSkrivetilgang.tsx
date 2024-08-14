@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
-import { NavAnsatt, NavAnsattRolle } from "mulighetsrommet-api-client";
+import { NavAnsatt, NavAnsattRolle } from "@mr/api-client";
 
 interface Props {
   children: ReactNode;

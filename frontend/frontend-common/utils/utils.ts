@@ -1,4 +1,4 @@
-import { TiltaksgjennomforingStatus } from "mulighetsrommet-api-client";
+import { TiltaksgjennomforingStatus } from "@mr/api-client";
 import { shallowEquals } from "./shallow-equals";
 
 export function addOrRemove<T>(array: T[], item: T): T[] {

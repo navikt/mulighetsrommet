@@ -2,11 +2,11 @@ import { ContainerLayout } from "@/layouts/ContainerLayout";
 import { HeaderBanner } from "@/layouts/HeaderBanner";
 import { BellDotFillIcon } from "@navikt/aksel-icons";
 import { Tabs } from "@navikt/ds-react";
-import { useTitle } from "mulighetsrommet-frontend-common";
+import { useTitle } from "@mr/frontend-common";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import styles from "../Page.module.scss";
 import { useNotifikasjonerForAnsatt } from "../../api/notifikasjoner/useNotifikasjonerForAnsatt";
-import { NotificationStatus } from "mulighetsrommet-api-client";
+import { NotificationStatus } from "@mr/api-client";
 
 export function NotifikasjonerPage() {
   const { pathname } = useLocation();

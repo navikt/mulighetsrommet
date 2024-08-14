@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Avtale } from "mulighetsrommet-api-client";
+import { Avtale } from "@mr/api-client";
 import { BodyShort } from "@navikt/ds-react";
 import { avtaleHarRegioner } from "../../utils/Utils";
 import { PORTEN_URL } from "../../constants";

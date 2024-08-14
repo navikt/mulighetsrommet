@@ -1,8 +1,4 @@
-import {
-  NavAnsatt,
-  NavAnsattRolle,
-  TiltaksgjennomforingKontaktperson,
-} from "mulighetsrommet-api-client";
+import { NavAnsatt, NavAnsattRolle, TiltaksgjennomforingKontaktperson } from "@mr/api-client";
 
 const bertil: NavAnsatt = {
   azureId: "8c133e5e-fd93-4226-8567-41d699a3efee",

@@ -1,4 +1,4 @@
-import { Tiltakskode } from "mulighetsrommet-api-client";
+import { Tiltakskode } from "@mr/api-client";
 
 export const TILTAK_MED_FELLES_OPPSTART: Tiltakskode[] = [
   Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,

@@ -1,5 +1,5 @@
 import { http, HttpResponse, PathParams } from "msw";
-import { LagretDokumenttype, LagretFilter } from "mulighetsrommet-api-client";
+import { LagretDokumenttype, LagretFilter } from "@mr/api-client";
 
 export const lagretFilterHandlers = [
   http.get<PathParams, LagretFilter[] | undefined>(

@@ -1,4 +1,4 @@
-import { OpenAPI } from "mulighetsrommet-api-client";
+import { OpenAPI } from "@mr/api-client";
 import { v4 as uuidv4 } from "uuid";
 import { APPLICATION_NAME } from "@/constants";
 

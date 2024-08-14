@@ -1,5 +1,5 @@
 import { Tag } from "@navikt/ds-react";
-import { TiltaksgjennomforingStatus, TiltaksgjennomforingStatusDto } from "mulighetsrommet-api-client";
+import { TiltaksgjennomforingStatus, TiltaksgjennomforingStatusDto } from "@mr/api-client";
 import { useState } from "react";
 
 interface Props {

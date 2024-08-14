@@ -1,5 +1,5 @@
 import { HttpResponse, PathParams, http } from "msw";
-import { PaginertUserNotifications, UserNotificationSummary } from "mulighetsrommet-api-client";
+import { PaginertUserNotifications, UserNotificationSummary } from "@mr/api-client";
 import { mockNotifikasjoner } from "../fixtures/mock_notifikasjoner";
 import { mockUserNotificationSummary } from "../fixtures/mock_userNotificationSummary";
 

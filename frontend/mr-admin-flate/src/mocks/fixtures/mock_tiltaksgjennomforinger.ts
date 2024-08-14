@@ -11,7 +11,7 @@ import {
   Tiltaksgjennomforing,
   TiltaksgjennomforingOppstartstype,
   TiltaksgjennomforingStatus,
-} from "mulighetsrommet-api-client";
+} from "@mr/api-client";
 import { mockArrangorKontaktpersoner } from "./mock_arrangorKontaktperson";
 import { mockArrangorer } from "./mock_arrangorer";
 import { mockEnheter } from "./mock_enheter";

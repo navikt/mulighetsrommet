@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { ApiError, TilsagnDto, TilsagnService } from "mulighetsrommet-api-client";
+import { ApiError, TilsagnDto, TilsagnService } from "@mr/api-client";
 import { QueryKeys } from "../../../api/QueryKeys";
 import { useParams } from "react-router-dom";
 

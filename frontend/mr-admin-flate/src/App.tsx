@@ -1,7 +1,7 @@
 import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
 import { getWebInstrumentations, initializeFaro } from "@grafana/faro-web-sdk";
 import { Alert, BodyShort } from "@navikt/ds-react";
-import { NavAnsattRolle } from "mulighetsrommet-api-client";
+import { NavAnsattRolle } from "@mr/api-client";
 import { Route, Routes } from "react-router-dom";
 import { Forside } from "./Forside";
 import IkkeAutentisertApp from "./IkkeAutentisertApp";

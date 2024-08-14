@@ -1,6 +1,6 @@
 import { Alert, BodyLong, BodyShort, Heading, Link, Tag, VStack } from "@navikt/ds-react";
 import classNames from "classnames";
-import { NotificationType, UserNotification } from "mulighetsrommet-api-client";
+import { NotificationType, UserNotification } from "@mr/api-client";
 import { ReactNode, useState } from "react";
 import { formaterDatoTid } from "../../utils/Utils";
 import { CheckmarkButton } from "./CheckmarkButton";

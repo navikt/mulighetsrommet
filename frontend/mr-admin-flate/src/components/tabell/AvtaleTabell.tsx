@@ -10,10 +10,10 @@ import {
 } from "@/utils/Utils";
 import { Alert, Pagination, Table, VStack } from "@navikt/ds-react";
 import { useAtom, WritableAtom } from "jotai";
-import { OpenAPI, SorteringAvtaler } from "mulighetsrommet-api-client";
-import { Lenke } from "mulighetsrommet-frontend-common/components/lenke/Lenke";
-import { ToolbarContainer } from "mulighetsrommet-frontend-common/components/toolbar/toolbarContainer/ToolbarContainer";
-import { ToolbarMeny } from "mulighetsrommet-frontend-common/components/toolbar/toolbarMeny/ToolbarMeny";
+import { OpenAPI, SorteringAvtaler } from "@mr/api-client";
+import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
+import { ToolbarContainer } from "@mr/frontend-common/components/toolbar/toolbarContainer/ToolbarContainer";
+import { ToolbarMeny } from "@mr/frontend-common/components/toolbar/toolbarMeny/ToolbarMeny";
 import { createRef, useEffect, useState } from "react";
 import { ShowOpphavValue } from "../debug/ShowOpphavValue";
 import { Laster } from "../laster/Laster";

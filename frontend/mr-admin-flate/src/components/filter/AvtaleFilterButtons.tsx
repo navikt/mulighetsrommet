@@ -1,6 +1,6 @@
 import { HarSkrivetilgang } from "../authActions/HarSkrivetilgang";
 import style from "./AvtaleFilterButtons.module.scss";
-import { Lenkeknapp } from "mulighetsrommet-frontend-common/components/lenkeknapp/Lenkeknapp";
+import { Lenkeknapp } from "@mr/frontend-common/components/lenkeknapp/Lenkeknapp";
 import { avtaleDetaljerTabAtom } from "@/api/atoms";
 import { useSetAtom } from "jotai";
 

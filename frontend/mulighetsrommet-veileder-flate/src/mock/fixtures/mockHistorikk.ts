@@ -3,7 +3,7 @@ import {
   AmtDeltakerStatusType,
   ArenaDeltakerStatus,
   TiltakshistorikkAdminDto,
-} from "mulighetsrommet-api-client";
+} from "@mr/api-client";
 
 export const historikk: TiltakshistorikkAdminDto[] = [
   {

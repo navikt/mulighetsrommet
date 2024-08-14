@@ -1,6 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
-import { ApiError, TilsagnDto, TilsagnRequest } from "mulighetsrommet-api-client";
-import { TilsagnService } from "mulighetsrommet-api-client";
+import { ApiError, TilsagnDto, TilsagnRequest } from "@mr/api-client";
+import { TilsagnService } from "@mr/api-client";
 import { QueryKeys } from "../../api/QueryKeys";
 
 export function useOpprettTilsagn() {

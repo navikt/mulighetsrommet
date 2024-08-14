@@ -2,8 +2,8 @@ import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
 import { useFeatureToggle } from "@/api/features/useFeatureToggle";
 import { ExternalLinkIcon, MenuGridIcon } from "@navikt/aksel-icons";
 import { Dropdown, InternalHeader, Spacer } from "@navikt/ds-react";
-import { Toggles } from "mulighetsrommet-api-client";
-import { InlineErrorBoundary } from "mulighetsrommet-frontend-common";
+import { Toggles } from "@mr/api-client";
+import { InlineErrorBoundary } from "@mr/frontend-common";
 import { useRef } from "react";
 import { Link } from "react-router-dom";
 import {

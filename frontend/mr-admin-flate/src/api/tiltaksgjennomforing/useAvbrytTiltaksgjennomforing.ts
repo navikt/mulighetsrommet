@@ -1,9 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import {
-  ApiError,
-  AvbrytGjennomforingAarsak,
-  TiltaksgjennomforingerService,
-} from "mulighetsrommet-api-client";
+import { ApiError, AvbrytGjennomforingAarsak, TiltaksgjennomforingerService } from "@mr/api-client";
 import { QueryKeys } from "@/api/QueryKeys";
 
 export function useAvbrytTiltaksgjennomforing() {

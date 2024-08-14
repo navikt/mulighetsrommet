@@ -1,7 +1,7 @@
 import { Heading } from "@navikt/ds-react";
 import * as Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
-import { Toggles } from "mulighetsrommet-api-client";
+import { Toggles } from "@mr/api-client";
 import { useRef } from "react";
 import { useFeatureToggle } from "../../api/features/useFeatureToggle";
 import { useTiltaksgjennomforingDeltakerSummary } from "../../api/tiltaksgjennomforing/useTiltaksgjennomforingDeltakerSummary";

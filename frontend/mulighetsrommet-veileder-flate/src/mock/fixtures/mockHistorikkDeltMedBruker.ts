@@ -1,4 +1,4 @@
-import { TiltakDeltMedBruker } from "mulighetsrommet-api-client";
+import { TiltakDeltMedBruker } from "@mr/api-client";
 
 export const mockHistorikkDeltMedBruker: TiltakDeltMedBruker[] = [
   {

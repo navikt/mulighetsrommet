@@ -1,4 +1,4 @@
-import { NotificationType, PaginertUserNotifications } from "mulighetsrommet-api-client";
+import { NotificationType, PaginertUserNotifications } from "@mr/api-client";
 import { mockAvtaler } from "./mock_avtaler";
 import { formaterDato } from "../../utils/Utils";
 

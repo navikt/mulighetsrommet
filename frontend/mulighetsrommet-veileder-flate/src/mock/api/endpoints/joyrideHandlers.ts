@@ -1,5 +1,5 @@
 import { HttpResponse, PathParams, http } from "msw";
-import { JoyrideType, VeilederJoyrideRequest } from "mulighetsrommet-api-client";
+import { JoyrideType, VeilederJoyrideRequest } from "@mr/api-client";
 
 export const joyrideHandlers = [
   http.post<PathParams, VeilederJoyrideRequest>("*/api/v1/intern/joyride/lagre", async () => {

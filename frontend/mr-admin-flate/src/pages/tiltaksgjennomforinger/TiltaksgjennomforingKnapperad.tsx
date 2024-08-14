@@ -1,14 +1,14 @@
 import React, { useRef } from "react";
 import { BodyShort, Button, Dropdown, Switch } from "@navikt/ds-react";
 import { useMutatePublisert } from "@/api/tiltaksgjennomforing/useMutatePublisert";
-import { NavAnsatt, Tiltaksgjennomforing, Toggles } from "mulighetsrommet-api-client";
+import { NavAnsatt, Tiltaksgjennomforing, Toggles } from "@mr/api-client";
 import { useTiltaksgjennomforingEndringshistorikk } from "@/api/tiltaksgjennomforing/useTiltaksgjennomforingEndringshistorikk";
 import { EndringshistorikkPopover } from "@/components/endringshistorikk/EndringshistorikkPopover";
 import { ViewEndringshistorikk } from "@/components/endringshistorikk/ViewEndringshistorikk";
 import { useNavigate } from "react-router-dom";
 import { HarSkrivetilgang } from "@/components/authActions/HarSkrivetilgang";
 import { VarselModal } from "@/components/modal/VarselModal";
-import { gjennomforingIsAktiv } from "mulighetsrommet-frontend-common/utils/utils";
+import { gjennomforingIsAktiv } from "@mr/frontend-common/utils/utils";
 import { erArenaOpphavOgIngenEierskap } from "@/components/tiltaksgjennomforinger/TiltaksgjennomforingSkjemaConst";
 import { useMigrerteTiltakstyper } from "@/api/tiltakstyper/useMigrerteTiltakstyper";
 import { AvbrytGjennomforingModal } from "@/components/modal/AvbrytGjennomforingModal";

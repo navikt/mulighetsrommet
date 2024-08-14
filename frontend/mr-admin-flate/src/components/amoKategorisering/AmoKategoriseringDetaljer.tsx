@@ -1,4 +1,4 @@
-import { AmoKategorisering } from "mulighetsrommet-api-client";
+import { AmoKategorisering } from "@mr/api-client";
 import { Metadata } from "@/components/detaljside/Metadata";
 import { Bolk } from "@/components/detaljside/Bolk";
 import { tiltaktekster } from "@/components/ledetekster/tiltaksgjennomforingLedetekster";

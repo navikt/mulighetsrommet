@@ -1,13 +1,13 @@
 import { Accordion, Alert, HelpText, Radio, RadioGroup } from "@navikt/ds-react";
 import { useAtom } from "jotai";
-import { Innsatsgruppe, VeilederflateInnsatsgruppe } from "mulighetsrommet-api-client";
+import { Innsatsgruppe, VeilederflateInnsatsgruppe } from "@mr/api-client";
 import { useInnsatsgrupper } from "@/api/queries/useInnsatsgrupper";
 import { filterAccordionAtom } from "@/core/atoms";
 import { useArbeidsmarkedstiltakFilter } from "@/hooks/useArbeidsmarkedstiltakFilter";
 import { addOrRemove } from "@/utils/Utils";
 import "./Filtermeny.module.scss";
-import { kebabCase } from "mulighetsrommet-frontend-common/utils/TestUtils";
-import { FilterAccordionHeader } from "mulighetsrommet-frontend-common";
+import { kebabCase } from "@mr/frontend-common/utils/TestUtils";
+import { FilterAccordionHeader } from "@mr/frontend-common";
 
 export function InnsatsgruppeFilter() {
   const [filter, setFilter] = useArbeidsmarkedstiltakFilter();

@@ -5,7 +5,7 @@ import {
   Kurstype,
   Sertifisering,
   Spesifisering,
-} from "mulighetsrommet-api-client";
+} from "@mr/api-client";
 import { useFormContext } from "react-hook-form";
 import {
   forerkortKlasseToString,

@@ -7,7 +7,7 @@ import {
   InnholdElement,
   Kurstype,
   Spesifisering,
-} from "mulighetsrommet-api-client";
+} from "@mr/api-client";
 import { AvtaleFilter, TiltaksgjennomforingFilter } from "@/api/atoms";
 
 export function capitalize(text?: string): string {

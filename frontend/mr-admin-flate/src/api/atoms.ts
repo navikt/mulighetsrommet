@@ -12,7 +12,7 @@ import {
   SorteringTiltaksgjennomforinger,
   SorteringTiltakstyper,
   TiltaksgjennomforingStatus,
-} from "mulighetsrommet-api-client";
+} from "@mr/api-client";
 import { z, ZodType } from "zod";
 
 type SetStateActionWithReset<Value> =

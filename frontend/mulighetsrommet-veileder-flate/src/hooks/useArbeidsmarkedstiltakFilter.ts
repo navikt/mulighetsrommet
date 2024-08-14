@@ -1,4 +1,4 @@
-import { ApentForInnsok, Innsatsgruppe, NavEnhet } from "mulighetsrommet-api-client";
+import { ApentForInnsok, Innsatsgruppe, NavEnhet } from "@mr/api-client";
 import {
   atomWithStorage,
   createJSONStorage,

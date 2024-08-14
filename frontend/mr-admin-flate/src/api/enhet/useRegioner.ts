@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { QueryKeys } from "@/api/QueryKeys";
-import { NavEnheterService } from "mulighetsrommet-api-client";
+import { NavEnheterService } from "@mr/api-client";
 
 export function useRegioner() {
   return useQuery({

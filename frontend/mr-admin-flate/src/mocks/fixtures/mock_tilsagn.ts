@@ -1,4 +1,4 @@
-import { NavEnhetStatus, NavEnhetType, TilsagnDto } from "mulighetsrommet-api-client";
+import { NavEnhetStatus, NavEnhetType, TilsagnDto } from "@mr/api-client";
 import { mockArrangorer } from "./mock_arrangorer";
 import { mockTiltaksgjennomforinger } from "./mock_tiltaksgjennomforinger";
 

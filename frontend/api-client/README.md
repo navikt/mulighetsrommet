@@ -1,4 +1,4 @@
-# `mulighetsrommet-api-client`
+# `@mr/api-client`
 
 Klient generert av OpenAPI-dokumentasjonen i `mulighetsrommet-api`.
 
