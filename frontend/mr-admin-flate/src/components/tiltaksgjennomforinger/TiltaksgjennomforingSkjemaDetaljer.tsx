@@ -112,37 +112,38 @@ export function TiltaksgjennomforingSkjemaDetaljer({ tiltaksgjennomforing, avtal
     };
 
     resetEstimertVentetid();
-  }, [watchVisEstimertVentetid]);
+  }, [setValue, watchVisEstimertVentetid]);
 
   const watchStartDato = watch("startOgSluttDato.startDato");
+  const antallDeltakere = deltakerSummary?.antallDeltakere;
   useEffect(() => {
     if (
       tiltaksgjennomforing &&
-      deltakerSummary?.antallDeltakere &&
-      deltakerSummary.antallDeltakere > 0 &&
+      antallDeltakere &&
+      antallDeltakere > 0 &&
       tiltaksgjennomforing.startDato !== watchStartDato
     ) {
       endreStartDatoModalRef.current?.showModal();
     }
-  }, [watchStartDato]);
+  }, [watchStartDato, antallDeltakere, tiltaksgjennomforing]);
 
   useEffect(() => {
     if (watchStartDato && new Date(watchStartDato) < new Date()) {
       setValue("tilgjengeligForArrangorFraOgMedDato", null);
     }
-  }, [watchStartDato]);
+  }, [setValue, watchStartDato]);
 
   const watchSluttDato = watch("startOgSluttDato.sluttDato");
   useEffect(() => {
     if (
       tiltaksgjennomforing &&
-      deltakerSummary?.antallDeltakere &&
-      deltakerSummary.antallDeltakere > 0 &&
+      antallDeltakere &&
+      antallDeltakere > 0 &&
       tiltaksgjennomforing.sluttDato !== watchSluttDato
     ) {
       endreSluttDatoModalRef.current?.showModal();
     }
-  }, [watchSluttDato]);
+  }, [watchSluttDato, antallDeltakere, tiltaksgjennomforing]);
 
   const regionerOptions = avtale.kontorstruktur
     .map((struk) => struk.region)

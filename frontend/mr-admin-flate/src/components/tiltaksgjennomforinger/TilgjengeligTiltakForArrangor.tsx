@@ -101,7 +101,7 @@ export function TiltakTilgjengeligForArrangor({ gjennomforing }: Props) {
         <Modal.Body>
           <FormProvider {...form}>
             <form>
-              <HStack gap="2" align={"end"}>
+              <HStack gap="2" align={"end"} justify={"center"}>
                 <ControlledDateInput
                   label="Når skal arrangør ha tilgang?"
                   size="small"
@@ -117,10 +117,10 @@ export function TiltakTilgjengeligForArrangor({ gjennomforing }: Props) {
         </Modal.Body>
 
         <Modal.Footer>
-          <Button type="submit" onClick={submit}>
+          <Button size="small" type="submit" onClick={submit}>
             Endre dato
           </Button>
-          <Button type="button" variant="secondary" onClick={cancel}>
+          <Button size="small" type="button" variant="secondary" onClick={cancel}>
             Avbryt endring
           </Button>
         </Modal.Footer>
