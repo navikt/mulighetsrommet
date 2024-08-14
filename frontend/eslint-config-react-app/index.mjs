@@ -8,7 +8,7 @@ import reactRefresh from "eslint-plugin-react-refresh";
 
 export default ts.config(
   {
-    ignores: ["**/dist", "**/.eslintrc.cjs"],
+    ignores: ["**/dist"],
   },
   js.configs.recommended,
   pluginPromise.configs["flat/recommended"],
