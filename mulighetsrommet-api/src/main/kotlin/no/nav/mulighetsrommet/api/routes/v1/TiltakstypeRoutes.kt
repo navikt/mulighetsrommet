@@ -7,7 +7,7 @@ import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import io.ktor.util.pipeline.*
 import no.nav.mulighetsrommet.api.domain.dto.VeilederflateTiltakstype
-import no.nav.mulighetsrommet.api.routes.v1.parameters.getPaginationParams
+import no.nav.mulighetsrommet.api.parameters.getPaginationParams
 import no.nav.mulighetsrommet.api.services.TiltakstypeService
 import no.nav.mulighetsrommet.api.services.VeilederflateService
 import no.nav.mulighetsrommet.domain.Tiltakskode

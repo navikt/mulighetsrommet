@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.routes.v1.responses
+package no.nav.mulighetsrommet.api.responses
 
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.database.utils.Pagination

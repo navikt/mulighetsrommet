@@ -5,7 +5,7 @@ import com.github.benmanes.caffeine.cache.Caffeine
 import no.nav.mulighetsrommet.api.domain.dto.TiltakstypeAdminDto
 import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.api.routes.v1.TiltakstypeFilter
-import no.nav.mulighetsrommet.api.routes.v1.responses.PaginatedResponse
+import no.nav.mulighetsrommet.api.responses.PaginatedResponse
 import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.utils.CacheUtils
