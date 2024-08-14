@@ -39,7 +39,7 @@
     "is-url": "1.2.4",
     "jotai": "2.9.3",
     "@mr/api-client": "*",
-    "mulighetsrommet-frontend-common": "*",
+    "@mr/frontend-common": "*",
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "react-error-boundary": "4.0.13",

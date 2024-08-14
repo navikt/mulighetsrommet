@@ -11,7 +11,7 @@ import styles from "./ViewTiltaksgjennomforingDetaljer.module.scss";
 import { useInnsatsgrupper } from "@/api/queries/useInnsatsgrupper";
 import { EstimertVentetid } from "@/components/sidemeny/EstimertVentetid";
 import { SidemenyKanKombineresMed } from "@/components/sidemeny/SidemenyKanKombineresMed";
-import { DetaljerSkeleton } from "mulighetsrommet-frontend-common";
+import { DetaljerSkeleton } from "@mr/frontend-common";
 
 interface Props {
   tiltaksgjennomforing: VeilederflateTiltaksgjennomforing;

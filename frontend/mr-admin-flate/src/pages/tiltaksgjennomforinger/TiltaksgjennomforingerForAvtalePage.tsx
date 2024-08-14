@@ -1,4 +1,4 @@
-import { FilterAndTableLayout } from "mulighetsrommet-frontend-common/components/filterAndTableLayout/FilterAndTableLayout";
+import { FilterAndTableLayout } from "@mr/frontend-common/components/filterAndTableLayout/FilterAndTableLayout";
 import { TiltaksgjennomforingFilter } from "@/components/filter/TiltaksgjennomforingFilter";
 import {
   gjennomforingerForAvtaleFilterAtomFamily,
@@ -12,8 +12,8 @@ import { useGetAvtaleIdFromUrlOrThrow } from "@/hooks/useGetAvtaleIdFromUrl";
 import { useState } from "react";
 import { useAvtale } from "@/api/avtaler/useAvtale";
 import { NullstillKnappForTiltaksgjennomforinger } from "@/pages/tiltaksgjennomforinger/NullstillKnappForTiltaksgjennomforinger";
-import { TilToppenKnapp } from "mulighetsrommet-frontend-common/components/tilToppenKnapp/TilToppenKnapp";
-import { LagredeFilterOversikt } from "mulighetsrommet-frontend-common";
+import { TilToppenKnapp } from "@mr/frontend-common/components/tilToppenKnapp/TilToppenKnapp";
+import { LagredeFilterOversikt } from "@mr/frontend-common";
 import { LagretDokumenttype } from "@mr/api-client";
 import { useAtom } from "jotai/index";
 

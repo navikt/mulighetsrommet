@@ -13,9 +13,9 @@ import {
   Tiltakstype,
   Toggles,
 } from "@mr/api-client";
-import { ControlledSokeSelect } from "mulighetsrommet-frontend-common/components/ControlledSokeSelect";
-import { LabelWithHelpText } from "mulighetsrommet-frontend-common/components/label/LabelWithHelpText";
-import { SelectOption } from "mulighetsrommet-frontend-common/components/SokeSelect";
+import { ControlledSokeSelect } from "@mr/frontend-common/components/ControlledSokeSelect";
+import { LabelWithHelpText } from "@mr/frontend-common/components/label/LabelWithHelpText";
+import { SelectOption } from "@mr/frontend-common/components/SokeSelect";
 import { DeepPartial, useFormContext } from "react-hook-form";
 import { MultiValue } from "react-select";
 import { useFeatureToggle } from "@/api/features/useFeatureToggle";

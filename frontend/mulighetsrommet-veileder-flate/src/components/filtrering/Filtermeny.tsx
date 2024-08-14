@@ -10,8 +10,8 @@ import { Tiltakstypefilter } from "./Tiltakstypefilter";
 import { useAtom } from "jotai";
 import { filterAccordionAtom } from "@/core/atoms";
 import { useRegioner } from "@/api/queries/useRegioner";
-import { addOrRemove } from "mulighetsrommet-frontend-common/utils/utils";
-import { FilterAccordionHeader, NavEnhetFilter } from "mulighetsrommet-frontend-common";
+import { addOrRemove } from "@mr/frontend-common/utils/utils";
+import { FilterAccordionHeader, NavEnhetFilter } from "@mr/frontend-common";
 
 export function Filtermeny() {
   const [filter, setFilter] = useArbeidsmarkedstiltakFilter();

@@ -1,4 +1,4 @@
-import { FilterAndTableLayout } from "mulighetsrommet-frontend-common/components/filterAndTableLayout/FilterAndTableLayout";
+import { FilterAndTableLayout } from "@mr/frontend-common/components/filterAndTableLayout/FilterAndTableLayout";
 import { Tiltaksgjennomforingsoversikt } from "@/components/oversikt/Tiltaksgjennomforingsoversikt";
 import { useNavTiltaksgjennomforinger } from "@/api/queries/useTiltaksgjennomforinger";
 import {
@@ -11,14 +11,10 @@ import {
 import { NavFiltertags } from "@/apps/nav/filtrering/NavFiltertags";
 import { useState } from "react";
 import { Feilmelding } from "@/components/feilmelding/Feilmelding";
-import { TilToppenKnapp } from "mulighetsrommet-frontend-common/components/tilToppenKnapp/TilToppenKnapp";
-import { NullstillFilterKnapp } from "mulighetsrommet-frontend-common/components/nullstillFilterKnapp/NullstillFilterKnapp";
+import { TilToppenKnapp } from "@mr/frontend-common/components/tilToppenKnapp/TilToppenKnapp";
+import { NullstillFilterKnapp } from "@mr/frontend-common/components/nullstillFilterKnapp/NullstillFilterKnapp";
 import { Filtermeny } from "@/components/filtrering/Filtermeny";
-import {
-  LagredeFilterOversikt,
-  LagreFilterContainer,
-  ListSkeleton,
-} from "mulighetsrommet-frontend-common";
+import { LagredeFilterOversikt, LagreFilterContainer, ListSkeleton } from "@mr/frontend-common";
 import { LagretDokumenttype } from "@mr/api-client";
 import { HStack } from "@navikt/ds-react";
 

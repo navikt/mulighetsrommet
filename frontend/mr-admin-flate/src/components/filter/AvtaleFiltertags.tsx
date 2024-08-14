@@ -6,7 +6,7 @@ import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
 import { useArrangorer } from "@/api/arrangor/useArrangorer";
 import { addOrRemove, avtaletypeTilTekst } from "@/utils/Utils";
 import { AVTALE_STATUS_OPTIONS } from "@/utils/filterUtils";
-import { FilterTag, FilterTagsContainer } from "mulighetsrommet-frontend-common";
+import { FilterTag, FilterTagsContainer } from "@mr/frontend-common";
 
 interface Props {
   filterAtom: WritableAtom<AvtaleFilter, [newValue: AvtaleFilter], void>;

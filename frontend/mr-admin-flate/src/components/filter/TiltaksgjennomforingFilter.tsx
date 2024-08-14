@@ -16,11 +16,7 @@ import {
   TILTAKSGJENNOMFORING_STATUS_OPTIONS,
   tiltakstypeOptions,
 } from "@/utils/filterUtils";
-import {
-  FilterAccordionHeader,
-  FilterSkeleton,
-  NavEnhetFilter,
-} from "mulighetsrommet-frontend-common";
+import { FilterAccordionHeader, FilterSkeleton, NavEnhetFilter } from "@mr/frontend-common";
 import { useRegioner } from "@/api/enhet/useRegioner";
 import { CheckboxList } from "./CheckboxList";
 import { logEvent } from "@/logging/amplitude";

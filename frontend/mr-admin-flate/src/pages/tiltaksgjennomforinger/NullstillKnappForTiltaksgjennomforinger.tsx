@@ -1,9 +1,9 @@
 import { defaultTiltaksgjennomforingfilter, TiltaksgjennomforingFilter } from "@/api/atoms";
 import { useAtom } from "jotai/index";
-import { NullstillFilterKnapp } from "mulighetsrommet-frontend-common/components/nullstillFilterKnapp/NullstillFilterKnapp";
+import { NullstillFilterKnapp } from "@mr/frontend-common/components/nullstillFilterKnapp/NullstillFilterKnapp";
 import { Avtale, LagretDokumenttype } from "@mr/api-client";
 import { WritableAtom } from "jotai";
-import { LagreFilterContainer } from "mulighetsrommet-frontend-common";
+import { LagreFilterContainer } from "@mr/frontend-common";
 
 interface Props {
   filterAtom: WritableAtom<

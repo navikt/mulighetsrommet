@@ -29,8 +29,8 @@ import {
   InlineErrorBoundary,
   TilbakemeldingLenke,
   useTitle,
-} from "mulighetsrommet-frontend-common";
-import { gjennomforingIsAktiv } from "mulighetsrommet-frontend-common/utils/utils";
+} from "@mr/frontend-common";
+import { gjennomforingIsAktiv } from "@mr/frontend-common/utils/utils";
 import { useFeatureToggle } from "../../../api/feature-toggles";
 import { useTiltaksgjennomforingById } from "../../../api/queries/useTiltaksgjennomforingById";
 import { PameldingForGruppetiltak } from "../../../components/pamelding/PameldingForGruppetiltak";

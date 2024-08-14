@@ -1,8 +1,8 @@
 import { ApentForInnsok } from "@mr/api-client";
 import { useArbeidsmarkedstiltakFilter } from "@/hooks/useArbeidsmarkedstiltakFilter";
-import { FilterTag } from "mulighetsrommet-frontend-common/components/filter/filterTag/FilterTag";
-import { NavEnhetFilterTag } from "mulighetsrommet-frontend-common/components/filter/filterTag/NavEnhetFilterTag";
-import { FilterTagsContainer } from "mulighetsrommet-frontend-common/components/filter/filterTag/FilterTagsContainer";
+import { FilterTag } from "@mr/frontend-common/components/filter/filterTag/FilterTag";
+import { NavEnhetFilterTag } from "@mr/frontend-common/components/filter/filterTag/NavEnhetFilterTag";
+import { FilterTagsContainer } from "@mr/frontend-common/components/filter/filterTag/FilterTagsContainer";
 
 interface Props {
   filterOpen: boolean;

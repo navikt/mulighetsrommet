@@ -1,6 +1,6 @@
 import { Alert, HelpText } from "@navikt/ds-react";
 import { TiltaksgjennomforingOppstartstype } from "@mr/api-client";
-import { ControlledSokeSelect } from "mulighetsrommet-frontend-common";
+import { ControlledSokeSelect } from "@mr/frontend-common";
 import { useController } from "react-hook-form";
 import { useTiltaksgjennomforingDeltakerSummary } from "@/api/tiltaksgjennomforing/useTiltaksgjennomforingDeltakerSummary";
 import { Laster } from "../laster/Laster";

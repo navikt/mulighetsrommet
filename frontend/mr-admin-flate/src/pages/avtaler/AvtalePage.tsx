@@ -1,6 +1,6 @@
 import { useAvtale } from "@/api/avtaler/useAvtale";
 import { Alert, Heading, Tabs, VStack } from "@navikt/ds-react";
-import { useTitle } from "mulighetsrommet-frontend-common";
+import { useTitle } from "@mr/frontend-common";
 import { Link, Outlet, useLocation, useMatch } from "react-router-dom";
 import { DupliserAvtale } from "@/components/avtaler/DupliserAvtale";
 import { ShowOpphavValue } from "@/components/debug/ShowOpphavValue";

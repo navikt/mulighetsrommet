@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { useDebounce } from "mulighetsrommet-frontend-common";
+import { useDebounce } from "@mr/frontend-common";
 import { QueryKeys } from "@/api/QueryKeys";
 import { VirksomhetService } from "@mr/api-client";
 

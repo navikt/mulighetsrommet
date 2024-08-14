@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { ArrangorService, ArrangorTil } from "@mr/api-client";
 import { QueryKeys } from "@/api/QueryKeys";
 import { ArrangorerFilter } from "../atoms";
-import { useDebounce } from "mulighetsrommet-frontend-common";
+import { useDebounce } from "@mr/frontend-common";
 
 export function useArrangorer(til?: ArrangorTil, filter?: Partial<ArrangorerFilter>) {
   const debouncedSok = useDebounce(filter?.sok?.trim(), 300);

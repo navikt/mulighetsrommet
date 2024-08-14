@@ -9,10 +9,10 @@ import {
 import { Alert, Pagination, Table, Tag, VStack } from "@navikt/ds-react";
 import { useAtom, WritableAtom } from "jotai";
 import { OpenAPI, SorteringTiltaksgjennomforinger } from "@mr/api-client";
-import { TiltaksgjennomforingStatusTag } from "mulighetsrommet-frontend-common";
-import { Lenke } from "mulighetsrommet-frontend-common/components/lenke/Lenke";
-import { ToolbarContainer } from "mulighetsrommet-frontend-common/components/toolbar/toolbarContainer/ToolbarContainer";
-import { ToolbarMeny } from "mulighetsrommet-frontend-common/components/toolbar/toolbarMeny/ToolbarMeny";
+import { TiltaksgjennomforingStatusTag } from "@mr/frontend-common";
+import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
+import { ToolbarContainer } from "@mr/frontend-common/components/toolbar/toolbarContainer/ToolbarContainer";
+import { ToolbarMeny } from "@mr/frontend-common/components/toolbar/toolbarMeny/ToolbarMeny";
 import React, { createRef, useEffect, useState } from "react";
 import pageStyles from "../../pages/Page.module.scss";
 import { ShowOpphavValue } from "../debug/ShowOpphavValue";

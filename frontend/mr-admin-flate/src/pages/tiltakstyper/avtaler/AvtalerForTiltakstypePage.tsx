@@ -1,15 +1,15 @@
-import { LagredeFilterOversikt, useTitle } from "mulighetsrommet-frontend-common";
+import { LagredeFilterOversikt, useTitle } from "@mr/frontend-common";
 import { AvtaleFilterSchema, getAvtalerForTiltakstypeFilterAtom } from "@/api/atoms";
 import { AvtaleTabell } from "@/components/tabell/AvtaleTabell";
 import { useGetTiltakstypeIdFromUrlOrThrow } from "@/hooks/useGetTiltakstypeIdFromUrl";
 import { ContainerLayout } from "@/layouts/ContainerLayout";
-import { FilterAndTableLayout } from "mulighetsrommet-frontend-common/components/filterAndTableLayout/FilterAndTableLayout";
+import { FilterAndTableLayout } from "@mr/frontend-common/components/filterAndTableLayout/FilterAndTableLayout";
 import { AvtaleFiltertags } from "@/components/filter/AvtaleFiltertags";
 import { AvtaleFilterButtons } from "@/components/filter/AvtaleFilterButtons";
 import { AvtaleFilter } from "@/components/filter/AvtaleFilter";
 import { useState } from "react";
 import { NullstillKnappForAvtaler } from "@/pages/avtaler/NullstillKnappForAvtaler";
-import { TilToppenKnapp } from "mulighetsrommet-frontend-common/components/tilToppenKnapp/TilToppenKnapp";
+import { TilToppenKnapp } from "@mr/frontend-common/components/tilToppenKnapp/TilToppenKnapp";
 import { useAtom } from "jotai/index";
 import { LagretDokumenttype } from "@mr/api-client";
 

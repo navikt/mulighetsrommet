@@ -9,7 +9,7 @@ import { Laster } from "../laster/Laster";
 import React, { useState } from "react";
 import { FileTextIcon, LinkIcon, PaperplaneIcon } from "@navikt/aksel-icons";
 import { Lenker } from "../lenker/Lenker";
-import { InlineErrorBoundary } from "mulighetsrommet-frontend-common";
+import { InlineErrorBoundary } from "@mr/frontend-common";
 import { RedaksjoneltInnholdContainer } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdContainer";
 import { SkjemaDetaljerContainer } from "@/components/skjema/SkjemaDetaljerContainer";
 import { FaneinnholdContainer } from "@/components/redaksjoneltInnhold/FaneinnholdContainer";

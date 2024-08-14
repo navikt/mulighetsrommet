@@ -2,7 +2,7 @@ import { Heading } from "@navikt/ds-react";
 import styles from "./Forside.module.scss";
 import { BrukerNotifikasjoner } from "./components/notifikasjoner/BrukerNotifikasjoner";
 import { ForsidekortListe } from "./components/forsidekort/ForsidekortListe";
-import { useTitle } from "mulighetsrommet-frontend-common";
+import { useTitle } from "@mr/frontend-common";
 
 export function Forside() {
   useTitle("NAV Tiltaksadministrasjon");

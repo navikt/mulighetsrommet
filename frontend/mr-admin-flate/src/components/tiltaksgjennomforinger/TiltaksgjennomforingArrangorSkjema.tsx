@@ -1,7 +1,7 @@
 import { useArrangorKontaktpersoner } from "@/api/arrangor/useArrangorKontaktpersoner";
 import { Button, Textarea, TextField, VStack } from "@navikt/ds-react";
 import { ArrangorKontaktperson, ArrangorKontaktpersonAnsvar, Avtale } from "@mr/api-client";
-import { ControlledSokeSelect } from "mulighetsrommet-frontend-common";
+import { ControlledSokeSelect } from "@mr/frontend-common";
 import { useRef } from "react";
 import { useFormContext } from "react-hook-form";
 import { ArrangorKontaktpersonerModal } from "../arrangor/ArrangorKontaktpersonerModal";

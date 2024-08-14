@@ -1,5 +1,6 @@
 {
-  "name": "mulighetsrommet-frontend-common",
+  "name": "@mr/frontend-common",
+  "private": true,
   "version": "1.0.0",
   "description": "Felleskode for frontend-applikasjoner for Team Valp",
   "module": "index.ts",

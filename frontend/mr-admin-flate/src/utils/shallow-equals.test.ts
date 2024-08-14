@@ -1,4 +1,4 @@
-import { shallowEquals } from "mulighetsrommet-frontend-common";
+import { shallowEquals } from "@mr/frontend-common";
 import { describe, expect, test } from "vitest";
 
 describe("Primitive values", () => {

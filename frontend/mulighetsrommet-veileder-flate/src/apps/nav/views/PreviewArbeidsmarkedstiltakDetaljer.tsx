@@ -7,7 +7,7 @@ import { Innsatsgruppe, NavEnhetStatus, NavEnhetType } from "@mr/api-client";
 import { InlineErrorBoundary } from "@/ErrorBoundary";
 import { PersonvernContainer } from "@/components/personvern/PersonvernContainer";
 import { LenkeListe } from "@/components/sidemeny/Lenker";
-import { DetaljerSkeleton } from "mulighetsrommet-frontend-common";
+import { DetaljerSkeleton } from "@mr/frontend-common";
 
 export function PreviewArbeidsmarkedstiltakDetaljer() {
   const { data, isPending, isError } = usePreviewTiltaksgjennomforingById();

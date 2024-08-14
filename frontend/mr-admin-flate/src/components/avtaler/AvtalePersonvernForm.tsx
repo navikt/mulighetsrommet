@@ -10,7 +10,7 @@ import {
   Radio,
   VStack,
 } from "@navikt/ds-react";
-import { addOrRemove } from "mulighetsrommet-frontend-common/utils/utils";
+import { addOrRemove } from "@mr/frontend-common/utils/utils";
 import { useFormContext } from "react-hook-form";
 import { Separator } from "../detaljside/Metadata";
 import { InferredAvtaleSchema } from "@/components/redaksjoneltInnhold/AvtaleSchema";

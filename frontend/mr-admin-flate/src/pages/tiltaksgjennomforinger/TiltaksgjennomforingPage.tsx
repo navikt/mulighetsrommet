@@ -1,7 +1,7 @@
 import { useTiltaksgjennomforingById } from "@/api/tiltaksgjennomforing/useTiltaksgjennomforingById";
 import { Alert, Heading, Tabs, VStack } from "@navikt/ds-react";
 import classNames from "classnames";
-import { Lenkeknapp } from "mulighetsrommet-frontend-common/components/lenkeknapp/Lenkeknapp";
+import { Lenkeknapp } from "@mr/frontend-common/components/lenkeknapp/Lenkeknapp";
 import { Link, Outlet, useLocation, useParams } from "react-router-dom";
 import { ShowOpphavValue } from "@/components/debug/ShowOpphavValue";
 import { Header } from "@/components/detaljside/Header";
@@ -14,7 +14,7 @@ import { PREVIEW_ARBEIDSMARKEDSTILTAK_URL } from "@/constants";
 import { useNavigateAndReplaceUrl } from "@/hooks/useNavigateWithoutReplacingUrl";
 import { ContainerLayout } from "@/layouts/ContainerLayout";
 import commonStyles from "../Page.module.scss";
-import { TiltaksgjennomforingStatusTag } from "mulighetsrommet-frontend-common";
+import { TiltaksgjennomforingStatusTag } from "@mr/frontend-common";
 import { TiltaksgjennomforingStatus, Toggles } from "@mr/api-client";
 import { useFeatureToggle } from "@/api/features/useFeatureToggle";
 

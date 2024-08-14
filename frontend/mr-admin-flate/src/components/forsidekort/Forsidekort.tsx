@@ -1,6 +1,6 @@
 import { BodyShort, Heading } from "@navikt/ds-react";
 import { Link } from "react-router-dom";
-import { kebabCase } from "mulighetsrommet-frontend-common/utils/TestUtils";
+import { kebabCase } from "@mr/frontend-common/utils/TestUtils";
 import styles from "./Forsidekort.module.scss";
 import { logEvent } from "@/logging/amplitude";
 import { ReactNode } from "react";

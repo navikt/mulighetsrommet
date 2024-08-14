@@ -8,7 +8,7 @@ import { ViewEndringshistorikk } from "@/components/endringshistorikk/ViewEndrin
 import { useNavigate } from "react-router-dom";
 import { HarSkrivetilgang } from "@/components/authActions/HarSkrivetilgang";
 import { VarselModal } from "@/components/modal/VarselModal";
-import { gjennomforingIsAktiv } from "mulighetsrommet-frontend-common/utils/utils";
+import { gjennomforingIsAktiv } from "@mr/frontend-common/utils/utils";
 import { erArenaOpphavOgIngenEierskap } from "@/components/tiltaksgjennomforinger/TiltaksgjennomforingSkjemaConst";
 import { useMigrerteTiltakstyper } from "@/api/tiltakstyper/useMigrerteTiltakstyper";
 import { AvbrytGjennomforingModal } from "@/components/modal/AvbrytGjennomforingModal";

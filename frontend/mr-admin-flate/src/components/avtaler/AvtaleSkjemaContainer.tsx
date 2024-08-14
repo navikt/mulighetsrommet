@@ -25,7 +25,7 @@ import { AvtaleSkjemaDetaljer } from "./AvtaleSkjemaDetaljer";
 import { AvtaleSkjemaKnapperad } from "./AvtaleSkjemaKnapperad";
 import { AvtalePersonvernForm } from "./AvtalePersonvernForm";
 import { Laster } from "../laster/Laster";
-import { InlineErrorBoundary } from "mulighetsrommet-frontend-common";
+import { InlineErrorBoundary } from "@mr/frontend-common";
 import { RedaksjoneltInnholdBunnKnapperad } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdBunnKnapperad";
 import styles from "./AvtaleSkjemaContainer.module.scss";
 

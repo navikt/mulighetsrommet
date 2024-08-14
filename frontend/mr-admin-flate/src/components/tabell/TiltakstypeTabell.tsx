@@ -5,7 +5,7 @@ import { formaterDato } from "@/utils/Utils";
 import { Alert, Table } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import { SorteringTiltakstyper } from "@mr/api-client";
-import { Lenke } from "mulighetsrommet-frontend-common/components/lenke/Lenke";
+import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import { Laster } from "../laster/Laster";
 import { TiltakstypestatusTag } from "../statuselementer/TiltakstypestatusTag";
 import styles from "./Tabell.module.scss";

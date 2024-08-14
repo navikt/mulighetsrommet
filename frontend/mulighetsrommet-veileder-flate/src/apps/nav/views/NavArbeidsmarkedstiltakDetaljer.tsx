@@ -5,7 +5,7 @@ import { Alert } from "@navikt/ds-react";
 import { InlineErrorBoundary } from "@/ErrorBoundary";
 import { PersonvernContainer } from "@/components/personvern/PersonvernContainer";
 import { LenkeListe } from "@/components/sidemeny/Lenker";
-import { DetaljerSkeleton } from "mulighetsrommet-frontend-common";
+import { DetaljerSkeleton } from "@mr/frontend-common";
 
 export function NavArbeidsmarkedstiltakDetaljer() {
   const { data, isError, isPending } = useNavTiltaksgjennomforingById();
