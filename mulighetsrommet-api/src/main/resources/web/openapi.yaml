@@ -5,7 +5,7 @@ info:
   title: Mulighetsrommet API
 
 security:
-  - bearerAuth: [ ]
+  - bearerAuth: []
 
 paths:
   /api/v1/intern/bruker:
@@ -1476,7 +1476,7 @@ paths:
         content:
           application/json:
             schema:
-                $ref: "#/components/schemas/SetNotificationStatusRequest"
+              $ref: "#/components/schemas/SetNotificationStatusRequest"
         required: true
       responses:
         200:
@@ -1485,7 +1485,6 @@ paths:
             text/plain:
               schema:
                 type: string
-
 
   /api/v1/intern/features:
     parameters:
@@ -1668,7 +1667,7 @@ paths:
               schema:
                 type: array
                 items:
-                    $ref: "#/components/schemas/LagretFilter"
+                  $ref: "#/components/schemas/LagretFilter"
 
   /api/v1/intern/lagret-filter/{id}:
     delete:
@@ -1767,7 +1766,6 @@ paths:
             text/plain:
               schema:
                 type: string
-
 
 components:
   securitySchemes:
@@ -2108,8 +2106,7 @@ components:
           $ref: "#/components/schemas/OpsjonsmodellData"
           nullable: true
         opsjonerRegistrert:
-          type:
-            array
+          type: array
           items:
             $ref: "#/components/schemas/OpsjonLoggRegistrert"
       required:
@@ -4140,7 +4137,6 @@ components:
         - dialogId
         - tiltakId
 
-
     OpsjonsmodellData:
       type: object
       properties:
@@ -4265,7 +4261,6 @@ components:
         - Avtale
         - Tiltaksgjennomføring
         - Tiltaksgjennomføring_Modia
-
 
     LagretFilter:
       type: object
