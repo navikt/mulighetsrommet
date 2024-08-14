@@ -50,7 +50,7 @@ export function AvtaleVarighet({
       setValue("opsjonsmodellData.opsjonsmodell", undefined);
       setValue("opsjonsmodellData.opsjonMaksVarighet", undefined);
       setValue("opsjonsmodellData.customOpsjonsmodellNavn", undefined);
-    } else if (opsjonsmodell && !opsjonsmodell.kreverMaksVarighet) {
+    } else if (!opsjonsmodell.kreverMaksVarighet) {
       setValue("opsjonsmodellData.customOpsjonsmodellNavn", undefined);
       setValue("opsjonsmodellData.opsjonMaksVarighet", undefined);
     }

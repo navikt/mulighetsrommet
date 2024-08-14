@@ -1,5 +1,8 @@
 name: CodeQL java-kotlin config
 
+queries:
+  - uses: security-and-quality
+
 paths-ignore:
   # Generert kode skaper falske positiver og er ikke relevant for code scanning
-  - ".gradle"
+  - "**/.gradle"
