@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "lint": "eslint src --report-unused-disable-directives --max-warnings 6 && tsc",
+    "lint": "eslint src --report-unused-disable-directives --max-warnings 0 && tsc",
     "fix-lint": "eslint src --fix",
     "start": "cross-env VITE_MULIGHETSROMMET_API_MOCK=true vite",
     "backend": "cross-env VITE_MULIGHETSROMMET_API_BASE='http://localhost:8080' vite",

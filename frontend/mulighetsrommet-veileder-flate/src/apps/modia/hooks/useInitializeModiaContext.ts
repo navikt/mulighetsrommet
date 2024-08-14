@@ -10,15 +10,16 @@ export function useInitializeModiaContext() {
   const { data: overordnetEnhet } = useOverordnetEnhet(appContext.enhet);
   const { logEvent } = useLogEvent();
 
+  const enhetsnrForOverordnetEnhet = overordnetEnhet?.enhetsnummer;
   useEffect(() => {
-    if (overordnetEnhet?.enhetsnummer) {
-      setAppContext({ ...appContext, overordnetEnhet: overordnetEnhet.enhetsnummer });
+    if (enhetsnrForOverordnetEnhet) {
+      setAppContext({ ...appContext, overordnetEnhet: enhetsnrForOverordnetEnhet });
     }
-  }, [overordnetEnhet?.enhetsnummer]);
+  }, [enhetsnrForOverordnetEnhet, setAppContext, appContext]);
 
   useEffect(() => {
     if (appContext.overordnetEnhet) {
       logEvent({ name: "arbeidsmarkedstiltak.unike-brukere" });
     }
-  }, [appContext.overordnetEnhet]);
+  }, [appContext.overordnetEnhet, logEvent]);
 }

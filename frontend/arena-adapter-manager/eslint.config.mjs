@@ -1,3 +1,8 @@
 import config from "@mr/eslint-config-react-app";
 
-export default [...config];
+export default [
+  {
+    ignores: ["dist"],
+  },
+  ...config,
+];

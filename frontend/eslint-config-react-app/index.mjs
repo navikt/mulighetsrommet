@@ -7,9 +7,6 @@ import reactHooks from "eslint-plugin-react-hooks";
 import reactRefresh from "eslint-plugin-react-refresh";
 
 export default ts.config(
-  {
-    ignores: ["**/dist"],
-  },
   js.configs.recommended,
   pluginPromise.configs["flat/recommended"],
   ...ts.configs.recommended,

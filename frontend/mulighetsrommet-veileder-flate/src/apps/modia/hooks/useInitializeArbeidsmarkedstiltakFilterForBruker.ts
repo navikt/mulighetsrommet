@@ -32,5 +32,12 @@ export function useInitializeArbeidsmarkedstiltakFilterForBruker() {
         navEnheter: brukerdata?.enheter ?? [],
       });
     }
-  }, [resetInnsatsgruppe, resetEnheter]);
+  }, [
+    resetInnsatsgruppe,
+    resetEnheter,
+    setFilter,
+    filter,
+    brukersInnsatsgruppe,
+    brukerdata?.enheter,
+  ]);
 }

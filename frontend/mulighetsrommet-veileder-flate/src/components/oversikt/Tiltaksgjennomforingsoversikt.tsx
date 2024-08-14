@@ -55,10 +55,12 @@ export function Tiltaksgjennomforingsoversikt({
   const [sortValue, setSortValue] = useAtom(sorteringAtom);
 
   const { logEvent } = useLogEvent();
+
+  const { pageSize } = pageData;
   useEffect(() => {
     // Reset state
-    setPages({ ...pageData, page: 1 });
-  }, [filter, sortValue]);
+    setPages({ pageSize, page: 1 });
+  }, [filter, pageSize, setPages, sortValue]);
 
   const getSort = (
     sortValue: string,
@@ -112,7 +114,7 @@ export function Tiltaksgjennomforingsoversikt({
     });
   };
 
-  const antallSize = [50, 100, 1000];
+  const antallSize = [10, 50, 100, 1000];
   const lopendeGjennomforinger = tiltaksgjennomforinger.filter(
     (gj) => gj.oppstart === TiltaksgjennomforingOppstartstype.LOPENDE,
   );
