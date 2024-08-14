@@ -14,7 +14,7 @@ const Kopiknapp = ({ kopitekst, dataTestId }: KopiknappProps) => {
 
   const copyToClipboard = (kopitekst: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    navigator.clipboard.writeText(kopitekst).finally(() => {
+    return navigator.clipboard.writeText(kopitekst).finally(() => {
       setShowTooltip(true);
     });
   };

@@ -5,7 +5,7 @@ import { mockArrangorer } from "../fixtures/mock_arrangorer";
 export const virksomhetHandlers = [
   http.get<{ sok: string }, BrregVirksomhet[]>("*/api/v1/intern/virksomhet/sok", ({ request }) => {
     const url = new URL(request.url);
-    const sok = url.searchParams.get("sok")!!;
+    const sok = url.searchParams.get("sok")!;
     return HttpResponse.json(
       mockArrangorer.data.filter((enhet) =>
         enhet.navn?.toLowerCase().includes(sok.toLocaleLowerCase()),

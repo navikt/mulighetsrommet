@@ -1,0 +1,14 @@
+{
+  "name": "@mr/eslint-config-react-app",
+  "version": "1.0.0",
+  "main": "index.mjs",
+  "devDependencies": {
+    "@eslint/js": "9.9.0",
+    "eslint": "9.9.0",
+    "eslint-plugin-prettier": "5.2.1",
+    "eslint-plugin-promise": "7.1.0",
+    "eslint-plugin-react": "7.35.0",
+    "eslint-plugin-react-hooks": "5.1.0-rc-68dbd84b-20240812",
+    "eslint-plugin-react-refresh": "0.4.9"
+  }
+}

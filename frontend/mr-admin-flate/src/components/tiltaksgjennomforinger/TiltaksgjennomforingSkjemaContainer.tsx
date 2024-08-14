@@ -85,7 +85,7 @@ export function TiltaksgjennomforingSkjemaContainer({
         data.kontaktpersoner
           ?.filter((kontakt) => kontakt.navIdent !== null)
           ?.map((kontakt) => ({
-            navIdent: kontakt.navIdent!!,
+            navIdent: kontakt.navIdent!,
             navEnheter: kontakt.navEnheter,
             beskrivelse: kontakt.beskrivelse ?? null,
           })) || [],

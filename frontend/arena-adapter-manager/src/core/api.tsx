@@ -124,7 +124,7 @@ export const runTask = (base: ApiBase, task: MrApiTask, input?: object) =>
   })
     .then(parseJson)
     .then((response) => {
-      toast.success(`Scheduled task '${task}': ${response.id}`);
+      return toast.success(`Scheduled task '${task}': ${response.id}`);
     })
     .catch((error) => {
       toastError(`Failed to execute task '${task}'`, error);

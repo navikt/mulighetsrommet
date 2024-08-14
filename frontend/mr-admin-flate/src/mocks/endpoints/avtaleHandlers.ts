@@ -40,7 +40,7 @@ export const avtaleHandlers = [
     },
   ),
 
-  http.put<{ id: string }, Number>("*/api/v1/intern/avtaler/:id/avbryt", () => {
+  http.put<{ id: string }, number>("*/api/v1/intern/avtaler/:id/avbryt", () => {
     return HttpResponse.json(1);
   }),
 

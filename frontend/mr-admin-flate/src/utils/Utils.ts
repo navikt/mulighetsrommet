@@ -108,7 +108,7 @@ export function valueOrDefault<T, X>(value: T | undefined, defaultValue: X): T |
   return value !== undefined ? value : defaultValue;
 }
 
-export function validEmail(email: string | undefined): Boolean {
+export function validEmail(email: string | undefined): boolean {
   if (!email) return false;
   return Boolean(
     email

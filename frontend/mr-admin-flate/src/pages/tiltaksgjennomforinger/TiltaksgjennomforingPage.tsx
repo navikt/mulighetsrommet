@@ -3,22 +3,22 @@ import { Alert, Heading, Tabs, VStack } from "@navikt/ds-react";
 import classNames from "classnames";
 import { Lenkeknapp } from "mulighetsrommet-frontend-common/components/lenkeknapp/Lenkeknapp";
 import { Link, Outlet, useLocation, useParams } from "react-router-dom";
-import { ShowOpphavValue } from "../../components/debug/ShowOpphavValue";
-import { Header } from "../../components/detaljside/Header";
-import headerStyles from "../../components/detaljside/Header.module.scss";
-import { TiltaksgjennomforingIkon } from "../../components/ikoner/TiltaksgjennomforingIkon";
-import { Laster } from "../../components/laster/Laster";
-import { Brodsmule, Brodsmuler } from "../../components/navigering/Brodsmuler";
-import { DupliserTiltak } from "../../components/tiltaksgjennomforinger/DupliserTiltak";
-import { PREVIEW_ARBEIDSMARKEDSTILTAK_URL } from "../../constants";
-import { useNavigateAndReplaceUrl } from "../../hooks/useNavigateWithoutReplacingUrl";
-import { ContainerLayout } from "../../layouts/ContainerLayout";
+import { ShowOpphavValue } from "@/components/debug/ShowOpphavValue";
+import { Header } from "@/components/detaljside/Header";
+import headerStyles from "@/components/detaljside/Header.module.scss";
+import { TiltaksgjennomforingIkon } from "@/components/ikoner/TiltaksgjennomforingIkon";
+import { Laster } from "@/components/laster/Laster";
+import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
+import { DupliserTiltak } from "@/components/tiltaksgjennomforinger/DupliserTiltak";
+import { PREVIEW_ARBEIDSMARKEDSTILTAK_URL } from "@/constants";
+import { useNavigateAndReplaceUrl } from "@/hooks/useNavigateWithoutReplacingUrl";
+import { ContainerLayout } from "@/layouts/ContainerLayout";
 import commonStyles from "../Page.module.scss";
 import { TiltaksgjennomforingStatusTag } from "mulighetsrommet-frontend-common";
 import { TiltaksgjennomforingStatus, Toggles } from "mulighetsrommet-api-client";
-import { useFeatureToggle } from "../../api/features/useFeatureToggle";
+import { useFeatureToggle } from "@/api/features/useFeatureToggle";
 
-function useTiltaksgjennomforingBrodsmuler(
+function createBrodsmuler(
   tiltaksgjennomforingId: string,
   avtaleId?: string,
 ): Array<Brodsmule | undefined> {
@@ -46,7 +46,6 @@ export function TiltaksgjennomforingPage() {
   const { avtaleId } = useParams();
   const { navigateAndReplaceUrl } = useNavigateAndReplaceUrl();
   const { data: tiltaksgjennomforing, isLoading } = useTiltaksgjennomforingById();
-  const brodsmuler = useTiltaksgjennomforingBrodsmuler(tiltaksgjennomforing?.id!!, avtaleId);
   const { data: enableOpprettTilsagn } = useFeatureToggle(
     Toggles.MULIGHETSROMMET_ADMIN_FLATE_OPPRETT_TILSAGN,
   );
@@ -75,6 +74,8 @@ export function TiltaksgjennomforingPage() {
       return "info";
     }
   };
+
+  const brodsmuler = createBrodsmuler(tiltaksgjennomforing.id, avtaleId);
 
   return (
     <main>

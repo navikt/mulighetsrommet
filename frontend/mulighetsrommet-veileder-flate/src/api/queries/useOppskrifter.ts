@@ -5,10 +5,10 @@ import { OppskrifterService } from "mulighetsrommet-api-client";
 
 export function useOppskrifter(tiltakstypeId?: string) {
   return useQuery({
-    queryKey: QueryKeys.oppskrifter(tiltakstypeId!!),
+    queryKey: QueryKeys.oppskrifter(tiltakstypeId!),
     queryFn: () =>
       OppskrifterService.getOppskrifter({
-        tiltakstypeId: tiltakstypeId!!,
+        tiltakstypeId: tiltakstypeId!,
         perspective: erPreview() ? "previewDrafts" : "published",
       }),
     enabled: !!tiltakstypeId,

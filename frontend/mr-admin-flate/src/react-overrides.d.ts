@@ -13,7 +13,7 @@ declare module "react" {
    *
    * [0]: https://fettblog.eu/typescript-react-generic-forward-refs/
    */
-  function forwardRef<T, P = {}>(
+  function forwardRef<T, P = object>(
     render: (props: P, ref: React.Ref<T>) => React.ReactNode | null,
   ): (props: P & React.RefAttributes<T>) => React.ReactNode | null;
 }

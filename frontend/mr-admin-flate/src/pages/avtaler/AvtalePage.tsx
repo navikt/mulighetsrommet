@@ -2,20 +2,20 @@ import { useAvtale } from "@/api/avtaler/useAvtale";
 import { Alert, Heading, Tabs, VStack } from "@navikt/ds-react";
 import { useTitle } from "mulighetsrommet-frontend-common";
 import { Link, Outlet, useLocation, useMatch } from "react-router-dom";
-import { DupliserAvtale } from "../../components/avtaler/DupliserAvtale";
-import { ShowOpphavValue } from "../../components/debug/ShowOpphavValue";
-import { Header } from "../../components/detaljside/Header";
-import headerStyles from "../../components/detaljside/Header.module.scss";
-import { AvtaleIkon } from "../../components/ikoner/AvtaleIkon";
-import { Laster } from "../../components/laster/Laster";
-import { Brodsmule, Brodsmuler } from "../../components/navigering/Brodsmuler";
-import { AvtalestatusTag } from "../../components/statuselementer/AvtalestatusTag";
-import { useNavigateAndReplaceUrl } from "../../hooks/useNavigateWithoutReplacingUrl";
-import { ContainerLayout } from "../../layouts/ContainerLayout";
+import { DupliserAvtale } from "@/components/avtaler/DupliserAvtale";
+import { ShowOpphavValue } from "@/components/debug/ShowOpphavValue";
+import { Header } from "@/components/detaljside/Header";
+import headerStyles from "@/components/detaljside/Header.module.scss";
+import { AvtaleIkon } from "@/components/ikoner/AvtaleIkon";
+import { Laster } from "@/components/laster/Laster";
+import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
+import { AvtalestatusTag } from "@/components/statuselementer/AvtalestatusTag";
+import { useNavigateAndReplaceUrl } from "@/hooks/useNavigateWithoutReplacingUrl";
+import { ContainerLayout } from "@/layouts/ContainerLayout";
 import commonStyles from "../Page.module.scss";
 import styles from "./DetaljerAvtalePage.module.scss";
 
-function useAvtaleBrodsmuler(avtaleId: string): Array<Brodsmule | undefined> {
+function useAvtaleBrodsmuler(avtaleId?: string): Array<Brodsmule | undefined> {
   const erPaaGjennomforingerForAvtale = useMatch("/avtaler/:avtaleId/tiltaksgjennomforinger");
   return [
     { tittel: "Forside", lenke: "/" },
@@ -35,7 +35,7 @@ export function AvtalePage() {
   const { navigateAndReplaceUrl } = useNavigateAndReplaceUrl();
   const { data: avtale, isPending } = useAvtale();
   useTitle(`Avtale ${avtale?.navn ? `- ${avtale.navn}` : ""}`);
-  const brodsmuler = useAvtaleBrodsmuler(avtale?.id!!);
+  const brodsmuler = useAvtaleBrodsmuler(avtale?.id);
 
   if (isPending) {
     return (

@@ -4,10 +4,10 @@ import { TiltaksgjennomforingerService } from "mulighetsrommet-api-client";
 
 export function useTiltaksgjennomforingDeltakerSummary(id?: string) {
   return useQuery({
-    queryKey: QueryKeys.tiltaksgjennomforingDeltakerSummary(id!!),
+    queryKey: QueryKeys.tiltaksgjennomforingDeltakerSummary(id!),
     queryFn() {
       return TiltaksgjennomforingerService.getTiltaksgjennomforingDeltakerSummary({
-        id: id!!,
+        id: id!,
       });
     },
     throwOnError: false,
