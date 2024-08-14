@@ -35,17 +35,19 @@ function HydrateAtoms({
 }
 
 export function ModiaContext(props: ModiaContextProps) {
-  const [contextData, setContextData] = useAtom(modiaContextAtom);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [_, setContextData] = useAtom(modiaContextAtom);
 
   const [loadedFilter, setLoadedFilter] = useState<FilterMedBrukerIKontekst | null>(null);
 
+  const { contextData: contextDataFraProps, updateContextDataRef } = props;
   useEffect(() => {
-    if (props.contextData) {
-      props?.updateContextDataRef?.((key: string, value: string) => {
-        setContextData({ ...contextData, [key]: value });
+    if (contextDataFraProps) {
+      updateContextDataRef?.((key: string, value: string) => {
+        setContextData({ ...contextDataFraProps, [key]: value });
       });
     }
-  }, [props.contextData.enhet, props.contextData.fnr]);
+  }, [contextDataFraProps, updateContextDataRef, setContextData]);
 
   useEffect(() => {
     const filter = getDefaultFilterForBrukerIKontekst(props.contextData.fnr ?? null);
