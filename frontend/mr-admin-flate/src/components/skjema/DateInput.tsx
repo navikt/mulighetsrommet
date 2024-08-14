@@ -1,5 +1,5 @@
 import { DatePicker, useDatepicker } from "@navikt/ds-react";
-import { forwardRef, useEffect, useState } from "react";
+import { forwardRef, useState } from "react";
 import { formaterDatoSomYYYYMMDD as formaterSomIsoDate } from "../../utils/Utils";
 import styles from "./DateInput.module.scss";
 
@@ -42,7 +42,7 @@ export const DateInput = forwardRef(function DateInput(
   } = props;
   const [ugyldigDatoError, setUgyldigDatoError] = useState("");
 
-  const { datepickerProps, inputProps, setSelected } = useDatepicker({
+  const { datepickerProps, inputProps } = useDatepicker({
     onDateChange: (val) => {
       if (format === "iso-string") {
         onChange(formaterSomIsoDate(val));
@@ -67,12 +67,6 @@ export const DateInput = forwardRef(function DateInput(
     toDate,
     defaultSelected: value ? new Date(value) : undefined,
   });
-
-  useEffect(() => {
-    if (value) {
-      setSelected(new Date(value));
-    }
-  }, [value]);
 
   return (
     <DatePicker {...datepickerProps} dropdownCaption>
