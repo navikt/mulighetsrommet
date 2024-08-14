@@ -61,7 +61,11 @@ class OpsjonLoggService(
         val utlosteOpsjoner = opsjoner.filter { it.status == OpsjonLoggRequest.OpsjonsLoggStatus.OPSJON_UTLØST }
             .sortedByDescending { it.forrigeSluttdato }
 
-        return utlosteOpsjoner[0].forrigeSluttdato ?: avtale.sluttDato
+        if (utlosteOpsjoner.isNotEmpty()) {
+            return utlosteOpsjoner[0].forrigeSluttdato ?: avtale.sluttDato
+        }
+
+        return avtale.sluttDato
     }
 
     private fun loggEndring(

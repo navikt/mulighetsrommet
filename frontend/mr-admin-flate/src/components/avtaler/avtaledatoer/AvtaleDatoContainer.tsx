@@ -35,7 +35,7 @@ export function AvtaleDatoContainer({ avtale, arenaOpphavOgIngenEierskap }: Prop
       setValue("opsjonsmodellData.opsjonMaksVarighet", undefined);
       setValue("opsjonsmodellData.customOpsjonsmodellNavn", undefined);
     }
-  }, [avtaletype]);
+  }, [avtaletype, setValue]);
 
   if (!avtaletype) return null;
 

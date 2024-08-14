@@ -61,7 +61,7 @@ export function TiltaksgjennomforingFilter({ filterAtom, skjulFilter }: Props) {
       ...filter,
       avtale: avtale?.id ?? "",
     });
-  }, [avtale]);
+  }, [avtale, filter, setFilter]);
 
   if (
     !enheter ||

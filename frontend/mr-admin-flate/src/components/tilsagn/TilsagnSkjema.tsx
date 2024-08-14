@@ -52,6 +52,14 @@ export function TilsagnSkjema({
       : {},
   });
 
+  const {
+    handleSubmit,
+    register,
+    watch,
+    setValue,
+    formState: { errors },
+  } = form;
+
   useEffect(() => {
     if (tilsagn) {
       setValue("id", tilsagn.id);
@@ -60,15 +68,7 @@ export function TilsagnSkjema({
       setValue("periode.start", tilsagn.periodeStart);
       setValue("periode.slutt", tilsagn.periodeSlutt);
     }
-  }, [navEnheter, tilsagn]);
-
-  const {
-    handleSubmit,
-    register,
-    watch,
-    setValue,
-    formState: { errors },
-  } = form;
+  }, [navEnheter, tilsagn, setValue]);
 
   return (
     <FormProvider {...form}>

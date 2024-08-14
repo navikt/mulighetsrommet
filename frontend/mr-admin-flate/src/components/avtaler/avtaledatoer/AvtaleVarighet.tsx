@@ -54,7 +54,7 @@ export function AvtaleVarighet({
       setValue("opsjonsmodellData.customOpsjonsmodellNavn", undefined);
       setValue("opsjonsmodellData.opsjonMaksVarighet", undefined);
     }
-  }, [opsjonsmodell]);
+  }, [opsjonsmodell, setValue]);
 
   useEffect(() => {
     if (startDato && opsjonsmodell && antallOpsjonerUtlost === 0) {
@@ -71,7 +71,7 @@ export function AvtaleVarighet({
         );
       }
     }
-  }, [opsjonsmodell, startDato]);
+  }, [antallOpsjonerUtlost, opsjonsmodell]);
 
   const maksVarighetAar = opsjonsmodell?.maksVarighetAar ?? 5;
   const maksVarighetDato = kalkulerMaksDato(new Date(startDato), maksVarighetAar);
