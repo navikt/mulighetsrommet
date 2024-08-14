@@ -26,7 +26,7 @@ jobs:
         uses: github/codeql-action/init@v3
         with:
           languages: java-kotlin
-          config-file: ./.github/codeql/java-kotlin-config.yaml
+          queries: security-and-quality
 
       - name: Setup backend
         uses: ./.github/actions/setup-backend
@@ -34,10 +34,36 @@ jobs:
       - name: Assemble
         run: ./gradlew assemble --no-build-cache --no-configuration-cache
 
+      # Analyser med CodeQL
+      # Siden CodeQL plukker opp filer generert av gradle så kjører vi også egne
+      # actions for å filtrere vekk falske positiver via `filter-sarif`-steget
+      # https://github.com/advanced-security/filter-sarif
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
         with:
           category: "/language:java"
+          output: sarif-results
+          upload: failure-only
+
+      - name: Filter out false positivies
+        uses: advanced-security/filter-sarif@v1
+        with:
+          patterns: |
+            -.gradle
+          input: sarif-results/java.sarif
+          output: sarif-results/java.sarif
+
+      - name: Upload SARIF
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: sarif-results/java.sarif
+
+      - name: Upload results
+        uses: actions/upload-artifact@v4
+        with:
+          name: sarif-results
+          path: sarif-results
+          retention-days: 1
 
   analyze-javascript:
     name: Analyze Javascript (Typescript)
