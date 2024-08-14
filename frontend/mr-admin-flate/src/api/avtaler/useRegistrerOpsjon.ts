@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { ApiError, OpsjonerService, OpsjonLoggRequest } from "mulighetsrommet-api-client";
+import { ApiError, OpsjonerService, OpsjonLoggRequest } from "@mr/api-client";
 import { QueryKeys } from "../QueryKeys";
 
 export function useRegistrerOpsjon() {

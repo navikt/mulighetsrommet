@@ -1,5 +1,6 @@
 {
-  "name": "mulighetsrommet-frontend-common",
+  "name": "@mr/frontend-common",
+  "private": true,
   "version": "1.0.0",
   "description": "Felleskode for frontend-applikasjoner for Team Valp",
   "module": "index.ts",
@@ -9,7 +10,7 @@
     "debounce": "2.1.0",
     "focus-trap-react": "^10.2.3",
     "lodash.isequal": "^4.5.0",
-    "mulighetsrommet-api-client": "*",
+    "@mr/api-client": "*",
     "react-router-dom": "6.26.0",
     "react-select": "^5.8.0",
     "use-resize-observer": "^9.1.0"

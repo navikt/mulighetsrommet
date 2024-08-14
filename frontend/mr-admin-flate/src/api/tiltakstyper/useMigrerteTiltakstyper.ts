@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { QueryKeys } from "@/api/QueryKeys";
-import { Tiltakskode, TiltakstyperService } from "mulighetsrommet-api-client";
+import { Tiltakskode, TiltakstyperService } from "@mr/api-client";
 
 export function useMigrerteTiltakstyper() {
   return useQuery({

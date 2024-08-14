@@ -1,8 +1,4 @@
-import {
-  Innsatsgruppe,
-  TiltakskodeArena,
-  VeilederflateTiltakstype,
-} from "mulighetsrommet-api-client";
+import { Innsatsgruppe, TiltakskodeArena, VeilederflateTiltakstype } from "@mr/api-client";
 
 export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
   VTA: {

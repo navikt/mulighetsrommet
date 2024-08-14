@@ -1,4 +1,4 @@
-import { SelectOption } from "mulighetsrommet-frontend-common/components/SokeSelect";
+import { SelectOption } from "@mr/frontend-common/components/SokeSelect";
 import { ReactNode, Ref } from "react";
 import ReactSelect from "react-select";
 import Select from "react-select/base";

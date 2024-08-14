@@ -1,5 +1,6 @@
 {
   "name": "@mr/eslint-config-react-app",
+  "private": true,
   "version": "1.0.0",
   "main": "index.mjs",
   "devDependencies": {

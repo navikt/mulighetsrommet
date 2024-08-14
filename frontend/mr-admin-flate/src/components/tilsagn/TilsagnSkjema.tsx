@@ -16,12 +16,7 @@ import { NumericFormat } from "react-number-format";
 import { addYear } from "../../utils/Utils";
 import { ControlledDateInput } from "../skjema/ControlledDateInput";
 import { FormGroup } from "../skjema/FormGroup";
-import {
-  ApiError,
-  TilsagnDto,
-  TilsagnRequest,
-  Tiltaksgjennomforing,
-} from "mulighetsrommet-api-client";
+import { ApiError, TilsagnDto, TilsagnRequest, Tiltaksgjennomforing } from "@mr/api-client";
 import { useNavEnheter } from "../../api/enhet/useNavEnheter";
 import { UseMutationResult } from "@tanstack/react-query";
 

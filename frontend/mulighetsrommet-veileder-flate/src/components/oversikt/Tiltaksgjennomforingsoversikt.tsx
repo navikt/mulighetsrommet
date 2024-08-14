@@ -8,14 +8,14 @@ import {
   DelMedBruker,
   TiltaksgjennomforingOppstartstype,
   VeilederflateTiltaksgjennomforing,
-} from "mulighetsrommet-api-client";
+} from "@mr/api-client";
 import { ReactNode, useEffect } from "react";
 import { Sorteringsmeny } from "../sorteringmeny/Sorteringsmeny";
 import { Gjennomforingsrad } from "./Gjennomforingsrad";
 import styles from "./Tiltaksgjennomforingsoversikt.module.scss";
 import { sorteringAtom } from "../sorteringmeny/sorteringAtom";
-import { ToolbarContainer } from "mulighetsrommet-frontend-common/components/toolbar/toolbarContainer/ToolbarContainer";
-import { ToolbarMeny } from "mulighetsrommet-frontend-common/components/toolbar/toolbarMeny/ToolbarMeny";
+import { ToolbarContainer } from "@mr/frontend-common/components/toolbar/toolbarContainer/ToolbarContainer";
+import { ToolbarMeny } from "@mr/frontend-common/components/toolbar/toolbarMeny/ToolbarMeny";
 
 interface Props {
   tiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[];

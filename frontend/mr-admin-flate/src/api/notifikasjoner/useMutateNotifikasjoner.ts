@@ -4,7 +4,7 @@ import {
   NotificationsService,
   SetNotificationStatusRequest,
   SetNotificationStatusResponse,
-} from "mulighetsrommet-api-client";
+} from "@mr/api-client";
 
 export function useMutateNotifikasjoner() {
   return useMutation<SetNotificationStatusResponse, ApiError, SetNotificationStatusRequest>({

@@ -5,11 +5,11 @@ import {
   DelMedBruker,
   TiltaksgjennomforingOppstartstype,
   VeilederflateTiltaksgjennomforing,
-} from "mulighetsrommet-api-client";
-import { Lenke } from "mulighetsrommet-frontend-common/components/lenke/Lenke";
+} from "@mr/api-client";
+import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import { paginationAtom } from "@/core/atoms";
 import { formaterDato } from "@/utils/Utils";
-import { kebabCase } from "mulighetsrommet-frontend-common/utils/TestUtils";
+import { kebabCase } from "@mr/frontend-common/utils/TestUtils";
 import styles from "./Gjennomforingsrad.module.scss";
 import { useAtomValue } from "jotai";
 

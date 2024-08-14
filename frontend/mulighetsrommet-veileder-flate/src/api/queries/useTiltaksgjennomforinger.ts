@@ -4,7 +4,7 @@ import {
   isFilterReady,
   useArbeidsmarkedstiltakFilterValue,
 } from "@/hooks/useArbeidsmarkedstiltakFilter";
-import { NavEnhet, VeilederTiltakService } from "mulighetsrommet-api-client";
+import { NavEnhet, VeilederTiltakService } from "@mr/api-client";
 
 export function useVeilederTiltaksgjennomforinger() {
   const { isFilterReady, filter } = useGetArbeidsmarkedstiltakFilterAsQuery();

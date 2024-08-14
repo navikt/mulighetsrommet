@@ -2,7 +2,7 @@ import { Alert, BodyLong, Heading } from "@navikt/ds-react";
 import styles from "./Detaljerfane.module.scss";
 import FaneTiltaksinformasjon from "./FaneTiltaksinformasjon";
 import { RedaksjoneltInnhold } from "../RedaksjoneltInnhold";
-import { LokalInformasjonContainer } from "mulighetsrommet-frontend-common";
+import { LokalInformasjonContainer } from "@mr/frontend-common";
 
 interface DetaljerFaneProps {
   tiltaksgjennomforingAlert?: string;

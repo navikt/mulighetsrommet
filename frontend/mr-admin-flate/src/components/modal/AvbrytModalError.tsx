@@ -1,6 +1,6 @@
 import styles from "@/components/modal/Modal.module.scss";
-import { resolveErrorMessage } from "mulighetsrommet-frontend-common/components/error-handling/errors";
-import { AvbrytAvtaleAarsak, AvbrytGjennomforingAarsak } from "mulighetsrommet-api-client";
+import { resolveErrorMessage } from "@mr/frontend-common/components/error-handling/errors";
+import { AvbrytAvtaleAarsak, AvbrytGjennomforingAarsak } from "@mr/api-client";
 import { AnnetEnum } from "@/api/annetEnum";
 
 interface Props {

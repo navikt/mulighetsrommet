@@ -1,5 +1,5 @@
 import { Alert } from "@navikt/ds-react";
-import { VeilederflateTiltaksgjennomforing } from "mulighetsrommet-api-client";
+import { VeilederflateTiltaksgjennomforing } from "@mr/api-client";
 import FaneTiltaksinformasjon from "../FaneTiltaksinformasjon";
 import ArrangorInfo from "./ArrangorInfo";
 import styles from "./Kontaktinfo.module.scss";

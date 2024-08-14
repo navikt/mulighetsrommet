@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { QueryKeys } from "@/api/QueryKeys";
-import { AnsattService, NavAnsattRolle } from "mulighetsrommet-api-client";
+import { AnsattService, NavAnsattRolle } from "@mr/api-client";
 
 export function useTiltaksgjennomforingAdministratorer() {
   return useQuery({

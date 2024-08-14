@@ -2,7 +2,7 @@ import { Heading, HStack } from "@navikt/ds-react";
 import classNames from "classnames";
 import { ReactNode } from "react";
 import styles from "../components/detaljside/Header.module.scss";
-import { kebabCase } from "mulighetsrommet-frontend-common/utils/TestUtils";
+import { kebabCase } from "@mr/frontend-common/utils/TestUtils";
 
 interface HeaderBannerProps {
   heading: string;

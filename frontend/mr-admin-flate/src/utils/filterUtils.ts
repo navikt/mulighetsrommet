@@ -6,7 +6,7 @@ import {
   NavEnhetType,
   TiltaksgjennomforingStatus,
   Tiltakstype,
-} from "mulighetsrommet-api-client";
+} from "@mr/api-client";
 import { avtaletypeTilTekst } from "./Utils";
 
 export const TILTAKSGJENNOMFORING_STATUS_OPTIONS: {

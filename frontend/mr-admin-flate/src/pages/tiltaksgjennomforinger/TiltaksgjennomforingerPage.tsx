@@ -1,23 +1,19 @@
-import {
-  LagredeFilterOversikt,
-  ReloadAppErrorBoundary,
-  useTitle,
-} from "mulighetsrommet-frontend-common";
+import { LagredeFilterOversikt, ReloadAppErrorBoundary, useTitle } from "@mr/frontend-common";
 import { TiltaksgjennomforingsTabell } from "@/components/tabell/TiltaksgjennomforingsTabell";
 import { ContainerLayout } from "@/layouts/ContainerLayout";
 import { HeaderBanner } from "@/layouts/HeaderBanner";
 import { MainContainer } from "@/layouts/MainContainer";
 import { tiltaksgjennomforingfilterAtom, TiltaksgjennomforingFilterSchema } from "@/api/atoms";
-import { FilterAndTableLayout } from "mulighetsrommet-frontend-common/components/filterAndTableLayout/FilterAndTableLayout";
+import { FilterAndTableLayout } from "@mr/frontend-common/components/filterAndTableLayout/FilterAndTableLayout";
 import { TiltaksgjennomforingFilterButtons } from "@/components/filter/TiltaksgjennomforingFilterButtons";
 import { TiltaksgjennomforingFiltertags } from "@/components/filter/TiltaksgjennomforingFiltertags";
 import { TiltaksgjennomforingFilter } from "@/components/filter/TiltaksgjennomforingFilter";
-import { TilToppenKnapp } from "mulighetsrommet-frontend-common/components/tilToppenKnapp/TilToppenKnapp";
+import { TilToppenKnapp } from "@mr/frontend-common/components/tilToppenKnapp/TilToppenKnapp";
 import { Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { TiltaksgjennomforingIkon } from "@/components/ikoner/TiltaksgjennomforingIkon";
 import { useState } from "react";
 import { NullstillKnappForTiltaksgjennomforinger } from "@/pages/tiltaksgjennomforinger/NullstillKnappForTiltaksgjennomforinger";
-import { LagretDokumenttype } from "mulighetsrommet-api-client";
+import { LagretDokumenttype } from "@mr/api-client";
 import { useAtom } from "jotai/index";
 
 export function TiltaksgjennomforingerPage() {

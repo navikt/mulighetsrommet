@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useGetTiltaksgjennomforingIdFromUrl } from "../../hooks/useGetTiltaksgjennomforingIdFromUrl";
 import { QueryKeys } from "@/api/QueryKeys";
-import { TiltaksgjennomforingerService } from "mulighetsrommet-api-client";
+import { TiltaksgjennomforingerService } from "@mr/api-client";
 
 export function useTiltaksgjennomforingById() {
   const id = useGetTiltaksgjennomforingIdFromUrl();

@@ -1,5 +1,5 @@
 import { Alert, BodyShort, Button, Heading, HStack, Table, VStack } from "@navikt/ds-react";
-import { Avtale, OpsjonLoggRegistrert, OpsjonStatus } from "mulighetsrommet-api-client";
+import { Avtale, OpsjonLoggRegistrert, OpsjonStatus } from "@mr/api-client";
 import { useSlettOpsjon } from "../../../api/avtaler/useSlettOpsjon";
 import { formaterDato } from "../../../utils/Utils";
 import styles from "./OpsjonerRegistrert.module.scss";

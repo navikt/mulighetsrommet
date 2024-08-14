@@ -3,7 +3,7 @@ import {
   InnholdElement,
   Opphav,
   TiltaksgjennomforingOppstartstype,
-} from "mulighetsrommet-api-client";
+} from "@mr/api-client";
 import z from "zod";
 import { FaneinnholdSchema } from "./FaneinnholdSchema";
 import { STED_FOR_GJENNOMFORING_MAX_LENGTH } from "../../constants";

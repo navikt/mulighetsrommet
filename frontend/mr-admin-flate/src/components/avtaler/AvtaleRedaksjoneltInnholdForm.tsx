@@ -1,5 +1,5 @@
 import { Alert, Button, Heading, HStack, Modal, Search } from "@navikt/ds-react";
-import { Avtale, EmbeddedTiltakstype } from "mulighetsrommet-api-client";
+import { Avtale, EmbeddedTiltakstype } from "@mr/api-client";
 import { RedaksjoneltInnholdForm } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdForm";
 import { useFormContext } from "react-hook-form";
 import { useState } from "react";

@@ -1,5 +1,5 @@
 import { BodyLong, BodyShort, Heading } from "@navikt/ds-react";
-import { VeilderflateArrangor } from "mulighetsrommet-api-client";
+import { VeilderflateArrangor } from "@mr/api-client";
 import styles from "./Kontaktinfo.module.scss";
 import { RedaksjoneltInnhold } from "../../RedaksjoneltInnhold";
 

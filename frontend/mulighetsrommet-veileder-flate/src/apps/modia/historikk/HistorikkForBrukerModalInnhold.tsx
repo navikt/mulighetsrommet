@@ -5,7 +5,7 @@ import { Alert, BodyShort, Detail, HStack, Heading, Loader, VStack } from "@navi
 import styles from "./HistorikkForBrukerModal.module.scss";
 import { StatusBadge } from "./Statusbadge";
 import { useTiltakshistorikkForBruker } from "@/api/queries/useTiltakshistorikkForBruker";
-import { AmtDeltakerStatusAarsak, TiltakshistorikkAdminDto } from "mulighetsrommet-api-client";
+import { AmtDeltakerStatusAarsak, TiltakshistorikkAdminDto } from "@mr/api-client";
 
 export function HistorikkForBrukerModalInnhold() {
   const { data: historikk, isPending, isError } = useTiltakshistorikkForBruker();

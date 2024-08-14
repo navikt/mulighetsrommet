@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { ApiError, OpsjonerService, SlettOpsjonLoggRequest } from "mulighetsrommet-api-client";
+import { ApiError, OpsjonerService, SlettOpsjonLoggRequest } from "@mr/api-client";
 import { QueryKeys } from "../QueryKeys";
 
 export function useSlettOpsjon() {

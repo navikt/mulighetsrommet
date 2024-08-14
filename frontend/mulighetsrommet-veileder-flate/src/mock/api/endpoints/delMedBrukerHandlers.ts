@@ -5,7 +5,7 @@ import {
   GetAlleDeltMedBrukerRequest,
   GetDelMedBrukerRequest,
   TiltakDeltMedBruker,
-} from "mulighetsrommet-api-client";
+} from "@mr/api-client";
 import { mockDeltMedBruker } from "../../fixtures/mockDeltMedBruker";
 import { mockHistorikkDeltMedBruker } from "../../fixtures/mockHistorikkDeltMedBruker";
 

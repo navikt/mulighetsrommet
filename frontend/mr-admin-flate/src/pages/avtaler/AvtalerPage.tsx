@@ -4,20 +4,16 @@ import { AvtaleTabell } from "@/components/tabell/AvtaleTabell";
 import { HeaderBanner } from "@/layouts/HeaderBanner";
 import { ContainerLayout } from "@/layouts/ContainerLayout";
 import { MainContainer } from "@/layouts/MainContainer";
-import {
-  LagredeFilterOversikt,
-  ReloadAppErrorBoundary,
-  useTitle,
-} from "mulighetsrommet-frontend-common";
+import { LagredeFilterOversikt, ReloadAppErrorBoundary, useTitle } from "@mr/frontend-common";
 import { AvtaleFiltertags } from "@/components/filter/AvtaleFiltertags";
-import { TilToppenKnapp } from "mulighetsrommet-frontend-common/components/tilToppenKnapp/TilToppenKnapp";
+import { TilToppenKnapp } from "@mr/frontend-common/components/tilToppenKnapp/TilToppenKnapp";
 import { Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { AvtaleIkon } from "@/components/ikoner/AvtaleIkon";
 import { useState } from "react";
-import { FilterAndTableLayout } from "mulighetsrommet-frontend-common/components/filterAndTableLayout/FilterAndTableLayout";
+import { FilterAndTableLayout } from "@mr/frontend-common/components/filterAndTableLayout/FilterAndTableLayout";
 import { AvtaleFilterButtons } from "@/components/filter/AvtaleFilterButtons";
 import { NullstillKnappForAvtaler } from "@/pages/avtaler/NullstillKnappForAvtaler";
-import { LagretDokumenttype } from "mulighetsrommet-api-client";
+import { LagretDokumenttype } from "@mr/api-client";
 import { useAtom } from "jotai/index";
 
 export function AvtalerPage() {

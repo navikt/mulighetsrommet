@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { QueryKeys } from "@/api/QueryKeys";
-import { ApiError, TiltaksgjennomforingerService } from "mulighetsrommet-api-client";
+import { ApiError, TiltaksgjennomforingerService } from "@mr/api-client";
 
 export function useSetTilgjengeligForArrangor() {
   const queryClient = useQueryClient();

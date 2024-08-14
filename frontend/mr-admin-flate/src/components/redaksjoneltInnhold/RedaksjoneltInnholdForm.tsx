@@ -1,6 +1,6 @@
 import { Alert, BodyLong, Heading, HStack, Tabs, Textarea, VStack } from "@navikt/ds-react";
 import { PortableText } from "@portabletext/react";
-import { EmbeddedTiltakstype, VeilederflateTiltakstype } from "mulighetsrommet-api-client";
+import { EmbeddedTiltakstype, VeilederflateTiltakstype } from "@mr/api-client";
 import { useFormContext } from "react-hook-form";
 import { useTiltakstypeFaneinnhold } from "@/api/tiltaksgjennomforing/useTiltakstypeFaneinnhold";
 import { Separator } from "../detaljside/Metadata";
@@ -9,7 +9,7 @@ import { Laster } from "../laster/Laster";
 import React, { useState } from "react";
 import { FileTextIcon, LinkIcon, PaperplaneIcon } from "@navikt/aksel-icons";
 import { Lenker } from "../lenker/Lenker";
-import { InlineErrorBoundary } from "mulighetsrommet-frontend-common";
+import { InlineErrorBoundary } from "@mr/frontend-common";
 import { RedaksjoneltInnholdContainer } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdContainer";
 import { SkjemaDetaljerContainer } from "@/components/skjema/SkjemaDetaljerContainer";
 import { FaneinnholdContainer } from "@/components/redaksjoneltInnhold/FaneinnholdContainer";

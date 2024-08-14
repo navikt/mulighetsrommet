@@ -4,7 +4,7 @@ import {
   PaginertTiltaksgjennomforing,
   Tiltaksgjennomforing,
   TiltaksgjennomforingDeltakerSummary,
-} from "mulighetsrommet-api-client";
+} from "@mr/api-client";
 import {
   mockTiltaksgjennomforinger,
   paginertMockTiltaksgjennomforinger,

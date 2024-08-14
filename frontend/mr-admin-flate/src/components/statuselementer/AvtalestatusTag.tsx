@@ -1,5 +1,5 @@
 import { Tag } from "@navikt/ds-react";
-import { Avtale } from "mulighetsrommet-api-client";
+import { Avtale } from "@mr/api-client";
 import { useState } from "react";
 import { avbrytAvtaleAarsakToString } from "@/utils/Utils";
 

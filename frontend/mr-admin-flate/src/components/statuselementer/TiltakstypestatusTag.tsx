@@ -1,5 +1,5 @@
 import { Tag } from "@navikt/ds-react";
-import { Tiltakstype, TiltakstypeStatus } from "mulighetsrommet-api-client";
+import { Tiltakstype, TiltakstypeStatus } from "@mr/api-client";
 
 interface Props {
   tiltakstype: Tiltakstype;

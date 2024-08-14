@@ -11,10 +11,7 @@ import {
   VStack,
 } from "@navikt/ds-react";
 import { ModalBody, ModalHeader } from "@navikt/ds-react/Modal";
-import {
-  PersonopplysningData,
-  VeilederflateTiltaksgjennomforing,
-} from "mulighetsrommet-api-client";
+import { PersonopplysningData, VeilederflateTiltaksgjennomforing } from "@mr/api-client";
 import { useState } from "react";
 import { useBehandlingAvPersonopplysningerFraAvtale } from "../../api/queries/useBehandlingAvPersonopplysningerFraAvtale";
 import { PersonvernIkon } from "../../ikoner/PersonvernIkon";

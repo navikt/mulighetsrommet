@@ -8,11 +8,7 @@ import {
   UNSAFE_Combobox,
   VStack,
 } from "@navikt/ds-react";
-import {
-  Arrangor,
-  ArrangorKontaktperson,
-  ArrangorKontaktpersonAnsvar,
-} from "mulighetsrommet-api-client";
+import { Arrangor, ArrangorKontaktperson, ArrangorKontaktpersonAnsvar } from "@mr/api-client";
 import { RefObject, useRef, useState } from "react";
 import { z } from "zod";
 import { useArrangorKontaktpersoner } from "@/api/arrangor/useArrangorKontaktpersoner";

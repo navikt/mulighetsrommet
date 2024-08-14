@@ -1,4 +1,4 @@
-import { DelMedBruker } from "mulighetsrommet-api-client";
+import { DelMedBruker } from "@mr/api-client";
 import { mockTiltaksgjennomforinger } from "./mockTiltaksgjennomforinger";
 
 export const mockDeltMedBruker: DelMedBruker[] = [

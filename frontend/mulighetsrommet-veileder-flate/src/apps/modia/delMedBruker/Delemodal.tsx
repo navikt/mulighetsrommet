@@ -4,11 +4,7 @@ import { StatusModal } from "@/components/modal/StatusModal";
 import { useLogEvent } from "@/logging/amplitude";
 import { erPreview } from "@/utils/Utils";
 import { BodyShort, Button, Checkbox, Heading, HelpText, Modal } from "@navikt/ds-react";
-import {
-  Bruker,
-  DelMedBruker,
-  VeilederflateTiltaksgjennomforing,
-} from "mulighetsrommet-api-client";
+import { Bruker, DelMedBruker, VeilederflateTiltaksgjennomforing } from "@mr/api-client";
 import { useDelTiltakViaDialogen } from "../../../api/queries/useDelTiltakViaDialogen";
 import { DelMedBrukerContent, MAKS_ANTALL_TEGN_DEL_MED_BRUKER } from "./DelMedBrukerContent";
 import style from "./Delemodal.module.scss";

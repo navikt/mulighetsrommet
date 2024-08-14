@@ -1,6 +1,6 @@
 import { QueryKeys } from "./query-keys";
 import { useQuery } from "@tanstack/react-query";
-import { FeatureToggleService, Toggles } from "mulighetsrommet-api-client";
+import { FeatureToggleService, Toggles } from "@mr/api-client";
 
 export type Features = Record<Toggles, boolean>;
 

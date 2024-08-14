@@ -1,5 +1,5 @@
 import { Alert, Button, HGrid, List, Skeleton, Table, VStack } from "@navikt/ds-react";
-import { TiltakDeltMedBruker } from "mulighetsrommet-api-client";
+import { TiltakDeltMedBruker } from "@mr/api-client";
 import { ReactNode } from "react";
 import { formaterDato } from "../../../utils/Utils";
 import { ModiaRoute, navigateToModiaApp } from "../ModiaRoute";

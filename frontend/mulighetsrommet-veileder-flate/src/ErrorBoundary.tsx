@@ -1,5 +1,5 @@
 import { ErrorBoundary, FallbackProps } from "react-error-boundary";
-import { ApiError } from "mulighetsrommet-api-client";
+import { ApiError } from "@mr/api-client";
 import { Alert, BodyShort, Heading } from "@navikt/ds-react";
 import { PropsWithChildren } from "react";
 import { Link } from "react-router-dom";

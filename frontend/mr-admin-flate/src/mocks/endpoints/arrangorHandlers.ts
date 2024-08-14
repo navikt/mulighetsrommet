@@ -1,5 +1,5 @@
 import { http, HttpResponse, PathParams } from "msw";
-import { Arrangor, ArrangorKontaktperson, PaginertArrangor } from "mulighetsrommet-api-client";
+import { Arrangor, ArrangorKontaktperson, PaginertArrangor } from "@mr/api-client";
 import { mockArrangorer } from "../fixtures/mock_arrangorer";
 import { mockArrangorKontaktpersoner } from "../fixtures/mock_arrangorKontaktperson";
 import { mockAvtaler } from "../fixtures/mock_avtaler";

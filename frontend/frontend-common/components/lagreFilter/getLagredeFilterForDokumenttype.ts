@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-import { LagretDokumenttype } from "mulighetsrommet-api-client";
-import { LagretFilterService } from "mulighetsrommet-api-client";
+import { LagretDokumenttype } from "@mr/api-client";
+import { LagretFilterService } from "@mr/api-client";
 import { QueryKeys } from "../../QueryKeys";
 
 export function useGetLagredeFilterForDokumenttype(dokumenttype: LagretDokumenttype) {

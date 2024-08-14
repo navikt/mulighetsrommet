@@ -1,4 +1,4 @@
-import { NavEnhet, NavEnhetStatus, NavEnhetType, NavRegion } from "mulighetsrommet-api-client";
+import { NavEnhet, NavEnhetStatus, NavEnhetType, NavRegion } from "@mr/api-client";
 
 export const mockEnheter: {
   [navn: string]: NavEnhet;

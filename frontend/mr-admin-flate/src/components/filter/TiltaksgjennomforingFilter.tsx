@@ -1,6 +1,6 @@
 import { Accordion, Search, Switch } from "@navikt/ds-react";
 import { useAtom, WritableAtom } from "jotai";
-import { ArrangorTil, NavEnhet } from "mulighetsrommet-api-client";
+import { ArrangorTil, NavEnhet } from "@mr/api-client";
 import { useEffect } from "react";
 import {
   gjennomforingFilterAccordionAtom,
@@ -16,11 +16,7 @@ import {
   TILTAKSGJENNOMFORING_STATUS_OPTIONS,
   tiltakstypeOptions,
 } from "@/utils/filterUtils";
-import {
-  FilterAccordionHeader,
-  FilterSkeleton,
-  NavEnhetFilter,
-} from "mulighetsrommet-frontend-common";
+import { FilterAccordionHeader, FilterSkeleton, NavEnhetFilter } from "@mr/frontend-common";
 import { useRegioner } from "@/api/enhet/useRegioner";
 import { CheckboxList } from "./CheckboxList";
 import { logEvent } from "@/logging/amplitude";

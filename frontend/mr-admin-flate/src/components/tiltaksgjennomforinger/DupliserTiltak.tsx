@@ -1,5 +1,5 @@
 import { useSetAtom } from "jotai";
-import { Opphav, Tiltaksgjennomforing } from "mulighetsrommet-api-client";
+import { Opphav, Tiltaksgjennomforing } from "@mr/api-client";
 import { useNavigate } from "react-router-dom";
 import { gjennomforingDetaljerTabAtom } from "@/api/atoms";
 import { useMigrerteTiltakstyper } from "@/api/tiltakstyper/useMigrerteTiltakstyper";

@@ -5,7 +5,7 @@ import {
   TiltakskodeArena,
   TiltakstypeStatus,
   VeilederflateTiltakstype,
-} from "mulighetsrommet-api-client";
+} from "@mr/api-client";
 
 export const mockTiltakstyper = {
   ARBFORB: {

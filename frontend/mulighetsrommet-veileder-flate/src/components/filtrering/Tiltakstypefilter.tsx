@@ -1,7 +1,7 @@
 import { useTiltakstyper } from "@/api/queries/useTiltakstyper";
 import { useArbeidsmarkedstiltakFilter } from "@/hooks/useArbeidsmarkedstiltakFilter";
 import CheckboxFilter from "./CheckboxFilter";
-import { FilterAccordionHeader } from "mulighetsrommet-frontend-common";
+import { FilterAccordionHeader } from "@mr/frontend-common";
 
 interface Props {
   antallValgteTiltakstyper: number;

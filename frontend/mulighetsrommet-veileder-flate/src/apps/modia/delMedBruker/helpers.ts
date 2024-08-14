@@ -1,5 +1,5 @@
 import { ArbeidsmarkedstiltakFilter } from "@/hooks/useArbeidsmarkedstiltakFilter";
-import { Bruker, NavEnhet, VeilederflateTiltaksgjennomforing } from "mulighetsrommet-api-client";
+import { Bruker, NavEnhet, VeilederflateTiltaksgjennomforing } from "@mr/api-client";
 
 export function brukersEnhetFilterHasChanged(
   filter: ArbeidsmarkedstiltakFilter,

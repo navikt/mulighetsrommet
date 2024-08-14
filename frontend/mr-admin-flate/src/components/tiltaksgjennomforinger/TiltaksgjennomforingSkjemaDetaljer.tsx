@@ -23,8 +23,8 @@ import {
   TiltaksgjennomforingKontaktperson,
   TiltaksgjennomforingOppstartstype,
   Tiltakskode,
-} from "mulighetsrommet-api-client";
-import { ControlledSokeSelect } from "mulighetsrommet-frontend-common";
+} from "@mr/api-client";
+import { ControlledSokeSelect } from "@mr/frontend-common";
 import { useEffect, useRef } from "react";
 import { useFieldArray, useFormContext } from "react-hook-form";
 import { tiltaktekster } from "../ledetekster/tiltaksgjennomforingLedetekster";

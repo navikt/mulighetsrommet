@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useModiaContext } from "./useModiaContext";
 import { QueryKeys } from "@/api/query-keys";
-import { Bruker, BrukerService } from "mulighetsrommet-api-client";
+import { Bruker, BrukerService } from "@mr/api-client";
 
 export function useHentBrukerdata() {
   const { fnr } = useModiaContext();

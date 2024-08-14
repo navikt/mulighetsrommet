@@ -1,15 +1,14 @@
+import { addYear } from "@/utils/Utils";
 import { Heading, HGrid } from "@navikt/ds-react";
-import { Avtale, Avtaletype, Toggles } from "mulighetsrommet-api-client";
+import { Avtale, Avtaletype } from "@mr/api-client";
 import { useEffect } from "react";
 import { DeepPartial, useFormContext } from "react-hook-form";
-import { useFeatureToggle } from "@/api/features/useFeatureToggle";
-import { addYear } from "@/utils/Utils";
+import { MAKS_AAR_FOR_AVTALER, MIN_START_DATO_FOR_AVTALER } from "../../../constants";
 import { avtaletekster } from "../../ledetekster/avtaleLedetekster";
 import { InferredAvtaleSchema } from "../../redaksjoneltInnhold/AvtaleSchema";
 import { ControlledDateInput } from "../../skjema/ControlledDateInput";
 import { FormGroup } from "../../skjema/FormGroup";
 import { AvtaleVarighet } from "./AvtaleVarighet";
-import { MIN_START_DATO_FOR_AVTALER, MAKS_AAR_FOR_AVTALER } from "../../../constants";
 
 interface Props {
   avtale?: Avtale;
@@ -24,9 +23,6 @@ export function AvtaleDatoContainer({ avtale, arenaOpphavOgIngenEierskap }: Prop
   const sluttDatoTilDato = addYear(
     startDato ? new Date(startDato) : new Date(),
     MAKS_AAR_FOR_AVTALER,
-  );
-  const { data: registrereOpsjonsmodellIsEnabled } = useFeatureToggle(
-    Toggles.MULIGHETSROMMET_ADMIN_FLATE_REGISTRERE_OPSJONSMODELL,
   );
 
   function erForhandsgodkjent(avtaletype: Avtaletype): boolean {
@@ -43,7 +39,7 @@ export function AvtaleDatoContainer({ avtale, arenaOpphavOgIngenEierskap }: Prop
 
   if (!avtaletype) return null;
 
-  if (avtaletype && (erForhandsgodkjent(avtaletype) || !registrereOpsjonsmodellIsEnabled)) {
+  if (erForhandsgodkjent(avtaletype)) {
     return (
       <FormGroup>
         <Heading size="small" as="h3">
@@ -72,7 +68,7 @@ export function AvtaleDatoContainer({ avtale, arenaOpphavOgIngenEierskap }: Prop
         </HGrid>
       </FormGroup>
     );
-  } else if (registrereOpsjonsmodellIsEnabled) {
+  } else {
     return (
       <FormGroup>
         <AvtaleVarighet
@@ -85,7 +81,5 @@ export function AvtaleDatoContainer({ avtale, arenaOpphavOgIngenEierskap }: Prop
         />
       </FormGroup>
     );
-  } else {
-    return null;
   }
 }

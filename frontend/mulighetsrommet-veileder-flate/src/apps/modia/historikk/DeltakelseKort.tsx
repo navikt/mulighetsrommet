@@ -1,6 +1,6 @@
 import { BodyShort, HStack, Heading, LinkPanel, Tag, VStack } from "@navikt/ds-react";
 import classNames from "classnames";
-import { DeltakerKort, DeltakerStatus, DeltakerStatusType } from "mulighetsrommet-api-client";
+import { DeltakerKort, DeltakerStatus, DeltakerStatusType } from "@mr/api-client";
 import { formaterDato } from "../../../utils/Utils";
 import { ModiaRoute, resolveModiaRoute } from "../ModiaRoute";
 import styles from "./DeltakelseKort.module.scss";

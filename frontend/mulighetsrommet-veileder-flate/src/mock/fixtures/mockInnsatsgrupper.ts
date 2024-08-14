@@ -1,4 +1,4 @@
-import { Innsatsgruppe, VeilederflateInnsatsgruppe } from "mulighetsrommet-api-client";
+import { Innsatsgruppe, VeilederflateInnsatsgruppe } from "@mr/api-client";
 
 export const mockInnsatsgrupper: VeilederflateInnsatsgruppe[] = [
   {

@@ -1,9 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import {
-  ApiError,
-  ArrangorKontaktpersonRequest,
-  ArrangorService,
-} from "mulighetsrommet-api-client";
+import { ApiError, ArrangorKontaktpersonRequest, ArrangorService } from "@mr/api-client";
 import { QueryKeys } from "@/api/QueryKeys";
 
 export function useDeleteArrangorKontaktperson() {

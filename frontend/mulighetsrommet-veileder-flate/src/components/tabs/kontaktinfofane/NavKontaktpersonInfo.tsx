@@ -3,7 +3,7 @@ import {
   KontaktinfoVarsel,
   VeilederflateKontaktInfo,
   VeilederflateKontaktinfoTiltaksansvarlig,
-} from "mulighetsrommet-api-client";
+} from "@mr/api-client";
 import { RefObject, useRef } from "react";
 import styles from "./Kontaktinfo.module.scss";
 

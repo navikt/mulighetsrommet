@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { QueryKeys } from "../query-keys";
-import { AvtalerService } from "mulighetsrommet-api-client";
+import { AvtalerService } from "@mr/api-client";
 
 export function useBehandlingAvPersonopplysningerFraAvtale(avtaleId?: string) {
   return useQuery({

@@ -9,7 +9,7 @@ import { RedaksjoneltInnholdPreview } from "@/components/redaksjoneltInnhold/Red
 import { gjennomforingDetaljerTabAtom } from "@/api/atoms";
 import { useAtom } from "jotai";
 import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
-import { InlineErrorBoundary } from "mulighetsrommet-frontend-common";
+import { InlineErrorBoundary } from "@mr/frontend-common";
 import { InfoContainer } from "@/components/skjema/InfoContainer";
 
 export function TiltaksgjennomforingInfo() {

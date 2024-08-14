@@ -1,32 +1,28 @@
 import { useAvtale } from "@/api/avtaler/useAvtale";
 import { getDisplayName } from "@/api/enhet/helpers";
+import { AmoKategoriseringDetaljer } from "@/components/amoKategorisering/AmoKategoriseringDetaljer";
+import { OpsjonerRegistrert } from "@/components/avtaler/opsjoner/OpsjonerRegistrert";
 import { Bolk } from "@/components/detaljside/Bolk";
 import { Metadata, Separator } from "@/components/detaljside/Metadata";
 import { Laster } from "@/components/laster/Laster";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
+import { DetaljerContainer } from "@/pages/DetaljerContainer";
+import { DetaljerInfoContainer } from "@/pages/DetaljerInfoContainer";
+import { ArrangorKontaktinfoContainer } from "@/pages/arrangor/ArrangorKontaktinfoContainer";
 import { ArrangorKontaktpersonDetaljer } from "@/pages/arrangor/ArrangorKontaktpersonDetaljer";
 import { avtaletypeTilTekst, formaterDato } from "@/utils/Utils";
 import { erAnskaffetTiltak } from "@/utils/tiltakskoder";
 import { ExternalLinkIcon } from "@navikt/aksel-icons";
 import { Alert, Heading, HelpText, VStack } from "@navikt/ds-react";
-import { NavEnhet, Toggles } from "mulighetsrommet-api-client";
-import { NOM_ANSATT_SIDE } from "mulighetsrommet-frontend-common/constants";
+import { NavEnhet } from "@mr/api-client";
+import { NOM_ANSATT_SIDE } from "@mr/frontend-common/constants";
 import { Fragment } from "react";
 import { Link } from "react-router-dom";
-import styles from "./AvtaleDetaljer.module.scss";
-import { AmoKategoriseringDetaljer } from "@/components/amoKategorisering/AmoKategoriseringDetaljer";
-import { useFeatureToggle } from "@/api/features/useFeatureToggle";
-import { DetaljerContainer } from "@/pages/DetaljerContainer";
-import { DetaljerInfoContainer } from "@/pages/DetaljerInfoContainer";
-import { ArrangorKontaktinfoContainer } from "@/pages/arrangor/ArrangorKontaktinfoContainer";
-import { OpsjonerRegistrert } from "@/components/avtaler/opsjoner/OpsjonerRegistrert";
 import { opsjonsmodellTilTekst } from "../../components/avtaler/opsjoner/opsjonsmodeller";
+import styles from "./AvtaleDetaljer.module.scss";
 
 export function AvtaleDetaljer() {
   const { data: avtale, isPending, error } = useAvtale();
-  const { data: registrereOpsjonsmodellIsEnabled } = useFeatureToggle(
-    Toggles.MULIGHETSROMMET_ADMIN_FLATE_REGISTRERE_OPSJONSMODELL,
-  );
 
   if (isPending) {
     return <Laster tekst="Laster avtale..." />;
@@ -92,7 +88,7 @@ export function AvtaleDetaljer() {
           Avtalens varighet
         </Heading>
 
-        {registrereOpsjonsmodellIsEnabled && avtale?.opsjonsmodellData?.opsjonsmodell ? (
+        {avtale?.opsjonsmodellData?.opsjonsmodell ? (
           <>
             <Bolk aria-label="Opsjonsmodell">
               <Metadata
@@ -109,7 +105,7 @@ export function AvtaleDetaljer() {
             header={avtaletekster.sluttdatoLabel(avtale.opsjonerRegistrert.length > 0)}
             verdi={sluttDato ? formaterDato(sluttDato) : "-"}
           />
-          {registrereOpsjonsmodellIsEnabled && avtale?.opsjonsmodellData?.opsjonMaksVarighet ? (
+          {avtale?.opsjonsmodellData?.opsjonMaksVarighet ? (
             <Metadata
               header={avtaletekster.maksVarighetLabel}
               verdi={

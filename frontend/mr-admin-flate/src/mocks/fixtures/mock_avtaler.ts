@@ -1,4 +1,4 @@
-import { Avtale, Avtaletype, Opphav, OpsjonsmodellKey } from "mulighetsrommet-api-client";
+import { Avtale, Avtaletype, Opphav, OpsjonsmodellKey } from "@mr/api-client";
 import { mockArrangorer } from "./mock_arrangorer";
 import { mockEnheter } from "./mock_enheter";
 import { mockTiltakstyper } from "./mock_tiltakstyper";
