@@ -1,6 +1,6 @@
 import { UseMutationResult } from "@tanstack/react-query";
 import { useEffect } from "react";
-import { ApiError, ValidationErrorResponse } from "mulighetsrommet-api-client";
+import { ApiError, ValidationErrorResponse } from "@mr/api-client";
 
 export function useHandleApiUpsertResponse<Response, Request>(
   mutation: UseMutationResult<Response, ApiError, Request>,

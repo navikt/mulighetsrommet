@@ -1,6 +1,6 @@
 import { Alert, Pagination, Table } from "@navikt/ds-react";
 import { WritableAtom, useAtom } from "jotai";
-import { ArrangorTil, SorteringArrangorer } from "mulighetsrommet-api-client";
+import { ArrangorTil, SorteringArrangorer } from "@mr/api-client";
 import { ToolbarContainer } from "mulighetsrommet-frontend-common/components/toolbar/toolbarContainer/ToolbarContainer";
 import { Link } from "react-router-dom";
 import { useArrangorer } from "../../api/arrangor/useArrangorer";

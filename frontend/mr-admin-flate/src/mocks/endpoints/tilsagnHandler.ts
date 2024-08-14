@@ -1,5 +1,5 @@
 import { HttpResponse, PathParams, http } from "msw";
-import { TilsagnDto, TilsagnRequest } from "mulighetsrommet-api-client";
+import { TilsagnDto, TilsagnRequest } from "@mr/api-client";
 import { mockTilsagn } from "../fixtures/mock_tilsagn";
 
 export const tilsagnHandlers = [

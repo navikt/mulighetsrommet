@@ -1,5 +1,5 @@
 import { Alert, HelpText } from "@navikt/ds-react";
-import { TiltaksgjennomforingOppstartstype } from "mulighetsrommet-api-client";
+import { TiltaksgjennomforingOppstartstype } from "@mr/api-client";
 import { ControlledSokeSelect } from "mulighetsrommet-frontend-common";
 import { useController } from "react-hook-form";
 import { useTiltaksgjennomforingDeltakerSummary } from "@/api/tiltaksgjennomforing/useTiltaksgjennomforingDeltakerSummary";

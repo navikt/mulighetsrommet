@@ -4,7 +4,7 @@ import {
   ArrangorKontaktperson,
   ArrangorKontaktpersonRequest,
   ArrangorService,
-} from "mulighetsrommet-api-client";
+} from "@mr/api-client";
 import { QueryKeys } from "@/api/QueryKeys";
 
 export function useUpsertArrangorKontaktperson(arrangorId: string) {

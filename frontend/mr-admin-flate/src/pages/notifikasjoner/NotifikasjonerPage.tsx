@@ -6,7 +6,7 @@ import { useTitle } from "mulighetsrommet-frontend-common";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import styles from "../Page.module.scss";
 import { useNotifikasjonerForAnsatt } from "../../api/notifikasjoner/useNotifikasjonerForAnsatt";
-import { NotificationStatus } from "mulighetsrommet-api-client";
+import { NotificationStatus } from "@mr/api-client";
 
 export function NotifikasjonerPage() {
   const { pathname } = useLocation();

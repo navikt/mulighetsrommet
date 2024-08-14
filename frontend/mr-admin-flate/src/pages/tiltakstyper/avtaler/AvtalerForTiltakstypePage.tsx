@@ -11,7 +11,7 @@ import { useState } from "react";
 import { NullstillKnappForAvtaler } from "@/pages/avtaler/NullstillKnappForAvtaler";
 import { TilToppenKnapp } from "mulighetsrommet-frontend-common/components/tilToppenKnapp/TilToppenKnapp";
 import { useAtom } from "jotai/index";
-import { LagretDokumenttype } from "mulighetsrommet-api-client";
+import { LagretDokumenttype } from "@mr/api-client";
 
 export function AvtalerForTiltakstypePage() {
   useTitle("Tiltakstyper - Avtaler");

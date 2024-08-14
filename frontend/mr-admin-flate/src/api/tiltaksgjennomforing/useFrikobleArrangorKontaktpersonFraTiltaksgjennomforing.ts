@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { QueryKeys } from "../QueryKeys";
-import { TiltaksgjennomforingerService } from "mulighetsrommet-api-client";
+import { TiltaksgjennomforingerService } from "@mr/api-client";
 
 export function useFrikobleArrangorKontaktpersonFraTiltaksgjennomforing() {
   const client = useQueryClient();

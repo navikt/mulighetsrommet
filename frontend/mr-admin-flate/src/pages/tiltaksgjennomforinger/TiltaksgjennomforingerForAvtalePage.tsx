@@ -14,7 +14,7 @@ import { useAvtale } from "@/api/avtaler/useAvtale";
 import { NullstillKnappForTiltaksgjennomforinger } from "@/pages/tiltaksgjennomforinger/NullstillKnappForTiltaksgjennomforinger";
 import { TilToppenKnapp } from "mulighetsrommet-frontend-common/components/tilToppenKnapp/TilToppenKnapp";
 import { LagredeFilterOversikt } from "mulighetsrommet-frontend-common";
-import { LagretDokumenttype } from "mulighetsrommet-api-client";
+import { LagretDokumenttype } from "@mr/api-client";
 import { useAtom } from "jotai/index";
 
 export function TiltaksgjennomforingerForAvtalePage() {

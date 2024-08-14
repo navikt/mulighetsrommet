@@ -5,7 +5,7 @@ import { avtaletekster } from "../../ledetekster/avtaleLedetekster";
 import { InferredAvtaleSchema } from "../../redaksjoneltInnhold/AvtaleSchema";
 import { ControlledDateInput } from "../../skjema/ControlledDateInput";
 import { Opsjonsmodell, opsjonsmodeller } from "../opsjoner/opsjonsmodeller";
-import { Avtale, Avtaletype, OpsjonsmodellKey, OpsjonStatus } from "mulighetsrommet-api-client";
+import { Avtale, Avtaletype, OpsjonsmodellKey, OpsjonStatus } from "@mr/api-client";
 import { OpsjonerRegistrert } from "../opsjoner/OpsjonerRegistrert";
 import { MIN_START_DATO_FOR_AVTALER } from "../../../constants";
 

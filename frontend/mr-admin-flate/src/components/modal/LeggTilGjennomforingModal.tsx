@@ -1,7 +1,7 @@
 import { Alert, Button, Heading, HelpText, Modal, Search } from "@navikt/ds-react";
 import { useSetAvtaleForGjennomforing } from "@/api/tiltaksgjennomforing/useSetAvtaleForGjennomforing";
 import { useState } from "react";
-import { Avtale, Tiltaksgjennomforing } from "mulighetsrommet-api-client";
+import { Avtale, Tiltaksgjennomforing } from "@mr/api-client";
 import { TiltaksgjennomforingerListe } from "../tiltaksgjennomforinger/TiltaksgjennomforingerListe";
 import { Link } from "react-router-dom";
 import { RedaksjoneltInnholdModalContainer } from "@/components/modal/RedaksjoneltInnholdModalContainer";

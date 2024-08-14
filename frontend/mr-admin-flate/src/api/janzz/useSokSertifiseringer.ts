@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useDebounce } from "mulighetsrommet-frontend-common";
 import { QueryKeys } from "@/api/QueryKeys";
-import { JanzzService } from "mulighetsrommet-api-client";
+import { JanzzService } from "@mr/api-client";
 
 export function useSokSertifiseringer(q: string) {
   const debouncedSok = useDebounce(q, 300);

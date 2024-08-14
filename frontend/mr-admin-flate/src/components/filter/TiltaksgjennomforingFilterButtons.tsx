@@ -1,6 +1,6 @@
 import { Button } from "@navikt/ds-react";
 import { useSetAtom } from "jotai";
-import { Opphav } from "mulighetsrommet-api-client";
+import { Opphav } from "@mr/api-client";
 import { Lenkeknapp } from "mulighetsrommet-frontend-common/components/lenkeknapp/Lenkeknapp";
 import { useState } from "react";
 import { gjennomforingDetaljerTabAtom } from "@/api/atoms";

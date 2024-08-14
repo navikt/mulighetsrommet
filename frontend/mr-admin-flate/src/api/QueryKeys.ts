@@ -1,4 +1,4 @@
-import { ArrangorTil, NavAnsattRolle, NotificationStatus } from "mulighetsrommet-api-client";
+import { ArrangorTil, NavAnsattRolle, NotificationStatus } from "@mr/api-client";
 import { ArrangorerFilter, AvtaleFilter, TiltaksgjennomforingFilter } from "./atoms";
 
 export const QueryKeys = {

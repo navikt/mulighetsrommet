@@ -14,7 +14,7 @@ import { avtaletypeTilTekst, formaterDato } from "@/utils/Utils";
 import { erAnskaffetTiltak } from "@/utils/tiltakskoder";
 import { ExternalLinkIcon } from "@navikt/aksel-icons";
 import { Alert, Heading, HelpText, VStack } from "@navikt/ds-react";
-import { NavEnhet } from "mulighetsrommet-api-client";
+import { NavEnhet } from "@mr/api-client";
 import { NOM_ANSATT_SIDE } from "mulighetsrommet-frontend-common/constants";
 import { Fragment } from "react";
 import { Link } from "react-router-dom";

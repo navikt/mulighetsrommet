@@ -1,5 +1,5 @@
 import { TEAMS_DYPLENKE } from "mulighetsrommet-frontend-common/constants";
-import { TiltaksgjennomforingKontaktperson } from "mulighetsrommet-api-client";
+import { TiltaksgjennomforingKontaktperson } from "@mr/api-client";
 import { BodyShort, VStack } from "@navikt/ds-react";
 import { ExternalLinkIcon } from "@navikt/aksel-icons";
 

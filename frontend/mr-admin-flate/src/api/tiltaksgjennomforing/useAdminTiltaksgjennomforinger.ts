@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useDebounce } from "mulighetsrommet-frontend-common";
 import { QueryKeys } from "@/api/QueryKeys";
 import { TiltaksgjennomforingFilter } from "../atoms";
-import { TiltaksgjennomforingerService } from "mulighetsrommet-api-client";
+import { TiltaksgjennomforingerService } from "@mr/api-client";
 
 function getPublisertStatus(statuser: string[] = []): boolean | null {
   if (statuser.length === 0) return null;

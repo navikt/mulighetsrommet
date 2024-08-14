@@ -4,7 +4,7 @@ import {
   DeltakerStatusType,
   VeilederflateTiltaksgjennomforing,
   VeilederflateTiltakstype,
-} from "mulighetsrommet-api-client";
+} from "@mr/api-client";
 import { ReactNode } from "react";
 import { useGetTiltaksgjennomforingIdFraUrl } from "@/hooks/useGetTiltaksgjennomforingIdFraUrl";
 import { useTiltakstyperSomStotterPameldingIModia } from "@/api/queries/useTiltakstyperSomStotterPameldingIModia";

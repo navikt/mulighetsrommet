@@ -1,6 +1,6 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { QueryKeys } from "@/api/QueryKeys";
-import { AvtalerService } from "mulighetsrommet-api-client";
+import { AvtalerService } from "@mr/api-client";
 
 export function useAvtaleEndringshistorikk(id: string) {
   return useSuspenseQuery({

@@ -1,10 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import {
-  ApiError,
-  DialogenService,
-  DialogRequest,
-  DialogResponse,
-} from "mulighetsrommet-api-client";
+import { ApiError, DialogenService, DialogRequest, DialogResponse } from "@mr/api-client";
 import { QueryKeys } from "../query-keys";
 
 interface Props {

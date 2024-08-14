@@ -12,7 +12,7 @@ import {
   Tiltakskode,
   Tiltakstype,
   Toggles,
-} from "mulighetsrommet-api-client";
+} from "@mr/api-client";
 import { ControlledSokeSelect } from "mulighetsrommet-frontend-common/components/ControlledSokeSelect";
 import { LabelWithHelpText } from "mulighetsrommet-frontend-common/components/label/LabelWithHelpText";
 import { SelectOption } from "mulighetsrommet-frontend-common/components/SokeSelect";

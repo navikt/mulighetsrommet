@@ -1,7 +1,7 @@
 import { useArrangor } from "@/api/arrangor/useArrangor";
 import { useArrangorKontaktpersoner } from "@/api/arrangor/useArrangorKontaktpersoner";
 import { BodyShort, Button, HGrid, HStack, Label, Modal, Tag, VStack } from "@navikt/ds-react";
-import { ArrangorKontaktperson } from "mulighetsrommet-api-client";
+import { ArrangorKontaktperson } from "@mr/api-client";
 import { RefObject, useState } from "react";
 import { Laster } from "../laster/Laster";
 import { ArrangorKontaktpersonSkjema } from "./ArrangorKontaktpersonSkjema";

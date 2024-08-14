@@ -5,7 +5,7 @@ import {
   VeilederflateInnsatsgruppe,
   VeilederflateTiltaksgjennomforing,
   VeilederflateTiltakstype,
-} from "mulighetsrommet-api-client";
+} from "@mr/api-client";
 import { formaterDato, utledLopenummerFraTiltaksnummer } from "@/utils/Utils";
 import Kopiknapp from "../kopiknapp/Kopiknapp";
 import Regelverksinfo from "./Regelverksinfo";

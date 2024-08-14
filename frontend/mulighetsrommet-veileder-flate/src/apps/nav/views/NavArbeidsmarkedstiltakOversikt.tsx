@@ -19,7 +19,7 @@ import {
   LagreFilterContainer,
   ListSkeleton,
 } from "mulighetsrommet-frontend-common";
-import { LagretDokumenttype } from "mulighetsrommet-api-client";
+import { LagretDokumenttype } from "@mr/api-client";
 import { HStack } from "@navikt/ds-react";
 
 interface Props {

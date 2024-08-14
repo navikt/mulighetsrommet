@@ -1,5 +1,5 @@
 import { useSetAtom } from "jotai";
-import { Avtale, Opphav } from "mulighetsrommet-api-client";
+import { Avtale, Opphav } from "@mr/api-client";
 import { useNavigate } from "react-router-dom";
 import { avtaleDetaljerTabAtom } from "@/api/atoms";
 import { useMigrerteTiltakstyperForAvtaler } from "@/api/tiltakstyper/useMigrerteTiltakstyper";

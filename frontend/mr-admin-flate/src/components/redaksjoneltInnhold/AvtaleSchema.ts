@@ -7,7 +7,7 @@ import {
   Personopplysning,
   Spesifisering,
   Tiltakskode,
-} from "mulighetsrommet-api-client";
+} from "@mr/api-client";
 import z from "zod";
 import { FaneinnholdSchema } from "./FaneinnholdSchema";
 

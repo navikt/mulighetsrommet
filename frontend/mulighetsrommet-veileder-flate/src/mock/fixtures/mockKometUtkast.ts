@@ -1,4 +1,4 @@
-import { DeltakerKort, DeltakerStatusType, TiltakskodeArena } from "mulighetsrommet-api-client";
+import { DeltakerKort, DeltakerStatusType, TiltakskodeArena } from "@mr/api-client";
 import { mockTiltaksgjennomforinger } from "./mockTiltaksgjennomforinger";
 
 export const utkastFraKomet: DeltakerKort[] = [

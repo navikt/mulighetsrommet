@@ -17,7 +17,7 @@ import { Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { TiltaksgjennomforingIkon } from "@/components/ikoner/TiltaksgjennomforingIkon";
 import { useState } from "react";
 import { NullstillKnappForTiltaksgjennomforinger } from "@/pages/tiltaksgjennomforinger/NullstillKnappForTiltaksgjennomforinger";
-import { LagretDokumenttype } from "mulighetsrommet-api-client";
+import { LagretDokumenttype } from "@mr/api-client";
 import { useAtom } from "jotai/index";
 
 export function TiltaksgjennomforingerPage() {

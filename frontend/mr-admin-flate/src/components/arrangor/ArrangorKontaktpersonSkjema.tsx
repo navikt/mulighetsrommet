@@ -4,7 +4,7 @@ import { useHandleApiUpsertResponse } from "@/api/effects";
 import { SkjemaInputContainer } from "@/components/skjema/SkjemaInputContainer";
 import { validEmail } from "@/utils/Utils";
 import { Button, TextField, UNSAFE_Combobox } from "@navikt/ds-react";
-import { ArrangorKontaktperson, ArrangorKontaktpersonAnsvar } from "mulighetsrommet-api-client";
+import { ArrangorKontaktperson, ArrangorKontaktpersonAnsvar } from "@mr/api-client";
 import { resolveErrorMessage } from "mulighetsrommet-frontend-common/components/error-handling/errors";
 import { useState } from "react";
 import { v4 as uuidv4 } from "uuid";

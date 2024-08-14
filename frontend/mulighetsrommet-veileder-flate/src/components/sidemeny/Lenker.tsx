@@ -1,6 +1,6 @@
 import { ExternalLinkIcon } from "@navikt/aksel-icons";
 import { GuidePanel, Heading, Link, List } from "@navikt/ds-react";
-import { Lenke } from "mulighetsrommet-api-client";
+import { Lenke } from "@mr/api-client";
 import { DokumentIkon } from "../../ikoner/DokumentIkon";
 
 interface Props {

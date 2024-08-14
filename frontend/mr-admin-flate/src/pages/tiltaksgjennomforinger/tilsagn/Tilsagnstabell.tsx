@@ -1,11 +1,6 @@
 import { ClockIcon } from "@navikt/aksel-icons";
 import { Alert, Button, HelpText, HStack, Table } from "@navikt/ds-react";
-import {
-  NavAnsatt,
-  NavAnsattRolle,
-  TilsagnBesluttelse,
-  TilsagnDto,
-} from "mulighetsrommet-api-client";
+import { NavAnsatt, NavAnsattRolle, TilsagnBesluttelse, TilsagnDto } from "@mr/api-client";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useHentAnsatt } from "../../../api/ansatt/useHentAnsatt";
 import { formaterDato, formaterTall } from "../../../utils/Utils";

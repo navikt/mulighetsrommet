@@ -1,7 +1,7 @@
 import { useTiltakstypeFaneinnhold } from "@/api/tiltaksgjennomforing/useTiltakstypeFaneinnhold";
 import { Alert, BodyLong, Heading } from "@navikt/ds-react";
 import { PortableText } from "@portabletext/react";
-import { SanityFaneinnhold } from "mulighetsrommet-api-client";
+import { SanityFaneinnhold } from "@mr/api-client";
 import { InlineErrorBoundary, LokalInformasjonContainer } from "mulighetsrommet-frontend-common";
 import React from "react";
 import styles from "../../pages/DetaljerInfo.module.scss";

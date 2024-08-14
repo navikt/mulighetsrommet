@@ -61,7 +61,7 @@ jobs:
           queries: security-and-quality
 
       - name: Setup frontend
-        uses: ./.github/actions/setup-frontend # For å trigge post-install script for mulighetsrommet-api-client
+        uses: ./.github/actions/setup-frontend # For å trigge post-install script for @mr/api-client
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3

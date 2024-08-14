@@ -1,4 +1,4 @@
-import { JoyrideType } from "mulighetsrommet-api-client";
+import { JoyrideType } from "@mr/api-client";
 import Joyride, { ACTIONS, CallBackProps, EVENTS, STATUS } from "react-joyride";
 import { useJoyride } from "@/api/queries/useJoyride";
 import { opprettAvtaleSteps, useSteps } from "./Steps";

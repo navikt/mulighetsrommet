@@ -11,7 +11,7 @@ import { Tiltaksgjennomforingsoversikt } from "@/components/oversikt/Tiltaksgjen
 import { Tilbakeknapp } from "@/components/tilbakeknapp/Tilbakeknapp";
 import { useResetArbeidsmarkedstiltakFilterMedBrukerIKontekst } from "@/hooks/useArbeidsmarkedstiltakFilter";
 import { Alert } from "@navikt/ds-react";
-import { ApiError, Toggles } from "mulighetsrommet-api-client";
+import { ApiError, Toggles } from "@mr/api-client";
 import { ListSkeleton, useTitle } from "mulighetsrommet-frontend-common";
 import { TilToppenKnapp } from "mulighetsrommet-frontend-common/components/tilToppenKnapp/TilToppenKnapp";
 import { useEffect, useState } from "react";

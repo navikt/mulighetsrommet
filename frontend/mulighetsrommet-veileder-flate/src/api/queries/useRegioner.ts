@@ -1,6 +1,6 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { QueryKeys } from "../query-keys";
-import { NavEnheterService } from "mulighetsrommet-api-client";
+import { NavEnheterService } from "@mr/api-client";
 
 export function useRegioner() {
   return useSuspenseQuery({

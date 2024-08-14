@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { QueryKeys } from "@/api/QueryKeys";
-import { NotificationsService } from "mulighetsrommet-api-client";
+import { NotificationsService } from "@mr/api-client";
 
 export function useNotificationSummary() {
   return useQuery({

@@ -1,5 +1,5 @@
 import { Features } from "@/api/features/useFeatureToggle";
-import { Toggles } from "mulighetsrommet-api-client";
+import { Toggles } from "@mr/api-client";
 
 export const mockFeatures: Features = {
   [Toggles.MULIGHETSROMMET_VEILEDERFLATE_VIS_DELTAKER_REGISTRERING]: false,

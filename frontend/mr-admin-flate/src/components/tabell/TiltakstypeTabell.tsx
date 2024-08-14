@@ -4,7 +4,7 @@ import { TabellWrapper } from "@/components/tabell/TabellWrapper";
 import { formaterDato } from "@/utils/Utils";
 import { Alert, Table } from "@navikt/ds-react";
 import { useAtom } from "jotai";
-import { SorteringTiltakstyper } from "mulighetsrommet-api-client";
+import { SorteringTiltakstyper } from "@mr/api-client";
 import { Lenke } from "mulighetsrommet-frontend-common/components/lenke/Lenke";
 import { Laster } from "../laster/Laster";
 import { TiltakstypestatusTag } from "../statuselementer/TiltakstypestatusTag";

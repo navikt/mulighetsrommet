@@ -5,7 +5,7 @@ import {
   TiltaksgjennomforingOppstartstype,
   TiltaksgjennomforingStatus,
   VeilederflateTiltaksgjennomforing,
-} from "mulighetsrommet-api-client";
+} from "@mr/api-client";
 import { mockTiltakstyper } from "./mockTiltakstyper";
 
 export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [

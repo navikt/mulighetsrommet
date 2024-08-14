@@ -2,7 +2,7 @@ import type {
   Endringshistorikk,
   EndringshistorikkNavAnsatt,
   EndringshistorikkUser,
-} from "mulighetsrommet-api-client";
+} from "@mr/api-client";
 import { formaterDatoTid } from "../../utils/Utils";
 import styles from "./ViewEndringshistorikk.module.scss";
 import classNames from "classnames";

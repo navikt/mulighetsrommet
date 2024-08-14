@@ -1,5 +1,5 @@
 import { useAtom, WritableAtom } from "jotai";
-import { ArrangorTil } from "mulighetsrommet-api-client";
+import { ArrangorTil } from "@mr/api-client";
 import { AvtaleFilter } from "@/api/atoms";
 import { useNavEnheter } from "@/api/enhet/useNavEnheter";
 import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";

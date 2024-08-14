@@ -3,7 +3,7 @@ import { AvtaleFilter, defaultAvtaleFilter } from "@/api/atoms";
 import { useAtom } from "jotai/index";
 import { NullstillFilterKnapp } from "mulighetsrommet-frontend-common/components/nullstillFilterKnapp/NullstillFilterKnapp";
 import { WritableAtom } from "jotai";
-import { LagretDokumenttype } from "mulighetsrommet-api-client";
+import { LagretDokumenttype } from "@mr/api-client";
 import { HStack } from "@navikt/ds-react";
 import { LagreFilterContainer } from "mulighetsrommet-frontend-common";
 

@@ -23,7 +23,7 @@ import {
   TiltakskodeArena,
   Toggles,
   VeilederflateTiltakstype,
-} from "mulighetsrommet-api-client";
+} from "@mr/api-client";
 import {
   DetaljerSkeleton,
   InlineErrorBoundary,

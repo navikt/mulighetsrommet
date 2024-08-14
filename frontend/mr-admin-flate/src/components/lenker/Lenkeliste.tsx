@@ -1,6 +1,6 @@
 import { ExternalLinkIcon } from "@navikt/aksel-icons";
 import { List, VStack } from "@navikt/ds-react";
-import { Lenke } from "mulighetsrommet-api-client";
+import { Lenke } from "@mr/api-client";
 
 interface Props {
   lenker: Lenke[];

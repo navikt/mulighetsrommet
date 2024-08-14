@@ -2,7 +2,7 @@ import { QueryKeys } from "@/api/QueryKeys";
 import { useQuery } from "@tanstack/react-query";
 import { useDebounce } from "mulighetsrommet-frontend-common";
 import { AvtaleFilter } from "../atoms";
-import { AvtalerService } from "mulighetsrommet-api-client";
+import { AvtalerService } from "@mr/api-client";
 
 export function useAvtaler(filter: Partial<AvtaleFilter>) {
   const debouncedSok = useDebounce(filter.sok?.trim(), 300);

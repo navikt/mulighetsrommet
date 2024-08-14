@@ -1,6 +1,6 @@
 import { QueryKeys } from "@/api/query-keys";
 import { useQuery } from "@tanstack/react-query";
-import { DelMedBrukerService } from "mulighetsrommet-api-client";
+import { DelMedBrukerService } from "@mr/api-client";
 
 export function useHentDeltMedBrukerStatus(norskIdent: string, gjennomforingId: string) {
   const { data: delMedBrukerInfo } = useQuery({

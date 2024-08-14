@@ -8,7 +8,7 @@ import {
   ArrangorKontaktperson,
   ArrangorKontaktpersonAnsvar,
   BrregVirksomhet,
-} from "mulighetsrommet-api-client";
+} from "@mr/api-client";
 import { ControlledSokeSelect } from "mulighetsrommet-frontend-common/components/ControlledSokeSelect";
 import { SelectOption } from "mulighetsrommet-frontend-common/components/SokeSelect";
 import { useRef, useState } from "react";

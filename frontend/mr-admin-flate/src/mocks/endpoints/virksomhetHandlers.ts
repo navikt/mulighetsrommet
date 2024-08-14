@@ -1,5 +1,5 @@
 import { http, HttpResponse, PathParams } from "msw";
-import { BrregVirksomhet } from "mulighetsrommet-api-client";
+import { BrregVirksomhet } from "@mr/api-client";
 import { mockArrangorer } from "../fixtures/mock_arrangorer";
 
 export const virksomhetHandlers = [

@@ -3,7 +3,7 @@ import { useAdminTiltaksgjennomforinger } from "@/api/tiltaksgjennomforing/useAd
 import { Laster } from "../laster/Laster";
 import styles from "./TiltaksgjennomforingerListe.module.scss";
 import { TiltaksgjennomforingFilter } from "@/api/atoms";
-import { Tiltaksgjennomforing } from "mulighetsrommet-api-client";
+import { Tiltaksgjennomforing } from "@mr/api-client";
 import { ReactNode } from "react";
 import { TiltaksgjennomforingStatusTag } from "mulighetsrommet-frontend-common";
 

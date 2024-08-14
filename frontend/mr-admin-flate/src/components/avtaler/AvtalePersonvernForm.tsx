@@ -17,7 +17,7 @@ import { InferredAvtaleSchema } from "@/components/redaksjoneltInnhold/AvtaleSch
 import { ControlledRadioGroup } from "../skjema/ControlledRadioGroup";
 import styles from "./AvtalePersonvernForm.module.scss";
 import { usePersonopplysninger } from "@/api/avtaler/usePersonopplysninger";
-import { PersonopplysningData } from "mulighetsrommet-api-client";
+import { PersonopplysningData } from "@mr/api-client";
 
 interface Props {
   tiltakstypeId?: string;

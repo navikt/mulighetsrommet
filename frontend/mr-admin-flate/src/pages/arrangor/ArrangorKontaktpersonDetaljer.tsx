@@ -1,4 +1,4 @@
-import { ArrangorKontaktperson } from "mulighetsrommet-api-client";
+import { ArrangorKontaktperson } from "@mr/api-client";
 import styles from "./ArrangorKontaktpersonDetaljer.module.scss";
 import { BodyShort } from "@navikt/ds-react";
 

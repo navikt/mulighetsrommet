@@ -1,10 +1,4 @@
-import {
-  ArrangorKontaktperson,
-  Avtale,
-  NavAnsatt,
-  NavEnhet,
-  NavEnhetType,
-} from "mulighetsrommet-api-client";
+import { ArrangorKontaktperson, Avtale, NavAnsatt, NavEnhet, NavEnhetType } from "@mr/api-client";
 import { DeepPartial } from "react-hook-form";
 import { InferredAvtaleSchema } from "@/components/redaksjoneltInnhold/AvtaleSchema";
 

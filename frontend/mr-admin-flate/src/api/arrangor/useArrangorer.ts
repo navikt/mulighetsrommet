@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { ArrangorService, ArrangorTil } from "mulighetsrommet-api-client";
+import { ArrangorService, ArrangorTil } from "@mr/api-client";
 import { QueryKeys } from "@/api/QueryKeys";
 import { ArrangorerFilter } from "../atoms";
 import { useDebounce } from "mulighetsrommet-frontend-common";

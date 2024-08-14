@@ -1,6 +1,6 @@
 import { TrashFillIcon } from "@navikt/aksel-icons";
 import { Alert, BodyShort, Button, HStack, Radio, RadioGroup } from "@navikt/ds-react";
-import { LagretDokumenttype, LagretFilter } from "mulighetsrommet-api-client";
+import { LagretDokumenttype, LagretFilter } from "@mr/api-client";
 import { useRef, useState } from "react";
 import { VarselModal } from "mr-admin-flate/src/components/modal/VarselModal";
 import { useGetLagredeFilterForDokumenttype } from "./getLagredeFilterForDokumenttype";

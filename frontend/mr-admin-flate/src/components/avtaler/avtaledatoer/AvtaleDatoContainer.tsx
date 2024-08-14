@@ -1,6 +1,6 @@
 import { addYear } from "@/utils/Utils";
 import { Heading, HGrid } from "@navikt/ds-react";
-import { Avtale, Avtaletype } from "mulighetsrommet-api-client";
+import { Avtale, Avtaletype } from "@mr/api-client";
 import { useEffect } from "react";
 import { DeepPartial, useFormContext } from "react-hook-form";
 import { MAKS_AAR_FOR_AVTALER, MIN_START_DATO_FOR_AVTALER } from "../../../constants";

@@ -1,4 +1,4 @@
-import { TilsagnDto, TilsagnRequest, Tiltaksgjennomforing } from "mulighetsrommet-api-client";
+import { TilsagnDto, TilsagnRequest, Tiltaksgjennomforing } from "@mr/api-client";
 import { SubmitHandler } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { SkjemaDetaljerContainer } from "../skjema/SkjemaDetaljerContainer";

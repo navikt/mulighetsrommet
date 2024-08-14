@@ -12,11 +12,7 @@ import { formaterDato, formatertVentetid } from "@/utils/Utils";
 import { isTiltakMedFellesOppstart } from "@/utils/tiltakskoder";
 import { ExternalLinkIcon } from "@navikt/aksel-icons";
 import { BodyShort, HelpText, HStack, Tag } from "@navikt/ds-react";
-import {
-  Avtale,
-  Tiltaksgjennomforing,
-  TiltaksgjennomforingOppstartstype,
-} from "mulighetsrommet-api-client";
+import { Avtale, Tiltaksgjennomforing, TiltaksgjennomforingOppstartstype } from "@mr/api-client";
 import { useTitle } from "mulighetsrommet-frontend-common";
 import { NOM_ANSATT_SIDE } from "mulighetsrommet-frontend-common/constants";
 import { Link } from "react-router-dom";

@@ -17,7 +17,7 @@ import { useState } from "react";
 import { FilterAndTableLayout } from "mulighetsrommet-frontend-common/components/filterAndTableLayout/FilterAndTableLayout";
 import { AvtaleFilterButtons } from "@/components/filter/AvtaleFilterButtons";
 import { NullstillKnappForAvtaler } from "@/pages/avtaler/NullstillKnappForAvtaler";
-import { LagretDokumenttype } from "mulighetsrommet-api-client";
+import { LagretDokumenttype } from "@mr/api-client";
 import { useAtom } from "jotai/index";
 
 export function AvtalerPage() {

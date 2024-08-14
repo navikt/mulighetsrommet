@@ -1,4 +1,4 @@
-import { ApentForInnsok } from "mulighetsrommet-api-client";
+import { ApentForInnsok } from "@mr/api-client";
 import { useArbeidsmarkedstiltakFilter } from "@/hooks/useArbeidsmarkedstiltakFilter";
 import { NavEnhetFilterTag } from "mulighetsrommet-frontend-common/components/filter/filterTag/NavEnhetFilterTag";
 import { FilterTagsContainer } from "mulighetsrommet-frontend-common/components/filter/filterTag/FilterTagsContainer";

@@ -1,5 +1,5 @@
 import { useAtom, WritableAtom } from "jotai";
-import { ArrangorTil } from "mulighetsrommet-api-client";
+import { ArrangorTil } from "@mr/api-client";
 import { TiltaksgjennomforingFilter } from "@/api/atoms";
 import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
 import { useArrangorer } from "@/api/arrangor/useArrangorer";

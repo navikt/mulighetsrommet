@@ -1,5 +1,5 @@
 import { BodyLong, Heading, HStack } from "@navikt/ds-react";
-import { VeilederflateTiltaksgjennomforing } from "mulighetsrommet-api-client";
+import { VeilederflateTiltaksgjennomforing } from "@mr/api-client";
 import styles from "./TiltaksgjennomforingsHeader.module.scss";
 import { TiltaksgjennomforingStatusTag } from "mulighetsrommet-frontend-common";
 import { gjennomforingIsAktiv } from "mulighetsrommet-frontend-common/utils/utils";

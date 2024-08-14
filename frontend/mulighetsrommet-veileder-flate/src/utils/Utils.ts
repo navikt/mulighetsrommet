@@ -1,4 +1,4 @@
-import { EstimertVentetidEnhet } from "mulighetsrommet-api-client";
+import { EstimertVentetidEnhet } from "@mr/api-client";
 
 export function inneholderUrl(string: string) {
   return window.location.href.indexOf(string) > -1;

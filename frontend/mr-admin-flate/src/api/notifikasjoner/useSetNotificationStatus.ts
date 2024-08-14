@@ -1,4 +1,4 @@
-import { NotificationsService, NotificationStatus } from "mulighetsrommet-api-client";
+import { NotificationsService, NotificationStatus } from "@mr/api-client";
 import { useMutation } from "@tanstack/react-query";
 import { useNotificationSummary } from "./useNotificationSummary";
 

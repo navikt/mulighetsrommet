@@ -1,6 +1,6 @@
 import { Dispatch, SetStateAction } from "react";
 import { CheckmarkCircleFillIcon, CheckmarkCircleIcon } from "@navikt/aksel-icons";
-import { NotificationStatus } from "mulighetsrommet-api-client";
+import { NotificationStatus } from "@mr/api-client";
 import classNames from "classnames";
 import styles from "./CheckmarkButton.module.scss";
 import { useSetNotificationStatus } from "@/api/notifikasjoner/useSetNotificationStatus";

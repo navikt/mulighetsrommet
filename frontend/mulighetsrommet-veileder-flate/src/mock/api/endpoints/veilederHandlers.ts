@@ -1,5 +1,5 @@
 import { HttpResponse, PathParams, http } from "msw";
-import { NavVeileder } from "mulighetsrommet-api-client";
+import { NavVeileder } from "@mr/api-client";
 
 export const veilederHandlers = [
   http.get<PathParams, NavVeileder>("*/api/v1/intern/veileder/me", () =>

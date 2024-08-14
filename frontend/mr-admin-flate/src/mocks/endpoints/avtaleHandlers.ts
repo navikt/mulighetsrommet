@@ -1,5 +1,5 @@
 import { http, HttpResponse, PathParams } from "msw";
-import { Avtale, EndringshistorikkEntry, PaginertAvtale } from "mulighetsrommet-api-client";
+import { Avtale, EndringshistorikkEntry, PaginertAvtale } from "@mr/api-client";
 import { mockAvtaler } from "../fixtures/mock_avtaler";
 import { mockEndringshistorikkAvtaler } from "../fixtures/mock_endringshistorikk_avtaler";
 

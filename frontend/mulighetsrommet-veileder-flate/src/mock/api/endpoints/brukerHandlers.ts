@@ -8,7 +8,7 @@ import {
   NavEnhetStatus,
   NavEnhetType,
   TiltakshistorikkAdminDto,
-} from "mulighetsrommet-api-client";
+} from "@mr/api-client";
 import { historikk } from "../../fixtures/mockHistorikk";
 import { historikkFraKomet } from "../../fixtures/mockKometHistorikk";
 import { utkastFraKomet } from "@/mock/fixtures/mockKometUtkast";

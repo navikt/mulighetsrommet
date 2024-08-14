@@ -1,6 +1,6 @@
 import { PadlockLockedFillIcon } from "@navikt/aksel-icons";
 import { Accordion } from "@navikt/ds-react";
-import { ApentForInnsok, NavEnhet } from "mulighetsrommet-api-client";
+import { ApentForInnsok, NavEnhet } from "@mr/api-client";
 import { useArbeidsmarkedstiltakFilter } from "@/hooks/useArbeidsmarkedstiltakFilter";
 import { FilterToggle } from "./FilterToggle";
 import styles from "./Filtermeny.module.scss";

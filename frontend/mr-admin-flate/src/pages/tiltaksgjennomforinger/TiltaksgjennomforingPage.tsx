@@ -15,7 +15,7 @@ import { useNavigateAndReplaceUrl } from "@/hooks/useNavigateWithoutReplacingUrl
 import { ContainerLayout } from "@/layouts/ContainerLayout";
 import commonStyles from "../Page.module.scss";
 import { TiltaksgjennomforingStatusTag } from "mulighetsrommet-frontend-common";
-import { TiltaksgjennomforingStatus, Toggles } from "mulighetsrommet-api-client";
+import { TiltaksgjennomforingStatus, Toggles } from "@mr/api-client";
 import { useFeatureToggle } from "@/api/features/useFeatureToggle";
 
 function createBrodsmuler(

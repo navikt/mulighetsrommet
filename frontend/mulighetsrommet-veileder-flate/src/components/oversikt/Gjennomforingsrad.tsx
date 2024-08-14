@@ -5,7 +5,7 @@ import {
   DelMedBruker,
   TiltaksgjennomforingOppstartstype,
   VeilederflateTiltaksgjennomforing,
-} from "mulighetsrommet-api-client";
+} from "@mr/api-client";
 import { Lenke } from "mulighetsrommet-frontend-common/components/lenke/Lenke";
 import { paginationAtom } from "@/core/atoms";
 import { formaterDato } from "@/utils/Utils";

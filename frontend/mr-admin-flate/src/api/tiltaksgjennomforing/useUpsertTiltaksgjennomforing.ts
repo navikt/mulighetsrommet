@@ -4,7 +4,7 @@ import {
   Tiltaksgjennomforing,
   TiltaksgjennomforingerService,
   TiltaksgjennomforingRequest,
-} from "mulighetsrommet-api-client";
+} from "@mr/api-client";
 import { QueryKeys } from "@/api/QueryKeys";
 
 export function useUpsertTiltaksgjennomforing() {

@@ -13,7 +13,7 @@ import {
   NavAnsatt,
   NavEnhet,
   Tiltakstype,
-} from "mulighetsrommet-api-client";
+} from "@mr/api-client";
 import React from "react";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { v4 as uuidv4 } from "uuid";

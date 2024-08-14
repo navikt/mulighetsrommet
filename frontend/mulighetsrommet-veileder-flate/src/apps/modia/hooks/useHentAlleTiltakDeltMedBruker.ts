@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { QueryKeys } from "@/api/query-keys";
 import { useModiaContext } from "./useModiaContext";
-import { DelMedBrukerService } from "mulighetsrommet-api-client";
+import { DelMedBrukerService } from "@mr/api-client";
 
 export function useHentAlleTiltakDeltMedBruker() {
   const { fnr: norskIdent } = useModiaContext();

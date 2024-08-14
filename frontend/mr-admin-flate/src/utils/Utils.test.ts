@@ -1,5 +1,5 @@
 import { AvtaleFilter } from "@/api/atoms";
-import { Avtalestatus, Avtaletype, SorteringAvtaler } from "mulighetsrommet-api-client";
+import { Avtalestatus, Avtaletype, SorteringAvtaler } from "@mr/api-client";
 import { describe, expect, test } from "vitest";
 import {
   capitalizeEveryWord,

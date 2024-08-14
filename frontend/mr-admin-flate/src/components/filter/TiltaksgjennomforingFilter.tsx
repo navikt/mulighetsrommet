@@ -1,6 +1,6 @@
 import { Accordion, Search, Switch } from "@navikt/ds-react";
 import { useAtom, WritableAtom } from "jotai";
-import { ArrangorTil, NavEnhet } from "mulighetsrommet-api-client";
+import { ArrangorTil, NavEnhet } from "@mr/api-client";
 import { useEffect } from "react";
 import {
   gjennomforingFilterAccordionAtom,

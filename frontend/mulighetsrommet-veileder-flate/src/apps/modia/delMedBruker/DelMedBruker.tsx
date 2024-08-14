@@ -7,7 +7,7 @@ import {
   Bruker,
   DelMedBruker as DelMedBrukerInfo,
   VeilederflateTiltaksgjennomforing,
-} from "mulighetsrommet-api-client";
+} from "@mr/api-client";
 import { formaterDato } from "@/utils/Utils";
 import {
   erBrukerReservertMotDigitalKommunikasjon,
