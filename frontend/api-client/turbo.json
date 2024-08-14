@@ -3,7 +3,7 @@
   "tasks": {
     "build": {
       "inputs": [
-        "$TURBO_DEFAULT$",
+        "openapi-ts.config.ts",
         "../../mulighetsrommet-api/src/main/resources/web/openapi.yaml"
       ],
       "outputs": ["build"]
