@@ -15,7 +15,8 @@ export function useInitializeModiaContext() {
     if (enhetsnrForOverordnetEnhet) {
       setAppContext({ ...appContext, overordnetEnhet: enhetsnrForOverordnetEnhet });
     }
-  }, [enhetsnrForOverordnetEnhet, setAppContext, appContext]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [enhetsnrForOverordnetEnhet]);
 
   useEffect(() => {
     if (appContext.overordnetEnhet) {

@@ -23,6 +23,10 @@ app:
   pameldingIModia:
     - ARBEIDSFORBEREDENDE_TRENING
 
+  pameldingKommerSnartIModia:
+    - ARBEIDSFORBEREDENDE_TRENING
+
+
   kafka:
     producerId: mulighetsrommet-api-kafka-producer.v1
     consumerGroupId: mulighetsrommet-api-kafka-consumer.v1

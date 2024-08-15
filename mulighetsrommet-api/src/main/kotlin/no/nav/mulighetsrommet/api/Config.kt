@@ -28,6 +28,7 @@ data class AppConfig(
     val flyway: FlywayMigrationManager.MigrationConfig,
     val migrerteTiltak: List<Tiltakskode>,
     val pameldingIModia: List<Tiltakskode>,
+    val pameldingKommerSnartIModia: List<Tiltakskode>,
     val kafka: KafkaConfig,
     val auth: AuthConfig,
     val sanity: SanityClient.Config,

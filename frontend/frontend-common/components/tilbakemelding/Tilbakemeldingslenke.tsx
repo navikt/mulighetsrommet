@@ -8,7 +8,7 @@ interface Props {
 
 export function TilbakemeldingLenke({ url, tekst }: Props) {
   return (
-    <GuidePanel poster style={{ textAlign: "center" }}>
+    <GuidePanel>
       <Heading level="2" size="xsmall">
         Vi vil høre fra deg
       </Heading>
