@@ -1,7 +1,7 @@
 import { addYear } from "@/utils/Utils";
 import { Heading, HGrid } from "@navikt/ds-react";
 import { Avtale, Avtaletype } from "@mr/api-client";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { DeepPartial, useFormContext } from "react-hook-form";
 import { MAKS_AAR_FOR_AVTALER, MIN_START_DATO_FOR_AVTALER } from "../../../constants";
 import { avtaletekster } from "../../ledetekster/avtaleLedetekster";
@@ -19,7 +19,11 @@ export function AvtaleDatoContainer({ avtale, arenaOpphavOgIngenEierskap }: Prop
   const { register, watch, setValue } = useFormContext<DeepPartial<InferredAvtaleSchema>>();
   const avtaletype = watch("avtaletype");
   const { startDato } = watch("startOgSluttDato") ?? {};
-  const sluttDatoFraDato = startDato ? new Date(startDato) : MIN_START_DATO_FOR_AVTALER;
+  // Uten useMemo for sluttDatoFraDato så trigges rerendering av children hver gang sluttdato kalkuleres på nytt ved endring av startdato
+  const sluttDatoFraDato = useMemo(
+    () => (startDato ? new Date(startDato) : MIN_START_DATO_FOR_AVTALER),
+    [startDato],
+  );
   const sluttDatoTilDato = addYear(
     startDato ? new Date(startDato) : new Date(),
     MAKS_AAR_FOR_AVTALER,
