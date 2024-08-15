@@ -196,8 +196,6 @@ class PdlClient(
             throw Exception("Error fra pdl: $response")
         }
 
-        log.info("GQL response: ${response.bodyAsText()}")
-
         val graphqlResponse: GraphqlResponse<V> = response.body()
 
         return if (graphqlResponse.errors.isNotEmpty()) {
