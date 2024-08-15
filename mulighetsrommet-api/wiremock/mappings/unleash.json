@@ -52,6 +52,11 @@
           "name": "mulighetsrommet.admin-flate.opprett-tilsagn",
           "enabled": true,
           "strategies": []
+        },
+        {
+          "name": "mulighetsrommet.veilederflate.visDeltakerRegistrering",
+          "enabled": true,
+          "strategies": []
         }
       ]
     },

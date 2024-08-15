@@ -14,9 +14,6 @@ import { PORTEN_URL_FOR_TILBAKEMELDING } from "@/constants";
 import { paginationAtom } from "@/core/atoms";
 import { isProduction } from "@/environment";
 import { ViewTiltaksgjennomforingDetaljer } from "@/layouts/ViewTiltaksgjennomforingDetaljer";
-import { Chat2Icon } from "@navikt/aksel-icons";
-import { Alert, Button } from "@navikt/ds-react";
-import { useAtomValue } from "jotai";
 import {
   Bruker,
   NavVeileder,
@@ -31,12 +28,16 @@ import {
   useTitle,
 } from "@mr/frontend-common";
 import { gjennomforingIsAktiv } from "@mr/frontend-common/utils/utils";
+import { Chat2Icon } from "@navikt/aksel-icons";
+import { Alert, Button } from "@navikt/ds-react";
+import { useAtomValue } from "jotai";
 import { useFeatureToggle } from "../../../api/feature-toggles";
 import { useTiltaksgjennomforingById } from "../../../api/queries/useTiltaksgjennomforingById";
 import { PameldingForGruppetiltak } from "../../../components/pamelding/PameldingForGruppetiltak";
 import { VisibleWhenToggledOn } from "../../../components/toggles/VisibleWhenToggledOn";
 import { useGetTiltaksgjennomforingIdFraUrl } from "../../../hooks/useGetTiltaksgjennomforingIdFraUrl";
 import { ModiaRoute, resolveModiaRoute } from "../ModiaRoute";
+import { PameldingFraKometApnerSnart } from "../pamelding/PameldingFraKometApnerSnart";
 
 export function ModiaArbeidsmarkedstiltakDetaljer() {
   const { fnr } = useModiaContext();
@@ -150,6 +151,10 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
                 tiltaksgjennomforing={tiltaksgjennomforing}
                 bruker={brukerdata}
               />
+            ) : null}
+
+            {tiltaksgjennomforing && gjennomforingIsAktiv(tiltaksgjennomforing.status.status) ? (
+              <PameldingFraKometApnerSnart tiltaksgjennomforing={tiltaksgjennomforing} />
             ) : null}
 
             {!brukerdata?.manuellStatus && (

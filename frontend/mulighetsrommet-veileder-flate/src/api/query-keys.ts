@@ -34,4 +34,5 @@ export const QueryKeys = {
   ],
   deltMedBrukerHistorikk: (norskIdent: string) => ["deltMedBrukerHistorikk", norskIdent],
   tiltakstyperSomStotterPameldingIModia: () => ["tiltakstyperSomStotterPameldingIModia"],
+  tiltakstyperSomSnartStotterPameldingIModia: () => ["tiltakstyperSomSnartStotterPameldingIModia"],
 };

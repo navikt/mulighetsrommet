@@ -20,6 +20,8 @@ app:
 
   pameldingIModia: []
 
+  pameldingKommerSnartIModia: []
+
   kafka:
     producerId: mulighetsrommet-api-kafka-producer.v1
     consumerGroupId: mulighetsrommet-api-kafka-consumer.v1
