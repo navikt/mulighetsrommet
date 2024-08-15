@@ -78,7 +78,7 @@ export function AvtaleTabell({ filterAtom, tagsHeight, filterOpen }: Props) {
       link.current.click();
       URL.revokeObjectURL(excelUrl);
     }
-  }, [excelUrl]);
+  }, [excelUrl, link]);
 
   function updateFilter(newFilter: Partial<AvtaleFilter>) {
     setFilter({ ...filter, ...newFilter });

@@ -90,7 +90,7 @@ export function TiltaksgjennomforingsTabell({
       link.current.click();
       URL.revokeObjectURL(excelUrl);
     }
-  }, [excelUrl]);
+  }, [excelUrl, link]);
 
   function updateFilter(newFilter: Partial<TiltaksgjennomforingFilter>) {
     setFilter({ ...filter, ...newFilter });
