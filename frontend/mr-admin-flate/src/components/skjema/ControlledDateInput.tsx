@@ -1,4 +1,4 @@
-import { forwardRef } from "react";
+import { forwardRef, useMemo } from "react";
 import { Controller } from "react-hook-form";
 import { DateInput } from "@/components/skjema/DateInput";
 

@@ -3,7 +3,7 @@ import { useUpsertArrangorKontaktperson } from "@/api/arrangor/useUpsertArrangor
 import { useHandleApiUpsertResponse } from "@/api/effects";
 import { SkjemaInputContainer } from "@/components/skjema/SkjemaInputContainer";
 import { validEmail } from "@/utils/Utils";
-import { Button, TextField, UNSAFE_Combobox } from "@navikt/ds-react";
+import { Button, HGrid, HStack, TextField, UNSAFE_Combobox, VStack } from "@navikt/ds-react";
 import { ArrangorKontaktperson, ArrangorKontaktpersonAnsvar } from "@mr/api-client";
 import { resolveErrorMessage } from "@mr/frontend-common/components/error-handling/errors";
 import { useState } from "react";
@@ -106,104 +106,106 @@ export function ArrangorKontaktpersonSkjema({
 
   return (
     <SkjemaInputContainer>
-      <TextField
-        size="small"
-        label={"Navn"}
-        value={state.navn}
-        error={state.errors.navn}
-        autoFocus
-        onChange={(e) => {
-          setState({
-            ...state,
-            navn: e.target.value,
-            errors: { ...state.errors, navn: undefined },
-          });
-        }}
-      />
-      <div className={styles.telefonepost_input}>
-        <div className={styles.telefon_input}>
-          <TextField
-            size="small"
-            label="Telefon"
-            value={state.telefon}
-            onChange={(e) => {
-              setState({
-                ...state,
-                telefon: e.target.value,
-              });
-            }}
-          />
-        </div>
-        <div className={styles.epost_input}>
-          <TextField
-            size="small"
-            label="Epost"
-            value={state.epost}
-            error={state.errors.epost}
-            onChange={(e) => {
-              setState({
-                ...state,
-                epost: e.target.value,
-                errors: { ...state.errors, epost: undefined },
-              });
-            }}
-          />
-        </div>
-      </div>
-      <UNSAFE_Combobox
-        label="Hva er kontaktpersonen ansvarlig for?"
-        size="small"
-        isMultiSelect
-        error={state.errors.ansvarligFor}
-        selectedOptions={state.ansvarligFor.map((ansvar) => ({
-          label: navnForAnsvar(ansvar),
-          value: ansvar,
-        }))}
-        options={[
-          { value: ArrangorKontaktpersonAnsvar.AVTALE, label: "Avtale" },
-          {
-            value: ArrangorKontaktpersonAnsvar.TILTAKSGJENNOMFORING,
-            label: "Tiltaksgjennomføring",
-          },
-          { value: ArrangorKontaktpersonAnsvar.OKONOMI, label: "Økonomi" },
-        ]}
-        onToggleSelected={(option, isSelected) => {
-          setState({
-            ...state,
-            ansvarligFor: isSelected
-              ? [...state.ansvarligFor, option as ArrangorKontaktpersonAnsvar]
-              : state.ansvarligFor.filter((o) => o !== option),
-          });
-        }}
-      />
-      <TextField
-        size="small"
-        label={"Beskrivelse"}
-        placeholder="Unngå personopplysninger"
-        maxLength={67}
-        value={state.beskrivelse}
-        onChange={(e) => {
-          setState({
-            ...state,
-            beskrivelse: e.target.value,
-          });
-        }}
-      />
-      <div className={styles.button_container}>
-        <Button size="small" type="button" onClick={opprettEllerLagreKontaktperson}>
-          {person ? "Lagre" : "Opprett"}
-        </Button>
-        {person && (
-          <Button size="small" type="button" variant="danger" onClick={deleteKontaktperson}>
-            Slett
+      <HGrid gap="2" columns={1}>
+        <TextField
+          size="small"
+          label={"Navn"}
+          value={state.navn}
+          error={state.errors.navn}
+          autoFocus
+          onChange={(e) => {
+            setState({
+              ...state,
+              navn: e.target.value,
+              errors: { ...state.errors, navn: undefined },
+            });
+          }}
+        />
+        <HGrid columns={2} gap="2">
+          <div>
+            <TextField
+              size="small"
+              label="Telefon"
+              value={state.telefon}
+              onChange={(e) => {
+                setState({
+                  ...state,
+                  telefon: e.target.value,
+                });
+              }}
+            />
+          </div>
+          <div>
+            <TextField
+              size="small"
+              label="Epost"
+              value={state.epost}
+              error={state.errors.epost}
+              onChange={(e) => {
+                setState({
+                  ...state,
+                  epost: e.target.value,
+                  errors: { ...state.errors, epost: undefined },
+                });
+              }}
+            />
+          </div>
+        </HGrid>
+        <UNSAFE_Combobox
+          label="Hva er kontaktpersonen ansvarlig for?"
+          size="small"
+          isMultiSelect
+          error={state.errors.ansvarligFor}
+          selectedOptions={state.ansvarligFor.map((ansvar) => ({
+            label: navnForAnsvar(ansvar),
+            value: ansvar,
+          }))}
+          options={[
+            { value: ArrangorKontaktpersonAnsvar.AVTALE, label: "Avtale" },
+            {
+              value: ArrangorKontaktpersonAnsvar.TILTAKSGJENNOMFORING,
+              label: "Tiltaksgjennomføring",
+            },
+            { value: ArrangorKontaktpersonAnsvar.OKONOMI, label: "Økonomi" },
+          ]}
+          onToggleSelected={(option, isSelected) => {
+            setState({
+              ...state,
+              ansvarligFor: isSelected
+                ? [...state.ansvarligFor, option as ArrangorKontaktpersonAnsvar]
+                : state.ansvarligFor.filter((o) => o !== option),
+            });
+          }}
+        />
+        <TextField
+          size="small"
+          label={"Beskrivelse"}
+          placeholder="Unngå personopplysninger"
+          maxLength={67}
+          value={state.beskrivelse}
+          onChange={(e) => {
+            setState({
+              ...state,
+              beskrivelse: e.target.value,
+            });
+          }}
+        />
+        <HGrid columns={2} gap="1">
+          <Button size="small" type="button" onClick={opprettEllerLagreKontaktperson}>
+            {person ? "Lagre" : "Opprett"}
           </Button>
+          {person && (
+            <Button size="small" type="button" variant="danger" onClick={deleteKontaktperson}>
+              Slett
+            </Button>
+          )}
+        </HGrid>
+        {deleteMutation.isError && (
+          <div className={styles.error_msg}>
+            <b>• {resolveErrorMessage(deleteMutation.error)}</b>
+          </div>
         )}
-      </div>
-      {deleteMutation.isError && (
-        <div className={styles.error_msg}>
-          <b>• {resolveErrorMessage(deleteMutation.error)}</b>
-        </div>
-      )}
+      </HGrid>
     </SkjemaInputContainer>
   );
 }

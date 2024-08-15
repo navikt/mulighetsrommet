@@ -72,7 +72,8 @@ export const DateInput = forwardRef(function DateInput(
     if (value) {
       setSelected(new Date(value));
     }
-  }, [value, setSelected]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [value]);
 
   return (
     <DatePicker {...datepickerProps} dropdownCaption>
