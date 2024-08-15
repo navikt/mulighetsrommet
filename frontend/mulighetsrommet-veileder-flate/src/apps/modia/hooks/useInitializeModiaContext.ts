@@ -21,5 +21,6 @@ export function useInitializeModiaContext() {
     if (appContext.overordnetEnhet) {
       logEvent({ name: "arbeidsmarkedstiltak.unike-brukere" });
     }
-  }, [appContext.overordnetEnhet, logEvent]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [appContext.overordnetEnhet]);
 }
