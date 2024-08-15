@@ -12,10 +12,10 @@ import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingKontaktpersonDbo
 import no.nav.mulighetsrommet.api.domain.dto.FrikobleKontaktpersonRequest
+import no.nav.mulighetsrommet.api.parameters.getPaginationParams
 import no.nav.mulighetsrommet.api.plugins.AuthProvider
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.repositories.DeltakerRepository
-import no.nav.mulighetsrommet.api.parameters.getPaginationParams
 import no.nav.mulighetsrommet.api.responses.BadRequest
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.services.ExcelService
@@ -34,7 +34,7 @@ fun Route.tiltaksgjennomforingRoutes() {
     val deltakere: DeltakerRepository by inject()
     val service: TiltaksgjennomforingService by inject()
 
-    route("/api/v1/intern/tiltaksgjennomforinger") {
+    route("tiltaksgjennomforinger") {
         authenticate(
             AuthProvider.AZURE_AD_TILTAKSJENNOMFORINGER_SKRIV.name,
             strategy = AuthenticationStrategy.Required,

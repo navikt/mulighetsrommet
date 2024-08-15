@@ -22,7 +22,7 @@ import java.util.*
 fun Route.tilsagnRoutes() {
     val service: TilsagnService by inject()
 
-    route("/api/v1/intern/tilsagn") {
+    route("tilsagn") {
         get("/{id}") {
             val id = call.parameters.getOrFail<UUID>("id")
 
@@ -66,13 +66,13 @@ fun Route.tilsagnRoutes() {
         }
     }
 
-    route("/api/v1/intern/tiltaksgjennomforinger/{tiltaksgjennomforingId}/tilsagn") {
+    route("/tiltaksgjennomforinger/{id}/tilsagn") {
         authenticate(
             AuthProvider.AZURE_AD_TILTAKSJENNOMFORINGER_SKRIV.name,
             strategy = AuthenticationStrategy.Required,
         ) {
             get {
-                val tiltaksgjennomforingId = call.parameters.getOrFail<UUID>("tiltaksgjennomforingId")
+                val tiltaksgjennomforingId = call.parameters.getOrFail<UUID>("id")
 
                 val result = service.getByGjennomforingId(tiltaksgjennomforingId)
 

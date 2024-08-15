@@ -27,7 +27,7 @@ fun Route.dialogRoutes() {
     val poaoTilgangService: PoaoTilgangService by inject()
     val delMedBrukerService: DelMedBrukerService by inject()
 
-    route("/api/v1/intern/dialog") {
+    route("/dialog") {
         post {
             val request = call.receive<DialogRequest>()
             val navIdent = getNavIdent()

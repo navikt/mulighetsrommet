@@ -19,7 +19,7 @@ fun Route.brregVirksomhetRoutes() {
     val arrangorRepository: ArrangorRepository by inject()
     val brregClient: BrregClient by inject()
 
-    route("api/v1/intern/virksomhet") {
+    route("virksomhet") {
         get("sok") {
             val sok: String by call.request.queryParameters
 

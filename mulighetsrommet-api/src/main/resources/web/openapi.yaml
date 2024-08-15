@@ -999,11 +999,11 @@ paths:
               schema:
                 type: string
 
-  /api/v2/intern/bruker/historikk:
+  /api/v1/intern/bruker/historikk:
     post:
       tags:
         - Historikk
-      operationId: hentHistorikkForBrukerV2
+      operationId: hentHistorikkForBruker
       requestBody:
         content:
           application/json:

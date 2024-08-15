@@ -18,7 +18,7 @@ fun Route.delMedBrukerRoutes() {
     val delMedBrukerService by inject<DelMedBrukerService>()
     val poaoTilgang: PoaoTilgangService by inject()
 
-    route("/api/v1/intern/del-med-bruker") {
+    route("del-med-bruker") {
         post {
             val request = call.receive<GetDelMedBrukerRequest>()
 

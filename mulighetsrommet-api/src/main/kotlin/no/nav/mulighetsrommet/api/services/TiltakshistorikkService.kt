@@ -26,7 +26,7 @@ class TiltakshistorikkService(
 ) {
     val log: Logger = LoggerFactory.getLogger(javaClass)
 
-    suspend fun hentHistorikkForBrukerV2(norskIdent: NorskIdent, obo: AccessType.OBO): List<TiltakshistorikkAdminDto> {
+    suspend fun hentHistorikkForBruker(norskIdent: NorskIdent, obo: AccessType.OBO): List<TiltakshistorikkAdminDto> {
         val identer = hentHistoriskeNorskIdent(norskIdent, obo)
 
         val response = tiltakshistorikkClient.historikk(identer)

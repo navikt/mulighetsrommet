@@ -11,11 +11,9 @@ import io.ktor.util.pipeline.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.domain.dto.ArrangorKontaktperson
 import no.nav.mulighetsrommet.api.domain.dto.ArrangorTil
-import no.nav.mulighetsrommet.api.repositories.ArrangorRepository
-import no.nav.mulighetsrommet.api.routes.responses.*
 import no.nav.mulighetsrommet.api.parameters.getPaginationParams
+import no.nav.mulighetsrommet.api.repositories.ArrangorRepository
 import no.nav.mulighetsrommet.api.responses.*
-import no.nav.mulighetsrommet.api.routes.v1.responses.*
 import no.nav.mulighetsrommet.api.services.ArrangorService
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import org.koin.ktor.ext.inject
@@ -25,7 +23,7 @@ fun Route.arrangorRoutes() {
     val arrangorRepository: ArrangorRepository by inject()
     val arrangorService: ArrangorService by inject()
 
-    route("api/v1/intern/arrangorer") {
+    route("arrangorer") {
         post("{orgnr}") {
             val orgnr = call.parameters.getOrFail("orgnr").also { validateOrgnr(it) }
 
@@ -47,7 +45,12 @@ fun Route.arrangorRoutes() {
         get {
             val filter = getArrangorFilter()
             val pagination = getPaginationParams()
-            val (totalCount, items) = arrangorRepository.getAll(til = filter.til, sok = filter.sok, sortering = filter.sortering, pagination = pagination)
+            val (totalCount, items) = arrangorRepository.getAll(
+                til = filter.til,
+                sok = filter.sok,
+                sortering = filter.sortering,
+                pagination = pagination,
+            )
             call.respond(PaginatedResponse.of(pagination, totalCount, items))
         }
 

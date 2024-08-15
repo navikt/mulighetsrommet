@@ -18,7 +18,7 @@ import java.util.*
 fun Route.notificationRoutes() {
     val notificationService: NotificationService by inject()
 
-    route("api/v1/intern/notifications") {
+    route("notifications") {
         get {
             val userId = getNavIdent()
             val filter = getNotificationFilter()

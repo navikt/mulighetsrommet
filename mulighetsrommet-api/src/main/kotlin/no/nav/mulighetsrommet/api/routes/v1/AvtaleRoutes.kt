@@ -9,9 +9,9 @@ import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.domain.dto.FrikobleKontaktpersonRequest
+import no.nav.mulighetsrommet.api.parameters.getPaginationParams
 import no.nav.mulighetsrommet.api.plugins.AuthProvider
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
-import no.nav.mulighetsrommet.api.parameters.getPaginationParams
 import no.nav.mulighetsrommet.api.responses.BadRequest
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.services.AvtaleService
@@ -27,7 +27,7 @@ import java.util.*
 fun Route.avtaleRoutes() {
     val avtaler: AvtaleService by inject()
 
-    route("/api/v1/intern/personopplysninger") {
+    route("personopplysninger") {
         get {
             call.respond(
                 Personopplysning
@@ -38,7 +38,7 @@ fun Route.avtaleRoutes() {
         }
     }
 
-    route("/api/v1/intern/avtaler") {
+    route("avtaler") {
         authenticate(AuthProvider.AZURE_AD_AVTALER_SKRIV.name, strategy = AuthenticationStrategy.Required) {
             put {
                 val navIdent = getNavIdent()
@@ -121,12 +121,6 @@ fun Route.avtaleRoutes() {
             avtaler.get(id)
                 ?.let { call.respond(it) }
                 ?: call.respond(HttpStatusCode.NotFound, "Det finnes ikke noen avtale med id $id")
-        }
-
-        get("{id}/behandle-personopplysninger") {
-            val id = call.parameters.getOrFail<UUID>("id")
-            avtaler.getBehandlingAvPersonopplysninger(id)
-                .let { call.respond(it) }
         }
 
         get("{id}/historikk") {

@@ -7,8 +7,6 @@ import no.nav.mulighetsrommet.api.okonomi.BestillingDto
 import no.nav.mulighetsrommet.api.okonomi.OkonomiClient
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.responses.*
-import no.nav.mulighetsrommet.api.routes.responses.*
-import no.nav.mulighetsrommet.api.routes.v1.responses.*
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer

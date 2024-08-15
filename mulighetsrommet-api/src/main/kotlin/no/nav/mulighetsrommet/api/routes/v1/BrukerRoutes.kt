@@ -30,7 +30,7 @@ fun Route.brukerRoutes() {
     val historikkService: TiltakshistorikkService by inject()
     val poaoTilgangService: PoaoTilgangService by inject()
 
-    route("/api/v1/intern/bruker") {
+    route("bruker") {
         post {
             val request = call.receive<GetBrukerRequest>()
 
@@ -39,10 +39,8 @@ fun Route.brukerRoutes() {
             val obo = AccessType.OBO(call.getAccessToken())
             call.respond(brukerService.hentBrukerdata(request.norskIdent, obo))
         }
-    }
 
-    route("/api/v2/intern/bruker/historikk") {
-        post {
+        post("historikk") {
             val (norskIdent) = call.receive<GetHistorikkForBrukerRequest>()
             val navIdent = getNavIdent()
             val obo = AccessType.OBO(call.getAccessToken())
@@ -57,7 +55,7 @@ fun Route.brukerRoutes() {
                 AuditLog.auditLogger.log(message)
             }
 
-            historikkService.hentHistorikkForBrukerV2(norskIdent, obo).let {
+            historikkService.hentHistorikkForBruker(norskIdent, obo).let {
                 val message = createAuditMessage(
                     msg = "NAV-ansatt med ident: '$navIdent' har sett på tiltakshistorikken for bruker med ident: '$norskIdent'.",
                     topic = "Vis tiltakshistorikk",
@@ -69,10 +67,8 @@ fun Route.brukerRoutes() {
                 call.respond(it)
             }
         }
-    }
 
-    route("/api/v1/intern/bruker/komet-deltakelser") {
-        post {
+        post("komet-deltakelser") {
             val (norskIdent) = call.receive<GetHistorikkForBrukerRequest>()
             val navIdent = getNavIdent()
             val obo = AccessType.OBO(call.getAccessToken())

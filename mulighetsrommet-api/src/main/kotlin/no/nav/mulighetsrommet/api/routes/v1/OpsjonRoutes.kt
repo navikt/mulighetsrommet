@@ -20,7 +20,7 @@ import java.util.*
 fun Route.opsjonRoutes() {
     val opsjonLoggService: OpsjonLoggService by inject()
 
-    route("api/v1/intern/opsjoner") {
+    route("opsjoner") {
         authenticate(AuthProvider.AZURE_AD_AVTALER_SKRIV.name, strategy = AuthenticationStrategy.Required) {
             post {
                 val request = call.receive<OpsjonLoggRequest>()
