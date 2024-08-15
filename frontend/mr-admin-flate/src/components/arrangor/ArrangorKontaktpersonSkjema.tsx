@@ -3,9 +3,9 @@ import { useUpsertArrangorKontaktperson } from "@/api/arrangor/useUpsertArrangor
 import { useHandleApiUpsertResponse } from "@/api/effects";
 import { SkjemaInputContainer } from "@/components/skjema/SkjemaInputContainer";
 import { validEmail } from "@/utils/Utils";
-import { Button, HGrid, HStack, TextField, UNSAFE_Combobox, VStack } from "@navikt/ds-react";
 import { ArrangorKontaktperson, ArrangorKontaktpersonAnsvar } from "@mr/api-client";
 import { resolveErrorMessage } from "@mr/frontend-common/components/error-handling/errors";
+import { Button, HGrid, TextField, UNSAFE_Combobox } from "@navikt/ds-react";
 import { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import styles from "./ArrangorKontaktpersonSkjema.module.scss";
