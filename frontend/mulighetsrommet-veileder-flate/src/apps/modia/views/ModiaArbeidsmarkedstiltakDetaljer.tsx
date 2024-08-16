@@ -153,10 +153,6 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
               />
             ) : null}
 
-            {tiltaksgjennomforing && gjennomforingIsAktiv(tiltaksgjennomforing.status.status) ? (
-              <PameldingFraKometApnerSnart tiltaksgjennomforing={tiltaksgjennomforing} />
-            ) : null}
-
             {!brukerdata?.manuellStatus && (
               <Alert
                 title="Vi kunne ikke opprette kontakt med KRR og vet derfor ikke om brukeren har reservert seg mot digital kommunikasjon"
@@ -176,6 +172,10 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
                 <Chat2Icon aria-label="Åpne i dialogen" />
               </Button>
             )}
+
+            {tiltaksgjennomforing && gjennomforingIsAktiv(tiltaksgjennomforing.status.status) ? (
+              <PameldingFraKometApnerSnart tiltaksgjennomforing={tiltaksgjennomforing} />
+            ) : null}
 
             {tiltaksgjennomforing && tiltaksgjennomforing?.personvernBekreftet ? (
               <InlineErrorBoundary>
