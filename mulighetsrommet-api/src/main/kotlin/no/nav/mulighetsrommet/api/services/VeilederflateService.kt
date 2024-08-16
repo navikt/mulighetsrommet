@@ -229,16 +229,15 @@ class VeilederflateService(
 
     suspend fun hentTiltaksgjennomforing(
         id: UUID,
-        enheter: List<String>,
         sanityPerspective: SanityPerspective,
     ): VeilederflateTiltaksgjennomforing {
-        return tiltaksgjennomforingService.get(id)
+        return tiltaksgjennomforingService.getVeilederflateTiltaksgjennomforing(id)
             ?.let { gjennomforing ->
-                val tiltakstype = tiltakstypeService.getById(gjennomforing.tiltakstype.id)
-                val sanityTiltakstype = hentTiltakstyper()
-                    .find { it.sanityId == tiltakstype?.sanityId.toString() }
+                val hentTiltakstyper = hentTiltakstyper()
+                val sanityTiltakstype = hentTiltakstyper
+                    .find { it.sanityId == gjennomforing.tiltakstype.sanityId }
                     ?: throw NotFoundException("Fant ikke tiltakstype for gjennomføring med id: '$id'")
-                toVeilederTiltaksgjennomforing(gjennomforing, sanityTiltakstype)
+                gjennomforing.copy(tiltakstype = sanityTiltakstype)
             }
             ?: run {
                 val gjennomforing = getSanityTiltaksgjennomforing(id, sanityPerspective)
@@ -367,68 +366,6 @@ class VeilederflateService(
                     tiltaksansvarlige = kontaktpersoner,
                 ),
                 personvernBekreftet = false, // Individuelle tiltak har ikke informasjon om personvern
-            )
-        }
-    }
-
-    private fun toVeilederTiltaksgjennomforing(
-        apiGjennomforing: TiltaksgjennomforingAdminDto,
-        veilederflateTiltakstype: VeilederflateTiltakstype,
-    ): VeilederflateTiltaksgjennomforing {
-        val arrangor = VeilederflateArrangor(
-            arrangorId = apiGjennomforing.arrangor.id,
-            selskapsnavn = apiGjennomforing.arrangor.navn,
-            organisasjonsnummer = apiGjennomforing.arrangor.organisasjonsnummer,
-            kontaktpersoner = apiGjennomforing.arrangor.kontaktpersoner.map {
-                VeilederflateArrangorKontaktperson(
-                    id = it.id,
-                    navn = it.navn,
-                    epost = it.epost,
-                    telefon = it.telefon,
-                    beskrivelse = it.beskrivelse,
-                )
-            },
-        )
-
-        val kontaktpersoner = apiGjennomforing.kontaktpersoner.map {
-            VeilederflateKontaktinfoTiltaksansvarlig(
-                navn = it.navn,
-                telefonnummer = it.mobilnummer,
-                enhet = navEnhetService.hentEnhet(it.hovedenhet),
-                epost = it.epost,
-                beskrivelse = it.beskrivelse,
-            )
-        }
-
-        return apiGjennomforing.run {
-            VeilederflateTiltaksgjennomforing(
-                id = id,
-                status = status,
-                avtaleId = avtaleId,
-                tiltakstype = veilederflateTiltakstype,
-                navn = navn,
-                tiltaksnummer = apiGjennomforing.tiltaksnummer,
-                oppstart = apiGjennomforing.oppstart,
-                oppstartsdato = apiGjennomforing.startDato,
-                sluttdato = apiGjennomforing.sluttDato,
-                apentForInnsok = apiGjennomforing.apentForInnsok,
-                arrangor = arrangor,
-                stedForGjennomforing = apiGjennomforing.stedForGjennomforing,
-                fylke = apiGjennomforing.navRegion?.enhetsnummer,
-                enheter = apiGjennomforing.navEnheter.map { it.enhetsnummer },
-                beskrivelse = apiGjennomforing.beskrivelse ?: beskrivelse,
-                faneinnhold = faneinnhold,
-                kontaktinfo = VeilederflateKontaktinfo(
-                    varsler = emptyList(),
-                    tiltaksansvarlige = kontaktpersoner,
-                ),
-                estimertVentetid = estimertVentetid?.let {
-                    EstimertVentetid(
-                        verdi = it.verdi,
-                        enhet = it.enhet,
-                    )
-                },
-                personvernBekreftet = personvernBekreftet,
             )
         }
     }

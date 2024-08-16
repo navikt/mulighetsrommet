@@ -106,11 +106,9 @@ fun Route.veilederTiltakRoutes() {
             poaoTilgangService.verifyAccessToModia(getNavAnsattAzureId())
 
             val id: UUID by call.parameters
-            val enheter: List<String> by call.request.queryParameters
 
             val result = veilederflateService.hentTiltaksgjennomforing(
                 id = id,
-                enheter = enheter,
                 sanityPerspective = SanityPerspective.PUBLISHED,
             )
 
@@ -166,7 +164,6 @@ fun Route.veilederTiltakRoutes() {
 
                 val result = veilederflateService.hentTiltaksgjennomforing(
                     id = id,
-                    enheter = emptyList(),
                     sanityPerspective = SanityPerspective.PUBLISHED,
                 ).let { utenKontaktInfo(it) }
 
@@ -194,12 +191,9 @@ fun Route.veilederTiltakRoutes() {
                 get("/tiltaksgjennomforinger/{id}") {
                     val id = call.parameters.getOrFail("id")
                         .let { UUID.fromString(it.replace("drafts.", "")) }
-                    val enheter = call.request.queryParameters.getAll("enheter")
-                        ?: emptyList()
 
                     val result = veilederflateService.hentTiltaksgjennomforing(
                         id = id,
-                        enheter = enheter,
                         sanityPerspective = SanityPerspective.PREVIEW_DRAFTS,
                     )
 

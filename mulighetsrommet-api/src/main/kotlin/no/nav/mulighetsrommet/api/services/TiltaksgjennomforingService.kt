@@ -102,6 +102,10 @@ class TiltaksgjennomforingService(
         PaginatedResponse.of(pagination, totalCount, data)
     }
 
+    fun getVeilederflateTiltaksgjennomforing(id: UUID): VeilederflateTiltaksgjennomforing? {
+        return tiltaksgjennomforinger.getVeilederflateTiltaksgjennomforing(id)
+    }
+
     fun getAllVeilederflateTiltaksgjennomforing(
         search: String?,
         apentForInnsok: Boolean?,
@@ -110,11 +114,11 @@ class TiltaksgjennomforingService(
         enheter: List<String>,
     ): List<VeilederflateTiltaksgjennomforing> =
         tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
-            search,
-            apentForInnsok,
-            sanityTiltakstypeIds,
-            innsatsgruppe,
-            enheter,
+            innsatsgruppe = innsatsgruppe,
+            brukersEnheter = enheter,
+            search = search,
+            apentForInnsok = apentForInnsok,
+            sanityTiltakstypeIds = sanityTiltakstypeIds,
         )
 
     fun getEkstern(id: UUID): TiltaksgjennomforingV1Dto? {
