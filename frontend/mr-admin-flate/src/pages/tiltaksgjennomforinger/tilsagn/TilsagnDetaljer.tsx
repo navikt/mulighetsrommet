@@ -127,7 +127,7 @@ export function TilsagnDetaljer() {
                 header="Kostnadssted"
                 verdi={`${tilsagn.kostnadssted.navn} - ${tilsagn.kostnadssted.enhetsnummer}`}
               />
-              <Metadata header="Beløp" verdi={`${formaterTall(tilsagn.belop)} kr`} />
+              <Metadata header="Beløp" verdi={`${formaterTall(tilsagn.beregning.belop)} kr`} />
             </Bolk>
             <Bolk>
               <Metadata header="Løpenummer" verdi={tilsagn.lopenummer} />

@@ -12,13 +12,14 @@ import {
   HStack,
   Button,
 } from "@navikt/ds-react";
-import { NumericFormat } from "react-number-format";
 import { addYear } from "../../utils/Utils";
 import { ControlledDateInput } from "../skjema/ControlledDateInput";
 import { FormGroup } from "../skjema/FormGroup";
 import { ApiError, TilsagnDto, TilsagnRequest, Tiltaksgjennomforing } from "@mr/api-client";
 import { useNavEnheter } from "../../api/enhet/useNavEnheter";
 import { UseMutationResult } from "@tanstack/react-query";
+import { AFTBeregningSkjema } from "./AFTBeregningSkjema";
+import { FriBeregningSkjema } from "./FriBeregningSkjema";
 
 interface Props {
   tiltaksgjennomforing: Tiltaksgjennomforing;
@@ -26,6 +27,7 @@ interface Props {
   onSubmit: (data: InferredOpprettTilsagnSchema) => void;
   onAvbryt?: () => void;
   mutation: UseMutationResult<TilsagnDto, ApiError, TilsagnRequest, unknown>;
+  prismodell: "AFT" | "FRI";
 }
 
 export function TilsagnSkjema({
@@ -34,6 +36,7 @@ export function TilsagnSkjema({
   onSubmit,
   onAvbryt,
   mutation,
+  prismodell,
 }: Props) {
   const { data: navEnheter } = useNavEnheter();
 
@@ -42,7 +45,7 @@ export function TilsagnSkjema({
     defaultValues: tilsagn
       ? {
           id: tilsagn.id,
-          belop: tilsagn.belop,
+          beregning: tilsagn.beregning,
           kostnadssted: tilsagn.kostnadssted.enhetsnummer,
           periode: {
             start: tilsagn.periodeStart,
@@ -56,7 +59,7 @@ export function TilsagnSkjema({
     if (tilsagn) {
       setValue("id", tilsagn.id);
       setValue("kostnadssted", tilsagn?.kostnadssted.enhetsnummer);
-      setValue("belop", tilsagn.belop);
+      setValue("beregning", tilsagn.beregning);
       setValue("periode.start", tilsagn.periodeStart);
       setValue("periode.slutt", tilsagn.periodeSlutt);
     }
@@ -69,6 +72,7 @@ export function TilsagnSkjema({
     setValue,
     formState: { errors },
   } = form;
+  console.log(88, watch("beregning"));
 
   return (
     <FormProvider {...form}>
@@ -113,39 +117,30 @@ export function TilsagnSkjema({
           </DatePicker>
         </FormGroup>
         <FormGroup>
-          <HGrid columns={2} gap="2">
-            <Select
-              size="small"
-              label="Kostnadssted"
-              {...register("kostnadssted")}
-              error={errors.kostnadssted?.message}
-            >
-              <option value={undefined}>Velg kostnadssted</option>
-              {navEnheter
-                ?.sort((a, b) => a.navn.localeCompare(b.navn))
-                .map(({ navn, enhetsnummer }) => {
-                  return (
-                    <option key={enhetsnummer} value={enhetsnummer}>
-                      {navn} - {enhetsnummer}
-                    </option>
-                  );
-                })}
-            </Select>
-
-            <NumericFormat
-              size="small"
-              error={errors.belop?.message}
-              label="Beløp i kroner"
-              customInput={TextField}
-              value={watch("belop")}
-              valueIsNumericString
-              thousandSeparator
-              suffix=" kr"
-              onValueChange={(e) => {
-                setValue("belop", Number.parseInt(e.value));
-              }}
-            />
-          </HGrid>
+          {prismodell == "AFT" ? (
+            <AFTBeregningSkjema defaultAntallPlasser={tiltaksgjennomforing.antallPlasser} />
+          ) : (
+            <FriBeregningSkjema />
+          )}
+        </FormGroup>
+        <FormGroup>
+          <Select
+            size="small"
+            label="Kostnadssted"
+            {...register("kostnadssted")}
+            error={errors.kostnadssted?.message}
+          >
+            <option value={undefined}>Velg kostnadssted</option>
+            {navEnheter
+              ?.sort((a, b) => a.navn.localeCompare(b.navn))
+              .map(({ navn, enhetsnummer }) => {
+                return (
+                  <option key={enhetsnummer} value={enhetsnummer}>
+                    {navn} - {enhetsnummer}
+                  </option>
+                );
+              })}
+          </Select>
         </FormGroup>
         <BodyShort spacing>
           {mutation.error ? (

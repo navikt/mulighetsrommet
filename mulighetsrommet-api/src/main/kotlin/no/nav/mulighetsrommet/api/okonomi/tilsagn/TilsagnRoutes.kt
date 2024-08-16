@@ -6,7 +6,9 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.okonomi.prismodell.Prismodell
 import no.nav.mulighetsrommet.api.plugins.AuthProvider
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.routes.v1.responses.BadRequest
@@ -29,6 +31,11 @@ fun Route.tilsagnRoutes() {
             val result = service.get(id) ?: NotFound()
 
             call.respond(result)
+        }
+
+        post("/beregn") {
+            val request = call.receive<TilsagnBeregningInput>()
+            call.respond(service.tilsagnBeregning(request))
         }
 
         authenticate(
@@ -93,15 +100,18 @@ data class TilsagnRequest(
     @Serializable(with = LocalDateSerializer::class)
     val periodeSlutt: LocalDate,
     val kostnadssted: String,
-    val belop: Int,
+    val beregning: Prismodell.TilsagnBeregning,
 ) {
-    fun toDbo(opprettetAv: NavIdent, arrangorId: UUID) = TilsagnDbo(
+    fun toDbo(
+        opprettetAv: NavIdent,
+        arrangorId: UUID,
+    ) = TilsagnDbo(
         id = id,
         tiltaksgjennomforingId = tiltaksgjennomforingId,
         periodeStart = periodeStart,
         periodeSlutt = periodeSlutt,
         kostnadssted = kostnadssted,
-        belop = belop,
+        beregning = beregning,
         opprettetAv = opprettetAv,
         arrangorId = arrangorId,
     )
@@ -115,4 +125,22 @@ data class BesluttTilsagnRequest(
 enum class TilsagnBesluttelse {
     GODKJENT,
     AVVIST,
+}
+
+@Serializable
+sealed class TilsagnBeregningInput {
+    @Serializable
+    @SerialName("AFT")
+    data class AFT(
+        @Serializable(with = LocalDateSerializer::class)
+        val periodeStart: LocalDate,
+        @Serializable(with = LocalDateSerializer::class)
+        val periodeSlutt: LocalDate,
+        val antallPlasser: Int,
+        val sats: Int,
+    ) : TilsagnBeregningInput()
+
+    @Serializable
+    @SerialName("FRI")
+    data class Fri(val belop: Int) : TilsagnBeregningInput()
 }
