@@ -975,30 +975,6 @@ paths:
               schema:
                 $ref: "#/components/schemas/VeilederflateTiltaksgjennomforing"
 
-  /api/v1/intern/dialog:
-    post:
-      tags:
-        - dialogen
-      operationId: delMedDialogen
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/DialogRequest"
-      responses:
-        200:
-          description: Dialog response
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/DialogResponse"
-        409:
-          description: "Sending av meldingen til Dialogen mislyktes"
-          content:
-            application/json:
-              schema:
-                type: string
-
   /api/v1/intern/bruker/historikk:
     post:
       tags:
@@ -1095,6 +1071,30 @@ paths:
                 type: string
 
   /api/v1/intern/del-med-bruker:
+    post:
+      tags:
+        - Del med bruker
+      operationId: delTiltakMedBruker
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DelTiltakMedBrukerRequest"
+      responses:
+        200:
+          description: Tiltak har blitt delt med bruker
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DelTiltakMedBrukerResponse"
+        409:
+          description: Tiltak ble ikke delt med bruker
+          content:
+            application/json:
+              schema:
+                type: string
+
+  /api/v1/intern/del-med-bruker/status:
     post:
       tags:
         - Del med bruker
@@ -1895,12 +1895,12 @@ components:
       properties:
         norskIdent:
           type: string
-        id:
+        tiltakId:
           type: string
           format: uuid
       required:
         - norskIdent
-        - id
+        - tiltakId
 
     GetAlleDeltMedBrukerRequest:
       type: object
@@ -2735,7 +2735,7 @@ components:
         - AKTIV
         - AVSLUTTET
 
-    DialogRequest:
+    DelTiltakMedBrukerRequest:
       type: object
       properties:
         fnr:
@@ -2762,13 +2762,13 @@ components:
         - tiltaksgjennomforingId
         - sanityId
 
-    DialogResponse:
+    DelTiltakMedBrukerResponse:
       type: object
       properties:
-        id:
+        dialogId:
           type: string
       required:
-        - id
+        - dialogId
 
     TiltakshistorikkAdminDto:
       oneOf:

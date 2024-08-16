@@ -51,7 +51,6 @@ fun Route.adminflateRoutes() {
 
 fun Route.veilederflateRoutes() {
     brukerRoutes()
-    dialogRoutes()
     delMedBrukerRoutes()
     veilederJoyrideRoutes()
     veilederTiltakRoutes()

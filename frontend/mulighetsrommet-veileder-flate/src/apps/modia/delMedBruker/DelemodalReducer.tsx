@@ -71,7 +71,7 @@ function initInitialState(tekster: { deletekst: string }): State {
     originalDeletekst: tekster.deletekst,
     deletekst: tekster.deletekst,
     sendtStatus: "IKKE_SENDT",
-    dialogId: "",
+    dialogId: null,
     venterPaaSvarFraBruker: false,
     enableRedigerDeletekst: false,
     modalOpen: false,
