@@ -51,6 +51,6 @@ fun Route.adminflateRoutes() {
 fun Route.veilederflateRoutes() {
     brukerRoutes()
     delMedBrukerRoutes()
-    veilederJoyrideRoutes()
+    veilederRoutes()
     veilederTiltakRoutes()
 }
