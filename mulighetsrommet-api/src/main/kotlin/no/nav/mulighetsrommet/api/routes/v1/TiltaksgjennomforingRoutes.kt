@@ -2,7 +2,6 @@ package no.nav.mulighetsrommet.api.routes.v1
 
 import io.ktor.http.*
 import io.ktor.server.application.*
-import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -14,6 +13,7 @@ import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingKontaktpersonDb
 import no.nav.mulighetsrommet.api.domain.dto.FrikobleKontaktpersonRequest
 import no.nav.mulighetsrommet.api.parameters.getPaginationParams
 import no.nav.mulighetsrommet.api.plugins.AuthProvider
+import no.nav.mulighetsrommet.api.plugins.authenticate
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.repositories.DeltakerRepository
 import no.nav.mulighetsrommet.api.responses.BadRequest
@@ -35,10 +35,7 @@ fun Route.tiltaksgjennomforingRoutes() {
     val service: TiltaksgjennomforingService by inject()
 
     route("tiltaksgjennomforinger") {
-        authenticate(
-            AuthProvider.AZURE_AD_TILTAKSJENNOMFORINGER_SKRIV.name,
-            strategy = AuthenticationStrategy.Required,
-        ) {
+        authenticate(AuthProvider.AZURE_AD_TILTAKSJENNOMFORINGER_SKRIV) {
             put {
                 val request = call.receive<TiltaksgjennomforingRequest>()
                 val navIdent = getNavIdent()
@@ -134,7 +131,8 @@ fun Route.tiltaksgjennomforingRoutes() {
             val file = ExcelService.createExcelFileForTiltaksgjennomforing(result.data)
             call.response.header(
                 HttpHeaders.ContentDisposition,
-                ContentDisposition.Attachment.withParameter(ContentDisposition.Parameters.FileName, "tiltaksgjennomforinger.xlsx")
+                ContentDisposition.Attachment
+                    .withParameter(ContentDisposition.Parameters.FileName, "tiltaksgjennomforinger.xlsx")
                     .toString(),
             )
             call.response.header("Access-Control-Expose-Headers", HttpHeaders.ContentDisposition)

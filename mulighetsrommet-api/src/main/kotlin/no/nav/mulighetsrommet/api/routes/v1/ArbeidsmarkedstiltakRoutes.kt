@@ -15,6 +15,7 @@ import no.nav.mulighetsrommet.api.domain.dto.Oppskrifter
 import no.nav.mulighetsrommet.api.domain.dto.VeilederflateKontaktinfo
 import no.nav.mulighetsrommet.api.domain.dto.VeilederflateTiltaksgjennomforing
 import no.nav.mulighetsrommet.api.plugins.AuthProvider
+import no.nav.mulighetsrommet.api.plugins.authenticate
 import no.nav.mulighetsrommet.api.plugins.getNavAnsattAzureId
 import no.nav.mulighetsrommet.api.services.AvtaleService
 import no.nav.mulighetsrommet.api.services.CacheUsage
@@ -173,10 +174,7 @@ fun Route.veilederTiltakRoutes() {
             }
         }
 
-        authenticate(
-            AuthProvider.AZURE_AD_TILTAKSADMINISTRASJON_GENERELL.name,
-            strategy = AuthenticationStrategy.Required,
-        ) {
+        authenticate(AuthProvider.AZURE_AD_TILTAKSADMINISTRASJON_GENERELL) {
             route("/preview") {
                 get("/tiltaksgjennomforinger") {
                     val filter = getArbeidsmarkedstiltakFilter()
