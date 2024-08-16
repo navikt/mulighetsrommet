@@ -15,11 +15,13 @@ export function useInitializeModiaContext() {
     if (enhetsnrForOverordnetEnhet) {
       setAppContext({ ...appContext, overordnetEnhet: enhetsnrForOverordnetEnhet });
     }
-  }, [enhetsnrForOverordnetEnhet, setAppContext, appContext]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [enhetsnrForOverordnetEnhet]);
 
   useEffect(() => {
     if (appContext.overordnetEnhet) {
       logEvent({ name: "arbeidsmarkedstiltak.unike-brukere" });
     }
-  }, [appContext.overordnetEnhet, logEvent]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [appContext.overordnetEnhet]);
 }

@@ -10,16 +10,7 @@ export function PersonvernIkon() {
         role="img"
       >
         <title>Personvern</title>
-        <rect x="1.25" y="1.25" width="61.5" height="61.5" rx="30.75" fill="#CCE2F0" />
-        <rect
-          x="1.25"
-          y="1.25"
-          width="61.5"
-          height="61.5"
-          rx="30.75"
-          stroke="#005B82"
-          strokeWidth="2.5"
-        />
+
         <path
           fillRule="evenodd"
           clipRule="evenodd"

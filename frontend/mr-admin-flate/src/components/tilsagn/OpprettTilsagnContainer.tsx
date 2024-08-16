@@ -18,7 +18,6 @@ export function OpprettTilsagnContainer({ tiltaksgjennomforing, tilsagn }: Props
   const mutation = useOpprettTilsagn();
 
   const postData: SubmitHandler<InferredOpprettTilsagnSchema> = async (data): Promise<void> => {
-    console.log(data);
     const request: TilsagnRequest = {
       id: data.id || window.crypto.randomUUID(),
       periodeStart: data.periode.start,
@@ -39,7 +38,8 @@ export function OpprettTilsagnContainer({ tiltaksgjennomforing, tilsagn }: Props
 
   function prismodell(tiltaksgjennomforing: Tiltaksgjennomforing): "AFT" | "FRI" {
     return tiltaksgjennomforing.tiltakstype.tiltakskode === Tiltakskode.ARBEIDSFORBEREDENDE_TRENING
-      ? "AFT" : "FRI"
+      ? "AFT"
+      : "FRI";
   }
 
   return (

@@ -41,7 +41,7 @@ export function AFTBeregningSkjema({ defaultAntallPlasser }: Props) {
     };
 
     getBeregning();
-  }, [antallPlasser, periode?.start, periode?.slutt]);
+  }, [antallPlasser, periode?.start, periode?.slutt, setValue]);
 
   return (
     <HStack gap="2">

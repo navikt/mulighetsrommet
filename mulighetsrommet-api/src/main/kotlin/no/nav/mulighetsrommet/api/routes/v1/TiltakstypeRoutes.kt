@@ -14,7 +14,7 @@ import no.nav.mulighetsrommet.domain.Tiltakskode
 import org.koin.ktor.ext.inject
 import java.util.*
 
-fun Route.tiltakstypeRoutes(migrerteTiltak: List<Tiltakskode>, pameldingIModia: List<Tiltakskode>) {
+fun Route.tiltakstypeRoutes(migrerteTiltak: List<Tiltakskode>, pameldingIModia: List<Tiltakskode>, pameldingKommerSnartIModia: List<Tiltakskode>) {
     val tiltakstypeService: TiltakstypeService by inject()
     val veilederflateService: VeilederflateService by inject()
 
@@ -60,6 +60,10 @@ fun Route.tiltakstypeRoutes(migrerteTiltak: List<Tiltakskode>, pameldingIModia: 
 
         get("stotterPameldingIModia") {
             call.respond(pameldingIModia)
+        }
+
+        get("pameldingKommerSnartIModia") {
+            call.respond(pameldingKommerSnartIModia)
         }
     }
 }

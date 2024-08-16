@@ -29,7 +29,7 @@ export function RegistrerOpsjonSkjema({ avtale }: Props) {
       }
     }
     settNySluttdato();
-  }, [watchedOpsjonsvalg]);
+  }, [setValue, sluttdato, watchedOpsjonsvalg]);
 
   if (!maksVarighetForOpsjon || !sluttdato) {
     return (

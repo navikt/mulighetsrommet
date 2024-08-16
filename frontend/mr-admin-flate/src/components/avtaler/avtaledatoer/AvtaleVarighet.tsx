@@ -1,6 +1,6 @@
 import { Heading, HGrid, Select, TextField } from "@navikt/ds-react";
 import { useEffect, useState } from "react";
-import { useFormContext } from "react-hook-form";
+import { useFormContext, useWatch } from "react-hook-form";
 import { avtaletekster } from "../../ledetekster/avtaleLedetekster";
 import { InferredAvtaleSchema } from "../../redaksjoneltInnhold/AvtaleSchema";
 import { ControlledDateInput } from "../../skjema/ControlledDateInput";
@@ -32,8 +32,9 @@ export function AvtaleVarighet({
     watch,
     formState: { errors },
   } = useFormContext<InferredAvtaleSchema>();
+  const watchedOpsjonsmodell = useWatch({ name: "opsjonsmodellData.opsjonsmodell" });
   const [opsjonsmodell, setOpsjonsmodell] = useState<Opsjonsmodell | undefined>(
-    opsjonsmodeller?.find((modell) => modell.value === watch("opsjonsmodellData.opsjonsmodell")),
+    opsjonsmodeller?.find((modell) => modell.value === watchedOpsjonsmodell),
   );
   const antallOpsjonerUtlost = (
     avtale?.opsjonerRegistrert?.filter((log) => log.status === OpsjonStatus.OPSJON_UTLØST) || []
@@ -54,7 +55,7 @@ export function AvtaleVarighet({
       setValue("opsjonsmodellData.customOpsjonsmodellNavn", undefined);
       setValue("opsjonsmodellData.opsjonMaksVarighet", undefined);
     }
-  }, [opsjonsmodell]);
+  }, [opsjonsmodell, setValue]);
 
   useEffect(() => {
     if (startDato && opsjonsmodell && antallOpsjonerUtlost === 0) {
@@ -71,7 +72,7 @@ export function AvtaleVarighet({
         );
       }
     }
-  }, [opsjonsmodell, startDato]);
+  }, [antallOpsjonerUtlost, opsjonsmodell, startDato, sluttDatoFraDato, setValue]);
 
   const maksVarighetAar = opsjonsmodell?.maksVarighetAar ?? 5;
   const maksVarighetDato = kalkulerMaksDato(new Date(startDato), maksVarighetAar);

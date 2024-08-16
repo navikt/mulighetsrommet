@@ -1,16 +1,16 @@
-import { Alert, BodyShort, Button, Heading, VStack } from "@navikt/ds-react";
+import { useDeltakelserFraKomet } from "@/api/queries/useDeltakelserFraKomet";
+import { useTiltakstyperSomStotterPameldingIModia } from "@/api/queries/useTiltakstyperSomSnartStotterPameldingIModia";
+import { ModiaRoute, resolveModiaRoute } from "@/apps/modia/ModiaRoute";
+import { useGetTiltaksgjennomforingIdFraUrl } from "@/hooks/useGetTiltaksgjennomforingIdFraUrl";
 import {
   DeltakerKort,
   DeltakerStatusType,
   VeilederflateTiltaksgjennomforing,
   VeilederflateTiltakstype,
 } from "@mr/api-client";
+import { Alert, BodyShort, Button, Heading, VStack } from "@navikt/ds-react";
 import { ReactNode } from "react";
-import { useGetTiltaksgjennomforingIdFraUrl } from "@/hooks/useGetTiltaksgjennomforingIdFraUrl";
-import { useTiltakstyperSomStotterPameldingIModia } from "@/api/queries/useTiltakstyperSomStotterPameldingIModia";
-import { ModiaRoute, resolveModiaRoute } from "@/apps/modia/ModiaRoute";
 import styles from "./PameldingForGruppetiltak.module.scss";
-import { useDeltakelserFraKomet } from "@/api/queries/useDeltakelserFraKomet";
 
 interface PameldingProps {
   kanOppretteAvtaleForTiltak: boolean;

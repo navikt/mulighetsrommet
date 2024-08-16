@@ -34,6 +34,9 @@ app:
     - ARBEIDSRETTET_REHABILITERING
     - VARIG_TILRETTELAGT_ARBEID_SKJERMET
 
+  pameldingKommerSnartIModia:
+    - ARBEIDSFORBEREDENDE_TRENING
+
   kafka:
     brokerUrl: localhost:29092
     producerId: mulighetsrommet-api-kafka-producer.v1
