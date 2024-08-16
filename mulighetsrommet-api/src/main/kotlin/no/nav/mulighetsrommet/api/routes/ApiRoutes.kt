@@ -45,7 +45,6 @@ fun Route.adminflateRoutes() {
     brregVirksomhetRoutes()
     notificationRoutes()
     janzzRoutes()
-    opsjonRoutes()
     tilsagnRoutes()
 }
 

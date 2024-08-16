@@ -9,6 +9,7 @@ import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.domain.dto.FrikobleKontaktpersonRequest
+import no.nav.mulighetsrommet.api.domain.dto.OpsjonLoggEntry
 import no.nav.mulighetsrommet.api.parameters.getPaginationParams
 import no.nav.mulighetsrommet.api.plugins.AuthProvider
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
@@ -16,6 +17,7 @@ import no.nav.mulighetsrommet.api.responses.BadRequest
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.services.AvtaleService
 import no.nav.mulighetsrommet.api.services.ExcelService
+import no.nav.mulighetsrommet.api.services.OpsjonLoggService
 import no.nav.mulighetsrommet.api.utils.getAvtaleFilter
 import no.nav.mulighetsrommet.domain.dto.*
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
@@ -24,8 +26,83 @@ import org.koin.ktor.ext.inject
 import java.time.LocalDate
 import java.util.*
 
+@Serializable
+data class AvtaleRequest(
+    @Serializable(with = UUIDSerializer::class)
+    val id: UUID,
+    val navn: String,
+    @Serializable(with = UUIDSerializer::class)
+    val tiltakstypeId: UUID,
+    val arrangorOrganisasjonsnummer: String,
+    val arrangorUnderenheter: List<String>,
+    val arrangorKontaktpersoner: List<
+        @Serializable(with = UUIDSerializer::class)
+        UUID,
+        >,
+    val avtalenummer: String?,
+    val websaknummer: Websaknummer?,
+    @Serializable(with = LocalDateSerializer::class)
+    val startDato: LocalDate,
+    @Serializable(with = LocalDateSerializer::class)
+    val sluttDato: LocalDate?,
+    val administratorer: List<NavIdent>,
+    val avtaletype: Avtaletype,
+    val prisbetingelser: String?,
+    val navEnheter: List<String>,
+    val beskrivelse: String?,
+    val faneinnhold: Faneinnhold?,
+    val personopplysninger: List<Personopplysning>,
+    val personvernBekreftet: Boolean,
+    val amoKategorisering: AmoKategorisering?,
+    val opsjonsmodellData: OpsjonsmodellData?,
+)
+
+@Serializable
+data class OpsjonsmodellData(
+    @Serializable(with = LocalDateSerializer::class)
+    val opsjonMaksVarighet: LocalDate?,
+    val opsjonsmodell: Opsjonsmodell?,
+    val customOpsjonsmodellNavn: String? = null,
+)
+
+@Serializable
+enum class Opsjonsmodell {
+    TO_PLUSS_EN,
+    TO_PLUSS_EN_PLUSS_EN,
+    TO_PLUSS_EN_PLUSS_EN_PLUSS_EN,
+    ANNET,
+    AVTALE_UTEN_OPSJONSMODELL,
+    AVTALE_VALGFRI_SLUTTDATO,
+}
+
+@Serializable
+data class OpsjonLoggRequest(
+    @Serializable(with = UUIDSerializer::class)
+    val avtaleId: UUID,
+    @Serializable(with = LocalDateSerializer::class)
+    val nySluttdato: LocalDate?,
+    @Serializable(with = LocalDateSerializer::class)
+    val forrigeSluttdato: LocalDate?,
+    val status: OpsjonsLoggStatus,
+) {
+    enum class OpsjonsLoggStatus {
+        OPSJON_UTLØST,
+        SKAL_IKKE_UTLØSE_OPSJON,
+        PÅGÅENDE_OPSJONSPROSESS,
+    }
+}
+
+@Serializable
+data class SlettOpsjonLoggRequest(
+    @Serializable(with = UUIDSerializer::class)
+    val id: UUID,
+    @Serializable(with = UUIDSerializer::class)
+    val avtaleId: UUID,
+)
+
 fun Route.avtaleRoutes() {
     val avtaler: AvtaleService by inject()
+    val opsjonLoggService: OpsjonLoggService by inject()
 
     route("personopplysninger") {
         get {
@@ -129,53 +206,34 @@ fun Route.avtaleRoutes() {
             call.respond(historikk)
         }
     }
-}
 
-@Serializable
-data class AvtaleRequest(
-    @Serializable(with = UUIDSerializer::class)
-    val id: UUID,
-    val navn: String,
-    @Serializable(with = UUIDSerializer::class)
-    val tiltakstypeId: UUID,
-    val arrangorOrganisasjonsnummer: String,
-    val arrangorUnderenheter: List<String>,
-    val arrangorKontaktpersoner: List<
-        @Serializable(with = UUIDSerializer::class)
-        UUID,
-        >,
-    val avtalenummer: String?,
-    val websaknummer: Websaknummer?,
-    @Serializable(with = LocalDateSerializer::class)
-    val startDato: LocalDate,
-    @Serializable(with = LocalDateSerializer::class)
-    val sluttDato: LocalDate?,
-    val administratorer: List<NavIdent>,
-    val avtaletype: Avtaletype,
-    val prisbetingelser: String?,
-    val navEnheter: List<String>,
-    val beskrivelse: String?,
-    val faneinnhold: Faneinnhold?,
-    val personopplysninger: List<Personopplysning>,
-    val personvernBekreftet: Boolean,
-    val amoKategorisering: AmoKategorisering?,
-    val opsjonsmodellData: OpsjonsmodellData?,
-)
+    route("opsjoner") {
+        authenticate(AuthProvider.AZURE_AD_AVTALER_SKRIV.name, strategy = AuthenticationStrategy.Required) {
+            post {
+                val request = call.receive<OpsjonLoggRequest>()
+                val userId = getNavIdent()
+                val opsjonLoggEntry = OpsjonLoggEntry(
+                    avtaleId = request.avtaleId,
+                    sluttdato = request.nySluttdato,
+                    forrigeSluttdato = request.forrigeSluttdato,
+                    status = request.status,
+                    registrertAv = userId,
+                )
 
-@Serializable
-data class OpsjonsmodellData(
-    @Serializable(with = LocalDateSerializer::class)
-    val opsjonMaksVarighet: LocalDate?,
-    val opsjonsmodell: Opsjonsmodell?,
-    val customOpsjonsmodellNavn: String? = null,
-)
+                opsjonLoggService.lagreOpsjonLoggEntry(opsjonLoggEntry)
+                call.respond(HttpStatusCode.OK)
+            }
 
-@Serializable
-enum class Opsjonsmodell {
-    TO_PLUSS_EN,
-    TO_PLUSS_EN_PLUSS_EN,
-    TO_PLUSS_EN_PLUSS_EN_PLUSS_EN,
-    ANNET,
-    AVTALE_UTEN_OPSJONSMODELL,
-    AVTALE_VALGFRI_SLUTTDATO,
+            delete {
+                val request = call.receive<SlettOpsjonLoggRequest>()
+                val userId = getNavIdent()
+                opsjonLoggService.delete(
+                    opsjonLoggEntryId = request.id,
+                    avtaleId = request.avtaleId,
+                    slettesAv = userId,
+                )
+                call.respond(HttpStatusCode.OK)
+            }
+        }
+    }
 }
