@@ -20,7 +20,8 @@ app:
 
   pameldingIModia: []
 
-  pameldingKommerSnartIModia: []
+  pameldingKommerSnartIModia:
+    - ARBEIDSFORBEREDENDE_TRENING
 
   kafka:
     producerId: mulighetsrommet-api-kafka-producer.v1

@@ -1,3 +1,4 @@
+import { ExternalLinkIcon } from "@navikt/aksel-icons";
 import "@navikt/ds-css";
 import { BodyShort, GuidePanel, Heading, Link } from "@navikt/ds-react";
 
@@ -14,7 +15,7 @@ export function TilbakemeldingLenke({ url, tekst }: Props) {
       </Heading>
       <BodyShort spacing>Har du innspill til innholdet?</BodyShort>
       <Link target="_blank" rel="noopener noreferrer" href={url}>
-        {tekst}
+        {tekst} <ExternalLinkIcon />
       </Link>
     </GuidePanel>
   );

@@ -6,11 +6,12 @@
   "module": "index.ts",
   "types": "index.tsx",
   "dependencies": {
+    "@mr/api-client": "*",
+    "@navikt/aksel-icons": "^6.16.0",
     "@navikt/ds-react": "6.15.0",
     "debounce": "2.1.0",
     "focus-trap-react": "^10.2.3",
     "lodash.isequal": "^4.5.0",
-    "@mr/api-client": "*",
     "react-router-dom": "6.26.0",
     "react-select": "^5.8.0",
     "use-resize-observer": "^9.1.0"

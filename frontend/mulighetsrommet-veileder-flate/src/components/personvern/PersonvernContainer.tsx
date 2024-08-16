@@ -49,7 +49,7 @@ export function PersonvernContainer({ tiltaksgjennomforing }: Props) {
             variant="tertiary"
             size="small"
             onClick={() => setModalOpen(true)}
-            style={{ textAlign: "left", margin: 0, padding: 0 }}
+            className={styles.button_as_link}
           >
             Se hvilke personopplysninger du kan dele med tiltaksarrangøren for dette tiltaket
           </Button>
