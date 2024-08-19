@@ -25,7 +25,7 @@
     "not op_mini all"
   ],
   "dependencies": {
-    "@amplitude/analytics-browser": "2.10.0",
+    "@amplitude/analytics-browser": "2.11.0",
     "@grafana/faro-web-sdk": "1.9.0",
     "@navikt/aksel-icons": "6.15.0",
     "@navikt/ds-css": "6.15.0",
@@ -54,7 +54,7 @@
     "@axe-core/playwright": "4.9.1",
     "@mr/eslint-config-react-app": "*",
     "@playwright/test": "1.46.0",
-    "@types/node": "22.2.0",
+    "@types/node": "22.4.1",
     "@vitejs/plugin-react": "4.3.1",
     "cross-env": "7.0.3",
     "dotenv": "16.4.5",
