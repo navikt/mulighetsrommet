@@ -2,10 +2,7 @@
   "extends": ["//"],
   "tasks": {
     "build": {
-      "inputs": [
-        "openapi-ts.config.ts",
-        "../../mulighetsrommet-api/src/main/resources/web/openapi.yaml"
-      ],
+      "inputs": ["openapi-ts.config.ts"],
       "outputs": ["build"]
     }
   }
