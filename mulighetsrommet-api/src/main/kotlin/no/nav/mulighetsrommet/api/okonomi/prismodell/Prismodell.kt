@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api.okonomi.prismodell
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
+import java.lang.Math.addExact
 import java.time.LocalDate
 import kotlin.math.ceil
 import kotlin.streams.asSequence
@@ -15,15 +16,25 @@ object Prismodell {
             periodeStart: LocalDate,
             periodeSlutt: LocalDate,
         ): Int {
+            require(!periodeStart.isAfter(periodeSlutt)) {
+                "periodeSlutt kan ikke være før periodeStart"
+            }
+            require(periodeStart.year == periodeSlutt.year) {
+                "perioden må være innen et år"
+            }
             return periodeStart.datesUntil(periodeSlutt.plusDays(1))
                 .asSequence()
                 .groupBy { it.month }
-                .map { (month, datesInMonth) ->
-                    val fractionOfMonth = datesInMonth.size.toDouble() / month.length(datesInMonth[0].isLeapYear).toDouble()
+                .map { (_, datesInMonth) ->
+                    val fractionOfMonth = datesInMonth.size.toDouble() / datesInMonth[0].lengthOfMonth().toDouble()
 
-                    ceil(fractionOfMonth * sats * antallPlasser).toInt()
+                    val value = ceil(fractionOfMonth * sats * antallPlasser)
+                    if (value > Int.MAX_VALUE) {
+                        throw ArithmeticException()
+                    }
+                    value.toInt()
                 }
-                .sum()
+                .reduce { acc: Int, s: Int -> addExact(acc, s) }
         }
     }
 
