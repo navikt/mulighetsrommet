@@ -11,9 +11,9 @@ import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.database.FlywayMigrationManager
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
-import no.nav.mulighetsrommet.kafka.producers.ArenaMigreringTiltaksgjennomforingKafkaProducer
-import no.nav.mulighetsrommet.kafka.producers.TiltaksgjennomforingKafkaProducer
-import no.nav.mulighetsrommet.kafka.producers.TiltakstypeKafkaProducer
+import no.nav.mulighetsrommet.kafka.producers.ArenaMigreringTiltaksgjennomforingerV1KafkaProducer
+import no.nav.mulighetsrommet.kafka.producers.SisteTiltaksgjennomforingerV1KafkaProducer
+import no.nav.mulighetsrommet.kafka.producers.SisteTiltakstyperV2KafkaProducer
 import no.nav.mulighetsrommet.ktor.ServerConfig
 import no.nav.mulighetsrommet.unleash.UnleashService
 import java.util.*
@@ -72,9 +72,9 @@ data class KafkaConfig(
 )
 
 data class KafkaProducers(
-    val tiltaksgjennomforinger: TiltaksgjennomforingKafkaProducer.Config,
-    val tiltakstyper: TiltakstypeKafkaProducer.Config,
-    val arenaMigreringTiltaksgjennomforinger: ArenaMigreringTiltaksgjennomforingKafkaProducer.Config,
+    val tiltaksgjennomforinger: SisteTiltaksgjennomforingerV1KafkaProducer.Config,
+    val tiltakstyper: SisteTiltakstyperV2KafkaProducer.Config,
+    val arenaMigreringTiltaksgjennomforinger: ArenaMigreringTiltaksgjennomforingerV1KafkaProducer.Config,
 )
 
 data class KafkaConsumers(

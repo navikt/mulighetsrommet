@@ -19,9 +19,9 @@ import no.nav.mulighetsrommet.api.repositories.ArrangorRepository
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.kafka.consumers.amt.AmtVirksomhetV1Dto
-import no.nav.mulighetsrommet.kafka.consumers.amt.AmtVirksomheterV1TopicConsumer
+import no.nav.mulighetsrommet.kafka.consumers.amt.AmtVirksomheterV1KafkaConsumer
 
-class AmtVirksomheterV1TopicConsumerTest : FunSpec({
+class AmtVirksomheterV1KafkaConsumerTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
 
     context("consume virksomheter") {
@@ -60,7 +60,7 @@ class AmtVirksomheterV1TopicConsumerTest : FunSpec({
         coEvery { brregClient.getBrregVirksomhet(amtVirksomhet.organisasjonsnummer) } returns virksomhetDto.right()
         coEvery { brregClient.getBrregVirksomhet(amtUnderenhet.organisasjonsnummer) } returns underenhetDto.right()
 
-        val virksomhetConsumer = AmtVirksomheterV1TopicConsumer(
+        val virksomhetConsumer = AmtVirksomheterV1KafkaConsumer(
             config = KafkaTopicConsumer.Config(id = "virksomheter", topic = "virksomheter"),
             arrangorRepository = arrangorRepository,
             brregClient = brregClient,

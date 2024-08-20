@@ -7,7 +7,7 @@ import kotlinx.coroutines.runBlocking
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.database.utils.DatabaseUtils
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus
-import no.nav.mulighetsrommet.kafka.producers.TiltaksgjennomforingKafkaProducer
+import no.nav.mulighetsrommet.kafka.producers.SisteTiltaksgjennomforingerV1KafkaProducer
 import no.nav.mulighetsrommet.slack.SlackNotifier
 import org.slf4j.LoggerFactory
 import java.time.LocalDate
@@ -17,7 +17,7 @@ import java.time.ZoneId
 class UpdateTiltaksgjennomforingStatus(
     slackNotifier: SlackNotifier,
     private val tiltaksgjennomforingRepository: TiltaksgjennomforingRepository,
-    private val tiltaksgjennomforingKafkaProducer: TiltaksgjennomforingKafkaProducer,
+    private val tiltaksgjennomforingKafkaProducer: SisteTiltaksgjennomforingerV1KafkaProducer,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 

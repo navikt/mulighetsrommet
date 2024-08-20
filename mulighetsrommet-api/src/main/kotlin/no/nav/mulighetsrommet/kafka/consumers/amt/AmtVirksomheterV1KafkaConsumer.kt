@@ -10,7 +10,7 @@ import no.nav.mulighetsrommet.kafka.serialization.JsonElementDeserializer
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import org.slf4j.LoggerFactory
 
-class AmtVirksomheterV1TopicConsumer(
+class AmtVirksomheterV1KafkaConsumer(
     config: Config,
     private val arrangorRepository: ArrangorRepository,
     private val brregClient: BrregClient,

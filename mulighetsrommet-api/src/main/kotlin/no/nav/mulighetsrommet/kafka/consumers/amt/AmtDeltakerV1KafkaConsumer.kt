@@ -17,7 +17,7 @@ import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import org.slf4j.LoggerFactory
 import java.util.*
 
-class AmtDeltakerV1TopicConsumer(
+class AmtDeltakerV1KafkaConsumer(
     config: Config,
     private val deltakere: DeltakerRepository,
 ) : KafkaTopicConsumer<UUID, JsonElement>(
