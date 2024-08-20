@@ -20,7 +20,7 @@ export function useNavTiltaksgjennomforinger({ preview }: { preview: boolean }) 
   const { isFilterReady, filter } = useGetArbeidsmarkedstiltakFilterAsQuery();
 
   return useQuery({
-    queryKey: QueryKeys.sanity.tiltaksgjennomforinger(filter),
+    queryKey: QueryKeys.sanity.tiltaksgjennomforinger({ ...filter, preview }),
     queryFn() {
       return preview
         ? VeilederTiltakService.getPreviewTiltaksgjennomforinger(filter)
