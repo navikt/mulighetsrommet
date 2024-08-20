@@ -10,6 +10,6 @@ export function useTiltakshistorikkForBruker() {
 
   return useQuery({
     queryKey: QueryKeys.BrukerHistorikk(fnr),
-    queryFn: () => HistorikkService.hentHistorikkForBrukerV2({ requestBody }),
+    queryFn: () => HistorikkService.hentHistorikkForBruker({ requestBody }),
   });
 }

@@ -7,9 +7,9 @@ import arrow.core.raise.either
 import arrow.core.right
 import no.nav.mulighetsrommet.api.domain.dto.AvtaleAdminDto
 import no.nav.mulighetsrommet.api.domain.dto.OpsjonLoggEntry
+import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.routes.v1.OpsjonLoggRequest
 import no.nav.mulighetsrommet.api.routes.v1.OpsjonsmodellData
-import no.nav.mulighetsrommet.api.routes.v1.responses.ValidationError
 
 class OpsjonLoggValidator {
     fun validate(entry: OpsjonLoggEntry, avtale: AvtaleAdminDto): Either<List<ValidationError>, OpsjonLoggEntry> = either {

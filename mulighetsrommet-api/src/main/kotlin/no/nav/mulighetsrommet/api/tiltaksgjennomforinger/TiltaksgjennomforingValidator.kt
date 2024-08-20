@@ -12,7 +12,7 @@ import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingAdminDto
 import no.nav.mulighetsrommet.api.domain.dto.TiltakstypeAdminDto
 import no.nav.mulighetsrommet.api.repositories.ArrangorRepository
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
-import no.nav.mulighetsrommet.api.routes.v1.responses.ValidationError
+import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.services.TiltakstypeService
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.Tiltakskoder
@@ -140,7 +140,12 @@ class TiltaksgjennomforingValidator(
                 avtale.amoKategorisering.kurstype !== AmoKategorisering.Kurstype.STUDIESPESIALISERING &&
                 next.amoKategorisering?.innholdElementer.isNullOrEmpty()
             ) {
-                add(ValidationError.ofCustomLocation("amoKategorisering.innholdElementer", "Du må velge minst ett element"))
+                add(
+                    ValidationError.ofCustomLocation(
+                        "amoKategorisering.innholdElementer",
+                        "Du må velge minst ett element",
+                    ),
+                )
             }
 
             next = validateOrResetTilgjengeligForArrangorDato(next)

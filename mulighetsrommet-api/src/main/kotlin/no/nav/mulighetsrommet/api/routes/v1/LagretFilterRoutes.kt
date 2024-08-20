@@ -18,7 +18,8 @@ import java.util.*
 
 fun Route.lagretFilterRoutes() {
     val lagretFilterService: LagretFilterService by inject()
-    route("/api/v1/intern/lagret-filter") {
+
+    route("/lagret-filter") {
         get("mine/{dokumenttype}") {
             val navIdent = getNavIdent()
             val dokumenttype = call.parameters.getOrFail("dokumenttype")

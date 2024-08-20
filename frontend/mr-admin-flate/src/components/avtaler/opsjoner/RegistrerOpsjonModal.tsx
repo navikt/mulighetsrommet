@@ -86,7 +86,7 @@ export function RegistrerOpsjonModal({ modalRef, avtale }: Props) {
         <form onSubmit={handleSubmit(postData)}>
           <Modal.Body>
             <VStack gap="5">
-              <BodyLong>
+              <BodyLong as="div">
                 {!avtaleSkalIkkeUtloseOpsjoner && <RegistrerOpsjonSkjema avtale={avtale} />}
 
                 {mutation.isError && (

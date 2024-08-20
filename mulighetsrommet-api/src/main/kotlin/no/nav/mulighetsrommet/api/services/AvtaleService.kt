@@ -13,8 +13,8 @@ import no.nav.mulighetsrommet.api.domain.dto.AvtaleNotificationDto
 import no.nav.mulighetsrommet.api.domain.dto.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
+import no.nav.mulighetsrommet.api.responses.*
 import no.nav.mulighetsrommet.api.routes.v1.AvtaleRequest
-import no.nav.mulighetsrommet.api.routes.v1.responses.*
 import no.nav.mulighetsrommet.api.utils.AvtaleFilter
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.Pagination

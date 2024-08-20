@@ -4,6 +4,8 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.data.forAll
 import io.kotest.data.row
 import io.kotest.matchers.shouldBe
+import io.ktor.client.engine.*
+import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
 import io.ktor.http.*
@@ -27,9 +29,14 @@ import java.util.*
 
 class AvtaleRoutesTest : FunSpec({
     val databaseConfig = createDatabaseTestConfig()
+
     val database = extension(FlywayDatabaseTestListener(databaseConfig))
-    val domain =
-        MulighetsrommetTestDomain(enheter = listOf(NavEnhetFixtures.IT, NavEnhetFixtures.Oslo), avtaler = emptyList())
+
+    val domain = MulighetsrommetTestDomain(
+        enheter = listOf(NavEnhetFixtures.IT, NavEnhetFixtures.Oslo),
+        avtaler = emptyList(),
+    )
+
     val oauth = MockOAuth2Server()
 
     beforeSpec {
@@ -41,22 +48,28 @@ class AvtaleRoutesTest : FunSpec({
         oauth.shutdown()
     }
 
+    val generellRolle = AdGruppeNavAnsattRolleMapping(UUID.randomUUID(), NavAnsattRolle.TILTAKADMINISTRASJON_GENERELL)
+    val avtaleSkrivRolle = AdGruppeNavAnsattRolleMapping(UUID.randomUUID(), NavAnsattRolle.AVTALER_SKRIV)
+
+    fun appConfig(
+        engine: HttpClientEngine = CIO.create(),
+        migrerteTiltak: List<Tiltakskode> = listOf(),
+    ) = createTestApplicationConfig().copy(
+        database = databaseConfig,
+        auth = createAuthConfig(oauth, roles = listOf(generellRolle, avtaleSkrivRolle)),
+        engine = engine,
+        migrerteTiltak = migrerteTiltak,
+    )
+
     test("401 Unauthorized for uautentisert kall for PUT av avtaledata") {
-        val config = createTestApplicationConfig().copy(
-            auth = createAuthConfig(oauth, roles = listOf()),
-        )
-        withTestApplication(config) {
+        withTestApplication(appConfig()) {
             val response = client.put("/api/v1/intern/avtaler")
             response.status shouldBe HttpStatusCode.Unauthorized
         }
     }
 
     test("401 Unauthorized for uautentisert kall for PUT av avtaledata når bruker ikke har tilgang til å skrive for avtaler") {
-        val avtaleSkrivRolle = AdGruppeNavAnsattRolleMapping(UUID.randomUUID(), NavAnsattRolle.AVTALER_SKRIV)
-        val config = createTestApplicationConfig().copy(
-            auth = createAuthConfig(oauth, roles = listOf(avtaleSkrivRolle)),
-        )
-        withTestApplication(config) {
+        withTestApplication(appConfig()) {
             val response = client.put("/api/v1/intern/avtaler") {
                 val claims = mapOf(
                     "NAVident" to "ABC123",
@@ -71,17 +84,11 @@ class AvtaleRoutesTest : FunSpec({
     }
 
     test("401 Unauthorized for uautentisert kall for PUT av avtaledata når bruker har tilgang til å skrive for avtaler, men mangler generell tilgang") {
-        val avtaleSkrivRolle = AdGruppeNavAnsattRolleMapping(UUID.randomUUID(), NavAnsattRolle.AVTALER_SKRIV)
-        val tiltaksadministrasjonGenerellRolle =
-            AdGruppeNavAnsattRolleMapping(UUID.randomUUID(), NavAnsattRolle.TILTAKADMINISTRASJON_GENERELL)
-        val config = createTestApplicationConfig().copy(
-            auth = createAuthConfig(oauth, roles = listOf(avtaleSkrivRolle, tiltaksadministrasjonGenerellRolle)),
-        )
-        withTestApplication(config) {
+        withTestApplication(appConfig()) {
             val response = client.put("/api/v1/intern/avtaler") {
                 val claims = mapOf(
                     "NAVident" to "ABC123",
-                    "groups" to listOf(tiltaksadministrasjonGenerellRolle.adGruppeId),
+                    "groups" to listOf(generellRolle.adGruppeId),
                 )
                 bearerAuth(
                     oauth.issueToken(claims = claims).serialize(),
@@ -92,9 +99,6 @@ class AvtaleRoutesTest : FunSpec({
     }
 
     test("Skal gi korrekt statuskode basert på om vi har tatt eierskap til tiltakstype eller ikke") {
-        val avtaleSkrivRolle = AdGruppeNavAnsattRolleMapping(UUID.randomUUID(), NavAnsattRolle.AVTALER_SKRIV)
-        val tiltaksadministrasjonGenerellRolle =
-            AdGruppeNavAnsattRolleMapping(UUID.randomUUID(), NavAnsattRolle.TILTAKADMINISTRASJON_GENERELL)
         val engine = createMockEngine(
             "/brreg/enheter/${AvtaleFixtures.avtaleRequest.arrangorOrganisasjonsnummer}" to {
                 respondJson(BrregEnhet(organisasjonsnummer = "123456789", navn = "Testvirksomhet"))
@@ -103,10 +107,8 @@ class AvtaleRoutesTest : FunSpec({
                 respondJson(BrregEmbeddedUnderenheter(_embedded = BrregUnderenheter(underenheter = emptyList())))
             },
         )
-        val config = createTestApplicationConfig().copy(
-            auth = createAuthConfig(oauth, roles = listOf(avtaleSkrivRolle, tiltaksadministrasjonGenerellRolle)),
+        val config = appConfig(
             engine = engine,
-            database = databaseConfig,
             migrerteTiltak = listOf(Tiltakskode.OPPFOLGING),
         )
         withTestApplication(config) {
@@ -125,7 +127,7 @@ class AvtaleRoutesTest : FunSpec({
                 val response = client.put("/api/v1/intern/avtaler") {
                     val claims = mapOf(
                         "NAVident" to "ABC123",
-                        "groups" to listOf(avtaleSkrivRolle.adGruppeId, tiltaksadministrasjonGenerellRolle.adGruppeId),
+                        "groups" to listOf(avtaleSkrivRolle.adGruppeId, generellRolle.adGruppeId),
                     )
                     bearerAuth(
                         oauth.issueToken(claims = claims).serialize(),
@@ -146,14 +148,11 @@ class AvtaleRoutesTest : FunSpec({
     }
 
     test("200 OK for autentisert kall for GET av avtaledata") {
-        val config = createTestApplicationConfig().copy(
-            auth = createAuthConfig(oauth, roles = emptyList()),
-            database = databaseConfig,
-        )
-        withTestApplication(config) {
+        withTestApplication(appConfig()) {
             val response = client.get("/api/v1/intern/avtaler") {
                 val claims = mapOf(
                     "NAVident" to "ABC123",
+                    "groups" to listOf(generellRolle.adGruppeId),
                 )
                 bearerAuth(
                     oauth.issueToken(claims = claims).serialize(),

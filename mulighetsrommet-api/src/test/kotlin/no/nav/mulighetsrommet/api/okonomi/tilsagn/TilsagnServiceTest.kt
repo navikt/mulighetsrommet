@@ -10,8 +10,8 @@ import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Gjovik
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.okonomi.prismodell.Prismodell
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
-import no.nav.mulighetsrommet.api.routes.v1.responses.BadRequest
-import no.nav.mulighetsrommet.api.routes.v1.responses.Forbidden
+import no.nav.mulighetsrommet.api.responses.BadRequest
+import no.nav.mulighetsrommet.api.responses.Forbidden
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import java.time.LocalDate

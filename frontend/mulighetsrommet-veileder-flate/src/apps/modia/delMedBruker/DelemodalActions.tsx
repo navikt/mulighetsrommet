@@ -2,7 +2,7 @@ export interface State {
   deletekst: string;
   originalDeletekst: string;
   sendtStatus: Status;
-  dialogId: string;
+  dialogId: string | null;
   venterPaaSvarFraBruker: boolean;
   enableRedigerDeletekst: boolean;
   modalOpen: boolean;
