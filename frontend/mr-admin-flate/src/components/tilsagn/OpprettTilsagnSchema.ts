@@ -1,3 +1,4 @@
+import { TilsagnBeregning } from "@mr/api-client";
 import z, { ZodIssueCode } from "zod";
 
 const tekster = {
@@ -19,7 +20,7 @@ export const OpprettTilsagnSchema = z
         .min(10, tekster.manglerSluttdato),
     }),
     kostnadssted: z.string().length(4, tekster.manglerKostnadssted),
-    belop: z.number({ required_error: tekster.manglerBelop }).positive(),
+    beregning: z.custom<TilsagnBeregning>(),
   })
   .superRefine((data, ctx) => {
     if (data.periode.slutt < data.periode.start) {
