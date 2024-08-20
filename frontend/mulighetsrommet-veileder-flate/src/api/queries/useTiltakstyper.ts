@@ -4,7 +4,7 @@ import { VeilederTiltakService } from "@mr/api-client";
 
 export function useTiltakstyper() {
   return useSuspenseQuery({
-    queryKey: QueryKeys.sanity.tiltakstyper,
+    queryKey: QueryKeys.arbeidsmarkedstiltak.tiltakstyper,
     queryFn: () => VeilederTiltakService.getVeilederflateTiltakstyper(),
   });
 }
