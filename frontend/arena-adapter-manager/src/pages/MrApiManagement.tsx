@@ -26,47 +26,6 @@ export function MrApiManagement() {
           Starter en initial load av alle relevante tiltakstyper.
         </RunTask>
 
-        <RunTask
-          base={ApiBase.MR_API}
-          task="initial-load-tiltaksgjennomforinger"
-          input={{
-            type: "object",
-            description:
-              "Starter en initial load av gjennomføringer filtrert basert på input fra skjemaet.",
-            properties: {
-              opphav: {
-                title: "Opphav",
-                description:
-                  "For hvilket opphav skal gjennomføringer relastes på topic? Hvis feltet er tomt vil gjennomføringer relastes uavhengig av opphav.",
-                type: "string",
-                enum: ["MR_ADMIN_FLATE", "ARENA"],
-              },
-              tiltakstyper: {
-                title: "Tiltakstyper",
-                description: "For hvilke tiltakstyper skal gjennomføringer relastes på topic?",
-                type: "array",
-                items: {
-                  type: "string",
-                  enum: [
-                    "AVKLARING",
-                    "OPPFOLGING",
-                    "GRUPPE_ARBEIDSMARKEDSOPPLAERING",
-                    "JOBBKLUBB",
-                    "DIGITALT_OPPFOLGINGSTILTAK",
-                    "ARBEIDSFORBEREDENDE_TRENING",
-                    "GRUPPE_FAG_OG_YRKESOPPLAERING",
-                    "ARBEIDSRETTET_REHABILITERING",
-                    "VARIG_TILRETTELAGT_ARBEID_SKJERMET",
-                  ],
-                },
-                uniqueItems: true,
-                minItems: 1,
-              },
-            },
-            required: ["tiltakstyper"],
-          }}
-        />
-
         <RunTask base={ApiBase.MR_API} task={"sync-navansatte"}>
           Synkroniserer NAV-ansatte fra relevante AD-grupper.
         </RunTask>
