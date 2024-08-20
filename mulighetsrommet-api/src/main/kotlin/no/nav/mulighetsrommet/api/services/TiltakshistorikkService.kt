@@ -26,12 +26,13 @@ class TiltakshistorikkService(
 ) {
     val log: Logger = LoggerFactory.getLogger(javaClass)
 
+    // TODO Returner DeltakerKort slik at vi kan bruke korrekt visning i frontend
     suspend fun hentHistorikkForBrukerV2(norskIdent: NorskIdent, obo: AccessType.OBO): List<TiltakshistorikkAdminDto> {
         val identer = hentHistoriskeNorskIdent(norskIdent, obo)
 
         val response = tiltakshistorikkClient.historikk(identer)
 
-        return response.historikk.map {
+        val historikk = response.historikk.map {
             when (it) {
                 is Tiltakshistorikk.ArenaDeltakelse -> {
                     val tiltakstype = tiltakstypeRepository.getByArenaTiltakskode(it.arenaTiltakskode)
@@ -62,6 +63,17 @@ class TiltakshistorikkService(
                 is Tiltakshistorikk.ArbeidsgiverAvtale -> throw IllegalStateException("ArbeidsgiverAvtale er enda ikke støttet")
             }
         }
+
+        // TODO Type opp noe mock-historikk i tiltakshistorikk.json for Wiremock
+        // TODO Oppdater openApi med korrekt respons
+
+        val historikkFraKometsApi =
+            hentDeltakelserFraKomet(norskIdent, obo).map { it.historikk }.getOrElse { emptyList() }
+
+        val blandetHistorikk = historikk + historikkFraKometsApi
+
+        println(blandetHistorikk)
+        return historikk // TODO Må returnere korrekt historikk
     }
 
     suspend fun hentDeltakelserFraKomet(

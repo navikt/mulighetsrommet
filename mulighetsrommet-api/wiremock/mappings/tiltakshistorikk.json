@@ -1,0 +1,15 @@
+{
+  "request": {
+    "method": "POST",
+    "urlPathPattern": "/api/v1/historikk"
+  },
+  "response": {
+    "status": 200,
+    "jsonBody": {
+      "historikk": []
+    },
+    "headers": {
+      "Content-Type": "application/json"
+    }
+  }
+}
