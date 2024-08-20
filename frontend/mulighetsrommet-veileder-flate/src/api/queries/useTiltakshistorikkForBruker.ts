@@ -4,12 +4,10 @@ import { useModiaContext } from "@/apps/modia/hooks/useModiaContext";
 import { HistorikkService } from "@mr/api-client";
 
 export function useTiltakshistorikkForBruker() {
-  const { fnr } = useModiaContext();
-
-  const requestBody = { norskIdent: fnr };
+  const { fnr: norskIdent } = useModiaContext();
 
   return useQuery({
-    queryKey: QueryKeys.BrukerHistorikk(fnr),
-    queryFn: () => HistorikkService.hentHistorikkForBruker({ requestBody }),
+    queryKey: QueryKeys.BrukerHistorikk(norskIdent),
+    queryFn: () => HistorikkService.hentHistorikkForBruker({ requestBody: { norskIdent } }),
   });
 }

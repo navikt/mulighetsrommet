@@ -4,12 +4,10 @@ import { QueryKeys } from "@/api/query-keys";
 import { Bruker, BrukerService } from "@mr/api-client";
 
 export function useHentBrukerdata() {
-  const { fnr } = useModiaContext();
-
-  const requestBody = { norskIdent: fnr };
+  const { fnr: norskIdent } = useModiaContext();
 
   return useQuery<Bruker>({
-    queryKey: QueryKeys.Bruker(fnr),
-    queryFn: () => BrukerService.getBrukerdata({ requestBody }),
+    queryKey: QueryKeys.Bruker(norskIdent),
+    queryFn: () => BrukerService.getBrukerdata({ requestBody: { norskIdent } }),
   });
 }
