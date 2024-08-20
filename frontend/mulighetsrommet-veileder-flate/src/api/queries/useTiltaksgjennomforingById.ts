@@ -9,7 +9,7 @@ export function useTiltaksgjennomforingById() {
   const filter = useArbeidsmarkedstiltakFilterValue();
 
   return useQuery({
-    queryKey: QueryKeys.sanity.tiltaksgjennomforing(id),
+    queryKey: QueryKeys.arbeidsmarkedstiltak.tiltaksgjennomforing(id),
     queryFn: () =>
       VeilederTiltakService.getVeilederTiltaksgjennomforing({
         id,
@@ -22,7 +22,7 @@ export function useNavTiltaksgjennomforingById() {
   const id = useGetTiltaksgjennomforingIdFraUrl();
 
   return useQuery({
-    queryKey: QueryKeys.sanity.tiltaksgjennomforing(id),
+    queryKey: QueryKeys.arbeidsmarkedstiltak.tiltaksgjennomforing(id),
     queryFn: () => VeilederTiltakService.getNavTiltaksgjennomforing({ id }),
   });
 }
@@ -32,7 +32,7 @@ export function usePreviewTiltaksgjennomforingById() {
   const filter = useArbeidsmarkedstiltakFilterValue();
 
   return useQuery({
-    queryKey: QueryKeys.sanity.tiltaksgjennomforingPreview(id),
+    queryKey: QueryKeys.arbeidsmarkedstiltak.tiltaksgjennomforingPreview(id),
     queryFn: () =>
       VeilederTiltakService.getPreviewTiltaksgjennomforing({
         id,

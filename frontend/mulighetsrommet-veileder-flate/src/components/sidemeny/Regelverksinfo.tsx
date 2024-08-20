@@ -1,14 +1,14 @@
 import { ExternalLinkIcon } from "@navikt/aksel-icons";
 import { Link } from "@navikt/ds-react";
-import { SanityRegelverkLenke } from "@mr/api-client";
+import { RegelverkLenke } from "@mr/api-client";
 import styles from "./SidemenyInfo.module.scss";
 
 interface RegelverksinfoProps {
-  regelverkLenker?: SanityRegelverkLenke[];
+  regelverkLenker?: RegelverkLenke[];
 }
 
 const Regelverksinfo = ({ regelverkLenker }: RegelverksinfoProps) => {
-  const regelverkLenkeComponent = (regelverkLenke: SanityRegelverkLenke) => {
+  const regelverkLenkeComponent = (regelverkLenke: RegelverkLenke) => {
     return (
       regelverkLenke.regelverkUrl && (
         <div key={regelverkLenke._id}>
