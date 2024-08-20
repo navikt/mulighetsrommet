@@ -2125,7 +2125,7 @@ components:
         beskrivelse:
           type: string
         faneinnhold:
-          $ref: "#/components/schemas/SanityFaneinnhold"
+          $ref: "#/components/schemas/Faneinnhold"
         personopplysninger:
           type: array
           items:
@@ -2212,7 +2212,7 @@ components:
           type: string
           nullable: true
         faneinnhold:
-          $ref: "#/components/schemas/SanityFaneinnholdRequest"
+          $ref: "#/components/schemas/FaneinnholdRequest"
           nullable: true
         personopplysninger:
           type: array
@@ -2421,7 +2421,7 @@ components:
         stedForGjennomforing:
           type: string
         faneinnhold:
-          $ref: "#/components/schemas/SanityFaneinnhold"
+          $ref: "#/components/schemas/Faneinnhold"
         beskrivelse:
           type: string
         publisert:
@@ -2519,7 +2519,7 @@ components:
           type: string
           nullable: true
         faneinnhold:
-          $ref: "#/components/schemas/SanityFaneinnholdRequest"
+          $ref: "#/components/schemas/FaneinnholdRequest"
           nullable: true
         beskrivelse:
           type: string
@@ -3270,9 +3270,9 @@ components:
         regelverkLenker:
           type: array
           items:
-            $ref: "#/components/schemas/SanityRegelverkLenke"
+            $ref: "#/components/schemas/RegelverkLenke"
         faneinnhold:
-          $ref: "#/components/schemas/SanityFaneinnhold"
+          $ref: "#/components/schemas/Faneinnhold"
         delingMedBruker:
           type: string
         arenakode:
@@ -3318,7 +3318,7 @@ components:
         sluttdato:
           type: string
         faneinnhold:
-          $ref: "#/components/schemas/SanityFaneinnhold"
+          $ref: "#/components/schemas/Faneinnhold"
         apentForInnsok:
           type: boolean
         kontaktinfo:
@@ -3339,7 +3339,7 @@ components:
         - oppstart
         - status
 
-    SanityRegelverkLenke:
+    RegelverkLenke:
       type: object
       properties:
         _id:
@@ -3364,7 +3364,7 @@ components:
       required:
         - _type
 
-    SanityFaneinnhold:
+    Faneinnhold:
       type: object
       properties:
         forHvemInfoboks:
@@ -3402,7 +3402,7 @@ components:
         delMedBruker:
           type: string
 
-    SanityFaneinnholdRequest:
+    FaneinnholdRequest:
       type: object
       properties:
         forHvemInfoboks:
