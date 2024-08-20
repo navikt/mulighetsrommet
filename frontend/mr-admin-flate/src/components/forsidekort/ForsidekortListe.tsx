@@ -47,6 +47,7 @@ export function ForsidekortListe() {
           />
         }
         url={SANITY_STUDIO_URL}
+        apneINyTab
         tekst="Her administrerer du individuelle tiltaksgjennomføringer"
       />
       <Forsidekort
