@@ -7,12 +7,12 @@ import io.kotest.matchers.shouldBe
 import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.server.application.*
-import io.ktor.server.auth.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattRolle
 import no.nav.mulighetsrommet.api.plugins.AppRoles
 import no.nav.mulighetsrommet.api.plugins.AuthProvider
+import no.nav.mulighetsrommet.api.plugins.authenticate
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import java.util.*
 
@@ -30,19 +30,19 @@ class AuthenticationTest : FunSpec({
 
     fun Application.configureTestAuthentationRoutes() {
         routing {
-            authenticate(AuthProvider.AZURE_AD_NAV_IDENT.name) {
+            authenticate(AuthProvider.AZURE_AD_NAV_IDENT) {
                 get("AZURE_AD_NAV_IDENT") { call.respond(HttpStatusCode.OK) }
             }
 
-            authenticate(AuthProvider.AZURE_AD_TEAM_MULIGHETSROMMET.name) {
+            authenticate(AuthProvider.AZURE_AD_TEAM_MULIGHETSROMMET) {
                 get("AZURE_AD_TEAM_MULIGHETSROMMET") { call.respond(HttpStatusCode.OK) }
             }
 
-            authenticate(AuthProvider.AZURE_AD_DEFAULT_APP.name) {
+            authenticate(AuthProvider.AZURE_AD_DEFAULT_APP) {
                 get("AZURE_AD_DEFAULT_APP") { call.respond(HttpStatusCode.OK) }
             }
 
-            authenticate(AuthProvider.AZURE_AD_TILTAKSGJENNOMFORING_APP.name) {
+            authenticate(AuthProvider.AZURE_AD_TILTAKSGJENNOMFORING_APP) {
                 get("AZURE_AD_TILTAKSGJENNOMFORING_APP") { call.respond(HttpStatusCode.OK) }
             }
         }

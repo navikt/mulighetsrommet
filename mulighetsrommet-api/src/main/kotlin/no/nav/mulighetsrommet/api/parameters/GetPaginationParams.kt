@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.routes.v1.parameters
+package no.nav.mulighetsrommet.api.parameters
 
 import io.ktor.server.application.*
 import io.ktor.util.pipeline.*

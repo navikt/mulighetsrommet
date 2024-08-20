@@ -15,7 +15,9 @@ import no.nav.mulighetsrommet.api.domain.dto.Oppskrifter
 import no.nav.mulighetsrommet.api.domain.dto.VeilederflateKontaktinfo
 import no.nav.mulighetsrommet.api.domain.dto.VeilederflateTiltaksgjennomforing
 import no.nav.mulighetsrommet.api.plugins.AuthProvider
+import no.nav.mulighetsrommet.api.plugins.authenticate
 import no.nav.mulighetsrommet.api.plugins.getNavAnsattAzureId
+import no.nav.mulighetsrommet.api.services.AvtaleService
 import no.nav.mulighetsrommet.api.services.CacheUsage
 import no.nav.mulighetsrommet.api.services.PoaoTilgangService
 import no.nav.mulighetsrommet.api.services.VeilederflateService
@@ -24,32 +26,53 @@ import no.nav.mulighetsrommet.ktor.exception.StatusException
 import org.koin.ktor.ext.inject
 import java.util.*
 
-fun Route.veilederflateRoutes() {
+data class ArbeidsmarkedstiltakFilter(
+    val enheter: NonEmptyList<String>,
+    val innsatsgruppe: Innsatsgruppe,
+    val tiltakstyper: List<String>?,
+    val search: String?,
+    val apentForInnsok: ApentForInnsok,
+)
+
+enum class ApentForInnsok {
+    APENT,
+    STENGT,
+    APENT_ELLER_STENGT,
+}
+
+fun <T : Any> PipelineContext<T, ApplicationCall>.getArbeidsmarkedstiltakFilter(): ArbeidsmarkedstiltakFilter {
+    val queryParameters = call.request.queryParameters
+
+    val enheter = queryParameters.getAll("enheter")
+        ?.toNonEmptyListOrNull()
+        ?: throw StatusException(HttpStatusCode.BadRequest, "NAV-enheter er påkrevd")
+    val innsatsgruppe = queryParameters["innsatsgruppe"]
+        ?.let { Innsatsgruppe.valueOf(it) }
+        ?: throw StatusException(HttpStatusCode.BadRequest, "Innsatsgruppe er påkrevd")
+
+    val apentForInnsok: ApentForInnsok by queryParameters
+
+    return ArbeidsmarkedstiltakFilter(
+        enheter = enheter,
+        innsatsgruppe = innsatsgruppe,
+        tiltakstyper = queryParameters.getAll("tiltakstyper"),
+        search = queryParameters["search"],
+        apentForInnsok = apentForInnsok,
+    )
+}
+
+fun Route.veilederTiltakRoutes() {
+    val avtaler: AvtaleService by inject()
     val veilederflateService: VeilederflateService by inject()
     val poaoTilgangService: PoaoTilgangService by inject()
 
-    fun <T : Any> PipelineContext<T, ApplicationCall>.getArbeidsmarkedstiltakFilter(): ArbeidsmarkedstiltakFilter {
-        val queryParameters = call.request.queryParameters
-
-        val enheter = queryParameters.getAll("enheter")
-            ?.toNonEmptyListOrNull()
-            ?: throw StatusException(HttpStatusCode.BadRequest, "NAV-enheter er påkrevd")
-        val innsatsgruppe = queryParameters["innsatsgruppe"]
-            ?.let { Innsatsgruppe.valueOf(it) }
-            ?: throw StatusException(HttpStatusCode.BadRequest, "Innsatsgruppe er påkrevd")
-
-        val apentForInnsok: ApentForInnsok by queryParameters
-
-        return ArbeidsmarkedstiltakFilter(
-            enheter = enheter,
-            innsatsgruppe = innsatsgruppe,
-            tiltakstyper = queryParameters.getAll("tiltakstyper"),
-            search = queryParameters["search"],
-            apentForInnsok = apentForInnsok,
-        )
+    get("/avtaler/{id}/behandle-personopplysninger") {
+        val id = call.parameters.getOrFail<UUID>("id")
+        val behandlingAvPersonopplysninger = avtaler.getBehandlingAvPersonopplysninger(id)
+        call.respond(behandlingAvPersonopplysninger)
     }
 
-    route("/api/v1/intern/veileder") {
+    route("/veileder") {
         get("/innsatsgrupper") {
             val innsatsgrupper = veilederflateService.hentInnsatsgrupper()
 
@@ -151,10 +174,7 @@ fun Route.veilederflateRoutes() {
             }
         }
 
-        authenticate(
-            AuthProvider.AZURE_AD_TILTAKSADMINISTRASJON_GENERELL.name,
-            strategy = AuthenticationStrategy.Required,
-        ) {
+        authenticate(AuthProvider.AZURE_AD_TILTAKSADMINISTRASJON_GENERELL) {
             route("/preview") {
                 get("/tiltaksgjennomforinger") {
                     val filter = getArbeidsmarkedstiltakFilter()
@@ -188,18 +208,4 @@ fun Route.veilederflateRoutes() {
             }
         }
     }
-}
-
-data class ArbeidsmarkedstiltakFilter(
-    val enheter: NonEmptyList<String>,
-    val innsatsgruppe: Innsatsgruppe,
-    val tiltakstyper: List<String>?,
-    val search: String?,
-    val apentForInnsok: ApentForInnsok,
-)
-
-enum class ApentForInnsok {
-    APENT,
-    STENGT,
-    APENT_ELLER_STENGT,
 }

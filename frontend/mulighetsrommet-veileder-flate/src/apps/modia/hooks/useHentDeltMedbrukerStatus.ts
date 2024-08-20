@@ -7,7 +7,7 @@ export function useHentDeltMedBrukerStatus(norskIdent: string, gjennomforingId: 
     queryKey: [...QueryKeys.DeltMedBrukerStatus, norskIdent, gjennomforingId],
     queryFn: async () => {
       const result = await DelMedBrukerService.getDelMedBruker({
-        requestBody: { norskIdent, id: gjennomforingId },
+        requestBody: { norskIdent, tiltakId: gjennomforingId },
       });
       return result || null; // Returner null hvis API returnerer 204 No Content = undefined;
     },

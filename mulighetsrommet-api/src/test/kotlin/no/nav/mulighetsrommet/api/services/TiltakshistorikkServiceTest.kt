@@ -141,7 +141,7 @@ class TiltakshistorikkServiceTest : FunSpec({
             ),
         )
 
-        historikkService.hentHistorikkForBrukerV2(
+        historikkService.hentHistorikkForBruker(
             NorskIdent("12345678910"),
             AccessType.OBO("token"),
         ) shouldBe forventetHistorikk

@@ -13,33 +13,31 @@ import org.koin.ktor.ext.inject
 fun Route.janzzRoutes() {
     val pam: PamOntologiClient by inject()
 
-    route("/api/v1/intern/janzz") {
-        get("sertifiseringer/sok") {
-            val q: String by call.request.queryParameters
+    get("janzz/sertifiseringer/sok") {
+        val q: String by call.request.queryParameters
 
-            val autoriseringer = async { pam.sokAutorisasjon(q) }
-            val andreGodkjenninger = async { pam.sokAndreGodkjenninger(q) }
+        val autoriseringer = async { pam.sokAutorisasjon(q) }
+        val andreGodkjenninger = async { pam.sokAndreGodkjenninger(q) }
 
-            val sertifiseringer = awaitAll(autoriseringer, andreGodkjenninger)
-                .asSequence()
-                .flatMap { typeaheads ->
-                    typeaheads.map {
-                        AmoKategorisering.Sertifisering(
-                            konseptId = it.konseptId,
-                            label = it.label,
-                        )
-                    }
+        val sertifiseringer = awaitAll(autoriseringer, andreGodkjenninger)
+            .asSequence()
+            .flatMap { typeaheads ->
+                typeaheads.map {
+                    AmoKategorisering.Sertifisering(
+                        konseptId = it.konseptId,
+                        label = it.label,
+                    )
                 }
-                // Det finnes noen konsepter med lik label som vi vil filtrere vekk. Det er ikke så
-                // viktig hvilken som blir igjen, men sorterer først sånn at det alltid er den samme
-                // som blir igjen.
-                .sortedBy { it.konseptId }
-                .sortedBy { it.label }
-                .distinctBy { it.konseptId }
-                .distinctBy { it.label }
-                .toList()
+            }
+            // Det finnes noen konsepter med lik label som vi vil filtrere vekk. Det er ikke så
+            // viktig hvilken som blir igjen, men sorterer først sånn at det alltid er den samme
+            // som blir igjen.
+            .sortedBy { it.konseptId }
+            .sortedBy { it.label }
+            .distinctBy { it.konseptId }
+            .distinctBy { it.label }
+            .toList()
 
-            call.respond(sertifiseringer)
-        }
+        call.respond(sertifiseringer)
     }
 }
