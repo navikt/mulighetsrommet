@@ -7,18 +7,17 @@ import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import io.ktor.util.pipeline.*
 import no.nav.mulighetsrommet.api.domain.dto.VeilederflateTiltakstype
-import no.nav.mulighetsrommet.api.routes.v1.parameters.getPaginationParams
+import no.nav.mulighetsrommet.api.parameters.getPaginationParams
 import no.nav.mulighetsrommet.api.services.TiltakstypeService
 import no.nav.mulighetsrommet.api.services.VeilederflateService
-import no.nav.mulighetsrommet.domain.Tiltakskode
 import org.koin.ktor.ext.inject
 import java.util.*
 
-fun Route.tiltakstypeRoutes(migrerteTiltak: List<Tiltakskode>, pameldingIModia: List<Tiltakskode>, pameldingKommerSnartIModia: List<Tiltakskode>) {
+fun Route.tiltakstypeRoutes() {
     val tiltakstypeService: TiltakstypeService by inject()
     val veilederflateService: VeilederflateService by inject()
 
-    route("/api/v1/intern/tiltakstyper") {
+    route("tiltakstyper") {
         get {
             val filter = getTiltakstypeFilter()
             val pagination = getPaginationParams()
@@ -27,6 +26,7 @@ fun Route.tiltakstypeRoutes(migrerteTiltak: List<Tiltakskode>, pameldingIModia: 
 
             call.respond(tiltakstyper)
         }
+
         get("{id}") {
             val id = call.parameters.getOrFail<UUID>("id")
             val tiltakstype = tiltakstypeService.getById(id) ?: return@get call.respondText(
@@ -52,18 +52,6 @@ fun Route.tiltakstypeRoutes(migrerteTiltak: List<Tiltakskode>, pameldingIModia: 
                 )
 
             call.respond(veilederflateTiltakstype)
-        }
-
-        get("migrerte") {
-            call.respond(migrerteTiltak)
-        }
-
-        get("stotterPameldingIModia") {
-            call.respond(pameldingIModia)
-        }
-
-        get("pameldingKommerSnartIModia") {
-            call.respond(pameldingKommerSnartIModia)
         }
     }
 }

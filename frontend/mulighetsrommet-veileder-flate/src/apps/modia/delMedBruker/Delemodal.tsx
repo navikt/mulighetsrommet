@@ -5,7 +5,7 @@ import { useLogEvent } from "@/logging/amplitude";
 import { erPreview } from "@/utils/Utils";
 import { BodyShort, Button, Checkbox, Heading, HelpText, Modal } from "@navikt/ds-react";
 import { Bruker, DelMedBruker, VeilederflateTiltaksgjennomforing } from "@mr/api-client";
-import { useDelTiltakViaDialogen } from "../../../api/queries/useDelTiltakViaDialogen";
+import { useDelTiltakMedBruker } from "@/api/queries/useDelTiltakMedBruker";
 import { DelMedBrukerContent, MAKS_ANTALL_TEGN_DEL_MED_BRUKER } from "./DelMedBrukerContent";
 import style from "./Delemodal.module.scss";
 import { Actions, State } from "./DelemodalActions";
@@ -28,15 +28,15 @@ export function Delemodal({
   state,
 }: DelemodalProps) {
   const { logEvent } = useLogEvent();
-  const mutation = useDelTiltakViaDialogen({
+  const mutation = useDelTiltakMedBruker({
     onSuccess: (response) => {
-      dispatch({ type: "Sendt ok", payload: response.id });
+      dispatch({ type: "Sendt ok", payload: response.dialogId });
       mutation.reset();
     },
   });
 
   const senderTilDialogen = state.sendtStatus === "SENDER";
-  const { enableRedigerDeletekst } = state;
+  const { enableRedigerDeletekst, sendtStatus, dialogId } = state;
 
   const originaltekstLengde = state.originalDeletekst.length;
   const lukkStatusmodal = () => dispatch({ type: "Toggle statusmodal", payload: false });
@@ -188,7 +188,7 @@ export function Delemodal({
         </Modal.Footer>
       </Modal>
 
-      {state.sendtStatus === "SENDING_FEILET" && (
+      {sendtStatus === "SENDING_FEILET" && (
         <StatusModal
           modalOpen={state.statusmodalOpen}
           ikonVariant="error"
@@ -208,7 +208,7 @@ export function Delemodal({
         />
       )}
 
-      {state.sendtStatus === "SENDT_OK" && (
+      {sendtStatus === "SENDT_OK" && dialogId !== null && (
         <StatusModal
           modalOpen={state.statusmodalOpen}
           onClose={lukkStatusmodal}
@@ -220,7 +220,7 @@ export function Delemodal({
             event.preventDefault();
             navigateToModiaApp({
               route: ModiaRoute.DIALOG,
-              dialogId: state.dialogId,
+              dialogId,
             });
           }}
           secondaryButtonText="Lukk"

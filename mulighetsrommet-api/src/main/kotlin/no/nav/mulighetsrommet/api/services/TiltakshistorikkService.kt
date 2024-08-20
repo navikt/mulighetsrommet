@@ -27,7 +27,7 @@ class TiltakshistorikkService(
     val log: Logger = LoggerFactory.getLogger(javaClass)
 
     // TODO Returner DeltakerKort slik at vi kan bruke korrekt visning i frontend
-    suspend fun hentHistorikkForBrukerV2(norskIdent: NorskIdent, obo: AccessType.OBO): List<TiltakshistorikkAdminDto> {
+    suspend fun hentHistorikkForBruker(norskIdent: NorskIdent, obo: AccessType.OBO): List<TiltakshistorikkAdminDto> {
         val identer = hentHistoriskeNorskIdent(norskIdent, obo)
 
         val response = tiltakshistorikkClient.historikk(identer)

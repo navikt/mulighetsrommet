@@ -9,6 +9,7 @@ interface ForsidekortProps {
   navn: string;
   ikon: ReactNode;
   url: string;
+  apneINyTab?: boolean;
   tekst?: string;
 }
 
@@ -21,13 +22,14 @@ function loggKlikkPaKort(forsidekort: string) {
   });
 }
 
-export function Forsidekort({ navn, ikon, url, tekst }: ForsidekortProps) {
+export function Forsidekort({ navn, ikon, url, tekst, apneINyTab = false }: ForsidekortProps) {
   return (
     <Link
       key={url}
       onClick={() => loggKlikkPaKort(navn)}
       className={styles.card}
       to={url}
+      {...(apneINyTab ? { target: "_blank", rel: "noopener noreferrer" } : {})}
       data-testid={`forsidekort-${kebabCase(navn)}`}
     >
       <span className={styles.circle}>{ikon}</span>

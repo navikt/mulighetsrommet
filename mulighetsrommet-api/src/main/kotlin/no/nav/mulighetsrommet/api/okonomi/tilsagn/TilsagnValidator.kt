@@ -6,7 +6,7 @@ import arrow.core.nel
 import arrow.core.raise.either
 import arrow.core.right
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
-import no.nav.mulighetsrommet.api.routes.v1.responses.ValidationError
+import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.domain.dto.NavIdent
 
 class TilsagnValidator(

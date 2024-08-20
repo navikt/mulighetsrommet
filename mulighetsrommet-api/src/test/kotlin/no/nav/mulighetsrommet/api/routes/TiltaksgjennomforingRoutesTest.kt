@@ -4,6 +4,8 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.data.forAll
 import io.kotest.data.row
 import io.kotest.matchers.shouldBe
+import io.ktor.client.engine.*
+import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
 import io.ktor.http.*
@@ -13,7 +15,6 @@ import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattRolle
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.domain.Tiltakskode
-import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import java.util.*
 
@@ -51,23 +52,28 @@ class TiltaksgjennomforingRoutesTest : FunSpec({
         oauth.shutdown()
     }
 
+    val generellRolle = AdGruppeNavAnsattRolleMapping(UUID.randomUUID(), NavAnsattRolle.TILTAKADMINISTRASJON_GENERELL)
+    val gjennomforingerSkriv = AdGruppeNavAnsattRolleMapping(UUID.randomUUID(), NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV)
+
+    fun appConfig(
+        engine: HttpClientEngine = CIO.create(),
+        migrerteTiltak: List<Tiltakskode> = listOf(),
+    ) = createTestApplicationConfig().copy(
+        database = databaseConfig,
+        auth = createAuthConfig(oauth, roles = listOf(generellRolle, gjennomforingerSkriv)),
+        engine = engine,
+        migrerteTiltak = migrerteTiltak,
+    )
+
     test("401 Unauthorized for uautentisert kall for PUT av tiltaksgjennomføring") {
-        val config = createTestApplicationConfig().copy(
-            auth = createAuthConfig(oauth, roles = listOf()),
-        )
-        withTestApplication(config) {
+        withTestApplication(appConfig()) {
             val response = client.put("/api/v1/intern/tiltaksgjennomforinger")
             response.status shouldBe HttpStatusCode.Unauthorized
         }
     }
 
     test("401 Unauthorized for uautentisert kall for PUT av tiltaksgjennomføring når bruker ikke har tilgang til å skrive for tiltaksgjennomføringer") {
-        val tiltaksgjennomforingSkrivRolle =
-            AdGruppeNavAnsattRolleMapping(UUID.randomUUID(), NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV)
-        val config = createTestApplicationConfig().copy(
-            auth = createAuthConfig(oauth, roles = listOf(tiltaksgjennomforingSkrivRolle)),
-        )
-        withTestApplication(config) {
+        withTestApplication(appConfig()) {
             val response = client.put("/api/v1/intern/tiltaksgjennomforinger") {
                 val claims = mapOf(
                     "NAVident" to "ABC123",
@@ -82,21 +88,11 @@ class TiltaksgjennomforingRoutesTest : FunSpec({
     }
 
     test("401 Unauthorized for uautentisert kall for PUT av tiltaksgjennomføring når bruker har tilgang til å skrive for tiltaksgjennomføringer, men mangler generell tilgang") {
-        val tiltaksgjennomforingSkrivRolle =
-            AdGruppeNavAnsattRolleMapping(UUID.randomUUID(), NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV)
-        val tiltaksadministrasjonGenerellRolle =
-            AdGruppeNavAnsattRolleMapping(UUID.randomUUID(), NavAnsattRolle.TILTAKADMINISTRASJON_GENERELL)
-        val config = createTestApplicationConfig().copy(
-            auth = createAuthConfig(
-                oauth,
-                roles = listOf(tiltaksgjennomforingSkrivRolle, tiltaksadministrasjonGenerellRolle),
-            ),
-        )
-        withTestApplication(config) {
+        withTestApplication(appConfig()) {
             val response = client.put("/api/v1/intern/tiltaksgjennomforinger") {
                 val claims = mapOf(
                     "NAVident" to "ABC123",
-                    "groups" to listOf(tiltaksgjennomforingSkrivRolle.adGruppeId),
+                    "groups" to listOf(gjennomforingerSkriv.adGruppeId),
                 )
                 bearerAuth(
                     oauth.issueToken(claims = claims).serialize(),
@@ -107,18 +103,7 @@ class TiltaksgjennomforingRoutesTest : FunSpec({
     }
 
     test("200 OK for autentisert kall for PUT av tiltaksgjennomføring når bruker har generell tilgang og til skriv for tiltaksgjennomføring") {
-        val tiltaksgjennomforingSkrivRolle =
-            AdGruppeNavAnsattRolleMapping(UUID.randomUUID(), NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV)
-        val tiltaksadministrasjonGenerellRolle =
-            AdGruppeNavAnsattRolleMapping(UUID.randomUUID(), NavAnsattRolle.TILTAKADMINISTRASJON_GENERELL)
-        val engine = createMockEngine()
-        val config = createTestApplicationConfig().copy(
-            auth = createAuthConfig(
-                oauth,
-                roles = listOf(tiltaksgjennomforingSkrivRolle, tiltaksadministrasjonGenerellRolle),
-            ),
-            engine = engine,
-            database = databaseConfig,
+        val config = appConfig(
             migrerteTiltak = listOf(Tiltakskode.OPPFOLGING),
         )
         withTestApplication(config) {
@@ -129,16 +114,13 @@ class TiltaksgjennomforingRoutesTest : FunSpec({
             }
 
             forAll(
-                row(TiltakstypeFixtures.Oppfolging, HttpStatusCode.OK),
-                row(TiltakstypeFixtures.VTA, HttpStatusCode.BadRequest),
-            ) { tiltakstype, status ->
+                row(AvtaleFixtures.oppfolging, HttpStatusCode.OK),
+                row(AvtaleFixtures.VTA, HttpStatusCode.BadRequest),
+            ) { avtale, status ->
                 val response = client.put("/api/v1/intern/tiltaksgjennomforinger") {
                     val claims = mapOf(
                         "NAVident" to "ABC123",
-                        "groups" to listOf(
-                            tiltaksgjennomforingSkrivRolle.adGruppeId,
-                            tiltaksadministrasjonGenerellRolle.adGruppeId,
-                        ),
+                        "groups" to listOf(generellRolle.adGruppeId, gjennomforingerSkriv.adGruppeId),
                     )
                     bearerAuth(
                         oauth.issueToken(claims = claims).serialize(),
@@ -146,10 +128,10 @@ class TiltaksgjennomforingRoutesTest : FunSpec({
                     contentType(ContentType.Application.Json)
                     setBody(
                         TiltaksgjennomforingFixtures.Oppfolging1Request.copy(
-                            avtaleId = AvtaleFixtures.oppfolging.id,
+                            avtaleId = avtale.id,
                             navRegion = NavEnhetFixtures.Oslo.enhetsnummer,
                             navEnheter = listOf(NavEnhetFixtures.Sagene.enhetsnummer),
-                            tiltakstypeId = tiltakstype.id,
+                            tiltakstypeId = avtale.tiltakstypeId,
                         ),
                     )
                 }
@@ -159,14 +141,11 @@ class TiltaksgjennomforingRoutesTest : FunSpec({
     }
 
     test("200 OK for autentisert kall for GET av tiltaksgjennomføringer") {
-        val config = createTestApplicationConfig().copy(
-            auth = createAuthConfig(oauth, roles = emptyList()),
-            database = databaseConfig,
-        )
-        withTestApplication(config) {
+        withTestApplication(appConfig()) {
             val response = client.get("/api/v1/intern/tiltaksgjennomforinger") {
                 val claims = mapOf(
                     "NAVident" to "ABC123",
+                    "groups" to listOf(generellRolle.adGruppeId),
                 )
                 bearerAuth(
                     oauth.issueToken(claims = claims).serialize(),

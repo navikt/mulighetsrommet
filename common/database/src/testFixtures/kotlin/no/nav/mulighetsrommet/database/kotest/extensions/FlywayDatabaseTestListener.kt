@@ -1,10 +1,8 @@
 package no.nav.mulighetsrommet.database.kotest.extensions
 
 import io.kotest.core.listeners.AfterSpecListener
-import io.kotest.core.listeners.BeforeEachListener
 import io.kotest.core.listeners.BeforeSpecListener
 import io.kotest.core.spec.Spec
-import io.kotest.core.test.TestCase
 import io.kotest.core.test.TestCaseOrder
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.database.Database
@@ -16,11 +14,10 @@ import org.assertj.db.type.Table
 
 class FlywayDatabaseTestListener(private val config: DatabaseConfig) :
     BeforeSpecListener,
-    AfterSpecListener,
-    BeforeEachListener {
+    AfterSpecListener {
     private var delegate: Database? = null
 
-    private val beforeEachFlywayMigration: FlywayMigrationManager = FlywayMigrationManager(
+    private val flywayMigration: FlywayMigrationManager = FlywayMigrationManager(
         config = FlywayMigrationManager.MigrationConfig(cleanDisabled = false),
         slackNotifier = null,
     )
@@ -36,17 +33,13 @@ class FlywayDatabaseTestListener(private val config: DatabaseConfig) :
         spec.testOrder = TestCaseOrder.Sequential
 
         delegate = Database(config)
+
+        flywayMigration.migrate(db)
     }
 
     override suspend fun afterSpec(spec: Spec) {
         delegate?.truncateAll()
         delegate?.close()
-    }
-
-    // Initialiserer ny connection pool per test pga potensielle caching issues mellom tester
-    // https://github.com/flyway/flyway/issues/2323#issuecomment-804495818
-    override suspend fun beforeEach(testCase: TestCase) {
-        beforeEachFlywayMigration.migrate(db)
     }
 
     fun assertThat(tableName: String): TableAssert {

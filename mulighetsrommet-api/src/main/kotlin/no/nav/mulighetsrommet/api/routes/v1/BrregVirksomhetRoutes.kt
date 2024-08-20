@@ -9,17 +9,17 @@ import no.nav.mulighetsrommet.api.clients.brreg.BrregError
 import no.nav.mulighetsrommet.api.domain.dto.ArrangorDto
 import no.nav.mulighetsrommet.api.domain.dto.BrregVirksomhetDto
 import no.nav.mulighetsrommet.api.repositories.ArrangorRepository
-import no.nav.mulighetsrommet.api.routes.v1.responses.BadRequest
-import no.nav.mulighetsrommet.api.routes.v1.responses.NotFound
-import no.nav.mulighetsrommet.api.routes.v1.responses.ServerError
-import no.nav.mulighetsrommet.api.routes.v1.responses.respondWithStatusResponse
+import no.nav.mulighetsrommet.api.responses.BadRequest
+import no.nav.mulighetsrommet.api.responses.NotFound
+import no.nav.mulighetsrommet.api.responses.ServerError
+import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import org.koin.ktor.ext.inject
 
 fun Route.brregVirksomhetRoutes() {
     val arrangorRepository: ArrangorRepository by inject()
     val brregClient: BrregClient by inject()
 
-    route("api/v1/intern/virksomhet") {
+    route("virksomhet") {
         get("sok") {
             val sok: String by call.request.queryParameters
 
