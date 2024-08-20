@@ -95,13 +95,14 @@ export function AdministratorHeader() {
             </Dropdown.Menu.GroupedList.Item>
             <Dropdown.Menu.Divider />
             <Dropdown.Menu.GroupedList.Item
-              onClick={() => individuelleGjennomforingerLinkRef.current?.click()}
               as="span"
+              onClick={() => individuelleGjennomforingerLinkRef.current?.click()}
             >
               <Link
                 ref={individuelleGjennomforingerLinkRef}
                 to={SANITY_STUDIO_URL}
                 target="_blank"
+                onClick={(e) => e.stopPropagation()}
                 className={styles.menylenke}
               >
                 Individuelle tiltaksgjennomføringer <ExternalLinkIcon />
@@ -115,6 +116,7 @@ export function AdministratorHeader() {
                 ref={veilederflateLinkRef}
                 to={PREVIEW_ARBEIDSMARKEDSTILTAK_URL}
                 target="_blank"
+                onClick={(e) => e.stopPropagation()}
                 className={styles.menylenke}
               >
                 Veilederflate forhåndsvisning <ExternalLinkIcon />
