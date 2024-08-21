@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.domain.dto
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.domain.dbo.ArenaDeltakerStatus
 import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
@@ -27,6 +28,7 @@ sealed class TiltakshistorikkAdminDto {
     )
 
     @Serializable
+    @SerialName("ArenaDeltakelse")
     data class ArenaDeltakelse(
         @Serializable(with = UUIDSerializer::class)
         override val id: UUID,
@@ -43,6 +45,7 @@ sealed class TiltakshistorikkAdminDto {
     }
 
     @Serializable
+    @SerialName("GruppetiltakDeltakelse")
     data class GruppetiltakDeltakelse(
         @Serializable(with = UUIDSerializer::class)
         override val id: UUID,
