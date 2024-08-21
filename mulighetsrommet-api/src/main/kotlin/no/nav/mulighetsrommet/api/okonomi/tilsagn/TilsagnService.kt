@@ -91,8 +91,6 @@ class TilsagnService(
     suspend fun annuller(id: UUID): StatusResponse<Unit> {
         val dto = tilsagnRepository.get(id)
             ?: return NotFound("Fant ikke tilsagn").left()
-        val gjennomforing = tiltaksgjennomforingRepository.get(dto.tiltaksgjennomforingId)
-        requireNotNull(gjennomforing)
 
         return db.transactionSuspend { tx ->
             // TODO: Setter som annullert uavhengig om den er sendt til okonomi. Man kunne
