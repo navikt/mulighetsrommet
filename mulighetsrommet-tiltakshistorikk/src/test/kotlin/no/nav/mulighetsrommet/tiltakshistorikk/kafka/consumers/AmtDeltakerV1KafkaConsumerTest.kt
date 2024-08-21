@@ -20,13 +20,13 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 
-class AmtDeltakerV1ConsumerTest : FunSpec({
+class AmtDeltakerV1KafkaConsumerTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
 
     context("consume deltakere") {
         val gruppetiltak = GruppetiltakRepository(database.db)
         val deltakere = DeltakerRepository(database.db)
-        val deltakerConsumer = AmtDeltakerV1Consumer(
+        val deltakerConsumer = AmtDeltakerV1KafkaConsumer(
             config = KafkaTopicConsumer.Config(id = "deltaker", topic = "deltaker"),
             deltakere,
         )

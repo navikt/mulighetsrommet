@@ -14,7 +14,7 @@ import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.domain.dto.AvbruttAarsak
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingV1Dto
-import no.nav.mulighetsrommet.kafka.producers.TiltaksgjennomforingKafkaProducer
+import no.nav.mulighetsrommet.kafka.producers.SisteTiltaksgjennomforingerV1KafkaProducer
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
@@ -28,7 +28,7 @@ class UpdateTiltaksgjennomforingStatusTest :
         val today = LocalDate.of(2023, 2, 16)
 
         context("oppdater statuser på tiltaksgjennomføringer") {
-            val tiltaksgjennomforingKafkaProducer = mockk<TiltaksgjennomforingKafkaProducer>(relaxed = true)
+            val tiltaksgjennomforingKafkaProducer = mockk<SisteTiltaksgjennomforingerV1KafkaProducer>(relaxed = true)
             val task = UpdateTiltaksgjennomforingStatus(
                 mockk(),
                 TiltaksgjennomforingRepository(database.db),
@@ -135,7 +135,7 @@ class UpdateTiltaksgjennomforingStatusTest :
         }
 
         context("tiltak i egen regi") {
-            val tiltaksgjennomforingKafkaProducer = mockk<TiltaksgjennomforingKafkaProducer>(relaxed = true)
+            val tiltaksgjennomforingKafkaProducer = mockk<SisteTiltaksgjennomforingerV1KafkaProducer>(relaxed = true)
             val task = UpdateTiltaksgjennomforingStatus(
                 mockk(),
                 TiltaksgjennomforingRepository(database.db),

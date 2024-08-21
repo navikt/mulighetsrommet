@@ -10,16 +10,16 @@ import no.nav.mulighetsrommet.api.services.TiltakstypeService
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingV1Dto
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
-import no.nav.mulighetsrommet.kafka.producers.ArenaMigreringTiltaksgjennomforingKafkaProducer
+import no.nav.mulighetsrommet.kafka.producers.ArenaMigreringTiltaksgjennomforingerV1KafkaProducer
 import no.nav.mulighetsrommet.kafka.serialization.JsonElementDeserializer
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import java.util.*
 
-class TiltaksgjennomforingTopicConsumer(
+class SisteTiltaksgjennomforingerV1KafkaConsumer(
     config: Config,
     private val tiltakstyper: TiltakstypeService,
     private val tiltaksgjennomforingRepository: TiltaksgjennomforingRepository,
-    private val arenaMigreringTiltaksgjennomforingKafkaProducer: ArenaMigreringTiltaksgjennomforingKafkaProducer,
+    private val arenaMigreringTiltaksgjennomforingProducer: ArenaMigreringTiltaksgjennomforingerV1KafkaProducer,
     private val arenaAdapterClient: ArenaAdapterClient,
 ) : KafkaTopicConsumer<String, JsonElement>(
     config,
@@ -49,7 +49,7 @@ class TiltaksgjennomforingTopicConsumer(
             arenaGjennomforing?.arenaId,
             endretTidspunkt,
         )
-        arenaMigreringTiltaksgjennomforingKafkaProducer.publish(migrertGjennomforing)
+        arenaMigreringTiltaksgjennomforingProducer.publish(migrertGjennomforing)
     }
 
     private fun gjennomforingSkalDelesMedArena(gjennomforing: TiltaksgjennomforingV1Dto): Boolean {

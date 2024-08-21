@@ -4,12 +4,10 @@ import { HistorikkService } from "@mr/api-client";
 import { useSuspenseQuery } from "@tanstack/react-query";
 
 export function useTiltakshistorikkForBruker() {
-  const { fnr } = useModiaContext();
-
-  const requestBody = { norskIdent: fnr };
+  const { fnr: norskIdent } = useModiaContext();
 
   return useSuspenseQuery({
-    queryKey: QueryKeys.BrukerHistorikk(fnr),
-    queryFn: () => HistorikkService.hentHistorikkForBruker({ requestBody }),
+    queryKey: QueryKeys.BrukerHistorikk(norskIdent),
+    queryFn: () => HistorikkService.hentHistorikkForBruker({ requestBody: { norskIdent } }),
   });
 }

@@ -10,7 +10,7 @@ import no.nav.mulighetsrommet.serialization.json.JsonRelaxExplicitNulls
 import no.nav.mulighetsrommet.tiltakshistorikk.repositories.GruppetiltakRepository
 import java.util.*
 
-class TiltaksgjennomforingV1Consumer(
+class SisteTiltaksgjennomforingerV1KafkaConsumer(
     config: Config,
     private val gruppetiltakRepository: GruppetiltakRepository,
 ) : KafkaTopicConsumer<UUID, JsonElement>(

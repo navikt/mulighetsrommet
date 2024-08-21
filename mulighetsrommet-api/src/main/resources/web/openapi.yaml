@@ -1739,6 +1739,24 @@ paths:
                 items:
                   $ref: "#/components/schemas/TilsagnDto"
 
+  /api/v1/intern/tilsagn/beregn:
+    post:
+      tags:
+        - Beregn Tilsagn
+      operationId: beregnTilsagn
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TilsagnBeregningInput"
+      responses:
+        200:
+          description: TilsagnBeregning
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TilsagnBeregning"
+
   /api/v1/intern/tilsagn/{id}:
     parameters:
       - $ref: "#/components/parameters/ID"
@@ -2106,7 +2124,7 @@ components:
         beskrivelse:
           type: string
         faneinnhold:
-          $ref: "#/components/schemas/SanityFaneinnhold"
+          $ref: "#/components/schemas/Faneinnhold"
         personopplysninger:
           type: array
           items:
@@ -2193,7 +2211,7 @@ components:
           type: string
           nullable: true
         faneinnhold:
-          $ref: "#/components/schemas/SanityFaneinnholdRequest"
+          $ref: "#/components/schemas/FaneinnholdRequest"
           nullable: true
         personopplysninger:
           type: array
@@ -2402,7 +2420,7 @@ components:
         stedForGjennomforing:
           type: string
         faneinnhold:
-          $ref: "#/components/schemas/SanityFaneinnhold"
+          $ref: "#/components/schemas/Faneinnhold"
         beskrivelse:
           type: string
         publisert:
@@ -2500,7 +2518,7 @@ components:
           type: string
           nullable: true
         faneinnhold:
-          $ref: "#/components/schemas/SanityFaneinnholdRequest"
+          $ref: "#/components/schemas/FaneinnholdRequest"
           nullable: true
         beskrivelse:
           type: string
@@ -3272,9 +3290,9 @@ components:
         regelverkLenker:
           type: array
           items:
-            $ref: "#/components/schemas/SanityRegelverkLenke"
+            $ref: "#/components/schemas/RegelverkLenke"
         faneinnhold:
-          $ref: "#/components/schemas/SanityFaneinnhold"
+          $ref: "#/components/schemas/Faneinnhold"
         delingMedBruker:
           type: string
         arenakode:
@@ -3320,7 +3338,7 @@ components:
         sluttdato:
           type: string
         faneinnhold:
-          $ref: "#/components/schemas/SanityFaneinnhold"
+          $ref: "#/components/schemas/Faneinnhold"
         apentForInnsok:
           type: boolean
         kontaktinfo:
@@ -3341,7 +3359,7 @@ components:
         - oppstart
         - status
 
-    SanityRegelverkLenke:
+    RegelverkLenke:
       type: object
       properties:
         _id:
@@ -3366,7 +3384,7 @@ components:
       required:
         - _type
 
-    SanityFaneinnhold:
+    Faneinnhold:
       type: object
       properties:
         forHvemInfoboks:
@@ -3404,7 +3422,7 @@ components:
         delMedBruker:
           type: string
 
-    SanityFaneinnholdRequest:
+    FaneinnholdRequest:
       type: object
       properties:
         forHvemInfoboks:
@@ -4046,11 +4064,18 @@ components:
     Spesifisering:
       type: string
       enum:
-        - SERVERING_OVERNATTING
-        - TRANSPORT
-        - INDUSTRI
+        - INGENIOR_OG_IKT_FAG
+        - HELSE_PLEIE_OG_OMSORG
+        - BARNE_OG_UNGDOMSARBEID
+        - KONTORARBEID
+        - BUTIKK_OG_SALGSARBEID
+        - BYGG_OG_ANLEGG
+        - INDUSTRIARBEID
+        - REISELIV_SERVERING_OG_TRANSPORT
+        - SERVICEYRKER_OG_ANNET_ARBEID
         - ANDRE_BRANSJER
         - NORSKOPPLAERING
+        - FORBEREDENDE_OPPLAERING_FOR_VOKSNE
         - GRUNNLEGGENDE_FERDIGHETER
 
     InnholdElement:
@@ -4355,15 +4380,15 @@ components:
           format: date
         kostnadssted:
           type: string
-        belop:
-          type: integer
+        beregning:
+          $ref: "#/components/schemas/TilsagnBeregning"
       required:
         - id
         - tiltaksgjennomforingId
         - periodeStart
         - periodeSlutt
         - kostnadssted
-        - belop
+        - beregning
 
     TilsagnDto:
       type: object
@@ -4382,8 +4407,8 @@ components:
           format: date
         kostnadssted:
           $ref: "#/components/schemas/NavEnhet"
-        belop:
-          type: integer
+        beregning:
+          $ref: "#/components/schemas/TilsagnBeregning"
         besluttelse:
           type: object
           properties:
@@ -4429,6 +4454,7 @@ components:
         - periodeStart
         - periodeSlutt
         - kostnadssted
+        - beregning
         - belop
         - arrangor
         - lopenummer
@@ -4445,3 +4471,89 @@ components:
       properties:
         besluttelse:
           $ref: "#/components/schemas/TilsagnBesluttelse"
+
+    TilsagnBeregning:
+      oneOf:
+        - $ref: '#/components/schemas/AFTTilsagnBeregning'
+        - $ref: '#/components/schemas/FriTilsagnBeregning'
+
+    AFTTilsagnBeregning:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - AFT
+        sats:
+          type: integer
+        antallPlasser:
+          type: integer
+        belop:
+          type: integer
+        periodeStart:
+          type: string
+          format: date
+        periodeSlutt:
+          type: string
+          format: date
+      required:
+        - type
+        - sats
+        - antallPlasser
+        - belop
+        - periodeStart
+        - periodeSlutt
+
+    FriTilsagnBeregning:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - FRI
+        belop:
+          type: integer
+      required:
+        - type
+        - belop
+
+    TilsagnBeregningInput:
+      oneOf:
+        - $ref: '#/components/schemas/AFTTilsagnBeregningInput'
+        - $ref: '#/components/schemas/FriTilsagnBeregningInput'
+
+    AFTTilsagnBeregningInput:
+      properties:
+        type:
+          type: string
+          enum:
+            - AFT
+        periodeStart:
+          type: string
+          format: date
+        periodeSlutt:
+          type: string
+          format: date
+        antallPlasser:
+          type: integer
+        sats:
+          type: integer
+      required:
+        - type
+        - periodeStart
+        - periodeSlutt
+        - sats
+        - antallPlasser
+
+    FriTilsagnBeregningInput:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - FRI
+        belop:
+          type: integer
+      required:
+        - type
+        - belop

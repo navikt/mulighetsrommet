@@ -275,7 +275,7 @@ class AvtaleRepositoryTest :
                 val avtaler = AvtaleRepository(database.db)
                 val amoKategorisering = AmoKategorisering(
                     kurstype = AmoKategorisering.Kurstype.BRANSJE,
-                    spesifisering = AmoKategorisering.Spesifisering.INDUSTRI,
+                    spesifisering = AmoKategorisering.Spesifisering.INDUSTRIARBEID,
                     norskprove = null,
                     forerkort = null,
                     innholdElementer = listOf(AmoKategorisering.InnholdElement.TEORETISK_OPPLAERING),

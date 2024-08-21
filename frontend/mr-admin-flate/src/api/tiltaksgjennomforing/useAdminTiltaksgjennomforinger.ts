@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useDebounce } from "@mr/frontend-common";
 import { QueryKeys } from "@/api/QueryKeys";
 import { TiltaksgjennomforingFilter } from "../atoms";
-import { TiltaksgjennomforingerService } from "@mr/api-client";
+import { type GetTiltaksgjennomforingerData, TiltaksgjennomforingerService } from "@mr/api-client";
 
 function getPublisertStatus(statuser: string[] = []): boolean | null {
   if (statuser.length === 0) return null;
@@ -17,7 +17,7 @@ function getPublisertStatus(statuser: string[] = []): boolean | null {
 export function useAdminTiltaksgjennomforinger(filter: Partial<TiltaksgjennomforingFilter>) {
   const debouncedSok = useDebounce(filter.search?.trim(), 300);
 
-  const queryFilter = {
+  const queryFilter: GetTiltaksgjennomforingerData = {
     search: debouncedSok || undefined,
     navEnheter: filter.navEnheter?.map((e) => e.enhetsnummer) ?? [],
     tiltakstyper: filter.tiltakstyper,
@@ -31,10 +31,7 @@ export function useAdminTiltaksgjennomforinger(filter: Partial<Tiltaksgjennomfor
   };
 
   return useQuery({
-    queryKey: QueryKeys.tiltaksgjennomforinger(filter.visMineGjennomforinger, queryFilter.page, {
-      ...filter,
-      search: debouncedSok,
-    }),
+    queryKey: QueryKeys.tiltaksgjennomforinger(filter.visMineGjennomforinger, queryFilter),
     queryFn: () =>
       filter.visMineGjennomforinger
         ? TiltaksgjennomforingerService.getMineTiltaksgjennomforinger(queryFilter)

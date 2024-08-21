@@ -5,10 +5,12 @@ import prettier from "eslint-plugin-prettier";
 import react from "eslint-plugin-react";
 import reactHooks from "eslint-plugin-react-hooks";
 import reactRefresh from "eslint-plugin-react-refresh";
+import pluginQuery from "@tanstack/eslint-plugin-query";
 
 export default ts.config(
   js.configs.recommended,
   pluginPromise.configs["flat/recommended"],
+  ...pluginQuery.configs['flat/recommended'],
   ...ts.configs.recommended,
   {
     ...react.configs.flat.recommended,

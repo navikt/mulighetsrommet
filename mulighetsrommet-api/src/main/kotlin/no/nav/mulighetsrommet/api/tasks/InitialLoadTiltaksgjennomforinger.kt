@@ -13,7 +13,7 @@ import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
-import no.nav.mulighetsrommet.kafka.producers.TiltaksgjennomforingKafkaProducer
+import no.nav.mulighetsrommet.kafka.producers.SisteTiltaksgjennomforingerV1KafkaProducer
 import no.nav.mulighetsrommet.tasks.DbSchedulerKotlinSerializer
 import org.slf4j.LoggerFactory
 import org.slf4j.MDC
@@ -24,7 +24,7 @@ class InitialLoadTiltaksgjennomforinger(
     database: Database,
     private val tiltakstyper: TiltakstypeRepository,
     private val gjennomforinger: TiltaksgjennomforingRepository,
-    private val gjennomforingProducer: TiltaksgjennomforingKafkaProducer,
+    private val gjennomforingProducer: SisteTiltaksgjennomforingerV1KafkaProducer,
 ) {
 
     private val logger = LoggerFactory.getLogger(javaClass)

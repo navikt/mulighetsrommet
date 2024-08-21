@@ -8,6 +8,7 @@ import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Gjovik
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.AFT1
+import no.nav.mulighetsrommet.api.okonomi.prismodell.Prismodell
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.domain.dto.NavIdent
@@ -41,9 +42,9 @@ class TilsagnRepositoryTest : FunSpec({
             periodeStart = LocalDate.of(2023, 1, 1),
             periodeSlutt = LocalDate.of(2023, 2, 1),
             kostnadssted = Gjovik.enhetsnummer,
-            belop = 123,
             opprettetAv = NavAnsattFixture.ansatt1.navIdent,
             arrangorId = ArrangorFixtures.underenhet1.id,
+            beregning = Prismodell.TilsagnBeregning.Fri(123),
         )
 
         test("upsert and get") {
@@ -54,7 +55,6 @@ class TilsagnRepositoryTest : FunSpec({
                 periodeStart = LocalDate.of(2023, 1, 1),
                 periodeSlutt = LocalDate.of(2023, 2, 1),
                 kostnadssted = Gjovik,
-                belop = 123,
                 besluttelse = null,
                 annullertTidspunkt = null,
                 lopenummer = 1,
@@ -65,6 +65,7 @@ class TilsagnRepositoryTest : FunSpec({
                     organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
                     slettet = ArrangorFixtures.underenhet1.slettetDato != null,
                 ),
+                beregning = Prismodell.TilsagnBeregning.Fri(123),
             )
         }
 

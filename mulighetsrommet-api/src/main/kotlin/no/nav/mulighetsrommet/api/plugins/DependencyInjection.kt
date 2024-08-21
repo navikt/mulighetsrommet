@@ -45,12 +45,12 @@ import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.env.NaisEnv
 import no.nav.mulighetsrommet.kafka.KafkaConsumerOrchestrator
 import no.nav.mulighetsrommet.kafka.KafkaConsumerRepositoryImpl
-import no.nav.mulighetsrommet.kafka.consumers.TiltaksgjennomforingTopicConsumer
-import no.nav.mulighetsrommet.kafka.consumers.amt.AmtDeltakerV1TopicConsumer
-import no.nav.mulighetsrommet.kafka.consumers.amt.AmtVirksomheterV1TopicConsumer
-import no.nav.mulighetsrommet.kafka.producers.ArenaMigreringTiltaksgjennomforingKafkaProducer
-import no.nav.mulighetsrommet.kafka.producers.TiltaksgjennomforingKafkaProducer
-import no.nav.mulighetsrommet.kafka.producers.TiltakstypeKafkaProducer
+import no.nav.mulighetsrommet.kafka.consumers.SisteTiltaksgjennomforingerV1KafkaConsumer
+import no.nav.mulighetsrommet.kafka.consumers.amt.AmtDeltakerV1KafkaConsumer
+import no.nav.mulighetsrommet.kafka.consumers.amt.AmtVirksomheterV1KafkaConsumer
+import no.nav.mulighetsrommet.kafka.producers.ArenaMigreringTiltaksgjennomforingerV1KafkaProducer
+import no.nav.mulighetsrommet.kafka.producers.SisteTiltaksgjennomforingerV1KafkaProducer
+import no.nav.mulighetsrommet.kafka.producers.SisteTiltakstyperV2KafkaProducer
 import no.nav.mulighetsrommet.metrics.Metrikker
 import no.nav.mulighetsrommet.notifications.NotificationRepository
 import no.nav.mulighetsrommet.notifications.NotificationService
@@ -118,13 +118,13 @@ private fun kafka(appConfig: AppConfig) = module {
         .build()
 
     single {
-        ArenaMigreringTiltaksgjennomforingKafkaProducer(
+        ArenaMigreringTiltaksgjennomforingerV1KafkaProducer(
             producerClient,
             config.producers.arenaMigreringTiltaksgjennomforinger,
         )
     }
-    single { TiltaksgjennomforingKafkaProducer(producerClient, config.producers.tiltaksgjennomforinger) }
-    single { TiltakstypeKafkaProducer(producerClient, config.producers.tiltakstyper) }
+    single { SisteTiltaksgjennomforingerV1KafkaProducer(producerClient, config.producers.tiltaksgjennomforinger) }
+    single { SisteTiltakstyperV2KafkaProducer(producerClient, config.producers.tiltakstyper) }
 
     val properties = when (NaisEnv.current()) {
         NaisEnv.Local -> KafkaPropertiesBuilder.consumerBuilder()
@@ -139,15 +139,15 @@ private fun kafka(appConfig: AppConfig) = module {
 
     single {
         val consumers = listOf(
-            TiltaksgjennomforingTopicConsumer(
+            SisteTiltaksgjennomforingerV1KafkaConsumer(
                 config = config.consumers.tiltaksgjennomforingerV1,
                 tiltakstyper = get(),
                 arenaAdapterClient = get(),
-                arenaMigreringTiltaksgjennomforingKafkaProducer = get(),
+                arenaMigreringTiltaksgjennomforingProducer = get(),
                 tiltaksgjennomforingRepository = get(),
             ),
-            AmtDeltakerV1TopicConsumer(config = config.consumers.amtDeltakerV1, deltakere = get()),
-            AmtVirksomheterV1TopicConsumer(
+            AmtDeltakerV1KafkaConsumer(config = config.consumers.amtDeltakerV1, deltakere = get()),
+            AmtVirksomheterV1KafkaConsumer(
                 config = config.consumers.amtVirksomheterV1,
                 arrangorRepository = get(),
                 brregClient = get(),

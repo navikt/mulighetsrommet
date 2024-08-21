@@ -47,6 +47,7 @@ spec:
         cascadingDelete: true
     sqlInstances:
       - type: POSTGRES_16
+        tier: db-f1-micro
         databases:
           - name: mulighetsrommet-api-db
             envVarPrefix: DB

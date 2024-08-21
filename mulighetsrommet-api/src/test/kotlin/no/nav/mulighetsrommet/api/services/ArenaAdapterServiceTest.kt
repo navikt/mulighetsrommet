@@ -21,8 +21,11 @@ import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.*
-import no.nav.mulighetsrommet.domain.dto.*
-import no.nav.mulighetsrommet.kafka.producers.TiltaksgjennomforingKafkaProducer
+import no.nav.mulighetsrommet.domain.dto.AvbruttAarsak
+import no.nav.mulighetsrommet.domain.dto.Avtaletype
+import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus
+import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingV1Dto
+import no.nav.mulighetsrommet.kafka.producers.SisteTiltaksgjennomforingerV1KafkaProducer
 import no.nav.mulighetsrommet.notifications.NotificationService
 import no.nav.mulighetsrommet.notifications.NotificationType
 import no.nav.mulighetsrommet.notifications.ScheduledNotification
@@ -255,7 +258,7 @@ class ArenaAdapterServiceTest :
             }
 
             test("should not publish egen regi-tiltak to kafka") {
-                val tiltaksgjennomforingKafkaProducer = mockk<TiltaksgjennomforingKafkaProducer>(relaxed = true)
+                val tiltaksgjennomforingKafkaProducer = mockk<SisteTiltaksgjennomforingerV1KafkaProducer>(relaxed = true)
                 val service = createArenaAdapterService(
                     database.db,
                     tiltaksgjennomforingKafkaProducer = tiltaksgjennomforingKafkaProducer,
@@ -345,7 +348,7 @@ class ArenaAdapterServiceTest :
             }
 
             test("should not retract from kafka if tiltak did not exist") {
-                val tiltaksgjennomforingKafkaProducer = mockk<TiltaksgjennomforingKafkaProducer>(relaxed = true)
+                val tiltaksgjennomforingKafkaProducer = mockk<SisteTiltaksgjennomforingerV1KafkaProducer>(relaxed = true)
                 val service = createArenaAdapterService(
                     database.db,
                     tiltaksgjennomforingKafkaProducer = tiltaksgjennomforingKafkaProducer,
@@ -357,7 +360,7 @@ class ArenaAdapterServiceTest :
             }
 
             test("should publish and retract gruppetiltak from kafka topic") {
-                val tiltaksgjennomforingKafkaProducer = mockk<TiltaksgjennomforingKafkaProducer>(relaxed = true)
+                val tiltaksgjennomforingKafkaProducer = mockk<SisteTiltaksgjennomforingerV1KafkaProducer>(relaxed = true)
                 val service = createArenaAdapterService(
                     database.db,
                     tiltaksgjennomforingKafkaProducer = tiltaksgjennomforingKafkaProducer,
@@ -384,7 +387,7 @@ class ArenaAdapterServiceTest :
             }
 
             test("should only publish once for duplicated upserts") {
-                val tiltaksgjennomforingKafkaProducer = mockk<TiltaksgjennomforingKafkaProducer>(relaxed = true)
+                val tiltaksgjennomforingKafkaProducer = mockk<SisteTiltaksgjennomforingerV1KafkaProducer>(relaxed = true)
                 val service = createArenaAdapterService(
                     database.db,
                     tiltaksgjennomforingKafkaProducer = tiltaksgjennomforingKafkaProducer,
@@ -593,7 +596,7 @@ class ArenaAdapterServiceTest :
             }
 
             test("should keep references to existing avtale when avtale is managed in Mulighetsrommet") {
-                val tiltaksgjennomforingKafkaProducer = mockk<TiltaksgjennomforingKafkaProducer>(relaxed = true)
+                val tiltaksgjennomforingKafkaProducer = mockk<SisteTiltaksgjennomforingerV1KafkaProducer>(relaxed = true)
                 val service = createArenaAdapterService(
                     database.db,
                     tiltaksgjennomforingKafkaProducer = tiltaksgjennomforingKafkaProducer,
@@ -783,7 +786,7 @@ class ArenaAdapterServiceTest :
 
 private fun createArenaAdapterService(
     db: Database,
-    tiltaksgjennomforingKafkaProducer: TiltaksgjennomforingKafkaProducer = mockk(relaxed = true),
+    tiltaksgjennomforingKafkaProducer: SisteTiltaksgjennomforingerV1KafkaProducer = mockk(relaxed = true),
     sanityTiltakService: SanityTiltakService = mockk(relaxed = true),
     notificationService: NotificationService = mockk(relaxed = true),
     migrerteTiltakstyper: List<Tiltakskode> = listOf(),
