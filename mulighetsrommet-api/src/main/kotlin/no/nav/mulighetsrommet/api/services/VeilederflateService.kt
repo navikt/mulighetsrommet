@@ -30,11 +30,12 @@ class VeilederflateService(
         .recordStats()
         .build()
 
-    private val sanityTiltaksgjennomforingerCache: Cache<String, List<SanityTiltaksgjennomforing>> = Caffeine.newBuilder()
-        .expireAfterWrite(5, TimeUnit.MINUTES)
-        .maximumSize(10_000)
-        .recordStats()
-        .build()
+    private val sanityTiltaksgjennomforingerCache: Cache<String, List<SanityTiltaksgjennomforing>> =
+        Caffeine.newBuilder()
+            .expireAfterWrite(5, TimeUnit.MINUTES)
+            .maximumSize(10_000)
+            .recordStats()
+            .build()
 
     fun hentInnsatsgrupper(): List<VeilederflateInnsatsgruppe> {
         // TODO: benytt verdi for GRADERT_VARIG_TILPASSET_INNSATS når ny 14a-løsning er lansert nasjonalt
@@ -156,12 +157,12 @@ class VeilederflateService(
         return sanityGjennomforinger
             .filter { tiltakstypeIds.isNullOrEmpty() || tiltakstypeIds.contains(it.tiltakstype._id) }
             .filter { it.tiltakstype.innsatsgrupper != null && it.tiltakstype.innsatsgrupper.contains(innsatsgruppe) }
-            .map { toVeilederTiltaksgjennomforing(it, enheter) }
-            .filter {
-                if (it.enheter.isNullOrEmpty()) {
-                    it.fylke in fylker
+            .map { toVeilederTiltaksgjennomforing(it) }
+            .filter { gjennomforing ->
+                if (gjennomforing.enheter.isNullOrEmpty()) {
+                    gjennomforing.fylke in fylker
                 } else {
-                    it.enheter.any { enhet -> enhet in enheter }
+                    gjennomforing.enheter.any { enhet -> enhet in enheter }
                 }
             }
     }
@@ -237,11 +238,11 @@ class VeilederflateService(
                 val sanityTiltakstype = hentTiltakstyper()
                     .find { it.sanityId == tiltakstype?.sanityId.toString() }
                     ?: throw NotFoundException("Fant ikke tiltakstype for gjennomføring med id: '$id'")
-                toVeilederTiltaksgjennomforing(gjennomforing, sanityTiltakstype, enheter)
+                toVeilederTiltaksgjennomforing(gjennomforing, sanityTiltakstype)
             }
             ?: run {
                 val gjennomforing = getSanityTiltaksgjennomforing(id, sanityPerspective)
-                toVeilederTiltaksgjennomforing(gjennomforing, enheter)
+                toVeilederTiltaksgjennomforing(gjennomforing)
             }
     }
 
@@ -314,14 +315,12 @@ class VeilederflateService(
 
     private fun toVeilederTiltaksgjennomforing(
         sanityGjennomforing: SanityTiltaksgjennomforing,
-        enheter: List<String>,
     ): VeilederflateTiltaksgjennomforing {
         val tiltakstypeFraSanity =
             tiltakstypeService.getBySanityId(UUID.fromString(sanityGjennomforing.tiltakstype._id))
 
         return sanityGjennomforing.run {
             val kontaktpersoner = kontaktpersoner
-                ?.filter { it.enheter.any { enhet -> enhet in enheter } }
                 ?.mapNotNull { it.navKontaktperson }
                 ?.map {
                     VeilederflateKontaktinfoTiltaksansvarlig(
@@ -375,7 +374,6 @@ class VeilederflateService(
     private fun toVeilederTiltaksgjennomforing(
         apiGjennomforing: TiltaksgjennomforingAdminDto,
         veilederflateTiltakstype: VeilederflateTiltakstype,
-        enheter: List<String>,
     ): VeilederflateTiltaksgjennomforing {
         val arrangor = VeilederflateArrangor(
             arrangorId = apiGjennomforing.arrangor.id,
@@ -392,7 +390,15 @@ class VeilederflateService(
             },
         )
 
-        val kontaktpersoner = utledKontaktpersonerForEnhet(apiGjennomforing, enheter)
+        val kontaktpersoner = apiGjennomforing.kontaktpersoner.map {
+            VeilederflateKontaktinfoTiltaksansvarlig(
+                navn = it.navn,
+                telefonnummer = it.mobilnummer,
+                enhet = navEnhetService.hentEnhet(it.hovedenhet),
+                epost = it.epost,
+                beskrivelse = it.beskrivelse,
+            )
+        }
 
         return apiGjennomforing.run {
             VeilederflateTiltaksgjennomforing(
@@ -425,23 +431,6 @@ class VeilederflateService(
                 personvernBekreftet = personvernBekreftet,
             )
         }
-    }
-
-    private fun utledKontaktpersonerForEnhet(
-        tiltaksgjennomforingAdminDto: TiltaksgjennomforingAdminDto,
-        enheter: List<String>,
-    ): List<VeilederflateKontaktinfoTiltaksansvarlig> {
-        return tiltaksgjennomforingAdminDto.kontaktpersoner
-            .filter { enheter.isEmpty() || it.navEnheter.isEmpty() || it.navEnheter.any { enhet -> enhet in enheter } }
-            .map {
-                VeilederflateKontaktinfoTiltaksansvarlig(
-                    navn = it.navn,
-                    telefonnummer = it.mobilnummer,
-                    enhet = navEnhetService.hentEnhet(it.hovedenhet),
-                    epost = it.epost,
-                    beskrivelse = it.beskrivelse,
-                )
-            }
     }
 
     suspend fun hentOppskrifterForTiltakstype(
