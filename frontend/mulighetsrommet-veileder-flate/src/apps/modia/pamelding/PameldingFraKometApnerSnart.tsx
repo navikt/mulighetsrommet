@@ -20,7 +20,10 @@ export function PameldingFraKometApnerSnart({ tiltaksgjennomforing }: Props) {
   }
 
   return (
-    <GuidePanel className={styles.overwritten_poster} illustration={<TegnestiftIkon />}>
+    <GuidePanel
+      className={styles.overwritten_poster}
+      illustration={<TegnestiftIkon aria-label="Tegnestifikon" />}
+    >
       <VStack gap="3">
         <Heading level="4" size="small" className={styles.text_center}>
           Ny påmeldingsløsning i Modia kommer snart

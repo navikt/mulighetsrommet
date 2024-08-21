@@ -40,7 +40,10 @@ export function PersonvernContainer({ tiltaksgjennomforing }: Props) {
 
   return (
     <>
-      <GuidePanel illustration={<PersonvernIkon />} aria-label="Personvern">
+      <GuidePanel
+        illustration={<PersonvernIkon aria-label="Ikon som illustrerer personvern" />}
+        aria-label="Personvern"
+      >
         <VStack gap="5">
           <Heading level="4" size="small">
             Personvern og databehandling
@@ -63,7 +66,7 @@ export function PersonvernContainer({ tiltaksgjennomforing }: Props) {
       >
         <ModalHeader>
           <VStack gap="5">
-            <PersonvernIkon />
+            <PersonvernIkon aria-label="Ikon som illustrerer personvern" />
             <Heading level="2" size="medium">
               {tiltaksgjennomforing.navn}
             </Heading>

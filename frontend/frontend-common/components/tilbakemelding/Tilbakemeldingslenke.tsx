@@ -7,7 +7,7 @@ interface Props {
   tekst: string;
 }
 
-export function TilbakemeldingLenke({ url, tekst }: Props) {
+export function TilbakemeldingsLenke({ url, tekst }: Props) {
   return (
     <GuidePanel>
       <Heading level="2" size="xsmall">
@@ -15,7 +15,7 @@ export function TilbakemeldingLenke({ url, tekst }: Props) {
       </Heading>
       <BodyShort spacing>Har du innspill til innholdet?</BodyShort>
       <Link target="_blank" rel="noopener noreferrer" href={url}>
-        {tekst} <ExternalLinkIcon />
+        {tekst} <ExternalLinkIcon aria-label="Åpnes i ny fane-ikon" />
       </Link>
     </GuidePanel>
   );
