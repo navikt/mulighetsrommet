@@ -1,10 +1,9 @@
 import { useTiltakshistorikkForBruker } from "@/api/queries/useTiltakshistorikkForBruker";
 import { PortenLink } from "@/components/PortenLink";
-import { formaterDato } from "@/utils/Utils";
 import { ExternalLinkIcon } from "@navikt/aksel-icons";
-import { Alert, BodyShort, Detail, HStack, Heading, Loader, VStack } from "@navikt/ds-react";
+import { Alert, BodyShort, Loader } from "@navikt/ds-react";
+import { DeltakelseKort } from "./DeltakelseKort";
 import styles from "./HistorikkForBrukerModal.module.scss";
-import { StatusBadge } from "./Statusbadge";
 
 export function HistorikkForBrukerModalInnhold() {
   const { data: historikk, isPending, isError } = useTiltakshistorikkForBruker();
@@ -31,28 +30,7 @@ export function HistorikkForBrukerModalInnhold() {
         {historiske.map((historikk) => {
           return (
             <li key={historikk.id} className={styles.historikk_for_bruker_listeelement}>
-              <VStack>
-                <HStack gap="10">{<small>{historikk.tiltakstypeNavn.toUpperCase()}</small>}</HStack>
-                <Heading size="small" level="4">
-                  {historikk.tittel}
-                </Heading>
-                <HStack align={"end"} gap="5">
-                  <StatusBadge status={historikk.status} />
-                  {historikk.status.aarsak && (
-                    <Detail>{`Årsak: ${historikk.status.aarsak}`}</Detail>
-                  )}
-                  {historikk.periode ? (
-                    <BodyShort size="small">
-                      {historikk.periode.startdato && !historikk.periode.sluttdato
-                        ? `Oppstartsdato ${formaterDato(historikk.periode.startdato)}`
-                        : [historikk.periode.startdato, historikk.periode.sluttdato]
-                            .filter(Boolean)
-                            .map((dato) => dato && formaterDato(dato))
-                            .join(" - ")}
-                    </BodyShort>
-                  ) : null}
-                </HStack>
-              </VStack>
+              <DeltakelseKort size="small" deltakelse={historikk} />
             </li>
           );
         })}

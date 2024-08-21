@@ -7,9 +7,10 @@ import styles from "./DeltakelseKort.module.scss";
 
 interface Props {
   deltakelse: DeltakerKort;
+  size?: "small" | "medium" | "large";
 }
 
-export function DeltakelseKort({ deltakelse }: Props) {
+export function DeltakelseKort({ deltakelse, size = "medium" }: Props) {
   const { id, eierskap } = deltakelse;
 
   const deltakelseRoute = resolveModiaRoute({
@@ -19,7 +20,7 @@ export function DeltakelseKort({ deltakelse }: Props) {
 
   if (eierskap === "ARENA") {
     return (
-      <Box background="bg-default" padding="5">
+      <Box background="bg-default" padding={size === "small" ? "2" : size === "medium" ? "5" : "8"}>
         <Innhold deltakelse={deltakelse} />
       </Box>
     );
@@ -28,7 +29,7 @@ export function DeltakelseKort({ deltakelse }: Props) {
   return (
     <Box
       background="bg-default"
-      padding="5"
+      padding={size === "small" ? "2" : size === "medium" ? "5" : "8"}
       className={classNames(styles.panel, {
         [styles.utkast]: deltakelse?.status.type === DeltakerStatusType.UTKAST_TIL_PAMELDING,
         [styles.kladd]: deltakelse?.status.type === DeltakerStatusType.KLADD,
