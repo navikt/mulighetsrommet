@@ -134,7 +134,7 @@ class TiltakshistorikkService(
             AmtDeltakerStatus.Aarsak.FERDIG -> "Ferdig"
             AmtDeltakerStatus.Aarsak.FEILREGISTRERT -> "Feilregistrert"
             AmtDeltakerStatus.Aarsak.OPPFYLLER_IKKE_KRAVENE -> "Oppfyller ikke kravene"
-            null -> "Ukjent årsak"
+            null -> null
         }
     }
 
