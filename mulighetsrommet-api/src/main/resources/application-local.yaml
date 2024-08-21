@@ -96,8 +96,8 @@ app:
     scope: default
 
   tiltakshistorikk:
-    #url: http://0.0.0.0:8070 #mot tiltakshistorikk lokalt
-    url: http://0.0.0.0:8090  #Wiremock
+    # url: http://0.0.0.0:8070 # Mot tiltakshistorikk lokalt
+    url: http://0.0.0.0:8090  # Wiremock
     scope: mr-tiltakshistorikk
 
   veilarbvedtaksstotteConfig:

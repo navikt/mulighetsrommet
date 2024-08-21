@@ -1,6 +1,6 @@
-import { BodyShort, HStack, Heading, LinkPanel, Tag, VStack } from "@navikt/ds-react";
-import classNames from "classnames";
 import { DeltakerKort, DeltakerStatus, DeltakerStatusType } from "@mr/api-client";
+import { BodyShort, Box, Button, HStack, Heading, Tag, VStack } from "@navikt/ds-react";
+import classNames from "classnames";
 import { formaterDato } from "../../../utils/Utils";
 import { ModiaRoute, resolveModiaRoute } from "../ModiaRoute";
 import styles from "./DeltakelseKort.module.scss";
@@ -10,55 +10,71 @@ interface Props {
 }
 
 export function DeltakelseKort({ deltakelse }: Props) {
-  const { tiltakstype, deltakerId, tittel, innsoktDato } = deltakelse;
+  const { id, eierskap } = deltakelse;
 
   const deltakelseRoute = resolveModiaRoute({
     route: ModiaRoute.ARBEIDSMARKEDSTILTAK_DELTAKELSE,
-    deltakerId: deltakerId!,
+    deltakerId: id!,
   });
 
+  if (eierskap === "ARENA") {
+    return (
+      <Box background="bg-default" padding="5">
+        <Innhold deltakelse={deltakelse} />
+      </Box>
+    );
+  }
+
   return (
-    <LinkPanel
-      as="button"
-      onClick={deltakelseRoute.navigate}
+    <Box
+      background="bg-default"
+      padding="5"
       className={classNames(styles.panel, {
         [styles.utkast]: deltakelse?.status.type === DeltakerStatusType.UTKAST_TIL_PAMELDING,
         [styles.kladd]: deltakelse?.status.type === DeltakerStatusType.KLADD,
       })}
     >
-      <VStack gap="2">
-        <HStack gap="10">
-          {tiltakstype?.navn ? <small>{tiltakstype?.navn.toUpperCase()}</small> : null}
-          {innsoktDato ? <small>Søkt inn: {formaterDato(innsoktDato)}</small> : null}
-        </HStack>
-        {tittel ? (
-          <Heading size="medium" level="4">
-            {tittel}
-          </Heading>
+      <HStack justify={"space-between"} align={"center"}>
+        <Innhold deltakelse={deltakelse} />
+        <Button onClick={deltakelseRoute.navigate} size="small">
+          Gå til deltakelse
+        </Button>
+      </HStack>
+    </Box>
+  );
+}
+
+function Innhold({ deltakelse }: { deltakelse: DeltakerKort }) {
+  const { tiltakstypeNavn, status, periode, tittel, innsoktDato } = deltakelse;
+  return (
+    <VStack gap="2">
+      <HStack gap="10">
+        {tiltakstypeNavn ? <small>{tiltakstypeNavn.toUpperCase()}</small> : null}
+        {innsoktDato ? <small>Søkt inn: {formaterDato(innsoktDato)}</small> : null}
+      </HStack>
+      {tittel ? (
+        <Heading size="medium" level="4">
+          {tittel}
+        </Heading>
+      ) : null}
+      <HStack align={"end"} gap="5">
+        {status ? <Status status={status} /> : null}
+        {status.aarsak ? <BodyShort size="small">Årsak: {status.aarsak}</BodyShort> : null}
+        {periode?.startdato ? (
+          <BodyShort size="small">
+            {periode?.startdato && !periode?.sluttdato
+              ? `Oppstartsdato ${formaterDato(periode?.startdato)}`
+              : [periode?.startdato, periode?.sluttdato]
+                  .filter(Boolean)
+                  .map((dato) => dato && formaterDato(dato))
+                  .join(" - ")}
+          </BodyShort>
         ) : null}
-        <HStack align={"end"} gap="5">
-          {deltakelse?.status ? <Status status={deltakelse.status} /> : null}
-          {deltakelse.status.aarsak ? (
-            <BodyShort size="small">Årsak: {deltakelse.status.aarsak}</BodyShort>
-          ) : null}
-          {deltakelse.periode?.startdato ? (
-            <BodyShort size="small">
-              {deltakelse.periode?.startdato && !deltakelse.periode?.sluttdato
-                ? `Oppstartsdato ${formaterDato(deltakelse.periode.startdato)}`
-                : [deltakelse.periode.startdato, deltakelse.periode.sluttdato]
-                    .filter(Boolean)
-                    .map((dato) => dato && formaterDato(dato))
-                    .join(" - ")}
-            </BodyShort>
-          ) : null}
-          {deltakelse.sistEndretDato ? (
-            <BodyShort size="small">
-              Sist endret: {formaterDato(deltakelse.sistEndretDato)}
-            </BodyShort>
-          ) : null}
-        </HStack>
-      </VStack>
-    </LinkPanel>
+        {deltakelse.sistEndretDato ? (
+          <BodyShort size="small">Sist endret: {formaterDato(deltakelse.sistEndretDato)}</BodyShort>
+        ) : null}
+      </HStack>
+    </VStack>
   );
 }
 

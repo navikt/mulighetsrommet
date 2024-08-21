@@ -6,7 +6,80 @@
   "response": {
     "status": 200,
     "jsonBody": {
-      "historikk": []
+      "historikk": [
+        {
+          "norskIdent": "12345678901",
+          "startDato": "2023-01-01",
+          "sluttDato": "2023-12-31",
+          "id": "550e8400-e29b-41d4-a716-446655440000",
+          "status": {
+            "type": "DELTAR",
+            "visningstekst": "Deltar",
+            "aarsak": null,
+            "opprettetDato": "2023-01-01T00:00:00"
+          },
+          "gjennomforing": {
+            "id": "550e8400-e29b-41d4-a716-446655440001",
+            "navn": "Jobbklubb",
+            "tiltakskode": "JOBBKLUBB"
+          },
+          "arrangor": {
+            "organisasjonsnummer": "123456789"
+          },
+          "opphav": "TEAM_KOMET",
+          "type":"GruppetiltakDeltakelse"
+        },
+        {
+          "norskIdent": "12345678901",
+          "startDato": "2023-01-01",
+          "sluttDato": "2023-12-31",
+          "id": "cac3b5bf-a10c-4dfa-a392-6866d0ce1efa",
+          "status": {
+            "type": "HAR_SLUTTET",
+            "visningstekst": "Har sluttet",
+            "aarsak": "FATT_JOBB",
+            "opprettetDato": "2023-01-01T00:00:00"
+          },
+          "gjennomforing": {
+            "id": "550e8400-e29b-41d4-a716-446655440001",
+            "navn": "Arbeidsforberende trening",
+            "tiltakskode": "ARBEIDSFORBEREDENDE_TRENING"
+          },
+          "arrangor": {
+            "organisasjonsnummer": "123456789"
+          },
+          "opphav": "TEAM_KOMET",
+          "type":"GruppetiltakDeltakelse"
+        },
+        {
+          "norskIdent": "12345678901",
+          "startDato": "2023-01-01",
+          "sluttDato": "2023-12-31",
+          "id": "26b793f8-8f4a-4b79-bae9-b7769fdba52e",
+          "arenaTiltakskode": "ARBFORB",
+          "status": "TAKKET_NEI_TIL_TILBUD",
+          "beskrivelse": "Arbeidsforberende trening hos Bedrift AS",
+          "arrangor": {
+            "organisasjonsnummer": "987654321"
+          },
+          "opphav": "ARENA",
+          "type":"ArenaDeltakelse"
+        },
+        {
+          "norskIdent": "12345678901",
+          "startDato": "2021-01-01",
+          "sluttDato": "2022-12-31",
+          "id": "550e8400-e29b-41d4-a716-446655440004",
+          "arenaTiltakskode": "MENTOR",
+          "status": "FULLFORT",
+          "beskrivelse": "Mentor hos Joblearn AS",
+          "arrangor": {
+            "organisasjonsnummer": "987654321"
+          },
+          "opphav": "ARENA",
+          "type":"ArenaDeltakelse"
+        }
+      ]
     },
     "headers": {
       "Content-Type": "application/json"

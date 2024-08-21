@@ -992,10 +992,9 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/TiltakshistorikkAdminDto"
+                $ref: "#/components/schemas/DeltakelserResponse"
 
+  # TODO - Remove this endpoint when historikk is working
   /api/v1/intern/bruker/komet-deltakelser:
     post:
       tags:
@@ -2911,27 +2910,33 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/DeltakerKort"
-        historikk:
+        historiske:
           type: array
           items:
             $ref: "#/components/schemas/DeltakerKort"
       required:
         - aktive
-        - historikk
+        - historiske
 
     DeltakerKort:
       type: object
       properties:
-        deltakerId:
+        id:
           type: string
           format: uuid
-        deltakerlisteId:
+        tiltaksgjennomforingId:
           type: string
           format: uuid
+          nullable: true
+        eierskap:
+          type: string
+          enum:
+            - ARENA
+            - KOMET
         tittel:
           type: string
-        tiltakstype:
-          $ref: "#/components/schemas/Gruppetiltak"
+        tiltakstypeNavn:
+          type: string
         status:
           $ref: "#/components/schemas/DeltakerStatus"
         innsoktDato:
@@ -2950,11 +2955,14 @@ components:
               type: string
               nullable: true
           nullable: true
+        arrangorNavn:
+          type: string
+          nullable: true
       required:
-        - deltakerId
-        - deltakerlisteId
+        - id
+        - eierskap
         - tittel
-        - tiltakstype
+        - tiltakstypeNavn
         - status
 
     DeltakerStatusType:
@@ -2973,6 +2981,18 @@ components:
         - AVBRUTT
         - FULLFORT
         - FEILREGISTRERT
+        - AVSLAG
+        - TAKKET_NEI_TIL_TILBUD
+        - TILBUD
+        - TAKKET_JA_TIL_TILBUD
+        - INFORMASJONSMOTE
+        - AKTUELL
+        - GJENNOMFORES
+        - DELTAKELSE_AVBRUTT
+        - GJENNOMFORING_AVBRUTT
+        - GJENNOMFORING_AVLYST
+        - IKKE_MOTT
+        - PABEGYNT_REGISTRERING
 
     DeltakerStatus:
       type: object

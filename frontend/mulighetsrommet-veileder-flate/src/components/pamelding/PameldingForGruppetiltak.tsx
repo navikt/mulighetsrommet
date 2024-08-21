@@ -36,7 +36,7 @@ export function PameldingForGruppetiltak({
   ] as const;
 
   const aktivDeltakelse = aktive.find(
-    (a) => a.deltakerlisteId === gjennomforingId && aktiveStatuser.includes(a.status.type),
+    (a) => a?.tiltaksgjennomforingId === gjennomforingId && aktiveStatuser.includes(a.status.type),
   );
 
   const skalVisePameldingslenke =
@@ -54,7 +54,7 @@ export function PameldingForGruppetiltak({
   if (aktivDeltakelse) {
     vedtakRoute = resolveModiaRoute({
       route: ModiaRoute.ARBEIDSMARKEDSTILTAK_DELTAKELSE,
-      deltakerId: aktivDeltakelse.deltakerId,
+      deltakerId: aktivDeltakelse.id,
     });
   }
 

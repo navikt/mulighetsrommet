@@ -30,11 +30,27 @@
             "navn": "Oppfølging",
             "tiltakskode": "INDOPPFAG"
           },
-          "deltakerId": "cac3b5bf-a10c-4dfa-a392-6866d0ce1efa",
+          "deltakerId": "cac3b5bf-a10c-4dfa-a392-6866d0ce1ef6",
           "deltakerlisteId": "2d2e986b-0844-446a-85ec-95b3c32d9533",
           "status": {
             "type": "AVBRUTT_UTKAST",
             "visningstekst": "Avbrutt utkast"
+          },
+          "sistEndretDato": "2024-03-07",
+          "innsoktDato": "2024-03-02"
+        },
+        {
+          "tittel": "Avklaring hos Joblearn AS",
+          "tiltakstype": {
+            "navn": "Avklaring",
+            "tiltakskode": "AVKLARAG"
+          },
+          "deltakerId": "cac3b5bf-a10c-4dfa-a392-6866d0ce1efa",
+          "deltakerlisteId": "2d2e986b-0844-446a-85ec-95b3c32d9533",
+          "status": {
+            "type": "HAR_SLUTTET",
+            "visningstekst": "Har sluttet",
+            "aarsak": "Har fått jobb"
           },
           "sistEndretDato": "2024-03-07",
           "innsoktDato": "2024-03-02"
