@@ -36,7 +36,7 @@ export function PameldingForGruppetiltak({
   ] as const;
 
   const aktivDeltakelse = aktive.find(
-    (a) => a?.deltakerId === gjennomforingId && aktiveStatuser.includes(a.status.type),
+    (a) => a?.deltakerlisteId === gjennomforingId && aktiveStatuser.includes(a.status.type),
   );
 
   const skalVisePameldingslenke =
