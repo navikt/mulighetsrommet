@@ -994,7 +994,6 @@ paths:
               schema:
                 $ref: "#/components/schemas/DeltakelserResponse"
 
-  # TODO - Remove this endpoint when historikk is working
   /api/v1/intern/bruker/komet-deltakelser:
     post:
       tags:
@@ -1012,7 +1011,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/DeltakelserResponse"
+                $ref: "#/components/schemas/DeltakelserResponseFraKomet"
 
   /api/v1/intern/ansatt:
     get:
@@ -2936,6 +2935,21 @@ components:
         - aktive
         - historiske
 
+    DeltakelserResponseFraKomet:
+      type: object
+      properties:
+        aktive:
+          type: array
+          items:
+            $ref: "#/components/schemas/DeltakelseFraKomet"
+        historikk:
+          type: array
+          items:
+            $ref: "#/components/schemas/DeltakelseFraKomet"
+      required:
+        - aktive
+        - historikk
+
     DeltakerKort:
       type: object
       properties:
@@ -2979,6 +2993,50 @@ components:
       required:
         - id
         - eierskap
+        - tittel
+        - tiltakstypeNavn
+        - status
+
+    DeltakelseFraKomet:
+      type: object
+      properties:
+        deltakerId:
+          type: string
+          format: uuid
+        deltakerlisteId:
+          type: string
+          format: uuid
+          nullable: true
+        tittel:
+          type: string
+        tiltakstype:
+          type: object
+          properties:
+            navn:
+              type: string
+            tiltakskode:
+              $ref: "#/components/schemas/Tiltakskode"
+        status:
+          $ref: "#/components/schemas/DeltakerStatus"
+        innsoktDato:
+          type: string
+          nullable: true
+        sistEndretDato:
+          type: string
+          nullable: true
+        periode:
+          type: object
+          properties:
+            startdato:
+              type: string
+              nullable: true
+            sluttdato:
+              type: string
+              nullable: true
+          nullable: true
+      required:
+        - deltakerId
+        - deltakerlisteId
         - tittel
         - tiltakstypeNavn
         - status
