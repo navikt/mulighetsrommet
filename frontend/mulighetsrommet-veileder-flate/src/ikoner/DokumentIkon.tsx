@@ -7,7 +7,6 @@ export function DokumentIkon() {
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       role="img"
-      xlinkTitle="Dokumentikon"
     >
       <title>Dokument</title>
       <path

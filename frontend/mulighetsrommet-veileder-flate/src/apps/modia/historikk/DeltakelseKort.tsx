@@ -85,6 +85,7 @@ interface StatusProps {
 function Status({ status }: StatusProps) {
   const { visningstekst } = status;
   switch (status.type) {
+    case DeltakerStatusType.GJENNOMFORES:
     case DeltakerStatusType.DELTAR:
       return (
         <Tag size="small" variant="success" className={styles.deltarStatus}>
@@ -95,6 +96,7 @@ function Status({ status }: StatusProps) {
     case DeltakerStatusType.AVBRUTT_UTKAST:
     case DeltakerStatusType.AVBRUTT:
     case DeltakerStatusType.FEILREGISTRERT:
+    case DeltakerStatusType.AVSLAG:
       return (
         <Tag size="small" variant="neutral">
           {visningstekst}
@@ -126,6 +128,12 @@ function Status({ status }: StatusProps) {
     case DeltakerStatusType.VENTELISTE:
       return (
         <Tag size="small" variant="warning">
+          {visningstekst}
+        </Tag>
+      );
+    default:
+      return (
+        <Tag size="small" variant="neutral">
           {visningstekst}
         </Tag>
       );

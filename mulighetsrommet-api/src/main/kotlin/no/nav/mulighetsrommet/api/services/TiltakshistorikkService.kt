@@ -109,7 +109,7 @@ class TiltakshistorikkService(
             status = DeltakerKort.DeltakerStatus(
                 type = DeltakerKort.DeltakerStatus.DeltakerStatusType.valueOf(status.type.name),
                 visningstekst = gruppetiltakStatusTilVisningstekst(status.type),
-                aarsak = null, // TODO Avklare hvordan vi kan hente årsak for gruppetiltak fra Komet som de ikke har overtatt fra Arena enda
+                aarsak = gruppetiltakAarsakTilTekst(status.aarsak),
             ),
             tittel = gjennomforing.navn,
             tiltakstypeNavn = tiltakstype.navn,
@@ -118,6 +118,24 @@ class TiltakshistorikkService(
             sistEndretDato = null,
             eierskap = DeltakerKort.Eierskap.ARENA,
         )
+    }
+
+    private fun gruppetiltakAarsakTilTekst(aarsak: AmtDeltakerStatus.Aarsak?): String? {
+        return when (aarsak) {
+            AmtDeltakerStatus.Aarsak.SYK -> "Syk"
+            AmtDeltakerStatus.Aarsak.FATT_JOBB -> "Fått jobb"
+            AmtDeltakerStatus.Aarsak.TRENGER_ANNEN_STOTTE -> "Trenger annen støtte"
+            AmtDeltakerStatus.Aarsak.FIKK_IKKE_PLASS -> "Fikk ikke plass"
+            AmtDeltakerStatus.Aarsak.IKKE_MOTT -> "Møter ikke opp"
+            AmtDeltakerStatus.Aarsak.ANNET -> "Annet"
+            AmtDeltakerStatus.Aarsak.AVLYST_KONTRAKT -> "Avlyst kontrakt"
+            AmtDeltakerStatus.Aarsak.UTDANNING -> "Utdanning"
+            AmtDeltakerStatus.Aarsak.SAMARBEIDET_MED_ARRANGOREN_ER_AVBRUTT -> "Samarbeidet med arrangøren er avbrutt"
+            AmtDeltakerStatus.Aarsak.FERDIG -> "Ferdig"
+            AmtDeltakerStatus.Aarsak.FEILREGISTRERT -> "Feilregistrert"
+            AmtDeltakerStatus.Aarsak.OPPFYLLER_IKKE_KRAVENE -> "Oppfyller ikke kravene"
+            null -> "Ukjent årsak"
+        }
     }
 
     private fun erAktiv(status: DeltakerKort.DeltakerStatus.DeltakerStatusType): Boolean {
