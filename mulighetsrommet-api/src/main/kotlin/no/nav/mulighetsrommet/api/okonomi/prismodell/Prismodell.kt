@@ -5,7 +5,9 @@ import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import java.lang.Math.addExact
 import java.time.LocalDate
-import kotlin.math.ceil
+import java.time.Month
+import kotlin.math.min
+import kotlin.math.round
 import kotlin.streams.asSequence
 
 object Prismodell {
@@ -25,10 +27,16 @@ object Prismodell {
             return periodeStart.datesUntil(periodeSlutt.plusDays(1))
                 .asSequence()
                 .groupBy { it.month }
-                .map { (_, datesInMonth) ->
-                    val fractionOfMonth = datesInMonth.size.toDouble() / datesInMonth[0].lengthOfMonth().toDouble()
+                .map { (month, datesInMonth) ->
+                    // Det er sånn Arena regner det ut... Altså at man tar som regel antall dager / 30, men mindre man
+                    // er i februar. Dvs at 30 dager i august gir 100 % selv om det er 31 dager i august
+                    val fractionOfMonth = if (month == Month.FEBRUARY) {
+                        datesInMonth.size.toDouble() / datesInMonth[0].lengthOfMonth()
+                    } else {
+                        min(datesInMonth.size.toDouble() / 30, 1.0)
+                    }
 
-                    val value = ceil(fractionOfMonth * sats * antallPlasser)
+                    val value = round(fractionOfMonth * sats * antallPlasser)
                     if (value > Int.MAX_VALUE) {
                         throw ArithmeticException()
                     }

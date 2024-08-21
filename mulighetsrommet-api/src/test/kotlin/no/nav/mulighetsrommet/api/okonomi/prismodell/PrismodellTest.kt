@@ -86,7 +86,7 @@ class PrismodellTest : FunSpec({
                 antallPlasser = 1,
                 periodeStart = LocalDate.of(2088, 1, 1),
                 periodeSlutt = LocalDate.of(2088, 1, 1),
-            ) shouldBe 1 // pga runding opp
+            ) shouldBe 0 // runder ned
         }
         test("overflow kaster exception") {
             // overflow i en delberegning for én måned
@@ -116,6 +116,22 @@ class PrismodellTest : FunSpec({
                 periodeStart = LocalDate.of(2024, 9, 15),
                 periodeSlutt = LocalDate.of(2024, 12, 31),
             ) shouldBe 1713384
+        }
+        test("Arena oppførsel: 30 dager i 31 dagers måned gir 100 %") {
+            Prismodell.AFT.beregnTilsagnBelop(
+                sats = 100,
+                antallPlasser = 1,
+                periodeStart = LocalDate.of(2024, 8, 1),
+                periodeSlutt = LocalDate.of(2024, 8, 30),
+            ) shouldBe 100
+        }
+        test("Arena oppførsel: 10 dager i 31 dagers måned gir 10/30 brøk") {
+            Prismodell.AFT.beregnTilsagnBelop(
+                sats = 100,
+                antallPlasser = 1,
+                periodeStart = LocalDate.of(2024, 8, 1),
+                periodeSlutt = LocalDate.of(2024, 8, 10),
+            ) shouldBe 33
         }
     }
 })
