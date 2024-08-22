@@ -148,6 +148,7 @@ class TiltakshistorikkService(
             DeltakerKort.DeltakerStatus.DeltakerStatusType.UTKAST_TIL_PAMELDING,
             DeltakerKort.DeltakerStatus.DeltakerStatusType.SOKT_INN,
             DeltakerKort.DeltakerStatus.DeltakerStatusType.TILBUD,
+            DeltakerKort.DeltakerStatus.DeltakerStatusType.KLADD,
             DeltakerKort.DeltakerStatus.DeltakerStatusType.GJENNOMFORES,
             DeltakerKort.DeltakerStatus.DeltakerStatusType.INFORMASJONSMOTE,
             DeltakerKort.DeltakerStatus.DeltakerStatusType.TAKKET_JA_TIL_TILBUD,
