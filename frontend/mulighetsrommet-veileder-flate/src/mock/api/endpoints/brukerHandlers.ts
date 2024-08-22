@@ -71,7 +71,7 @@ export const brukerHandlers = [
       if (found) {
         return HttpResponse.json(found);
       } else {
-        return HttpResponse.json(null, { status: 404 });
+        return HttpResponse.json(null, { status: 204 });
       }
     },
   ),

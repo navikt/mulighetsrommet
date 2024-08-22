@@ -83,7 +83,7 @@ fun Route.brukerRoutes() {
                     val aktivDeltakelse =
                         deltakelser.aktive.firstOrNull { it.deltakerlisteId == tiltaksgjennomforingId }
                     if (aktivDeltakelse == null) {
-                        call.respond(HttpStatusCode.NotFound)
+                        call.respond(HttpStatusCode.NoContent)
                     } else {
                         call.respond(aktivDeltakelse)
                     }

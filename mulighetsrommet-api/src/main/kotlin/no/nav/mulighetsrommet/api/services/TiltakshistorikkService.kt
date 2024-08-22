@@ -3,10 +3,7 @@ package no.nav.mulighetsrommet.api.services
 import arrow.core.Either
 import arrow.core.getOrElse
 import no.nav.mulighetsrommet.api.clients.AccessType
-import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
-import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerError
-import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakelserRequest
-import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakelserResponse
+import no.nav.mulighetsrommet.api.clients.amtDeltaker.*
 import no.nav.mulighetsrommet.api.clients.pdl.*
 import no.nav.mulighetsrommet.api.clients.tiltakshistorikk.TiltakshistorikkClient
 import no.nav.mulighetsrommet.api.domain.dto.DeltakerKort
@@ -57,6 +54,7 @@ class TiltakshistorikkService(
             val deltakelseFraKomet = kometDeltakelserFraApi.find { it.deltakerId == deltakelse.id }
             if (deltakelseFraKomet != null) {
                 deltakelse.copy(
+                    tittel = deltakelseFraKomet.tittel,
                     status = DeltakerKort.DeltakerStatus(
                         type = DeltakerKort.DeltakerStatus.DeltakerStatusType.valueOf(deltakelseFraKomet.status.type.name),
                         visningstekst = deltakelseFraKomet.status.visningstekst,
@@ -69,10 +67,14 @@ class TiltakshistorikkService(
             }
         }
 
+        val kladdFraKomet = kometDeltakelserFraApi
+            .filter { it.status.type == DeltakerStatus.DeltakerStatusType.KLADD }
+            .map { it.toDeltakerKort() }
+
         val (aktive, historiske) = blandetHistorikk.partition { erAktiv(it.status.type) }
 
         return mapOf(
-            "aktive" to aktive,
+            "aktive" to aktive + kladdFraKomet,
             "historiske" to historiske,
         )
     }
@@ -118,6 +120,28 @@ class TiltakshistorikkService(
             innsoktDato = null,
             sistEndretDato = null,
             eierskap = DeltakerKort.Eierskap.ARENA,
+        )
+    }
+
+    private fun DeltakelseFraKomet.toDeltakerKort(): DeltakerKort {
+        return DeltakerKort(
+            id = deltakerId,
+            tiltaksgjennomforingId = deltakerlisteId,
+            periode = DeltakerKort.Periode(
+                startdato = periode?.startdato,
+                sluttdato = periode?.sluttdato,
+            ),
+            eierskap = DeltakerKort.Eierskap.KOMET,
+            tittel = tittel,
+            tiltakstypeNavn = tiltakstype.navn,
+            status = DeltakerKort.DeltakerStatus(
+                type = DeltakerKort.DeltakerStatus.DeltakerStatusType.valueOf(status.type.name),
+                visningstekst = status.visningstekst,
+                aarsak = status.aarsak,
+            ),
+            innsoktDato = innsoktDato,
+            sistEndretDato = sistEndretDato,
+            arrangorNavn = null,
         )
     }
 

@@ -1012,7 +1012,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/DeltakelseFraKomet"
-        404:
+        204:
           description: Fant ikke deltakelse for gjennomføring
 
   /api/v1/intern/ansatt:
