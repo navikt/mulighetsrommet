@@ -270,13 +270,9 @@ function BransjeHelpText() {
       <List as="ul" size="small" title="Ingeniør- og ikt-fag">
         <List.Item>Andre naturvitenskapelige yrker</List.Item>
         <List.Item>Ikt-yrker</List.Item>
-        <List.Item>Sivilingeniører og sivilarkitekter</List.Item>
         <List.Item>Ingeniører og teknikere</List.Item>
       </List>
       <List as="ul" size="small" title="Helse, pleie og omsorg">
-        <List.Item>Medisinske yrker (leger, tannleger, veterinærer, farmasøyter)</List.Item>
-        <List.Item>Sykepleiere og jordmødre</List.Item>
-        <List.Item>Sosionomer og barnevernspedagoger</List.Item>
         <List.Item>Omsorgs- og pleiearbeidere</List.Item>
         <List.Item>Annet helsepersonell</List.Item>
         <List.Item>Mellomledere innen helse, pleie og omsorg</List.Item>
