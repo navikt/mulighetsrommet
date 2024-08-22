@@ -223,7 +223,7 @@ export function AvtaleAmoKategoriseringSkjema() {
           Gir mulighet for norskprøve
         </Checkbox>
       )}
-      {spesifisering && (
+      {spesifisering && spesifisering !== Spesifisering.FORBEREDENDE_OPPLAERING_FOR_VOKSNE && (
         <CheckboxGroup
           size="small"
           legend={tiltaktekster.innholdElementerLabel}
