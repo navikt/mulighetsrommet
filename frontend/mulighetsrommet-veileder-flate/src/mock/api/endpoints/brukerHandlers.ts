@@ -1,17 +1,19 @@
-import { http, HttpResponse, PathParams } from "msw";
+import { utkastFraKomet } from "@/mock/fixtures/mockKometUtkast";
 import {
   Bruker,
   BrukerVarsel,
   DeltakelserResponse,
+  DeltakerKort,
+  GetAktivDeltakelseForBrukerRequest,
   GetBrukerRequest,
   Innsatsgruppe,
   NavEnhetStatus,
   NavEnhetType,
   TiltakshistorikkAdminDto,
 } from "@mr/api-client";
+import { http, HttpResponse, PathParams } from "msw";
 import { historikk } from "../../fixtures/mockHistorikk";
 import { historikkFraKomet } from "../../fixtures/mockKometHistorikk";
-import { utkastFraKomet } from "@/mock/fixtures/mockKometUtkast";
 
 export const brukerHandlers = [
   http.post<PathParams, GetBrukerRequest, Bruker | string>(
@@ -59,8 +61,18 @@ export const brukerHandlers = [
     "*/api/v1/intern/bruker/historikk",
     () => HttpResponse.json({ historiske: historikkFraKomet, aktive: utkastFraKomet }),
   ),
-  http.post<PathParams, DeltakelserResponse, DeltakelserResponse>(
-    "*/api/v1/intern/bruker/komet-deltakelser",
-    () => HttpResponse.json({ historiske: historikkFraKomet, aktive: utkastFraKomet }),
+  http.post<PathParams, GetAktivDeltakelseForBrukerRequest, DeltakerKort>(
+    "*/api/v1/intern/bruker/deltakelse-for-gjennomforing",
+    async ({ request }) => {
+      const { tiltaksgjennomforingId } = await request.json();
+      const found = utkastFraKomet.find(
+        (utkast) => utkast.tiltaksgjennomforingId == tiltaksgjennomforingId,
+      );
+      if (found) {
+        return HttpResponse.json(found);
+      } else {
+        return HttpResponse.json(null, { status: 404 });
+      }
+    },
   ),
 ];

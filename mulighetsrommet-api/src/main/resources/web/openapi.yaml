@@ -994,24 +994,26 @@ paths:
               schema:
                 $ref: "#/components/schemas/DeltakelserResponse"
 
-  /api/v1/intern/bruker/komet-deltakelser:
+  /api/v1/intern/bruker/deltakelse-for-gjennomforing:
     post:
       tags:
         - Historikk
-      operationId: hentDeltakelserFraKomet
+      operationId: hentDeltakelseForGjennomforing
       requestBody:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/GetHistorikkForBrukerRequest"
+              $ref: "#/components/schemas/GetAktivDeltakelseForBrukerRequest"
         required: true
       responses:
         200:
-          description: Deltakelser fra komet
+          description: Aktiv deltakelse for gjennomføring
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/DeltakelserResponseFraKomet"
+                $ref: "#/components/schemas/DeltakelseFraKomet"
+        404:
+          description: Fant ikke deltakelse for gjennomføring
 
   /api/v1/intern/ansatt:
     get:
@@ -1905,6 +1907,18 @@ components:
           type: string
       required:
         - norskIdent
+
+    GetAktivDeltakelseForBrukerRequest:
+      type: object
+      properties:
+        norskIdent:
+          type: string
+        tiltaksgjennomforingId:
+          type: string
+          format: uuid
+      required:
+        - norskIdent
+        - tiltaksgjennomforingId
 
     GetDelMedBrukerRequest:
       type: object

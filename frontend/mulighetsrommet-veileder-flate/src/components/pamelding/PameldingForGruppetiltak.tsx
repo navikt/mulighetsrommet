@@ -1,4 +1,3 @@
-import { useDeltakelserFraKomet } from "@/api/queries/useDeltakelserFraKomet";
 import { useTiltakstyperSomStotterPameldingIModia } from "@/api/queries/useTiltakstyperSomSnartStotterPameldingIModia";
 import { ModiaRoute, resolveModiaRoute } from "@/apps/modia/ModiaRoute";
 import { useGetTiltaksgjennomforingIdFraUrl } from "@/hooks/useGetTiltaksgjennomforingIdFraUrl";
@@ -11,6 +10,7 @@ import {
 import { Alert, BodyShort, Button, Heading, VStack } from "@navikt/ds-react";
 import { ReactNode } from "react";
 import styles from "./PameldingForGruppetiltak.module.scss";
+import { useHentDeltakelseForGjennomforing } from "../../api/queries/useHentDeltakelseForGjennomforing";
 
 interface PameldingProps {
   kanOppretteAvtaleForTiltak: boolean;
@@ -23,21 +23,9 @@ export function PameldingForGruppetiltak({
   brukerHarRettPaaValgtTiltak,
   tiltaksgjennomforing,
 }: PameldingProps): ReactNode {
-  const { data: deltakerHistorikk } = useDeltakelserFraKomet();
+  const { data: aktivDeltakelse } = useHentDeltakelseForGjennomforing();
   const { data: stotterPameldingIModia = [] } = useTiltakstyperSomStotterPameldingIModia();
   const gjennomforingId = useGetTiltaksgjennomforingIdFraUrl();
-
-  const { aktive = [] } = deltakerHistorikk || {};
-  const aktiveStatuser: DeltakerStatusType[] = [
-    DeltakerStatusType.DELTAR,
-    DeltakerStatusType.VENTER_PA_OPPSTART,
-    DeltakerStatusType.UTKAST_TIL_PAMELDING,
-    DeltakerStatusType.KLADD,
-  ] as const;
-
-  const aktivDeltakelse = aktive.find(
-    (a) => a?.deltakerlisteId === gjennomforingId && aktiveStatuser.includes(a.status.type),
-  );
 
   const skalVisePameldingslenke =
     !kanOppretteAvtaleForTiltak &&
