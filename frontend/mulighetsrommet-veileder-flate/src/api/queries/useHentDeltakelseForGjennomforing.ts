@@ -14,6 +14,5 @@ export function useHentDeltakelseForGjennomforing() {
         requestBody: { norskIdent, tiltaksgjennomforingId },
       }),
     enabled: !!tiltaksgjennomforingId,
-    throwOnError: false,
   });
 }
