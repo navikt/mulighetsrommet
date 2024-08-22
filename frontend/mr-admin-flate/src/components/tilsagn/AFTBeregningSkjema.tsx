@@ -95,7 +95,7 @@ export function AFTBeregningSkjema({ defaultAntallPlasser }: Props) {
         size="small"
         label="Beløp"
         customInput={TextField}
-        value={beregning?.belop}
+        value={beregning?.belop ?? ""}
         valueIsNumericString
         thousandSeparator=" "
         suffix=" kr"
