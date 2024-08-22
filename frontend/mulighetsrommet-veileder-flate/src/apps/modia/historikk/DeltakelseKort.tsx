@@ -5,9 +5,11 @@ import { formaterDato } from "../../../utils/Utils";
 import { ModiaRoute, resolveModiaRoute } from "../ModiaRoute";
 import styles from "./DeltakelseKort.module.scss";
 
+type Size = "small" | "medium" | "large";
+
 interface Props {
   deltakelse: DeltakerKort;
-  size?: "small" | "medium" | "large";
+  size?: Size;
 }
 
 export function DeltakelseKort({ deltakelse, size = "medium" }: Props) {
@@ -20,12 +22,34 @@ export function DeltakelseKort({ deltakelse, size = "medium" }: Props) {
 
   if (eierskap === "ARENA") {
     return (
-      <Box background="bg-default" padding={size === "small" ? "2" : size === "medium" ? "5" : "8"}>
+      <Wrapper size={size} deltakelse={deltakelse}>
         <Innhold deltakelse={deltakelse} />
-      </Box>
+      </Wrapper>
     );
   }
 
+  return (
+    <Wrapper size={size} deltakelse={deltakelse}>
+      <HStack justify={"space-between"} align={"center"}>
+        <Innhold deltakelse={deltakelse} />
+        <Button onClick={deltakelseRoute.navigate} size="small">
+          Gå til deltakelse
+        </Button>
+      </HStack>
+    </Wrapper>
+  );
+}
+
+function Wrapper({
+  size,
+  children,
+  deltakelse,
+}: {
+  size: Size;
+  deltakelse: DeltakerKort;
+  onClick?: () => void;
+  children: React.ReactNode;
+}) {
   return (
     <Box
       background="bg-default"
@@ -35,12 +59,7 @@ export function DeltakelseKort({ deltakelse, size = "medium" }: Props) {
         [styles.kladd]: deltakelse?.status.type === DeltakerStatusType.KLADD,
       })}
     >
-      <HStack justify={"space-between"} align={"center"}>
-        <Innhold deltakelse={deltakelse} />
-        <Button onClick={deltakelseRoute.navigate} size="small">
-          Gå til deltakelse
-        </Button>
-      </HStack>
+      {children}
     </Box>
   );
 }
@@ -98,6 +117,7 @@ function Status({ status }: StatusProps) {
     case DeltakerStatusType.AVBRUTT:
     case DeltakerStatusType.FEILREGISTRERT:
     case DeltakerStatusType.AVSLAG:
+    case DeltakerStatusType.DELTAKELSE_AVBRUTT:
       return (
         <Tag size="small" variant="neutral">
           {visningstekst}
@@ -111,12 +131,16 @@ function Status({ status }: StatusProps) {
         </Tag>
       );
     case DeltakerStatusType.HAR_SLUTTET:
+    case DeltakerStatusType.IKKE_MOTT:
+    case DeltakerStatusType.TAKKET_NEI_TIL_TILBUD:
       return (
         <Tag size="small" variant="alt1">
           {visningstekst}
         </Tag>
       );
+    case DeltakerStatusType.AKTUELL:
     case DeltakerStatusType.VENTER_PA_OPPSTART:
+    case DeltakerStatusType.INFORMASJONSMOTE:
       return (
         <Tag size="small" variant="alt3">
           {visningstekst}
@@ -127,6 +151,9 @@ function Status({ status }: StatusProps) {
     case DeltakerStatusType.SOKT_INN:
     case DeltakerStatusType.VURDERES:
     case DeltakerStatusType.VENTELISTE:
+    case DeltakerStatusType.PABEGYNT_REGISTRERING:
+    case DeltakerStatusType.TAKKET_JA_TIL_TILBUD:
+    case DeltakerStatusType.TILBUD:
       return (
         <Tag size="small" variant="warning">
           {visningstekst}
