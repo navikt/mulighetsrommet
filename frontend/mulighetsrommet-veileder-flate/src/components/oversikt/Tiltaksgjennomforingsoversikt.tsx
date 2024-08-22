@@ -8,14 +8,14 @@ import {
   DelMedBruker,
   TiltaksgjennomforingOppstartstype,
   VeilederflateTiltaksgjennomforing,
-} from "mulighetsrommet-api-client";
+} from "@mr/api-client";
 import { ReactNode, useEffect } from "react";
 import { Sorteringsmeny } from "../sorteringmeny/Sorteringsmeny";
 import { Gjennomforingsrad } from "./Gjennomforingsrad";
 import styles from "./Tiltaksgjennomforingsoversikt.module.scss";
 import { sorteringAtom } from "../sorteringmeny/sorteringAtom";
-import { ToolbarContainer } from "mulighetsrommet-frontend-common/components/toolbar/toolbarContainer/ToolbarContainer";
-import { ToolbarMeny } from "mulighetsrommet-frontend-common/components/toolbar/toolbarMeny/ToolbarMeny";
+import { ToolbarContainer } from "@mr/frontend-common/components/toolbar/toolbarContainer/ToolbarContainer";
+import { ToolbarMeny } from "@mr/frontend-common/components/toolbar/toolbarMeny/ToolbarMeny";
 
 interface Props {
   tiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[];
@@ -55,10 +55,12 @@ export function Tiltaksgjennomforingsoversikt({
   const [sortValue, setSortValue] = useAtom(sorteringAtom);
 
   const { logEvent } = useLogEvent();
+
+  const { pageSize } = pageData;
   useEffect(() => {
     // Reset state
-    setPages({ ...pageData, page: 1 });
-  }, [filter, sortValue]);
+    setPages({ pageSize, page: 1 });
+  }, [filter, pageSize, setPages, sortValue]);
 
   const getSort = (
     sortValue: string,
@@ -92,11 +94,11 @@ export function Tiltaksgjennomforingsoversikt({
         if (orderBy === "oppstart") {
           const dateB =
             b.oppstart === TiltaksgjennomforingOppstartstype.FELLES
-              ? new Date(b.oppstartsdato!!) // Oppstartsdato skal alltid være tilgjengelig når oppstartstype er FELLES
+              ? new Date(b.oppstartsdato!) // Oppstartsdato skal alltid være tilgjengelig når oppstartstype er FELLES
               : new Date();
           const dateA =
             a.oppstart === TiltaksgjennomforingOppstartstype.FELLES
-              ? new Date(a.oppstartsdato!!) // Oppstartsdato skal alltid være tilgjengelig når oppstartstype er FELLES
+              ? new Date(a.oppstartsdato!) // Oppstartsdato skal alltid være tilgjengelig når oppstartstype er FELLES
               : new Date();
           return compare(dateA, dateB);
         } else if (orderBy === "tiltakstype") {
@@ -112,7 +114,7 @@ export function Tiltaksgjennomforingsoversikt({
     });
   };
 
-  const antallSize = [50, 100, 1000];
+  const antallSize = [10, 50, 100, 1000];
   const lopendeGjennomforinger = tiltaksgjennomforinger.filter(
     (gj) => gj.oppstart === TiltaksgjennomforingOppstartstype.LOPENDE,
   );

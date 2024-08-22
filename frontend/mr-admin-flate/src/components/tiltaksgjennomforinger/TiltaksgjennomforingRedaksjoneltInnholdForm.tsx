@@ -1,5 +1,5 @@
 import { Button, Heading, HStack, Modal, Search } from "@navikt/ds-react";
-import { Avtale, Tiltaksgjennomforing } from "mulighetsrommet-api-client";
+import { Avtale, Tiltaksgjennomforing } from "@mr/api-client";
 import { RedaksjoneltInnholdForm } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdForm";
 import { useFormContext } from "react-hook-form";
 import { InferredTiltaksgjennomforingSchema } from "@/components/redaksjoneltInnhold/TiltaksgjennomforingSchema";

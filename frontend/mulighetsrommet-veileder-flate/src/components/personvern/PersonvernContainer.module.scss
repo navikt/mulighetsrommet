@@ -7,3 +7,18 @@
   align-items: baseline;
   gap: 0.5rem;
 }
+
+.mb {
+  margin-bottom: 1rem;
+}
+
+.button_as_link {
+  text-align: left;
+  padding: 0;
+  margin: 0;
+  text-decoration: underline;
+
+  :global(.navds-label) {
+    font-weight: 400;
+  }
+}

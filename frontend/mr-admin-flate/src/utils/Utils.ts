@@ -7,7 +7,7 @@ import {
   InnholdElement,
   Kurstype,
   Spesifisering,
-} from "mulighetsrommet-api-client";
+} from "@mr/api-client";
 import { AvtaleFilter, TiltaksgjennomforingFilter } from "@/api/atoms";
 
 export function capitalize(text?: string): string {
@@ -108,7 +108,7 @@ export function valueOrDefault<T, X>(value: T | undefined, defaultValue: X): T |
   return value !== undefined ? value : defaultValue;
 }
 
-export function validEmail(email: string | undefined): Boolean {
+export function validEmail(email: string | undefined): boolean {
   if (!email) return false;
   return Boolean(
     email
@@ -309,16 +309,30 @@ export function kurstypeToString(kurstype: Kurstype): string {
 
 export function spesifiseringToString(spesifisering: Spesifisering): string {
   switch (spesifisering) {
-    case Spesifisering.SERVERING_OVERNATTING:
-      return "Servering/overnatting";
-    case Spesifisering.TRANSPORT:
-      return "Transport";
-    case Spesifisering.INDUSTRI:
-      return "Industri";
+    case Spesifisering.INGENIOR_OG_IKT_FAG:
+      return "Ingeniør- og IKT-fag";
+    case Spesifisering.HELSE_PLEIE_OG_OMSORG:
+      return "Helse, pleie og omsorg";
+    case Spesifisering.BARNE_OG_UNGDOMSARBEID:
+      return "Barne- og ungdomsarbeid";
+    case Spesifisering.KONTORARBEID:
+      return "Kontorarbeid";
+    case Spesifisering.BUTIKK_OG_SALGSARBEID:
+      return "Butikk- og salgsarbeid";
+    case Spesifisering.BYGG_OG_ANLEGG:
+      return "Bygg og anlegg";
+    case Spesifisering.INDUSTRIARBEID:
+      return "Industriarbeid";
+    case Spesifisering.REISELIV_SERVERING_OG_TRANSPORT:
+      return "Reiseliv, servering og transport";
+    case Spesifisering.SERVICEYRKER_OG_ANNET_ARBEID:
+      return "Serviceyrker og annet arbeid";
     case Spesifisering.ANDRE_BRANSJER:
       return "Andre bransjer";
     case Spesifisering.NORSKOPPLAERING:
       return "Norskopplæring";
+    case Spesifisering.FORBEREDENDE_OPPLAERING_FOR_VOKSNE:
+      return "FOV (Forberedende opplæring for voksne)";
     case Spesifisering.GRUNNLEGGENDE_FERDIGHETER:
       return "Grunnleggende ferdigheter";
   }

@@ -1,8 +1,4 @@
-import { InlineErrorBoundary } from "@/ErrorBoundary";
-import { useFeatureToggle } from "@/api/feature-toggles";
-import { useGetTiltaksgjennomforingIdFraUrl } from "@/hooks/useGetTiltaksgjennomforingIdFraUrl";
-import { useTiltaksgjennomforingById } from "@/api/queries/useTiltaksgjennomforingById";
-import { ModiaRoute, resolveModiaRoute } from "@/apps/modia/ModiaRoute";
+import { useRegioner } from "@/api/queries/useRegioner";
 import { DelMedBruker } from "@/apps/modia/delMedBruker/DelMedBruker";
 import { useHentBrukerdata } from "@/apps/modia/hooks/useHentBrukerdata";
 import { useHentDeltMedBrukerStatus } from "@/apps/modia/hooks/useHentDeltMedbrukerStatus";
@@ -14,22 +10,34 @@ import { OpprettAvtaleJoyride } from "@/components/joyride/OpprettAvtaleJoyride"
 import { PersonvernContainer } from "@/components/personvern/PersonvernContainer";
 import { LenkeListe } from "@/components/sidemeny/Lenker";
 import { Tilbakeknapp } from "@/components/tilbakeknapp/Tilbakeknapp";
+import { PORTEN_URL_FOR_TILBAKEMELDING } from "@/constants";
 import { paginationAtom } from "@/core/atoms";
 import { isProduction } from "@/environment";
 import { ViewTiltaksgjennomforingDetaljer } from "@/layouts/ViewTiltaksgjennomforingDetaljer";
-import { Chat2Icon } from "@navikt/aksel-icons";
-import { Alert, Button } from "@navikt/ds-react";
-import { useAtomValue } from "jotai";
 import {
   Bruker,
   NavVeileder,
   TiltakskodeArena,
   Toggles,
   VeilederflateTiltakstype,
-} from "mulighetsrommet-api-client";
-import { DetaljerSkeleton, useTitle } from "mulighetsrommet-frontend-common";
+} from "@mr/api-client";
+import {
+  DetaljerSkeleton,
+  InlineErrorBoundary,
+  TilbakemeldingsLenke,
+  useTitle,
+} from "@mr/frontend-common";
+import { gjennomforingIsAktiv } from "@mr/frontend-common/utils/utils";
+import { Chat2Icon } from "@navikt/aksel-icons";
+import { Alert, Button } from "@navikt/ds-react";
+import { useAtomValue } from "jotai";
+import { useFeatureToggle } from "../../../api/feature-toggles";
+import { useTiltaksgjennomforingById } from "../../../api/queries/useTiltaksgjennomforingById";
 import { PameldingForGruppetiltak } from "../../../components/pamelding/PameldingForGruppetiltak";
-import { gjennomforingIsAktiv } from "mulighetsrommet-frontend-common/utils/utils";
+import { VisibleWhenToggledOn } from "../../../components/toggles/VisibleWhenToggledOn";
+import { useGetTiltaksgjennomforingIdFraUrl } from "../../../hooks/useGetTiltaksgjennomforingIdFraUrl";
+import { ModiaRoute, resolveModiaRoute } from "../ModiaRoute";
+import { PameldingFraKometApnerSnart } from "../pamelding/PameldingFraKometApnerSnart";
 
 export function ModiaArbeidsmarkedstiltakDetaljer() {
   const { fnr } = useModiaContext();
@@ -54,6 +62,7 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
     isPending: isPendingTiltak,
     isError,
   } = useTiltaksgjennomforingById();
+  const regioner = useRegioner();
 
   useTitle(
     `Arbeidsmarkedstiltak - Detaljer ${
@@ -164,6 +173,10 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
               </Button>
             )}
 
+            {tiltaksgjennomforing && gjennomforingIsAktiv(tiltaksgjennomforing.status.status) ? (
+              <PameldingFraKometApnerSnart tiltaksgjennomforing={tiltaksgjennomforing} />
+            ) : null}
+
             {tiltaksgjennomforing && tiltaksgjennomforing?.personvernBekreftet ? (
               <InlineErrorBoundary>
                 <PersonvernContainer tiltaksgjennomforing={tiltaksgjennomforing} />
@@ -171,6 +184,15 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
             ) : null}
 
             <LenkeListe lenker={tiltaksgjennomforing.faneinnhold?.lenker} />
+            <VisibleWhenToggledOn toggle={Toggles.MULIGHETSROMMET_VEILEDERFLATE_VIS_TILBAKEMELDING}>
+              <TilbakemeldingsLenke
+                url={PORTEN_URL_FOR_TILBAKEMELDING(
+                  tiltaksgjennomforing.tiltaksnummer,
+                  regioner?.data?.find((r) => r.enhetsnummer === tiltaksgjennomforing?.fylke)?.navn,
+                )}
+                tekst="Gi tilbakemelding via Porten"
+              />
+            </VisibleWhenToggledOn>
           </>
         }
       />

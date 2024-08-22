@@ -9,11 +9,14 @@ import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakelserRequest
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakelserResponse
 import no.nav.mulighetsrommet.api.clients.pdl.*
 import no.nav.mulighetsrommet.api.clients.tiltakshistorikk.TiltakshistorikkClient
+import no.nav.mulighetsrommet.api.domain.dto.DeltakerKort
 import no.nav.mulighetsrommet.api.domain.dto.TiltakshistorikkAdminDto
 import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
+import no.nav.mulighetsrommet.domain.dbo.ArenaDeltakerStatus
 import no.nav.mulighetsrommet.domain.dto.NorskIdent
 import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
 import no.nav.mulighetsrommet.domain.dto.Tiltakshistorikk
+import no.nav.mulighetsrommet.domain.dto.amt.AmtDeltakerStatus
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -26,41 +29,171 @@ class TiltakshistorikkService(
 ) {
     val log: Logger = LoggerFactory.getLogger(javaClass)
 
-    suspend fun hentHistorikkForBrukerV2(norskIdent: NorskIdent, obo: AccessType.OBO): List<TiltakshistorikkAdminDto> {
+    suspend fun hentHistorikkForBruker(norskIdent: NorskIdent, obo: AccessType.OBO): Map<String, List<DeltakerKort>> {
         val identer = hentHistoriskeNorskIdent(norskIdent, obo)
 
         val response = tiltakshistorikkClient.historikk(identer)
 
-        return response.historikk.map {
+        val historikk: List<DeltakerKort> = response.historikk.map {
             when (it) {
                 is Tiltakshistorikk.ArenaDeltakelse -> {
-                    val tiltakstype = tiltakstypeRepository.getByArenaTiltakskode(it.arenaTiltakskode)
-                    TiltakshistorikkAdminDto.ArenaDeltakelse(
-                        id = it.id,
-                        startDato = it.startDato,
-                        sluttDato = it.sluttDato,
-                        status = it.status,
-                        tiltakNavn = it.beskrivelse,
-                        tiltakstypeNavn = tiltakstype.navn,
-                        arrangor = getArrangor(it.arrangor.organisasjonsnummer),
-                    )
+                    it.toDeltakerKort()
                 }
 
                 is Tiltakshistorikk.GruppetiltakDeltakelse -> {
-                    val tiltakstype = tiltakstypeRepository.getByTiltakskode(it.gjennomforing.tiltakskode)
-                    TiltakshistorikkAdminDto.GruppetiltakDeltakelse(
-                        id = it.id,
-                        startDato = it.startDato,
-                        sluttDato = it.sluttDato,
-                        status = it.status,
-                        tiltakNavn = it.gjennomforing.navn,
-                        tiltakstypeNavn = tiltakstype.navn,
-                        arrangor = getArrangor(it.arrangor.organisasjonsnummer),
-                    )
+                    it.toDeltakerKort()
                 }
 
                 is Tiltakshistorikk.ArbeidsgiverAvtale -> throw IllegalStateException("ArbeidsgiverAvtale er enda ikke støttet")
             }
+        }
+
+        val historikkFraKometsApi = hentDeltakelserFraKomet(norskIdent, obo).getOrNull()
+        val kometDeltakelserFraApi = historikkFraKometsApi?.aktive?.plus(historikkFraKometsApi.historikk)
+            ?: emptyList()
+
+        val blandetHistorikk: List<DeltakerKort> = historikk.map { deltakelse ->
+            val deltakelseFraKomet = kometDeltakelserFraApi.find { it.deltakerId == deltakelse.id }
+            if (deltakelseFraKomet != null) {
+                deltakelse.copy(
+                    status = DeltakerKort.DeltakerStatus(
+                        type = DeltakerKort.DeltakerStatus.DeltakerStatusType.valueOf(deltakelseFraKomet.status.type.name),
+                        visningstekst = deltakelseFraKomet.status.visningstekst,
+                        aarsak = deltakelseFraKomet.status.aarsak,
+                    ),
+                    eierskap = DeltakerKort.Eierskap.KOMET,
+                )
+            } else {
+                deltakelse
+            }
+        }
+
+        val (aktive, historiske) = blandetHistorikk.partition { erAktiv(it.status.type) }
+
+        return mapOf(
+            "aktive" to aktive,
+            "historiske" to historiske,
+        )
+    }
+
+    private suspend fun Tiltakshistorikk.ArenaDeltakelse.toDeltakerKort(): DeltakerKort {
+        val tiltakstype = tiltakstypeRepository.getByArenaTiltakskode(arenaTiltakskode)
+        return DeltakerKort(
+            id = id,
+            periode = DeltakerKort.Periode(
+                startdato = startDato,
+                sluttdato = sluttDato,
+            ),
+            status = DeltakerKort.DeltakerStatus(
+                type = DeltakerKort.DeltakerStatus.DeltakerStatusType.valueOf(status.name),
+                visningstekst = arenaStatusTilVisningstekst(status),
+                aarsak = null,
+            ),
+            tittel = beskrivelse,
+            tiltakstypeNavn = tiltakstype.navn,
+            arrangorNavn = getArrangor(arrangor.organisasjonsnummer).navn,
+            innsoktDato = null,
+            sistEndretDato = null,
+            eierskap = DeltakerKort.Eierskap.ARENA,
+        )
+    }
+
+    private suspend fun Tiltakshistorikk.GruppetiltakDeltakelse.toDeltakerKort(): DeltakerKort {
+        val tiltakstype = tiltakstypeRepository.getByTiltakskode(gjennomforing.tiltakskode)
+        return DeltakerKort(
+            id = id,
+            periode = DeltakerKort.Periode(
+                startdato = startDato,
+                sluttdato = sluttDato,
+            ),
+            status = DeltakerKort.DeltakerStatus(
+                type = DeltakerKort.DeltakerStatus.DeltakerStatusType.valueOf(status.type.name),
+                visningstekst = gruppetiltakStatusTilVisningstekst(status.type),
+                aarsak = gruppetiltakAarsakTilTekst(status.aarsak),
+            ),
+            tittel = gjennomforing.navn,
+            tiltakstypeNavn = tiltakstype.navn,
+            arrangorNavn = getArrangor(arrangor.organisasjonsnummer).navn,
+            innsoktDato = null,
+            sistEndretDato = null,
+            eierskap = DeltakerKort.Eierskap.ARENA,
+        )
+    }
+
+    private fun gruppetiltakAarsakTilTekst(aarsak: AmtDeltakerStatus.Aarsak?): String? {
+        return when (aarsak) {
+            AmtDeltakerStatus.Aarsak.SYK -> "Syk"
+            AmtDeltakerStatus.Aarsak.FATT_JOBB -> "Fått jobb"
+            AmtDeltakerStatus.Aarsak.TRENGER_ANNEN_STOTTE -> "Trenger annen støtte"
+            AmtDeltakerStatus.Aarsak.FIKK_IKKE_PLASS -> "Fikk ikke plass"
+            AmtDeltakerStatus.Aarsak.IKKE_MOTT -> "Møter ikke opp"
+            AmtDeltakerStatus.Aarsak.ANNET -> "Annet"
+            AmtDeltakerStatus.Aarsak.AVLYST_KONTRAKT -> "Avlyst kontrakt"
+            AmtDeltakerStatus.Aarsak.UTDANNING -> "Utdanning"
+            AmtDeltakerStatus.Aarsak.SAMARBEIDET_MED_ARRANGOREN_ER_AVBRUTT -> "Samarbeidet med arrangøren er avbrutt"
+            AmtDeltakerStatus.Aarsak.FERDIG -> "Ferdig"
+            AmtDeltakerStatus.Aarsak.FEILREGISTRERT -> "Feilregistrert"
+            AmtDeltakerStatus.Aarsak.OPPFYLLER_IKKE_KRAVENE -> "Oppfyller ikke kravene"
+            null -> null
+        }
+    }
+
+    private fun erAktiv(status: DeltakerKort.DeltakerStatus.DeltakerStatusType): Boolean {
+        return when (status) {
+            DeltakerKort.DeltakerStatus.DeltakerStatusType.AKTUELL,
+            DeltakerKort.DeltakerStatus.DeltakerStatusType.VENTER_PA_OPPSTART,
+            DeltakerKort.DeltakerStatus.DeltakerStatusType.DELTAR,
+            DeltakerKort.DeltakerStatus.DeltakerStatusType.VURDERES,
+            DeltakerKort.DeltakerStatus.DeltakerStatusType.VENTELISTE,
+            DeltakerKort.DeltakerStatus.DeltakerStatusType.UTKAST_TIL_PAMELDING,
+            DeltakerKort.DeltakerStatus.DeltakerStatusType.SOKT_INN,
+            DeltakerKort.DeltakerStatus.DeltakerStatusType.TILBUD,
+            DeltakerKort.DeltakerStatus.DeltakerStatusType.KLADD,
+            DeltakerKort.DeltakerStatus.DeltakerStatusType.GJENNOMFORES,
+            DeltakerKort.DeltakerStatus.DeltakerStatusType.INFORMASJONSMOTE,
+            DeltakerKort.DeltakerStatus.DeltakerStatusType.TAKKET_JA_TIL_TILBUD,
+            DeltakerKort.DeltakerStatus.DeltakerStatusType.PABEGYNT_REGISTRERING,
+            -> true
+
+            else -> false
+        }
+    }
+
+    private fun gruppetiltakStatusTilVisningstekst(status: AmtDeltakerStatus.Type): String {
+        return when (status) {
+            AmtDeltakerStatus.Type.FULLFORT -> "Fullført"
+            AmtDeltakerStatus.Type.VENTER_PA_OPPSTART -> "Venter på oppstart"
+            AmtDeltakerStatus.Type.DELTAR -> "Deltar"
+            AmtDeltakerStatus.Type.HAR_SLUTTET -> "Har sluttet"
+            AmtDeltakerStatus.Type.IKKE_AKTUELL -> "Ikke aktuell"
+            AmtDeltakerStatus.Type.FEILREGISTRERT -> "Feilregistrert"
+            AmtDeltakerStatus.Type.PABEGYNT_REGISTRERING -> "Påbegynt registrering"
+            AmtDeltakerStatus.Type.SOKT_INN -> "Søkt inn"
+            AmtDeltakerStatus.Type.VURDERES -> "Vurderes"
+            AmtDeltakerStatus.Type.VENTELISTE -> "Venteliste"
+            AmtDeltakerStatus.Type.AVBRUTT -> "Avbrutt"
+            AmtDeltakerStatus.Type.UTKAST_TIL_PAMELDING -> "Utkast til påmelding"
+            AmtDeltakerStatus.Type.AVBRUTT_UTKAST -> "Avbrutt utkast"
+        }
+    }
+
+    private fun arenaStatusTilVisningstekst(status: ArenaDeltakerStatus): String {
+        return when (status) {
+            ArenaDeltakerStatus.AVSLAG -> "Avslag"
+            ArenaDeltakerStatus.IKKE_AKTUELL -> "Ikke aktuell"
+            ArenaDeltakerStatus.TAKKET_NEI_TIL_TILBUD -> "Takket nei til tilbud"
+            ArenaDeltakerStatus.TILBUD -> "Tilbud"
+            ArenaDeltakerStatus.TAKKET_JA_TIL_TILBUD -> "Takket ja til tilbud"
+            ArenaDeltakerStatus.INFORMASJONSMOTE -> "Informasjonsmøte"
+            ArenaDeltakerStatus.AKTUELL -> "Aktuell"
+            ArenaDeltakerStatus.VENTELISTE -> "Venteliste"
+            ArenaDeltakerStatus.GJENNOMFORES -> "Gjennomføres"
+            ArenaDeltakerStatus.DELTAKELSE_AVBRUTT -> "Deltakelse avbrutt"
+            ArenaDeltakerStatus.GJENNOMFORING_AVBRUTT -> "Gjennomføring avbrutt"
+            ArenaDeltakerStatus.GJENNOMFORING_AVLYST -> "Gjennomføring avlyst"
+            ArenaDeltakerStatus.FULLFORT -> "Fullført"
+            ArenaDeltakerStatus.IKKE_MOTT -> "Ikke møtt"
+            ArenaDeltakerStatus.FEILREGISTRERT -> "Feilregistrert"
         }
     }
 

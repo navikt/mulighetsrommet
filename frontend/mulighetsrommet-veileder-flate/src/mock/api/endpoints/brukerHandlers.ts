@@ -8,13 +8,13 @@ import {
   NavEnhetStatus,
   NavEnhetType,
   TiltakshistorikkAdminDto,
-} from "mulighetsrommet-api-client";
+} from "@mr/api-client";
 import { historikk } from "../../fixtures/mockHistorikk";
 import { historikkFraKomet } from "../../fixtures/mockKometHistorikk";
 import { utkastFraKomet } from "@/mock/fixtures/mockKometUtkast";
 
 export const brukerHandlers = [
-  http.post<PathParams, GetBrukerRequest, Bruker | String>(
+  http.post<PathParams, GetBrukerRequest, Bruker | string>(
     "*/api/v1/intern/bruker",
     async ({ request }) => {
       const { norskIdent } = await request.json();
@@ -56,7 +56,11 @@ export const brukerHandlers = [
   ),
 
   http.post<PathParams, DeltakelserResponse, DeltakelserResponse>(
+    "*/api/v1/intern/bruker/historikk",
+    () => HttpResponse.json({ historiske: historikkFraKomet, aktive: utkastFraKomet }),
+  ),
+  http.post<PathParams, DeltakelserResponse, DeltakelserResponse>(
     "*/api/v1/intern/bruker/komet-deltakelser",
-    () => HttpResponse.json({ historikk: historikkFraKomet, aktive: utkastFraKomet }),
+    () => HttpResponse.json({ historiske: historikkFraKomet, aktive: utkastFraKomet }),
   ),
 ];

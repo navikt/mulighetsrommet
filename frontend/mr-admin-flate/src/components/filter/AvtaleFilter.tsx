@@ -12,8 +12,8 @@ import {
 } from "@/utils/filterUtils";
 import { Accordion, Search, Switch } from "@navikt/ds-react";
 import { useAtom, WritableAtom } from "jotai";
-import { ArrangorTil } from "mulighetsrommet-api-client";
-import { FilterAccordionHeader, FilterSkeleton } from "mulighetsrommet-frontend-common";
+import { ArrangorTil } from "@mr/api-client";
+import { FilterAccordionHeader, FilterSkeleton } from "@mr/frontend-common";
 import { logEvent } from "@/logging/amplitude";
 import { CheckboxList } from "./CheckboxList";
 

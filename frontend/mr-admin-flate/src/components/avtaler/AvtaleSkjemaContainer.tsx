@@ -13,7 +13,7 @@ import {
   NavAnsatt,
   NavEnhet,
   Tiltakstype,
-} from "mulighetsrommet-api-client";
+} from "@mr/api-client";
 import React from "react";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { v4 as uuidv4 } from "uuid";
@@ -25,7 +25,7 @@ import { AvtaleSkjemaDetaljer } from "./AvtaleSkjemaDetaljer";
 import { AvtaleSkjemaKnapperad } from "./AvtaleSkjemaKnapperad";
 import { AvtalePersonvernForm } from "./AvtalePersonvernForm";
 import { Laster } from "../laster/Laster";
-import { InlineErrorBoundary } from "mulighetsrommet-frontend-common";
+import { InlineErrorBoundary } from "@mr/frontend-common";
 import { RedaksjoneltInnholdBunnKnapperad } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdBunnKnapperad";
 import styles from "./AvtaleSkjemaContainer.module.scss";
 

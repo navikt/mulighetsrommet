@@ -1,5 +1,5 @@
-import { NavAnsatt } from "mulighetsrommet-api-client";
-import { SelectOption } from "mulighetsrommet-frontend-common/components/SokeSelect";
+import { NavAnsatt } from "@mr/api-client";
+import { SelectOption } from "@mr/frontend-common/components/SokeSelect";
 
 export function AdministratorOptions(
   ansatt?: NavAnsatt,

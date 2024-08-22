@@ -7,7 +7,7 @@ import {
   NavAnsatt,
   Tiltaksgjennomforing,
   TiltaksgjennomforingRequest,
-} from "mulighetsrommet-api-client";
+} from "@mr/api-client";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { v4 as uuidv4 } from "uuid";
 import { gjennomforingDetaljerTabAtom } from "@/api/atoms";
@@ -85,7 +85,7 @@ export function TiltaksgjennomforingSkjemaContainer({
         data.kontaktpersoner
           ?.filter((kontakt) => kontakt.navIdent !== null)
           ?.map((kontakt) => ({
-            navIdent: kontakt.navIdent!!,
+            navIdent: kontakt.navIdent!,
             navEnheter: kontakt.navEnheter,
             beskrivelse: kontakt.beskrivelse ?? null,
           })) || [],

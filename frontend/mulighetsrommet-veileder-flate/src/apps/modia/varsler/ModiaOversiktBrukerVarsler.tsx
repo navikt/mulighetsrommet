@@ -1,4 +1,4 @@
-import { Bruker } from "mulighetsrommet-api-client";
+import { Bruker } from "@mr/api-client";
 import { BrukerIkkeUnderOppfolgingVarsel } from "./BrukerIkkeUnderOppfolgingVarsel";
 import { BrukerUnderOppfolgingMenMangler14aVedtakVarsel } from "./BrukerUnderOppfolgingMenMangler14aVedtakVarsel";
 import { BrukersOppfolgingsenhetVarsel } from "./BrukersOppfolgingsenhetVarsel";

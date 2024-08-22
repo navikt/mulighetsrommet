@@ -8,7 +8,7 @@ import { AvbrytModalError } from "@/components/modal/AvbrytModalError";
 import { VarselModal } from "@/components/modal/VarselModal";
 import { avbrytAvtaleAarsakToString } from "@/utils/Utils";
 import { BodyShort, Button, Radio } from "@navikt/ds-react";
-import { AvbrytAvtaleAarsak, Avtale } from "mulighetsrommet-api-client";
+import { AvbrytAvtaleAarsak, Avtale } from "@mr/api-client";
 import { RefObject, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import z from "zod";

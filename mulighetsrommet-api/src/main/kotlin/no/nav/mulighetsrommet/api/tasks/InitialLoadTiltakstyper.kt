@@ -7,7 +7,7 @@ import kotlinx.coroutines.runBlocking
 import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.api.services.SanityTiltakService
 import no.nav.mulighetsrommet.database.Database
-import no.nav.mulighetsrommet.kafka.producers.TiltakstypeKafkaProducer
+import no.nav.mulighetsrommet.kafka.producers.SisteTiltakstyperV2KafkaProducer
 import org.slf4j.LoggerFactory
 import org.slf4j.MDC
 import java.time.Instant
@@ -16,7 +16,7 @@ import java.util.*
 class InitialLoadTiltakstyper(
     database: Database,
     private val tiltakstyper: TiltakstypeRepository,
-    private val tiltakstypeProducer: TiltakstypeKafkaProducer,
+    private val tiltakstypeProducer: SisteTiltakstyperV2KafkaProducer,
     private val sanityTiltakService: SanityTiltakService,
 ) {
 

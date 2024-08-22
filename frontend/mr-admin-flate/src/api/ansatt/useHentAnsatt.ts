@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { AnsattService, NavAnsatt } from "mulighetsrommet-api-client";
+import { AnsattService, NavAnsatt } from "@mr/api-client";
 import { QueryKeys } from "@/api/QueryKeys";
 
 export function useHentAnsatt() {

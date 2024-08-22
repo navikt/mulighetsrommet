@@ -65,7 +65,7 @@ export function VarselModal({
             variant="secondary"
             onClick={() => {
               handleClose();
-              secondaryButtonHandleAction && secondaryButtonHandleAction();
+              secondaryButtonHandleAction?.();
             }}
           >
             Nei, takk

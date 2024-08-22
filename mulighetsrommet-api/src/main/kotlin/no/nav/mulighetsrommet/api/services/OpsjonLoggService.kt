@@ -26,7 +26,7 @@ class OpsjonLoggService(
     private val logger = LoggerFactory.getLogger(javaClass)
     fun lagreOpsjonLoggEntry(entry: OpsjonLoggEntry) {
         val avtale = getAvtaleOrThrow(entry.avtaleId)
-        opsjonLoggValidator.validate(entry, avtale.opsjonsmodellData).map {
+        opsjonLoggValidator.validate(entry, avtale).map {
             logger.info("Lagrer opsjon og setter ny sluttdato for avtale med id: '${entry.avtaleId}'. Opsjonsdata: $entry")
             db.transaction { tx ->
                 if (entry.sluttdato != null) {
@@ -43,10 +43,9 @@ class OpsjonLoggService(
     fun delete(opsjonLoggEntryId: UUID, avtaleId: UUID, slettesAv: NavIdent) {
         val opsjoner = opsjonLoggRepository.getOpsjoner(avtaleId)
         val avtale = getAvtaleOrThrow(avtaleId)
-        validateAvtale(avtale)
 
         db.transaction { tx ->
-            logger.info("Fjerner opsjons med id: '$opsjonLoggEntryId' for avtale med id: '$avtaleId'")
+            logger.info("Fjerner opsjon med id: '$opsjonLoggEntryId' for avtale med id: '$avtaleId'")
             val forrigeSluttdato = kalkulerNySluttdato(opsjoner, avtale)
 
             forrigeSluttdato?.let {
@@ -59,13 +58,14 @@ class OpsjonLoggService(
     }
 
     private fun kalkulerNySluttdato(opsjoner: List<OpsjonLoggEntry>, avtale: AvtaleAdminDto): LocalDate? {
-        return if (opsjoner.size > 1) opsjoner[1].sluttdato else avtale.opprinneligSluttDato
-    }
+        val utlosteOpsjoner = opsjoner.filter { it.status == OpsjonLoggRequest.OpsjonsLoggStatus.OPSJON_UTLØST }
+            .sortedByDescending { it.forrigeSluttdato }
 
-    private fun validateAvtale(avtale: AvtaleAdminDto) {
-        if (avtale.opprinneligSluttDato == null) {
-            throw NotFoundException("Fant ingen opprinnelig sluttdato for avtale med id '${avtale.id}'")
+        if (utlosteOpsjoner.isNotEmpty()) {
+            return utlosteOpsjoner[0].forrigeSluttdato ?: avtale.sluttDato
         }
+
+        return avtale.sluttDato
     }
 
     private fun loggEndring(

@@ -1,10 +1,10 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { QueryKeys } from "../query-keys";
-import { VeilederTiltakService } from "mulighetsrommet-api-client";
+import { VeilederTiltakService } from "@mr/api-client";
 
 export function useInnsatsgrupper() {
   return useSuspenseQuery({
-    queryKey: QueryKeys.sanity.innsatsgrupper,
+    queryKey: QueryKeys.arbeidsmarkedstiltak.innsatsgrupper,
     queryFn: () => VeilederTiltakService.getInnsatsgrupper(),
   });
 }

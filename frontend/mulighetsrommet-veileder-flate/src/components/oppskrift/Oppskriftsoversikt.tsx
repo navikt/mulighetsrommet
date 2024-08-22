@@ -1,5 +1,5 @@
 import { Alert, Skeleton } from "@navikt/ds-react";
-import { Oppskrift, Toggles } from "mulighetsrommet-api-client";
+import { Oppskrift, Toggles } from "@mr/api-client";
 import { useFeatureToggle } from "@/api/feature-toggles";
 import { useOppskrifter } from "@/api/queries/useOppskrifter";
 import { formaterDato } from "@/utils/Utils";

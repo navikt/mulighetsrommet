@@ -1,5 +1,5 @@
-import { Alert, BodyShort, Button, Heading, HStack, Table } from "@navikt/ds-react";
-import { Avtale, OpsjonLoggRegistrert, OpsjonStatus } from "mulighetsrommet-api-client";
+import { Alert, BodyShort, Button, Heading, HStack, Table, VStack } from "@navikt/ds-react";
+import { Avtale, OpsjonLoggRegistrert, OpsjonStatus } from "@mr/api-client";
 import { useSlettOpsjon } from "../../../api/avtaler/useSlettOpsjon";
 import { formaterDato } from "../../../utils/Utils";
 import styles from "./OpsjonerRegistrert.module.scss";
@@ -14,14 +14,12 @@ export function OpsjonerRegistrert({ avtale, readOnly }: Props) {
   const mutation = useSlettOpsjon();
 
   function kanSletteOpsjon(opsjon: OpsjonLoggRegistrert): boolean {
-    const sisteUtlosteOpsjon = logg
-      .filter((log) => log.status === OpsjonStatus.OPSJON_UTLØST)
-      .at(-1);
+    const sisteUtlosteOpsjon = logg.at(-1);
 
     return opsjon.id === sisteUtlosteOpsjon?.id;
   }
 
-  function fjernSisteOpsjon(id: string) {
+  function fjernOpsjon(id: string) {
     mutation.mutate(
       { id, avtaleId: avtale.id },
       {
@@ -32,16 +30,21 @@ export function OpsjonerRegistrert({ avtale, readOnly }: Props) {
     );
   }
 
+  const opprinneligSluttDato = avtale.opsjonerRegistrert
+    .filter((o) => o.status === OpsjonStatus.OPSJON_UTLØST && !!o.forrigeSluttdato)
+    .sort(
+      (a, b) => new Date(a.forrigeSluttdato!).getTime() - new Date(b.forrigeSluttdato!).getTime(),
+    )
+    .at(0)?.forrigeSluttdato;
+
   return (
     <section className={styles.container}>
       <HStack justify={"space-between"} align={"center"}>
         <Heading level="4" size="xsmall">
           Opsjoner
         </Heading>
-        {avtale.opprinneligSluttDato && (
-          <BodyShort>
-            * Opprinnelig sluttdato: {formaterDato(avtale.opprinneligSluttDato)}
-          </BodyShort>
+        {opprinneligSluttDato && (
+          <BodyShort>* Opprinnelig sluttdato: {formaterDato(opprinneligSluttDato)}</BodyShort>
         )}
       </HStack>
       <hr className={styles.separator} />
@@ -58,12 +61,12 @@ export function OpsjonerRegistrert({ avtale, readOnly }: Props) {
             return (
               <Table.Row key={log.id}>
                 <Table.DataCell>{formaterDato(log.aktivertDato)}</Table.DataCell>
-                <Table.DataCell>{formaterDato(log.sluttDato)}</Table.DataCell>
+                <Table.DataCell>{formaterStatus(log)}</Table.DataCell>
                 <Table.DataCell>
                   {kanSletteOpsjon(log) && !readOnly ? (
                     <>
                       <Button
-                        onClick={() => fjernSisteOpsjon(log.id)}
+                        onClick={() => fjernOpsjon(log.id)}
                         size="small"
                         variant="primary"
                         type="button"
@@ -72,9 +75,14 @@ export function OpsjonerRegistrert({ avtale, readOnly }: Props) {
                         Fjern
                       </Button>
                       {mutation.error && (
-                        <Alert inline variant="error">
-                          Klarte ikke fjerne opsjonen
-                        </Alert>
+                        <VStack>
+                          <Alert inline variant="error">
+                            Klarte ikke fjerne opsjonen
+                          </Alert>
+                          <Button size="small" type="button" onClick={() => fjernOpsjon(log.id)}>
+                            Prøv igjen
+                          </Button>
+                        </VStack>
                       )}
                     </>
                   ) : null}
@@ -86,4 +94,16 @@ export function OpsjonerRegistrert({ avtale, readOnly }: Props) {
       </Table>
     </section>
   );
+}
+
+function formaterStatus(log: OpsjonLoggRegistrert): string {
+  if (log.sluttDato && log.status === OpsjonStatus.OPSJON_UTLØST) {
+    return formaterDato(log.sluttDato);
+  } else if (log.status === OpsjonStatus.SKAL_IKKE_UTLØSE_OPSJON) {
+    return "Avklart at opsjon ikke skal utløses";
+  } else if (log.status === OpsjonStatus.PÅGÅENDE_OPSJONSPROSESS) {
+    return "Opsjonsprosessen er pågående";
+  }
+
+  return "";
 }

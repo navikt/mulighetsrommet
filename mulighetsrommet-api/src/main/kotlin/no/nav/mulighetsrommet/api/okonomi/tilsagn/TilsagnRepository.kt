@@ -1,11 +1,14 @@
 package no.nav.mulighetsrommet.api.okonomi.tilsagn
 
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
+import no.nav.mulighetsrommet.api.okonomi.prismodell.Prismodell
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.dto.NavIdent
 import org.intellij.lang.annotations.Language
@@ -27,7 +30,7 @@ class TilsagnRepository(private val db: Database) {
                 kostnadssted,
                 opprettet_av,
                 arrangor_id,
-                belop,
+                beregning,
                 besluttet_av,
                 besluttet_tidspunkt,
                 besluttelse
@@ -39,7 +42,7 @@ class TilsagnRepository(private val db: Database) {
                 :kostnadssted,
                 :opprettet_av,
                 :arrangor_id::uuid,
-                :belop,
+                :beregning::jsonb,
                 :besluttet_av,
                 :besluttet_tidspunkt,
                 :besluttelse
@@ -51,7 +54,7 @@ class TilsagnRepository(private val db: Database) {
                 kostnadssted            = excluded.kostnadssted,
                 opprettet_av            = excluded.opprettet_av,
                 arrangor_id             = excluded.arrangor_id,
-                belop                   = excluded.belop,
+                beregning               = excluded.beregning,
                 besluttelse             = excluded.besluttelse,
                 besluttet_av            = excluded.besluttet_av,
                 besluttet_tidspunkt     = excluded.besluttet_tidspunkt
@@ -89,10 +92,6 @@ class TilsagnRepository(private val db: Database) {
             .map { it.toTilsagnDto() }
             .asList
             .let { db.run(it) }
-    }
-
-    fun setAnnullertTidspunkt(id: UUID, tidspunkt: LocalDateTime) = db.transaction {
-        setAnnullertTidspunkt(id, tidspunkt, it)
     }
 
     fun setAnnullertTidspunkt(id: UUID, tidspunkt: LocalDateTime, tx: Session): Int {
@@ -158,7 +157,7 @@ class TilsagnRepository(private val db: Database) {
         "kostnadssted" to kostnadssted,
         "opprettet_av" to opprettetAv.value,
         "arrangor_id" to arrangorId,
-        "belop" to belop,
+        "beregning" to Json.encodeToString(beregning),
         "besluttelse" to null,
         "besluttet_tidspunkt" to null,
         "besluttet_av" to null,
@@ -171,7 +170,6 @@ class TilsagnRepository(private val db: Database) {
             periodeSlutt = localDate("periode_slutt"),
             periodeStart = localDate("periode_start"),
             opprettetAv = NavIdent(string("opprettet_av")),
-            belop = int("belop"),
             besluttelse = stringOrNull("besluttelse")?.let {
                 TilsagnDto.Besluttelse(
                     navIdent = NavIdent(string("besluttet_av")),
@@ -194,6 +192,7 @@ class TilsagnRepository(private val db: Database) {
                 navn = string("arrangor_navn"),
                 slettet = boolean("arrangor_slettet"),
             ),
+            beregning = Json.decodeFromString<Prismodell.TilsagnBeregning>(string("beregning")),
         )
     }
 }

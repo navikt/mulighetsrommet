@@ -119,6 +119,8 @@ spec:
           namespace: amt
         - application: amt-deltaker
           namespace: amt
+        - application: veilarbdialog
+          namespace: dab
       external:
         - host: norg2.prod-fss-pub.nais.io
         - host: slack.com

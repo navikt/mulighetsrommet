@@ -4,13 +4,13 @@ import {
   isFilterReady,
   useArbeidsmarkedstiltakFilterValue,
 } from "@/hooks/useArbeidsmarkedstiltakFilter";
-import { NavEnhet, VeilederTiltakService } from "mulighetsrommet-api-client";
+import { NavEnhet, VeilederTiltakService } from "@mr/api-client";
 
 export function useVeilederTiltaksgjennomforinger() {
   const { isFilterReady, filter } = useGetArbeidsmarkedstiltakFilterAsQuery();
 
   return useQuery({
-    queryKey: QueryKeys.sanity.tiltaksgjennomforinger(filter),
+    queryKey: QueryKeys.arbeidsmarkedstiltak.tiltaksgjennomforinger(filter),
     queryFn: () => VeilederTiltakService.getVeilederTiltaksgjennomforinger(filter),
     enabled: isFilterReady,
   });
@@ -20,7 +20,7 @@ export function useNavTiltaksgjennomforinger({ preview }: { preview: boolean }) 
   const { isFilterReady, filter } = useGetArbeidsmarkedstiltakFilterAsQuery();
 
   return useQuery({
-    queryKey: QueryKeys.sanity.tiltaksgjennomforinger(filter),
+    queryKey: QueryKeys.arbeidsmarkedstiltak.tiltaksgjennomforinger({ ...filter, preview }),
     queryFn() {
       return preview
         ? VeilederTiltakService.getPreviewTiltaksgjennomforinger(filter)

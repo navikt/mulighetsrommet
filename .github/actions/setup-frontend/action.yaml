@@ -13,7 +13,9 @@ runs:
     - name: Cache Turborepo
       uses: actions/cache@v4
       with:
-        path: node_modules/.cache/turbo
+        path: |
+          .turbo
+          frontend/*/.turbo
         key: turborepo-${{ github.ref_name }}-${{ github.sha }}
         restore-keys: |
           turborepo-${{ github.ref_name }}-

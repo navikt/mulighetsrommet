@@ -1,7 +1,7 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { QueryKeys } from "../query-keys";
-import { JoyrideService, JoyrideType } from "mulighetsrommet-api-client";
+import { JoyrideService, JoyrideType } from "@mr/api-client";
 
 export function useJoyride(joyrideType: JoyrideType) {
   const query = useQuery({

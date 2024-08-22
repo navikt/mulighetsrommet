@@ -1,15 +1,13 @@
-import { useQuery } from "@tanstack/react-query";
 import { QueryKeys } from "@/api/query-keys";
 import { useModiaContext } from "@/apps/modia/hooks/useModiaContext";
-import { HistorikkService } from "mulighetsrommet-api-client";
+import { HistorikkService } from "@mr/api-client";
+import { useSuspenseQuery } from "@tanstack/react-query";
 
 export function useTiltakshistorikkForBruker() {
-  const { fnr } = useModiaContext();
+  const { fnr: norskIdent } = useModiaContext();
 
-  const requestBody = { norskIdent: fnr };
-
-  return useQuery({
-    queryKey: QueryKeys.BrukerHistorikk(fnr),
-    queryFn: () => HistorikkService.hentHistorikkForBrukerV2({ requestBody }),
+  return useSuspenseQuery({
+    queryKey: QueryKeys.BrukerHistorikk(norskIdent),
+    queryFn: () => HistorikkService.hentHistorikkForBruker({ requestBody: { norskIdent } }),
   });
 }

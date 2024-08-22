@@ -2,9 +2,9 @@ import React, { ForwardedRef, ReactNode } from "react";
 import { Controller } from "react-hook-form";
 import { MultiValue } from "react-select";
 import { MultiSelect } from "./MultiSelect";
-import { SelectOption } from "mulighetsrommet-frontend-common/components/SokeSelect";
+import { SelectOption } from "@mr/frontend-common/components/SokeSelect";
 import { HelpText } from "@navikt/ds-react";
-import { shallowEquals } from "mulighetsrommet-frontend-common";
+import { shallowEquals } from "@mr/frontend-common";
 
 export interface MultiSelectProps<T> {
   label: string;

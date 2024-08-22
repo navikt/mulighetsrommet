@@ -7,7 +7,7 @@ import {
   Tiltaksgjennomforing,
   TiltaksgjennomforingOppstartstype,
   Tiltakskode,
-} from "mulighetsrommet-api-client";
+} from "@mr/api-client";
 import { InferredTiltaksgjennomforingSchema } from "@/components/redaksjoneltInnhold/TiltaksgjennomforingSchema";
 import { DeepPartial } from "react-hook-form";
 

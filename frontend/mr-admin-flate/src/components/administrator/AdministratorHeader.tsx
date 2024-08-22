@@ -2,8 +2,8 @@ import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
 import { useFeatureToggle } from "@/api/features/useFeatureToggle";
 import { ExternalLinkIcon, MenuGridIcon } from "@navikt/aksel-icons";
 import { Dropdown, InternalHeader, Spacer } from "@navikt/ds-react";
-import { Toggles } from "mulighetsrommet-api-client";
-import { InlineErrorBoundary } from "mulighetsrommet-frontend-common";
+import { Toggles } from "@mr/api-client";
+import { InlineErrorBoundary } from "@mr/frontend-common";
 import { useRef } from "react";
 import { Link } from "react-router-dom";
 import {
@@ -95,13 +95,14 @@ export function AdministratorHeader() {
             </Dropdown.Menu.GroupedList.Item>
             <Dropdown.Menu.Divider />
             <Dropdown.Menu.GroupedList.Item
-              onClick={() => individuelleGjennomforingerLinkRef.current?.click()}
               as="span"
+              onClick={() => individuelleGjennomforingerLinkRef.current?.click()}
             >
               <Link
                 ref={individuelleGjennomforingerLinkRef}
                 to={SANITY_STUDIO_URL}
                 target="_blank"
+                onClick={(e) => e.stopPropagation()}
                 className={styles.menylenke}
               >
                 Individuelle tiltaksgjennomføringer <ExternalLinkIcon />
@@ -115,6 +116,7 @@ export function AdministratorHeader() {
                 ref={veilederflateLinkRef}
                 to={PREVIEW_ARBEIDSMARKEDSTILTAK_URL}
                 target="_blank"
+                onClick={(e) => e.stopPropagation()}
                 className={styles.menylenke}
               >
                 Veilederflate forhåndsvisning <ExternalLinkIcon />

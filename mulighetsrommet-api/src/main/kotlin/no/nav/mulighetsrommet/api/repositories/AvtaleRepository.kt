@@ -14,9 +14,9 @@ import no.nav.mulighetsrommet.api.domain.dto.ArrangorKontaktperson
 import no.nav.mulighetsrommet.api.domain.dto.AvtaleAdminDto
 import no.nav.mulighetsrommet.api.domain.dto.AvtaleNotificationDto
 import no.nav.mulighetsrommet.api.domain.dto.Kontorstruktur
+import no.nav.mulighetsrommet.api.responses.StatusResponseError
 import no.nav.mulighetsrommet.api.routes.v1.Opsjonsmodell
 import no.nav.mulighetsrommet.api.routes.v1.OpsjonsmodellData
-import no.nav.mulighetsrommet.api.routes.v1.responses.StatusResponseError
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.PaginatedResult
 import no.nav.mulighetsrommet.database.utils.Pagination
@@ -51,7 +51,6 @@ class AvtaleRepository(private val db: Database) {
                 arrangor_hovedenhet_id,
                 start_dato,
                 slutt_dato,
-                opprinnelig_sluttdato,
                 opsjon_maks_varighet,
                 avtaletype,
                 prisbetingelser,
@@ -72,7 +71,6 @@ class AvtaleRepository(private val db: Database) {
                 :arrangor_hovedenhet_id,
                 :start_dato,
                 :slutt_dato,
-                :opprinnelig_sluttdato,
                 :opsjonMaksVarighet,
                 :avtaletype::avtaletype,
                 :prisbetingelser,
@@ -486,7 +484,6 @@ class AvtaleRepository(private val db: Database) {
         "arrangor_hovedenhet_id" to arrangorId,
         "start_dato" to startDato,
         "slutt_dato" to sluttDato,
-        "opprinnelig_sluttdato" to sluttDato,
         "opsjonMaksVarighet" to opsjonMaksVarighet,
         "avtaletype" to avtaletype.name,
         "prisbetingelser" to prisbetingelser,
@@ -526,7 +523,6 @@ class AvtaleRepository(private val db: Database) {
     private fun Row.toAvtaleAdminDto(): AvtaleAdminDto {
         val startDato = localDate("start_dato")
         val sluttDato = localDateOrNull("slutt_dato")
-        val opprinneligSluttdato = localDateOrNull("opprinnelig_sluttdato")
         val personopplysninger = Json.decodeFromString<List<Personopplysning>>(string("personopplysninger"))
 
         val underenheter = stringOrNull("arrangor_underenheter")
@@ -570,7 +566,6 @@ class AvtaleRepository(private val db: Database) {
             websaknummer = stringOrNull("websaknummer")?.let { Websaknummer(it) },
             startDato = startDato,
             sluttDato = sluttDato,
-            opprinneligSluttDato = opprinneligSluttdato,
             opphav = ArenaMigrering.Opphav.valueOf(string("opphav")),
             avtaletype = Avtaletype.valueOf(string("avtaletype")),
             status = AvtaleStatus.fromString(string("status"), avbruttTidspunkt, avbruttAarsak),

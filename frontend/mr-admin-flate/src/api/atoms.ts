@@ -12,7 +12,7 @@ import {
   SorteringTiltaksgjennomforinger,
   SorteringTiltakstyper,
   TiltaksgjennomforingStatus,
-} from "mulighetsrommet-api-client";
+} from "@mr/api-client";
 import { z, ZodType } from "zod";
 
 type SetStateActionWithReset<Value> =
@@ -27,7 +27,7 @@ const safeZodParse = (zodSchema: ZodType, initialValue: unknown, str: string) =>
       return initialValue;
     }
     return result.data;
-  } catch (e) {
+  } catch {
     return initialValue;
   }
 };

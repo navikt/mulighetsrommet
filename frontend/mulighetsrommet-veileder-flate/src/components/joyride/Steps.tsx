@@ -18,7 +18,7 @@ export function useSteps(ready: boolean | null, initialSteps: MulighetsrommetSte
   const [steps, setSteps] = useState<MulighetsrommetStep[]>([]);
   useEffect(() => {
     setSteps(ready ? prepareSteps(initialSteps) : []);
-  }, [ready]);
+  }, [initialSteps, ready]);
 
   return {
     steps,

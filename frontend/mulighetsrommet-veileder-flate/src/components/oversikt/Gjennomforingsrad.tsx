@@ -4,15 +4,15 @@ import { ChevronRightIcon, PadlockLockedFillIcon } from "@navikt/aksel-icons";
 import { BodyShort, VStack } from "@navikt/ds-react";
 import classNames from "classnames";
 import { useAtomValue } from "jotai";
-import {
-  DelMedBruker,
-  TiltaksgjennomforingOppstartstype,
-  VeilederflateTiltaksgjennomforing,
-} from "mulighetsrommet-api-client";
-import { Lenke } from "mulighetsrommet-frontend-common/components/lenke/Lenke";
-import { kebabCase } from "mulighetsrommet-frontend-common/utils/TestUtils";
+import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
+import { kebabCase } from "@mr/frontend-common/utils/TestUtils";
 import styles from "./Gjennomforingsrad.module.scss";
 import { VisningsnavnForTiltak } from "./VisningsnavnForTiltak";
+import {
+  VeilederflateTiltaksgjennomforing,
+  DelMedBruker,
+  TiltaksgjennomforingOppstartstype,
+} from "@mr/api-client";
 
 interface Props {
   tiltaksgjennomforing: VeilederflateTiltaksgjennomforing;
@@ -34,9 +34,17 @@ export function Gjennomforingsrad({ tiltaksgjennomforing, index, delMedBruker }:
   const { id, sanityId, navn, arrangor, tiltakstype, oppstart, oppstartsdato, apentForInnsok } =
     tiltaksgjennomforing;
 
-  const datoSidenSistDelt = delMedBruker && formaterDato(new Date(delMedBruker.createdAt!!));
+  const datoSidenSistDelt = delMedBruker && formaterDato(new Date(delMedBruker.createdAt!));
   const paginationUrl = `#pagination=${encodeURIComponent(JSON.stringify({ ...pageData }))}`;
 
+  const formatertDeltMedBrukerDato = delMedBruker?.createdAt
+    ? new Date(delMedBruker.createdAt).toLocaleDateString("nb-NO", {
+        weekday: "long",
+        day: "numeric",
+        month: "numeric",
+        year: "numeric",
+      })
+    : "Dato mangler";
   return (
     <li
       className={classNames(styles.list_element, {
@@ -48,15 +56,7 @@ export function Gjennomforingsrad({ tiltaksgjennomforing, index, delMedBruker }:
       <Lenke to={`../tiltak/${id ?? sanityId}${paginationUrl}`}>
         {datoSidenSistDelt ? (
           <div className={styles.delt_med_bruker_rad}>
-            <BodyShort
-              title={`${new Date(delMedBruker?.createdAt!!).toLocaleDateString("nb-NO", {
-                weekday: "long",
-                day: "numeric",
-                month: "numeric",
-                year: "numeric",
-              })}`}
-              size="small"
-            >
+            <BodyShort title={formatertDeltMedBrukerDato} size="small">
               Delt med bruker {datoSidenSistDelt}
             </BodyShort>
           </div>

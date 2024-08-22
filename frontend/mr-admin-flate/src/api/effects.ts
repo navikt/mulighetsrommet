@@ -1,6 +1,6 @@
 import { UseMutationResult } from "@tanstack/react-query";
 import { useEffect } from "react";
-import { ApiError, ValidationErrorResponse } from "mulighetsrommet-api-client";
+import { ApiError, ValidationErrorResponse } from "@mr/api-client";
 
 export function useHandleApiUpsertResponse<Response, Request>(
   mutation: UseMutationResult<Response, ApiError, Request>,
@@ -8,16 +8,17 @@ export function useHandleApiUpsertResponse<Response, Request>(
   onValidationError: (response: ValidationErrorResponse) => void,
 ) {
   useEffect(() => {
-    if (mutation.isSuccess) {
-      onSuccess(mutation.data);
-    } else if (mutation.isError) {
-      if (isValidationError(mutation.error.body)) {
-        onValidationError(mutation.error.body);
+    const { isSuccess, data, isError, error } = mutation;
+    if (isSuccess) {
+      onSuccess(data);
+    } else if (isError) {
+      if (isValidationError(error.body)) {
+        onValidationError(error.body);
       } else {
         throw mutation.error;
       }
     }
-  }, [mutation.isSuccess, mutation.isError]);
+  }, [mutation, onSuccess, onValidationError]);
 }
 
 function isValidationError(body: unknown): body is ValidationErrorResponse {

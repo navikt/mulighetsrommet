@@ -44,6 +44,7 @@ spec:
   gcp:
     sqlInstances:
       - type: POSTGRES_16
+        tier: db-f1-micro
         databases:
           - name: mulighetsrommet-arena-adapter-db
             envVarPrefix: DB

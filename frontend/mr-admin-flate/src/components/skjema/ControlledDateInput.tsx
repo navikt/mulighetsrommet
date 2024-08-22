@@ -1,6 +1,6 @@
+import { DateInput } from "@/components/skjema/DateInput";
 import { forwardRef } from "react";
 import { Controller } from "react-hook-form";
-import { DateInput } from "@/components/skjema/DateInput";
 
 export interface Props {
   label: string;

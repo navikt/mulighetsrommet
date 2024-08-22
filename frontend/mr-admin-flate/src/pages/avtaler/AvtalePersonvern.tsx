@@ -3,7 +3,7 @@ import { useAvtale } from "@/api/avtaler/useAvtale";
 import { Laster } from "@/components/laster/Laster";
 import styles from "./AvtalePersonvern.module.scss";
 import { usePersonopplysninger } from "@/api/avtaler/usePersonopplysninger";
-import { PersonopplysningData } from "mulighetsrommet-api-client";
+import { PersonopplysningData } from "@mr/api-client";
 
 export function AvtalePersonvern() {
   const { data: avtale, isPending, error } = useAvtale();
@@ -64,7 +64,7 @@ function ListWithHelpText({
   hjelpetekst,
   children,
 }: {
-  hjelpetekst: String | null;
+  hjelpetekst: string | null;
   children: React.ReactNode;
 }) {
   return (

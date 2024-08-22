@@ -5,7 +5,7 @@ info:
   title: Mulighetsrommet API
 
 security:
-  - bearerAuth: [ ]
+  - bearerAuth: []
 
 paths:
   /api/v1/intern/bruker:
@@ -820,6 +820,21 @@ paths:
                 items:
                   type: string
 
+  /api/v1/intern/tiltakstyper/pameldingKommerSnartIModia:
+    get:
+      tags:
+        - Tiltakstyper
+      operationId: getTiltakstyperSomSnartHarPameldingIModia
+      responses:
+        200:
+          description: Liste over tiltak som snart støtter påmelding i Modia
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+
   /api/v1/intern/veileder/innsatsgrupper:
     get:
       tags:
@@ -960,35 +975,11 @@ paths:
               schema:
                 $ref: "#/components/schemas/VeilederflateTiltaksgjennomforing"
 
-  /api/v1/intern/dialog:
-    post:
-      tags:
-        - dialogen
-      operationId: delMedDialogen
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/DialogRequest"
-      responses:
-        200:
-          description: Dialog response
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/DialogResponse"
-        409:
-          description: "Sending av meldingen til Dialogen mislyktes"
-          content:
-            application/json:
-              schema:
-                type: string
-
-  /api/v2/intern/bruker/historikk:
+  /api/v1/intern/bruker/historikk:
     post:
       tags:
         - Historikk
-      operationId: hentHistorikkForBrukerV2
+      operationId: hentHistorikkForBruker
       requestBody:
         content:
           application/json:
@@ -1001,9 +992,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/TiltakshistorikkAdminDto"
+                $ref: "#/components/schemas/DeltakelserResponse"
 
   /api/v1/intern/bruker/komet-deltakelser:
     post:
@@ -1022,7 +1011,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/DeltakelserResponse"
+                $ref: "#/components/schemas/DeltakelserResponseFraKomet"
 
   /api/v1/intern/ansatt:
     get:
@@ -1080,6 +1069,30 @@ paths:
                 type: string
 
   /api/v1/intern/del-med-bruker:
+    post:
+      tags:
+        - Del med bruker
+      operationId: delTiltakMedBruker
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DelTiltakMedBrukerRequest"
+      responses:
+        200:
+          description: Tiltak har blitt delt med bruker
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DelTiltakMedBrukerResponse"
+        409:
+          description: Tiltak ble ikke delt med bruker
+          content:
+            application/json:
+              schema:
+                type: string
+
+  /api/v1/intern/del-med-bruker/status:
     post:
       tags:
         - Del med bruker
@@ -1476,7 +1489,7 @@ paths:
         content:
           application/json:
             schema:
-                $ref: "#/components/schemas/SetNotificationStatusRequest"
+              $ref: "#/components/schemas/SetNotificationStatusRequest"
         required: true
       responses:
         200:
@@ -1485,7 +1498,6 @@ paths:
             text/plain:
               schema:
                 type: string
-
 
   /api/v1/intern/features:
     parameters:
@@ -1668,7 +1680,7 @@ paths:
               schema:
                 type: array
                 items:
-                    $ref: "#/components/schemas/LagretFilter"
+                  $ref: "#/components/schemas/LagretFilter"
 
   /api/v1/intern/lagret-filter/{id}:
     delete:
@@ -1726,6 +1738,24 @@ paths:
                 items:
                   $ref: "#/components/schemas/TilsagnDto"
 
+  /api/v1/intern/tilsagn/beregn:
+    post:
+      tags:
+        - Beregn Tilsagn
+      operationId: beregnTilsagn
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TilsagnBeregningInput"
+      responses:
+        200:
+          description: TilsagnBeregning
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TilsagnBeregning"
+
   /api/v1/intern/tilsagn/{id}:
     parameters:
       - $ref: "#/components/parameters/ID"
@@ -1767,7 +1797,6 @@ paths:
             text/plain:
               schema:
                 type: string
-
 
 components:
   securitySchemes:
@@ -1882,12 +1911,12 @@ components:
       properties:
         norskIdent:
           type: string
-        id:
+        tiltakId:
           type: string
           format: uuid
       required:
         - norskIdent
-        - id
+        - tiltakId
 
     GetAlleDeltMedBrukerRequest:
       type: object
@@ -2071,10 +2100,6 @@ components:
         sluttDato:
           type: string
           format: date
-        opprinneligSluttDato:
-          type: string
-          format: date
-          nullable: true
         avtaletype:
           $ref: "#/components/schemas/Avtaletype"
         status:
@@ -2098,7 +2123,7 @@ components:
         beskrivelse:
           type: string
         faneinnhold:
-          $ref: "#/components/schemas/SanityFaneinnhold"
+          $ref: "#/components/schemas/Faneinnhold"
         personopplysninger:
           type: array
           items:
@@ -2112,8 +2137,7 @@ components:
           $ref: "#/components/schemas/OpsjonsmodellData"
           nullable: true
         opsjonerRegistrert:
-          type:
-            array
+          type: array
           items:
             $ref: "#/components/schemas/OpsjonLoggRegistrert"
       required:
@@ -2186,7 +2210,7 @@ components:
           type: string
           nullable: true
         faneinnhold:
-          $ref: "#/components/schemas/SanityFaneinnholdRequest"
+          $ref: "#/components/schemas/FaneinnholdRequest"
           nullable: true
         personopplysninger:
           type: array
@@ -2395,7 +2419,7 @@ components:
         stedForGjennomforing:
           type: string
         faneinnhold:
-          $ref: "#/components/schemas/SanityFaneinnhold"
+          $ref: "#/components/schemas/Faneinnhold"
         beskrivelse:
           type: string
         publisert:
@@ -2493,7 +2517,7 @@ components:
           type: string
           nullable: true
         faneinnhold:
-          $ref: "#/components/schemas/SanityFaneinnholdRequest"
+          $ref: "#/components/schemas/FaneinnholdRequest"
           nullable: true
         beskrivelse:
           type: string
@@ -2727,7 +2751,7 @@ components:
         - AKTIV
         - AVSLUTTET
 
-    DialogRequest:
+    DelTiltakMedBrukerRequest:
       type: object
       properties:
         fnr:
@@ -2754,13 +2778,13 @@ components:
         - tiltaksgjennomforingId
         - sanityId
 
-    DialogResponse:
+    DelTiltakMedBrukerResponse:
       type: object
       properties:
-        id:
+        dialogId:
           type: string
       required:
-        - id
+        - dialogId
 
     TiltakshistorikkAdminDto:
       oneOf:
@@ -2903,15 +2927,77 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/DeltakerKort"
-        historikk:
+        historiske:
           type: array
           items:
             $ref: "#/components/schemas/DeltakerKort"
       required:
         - aktive
+        - historiske
+
+    DeltakelserResponseFraKomet:
+      type: object
+      properties:
+        aktive:
+          type: array
+          items:
+            $ref: "#/components/schemas/DeltakelseFraKomet"
+        historikk:
+          type: array
+          items:
+            $ref: "#/components/schemas/DeltakelseFraKomet"
+      required:
+        - aktive
         - historikk
 
     DeltakerKort:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        tiltaksgjennomforingId:
+          type: string
+          format: uuid
+          nullable: true
+        eierskap:
+          type: string
+          enum:
+            - ARENA
+            - KOMET
+        tittel:
+          type: string
+        tiltakstypeNavn:
+          type: string
+        status:
+          $ref: "#/components/schemas/DeltakerStatus"
+        innsoktDato:
+          type: string
+          nullable: true
+        sistEndretDato:
+          type: string
+          nullable: true
+        periode:
+          type: object
+          properties:
+            startdato:
+              type: string
+              nullable: true
+            sluttdato:
+              type: string
+              nullable: true
+          nullable: true
+        arrangorNavn:
+          type: string
+          nullable: true
+      required:
+        - id
+        - eierskap
+        - tittel
+        - tiltakstypeNavn
+        - status
+
+    DeltakelseFraKomet:
       type: object
       properties:
         deltakerId:
@@ -2920,10 +3006,16 @@ components:
         deltakerlisteId:
           type: string
           format: uuid
+          nullable: true
         tittel:
           type: string
         tiltakstype:
-          $ref: "#/components/schemas/Gruppetiltak"
+          type: object
+          properties:
+            navn:
+              type: string
+            tiltakskode:
+              $ref: "#/components/schemas/Tiltakskode"
         status:
           $ref: "#/components/schemas/DeltakerStatus"
         innsoktDato:
@@ -2946,7 +3038,7 @@ components:
         - deltakerId
         - deltakerlisteId
         - tittel
-        - tiltakstype
+        - tiltakstypeNavn
         - status
 
     DeltakerStatusType:
@@ -2965,6 +3057,18 @@ components:
         - AVBRUTT
         - FULLFORT
         - FEILREGISTRERT
+        - AVSLAG
+        - TAKKET_NEI_TIL_TILBUD
+        - TILBUD
+        - TAKKET_JA_TIL_TILBUD
+        - INFORMASJONSMOTE
+        - AKTUELL
+        - GJENNOMFORES
+        - DELTAKELSE_AVBRUTT
+        - GJENNOMFORING_AVBRUTT
+        - GJENNOMFORING_AVLYST
+        - IKKE_MOTT
+        - PABEGYNT_REGISTRERING
 
     DeltakerStatus:
       type: object
@@ -3244,9 +3348,9 @@ components:
         regelverkLenker:
           type: array
           items:
-            $ref: "#/components/schemas/SanityRegelverkLenke"
+            $ref: "#/components/schemas/RegelverkLenke"
         faneinnhold:
-          $ref: "#/components/schemas/SanityFaneinnhold"
+          $ref: "#/components/schemas/Faneinnhold"
         delingMedBruker:
           type: string
         arenakode:
@@ -3292,7 +3396,7 @@ components:
         sluttdato:
           type: string
         faneinnhold:
-          $ref: "#/components/schemas/SanityFaneinnhold"
+          $ref: "#/components/schemas/Faneinnhold"
         apentForInnsok:
           type: boolean
         kontaktinfo:
@@ -3302,6 +3406,8 @@ components:
           nullable: true
         personvernBekreftet:
           type: boolean
+        fylke:
+          type: string
         status:
           $ref: "#/components/schemas/TiltaksgjennomforingStatusDto"
       required:
@@ -3311,7 +3417,7 @@ components:
         - oppstart
         - status
 
-    SanityRegelverkLenke:
+    RegelverkLenke:
       type: object
       properties:
         _id:
@@ -3336,7 +3442,7 @@ components:
       required:
         - _type
 
-    SanityFaneinnhold:
+    Faneinnhold:
       type: object
       properties:
         forHvemInfoboks:
@@ -3374,7 +3480,7 @@ components:
         delMedBruker:
           type: string
 
-    SanityFaneinnholdRequest:
+    FaneinnholdRequest:
       type: object
       properties:
         forHvemInfoboks:
@@ -3803,11 +3909,11 @@ components:
         - mulighetsrommet.veilederflate.visDeltakerRegistrering
         - mulighetsrommet-veilederflate-landingsside
         - mulighetsrommet-veilederflate-arena-oppskrifter
+        - mulighetsrommet-veilederflate.vis-tilbakemelding
         - mulighetsrommet.admin-flate.enableDebugger
         - mulighetsrommet.admin-flate.enable_gruppe_amo_kategorier
-        - mulighetsrommet.admin-flate.registrere-opsjonsmodell
-        - mulighetsrommet.admin-flate.registrere-opsjon
         - mulighetsrommet.admin-flate.opprett-tilsagn
+        - mulighetsrommet-veilederflate.vis-tilbakemelding
 
     PublisertRequest:
       type: object
@@ -4016,11 +4122,18 @@ components:
     Spesifisering:
       type: string
       enum:
-        - SERVERING_OVERNATTING
-        - TRANSPORT
-        - INDUSTRI
+        - INGENIOR_OG_IKT_FAG
+        - HELSE_PLEIE_OG_OMSORG
+        - BARNE_OG_UNGDOMSARBEID
+        - KONTORARBEID
+        - BUTIKK_OG_SALGSARBEID
+        - BYGG_OG_ANLEGG
+        - INDUSTRIARBEID
+        - REISELIV_SERVERING_OG_TRANSPORT
+        - SERVICEYRKER_OG_ANNET_ARBEID
         - ANDRE_BRANSJER
         - NORSKOPPLAERING
+        - FORBEREDENDE_OPPLAERING_FOR_VOKSNE
         - GRUNNLEGGENDE_FERDIGHETER
 
     InnholdElement:
@@ -4142,7 +4255,6 @@ components:
         - dialogId
         - tiltakId
 
-
     OpsjonsmodellData:
       type: object
       properties:
@@ -4168,6 +4280,8 @@ components:
         - TO_PLUSS_EN_PLUSS_EN
         - TO_PLUSS_EN_PLUSS_EN_PLUSS_EN
         - ANNET
+        - AVTALE_UTEN_OPSJONSMODELL
+        - AVTALE_VALGFRI_SLUTTDATO
 
     OpsjonLoggRequest:
       type: object
@@ -4179,11 +4293,16 @@ components:
           type: string
           format: date
           nullable: true
+        forrigeSluttdato:
+          type: string
+          format: date
+          nullable: true
         status:
           $ref: "#/components/schemas/OpsjonStatus"
       required:
         - avtaleId
         - nySluttdato
+        - forrigeSluttdato
         - status
 
     OpsjonStatus:
@@ -4205,12 +4324,18 @@ components:
         sluttDato:
           type: string
           format: date
+          nullable: true
+        forrigeSluttdato:
+          type: string
+          format: date
+          nullable: true
         status:
           $ref: "#/components/schemas/OpsjonStatus"
       required:
         - id
         - aktivertDato
         - sluttDato
+        - forrigeSluttdato
         - status
 
     SlettOpsjonLoggRequest:
@@ -4254,7 +4379,6 @@ components:
         - Avtale
         - Tiltaksgjennomføring
         - Tiltaksgjennomføring_Modia
-
 
     LagretFilter:
       type: object
@@ -4314,15 +4438,15 @@ components:
           format: date
         kostnadssted:
           type: string
-        belop:
-          type: integer
+        beregning:
+          $ref: "#/components/schemas/TilsagnBeregning"
       required:
         - id
         - tiltaksgjennomforingId
         - periodeStart
         - periodeSlutt
         - kostnadssted
-        - belop
+        - beregning
 
     TilsagnDto:
       type: object
@@ -4341,8 +4465,8 @@ components:
           format: date
         kostnadssted:
           $ref: "#/components/schemas/NavEnhet"
-        belop:
-          type: integer
+        beregning:
+          $ref: "#/components/schemas/TilsagnBeregning"
         besluttelse:
           type: object
           properties:
@@ -4388,6 +4512,7 @@ components:
         - periodeStart
         - periodeSlutt
         - kostnadssted
+        - beregning
         - belop
         - arrangor
         - lopenummer
@@ -4404,3 +4529,89 @@ components:
       properties:
         besluttelse:
           $ref: "#/components/schemas/TilsagnBesluttelse"
+
+    TilsagnBeregning:
+      oneOf:
+        - $ref: '#/components/schemas/TilsagnBeregningAFT'
+        - $ref: '#/components/schemas/TilsagnBeregningFri'
+
+    TilsagnBeregningAFT:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - AFT
+        sats:
+          type: integer
+        antallPlasser:
+          type: integer
+        belop:
+          type: integer
+        periodeStart:
+          type: string
+          format: date
+        periodeSlutt:
+          type: string
+          format: date
+      required:
+        - type
+        - sats
+        - antallPlasser
+        - belop
+        - periodeStart
+        - periodeSlutt
+
+    TilsagnBeregningFri:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - FRI
+        belop:
+          type: integer
+      required:
+        - type
+        - belop
+
+    TilsagnBeregningInput:
+      oneOf:
+        - $ref: '#/components/schemas/TilsagnBeregningInputAFT'
+        - $ref: '#/components/schemas/TilsagnBeregningInputFri'
+
+    TilsagnBeregningInputAFT:
+      properties:
+        type:
+          type: string
+          enum:
+            - AFT
+        periodeStart:
+          type: string
+          format: date
+        periodeSlutt:
+          type: string
+          format: date
+        antallPlasser:
+          type: integer
+        sats:
+          type: integer
+      required:
+        - type
+        - periodeStart
+        - periodeSlutt
+        - sats
+        - antallPlasser
+
+    TilsagnBeregningInputFri:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - FRI
+        belop:
+          type: integer
+      required:
+        - type
+        - belop

@@ -1,13 +1,13 @@
 import { QueryKeys } from "@/api/QueryKeys";
 import { useQuery } from "@tanstack/react-query";
-import { useDebounce } from "mulighetsrommet-frontend-common";
+import { useDebounce } from "@mr/frontend-common";
 import { AvtaleFilter } from "../atoms";
-import { AvtalerService } from "mulighetsrommet-api-client";
+import { AvtalerService, type GetAvtalerData } from "@mr/api-client";
 
 export function useAvtaler(filter: Partial<AvtaleFilter>) {
   const debouncedSok = useDebounce(filter.sok?.trim(), 300);
 
-  const queryFilter = {
+  const queryFilter: GetAvtalerData = {
     tiltakstyper: filter.tiltakstyper,
     search: debouncedSok || undefined,
     statuser: filter.statuser,
@@ -22,15 +22,12 @@ export function useAvtaler(filter: Partial<AvtaleFilter>) {
   };
 
   return useQuery({
-    queryKey: QueryKeys.avtaler(filter.visMineAvtaler, queryFilter.page, {
-      ...filter,
-      sok: debouncedSok,
-    }),
+    queryKey: QueryKeys.avtaler(filter.visMineAvtaler, queryFilter),
 
     queryFn: () => {
       return filter.visMineAvtaler
-        ? AvtalerService.getMineAvtaler({ ...queryFilter })
-        : AvtalerService.getAvtaler({ ...queryFilter });
+        ? AvtalerService.getMineAvtaler(queryFilter)
+        : AvtalerService.getAvtaler(queryFilter);
     },
   });
 }

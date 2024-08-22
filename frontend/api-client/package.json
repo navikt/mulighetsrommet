@@ -1,0 +1,16 @@
+{
+  "private": true,
+  "name": "@mr/api-client",
+  "version": "0.1.0",
+  "module": "./build/index.ts",
+  "types": "./build/index.ts",
+  "exports": "./build/index.ts",
+  "scripts": {
+    "postinstall": "npm run build",
+    "build": "openapi-ts --useOptions --input ../../mulighetsrommet-api/src/main/resources/web/openapi.yaml --output ./build"
+  },
+  "devDependencies": {
+    "@hey-api/openapi-ts": "0.52.9",
+    "typescript": "5.5.4"
+  }
+}

@@ -1,6 +1,6 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { QueryKeys } from "@/api/QueryKeys";
-import { TiltakstyperService } from "mulighetsrommet-api-client";
+import { TiltakstyperService } from "@mr/api-client";
 
 export function useTiltakstypeFaneinnhold(tiltakstypeId: string) {
   return useSuspenseQuery({

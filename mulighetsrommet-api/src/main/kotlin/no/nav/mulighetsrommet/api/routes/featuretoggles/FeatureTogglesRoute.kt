@@ -6,16 +6,31 @@ import io.ktor.server.plugins.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
+import no.nav.mulighetsrommet.api.AppConfig
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.unleash.FeatureToggleContext
 import no.nav.mulighetsrommet.unleash.UnleashService
 import org.koin.ktor.ext.inject
 import java.util.*
 
-fun Route.featureTogglesRoute() {
+fun Route.featureTogglesRoute(config: AppConfig) {
     val unleashService: UnleashService by inject()
 
-    route("/api/v1/intern/features") {
+    route("/tiltakstyper") {
+        get("migrerte") {
+            call.respond(config.migrerteTiltak)
+        }
+
+        get("stotterPameldingIModia") {
+            call.respond(config.pameldingIModia)
+        }
+
+        get("pameldingKommerSnartIModia") {
+            call.respond(config.pameldingKommerSnartIModia)
+        }
+    }
+
+    route("/features") {
         get {
             val feature: String = call.request.queryParameters.getOrFail("feature")
 

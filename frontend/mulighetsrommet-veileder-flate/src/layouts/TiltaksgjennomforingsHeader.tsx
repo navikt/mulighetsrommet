@@ -1,8 +1,8 @@
 import { BodyLong, Heading, HStack, VStack } from "@navikt/ds-react";
-import { VeilederflateTiltaksgjennomforing } from "mulighetsrommet-api-client";
-import { TiltaksgjennomforingStatusTag } from "mulighetsrommet-frontend-common";
-import { gjennomforingIsAktiv } from "mulighetsrommet-frontend-common/utils/utils";
+import { VeilederflateTiltaksgjennomforing } from "@mr/api-client";
 import styles from "./TiltaksgjennomforingsHeader.module.scss";
+import { TiltaksgjennomforingStatusTag } from "@mr/frontend-common";
+import { gjennomforingIsAktiv } from "@mr/frontend-common/utils/utils";
 
 interface Props {
   tiltaksgjennomforing: VeilederflateTiltaksgjennomforing;

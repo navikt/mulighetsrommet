@@ -14,6 +14,8 @@ data class OpsjonLoggEntry(
     val avtaleId: UUID,
     @Serializable(with = LocalDateSerializer::class)
     val sluttdato: LocalDate?,
+    @Serializable(with = LocalDateSerializer::class)
+    val forrigeSluttdato: LocalDate?,
     val status: OpsjonLoggRequest.OpsjonsLoggStatus,
     val registrertAv: NavIdent,
 )

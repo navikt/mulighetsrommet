@@ -5,7 +5,7 @@ import { useHentVeilederdata } from "@/apps/modia/hooks/useHentVeilederdata";
 import { useInitializeModiaContext } from "@/apps/modia/hooks/useInitializeModiaContext";
 import { useInitializeArbeidsmarkedstiltakFilterForBruker } from "@/apps/modia/hooks/useInitializeArbeidsmarkedstiltakFilterForBruker";
 import { useFeatureToggle } from "@/api/feature-toggles";
-import { Toggles } from "mulighetsrommet-api-client";
+import { Toggles } from "@mr/api-client";
 import { AppContainer } from "@/layouts/AppContainer";
 import { DemoImageHeader } from "@/components/DemoImageHeader";
 import { Landingsside } from "./views/Landingsside";

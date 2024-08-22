@@ -19,7 +19,7 @@ export function RunTask(props: Props) {
   const executeTask = (input?: object) => {
     setLoading(true);
 
-    runTask(props.base, props.task, input).finally(() => {
+    return runTask(props.base, props.task, input).finally(() => {
       setLoading(false);
     });
   };

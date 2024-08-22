@@ -1,4 +1,4 @@
-import { ApiError } from "mulighetsrommet-api-client";
+import { ApiError } from "@mr/api-client";
 
 export function resolveErrorMessage(error: ApiError): string {
   if (typeof error.body === "string") {

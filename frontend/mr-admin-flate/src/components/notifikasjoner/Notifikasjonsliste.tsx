@@ -1,10 +1,10 @@
-import { NotificationStatus } from "mulighetsrommet-api-client";
+import { NotificationStatus } from "@mr/api-client";
 import { useNotifikasjonerForAnsatt } from "@/api/notifikasjoner/useNotifikasjonerForAnsatt";
 import { Laster } from "../laster/Laster";
 import { EmptyState } from "./EmptyState";
 import styles from "./Notifikasjoner.module.scss";
 import { Notifikasjonssrad } from "./Notifikasjonsrad";
-import { ReloadAppErrorBoundary } from "mulighetsrommet-frontend-common/components/error-handling/ErrorBoundary";
+import { ReloadAppErrorBoundary } from "@mr/frontend-common/components/error-handling/ErrorBoundary";
 import { Button, HStack } from "@navikt/ds-react";
 import { useMutateNotifikasjoner } from "../../api/notifikasjoner/useMutateNotifikasjoner";
 import { useNavigate } from "react-router-dom";

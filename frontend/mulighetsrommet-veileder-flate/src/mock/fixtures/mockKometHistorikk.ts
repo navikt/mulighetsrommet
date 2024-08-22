@@ -1,15 +1,12 @@
-import { DeltakerKort, DeltakerStatusType, TiltakskodeArena } from "mulighetsrommet-api-client";
+import { DeltakerKort, DeltakerStatusType } from "@mr/api-client";
 import { mockTiltaksgjennomforinger } from "./mockTiltaksgjennomforinger";
 
 export const historikkFraKomet: DeltakerKort[] = [
   {
     tittel: "Oppfølging hos Muligheter AS",
-    tiltakstype: {
-      navn: "Oppfølging",
-      tiltakskode: TiltakskodeArena.INDOPPFAG,
-    },
-    deltakerId: window.crypto.randomUUID(),
-    deltakerlisteId:
+    tiltakstypeNavn: "Oppfølging",
+    id: window.crypto.randomUUID(),
+    tiltaksgjennomforingId:
       mockTiltaksgjennomforinger[0].id ||
       mockTiltaksgjennomforinger[0].sanityId ||
       window.crypto.randomUUID(),
@@ -19,15 +16,14 @@ export const historikkFraKomet: DeltakerKort[] = [
     },
     sistEndretDato: "2024-03-07",
     innsoktDato: "2024-03-02",
+    eierskap: "KOMET",
   },
   {
     tittel: "Oppfølging hos Muligheter AS",
-    tiltakstype: {
-      navn: "Oppfølging",
-      tiltakskode: TiltakskodeArena.INDOPPFAG,
-    },
-    deltakerId: window.crypto.randomUUID(),
-    deltakerlisteId:
+    tiltakstypeNavn: "Oppfølging",
+
+    id: window.crypto.randomUUID(),
+    tiltaksgjennomforingId:
       mockTiltaksgjennomforinger[0].id ||
       mockTiltaksgjennomforinger[0].sanityId ||
       window.crypto.randomUUID(),
@@ -37,6 +33,7 @@ export const historikkFraKomet: DeltakerKort[] = [
       aarsak: "utdanning",
     },
     innsoktDato: "2024-03-02",
+    eierskap: "KOMET",
   },
   {
     periode: {
@@ -44,12 +41,10 @@ export const historikkFraKomet: DeltakerKort[] = [
       sluttdato: "2023-12-12",
     },
     tittel: "Oppfølging hos Muligheter AS",
-    tiltakstype: {
-      navn: "Oppfølging",
-      tiltakskode: TiltakskodeArena.INDOPPFAG,
-    },
-    deltakerId: window.crypto.randomUUID(),
-    deltakerlisteId:
+    tiltakstypeNavn: "Oppfølging",
+
+    id: window.crypto.randomUUID(),
+    tiltaksgjennomforingId:
       mockTiltaksgjennomforinger[0].id ||
       mockTiltaksgjennomforinger[0].sanityId ||
       window.crypto.randomUUID(),
@@ -58,6 +53,7 @@ export const historikkFraKomet: DeltakerKort[] = [
       visningstekst: "Har sluttet",
     },
     innsoktDato: "2024-03-02",
+    eierskap: "KOMET",
   },
   {
     periode: {
@@ -65,12 +61,10 @@ export const historikkFraKomet: DeltakerKort[] = [
       sluttdato: "2024-02-01",
     },
     tittel: "Avklaring med Anne",
-    tiltakstype: {
-      navn: "Avklaring",
-      tiltakskode: TiltakskodeArena.AVKLARAG,
-    },
-    deltakerId: window.crypto.randomUUID(),
-    deltakerlisteId:
+    tiltakstypeNavn: "Avklaring",
+
+    id: window.crypto.randomUUID(),
+    tiltaksgjennomforingId:
       mockTiltaksgjennomforinger[0].id ||
       mockTiltaksgjennomforinger[0].sanityId ||
       window.crypto.randomUUID(),
@@ -79,6 +73,7 @@ export const historikkFraKomet: DeltakerKort[] = [
       visningstekst: "Fullført",
     },
     innsoktDato: "2024-02-03",
+    eierskap: "KOMET",
   },
   {
     periode: {
@@ -86,12 +81,10 @@ export const historikkFraKomet: DeltakerKort[] = [
       sluttdato: "2024-02-01",
     },
     tittel: "Avklaring med Anne",
-    tiltakstype: {
-      navn: "Avklaring",
-      tiltakskode: TiltakskodeArena.AVKLARAG,
-    },
-    deltakerId: window.crypto.randomUUID(),
-    deltakerlisteId:
+    tiltakstypeNavn: "Avklaring",
+
+    id: window.crypto.randomUUID(),
+    tiltaksgjennomforingId:
       mockTiltaksgjennomforinger[0].id ||
       mockTiltaksgjennomforinger[0].sanityId ||
       window.crypto.randomUUID(),
@@ -101,15 +94,14 @@ export const historikkFraKomet: DeltakerKort[] = [
       aarsak: "Fått jobb",
     },
     innsoktDato: "2024-02-03",
+    eierskap: "KOMET",
   },
   {
     tittel: "Avklaring med Anne",
-    tiltakstype: {
-      navn: "Avklaring",
-      tiltakskode: TiltakskodeArena.AVKLARAG,
-    },
-    deltakerId: window.crypto.randomUUID(),
-    deltakerlisteId:
+    tiltakstypeNavn: "Avklaring",
+
+    id: window.crypto.randomUUID(),
+    tiltaksgjennomforingId:
       mockTiltaksgjennomforinger[0].id ||
       mockTiltaksgjennomforinger[0].sanityId ||
       window.crypto.randomUUID(),
@@ -118,5 +110,6 @@ export const historikkFraKomet: DeltakerKort[] = [
       visningstekst: "Feilregistrert",
     },
     innsoktDato: "2024-02-03",
+    eierskap: "KOMET",
   },
 ];

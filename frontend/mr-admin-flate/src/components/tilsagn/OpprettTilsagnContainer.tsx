@@ -1,4 +1,4 @@
-import { TilsagnDto, TilsagnRequest, Tiltaksgjennomforing } from "mulighetsrommet-api-client";
+import { TilsagnDto, TilsagnRequest, Tiltaksgjennomforing, Tiltakskode } from "@mr/api-client";
 import { SubmitHandler } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { SkjemaDetaljerContainer } from "../skjema/SkjemaDetaljerContainer";
@@ -23,7 +23,7 @@ export function OpprettTilsagnContainer({ tiltaksgjennomforing, tilsagn }: Props
       periodeStart: data.periode.start,
       periodeSlutt: data.periode.slutt,
       kostnadssted: data.kostnadssted,
-      belop: data.belop,
+      beregning: data.beregning,
       tiltaksgjennomforingId: tiltaksgjennomforing.id,
     };
 
@@ -36,6 +36,12 @@ export function OpprettTilsagnContainer({ tiltaksgjennomforing, tilsagn }: Props
     navigate(`/tiltaksgjennomforinger/${tiltaksgjennomforing.id}/tilsagn`);
   }
 
+  function prismodell(tiltaksgjennomforing: Tiltaksgjennomforing): "AFT" | "FRI" {
+    return tiltaksgjennomforing.tiltakstype.tiltakskode === Tiltakskode.ARBEIDSFORBEREDENDE_TRENING
+      ? "AFT"
+      : "FRI";
+  }
+
   return (
     <SkjemaDetaljerContainer>
       <SkjemaKolonne>
@@ -45,6 +51,7 @@ export function OpprettTilsagnContainer({ tiltaksgjennomforing, tilsagn }: Props
           onSubmit={postData}
           mutation={mutation}
           onAvbryt={navigerTilGjennomforing}
+          prismodell={prismodell(tiltaksgjennomforing)}
         />
       </SkjemaKolonne>
     </SkjemaDetaljerContainer>

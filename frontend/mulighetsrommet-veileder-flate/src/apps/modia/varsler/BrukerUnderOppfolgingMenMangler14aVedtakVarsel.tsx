@@ -1,5 +1,5 @@
 import { Alert } from "@navikt/ds-react";
-import { Bruker, BrukerVarsel } from "mulighetsrommet-api-client";
+import { Bruker, BrukerVarsel } from "@mr/api-client";
 
 interface Props {
   brukerdata: Bruker;

@@ -6,7 +6,7 @@ import { AvbrytModalAarsaker } from "@/components/modal/AvbrytModalAarsaker";
 import { AvbrytModalError } from "@/components/modal/AvbrytModalError";
 import { VarselModal } from "@/components/modal/VarselModal";
 import { Alert, BodyShort, Button, Radio } from "@navikt/ds-react";
-import { AvbrytGjennomforingAarsak, Tiltaksgjennomforing } from "mulighetsrommet-api-client";
+import { AvbrytGjennomforingAarsak, Tiltaksgjennomforing } from "@mr/api-client";
 import { RefObject, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import z from "zod";

@@ -1,7 +1,7 @@
 import { Alert, Button, Heading, HStack, Modal } from "@navikt/ds-react";
 import { useRef } from "react";
 import { formaterDato, max, subtractDays, subtractMonths } from "@/utils/Utils";
-import { Tiltaksgjennomforing } from "mulighetsrommet-api-client";
+import { Tiltaksgjennomforing } from "@mr/api-client";
 import { FormProvider, useForm } from "react-hook-form";
 import z from "zod";
 import { ControlledDateInput } from "@/components/skjema/ControlledDateInput";
@@ -101,7 +101,7 @@ export function TiltakTilgjengeligForArrangor({ gjennomforing }: Props) {
         <Modal.Body>
           <FormProvider {...form}>
             <form>
-              <HStack gap="2" align={"end"}>
+              <HStack gap="2" align={"end"} justify={"center"}>
                 <ControlledDateInput
                   label="Når skal arrangør ha tilgang?"
                   size="small"
@@ -117,10 +117,10 @@ export function TiltakTilgjengeligForArrangor({ gjennomforing }: Props) {
         </Modal.Body>
 
         <Modal.Footer>
-          <Button type="submit" onClick={submit}>
+          <Button size="small" type="submit" onClick={submit}>
             Endre dato
           </Button>
-          <Button type="button" variant="secondary" onClick={cancel}>
+          <Button size="small" type="button" variant="secondary" onClick={cancel}>
             Avbryt endring
           </Button>
         </Modal.Footer>

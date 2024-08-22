@@ -2,15 +2,10 @@ package no.nav.mulighetsrommet.api
 
 import com.github.kagkarlsson.scheduler.Scheduler
 import io.ktor.server.application.*
-import io.ktor.server.auth.*
 import io.ktor.server.plugins.swagger.*
 import io.ktor.server.routing.*
-import no.nav.mulighetsrommet.api.okonomi.tilsagn.tilsagnRoutes
 import no.nav.mulighetsrommet.api.plugins.*
-import no.nav.mulighetsrommet.api.plugins.AuthProvider
-import no.nav.mulighetsrommet.api.routes.featuretoggles.featureTogglesRoute
-import no.nav.mulighetsrommet.api.routes.internal.maamRoutes
-import no.nav.mulighetsrommet.api.routes.v1.*
+import no.nav.mulighetsrommet.api.routes.apiRoutes
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.FlywayMigrationManager
 import no.nav.mulighetsrommet.hoplite.loadConfiguration
@@ -43,38 +38,7 @@ fun Application.configure(config: AppConfig) {
     FlywayMigrationManager(config.flyway).migrate(db)
 
     routing {
-        authenticate(AuthProvider.AZURE_AD_TEAM_MULIGHETSROMMET.name) {
-            maamRoutes()
-        }
-
-        authenticate(AuthProvider.AZURE_AD_NAV_IDENT.name, AuthProvider.AZURE_AD_TILTAKSADMINISTRASJON_GENERELL.name) {
-            tiltakstypeRoutes(config.migrerteTiltak, config.pameldingIModia)
-            tiltaksgjennomforingRoutes()
-            avtaleRoutes()
-            veilederflateRoutes()
-            brukerRoutes()
-            navAnsattRoutes()
-            dialogRoutes()
-            delMedBrukerRoutes()
-            navEnhetRoutes()
-            arrangorRoutes()
-            brregVirksomhetRoutes()
-            notificationRoutes()
-            featureTogglesRoute()
-            veilederJoyrideRoutes()
-            janzzRoutes()
-            opsjonRoutes()
-            lagretFilterRoutes()
-            tilsagnRoutes()
-        }
-
-        authenticate(AuthProvider.AZURE_AD_DEFAULT_APP.name) {
-            arenaAdapterRoutes()
-        }
-
-        authenticate(AuthProvider.AZURE_AD_TILTAKSGJENNOMFORING_APP.name) {
-            externalRoutes()
-        }
+        apiRoutes(config)
 
         swaggerUI(path = "/swagger-ui/internal", swaggerFile = "web/openapi.yaml")
         swaggerUI(path = "/swagger-ui/external", swaggerFile = "web/openapi-external.yaml")

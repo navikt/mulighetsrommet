@@ -4,7 +4,7 @@ import classnames from "classnames";
 import { useState } from "react";
 import styles from "./NavEnhetFilter.module.scss";
 import { addOrRemove } from "../../utils/utils";
-import { NavEnhet, NavRegion } from "mulighetsrommet-api-client";
+import { NavEnhet, NavRegion } from "@mr/api-client";
 
 interface RegionMap {
   [region: string]: NavEnhet[];

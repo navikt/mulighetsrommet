@@ -1,5 +1,5 @@
 import { HttpResponse, PathParams, http } from "msw";
-import { NavEnhet, NavRegion } from "mulighetsrommet-api-client";
+import { NavEnhet, NavRegion } from "@mr/api-client";
 import { mockEnheter, mockRegioner } from "../../fixtures/mockEnheter";
 
 export const enhetHandlers = [

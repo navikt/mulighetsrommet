@@ -1,10 +1,6 @@
 import { Radio, RadioGroup, Textarea } from "@navikt/ds-react";
 import { UseMutationResult } from "@tanstack/react-query";
-import {
-  ApiError,
-  AvbrytAvtaleAarsak,
-  AvbrytGjennomforingAarsak,
-} from "mulighetsrommet-api-client";
+import { ApiError, AvbrytAvtaleAarsak, AvbrytGjennomforingAarsak } from "@mr/api-client";
 import { AnnetEnum } from "@/api/annetEnum";
 
 interface Props {

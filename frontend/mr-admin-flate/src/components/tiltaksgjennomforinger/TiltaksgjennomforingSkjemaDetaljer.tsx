@@ -23,8 +23,8 @@ import {
   TiltaksgjennomforingKontaktperson,
   TiltaksgjennomforingOppstartstype,
   Tiltakskode,
-} from "mulighetsrommet-api-client";
-import { ControlledSokeSelect } from "mulighetsrommet-frontend-common";
+} from "@mr/api-client";
+import { ControlledSokeSelect } from "@mr/frontend-common";
 import { useEffect, useRef } from "react";
 import { useFieldArray, useFormContext } from "react-hook-form";
 import { tiltaktekster } from "../ledetekster/tiltaksgjennomforingLedetekster";
@@ -112,37 +112,38 @@ export function TiltaksgjennomforingSkjemaDetaljer({ tiltaksgjennomforing, avtal
     };
 
     resetEstimertVentetid();
-  }, [watchVisEstimertVentetid]);
+  }, [setValue, watchVisEstimertVentetid]);
 
   const watchStartDato = watch("startOgSluttDato.startDato");
+  const antallDeltakere = deltakerSummary?.antallDeltakere;
   useEffect(() => {
     if (
       tiltaksgjennomforing &&
-      deltakerSummary?.antallDeltakere &&
-      deltakerSummary.antallDeltakere > 0 &&
+      antallDeltakere &&
+      antallDeltakere > 0 &&
       tiltaksgjennomforing.startDato !== watchStartDato
     ) {
       endreStartDatoModalRef.current?.showModal();
     }
-  }, [watchStartDato]);
+  }, [watchStartDato, antallDeltakere, tiltaksgjennomforing]);
 
   useEffect(() => {
     if (watchStartDato && new Date(watchStartDato) < new Date()) {
       setValue("tilgjengeligForArrangorFraOgMedDato", null);
     }
-  }, [watchStartDato]);
+  }, [setValue, watchStartDato]);
 
   const watchSluttDato = watch("startOgSluttDato.sluttDato");
   useEffect(() => {
     if (
       tiltaksgjennomforing &&
-      deltakerSummary?.antallDeltakere &&
-      deltakerSummary.antallDeltakere > 0 &&
+      antallDeltakere &&
+      antallDeltakere > 0 &&
       tiltaksgjennomforing.sluttDato !== watchSluttDato
     ) {
       endreSluttDatoModalRef.current?.showModal();
     }
-  }, [watchSluttDato]);
+  }, [watchSluttDato, antallDeltakere, tiltaksgjennomforing]);
 
   const regionerOptions = avtale.kontorstruktur
     .map((struk) => struk.region)
@@ -447,12 +448,12 @@ export function TiltaksgjennomforingSkjemaDetaljer({ tiltaksgjennomforing, avtal
       </SkjemaInputContainer>
       <EndreDatoAdvarselModal
         modalRef={endreStartDatoModalRef}
-        onCancel={() => setValue("startOgSluttDato.startDato", tiltaksgjennomforing!!.startDato)}
+        onCancel={() => setValue("startOgSluttDato.startDato", tiltaksgjennomforing!.startDato)}
         antallDeltakere={deltakerSummary?.antallDeltakere ?? 0}
       />
       <EndreDatoAdvarselModal
         modalRef={endreSluttDatoModalRef}
-        onCancel={() => setValue("startOgSluttDato.sluttDato", tiltaksgjennomforing!!.sluttDato)}
+        onCancel={() => setValue("startOgSluttDato.sluttDato", tiltaksgjennomforing!.sluttDato)}
         antallDeltakere={deltakerSummary?.antallDeltakere ?? 0}
       />
     </SkjemaDetaljerContainer>

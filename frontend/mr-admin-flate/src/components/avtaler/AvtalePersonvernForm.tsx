@@ -10,14 +10,14 @@ import {
   Radio,
   VStack,
 } from "@navikt/ds-react";
-import { addOrRemove } from "mulighetsrommet-frontend-common/utils/utils";
+import { addOrRemove } from "@mr/frontend-common/utils/utils";
 import { useFormContext } from "react-hook-form";
 import { Separator } from "../detaljside/Metadata";
 import { InferredAvtaleSchema } from "@/components/redaksjoneltInnhold/AvtaleSchema";
 import { ControlledRadioGroup } from "../skjema/ControlledRadioGroup";
 import styles from "./AvtalePersonvernForm.module.scss";
 import { usePersonopplysninger } from "@/api/avtaler/usePersonopplysninger";
-import { PersonopplysningData } from "mulighetsrommet-api-client";
+import { PersonopplysningData } from "@mr/api-client";
 
 interface Props {
   tiltakstypeId?: string;

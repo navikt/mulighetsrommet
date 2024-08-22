@@ -9,6 +9,11 @@
       "version": 1,
       "features": [
         {
+          "name": "mulighetsrommet-veilederflate.vis-tilbakemelding",
+          "enabled": true,
+          "strategies": []
+        },
+        {
           "name": "mulighetsrommet-veilederflate-landingsside",
           "enabled": true,
           "strategies": []
@@ -50,6 +55,16 @@
         },
         {
           "name": "mulighetsrommet.admin-flate.opprett-tilsagn",
+          "enabled": true,
+          "strategies": []
+        },
+        {
+          "name": "mulighetsrommet.veilederflate.visDeltakerRegistrering",
+          "enabled": true,
+          "strategies": []
+        },
+        {
+          "name": "mulighetsrommet-veilederflate-landingsside",
           "enabled": true,
           "strategies": []
         }

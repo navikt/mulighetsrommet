@@ -1,15 +1,18 @@
-import { ArrangorTil, NavAnsattRolle, NotificationStatus } from "mulighetsrommet-api-client";
-import { ArrangorerFilter, AvtaleFilter, TiltaksgjennomforingFilter } from "./atoms";
+import {
+  GetArrangorerData,
+  type GetAvtalerData,
+  GetEnheterData,
+  GetTiltaksgjennomforingerData,
+  NavAnsattRolle,
+  NotificationStatus,
+} from "@mr/api-client";
 
 export const QueryKeys = {
   tiltakstype: (id?: string) => ["tiltakstype", id] as const,
   tiltakstyper: (filter?: object) => ["tiltakstyper", { ...filter }] as const,
   tiltakstypeFaneinnhold: (id: string) => ["tiltakstype", id, "faneinnhold"] as const,
-  tiltaksgjennomforinger: (
-    mine?: boolean,
-    page?: number,
-    filter?: Partial<TiltaksgjennomforingFilter>,
-  ) => ["tiltaksgjennomforinger", mine, page, filter].filter((entry) => entry !== undefined),
+  tiltaksgjennomforinger: (mine?: boolean, filter?: GetTiltaksgjennomforingerData) =>
+    ["tiltaksgjennomforinger", mine, filter].filter((entry) => entry !== undefined),
   tiltaksgjennomforing: (id?: string) => ["tiltaksgjennomforing", id] as const,
   tiltaksgjennomforingHistorikk: (id?: string) =>
     ["tiltaksgjennomforing", id, "historikk"] as const,
@@ -17,17 +20,12 @@ export const QueryKeys = {
     return ["tiltaksgjennomforing", id, "deltaker-summary"] as const;
   },
   ansatt: () => ["ansatt"] as const,
-  avtaler: (mine?: boolean, page?: number, avtaleFilter?: Partial<AvtaleFilter>) =>
-    ["avtaler", mine, page, { ...avtaleFilter }] as const,
+  avtaler: (mine?: boolean, avtaleFilter?: GetAvtalerData) =>
+    ["avtaler", mine, avtaleFilter] as const,
   avtale: (id: string) => ["avtale", id],
   avtaleHistorikk: (id?: string) => ["avtale", id, "historikk"] as const,
-  enheter: () => ["enheter"],
-  arrangorer: (til?: ArrangorTil, page?: number, arrangorFilter?: Partial<ArrangorerFilter>) => [
-    "arrangorer",
-    page,
-    { ...arrangorFilter },
-    { til },
-  ],
+  enheter: (filter?: GetEnheterData) => ["enheter", filter],
+  arrangorer: (filter?: GetArrangorerData) => ["arrangorer", filter] as const,
   arrangorById: (id: string) => ["arrangor", id],
   arrangorHovedenhetById: (id: string) => ["arrangorHovedenhet", id],
   arrangorByOrgnr: (orgnr: string) => ["arrangor", { orgnr }],

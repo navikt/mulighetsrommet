@@ -15,9 +15,9 @@ import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
 import no.nav.mulighetsrommet.api.domain.dto.OpsjonLoggEntry
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.repositories.*
+import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.routes.v1.OpsjonLoggRequest
 import no.nav.mulighetsrommet.api.routes.v1.Opsjonsmodell
-import no.nav.mulighetsrommet.api.routes.v1.responses.ValidationError
 import no.nav.mulighetsrommet.api.services.EndringshistorikkService
 import no.nav.mulighetsrommet.api.services.NavEnhetService
 import no.nav.mulighetsrommet.api.services.OpsjonLoggService
@@ -612,6 +612,7 @@ class AvtaleValidatorTest :
                     OpsjonLoggEntry(
                         avtaleId = avtaleDbo.id,
                         sluttdato = avtaleDbo.sluttDato?.plusYears(1),
+                        forrigeSluttdato = avtaleDbo.sluttDato,
                         status = OpsjonLoggRequest.OpsjonsLoggStatus.OPSJON_UTLØST,
                         registrertAv = NavIdent("M123456"),
                     ),

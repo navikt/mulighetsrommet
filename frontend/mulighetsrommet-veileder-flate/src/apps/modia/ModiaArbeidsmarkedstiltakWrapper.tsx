@@ -44,7 +44,7 @@ export class ModiaArbeidsmarkedstiltakWrapper extends HTMLElement {
       .then(() => {
         const fnr = this.getAttribute(ModiaArbeidsmarkedstiltakWrapper.FNR_PROP) ?? undefined;
         const enhet = this.getAttribute(ModiaArbeidsmarkedstiltakWrapper.ENHET_PROP) ?? undefined;
-        this.renderApp(fnr, enhet);
+        return this.renderApp(fnr, enhet);
       })
       .catch((error) => {
         this.displayError(error?.message ?? error);

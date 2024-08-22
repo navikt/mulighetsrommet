@@ -1,5 +1,5 @@
 import { Box } from "@navikt/ds-react";
-import { VeilederflateTiltaksgjennomforing } from "mulighetsrommet-api-client";
+import { VeilederflateTiltaksgjennomforing } from "@mr/api-client";
 import styles from "./SidemenyInfo.module.scss";
 
 interface Props {

@@ -1,64 +1,100 @@
-import { BodyShort, HStack, Heading, LinkPanel, Tag, VStack } from "@navikt/ds-react";
+import { DeltakerKort, DeltakerStatus, DeltakerStatusType } from "@mr/api-client";
+import { BodyShort, Box, Button, HStack, Heading, Tag, VStack } from "@navikt/ds-react";
 import classNames from "classnames";
-import { DeltakerKort, DeltakerStatus, DeltakerStatusType } from "mulighetsrommet-api-client";
 import { formaterDato } from "../../../utils/Utils";
 import { ModiaRoute, resolveModiaRoute } from "../ModiaRoute";
 import styles from "./DeltakelseKort.module.scss";
 
+type Size = "small" | "medium" | "large";
+
 interface Props {
   deltakelse: DeltakerKort;
+  size?: Size;
 }
 
-export function DeltakelseKort({ deltakelse }: Props) {
-  const { tiltakstype, deltakerId, tittel, innsoktDato } = deltakelse;
+export function DeltakelseKort({ deltakelse, size = "medium" }: Props) {
+  const { id, eierskap } = deltakelse;
 
   const deltakelseRoute = resolveModiaRoute({
     route: ModiaRoute.ARBEIDSMARKEDSTILTAK_DELTAKELSE,
-    deltakerId: deltakerId!!,
+    deltakerId: id!,
   });
 
+  if (eierskap === "ARENA") {
+    return (
+      <Wrapper size={size} deltakelse={deltakelse}>
+        <Innhold deltakelse={deltakelse} />
+      </Wrapper>
+    );
+  }
+
   return (
-    <LinkPanel
-      as="button"
-      onClick={deltakelseRoute.navigate}
+    <Wrapper size={size} deltakelse={deltakelse}>
+      <HStack justify={"space-between"} align={"center"}>
+        <Innhold deltakelse={deltakelse} />
+        <Button onClick={deltakelseRoute.navigate} size="small">
+          Gå til deltakelse
+        </Button>
+      </HStack>
+    </Wrapper>
+  );
+}
+
+function Wrapper({
+  size,
+  children,
+  deltakelse,
+}: {
+  size: Size;
+  deltakelse: DeltakerKort;
+  onClick?: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <Box
+      background="bg-default"
+      padding={size === "small" ? "2" : size === "medium" ? "5" : "8"}
       className={classNames(styles.panel, {
         [styles.utkast]: deltakelse?.status.type === DeltakerStatusType.UTKAST_TIL_PAMELDING,
         [styles.kladd]: deltakelse?.status.type === DeltakerStatusType.KLADD,
       })}
     >
-      <VStack gap="2">
-        <HStack gap="10">
-          {tiltakstype?.navn ? <small>{tiltakstype?.navn.toUpperCase()}</small> : null}
-          {innsoktDato ? <small>Søkt inn: {formaterDato(innsoktDato)}</small> : null}
-        </HStack>
-        {tittel ? (
-          <Heading size="medium" level="4">
-            {tittel}
-          </Heading>
+      {children}
+    </Box>
+  );
+}
+
+function Innhold({ deltakelse }: { deltakelse: DeltakerKort }) {
+  const { tiltakstypeNavn, status, periode, tittel, innsoktDato } = deltakelse;
+  return (
+    <VStack gap="2">
+      <HStack gap="10">
+        {tiltakstypeNavn ? <small>{tiltakstypeNavn.toUpperCase()}</small> : null}
+        {innsoktDato ? <small>Søkt inn: {formaterDato(innsoktDato)}</small> : null}
+      </HStack>
+      {tittel ? (
+        <Heading size="medium" level="4">
+          {tittel}
+        </Heading>
+      ) : null}
+      <HStack align={"end"} gap="5">
+        {status ? <Status status={status} /> : null}
+        {status.aarsak ? <BodyShort size="small">Årsak: {status.aarsak}</BodyShort> : null}
+        {periode?.startdato ? (
+          <BodyShort size="small">
+            {periode?.startdato && !periode?.sluttdato
+              ? `Oppstartsdato ${formaterDato(periode?.startdato)}`
+              : [periode?.startdato, periode?.sluttdato]
+                  .filter(Boolean)
+                  .map((dato) => dato && formaterDato(dato))
+                  .join(" - ")}
+          </BodyShort>
         ) : null}
-        <HStack align={"end"} gap="5">
-          {deltakelse?.status ? <Status status={deltakelse.status} /> : null}
-          {deltakelse.status.aarsak ? (
-            <BodyShort size="small">Årsak: {deltakelse.status.aarsak}</BodyShort>
-          ) : null}
-          {deltakelse.periode?.startdato ? (
-            <BodyShort size="small">
-              {deltakelse.periode?.startdato && !deltakelse.periode?.sluttdato
-                ? `Oppstartsdato ${formaterDato(deltakelse.periode.startdato)}`
-                : [deltakelse.periode.startdato, deltakelse.periode.sluttdato]
-                    .filter(Boolean)
-                    .map((dato) => dato && formaterDato(dato))
-                    .join(" - ")}
-            </BodyShort>
-          ) : null}
-          {deltakelse.sistEndretDato ? (
-            <BodyShort size="small">
-              Sist endret: {formaterDato(deltakelse.sistEndretDato)}
-            </BodyShort>
-          ) : null}
-        </HStack>
-      </VStack>
-    </LinkPanel>
+        {deltakelse.sistEndretDato ? (
+          <BodyShort size="small">Sist endret: {formaterDato(deltakelse.sistEndretDato)}</BodyShort>
+        ) : null}
+      </HStack>
+    </VStack>
   );
 }
 
@@ -69,6 +105,7 @@ interface StatusProps {
 function Status({ status }: StatusProps) {
   const { visningstekst } = status;
   switch (status.type) {
+    case DeltakerStatusType.GJENNOMFORES:
     case DeltakerStatusType.DELTAR:
       return (
         <Tag size="small" variant="success" className={styles.deltarStatus}>
@@ -79,6 +116,8 @@ function Status({ status }: StatusProps) {
     case DeltakerStatusType.AVBRUTT_UTKAST:
     case DeltakerStatusType.AVBRUTT:
     case DeltakerStatusType.FEILREGISTRERT:
+    case DeltakerStatusType.AVSLAG:
+    case DeltakerStatusType.DELTAKELSE_AVBRUTT:
       return (
         <Tag size="small" variant="neutral">
           {visningstekst}
@@ -92,12 +131,16 @@ function Status({ status }: StatusProps) {
         </Tag>
       );
     case DeltakerStatusType.HAR_SLUTTET:
+    case DeltakerStatusType.IKKE_MOTT:
+    case DeltakerStatusType.TAKKET_NEI_TIL_TILBUD:
       return (
         <Tag size="small" variant="alt1">
           {visningstekst}
         </Tag>
       );
+    case DeltakerStatusType.AKTUELL:
     case DeltakerStatusType.VENTER_PA_OPPSTART:
+    case DeltakerStatusType.INFORMASJONSMOTE:
       return (
         <Tag size="small" variant="alt3">
           {visningstekst}
@@ -108,8 +151,17 @@ function Status({ status }: StatusProps) {
     case DeltakerStatusType.SOKT_INN:
     case DeltakerStatusType.VURDERES:
     case DeltakerStatusType.VENTELISTE:
+    case DeltakerStatusType.PABEGYNT_REGISTRERING:
+    case DeltakerStatusType.TAKKET_JA_TIL_TILBUD:
+    case DeltakerStatusType.TILBUD:
       return (
         <Tag size="small" variant="warning">
+          {visningstekst}
+        </Tag>
+      );
+    default:
+      return (
+        <Tag size="small" variant="neutral">
           {visningstekst}
         </Tag>
       );

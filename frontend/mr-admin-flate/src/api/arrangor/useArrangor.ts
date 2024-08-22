@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { QueryKeys } from "@/api/QueryKeys";
-import { ArrangorService } from "mulighetsrommet-api-client";
+import { ArrangorService } from "@mr/api-client";
 
 export function useArrangor(id: string) {
   return useQuery({

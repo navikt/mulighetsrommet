@@ -1,17 +1,17 @@
 import { Alert, Heading, Tabs } from "@navikt/ds-react";
-import { useTitle } from "mulighetsrommet-frontend-common";
+import { useTitle } from "@mr/frontend-common";
 import { Link, Outlet, useLocation, useMatch } from "react-router-dom";
 import { useTiltakstypeById } from "@/api/tiltakstyper/useTiltakstypeById";
-import { Header } from "../../components/detaljside/Header";
-import { Laster } from "../../components/laster/Laster";
-import { TiltakstypestatusTag } from "../../components/statuselementer/TiltakstypestatusTag";
-import { useNavigateAndReplaceUrl } from "../../hooks/useNavigateWithoutReplacingUrl";
-import { ContainerLayout } from "../../layouts/ContainerLayout";
+import { Header } from "@/components/detaljside/Header";
+import { Laster } from "@/components/laster/Laster";
+import { TiltakstypestatusTag } from "@/components/statuselementer/TiltakstypestatusTag";
+import { useNavigateAndReplaceUrl } from "@/hooks/useNavigateWithoutReplacingUrl";
+import { ContainerLayout } from "@/layouts/ContainerLayout";
 import commonStyles from "../Page.module.scss";
-import { Brodsmule, Brodsmuler } from "../../components/navigering/Brodsmuler";
-import { TiltakstypeIkon } from "../../components/ikoner/TiltakstypeIkon";
+import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
+import { TiltakstypeIkon } from "@/components/ikoner/TiltakstypeIkon";
 
-function useTiltakstypeBrodsmuler(tiltakstypeId: string): Array<Brodsmule | undefined> {
+function useTiltakstypeBrodsmuler(tiltakstypeId?: string): Array<Brodsmule | undefined> {
   const match = useMatch("/tiltakstyper/:tiltakstypeId/avtaler");
   return [
     { tittel: "Forside", lenke: "/" },
@@ -28,7 +28,7 @@ export function DetaljerTiltakstypePage() {
   const { navigateAndReplaceUrl } = useNavigateAndReplaceUrl();
   const { data: tiltakstype, isLoading } = useTiltakstypeById();
   useTitle(`Tiltakstyper ${tiltakstype?.navn ? `- ${tiltakstype.navn}` : ""}`);
-  const brodsmuler = useTiltakstypeBrodsmuler(tiltakstype?.id!!);
+  const brodsmuler = useTiltakstypeBrodsmuler(tiltakstype?.id);
 
   if (!tiltakstype && isLoading) {
     return <Laster tekst="Laster tiltakstype" />;

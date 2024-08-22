@@ -1,4 +1,4 @@
-import { ArrangorKontaktpersonAnsvar } from "mulighetsrommet-api-client";
+import { ArrangorKontaktpersonAnsvar } from "@mr/api-client";
 
 export function navnForAnsvar(
   ansvar: ArrangorKontaktpersonAnsvar,

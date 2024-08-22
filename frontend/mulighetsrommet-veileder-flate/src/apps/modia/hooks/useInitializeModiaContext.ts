@@ -10,15 +10,18 @@ export function useInitializeModiaContext() {
   const { data: overordnetEnhet } = useOverordnetEnhet(appContext.enhet);
   const { logEvent } = useLogEvent();
 
+  const enhetsnrForOverordnetEnhet = overordnetEnhet?.enhetsnummer;
   useEffect(() => {
-    if (overordnetEnhet?.enhetsnummer) {
-      setAppContext({ ...appContext, overordnetEnhet: overordnetEnhet.enhetsnummer });
+    if (enhetsnrForOverordnetEnhet) {
+      setAppContext({ ...appContext, overordnetEnhet: enhetsnrForOverordnetEnhet });
     }
-  }, [overordnetEnhet?.enhetsnummer]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [enhetsnrForOverordnetEnhet]);
 
   useEffect(() => {
     if (appContext.overordnetEnhet) {
       logEvent({ name: "arbeidsmarkedstiltak.unike-brukere" });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [appContext.overordnetEnhet]);
 }

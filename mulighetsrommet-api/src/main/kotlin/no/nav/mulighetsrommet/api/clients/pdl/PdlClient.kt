@@ -11,7 +11,6 @@ import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.*
 import io.ktor.client.plugins.cache.*
 import io.ktor.client.request.*
-import io.ktor.client.statement.*
 import io.ktor.http.*
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -195,8 +194,6 @@ class PdlClient(
         if (response.status != HttpStatusCode.OK) {
             throw Exception("Error fra pdl: $response")
         }
-
-        log.info("GQL response: ${response.bodyAsText()}")
 
         val graphqlResponse: GraphqlResponse<V> = response.body()
 

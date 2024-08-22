@@ -7,7 +7,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
-import no.nav.mulighetsrommet.api.routes.v1.responses.PaginatedResponse
+import no.nav.mulighetsrommet.api.responses.PaginatedResponse
 import no.nav.mulighetsrommet.api.utils.getNotificationFilter
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.notifications.NotificationService
@@ -18,7 +18,7 @@ import java.util.*
 fun Route.notificationRoutes() {
     val notificationService: NotificationService by inject()
 
-    route("api/v1/intern/notifications") {
+    route("notifications") {
         get {
             val userId = getNavIdent()
             val filter = getNotificationFilter()

@@ -17,14 +17,15 @@ class OpsjonLoggRepository(private val db: Database) {
     fun insert(entry: OpsjonLoggEntry, tx: Session) = query {
         @Language("PostgreSQL")
         val query = """
-            insert into avtale_opsjon_logg(avtale_id, sluttdato, status, registrert_av)
-            values (:avtaleId, :sluttdato, :status::opsjonstatus, :registrertAv)
+            insert into avtale_opsjon_logg(avtale_id, sluttdato, forrige_sluttdato, status, registrert_av)
+            values (:avtaleId, :sluttdato, :forrigeSluttdato, :status::opsjonstatus, :registrertAv)
         """.trimIndent()
         queryOf(
             query,
             mapOf(
                 "avtaleId" to entry.avtaleId,
                 "sluttdato" to entry.sluttdato,
+                "forrigeSluttdato" to entry.forrigeSluttdato,
                 "status" to entry.status.name,
                 "registrertAv" to entry.registrertAv.value,
             ),
@@ -45,7 +46,7 @@ class OpsjonLoggRepository(private val db: Database) {
         @Language("PostgreSQL")
         val getSisteOpsjonerQuery = """
             select * from avtale_opsjon_logg
-            where avtale_id = :avtaleId::uuid and status = 'OPSJON_UTLØST'
+            where avtale_id = :avtaleId::uuid
             order by registrert_dato desc
         """.trimIndent()
 
@@ -63,9 +64,11 @@ class OpsjonLoggRepository(private val db: Database) {
     private fun Row.toOpsjonLoggEntry(): OpsjonLoggEntry {
         return OpsjonLoggEntry(
             avtaleId = this.uuid("avtale_id"),
-            sluttdato = this.localDate("sluttdato"),
+            sluttdato = this.localDateOrNull("sluttdato"),
+            forrigeSluttdato = this.localDateOrNull("forrige_sluttdato"),
             status = OpsjonLoggRequest.OpsjonsLoggStatus.valueOf(this.string("status")),
             registrertAv = NavIdent(this.string("registrert_av")),
+
         )
     }
 }

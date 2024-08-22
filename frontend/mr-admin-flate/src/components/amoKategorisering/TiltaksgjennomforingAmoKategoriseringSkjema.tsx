@@ -6,7 +6,7 @@ import {
   Sertifisering,
   Spesifisering,
   Toggles,
-} from "mulighetsrommet-api-client";
+} from "@mr/api-client";
 import { useFormContext } from "react-hook-form";
 import { useFeatureToggle } from "../../api/features/useFeatureToggle";
 import {

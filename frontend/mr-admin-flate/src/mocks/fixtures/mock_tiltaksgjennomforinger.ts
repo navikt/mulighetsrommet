@@ -11,7 +11,7 @@ import {
   Tiltaksgjennomforing,
   TiltaksgjennomforingOppstartstype,
   TiltaksgjennomforingStatus,
-} from "mulighetsrommet-api-client";
+} from "@mr/api-client";
 import { mockArrangorKontaktpersoner } from "./mock_arrangorKontaktperson";
 import { mockArrangorer } from "./mock_arrangorer";
 import { mockEnheter } from "./mock_enheter";
@@ -28,7 +28,7 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     },
     antallPlasser: 50,
     arrangor: {
-      ...mockArrangorer.data[0].underenheter!![0],
+      ...mockArrangorer.data[0].underenheter![0],
       slettet: false,
       kontaktpersoner: [mockArrangorKontaktpersoner[0]],
     },

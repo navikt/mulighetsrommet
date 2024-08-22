@@ -3,7 +3,7 @@ import {
   Innsatsgruppe,
   KontaktinfoVarsel,
   VeilederflateTiltaksgjennomforing,
-} from "mulighetsrommet-api-client";
+} from "@mr/api-client";
 import { mockInnsatsgrupper } from "@/mock/fixtures/mockInnsatsgrupper";
 import { mockTiltaksgjennomforinger } from "@/mock/fixtures/mockTiltaksgjennomforinger";
 import { mockTiltakstyper } from "@/mock/fixtures/mockTiltakstyper";
@@ -15,6 +15,11 @@ export const tiltakHandlers = [
 
   http.get("*/api/v1/intern/veileder/tiltakstyper", async () => {
     return HttpResponse.json(Object.values(mockTiltakstyper));
+  }),
+
+  http.get("*/api/v1/intern/tiltakstyper/pameldingKommerSnartIModia", async () => {
+    const tiltakstyperMedPamelding = ["ARBEIDSFORBEREDENDE_TRENING"];
+    return HttpResponse.json(tiltakstyperMedPamelding);
   }),
 
   http.get("*/api/v1/intern/tiltakstyper/stotterPameldingIModia", async () => {

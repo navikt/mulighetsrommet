@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { ApiError, AvbrytAvtaleAarsak, AvtalerService } from "mulighetsrommet-api-client";
+import { ApiError, AvbrytAvtaleAarsak, AvtalerService } from "@mr/api-client";
 import { QueryKeys } from "@/api/QueryKeys";
 
 export function useAvbrytAvtale() {

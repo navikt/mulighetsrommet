@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.domain.dto
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.dbo.ArenaDeltakerStatus
@@ -36,6 +37,7 @@ sealed class Tiltakshistorikk {
     )
 
     @Serializable
+    @SerialName("ArenaDeltakelse")
     data class ArenaDeltakelse(
         override val norskIdent: NorskIdent,
         @Serializable(with = LocalDateSerializer::class)
@@ -53,6 +55,7 @@ sealed class Tiltakshistorikk {
     }
 
     @Serializable
+    @SerialName("GruppetiltakDeltakelse")
     data class GruppetiltakDeltakelse(
         override val norskIdent: NorskIdent,
         @Serializable(with = LocalDateSerializer::class)
@@ -70,6 +73,7 @@ sealed class Tiltakshistorikk {
 
     // TODO: team tiltak
     @Serializable
+    @SerialName("ArbeidsgiverAvtale")
     data class ArbeidsgiverAvtale(
         override val norskIdent: NorskIdent,
         @Serializable(with = LocalDateSerializer::class)

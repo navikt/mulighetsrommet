@@ -4,7 +4,7 @@ import {
   PaginertTiltaksgjennomforing,
   Tiltaksgjennomforing,
   TiltaksgjennomforingDeltakerSummary,
-} from "mulighetsrommet-api-client";
+} from "@mr/api-client";
 import {
   mockTiltaksgjennomforinger,
   paginertMockTiltaksgjennomforinger,
@@ -86,7 +86,7 @@ export const tiltaksgjennomforingHandlers = [
     },
   ),
 
-  http.put<{ id: string }, Number>("*/api/v1/intern/tiltaksgjennomforinger/:id/avbryt", () => {
+  http.put<{ id: string }, number>("*/api/v1/intern/tiltaksgjennomforinger/:id/avbryt", () => {
     return HttpResponse.json(1);
   }),
 

@@ -11,10 +11,7 @@ import {
   VStack,
 } from "@navikt/ds-react";
 import { ModalBody, ModalHeader } from "@navikt/ds-react/Modal";
-import {
-  PersonopplysningData,
-  VeilederflateTiltaksgjennomforing,
-} from "mulighetsrommet-api-client";
+import { PersonopplysningData, VeilederflateTiltaksgjennomforing } from "@mr/api-client";
 import { useState } from "react";
 import { useBehandlingAvPersonopplysningerFraAvtale } from "../../api/queries/useBehandlingAvPersonopplysningerFraAvtale";
 import { PersonvernIkon } from "../../ikoner/PersonvernIkon";
@@ -43,12 +40,20 @@ export function PersonvernContainer({ tiltaksgjennomforing }: Props) {
 
   return (
     <>
-      <GuidePanel illustration={<PersonvernIkon />} poster aria-label="Personvern">
+      <GuidePanel
+        illustration={<PersonvernIkon aria-label="Ikon som illustrerer personvern" />}
+        aria-label="Personvern"
+      >
         <VStack gap="5">
-          <Heading level="4" size="small" align="center">
+          <Heading level="4" size="small">
             Personvern og databehandling
           </Heading>
-          <Button variant="tertiary" size="small" onClick={() => setModalOpen(true)}>
+          <Button
+            variant="tertiary"
+            size="small"
+            onClick={() => setModalOpen(true)}
+            className={styles.button_as_link}
+          >
             Se hvilke personopplysninger du kan dele med tiltaksarrangøren for dette tiltaket
           </Button>
         </VStack>
@@ -61,7 +66,7 @@ export function PersonvernContainer({ tiltaksgjennomforing }: Props) {
       >
         <ModalHeader>
           <VStack gap="5">
-            <PersonvernIkon />
+            <PersonvernIkon aria-label="Ikon som illustrerer personvern" />
             <Heading level="2" size="medium">
               {tiltaksgjennomforing.navn}
             </Heading>
@@ -79,11 +84,13 @@ export function PersonvernContainer({ tiltaksgjennomforing }: Props) {
             tilfelle om det er nødvendig å dele opplysningene. Husk prinsippet om dataminimering, og
             at vi ikke skal sende flere opplysninger enn det som er nødvendig.
           </BodyLong>
-          <BodyLong spacing className={styles.lesebredde}>
+          <BodyLong as="div" spacing className={styles.lesebredde}>
             <div className={styles.flex}>
-              Personopplysninger om deltakers nærstående skal i utgangspunktet ikke behandles. I
-              enkelte tilfeller kan det likevel være nødvendig å behandle indirekte opplysninger om
-              deltakers nærstående, fordi det kan ha betydning for tiltaksgjennomføringen.
+              <p style={{ margin: 0 }}>
+                Personopplysninger om deltakers nærstående skal i utgangspunktet ikke behandles. I
+                enkelte tilfeller kan det likevel være nødvendig å behandle indirekte opplysninger
+                om deltakers nærstående, fordi det kan ha betydning for tiltaksgjennomføringen.
+              </p>
               <HelpText>
                 Dataminimeringsprinsippet gjelder også her: man kan for eksempel opplyse om at
                 deltaker har et nært familiemedlem med stort omsorgsbehov, uten å opplyse om

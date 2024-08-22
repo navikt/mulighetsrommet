@@ -1,6 +1,6 @@
 import { TimerPauseFillIcon } from "@navikt/aksel-icons";
 import { BodyShort } from "@navikt/ds-react";
-import { VeilederflateTiltaksgjennomforing } from "mulighetsrommet-api-client";
+import { VeilederflateTiltaksgjennomforing } from "@mr/api-client";
 import styles from "./EstimertVentetid.module.scss";
 import { formatertVentetid } from "@/utils/Utils";
 

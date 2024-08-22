@@ -10,9 +10,9 @@ import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.database.FlywayMigrationManager
 import no.nav.mulighetsrommet.database.kotest.extensions.createDatabaseTestSchema
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
-import no.nav.mulighetsrommet.kafka.producers.ArenaMigreringTiltaksgjennomforingKafkaProducer
-import no.nav.mulighetsrommet.kafka.producers.TiltaksgjennomforingKafkaProducer
-import no.nav.mulighetsrommet.kafka.producers.TiltakstypeKafkaProducer
+import no.nav.mulighetsrommet.kafka.producers.ArenaMigreringTiltaksgjennomforingerV1KafkaProducer
+import no.nav.mulighetsrommet.kafka.producers.SisteTiltaksgjennomforingerV1KafkaProducer
+import no.nav.mulighetsrommet.kafka.producers.SisteTiltakstyperV2KafkaProducer
 import no.nav.mulighetsrommet.unleash.UnleashService
 import no.nav.security.mock.oauth2.MockOAuth2Server
 
@@ -98,6 +98,7 @@ fun createTestApplicationConfig() = AppConfig(
     pdl = ServiceClientConfig(url = "", scope = ""),
     migrerteTiltak = emptyList(),
     pameldingIModia = emptyList(),
+    pameldingKommerSnartIModia = emptyList(),
     pamOntologi = createServiceClientConfig("pam-ontologi"),
     utdanning = UtdanningClient.Config(
         baseurl = "",
@@ -108,9 +109,9 @@ fun createKafkaConfig(): KafkaConfig = KafkaConfig(
     brokerUrl = "localhost:29092",
     producerId = "mulighetsrommet-api-producer",
     producers = KafkaProducers(
-        tiltaksgjennomforinger = TiltaksgjennomforingKafkaProducer.Config(topic = "siste-tiltaksgjennomforinger-v1"),
-        tiltakstyper = TiltakstypeKafkaProducer.Config(topic = "siste-tiltakstyper-v2"),
-        arenaMigreringTiltaksgjennomforinger = ArenaMigreringTiltaksgjennomforingKafkaProducer.Config(
+        tiltaksgjennomforinger = SisteTiltaksgjennomforingerV1KafkaProducer.Config(topic = "siste-tiltaksgjennomforinger-v1"),
+        tiltakstyper = SisteTiltakstyperV2KafkaProducer.Config(topic = "siste-tiltakstyper-v2"),
+        arenaMigreringTiltaksgjennomforinger = ArenaMigreringTiltaksgjennomforingerV1KafkaProducer.Config(
             topic = "arena-migrering-tiltaksgjennomforinger-v1",
         ),
     ),

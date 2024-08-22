@@ -1,17 +1,19 @@
 package no.nav.mulighetsrommet.api.okonomi.tilsagn
 
 import io.ktor.server.application.*
-import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.okonomi.prismodell.Prismodell
 import no.nav.mulighetsrommet.api.plugins.AuthProvider
+import no.nav.mulighetsrommet.api.plugins.authenticate
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
-import no.nav.mulighetsrommet.api.routes.v1.responses.BadRequest
-import no.nav.mulighetsrommet.api.routes.v1.responses.NotFound
-import no.nav.mulighetsrommet.api.routes.v1.responses.respondWithStatusResponse
+import no.nav.mulighetsrommet.api.responses.BadRequest
+import no.nav.mulighetsrommet.api.responses.NotFound
+import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
@@ -22,7 +24,7 @@ import java.util.*
 fun Route.tilsagnRoutes() {
     val service: TilsagnService by inject()
 
-    route("/api/v1/intern/tilsagn") {
+    route("tilsagn") {
         get("/{id}") {
             val id = call.parameters.getOrFail<UUID>("id")
 
@@ -31,10 +33,16 @@ fun Route.tilsagnRoutes() {
             call.respond(result)
         }
 
-        authenticate(
-            AuthProvider.AZURE_AD_TILTAKSJENNOMFORINGER_SKRIV.name,
-            strategy = AuthenticationStrategy.Required,
-        ) {
+        post("/beregn") {
+            val request = call.receive<TilsagnBeregningInput>()
+
+            val result = service.tilsagnBeregning(request)
+                .mapLeft { BadRequest(errors = it) }
+
+            call.respondWithStatusResponse(result)
+        }
+
+        authenticate(AuthProvider.AZURE_AD_TILTAKSJENNOMFORINGER_SKRIV) {
             put {
                 val request = call.receive<TilsagnRequest>()
                 val navIdent = getNavIdent()
@@ -52,10 +60,7 @@ fun Route.tilsagnRoutes() {
             }
         }
 
-        authenticate(
-            AuthProvider.AZURE_AD_OKONOMI_BESLUTTER.name,
-            strategy = AuthenticationStrategy.Required,
-        ) {
+        authenticate(AuthProvider.AZURE_AD_OKONOMI_BESLUTTER) {
             post("/{id}/beslutt") {
                 val id = call.parameters.getOrFail<UUID>("id")
                 val request = call.receive<BesluttTilsagnRequest>()
@@ -66,13 +71,10 @@ fun Route.tilsagnRoutes() {
         }
     }
 
-    route("/api/v1/intern/tiltaksgjennomforinger/{tiltaksgjennomforingId}/tilsagn") {
-        authenticate(
-            AuthProvider.AZURE_AD_TILTAKSJENNOMFORINGER_SKRIV.name,
-            strategy = AuthenticationStrategy.Required,
-        ) {
+    route("/tiltaksgjennomforinger/{id}/tilsagn") {
+        authenticate(AuthProvider.AZURE_AD_TILTAKSJENNOMFORINGER_SKRIV) {
             get {
-                val tiltaksgjennomforingId = call.parameters.getOrFail<UUID>("tiltaksgjennomforingId")
+                val tiltaksgjennomforingId = call.parameters.getOrFail<UUID>("id")
 
                 val result = service.getByGjennomforingId(tiltaksgjennomforingId)
 
@@ -93,15 +95,18 @@ data class TilsagnRequest(
     @Serializable(with = LocalDateSerializer::class)
     val periodeSlutt: LocalDate,
     val kostnadssted: String,
-    val belop: Int,
+    val beregning: Prismodell.TilsagnBeregning,
 ) {
-    fun toDbo(opprettetAv: NavIdent, arrangorId: UUID) = TilsagnDbo(
+    fun toDbo(
+        opprettetAv: NavIdent,
+        arrangorId: UUID,
+    ) = TilsagnDbo(
         id = id,
         tiltaksgjennomforingId = tiltaksgjennomforingId,
         periodeStart = periodeStart,
         periodeSlutt = periodeSlutt,
         kostnadssted = kostnadssted,
-        belop = belop,
+        beregning = beregning,
         opprettetAv = opprettetAv,
         arrangorId = arrangorId,
     )
@@ -115,4 +120,22 @@ data class BesluttTilsagnRequest(
 enum class TilsagnBesluttelse {
     GODKJENT,
     AVVIST,
+}
+
+@Serializable
+sealed class TilsagnBeregningInput {
+    @Serializable
+    @SerialName("AFT")
+    data class AFT(
+        @Serializable(with = LocalDateSerializer::class)
+        val periodeStart: LocalDate,
+        @Serializable(with = LocalDateSerializer::class)
+        val periodeSlutt: LocalDate,
+        val antallPlasser: Int,
+        val sats: Int,
+    ) : TilsagnBeregningInput()
+
+    @Serializable
+    @SerialName("FRI")
+    data class Fri(val belop: Int) : TilsagnBeregningInput()
 }

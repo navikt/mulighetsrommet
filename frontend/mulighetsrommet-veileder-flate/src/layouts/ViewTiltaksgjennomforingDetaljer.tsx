@@ -2,7 +2,7 @@ import { Oppskrift } from "@/components/oppskrift/Oppskrift";
 import { useGetTiltaksgjennomforingIdFraUrl } from "@/hooks/useGetTiltaksgjennomforingIdFraUrl";
 import { PadlockLockedFillIcon } from "@navikt/aksel-icons";
 import { Alert, Tabs } from "@navikt/ds-react";
-import { VeilederflateTiltaksgjennomforing } from "mulighetsrommet-api-client";
+import { VeilederflateTiltaksgjennomforing } from "@mr/api-client";
 import { ReactNode, Suspense, useState } from "react";
 import SidemenyInfo from "../components/sidemeny/SidemenyInfo";
 import TiltaksdetaljerFane from "../components/tabs/TiltaksdetaljerFane";
@@ -11,7 +11,7 @@ import styles from "./ViewTiltaksgjennomforingDetaljer.module.scss";
 import { useInnsatsgrupper } from "@/api/queries/useInnsatsgrupper";
 import { EstimertVentetid } from "@/components/sidemeny/EstimertVentetid";
 import { SidemenyKanKombineresMed } from "@/components/sidemeny/SidemenyKanKombineresMed";
-import { DetaljerSkeleton } from "mulighetsrommet-frontend-common";
+import { DetaljerSkeleton } from "@mr/frontend-common";
 
 interface Props {
   tiltaksgjennomforing: VeilederflateTiltaksgjennomforing;

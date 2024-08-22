@@ -4,7 +4,7 @@ import {
   Tiltakstype,
   PaginertAvtale,
   VeilederflateTiltakstype,
-} from "mulighetsrommet-api-client";
+} from "@mr/api-client";
 import {
   paginertMockTiltakstyper,
   mockVeilederflateTiltakstypeAFT,

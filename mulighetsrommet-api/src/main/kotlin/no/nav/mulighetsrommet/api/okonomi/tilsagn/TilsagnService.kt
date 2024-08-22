@@ -5,8 +5,10 @@ import arrow.core.left
 import arrow.core.right
 import no.nav.mulighetsrommet.api.okonomi.BestillingDto
 import no.nav.mulighetsrommet.api.okonomi.OkonomiClient
+import no.nav.mulighetsrommet.api.okonomi.prismodell.Prismodell
+import no.nav.mulighetsrommet.api.okonomi.prismodell.Prismodell.TilsagnBeregning
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
-import no.nav.mulighetsrommet.api.routes.v1.responses.*
+import no.nav.mulighetsrommet.api.responses.*
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
@@ -24,6 +26,7 @@ class TilsagnService(
 
     suspend fun upsert(request: TilsagnRequest, navIdent: NavIdent): Either<List<ValidationError>, TilsagnDto> {
         val previous = tilsagnRepository.get(request.id)
+
         return validator.validate(request, previous, navIdent)
             .map {
                 db.transactionSuspend { tx ->
@@ -35,6 +38,33 @@ class TilsagnService(
                     dto
                 }
             }
+    }
+
+    fun tilsagnBeregning(input: TilsagnBeregningInput): Either<List<ValidationError>, TilsagnBeregning> {
+        return validator.validateBeregningInput(input)
+            .map {
+                when (input) {
+                    is TilsagnBeregningInput.AFT -> aftTilsagnBeregning(input)
+                    is TilsagnBeregningInput.Fri -> TilsagnBeregning.Fri(input.belop)
+                }
+            }
+    }
+
+    private fun aftTilsagnBeregning(input: TilsagnBeregningInput.AFT): TilsagnBeregning.AFT {
+        val belop = Prismodell.AFT.beregnTilsagnBelop(
+            sats = input.sats,
+            antallPlasser = input.antallPlasser,
+            periodeStart = input.periodeStart,
+            periodeSlutt = input.periodeSlutt,
+        )
+
+        return TilsagnBeregning.AFT(
+            sats = input.sats,
+            antallPlasser = input.antallPlasser,
+            periodeStart = input.periodeStart,
+            periodeSlutt = input.periodeSlutt,
+            belop = belop,
+        )
     }
 
     suspend fun beslutt(id: UUID, besluttelse: TilsagnBesluttelse, navIdent: NavIdent): StatusResponse<Unit> {
@@ -64,8 +94,6 @@ class TilsagnService(
     suspend fun annuller(id: UUID): StatusResponse<Unit> {
         val dto = tilsagnRepository.get(id)
             ?: return NotFound("Fant ikke tilsagn").left()
-        val gjennomforing = tiltaksgjennomforingRepository.get(dto.tiltaksgjennomforingId)
-        requireNotNull(gjennomforing)
 
         return db.transactionSuspend { tx ->
             // TODO: Setter som annullert uavhengig om den er sendt til okonomi. Man kunne
@@ -88,6 +116,7 @@ class TilsagnService(
     private suspend fun lagOgSendBestilling(tilsagn: TilsagnDto) {
         val gjennomforing = tiltaksgjennomforingRepository.get(tilsagn.tiltaksgjennomforingId)
         requireNotNull(gjennomforing) { "Fant ikke gjennomforing til tilsagn" }
+        requireNotNull(gjennomforing.avtaleId) { "Fant ikke avtale til gjennomforingen" }
 
         OkonomiClient.sendBestilling(
             BestillingDto(
@@ -96,7 +125,7 @@ class TilsagnService(
                 periodeSlutt = tilsagn.periodeSlutt,
                 organisasjonsnummer = Organisasjonsnummer(gjennomforing.arrangor.organisasjonsnummer),
                 kostnadSted = tilsagn.kostnadssted,
-                belop = tilsagn.belop,
+                belop = tilsagn.beregning.belop,
             ),
         )
     }

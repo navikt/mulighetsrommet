@@ -1,11 +1,11 @@
 import { useAtom, WritableAtom } from "jotai";
-import { ArrangorTil } from "mulighetsrommet-api-client";
+import { ArrangorTil } from "@mr/api-client";
 import { TiltaksgjennomforingFilter } from "@/api/atoms";
 import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
 import { useArrangorer } from "@/api/arrangor/useArrangorer";
 import { addOrRemove } from "@/utils/Utils";
 import { TILTAKSGJENNOMFORING_STATUS_OPTIONS } from "@/utils/filterUtils";
-import { FilterTag, FilterTagsContainer, NavEnhetFilterTag } from "mulighetsrommet-frontend-common";
+import { FilterTag, FilterTagsContainer, NavEnhetFilterTag } from "@mr/frontend-common";
 
 interface Props {
   filterAtom: WritableAtom<

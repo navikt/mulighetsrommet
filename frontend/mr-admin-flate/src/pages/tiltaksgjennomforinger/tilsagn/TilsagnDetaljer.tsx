@@ -1,5 +1,5 @@
 import { Alert, BodyShort, Button, Heading, HStack, Tag } from "@navikt/ds-react";
-import { NavAnsattRolle, TilsagnBesluttelse } from "mulighetsrommet-api-client";
+import { NavAnsattRolle, TilsagnBesluttelse } from "@mr/api-client";
 import { Link, useMatch, useNavigate, useParams } from "react-router-dom";
 import { useTiltaksgjennomforingById } from "../../../api/tiltaksgjennomforing/useTiltaksgjennomforingById";
 import { Bolk } from "../../../components/detaljside/Bolk";
@@ -127,7 +127,7 @@ export function TilsagnDetaljer() {
                 header="Kostnadssted"
                 verdi={`${tilsagn.kostnadssted.navn} - ${tilsagn.kostnadssted.enhetsnummer}`}
               />
-              <Metadata header="Beløp" verdi={`${formaterTall(tilsagn.belop)} kr`} />
+              <Metadata header="Beløp" verdi={`${formaterTall(tilsagn.beregning.belop)} kr`} />
             </Bolk>
             <Bolk>
               <Metadata header="Løpenummer" verdi={tilsagn.lopenummer} />

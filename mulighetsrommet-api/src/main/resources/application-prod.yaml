@@ -20,6 +20,9 @@ app:
 
   pameldingIModia: []
 
+  pameldingKommerSnartIModia:
+    - ARBEIDSFORBEREDENDE_TRENING
+
   kafka:
     producerId: mulighetsrommet-api-kafka-producer.v1
     consumerGroupId: mulighetsrommet-api-kafka-consumer.v1
@@ -91,8 +94,8 @@ app:
     scope: api://prod-fss.pto.veilarbveileder/.default
 
   veilarbdialogConfig:
-    url: https://veilarbdialog.prod-fss-pub.nais.io/veilarbdialog/api
-    scope: api://prod-fss.pto.veilarbdialog/.default
+    url: http://veilarbdialog.dab/veilarbdialog/api
+    scope: api://prod-gcp.dab.veilarbdialog/.default
 
   amtDeltakerConfig:
     url: http://amt-deltaker.amt
