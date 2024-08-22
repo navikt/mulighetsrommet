@@ -14,8 +14,8 @@ export const utkastFraKomet: DeltakerKort[] = [
       type: DeltakerStatusType.KLADD,
       visningstekst: "Kladden er ikke delt",
     },
-    tiltakstypeNavn: "Avklaring",
-    tittel: "Avklaring hos Muligheter AS",
+    tiltakstypeNavn: "Arbeidsforberende trening",
+    tittel: "Arbeidsforberedende trening hos Barneverns- og Helsenemnda",
     eierskap: "KOMET",
   },
   {
