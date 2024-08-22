@@ -66,8 +66,8 @@ data class DeltakelserRequest(
 
 @Serializable
 data class DeltakelserResponse(
-    val aktive: List<DeltakerKort>,
-    val historikk: List<DeltakerKort>,
+    val aktive: List<DeltakelseFraKomet>,
+    val historikk: List<DeltakelseFraKomet>,
 ) {
     @Serializable
     data class Tiltakstype(
@@ -77,7 +77,7 @@ data class DeltakelserResponse(
 }
 
 @Serializable
-data class DeltakerKort(
+data class DeltakelseFraKomet(
     @Serializable(with = UUIDSerializer::class)
     val deltakerId: UUID,
     @Serializable(with = UUIDSerializer::class)

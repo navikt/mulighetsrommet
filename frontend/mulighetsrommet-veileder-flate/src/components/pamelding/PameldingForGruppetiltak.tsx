@@ -3,7 +3,7 @@ import { useTiltakstyperSomStotterPameldingIModia } from "@/api/queries/useTilta
 import { ModiaRoute, resolveModiaRoute } from "@/apps/modia/ModiaRoute";
 import { useGetTiltaksgjennomforingIdFraUrl } from "@/hooks/useGetTiltaksgjennomforingIdFraUrl";
 import {
-  DeltakerKort,
+  DeltakelseFraKomet,
   DeltakerStatusType,
   VeilederflateTiltaksgjennomforing,
   VeilederflateTiltakstype,
@@ -36,7 +36,7 @@ export function PameldingForGruppetiltak({
   ] as const;
 
   const aktivDeltakelse = aktive.find(
-    (a) => a.deltakerlisteId === gjennomforingId && aktiveStatuser.includes(a.status.type),
+    (a) => a?.deltakerlisteId === gjennomforingId && aktiveStatuser.includes(a.status.type),
   );
 
   const skalVisePameldingslenke =
@@ -100,7 +100,7 @@ interface Tekst {
   variant: "info" | "success" | "warning";
 }
 
-function utledTekster(deltakelse: DeltakerKort): Tekst {
+function utledTekster(deltakelse: DeltakelseFraKomet): Tekst {
   switch (deltakelse.status.type) {
     case DeltakerStatusType.VENTER_PA_OPPSTART:
       return {

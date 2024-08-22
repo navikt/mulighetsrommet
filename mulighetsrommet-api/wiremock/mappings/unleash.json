@@ -57,6 +57,11 @@
           "name": "mulighetsrommet.veilederflate.visDeltakerRegistrering",
           "enabled": true,
           "strategies": []
+        },
+        {
+          "name": "mulighetsrommet-veilederflate-landingsside",
+          "enabled": true,
+          "strategies": []
         }
       ]
     },

@@ -23,7 +23,7 @@ import { ListSkeleton } from "./components/skeleton/ListSkeleton";
 import { LokalInformasjonContainer } from "./components/containers/LokalInformasjonContainer";
 import { LagreFilterContainer } from "./components/lagreFilter/LagreFilterContainer";
 import { LagredeFilterOversikt } from "./components/lagreFilter/LagredeFilterOversikt";
-import { TilbakemeldingLenke } from "./components/tilbakemelding/Tilbakemeldingslenke";
+import { TilbakemeldingsLenke } from "./components/tilbakemelding/Tilbakemeldingslenke";
 
 export {
   useDebounce,
@@ -49,5 +49,5 @@ export {
   LokalInformasjonContainer,
   LagreFilterContainer,
   LagredeFilterOversikt,
-  TilbakemeldingLenke,
+  TilbakemeldingsLenke,
 };

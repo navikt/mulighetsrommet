@@ -56,7 +56,11 @@ export const brukerHandlers = [
   ),
 
   http.post<PathParams, DeltakelserResponse, DeltakelserResponse>(
+    "*/api/v1/intern/bruker/historikk",
+    () => HttpResponse.json({ historiske: historikkFraKomet, aktive: utkastFraKomet }),
+  ),
+  http.post<PathParams, DeltakelserResponse, DeltakelserResponse>(
     "*/api/v1/intern/bruker/komet-deltakelser",
-    () => HttpResponse.json({ historikk: historikkFraKomet, aktive: utkastFraKomet }),
+    () => HttpResponse.json({ historiske: historikkFraKomet, aktive: utkastFraKomet }),
   ),
 ];

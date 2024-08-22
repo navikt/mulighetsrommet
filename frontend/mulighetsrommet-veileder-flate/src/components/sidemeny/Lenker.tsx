@@ -11,7 +11,7 @@ export function LenkeListe({ lenker }: Props) {
   if (!lenker || lenker.length === 0) return null;
 
   return (
-    <GuidePanel poster illustration={<DokumentIkon />}>
+    <GuidePanel poster illustration={<DokumentIkon aria-label="Ikon for dokumenter" />}>
       <Heading level="4" size="small">
         Lenker
       </Heading>

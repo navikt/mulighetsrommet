@@ -1,12 +1,13 @@
 package no.nav.mulighetsrommet.api.services
 
+import arrow.core.Either
 import arrow.core.right
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.mockk
 import no.nav.mulighetsrommet.api.clients.AccessType
-import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
+import no.nav.mulighetsrommet.api.clients.amtDeltaker.*
 import no.nav.mulighetsrommet.api.clients.pdl.IdentGruppe
 import no.nav.mulighetsrommet.api.clients.pdl.IdentInformasjon
 import no.nav.mulighetsrommet.api.clients.pdl.PdlClient
@@ -14,7 +15,7 @@ import no.nav.mulighetsrommet.api.clients.pdl.PdlIdent
 import no.nav.mulighetsrommet.api.clients.tiltakshistorikk.TiltakshistorikkClient
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dto.ArrangorDto
-import no.nav.mulighetsrommet.api.domain.dto.TiltakshistorikkAdminDto
+import no.nav.mulighetsrommet.api.domain.dto.DeltakerKort
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
@@ -100,6 +101,24 @@ class TiltakshistorikkServiceTest : FunSpec({
         coEvery { tiltakshistorikkClient.historikk(any()) } returns TiltakshistorikkResponse(
             historikk = listOf(gruppetiltakDeltakelse, arenaDeltakelse),
         )
+        coEvery { amtDeltakerClient.hentDeltakelser(any(), any()) } returns Either.Right(
+            DeltakelserResponse(
+                aktive = listOf(
+                    DeltakelseFraKomet(
+                        deltakerId = gruppetiltakDeltakelse.id,
+                        deltakerlisteId = gruppetiltakDeltakelse.gjennomforing.id,
+                        tittel = gruppetiltakDeltakelse.gjennomforing.navn,
+                        tiltakstype = DeltakelserResponse.Tiltakstype(navn = tiltakstype.navn, tiltakskode = GruppeTiltakstype.INDOPPFAG),
+                        status = DeltakerStatus(
+                            type = DeltakerStatus.DeltakerStatusType.VENTELISTE,
+                            visningstekst = "Venteliste",
+                            aarsak = null,
+                        ),
+                    ),
+                ),
+                historikk = emptyList(),
+            ),
+        )
 
         val tiltakstyper = TiltakstypeRepository(database.db)
         val historikkService = TiltakshistorikkService(
@@ -110,35 +129,50 @@ class TiltakshistorikkServiceTest : FunSpec({
             tiltakstyper,
         )
 
-        val forventetHistorikk = listOf(
-            TiltakshistorikkAdminDto.GruppetiltakDeltakelse(
-                id = gruppetiltakDeltakelse.id,
-                startDato = LocalDate.of(2018, 12, 3),
-                sluttDato = LocalDate.of(2019, 12, 3),
-                status = AmtDeltakerStatus(
-                    type = AmtDeltakerStatus.Type.VENTELISTE,
-                    opprettetDato = LocalDateTime.of(2018, 12, 3, 0, 0),
-                    aarsak = null,
+        val forventetHistorikk: Map<String, List<DeltakerKort>> = mapOf(
+            "aktive" to listOf(
+                DeltakerKort(
+                    id = gruppetiltakDeltakelse.id,
+                    tiltaksgjennomforingId = null,
+                    eierskap = DeltakerKort.Eierskap.KOMET,
+                    tittel = tiltaksgjennomforing.navn,
+                    tiltakstypeNavn = tiltakstype.navn,
+                    status = DeltakerKort.DeltakerStatus(
+                        type = DeltakerKort.DeltakerStatus.DeltakerStatusType.VENTELISTE,
+                        visningstekst = "Venteliste",
+                        aarsak = null,
+
+                    ),
+                    arrangorNavn = ArrangorFixtures.underenhet1.navn,
+                    periode = DeltakerKort.Periode(
+                        startdato = LocalDate.of(2018, 12, 3),
+                        sluttdato = LocalDate.of(2019, 12, 3),
+                    ),
+                    sistEndretDato = null,
+                    innsoktDato = null,
                 ),
-                tiltakNavn = tiltaksgjennomforing.navn,
-                tiltakstypeNavn = tiltakstype.navn,
-                arrangor = TiltakshistorikkAdminDto.Arrangor(
-                    organisasjonsnummer = Organisasjonsnummer(ArrangorFixtures.underenhet1.organisasjonsnummer),
-                    navn = ArrangorFixtures.underenhet1.navn,
+                DeltakerKort(
+                    id = arenaDeltakelse.id,
+                    tiltaksgjennomforingId = null,
+                    eierskap = DeltakerKort.Eierskap.ARENA,
+                    tittel = arenaDeltakelse.beskrivelse,
+                    tiltakstypeNavn = tiltakstypeIndividuell.navn,
+                    status = DeltakerKort.DeltakerStatus(
+                        type = DeltakerKort.DeltakerStatus.DeltakerStatusType.VENTELISTE,
+                        visningstekst = "Venteliste",
+                        aarsak = null,
+
+                    ),
+                    arrangorNavn = "Bedriftsnavn 2",
+                    periode = DeltakerKort.Periode(
+                        startdato = LocalDate.of(2018, 12, 3),
+                        sluttdato = LocalDate.of(2019, 12, 3),
+                    ),
+                    sistEndretDato = null,
+                    innsoktDato = null,
                 ),
             ),
-            TiltakshistorikkAdminDto.ArenaDeltakelse(
-                id = arenaDeltakelse.id,
-                startDato = LocalDate.of(2018, 12, 3),
-                sluttDato = LocalDate.of(2019, 12, 3),
-                status = ArenaDeltakerStatus.VENTELISTE,
-                tiltakNavn = arenaDeltakelse.beskrivelse,
-                tiltakstypeNavn = tiltakstypeIndividuell.navn,
-                arrangor = TiltakshistorikkAdminDto.Arrangor(
-                    organisasjonsnummer = arenaDeltakelse.arrangor.organisasjonsnummer,
-                    navn = "Bedriftsnavn 2",
-                ),
-            ),
+            "historiske" to emptyList(),
         )
 
         historikkService.hentHistorikkForBruker(

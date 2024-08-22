@@ -1,10 +1,10 @@
-import { DeltakerKort, DeltakerStatusType, TiltakskodeArena } from "@mr/api-client";
+import { DeltakerKort, DeltakerStatusType } from "@mr/api-client";
 import { mockTiltaksgjennomforinger } from "./mockTiltaksgjennomforinger";
 
 export const utkastFraKomet: DeltakerKort[] = [
   {
-    deltakerId: window.crypto.randomUUID(),
-    deltakerlisteId:
+    id: window.crypto.randomUUID(),
+    tiltaksgjennomforingId:
       mockTiltaksgjennomforinger[0].id ||
       mockTiltaksgjennomforinger[0].sanityId ||
       window.crypto.randomUUID(),
@@ -14,15 +14,13 @@ export const utkastFraKomet: DeltakerKort[] = [
       type: DeltakerStatusType.KLADD,
       visningstekst: "Kladden er ikke delt",
     },
-    tiltakstype: {
-      navn: "Avklaring",
-      tiltakskode: TiltakskodeArena.AVKLARAG,
-    },
+    tiltakstypeNavn: "Avklaring",
     tittel: "Avklaring hos Muligheter AS",
+    eierskap: "KOMET",
   },
   {
-    deltakerId: window.crypto.randomUUID(),
-    deltakerlisteId:
+    id: window.crypto.randomUUID(),
+    tiltaksgjennomforingId:
       mockTiltaksgjennomforinger[0].id ||
       mockTiltaksgjennomforinger[0].sanityId ||
       window.crypto.randomUUID(),
@@ -32,15 +30,13 @@ export const utkastFraKomet: DeltakerKort[] = [
       type: DeltakerStatusType.UTKAST_TIL_PAMELDING,
       visningstekst: "Utkastet er delt og venter på godkjenning",
     },
-    tiltakstype: {
-      navn: "Avklaring",
-      tiltakskode: TiltakskodeArena.AVKLARAG,
-    },
+    tiltakstypeNavn: "Avklaring",
     tittel: "Avklaring hos Fretex AS",
+    eierskap: "KOMET",
   },
   {
-    deltakerId: window.crypto.randomUUID(),
-    deltakerlisteId:
+    id: window.crypto.randomUUID(),
+    tiltaksgjennomforingId:
       mockTiltaksgjennomforinger[0].id ||
       mockTiltaksgjennomforinger[0].sanityId ||
       window.crypto.randomUUID(),
@@ -49,15 +45,13 @@ export const utkastFraKomet: DeltakerKort[] = [
       type: DeltakerStatusType.VENTER_PA_OPPSTART,
       visningstekst: "Venter på oppstart",
     },
-    tiltakstype: {
-      navn: "Jobbklubb",
-      tiltakskode: TiltakskodeArena.JOBBK,
-    },
+    tiltakstypeNavn: "Jobbklubb",
     tittel: "Jobbklubb hos Fretex",
+    eierskap: "KOMET",
   },
   {
-    deltakerId: window.crypto.randomUUID(),
-    deltakerlisteId:
+    id: window.crypto.randomUUID(),
+    tiltaksgjennomforingId:
       mockTiltaksgjennomforinger[0].id ||
       mockTiltaksgjennomforinger[0].sanityId ||
       window.crypto.randomUUID(),
@@ -66,19 +60,17 @@ export const utkastFraKomet: DeltakerKort[] = [
       type: DeltakerStatusType.VENTER_PA_OPPSTART,
       visningstekst: "Venter på oppstart",
     },
-    tiltakstype: {
-      navn: "Jobbklubb",
-      tiltakskode: TiltakskodeArena.JOBBK,
-    },
+    tiltakstypeNavn: "Jobbklubb",
     periode: {
       startdato: "2023-08-10",
       sluttdato: "2023-09-11",
     },
     tittel: "Jobbklubb hos Fretex",
+    eierskap: "KOMET",
   },
   {
-    deltakerId: window.crypto.randomUUID(),
-    deltakerlisteId:
+    id: window.crypto.randomUUID(),
+    tiltaksgjennomforingId:
       mockTiltaksgjennomforinger[0].id ||
       mockTiltaksgjennomforinger[0].sanityId ||
       window.crypto.randomUUID(),
@@ -87,19 +79,17 @@ export const utkastFraKomet: DeltakerKort[] = [
       type: DeltakerStatusType.DELTAR,
       visningstekst: "Deltar",
     },
-    tiltakstype: {
-      navn: "Jobbklubb",
-      tiltakskode: TiltakskodeArena.JOBBK,
-    },
+    tiltakstypeNavn: "Jobbklubb",
     periode: {
       startdato: "2023-08-10",
       sluttdato: "2023-09-11",
     },
     tittel: "Jobbklubb hos Fretex",
+    eierskap: "KOMET",
   },
   {
-    deltakerId: window.crypto.randomUUID(),
-    deltakerlisteId:
+    id: window.crypto.randomUUID(),
+    tiltaksgjennomforingId:
       mockTiltaksgjennomforinger[0].id ||
       mockTiltaksgjennomforinger[0].sanityId ||
       window.crypto.randomUUID(),
@@ -108,13 +98,11 @@ export const utkastFraKomet: DeltakerKort[] = [
       type: DeltakerStatusType.VENTER_PA_OPPSTART,
       visningstekst: "Venter på oppstart",
     },
-    tiltakstype: {
-      navn: "Varig tilrettelagt arbeid (VTA)",
-      tiltakskode: TiltakskodeArena.VASV,
-    },
+    tiltakstypeNavn: "Varig tilrettelagt arbeid (VTA)",
     periode: {
       startdato: "2023-08-10",
     },
     tittel: "VTA hos Fretex",
+    eierskap: "KOMET",
   },
 ];

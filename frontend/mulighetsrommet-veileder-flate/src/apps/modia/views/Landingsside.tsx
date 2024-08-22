@@ -3,9 +3,9 @@ import { Alert, BodyShort, Heading, Skeleton, VStack } from "@navikt/ds-react";
 import { Suspense, useState } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { Link, useLocation } from "react-router-dom";
+import { useTiltakshistorikkForBruker } from "../../../api/queries/useTiltakshistorikkForBruker";
 import { DeltakelseKort } from "../historikk/DeltakelseKort";
 import styles from "./Landingsside.module.scss";
-import { useDeltakelserFraKomet } from "@/api/queries/useDeltakelserFraKomet";
 
 function Feilmelding({ message }: { message: string }) {
   return (
@@ -66,31 +66,29 @@ export function Landingsside() {
 }
 
 function Historikk() {
-  const { data } = useDeltakelserFraKomet();
+  const { data } = useTiltakshistorikkForBruker();
+
   if (!data) {
     return null;
   }
 
-  const { historikk } = data;
+  const { historiske } = data;
 
   return (
     <VStack gap="5">
       <Heading level="3" size="medium">
         Historikk
       </Heading>
-      {historikk.map((hist) => {
-        return (
-          <>
-            <DeltakelseKort key={hist.deltakerId} deltakelse={hist} />
-          </>
-        );
+      {historiske.map((hist) => {
+        return <DeltakelseKort key={hist.id} deltakelse={hist} />;
       })}
     </VStack>
   );
 }
 
 function Utkast() {
-  const { data } = useDeltakelserFraKomet();
+  const { data } = useTiltakshistorikkForBruker();
+
   if (!data) {
     return null;
   }
@@ -100,11 +98,7 @@ function Utkast() {
   return (
     <VStack gap="5">
       {aktive.map((utkast) => {
-        return (
-          <>
-            <DeltakelseKort key={utkast.deltakerId} deltakelse={utkast} />
-          </>
-        );
+        return <DeltakelseKort key={utkast.id} deltakelse={utkast} />;
       })}
     </VStack>
   );

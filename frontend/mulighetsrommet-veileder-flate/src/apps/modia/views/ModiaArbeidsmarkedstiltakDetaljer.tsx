@@ -24,7 +24,7 @@ import {
 import {
   DetaljerSkeleton,
   InlineErrorBoundary,
-  TilbakemeldingLenke,
+  TilbakemeldingsLenke,
   useTitle,
 } from "@mr/frontend-common";
 import { gjennomforingIsAktiv } from "@mr/frontend-common/utils/utils";
@@ -185,7 +185,7 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
 
             <LenkeListe lenker={tiltaksgjennomforing.faneinnhold?.lenker} />
             <VisibleWhenToggledOn toggle={Toggles.MULIGHETSROMMET_VEILEDERFLATE_VIS_TILBAKEMELDING}>
-              <TilbakemeldingLenke
+              <TilbakemeldingsLenke
                 url={PORTEN_URL_FOR_TILBAKEMELDING(
                   tiltaksgjennomforing.tiltaksnummer,
                   regioner?.data?.find((r) => r.enhetsnummer === tiltaksgjennomforing?.fylke)?.navn,

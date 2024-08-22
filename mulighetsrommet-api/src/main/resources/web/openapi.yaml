@@ -992,9 +992,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/TiltakshistorikkAdminDto"
+                $ref: "#/components/schemas/DeltakelserResponse"
 
   /api/v1/intern/bruker/komet-deltakelser:
     post:
@@ -1013,7 +1011,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/DeltakelserResponse"
+                $ref: "#/components/schemas/DeltakelserResponseFraKomet"
 
   /api/v1/intern/ansatt:
     get:
@@ -2929,15 +2927,77 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/DeltakerKort"
-        historikk:
+        historiske:
           type: array
           items:
             $ref: "#/components/schemas/DeltakerKort"
       required:
         - aktive
+        - historiske
+
+    DeltakelserResponseFraKomet:
+      type: object
+      properties:
+        aktive:
+          type: array
+          items:
+            $ref: "#/components/schemas/DeltakelseFraKomet"
+        historikk:
+          type: array
+          items:
+            $ref: "#/components/schemas/DeltakelseFraKomet"
+      required:
+        - aktive
         - historikk
 
     DeltakerKort:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        tiltaksgjennomforingId:
+          type: string
+          format: uuid
+          nullable: true
+        eierskap:
+          type: string
+          enum:
+            - ARENA
+            - KOMET
+        tittel:
+          type: string
+        tiltakstypeNavn:
+          type: string
+        status:
+          $ref: "#/components/schemas/DeltakerStatus"
+        innsoktDato:
+          type: string
+          nullable: true
+        sistEndretDato:
+          type: string
+          nullable: true
+        periode:
+          type: object
+          properties:
+            startdato:
+              type: string
+              nullable: true
+            sluttdato:
+              type: string
+              nullable: true
+          nullable: true
+        arrangorNavn:
+          type: string
+          nullable: true
+      required:
+        - id
+        - eierskap
+        - tittel
+        - tiltakstypeNavn
+        - status
+
+    DeltakelseFraKomet:
       type: object
       properties:
         deltakerId:
@@ -2946,10 +3006,16 @@ components:
         deltakerlisteId:
           type: string
           format: uuid
+          nullable: true
         tittel:
           type: string
         tiltakstype:
-          $ref: "#/components/schemas/Gruppetiltak"
+          type: object
+          properties:
+            navn:
+              type: string
+            tiltakskode:
+              $ref: "#/components/schemas/Tiltakskode"
         status:
           $ref: "#/components/schemas/DeltakerStatus"
         innsoktDato:
@@ -2972,7 +3038,7 @@ components:
         - deltakerId
         - deltakerlisteId
         - tittel
-        - tiltakstype
+        - tiltakstypeNavn
         - status
 
     DeltakerStatusType:
@@ -2991,6 +3057,18 @@ components:
         - AVBRUTT
         - FULLFORT
         - FEILREGISTRERT
+        - AVSLAG
+        - TAKKET_NEI_TIL_TILBUD
+        - TILBUD
+        - TAKKET_JA_TIL_TILBUD
+        - INFORMASJONSMOTE
+        - AKTUELL
+        - GJENNOMFORES
+        - DELTAKELSE_AVBRUTT
+        - GJENNOMFORING_AVBRUTT
+        - GJENNOMFORING_AVLYST
+        - IKKE_MOTT
+        - PABEGYNT_REGISTRERING
 
     DeltakerStatus:
       type: object
