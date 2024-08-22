@@ -332,7 +332,7 @@ export function spesifiseringToString(spesifisering: Spesifisering): string {
     case Spesifisering.NORSKOPPLAERING:
       return "Norskopplæring";
     case Spesifisering.FORBEREDENDE_OPPLAERING_FOR_VOKSNE:
-      return "FOV (Forberedende opplæring for vokse)";
+      return "FOV (Forberedende opplæring for voksne)";
     case Spesifisering.GRUNNLEGGENDE_FERDIGHETER:
       return "Grunnleggende ferdigheter";
   }
