@@ -1,5 +1,5 @@
 import { DeltakerKort, DeltakerStatus, DeltakerStatusType } from "@mr/api-client";
-import { BodyShort, Box, Button, HStack, Heading, Tag, VStack } from "@navikt/ds-react";
+import { BodyShort, Box, Button, HGrid, HStack, Heading, Tag, VStack } from "@navikt/ds-react";
 import classNames from "classnames";
 import { formaterDato } from "../../../utils/Utils";
 import { ModiaRoute, resolveModiaRoute } from "../ModiaRoute";
@@ -30,12 +30,12 @@ export function DeltakelseKort({ deltakelse, size = "medium" }: Props) {
 
   return (
     <Wrapper size={size} deltakelse={deltakelse}>
-      <HStack justify={"space-between"} align={"center"}>
+      <HGrid columns={"1fr 20%"} align="center">
         <Innhold deltakelse={deltakelse} />
         <Button onClick={deltakelseRoute.navigate} size="small">
           Gå til deltakelse
         </Button>
-      </HStack>
+      </HGrid>
     </Wrapper>
   );
 }
