@@ -40,11 +40,14 @@ class TilsagnService(
             }
     }
 
-    fun tilsagnBeregning(input: TilsagnBeregningInput): TilsagnBeregning {
-        return when (input) {
-            is TilsagnBeregningInput.AFT -> aftTilsagnBeregning(input)
-            is TilsagnBeregningInput.Fri -> TilsagnBeregning.Fri(input.belop)
-        }
+    fun tilsagnBeregning(input: TilsagnBeregningInput): Either<List<ValidationError>, TilsagnBeregning> {
+        return validator.validateBeregningInput(input)
+            .map {
+                when (input) {
+                    is TilsagnBeregningInput.AFT -> aftTilsagnBeregning(input)
+                    is TilsagnBeregningInput.Fri -> TilsagnBeregning.Fri(input.belop)
+                }
+            }
     }
 
     private fun aftTilsagnBeregning(input: TilsagnBeregningInput.AFT): TilsagnBeregning.AFT {

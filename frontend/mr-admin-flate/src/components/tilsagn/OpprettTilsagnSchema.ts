@@ -30,6 +30,13 @@ export const OpprettTilsagnSchema = z
         path: ["periode.slutt"],
       });
     }
+    if (!data.beregning) {
+      ctx.addIssue({
+        code: ZodIssueCode.custom,
+        message: "Beregning mangler",
+        path: ["beregning"],
+      });
+    }
   });
 
 export type InferredOpprettTilsagnSchema = z.infer<typeof OpprettTilsagnSchema>;
