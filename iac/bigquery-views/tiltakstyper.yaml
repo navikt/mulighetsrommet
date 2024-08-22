@@ -12,7 +12,7 @@ metadata:
 
 spec:
   resourceID: tiltakstype_view # Navn på viewet uttad
-  description: "Dataprodukt som viser tiltakstyper med navn, tiltakskode og om tiltakstypen gir rett til tiltakspenger"
+  description: "Dataprodukt som viser tiltakstyper med navn, tiltakskode"
   datasetRef:
     external: datastream_mulighetsrommet_api_db
   view:
