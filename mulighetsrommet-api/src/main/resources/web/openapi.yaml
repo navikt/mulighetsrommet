@@ -1007,11 +1007,13 @@ paths:
         required: true
       responses:
         200:
-          description: Deltakelser fra komet
+          description: Aktiv deltakelse for gjennomføring
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/DeltakelseFraKomet"
+        404:
+          description: Fant ikke deltakelse for gjennomføring
 
   /api/v1/intern/ansatt:
     get:

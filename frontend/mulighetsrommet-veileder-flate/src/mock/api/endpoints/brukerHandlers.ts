@@ -2,7 +2,10 @@ import { http, HttpResponse, PathParams } from "msw";
 import {
   Bruker,
   BrukerVarsel,
+  DeltakelseFraKomet,
   DeltakelserResponse,
+  DeltakerKort,
+  GetAktivDeltakelseForBrukerRequest,
   GetBrukerRequest,
   Innsatsgruppe,
   NavEnhetStatus,
@@ -59,8 +62,18 @@ export const brukerHandlers = [
     "*/api/v1/intern/bruker/historikk",
     () => HttpResponse.json({ historiske: historikkFraKomet, aktive: utkastFraKomet }),
   ),
-  http.post<PathParams, DeltakelserResponse, DeltakelserResponse>(
-    "*/api/v1/intern/bruker/komet-deltakelser",
-    () => HttpResponse.json({ historiske: historikkFraKomet, aktive: utkastFraKomet }),
+  http.post<PathParams, GetAktivDeltakelseForBrukerRequest, DeltakerKort>(
+    "*/api/v1/intern/bruker/deltakelse-for-gjennomforing",
+    async ({ request }) => {
+      const { tiltaksgjennomforingId } = await request.json();
+      const found = utkastFraKomet.find(
+        (utkast) => utkast.tiltaksgjennomforingId == tiltaksgjennomforingId,
+      );
+      if (found) {
+        return HttpResponse.json(found);
+      } else {
+        return HttpResponse.json(null, { status: 404 });
+      }
+    },
   ),
 ];
