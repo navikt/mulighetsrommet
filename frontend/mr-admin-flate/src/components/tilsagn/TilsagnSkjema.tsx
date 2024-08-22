@@ -2,16 +2,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { FormProvider, useForm } from "react-hook-form";
 import { InferredOpprettTilsagnSchema, OpprettTilsagnSchema } from "./OpprettTilsagnSchema";
 import { useEffect } from "react";
-import {
-  HGrid,
-  TextField,
-  DatePicker,
-  Select,
-  BodyShort,
-  Alert,
-  HStack,
-  Button,
-} from "@navikt/ds-react";
+import { HGrid, TextField, DatePicker, BodyShort, Alert, HStack, Button } from "@navikt/ds-react";
 import { addYear } from "../../utils/Utils";
 import { ControlledDateInput } from "../skjema/ControlledDateInput";
 import { FormGroup } from "../skjema/FormGroup";
@@ -20,6 +11,7 @@ import { useNavEnheter } from "../../api/enhet/useNavEnheter";
 import { UseMutationResult } from "@tanstack/react-query";
 import { AFTBeregningSkjema } from "./AFTBeregningSkjema";
 import { FriBeregningSkjema } from "./FriBeregningSkjema";
+import { ControlledSokeSelect } from "@mr/frontend-common";
 
 interface Props {
   tiltaksgjennomforing: Tiltaksgjennomforing;
@@ -55,12 +47,7 @@ export function TilsagnSkjema({
       : {},
   });
 
-  const {
-    handleSubmit,
-    register,
-    setValue,
-    formState: { errors },
-  } = form;
+  const { handleSubmit, register, setValue } = form;
 
   useEffect(() => {
     if (tilsagn) {
@@ -122,23 +109,22 @@ export function TilsagnSkjema({
           )}
         </FormGroup>
         <FormGroup>
-          <Select
+          <ControlledSokeSelect
+            placeholder="Velg kostnadssted"
             size="small"
             label="Kostnadssted"
             {...register("kostnadssted")}
-            error={errors.kostnadssted?.message}
-          >
-            <option value={undefined}>Velg kostnadssted</option>
-            {navEnheter
-              ?.sort((a, b) => a.navn.localeCompare(b.navn))
-              .map(({ navn, enhetsnummer }) => {
-                return (
-                  <option key={enhetsnummer} value={enhetsnummer}>
-                    {navn} - {enhetsnummer}
-                  </option>
-                );
-              })}
-          </Select>
+            options={
+              navEnheter
+                ?.sort((a, b) => a.navn.localeCompare(b.navn))
+                .map(({ navn, enhetsnummer }) => {
+                  return {
+                    value: enhetsnummer,
+                    label: `${navn} - ${enhetsnummer}`,
+                  };
+                }) ?? []
+            }
+          />
         </FormGroup>
         <BodyShort spacing>
           {mutation.error ? (

@@ -40,11 +40,14 @@ class TilsagnService(
             }
     }
 
-    fun tilsagnBeregning(input: TilsagnBeregningInput): TilsagnBeregning {
-        return when (input) {
-            is TilsagnBeregningInput.AFT -> aftTilsagnBeregning(input)
-            is TilsagnBeregningInput.Fri -> TilsagnBeregning.Fri(input.belop)
-        }
+    fun tilsagnBeregning(input: TilsagnBeregningInput): Either<List<ValidationError>, TilsagnBeregning> {
+        return validator.validateBeregningInput(input)
+            .map {
+                when (input) {
+                    is TilsagnBeregningInput.AFT -> aftTilsagnBeregning(input)
+                    is TilsagnBeregningInput.Fri -> TilsagnBeregning.Fri(input.belop)
+                }
+            }
     }
 
     private fun aftTilsagnBeregning(input: TilsagnBeregningInput.AFT): TilsagnBeregning.AFT {
@@ -91,8 +94,6 @@ class TilsagnService(
     suspend fun annuller(id: UUID): StatusResponse<Unit> {
         val dto = tilsagnRepository.get(id)
             ?: return NotFound("Fant ikke tilsagn").left()
-        val gjennomforing = tiltaksgjennomforingRepository.get(dto.tiltaksgjennomforingId)
-        requireNotNull(gjennomforing)
 
         return db.transactionSuspend { tx ->
             // TODO: Setter som annullert uavhengig om den er sendt til okonomi. Man kunne

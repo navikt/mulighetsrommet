@@ -4,8 +4,8 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import java.lang.Math.addExact
+import java.math.RoundingMode
 import java.time.LocalDate
-import kotlin.math.ceil
 import kotlin.streams.asSequence
 
 object Prismodell {
@@ -26,13 +26,15 @@ object Prismodell {
                 .asSequence()
                 .groupBy { it.month }
                 .map { (_, datesInMonth) ->
-                    val fractionOfMonth = datesInMonth.size.toDouble() / datesInMonth[0].lengthOfMonth().toDouble()
+                    val fractionOfMonth = datesInMonth.size.toBigDecimal()
+                        .divide(datesInMonth[0].lengthOfMonth().toBigDecimal(), 2, RoundingMode.HALF_UP)
 
-                    val value = ceil(fractionOfMonth * sats * antallPlasser)
-                    if (value > Int.MAX_VALUE) {
-                        throw ArithmeticException()
-                    }
-                    value.toInt()
+                    val value = fractionOfMonth
+                        .multiply(sats.toBigDecimal())
+                        .multiply(antallPlasser.toBigDecimal())
+                        .setScale(0, RoundingMode.HALF_EVEN)
+
+                    value.intValueExact()
                 }
                 .reduce { acc: Int, s: Int -> addExact(acc, s) }
         }

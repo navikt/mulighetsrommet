@@ -4532,10 +4532,10 @@ components:
 
     TilsagnBeregning:
       oneOf:
-        - $ref: '#/components/schemas/AFTTilsagnBeregning'
-        - $ref: '#/components/schemas/FriTilsagnBeregning'
+        - $ref: '#/components/schemas/TilsagnBeregningAFT'
+        - $ref: '#/components/schemas/TilsagnBeregningFri'
 
-    AFTTilsagnBeregning:
+    TilsagnBeregningAFT:
       type: object
       properties:
         type:
@@ -4562,7 +4562,7 @@ components:
         - periodeStart
         - periodeSlutt
 
-    FriTilsagnBeregning:
+    TilsagnBeregningFri:
       type: object
       properties:
         type:
@@ -4577,10 +4577,10 @@ components:
 
     TilsagnBeregningInput:
       oneOf:
-        - $ref: '#/components/schemas/AFTTilsagnBeregningInput'
-        - $ref: '#/components/schemas/FriTilsagnBeregningInput'
+        - $ref: '#/components/schemas/TilsagnBeregningInputAFT'
+        - $ref: '#/components/schemas/TilsagnBeregningInputFri'
 
-    AFTTilsagnBeregningInput:
+    TilsagnBeregningInputAFT:
       properties:
         type:
           type: string
@@ -4603,7 +4603,7 @@ components:
         - sats
         - antallPlasser
 
-    FriTilsagnBeregningInput:
+    TilsagnBeregningInputFri:
       type: object
       properties:
         type:

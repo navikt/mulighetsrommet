@@ -35,7 +35,11 @@ fun Route.tilsagnRoutes() {
 
         post("/beregn") {
             val request = call.receive<TilsagnBeregningInput>()
-            call.respond(service.tilsagnBeregning(request))
+
+            val result = service.tilsagnBeregning(request)
+                .mapLeft { BadRequest(errors = it) }
+
+            call.respondWithStatusResponse(result)
         }
 
         authenticate(AuthProvider.AZURE_AD_TILTAKSJENNOMFORINGER_SKRIV) {

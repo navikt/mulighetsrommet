@@ -2,8 +2,9 @@ import { HStack, TextField } from "@navikt/ds-react";
 import { useEffect, useState } from "react";
 import { DeepPartial, useFormContext } from "react-hook-form";
 import { InferredOpprettTilsagnSchema } from "./OpprettTilsagnSchema";
-import { BeregnTilsagnService } from "@mr/api-client";
 import { NumericFormat } from "react-number-format";
+import { useBeregnTilsagn } from "@/api/tilsagn/useBeregnTilsagn";
+import { useHandleApiUpsertResponse } from "@/api/effects";
 
 interface Props {
   defaultAntallPlasser?: number;
@@ -13,7 +14,10 @@ interface Props {
 const sats = 20205;
 
 export function AFTBeregningSkjema({ defaultAntallPlasser }: Props) {
+  const mutation = useBeregnTilsagn();
   const {
+    setError,
+    clearErrors,
     watch,
     setValue,
     formState: { errors },
@@ -25,26 +29,44 @@ export function AFTBeregningSkjema({ defaultAntallPlasser }: Props) {
   const beregning = watch("beregning");
 
   useEffect(() => {
-    const getBeregning = async () => {
-      if (periode?.start && periode.slutt) {
-        const beregning = await BeregnTilsagnService.beregnTilsagn({
-          requestBody: {
-            type: "AFT",
-            periodeStart: periode.start,
-            periodeSlutt: periode.slutt,
-            sats,
-            antallPlasser,
-          },
-        });
-        setValue("beregning", beregning);
-      }
-    };
-
-    getBeregning();
+    if (periode?.start && periode.slutt && mutation) {
+      mutation.mutate({
+        type: "AFT",
+        periodeStart: periode.start,
+        periodeSlutt: periode.slutt,
+        sats,
+        antallPlasser,
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [antallPlasser, periode?.start, periode?.slutt, setValue]);
 
+  useHandleApiUpsertResponse(
+    mutation,
+    (response) => {
+      clearErrors();
+      setValue("beregning", response);
+    },
+    (validation) => {
+      setValue("beregning", undefined);
+      validation.errors.forEach((error) => {
+        const name = mapErrorToSchemaPropertyName(error.name);
+        setError(name, { type: "custom", message: error.message });
+      });
+
+      function mapErrorToSchemaPropertyName(name: string) {
+        const mapping: { [name: string]: string } = {
+          periodeStart: "periode.start",
+          periodeSlutt: "periode.slutt",
+          antallPlasser: "beregning",
+        };
+        return (mapping[name] ?? name) as keyof InferredOpprettTilsagnSchema;
+      }
+    },
+  );
+
   return (
-    <HStack gap="2">
+    <HStack gap="2" align="start">
       <NumericFormat
         size="small"
         error={errors.beregning?.message}
@@ -54,18 +76,28 @@ export function AFTBeregningSkjema({ defaultAntallPlasser }: Props) {
         valueIsNumericString
         thousandSeparator
         onValueChange={(e) => {
-          setAntallPlasser(Number.parseInt(e.value));
+          const n = Number.parseInt(e.value);
+          setAntallPlasser(isNaN(n) ? 0 : n);
         }}
       />
       <NumericFormat
         readOnly
         size="small"
-        error={errors.beregning?.message}
+        label="Sats"
+        customInput={TextField}
+        value={sats}
+        valueIsNumericString
+        thousandSeparator=" "
+        suffix=" kr"
+      />
+      <NumericFormat
+        readOnly
+        size="small"
         label="Beløp"
         customInput={TextField}
         value={beregning?.belop}
         valueIsNumericString
-        thousandSeparator
+        thousandSeparator=" "
         suffix=" kr"
       />
     </HStack>

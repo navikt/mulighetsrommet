@@ -94,10 +94,6 @@ class TilsagnRepository(private val db: Database) {
             .let { db.run(it) }
     }
 
-    fun setAnnullertTidspunkt(id: UUID, tidspunkt: LocalDateTime) = db.transaction {
-        setAnnullertTidspunkt(id, tidspunkt, it)
-    }
-
     fun setAnnullertTidspunkt(id: UUID, tidspunkt: LocalDateTime, tx: Session): Int {
         @Language("PostgreSQL")
         val query = """

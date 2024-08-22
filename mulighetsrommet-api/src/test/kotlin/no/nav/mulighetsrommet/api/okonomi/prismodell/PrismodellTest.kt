@@ -60,7 +60,7 @@ class PrismodellTest : FunSpec({
                 antallPlasser = 1,
                 periodeStart = LocalDate.of(2024, 2, 1),
                 periodeSlutt = LocalDate.of(2024, 2, 28),
-            ) shouldBe 966
+            ) shouldBe 970
         }
         test("0 pris = 0 beløp") {
             Prismodell.AFT.beregnTilsagnBelop(
@@ -86,7 +86,7 @@ class PrismodellTest : FunSpec({
                 antallPlasser = 1,
                 periodeStart = LocalDate.of(2088, 1, 1),
                 periodeSlutt = LocalDate.of(2088, 1, 1),
-            ) shouldBe 1 // pga runding opp
+            ) shouldBe 0
         }
         test("overflow kaster exception") {
             // overflow i en delberegning for én måned
@@ -115,7 +115,7 @@ class PrismodellTest : FunSpec({
                 antallPlasser = 24,
                 periodeStart = LocalDate.of(2024, 9, 15),
                 periodeSlutt = LocalDate.of(2024, 12, 31),
-            ) shouldBe 1713384
+            ) shouldBe 1711768
         }
     }
 })
