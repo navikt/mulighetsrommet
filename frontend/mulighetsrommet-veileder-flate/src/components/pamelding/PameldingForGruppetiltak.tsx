@@ -89,7 +89,6 @@ interface Tekst {
 }
 
 function utledTekster(deltakelse: DeltakelseFraKomet): Tekst {
-  console.log(deltakelse);
   switch (deltakelse.status.type) {
     case DeltakerStatusType.VENTER_PA_OPPSTART:
       return {

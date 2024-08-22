@@ -1,8 +1,7 @@
-import { http, HttpResponse, PathParams } from "msw";
+import { utkastFraKomet } from "@/mock/fixtures/mockKometUtkast";
 import {
   Bruker,
   BrukerVarsel,
-  DeltakelseFraKomet,
   DeltakelserResponse,
   DeltakerKort,
   GetAktivDeltakelseForBrukerRequest,
@@ -12,9 +11,9 @@ import {
   NavEnhetType,
   TiltakshistorikkAdminDto,
 } from "@mr/api-client";
+import { http, HttpResponse, PathParams } from "msw";
 import { historikk } from "../../fixtures/mockHistorikk";
 import { historikkFraKomet } from "../../fixtures/mockKometHistorikk";
-import { utkastFraKomet } from "@/mock/fixtures/mockKometUtkast";
 
 export const brukerHandlers = [
   http.post<PathParams, GetBrukerRequest, Bruker | string>(
