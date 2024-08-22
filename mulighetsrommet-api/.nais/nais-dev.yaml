@@ -59,6 +59,8 @@ spec:
             value: "200"
           - name: cloudsql.logical_decoding # Settes for å støtte replication slots i databasen
             value: "on" # flagget som må settes
+          - name: wal_level
+            value: logical
   kafka:
     pool: nav-dev
   azure:

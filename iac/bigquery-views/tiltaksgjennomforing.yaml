@@ -12,7 +12,7 @@ metadata:
 
 spec:
   resourceID: tiltaksgjennomforing_view # Navn på viewet uttad
-  description: "Dataprodukt som viser tiltaksgjennomforinger som har vært altive fra og med 2018-01-01"
+  description: "Dataprodukt som viser tiltaksgjennomforinger som har vært aktive fra og med 2018-01-01"
   datasetRef:
     external: datastream_mulighetsrommet_api_db
   view:
