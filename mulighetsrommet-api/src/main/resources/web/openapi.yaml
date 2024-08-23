@@ -3583,7 +3583,7 @@ components:
           type: string
         enhet:
           $ref: "#/components/schemas/NavEnhet"
-        telefonnummer:
+        telefon:
           type: string
         epost:
           type: string

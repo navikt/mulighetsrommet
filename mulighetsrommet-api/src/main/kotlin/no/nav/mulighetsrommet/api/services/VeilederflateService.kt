@@ -324,7 +324,7 @@ class VeilederflateService(
                 ?.map {
                     VeilederflateKontaktinfoTiltaksansvarlig(
                         navn = it.navn,
-                        telefonnummer = it.telefonnummer,
+                        telefon = it.telefonnummer,
                         enhet = it.enhet?.let { enhet -> navEnhetService.hentEnhet(enhet) },
                         epost = it.epost,
                         beskrivelse = it.beskrivelse,

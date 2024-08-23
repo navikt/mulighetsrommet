@@ -42,7 +42,7 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
       tiltaksansvarlige: [
         {
           navn: "Sindre",
-          telefonnummer: "12345678",
+          telefon: "12345678",
           _id: "8ea86d71-4c1b-4c8f-81b5-49ec67ef1d17",
           enhet: {
             enhetsnummer: "1928",
@@ -124,7 +124,7 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
       tiltaksansvarlige: [
         {
           navn: "Sindre",
-          telefonnummer: "12345678",
+          telefon: "12345678",
           _id: "8ea86d71-4c1b-4c8f-81b5-49ec67ef1d17",
           enhet: {
             enhetsnummer: "1928",
@@ -169,7 +169,7 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
       tiltaksansvarlige: [
         {
           navn: "Pelle Pilotbruker",
-          telefonnummer: "48123456",
+          telefon: "48123456",
           enhet: {
             status: NavEnhetStatus.AKTIV,
             enhetsnummer: "1928",
@@ -272,7 +272,7 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
       tiltaksansvarlige: [
         {
           navn: "Pelle Pilotbruker",
-          telefonnummer: "48123456",
+          telefon: "48123456",
           enhet: {
             enhetsnummer: "1928",
             status: NavEnhetStatus.AKTIV,
@@ -353,7 +353,7 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
       tiltaksansvarlige: [
         {
           navn: "Pelle Pilotbruker",
-          telefonnummer: "48123456",
+          telefon: "48123456",
           enhet: {
             enhetsnummer: "1928",
             navn: "Nav Oslo",
@@ -408,7 +408,7 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
       tiltaksansvarlige: [
         {
           navn: "Pelle Pilotbruker",
-          telefonnummer: "48123456",
+          telefon: "48123456",
           enhet: {
             enhetsnummer: "1928",
             navn: "Nav Oslo",

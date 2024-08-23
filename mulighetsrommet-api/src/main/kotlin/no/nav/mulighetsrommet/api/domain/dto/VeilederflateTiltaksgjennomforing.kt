@@ -51,7 +51,7 @@ data class VeilederflateTiltaksgjennomforing(
 @Serializable
 data class VeilederflateKontaktinfoTiltaksansvarlig(
     val navn: String? = null,
-    val telefonnummer: String? = null,
+    val telefon: String? = null,
     val enhet: NavEnhetDbo? = null,
     val epost: String? = null,
     val beskrivelse: String? = null,
