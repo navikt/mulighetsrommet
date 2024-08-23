@@ -61,6 +61,12 @@ class TiltakshistorikkService(
                         aarsak = deltakelseFraKomet.status.aarsak,
                     ),
                     eierskap = DeltakerKort.Eierskap.KOMET,
+                    innsoktDato = deltakelseFraKomet.innsoktDato,
+                    sistEndretDato = deltakelseFraKomet.sistEndretDato,
+                    periode = DeltakerKort.Periode(
+                        startdato = deltakelseFraKomet.periode?.startdato,
+                        sluttdato = deltakelseFraKomet.periode?.sluttdato,
+                    ),
                 )
             } else {
                 deltakelse
