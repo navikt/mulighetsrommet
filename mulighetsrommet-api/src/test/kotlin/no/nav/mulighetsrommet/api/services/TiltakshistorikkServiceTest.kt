@@ -60,7 +60,7 @@ class TiltakshistorikkServiceTest : FunSpec({
         arrangor = Arrangor(Organisasjonsnummer(ArrangorFixtures.underenhet1.organisasjonsnummer)),
     )
 
-    val tiltakstypeIndividuell = TiltakstypeFixtures.Arbeidstrening
+    val tiltakstypeGruppe = TiltakstypeFixtures.Avklaring
 
     val arenaDeltakelse = Tiltakshistorikk.ArenaDeltakelse(
         id = UUID.randomUUID(),
@@ -68,7 +68,7 @@ class TiltakshistorikkServiceTest : FunSpec({
         status = ArenaDeltakerStatus.VENTELISTE,
         startDato = LocalDate.of(2018, 12, 3),
         sluttDato = LocalDate.of(2019, 12, 3),
-        arenaTiltakskode = tiltakstypeIndividuell.arenaKode,
+        arenaTiltakskode = tiltakstypeGruppe.arenaKode,
         beskrivelse = "Utdanning",
         arrangor = Arrangor(Organisasjonsnummer("123456789")),
     )
@@ -76,7 +76,7 @@ class TiltakshistorikkServiceTest : FunSpec({
     beforeAny {
         MulighetsrommetTestDomain(
             arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
-            tiltakstyper = listOf(tiltakstype, tiltakstypeIndividuell),
+            tiltakstyper = listOf(tiltakstype, tiltakstypeGruppe),
             avtaler = listOf(AvtaleFixtures.oppfolging),
             gjennomforinger = listOf(tiltaksgjennomforing),
         ).initialize(database.db)
@@ -107,7 +107,7 @@ class TiltakshistorikkServiceTest : FunSpec({
                     DeltakelseFraKomet(
                         deltakerId = gruppetiltakDeltakelse.id,
                         deltakerlisteId = gruppetiltakDeltakelse.gjennomforing.id,
-                        tittel = gruppetiltakDeltakelse.gjennomforing.navn,
+                        tittel = "Oppfølging hos Fretex AS",
                         tiltakstype = DeltakelserResponse.Tiltakstype(navn = tiltakstype.navn, tiltakskode = GruppeTiltakstype.INDOPPFAG),
                         status = DeltakerStatus(
                             type = DeltakerStatus.DeltakerStatusType.VENTELISTE,
@@ -141,7 +141,7 @@ class TiltakshistorikkServiceTest : FunSpec({
                     id = gruppetiltakDeltakelse.id,
                     tiltaksgjennomforingId = null,
                     eierskap = DeltakerKort.Eierskap.KOMET,
-                    tittel = tiltaksgjennomforing.navn,
+                    tittel = "Oppfølging hos Fretex AS",
                     tiltakstypeNavn = tiltakstype.navn,
                     status = DeltakerKort.DeltakerStatus(
                         type = DeltakerKort.DeltakerStatus.DeltakerStatusType.VENTELISTE,
@@ -161,8 +161,8 @@ class TiltakshistorikkServiceTest : FunSpec({
                     id = arenaDeltakelse.id,
                     tiltaksgjennomforingId = null,
                     eierskap = DeltakerKort.Eierskap.ARENA,
-                    tittel = arenaDeltakelse.beskrivelse,
-                    tiltakstypeNavn = tiltakstypeIndividuell.navn,
+                    tittel = "Avklaring Hos Bedriftsnavn 2",
+                    tiltakstypeNavn = tiltakstypeGruppe.navn,
                     status = DeltakerKort.DeltakerStatus(
                         type = DeltakerKort.DeltakerStatus.DeltakerStatusType.VENTELISTE,
                         visningstekst = "Venteliste",

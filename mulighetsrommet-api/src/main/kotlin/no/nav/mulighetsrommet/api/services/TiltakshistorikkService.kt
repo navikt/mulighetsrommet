@@ -9,6 +9,7 @@ import no.nav.mulighetsrommet.api.clients.tiltakshistorikk.TiltakshistorikkClien
 import no.nav.mulighetsrommet.api.domain.dto.DeltakerKort
 import no.nav.mulighetsrommet.api.domain.dto.TiltakshistorikkAdminDto
 import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
+import no.nav.mulighetsrommet.api.utils.TiltaksnavnUtils
 import no.nav.mulighetsrommet.domain.dbo.ArenaDeltakerStatus
 import no.nav.mulighetsrommet.domain.dto.NorskIdent
 import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
@@ -87,6 +88,7 @@ class TiltakshistorikkService(
 
     private suspend fun Tiltakshistorikk.ArenaDeltakelse.toDeltakerKort(): DeltakerKort {
         val tiltakstype = tiltakstypeRepository.getByArenaTiltakskode(arenaTiltakskode)
+        val arrangorNavn = getArrangor(arrangor.organisasjonsnummer).navn
         return DeltakerKort(
             id = id,
             periode = DeltakerKort.Periode(
@@ -98,9 +100,9 @@ class TiltakshistorikkService(
                 visningstekst = arenaStatusTilVisningstekst(status),
                 aarsak = null,
             ),
-            tittel = beskrivelse,
+            tittel = TiltaksnavnUtils.tilKonstruertNavn(tiltakstype, arrangorNavn),
             tiltakstypeNavn = tiltakstype.navn,
-            arrangorNavn = getArrangor(arrangor.organisasjonsnummer).navn,
+            arrangorNavn = arrangorNavn,
             innsoktDato = null,
             sistEndretDato = null,
             eierskap = DeltakerKort.Eierskap.ARENA,
@@ -109,6 +111,7 @@ class TiltakshistorikkService(
 
     private suspend fun Tiltakshistorikk.GruppetiltakDeltakelse.toDeltakerKort(): DeltakerKort {
         val tiltakstype = tiltakstypeRepository.getByTiltakskode(gjennomforing.tiltakskode)
+        val arrangorNavn = getArrangor(arrangor.organisasjonsnummer).navn
         return DeltakerKort(
             id = id,
             periode = DeltakerKort.Periode(
@@ -120,9 +123,9 @@ class TiltakshistorikkService(
                 visningstekst = gruppetiltakStatusTilVisningstekst(status.type),
                 aarsak = gruppetiltakAarsakTilTekst(status.aarsak),
             ),
-            tittel = gjennomforing.navn,
+            tittel = TiltaksnavnUtils.tilKonstruertNavn(tiltakstype, arrangorNavn),
             tiltakstypeNavn = tiltakstype.navn,
-            arrangorNavn = getArrangor(arrangor.organisasjonsnummer).navn,
+            arrangorNavn = arrangorNavn,
             innsoktDato = null,
             sistEndretDato = null,
             eierskap = DeltakerKort.Eierskap.ARENA,

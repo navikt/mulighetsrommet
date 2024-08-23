@@ -1,8 +1,8 @@
 import { BodyShort } from "@navikt/ds-react";
 import classNames from "classnames";
-import { VeilderflateArrangor, VeilederflateTiltakstype } from "mulighetsrommet-api-client";
 import { ReactNode } from "react";
 import styles from "./VisningsnavnForTiltak.module.scss";
+import { VeilderflateArrangor, VeilederflateTiltakstype } from "@mr/api-client";
 
 interface Props {
   navn: string;
