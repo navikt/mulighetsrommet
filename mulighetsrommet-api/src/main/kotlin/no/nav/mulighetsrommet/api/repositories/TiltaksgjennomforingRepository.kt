@@ -706,6 +706,10 @@ class TiltaksgjennomforingRepository(private val db: Database) {
 
     private fun Row.toVeilederflateTiltaksgjennomforing(): VeilederflateTiltaksgjennomforing {
         val navEnheter = arrayOrNull<String>("nav_enheter")?.asList() ?: emptyList()
+        val personopplysningerSomKanBehandles = arrayOrNull<String>("personopplysninger_som_kan_behandles")
+            ?.asList()
+            ?.map { Personopplysning.valueOf(it).toPersonopplysningData() }
+            ?: emptyList()
         val tiltaksansvarlige = stringOrNull("nav_kontaktpersoner_json")
             ?.let { Json.decodeFromString<List<VeilederflateKontaktinfoTiltaksansvarlig>>(it) }
             ?: emptyList()
@@ -752,6 +756,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 )
             },
             personvernBekreftet = boolean("personvern_bekreftet"),
+            personopplysningerSomKanBehandles = personopplysningerSomKanBehandles,
             status = TiltaksgjennomforingStatusDto(
                 TiltaksgjennomforingStatus.valueOf(string("status")),
                 avbruttTidspunkt?.let {

@@ -7,6 +7,7 @@ import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dto.Faneinnhold
 import no.nav.mulighetsrommet.domain.dto.Innsatsgruppe
+import no.nav.mulighetsrommet.domain.dto.PersonopplysningData
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatusDto
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
@@ -46,6 +47,7 @@ data class VeilederflateTiltaksgjennomforing(
     val kontaktinfo: VeilederflateKontaktinfo? = null,
     val estimertVentetid: EstimertVentetid? = null,
     val personvernBekreftet: Boolean,
+    val personopplysningerSomKanBehandles: List<PersonopplysningData>,
 )
 
 @Serializable

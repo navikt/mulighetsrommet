@@ -41,28 +41,35 @@ from tiltaksgjennomforing gjennomforing
          left join lateral (select array_agg(enhetsnummer) as nav_enheter
                             from tiltaksgjennomforing_nav_enhet
                             where tiltaksgjennomforing_id = gjennomforing.id) gjennomforing_nav_enheter on true
-         left join lateral (select jsonb_agg(jsonb_build_object('navn',
-                                                                concat(nav_ansatt.fornavn, ' ', nav_ansatt.etternavn),
-                                                                'telefon', nav_ansatt.mobilnummer,
-                                                                'enhet', json_build_object('navn', nav_enhet.navn,
-                                                                                           'enhetsnummer',
-                                                                                           nav_enhet.enhetsnummer,
-                                                                                           'status', nav_enhet.status,
-                                                                                           'type', nav_enhet.type,
-                                                                                           'overordnetEnhet',
-                                                                                           nav_enhet.overordnet_enhet),
-                                                                'epost', nav_ansatt.epost,
-                                                                'beskrivelse', k.beskrivelse)
+         left join lateral (select jsonb_agg(
+                                           jsonb_build_object(
+                                                   'navn', concat(nav_ansatt.fornavn, ' ', nav_ansatt.etternavn),
+                                                   'telefon', nav_ansatt.mobilnummer,
+                                                   'enhet',
+                                                   json_build_object(
+                                                           'navn', nav_enhet.navn,
+                                                           'enhetsnummer', nav_enhet.enhetsnummer,
+                                                           'status', nav_enhet.status,
+                                                           'type', nav_enhet.type,
+                                                           'overordnetEnhet',
+                                                           nav_enhet.overordnet_enhet
+                                                   ),
+                                                   'epost', nav_ansatt.epost,
+                                                   'beskrivelse', k.beskrivelse
+                                           )
                                    ) as nav_kontaktpersoner_json
                             from tiltaksgjennomforing_kontaktperson k
                                      join nav_ansatt on nav_ansatt.nav_ident = k.kontaktperson_nav_ident
                                      join nav_enhet on nav_enhet.enhetsnummer = nav_ansatt.hovedenhet
                             where tiltaksgjennomforing_id = gjennomforing.id) nav_kontaktpersoner on true
-         left join lateral (select jsonb_agg(jsonb_build_object('id', id,
-                                                                'navn', navn,
-                                                                'telefon', telefon,
-                                                                'epost', epost,
-                                                                'beskrivelse', beskrivelse)
+         left join lateral (select jsonb_agg(
+                                           jsonb_build_object(
+                                                   'id', id,
+                                                   'navn', navn,
+                                                   'telefon', telefon,
+                                                   'epost', epost,
+                                                   'beskrivelse', beskrivelse
+                                           )
                                    ) as arrangor_kontaktpersoner_json
                             from tiltaksgjennomforing_arrangor_kontaktperson
                                      left join arrangor_kontaktperson on id = arrangor_kontaktperson_id

@@ -57,23 +57,6 @@ paths:
               schema:
                 type: string
 
-  /api/v1/intern/avtaler/{id}/behandle-personopplysninger:
-    parameters:
-      - $ref: "#/components/parameters/ID"
-    get:
-      tags:
-        - Avtaler
-      operationId: getBehandlingAvPersonopplysninger
-      responses:
-        200:
-          description: Hvilke personopplysninger kan behandles for avtalen
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/PersonopplysningData"
-
   /api/v1/intern/avtaler/{id}/avbryt:
     parameters:
       - $ref: "#/components/parameters/ID"
@@ -3415,6 +3398,10 @@ components:
           nullable: true
         personvernBekreftet:
           type: boolean
+        personopplysningerSomKanBehandles:
+          type: array
+          items:
+            $ref: "#/components/schemas/PersonopplysningData"
         fylke:
           type: string
         status:
@@ -3425,6 +3412,8 @@ components:
         - apentForInnsok
         - oppstart
         - status
+        - personvernBekreftet
+        - personopplysningerSomKanBehandles
 
     RegelverkLenke:
       type: object

@@ -4,7 +4,6 @@ import arrow.core.NonEmptyList
 import arrow.core.toNonEmptyListOrNull
 import io.ktor.http.*
 import io.ktor.server.application.*
-import io.ktor.server.auth.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
@@ -17,7 +16,6 @@ import no.nav.mulighetsrommet.api.domain.dto.VeilederflateTiltaksgjennomforing
 import no.nav.mulighetsrommet.api.plugins.AuthProvider
 import no.nav.mulighetsrommet.api.plugins.authenticate
 import no.nav.mulighetsrommet.api.plugins.getNavAnsattAzureId
-import no.nav.mulighetsrommet.api.services.AvtaleService
 import no.nav.mulighetsrommet.api.services.CacheUsage
 import no.nav.mulighetsrommet.api.services.PoaoTilgangService
 import no.nav.mulighetsrommet.api.services.VeilederflateService
@@ -62,15 +60,8 @@ fun <T : Any> PipelineContext<T, ApplicationCall>.getArbeidsmarkedstiltakFilter(
 }
 
 fun Route.veilederTiltakRoutes() {
-    val avtaler: AvtaleService by inject()
     val veilederflateService: VeilederflateService by inject()
     val poaoTilgangService: PoaoTilgangService by inject()
-
-    get("/avtaler/{id}/behandle-personopplysninger") {
-        val id = call.parameters.getOrFail<UUID>("id")
-        val behandlingAvPersonopplysninger = avtaler.getBehandlingAvPersonopplysninger(id)
-        call.respond(behandlingAvPersonopplysninger)
-    }
 
     route("/veileder") {
         get("/innsatsgrupper") {

@@ -25,6 +25,8 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
     tiltakstype: mockTiltakstyper.avklaring,
     sluttdato: "2025-07-09",
     apentForInnsok: true,
+    personvernBekreftet: false,
+    personopplysningerSomKanBehandles: [],
     arrangor: {
       selskapsnavn: "JOBLEARN AS AVD 813201 ØST-VIKEN KURS",
       kontaktpersoner: [
@@ -120,6 +122,8 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
     stedForGjennomforing: "Oslo",
     tiltakstype: mockTiltakstyper.mentor,
     apentForInnsok: false,
+    personvernBekreftet: true,
+    personopplysningerSomKanBehandles: [],
     kontaktinfo: {
       tiltaksansvarlige: [
         {
@@ -144,6 +148,7 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
     status: { status: TiltaksgjennomforingStatus.GJENNOMFORES },
     avtaleId: "9a11a2ff-dd9c-42f7-b85f-b07522bb55f8",
     personvernBekreftet: true,
+    personopplysningerSomKanBehandles: [],
     tiltaksnummer: "2024/123",
     navn: "Kurs i overlevelsesteknikk (Gruppe AMO)",
     stedForGjennomforing: "2050 JESSHEIM",
@@ -256,6 +261,8 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
     oppstart: TiltaksgjennomforingOppstartstype.LOPENDE,
     oppstartsdato: "2023-11-01",
     sluttdato: "2023-11-30",
+    personvernBekreftet: true,
+    personopplysningerSomKanBehandles: [],
     arrangor: {
       selskapsnavn: "FRETEX",
       kontaktpersoner: [
@@ -345,6 +352,8 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
     oppstart: TiltaksgjennomforingOppstartstype.LOPENDE,
     oppstartsdato: "2022-11-01",
     sluttdato: "2030-11-30",
+    personvernBekreftet: true,
+    personopplysningerSomKanBehandles: [],
     arrangor: {
       selskapsnavn: "LARS MONSEN AS AVD FINNMARK",
       kontaktpersoner: [],
@@ -392,6 +401,8 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
     oppstart: TiltaksgjennomforingOppstartstype.LOPENDE,
     oppstartsdato: "2022-11-01",
     sluttdato: "2030-11-30",
+    personvernBekreftet: true,
+    personopplysningerSomKanBehandles: [],
     arrangor: {
       selskapsnavn: "AFT GRUPPEN NORWAY",
       kontaktpersoner: [
@@ -432,6 +443,8 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
     tiltakstype: mockTiltakstyper.OpplaringEnkeltplassFagOgYrke,
     oppstart: TiltaksgjennomforingOppstartstype.LOPENDE,
     oppstartsdato: "2022-11-01",
+    personvernBekreftet: true,
+    personopplysningerSomKanBehandles: [],
     kontaktinfo: {
       tiltaksansvarlige: [],
       varsler: [],
@@ -439,24 +452,3 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
     sluttdato: "2030-11-30",
   },
 ];
-
-// Bruker denne for å teste med flere tiltaksgjennomføringer lokalt, men setter den til 0 sånn
-// at testene går gjennom.
-const x = 0;
-for (let i = 0; i < x; i++) {
-  mockTiltaksgjennomforinger.push({
-    sanityId: window.crypto.randomUUID(),
-    status: { status: TiltaksgjennomforingStatus.GJENNOMFORES },
-    navn: "Opplæring Fag og Yrke" + i,
-    stedForGjennomforing: "Oslo",
-    apentForInnsok: true,
-    tiltakstype: mockTiltakstyper.OpplaringEnkeltplassFagOgYrke,
-    oppstart: TiltaksgjennomforingOppstartstype.LOPENDE,
-    oppstartsdato: "2022-11-01",
-    kontaktinfo: {
-      tiltaksansvarlige: [],
-      varsler: [],
-    },
-    sluttdato: "2030-11-30",
-  });
-}

@@ -366,6 +366,7 @@ class VeilederflateService(
                     tiltaksansvarlige = kontaktpersoner,
                 ),
                 personvernBekreftet = false, // Individuelle tiltak har ikke informasjon om personvern
+                personopplysningerSomKanBehandles = listOf(),
             )
         }
     }
