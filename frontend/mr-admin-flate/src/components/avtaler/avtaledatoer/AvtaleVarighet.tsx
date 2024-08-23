@@ -1,30 +1,34 @@
+import { Avtale, Avtaletype, OpsjonsmodellKey, OpsjonStatus } from "@mr/api-client";
 import { Heading, HGrid, Select, TextField } from "@navikt/ds-react";
-import { useEffect, useState } from "react";
-import { useFormContext, useWatch } from "react-hook-form";
+import { useEffect } from "react";
+import { useFormContext } from "react-hook-form";
+import { MIN_START_DATO_FOR_AVTALER } from "../../../constants";
 import { avtaletekster } from "../../ledetekster/avtaleLedetekster";
 import { InferredAvtaleSchema } from "../../redaksjoneltInnhold/AvtaleSchema";
 import { ControlledDateInput } from "../../skjema/ControlledDateInput";
-import { Opsjonsmodell, opsjonsmodeller } from "../opsjoner/opsjonsmodeller";
-import { Avtale, Avtaletype, OpsjonsmodellKey, OpsjonStatus } from "@mr/api-client";
 import { OpsjonerRegistrert } from "../opsjoner/OpsjonerRegistrert";
-import { MIN_START_DATO_FOR_AVTALER } from "../../../constants";
+import { Opsjonsmodell, opsjonsmodeller } from "../opsjoner/opsjonsmodeller";
 
 interface Props {
   avtale?: Avtale;
+  avtaletype: Avtaletype;
   arenaOpphavOgIngenEierskap: boolean;
   minStartDato: Date;
   sluttDatoFraDato: Date;
   sluttDatoTilDato: Date;
   maksAar: number;
+  opsjonsmodell?: Opsjonsmodell;
 }
 
 export function AvtaleVarighet({
   avtale,
+  avtaletype,
   arenaOpphavOgIngenEierskap,
   minStartDato,
   sluttDatoFraDato,
   sluttDatoTilDato,
   maksAar,
+  opsjonsmodell,
 }: Props) {
   const {
     register,
@@ -32,30 +36,16 @@ export function AvtaleVarighet({
     watch,
     formState: { errors },
   } = useFormContext<InferredAvtaleSchema>();
-  const watchedOpsjonsmodell = useWatch({ name: "opsjonsmodellData.opsjonsmodell" });
-  const [opsjonsmodell, setOpsjonsmodell] = useState<Opsjonsmodell | undefined>(
-    opsjonsmodeller?.find((modell) => modell.value === watchedOpsjonsmodell),
-  );
+
   const antallOpsjonerUtlost = (
     avtale?.opsjonerRegistrert?.filter((log) => log.status === OpsjonStatus.OPSJON_UTLØST) || []
   ).length;
 
   const skalIkkeKunneRedigereOpsjoner = antallOpsjonerUtlost > 0;
 
-  const { startDato = Date.now() } = watch("startOgSluttDato");
+  const { startDato } = watch("startOgSluttDato");
   const readonly =
     opsjonsmodell?.value !== "ANNET" || arenaOpphavOgIngenEierskap || skalIkkeKunneRedigereOpsjoner;
-
-  useEffect(() => {
-    if (!opsjonsmodell) {
-      setValue("opsjonsmodellData.opsjonsmodell", undefined);
-      setValue("opsjonsmodellData.opsjonMaksVarighet", undefined);
-      setValue("opsjonsmodellData.customOpsjonsmodellNavn", undefined);
-    } else if (!opsjonsmodell.kreverMaksVarighet) {
-      setValue("opsjonsmodellData.customOpsjonsmodellNavn", undefined);
-      setValue("opsjonsmodellData.opsjonMaksVarighet", undefined);
-    }
-  }, [opsjonsmodell, setValue]);
 
   useEffect(() => {
     if (startDato && opsjonsmodell && antallOpsjonerUtlost === 0) {
@@ -77,7 +67,7 @@ export function AvtaleVarighet({
   const maksVarighetAar = opsjonsmodell?.maksVarighetAar ?? 5;
   const maksVarighetDato = kalkulerMaksDato(new Date(startDato!), maksVarighetAar);
 
-  const gjeldendeOpsjonsmodeller = hentModeller(watch("avtaletype"));
+  const gjeldendeOpsjonsmodeller = hentModeller(avtaletype);
 
   return (
     <>
@@ -86,26 +76,32 @@ export function AvtaleVarighet({
       </Heading>
 
       <HGrid columns={2}>
-        <Select
-          readOnly={skalIkkeKunneRedigereOpsjoner}
-          label="Avtalt mulighet for forlengelse"
-          size="small"
-          value={opsjonsmodell?.value}
-          error={errors.opsjonsmodellData?.opsjonsmodell?.message}
-          onChange={(e) => {
-            const opsjonsmodel = opsjonsmodeller.find((modell) => modell.value === e.target.value);
-            setOpsjonsmodell(opsjonsmodel);
-            setValue("opsjonsmodellData.opsjonsmodell", opsjonsmodel?.value);
-            setValue("opsjonsmodellData.customOpsjonsmodellNavn", undefined);
-          }}
-        >
-          <option value={undefined}>Velg avtalt mulighet for forlengelse</option>
-          {gjeldendeOpsjonsmodeller.map((modell) => (
-            <option key={modell.value} value={modell.value}>
-              {modell.label}
-            </option>
-          ))}
-        </Select>
+        {avtaletype !== Avtaletype.FORHAANDSGODKJENT ? (
+          <Select
+            readOnly={skalIkkeKunneRedigereOpsjoner}
+            label="Avtalt mulighet for forlengelse"
+            size="small"
+            value={opsjonsmodell?.value}
+            error={errors.opsjonsmodellData?.opsjonsmodell?.message}
+            onChange={(e) => {
+              const opsjonsmodell = opsjonsmodeller.find(
+                (modell) => modell.value === e.target.value,
+              );
+              if (opsjonsmodell) {
+                setValue("opsjonsmodellData.opsjonsmodell", opsjonsmodell?.value);
+                setValue("opsjonsmodellData.customOpsjonsmodellNavn", undefined);
+                setValue("opsjonsmodellData.opsjonMaksVarighet", undefined);
+              }
+            }}
+          >
+            <option value={undefined}>Velg avtalt mulighet for forlengelse</option>
+            {gjeldendeOpsjonsmodeller.map((modell) => (
+              <option key={modell.value} value={modell.value}>
+                {modell.label}
+              </option>
+            ))}
+          </Select>
+        ) : null}
       </HGrid>
 
       {opsjonsmodell?.value === "ANNET" ? (
@@ -164,7 +160,11 @@ export function AvtaleVarighet({
           />
           <ControlledDateInput
             size="small"
-            label={avtaletekster.sluttdatoLabel(false)}
+            label={
+              avtaletype === Avtaletype.FORHAANDSGODKJENT
+                ? avtaletekster.valgfriSluttdatoLabel(avtaletype)
+                : avtaletekster.sluttdatoLabel(false)
+            }
             readOnly={arenaOpphavOgIngenEierskap}
             fromDate={sluttDatoFraDato}
             toDate={sluttDatoTilDato}
@@ -190,6 +190,12 @@ function kalkulerMaksDato(date: Date, addYears: number): Date {
 function hentModeller(avtaletype: Avtaletype | undefined): Opsjonsmodell[] {
   if (!avtaletype) {
     return [];
+  }
+
+  if (avtaletype === Avtaletype.FORHAANDSGODKJENT) {
+    return opsjonsmodeller.filter(
+      (modell) => modell.value === OpsjonsmodellKey.AVTALE_VALGFRI_SLUTTDATO,
+    );
   }
 
   if (avtaletype !== Avtaletype.OFFENTLIG_OFFENTLIG) {

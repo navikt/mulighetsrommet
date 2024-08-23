@@ -9,6 +9,7 @@ import {
   NavEnhet,
   NavEnhetType,
   Opphav,
+  OpsjonsmodellKey,
   Tiltakskode,
   Tiltakstype,
   Toggles,
@@ -33,6 +34,7 @@ import { SkjemaDetaljerContainer } from "@/components/skjema/SkjemaDetaljerConta
 import { SkjemaInputContainer } from "@/components/skjema/SkjemaInputContainer";
 import { SkjemaKolonne } from "@/components/skjema/SkjemaKolonne";
 import { VertikalSeparator } from "@/components/skjema/VertikalSeparator";
+import { opsjonsmodeller } from "./opsjoner/opsjonsmodeller";
 
 interface Props {
   tiltakstyper: Tiltakstype[];
@@ -72,6 +74,22 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
   function erMigrert(tiltakskode?: Tiltakskode | null): boolean {
     if (!tiltakskode) return false;
     return migrerteTiltakstyper.includes(tiltakskode);
+  }
+
+  function updateOpsjonsmodell(avtaletype: Avtaletype) {
+    if (avtaletype === Avtaletype.FORHAANDSGODKJENT) {
+      setValue("opsjonsmodellData", {
+        opsjonsmodell: OpsjonsmodellKey.AVTALE_VALGFRI_SLUTTDATO,
+        customOpsjonsmodellNavn: null,
+        opsjonMaksVarighet: null,
+      });
+    } else {
+      setValue("opsjonsmodellData", {
+        opsjonsmodell: undefined,
+        customOpsjonsmodellNavn: null,
+        opsjonMaksVarighet: null,
+      });
+    }
   }
 
   return (
@@ -137,6 +155,7 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
                     : [];
                   const avtaletype = options[0]?.value;
                   setValue("avtaletype", avtaletype);
+                  updateOpsjonsmodell(avtaletype);
                 }}
                 options={tiltakstyper.map((tiltakstype) => ({
                   value: {
@@ -167,6 +186,9 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
 
           <AvtaleDatoContainer
             avtale={avtale}
+            opsjonsmodell={opsjonsmodeller.find(
+              (m) => m.value === watch("opsjonsmodellData.opsjonsmodell"),
+            )}
             arenaOpphavOgIngenEierskap={arenaOpphavOgIngenEierskap}
           />
 

@@ -38,9 +38,7 @@ export const AvtaleSchema = z
       .object({
         startDato: z
           .string({ required_error: "Du må legge inn startdato for avtalen" })
-          .min(10, "Du må legge inn startdato for avtalen")
-          .optional()
-          .nullable(),
+          .min(10, "Du må legge inn startdato for avtalen"),
         sluttDato: z.string().optional().nullable(),
       })
       .refine((data) => !data.startDato || !data.sluttDato || data.sluttDato >= data.startDato, {
@@ -49,7 +47,9 @@ export const AvtaleSchema = z
       }),
     opsjonsmodellData: z.object({
       opsjonMaksVarighet: z.string().optional().nullable(),
-      opsjonsmodell: z.nativeEnum(OpsjonsmodellKey).optional().nullable(),
+      opsjonsmodell: z.nativeEnum(OpsjonsmodellKey, {
+        required_error: "Du må velge avtalt mulighet for forlengelse",
+      }),
       customOpsjonsmodellNavn: z.string().optional().nullable(),
     }),
     administratorer: z.string().array().min(1, "Du må velge minst én administrator"),
