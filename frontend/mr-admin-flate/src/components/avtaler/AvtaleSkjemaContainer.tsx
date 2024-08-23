@@ -170,7 +170,7 @@ export function AvtaleSkjemaContainer({
                 onClick={() => setActiveTab("redaksjonelt-innhold")}
               />
             </div>
-            <AvtaleSkjemaKnapperad redigeringsModus={redigeringsModus!} onClose={onClose} />
+            <AvtaleSkjemaKnapperad redigeringsModus={redigeringsModus} onClose={onClose} />
           </Tabs.List>
           <Tabs.Panel value="detaljer">
             <AvtaleSkjemaDetaljer
@@ -193,7 +193,7 @@ export function AvtaleSkjemaContainer({
         </Tabs>
         <Separator />
         <RedaksjoneltInnholdBunnKnapperad>
-          <AvtaleSkjemaKnapperad redigeringsModus={redigeringsModus!} onClose={onClose} />
+          <AvtaleSkjemaKnapperad redigeringsModus={redigeringsModus} onClose={onClose} />
         </RedaksjoneltInnholdBunnKnapperad>
       </form>
     </FormProvider>

@@ -23,9 +23,10 @@ export function DupliserAvtale({ avtale }: Props) {
       state: {
         dupliserAvtale: {
           opphav: Opphav.MR_ADMIN_FLATE,
-          faneinnhold: avtale.faneinnhold,
           tiltakstype: avtale.tiltakstype,
           avtaletype: avtale.avtaletype,
+          beskrivelse: avtale.beskrivelse,
+          faneinnhold: avtale.faneinnhold,
         },
       },
     });
