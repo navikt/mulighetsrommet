@@ -114,6 +114,12 @@ class TiltakshistorikkServiceTest : FunSpec({
                             visningstekst = "Venteliste",
                             aarsak = null,
                         ),
+                        periode = Periode(
+                            startdato = LocalDate.of(2018, 12, 3),
+                            sluttdato = LocalDate.of(2019, 12, 3),
+                        ),
+                        innsoktDato = LocalDate.of(2018, 12, 3),
+                        sistEndretDato = LocalDate.of(2018, 12, 5),
                     ),
                 ),
                 historikk = emptyList(),
@@ -148,8 +154,8 @@ class TiltakshistorikkServiceTest : FunSpec({
                         startdato = LocalDate.of(2018, 12, 3),
                         sluttdato = LocalDate.of(2019, 12, 3),
                     ),
-                    sistEndretDato = null,
-                    innsoktDato = null,
+                    sistEndretDato = LocalDate.of(2018, 12, 5),
+                    innsoktDato = LocalDate.of(2018, 12, 3),
                 ),
                 DeltakerKort(
                     id = arenaDeltakelse.id,
