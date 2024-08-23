@@ -38,7 +38,9 @@ export const AvtaleSchema = z
       .object({
         startDato: z
           .string({ required_error: "Du må legge inn startdato for avtalen" })
-          .min(10, "Du må legge inn startdato for avtalen"),
+          .min(10, "Du må legge inn startdato for avtalen")
+          .optional()
+          .nullable(),
         sluttDato: z.string().optional().nullable(),
       })
       .refine((data) => !data.startDato || !data.sluttDato || data.sluttDato >= data.startDato, {
@@ -96,6 +98,35 @@ export const AvtaleSchema = z
         code: z.ZodIssueCode.custom,
         message: "Du må skrive inn Websaknummer til avtalesaken",
         path: ["websaknummer"],
+      });
+    }
+
+    if (data.avtaletype !== Avtaletype.FORHAANDSGODKJENT) {
+      if (!data.opsjonsmodellData.opsjonsmodell) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Du må velge avtalt mulighet for forlengelse",
+          path: ["opsjonsmodellData.opsjonsmodell"],
+        });
+      }
+
+      if (
+        data.opsjonsmodellData.opsjonsmodell === OpsjonsmodellKey.ANNET &&
+        !data.opsjonsmodellData.customOpsjonsmodellNavn
+      ) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Du må gi oppsjonsmodellen et navn",
+          path: ["opsjonsmodellData.customOpsjonsmodellNavn"],
+        });
+      }
+    }
+
+    if (!data.startOgSluttDato.startDato) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Du må legge inn startdato for avtalen",
+        path: ["startOgSluttDato.startDato"],
       });
     }
   });

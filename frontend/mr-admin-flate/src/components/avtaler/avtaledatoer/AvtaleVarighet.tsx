@@ -42,7 +42,7 @@ export function AvtaleVarighet({
 
   const skalIkkeKunneRedigereOpsjoner = antallOpsjonerUtlost > 0;
 
-  const { startDato } = watch("startOgSluttDato") ?? {};
+  const { startDato = Date.now() } = watch("startOgSluttDato");
   const readonly =
     opsjonsmodell?.value !== "ANNET" || arenaOpphavOgIngenEierskap || skalIkkeKunneRedigereOpsjoner;
 
@@ -75,7 +75,7 @@ export function AvtaleVarighet({
   }, [antallOpsjonerUtlost, opsjonsmodell, startDato, sluttDatoFraDato, setValue]);
 
   const maksVarighetAar = opsjonsmodell?.maksVarighetAar ?? 5;
-  const maksVarighetDato = kalkulerMaksDato(new Date(startDato), maksVarighetAar);
+  const maksVarighetDato = kalkulerMaksDato(new Date(startDato!), maksVarighetAar);
 
   const gjeldendeOpsjonsmodeller = hentModeller(watch("avtaletype"));
 
