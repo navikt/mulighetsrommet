@@ -47,7 +47,9 @@ export const AvtaleSchema = z
       }),
     opsjonsmodellData: z.object({
       opsjonMaksVarighet: z.string().optional().nullable(),
-      opsjonsmodell: z.nativeEnum(OpsjonsmodellKey).optional().nullable(),
+      opsjonsmodell: z.nativeEnum(OpsjonsmodellKey, {
+        required_error: "Du må velge avtalt mulighet for forlengelse",
+      }),
       customOpsjonsmodellNavn: z.string().optional().nullable(),
     }),
     administratorer: z.string().array().min(1, "Du må velge minst én administrator"),
@@ -96,6 +98,35 @@ export const AvtaleSchema = z
         code: z.ZodIssueCode.custom,
         message: "Du må skrive inn Websaknummer til avtalesaken",
         path: ["websaknummer"],
+      });
+    }
+
+    if (data.avtaletype !== Avtaletype.FORHAANDSGODKJENT) {
+      if (!data.opsjonsmodellData.opsjonsmodell) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Du må velge avtalt mulighet for forlengelse",
+          path: ["opsjonsmodellData.opsjonsmodell"],
+        });
+      }
+
+      if (
+        data.opsjonsmodellData.opsjonsmodell === OpsjonsmodellKey.ANNET &&
+        !data.opsjonsmodellData.customOpsjonsmodellNavn
+      ) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Du må gi oppsjonsmodellen et navn",
+          path: ["opsjonsmodellData.customOpsjonsmodellNavn"],
+        });
+      }
+    }
+
+    if (!data.startOgSluttDato.startDato) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Du må legge inn startdato for avtalen",
+        path: ["startOgSluttDato.startDato"],
       });
     }
   });
