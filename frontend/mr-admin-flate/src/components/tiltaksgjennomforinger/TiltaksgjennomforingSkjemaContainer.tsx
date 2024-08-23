@@ -2,13 +2,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { ExclamationmarkTriangleFillIcon } from "@navikt/aksel-icons";
 import { Tabs } from "@navikt/ds-react";
 import { useAtom } from "jotai";
-import {
-  Avtale,
-  NavAnsatt,
-  Tiltaksgjennomforing,
-  TiltaksgjennomforingRequest,
-} from "@mr/api-client";
-import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
+import { Avtale, Tiltaksgjennomforing, TiltaksgjennomforingRequest } from "@mr/api-client";
+import { DeepPartial, FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { v4 as uuidv4 } from "uuid";
 import { gjennomforingDetaljerTabAtom } from "@/api/atoms";
 import { useHandleApiUpsertResponse } from "@/api/effects";
@@ -20,7 +15,6 @@ import {
   InferredTiltaksgjennomforingSchema,
   TiltaksgjennomforingSchema,
 } from "@/components/redaksjoneltInnhold/TiltaksgjennomforingSchema";
-import { defaultTiltaksgjennomforingData } from "./TiltaksgjennomforingSkjemaConst";
 import { TiltaksgjennomforingSkjemaDetaljer } from "./TiltaksgjennomforingSkjemaDetaljer";
 import { TiltaksgjennomforingSkjemaKnapperad } from "./TiltaksgjennomforingSkjemaKnapperad";
 import { logEvent } from "@/logging/amplitude";
@@ -30,8 +24,8 @@ interface Props {
   onClose: () => void;
   onSuccess: (id: string) => void;
   avtale: Avtale;
-  ansatt: NavAnsatt;
   tiltaksgjennomforing?: Tiltaksgjennomforing;
+  defaultValues: DeepPartial<InferredTiltaksgjennomforingSchema>;
 }
 
 function loggRedaktorEndrerTilgjengeligForArrangor(datoValgt: string) {
@@ -45,8 +39,8 @@ function loggRedaktorEndrerTilgjengeligForArrangor(datoValgt: string) {
 
 export function TiltaksgjennomforingSkjemaContainer({
   avtale,
-  ansatt,
   tiltaksgjennomforing,
+  defaultValues,
   onClose,
   onSuccess,
 }: Props) {
@@ -56,7 +50,7 @@ export function TiltaksgjennomforingSkjemaContainer({
 
   const form = useForm<InferredTiltaksgjennomforingSchema>({
     resolver: zodResolver(TiltaksgjennomforingSchema),
-    defaultValues: defaultTiltaksgjennomforingData(ansatt, avtale, tiltaksgjennomforing),
+    defaultValues,
   });
 
   const {

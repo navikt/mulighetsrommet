@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.routes.v1
 
+import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
@@ -15,15 +16,17 @@ import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.responses.BadRequest
 import no.nav.mulighetsrommet.api.responses.NotFound
 import no.nav.mulighetsrommet.api.responses.ServerError
-import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
+import no.nav.mulighetsrommet.api.responses.respondWithStatusResponseError
 import no.nav.mulighetsrommet.api.services.BrukerService
 import no.nav.mulighetsrommet.api.services.PoaoTilgangService
 import no.nav.mulighetsrommet.api.services.TiltakshistorikkService
 import no.nav.mulighetsrommet.auditlog.AuditLog
 import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.domain.dto.NorskIdent
+import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.ktor.extensions.getAccessToken
 import org.koin.ktor.ext.inject
+import java.util.*
 
 fun Route.brukerRoutes() {
     val brukerService: BrukerService by inject()
@@ -68,32 +71,23 @@ fun Route.brukerRoutes() {
             }
         }
 
-        post("komet-deltakelser") {
-            val (norskIdent) = call.receive<GetHistorikkForBrukerRequest>()
-            val navIdent = getNavIdent()
+        post("deltakelse-for-gjennomforing") {
+            val (norskIdent, tiltaksgjennomforingId) = call.receive<GetAktivDeltakelseForBrukerRequest>()
             val obo = AccessType.OBO(call.getAccessToken())
 
-            poaoTilgangService.verifyAccessToUserFromVeileder(getNavAnsattAzureId(), norskIdent) {
-                val message = createAuditMessage(
-                    msg = "NAV-ansatt med ident: '$navIdent' forsøkte, men fikk ikke sett deltakelser for bruker med ident: '$norskIdent'.",
-                    topic = "Se deltakelser",
-                    navIdent = navIdent,
-                    norskIdent = norskIdent,
-                )
-                AuditLog.auditLogger.log(message)
-            }
+            poaoTilgangService.verifyAccessToUserFromVeileder(getNavAnsattAzureId(), norskIdent)
 
-            val response = historikkService.hentDeltakelserFraKomet(norskIdent, obo).onRight {
-                val message = createAuditMessage(
-                    msg = "NAV-ansatt med ident: '$navIdent' har sett deltakelser for bruker med ident: '$norskIdent'.",
-                    topic = "Se deltakelser",
-                    navIdent = navIdent,
-                    norskIdent = norskIdent,
-                )
-                AuditLog.auditLogger.log(message)
-            }.mapLeft { toStatusResponseError(it) }
-
-            call.respondWithStatusResponse(response)
+            historikkService.hentDeltakelserFraKomet(norskIdent, obo)
+                .onLeft { call.respondWithStatusResponseError(toStatusResponseError(it)) }
+                .onRight { deltakelser ->
+                    val aktivDeltakelse =
+                        deltakelser.aktive.firstOrNull { it.deltakerlisteId == tiltaksgjennomforingId }
+                    if (aktivDeltakelse == null) {
+                        call.respond(HttpStatusCode.NoContent)
+                    } else {
+                        call.respond(aktivDeltakelse)
+                    }
+                }
         }
     }
 }
@@ -112,6 +106,13 @@ data class GetBrukerRequest(
 @Serializable
 data class GetHistorikkForBrukerRequest(
     val norskIdent: NorskIdent,
+)
+
+@Serializable
+data class GetAktivDeltakelseForBrukerRequest(
+    val norskIdent: NorskIdent,
+    @Serializable(with = UUIDSerializer::class)
+    val tiltaksgjennomforingId: UUID,
 )
 
 private fun createAuditMessage(msg: String, topic: String, navIdent: NavIdent, norskIdent: NorskIdent): CefMessage {

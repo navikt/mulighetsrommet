@@ -14,7 +14,7 @@ import { avtaletypeTilTekst, formaterDato } from "@/utils/Utils";
 import { erAnskaffetTiltak } from "@/utils/tiltakskoder";
 import { ExternalLinkIcon } from "@navikt/aksel-icons";
 import { Alert, Heading, HelpText, VStack } from "@navikt/ds-react";
-import { NavEnhet } from "@mr/api-client";
+import { Avtaletype, NavEnhet } from "@mr/api-client";
 import { NOM_ANSATT_SIDE } from "@mr/frontend-common/constants";
 import { Fragment } from "react";
 import { Link } from "react-router-dom";
@@ -88,7 +88,8 @@ export function AvtaleDetaljer() {
           Avtalens varighet
         </Heading>
 
-        {avtale?.opsjonsmodellData?.opsjonsmodell ? (
+        {avtale?.opsjonsmodellData?.opsjonsmodell &&
+        avtale.avtaletype !== Avtaletype.FORHAANDSGODKJENT ? (
           <>
             <Bolk aria-label="Opsjonsmodell">
               <Metadata

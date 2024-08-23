@@ -12,7 +12,7 @@ metadata:
 
 spec:
   resourceID: tiltakstype_view # Navn på viewet uttad
-  description: "Dataprodukt som viser tiltakstyper med navn, tiltakskode og om tiltakstypen gir rett til tiltakspenger"
+  description: "Dataprodukt for tiltakstyper som eies av Team Valp og Team Komet"
   datasetRef:
     external: datastream_mulighetsrommet_api_db
   view:
@@ -21,6 +21,7 @@ spec:
       SELECT
         id,
         navn,
-        tiltakskode as arena_kode
+        tiltakskode,
+        arena_kode as arena_tiltakskode
       FROM datastream_mulighetsrommet_api_db.public_tiltakstype
       WHERE tiltakskode is not null
