@@ -1,12 +1,12 @@
+import { MAKS_AAR_FOR_AVTALER, MIN_START_DATO_FOR_AVTALER } from "@/constants";
 import { addYear } from "@/utils/Utils";
-import { Avtale, OpsjonsmodellKey } from "@mr/api-client";
-import { useEffect, useMemo } from "react";
+import { Avtale } from "@mr/api-client";
+import { useMemo } from "react";
 import { DeepPartial, useFormContext } from "react-hook-form";
-import { MAKS_AAR_FOR_AVTALER, MIN_START_DATO_FOR_AVTALER } from "../../../constants";
 import { InferredAvtaleSchema } from "../../redaksjoneltInnhold/AvtaleSchema";
 import { FormGroup } from "../../skjema/FormGroup";
-import { AvtaleVarighet } from "./AvtaleVarighet";
 import { Opsjonsmodell } from "../opsjoner/opsjonsmodeller";
+import { AvtaleVarighet } from "./AvtaleVarighet";
 
 interface Props {
   avtale?: Avtale;

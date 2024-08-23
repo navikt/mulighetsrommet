@@ -14,8 +14,9 @@ import { TiltaksgjennomforingIkon } from "@/components/ikoner/Tiltaksgjennomfori
 import { TiltaksgjennomforingStatusTag } from "@mr/frontend-common";
 import { SkjemaContainer } from "@/components/skjema/SkjemaContainer";
 import { SkjemaContent } from "@/components/skjema/SkjemaContent";
+import { defaultTiltaksgjennomforingData } from "@/components/tiltaksgjennomforinger/TiltaksgjennomforingSkjemaConst";
 
-const TiltaksgjennomforingSkjemaPage = () => {
+export function TiltaksgjennomforingSkjemaPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const { avtaleId } = useParams();
@@ -56,12 +57,12 @@ const TiltaksgjennomforingSkjemaPage = () => {
           )
         }
         avtale={avtale}
-        ansatt={ansatt}
-        tiltaksgjennomforing={
-          location.state?.tiltaksgjennomforing
-            ? location.state.tiltaksgjennomforing
-            : tiltaksgjennomforing
-        }
+        tiltaksgjennomforing={tiltaksgjennomforing}
+        defaultValues={defaultTiltaksgjennomforingData(
+          ansatt,
+          avtale,
+          location.state?.dupliserTiltaksgjennomforing ?? tiltaksgjennomforing,
+        )}
       />
     );
   }
@@ -118,6 +119,4 @@ const TiltaksgjennomforingSkjemaPage = () => {
       </ContainerLayout>
     </main>
   );
-};
-
-export default TiltaksgjennomforingSkjemaPage;
+}

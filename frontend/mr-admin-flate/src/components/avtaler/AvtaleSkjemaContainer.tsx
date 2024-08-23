@@ -15,12 +15,11 @@ import {
   Tiltakstype,
 } from "@mr/api-client";
 import React from "react";
-import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
+import { DeepPartial, FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { v4 as uuidv4 } from "uuid";
 import { Separator } from "../detaljside/Metadata";
 import { AvtaleSchema, InferredAvtaleSchema } from "@/components/redaksjoneltInnhold/AvtaleSchema";
 import { AvtaleRedaksjoneltInnholdForm } from "./AvtaleRedaksjoneltInnholdForm";
-import { defaultAvtaleData } from "./AvtaleSkjemaConst";
 import { AvtaleSkjemaDetaljer } from "./AvtaleSkjemaDetaljer";
 import { AvtaleSkjemaKnapperad } from "./AvtaleSkjemaKnapperad";
 import { AvtalePersonvernForm } from "./AvtalePersonvernForm";
@@ -37,6 +36,7 @@ interface Props {
   avtale?: Avtale;
   enheter: NavEnhet[];
   redigeringsModus: boolean;
+  defaultValues: DeepPartial<InferredAvtaleSchema>;
 }
 
 export function AvtaleSkjemaContainer({
@@ -45,6 +45,7 @@ export function AvtaleSkjemaContainer({
   ansatt,
   avtale,
   redigeringsModus,
+  defaultValues,
   ...props
 }: Props) {
   const [activeTab, setActiveTab] = useAtom(avtaleDetaljerTabAtom);
@@ -53,7 +54,7 @@ export function AvtaleSkjemaContainer({
 
   const form = useForm<InferredAvtaleSchema>({
     resolver: zodResolver(AvtaleSchema),
-    defaultValues: defaultAvtaleData(ansatt, avtale),
+    defaultValues,
   });
 
   const {
@@ -169,7 +170,7 @@ export function AvtaleSkjemaContainer({
                 onClick={() => setActiveTab("redaksjonelt-innhold")}
               />
             </div>
-            <AvtaleSkjemaKnapperad redigeringsModus={redigeringsModus!} onClose={onClose} />
+            <AvtaleSkjemaKnapperad redigeringsModus={redigeringsModus} onClose={onClose} />
           </Tabs.List>
           <Tabs.Panel value="detaljer">
             <AvtaleSkjemaDetaljer
@@ -192,7 +193,7 @@ export function AvtaleSkjemaContainer({
         </Tabs>
         <Separator />
         <RedaksjoneltInnholdBunnKnapperad>
-          <AvtaleSkjemaKnapperad redigeringsModus={redigeringsModus!} onClose={onClose} />
+          <AvtaleSkjemaKnapperad redigeringsModus={redigeringsModus} onClose={onClose} />
         </RedaksjoneltInnholdBunnKnapperad>
       </form>
     </FormProvider>
