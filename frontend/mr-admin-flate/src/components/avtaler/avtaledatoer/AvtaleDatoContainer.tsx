@@ -3,7 +3,7 @@ import { Heading, HGrid } from "@navikt/ds-react";
 import { Avtale, Avtaletype } from "@mr/api-client";
 import { useEffect, useMemo } from "react";
 import { DeepPartial, useFormContext } from "react-hook-form";
-import { MAKS_AAR_FOR_AVTALER, MIN_START_DATO_FOR_AVTALER } from "../../../constants";
+import { MAKS_AAR_FOR_AVTALER, MIN_START_DATO_FOR_AVTALER } from "@/constants";
 import { avtaletekster } from "../../ledetekster/avtaleLedetekster";
 import { InferredAvtaleSchema } from "../../redaksjoneltInnhold/AvtaleSchema";
 import { ControlledDateInput } from "../../skjema/ControlledDateInput";

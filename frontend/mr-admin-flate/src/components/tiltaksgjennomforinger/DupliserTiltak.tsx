@@ -21,7 +21,7 @@ export function DupliserTiltak({ tiltaksgjennomforing }: Props) {
     setGjennomforingDetaljerTab("detaljer");
     navigate(`/avtaler/${tiltaksgjennomforing.avtaleId}/tiltaksgjennomforinger/skjema`, {
       state: {
-        tiltaksgjennomforing: {
+        dupliserTiltaksgjennomforing: {
           opphav: Opphav.MR_ADMIN_FLATE,
           faneinnhold: tiltaksgjennomforing.faneinnhold,
           avtaleId: tiltaksgjennomforing.avtaleId,
