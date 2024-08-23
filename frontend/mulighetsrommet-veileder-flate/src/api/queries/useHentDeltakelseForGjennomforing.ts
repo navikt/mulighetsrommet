@@ -9,10 +9,12 @@ export function useHentDeltakelseForGjennomforing() {
   const tiltaksgjennomforingId = useGetTiltaksgjennomforingIdFraUrl();
   return useQuery({
     queryKey: QueryKeys.DeltakelseForGjennomforing(norskIdent, tiltaksgjennomforingId),
-    queryFn: () =>
-      HistorikkService.hentDeltakelseForGjennomforing({
+    queryFn: async () => {
+      const result = await HistorikkService.hentDeltakelseForGjennomforing({
         requestBody: { norskIdent, tiltaksgjennomforingId },
-      }),
+      });
+      return result || null; // Returner null hvis API returnerer 204 No Content = undefined;;
+    },
     enabled: !!tiltaksgjennomforingId,
   });
 }
