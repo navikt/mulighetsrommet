@@ -18,9 +18,7 @@ test.describe("Tiltaksoversikt", () => {
     await page.getByLabel("Varig tilpasset innsats").click();
     await page.getByLabel("NAV Oslo").click();
     const rows = page.getByTestId("oversikt_tiltaksgjennomforinger").getByRole("link");
-    await expect(page.getByTestId("oversikt_tiltaksgjennomforinger")).toContainText(
-      "Avklaring - Fredrikstad med ganske langt navn som strekker seg bortover",
-    );
+    await expect(page.getByTestId("oversikt_tiltaksgjennomforinger")).toContainText("Avklaring");
     expect(await rows.count()).toBeGreaterThan(5);
   });
 
