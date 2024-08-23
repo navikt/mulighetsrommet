@@ -21,11 +21,12 @@ export function DupliserAvtale({ avtale }: Props) {
     setAvtaleDetaljerTab("detaljer");
     navigate(`/avtaler/skjema`, {
       state: {
-        avtale: {
+        dupliserAvtale: {
           opphav: Opphav.MR_ADMIN_FLATE,
-          faneinnhold: avtale.faneinnhold,
           tiltakstype: avtale.tiltakstype,
           avtaletype: avtale.avtaletype,
+          beskrivelse: avtale.beskrivelse,
+          faneinnhold: avtale.faneinnhold,
         },
       },
     });

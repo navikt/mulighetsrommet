@@ -14,25 +14,26 @@ import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { AvtaleIkon } from "@/components/ikoner/AvtaleIkon";
 import { SkjemaContainer } from "@/components/skjema/SkjemaContainer";
 import { SkjemaContent } from "@/components/skjema/SkjemaContent";
+import { defaultAvtaleData } from "@/components/avtaler/AvtaleSkjemaConst";
 
-const AvtaleSkjemaPage = () => {
+export function AvtaleSkjemaPage() {
   const navigate = useNavigate();
 
-  const { data: avtale, isLoading: avtaleLoading } = useAvtale();
+  const { data: avtale, isLoading: isAvtaleLoading } = useAvtale();
   const { data: tiltakstyper, isLoading: isLoadingTiltakstyper } = useTiltakstyper();
   const { data: ansatt, isLoading: isLoadingAnsatt } = useHentAnsatt();
   const { data: enheter, isLoading: isLoadingEnheter } = useNavEnheter();
   const location = useLocation();
 
-  const redigeringsModus = avtale && inneholderUrl(avtale?.id);
-
   const navigerTilbake = () => {
     navigate(-1);
   };
 
-  if (avtaleLoading) {
+  if (isAvtaleLoading || isLoadingAnsatt) {
     return <Laster size="xlarge" tekst={"Laster avtale..."} />;
   }
+
+  const redigeringsModus = avtale ? inneholderUrl(avtale.id) : false;
 
   const brodsmuler: Array<Brodsmule | undefined> = [
     { tittel: "Forside", lenke: "/" },
@@ -73,8 +74,9 @@ const AvtaleSkjemaPage = () => {
                 tiltakstyper={tiltakstyper.data}
                 ansatt={ansatt}
                 enheter={enheter}
-                avtale={location.state?.avtale ? location.state.avtale : avtale}
-                redigeringsModus={redigeringsModus!}
+                avtale={avtale}
+                defaultValues={defaultAvtaleData(ansatt, location.state?.dupliserAvtale ?? avtale)}
+                redigeringsModus={redigeringsModus}
               />
             )}
           </SkjemaContent>
@@ -82,6 +84,4 @@ const AvtaleSkjemaPage = () => {
       </ContainerLayout>
     </main>
   );
-};
-
-export default AvtaleSkjemaPage;
+}
