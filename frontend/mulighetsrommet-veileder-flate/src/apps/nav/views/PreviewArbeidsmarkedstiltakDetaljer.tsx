@@ -1,7 +1,7 @@
 import {
   isTiltakGruppe,
-  usePreviewTiltaksgjennomforingById,
-} from "@/api/queries/useTiltaksgjennomforingById";
+  usePreviewArbeidsmarkedstiltakById,
+} from "@/api/queries/useArbeidsmarkedstiltakById";
 import { DelMedBruker } from "@/apps/modia/delMedBruker/DelMedBruker";
 import { Tilbakeknapp } from "@/components/tilbakeknapp/Tilbakeknapp";
 import { ViewTiltaksgjennomforingDetaljer } from "@/layouts/ViewTiltaksgjennomforingDetaljer";
@@ -13,7 +13,7 @@ import { LenkeListe } from "@/components/sidemeny/Lenker";
 import { DetaljerSkeleton } from "@mr/frontend-common";
 
 export function PreviewArbeidsmarkedstiltakDetaljer() {
-  const { data: tiltak, isPending, isError } = usePreviewTiltaksgjennomforingById();
+  const { data: tiltak, isPending, isError } = usePreviewArbeidsmarkedstiltakById();
 
   if (isPending) {
     return <DetaljerSkeleton />;
@@ -63,7 +63,7 @@ export function PreviewArbeidsmarkedstiltakDetaljer() {
             />
             {isTiltakGruppe(tiltak) && tiltak.personvernBekreftet ? (
               <InlineErrorBoundary>
-                <PersonvernContainer tiltaksgjennomforing={tiltak} />
+                <PersonvernContainer tiltak={tiltak} />
               </InlineErrorBoundary>
             ) : null}
             <LenkeListe lenker={tiltak.faneinnhold?.lenker} />

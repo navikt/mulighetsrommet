@@ -9,7 +9,7 @@ import { useDelTiltakMedBruker } from "@/api/queries/useDelTiltakMedBruker";
 import { DelMedBrukerContent, MAKS_ANTALL_TEGN_DEL_MED_BRUKER } from "./DelMedBrukerContent";
 import style from "./Delemodal.module.scss";
 import { Actions, State } from "./DelemodalActions";
-import { isTiltakArbeidsgiver, isTiltakGruppe } from "@/api/queries/useTiltaksgjennomforingById";
+import { isTiltakArbeidsgiver, isTiltakGruppe } from "@/api/queries/useArbeidsmarkedstiltakById";
 
 interface DelemodalProps {
   veiledernavn?: string;
@@ -118,7 +118,7 @@ export function Delemodal({
             veiledernavn={veiledernavn}
             brukernavn={bruker.fornavn}
             harDeltMedBruker={harDeltMedBruker}
-            tiltaksgjennomforing={tiltak}
+            tiltak={tiltak}
             enableRedigerDeletekst={enableRedigerDeletekst}
           />
         </Modal.Body>

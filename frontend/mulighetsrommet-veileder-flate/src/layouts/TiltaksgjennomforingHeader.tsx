@@ -5,20 +5,11 @@ import { BodyLong, Heading, HStack, VStack } from "@navikt/ds-react";
 import styles from "./TiltaksgjennomforingsHeader.module.scss";
 
 interface Props {
-  tiltaksgjennomforing: VeilederflateTiltak;
+  tiltak: VeilederflateTiltak;
 }
 
-function erKurstiltak(tiltakskode: Tiltakskode) {
-  return [
-    Tiltakskode.JOBBKLUBB,
-    Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK,
-    Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
-    Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
-  ].includes(tiltakskode);
-}
-
-const TiltaksgjennomforingsHeader = ({ tiltaksgjennomforing }: Props) => {
-  const { navn, beskrivelse, tiltakstype } = tiltaksgjennomforing;
+export function TiltaksgjennomforingHeader({ tiltak }: Props) {
+  const { navn, beskrivelse, tiltakstype } = tiltak;
   return (
     <>
       <HStack align="center" gap="2" className={styles.tiltaksgjennomforing_title}>
@@ -41,8 +32,8 @@ const TiltaksgjennomforingsHeader = ({ tiltaksgjennomforing }: Props) => {
             )}
           </VStack>
         </Heading>
-        {!gjennomforingIsAktiv(tiltaksgjennomforing.status.status) && (
-          <TiltaksgjennomforingStatusTag status={tiltaksgjennomforing.status} />
+        {!gjennomforingIsAktiv(tiltak.status.status) && (
+          <TiltaksgjennomforingStatusTag status={tiltak.status} />
         )}
       </HStack>
       {tiltakstype.beskrivelse && (
@@ -57,6 +48,13 @@ const TiltaksgjennomforingsHeader = ({ tiltaksgjennomforing }: Props) => {
       )}
     </>
   );
-};
+}
 
-export default TiltaksgjennomforingsHeader;
+function erKurstiltak(tiltakskode: Tiltakskode) {
+  return [
+    Tiltakskode.JOBBKLUBB,
+    Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK,
+    Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
+    Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
+  ].includes(tiltakskode);
+}

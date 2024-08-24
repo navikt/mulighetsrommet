@@ -16,7 +16,7 @@ interface Props {
   veiledernavn?: string;
   brukernavn?: string;
   harDeltMedBruker?: DelMedBruker;
-  tiltaksgjennomforing: VeilederflateTiltak;
+  tiltak: VeilederflateTiltak;
   enableRedigerDeletekst: boolean;
 }
 
@@ -26,7 +26,7 @@ export function DelMedBrukerContent({
   veiledernavn,
   brukernavn,
   harDeltMedBruker,
-  tiltaksgjennomforing,
+  tiltak,
   enableRedigerDeletekst,
 }: Props) {
   const endreDeletekstRef = useRef<HTMLTextAreaElement>(null);
@@ -95,7 +95,7 @@ export function DelMedBrukerContent({
         </ErrorMessage>
       ) : null}
 
-      {!getDelMedBrukerTekst(tiltaksgjennomforing) ? (
+      {!getDelMedBrukerTekst(tiltak) ? (
         <ErrorMessage className={styles.feilmeldinger}>
           • Mangler ferdigutfylt tekst som kan deles med bruker{" "}
         </ErrorMessage>

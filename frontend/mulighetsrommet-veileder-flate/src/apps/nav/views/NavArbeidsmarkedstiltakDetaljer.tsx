@@ -1,7 +1,7 @@
 import {
   isTiltakGruppe,
-  useNavTiltaksgjennomforingById,
-} from "@/api/queries/useTiltaksgjennomforingById";
+  useNavArbeidsmarkedstiltakById,
+} from "@/api/queries/useArbeidsmarkedstiltakById";
 import { Tilbakeknapp } from "@/components/tilbakeknapp/Tilbakeknapp";
 import { ViewTiltaksgjennomforingDetaljer } from "@/layouts/ViewTiltaksgjennomforingDetaljer";
 import { Alert } from "@navikt/ds-react";
@@ -11,7 +11,7 @@ import { LenkeListe } from "@/components/sidemeny/Lenker";
 import { DetaljerSkeleton } from "@mr/frontend-common";
 
 export function NavArbeidsmarkedstiltakDetaljer() {
-  const { data: tiltak, isError, isPending } = useNavTiltaksgjennomforingById();
+  const { data: tiltak, isError, isPending } = useNavArbeidsmarkedstiltakById();
 
   if (isError) {
     return <Alert variant="error">Det har skjedd en feil</Alert>;
@@ -33,7 +33,7 @@ export function NavArbeidsmarkedstiltakDetaljer() {
         <>
           {isTiltakGruppe(tiltak) && tiltak.personvernBekreftet ? (
             <InlineErrorBoundary>
-              <PersonvernContainer tiltaksgjennomforing={tiltak} />
+              <PersonvernContainer tiltak={tiltak} />
             </InlineErrorBoundary>
           ) : null}
           <LenkeListe

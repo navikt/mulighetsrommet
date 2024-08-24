@@ -19,29 +19,29 @@ export function isTiltakArbeidsgiver(
   return tiltak.type === "TILTAK_ARBEIDSGIVER";
 }
 
-export function useTiltaksgjennomforingById() {
+export function useModiaArbeidsmarkedstiltakById() {
   const id = useGetTiltaksgjennomforingIdFraUrl();
 
   return useQuery({
-    queryKey: QueryKeys.arbeidsmarkedstiltak.tiltaksgjennomforing(id),
+    queryKey: QueryKeys.arbeidsmarkedstiltak.tiltakById(id),
     queryFn: () => VeilederTiltakService.getVeilederTiltaksgjennomforing({ id }),
   });
 }
 
-export function useNavTiltaksgjennomforingById() {
+export function useNavArbeidsmarkedstiltakById() {
   const id = useGetTiltaksgjennomforingIdFraUrl();
 
   return useQuery({
-    queryKey: QueryKeys.arbeidsmarkedstiltak.tiltaksgjennomforing(id),
+    queryKey: QueryKeys.arbeidsmarkedstiltak.tiltakById(id),
     queryFn: () => VeilederTiltakService.getNavTiltaksgjennomforing({ id }),
   });
 }
 
-export function usePreviewTiltaksgjennomforingById() {
+export function usePreviewArbeidsmarkedstiltakById() {
   const id = useGetTiltaksgjennomforingIdFraUrl();
 
   return useQuery({
-    queryKey: QueryKeys.arbeidsmarkedstiltak.tiltaksgjennomforingPreview(id),
+    queryKey: QueryKeys.arbeidsmarkedstiltak.previewTiltakById(id),
     queryFn: () => VeilederTiltakService.getPreviewTiltaksgjennomforing({ id }),
   });
 }
