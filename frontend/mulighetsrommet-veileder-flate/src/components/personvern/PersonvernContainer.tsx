@@ -10,13 +10,13 @@ import {
   VStack,
 } from "@navikt/ds-react";
 import { ModalBody, ModalHeader } from "@navikt/ds-react/Modal";
-import { PersonopplysningData, VeilederflateTiltaksgjennomforing } from "@mr/api-client";
+import { PersonopplysningData, VeilederflateTiltakGruppe } from "@mr/api-client";
 import { useState } from "react";
 import { PersonvernIkon } from "@/ikoner/PersonvernIkon";
 import styles from "./PersonvernContainer.module.scss";
 
 interface Props {
-  tiltaksgjennomforing: VeilederflateTiltaksgjennomforing;
+  tiltaksgjennomforing: VeilederflateTiltakGruppe;
 }
 
 /**

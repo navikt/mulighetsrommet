@@ -1,11 +1,11 @@
-import { Tiltakskode, VeilederflateTiltaksgjennomforing } from "@mr/api-client";
+import { Tiltakskode, VeilederflateTiltak } from "@mr/api-client";
 import { TiltaksgjennomforingStatusTag } from "@mr/frontend-common";
 import { gjennomforingIsAktiv } from "@mr/frontend-common/utils/utils";
 import { BodyLong, Heading, HStack, VStack } from "@navikt/ds-react";
 import styles from "./TiltaksgjennomforingsHeader.module.scss";
 
 interface Props {
-  tiltaksgjennomforing: VeilederflateTiltaksgjennomforing;
+  tiltaksgjennomforing: VeilederflateTiltak;
 }
 
 function erKurstiltak(tiltakskode: Tiltakskode) {

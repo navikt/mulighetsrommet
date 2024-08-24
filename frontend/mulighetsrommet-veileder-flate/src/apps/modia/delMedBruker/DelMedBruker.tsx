@@ -3,11 +3,7 @@ import { CheckmarkIcon } from "@navikt/aksel-icons";
 import { Delemodal } from "./Delemodal";
 import { useDelMedBruker } from "./DelemodalReducer";
 import { useLogEvent } from "@/logging/amplitude";
-import {
-  Bruker,
-  DelMedBruker as DelMedBrukerInfo,
-  VeilederflateTiltaksgjennomforing,
-} from "@mr/api-client";
+import { Bruker, DelMedBruker as DelMedBrukerInfo, VeilederflateTiltak } from "@mr/api-client";
 import { formaterDato } from "@/utils/Utils";
 import {
   erBrukerReservertMotDigitalKommunikasjon,
@@ -17,26 +13,21 @@ import {
 interface Props {
   veiledernavn: string;
   bruker: Bruker;
-  tiltaksgjennomforing: VeilederflateTiltaksgjennomforing;
+  tiltak: VeilederflateTiltak;
   delMedBrukerInfo?: DelMedBrukerInfo;
 }
 
-export function DelMedBruker({
-  veiledernavn,
-  bruker,
-  tiltaksgjennomforing,
-  delMedBrukerInfo,
-}: Props) {
+export function DelMedBruker({ veiledernavn, bruker, tiltak, delMedBrukerInfo }: Props) {
   const { logEvent } = useLogEvent();
   const { reservert, melding } = erBrukerReservertMotDigitalKommunikasjon(bruker);
 
-  const deletekst = utledDelMedBrukerTekst(tiltaksgjennomforing, veiledernavn);
+  const deletekst = utledDelMedBrukerTekst(tiltak, veiledernavn);
   const [state, dispatch] = useDelMedBruker(deletekst);
 
   const handleClickApneModal = () => {
     logEvent({
       name: "arbeidsmarkedstiltak.del-med-bruker",
-      data: { action: "Åpnet delemodal", tiltakstype: tiltaksgjennomforing.tiltakstype.navn },
+      data: { action: "Åpnet delemodal", tiltakstype: tiltak.tiltakstype.navn },
     });
     dispatch({ type: "Toggle modal", payload: true });
   };
@@ -63,7 +54,7 @@ export function DelMedBruker({
           </Button>
           <Delemodal
             veiledernavn={veiledernavn}
-            tiltaksgjennomforing={tiltaksgjennomforing}
+            tiltak={tiltak}
             harDeltMedBruker={delMedBrukerInfo}
             dispatch={dispatch}
             state={state}

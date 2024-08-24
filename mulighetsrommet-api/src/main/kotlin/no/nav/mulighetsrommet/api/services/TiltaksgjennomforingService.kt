@@ -7,10 +7,7 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import kotliquery.TransactionalSession
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
-import no.nav.mulighetsrommet.api.domain.dto.EndringshistorikkDto
-import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingAdminDto
-import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingNotificationDto
-import no.nav.mulighetsrommet.api.domain.dto.VeilederflateTiltaksgjennomforing
+import no.nav.mulighetsrommet.api.domain.dto.*
 import no.nav.mulighetsrommet.api.okonomi.tilsagn.TilsagnRepository
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
@@ -102,7 +99,7 @@ class TiltaksgjennomforingService(
         PaginatedResponse.of(pagination, totalCount, data)
     }
 
-    fun getVeilederflateTiltaksgjennomforing(id: UUID): VeilederflateTiltaksgjennomforing? {
+    fun getVeilederflateTiltaksgjennomforing(id: UUID): VeilederflateTiltakGruppe? {
         return tiltaksgjennomforinger.getVeilederflateTiltaksgjennomforing(id)
     }
 
@@ -112,7 +109,7 @@ class TiltaksgjennomforingService(
         sanityTiltakstypeIds: List<UUID>?,
         innsatsgruppe: Innsatsgruppe,
         enheter: List<String>,
-    ): List<VeilederflateTiltaksgjennomforing> =
+    ): List<VeilederflateTiltak> =
         tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
             innsatsgruppe = innsatsgruppe,
             brukersEnheter = enheter,

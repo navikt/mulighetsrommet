@@ -4,14 +4,17 @@ import {
   NavEnhetType,
   TiltaksgjennomforingOppstartstype,
   TiltaksgjennomforingStatus,
-  VeilederflateTiltaksgjennomforing,
+  VeilederflateTiltakArbeidsgiver,
+  VeilederflateTiltakGruppe,
 } from "@mr/api-client";
 import { mockTiltakstyper } from "./mockTiltakstyper";
 
-export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
+export const mockTiltaksgjennomforinger = [
   {
     tiltaksnummer: "123123",
-    sanityId: "f4cea25b-c372-4d4c-8106-535ab10cd586",
+    id: "f4cea25b-c372-4d4c-8106-535ab10cd586",
+    avtaleId: "f4cea25b-c372-4d4c-8106-535ab10cd586",
+    oppstartsdato: "2024-01-01",
     navn: "Avklaring - Fredrikstad med ganske langt navn som strekker seg bortover",
     status: { status: TiltaksgjennomforingStatus.GJENNOMFORES },
     oppstart: TiltaksgjennomforingOppstartstype.LOPENDE,
@@ -108,7 +111,7 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
         },
       ],
     },
-  },
+  } as VeilederflateTiltakGruppe,
   {
     sanityId: "91205ff2-ec72-4a7f-80b8-1c99d8535a06",
     navn: "Sindres mentorordning med Yoda",
@@ -117,7 +120,7 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
       verdi: 5,
       enhet: EstimertVentetidEnhet.UKE,
     },
-    oppstart: TiltaksgjennomforingOppstartstype.FELLES,
+    oppstart: TiltaksgjennomforingOppstartstype.LOPENDE,
     oppstartsdato: new Date().toDateString(),
     stedForGjennomforing: "Oslo",
     tiltakstype: mockTiltakstyper.mentor,
@@ -142,7 +145,7 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
       ],
       varsler: [],
     },
-  },
+  } as VeilederflateTiltakArbeidsgiver,
   {
     id: "00097090-1ba8-47a4-a82f-6aaad488994e",
     status: { status: TiltaksgjennomforingStatus.GJENNOMFORES },
@@ -250,9 +253,10 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
         },
       ],
     },
-  },
+  } as VeilederflateTiltakGruppe,
   {
-    sanityId: "3b597090-1ba8-47a4-a82f-6aaad488994e",
+    id: "3b597090-1ba8-47a4-a82f-6aaad488994e",
+    avtaleId: "f4cea25b-c372-4d4c-8106-535ab10cd586",
     navn: "VTA hos Fretex",
     status: { status: TiltaksgjennomforingStatus.GJENNOMFORES },
     stedForGjennomforing: "2050",
@@ -341,7 +345,7 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
         },
       ],
     },
-  },
+  } as VeilederflateTiltakGruppe,
   {
     sanityId: "ff887090-1ba8-47a4-a82f-6aaad488994e",
     navn: "Jobbklubb (med Lars Monsen)",
@@ -390,9 +394,10 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
         },
       ],
     },
-  },
+  } as VeilederflateTiltakArbeidsgiver,
   {
-    sanityId: "bdfa7090-1ba8-47a4-a82f-6aaad488994e",
+    id: "bdfa7090-1ba8-47a4-a82f-6aaad488994e",
+    avtaleId: "bdfa7090-1ba8-47a4-a82f-6aaad488994e",
     navn: "AFT",
     stedForGjennomforing: "Sinsen",
     status: { status: TiltaksgjennomforingStatus.GJENNOMFORES },
@@ -433,7 +438,7 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
       ],
       varsler: [],
     },
-  },
+  } as VeilederflateTiltakGruppe,
   {
     sanityId: "f1887090-1ba8-47a4-a82f-6aaad488994e",
     status: { status: TiltaksgjennomforingStatus.GJENNOMFORES },
@@ -450,5 +455,5 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
       varsler: [],
     },
     sluttdato: "2030-11-30",
-  },
-];
+  } as VeilederflateTiltakArbeidsgiver,
+] as const;

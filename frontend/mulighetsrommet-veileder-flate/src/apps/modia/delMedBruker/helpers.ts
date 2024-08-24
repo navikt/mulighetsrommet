@@ -1,5 +1,5 @@
 import { ArbeidsmarkedstiltakFilter } from "@/hooks/useArbeidsmarkedstiltakFilter";
-import { Bruker, NavEnhet, VeilederflateTiltaksgjennomforing } from "@mr/api-client";
+import { Bruker, NavEnhet, VeilederflateTiltak } from "@mr/api-client";
 
 export function brukersEnhetFilterHasChanged(
   filter: ArbeidsmarkedstiltakFilter,
@@ -18,7 +18,7 @@ export function brukersEnhetFilterHasChanged(
 }
 
 export function utledDelMedBrukerTekst(
-  tiltaksgjennomforing: VeilederflateTiltaksgjennomforing,
+  tiltaksgjennomforing: VeilederflateTiltak,
   veiledernavn?: string,
 ) {
   const deletekst = getDelMedBrukerTekst(tiltaksgjennomforing) ?? "";
@@ -34,7 +34,7 @@ function hilsenTekst(veiledernavn?: string) {
 }
 
 export function getDelMedBrukerTekst(
-  tiltaksgjennomforing: VeilederflateTiltaksgjennomforing,
+  tiltaksgjennomforing: VeilederflateTiltak,
 ): string | undefined {
   return (
     tiltaksgjennomforing.faneinnhold?.delMedBruker ??

@@ -9,10 +9,7 @@ import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import io.ktor.util.pipeline.*
 import no.nav.mulighetsrommet.api.clients.sanity.SanityPerspective
-import no.nav.mulighetsrommet.api.domain.dto.KontaktinfoVarsel
-import no.nav.mulighetsrommet.api.domain.dto.Oppskrifter
-import no.nav.mulighetsrommet.api.domain.dto.VeilederflateKontaktinfo
-import no.nav.mulighetsrommet.api.domain.dto.VeilederflateTiltaksgjennomforing
+import no.nav.mulighetsrommet.api.domain.dto.*
 import no.nav.mulighetsrommet.api.plugins.AuthProvider
 import no.nav.mulighetsrommet.api.plugins.authenticate
 import no.nav.mulighetsrommet.api.plugins.getNavAnsattAzureId
@@ -124,15 +121,28 @@ fun Route.veilederTiltakRoutes() {
         }
 
         route("/nav") {
-            fun utenKontaktInfo(gjennomforing: VeilederflateTiltaksgjennomforing): VeilederflateTiltaksgjennomforing {
-                val arrangor = gjennomforing.arrangor?.copy(kontaktpersoner = emptyList())
-                return gjennomforing.copy(
-                    arrangor = arrangor,
-                    kontaktinfo = VeilederflateKontaktinfo(
-                        varsler = listOf(KontaktinfoVarsel.IKKE_TILGANG_TIL_KONTAKTINFO),
-                        tiltaksansvarlige = emptyList(),
-                    ),
-                )
+            fun utenKontaktInfo(gjennomforing: VeilederflateTiltak): VeilederflateTiltak {
+                return when (gjennomforing) {
+                    is VeilederflateTiltakGruppe -> {
+                        val arrangor = gjennomforing.arrangor.copy(kontaktpersoner = emptyList())
+                        return gjennomforing.copy(
+                            arrangor = arrangor,
+                            kontaktinfo = VeilederflateKontaktinfo(
+                                varsler = listOf(KontaktinfoVarsel.IKKE_TILGANG_TIL_KONTAKTINFO),
+                                tiltaksansvarlige = emptyList(),
+                            ),
+                        )
+                    }
+
+                    is VeilederflateTiltakArbeidsgiver -> {
+                        gjennomforing.copy(
+                            kontaktinfo = VeilederflateKontaktinfo(
+                                varsler = listOf(KontaktinfoVarsel.IKKE_TILGANG_TIL_KONTAKTINFO),
+                                tiltaksansvarlige = emptyList(),
+                            ),
+                        )
+                    }
+                }
             }
 
             get("/tiltaksgjennomforinger") {

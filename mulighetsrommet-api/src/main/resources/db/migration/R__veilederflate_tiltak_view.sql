@@ -1,8 +1,7 @@
-drop view if exists tiltaksgjennomforing_veileder_dto_view;
+drop view if exists veilederflate_tiltak_view;
 
-create view tiltaksgjennomforing_veileder_dto_view as
+create view veilederflate_tiltak_view as
 select gjennomforing.id,
-       gjennomforing.avtale_id,
        gjennomforing.navn,
        gjennomforing.sted_for_gjennomforing,
        gjennomforing.apent_for_innsok,
@@ -22,6 +21,7 @@ select gjennomforing.id,
                                    gjennomforing.avbrutt_tidspunkt) as status,
        tiltakstype.sanity_id                                        as tiltakstype_sanity_id,
        tiltakstype.navn                                             as tiltakstype_navn,
+       tiltakstype.tiltakskode                                      as tiltakstype_tiltakskode,
        tiltakstype.innsatsgrupper                                   as tiltakstype_innsatsgrupper,
        avtale.personvern_bekreftet,
        personopplysninger_som_kan_behandles,
@@ -33,7 +33,7 @@ select gjennomforing.id,
        arrangor_kontaktpersoner_json
 from tiltaksgjennomforing gjennomforing
          join tiltakstype on gjennomforing.tiltakstype_id = tiltakstype.id
-         left join avtale on avtale.id = gjennomforing.avtale_id
+         join avtale on avtale.id = gjennomforing.avtale_id
          left join arrangor on arrangor.id = gjennomforing.arrangor_id
          left join lateral (select array_agg(personopplysning) as personopplysninger_som_kan_behandles
                             from avtale_personopplysning

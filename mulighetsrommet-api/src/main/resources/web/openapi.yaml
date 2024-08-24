@@ -867,7 +867,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/VeilederflateTiltaksgjennomforing"
+                  $ref: "#/components/schemas/VeilederflateTiltak"
 
   /api/v1/intern/veileder/tiltaksgjennomforinger/{id}:
     get:
@@ -882,7 +882,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/VeilederflateTiltaksgjennomforing"
+                $ref: "#/components/schemas/VeilederflateTiltak"
 
   /api/v1/intern/veileder/preview/tiltaksgjennomforinger:
     get:
@@ -903,7 +903,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/VeilederflateTiltaksgjennomforing"
+                  $ref: "#/components/schemas/VeilederflateTiltak"
 
   /api/v1/intern/veileder/preview/tiltaksgjennomforinger/{id}:
     get:
@@ -918,7 +918,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/VeilederflateTiltaksgjennomforing"
+                $ref: "#/components/schemas/VeilederflateTiltak"
 
   /api/v1/intern/veileder/nav/tiltaksgjennomforinger:
     get:
@@ -939,7 +939,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/VeilederflateTiltaksgjennomforing"
+                  $ref: "#/components/schemas/VeilederflateTiltak"
 
   /api/v1/intern/veileder/nav/tiltaksgjennomforinger/{id}:
     get:
@@ -954,7 +954,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/VeilederflateTiltaksgjennomforing"
+                $ref: "#/components/schemas/VeilederflateTiltak"
 
   /api/v1/intern/bruker/historikk:
     post:
@@ -3358,41 +3358,47 @@ components:
         - navn
         - kanKombineresMed
 
-    VeilederflateTiltaksgjennomforing:
+    VeilederflateTiltak:
+      oneOf:
+        - $ref: "#/components/schemas/VeilederflateTiltakGruppe"
+        - $ref: "#/components/schemas/VeilederflateTiltakArbeidsgiver"
+
+    VeilederflateTiltakGruppe:
       type: object
       properties:
+        type:
+          const: "TILTAK_GRUPPE"
+        tiltakstype:
+          $ref: "#/components/schemas/VeilederflateTiltakstype"
+        tiltaksnummer:
+          type: string
+        status:
+          $ref: "#/components/schemas/TiltaksgjennomforingStatusDto"
+        beskrivelse:
+          type: string
+        faneinnhold:
+          $ref: "#/components/schemas/Faneinnhold"
+        kontaktinfo:
+          $ref: "#/components/schemas/VeilederflateKontaktInfo"
+        oppstart:
+          $ref: "#/components/schemas/TiltaksgjennomforingOppstartstype"
         id:
           type: string
           format: uuid
-        avtaleId:
-          type: string
-          format: uuid
-        sanityId:
-          type: string
-        tiltakstype:
-          $ref: "#/components/schemas/VeilederflateTiltakstype"
         navn:
           type: string
-        beskrivelse:
-          type: string
-        tiltaksnummer:
-          type: string
-        arrangor:
-          $ref: "#/components/schemas/VeilderflateArrangor"
         stedForGjennomforing:
           type: string
-        oppstart:
-          $ref: "#/components/schemas/TiltaksgjennomforingOppstartstype"
+        apentForInnsok:
+          type: boolean
         oppstartsdato:
           type: string
         sluttdato:
           type: string
-        faneinnhold:
-          $ref: "#/components/schemas/Faneinnhold"
-        apentForInnsok:
-          type: boolean
-        kontaktinfo:
-          $ref: "#/components/schemas/VeilederflateKontaktInfo"
+        arrangor:
+          $ref: "#/components/schemas/VeilderflateArrangor"
+        fylke:
+          type: string
         estimertVentetid:
           $ref: "#/components/schemas/EstimertVentetid"
           nullable: true
@@ -3402,18 +3408,53 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/PersonopplysningData"
-        fylke:
+      required:
+        - tiltakstype
+        - status
+        - kontaktinfo
+        - oppstart
+        - id
+        - navn
+        - apentForInnsok
+        - oppstartsdato
+        - arrangor
+        - personvernBekreftet
+        - personopplysningerSomKanBehandles
+
+    VeilederflateTiltakArbeidsgiver:
+      type: object
+      properties:
+        type:
+          const: "TILTAK_ARBEIDSGIVER"
+        tiltakstype:
+          $ref: "#/components/schemas/VeilederflateTiltakstype"
+        tiltaksnummer:
           type: string
         status:
           $ref: "#/components/schemas/TiltaksgjennomforingStatusDto"
+        beskrivelse:
+          type: string
+        faneinnhold:
+          $ref: "#/components/schemas/Faneinnhold"
+        kontaktinfo:
+          $ref: "#/components/schemas/VeilederflateKontaktInfo"
+        oppstart:
+          const: LOPENDE
+        sanityId:
+          type: string
+        navn:
+          type: string
+        stedForGjennomforing:
+          type: string
+        fylke:
+          type: string
       required:
-        - navn
         - tiltakstype
-        - apentForInnsok
-        - oppstart
         - status
-        - personvernBekreftet
-        - personopplysningerSomKanBehandles
+        - kontaktinfo
+        - oppstart
+        - sanityId
+        - navn
 
     RegelverkLenke:
       type: object

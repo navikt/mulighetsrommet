@@ -1,5 +1,5 @@
 import { Alert, ErrorMessage, Textarea } from "@navikt/ds-react";
-import { DelMedBruker, VeilederflateTiltaksgjennomforing } from "@mr/api-client";
+import { DelMedBruker, VeilederflateTiltak } from "@mr/api-client";
 import React, { Dispatch, useEffect, useRef } from "react";
 import { erPreview, formaterDato } from "@/utils/Utils";
 import styles from "./Delemodal.module.scss";
@@ -16,7 +16,7 @@ interface Props {
   veiledernavn?: string;
   brukernavn?: string;
   harDeltMedBruker?: DelMedBruker;
-  tiltaksgjennomforing: VeilederflateTiltaksgjennomforing;
+  tiltaksgjennomforing: VeilederflateTiltak;
   enableRedigerDeletekst: boolean;
 }
 

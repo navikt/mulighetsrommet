@@ -123,7 +123,7 @@ class VeilederflateService(
         apentForInnsok: ApentForInnsok = ApentForInnsok.APENT_ELLER_STENGT,
         search: String? = null,
         cacheUsage: CacheUsage,
-    ): List<VeilederflateTiltaksgjennomforing> = coroutineScope {
+    ): List<VeilederflateTiltak> = coroutineScope {
         val individuelleGjennomforinger = async {
             hentSanityTiltak(enheter, tiltakstypeIds, innsatsgruppe, apentForInnsok, search, cacheUsage)
         }
@@ -142,7 +142,7 @@ class VeilederflateService(
         apentForInnsok: ApentForInnsok,
         search: String?,
         cacheUsage: CacheUsage,
-    ): List<VeilederflateTiltaksgjennomforing> {
+    ): List<VeilederflateTiltakArbeidsgiver> {
         if (apentForInnsok == ApentForInnsok.STENGT) {
             // Det er foreløpig ikke noe egen funksjonalitet for å markere tiltak som midlertidig stengt i Sanity
             return emptyList()
@@ -213,7 +213,7 @@ class VeilederflateService(
         innsatsgruppe: Innsatsgruppe,
         apentForInnsok: ApentForInnsok,
         search: String?,
-    ): List<VeilederflateTiltaksgjennomforing> {
+    ): List<VeilederflateTiltak> {
         return tiltaksgjennomforingService.getAllVeilederflateTiltaksgjennomforing(
             search = search,
             sanityTiltakstypeIds = tiltakstypeIds?.map { UUID.fromString(it) },
@@ -230,7 +230,7 @@ class VeilederflateService(
     suspend fun hentTiltaksgjennomforing(
         id: UUID,
         sanityPerspective: SanityPerspective,
-    ): VeilederflateTiltaksgjennomforing {
+    ): VeilederflateTiltak {
         return tiltaksgjennomforingService.getVeilederflateTiltaksgjennomforing(id)
             ?.let { gjennomforing ->
                 val hentTiltakstyper = hentTiltakstyper()
@@ -314,7 +314,7 @@ class VeilederflateService(
 
     private fun toVeilederTiltaksgjennomforing(
         sanityGjennomforing: SanityTiltaksgjennomforing,
-    ): VeilederflateTiltaksgjennomforing {
+    ): VeilederflateTiltakArbeidsgiver {
         val tiltakstypeFraSanity =
             tiltakstypeService.getBySanityId(UUID.fromString(sanityGjennomforing.tiltakstype._id))
 
@@ -331,12 +331,19 @@ class VeilederflateService(
                     )
                 } ?: emptyList()
 
-            VeilederflateTiltaksgjennomforing(
-                avtaleId = UUID.randomUUID(),
+            VeilederflateTiltakArbeidsgiver(
+                tiltaksnummer = tiltaksnummer,
                 status = TiltaksgjennomforingStatusDto(
                     status = TiltaksgjennomforingStatus.GJENNOMFORES,
                     avbrutt = null,
                 ),
+                beskrivelse = beskrivelse,
+                faneinnhold = faneinnhold?.copy(delMedBruker = delingMedBruker),
+                kontaktinfo = VeilederflateKontaktinfo(
+                    varsler = emptyList(),
+                    tiltaksansvarlige = kontaktpersoner,
+                ),
+                oppstart = TiltaksgjennomforingOppstartstype.LOPENDE,
                 sanityId = _id,
                 tiltakstype = tiltakstype.run {
                     VeilederflateTiltakstype(
@@ -353,20 +360,9 @@ class VeilederflateService(
                     )
                 },
                 navn = tiltaksgjennomforingNavn ?: "",
-                apentForInnsok = true,
                 stedForGjennomforing = stedForGjennomforing,
                 fylke = fylke,
                 enheter = this.enheter?.filterNotNull(),
-                faneinnhold = faneinnhold?.copy(delMedBruker = delingMedBruker),
-                beskrivelse = beskrivelse,
-                oppstart = TiltaksgjennomforingOppstartstype.LOPENDE,
-                tiltaksnummer = tiltaksnummer ?: "",
-                kontaktinfo = VeilederflateKontaktinfo(
-                    varsler = emptyList(),
-                    tiltaksansvarlige = kontaktpersoner,
-                ),
-                personvernBekreftet = false, // Individuelle tiltak har ikke informasjon om personvern
-                personopplysningerSomKanBehandles = listOf(),
             )
         }
     }

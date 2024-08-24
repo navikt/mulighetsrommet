@@ -6,10 +6,7 @@ export const historikkFraKomet: DeltakerKort[] = [
     tittel: "Oppfølging hos Muligheter AS",
     tiltakstypeNavn: "Oppfølging",
     id: window.crypto.randomUUID(),
-    tiltaksgjennomforingId:
-      mockTiltaksgjennomforinger[0].id ||
-      mockTiltaksgjennomforinger[0].sanityId ||
-      window.crypto.randomUUID(),
+    tiltaksgjennomforingId: mockTiltaksgjennomforinger[0].id,
     status: {
       type: DeltakerStatusType.AVBRUTT_UTKAST,
       visningstekst: "Avbrutt utkast",
@@ -23,10 +20,7 @@ export const historikkFraKomet: DeltakerKort[] = [
     tiltakstypeNavn: "Oppfølging",
 
     id: window.crypto.randomUUID(),
-    tiltaksgjennomforingId:
-      mockTiltaksgjennomforinger[0].id ||
-      mockTiltaksgjennomforinger[0].sanityId ||
-      window.crypto.randomUUID(),
+    tiltaksgjennomforingId: mockTiltaksgjennomforinger[0].id,
     status: {
       type: DeltakerStatusType.IKKE_AKTUELL,
       visningstekst: "Ikke aktuell",
@@ -44,10 +38,7 @@ export const historikkFraKomet: DeltakerKort[] = [
     tiltakstypeNavn: "Oppfølging",
 
     id: window.crypto.randomUUID(),
-    tiltaksgjennomforingId:
-      mockTiltaksgjennomforinger[0].id ||
-      mockTiltaksgjennomforinger[0].sanityId ||
-      window.crypto.randomUUID(),
+    tiltaksgjennomforingId: mockTiltaksgjennomforinger[0].id,
     status: {
       type: DeltakerStatusType.HAR_SLUTTET,
       visningstekst: "Har sluttet",
@@ -64,10 +55,7 @@ export const historikkFraKomet: DeltakerKort[] = [
     tiltakstypeNavn: "Avklaring",
 
     id: window.crypto.randomUUID(),
-    tiltaksgjennomforingId:
-      mockTiltaksgjennomforinger[0].id ||
-      mockTiltaksgjennomforinger[0].sanityId ||
-      window.crypto.randomUUID(),
+    tiltaksgjennomforingId: mockTiltaksgjennomforinger[0].id,
     status: {
       type: DeltakerStatusType.FULLFORT,
       visningstekst: "Fullført",
@@ -84,10 +72,7 @@ export const historikkFraKomet: DeltakerKort[] = [
     tiltakstypeNavn: "Avklaring",
 
     id: window.crypto.randomUUID(),
-    tiltaksgjennomforingId:
-      mockTiltaksgjennomforinger[0].id ||
-      mockTiltaksgjennomforinger[0].sanityId ||
-      window.crypto.randomUUID(),
+    tiltaksgjennomforingId: mockTiltaksgjennomforinger[0].id,
     status: {
       type: DeltakerStatusType.AVBRUTT,
       visningstekst: "Avbrutt",
@@ -101,10 +86,7 @@ export const historikkFraKomet: DeltakerKort[] = [
     tiltakstypeNavn: "Avklaring",
 
     id: window.crypto.randomUUID(),
-    tiltaksgjennomforingId:
-      mockTiltaksgjennomforinger[0].id ||
-      mockTiltaksgjennomforinger[0].sanityId ||
-      window.crypto.randomUUID(),
+    tiltaksgjennomforingId: mockTiltaksgjennomforinger[0].id,
     status: {
       type: DeltakerStatusType.FEILREGISTRERT,
       visningstekst: "Feilregistrert",

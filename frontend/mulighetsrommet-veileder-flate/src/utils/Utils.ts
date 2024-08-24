@@ -1,5 +1,3 @@
-import { EstimertVentetidEnhet } from "@mr/api-client";
-
 export function inneholderUrl(string: string) {
   return window.location.href.indexOf(string) > -1;
 }
@@ -42,16 +40,5 @@ export function addOrRemove<T>(array: T[], item: T): T[] {
     const result = array;
     result.push(item);
     return result;
-  }
-}
-
-export function formatertVentetid(verdi: number, enhet: EstimertVentetidEnhet): string {
-  switch (enhet) {
-    case EstimertVentetidEnhet.UKE:
-      return `${verdi} ${verdi === 1 ? "uke" : "uker"}`;
-    case EstimertVentetidEnhet.MANED:
-      return `${verdi} ${verdi === 1 ? "måned" : "måneder"}`;
-    default:
-      return "Ukjent enhet for ventetid";
   }
 }

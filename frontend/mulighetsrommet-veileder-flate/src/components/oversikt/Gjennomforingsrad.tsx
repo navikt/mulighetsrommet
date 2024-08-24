@@ -9,30 +9,20 @@ import { kebabCase } from "@mr/frontend-common/utils/TestUtils";
 import styles from "./Gjennomforingsrad.module.scss";
 import { VisningsnavnForTiltak } from "./VisningsnavnForTiltak";
 import {
-  VeilederflateTiltaksgjennomforing,
   DelMedBruker,
   TiltaksgjennomforingOppstartstype,
+  VeilederflateTiltak,
 } from "@mr/api-client";
+import { isTiltakArbeidsgiver, isTiltakGruppe } from "@/api/queries/useTiltaksgjennomforingById";
 
 interface Props {
-  tiltaksgjennomforing: VeilederflateTiltaksgjennomforing;
+  tiltak: VeilederflateTiltak;
   index: number;
   delMedBruker?: DelMedBruker;
 }
 
-const visOppstartsdato = (oppstart: TiltaksgjennomforingOppstartstype, oppstartsdato?: string) => {
-  switch (oppstart) {
-    case TiltaksgjennomforingOppstartstype.FELLES:
-      return formaterDato(oppstartsdato!);
-    case TiltaksgjennomforingOppstartstype.LOPENDE:
-      return "Løpende oppstart";
-  }
-};
-
-export function Gjennomforingsrad({ tiltaksgjennomforing, index, delMedBruker }: Props) {
+export function Gjennomforingsrad({ tiltak, index, delMedBruker }: Props) {
   const pageData = useAtomValue(paginationAtom);
-  const { id, sanityId, navn, arrangor, tiltakstype, oppstart, oppstartsdato, apentForInnsok } =
-    tiltaksgjennomforing;
 
   const datoSidenSistDelt = delMedBruker && formaterDato(new Date(delMedBruker.createdAt!));
   const paginationUrl = `#pagination=${encodeURIComponent(JSON.stringify({ ...pageData }))}`;
@@ -45,6 +35,11 @@ export function Gjennomforingsrad({ tiltaksgjennomforing, index, delMedBruker }:
         year: "numeric",
       })
     : "Dato mangler";
+
+  const { navn, tiltakstype } = tiltak;
+  const id = isTiltakGruppe(tiltak) ? tiltak.id : tiltak.sanityId;
+  const oppstart = utledOppstart(tiltak);
+
   return (
     <li
       className={classNames(styles.list_element, {
@@ -53,7 +48,7 @@ export function Gjennomforingsrad({ tiltaksgjennomforing, index, delMedBruker }:
       id={`list_element_${index}`}
       data-testid={`tiltaksgjennomforing_${kebabCase(navn)}`}
     >
-      <Lenke to={`../tiltak/${id ?? sanityId}${paginationUrl}`}>
+      <Lenke to={`../tiltak/${id}${paginationUrl}`}>
         {datoSidenSistDelt ? (
           <div className={styles.delt_med_bruker_rad}>
             <BodyShort title={formatertDeltMedBrukerDato} size="small">
@@ -61,8 +56,9 @@ export function Gjennomforingsrad({ tiltaksgjennomforing, index, delMedBruker }:
             </BodyShort>
           </div>
         ) : null}
+
         <div className={styles.gjennomforing_container}>
-          {!apentForInnsok && (
+          {isTiltakGruppe(tiltak) && !tiltak.apentForInnsok && (
             <PadlockLockedFillIcon
               className={styles.status}
               title="Tiltaket er stengt for innsøking"
@@ -76,19 +72,16 @@ export function Gjennomforingsrad({ tiltaksgjennomforing, index, delMedBruker }:
           </div>
 
           <div className={classNames(styles.infogrid, styles.metadata)}>
-            {arrangor ? (
-              <BodyShort size="small" title={arrangor.selskapsnavn}>
-                {arrangor.selskapsnavn}
+            {isTiltakGruppe(tiltak) ? (
+              <BodyShort size="small" title={tiltak.arrangor.selskapsnavn} className={styles.muted}>
+                {tiltak.arrangor.selskapsnavn}
               </BodyShort>
             ) : (
               <div />
             )}
-            <BodyShort
-              size="small"
-              title={visOppstartsdato(oppstart, oppstartsdato)}
-              className={styles.truncate}
-            >
-              {visOppstartsdato(oppstart, oppstartsdato)}
+
+            <BodyShort size="small" title={oppstart} className={styles.truncate}>
+              {oppstart}
             </BodyShort>
           </div>
 
@@ -97,4 +90,17 @@ export function Gjennomforingsrad({ tiltaksgjennomforing, index, delMedBruker }:
       </Lenke>
     </li>
   );
+}
+
+function utledOppstart(tiltak: VeilederflateTiltak) {
+  if (isTiltakArbeidsgiver(tiltak)) {
+    return "Løpende oppstart";
+  }
+
+  switch (tiltak.oppstart) {
+    case TiltaksgjennomforingOppstartstype.FELLES:
+      return formaterDato(tiltak.oppstartsdato);
+    case TiltaksgjennomforingOppstartstype.LOPENDE:
+      return "Løpende oppstart";
+  }
 }

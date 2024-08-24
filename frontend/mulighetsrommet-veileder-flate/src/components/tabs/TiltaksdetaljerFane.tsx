@@ -1,5 +1,5 @@
 import { Tabs } from "@navikt/ds-react";
-import { Toggles, VeilederflateTiltaksgjennomforing } from "@mr/api-client";
+import { Toggles, VeilederflateTiltak } from "@mr/api-client";
 import { useFeatureToggle } from "@/api/feature-toggles";
 import { Oppskriftsoversikt } from "../oppskrift/Oppskriftsoversikt";
 import DetaljerFane from "./DetaljerFane";
@@ -11,7 +11,7 @@ import { useLogEvent } from "../../logging/amplitude";
 import { RedaksjoneltInnhold } from "../RedaksjoneltInnhold";
 
 interface Props {
-  tiltaksgjennomforing: VeilederflateTiltaksgjennomforing;
+  tiltaksgjennomforing: VeilederflateTiltak;
   setOppskriftId: (id: string | undefined) => void;
 }
 

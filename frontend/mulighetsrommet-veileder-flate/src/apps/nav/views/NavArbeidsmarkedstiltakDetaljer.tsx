@@ -1,4 +1,7 @@
-import { useNavTiltaksgjennomforingById } from "@/api/queries/useTiltaksgjennomforingById";
+import {
+  isTiltakGruppe,
+  useNavTiltaksgjennomforingById,
+} from "@/api/queries/useTiltaksgjennomforingById";
 import { Tilbakeknapp } from "@/components/tilbakeknapp/Tilbakeknapp";
 import { ViewTiltaksgjennomforingDetaljer } from "@/layouts/ViewTiltaksgjennomforingDetaljer";
 import { Alert } from "@navikt/ds-react";
@@ -8,28 +11,33 @@ import { LenkeListe } from "@/components/sidemeny/Lenker";
 import { DetaljerSkeleton } from "@mr/frontend-common";
 
 export function NavArbeidsmarkedstiltakDetaljer() {
-  const { data, isError, isPending } = useNavTiltaksgjennomforingById();
+  const { data: tiltak, isError, isPending } = useNavTiltaksgjennomforingById();
 
   if (isError) {
     return <Alert variant="error">Det har skjedd en feil</Alert>;
   }
 
-  if (isPending) return <DetaljerSkeleton />;
-  if (!data) return <Alert variant="error">Klarte ikke finne tiltaksgjennomføringen</Alert>;
+  if (isPending) {
+    return <DetaljerSkeleton />;
+  }
+
+  if (!tiltak) {
+    return <Alert variant="error">Klarte ikke finne tiltaksgjennomføringen</Alert>;
+  }
 
   return (
     <ViewTiltaksgjennomforingDetaljer
-      tiltaksgjennomforing={data}
+      tiltak={tiltak}
       knapperad={<Tilbakeknapp tilbakelenke=".." tekst="Gå til oversikt over aktuelle tiltak" />}
       brukerActions={
         <>
-          {data?.personvernBekreftet ? (
+          {isTiltakGruppe(tiltak) && tiltak.personvernBekreftet ? (
             <InlineErrorBoundary>
-              <PersonvernContainer tiltaksgjennomforing={data} />
+              <PersonvernContainer tiltaksgjennomforing={tiltak} />
             </InlineErrorBoundary>
           ) : null}
           <LenkeListe
-            lenker={data?.faneinnhold?.lenker?.filter((lenke) => !lenke.visKunForVeileder)}
+            lenker={tiltak.faneinnhold?.lenker?.filter((lenke) => !lenke.visKunForVeileder)}
           />
         </>
       }

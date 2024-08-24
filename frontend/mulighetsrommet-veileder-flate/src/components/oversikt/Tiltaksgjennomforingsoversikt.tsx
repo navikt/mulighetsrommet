@@ -7,7 +7,7 @@ import { useAtom } from "jotai";
 import {
   DelMedBruker,
   TiltaksgjennomforingOppstartstype,
-  VeilederflateTiltaksgjennomforing,
+  VeilederflateTiltak,
 } from "@mr/api-client";
 import { ReactNode, useEffect } from "react";
 import { Sorteringsmeny } from "../sorteringmeny/Sorteringsmeny";
@@ -16,11 +16,12 @@ import styles from "./Tiltaksgjennomforingsoversikt.module.scss";
 import { sorteringAtom } from "../sorteringmeny/sorteringAtom";
 import { ToolbarContainer } from "@mr/frontend-common/components/toolbar/toolbarContainer/ToolbarContainer";
 import { ToolbarMeny } from "@mr/frontend-common/components/toolbar/toolbarMeny/ToolbarMeny";
+import { isTiltakGruppe } from "@/api/queries/useTiltaksgjennomforingById";
 
 interface Props {
-  tiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[];
+  tiltaksgjennomforinger: VeilederflateTiltak[];
   deltMedBruker?: DelMedBruker[];
-  varsler?: React.ReactNode;
+  varsler?: ReactNode;
   filterOpen: boolean;
   feilmelding: ReactNode;
   tagsHeight: number;
@@ -36,7 +37,7 @@ export function Tiltaksgjennomforingsoversikt({
 }: Props) {
   const [pageData, setPages] = useAtom(paginationAtom);
   const filter = useArbeidsmarkedstiltakFilterValue();
-  const pagination = (tiltaksgjennomforing: VeilederflateTiltaksgjennomforing[]) => {
+  const pagination = (tiltaksgjennomforing: VeilederflateTiltak[]) => {
     return Math.ceil(tiltaksgjennomforing.length / pageData.pageSize);
   };
 
@@ -66,24 +67,22 @@ export function Tiltaksgjennomforingsoversikt({
     sortValue: string,
   ): {
     direction: "ascending" | "descending";
-    orderBy: keyof VeilederflateTiltaksgjennomforing;
+    orderBy: keyof VeilederflateTiltak;
   } => {
     const [orderBy, direction] = sortValue.split("-");
     return {
-      orderBy: orderBy as keyof VeilederflateTiltaksgjennomforing,
+      orderBy: orderBy as keyof VeilederflateTiltak,
       direction: direction as "ascending" | "descending",
     };
   };
 
-  const sorter = (
-    tiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[],
-  ): VeilederflateTiltaksgjennomforing[] => {
+  const sorter = (tiltaksgjennomforinger: VeilederflateTiltak[]): VeilederflateTiltak[] => {
     return tiltaksgjennomforinger.sort((a, b) => {
       const sort = getSort(sortValue);
       const comparator = (
-        a: VeilederflateTiltaksgjennomforing,
-        b: VeilederflateTiltaksgjennomforing,
-        orderBy: keyof VeilederflateTiltaksgjennomforing,
+        a: VeilederflateTiltak,
+        b: VeilederflateTiltak,
+        orderBy: keyof VeilederflateTiltak,
       ) => {
         const compare = (item1: any, item2: any) => {
           if (item2 < item1 || item2 === undefined) return 1;
@@ -94,11 +93,11 @@ export function Tiltaksgjennomforingsoversikt({
         if (orderBy === "oppstart") {
           const dateB =
             b.oppstart === TiltaksgjennomforingOppstartstype.FELLES
-              ? new Date(b.oppstartsdato!) // Oppstartsdato skal alltid være tilgjengelig når oppstartstype er FELLES
+              ? new Date(b.oppstartsdato)
               : new Date();
           const dateA =
             a.oppstart === TiltaksgjennomforingOppstartstype.FELLES
-              ? new Date(a.oppstartsdato!) // Oppstartsdato skal alltid være tilgjengelig når oppstartstype er FELLES
+              ? new Date(a.oppstartsdato)
               : new Date();
           return compare(dateA, dateB);
         } else if (orderBy === "tiltakstype") {
@@ -173,17 +172,15 @@ export function Tiltaksgjennomforingsoversikt({
         data-testid="oversikt_tiltaksgjennomforinger"
       >
         {gjennomforingerForSide.map((gjennomforing, index) => {
+          const id = isTiltakGruppe(gjennomforing) ? gjennomforing.id : gjennomforing.sanityId;
           const delMedBruker = deltMedBruker?.find((delt) => {
-            return (
-              (delt.tiltaksgjennomforingId && delt.tiltaksgjennomforingId === gjennomforing.id) ||
-              (delt.sanityId && delt.sanityId === gjennomforing.sanityId)
-            );
+            return delt.tiltaksgjennomforingId === id || delt.sanityId === id;
           });
           return (
             <Gjennomforingsrad
-              key={gjennomforing.id ?? gjennomforing.sanityId}
+              key={id}
               index={index}
-              tiltaksgjennomforing={gjennomforing}
+              tiltak={gjennomforing}
               delMedBruker={delMedBruker}
             />
           );

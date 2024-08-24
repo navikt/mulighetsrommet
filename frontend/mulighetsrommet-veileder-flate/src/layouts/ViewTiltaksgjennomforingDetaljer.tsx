@@ -2,7 +2,7 @@ import { Oppskrift } from "@/components/oppskrift/Oppskrift";
 import { useGetTiltaksgjennomforingIdFraUrl } from "@/hooks/useGetTiltaksgjennomforingIdFraUrl";
 import { PadlockLockedFillIcon } from "@navikt/aksel-icons";
 import { Alert, Tabs } from "@navikt/ds-react";
-import { VeilederflateTiltaksgjennomforing } from "@mr/api-client";
+import { VeilederflateTiltak } from "@mr/api-client";
 import { ReactNode, Suspense, useState } from "react";
 import SidemenyInfo from "../components/sidemeny/SidemenyInfo";
 import TiltaksdetaljerFane from "../components/tabs/TiltaksdetaljerFane";
@@ -12,26 +12,23 @@ import { useInnsatsgrupper } from "@/api/queries/useInnsatsgrupper";
 import { EstimertVentetid } from "@/components/sidemeny/EstimertVentetid";
 import { SidemenyKanKombineresMed } from "@/components/sidemeny/SidemenyKanKombineresMed";
 import { DetaljerSkeleton } from "@mr/frontend-common";
+import { isTiltakGruppe } from "@/api/queries/useTiltaksgjennomforingById";
 
 interface Props {
-  tiltaksgjennomforing: VeilederflateTiltaksgjennomforing;
+  tiltak: VeilederflateTiltak;
   brukerActions: ReactNode;
   knapperad: ReactNode;
 }
 
-export function ViewTiltaksgjennomforingDetaljer({
-  tiltaksgjennomforing,
-  brukerActions,
-  knapperad,
-}: Props) {
+export function ViewTiltaksgjennomforingDetaljer({ tiltak, brukerActions, knapperad }: Props) {
   const gjennomforingsId = useGetTiltaksgjennomforingIdFraUrl();
   const innsatsgrupper = useInnsatsgrupper();
 
   const [oppskriftId, setOppskriftId] = useState<string | undefined>(undefined);
 
-  const harKombinasjon = tiltaksgjennomforing.tiltakstype.kanKombineresMed.length > 0;
+  const harKombinasjon = tiltak.tiltakstype.kanKombineresMed.length > 0;
 
-  if (!tiltaksgjennomforing) {
+  if (!tiltak) {
     return (
       <Alert variant="warning">{`Det finnes ingen tiltaksgjennomføringer med id: "${gjennomforingsId}"`}</Alert>
     );
@@ -44,15 +41,17 @@ export function ViewTiltaksgjennomforingDetaljer({
         <>
           <div className={styles.tiltaksgjennomforing_detaljer} id="tiltaksgjennomforing_detaljer">
             <div className={styles.tiltakstype_header_maksbredde}>
-              <TiltaksgjennomforingsHeader tiltaksgjennomforing={tiltaksgjennomforing} />
+              <TiltaksgjennomforingsHeader tiltaksgjennomforing={tiltak} />
             </div>
-            {!tiltaksgjennomforing.apentForInnsok && (
+            {isTiltakGruppe(tiltak) && !tiltak.apentForInnsok && (
               <div className={styles.apent_for_innsok_status}>
                 <PadlockLockedFillIcon title="Tiltaket er stengt for innsøking" />
               </div>
             )}
             <div className={styles.sidemeny}>
-              <EstimertVentetid tiltaksgjennomforing={tiltaksgjennomforing} />
+              {isTiltakGruppe(tiltak) && tiltak.estimertVentetid && (
+                <EstimertVentetid estimertVentetid={tiltak.estimertVentetid} />
+              )}
               <Tabs size="small" defaultValue="info">
                 <Tabs.List>
                   <Tabs.Tab value="info" label="Info" />
@@ -61,30 +60,24 @@ export function ViewTiltaksgjennomforingDetaljer({
                   ) : null}
                 </Tabs.List>
                 <Tabs.Panel value="info">
-                  <SidemenyInfo
-                    tiltaksgjennomforing={tiltaksgjennomforing}
-                    innsatsgrupper={innsatsgrupper.data}
-                  />
+                  <SidemenyInfo tiltak={tiltak} innsatsgrupper={innsatsgrupper.data} />
                 </Tabs.Panel>
                 {harKombinasjon ? (
                   <Tabs.Panel value="kombineres">
-                    <SidemenyKanKombineresMed tiltaksgjennomforing={tiltaksgjennomforing} />
+                    <SidemenyKanKombineresMed tiltaksgjennomforing={tiltak} />
                   </Tabs.Panel>
                 ) : null}
               </Tabs>
               <div className={styles.brukeractions_container}>{brukerActions}</div>
             </div>
-            <TiltaksdetaljerFane
-              tiltaksgjennomforing={tiltaksgjennomforing}
-              setOppskriftId={setOppskriftId}
-            />
+            <TiltaksdetaljerFane tiltaksgjennomforing={tiltak} setOppskriftId={setOppskriftId} />
           </div>
           <div className={styles.oppskriftContainer}>
             {oppskriftId && (
               <div className={styles.oppskrift_border}>
                 <Oppskrift
                   oppskriftId={oppskriftId}
-                  tiltakstypeId={tiltaksgjennomforing.tiltakstype.sanityId}
+                  tiltakstypeId={tiltak.tiltakstype.sanityId}
                   setOppskriftId={setOppskriftId}
                 />
               </div>

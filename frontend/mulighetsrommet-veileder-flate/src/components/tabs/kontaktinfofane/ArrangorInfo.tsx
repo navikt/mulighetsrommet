@@ -1,18 +1,14 @@
 import { BodyLong, BodyShort, Heading } from "@navikt/ds-react";
-import { VeilderflateArrangor } from "@mr/api-client";
+import { PortableTextTypedObject, VeilderflateArrangor } from "@mr/api-client";
 import styles from "./Kontaktinfo.module.scss";
 import { RedaksjoneltInnhold } from "../../RedaksjoneltInnhold";
 
 interface ArrangorInfoProps {
-  arrangor?: VeilderflateArrangor;
-  faneinnhold: any;
+  arrangor: VeilderflateArrangor;
+  faneinnhold?: Array<PortableTextTypedObject>;
 }
 
 const ArrangorInfo = ({ arrangor, faneinnhold }: ArrangorInfoProps) => {
-  if (!arrangor) {
-    return null;
-  }
-
   const { kontaktpersoner } = arrangor;
 
   return (
@@ -56,6 +52,7 @@ const ArrangorInfo = ({ arrangor, faneinnhold }: ArrangorInfoProps) => {
           </BodyShort>
         </div>
       ))}
+      {/* TODO hvorfor skal faneinnhold bare vises når det finnes en arrangør? */}
       {faneinnhold && (
         <BodyLong as="div" textColor="subtle" size="small">
           <RedaksjoneltInnhold value={faneinnhold} />

@@ -454,11 +454,11 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         }
     }
 
-    fun getVeilederflateTiltaksgjennomforing(id: UUID): VeilederflateTiltaksgjennomforing? {
+    fun getVeilederflateTiltaksgjennomforing(id: UUID): VeilederflateTiltakGruppe? {
         @Language("PostgreSQL")
         val query = """
             select *
-            from tiltaksgjennomforing_veileder_dto_view
+            from veilederflate_tiltak_view
             where id = :id::uuid
         """.trimIndent()
 
@@ -474,7 +474,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         search: String? = null,
         apentForInnsok: Boolean? = null,
         sanityTiltakstypeIds: List<UUID>? = null,
-    ): List<VeilederflateTiltaksgjennomforing> {
+    ): List<VeilederflateTiltak> {
         val parameters = mapOf(
             "innsatsgruppe" to innsatsgruppe.name,
             "brukers_enheter" to db.createTextArray(brukersEnheter),
@@ -486,7 +486,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         @Language("PostgreSQL")
         val query = """
             select *
-            from tiltaksgjennomforing_veileder_dto_view
+            from veilederflate_tiltak_view
             where :innsatsgruppe::innsatsgruppe = any(tiltakstype_innsatsgrupper)
               and nav_enheter && :brukers_enheter
               and (:search::text is null or ((lower(navn) like lower(:search)) or (tiltaksnummer like :search)))
@@ -704,7 +704,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         },
     )
 
-    private fun Row.toVeilederflateTiltaksgjennomforing(): VeilederflateTiltaksgjennomforing {
+    private fun Row.toVeilederflateTiltaksgjennomforing(): VeilederflateTiltakGruppe {
         val navEnheter = arrayOrNull<String>("nav_enheter")?.asList() ?: emptyList()
         val personopplysningerSomKanBehandles = arrayOrNull<String>("personopplysninger_som_kan_behandles")
             ?.asList()
@@ -720,9 +720,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         val avbruttTidspunkt = localDateTimeOrNull("avbrutt_tidspunkt")
         val avbruttAarsak = stringOrNull("avbrutt_aarsak")?.let { AvbruttAarsak.fromString(it) }
 
-        return VeilederflateTiltaksgjennomforing(
-            id = uuidOrNull("id"),
-            avtaleId = uuidOrNull("avtale_id"),
+        return VeilederflateTiltakGruppe(
+            id = uuid("id"),
             tiltakstype = VeilederflateTiltakstype(
                 sanityId = uuid("tiltakstype_sanity_id").toString(),
                 navn = string("tiltakstype_navn"),

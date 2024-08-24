@@ -1,12 +1,13 @@
 import { Alert } from "@navikt/ds-react";
-import { VeilederflateTiltaksgjennomforing } from "@mr/api-client";
+import { VeilederflateTiltak } from "@mr/api-client";
 import FaneTiltaksinformasjon from "../FaneTiltaksinformasjon";
 import ArrangorInfo from "./ArrangorInfo";
 import styles from "./Kontaktinfo.module.scss";
 import NavKontaktpersonInfo from "./NavKontaktpersonInfo";
+import { isTiltakGruppe } from "@/api/queries/useTiltaksgjennomforingById";
 
 interface Props {
-  tiltaksgjennomforing: VeilederflateTiltaksgjennomforing;
+  tiltaksgjennomforing: VeilederflateTiltak;
 }
 
 const KontaktinfoFane = ({ tiltaksgjennomforing }: Props) => {
@@ -21,10 +22,12 @@ const KontaktinfoFane = ({ tiltaksgjennomforing }: Props) => {
         </Alert>
       )}
       <div className={styles.grid_container}>
-        <ArrangorInfo
-          arrangor={tiltaksgjennomforing.arrangor}
-          faneinnhold={tiltaksgjennomforing.faneinnhold?.kontaktinfo}
-        />
+        {isTiltakGruppe(tiltaksgjennomforing) && (
+          <ArrangorInfo
+            arrangor={tiltaksgjennomforing.arrangor}
+            faneinnhold={tiltaksgjennomforing.faneinnhold?.kontaktinfo}
+          />
+        )}
         <NavKontaktpersonInfo kontaktinfo={tiltaksgjennomforing.kontaktinfo} />
       </div>
     </FaneTiltaksinformasjon>

@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.domain.dto
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonObject
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
@@ -22,33 +23,61 @@ data class VeilederflateInnsatsgruppe(
 )
 
 @Serializable
-data class VeilederflateTiltaksgjennomforing(
+sealed class VeilederflateTiltak {
+    abstract val tiltakstype: VeilederflateTiltakstype
+    abstract val tiltaksnummer: String?
+    abstract val navn: String
+    abstract val status: TiltaksgjennomforingStatusDto
+    abstract val beskrivelse: String?
+    abstract val faneinnhold: Faneinnhold?
+    abstract val kontaktinfo: VeilederflateKontaktinfo
+    abstract val oppstart: TiltaksgjennomforingOppstartstype
+    abstract val stedForGjennomforing: String?
+}
+
+@Serializable
+@SerialName("TILTAK_GRUPPE")
+data class VeilederflateTiltakGruppe(
+    override val tiltakstype: VeilederflateTiltakstype,
+    override val tiltaksnummer: String?,
+    override val navn: String,
+    override val status: TiltaksgjennomforingStatusDto,
+    override val beskrivelse: String?,
+    override val faneinnhold: Faneinnhold?,
+    override val kontaktinfo: VeilederflateKontaktinfo,
+    override val oppstart: TiltaksgjennomforingOppstartstype,
+    override val stedForGjennomforing: String?,
     @Serializable(with = UUIDSerializer::class)
-    val id: UUID? = null,
-    val status: TiltaksgjennomforingStatusDto,
-    @Serializable(with = UUIDSerializer::class)
-    val avtaleId: UUID? = null,
-    val sanityId: String? = null,
-    val tiltakstype: VeilederflateTiltakstype,
-    val navn: String,
-    val stedForGjennomforing: String? = null,
+    val id: UUID,
     val apentForInnsok: Boolean,
-    val tiltaksnummer: String? = null,
-    val oppstart: TiltaksgjennomforingOppstartstype,
     @Serializable(with = LocalDateSerializer::class)
-    val oppstartsdato: LocalDate? = null,
+    val oppstartsdato: LocalDate,
     @Serializable(with = LocalDateSerializer::class)
-    val sluttdato: LocalDate? = null,
-    val arrangor: VeilederflateArrangor? = null,
-    val fylke: String? = null,
-    val enheter: List<String>? = emptyList(),
-    val beskrivelse: String? = null,
-    val faneinnhold: Faneinnhold? = null,
-    val kontaktinfo: VeilederflateKontaktinfo? = null,
-    val estimertVentetid: EstimertVentetid? = null,
+    val sluttdato: LocalDate?,
+    val arrangor: VeilederflateArrangor,
+    val fylke: String?,
+    val enheter: List<String>,
+    val estimertVentetid: EstimertVentetid?,
     val personvernBekreftet: Boolean,
     val personopplysningerSomKanBehandles: List<PersonopplysningData>,
-)
+) : VeilederflateTiltak()
+
+@Serializable
+@SerialName("TILTAK_ARBEIDSGIVER")
+data class VeilederflateTiltakArbeidsgiver(
+    override val tiltakstype: VeilederflateTiltakstype,
+    override val tiltaksnummer: String?,
+    override val status: TiltaksgjennomforingStatusDto,
+    override val beskrivelse: String?,
+    override val faneinnhold: Faneinnhold?,
+    override val kontaktinfo: VeilederflateKontaktinfo,
+    override val oppstart: TiltaksgjennomforingOppstartstype,
+    override val navn: String,
+    override val stedForGjennomforing: String?,
+    val sanityId: String,
+    val fylke: String?,
+    val enheter: List<String>?,
+) : VeilederflateTiltak()
 
 @Serializable
 data class VeilederflateKontaktinfoTiltaksansvarlig(

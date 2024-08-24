@@ -1,4 +1,7 @@
-import { usePreviewTiltaksgjennomforingById } from "@/api/queries/useTiltaksgjennomforingById";
+import {
+  isTiltakGruppe,
+  usePreviewTiltaksgjennomforingById,
+} from "@/api/queries/useTiltaksgjennomforingById";
 import { DelMedBruker } from "@/apps/modia/delMedBruker/DelMedBruker";
 import { Tilbakeknapp } from "@/components/tilbakeknapp/Tilbakeknapp";
 import { ViewTiltaksgjennomforingDetaljer } from "@/layouts/ViewTiltaksgjennomforingDetaljer";
@@ -10,7 +13,7 @@ import { LenkeListe } from "@/components/sidemeny/Lenker";
 import { DetaljerSkeleton } from "@mr/frontend-common";
 
 export function PreviewArbeidsmarkedstiltakDetaljer() {
-  const { data, isPending, isError } = usePreviewTiltaksgjennomforingById();
+  const { data: tiltak, isPending, isError } = usePreviewTiltaksgjennomforingById();
 
   if (isPending) {
     return <DetaljerSkeleton />;
@@ -20,18 +23,22 @@ export function PreviewArbeidsmarkedstiltakDetaljer() {
     return <Alert variant="error">Det har skjedd en feil</Alert>;
   }
 
+  if (!tiltak) {
+    return <Alert variant="error">Klarte ikke finne tiltaksgjennomføringen</Alert>;
+  }
+
   return (
     <>
       <Alert style={{ marginBottom: "2rem" }} variant="warning">
         Forhåndsvisning av informasjon
       </Alert>
       <ViewTiltaksgjennomforingDetaljer
-        tiltaksgjennomforing={data}
+        tiltak={tiltak}
         knapperad={<Tilbakeknapp tilbakelenke=".." tekst="Gå til oversikt over aktuelle tiltak" />}
         brukerActions={
           <>
             <DelMedBruker
-              tiltaksgjennomforing={data}
+              tiltak={tiltak}
               veiledernavn="{Veiledernavn}"
               bruker={{
                 innsatsgruppe: Innsatsgruppe.VARIG_TILPASSET_INNSATS,
@@ -54,12 +61,12 @@ export function PreviewArbeidsmarkedstiltakDetaljer() {
                 ],
               }}
             />
-            {data && data?.personvernBekreftet ? (
+            {isTiltakGruppe(tiltak) && tiltak.personvernBekreftet ? (
               <InlineErrorBoundary>
-                <PersonvernContainer tiltaksgjennomforing={data} />
+                <PersonvernContainer tiltaksgjennomforing={tiltak} />
               </InlineErrorBoundary>
             ) : null}
-            <LenkeListe lenker={data?.faneinnhold?.lenker} />
+            <LenkeListe lenker={tiltak.faneinnhold?.lenker} />
           </>
         }
       />

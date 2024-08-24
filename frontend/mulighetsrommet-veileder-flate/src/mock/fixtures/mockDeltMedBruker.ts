@@ -3,7 +3,7 @@ import { mockTiltaksgjennomforinger } from "./mockTiltaksgjennomforinger";
 
 export const mockDeltMedBruker: DelMedBruker[] = [
   {
-    sanityId: mockTiltaksgjennomforinger[0].sanityId,
+    sanityId: mockTiltaksgjennomforinger[0].id,
     navident: "B123456",
     norskIdent: "11223344557",
     dialogId: "1",
