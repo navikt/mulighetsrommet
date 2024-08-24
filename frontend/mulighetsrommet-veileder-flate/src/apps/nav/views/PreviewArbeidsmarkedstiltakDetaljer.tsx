@@ -10,22 +10,9 @@ import { Innsatsgruppe, NavEnhetStatus, NavEnhetType } from "@mr/api-client";
 import { InlineErrorBoundary } from "@/ErrorBoundary";
 import { PersonvernContainer } from "@/components/personvern/PersonvernContainer";
 import { LenkeListe } from "@/components/sidemeny/Lenker";
-import { DetaljerSkeleton } from "@mr/frontend-common";
 
 export function PreviewArbeidsmarkedstiltakDetaljer() {
-  const { data: tiltak, isPending, isError } = usePreviewArbeidsmarkedstiltakById();
-
-  if (isPending) {
-    return <DetaljerSkeleton />;
-  }
-
-  if (isError) {
-    return <Alert variant="error">Det har skjedd en feil</Alert>;
-  }
-
-  if (!tiltak) {
-    return <Alert variant="error">Klarte ikke finne tiltaksgjennomføringen</Alert>;
-  }
+  const { data: tiltak } = usePreviewArbeidsmarkedstiltakById();
 
   return (
     <>

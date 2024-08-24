@@ -21,12 +21,7 @@ import {
   Toggles,
   VeilederflateTiltakstype,
 } from "@mr/api-client";
-import {
-  DetaljerSkeleton,
-  InlineErrorBoundary,
-  TilbakemeldingsLenke,
-  useTitle,
-} from "@mr/frontend-common";
+import { InlineErrorBoundary, TilbakemeldingsLenke, useTitle } from "@mr/frontend-common";
 import { gjennomforingIsAktiv } from "@mr/frontend-common/utils/utils";
 import { Chat2Icon } from "@navikt/aksel-icons";
 import { Alert, Button } from "@navikt/ds-react";
@@ -50,30 +45,14 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
     Toggles.MULIGHETSROMMET_VEILEDERFLATE_VIS_DELTAKER_REGISTRERING,
   );
 
-  const {
-    data: veilederdata,
-    isPending: isPendingVeilederdata,
-    isError: isErrorVeilederdata,
-  } = useHentVeilederdata();
-  const {
-    data: brukerdata,
-    isPending: isPendingBrukerdata,
-    isError: isErrorBrukerdata,
-  } = useHentBrukerdata();
-  const { data: tiltak, isPending: isPendingTiltak, isError } = useModiaArbeidsmarkedstiltakById();
-  const regioner = useRegioner();
+  const { data: veilederdata } = useHentVeilederdata();
+  const { data: brukerdata } = useHentBrukerdata();
+  const { data: tiltak } = useModiaArbeidsmarkedstiltakById();
+  const { data: regioner } = useRegioner();
 
   useTitle(`Arbeidsmarkedstiltak - Detaljer ${tiltak?.navn ? `- ${tiltak.navn}` : null}`);
 
   const pagination = useAtomValue(paginationAtom);
-
-  if (isPendingTiltak || isPendingVeilederdata || isPendingBrukerdata) {
-    return <DetaljerSkeleton />;
-  }
-
-  if (isError || isErrorVeilederdata || isErrorBrukerdata) {
-    return <Alert variant="error">Det har skjedd en feil</Alert>;
-  }
 
   const tiltakstype = tiltak.tiltakstype;
   const kanOppretteAvtaleForTiltak =
@@ -92,7 +71,6 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
       <BrukerKvalifisererIkkeVarsel
         brukerdata={brukerdata}
         brukerHarRettPaaTiltak={brukerHarRettPaaValgtTiltak}
-        brukerErUnderOppfolging={brukerdata.erUnderOppfolging}
       />
       <ViewTiltaksgjennomforingDetaljer
         tiltak={tiltak}
@@ -147,7 +125,7 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
               />
             ) : null}
 
-            {!brukerdata?.manuellStatus && (
+            {!brukerdata.manuellStatus && (
               <Alert
                 title="Vi kunne ikke opprette kontakt med KRR og vet derfor ikke om brukeren har reservert seg mot digital kommunikasjon"
                 key="alert-innsatsgruppe"
@@ -167,11 +145,11 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
               </Button>
             )}
 
-            {tiltak && gjennomforingIsAktiv(tiltak.status.status) ? (
+            {gjennomforingIsAktiv(tiltak.status.status) ? (
               <PameldingFraKometApnerSnart tiltak={tiltak} />
             ) : null}
 
-            {tiltak && isTiltakGruppe(tiltak) && tiltak.personvernBekreftet ? (
+            {isTiltakGruppe(tiltak) && tiltak.personvernBekreftet ? (
               <InlineErrorBoundary>
                 <PersonvernContainer tiltak={tiltak} />
               </InlineErrorBoundary>
@@ -182,7 +160,7 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
               <TilbakemeldingsLenke
                 url={PORTEN_URL_FOR_TILBAKEMELDING(
                   tiltak.tiltaksnummer,
-                  regioner?.data?.find((r) => r.enhetsnummer === tiltak.fylke)?.navn,
+                  regioner.find((r) => r.enhetsnummer === tiltak.fylke)?.navn,
                 )}
                 tekst="Gi tilbakemelding via Porten"
               />

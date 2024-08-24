@@ -4,12 +4,12 @@ import { BrukersOppfolgingsenhetVarsel } from "./BrukersOppfolgingsenhetVarsel";
 import { useHentBrukerdata } from "@/apps/modia/hooks/useHentBrukerdata";
 
 export function ModiaOversiktBrukerVarsler() {
-  const bruker = useHentBrukerdata();
+  const { data: brukerdata } = useHentBrukerdata();
   return (
     <>
-      <BrukerUnderOppfolgingMenMangler14aVedtakVarsel brukerdata={bruker.data} />
-      <BrukersOppfolgingsenhetVarsel brukerdata={bruker.data} />
-      <BrukerIkkeUnderOppfolgingVarsel brukerdata={bruker.data} />
+      <BrukerUnderOppfolgingMenMangler14aVedtakVarsel brukerdata={brukerdata} />
+      <BrukersOppfolgingsenhetVarsel brukerdata={brukerdata} />
+      <BrukerIkkeUnderOppfolgingVarsel brukerdata={brukerdata} />
     </>
   );
 }

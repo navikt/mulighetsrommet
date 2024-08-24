@@ -3,10 +3,8 @@ import { Bruker, NavEnhet, VeilederflateTiltak } from "@mr/api-client";
 
 export function brukersEnhetFilterHasChanged(
   filter: ArbeidsmarkedstiltakFilter,
-  bruker?: Bruker,
+  bruker: Bruker,
 ): boolean {
-  if (!bruker) return false;
-
   if (filter.navEnheter.length !== bruker.enheter.length) return true;
 
   return (

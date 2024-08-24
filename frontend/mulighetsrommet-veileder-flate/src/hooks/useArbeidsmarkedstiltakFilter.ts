@@ -58,7 +58,7 @@ export function useResetArbeidsmarkedstiltakFilterMedBrukerIKontekst() {
   const filterHasChanged =
     filter.search !== "" ||
     filter.apentForInnsok !== ApentForInnsok.APENT_ELLER_STENGT ||
-    filter.innsatsgruppe?.nokkel !== brukerdata?.innsatsgruppe ||
+    filter.innsatsgruppe?.nokkel !== brukerdata.innsatsgruppe ||
     brukersEnhetFilterHasChanged(filter, brukerdata) ||
     filter.tiltakstyper.length > 0;
 
