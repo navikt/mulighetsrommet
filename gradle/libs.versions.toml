@@ -17,7 +17,7 @@ kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 ktlint = "org.jlleitschuh.gradle.ktlint:12.1.1"
 shadow = "com.github.johnrengelman.shadow:8.1.1"
-openapi-generator = "org.openapi.generator:7.7.0"
+openapi-generator = "org.openapi.generator:7.8.0"
 
 [bundles]
 logging = [
@@ -36,13 +36,13 @@ assertj-db = "org.assertj:assertj-db:2.0.2"
 
 caffeine = "com.github.ben-manes.caffeine:caffeine:3.1.8"
 
-dbScheduler = "com.github.kagkarlsson:db-scheduler:14.0.3"
+dbScheduler = "com.github.kagkarlsson:db-scheduler:14.1.0"
 
 flyway-core = { module = "org.flywaydb:flyway-core", version.ref = "flyway" }
 flyway-database-postgresql = { module = "org.flywaydb:flyway-database-postgresql", version.ref = "flyway" }
 
 google-cloud-postgresSocketFactory = "com.google.cloud.sql:postgres-socket-factory:1.20.0"
-google-cloud-storage = "com.google.cloud:google-cloud-storage:2.41.0"
+google-cloud-storage = "com.google.cloud:google-cloud-storage:2.42.0"
 
 hikaricp = "com.zaxxer:HikariCP:5.1.0"
 
@@ -117,7 +117,7 @@ prometheus-caffeine = "io.prometheus:simpleclient_caffeine:0.16.0"
 
 shedlock-jdbc = "net.javacrumbs.shedlock:shedlock-provider-jdbc:5.15.0"
 
-slack-client = "com.slack.api:slack-api-client:1.40.3"
+slack-client = "com.slack.api:slack-api-client:1.42.0"
 
 slf4j = "org.slf4j:slf4j-api:2.0.16"
 
