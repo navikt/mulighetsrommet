@@ -5,7 +5,10 @@ import no.nav.mulighetsrommet.api.domain.dto.TiltakstypeAdminDto
 class TiltaksnavnUtils {
     companion object {
         fun tilKonstruertNavn(tiltakstype: TiltakstypeAdminDto, arrangor: String?): String {
-            return toTitleCase("${tiltakstype.navn} ${if (arrangor != null) "hos $arrangor" else ""}")
+            val casedTiltakstype = toTitleCase(tiltakstype.navn)
+            val casedArrangor = toTitleCase(arrangor ?: "")
+
+            return "${casedTiltakstype}${if (casedArrangor.isNotBlank()) " hos $casedArrangor" else ""}"
         }
 
         val FORKORTELSER_MED_STORE_BOKSTAVER = listOf(
