@@ -149,7 +149,6 @@ class TiltakshistorikkServiceTest : FunSpec({
                         aarsak = null,
 
                     ),
-                    arrangorNavn = ArrangorFixtures.underenhet1.navn,
                     periode = DeltakerKort.Periode(
                         startdato = LocalDate.of(2018, 12, 3),
                         sluttdato = LocalDate.of(2019, 12, 3),
@@ -161,7 +160,7 @@ class TiltakshistorikkServiceTest : FunSpec({
                     id = arenaDeltakelse.id,
                     tiltaksgjennomforingId = null,
                     eierskap = DeltakerKort.Eierskap.ARENA,
-                    tittel = "Avklaring hos Bedriftsnavn 2",
+                    tittel = "Utdanning",
                     tiltakstypeNavn = tiltakstypeGruppe.navn,
                     status = DeltakerKort.DeltakerStatus(
                         type = DeltakerKort.DeltakerStatus.DeltakerStatusType.VENTELISTE,
@@ -169,7 +168,6 @@ class TiltakshistorikkServiceTest : FunSpec({
                         aarsak = null,
 
                     ),
-                    arrangorNavn = "Bedriftsnavn 2",
                     periode = DeltakerKort.Periode(
                         startdato = LocalDate.of(2018, 12, 3),
                         sluttdato = LocalDate.of(2019, 12, 3),

@@ -3001,9 +3001,6 @@ components:
               type: string
               nullable: true
           nullable: true
-        arrangorNavn:
-          type: string
-          nullable: true
       required:
         - id
         - eierskap

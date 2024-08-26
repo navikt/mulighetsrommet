@@ -86,9 +86,8 @@ class TiltakshistorikkService(
         )
     }
 
-    private suspend fun Tiltakshistorikk.ArenaDeltakelse.toDeltakerKort(): DeltakerKort {
+    private fun Tiltakshistorikk.ArenaDeltakelse.toDeltakerKort(): DeltakerKort {
         val tiltakstype = tiltakstypeRepository.getByArenaTiltakskode(arenaTiltakskode)
-        val arrangorNavn = getArrangor(arrangor.organisasjonsnummer).navn
         return DeltakerKort(
             id = id,
             periode = DeltakerKort.Periode(
@@ -100,9 +99,8 @@ class TiltakshistorikkService(
                 visningstekst = arenaStatusTilVisningstekst(status),
                 aarsak = null,
             ),
-            tittel = TiltaksnavnUtils.tilKonstruertNavn(tiltakstype, arrangorNavn),
+            tittel = beskrivelse,
             tiltakstypeNavn = tiltakstype.navn,
-            arrangorNavn = arrangorNavn,
             innsoktDato = null,
             sistEndretDato = null,
             eierskap = DeltakerKort.Eierskap.ARENA,
@@ -111,7 +109,7 @@ class TiltakshistorikkService(
 
     private suspend fun Tiltakshistorikk.GruppetiltakDeltakelse.toDeltakerKort(): DeltakerKort {
         val tiltakstype = tiltakstypeRepository.getByTiltakskode(gjennomforing.tiltakskode)
-        val arrangorNavn = getArrangor(arrangor.organisasjonsnummer).navn
+        val arrangorNavn = getArrangorHovedenhet(arrangor.organisasjonsnummer).navn
         return DeltakerKort(
             id = id,
             periode = DeltakerKort.Periode(
@@ -125,7 +123,6 @@ class TiltakshistorikkService(
             ),
             tittel = TiltaksnavnUtils.tilKonstruertNavn(tiltakstype, arrangorNavn),
             tiltakstypeNavn = tiltakstype.navn,
-            arrangorNavn = arrangorNavn,
             innsoktDato = null,
             sistEndretDato = null,
             eierskap = DeltakerKort.Eierskap.ARENA,
@@ -150,7 +147,6 @@ class TiltakshistorikkService(
             ),
             innsoktDato = innsoktDato,
             sistEndretDato = sistEndretDato,
-            arrangorNavn = null,
         )
     }
 
@@ -262,12 +258,12 @@ class TiltakshistorikkService(
             }
     }
 
-    private suspend fun getArrangor(orgnr: Organisasjonsnummer): TiltakshistorikkAdminDto.Arrangor {
+    private suspend fun getArrangorHovedenhet(orgnr: Organisasjonsnummer): TiltakshistorikkAdminDto.Arrangor {
         val navn = arrangorService.getOrSyncArrangorFromBrreg(orgnr.value).fold({ error ->
-            log.warn("Klarte ikke hente arrangør. BrregError: $error")
+            log.warn("Klarte ikke hente arrangørs hovedenhet. BrregError: $error")
             null
         }, { virksomhet ->
-            virksomhet.navn
+            virksomhet.overordnetEnhet?.let { getArrangorHovedenhet(Organisasjonsnummer(it)) }?.navn ?: virksomhet.navn
         })
 
         return TiltakshistorikkAdminDto.Arrangor(organisasjonsnummer = Organisasjonsnummer(orgnr.value), navn = navn)
