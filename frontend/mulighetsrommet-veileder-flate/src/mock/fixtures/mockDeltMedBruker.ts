@@ -1,16 +1,16 @@
 import { DelMedBruker } from "@mr/api-client";
-import { mockTiltaksgjennomforinger } from "./mockTiltaksgjennomforinger";
+import { tiltakAmoGruppe, tiltakAvklaring } from "./mockTiltaksgjennomforinger";
 
 export const mockDeltMedBruker: DelMedBruker[] = [
   {
-    sanityId: mockTiltaksgjennomforinger[0].id,
+    sanityId: tiltakAvklaring.id,
     navident: "B123456",
     norskIdent: "11223344557",
     dialogId: "1",
     createdAt: new Date(2022, 2, 22).toString(),
   },
   {
-    tiltaksgjennomforingId: mockTiltaksgjennomforinger[2].id,
+    tiltaksgjennomforingId: tiltakAmoGruppe.id,
     navident: "B123456",
     norskIdent: "11223344557",
     dialogId: "2",

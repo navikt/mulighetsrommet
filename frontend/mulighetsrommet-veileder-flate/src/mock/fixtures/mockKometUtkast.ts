@@ -1,10 +1,15 @@
 import { DeltakerKort, DeltakerStatusType } from "@mr/api-client";
-import { mockTiltaksgjennomforinger } from "./mockTiltaksgjennomforinger";
+import {
+  tiltakAft,
+  tiltakAvklaring,
+  tiltakJobbklubb,
+  tiltakVta,
+} from "./mockTiltaksgjennomforinger";
 
 export const utkastFraKomet: DeltakerKort[] = [
   {
     id: window.crypto.randomUUID(),
-    tiltaksgjennomforingId: mockTiltaksgjennomforinger[0].id,
+    tiltaksgjennomforingId: tiltakAft.id,
     innsoktDato: "2024-03-02",
     sistEndretDato: "2024-03-27",
     status: {
@@ -17,7 +22,7 @@ export const utkastFraKomet: DeltakerKort[] = [
   },
   {
     id: window.crypto.randomUUID(),
-    tiltaksgjennomforingId: mockTiltaksgjennomforinger[0].id,
+    tiltaksgjennomforingId: tiltakAvklaring.id,
     innsoktDato: "2024-02-01",
     sistEndretDato: "2024-03-27",
     status: {
@@ -30,7 +35,7 @@ export const utkastFraKomet: DeltakerKort[] = [
   },
   {
     id: window.crypto.randomUUID(),
-    tiltaksgjennomforingId: mockTiltaksgjennomforinger[0].id,
+    tiltaksgjennomforingId: tiltakJobbklubb.id,
     innsoktDato: "2024-02-01",
     status: {
       type: DeltakerStatusType.VENTER_PA_OPPSTART,
@@ -42,7 +47,7 @@ export const utkastFraKomet: DeltakerKort[] = [
   },
   {
     id: window.crypto.randomUUID(),
-    tiltaksgjennomforingId: mockTiltaksgjennomforinger[0].id,
+    tiltaksgjennomforingId: tiltakJobbklubb.id,
     innsoktDato: "2024-02-01",
     status: {
       type: DeltakerStatusType.VENTER_PA_OPPSTART,
@@ -58,7 +63,7 @@ export const utkastFraKomet: DeltakerKort[] = [
   },
   {
     id: window.crypto.randomUUID(),
-    tiltaksgjennomforingId: mockTiltaksgjennomforinger[0].id,
+    tiltaksgjennomforingId: tiltakJobbklubb.id,
     innsoktDato: "2024-02-01",
     status: {
       type: DeltakerStatusType.DELTAR,
@@ -74,7 +79,7 @@ export const utkastFraKomet: DeltakerKort[] = [
   },
   {
     id: window.crypto.randomUUID(),
-    tiltaksgjennomforingId: mockTiltaksgjennomforinger[0].id,
+    tiltaksgjennomforingId: tiltakVta.id,
     innsoktDato: "2024-02-01",
     status: {
       type: DeltakerStatusType.VENTER_PA_OPPSTART,
