@@ -11,6 +11,7 @@ import no.nav.mulighetsrommet.api.domain.dto.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingAdminDto
 import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingNotificationDto
 import no.nav.mulighetsrommet.api.domain.dto.VeilederflateTiltaksgjennomforing
+import no.nav.mulighetsrommet.api.okonomi.tilsagn.TilsagnRepository
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.responses.*
@@ -39,6 +40,7 @@ import java.util.*
 class TiltaksgjennomforingService(
     private val avtaler: AvtaleRepository,
     private val tiltaksgjennomforinger: TiltaksgjennomforingRepository,
+    private val tilsagn: TilsagnRepository,
     private val tiltaksgjennomforingKafkaProducer: SisteTiltaksgjennomforingerV1KafkaProducer,
     private val notificationRepository: NotificationRepository,
     private val validator: TiltaksgjennomforingValidator,
@@ -223,6 +225,12 @@ class TiltaksgjennomforingService(
 
         if (!gjennomforing.isAktiv()) {
             return Either.Left(BadRequest(message = "Gjennomføringen er allerede avsluttet og kan derfor ikke avbrytes."))
+        }
+
+        val aktiveTilsagn = tilsagn.getByGjennomforingId(gjennomforing.id)
+            .filter { it.annullertTidspunkt == null }
+        if (aktiveTilsagn.isNotEmpty()) {
+            return Either.Left(BadRequest(message = "Gjennomføringen har aktive tilsagn"))
         }
 
         db.transaction { tx ->

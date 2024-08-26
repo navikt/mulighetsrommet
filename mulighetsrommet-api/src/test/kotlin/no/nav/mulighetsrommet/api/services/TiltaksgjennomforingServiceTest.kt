@@ -14,6 +14,10 @@ import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattDbo
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.api.fixtures.*
+import no.nav.mulighetsrommet.api.okonomi.prismodell.Prismodell
+import no.nav.mulighetsrommet.api.okonomi.tilsagn.TilsagnDto
+import no.nav.mulighetsrommet.api.okonomi.tilsagn.TilsagnDto.Arrangor
+import no.nav.mulighetsrommet.api.okonomi.tilsagn.TilsagnRepository
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.repositories.NavAnsattRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
@@ -37,6 +41,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
 
     val tiltaksgjennomforingKafkaProducer: SisteTiltaksgjennomforingerV1KafkaProducer = mockk(relaxed = true)
     val tiltakstypeService: TiltakstypeService = mockk(relaxed = true)
+    val tilsagnRepository: TilsagnRepository = mockk(relaxed = true)
     val validator = mockk<TiltaksgjennomforingValidator>()
     val avtaleId = AvtaleFixtures.oppfolging.id
     val domain = MulighetsrommetTestDomain()
@@ -63,6 +68,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
         val tiltaksgjennomforingService = TiltaksgjennomforingService(
             avtaler,
             tiltaksgjennomforingRepository,
+            tilsagnRepository,
             tiltaksgjennomforingKafkaProducer,
             NotificationRepository(database.db),
             validator,
@@ -91,6 +97,37 @@ class TiltaksgjennomforingServiceTest : FunSpec({
             )
         }
 
+        test("Man skal ikke få avbryte dersom gjennomføringen har aktive tilsagn") {
+            val gjennomforing = TiltaksgjennomforingFixtures.AFT1.copy(
+                startDato = LocalDate.now(),
+                avtaleId = avtaleId,
+            )
+            tiltaksgjennomforingRepository.upsert(gjennomforing)
+            every { tilsagnRepository.getByGjennomforingId(any()) } returns listOf(
+                TilsagnDto(
+                    id = UUID.randomUUID(),
+                    tiltaksgjennomforingId = TiltaksgjennomforingFixtures.AFT1.id,
+                    periodeStart = LocalDate.now(),
+                    periodeSlutt = LocalDate.now().plusDays(1),
+                    opprettetAv = NavIdent("Z123123"),
+                    kostnadssted = NavEnhetFixtures.Oslo,
+                    beregning = Prismodell.TilsagnBeregning.Fri(123),
+                    annullertTidspunkt = null,
+                    lopenummer = 1,
+                    arrangor = Arrangor(
+                        id = UUID.randomUUID(),
+                        organisasjonsnummer = "123456789",
+                        navn = "navn",
+                        slettet = false,
+                    ),
+                    besluttelse = null,
+                ),
+            )
+            tiltaksgjennomforingService.avbrytGjennomforing(TiltaksgjennomforingFixtures.AFT1.id, bertilNavIdent, AvbruttAarsak.Feilregistrering).shouldBeLeft(
+                BadRequest(message = "Gjennomføringen har aktive tilsagn"),
+            )
+        }
+
         test("Skal få avbryte tiltaksgjennomføring hvis alle sjekkene er ok") {
             val gjennomforing = TiltaksgjennomforingFixtures.Oppfolging1.copy(
                 avtaleId = avtaleId,
@@ -110,6 +147,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
         val tiltaksgjennomforingService = TiltaksgjennomforingService(
             avtaler,
             tiltaksgjennomforingRepository,
+            tilsagnRepository,
             tiltaksgjennomforingKafkaProducer,
             NotificationRepository(database.db),
             validator,
@@ -140,6 +178,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
         val tiltaksgjennomforingService = TiltaksgjennomforingService(
             avtaler,
             tiltaksgjennomforingRepository,
+            tilsagnRepository,
             tiltaksgjennomforingKafkaProducer,
             NotificationRepository(database.db),
             validator,
@@ -255,6 +294,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
         val tiltaksgjennomforingService = TiltaksgjennomforingService(
             avtaler,
             tiltaksgjennomforingRepository,
+            tilsagnRepository,
             tiltaksgjennomforingKafkaProducer,
             notificationRepository,
             validator,
