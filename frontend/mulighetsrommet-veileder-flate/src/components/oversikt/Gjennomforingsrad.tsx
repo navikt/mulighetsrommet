@@ -71,14 +71,18 @@ export function Gjennomforingsrad({ tiltaksgjennomforing, index, delMedBruker }:
 
           <div className={classNames(styles.flex, styles.navn)}>
             <VStack>
-              <VisningsnavnForTiltak navn={navn} tiltakstype={tiltakstype} arrangor={arrangor} />
+              <VisningsnavnForTiltak navn={navn} tiltakstype={tiltakstype} />
             </VStack>
           </div>
 
           <div className={classNames(styles.infogrid, styles.metadata)}>
-            <BodyShort size="small" title={tiltakstype.navn}>
-              {arrangor?.selskapsnavn}
-            </BodyShort>
+            {arrangor ? (
+              <BodyShort size="small" title={arrangor.selskapsnavn}>
+                {arrangor.selskapsnavn}
+              </BodyShort>
+            ) : (
+              <div />
+            )}
             <BodyShort
               size="small"
               title={visOppstartsdato(oppstart, oppstartsdato)}

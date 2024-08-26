@@ -161,7 +161,7 @@ class TiltakshistorikkServiceTest : FunSpec({
                     id = arenaDeltakelse.id,
                     tiltaksgjennomforingId = null,
                     eierskap = DeltakerKort.Eierskap.ARENA,
-                    tittel = "Avklaring Hos Bedriftsnavn 2",
+                    tittel = "Avklaring hos Bedriftsnavn 2",
                     tiltakstypeNavn = tiltakstypeGruppe.navn,
                     status = DeltakerKort.DeltakerStatus(
                         type = DeltakerKort.DeltakerStatus.DeltakerStatusType.VENTELISTE,

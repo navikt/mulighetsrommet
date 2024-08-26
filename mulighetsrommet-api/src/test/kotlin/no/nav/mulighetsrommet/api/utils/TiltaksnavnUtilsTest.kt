@@ -13,7 +13,7 @@ class TiltaksnavnUtilsTest : FunSpec({
         test("Skal konstruere navn med stor forbokstav i tiltaksnavn og arrangør") {
             val tiltakstype = TiltakstypeAdminDto(
                 id = UUID.randomUUID(),
-                navn = "oppfølging",
+                navn = "Oppfølging",
                 tiltakskode = Tiltakskode.OPPFOLGING,
                 innsatsgrupper = emptySet(),
                 arenaKode = "OPPF",
