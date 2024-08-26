@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "cross-env VITE_MULIGHETSROMMET_API_MOCK=true vite",
-    "lint": "eslint . --report-unused-disable-directives --max-warnings 0 && tsc",
-    "fix-lint": "eslint . --fix",
+    "lint": "eslint src --report-unused-disable-directives --max-warnings 0 && tsc",
+    "fix-lint": "eslint src --fix",
     "backend": "cross-env VITE_MULIGHETSROMMET_API_BASE='http://localhost:8080' vite",
     "build": "cross-env VITE_MULIGHETSROMMET_API_BASE='/mulighetsrommet-api' VITE_FARO_URL=https://telemetry.nav.no/collect vite build",
     "build:local": "cross-env VITE_MULIGHETSROMMET_API_BASE='http://localhost:8080' VITE_FARO_URL=http://localhost:1234 vite build",
