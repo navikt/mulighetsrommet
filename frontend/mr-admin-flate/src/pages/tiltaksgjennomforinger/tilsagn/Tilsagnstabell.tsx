@@ -26,48 +26,42 @@ export function Tilsagnstabell({ tilsagn }: Props) {
     return tilsagn.reduce((acc, tilsagn) => acc + tilsagn.beregning.belop, 0);
   }
 
-  function tilsagnTilStatus(tilsagn: TilsagnDto, ansatt?: NavAnsatt) {
-    const { besluttelse, opprettetAv, id } = tilsagn;
+  function status(tilsagn: TilsagnDto, ansatt?: NavAnsatt) {
+    const { besluttelse, id, opprettetAv, annullertTidspunkt } = tilsagn;
 
-    const tilsagnOpprettetAvBruker = ansatt?.navIdent === opprettetAv;
-    const tilsagnUtenBesluttelse = !besluttelse;
-
-    const statuser = () => {
-      if (besluttelse) {
-        return (
-          <Alert
-            inline
-            size="small"
-            variant={besluttelse.utfall === "GODKJENT" ? "success" : "error"}
-          >
-            <HStack justify={"space-between"} gap="2" align={"center"}>
-              {besluttelseTilTekst(besluttelse.utfall)}{" "}
-              <HelpText>
-                {besluttelseTilTekst(besluttelse.utfall)} den {formaterDato(besluttelse.tidspunkt)}{" "}
-                av {besluttelse.navIdent}
-              </HelpText>
-            </HStack>
-          </Alert>
-        );
-      }
-    };
-
-    const besluttKnapp = () => {
-      if (!ansatt?.roller.includes(NavAnsattRolle.OKONOMI_BESLUTTER)) {
-        return null;
-      }
-
+    if (besluttelse) {
       return (
-        <>
-          {statuser()}
-          <Button type="button" variant="primary" size="small" onClick={() => besluttTilsagn(id)}>
-            Beslutt
-          </Button>
-        </>
+        <Alert
+          inline
+          size="small"
+          variant={besluttelse.utfall === "GODKJENT" ? "success" : "warning"}
+        >
+          <HStack justify={"space-between"} gap="2" align={"center"}>
+            {besluttelseTilTekst(besluttelse.utfall)}{" "}
+            <HelpText>
+              {besluttelseTilTekst(besluttelse.utfall)} den {formaterDato(besluttelse.tidspunkt)} av{" "}
+              {besluttelse.navIdent}
+            </HelpText>
+          </HStack>
+        </Alert>
       );
-    };
-
-    const tilBeslutning = () => {
+    } else if (annullertTidspunkt) {
+      return (
+        <HStack justify={"space-between"} gap="2" align={"center"}>
+          Annullert
+          <HelpText>{`Annullert den ${formaterDato(annullertTidspunkt)}`}</HelpText>
+        </HStack>
+      );
+    } else if (
+      ansatt?.roller.includes(NavAnsattRolle.OKONOMI_BESLUTTER) &&
+      opprettetAv !== ansatt?.navIdent
+    ) {
+      return (
+        <Button type="button" variant="primary" size="small" onClick={() => besluttTilsagn(id)}>
+          Beslutt
+        </Button>
+      );
+    } else {
       return (
         <span>
           <HStack align={"center"} gap="1">
@@ -75,19 +69,6 @@ export function Tilsagnstabell({ tilsagn }: Props) {
           </HStack>
         </span>
       );
-    };
-
-    if (tilsagnOpprettetAvBruker) {
-      if (tilsagnUtenBesluttelse) {
-        return tilBeslutning();
-      }
-      return statuser();
-    } else {
-      if (tilsagnUtenBesluttelse) {
-        return besluttKnapp();
-      } else {
-        return statuser();
-      }
     }
   }
 
@@ -95,7 +76,6 @@ export function Tilsagnstabell({ tilsagn }: Props) {
     <Table>
       <Table.Header>
         <Table.Row>
-          <Table.HeaderCell>Løpenummer</Table.HeaderCell>
           <Table.HeaderCell>Periodestart</Table.HeaderCell>
           <Table.HeaderCell>Periodeslutt</Table.HeaderCell>
           <Table.HeaderCell>Kostnadssted</Table.HeaderCell>
@@ -109,25 +89,16 @@ export function Tilsagnstabell({ tilsagn }: Props) {
       </Table.Header>
       <Table.Body>
         {tilsagn.map((tilsagn) => {
-          const {
-            periodeStart,
-            periodeSlutt,
-            kostnadssted,
-            beregning,
-            id,
-            besluttelse,
-            lopenummer,
-          } = tilsagn;
+          const { periodeStart, periodeSlutt, kostnadssted, beregning, id, besluttelse } = tilsagn;
           return (
             <Table.Row key={id}>
-              <Table.DataCell>{lopenummer}</Table.DataCell>
               <Table.DataCell>{formaterDato(periodeStart)}</Table.DataCell>
               <Table.DataCell>{formaterDato(periodeSlutt)}</Table.DataCell>
               <Table.DataCell>
                 {kostnadssted.navn} {kostnadssted.enhetsnummer}
               </Table.DataCell>
               <Table.DataCell>{formaterTall(beregning.belop)} kr</Table.DataCell>
-              <Table.DataCell>{tilsagnTilStatus(tilsagn, ansatt)}</Table.DataCell>
+              <Table.DataCell>{status(tilsagn, ansatt)}</Table.DataCell>
               <Table.DataCell>
                 {tilsagn?.opprettetAv === ansatt?.navIdent &&
                 besluttelse?.utfall === TilsagnBesluttelse.AVVIST ? (
