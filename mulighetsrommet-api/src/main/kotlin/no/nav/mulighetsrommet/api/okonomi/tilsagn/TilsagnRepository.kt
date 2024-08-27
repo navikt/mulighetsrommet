@@ -97,8 +97,7 @@ class TilsagnRepository(private val db: Database) {
     fun setAnnullertTidspunkt(id: UUID, tidspunkt: LocalDateTime, tx: Session): Int {
         @Language("PostgreSQL")
         val query = """
-            update tilsagn set
-                annullert_tidspunkt = :tidspunkt
+            update tilsagn set annullert_tidspunkt = :tidspunkt
             where id = :id::uuid
         """.trimIndent()
 

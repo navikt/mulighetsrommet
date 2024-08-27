@@ -1775,7 +1775,7 @@ paths:
     delete:
       tags:
         - Tilsagn
-      operationId: deleteTilsagn
+      operationId: annullerTilsagn
       responses:
         200:
           description: OK
@@ -4482,19 +4482,7 @@ components:
         beregning:
           $ref: "#/components/schemas/TilsagnBeregning"
         besluttelse:
-          type: object
-          properties:
-            navIdent:
-              type: string
-            tidspunkt:
-              type: string
-              format: date-time
-            utfall:
-              $ref: "#/components/schemas/TilsagnBesluttelse"
-          required:
-            - navIdent
-            - tidspunkt
-            - utfall
+          $ref: "#/components/schemas/TilsagnBesluttelseDto"
         annullertTidspunkt:
           type: string
           format: date-time
@@ -4531,6 +4519,21 @@ components:
         - arrangor
         - lopenummer
         - opprettetAv
+
+    TilsagnBesluttelseDto:
+      type: object
+      properties:
+        navIdent:
+          type: string
+        tidspunkt:
+          type: string
+          format: date-time
+        utfall:
+          $ref: "#/components/schemas/TilsagnBesluttelse"
+      required:
+        - navIdent
+        - tidspunkt
+        - utfall
 
     TilsagnBesluttelse:
       type: string

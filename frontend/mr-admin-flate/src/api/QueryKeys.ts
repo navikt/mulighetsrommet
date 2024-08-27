@@ -48,4 +48,5 @@ export const QueryKeys = {
   ],
   getTilsagn: (id?: string) => ["tilsagn", id],
   besluttTilsagn: () => ["beslutt-tilsagn"],
+  annullerTilsagn: () => ["annuller-tilsagn"],
 };

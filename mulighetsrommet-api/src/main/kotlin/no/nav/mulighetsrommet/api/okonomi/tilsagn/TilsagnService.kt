@@ -96,10 +96,10 @@ class TilsagnService(
             ?: return NotFound("Fant ikke tilsagn").left()
 
         return db.transactionSuspend { tx ->
-            // TODO: Setter som annullert uavhengig om den er sendt til okonomi. Man kunne
-            // TODO: f. eks sjekket og satt som "avbrutt" i stedet.
             tilsagnRepository.setAnnullertTidspunkt(id, LocalDateTime.now(), tx)
-            OkonomiClient.annullerOrder(lagOkonomiId(dto))
+            if (dto.besluttelse?.utfall == TilsagnBesluttelse.GODKJENT) {
+                OkonomiClient.annullerOrder(lagOkonomiId(dto))
+            }
         }.right()
     }
 
