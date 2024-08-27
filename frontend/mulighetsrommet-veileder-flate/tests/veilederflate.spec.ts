@@ -2,12 +2,17 @@ import { expect, test } from "@playwright/test";
 import { sjekkUU, velgFilter } from "./playwrightUtils";
 
 test.beforeEach(async ({ page }) => {
+  await page.setViewportSize({ width: 1920, height: 1920 });
   await page.goto("/");
 });
 
 test.describe("Tiltaksoversikt", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("/arbeidsmarkedstiltak");
+    const finnNyttArbeidsmarkedstiltakBtn = await page.getByTestId(
+      "finn-nytt-arbeidsmarkedstiltak-btn",
+    );
+    finnNyttArbeidsmarkedstiltakBtn.click();
   });
 
   test("Sjekk at det er 5 tiltaksgjennomføringer i oversikten", async ({ page }) => {

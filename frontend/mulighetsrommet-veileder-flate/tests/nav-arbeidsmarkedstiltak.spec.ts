@@ -2,6 +2,7 @@ import { expect, test } from "@playwright/test";
 import { sjekkUU } from "./playwrightUtils";
 
 test.beforeEach(async ({ page }) => {
+  await page.setViewportSize({ width: 1920, height: 1920 });
   await page.goto("/nav");
 });
 
