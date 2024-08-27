@@ -20,7 +20,6 @@ import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatofo
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.Tiltakskoder
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
-import no.nav.mulighetsrommet.domain.dto.AmoKategorisering
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
 import no.nav.mulighetsrommet.domain.dto.allowedAvtaletypes
 import no.nav.mulighetsrommet.unleash.UnleashService
@@ -32,8 +31,7 @@ class AvtaleValidator(
     private val arrangorer: ArrangorRepository,
     private val unleashService: UnleashService,
 ) {
-
-    val opsjonsmodellerUtenValidering = listOf(Opsjonsmodell.AVTALE_UTEN_OPSJONSMODELL, Opsjonsmodell.AVTALE_VALGFRI_SLUTTDATO)
+    private val opsjonsmodellerUtenValidering = listOf(Opsjonsmodell.AVTALE_UTEN_OPSJONSMODELL, Opsjonsmodell.AVTALE_VALGFRI_SLUTTDATO)
 
     fun validate(avtale: AvtaleDbo, currentAvtale: AvtaleAdminDto?): Either<List<ValidationError>, AvtaleDbo> = either {
         val tiltakstype = tiltakstyper.getById(avtale.tiltakstypeId)
@@ -138,29 +136,6 @@ class AvtaleValidator(
                 if (avtale.avtaletype != Avtaletype.Forhaandsgodkjent && avtale.opsjonsmodell != Opsjonsmodell.AVTALE_VALGFRI_SLUTTDATO && avtale.sluttDato == null) {
                     add(ValidationError.of(AvtaleDbo::sluttDato, "Du må legge inn sluttdato for avtalen"))
                 }
-            }
-
-            if (
-                tiltakstype.tiltakskode == Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING &&
-                avtale.amoKategorisering?.kurstype != null &&
-                avtale.amoKategorisering.kurstype !== AmoKategorisering.Kurstype.STUDIESPESIALISERING &&
-                avtale.amoKategorisering.spesifisering == null
-            ) {
-                add(ValidationError.ofCustomLocation("amoKategorisering.spesifisering", "Du må velge en spesifisering"))
-            }
-
-            if (
-                tiltakstype.tiltakskode == Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING &&
-                avtale.amoKategorisering?.kurstype != null &&
-                avtale.amoKategorisering.kurstype !== AmoKategorisering.Kurstype.STUDIESPESIALISERING &&
-                avtale.amoKategorisering.innholdElementer.isNullOrEmpty()
-            ) {
-                add(
-                    ValidationError.ofCustomLocation(
-                        "amoKategorisering.innholdElementer",
-                        "Du må velge minst ett element",
-                    ),
-                )
             }
 
             validateNavEnheter(avtale.navEnheter)

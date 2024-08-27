@@ -90,13 +90,7 @@ export function TiltaksgjennomforingSkjemaContainer({
       deltidsprosent: data.deltidsprosent,
       estimertVentetid: data.estimertVentetid ?? null,
       tilgjengeligForArrangorFraOgMedDato: data.tilgjengeligForArrangorFraOgMedDato ?? null,
-      amoKategorisering: avtale.amoKategorisering
-        ? {
-            kurstype: avtale.amoKategorisering.kurstype,
-            spesifisering: avtale.amoKategorisering.spesifisering,
-            ...data.amoKategorisering,
-          }
-        : null,
+      amoKategorisering: data.amoKategorisering ?? null,
     };
 
     if (
