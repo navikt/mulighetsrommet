@@ -13,7 +13,7 @@ import { useState } from "react";
 import { useAvtale } from "@/api/avtaler/useAvtale";
 import { NullstillKnappForTiltaksgjennomforinger } from "@/pages/tiltaksgjennomforinger/NullstillKnappForTiltaksgjennomforinger";
 import { TilToppenKnapp } from "@mr/frontend-common/components/tilToppenKnapp/TilToppenKnapp";
-import { LagredeFilterOversikt } from "@mr/frontend-common";
+import { LagredeFilterOversikt, useOpenFilterWhenThreshold } from "@mr/frontend-common";
 import { LagretDokumenttype } from "@mr/api-client";
 import { useAtom } from "jotai/index";
 
@@ -21,7 +21,7 @@ export function TiltaksgjennomforingerForAvtalePage() {
   const id = useGetAvtaleIdFromUrlOrThrow();
 
   const filterAtomTiltaksgjennomforinger = gjennomforingerForAvtaleFilterAtomFamily(id);
-  const [filterOpen, setFilterOpen] = useState<boolean>(true);
+  const [filterOpen, setFilterOpen] = useOpenFilterWhenThreshold(1450);
   const { data: avtale } = useAvtale();
   const [tagsHeight, setTagsHeight] = useState(0);
   const [filter, setFilter] = useAtom(tiltaksgjennomforingfilterAtom);

@@ -12,7 +12,7 @@ import { Tilbakeknapp } from "@/components/tilbakeknapp/Tilbakeknapp";
 import { useResetArbeidsmarkedstiltakFilterMedBrukerIKontekst } from "@/hooks/useArbeidsmarkedstiltakFilter";
 import { Alert } from "@navikt/ds-react";
 import { ApiError, Toggles } from "@mr/api-client";
-import { ListSkeleton, useTitle } from "@mr/frontend-common";
+import { ListSkeleton, useTitle, useOpenFilterWhenThreshold } from "@mr/frontend-common";
 import { TilToppenKnapp } from "@mr/frontend-common/components/tilToppenKnapp/TilToppenKnapp";
 import { useEffect, useState } from "react";
 import { ModiaOversiktBrukerVarsler } from "../varsler/ModiaOversiktBrukerVarsler";
@@ -23,7 +23,7 @@ import { Filtermeny } from "@/components/filtrering/Filtermeny";
 
 export function ModiaArbeidsmarkedstiltakOversikt() {
   useTitle("Arbeidsmarkedstiltak - Oversikt");
-  const [filterOpen, setFilterOpen] = useState<boolean>(true);
+  const [filterOpen, setFilterOpen] = useOpenFilterWhenThreshold(1450);
   const { data: brukerdata } = useHentBrukerdata();
   const { alleTiltakDeltMedBruker } = useHentAlleTiltakDeltMedBruker();
 

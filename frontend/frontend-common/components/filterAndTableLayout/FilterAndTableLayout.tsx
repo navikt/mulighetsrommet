@@ -5,6 +5,7 @@ import { ToolbarButtonRow } from "../toolbar/toolbarButtonRow/ToolbarButtonRow";
 import styles from "./FilterAndTableLayout.module.scss";
 import { InlineErrorBoundary } from "../error-handling/ErrorBoundary";
 import { OversiktSkeleton } from "../skeleton/OversiktSkeleton";
+import { FilterContainer } from "../filter/FilterContainer";
 
 interface Props {
   filter: React.ReactNode;
@@ -33,9 +34,19 @@ export function FilterAndTableLayout({
         <Filter
           setFilterOpen={setFilterOpen}
           filterOpen={filterOpen}
-          filterTab={<InlineErrorBoundary>{filter}</InlineErrorBoundary>}
+          filterTab={
+            <InlineErrorBoundary>
+              <FilterContainer onClose={() => setFilterOpen(false)}>{filter}</FilterContainer>
+            </InlineErrorBoundary>
+          }
           lagredeFilterTab={
-            lagredeFilter ? <InlineErrorBoundary>{lagredeFilter}</InlineErrorBoundary> : null
+            lagredeFilter ? (
+              <InlineErrorBoundary>
+                <FilterContainer onClose={() => setFilterOpen(false)}>
+                  {lagredeFilter}
+                </FilterContainer>
+              </InlineErrorBoundary>
+            ) : null
           }
         />
 
