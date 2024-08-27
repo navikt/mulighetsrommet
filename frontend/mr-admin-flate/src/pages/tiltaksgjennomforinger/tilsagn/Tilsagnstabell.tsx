@@ -26,38 +26,43 @@ export function Tilsagnstabell({ tilsagn }: Props) {
     return tilsagn.reduce((acc, tilsagn) => acc + tilsagn.beregning.belop, 0);
   }
 
-  function status(tilsagn: TilsagnDto, ansatt?: NavAnsatt) {
-    const { besluttelse, id, opprettetAv, annullertTidspunkt } = tilsagn;
+  function TilsagnStatus(props: { tilsagn: TilsagnDto; ansatt?: NavAnsatt }) {
+    const { tilsagn, ansatt } = props;
 
-    if (besluttelse) {
+    if (tilsagn.besluttelse) {
       return (
         <Alert
           inline
           size="small"
-          variant={besluttelse.utfall === "GODKJENT" ? "success" : "warning"}
+          variant={tilsagn.besluttelse.utfall === "GODKJENT" ? "success" : "warning"}
         >
           <HStack justify={"space-between"} gap="2" align={"center"}>
-            {besluttelseTilTekst(besluttelse.utfall)}{" "}
+            {besluttelseTilTekst(tilsagn.besluttelse.utfall)}{" "}
             <HelpText>
-              {besluttelseTilTekst(besluttelse.utfall)} den {formaterDato(besluttelse.tidspunkt)} av{" "}
-              {besluttelse.navIdent}
+              {besluttelseTilTekst(tilsagn.besluttelse.utfall)} den{" "}
+              {formaterDato(tilsagn.besluttelse.tidspunkt)} av {tilsagn.besluttelse.navIdent}
             </HelpText>
           </HStack>
         </Alert>
       );
-    } else if (annullertTidspunkt) {
+    } else if (tilsagn.annullertTidspunkt) {
       return (
         <HStack justify={"space-between"} gap="2" align={"center"}>
           Annullert
-          <HelpText>{`Annullert den ${formaterDato(annullertTidspunkt)}`}</HelpText>
+          <HelpText>{`Annullert den ${formaterDato(tilsagn.annullertTidspunkt)}`}</HelpText>
         </HStack>
       );
     } else if (
       ansatt?.roller.includes(NavAnsattRolle.OKONOMI_BESLUTTER) &&
-      opprettetAv !== ansatt?.navIdent
+      tilsagn.opprettetAv !== ansatt?.navIdent
     ) {
       return (
-        <Button type="button" variant="primary" size="small" onClick={() => besluttTilsagn(id)}>
+        <Button
+          type="button"
+          variant="primary"
+          size="small"
+          onClick={() => besluttTilsagn(tilsagn.id)}
+        >
           Beslutt
         </Button>
       );
@@ -98,7 +103,9 @@ export function Tilsagnstabell({ tilsagn }: Props) {
                 {kostnadssted.navn} {kostnadssted.enhetsnummer}
               </Table.DataCell>
               <Table.DataCell>{formaterTall(beregning.belop)} kr</Table.DataCell>
-              <Table.DataCell>{status(tilsagn, ansatt)}</Table.DataCell>
+              <Table.DataCell>
+                <TilsagnStatus tilsagn={tilsagn} ansatt={ansatt} />
+              </Table.DataCell>
               <Table.DataCell>
                 {tilsagn?.opprettetAv === ansatt?.navIdent &&
                 besluttelse?.utfall === TilsagnBesluttelse.AVVIST ? (

@@ -1775,7 +1775,7 @@ paths:
     delete:
       tags:
         - Tilsagn
-      operationId: deleteTilsagn
+      operationId: annullerTilsagn
       responses:
         200:
           description: OK

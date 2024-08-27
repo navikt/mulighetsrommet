@@ -1,5 +1,5 @@
 import { Alert, BodyShort, Button, Heading, HStack, Tag } from "@navikt/ds-react";
-import { NavAnsattRolle, TilsagnBesluttelse } from "@mr/api-client";
+import { NavAnsattRolle, TilsagnBesluttelse, TilsagnDto } from "@mr/api-client";
 import { Link, useMatch, useNavigate, useParams } from "react-router-dom";
 import { useTiltaksgjennomforingById } from "../../../api/tiltaksgjennomforing/useTiltaksgjennomforingById";
 import { Bolk } from "../../../components/detaljside/Bolk";
@@ -87,34 +87,6 @@ export function TilsagnDetaljer() {
     }
   }
 
-  function tag() {
-    if (tilsagn?.besluttelse?.utfall === TilsagnBesluttelse.GODKJENT) {
-      return (
-        <Tag variant="success" size="small">
-          Godkjent
-        </Tag>
-      );
-    } else if (tilsagn?.besluttelse?.utfall === TilsagnBesluttelse.AVVIST) {
-      return (
-        <Tag variant="warning" size="small">
-          Avvist
-        </Tag>
-      );
-    } else if (tilsagn?.annullertTidspunkt) {
-      return (
-        <Tag variant="neutral" size="small">
-          Annullert
-        </Tag>
-      );
-    } else {
-      return (
-        <Tag variant="info" size="small">
-          Til beslutning
-        </Tag>
-      );
-    }
-  }
-
   if (!tiltaksgjennomforing || !tilsagn) {
     return <Laster tekst="Laster tilsagn..." />;
   }
@@ -126,7 +98,7 @@ export function TilsagnDetaljer() {
         <TiltaksgjennomforingIkon />
         <Heading size="large" level="2">
           <HStack gap="2" align={"center"}>
-            Tilsagn for {tiltaksgjennomforing.navn} {tag()}
+            Tilsagn for {tiltaksgjennomforing.navn} <TilsagnTag tilsagn={tilsagn} />
           </HStack>
         </Heading>
       </Header>
@@ -223,4 +195,34 @@ function GodkjennAvvisTilsagnButtons({
       </Button>
     </HStack>
   );
+}
+
+function TilsagnTag(props: { tilsagn: TilsagnDto }) {
+  const { tilsagn } = props;
+
+  if (tilsagn?.besluttelse?.utfall === TilsagnBesluttelse.GODKJENT) {
+    return (
+      <Tag variant="success" size="small">
+        Godkjent
+      </Tag>
+    );
+  } else if (tilsagn?.besluttelse?.utfall === TilsagnBesluttelse.AVVIST) {
+    return (
+      <Tag variant="warning" size="small">
+        Avvist
+      </Tag>
+    );
+  } else if (tilsagn?.annullertTidspunkt) {
+    return (
+      <Tag variant="neutral" size="small">
+        Annullert
+      </Tag>
+    );
+  } else {
+    return (
+      <Tag variant="info" size="small">
+        Til beslutning
+      </Tag>
+    );
+  }
 }
