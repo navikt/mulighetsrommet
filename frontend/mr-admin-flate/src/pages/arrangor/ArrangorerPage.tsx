@@ -1,4 +1,4 @@
-import { ReloadAppErrorBoundary, useTitle } from "@mr/frontend-common";
+import { ReloadAppErrorBoundary, useTitle, useOpenFilterWhenThreshold } from "@mr/frontend-common";
 import { FilterAndTableLayout } from "@mr/frontend-common/components/filterAndTableLayout/FilterAndTableLayout";
 import { useState } from "react";
 import { arrangorerFilterAtom } from "../../api/atoms";
@@ -14,7 +14,7 @@ import { ArrangorIkon } from "../../components/ikoner/ArrangorIkon";
 
 export function ArrangorerPage() {
   useTitle("Arrangører");
-  const [filterOpen, setFilterOpen] = useState<boolean>(true);
+  const [filterOpen, setFilterOpen] = useOpenFilterWhenThreshold(1450);
   const [tagsHeight, setTagsHeight] = useState(0);
 
   return (

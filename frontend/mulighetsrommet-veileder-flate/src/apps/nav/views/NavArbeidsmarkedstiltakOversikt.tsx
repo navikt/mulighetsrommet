@@ -14,7 +14,12 @@ import { Feilmelding } from "@/components/feilmelding/Feilmelding";
 import { TilToppenKnapp } from "@mr/frontend-common/components/tilToppenKnapp/TilToppenKnapp";
 import { NullstillFilterKnapp } from "@mr/frontend-common/components/nullstillFilterKnapp/NullstillFilterKnapp";
 import { Filtermeny } from "@/components/filtrering/Filtermeny";
-import { LagredeFilterOversikt, LagreFilterContainer, ListSkeleton } from "@mr/frontend-common";
+import {
+  LagredeFilterOversikt,
+  LagreFilterContainer,
+  ListSkeleton,
+  useOpenFilterWhenThreshold,
+} from "@mr/frontend-common";
 import { LagretDokumenttype } from "@mr/api-client";
 import { HStack } from "@navikt/ds-react";
 
@@ -26,7 +31,7 @@ export function NavArbeidsmarkedstiltakOversikt({ preview = false }: Props) {
   const { data: tiltaksgjennomforinger = [], isPending } = useNavTiltaksgjennomforinger({
     preview,
   });
-  const [filterOpen, setFilterOpen] = useState<boolean>(true);
+  const [filterOpen, setFilterOpen] = useOpenFilterWhenThreshold(1450);
   const [lagredeFilter, setLagredeFilter] = useArbeidsmarkedstiltakFilter();
   const filter = useArbeidsmarkedstiltakFilterValue();
   const { filterHasChanged, resetFilterToDefaults } =

@@ -2,6 +2,7 @@ import { expect, Page, test } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 
 test.beforeEach(async ({ page }) => {
+  await page.setViewportSize({ width: 1920, height: 1920 });
   await page.goto("/");
 });
 

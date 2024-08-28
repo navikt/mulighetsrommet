@@ -24,6 +24,8 @@ import { LokalInformasjonContainer } from "./components/containers/LokalInformas
 import { LagreFilterContainer } from "./components/lagreFilter/LagreFilterContainer";
 import { LagredeFilterOversikt } from "./components/lagreFilter/LagredeFilterOversikt";
 import { TilbakemeldingsLenke } from "./components/tilbakemelding/Tilbakemeldingslenke";
+import { FilterContainer } from "./components/filter/FilterContainer";
+import { useOpenFilterWhenThreshold } from "./hooks/useOpenFilterWhenThreshold";
 
 export {
   useDebounce,
@@ -50,4 +52,6 @@ export {
   LagreFilterContainer,
   LagredeFilterOversikt,
   TilbakemeldingsLenke,
+  FilterContainer,
+  useOpenFilterWhenThreshold,
 };

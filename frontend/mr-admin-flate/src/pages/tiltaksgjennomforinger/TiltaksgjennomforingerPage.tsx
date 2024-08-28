@@ -1,4 +1,9 @@
-import { LagredeFilterOversikt, ReloadAppErrorBoundary, useTitle } from "@mr/frontend-common";
+import {
+  LagredeFilterOversikt,
+  ReloadAppErrorBoundary,
+  useTitle,
+  useOpenFilterWhenThreshold,
+} from "@mr/frontend-common";
 import { TiltaksgjennomforingsTabell } from "@/components/tabell/TiltaksgjennomforingsTabell";
 import { ContainerLayout } from "@/layouts/ContainerLayout";
 import { HeaderBanner } from "@/layouts/HeaderBanner";
@@ -18,7 +23,7 @@ import { useAtom } from "jotai/index";
 
 export function TiltaksgjennomforingerPage() {
   useTitle("Tiltaksgjennomføringer");
-  const [filterOpen, setFilterOpen] = useState<boolean>(true);
+  const [filterOpen, setFilterOpen] = useOpenFilterWhenThreshold(1450);
   const [tagsHeight, setTagsHeight] = useState(0);
   const [filter, setFilter] = useAtom(tiltaksgjennomforingfilterAtom);
 
