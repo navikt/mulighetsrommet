@@ -36,13 +36,15 @@ export function FilterAndTableLayout({
           filterOpen={filterOpen}
           filterTab={
             <InlineErrorBoundary>
-              <FilterContainer onClose={() => setFilterOpen(false)}>{filter}</FilterContainer>
+              <FilterContainer title="Filter" onClose={() => setFilterOpen(false)}>
+                {filter}
+              </FilterContainer>
             </InlineErrorBoundary>
           }
           lagredeFilterTab={
             lagredeFilter ? (
               <InlineErrorBoundary>
-                <FilterContainer onClose={() => setFilterOpen(false)}>
+                <FilterContainer title="Lagrede filter" onClose={() => setFilterOpen(false)}>
                   {lagredeFilter}
                 </FilterContainer>
               </InlineErrorBoundary>
