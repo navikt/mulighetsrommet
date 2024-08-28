@@ -1,11 +1,20 @@
-import { BodyLong, Heading, HStack } from "@navikt/ds-react";
-import { VeilederflateTiltaksgjennomforing } from "@mr/api-client";
-import styles from "./TiltaksgjennomforingsHeader.module.scss";
+import { Tiltakskode, VeilederflateTiltaksgjennomforing } from "@mr/api-client";
 import { TiltaksgjennomforingStatusTag } from "@mr/frontend-common";
 import { gjennomforingIsAktiv } from "@mr/frontend-common/utils/utils";
+import { BodyLong, Heading, HStack, VStack } from "@navikt/ds-react";
+import styles from "./TiltaksgjennomforingsHeader.module.scss";
 
 interface Props {
   tiltaksgjennomforing: VeilederflateTiltaksgjennomforing;
+}
+
+function erKurstiltak(tiltakskode: Tiltakskode) {
+  return [
+    Tiltakskode.JOBBKLUBB,
+    Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK,
+    Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
+    Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
+  ].includes(tiltakskode);
 }
 
 const TiltaksgjennomforingsHeader = ({ tiltaksgjennomforing }: Props) => {
@@ -14,7 +23,23 @@ const TiltaksgjennomforingsHeader = ({ tiltaksgjennomforing }: Props) => {
     <>
       <HStack align="center" gap="2" className={styles.tiltaksgjennomforing_title}>
         <Heading level="1" size="xlarge">
-          {navn}
+          <VStack>
+            {tiltakstype.tiltakskode && erKurstiltak(tiltakstype.tiltakskode) ? (
+              <>
+                {navn}
+                <BodyLong size="medium" textColor="subtle">
+                  {tiltakstype.navn}
+                </BodyLong>
+              </>
+            ) : (
+              <>
+                {tiltakstype.navn}
+                <BodyLong size="medium" textColor="subtle">
+                  {navn}
+                </BodyLong>
+              </>
+            )}
+          </VStack>
         </Heading>
         {!gjennomforingIsAktiv(tiltaksgjennomforing.status.status) && (
           <TiltaksgjennomforingStatusTag status={tiltaksgjennomforing.status} />

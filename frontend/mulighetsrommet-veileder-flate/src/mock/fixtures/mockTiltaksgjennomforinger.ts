@@ -426,7 +426,7 @@ export const mockTiltaksgjennomforinger: VeilederflateTiltaksgjennomforing[] = [
   {
     sanityId: "f1887090-1ba8-47a4-a82f-6aaad488994e",
     status: { status: TiltaksgjennomforingStatus.GJENNOMFORES },
-    navn: "Oppæring Fag og Yrke",
+    navn: "Opplæring Fag og Yrke",
     stedForGjennomforing: "Oslo",
     apentForInnsok: true,
     tiltakstype: mockTiltakstyper.OpplaringEnkeltplassFagOgYrke,
@@ -447,7 +447,7 @@ for (let i = 0; i < x; i++) {
   mockTiltaksgjennomforinger.push({
     sanityId: window.crypto.randomUUID(),
     status: { status: TiltaksgjennomforingStatus.GJENNOMFORES },
-    navn: "Oppæring Fag og Yrke" + i,
+    navn: "Opplæring Fag og Yrke" + i,
     stedForGjennomforing: "Oslo",
     apentForInnsok: true,
     tiltakstype: mockTiltakstyper.OpplaringEnkeltplassFagOgYrke,

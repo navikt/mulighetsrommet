@@ -1,17 +1,18 @@
-import { ChevronRightIcon, PadlockLockedFillIcon } from "@navikt/aksel-icons";
-import { BodyShort } from "@navikt/ds-react";
-import classNames from "classnames";
-import {
-  DelMedBruker,
-  TiltaksgjennomforingOppstartstype,
-  VeilederflateTiltaksgjennomforing,
-} from "@mr/api-client";
-import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import { paginationAtom } from "@/core/atoms";
 import { formaterDato } from "@/utils/Utils";
+import { ChevronRightIcon, PadlockLockedFillIcon } from "@navikt/aksel-icons";
+import { BodyShort, VStack } from "@navikt/ds-react";
+import classNames from "classnames";
+import { useAtomValue } from "jotai";
+import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import { kebabCase } from "@mr/frontend-common/utils/TestUtils";
 import styles from "./Gjennomforingsrad.module.scss";
-import { useAtomValue } from "jotai";
+import { VisningsnavnForTiltak } from "./VisningsnavnForTiltak";
+import {
+  VeilederflateTiltaksgjennomforing,
+  DelMedBruker,
+  TiltaksgjennomforingOppstartstype,
+} from "@mr/api-client";
 
 interface Props {
   tiltaksgjennomforing: VeilederflateTiltaksgjennomforing;
@@ -69,22 +70,19 @@ export function Gjennomforingsrad({ tiltaksgjennomforing, index, delMedBruker }:
           )}
 
           <div className={classNames(styles.flex, styles.navn)}>
-            <BodyShort
-              size="small"
-              title={navn}
-              className={classNames(styles.truncate, styles.as_link)}
-            >
-              {navn}
-            </BodyShort>
-            <BodyShort size="small" title={arrangor?.selskapsnavn} className={styles.muted}>
-              {arrangor?.selskapsnavn}
-            </BodyShort>
+            <VStack>
+              <VisningsnavnForTiltak navn={navn} tiltakstype={tiltakstype} />
+            </VStack>
           </div>
 
           <div className={classNames(styles.infogrid, styles.metadata)}>
-            <BodyShort size="small" title={tiltakstype.navn}>
-              {tiltakstype.navn}
-            </BodyShort>
+            {arrangor ? (
+              <BodyShort size="small" title={arrangor.selskapsnavn}>
+                {arrangor.selskapsnavn}
+              </BodyShort>
+            ) : (
+              <div />
+            )}
             <BodyShort
               size="small"
               title={visOppstartsdato(oppstart, oppstartsdato)}

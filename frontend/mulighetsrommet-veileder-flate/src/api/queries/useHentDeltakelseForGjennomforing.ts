@@ -15,6 +15,7 @@ export function useHentDeltakelseForGjennomforing() {
       });
       return result || null; // Returner null hvis API returnerer 204 No Content = undefined;;
     },
+    throwOnError: false,
     enabled: !!tiltaksgjennomforingId,
   });
 }

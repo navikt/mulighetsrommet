@@ -1,0 +1,13 @@
+.container {
+  :first-child {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: #0067c5;
+  }
+
+  :last-child {
+    color: var(--a-text-subtle);
+    font-size: 14px;
+  }
+}

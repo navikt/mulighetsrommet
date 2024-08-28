@@ -1,4 +1,9 @@
-import { Innsatsgruppe, TiltakskodeArena, VeilederflateTiltakstype } from "@mr/api-client";
+import {
+  Innsatsgruppe,
+  Tiltakskode,
+  TiltakskodeArena,
+  VeilederflateTiltakstype,
+} from "@mr/api-client";
 
 export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
   VTA: {
@@ -538,6 +543,7 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
   },
   jobbklubb: {
     sanityId: "31e72dd8-ad05-4e81-a7f9-fd4c8f295864",
+    tiltakskode: Tiltakskode.JOBBKLUBB,
     delingMedBruker:
       "Jobbklubb er et kortvarig tiltak for deg som søker jobb. Når du deltar på jobbklubb, får du støtte og hjelp til å orientere deg på arbeidsmarkedet og være en aktiv jobbsøker.\n\nDu kan lese mer om kurset på www.nav.no/jobbklubb",
     regelverkLenker: [
@@ -2811,6 +2817,7 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
   },
   gruppe_amo: {
     arenakode: TiltakskodeArena.GRUPPEAMO,
+    tiltakskode: Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
     sanityId: "eadeb22c-bd89-4298-a5c2-145f112f8e7d",
     delingMedBruker:
       "Har du vurdert utdanning for å få flere muligheter på arbeidsmarkedet?  \n\nDu kan lese mer om tiltaket på www.nav.no/opplaring \n\nEr dette aktuelt for deg? Gi meg tilbakemelding her i dialogen. \nSvaret ditt vil ikke endre din utbetaling fra NAV. \n\nVi holder kontakten!\nHilsen <Veiledernavn> \n",

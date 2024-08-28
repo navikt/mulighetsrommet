@@ -116,7 +116,7 @@ test.describe("Preview Mulighetsrommet", () => {
 
   test("Skal vise tiltak", async ({ page }) => {
     const h1 = await page.getByRole("heading", { level: 1 }).innerText();
-    expect(h1).toEqual("Avklaring - Fredrikstad med ganske langt navn som strekker seg bortover");
+    expect(h1).toContain("Avklaring - Fredrikstad med ganske langt navn som strekker seg bortover");
   });
 
   test("Skal vise en warning på siden om at man er i Preview-modus", async ({ page }) => {
