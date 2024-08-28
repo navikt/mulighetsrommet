@@ -1,6 +1,8 @@
-import { FilterAndTableLayout } from "@mr/frontend-common/components/filterAndTableLayout/FilterAndTableLayout";
-import { Tiltaksgjennomforingsoversikt } from "@/components/oversikt/Tiltaksgjennomforingsoversikt";
 import { useNavTiltaksgjennomforinger } from "@/api/queries/useTiltaksgjennomforinger";
+import { NavFiltertags } from "@/apps/nav/filtrering/NavFiltertags";
+import { Feilmelding } from "@/components/feilmelding/Feilmelding";
+import { Filtermeny } from "@/components/filtrering/Filtermeny";
+import { Tiltaksgjennomforingsoversikt } from "@/components/oversikt/Tiltaksgjennomforingsoversikt";
 import {
   ArbeidsmarkedstiltakFilterSchema,
   isFilterReady,
@@ -8,20 +10,13 @@ import {
   useArbeidsmarkedstiltakFilterValue,
   useResetArbeidsmarkedstiltakFilterUtenBrukerIKontekst,
 } from "@/hooks/useArbeidsmarkedstiltakFilter";
-import { NavFiltertags } from "@/apps/nav/filtrering/NavFiltertags";
-import { useState } from "react";
-import { Feilmelding } from "@/components/feilmelding/Feilmelding";
-import { TilToppenKnapp } from "@mr/frontend-common/components/tilToppenKnapp/TilToppenKnapp";
-import { NullstillFilterKnapp } from "@mr/frontend-common/components/nullstillFilterKnapp/NullstillFilterKnapp";
-import { Filtermeny } from "@/components/filtrering/Filtermeny";
-import {
-  LagredeFilterOversikt,
-  LagreFilterContainer,
-  ListSkeleton,
-  useOpenFilterWhenThreshold,
-} from "@mr/frontend-common";
 import { LagretDokumenttype } from "@mr/api-client";
+import { LagredeFilterOversikt, LagreFilterContainer, ListSkeleton } from "@mr/frontend-common";
+import { FilterAndTableLayout } from "@mr/frontend-common/components/filterAndTableLayout/FilterAndTableLayout";
+import { NullstillFilterKnapp } from "@mr/frontend-common/components/nullstillFilterKnapp/NullstillFilterKnapp";
+import { TilToppenKnapp } from "@mr/frontend-common/components/tilToppenKnapp/TilToppenKnapp";
 import { HStack } from "@navikt/ds-react";
+import { useState } from "react";
 
 interface Props {
   preview?: boolean;
@@ -31,7 +26,7 @@ export function NavArbeidsmarkedstiltakOversikt({ preview = false }: Props) {
   const { data: tiltaksgjennomforinger = [], isPending } = useNavTiltaksgjennomforinger({
     preview,
   });
-  const [filterOpen, setFilterOpen] = useOpenFilterWhenThreshold(1450);
+  const [filterOpen, setFilterOpen] = useState(true);
   const [lagredeFilter, setLagredeFilter] = useArbeidsmarkedstiltakFilter();
   const filter = useArbeidsmarkedstiltakFilterValue();
   const { filterHasChanged, resetFilterToDefaults } =
