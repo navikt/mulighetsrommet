@@ -31,11 +31,14 @@ import { gjennomforingIsAktiv } from "@mr/frontend-common/utils/utils";
 import { Chat2Icon } from "@navikt/aksel-icons";
 import { Alert, Button } from "@navikt/ds-react";
 import { useAtomValue } from "jotai";
-import { useFeatureToggle } from "../../../api/feature-toggles";
-import { useTiltaksgjennomforingById } from "../../../api/queries/useTiltaksgjennomforingById";
-import { PameldingForGruppetiltak } from "../../../components/pamelding/PameldingForGruppetiltak";
-import { VisibleWhenToggledOn } from "../../../components/toggles/VisibleWhenToggledOn";
-import { useGetTiltaksgjennomforingIdFraUrl } from "../../../hooks/useGetTiltaksgjennomforingIdFraUrl";
+import { useFeatureToggle } from "@/api/feature-toggles";
+import {
+  isTiltakGruppe,
+  useTiltaksgjennomforingById,
+} from "@/api/queries/useTiltaksgjennomforingById";
+import { PameldingForGruppetiltak } from "@/components/pamelding/PameldingForGruppetiltak";
+import { VisibleWhenToggledOn } from "@/components/toggles/VisibleWhenToggledOn";
+import { useGetTiltaksgjennomforingIdFraUrl } from "@/hooks/useGetTiltaksgjennomforingIdFraUrl";
 import { ModiaRoute, resolveModiaRoute } from "../ModiaRoute";
 import { PameldingFraKometApnerSnart } from "../pamelding/PameldingFraKometApnerSnart";
 
@@ -100,7 +103,7 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
         brukerErUnderOppfolging={brukerdata.erUnderOppfolging}
       />
       <ViewTiltaksgjennomforingDetaljer
-        tiltaksgjennomforing={tiltaksgjennomforing}
+        tiltak={tiltaksgjennomforing}
         knapperad={
           <>
             <Tilbakeknapp
@@ -135,9 +138,9 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
             )}
 
             {enableDeltakerRegistrering &&
+            isTiltakGruppe(tiltaksgjennomforing) &&
             gjennomforingIsAktiv(tiltaksgjennomforing.status.status) ? (
               <PameldingForGruppetiltak
-                kanOppretteAvtaleForTiltak={kanOppretteAvtaleForTiltak}
                 brukerHarRettPaaValgtTiltak={brukerHarRettPaaValgtTiltak}
                 tiltaksgjennomforing={tiltaksgjennomforing}
               />
@@ -148,7 +151,7 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
               <DelMedBruker
                 delMedBrukerInfo={delMedBrukerInfo ?? undefined}
                 veiledernavn={resolveName(veilederdata)}
-                tiltaksgjennomforing={tiltaksgjennomforing}
+                tiltak={tiltaksgjennomforing}
                 bruker={brukerdata}
               />
             ) : null}
@@ -177,7 +180,9 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
               <PameldingFraKometApnerSnart tiltaksgjennomforing={tiltaksgjennomforing} />
             ) : null}
 
-            {tiltaksgjennomforing && tiltaksgjennomforing?.personvernBekreftet ? (
+            {tiltaksgjennomforing &&
+            isTiltakGruppe(tiltaksgjennomforing) &&
+            tiltaksgjennomforing.personvernBekreftet ? (
               <InlineErrorBoundary>
                 <PersonvernContainer tiltaksgjennomforing={tiltaksgjennomforing} />
               </InlineErrorBoundary>
@@ -188,7 +193,7 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
               <TilbakemeldingsLenke
                 url={PORTEN_URL_FOR_TILBAKEMELDING(
                   tiltaksgjennomforing.tiltaksnummer,
-                  regioner?.data?.find((r) => r.enhetsnummer === tiltaksgjennomforing?.fylke)?.navn,
+                  regioner?.data?.find((r) => r.enhetsnummer === tiltaksgjennomforing.fylke)?.navn,
                 )}
                 tekst="Gi tilbakemelding via Porten"
               />

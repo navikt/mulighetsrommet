@@ -4,22 +4,20 @@ import { useGetTiltaksgjennomforingIdFraUrl } from "@/hooks/useGetTiltaksgjennom
 import {
   DeltakelseFraKomet,
   DeltakerStatusType,
-  VeilederflateTiltaksgjennomforing,
+  VeilederflateTiltakGruppe,
   VeilederflateTiltakstype,
 } from "@mr/api-client";
 import { Alert, BodyShort, Button, Heading, VStack } from "@navikt/ds-react";
 import { ReactNode } from "react";
 import styles from "./PameldingForGruppetiltak.module.scss";
-import { useHentDeltakelseForGjennomforing } from "../../api/queries/useHentDeltakelseForGjennomforing";
+import { useHentDeltakelseForGjennomforing } from "@/api/queries/useHentDeltakelseForGjennomforing";
 
 interface PameldingProps {
-  kanOppretteAvtaleForTiltak: boolean;
   brukerHarRettPaaValgtTiltak: boolean;
-  tiltaksgjennomforing: VeilederflateTiltaksgjennomforing;
+  tiltaksgjennomforing: VeilederflateTiltakGruppe;
 }
 
 export function PameldingForGruppetiltak({
-  kanOppretteAvtaleForTiltak,
   brukerHarRettPaaValgtTiltak,
   tiltaksgjennomforing,
 }: PameldingProps): ReactNode {
@@ -28,7 +26,6 @@ export function PameldingForGruppetiltak({
   const gjennomforingId = useGetTiltaksgjennomforingIdFraUrl();
 
   const skalVisePameldingslenke =
-    !kanOppretteAvtaleForTiltak &&
     brukerHarRettPaaValgtTiltak &&
     tiltakstypeStotterPamelding(stotterPameldingIModia, tiltaksgjennomforing.tiltakstype) &&
     !aktivDeltakelse;

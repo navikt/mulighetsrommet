@@ -647,29 +647,6 @@ class AvtaleRepository(private val db: Database) {
             .let { db.run(it) }
     }
 
-    fun getBehandlingAvPersonopplysninger(id: UUID): List<PersonopplysningData> {
-        @Language("PostgreSQL")
-        val valgtePersonopplysningerQuery = """
-            select ap.personopplysning
-            from avtale
-                inner join avtale_personopplysning ap on avtale.id = ap.avtale_id
-            where
-                avtale.id = ?::uuid
-                and avtale.personvern_bekreftet;
-        """.trimIndent()
-
-        val valgtePersonopplysninger = queryOf(valgtePersonopplysningerQuery, id)
-            .map {
-                Personopplysning.valueOf(it.string("personopplysning"))
-            }
-            .asList
-            .let { db.run(it) }
-
-        return valgtePersonopplysninger
-            .sortedBy { it.sortKey }
-            .map { it.toPersonopplysningData() }
-    }
-
     fun oppdaterSluttdato(avtaleId: UUID, nySluttdato: LocalDate, tx: Session? = null) {
         @Language("PostgreSQL")
         val query = """

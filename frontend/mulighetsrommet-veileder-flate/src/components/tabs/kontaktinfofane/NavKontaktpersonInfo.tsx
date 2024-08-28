@@ -37,7 +37,7 @@ const NavKontaktpersonInfo = ({ kontaktinfo }: NavKontaktpersonInfoProps) => {
           </Heading>
 
           {tiltaksansvarlige.map((tiltaksansvarlig: VeilederflateKontaktinfoTiltaksansvarlig) => {
-            const { navn, epost, telefonnummer, enhet, beskrivelse } = tiltaksansvarlig;
+            const { navn, epost, telefon, enhet, beskrivelse } = tiltaksansvarlig;
             return (
               <div key={epost} className={styles.container}>
                 <BodyShort className={styles.navn} size="small">
@@ -63,11 +63,11 @@ const NavKontaktpersonInfo = ({ kontaktinfo }: NavKontaktpersonInfoProps) => {
                     <dd>
                       <a href={`mailto:${epost}`}>{epost}</a>
                     </dd>
-                    {telefonnummer ? (
+                    {telefon ? (
                       <>
                         <dt>Telefon:</dt>
                         <dd>
-                          <span>{telefonnummer}</span>
+                          <span>{telefon}</span>
                         </dd>
                       </>
                     ) : null}

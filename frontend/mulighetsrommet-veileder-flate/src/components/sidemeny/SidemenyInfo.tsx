@@ -3,67 +3,27 @@ import {
   TiltaksgjennomforingOppstartstype,
   TiltakskodeArena,
   VeilederflateInnsatsgruppe,
-  VeilederflateTiltaksgjennomforing,
-  VeilederflateTiltakstype,
+  VeilederflateTiltak,
 } from "@mr/api-client";
 import { formaterDato, utledLopenummerFraTiltaksnummer } from "@/utils/Utils";
 import Kopiknapp from "../kopiknapp/Kopiknapp";
 import Regelverksinfo from "./Regelverksinfo";
 import styles from "./SidemenyInfo.module.scss";
+import { isTiltakGruppe } from "@/api/queries/useTiltaksgjennomforingById";
 
 interface Props {
   innsatsgrupper: VeilederflateInnsatsgruppe[];
-  tiltaksgjennomforing: VeilederflateTiltaksgjennomforing;
+  tiltak: VeilederflateTiltak;
 }
 
-const SidemenyInfo = ({ innsatsgrupper, tiltaksgjennomforing }: Props) => {
-  const { tiltaksnummer, arrangor, tiltakstype, sluttdato, oppstartsdato, stedForGjennomforing } =
-    tiltaksgjennomforing;
-
-  const oppstart = resolveOppstart(tiltaksgjennomforing);
+const SidemenyInfo = ({ innsatsgrupper, tiltak }: Props) => {
+  const { tiltaksnummer, tiltakstype, stedForGjennomforing } = tiltak;
 
   const minimumInnsatsgruppe = innsatsgrupper
     .filter((innsatsgruppe) => (tiltakstype.innsatsgrupper ?? []).includes(innsatsgruppe.nokkel))
     .reduce((prev, current) => (prev.order < current.order ? prev : current));
 
-  const visDato = (
-    tiltakstype: VeilederflateTiltakstype,
-    oppstart: string,
-    oppstartsdato?: string,
-    sluttdato?: string,
-  ) => {
-    return (
-      <div className={styles.rad}>
-        <BodyShort size="small" className={styles.tittel}>
-          {visSluttdato(tiltakstype, sluttdato, oppstartsdato) ? "Varighet" : "Oppstart"}
-        </BodyShort>
-        <BodyShort size="small">
-          {visSluttdato(tiltakstype, sluttdato, oppstartsdato)
-            ? `${formaterDato(oppstartsdato!)} - ${formaterDato(sluttdato!)}`
-            : oppstart}
-        </BodyShort>
-      </div>
-    );
-  };
-
-  const visSluttdato = (
-    tiltakstype: VeilederflateTiltakstype,
-    sluttdato?: string,
-    oppstartsdato?: string,
-  ): boolean => {
-    return (
-      !!oppstartsdato &&
-      !!sluttdato &&
-      !!tiltakstype?.arenakode &&
-      [
-        TiltakskodeArena.GRUPPEAMO,
-        TiltakskodeArena.JOBBK,
-        TiltakskodeArena.DIGIOPPARB,
-        TiltakskodeArena.GRUFAGYRKE,
-        TiltakskodeArena.ENKFAGYRKE,
-      ].includes(tiltakstype?.arenakode)
-    );
-  };
+  const arrangor = isTiltakGruppe(tiltak) ? tiltak.arrangor : null;
 
   return (
     <Box padding="5" background="bg-subtle" className={styles.panel} id="sidemeny">
@@ -98,7 +58,7 @@ const SidemenyInfo = ({ innsatsgrupper, tiltaksgjennomforing }: Props) => {
         <BodyShort size="small">{tiltakstype.navn} </BodyShort>
       </div>
 
-      {arrangor?.selskapsnavn && (
+      {arrangor && (
         <div className={styles.rad}>
           <BodyShort size="small" className={styles.tittel}>
             Arrangør
@@ -114,7 +74,7 @@ const SidemenyInfo = ({ innsatsgrupper, tiltaksgjennomforing }: Props) => {
         <BodyShort size="small">{minimumInnsatsgruppe.tittel}</BodyShort>
       </div>
 
-      {visDato(tiltakstype, oppstart, oppstartsdato, sluttdato)}
+      <TiltakVarighetInfo tiltak={tiltak} />
 
       {tiltakstype.regelverkLenker && (
         <div className={styles.rad}>
@@ -144,10 +104,35 @@ const SidemenyInfo = ({ innsatsgrupper, tiltaksgjennomforing }: Props) => {
   );
 };
 
-function resolveOppstart({ oppstart, oppstartsdato }: VeilederflateTiltaksgjennomforing) {
-  return oppstart === TiltaksgjennomforingOppstartstype.FELLES && oppstartsdato
-    ? formaterDato(oppstartsdato)
-    : "Løpende";
+function TiltakVarighetInfo({ tiltak }: { tiltak: VeilederflateTiltak }) {
+  const visSluttdato =
+    isTiltakGruppe(tiltak) &&
+    tiltak.sluttdato &&
+    tiltak.tiltakstype.arenakode &&
+    [
+      TiltakskodeArena.GRUPPEAMO,
+      TiltakskodeArena.JOBBK,
+      TiltakskodeArena.DIGIOPPARB,
+      TiltakskodeArena.GRUFAGYRKE,
+      TiltakskodeArena.ENKFAGYRKE,
+    ].includes(tiltak.tiltakstype.arenakode);
+
+  const tittel = visSluttdato ? "Varighet" : "Oppstart";
+
+  const innhold = visSluttdato
+    ? `${formaterDato(tiltak.oppstartsdato!)} - ${formaterDato(tiltak.sluttdato!)}`
+    : tiltak.oppstart === TiltaksgjennomforingOppstartstype.FELLES
+      ? formaterDato(tiltak.oppstartsdato)
+      : "Løpende";
+
+  return (
+    <div className={styles.rad}>
+      <BodyShort size="small" className={styles.tittel}>
+        {tittel}
+      </BodyShort>
+      <BodyShort size="small">{innhold}</BodyShort>
+    </div>
+  );
 }
 
 export default SidemenyInfo;

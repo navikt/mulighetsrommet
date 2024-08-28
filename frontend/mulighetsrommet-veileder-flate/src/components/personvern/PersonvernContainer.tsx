@@ -1,42 +1,29 @@
 import {
-  Alert,
   BodyLong,
   Button,
   GuidePanel,
-  HStack,
   Heading,
   HelpText,
+  HStack,
   List,
   Modal,
   VStack,
 } from "@navikt/ds-react";
 import { ModalBody, ModalHeader } from "@navikt/ds-react/Modal";
-import { PersonopplysningData, VeilederflateTiltaksgjennomforing } from "@mr/api-client";
+import { PersonopplysningData, VeilederflateTiltakGruppe } from "@mr/api-client";
 import { useState } from "react";
-import { useBehandlingAvPersonopplysningerFraAvtale } from "../../api/queries/useBehandlingAvPersonopplysningerFraAvtale";
-import { PersonvernIkon } from "../../ikoner/PersonvernIkon";
+import { PersonvernIkon } from "@/ikoner/PersonvernIkon";
 import styles from "./PersonvernContainer.module.scss";
 
 interface Props {
-  tiltaksgjennomforing: VeilederflateTiltaksgjennomforing;
+  tiltaksgjennomforing: VeilederflateTiltakGruppe;
 }
 
 /**
  * Komponent som er ansvarlig for både rendering av GuidePanel og modal for personvern
  */
 export function PersonvernContainer({ tiltaksgjennomforing }: Props) {
-  const { data, isLoading, isError } = useBehandlingAvPersonopplysningerFraAvtale(
-    tiltaksgjennomforing.avtaleId,
-  );
   const [modalOpen, setModalOpen] = useState(false);
-
-  if (isError) {
-    return <Alert variant="error">Det skjedde en feil ved henting av personverninformasjon</Alert>;
-  }
-
-  if (!data || isLoading) {
-    return null;
-  }
 
   return (
     <>
@@ -101,7 +88,7 @@ export function PersonvernContainer({ tiltaksgjennomforing }: Props) {
           <VStack gap="5">
             <ListeOverPersonopplysninger
               title="Opplysninger om deltaker som kan behandles"
-              personopplysninger={data}
+              personopplysninger={tiltaksgjennomforing.personopplysningerSomKanBehandles}
             />
           </VStack>
         </ModalBody>

@@ -1,20 +1,30 @@
 import { useQuery } from "@tanstack/react-query";
 import { QueryKeys } from "../query-keys";
 import { useGetTiltaksgjennomforingIdFraUrl } from "@/hooks/useGetTiltaksgjennomforingIdFraUrl";
-import { useArbeidsmarkedstiltakFilterValue } from "@/hooks/useArbeidsmarkedstiltakFilter";
-import { NavEnhet, VeilederTiltakService } from "@mr/api-client";
+import {
+  VeilederflateTiltak,
+  VeilederflateTiltakArbeidsgiver,
+  VeilederflateTiltakGruppe,
+  VeilederTiltakService,
+} from "@mr/api-client";
+
+export function isTiltakGruppe(tiltak: VeilederflateTiltak): tiltak is VeilederflateTiltakGruppe {
+  return tiltak.type === "TILTAK_GRUPPE";
+}
+
+// TODO: legge til et skille på arbeidsgiver-tiltak og IPS/AMS og andre individuelle tiltak som også blir inkludert her
+export function isTiltakArbeidsgiver(
+  tiltak: VeilederflateTiltak,
+): tiltak is VeilederflateTiltakArbeidsgiver {
+  return tiltak.type === "TILTAK_ARBEIDSGIVER";
+}
 
 export function useTiltaksgjennomforingById() {
   const id = useGetTiltaksgjennomforingIdFraUrl();
-  const filter = useArbeidsmarkedstiltakFilterValue();
 
   return useQuery({
     queryKey: QueryKeys.arbeidsmarkedstiltak.tiltaksgjennomforing(id),
-    queryFn: () =>
-      VeilederTiltakService.getVeilederTiltaksgjennomforing({
-        id,
-        enheter: filter.navEnheter.map((enhet: NavEnhet) => enhet.enhetsnummer),
-      }),
+    queryFn: () => VeilederTiltakService.getVeilederTiltaksgjennomforing({ id }),
   });
 }
 
@@ -29,14 +39,9 @@ export function useNavTiltaksgjennomforingById() {
 
 export function usePreviewTiltaksgjennomforingById() {
   const id = useGetTiltaksgjennomforingIdFraUrl();
-  const filter = useArbeidsmarkedstiltakFilterValue();
 
   return useQuery({
     queryKey: QueryKeys.arbeidsmarkedstiltak.tiltaksgjennomforingPreview(id),
-    queryFn: () =>
-      VeilederTiltakService.getPreviewTiltaksgjennomforing({
-        id,
-        enheter: filter.navEnheter.map((enhet: NavEnhet) => enhet.enhetsnummer),
-      }),
+    queryFn: () => VeilederTiltakService.getPreviewTiltaksgjennomforing({ id }),
   });
 }

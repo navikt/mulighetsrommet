@@ -1,9 +1,9 @@
 import { Box } from "@navikt/ds-react";
-import { VeilederflateTiltaksgjennomforing } from "@mr/api-client";
+import { VeilederflateTiltak } from "@mr/api-client";
 import styles from "./SidemenyInfo.module.scss";
 
 interface Props {
-  tiltaksgjennomforing: VeilederflateTiltaksgjennomforing;
+  tiltaksgjennomforing: VeilederflateTiltak;
 }
 
 export function SidemenyKanKombineresMed({ tiltaksgjennomforing }: Props) {

@@ -4,15 +4,16 @@ import { StatusModal } from "@/components/modal/StatusModal";
 import { useLogEvent } from "@/logging/amplitude";
 import { erPreview } from "@/utils/Utils";
 import { BodyShort, Button, Checkbox, Heading, HelpText, Modal } from "@navikt/ds-react";
-import { Bruker, DelMedBruker, VeilederflateTiltaksgjennomforing } from "@mr/api-client";
+import { Bruker, DelMedBruker, VeilederflateTiltak } from "@mr/api-client";
 import { useDelTiltakMedBruker } from "@/api/queries/useDelTiltakMedBruker";
 import { DelMedBrukerContent, MAKS_ANTALL_TEGN_DEL_MED_BRUKER } from "./DelMedBrukerContent";
 import style from "./Delemodal.module.scss";
 import { Actions, State } from "./DelemodalActions";
+import { isTiltakArbeidsgiver, isTiltakGruppe } from "@/api/queries/useTiltaksgjennomforingById";
 
 interface DelemodalProps {
   veiledernavn?: string;
-  tiltaksgjennomforing: VeilederflateTiltaksgjennomforing;
+  tiltak: VeilederflateTiltak;
   bruker: Bruker;
   harDeltMedBruker?: DelMedBruker;
   dispatch: (action: Actions) => void;
@@ -21,7 +22,7 @@ interface DelemodalProps {
 
 export function Delemodal({
   veiledernavn,
-  tiltaksgjennomforing,
+  tiltak,
   bruker,
   harDeltMedBruker,
   dispatch,
@@ -58,7 +59,7 @@ export function Delemodal({
   const clickCancel = () => {
     lukkModal();
     dispatch({ type: "Avbryt" });
-    logDelMedbrukerEvent("Avbrutt del med bruker", tiltaksgjennomforing.tiltakstype.navn);
+    logDelMedbrukerEvent("Avbrutt del med bruker", tiltak.tiltakstype.navn);
   };
 
   const handleSend = async () => {
@@ -67,10 +68,10 @@ export function Delemodal({
       return;
     }
 
-    logDelMedbrukerEvent("Delte med bruker", tiltaksgjennomforing.tiltakstype.navn);
+    logDelMedbrukerEvent("Delte med bruker", tiltak.tiltakstype.navn);
 
     dispatch({ type: "Send melding" });
-    const overskrift = `Tiltak gjennom NAV: ${tiltaksgjennomforing.navn}`;
+    const overskrift = `Tiltak gjennom NAV: ${tiltak.navn}`;
     const tekst = state.deletekst;
     try {
       mutation.mutate({
@@ -78,12 +79,12 @@ export function Delemodal({
         overskrift,
         tekst,
         venterPaaSvarFraBruker,
-        tiltaksgjennomforingId: tiltaksgjennomforing?.id || null,
-        sanityId: tiltaksgjennomforing?.sanityId || null,
+        tiltaksgjennomforingId: isTiltakGruppe(tiltak) ? tiltak.id : null,
+        sanityId: isTiltakArbeidsgiver(tiltak) ? tiltak.sanityId : null,
       });
     } catch {
       dispatch({ type: "Sending feilet" });
-      logDelMedbrukerEvent("Del med bruker feilet", tiltaksgjennomforing.tiltakstype.navn);
+      logDelMedbrukerEvent("Del med bruker feilet", tiltak.tiltakstype.navn);
     }
   };
 
@@ -91,7 +92,7 @@ export function Delemodal({
     dispatch({ type: "Enable rediger deletekst", payload: true });
     logEvent({
       name: "arbeidsmarkedstiltak.del-med-bruker",
-      data: { action: "Endre deletekst", tiltakstype: tiltaksgjennomforing.tiltakstype.navn },
+      data: { action: "Endre deletekst", tiltakstype: tiltak.tiltakstype.navn },
     });
   };
 
@@ -106,7 +107,7 @@ export function Delemodal({
         <Modal.Header closeButton>
           <Heading size="xsmall">Del med bruker</Heading>
           <Heading size="large" level="1" className={style.heading}>
-            {"Tiltak gjennom NAV: " + tiltaksgjennomforing.navn}
+            {"Tiltak gjennom NAV: " + tiltak.navn}
           </Heading>
         </Modal.Header>
 
@@ -117,7 +118,7 @@ export function Delemodal({
             veiledernavn={veiledernavn}
             brukernavn={bruker.fornavn}
             harDeltMedBruker={harDeltMedBruker}
-            tiltaksgjennomforing={tiltaksgjennomforing}
+            tiltaksgjennomforing={tiltak}
             enableRedigerDeletekst={enableRedigerDeletekst}
           />
         </Modal.Body>
@@ -141,7 +142,7 @@ export function Delemodal({
                       name: "arbeidsmarkedstiltak.del-med-bruker",
                       data: {
                         action: "Sett venter på svar fra bruker",
-                        tiltakstype: tiltaksgjennomforing.tiltakstype.navn,
+                        tiltakstype: tiltak.tiltakstype.navn,
                       },
                     });
                   }
