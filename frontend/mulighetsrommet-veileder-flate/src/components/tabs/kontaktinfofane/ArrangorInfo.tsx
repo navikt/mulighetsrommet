@@ -52,7 +52,6 @@ const ArrangorInfo = ({ arrangor, faneinnhold }: ArrangorInfoProps) => {
           </BodyShort>
         </div>
       ))}
-      {/* TODO hvorfor skal faneinnhold bare vises når det finnes en arrangør? */}
       {faneinnhold && (
         <BodyLong as="div" textColor="subtle" size="small">
           <RedaksjoneltInnhold value={faneinnhold} />
