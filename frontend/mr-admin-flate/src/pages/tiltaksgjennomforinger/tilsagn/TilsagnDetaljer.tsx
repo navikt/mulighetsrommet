@@ -87,6 +87,11 @@ export function TilsagnDetaljer() {
     }
   }
 
+  const visBesluttKnapp =
+    !tilsagn?.besluttelse &&
+    ansatt?.navIdent !== tilsagn?.opprettetAv &&
+    ansatt?.roller.includes(NavAnsattRolle.OKONOMI_BESLUTTER);
+
   if (!tiltaksgjennomforing || !tilsagn) {
     return <Laster tekst="Laster tilsagn..." />;
   }
@@ -135,9 +140,7 @@ export function TilsagnDetaljer() {
               </BodyShort>
             ) : null}
             <HStack gap="2" justify={"space-between"}>
-              {!tilsagn?.besluttelse &&
-              ansatt?.navIdent !== tilsagn.opprettetAv &&
-              ansatt?.roller.includes(NavAnsattRolle.OKONOMI_BESLUTTER) ? (
+              {visBesluttKnapp ? (
                 <GodkjennAvvisTilsagnButtons
                   onGodkjennTilsagn={() => besluttTilsagn(TilsagnBesluttelse.GODKJENT)}
                   onAvvisTilsagn={() => besluttTilsagn(TilsagnBesluttelse.AVVIST)}
@@ -145,13 +148,13 @@ export function TilsagnDetaljer() {
               ) : (
                 <div></div>
               )}
-              {!tilsagn.annullertTidspunkt && (
+              {!tilsagn.annullertTidspunkt && !visBesluttKnapp && (
                 <Button
                   variant="danger"
                   size="small"
                   onClick={() => annullerModalRef.current?.show()}
                 >
-                  Annuller
+                  {tilsagn.besluttelse ? "Annuller" : "Slett"}
                 </Button>
               )}
             </HStack>
