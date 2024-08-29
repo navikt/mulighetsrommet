@@ -63,7 +63,7 @@ export function AvtaleSkjemaPage() {
 
       <ContainerLayout>
         <SkjemaContainer>
-          {isLoadingAnsatt || isLoadingTiltakstyper || isLoadingEnheter ? <Laster /> : null}
+          {isLoadingTiltakstyper || isLoadingEnheter ? <Laster /> : null}
           <SkjemaContent>
             {!tiltakstyper?.data || !ansatt || !enheter ? null : (
               <AvtaleSkjemaContainer
