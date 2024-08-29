@@ -2,15 +2,25 @@ import { Bransje, ForerkortKlasse, InnholdElement, Sertifisering } from "@mr/api
 import z from "zod";
 
 const InnholdElementerSchema = z
-  .nativeEnum(InnholdElement, { required_error: "Du må velge minst ett element" })
+  .nativeEnum(InnholdElement, { errorMap: () => ({ message: "Du må velge minst ett element" }) })
   .array()
   .nonempty("Du må velge minst ett element");
 
 export const AmoKategoriseringSchema = z.discriminatedUnion("kurstype", [
   z.object({
     kurstype: z.literal("BRANSJE_OG_YRKESRETTET"),
-    bransje: z.nativeEnum(Bransje, { required_error: "Du må velge bransje" }),
-    sertifiseringer: z.custom<Sertifisering>().array().default([]),
+    bransje: z.nativeEnum(Bransje, { errorMap: () => ({ message: "Du må velge bransje" }) }),
+    sertifiseringer: z
+      .custom<Sertifisering>()
+      .array()
+      .nullish()
+      .transform((val) => {
+        if (!val) {
+          return [];
+        }
+        return val;
+      })
+      .pipe(z.custom<Sertifisering>().array()),
     forerkort: z.nativeEnum(ForerkortKlasse).array().default([]),
     innholdElementer: InnholdElementerSchema,
   }),
