@@ -4,15 +4,15 @@ import { PadlockLockedFillIcon } from "@navikt/aksel-icons";
 import { Alert, Tabs } from "@navikt/ds-react";
 import { VeilederflateTiltak } from "@mr/api-client";
 import { ReactNode, Suspense, useState } from "react";
-import SidemenyInfo from "../components/sidemeny/SidemenyInfo";
-import TiltaksdetaljerFane from "../components/tabs/TiltaksdetaljerFane";
-import TiltaksgjennomforingsHeader from "./TiltaksgjennomforingsHeader";
+import SidemenyInfo from "@/components/sidemeny/SidemenyInfo";
+import { TiltakDetaljer } from "@/components/tabs/TiltakDetaljer";
+import { TiltaksgjennomforingHeader } from "./TiltaksgjennomforingHeader";
 import styles from "./ViewTiltaksgjennomforingDetaljer.module.scss";
 import { useInnsatsgrupper } from "@/api/queries/useInnsatsgrupper";
 import { EstimertVentetid } from "@/components/sidemeny/EstimertVentetid";
 import { SidemenyKanKombineresMed } from "@/components/sidemeny/SidemenyKanKombineresMed";
 import { DetaljerSkeleton } from "@mr/frontend-common";
-import { isTiltakGruppe } from "@/api/queries/useTiltaksgjennomforingById";
+import { isTiltakGruppe } from "@/api/queries/useArbeidsmarkedstiltakById";
 
 interface Props {
   tiltak: VeilederflateTiltak;
@@ -41,7 +41,7 @@ export function ViewTiltaksgjennomforingDetaljer({ tiltak, brukerActions, knappe
         <>
           <div className={styles.tiltaksgjennomforing_detaljer} id="tiltaksgjennomforing_detaljer">
             <div className={styles.tiltakstype_header_maksbredde}>
-              <TiltaksgjennomforingsHeader tiltaksgjennomforing={tiltak} />
+              <TiltaksgjennomforingHeader tiltak={tiltak} />
             </div>
             {isTiltakGruppe(tiltak) && !tiltak.apentForInnsok && (
               <div className={styles.apent_for_innsok_status}>
@@ -64,13 +64,13 @@ export function ViewTiltaksgjennomforingDetaljer({ tiltak, brukerActions, knappe
                 </Tabs.Panel>
                 {harKombinasjon ? (
                   <Tabs.Panel value="kombineres">
-                    <SidemenyKanKombineresMed tiltaksgjennomforing={tiltak} />
+                    <SidemenyKanKombineresMed tiltak={tiltak} />
                   </Tabs.Panel>
                 ) : null}
               </Tabs>
               <div className={styles.brukeractions_container}>{brukerActions}</div>
             </div>
-            <TiltaksdetaljerFane tiltaksgjennomforing={tiltak} setOppskriftId={setOppskriftId} />
+            <TiltakDetaljer tiltak={tiltak} setOppskriftId={setOppskriftId} />
           </div>
           <div className={styles.oppskriftContainer}>
             {oppskriftId && (

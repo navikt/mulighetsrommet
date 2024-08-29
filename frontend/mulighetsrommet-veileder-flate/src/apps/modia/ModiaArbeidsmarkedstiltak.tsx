@@ -1,7 +1,6 @@
 import "@navikt/ds-css";
 import "./polyfill";
 import { Navigate, Route, Routes } from "react-router-dom";
-import { useHentVeilederdata } from "@/apps/modia/hooks/useHentVeilederdata";
 import { useInitializeModiaContext } from "@/apps/modia/hooks/useInitializeModiaContext";
 import { useInitializeArbeidsmarkedstiltakFilterForBruker } from "@/apps/modia/hooks/useInitializeArbeidsmarkedstiltakFilterForBruker";
 import { useFeatureToggle } from "@/api/feature-toggles";
@@ -11,6 +10,7 @@ import { DemoImageHeader } from "@/components/DemoImageHeader";
 import { Landingsside } from "./views/Landingsside";
 import { ModiaArbeidsmarkedstiltakOversikt } from "./views/ModiaArbeidsmarkedstiltakOversikt";
 import { ModiaArbeidsmarkedstiltakDetaljer } from "./views/ModiaArbeidsmarkedstiltakDetaljer";
+import { ArbeidsmarkedstiltakDetaljerSuspense } from "@/components/suspense/ArbeidsmarkedstiltakDetaljerSuspense";
 
 export function ModiaArbeidsmarkedstiltak() {
   return (
@@ -21,8 +21,6 @@ export function ModiaArbeidsmarkedstiltak() {
 }
 
 function ModiaArbeidsmarkedstiltakRoutes() {
-  useHentVeilederdata(); // Pre-fetch veilederdata så slipper vi å vente på data når vi trenger det i appen senere
-
   useInitializeModiaContext();
 
   useInitializeArbeidsmarkedstiltakFilterForBruker();
@@ -40,7 +38,14 @@ function ModiaArbeidsmarkedstiltakRoutes() {
     <Routes>
       {enableLandingsside ? <Route path="" element={<Landingsside />} /> : null}
       <Route path="oversikt" element={<ModiaArbeidsmarkedstiltakOversikt />} />
-      <Route path="tiltak/:id/*" element={<ModiaArbeidsmarkedstiltakDetaljer />} />
+      <Route
+        path="tiltak/:id/*"
+        element={
+          <ArbeidsmarkedstiltakDetaljerSuspense>
+            <ModiaArbeidsmarkedstiltakDetaljer />
+          </ArbeidsmarkedstiltakDetaljerSuspense>
+        }
+      />
       <Route
         path="*"
         element={

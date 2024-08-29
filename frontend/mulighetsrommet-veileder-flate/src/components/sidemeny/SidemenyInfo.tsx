@@ -9,7 +9,7 @@ import { formaterDato, utledLopenummerFraTiltaksnummer } from "@/utils/Utils";
 import Kopiknapp from "../kopiknapp/Kopiknapp";
 import Regelverksinfo from "./Regelverksinfo";
 import styles from "./SidemenyInfo.module.scss";
-import { isTiltakGruppe } from "@/api/queries/useTiltaksgjennomforingById";
+import { isTiltakGruppe } from "@/api/queries/useArbeidsmarkedstiltakById";
 
 interface Props {
   innsatsgrupper: VeilederflateInnsatsgruppe[];

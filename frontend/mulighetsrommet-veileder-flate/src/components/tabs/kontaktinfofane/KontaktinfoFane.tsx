@@ -1,37 +1,29 @@
 import { Alert } from "@navikt/ds-react";
 import { VeilederflateTiltak } from "@mr/api-client";
-import FaneTiltaksinformasjon from "../FaneTiltaksinformasjon";
+import { TiltakDetaljerFaneContainer } from "../TiltakDetaljerFaneContainer";
 import ArrangorInfo from "./ArrangorInfo";
-import styles from "./Kontaktinfo.module.scss";
+import styles from "./KontaktinfoFane.module.scss";
 import NavKontaktpersonInfo from "./NavKontaktpersonInfo";
-import { isTiltakGruppe } from "@/api/queries/useTiltaksgjennomforingById";
+import { isTiltakGruppe } from "@/api/queries/useArbeidsmarkedstiltakById";
 
 interface Props {
-  tiltaksgjennomforing: VeilederflateTiltak;
+  tiltak: VeilederflateTiltak;
 }
 
-const KontaktinfoFane = ({ tiltaksgjennomforing }: Props) => {
+export function KontaktinfoFane({ tiltak }: Props) {
   return (
-    <FaneTiltaksinformasjon
-      harInnhold={!!tiltaksgjennomforing}
-      className={styles.kontaktinfo_container}
-    >
-      {tiltaksgjennomforing.faneinnhold?.kontaktinfoInfoboks && (
+    <TiltakDetaljerFaneContainer harInnhold={true} className={styles.kontaktinfo_container}>
+      {tiltak.faneinnhold?.kontaktinfoInfoboks && (
         <Alert variant="info" style={{ whiteSpace: "pre-wrap" }}>
-          {tiltaksgjennomforing.faneinnhold.kontaktinfoInfoboks}
+          {tiltak.faneinnhold.kontaktinfoInfoboks}
         </Alert>
       )}
       <div className={styles.grid_container}>
-        {isTiltakGruppe(tiltaksgjennomforing) && (
-          <ArrangorInfo
-            arrangor={tiltaksgjennomforing.arrangor}
-            faneinnhold={tiltaksgjennomforing.faneinnhold?.kontaktinfo}
-          />
+        {isTiltakGruppe(tiltak) && (
+          <ArrangorInfo arrangor={tiltak.arrangor} faneinnhold={tiltak.faneinnhold?.kontaktinfo} />
         )}
-        <NavKontaktpersonInfo kontaktinfo={tiltaksgjennomforing.kontaktinfo} />
+        <NavKontaktpersonInfo kontaktinfo={tiltak.kontaktinfo} />
       </div>
-    </FaneTiltaksinformasjon>
+    </TiltakDetaljerFaneContainer>
   );
-};
-
-export default KontaktinfoFane;
+}

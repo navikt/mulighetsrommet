@@ -15,12 +15,9 @@ export const QueryKeys = {
   arbeidsmarkedstiltak: {
     innsatsgrupper: ["innsatsgrupper"],
     tiltakstyper: ["tiltakstyper"],
-    tiltaksgjennomforinger: (tiltaksgjennomforingsfilter?: object) => [
-      "tiltaksgjennomforinger",
-      { ...tiltaksgjennomforingsfilter },
-    ],
-    tiltaksgjennomforing: (id: string) => ["tiltaksgjennomforing", id],
-    tiltaksgjennomforingPreview: (id: string) => ["tiltaksgjennomforing", "preview", id],
+    tiltak: (filter?: object) => ["tiltaksgjennomforinger", { ...filter }],
+    tiltakById: (id: string) => ["tiltaksgjennomforing", id],
+    previewTiltakById: (id: string) => ["tiltaksgjennomforing", "preview", id],
   },
   features: (feature: string) => [feature, "feature"],
   navEnheter: (statuser: NavEnhetStatus[], typer: NavEnhetType[]) => [

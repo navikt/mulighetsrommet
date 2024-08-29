@@ -3,11 +3,11 @@ import { VeilederflateTiltak } from "@mr/api-client";
 import styles from "./SidemenyInfo.module.scss";
 
 interface Props {
-  tiltaksgjennomforing: VeilederflateTiltak;
+  tiltak: VeilederflateTiltak;
 }
 
-export function SidemenyKanKombineresMed({ tiltaksgjennomforing }: Props) {
-  const { tiltakstype } = tiltaksgjennomforing;
+export function SidemenyKanKombineresMed({ tiltak }: Props) {
+  const { tiltakstype } = tiltak;
 
   return (
     <Box padding="5" background="bg-subtle" className={styles.panel} id="sidemeny">

@@ -1,8 +1,9 @@
-import { useNavTiltaksgjennomforinger } from "@/api/queries/useTiltaksgjennomforinger";
 import { NavFiltertags } from "@/apps/nav/filtrering/NavFiltertags";
 import { Feilmelding } from "@/components/feilmelding/Feilmelding";
 import { Filtermeny } from "@/components/filtrering/Filtermeny";
-import { Tiltaksgjennomforingsoversikt } from "@/components/oversikt/Tiltaksgjennomforingsoversikt";
+import { FilterAndTableLayout } from "@mr/frontend-common/components/filterAndTableLayout/FilterAndTableLayout";
+import { ArbeidsmarkedstiltakList } from "@/components/oversikt/ArbeidsmarkedstiltakList";
+import { useNavArbeidsmarkedstiltak } from "@/api/queries/useArbeidsmarkedstiltak";
 import {
   ArbeidsmarkedstiltakFilterSchema,
   isFilterReady,
@@ -12,7 +13,6 @@ import {
 } from "@/hooks/useArbeidsmarkedstiltakFilter";
 import { LagretDokumenttype } from "@mr/api-client";
 import { LagredeFilterOversikt, LagreFilterContainer, ListSkeleton } from "@mr/frontend-common";
-import { FilterAndTableLayout } from "@mr/frontend-common/components/filterAndTableLayout/FilterAndTableLayout";
 import { NullstillFilterKnapp } from "@mr/frontend-common/components/nullstillFilterKnapp/NullstillFilterKnapp";
 import { TilToppenKnapp } from "@mr/frontend-common/components/tilToppenKnapp/TilToppenKnapp";
 import { HStack } from "@navikt/ds-react";
@@ -23,7 +23,7 @@ interface Props {
 }
 
 export function NavArbeidsmarkedstiltakOversikt({ preview = false }: Props) {
-  const { data: tiltaksgjennomforinger = [], isPending } = useNavTiltaksgjennomforinger({
+  const { data: tiltak = [], isPending } = useNavArbeidsmarkedstiltak({
     preview,
   });
   const [filterOpen, setFilterOpen] = useState(true);
@@ -63,8 +63,8 @@ export function NavArbeidsmarkedstiltakOversikt({ preview = false }: Props) {
           />
         }
         table={
-          <Tiltaksgjennomforingsoversikt
-            tiltaksgjennomforinger={tiltaksgjennomforinger}
+          <ArbeidsmarkedstiltakList
+            tiltak={tiltak}
             filterOpen={filterOpen}
             feilmelding={
               !isFilterReady(filter) ? (
@@ -73,7 +73,7 @@ export function NavArbeidsmarkedstiltakOversikt({ preview = false }: Props) {
                   header="Du må filtrere på en innsatsgruppe og minst én NAV-enhet for å se tiltaksgjennomføringer"
                   ikonvariant="info"
                 />
-              ) : tiltaksgjennomforinger.length === 0 ? (
+              ) : tiltak.length === 0 ? (
                 isPending ? (
                   <ListSkeleton />
                 ) : (

@@ -14,12 +14,12 @@ import { useHentDeltakelseForGjennomforing } from "@/api/queries/useHentDeltakel
 
 interface PameldingProps {
   brukerHarRettPaaValgtTiltak: boolean;
-  tiltaksgjennomforing: VeilederflateTiltakGruppe;
+  tiltak: VeilederflateTiltakGruppe;
 }
 
 export function PameldingForGruppetiltak({
   brukerHarRettPaaValgtTiltak,
-  tiltaksgjennomforing,
+  tiltak,
 }: PameldingProps): ReactNode {
   const { data: aktivDeltakelse } = useHentDeltakelseForGjennomforing();
   const { data: stotterPameldingIModia = [] } = useTiltakstyperSomStotterPameldingIModia();
@@ -27,7 +27,7 @@ export function PameldingForGruppetiltak({
 
   const skalVisePameldingslenke =
     brukerHarRettPaaValgtTiltak &&
-    tiltakstypeStotterPamelding(stotterPameldingIModia, tiltaksgjennomforing.tiltakstype) &&
+    tiltakstypeStotterPamelding(stotterPameldingIModia, tiltak.tiltakstype) &&
     !aktivDeltakelse;
 
   const opprettDeltakelseRoute = resolveModiaRoute({

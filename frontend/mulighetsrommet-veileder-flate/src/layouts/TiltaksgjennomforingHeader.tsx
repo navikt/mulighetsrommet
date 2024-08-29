@@ -2,15 +2,15 @@ import { VeilederflateTiltak } from "@mr/api-client";
 import { TiltaksgjennomforingStatusTag } from "@mr/frontend-common";
 import { gjennomforingIsAktiv } from "@mr/frontend-common/utils/utils";
 import { BodyLong, Heading, HStack, VStack } from "@navikt/ds-react";
-import { erKurstiltak } from "../utils/Utils";
 import styles from "./TiltaksgjennomforingsHeader.module.scss";
+import { erKurstiltak } from "../utils/Utils";
 
 interface Props {
-  tiltaksgjennomforing: VeilederflateTiltak;
+  tiltak: VeilederflateTiltak;
 }
 
-const TiltaksgjennomforingsHeader = ({ tiltaksgjennomforing }: Props) => {
-  const { navn, beskrivelse, tiltakstype } = tiltaksgjennomforing;
+export function TiltaksgjennomforingHeader({ tiltak }: Props) {
+  const { navn, beskrivelse, tiltakstype } = tiltak;
   return (
     <>
       <HStack align="center" gap="2" className={styles.tiltaksgjennomforing_title}>
@@ -33,8 +33,8 @@ const TiltaksgjennomforingsHeader = ({ tiltaksgjennomforing }: Props) => {
             )}
           </VStack>
         </Heading>
-        {!gjennomforingIsAktiv(tiltaksgjennomforing.status.status) && (
-          <TiltaksgjennomforingStatusTag status={tiltaksgjennomforing.status} />
+        {!gjennomforingIsAktiv(tiltak.status.status) && (
+          <TiltaksgjennomforingStatusTag status={tiltak.status} />
         )}
       </HStack>
       {tiltakstype.beskrivelse && (
@@ -49,6 +49,4 @@ const TiltaksgjennomforingsHeader = ({ tiltaksgjennomforing }: Props) => {
       )}
     </>
   );
-};
-
-export default TiltaksgjennomforingsHeader;
+}

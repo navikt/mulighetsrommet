@@ -1,17 +1,17 @@
 import { VeilederflateTiltak } from "@mr/api-client";
 import { ExternalLinkIcon } from "@navikt/aksel-icons";
 import { BodyShort, GuidePanel, Heading, Link, VStack } from "@navikt/ds-react";
-import { useTiltakstyperSomSnartStotterPameldingIModia } from "../../../api/queries/useTiltakstyperSomStotterPameldingIModia";
-import { TegnestiftIkon } from "../../../ikoner/TegnestiftIkon";
+import { useTiltakstyperSomSnartStotterPameldingIModia } from "@/api/queries/useTiltakstyperSomStotterPameldingIModia";
+import { TegnestiftIkon } from "@/ikoner/TegnestiftIkon";
 import styles from "./PameldingFraKometApnerSnart.module.scss";
 
 interface Props {
-  tiltaksgjennomforing: VeilederflateTiltak;
+  tiltak: VeilederflateTiltak;
 }
 
-export function PameldingFraKometApnerSnart({ tiltaksgjennomforing }: Props) {
+export function PameldingFraKometApnerSnart({ tiltak }: Props) {
   const { data } = useTiltakstyperSomSnartStotterPameldingIModia();
-  const tiltakskode = tiltaksgjennomforing?.tiltakstype?.tiltakskode;
+  const tiltakskode = tiltak?.tiltakstype?.tiltakskode;
 
   if (tiltakskode && data?.includes(tiltakskode)) {
     return (

@@ -1,7 +1,7 @@
 import {
   isTiltakGruppe,
-  usePreviewTiltaksgjennomforingById,
-} from "@/api/queries/useTiltaksgjennomforingById";
+  usePreviewArbeidsmarkedstiltakById,
+} from "@/api/queries/useArbeidsmarkedstiltakById";
 import { DelMedBruker } from "@/apps/modia/delMedBruker/DelMedBruker";
 import { Tilbakeknapp } from "@/components/tilbakeknapp/Tilbakeknapp";
 import { ViewTiltaksgjennomforingDetaljer } from "@/layouts/ViewTiltaksgjennomforingDetaljer";
@@ -10,22 +10,9 @@ import { Innsatsgruppe, NavEnhetStatus, NavEnhetType } from "@mr/api-client";
 import { InlineErrorBoundary } from "@/ErrorBoundary";
 import { PersonvernContainer } from "@/components/personvern/PersonvernContainer";
 import { LenkeListe } from "@/components/sidemeny/Lenker";
-import { DetaljerSkeleton } from "@mr/frontend-common";
 
 export function PreviewArbeidsmarkedstiltakDetaljer() {
-  const { data: tiltak, isPending, isError } = usePreviewTiltaksgjennomforingById();
-
-  if (isPending) {
-    return <DetaljerSkeleton />;
-  }
-
-  if (isError) {
-    return <Alert variant="error">Det har skjedd en feil</Alert>;
-  }
-
-  if (!tiltak) {
-    return <Alert variant="error">Klarte ikke finne tiltaksgjennomføringen</Alert>;
-  }
+  const { data: tiltak } = usePreviewArbeidsmarkedstiltakById();
 
   return (
     <>
@@ -63,7 +50,7 @@ export function PreviewArbeidsmarkedstiltakDetaljer() {
             />
             {isTiltakGruppe(tiltak) && tiltak.personvernBekreftet ? (
               <InlineErrorBoundary>
-                <PersonvernContainer tiltaksgjennomforing={tiltak} />
+                <PersonvernContainer tiltak={tiltak} />
               </InlineErrorBoundary>
             ) : null}
             <LenkeListe lenker={tiltak.faneinnhold?.lenker} />
