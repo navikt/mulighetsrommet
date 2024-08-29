@@ -257,6 +257,4 @@ class AvtaleService(
                 }
         }
     }
-
-    fun getBehandlingAvPersonopplysninger(id: UUID): List<PersonopplysningData> = avtaler.getBehandlingAvPersonopplysninger(id = id)
 }

@@ -8,8 +8,8 @@ interface FiltrertFeilInnsatsgruppeVarselProps {
 }
 
 export function FiltrertFeilInnsatsgruppeVarsel({ filter }: FiltrertFeilInnsatsgruppeVarselProps) {
-  const brukerdata = useHentBrukerdata();
-  const innsatsgruppeBruker = brukerdata.data?.innsatsgruppe;
+  const { data: brukerdata } = useHentBrukerdata();
+  const innsatsgruppeBruker = brukerdata.innsatsgruppe;
   const innsatsgruppeFiltrert = filter.innsatsgruppe?.nokkel;
   const innsatsgruppeFiltrertNavn = filter.innsatsgruppe?.tittel;
 

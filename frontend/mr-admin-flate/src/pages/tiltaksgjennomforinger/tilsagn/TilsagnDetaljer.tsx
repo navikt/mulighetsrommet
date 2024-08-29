@@ -1,5 +1,5 @@
 import { Alert, BodyShort, Button, Heading, HStack, Tag } from "@navikt/ds-react";
-import { NavAnsattRolle, TilsagnBesluttelse } from "@mr/api-client";
+import { NavAnsattRolle, TilsagnBesluttelse, TilsagnDto } from "@mr/api-client";
 import { Link, useMatch, useNavigate, useParams } from "react-router-dom";
 import { useTiltaksgjennomforingById } from "../../../api/tiltaksgjennomforing/useTiltaksgjennomforingById";
 import { Bolk } from "../../../components/detaljside/Bolk";
@@ -8,21 +8,27 @@ import { Metadata } from "../../../components/detaljside/Metadata";
 import { TiltaksgjennomforingIkon } from "../../../components/ikoner/TiltaksgjennomforingIkon";
 import { Laster } from "../../../components/laster/Laster";
 import { Brodsmule, Brodsmuler } from "../../../components/navigering/Brodsmuler";
-import { useBesluttTilsagn } from "../../../components/tilsagn/useBesluttTilsagn";
 import { ContainerLayout } from "../../../layouts/ContainerLayout";
 import { formaterDato, formaterTall } from "../../../utils/Utils";
 import { DetaljerContainer } from "../../DetaljerContainer";
 import { DetaljerInfoContainer } from "../../DetaljerInfoContainer";
 import { useGetTilsagnById } from "./useGetTilsagnById";
 import { useHentAnsatt } from "../../../api/ansatt/useHentAnsatt";
+import { VarselModal } from "@/components/modal/VarselModal";
+import { useRef } from "react";
+import { TrashFillIcon } from "@navikt/aksel-icons";
+import { useAnnullerTilsagn } from "@/api/tilsagn/useAnnullerTilsagn";
+import { useBesluttTilsagn } from "@/api/tilsagn/useBesluttTilsagn";
 
 export function TilsagnDetaljer() {
   const { avtaleId, tiltaksgjennomforingId } = useParams();
   const { data: tilsagn } = useGetTilsagnById();
   const besluttMutation = useBesluttTilsagn();
+  const annullerMutation = useAnnullerTilsagn();
   const { data: tiltaksgjennomforing } = useTiltaksgjennomforingById();
   const { data: ansatt } = useHentAnsatt();
   const navigate = useNavigate();
+  const annullerModalRef = useRef<HTMLDialogElement>(null);
 
   const erPaaGjennomforingerForAvtale = useMatch(
     "/avtaler/:avtaleId/tiltaksgjennomforinger/:tiltaksgjennomforingId/opprett-tilsagn",
@@ -75,6 +81,12 @@ export function TilsagnDetaljer() {
     }
   }
 
+  function annullerTilsagn() {
+    if (tilsagn) {
+      annullerMutation.mutate({ id: tilsagn.id }, { onSuccess: navigerTilGjennomforing });
+    }
+  }
+
   if (!tiltaksgjennomforing || !tilsagn) {
     return <Laster tekst="Laster tilsagn..." />;
   }
@@ -86,22 +98,7 @@ export function TilsagnDetaljer() {
         <TiltaksgjennomforingIkon />
         <Heading size="large" level="2">
           <HStack gap="2" align={"center"}>
-            Tilsagn for {tiltaksgjennomforing.navn}
-            {tilsagn.besluttelse?.utfall ? (
-              tilsagn.besluttelse.utfall === TilsagnBesluttelse.GODKJENT ? (
-                <Tag variant="success" size="small">
-                  Godkjent
-                </Tag>
-              ) : (
-                <Tag variant="error" size="small">
-                  Avvist
-                </Tag>
-              )
-            ) : (
-              <Tag variant="info" size="small">
-                Til beslutning
-              </Tag>
-            )}
+            Tilsagn for {tiltaksgjennomforing.navn} <TilsagnTag tilsagn={tilsagn} />
           </HStack>
         </Heading>
       </Header>
@@ -137,19 +134,41 @@ export function TilsagnDetaljer() {
                 <Alert variant="error">Klarte ikke lagre beslutning</Alert>
               </BodyShort>
             ) : null}
-            {!tilsagn?.besluttelse &&
-            ansatt?.navIdent !== tilsagn.opprettetAv &&
-            ansatt?.roller.includes(NavAnsattRolle.OKONOMI_BESLUTTER) ? (
-              <HStack gap="2" justify={"space-between"}>
+            <HStack gap="2" justify={"space-between"}>
+              {!tilsagn?.besluttelse &&
+              ansatt?.navIdent !== tilsagn.opprettetAv &&
+              ansatt?.roller.includes(NavAnsattRolle.OKONOMI_BESLUTTER) ? (
                 <GodkjennAvvisTilsagnButtons
                   onGodkjennTilsagn={() => besluttTilsagn(TilsagnBesluttelse.GODKJENT)}
                   onAvvisTilsagn={() => besluttTilsagn(TilsagnBesluttelse.AVVIST)}
                 />
-                <Button variant="tertiary" size="small" onClick={navigerTilGjennomforing}>
-                  Avbryt
+              ) : (
+                <div></div>
+              )}
+              {!tilsagn.annullertTidspunkt && (
+                <Button
+                  variant="danger"
+                  size="small"
+                  onClick={() => annullerModalRef.current?.show()}
+                >
+                  Annuller
                 </Button>
-              </HStack>
-            ) : null}
+              )}
+            </HStack>
+            <VarselModal
+              headingIconType="warning"
+              headingText="Annuller tilsagn?"
+              modalRef={annullerModalRef}
+              handleClose={() => annullerModalRef.current?.close()}
+              body={null}
+              primaryButton={
+                <Button variant="danger" onClick={annullerTilsagn} icon={<TrashFillIcon />}>
+                  Ja, jeg vil annullere
+                </Button>
+              }
+              secondaryButton
+              secondaryButtonHandleAction={() => annullerModalRef.current?.close()}
+            />
           </DetaljerInfoContainer>
         </DetaljerContainer>
       </ContainerLayout>
@@ -176,4 +195,34 @@ function GodkjennAvvisTilsagnButtons({
       </Button>
     </HStack>
   );
+}
+
+function TilsagnTag(props: { tilsagn: TilsagnDto }) {
+  const { tilsagn } = props;
+
+  if (tilsagn?.besluttelse?.utfall === TilsagnBesluttelse.GODKJENT) {
+    return (
+      <Tag variant="success" size="small">
+        Godkjent
+      </Tag>
+    );
+  } else if (tilsagn?.besluttelse?.utfall === TilsagnBesluttelse.AVVIST) {
+    return (
+      <Tag variant="warning" size="small">
+        Avvist
+      </Tag>
+    );
+  } else if (tilsagn?.annullertTidspunkt) {
+    return (
+      <Tag variant="neutral" size="small">
+        Annullert
+      </Tag>
+    );
+  } else {
+    return (
+      <Tag variant="info" size="small">
+        Til beslutning
+      </Tag>
+    );
+  }
 }

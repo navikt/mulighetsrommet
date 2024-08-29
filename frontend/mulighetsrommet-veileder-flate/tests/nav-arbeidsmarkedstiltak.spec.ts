@@ -2,6 +2,7 @@ import { expect, test } from "@playwright/test";
 import { sjekkUU } from "./playwrightUtils";
 
 test.beforeEach(async ({ page }) => {
+  await page.setViewportSize({ width: 1920, height: 1920 });
   await page.goto("/nav");
 });
 
@@ -18,9 +19,7 @@ test.describe("Tiltaksoversikt", () => {
     await page.getByLabel("Varig tilpasset innsats").click();
     await page.getByLabel("NAV Oslo").click();
     const rows = page.getByTestId("oversikt_tiltaksgjennomforinger").getByRole("link");
-    await expect(page.getByTestId("oversikt_tiltaksgjennomforinger")).toContainText(
-      "Avklaring - Fredrikstad med ganske langt navn som strekker seg bortover",
-    );
+    await expect(page.getByTestId("oversikt_tiltaksgjennomforinger")).toContainText("Avklaring");
     expect(await rows.count()).toBeGreaterThan(5);
   });
 

@@ -1,21 +1,18 @@
-import { VeilederflateTiltaksgjennomforing } from "@mr/api-client";
+import { VeilederflateTiltak } from "@mr/api-client";
 import { ExternalLinkIcon } from "@navikt/aksel-icons";
 import { BodyShort, GuidePanel, Heading, Link, VStack } from "@navikt/ds-react";
-import { useTiltakstyperSomSnartStotterPameldingIModia } from "../../../api/queries/useTiltakstyperSomStotterPameldingIModia";
-import { TegnestiftIkon } from "../../../ikoner/TegnestiftIkon";
+import { useTiltakstyperSomSnartStotterPameldingIModia } from "@/api/queries/useTiltakstyperSomStotterPameldingIModia";
+import { TegnestiftIkon } from "@/ikoner/TegnestiftIkon";
 import styles from "./PameldingFraKometApnerSnart.module.scss";
 
 interface Props {
-  tiltaksgjennomforing: VeilederflateTiltaksgjennomforing;
+  tiltak: VeilederflateTiltak;
 }
 
-export function PameldingFraKometApnerSnart({ tiltaksgjennomforing }: Props) {
+export function PameldingFraKometApnerSnart({ tiltak }: Props) {
   const { data } = useTiltakstyperSomSnartStotterPameldingIModia();
 
-  if (
-    tiltaksgjennomforing?.tiltakstype?.tiltakskode &&
-    !data?.includes(tiltaksgjennomforing.tiltakstype.tiltakskode)
-  ) {
+  if (tiltak.tiltakstype?.tiltakskode && !data?.includes(tiltak.tiltakstype.tiltakskode)) {
     return null;
   }
 
@@ -26,7 +23,7 @@ export function PameldingFraKometApnerSnart({ tiltaksgjennomforing }: Props) {
     >
       <VStack gap="3">
         <Heading level="4" size="small" className={styles.text_center}>
-          Ny påmeldingsløsning i Modia kommer snart
+          Ny påmeldingsløsning er planlagt lansert 1. oktober
         </Heading>
         <BodyShort>
           Påmelding på arbeidsmarkedstiltak skal i fremtiden gjøres her i Modia. AFT-tiltaket er den

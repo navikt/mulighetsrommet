@@ -57,23 +57,6 @@ paths:
               schema:
                 type: string
 
-  /api/v1/intern/avtaler/{id}/behandle-personopplysninger:
-    parameters:
-      - $ref: "#/components/parameters/ID"
-    get:
-      tags:
-        - Avtaler
-      operationId: getBehandlingAvPersonopplysninger
-      responses:
-        200:
-          description: Hvilke personopplysninger kan behandles for avtalen
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/PersonopplysningData"
-
   /api/v1/intern/avtaler/{id}/avbryt:
     parameters:
       - $ref: "#/components/parameters/ID"
@@ -884,7 +867,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/VeilederflateTiltaksgjennomforing"
+                  $ref: "#/components/schemas/VeilederflateTiltak"
 
   /api/v1/intern/veileder/tiltaksgjennomforinger/{id}:
     get:
@@ -893,14 +876,13 @@ paths:
       operationId: getVeilederTiltaksgjennomforing
       parameters:
         - $ref: "#/components/parameters/ID"
-        - $ref: "#/components/parameters/EnheterParam"
       responses:
         200:
           description: Hent tiltaksgjennomføring for id
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/VeilederflateTiltaksgjennomforing"
+                $ref: "#/components/schemas/VeilederflateTiltak"
 
   /api/v1/intern/veileder/preview/tiltaksgjennomforinger:
     get:
@@ -921,7 +903,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/VeilederflateTiltaksgjennomforing"
+                  $ref: "#/components/schemas/VeilederflateTiltak"
 
   /api/v1/intern/veileder/preview/tiltaksgjennomforinger/{id}:
     get:
@@ -930,14 +912,13 @@ paths:
       operationId: getPreviewTiltaksgjennomforing
       parameters:
         - $ref: "#/components/parameters/ID"
-        - $ref: "#/components/parameters/EnheterParam"
       responses:
         200:
           description: Hent tiltaksgjennomføring for id
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/VeilederflateTiltaksgjennomforing"
+                $ref: "#/components/schemas/VeilederflateTiltak"
 
   /api/v1/intern/veileder/nav/tiltaksgjennomforinger:
     get:
@@ -958,7 +939,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/VeilederflateTiltaksgjennomforing"
+                  $ref: "#/components/schemas/VeilederflateTiltak"
 
   /api/v1/intern/veileder/nav/tiltaksgjennomforinger/{id}:
     get:
@@ -973,7 +954,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/VeilederflateTiltaksgjennomforing"
+                $ref: "#/components/schemas/VeilederflateTiltak"
 
   /api/v1/intern/bruker/historikk:
     post:
@@ -1775,7 +1756,7 @@ paths:
     delete:
       tags:
         - Tilsagn
-      operationId: deleteTilsagn
+      operationId: annullerTilsagn
       responses:
         200:
           description: OK
@@ -3001,9 +2982,6 @@ components:
               type: string
               nullable: true
           nullable: true
-        arrangorNavn:
-          type: string
-          nullable: true
       required:
         - id
         - eierskap
@@ -3380,56 +3358,103 @@ components:
         - navn
         - kanKombineresMed
 
-    VeilederflateTiltaksgjennomforing:
+    VeilederflateTiltak:
+      oneOf:
+        - $ref: "#/components/schemas/VeilederflateTiltakGruppe"
+        - $ref: "#/components/schemas/VeilederflateTiltakArbeidsgiver"
+
+    VeilederflateTiltakGruppe:
       type: object
       properties:
+        type:
+          const: "TILTAK_GRUPPE"
+        tiltakstype:
+          $ref: "#/components/schemas/VeilederflateTiltakstype"
+        tiltaksnummer:
+          type: string
+        status:
+          $ref: "#/components/schemas/TiltaksgjennomforingStatusDto"
+        beskrivelse:
+          type: string
+        faneinnhold:
+          $ref: "#/components/schemas/Faneinnhold"
+        kontaktinfo:
+          $ref: "#/components/schemas/VeilederflateKontaktInfo"
+        oppstart:
+          $ref: "#/components/schemas/TiltaksgjennomforingOppstartstype"
         id:
           type: string
           format: uuid
-        avtaleId:
-          type: string
-          format: uuid
-        sanityId:
-          type: string
-        tiltakstype:
-          $ref: "#/components/schemas/VeilederflateTiltakstype"
         navn:
           type: string
-        beskrivelse:
-          type: string
-        tiltaksnummer:
-          type: string
-        arrangor:
-          $ref: "#/components/schemas/VeilderflateArrangor"
         stedForGjennomforing:
           type: string
-        oppstart:
-          $ref: "#/components/schemas/TiltaksgjennomforingOppstartstype"
+        apentForInnsok:
+          type: boolean
         oppstartsdato:
           type: string
         sluttdato:
           type: string
-        faneinnhold:
-          $ref: "#/components/schemas/Faneinnhold"
-        apentForInnsok:
-          type: boolean
-        kontaktinfo:
-          $ref: "#/components/schemas/VeilederflateKontaktInfo"
+        arrangor:
+          $ref: "#/components/schemas/VeilderflateArrangor"
+        fylke:
+          type: string
         estimertVentetid:
           $ref: "#/components/schemas/EstimertVentetid"
           nullable: true
         personvernBekreftet:
           type: boolean
-        fylke:
+        personopplysningerSomKanBehandles:
+          type: array
+          items:
+            $ref: "#/components/schemas/PersonopplysningData"
+      required:
+        - tiltakstype
+        - status
+        - kontaktinfo
+        - oppstart
+        - id
+        - navn
+        - apentForInnsok
+        - oppstartsdato
+        - arrangor
+        - personvernBekreftet
+        - personopplysningerSomKanBehandles
+
+    VeilederflateTiltakArbeidsgiver:
+      type: object
+      properties:
+        type:
+          const: "TILTAK_ARBEIDSGIVER"
+        tiltakstype:
+          $ref: "#/components/schemas/VeilederflateTiltakstype"
+        tiltaksnummer:
           type: string
         status:
           $ref: "#/components/schemas/TiltaksgjennomforingStatusDto"
+        beskrivelse:
+          type: string
+        faneinnhold:
+          $ref: "#/components/schemas/Faneinnhold"
+        kontaktinfo:
+          $ref: "#/components/schemas/VeilederflateKontaktInfo"
+        oppstart:
+          const: LOPENDE
+        sanityId:
+          type: string
+        navn:
+          type: string
+        stedForGjennomforing:
+          type: string
+        fylke:
+          type: string
       required:
-        - navn
         - tiltakstype
-        - apentForInnsok
-        - oppstart
         - status
+        - kontaktinfo
+        - oppstart
+        - sanityId
+        - navn
 
     RegelverkLenke:
       type: object
@@ -3588,7 +3613,7 @@ components:
           type: string
         enhet:
           $ref: "#/components/schemas/NavEnhet"
-        telefonnummer:
+        telefon:
           type: string
         epost:
           type: string
@@ -4546,19 +4571,7 @@ components:
         beregning:
           $ref: "#/components/schemas/TilsagnBeregning"
         besluttelse:
-          type: object
-          properties:
-            navIdent:
-              type: string
-            tidspunkt:
-              type: string
-              format: date-time
-            utfall:
-              $ref: "#/components/schemas/TilsagnBesluttelse"
-          required:
-            - navIdent
-            - tidspunkt
-            - utfall
+          $ref: "#/components/schemas/TilsagnBesluttelseDto"
         annullertTidspunkt:
           type: string
           format: date-time
@@ -4596,6 +4609,21 @@ components:
         - lopenummer
         - opprettetAv
 
+    TilsagnBesluttelseDto:
+      type: object
+      properties:
+        navIdent:
+          type: string
+        tidspunkt:
+          type: string
+          format: date-time
+        utfall:
+          $ref: "#/components/schemas/TilsagnBesluttelse"
+      required:
+        - navIdent
+        - tidspunkt
+        - utfall
+
     TilsagnBesluttelse:
       type: string
       enum:
@@ -4610,8 +4638,8 @@ components:
 
     TilsagnBeregning:
       oneOf:
-        - $ref: '#/components/schemas/TilsagnBeregningAFT'
-        - $ref: '#/components/schemas/TilsagnBeregningFri'
+        - $ref: "#/components/schemas/TilsagnBeregningAFT"
+        - $ref: "#/components/schemas/TilsagnBeregningFri"
 
     TilsagnBeregningAFT:
       type: object
@@ -4655,8 +4683,8 @@ components:
 
     TilsagnBeregningInput:
       oneOf:
-        - $ref: '#/components/schemas/TilsagnBeregningInputAFT'
-        - $ref: '#/components/schemas/TilsagnBeregningInputFri'
+        - $ref: "#/components/schemas/TilsagnBeregningInputAFT"
+        - $ref: "#/components/schemas/TilsagnBeregningInputFri"
 
     TilsagnBeregningInputAFT:
       properties:

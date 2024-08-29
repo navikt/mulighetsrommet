@@ -7,10 +7,8 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import kotliquery.TransactionalSession
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
-import no.nav.mulighetsrommet.api.domain.dto.EndringshistorikkDto
-import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingAdminDto
-import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingNotificationDto
-import no.nav.mulighetsrommet.api.domain.dto.VeilederflateTiltaksgjennomforing
+import no.nav.mulighetsrommet.api.domain.dto.*
+import no.nav.mulighetsrommet.api.okonomi.tilsagn.TilsagnRepository
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.responses.*
@@ -39,6 +37,7 @@ import java.util.*
 class TiltaksgjennomforingService(
     private val avtaler: AvtaleRepository,
     private val tiltaksgjennomforinger: TiltaksgjennomforingRepository,
+    private val tilsagn: TilsagnRepository,
     private val tiltaksgjennomforingKafkaProducer: SisteTiltaksgjennomforingerV1KafkaProducer,
     private val notificationRepository: NotificationRepository,
     private val validator: TiltaksgjennomforingValidator,
@@ -100,19 +99,23 @@ class TiltaksgjennomforingService(
         PaginatedResponse.of(pagination, totalCount, data)
     }
 
+    fun getVeilederflateTiltaksgjennomforing(id: UUID): VeilederflateTiltakGruppe? {
+        return tiltaksgjennomforinger.getVeilederflateTiltaksgjennomforing(id)
+    }
+
     fun getAllVeilederflateTiltaksgjennomforing(
         search: String?,
         apentForInnsok: Boolean?,
         sanityTiltakstypeIds: List<UUID>?,
         innsatsgruppe: Innsatsgruppe,
         enheter: List<String>,
-    ): List<VeilederflateTiltaksgjennomforing> =
+    ): List<VeilederflateTiltak> =
         tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
-            search,
-            apentForInnsok,
-            sanityTiltakstypeIds,
-            innsatsgruppe,
-            enheter,
+            innsatsgruppe = innsatsgruppe,
+            brukersEnheter = enheter,
+            search = search,
+            apentForInnsok = apentForInnsok,
+            sanityTiltakstypeIds = sanityTiltakstypeIds,
         )
 
     fun getEkstern(id: UUID): TiltaksgjennomforingV1Dto? {
@@ -223,6 +226,12 @@ class TiltaksgjennomforingService(
 
         if (!gjennomforing.isAktiv()) {
             return Either.Left(BadRequest(message = "Gjennomføringen er allerede avsluttet og kan derfor ikke avbrytes."))
+        }
+
+        val aktiveTilsagn = tilsagn.getByGjennomforingId(gjennomforing.id)
+            .filter { it.annullertTidspunkt == null }
+        if (aktiveTilsagn.isNotEmpty()) {
+            return Either.Left(BadRequest(message = "Gjennomføringen har aktive tilsagn"))
         }
 
         db.transaction { tx ->

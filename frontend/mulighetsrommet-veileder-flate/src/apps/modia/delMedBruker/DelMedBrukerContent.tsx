@@ -1,5 +1,5 @@
 import { Alert, ErrorMessage, Textarea } from "@navikt/ds-react";
-import { DelMedBruker, VeilederflateTiltaksgjennomforing } from "@mr/api-client";
+import { DelMedBruker, VeilederflateTiltak } from "@mr/api-client";
 import React, { Dispatch, useEffect, useRef } from "react";
 import { erPreview, formaterDato } from "@/utils/Utils";
 import styles from "./Delemodal.module.scss";
@@ -16,7 +16,7 @@ interface Props {
   veiledernavn?: string;
   brukernavn?: string;
   harDeltMedBruker?: DelMedBruker;
-  tiltaksgjennomforing: VeilederflateTiltaksgjennomforing;
+  tiltak: VeilederflateTiltak;
   enableRedigerDeletekst: boolean;
 }
 
@@ -26,7 +26,7 @@ export function DelMedBrukerContent({
   veiledernavn,
   brukernavn,
   harDeltMedBruker,
-  tiltaksgjennomforing,
+  tiltak,
   enableRedigerDeletekst,
 }: Props) {
   const endreDeletekstRef = useRef<HTMLTextAreaElement>(null);
@@ -95,7 +95,7 @@ export function DelMedBrukerContent({
         </ErrorMessage>
       ) : null}
 
-      {!getDelMedBrukerTekst(tiltaksgjennomforing) ? (
+      {!getDelMedBrukerTekst(tiltak) ? (
         <ErrorMessage className={styles.feilmeldinger}>
           • Mangler ferdigutfylt tekst som kan deles med bruker{" "}
         </ErrorMessage>

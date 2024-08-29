@@ -7,6 +7,7 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import { OmArbeidsmarkedstiltak } from "./OmArbeidsmarkedstiltak";
 import { NavArbeidsmarkedstiltakDetaljer } from "./views/NavArbeidsmarkedstiltakDetaljer";
 import { NavArbeidsmarkedstiltakOversikt } from "./views/NavArbeidsmarkedstiltakOversikt";
+import { ArbeidsmarkedstiltakDetaljerSuspense } from "@/components/suspense/ArbeidsmarkedstiltakDetaljerSuspense";
 
 export function NavArbeidsmarkedstiltak() {
   return (
@@ -19,7 +20,14 @@ export function NavArbeidsmarkedstiltak() {
     >
       <Routes>
         <Route path="oversikt" element={<NavArbeidsmarkedstiltakOversikt />} />
-        <Route path="tiltak/:id/*" element={<NavArbeidsmarkedstiltakDetaljer />} />
+        <Route
+          path="tiltak/:id/*"
+          element={
+            <ArbeidsmarkedstiltakDetaljerSuspense>
+              <NavArbeidsmarkedstiltakDetaljer />
+            </ArbeidsmarkedstiltakDetaljerSuspense>
+          }
+        />
         <Route path="om" element={<OmArbeidsmarkedstiltak />} />
         <Route path="*" element={<Navigate replace to="./oversikt" />} />
       </Routes>

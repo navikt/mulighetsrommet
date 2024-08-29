@@ -1,9 +1,9 @@
 import { QueryKeys } from "@/api/query-keys";
-import { useQuery } from "@tanstack/react-query";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { DelMedBrukerService } from "@mr/api-client";
 
 export function useHentDeltMedBrukerStatus(norskIdent: string, gjennomforingId: string) {
-  const { data: delMedBrukerInfo } = useQuery({
+  const { data: delMedBrukerInfo } = useSuspenseQuery({
     queryKey: [...QueryKeys.DeltMedBrukerStatus, norskIdent, gjennomforingId],
     queryFn: async () => {
       const result = await DelMedBrukerService.getDelMedBruker({

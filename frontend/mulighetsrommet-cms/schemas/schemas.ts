@@ -1,7 +1,6 @@
 import { blockContent } from "./blockContent";
 import { tiltakstype } from "./tiltakstype";
 import { tiltaksgjennomforing } from "./tiltaksgjennomforing";
-import { arrangor } from "./arrangor";
 import { navKontaktperson } from "./navKontaktperson";
 import { enhet } from "./enhet";
 import { regelverklenke } from "./regelverklenke";
@@ -20,7 +19,6 @@ export const schemas = [
   // in the studio.
   tiltakstype,
   tiltaksgjennomforing,
-  arrangor,
   navKontaktperson,
   enhet,
   regelverklenke,

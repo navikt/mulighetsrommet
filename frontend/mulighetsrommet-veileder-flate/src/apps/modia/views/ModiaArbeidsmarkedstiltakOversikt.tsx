@@ -1,18 +1,15 @@
 import { useFeatureToggle } from "@/api/feature-toggles";
-import { useVeilederTiltaksgjennomforinger } from "@/api/queries/useTiltaksgjennomforinger";
+import { useModiaArbeidsmarkedstiltak } from "@/api/queries/useArbeidsmarkedstiltak";
 import { ModiaFiltertags } from "@/apps/modia/filtrering/ModiaFiltertags";
 import { useHentAlleTiltakDeltMedBruker } from "@/apps/modia/hooks/useHentAlleTiltakDeltMedBruker";
-import { useHentBrukerdata } from "@/apps/modia/hooks/useHentBrukerdata";
 import { FiltrertFeilInnsatsgruppeVarsel } from "@/apps/modia/varsler/FiltrertFeilInnsatsgruppeVarsel";
-import { PortenLink } from "@/components/PortenLink";
 import { Feilmelding } from "@/components/feilmelding/Feilmelding";
 import { OversiktenJoyride } from "@/components/joyride/OversiktenJoyride";
-import { Tiltaksgjennomforingsoversikt } from "@/components/oversikt/Tiltaksgjennomforingsoversikt";
+import { ArbeidsmarkedstiltakList } from "@/components/oversikt/ArbeidsmarkedstiltakList";
 import { Tilbakeknapp } from "@/components/tilbakeknapp/Tilbakeknapp";
 import { useResetArbeidsmarkedstiltakFilterMedBrukerIKontekst } from "@/hooks/useArbeidsmarkedstiltakFilter";
-import { Alert } from "@navikt/ds-react";
-import { ApiError, Toggles } from "@mr/api-client";
-import { ListSkeleton, useTitle } from "@mr/frontend-common";
+import { Toggles } from "@mr/api-client";
+import { ListSkeleton, useOpenFilterWhenThreshold, useTitle } from "@mr/frontend-common";
 import { TilToppenKnapp } from "@mr/frontend-common/components/tilToppenKnapp/TilToppenKnapp";
 import { useEffect, useState } from "react";
 import { ModiaOversiktBrukerVarsler } from "../varsler/ModiaOversiktBrukerVarsler";
@@ -23,8 +20,7 @@ import { Filtermeny } from "@/components/filtrering/Filtermeny";
 
 export function ModiaArbeidsmarkedstiltakOversikt() {
   useTitle("Arbeidsmarkedstiltak - Oversikt");
-  const [filterOpen, setFilterOpen] = useState<boolean>(true);
-  const { data: brukerdata } = useHentBrukerdata();
+  const [filterOpen, setFilterOpen] = useOpenFilterWhenThreshold(1450);
   const { alleTiltakDeltMedBruker } = useHentAlleTiltakDeltMedBruker();
 
   const { filter, filterHasChanged, resetFilterToDefaults } =
@@ -35,37 +31,11 @@ export function ModiaArbeidsmarkedstiltakOversikt() {
   const [isHistorikkModalOpen, setIsHistorikkModalOpen] = useState(false);
   const [tagsHeight, setTagsHeight] = useState(0);
 
-  const {
-    data: tiltaksgjennomforinger = [],
-    isLoading,
-    isError,
-    error,
-  } = useVeilederTiltaksgjennomforinger();
+  const { data: tiltak = [], isPending } = useModiaArbeidsmarkedstiltak();
 
   useEffect(() => {
     setIsHistorikkModalOpen(isHistorikkModalOpen);
   }, [isHistorikkModalOpen]);
-
-  if (!brukerdata) {
-    return null;
-  }
-
-  if (isError) {
-    return (
-      <Alert variant="error">
-        Det har dessverre skjedd en feil. Om feilen gjentar seg, ta kontakt i <PortenLink />.
-        {error instanceof ApiError ? (
-          <pre>
-            {JSON.stringify(
-              { message: error.message, status: error.status, url: error.url },
-              null,
-              2,
-            )}
-          </pre>
-        ) : null}
-      </Alert>
-    );
-  }
 
   return (
     <>
@@ -93,33 +63,29 @@ export function ModiaArbeidsmarkedstiltakOversikt() {
         filter={<Filtermeny />}
         tags={<ModiaFiltertags filterOpen={filterOpen} setTagsHeight={setTagsHeight} />}
         table={
-          <>
-            <Tiltaksgjennomforingsoversikt
-              tiltaksgjennomforinger={tiltaksgjennomforinger}
-              deltMedBruker={alleTiltakDeltMedBruker ?? undefined}
-              filterOpen={filterOpen}
-              varsler={
-                <>
-                  <ModiaOversiktBrukerVarsler brukerdata={brukerdata} />
-                  <FiltrertFeilInnsatsgruppeVarsel filter={filter} />
-                </>
-              }
-              feilmelding={
-                tiltaksgjennomforinger.length === 0 ? (
-                  isLoading ? (
-                    <ListSkeleton />
-                  ) : (
-                    <Feilmelding
-                      header="Ingen tiltaksgjennomføringer funnet"
-                      beskrivelse="Prøv å justere søket eller filteret for å finne det du leter etter"
-                      ikonvariant="warning"
-                    />
-                  )
-                ) : null
-              }
-              tagsHeight={tagsHeight}
-            />
-          </>
+          <ArbeidsmarkedstiltakList
+            tiltak={tiltak}
+            deltMedBruker={alleTiltakDeltMedBruker ?? undefined}
+            filterOpen={filterOpen}
+            varsler={
+              <>
+                <ModiaOversiktBrukerVarsler />
+                <FiltrertFeilInnsatsgruppeVarsel filter={filter} />
+              </>
+            }
+            feilmelding={
+              isPending ? (
+                <ListSkeleton />
+              ) : tiltak.length === 0 ? (
+                <Feilmelding
+                  header="Ingen tiltaksgjennomføringer funnet"
+                  beskrivelse="Prøv å justere søket eller filteret for å finne det du leter etter"
+                  ikonvariant="warning"
+                />
+              ) : null
+            }
+            tagsHeight={tagsHeight}
+          />
         }
       />
       <TilToppenKnapp />

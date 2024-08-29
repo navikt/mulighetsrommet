@@ -1,13 +1,10 @@
-import { Bruker } from "@mr/api-client";
 import { BrukerIkkeUnderOppfolgingVarsel } from "./BrukerIkkeUnderOppfolgingVarsel";
 import { BrukerUnderOppfolgingMenMangler14aVedtakVarsel } from "./BrukerUnderOppfolgingMenMangler14aVedtakVarsel";
 import { BrukersOppfolgingsenhetVarsel } from "./BrukersOppfolgingsenhetVarsel";
+import { useHentBrukerdata } from "@/apps/modia/hooks/useHentBrukerdata";
 
-interface Props {
-  brukerdata: Bruker;
-}
-
-export function ModiaOversiktBrukerVarsler({ brukerdata }: Props) {
+export function ModiaOversiktBrukerVarsler() {
+  const { data: brukerdata } = useHentBrukerdata();
   return (
     <>
       <BrukerUnderOppfolgingMenMangler14aVedtakVarsel brukerdata={brukerdata} />

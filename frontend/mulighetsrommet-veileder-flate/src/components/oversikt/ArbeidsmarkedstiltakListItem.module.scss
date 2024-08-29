@@ -77,19 +77,4 @@
       justify-content: initial;
     }
   }
-
-  .muted {
-    color: var(--a-text-subtle);
-    font-size: 14px;
-  }
-
-  .truncate {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .as_link {
-    color: #0067c5;
-  }
 }

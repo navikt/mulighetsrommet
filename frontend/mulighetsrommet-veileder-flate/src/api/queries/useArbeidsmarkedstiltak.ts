@@ -6,21 +6,21 @@ import {
 } from "@/hooks/useArbeidsmarkedstiltakFilter";
 import { NavEnhet, VeilederTiltakService } from "@mr/api-client";
 
-export function useVeilederTiltaksgjennomforinger() {
+export function useModiaArbeidsmarkedstiltak() {
   const { isFilterReady, filter } = useGetArbeidsmarkedstiltakFilterAsQuery();
 
   return useQuery({
-    queryKey: QueryKeys.arbeidsmarkedstiltak.tiltaksgjennomforinger(filter),
+    queryKey: QueryKeys.arbeidsmarkedstiltak.tiltak(filter),
     queryFn: () => VeilederTiltakService.getVeilederTiltaksgjennomforinger(filter),
     enabled: isFilterReady,
   });
 }
 
-export function useNavTiltaksgjennomforinger({ preview }: { preview: boolean }) {
+export function useNavArbeidsmarkedstiltak({ preview }: { preview: boolean }) {
   const { isFilterReady, filter } = useGetArbeidsmarkedstiltakFilterAsQuery();
 
   return useQuery({
-    queryKey: QueryKeys.arbeidsmarkedstiltak.tiltaksgjennomforinger({ ...filter, preview }),
+    queryKey: QueryKeys.arbeidsmarkedstiltak.tiltak({ ...filter, preview }),
     queryFn() {
       return preview
         ? VeilederTiltakService.getPreviewTiltaksgjennomforinger(filter)

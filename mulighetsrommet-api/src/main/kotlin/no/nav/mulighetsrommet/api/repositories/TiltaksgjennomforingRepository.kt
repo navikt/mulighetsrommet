@@ -27,6 +27,7 @@ import no.nav.mulighetsrommet.domain.dto.AvbruttAarsak
 import no.nav.mulighetsrommet.domain.dto.AvbruttDto
 import no.nav.mulighetsrommet.domain.dto.Innsatsgruppe
 import no.nav.mulighetsrommet.domain.dto.NavIdent
+import no.nav.mulighetsrommet.domain.dto.Personopplysning
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatusDto
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
@@ -461,74 +462,44 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         }
     }
 
+    fun getVeilederflateTiltaksgjennomforing(id: UUID): VeilederflateTiltakGruppe? {
+        @Language("PostgreSQL")
+        val query = """
+            select *
+            from veilederflate_tiltak_view
+            where id = :id::uuid
+        """.trimIndent()
+
+        return queryOf(query, mapOf("id" to id))
+            .map { it.toVeilederflateTiltaksgjennomforing() }
+            .asSingle
+            .let { db.run(it) }
+    }
+
     fun getAllVeilederflateTiltaksgjennomforing(
+        innsatsgruppe: Innsatsgruppe,
+        brukersEnheter: List<String>,
         search: String? = null,
         apentForInnsok: Boolean? = null,
         sanityTiltakstypeIds: List<UUID>? = null,
-        innsatsgruppe: Innsatsgruppe,
-        brukersEnheter: List<String>,
-    ): List<VeilederflateTiltaksgjennomforing> {
+    ): List<VeilederflateTiltak> {
         val parameters = mapOf(
+            "innsatsgruppe" to innsatsgruppe.name,
+            "brukers_enheter" to db.createTextArray(brukersEnheter),
             "search" to search?.let { "%${it.replace("/", "#").trim()}%" },
             "apent_for_innsok" to apentForInnsok,
             "sanityTiltakstypeIds" to sanityTiltakstypeIds?.let { db.createUuidArray(it) },
-            "innsatsgruppe" to innsatsgruppe.name,
-            "brukersEnheter" to db.createTextArray(brukersEnheter),
         )
 
         @Language("PostgreSQL")
         val query = """
-            select
-                gjennomforing.id,
-                a.id as avtale_id,
-                gjennomforing.navn,
-                gjennomforing.sted_for_gjennomforing,
-                gjennomforing.apent_for_innsok,
-                gjennomforing.tiltaksnummer,
-                gjennomforing.oppstart,
-                gjennomforing.start_dato,
-                gjennomforing.slutt_dato,
-                gjennomforing.estimert_ventetid_verdi,
-                gjennomforing.estimert_ventetid_enhet,
-                gjennomforing.beskrivelse,
-                gjennomforing.faneinnhold,
-                gjennomforing.nav_region,
-                array_agg(nav_enhet.enhetsnummer) as nav_enheter,
-                arrangor.id as arrangor_id,
-                arrangor.organisasjonsnummer as arrangor_organisasjonsnummer,
-                arrangor.navn                 as arrangor_navn,
-                jsonb_agg(distinct
-                    case when ak.tiltaksgjennomforing_id is null then null::jsonb
-                    else jsonb_build_object(
-                        'id', arrangor_kontaktperson.id,
-                        'navn', arrangor_kontaktperson.navn,
-                        'telefon', arrangor_kontaktperson.telefon,
-                        'epost', arrangor_kontaktperson.epost,
-                        'beskrivelse', arrangor_kontaktperson.beskrivelse
-                    ) end
-                ) as arrangor_kontaktpersoner_json,
-                tiltakstype.sanity_id as tiltakstype_sanity_id,
-                tiltakstype.navn as tiltakstype_navn,
-                a.personvern_bekreftet,
-                gjennomforing.avbrutt_tidspunkt,
-                tiltaksgjennomforing_status(gjennomforing.start_dato, gjennomforing.slutt_dato, gjennomforing.avbrutt_tidspunkt) as status,
-                gjennomforing.avbrutt_tidspunkt,
-                gjennomforing.avbrutt_aarsak
-            from tiltaksgjennomforing gjennomforing
-                inner join tiltakstype on gjennomforing.tiltakstype_id = tiltakstype.id
-                left join tiltaksgjennomforing_nav_enhet nav_enhet on nav_enhet.tiltaksgjennomforing_id = gjennomforing.id
-                left join arrangor on arrangor.id = gjennomforing.arrangor_id
-                left join tiltaksgjennomforing_arrangor_kontaktperson ak on ak.tiltaksgjennomforing_id = gjennomforing.id
-                left join arrangor_kontaktperson on arrangor_kontaktperson.id = ak.arrangor_kontaktperson_id
-                left join avtale a on a.id = gjennomforing.avtale_id
-            where tiltakstype.tiltakskode is not null
-              and gjennomforing.publisert
-              and (:search::text is null or ((lower(gjennomforing.navn) like lower(:search)) or (gjennomforing.tiltaksnummer like :search)))
-              and (:sanityTiltakstypeIds::uuid[] is null or tiltakstype.sanity_id = any(:sanityTiltakstypeIds))
-              and (:innsatsgruppe::innsatsgruppe is null or :innsatsgruppe::innsatsgruppe = any(tiltakstype.innsatsgrupper))
-              and (:apent_for_innsok::boolean is null or gjennomforing.apent_for_innsok = :apent_for_innsok)
-            group by gjennomforing.id, tiltakstype.id, arrangor.id, a.id
-            having array_agg(nav_enhet.enhetsnummer) && :brukersEnheter
+            select *
+            from veilederflate_tiltak_view
+            where :innsatsgruppe::innsatsgruppe = any(tiltakstype_innsatsgrupper)
+              and nav_enheter && :brukers_enheter
+              and (:search::text is null or ((lower(navn) like lower(:search)) or (tiltaksnummer like :search)))
+              and (:sanityTiltakstypeIds::uuid[] is null or tiltakstype_sanity_id = any(:sanityTiltakstypeIds))
+              and (:apent_for_innsok::boolean is null or apent_for_innsok = :apent_for_innsok)
         """.trimIndent()
 
         return queryOf(query, parameters)
@@ -660,7 +631,9 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         return queryOf(query, avtaleId, gjennomforingId).asUpdate.let { tx.run(it) }
     }
 
-    fun avbryt(id: UUID, tidspunkt: LocalDateTime, aarsak: AvbruttAarsak): Int = db.transaction { avbryt(it, id, tidspunkt, aarsak) }
+    fun avbryt(id: UUID, tidspunkt: LocalDateTime, aarsak: AvbruttAarsak): Int = db.transaction {
+        avbryt(it, id, tidspunkt, aarsak)
+    }
 
     fun avbryt(tx: Session, id: UUID, tidspunkt: LocalDateTime, aarsak: AvbruttAarsak): Int {
         @Language("PostgreSQL")
@@ -738,21 +711,28 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         },
     )
 
-    private fun Row.toVeilederflateTiltaksgjennomforing(): VeilederflateTiltaksgjennomforing {
-        val navEnheter = arrayOrNull<String?>("nav_enheter")?.asList()?.filterNotNull() ?: emptyList()
-        val arrangorKontaktpersoner = Json
-            .decodeFromString<List<VeilederflateArrangorKontaktperson?>>(string("arrangor_kontaktpersoner_json"))
-            .filterNotNull()
+    private fun Row.toVeilederflateTiltaksgjennomforing(): VeilederflateTiltakGruppe {
+        val navEnheter = arrayOrNull<String>("nav_enheter")?.asList() ?: emptyList()
+        val personopplysningerSomKanBehandles = arrayOrNull<String>("personopplysninger_som_kan_behandles")
+            ?.asList()
+            ?.map { Personopplysning.valueOf(it).toPersonopplysningData() }
+            ?: emptyList()
+        val tiltaksansvarlige = stringOrNull("nav_kontaktpersoner_json")
+            ?.let { Json.decodeFromString<List<VeilederflateKontaktinfoTiltaksansvarlig>>(it) }
+            ?: emptyList()
+        val arrangorKontaktpersoner = stringOrNull("arrangor_kontaktpersoner_json")
+            ?.let { Json.decodeFromString<List<VeilederflateArrangorKontaktperson>>(it) }
+            ?: emptyList()
 
         val avbruttTidspunkt = localDateTimeOrNull("avbrutt_tidspunkt")
         val avbruttAarsak = stringOrNull("avbrutt_aarsak")?.let { AvbruttAarsak.fromString(it) }
 
-        return VeilederflateTiltaksgjennomforing(
-            id = uuidOrNull("id"),
-            avtaleId = uuidOrNull("avtale_id"),
+        return VeilederflateTiltakGruppe(
+            id = uuid("id"),
             tiltakstype = VeilederflateTiltakstype(
                 sanityId = uuid("tiltakstype_sanity_id").toString(),
                 navn = string("tiltakstype_navn"),
+                tiltakskode = stringOrNull("tiltakstype_tiltakskode")?.let { Tiltakskode.valueOf(it) },
             ),
             navn = string("navn"),
             stedForGjennomforing = stringOrNull("sted_for_gjennomforing"),
@@ -761,6 +741,10 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             oppstart = TiltaksgjennomforingOppstartstype.valueOf(string("oppstart")),
             oppstartsdato = localDate("start_dato"),
             sluttdato = localDateOrNull("slutt_dato"),
+            kontaktinfo = VeilederflateKontaktinfo(
+                varsler = listOf(),
+                tiltaksansvarlige = tiltaksansvarlige,
+            ),
             arrangor = VeilederflateArrangor(
                 arrangorId = uuid("arrangor_id"),
                 organisasjonsnummer = string("arrangor_organisasjonsnummer"),
@@ -778,6 +762,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 )
             },
             personvernBekreftet = boolean("personvern_bekreftet"),
+            personopplysningerSomKanBehandles = personopplysningerSomKanBehandles,
             status = TiltaksgjennomforingStatusDto(
                 TiltaksgjennomforingStatus.valueOf(string("status")),
                 avbruttTidspunkt?.let {

@@ -1,4 +1,4 @@
-import { LagredeFilterOversikt, useTitle } from "@mr/frontend-common";
+import { LagredeFilterOversikt, useTitle, useOpenFilterWhenThreshold } from "@mr/frontend-common";
 import { AvtaleFilterSchema, getAvtalerForTiltakstypeFilterAtom } from "@/api/atoms";
 import { AvtaleTabell } from "@/components/tabell/AvtaleTabell";
 import { useGetTiltakstypeIdFromUrlOrThrow } from "@/hooks/useGetTiltakstypeIdFromUrl";
@@ -18,7 +18,7 @@ export function AvtalerForTiltakstypePage() {
 
   const tiltakstypeId = useGetTiltakstypeIdFromUrlOrThrow();
   const filterAtom = getAvtalerForTiltakstypeFilterAtom(tiltakstypeId);
-  const [filterOpen, setFilterOpen] = useState<boolean>(true);
+  const [filterOpen, setFilterOpen] = useOpenFilterWhenThreshold(1450);
   const [tagsHeight, setTagsHeight] = useState(0);
   const [filter, setFilter] = useAtom(filterAtom);
 

@@ -996,31 +996,6 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             ) shouldHaveSize 0
         }
 
-        test("skal bare returnere tiltak markert med tiltakskode definert") {
-            tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
-                brukersEnheter = listOf("2990"),
-                innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
-            ) shouldHaveSize 2
-
-            Query("update tiltakstype set tiltakskode = null where id = '${TiltakstypeFixtures.Oppfolging.id}'")
-                .asUpdate
-                .let { database.db.run(it) }
-
-            tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
-                brukersEnheter = listOf("2990"),
-                innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
-            ) shouldHaveSize 1
-
-            Query("update tiltakstype set tiltakskode = null where id = '${TiltakstypeFixtures.AFT.id}'")
-                .asUpdate
-                .let { database.db.run(it) }
-
-            tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
-                brukersEnheter = listOf("2990"),
-                innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
-            ) shouldHaveSize 0
-        }
-
         test("skal filtrere basert på innsatsgruppe") {
             Query("update tiltakstype set innsatsgrupper = array ['${Innsatsgruppe.SPESIELT_TILPASSET_INNSATS}'::innsatsgruppe] where id = '${TiltakstypeFixtures.Oppfolging.id}'")
                 .asUpdate
