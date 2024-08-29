@@ -1,4 +1,7 @@
-import { usePreviewTiltaksgjennomforingById } from "@/api/queries/useTiltaksgjennomforingById";
+import {
+  isTiltakGruppe,
+  usePreviewArbeidsmarkedstiltakById,
+} from "@/api/queries/useArbeidsmarkedstiltakById";
 import { DelMedBruker } from "@/apps/modia/delMedBruker/DelMedBruker";
 import { Tilbakeknapp } from "@/components/tilbakeknapp/Tilbakeknapp";
 import { ViewTiltaksgjennomforingDetaljer } from "@/layouts/ViewTiltaksgjennomforingDetaljer";
@@ -7,18 +10,9 @@ import { Innsatsgruppe, NavEnhetStatus, NavEnhetType } from "@mr/api-client";
 import { InlineErrorBoundary } from "@/ErrorBoundary";
 import { PersonvernContainer } from "@/components/personvern/PersonvernContainer";
 import { LenkeListe } from "@/components/sidemeny/Lenker";
-import { DetaljerSkeleton } from "@mr/frontend-common";
 
 export function PreviewArbeidsmarkedstiltakDetaljer() {
-  const { data, isPending, isError } = usePreviewTiltaksgjennomforingById();
-
-  if (isPending) {
-    return <DetaljerSkeleton />;
-  }
-
-  if (isError) {
-    return <Alert variant="error">Det har skjedd en feil</Alert>;
-  }
+  const { data: tiltak } = usePreviewArbeidsmarkedstiltakById();
 
   return (
     <>
@@ -26,12 +20,12 @@ export function PreviewArbeidsmarkedstiltakDetaljer() {
         Forhåndsvisning av informasjon
       </Alert>
       <ViewTiltaksgjennomforingDetaljer
-        tiltaksgjennomforing={data}
+        tiltak={tiltak}
         knapperad={<Tilbakeknapp tilbakelenke=".." tekst="Gå til oversikt over aktuelle tiltak" />}
         brukerActions={
           <>
             <DelMedBruker
-              tiltaksgjennomforing={data}
+              tiltak={tiltak}
               veiledernavn="{Veiledernavn}"
               bruker={{
                 innsatsgruppe: Innsatsgruppe.VARIG_TILPASSET_INNSATS,
@@ -54,12 +48,12 @@ export function PreviewArbeidsmarkedstiltakDetaljer() {
                 ],
               }}
             />
-            {data && data?.personvernBekreftet ? (
+            {isTiltakGruppe(tiltak) && tiltak.personvernBekreftet ? (
               <InlineErrorBoundary>
-                <PersonvernContainer tiltaksgjennomforing={data} />
+                <PersonvernContainer tiltak={tiltak} />
               </InlineErrorBoundary>
             ) : null}
-            <LenkeListe lenker={data?.faneinnhold?.lenker} />
+            <LenkeListe lenker={tiltak.faneinnhold?.lenker} />
           </>
         }
       />

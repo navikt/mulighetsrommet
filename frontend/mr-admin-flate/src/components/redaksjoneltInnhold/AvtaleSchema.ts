@@ -1,15 +1,7 @@
-import {
-  Avtaletype,
-  ForerkortKlasse,
-  InnholdElement,
-  Kurstype,
-  OpsjonsmodellKey,
-  Personopplysning,
-  Spesifisering,
-  Tiltakskode,
-} from "@mr/api-client";
+import { Avtaletype, OpsjonsmodellKey, Personopplysning, Tiltakskode } from "@mr/api-client";
 import z from "zod";
 import { FaneinnholdSchema } from "./FaneinnholdSchema";
+import { AmoKategoriseringSchema } from "./AmoKategoriseringSchema";
 
 export const AvtaleSchema = z
   .object({
@@ -72,22 +64,7 @@ export const AvtaleSchema = z
     faneinnhold: FaneinnholdSchema.nullable(),
     personvernBekreftet: z.boolean({ required_error: "Du må ta stilling til personvern" }),
     personopplysninger: z.nativeEnum(Personopplysning).array(),
-    amoKategorisering: z
-      .object({
-        kurstype: z.nativeEnum(Kurstype, { required_error: "Du må velge en kurstype" }),
-        spesifisering: z.nativeEnum(Spesifisering).optional(),
-        sertifiseringer: z
-          .object({
-            konseptId: z.number(),
-            label: z.string(),
-          })
-          .array()
-          .optional(),
-        forerkort: z.nativeEnum(ForerkortKlasse).array().optional(),
-        norskprove: z.boolean().nullable().optional(),
-        innholdElementer: z.nativeEnum(InnholdElement).array().optional(),
-      })
-      .optional(),
+    amoKategorisering: AmoKategoriseringSchema.nullable(),
   })
   .superRefine((data, ctx) => {
     if (

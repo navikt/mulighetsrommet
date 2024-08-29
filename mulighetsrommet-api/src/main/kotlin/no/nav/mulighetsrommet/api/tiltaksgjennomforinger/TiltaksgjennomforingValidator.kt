@@ -14,11 +14,9 @@ import no.nav.mulighetsrommet.api.repositories.ArrangorRepository
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.services.TiltakstypeService
-import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.Tiltakskoder
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
-import no.nav.mulighetsrommet.domain.dto.AmoKategorisering
 import no.nav.mulighetsrommet.domain.dto.AvtaleStatus
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus
@@ -132,20 +130,6 @@ class TiltaksgjennomforingValidator(
             }
             if (!avtaleHasArrangor) {
                 add(ValidationError.of(TiltaksgjennomforingDbo::arrangorId, "Du må velge en arrangør for avtalen"))
-            }
-
-            if (
-                tiltakstype.tiltakskode == Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING &&
-                avtale.amoKategorisering?.kurstype != null &&
-                avtale.amoKategorisering.kurstype !== AmoKategorisering.Kurstype.STUDIESPESIALISERING &&
-                next.amoKategorisering?.innholdElementer.isNullOrEmpty()
-            ) {
-                add(
-                    ValidationError.ofCustomLocation(
-                        "amoKategorisering.innholdElementer",
-                        "Du må velge minst ett element",
-                    ),
-                )
             }
 
             next = validateOrResetTilgjengeligForArrangorDato(next)

@@ -33,7 +33,11 @@ export function Landingsside() {
           </Suspense>
         </ErrorBoundary>
         <div>
-          <Link className={styles.cta_link} to="/arbeidsmarkedstiltak/oversikt">
+          <Link
+            data-testid="finn-nytt-arbeidsmarkedstiltak-btn"
+            className={styles.cta_link}
+            to="/arbeidsmarkedstiltak/oversikt"
+          >
             <PlusIcon color="white" fontSize={30} aria-hidden /> Finn nytt arbeidsmarkedstiltak
           </Link>
         </div>

@@ -1,4 +1,4 @@
-import { EstimertVentetidEnhet } from "@mr/api-client";
+import { Tiltakskode, TiltakskodeArena } from "@mr/api-client";
 
 export function inneholderUrl(string: string) {
   return window.location.href.indexOf(string) > -1;
@@ -45,13 +45,17 @@ export function addOrRemove<T>(array: T[], item: T): T[] {
   }
 }
 
-export function formatertVentetid(verdi: number, enhet: EstimertVentetidEnhet): string {
-  switch (enhet) {
-    case EstimertVentetidEnhet.UKE:
-      return `${verdi} ${verdi === 1 ? "uke" : "uker"}`;
-    case EstimertVentetidEnhet.MANED:
-      return `${verdi} ${verdi === 1 ? "måned" : "måneder"}`;
-    default:
-      return "Ukjent enhet for ventetid";
+export function erKurstiltak(tiltakskode?: Tiltakskode, arenaKode?: TiltakskodeArena) {
+  if (tiltakskode) {
+    return [
+      Tiltakskode.JOBBKLUBB,
+      Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK,
+      Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
+      Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
+    ].includes(tiltakskode);
+  }
+
+  if (arenaKode) {
+    return [TiltakskodeArena.ENKELAMO, TiltakskodeArena.ENKFAGYRKE].includes(arenaKode);
   }
 }

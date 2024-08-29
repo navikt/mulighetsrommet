@@ -1,27 +1,28 @@
 import { Alert, BodyLong, Heading } from "@navikt/ds-react";
-import styles from "./Detaljerfane.module.scss";
-import FaneTiltaksinformasjon from "./FaneTiltaksinformasjon";
+import styles from "./TiltakDetaljerFane.module.scss";
+import { TiltakDetaljerFaneContainer } from "./TiltakDetaljerFaneContainer";
 import { RedaksjoneltInnhold } from "../RedaksjoneltInnhold";
 import { LokalInformasjonContainer } from "@mr/frontend-common";
+import { PortableTextTypedObject } from "@mr/api-client";
 
 interface DetaljerFaneProps {
   tiltaksgjennomforingAlert?: string;
   tiltakstypeAlert?: string;
-  tiltaksgjennomforing?: any;
-  tiltakstype?: any;
+  tiltaksgjennomforing?: PortableTextTypedObject[];
+  tiltakstype?: PortableTextTypedObject[];
 }
 
-const DetaljerFane = ({
+export function TiltakDetaljerFane({
   tiltaksgjennomforingAlert,
   tiltakstypeAlert,
   tiltaksgjennomforing,
   tiltakstype,
-}: DetaljerFaneProps) => {
+}: DetaljerFaneProps) {
   return (
-    <FaneTiltaksinformasjon
+    <TiltakDetaljerFaneContainer
       className={styles.faneinnhold_container}
       harInnhold={
-        tiltaksgjennomforingAlert || tiltakstypeAlert || tiltaksgjennomforing || tiltakstype
+        !!tiltaksgjennomforingAlert || !!tiltakstypeAlert || !!tiltaksgjennomforing || !!tiltakstype
       }
     >
       <Heading level="2" size="small">
@@ -50,8 +51,6 @@ const DetaljerFane = ({
           </BodyLong>
         </LokalInformasjonContainer>
       )}
-    </FaneTiltaksinformasjon>
+    </TiltakDetaljerFaneContainer>
   );
-};
-
-export default DetaljerFane;
+}

@@ -4,33 +4,30 @@ import { useGetTiltaksgjennomforingIdFraUrl } from "@/hooks/useGetTiltaksgjennom
 import {
   DeltakelseFraKomet,
   DeltakerStatusType,
-  VeilederflateTiltaksgjennomforing,
+  VeilederflateTiltakGruppe,
   VeilederflateTiltakstype,
 } from "@mr/api-client";
 import { Alert, BodyShort, Button, Heading, VStack } from "@navikt/ds-react";
 import { ReactNode } from "react";
 import styles from "./PameldingForGruppetiltak.module.scss";
-import { useHentDeltakelseForGjennomforing } from "../../api/queries/useHentDeltakelseForGjennomforing";
+import { useHentDeltakelseForGjennomforing } from "@/api/queries/useHentDeltakelseForGjennomforing";
 
 interface PameldingProps {
-  kanOppretteAvtaleForTiltak: boolean;
   brukerHarRettPaaValgtTiltak: boolean;
-  tiltaksgjennomforing: VeilederflateTiltaksgjennomforing;
+  tiltak: VeilederflateTiltakGruppe;
 }
 
 export function PameldingForGruppetiltak({
-  kanOppretteAvtaleForTiltak,
   brukerHarRettPaaValgtTiltak,
-  tiltaksgjennomforing,
+  tiltak,
 }: PameldingProps): ReactNode {
   const { data: aktivDeltakelse } = useHentDeltakelseForGjennomforing();
   const { data: stotterPameldingIModia = [] } = useTiltakstyperSomStotterPameldingIModia();
   const gjennomforingId = useGetTiltaksgjennomforingIdFraUrl();
 
   const skalVisePameldingslenke =
-    !kanOppretteAvtaleForTiltak &&
     brukerHarRettPaaValgtTiltak &&
-    tiltakstypeStotterPamelding(stotterPameldingIModia, tiltaksgjennomforing.tiltakstype) &&
+    tiltakstypeStotterPamelding(stotterPameldingIModia, tiltak.tiltakstype) &&
     !aktivDeltakelse;
 
   const opprettDeltakelseRoute = resolveModiaRoute({

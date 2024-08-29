@@ -1,30 +1,30 @@
 import { Tabs } from "@navikt/ds-react";
-import { Toggles, VeilederflateTiltaksgjennomforing } from "@mr/api-client";
+import { Toggles, VeilederflateTiltak } from "@mr/api-client";
 import { useFeatureToggle } from "@/api/feature-toggles";
 import { Oppskriftsoversikt } from "../oppskrift/Oppskriftsoversikt";
-import DetaljerFane from "./DetaljerFane";
-import styles from "./TiltaksdetaljerFane.module.scss";
-import KontaktinfoFane from "./kontaktinfofane/KontaktinfoFane";
+import { TiltakDetaljerFane } from "./TiltakDetaljerFane";
+import styles from "./TiltakDetaljer.module.scss";
+import { KontaktinfoFane } from "./kontaktinfofane/KontaktinfoFane";
 import { ErrorBoundary } from "react-error-boundary";
-import { ErrorFallback } from "../../utils/ErrorFallback";
-import { useLogEvent } from "../../logging/amplitude";
+import { ErrorFallback } from "@/utils/ErrorFallback";
+import { useLogEvent } from "@/logging/amplitude";
 import { RedaksjoneltInnhold } from "../RedaksjoneltInnhold";
 
 interface Props {
-  tiltaksgjennomforing: VeilederflateTiltaksgjennomforing;
+  tiltak: VeilederflateTiltak;
   setOppskriftId: (id: string | undefined) => void;
 }
 
 type TabsType = "tab1" | "tab2" | "tab3" | "tab4" | "tab5";
 
-const TiltaksdetaljerFane = ({ tiltaksgjennomforing, setOppskriftId }: Props) => {
+export function TiltakDetaljer({ tiltak, setOppskriftId }: Props) {
   const { logEvent } = useLogEvent();
 
   const { data: enableArenaOppskrifter } = useFeatureToggle(
     Toggles.MULIGHETSROMMET_VEILEDERFLATE_ARENA_OPPSKRIFTER,
   );
 
-  const { tiltakstype, faneinnhold } = tiltaksgjennomforing;
+  const { tiltakstype, faneinnhold } = tiltak;
   const faneoverskrifter = [
     "For hvem",
     "Detaljer og innhold",
@@ -62,7 +62,7 @@ const TiltaksdetaljerFane = ({ tiltaksgjennomforing, setOppskriftId }: Props) =>
           name: "arbeidsmarkedstiltak.fanevalg",
           data: {
             faneValgt: getFaneValgt(value as TabsType),
-            tiltakstype: tiltaksgjennomforing.tiltakstype.navn,
+            tiltakstype: tiltak.tiltakstype.navn,
           },
         });
       }}
@@ -75,7 +75,7 @@ const TiltaksdetaljerFane = ({ tiltaksgjennomforing, setOppskriftId }: Props) =>
       <div className={styles.fane_panel} data-testid="fane_panel">
         <ErrorBoundary FallbackComponent={ErrorFallback}>
           <Tabs.Panel value="tab1">
-            <DetaljerFane
+            <TiltakDetaljerFane
               tiltaksgjennomforingAlert={faneinnhold?.forHvemInfoboks}
               tiltakstypeAlert={tiltakstype.faneinnhold?.forHvemInfoboks}
               tiltaksgjennomforing={faneinnhold?.forHvem}
@@ -83,7 +83,7 @@ const TiltaksdetaljerFane = ({ tiltaksgjennomforing, setOppskriftId }: Props) =>
             />
           </Tabs.Panel>
           <Tabs.Panel value="tab2">
-            <DetaljerFane
+            <TiltakDetaljerFane
               tiltaksgjennomforingAlert={faneinnhold?.detaljerOgInnholdInfoboks}
               tiltakstypeAlert={tiltakstype.faneinnhold?.detaljerOgInnholdInfoboks}
               tiltaksgjennomforing={faneinnhold?.detaljerOgInnhold}
@@ -91,7 +91,7 @@ const TiltaksdetaljerFane = ({ tiltaksgjennomforing, setOppskriftId }: Props) =>
             />
           </Tabs.Panel>
           <Tabs.Panel value="tab3">
-            <DetaljerFane
+            <TiltakDetaljerFane
               tiltaksgjennomforingAlert={faneinnhold?.pameldingOgVarighetInfoboks}
               tiltakstypeAlert={tiltakstype.faneinnhold?.pameldingOgVarighetInfoboks}
               tiltaksgjennomforing={faneinnhold?.pameldingOgVarighet}
@@ -99,14 +99,14 @@ const TiltaksdetaljerFane = ({ tiltaksgjennomforing, setOppskriftId }: Props) =>
             />
           </Tabs.Panel>
           <Tabs.Panel value="tab4">
-            <KontaktinfoFane tiltaksgjennomforing={tiltaksgjennomforing} />
+            <KontaktinfoFane tiltak={tiltak} />
           </Tabs.Panel>
           <Tabs.Panel value="tab5">
-            {tiltaksgjennomforing?.faneinnhold?.oppskrift ? (
-              <RedaksjoneltInnhold value={tiltaksgjennomforing.faneinnhold.oppskrift} />
+            {tiltak?.faneinnhold?.oppskrift ? (
+              <RedaksjoneltInnhold value={tiltak.faneinnhold.oppskrift} />
             ) : null}
             <Oppskriftsoversikt
-              tiltakstypeId={tiltaksgjennomforing.tiltakstype.sanityId}
+              tiltakstypeId={tiltak.tiltakstype.sanityId}
               setOppskriftId={setOppskriftId}
             />
           </Tabs.Panel>
@@ -114,6 +114,4 @@ const TiltaksdetaljerFane = ({ tiltaksgjennomforing, setOppskriftId }: Props) =>
       </div>
     </Tabs>
   );
-};
-
-export default TiltaksdetaljerFane;
+}

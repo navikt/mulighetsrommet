@@ -74,7 +74,24 @@ select avtale.id,
        )                                                as personopplysninger,
        avtale.personvern_bekreftet,
        avtale.avbrutt_aarsak,
-       avtale.amo_kategorisering
+       case when avtale_amo_kategorisering.avtale_id is null then null::jsonb
+       else jsonb_build_object(
+           'kurstype', avtale_amo_kategorisering.kurstype,
+           'bransje', avtale_amo_kategorisering.bransje,
+           'forerkort', avtale_amo_kategorisering.forerkort,
+           'norskprove', avtale_amo_kategorisering.norskprove,
+           'sertifiseringer', coalesce((
+               select jsonb_strip_nulls(jsonb_agg(jsonb_build_object(
+                   'label', s.label,
+                   'konseptId', s.konsept_id
+               )))
+               from amo_sertifisering s
+               join avtale_amo_kategorisering_sertifisering aks on aks.konsept_id = s.konsept_id
+               where aks.avtale_id = avtale_amo_kategorisering.avtale_id
+           ), '[]'::jsonb),
+           'innholdElementer', avtale_amo_kategorisering.innhold_elementer
+       )
+       end as amo_kategorisering
 from avtale
          join tiltakstype on tiltakstype.id = avtale.tiltakstype_id
          left join avtale_administrator on avtale.id = avtale_administrator.avtale_id
@@ -111,9 +128,11 @@ from avtale
     group by au.avtale_id
     ) arrangor_underenheter_json on arrangor_underenheter_json.avtale_id = avtale.id
          left join avtale_personopplysning on avtale_personopplysning.avtale_id = avtale.id
+         left join avtale_amo_kategorisering on avtale_amo_kategorisering.avtale_id = avtale.id
 group by avtale.id,
          tiltakstype.id,
          arrangor.id,
          arrangor_underenheter_json.arrangor_underenheter,
          avtale_nav_enheter_json.nav_enheter,
-         arena_nav_enhet.enhetsnummer;
+         arena_nav_enhet.enhetsnummer,
+         avtale_amo_kategorisering.avtale_id;

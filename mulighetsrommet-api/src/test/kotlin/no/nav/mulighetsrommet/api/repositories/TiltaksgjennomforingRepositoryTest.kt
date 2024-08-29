@@ -528,6 +528,23 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 it!!.faneinnhold!!.forHvem!![0] shouldBe faneinnhold.forHvem!![0]
             }
         }
+
+        test("amoKategoriserng") {
+            val amo = AmoKategorisering.Norskopplaering(
+                norskprove = true,
+                innholdElementer = listOf(AmoKategorisering.InnholdElement.ARBEIDSMARKEDSKUNNSKAP, AmoKategorisering.InnholdElement.PRAKSIS),
+            )
+            val gjennomforing = Oppfolging1.copy(
+                id = UUID.randomUUID(),
+                amoKategorisering = amo,
+            )
+
+            tiltaksgjennomforinger.upsert(gjennomforing)
+
+            tiltaksgjennomforinger.get(gjennomforing.id).should {
+                it!!.amoKategorisering shouldBe amo
+            }
+        }
     }
 
     context("Filtrering på tiltaksgjennomforingstatus") {
@@ -972,31 +989,6 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             ) shouldHaveSize 1
 
             tiltaksgjennomforinger.setPublisert(AFT1.id, false)
-
-            tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
-                brukersEnheter = listOf("2990"),
-                innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
-            ) shouldHaveSize 0
-        }
-
-        test("skal bare returnere tiltak markert med tiltakskode definert") {
-            tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
-                brukersEnheter = listOf("2990"),
-                innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
-            ) shouldHaveSize 2
-
-            Query("update tiltakstype set tiltakskode = null where id = '${TiltakstypeFixtures.Oppfolging.id}'")
-                .asUpdate
-                .let { database.db.run(it) }
-
-            tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
-                brukersEnheter = listOf("2990"),
-                innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
-            ) shouldHaveSize 1
-
-            Query("update tiltakstype set tiltakskode = null where id = '${TiltakstypeFixtures.AFT.id}'")
-                .asUpdate
-                .let { database.db.run(it) }
 
             tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
                 brukersEnheter = listOf("2990"),

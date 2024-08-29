@@ -21,21 +21,19 @@ import {
   Toggles,
   VeilederflateTiltakstype,
 } from "@mr/api-client";
-import {
-  DetaljerSkeleton,
-  InlineErrorBoundary,
-  TilbakemeldingsLenke,
-  useTitle,
-} from "@mr/frontend-common";
+import { InlineErrorBoundary, TilbakemeldingsLenke, useTitle } from "@mr/frontend-common";
 import { gjennomforingIsAktiv } from "@mr/frontend-common/utils/utils";
 import { Chat2Icon } from "@navikt/aksel-icons";
 import { Alert, Button } from "@navikt/ds-react";
 import { useAtomValue } from "jotai";
-import { useFeatureToggle } from "../../../api/feature-toggles";
-import { useTiltaksgjennomforingById } from "../../../api/queries/useTiltaksgjennomforingById";
-import { PameldingForGruppetiltak } from "../../../components/pamelding/PameldingForGruppetiltak";
-import { VisibleWhenToggledOn } from "../../../components/toggles/VisibleWhenToggledOn";
-import { useGetTiltaksgjennomforingIdFraUrl } from "../../../hooks/useGetTiltaksgjennomforingIdFraUrl";
+import { useFeatureToggle } from "@/api/feature-toggles";
+import {
+  isTiltakGruppe,
+  useModiaArbeidsmarkedstiltakById,
+} from "@/api/queries/useArbeidsmarkedstiltakById";
+import { PameldingForGruppetiltak } from "@/components/pamelding/PameldingForGruppetiltak";
+import { VisibleWhenToggledOn } from "@/components/toggles/VisibleWhenToggledOn";
+import { useGetTiltaksgjennomforingIdFraUrl } from "@/hooks/useGetTiltaksgjennomforingIdFraUrl";
 import { ModiaRoute, resolveModiaRoute } from "../ModiaRoute";
 import { PameldingFraKometApnerSnart } from "../pamelding/PameldingFraKometApnerSnart";
 
@@ -47,40 +45,16 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
     Toggles.MULIGHETSROMMET_VEILEDERFLATE_VIS_DELTAKER_REGISTRERING,
   );
 
-  const {
-    data: veilederdata,
-    isPending: isPendingVeilederdata,
-    isError: isErrorVeilederdata,
-  } = useHentVeilederdata();
-  const {
-    data: brukerdata,
-    isPending: isPendingBrukerdata,
-    isError: isErrorBrukerdata,
-  } = useHentBrukerdata();
-  const {
-    data: tiltaksgjennomforing,
-    isPending: isPendingTiltak,
-    isError,
-  } = useTiltaksgjennomforingById();
-  const regioner = useRegioner();
+  const { data: veilederdata } = useHentVeilederdata();
+  const { data: brukerdata } = useHentBrukerdata();
+  const { data: tiltak } = useModiaArbeidsmarkedstiltakById();
+  const { data: regioner } = useRegioner();
 
-  useTitle(
-    `Arbeidsmarkedstiltak - Detaljer ${
-      tiltaksgjennomforing?.navn ? `- ${tiltaksgjennomforing.navn}` : null
-    }`,
-  );
+  useTitle(`Arbeidsmarkedstiltak - Detaljer ${tiltak?.navn ? `- ${tiltak.navn}` : null}`);
 
   const pagination = useAtomValue(paginationAtom);
 
-  if (isPendingTiltak || isPendingVeilederdata || isPendingBrukerdata) {
-    return <DetaljerSkeleton />;
-  }
-
-  if (isError || isErrorVeilederdata || isErrorBrukerdata) {
-    return <Alert variant="error">Det har skjedd en feil</Alert>;
-  }
-
-  const tiltakstype = tiltaksgjennomforing.tiltakstype;
+  const tiltakstype = tiltak.tiltakstype;
   const kanOppretteAvtaleForTiltak =
     isIndividueltTiltak(tiltakstype) && brukerdata.erUnderOppfolging;
   const brukerHarRettPaaValgtTiltak = harBrukerRettPaaValgtTiltak(brukerdata, tiltakstype);
@@ -97,10 +71,9 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
       <BrukerKvalifisererIkkeVarsel
         brukerdata={brukerdata}
         brukerHarRettPaaTiltak={brukerHarRettPaaValgtTiltak}
-        brukerErUnderOppfolging={brukerdata.erUnderOppfolging}
       />
       <ViewTiltaksgjennomforingDetaljer
-        tiltaksgjennomforing={tiltaksgjennomforing}
+        tiltak={tiltak}
         knapperad={
           <>
             <Tilbakeknapp
@@ -135,25 +108,24 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
             )}
 
             {enableDeltakerRegistrering &&
-            gjennomforingIsAktiv(tiltaksgjennomforing.status.status) ? (
+            isTiltakGruppe(tiltak) &&
+            gjennomforingIsAktiv(tiltak.status.status) ? (
               <PameldingForGruppetiltak
-                kanOppretteAvtaleForTiltak={kanOppretteAvtaleForTiltak}
                 brukerHarRettPaaValgtTiltak={brukerHarRettPaaValgtTiltak}
-                tiltaksgjennomforing={tiltaksgjennomforing}
+                tiltak={tiltak}
               />
             ) : null}
 
-            {brukerdata.erUnderOppfolging &&
-            gjennomforingIsAktiv(tiltaksgjennomforing.status.status) ? (
+            {brukerdata.erUnderOppfolging && gjennomforingIsAktiv(tiltak.status.status) ? (
               <DelMedBruker
                 delMedBrukerInfo={delMedBrukerInfo ?? undefined}
                 veiledernavn={resolveName(veilederdata)}
-                tiltaksgjennomforing={tiltaksgjennomforing}
+                tiltak={tiltak}
                 bruker={brukerdata}
               />
             ) : null}
 
-            {!brukerdata?.manuellStatus && (
+            {!brukerdata.manuellStatus && (
               <Alert
                 title="Vi kunne ikke opprette kontakt med KRR og vet derfor ikke om brukeren har reservert seg mot digital kommunikasjon"
                 key="alert-innsatsgruppe"
@@ -173,22 +145,22 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
               </Button>
             )}
 
-            {tiltaksgjennomforing && gjennomforingIsAktiv(tiltaksgjennomforing.status.status) ? (
-              <PameldingFraKometApnerSnart tiltaksgjennomforing={tiltaksgjennomforing} />
+            {gjennomforingIsAktiv(tiltak.status.status) ? (
+              <PameldingFraKometApnerSnart tiltak={tiltak} />
             ) : null}
 
-            {tiltaksgjennomforing && tiltaksgjennomforing?.personvernBekreftet ? (
+            {isTiltakGruppe(tiltak) && tiltak.personvernBekreftet ? (
               <InlineErrorBoundary>
-                <PersonvernContainer tiltaksgjennomforing={tiltaksgjennomforing} />
+                <PersonvernContainer tiltak={tiltak} />
               </InlineErrorBoundary>
             ) : null}
 
-            <LenkeListe lenker={tiltaksgjennomforing.faneinnhold?.lenker} />
+            <LenkeListe lenker={tiltak.faneinnhold?.lenker} />
             <VisibleWhenToggledOn toggle={Toggles.MULIGHETSROMMET_VEILEDERFLATE_VIS_TILBAKEMELDING}>
               <TilbakemeldingsLenke
                 url={PORTEN_URL_FOR_TILBAKEMELDING(
-                  tiltaksgjennomforing.tiltaksnummer,
-                  regioner?.data?.find((r) => r.enhetsnummer === tiltaksgjennomforing?.fylke)?.navn,
+                  tiltak.tiltaksnummer,
+                  regioner.find((r) => r.enhetsnummer === tiltak.fylke)?.navn,
                 )}
                 tekst="Gi tilbakemelding via Porten"
               />

@@ -2,7 +2,7 @@ package no.nav.mulighetsrommet.domain.dto
 
 import kotlinx.serialization.Serializable
 
-enum class Personopplysning(val tittel: String, val hjelpetekst: String?, val sortKey: Int) {
+enum class Personopplysning(private val tittel: String, private val hjelpetekst: String?, val sortKey: Int) {
     NAVN("Navn", null, 1),
     KJONN("Kjønn", null, 2),
     ADRESSE("Adresse", null, 3),
@@ -14,7 +14,11 @@ enum class Personopplysning(val tittel: String, val hjelpetekst: String?, val so
     BILDE("Bilde", null, 9),
     EPOST("E-postadresse", null, 10),
     BRUKERNAVN("Brukernavn", null, 11),
-    ARBEIDSERFARING_OG_VERV("Opplysninger knyttet til arbeidserfaring og verv som normalt fremkommer av en CV, herunder arbeidsgiver og hvor lenge man har jobbet", null, 12),
+    ARBEIDSERFARING_OG_VERV(
+        "Opplysninger knyttet til arbeidserfaring og verv som normalt fremkommer av en CV, herunder arbeidsgiver og hvor lenge man har jobbet",
+        null,
+        12,
+    ),
     SERTIFIKATER_OG_KURS("Sertifikater og kurs, eks. førerkort, vekterkurs", null, 13),
     UTDANNING_OG_FAGBREV("Utdanning, herunder fagbrev, høyere utdanning, grunnskoleopplæring osv.", null, 14),
     IP_ADRESSE("IP-adresse", null, 15),

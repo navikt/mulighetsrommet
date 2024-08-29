@@ -1,12 +1,8 @@
-import {
-  ForerkortKlasse,
-  InnholdElement,
-  Opphav,
-  TiltaksgjennomforingOppstartstype,
-} from "@mr/api-client";
+import { Opphav, TiltaksgjennomforingOppstartstype } from "@mr/api-client";
 import z from "zod";
 import { FaneinnholdSchema } from "./FaneinnholdSchema";
 import { STED_FOR_GJENNOMFORING_MAX_LENGTH } from "../../constants";
+import { AmoKategoriseringSchema } from "./AmoKategoriseringSchema";
 
 export const TiltaksgjennomforingSchema = z
   .object({
@@ -93,20 +89,7 @@ export const TiltaksgjennomforingSchema = z
       })
       .nullable(),
     tilgjengeligForArrangorFraOgMedDato: z.string().nullable().optional(),
-    amoKategorisering: z
-      .object({
-        forerkort: z.nativeEnum(ForerkortKlasse).array().optional(),
-        sertifiseringer: z
-          .object({
-            konseptId: z.number(),
-            label: z.string(),
-          })
-          .array()
-          .optional(),
-        norskprove: z.boolean().nullable().optional(),
-        innholdElementer: z.nativeEnum(InnholdElement).array().optional(),
-      })
-      .optional(),
+    amoKategorisering: AmoKategoriseringSchema.nullable(),
   })
   .superRefine((data, ctx) => {
     data.kontaktpersoner?.forEach((kontaktperson, index) => {

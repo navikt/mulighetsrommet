@@ -1,6 +1,9 @@
+import { NavFiltertags } from "@/apps/nav/filtrering/NavFiltertags";
+import { Feilmelding } from "@/components/feilmelding/Feilmelding";
+import { Filtermeny } from "@/components/filtrering/Filtermeny";
 import { FilterAndTableLayout } from "@mr/frontend-common/components/filterAndTableLayout/FilterAndTableLayout";
-import { Tiltaksgjennomforingsoversikt } from "@/components/oversikt/Tiltaksgjennomforingsoversikt";
-import { useNavTiltaksgjennomforinger } from "@/api/queries/useTiltaksgjennomforinger";
+import { ArbeidsmarkedstiltakList } from "@/components/oversikt/ArbeidsmarkedstiltakList";
+import { useNavArbeidsmarkedstiltak } from "@/api/queries/useArbeidsmarkedstiltak";
 import {
   ArbeidsmarkedstiltakFilterSchema,
   isFilterReady,
@@ -8,25 +11,22 @@ import {
   useArbeidsmarkedstiltakFilterValue,
   useResetArbeidsmarkedstiltakFilterUtenBrukerIKontekst,
 } from "@/hooks/useArbeidsmarkedstiltakFilter";
-import { NavFiltertags } from "@/apps/nav/filtrering/NavFiltertags";
-import { useState } from "react";
-import { Feilmelding } from "@/components/feilmelding/Feilmelding";
-import { TilToppenKnapp } from "@mr/frontend-common/components/tilToppenKnapp/TilToppenKnapp";
-import { NullstillFilterKnapp } from "@mr/frontend-common/components/nullstillFilterKnapp/NullstillFilterKnapp";
-import { Filtermeny } from "@/components/filtrering/Filtermeny";
-import { LagredeFilterOversikt, LagreFilterContainer, ListSkeleton } from "@mr/frontend-common";
 import { LagretDokumenttype } from "@mr/api-client";
+import { LagredeFilterOversikt, LagreFilterContainer, ListSkeleton } from "@mr/frontend-common";
+import { NullstillFilterKnapp } from "@mr/frontend-common/components/nullstillFilterKnapp/NullstillFilterKnapp";
+import { TilToppenKnapp } from "@mr/frontend-common/components/tilToppenKnapp/TilToppenKnapp";
 import { HStack } from "@navikt/ds-react";
+import { useState } from "react";
 
 interface Props {
   preview?: boolean;
 }
 
 export function NavArbeidsmarkedstiltakOversikt({ preview = false }: Props) {
-  const { data: tiltaksgjennomforinger = [], isPending } = useNavTiltaksgjennomforinger({
+  const { data: tiltak = [], isPending } = useNavArbeidsmarkedstiltak({
     preview,
   });
-  const [filterOpen, setFilterOpen] = useState<boolean>(true);
+  const [filterOpen, setFilterOpen] = useState(true);
   const [lagredeFilter, setLagredeFilter] = useArbeidsmarkedstiltakFilter();
   const filter = useArbeidsmarkedstiltakFilterValue();
   const { filterHasChanged, resetFilterToDefaults } =
@@ -63,8 +63,8 @@ export function NavArbeidsmarkedstiltakOversikt({ preview = false }: Props) {
           />
         }
         table={
-          <Tiltaksgjennomforingsoversikt
-            tiltaksgjennomforinger={tiltaksgjennomforinger}
+          <ArbeidsmarkedstiltakList
+            tiltak={tiltak}
             filterOpen={filterOpen}
             feilmelding={
               !isFilterReady(filter) ? (
@@ -73,7 +73,7 @@ export function NavArbeidsmarkedstiltakOversikt({ preview = false }: Props) {
                   header="Du må filtrere på en innsatsgruppe og minst én NAV-enhet for å se tiltaksgjennomføringer"
                   ikonvariant="info"
                 />
-              ) : tiltaksgjennomforinger.length === 0 ? (
+              ) : tiltak.length === 0 ? (
                 isPending ? (
                   <ListSkeleton />
                 ) : (

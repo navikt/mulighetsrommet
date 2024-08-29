@@ -23,7 +23,7 @@ fun Route.janzzRoutes() {
             .asSequence()
             .flatMap { typeaheads ->
                 typeaheads.map {
-                    AmoKategorisering.Sertifisering(
+                    AmoKategorisering.BransjeOgYrkesrettet.Sertifisering(
                         konseptId = it.konseptId,
                         label = it.label,
                     )

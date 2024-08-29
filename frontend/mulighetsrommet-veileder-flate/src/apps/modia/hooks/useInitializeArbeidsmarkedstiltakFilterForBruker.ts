@@ -10,14 +10,13 @@ export function useInitializeArbeidsmarkedstiltakFilterForBruker() {
   const [filter, setFilter] = useArbeidsmarkedstiltakFilter();
 
   const brukersInnsatsgruppe = innsatsgrupper?.find(
-    (gruppe) => gruppe.nokkel === brukerdata?.innsatsgruppe,
+    (gruppe) => gruppe.nokkel === brukerdata.innsatsgruppe,
   );
 
   const resetInnsatsgruppe =
     brukersInnsatsgruppe !== undefined && filter.innsatsgruppe === undefined;
 
-  const resetEnheter =
-    brukerdata && brukerdata.enheter.length > 0 && filter.navEnheter.length === 0;
+  const resetEnheter = brukerdata.enheter.length > 0 && filter.navEnheter.length === 0;
 
   useEffect(() => {
     if (resetInnsatsgruppe || resetEnheter) {
@@ -29,7 +28,7 @@ export function useInitializeArbeidsmarkedstiltakFilterForBruker() {
               tittel: brukersInnsatsgruppe.tittel,
             }
           : undefined,
-        navEnheter: brukerdata?.enheter ?? [],
+        navEnheter: brukerdata.enheter,
       });
     }
   }, [
@@ -38,6 +37,6 @@ export function useInitializeArbeidsmarkedstiltakFilterForBruker() {
     setFilter,
     filter,
     brukersInnsatsgruppe,
-    brukerdata?.enheter,
+    brukerdata.enheter,
   ]);
 }

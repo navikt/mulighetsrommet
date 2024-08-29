@@ -149,7 +149,7 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
                 label={avtaletekster.tiltakstypeLabel}
                 {...register("tiltakstype")}
                 onChange={(event) => {
-                  setValue("amoKategorisering", undefined);
+                  setValue("amoKategorisering", null);
                   const options = event.target.value?.tiltakskode
                     ? avtaletypeOptions(event.target.value.tiltakskode)
                     : [];

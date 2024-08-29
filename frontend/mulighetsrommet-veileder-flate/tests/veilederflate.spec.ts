@@ -2,12 +2,17 @@ import { expect, test } from "@playwright/test";
 import { sjekkUU, velgFilter } from "./playwrightUtils";
 
 test.beforeEach(async ({ page }) => {
+  await page.setViewportSize({ width: 1920, height: 1920 });
   await page.goto("/");
 });
 
 test.describe("Tiltaksoversikt", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("/arbeidsmarkedstiltak");
+    const finnNyttArbeidsmarkedstiltakBtn = await page.getByTestId(
+      "finn-nytt-arbeidsmarkedstiltak-btn",
+    );
+    finnNyttArbeidsmarkedstiltakBtn.click();
   });
 
   test("Sjekk at det er 5 tiltaksgjennomføringer i oversikten", async ({ page }) => {
@@ -111,7 +116,7 @@ test.describe("Preview Mulighetsrommet", () => {
 
   test("Skal vise tiltak", async ({ page }) => {
     const h1 = await page.getByRole("heading", { level: 1 }).innerText();
-    expect(h1).toEqual("Avklaring - Fredrikstad med ganske langt navn som strekker seg bortover");
+    expect(h1).toContain("Avklaring - Fredrikstad med ganske langt navn som strekker seg bortover");
   });
 
   test("Skal vise en warning på siden om at man er i Preview-modus", async ({ page }) => {

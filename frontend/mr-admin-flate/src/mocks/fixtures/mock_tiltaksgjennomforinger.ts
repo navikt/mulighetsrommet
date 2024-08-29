@@ -1,13 +1,13 @@
 import { nikolineKontaktperson, petrusKontaktperson } from "@/mocks/fixtures/mock_ansatt";
 import { mockAvtaler } from "@/mocks/fixtures/mock_avtaler";
 import {
+  Bransje,
   EstimertVentetidEnhet,
   ForerkortKlasse,
   InnholdElement,
   Kurstype,
   Opphav,
   PaginertTiltaksgjennomforing,
-  Spesifisering,
   Tiltaksgjennomforing,
   TiltaksgjennomforingOppstartstype,
   TiltaksgjennomforingStatus,
@@ -159,8 +159,8 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
     publisert: false,
     tilgjengeligForArrangorFraOgMedDato: null,
     amoKategorisering: {
-      kurstype: Kurstype.BRANSJE,
-      spesifisering: Spesifisering.ANDRE_BRANSJER,
+      kurstype: Kurstype.BRANSJE_OG_YRKESRETTET,
+      bransje: Bransje.ANDRE_BRANSJER,
       forerkort: [ForerkortKlasse.A, ForerkortKlasse.S],
       innholdElementer: [InnholdElement.GRUNNLEGGENDE_FERDIGHETER],
       sertifiseringer: [{ konseptId: 12, label: "Truckførerkurs" }],

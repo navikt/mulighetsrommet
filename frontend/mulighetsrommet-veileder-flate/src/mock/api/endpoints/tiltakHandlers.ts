@@ -1,12 +1,9 @@
 import { http, HttpResponse } from "msw";
-import {
-  Innsatsgruppe,
-  KontaktinfoVarsel,
-  VeilederflateTiltaksgjennomforing,
-} from "@mr/api-client";
+import { Innsatsgruppe, KontaktinfoVarsel, VeilederflateTiltak } from "@mr/api-client";
 import { mockInnsatsgrupper } from "@/mock/fixtures/mockInnsatsgrupper";
 import { mockTiltaksgjennomforinger } from "@/mock/fixtures/mockTiltaksgjennomforinger";
 import { mockTiltakstyper } from "@/mock/fixtures/mockTiltakstyper";
+import { isTiltakGruppe } from "@/api/queries/useArbeidsmarkedstiltakById";
 
 export const tiltakHandlers = [
   http.get("*/api/v1/intern/veileder/innsatsgrupper", async () => {
@@ -65,7 +62,6 @@ export const tiltakHandlers = [
 
       const gjennomforing = findArbeidsmarkedstiltak(id);
       if (gjennomforing) {
-        gjennomforing.arrangor = undefined;
         gjennomforing.kontaktinfo = {
           tiltaksansvarlige: [],
           varsler: [KontaktinfoVarsel.IKKE_TILGANG_TIL_KONTAKTINFO],
@@ -104,15 +100,17 @@ function getFilteredArbeidsmarkedstiltak(url: URL) {
 }
 
 function findArbeidsmarkedstiltak(id: string) {
-  return mockTiltaksgjennomforinger.find((gj) => gj.sanityId === id || gj.id === id);
+  return mockTiltaksgjennomforinger.find((gj) =>
+    isTiltakGruppe(gj) ? gj.id === id : gj.sanityId === id,
+  );
 }
 
-function filtrerFritekst(gjennomforing: VeilederflateTiltaksgjennomforing, sok: string): boolean {
+function filtrerFritekst(gjennomforing: VeilederflateTiltak, sok: string): boolean {
   return sok === "" || gjennomforing.navn.toLocaleLowerCase().includes(sok.toLocaleLowerCase());
 }
 
 function filtrerInnsatsgruppe(
-  gjennomforing: VeilederflateTiltaksgjennomforing,
+  gjennomforing: VeilederflateTiltak,
   innsatsgruppe?: Innsatsgruppe,
 ): boolean {
   if (!innsatsgruppe || !gjennomforing.tiltakstype.innsatsgrupper) {
@@ -122,9 +120,6 @@ function filtrerInnsatsgruppe(
   return gjennomforing.tiltakstype.innsatsgrupper.includes(innsatsgruppe);
 }
 
-function filtrerTiltakstyper(
-  gjennomforing: VeilederflateTiltaksgjennomforing,
-  tiltakstyper: string[],
-): boolean {
+function filtrerTiltakstyper(gjennomforing: VeilederflateTiltak, tiltakstyper: string[]): boolean {
   return tiltakstyper.length === 0 || tiltakstyper.includes(gjennomforing.tiltakstype.sanityId);
 }
