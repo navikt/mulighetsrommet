@@ -64,7 +64,7 @@ export const AvtaleSchema = z
     faneinnhold: FaneinnholdSchema.nullable(),
     personvernBekreftet: z.boolean({ required_error: "Du må ta stilling til personvern" }),
     personopplysninger: z.nativeEnum(Personopplysning).array(),
-    amoKategorisering: AmoKategoriseringSchema.nullable(),
+    amoKategorisering: AmoKategoriseringSchema.nullish(),
   })
   .superRefine((data, ctx) => {
     if (
