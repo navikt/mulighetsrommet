@@ -208,11 +208,11 @@ function sorter(
       if (orderBy === "oppstart") {
         const dateB =
           b.oppstart === TiltaksgjennomforingOppstartstype.FELLES
-            ? new Date(b.oppstartsdato) // Oppstartsdato skal alltid være tilgjengelig når oppstartstype er FELLES
+            ? new Date(b.oppstartsdato)
             : new Date();
         const dateA =
           a.oppstart === TiltaksgjennomforingOppstartstype.FELLES
-            ? new Date(a.oppstartsdato) // Oppstartsdato skal alltid være tilgjengelig når oppstartstype er FELLES
+            ? new Date(a.oppstartsdato)
             : new Date();
         return compare(dateA, dateB);
       } else if (orderBy === "tiltakstype") {
