@@ -89,7 +89,7 @@ export const TiltaksgjennomforingSchema = z
       })
       .nullable(),
     tilgjengeligForArrangorFraOgMedDato: z.string().nullable().optional(),
-    amoKategorisering: AmoKategoriseringSchema.nullable(),
+    amoKategorisering: AmoKategoriseringSchema.nullish(),
   })
   .superRefine((data, ctx) => {
     data.kontaktpersoner?.forEach((kontaktperson, index) => {
