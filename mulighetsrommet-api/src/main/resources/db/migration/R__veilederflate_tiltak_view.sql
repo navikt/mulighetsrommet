@@ -16,6 +16,7 @@ select gjennomforing.id,
        gjennomforing.nav_region,
        gjennomforing.avbrutt_aarsak,
        gjennomforing.avbrutt_tidspunkt,
+       gjennomforing.publisert,
        tiltaksgjennomforing_status(gjennomforing.start_dato,
                                    gjennomforing.slutt_dato,
                                    gjennomforing.avbrutt_tidspunkt) as status,
@@ -74,4 +75,3 @@ from tiltaksgjennomforing gjennomforing
                             from tiltaksgjennomforing_arrangor_kontaktperson
                                      left join arrangor_kontaktperson on id = arrangor_kontaktperson_id
                             where tiltaksgjennomforing_id = gjennomforing.id) arrangor_kontaktpersoner on true
-where gjennomforing.publisert

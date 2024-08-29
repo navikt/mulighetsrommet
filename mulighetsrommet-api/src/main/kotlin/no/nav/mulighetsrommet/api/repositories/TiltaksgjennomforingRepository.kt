@@ -495,7 +495,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         val query = """
             select *
             from veilederflate_tiltak_view
-            where :innsatsgruppe::innsatsgruppe = any(tiltakstype_innsatsgrupper)
+            where publisert
+              and :innsatsgruppe::innsatsgruppe = any(tiltakstype_innsatsgrupper)
               and nav_enheter && :brukers_enheter
               and (:search::text is null or ((lower(navn) like lower(:search)) or (tiltaksnummer like :search)))
               and (:sanityTiltakstypeIds::uuid[] is null or tiltakstype_sanity_id = any(:sanityTiltakstypeIds))
