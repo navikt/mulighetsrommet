@@ -3,10 +3,8 @@ import { Bruker, NavEnhet, VeilederflateTiltak } from "@mr/api-client";
 
 export function brukersEnhetFilterHasChanged(
   filter: ArbeidsmarkedstiltakFilter,
-  bruker?: Bruker,
+  bruker: Bruker,
 ): boolean {
-  if (!bruker) return false;
-
   if (filter.navEnheter.length !== bruker.enheter.length) return true;
 
   return (
@@ -17,15 +15,11 @@ export function brukersEnhetFilterHasChanged(
   );
 }
 
-export function utledDelMedBrukerTekst(
-  tiltaksgjennomforing: VeilederflateTiltak,
-  veiledernavn?: string,
-) {
-  const deletekst = getDelMedBrukerTekst(tiltaksgjennomforing) ?? "";
-  const tiltak = deletekst.replaceAll("<tiltaksnavn>", tiltaksgjennomforing.navn);
-
+export function utledDelMedBrukerTekst(tiltak: VeilederflateTiltak, veiledernavn?: string) {
+  const deletekst = getDelMedBrukerTekst(tiltak) ?? "";
+  const templatedDeletekst = deletekst.replaceAll("<tiltaksnavn>", tiltak.navn);
   const hilsen = hilsenTekst(veiledernavn);
-  return `Hei\n\n${tiltak}\n\n${hilsen}`;
+  return `Hei\n\n${templatedDeletekst}\n\n${hilsen}`;
 }
 
 function hilsenTekst(veiledernavn?: string) {
@@ -33,13 +27,8 @@ function hilsenTekst(veiledernavn?: string) {
   return veiledernavn ? `${interessant}\n\nHilsen ${veiledernavn}` : `${interessant}`;
 }
 
-export function getDelMedBrukerTekst(
-  tiltaksgjennomforing: VeilederflateTiltak,
-): string | undefined {
-  return (
-    tiltaksgjennomforing.faneinnhold?.delMedBruker ??
-    tiltaksgjennomforing.tiltakstype.delingMedBruker
-  );
+export function getDelMedBrukerTekst(tiltak: VeilederflateTiltak): string | undefined {
+  return tiltak.faneinnhold?.delMedBruker ?? tiltak.tiltakstype.delingMedBruker;
 }
 
 export function erBrukerReservertMotDigitalKommunikasjon(brukerdata: Bruker): {

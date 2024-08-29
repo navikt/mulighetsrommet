@@ -16,13 +16,13 @@ import { PersonvernIkon } from "@/ikoner/PersonvernIkon";
 import styles from "./PersonvernContainer.module.scss";
 
 interface Props {
-  tiltaksgjennomforing: VeilederflateTiltakGruppe;
+  tiltak: VeilederflateTiltakGruppe;
 }
 
 /**
  * Komponent som er ansvarlig for både rendering av GuidePanel og modal for personvern
  */
-export function PersonvernContainer({ tiltaksgjennomforing }: Props) {
+export function PersonvernContainer({ tiltak }: Props) {
   const [modalOpen, setModalOpen] = useState(false);
 
   return (
@@ -55,7 +55,7 @@ export function PersonvernContainer({ tiltaksgjennomforing }: Props) {
           <VStack gap="5">
             <PersonvernIkon aria-label="Ikon som illustrerer personvern" />
             <Heading level="2" size="medium">
-              {tiltaksgjennomforing.navn}
+              {tiltak.navn}
             </Heading>
           </VStack>
         </ModalHeader>
@@ -88,7 +88,7 @@ export function PersonvernContainer({ tiltaksgjennomforing }: Props) {
           <VStack gap="5">
             <ListeOverPersonopplysninger
               title="Opplysninger om deltaker som kan behandles"
-              personopplysninger={tiltaksgjennomforing.personopplysningerSomKanBehandles}
+              personopplysninger={tiltak.personopplysningerSomKanBehandles}
             />
           </VStack>
         </ModalBody>

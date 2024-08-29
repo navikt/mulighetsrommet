@@ -3,7 +3,7 @@ import { Innsatsgruppe, KontaktinfoVarsel, VeilederflateTiltak } from "@mr/api-c
 import { mockInnsatsgrupper } from "@/mock/fixtures/mockInnsatsgrupper";
 import { mockTiltaksgjennomforinger } from "@/mock/fixtures/mockTiltaksgjennomforinger";
 import { mockTiltakstyper } from "@/mock/fixtures/mockTiltakstyper";
-import { isTiltakGruppe } from "@/api/queries/useTiltaksgjennomforingById";
+import { isTiltakGruppe } from "@/api/queries/useArbeidsmarkedstiltakById";
 
 export const tiltakHandlers = [
   http.get("*/api/v1/intern/veileder/innsatsgrupper", async () => {

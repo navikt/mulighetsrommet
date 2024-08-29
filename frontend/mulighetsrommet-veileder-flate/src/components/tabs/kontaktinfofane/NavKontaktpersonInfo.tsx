@@ -5,7 +5,7 @@ import {
   VeilederflateKontaktinfoTiltaksansvarlig,
 } from "@mr/api-client";
 import { RefObject, useRef } from "react";
-import styles from "./Kontaktinfo.module.scss";
+import styles from "./KontaktinfoFane.module.scss";
 
 const TEAMS_DYPLENKE = "https://teams.microsoft.com/l/chat/0/0?users=";
 

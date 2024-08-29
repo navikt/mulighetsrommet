@@ -6,14 +6,14 @@ import classNames from "classnames";
 import { useAtomValue } from "jotai";
 import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import { kebabCase } from "@mr/frontend-common/utils/TestUtils";
-import styles from "./Gjennomforingsrad.module.scss";
 import { VisningsnavnForTiltak } from "./VisningsnavnForTiltak";
 import {
   DelMedBruker,
   TiltaksgjennomforingOppstartstype,
   VeilederflateTiltak,
 } from "@mr/api-client";
-import { isTiltakArbeidsgiver, isTiltakGruppe } from "@/api/queries/useTiltaksgjennomforingById";
+import styles from "./ArbeidsmarkedstiltakListItem.module.scss";
+import { isTiltakArbeidsgiver, isTiltakGruppe } from "@/api/queries/useArbeidsmarkedstiltakById";
 
 interface Props {
   tiltak: VeilederflateTiltak;
@@ -21,7 +21,7 @@ interface Props {
   delMedBruker?: DelMedBruker;
 }
 
-export function Gjennomforingsrad({ tiltak, index, delMedBruker }: Props) {
+export function ArbeidsmarkedstiltakListItem({ tiltak, index, delMedBruker }: Props) {
   const pageData = useAtomValue(paginationAtom);
 
   const datoSidenSistDelt = delMedBruker && formaterDato(new Date(delMedBruker.createdAt!));
