@@ -560,9 +560,6 @@ class AvtaleRepository(private val db: Database) {
             customOpsjonsmodellNavn = stringOrNull("opsjon_custom_opsjonsmodell_navn"),
         )
         val amoKategorisering = stringOrNull("amo_kategorisering")?.let {
-            println("CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC")
-            println("CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC")
-            println(it)
             JsonIgnoreUnknownKeys.decodeFromString<AmoKategorisering>(it)
         }
 
