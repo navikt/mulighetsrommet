@@ -272,18 +272,34 @@ class AvtaleRepositoryTest : FunSpec({
 
         test("gruppe amo kategorier") {
             val avtaler = AvtaleRepository(database.db)
-            val amoKategorisering = AmoKategorisering(
-                kurstype = AmoKategorisering.Kurstype.BRANSJE,
-                spesifisering = AmoKategorisering.Spesifisering.INDUSTRIARBEID,
-                norskprove = null,
-                forerkort = null,
+            val amoKategorisering = AmoKategorisering.BransjeOgYrkesrettet(
+                bransje = AmoKategorisering.BransjeOgYrkesrettet.Bransje.INDUSTRIARBEID,
+                forerkort = emptyList(),
+                sertifiseringer = listOf(
+                    AmoKategorisering.BransjeOgYrkesrettet.Sertifisering(
+                        konseptId = 1,
+                        label = "label",
+                    ),
+                ),
                 innholdElementer = listOf(AmoKategorisering.InnholdElement.TEORETISK_OPPLAERING),
             )
-
             val avtale = AvtaleFixtures.oppfolging.copy(amoKategorisering = amoKategorisering)
             avtaler.upsert(avtale)
             avtaler.get(avtale.id).shouldNotBeNull().should {
                 it.amoKategorisering shouldBe amoKategorisering
+            }
+
+            val amoEndring = amoKategorisering.copy(
+                sertifiseringer = listOf(
+                    AmoKategorisering.BransjeOgYrkesrettet.Sertifisering(
+                        konseptId = 2,
+                        label = "label2",
+                    ),
+                ),
+            )
+            avtaler.upsert(avtale.copy(amoKategorisering = amoEndring))
+            avtaler.get(avtale.id).shouldNotBeNull().should {
+                it.amoKategorisering shouldBe amoEndring
             }
         }
     }

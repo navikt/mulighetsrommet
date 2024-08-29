@@ -21,7 +21,7 @@ export interface ControlledSelectProps<T> {
   size?: "small" | "medium";
   onClearValue?: () => void;
   description?: string;
-  helpText?: string;
+  helpText?: React.ReactNode;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

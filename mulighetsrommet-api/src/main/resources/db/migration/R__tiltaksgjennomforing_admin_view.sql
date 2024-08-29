@@ -86,7 +86,24 @@ select gjennomforing.id,
        tiltaksgjennomforing_status(gjennomforing.start_dato, gjennomforing.slutt_dato, gjennomforing.avbrutt_tidspunkt) as status,
        a.personvern_bekreftet,
        gjennomforing.avbrutt_aarsak,
-       gjennomforing.amo_kategorisering
+       case when tiltaksgjennomforing_amo_kategorisering.tiltaksgjennomforing_id is null then null::jsonb
+       else jsonb_build_object(
+           'kurstype', tiltaksgjennomforing_amo_kategorisering.kurstype,
+           'bransje', tiltaksgjennomforing_amo_kategorisering.bransje,
+           'forerkort', tiltaksgjennomforing_amo_kategorisering.forerkort,
+           'norskprove', tiltaksgjennomforing_amo_kategorisering.norskprove,
+           'sertifiseringer', coalesce((
+               select jsonb_strip_nulls(jsonb_agg(jsonb_build_object(
+                   'label', s.label,
+                   'konseptId', s.konsept_id
+               )))
+               from amo_sertifisering s
+               join tiltaksgjennomforing_amo_kategorisering_sertifisering aks on aks.konsept_id = s.konsept_id
+               where aks.tiltaksgjennomforing_id = tiltaksgjennomforing_amo_kategorisering.tiltaksgjennomforing_id
+           ), '[]'::jsonb),
+           'innholdElementer', tiltaksgjennomforing_amo_kategorisering.innhold_elementer
+       )
+       end as amo_kategorisering
 from tiltaksgjennomforing gjennomforing
          inner join tiltakstype on gjennomforing.tiltakstype_id = tiltakstype.id
          left join tiltaksgjennomforing_administrator tg_a on tg_a.tiltaksgjennomforing_id = gjennomforing.id
@@ -103,9 +120,11 @@ from tiltaksgjennomforing gjennomforing
                    on gjennomforing_arrangor_kontaktperson.tiltaksgjennomforing_id = gjennomforing.id
          left join arrangor_kontaktperson
                    on arrangor_kontaktperson.id = gjennomforing_arrangor_kontaktperson.arrangor_kontaktperson_id
+         left join tiltaksgjennomforing_amo_kategorisering on tiltaksgjennomforing_amo_kategorisering.tiltaksgjennomforing_id = gjennomforing.id
 group by gjennomforing.id,
          tiltakstype.id,
          arrangor.id,
          nav_region.enhetsnummer,
          arena_nav_enhet.enhetsnummer,
-         a.personvern_bekreftet;
+         a.personvern_bekreftet,
+         tiltaksgjennomforing_amo_kategorisering.tiltaksgjennomforing_id;

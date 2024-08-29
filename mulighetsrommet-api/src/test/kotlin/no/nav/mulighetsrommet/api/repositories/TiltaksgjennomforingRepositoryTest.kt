@@ -528,6 +528,23 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 it!!.faneinnhold!!.forHvem!![0] shouldBe faneinnhold.forHvem!![0]
             }
         }
+
+        test("amoKategoriserng") {
+            val amo = AmoKategorisering.Norskopplaering(
+                norskprove = true,
+                innholdElementer = listOf(AmoKategorisering.InnholdElement.ARBEIDSMARKEDSKUNNSKAP, AmoKategorisering.InnholdElement.PRAKSIS),
+            )
+            val gjennomforing = Oppfolging1.copy(
+                id = UUID.randomUUID(),
+                amoKategorisering = amo,
+            )
+
+            tiltaksgjennomforinger.upsert(gjennomforing)
+
+            tiltaksgjennomforinger.get(gjennomforing.id).should {
+                it!!.amoKategorisering shouldBe amo
+            }
+        }
     }
 
     context("Filtrering på tiltaksgjennomforingstatus") {

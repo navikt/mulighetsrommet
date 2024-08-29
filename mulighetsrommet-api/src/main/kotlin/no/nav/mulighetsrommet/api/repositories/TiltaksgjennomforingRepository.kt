@@ -23,7 +23,14 @@ import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.ArenaTiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
-import no.nav.mulighetsrommet.domain.dto.*
+import no.nav.mulighetsrommet.domain.dto.AvbruttAarsak
+import no.nav.mulighetsrommet.domain.dto.AvbruttDto
+import no.nav.mulighetsrommet.domain.dto.Innsatsgruppe
+import no.nav.mulighetsrommet.domain.dto.NavIdent
+import no.nav.mulighetsrommet.domain.dto.Personopplysning
+import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus
+import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatusDto
+import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
 import java.time.LocalDate
@@ -59,8 +66,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 deltidsprosent,
                 estimert_ventetid_verdi,
                 estimert_ventetid_enhet,
-                tilgjengelig_for_arrangor_fra_og_med_dato,
-                amo_kategorisering
+                tilgjengelig_for_arrangor_fra_og_med_dato
             )
             values (
                 :id::uuid,
@@ -81,8 +87,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 :deltidsprosent,
                 :estimert_ventetid_verdi,
                 :estimert_ventetid_enhet,
-                :tilgjengelig_for_arrangor_fra_dato,
-                :amo_kategorisering::jsonb
+                :tilgjengelig_for_arrangor_fra_dato
             )
             on conflict (id) do update set
                 navn                               = excluded.navn,
@@ -102,8 +107,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 deltidsprosent                     = excluded.deltidsprosent,
                 estimert_ventetid_verdi            = excluded.estimert_ventetid_verdi,
                 estimert_ventetid_enhet            = excluded.estimert_ventetid_enhet,
-                tilgjengelig_for_arrangor_fra_og_med_dato = excluded.tilgjengelig_for_arrangor_fra_og_med_dato,
-                amo_kategorisering                = excluded.amo_kategorisering
+                tilgjengelig_for_arrangor_fra_og_med_dato = excluded.tilgjengelig_for_arrangor_fra_og_med_dato
         """.trimIndent()
 
         @Language("PostgreSQL")
@@ -247,6 +251,10 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 db.createUuidArray(tiltaksgjennomforing.arrangorKontaktpersoner),
             ).asExecute,
         )
+
+        tiltaksgjennomforing.amoKategorisering?.let {
+            AmoKategoriseringRepository.upsert(it, tiltaksgjennomforing.id, AmoKategoriseringRepository.ForeignIdType.GJENNOMFORING, tx)
+        }
     }
 
     fun upsertArenaTiltaksgjennomforing(tiltaksgjennomforing: ArenaTiltaksgjennomforingDbo) {
@@ -675,7 +683,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         "estimert_ventetid_verdi" to estimertVentetidVerdi,
         "estimert_ventetid_enhet" to estimertVentetidEnhet,
         "tilgjengelig_for_arrangor_fra_dato" to tilgjengeligForArrangorFraOgMedDato,
-        "amo_kategorisering" to amoKategorisering?.let { Json.encodeToString(it) },
     )
 
     private fun ArenaTiltaksgjennomforingDbo.toSqlParameters(arrangorId: UUID) = mapOf(
@@ -854,7 +861,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             ),
             personvernBekreftet = boolean("personvern_bekreftet"),
             tilgjengeligForArrangorFraOgMedDato = localDateOrNull("tilgjengelig_for_arrangor_fra_og_med_dato"),
-            amoKategorisering = stringOrNull("amo_kategorisering")?.let { Json.decodeFromString(it) },
+            amoKategorisering = stringOrNull("amo_kategorisering")?.let { JsonIgnoreUnknownKeys.decodeFromString(it) },
         )
     }
 

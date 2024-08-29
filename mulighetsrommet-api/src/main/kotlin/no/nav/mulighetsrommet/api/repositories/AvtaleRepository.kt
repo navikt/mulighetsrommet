@@ -26,6 +26,7 @@ import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.ArenaAvtaleDbo
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dto.*
+import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
 import java.time.LocalDate
@@ -59,7 +60,6 @@ class AvtaleRepository(private val db: Database) {
                 beskrivelse,
                 faneinnhold,
                 personvern_bekreftet,
-                amo_kategorisering,
                 opsjonsmodell,
                 opsjon_custom_opsjonsmodell_navn
             ) values (
@@ -79,7 +79,6 @@ class AvtaleRepository(private val db: Database) {
                 :beskrivelse,
                 :faneinnhold::jsonb,
                 :personvern_bekreftet,
-                :amo_kategorisering::jsonb,
                 :opsjonsmodell::opsjonsmodell,
                 :opsjonCustomOpsjonsmodellNavn
             ) on conflict (id) do update set
@@ -98,7 +97,6 @@ class AvtaleRepository(private val db: Database) {
                 beskrivelse                 = excluded.beskrivelse,
                 faneinnhold                 = excluded.faneinnhold,
                 personvern_bekreftet        = excluded.personvern_bekreftet,
-                amo_kategorisering          = excluded.amo_kategorisering,
                 opsjonsmodell               = excluded.opsjonsmodell,
                 opsjon_custom_opsjonsmodell_navn = excluded.opsjon_custom_opsjonsmodell_navn
         """.trimIndent()
@@ -246,6 +244,10 @@ class AvtaleRepository(private val db: Database) {
                 db.createArrayOf("personopplysning", avtale.personopplysninger),
             ).asExecute,
         )
+
+        avtale.amoKategorisering?.let {
+            AmoKategoriseringRepository.upsert(it, avtale.id, AmoKategoriseringRepository.ForeignIdType.AVTALE, tx)
+        }
     }
 
     fun upsertArenaAvtale(avtale: ArenaAvtaleDbo): Unit = db.transaction {
@@ -491,7 +493,6 @@ class AvtaleRepository(private val db: Database) {
         "beskrivelse" to beskrivelse,
         "faneinnhold" to faneinnhold?.let { Json.encodeToString(it) },
         "personvern_bekreftet" to personvernBekreftet,
-        "amo_kategorisering" to amoKategorisering?.let { Json.encodeToString(it) },
         "opsjonsmodell" to opsjonsmodell?.name,
         "opsjonCustomOpsjonsmodellNavn" to customOpsjonsmodellNavn,
     )
@@ -558,6 +559,12 @@ class AvtaleRepository(private val db: Database) {
             opsjonsmodell = stringOrNull("opsjonsmodell")?.let { Opsjonsmodell.valueOf(it) },
             customOpsjonsmodellNavn = stringOrNull("opsjon_custom_opsjonsmodell_navn"),
         )
+        val amoKategorisering = stringOrNull("amo_kategorisering")?.let {
+            println("CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC")
+            println("CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC")
+            println(it)
+            JsonIgnoreUnknownKeys.decodeFromString<AmoKategorisering>(it)
+        }
 
         return AvtaleAdminDto(
             id = uuid("id"),
@@ -596,9 +603,9 @@ class AvtaleRepository(private val db: Database) {
             ),
             personopplysninger = personopplysninger,
             personvernBekreftet = boolean("personvern_bekreftet"),
-            amoKategorisering = stringOrNull("amo_kategorisering")?.let { Json.decodeFromString(it) },
             opsjonsmodellData = opsjonsmodellData,
             opsjonerRegistrert = opsjonerRegistrert.sortedBy { it.aktivertDato },
+            amoKategorisering = amoKategorisering,
         )
     }
 

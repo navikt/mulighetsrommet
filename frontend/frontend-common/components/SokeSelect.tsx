@@ -30,7 +30,7 @@ export interface SelectProps<T> {
   description?: string;
   value: SelectOption<T> | null;
   error?: { message?: string };
-  helpText?: string;
+  helpText?: React.ReactNode;
 }
 
 export function SokeSelect<T>(props: SelectProps<T> & { childRef?: Ref<Select<SelectOption<T>>> }) {
@@ -63,7 +63,7 @@ export function SokeSelect<T>(props: SelectProps<T> & { childRef?: Ref<Select<Se
       <div
         style={{
           display: "flex",
-          alignItems: "center",
+          alignItems: "start",
           gap: "0.5rem",
           flexDirection: "row",
         }}

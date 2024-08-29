@@ -4129,6 +4129,115 @@ components:
         - HELSEOPPLYSNINGER
         - RELIGION
 
+    Kurstype:
+      type: string
+      enum:
+        - BRANSJE_OG_YRKESRETTET
+        - NORSKOPPLAERING
+        - GRUNNLEGGENDE_FERDIGHETER
+        - FORBEREDENDE_OPPLAERING_FOR_VOKSNE
+        - STUDIESPESIALISERING
+
+    AmoKategorisering:
+      oneOf:
+        - $ref: '#/components/schemas/BransjeOgYrkesrettet'
+        - $ref: '#/components/schemas/Norskopplaering'
+        - $ref: '#/components/schemas/ForberedendeOpplaeringForVoksne'
+        - $ref: '#/components/schemas/GrunnleggendeFerdigheter'
+        - $ref: '#/components/schemas/Studiespesialisering'
+
+    BransjeOgYrkesrettet:
+      type: object
+      properties:
+        kurstype:
+          type: string
+          enum:
+            - BRANSJE_OG_YRKESRETTET
+        bransje:
+          $ref: "#/components/schemas/Bransje"
+        forerkort:
+          type: array
+          items:
+            $ref: "#/components/schemas/ForerkortKlasse"
+        sertifiseringer:
+          type: array
+          items:
+            $ref: "#/components/schemas/Sertifisering"
+        innholdElementer:
+          type: array
+          items:
+            $ref: "#/components/schemas/InnholdElement"
+      required:
+        - kurstype
+        - bransje
+        - innholdElementer
+        - sertifiseringer
+        - forerkort
+
+    Norskopplaering:
+      type: object
+      properties:
+        kurstype:
+          type: string
+          enum:
+            - NORSKOPPLAERING
+        norskprove:
+          type: boolean
+        innholdElementer:
+          type: array
+          items:
+            $ref: "#/components/schemas/InnholdElement"
+      required:
+        - kurstype
+        - norskprove
+        - innholdElementer
+
+    GrunnleggendeFerdigheter:
+      type: object
+      properties:
+        kurstype:
+          type: string
+          enum:
+            - GRUNNLEGGENDE_FERDIGHETER
+        innholdElementer:
+          type: array
+          items:
+            $ref: "#/components/schemas/InnholdElement"
+      required:
+        - kurstype
+        - innholdElementer
+
+    ForberedendeOpplaeringForVoksne:
+      type: object
+      properties:
+        kurstype:
+          type: string
+          enum:
+            - FORBEREDENDE_OPPLAERING_FOR_VOKSNE
+      required:
+        - kurstype
+
+    Studiespesialisering:
+      type: object
+      properties:
+        kurstype:
+          type: string
+          enum:
+            - STUDIESPESIALISERING
+      required:
+        - kurstype
+
+    Sertifisering:
+      type: object
+      properties:
+        konseptId:
+          type: number
+        label:
+          type: string
+      required:
+        - konseptId
+        - label
+
     ForerkortKlasse:
       type: string
       enum:
@@ -4151,14 +4260,7 @@ components:
         - S
         - T
 
-    Kurstype:
-      type: string
-      enum:
-        - BRANSJE
-        - NORSKOPPLAERING
-        - STUDIESPESIALISERING
-
-    Spesifisering:
+    Bransje:
       type: string
       enum:
         - INGENIOR_OG_IKT_FAG
@@ -4171,9 +4273,6 @@ components:
         - REISELIV_SERVERING_OG_TRANSPORT
         - SERVICEYRKER_OG_ANNET_ARBEID
         - ANDRE_BRANSJER
-        - NORSKOPPLAERING
-        - FORBEREDENDE_OPPLAERING_FOR_VOKSNE
-        - GRUNNLEGGENDE_FERDIGHETER
 
     InnholdElement:
       type: string
@@ -4185,41 +4284,6 @@ components:
         - ARBEIDSMARKEDSKUNNSKAP
         - NORSKOPPLAERING
 
-    AmoKategorisering:
-      type: object
-      properties:
-        kurstype:
-          $ref: "#/components/schemas/Kurstype"
-        spesifisering:
-          $ref: "#/components/schemas/Spesifisering"
-        norskprove:
-          type: boolean
-          nullable: true
-        forerkort:
-          type: array
-          items:
-            $ref: "#/components/schemas/ForerkortKlasse"
-        sertifiseringer:
-          type: array
-          items:
-            $ref: "#/components/schemas/Sertifisering"
-        innholdElementer:
-          type: array
-          items:
-            $ref: "#/components/schemas/InnholdElement"
-      required:
-        - kurstype
-
-    Sertifisering:
-      type: object
-      properties:
-        konseptId:
-          type: number
-        label:
-          type: string
-      required:
-        - konseptId
-        - label
 
     KoblingerForKontaktperson:
       type: object

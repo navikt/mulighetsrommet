@@ -2,11 +2,11 @@ import {
   AvbrytAvtaleAarsak,
   Avtale,
   Avtaletype,
+  Bransje,
   EstimertVentetidEnhet,
   ForerkortKlasse,
   InnholdElement,
   Kurstype,
-  Spesifisering,
 } from "@mr/api-client";
 import { AvtaleFilter, TiltaksgjennomforingFilter } from "@/api/atoms";
 
@@ -298,43 +298,41 @@ export function forerkortKlasseToString(klasse: ForerkortKlasse): string {
 
 export function kurstypeToString(kurstype: Kurstype): string {
   switch (kurstype) {
-    case Kurstype.BRANSJE:
+    case Kurstype.BRANSJE_OG_YRKESRETTET:
       return "Bransje-/yrkesrettede kurs";
     case Kurstype.NORSKOPPLAERING:
-      return "Norskopplæring/grunnleggende ferdigheter";
+      return "Norskopplæring";
     case Kurstype.STUDIESPESIALISERING:
       return "Studiespesialisering";
+    case Kurstype.FORBEREDENDE_OPPLAERING_FOR_VOKSNE:
+      return "FOV (forberedende opplæring for voksne)";
+    case Kurstype.GRUNNLEGGENDE_FERDIGHETER:
+      return "Grunnleggende ferdigheter";
   }
 }
 
-export function spesifiseringToString(spesifisering: Spesifisering): string {
-  switch (spesifisering) {
-    case Spesifisering.INGENIOR_OG_IKT_FAG:
+export function bransjeToString(bransje: Bransje): string {
+  switch (bransje) {
+    case Bransje.INGENIOR_OG_IKT_FAG:
       return "Ingeniør- og IKT-fag";
-    case Spesifisering.HELSE_PLEIE_OG_OMSORG:
+    case Bransje.HELSE_PLEIE_OG_OMSORG:
       return "Helse, pleie og omsorg";
-    case Spesifisering.BARNE_OG_UNGDOMSARBEID:
+    case Bransje.BARNE_OG_UNGDOMSARBEID:
       return "Barne- og ungdomsarbeid";
-    case Spesifisering.KONTORARBEID:
+    case Bransje.KONTORARBEID:
       return "Kontorarbeid";
-    case Spesifisering.BUTIKK_OG_SALGSARBEID:
+    case Bransje.BUTIKK_OG_SALGSARBEID:
       return "Butikk- og salgsarbeid";
-    case Spesifisering.BYGG_OG_ANLEGG:
+    case Bransje.BYGG_OG_ANLEGG:
       return "Bygg og anlegg";
-    case Spesifisering.INDUSTRIARBEID:
+    case Bransje.INDUSTRIARBEID:
       return "Industriarbeid";
-    case Spesifisering.REISELIV_SERVERING_OG_TRANSPORT:
+    case Bransje.REISELIV_SERVERING_OG_TRANSPORT:
       return "Reiseliv, servering og transport";
-    case Spesifisering.SERVICEYRKER_OG_ANNET_ARBEID:
+    case Bransje.SERVICEYRKER_OG_ANNET_ARBEID:
       return "Serviceyrker og annet arbeid";
-    case Spesifisering.ANDRE_BRANSJER:
+    case Bransje.ANDRE_BRANSJER:
       return "Andre bransjer";
-    case Spesifisering.NORSKOPPLAERING:
-      return "Norskopplæring";
-    case Spesifisering.FORBEREDENDE_OPPLAERING_FOR_VOKSNE:
-      return "FOV (Forberedende opplæring for voksne)";
-    case Spesifisering.GRUNNLEGGENDE_FERDIGHETER:
-      return "Grunnleggende ferdigheter";
   }
 }
 
