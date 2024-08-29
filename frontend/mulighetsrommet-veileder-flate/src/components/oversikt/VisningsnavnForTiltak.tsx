@@ -1,25 +1,17 @@
-import { Tiltakskode, VeilederflateTiltakstype } from "@mr/api-client";
+import { VeilederflateTiltakstype } from "@mr/api-client";
 import { BodyShort } from "@navikt/ds-react";
 import { ReactNode } from "react";
 import styles from "./VisningsnavnForTiltak.module.scss";
+import { erKurstiltak } from "../../utils/Utils";
 
 interface Props {
   navn: string;
   tiltakstype: VeilederflateTiltakstype;
 }
 
-function erKurstiltak(tiltakskode: Tiltakskode) {
-  return [
-    Tiltakskode.JOBBKLUBB,
-    Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK,
-    Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
-    Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
-  ].includes(tiltakskode);
-}
-
 export function VisningsnavnForTiltak({ navn, tiltakstype }: Props): ReactNode {
-  const tiltakskode = tiltakstype.tiltakskode;
-  if (tiltakskode && erKurstiltak(tiltakskode)) {
+  const { tiltakskode, arenakode } = tiltakstype;
+  if (erKurstiltak(tiltakskode, arenakode)) {
     return (
       <div className={styles.container}>
         <OriginaltNavn navn={navn} />

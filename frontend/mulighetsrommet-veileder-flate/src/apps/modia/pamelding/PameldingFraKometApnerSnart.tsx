@@ -11,37 +11,34 @@ interface Props {
 
 export function PameldingFraKometApnerSnart({ tiltaksgjennomforing }: Props) {
   const { data } = useTiltakstyperSomSnartStotterPameldingIModia();
+  const tiltakskode = tiltaksgjennomforing?.tiltakstype?.tiltakskode;
 
-  if (
-    tiltaksgjennomforing?.tiltakstype?.tiltakskode &&
-    !data?.includes(tiltaksgjennomforing.tiltakstype.tiltakskode)
-  ) {
-    return null;
+  if (tiltakskode && data?.includes(tiltakskode)) {
+    return (
+      <GuidePanel
+        className={styles.overwritten_poster}
+        illustration={<TegnestiftIkon aria-label="Tegnestifikon" />}
+      >
+        <VStack gap="3">
+          <Heading level="4" size="small" className={styles.text_center}>
+            Ny påmeldingsløsning er planlagt lansert 1. oktober
+          </Heading>
+          <BodyShort>
+            Påmelding på arbeidsmarkedstiltak skal i fremtiden gjøres her i Modia. AFT-tiltaket er
+            den første tiltakstypen i ny løsning.
+          </BodyShort>
+          <BodyShort>
+            <Link
+              target="_blank"
+              rel="noreferrer noopener"
+              href="https://navno.sharepoint.com/sites/intranett-produktomrader-og-prosjekter/SitePages/Ny-l%C3%B8sning-for-p%C3%A5melding-til-arbeidsforberedende-trening.aspx"
+            >
+              Les mer på navet her <ExternalLinkIcon title="Ikon for å åpne lenke i ny fane" />
+            </Link>
+          </BodyShort>
+        </VStack>
+      </GuidePanel>
+    );
   }
-
-  return (
-    <GuidePanel
-      className={styles.overwritten_poster}
-      illustration={<TegnestiftIkon aria-label="Tegnestifikon" />}
-    >
-      <VStack gap="3">
-        <Heading level="4" size="small" className={styles.text_center}>
-          Ny påmeldingsløsning er planlagt lansert 1. oktober
-        </Heading>
-        <BodyShort>
-          Påmelding på arbeidsmarkedstiltak skal i fremtiden gjøres her i Modia. AFT-tiltaket er den
-          første tiltakstypen i ny løsning.
-        </BodyShort>
-        <BodyShort>
-          <Link
-            target="_blank"
-            rel="noreferrer noopener"
-            href="https://navno.sharepoint.com/sites/intranett-produktomrader-og-prosjekter/SitePages/Ny-l%C3%B8sning-for-p%C3%A5melding-til-arbeidsforberedende-trening.aspx"
-          >
-            Les mer på navet her <ExternalLinkIcon title="Ikon for å åpne lenke i ny fane" />
-          </Link>
-        </BodyShort>
-      </VStack>
-    </GuidePanel>
-  );
+  return null;
 }

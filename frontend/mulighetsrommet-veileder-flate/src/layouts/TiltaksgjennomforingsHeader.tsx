@@ -1,20 +1,12 @@
-import { Tiltakskode, VeilederflateTiltak } from "@mr/api-client";
+import { VeilederflateTiltak } from "@mr/api-client";
 import { TiltaksgjennomforingStatusTag } from "@mr/frontend-common";
 import { gjennomforingIsAktiv } from "@mr/frontend-common/utils/utils";
 import { BodyLong, Heading, HStack, VStack } from "@navikt/ds-react";
+import { erKurstiltak } from "../utils/Utils";
 import styles from "./TiltaksgjennomforingsHeader.module.scss";
 
 interface Props {
   tiltaksgjennomforing: VeilederflateTiltak;
-}
-
-function erKurstiltak(tiltakskode: Tiltakskode) {
-  return [
-    Tiltakskode.JOBBKLUBB,
-    Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK,
-    Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
-    Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
-  ].includes(tiltakskode);
 }
 
 const TiltaksgjennomforingsHeader = ({ tiltaksgjennomforing }: Props) => {
@@ -24,7 +16,7 @@ const TiltaksgjennomforingsHeader = ({ tiltaksgjennomforing }: Props) => {
       <HStack align="center" gap="2" className={styles.tiltaksgjennomforing_title}>
         <Heading level="1" size="xlarge">
           <VStack>
-            {tiltakstype.tiltakskode && erKurstiltak(tiltakstype.tiltakskode) ? (
+            {erKurstiltak(tiltakstype.tiltakskode, tiltakstype.arenakode) ? (
               <>
                 {navn}
                 <BodyLong size="medium" textColor="subtle">
