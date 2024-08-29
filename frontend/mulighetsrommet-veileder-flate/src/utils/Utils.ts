@@ -1,3 +1,5 @@
+import { Tiltakskode, TiltakskodeArena } from "@mr/api-client";
+
 export function inneholderUrl(string: string) {
   return window.location.href.indexOf(string) > -1;
 }
@@ -40,5 +42,20 @@ export function addOrRemove<T>(array: T[], item: T): T[] {
     const result = array;
     result.push(item);
     return result;
+  }
+}
+
+export function erKurstiltak(tiltakskode?: Tiltakskode, arenaKode?: TiltakskodeArena) {
+  if (tiltakskode) {
+    return [
+      Tiltakskode.JOBBKLUBB,
+      Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK,
+      Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
+      Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
+    ].includes(tiltakskode);
+  }
+
+  if (arenaKode) {
+    return [TiltakskodeArena.ENKELAMO, TiltakskodeArena.ENKFAGYRKE].includes(arenaKode);
   }
 }
