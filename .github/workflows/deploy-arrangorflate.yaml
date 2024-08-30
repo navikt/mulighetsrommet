@@ -3,7 +3,7 @@ name: CI/CD (arrangor-flate)
 on:
   push:
     paths:
-      - .github/workflows/mr-admin-flate.yaml
+      - .github/workflows/deploy-arrangorflate.yaml
       - package.json
       - package-lock.json
       - turbo.json
