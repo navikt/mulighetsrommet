@@ -41,7 +41,7 @@ export function AFTBeregningSkjema({ defaultAntallPlasser }: Props) {
             new Date(b.startDato).getTime() - new Date(a.startDato).getTime(),
         ) ?? [];
 
-    return filteredData[0].belop;
+    return filteredData[0]?.belop;
   }
 
   useEffect(() => {
