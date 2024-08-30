@@ -1,5 +1,7 @@
+import { BodyShort, Box, Heading } from "@navikt/ds-react";
 import { LoaderFunction } from "@remix-run/node";
 import {
+  isRouteErrorResponse,
   json,
   Links,
   Meta,
@@ -9,14 +11,15 @@ import {
   Scripts,
   ScrollRestoration,
   useLoaderData,
+  useRouteError,
 } from "@remix-run/react";
 import parse from "html-react-parser";
+import { ReactNode, useEffect } from "react";
+import { configureMock } from "./mocks";
+import css from "./root.module.css";
 import { Dekoratørfragmenter, hentSsrDekoratør } from "./services/dekoratør/dekoratør.server";
 import { hentMiljø, Miljø } from "./services/miljø";
 import "./tailwind.css";
-import { configureMock } from "./mocks";
-import { ReactNode } from "react";
-import css from "./root.module.css";
 
 export const meta: MetaFunction = () => [{ title: "Refusjoner" }];
 
@@ -76,5 +79,41 @@ function Dokument({
     </html>
   );
 }
+
+export const ErrorBoundary = () => {
+  const error = useRouteError();
+
+  useEffect(() => {
+    if (isRouteErrorResponse(error) && error.status === 401) {
+      // redirectTilInnlogging();
+    }
+  });
+
+  if (isRouteErrorResponse(error)) {
+    return (
+      <Dokument>
+        <Heading spacing size="large" level="2">
+          {error.status}
+        </Heading>
+        <Box background="bg-default" padding={"10"}>
+          <BodyShort>Det skjedde en uventet feil</BodyShort>
+          <BodyShort>{error.data.message}</BodyShort>
+        </Box>
+      </Dokument>
+    );
+  } else {
+    return (
+      <Dokument>
+        <Heading spacing size="large" level="2">
+          Ojsann!
+        </Heading>
+        <Box background="bg-default" padding={"10"}>
+          <BodyShort>Det skjedde en uventet feil.</BodyShort>
+          <BodyShort>Vennligst prøv igjen senere</BodyShort>
+        </Box>
+      </Dokument>
+    );
+  }
+};
 
 export default App;

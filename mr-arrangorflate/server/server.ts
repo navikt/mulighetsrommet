@@ -5,7 +5,7 @@ import { logger } from "./logger";
 import handleRequestWithRemix from "./remix";
 
 const port = process.env.PORT || 3000;
-const basePath = "/kandidatliste";
+const basePath = "/";
 
 const app = express();
 
