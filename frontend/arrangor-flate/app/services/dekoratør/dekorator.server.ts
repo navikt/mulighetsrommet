@@ -41,7 +41,7 @@ export const hentDekoratør = async (miljø: Miljø): Promise<Dekoratørfragment
     env: miljø === Miljø.ProdGcp ? "prod" : "dev",
     simple: false,
     chatbot: false,
-    context: "samarbeidspartner", // TODO Sjekk om dette er korrekt
+    context: "samarbeidspartner",
     breadcrumbs: byggBrødsmulesti(miljø),
   });
 

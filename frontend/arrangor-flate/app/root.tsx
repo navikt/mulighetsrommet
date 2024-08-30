@@ -17,7 +17,7 @@ import parse from "html-react-parser";
 import { ReactNode, useEffect } from "react";
 import { configureMock } from "./mocks";
 import css from "./root.module.css";
-import { Dekoratørfragmenter, hentSsrDekoratør } from "./services/dekoratør/dekoratør.server";
+import { Dekoratørfragmenter, hentSsrDekoratør } from "./services/dekoratør/dekorator.server";
 import { hentMiljø, Miljø } from "./services/miljø";
 import "./tailwind.css";
 
