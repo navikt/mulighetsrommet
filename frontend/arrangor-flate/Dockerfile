@@ -1,24 +1,29 @@
-FROM node:20-bullseye-slim as base
+FROM node:20-bullseye-slim AS base
 # FROM gcr.io/distroless/nodejs20-debian11 as production
 
-ENV NODE_ENV production
+# ENV NODE_ENV production
 
 # Setup production node_modules
-FROM base as production-deps
+FROM base AS production-deps
 
 WORKDIR /app
+
 ADD package.json /app/package.json
+
 # RUN npm install --omit=dev
 RUN npm install
 
 FROM base
+
 ENV PORT="3000"
 
 WORKDIR /app
+
 COPY --from=production-deps /app/node_modules/ /app/node_modules/
 COPY build/ /app/build/
 COPY public/ /app/public/
 COPY package.json /app/package.json
 
 EXPOSE 3000
+
 CMD ["npm", "run", "start"]
