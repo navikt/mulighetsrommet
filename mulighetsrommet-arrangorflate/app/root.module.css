@@ -1,0 +1,38 @@
+body {
+  background-color: var(--a-gray-100);
+  min-height: 100vh;
+}
+
+.header {
+  background-color: white;
+}
+
+.side {
+  display: flex;
+  flex-direction: column;
+  max-width: 56rem;
+  margin-bottom: 3rem;
+}
+
+:global(#decorator-header) {
+  background: white;
+}
+
+@media (min-width: 40rem) {
+  .side {
+    margin: 1rem auto;
+    padding: 1rem;
+  }
+}
+
+@media print {
+  :global(#decorator-header),
+  :global(#decorator-footer),
+  :global(.navbm-bedriftsmeny) {
+    display: none;
+  }
+
+  a[href]:after {
+    content: none !important;
+  }
+}
