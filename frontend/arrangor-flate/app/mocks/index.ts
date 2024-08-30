@@ -1,8 +1,6 @@
-import { configureMockServer } from "./server";
-
 export const configureMock = () => {
   if (typeof document === "undefined") {
-    configureMockServer().listen();
+    // configureMockServer().listen();
   } else {
     // TODO Hvorfor virker ikke denne?
     // configureMockWorker().start();

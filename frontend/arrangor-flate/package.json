@@ -5,9 +5,9 @@
   "type": "module",
   "scripts": {
     "build": "remix vite:build",
-    "dev": "remix vite:dev",
+    "dev": "node ./server.js",
     "lint": "eslint --ignore-path .gitignore --cache --cache-location ./node_modules/.cache/eslint .",
-    "start": "remix-serve ./build/server/index.js",
+    "start": "cross-env NODE_ENV=production node ./server.js",
     "typecheck": "tsc"
   },
   "dependencies": {
@@ -18,10 +18,12 @@
     "@navikt/ds-react": "^6.16.2",
     "@navikt/ds-tailwind": "^6.16.2",
     "@navikt/nav-dekoratoren-moduler": "^1.6.9",
+    "@remix-run/express": "^2.11.2",
     "@remix-run/node": "^2.11.2",
     "@remix-run/react": "^2.11.2",
     "@remix-run/serve": "^2.11.2",
     "compression": "^1.7.4",
+    "cross-env": "^7.0.3",
     "express": "^4.19.2",
     "html-react-parser": "^5.1.15",
     "http-proxy-middleware": "^3.0.0",

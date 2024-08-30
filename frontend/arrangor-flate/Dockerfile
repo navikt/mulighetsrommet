@@ -21,6 +21,7 @@ WORKDIR /app
 
 COPY --from=production-deps /app/node_modules/ /app/node_modules/
 COPY build/ /app/build/
+COPY server.js /app/server.js
 COPY public/ /app/public/
 COPY package.json /app/package.json
 
