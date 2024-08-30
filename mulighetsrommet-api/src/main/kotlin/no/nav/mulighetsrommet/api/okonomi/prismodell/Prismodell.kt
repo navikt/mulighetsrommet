@@ -10,6 +10,17 @@ import kotlin.streams.asSequence
 
 object Prismodell {
     object AFT {
+        val satser: Map<LocalDate, Int> = mapOf(
+            LocalDate.of(2024, 1, 1) to 20205,
+            LocalDate.of(2023, 1, 1) to 19500,
+        )
+
+        fun findSats(periodeStart: LocalDate): Int? =
+            satser
+                .filter { !it.key.isAfter(periodeStart) }
+                .maxByOrNull { it.key }
+                ?.value
+
         fun beregnTilsagnBelop(
             sats: Int,
             antallPlasser: Int,
@@ -21,6 +32,12 @@ object Prismodell {
             }
             require(periodeStart.year == periodeSlutt.year) {
                 "perioden må være innen et år"
+            }
+            require(sats == findSats(periodeStart)) {
+                "feil sats"
+            }
+            require(findSats(periodeStart) == findSats(periodeSlutt)) {
+                "periode går over flere satser"
             }
             return periodeStart.datesUntil(periodeSlutt.plusDays(1))
                 .asSequence()

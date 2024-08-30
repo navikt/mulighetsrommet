@@ -1781,6 +1781,21 @@ paths:
               schema:
                 type: string
 
+  /api/v1/intern/tilsagn/aft/sats:
+    get:
+      tags:
+        - AFT satser
+      operationId: aftSatser
+      responses:
+        200:
+          description: AFT satser
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AFTSats"
+
 components:
   securitySchemes:
     bearerAuth:
@@ -4720,4 +4735,16 @@ components:
           type: integer
       required:
         - type
+        - belop
+
+    AFTSats:
+      type: object
+      properties:
+        startDato:
+          type: string
+          format: date
+        belop:
+          type: integer
+      required:
+        - startDato
         - belop

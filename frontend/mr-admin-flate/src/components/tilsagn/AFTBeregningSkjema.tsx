@@ -1,19 +1,19 @@
 import { HStack, TextField } from "@navikt/ds-react";
 import { useEffect, useState } from "react";
-import { DeepPartial, useFormContext } from "react-hook-form";
+import { DeepPartial, FieldError, FieldErrorsImpl, Merge, useFormContext } from "react-hook-form";
 import { InferredOpprettTilsagnSchema } from "./OpprettTilsagnSchema";
 import { NumericFormat } from "react-number-format";
 import { useBeregnTilsagn } from "@/api/tilsagn/useBeregnTilsagn";
 import { useHandleApiUpsertResponse } from "@/api/effects";
+import { useAFTSatser } from "@/api/tilsagn/useAFTSatser";
+import { AFTSats, TilsagnBeregningAFT } from "@mr/api-client";
 
 interface Props {
   defaultAntallPlasser?: number;
 }
 
-// TODO: Hent fra backend gitt periodeStart. Eller hent liste fra backend
-const sats = 20205;
-
 export function AFTBeregningSkjema({ defaultAntallPlasser }: Props) {
+  const { data: satser } = useAFTSatser();
   const mutation = useBeregnTilsagn();
   const {
     setError,
@@ -28,8 +28,25 @@ export function AFTBeregningSkjema({ defaultAntallPlasser }: Props) {
   const periode = watch("periode");
   const beregning = watch("beregning");
 
+  function findSats(): number | undefined {
+    if (!periode?.start) {
+      return;
+    }
+    const periodeStart = new Date(periode.start);
+    const filteredData =
+      satser
+        ?.filter((sats: AFTSats) => new Date(sats.startDato) <= periodeStart)
+        ?.sort(
+          (a: AFTSats, b: AFTSats) =>
+            new Date(b.startDato).getTime() - new Date(a.startDato).getTime(),
+        ) ?? [];
+
+    return filteredData[0]?.belop;
+  }
+
   useEffect(() => {
-    if (periode?.start && periode.slutt && mutation) {
+    const sats = findSats();
+    if (sats && periode?.start && periode.slutt && mutation) {
       mutation.mutate({
         type: "AFT",
         periodeStart: periode.start,
@@ -84,8 +101,12 @@ export function AFTBeregningSkjema({ defaultAntallPlasser }: Props) {
         readOnly
         size="small"
         label="Sats"
+        error={
+          (errors.beregning as Merge<FieldError, FieldErrorsImpl<NonNullable<TilsagnBeregningAFT>>>)
+            ?.sats?.message
+        }
         customInput={TextField}
-        value={sats}
+        value={findSats()}
         valueIsNumericString
         thousandSeparator=" "
         suffix=" kr"

@@ -2,8 +2,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { FormProvider, useForm } from "react-hook-form";
 import { InferredOpprettTilsagnSchema, OpprettTilsagnSchema } from "./OpprettTilsagnSchema";
 import { useEffect } from "react";
-import { HGrid, TextField, DatePicker, BodyShort, Alert, HStack, Button } from "@navikt/ds-react";
-import { addYear } from "../../utils/Utils";
+import { HGrid, DatePicker, BodyShort, Alert, HStack, Button, Box } from "@navikt/ds-react";
+import { addYear, formaterDato } from "../../utils/Utils";
 import { ControlledDateInput } from "../skjema/ControlledDateInput";
 import { FormGroup } from "../skjema/FormGroup";
 import { ApiError, TilsagnDto, TilsagnRequest, Tiltaksgjennomforing } from "@mr/api-client";
@@ -11,7 +11,8 @@ import { useNavEnheter } from "../../api/enhet/useNavEnheter";
 import { UseMutationResult } from "@tanstack/react-query";
 import { AFTBeregningSkjema } from "./AFTBeregningSkjema";
 import { FriBeregningSkjema } from "./FriBeregningSkjema";
-import { ControlledSokeSelect } from "@mr/frontend-common";
+import { ControlledSokeSelect, TiltaksgjennomforingStatusTag } from "@mr/frontend-common";
+import { Metadata } from "../detaljside/Metadata";
 
 interface Props {
   tiltaksgjennomforing: Tiltaksgjennomforing;
@@ -62,23 +63,23 @@ export function TilsagnSkjema({
   return (
     <FormProvider {...form}>
       <form onSubmit={handleSubmit(onSubmit)}>
-        <FormGroup>
-          <HGrid columns={2} gap="2">
-            <TextField
-              size="small"
-              readOnly
-              label="Tiltaksgjennomføring"
-              value={tiltaksgjennomforing.navn}
+        <Box borderColor="border-subtle" padding="4" borderWidth="1" borderRadius="medium">
+          <HGrid columns="2fr 2fr 1fr 1fr 1fr 1fr 1fr">
+            <Metadata header="Tiltaksnavn" verdi={tiltaksgjennomforing.navn} />
+            <Metadata
+              header="Arrangør"
+              verdi={`${tiltaksgjennomforing.arrangor.navn} - ${tiltaksgjennomforing.arrangor.organisasjonsnummer}`}
             />
-            <TextField
-              readOnly
-              size="small"
-              label="Organisasjonsnummer for arrangør"
-              value={`${tiltaksgjennomforing.arrangor.navn} - ${tiltaksgjennomforing.arrangor.organisasjonsnummer}`}
+            <Metadata header="Tiltaksnummer" verdi={tiltaksgjennomforing.tiltaksnummer} />
+            <Metadata header="Startdato" verdi={formaterDato(tiltaksgjennomforing.startDato)} />
+            <Metadata header="Sluttdato" verdi={formaterDato(tiltaksgjennomforing.startDato)} />
+            <Metadata header="Antall plasser" verdi={tiltaksgjennomforing.antallPlasser} />
+            <Metadata
+              header="Status"
+              verdi={<TiltaksgjennomforingStatusTag status={tiltaksgjennomforing.status} />}
             />
           </HGrid>
-        </FormGroup>
-
+        </Box>
         <FormGroup>
           <DatePicker>
             <HGrid columns={2} gap={"2"}>
