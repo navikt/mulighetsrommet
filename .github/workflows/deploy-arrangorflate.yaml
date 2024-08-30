@@ -54,6 +54,8 @@ jobs:
           identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
           project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
           dockerfile: ./frontend/arrangor-flate/Dockerfile
+          docker_context: ./frontend/arrangor-flate
+          image_suffix: arrangor-flate
 
   deploy-til-dev:
     name: Deploy til dev-gcp
