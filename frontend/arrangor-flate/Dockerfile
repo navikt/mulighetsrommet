@@ -9,7 +9,6 @@ FROM base AS production-deps
 WORKDIR /app
 
 ADD package.json /app/package.json
-ADD public/ /app/public/
 
 # RUN npm install --omit=dev
 RUN npm install
@@ -23,7 +22,6 @@ WORKDIR /app
 COPY --from=production-deps /app/node_modules/ /app/node_modules/
 COPY build/ /app/build/
 COPY server.js /app/server.js
-COPY public/ /app/public/
 COPY package.json /app/package.json
 
 EXPOSE 3000
