@@ -53,6 +53,7 @@ jobs:
         run: npm ci
         env:
           NODE_AUTH_TOKEN: ${{ secrets.READER_TOKEN }}
+      # TODO Legg til test-steg
       - name: Bygg applikasjon
         run: npm run build
       - name: Push docker image to GAR
