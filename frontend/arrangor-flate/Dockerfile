@@ -9,6 +9,7 @@ FROM base AS production-deps
 WORKDIR /app
 
 ADD package.json /app/package.json
+ADD public/ /app/public/
 
 # RUN npm install --omit=dev
 RUN npm install
