@@ -1,4 +1,4 @@
-name: CI/CD (mr-arrangorflate)
+name: CI/CD (arrangor-flate)
 
 on:
   push:
@@ -7,10 +7,9 @@ on:
       - package.json
       - package-lock.json
       - turbo.json
-      - frontend/mr-admin-flate/**
       - frontend/api-client/**
       - mulighetsrommet-api/src/main/resources/web/openapi.yaml
-      - mr-arrangorflate/**
+      - frontend/arrangor-flate/**
   workflow_dispatch:
     inputs:
       environment:
@@ -42,20 +41,11 @@ jobs:
       image: ${{ steps.docker-build-push.outputs.image }}
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 18
-          registry-url: "https://npm.pkg.github.com"
-          cache: "npm"
-          cache-dependency-path: |
-            package-lock.json
-      - name: Installer avhengigheter
-        run: npm ci
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.READER_TOKEN }}
+      - name: Setup frontend
+        uses: ./.github/actions/setup-frontend
       # TODO Legg til test-steg
       - name: Bygg applikasjon
-        run: npm run build
+        run: npx turbo run build --filter=@mr/arrangor-flate
       - name: Push docker image to GAR
         uses: nais/docker-build-push@v0
         id: docker-build-push
@@ -74,7 +64,7 @@ jobs:
       - uses: nais/deploy/actions/deploy@v2
         env:
           CLUSTER: dev-gcp
-          RESOURCE: mr-arrangorflate/.nais/nais-dev.yaml
+          RESOURCE: frontend/arrangor-flate/.nais/nais-dev.yaml
           VAR: image=${{ needs.ci.outputs.image }}
 
   # TODO Skru på deploy til prod når alt er klart for arrangørflate
@@ -88,5 +78,5 @@ jobs:
   #         - uses: nais/deploy/actions/deploy@v2
   #           env:
   #               CLUSTER: prod-gcp
-  #               RESOURCE: mr-arrangorflate/.nais/nais-prod.yaml
+  #               RESOURCE: frontend/arrangor-flate/.nais/nais-prod.yaml
   #               VAR: image=${{ needs.ci.outputs.image }}

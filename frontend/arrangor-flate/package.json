@@ -1,5 +1,5 @@
 {
-  "name": "mulighetsrommet-arrangorflate",
+  "name": "@mr/arrangor-flate",
   "private": true,
   "sideEffects": false,
   "type": "module",
