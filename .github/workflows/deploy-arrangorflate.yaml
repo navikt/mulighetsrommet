@@ -1,0 +1,85 @@
+name: CI/CD (arrangor-flate)
+
+on:
+  push:
+    paths:
+      - .github/workflows/deploy-arrangorflate.yaml
+      - package.json
+      - package-lock.json
+      - turbo.json
+      - frontend/api-client/**
+      - mulighetsrommet-api/src/main/resources/web/openapi.yaml
+      - frontend/arrangor-flate/**
+  workflow_dispatch:
+    inputs:
+      environment:
+        type: choice
+        description: Environment
+        required: true
+        default: dev
+        options:
+          - dev
+          - dev_and_prod
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CI: true
+  TZ: Europe/Amsterdam
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  ci:
+    name: CI
+    runs-on: ubuntu-latest
+    outputs:
+      image: ${{ steps.docker-build-push.outputs.image }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup frontend
+        uses: ./.github/actions/setup-frontend
+      # TODO Legg til test-steg
+      - name: Bygg applikasjon
+        run: npx turbo run build --filter=@mr/arrangor-flate
+      - name: Push docker image to GAR
+        uses: nais/docker-build-push@v0
+        id: docker-build-push
+        with:
+          team: team-mulighetsrommet
+          identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
+          project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
+          dockerfile: ./frontend/arrangor-flate/Dockerfile
+          docker_context: ./frontend/arrangor-flate
+          image_suffix: arrangor-flate
+
+  deploy-til-dev:
+    name: Deploy til dev-gcp
+    needs: ci
+    if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: nais/deploy/actions/deploy@v2
+        env:
+          CLUSTER: dev-gcp
+          RESOURCE: frontend/arrangor-flate/.nais/nais-dev.yaml
+          VAR: image=${{ needs.ci.outputs.image }}
+
+  # TODO Skru på deploy til prod når alt er klart for arrangørflate
+  # deploy-til-prod:
+  #     name: Deploy til prod-gcp
+  #     needs: [ci, deploy-til-dev]
+  #     if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch'
+  #     runs-on: ubuntu-latest
+  #     steps:
+  #         - uses: actions/checkout@v4
+  #         - uses: nais/deploy/actions/deploy@v2
+  #           env:
+  #               CLUSTER: prod-gcp
+  #               RESOURCE: frontend/arrangor-flate/.nais/nais-prod.yaml
+  #               VAR: image=${{ needs.ci.outputs.image }}
