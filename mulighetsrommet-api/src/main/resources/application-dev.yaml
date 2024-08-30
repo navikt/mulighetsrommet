@@ -154,7 +154,7 @@ app:
       cronPattern: "0 55 23 * * *" # 23.55 hver kveld
 
   norg2:
-    baseUrl: https://norg2.dev-fss-pub.nais.io/norg2/api/v1
+    baseUrl: https://norg2.intern.dev.nav.no/norg2/api/v1
 
   brreg:
     baseUrl: https://data.brreg.no/enhetsregisteret/api

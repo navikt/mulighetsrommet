@@ -121,7 +121,7 @@ spec:
         - application: veilarbdialog
           namespace: dab
       external:
-        - host: norg2.dev-fss-pub.nais.io
+        - host: norg2.intern.dev.nav.no
         - host: slack.com
         - host: xegcworx.apicdn.sanity.io
         - host: xegcworx.api.sanity.io
