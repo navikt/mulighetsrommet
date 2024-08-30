@@ -1,5 +1,4 @@
 import { fetchDecoratorHtml } from "@navikt/nav-dekoratoren-moduler/ssr";
-import { logger } from "server/logger";
 import { hentMiljø, Miljø } from "../miljø";
 
 const visDekoratørUnderUtvikling = true;
@@ -30,7 +29,7 @@ export const hentSsrDekoratør = async (): Promise<Dekoratørfragmenter | null> 
       }
     }
   } catch (e) {
-    logger.error("Klarte ikke å hente dekoratør, appen vil mangle header og footer");
+    console.log("Klarte ikke å hente dekoratør, appen vil mangle header og footer");
     return null;
   }
 };
