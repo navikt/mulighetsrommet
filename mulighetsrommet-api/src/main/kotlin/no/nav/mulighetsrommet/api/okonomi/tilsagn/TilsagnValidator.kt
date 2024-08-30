@@ -5,6 +5,7 @@ import arrow.core.left
 import arrow.core.nel
 import arrow.core.raise.either
 import arrow.core.right
+import no.nav.mulighetsrommet.api.okonomi.prismodell.Prismodell
 import no.nav.mulighetsrommet.api.okonomi.prismodell.Prismodell.TilsagnBeregning
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.responses.ValidationError
@@ -76,7 +77,7 @@ class TilsagnValidator(
         }
     }
 
-    fun validateAFTTilsagnBeregningInput(input: TilsagnBeregningInput.AFT): Either<List<ValidationError>, TilsagnBeregningInput> = either {
+    private fun validateAFTTilsagnBeregningInput(input: TilsagnBeregningInput.AFT): Either<List<ValidationError>, TilsagnBeregningInput> = either {
         val errors = buildList {
             if (input.periodeStart.year != input.periodeSlutt.year) {
                 add(ValidationError.of(TilsagnBeregningInput.AFT::periodeSlutt, "Perioden kan ikke gå over flere år"))
@@ -86,6 +87,12 @@ class TilsagnValidator(
             }
             if (input.antallPlasser <= 0) {
                 add(ValidationError.of(TilsagnBeregningInput.AFT::antallPlasser, "Antall plasser kan ikke være 0"))
+            }
+            if (Prismodell.AFT.findSats(input.periodeStart) != input.sats) {
+                add(ValidationError.ofCustomLocation("beregning.sats", "Feil sats for valgt periode"))
+            }
+            if (Prismodell.AFT.findSats(input.periodeStart) != Prismodell.AFT.findSats(input.periodeSlutt)) {
+                add(ValidationError.of(TilsagnBeregningInput.AFT::periodeStart, "Periode går over flere satser"))
             }
         }
 

@@ -69,6 +69,17 @@ fun Route.tilsagnRoutes() {
                 call.respondWithStatusResponse(service.beslutt(id, request.besluttelse, navIdent))
             }
         }
+
+        get("/aft/sats") {
+            call.respond(
+                Prismodell.AFT.satser.map {
+                    AFTSats(
+                        startDato = it.key,
+                        belop = it.value,
+                    )
+                },
+            )
+        }
     }
 
     route("/tiltaksgjennomforinger/{id}/tilsagn") {
@@ -139,3 +150,10 @@ sealed class TilsagnBeregningInput {
     @SerialName("FRI")
     data class Fri(val belop: Int) : TilsagnBeregningInput()
 }
+
+@Serializable
+data class AFTSats(
+    @Serializable(with = LocalDateSerializer::class)
+    val startDato: LocalDate,
+    val belop: Int,
+)
