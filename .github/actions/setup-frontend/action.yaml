@@ -8,10 +8,11 @@ runs:
       with:
         node-version: 20
         cache: npm
+        registry-url: "https://npm.pkg.github.com"
     - run: npm ci
       shell: bash
       env:
-          NODE_AUTH_TOKEN: ${{ secrets.READER_TOKEN }}
+        NODE_AUTH_TOKEN: ${{ secrets.READER_TOKEN }}
     - name: Cache Turborepo
       uses: actions/cache@v4
       with:
