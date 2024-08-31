@@ -6,6 +6,7 @@ ENV PORT="3000"
 COPY node_modules/ /app/node_modules/
 COPY build/ /app/build/
 COPY ./server.js /app/server.js
+COPY ./package.json /app/package.json
 
 EXPOSE 3000
 
