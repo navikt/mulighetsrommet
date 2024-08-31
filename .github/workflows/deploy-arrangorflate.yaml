@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - .github/workflows/deploy-arrangorflate.yaml
+      - .github/workflows/actions/*
       - package.json
       - package-lock.json
       - turbo.json
