@@ -43,6 +43,8 @@ jobs:
       - uses: actions/checkout@v4
       - name: Setup frontend
         uses: ./.github/actions/setup-frontend
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.READER_TOKEN }}
       # TODO Legg til test-steg
       - name: Bygg applikasjon
         run: npx turbo run build --filter=@mr/arrangor-flate
