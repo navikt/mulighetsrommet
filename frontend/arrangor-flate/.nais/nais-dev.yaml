@@ -15,13 +15,13 @@ spec:
         requests:
             cpu: 50m
     ingresses:
-        - https://arrangor-refusjon.intern.dev.nav.no/refusjon
+        - https://arrangor-refusjon.intern.dev.nav.no
     liveness:
         initialDelay: 20
-        path: /refusjon/internal/isAlive
+        path: /internal/isAlive
     readiness:
         initialDelay: 20
-        path: /refusjon/internal/isReady
+        path: /internal/isReady
     accessPolicy:
         outbound:
             rules:

@@ -22,7 +22,7 @@ export default function RefusjonDeltakerlister() {
     <div className="font-sans p-4">
       <h1 className="text-3xl">{title}</h1>
       <BodyShort>Her kan vi vise detaljer</BodyShort>
-      <Link to="/refusjon">Gå tilbake</Link>
+      <Link to="/">Gå tilbake</Link>
     </div>
   );
 }

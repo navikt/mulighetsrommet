@@ -1,6 +1,6 @@
 import { BodyShort } from "@navikt/ds-react";
 import type { MetaFunction } from "@remix-run/node";
-import { Link, Outlet } from "@remix-run/react";
+import { Link } from "@remix-run/react";
 
 export const meta: MetaFunction = () => {
   return [
