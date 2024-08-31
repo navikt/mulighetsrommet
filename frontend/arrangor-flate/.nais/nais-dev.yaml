@@ -18,10 +18,10 @@ spec:
         - https://arrangor-refusjon.intern.dev.nav.no/refusjon
     liveness:
         initialDelay: 20
-        path: /internal/isAlive
+        path: /refusjon/internal/isAlive
     readiness:
         initialDelay: 20
-        path: /internal/isReady
+        path: /refusjon/internal/isReady
     accessPolicy:
         outbound:
             rules:
