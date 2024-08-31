@@ -7,7 +7,6 @@ import {
   Meta,
   MetaFunction,
   Outlet,
-  redirect,
   Scripts,
   ScrollRestoration,
   useLoaderData,
@@ -30,7 +29,8 @@ export const loader: LoaderFunction = async ({ request, context }) => {
     configureMock();
   } else {
     if (!context.erAutorisert) {
-      return redirect(`/oauth2/login?redirect=${request.url}`);
+      // TODO Fiks redirect til innlogging
+      // return redirect(`/oauth2/login?redirect=${request.url}`);
     }
   }
 
