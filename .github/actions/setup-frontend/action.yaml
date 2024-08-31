@@ -10,6 +10,8 @@ runs:
         cache: npm
     - run: npm ci
       shell: bash
+      env:
+          NODE_AUTH_TOKEN: ${{ secrets.READER_TOKEN }}
     - name: Cache Turborepo
       uses: actions/cache@v4
       with:
