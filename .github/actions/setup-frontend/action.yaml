@@ -8,6 +8,7 @@ runs:
       with:
         node-version: 20
         cache: npm
+        registry-url: "https://npm.pkg.github.com"
     - run: npm ci
       shell: bash
     - name: Cache Turborepo
