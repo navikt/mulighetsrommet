@@ -88,7 +88,8 @@ jobs:
 
       - name: Setup frontend
         uses: ./.github/actions/setup-frontend # For å trigge post-install script for @mr/api-client
-
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.READER_TOKEN }}
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
         with:

@@ -54,6 +54,8 @@ jobs:
       - uses: actions/checkout@v4
       - name: Setup frontend
         uses: ./.github/actions/setup-frontend
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.READER_TOKEN }}
       - name: Test
         run: npx turbo run lint test:ci playwright --filter=mulighetsrommet-veileder-flate
 
@@ -68,6 +70,8 @@ jobs:
       - uses: actions/checkout@v4
       - name: Setup frontend
         uses: ./.github/actions/setup-frontend
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.READER_TOKEN }}
       - name: Build
         run: npx turbo run build:modia --filter=mulighetsrommet-veileder-flate -- --base=https://cdn.nav.no/team-mulighetsrommet/dev/arbeidsmarkedstiltak-modia/dist
         env:
@@ -94,6 +98,8 @@ jobs:
       - uses: actions/checkout@v4
       - name: Setup frontend
         uses: ./.github/actions/setup-frontend
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.READER_TOKEN }}
       - name: Build
         run: npx turbo run build:modia --filter=mulighetsrommet-veileder-flate -- --base=https://cdn.nav.no/team-mulighetsrommet/prod/arbeidsmarkedstiltak-modia/dist
         env:
@@ -120,6 +126,8 @@ jobs:
       - uses: actions/checkout@v4
       - name: Setup frontend
         uses: ./.github/actions/setup-frontend
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.READER_TOKEN }}
       - name: Build
         run: npx turbo run build:nav --filter=mulighetsrommet-veileder-flate
         env:
@@ -147,6 +155,8 @@ jobs:
       - uses: actions/checkout@v4
       - name: Setup frontend
         uses: ./.github/actions/setup-frontend
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.READER_TOKEN }}
       - name: Build
         run: npx turbo run build:nav --filter=mulighetsrommet-veileder-flate
         env:

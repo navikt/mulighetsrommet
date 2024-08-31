@@ -11,8 +11,6 @@ runs:
         registry-url: "https://npm.pkg.github.com"
     - run: npm ci
       shell: bash
-      with:
-        NODE_AUTH_TOKEN: ${{ secrets.READER_TOKEN }}
     - name: Cache Turborepo
       uses: actions/cache@v4
       with:
