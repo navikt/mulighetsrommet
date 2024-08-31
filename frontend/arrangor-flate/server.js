@@ -4,7 +4,7 @@ import express from "express";
 import morgan from "morgan";
 
 const port = process.env.PORT || 3000;
-const basePath = "/";
+const basePath = "/refusjon";
 
 const viteDevServer =
   process.env.NODE_ENV === "production"
