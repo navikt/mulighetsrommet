@@ -1,15 +1,19 @@
-FROM node:20-bullseye-slim AS base
+FROM node:20-alpine AS base
 
-WORKDIR /app
+ENV NODE_ENV production
 ENV PORT="3000"
 
-COPY node_modules/ /app/node_modules/
+WORKDIR /app
+
+COPY .npmrc package*.json /app/
+
+RUN --mount=type=secret,id=NODE_AUTH_TOKEN \
+    npm config set //npm.pkg.github.com/:_authToken=$(cat /run/secrets/NODE_AUTH_TOKEN)
+RUN npm config set @navikt:registry=https://npm.pkg.github.com
+RUN npm install --no-audit --ignore-scripts
+
 COPY build/ /app/build/
 COPY ./server.js /app/server.js
-COPY ./package.json /app/package.json
-
-RUN npm install
 
 EXPOSE 3000
-
 CMD ["npm", "run", "start"]
