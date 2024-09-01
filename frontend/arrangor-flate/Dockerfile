@@ -5,16 +5,14 @@ ENV PORT="3000"
 
 WORKDIR /app
 
-COPY .npmrc /.
-COPY package.json /.
+COPY .npmrc package*.json /app/
 
 RUN --mount=type=secret,id=NODE_AUTH_TOKEN \
-    NODE_AUTH_TOKEN=$(cat /run/secrets/NODE_AUTH_TOKEN) npm install
+    NODE_AUTH_TOKEN=$(cat /run/secrets/NODE_AUTH_TOKEN) \
+    npm install --no-audit --ignore-scripts
 
-COPY node_modules/ /app/node_modules/
 COPY build/ /app/build/
 COPY ./server.js /app/server.js
-COPY ./package.json /app/package.json
 
 EXPOSE 3000
 CMD ["npm", "run", "start"]
