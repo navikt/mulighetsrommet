@@ -1,22 +1,17 @@
 FROM node:20-bullseye-slim AS base
 
-# Setup production node_modules
+ENV NODE_ENV production
+ENV PORT="3000"
+
 FROM base AS production-deps
 
 WORKDIR /app
 
-ADD .npmrc /.
-ADD package.json /.
+COPY .npmrc /.
+COPY package.json /.
 
 RUN --mount=type=secret,id=NODE_AUTH_TOKEN \
-    NODE_AUTH_TOKEN=$(cat /run/secrets/NODE_AUTH_TOKEN) \
-    npm install
-
-FROM base
-
-ENV PORT="3000"
-
-WORKDIR /app
+    NODE_AUTH_TOKEN=$(cat /run/secrets/NODE_AUTH_TOKEN) npm install
 
 COPY --from=production-deps /app/node_modules/ /app/node_modules/
 COPY node_modules/ /app/node_modules/
