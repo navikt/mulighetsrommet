@@ -10,7 +10,7 @@ ADD package.json /.
 
 RUN --mount=type=secret,id=NODE_AUTH_TOKEN \
     NODE_AUTH_TOKEN=$(cat /run/secrets/NODE_AUTH_TOKEN) \
-    npm ci --prefer-offline --no-audit --ignore-scripts --legacy-peer-deps
+    npm install
 
 FROM base
 
