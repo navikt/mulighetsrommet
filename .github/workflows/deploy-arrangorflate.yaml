@@ -59,7 +59,8 @@ jobs:
           dockerfile: ./frontend/arrangor-flate/Dockerfile
           docker_context: ./frontend/arrangor-flate
           image_suffix: arrangor-flate
-
+          build_secrets:
+            "NODE_AUTH_TOKEN=${{ secrets.READER_TOKEN }}"
   deploy-til-dev:
     name: Deploy til dev-gcp
     needs: ci
