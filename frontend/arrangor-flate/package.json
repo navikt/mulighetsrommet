@@ -11,7 +11,6 @@
     "typecheck": "tsc"
   },
   "dependencies": {
-    "@navikt/aksel-icons": "^6.16.2",
     "@navikt/bedriftsmeny": "^6.13.0",
     "@navikt/ds-css": "^6.16.2",
     "@navikt/ds-icons": "^3.4.3",
