@@ -7,11 +7,9 @@ WORKDIR /app
 
 COPY .npmrc package*.json /app/
 
-RUN echo "Hello from Dockerfile"
-
 RUN --mount=type=secret,id=NODE_AUTH_TOKEN \
-    NODE_AUTH_TOKEN=$(cat /run/secrets/NODE_AUTH_TOKEN) \
-    npm install --no-audit --ignore-scripts
+    && NODE_AUTH_TOKEN=$(cat /run/secrets/NODE_AUTH_TOKEN) \
+    && npm install --no-audit --ignore-scripts
 
 COPY build/ /app/build/
 COPY ./server.js /app/server.js
