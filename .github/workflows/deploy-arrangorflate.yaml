@@ -46,7 +46,6 @@ jobs:
         uses: ./.github/actions/setup-frontend
         env:
           NODE_AUTH_TOKEN: ${{ secrets.READER_TOKEN }}
-      - run: cp $NPM_CONFIG_USERCONFIG .npmrc
       # TODO Legg til test-steg
       - name: Bygg applikasjon
         run: npx turbo run build --filter=@mr/arrangor-flate
