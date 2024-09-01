@@ -58,7 +58,7 @@ jobs:
           project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
           docker_context: ./frontend/arrangor-flate
           image_suffix: arrangor-flate
-          build_secrets: NODE_AUTH_TOKEN=${{ secrets.READER_TOKEN }}
+          build_secrets: node_auth_token=${{ secrets.READER_TOKEN }}
   deploy-til-dev:
     name: Deploy til dev-gcp
     needs: ci
