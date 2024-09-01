@@ -5,7 +5,7 @@ FROM base AS production-deps
 
 WORKDIR /app
 
-add .npmrc /app/.npmrc
+ADD .npmrc /app/.npmrc
 ADD package.json /app/package.json
 
 RUN --mount=type=secret,id=NODE_AUTH_TOKEN \
