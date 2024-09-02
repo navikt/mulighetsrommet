@@ -7,6 +7,7 @@ import {
   Meta,
   MetaFunction,
   Outlet,
+  redirect,
   Scripts,
   ScrollRestoration,
   useLoaderData,
@@ -20,10 +21,9 @@ import "./tailwind.css";
 
 export const meta: MetaFunction = () => [{ title: "Refusjoner" }];
 
-export const loader: LoaderFunction = async ({ context }) => {
+export const loader: LoaderFunction = async ({ request, context }) => {
   if (!context.erAutorisert) {
-    // TODO Fiks redirect til innlogging
-    // return redirect(`/oauth2/login?redirect=${request.url}`);
+    return redirect(`/oauth2/login?redirect=${request.url}`);
   }
 
   return json({
@@ -77,7 +77,7 @@ export const ErrorBoundary = () => {
 
   useEffect(() => {
     if (isRouteErrorResponse(error) && error.status === 401) {
-      // redirectTilInnlogging();
+      redirectTilInnlogging();
     }
   });
 
@@ -105,6 +105,12 @@ export const ErrorBoundary = () => {
         </Box>
       </Dokument>
     );
+  }
+};
+
+const redirectTilInnlogging = () => {
+  if (typeof window !== "undefined") {
+    window.location.href = `/oauth2/login?redirect=${window.location.pathname}`;
   }
 };
 
