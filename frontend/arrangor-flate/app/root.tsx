@@ -18,12 +18,16 @@ import { ReactNode, useEffect } from "react";
 import css from "./root.module.css";
 import { Dekoratørfragmenter, hentSsrDekoratør } from "./services/dekoratør/dekorator.server";
 import "./tailwind.css";
+import { hentMiljø, Miljø } from "./services/miljø";
 
 export const meta: MetaFunction = () => [{ title: "Refusjoner" }];
 
 export const loader: LoaderFunction = async ({ request, context }) => {
-  if (!context.erAutorisert) {
-    return redirect(`/oauth2/login?redirect=${request.url}`);
+  const miljø = hentMiljø();
+  if (miljø !== Miljø.Lokalt) {
+    if (!context.erAutorisert) {
+      return redirect(`/oauth2/login?redirect=${request.url}`);
+    }
   }
 
   return json({
@@ -67,6 +71,7 @@ function Dokument({
         <ScrollRestoration />
         <Scripts />
         {dekorator && parse(dekorator.footer)}
+        {dekorator && parse(dekorator.scripts)}
       </body>
     </html>
   );
