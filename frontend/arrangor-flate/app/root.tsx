@@ -102,9 +102,6 @@ export const ErrorBoundary = () => {
         <Box background="bg-default" padding={"10"}>
           <BodyShort>Det skjedde en uventet feil.</BodyShort>
           <BodyShort>Vennligst prøv igjen senere</BodyShort>
-          <BodyShort>
-            <pre>{JSON.stringify(error, null, 2)}</pre>
-          </BodyShort>
         </Box>
       </Dokument>
     );
