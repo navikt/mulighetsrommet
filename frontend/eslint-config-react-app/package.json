@@ -4,13 +4,13 @@
   "version": "1.0.0",
   "main": "index.mjs",
   "devDependencies": {
-    "@eslint/js": "9.9.0",
+    "@eslint/js": "9.9.1",
     "@tanstack/eslint-plugin-query": "5.51.15",
     "eslint": "9.9.0",
     "eslint-plugin-prettier": "5.2.1",
     "eslint-plugin-promise": "7.1.0",
     "eslint-plugin-react": "7.35.0",
     "eslint-plugin-react-hooks": "5.1.0-rc.0",
-    "eslint-plugin-react-refresh": "0.4.9"
+    "eslint-plugin-react-refresh": "0.4.11"
   }
 }
