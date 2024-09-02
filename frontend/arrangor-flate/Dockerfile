@@ -1,4 +1,4 @@
-FROM node:20-alpine AS base
+FROM node:20-bullseye-slim AS base
 
 ENV NODE_ENV production
 ENV PORT="3000"
