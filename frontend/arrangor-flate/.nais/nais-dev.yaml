@@ -31,12 +31,13 @@ spec:
                 - application: nav-dekoratoren
                   namespace: personbruker
     tokenx:
-        enabled: false # TODO Enable tokenx
+        enabled: true
     idporten:
-        enabled: false # TODO Enable idporten
+        enabled: true
         sidecar:
-            enabled: false # TODO Enable sidecar for idporten
+            enabled: true
             level: Level4
             autoLogin: false
             autoLoginIgnorePaths:
                 - /internal/*
+                - /metrics

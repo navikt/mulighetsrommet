@@ -21,6 +21,9 @@ const remixHandler = createRequestHandler({
   build: viteDevServer
     ? () => viteDevServer.ssrLoadModule("virtual:remix/server-build")
     : await import("./build/server/index.js"),
+  getLoadContext: (req) => ({
+    erAutorisert: req.headers.authorization,
+  }),
 });
 
 const app = express();
