@@ -53,6 +53,7 @@ jobs:
       - name: Push docker image to GAR
         uses: nais/docker-build-push@v0
         id: docker-build-push
+        if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch'
         with:
           team: team-mulighetsrommet
           identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
@@ -60,6 +61,7 @@ jobs:
           docker_context: ./frontend/arrangor-flate
           image_suffix: arrangor-flate
           build_secrets: NODE_AUTH_TOKEN=${{ secrets.READER_TOKEN }}
+
   deploy-til-dev:
     name: Deploy til dev-gcp
     needs: ci
