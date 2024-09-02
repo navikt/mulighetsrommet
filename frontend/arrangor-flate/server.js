@@ -6,7 +6,7 @@ import expressPromBundle from "express-prom-bundle";
 const metricsMiddleware = expressPromBundle({ includeMethod: true, includePath: true });
 
 const port = process.env.PORT || 3000;
-const basePath = "/";
+const basePath = "";
 
 const viteDevServer =
   process.env.NODE_ENV === "production"
