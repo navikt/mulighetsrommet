@@ -58,7 +58,7 @@ kotest-extensions-testcontainers = { module = "io.kotest.extensions:kotest-exten
 kotest-extensions-testcontainers-kafka = { module = "io.kotest.extensions:kotest-extensions-testcontainers-kafka", version.ref = "kotest-testcontainers" }
 kotest-junit = { module = "io.kotest:kotest-runner-junit5", version.ref = "kotest" }
 
-kotlinx-serialization-json = "org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.1"
+kotlinx-serialization-json = "org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.2"
 kotlinx-coroutines-core = "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1"
 
 kotliquery = "com.github.seratch:kotliquery:1.9.0"
@@ -115,7 +115,7 @@ postgresql = "org.postgresql:postgresql:42.7.4"
 
 prometheus-caffeine = "io.prometheus:simpleclient_caffeine:0.16.0"
 
-shedlock-jdbc = "net.javacrumbs.shedlock:shedlock-provider-jdbc:5.15.0"
+shedlock-jdbc = "net.javacrumbs.shedlock:shedlock-provider-jdbc:5.15.1"
 
 slack-client = "com.slack.api:slack-api-client:1.42.0"
 
