@@ -1,5 +1,5 @@
 import { BodyShort } from "@navikt/ds-react";
-import type { LoaderFunction, MetaFunction } from "@remix-run/node";
+import type { MetaFunction } from "@remix-run/node";
 import { Link } from "@remix-run/react";
 
 export const meta: MetaFunction = () => {
@@ -7,11 +7,6 @@ export const meta: MetaFunction = () => {
     { title: "Arrangørflate" },
     { name: "description", content: "Arrangørflate for refusjon" },
   ];
-};
-
-export const loader: LoaderFunction = async ({ context }) => {
-  console.log(context);
-  return { message: "Dette er en beskjed fra serveren" };
 };
 
 export default function Refusjon() {
