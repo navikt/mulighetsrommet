@@ -14,24 +14,16 @@ import {
 } from "@remix-run/react";
 import parse from "html-react-parser";
 import { ReactNode, useEffect } from "react";
-import { configureMock } from "./mocks";
 import css from "./root.module.css";
 import { Dekoratørfragmenter, hentSsrDekoratør } from "./services/dekoratør/dekorator.server";
-import { hentMiljø, Miljø } from "./services/miljø";
 import "./tailwind.css";
 
 export const meta: MetaFunction = () => [{ title: "Refusjoner" }];
 
-export const loader: LoaderFunction = async ({ request, context }) => {
-  const miljø = hentMiljø();
-
-  if (miljø === Miljø.Lokalt) {
-    configureMock();
-  } else {
-    if (!context.erAutorisert) {
-      // TODO Fiks redirect til innlogging
-      // return redirect(`/oauth2/login?redirect=${request.url}`);
-    }
+export const loader: LoaderFunction = async ({ context }) => {
+  if (!context.erAutorisert) {
+    // TODO Fiks redirect til innlogging
+    // return redirect(`/oauth2/login?redirect=${request.url}`);
   }
 
   return json({
@@ -110,6 +102,9 @@ export const ErrorBoundary = () => {
         <Box background="bg-default" padding={"10"}>
           <BodyShort>Det skjedde en uventet feil.</BodyShort>
           <BodyShort>Vennligst prøv igjen senere</BodyShort>
+          <BodyShort>
+            <pre>{JSON.stringify(error, null, 2)}</pre>
+          </BodyShort>
         </Box>
       </Dokument>
     );

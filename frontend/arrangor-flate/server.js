@@ -2,6 +2,8 @@ import { createRequestHandler } from "@remix-run/express";
 import compression from "compression";
 import express from "express";
 import morgan from "morgan";
+import expressPromBundle from "express-prom-bundle";
+const metricsMiddleware = expressPromBundle({ includeMethod: true, includePath: true });
 
 const port = process.env.PORT || 3000;
 const basePath = "/";
@@ -44,11 +46,17 @@ app.get([`${basePath}/internal/isAlive`, `${basePath}/internal/isReady`], (_, re
   res.sendStatus(200),
 );
 
+app.use(metricsMiddleware);
 app.use(morgan("tiny"));
 
 // handle SSR requests
 app.all("*", remixHandler);
 
 app.listen(port, () => {
-  console.log(`Server kjører på port ${port}`);
+  const env = process.env.NODE_ENV || "development";
+  console.log(
+    env === "development"
+      ? `Server kjører på http://localhost:${port}`
+      : `Serveren kjører på port ${port}`,
+  );
 });
