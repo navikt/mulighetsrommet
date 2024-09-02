@@ -129,6 +129,12 @@ app:
     url: http://pam-ontologi.teampam
     scope: api://prod-gcp.teampam.pam-ontologi/.default
 
+  norg2:
+    baseUrl: http://norg2.org
+
+  brreg:
+    baseUrl: https://data.brreg.no/enhetsregisteret/api
+
   tasks:
     synchronizeNorgEnheter:
       delayOfMinutes: 360 # Hver 6. time
@@ -148,12 +154,6 @@ app:
     updateApentForInnsok:
       disabled: false
       cronPattern: "0 55 23 * * *" # 23.55 hver kveld
-
-  norg2:
-    baseUrl: https://norg2.prod-fss-pub.nais.io/norg2/api/v1
-
-  brreg:
-    baseUrl: https://data.brreg.no/enhetsregisteret/api
 
   slack:
     token: ${SLACK_TOKEN}

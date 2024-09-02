@@ -121,8 +121,9 @@ spec:
           namespace: amt
         - application: veilarbdialog
           namespace: dab
+        - application: norg2
+          namespace: org
       external:
-        - host: norg2.prod-fss-pub.nais.io
         - host: slack.com
         - host: data.brreg.no
         - host: team-mulighetsrommet-unleash-api.nav.cloud.nais.io
