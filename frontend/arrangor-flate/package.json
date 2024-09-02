@@ -29,7 +29,7 @@
     "express-prom-bundle": "^7.0.0",
     "html-react-parser": "^5.1.15",
     "http-proxy-middleware": "^3.0.0",
-    "isbot": "^4.1.0",
+    "isbot": "^5.1.17",
     "jsdom": "^25.0.0",
     "msw": "^2.4.1",
     "openid-client": "^5.6.5",
