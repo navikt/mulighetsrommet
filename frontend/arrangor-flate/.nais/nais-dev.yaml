@@ -16,6 +16,9 @@ spec:
             cpu: 50m
     ingresses:
         - https://arrangor-refusjon.intern.dev.nav.no
+    prometheus:
+        enabled: true
+        path: /metrics
     liveness:
         initialDelay: 20
         path: /internal/isAlive
