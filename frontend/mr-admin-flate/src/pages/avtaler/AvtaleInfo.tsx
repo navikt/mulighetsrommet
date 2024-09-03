@@ -11,12 +11,19 @@ import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
 import { AvtalePersonvern } from "./AvtalePersonvern";
 import { InlineErrorBoundary } from "@mr/frontend-common";
 import { InfoContainer } from "@/components/skjema/InfoContainer";
+import { useFeatureToggle } from "@/api/features/useFeatureToggle";
+import { Toggles } from "@mr/api-client";
+import { AvtalePrisOgFakturering } from "./AvtalePrisOgFakturering";
 
 export function AvtaleInfo() {
   const { data: bruker } = useHentAnsatt();
   const { data: avtale, isPending, isError } = useAvtale();
 
   const [activeTab, setActiveTab] = useAtom(avtaleDetaljerTabAtom);
+
+  const { data: enableOpprettTilsagn } = useFeatureToggle(
+    Toggles.MULIGHETSROMMET_ADMIN_FLATE_OPPRETT_TILSAGN,
+  );
 
   if (!bruker || isPending) {
     return <Laster tekst="Laster avtale..." />;
@@ -32,6 +39,13 @@ export function AvtaleInfo() {
         <Tabs.List className={styles.tabslist}>
           <div>
             <Tabs.Tab label="Detaljer" value="detaljer" onClick={() => setActiveTab("detaljer")} />
+            {enableOpprettTilsagn && (
+              <Tabs.Tab
+                label="Pris og fakturering"
+                value="pris-og-fakturering"
+                onClick={() => setActiveTab("pris-og-fakturering")}
+              />
+            )}
             <Tabs.Tab
               label="Personvern"
               value="personvern"
@@ -50,6 +64,13 @@ export function AvtaleInfo() {
             <AvtaleDetaljer />
           </InlineErrorBoundary>
         </Tabs.Panel>
+        {enableOpprettTilsagn && (
+          <Tabs.Panel value="pris-og-fakturering">
+            <InlineErrorBoundary>
+              <AvtalePrisOgFakturering />
+            </InlineErrorBoundary>
+          </Tabs.Panel>
+        )}
         <Tabs.Panel value="redaksjonelt-innhold">
           <InlineErrorBoundary>
             <RedaksjoneltInnholdPreview
