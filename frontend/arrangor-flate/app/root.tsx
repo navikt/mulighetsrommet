@@ -19,6 +19,7 @@ import css from "./root.module.css";
 import { Dekoratørfragmenter, hentSsrDekoratør } from "./services/dekoratør/dekorator.server";
 import "./tailwind.css";
 import { hentMiljø, Miljø } from "./services/miljø";
+import useInjectDecoratorScript from "./services/dekoratør/useInjectScript";
 
 export const meta: MetaFunction = () => [{ title: "Refusjoner" }];
 
@@ -56,6 +57,7 @@ function Dokument({
   dekorator?: Dekoratørfragmenter;
   children: ReactNode;
 }) {
+  useInjectDecoratorScript(dekorator?.scripts);
   return (
     <html lang="en">
       <head>
@@ -71,7 +73,6 @@ function Dokument({
         <ScrollRestoration />
         <Scripts />
         {dekorator && parse(dekorator.footer)}
-        {dekorator && parse(dekorator.scripts)}
       </body>
     </html>
   );
