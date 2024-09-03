@@ -20,6 +20,8 @@ import { Dekoratørfragmenter, hentSsrDekoratør } from "./services/dekoratør/d
 import "./tailwind.css";
 import { hentMiljø, Miljø } from "./services/miljø";
 import useInjectDecoratorScript from "./services/dekoratør/useInjectScript";
+import { Header } from "./components/Header";
+import { RefusjonskravIkon } from "./components/icons/RefusjonskravIkon";
 
 export const meta: MetaFunction = () => [{ title: "Refusjoner" }];
 
@@ -69,6 +71,7 @@ function Dokument({
       </head>
       <body>
         {dekorator && parse(dekorator.header)}
+        <Header />
         <main className={css.side}>{children}</main>
         <ScrollRestoration />
         <Scripts />
