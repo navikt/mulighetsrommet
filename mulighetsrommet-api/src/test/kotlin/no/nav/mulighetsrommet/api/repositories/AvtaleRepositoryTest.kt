@@ -325,25 +325,49 @@ class AvtaleRepositoryTest : FunSpec({
             database.db.truncateAll()
         }
 
-        context("Avtalenavn") {
-            test("Filtrere på avtalenavn skal returnere avtaler som matcher søket") {
-                val avtale1 = AvtaleFixtures.oppfolging.copy(
-                    id = UUID.randomUUID(),
-                    navn = "Avtale om opplæring av blinde krokodiller",
-                )
-                val avtale2 = avtale1.copy(
-                    id = UUID.randomUUID(),
-                    navn = "Avtale om undervisning av underlige ulver",
-                )
-                avtaler.upsert(avtale1)
-                avtaler.upsert(avtale2)
-                val result = avtaler.getAll(
-                    tiltakstypeIder = listOf(TiltakstypeFixtures.Oppfolging.id),
-                    search = "Kroko",
-                )
+        test("fritekstsøk på avtalenavn og avtalenummer") {
+            val avtale1 = AvtaleFixtures.oppfolging.copy(
+                id = UUID.randomUUID(),
+                navn = "Avtale om opplæring av blinde krokodiller",
+                avtalenummer = "2024#1000",
+            )
+            val avtale2 = avtale1.copy(
+                id = UUID.randomUUID(),
+                navn = "Avtale om undervisning av underlige ulver",
+                avtalenummer = "2024#2000",
+            )
+            avtaler.upsert(avtale1)
+            avtaler.upsert(avtale2)
 
-                result.totalCount shouldBe 1
-                result.items[0].navn shouldBe "Avtale om opplæring av blinde krokodiller"
+            avtaler.getAll(search = "krokodillen").should {
+                it.totalCount shouldBe 1
+                it.items[0].id shouldBe avtale1.id
+            }
+
+            avtaler.getAll(search = "avtale").should {
+                it.totalCount shouldBe 2
+            }
+
+            avtaler.getAll(search = "avtale ulv").should {
+                it.totalCount shouldBe 1
+                it.items[0].id shouldBe avtale2.id
+            }
+
+            avtaler.getAll(search = "krokodille OR ulv").should {
+                it.totalCount shouldBe 2
+            }
+
+            avtaler.getAll(search = "avtale kråke").should {
+                it.totalCount shouldBe 0
+            }
+
+            avtaler.getAll(search = "2000").should {
+                it.totalCount shouldBe 1
+                it.items[0].id shouldBe avtale2.id
+            }
+
+            avtaler.getAll(search = "2024").should {
+                it.totalCount shouldBe 2
             }
         }
 

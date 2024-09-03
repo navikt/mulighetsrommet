@@ -2,6 +2,7 @@ drop view if exists avtale_admin_dto_view;
 
 create view avtale_admin_dto_view as
 select avtale.id,
+       avtale.fts,
        avtale.navn,
        coalesce(avtale.avtalenummer, avtale.lopenummer) as avtalenummer,
        avtale.websaknummer,
@@ -126,4 +127,4 @@ from avtale
                                      join arrangor_kontaktperson
                                           on avtale_arrangor_kontaktperson.arrangor_kontaktperson_id =
                                              arrangor_kontaktperson.id
-                            where avtale_id = avtale.id) on true
+                            where avtale_id = avtale.id) on true;

@@ -341,8 +341,8 @@ class AvtaleRepository(private val db: Database) {
         personvernBekreftet: Boolean? = null,
     ): PaginatedResult<AvtaleAdminDto> {
         val parameters = mapOf(
-            "search" to search?.replace("/", "#")?.trim()?.let { "%$it%" },
-            "searchLopenummer" to search?.trim()?.let { "%$it%" },
+            "search" to search,
+            "search_arrangor" to search?.trim()?.let { "%$it%" },
             "administrator_nav_ident" to administratorNavIdent?.let { """[{ "navIdent": "${it.value}" }]""" },
             "tiltakstype_ids" to tiltakstypeIder.ifEmpty { null }?.let { db.createUuidArray(it) },
             "arrangor_ids" to arrangorIds.ifEmpty { null }?.let { db.createUuidArray(it) },
@@ -371,7 +371,7 @@ class AvtaleRepository(private val db: Database) {
             select *, count(*) over() as total_count
             from avtale_admin_dto_view
             where (:tiltakstype_ids::uuid[] is null or tiltakstype_id = any (:tiltakstype_ids))
-              and (:search::text is null or (navn ilike :search or avtalenummer ilike :search or avtalenummer ilike :searchLopenummer or arrangor_hovedenhet_navn ilike :search))
+              and (:search::text is null or (fts @@ websearch_to_tsquery('norwegian', :search) or arrangor_hovedenhet_navn ilike :search_arrangor))
               and (:nav_enheter::text[] is null or (
                    exists(select true
                           from jsonb_array_elements(nav_enheter_json) as nav_enhet
