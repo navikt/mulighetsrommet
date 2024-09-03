@@ -253,7 +253,12 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         )
 
         tiltaksgjennomforing.amoKategorisering?.let {
-            AmoKategoriseringRepository.upsert(it, tiltaksgjennomforing.id, AmoKategoriseringRepository.ForeignIdType.GJENNOMFORING, tx)
+            AmoKategoriseringRepository.upsert(
+                it,
+                tiltaksgjennomforing.id,
+                AmoKategoriseringRepository.ForeignIdType.GJENNOMFORING,
+                tx,
+            )
         }
     }
 
@@ -779,17 +784,18 @@ class TiltaksgjennomforingRepository(private val db: Database) {
     }
 
     private fun Row.toTiltaksgjennomforingAdminDto(): TiltaksgjennomforingAdminDto {
-        val administratorer = Json
-            .decodeFromString<List<TiltaksgjennomforingAdminDto.Administrator?>>(string("administratorer_json"))
-            .filterNotNull()
-        val navEnheterDto = Json.decodeFromString<List<NavEnhetDbo?>>(string("nav_enheter_json")).filterNotNull()
-        val kontaktpersoner = Json
-            .decodeFromString<List<TiltaksgjennomforingKontaktperson?>>(string("nav_kontaktpersoner_json"))
-            .filterNotNull()
-        val arrangorKontaktpersoner = Json
-            .decodeFromString<List<ArrangorKontaktperson?>>(string("arrangor_kontaktpersoner_json"))
-            .filterNotNull()
-
+        val administratorer = stringOrNull("administratorer_json")
+            ?.let { Json.decodeFromString<List<TiltaksgjennomforingAdminDto.Administrator>>(it) }
+            ?: emptyList()
+        val navEnheterDto = stringOrNull("nav_enheter_json")
+            ?.let { Json.decodeFromString<List<NavEnhetDbo>>(it) }
+            ?: emptyList()
+        val kontaktpersoner = stringOrNull("nav_kontaktpersoner_json")
+            ?.let { Json.decodeFromString<List<TiltaksgjennomforingKontaktperson>>(it) }
+            ?: emptyList()
+        val arrangorKontaktpersoner = stringOrNull("arrangor_kontaktpersoner_json")
+            ?.let { Json.decodeFromString<List<ArrangorKontaktperson>>(it) }
+            ?: emptyList()
         val startDato = localDate("start_dato")
         val sluttDato = localDateOrNull("slutt_dato")
 
@@ -860,9 +866,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 navn = string("tiltakstype_navn"),
                 tiltakskode = Tiltakskode.valueOf(string("tiltakstype_tiltakskode")),
             ),
-            personvernBekreftet = boolean("personvern_bekreftet"),
             tilgjengeligForArrangorFraOgMedDato = localDateOrNull("tilgjengelig_for_arrangor_fra_og_med_dato"),
-            amoKategorisering = stringOrNull("amo_kategorisering")?.let { JsonIgnoreUnknownKeys.decodeFromString(it) },
+            amoKategorisering = stringOrNull("amo_kategorisering_json")?.let { JsonIgnoreUnknownKeys.decodeFromString(it) },
         )
     }
 

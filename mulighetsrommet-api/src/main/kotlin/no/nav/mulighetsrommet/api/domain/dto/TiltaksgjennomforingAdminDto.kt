@@ -48,7 +48,6 @@ data class TiltaksgjennomforingAdminDto(
     val publisert: Boolean,
     val deltidsprosent: Double,
     val estimertVentetid: EstimertVentetid?,
-    val personvernBekreftet: Boolean,
     @Serializable(with = LocalDateSerializer::class)
     val tilgjengeligForArrangorFraOgMedDato: LocalDate?,
     val amoKategorisering: AmoKategorisering?,
