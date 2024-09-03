@@ -6,7 +6,6 @@ import styles from "./Delemodal.module.scss";
 import { Actions, State } from "./DelemodalActions";
 import { getDelMedBrukerTekst } from "@/apps/modia/delMedBruker/helpers";
 import Markdown from "react-markdown";
-import remarkGfm from "remark-gfm";
 
 export const MAKS_ANTALL_TEGN_DEL_MED_BRUKER = 500;
 
@@ -64,7 +63,7 @@ export function DelMedBrukerContent({
 
       {!enableRedigerDeletekst ? (
         <div className={styles.markdown} data-testid="textarea_deletekst">
-          <Markdown remarkPlugins={[remarkGfm]}>{state.deletekst}</Markdown>
+          <Markdown>{state.deletekst}</Markdown>
         </div>
       ) : (
         <Textarea
