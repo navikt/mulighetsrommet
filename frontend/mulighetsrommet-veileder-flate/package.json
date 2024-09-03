@@ -46,7 +46,6 @@
     "react-joyride": "2.8.2",
     "react-markdown": "^9.0.1",
     "react-router-dom": "6.26.0",
-    "remark-gfm": "^4.0.0",
     "uuid": "10.0.0",
     "zod": "3.23.8"
   },
