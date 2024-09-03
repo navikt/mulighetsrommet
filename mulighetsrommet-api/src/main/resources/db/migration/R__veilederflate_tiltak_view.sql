@@ -2,6 +2,7 @@ drop view if exists veilederflate_tiltak_view;
 
 create view veilederflate_tiltak_view as
 select gjennomforing.id,
+       gjennomforing.fts,
        gjennomforing.navn,
        gjennomforing.sted_for_gjennomforing,
        gjennomforing.apent_for_innsok,
@@ -38,10 +39,10 @@ from tiltaksgjennomforing gjennomforing
          left join arrangor on arrangor.id = gjennomforing.arrangor_id
          left join lateral (select array_agg(personopplysning) as personopplysninger_som_kan_behandles
                             from avtale_personopplysning
-                            where avtale_id = avtale.id) avtale_personvern on true
+                            where avtale_id = avtale.id) on true
          left join lateral (select array_agg(enhetsnummer) as nav_enheter
                             from tiltaksgjennomforing_nav_enhet
-                            where tiltaksgjennomforing_id = gjennomforing.id) gjennomforing_nav_enheter on true
+                            where tiltaksgjennomforing_id = gjennomforing.id) on true
          left join lateral (select jsonb_agg(
                                            jsonb_build_object(
                                                    'navn', concat(nav_ansatt.fornavn, ' ', nav_ansatt.etternavn),
@@ -62,7 +63,7 @@ from tiltaksgjennomforing gjennomforing
                             from tiltaksgjennomforing_kontaktperson k
                                      join nav_ansatt on nav_ansatt.nav_ident = k.kontaktperson_nav_ident
                                      join nav_enhet on nav_enhet.enhetsnummer = nav_ansatt.hovedenhet
-                            where tiltaksgjennomforing_id = gjennomforing.id) nav_kontaktpersoner on true
+                            where tiltaksgjennomforing_id = gjennomforing.id) on true
          left join lateral (select jsonb_agg(
                                            jsonb_build_object(
                                                    'id', id,
@@ -74,4 +75,4 @@ from tiltaksgjennomforing gjennomforing
                                    ) as arrangor_kontaktpersoner_json
                             from tiltaksgjennomforing_arrangor_kontaktperson
                                      left join arrangor_kontaktperson on id = arrangor_kontaktperson_id
-                            where tiltaksgjennomforing_id = gjennomforing.id) arrangor_kontaktpersoner on true
+                            where tiltaksgjennomforing_id = gjennomforing.id) on true

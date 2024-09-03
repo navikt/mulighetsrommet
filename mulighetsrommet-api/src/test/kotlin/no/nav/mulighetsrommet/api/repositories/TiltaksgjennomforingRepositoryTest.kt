@@ -532,7 +532,10 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         test("amoKategoriserng") {
             val amo = AmoKategorisering.Norskopplaering(
                 norskprove = true,
-                innholdElementer = listOf(AmoKategorisering.InnholdElement.ARBEIDSMARKEDSKUNNSKAP, AmoKategorisering.InnholdElement.PRAKSIS),
+                innholdElementer = listOf(
+                    AmoKategorisering.InnholdElement.ARBEIDSMARKEDSKUNNSKAP,
+                    AmoKategorisering.InnholdElement.PRAKSIS,
+                ),
             )
             val gjennomforing = Oppfolging1.copy(
                 id = UUID.randomUUID(),
@@ -674,16 +677,12 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 Oppfolging2.copy(arrangorId = ArrangorFixtures.underenhet2.id),
             )
 
-            tiltaksgjennomforinger.getAll(
-                search = "bergen",
-            ).should {
+            tiltaksgjennomforinger.getAll(search = "bergen").should {
                 it.items.size shouldBe 1
                 it.items[0].arrangor.navn shouldBe "Underenhet Bergen"
             }
 
-            tiltaksgjennomforinger.getAll(
-                search = "under",
-            ).should {
+            tiltaksgjennomforinger.getAll(search = "under").should {
                 it.items.size shouldBe 2
             }
         }
@@ -1076,16 +1075,41 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
         }
 
         test("skal filtrere basert fritekst i navn") {
-            tiltaksgjennomforinger.upsert(Oppfolging1.copy(sluttDato = null, navn = "erik"))
-            tiltaksgjennomforinger.upsert(AFT1.copy(navn = "frank"))
+            tiltaksgjennomforinger.upsert(Oppfolging1.copy(sluttDato = null, navn = "Oppfølging hos Erik"))
+            tiltaksgjennomforinger.upsert(AFT1.copy(navn = "AFT hos Frank"))
 
             tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
                 innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
-                search = "rik",
                 brukersEnheter = listOf("0502"),
+                search = "erik",
             ).should {
                 it shouldHaveSize 1
-                it[0].navn shouldBe "erik"
+                it[0].id shouldBe Oppfolging1.id
+            }
+
+            tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
+                innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
+                brukersEnheter = listOf("0502"),
+                search = "frank aft",
+            ).should {
+                it shouldHaveSize 1
+                it[0].id shouldBe AFT1.id
+            }
+
+            tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
+                innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
+                brukersEnheter = listOf("0502"),
+                search = "aft erik",
+            ).should {
+                it shouldHaveSize 0
+            }
+
+            tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
+                innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
+                brukersEnheter = listOf("0502"),
+                search = "aft OR erik",
+            ).should {
+                it shouldHaveSize 2
             }
         }
 

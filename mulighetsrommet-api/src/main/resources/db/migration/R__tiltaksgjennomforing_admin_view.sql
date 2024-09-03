@@ -2,6 +2,7 @@ drop view if exists tiltaksgjennomforing_admin_dto_view;
 
 create view tiltaksgjennomforing_admin_dto_view as
 select gjennomforing.id,
+       gjennomforing.fts,
        gjennomforing.navn,
        gjennomforing.tiltaksnummer,
        gjennomforing.start_dato,

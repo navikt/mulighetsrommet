@@ -23,13 +23,7 @@ import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.ArenaTiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
-import no.nav.mulighetsrommet.domain.dto.AvbruttAarsak
-import no.nav.mulighetsrommet.domain.dto.AvbruttDto
-import no.nav.mulighetsrommet.domain.dto.Innsatsgruppe
-import no.nav.mulighetsrommet.domain.dto.NavIdent
-import no.nav.mulighetsrommet.domain.dto.Personopplysning
-import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus
-import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatusDto
+import no.nav.mulighetsrommet.domain.dto.*
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
@@ -403,7 +397,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         publisert: Boolean? = null,
     ): PaginatedResult<TiltaksgjennomforingAdminDto> {
         val parameters = mapOf(
-            "search" to search?.replace("/", "#")?.trim()?.let { "%$it%" },
+            "search" to search,
+            "search_arrangor" to search?.trim()?.let { "%$it%" },
             "slutt_dato_cutoff" to sluttDatoGreaterThanOrEqualTo,
             "avtale_id" to avtaleId,
             "nav_enheter" to navEnheter.ifEmpty { null }?.let { db.createTextArray(it) },
@@ -442,7 +437,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
               and (:avtale_id::uuid is null or avtale_id = :avtale_id)
               and (:arrangor_ids::uuid[] is null or arrangor_id = any(:arrangor_ids))
               and (:arrangor_orgnrs::text[] is null or arrangor_organisasjonsnummer = any(:arrangor_orgnrs))
-              and (:search::text is null or (navn ilike :search or tiltaksnummer ilike :search or arrangor_navn ilike :search))
+              and (:search::text is null or (fts @@ websearch_to_tsquery('norwegian', :search) or arrangor_navn ilike :search_arrangor))
               and (:nav_enheter::text[] is null or (
                    nav_region_enhetsnummer = any (:nav_enheter) or
                    exists(select true
@@ -487,11 +482,11 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         search: String? = null,
         apentForInnsok: Boolean? = null,
         sanityTiltakstypeIds: List<UUID>? = null,
-    ): List<VeilederflateTiltak> {
+    ): List<VeilederflateTiltakGruppe> {
         val parameters = mapOf(
             "innsatsgruppe" to innsatsgruppe.name,
             "brukers_enheter" to db.createTextArray(brukersEnheter),
-            "search" to search?.let { "%${it.replace("/", "#").trim()}%" },
+            "search" to search,
             "apent_for_innsok" to apentForInnsok,
             "sanityTiltakstypeIds" to sanityTiltakstypeIds?.let { db.createUuidArray(it) },
         )
@@ -503,7 +498,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             where publisert
               and :innsatsgruppe::innsatsgruppe = any(tiltakstype_innsatsgrupper)
               and nav_enheter && :brukers_enheter
-              and (:search::text is null or ((lower(navn) like lower(:search)) or (tiltaksnummer like :search)))
+              and (:search::text is null or fts @@ websearch_to_tsquery('norwegian', :search))
               and (:sanityTiltakstypeIds::uuid[] is null or tiltakstype_sanity_id = any(:sanityTiltakstypeIds))
               and (:apent_for_innsok::boolean is null or apent_for_innsok = :apent_for_innsok)
         """.trimIndent()
