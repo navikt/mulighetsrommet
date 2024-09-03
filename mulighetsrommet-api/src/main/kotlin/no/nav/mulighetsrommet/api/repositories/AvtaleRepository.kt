@@ -341,8 +341,8 @@ class AvtaleRepository(private val db: Database) {
         personvernBekreftet: Boolean? = null,
     ): PaginatedResult<AvtaleAdminDto> {
         val parameters = mapOf(
-            "search" to search?.replace("/", "#")?.trim()?.let { "%$it%" },
-            "searchLopenummer" to search?.trim()?.let { "%$it%" },
+            "search" to search,
+            "search_arrangor" to search?.trim()?.let { "%$it%" },
             "administrator_nav_ident" to administratorNavIdent?.let { """[{ "navIdent": "${it.value}" }]""" },
             "tiltakstype_ids" to tiltakstypeIder.ifEmpty { null }?.let { db.createUuidArray(it) },
             "arrangor_ids" to arrangorIds.ifEmpty { null }?.let { db.createUuidArray(it) },
@@ -371,7 +371,7 @@ class AvtaleRepository(private val db: Database) {
             select *, count(*) over() as total_count
             from avtale_admin_dto_view
             where (:tiltakstype_ids::uuid[] is null or tiltakstype_id = any (:tiltakstype_ids))
-              and (:search::text is null or (navn ilike :search or avtalenummer ilike :search or avtalenummer ilike :searchLopenummer or arrangor_hovedenhet_navn ilike :search))
+              and (:search::text is null or (fts @@ websearch_to_tsquery('norwegian', :search) or arrangor_hovedenhet_navn ilike :search_arrangor))
               and (:nav_enheter::text[] is null or (
                    exists(select true
                           from jsonb_array_elements(nav_enheter_json) as nav_enhet
@@ -524,19 +524,20 @@ class AvtaleRepository(private val db: Database) {
     private fun Row.toAvtaleAdminDto(): AvtaleAdminDto {
         val startDato = localDate("start_dato")
         val sluttDato = localDateOrNull("slutt_dato")
-        val personopplysninger = Json.decodeFromString<List<Personopplysning>>(string("personopplysninger"))
-
-        val underenheter = stringOrNull("arrangor_underenheter")
-            ?.let { Json.decodeFromString<List<AvtaleAdminDto.ArrangorUnderenhet?>>(it).filterNotNull() }
+        val personopplysninger = stringOrNull("personopplysninger_json")
+            ?.let { Json.decodeFromString<List<Personopplysning>>(it) }
             ?: emptyList()
-        val administratorer = Json
-            .decodeFromString<List<AvtaleAdminDto.Administrator?>>(string("administratorer_json"))
-            .filterNotNull()
-        val arrangorKontaktpersoner = Json
-            .decodeFromString<List<ArrangorKontaktperson?>>(string("arrangor_kontaktpersoner_json"))
-            .filterNotNull()
+        val underenheter = stringOrNull("arrangor_underenheter_json")
+            ?.let { Json.decodeFromString<List<AvtaleAdminDto.ArrangorUnderenhet>>(it) }
+            ?: emptyList()
+        val administratorer = stringOrNull("administratorer_json")
+            ?.let { Json.decodeFromString<List<AvtaleAdminDto.Administrator>>(it) }
+            ?: emptyList()
+        val arrangorKontaktpersoner = stringOrNull("arrangor_kontaktpersoner_json")
+            ?.let { Json.decodeFromString<List<ArrangorKontaktperson>>(it) }
+            ?: emptyList()
         val navEnheter = stringOrNull("nav_enheter_json")
-            ?.let { Json.decodeFromString<List<NavEnhetDbo?>>(it).filterNotNull() }
+            ?.let { Json.decodeFromString<List<NavEnhetDbo>>(it) }
             ?: emptyList()
         val kontorstruktur = navEnheter
             .filter { it.type == Norg2Type.FYLKE }
@@ -547,8 +548,8 @@ class AvtaleRepository(private val db: Database) {
                 Kontorstruktur(region = region, kontorer = kontorer)
             }
 
-        val opsjonerRegistrert = stringOrNull("avtaleopsjonslogg")
-            ?.let { Json.decodeFromString<List<AvtaleAdminDto.OpsjonLoggRegistrert?>>(it).filterNotNull() }
+        val opsjonerRegistrert = stringOrNull("opsjon_logg_json")
+            ?.let { Json.decodeFromString<List<AvtaleAdminDto.OpsjonLoggRegistrert>>(it) }
             ?: emptyList()
 
         val avbruttTidspunkt = localDateTimeOrNull("avbrutt_tidspunkt")
@@ -559,9 +560,8 @@ class AvtaleRepository(private val db: Database) {
             opsjonsmodell = stringOrNull("opsjonsmodell")?.let { Opsjonsmodell.valueOf(it) },
             customOpsjonsmodellNavn = stringOrNull("opsjon_custom_opsjonsmodell_navn"),
         )
-        val amoKategorisering = stringOrNull("amo_kategorisering")?.let {
-            JsonIgnoreUnknownKeys.decodeFromString<AmoKategorisering>(it)
-        }
+        val amoKategorisering = stringOrNull("amo_kategorisering_json")
+            ?.let { JsonIgnoreUnknownKeys.decodeFromString<AmoKategorisering>(it) }
 
         return AvtaleAdminDto(
             id = uuid("id"),
