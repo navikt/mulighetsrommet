@@ -11,15 +11,14 @@ import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.*
 import io.ktor.client.plugins.cache.*
 import io.ktor.client.request.*
-import io.ktor.client.request.headers
 import io.ktor.http.*
 import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
 import org.slf4j.LoggerFactory
 import java.util.concurrent.TimeUnit
 
 class Norg2Client(
-    private val baseUrl: String,
     clientEngine: HttpClientEngine = CIO.create(),
+    private val baseUrl: String,
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
     private val client = httpJsonClient(clientEngine).config {
@@ -39,7 +38,7 @@ class Norg2Client(
 
     suspend fun hentEnheter(): List<Norg2Response> {
         return try {
-            val response = client.get("$baseUrl/enhet/kontaktinformasjon/organisering/all") {
+            val response = client.get("$baseUrl/norg2/api/v1/enhet/kontaktinformasjon/organisering/all") {
                 headers {
                     this.append("consumerId", "team-mulighetsrommet-enhet-sync")
                 }
@@ -54,7 +53,7 @@ class Norg2Client(
     suspend fun hentEnhetByGeografiskOmraade(geografiskOmraade: String): Either<NorgError, Norg2EnhetDto> {
         hentEnhetByGeografiskOmraadeCache.getIfPresent(geografiskOmraade)?.let { return@hentEnhetByGeografiskOmraade it.right() }
 
-        val response = client.get("$baseUrl/enhet/navkontor/$geografiskOmraade") {
+        val response = client.get("$baseUrl/norg2/api/v1/enhet/navkontor/$geografiskOmraade") {
             headers {
                 this.append("consumerId", "team-mulighetsrommet")
             }
@@ -64,10 +63,12 @@ class Norg2Client(
                 log.error("Fant ikke Nav enhet for geografisk område: $geografiskOmraade")
                 NorgError.NotFound.left()
             }
+
             HttpStatusCode.OK -> {
                 val enhet = response.body<Norg2EnhetDto>()
                 enhet.right()
             }
+
             else -> {
                 log.error("Klarte ikke hente enhet basert på geografisk tilknytning fra NORG2. geografiskOmraade: $geografiskOmraade, response: $response")
                 NorgError.Error.left()

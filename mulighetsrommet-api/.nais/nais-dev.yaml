@@ -120,8 +120,9 @@ spec:
           namespace: teampam
         - application: veilarbdialog
           namespace: dab
+        - application: norg2
+          namespace: org
       external:
-        - host: norg2.intern.dev.nav.no
         - host: slack.com
         - host: xegcworx.apicdn.sanity.io
         - host: xegcworx.api.sanity.io

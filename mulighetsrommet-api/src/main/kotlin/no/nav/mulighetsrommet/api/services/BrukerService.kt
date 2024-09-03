@@ -38,7 +38,7 @@ class BrukerService(
         val deferredManuellStatus = async { veilarboppfolgingClient.hentManuellStatus(fnr, obo) }
         val deferredSisteVedtak = async { veilarbvedtaksstotteClient.hentSiste14AVedtak(fnr, obo) }
         val deferredPdlPerson = async { pdlClient.hentPerson(PdlIdent(fnr.value), obo) }
-        val deferredGeografiskTilknytning = async { pdlClient.hentGeografiskTilknytning(PdlIdent(fnr.value), obo) }
+        val deferredBrukersGeografiskeEnhet = async { hentBrukersGeografiskeEnhet(fnr, obo) }
 
         val erUnderOppfolging = deferredErUnderOppfolging.await()
             .getOrElse {
@@ -124,25 +124,11 @@ class BrukerService(
                 }
             }
 
-        val geografiskTilknytning = deferredGeografiskTilknytning.await()
-            .getOrElse {
-                when (it) {
-                    PdlError.Error -> {
-                        throw StatusException(
-                            HttpStatusCode.InternalServerError,
-                            "Klarte ikke hente geografisk tilknytning fra Pdl.",
-                        )
-                    }
-
-                    PdlError.NotFound -> null
-                }
-            }
+        val brukersGeografiskeEnhet = deferredBrukersGeografiskeEnhet.await()
 
         val brukersOppfolgingsenhet = oppfolgingsenhet?.enhetId?.let {
             navEnhetService.hentEnhet(it)
         }
-
-        val brukersGeografiskeEnhet = geografiskTilknytning?.let { hentBrukersGeografiskeEnhet(it) }
 
         val enheter = getRelevanteEnheterForBruker(brukersGeografiskeEnhet, brukersOppfolgingsenhet)
 
@@ -176,12 +162,26 @@ class BrukerService(
         )
     }
 
-    private suspend fun hentBrukersGeografiskeEnhet(geografiskTilknytning: GeografiskTilknytning): NavEnhetDbo? {
+    private suspend fun hentBrukersGeografiskeEnhet(fnr: NorskIdent, obo: AccessType.OBO): NavEnhetDbo? {
+        val geografiskTilknytning = pdlClient.hentGeografiskTilknytning(PdlIdent(fnr.value), obo)
+            .getOrElse {
+                when (it) {
+                    PdlError.Error -> {
+                        throw StatusException(
+                            HttpStatusCode.InternalServerError,
+                            "Klarte ikke hente geografisk tilknytning fra Pdl.",
+                        )
+                    }
+
+                    PdlError.NotFound -> null
+                }
+            }
+
         val norgResult = when (geografiskTilknytning) {
             is GeografiskTilknytning.GtBydel -> norg2Client.hentEnhetByGeografiskOmraade(geografiskTilknytning.value)
             is GeografiskTilknytning.GtKommune -> norg2Client.hentEnhetByGeografiskOmraade(geografiskTilknytning.value)
-            is GeografiskTilknytning.GtUtland, GeografiskTilknytning.GtUdefinert -> null
-        } ?: return null
+            else -> return null
+        }
 
         return norgResult
             .map { navEnhetService.hentEnhet(it.enhetNr) }
