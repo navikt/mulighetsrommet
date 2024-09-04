@@ -7,6 +7,7 @@ import {
   Skeleton,
   Tabs,
   VStack,
+  Box,
 } from "@navikt/ds-react";
 import { Suspense, useState } from "react";
 import { ErrorBoundary } from "react-error-boundary";
@@ -17,6 +18,7 @@ import styles from "./Landingsside.module.scss";
 import { DelMedBrukerHistorikk } from "../delMedBruker/DelMedBrukerHistorikk";
 import { isProduction } from "@/environment";
 import { useLogEvent } from "@/logging/amplitude";
+import tomEskeImg from "public/tom-eske.svg";
 
 function Feilmelding({ message }: { message: string }) {
   return (
@@ -32,7 +34,7 @@ export function Landingsside() {
 
   return (
     <main className="mulighetsrommet-veileder-flate">
-      <VStack gap="4" padding="4">
+      <VStack gap="4" padding="4" style={{ maxWidth: "1000px" }}>
         <FeedbackFraUrl />
         <HStack justify="space-between">
           <Heading size="large">Oversikt over brukerens tiltak</Heading>
@@ -119,24 +121,19 @@ function Aktive() {
     return null;
   }
 
-  const { aktive } = data;
+  let { aktive } = data;
+  aktive = [];
 
   return (
     <VStack padding="2" gap="4">
       {aktive.map((utkast) => {
         return <DeltakelseKort key={utkast.id} deltakelse={utkast} />;
       })}
-      {aktive.length === 0 ? (
-        <Alert variant="info">
-          Vi finner ingen registrerte tiltak på brukeren. For oversikt over tilskudd til sommerjobb,
-          midlertig, og -varig lønnstilskudd se “Tiltaksgjennomføring - avtaler”.
-        </Alert>
-      ) : (
-        <Alert variant="info">
-          For oversikt over tiltakstypene “Sommerjobb”, “Midlertidig lønnstilskudd”, og “Varig
-          lønnstilskudd” se <TeamTiltakLenke />
-        </Alert>
-      )}
+      {aktive.length === 0 && <TomEske />}
+      <Alert variant="info">
+        For oversikt over tiltakstypene “Sommerjobb”, “Midlertidig lønnstilskudd”, og “Varig
+        lønnstilskudd” se <TeamTiltakLenke />
+      </Alert>
     </VStack>
   );
 }
@@ -167,19 +164,23 @@ function Historikk() {
       {historiske.map((hist) => {
         return <DeltakelseKort key={hist.id} deltakelse={hist} />;
       })}
-      {historiske.length === 0 ? (
-        <Alert variant="info">
-          Vi finner ingen registrerte tiltak på brukeren. Vi viser bare historikk 5 år tilbake i
-          tid. For oversikt over tiltakstypene “Sommerjobb”, “Midlertidig lønnstilskudd”, og “Varig
-          lønnstilskudd” se <TeamTiltakLenke />
-        </Alert>
-      ) : (
-        <Alert variant="info">
-          Vi viser bare historikk 5 år tilbake i tid. For oversikt over tiltakstypene “Sommerjobb”,
-          “Midlertidig lønnstilskudd”, og “Varig lønnstilskudd” se <TeamTiltakLenke />
-        </Alert>
-      )}
+      {historiske.length === 0 && <TomEske />}
+      <Alert variant="info">
+        Vi viser bare historikk 5 år tilbake i tid. For oversikt over tiltakstypene “Sommerjobb”,
+        “Midlertidig lønnstilskudd”, og “Varig lønnstilskudd” se <TeamTiltakLenke />
+      </Alert>
     </VStack>
+  );
+}
+
+function TomEske() {
+  return (
+    <Box background="bg-default" borderRadius="medium" padding="5">
+      <VStack align="center">
+        <img src={tomEskeImg} alt="" className={styles.tom_eske_img} />
+        <Heading size="medium">Ingen tiltak funnet</Heading>
+      </VStack>
+    </Box>
   );
 }
 
