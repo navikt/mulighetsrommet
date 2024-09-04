@@ -167,6 +167,7 @@ export const tiltakAmoGruppe: VeilederflateTiltakGruppe = {
       },
     ],
   },
+  fylke: "0800",
   beskrivelse: "Beskrivelse av gruppe amo tiltaket på gjennomføringsnivå.",
   kontaktinfo: {
     tiltaksansvarlige: [

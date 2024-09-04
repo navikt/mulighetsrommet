@@ -1,6 +1,5 @@
 import { Tabs } from "@navikt/ds-react";
-import { Toggles, VeilederflateTiltak } from "@mr/api-client";
-import { useFeatureToggle } from "@/api/feature-toggles";
+import { VeilederflateTiltak } from "@mr/api-client";
 import { Oppskriftsoversikt } from "../oppskrift/Oppskriftsoversikt";
 import { TiltakDetaljerFane } from "./TiltakDetaljerFane";
 import styles from "./TiltakDetaljer.module.scss";
@@ -20,18 +19,18 @@ type TabsType = "tab1" | "tab2" | "tab3" | "tab4" | "tab5";
 export function TiltakDetaljer({ tiltak, setOppskriftId }: Props) {
   const { logEvent } = useLogEvent();
 
-  const { data: enableArenaOppskrifter } = useFeatureToggle(
-    Toggles.MULIGHETSROMMET_VEILEDERFLATE_ARENA_OPPSKRIFTER,
-  );
+  const oppskrifterEnabled = isOppskrifterEnabled(tiltak);
 
-  const { tiltakstype, faneinnhold } = tiltak;
   const faneoverskrifter = [
     "For hvem",
     "Detaljer og innhold",
     "Påmelding og varighet",
     "Kontaktinfo",
-    enableArenaOppskrifter ? "Oppskrifter" : "",
-  ] as const;
+  ];
+
+  if (oppskrifterEnabled) {
+    faneoverskrifter.push("Oppskrifter");
+  }
 
   function getFaneValgt(value: TabsType): (typeof faneoverskrifter)[number] {
     switch (value) {
@@ -48,6 +47,8 @@ export function TiltakDetaljer({ tiltak, setOppskriftId }: Props) {
     }
   }
 
+  const { tiltakstype, faneinnhold } = tiltak;
+
   return (
     <Tabs
       defaultValue="tab1"
@@ -62,13 +63,13 @@ export function TiltakDetaljer({ tiltak, setOppskriftId }: Props) {
           name: "arbeidsmarkedstiltak.fanevalg",
           data: {
             faneValgt: getFaneValgt(value as TabsType),
-            tiltakstype: tiltak.tiltakstype.navn,
+            tiltakstype: tiltakstype.navn,
           },
         });
       }}
     >
       <Tabs.List className={styles.fane_liste} id="fane_liste">
-        {faneoverskrifter.filter(Boolean).map((fane, index) => (
+        {faneoverskrifter.map((fane, index) => (
           <Tabs.Tab key={index} value={`tab${index + 1}`} label={fane} className={styles.btn_tab} />
         ))}
       </Tabs.List>
@@ -105,13 +106,27 @@ export function TiltakDetaljer({ tiltak, setOppskriftId }: Props) {
             {tiltak?.faneinnhold?.oppskrift ? (
               <RedaksjoneltInnhold value={tiltak.faneinnhold.oppskrift} />
             ) : null}
-            <Oppskriftsoversikt
-              tiltakstypeId={tiltak.tiltakstype.sanityId}
-              setOppskriftId={setOppskriftId}
-            />
+            {oppskrifterEnabled && (
+              <Oppskriftsoversikt
+                tiltakstypeId={tiltakstype.sanityId}
+                setOppskriftId={setOppskriftId}
+              />
+            )}
           </Tabs.Panel>
         </ErrorBoundary>
       </div>
     </Tabs>
   );
+}
+
+function isOppskrifterEnabled(tiltak: VeilederflateTiltak): boolean {
+  if (!tiltak.fylke) {
+    return true;
+  }
+
+  const fylkerSomIkkeVilHaOppskrifter = [
+    "0800", // Vestfold og Telemark
+    "1100", // Rogaland
+  ];
+  return !fylkerSomIkkeVilHaOppskrifter.includes(tiltak.fylke);
 }
