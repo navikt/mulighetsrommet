@@ -4,7 +4,7 @@ import {
 } from "@/api/queries/useArbeidsmarkedstiltakById";
 import { DelMedBruker } from "@/apps/modia/delMedBruker/DelMedBruker";
 import { Tilbakeknapp } from "@/components/tilbakeknapp/Tilbakeknapp";
-import { ViewTiltaksgjennomforingDetaljer } from "@/layouts/ViewTiltaksgjennomforingDetaljer";
+import { ViewTiltakDetaljer } from "@/layouts/ViewTiltakDetaljer";
 import { Alert } from "@navikt/ds-react";
 import { Innsatsgruppe, NavEnhetStatus, NavEnhetType } from "@mr/api-client";
 import { InlineErrorBoundary } from "@/ErrorBoundary";
@@ -19,7 +19,7 @@ export function PreviewArbeidsmarkedstiltakDetaljer() {
       <Alert style={{ marginBottom: "2rem" }} variant="warning">
         Forhåndsvisning av informasjon
       </Alert>
-      <ViewTiltaksgjennomforingDetaljer
+      <ViewTiltakDetaljer
         tiltak={tiltak}
         knapperad={<Tilbakeknapp tilbakelenke=".." tekst="Gå til oversikt over aktuelle tiltak" />}
         brukerActions={
