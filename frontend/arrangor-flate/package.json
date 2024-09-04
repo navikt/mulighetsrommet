@@ -7,7 +7,7 @@
   "scripts": {
     "build": "remix vite:build",
     "dev": "node ./server.js",
-    "lint": "eslint --ignore-path .gitignore --cache --cache-location ./node_modules/.cache/eslint .",
+    "lint": "eslint --cache --cache-location ./node_modules/.cache/eslint app/ server.js",
     "start": "cross-env NODE_ENV=production node ./server.js",
     "typecheck": "tsc"
   },
@@ -39,7 +39,9 @@
     "winston": "^3.14.2"
   },
   "devDependencies": {
+    "@mr/eslint-config-react-app": "*",
     "@remix-run/dev": "^2.11.2",
+    "@tailwindcss/typography": "^0.5.15",
     "@types/compression": "^1.7.5",
     "@types/express": "^4.17.21",
     "@types/react": "^18.2.20",
@@ -53,6 +55,7 @@
     "eslint-plugin-jsx-a11y": "^6.7.1",
     "eslint-plugin-react": "^7.33.2",
     "eslint-plugin-react-hooks": "^4.6.0",
+    "local-pkg": "^0.5.0",
     "postcss": "^8.4.38",
     "tailwindcss": "^3.4.4",
     "typescript": "^5.1.6",

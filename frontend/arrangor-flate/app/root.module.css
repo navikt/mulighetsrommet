@@ -1,5 +1,6 @@
 body {
-  background-color: var(--a-gray-100);
+  /* background-color: var(--a-gray-100); */
+  background-color: white;
   min-height: 100vh;
 }
 
@@ -10,7 +11,7 @@ body {
 .side {
   display: flex;
   flex-direction: column;
-  max-width: 56rem;
+  max-width: 76rem;
   margin-bottom: 3rem;
 }
 
@@ -20,8 +21,8 @@ body {
 
 @media (min-width: 40rem) {
   .side {
-    margin: 1rem auto;
-    padding: 1rem;
+    margin: 0rem auto;
+    padding: 3rem;
   }
 }
 

@@ -28,7 +28,9 @@ export const hentSsrDekoratør = async (): Promise<Dekoratørfragmenter | null> 
         return null;
       }
     }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (e) {
+    // eslint-disable-next-line no-console
     console.log("Klarte ikke å hente dekoratør, appen vil mangle header og footer");
     return null;
   }
