@@ -1,9 +1,9 @@
 import { useSearchParams } from "@remix-run/react";
 
 const useVirksomhet = () => {
-    const [searchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
 
-    return searchParams.get("virksomhet");
+  return searchParams.get("virksomhet");
 };
 
 export default useVirksomhet;

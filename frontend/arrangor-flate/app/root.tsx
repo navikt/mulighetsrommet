@@ -1,4 +1,4 @@
-import { BodyShort, Box, Heading } from "@navikt/ds-react";
+import { Alert, BodyShort, Box, Heading } from "@navikt/ds-react";
 import { LoaderFunction } from "@remix-run/node";
 import {
   isRouteErrorResponse,
@@ -15,13 +15,12 @@ import {
 } from "@remix-run/react";
 import parse from "html-react-parser";
 import { ReactNode, useEffect } from "react";
+import { Header } from "./components/Header";
 import css from "./root.module.css";
 import { Dekoratørfragmenter, hentSsrDekoratør } from "./services/dekoratør/dekorator.server";
-import "./tailwind.css";
-import { hentMiljø, Miljø } from "./services/miljø";
 import useInjectDecoratorScript from "./services/dekoratør/useInjectScript";
-import { Header } from "./components/Header";
-import { RefusjonskravIkon } from "./components/icons/RefusjonskravIkon";
+import { hentMiljø, Miljø } from "./services/miljø";
+import "./tailwind.css";
 
 export const meta: MetaFunction = () => [{ title: "Refusjoner" }];
 
@@ -72,6 +71,13 @@ function Dokument({
       <body>
         {dekorator && parse(dekorator.header)}
         <Header />
+        <Alert variant="warning">
+          Dette er en tjeneste under utvikling - Kontakt{" "}
+          <a href="https://teamkatalog.nav.no/team/aa730c95-b437-497b-b1ae-0ccf69a10997">
+            Team Valp
+          </a>{" "}
+          ved spørsmål
+        </Alert>
         <main className={css.side}>{children}</main>
         <ScrollRestoration />
         <Scripts />

@@ -1,7 +1,7 @@
-import { BodyShort, Table, Tag } from "@navikt/ds-react";
-import { Krav, KravStatus } from "../../domene/domene";
+import { Table, Tag } from "@navikt/ds-react";
 import { Link } from "@remix-run/react";
 import { ReactNode } from "react";
+import { Krav, KravStatus } from "../../domene/domene";
 
 interface Props {
   krav: Krav[];

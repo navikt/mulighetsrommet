@@ -2,3 +2,7 @@
 @import "@navikt/ds-css";
 @import "tailwindcss/components";
 @import "tailwindcss/utilities";
+
+a {
+  text-decoration: underline;
+}

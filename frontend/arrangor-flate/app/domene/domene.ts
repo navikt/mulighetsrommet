@@ -13,3 +13,15 @@ export enum KravStatus {
   KlarForInnsending,
   NarmerSegFrist,
 }
+
+export interface Deltakerliste {
+  id: string;
+  detaljer: {
+    tiltaksnavn: string;
+    tiltaksnummer: string;
+    avtalenavn: string;
+    tiltakstype: string;
+    refusjonskravperiode: string;
+    refusjonskravnummer: string;
+  };
+}

@@ -1,6 +1,6 @@
-import { BodyShort, GuidePanel, Heading, List } from "@navikt/ds-react";
-import { PageHeader } from "../components/PageHeader";
+import { GuidePanel, Heading, List } from "@navikt/ds-react";
 import { json, Link, MetaFunction, useParams } from "@remix-run/react";
+import { PageHeader } from "../components/PageHeader";
 
 export const meta: MetaFunction = () => {
   return [

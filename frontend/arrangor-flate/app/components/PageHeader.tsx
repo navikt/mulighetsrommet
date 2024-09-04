@@ -11,7 +11,7 @@ interface Props {
 export function PageHeader({ title, tilbakeLenke }: Props) {
   return (
     <>
-      <h1>{title}</h1>
+      <h1 className="mb-2">{title}</h1>
       {tilbakeLenke ? (
         <Link className="mb-5 inline hover:underline" to={tilbakeLenke.url}>
           {tilbakeLenke.navn}
