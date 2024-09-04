@@ -52,5 +52,5 @@ fun Route.veilederflateRoutes() {
     brukerRoutes()
     delMedBrukerRoutes()
     veilederRoutes()
-    veilederTiltakRoutes()
+    arbeidsmarkedstiltakRoutes()
 }

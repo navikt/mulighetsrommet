@@ -1,5 +1,5 @@
 import { http, HttpResponse } from "msw";
-import { Innsatsgruppe, KontaktinfoVarsel, VeilederflateTiltak } from "@mr/api-client";
+import { Innsatsgruppe, VeilederflateTiltak } from "@mr/api-client";
 import { mockInnsatsgrupper } from "@/mock/fixtures/mockInnsatsgrupper";
 import { mockTiltaksgjennomforinger } from "@/mock/fixtures/mockTiltaksgjennomforinger";
 import { mockTiltakstyper } from "@/mock/fixtures/mockTiltakstyper";
@@ -61,12 +61,6 @@ export const tiltakHandlers = [
       const { id } = params;
 
       const gjennomforing = findArbeidsmarkedstiltak(id);
-      if (gjennomforing) {
-        gjennomforing.kontaktinfo = {
-          tiltaksansvarlige: [],
-          varsler: [KontaktinfoVarsel.IKKE_TILGANG_TIL_KONTAKTINFO],
-        };
-      }
 
       return HttpResponse.json(gjennomforing);
     },
