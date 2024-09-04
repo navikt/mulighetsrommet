@@ -1,9 +1,5 @@
 import { Alert, BodyShort, Button, Heading, Modal } from "@navikt/ds-react";
-import {
-  KontaktinfoVarsel,
-  VeilederflateKontaktInfo,
-  VeilederflateKontaktinfoTiltaksansvarlig,
-} from "@mr/api-client";
+import { VeilederflateKontaktInfo, VeilederflateKontaktinfoTiltaksansvarlig } from "@mr/api-client";
 import { RefObject, useRef } from "react";
 import styles from "./KontaktinfoFane.module.scss";
 
@@ -18,17 +14,11 @@ const NavKontaktpersonInfo = ({ kontaktinfo }: NavKontaktpersonInfoProps) => {
 
   if (!kontaktinfo) return null;
 
-  const { tiltaksansvarlige, varsler } = kontaktinfo;
+  const { tiltaksansvarlige } = kontaktinfo;
 
   return (
     <div className={styles.tiltaksansvarlig_info}>
-      {varsler.includes(KontaktinfoVarsel.IKKE_TILGANG_TIL_KONTAKTINFO) ? (
-        <Alert variant="info">
-          På grunn av personvernhensyn kan vi ikke vise kontaktinformasjon til arrangør eller
-          tiltaksansvarlig her i åpen løsning. Hvis du har tilgang til Modia kan du finne
-          kontaktinformasjon til arrangør eller tiltaksansvarlig der.
-        </Alert>
-      ) : tiltaksansvarlige.length === 0 ? (
+      {tiltaksansvarlige.length === 0 ? (
         <Alert variant="info">Kontaktinfo til tiltaksansvarlig er ikke lagt inn</Alert>
       ) : (
         <>

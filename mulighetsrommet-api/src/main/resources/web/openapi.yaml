@@ -3564,22 +3564,12 @@ components:
     VeilederflateKontaktInfo:
       type: object
       properties:
-        varsler:
-          type: array
-          items:
-            $ref: "#/components/schemas/KontaktinfoVarsel"
         tiltaksansvarlige:
           type: array
           items:
             $ref: "#/components/schemas/VeilederflateKontaktinfoTiltaksansvarlig"
       required:
-        - varsler
         - tiltaksansvarlige
-
-    KontaktinfoVarsel:
-      type: string
-      enum:
-        - IKKE_TILGANG_TIL_KONTAKTINFO
 
     VeilderflateArrangor:
       type: object
@@ -4153,11 +4143,11 @@ components:
 
     AmoKategorisering:
       oneOf:
-        - $ref: '#/components/schemas/BransjeOgYrkesrettet'
-        - $ref: '#/components/schemas/Norskopplaering'
-        - $ref: '#/components/schemas/ForberedendeOpplaeringForVoksne'
-        - $ref: '#/components/schemas/GrunnleggendeFerdigheter'
-        - $ref: '#/components/schemas/Studiespesialisering'
+        - $ref: "#/components/schemas/BransjeOgYrkesrettet"
+        - $ref: "#/components/schemas/Norskopplaering"
+        - $ref: "#/components/schemas/ForberedendeOpplaeringForVoksne"
+        - $ref: "#/components/schemas/GrunnleggendeFerdigheter"
+        - $ref: "#/components/schemas/Studiespesialisering"
 
     BransjeOgYrkesrettet:
       type: object
@@ -4296,7 +4286,6 @@ components:
         - PRAKSIS
         - ARBEIDSMARKEDSKUNNSKAP
         - NORSKOPPLAERING
-
 
     KoblingerForKontaktperson:
       type: object

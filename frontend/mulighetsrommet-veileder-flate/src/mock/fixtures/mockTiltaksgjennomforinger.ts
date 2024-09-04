@@ -59,7 +59,6 @@ export const tiltakAvklaring: VeilederflateTiltakGruppe = {
         epost: "test@example.com",
       },
     ],
-    varsler: [],
   },
   faneinnhold: {
     lenker: [
@@ -137,7 +136,6 @@ export const tiltakMentor: VeilederflateTiltakArbeidsgiver = {
         epost: "test@example.com",
       },
     ],
-    varsler: [],
   },
 };
 
@@ -185,7 +183,6 @@ export const tiltakAmoGruppe: VeilederflateTiltakGruppe = {
         _id: "56767",
       },
     ],
-    varsler: [],
   },
   faneinnhold: {
     lenker: [
@@ -292,7 +289,6 @@ export const tiltakVta: VeilederflateTiltakGruppe = {
         _id: "56767",
       },
     ],
-    varsler: [],
   },
   faneinnhold: {
     forHvem: [
@@ -377,7 +373,6 @@ export const tiltakJobbklubb: VeilederflateTiltakGruppe = {
         _id: "56767",
       },
     ],
-    varsler: [],
   },
   faneinnhold: {
     forHvem: [
@@ -436,7 +431,6 @@ export const tiltakAft: VeilederflateTiltakGruppe = {
         _id: "56767",
       },
     ],
-    varsler: [],
   },
 };
 
@@ -467,7 +461,6 @@ export const tiltakOppfolging: VeilederflateTiltakGruppe = {
   },
   kontaktinfo: {
     tiltaksansvarlige: [],
-    varsler: [],
   },
 };
 
@@ -481,7 +474,6 @@ export const tiltakEnkelplassFagOgYrke: VeilederflateTiltakArbeidsgiver = {
   oppstart: TiltaksgjennomforingOppstartstype.LOPENDE,
   kontaktinfo: {
     tiltaksansvarlige: [],
-    varsler: [],
   },
 };
 
