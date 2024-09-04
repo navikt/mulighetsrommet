@@ -47,7 +47,7 @@ const createHtmlElement = (tag: string, htmlScriptElement: HTMLElement) => {
   const attributes = htmlScriptElement.attributes;
   const innerText = htmlScriptElement.innerText;
 
-  for (let i = 0; i < htmlScriptElement.attributes.length; i++) {
+  for (let i = 0; i < htmlScriptElement?.attributes?.length; i++) {
     element.setAttribute(attributes[i].name, attributes[i].value);
   }
 

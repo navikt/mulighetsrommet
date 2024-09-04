@@ -1,4 +1,4 @@
-import { Alert, VStack } from "@navikt/ds-react";
+import { Alert, Button, HGrid } from "@navikt/ds-react";
 import type { LoaderFunction, MetaFunction } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
 import { PageHeader } from "../components/PageHeader";
@@ -39,13 +39,17 @@ export default function RefusjonDeltakerlister() {
         title="Deltakerliste"
         tilbakeLenke={{ navn: "Tilbake til refusjonsliste", url: "/" }}
       />
-      <VStack gap="5" justify={"end"}>
+      <HGrid gap="5" columns={1}>
         <DeltakerlisteDetaljer deltakerliste={deltakerliste} />
         <Alert variant="info">Her kommer deltakertabell</Alert>
-        <Link className="justify-self-end" to={`/deltakerliste/detaljer/${deltakerliste.id}`}>
+        <Button
+          as={Link}
+          className="justify-self-end"
+          to={`/deltakerliste/detaljer/${deltakerliste.id}`}
+        >
           Neste
-        </Link>
-      </VStack>
+        </Button>
+      </HGrid>
     </>
   );
 }
