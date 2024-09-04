@@ -9,7 +9,7 @@ import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import io.ktor.util.pipeline.*
 import no.nav.mulighetsrommet.api.clients.sanity.SanityPerspective
-import no.nav.mulighetsrommet.api.domain.dto.*
+import no.nav.mulighetsrommet.api.domain.dto.Oppskrifter
 import no.nav.mulighetsrommet.api.plugins.AuthProvider
 import no.nav.mulighetsrommet.api.plugins.authenticate
 import no.nav.mulighetsrommet.api.plugins.getNavAnsattAzureId
@@ -56,7 +56,7 @@ fun <T : Any> PipelineContext<T, ApplicationCall>.getArbeidsmarkedstiltakFilter(
     )
 }
 
-fun Route.veilederTiltakRoutes() {
+fun Route.arbeidsmarkedstiltakRoutes() {
     val veilederflateService: VeilederflateService by inject()
     val poaoTilgangService: PoaoTilgangService by inject()
 
@@ -121,30 +121,6 @@ fun Route.veilederTiltakRoutes() {
         }
 
         route("/nav") {
-            fun utenKontaktInfo(gjennomforing: VeilederflateTiltak): VeilederflateTiltak {
-                return when (gjennomforing) {
-                    is VeilederflateTiltakGruppe -> {
-                        val arrangor = gjennomforing.arrangor.copy(kontaktpersoner = emptyList())
-                        return gjennomforing.copy(
-                            arrangor = arrangor,
-                            kontaktinfo = VeilederflateKontaktinfo(
-                                varsler = listOf(KontaktinfoVarsel.IKKE_TILGANG_TIL_KONTAKTINFO),
-                                tiltaksansvarlige = emptyList(),
-                            ),
-                        )
-                    }
-
-                    is VeilederflateTiltakArbeidsgiver -> {
-                        gjennomforing.copy(
-                            kontaktinfo = VeilederflateKontaktinfo(
-                                varsler = listOf(KontaktinfoVarsel.IKKE_TILGANG_TIL_KONTAKTINFO),
-                                tiltaksansvarlige = emptyList(),
-                            ),
-                        )
-                    }
-                }
-            }
-
             get("/tiltaksgjennomforinger") {
                 val filter = getArbeidsmarkedstiltakFilter()
 
@@ -155,7 +131,7 @@ fun Route.veilederTiltakRoutes() {
                     search = filter.search,
                     apentForInnsok = filter.apentForInnsok,
                     cacheUsage = CacheUsage.UseCache,
-                ).map { utenKontaktInfo(it) }
+                )
 
                 call.respond(result)
             }
@@ -166,7 +142,7 @@ fun Route.veilederTiltakRoutes() {
                 val result = veilederflateService.hentTiltaksgjennomforing(
                     id = id,
                     sanityPerspective = SanityPerspective.PUBLISHED,
-                ).let { utenKontaktInfo(it) }
+                )
 
                 call.respond(result)
             }
