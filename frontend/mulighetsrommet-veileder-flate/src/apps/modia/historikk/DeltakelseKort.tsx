@@ -30,9 +30,9 @@ export function DeltakelseKort({ deltakelse, size = "medium" }: Props) {
 
   return (
     <Wrapper size={size} deltakelse={deltakelse}>
-      <HGrid columns={"1fr 20%"} align="center">
+      <HGrid columns="1fr 20%" align="center">
         <Innhold deltakelse={deltakelse} />
-        <Button onClick={deltakelseRoute.navigate} size="small">
+        <Button variant="secondary" onClick={deltakelseRoute.navigate} size="small">
           Gå til deltakelse
         </Button>
       </HGrid>
@@ -53,6 +53,7 @@ function Wrapper({
   return (
     <Box
       background="bg-default"
+      borderRadius="medium"
       padding={size === "small" ? "2" : size === "medium" ? "5" : "8"}
       className={classNames(styles.panel, {
         [styles.utkast]: deltakelse?.status.type === DeltakerStatusType.UTKAST_TIL_PAMELDING,

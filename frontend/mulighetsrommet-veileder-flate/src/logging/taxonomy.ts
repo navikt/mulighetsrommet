@@ -40,10 +40,18 @@ type VIS_ANTALL_TILTAK_EVENT = {
   };
 };
 
+type LANDINGSSIDE_FANE_VALGT_EVENT = {
+  name: "arbeidsmarkedstiltak.landingsside.fane-valgt";
+  data: {
+    action: string;
+  };
+};
+
 export type Event =
   | DEL_MED_BRUKER_EVENT
   | KLIKK_PA_FANE_EVENT
   | UNIKE_BRUKERE
   | HISTORIKK_EVENT
   | VIS_ANTALL_TILTAK_EVENT
-  | HISTORIKK__FANE_VALGT_EVENT;
+  | HISTORIKK__FANE_VALGT_EVENT
+  | LANDINGSSIDE_FANE_VALGT_EVENT;

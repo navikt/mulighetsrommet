@@ -1,4 +1,4 @@
-import { Alert, Button, HGrid, List, Skeleton, Table, VStack } from "@navikt/ds-react";
+import { Alert, Box, Button, HGrid, List, Skeleton, Table, VStack } from "@navikt/ds-react";
 import { TiltakDeltMedBruker } from "@mr/api-client";
 import { ReactNode } from "react";
 import { formaterDato } from "../../../utils/Utils";
@@ -49,40 +49,42 @@ export function DelMedBrukerHistorikk() {
   });
 
   return (
-    <VStack gap="2">
-      <Table>
-        <Table.Header>
-          <Table.Row>
-            <Table.HeaderCell />
-            <Table.HeaderCell scope="col">Tiltak</Table.HeaderCell>
-            <Table.HeaderCell scope="col">Delt</Table.HeaderCell>
-            <Table.HeaderCell scope="col"></Table.HeaderCell>
-          </Table.Row>
-        </Table.Header>
-        <Table.Body>
-          {Object.keys(gruppertHistorikk).map((tiltakId) => {
-            const delteTiltak = gruppertHistorikk[tiltakId];
-            const sisteDelt = delteTiltak[0];
+    <Box padding="2" background="bg-default">
+      <VStack gap="2">
+        <Table>
+          <Table.Header>
+            <Table.Row>
+              <Table.HeaderCell />
+              <Table.HeaderCell scope="col">Tiltak</Table.HeaderCell>
+              <Table.HeaderCell scope="col">Delt</Table.HeaderCell>
+              <Table.HeaderCell scope="col"></Table.HeaderCell>
+            </Table.Row>
+          </Table.Header>
+          <Table.Body>
+            {Object.keys(gruppertHistorikk).map((tiltakId) => {
+              const delteTiltak = gruppertHistorikk[tiltakId];
+              const sisteDelt = delteTiltak[0];
 
-            if (delteTiltak.length === 1) {
-              return (
-                <Table.Row key={tiltakId}>{createCells(delteTiltak.length, sisteDelt)}</Table.Row>
-              );
-            } else {
-              return (
-                <Table.ExpandableRow
-                  expandOnRowClick
-                  key={tiltakId}
-                  content={contentForRow(delteTiltak)}
-                >
-                  {createCells(delteTiltak.length, sisteDelt)}
-                </Table.ExpandableRow>
-              );
-            }
-          })}
-        </Table.Body>
-      </Table>
-    </VStack>
+              if (delteTiltak.length === 1) {
+                return (
+                  <Table.Row key={tiltakId}>{createCells(delteTiltak.length, sisteDelt)}</Table.Row>
+                );
+              } else {
+                return (
+                  <Table.ExpandableRow
+                    expandOnRowClick
+                    key={tiltakId}
+                    content={contentForRow(delteTiltak)}
+                  >
+                    {createCells(delteTiltak.length, sisteDelt)}
+                  </Table.ExpandableRow>
+                );
+              }
+            })}
+          </Table.Body>
+        </Table>
+      </VStack>
+    </Box>
   );
 }
 
