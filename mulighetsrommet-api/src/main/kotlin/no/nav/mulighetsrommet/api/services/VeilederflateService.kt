@@ -340,7 +340,6 @@ class VeilederflateService(
                 beskrivelse = beskrivelse,
                 faneinnhold = faneinnhold?.copy(delMedBruker = delingMedBruker),
                 kontaktinfo = VeilederflateKontaktinfo(
-                    varsler = emptyList(),
                     tiltaksansvarlige = kontaktpersoner,
                 ),
                 oppstart = TiltaksgjennomforingOppstartstype.LOPENDE,
