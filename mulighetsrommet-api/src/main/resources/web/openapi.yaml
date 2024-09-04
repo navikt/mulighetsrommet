@@ -3962,12 +3962,10 @@ components:
       enum:
         - mulighetsrommet.veilederflate.visDeltakerRegistrering
         - mulighetsrommet-veilederflate-landingsside
-        - mulighetsrommet-veilederflate-arena-oppskrifter
         - mulighetsrommet-veilederflate.vis-tilbakemelding
         - mulighetsrommet.admin-flate.enableDebugger
         - mulighetsrommet.admin-flate.enable_gruppe_amo_kategorier
         - mulighetsrommet.admin-flate.opprett-tilsagn
-        - mulighetsrommet-veilederflate.vis-tilbakemelding
 
     PublisertRequest:
       type: object

@@ -1,6 +1,5 @@
 import { Alert, Skeleton } from "@navikt/ds-react";
-import { Oppskrift, Toggles } from "@mr/api-client";
-import { useFeatureToggle } from "@/api/feature-toggles";
+import { Oppskrift } from "@mr/api-client";
 import { useOppskrifter } from "@/api/queries/useOppskrifter";
 import { formaterDato } from "@/utils/Utils";
 import styles from "./Oppskriftsoversikt.module.scss";
@@ -12,13 +11,7 @@ interface Props {
 }
 
 export function Oppskriftsoversikt({ tiltakstypeId, setOppskriftId }: Props) {
-  const { data: enableOppskrifter } = useFeatureToggle(
-    Toggles.MULIGHETSROMMET_VEILEDERFLATE_ARENA_OPPSKRIFTER,
-  );
-
   const { data: oppskrifter } = useOppskrifter(tiltakstypeId);
-
-  if (!enableOppskrifter) return null;
 
   if (!oppskrifter) return null;
 

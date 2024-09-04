@@ -2,14 +2,14 @@ import { VeilederflateTiltak } from "@mr/api-client";
 import { TiltaksgjennomforingStatusTag } from "@mr/frontend-common";
 import { gjennomforingIsAktiv } from "@mr/frontend-common/utils/utils";
 import { BodyLong, Heading, HStack, VStack } from "@navikt/ds-react";
-import styles from "./TiltaksgjennomforingsHeader.module.scss";
-import { erKurstiltak } from "../utils/Utils";
+import styles from "./TiltakHeader.module.scss";
+import { erKurstiltak } from "@/utils/Utils";
 
 interface Props {
   tiltak: VeilederflateTiltak;
 }
 
-export function TiltaksgjennomforingHeader({ tiltak }: Props) {
+export function TiltakHeader({ tiltak }: Props) {
   const { navn, beskrivelse, tiltakstype } = tiltak;
   return (
     <>

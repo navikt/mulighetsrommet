@@ -1,13 +1,23 @@
-import { HttpResponse, http } from "msw";
-import invariant from "tiny-invariant";
+import { http, HttpResponse } from "msw";
 import { Features } from "@/api/feature-toggles";
-import { mockFeatures } from "../features";
+import { Toggles } from "@mr/api-client";
+
+const mockFeatures: Features = {
+  [Toggles.MULIGHETSROMMET_VEILEDERFLATE_VIS_DELTAKER_REGISTRERING]: false,
+  [Toggles.MULIGHETSROMMET_VEILEDERFLATE_LANDINGSSIDE]: true,
+  [Toggles.MULIGHETSROMMET_ADMIN_FLATE_ENABLE_DEBUGGER]: true,
+  [Toggles.MULIGHETSROMMET_ADMIN_FLATE_ENABLE_GRUPPE_AMO_KATEGORIER]: true,
+  [Toggles.MULIGHETSROMMET_ADMIN_FLATE_OPPRETT_TILSAGN]: true,
+  [Toggles.MULIGHETSROMMET_VEILEDERFLATE_VIS_TILBAKEMELDING]: true,
+};
 
 export const featureToggleHandlers = [
   http.get("*/api/v1/intern/features", ({ request }) => {
     const url = new URL(request.url);
     const feature = url.searchParams.get("feature") as keyof Features;
-    invariant(feature, "Feature er ikke satt");
+    if (!feature) {
+      throw Error("Feature er ikke satt");
+    }
     return HttpResponse.json(mockFeatures[feature]);
   }),
 ];

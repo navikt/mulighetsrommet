@@ -6,8 +6,8 @@ import { VeilederflateTiltak } from "@mr/api-client";
 import { ReactNode, Suspense, useState } from "react";
 import SidemenyInfo from "@/components/sidemeny/SidemenyInfo";
 import { TiltakDetaljer } from "@/components/tabs/TiltakDetaljer";
-import { TiltaksgjennomforingHeader } from "./TiltaksgjennomforingHeader";
-import styles from "./ViewTiltaksgjennomforingDetaljer.module.scss";
+import { TiltakHeader } from "./TiltakHeader";
+import styles from "./ViewTiltakDetaljer.module.scss";
 import { useInnsatsgrupper } from "@/api/queries/useInnsatsgrupper";
 import { EstimertVentetid } from "@/components/sidemeny/EstimertVentetid";
 import { SidemenyKanKombineresMed } from "@/components/sidemeny/SidemenyKanKombineresMed";
@@ -20,7 +20,7 @@ interface Props {
   knapperad: ReactNode;
 }
 
-export function ViewTiltaksgjennomforingDetaljer({ tiltak, brukerActions, knapperad }: Props) {
+export function ViewTiltakDetaljer({ tiltak, brukerActions, knapperad }: Props) {
   const gjennomforingsId = useGetTiltaksgjennomforingIdFraUrl();
   const innsatsgrupper = useInnsatsgrupper();
 
@@ -41,7 +41,7 @@ export function ViewTiltaksgjennomforingDetaljer({ tiltak, brukerActions, knappe
         <>
           <div className={styles.tiltaksgjennomforing_detaljer} id="tiltaksgjennomforing_detaljer">
             <div className={styles.tiltakstype_header_maksbredde}>
-              <TiltaksgjennomforingHeader tiltak={tiltak} />
+              <TiltakHeader tiltak={tiltak} />
             </div>
             {isTiltakGruppe(tiltak) && !tiltak.apentForInnsok && (
               <div className={styles.apent_for_innsok_status}>

@@ -13,7 +13,7 @@ import { Tilbakeknapp } from "@/components/tilbakeknapp/Tilbakeknapp";
 import { PORTEN_URL_FOR_TILBAKEMELDING } from "@/constants";
 import { paginationAtom } from "@/core/atoms";
 import { isProduction } from "@/environment";
-import { ViewTiltaksgjennomforingDetaljer } from "@/layouts/ViewTiltaksgjennomforingDetaljer";
+import { ViewTiltakDetaljer } from "@/layouts/ViewTiltakDetaljer";
 import {
   Bruker,
   NavVeileder,
@@ -72,7 +72,7 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
         brukerdata={brukerdata}
         brukerHarRettPaaTiltak={brukerHarRettPaaValgtTiltak}
       />
-      <ViewTiltaksgjennomforingDetaljer
+      <ViewTiltakDetaljer
         tiltak={tiltak}
         knapperad={
           <>
