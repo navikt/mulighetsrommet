@@ -66,7 +66,7 @@ function Dokument({
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <Meta />
         <Links />
-        {dekorator && parse(dekorator.styles)}
+        {dekorator && parse(dekorator.head)}
       </head>
       <body>
         {dekorator && parse(dekorator.header)}

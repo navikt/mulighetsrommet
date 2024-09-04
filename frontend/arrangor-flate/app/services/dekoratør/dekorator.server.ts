@@ -5,7 +5,7 @@ const visDekoratørUnderUtvikling = true;
 const brukSsrDekoratørIMiljø = true;
 
 export type Dekoratørfragmenter = {
-  styles: string;
+  head: string;
   header: string;
   footer: string;
   scripts: string;
@@ -49,7 +49,7 @@ export const hentDekoratør = async (miljø: Miljø): Promise<Dekoratørfragment
   });
 
   return {
-    styles: decorator.DECORATOR_STYLES,
+    head: decorator.DECORATOR_HEAD_ASSETS,
     header: decorator.DECORATOR_HEADER,
     footer: decorator.DECORATOR_FOOTER,
     scripts: decorator.DECORATOR_SCRIPTS,

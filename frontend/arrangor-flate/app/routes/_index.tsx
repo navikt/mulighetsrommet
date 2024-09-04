@@ -42,9 +42,9 @@ export const meta: MetaFunction = () => {
 
 export default function Refusjon() {
   return (
-    <div className="font-sans p-4">
+    <>
       <PageHeader title="Tilgjengelige refusjonskrav" />
       <OversiktOverRefusjonskrav krav={mockKrav} />
-    </div>
+    </>
   );
 }

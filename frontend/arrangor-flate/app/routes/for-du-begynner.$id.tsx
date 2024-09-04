@@ -1,4 +1,4 @@
-import { GuidePanel, Heading, List } from "@navikt/ds-react";
+import { Button, GuidePanel, Heading, HGrid, List } from "@navikt/ds-react";
 import { json, Link, MetaFunction, useParams } from "@remix-run/react";
 import { PageHeader } from "../components/PageHeader";
 
@@ -21,7 +21,7 @@ export default function ForDuBegynner() {
         title="Før du begynner"
         tilbakeLenke={{ navn: "Tilbake til refusjonskravliste", url: "/" }}
       />
-      <div className="grid gap-5 flex-col content-center">
+      <HGrid columns={1} gap="5">
         <GuidePanel poster>
           <Heading level="2" size="small">
             Vær oppmerksom på dette før du begynner å fylle ut skjemaet
@@ -32,10 +32,10 @@ export default function ForDuBegynner() {
             <List.Item>Og for øvrig kan man gjøre som man vil</List.Item>
           </List>
         </GuidePanel>
-        <Link className="justify-self-end" to={`/deltakerliste/${id}`}>
+        <Button as={Link} className="justify-self-end" to={`/deltakerliste/${id}`}>
           Neste
-        </Link>
-      </div>
+        </Button>
+      </HGrid>
     </>
   );
 }
