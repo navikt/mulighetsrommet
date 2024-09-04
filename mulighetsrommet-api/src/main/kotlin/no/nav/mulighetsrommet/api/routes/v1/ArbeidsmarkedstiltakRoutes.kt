@@ -56,7 +56,7 @@ fun <T : Any> PipelineContext<T, ApplicationCall>.getArbeidsmarkedstiltakFilter(
     )
 }
 
-fun Route.veilederTiltakRoutes() {
+fun Route.arbeidsmarkedstiltakRoutes() {
     val veilederflateService: VeilederflateService by inject()
     val poaoTilgangService: PoaoTilgangService by inject()
 
