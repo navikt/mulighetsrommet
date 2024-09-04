@@ -973,7 +973,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/DeltakelserResponse"
+                type: array
+                items:
+                  $ref: "#/components/schemas/DeltakerKort"
 
   /api/v1/intern/bruker/deltakelse-for-gjennomforing:
     post:
@@ -1901,8 +1903,14 @@ components:
       properties:
         norskIdent:
           type: string
+        type:
+          type: string
+          enum:
+            - AKTIVE
+            - HISTORISKE
       required:
         - norskIdent
+        - type
 
     GetAktivDeltakelseForBrukerRequest:
       type: object
@@ -2929,21 +2937,6 @@ components:
         - OPPFYLLER_IKKE_KRAVENE
         - ANNET
         - SAMARBEIDET_MED_ARRANGOREN_ER_AVBRUTT
-
-    DeltakelserResponse:
-      type: object
-      properties:
-        aktive:
-          type: array
-          items:
-            $ref: "#/components/schemas/DeltakerKort"
-        historiske:
-          type: array
-          items:
-            $ref: "#/components/schemas/DeltakerKort"
-      required:
-        - aktive
-        - historiske
 
     DeltakelserResponseFraKomet:
       type: object

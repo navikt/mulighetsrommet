@@ -44,13 +44,23 @@ fun Route.brukerRoutes() {
         }
 
         post("historikk") {
-            val (norskIdent) = call.receive<GetHistorikkForBrukerRequest>()
+            val (norskIdent, type) = call.receive<GetDeltakelserForBrukerRequest>()
             val navIdent = getNavIdent()
             val obo = AccessType.OBO(call.getAccessToken())
 
-            poaoTilgangService.verifyAccessToUserFromVeileder(getNavAnsattAzureId(), norskIdent) {
+            poaoTilgangService.verifyAccessToUserFromVeileder(getNavAnsattAzureId(), norskIdent)
+
+            val historikk = historikkService.hentHistorikk(norskIdent, obo).let {
+                if (type == DeltakelsesType.AKTIVE) {
+                    it.aktive
+                } else {
+                    it.historiske
+                }
+            }
+
+            if (historikk.isNotEmpty()) {
                 val message = createAuditMessage(
-                    msg = "NAV-ansatt med ident: '$navIdent' forsøkte, men fikk ikke sett tiltakshistorikken for bruker med ident: '$norskIdent'.",
+                    msg = "NAV-ansatt med ident: '$navIdent' har sett på $type tiltaksdeltakelser for bruker med ident: '$norskIdent'.",
                     topic = "Vis tiltakshistorikk",
                     navIdent = navIdent,
                     norskIdent = norskIdent,
@@ -58,17 +68,7 @@ fun Route.brukerRoutes() {
                 AuditLog.auditLogger.log(message)
             }
 
-            historikkService.hentHistorikkForBruker(norskIdent, obo).let {
-                val message = createAuditMessage(
-                    msg = "NAV-ansatt med ident: '$navIdent' har sett på tiltakshistorikken for bruker med ident: '$norskIdent'.",
-                    topic = "Vis tiltakshistorikk",
-                    navIdent = navIdent,
-                    norskIdent = norskIdent,
-                )
-                AuditLog.auditLogger.log(message)
-
-                call.respond(it)
-            }
+            call.respond(historikk)
         }
 
         post("deltakelse-for-gjennomforing") {
@@ -103,9 +103,15 @@ data class GetBrukerRequest(
     val norskIdent: NorskIdent,
 )
 
+enum class DeltakelsesType {
+    AKTIVE,
+    HISTORISKE,
+}
+
 @Serializable
-data class GetHistorikkForBrukerRequest(
+data class GetDeltakelserForBrukerRequest(
     val norskIdent: NorskIdent,
+    val type: DeltakelsesType,
 )
 
 @Serializable

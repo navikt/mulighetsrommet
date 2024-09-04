@@ -3,7 +3,11 @@ import { JoyrideType, NavEnhetStatus, NavEnhetType } from "@mr/api-client";
 export const QueryKeys = {
   Veilederdata: "veilederdata",
   Bruker: (fnr: string) => ["bruker", fnr],
-  BrukerHistorikk: (fnr: string) => [...QueryKeys.Bruker(fnr), "historikk"],
+  BrukerHistorikk: (fnr: string, type: "AKTIVE" | "HISTORISKE") => [
+    ...QueryKeys.Bruker(fnr),
+    type,
+    "historikk",
+  ],
   BrukerDeltakelser: (fnr: string) => [...QueryKeys.Bruker(fnr), "deltakelser"],
   DeltakelseForGjennomforing: (fnr: string, tiltaksgjennomforingId: string) => [
     ...QueryKeys.Bruker(fnr),

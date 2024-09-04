@@ -113,13 +113,7 @@ export function Landingsside() {
 }
 
 function Aktive() {
-  const { data } = useTiltakshistorikkForBruker();
-
-  if (!data) {
-    return null;
-  }
-
-  const { aktive } = data;
+  const { data: aktive } = useTiltakshistorikkForBruker("AKTIVE");
 
   return (
     <VStack padding="2" gap="4">
@@ -154,13 +148,7 @@ function TeamTiltakLenke() {
 }
 
 function Historikk() {
-  const { data } = useTiltakshistorikkForBruker();
-
-  if (!data) {
-    return null;
-  }
-
-  const { historiske } = data;
+  const { data: historiske } = useTiltakshistorikkForBruker("HISTORISKE");
 
   return (
     <VStack padding="2" gap="4">

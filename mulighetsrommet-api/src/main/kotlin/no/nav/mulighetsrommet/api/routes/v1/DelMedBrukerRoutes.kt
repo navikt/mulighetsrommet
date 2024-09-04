@@ -76,12 +76,12 @@ fun Route.delMedBrukerRoutes() {
                 )
             }
             val response = dialogClient.sendMeldingTilDialogen(obo, dialogRequest)
-            response?.let {
+            if (response != null) {
                 delMedBrukerService.lagreDelMedBruker(
                     data = DelMedBrukerDbo(
                         norskIdent = request.fnr,
                         navident = navIdent.value,
-                        dialogId = it.id,
+                        dialogId = response.id,
                         sanityId = request.sanityId,
                         tiltaksgjennomforingId = request.tiltaksgjennomforingId,
                     ),
@@ -93,13 +93,7 @@ fun Route.delMedBrukerRoutes() {
                 )
                 AuditLog.auditLogger.log(message)
                 call.respond(DelTiltakMedBrukerResponse(dialogId = response.id))
-            } ?: run {
-                val message = createAuditMessage(
-                    msg = "NAV-ansatt med ident: '$navIdent' fikk ikke delt informasjon om tiltaket '${request.overskrift}' til bruker med ident: '${request.fnr}'.",
-                    navIdent = navIdent,
-                    norskIdent = request.fnr,
-                )
-                AuditLog.auditLogger.log(message)
+            } else {
                 call.respond(HttpStatusCode.Conflict)
             }
         }

@@ -135,8 +135,8 @@ class TiltakshistorikkServiceTest : FunSpec({
             tiltakstyper,
         )
 
-        val forventetHistorikk: Map<String, List<DeltakerKort>> = mapOf(
-            "aktive" to listOf(
+        val forventetHistorikk = Deltakelser(
+            aktive = listOf(
                 DeltakerKort(
                     id = gruppetiltakDeltakelse.id,
                     tiltaksgjennomforingId = null,
@@ -176,10 +176,10 @@ class TiltakshistorikkServiceTest : FunSpec({
                     innsoktDato = null,
                 ),
             ),
-            "historiske" to emptyList(),
+            historiske = emptyList(),
         )
 
-        historikkService.hentHistorikkForBruker(
+        historikkService.hentHistorikk(
             NorskIdent("12345678910"),
             AccessType.OBO("token"),
         ) shouldBe forventetHistorikk
