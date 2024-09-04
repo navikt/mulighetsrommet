@@ -7,6 +7,12 @@ registries:
     username: _json_key_base64
     password: ${{ secrets.GOOGLE_ARTIFACT_REGISTRY_READ_TOKEN }}
 
+  maven-github:
+    type: maven-repository
+    url: https://github-package-registry-mirror.gc.nav.no/cached/maven-release
+    username: x-access-token
+    password: no-secret-required
+
 updates:
   - package-ecosystem: github-actions
     directory: "/"
