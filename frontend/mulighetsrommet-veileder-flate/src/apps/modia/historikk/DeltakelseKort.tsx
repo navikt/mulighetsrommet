@@ -57,7 +57,9 @@ function Wrapper({
       padding={size === "small" ? "2" : size === "medium" ? "5" : "8"}
       className={classNames(styles.panel, {
         [styles.utkast]: deltakelse?.status.type === DeltakerStatusType.UTKAST_TIL_PAMELDING,
-        [styles.kladd]: deltakelse?.status.type === DeltakerStatusType.KLADD,
+        [styles.kladd]:
+          deltakelse?.status.type === DeltakerStatusType.KLADD ||
+          deltakelse?.status.type === DeltakerStatusType.PABEGYNT_REGISTRERING,
       })}
     >
       {children}
@@ -106,63 +108,63 @@ interface StatusProps {
 function Status({ status }: StatusProps) {
   const { visningstekst } = status;
   switch (status.type) {
-    case DeltakerStatusType.GJENNOMFORES:
     case DeltakerStatusType.DELTAR:
+    case DeltakerStatusType.GJENNOMFORES:
       return (
         <Tag size="small" variant="success" className={styles.deltarStatus}>
           {visningstekst}
         </Tag>
       );
-    case DeltakerStatusType.IKKE_AKTUELL:
-    case DeltakerStatusType.AVBRUTT_UTKAST:
-    case DeltakerStatusType.AVBRUTT:
-    case DeltakerStatusType.FEILREGISTRERT:
-    case DeltakerStatusType.AVSLAG:
-    case DeltakerStatusType.DELTAKELSE_AVBRUTT:
-      return (
-        <Tag size="small" variant="neutral">
-          {visningstekst}
-        </Tag>
-      );
-    case DeltakerStatusType.UTKAST_TIL_PAMELDING:
-    case DeltakerStatusType.FULLFORT:
-      return (
-        <Tag size="small" variant="info">
-          {visningstekst}
-        </Tag>
-      );
-    case DeltakerStatusType.HAR_SLUTTET:
-    case DeltakerStatusType.IKKE_MOTT:
-    case DeltakerStatusType.TAKKET_NEI_TIL_TILBUD:
-      return (
-        <Tag size="small" variant="alt1">
-          {visningstekst}
-        </Tag>
-      );
-    case DeltakerStatusType.AKTUELL:
-    case DeltakerStatusType.VENTER_PA_OPPSTART:
-    case DeltakerStatusType.INFORMASJONSMOTE:
-      return (
-        <Tag size="small" variant="alt3">
-          {visningstekst}
-        </Tag>
-      );
-
-    case DeltakerStatusType.KLADD:
-    case DeltakerStatusType.SOKT_INN:
-    case DeltakerStatusType.VURDERES:
-    case DeltakerStatusType.VENTELISTE:
     case DeltakerStatusType.PABEGYNT_REGISTRERING:
-    case DeltakerStatusType.TAKKET_JA_TIL_TILBUD:
-    case DeltakerStatusType.TILBUD:
+    case DeltakerStatusType.KLADD:
       return (
         <Tag size="small" variant="warning">
           {visningstekst}
         </Tag>
       );
-    default:
+    case DeltakerStatusType.INFORMASJONSMOTE:
+    case DeltakerStatusType.TILBUD:
+    case DeltakerStatusType.UTKAST_TIL_PAMELDING:
+      return (
+        <Tag size="small" variant="info">
+          {visningstekst}
+        </Tag>
+      );
+    case DeltakerStatusType.IKKE_AKTUELL:
+    case DeltakerStatusType.FEILREGISTRERT:
+    case DeltakerStatusType.VENTELISTE:
+    case DeltakerStatusType.AVBRUTT:
+    case DeltakerStatusType.AVBRUTT_UTKAST:
+    case DeltakerStatusType.AVSLAG:
+    case DeltakerStatusType.DELTAKELSE_AVBRUTT:
+    case DeltakerStatusType.GJENNOMFORING_AVBRUTT:
+    case DeltakerStatusType.GJENNOMFORING_AVLYST:
+    case DeltakerStatusType.TAKKET_NEI_TIL_TILBUD:
+    case DeltakerStatusType.IKKE_MOTT:
       return (
         <Tag size="small" variant="neutral">
+          {visningstekst}
+        </Tag>
+      );
+    case DeltakerStatusType.HAR_SLUTTET:
+    case DeltakerStatusType.FULLFORT:
+      return (
+        <Tag size="small" variant="alt1">
+          {visningstekst}
+        </Tag>
+      );
+    case DeltakerStatusType.SOKT_INN:
+    case DeltakerStatusType.VENTER_PA_OPPSTART:
+    case DeltakerStatusType.TAKKET_JA_TIL_TILBUD:
+    case DeltakerStatusType.AKTUELL:
+      return (
+        <Tag size="small" variant="alt3">
+          {visningstekst}
+        </Tag>
+      );
+    case DeltakerStatusType.VURDERES:
+      return (
+        <Tag size="small" variant="alt2">
           {visningstekst}
         </Tag>
       );
