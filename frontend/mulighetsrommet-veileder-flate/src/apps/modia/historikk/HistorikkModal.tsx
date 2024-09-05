@@ -22,7 +22,7 @@ export function HistorikkModal() {
         />
         <Tabs.Tab
           value="deltMedBruker"
-          label="Delt med bruker"
+          label="Delt i dialogen"
           onClick={() =>
             logEvent({
               name: "arbeidsmarkedstiltak.historikk.fane-valgt",

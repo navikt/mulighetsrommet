@@ -33,7 +33,7 @@ export function DelMedBruker({ veiledernavn, bruker, tiltak, delMedBrukerInfo }:
   };
 
   const knappetekst = delMedBrukerInfo?.createdAt
-    ? `Delt med bruker ${formaterDato(new Date(delMedBrukerInfo.createdAt))}`
+    ? `Delt i dialogen ${formaterDato(new Date(delMedBrukerInfo.createdAt))}`
     : "Del med bruker";
 
   return (
