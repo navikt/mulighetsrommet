@@ -90,13 +90,8 @@ data class VeilederflateKontaktinfoTiltaksansvarlig(
 
 @Serializable
 data class VeilederflateKontaktinfo(
-    val varsler: List<KontaktinfoVarsel>,
     val tiltaksansvarlige: List<VeilederflateKontaktinfoTiltaksansvarlig>,
 )
-
-enum class KontaktinfoVarsel {
-    IKKE_TILGANG_TIL_KONTAKTINFO,
-}
 
 @Serializable
 data class VeilederflateTiltakstype(

@@ -299,7 +299,7 @@ export function forerkortKlasseToString(klasse: ForerkortKlasse): string {
 export function kurstypeToString(kurstype: Kurstype): string {
   switch (kurstype) {
     case Kurstype.BRANSJE_OG_YRKESRETTET:
-      return "Bransje-/yrkesrettede kurs";
+      return "Bransje-/yrkesrettet kurs";
     case Kurstype.NORSKOPPLAERING:
       return "Norskopplæring";
     case Kurstype.STUDIESPESIALISERING:

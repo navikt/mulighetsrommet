@@ -9,14 +9,14 @@ jobs:
     runs-on: ubuntu-latest
     name: Backup dataset for test og produksjon
     permissions:
-      id-token: 'write' # Used to authenticate with Google Cloud
+      id-token: "write" # Used to authenticate with Google Cloud
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 20
       - name: Install dependencies
-        run: npm install @sanity/cli
+        run: npm install @sanity/cli --//npm.pkg.github.com/:_authToken=${{ secrets.READER_TOKEN }}
       - name: Hent dagens dato
         id: date
         run: echo "dagens_dato=$(date +'%Y-%m-%d')" >> $GITHUB_ENV

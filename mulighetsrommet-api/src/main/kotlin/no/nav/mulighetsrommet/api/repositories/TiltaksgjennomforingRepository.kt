@@ -743,7 +743,6 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             oppstartsdato = localDate("start_dato"),
             sluttdato = localDateOrNull("slutt_dato"),
             kontaktinfo = VeilederflateKontaktinfo(
-                varsler = listOf(),
                 tiltaksansvarlige = tiltaksansvarlige,
             ),
             arrangor = VeilederflateArrangor(
