@@ -9,10 +9,10 @@ test.beforeEach(async ({ page }) => {
 test.describe("Tiltaksoversikt", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("/arbeidsmarkedstiltak");
-    const finnNyttArbeidsmarkedstiltakBtn = await page.getByTestId(
+    const finnNyttArbeidsmarkedstiltakBtn = page.getByTestId(
       "finn-nytt-arbeidsmarkedstiltak-btn",
     );
-    finnNyttArbeidsmarkedstiltakBtn.click();
+    await finnNyttArbeidsmarkedstiltakBtn.click();
   });
 
   test("Sjekk at det er 5 tiltaksgjennomføringer i oversikten", async ({ page }) => {
