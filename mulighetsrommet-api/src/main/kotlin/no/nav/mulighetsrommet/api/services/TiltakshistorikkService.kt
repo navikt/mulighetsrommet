@@ -2,6 +2,8 @@ package no.nav.mulighetsrommet.api.services
 
 import arrow.core.Either
 import arrow.core.getOrElse
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import no.nav.mulighetsrommet.api.clients.AccessType
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.*
 import no.nav.mulighetsrommet.api.clients.pdl.*
@@ -28,12 +30,20 @@ class TiltakshistorikkService(
 ) {
     val log: Logger = LoggerFactory.getLogger(javaClass)
 
-    suspend fun hentHistorikk(norskIdent: NorskIdent, obo: AccessType.OBO): Deltakelser {
-        val identer = hentHistoriskeNorskIdent(norskIdent, obo)
+    suspend fun hentHistorikk(norskIdent: NorskIdent, obo: AccessType.OBO): Deltakelser = coroutineScope {
+        val historikkResponse = async {
+            val identer = hentHistoriskeNorskIdent(norskIdent, obo)
+            tiltakshistorikkClient.historikk(identer)
+        }
 
-        val response = tiltakshistorikkClient.historikk(identer)
+        val deltakelserResponse = async {
+            hentDeltakelserFraKomet(norskIdent, obo).getOrElse {
+                // TODO return warning som kan vises i frontend i stedet for å feile helt
+                throw Exception("Feil mot komet")
+            }
+        }
 
-        val historikk: List<DeltakerKort> = response.historikk.map {
+        val historikk = historikkResponse.await().historikk.map {
             when (it) {
                 is Tiltakshistorikk.ArenaDeltakelse -> {
                     it.toDeltakerKort()
@@ -47,43 +57,20 @@ class TiltakshistorikkService(
             }
         }
 
-        val historikkFraKometsApi = hentDeltakelserFraKomet(norskIdent, obo).getOrNull()
-        val kometDeltakelserFraApi = historikkFraKometsApi?.aktive?.plus(historikkFraKometsApi.historikk)
-            ?: emptyList()
+        val (historikkAktive, historikkHistoriske) = historikk.partition { erAktiv(it.status.type) }
+        val (deltakelserAktive, deltakelserHistoriske) = deltakelserResponse.await()
 
-        val blandetHistorikk: List<DeltakerKort> = historikk.map { deltakelse ->
-            val deltakelseFraKomet = kometDeltakelserFraApi.find { it.deltakerId == deltakelse.id }
-            if (deltakelseFraKomet != null) {
-                deltakelse.copy(
-                    tittel = deltakelseFraKomet.tittel,
-                    status = DeltakerKort.DeltakerStatus(
-                        type = DeltakerKort.DeltakerStatus.DeltakerStatusType.valueOf(deltakelseFraKomet.status.type.name),
-                        visningstekst = deltakelseFraKomet.status.visningstekst,
-                        aarsak = deltakelseFraKomet.status.aarsak,
-                    ),
-                    eierskap = DeltakerKort.Eierskap.KOMET,
-                    innsoktDato = deltakelseFraKomet.innsoktDato,
-                    sistEndretDato = deltakelseFraKomet.sistEndretDato,
-                    periode = DeltakerKort.Periode(
-                        startdato = deltakelseFraKomet.periode?.startdato,
-                        sluttdato = deltakelseFraKomet.periode?.sluttdato,
-                    ),
-                )
-            } else {
-                deltakelse
-            }
-        }
-
-        val kladdFraKomet = kometDeltakelserFraApi
-            .filter { it.status.type == DeltakerStatus.DeltakerStatusType.KLADD }
-            .map { it.toDeltakerKort() }
-
-        val (aktive, historiske) = blandetHistorikk.partition { erAktiv(it.status.type) }
-
-        return Deltakelser(
-            aktive = aktive + kladdFraKomet,
-            historiske = historiske,
+        Deltakelser(
+            aktive = mergeDeltakelser(historikkAktive, deltakelserAktive),
+            historiske = mergeDeltakelser(historikkHistoriske, deltakelserHistoriske),
         )
+    }
+
+    private fun mergeDeltakelser(
+        deltakelser: List<DeltakerKort>,
+        amtDeltakelser: List<DeltakelseFraKomet>,
+    ): List<DeltakerKort> {
+        return (amtDeltakelser.map { it.toDeltakerKort() } + deltakelser).distinctBy { it.id }
     }
 
     private fun Tiltakshistorikk.ArenaDeltakelse.toDeltakerKort(): DeltakerKort {

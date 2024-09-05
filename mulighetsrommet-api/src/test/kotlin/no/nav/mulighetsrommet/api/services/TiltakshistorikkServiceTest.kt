@@ -14,9 +14,9 @@ import no.nav.mulighetsrommet.api.clients.pdl.PdlClient
 import no.nav.mulighetsrommet.api.clients.pdl.PdlIdent
 import no.nav.mulighetsrommet.api.clients.tiltakshistorikk.TiltakshistorikkClient
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
-import no.nav.mulighetsrommet.api.domain.dto.ArrangorDto
 import no.nav.mulighetsrommet.api.domain.dto.DeltakerKort
 import no.nav.mulighetsrommet.api.fixtures.*
+import no.nav.mulighetsrommet.api.repositories.ArrangorRepository
 import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.domain.dbo.ArenaDeltakerStatus
@@ -34,20 +34,14 @@ import java.util.*
 class TiltakshistorikkServiceTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
 
-    val arrangorService: ArrangorService = mockk()
-    val pdlClient: PdlClient = mockk()
-    val tiltakshistorikkClient: TiltakshistorikkClient = mockk()
-    val amtDeltakerClient: AmtDeltakerClient = mockk()
-    val tiltakstype = TiltakstypeFixtures.Oppfolging
-
     val tiltaksgjennomforing = TiltaksgjennomforingFixtures.Oppfolging1
 
-    val gruppetiltakDeltakelse = Tiltakshistorikk.GruppetiltakDeltakelse(
+    val deltakelseOppfolging = Tiltakshistorikk.GruppetiltakDeltakelse(
         id = UUID.randomUUID(),
         gjennomforing = Gjennomforing(
             id = tiltaksgjennomforing.id,
             navn = tiltaksgjennomforing.navn,
-            tiltakskode = tiltakstype.tiltakskode!!,
+            tiltakskode = TiltakstypeFixtures.Oppfolging.tiltakskode!!,
         ),
         norskIdent = NorskIdent("12345678910"),
         status = AmtDeltakerStatus(
@@ -60,128 +54,186 @@ class TiltakshistorikkServiceTest : FunSpec({
         arrangor = Arrangor(Organisasjonsnummer(ArrangorFixtures.underenhet1.organisasjonsnummer)),
     )
 
-    val tiltakstypeGruppe = TiltakstypeFixtures.Avklaring
-
-    val arenaDeltakelse = Tiltakshistorikk.ArenaDeltakelse(
+    val deltakelseAvklaring = Tiltakshistorikk.ArenaDeltakelse(
         id = UUID.randomUUID(),
         norskIdent = NorskIdent("12345678910"),
         status = ArenaDeltakerStatus.VENTELISTE,
         startDato = LocalDate.of(2018, 12, 3),
         sluttDato = LocalDate.of(2019, 12, 3),
-        arenaTiltakskode = tiltakstypeGruppe.arenaKode,
-        beskrivelse = "Utdanning",
+        arenaTiltakskode = TiltakstypeFixtures.Avklaring.arenaKode,
+        beskrivelse = "Avklaring",
         arrangor = Arrangor(Organisasjonsnummer("123456789")),
     )
+
+    val deltakelseOppfolgingFraKomet = DeltakelseFraKomet(
+        deltakerId = deltakelseOppfolging.id,
+        deltakerlisteId = deltakelseOppfolging.gjennomforing.id,
+        tittel = "Oppfølging hos Fretex AS",
+        tiltakstype = DeltakelserResponse.Tiltakstype(
+            navn = TiltakstypeFixtures.Oppfolging.navn,
+            tiltakskode = GruppeTiltakstype.INDOPPFAG,
+        ),
+        status = DeltakerStatus(
+            type = DeltakerStatus.DeltakerStatusType.VENTELISTE,
+            visningstekst = "Venteliste",
+            aarsak = null,
+        ),
+        periode = Periode(
+            startdato = LocalDate.of(2018, 12, 3),
+            sluttdato = LocalDate.of(2019, 12, 3),
+        ),
+        innsoktDato = LocalDate.of(2018, 12, 3),
+        sistEndretDato = LocalDate.of(2018, 12, 5),
+    )
+
+    val deltakerKortOppfolging = DeltakerKort(
+        id = deltakelseOppfolging.id,
+        tiltaksgjennomforingId = deltakelseOppfolging.gjennomforing.id,
+        eierskap = DeltakerKort.Eierskap.KOMET,
+        tittel = "Oppfølging hos Fretex AS",
+        tiltakstypeNavn = TiltakstypeFixtures.Oppfolging.navn,
+        status = DeltakerKort.DeltakerStatus(
+            type = DeltakerKort.DeltakerStatus.DeltakerStatusType.VENTELISTE,
+            visningstekst = "Venteliste",
+            aarsak = null,
+        ),
+        periode = DeltakerKort.Periode(
+            startdato = LocalDate.of(2018, 12, 3),
+            sluttdato = LocalDate.of(2019, 12, 3),
+        ),
+        sistEndretDato = LocalDate.of(2018, 12, 5),
+        innsoktDato = LocalDate.of(2018, 12, 3),
+    )
+    val deltakerKortAvklaring = DeltakerKort(
+        id = deltakelseAvklaring.id,
+        tiltaksgjennomforingId = null,
+        eierskap = DeltakerKort.Eierskap.ARENA,
+        tittel = "Avklaring",
+        tiltakstypeNavn = TiltakstypeFixtures.Avklaring.navn,
+        status = DeltakerKort.DeltakerStatus(
+            type = DeltakerKort.DeltakerStatus.DeltakerStatusType.VENTELISTE,
+            visningstekst = "Venteliste",
+            aarsak = null,
+        ),
+        periode = DeltakerKort.Periode(
+            startdato = LocalDate.of(2018, 12, 3),
+            sluttdato = LocalDate.of(2019, 12, 3),
+        ),
+        sistEndretDato = null,
+        innsoktDato = null,
+    )
+
+    val pdlClient: PdlClient = mockk()
+    val tiltakshistorikkClient: TiltakshistorikkClient = mockk()
+    val amtDeltakerClient: AmtDeltakerClient = mockk()
+
+    coEvery { pdlClient.hentHistoriskeIdenter(any(), any()) } returns listOf(
+        IdentInformasjon(
+            ident = PdlIdent("12345678910"),
+            gruppe = IdentGruppe.FOLKEREGISTERIDENT,
+            historisk = false,
+        ),
+    ).right()
 
     beforeAny {
         MulighetsrommetTestDomain(
             arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
-            tiltakstyper = listOf(tiltakstype, tiltakstypeGruppe),
+            tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging, TiltakstypeFixtures.Avklaring),
             avtaler = listOf(AvtaleFixtures.oppfolging),
             gjennomforinger = listOf(tiltaksgjennomforing),
         ).initialize(database.db)
     }
 
     test("henter historikk for bruker basert på person id med arrangørnavn") {
-        coEvery { arrangorService.getOrSyncArrangorFromBrreg(ArrangorFixtures.underenhet1.organisasjonsnummer) } returns ArrangorFixtures.underenhet1.right()
-        coEvery { arrangorService.getOrSyncArrangorFromBrreg(arenaDeltakelse.arrangor.organisasjonsnummer.value) } returns ArrangorDto(
-            id = UUID.randomUUID(),
-            navn = "Bedriftsnavn 2",
-            organisasjonsnummer = arenaDeltakelse.arrangor.organisasjonsnummer.value,
-            postnummer = null,
-            poststed = null,
-        ).right()
-        coEvery { pdlClient.hentHistoriskeIdenter(any(), any()) } returns listOf(
-            IdentInformasjon(
-                ident = PdlIdent("12345678910"),
-                gruppe = IdentGruppe.FOLKEREGISTERIDENT,
-                historisk = false,
-            ),
-        ).right()
         coEvery { tiltakshistorikkClient.historikk(any()) } returns TiltakshistorikkResponse(
-            historikk = listOf(gruppetiltakDeltakelse, arenaDeltakelse),
+            historikk = listOf(deltakelseOppfolging, deltakelseAvklaring),
         )
+
         coEvery { amtDeltakerClient.hentDeltakelser(any(), any()) } returns Either.Right(
             DeltakelserResponse(
-                aktive = listOf(
-                    DeltakelseFraKomet(
-                        deltakerId = gruppetiltakDeltakelse.id,
-                        deltakerlisteId = gruppetiltakDeltakelse.gjennomforing.id,
-                        tittel = "Oppfølging hos Fretex AS",
-                        tiltakstype = DeltakelserResponse.Tiltakstype(navn = tiltakstype.navn, tiltakskode = GruppeTiltakstype.INDOPPFAG),
-                        status = DeltakerStatus(
-                            type = DeltakerStatus.DeltakerStatusType.VENTELISTE,
-                            visningstekst = "Venteliste",
-                            aarsak = null,
-                        ),
-                        periode = Periode(
-                            startdato = LocalDate.of(2018, 12, 3),
-                            sluttdato = LocalDate.of(2019, 12, 3),
-                        ),
-                        innsoktDato = LocalDate.of(2018, 12, 3),
-                        sistEndretDato = LocalDate.of(2018, 12, 5),
-                    ),
-                ),
+                aktive = listOf(deltakelseOppfolgingFraKomet),
                 historikk = emptyList(),
             ),
         )
 
-        val tiltakstyper = TiltakstypeRepository(database.db)
         val historikkService = TiltakshistorikkService(
-            pdlClient,
-            arrangorService,
-            amtDeltakerClient,
-            tiltakshistorikkClient,
-            tiltakstyper,
+            pdlClient = pdlClient,
+            amtDeltakerClient = amtDeltakerClient,
+            tiltakshistorikkClient = tiltakshistorikkClient,
+            arrangorService = ArrangorService(mockk(), ArrangorRepository(database.db)),
+            tiltakstypeRepository = TiltakstypeRepository(database.db),
         )
 
-        val forventetHistorikk = Deltakelser(
-            aktive = listOf(
-                DeltakerKort(
-                    id = gruppetiltakDeltakelse.id,
-                    tiltaksgjennomforingId = null,
-                    eierskap = DeltakerKort.Eierskap.KOMET,
-                    tittel = "Oppfølging hos Fretex AS",
-                    tiltakstypeNavn = tiltakstype.navn,
-                    status = DeltakerKort.DeltakerStatus(
-                        type = DeltakerKort.DeltakerStatus.DeltakerStatusType.VENTELISTE,
-                        visningstekst = "Venteliste",
-                        aarsak = null,
-
-                    ),
-                    periode = DeltakerKort.Periode(
-                        startdato = LocalDate.of(2018, 12, 3),
-                        sluttdato = LocalDate.of(2019, 12, 3),
-                    ),
-                    sistEndretDato = LocalDate.of(2018, 12, 5),
-                    innsoktDato = LocalDate.of(2018, 12, 3),
-                ),
-                DeltakerKort(
-                    id = arenaDeltakelse.id,
-                    tiltaksgjennomforingId = null,
-                    eierskap = DeltakerKort.Eierskap.ARENA,
-                    tittel = "Utdanning",
-                    tiltakstypeNavn = tiltakstypeGruppe.navn,
-                    status = DeltakerKort.DeltakerStatus(
-                        type = DeltakerKort.DeltakerStatus.DeltakerStatusType.VENTELISTE,
-                        visningstekst = "Venteliste",
-                        aarsak = null,
-
-                    ),
-                    periode = DeltakerKort.Periode(
-                        startdato = LocalDate.of(2018, 12, 3),
-                        sluttdato = LocalDate.of(2019, 12, 3),
-                    ),
-                    sistEndretDato = null,
-                    innsoktDato = null,
-                ),
-            ),
-            historiske = emptyList(),
-        )
-
-        historikkService.hentHistorikk(
+        val historikk = historikkService.hentHistorikk(
             NorskIdent("12345678910"),
             AccessType.OBO("token"),
-        ) shouldBe forventetHistorikk
+        )
+
+        historikk shouldBe Deltakelser(
+            aktive = listOf(deltakerKortOppfolging, deltakerKortAvklaring),
+            historiske = emptyList(),
+        )
+    }
+
+    test("inkluderer deltakelser fra komet når de ikke finnes i tiltakshistorikken") {
+        coEvery { tiltakshistorikkClient.historikk(any()) } returns TiltakshistorikkResponse(
+            historikk = listOf(deltakelseAvklaring),
+        )
+
+        coEvery { amtDeltakerClient.hentDeltakelser(any(), any()) } returns Either.Right(
+            DeltakelserResponse(
+                aktive = listOf(deltakelseOppfolgingFraKomet),
+                historikk = emptyList(),
+            ),
+        )
+
+        val historikkService = TiltakshistorikkService(
+            pdlClient = pdlClient,
+            amtDeltakerClient = amtDeltakerClient,
+            tiltakshistorikkClient = tiltakshistorikkClient,
+            arrangorService = ArrangorService(mockk(), ArrangorRepository(database.db)),
+            tiltakstypeRepository = TiltakstypeRepository(database.db),
+        )
+
+        val historikk = historikkService.hentHistorikk(
+            NorskIdent("12345678910"),
+            AccessType.OBO("token"),
+        )
+
+        historikk shouldBe Deltakelser(
+            aktive = listOf(deltakerKortOppfolging, deltakerKortAvklaring),
+            historiske = emptyList(),
+        )
+    }
+
+    test("viser kun deltakelser fra tiltakshistorikken når det ikke returneres deltakelser fra komet") {
+        coEvery { tiltakshistorikkClient.historikk(any()) } returns TiltakshistorikkResponse(
+            historikk = listOf(deltakelseAvklaring),
+        )
+
+        coEvery { amtDeltakerClient.hentDeltakelser(any(), any()) } returns Either.Right(
+            DeltakelserResponse(
+                aktive = listOf(),
+                historikk = emptyList(),
+            ),
+        )
+
+        val historikkService = TiltakshistorikkService(
+            pdlClient = pdlClient,
+            amtDeltakerClient = amtDeltakerClient,
+            tiltakshistorikkClient = tiltakshistorikkClient,
+            arrangorService = ArrangorService(mockk(), ArrangorRepository(database.db)),
+            tiltakstypeRepository = TiltakstypeRepository(database.db),
+        )
+
+        val historikk = historikkService.hentHistorikk(
+            NorskIdent("12345678910"),
+            AccessType.OBO("token"),
+        )
+
+        historikk shouldBe Deltakelser(
+            aktive = listOf(deltakerKortAvklaring),
+            historiske = emptyList(),
+        )
     }
 })
