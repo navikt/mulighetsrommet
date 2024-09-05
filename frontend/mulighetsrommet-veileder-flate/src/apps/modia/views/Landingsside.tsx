@@ -147,7 +147,7 @@ function Aktive() {
       {aktive.map((utkast) => {
         return <DeltakelseKort key={utkast.id} deltakelse={utkast} />;
       })}
-      {aktive.length === 0 && <IngenFunnetBox title="Ingen aktive tiltak" />}
+      {aktive.length === 0 && <IngenFunnetBox title="Brukeren har ingen aktive tiltak" />}
       <Alert variant="info">
         For oversikt over tiltakstypene “Sommerjobb”, “Midlertidig lønnstilskudd”, og “Varig
         lønnstilskudd” se <TeamTiltakLenke />
@@ -176,7 +176,7 @@ function Historikk() {
       {historiske.map((hist) => {
         return <DeltakelseKort key={hist.id} deltakelse={hist} />;
       })}
-      {historiske.length === 0 && <IngenFunnetBox title="Ingen tidligere tiltak" />}
+      {historiske.length === 0 && <IngenFunnetBox title="Brukeren har ingen tidligere tiltak" />}
       <Alert variant="info">
         Vi viser bare historikk 5 år tilbake i tid. For oversikt over tiltakstypene “Sommerjobb”,
         “Midlertidig lønnstilskudd”, og “Varig lønnstilskudd” se <TeamTiltakLenke />
