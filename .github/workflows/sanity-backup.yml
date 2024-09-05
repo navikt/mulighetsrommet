@@ -16,9 +16,11 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.READER_TOKEN }}
         with:
-          node-version: 18
+          node-version: 20
       - name: Install dependencies
         run: npm install @sanity/cli
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.READER_TOKEN }}
       - name: Hent dagens dato
         id: date
         run: echo "dagens_dato=$(date +'%Y-%m-%d')" >> $GITHUB_ENV
