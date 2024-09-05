@@ -7,7 +7,10 @@ import { Feilmelding } from "@/components/feilmelding/Feilmelding";
 import { OversiktenJoyride } from "@/components/joyride/OversiktenJoyride";
 import { ArbeidsmarkedstiltakList } from "@/components/oversikt/ArbeidsmarkedstiltakList";
 import { Tilbakeknapp } from "@/components/tilbakeknapp/Tilbakeknapp";
-import { useResetArbeidsmarkedstiltakFilterMedBrukerIKontekst } from "@/hooks/useArbeidsmarkedstiltakFilter";
+import {
+  isFilterReady,
+  useResetArbeidsmarkedstiltakFilterMedBrukerIKontekst,
+} from "@/hooks/useArbeidsmarkedstiltakFilter";
 import { Toggles } from "@mr/api-client";
 import { ListSkeleton, useOpenFilterWhenThreshold, useTitle } from "@mr/frontend-common";
 import { TilToppenKnapp } from "@mr/frontend-common/components/tilToppenKnapp/TilToppenKnapp";
@@ -74,14 +77,22 @@ export function ModiaArbeidsmarkedstiltakOversikt() {
               </>
             }
             feilmelding={
-              isPending ? (
-                <ListSkeleton />
-              ) : tiltak.length === 0 ? (
+              !isFilterReady(filter) ? (
                 <Feilmelding
-                  header="Ingen tiltaksgjennomføringer funnet"
-                  beskrivelse="Prøv å justere søket eller filteret for å finne det du leter etter"
-                  ikonvariant="warning"
+                  data-testid="filter-mangler-verdier-feilmelding"
+                  header="Du må filtrere på en innsatsgruppe og minst én NAV-enhet for å se tiltaksgjennomføringer"
+                  ikonvariant="info"
                 />
+              ) : tiltak.length === 0 ? (
+                isPending ? (
+                  <ListSkeleton />
+                ) : (
+                  <Feilmelding
+                    header="Ingen tiltaksgjennomføringer funnet"
+                    beskrivelse="Prøv å justere søket eller filteret for å finne det du leter etter"
+                    ikonvariant="warning"
+                  />
+                )
               ) : null
             }
             tagsHeight={tagsHeight}

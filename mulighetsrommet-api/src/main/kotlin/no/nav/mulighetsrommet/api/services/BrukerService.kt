@@ -132,13 +132,6 @@ class BrukerService(
 
         val enheter = getRelevanteEnheterForBruker(brukersGeografiskeEnhet, brukersOppfolgingsenhet)
 
-        if (enheter.isEmpty()) {
-            throw StatusException(
-                HttpStatusCode.BadRequest,
-                "Fant ikke brukers enheter. Kontroller at brukeren er under oppfølging og finnes i Arena",
-            )
-        }
-
         Brukerdata(
             fnr = fnr,
             innsatsgruppe = sisteVedtak?.innsatsgruppe?.let { toInnsatsgruppe(it) },
@@ -243,7 +236,7 @@ fun getRelevanteEnheterForBruker(
 
     val virtuellOppfolgingsenhet = if (
         oppfolgingsenhet != null &&
-        oppfolgingsenhet.type !in listOf(Norg2Type.FYLKE, Norg2Type.LOKAL)
+        NAV_EGNE_ANSATTE_TIL_FYLKE_MAP.keys.contains(oppfolgingsenhet.enhetsnummer)
     ) {
         oppfolgingsenhet
     } else {

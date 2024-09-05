@@ -16,7 +16,6 @@ import no.nav.mulighetsrommet.api.clients.norg2.Norg2EnhetDto
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2EnhetStatus
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.clients.oppfolging.ManuellStatusDto
-import no.nav.mulighetsrommet.api.clients.oppfolging.OppfolgingError
 import no.nav.mulighetsrommet.api.clients.oppfolging.Oppfolgingsenhet
 import no.nav.mulighetsrommet.api.clients.oppfolging.VeilarboppfolgingClient
 import no.nav.mulighetsrommet.api.clients.pdl.*
@@ -42,7 +41,7 @@ class BrukerServiceTest : FunSpec({
 
     val navEgneAnsatteEnhet = NavEnhetDbo(
         navn = "Nav egne ansatte Lerkendal",
-        enhetsnummer = "0583",
+        enhetsnummer = "1683",
         status = NavEnhetStatus.AKTIV,
         type = Norg2Type.KO,
         overordnetEnhet = "0500",
@@ -54,6 +53,14 @@ class BrukerServiceTest : FunSpec({
         status = NavEnhetStatus.AKTIV,
         type = Norg2Type.LOKAL,
         overordnetEnhet = "0500",
+    )
+
+    val navVikafossenEnhet = NavEnhetDbo(
+        navn = "Nav Vikafossen",
+        enhetsnummer = "2103",
+        status = NavEnhetStatus.AKTIV,
+        type = Norg2Type.KO,
+        overordnetEnhet = "2100",
     )
 
     beforeSpec {
@@ -129,15 +136,6 @@ class BrukerServiceTest : FunSpec({
             )
     }
 
-    test("Exception kastes ved tom enhetsliste") {
-        coEvery { pdlClient.hentGeografiskTilknytning(PdlIdent(fnr1.value), any()) } returns PdlError.NotFound.left()
-        coEvery { veilarboppfolgingClient.hentOppfolgingsenhet(fnr1, any()) } returns OppfolgingError.NotFound.left()
-
-        shouldThrow<StatusException> {
-            brukerService.hentBrukerdata(fnr1, AccessType.OBO(""))
-        }
-    }
-
     test("Exception kastes hvis personinfo mangler") {
         coEvery { pdlClient.hentPerson(PdlIdent(fnr1.value), any()) } returns PdlError.Error.left()
 
@@ -163,6 +161,12 @@ class BrukerServiceTest : FunSpec({
             val oppfolgingsenhet = navEgneAnsatteEnhet.copy(enhetsnummer = "0502", type = Norg2Type.LOKAL)
             getRelevanteEnheterForBruker(navLerkendalEnhet, oppfolgingsenhet).should {
                 it shouldContainExactly listOf(oppfolgingsenhet)
+            }
+        }
+
+        test("Hent relevante enheter returnerer tom liste hvis oppfølgingsenhet ikke er blant egne ansatte") {
+            getRelevanteEnheterForBruker(null, navVikafossenEnhet).should {
+                it shouldBe emptyList()
             }
         }
     }
