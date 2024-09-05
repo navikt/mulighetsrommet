@@ -9,10 +9,12 @@ jobs:
     runs-on: ubuntu-latest
     name: Backup dataset for test og produksjon
     permissions:
-      id-token: 'write' # Used to authenticate with Google Cloud
+      id-token: "write" # Used to authenticate with Google Cloud
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.READER_TOKEN }}
         with:
           node-version: 18
       - name: Install dependencies
