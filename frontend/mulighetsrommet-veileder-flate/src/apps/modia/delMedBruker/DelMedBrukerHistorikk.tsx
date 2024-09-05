@@ -13,7 +13,7 @@ export function DelMedBrukerHistorikk() {
   const { data = [], isLoading, error } = useDeltMedBrukerHistorikk();
 
   if (error) {
-    return <Alert variant="error">Kunne ikke hente Delt med bruker-historikk</Alert>;
+    return <Alert variant="error">Kunne ikke hente Delt i dialogen-historikk</Alert>;
   }
 
   if (isLoading) {

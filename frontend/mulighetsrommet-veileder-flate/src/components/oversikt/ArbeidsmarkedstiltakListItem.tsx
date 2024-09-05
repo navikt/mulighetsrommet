@@ -52,7 +52,7 @@ export function ArbeidsmarkedstiltakListItem({ tiltak, index, delMedBruker }: Pr
         {datoSidenSistDelt ? (
           <div className={styles.delt_med_bruker_rad}>
             <BodyShort title={formatertDeltMedBrukerDato} size="small">
-              Delt med bruker {datoSidenSistDelt}
+              Delt i dialogen {datoSidenSistDelt}
             </BodyShort>
           </div>
         ) : null}
