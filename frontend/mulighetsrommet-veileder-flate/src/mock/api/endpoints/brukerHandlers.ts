@@ -2,10 +2,10 @@ import { utkastFraKomet } from "@/mock/fixtures/mockKometUtkast";
 import {
   Bruker,
   BrukerVarsel,
-  DeltakelserResponse,
   DeltakerKort,
   GetAktivDeltakelseForBrukerRequest,
   GetBrukerRequest,
+  GetHistorikkForBrukerRequest,
   Innsatsgruppe,
   NavEnhetStatus,
   NavEnhetType,
@@ -57,9 +57,16 @@ export const brukerHandlers = [
     HttpResponse.json(historikk),
   ),
 
-  http.post<PathParams, DeltakelserResponse, DeltakelserResponse>(
+  http.post<PathParams, GetHistorikkForBrukerRequest, DeltakerKort[]>(
     "*/api/v1/intern/bruker/historikk",
-    () => HttpResponse.json({ historiske: historikkFraKomet, aktive: utkastFraKomet }),
+    async ({ request }) => {
+      const { type } = await request.json();
+      if (type === "AKTIVE") {
+        return HttpResponse.json(utkastFraKomet);
+      } else {
+        return HttpResponse.json(historikkFraKomet);
+      }
+    },
   ),
   http.post<PathParams, GetAktivDeltakelseForBrukerRequest, DeltakerKort>(
     "*/api/v1/intern/bruker/deltakelse-for-gjennomforing",

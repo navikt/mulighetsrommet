@@ -28,7 +28,7 @@ class TiltakshistorikkService(
 ) {
     val log: Logger = LoggerFactory.getLogger(javaClass)
 
-    suspend fun hentHistorikkForBruker(norskIdent: NorskIdent, obo: AccessType.OBO): Map<String, List<DeltakerKort>> {
+    suspend fun hentHistorikk(norskIdent: NorskIdent, obo: AccessType.OBO): Deltakelser {
         val identer = hentHistoriskeNorskIdent(norskIdent, obo)
 
         val response = tiltakshistorikkClient.historikk(identer)
@@ -80,9 +80,9 @@ class TiltakshistorikkService(
 
         val (aktive, historiske) = blandetHistorikk.partition { erAktiv(it.status.type) }
 
-        return mapOf(
-            "aktive" to aktive + kladdFraKomet,
-            "historiske" to historiske,
+        return Deltakelser(
+            aktive = aktive + kladdFraKomet,
+            historiske = historiske,
         )
     }
 
@@ -269,3 +269,8 @@ class TiltakshistorikkService(
         return TiltakshistorikkAdminDto.Arrangor(organisasjonsnummer = Organisasjonsnummer(orgnr.value), navn = navn)
     }
 }
+
+data class Deltakelser(
+    val aktive: List<DeltakerKort>,
+    val historiske: List<DeltakerKort>,
+)

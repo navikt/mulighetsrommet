@@ -21,10 +21,9 @@ class PoaoTilgangService(
         .recordStats()
         .build()
 
-    suspend fun verifyAccessToUserFromVeileder(
+    fun verifyAccessToUserFromVeileder(
         navAnsattAzureId: UUID,
         norskIdent: NorskIdent,
-        errorBlock: (suspend () -> Unit)? = null,
     ) {
         val access = CacheUtils.tryCacheFirstNotNull(tilgangCache, "$navAnsattAzureId-${norskIdent.value}") {
             client.evaluatePolicy(
@@ -38,7 +37,6 @@ class PoaoTilgangService(
         }
 
         if (!access) {
-            errorBlock?.invoke()
             throw StatusException(HttpStatusCode.Forbidden, "Mangler tilgang til bruker")
         }
     }

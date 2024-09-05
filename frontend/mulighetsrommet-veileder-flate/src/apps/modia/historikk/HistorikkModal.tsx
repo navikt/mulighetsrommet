@@ -2,6 +2,7 @@ import { Tabs } from "@navikt/ds-react";
 import { HistorikkForBrukerModalInnhold } from "./HistorikkForBrukerModalInnhold";
 import { DelMedBrukerHistorikk } from "../delMedBruker/DelMedBrukerHistorikk";
 import { useLogEvent } from "../../../logging/amplitude";
+import { InlineErrorBoundary } from "@/ErrorBoundary";
 
 export function HistorikkModal() {
   const { logEvent } = useLogEvent();
@@ -34,7 +35,9 @@ export function HistorikkModal() {
         />
       </Tabs.List>
       <Tabs.Panel value="tiltakshistorikk">
-        <HistorikkForBrukerModalInnhold />
+        <InlineErrorBoundary>
+          <HistorikkForBrukerModalInnhold />
+        </InlineErrorBoundary>
       </Tabs.Panel>
       <Tabs.Panel value="deltMedBruker">
         <div style={{ marginTop: "1rem" }}>

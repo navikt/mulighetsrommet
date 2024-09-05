@@ -1,19 +1,12 @@
 import { useTiltakshistorikkForBruker } from "@/api/queries/useTiltakshistorikkForBruker";
 import { PortenLink } from "@/components/PortenLink";
 import { ExternalLinkIcon } from "@navikt/aksel-icons";
-import { Alert, BodyShort, Loader } from "@navikt/ds-react";
+import { Alert, BodyShort } from "@navikt/ds-react";
 import { DeltakelseKort } from "./DeltakelseKort";
 import styles from "./HistorikkForBrukerModal.module.scss";
 
 export function HistorikkForBrukerModalInnhold() {
-  const { data: historikk, isPending, isError } = useTiltakshistorikkForBruker();
-
-  if (isPending) return <Loader />;
-
-  if (isError || !historikk)
-    return <Alert variant="error">Kunne ikke hente brukerens tiltakshistorikk</Alert>;
-
-  const { historiske = [] } = historikk;
+  const { data: historiske } = useTiltakshistorikkForBruker("HISTORISKE");
 
   return (
     <div style={{ marginTop: "1rem" }}>
