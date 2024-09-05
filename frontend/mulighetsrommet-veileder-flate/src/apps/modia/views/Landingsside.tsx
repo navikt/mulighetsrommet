@@ -24,7 +24,7 @@ import styles from "./Landingsside.module.scss";
 import { DelMedBrukerHistorikk } from "../delMedBruker/DelMedBrukerHistorikk";
 import { isProduction } from "@/environment";
 import { useLogEvent } from "@/logging/amplitude";
-import tomEskeImg from "public/tom-eske.svg";
+import ingenFunnImg from "public/ingen-funn.svg";
 
 function Feilmelding({ message }: { message: string }) {
   return (
@@ -153,7 +153,7 @@ function Aktive() {
       {aktive.map((utkast) => {
         return <DeltakelseKort key={utkast.id} deltakelse={utkast} />;
       })}
-      {aktive.length === 0 && <TomEske title="Ingen aktive tiltak" />}
+      {aktive.length === 0 && <IngenFunnetBox title="Ingen aktive tiltak" />}
       <Alert variant="info">
         For oversikt over tiltakstypene “Sommerjobb”, “Midlertidig lønnstilskudd”, og “Varig
         lønnstilskudd” se <TeamTiltakLenke />
@@ -188,7 +188,7 @@ function Historikk() {
       {historiske.map((hist) => {
         return <DeltakelseKort key={hist.id} deltakelse={hist} />;
       })}
-      {historiske.length === 0 && <TomEske title="Ingen tidligere tiltak" />}
+      {historiske.length === 0 && <IngenFunnetBox title="Ingen tidligere tiltak" />}
       <Alert variant="info">
         Vi viser bare historikk 5 år tilbake i tid. For oversikt over tiltakstypene “Sommerjobb”,
         “Midlertidig lønnstilskudd”, og “Varig lønnstilskudd” se <TeamTiltakLenke />
@@ -197,11 +197,11 @@ function Historikk() {
   );
 }
 
-function TomEske(props: { title: string }) {
+function IngenFunnetBox(props: { title: string }) {
   return (
     <Box background="bg-default" borderRadius="medium" padding="5">
       <VStack align="center">
-        <img src={tomEskeImg} alt="" className={styles.tom_eske_img} />
+        <img src={ingenFunnImg} alt="" className={styles.tom_eske_img} />
         <Heading size="medium">{props.title}</Heading>
       </VStack>
     </Box>
