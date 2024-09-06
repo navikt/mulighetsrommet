@@ -4,6 +4,7 @@ import { ReactNode } from "react";
 import { formaterDato } from "../../../utils/Utils";
 import { ModiaRoute, navigateToModiaApp } from "../ModiaRoute";
 import { useDeltMedBrukerHistorikk } from "../hooks/useDeltMedBrukerHistorikk";
+import { IngenFunnetBox } from "../views/Landingsside";
 
 function sortOnCreatedAt(a: TiltakDeltMedBruker, b: TiltakDeltMedBruker) {
   return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
@@ -27,7 +28,7 @@ export function DelMedBrukerHistorikk() {
   }
 
   if (data.length === 0) {
-    return <Alert variant="info">Det er ikke delt informasjon om noen tiltak med brukeren</Alert>;
+    return <IngenFunnetBox title="Det er ikke delt informasjon om noen tiltak med brukeren" />;
   }
 
   const gruppertHistorikk = data.sort(sortOnCreatedAt).reduce(
