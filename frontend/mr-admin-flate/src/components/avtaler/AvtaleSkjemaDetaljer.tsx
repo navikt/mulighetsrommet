@@ -1,7 +1,14 @@
 import { useAvtaleAdministratorer } from "@/api/ansatt/useAvtaleAdministratorer";
 import { useMigrerteTiltakstyperForAvtaler } from "@/api/tiltakstyper/useMigrerteTiltakstyper";
 import { AvtaleAmoKategoriseringSkjema } from "@/components/amoKategorisering/AvtaleAmoKategoriseringSkjema";
-import { HGrid, Textarea, TextField } from "@navikt/ds-react";
+import { InferredAvtaleSchema } from "@/components/redaksjoneltInnhold/AvtaleSchema";
+import { FormGroup } from "@/components/skjema/FormGroup";
+import { SkjemaDetaljerContainer } from "@/components/skjema/SkjemaDetaljerContainer";
+import { SkjemaInputContainer } from "@/components/skjema/SkjemaInputContainer";
+import { SkjemaKolonne } from "@/components/skjema/SkjemaKolonne";
+import { VertikalSeparator } from "@/components/skjema/VertikalSeparator";
+import { erAnskaffetTiltak } from "@/utils/tiltakskoder";
+import { avtaletypeTilTekst } from "@/utils/Utils";
 import {
   Avtale,
   Avtaletype,
@@ -12,28 +19,19 @@ import {
   OpsjonsmodellKey,
   Tiltakskode,
   Tiltakstype,
-  Toggles,
 } from "@mr/api-client";
 import { ControlledSokeSelect } from "@mr/frontend-common/components/ControlledSokeSelect";
 import { LabelWithHelpText } from "@mr/frontend-common/components/label/LabelWithHelpText";
 import { SelectOption } from "@mr/frontend-common/components/SokeSelect";
+import { HGrid, Textarea, TextField } from "@navikt/ds-react";
 import { DeepPartial, useFormContext } from "react-hook-form";
 import { MultiValue } from "react-select";
-import { useFeatureToggle } from "@/api/features/useFeatureToggle";
-import { erAnskaffetTiltak } from "@/utils/tiltakskoder";
-import { avtaletypeTilTekst } from "@/utils/Utils";
 import { avtaletekster } from "../ledetekster/avtaleLedetekster";
-import { InferredAvtaleSchema } from "@/components/redaksjoneltInnhold/AvtaleSchema";
 import { AdministratorOptions } from "../skjema/AdministratorOptions";
 import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
-import { FormGroup } from "@/components/skjema/FormGroup";
 import { AvtaleArrangorSkjema } from "./AvtaleArrangorSkjema";
 import { AvtaleDatoContainer } from "./avtaledatoer/AvtaleDatoContainer";
 import { getLokaleUnderenheterAsSelectOptions } from "./AvtaleSkjemaConst";
-import { SkjemaDetaljerContainer } from "@/components/skjema/SkjemaDetaljerContainer";
-import { SkjemaInputContainer } from "@/components/skjema/SkjemaInputContainer";
-import { SkjemaKolonne } from "@/components/skjema/SkjemaKolonne";
-import { VertikalSeparator } from "@/components/skjema/VertikalSeparator";
 import { opsjonsmodeller } from "./opsjoner/opsjonsmodeller";
 
 interface Props {
@@ -54,10 +52,6 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
     watch,
     setValue,
   } = useFormContext<DeepPartial<InferredAvtaleSchema>>();
-
-  const { data: enableGruppeAmoKategorier } = useFeatureToggle(
-    Toggles.MULIGHETSROMMET_ADMIN_FLATE_ENABLE_GRUPPE_AMO_KATEGORIER,
-  );
 
   const watchedTiltakstype = watch("tiltakstype");
   const tiltakskode = watchedTiltakstype?.tiltakskode;
@@ -178,8 +172,7 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
                 options={tiltakskode ? avtaletypeOptions(tiltakskode) : []}
               />
             </HGrid>
-            {enableGruppeAmoKategorier &&
-            tiltakskode === Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING ? (
+            {tiltakskode === Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING ? (
               <AvtaleAmoKategoriseringSkjema />
             ) : null}
           </FormGroup>

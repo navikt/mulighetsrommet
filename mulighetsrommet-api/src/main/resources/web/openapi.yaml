@@ -3947,7 +3947,6 @@ components:
         - mulighetsrommet-veilederflate-landingsside
         - mulighetsrommet-veilederflate.vis-tilbakemelding
         - mulighetsrommet.admin-flate.enableDebugger
-        - mulighetsrommet.admin-flate.enable_gruppe_amo_kategorier
         - mulighetsrommet.admin-flate.opprett-tilsagn
 
     PublisertRequest:
