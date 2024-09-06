@@ -20,14 +20,14 @@ data class DeltakerKort(
     val innsoktDato: LocalDate?,
     @Serializable(with = LocalDateSerializer::class)
     val sistEndretDato: LocalDate?,
-    val periode: Periode?,
+    val periode: Periode,
 ) {
     @Serializable
     data class Periode(
         @Serializable(with = LocalDateSerializer::class)
-        val startdato: LocalDate?,
+        val startDato: LocalDate?,
         @Serializable(with = LocalDateSerializer::class)
-        val sluttdato: LocalDate?,
+        val sluttDato: LocalDate?,
     )
 
     @Serializable

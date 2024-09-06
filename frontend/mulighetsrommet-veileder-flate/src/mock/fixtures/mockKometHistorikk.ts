@@ -14,6 +14,7 @@ export const historikkFraKomet: DeltakerKort[] = [
     sistEndretDato: "2024-03-07",
     innsoktDato: "2024-03-02",
     eierskap: "KOMET",
+    periode: {},
   },
   {
     tittel: "Oppfølging hos Muligheter AS",
@@ -28,6 +29,7 @@ export const historikkFraKomet: DeltakerKort[] = [
     },
     innsoktDato: "2024-03-02",
     eierskap: "KOMET",
+    periode: {},
   },
   {
     periode: {
@@ -93,5 +95,6 @@ export const historikkFraKomet: DeltakerKort[] = [
     },
     innsoktDato: "2024-02-03",
     eierskap: "KOMET",
+    periode: {},
   },
 ];

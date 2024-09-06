@@ -80,8 +80,9 @@ fun Route.brukerRoutes() {
             historikkService.hentDeltakelserFraKomet(norskIdent, obo)
                 .onLeft { call.respondWithStatusResponseError(toStatusResponseError(it)) }
                 .onRight { deltakelser ->
-                    val aktivDeltakelse =
-                        deltakelser.aktive.firstOrNull { it.deltakerlisteId == tiltaksgjennomforingId }
+                    val aktivDeltakelse = deltakelser.aktive.firstOrNull {
+                        it.deltakerlisteId == tiltaksgjennomforingId
+                    }
                     if (aktivDeltakelse == null) {
                         call.respond(HttpStatusCode.NoContent)
                     } else {

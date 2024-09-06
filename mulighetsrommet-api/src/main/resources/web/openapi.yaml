@@ -2985,17 +2985,19 @@ components:
           properties:
             startdato:
               type: string
+              format: date
               nullable: true
             sluttdato:
               type: string
+              format: date
               nullable: true
-          nullable: true
       required:
         - id
         - eierskap
         - tittel
         - tiltakstypeNavn
         - status
+        - periode
 
     DeltakelseFraKomet:
       type: object
@@ -3027,10 +3029,10 @@ components:
         periode:
           type: object
           properties:
-            startdato:
+            startDato:
               type: string
               nullable: true
-            sluttdato:
+            sluttDato:
               type: string
               nullable: true
           nullable: true

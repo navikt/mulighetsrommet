@@ -19,6 +19,7 @@ export const utkastFraKomet: DeltakerKort[] = [
     tiltakstypeNavn: "Arbeidsforberende trening",
     tittel: "Arbeidsforberedende trening hos Barneverns- og Helsenemnda",
     eierskap: "KOMET",
+    periode: {},
   },
   {
     id: window.crypto.randomUUID(),
@@ -32,6 +33,7 @@ export const utkastFraKomet: DeltakerKort[] = [
     tiltakstypeNavn: "Avklaring",
     tittel: "Avklaring hos Fretex AS",
     eierskap: "KOMET",
+    periode: {},
   },
   {
     id: window.crypto.randomUUID(),
@@ -44,6 +46,7 @@ export const utkastFraKomet: DeltakerKort[] = [
     tiltakstypeNavn: "Jobbklubb",
     tittel: "Jobbklubb hos Fretex",
     eierskap: "KOMET",
+    periode: {},
   },
   {
     id: window.crypto.randomUUID(),
