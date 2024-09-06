@@ -58,8 +58,8 @@ export const utkastFraKomet: DeltakerKort[] = [
     },
     tiltakstypeNavn: "Jobbklubb",
     periode: {
-      startdato: "2023-08-10",
-      sluttdato: "2023-09-11",
+      startDato: "2023-08-10",
+      sluttDato: "2023-09-11",
     },
     tittel: "Jobbklubb hos Fretex",
     eierskap: "KOMET",
@@ -74,8 +74,8 @@ export const utkastFraKomet: DeltakerKort[] = [
     },
     tiltakstypeNavn: "Jobbklubb",
     periode: {
-      startdato: "2023-08-10",
-      sluttdato: "2023-09-11",
+      startDato: "2023-08-10",
+      sluttDato: "2023-09-11",
     },
     tittel: "Jobbklubb hos Fretex",
     eierskap: "KOMET",
@@ -90,7 +90,7 @@ export const utkastFraKomet: DeltakerKort[] = [
     },
     tiltakstypeNavn: "Varig tilrettelagt arbeid (VTA)",
     periode: {
-      startdato: "2023-08-10",
+      startDato: "2023-08-10",
     },
     tittel: "VTA hos Fretex",
     eierskap: "KOMET",

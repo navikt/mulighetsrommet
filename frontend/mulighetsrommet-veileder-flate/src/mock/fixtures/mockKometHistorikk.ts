@@ -33,8 +33,8 @@ export const historikkFraKomet: DeltakerKort[] = [
   },
   {
     periode: {
-      startdato: "2023-05-10",
-      sluttdato: "2023-12-12",
+      startDato: "2023-05-10",
+      sluttDato: "2023-12-12",
     },
     tittel: "Oppfølging hos Muligheter AS",
     tiltakstypeNavn: "Oppfølging",
@@ -50,8 +50,8 @@ export const historikkFraKomet: DeltakerKort[] = [
   },
   {
     periode: {
-      startdato: "2023-01.01",
-      sluttdato: "2024-02-01",
+      startDato: "2023-01.01",
+      sluttDato: "2024-02-01",
     },
     tittel: "Avklaring med Anne",
     tiltakstypeNavn: "Avklaring",
@@ -67,8 +67,8 @@ export const historikkFraKomet: DeltakerKort[] = [
   },
   {
     periode: {
-      startdato: "2023-01.01",
-      sluttdato: "2024-02-01",
+      startDato: "2023-01.01",
+      sluttDato: "2024-02-01",
     },
     tittel: "Avklaring med Anne",
     tiltakstypeNavn: "Avklaring",

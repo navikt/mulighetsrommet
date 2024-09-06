@@ -2983,11 +2983,11 @@ components:
         periode:
           type: object
           properties:
-            startdato:
+            startDato:
               type: string
               format: date
               nullable: true
-            sluttdato:
+            sluttDato:
               type: string
               format: date
               nullable: true

@@ -83,11 +83,11 @@ function Innhold({ deltakelse }: { deltakelse: DeltakerKort }) {
       <HStack align={"end"} gap="5">
         {status ? <Status status={status} /> : null}
         {status.aarsak ? <BodyShort size="small">Årsak: {status.aarsak}</BodyShort> : null}
-        {periode?.startdato ? (
+        {periode?.startDato ? (
           <BodyShort size="small">
-            {periode?.startdato && !periode?.sluttdato
-              ? `Oppstartsdato ${formaterDato(periode?.startdato)}`
-              : [periode?.startdato, periode?.sluttdato]
+            {periode?.startDato && !periode?.sluttDato
+              ? `Oppstartsdato ${formaterDato(periode?.startDato)}`
+              : [periode?.startDato, periode?.sluttDato]
                   .filter(Boolean)
                   .map((dato) => dato && formaterDato(dato))
                   .join(" - ")}
