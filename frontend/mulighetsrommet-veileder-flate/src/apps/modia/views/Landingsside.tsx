@@ -48,7 +48,7 @@ export function Landingsside() {
         }}
         gap="4"
       >
-        <div>
+        <VStack align={{ xs: "start", lg: "end" }} className={styles.cta_container}>
           <Link
             data-testid="finn-nytt-arbeidsmarkedstiltak-btn"
             className={styles.cta_link}
@@ -56,7 +56,7 @@ export function Landingsside() {
           >
             <PlusIcon color="white" fontSize={30} aria-hidden /> Finn nytt arbeidsmarkedstiltak
           </Link>
-        </div>
+        </VStack>
         <VStack gap="4">
           <FeedbackFraUrl />
           <Heading size="large">Oversikt over brukerens tiltak</Heading>
@@ -77,7 +77,7 @@ export function Landingsside() {
                 label={
                   <HStack gap="1">
                     <LocationPinIcon />
-                    Aktive
+                    Aktive tiltak
                   </HStack>
                 }
                 value="aktive"
@@ -88,7 +88,7 @@ export function Landingsside() {
                 label={
                   <HStack gap="1">
                     <HourglassBottomFilledIcon />
-                    Historikk
+                    Tiltakshistorikk
                   </HStack>
                 }
                 value="historikk"

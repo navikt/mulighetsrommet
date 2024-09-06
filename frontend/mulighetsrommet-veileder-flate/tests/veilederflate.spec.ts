@@ -19,8 +19,8 @@ test.describe("Landingsside", () => {
   test("Sjekk at det finnes en tab-liste med aktive, historiske og delt i dialogen-faner", async ({
     page,
   }) => {
-    await expect(page.getByTestId("aktive-tab")).toHaveText("Aktive");
-    await expect(page.getByTestId("historikk-tab")).toHaveText("Historikk");
+    await expect(page.getByTestId("aktive-tab")).toHaveText("Aktive tiltak");
+    await expect(page.getByTestId("historikk-tab")).toHaveText("Tiltakshistorikk");
     await expect(page.getByTestId("delt-i-dialogen-tab")).toHaveText("Delt i dialogen");
   });
 
