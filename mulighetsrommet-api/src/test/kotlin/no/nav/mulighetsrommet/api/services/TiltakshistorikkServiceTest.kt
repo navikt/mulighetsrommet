@@ -79,7 +79,7 @@ class TiltakshistorikkServiceTest : FunSpec({
             aarsak = null,
         ),
         periode = Periode(
-            startdato = LocalDate.of(2018, 12, 3),
+            startdato = LocalDate.of(2019, 1, 1),
             sluttdato = LocalDate.of(2019, 12, 3),
         ),
         innsoktDato = LocalDate.of(2018, 12, 3),
@@ -98,7 +98,7 @@ class TiltakshistorikkServiceTest : FunSpec({
             aarsak = null,
         ),
         periode = DeltakerKort.Periode(
-            startdato = LocalDate.of(2018, 12, 3),
+            startdato = LocalDate.of(2019, 1, 1),
             sluttdato = LocalDate.of(2019, 12, 3),
         ),
         sistEndretDato = LocalDate.of(2018, 12, 5),
@@ -126,6 +126,14 @@ class TiltakshistorikkServiceTest : FunSpec({
     val pdlClient: PdlClient = mockk()
     val tiltakshistorikkClient: TiltakshistorikkClient = mockk()
     val amtDeltakerClient: AmtDeltakerClient = mockk()
+
+    fun createTiltakshistorikkService() = TiltakshistorikkService(
+        pdlClient = pdlClient,
+        amtDeltakerClient = amtDeltakerClient,
+        tiltakshistorikkClient = tiltakshistorikkClient,
+        arrangorService = ArrangorService(mockk(), ArrangorRepository(database.db)),
+        tiltakstypeRepository = TiltakstypeRepository(database.db),
+    )
 
     coEvery { pdlClient.hentHistoriskeIdenter(any(), any()) } returns listOf(
         IdentInformasjon(
@@ -156,13 +164,7 @@ class TiltakshistorikkServiceTest : FunSpec({
             ),
         )
 
-        val historikkService = TiltakshistorikkService(
-            pdlClient = pdlClient,
-            amtDeltakerClient = amtDeltakerClient,
-            tiltakshistorikkClient = tiltakshistorikkClient,
-            arrangorService = ArrangorService(mockk(), ArrangorRepository(database.db)),
-            tiltakstypeRepository = TiltakstypeRepository(database.db),
-        )
+        val historikkService = createTiltakshistorikkService()
 
         val historikk = historikkService.hentHistorikk(
             NorskIdent("12345678910"),
@@ -187,13 +189,7 @@ class TiltakshistorikkServiceTest : FunSpec({
             ),
         )
 
-        val historikkService = TiltakshistorikkService(
-            pdlClient = pdlClient,
-            amtDeltakerClient = amtDeltakerClient,
-            tiltakshistorikkClient = tiltakshistorikkClient,
-            arrangorService = ArrangorService(mockk(), ArrangorRepository(database.db)),
-            tiltakstypeRepository = TiltakstypeRepository(database.db),
-        )
+        val historikkService = createTiltakshistorikkService()
 
         val historikk = historikkService.hentHistorikk(
             NorskIdent("12345678910"),
@@ -218,13 +214,7 @@ class TiltakshistorikkServiceTest : FunSpec({
             ),
         )
 
-        val historikkService = TiltakshistorikkService(
-            pdlClient = pdlClient,
-            amtDeltakerClient = amtDeltakerClient,
-            tiltakshistorikkClient = tiltakshistorikkClient,
-            arrangorService = ArrangorService(mockk(), ArrangorRepository(database.db)),
-            tiltakstypeRepository = TiltakstypeRepository(database.db),
-        )
+        val historikkService = createTiltakshistorikkService()
 
         val historikk = historikkService.hentHistorikk(
             NorskIdent("12345678910"),
@@ -233,6 +223,41 @@ class TiltakshistorikkServiceTest : FunSpec({
 
         historikk shouldBe Deltakelser(
             aktive = listOf(deltakerKortAvklaring),
+            historiske = emptyList(),
+        )
+    }
+
+    test("sorterer deltakelser basert nyeste startdato") {
+        coEvery { tiltakshistorikkClient.historikk(any()) } returns TiltakshistorikkResponse(
+            historikk = listOf(deltakelseAvklaring, deltakelseOppfolging),
+        )
+
+        val deltakelseOppfolgingUtenStartdato = deltakelseOppfolgingFraKomet.copy(
+            deltakerId = UUID.randomUUID(),
+            status = DeltakerStatus(type = DeltakerStatus.DeltakerStatusType.KLADD, visningstekst = "Kladd"),
+            periode = null,
+        )
+
+        coEvery { amtDeltakerClient.hentDeltakelser(any(), any()) } returns Either.Right(
+            DeltakelserResponse(
+                aktive = listOf(deltakelseOppfolgingFraKomet, deltakelseOppfolgingUtenStartdato),
+                historikk = emptyList(),
+            ),
+        )
+
+        val historikkService = createTiltakshistorikkService()
+
+        val historikk = historikkService.hentHistorikk(
+            NorskIdent("12345678910"),
+            AccessType.OBO("token"),
+        )
+
+        historikk shouldBe Deltakelser(
+            aktive = listOf(
+                deltakelseOppfolgingUtenStartdato.toDeltakerKort(),
+                deltakerKortOppfolging,
+                deltakerKortAvklaring,
+            ),
             historiske = emptyList(),
         )
     }

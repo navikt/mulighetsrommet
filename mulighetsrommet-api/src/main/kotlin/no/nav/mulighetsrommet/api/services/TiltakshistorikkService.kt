@@ -70,7 +70,9 @@ class TiltakshistorikkService(
         deltakelser: List<DeltakerKort>,
         amtDeltakelser: List<DeltakelseFraKomet>,
     ): List<DeltakerKort> {
-        return (amtDeltakelser.map { it.toDeltakerKort() } + deltakelser).distinctBy { it.id }
+        return (amtDeltakelser.map { it.toDeltakerKort() } + deltakelser)
+            .distinctBy { it.id }
+            .sortedWith(deltakerKortComparator)
     }
 
     private fun Tiltakshistorikk.ArenaDeltakelse.toDeltakerKort(): DeltakerKort {
@@ -113,27 +115,6 @@ class TiltakshistorikkService(
             innsoktDato = null,
             sistEndretDato = null,
             eierskap = DeltakerKort.Eierskap.ARENA,
-        )
-    }
-
-    private fun DeltakelseFraKomet.toDeltakerKort(): DeltakerKort {
-        return DeltakerKort(
-            id = deltakerId,
-            tiltaksgjennomforingId = deltakerlisteId,
-            periode = DeltakerKort.Periode(
-                startdato = periode?.startdato,
-                sluttdato = periode?.sluttdato,
-            ),
-            eierskap = DeltakerKort.Eierskap.KOMET,
-            tittel = tittel,
-            tiltakstypeNavn = tiltakstype.navn,
-            status = DeltakerKort.DeltakerStatus(
-                type = DeltakerKort.DeltakerStatus.DeltakerStatusType.valueOf(status.type.name),
-                visningstekst = status.visningstekst,
-                aarsak = status.aarsak,
-            ),
-            innsoktDato = innsoktDato,
-            sistEndretDato = sistEndretDato,
         )
     }
 
@@ -257,7 +238,43 @@ class TiltakshistorikkService(
     }
 }
 
+fun DeltakelseFraKomet.toDeltakerKort(): DeltakerKort {
+    return DeltakerKort(
+        id = deltakerId,
+        tiltaksgjennomforingId = deltakerlisteId,
+        periode = DeltakerKort.Periode(
+            startdato = periode?.startdato,
+            sluttdato = periode?.sluttdato,
+        ),
+        eierskap = DeltakerKort.Eierskap.KOMET,
+        tittel = tittel,
+        tiltakstypeNavn = tiltakstype.navn,
+        status = DeltakerKort.DeltakerStatus(
+            type = DeltakerKort.DeltakerStatus.DeltakerStatusType.valueOf(status.type.name),
+            visningstekst = status.visningstekst,
+            aarsak = status.aarsak,
+        ),
+        innsoktDato = innsoktDato,
+        sistEndretDato = sistEndretDato,
+    )
+}
+
 data class Deltakelser(
     val aktive: List<DeltakerKort>,
     val historiske: List<DeltakerKort>,
 )
+
+/**
+ * Sorterer deltakelser basert på nyeste startdato først
+ */
+private val deltakerKortComparator: Comparator<DeltakerKort> = Comparator { a, b ->
+    val startDatoA = a.periode.startdato
+    val startDatoB = b.periode.startdato
+
+    when {
+        startDatoA === startDatoB -> 0
+        startDatoA == null -> -1
+        startDatoB == null -> 1
+        else -> startDatoB.compareTo(startDatoA)
+    }
+}
