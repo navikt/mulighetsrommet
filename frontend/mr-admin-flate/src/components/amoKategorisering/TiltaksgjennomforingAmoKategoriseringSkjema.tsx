@@ -1,13 +1,12 @@
-import { HGrid, Select } from "@navikt/ds-react";
-import { Avtale, Kurstype, Toggles } from "@mr/api-client";
-import { useFeatureToggle } from "../../api/features/useFeatureToggle";
-import { bransjeToString, kurstypeToString } from "@/utils/Utils";
 import { InferredTiltaksgjennomforingSchema } from "@/components/redaksjoneltInnhold/TiltaksgjennomforingSchema";
+import { bransjeToString, kurstypeToString } from "@/utils/Utils";
+import { Avtale, Kurstype } from "@mr/api-client";
+import { HGrid, Select } from "@navikt/ds-react";
 import { tiltaktekster } from "../ledetekster/tiltaksgjennomforingLedetekster";
 import { ForerkortSkjema } from "./ForerkortSkjema";
-import { SertifiseringerSkjema } from "./SertifiseringerSelect";
-import { NorksopplaeringSkjema } from "./NorskopplaeringSkjema";
 import { InnholdElementerSkjema } from "./InnholdElementerSkjema";
+import { NorksopplaeringSkjema } from "./NorskopplaeringSkjema";
+import { SertifiseringerSkjema } from "./SertifiseringerSelect";
 
 interface Props {
   avtale: Avtale;
@@ -15,11 +14,8 @@ interface Props {
 
 export function TiltaksgjennomforingAmoKategoriseringSkjema(props: Props) {
   const { avtale } = props;
-  const { data: isEnabled } = useFeatureToggle(
-    Toggles.MULIGHETSROMMET_ADMIN_FLATE_ENABLE_GRUPPE_AMO_KATEGORIER,
-  );
 
-  if (!isEnabled || !avtale.amoKategorisering) {
+  if (!avtale.amoKategorisering) {
     return null;
   }
 
