@@ -1,10 +1,8 @@
 import { useTiltakshistorikkForBruker } from "@/api/queries/useTiltakshistorikkForBruker";
-import { PortenLink } from "@/components/PortenLink";
-import { ExternalLinkIcon } from "@navikt/aksel-icons";
-import { Alert, BodyShort } from "@navikt/ds-react";
+import { Alert } from "@navikt/ds-react";
+import { IngenFunnetBox } from "../views/Landingsside";
 import { DeltakelseKort } from "./DeltakelseKort";
 import styles from "./HistorikkForBrukerModal.module.scss";
-import { IngenFunnetBox } from "../views/Landingsside";
 
 export function HistorikkForBrukerModalInnhold() {
   const { data: historiske } = useTiltakshistorikkForBruker("HISTORISKE");
@@ -27,22 +25,6 @@ export function HistorikkForBrukerModalInnhold() {
           );
         })}
       </ul>
-      <ViVilHoreFraDeg />
     </div>
-  );
-}
-
-function ViVilHoreFraDeg() {
-  return (
-    <>
-      <h4>Vi vil høre fra deg</h4>
-      <BodyShort>
-        Vi jobber med utvikling av historikk-funksjonaliteten og vi ønsker å høre fra deg som har
-        tanker om hvordan historikken burde presenteres og fungere.{" "}
-        <PortenLink>
-          Send oss gjerne en melding via Porten <ExternalLinkIcon />
-        </PortenLink>
-      </BodyShort>
-    </>
   );
 }
