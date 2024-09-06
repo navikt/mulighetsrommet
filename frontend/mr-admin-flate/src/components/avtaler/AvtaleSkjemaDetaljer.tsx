@@ -33,6 +33,7 @@ import { AvtaleArrangorSkjema } from "./AvtaleArrangorSkjema";
 import { AvtaleDatoContainer } from "./avtaledatoer/AvtaleDatoContainer";
 import { getLokaleUnderenheterAsSelectOptions } from "./AvtaleSkjemaConst";
 import { opsjonsmodeller } from "./opsjoner/opsjonsmodeller";
+import { useCallback, useEffect } from "react";
 
 interface Props {
   tiltakstyper: Tiltakstype[];
@@ -43,7 +44,6 @@ interface Props {
 
 export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: Props) {
   const { data: migrerteTiltakstyper } = useMigrerteTiltakstyperForAvtaler();
-
   const { data: administratorer } = useAvtaleAdministratorer();
 
   const {
@@ -55,20 +55,6 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
 
   const watchedTiltakstype = watch("tiltakstype");
   const tiltakskode = watchedTiltakstype?.tiltakskode;
-
-  const arenaOpphavOgIngenEierskap = avtale?.opphav === Opphav.ARENA && !erMigrert(tiltakskode);
-
-  const navRegionerOptions = enheter
-    .filter((enhet) => enhet.type === NavEnhetType.FYLKE)
-    .map((enhet) => ({
-      value: enhet.enhetsnummer,
-      label: enhet.navn,
-    }));
-
-  function erMigrert(tiltakskode?: Tiltakskode | null): boolean {
-    if (!tiltakskode) return false;
-    return migrerteTiltakstyper.includes(tiltakskode);
-  }
 
   function updateOpsjonsmodell(avtaletype: Avtaletype) {
     if (avtaletype === Avtaletype.FORHAANDSGODKJENT) {
@@ -84,6 +70,28 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
         opsjonMaksVarighet: null,
       });
     }
+  }
+
+  const updateOpsjonsmodellClb = useCallback(updateOpsjonsmodell, [setValue]);
+  // TODO Sett korrekt opsjonsmodell basert på avtaletypen
+  useEffect(() => {
+    if (avtale?.avtaletype) {
+      updateOpsjonsmodellClb(avtale?.avtaletype);
+    }
+  }, [avtale, updateOpsjonsmodellClb]);
+
+  const arenaOpphavOgIngenEierskap = avtale?.opphav === Opphav.ARENA && !erMigrert(tiltakskode);
+
+  const navRegionerOptions = enheter
+    .filter((enhet) => enhet.type === NavEnhetType.FYLKE)
+    .map((enhet) => ({
+      value: enhet.enhetsnummer,
+      label: enhet.navn,
+    }));
+
+  function erMigrert(tiltakskode?: Tiltakskode | null): boolean {
+    if (!tiltakskode) return false;
+    return migrerteTiltakstyper.includes(tiltakskode);
   }
 
   return (
