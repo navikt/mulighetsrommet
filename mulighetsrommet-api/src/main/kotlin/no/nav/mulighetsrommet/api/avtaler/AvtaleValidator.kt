@@ -138,6 +138,9 @@ class AvtaleValidator(
                 }
             }
 
+            if (tiltakstype.tiltakskode == Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING && avtale.amoKategorisering == null) {
+                add(ValidationError.ofCustomLocation("amoKategorisering.kurstype", "Du må velge en kurstype"))
+            }
             validateNavEnheter(avtale.navEnheter)
 
             if (currentAvtale == null) {

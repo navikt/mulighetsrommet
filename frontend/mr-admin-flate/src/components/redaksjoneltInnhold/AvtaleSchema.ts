@@ -106,6 +106,17 @@ export const AvtaleSchema = z
         path: ["startOgSluttDato.startDato"],
       });
     }
+
+    if (
+      data.tiltakstype.tiltakskode === Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING &&
+      !data.amoKategorisering
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Du må velge en kurstype",
+        path: ["amoKategorisering.kurstype"],
+      });
+    }
   });
 
 export type InferredAvtaleSchema = z.infer<typeof AvtaleSchema>;

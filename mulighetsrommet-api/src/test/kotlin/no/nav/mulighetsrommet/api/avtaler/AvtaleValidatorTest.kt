@@ -27,6 +27,7 @@ import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListe
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
+import no.nav.mulighetsrommet.domain.dto.AmoKategorisering
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
 import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.domain.dto.Websaknummer
@@ -274,7 +275,10 @@ class AvtaleValidatorTest :
             val forhaandsgodkjent = AvtaleFixtures.AFT.copy(sluttDato = null)
             val rammeAvtale = AvtaleFixtures.oppfolging.copy(sluttDato = null)
             val avtale = AvtaleFixtures.oppfolgingMedAvtale.copy(sluttDato = null)
-            val offentligOffentlig = AvtaleFixtures.gruppeAmo.copy(sluttDato = null)
+            val offentligOffentlig = AvtaleFixtures.gruppeAmo.copy(
+                sluttDato = null,
+                amoKategorisering = AmoKategorisering.Studiespesialisering,
+            )
 
             validator.validate(forhaandsgodkjent, null).shouldBeRight()
             validator.validate(rammeAvtale, null).shouldBeLeft(
@@ -285,6 +289,23 @@ class AvtaleValidatorTest :
             )
             validator.validate(offentligOffentlig, null).shouldBeLeft(
                 listOf(ValidationError("sluttDato", "Du må legge inn sluttdato for avtalen")),
+            )
+        }
+
+        test("amoKategorisering er påkrevd hvis gruppe amo") {
+            val validator = AvtaleValidator(
+                TiltakstypeService(
+                    TiltakstypeRepository(database.db),
+                    Tiltakskode.entries.toList(),
+                ),
+                gjennomforinger,
+                navEnheterService,
+                arrangorer,
+                unleash,
+            )
+            val gruppeAmo = AvtaleFixtures.gruppeAmo.copy()
+            validator.validate(gruppeAmo, null).shouldBeLeft(
+                listOf(ValidationError("amoKategorisering.kurstype", "Du må velge en kurstype")),
             )
         }
 
@@ -302,7 +323,11 @@ class AvtaleValidatorTest :
             val forhaandsgodkjent = AvtaleFixtures.AFT
             val rammeAvtale = AvtaleFixtures.oppfolging.copy(opsjonsmodell = null, opsjonMaksVarighet = null)
             val avtale = AvtaleFixtures.oppfolgingMedAvtale.copy(opsjonsmodell = null, opsjonMaksVarighet = null)
-            val offentligOffentlig = AvtaleFixtures.gruppeAmo.copy(opsjonsmodell = null, opsjonMaksVarighet = null)
+            val offentligOffentlig = AvtaleFixtures.gruppeAmo.copy(
+                opsjonsmodell = null,
+                opsjonMaksVarighet = null,
+                amoKategorisering = AmoKategorisering.Studiespesialisering,
+            )
 
             validator.validate(forhaandsgodkjent, null).shouldBeRight()
             validator.validate(rammeAvtale, null).shouldBeLeft(
@@ -368,7 +393,10 @@ class AvtaleValidatorTest :
                 opsjonsmodell = Opsjonsmodell.TO_PLUSS_EN,
             )
             val oppfolging = AvtaleFixtures.oppfolging.copy(avtaletype = Avtaletype.OffentligOffentlig)
-            val gruppeAmo = AvtaleFixtures.gruppeAmo.copy(avtaletype = Avtaletype.Forhaandsgodkjent)
+            val gruppeAmo = AvtaleFixtures.gruppeAmo.copy(
+                avtaletype = Avtaletype.Forhaandsgodkjent,
+                amoKategorisering = AmoKategorisering.Studiespesialisering,
+            )
             validator.validate(aft, null).shouldBeLeft(
                 listOf(
                     ValidationError(
@@ -395,7 +423,10 @@ class AvtaleValidatorTest :
             val aftForhaands = AvtaleFixtures.AFT.copy(avtaletype = Avtaletype.Forhaandsgodkjent)
             val vtaForhaands = AvtaleFixtures.AFT.copy(avtaletype = Avtaletype.Forhaandsgodkjent)
             val oppfolgingRamme = AvtaleFixtures.oppfolging.copy(avtaletype = Avtaletype.Rammeavtale)
-            val gruppeAmoOffentlig = AvtaleFixtures.gruppeAmo.copy(avtaletype = Avtaletype.OffentligOffentlig)
+            val gruppeAmoOffentlig = AvtaleFixtures.gruppeAmo.copy(
+                avtaletype = Avtaletype.OffentligOffentlig,
+                amoKategorisering = AmoKategorisering.Studiespesialisering,
+            )
             validator.validate(aftForhaands, null).shouldBeRight()
             validator.validate(vtaForhaands, null).shouldBeRight()
             validator.validate(oppfolgingRamme, null).shouldBeRight()
@@ -422,7 +453,11 @@ class AvtaleValidatorTest :
             )
 
             val offentligOffentligSamarbeid =
-                AvtaleFixtures.gruppeAmo.copy(avtaletype = Avtaletype.OffentligOffentlig, websaknummer = null)
+                AvtaleFixtures.gruppeAmo.copy(
+                    avtaletype = Avtaletype.OffentligOffentlig,
+                    websaknummer = null,
+                    amoKategorisering = AmoKategorisering.Studiespesialisering,
+                )
             validator.validate(offentligOffentligSamarbeid, null).shouldBeRight()
         }
 
