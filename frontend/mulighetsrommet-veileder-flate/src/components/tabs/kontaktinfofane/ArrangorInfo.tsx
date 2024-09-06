@@ -1,7 +1,7 @@
-import { BodyLong, BodyShort, Heading } from "@navikt/ds-react";
 import { PortableTextTypedObject, VeilderflateArrangor } from "@mr/api-client";
-import styles from "./KontaktinfoFane.module.scss";
+import { BodyLong, BodyShort, Heading } from "@navikt/ds-react";
 import { RedaksjoneltInnhold } from "../../RedaksjoneltInnhold";
+import styles from "./KontaktinfoFane.module.scss";
 
 interface ArrangorInfoProps {
   arrangor: VeilderflateArrangor;
