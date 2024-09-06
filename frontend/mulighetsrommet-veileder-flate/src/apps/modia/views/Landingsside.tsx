@@ -76,7 +76,7 @@ export function Landingsside() {
                 data-testid="aktive-tab"
                 label={
                   <HStack gap="1">
-                    <LocationPinIcon />
+                    <LocationPinIcon aria-hidden />
                     Aktive tiltak
                   </HStack>
                 }
@@ -87,7 +87,7 @@ export function Landingsside() {
                 data-testid="historikk-tab"
                 label={
                   <HStack gap="1">
-                    <HourglassBottomFilledIcon />
+                    <HourglassBottomFilledIcon aria-hidden />
                     Tiltakshistorikk
                   </HStack>
                 }
@@ -98,7 +98,7 @@ export function Landingsside() {
                 data-testid="delt-i-dialogen-tab"
                 label={
                   <HStack gap="1">
-                    <ArrowForwardIcon />
+                    <ArrowForwardIcon aria-hidden />
                     Delt i dialogen
                   </HStack>
                 }

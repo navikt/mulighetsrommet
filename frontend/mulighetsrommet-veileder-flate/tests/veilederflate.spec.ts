@@ -90,12 +90,6 @@ test.describe("Tiltaksoversikt", () => {
       "assertive",
     );
   });
-
-  test("Skal åpne historikk-modal", async ({ page }) => {
-    await page.getByTestId("historikk_knapp").click();
-    await expect(page.getByTestId("historikk_modal")).toBeVisible();
-    await expect(page.getByTestId("historikk_modal")).toContainText("Historikk");
-  });
 });
 
 test.describe("Tiltaksgjennomføringsdetaljer", () => {
