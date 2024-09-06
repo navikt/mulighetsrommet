@@ -117,7 +117,7 @@ export function AvtaleVarighet({
       ) : null}
 
       {opsjonsmodell && opsjonsmodell.kreverMaksVarighet ? (
-        <HGrid columns={3}>
+        <HGrid columns={3} gap="10">
           <ControlledDateInput
             size="small"
             label={avtaletekster.startdatoLabel}
@@ -147,8 +147,8 @@ export function AvtaleVarighet({
             format={"iso-string"}
           />
         </HGrid>
-      ) : opsjonsmodell && !opsjonsmodell.kreverMaksVarighet ? (
-        <HGrid columns={3}>
+      ) : (
+        <HGrid columns={3} gap="10">
           <ControlledDateInput
             size="small"
             label={avtaletekster.startdatoLabel}
@@ -172,7 +172,7 @@ export function AvtaleVarighet({
             format={"iso-string"}
           />
         </HGrid>
-      ) : null}
+      )}
       {avtale && avtale.opsjonerRegistrert.length > 0 && (
         <OpsjonerRegistrert readOnly avtale={avtale} />
       )}
