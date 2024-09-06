@@ -1,4 +1,4 @@
-import { Alert } from "@navikt/ds-react";
+import { Alert, HGrid } from "@navikt/ds-react";
 import { VeilederflateTiltak } from "@mr/api-client";
 import { TiltakDetaljerFaneContainer } from "../TiltakDetaljerFaneContainer";
 import ArrangorInfo from "./ArrangorInfo";
@@ -18,12 +18,14 @@ export function KontaktinfoFane({ tiltak }: Props) {
           {tiltak.faneinnhold.kontaktinfoInfoboks}
         </Alert>
       )}
-      <div className={styles.grid_container}>
-        {isTiltakGruppe(tiltak) && (
+      <HGrid columns="1fr 1fr" align="start" gap="5">
+        {isTiltakGruppe(tiltak) ? (
           <ArrangorInfo arrangor={tiltak.arrangor} faneinnhold={tiltak.faneinnhold?.kontaktinfo} />
+        ) : (
+          <Alert variant="info">Kontaktinfo til arrangør er ikke lagt inn</Alert>
         )}
         <NavKontaktpersonInfo kontaktinfo={tiltak.kontaktinfo} />
-      </div>
+      </HGrid>
     </TiltakDetaljerFaneContainer>
   );
 }

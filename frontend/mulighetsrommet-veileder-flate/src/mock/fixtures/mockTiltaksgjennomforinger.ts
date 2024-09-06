@@ -473,7 +473,13 @@ export const tiltakEnkelplassFagOgYrke: VeilederflateTiltakArbeidsgiver = {
   tiltakstype: mockTiltakstyper.OpplaringEnkeltplassFagOgYrke,
   oppstart: TiltaksgjennomforingOppstartstype.LOPENDE,
   kontaktinfo: {
-    tiltaksansvarlige: [],
+    tiltaksansvarlige: [
+      {
+        _id: "1",
+        navn: "Truls Svendsen",
+        epost: "test@example.com",
+      },
+    ],
   },
 };
 

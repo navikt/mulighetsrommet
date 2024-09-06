@@ -3,17 +3,6 @@
   flex-direction: column;
 }
 
-.grid_container {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  margin: 1rem 0;
-  gap: 3rem;
-
-  @media (width <= 1200px) {
-    justify-content: space-evenly;
-  }
-}
-
 .header {
   margin-bottom: 1rem;
   font-weight: bold;
