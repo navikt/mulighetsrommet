@@ -75,7 +75,7 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
   const updateOpsjonsmodellClb = useCallback(updateOpsjonsmodell, [setValue]);
   // TODO Sett korrekt opsjonsmodell basert på avtaletypen
   useEffect(() => {
-    if (avtale?.avtaletype) {
+    if (avtale?.avtaletype && avtale.opsjonsmodellData && !avtale.opsjonsmodellData.opsjonsmodell) {
       updateOpsjonsmodellClb(avtale?.avtaletype);
     }
   }, [avtale, updateOpsjonsmodellClb]);
