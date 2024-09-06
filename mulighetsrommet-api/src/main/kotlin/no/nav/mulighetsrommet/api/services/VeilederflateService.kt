@@ -288,6 +288,8 @@ class VeilederflateService(
               beskrivelse,
               stedForGjennomforing,
               kontaktpersoner[]{navKontaktperson->, "enheter": coalesce(enheter[]->nummer.current, [])},
+              "fylke": fylke->nummer.current,
+              "enheter": coalesce(enheter[]->nummer.current, []),
               faneinnhold {
                 forHvemInfoboks,
                 forHvem,
