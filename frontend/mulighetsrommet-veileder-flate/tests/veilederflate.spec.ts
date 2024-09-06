@@ -25,7 +25,7 @@ test.describe("Landingsside", () => {
   });
 
   test("Sjekk UU", async ({ page }) => {
-    sjekkUU(page);
+    await sjekkUU(page);
   });
 
   test("Skal vise feedback fra url hvis det eksisterer data i url'en", async ({ page }) => {
