@@ -80,8 +80,8 @@ class TiltakshistorikkService(
         return DeltakerKort(
             id = id,
             periode = DeltakerKort.Periode(
-                startdato = startDato,
-                sluttdato = sluttDato,
+                startDato = startDato,
+                sluttDato = sluttDato,
             ),
             status = DeltakerKort.DeltakerStatus(
                 type = DeltakerKort.DeltakerStatus.DeltakerStatusType.valueOf(status.name),
@@ -102,8 +102,8 @@ class TiltakshistorikkService(
         return DeltakerKort(
             id = id,
             periode = DeltakerKort.Periode(
-                startdato = startDato,
-                sluttdato = sluttDato,
+                startDato = startDato,
+                sluttDato = sluttDato,
             ),
             status = DeltakerKort.DeltakerStatus(
                 type = DeltakerKort.DeltakerStatus.DeltakerStatusType.valueOf(status.type.name),
@@ -243,8 +243,8 @@ fun DeltakelseFraKomet.toDeltakerKort(): DeltakerKort {
         id = deltakerId,
         tiltaksgjennomforingId = deltakerlisteId,
         periode = DeltakerKort.Periode(
-            startdato = periode?.startdato,
-            sluttdato = periode?.sluttdato,
+            startDato = periode?.startdato,
+            sluttDato = periode?.sluttdato,
         ),
         eierskap = DeltakerKort.Eierskap.KOMET,
         tittel = tittel,
@@ -268,8 +268,8 @@ data class Deltakelser(
  * Sorterer deltakelser basert på nyeste startdato først
  */
 private val deltakerKortComparator: Comparator<DeltakerKort> = Comparator { a, b ->
-    val startDatoA = a.periode.startdato
-    val startDatoB = b.periode.startdato
+    val startDatoA = a.periode.startDato
+    val startDatoB = b.periode.startDato
 
     when {
         startDatoA === startDatoB -> 0

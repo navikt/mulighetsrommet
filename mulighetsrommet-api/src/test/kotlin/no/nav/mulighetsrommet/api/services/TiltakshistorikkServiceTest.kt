@@ -98,8 +98,8 @@ class TiltakshistorikkServiceTest : FunSpec({
             aarsak = null,
         ),
         periode = DeltakerKort.Periode(
-            startdato = LocalDate.of(2019, 1, 1),
-            sluttdato = LocalDate.of(2019, 12, 3),
+            startDato = LocalDate.of(2019, 1, 1),
+            sluttDato = LocalDate.of(2019, 12, 3),
         ),
         sistEndretDato = LocalDate.of(2018, 12, 5),
         innsoktDato = LocalDate.of(2018, 12, 3),
@@ -116,8 +116,8 @@ class TiltakshistorikkServiceTest : FunSpec({
             aarsak = null,
         ),
         periode = DeltakerKort.Periode(
-            startdato = LocalDate.of(2018, 12, 3),
-            sluttdato = LocalDate.of(2019, 12, 3),
+            startDato = LocalDate.of(2018, 12, 3),
+            sluttDato = LocalDate.of(2019, 12, 3),
         ),
         sistEndretDato = null,
         innsoktDato = null,

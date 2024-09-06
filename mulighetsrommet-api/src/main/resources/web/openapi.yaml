@@ -3029,10 +3029,10 @@ components:
         periode:
           type: object
           properties:
-            startdato:
+            startDato:
               type: string
               nullable: true
-            sluttdato:
+            sluttDato:
               type: string
               nullable: true
           nullable: true
