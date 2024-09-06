@@ -4,10 +4,8 @@
 
 Mulighetsrommet er en applikasjonsportfølje som skal hjelpe brukere og veiledere til å få en helhetlig oversikt
 over alle arbeidsmarkedstiltak NAV kan tilby.
-Brukere vil på sikt få en oversikt gjennom en egen åpen flate med sine muligheter og kan selv melde sin interesse på
-diverse tiltak, oppfølging eller kurs.
-Veiledere vil også kunne få en samlet oversikt over all informasjon fra flere fagsystemer som Navet og Arena.
-Hensikten er å kunne gi begge parter lett tilgang til den samme kvalitetssikret tiltaksinformasjonen som vi har i NAV.
+
+
 
 ## Oppsett
 
@@ -17,16 +15,34 @@ Enn så lenge benytter vi følgende tooling for å kjøre tasks for henholdsvis 
 - [Gradle](https://gradle.org/) med subprojects
 - [Turborepo](https://turborepo.org/) i kombinasjon med [NPM workspaces](https://turborepo.org/)
 
+### Token for npm install av private pakker
+Noen pakker under `@navikt` hentes fra Github sitt NPM-repository. For at dette skal fungere må du først autentisere mot Github:
+
+```
+npm login --registry https://npm.pkg.github.com
+```
+
+Brukernavn er Github-brukernavnet ditt. Passordet er et [Personal Access Token](https://github.com/settings/tokens) med `read:packages`-scope. Tokenet må autentiseres med SSO mot navikt-organisasjonen.
+
+#### Github token er utdatert.
+
+1. Gå til [Personal Access Token på Github](https://github.com/settings/tokens)
+2. Trykk `Tokens (classic)`
+3. Trykk `Generate new token` --> `Generate new token (classic)`
+4. Skriv noe som `NAV IT` under `Note`
+5. Velg hvor lenge du vil at det skal vare under `Expiration`
+6.  Under `Select scope` velg `repo` og `read:packages`
+7.  Trykk `Generate token`
+8.  Kopier `ghp_x...` tokenet og putt det i `.npmrc` filen på maskinen din
+9.  Trykk `Configure SSO`
+10. Trykk `Authorize` på `navikt`
+11. Ferdig!
+
 ### Tooling via asdf
 
-Om ønskelig så kan [asdf](https://asdf-vm.com/) benyttes til å installere verktøyene som trengs for å kjøre dette
-prosjektet lokalt.
-Dette prosjektet inkluderer en `asdf` [.tool-versions](https://asdf-vm.com/manage/configuration.html#tool-versions)-fil
-som spesifiserer versjoner for runtime-avhengigheter som matcher det vi kjører på Github Actions (CI) og på NAIS.
+Om ønskelig så kan [asdf](https://asdf-vm.com/) benyttes til å installere verktøyene som trengs for å kjøre dette prosjektet lokalt. Dette prosjektet inkluderer en `asdf` [.tool-versions](https://asdf-vm.com/manage/configuration.html#tool-versions)-fil som spesifiserer versjoner for runtime-avhengigheter som matcher det vi kjører på Github Actions (CI) og på NAIS.
 
-For å benytte `asdf` så må du [installere programmet](https://asdf-vm.com/guide/getting-started.html) og deretter
-plugins for hver toolchain eller verktøy du ønsker å administrere med `asdf` (du kan utelate plugins etter eget ønske
-hvis du ønsker å administrere dette manuelt i stedet):
+For å benytte `asdf` så må du [installere programmet](https://asdf-vm.com/guide/getting-started.html) og deretter plugins for hver toolchain eller verktøy du ønsker å administrere med `asdf` (du kan utelate plugins etter eget ønske hvis du ønsker å administrere dette manuelt i stedet):
 
 ```bash
 asdf plugin-add java
@@ -37,11 +53,10 @@ asdf plugin-add kubectl https://github.com/asdf-community/asdf-kubectl.git
 
 Når plugins er installert så kan du kjøre kommandoen `asdf install` i rot av prosjektet, samt for hver
 gang `.tools-versions` har endret seg.
-
+****
 ### Docker
 
-For å gjøre utvikling på lokal maskin enklere benytter vi Docker og Docker Compose til å kjøre databaser og mocks av
-tredjeparts tjenester.
+For å gjøre utvikling på lokal maskin enklere benytter vi Docker og Docker Compose til å kjøre databaser og mocks av tredjeparts tjenester.
 Sørg for å ha [Docker](https://www.docker.com) installert, se instruksjoner
 for [Mac](https://docs.docker.com/desktop/mac/install) eller [Ubuntu](https://docs.docker.com/engine/install/ubuntu).
 
@@ -158,6 +173,17 @@ Administrasjonsflate for tiltak- og fagansvarlige i NAV som jobber med tiltaksty
 | Url (dev-miljø)  | <https://tiltaksadministrasjon.intern.dev.nav.no>                                 |
 | Url (prod-miljø) | <https://tiltaksadministrasjon.intern.nav.no>                                     |
 
+
+### `arrangør-flate`
+
+Flate på nav.no for arrangører som skal be om refusjon
+
+|                  |                                                                                         |
+|------------------|-----------------------------------------------------------------------------------------|
+| README           | <https://github.com/navikt/mulighetsrommet/blob/main/frontend/arrangor-flate/README.md> |
+| Url (dev-miljø)  | <https://arrangor-refusjon.intern.dev.nav.no/>                                 |
+| Url (prod-miljø) | <TBD - Ikke prodsatt per 06.09.2024>                                     |
+
 ## Overvåking av automatiske jobber
 
 Vi har satt opp to Slack-bots som kan gi beskjed til oss på Slack i kanalen #team-valp-monitoring dersom det oppstår
@@ -176,6 +202,9 @@ For å legge til eller fjerne kontaktpersoner i admin-flate så går du til http
 
 Velg så Members -> Add members -> Søk opp personen med navn -> Huk av og velg Select.
 Synkronisering av kontaktpersoner kjører en gang i timen, så du må potensielt vente en time før kontaktpersonen blir tilgjengelig i admin-flate.
+
+**TIPS**: Du kan gå til [MAAM](https://mulighetsrommet-arena-adapter-manager.intern.nav.no/) og velge mr-api (i toppmenyen) og så kjøre task'en `sync-navansatte`. Da skal kontaktpersoner blir synkronisert i løpet av ett minutt.
+
 ****
 MERK: Hvis du mangler tilgang til AD så kan du selv be om tilgang ved å følge beskrivelse her: https://github.com/navikt/azure-ad-self-service/blob/main/DirectoryRead/README.md
 
