@@ -14,6 +14,7 @@ import {
   Tabs,
   VStack,
   Box,
+  HGrid,
 } from "@navikt/ds-react";
 import { Suspense, useState } from "react";
 import { ErrorBoundary } from "react-error-boundary";
@@ -40,15 +41,23 @@ export function Landingsside() {
 
   return (
     <main className="mulighetsrommet-veileder-flate">
-      <HStack gap="4" align="start" justify="start">
-        <Link
-          data-testid="finn-nytt-arbeidsmarkedstiltak-btn"
-          className={styles.cta_link}
-          to="/arbeidsmarkedstiltak/oversikt"
-        >
-          <PlusIcon color="white" fontSize={30} aria-hidden /> Finn nytt arbeidsmarkedstiltak
-        </Link>
-        <VStack gap="4" style={{ maxWidth: "1000px" }}>
+      <HGrid
+        columns={{
+          xs: "1fr",
+          lg: "25% minmax(500px, 1000px)",
+        }}
+        gap="4"
+      >
+        <div>
+          <Link
+            data-testid="finn-nytt-arbeidsmarkedstiltak-btn"
+            className={styles.cta_link}
+            to="/arbeidsmarkedstiltak/oversikt"
+          >
+            <PlusIcon color="white" fontSize={30} aria-hidden /> Finn nytt arbeidsmarkedstiltak
+          </Link>
+        </div>
+        <VStack gap="4">
           <FeedbackFraUrl />
           <Heading size="large">Oversikt over brukerens tiltak</Heading>
           <Tabs
@@ -64,6 +73,7 @@ export function Landingsside() {
           >
             <Tabs.List className={styles.tabslist}>
               <Tabs.Tab
+                data-testid="aktive-tab"
                 label={
                   <HStack gap="1">
                     <LocationPinIcon />
@@ -74,6 +84,7 @@ export function Landingsside() {
                 onClick={() => setActiveTab("aktive")}
               />
               <Tabs.Tab
+                data-testid="historikk-tab"
                 label={
                   <HStack gap="1">
                     <HourglassBottomFilledIcon />
@@ -84,6 +95,7 @@ export function Landingsside() {
                 onClick={() => setActiveTab("historikk")}
               />
               <Tabs.Tab
+                data-testid="delt-i-dialogen-tab"
                 label={
                   <HStack gap="1">
                     <ArrowForwardIcon />
@@ -130,12 +142,22 @@ export function Landingsside() {
               </ErrorBoundary>
             </Tabs.Panel>
             <Tabs.Panel value="delt-i-dialogen">
-              <DelMedBrukerHistorikk />
+              <Container>
+                <DelMedBrukerHistorikk />
+              </Container>
             </Tabs.Panel>
           </Tabs>
         </VStack>
-      </HStack>
+      </HGrid>
     </main>
+  );
+}
+
+function Container(props: { children: React.ReactNode }) {
+  return (
+    <VStack padding="2" gap="4" width={"100%"}>
+      {props.children}
+    </VStack>
   );
 }
 
@@ -143,7 +165,7 @@ function Aktive() {
   const { data: aktive } = useTiltakshistorikkForBruker("AKTIVE");
 
   return (
-    <VStack padding="2" gap="4">
+    <Container>
       {aktive.map((utkast) => {
         return <DeltakelseKort key={utkast.id} deltakelse={utkast} />;
       })}
@@ -152,7 +174,7 @@ function Aktive() {
         For oversikt over tiltakstypene “Sommerjobb”, “Midlertidig lønnstilskudd”, og “Varig
         lønnstilskudd” se <TeamTiltakLenke />
       </Alert>
-    </VStack>
+    </Container>
   );
 }
 
@@ -172,7 +194,7 @@ function Historikk() {
   const { data: historiske } = useTiltakshistorikkForBruker("HISTORISKE");
 
   return (
-    <VStack padding="2" gap="4">
+    <Container>
       {historiske.map((hist) => {
         return <DeltakelseKort key={hist.id} deltakelse={hist} />;
       })}
@@ -181,16 +203,22 @@ function Historikk() {
         Vi viser bare historikk 5 år tilbake i tid. For oversikt over tiltakstypene “Sommerjobb”,
         “Midlertidig lønnstilskudd”, og “Varig lønnstilskudd” se <TeamTiltakLenke />
       </Alert>
-    </VStack>
+    </Container>
   );
 }
 
-function IngenFunnetBox(props: { title: string }) {
+export function IngenFunnetBox(props: { title: string }) {
   return (
     <Box background="bg-default" borderRadius="medium" padding="5">
       <VStack align="center">
-        <img src={ingenFunnImg} alt="" className={styles.tom_eske_img} />
-        <Heading size="medium">{props.title}</Heading>
+        <img
+          src={ingenFunnImg}
+          alt="Bilde av forstørrelsesglass som ser på et dokument"
+          className={styles.tom_eske_img}
+        />
+        <Heading level="2" size="medium">
+          {props.title}
+        </Heading>
       </VStack>
     </Box>
   );
@@ -220,7 +248,13 @@ function FeedbackFraUrl() {
   }
 
   return (
-    <Alert size="small" closeButton variant="success" onClose={onClose}>
+    <Alert
+      data-testid="feedback-fra-url"
+      size="small"
+      closeButton
+      variant="success"
+      onClose={onClose}
+    >
       {successFeedbackHeading ? (
         <Heading size="small" spacing>
           {decodeURIComponent(successFeedbackHeading)}

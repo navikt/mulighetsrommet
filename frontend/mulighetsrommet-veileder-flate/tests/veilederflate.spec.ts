@@ -6,12 +6,41 @@ test.beforeEach(async ({ page }) => {
   await page.goto("/");
 });
 
+test.describe("Landingsside", () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto("/arbeidsmarkedstiltak");
+  });
+  test("Sjekk at det finnes en knapp for å finne nytt arbeidsmarkedstiltak", async ({ page }) => {
+    await expect(page.getByTestId("finn-nytt-arbeidsmarkedstiltak-btn")).toContainText(
+      "Finn nytt arbeidsmarkedstiltak",
+    );
+  });
+
+  test("Sjekk at det finnes en tab-liste med aktive, historiske og delt i dialogen-faner", async ({
+    page,
+  }) => {
+    await expect(page.getByTestId("aktive-tab")).toHaveText("Aktive");
+    await expect(page.getByTestId("historikk-tab")).toHaveText("Historikk");
+    await expect(page.getByTestId("delt-i-dialogen-tab")).toHaveText("Delt i dialogen");
+  });
+
+  test("Sjekk UU", async ({ page }) => {
+    await sjekkUU(page);
+  });
+
+  test("Skal vise feedback fra url hvis det eksisterer data i url'en", async ({ page }) => {
+    await page.goto(
+      "/arbeidsmarkedstiltak?success_feedback_heading=En test&success_feedback_body=Hei på deg",
+    );
+    await expect(page.getByTestId("feedback-fra-url")).toContainText("En test");
+    await expect(page.getByTestId("feedback-fra-url")).toContainText("Hei på deg");
+  });
+});
+
 test.describe("Tiltaksoversikt", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("/arbeidsmarkedstiltak");
-    const finnNyttArbeidsmarkedstiltakBtn = page.getByTestId(
-      "finn-nytt-arbeidsmarkedstiltak-btn",
-    );
+    const finnNyttArbeidsmarkedstiltakBtn = page.getByTestId("finn-nytt-arbeidsmarkedstiltak-btn");
     await finnNyttArbeidsmarkedstiltakBtn.click();
   });
 

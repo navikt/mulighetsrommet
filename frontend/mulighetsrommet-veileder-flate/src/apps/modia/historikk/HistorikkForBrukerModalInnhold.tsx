@@ -4,6 +4,7 @@ import { ExternalLinkIcon } from "@navikt/aksel-icons";
 import { Alert, BodyShort } from "@navikt/ds-react";
 import { DeltakelseKort } from "./DeltakelseKort";
 import styles from "./HistorikkForBrukerModal.module.scss";
+import { IngenFunnetBox } from "../views/Landingsside";
 
 export function HistorikkForBrukerModalInnhold() {
   const { data: historiske } = useTiltakshistorikkForBruker("HISTORISKE");
@@ -11,9 +12,7 @@ export function HistorikkForBrukerModalInnhold() {
   return (
     <div style={{ marginTop: "1rem" }}>
       {historiske.length === 0 ? (
-        <Alert variant="info" style={{ marginBottom: "1rem" }}>
-          Vi finner ingen registrerte tiltak på brukeren
-        </Alert>
+        <IngenFunnetBox title="Vi finner ingen registrerte tiltak på brukeren"></IngenFunnetBox>
       ) : null}
       <Alert variant="info" style={{ marginBottom: "1rem" }}>
         Vi viser bare tiltak 5 år tilbake i tid. Vær oppmerksom på at tiltak som er flyttet ut fra
