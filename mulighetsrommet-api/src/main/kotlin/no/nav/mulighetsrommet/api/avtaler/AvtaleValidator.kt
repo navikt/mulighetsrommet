@@ -19,6 +19,7 @@ import no.nav.mulighetsrommet.api.services.TiltakstypeService
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.Tiltakskoder
+import no.nav.mulighetsrommet.domain.Tiltakskoder.isKursTiltak
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
 import no.nav.mulighetsrommet.domain.dto.allowedAvtaletypes
@@ -141,6 +142,10 @@ class AvtaleValidator(
             if (tiltakstype.tiltakskode == Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING && avtale.amoKategorisering == null) {
                 add(ValidationError.ofCustomLocation("amoKategorisering.kurstype", "Du må velge en kurstype"))
             }
+            if (isKursTiltak(tiltakstype.tiltakskode) && avtale.faneinnhold?.kurstittel.isNullOrBlank()) {
+                add(ValidationError.ofCustomLocation("faneinnhold.kurstittel", "Du må skrive en kurstittel"))
+            }
+
             validateNavEnheter(avtale.navEnheter)
 
             if (currentAvtale == null) {

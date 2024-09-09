@@ -61,7 +61,7 @@ export function TiltaksgjennomforingInfo() {
         <Tabs.Panel value="redaksjonelt-innhold">
           <InlineErrorBoundary>
             <RedaksjoneltInnholdPreview
-              tiltakstypeId={tiltaksgjennomforing.tiltakstype.id}
+              tiltakstype={tiltaksgjennomforing.tiltakstype}
               beskrivelse={tiltaksgjennomforing.beskrivelse}
               faneinnhold={tiltaksgjennomforing.faneinnhold}
             />

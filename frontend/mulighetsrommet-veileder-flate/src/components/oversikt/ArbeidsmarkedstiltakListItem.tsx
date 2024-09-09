@@ -36,7 +36,7 @@ export function ArbeidsmarkedstiltakListItem({ tiltak, index, delMedBruker }: Pr
       })
     : "Dato mangler";
 
-  const { navn, tiltakstype } = tiltak;
+  const { navn, tiltakstype, faneinnhold } = tiltak;
   const id = isTiltakGruppe(tiltak) ? tiltak.id : tiltak.sanityId;
   const oppstart = utledOppstart(tiltak);
 
@@ -67,7 +67,11 @@ export function ArbeidsmarkedstiltakListItem({ tiltak, index, delMedBruker }: Pr
 
           <div className={classNames(styles.flex, styles.navn)}>
             <VStack>
-              <VisningsnavnForTiltak navn={navn} tiltakstype={tiltakstype} />
+              <VisningsnavnForTiltak
+                navn={navn}
+                kurstittel={faneinnhold?.kurstittel}
+                tiltakstype={tiltakstype}
+              />
             </VStack>
           </div>
 

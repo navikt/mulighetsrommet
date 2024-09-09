@@ -29,6 +29,7 @@ import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dto.AmoKategorisering
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
+import no.nav.mulighetsrommet.domain.dto.Faneinnhold
 import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.domain.dto.Websaknummer
 import no.nav.mulighetsrommet.unleash.UnleashService
@@ -102,7 +103,7 @@ class AvtaleValidatorTest :
             navEnheter = listOf("0400", "0502"),
             antallPlasser = null,
             beskrivelse = null,
-            faneinnhold = null,
+            faneinnhold = Faneinnhold(kurstittel = "Min kurstittel"),
             personopplysninger = emptyList(),
             personvernBekreftet = false,
             amoKategorisering = null,
@@ -525,7 +526,7 @@ class AvtaleValidatorTest :
                     navEnheter = listOf("0300"),
                     antallPlasser = null,
                     beskrivelse = null,
-                    faneinnhold = null,
+                    faneinnhold = Faneinnhold(kurstittel = "Min kurstittel"),
                     personopplysninger = emptyList(),
                     personvernBekreftet = false,
                     amoKategorisering = null,
@@ -570,7 +571,7 @@ class AvtaleValidatorTest :
                     navEnheter = listOf("0300"),
                     antallPlasser = null,
                     beskrivelse = null,
-                    faneinnhold = null,
+                    faneinnhold = Faneinnhold(kurstittel = "Min kurstittel"),
                     personopplysninger = emptyList(),
                     personvernBekreftet = false,
                     amoKategorisering = null,
@@ -622,7 +623,7 @@ class AvtaleValidatorTest :
                     navEnheter = listOf("0300"),
                     antallPlasser = null,
                     beskrivelse = null,
-                    faneinnhold = null,
+                    faneinnhold = Faneinnhold(kurstittel = "Min kurstittel"),
                     personopplysninger = emptyList(),
                     personvernBekreftet = false,
                     amoKategorisering = null,

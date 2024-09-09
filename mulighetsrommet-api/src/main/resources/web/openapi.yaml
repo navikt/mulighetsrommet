@@ -3528,6 +3528,8 @@ components:
             $ref: "#/components/schemas/Lenke"
         delMedBruker:
           type: string
+        kurstittel:
+          type: string
 
     FaneinnholdRequest:
       type: object
@@ -3553,6 +3555,9 @@ components:
           type: string
           nullable: true
         delMedBruker:
+          type: string
+          nullable: true
+        kurstittel:
           type: string
           nullable: true
 

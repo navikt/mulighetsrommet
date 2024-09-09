@@ -253,6 +253,25 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
         )
     }
 
+    test("kurstittel er påkrevd hvis kurstiltak") {
+        val validator = TiltaksgjennomforingValidator(
+            TiltakstypeService(TiltakstypeRepository(database.db), Tiltakskode.entries),
+            avtaler,
+            arrangorer,
+        )
+        val jobbklubb = TiltaksgjennomforingFixtures.Jobbklubb1.copy(faneinnhold = null)
+        val gruppeAmo = TiltaksgjennomforingFixtures.GruppeAmo1.copy(faneinnhold = null)
+        val oppfolging = TiltaksgjennomforingFixtures.Oppfolging1
+
+        validator.validate(jobbklubb, null).shouldBeLeft(
+            listOf(ValidationError("faneinnhold.kurstittel", "Du må skrive en kurstittel")),
+        )
+        validator.validate(gruppeAmo, null).shouldBeLeft(
+            listOf(ValidationError("faneinnhold.kurstittel", "Du må skrive en kurstittel")),
+        )
+        validator.validate(oppfolging, null).shouldBeRight()
+    }
+
     test("arrangøren må være aktiv i Brreg") {
         arrangorer.upsert(ArrangorFixtures.underenhet1.copy(slettetDato = LocalDate.of(2024, 1, 1)))
 

@@ -10,7 +10,7 @@ interface Props {
 }
 
 export function TiltakHeader({ tiltak }: Props) {
-  const { navn, beskrivelse, tiltakstype } = tiltak;
+  const { navn, beskrivelse, tiltakstype, faneinnhold } = tiltak;
   return (
     <>
       <HStack align="center" gap="2" className={styles.tiltaksgjennomforing_title}>
@@ -18,7 +18,7 @@ export function TiltakHeader({ tiltak }: Props) {
           <VStack>
             {erKurstiltak(tiltakstype.tiltakskode, tiltakstype.arenakode) ? (
               <>
-                {navn}
+                {faneinnhold?.kurstittel ?? navn}
                 <BodyLong size="medium" textColor="subtle">
                   {tiltakstype.navn}
                 </BodyLong>

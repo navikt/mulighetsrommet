@@ -74,7 +74,7 @@ export function AvtaleInfo() {
         <Tabs.Panel value="redaksjonelt-innhold">
           <InlineErrorBoundary>
             <RedaksjoneltInnholdPreview
-              tiltakstypeId={avtale.tiltakstype.id}
+              tiltakstype={avtale.tiltakstype}
               beskrivelse={avtale.beskrivelse}
               faneinnhold={avtale.faneinnhold}
             />

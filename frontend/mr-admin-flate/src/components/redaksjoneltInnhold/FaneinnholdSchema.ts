@@ -23,6 +23,9 @@ export const FaneinnholdSchema = z.object(
     kontaktinfoInfoboks: z.string().nullable().optional(),
     lenker: FaneinnholdLenkerSchema,
     delMedBruker: z.string().nullable().optional(),
+    kurstittel: z.string().nullable().optional(),
   },
   { required_error: "Det redaksjonelle innholdet må settes på avtalen" },
 );
+
+export type InferredFaneinnholdSchema = z.infer<typeof FaneinnholdSchema>;

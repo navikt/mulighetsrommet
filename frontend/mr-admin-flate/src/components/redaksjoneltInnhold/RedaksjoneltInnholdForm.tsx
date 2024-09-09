@@ -1,7 +1,16 @@
-import { Alert, BodyLong, Heading, HStack, Tabs, Textarea, VStack } from "@navikt/ds-react";
+import {
+  Alert,
+  BodyLong,
+  Heading,
+  HStack,
+  Tabs,
+  Textarea,
+  TextField,
+  VStack,
+} from "@navikt/ds-react";
 import { PortableText } from "@portabletext/react";
 import { EmbeddedTiltakstype, VeilederflateTiltakstype } from "@mr/api-client";
-import { useFormContext } from "react-hook-form";
+import { FieldError, FieldErrorsImpl, Merge, useFormContext } from "react-hook-form";
 import { useTiltakstypeFaneinnhold } from "@/api/tiltaksgjennomforing/useTiltakstypeFaneinnhold";
 import { Separator } from "../detaljside/Metadata";
 import { PortableTextEditor } from "../portableText/PortableTextEditor";
@@ -10,11 +19,13 @@ import React, { useState } from "react";
 import { FileTextIcon, LinkIcon, PaperplaneIcon } from "@navikt/aksel-icons";
 import { Lenker } from "../lenker/Lenker";
 import { InlineErrorBoundary } from "@mr/frontend-common";
+import { InferredFaneinnholdSchema } from "@/components/redaksjoneltInnhold/FaneinnholdSchema";
 import { RedaksjoneltInnholdContainer } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdContainer";
 import { SkjemaDetaljerContainer } from "@/components/skjema/SkjemaDetaljerContainer";
 import { FaneinnholdContainer } from "@/components/redaksjoneltInnhold/FaneinnholdContainer";
 import { DescriptionRichtextContainer } from "@/components/redaksjoneltInnhold/DescriptionRichtextContainer";
 import { RedaksjoneltInnholdTabTittel } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdTabTittel";
+import { isKursTiltak } from "@mr/frontend-common/utils/utils";
 
 interface RedaksjoneltInnholdFormProps {
   tiltakstype: EmbeddedTiltakstype;
@@ -31,7 +42,10 @@ export function RedaksjoneltInnholdForm({ tiltakstype }: RedaksjoneltInnholdForm
 }
 
 function RedaksjoneltInnhold({ tiltakstype }: { tiltakstype: EmbeddedTiltakstype }) {
-  const { register } = useFormContext();
+  const {
+    register,
+    formState: { errors },
+  } = useFormContext();
   const { data: tiltakstypeSanityData } = useTiltakstypeFaneinnhold(tiltakstype.id);
 
   return (
@@ -42,6 +56,22 @@ function RedaksjoneltInnhold({ tiltakstype }: { tiltakstype: EmbeddedTiltakstype
         </Alert>
       </HStack>
       <RedaksjoneltInnholdContainer>
+        {isKursTiltak(tiltakstype.tiltakskode) && (
+          <TextField
+            size="small"
+            error={
+              (
+                errors.faneinnhold as Merge<
+                  FieldError,
+                  FieldErrorsImpl<NonNullable<InferredFaneinnholdSchema>>
+                >
+              )?.kurstittel?.message as string
+            }
+            {...register("faneinnhold.kurstittel")}
+            description="Tittel som vises til veiledere og brukere."
+            label="Kurstittel"
+          />
+        )}
         {tiltakstypeSanityData?.beskrivelse && (
           <>
             <Heading size="medium">Beskrivelse</Heading>

@@ -5,6 +5,7 @@ import no.nav.mulighetsrommet.api.routes.v1.AvtaleRequest
 import no.nav.mulighetsrommet.api.routes.v1.Opsjonsmodell
 import no.nav.mulighetsrommet.api.routes.v1.OpsjonsmodellData
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
+import no.nav.mulighetsrommet.domain.dto.Faneinnhold
 import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.domain.dto.Websaknummer
 import java.time.LocalDate
@@ -80,7 +81,7 @@ object AvtaleFixtures {
         navEnheter = listOf("0400", "0502"),
         antallPlasser = null,
         beskrivelse = null,
-        faneinnhold = null,
+        faneinnhold = Faneinnhold(kurstittel = "Min kurstittel"),
         personopplysninger = emptyList(),
         personvernBekreftet = false,
         amoKategorisering = null,

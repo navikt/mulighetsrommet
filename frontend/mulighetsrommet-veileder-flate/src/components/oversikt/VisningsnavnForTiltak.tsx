@@ -6,35 +6,24 @@ import { erKurstiltak } from "../../utils/Utils";
 
 interface Props {
   navn: string;
+  kurstittel?: string;
   tiltakstype: VeilederflateTiltakstype;
 }
 
-export function VisningsnavnForTiltak({ navn, tiltakstype }: Props): ReactNode {
+export function VisningsnavnForTiltak({ navn, tiltakstype, kurstittel }: Props): ReactNode {
   const { tiltakskode, arenakode } = tiltakstype;
   if (erKurstiltak(tiltakskode, arenakode)) {
     return (
       <div className={styles.container}>
-        <OriginaltNavn navn={navn} />
-        <Tiltaksnavn navn={tiltakstype.navn} />
+        <BodyShort size="small">{kurstittel ?? navn}</BodyShort>
+        <BodyShort size="small">{tiltakstype.navn}</BodyShort>
       </div>
     );
   }
   return (
     <div className={styles.container}>
-      <Tiltaksnavn navn={tiltakstype.navn} />
-      <OriginaltNavn navn={navn} />
+      <BodyShort size="small">{tiltakstype.navn}</BodyShort>
+      <BodyShort size="small">{navn}</BodyShort>
     </div>
   );
-}
-
-function Tiltaksnavn({ navn }: { navn: string }) {
-  return (
-    <BodyShort size="small" title={navn}>
-      {navn}
-    </BodyShort>
-  );
-}
-
-function OriginaltNavn({ navn }: { navn: string }) {
-  return <BodyShort size="small">{navn}</BodyShort>;
 }

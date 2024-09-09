@@ -1,4 +1,4 @@
-import { TiltaksgjennomforingStatus } from "@mr/api-client";
+import { TiltaksgjennomforingStatus, Tiltakskode } from "@mr/api-client";
 import { shallowEquals } from "./shallow-equals";
 
 export function addOrRemove<T>(array: T[], item: T): T[] {
@@ -29,3 +29,10 @@ export function gjennomforingIsAktiv(
   }
 }
 
+export function isKursTiltak(tiltakskode: Tiltakskode) {
+  return [
+    Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
+    Tiltakskode.JOBBKLUBB,
+    Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
+  ].includes(tiltakskode);
+}
