@@ -7,7 +7,7 @@ kotest = "5.9.1"
 kotest-testcontainers = "2.0.2"
 kotlin = "2.0.20"
 ktor = "2.3.12"
-logback = "1.5.7"
+logback = "1.5.8"
 metrics = "4.2.27"
 arrow = "1.2.4"
 
@@ -41,7 +41,7 @@ dbScheduler = "com.github.kagkarlsson:db-scheduler:14.1.0"
 flyway-core = { module = "org.flywaydb:flyway-core", version.ref = "flyway" }
 flyway-database-postgresql = { module = "org.flywaydb:flyway-database-postgresql", version.ref = "flyway" }
 
-google-cloud-postgresSocketFactory = "com.google.cloud.sql:postgres-socket-factory:1.20.0"
+google-cloud-postgresSocketFactory = "com.google.cloud.sql:postgres-socket-factory:1.20.1"
 google-cloud-storage = "com.google.cloud:google-cloud-storage:2.42.0"
 
 hikaricp = "com.zaxxer:HikariCP:5.1.0"
