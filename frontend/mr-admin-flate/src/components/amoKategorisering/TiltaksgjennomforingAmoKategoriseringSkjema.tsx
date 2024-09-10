@@ -1,4 +1,3 @@
-import { InferredTiltaksgjennomforingSchema } from "@/components/redaksjoneltInnhold/TiltaksgjennomforingSchema";
 import { bransjeToString, kurstypeToString } from "@/utils/Utils";
 import { Avtale, Kurstype } from "@mr/api-client";
 import { HGrid, Select } from "@navikt/ds-react";
@@ -32,22 +31,19 @@ export function TiltaksgjennomforingAmoKategoriseringSkjema(props: Props) {
             <option>{bransjeToString(avtaleAmo.bransje)}</option>
           </Select>
           {avtaleAmo.forerkort && avtaleAmo.forerkort.length > 0 && (
-            <ForerkortSkjema<InferredTiltaksgjennomforingSchema>
-              path="amoKategorisering.forerkort"
-              options={avtaleAmo.forerkort}
-            />
+            <ForerkortSkjema path="amoKategorisering.forerkort" options={avtaleAmo.forerkort} />
           )}
           {avtaleAmo.sertifiseringer && avtaleAmo.sertifiseringer.length > 0 && (
-            <SertifiseringerSkjema<InferredTiltaksgjennomforingSchema>
+            <SertifiseringerSkjema
               path="amoKategorisering.sertifiseringer"
               options={avtaleAmo.sertifiseringer}
             />
           )}
-          <InnholdElementerSkjema<InferredTiltaksgjennomforingSchema> path="amoKategorisering.innholdElementer" />
+          <InnholdElementerSkjema path="amoKategorisering.innholdElementer" />
         </>
       )}
       {avtaleAmo.kurstype == Kurstype.NORSKOPPLAERING && (
-        <NorksopplaeringSkjema<InferredTiltaksgjennomforingSchema>
+        <NorksopplaeringSkjema
           norskprovePath="amoKategorisering.norskprove"
           innholdElementerPath="amoKategorisering.innholdElementer"
         />
