@@ -7,7 +7,7 @@ export default defineCliConfig({
   },
   vite: {
     build: {
-      target: 'esnext',
+      target: "esnext",
     },
   },
 });
