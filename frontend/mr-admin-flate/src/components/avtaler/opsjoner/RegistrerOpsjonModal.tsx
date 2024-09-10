@@ -1,4 +1,4 @@
-pimport { zodResolver } from "@hookform/resolvers/zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Alert, BodyLong, BodyShort, Button, Modal, VStack } from "@navikt/ds-react";
 import { Avtale, OpsjonLoggRequest, OpsjonStatus } from "@mr/api-client";
 import { RefObject } from "react";
