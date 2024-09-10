@@ -36,7 +36,6 @@ export function ArbeidsmarkedstiltakListItem({ tiltak, index, delMedBruker }: Pr
       })
     : "Dato mangler";
 
-  const { navn, tiltakstype, faneinnhold } = tiltak;
   const id = isTiltakGruppe(tiltak) ? tiltak.id : tiltak.sanityId;
   const oppstart = utledOppstart(tiltak);
 
@@ -46,7 +45,7 @@ export function ArbeidsmarkedstiltakListItem({ tiltak, index, delMedBruker }: Pr
         harDeltMedBruker: styles.list_element_border,
       })}
       id={`list_element_${index}`}
-      data-testid={`tiltaksgjennomforing_${kebabCase(navn)}`}
+      data-testid={`tiltaksgjennomforing_${kebabCase(tiltak.navn)}`}
     >
       <Lenke to={`../tiltak/${id}${paginationUrl}`}>
         {datoSidenSistDelt ? (
@@ -67,11 +66,7 @@ export function ArbeidsmarkedstiltakListItem({ tiltak, index, delMedBruker }: Pr
 
           <div className={classNames(styles.flex, styles.navn)}>
             <VStack>
-              <VisningsnavnForTiltak
-                navn={navn}
-                kurstittel={faneinnhold?.kurstittel}
-                tiltakstype={tiltakstype}
-              />
+              <VisningsnavnForTiltak tiltak={tiltak} />
             </VStack>
           </div>
 

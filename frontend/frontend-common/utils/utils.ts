@@ -1,4 +1,4 @@
-import { TiltaksgjennomforingStatus, Tiltakskode } from "@mr/api-client";
+import { TiltaksgjennomforingStatus, Tiltakskode, TiltakskodeArena } from "@mr/api-client";
 import { shallowEquals } from "./shallow-equals";
 
 export function addOrRemove<T>(array: T[], item: T): T[] {
@@ -29,10 +29,18 @@ export function gjennomforingIsAktiv(
   }
 }
 
-export function isKursTiltak(tiltakskode: Tiltakskode) {
-  return [
-    Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
-    Tiltakskode.JOBBKLUBB,
-    Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
-  ].includes(tiltakskode);
+export function isKursTiltak(tiltakskode?: Tiltakskode, arenaKode?: TiltakskodeArena): boolean {
+  if (tiltakskode) {
+    return [
+      Tiltakskode.JOBBKLUBB,
+      Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
+      Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
+    ].includes(tiltakskode);
+  }
+
+  if (arenaKode) {
+    return [TiltakskodeArena.ENKELAMO, TiltakskodeArena.ENKFAGYRKE].includes(arenaKode);
+  }
+
+  return false;
 }

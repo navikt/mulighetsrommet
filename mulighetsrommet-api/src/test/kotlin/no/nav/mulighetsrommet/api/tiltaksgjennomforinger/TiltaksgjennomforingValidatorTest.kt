@@ -102,6 +102,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
             AvtaleFixtures.oppfolgingMedAvtale,
             AvtaleFixtures.oppfolging,
             AvtaleFixtures.gruppeAmo,
+            AvtaleFixtures.jobbklubb,
             AvtaleFixtures.VTA,
             AvtaleFixtures.AFT,
         ),

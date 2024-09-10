@@ -1,4 +1,5 @@
-import { Tiltakskode, TiltakskodeArena } from "@mr/api-client";
+import { VeilederflateTiltak } from "@mr/api-client";
+import { isKursTiltak } from "@mr/frontend-common/utils/utils";
 
 export function inneholderUrl(string: string) {
   return window.location.href.indexOf(string) > -1;
@@ -45,17 +46,20 @@ export function addOrRemove<T>(array: T[], item: T): T[] {
   }
 }
 
-export function erKurstiltak(tiltakskode?: Tiltakskode, arenaKode?: TiltakskodeArena) {
-  if (tiltakskode) {
-    return [
-      Tiltakskode.JOBBKLUBB,
-      Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK,
-      Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
-      Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
-    ].includes(tiltakskode);
-  }
+export function visningNavn(tiltak: VeilederflateTiltak): string {
+  const { tiltakstype, faneinnhold, navn } = tiltak;
 
-  if (arenaKode) {
-    return [TiltakskodeArena.ENKELAMO, TiltakskodeArena.ENKFAGYRKE].includes(arenaKode);
+  if (isKursTiltak(tiltakstype.tiltakskode, tiltakstype.arenakode)) {
+    return faneinnhold?.kurstittel ?? navn;
   }
+  return tiltakstype.navn;
+}
+
+export function alternativNavn(tiltak: VeilederflateTiltak): string {
+  const { tiltakstype, navn } = tiltak;
+
+  if (isKursTiltak(tiltakstype.tiltakskode, tiltakstype.arenakode)) {
+    return tiltakstype.navn;
+  }
+  return navn;
 }
