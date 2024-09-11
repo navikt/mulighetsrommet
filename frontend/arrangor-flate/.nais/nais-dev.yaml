@@ -1,43 +1,42 @@
 apiVersion: nais.io/v1alpha1
 kind: Application
 metadata:
-    name: arrangor-flate
-    namespace: team-mulighetsrommet
-    labels:
-        team: team-mulighetsrommet
+  name: arrangor-flate
+  namespace: team-mulighetsrommet
+  labels:
+    team: team-mulighetsrommet
 spec:
-    # prettier-ignore
-    image: {{ image }}
-    port: 3000
-    replicas:
-        min: 1
-    resources:
-        requests:
-            cpu: 50m
-    ingresses:
-        - https://arrangor-refusjon.intern.dev.nav.no
-    prometheus:
-        enabled: true
-        path: /metrics
-    liveness:
-        initialDelay: 20
-        path: /internal/isAlive
-    readiness:
-        initialDelay: 20
-        path: /internal/isReady
-    accessPolicy:
-        outbound:
-            rules:
-                - application: nav-dekoratoren
-                  namespace: personbruker
-    tokenx:
-        enabled: true
-    idporten:
-        enabled: true
-        sidecar:
-            enabled: true
-            level: Level4
-            autoLogin: true
-            autoLoginIgnorePaths:
-                - /internal/*
-                - /metrics
+  image: {{ image }}
+  port: 3000
+  replicas:
+    min: 1
+  resources:
+    requests:
+      cpu: 50m
+  ingresses:
+    - https://arrangor-refusjon.intern.dev.nav.no
+  prometheus:
+    enabled: true
+    path: /metrics
+  liveness:
+    initialDelay: 20
+    path: /internal/isAlive
+  readiness:
+    initialDelay: 20
+    path: /internal/isReady
+  accessPolicy:
+    outbound:
+      rules:
+        - application: nav-dekoratoren
+          namespace: personbruker
+  tokenx:
+    enabled: true
+  idporten:
+    enabled: true
+    sidecar:
+      enabled: true
+      level: Level4
+      autoLogin: true
+      autoLoginIgnorePaths:
+        - /internal/*
+        - /metrics

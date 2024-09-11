@@ -5,19 +5,42 @@
  */
 
 import { PassThrough } from "node:stream";
-
 import type { AppLoadContext, EntryContext } from "@remix-run/node";
 import { createReadableStreamFromReadable } from "@remix-run/node";
 import { RemixServer } from "@remix-run/react";
 import { isbot } from "isbot";
 import { renderToPipeableStream } from "react-dom/server";
 import { initializeMockServer } from "./mocks/node";
+import { OpenAPI } from "@mr/api-client";
+import { v4 as uuidv4 } from "uuid";
 
 const ABORT_DELAY = 5_000;
 
-if (process.env.NODE_ENV === "development") {
+if (process.env.VITE_API_MOCK === "true") {
+  console.log("Initialiserer mock server");
   initializeMockServer();
 }
+
+function setupOpenAPIClient({ base, token }: { base: string, token?: string}) {
+  OpenAPI.BASE = base;
+  OpenAPI.HEADERS = async () => {
+    const headers: Record<string, string> = {};
+
+    headers["Accept"] = "application/json";
+    headers["Nav-Consumer-Id"] = uuidv4();
+
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
+
+    return headers;
+  };
+}
+
+setupOpenAPIClient({
+  base: "http://localhost:3000",
+  token: import.meta.env.VITE_MULIGHETSROMMET_API_AUTH_TOKEN,
+});
 
 export default function handleRequest(
   request: Request,
