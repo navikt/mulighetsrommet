@@ -85,6 +85,7 @@ spec:
   accessPolicy:
     inbound:
       rules:
+        - application: arrangor-flate
         - application: mulighetsrommet-arena-adapter
         - application: mulighetsrommet-arena-adapter-manager
         - application: mr-admin-flate

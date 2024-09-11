@@ -17,6 +17,7 @@ fun Route.apiRoutes(config: AppConfig) {
 
     authenticate(AuthProvider.AZURE_AD_TILTAKSGJENNOMFORING_APP) {
         externalRoutes()
+        refusjonRoutes()
     }
 
     authenticate(AuthProvider.AZURE_AD_DEFAULT_APP) {
@@ -47,7 +48,6 @@ fun Route.adminflateRoutes() {
     notificationRoutes()
     janzzRoutes()
     tilsagnRoutes()
-    refusjonRoutes()
 }
 
 fun Route.veilederflateRoutes() {

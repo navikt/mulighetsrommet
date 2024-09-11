@@ -29,6 +29,7 @@ spec:
       rules:
         - application: nav-dekoratoren
           namespace: personbruker
+        - application: mulighetsrommet-api
   tokenx:
     enabled: true
   idporten:
