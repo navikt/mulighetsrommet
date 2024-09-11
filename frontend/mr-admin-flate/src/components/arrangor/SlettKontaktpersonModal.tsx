@@ -10,7 +10,7 @@ import { useFrikobleArrangorKontaktpersonFraTiltaksgjennomforing } from "@/api/t
 import { Laster } from "../laster/Laster";
 import styles from "./SlettKontaktpersonModal.module.scss";
 import { RefObject } from "react";
-import { VarselModal } from "@/components/modal/VarselModal";
+import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
 
 interface Props {
   onClose: () => void;
