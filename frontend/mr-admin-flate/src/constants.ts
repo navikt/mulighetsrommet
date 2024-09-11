@@ -20,8 +20,8 @@ export const ENDRINGSMELDINGER_URL = isProduction
   : "https://arbeidsmarkedstiltak.intern.dev.nav.no";
 
 export const SANITY_STUDIO_URL = isProduction
-  ? "https://mulighetsrommet-sanity-studio.intern.nav.no/prod/desk"
-  : "https://mulighetsrommet-sanity-studio.intern.nav.no/test/desk";
+  ? "https://mulighetsrommet-sanity-studio.intern.nav.no/prod"
+  : "https://mulighetsrommet-sanity-studio.intern.nav.no/test";
 
 export const PORTEN_URL = "https://jira.adeo.no/plugins/servlet/desk/portal/541/create/4665";
 
