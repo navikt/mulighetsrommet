@@ -1,11 +1,9 @@
 {
   "private": true,
   "name": "mulighetsrommet",
-  "scripts": {
-    "preinstall": "npx only-allow pnpm"
-  },
   "devDependencies": {
     "prettier": "3.3.3",
     "turbo": "2.1.1"
-  }
+  },
+  "packageManager": "pnpm@9.10.0"
 }
