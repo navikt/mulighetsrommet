@@ -13,7 +13,7 @@ Dette prosjektet er strukturert som et monorepo, der både backend- og frontend-
 Enn så lenge benytter vi følgende tooling for å kjøre tasks for henholdsvis backend og frontend:
 
 - [Gradle](https://gradle.org/) med subprojects
-- [Turborepo](https://turborepo.org/) i kombinasjon med [NPM workspaces](https://turborepo.org/)
+- [Turborepo](https://turborepo.org/) i kombinasjon med [PNPM workspaces](https://pnpm.io/workspaces)
 
 ### Token for pnpm install av private pakker
 

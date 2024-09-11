@@ -12,7 +12,7 @@
     "start": "cross-env NODE_ENV=production VITE_MULIGHETSROMMET_API_BASE='http://mulighetsrommet-api' node ./server.js",
     "typecheck": "tsc",
     "build": "remix vite:build",
-    "package": "pnpm --filter @mr/arrangor-flate --prod deploy pruned-app"
+    "pack": "pnpm --filter @mr/arrangor-flate --prod deploy dist"
   },
   "dependencies": {
     "@mr/api-client": "workspace:*",

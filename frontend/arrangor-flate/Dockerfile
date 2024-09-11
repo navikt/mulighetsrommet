@@ -3,8 +3,7 @@ FROM node:20-bullseye-slim AS base
 ENV NODE_ENV=production
 ENV PORT="3000"
 
-COPY ./pruned-app /app
-COPY ./build /app/build
+COPY ./dist /app
 
 WORKDIR /app
 

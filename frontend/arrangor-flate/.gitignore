@@ -1,7 +1,5 @@
 node_modules
-
 /.cache
 /build
 .env
-
-pruned-app
+dist
