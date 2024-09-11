@@ -4,6 +4,7 @@ ENV NODE_ENV=production
 ENV PORT="3000"
 
 COPY ./pruned-app /app
+COPY ./build /app/build
 
 WORKDIR /app
 
