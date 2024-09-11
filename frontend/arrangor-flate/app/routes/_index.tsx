@@ -1,37 +1,9 @@
-import type { MetaFunction } from "@remix-run/node";
+import type { LoaderFunction, MetaFunction } from "@remix-run/node";
 import { PageHeader } from "../components/PageHeader";
-import { OversiktOverRefusjonskrav } from "../components/refusjonskrav/OversiktOverRefusjonskrav";
-import { Krav, KravStatus } from "../domene/domene";
-
-const mockKrav: Krav[] = [
-  {
-    id: "6",
-    belop: "308 530",
-    fristForGodkjenning: "31.08.2024",
-    kravnr: "6",
-    periode: "01.06.2024 - 30.06.2024",
-    status: KravStatus.KlarForInnsending,
-    tiltaksnr: "2024/123456",
-  },
-  {
-    id: "5",
-    belop: "123 000",
-    fristForGodkjenning: "31.07.2024",
-    kravnr: "5",
-    periode: "01.05.2024 - 31.05.2024",
-    status: KravStatus.NarmerSegFrist,
-    tiltaksnr: "2024/123456",
-  },
-  {
-    id: "4",
-    belop: "85 000",
-    fristForGodkjenning: "30.06.2024",
-    kravnr: "4",
-    periode: "01.01.2024 - 31.01.2024",
-    status: KravStatus.Attestert,
-    tiltaksnr: "2024/123456",
-  },
-];
+import { Refusjonskrav, RefusjonskravService, RefusjonskravStatus } from "@mr/api-client";
+import { useLoaderData } from "@remix-run/react";
+import { RefusjonskravTable } from "~/components/refusjonskrav/RefusjonskravTable";
+import { Heading, VStack } from "@navikt/ds-react";
 
 export const meta: MetaFunction = () => {
   return [
@@ -40,11 +12,29 @@ export const meta: MetaFunction = () => {
   ];
 };
 
+type LoaderData = {
+  krav: Refusjonskrav[];
+};
+
+export const loader: LoaderFunction = async ({ params }): Promise<LoaderData> => {
+  const krav = await RefusjonskravService.getRefusjonskrav({ orgnr: "123456789" });
+
+  return { krav };
+};
+
 export default function Refusjon() {
+  const { krav } = useLoaderData<LoaderData>();
+  const historiske = krav.filter(k => k.status === RefusjonskravStatus.ATTESTERT);
+  const aktive = krav.filter(k => k.status !== RefusjonskravStatus.ATTESTERT);
+
   return (
     <>
       <PageHeader title="Tilgjengelige refusjonskrav" />
-      <OversiktOverRefusjonskrav krav={mockKrav} />
+      <VStack align="center" gap="4">
+        <RefusjonskravTable krav={aktive} />
+        <Heading size="small" as="div">Historiske refusjonskrav</Heading>
+        <RefusjonskravTable krav={historiske} />
+      </VStack>
     </>
   );
 }

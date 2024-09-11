@@ -1,7 +1,9 @@
 import { createRequestHandler } from "@remix-run/express";
 import compression from "compression";
+import { createProxyMiddleware } from 'http-proxy-middleware';
 import express from "express";
 import morgan from "morgan";
+import { getToken, requestTokenxOboToken } from '@navikt/oasis';
 import expressPromBundle from "express-prom-bundle";
 const metricsMiddleware = expressPromBundle({ includeMethod: true, includePath: true });
 
@@ -52,6 +54,14 @@ app.get([`${basePath}/internal/isAlive`, `${basePath}/internal/isReady`], (_, re
 app.use(metricsMiddleware);
 app.use(morgan("tiny"));
 
+if (process.env.VITE_MULIGHETSROMMET_API_MOCK !== 'true') {
+  app.use(
+    "/api",
+    oboMiddleware(),
+    proxyMiddleware(),
+  );
+}
+
 // handle SSR requests
 app.all("*", remixHandler);
 
@@ -64,3 +74,44 @@ app.listen(port, () => {
       : `Serveren kjører på port ${port}`,
   );
 });
+
+function oboMiddleware() {
+  return  async (req, res, next) => {
+    if (process.env.NODE_ENV !== 'production') {
+      return next();
+    }
+    const token = getToken(req);
+    if (!token) {
+      return res.status(401).send();
+    }
+    const obo = await requestTokenxOboToken(token,  `${process.env.NAIS_CLUSTER_NAME}.team-mulighetsrommet.mulighetsrommet-api`);
+    if (obo.ok) {
+      req.headers['obo-token'] = obo.token;
+      return next();
+    } else {
+      console.log('OBO-exchange failed', obo.error);
+      return res.status(403).send();
+    }
+  }
+}
+
+function proxyMiddleware() {
+  return  createProxyMiddleware({
+    target: process.env.VITE_MULIGHETSROMMET_API_BASE,
+    changeOrigin: true,
+		pathRewrite: { '^/': '/api/' },
+    logger: console,
+    on: {
+      proxyReq: (proxyRequest, request) => {
+        const obo = request.headers['obo-token'];
+        if (obo) {
+          proxyRequest.removeHeader('obo-token');
+          proxyRequest.removeHeader('cookie');
+          proxyRequest.setHeader('Authorization', `Bearer ${obo}`);
+        } else {
+          console.log("Access token var not present in session");
+        }
+      },
+    },
+  });
+}

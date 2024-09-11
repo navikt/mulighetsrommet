@@ -96,6 +96,9 @@ importers:
 
   frontend/arrangor-flate:
     dependencies:
+      '@mr/api-client':
+        specifier: workspace:*
+        version: link:../api-client
       '@navikt/aksel-icons':
         specifier: ^6.16.2
         version: 6.16.2
@@ -117,6 +120,9 @@ importers:
       '@navikt/nav-dekoratoren-moduler':
         specifier: ^3.0.0
         version: 3.0.0(csp-header@5.2.1)(html-react-parser@5.1.15(@types/react@18.3.5)(react@18.3.1))(jsdom@25.0.0)(react@18.3.1)
+      '@navikt/oasis':
+        specifier: ^3.4.0
+        version: 3.4.0
       '@remix-run/express':
         specifier: ^2.11.2
         version: 2.11.2(express@4.19.2)(typescript@5.5.4)
@@ -174,6 +180,9 @@ importers:
       react-dom:
         specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
+      uuid:
+        specifier: 10.0.0
+        version: 10.0.0
       winston:
         specifier: ^3.14.2
         version: 3.14.2
@@ -2718,6 +2727,9 @@ packages:
       react: 17 || 18
       react-dom: 17 || 18
       react-router-dom: '6'
+    peerDependenciesMeta:
+      react-router-dom:
+        optional: true
 
   '@navikt/ds-css@6.16.1':
     resolution: {integrity: sha512-pxoucAuMESz76j0aGWdu0jP6bEdTH7dlMKq55OlOliAlAxEwxEjefAu/iww+NqRjSRU49ZHl1f8NsmLj1BC8Ww==, tarball: https://npm.pkg.github.com/download/@navikt/ds-css/6.16.1/7dc44ff8ca9ae5a9a2ff7523435579d58e9adcb3}
@@ -2733,18 +2745,27 @@ packages:
     peerDependencies:
       '@types/react': ^17.0.30 || ^18.0.0
       react: ^17.0.0 || ^18.0.0
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
 
   '@navikt/ds-react@6.16.1':
     resolution: {integrity: sha512-MwegoI8hs5MhaNVqC5P1W6nP7yGqcKbS3KbNGf62w3pIO3/yiWBMn0fiKGOPKEvoV04muzHl3AxeS8+NIICOXw==, tarball: https://npm.pkg.github.com/download/@navikt/ds-react/6.16.1/4a3ec99b67365ffba4af76fb2b41d6570d4a2d20}
     peerDependencies:
       '@types/react': ^17.0.30 || ^18.0.0
       react: ^17.0.0 || ^18.0.0
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
 
   '@navikt/ds-react@6.16.2':
     resolution: {integrity: sha512-snJnxUXiDN8wmjb3uoELhTfpdsdpftXuZBaZeLsST/skMPJHdym9D8pVjbti4pKrnG2/9zYI2rX/bE2e26D7CQ==, tarball: https://npm.pkg.github.com/download/@navikt/ds-react/6.16.2/b16cba0f95df6b9e4035099c0dc5b239dcbd5392}
     peerDependencies:
       '@types/react': ^17.0.30 || ^18.0.0
       react: ^17.0.0 || ^18.0.0
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
 
   '@navikt/ds-tailwind@6.16.2':
     resolution: {integrity: sha512-EUqZFZOYCApqXjMgi1s3KeVd9FhUmS2d3Wog6aYFAVWjgeTxLjP5CaBj3fOr6J1HZlJns9Z8rvdirqyifGeKpg==, tarball: https://npm.pkg.github.com/download/@navikt/ds-tailwind/6.16.2/7e8eb496cf2b759148b10ee5ce1413beb65e520e}
@@ -2760,6 +2781,18 @@ packages:
       html-react-parser: '>=5.x'
       jsdom: '>=16.x'
       react: '>=17.x'
+    peerDependenciesMeta:
+      csp-header:
+        optional: true
+      html-react-parser:
+        optional: true
+      jsdom:
+        optional: true
+      react:
+        optional: true
+
+  '@navikt/oasis@3.4.0':
+    resolution: {integrity: sha512-le+J+gE/OeLfqyZFQWDqp/pY6f7lzMpP1ynXnDOWBalmkav9tmWor4g/pqb+Xorm6C6bNCdScmCKDHvNVf+CoQ==, tarball: https://npm.pkg.github.com/download/@navikt/oasis/3.4.0/7a21e6e8c8e6eca00d7e6a5c06f7e8315c0cc71a}
 
   '@nodelib/fs.scandir@2.1.5':
     resolution: {integrity: sha512-vq24Bq3ym5HEQm2NKCr3yXDwjc7vTsEThRDnkp2DK9p1uqLR+DHurm/NOTo0KG7HYHU7eppKZj3MyqYuMBf62g==}
@@ -5696,6 +5729,9 @@ packages:
 
   jose@4.15.9:
     resolution: {integrity: sha512-1vUQX+IdDMVPj4k8kOxgUqlcK518yluMuGZwqlr44FS1ppZB/5GWh4rZG89erpOBOJjU/OBsnCVFfapsRz6nEA==}
+
+  jose@5.8.0:
+    resolution: {integrity: sha512-E7CqYpL/t7MMnfGnK/eg416OsFCVUrU/Y3Vwe7QjKhu/BkS1Ms455+2xsqZQVN57/U2MHMBvEb5SrmAZWAIntA==}
 
   jotai-location@0.5.5:
     resolution: {integrity: sha512-6QW/7W9IJHjhbn7gRgAw4sC30k0/G6JiC4uPlKi8ZPZGYk7R7r9PyMD2eVhL4XSxxag89JxS1iSyr6BIXsB4Sw==}
@@ -11042,6 +11078,7 @@ snapshots:
       history: 4.10.1
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
+    optionalDependencies:
       react-router-dom: 6.26.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
     transitivePeerDependencies:
       - prop-types
@@ -11054,8 +11091,9 @@ snapshots:
 
   '@navikt/ds-icons@3.4.3(@types/react@18.3.5)(react@18.3.1)':
     dependencies:
-      '@types/react': 18.3.5
       react: 18.3.1
+    optionalDependencies:
+      '@types/react': 18.3.5
 
   '@navikt/ds-react@6.16.1(@types/react@18.3.5)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
@@ -11063,11 +11101,12 @@ snapshots:
       '@floating-ui/react-dom': 2.1.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@navikt/aksel-icons': 6.16.2
       '@navikt/ds-tokens': 6.16.2
-      '@types/react': 18.3.5
       clsx: 2.1.1
       date-fns: 3.6.0
       react: 18.3.1
       react-day-picker: 8.10.0(date-fns@3.6.0)(react@18.3.1)
+    optionalDependencies:
+      '@types/react': 18.3.5
     transitivePeerDependencies:
       - react-dom
 
@@ -11077,11 +11116,12 @@ snapshots:
       '@floating-ui/react-dom': 2.1.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@navikt/aksel-icons': 6.16.2
       '@navikt/ds-tokens': 6.16.2
-      '@types/react': 18.3.5
       clsx: 2.1.1
       date-fns: 3.6.0
       react: 18.3.1
       react-day-picker: 8.10.0(date-fns@3.6.0)(react@18.3.1)
+    optionalDependencies:
+      '@types/react': 18.3.5
     transitivePeerDependencies:
       - react-dom
 
@@ -11090,11 +11130,17 @@ snapshots:
   '@navikt/ds-tokens@6.16.2': {}
 
   '@navikt/nav-dekoratoren-moduler@3.0.0(csp-header@5.2.1)(html-react-parser@5.1.15(@types/react@18.3.5)(react@18.3.1))(jsdom@25.0.0)(react@18.3.1)':
-    dependencies:
+    optionalDependencies:
       csp-header: 5.2.1
       html-react-parser: 5.1.15(@types/react@18.3.5)(react@18.3.1)
       jsdom: 25.0.0
       react: 18.3.1
+
+  '@navikt/oasis@3.4.0':
+    dependencies:
+      jose: 5.8.0
+      openid-client: 5.6.5
+      prom-client: 15.1.3
 
   '@nodelib/fs.scandir@2.1.5':
     dependencies:
@@ -14746,6 +14792,8 @@ snapshots:
   jiti@1.21.6: {}
 
   jose@4.15.9: {}
+
+  jose@5.8.0: {}
 
   jotai-location@0.5.5(jotai@2.9.3(@types/react@18.3.5)(react@18.3.1)):
     dependencies:
