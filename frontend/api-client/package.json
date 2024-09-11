@@ -6,7 +6,6 @@
   "types": "./build/index.ts",
   "exports": "./build/index.ts",
   "scripts": {
-    "postinstall": "npm run build",
     "build": "openapi-ts --useOptions --input ../../mulighetsrommet-api/src/main/resources/web/openapi.yaml --output ./build"
   },
   "devDependencies": {

@@ -5,12 +5,13 @@
   "sideEffects": false,
   "type": "module",
   "scripts": {
-    "build": "remix vite:build",
     "dev": "node ./server.js",
     "dev:vite": "remix vite:dev",
     "lint": "eslint --cache --cache-location ./node_modules/.cache/eslint app/ server.js",
     "start": "cross-env NODE_ENV=production node ./server.js",
-    "typecheck": "tsc"
+    "typecheck": "tsc",
+    "build": "remix vite:build",
+    "package": "pnpm --filter @mr/arrangor-flate --prod deploy pruned-app"
   },
   "dependencies": {
     "@navikt/aksel-icons": "^6.16.2",
@@ -26,19 +27,20 @@
     "@remix-run/serve": "^2.11.2",
     "compression": "^1.7.4",
     "cross-env": "^7.0.3",
+    "csp-header": "^5.2.1",
     "express": "^4.19.2",
     "express-prom-bundle": "^7.0.0",
     "html-react-parser": "^5.1.15",
     "http-proxy-middleware": "^3.0.2",
     "isbot": "^5.1.17",
     "jsdom": "^25.0.0",
+    "morgan": "^1.10.0",
     "msw": "^2.4.4",
     "openid-client": "^5.6.5",
     "prom-client": "^15.1.3",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "winston": "^3.14.2",
-    "csp-header": "^5.2.1"
+    "winston": "^3.14.2"
   },
   "devDependencies": {
     "@remix-run/dev": "^2.11.2",
@@ -51,13 +53,12 @@
     "@typescript-eslint/parser": "^8.4.0",
     "autoprefixer": "^10.4.20",
     "eslint": "^9.10.0",
-    "eslint-import-resolver-typescript": "^3.6.3",
-    "eslint-plugin-import": "^2.30.0",
-    "eslint-plugin-jsx-a11y": "^6.10.0",
     "eslint-plugin-react": "^7.35.2",
     "eslint-plugin-react-hooks": "^5.1.0-rc.0",
+    "globals": "^15.9.0",
     "local-pkg": "^0.5.0",
     "postcss": "^8.4.45",
+    "postcss-import": "^16.1.0",
     "tailwindcss": "^3.4.10",
     "typescript": "^5.5.4",
     "vite": "^5.4.3",
@@ -70,5 +71,9 @@
     "workerDirectory": [
       "public"
     ]
-  }
+  },
+  "files": [
+    "build",
+    "server.js"
+  ]
 }
