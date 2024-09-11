@@ -29,13 +29,13 @@ APP=LOKAL # Eller MODIA, NAV
 ### Installere avhengigheter
 
 ```
-npm install
+pnpm install
 ```
 
 ### Start dev-server med HTTP-mocks via MSW
 
 ```
-npm run start
+pnpm run start
 ```
 
 ### Start dev-server koblet mot lokal backend
@@ -54,7 +54,7 @@ VITE_MULIGHETSROMMET_API_AUTH_TOKEN=<token>
 Deretter kan dev-server startes:
 
 ```
-npm run backend
+pnpm run backend
 ```
 
 ## Testing og linting
@@ -62,10 +62,10 @@ npm run backend
 Koden lintes og formatteres med `eslint` og `prettier`.
 
 ```
-npm run lint
+pnpm run lint
 
 # Fiks det som kan gjøres automatisk, bl.a. kode-formattering
-npm run fix-lint
+pnpm run fix-lint
 ```
 
 E2E-tester er skrevet med `playwright`.
@@ -73,10 +73,10 @@ Ved lokal testing kan det være behjelpelig å kjøre `playwright` med UI'et.
 
 ```
 # Kjør tester
-npm run playwright
+pnpm run playwright
 
 # Kjør tester med UI
-npm run playwright:open
+pnpm run playwright:open
 ```
 
 ## Deploy

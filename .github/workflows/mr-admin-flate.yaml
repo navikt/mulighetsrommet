@@ -5,7 +5,7 @@ on:
     paths:
       - .github/workflows/mr-admin-flate.yaml
       - package.json
-      - package-lock.json
+      - pnpm-lock.yaml
       - turbo.json
       - frontend/mr-admin-flate/**
       - frontend/api-client/**

@@ -7,7 +7,7 @@ Hjemmesnekra backoffice for diverse greier.
 Lokal dev-server kjøres med følgende kommando:
 
 ```
-npm run dev
+pnpm run dev
 ```
 
 Proxy-instillinger er konfigurert i `vite.config.ts`.
