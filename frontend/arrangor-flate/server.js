@@ -82,10 +82,12 @@ function oboMiddleware() {
     }
     const token = getToken(req);
     if (!token) {
+      console.log("token missing", token);
       return res.status(401).send();
     }
     const obo = await requestTokenxOboToken(token,  `${process.env.NAIS_CLUSTER_NAME}.team-mulighetsrommet.mulighetsrommet-api`);
     if (obo.ok) {
+      console.log("OBO-exchange success");
       req.headers['obo-token'] = obo.token;
       return next();
     } else {
