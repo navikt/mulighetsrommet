@@ -15,7 +15,7 @@
     "package": "pnpm --filter @mr/arrangor-flate --prod deploy pruned-app"
   },
   "dependencies": {
-    "@mr/api-client": "*",
+    "@mr/api-client": "workspace:*",
     "@navikt/aksel-icons": "^6.16.2",
     "@navikt/bedriftsmeny": "^6.13.0",
     "@navikt/ds-css": "^6.16.2",
