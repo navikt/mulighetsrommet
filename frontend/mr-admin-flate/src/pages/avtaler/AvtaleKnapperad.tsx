@@ -4,7 +4,7 @@ import { RegistrerOpsjonModal } from "@/components/avtaler/opsjoner/RegistrerOps
 import { EndringshistorikkPopover } from "@/components/endringshistorikk/EndringshistorikkPopover";
 import { ViewEndringshistorikk } from "@/components/endringshistorikk/ViewEndringshistorikk";
 import { AvbrytAvtaleModal } from "@/components/modal/AvbrytAvtaleModal";
-import { VarselModal } from "@/components/modal/VarselModal";
+import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
 import { KnapperadContainer } from "@/pages/KnapperadContainer";
 import { BodyShort, Button, Dropdown } from "@navikt/ds-react";
 import { Avtale, NavAnsatt } from "@mr/api-client";

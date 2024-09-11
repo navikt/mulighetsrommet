@@ -1,6 +1,6 @@
 import { BodyShort, Button } from "@navikt/ds-react";
 import { RefObject } from "react";
-import { VarselModal } from "@/components/modal/VarselModal";
+import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
 
 interface Props {
   modalRef: RefObject<HTMLDialogElement>;

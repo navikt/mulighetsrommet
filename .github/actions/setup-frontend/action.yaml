@@ -4,12 +4,14 @@ description: Steps for setup of the frontend modules
 runs:
   using: composite
   steps:
+    - name: Install pnpm
+      uses: pnpm/action-setup@v4
     - uses: actions/setup-node@v4
       with:
         node-version: 20
-        cache: npm
+        cache: pnpm
         registry-url: "https://npm.pkg.github.com"
-    - run: npm ci
+    - run: pnpm install
       shell: bash
     - name: Cache Turborepo
       uses: actions/cache@v4
