@@ -54,9 +54,29 @@ app.get([`${basePath}/internal/isAlive`, `${basePath}/internal/isReady`], (_, re
 app.use(metricsMiddleware);
 app.use(morgan("tiny"));
 
-app.use(
-  "/api",
-  async (req, res, next) => {
+if (process.env.VITE_MULIGHETSROMMET_API_MOCK !== 'true') {
+  app.use(
+    "/api",
+    oboMiddleware(),
+    proxyMiddleware(),
+  );
+}
+
+// handle SSR requests
+app.all("*", remixHandler);
+
+app.listen(port, () => {
+  const env = process.env.NODE_ENV || "development";
+  // eslint-disable-next-line no-console
+  console.log(
+    env === "development"
+      ? `Server kjører på http://localhost:${port}`
+      : `Serveren kjører på port ${port}`,
+  );
+});
+
+function oboMiddleware() {
+  return  async (req, res, next) => {
     if (process.env.NODE_ENV !== 'production') {
       return next();
     }
@@ -72,8 +92,11 @@ app.use(
       console.log('OBO-exchange failed', obo.error);
       return res.status(403).send();
     }
-  },
-  createProxyMiddleware({
+  }
+}
+
+function proxyMiddleware() {
+  return  createProxyMiddleware({
     target: process.env.VITE_MULIGHETSROMMET_API_BASE,
     changeOrigin: true,
 		pathRewrite: { '^/': '/api/' },
@@ -90,19 +113,5 @@ app.use(
         }
       },
     },
-  }),
-);
-
-
-// handle SSR requests
-app.all("*", remixHandler);
-
-app.listen(port, () => {
-  const env = process.env.NODE_ENV || "development";
-  // eslint-disable-next-line no-console
-  console.log(
-    env === "development"
-      ? `Server kjører på http://localhost:${port}`
-      : `Serveren kjører på port ${port}`,
-  );
-});
+  });
+}

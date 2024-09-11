@@ -1,13 +1,13 @@
-import { Table, Tag } from "@navikt/ds-react";
+import { Box, Table, Tag, VStack } from "@navikt/ds-react";
 import { Link } from "@remix-run/react";
 import { ReactNode } from "react";
-import { Krav, KravStatus } from "../../domene/domene";
+import { Refusjonskrav, RefusjonskravStatus } from "@mr/api-client";
 
 interface Props {
-  krav: Krav[];
+  krav: Refusjonskrav[];
 }
 
-export function OversiktOverRefusjonskrav({ krav }: Props) {
+export function RefusjonskravTable({ krav }: Props) {
   return (
     <>
       <Table>
@@ -27,7 +27,7 @@ export function OversiktOverRefusjonskrav({ krav }: Props) {
             return (
               <Table.Row
                 className={
-                  status === KravStatus.NarmerSegFrist ? "bg-surface-warning-moderate" : ""
+                  status === RefusjonskravStatus.NARMER_SEG_FRIST ? "bg-surface-warning-moderate" : ""
                 }
                 key={id}
               >
@@ -51,13 +51,13 @@ export function OversiktOverRefusjonskrav({ krav }: Props) {
   );
 }
 
-function statusTilTag(status: KravStatus): ReactNode {
+function statusTilTag(status: RefusjonskravStatus): ReactNode {
   switch (status) {
-    case KravStatus.Attestert:
+    case RefusjonskravStatus.ATTESTERT:
       return <Tag variant="neutral">Attestert</Tag>;
-    case KravStatus.KlarForInnsending:
+    case RefusjonskravStatus.KLAR_FOR_INNSENDING:
       return <Tag variant="alt1">Klar for innsending</Tag>;
-    case KravStatus.NarmerSegFrist:
+    case RefusjonskravStatus.NARMER_SEG_FRIST:
       return <Tag variant="warning">Nærmer seg frist</Tag>;
   }
 }

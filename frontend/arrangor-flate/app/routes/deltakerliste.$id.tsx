@@ -4,7 +4,6 @@ import { Link, useLoaderData } from "@remix-run/react";
 import { PageHeader } from "../components/PageHeader";
 import { DeltakerlisteDetaljer } from "../components/deltakerliste/DeltakerlisteDetaljer";
 import { Deltakerliste } from "../domene/domene";
-import { AftSatserService, NotificationsService } from "@mr/api-client";
 
 export const meta: MetaFunction = () => {
   return [{ title: "Refusjon" }, { name: "description", content: "Refusjonsdetaljer" }];
@@ -17,14 +16,11 @@ type LoaderData = {
 export const loader: LoaderFunction = async ({ params }): Promise<LoaderData> => {
   if (params.id === undefined) throw Error("Mangler id");
 
-  const notifikasjoner = await NotificationsService.getNotifications();
-  console.log(notifikasjoner);
-
   return {
     deltakerliste: {
       id: params.id,
       detaljer: {
-        tiltaksnavn: `AFT - Fredrikstad, Sarpsborg, Halden, Antall notifiasjoner: ${notifikasjoner.data.length}`,
+        tiltaksnavn: "AFT - Fredrikstad, Sarpsborg, Halden",
         tiltaksnummer: "2024/123456",
         avtalenavn: "AFT - Fredrikstad, Sarpsborg, Halden",
         tiltakstype: "Arbeidsforberedende trening",

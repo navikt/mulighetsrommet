@@ -1798,6 +1798,23 @@ paths:
                 items:
                   $ref: "#/components/schemas/AFTSats"
 
+  /api/v1/intern/refusjon/{orgnr}/krav:
+    get:
+      parameters:
+        - $ref: "#/components/parameters/OrgnrParam"
+      tags:
+        - Refusjonskrav
+      operationId: getRefusjonskrav
+      responses:
+        200:
+          description: Hent refusjonskrav til arrangør
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Refusjonskrav"
+
 components:
   securitySchemes:
     bearerAuth:
@@ -1868,6 +1885,14 @@ components:
       required: true
       schema:
         $ref: "#/components/schemas/ApentForInnsok"
+
+    OrgnrParam:
+      in: path
+      name: orgnr
+      description: organisasjonsnummer
+      required: true
+      schema:
+        type: string
 
   schemas:
     ValidationErrorResponse:
@@ -4729,3 +4754,39 @@ components:
       required:
         - startDato
         - belop
+
+    Refusjonskrav:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        tiltaksnr:
+          type: string
+        kravnr:
+          type: string
+        periode:
+          type: string
+          format: date
+        belop:
+          type: string
+        fristForGodkjenning:
+          type: string
+          format: date
+        status:
+          $ref: "#/components/schemas/RefusjonskravStatus"
+      required:
+        - id
+        - tiltaksnr
+        - kravnr
+        - periode
+        - belop
+        - fristForGodkjenning
+        - status
+
+    RefusjonskravStatus:
+      type: string
+      enum:
+        - ATTESTERT
+        - KLAR_FOR_INNSENDING
+        - NARMER_SEG_FRIST
