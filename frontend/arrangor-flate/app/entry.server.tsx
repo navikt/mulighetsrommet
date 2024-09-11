@@ -16,7 +16,7 @@ import { v4 as uuidv4 } from "uuid";
 
 const ABORT_DELAY = 5_000;
 
-if (process.env.VITE_API_MOCK === "true") {
+if (process.env.VITE_MULIGHETSROMMET_API_MOCK === "true") {
   console.log("Initialiserer mock server");
   initializeMockServer();
 }
