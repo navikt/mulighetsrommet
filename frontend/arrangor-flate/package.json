@@ -5,12 +5,13 @@
   "sideEffects": false,
   "type": "module",
   "scripts": {
-    "build": "remix vite:build",
     "dev": "node ./server.js",
     "dev:vite": "remix vite:dev",
     "lint": "eslint --cache --cache-location ./node_modules/.cache/eslint app/ server.js",
     "start": "cross-env NODE_ENV=production node ./server.js",
-    "typecheck": "tsc"
+    "typecheck": "tsc",
+    "build": "remix vite:build",
+    "package": "pnpm --filter @mr/arrangor-flate --prod deploy pruned-app"
   },
   "dependencies": {
     "@navikt/aksel-icons": "^6.16.2",
@@ -72,5 +73,9 @@
     "workerDirectory": [
       "public"
     ]
-  }
+  },
+  "files": [
+    "build",
+    "server.js"
+  ]
 }
