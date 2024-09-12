@@ -27,20 +27,20 @@ import java.util.*
 class DelMedBrukerService(private val db: Database, private val sanityClient: SanityClient) {
     private val log = LoggerFactory.getLogger(javaClass)
 
-    fun lagreDelMedBruker(data: DelMedBrukerDbo): QueryResult<DelMedBrukerDbo> = query {
+    fun lagreDelMedBruker(dbo: DelMedBrukerDbo): QueryResult<DelMedBrukerDbo> = query {
         SecureLog.logger.info(
-            "Veileder (${data.navident}) deler tiltak med id: '${data.sanityId ?: data.tiltaksgjennomforingId}' " +
-                "med bruker (${data.norskIdent.value})",
+            "Veileder (${dbo.navident}) deler tiltak med id: '${dbo.sanityId ?: dbo.tiltaksgjennomforingId}' " +
+                "med bruker (${dbo.norskIdent.value})",
         )
 
-        if (data.navident.trim().isEmpty()) {
+        if (dbo.navident.trim().isEmpty()) {
             SecureLog.logger.warn(
                 "Veileders NAVident er tomt. Kan ikke lagre info om tiltak.",
             )
             throw BadRequestException("Veileders NAVident er ikke 6 tegn")
         }
 
-        if (data.sanityId == null && data.tiltaksgjennomforingId == null) {
+        if (dbo.sanityId == null && dbo.tiltaksgjennomforingId == null) {
             log.warn("Id til gjennomføringen mangler")
             throw BadRequestException("sanityId eller tiltaksgjennomforingId må inkluderes")
         }
@@ -68,7 +68,7 @@ class DelMedBrukerService(private val db: Database, private val sanityClient: Sa
             returning *
         """.trimIndent()
 
-        queryOf(query, data.toParameters())
+        queryOf(query, dbo.toParameters())
             .map { it.toDelMedBruker() }
             .asSingle
             .let { db.run(it)!! }

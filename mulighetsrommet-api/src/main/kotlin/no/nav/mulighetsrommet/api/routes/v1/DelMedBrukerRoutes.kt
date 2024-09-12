@@ -12,6 +12,7 @@ import no.nav.common.audit_log.cef.CefMessageSeverity
 import no.nav.mulighetsrommet.api.clients.AccessType
 import no.nav.mulighetsrommet.api.clients.dialog.DialogRequest
 import no.nav.mulighetsrommet.api.clients.dialog.VeilarbdialogClient
+import no.nav.mulighetsrommet.api.clients.dialog.VeilarbdialogError
 import no.nav.mulighetsrommet.api.domain.dbo.DelMedBrukerDbo
 import no.nav.mulighetsrommet.api.plugins.getNavAnsattAzureId
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
@@ -75,27 +76,46 @@ fun Route.delMedBrukerRoutes() {
                     venterPaaSvarFraBruker = venterPaaSvarFraBruker,
                 )
             }
-            val response = dialogClient.sendMeldingTilDialogen(obo, dialogRequest)
-            if (response != null) {
-                delMedBrukerService.lagreDelMedBruker(
-                    data = DelMedBrukerDbo(
+            dialogClient.sendMeldingTilDialogen(obo, dialogRequest)
+                .onRight { dialogResponse ->
+                    val dbo = DelMedBrukerDbo(
                         norskIdent = request.fnr,
                         navident = navIdent.value,
-                        dialogId = response.id,
+                        dialogId = dialogResponse.id,
                         sanityId = request.sanityId,
                         tiltaksgjennomforingId = request.tiltaksgjennomforingId,
-                    ),
-                )
-                val message = createAuditMessage(
-                    msg = "NAV-ansatt med ident: '$navIdent' har delt informasjon om tiltaket '${request.overskrift}' til bruker med ident: '${request.fnr}'.",
-                    navIdent = navIdent,
-                    norskIdent = request.fnr,
-                )
-                AuditLog.auditLogger.log(message)
-                call.respond(DelTiltakMedBrukerResponse(dialogId = response.id))
-            } else {
-                call.respond(HttpStatusCode.Conflict)
-            }
+                    )
+                    delMedBrukerService.lagreDelMedBruker(dbo)
+
+                    val audit = createAuditMessage(
+                        msg = "NAV-ansatt med ident: '$navIdent' har delt informasjon om tiltaket '${request.overskrift}' til bruker med ident: '${request.fnr}'.",
+                        navIdent = navIdent,
+                        norskIdent = request.fnr,
+                    )
+                    AuditLog.auditLogger.log(audit)
+
+                    val response = DelTiltakMedBrukerResponse(
+                        dialogId = dialogResponse.id,
+                    )
+                    call.respond(response)
+                }
+                .onLeft {
+                    when (it) {
+                        VeilarbdialogError.Error -> {
+                            call.respond(
+                                status = HttpStatusCode.InternalServerError,
+                                message = "Kunne ikke sende melding til dialogen",
+                            )
+                        }
+
+                        VeilarbdialogError.OppfyllerIkkeKravForDigitalKommunikasjon -> {
+                            call.respond(
+                                status = HttpStatusCode.Conflict,
+                                message = "Kan ikke dele tiltak med bruker, krav for digital kommunikasjon ikke oppfylt.",
+                            )
+                        }
+                    }
+                }
         }
 
         post("status") {
