@@ -10,7 +10,7 @@ import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import java.util.*
 
 fun Route.refusjonRoutes() {
-    route("refusjon") {
+    route("/api/v1/intern/refusjon") {
         get("/{orgnr}/krav") {
             val orgnr = call.parameters.getOrFail<String>("orgnr")
 

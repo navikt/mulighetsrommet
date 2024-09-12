@@ -38,7 +38,7 @@ function setupOpenAPIClient({ base, token }: { base: string, token?: string}) {
 }
 
 setupOpenAPIClient({
-  base: "http://localhost:3000",
+  base: import.meta.env.VITE_MULIGHETSROMMET_API_BASE ?? "http://localhost:3000",
   token: import.meta.env.VITE_MULIGHETSROMMET_API_AUTH_TOKEN,
 });
 

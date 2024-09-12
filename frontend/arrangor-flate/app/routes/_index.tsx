@@ -4,6 +4,7 @@ import { Refusjonskrav, RefusjonskravService, RefusjonskravStatus } from "@mr/ap
 import { useLoaderData } from "@remix-run/react";
 import { RefusjonskravTable } from "~/components/refusjonskrav/RefusjonskravTable";
 import { Heading, VStack } from "@navikt/ds-react";
+import { setOboToken } from "~/auth/auth";
 
 export const meta: MetaFunction = () => {
   return [
@@ -16,8 +17,11 @@ type LoaderData = {
   krav: Refusjonskrav[];
 };
 
-export const loader: LoaderFunction = async ({ params }): Promise<LoaderData> => {
+export const loader: LoaderFunction = async ({ request, params }): Promise<LoaderData> => {
+  setOboToken(request);
   const krav = await RefusjonskravService.getRefusjonskrav({ orgnr: "123456789" });
+
+  console.log("krav", krav);
 
   return { krav };
 };

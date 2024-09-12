@@ -15,9 +15,10 @@ fun Route.apiRoutes(config: AppConfig) {
         maamRoutes()
     }
 
+    refusjonRoutes()
+
     authenticate(AuthProvider.AZURE_AD_TILTAKSGJENNOMFORING_APP) {
         externalRoutes()
-        refusjonRoutes()
     }
 
     authenticate(AuthProvider.AZURE_AD_DEFAULT_APP) {
