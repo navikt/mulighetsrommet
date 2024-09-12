@@ -82,6 +82,8 @@ spec:
         extra:
           - NAVident
           - azp_name
+  tokenx:
+    enabled: true
   accessPolicy:
     inbound:
       rules:
