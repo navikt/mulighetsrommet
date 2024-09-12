@@ -121,8 +121,6 @@ spec:
           namespace: teampam
         - application: veilarbdialog
           namespace: dab
-        - application: veilarbvedtaksstotte
-          namespace: obo
         - application: norg2
           namespace: org
       external:
