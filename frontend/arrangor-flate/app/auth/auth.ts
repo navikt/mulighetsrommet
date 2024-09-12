@@ -3,8 +3,7 @@ import { getToken, requestTokenxOboToken, validateToken } from "@navikt/oasis";
 import { redirectDocument } from "@remix-run/node";
 import { v4 as uuidv4 } from "uuid";
 
-
-export async function setOboToken(request: Request) {
+export async function oboExchange(request: Request) {
   if (process.env.NODE_ENV !== 'production') {
     return;
   }
@@ -25,13 +24,17 @@ export async function setOboToken(request: Request) {
     throw redirectDocument("/oauth2/login");
   }
 
+  setOpenApiHeaders(obo.token);
+}
+
+function setOpenApiHeaders(token: string) {
   OpenAPI.HEADERS = async () => {
     const headers: Record<string, string> = {};
 
     headers["Accept"] = "application/json";
     headers["Nav-Consumer-Id"] = uuidv4();
 
-    headers["Authorization"] = `Bearer ${obo.token}`
+    headers["Authorization"] = `Bearer ${token}`
 
     return headers;
   };
