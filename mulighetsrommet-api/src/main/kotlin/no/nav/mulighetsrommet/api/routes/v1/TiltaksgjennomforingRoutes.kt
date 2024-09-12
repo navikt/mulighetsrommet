@@ -124,9 +124,9 @@ fun Route.tiltaksgjennomforingRoutes() {
                 }
             }
             val overstyrtFilter = filter.copy(
-                sortering = "tiltakstype_navn-ascending",
                 administratorNavIdent = navIdent,
             )
+
             val result = service.getAll(pagination, overstyrtFilter)
             val file = ExcelService.createExcelFileForTiltaksgjennomforing(result.data)
             call.response.header(
