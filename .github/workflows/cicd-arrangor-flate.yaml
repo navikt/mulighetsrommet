@@ -3,7 +3,7 @@ name: CI/CD (arrangor-flate)
 on:
   push:
     paths:
-      - .github/workflows/deploy-arrangorflate.yaml
+      - .github/workflows/cicd-arrangor-flate.yaml
       - .github/workflows/actions/*
       - package.json
       - pnpm-lock.yaml
