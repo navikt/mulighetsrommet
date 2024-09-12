@@ -3,7 +3,6 @@
  * You are free to delete this file if you'd like to, but if you ever want it revealed again, you can run `npx remix reveal` ✨
  * For more information, see https://remix.run/file-conventions/entry.server
  */
-
 import { PassThrough } from "node:stream";
 import type { AppLoadContext, EntryContext } from "@remix-run/node";
 import { createReadableStreamFromReadable } from "@remix-run/node";
@@ -22,6 +21,7 @@ if (process.env.VITE_MULIGHETSROMMET_API_MOCK === "true") {
 }
 
 function setupOpenAPIClient({ base, token }: { base: string, token?: string}) {
+  console.log(base, token);
   OpenAPI.BASE = base;
   OpenAPI.HEADERS = async () => {
     const headers: Record<string, string> = {};
@@ -38,8 +38,8 @@ function setupOpenAPIClient({ base, token }: { base: string, token?: string}) {
 }
 
 setupOpenAPIClient({
-  base: import.meta.env.VITE_MULIGHETSROMMET_API_BASE ?? "http://localhost:3000",
-  token: import.meta.env.VITE_MULIGHETSROMMET_API_AUTH_TOKEN,
+  base: process.env.VITE_MULIGHETSROMMET_API_BASE ?? "http://localhost:3000",
+  token: process.env.VITE_MULIGHETSROMMET_API_AUTH_TOKEN,
 });
 
 export default function handleRequest(
