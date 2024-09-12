@@ -3,7 +3,7 @@ import compression from "compression";
 import { createProxyMiddleware } from 'http-proxy-middleware';
 import express from "express";
 import morgan from "morgan";
-import { getToken, requestTokenxOboToken } from '@navikt/oasis';
+import { getToken, requestTokenxOboToken, validateToken } from '@navikt/oasis';
 import expressPromBundle from "express-prom-bundle";
 const metricsMiddleware = expressPromBundle({ includeMethod: true, includePath: true });
 
@@ -83,8 +83,14 @@ function oboMiddleware() {
     const token = getToken(req);
     if (!token) {
       console.log("token missing", token);
-      return res.status(401).send();
+      return res.redirect("/oath2/login");
     }
+    const validation = await validateToken(token);
+    if (!validation.ok) {
+      console.log("token validation failed", token);
+      return res.redirect("/oath2/login");
+    }
+    // TODO: Tror man skal kanskje heller bruke den generiske requestObboToken i stedet
     const obo = await requestTokenxOboToken(token,  `${process.env.NAIS_CLUSTER_NAME}.team-mulighetsrommet.mulighetsrommet-api`);
     if (obo.ok) {
       console.log("OBO-exchange success");
