@@ -20,7 +20,7 @@ export async function oboExchange(request: Request) {
   }
   const obo = await requestTokenxOboToken(token, `${process.env.NAIS_CLUSTER_NAME}.team-mulighetsrommet.mulighetsrommet-api`);
   if (!obo.ok) {
-    console.log("obo exchange failed");
+    console.log("obo exchange failed", obo);
     throw redirectDocument("/oauth2/login");
   }
 
