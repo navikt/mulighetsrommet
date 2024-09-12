@@ -7,7 +7,7 @@ Flate for tiltaksarrangører som skal be om refusjon for arbeidsmarkedstiltak
 Noen pakker under `@navikt` hentes fra Github sitt NPM-repository. For at dette skal fungere må du først autentisere mot Github:
 
 ```
-npm login --registry https://npm.pkg.github.com
+pnpm login --registry https://npm.pkg.github.com
 ```
 
 Brukernavn er Github-brukernavnet ditt. Passordet er et [Personal Access Token](https://github.com/settings/tokens) med `read:packages`-scope. Tokenet må autentiseres med SSO mot navikt-organisasjonen.
@@ -15,11 +15,11 @@ Brukernavn er Github-brukernavnet ditt. Passordet er et [Personal Access Token](
 Når du er logget inn kan du kjøre:
 
 ```
-npm install
+pnpm install
 ```
 
 For å starte utviklingsserveren, kjør:
 
 ```
-npm run dev
+pnpm run dev
 ```

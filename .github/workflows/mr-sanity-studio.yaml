@@ -5,7 +5,7 @@ on:
     paths:
       - .github/workflows/mr-sanity-studio.yaml
       - package.json
-      - package-lock.json
+      - pnpm-lock.yaml
       - turbo.json
       - frontend/mulighetsrommet-cms/**
   workflow_dispatch:

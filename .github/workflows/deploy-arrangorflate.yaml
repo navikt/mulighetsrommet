@@ -6,7 +6,7 @@ on:
       - .github/workflows/deploy-arrangorflate.yaml
       - .github/workflows/actions/*
       - package.json
-      - package-lock.json
+      - pnpm-lock.yaml
       - turbo.json
       - frontend/api-client/**
       - mulighetsrommet-api/src/main/resources/web/openapi.yaml

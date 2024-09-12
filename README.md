@@ -15,11 +15,12 @@ Enn så lenge benytter vi følgende tooling for å kjøre tasks for henholdsvis 
 - [Gradle](https://gradle.org/) med subprojects
 - [Turborepo](https://turborepo.org/) i kombinasjon med [NPM workspaces](https://turborepo.org/)
 
-### Token for npm install av private pakker
+### Token for pnpm install av private pakker
+
 Noen pakker under `@navikt` hentes fra Github sitt NPM-repository. For at dette skal fungere må du først autentisere mot Github:
 
 ```
-npm login --registry https://npm.pkg.github.com
+pnpm login --registry https://npm.pkg.github.com
 ```
 
 Brukernavn er Github-brukernavnet ditt. Passordet er et [Personal Access Token](https://github.com/settings/tokens) med `read:packages`-scope. Tokenet må autentiseres med SSO mot navikt-organisasjonen.
@@ -88,7 +89,7 @@ liste, blir oppdatert etter hvert som behovet oppstår):
 
 ### Kodeformatering og linting i frontend
 Vi bruker prettier for kodeformatering og eslint for linting.
-Du kan kjøre `npm run fix-lint` for å formatere koden i forhold til Prettier-konfigurasjon, og samtidig fikse lintefeil.
+Du kan kjøre `pnpm run fix-lint` for å formatere koden i forhold til Prettier-konfigurasjon, og samtidig fikse lintefeil.
 
 ### Mocks via Wiremock
 
