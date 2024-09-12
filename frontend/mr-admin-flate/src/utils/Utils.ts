@@ -225,7 +225,8 @@ export function createQueryParamsForExcelDownloadForTiltaksgjennomforing(
     queryParams.set("visMineTiltaksgjennomforinger", "true");
   }
 
-  queryParams.set("size", "10000");
+  queryParams.set("size", filter.pageSize.toString());
+  queryParams.set("sort", filter.sortering.sortString);
   return queryParams;
 }
 
