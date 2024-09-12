@@ -3,7 +3,7 @@ name: CI/CD (arrangor-flate)
 on:
   push:
     paths:
-      - .github/workflows/deploy-arrangorflate.yaml
+      - .github/workflows/cicd-arrangor-flate.yaml
       - .github/workflows/actions/*
       - package.json
       - pnpm-lock.yaml
@@ -46,10 +46,9 @@ jobs:
         uses: ./.github/actions/setup-frontend
         env:
           NODE_AUTH_TOKEN: ${{ secrets.READER_TOKEN }}
-      - run: cp $NPM_CONFIG_USERCONFIG .npmrc
       # TODO Legg til test-steg
       - name: Bygg applikasjon
-        run: npx turbo run build --filter=@mr/arrangor-flate && cd frontend/arrangor-flate && pnpm package
+        run: npx turbo run pack --filter=@mr/arrangor-flate
       - name: Push docker image to GAR
         uses: nais/docker-build-push@v0
         id: docker-build-push
@@ -60,7 +59,6 @@ jobs:
           project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
           docker_context: ./frontend/arrangor-flate
           image_suffix: arrangor-flate
-          build_secrets: NODE_AUTH_TOKEN=${{ secrets.READER_TOKEN }}
 
   deploy-til-dev:
     name: Deploy til dev-gcp
