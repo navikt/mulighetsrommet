@@ -6,9 +6,6 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.serialization.Serializable
-import no.nav.common.audit_log.cef.CefMessage
-import no.nav.common.audit_log.cef.CefMessageEvent
-import no.nav.common.audit_log.cef.CefMessageSeverity
 import no.nav.mulighetsrommet.api.clients.AccessType
 import no.nav.mulighetsrommet.api.clients.dialog.DialogRequest
 import no.nav.mulighetsrommet.api.clients.dialog.VeilarbdialogClient
@@ -18,8 +15,6 @@ import no.nav.mulighetsrommet.api.plugins.getNavAnsattAzureId
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.services.DelMedBrukerService
 import no.nav.mulighetsrommet.api.services.PoaoTilgangService
-import no.nav.mulighetsrommet.auditlog.AuditLog
-import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.domain.dto.NorskIdent
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.ktor.extensions.getAccessToken
@@ -86,13 +81,6 @@ fun Route.delMedBrukerRoutes() {
                         tiltaksgjennomforingId = request.tiltaksgjennomforingId,
                     )
                     delMedBrukerService.lagreDelMedBruker(dbo)
-
-                    val audit = createAuditMessage(
-                        msg = "NAV-ansatt med ident: '$navIdent' har delt informasjon om tiltaket '${request.overskrift}' til bruker med ident: '${request.fnr}'.",
-                        navIdent = navIdent,
-                        norskIdent = request.fnr,
-                    )
-                    AuditLog.auditLogger.log(audit)
 
                     val response = DelTiltakMedBrukerResponse(
                         dialogId = dialogResponse.id,
@@ -183,18 +171,4 @@ fun Route.delMedBrukerRoutes() {
                 }
         }
     }
-}
-
-private fun createAuditMessage(msg: String, navIdent: NavIdent, norskIdent: NorskIdent): CefMessage {
-    return CefMessage.builder()
-        .applicationName("modia")
-        .loggerName("mulighetsrommet-api")
-        .event(CefMessageEvent.CREATE)
-        .name("Arbeidsmarkedstiltak - Del med bruker")
-        .severity(CefMessageSeverity.INFO)
-        .sourceUserId(navIdent.value)
-        .destinationUserId(norskIdent.value)
-        .timeEnded(System.currentTimeMillis())
-        .extension("msg", msg)
-        .build()
 }
