@@ -289,7 +289,6 @@ data class DeltTiltak(
     )
 }
 
-// select tg.navn, tg. id, tt.tiltakskode, tt.navn as tiltakstypeNavn
 @Serializable
 data class TiltakFraDb(
     val navn: String,
