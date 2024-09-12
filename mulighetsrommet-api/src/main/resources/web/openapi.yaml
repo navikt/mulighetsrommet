@@ -4339,8 +4339,13 @@ components:
     TiltakDeltMedBruker:
       type: object
       properties:
-        navn:
+        lokaltNavn:
           type: string
+        konstruertNavn:
+          type: string
+          nullable: true
+        tiltakstype:
+          $ref: "#/components/schemas/TiltakDeltMedBrukerTiltakstype"
         createdAt:
           type: string
           format: date
@@ -4349,10 +4354,24 @@ components:
         tiltakId:
           type: string
       required:
-        - navn
+        - lokaltNavn
+        - konstruertNavn
+        - tiltakstype
         - createdAt
         - dialogId
         - tiltakId
+
+    TiltakDeltMedBrukerTiltakstype:
+      type: object
+      properties:
+        tiltakskode:
+          $ref: "#/components/schemas/Tiltakskode"
+        arenakode:
+          $ref: "#/components/schemas/TiltakskodeArena"
+        navn:
+          type: string
+      required:
+        - navn
 
     OpsjonsmodellData:
       type: object
