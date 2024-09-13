@@ -29,7 +29,7 @@ import ingenFunnImg from "public/ingen-funn.svg";
 
 function Feilmelding({ message }: { message: string }) {
   return (
-    <Alert aria-live="polite" variant="error">
+    <Alert aria-live="polite" variant="error" style={{ marginTop: "1rem" }}>
       {message}
     </Alert>
   );
@@ -115,7 +115,16 @@ export function Landingsside() {
                   })
                 }
               >
-                <Suspense fallback={<Skeleton variant="rounded" height="10rem" width="40rem" />}>
+                <Suspense
+                  fallback={
+                    <Skeleton
+                      className={styles.skeleton}
+                      variant="rounded"
+                      height="10rem"
+                      width="40rem"
+                    />
+                  }
+                >
                   <Aktive />
                 </Suspense>
               </ErrorBoundary>
@@ -131,7 +140,7 @@ export function Landingsside() {
               >
                 <Suspense
                   fallback={
-                    <VStack gap="5">
+                    <VStack gap="5" className={styles.skeleton}>
                       <Skeleton variant="rounded" height="10rem" width="40rem" />
                       <Skeleton variant="rounded" height="10rem" width="40rem" />
                     </VStack>
@@ -143,7 +152,26 @@ export function Landingsside() {
             </Tabs.Panel>
             <Tabs.Panel value="delt-i-dialogen">
               <Container>
-                <DelMedBrukerHistorikk />
+                <ErrorBoundary
+                  FallbackComponent={() =>
+                    Feilmelding({
+                      message:
+                        "Noe gikk galt, og du får dessverre ikke sett tiltak du har delt med bruker via dialogen. Prøv igjen senere. ",
+                    })
+                  }
+                >
+                  <Suspense
+                    fallback={
+                      <VStack gap="2">
+                        <Skeleton height="3rem" />
+                        <Skeleton height="3rem" />
+                        <Skeleton height="3rem" />
+                      </VStack>
+                    }
+                  >
+                    <DelMedBrukerHistorikk />
+                  </Suspense>
+                </ErrorBoundary>
               </Container>
             </Tabs.Panel>
           </Tabs>

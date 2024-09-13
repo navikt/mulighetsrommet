@@ -1,15 +1,5 @@
 import { TiltakDeltMedBruker } from "@mr/api-client";
-import {
-  Alert,
-  BodyShort,
-  Box,
-  Button,
-  HStack,
-  List,
-  Skeleton,
-  Table,
-  VStack,
-} from "@navikt/ds-react";
+import { BodyShort, Box, Button, HStack, List, Table, VStack } from "@navikt/ds-react";
 import { ReactNode } from "react";
 import { VisningsnavnForTiltak } from "../../../components/oversikt/VisningsnavnForTiltak";
 import { formaterDato } from "../../../utils/Utils";
@@ -22,21 +12,7 @@ function sortOnCreatedAt(a: TiltakDeltMedBruker, b: TiltakDeltMedBruker) {
 }
 
 export function DelMedBrukerHistorikk() {
-  const { data = [], isLoading, error } = useDeltMedBrukerHistorikk();
-
-  if (error) {
-    return <Alert variant="error">Kunne ikke hente Delt i dialogen-historikk</Alert>;
-  }
-
-  if (isLoading) {
-    return (
-      <VStack gap="2">
-        <Skeleton width="100%" height="3rem" />
-        <Skeleton width="100%" height="3rem" />
-        <Skeleton width="100%" height="3rem" />
-      </VStack>
-    );
-  }
+  const { data = [] } = useDeltMedBrukerHistorikk();
 
   if (data.length === 0) {
     return <IngenFunnetBox title="Det er ikke delt informasjon om noen tiltak med brukeren" />;
