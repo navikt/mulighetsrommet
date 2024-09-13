@@ -41,3 +41,11 @@ spec:
       autoLoginIgnorePaths:
         - /internal/*
         - /metrics
+  observability:
+    autoInstrumentation:
+      enabled: true
+      runtime: nodejs
+    logging:
+      destinations:
+        - id: elastic
+        - id: loki
