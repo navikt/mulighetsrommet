@@ -7,7 +7,7 @@ export const mockHistorikkDeltMedBruker: TiltakDeltMedBruker[] = [
     tiltakstype: {
       tiltakskode: Tiltakskode.JOBBKLUBB,
       arenakode: undefined,
-      navn: "",
+      navn: "Jobbklubb",
     },
     dialogId: "1",
     tiltakId: "1",
@@ -19,7 +19,7 @@ export const mockHistorikkDeltMedBruker: TiltakDeltMedBruker[] = [
     tiltakstype: {
       tiltakskode: Tiltakskode.JOBBKLUBB,
       arenakode: undefined,
-      navn: "",
+      navn: "Jobbklubb",
     },
     dialogId: "2",
     tiltakId: "1",
@@ -31,7 +31,7 @@ export const mockHistorikkDeltMedBruker: TiltakDeltMedBruker[] = [
     tiltakstype: {
       tiltakskode: Tiltakskode.JOBBKLUBB,
       arenakode: undefined,
-      navn: "",
+      navn: "Jobbklubb",
     },
     dialogId: "3",
     tiltakId: "1",
@@ -43,7 +43,7 @@ export const mockHistorikkDeltMedBruker: TiltakDeltMedBruker[] = [
     tiltakstype: {
       tiltakskode: Tiltakskode.AVKLARING,
       arenakode: undefined,
-      navn: "",
+      navn: "Avklaring",
     },
     dialogId: "4",
     tiltakId: "2",
@@ -55,7 +55,7 @@ export const mockHistorikkDeltMedBruker: TiltakDeltMedBruker[] = [
     tiltakstype: {
       tiltakskode: Tiltakskode.AVKLARING,
       arenakode: undefined,
-      navn: "",
+      navn: "Avklaring",
     },
     dialogId: "5",
     tiltakId: "2",
@@ -67,7 +67,7 @@ export const mockHistorikkDeltMedBruker: TiltakDeltMedBruker[] = [
     tiltakstype: {
       tiltakskode: undefined,
       arenakode: TiltakskodeArena.MENTOR,
-      navn: "",
+      navn: "Mentor",
     },
     dialogId: "6",
     tiltakId: "3",
