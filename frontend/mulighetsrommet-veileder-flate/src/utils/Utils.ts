@@ -47,10 +47,10 @@ export function addOrRemove<T>(array: T[], item: T): T[] {
 }
 
 export function visningNavn(tiltak: VeilederflateTiltak): string {
-  const { tiltakstype, faneinnhold, navn } = tiltak;
+  const { tiltakstype, navn } = tiltak;
 
   if (isKursTiltak(tiltakstype.tiltakskode, tiltakstype.arenakode)) {
-    return faneinnhold?.kurstittel ?? navn;
+    return navn;
   }
   return tiltakstype.navn;
 }
