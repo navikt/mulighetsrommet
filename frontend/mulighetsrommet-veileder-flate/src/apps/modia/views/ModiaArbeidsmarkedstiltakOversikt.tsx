@@ -1,4 +1,3 @@
-import { useFeatureToggle } from "@/api/feature-toggles";
 import { useModiaArbeidsmarkedstiltak } from "@/api/queries/useArbeidsmarkedstiltak";
 import { ModiaFiltertags } from "@/apps/modia/filtrering/ModiaFiltertags";
 import { useHentAlleTiltakDeltMedBruker } from "@/apps/modia/hooks/useHentAlleTiltakDeltMedBruker";
@@ -12,7 +11,6 @@ import {
   isFilterReady,
   useResetArbeidsmarkedstiltakFilterMedBrukerIKontekst,
 } from "@/hooks/useArbeidsmarkedstiltakFilter";
-import { Toggles } from "@mr/api-client";
 import { ListSkeleton, useOpenFilterWhenThreshold, useTitle } from "@mr/frontend-common";
 import { FilterAndTableLayout } from "@mr/frontend-common/components/filterAndTableLayout/FilterAndTableLayout";
 import { NullstillFilterKnapp } from "@mr/frontend-common/components/nullstillFilterKnapp/NullstillFilterKnapp";
@@ -28,20 +26,16 @@ export function ModiaArbeidsmarkedstiltakOversikt() {
   const { filter, filterHasChanged, resetFilterToDefaults } =
     useResetArbeidsmarkedstiltakFilterMedBrukerIKontekst();
 
-  const landingssideFeature = useFeatureToggle(Toggles.MULIGHETSROMMET_VEILEDERFLATE_LANDINGSSIDE);
-  const landingssideEnabled = landingssideFeature.isSuccess && landingssideFeature.data;
   const [tagsHeight, setTagsHeight] = useState(0);
 
   const { data: tiltak = [], isPending } = useModiaArbeidsmarkedstiltak();
 
   return (
     <>
-      {landingssideEnabled ? (
-        <Tilbakeknapp
-          tekst="Gå til oversikt over brukerens tiltak"
-          tilbakelenke="/arbeidsmarkedstiltak"
-        />
-      ) : null}
+      <Tilbakeknapp
+        tekst="Gå til oversikt over brukerens tiltak"
+        tilbakelenke="/arbeidsmarkedstiltak"
+      />
       <FilterAndTableLayout
         filterOpen={filterOpen}
         setFilterOpen={setFilterOpen}
