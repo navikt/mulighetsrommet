@@ -1,16 +1,16 @@
 package no.nav.mulighetsrommet.api.routes.v1
 
-import io.ktor.server.application.*
-import io.ktor.server.request.*
-import io.ktor.server.response.*
-import io.ktor.server.routing.*
-import org.apache.commons.io.output.ByteArrayOutputStream
 import com.lowagie.text.Document
 import com.lowagie.text.Font
 import com.lowagie.text.FontFactory
 import com.lowagie.text.Paragraph
 import com.lowagie.text.pdf.PdfWriter
+import io.ktor.server.application.*
+import io.ktor.server.request.*
+import io.ktor.server.response.*
+import io.ktor.server.routing.*
 import kotlinx.serialization.Serializable
+import org.apache.commons.io.output.ByteArrayOutputStream
 
 fun Route.pdfRoutes() {
     post("/pdf") {
@@ -25,12 +25,12 @@ fun Route.pdfRoutes() {
 @Serializable
 private data class Item(
     val title: String,
-    val content: String
+    val content: String,
 )
 
 @Serializable
-private data class PdfKvittering (
-    val content: List<Item>
+private data class PdfKvittering(
+    val content: List<Item>,
 )
 
 private fun generatePdfInMemory(options: PdfKvittering): ByteArray {
@@ -52,7 +52,7 @@ private fun generatePdfInMemory(options: PdfKvittering): ByteArray {
         contentP.spacingAfter = 20f
 
         document.add(
-            contentP
+            contentP,
         )
     }
 
@@ -60,4 +60,3 @@ private fun generatePdfInMemory(options: PdfKvittering): ByteArray {
 
     return byteArrayOutputStream.toByteArray()
 }
-
