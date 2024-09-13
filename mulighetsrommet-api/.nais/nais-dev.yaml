@@ -82,9 +82,12 @@ spec:
         extra:
           - NAVident
           - azp_name
+  tokenx:
+    enabled: true
   accessPolicy:
     inbound:
       rules:
+        - application: arrangor-flate
         - application: mulighetsrommet-arena-adapter
         - application: mulighetsrommet-arena-adapter-manager
         - application: mr-admin-flate
@@ -120,6 +123,8 @@ spec:
           namespace: teampam
         - application: veilarbdialog
           namespace: dab
+        - application: veilarbvedtaksstotte
+          namespace: obo
         - application: norg2
           namespace: org
       external:

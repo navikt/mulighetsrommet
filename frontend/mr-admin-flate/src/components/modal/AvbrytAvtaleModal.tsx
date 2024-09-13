@@ -5,7 +5,7 @@ import { HarSkrivetilgang } from "@/components/authActions/HarSkrivetilgang";
 import { Laster } from "@/components/laster/Laster";
 import { AvbrytModalAarsaker } from "@/components/modal/AvbrytModalAarsaker";
 import { AvbrytModalError } from "@/components/modal/AvbrytModalError";
-import { VarselModal } from "@/components/modal/VarselModal";
+import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
 import { avbrytAvtaleAarsakToString } from "@/utils/Utils";
 import { BodyShort, Button, Radio } from "@navikt/ds-react";
 import { AvbrytAvtaleAarsak, Avtale } from "@mr/api-client";

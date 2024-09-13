@@ -5,7 +5,7 @@ on:
     paths:
       - .github/workflows/mr-arena-adapter-manager.yaml
       - package.json
-      - package-lock.json
+      - pnpm-lock.yaml
       - turbo.json
       - frontend/arena-adapter-manager/**
   workflow_dispatch:

@@ -166,9 +166,9 @@ class TiltakshistorikkService(
             AmtDeltakerStatus.Type.IKKE_AKTUELL -> "Ikke aktuell"
             AmtDeltakerStatus.Type.FEILREGISTRERT -> "Feilregistrert"
             AmtDeltakerStatus.Type.PABEGYNT_REGISTRERING -> "Påbegynt registrering"
-            AmtDeltakerStatus.Type.SOKT_INN -> "Søkt inn"
+            AmtDeltakerStatus.Type.SOKT_INN -> "Søkt om plass"
             AmtDeltakerStatus.Type.VURDERES -> "Vurderes"
-            AmtDeltakerStatus.Type.VENTELISTE -> "Venteliste"
+            AmtDeltakerStatus.Type.VENTELISTE -> "På venteliste"
             AmtDeltakerStatus.Type.AVBRUTT -> "Avbrutt"
             AmtDeltakerStatus.Type.UTKAST_TIL_PAMELDING -> "Utkast til påmelding"
             AmtDeltakerStatus.Type.AVBRUTT_UTKAST -> "Avbrutt utkast"
@@ -177,10 +177,10 @@ class TiltakshistorikkService(
 
     private fun arenaStatusTilVisningstekst(status: ArenaDeltakerStatus): String {
         return when (status) {
-            ArenaDeltakerStatus.AVSLAG -> "Avslag"
+            ArenaDeltakerStatus.AVSLAG -> "Fått avslag"
             ArenaDeltakerStatus.IKKE_AKTUELL -> "Ikke aktuell"
             ArenaDeltakerStatus.TAKKET_NEI_TIL_TILBUD -> "Takket nei til tilbud"
-            ArenaDeltakerStatus.TILBUD -> "Tilbud"
+            ArenaDeltakerStatus.TILBUD -> "Godkjent tiltaksplass"
             ArenaDeltakerStatus.TAKKET_JA_TIL_TILBUD -> "Takket ja til tilbud"
             ArenaDeltakerStatus.INFORMASJONSMOTE -> "Informasjonsmøte"
             ArenaDeltakerStatus.AKTUELL -> "Aktuell"

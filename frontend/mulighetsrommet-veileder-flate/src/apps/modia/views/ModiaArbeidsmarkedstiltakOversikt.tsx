@@ -15,8 +15,7 @@ import { ListSkeleton, useOpenFilterWhenThreshold, useTitle } from "@mr/frontend
 import { FilterAndTableLayout } from "@mr/frontend-common/components/filterAndTableLayout/FilterAndTableLayout";
 import { NullstillFilterKnapp } from "@mr/frontend-common/components/nullstillFilterKnapp/NullstillFilterKnapp";
 import { TilToppenKnapp } from "@mr/frontend-common/components/tilToppenKnapp/TilToppenKnapp";
-import { useEffect, useState } from "react";
-import { HistorikkButton } from "../historikk/HistorikkButton";
+import { useState } from "react";
 import { ModiaOversiktBrukerVarsler } from "../varsler/ModiaOversiktBrukerVarsler";
 
 export function ModiaArbeidsmarkedstiltakOversikt() {
@@ -27,14 +26,9 @@ export function ModiaArbeidsmarkedstiltakOversikt() {
   const { filter, filterHasChanged, resetFilterToDefaults } =
     useResetArbeidsmarkedstiltakFilterMedBrukerIKontekst();
 
-  const [isHistorikkModalOpen, setIsHistorikkModalOpen] = useState(false);
   const [tagsHeight, setTagsHeight] = useState(0);
 
   const { data: tiltak = [], isPending } = useModiaArbeidsmarkedstiltak();
-
-  useEffect(() => {
-    setIsHistorikkModalOpen(isHistorikkModalOpen);
-  }, [isHistorikkModalOpen]);
 
   return (
     <>
@@ -51,10 +45,6 @@ export function ModiaArbeidsmarkedstiltakOversikt() {
         buttons={
           <>
             <OversiktenJoyride />
-            <HistorikkButton
-              setHistorikkModalOpen={setIsHistorikkModalOpen}
-              isHistorikkModalOpen={isHistorikkModalOpen}
-            />
           </>
         }
         filter={<Filtermeny />}

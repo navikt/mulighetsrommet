@@ -1,5 +1,3 @@
-// eslint-disable-next-line
-import { http, HttpResponse } from "msw";
+import { refusjonHandlers } from "./refusjonMocks";
 
-// TODO Her kan du sette opp mock-handlers for arrangørflaten
-export const handlers = [];
+export const handlers = [...refusjonHandlers];

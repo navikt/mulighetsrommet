@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.routes
 
 import io.ktor.server.routing.*
 import no.nav.mulighetsrommet.api.AppConfig
+import no.nav.mulighetsrommet.api.okonomi.refusjon.refusjonRoutes
 import no.nav.mulighetsrommet.api.okonomi.tilsagn.tilsagnRoutes
 import no.nav.mulighetsrommet.api.plugins.AuthProvider
 import no.nav.mulighetsrommet.api.plugins.authenticate
@@ -13,6 +14,8 @@ fun Route.apiRoutes(config: AppConfig) {
     authenticate(AuthProvider.AZURE_AD_TEAM_MULIGHETSROMMET) {
         maamRoutes()
     }
+
+    refusjonRoutes()
 
     authenticate(AuthProvider.AZURE_AD_TILTAKSGJENNOMFORING_APP) {
         externalRoutes()

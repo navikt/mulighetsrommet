@@ -1,6 +1,6 @@
 import { Alert, Button, Checkbox, VStack } from "@navikt/ds-react";
-import { ActionFunction, LoaderFunction } from "@remix-run/node";
-import { Form, json, redirect, useActionData, useLoaderData } from "@remix-run/react";
+import { ActionFunction, LoaderFunction, redirect, json } from "@remix-run/node";
+import { Form, useActionData, useLoaderData } from "@remix-run/react";
 import { DeltakerlisteDetaljer } from "../components/deltakerliste/DeltakerlisteDetaljer";
 import { PageHeader } from "../components/PageHeader";
 import { Deltakerliste } from "../domene/domene";
@@ -41,6 +41,7 @@ export const action: ActionFunction = async ({ request }) => {
 export default function RefusjonskravDetaljer() {
   const { deltakerliste } = useLoaderData<LoaderData>();
   const data = useActionData<typeof action>();
+
   return (
     <>
       <PageHeader

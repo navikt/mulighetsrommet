@@ -4,7 +4,7 @@ import { useTiltaksgjennomforingDeltakerSummary } from "@/api/tiltaksgjennomfori
 import { Laster } from "@/components/laster/Laster";
 import { AvbrytModalAarsaker } from "@/components/modal/AvbrytModalAarsaker";
 import { AvbrytModalError } from "@/components/modal/AvbrytModalError";
-import { VarselModal } from "@/components/modal/VarselModal";
+import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
 import { Alert, BodyShort, Button, Radio } from "@navikt/ds-react";
 import { AvbrytGjennomforingAarsak, Tiltaksgjennomforing } from "@mr/api-client";
 import { RefObject, useState } from "react";

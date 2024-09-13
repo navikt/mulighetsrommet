@@ -3,8 +3,8 @@ import { Alert, BodyLong, BodyShort, Button, Modal, VStack } from "@navikt/ds-re
 import { Avtale, OpsjonLoggRequest, OpsjonStatus } from "@mr/api-client";
 import { RefObject } from "react";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
-import { useRegistrerOpsjon } from "../../../api/avtaler/useRegistrerOpsjon";
-import { VarselModal } from "../../modal/VarselModal";
+import { useRegistrerOpsjon } from "@/api/avtaler/useRegistrerOpsjon";
+import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
 import { OpsjonerRegistrert } from "./OpsjonerRegistrert";
 import {
   InferredRegistrerOpsjonSchema,

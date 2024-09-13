@@ -36,7 +36,6 @@ export const hentSsrDekoratør = async (): Promise<Dekoratørfragmenter | null> 
   }
 };
 
-// TODO Vurdere å bytte ut denne med https://github.com/navikt/nav-dekoratoren-moduler?tab=readme-ov-file#injectdecoratorserverside--injectdecoratorserversidedom
 export const hentDekoratør = async (miljø: Miljø): Promise<Dekoratørfragmenter> => {
   const decorator = await fetchDecoratorHtml({
     env: miljø === Miljø.ProdGcp ? "prod" : "dev",

@@ -155,14 +155,13 @@ class VeilarboppfolgingClient(
         return if (response.status == HttpStatusCode.Forbidden) {
             log.warn("Manglet tilgang til å hente manuell status for bruker")
             OppfolgingError.Forbidden.left()
+        } else if (!response.status.isSuccess()) {
+            log.warn("Klarte ikke hente manuell status for bruker. Status: ${response.status}")
+            OppfolgingError.Error.left()
         } else {
-            if (!response.status.isSuccess()) {
-                log.warn("Klarte ikke hente manuell status for bruker. Status: ${response.status}")
-                OppfolgingError.Error.left()
-            } else {
-                response.body<ManuellStatusDto>().right()
-            }
-                .onRight { manuellStatusCache.put(fnr, it) }
+            response.body<ManuellStatusDto>()
+                .also { manuellStatusCache.put(fnr, it) }
+                .right()
         }
     }
 }
