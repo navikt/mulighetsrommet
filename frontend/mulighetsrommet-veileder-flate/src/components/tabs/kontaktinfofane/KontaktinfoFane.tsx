@@ -22,7 +22,7 @@ export function KontaktinfoFane({ tiltak }: Props) {
         {isTiltakGruppe(tiltak) ? (
           <ArrangorInfo arrangor={tiltak.arrangor} faneinnhold={tiltak.faneinnhold?.kontaktinfo} />
         ) : (
-          <Alert variant="info">Kontaktinfo til arrangør er ikke lagt inn</Alert>
+          <Alert variant="info">Kontaktinfo til ekstern part er ikke tilgjengelig</Alert>
         )}
         <NavKontaktpersonInfo kontaktinfo={tiltak.kontaktinfo} />
       </HGrid>
