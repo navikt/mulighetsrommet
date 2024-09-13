@@ -46,9 +46,8 @@ jobs:
         uses: ./.github/actions/setup-frontend
         env:
           NODE_AUTH_TOKEN: ${{ secrets.READER_TOKEN }}
-      # TODO Legg til test-steg
       - name: Bygg applikasjon
-        run: npx turbo run pack --filter=@mr/arrangor-flate
+        run: npx turbo run lint pack --filter=@mr/arrangor-flate
       - name: Push docker image to GAR
         uses: nais/docker-build-push@v0
         id: docker-build-push

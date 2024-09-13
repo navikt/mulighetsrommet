@@ -1,5 +1,5 @@
 import { Alert, BodyShort, Box, Heading } from "@navikt/ds-react";
-import { LoaderFunction } from "@remix-run/node";
+import { LoaderFunction, redirectDocument } from "@remix-run/node";
 import {
   isRouteErrorResponse,
   json,
@@ -7,7 +7,6 @@ import {
   Meta,
   MetaFunction,
   Outlet,
-  redirect,
   Scripts,
   ScrollRestoration,
   useLoaderData,
@@ -28,7 +27,7 @@ export const loader: LoaderFunction = async ({ request, context }) => {
   const miljø = hentMiljø();
   if (miljø !== Miljø.Lokalt) {
     if (!context.erAutorisert) {
-      return redirect(`/oauth2/login?redirect=${request.url}`);
+      throw redirectDocument(`/oauth2/login?redirect=${request.url}`);
     }
   }
 

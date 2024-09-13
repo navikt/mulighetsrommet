@@ -1,10 +1,8 @@
 import { createRequestHandler } from "@remix-run/express";
 import compression from "compression";
-import { createProxyMiddleware } from 'http-proxy-middleware';
 import express from "express";
-import morgan from "morgan";
-import { getToken, requestTokenxOboToken, validateToken } from '@navikt/oasis';
 import expressPromBundle from "express-prom-bundle";
+import morgan from "morgan";
 const metricsMiddleware = expressPromBundle({ includeMethod: true, includePath: true });
 
 const port = process.env.PORT || 3000;

@@ -16,12 +16,12 @@ import { v4 as uuidv4 } from "uuid";
 const ABORT_DELAY = 5_000;
 
 if (process.env.VITE_MULIGHETSROMMET_API_MOCK === "true") {
+  // eslint-disable-next-line no-console
   console.log("Initialiserer mock server");
   initializeMockServer();
 }
 
-function setupOpenAPIClient({ base, token }: { base: string, token?: string}) {
-  console.log(base, token);
+function setupOpenAPIClient({ base, token }: { base: string; token?: string }) {
   OpenAPI.BASE = base;
   OpenAPI.HEADERS = async () => {
     const headers: Record<string, string> = {};

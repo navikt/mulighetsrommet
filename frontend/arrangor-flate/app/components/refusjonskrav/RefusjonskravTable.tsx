@@ -1,7 +1,7 @@
-import { Box, Table, Tag, VStack } from "@navikt/ds-react";
+import { Refusjonskrav, RefusjonskravStatus } from "@mr/api-client";
+import { Table, Tag } from "@navikt/ds-react";
 import { Link } from "@remix-run/react";
 import { ReactNode } from "react";
-import { Refusjonskrav, RefusjonskravStatus } from "@mr/api-client";
 
 interface Props {
   krav: Refusjonskrav[];
@@ -27,7 +27,9 @@ export function RefusjonskravTable({ krav }: Props) {
             return (
               <Table.Row
                 className={
-                  status === RefusjonskravStatus.NARMER_SEG_FRIST ? "bg-surface-warning-moderate" : ""
+                  status === RefusjonskravStatus.NARMER_SEG_FRIST
+                    ? "bg-surface-warning-moderate"
+                    : ""
                 }
                 key={id}
               >
