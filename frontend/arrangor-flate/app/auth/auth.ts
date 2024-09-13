@@ -22,7 +22,7 @@ export async function oboExchange(request: Request) {
   }
   const obo = await requestTokenxOboToken(
     token,
-    `${process.env.NAIS_CLUSTER_NAME}.team-mulighetsrommet.mulighetsrommet-api`,
+    `${process.env.NAIS_CLUSTER_NAME}:team-mulighetsrommet:mulighetsrommet-api`,
   );
   if (!obo.ok) {
     // eslint-disable-next-line no-console
