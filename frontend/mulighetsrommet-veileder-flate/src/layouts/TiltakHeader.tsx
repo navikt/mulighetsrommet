@@ -3,7 +3,6 @@ import { TiltaksgjennomforingStatusTag } from "@mr/frontend-common";
 import { gjennomforingIsAktiv } from "@mr/frontend-common/utils/utils";
 import { BodyLong, Heading, HStack, VStack } from "@navikt/ds-react";
 import styles from "./TiltakHeader.module.scss";
-import { alternativNavn, visningNavn } from "@/utils/Utils";
 
 interface Props {
   tiltak: VeilederflateTiltak;
@@ -16,9 +15,9 @@ export function TiltakHeader({ tiltak }: Props) {
       <HStack align="center" gap="2" className={styles.tiltaksgjennomforing_title}>
         <Heading level="1" size="xlarge">
           <VStack>
-            {visningNavn(tiltak)}
+            {tiltak.tittel}
             <BodyLong size="medium" textColor="subtle">
-              {alternativNavn(tiltak)}
+              {tiltak.underTittel}
             </BodyLong>
           </VStack>
         </Heading>

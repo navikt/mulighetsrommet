@@ -1,6 +1,7 @@
-import { Alert, Box, Button, HGrid, List, Skeleton, Table, VStack } from "@navikt/ds-react";
 import { TiltakDeltMedBruker } from "@mr/api-client";
+import { BodyShort, Box, Button, HStack, List, Table, VStack } from "@navikt/ds-react";
 import { ReactNode } from "react";
+import { VisningsnavnForTiltak } from "../../../components/oversikt/VisningsnavnForTiltak";
 import { formaterDato } from "../../../utils/Utils";
 import { ModiaRoute, navigateToModiaApp } from "../ModiaRoute";
 import { useDeltMedBrukerHistorikk } from "../hooks/useDeltMedBrukerHistorikk";
@@ -11,21 +12,7 @@ function sortOnCreatedAt(a: TiltakDeltMedBruker, b: TiltakDeltMedBruker) {
 }
 
 export function DelMedBrukerHistorikk() {
-  const { data = [], isLoading, error } = useDeltMedBrukerHistorikk();
-
-  if (error) {
-    return <Alert variant="error">Kunne ikke hente Delt i dialogen-historikk</Alert>;
-  }
-
-  if (isLoading) {
-    return (
-      <VStack gap="2">
-        <Skeleton width="100%" height="3rem" />
-        <Skeleton width="100%" height="3rem" />
-        <Skeleton width="100%" height="3rem" />
-      </VStack>
-    );
-  }
+  const { data = [] } = useDeltMedBrukerHistorikk();
 
   if (data.length === 0) {
     return <IngenFunnetBox title="Det er ikke delt informasjon om noen tiltak med brukeren" />;
@@ -92,6 +79,7 @@ export function DelMedBrukerHistorikk() {
 function NavigateToDialogButton({ tiltak }: { tiltak: TiltakDeltMedBruker }): ReactNode {
   return (
     <Button
+      as="a"
       style={{ textDecoration: "underline", margin: 0, padding: 0, color: "#0067c5" }}
       variant="tertiary-neutral"
       onClick={(e) => {
@@ -115,11 +103,10 @@ function contentForRow(delteTiltak: TiltakDeltMedBruker[]): ReactNode {
       {tidligereDelte.map((delt) => {
         return (
           <List.Item key={delt.dialogId}>
-            <HGrid columns={2} gap="2" align="start">
-              <div title={delt.createdAt}>
-                {delt.navn} - {formaterDato(delt.createdAt)}
-              </div>
-            </HGrid>
+            <HStack gap="5" align="start">
+              <VisningsnavnForTiltak noLink tittel={delt.tittel} underTittel={delt.underTittel} />
+              <BodyShort size="small">Delt {formaterDato(delt.createdAt)}</BodyShort>
+            </HStack>
           </List.Item>
         );
       })}
@@ -131,7 +118,9 @@ function createCells(antallTiltakDelt: number, tiltak: TiltakDeltMedBruker): Rea
   return (
     <>
       {antallTiltakDelt === 1 ? <Table.DataCell></Table.DataCell> : null}
-      <Table.DataCell>{tiltak.navn}</Table.DataCell>
+      <Table.DataCell>
+        <VisningsnavnForTiltak noLink tittel={tiltak.tittel} underTittel={tiltak.underTittel} />
+      </Table.DataCell>
       <Table.DataCell title={tiltak.createdAt}>{formaterDato(tiltak.createdAt)}</Table.DataCell>
       <Table.DataCell>
         <NavigateToDialogButton tiltak={tiltak} />

@@ -1,6 +1,3 @@
-import { VeilederflateTiltak } from "@mr/api-client";
-import { isKursTiltak } from "@mr/frontend-common/utils/utils";
-
 export function inneholderUrl(string: string) {
   return window.location.href.indexOf(string) > -1;
 }
@@ -44,22 +41,4 @@ export function addOrRemove<T>(array: T[], item: T): T[] {
     result.push(item);
     return result;
   }
-}
-
-export function visningNavn(tiltak: VeilederflateTiltak): string {
-  const { tiltakstype, navn } = tiltak;
-
-  if (isKursTiltak(tiltakstype.tiltakskode, tiltakstype.arenakode)) {
-    return navn;
-  }
-  return tiltakstype.navn;
-}
-
-export function alternativNavn(tiltak: VeilederflateTiltak): string {
-  const { tiltakstype, navn } = tiltak;
-
-  if (isKursTiltak(tiltakstype.tiltakskode, tiltakstype.arenakode)) {
-    return tiltakstype.navn;
-  }
-  return navn;
 }

@@ -2,7 +2,7 @@ import { ModiaRoute, navigateToModiaApp } from "@/apps/modia/ModiaRoute";
 import { PortenLink } from "@/components/PortenLink";
 import { StatusModal } from "@/components/modal/StatusModal";
 import { useLogEvent } from "@/logging/amplitude";
-import { erPreview, visningNavn } from "@/utils/Utils";
+import { erPreview } from "@/utils/Utils";
 import { BodyShort, Button, Checkbox, Heading, HelpText, Modal } from "@navikt/ds-react";
 import { Bruker, DelMedBruker, VeilederflateTiltak } from "@mr/api-client";
 import { useDelTiltakMedBruker } from "@/api/queries/useDelTiltakMedBruker";
@@ -21,7 +21,7 @@ interface DelemodalProps {
 }
 
 function overskrift(tiltak: VeilederflateTiltak): string {
-  return `Tiltak gjennom NAV: ${visningNavn(tiltak)}`;
+  return `Tiltak gjennom NAV: ${tiltak.tittel}`;
 }
 
 export function Delemodal({

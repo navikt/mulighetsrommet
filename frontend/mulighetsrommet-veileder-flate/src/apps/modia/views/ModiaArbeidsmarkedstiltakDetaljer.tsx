@@ -50,7 +50,7 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
   const { data: tiltak } = useModiaArbeidsmarkedstiltakById();
   const { data: regioner } = useRegioner();
 
-  useTitle(`Arbeidsmarkedstiltak - Detaljer ${tiltak?.navn ? `- ${tiltak.navn}` : null}`);
+  useTitle(`Arbeidsmarkedstiltak - Detaljer ${tiltak.tittel}`);
 
   const pagination = useAtomValue(paginationAtom);
 

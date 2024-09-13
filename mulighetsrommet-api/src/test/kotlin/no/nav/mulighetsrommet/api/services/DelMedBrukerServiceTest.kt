@@ -8,12 +8,14 @@ import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.serialization.json.Json
+import kotliquery.Query
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dbo.DelMedBrukerDbo
 import no.nav.mulighetsrommet.api.domain.dto.SanityResponse
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures
+import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
@@ -98,7 +100,16 @@ class DelMedBrukerServiceTest : FunSpec({
 
         test("Hent Del med bruker-historikk fra database og Sanity") {
             MulighetsrommetTestDomain().initialize(database.db)
-            val sanityId = UUID.randomUUID()
+            val sanityGjennomforingIdForEnkeltplass = UUID.randomUUID()
+            val sanityGjennomforingIdForArbeidstrening = UUID.randomUUID()
+            val tiltakstypeIdForEnkeltAmo = UUID.randomUUID()
+            val tiltakstypeIdForArbeidstrening = UUID.randomUUID()
+
+            Query("update tiltakstype set sanity_id = '$tiltakstypeIdForEnkeltAmo' where id = '${TiltakstypeFixtures.EnkelAmo.id}'")
+                .asUpdate.let { database.db.run(it) }
+
+            Query("update tiltakstype set sanity_id = '$tiltakstypeIdForArbeidstrening' where id = '${TiltakstypeFixtures.Arbeidstrening.id}'")
+                .asUpdate.let { database.db.run(it) }
 
             coEvery {
                 sanityClient.query(any(), any())
@@ -109,8 +120,20 @@ class DelMedBrukerServiceTest : FunSpec({
                     """
                         [
                             {
-                                "_id": "$sanityId",
-                                "tiltaksgjennomforingNavn": "Delt med bruker - Sanity"
+                                "_id": "$sanityGjennomforingIdForEnkeltplass",
+                                "tiltaksgjennomforingNavn": "Delt med bruker - Lokalt navn fra Sanity",
+                                "tiltakstype":  {
+                                    "_id": "$tiltakstypeIdForEnkeltAmo",
+                                    "tiltakstypeNavn": "Arbeidsmarkedsopplæring (AMO) enkeltplass"
+                                }
+                            },
+                            {
+                                "_id": "$sanityGjennomforingIdForArbeidstrening",
+                                "tiltaksgjennomforingNavn": "Delt med bruker - Sanity",
+                                "tiltakstype":  {
+                                    "_id": "$tiltakstypeIdForArbeidstrening",
+                                    "tiltakstypeNavn": "Arbeidstrening"
+                                }
                             }
                         ]
                     """.trimIndent(),
@@ -132,21 +155,32 @@ class DelMedBrukerServiceTest : FunSpec({
                 id = "1234",
                 norskIdent = NorskIdent("12345678910"),
                 navident = "nav123",
-                sanityId = sanityId,
+                sanityId = sanityGjennomforingIdForEnkeltplass,
+                tiltaksgjennomforingId = null,
+                dialogId = "1235",
+            )
+
+            val request3 = DelMedBrukerDbo(
+                id = "12345",
+                norskIdent = NorskIdent("12345678910"),
+                navident = "nav123",
+                sanityId = sanityGjennomforingIdForArbeidstrening,
                 tiltaksgjennomforingId = null,
                 dialogId = "1235",
             )
 
             service.lagreDelMedBruker(request1).shouldBeRight()
             service.lagreDelMedBruker(request2).shouldBeRight()
+            service.lagreDelMedBruker(request3).shouldBeRight()
 
             val delMedBruker = service.getDelMedBrukerHistorikk(NorskIdent("12345678910"))
 
             delMedBruker.shouldBeRight().should {
                 it.shouldNotBeNull()
-                it.size shouldBe 2
-                it[0].navn shouldBe "Delt med bruker - tabell"
-                it[1].navn shouldBe "Delt med bruker - Sanity"
+                it.size shouldBe 3
+                it[0].tittel shouldBe "Oppfølging"
+                it[1].tittel shouldBe "Delt med bruker - Lokalt navn fra Sanity"
+                it[2].tittel shouldBe "Arbeidstrening"
             }
         }
     }

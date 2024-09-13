@@ -19,6 +19,7 @@ import no.nav.mulighetsrommet.database.utils.PaginatedResult
 import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.database.utils.mapPaginated
 import no.nav.mulighetsrommet.domain.Tiltakskode
+import no.nav.mulighetsrommet.domain.Tiltakskoder.isKursTiltak
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.ArenaTiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
@@ -728,14 +729,24 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         val avbruttTidspunkt = localDateTimeOrNull("avbrutt_tidspunkt")
         val avbruttAarsak = stringOrNull("avbrutt_aarsak")?.let { AvbruttAarsak.fromString(it) }
 
+        val tiltakstypeNavn = string("tiltakstype_navn")
+        val tiltakskode = stringOrNull("tiltakstype_tiltakskode")?.let { Tiltakskode.valueOf(it) }
+        val navn = string("navn")
+        val (tittel, underTittel) = if (isKursTiltak(tiltakskode)) {
+            navn to tiltakstypeNavn
+        } else {
+            tiltakstypeNavn to navn
+        }
+
         return VeilederflateTiltakGruppe(
             id = uuid("id"),
             tiltakstype = VeilederflateTiltakstype(
                 sanityId = uuid("tiltakstype_sanity_id").toString(),
-                navn = string("tiltakstype_navn"),
+                navn = tiltakstypeNavn,
                 tiltakskode = stringOrNull("tiltakstype_tiltakskode")?.let { Tiltakskode.valueOf(it) },
             ),
-            navn = string("navn"),
+            tittel = tittel,
+            underTittel = underTittel,
             stedForGjennomforing = stringOrNull("sted_for_gjennomforing"),
             apentForInnsok = boolean("apent_for_innsok"),
             tiltaksnummer = stringOrNull("tiltaksnummer"),

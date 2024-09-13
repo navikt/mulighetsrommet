@@ -2,11 +2,9 @@ package no.nav.mulighetsrommet.api.services
 
 import no.nav.mulighetsrommet.api.domain.dto.AvtaleAdminDto
 import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingAdminDto
+import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import java.io.File
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
-import java.time.format.FormatStyle
 import kotlin.io.path.outputStream
 
 object ExcelService {
@@ -41,8 +39,8 @@ object ExcelService {
                 row.createCell(2).setCellValue(avtaleAdminDto.avtalenummer ?: "")
                 row.createCell(3).setCellValue(avtaleAdminDto.arrangor.navn)
                 row.createCell(4).setCellValue(avtaleAdminDto.arrangor.organisasjonsnummer)
-                row.createCell(5).setCellValue(avtaleAdminDto.startDato.formaterDatoShort())
-                row.createCell(6).setCellValue(avtaleAdminDto.sluttDato?.formaterDatoShort() ?: "")
+                row.createCell(5).setCellValue(avtaleAdminDto.startDato.formaterDatoTilEuropeiskDatoformat())
+                row.createCell(6).setCellValue(avtaleAdminDto.sluttDato?.formaterDatoTilEuropeiskDatoformat() ?: "")
             }
         }
 
@@ -66,12 +64,10 @@ object ExcelService {
                 row.createCell(2).setCellValue(tiltaksgjennomforingAdminDto.tiltaksnummer ?: "")
                 row.createCell(3).setCellValue(tiltaksgjennomforingAdminDto.arrangor.navn)
                 row.createCell(4).setCellValue(tiltaksgjennomforingAdminDto.arrangor.organisasjonsnummer)
-                row.createCell(5).setCellValue(tiltaksgjennomforingAdminDto.startDato.formaterDatoShort())
-                row.createCell(6).setCellValue(tiltaksgjennomforingAdminDto.sluttDato?.formaterDatoShort() ?: "")
+                row.createCell(5)
+                    .setCellValue(tiltaksgjennomforingAdminDto.startDato.formaterDatoTilEuropeiskDatoformat())
+                row.createCell(6)
+                    .setCellValue(tiltaksgjennomforingAdminDto.sluttDato?.formaterDatoTilEuropeiskDatoformat() ?: "")
             }
         }
-
-    private fun LocalDate.formaterDatoShort(): String {
-        return this.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT))
-    }
 }

@@ -11,6 +11,7 @@ import no.nav.mulighetsrommet.api.clients.sanity.SanityParam
 import no.nav.mulighetsrommet.api.clients.sanity.SanityPerspective
 import no.nav.mulighetsrommet.api.domain.dto.*
 import no.nav.mulighetsrommet.api.routes.v1.ApentForInnsok
+import no.nav.mulighetsrommet.api.utils.TiltaksnavnUtils.tittelOgUnderTittel
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dto.Innsatsgruppe
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus
@@ -333,6 +334,12 @@ class VeilederflateService(
                     )
                 } ?: emptyList()
 
+            val (tittel, underTittel) = tittelOgUnderTittel(
+                tiltaksgjennomforingNavn ?: "",
+                tiltakstype.tiltakstypeNavn,
+                tiltakstypeFraSanity?.arenaKode,
+            )
+
             VeilederflateTiltakArbeidsgiver(
                 tiltaksnummer = tiltaksnummer,
                 status = TiltaksgjennomforingStatusDto(
@@ -360,7 +367,8 @@ class VeilederflateService(
                         kanKombineresMed = kanKombineresMed,
                     )
                 },
-                navn = tiltaksgjennomforingNavn ?: "",
+                tittel = tittel,
+                underTittel = underTittel,
                 stedForGjennomforing = stedForGjennomforing,
                 fylke = fylke,
                 enheter = this.enheter?.filterNotNull(),

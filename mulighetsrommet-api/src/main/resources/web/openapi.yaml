@@ -1798,6 +1798,23 @@ paths:
                 items:
                   $ref: "#/components/schemas/AFTSats"
 
+  /api/v1/intern/refusjon/{orgnr}/krav:
+    get:
+      parameters:
+        - $ref: "#/components/parameters/OrgnrParam"
+      tags:
+        - Refusjonskrav
+      operationId: getRefusjonskrav
+      responses:
+        200:
+          description: Hent refusjonskrav til arrangør
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Refusjonskrav"
+
 components:
   securitySchemes:
     bearerAuth:
@@ -1868,6 +1885,14 @@ components:
       required: true
       schema:
         $ref: "#/components/schemas/ApentForInnsok"
+
+    OrgnrParam:
+      in: path
+      name: orgnr
+      description: organisasjonsnummer
+      required: true
+      schema:
+        type: string
 
   schemas:
     ValidationErrorResponse:
@@ -3395,7 +3420,9 @@ components:
         id:
           type: string
           format: uuid
-        navn:
+        tittel:
+          type: string
+        underTittel:
           type: string
         stedForGjennomforing:
           type: string
@@ -3424,7 +3451,8 @@ components:
         - kontaktinfo
         - oppstart
         - id
-        - navn
+        - tittel
+        - underTittel
         - apentForInnsok
         - oppstartsdato
         - arrangor
@@ -3452,7 +3480,9 @@ components:
           const: LOPENDE
         sanityId:
           type: string
-        navn:
+        tittel:
+          type: string
+        underTittel:
           type: string
         stedForGjennomforing:
           type: string
@@ -3464,7 +3494,8 @@ components:
         - kontaktinfo
         - oppstart
         - sanityId
-        - navn
+        - tittel
+        - underTittel
 
     RegelverkLenke:
       type: object
@@ -3951,7 +3982,6 @@ components:
       type: string
       enum:
         - mulighetsrommet.veilederflate.visDeltakerRegistrering
-        - mulighetsrommet-veilederflate-landingsside
         - mulighetsrommet-veilederflate.vis-tilbakemelding
         - mulighetsrommet.admin-flate.enableDebugger
         - mulighetsrommet.admin-flate.opprett-tilsagn
@@ -4344,8 +4374,12 @@ components:
     TiltakDeltMedBruker:
       type: object
       properties:
-        navn:
+        tittel:
           type: string
+        underTittel:
+          type: string
+        tiltakstype:
+          $ref: "#/components/schemas/TiltakDeltMedBrukerTiltakstype"
         createdAt:
           type: string
           format: date
@@ -4354,10 +4388,24 @@ components:
         tiltakId:
           type: string
       required:
-        - navn
+        - tittel
+        - underTittel
+        - tiltakstype
         - createdAt
         - dialogId
         - tiltakId
+
+    TiltakDeltMedBrukerTiltakstype:
+      type: object
+      properties:
+        tiltakskode:
+          $ref: "#/components/schemas/Tiltakskode"
+        arenakode:
+          $ref: "#/components/schemas/TiltakskodeArena"
+        navn:
+          type: string
+      required:
+        - navn
 
     OpsjonsmodellData:
       type: object
@@ -4734,3 +4782,39 @@ components:
       required:
         - startDato
         - belop
+
+    Refusjonskrav:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        tiltaksnr:
+          type: string
+        kravnr:
+          type: string
+        periode:
+          type: string
+          format: date
+        belop:
+          type: string
+        fristForGodkjenning:
+          type: string
+          format: date
+        status:
+          $ref: "#/components/schemas/RefusjonskravStatus"
+      required:
+        - id
+        - tiltaksnr
+        - kravnr
+        - periode
+        - belop
+        - fristForGodkjenning
+        - status
+
+    RefusjonskravStatus:
+      type: string
+      enum:
+        - ATTESTERT
+        - KLAR_FOR_INNSENDING
+        - NARMER_SEG_FRIST

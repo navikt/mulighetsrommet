@@ -6,8 +6,8 @@ Kildekode for flate for administrative oppgaver rundt opprettelse og redigering 
 
 ### Lokal utvikling
 
-`npm install`
-`npm run dev`
+`pnpm install`
+`pnpm run dev`
 
 ### Lokal utvikling mot lokal backend
 
@@ -25,7 +25,7 @@ VITE_MULIGHETSROMMET_API_BASE='http://localhost:8080'
 VITE_MULIGHETSROMMET_API_AUTH_TOKEN=<token>
 ```
 
-Deretter kan du kjøre `npm run backend`.
+Deretter kan du kjøre `pnpm run backend`.
 
 ## Deploy
 

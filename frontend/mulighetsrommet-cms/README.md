@@ -11,8 +11,8 @@ Sanity Studio satt opp med NAV SSO-login.
 Start Studio lokalt:
 
 ```
-npm install
-npm run dev
+pnpm install
+pnpm run dev
 ```
 
 ### Deploy Studio

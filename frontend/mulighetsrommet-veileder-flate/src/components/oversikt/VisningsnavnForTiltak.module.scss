@@ -11,3 +11,9 @@
     font-size: 14px;
   }
 }
+
+.no_link {
+  :first-child {
+    color: black;
+  }
+}

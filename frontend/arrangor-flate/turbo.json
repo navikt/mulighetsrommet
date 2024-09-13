@@ -1,0 +1,13 @@
+{
+  "extends": ["//"],
+  "tasks": {
+    "build": {
+      "outputs": ["build"]
+    },
+    "pack": {
+      "env": ["NODE_AUTH_TOKEN", "NPM_CONFIG_USERCONFIG"],
+      "dependsOn": ["build"],
+      "outputs": ["dist"]
+    }
+  }
+}

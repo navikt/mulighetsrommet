@@ -1,16 +1,14 @@
-import "@navikt/ds-css";
-import "./polyfill";
-import { Navigate, Route, Routes } from "react-router-dom";
-import { useInitializeModiaContext } from "@/apps/modia/hooks/useInitializeModiaContext";
 import { useInitializeArbeidsmarkedstiltakFilterForBruker } from "@/apps/modia/hooks/useInitializeArbeidsmarkedstiltakFilterForBruker";
-import { useFeatureToggle } from "@/api/feature-toggles";
-import { Toggles } from "@mr/api-client";
-import { AppContainer } from "@/layouts/AppContainer";
+import { useInitializeModiaContext } from "@/apps/modia/hooks/useInitializeModiaContext";
 import { DemoImageHeader } from "@/components/DemoImageHeader";
-import { Landingsside } from "./views/Landingsside";
-import { ModiaArbeidsmarkedstiltakOversikt } from "./views/ModiaArbeidsmarkedstiltakOversikt";
-import { ModiaArbeidsmarkedstiltakDetaljer } from "./views/ModiaArbeidsmarkedstiltakDetaljer";
 import { ArbeidsmarkedstiltakDetaljerSuspense } from "@/components/suspense/ArbeidsmarkedstiltakDetaljerSuspense";
+import { AppContainer } from "@/layouts/AppContainer";
+import "@navikt/ds-css";
+import { Navigate, Route, Routes } from "react-router-dom";
+import "./polyfill";
+import { Landingsside } from "./views/Landingsside";
+import { ModiaArbeidsmarkedstiltakDetaljer } from "./views/ModiaArbeidsmarkedstiltakDetaljer";
+import { ModiaArbeidsmarkedstiltakOversikt } from "./views/ModiaArbeidsmarkedstiltakOversikt";
 
 export function ModiaArbeidsmarkedstiltak() {
   return (
@@ -25,18 +23,9 @@ function ModiaArbeidsmarkedstiltakRoutes() {
 
   useInitializeArbeidsmarkedstiltakFilterForBruker();
 
-  const enableLandingssideFeature = useFeatureToggle(
-    Toggles.MULIGHETSROMMET_VEILEDERFLATE_LANDINGSSIDE,
-  );
-  const enableLandingsside = enableLandingssideFeature.isSuccess && enableLandingssideFeature.data;
-
-  if (enableLandingssideFeature.isLoading) {
-    return null;
-  }
-
   return (
     <Routes>
-      {enableLandingsside ? <Route path="" element={<Landingsside />} /> : null}
+      <Route path="" element={<Landingsside />} />
       <Route path="oversikt" element={<ModiaArbeidsmarkedstiltakOversikt />} />
       <Route
         path="tiltak/:id/*"
@@ -46,12 +35,7 @@ function ModiaArbeidsmarkedstiltakRoutes() {
           </ArbeidsmarkedstiltakDetaljerSuspense>
         }
       />
-      <Route
-        path="*"
-        element={
-          <Navigate replace to={enableLandingsside ? "/arbeidsmarkedstiltak" : "./oversikt"} />
-        }
-      />
+      <Route path="*" element={<Navigate replace to="/arbeidsmarkedstiltak" />} />
     </Routes>
   );
 }

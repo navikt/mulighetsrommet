@@ -10,11 +10,14 @@ import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.clients.sanity.SanityParam
 import no.nav.mulighetsrommet.api.domain.dbo.DelMedBrukerDbo
 import no.nav.mulighetsrommet.api.domain.dto.SanityResponse
+import no.nav.mulighetsrommet.api.utils.TiltaksnavnUtils.tittelOgUnderTittel
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.QueryResult
 import no.nav.mulighetsrommet.database.utils.query
+import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.dto.NorskIdent
 import no.nav.mulighetsrommet.domain.serializers.LocalDateTimeSerializer
+import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.securelog.SecureLog
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
@@ -24,20 +27,20 @@ import java.util.*
 class DelMedBrukerService(private val db: Database, private val sanityClient: SanityClient) {
     private val log = LoggerFactory.getLogger(javaClass)
 
-    fun lagreDelMedBruker(data: DelMedBrukerDbo): QueryResult<DelMedBrukerDbo> = query {
+    fun lagreDelMedBruker(dbo: DelMedBrukerDbo): QueryResult<DelMedBrukerDbo> = query {
         SecureLog.logger.info(
-            "Veileder (${data.navident}) deler tiltak med id: '${data.sanityId ?: data.tiltaksgjennomforingId}' " +
-                "med bruker (${data.norskIdent.value})",
+            "Veileder (${dbo.navident}) deler tiltak med id: '${dbo.sanityId ?: dbo.tiltaksgjennomforingId}' " +
+                "med bruker (${dbo.norskIdent.value})",
         )
 
-        if (data.navident.trim().isEmpty()) {
+        if (dbo.navident.trim().isEmpty()) {
             SecureLog.logger.warn(
                 "Veileders NAVident er tomt. Kan ikke lagre info om tiltak.",
             )
             throw BadRequestException("Veileders NAVident er ikke 6 tegn")
         }
 
-        if (data.sanityId == null && data.tiltaksgjennomforingId == null) {
+        if (dbo.sanityId == null && dbo.tiltaksgjennomforingId == null) {
             log.warn("Id til gjennomføringen mangler")
             throw BadRequestException("sanityId eller tiltaksgjennomforingId må inkluderes")
         }
@@ -65,7 +68,7 @@ class DelMedBrukerService(private val db: Database, private val sanityClient: Sa
             returning *
         """.trimIndent()
 
-        queryOf(query, data.toParameters())
+        queryOf(query, dbo.toParameters())
             .map { it.toDelMedBruker() }
             .asSingle
             .let { db.run(it)!! }
@@ -114,27 +117,32 @@ class DelMedBrukerService(private val db: Database, private val sanityClient: Sa
             .let { db.run(it) }
     }
 
-    suspend fun getDelMedBrukerHistorikk(norskIdent: NorskIdent): Either<Error, List<DeltTiltak>> {
+    suspend fun getDelMedBrukerHistorikk(norskIdent: NorskIdent): Either<Error, List<TiltakDeltMedBruker>> {
         // Hent delt med bruker-historikk fra database
-        val alleTiltakDeltForBruker = getAlleTiltakDeltMedBruker(norskIdent).getOrNull() ?: emptyList()
-        val tiltakFraDb = getTiltakFraDb(alleTiltakDeltForBruker)
-        val tiltakFraSanity = getTiltakFraSanity(alleTiltakDeltForBruker)
+        val alleDeltMedBruker = getAlleTiltakDeltMedBruker(norskIdent).getOrNull() ?: emptyList()
+        val tiltakFraDb = getTiltakFraDb(alleDeltMedBruker)
+        val tiltakFraSanity = getTiltakFraSanity(alleDeltMedBruker)
 
-        val alleDelteTiltak = (tiltakFraDb + tiltakFraSanity)
+        val alleDelteTiltak = (tiltakFraDb + tiltakFraSanity).sortedBy { it.createdAt }
 
         return Either.Right(alleDelteTiltak)
     }
 
-    private fun getTiltakFraDb(alleTiltakDelt: List<DelMedBrukerDbo>): List<DeltTiltak> {
+    private fun getTiltakFraDb(deltMedBruker: List<DelMedBrukerDbo>): List<TiltakDeltMedBruker> {
         // Slå opp i database for navn
         @Language("PostgreSQL")
         val tiltakFraDbQuery = """
-            select navn, id
-            from tiltaksgjennomforing
-            where id = any(:ids::uuid[])
+            select
+                tg.navn,
+                tg.id,
+                tt.tiltakskode,
+                tt.navn as tiltakstypeNavn
+            from tiltaksgjennomforing tg
+                inner join tiltakstype tt on tt.id = tg.tiltakstype_id
+            where tg.id = any(:ids::uuid[])
         """.trimIndent()
 
-        val gjennomforingerIds = alleTiltakDelt
+        val gjennomforingerIds = deltMedBruker
             .mapNotNull { it.tiltaksgjennomforingId }
             .let { db.createUuidArray(it) }
 
@@ -143,42 +151,101 @@ class DelMedBrukerService(private val db: Database, private val sanityClient: Sa
         )
 
         return queryOf(tiltakFraDbQuery, tiltakFraDbParams)
-            .map { it.uuid("id") to it.string("navn") }
+            .map {
+                it.uuid("id") to TiltakFraDb(
+                    it.string("navn"),
+                    it.uuid("id"),
+                    Tiltakskode.valueOf(it.string("tiltakskode")),
+                    it.string("tiltakstypeNavn"),
+                )
+            }
             .asList
             .let { db.run(it) }
-            .flatMap { (id, navn) ->
-                alleTiltakDelt.filter { it.tiltaksgjennomforingId == id }.map {
-                    DeltTiltak(navn, it.createdAt!!, it.dialogId, id.toString())
+            .flatMap { (id, tiltak) ->
+                deltMedBruker.filter { it.tiltaksgjennomforingId == id }.map {
+                    val (tittel, underTittel) = tittelOgUnderTittel(
+                        tiltak.navn,
+                        tiltak.tiltakstypeNavn,
+                        tiltak.tiltakskode,
+                    )
+
+                    TiltakDeltMedBruker(
+                        tittel = tittel,
+                        underTittel = underTittel,
+                        createdAt = it.createdAt!!,
+                        dialogId = it.dialogId,
+                        tiltakId = id.toString(),
+                        tiltakstype = TiltakDeltMedBruker.Tiltakstype(
+                            tiltakskode = tiltak.tiltakskode,
+                            arenakode = null,
+                            navn = tiltak.tiltakstypeNavn,
+                        ),
+                    )
                 }
             }
     }
 
-    private suspend fun getTiltakFraSanity(alleTiltakDelt: List<DelMedBrukerDbo>): List<DeltTiltak> {
-        // Slå opp i Sanity for navn og id
-        val query = """
-         *[_type == "tiltaksgjennomforing" && _id in ${'$'}tiltakIds]{tiltaksgjennomforingNavn, _id}
+    private suspend fun getTiltakFraSanity(deltMedBruker: List<DelMedBrukerDbo>): List<TiltakDeltMedBruker> {
+        val sanityQuery = """
+         *[_type == "tiltaksgjennomforing" && _id in ${'$'}tiltakIds]{tiltaksgjennomforingNavn, _id, tiltakstype->{_id, tiltakstypeNavn}}
         """.trimIndent()
 
         val params = buildList {
             add(
                 SanityParam.of(
                     "tiltakIds",
-                    alleTiltakDelt.filter { it.sanityId != null }.map {
+                    deltMedBruker.filter { it.sanityId != null }.map {
                         it.sanityId.toString()
                     },
                 ),
             )
         }
 
-        return when (val result = sanityClient.query(query, params)) {
-            is SanityResponse.Result -> result.decode<List<SanityTiltak>>().flatMap { sanityTiltak ->
-                alleTiltakDelt.filter { it.sanityId?.toString() == sanityTiltak.id }.map {
-                    DeltTiltak(sanityTiltak.navn, it.createdAt!!, it.dialogId, it.sanityId.toString())
-                }
-            }
-
+        val tiltakFraSanity = when (val result = sanityClient.query(sanityQuery, params)) {
+            is SanityResponse.Result -> result.decode<List<SanityTiltak>>()
             is SanityResponse.Error -> throw Exception(result.error.toString())
         }
+
+        @Language("PostgreSQL")
+        val dbQuery = """
+            select sanity_id, arena_kode from tiltakstype where sanity_id = any(:ids::uuid[])
+        """.trimIndent()
+
+        val sanityTiltakQueryParams =
+            mapOf("ids" to tiltakFraSanity.map { UUID.fromString(it.tiltakstype.id) }.let { db.createUuidArray(it) })
+
+        val results = queryOf(dbQuery, sanityTiltakQueryParams)
+            .map { it.uuid("sanity_id") to it.string("arena_kode") }
+            .asList
+            .let { db.run(it) }
+
+        if (results.isEmpty()) {
+            return emptyList()
+        }
+
+        return tiltakFraSanity.map { tiltak ->
+            val arenaKode = results.first { it.first == UUID.fromString(tiltak.tiltakstype.id) }.second
+            val (tittel, underTittel) = tittelOgUnderTittel(
+                tiltak.navn,
+                tiltak.tiltakstype.tiltakstypeNavn,
+                arenaKode,
+            )
+
+            deltMedBruker.filter { it.sanityId == UUID.fromString(tiltak.id) }.map {
+                TiltakDeltMedBruker(
+                    tittel = tittel,
+                    underTittel = underTittel,
+                    createdAt = it.createdAt!!,
+                    dialogId = it.dialogId,
+                    tiltakId = tiltak.id,
+                    tiltakstype = TiltakDeltMedBruker.Tiltakstype(
+                        tiltakskode = null,
+                        arenakode = arenaKode,
+                        navn = tiltak.tiltakstype.tiltakstypeNavn,
+                    ),
+                )
+            }
+        }.flatten()
     }
 }
 
@@ -206,12 +273,30 @@ private fun Row.toDelMedBruker(): DelMedBrukerDbo = DelMedBrukerDbo(
 )
 
 @Serializable
-data class DeltTiltak(
-    val navn: String,
+data class TiltakDeltMedBruker(
+    val tittel: String,
+    val underTittel: String,
     @Serializable(with = LocalDateTimeSerializer::class)
     val createdAt: LocalDateTime,
     val dialogId: String,
     val tiltakId: String,
+    val tiltakstype: Tiltakstype,
+) {
+    @Serializable
+    data class Tiltakstype(
+        val tiltakskode: Tiltakskode?,
+        val arenakode: String?,
+        val navn: String,
+    )
+}
+
+@Serializable
+data class TiltakFraDb(
+    val navn: String,
+    @Serializable(with = UUIDSerializer::class)
+    val id: UUID,
+    val tiltakskode: Tiltakskode,
+    val tiltakstypeNavn: String,
 )
 
 @Serializable
@@ -220,4 +305,12 @@ data class SanityTiltak(
     val navn: String,
     @SerialName("_id")
     val id: String,
-)
+    val tiltakstype: Tiltakstype,
+) {
+    @Serializable
+    data class Tiltakstype(
+        @SerialName("_id")
+        val id: String,
+        val tiltakstypeNavn: String,
+    )
+}

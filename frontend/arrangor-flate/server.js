@@ -1,8 +1,8 @@
 import { createRequestHandler } from "@remix-run/express";
 import compression from "compression";
 import express from "express";
-import morgan from "morgan";
 import expressPromBundle from "express-prom-bundle";
+import morgan from "morgan";
 const metricsMiddleware = expressPromBundle({ includeMethod: true, includePath: true });
 
 const port = process.env.PORT || 3000;

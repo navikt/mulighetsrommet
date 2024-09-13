@@ -1,18 +1,23 @@
 import { BodyShort } from "@navikt/ds-react";
 import { ReactNode } from "react";
 import styles from "./VisningsnavnForTiltak.module.scss";
-import { alternativNavn, visningNavn } from "@/utils/Utils";
-import { VeilederflateTiltak } from "@mr/api-client";
+import classNames from "classnames";
 
 interface Props {
-  tiltak: VeilederflateTiltak;
+  tittel: string;
+  underTittel: string;
+  noLink?: boolean;
 }
 
-export function VisningsnavnForTiltak({ tiltak }: Props): ReactNode {
+export function VisningsnavnForTiltak({ tittel, underTittel, noLink = false }: Props): ReactNode {
   return (
-    <div className={styles.container}>
-      <BodyShort size="small">{visningNavn(tiltak)}</BodyShort>
-      <BodyShort size="small">{alternativNavn(tiltak)}</BodyShort>
+    <div
+      className={classNames(styles.container, {
+        [styles.no_link]: noLink,
+      })}
+    >
+      <BodyShort size="small">{tittel}</BodyShort>
+      <BodyShort size="small">{underTittel}</BodyShort>
     </div>
   );
 }

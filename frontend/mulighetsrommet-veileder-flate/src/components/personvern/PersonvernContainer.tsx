@@ -55,7 +55,7 @@ export function PersonvernContainer({ tiltak }: Props) {
           <VStack gap="5">
             <PersonvernIkon aria-label="Ikon som illustrerer personvern" />
             <Heading level="2" size="medium">
-              {tiltak.navn}
+              {tiltak.tittel}
             </Heading>
           </VStack>
         </ModalHeader>

@@ -26,7 +26,8 @@ data class VeilederflateInnsatsgruppe(
 sealed class VeilederflateTiltak {
     abstract val tiltakstype: VeilederflateTiltakstype
     abstract val tiltaksnummer: String?
-    abstract val navn: String
+    abstract val tittel: String
+    abstract val underTittel: String
     abstract val status: TiltaksgjennomforingStatusDto
     abstract val beskrivelse: String?
     abstract val faneinnhold: Faneinnhold?
@@ -40,7 +41,8 @@ sealed class VeilederflateTiltak {
 data class VeilederflateTiltakGruppe(
     override val tiltakstype: VeilederflateTiltakstype,
     override val tiltaksnummer: String?,
-    override val navn: String,
+    override val tittel: String,
+    override val underTittel: String,
     override val status: TiltaksgjennomforingStatusDto,
     override val beskrivelse: String?,
     override val faneinnhold: Faneinnhold?,
@@ -72,7 +74,8 @@ data class VeilederflateTiltakArbeidsgiver(
     override val faneinnhold: Faneinnhold?,
     override val kontaktinfo: VeilederflateKontaktinfo,
     override val oppstart: TiltaksgjennomforingOppstartstype,
-    override val navn: String,
+    override val tittel: String,
+    override val underTittel: String,
     override val stedForGjennomforing: String?,
     val sanityId: String,
     val fylke: String?,
