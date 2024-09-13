@@ -19,9 +19,11 @@ dependencies {
     implementation(projects.common.database)
     implementation(projects.common.slack)
     implementation(projects.common.kafka)
+    implementation(projects.common.tokenProvider)
     testImplementation(testFixtures(projects.common.database))
     implementation(projects.common.ktor)
     testImplementation(testFixtures(projects.common.ktor))
+    implementation(projects.common.ktorClients)
     implementation(projects.common.metrics)
 
     // Kotlin

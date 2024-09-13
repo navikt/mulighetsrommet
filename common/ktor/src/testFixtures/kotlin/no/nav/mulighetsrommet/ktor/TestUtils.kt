@@ -31,7 +31,12 @@ inline fun <reified T : Any> MockRequestHandleScope.respondJson(
         HttpHeaders.ContentType,
         ContentType.Application.Json.toString(),
     )
-    return respond(JsonIgnoreUnknownKeys.encodeToString(T::class.serializer(), content), status, headers)
+    val serializedContent = if (content is String) {
+        content
+    } else {
+        JsonIgnoreUnknownKeys.encodeToString(T::class.serializer(), content)
+    }
+    return respond(serializedContent, status, headers)
 }
 
 /**
