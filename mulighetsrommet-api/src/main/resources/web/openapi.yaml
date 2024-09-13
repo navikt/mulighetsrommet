@@ -1815,6 +1815,27 @@ paths:
                 items:
                   $ref: "#/components/schemas/Refusjonskrav"
 
+  /api/v1/intern/pdf:
+    post:
+      tags:
+        - PDF
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PdfKvittering"
+        required: true
+
+      responses:
+        200:
+          description: Generer PDF kvittering for refusjonskrav
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PdfKvittering"
+
 components:
   securitySchemes:
     bearerAuth:
@@ -1895,6 +1916,21 @@ components:
         type: string
 
   schemas:
+    PdfKvittering:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            type: object
+            properties:
+              title:
+                type: string
+              content:
+                type: string
+            required:
+              - title
+              - content
     ValidationErrorResponse:
       type: object
       properties:

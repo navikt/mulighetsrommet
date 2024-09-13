@@ -60,6 +60,7 @@ dependencies {
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.arrow.core)
     implementation(libs.arrow.core.serialization)
+    implementation("com.github.librepdf:openpdf:1.3.30")
 
     // Logging
     implementation(libs.bundles.logging)
