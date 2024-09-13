@@ -56,11 +56,11 @@ test.describe("Tiltaksoversikt", () => {
   test("Filtrer på søkefelt", async ({ page }) => {
     const rows = page.getByTestId("oversikt_tiltaksgjennomforinger").getByRole("link");
     await expect(rows).toHaveCount(5);
-    await page.getByTestId("filter_sokefelt").fill("Yoda");
+    await page.getByTestId("filter_sokefelt").fill("Mentor");
     await expect(rows).toHaveCount(1);
     await expect(
-      page.getByTestId("tiltaksgjennomforing_sindres-mentorordning-med-yoda"),
-    ).toContainText("Yoda");
+      page.getByTestId("tiltaksgjennomforing_mentor"),
+    ).toContainText("Mentor");
   });
 
   test("Skal vise 'Nullstill filter'-knapp når man filtrerer på innsatsgruppe", async ({
