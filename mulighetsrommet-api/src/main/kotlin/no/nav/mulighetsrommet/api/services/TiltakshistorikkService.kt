@@ -4,7 +4,6 @@ import arrow.core.Either
 import arrow.core.getOrElse
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
-import no.nav.mulighetsrommet.api.clients.AccessType
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.*
 import no.nav.mulighetsrommet.api.clients.pdl.*
 import no.nav.mulighetsrommet.api.clients.tiltakshistorikk.TiltakshistorikkClient
@@ -18,6 +17,7 @@ import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
 import no.nav.mulighetsrommet.domain.dto.Tiltakshistorikk
 import no.nav.mulighetsrommet.domain.dto.amt.AmtDeltakerStatus
 import no.nav.mulighetsrommet.env.NaisEnv
+import no.nav.mulighetsrommet.tokenprovider.AccessType
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 

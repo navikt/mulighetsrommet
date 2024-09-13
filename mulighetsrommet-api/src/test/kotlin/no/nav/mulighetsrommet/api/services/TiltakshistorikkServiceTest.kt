@@ -6,7 +6,6 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.mockk
-import no.nav.mulighetsrommet.api.clients.AccessType
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.*
 import no.nav.mulighetsrommet.api.clients.pdl.IdentGruppe
 import no.nav.mulighetsrommet.api.clients.pdl.IdentInformasjon
@@ -27,6 +26,7 @@ import no.nav.mulighetsrommet.domain.dto.Tiltakshistorikk.Arrangor
 import no.nav.mulighetsrommet.domain.dto.Tiltakshistorikk.Gjennomforing
 import no.nav.mulighetsrommet.domain.dto.TiltakshistorikkResponse
 import no.nav.mulighetsrommet.domain.dto.amt.AmtDeltakerStatus
+import no.nav.mulighetsrommet.tokenprovider.AccessType
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*

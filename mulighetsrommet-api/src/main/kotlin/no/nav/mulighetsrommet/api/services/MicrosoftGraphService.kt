@@ -2,10 +2,10 @@ package no.nav.mulighetsrommet.api.services
 
 import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
-import no.nav.mulighetsrommet.api.clients.AccessType
 import no.nav.mulighetsrommet.api.clients.msgraph.AzureAdNavAnsatt
 import no.nav.mulighetsrommet.api.clients.msgraph.MicrosoftGraphClient
 import no.nav.mulighetsrommet.api.domain.dto.AdGruppe
+import no.nav.mulighetsrommet.tokenprovider.AccessType
 import no.nav.mulighetsrommet.utils.CacheUtils
 import java.util.*
 import java.util.concurrent.TimeUnit
