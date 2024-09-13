@@ -1824,6 +1824,16 @@ paths:
           application/json:
             schema:
               $ref: "#/components/schemas/PdfKvittering"
+              example:
+                content:
+                  - title: "Tiltaksnavn:"
+                    content: "AFT - Fredrikstad, Sarpsborg, Halden"
+                  - title: "Tiltaksnummer:"
+                    content: "2024/123456"
+                  - title: "Avtalenavn:"
+                    content: "AFT - Fredrikstad, Sarpsborg, Halden"
+                  - title: "Tiltakstype:"
+                    content: "Arbeidsforberedende trening"
         required: true
 
       responses:

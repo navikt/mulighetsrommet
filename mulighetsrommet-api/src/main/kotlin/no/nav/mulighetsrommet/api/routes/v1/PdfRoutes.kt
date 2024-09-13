@@ -17,6 +17,8 @@ import no.nav.mulighetsrommet.ktor.extensions.getAccessToken
 import org.apache.commons.io.output.ByteArrayOutputStream
 import org.koin.ktor.ext.inject
 import com.lowagie.text.Document
+import com.lowagie.text.Font
+import com.lowagie.text.FontFactory
 import com.lowagie.text.Paragraph
 import com.lowagie.text.pdf.PdfWriter
 import kotlinx.serialization.Serializable
@@ -47,22 +49,25 @@ data class PdfKvittering (
 )
 
 fun generatePdfInMemory(options: PdfKvittering): ByteArray {
-    // Create a ByteArrayOutputStream to hold the PDF in memory
     val byteArrayOutputStream = ByteArrayOutputStream()
-
-    // Create a new Document and PdfWriter instance
     val document = Document()
     PdfWriter.getInstance(document, byteArrayOutputStream)
 
-    // Open the document and add content
     document.open()
 
     for (item in options.content) {
+        val boldFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12f, Font.BOLD)
+        val titleP = Paragraph(item.title, boldFont)
+        document.add(titleP)
+
+        val contentP = Paragraph(item.content)
+
+        contentP.firstLineIndent = 30f
+        contentP.spacingBefore = 5f   // Space before this paragraph
+        contentP.spacingAfter = 20f
+
         document.add(
-            Paragraph(item.title + ':'),
-        )
-        document.add(
-            Paragraph(item.content)
+            contentP
         )
     }
 
