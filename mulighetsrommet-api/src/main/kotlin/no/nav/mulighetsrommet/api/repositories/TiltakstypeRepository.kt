@@ -109,7 +109,7 @@ class TiltakstypeRepository(private val db: Database) {
         }
     }
 
-    fun getBySanityId(sanityId: UUID): TiltakstypeAdminDto? {
+    fun getBySanityId(sanityId: UUID): TiltakstypeAdminDto {
         @Language("PostgreSQL")
         val query = """
             select *
@@ -117,7 +117,9 @@ class TiltakstypeRepository(private val db: Database) {
             where sanity_id = ?::uuid
         """.trimIndent()
         val queryResult = queryOf(query, sanityId).map { it.toTiltakstypeAdminDto() }.asSingle
-        return db.run(queryResult)
+        return requireNotNull(db.run(queryResult)) {
+            "Det finnes ingen tiltakstype med sanity_id=$sanityId"
+        }
     }
 
     fun getAll(

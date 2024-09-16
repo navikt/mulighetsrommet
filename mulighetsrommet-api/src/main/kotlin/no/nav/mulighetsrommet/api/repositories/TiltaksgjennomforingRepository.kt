@@ -762,7 +762,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 selskapsnavn = stringOrNull("arrangor_navn"),
                 kontaktpersoner = arrangorKontaktpersoner,
             ),
-            fylke = stringOrNull("nav_region"),
+            fylke = string("nav_region"),
             enheter = navEnheter,
             beskrivelse = stringOrNull("beskrivelse"),
             faneinnhold = stringOrNull("faneinnhold")?.let { Json.decodeFromString(it) },

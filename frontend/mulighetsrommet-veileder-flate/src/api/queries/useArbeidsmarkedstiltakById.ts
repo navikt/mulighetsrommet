@@ -4,6 +4,7 @@ import { useGetTiltaksgjennomforingIdFraUrl } from "@/hooks/useGetTiltaksgjennom
 import {
   VeilederflateTiltak,
   VeilederflateTiltakArbeidsgiver,
+  VeilederflateTiltakEnkeltplassAnskaffet,
   VeilederflateTiltakGruppe,
   VeilederTiltakService,
 } from "@mr/api-client";
@@ -12,11 +13,28 @@ export function isTiltakGruppe(tiltak: VeilederflateTiltak): tiltak is Veilederf
   return tiltak.type === "TILTAK_GRUPPE";
 }
 
-// TODO: legge til et skille på arbeidsgiver-tiltak og IPS/AMS og andre individuelle tiltak som også blir inkludert her
+export function isTiltakEnkeltplassAnskaffet(
+  tiltak: VeilederflateTiltak,
+): tiltak is VeilederflateTiltakEnkeltplassAnskaffet {
+  return tiltak.type === "TILTAK_ENKELTPLASS_ANSKAFFET";
+}
+
+export function isTiltakEgenRegi(
+  tiltak: VeilederflateTiltak,
+): tiltak is VeilederflateTiltakEnkeltplassAnskaffet {
+  return tiltak.type === "TILTAK_EGEN_REGI";
+}
+
 export function isTiltakArbeidsgiver(
   tiltak: VeilederflateTiltak,
 ): tiltak is VeilederflateTiltakArbeidsgiver {
   return tiltak.type === "TILTAK_ARBEIDSGIVER";
+}
+
+export function isTiltakMedArrangor(
+  tiltak: VeilederflateTiltak,
+): tiltak is VeilederflateTiltakGruppe | VeilederflateTiltakEnkeltplassAnskaffet {
+  return isTiltakGruppe(tiltak) || isTiltakEnkeltplassAnskaffet(tiltak);
 }
 
 export function useModiaArbeidsmarkedstiltakById() {

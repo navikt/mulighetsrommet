@@ -4,7 +4,7 @@ import { TiltakDetaljerFaneContainer } from "../TiltakDetaljerFaneContainer";
 import ArrangorInfo from "./ArrangorInfo";
 import styles from "./KontaktinfoFane.module.scss";
 import NavKontaktpersonInfo from "./NavKontaktpersonInfo";
-import { isTiltakGruppe } from "@/api/queries/useArbeidsmarkedstiltakById";
+import { isTiltakMedArrangor } from "@/api/queries/useArbeidsmarkedstiltakById";
 
 interface Props {
   tiltak: VeilederflateTiltak;
@@ -19,7 +19,7 @@ export function KontaktinfoFane({ tiltak }: Props) {
         </Alert>
       )}
       <HGrid columns="1fr 1fr" align="start" gap="5">
-        {isTiltakGruppe(tiltak) ? (
+        {isTiltakMedArrangor(tiltak) ? (
           <ArrangorInfo arrangor={tiltak.arrangor} faneinnhold={tiltak.faneinnhold?.kontaktinfo} />
         ) : (
           <Alert variant="info">Kontaktinfo til ekstern part er ikke tilgjengelig</Alert>

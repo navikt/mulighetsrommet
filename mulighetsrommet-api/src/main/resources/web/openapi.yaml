@@ -3396,6 +3396,8 @@ components:
     VeilederflateTiltak:
       oneOf:
         - $ref: "#/components/schemas/VeilederflateTiltakGruppe"
+        - $ref: "#/components/schemas/VeilederflateTiltakEnkeltplassAnskaffet"
+        - $ref: "#/components/schemas/VeilederflateTiltakEgenRegi"
         - $ref: "#/components/schemas/VeilederflateTiltakArbeidsgiver"
 
     VeilederflateTiltakGruppe:
@@ -3459,6 +3461,85 @@ components:
         - personvernBekreftet
         - personopplysningerSomKanBehandles
 
+    VeilederflateTiltakEnkeltplassAnskaffet:
+      type: object
+      properties:
+        type:
+          const: "TILTAK_ENKELTPLASS_ANSKAFFET"
+        tiltakstype:
+          $ref: "#/components/schemas/VeilederflateTiltakstype"
+        tiltaksnummer:
+          type: string
+        status:
+          $ref: "#/components/schemas/TiltaksgjennomforingStatusDto"
+        beskrivelse:
+          type: string
+        faneinnhold:
+          $ref: "#/components/schemas/Faneinnhold"
+        kontaktinfo:
+          $ref: "#/components/schemas/VeilederflateKontaktInfo"
+        oppstart:
+          const: LOPENDE
+        sanityId:
+          type: string
+        tittel:
+          type: string
+        underTittel:
+          type: string
+        stedForGjennomforing:
+          type: string
+        fylke:
+          type: string
+        arrangor:
+          $ref: "#/components/schemas/VeilderflateArrangor"
+      required:
+        - tiltakstype
+        - status
+        - kontaktinfo
+        - oppstart
+        - sanityId
+        - tittel
+        - underTittel
+        - arrangor
+
+    VeilederflateTiltakEgenRegi:
+      type: object
+      properties:
+        type:
+          const: "TILTAK_EGEN_REGI"
+        tiltakstype:
+          $ref: "#/components/schemas/VeilederflateTiltakstype"
+        tiltaksnummer:
+          type: string
+        status:
+          $ref: "#/components/schemas/TiltaksgjennomforingStatusDto"
+        beskrivelse:
+          type: string
+        faneinnhold:
+          $ref: "#/components/schemas/Faneinnhold"
+        kontaktinfo:
+          $ref: "#/components/schemas/VeilederflateKontaktInfo"
+        oppstart:
+          const: LOPENDE
+        sanityId:
+          type: string
+        tittel:
+          type: string
+        underTittel:
+          type: string
+        stedForGjennomforing:
+          type: string
+        fylke:
+          type: string
+      required:
+        - tiltakstype
+        - status
+        - kontaktinfo
+        - oppstart
+        - sanityId
+        - tittel
+        - underTittel
+
     VeilederflateTiltakArbeidsgiver:
       type: object
       properties:
@@ -3466,8 +3547,6 @@ components:
           const: "TILTAK_ARBEIDSGIVER"
         tiltakstype:
           $ref: "#/components/schemas/VeilederflateTiltakstype"
-        tiltaksnummer:
-          type: string
         status:
           $ref: "#/components/schemas/TiltaksgjennomforingStatusDto"
         beskrivelse:
