@@ -86,8 +86,10 @@ app:
     token: ${SANITY_AUTH_TOKEN}
 
   veilarbvedtaksstotteConfig:
-    url: http://veilarbvedtaksstotte.obo/veilarbvedtaksstotte/api
-    scope: api://dev-gcp.obo.veilarbvedtaksstotte/.default
+    url: https://veilarbvedtaksstotte.dev-fss-pub.nais.io/veilarbvedtaksstotte/api
+    scope: api://dev-fss.pto.veilarbvedtaksstotte/.default
+    # url: http://veilarbvedtaksstotte.obo/veilarbvedtaksstotte/api
+    # scope: api://dev-gcp.obo.veilarbvedtaksstotte/.default
 
   veilarboppfolgingConfig:
     url: https://veilarboppfolging.dev-fss-pub.nais.io/veilarboppfolging/api
