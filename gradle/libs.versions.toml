@@ -1,6 +1,6 @@
 [versions]
 common-java-modules = "3.2024.01.24_10.14-f70bae69bd65"
-flyway = "10.17.3"
+flyway = "10.18.0"
 hoplite = "2.7.5"
 koin = "3.5.6"
 kotest = "5.9.1"
@@ -59,7 +59,7 @@ kotest-extensions-testcontainers-kafka = { module = "io.kotest.extensions:kotest
 kotest-junit = { module = "io.kotest:kotest-runner-junit5", version.ref = "kotest" }
 
 kotlinx-serialization-json = "org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.2"
-kotlinx-coroutines-core = "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1"
+kotlinx-coroutines-core = "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0"
 
 kotliquery = "com.github.seratch:kotliquery:1.9.0"
 
@@ -108,7 +108,7 @@ nav-common-auditLog = { module = "no.nav.common:audit-log", version.ref = "commo
 nav-common-kafka = { module = "no.nav.common:kafka", version.ref = "common-java-modules" }
 nav-common-tokenClient = { module = "no.nav.common:token-client", version.ref = "common-java-modules" }
 nav-common-client = { module = "no.nav.common:client", version.ref = "common-java-modules" }
-nav-poaoTilgang-client = "no.nav.poao-tilgang:client:2024.08.16_08.05-cb75bb5cbe10"
+nav-poaoTilgang-client = "no.nav.poao-tilgang:client:2024.09.13_11.16-256dd3167438"
 nav-mockOauth2Server = "no.nav.security:mock-oauth2-server:2.1.9"
 
 postgresql = "org.postgresql:postgresql:42.7.4"
