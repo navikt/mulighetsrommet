@@ -1815,27 +1815,12 @@ paths:
                 items:
                   $ref: "#/components/schemas/Refusjonskrav"
 
-  /api/v1/intern/pdf:
-    post:
+  /api/v1/intern/pdf/{id}:
+    parameters:
+      - $ref: "#/components/parameters/ID"
+    get:
       tags:
         - PDF
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/PdfKvittering"
-              example:
-                content:
-                  - title: "Tiltaksnavn:"
-                    content: "AFT - Fredrikstad, Sarpsborg, Halden"
-                  - title: "Tiltaksnummer:"
-                    content: "2024/123456"
-                  - title: "Avtalenavn:"
-                    content: "AFT - Fredrikstad, Sarpsborg, Halden"
-                  - title: "Tiltakstype:"
-                    content: "Arbeidsforberedende trening"
-        required: true
-
       responses:
         200:
           description: Generer PDF kvittering for refusjonskrav
