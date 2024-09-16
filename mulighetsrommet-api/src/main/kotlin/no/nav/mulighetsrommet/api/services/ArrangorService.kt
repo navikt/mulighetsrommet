@@ -3,33 +3,23 @@ package no.nav.mulighetsrommet.api.services
 import arrow.core.Either
 import arrow.core.flatMap
 import arrow.core.right
-import com.github.benmanes.caffeine.cache.Cache
-import com.github.benmanes.caffeine.cache.Caffeine
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.clients.brreg.BrregClient
 import no.nav.mulighetsrommet.api.clients.brreg.BrregError
 import no.nav.mulighetsrommet.api.domain.dto.ArrangorDto
 import no.nav.mulighetsrommet.api.domain.dto.ArrangorKontaktperson
-import no.nav.mulighetsrommet.api.domain.dto.BrregVirksomhetDto
 import no.nav.mulighetsrommet.api.repositories.ArrangorRepository
 import no.nav.mulighetsrommet.api.repositories.DokumentKoblingForKontaktperson
 import no.nav.mulighetsrommet.api.responses.BadRequest
 import no.nav.mulighetsrommet.api.responses.StatusResponse
 import org.slf4j.LoggerFactory
 import java.util.*
-import java.util.concurrent.TimeUnit
 
 class ArrangorService(
     private val brregClient: BrregClient,
     private val arrangorRepository: ArrangorRepository,
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
-
-    private val brregCache: Cache<String, BrregVirksomhetDto> = Caffeine.newBuilder()
-        .expireAfterWrite(3, TimeUnit.HOURS)
-        .maximumSize(20_000)
-        .recordStats()
-        .build()
 
     suspend fun getOrSyncArrangorFromBrreg(orgnr: String): Either<BrregError, ArrangorDto> {
         return arrangorRepository.get(orgnr)?.right() ?: syncArrangorFromBrreg(orgnr)
