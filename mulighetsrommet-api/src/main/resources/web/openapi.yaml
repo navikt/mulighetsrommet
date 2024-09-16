@@ -3420,7 +3420,9 @@ components:
         id:
           type: string
           format: uuid
-        navn:
+        tittel:
+          type: string
+        underTittel:
           type: string
         stedForGjennomforing:
           type: string
@@ -3449,7 +3451,8 @@ components:
         - kontaktinfo
         - oppstart
         - id
-        - navn
+        - tittel
+        - underTittel
         - apentForInnsok
         - oppstartsdato
         - arrangor
@@ -3477,7 +3480,9 @@ components:
           const: LOPENDE
         sanityId:
           type: string
-        navn:
+        tittel:
+          type: string
+        underTittel:
           type: string
         stedForGjennomforing:
           type: string
@@ -3489,7 +3494,8 @@ components:
         - kontaktinfo
         - oppstart
         - sanityId
-        - navn
+        - tittel
+        - underTittel
 
     RegelverkLenke:
       type: object
@@ -3553,6 +3559,8 @@ components:
             $ref: "#/components/schemas/Lenke"
         delMedBruker:
           type: string
+        kurstittel:
+          type: string
 
     FaneinnholdRequest:
       type: object
@@ -3578,6 +3586,9 @@ components:
           type: string
           nullable: true
         delMedBruker:
+          type: string
+          nullable: true
+        kurstittel:
           type: string
           nullable: true
 
@@ -4363,11 +4374,10 @@ components:
     TiltakDeltMedBruker:
       type: object
       properties:
-        lokaltNavn:
+        tittel:
           type: string
-        konstruertNavn:
+        underTittel:
           type: string
-          nullable: true
         tiltakstype:
           $ref: "#/components/schemas/TiltakDeltMedBrukerTiltakstype"
         createdAt:
@@ -4378,8 +4388,8 @@ components:
         tiltakId:
           type: string
       required:
-        - lokaltNavn
-        - konstruertNavn
+        - tittel
+        - underTittel
         - tiltakstype
         - createdAt
         - dialogId

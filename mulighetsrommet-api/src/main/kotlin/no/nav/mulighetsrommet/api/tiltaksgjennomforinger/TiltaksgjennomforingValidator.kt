@@ -14,7 +14,7 @@ import no.nav.mulighetsrommet.api.repositories.ArrangorRepository
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.services.TiltakstypeService
-import no.nav.mulighetsrommet.domain.Tiltakskoder
+import no.nav.mulighetsrommet.domain.Tiltakskoder.isKursTiltak
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dto.AvtaleStatus
@@ -87,7 +87,7 @@ class TiltaksgjennomforingValidator(
                 )
             }
 
-            if (Tiltakskoder.isKursTiltak(avtale.tiltakstype.tiltakskode)) {
+            if (isKursTiltak(avtale.tiltakstype.tiltakskode)) {
                 validateKursTiltak(next)
             } else {
                 if (next.oppstart == TiltaksgjennomforingOppstartstype.FELLES) {
@@ -130,6 +130,9 @@ class TiltaksgjennomforingValidator(
             }
             if (!avtaleHasArrangor) {
                 add(ValidationError.of(TiltaksgjennomforingDbo::arrangorId, "Du må velge en arrangør for avtalen"))
+            }
+            if (isKursTiltak(tiltakstype.tiltakskode) && next.faneinnhold?.kurstittel.isNullOrBlank()) {
+                add(ValidationError.ofCustomLocation("faneinnhold.kurstittel", "Du må skrive en kurstittel"))
             }
 
             next = validateOrResetTilgjengeligForArrangorDato(next)

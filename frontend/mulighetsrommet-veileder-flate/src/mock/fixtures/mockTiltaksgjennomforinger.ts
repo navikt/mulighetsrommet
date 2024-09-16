@@ -15,7 +15,8 @@ export const tiltakAvklaring: VeilederflateTiltakGruppe = {
   tiltaksnummer: "123123",
   id: "f4cea25b-c372-4d4c-8106-535ab10cd586",
   oppstartsdato: "2024-01-01",
-  navn: "Avklaring - Fredrikstad med ganske langt navn som strekker seg bortover",
+  tittel: "Avklaring - Fredrikstad med ganske langt navn som strekker seg bortover",
+  underTittel: "Avklaring",
   status: { status: TiltaksgjennomforingStatus.GJENNOMFORES },
   oppstart: TiltaksgjennomforingOppstartstype.LOPENDE,
   estimertVentetid: {
@@ -115,7 +116,8 @@ export const tiltakAvklaring: VeilederflateTiltakGruppe = {
 export const tiltakMentor: VeilederflateTiltakArbeidsgiver = {
   type: "TILTAK_ARBEIDSGIVER",
   sanityId: "91205ff2-ec72-4a7f-80b8-1c99d8535a06",
-  navn: "Sindres mentorordning med Yoda",
+  tittel: "Mentor",
+  underTittel: "Sindres mentorordning med Yoda",
   status: { status: TiltaksgjennomforingStatus.GJENNOMFORES },
   oppstart: TiltaksgjennomforingOppstartstype.LOPENDE,
   stedForGjennomforing: "Oslo",
@@ -146,7 +148,8 @@ export const tiltakAmoGruppe: VeilederflateTiltakGruppe = {
   personvernBekreftet: true,
   personopplysningerSomKanBehandles: [],
   tiltaksnummer: "2024/123",
-  navn: "Kurs i overlevelsesteknikk (Gruppe AMO)",
+  tittel: "Kurs i overlevelsesteknikk",
+  underTittel: "Gruppe AMO",
   stedForGjennomforing: "2050 JESSHEIM",
   apentForInnsok: true,
   tiltakstype: mockTiltakstyper.gruppe_amo,
@@ -185,6 +188,7 @@ export const tiltakAmoGruppe: VeilederflateTiltakGruppe = {
     ],
   },
   faneinnhold: {
+    kurstittel: "Dette er en kurstittel for gruppe amo",
     lenker: [
       {
         lenke: "https://www.google.com",
@@ -251,7 +255,8 @@ export const tiltakAmoGruppe: VeilederflateTiltakGruppe = {
 export const tiltakVta: VeilederflateTiltakGruppe = {
   type: "TILTAK_GRUPPE",
   id: "3b597090-1ba8-47a4-a82f-6aaad488994e",
-  navn: "VTA hos Fretex",
+  underTittel: "VTA hos Fretex",
+  tittel: "VTA",
   status: { status: TiltaksgjennomforingStatus.GJENNOMFORES },
   stedForGjennomforing: "2050",
   apentForInnsok: true,
@@ -343,7 +348,8 @@ export const tiltakVta: VeilederflateTiltakGruppe = {
 export const tiltakJobbklubb: VeilederflateTiltakGruppe = {
   type: "TILTAK_GRUPPE",
   id: "ff887090-1ba8-47a4-a82f-6aaad488994e",
-  navn: "Jobbklubb (med Lars Monsen)",
+  tittel: "Jobbklubb (med Lars Monsen)",
+  underTittel: "Jobbklubb",
   status: { status: TiltaksgjennomforingStatus.GJENNOMFORES },
   stedForGjennomforing: "Kautokeino",
   apentForInnsok: true,
@@ -393,7 +399,8 @@ export const tiltakJobbklubb: VeilederflateTiltakGruppe = {
 export const tiltakAft: VeilederflateTiltakGruppe = {
   type: "TILTAK_GRUPPE",
   id: "bdfa7090-1ba8-47a4-a82f-6aaad488994e",
-  navn: "AFT",
+  tittel: "AFT",
+  underTittel: "AFT",
   stedForGjennomforing: "Sinsen",
   status: { status: TiltaksgjennomforingStatus.GJENNOMFORES },
   apentForInnsok: true,
@@ -437,7 +444,8 @@ export const tiltakAft: VeilederflateTiltakGruppe = {
 export const tiltakOppfolging: VeilederflateTiltakGruppe = {
   type: "TILTAK_GRUPPE",
   id: "3c110e8c-5867-4ece-b343-e9b1c547f548",
-  navn: "Oppfølging",
+  tittel: "Oppfølging",
+  underTittel: "Oppfølging",
   stedForGjennomforing: "Sinsen",
   status: { status: TiltaksgjennomforingStatus.GJENNOMFORES },
   apentForInnsok: true,
@@ -468,7 +476,8 @@ export const tiltakEnkelplassFagOgYrke: VeilederflateTiltakArbeidsgiver = {
   type: "TILTAK_ARBEIDSGIVER",
   sanityId: "f1887090-1ba8-47a4-a82f-6aaad488994e",
   status: { status: TiltaksgjennomforingStatus.GJENNOMFORES },
-  navn: "Opplæring Fag og Yrke",
+  tittel: "Opplæring Fag og Yrke",
+  underTittel: "Opplæring Fag og Yrke",
   stedForGjennomforing: "Oslo",
   tiltakstype: mockTiltakstyper.OpplaringEnkeltplassFagOgYrke,
   oppstart: TiltaksgjennomforingOppstartstype.LOPENDE,

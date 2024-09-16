@@ -2,7 +2,7 @@ import { ModiaRoute, navigateToModiaApp } from "@/apps/modia/ModiaRoute";
 import { PortenLink } from "@/components/PortenLink";
 import { StatusModal } from "@/components/modal/StatusModal";
 import { useLogEvent } from "@/logging/amplitude";
-import { erKurstiltak, erPreview } from "@/utils/Utils";
+import { erPreview } from "@/utils/Utils";
 import { BodyShort, Button, Checkbox, Heading, HelpText, Modal } from "@navikt/ds-react";
 import { Bruker, DelMedBruker, VeilederflateTiltak } from "@mr/api-client";
 import { useDelTiltakMedBruker } from "@/api/queries/useDelTiltakMedBruker";
@@ -20,8 +20,8 @@ interface DelemodalProps {
   state: State;
 }
 
-function createOverskrift(tiltak: VeilederflateTiltak): string {
-  return `Tiltak gjennom NAV: ${erKurstiltak(tiltak.tiltakstype.tiltakskode, tiltak.tiltakstype.arenakode) ? tiltak.navn : tiltak.tiltakstype.navn}`;
+function overskrift(tiltak: VeilederflateTiltak): string {
+  return `Tiltak gjennom NAV: ${tiltak.tittel}`;
 }
 
 export function Delemodal({
@@ -75,12 +75,11 @@ export function Delemodal({
     logDelMedbrukerEvent("Delte med bruker", tiltak.tiltakstype.navn);
 
     dispatch({ type: "Send melding" });
-    const overskrift = createOverskrift(tiltak);
     const tekst = state.deletekst;
     try {
       mutation.mutate({
         fnr: bruker.fnr,
-        overskrift,
+        overskrift: overskrift(tiltak),
         tekst,
         venterPaaSvarFraBruker,
         tiltaksgjennomforingId: isTiltakGruppe(tiltak) ? tiltak.id : null,
@@ -111,7 +110,7 @@ export function Delemodal({
         <Modal.Header closeButton>
           <Heading size="xsmall">Del med bruker</Heading>
           <Heading size="large" level="1" className={style.heading}>
-            {createOverskrift(tiltak)}
+            {overskrift(tiltak)}
           </Heading>
         </Modal.Header>
 

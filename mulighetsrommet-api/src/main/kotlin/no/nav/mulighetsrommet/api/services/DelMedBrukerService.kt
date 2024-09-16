@@ -10,11 +10,11 @@ import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.clients.sanity.SanityParam
 import no.nav.mulighetsrommet.api.domain.dbo.DelMedBrukerDbo
 import no.nav.mulighetsrommet.api.domain.dto.SanityResponse
+import no.nav.mulighetsrommet.api.utils.TiltaksnavnUtils.tittelOgUnderTittel
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.QueryResult
 import no.nav.mulighetsrommet.database.utils.query
 import no.nav.mulighetsrommet.domain.Tiltakskode
-import no.nav.mulighetsrommet.domain.Tiltakskoder
 import no.nav.mulighetsrommet.domain.dto.NorskIdent
 import no.nav.mulighetsrommet.domain.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
@@ -117,28 +117,32 @@ class DelMedBrukerService(private val db: Database, private val sanityClient: Sa
             .let { db.run(it) }
     }
 
-    suspend fun getDelMedBrukerHistorikk(norskIdent: NorskIdent): Either<Error, List<DeltTiltak>> {
+    suspend fun getDelMedBrukerHistorikk(norskIdent: NorskIdent): Either<Error, List<TiltakDeltMedBruker>> {
         // Hent delt med bruker-historikk fra database
-        val alleTiltakDeltForBruker = getAlleTiltakDeltMedBruker(norskIdent).getOrNull() ?: emptyList()
-        val tiltakFraDb = getTiltakFraDb(alleTiltakDeltForBruker)
-        val tiltakFraSanity = getTiltakFraSanity(alleTiltakDeltForBruker)
+        val alleDeltMedBruker = getAlleTiltakDeltMedBruker(norskIdent).getOrNull() ?: emptyList()
+        val tiltakFraDb = getTiltakFraDb(alleDeltMedBruker)
+        val tiltakFraSanity = getTiltakFraSanity(alleDeltMedBruker)
 
         val alleDelteTiltak = (tiltakFraDb + tiltakFraSanity).sortedBy { it.createdAt }
 
         return Either.Right(alleDelteTiltak)
     }
 
-    private fun getTiltakFraDb(alleTiltakDelt: List<DelMedBrukerDbo>): List<DeltTiltak> {
+    private fun getTiltakFraDb(deltMedBruker: List<DelMedBrukerDbo>): List<TiltakDeltMedBruker> {
         // Slå opp i database for navn
         @Language("PostgreSQL")
         val tiltakFraDbQuery = """
-            select tg.navn, tg. id, tt.tiltakskode, tt.navn as tiltakstypeNavn
+            select
+                tg.navn,
+                tg.id,
+                tt.tiltakskode,
+                tt.navn as tiltakstypeNavn
             from tiltaksgjennomforing tg
-            join tiltakstype tt on tt.id = tg.tiltakstype_id
+                inner join tiltakstype tt on tt.id = tg.tiltakstype_id
             where tg.id = any(:ids::uuid[])
         """.trimIndent()
 
-        val gjennomforingerIds = alleTiltakDelt
+        val gjennomforingerIds = deltMedBruker
             .mapNotNull { it.tiltaksgjennomforingId }
             .let { db.createUuidArray(it) }
 
@@ -158,15 +162,20 @@ class DelMedBrukerService(private val db: Database, private val sanityClient: Sa
             .asList
             .let { db.run(it) }
             .flatMap { (id, tiltak) ->
-                alleTiltakDelt.filter { it.tiltaksgjennomforingId == id }.map {
-                    val konstruertNavn = getNavn(tiltak)
-                    DeltTiltak(
-                        lokaltNavn = tiltak.navn,
-                        konstruertNavn = konstruertNavn,
+                deltMedBruker.filter { it.tiltaksgjennomforingId == id }.map {
+                    val (tittel, underTittel) = tittelOgUnderTittel(
+                        tiltak.navn,
+                        tiltak.tiltakstypeNavn,
+                        tiltak.tiltakskode,
+                    )
+
+                    TiltakDeltMedBruker(
+                        tittel = tittel,
+                        underTittel = underTittel,
                         createdAt = it.createdAt!!,
                         dialogId = it.dialogId,
                         tiltakId = id.toString(),
-                        tiltakstype = DeltTiltak.Tiltakstype(
+                        tiltakstype = TiltakDeltMedBruker.Tiltakstype(
                             tiltakskode = tiltak.tiltakskode,
                             arenakode = null,
                             navn = tiltak.tiltakstypeNavn,
@@ -176,15 +185,7 @@ class DelMedBrukerService(private val db: Database, private val sanityClient: Sa
             }
     }
 
-    private fun getNavn(it: TiltakFraDb): String {
-        return if (Tiltakskoder.isKursTiltak(it.tiltakskode) || it.tiltakskode === Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK) {
-            it.navn
-        } else {
-            it.tiltakstypeNavn
-        }
-    }
-
-    private suspend fun getTiltakFraSanity(alleTiltakDelt: List<DelMedBrukerDbo>): List<DeltTiltak> {
+    private suspend fun getTiltakFraSanity(deltMedBruker: List<DelMedBrukerDbo>): List<TiltakDeltMedBruker> {
         val sanityQuery = """
          *[_type == "tiltaksgjennomforing" && _id in ${'$'}tiltakIds]{tiltaksgjennomforingNavn, _id, tiltakstype->{_id, tiltakstypeNavn}}
         """.trimIndent()
@@ -193,7 +194,7 @@ class DelMedBrukerService(private val db: Database, private val sanityClient: Sa
             add(
                 SanityParam.of(
                     "tiltakIds",
-                    alleTiltakDelt.filter { it.sanityId != null }.map {
+                    deltMedBruker.filter { it.sanityId != null }.map {
                         it.sanityId.toString()
                     },
                 ),
@@ -224,20 +225,20 @@ class DelMedBrukerService(private val db: Database, private val sanityClient: Sa
 
         return tiltakFraSanity.map { tiltak ->
             val arenaKode = results.first { it.first == UUID.fromString(tiltak.tiltakstype.id) }.second
-            var konstruertNavn = tiltak.tiltakstype.tiltakstypeNavn
+            val (tittel, underTittel) = tittelOgUnderTittel(
+                tiltak.navn,
+                tiltak.tiltakstype.tiltakstypeNavn,
+                arenaKode,
+            )
 
-            if (listOf("ENKELAMO", "ENKFAGYRKE").contains(arenaKode)) {
-                konstruertNavn = tiltak.navn // Lokalt navn for EnkelAMO og EnkFagYrke
-            }
-
-            alleTiltakDelt.filter { it.sanityId == UUID.fromString(tiltak.id) }.map {
-                DeltTiltak(
-                    lokaltNavn = tiltak.navn,
-                    konstruertNavn = konstruertNavn,
+            deltMedBruker.filter { it.sanityId == UUID.fromString(tiltak.id) }.map {
+                TiltakDeltMedBruker(
+                    tittel = tittel,
+                    underTittel = underTittel,
                     createdAt = it.createdAt!!,
                     dialogId = it.dialogId,
                     tiltakId = tiltak.id,
-                    tiltakstype = DeltTiltak.Tiltakstype(
+                    tiltakstype = TiltakDeltMedBruker.Tiltakstype(
                         tiltakskode = null,
                         arenakode = arenaKode,
                         navn = tiltak.tiltakstype.tiltakstypeNavn,
@@ -272,9 +273,9 @@ private fun Row.toDelMedBruker(): DelMedBrukerDbo = DelMedBrukerDbo(
 )
 
 @Serializable
-data class DeltTiltak(
-    val lokaltNavn: String,
-    val konstruertNavn: String?,
+data class TiltakDeltMedBruker(
+    val tittel: String,
+    val underTittel: String,
     @Serializable(with = LocalDateTimeSerializer::class)
     val createdAt: LocalDateTime,
     val dialogId: String,

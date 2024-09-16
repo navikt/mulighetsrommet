@@ -1008,7 +1008,8 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 brukersEnheter = listOf("2990"),
             ).should {
                 it shouldHaveSize 1
-                it[0].navn shouldBe AFT1.navn
+                it[0].underTittel shouldBe AFT1.navn
+                it[0].tittel shouldBe TiltakstypeFixtures.AFT.navn
             }
 
             tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
@@ -1026,7 +1027,8 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
             ).should {
                 it shouldHaveSize 1
-                it[0].navn shouldBe Oppfolging1.navn
+                it[0].underTittel shouldBe Oppfolging1.navn
+                it[0].tittel shouldBe TiltakstypeFixtures.Oppfolging.navn
             }
 
             tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
@@ -1034,7 +1036,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 brukersEnheter = listOf("0300"),
             ).should {
                 it shouldHaveSize 1
-                it[0].navn shouldBe AFT1.navn
+                it[0].underTittel shouldBe AFT1.navn
             }
 
             tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
@@ -1061,7 +1063,8 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 brukersEnheter = listOf("2990"),
             ).should {
                 it shouldHaveSize 1
-                it[0].navn shouldBe Oppfolging1.navn
+                it[0].underTittel shouldBe Oppfolging1.navn
+                it[0].tittel shouldBe TiltakstypeFixtures.Oppfolging.navn
             }
 
             tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
@@ -1070,7 +1073,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 brukersEnheter = listOf("2990"),
             ).should {
                 it shouldHaveSize 1
-                it[0].navn shouldBe AFT1.navn
+                it[0].underTittel shouldBe AFT1.navn
             }
         }
 
@@ -1129,7 +1132,8 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 brukersEnheter = listOf("2990"),
             ).should {
                 it shouldHaveSize 1
-                it[0].navn shouldBe Oppfolging1.navn
+                it[0].underTittel shouldBe Oppfolging1.navn
+                it[0].tittel shouldBe TiltakstypeFixtures.Oppfolging.navn
             }
 
             tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
@@ -1138,7 +1142,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 brukersEnheter = listOf("2990"),
             ).should {
                 it shouldHaveSize 1
-                it[0].navn shouldBe AFT1.navn
+                it[0].underTittel shouldBe AFT1.navn
             }
 
             tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(

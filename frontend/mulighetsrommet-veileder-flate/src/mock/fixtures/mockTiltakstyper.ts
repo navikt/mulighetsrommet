@@ -1976,7 +1976,7 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
     ],
     delingMedBruker:
       "Vi har nå et opplæringstiltak som jeg tenker kan passe deg godt. Det heter <tiltaksnavn>, og hensikten med tiltaket er å kvalifisere deg for ledige jobber.\n\nDu kan lese mer om tiltaket på www.nav.no/opplaring",
-    navn: "Opplæring - Gruppe Fag- og yrkesopplæring",
+    navn: "Fag- og yrkesopplæring (gruppe)",
     sanityId: "7f353dcd-37c2-42f8-bab6-ac2a60669839",
     beskrivelse:
       "Opplæringstiltak i form av Gruppe Fag- og yrkesopplæring (jf. tiltaksforskriften § 7-2 b) skal bidra til at arbeidssøkere kvalifiseres til ledige jobber. ",
@@ -2926,7 +2926,7 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
     ],
     beskrivelse:
       "Opplæringstiltak i form av Gruppe AMO (jf. tiltaksforskriften § 7-2 a) skal bidra til at arbeidssøkere kvalifiseres til ledige jobber. ",
-    navn: "Opplæring - Gruppe AMO",
+    navn: "Arbeidsmarkedsopplæring (gruppe)",
     kanKombineresMed: [],
   },
   avklaring: {

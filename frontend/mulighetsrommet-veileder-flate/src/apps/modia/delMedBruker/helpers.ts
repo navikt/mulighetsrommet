@@ -17,7 +17,7 @@ export function brukersEnhetFilterHasChanged(
 
 export function utledDelMedBrukerTekst(tiltak: VeilederflateTiltak, veiledernavn?: string) {
   const deletekst = getDelMedBrukerTekst(tiltak) ?? "";
-  const templatedDeletekst = deletekst.replaceAll("<tiltaksnavn>", tiltak.navn);
+  const templatedDeletekst = deletekst.replaceAll("<tiltaksnavn>", tiltak.tittel);
   const hilsen = hilsenTekst(veiledernavn);
   return `Hei\n\n${templatedDeletekst}\n\n${hilsen}`;
 }

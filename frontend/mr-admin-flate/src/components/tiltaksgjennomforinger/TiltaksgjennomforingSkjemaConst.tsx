@@ -1,4 +1,3 @@
-import { isTiltakMedFellesOppstart } from "../../utils/tiltakskoder";
 import {
   ArrangorKontaktperson,
   Avtale,
@@ -10,6 +9,7 @@ import {
 } from "@mr/api-client";
 import { InferredTiltaksgjennomforingSchema } from "@/components/redaksjoneltInnhold/TiltaksgjennomforingSchema";
 import { DeepPartial } from "react-hook-form";
+import { isKursTiltak } from "@mr/frontend-common/utils/utils";
 
 export function defaultOppstartType(avtale?: Avtale): TiltaksgjennomforingOppstartstype {
   if (!avtale) {
@@ -17,7 +17,7 @@ export function defaultOppstartType(avtale?: Avtale): TiltaksgjennomforingOppsta
   }
 
   const tiltakskode = avtale.tiltakstype.tiltakskode;
-  return isTiltakMedFellesOppstart(tiltakskode)
+  return isKursTiltak(tiltakskode)
     ? TiltaksgjennomforingOppstartstype.FELLES
     : TiltaksgjennomforingOppstartstype.LOPENDE;
 }
