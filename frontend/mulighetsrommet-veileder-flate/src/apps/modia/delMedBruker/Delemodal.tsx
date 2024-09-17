@@ -9,7 +9,7 @@ import { useDelTiltakMedBruker } from "@/api/queries/useDelTiltakMedBruker";
 import { DelMedBrukerContent, MAKS_ANTALL_TEGN_DEL_MED_BRUKER } from "./DelMedBrukerContent";
 import style from "./Delemodal.module.scss";
 import { Actions, State } from "./DelemodalActions";
-import { isTiltakArbeidsgiver, isTiltakGruppe } from "@/api/queries/useArbeidsmarkedstiltakById";
+import { isTiltakGruppe } from "@/api/queries/useArbeidsmarkedstiltakById";
 
 interface DelemodalProps {
   veiledernavn?: string;
@@ -83,7 +83,7 @@ export function Delemodal({
         tekst,
         venterPaaSvarFraBruker,
         tiltaksgjennomforingId: isTiltakGruppe(tiltak) ? tiltak.id : null,
-        sanityId: isTiltakArbeidsgiver(tiltak) ? tiltak.sanityId : null,
+        sanityId: !isTiltakGruppe(tiltak) ? tiltak.sanityId : null,
       });
     } catch {
       dispatch({ type: "Sending feilet" });

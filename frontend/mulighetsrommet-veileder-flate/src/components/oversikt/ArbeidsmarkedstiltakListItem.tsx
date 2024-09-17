@@ -13,7 +13,11 @@ import {
   VeilederflateTiltak,
 } from "@mr/api-client";
 import styles from "./ArbeidsmarkedstiltakListItem.module.scss";
-import { isTiltakArbeidsgiver, isTiltakGruppe } from "@/api/queries/useArbeidsmarkedstiltakById";
+import {
+  isTiltakEnkeltplass,
+  isTiltakGruppe,
+  isTiltakMedArrangor,
+} from "@/api/queries/useArbeidsmarkedstiltakById";
 
 interface Props {
   tiltak: VeilederflateTiltak;
@@ -71,7 +75,7 @@ export function ArbeidsmarkedstiltakListItem({ tiltak, index, delMedBruker }: Pr
           </div>
 
           <div className={classNames(styles.infogrid, styles.metadata)}>
-            {isTiltakGruppe(tiltak) ? (
+            {isTiltakMedArrangor(tiltak) ? (
               <BodyShort size="small" title={tiltak.arrangor.selskapsnavn} className={styles.muted}>
                 {tiltak.arrangor.selskapsnavn}
               </BodyShort>
@@ -92,7 +96,7 @@ export function ArbeidsmarkedstiltakListItem({ tiltak, index, delMedBruker }: Pr
 }
 
 function utledOppstart(tiltak: VeilederflateTiltak) {
-  if (isTiltakArbeidsgiver(tiltak)) {
+  if (isTiltakEnkeltplass(tiltak)) {
     return "Løpende oppstart";
   }
 

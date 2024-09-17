@@ -1,14 +1,14 @@
 import { GrDocumentPerformance } from "react-icons/gr";
-import { Rule, defineArrayMember, defineField, defineType } from "sanity";
+import { defineArrayMember, defineField, defineType, Rule } from "sanity";
 import { Information } from "../components/Information";
 import { VelgAlleEnheterForKontaktpersoner } from "../components/VelgAlleEnheterForKontaktpersoner";
 import { API_VERSION } from "../sanity.config";
 import {
-  IKKE_I_ADMINFLATE_TILTAK_DEV,
-  IKKE_I_ADMINFLATE_TILTAK_PROD,
   hasDuplicates,
-  isEgenRegiTiltak,
-  isInAdminFlate,
+  isTiltakEgenRegi,
+  isTiltakEnkeltplassAnskaffet,
+  isTiltakGruppe,
+  TILTAK_ADMINISTRERES_I_SANITY,
 } from "../utils/utils";
 import { EnhetType } from "./enhet";
 
@@ -58,11 +58,11 @@ export const tiltaksgjennomforing = defineType({
       to: [{ type: "tiltakstype" }],
       options: {
         filter: "_id in $ider",
-        filterParams: { ider: IKKE_I_ADMINFLATE_TILTAK_PROD.concat(IKKE_I_ADMINFLATE_TILTAK_DEV) },
+        filterParams: { ider: TILTAK_ADMINISTRERES_I_SANITY },
       },
       validation: (rule) =>
         rule.custom((currentValue) => {
-          if (currentValue && isInAdminFlate(currentValue._ref)) {
+          if (currentValue && isTiltakGruppe(currentValue._ref)) {
             return "Gruppetiltak må administreres i admin-flate";
           }
           return currentValue === undefined ? "Tiltakstype er påkrevd" : true;
@@ -71,27 +71,27 @@ export const tiltaksgjennomforing = defineType({
     defineField({
       name: "tiltaksgjennomforingNavn",
       title: "Navn på tiltaksgjennomføring",
-      description: "Navnet kommer fra Arena/admin-flate",
+      description: "Navnet kommer fra Arena for tiltak i egen regi (AMS/IPS)",
       type: "string",
       validation: (rule) => rule.required(),
       readOnly: ({ document }) => {
-        return (
-          isInAdminFlate(document.tiltakstype?._ref) || isEgenRegiTiltak(document.tiltakstype?._ref)
-        );
+        return isTiltakEgenRegi(document.tiltakstype?._ref);
       },
     }),
     defineField({
       name: "tiltaksnummer",
       title: "Tiltaksnummer",
-      description: "Tiltaksnummeret er hentet fra Arena",
+      description: "Tiltaksnummeret kommer fra Arena for tiltak i egen regi (AMS/IPS)",
       type: "slug",
       hidden: ({ document }) => {
-        return (
-          !isInAdminFlate(document.tiltakstype?._ref) &&
-          !isEgenRegiTiltak(document.tiltakstype?._ref)
+        return !(
+          isTiltakEgenRegi(document.tiltakstype?._ref) ||
+          isTiltakEnkeltplassAnskaffet(document.tiltakstype?._ref)
         );
       },
-      readOnly: true,
+      readOnly: ({ document }) => {
+        return isTiltakEgenRegi(document.tiltakstype?._ref);
+      },
     }),
     defineField({
       name: "beskrivelse",
@@ -105,11 +105,8 @@ export const tiltaksgjennomforing = defineType({
       name: "stedForGjennomforing",
       title: "Sted for gjennomføring",
       description:
-        "Skriv inn stedet tiltaket skal gjennomføres, for eksempel Fredrikstad eller Tromsø. For tiltak uten eksplisitt lokasjon (for eksempel digital jobbklubb), kan du la feltet stå tomt.",
+        "Skriv inn stedet tiltaket skal gjennomføres, for eksempel Fredrikstad eller Tromsø. For tiltak uten eksplisitt lokasjon kan du la feltet stå tomt.",
       type: "string",
-      hidden: ({ document }) => {
-        return isInAdminFlate(document.tiltakstype?._ref);
-      },
     }),
     defineField({
       name: "fylke",
@@ -124,14 +121,8 @@ export const tiltaksgjennomforing = defineType({
           type: EnhetType.Fylke,
         },
       },
-      hidden: ({ document }) => {
-        return isInAdminFlate(document.tiltakstype?._ref);
-      },
       validation: (rule) =>
         rule.custom((currentValue, { document }) => {
-          if (isInAdminFlate(document.tiltakstype?._ref)) {
-            return true;
-          }
           return currentValue === undefined ? "Fylke er påkrevd" : true;
         }),
     }),
@@ -142,7 +133,7 @@ export const tiltaksgjennomforing = defineType({
         "Hvilke enheter kan benytte seg av dette tiltaket? Hvis det gjelder for hele regionen kan dette feltet stå tomt.",
       type: "array",
       hidden: ({ document }) => {
-        return !document.fylke || isInAdminFlate(document.tiltakstype?._ref);
+        return !document.fylke;
       },
       of: [
         {
@@ -163,7 +154,7 @@ export const tiltaksgjennomforing = defineType({
       ],
       validation: (rule) =>
         rule.custom(async (enheter, { document, getClient }) => {
-          if (!document.fylke || !enheter || isInAdminFlate(document.tiltakstype?._ref)) {
+          if (!document.fylke || !enheter) {
             return true;
           }
 
@@ -244,14 +235,8 @@ export const tiltaksgjennomforing = defineType({
           },
         }),
       ],
-      hidden: ({ document }) => {
-        return isInAdminFlate(document.tiltakstype?._ref);
-      },
       validation: (rule) =>
         rule.custom((currentValue, { document }) => {
-          if (isInAdminFlate(document.tiltakstype?._ref)) {
-            return true;
-          }
           if (!currentValue || currentValue.length === 0) {
             return "Må ha minst én kontaktperson";
           }
@@ -262,7 +247,15 @@ export const tiltaksgjennomforing = defineType({
           return true;
         }),
     }),
-    //Faneinnhold
+    defineField({
+      name: "arrangor",
+      title: "Arrangør",
+      type: "reference",
+      to: [{ type: "arrangor" }],
+      hidden: ({ document }) => {
+        return !isTiltakEnkeltplassAnskaffet(document.tiltakstype?._ref);
+      },
+    }),
     defineField({
       name: "faneinnhold",
       title: "Faneinnhold",
