@@ -28,7 +28,7 @@ export const arrangorKontaktperson = {
       description: "Unngå personopplysninger",
       name: "beskrivelse",
       type: "string",
-      validation: (rule) => rule.required().max(200),
+      validation: (rule) => rule.max(200),
     }),
   ],
   preview: {
