@@ -41,8 +41,8 @@ class TiltakstypeService(
         return tiltakstypeRepository.get(id)
     }
 
-    fun getBySanityId(sanityId: UUID): TiltakstypeDto? {
-        return CacheUtils.tryCacheFirstNullable(cacheBySanityId, sanityId) {
+    fun getBySanityId(sanityId: UUID): TiltakstypeDto {
+        return CacheUtils.tryCacheFirstNotNull(cacheBySanityId, sanityId) {
             tiltakstypeRepository.getBySanityId(sanityId)
         }
     }

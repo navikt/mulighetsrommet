@@ -66,6 +66,9 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
       })
     : null;
 
+  const tiltaksnummer = "tiltaksnummer" in tiltak ? tiltak.tiltaksnummer : undefined;
+  const fylke = regioner.find((r) => r.enhetsnummer === tiltak.fylke)?.navn;
+
   return (
     <>
       <BrukerKvalifisererIkkeVarsel
@@ -158,10 +161,7 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
             <LenkeListe lenker={tiltak.faneinnhold?.lenker} />
             <VisibleWhenToggledOn toggle={Toggles.MULIGHETSROMMET_VEILEDERFLATE_VIS_TILBAKEMELDING}>
               <TilbakemeldingsLenke
-                url={PORTEN_URL_FOR_TILBAKEMELDING(
-                  tiltak.tiltaksnummer,
-                  regioner.find((r) => r.enhetsnummer === tiltak.fylke)?.navn,
-                )}
+                url={PORTEN_URL_FOR_TILBAKEMELDING(tiltaksnummer, fylke)}
                 tekst="Gi tilbakemelding via Porten"
               />
             </VisibleWhenToggledOn>

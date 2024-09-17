@@ -5,7 +5,7 @@ import {
   TiltaksgjennomforingOppstartstype,
   TiltaksgjennomforingStatus,
   VeilederflateTiltak,
-  VeilederflateTiltakArbeidsgiver,
+  VeilederflateTiltakEnkeltplass,
   VeilederflateTiltakGruppe,
 } from "@mr/api-client";
 import { mockTiltakstyper } from "./mockTiltakstyper";
@@ -113,8 +113,8 @@ export const tiltakAvklaring: VeilederflateTiltakGruppe = {
   },
 };
 
-export const tiltakMentor: VeilederflateTiltakArbeidsgiver = {
-  type: "TILTAK_ARBEIDSGIVER",
+export const tiltakMentor: VeilederflateTiltakEnkeltplass = {
+  type: "TILTAK_ENKELTPLASS",
   sanityId: "91205ff2-ec72-4a7f-80b8-1c99d8535a06",
   tittel: "Mentor",
   underTittel: "Sindres mentorordning med Yoda",
@@ -472,8 +472,8 @@ export const tiltakOppfolging: VeilederflateTiltakGruppe = {
   },
 };
 
-export const tiltakEnkelplassFagOgYrke: VeilederflateTiltakArbeidsgiver = {
-  type: "TILTAK_ARBEIDSGIVER",
+export const tiltakEnkelplassFagOgYrke: VeilederflateTiltakEnkeltplass = {
+  type: "TILTAK_ENKELTPLASS",
   sanityId: "f1887090-1ba8-47a4-a82f-6aaad488994e",
   status: { status: TiltaksgjennomforingStatus.GJENNOMFORES },
   tittel: "Opplæring Fag og Yrke",

@@ -1110,9 +1110,10 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
                 innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
                 brukersEnheter = listOf("0502"),
-                search = "aft OR erik",
+                search = "af",
             ).should {
-                it shouldHaveSize 2
+                it shouldHaveSize 1
+                it[0].id shouldBe AFT1.id
             }
         }
 

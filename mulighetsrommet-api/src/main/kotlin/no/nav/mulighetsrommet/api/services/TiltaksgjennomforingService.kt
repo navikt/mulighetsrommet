@@ -7,7 +7,9 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import kotliquery.TransactionalSession
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
-import no.nav.mulighetsrommet.api.domain.dto.*
+import no.nav.mulighetsrommet.api.domain.dto.EndringshistorikkDto
+import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingDto
+import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingNotificationDto
 import no.nav.mulighetsrommet.api.okonomi.tilsagn.TilsagnRepository
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
@@ -21,7 +23,6 @@ import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.domain.Tiltakskoder.isTiltakMedAvtalerFraMulighetsrommet
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering.TiltaksgjennomforingSluttDatoCutoffDate
 import no.nav.mulighetsrommet.domain.dto.AvbruttAarsak
-import no.nav.mulighetsrommet.domain.dto.Innsatsgruppe
 import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingEksternV1Dto
 import no.nav.mulighetsrommet.kafka.producers.SisteTiltaksgjennomforingerV1KafkaProducer
@@ -98,25 +99,6 @@ class TiltaksgjennomforingService(
     ).let { (totalCount, data) ->
         PaginatedResponse.of(pagination, totalCount, data)
     }
-
-    fun getVeilederflateTiltaksgjennomforing(id: UUID): VeilederflateTiltakGruppe? {
-        return tiltaksgjennomforinger.getVeilederflateTiltaksgjennomforing(id)
-    }
-
-    fun getAllVeilederflateTiltaksgjennomforing(
-        search: String?,
-        apentForInnsok: Boolean?,
-        sanityTiltakstypeIds: List<UUID>?,
-        innsatsgruppe: Innsatsgruppe,
-        enheter: List<String>,
-    ): List<VeilederflateTiltak> =
-        tiltaksgjennomforinger.getAllVeilederflateTiltaksgjennomforing(
-            innsatsgruppe = innsatsgruppe,
-            brukersEnheter = enheter,
-            search = search,
-            apentForInnsok = apentForInnsok,
-            sanityTiltakstypeIds = sanityTiltakstypeIds,
-        )
 
     fun getEkstern(id: UUID): TiltaksgjennomforingEksternV1Dto? {
         return tiltaksgjennomforinger.get(id)?.toTiltaksgjennomforingV1Dto()

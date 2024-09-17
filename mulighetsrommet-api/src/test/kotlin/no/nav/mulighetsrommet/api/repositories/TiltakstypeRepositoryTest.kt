@@ -187,7 +187,7 @@ class TiltakstypeRepositoryTest : FunSpec({
         """.trimIndent()
         database.db.run(queryOf(query).asExecute)
 
-        tiltakstyper.getBySanityId(sanityId).shouldNotBeNull().should {
+        tiltakstyper.getBySanityId(sanityId).should {
             it.id shouldBe TiltakstypeFixtures.Oppfolging.id
         }
     }

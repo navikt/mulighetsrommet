@@ -19,9 +19,9 @@ object TiltaksnavnUtils {
     fun tittelOgUnderTittel(
         navn: String,
         tiltakstypeNavn: String,
-        arenaKode: String?,
+        arenaKode: String,
     ): Pair<String, String> =
-        if (listOf("ENKELAMO", "ENKFAGYRKE").contains(arenaKode)) {
+        if (arenaKode in listOf("ENKELAMO", "ENKFAGYRKE")) {
             navn to tiltakstypeNavn
         } else {
             tiltakstypeNavn to navn
@@ -33,12 +33,12 @@ object TiltaksnavnUtils {
         return "${tiltakstype.navn}${if (casedArrangor.isNotBlank()) " hos $casedArrangor" else ""}"
     }
 
-    val FORKORTELSER_MED_STORE_BOKSTAVER = listOf(
+    private val FORKORTELSER_MED_STORE_BOKSTAVER = listOf(
         "as",
         "a/s",
     )
 
-    val ORD_MED_SMA_BOKSTAVER = listOf(
+    private val ORD_MED_SMA_BOKSTAVER = listOf(
         "i",
         "og",
     )
