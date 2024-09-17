@@ -6,7 +6,7 @@ import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import java.util.*
 
 @Serializable
-data class TiltakstypeV2Dto(
+data class TiltakstypeEksternV2Dto(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     val navn: String,

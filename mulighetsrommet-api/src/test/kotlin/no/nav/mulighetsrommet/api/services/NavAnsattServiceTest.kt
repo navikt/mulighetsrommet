@@ -27,7 +27,7 @@ import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattRolle.*
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
 import no.nav.mulighetsrommet.api.domain.dto.AdGruppe
-import no.nav.mulighetsrommet.api.domain.dto.AvtaleAdminDto
+import no.nav.mulighetsrommet.api.domain.dto.AvtaleDto
 import no.nav.mulighetsrommet.api.domain.dto.NavAnsattDto
 import no.nav.mulighetsrommet.api.domain.dto.SanityResponse
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
@@ -427,18 +427,18 @@ class NavAnsattServiceTest :
 
             test("varsler administratorer basert på hovedenhet når avtale ikke lengre har administrator") {
                 every { avtaleRepository.getAvtaleIdsByAdministrator(ansatt1.navIdent) } returns listOf(AvtaleFixtures.AFT.id)
-                every { avtaleRepository.get(AvtaleFixtures.AFT.id) } returns AvtaleAdminDto(
+                every { avtaleRepository.get(AvtaleFixtures.AFT.id) } returns AvtaleDto(
                     id = AvtaleFixtures.AFT.id,
                     navn = AvtaleFixtures.AFT.navn,
                     avtalenummer = AvtaleFixtures.AFT.avtalenummer,
                     tiltakstype = TiltakstypeFixtures.AFT.run {
-                        AvtaleAdminDto.Tiltakstype(
+                        AvtaleDto.Tiltakstype(
                             id = id,
                             navn = navn,
                             tiltakskode = tiltakskode!!,
                         )
                     },
-                    arrangor = AvtaleAdminDto.ArrangorHovedenhet(
+                    arrangor = AvtaleDto.ArrangorHovedenhet(
                         id = UUID.randomUUID(),
                         organisasjonsnummer = "123",
                         navn = "navn",

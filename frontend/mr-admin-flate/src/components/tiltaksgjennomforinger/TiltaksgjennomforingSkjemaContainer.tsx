@@ -1,7 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Tabs } from "@navikt/ds-react";
 import { useAtom } from "jotai";
-import { Avtale, Tiltaksgjennomforing, TiltaksgjennomforingRequest } from "@mr/api-client";
+import { AvtaleDto, TiltaksgjennomforingDto, TiltaksgjennomforingRequest } from "@mr/api-client";
 import { DeepPartial, FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { v4 as uuidv4 } from "uuid";
 import { gjennomforingDetaljerTabAtom } from "@/api/atoms";
@@ -23,8 +23,8 @@ import { TabWithErrorBorder } from "../skjema/TabWithErrorBorder";
 interface Props {
   onClose: () => void;
   onSuccess: (id: string) => void;
-  avtale: Avtale;
-  tiltaksgjennomforing?: Tiltaksgjennomforing;
+  avtale: AvtaleDto;
+  tiltaksgjennomforing?: TiltaksgjennomforingDto;
   defaultValues: DeepPartial<InferredTiltaksgjennomforingSchema>;
 }
 

@@ -7,8 +7,8 @@ import com.google.cloud.storage.Storage
 import com.google.cloud.storage.StorageOptions
 import kotlinx.coroutines.*
 import no.nav.mulighetsrommet.api.avtaler.AvtaleValidator
-import no.nav.mulighetsrommet.api.domain.dto.AvtaleAdminDto
-import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingAdminDto
+import no.nav.mulighetsrommet.api.domain.dto.AvtaleDto
+import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingDto
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.responses.ValidationError
@@ -140,7 +140,7 @@ class GenerateValidationReport(
 
     private fun createAvtalerSheet(
         workbook: XSSFWorkbook,
-        result: Map<AvtaleAdminDto, List<ValidationError>>,
+        result: Map<AvtaleDto, List<ValidationError>>,
     ) {
         val workSheet = workbook.createSheet("Avtaler")
         createHeader(workSheet)
@@ -170,7 +170,7 @@ class GenerateValidationReport(
 
     private fun createGjennomforingerSheet(
         workbook: XSSFWorkbook,
-        result: Map<TiltaksgjennomforingAdminDto, List<ValidationError>>,
+        result: Map<TiltaksgjennomforingDto, List<ValidationError>>,
     ) {
         val workSheet = workbook.createSheet("Gjennomføringer")
         createHeader(workSheet)

@@ -1,9 +1,9 @@
-import { Avtale, Avtaletype, Opphav, OpsjonsmodellKey } from "@mr/api-client";
+import { AvtaleDto, Avtaletype, Opphav, OpsjonsmodellKey } from "@mr/api-client";
 import { mockArrangorer } from "./mock_arrangorer";
 import { mockEnheter } from "./mock_enheter";
 import { mockTiltakstyper } from "./mock_tiltakstyper";
 
-export const mockAvtaler: Avtale[] = [
+export const mockAvtaler: AvtaleDto[] = [
   {
     id: "d1f163b7-1a41-4547-af16-03fd4492b7ba",
     tiltakstype: {

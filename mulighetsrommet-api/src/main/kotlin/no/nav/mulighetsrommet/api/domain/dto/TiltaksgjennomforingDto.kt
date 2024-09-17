@@ -17,7 +17,7 @@ import java.time.LocalDateTime
 import java.util.*
 
 @Serializable
-data class TiltaksgjennomforingAdminDto(
+data class TiltaksgjennomforingDto(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     val tiltakstype: Tiltakstype,
@@ -88,9 +88,9 @@ data class TiltaksgjennomforingAdminDto(
     )
 
     fun toTiltaksgjennomforingV1Dto() =
-        TiltaksgjennomforingV1Dto(
+        TiltaksgjennomforingEksternV1Dto(
             id = id,
-            tiltakstype = TiltaksgjennomforingV1Dto.Tiltakstype(
+            tiltakstype = TiltaksgjennomforingEksternV1Dto.Tiltakstype(
                 id = tiltakstype.id,
                 navn = tiltakstype.navn,
                 arenaKode = tiltakstype.tiltakskode.toArenaKode(),

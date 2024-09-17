@@ -6,7 +6,7 @@ import { HGrid, DatePicker, BodyShort, Alert, HStack, Button, Box } from "@navik
 import { addYear, formaterDato } from "../../utils/Utils";
 import { ControlledDateInput } from "../skjema/ControlledDateInput";
 import { FormGroup } from "../skjema/FormGroup";
-import { ApiError, TilsagnDto, TilsagnRequest, Tiltaksgjennomforing } from "@mr/api-client";
+import { ApiError, TilsagnDto, TilsagnRequest, TiltaksgjennomforingDto } from "@mr/api-client";
 import { useNavEnheter } from "../../api/enhet/useNavEnheter";
 import { UseMutationResult } from "@tanstack/react-query";
 import { AFTBeregningSkjema } from "./AFTBeregningSkjema";
@@ -15,7 +15,7 @@ import { ControlledSokeSelect, TiltaksgjennomforingStatusTag } from "@mr/fronten
 import { Metadata } from "../detaljside/Metadata";
 
 interface Props {
-  tiltaksgjennomforing: Tiltaksgjennomforing;
+  tiltaksgjennomforing: TiltaksgjennomforingDto;
   tilsagn?: TilsagnDto;
   onSubmit: (data: InferredOpprettTilsagnSchema) => void;
   onAvbryt?: () => void;

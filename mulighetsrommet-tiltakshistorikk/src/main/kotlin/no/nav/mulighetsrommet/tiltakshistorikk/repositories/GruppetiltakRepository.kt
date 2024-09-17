@@ -2,7 +2,7 @@ package no.nav.mulighetsrommet.tiltakshistorikk.repositories
 
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.database.Database
-import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingV1Dto
+import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingEksternV1Dto
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
 import java.util.*
@@ -11,7 +11,7 @@ class GruppetiltakRepository(private val db: Database) {
 
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    fun upsert(tiltak: TiltaksgjennomforingV1Dto) = db.useSession { session ->
+    fun upsert(tiltak: TiltaksgjennomforingEksternV1Dto) = db.useSession { session ->
         logger.info("Lagrer tiltak id=${tiltak.id}")
 
         @Language("PostgreSQL")

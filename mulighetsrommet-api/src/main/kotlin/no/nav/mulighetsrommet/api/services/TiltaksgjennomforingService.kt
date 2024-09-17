@@ -23,7 +23,7 @@ import no.nav.mulighetsrommet.domain.constants.ArenaMigrering.Tiltaksgjennomfori
 import no.nav.mulighetsrommet.domain.dto.AvbruttAarsak
 import no.nav.mulighetsrommet.domain.dto.Innsatsgruppe
 import no.nav.mulighetsrommet.domain.dto.NavIdent
-import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingV1Dto
+import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingEksternV1Dto
 import no.nav.mulighetsrommet.kafka.producers.SisteTiltaksgjennomforingerV1KafkaProducer
 import no.nav.mulighetsrommet.notifications.NotificationRepository
 import no.nav.mulighetsrommet.notifications.NotificationType
@@ -50,7 +50,7 @@ class TiltaksgjennomforingService(
     suspend fun upsert(
         request: TiltaksgjennomforingRequest,
         navIdent: NavIdent,
-    ): Either<List<ValidationError>, TiltaksgjennomforingAdminDto> {
+    ): Either<List<ValidationError>, TiltaksgjennomforingDto> {
         val previous = tiltaksgjennomforinger.get(request.id)
         return validator.validate(request.toDbo(), previous)
             .map { dbo ->
@@ -76,14 +76,14 @@ class TiltaksgjennomforingService(
             }
     }
 
-    fun get(id: UUID): TiltaksgjennomforingAdminDto? {
+    fun get(id: UUID): TiltaksgjennomforingDto? {
         return tiltaksgjennomforinger.get(id)
     }
 
     fun getAll(
         pagination: Pagination,
         filter: AdminTiltaksgjennomforingFilter,
-    ): PaginatedResponse<TiltaksgjennomforingAdminDto> = tiltaksgjennomforinger.getAll(
+    ): PaginatedResponse<TiltaksgjennomforingDto> = tiltaksgjennomforinger.getAll(
         pagination,
         search = filter.search,
         navEnheter = filter.navEnheter,
@@ -118,14 +118,14 @@ class TiltaksgjennomforingService(
             sanityTiltakstypeIds = sanityTiltakstypeIds,
         )
 
-    fun getEkstern(id: UUID): TiltaksgjennomforingV1Dto? {
+    fun getEkstern(id: UUID): TiltaksgjennomforingEksternV1Dto? {
         return tiltaksgjennomforinger.get(id)?.toTiltaksgjennomforingV1Dto()
     }
 
     fun getAllEkstern(
         pagination: Pagination,
         filter: EksternTiltaksgjennomforingFilter,
-    ): PaginatedResponse<TiltaksgjennomforingV1Dto> = tiltaksgjennomforinger
+    ): PaginatedResponse<TiltaksgjennomforingEksternV1Dto> = tiltaksgjennomforinger
         .getAll(
             pagination,
             arrangorOrgnr = filter.arrangorOrgnr,
@@ -265,7 +265,7 @@ class TiltaksgjennomforingService(
         return documentHistoryService.getEndringshistorikk(DocumentClass.TILTAKSGJENNOMFORING, id)
     }
 
-    private fun getOrError(id: UUID, tx: TransactionalSession): TiltaksgjennomforingAdminDto {
+    private fun getOrError(id: UUID, tx: TransactionalSession): TiltaksgjennomforingDto {
         val gjennomforing = tiltaksgjennomforinger.get(id, tx)
         return requireNotNull(gjennomforing) { "Gjennomføringen med id=$id finnes ikke" }
     }
@@ -293,7 +293,7 @@ class TiltaksgjennomforingService(
 
     private fun logEndring(
         operation: String,
-        dto: TiltaksgjennomforingAdminDto,
+        dto: TiltaksgjennomforingDto,
         navIdent: NavIdent,
         tx: TransactionalSession,
     ) {
@@ -310,7 +310,7 @@ class TiltaksgjennomforingService(
 
     private fun logEndringSomSystembruker(
         operation: String,
-        dto: TiltaksgjennomforingAdminDto,
+        dto: TiltaksgjennomforingDto,
         tx: TransactionalSession,
     ) {
         documentHistoryService.logEndring(

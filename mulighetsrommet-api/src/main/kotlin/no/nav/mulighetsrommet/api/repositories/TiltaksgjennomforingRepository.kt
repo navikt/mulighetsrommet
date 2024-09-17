@@ -353,10 +353,10 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             .asExecute.let { tx.run(it) }
     }
 
-    fun get(id: UUID): TiltaksgjennomforingAdminDto? =
+    fun get(id: UUID): TiltaksgjennomforingDto? =
         db.transaction { get(id, it) }
 
-    fun get(id: UUID, tx: Session): TiltaksgjennomforingAdminDto? {
+    fun get(id: UUID, tx: Session): TiltaksgjennomforingDto? {
         @Language("PostgreSQL")
         val query = """
             select *
@@ -365,7 +365,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         """.trimIndent()
 
         return queryOf(query, id)
-            .map { it.toTiltaksgjennomforingAdminDto() }
+            .map { it.toTiltaksgjennomforingDto() }
             .asSingle
             .let { tx.run(it) }
     }
@@ -396,7 +396,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         administratorNavIdent: NavIdent? = null,
         opphav: ArenaMigrering.Opphav? = null,
         publisert: Boolean? = null,
-    ): PaginatedResult<TiltaksgjennomforingAdminDto> {
+    ): PaginatedResult<TiltaksgjennomforingDto> {
         val parameters = mapOf(
             "search" to search,
             "search_arrangor" to search?.trim()?.let { "%$it%" },
@@ -458,7 +458,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
 
         return db.useSession { session ->
             queryOf(query, parameters + pagination.parameters)
-                .mapPaginated { it.toTiltaksgjennomforingAdminDto() }
+                .mapPaginated { it.toTiltaksgjennomforingDto() }
                 .runWithSession(session)
         }
     }
@@ -653,7 +653,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
     fun lukkApentForInnsokForTiltakMedStartdatoForDato(
         dagensDato: LocalDate,
         tx: TransactionalSession,
-    ): List<TiltaksgjennomforingAdminDto> {
+    ): List<TiltaksgjennomforingDto> {
         @Language("PostgreSQL")
         val query = """
             update tiltaksgjennomforing
@@ -788,9 +788,9 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         )
     }
 
-    private fun Row.toTiltaksgjennomforingAdminDto(): TiltaksgjennomforingAdminDto {
+    private fun Row.toTiltaksgjennomforingDto(): TiltaksgjennomforingDto {
         val administratorer = stringOrNull("administratorer_json")
-            ?.let { Json.decodeFromString<List<TiltaksgjennomforingAdminDto.Administrator>>(it) }
+            ?.let { Json.decodeFromString<List<TiltaksgjennomforingDto.Administrator>>(it) }
             ?: emptyList()
         val navEnheterDto = stringOrNull("nav_enheter_json")
             ?.let { Json.decodeFromString<List<NavEnhetDbo>>(it) }
@@ -807,7 +807,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         val avbruttTidspunkt = localDateTimeOrNull("avbrutt_tidspunkt")
         val avbruttAarsak = stringOrNull("avbrutt_aarsak")?.let { AvbruttAarsak.fromString(it) }
 
-        return TiltaksgjennomforingAdminDto(
+        return TiltaksgjennomforingDto(
             id = uuid("id"),
             navn = string("navn"),
             tiltaksnummer = stringOrNull("tiltaksnummer"),
@@ -834,7 +834,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             createdAt = localDateTime("created_at"),
             deltidsprosent = double("deltidsprosent"),
             estimertVentetid = intOrNull("estimert_ventetid_verdi")?.let {
-                TiltaksgjennomforingAdminDto.EstimertVentetid(
+                TiltaksgjennomforingDto.EstimertVentetid(
                     verdi = int("estimert_ventetid_verdi"),
                     enhet = string("estimert_ventetid_enhet"),
                 )
@@ -859,14 +859,14 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             },
             kontaktpersoner = kontaktpersoner,
             administratorer = administratorer,
-            arrangor = TiltaksgjennomforingAdminDto.ArrangorUnderenhet(
+            arrangor = TiltaksgjennomforingDto.ArrangorUnderenhet(
                 id = uuid("arrangor_id"),
                 organisasjonsnummer = string("arrangor_organisasjonsnummer"),
                 navn = string("arrangor_navn"),
                 slettet = boolean("arrangor_slettet"),
                 kontaktpersoner = arrangorKontaktpersoner,
             ),
-            tiltakstype = TiltaksgjennomforingAdminDto.Tiltakstype(
+            tiltakstype = TiltaksgjennomforingDto.Tiltakstype(
                 id = uuid("tiltakstype_id"),
                 navn = string("tiltakstype_navn"),
                 tiltakskode = Tiltakskode.valueOf(string("tiltakstype_tiltakskode")),

@@ -2,7 +2,7 @@ package no.nav.mulighetsrommet.api.utils
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
-import no.nav.mulighetsrommet.api.domain.dto.TiltakstypeAdminDto
+import no.nav.mulighetsrommet.api.domain.dto.TiltakstypeDto
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.dto.TiltakstypeStatus
 import java.time.LocalDate
@@ -11,7 +11,7 @@ import java.util.*
 class TiltaksnavnUtilsTest : FunSpec({
     context("Casing av konstruerte navn") {
         test("Skal konstruere navn med stor forbokstav i tiltaksnavn og arrangør") {
-            val tiltakstype = TiltakstypeAdminDto(
+            val tiltakstype = TiltakstypeDto(
                 id = UUID.randomUUID(),
                 navn = "Oppfølging",
                 tiltakskode = Tiltakskode.OPPFOLGING,

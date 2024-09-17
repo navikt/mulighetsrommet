@@ -13,7 +13,7 @@ import no.nav.mulighetsrommet.api.clients.sanity.SanityParam
 import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattRolle
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
-import no.nav.mulighetsrommet.api.domain.dto.AvtaleAdminDto
+import no.nav.mulighetsrommet.api.domain.dto.AvtaleDto
 import no.nav.mulighetsrommet.api.domain.dto.Mutation
 import no.nav.mulighetsrommet.api.domain.dto.NavAnsattDto
 import no.nav.mulighetsrommet.api.domain.dto.SanityResponse
@@ -208,7 +208,7 @@ class NavAnsattService(
     }
 
     private fun notifyRelevantAdministrators(
-        avtale: AvtaleAdminDto,
+        avtale: AvtaleDto,
         hovedenhet: NavAnsattDto.Hovedenhet,
     ) {
         val region = navEnhetService.hentOverordnetFylkesenhet(hovedenhet.enhetsnummer)

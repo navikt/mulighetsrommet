@@ -167,9 +167,9 @@ private fun inititalizeData(database: FlywayDatabaseTestListener) {
     val gruppetiltak = GruppetiltakRepository(database.db)
     val deltakere = DeltakerRepository(database.db)
 
-    val tiltak = TiltaksgjennomforingV1Dto(
+    val tiltak = TiltaksgjennomforingEksternV1Dto(
         id = UUID.fromString("566b89b0-4ed0-43cf-84a8-39085428f7e6"),
-        tiltakstype = TiltaksgjennomforingV1Dto.Tiltakstype(
+        tiltakstype = TiltaksgjennomforingEksternV1Dto.Tiltakstype(
             id = UUID.fromString("af6f4034-08da-4bd4-8735-ffd883e8aab7"),
             navn = "Gruppe AMO",
             arenaKode = "GRUPPEAMO",

@@ -34,7 +34,7 @@ data class ArenaMigreringTiltaksgjennomforingDto(
 ) {
     companion object {
         fun from(
-            tiltaksgjennomforing: TiltaksgjennomforingAdminDto,
+            tiltaksgjennomforing: TiltaksgjennomforingDto,
             arenaId: Int?,
             endretTidspunkt: LocalDateTime,
         ): ArenaMigreringTiltaksgjennomforingDto {

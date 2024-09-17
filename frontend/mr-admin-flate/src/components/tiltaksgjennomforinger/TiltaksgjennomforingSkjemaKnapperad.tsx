@@ -1,13 +1,18 @@
 import { Button } from "@navikt/ds-react";
 import { UseMutationResult } from "@tanstack/react-query";
-import { Tiltaksgjennomforing, TiltaksgjennomforingRequest } from "@mr/api-client";
+import { TiltaksgjennomforingDto, TiltaksgjennomforingRequest } from "@mr/api-client";
 import { ValideringsfeilOppsummering } from "../skjema/ValideringsfeilOppsummering";
 import { SkjemaKnapperad } from "@/components/skjema/SkjemaKnapperad";
 
 interface Props {
   redigeringsModus: boolean;
   onClose: () => void;
-  mutation: UseMutationResult<Tiltaksgjennomforing, unknown, TiltaksgjennomforingRequest, unknown>;
+  mutation: UseMutationResult<
+    TiltaksgjennomforingDto,
+    unknown,
+    TiltaksgjennomforingRequest,
+    unknown
+  >;
 }
 export function TiltaksgjennomforingSkjemaKnapperad({
   redigeringsModus,

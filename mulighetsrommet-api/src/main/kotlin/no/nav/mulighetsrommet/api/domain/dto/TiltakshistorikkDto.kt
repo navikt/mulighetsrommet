@@ -12,7 +12,7 @@ import java.time.LocalDate
 import java.util.*
 
 @Serializable
-sealed class TiltakshistorikkAdminDto {
+sealed class TiltakshistorikkDto {
     abstract val id: UUID
     abstract val opphav: Tiltakshistorikk.Opphav
     abstract val startDato: LocalDate?
@@ -40,7 +40,7 @@ sealed class TiltakshistorikkAdminDto {
         override val tiltakNavn: String,
         override val arrangor: Arrangor,
         val status: ArenaDeltakerStatus,
-    ) : TiltakshistorikkAdminDto() {
+    ) : TiltakshistorikkDto() {
         override val opphav = Tiltakshistorikk.Opphav.ARENA
     }
 
@@ -57,7 +57,7 @@ sealed class TiltakshistorikkAdminDto {
         override val tiltakNavn: String,
         override val arrangor: Arrangor,
         val status: AmtDeltakerStatus,
-    ) : TiltakshistorikkAdminDto() {
+    ) : TiltakshistorikkDto() {
         override val opphav = Tiltakshistorikk.Opphav.TEAM_KOMET
     }
 }

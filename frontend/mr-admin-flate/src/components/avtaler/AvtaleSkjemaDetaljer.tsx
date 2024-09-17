@@ -10,7 +10,7 @@ import { VertikalSeparator } from "@/components/skjema/VertikalSeparator";
 import { erAnskaffetTiltak } from "@/utils/tiltakskoder";
 import { avtaletypeTilTekst } from "@/utils/Utils";
 import {
-  Avtale,
+  AvtaleDto,
   Avtaletype,
   NavAnsatt,
   NavEnhet,
@@ -18,7 +18,7 @@ import {
   Opphav,
   OpsjonsmodellKey,
   Tiltakskode,
-  Tiltakstype,
+  TiltakstypeDto,
 } from "@mr/api-client";
 import { ControlledSokeSelect } from "@mr/frontend-common/components/ControlledSokeSelect";
 import { LabelWithHelpText } from "@mr/frontend-common/components/label/LabelWithHelpText";
@@ -36,9 +36,9 @@ import { opsjonsmodeller } from "./opsjoner/opsjonsmodeller";
 import { useCallback, useEffect } from "react";
 
 interface Props {
-  tiltakstyper: Tiltakstype[];
+  tiltakstyper: TiltakstypeDto[];
   ansatt: NavAnsatt;
-  avtale?: Avtale;
+  avtale?: AvtaleDto;
   enheter: NavEnhet[];
 }
 

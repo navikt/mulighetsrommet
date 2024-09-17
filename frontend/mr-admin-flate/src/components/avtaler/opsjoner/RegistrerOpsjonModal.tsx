@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Alert, BodyLong, BodyShort, Button, Modal, VStack } from "@navikt/ds-react";
-import { Avtale, OpsjonLoggRequest, OpsjonStatus } from "@mr/api-client";
+import { AvtaleDto, OpsjonLoggRequest, OpsjonStatus } from "@mr/api-client";
 import { RefObject } from "react";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { useRegistrerOpsjon } from "@/api/avtaler/useRegistrerOpsjon";
@@ -15,7 +15,7 @@ import { RegistrerOpsjonSkjema } from "./RegistrerOpsjonSkjema";
 
 interface Props {
   modalRef: RefObject<HTMLDialogElement>;
-  avtale: Avtale;
+  avtale: AvtaleDto;
 }
 
 export function RegistrerOpsjonModal({ modalRef, avtale }: Props) {
@@ -117,7 +117,7 @@ function SluttDatoErLikEllerPassererMaksVarighetModal({
   avtale,
 }: {
   modalRef: RefObject<HTMLDialogElement>;
-  avtale: Avtale;
+  avtale: AvtaleDto;
 }) {
   return (
     <VarselModal

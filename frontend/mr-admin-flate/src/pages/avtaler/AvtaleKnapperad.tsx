@@ -7,13 +7,13 @@ import { AvbrytAvtaleModal } from "@/components/modal/AvbrytAvtaleModal";
 import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
 import { KnapperadContainer } from "@/pages/KnapperadContainer";
 import { BodyShort, Button, Dropdown } from "@navikt/ds-react";
-import { Avtale, NavAnsatt } from "@mr/api-client";
+import { AvtaleDto, NavAnsatt } from "@mr/api-client";
 import { useRef } from "react";
 import { useNavigate } from "react-router-dom";
 
 interface Props {
   bruker: NavAnsatt;
-  avtale: Avtale;
+  avtale: AvtaleDto;
 }
 
 export function AvtaleKnapperad({ bruker, avtale }: Props) {
@@ -22,7 +22,7 @@ export function AvtaleKnapperad({ bruker, avtale }: Props) {
   const avbrytModalRef = useRef<HTMLDialogElement>(null);
   const registrerOpsjonModalRef = useRef<HTMLDialogElement>(null);
 
-  function kanRegistrereOpsjon(avtale: Avtale): boolean {
+  function kanRegistrereOpsjon(avtale: AvtaleDto): boolean {
     return !!avtale?.opsjonsmodellData?.opsjonMaksVarighet;
   }
 

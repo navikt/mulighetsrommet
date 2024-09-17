@@ -8,7 +8,7 @@ import {
   Kurstype,
   Opphav,
   PaginertTiltaksgjennomforing,
-  Tiltaksgjennomforing,
+  TiltaksgjennomforingDto,
   TiltaksgjennomforingOppstartstype,
   TiltaksgjennomforingStatus,
 } from "@mr/api-client";
@@ -17,7 +17,7 @@ import { mockArrangorer } from "./mock_arrangorer";
 import { mockEnheter } from "./mock_enheter";
 import { mockTiltakstyper } from "./mock_tiltakstyper";
 
-export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
+export const mockTiltaksgjennomforinger: TiltaksgjennomforingDto[] = [
   {
     id: "a7d63fb0-4366-412c-84b7-7c15518ee361",
     navn: "Yrkesnorsk med praksis med en veldig lang tittel som ikke er helt utenkelig at de skriver inn",

@@ -2,14 +2,14 @@ import { Alert, BodyShort } from "@navikt/ds-react";
 import { Laster } from "../laster/Laster";
 import styles from "../tiltaksgjennomforinger/TiltaksgjennomforingerListe.module.scss";
 import { AvtaleFilter } from "@/api/atoms";
-import { Avtale } from "@mr/api-client";
+import { AvtaleDto } from "@mr/api-client";
 import { ReactNode } from "react";
 import { useAvtaler } from "@/api/avtaler/useAvtaler";
 import { AvtalestatusTag } from "../statuselementer/AvtalestatusTag";
 
 interface Props {
   filter: Partial<AvtaleFilter>;
-  action: (avtale: Avtale) => ReactNode;
+  action: (avtale: AvtaleDto) => ReactNode;
 }
 
 export function AvtaleListe(props: Props) {

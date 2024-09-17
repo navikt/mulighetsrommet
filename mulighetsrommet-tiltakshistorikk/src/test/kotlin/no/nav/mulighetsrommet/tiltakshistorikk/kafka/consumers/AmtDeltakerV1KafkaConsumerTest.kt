@@ -8,8 +8,8 @@ import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListe
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
+import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingEksternV1Dto
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus
-import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingV1Dto
 import no.nav.mulighetsrommet.domain.dto.amt.AmtDeltakerStatus
 import no.nav.mulighetsrommet.domain.dto.amt.AmtDeltakerV1Dto
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
@@ -31,9 +31,9 @@ class AmtDeltakerV1KafkaConsumerTest : FunSpec({
             deltakere,
         )
 
-        val tiltak = TiltaksgjennomforingV1Dto(
+        val tiltak = TiltaksgjennomforingEksternV1Dto(
             id = UUID.randomUUID(),
-            tiltakstype = TiltaksgjennomforingV1Dto.Tiltakstype(
+            tiltakstype = TiltaksgjennomforingEksternV1Dto.Tiltakstype(
                 id = UUID.randomUUID(),
                 navn = "Gruppe AMO",
                 arenaKode = "GRUPPEAMO",

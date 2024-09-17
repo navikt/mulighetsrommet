@@ -3,13 +3,13 @@ import { useAdminTiltaksgjennomforinger } from "@/api/tiltaksgjennomforing/useAd
 import { Laster } from "../laster/Laster";
 import styles from "./TiltaksgjennomforingerListe.module.scss";
 import { TiltaksgjennomforingFilter } from "@/api/atoms";
-import { Tiltaksgjennomforing } from "@mr/api-client";
+import { TiltaksgjennomforingDto } from "@mr/api-client";
 import { ReactNode } from "react";
 import { TiltaksgjennomforingStatusTag } from "@mr/frontend-common";
 
 interface Props {
   filter: Partial<TiltaksgjennomforingFilter>;
-  action: (gjennomforing: Tiltaksgjennomforing) => ReactNode;
+  action: (gjennomforing: TiltaksgjennomforingDto) => ReactNode;
 }
 
 export function TiltaksgjennomforingerListe(props: Props) {

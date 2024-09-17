@@ -49,7 +49,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Avtale"
+                $ref: "#/components/schemas/AvtaleDto"
         404:
           description: "Avtalen ble ikke funnet"
           content:
@@ -168,7 +168,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Avtale"
+                $ref: "#/components/schemas/AvtaleDto"
         400:
           description: Respons med valideringsfeil
           content:
@@ -453,7 +453,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Tiltaksgjennomforing"
+                $ref: "#/components/schemas/TiltaksgjennomforingDto"
         400:
           description: Respons med valideringsfeil
           content:
@@ -566,7 +566,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Tiltaksgjennomforing"
+                $ref: "#/components/schemas/TiltaksgjennomforingDto"
         404:
           description: "Tiltaksgjennomføringen ble ikke funnet"
           content:
@@ -744,7 +744,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Tiltakstype"
+                $ref: "#/components/schemas/TiltakstypeDto"
         404:
           description: "Tiltakstypen ble ikke funnet"
           content:
@@ -2020,7 +2020,7 @@ components:
         data:
           type: array
           items:
-            $ref: "#/components/schemas/Tiltakstype"
+            $ref: "#/components/schemas/TiltakstypeDto"
 
     PaginertTiltaksgjennomforing:
       type: object
@@ -2033,7 +2033,7 @@ components:
         data:
           type: array
           items:
-            $ref: "#/components/schemas/Tiltaksgjennomforing"
+            $ref: "#/components/schemas/TiltaksgjennomforingDto"
 
     PaginertAvtale:
       type: object
@@ -2046,7 +2046,7 @@ components:
         data:
           type: array
           items:
-            $ref: "#/components/schemas/Avtale"
+            $ref: "#/components/schemas/AvtaleDto"
 
     PaginertArrangor:
       type: object
@@ -2087,7 +2087,7 @@ components:
         - VARLONTIL
         - UTVAOONAV
 
-    Tiltakstype:
+    TiltakstypeDto:
       type: object
       properties:
         id:
@@ -2121,7 +2121,7 @@ components:
         - startDato
         - status
 
-    Avtale:
+    AvtaleDto:
       type: object
       properties:
         id:
@@ -2406,7 +2406,7 @@ components:
         - navn-ascending
         - navn-descending
 
-    Tiltaksgjennomforing:
+    TiltaksgjennomforingDto:
       type: object
       properties:
         id:

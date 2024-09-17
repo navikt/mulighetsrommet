@@ -1,5 +1,5 @@
 import { http, HttpResponse, PathParams } from "msw";
-import { Avtale, EndringshistorikkEntry, PaginertAvtale } from "@mr/api-client";
+import { AvtaleDto, EndringshistorikkEntry, PaginertAvtale } from "@mr/api-client";
 import { mockAvtaler } from "../fixtures/mock_avtaler";
 import { mockEndringshistorikkAvtaler } from "../fixtures/mock_endringshistorikk_avtaler";
 
@@ -44,13 +44,13 @@ export const avtaleHandlers = [
     return HttpResponse.json(1);
   }),
 
-  http.get<PathParams, Avtale | undefined>("*/api/v1/intern/avtaler/:id", ({ params }) => {
+  http.get<PathParams, AvtaleDto | undefined>("*/api/v1/intern/avtaler/:id", ({ params }) => {
     const { id } = params;
     const avtale = mockAvtaler.find((a) => a.id === id) ?? undefined;
     return HttpResponse.json(avtale);
   }),
 
-  http.get<PathParams, Avtale | undefined>("*/api/v1/intern/avtaler/skjema", ({ params }) => {
+  http.get<PathParams, AvtaleDto | undefined>("*/api/v1/intern/avtaler/skjema", ({ params }) => {
     const { id } = params;
     const avtale = mockAvtaler.find((a) => a.id === id) ?? undefined;
     return HttpResponse.json(avtale);

@@ -2,7 +2,7 @@ import { HttpResponse, PathParams, http } from "msw";
 import {
   Endringshistorikk,
   PaginertTiltaksgjennomforing,
-  Tiltaksgjennomforing,
+  TiltaksgjennomforingDto,
   TiltaksgjennomforingDeltakerSummary,
 } from "@mr/api-client";
 import {
@@ -36,12 +36,12 @@ export const tiltaksgjennomforingHandlers = [
     },
   ),
 
-  http.put<PathParams, Tiltaksgjennomforing>("*/api/v1/intern/tiltaksgjennomforinger", () => {
+  http.put<PathParams, TiltaksgjennomforingDto>("*/api/v1/intern/tiltaksgjennomforinger", () => {
     const gjennomforing = mockTiltaksgjennomforinger[0];
     return HttpResponse.json({ ...gjennomforing, updatedAt: new Date().toISOString() });
   }),
 
-  http.get<{ id: string }, Tiltaksgjennomforing | undefined>(
+  http.get<{ id: string }, TiltaksgjennomforingDto | undefined>(
     "*/api/v1/intern/tiltaksgjennomforinger/skjema",
     ({ params }) => {
       const { id } = params;
@@ -50,7 +50,7 @@ export const tiltaksgjennomforingHandlers = [
     },
   ),
 
-  http.get<PathParams, Tiltaksgjennomforing[]>(
+  http.get<PathParams, TiltaksgjennomforingDto[]>(
     "*/api/v1/intern/tiltaksgjennomforinger/sok",
     ({ request }) => {
       const url = new URL(request.url);
@@ -72,7 +72,7 @@ export const tiltaksgjennomforingHandlers = [
     return HttpResponse.json();
   }),
 
-  http.get<{ id: string }, Tiltaksgjennomforing | undefined>(
+  http.get<{ id: string }, TiltaksgjennomforingDto | undefined>(
     "*/api/v1/intern/tiltaksgjennomforinger/:id",
     ({ params }) => {
       const { id } = params;

@@ -1,6 +1,6 @@
 package no.nav.mulighetsrommet.api.utils
 
-import no.nav.mulighetsrommet.api.domain.dto.TiltakstypeAdminDto
+import no.nav.mulighetsrommet.api.domain.dto.TiltakstypeDto
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.Tiltakskoder.isKursTiltak
 
@@ -27,7 +27,7 @@ object TiltaksnavnUtils {
             tiltakstypeNavn to navn
         }
 
-    fun tilKonstruertNavn(tiltakstype: TiltakstypeAdminDto, arrangor: String?): String {
+    fun tilKonstruertNavn(tiltakstype: TiltakstypeDto, arrangor: String?): String {
         val casedArrangor = toTitleCase(arrangor ?: "")
 
         return "${tiltakstype.navn}${if (casedArrangor.isNotBlank()) " hos $casedArrangor" else ""}"

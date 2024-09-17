@@ -1,7 +1,7 @@
 import { HttpResponse, PathParams, http } from "msw";
 import {
   PaginertTiltakstype,
-  Tiltakstype,
+  TiltakstypeDto,
   PaginertAvtale,
   VeilederflateTiltakstype,
 } from "@mr/api-client";
@@ -21,7 +21,7 @@ export const tiltakstypeHandlers = [
     return HttpResponse.json(mockMigrerteTiltakstyper);
   }),
 
-  http.get<{ id: string }, Tiltakstype | undefined>(
+  http.get<{ id: string }, TiltakstypeDto | undefined>(
     "*/api/v1/intern/tiltakstyper/:id",
     ({ params }) => {
       const { id } = params;

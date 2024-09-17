@@ -8,7 +8,7 @@ import kotliquery.TransactionalSession
 import no.nav.mulighetsrommet.api.avtaler.AvtaleValidator
 import no.nav.mulighetsrommet.api.domain.dbo.AvtaleDbo
 import no.nav.mulighetsrommet.api.domain.dto.ArrangorDto
-import no.nav.mulighetsrommet.api.domain.dto.AvtaleAdminDto
+import no.nav.mulighetsrommet.api.domain.dto.AvtaleDto
 import no.nav.mulighetsrommet.api.domain.dto.AvtaleNotificationDto
 import no.nav.mulighetsrommet.api.domain.dto.EndringshistorikkDto
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
@@ -40,9 +40,9 @@ class AvtaleService(
     private val db: Database,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
-    fun get(id: UUID): AvtaleAdminDto? = avtaler.get(id)
+    fun get(id: UUID): AvtaleDto? = avtaler.get(id)
 
-    suspend fun upsert(request: AvtaleRequest, navIdent: NavIdent): Either<List<ValidationError>, AvtaleAdminDto> {
+    suspend fun upsert(request: AvtaleRequest, navIdent: NavIdent): Either<List<ValidationError>, AvtaleDto> {
         val previous = avtaler.get(request.id)
         return syncArrangorerFromBrreg(request)
             .flatMap { (arrangor, underenheter) ->
@@ -119,7 +119,7 @@ class AvtaleService(
     fun getAll(
         filter: AvtaleFilter,
         pagination: Pagination,
-    ): PaginatedResponse<AvtaleAdminDto> {
+    ): PaginatedResponse<AvtaleDto> {
         val (totalCount, items) = avtaler.getAll(
             pagination = pagination,
             tiltakstypeIder = filter.tiltakstypeIder,
@@ -204,7 +204,7 @@ class AvtaleService(
 
     fun getEndringshistorikk(id: UUID): EndringshistorikkDto = endringshistorikkService.getEndringshistorikk(DocumentClass.AVTALE, id)
 
-    private fun getOrError(id: UUID, tx: TransactionalSession): AvtaleAdminDto {
+    private fun getOrError(id: UUID, tx: TransactionalSession): AvtaleDto {
         val dto = avtaler.get(id, tx)
         return requireNotNull(dto) { "Avtale med id=$id finnes ikke" }
     }
@@ -230,7 +230,7 @@ class AvtaleService(
 
     private fun logEndring(
         operation: String,
-        dto: AvtaleAdminDto,
+        dto: AvtaleDto,
         navIdent: NavIdent,
         tx: TransactionalSession,
     ) {
