@@ -26,6 +26,7 @@ import { FaneinnholdContainer } from "@/components/redaksjoneltInnhold/Faneinnho
 import { DescriptionRichtextContainer } from "@/components/redaksjoneltInnhold/DescriptionRichtextContainer";
 import { RedaksjoneltInnholdTabTittel } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdTabTittel";
 import { isKursTiltak } from "@mr/frontend-common/utils/utils";
+import { LabelWithHelpText } from "@mr/frontend-common/components/label/LabelWithHelpText";
 
 interface RedaksjoneltInnholdFormProps {
   tiltakstype: EmbeddedTiltakstype;
@@ -68,8 +69,14 @@ function RedaksjoneltInnhold({ tiltakstype }: { tiltakstype: EmbeddedTiltakstype
               )?.kurstittel?.message as string
             }
             {...register("faneinnhold.kurstittel")}
-            description="Tittel som vises til veiledere og brukere."
-            label="Kurstittel"
+            label={
+              <LabelWithHelpText label="Kurstittel" helpTextTitle="Hjelpetekst">
+                Brukerrettet kurstittel som vises i aktivitetsplanen og vedtak. Gi en kort og presis
+                beskrivelse av kurset. Unngå å nevne tiltakstype eller annen informasjon som ikke er
+                relevant for brukeren. For eksempel: "Sveisekurs", "Truckførerkurs" eller
+                "Arbeidsnorsk med praksis"
+              </LabelWithHelpText>
+            }
           />
         )}
         {tiltakstypeSanityData?.beskrivelse && (
