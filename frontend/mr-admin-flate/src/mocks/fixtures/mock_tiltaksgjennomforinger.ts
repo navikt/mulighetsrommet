@@ -178,6 +178,7 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
       kontaktpersoner: mockArrangorKontaktpersoner,
     },
     tiltakstype: mockTiltakstyper.GRUFAGYRKE,
+    avtaleId: mockAvtaler[3].id,
     startDato: "2022-01-01",
     sluttDato: "2022-12-12",
     arenaAnsvarligEnhet: mockEnheter._0313,
