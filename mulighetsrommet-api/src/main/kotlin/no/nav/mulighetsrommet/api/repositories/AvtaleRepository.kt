@@ -11,7 +11,7 @@ import no.nav.mulighetsrommet.api.domain.dbo.ArenaNavEnhet
 import no.nav.mulighetsrommet.api.domain.dbo.AvtaleDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dto.ArrangorKontaktperson
-import no.nav.mulighetsrommet.api.domain.dto.AvtaleAdminDto
+import no.nav.mulighetsrommet.api.domain.dto.AvtaleDto
 import no.nav.mulighetsrommet.api.domain.dto.AvtaleNotificationDto
 import no.nav.mulighetsrommet.api.domain.dto.Kontorstruktur
 import no.nav.mulighetsrommet.api.responses.StatusResponseError
@@ -311,9 +311,9 @@ class AvtaleRepository(private val db: Database) {
         queryOf(query, avtale.toSqlParameters(arrangorId)).asExecute.let { tx.run(it) }
     }
 
-    fun get(id: UUID): AvtaleAdminDto? = db.transaction { get(id, it) }
+    fun get(id: UUID): AvtaleDto? = db.transaction { get(id, it) }
 
-    fun get(id: UUID, tx: Session): AvtaleAdminDto? {
+    fun get(id: UUID, tx: Session): AvtaleDto? {
         @Language("PostgreSQL")
         val query = """
             select *
@@ -323,7 +323,7 @@ class AvtaleRepository(private val db: Database) {
 
         return tx.run(
             queryOf(query, id)
-                .map { it.toAvtaleAdminDto() }
+                .map { it.toAvtaleDto() }
                 .asSingle,
         )
     }
@@ -339,7 +339,7 @@ class AvtaleRepository(private val db: Database) {
         arrangorIds: List<UUID> = emptyList(),
         administratorNavIdent: NavIdent? = null,
         personvernBekreftet: Boolean? = null,
-    ): PaginatedResult<AvtaleAdminDto> {
+    ): PaginatedResult<AvtaleDto> {
         val parameters = mapOf(
             "search" to search,
             "search_arrangor" to search?.trim()?.let { "%$it%" },
@@ -392,7 +392,7 @@ class AvtaleRepository(private val db: Database) {
 
         return db.useSession { session ->
             queryOf(query, parameters + pagination.parameters)
-                .mapPaginated { it.toAvtaleAdminDto() }
+                .mapPaginated { it.toAvtaleDto() }
                 .runWithSession(session)
         }
     }
@@ -521,17 +521,17 @@ class AvtaleRepository(private val db: Database) {
         )
     }
 
-    private fun Row.toAvtaleAdminDto(): AvtaleAdminDto {
+    private fun Row.toAvtaleDto(): AvtaleDto {
         val startDato = localDate("start_dato")
         val sluttDato = localDateOrNull("slutt_dato")
         val personopplysninger = stringOrNull("personopplysninger_json")
             ?.let { Json.decodeFromString<List<Personopplysning>>(it) }
             ?: emptyList()
         val underenheter = stringOrNull("arrangor_underenheter_json")
-            ?.let { Json.decodeFromString<List<AvtaleAdminDto.ArrangorUnderenhet>>(it) }
+            ?.let { Json.decodeFromString<List<AvtaleDto.ArrangorUnderenhet>>(it) }
             ?: emptyList()
         val administratorer = stringOrNull("administratorer_json")
-            ?.let { Json.decodeFromString<List<AvtaleAdminDto.Administrator>>(it) }
+            ?.let { Json.decodeFromString<List<AvtaleDto.Administrator>>(it) }
             ?: emptyList()
         val arrangorKontaktpersoner = stringOrNull("arrangor_kontaktpersoner_json")
             ?.let { Json.decodeFromString<List<ArrangorKontaktperson>>(it) }
@@ -549,7 +549,7 @@ class AvtaleRepository(private val db: Database) {
             }
 
         val opsjonerRegistrert = stringOrNull("opsjon_logg_json")
-            ?.let { Json.decodeFromString<List<AvtaleAdminDto.OpsjonLoggRegistrert>>(it) }
+            ?.let { Json.decodeFromString<List<AvtaleDto.OpsjonLoggRegistrert>>(it) }
             ?: emptyList()
 
         val avbruttTidspunkt = localDateTimeOrNull("avbrutt_tidspunkt")
@@ -563,7 +563,7 @@ class AvtaleRepository(private val db: Database) {
         val amoKategorisering = stringOrNull("amo_kategorisering_json")
             ?.let { JsonIgnoreUnknownKeys.decodeFromString<AmoKategorisering>(it) }
 
-        return AvtaleAdminDto(
+        return AvtaleDto(
             id = uuid("id"),
             navn = string("navn"),
             avtalenummer = stringOrNull("avtalenummer"),
@@ -579,7 +579,7 @@ class AvtaleRepository(private val db: Database) {
             faneinnhold = stringOrNull("faneinnhold")?.let { Json.decodeFromString(it) },
             administratorer = administratorer,
             kontorstruktur = kontorstruktur,
-            arrangor = AvtaleAdminDto.ArrangorHovedenhet(
+            arrangor = AvtaleDto.ArrangorHovedenhet(
                 id = uuid("arrangor_hovedenhet_id"),
                 organisasjonsnummer = string("arrangor_hovedenhet_organisasjonsnummer"),
                 navn = string("arrangor_hovedenhet_navn"),
@@ -593,7 +593,7 @@ class AvtaleRepository(private val db: Database) {
                     enhetsnummer = it,
                 )
             },
-            tiltakstype = AvtaleAdminDto.Tiltakstype(
+            tiltakstype = AvtaleDto.Tiltakstype(
                 id = uuid("tiltakstype_id"),
                 navn = string("tiltakstype_navn"),
                 tiltakskode = Tiltakskode.valueOf(string("tiltakstype_tiltakskode")),

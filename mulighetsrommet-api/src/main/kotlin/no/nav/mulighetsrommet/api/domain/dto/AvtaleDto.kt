@@ -19,7 +19,7 @@ import java.time.LocalDateTime
 import java.util.*
 
 @Serializable
-data class AvtaleAdminDto(
+data class AvtaleDto(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     val tiltakstype: Tiltakstype,

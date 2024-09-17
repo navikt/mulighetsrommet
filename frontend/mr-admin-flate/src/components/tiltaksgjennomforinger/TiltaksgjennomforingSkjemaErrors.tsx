@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Avtale } from "@mr/api-client";
+import { AvtaleDto } from "@mr/api-client";
 import { BodyShort } from "@navikt/ds-react";
 import { avtaleHarRegioner } from "../../utils/Utils";
 import { PORTEN_URL } from "../../constants";
@@ -34,7 +34,7 @@ const avtaleManglerNavRegionError = (avtaleId?: string) => (
   </>
 );
 
-export function ErrorMeldinger(avtale: Avtale | undefined) {
+export function ErrorMeldinger(avtale: AvtaleDto | undefined) {
   if (!avtale) {
     return avtaleFinnesIkke();
   }

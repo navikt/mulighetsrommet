@@ -6,12 +6,12 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Tabs } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import {
-  Avtale,
+  AvtaleDto,
   AvtaleRequest,
   EmbeddedTiltakstype,
   NavAnsatt,
   NavEnhet,
-  Tiltakstype,
+  TiltakstypeDto,
 } from "@mr/api-client";
 import React from "react";
 import { DeepPartial, FormProvider, SubmitHandler, useForm } from "react-hook-form";
@@ -31,9 +31,9 @@ import { TabWithErrorBorder } from "../skjema/TabWithErrorBorder";
 interface Props {
   onClose: () => void;
   onSuccess: (id: string) => void;
-  tiltakstyper: Tiltakstype[];
+  tiltakstyper: TiltakstypeDto[];
   ansatt: NavAnsatt;
-  avtale?: Avtale;
+  avtale?: AvtaleDto;
   enheter: NavEnhet[];
   redigeringsModus: boolean;
   defaultValues: DeepPartial<InferredAvtaleSchema>;

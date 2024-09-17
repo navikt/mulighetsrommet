@@ -21,7 +21,7 @@ import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
 import no.nav.mulighetsrommet.api.domain.dto.ArrangorDto
 import no.nav.mulighetsrommet.api.domain.dto.ArrangorKontaktperson
-import no.nav.mulighetsrommet.api.domain.dto.AvtaleAdminDto
+import no.nav.mulighetsrommet.api.domain.dto.AvtaleDto
 import no.nav.mulighetsrommet.api.domain.dto.Kontorstruktur
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Gjovik
@@ -158,13 +158,13 @@ class AvtaleRepositoryTest : FunSpec({
 
             avtaler.upsert(avtale1)
             avtaler.get(avtale1.id)?.administratorer shouldContainExactlyInAnyOrder listOf(
-                AvtaleAdminDto.Administrator(ansatt1.navIdent, "Donald Duck"),
+                AvtaleDto.Administrator(ansatt1.navIdent, "Donald Duck"),
             )
 
             avtaler.upsert(avtale1.copy(administratorer = listOf(ansatt1.navIdent, ansatt2.navIdent)))
             avtaler.get(avtale1.id)?.administratorer shouldContainExactlyInAnyOrder listOf(
-                AvtaleAdminDto.Administrator(ansatt1.navIdent, "Donald Duck"),
-                AvtaleAdminDto.Administrator(ansatt2.navIdent, "Dolly Duck"),
+                AvtaleDto.Administrator(ansatt1.navIdent, "Donald Duck"),
+                AvtaleDto.Administrator(ansatt2.navIdent, "Dolly Duck"),
             )
 
             avtaler.upsert(avtale1.copy(administratorer = listOf()))
@@ -765,7 +765,7 @@ class AvtaleRepositoryTest : FunSpec({
         }
 
         test("Sortering på arrangør sorterer korrekt") {
-            val alvdal = AvtaleAdminDto.ArrangorHovedenhet(
+            val alvdal = AvtaleDto.ArrangorHovedenhet(
                 id = arrangorA.id,
                 organisasjonsnummer = "987654321",
                 navn = "alvdal",
@@ -773,7 +773,7 @@ class AvtaleRepositoryTest : FunSpec({
                 underenheter = listOf(),
                 kontaktpersoner = emptyList(),
             )
-            val bjarne = AvtaleAdminDto.ArrangorHovedenhet(
+            val bjarne = AvtaleDto.ArrangorHovedenhet(
                 id = arrangorB.id,
                 organisasjonsnummer = "123456789",
                 navn = "bjarne",
@@ -781,7 +781,7 @@ class AvtaleRepositoryTest : FunSpec({
                 underenheter = listOf(),
                 kontaktpersoner = emptyList(),
             )
-            val chris = AvtaleAdminDto.ArrangorHovedenhet(
+            val chris = AvtaleDto.ArrangorHovedenhet(
                 id = arrangorC.id,
                 organisasjonsnummer = "999888777",
                 navn = "chris",

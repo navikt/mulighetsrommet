@@ -1,5 +1,5 @@
 import { Alert, Button, Heading, HStack, Modal, Search } from "@navikt/ds-react";
-import { Avtale, EmbeddedTiltakstype } from "@mr/api-client";
+import { AvtaleDto, EmbeddedTiltakstype } from "@mr/api-client";
 import { RedaksjoneltInnholdForm } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdForm";
 import { useFormContext } from "react-hook-form";
 import { useState } from "react";
@@ -21,7 +21,7 @@ export function AvtaleRedaksjoneltInnholdForm({ tiltakstype }: Props) {
 
   const { setValue } = useFormContext<InferredAvtaleSchema>();
 
-  function kopierRedaksjoneltInnhold({ beskrivelse, faneinnhold }: Avtale) {
+  function kopierRedaksjoneltInnhold({ beskrivelse, faneinnhold }: AvtaleDto) {
     setValue("beskrivelse", beskrivelse ?? null);
     setValue("faneinnhold", faneinnhold ?? null);
   }

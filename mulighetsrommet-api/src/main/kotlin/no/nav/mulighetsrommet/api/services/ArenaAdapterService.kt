@@ -10,9 +10,9 @@ import no.nav.mulighetsrommet.api.clients.brreg.BrregError
 import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattRolle
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
-import no.nav.mulighetsrommet.api.domain.dto.AvtaleAdminDto
-import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingAdminDto
-import no.nav.mulighetsrommet.api.domain.dto.TiltakstypeAdminDto
+import no.nav.mulighetsrommet.api.domain.dto.AvtaleDto
+import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingDto
+import no.nav.mulighetsrommet.api.domain.dto.TiltakstypeDto
 import no.nav.mulighetsrommet.api.repositories.*
 import no.nav.mulighetsrommet.api.utils.EnhetFilter
 import no.nav.mulighetsrommet.database.Database
@@ -52,7 +52,7 @@ class ArenaAdapterService(
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    suspend fun upsertAvtale(avtale: ArenaAvtaleDbo): AvtaleAdminDto {
+    suspend fun upsertAvtale(avtale: ArenaAvtaleDbo): AvtaleDto {
         syncArrangorFromBrreg(avtale.arrangorOrganisasjonsnummer)
 
         val dto = db.transaction { tx ->
@@ -99,7 +99,7 @@ class ArenaAdapterService(
     }
 
     private suspend fun upsertEgenRegiTiltak(
-        tiltakstype: TiltakstypeAdminDto,
+        tiltakstype: TiltakstypeDto,
         arenaGjennomforing: ArenaTiltaksgjennomforingDbo,
     ): UUID? {
         require(Tiltakskoder.isEgenRegiTiltak(tiltakstype.arenaKode)) {
@@ -117,7 +117,7 @@ class ArenaAdapterService(
     }
 
     private suspend fun upsertGruppetiltak(
-        tiltakstype: TiltakstypeAdminDto,
+        tiltakstype: TiltakstypeDto,
         arenaGjennomforing: ArenaTiltaksgjennomforingDbo,
     ) {
         require(Tiltakskoder.isAmtTiltak(tiltakstype.arenaKode)) {
@@ -201,8 +201,8 @@ class ArenaAdapterService(
 
     private fun mergeWithCurrentGjennomforing(
         tiltaksgjennomforing: ArenaTiltaksgjennomforingDbo,
-        current: TiltaksgjennomforingAdminDto,
-        tiltakstype: TiltakstypeAdminDto,
+        current: TiltaksgjennomforingDto,
+        tiltakstype: TiltakstypeDto,
     ): ArenaTiltaksgjennomforingDbo =
         if (tiltakstypeService.isEnabled(tiltakstype.tiltakskode)) {
             ArenaTiltaksgjennomforingDbo(
@@ -239,7 +239,7 @@ class ArenaAdapterService(
 
     private fun hasNoRelevantChanges(
         arenaGjennomforing: ArenaTiltaksgjennomforingDbo,
-        current: TiltaksgjennomforingAdminDto,
+        current: TiltaksgjennomforingDto,
     ): Boolean {
         val currentAsArenaGjennomforing = ArenaTiltaksgjennomforingDbo(
             id = current.id,
@@ -260,7 +260,7 @@ class ArenaAdapterService(
         return currentAsArenaGjennomforing == arenaGjennomforing
     }
 
-    private fun maybeNotifyRelevantAdministrators(avtale: AvtaleAdminDto) {
+    private fun maybeNotifyRelevantAdministrators(avtale: AvtaleDto) {
         val enhet = resolveRelevantNavEnhet(avtale.arenaAnsvarligEnhet?.enhetsnummer) ?: return
         notifyRelevantAdministrators(enhet, NavAnsattRolle.AVTALER_SKRIV) { administrators ->
             ScheduledNotification(
@@ -277,7 +277,7 @@ class ArenaAdapterService(
         }
     }
 
-    private fun maybeNotifyRelevantAdministrators(gjennomforing: TiltaksgjennomforingAdminDto) {
+    private fun maybeNotifyRelevantAdministrators(gjennomforing: TiltaksgjennomforingDto) {
         val enhet = resolveRelevantNavEnhet(gjennomforing.arenaAnsvarligEnhet?.enhetsnummer) ?: return
         notifyRelevantAdministrators(enhet, NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV) { administrators ->
             ScheduledNotification(
@@ -329,7 +329,7 @@ class ArenaAdapterService(
         notificationService.scheduleNotification(notification)
     }
 
-    private fun logUpdateAvtale(tx: TransactionalSession, dto: AvtaleAdminDto) {
+    private fun logUpdateAvtale(tx: TransactionalSession, dto: AvtaleDto) {
         endringshistorikk.logEndring(
             tx,
             DocumentClass.AVTALE,
@@ -339,7 +339,7 @@ class ArenaAdapterService(
         ) { Json.encodeToJsonElement(dto) }
     }
 
-    private fun logUpdateGjennomforing(tx: TransactionalSession, dto: TiltaksgjennomforingAdminDto) {
+    private fun logUpdateGjennomforing(tx: TransactionalSession, dto: TiltaksgjennomforingDto) {
         endringshistorikk.logEndring(
             tx,
             DocumentClass.TILTAKSGJENNOMFORING,
@@ -349,7 +349,7 @@ class ArenaAdapterService(
         ) { Json.encodeToJsonElement(dto) }
     }
 
-    private fun logTiltaksnummerHentetFraArena(tx: TransactionalSession, dto: TiltaksgjennomforingAdminDto) {
+    private fun logTiltaksnummerHentetFraArena(tx: TransactionalSession, dto: TiltaksgjennomforingDto) {
         endringshistorikk.logEndring(
             tx,
             DocumentClass.TILTAKSGJENNOMFORING,

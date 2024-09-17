@@ -5,7 +5,7 @@ import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainAll
 import no.nav.mulighetsrommet.api.domain.dbo.ArenaNavEnhet
-import no.nav.mulighetsrommet.api.domain.dto.AvtaleAdminDto
+import no.nav.mulighetsrommet.api.domain.dto.AvtaleDto
 import no.nav.mulighetsrommet.api.domain.dto.OpsjonLoggEntry
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.routes.v1.OpsjonLoggRequest
@@ -22,9 +22,9 @@ import java.time.LocalDateTime
 import java.util.*
 
 class OpsjonLoggValidatorTest : FunSpec({
-    val avtale = AvtaleAdminDto(
+    val avtale = AvtaleDto(
         id = UUID.randomUUID(),
-        tiltakstype = AvtaleAdminDto.Tiltakstype(
+        tiltakstype = AvtaleDto.Tiltakstype(
             id = UUID.randomUUID(),
             navn = "Oppfølging",
             tiltakskode = Tiltakskode.OPPFOLGING,
@@ -32,7 +32,7 @@ class OpsjonLoggValidatorTest : FunSpec({
         navn = "Avtale for opsjoner",
         avtalenummer = "24/123",
         websaknummer = Websaknummer("24/1234"),
-        arrangor = AvtaleAdminDto.ArrangorHovedenhet(
+        arrangor = AvtaleDto.ArrangorHovedenhet(
             id = UUID.randomUUID(),
             organisasjonsnummer = "12345678910",
             navn = "Fretex AS",
@@ -144,7 +144,7 @@ class OpsjonLoggValidatorTest : FunSpec({
                 customOpsjonsmodellNavn = null,
             ),
             opsjonerRegistrert = listOf(
-                AvtaleAdminDto.OpsjonLoggRegistrert(
+                AvtaleDto.OpsjonLoggRegistrert(
                     id = UUID.randomUUID(),
                     status = OpsjonLoggRequest.OpsjonsLoggStatus.SKAL_IKKE_UTLØSE_OPSJON,
                     aktivertDato = LocalDateTime.of(2024, 8, 8, 10, 0, 0),

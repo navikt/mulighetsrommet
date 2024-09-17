@@ -5,7 +5,7 @@ import {
   NavEnhet,
   NavEnhetType,
   TiltaksgjennomforingStatus,
-  Tiltakstype,
+  TiltakstypeDto,
 } from "@mr/api-client";
 import { avtaletypeTilTekst } from "./Utils";
 
@@ -79,7 +79,7 @@ export function regionOptions(enheter: NavEnhet[]) {
     }));
 }
 
-export function tiltakstypeOptions(tiltakstyper: Tiltakstype[]) {
+export function tiltakstypeOptions(tiltakstyper: TiltakstypeDto[]) {
   return (
     tiltakstyper.sort().map((tiltakstype) => ({
       label: tiltakstype.navn,

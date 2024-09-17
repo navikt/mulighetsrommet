@@ -7,9 +7,9 @@ import arrow.core.raise.either
 import arrow.core.right
 import no.nav.mulighetsrommet.api.domain.dbo.AvtaleDbo
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
-import no.nav.mulighetsrommet.api.domain.dto.AvtaleAdminDto
-import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingAdminDto
-import no.nav.mulighetsrommet.api.domain.dto.TiltakstypeAdminDto
+import no.nav.mulighetsrommet.api.domain.dto.AvtaleDto
+import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingDto
+import no.nav.mulighetsrommet.api.domain.dto.TiltakstypeDto
 import no.nav.mulighetsrommet.api.repositories.ArrangorRepository
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.responses.ValidationError
@@ -31,7 +31,7 @@ class TiltaksgjennomforingValidator(
 
     fun validate(
         dbo: TiltaksgjennomforingDbo,
-        previous: TiltaksgjennomforingAdminDto?,
+        previous: TiltaksgjennomforingDto?,
     ): Either<List<ValidationError>, TiltaksgjennomforingDbo> = either {
         var next = dbo
 
@@ -192,7 +192,7 @@ class TiltaksgjennomforingValidator(
 
     private fun MutableList<ValidationError>.validateCreateGjennomforing(
         gjennomforing: TiltaksgjennomforingDbo,
-        avtale: AvtaleAdminDto,
+        avtale: AvtaleDto,
     ) {
         val arrangor = arrangorer.getById(gjennomforing.arrangorId)
         if (arrangor.slettetDato != null) {
@@ -234,8 +234,8 @@ class TiltaksgjennomforingValidator(
 
     private fun MutableList<ValidationError>.validateUpdateGjennomforing(
         gjennomforing: TiltaksgjennomforingDbo,
-        previous: TiltaksgjennomforingAdminDto,
-        avtale: AvtaleAdminDto,
+        previous: TiltaksgjennomforingDto,
+        avtale: AvtaleDto,
     ) {
         if (!previous.isAktiv()) {
             add(
@@ -348,11 +348,11 @@ class TiltaksgjennomforingValidator(
     }
 
     private fun isTiltakstypeDisabled(
-        previous: TiltaksgjennomforingAdminDto?,
-        tiltakstype: TiltakstypeAdminDto,
+        previous: TiltaksgjennomforingDto?,
+        tiltakstype: TiltakstypeDto,
     ) = previous == null && !tiltakstyper.isEnabled(tiltakstype.tiltakskode)
 
-    private fun isOwnedByArena(previous: TiltaksgjennomforingAdminDto): Boolean {
+    private fun isOwnedByArena(previous: TiltaksgjennomforingDto): Boolean {
         return previous.opphav == ArenaMigrering.Opphav.ARENA && !tiltakstyper.isEnabled(previous.tiltakstype.tiltakskode)
     }
 }

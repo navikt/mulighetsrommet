@@ -19,7 +19,7 @@ import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingKontaktpersonDbo
 import no.nav.mulighetsrommet.api.domain.dto.ArrangorKontaktperson
-import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingAdminDto
+import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingDto
 import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingKontaktperson
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Gjovik
@@ -107,13 +107,13 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             tiltaksgjennomforinger.get(gjennomforingFraArena.id) should {
                 it.shouldNotBeNull()
                 it.navn shouldBe "Tiltak for dovne giraffer"
-                it.tiltakstype shouldBe TiltaksgjennomforingAdminDto.Tiltakstype(
+                it.tiltakstype shouldBe TiltaksgjennomforingDto.Tiltakstype(
                     id = TiltakstypeFixtures.Oppfolging.id,
                     navn = TiltakstypeFixtures.Oppfolging.navn,
                     tiltakskode = Tiltakskode.fromArenaKodeOrFail(TiltakstypeFixtures.Oppfolging.arenaKode),
                 )
                 it.tiltaksnummer shouldBe "2023#1"
-                it.arrangor shouldBe TiltaksgjennomforingAdminDto.ArrangorUnderenhet(
+                it.arrangor shouldBe TiltaksgjennomforingDto.ArrangorUnderenhet(
                     id = ArrangorFixtures.hovedenhet.id,
                     organisasjonsnummer = ArrangorFixtures.hovedenhet.organisasjonsnummer,
                     navn = ArrangorFixtures.hovedenhet.navn,
@@ -220,14 +220,14 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             tiltaksgjennomforinger.get(Oppfolging1.id) should {
                 it.shouldNotBeNull()
                 it.id shouldBe Oppfolging1.id
-                it.tiltakstype shouldBe TiltaksgjennomforingAdminDto.Tiltakstype(
+                it.tiltakstype shouldBe TiltaksgjennomforingDto.Tiltakstype(
                     id = TiltakstypeFixtures.Oppfolging.id,
                     navn = TiltakstypeFixtures.Oppfolging.navn,
                     tiltakskode = Tiltakskode.fromArenaKodeOrFail(TiltakstypeFixtures.Oppfolging.arenaKode),
                 )
                 it.navn shouldBe Oppfolging1.navn
                 it.tiltaksnummer shouldBe null
-                it.arrangor shouldBe TiltaksgjennomforingAdminDto.ArrangorUnderenhet(
+                it.arrangor shouldBe TiltaksgjennomforingDto.ArrangorUnderenhet(
                     id = ArrangorFixtures.underenhet1.id,
                     organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
                     navn = ArrangorFixtures.underenhet1.navn,
@@ -242,7 +242,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
                 it.antallPlasser shouldBe 12
                 it.avtaleId shouldBe Oppfolging1.avtaleId
                 it.administratorer shouldBe listOf(
-                    TiltaksgjennomforingAdminDto.Administrator(
+                    TiltaksgjennomforingDto.Administrator(
                         navIdent = NavIdent("DD1"),
                         navn = "Donald Duck",
                     ),
@@ -270,7 +270,7 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
             tiltaksgjennomforinger.upsert(gjennomforing)
 
             tiltaksgjennomforinger.get(gjennomforing.id)?.administratorer.shouldContainExactlyInAnyOrder(
-                TiltaksgjennomforingAdminDto.Administrator(
+                TiltaksgjennomforingDto.Administrator(
                     navIdent = NavAnsattFixture.ansatt1.navIdent,
                     navn = "Donald Duck",
                 ),

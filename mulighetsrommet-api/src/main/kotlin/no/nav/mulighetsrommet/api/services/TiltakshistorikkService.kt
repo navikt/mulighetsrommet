@@ -9,7 +9,7 @@ import no.nav.mulighetsrommet.api.clients.amtDeltaker.*
 import no.nav.mulighetsrommet.api.clients.pdl.*
 import no.nav.mulighetsrommet.api.clients.tiltakshistorikk.TiltakshistorikkClient
 import no.nav.mulighetsrommet.api.domain.dto.DeltakerKort
-import no.nav.mulighetsrommet.api.domain.dto.TiltakshistorikkAdminDto
+import no.nav.mulighetsrommet.api.domain.dto.TiltakshistorikkDto
 import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.api.utils.TiltaksnavnUtils
 import no.nav.mulighetsrommet.domain.dbo.ArenaDeltakerStatus
@@ -226,7 +226,7 @@ class TiltakshistorikkService(
             }
     }
 
-    private suspend fun getArrangorHovedenhet(orgnr: Organisasjonsnummer): TiltakshistorikkAdminDto.Arrangor {
+    private suspend fun getArrangorHovedenhet(orgnr: Organisasjonsnummer): TiltakshistorikkDto.Arrangor {
         val navn = arrangorService.getOrSyncArrangorFromBrreg(orgnr.value).fold({ error ->
             log.warn("Klarte ikke hente arrangørs hovedenhet. BrregError: $error")
             null
@@ -234,7 +234,7 @@ class TiltakshistorikkService(
             virksomhet.overordnetEnhet?.let { getArrangorHovedenhet(Organisasjonsnummer(it)) }?.navn ?: virksomhet.navn
         })
 
-        return TiltakshistorikkAdminDto.Arrangor(organisasjonsnummer = Organisasjonsnummer(orgnr.value), navn = navn)
+        return TiltakshistorikkDto.Arrangor(organisasjonsnummer = Organisasjonsnummer(orgnr.value), navn = navn)
     }
 }
 

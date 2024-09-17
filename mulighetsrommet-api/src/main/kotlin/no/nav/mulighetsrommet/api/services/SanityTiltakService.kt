@@ -20,7 +20,7 @@ class SanityTiltakService(
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
 
-    suspend fun patchSanityTiltakstype(tiltakstype: TiltakstypeAdminDto) {
+    suspend fun patchSanityTiltakstype(tiltakstype: TiltakstypeDto) {
         val sanityId = requireNotNull(tiltakstype.sanityId) {
             "Kan ikke patche tiltakstype med id=${tiltakstype.id} fordi den mangler en referanse til dokument i Sanity"
         }

@@ -1,5 +1,5 @@
 import { Alert, Radio } from "@navikt/ds-react";
-import { Avtale } from "@mr/api-client";
+import { AvtaleDto } from "@mr/api-client";
 import { useEffect } from "react";
 import { useFormContext } from "react-hook-form";
 import { addDays, addYear, formaterDato, formaterDatoSomYYYYMMDD } from "../../../utils/Utils";
@@ -9,7 +9,7 @@ import { InferredRegistrerOpsjonSchema } from "./RegistrerOpsjonSchema";
 import styles from "./RegistrerOpsjonSkjema.module.scss";
 
 interface Props {
-  avtale: Avtale;
+  avtale: AvtaleDto;
 }
 
 export function RegistrerOpsjonSkjema({ avtale }: Props) {

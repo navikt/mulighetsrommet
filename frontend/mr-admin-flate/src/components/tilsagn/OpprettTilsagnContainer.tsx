@@ -1,4 +1,4 @@
-import { TilsagnDto, TilsagnRequest, Tiltaksgjennomforing, Tiltakskode } from "@mr/api-client";
+import { TilsagnDto, TilsagnRequest, TiltaksgjennomforingDto, Tiltakskode } from "@mr/api-client";
 import { SubmitHandler } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { SkjemaDetaljerContainer } from "../skjema/SkjemaDetaljerContainer";
@@ -8,7 +8,7 @@ import { TilsagnSkjema } from "./TilsagnSkjema";
 import { useOpprettTilsagn } from "./useOpprettTilsagn";
 
 interface Props {
-  tiltaksgjennomforing: Tiltaksgjennomforing;
+  tiltaksgjennomforing: TiltaksgjennomforingDto;
   tilsagn?: TilsagnDto;
   tilsagnSkalGodkjennes: boolean;
 }
@@ -36,7 +36,7 @@ export function OpprettTilsagnContainer({ tiltaksgjennomforing, tilsagn }: Props
     navigate(`/tiltaksgjennomforinger/${tiltaksgjennomforing.id}/tilsagn`);
   }
 
-  function prismodell(tiltaksgjennomforing: Tiltaksgjennomforing): "AFT" | "FRI" {
+  function prismodell(tiltaksgjennomforing: TiltaksgjennomforingDto): "AFT" | "FRI" {
     return tiltaksgjennomforing.tiltakstype.tiltakskode === Tiltakskode.ARBEIDSFORBEREDENDE_TRENING
       ? "AFT"
       : "FRI";

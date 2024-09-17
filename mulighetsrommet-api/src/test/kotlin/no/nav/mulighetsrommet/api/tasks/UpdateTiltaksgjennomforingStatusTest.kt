@@ -12,8 +12,8 @@ import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.domain.dto.AvbruttAarsak
+import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingEksternV1Dto
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus
-import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingV1Dto
 import no.nav.mulighetsrommet.kafka.producers.SisteTiltaksgjennomforingerV1KafkaProducer
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -35,10 +35,10 @@ class UpdateTiltaksgjennomforingStatusTest :
                 tiltaksgjennomforingKafkaProducer,
             )
 
-            fun TiltaksgjennomforingDbo.toDto(status: TiltaksgjennomforingStatus) = TiltaksgjennomforingV1Dto(
+            fun TiltaksgjennomforingDbo.toDto(status: TiltaksgjennomforingStatus) = TiltaksgjennomforingEksternV1Dto(
                 id = id,
                 tiltakstype = TiltakstypeFixtures.Oppfolging.run {
-                    TiltaksgjennomforingV1Dto.Tiltakstype(
+                    TiltaksgjennomforingEksternV1Dto.Tiltakstype(
                         id = id,
                         navn = navn,
                         arenaKode = arenaKode,

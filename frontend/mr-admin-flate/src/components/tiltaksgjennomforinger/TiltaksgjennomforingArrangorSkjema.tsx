@@ -1,6 +1,6 @@
 import { useArrangorKontaktpersoner } from "@/api/arrangor/useArrangorKontaktpersoner";
 import { Button, Textarea, TextField, VStack } from "@navikt/ds-react";
-import { ArrangorKontaktperson, ArrangorKontaktpersonAnsvar, Avtale } from "@mr/api-client";
+import { ArrangorKontaktperson, ArrangorKontaktpersonAnsvar, AvtaleDto } from "@mr/api-client";
 import { ControlledSokeSelect } from "@mr/frontend-common";
 import { useRef } from "react";
 import { useFormContext } from "react-hook-form";
@@ -13,7 +13,7 @@ import { ArrangorKontaktpersonContainer } from "@/components/skjema/ArrangorKont
 import { KontaktpersonButton } from "@/components/kontaktperson/KontaktpersonButton";
 
 interface Props {
-  avtale: Avtale;
+  avtale: AvtaleDto;
   readOnly: boolean;
 }
 
@@ -109,7 +109,7 @@ export function TiltaksgjennomforingArrangorSkjema({ readOnly, avtale }: Props) 
   );
 }
 
-function getArrangorOptions(avtale: Avtale) {
+function getArrangorOptions(avtale: AvtaleDto) {
   return avtale.arrangor.underenheter
     .sort((a, b) => a.navn.localeCompare(b.navn))
     .map((arrangor) => {

@@ -1,7 +1,7 @@
 package no.nav.mulighetsrommet.api.services
 
-import no.nav.mulighetsrommet.api.domain.dto.AvtaleAdminDto
-import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingAdminDto
+import no.nav.mulighetsrommet.api.domain.dto.AvtaleDto
+import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingDto
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import java.io.File
@@ -19,7 +19,7 @@ object ExcelService {
         return tempFile.toFile()
     }
 
-    fun createExcelFileForAvtale(result: List<AvtaleAdminDto>): File =
+    fun createExcelFileForAvtale(result: List<AvtaleDto>): File =
         createExcelFile {
             val sheet = this.createSheet()
 
@@ -32,19 +32,19 @@ object ExcelService {
             headerRow.createCell(5).setCellValue("Startdato")
             headerRow.createCell(6).setCellValue("Sluttdato")
 
-            result.forEachIndexed { index, avtaleAdminDto ->
+            result.forEachIndexed { index, avtale ->
                 val row = sheet.createRow(index + 1)
-                row.createCell(0).setCellValue(avtaleAdminDto.navn)
-                row.createCell(1).setCellValue(avtaleAdminDto.tiltakstype.navn)
-                row.createCell(2).setCellValue(avtaleAdminDto.avtalenummer ?: "")
-                row.createCell(3).setCellValue(avtaleAdminDto.arrangor.navn)
-                row.createCell(4).setCellValue(avtaleAdminDto.arrangor.organisasjonsnummer)
-                row.createCell(5).setCellValue(avtaleAdminDto.startDato.formaterDatoTilEuropeiskDatoformat())
-                row.createCell(6).setCellValue(avtaleAdminDto.sluttDato?.formaterDatoTilEuropeiskDatoformat() ?: "")
+                row.createCell(0).setCellValue(avtale.navn)
+                row.createCell(1).setCellValue(avtale.tiltakstype.navn)
+                row.createCell(2).setCellValue(avtale.avtalenummer ?: "")
+                row.createCell(3).setCellValue(avtale.arrangor.navn)
+                row.createCell(4).setCellValue(avtale.arrangor.organisasjonsnummer)
+                row.createCell(5).setCellValue(avtale.startDato.formaterDatoTilEuropeiskDatoformat())
+                row.createCell(6).setCellValue(avtale.sluttDato?.formaterDatoTilEuropeiskDatoformat() ?: "")
             }
         }
 
-    fun createExcelFileForTiltaksgjennomforing(result: List<TiltaksgjennomforingAdminDto>): File =
+    fun createExcelFileForTiltaksgjennomforing(result: List<TiltaksgjennomforingDto>): File =
         createExcelFile {
             val sheet = this.createSheet()
 
@@ -57,17 +57,17 @@ object ExcelService {
             headerRow.createCell(5).setCellValue("Startdato")
             headerRow.createCell(6).setCellValue("Sluttdato")
 
-            result.forEachIndexed { index, tiltaksgjennomforingAdminDto ->
+            result.forEachIndexed { index, tiltak ->
                 val row = sheet.createRow(index + 1)
-                row.createCell(0).setCellValue(tiltaksgjennomforingAdminDto.navn)
-                row.createCell(1).setCellValue(tiltaksgjennomforingAdminDto.tiltakstype.navn)
-                row.createCell(2).setCellValue(tiltaksgjennomforingAdminDto.tiltaksnummer ?: "")
-                row.createCell(3).setCellValue(tiltaksgjennomforingAdminDto.arrangor.navn)
-                row.createCell(4).setCellValue(tiltaksgjennomforingAdminDto.arrangor.organisasjonsnummer)
+                row.createCell(0).setCellValue(tiltak.navn)
+                row.createCell(1).setCellValue(tiltak.tiltakstype.navn)
+                row.createCell(2).setCellValue(tiltak.tiltaksnummer ?: "")
+                row.createCell(3).setCellValue(tiltak.arrangor.navn)
+                row.createCell(4).setCellValue(tiltak.arrangor.organisasjonsnummer)
                 row.createCell(5)
-                    .setCellValue(tiltaksgjennomforingAdminDto.startDato.formaterDatoTilEuropeiskDatoformat())
+                    .setCellValue(tiltak.startDato.formaterDatoTilEuropeiskDatoformat())
                 row.createCell(6)
-                    .setCellValue(tiltaksgjennomforingAdminDto.sluttDato?.formaterDatoTilEuropeiskDatoformat() ?: "")
+                    .setCellValue(tiltak.sluttDato?.formaterDatoTilEuropeiskDatoformat() ?: "")
             }
         }
 }

@@ -17,8 +17,8 @@ import {
   TextField,
 } from "@navikt/ds-react";
 import {
-  Avtale,
-  Tiltaksgjennomforing,
+  AvtaleDto,
+  TiltaksgjennomforingDto,
   TiltaksgjennomforingKontaktperson,
   TiltaksgjennomforingOppstartstype,
   Tiltakskode,
@@ -46,8 +46,8 @@ import { KontaktpersonButton } from "@/components/kontaktperson/KontaktpersonBut
 import { isKursTiltak } from "@mr/frontend-common/utils/utils";
 
 interface Props {
-  tiltaksgjennomforing?: Tiltaksgjennomforing;
-  avtale: Avtale;
+  tiltaksgjennomforing?: TiltaksgjennomforingDto;
+  avtale: AvtaleDto;
 }
 
 function visApentForInnsok(tiltakskode: Tiltakskode) {

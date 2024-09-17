@@ -8,7 +8,7 @@ import { AvbrytModalError } from "@/components/modal/AvbrytModalError";
 import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
 import { avbrytAvtaleAarsakToString } from "@/utils/Utils";
 import { BodyShort, Button, Radio } from "@navikt/ds-react";
-import { AvbrytAvtaleAarsak, Avtale } from "@mr/api-client";
+import { AvbrytAvtaleAarsak, AvtaleDto } from "@mr/api-client";
 import { RefObject, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import z from "zod";
@@ -34,7 +34,7 @@ export const AvbrytAvtaleModalSchema = z
 
 interface Props {
   modalRef: RefObject<HTMLDialogElement>;
-  avtale: Avtale;
+  avtale: AvtaleDto;
 }
 
 interface State {

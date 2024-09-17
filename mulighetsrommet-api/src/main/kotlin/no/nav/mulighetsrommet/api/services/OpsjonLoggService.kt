@@ -5,7 +5,7 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import kotliquery.TransactionalSession
 import no.nav.mulighetsrommet.api.avtaler.OpsjonLoggValidator
-import no.nav.mulighetsrommet.api.domain.dto.AvtaleAdminDto
+import no.nav.mulighetsrommet.api.domain.dto.AvtaleDto
 import no.nav.mulighetsrommet.api.domain.dto.OpsjonLoggEntry
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.repositories.OpsjonLoggRepository
@@ -57,7 +57,7 @@ class OpsjonLoggService(
         }
     }
 
-    private fun kalkulerNySluttdato(opsjoner: List<OpsjonLoggEntry>, avtale: AvtaleAdminDto): LocalDate? {
+    private fun kalkulerNySluttdato(opsjoner: List<OpsjonLoggEntry>, avtale: AvtaleDto): LocalDate? {
         val utlosteOpsjoner = opsjoner.filter { it.status == OpsjonLoggRequest.OpsjonsLoggStatus.OPSJON_UTLØST }
             .sortedByDescending { it.forrigeSluttdato }
 
@@ -86,7 +86,7 @@ class OpsjonLoggService(
         }
     }
 
-    private fun getAvtaleOrThrow(avtaleId: UUID): AvtaleAdminDto {
+    private fun getAvtaleOrThrow(avtaleId: UUID): AvtaleDto {
         return avtaleRepository.get(avtaleId) ?: throw NotFoundException("Fant ingen avtale med id '$avtaleId'")
     }
 

@@ -11,7 +11,11 @@ import { Kontaktperson } from "@/pages/tiltaksgjennomforinger/Kontaktperson";
 import { formaterDato, formatertVentetid } from "@/utils/Utils";
 import { ExternalLinkIcon } from "@navikt/aksel-icons";
 import { BodyShort, HelpText, HStack, Tag } from "@navikt/ds-react";
-import { Avtale, Tiltaksgjennomforing, TiltaksgjennomforingOppstartstype } from "@mr/api-client";
+import {
+  AvtaleDto,
+  TiltaksgjennomforingDto,
+  TiltaksgjennomforingOppstartstype,
+} from "@mr/api-client";
 import { useTitle } from "@mr/frontend-common";
 import { NOM_ANSATT_SIDE } from "@mr/frontend-common/constants";
 import { Link } from "react-router-dom";
@@ -23,8 +27,8 @@ import { ArrangorKontaktinfoContainer } from "@/pages/arrangor/ArrangorKontaktin
 import { isKursTiltak } from "@mr/frontend-common/utils/utils";
 
 interface Props {
-  tiltaksgjennomforing: Tiltaksgjennomforing;
-  avtale?: Avtale;
+  tiltaksgjennomforing: TiltaksgjennomforingDto;
+  avtale?: AvtaleDto;
 }
 
 export function TiltaksgjennomforingDetaljer({ tiltaksgjennomforing, avtale }: Props) {

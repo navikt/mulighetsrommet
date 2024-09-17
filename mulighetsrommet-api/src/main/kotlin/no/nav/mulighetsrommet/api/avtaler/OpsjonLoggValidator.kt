@@ -5,14 +5,14 @@ import arrow.core.left
 import arrow.core.nel
 import arrow.core.raise.either
 import arrow.core.right
-import no.nav.mulighetsrommet.api.domain.dto.AvtaleAdminDto
+import no.nav.mulighetsrommet.api.domain.dto.AvtaleDto
 import no.nav.mulighetsrommet.api.domain.dto.OpsjonLoggEntry
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.routes.v1.OpsjonLoggRequest
 import no.nav.mulighetsrommet.api.routes.v1.OpsjonsmodellData
 
 class OpsjonLoggValidator {
-    fun validate(entry: OpsjonLoggEntry, avtale: AvtaleAdminDto): Either<List<ValidationError>, OpsjonLoggEntry> = either {
+    fun validate(entry: OpsjonLoggEntry, avtale: AvtaleDto): Either<List<ValidationError>, OpsjonLoggEntry> = either {
         val opsjonsmodellData = avtale.opsjonsmodellData
             ?: raise(ValidationError.of(OpsjonsmodellData::opsjonsmodell, "Kan ikke registrer opsjon uten en opsjonsmodell").nel())
 
