@@ -3,7 +3,7 @@ import { QueryKeys } from "../query-keys";
 import { useGetTiltaksgjennomforingIdFraUrl } from "@/hooks/useGetTiltaksgjennomforingIdFraUrl";
 import {
   VeilederflateTiltak,
-  VeilederflateTiltakArbeidsgiver,
+  VeilederflateTiltakEnkeltplass,
   VeilederflateTiltakEnkeltplassAnskaffet,
   VeilederflateTiltakGruppe,
   VeilederTiltakService,
@@ -13,22 +13,22 @@ export function isTiltakGruppe(tiltak: VeilederflateTiltak): tiltak is Veilederf
   return tiltak.type === "TILTAK_GRUPPE";
 }
 
-export function isTiltakEnkeltplassAnskaffet(
-  tiltak: VeilederflateTiltak,
-): tiltak is VeilederflateTiltakEnkeltplassAnskaffet {
-  return tiltak.type === "TILTAK_ENKELTPLASS_ANSKAFFET";
-}
-
 export function isTiltakEgenRegi(
   tiltak: VeilederflateTiltak,
 ): tiltak is VeilederflateTiltakEnkeltplassAnskaffet {
   return tiltak.type === "TILTAK_EGEN_REGI";
 }
 
-export function isTiltakArbeidsgiver(
+export function isTiltakEnkeltplass(
   tiltak: VeilederflateTiltak,
-): tiltak is VeilederflateTiltakArbeidsgiver {
-  return tiltak.type === "TILTAK_ARBEIDSGIVER";
+): tiltak is VeilederflateTiltakEnkeltplass {
+  return tiltak.type === "TILTAK_ENKELTPLASS";
+}
+
+export function isTiltakEnkeltplassAnskaffet(
+  tiltak: VeilederflateTiltak,
+): tiltak is VeilederflateTiltakEnkeltplassAnskaffet {
+  return tiltak.type === "TILTAK_ENKELTPLASS_ANSKAFFET";
 }
 
 export function isTiltakMedArrangor(

@@ -447,7 +447,7 @@ class VeilederflateService(
                 arrangor = arrangor,
             )
 
-            else -> VeilederflateTiltakArbeidsgiver(
+            else -> VeilederflateTiltakEnkeltplass(
                 status = status,
                 beskrivelse = beskrivelse,
                 faneinnhold = faneinnhold,

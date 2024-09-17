@@ -22,7 +22,7 @@ const TILTAK_GRUPPE_DEV = [
   "02509279-0a0f-4bd6-b506-f40111e4ba14", // Varig tilrettelagt arbeid i skjermet virksomhet
 ];
 
-const TILTAK_ARBEIDSGIVER_PROD = [
+const TILTAK_ENKELTPLASS_PROD = [
   "bab45555-4631-4e5e-9a17-365fc7b335de", // Arbeidstrening
   "6f46bd0b-c9a7-4b03-bd16-e51a8f80f88d", // Fag- og yrkesopplæring eller fagskole (enkeltplass)
   "4457d760-81a4-4c16-8ab3-64c72d424db2", // Høyere utdanning
@@ -34,7 +34,7 @@ const TILTAK_ARBEIDSGIVER_PROD = [
   "661e79e6-721b-452c-a6d4-8c71493f15e3", // Varig tilrettelagt arbeid i ordinær virksomhet
 ];
 
-const TILTAK_ARBEIDSGIVER_DEV = [
+const TILTAK_ENKELTPLASS_DEV = [
   "e8406a67-fabe-4da6-804c-c77a33aaf67d", // Arbeidstrening
   "222a0065-9777-4e09-b2cf-4f48759f86e3", // Fag- og yrkesopplæring eller fagskole (enkeltplass)
   "7e159ff3-ff29-49ea-a48d-04383f6317ca", // Høyere utdanning
@@ -67,8 +67,8 @@ const TILTAK_ENKELTPLASS_ANSKAFFET_DEV = [
 ];
 
 export const TILTAK_ADMINISTRERES_I_SANITY = [
-  ...TILTAK_ARBEIDSGIVER_DEV,
-  ...TILTAK_ARBEIDSGIVER_PROD,
+  ...TILTAK_ENKELTPLASS_DEV,
+  ...TILTAK_ENKELTPLASS_PROD,
   ...TILTAK_EGEN_REGI_DEV,
   ...TILTAK_EGEN_REGI_PROD,
   ...TILTAK_ENKELTPLASS_ANSKAFFET_DEV,
@@ -82,11 +82,11 @@ export function isTiltakGruppe(tiltakstypeRef?: string) {
   return [...TILTAK_GRUPPE_DEV, ...TILTAK_GRUPPE_PROD].includes(tiltakstypeRef);
 }
 
-export function isTiltakArbeidsgiver(tiltakstypeRef?: string) {
+export function isTiltakEnkeltplass(tiltakstypeRef?: string) {
   if (!tiltakstypeRef) {
     return false;
   }
-  return [...TILTAK_ARBEIDSGIVER_DEV, ...TILTAK_ARBEIDSGIVER_PROD].includes(tiltakstypeRef);
+  return [...TILTAK_ENKELTPLASS_DEV, ...TILTAK_ENKELTPLASS_PROD].includes(tiltakstypeRef);
 }
 
 export function isTiltakEgenRegi(tiltakstypeRef?: string) {

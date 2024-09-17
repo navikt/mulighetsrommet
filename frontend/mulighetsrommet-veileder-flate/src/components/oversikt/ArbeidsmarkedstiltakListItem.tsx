@@ -14,7 +14,7 @@ import {
 } from "@mr/api-client";
 import styles from "./ArbeidsmarkedstiltakListItem.module.scss";
 import {
-  isTiltakArbeidsgiver,
+  isTiltakEnkeltplass,
   isTiltakGruppe,
   isTiltakMedArrangor,
 } from "@/api/queries/useArbeidsmarkedstiltakById";
@@ -96,7 +96,7 @@ export function ArbeidsmarkedstiltakListItem({ tiltak, index, delMedBruker }: Pr
 }
 
 function utledOppstart(tiltak: VeilederflateTiltak) {
-  if (isTiltakArbeidsgiver(tiltak)) {
+  if (isTiltakEnkeltplass(tiltak)) {
     return "Løpende oppstart";
   }
 

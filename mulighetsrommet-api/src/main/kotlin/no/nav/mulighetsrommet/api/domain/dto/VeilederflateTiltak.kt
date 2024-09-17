@@ -103,8 +103,8 @@ data class VeilederflateTiltakEgenRegi(
 ) : VeilederflateTiltak()
 
 @Serializable
-@SerialName("TILTAK_ARBEIDSGIVER")
-data class VeilederflateTiltakArbeidsgiver(
+@SerialName("TILTAK_ENKELTPLASS")
+data class VeilederflateTiltakEnkeltplass(
     override val tiltakstype: VeilederflateTiltakstype,
     override val tittel: String,
     override val underTittel: String,
