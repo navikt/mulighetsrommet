@@ -200,7 +200,8 @@ class VeilederflateService(
                   _id,
                   navn,
                   telefon,
-                  epost
+                  epost,
+                  beskrivelse,
                 }
               },
             }
@@ -312,7 +313,8 @@ class VeilederflateService(
                   _id,
                   navn,
                   telefon,
-                  epost
+                  epost,
+                  beskrivelse,
                 }
               },
               faneinnhold {
@@ -363,7 +365,7 @@ class VeilederflateService(
                     navn = kontaktperson.navn,
                     epost = kontaktperson.epost,
                     telefon = kontaktperson.telefon,
-                    beskrivelse = null,
+                    beskrivelse = kontaktperson.beskrivelse,
                 )
             }
             VeilederflateArrangor(

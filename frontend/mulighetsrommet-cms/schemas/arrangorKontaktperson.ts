@@ -15,13 +15,20 @@ export const arrangorKontaktperson = {
       title: "Telefon",
       name: "telefon",
       type: "string",
-      validation: (rule) => rule.min(2).max(200),
+      validation: (rule) => rule.min(2).max(20),
     }),
     defineField({
       title: "E-post",
       name: "epost",
       type: "string",
       validation: (rule) => rule.required().email(),
+    }),
+    defineField({
+      title: "Beskrivelse",
+      description: "Unngå personopplysninger",
+      name: "beskrivelse",
+      type: "string",
+      validation: (rule) => rule.required().max(200),
     }),
   ],
   preview: {

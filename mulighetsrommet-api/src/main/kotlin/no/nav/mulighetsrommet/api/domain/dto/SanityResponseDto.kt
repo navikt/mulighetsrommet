@@ -59,8 +59,9 @@ data class SanityArrangorKontaktperson(
     @Serializable(with = UUIDSerializer::class)
     val _id: UUID,
     val navn: String,
-    val telefon: String? = null,
+    val telefon: String?,
     val epost: String,
+    val beskrivelse: String?,
 )
 
 @Serializable

@@ -102,7 +102,8 @@ class VeilederflateServiceTest : FunSpec({
                             "_id": "${UUID.randomUUID()}",
                             "navn": "Donald",
                             "telefon": "12341234",
-                            "epost": "donald@fretex.no"
+                            "epost": "donald@fretex.no",
+                            "beskrivelse": "Daglig leder"
                         }
                     ]
                 }
