@@ -1,20 +1,20 @@
 package no.nav.mulighetsrommet.api.routes.v1
 
-import com.lowagie.text.Document
-import com.lowagie.text.Font
-import com.lowagie.text.FontFactory
-import com.lowagie.text.Header
-import com.lowagie.text.Paragraph
-import com.lowagie.text.pdf.PdfContentByte
-import com.lowagie.text.pdf.PdfPageEventHelper
-import com.lowagie.text.pdf.PdfWriter
+import com.lowagie.text.*
+import com.lowagie.text.pdf.*
+import com.lowagie.text.pdf.PdfPCell
 import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import kotlinx.serialization.Serializable
+import no.nav.pdfgen.core.Environment
+import no.nav.pdfgen.core.PDFGenCore
+import no.nav.pdfgen.core.pdf.createHtmlFromTemplateData
+import no.nav.pdfgen.core.pdf.createPDFA
 import org.apache.commons.io.output.ByteArrayOutputStream
+import org.verapdf.gf.foundry.VeraGreenfieldFoundryProvider
 import java.util.*
 
 /*
@@ -23,9 +23,20 @@ import java.util.*
  * @todo: Finne ut av formatering, header / footer / logo
  * @todo: finne ut av hvordan å hente refusjonskrav fra DB
  */
+
 fun Route.pdfRoutes() {
+    VeraGreenfieldFoundryProvider.initialise()
+    PDFGenCore.init(
+        Environment(),
+    )
+
+    // val html = createHtmlFromTemplateData("refusjon-kvittering", "refusjon").toString()
+    // val pdfBytes: ByteArray = createPDFA(html)
+
     get("/pdf/{id}") {
         val id = call.parameters.getOrFail<UUID>("id")
+        val html = createHtmlFromTemplateData("refusjon-kvittering", "refusjon").toString()
+        val pdfBytes: ByteArray = createPDFA(html)
 
         // val dbo = call.receive<PdfKvittering>()
         val mockPdf = PdfKvittering(
@@ -37,29 +48,27 @@ fun Route.pdfRoutes() {
                 ),
             ),
             tilsangsDetaljer = ItemGroup(
-                title = null,
+                title = "Tilsagnsdetaljer",
                 items = listOf(
                     Item(title = "Tiltaksnavn", content = "AFT - Gruppe AFT Fredrikstad"),
                     Item(title = "Title", content = "Content"),
                 ),
             ),
             refusjonsKrav = ItemGroup(
-                title = null,
+                title = "RefusjonsKrav",
                 items = listOf(
                     Item(title = "Tiltaksnavn", content = "AFT - Gruppe AFT Fredrikstad"),
                     Item(title = "Title", content = "Content"),
                 ),
             ),
             betalingsInformasjon = ItemGroup(
-                title = null,
+                title = "Betalingsinformasjon",
                 items = listOf(
-                    Item(title = "Tiltaksnavn", content = "AFT - Gruppe AFT Fredrikstad"),
-                    Item(title = "Title", content = "Content"),
+                    Item(title = "Kontonummer", content = "1234 56 78901"),
+                    Item(title = "Kid-nummer", content = "123456789901"),
                 ),
             ),
         )
-
-        val pdfBytes = generatePdfInMemory(mockPdf)
 
         call.response.headers.append("Content-Disposition", "attachment; filename=\"kvittering.pdf\"")
         call.respondBytes(pdfBytes, contentType = io.ktor.http.ContentType.Application.Pdf)
@@ -88,29 +97,38 @@ private data class PdfKvittering(
 
 val boldFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12f, Font.BOLD)
 
-private fun generateRow(item: Item): Pair<Paragraph, Paragraph> {
-    val titleParagraph = Paragraph(item.title, boldFont)
-    val contentParagraph = Paragraph(item.content)
+private fun generateRow(item: Item): PdfPTable {
+    val titleParagraph = PdfPCell(Paragraph(item.title))
+    titleParagraph.border = PdfCell.NO_BORDER
+    val contentParagraph = PdfPCell(Paragraph(item.content, boldFont))
+    contentParagraph.border = PdfCell.NO_BORDER
 
-    contentParagraph.firstLineIndent = 30f
-    contentParagraph.spacingBefore = 5f
-    contentParagraph.spacingAfter = 20f
+    val table = PdfPTable(2)
 
-    return Pair(titleParagraph, contentParagraph)
+    table.addCell(titleParagraph)
+    table.addCell(contentParagraph)
+
+    table.horizontalAlignment = PdfPTable.ALIGN_LEFT
+    table.setExtendLastRow(false)
+
+    return table
 }
+
+val groupTitleFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 16f, Font.NORMAL)
 
 private fun generateGroup(
     document: Document,
     group: ItemGroup,
 ) {
-    val groupTitle = Paragraph(group.title)
+    val groupTitle = Paragraph(group.title, groupTitleFont)
 
+    groupTitle.spacingBefore = 21f
+    groupTitle.spacingAfter = 5f
     document.add(groupTitle)
 
     group.items.forEach { item ->
-        val paragraphs = generateRow(item)
-        document.add(paragraphs.first)
-        document.add(paragraphs.second)
+        val tables = generateRow(item)
+        document.add(tables)
     }
 }
 

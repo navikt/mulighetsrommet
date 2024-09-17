@@ -35,6 +35,8 @@ arrow-core-serialization = { module = "io.arrow-kt:arrow-core-serialization", ve
 assertj-db = "org.assertj:assertj-db:2.0.2"
 
 caffeine = "com.github.ben-manes.caffeine:caffeine:3.1.8"
+pdfgen-core = "no.nav.pdfgen:pdfgen-core:1.1.25"
+verapdf = "org.verapdf:validation-model:1.26.1"
 
 dbScheduler = "com.github.kagkarlsson:db-scheduler:14.1.0"
 

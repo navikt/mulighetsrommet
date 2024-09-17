@@ -61,6 +61,8 @@ dependencies {
     implementation(libs.arrow.core)
     implementation(libs.arrow.core.serialization)
     implementation(libs.openpdf)
+    implementation(libs.pdfgen.core)
+    implementation(libs.verapdf)
 
     // Logging
     implementation(libs.bundles.logging)
