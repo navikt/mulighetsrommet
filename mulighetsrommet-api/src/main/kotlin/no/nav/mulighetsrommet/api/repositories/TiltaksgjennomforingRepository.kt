@@ -14,6 +14,7 @@ import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.api.domain.dto.*
 import no.nav.mulighetsrommet.api.responses.StatusResponseError
+import no.nav.mulighetsrommet.api.utils.DBUtils.toFTSPrefixQuery
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.PaginatedResult
 import no.nav.mulighetsrommet.database.utils.Pagination
@@ -398,7 +399,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         publisert: Boolean? = null,
     ): PaginatedResult<TiltaksgjennomforingAdminDto> {
         val parameters = mapOf(
-            "search" to search,
+            "search" to search?.toFTSPrefixQuery(),
             "search_arrangor" to search?.trim()?.let { "%$it%" },
             "slutt_dato_cutoff" to sluttDatoGreaterThanOrEqualTo,
             "avtale_id" to avtaleId,
@@ -438,7 +439,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
               and (:avtale_id::uuid is null or avtale_id = :avtale_id)
               and (:arrangor_ids::uuid[] is null or arrangor_id = any(:arrangor_ids))
               and (:arrangor_orgnrs::text[] is null or arrangor_organisasjonsnummer = any(:arrangor_orgnrs))
-              and (:search::text is null or (fts @@ websearch_to_tsquery('norwegian', :search) or arrangor_navn ilike :search_arrangor))
+              and (:search::text is null or (fts @@ to_tsquery('norwegian', :search) or arrangor_navn ilike :search_arrangor))
               and (:nav_enheter::text[] is null or (
                    nav_region_enhetsnummer = any (:nav_enheter) or
                    exists(select true
@@ -487,7 +488,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         val parameters = mapOf(
             "innsatsgruppe" to innsatsgruppe.name,
             "brukers_enheter" to db.createTextArray(brukersEnheter),
-            "search" to search,
+            "search" to search?.toFTSPrefixQuery(),
             "apent_for_innsok" to apentForInnsok,
             "sanityTiltakstypeIds" to sanityTiltakstypeIds?.let { db.createUuidArray(it) },
         )
@@ -499,7 +500,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             where publisert
               and :innsatsgruppe::innsatsgruppe = any(tiltakstype_innsatsgrupper)
               and nav_enheter && :brukers_enheter
-              and (:search::text is null or fts @@ websearch_to_tsquery('norwegian', :search))
+              and (:search::text is null or fts @@ to_tsquery('norwegian', :search))
               and (:sanityTiltakstypeIds::uuid[] is null or tiltakstype_sanity_id = any(:sanityTiltakstypeIds))
               and (:apent_for_innsok::boolean is null or apent_for_innsok = :apent_for_innsok)
         """.trimIndent()
