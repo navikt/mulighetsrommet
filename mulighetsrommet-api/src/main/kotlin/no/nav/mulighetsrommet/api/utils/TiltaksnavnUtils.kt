@@ -2,7 +2,6 @@ package no.nav.mulighetsrommet.api.utils
 
 import no.nav.mulighetsrommet.api.domain.dto.TiltakstypeAdminDto
 import no.nav.mulighetsrommet.domain.Tiltakskode
-import no.nav.mulighetsrommet.domain.Tiltakskoder
 import no.nav.mulighetsrommet.domain.Tiltakskoder.isKursTiltak
 
 object TiltaksnavnUtils {
@@ -22,7 +21,7 @@ object TiltaksnavnUtils {
         tiltakstypeNavn: String,
         arenaKode: String,
     ): Pair<String, String> =
-        if (Tiltakskoder.isEnkeltplassAnksaffetTiltak(arenaKode)) {
+        if (arenaKode in listOf("ENKELAMO", "ENKFAGYRKE")) {
             navn to tiltakstypeNavn
         } else {
             tiltakstypeNavn to navn

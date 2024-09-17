@@ -430,7 +430,7 @@ class VeilederflateService(
                 )
             }
 
-            Tiltakskoder.isEnkeltplassAnksaffetTiltak(arenakode) && arrangor != null -> VeilederflateTiltakEnkeltplassAnskaffet(
+            arrangor != null -> VeilederflateTiltakEnkeltplassAnskaffet(
                 tiltaksnummer = tiltaksnummer,
                 status = status,
                 beskrivelse = beskrivelse,

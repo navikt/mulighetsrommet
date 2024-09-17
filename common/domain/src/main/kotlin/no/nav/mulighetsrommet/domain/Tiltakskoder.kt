@@ -128,8 +128,4 @@ object Tiltakskoder {
     fun isTiltakMedAvtalerFraMulighetsrommet(tiltakskode: Tiltakskode?): Boolean {
         return tiltakskode in TiltakMedAvtalerFraMulighetsrommet
     }
-
-    fun isEnkeltplassAnksaffetTiltak(arenaKode: String): Boolean {
-        return arenaKode in listOf("ENKELAMO", "ENKFAGYRKE")
-    }
 }

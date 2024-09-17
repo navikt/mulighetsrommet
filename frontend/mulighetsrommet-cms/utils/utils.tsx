@@ -24,6 +24,7 @@ const TILTAK_GRUPPE_DEV = [
 
 const TILTAK_ARBEIDSGIVER_PROD = [
   "bab45555-4631-4e5e-9a17-365fc7b335de", // Arbeidstrening
+  "6f46bd0b-c9a7-4b03-bd16-e51a8f80f88d", // Fag- og yrkesopplæring eller fagskole (enkeltplass)
   "4457d760-81a4-4c16-8ab3-64c72d424db2", // Høyere utdanning
   "2ba9c085-3780-420a-a5d5-820788c74d29", // Inkluderingstilskudd
   "5328120c-028b-4ede-8250-ebf22536b021", // Mentor
@@ -35,6 +36,7 @@ const TILTAK_ARBEIDSGIVER_PROD = [
 
 const TILTAK_ARBEIDSGIVER_DEV = [
   "e8406a67-fabe-4da6-804c-c77a33aaf67d", // Arbeidstrening
+  "222a0065-9777-4e09-b2cf-4f48759f86e3", // Fag- og yrkesopplæring eller fagskole (enkeltplass)
   "7e159ff3-ff29-49ea-a48d-04383f6317ca", // Høyere utdanning
   "828f80b1-7d75-40dd-84b7-09e694e5c565", // Inkluderingstilskudd
   "ad998fc6-310e-45d4-a056-57732fed87b4", // Mentor
@@ -58,12 +60,10 @@ const TILTAK_EGEN_REGI_DEV = [
 
 const TILTAK_ENKELTPLASS_ANSKAFFET_PROD = [
   "6c4f372f-9631-4916-b7c1-549c17239d78", // Arbeidsmarkedsopplæring (enkeltplass)
-  "6f46bd0b-c9a7-4b03-bd16-e51a8f80f88d", // Fag- og yrkesopplæring eller fagskole (enkeltplass)
 ];
 
 const TILTAK_ENKELTPLASS_ANSKAFFET_DEV = [
   "bbb8d042-b30e-4e4a-8cd0-210019b19de3", // Arbeidsmarkedsopplæring (enkeltplass)
-  "222a0065-9777-4e09-b2cf-4f48759f86e3", // Fag- og yrkesopplæring eller fagskole (enkeltplass)
 ];
 
 export const TILTAK_ADMINISTRERES_I_SANITY = [
