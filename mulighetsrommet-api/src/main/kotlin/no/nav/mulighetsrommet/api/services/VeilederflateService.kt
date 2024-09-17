@@ -10,6 +10,7 @@ import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.clients.sanity.SanityParam
 import no.nav.mulighetsrommet.api.clients.sanity.SanityPerspective
 import no.nav.mulighetsrommet.api.domain.dto.*
+import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.routes.v1.ApentForInnsok
 import no.nav.mulighetsrommet.api.utils.TiltaksnavnUtils.tittelOgUnderTittel
 import no.nav.mulighetsrommet.domain.Tiltakskoder
@@ -22,7 +23,7 @@ import java.util.concurrent.TimeUnit
 
 class VeilederflateService(
     private val sanityClient: SanityClient,
-    private val tiltaksgjennomforingService: TiltaksgjennomforingService,
+    private val tiltaksgjennomforingRepository: TiltaksgjennomforingRepository,
     private val tiltakstypeService: TiltakstypeService,
     private val navEnhetService: NavEnhetService,
 ) {
@@ -227,11 +228,11 @@ class VeilederflateService(
         apentForInnsok: ApentForInnsok,
         search: String?,
     ): List<VeilederflateTiltak> {
-        return tiltaksgjennomforingService.getAllVeilederflateTiltaksgjennomforing(
+        return tiltaksgjennomforingRepository.getAllVeilederflateTiltaksgjennomforing(
             search = search,
             sanityTiltakstypeIds = tiltakstypeIds?.map { UUID.fromString(it) },
             innsatsgruppe = innsatsgruppe,
-            enheter = enheter,
+            brukersEnheter = enheter,
             apentForInnsok = when (apentForInnsok) {
                 ApentForInnsok.APENT -> true
                 ApentForInnsok.STENGT -> false
@@ -244,7 +245,7 @@ class VeilederflateService(
         id: UUID,
         sanityPerspective: SanityPerspective,
     ): VeilederflateTiltak {
-        return tiltaksgjennomforingService.getVeilederflateTiltaksgjennomforing(id)
+        return tiltaksgjennomforingRepository.getVeilederflateTiltaksgjennomforing(id)
             ?.let { gjennomforing ->
                 val hentTiltakstyper = hentTiltakstyper()
                 val sanityTiltakstype = hentTiltakstyper
