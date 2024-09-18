@@ -353,8 +353,8 @@ class AvtaleRepositoryTest : FunSpec({
                 it.items[0].id shouldBe avtale2.id
             }
 
-            avtaler.getAll(search = "krokodille OR ulv").should {
-                it.totalCount shouldBe 2
+            avtaler.getAll(search = "krok").should {
+                it.totalCount shouldBe 1
             }
 
             avtaler.getAll(search = "avtale kråke").should {
