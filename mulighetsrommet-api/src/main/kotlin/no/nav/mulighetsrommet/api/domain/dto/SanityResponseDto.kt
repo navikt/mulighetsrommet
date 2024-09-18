@@ -51,7 +51,7 @@ data class SanityArrangor(
     val _id: UUID,
     val navn: String,
     val organisasjonsnummer: Organisasjonsnummer? = null,
-    val kontaktpersoner: List<SanityArrangorKontaktperson> = emptyList(),
+    val kontaktpersoner: List<SanityArrangorKontaktperson>? = emptyList(),
 )
 
 @Serializable

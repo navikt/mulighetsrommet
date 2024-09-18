@@ -359,7 +359,7 @@ class VeilederflateService(
             } ?: emptyList()
 
         val arrangor = gjennomforing.arrangor?.let { arrangor ->
-            val kontaktpersoner = arrangor.kontaktpersoner.map { kontaktperson ->
+            val kontaktpersoner = arrangor.kontaktpersoner?.map { kontaktperson ->
                 VeilederflateArrangorKontaktperson(
                     id = kontaktperson._id,
                     navn = kontaktperson.navn,
@@ -367,7 +367,7 @@ class VeilederflateService(
                     telefon = kontaktperson.telefon,
                     beskrivelse = kontaktperson.beskrivelse,
                 )
-            }
+            } ?: emptyList()
             VeilederflateArrangor(
                 arrangorId = arrangor._id,
                 selskapsnavn = arrangor.navn,
