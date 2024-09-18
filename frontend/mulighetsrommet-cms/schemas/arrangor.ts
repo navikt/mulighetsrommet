@@ -15,7 +15,7 @@ export const arrangor = {
       title: "Organisasjonsnummer",
       name: "organisasjonsnummer",
       type: "string",
-      validation: Rule => Rule.regex(/^\\d{9}$/).error("Organisasjonsnummer må bestå av 9 siffer")
+      validation: Rule => Rule.regex(/^\d{9}$/).error("Organisasjonsnummer må bestå av 9 siffer")
     }),
     defineField({
       title: "Kontaktpersoner",
