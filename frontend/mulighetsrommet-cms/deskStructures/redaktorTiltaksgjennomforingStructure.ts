@@ -17,7 +17,7 @@ const redaktorTiltaksgjennomforingStructure = (S, context) => [
   ...commonStructure(S, context),
   S.divider(),
   ...S.documentTypeListItems().filter((listItem) =>
-    ["navKontaktperson", "redaktor", "oppskrift"].includes(listItem.getId()),
+    ["navKontaktperson", "redaktor", "oppskrift", "arrangor", "arrangorKontaktperson"].includes(listItem.getId()),
   ),
 ];
 
