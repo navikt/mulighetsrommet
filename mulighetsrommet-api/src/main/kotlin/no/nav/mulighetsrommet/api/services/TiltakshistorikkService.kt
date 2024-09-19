@@ -43,6 +43,7 @@ class TiltakshistorikkService(
             }
         }
 
+        // TODO håndter feilscenarier fra tiltakshistorikk
         val historikk = historikkResponse.await().historikk.map {
             when (it) {
                 is Tiltakshistorikk.ArenaDeltakelse -> {

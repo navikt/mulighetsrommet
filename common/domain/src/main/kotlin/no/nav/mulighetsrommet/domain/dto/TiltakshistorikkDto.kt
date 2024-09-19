@@ -122,10 +122,9 @@ data class TiltakshistorikkRequest(
 @Serializable
 data class TiltakshistorikkResponse(
     val historikk: List<Tiltakshistorikk>,
-    val meldinger: List<TiltakshistorikkFeilmelding>,
+    val meldinger: List<TiltakshistorikkMelding>,
 )
 
-@Serializable
-data class TiltakshistorikkFeilmelding(
-    val description: String,
-)
+enum class TiltakshistorikkMelding {
+    MANGLER_DATA_FRA_TEAM_TILTAK,
+}

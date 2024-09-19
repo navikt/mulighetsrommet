@@ -1,7 +1,6 @@
 package no.nav.mulighetsrommet.tiltakshistorikk
 
-import arrow.core.Either
-import arrow.core.mapOrAccumulate
+import arrow.core.*
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
@@ -12,6 +11,7 @@ import io.ktor.server.util.*
 import kotlinx.coroutines.async
 import no.nav.mulighetsrommet.domain.dbo.ArenaDeltakerDbo
 import no.nav.mulighetsrommet.domain.dto.*
+import no.nav.mulighetsrommet.env.NaisEnv
 import no.nav.mulighetsrommet.tiltakshistorikk.clients.Avtale
 import no.nav.mulighetsrommet.tiltakshistorikk.clients.GraphqlRequest
 import no.nav.mulighetsrommet.tiltakshistorikk.clients.TiltakDatadelingClient
@@ -19,6 +19,7 @@ import no.nav.mulighetsrommet.tiltakshistorikk.repositories.DeltakerRepository
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import java.time.LocalDate
 import java.util.*
+import kotlin.collections.flatten
 
 fun Route.tiltakshistorikkRoutes(
     deltakerRepository: DeltakerRepository,
@@ -27,7 +28,11 @@ fun Route.tiltakshistorikkRoutes(
     suspend fun getArbeidsgiverAvtaler(
         identer: List<NorskIdent>,
         maxAgeYears: Int?,
-    ): Either<TiltakshistorikkFeilmelding, List<Tiltakshistorikk.ArbeidsgiverAvtale>> {
+    ): Either<NonEmptyList<TiltakshistorikkMelding>, List<Tiltakshistorikk.ArbeidsgiverAvtale>> {
+        if (NaisEnv.current().isProdGCP()) {
+            return nonEmptyListOf(TiltakshistorikkMelding.MANGLER_DATA_FRA_TEAM_TILTAK).left()
+        }
+
         val minAvtaleDato = maxAgeYears?.let { LocalDate.now().minusYears(it.toLong()) } ?: LocalDate.MIN
         return identer
             .mapOrAccumulate {
@@ -73,7 +78,7 @@ fun Route.tiltakshistorikkRoutes(
             }
             .mapLeft { errors ->
                 application.log.error("Klarte ikke hente tiltakshistorikk fra Team Tiltak. Errors=$errors")
-                TiltakshistorikkFeilmelding("Klarte ikke hente tiltak fra Team Tiltak.")
+                nonEmptyListOf(TiltakshistorikkMelding.MANGLER_DATA_FRA_TEAM_TILTAK)
             }
     }
 
@@ -99,7 +104,7 @@ fun Route.tiltakshistorikkRoutes(
                     .fold(
                         { feilmelding ->
                             val historikk = deltakelser.sortedWith(compareBy(nullsLast()) { it.startDato })
-                            TiltakshistorikkResponse(historikk = historikk, meldinger = listOf(feilmelding))
+                            TiltakshistorikkResponse(historikk = historikk, meldinger = feilmelding)
                         },
                         { avtaler ->
                             val historikk = (deltakelser + avtaler).sortedWith(compareBy(nullsLast()) { it.startDato })
