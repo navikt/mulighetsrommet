@@ -17,6 +17,7 @@ import no.nav.mulighetsrommet.tiltakshistorikk.clients.GraphqlRequest
 import no.nav.mulighetsrommet.tiltakshistorikk.clients.TiltakDatadelingClient
 import no.nav.mulighetsrommet.tiltakshistorikk.repositories.DeltakerRepository
 import no.nav.mulighetsrommet.tokenprovider.AccessType
+import java.time.LocalDate
 import java.util.*
 
 fun Route.tiltakshistorikkRoutes(
@@ -25,7 +26,9 @@ fun Route.tiltakshistorikkRoutes(
 ) {
     suspend fun getArbeidsgiverAvtaler(
         identer: List<NorskIdent>,
+        maxAgeYears: Int?,
     ): Either<TiltakshistorikkFeilmelding, List<Tiltakshistorikk.ArbeidsgiverAvtale>> {
+        val minAvtaleDato = maxAgeYears?.let { LocalDate.now().minusYears(it.toLong()) } ?: LocalDate.MIN
         return identer
             .mapOrAccumulate {
                 tiltakDatadelingClient.getAvtalerForPerson(
@@ -35,6 +38,12 @@ fun Route.tiltakshistorikkRoutes(
             }
             .map {
                 it.flatten()
+                    .filter { avtale ->
+                        val avtaleDato = avtale.sluttDato
+                            ?: avtale.startDato
+                            ?: avtale.registrertTidspunkt.toLocalDate()
+                        !avtaleDato.isBefore(minAvtaleDato)
+                    }
                     .map { avtale ->
                         Tiltakshistorikk.ArbeidsgiverAvtale(
                             norskIdent = avtale.deltakerFnr,
@@ -80,7 +89,7 @@ fun Route.tiltakshistorikkRoutes(
                     deltakerRepository.getKometHistorikk(request.identer, request.maxAgeYears)
                 }
                 val arbeidsgiverAvtaler = async {
-                    getArbeidsgiverAvtaler(request.identer)
+                    getArbeidsgiverAvtaler(request.identer, request.maxAgeYears)
                 }
 
                 val deltakelser = arenaDeltakelser.await() + gruppetiltakDeltakelser.await()

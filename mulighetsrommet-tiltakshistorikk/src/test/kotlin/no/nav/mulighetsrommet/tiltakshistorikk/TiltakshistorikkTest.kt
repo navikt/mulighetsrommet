@@ -29,6 +29,8 @@ import no.nav.mulighetsrommet.tiltakshistorikk.repositories.GruppetiltakReposito
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.ZoneId
+import java.time.ZonedDateTime
 import java.util.*
 
 class TiltakshistorikkTest : FunSpec({
@@ -105,6 +107,10 @@ class TiltakshistorikkTest : FunSpec({
                                 startDato = LocalDate.of(2023, 1, 1),
                                 sluttDato = LocalDate.of(2023, 12, 31),
                                 avtaleStatus = Avtale.Status.GJENNOMFORES,
+                                registrertTidspunkt = ZonedDateTime.of(
+                                    LocalDateTime.of(2023, 1, 1, 0, 0, 0),
+                                    ZoneId.of("Europe/Oslo"),
+                                ),
                             ),
                         ),
                     ),
@@ -178,7 +184,28 @@ class TiltakshistorikkTest : FunSpec({
         }
 
         test("filtrerer vekk historikk som er eldre enn maxAgeYears") {
-            val mockEngine = mockTiltakDatadeling()
+            val mockEngine = mockTiltakDatadeling(
+                response = GraphqlResponse(
+                    data = GetAvtalerForPersonResponse(
+                        avtalerForPerson = listOf(
+                            Avtale(
+                                avtaleId = UUID.randomUUID(),
+                                avtaleNr = 1,
+                                deltakerFnr = NorskIdent("12345678910"),
+                                bedriftNr = Organisasjonsnummer("123456789"),
+                                tiltakstype = Avtale.Tiltakstype.ARBEIDSTRENING,
+                                startDato = LocalDate.of(2000, 1, 1),
+                                sluttDato = LocalDate.of(2000, 12, 31),
+                                avtaleStatus = Avtale.Status.GJENNOMFORES,
+                                registrertTidspunkt = ZonedDateTime.of(
+                                    LocalDateTime.of(2023, 1, 1, 0, 0, 0),
+                                    ZoneId.of("Europe/Oslo"),
+                                ),
+                            ),
+                        ),
+                    ),
+                ),
+            )
 
             withTestApplication(oauth, mockEngine) {
                 val client = createClient {

@@ -19,10 +19,12 @@ import no.nav.mulighetsrommet.domain.dto.NorskIdent
 import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
+import no.nav.mulighetsrommet.domain.serializers.ZonedDateTimeSerializer
 import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import no.nav.mulighetsrommet.tokenprovider.TokenProvider
 import java.time.LocalDate
+import java.time.ZonedDateTime
 import java.util.*
 import java.util.concurrent.TimeUnit
 
@@ -67,6 +69,7 @@ class TiltakDatadelingClient(
                         startDato
                         sluttDato
                         avtaleStatus
+                        registrertTidspunkt
                     }
                 }
             """.trimIndent(),
@@ -179,6 +182,8 @@ data class Avtale(
     @Serializable(with = LocalDateSerializer::class)
     val sluttDato: LocalDate?,
     val avtaleStatus: Status,
+    @Serializable(with = ZonedDateTimeSerializer::class)
+    val registrertTidspunkt: ZonedDateTime,
 ) {
     enum class Tiltakstype {
         ARBEIDSTRENING,
