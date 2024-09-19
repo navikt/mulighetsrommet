@@ -464,6 +464,22 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         }
     }
 
+    fun getGjennomforesInPeriode(periodeStart: LocalDate, periodeSlutt: LocalDate): List<TiltaksgjennomforingDto> {
+        @Language("PostgreSQL")
+        val query = """
+            select * from tiltaksgjennomforing_admin_dto_view
+            where
+                (start_dato <= :periode_slutt) and
+                (slutt_dato >= :periode_start or slutt_dato is null) and
+                (avbrutt_tidspunkt > :periode_start or avbrutt_tidspunkt is null)
+        """.trimIndent()
+
+        return queryOf(query, mapOf("periode_start" to periodeStart, "periode_slutt" to periodeSlutt))
+            .map { it.toTiltaksgjennomforingDto() }
+            .asList
+            .let { db.run(it) }
+    }
+
     fun getVeilederflateTiltaksgjennomforing(id: UUID): VeilederflateTiltakGruppe? {
         @Language("PostgreSQL")
         val query = """
