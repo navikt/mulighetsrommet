@@ -127,6 +127,8 @@ spec:
           namespace: obo
         - application: norg2
           namespace: org
+        - application: veilarboppfolging
+          namespace: poao
       external:
         - host: slack.com
         - host: xegcworx.apicdn.sanity.io

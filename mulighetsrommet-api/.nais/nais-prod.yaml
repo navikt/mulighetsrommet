@@ -123,6 +123,8 @@ spec:
           namespace: dab
         - application: norg2
           namespace: org
+        - application: veilarboppfolging
+          namespace: poao
       external:
         - host: slack.com
         - host: data.brreg.no
