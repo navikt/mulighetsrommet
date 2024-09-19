@@ -53,7 +53,7 @@ class TiltakshistorikkService(
                     it.toDeltakerKort()
                 }
 
-                is Tiltakshistorikk.ArbeidsgiverAvtale -> throw IllegalStateException("ArbeidsgiverAvtale er enda ikke støttet")
+                is Tiltakshistorikk.ArbeidsgiverAvtale -> it.toDeltakerKort()
             }
         }
 
@@ -115,6 +115,36 @@ class TiltakshistorikkService(
             innsoktDato = null,
             sistEndretDato = null,
             eierskap = DeltakerKort.Eierskap.ARENA,
+        )
+    }
+
+    private suspend fun Tiltakshistorikk.ArbeidsgiverAvtale.toDeltakerKort(): DeltakerKort {
+        val arenaKode = when (tiltakstype) {
+            Tiltakshistorikk.ArbeidsgiverAvtale.Tiltakstype.ARBEIDSTRENING -> "ARBTREN"
+            Tiltakshistorikk.ArbeidsgiverAvtale.Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD -> "MIDLONTIL"
+            Tiltakshistorikk.ArbeidsgiverAvtale.Tiltakstype.VARIG_LONNSTILSKUDD -> "VARLONTIL"
+            Tiltakshistorikk.ArbeidsgiverAvtale.Tiltakstype.MENTOR -> "MENTOR"
+            Tiltakshistorikk.ArbeidsgiverAvtale.Tiltakstype.INKLUDERINGSTILSKUDD -> "INKLUTILS"
+            Tiltakshistorikk.ArbeidsgiverAvtale.Tiltakstype.SOMMERJOBB -> "TILSJOBB"
+        }
+        val tiltakstype = tiltakstypeRepository.getByArenaTiltakskode(arenaKode)
+        val arrangorNavn = getArrangor(arbeidsgiver.organisasjonsnummer).navn
+        return DeltakerKort(
+            id = avtaleId,
+            periode = DeltakerKort.Periode(
+                startDato = startDato,
+                sluttDato = sluttDato,
+            ),
+            status = DeltakerKort.DeltakerStatus(
+                type = DeltakerKort.DeltakerStatus.DeltakerStatusType.valueOf(status.name),
+                visningstekst = arbeidsgiverAvtaleStatusTilVisningstekst(status),
+                aarsak = null,
+            ),
+            tittel = TiltaksnavnUtils.tilKonstruertNavn(tiltakstype, arrangorNavn),
+            tiltakstypeNavn = tiltakstype.navn,
+            innsoktDato = null,
+            sistEndretDato = null,
+            eierskap = DeltakerKort.Eierskap.TEAM_TILTAK,
         )
     }
 
@@ -195,6 +225,18 @@ class TiltakshistorikkService(
         }
     }
 
+    private fun arbeidsgiverAvtaleStatusTilVisningstekst(status: Tiltakshistorikk.ArbeidsgiverAvtale.Status): String {
+        return when (status) {
+            Tiltakshistorikk.ArbeidsgiverAvtale.Status.ANNULLERT -> "Annullert"
+            Tiltakshistorikk.ArbeidsgiverAvtale.Status.AVBRUTT -> "Avbrutt"
+            Tiltakshistorikk.ArbeidsgiverAvtale.Status.PAABEGYNT -> "Påbegynt"
+            Tiltakshistorikk.ArbeidsgiverAvtale.Status.MANGLER_GODKJENNING -> "Mangler godkjenning"
+            Tiltakshistorikk.ArbeidsgiverAvtale.Status.KLAR_FOR_OPPSTART -> "Klar for oppstart"
+            Tiltakshistorikk.ArbeidsgiverAvtale.Status.GJENNOMFORES -> "Gjennomføres"
+            Tiltakshistorikk.ArbeidsgiverAvtale.Status.AVSLUTTET -> "Avsluttet"
+        }
+    }
+
     suspend fun hentDeltakelserFraKomet(
         norskIdent: NorskIdent,
         obo: AccessType.OBO,
@@ -232,6 +274,17 @@ class TiltakshistorikkService(
             null
         }, { virksomhet ->
             virksomhet.overordnetEnhet?.let { getArrangorHovedenhet(Organisasjonsnummer(it)) }?.navn ?: virksomhet.navn
+        })
+
+        return TiltakshistorikkDto.Arrangor(organisasjonsnummer = Organisasjonsnummer(orgnr.value), navn = navn)
+    }
+
+    private suspend fun getArrangor(orgnr: Organisasjonsnummer): TiltakshistorikkDto.Arrangor {
+        val navn = arrangorService.getOrSyncArrangorFromBrreg(orgnr.value).fold({ error ->
+            log.warn("Klarte ikke hente hente arrangør. BrregError: $error")
+            null
+        }, { virksomhet ->
+            virksomhet.navn
         })
 
         return TiltakshistorikkDto.Arrangor(organisasjonsnummer = Organisasjonsnummer(orgnr.value), navn = navn)

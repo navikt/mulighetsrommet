@@ -5,6 +5,7 @@ import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.http.content.*
 import kotlinx.serialization.InternalSerializationApi
+import kotlinx.serialization.KSerializer
 import kotlinx.serialization.serializer
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import no.nav.mulighetsrommet.utils.toUUID
@@ -36,6 +37,19 @@ inline fun <reified T : Any> MockRequestHandleScope.respondJson(
     } else {
         JsonIgnoreUnknownKeys.encodeToString(T::class.serializer(), content)
     }
+    return respond(serializedContent, status, headers)
+}
+
+inline fun <reified T : Any> MockRequestHandleScope.respondJson(
+    content: T,
+    serializer: KSerializer<T>,
+    status: HttpStatusCode = HttpStatusCode.OK,
+): HttpResponseData {
+    val headers = headersOf(
+        HttpHeaders.ContentType,
+        ContentType.Application.Json.toString(),
+    )
+    val serializedContent = JsonIgnoreUnknownKeys.encodeToString(serializer, content)
     return respond(serializedContent, status, headers)
 }
 

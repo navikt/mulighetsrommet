@@ -29,6 +29,11 @@ sealed class Tiltakshistorikk {
     )
 
     @Serializable
+    data class Arbeidsgiver(
+        val organisasjonsnummer: Organisasjonsnummer,
+    )
+
+    @Serializable
     data class Gjennomforing(
         @Serializable(with = UUIDSerializer::class)
         val id: UUID,
@@ -71,7 +76,6 @@ sealed class Tiltakshistorikk {
         override val opphav = Opphav.TEAM_KOMET
     }
 
-    // TODO: team tiltak
     @Serializable
     @SerialName("ArbeidsgiverAvtale")
     data class ArbeidsgiverAvtale(
@@ -80,8 +84,32 @@ sealed class Tiltakshistorikk {
         override val startDato: LocalDate?,
         @Serializable(with = LocalDateSerializer::class)
         override val sluttDato: LocalDate?,
+        @Serializable(with = UUIDSerializer::class)
+        val avtaleId: UUID,
+        val tiltakstype: Tiltakstype,
+        val status: Status,
+        val arbeidsgiver: Arbeidsgiver,
     ) : Tiltakshistorikk() {
         override val opphav = Opphav.TEAM_TILTAK
+
+        enum class Tiltakstype {
+            ARBEIDSTRENING,
+            MIDLERTIDIG_LONNSTILSKUDD,
+            VARIG_LONNSTILSKUDD,
+            MENTOR,
+            INKLUDERINGSTILSKUDD,
+            SOMMERJOBB,
+        }
+
+        enum class Status {
+            ANNULLERT,
+            AVBRUTT,
+            PAABEGYNT,
+            MANGLER_GODKJENNING,
+            KLAR_FOR_OPPSTART,
+            GJENNOMFORES,
+            AVSLUTTET,
+        }
     }
 }
 
@@ -94,4 +122,10 @@ data class TiltakshistorikkRequest(
 @Serializable
 data class TiltakshistorikkResponse(
     val historikk: List<Tiltakshistorikk>,
+    val meldinger: List<TiltakshistorikkFeilmelding>,
+)
+
+@Serializable
+data class TiltakshistorikkFeilmelding(
+    val description: String,
 )

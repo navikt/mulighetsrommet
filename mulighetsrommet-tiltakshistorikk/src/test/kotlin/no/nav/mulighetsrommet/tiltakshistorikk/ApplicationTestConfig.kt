@@ -1,10 +1,12 @@
 package no.nav.mulighetsrommet.tiltakshistorikk
 
+import io.ktor.client.engine.*
 import io.ktor.server.testing.*
 import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.database.FlywayMigrationManager
 import no.nav.mulighetsrommet.database.kotest.extensions.createDatabaseTestSchema
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
+import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.security.mock.oauth2.MockOAuth2Server
 
 var databaseConfig: DatabaseConfig? = null
@@ -18,7 +20,8 @@ fun createDatabaseTestConfig() =
 
 fun <R> withTestApplication(
     oauth: MockOAuth2Server = MockOAuth2Server(),
-    config: AppConfig = createTestApplicationConfig(oauth),
+    httpClientEngine: HttpClientEngine = createMockEngine(),
+    config: AppConfig = createTestApplicationConfig(oauth, httpClientEngine),
     test: suspend ApplicationTestBuilder.() -> R,
 ) {
     testApplication {
@@ -30,7 +33,8 @@ fun <R> withTestApplication(
     }
 }
 
-fun createTestApplicationConfig(oauth: MockOAuth2Server) = AppConfig(
+fun createTestApplicationConfig(oauth: MockOAuth2Server, engine: HttpClientEngine) = AppConfig(
+    httpClientEngine = engine,
     database = createDatabaseTestConfig(),
     flyway = FlywayMigrationManager.MigrationConfig(),
     auth = createAuthConfig(oauth),
@@ -45,6 +49,7 @@ fun createTestApplicationConfig(oauth: MockOAuth2Server) = AppConfig(
             ),
         ),
     ),
+    tiltakDatadeling = ServiceClientConfig(url = "http://tiltak-datadeling", scope = "tiltak-datadeling"),
 )
 
 // Default values for 'iss' og 'aud' in tokens issued by mock-oauth2-server is 'default'.

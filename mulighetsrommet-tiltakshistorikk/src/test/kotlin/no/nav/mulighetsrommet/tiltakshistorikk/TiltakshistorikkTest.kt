@@ -6,6 +6,7 @@ import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import io.ktor.client.call.*
+import io.ktor.client.engine.mock.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
 import io.ktor.http.*
@@ -18,6 +19,11 @@ import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dto.*
 import no.nav.mulighetsrommet.domain.dto.amt.AmtDeltakerStatus
 import no.nav.mulighetsrommet.domain.dto.amt.AmtDeltakerV1Dto
+import no.nav.mulighetsrommet.ktor.createMockEngine
+import no.nav.mulighetsrommet.ktor.respondJson
+import no.nav.mulighetsrommet.tiltakshistorikk.clients.Avtale
+import no.nav.mulighetsrommet.tiltakshistorikk.clients.GetAvtalerForPersonResponse
+import no.nav.mulighetsrommet.tiltakshistorikk.clients.GraphqlResponse
 import no.nav.mulighetsrommet.tiltakshistorikk.repositories.DeltakerRepository
 import no.nav.mulighetsrommet.tiltakshistorikk.repositories.GruppetiltakRepository
 import no.nav.security.mock.oauth2.MockOAuth2Server
@@ -44,7 +50,9 @@ class TiltakshistorikkTest : FunSpec({
         }
 
         test("unauthroized når token mangler") {
-            withTestApplication(oauth) {
+            val mockEngine = mockTiltakDatadeling()
+
+            withTestApplication(oauth, mockEngine) {
                 val client = createClient {
                     install(ContentNegotiation) {
                         json()
@@ -61,7 +69,9 @@ class TiltakshistorikkTest : FunSpec({
         }
 
         test("tom historikk når det ikke finnes noen deltakelser for gitt ident") {
-            withTestApplication(oauth) {
+            val mockEngine = mockTiltakDatadeling()
+
+            withTestApplication(oauth, mockEngine) {
                 val client = createClient {
                     install(ContentNegotiation) {
                         json()
@@ -81,7 +91,27 @@ class TiltakshistorikkTest : FunSpec({
         }
 
         test("samlet historikk når det finnes deltakelser for gitt ident") {
-            withTestApplication(oauth) {
+            val avtaleId = UUID.fromString("9dea48c1-d494-4664-9427-bdb20a6f265f")
+            val mockEngine = mockTiltakDatadeling(
+                response = GraphqlResponse(
+                    data = GetAvtalerForPersonResponse(
+                        avtalerForPerson = listOf(
+                            Avtale(
+                                avtaleId = avtaleId,
+                                avtaleNr = 1,
+                                deltakerFnr = NorskIdent("12345678910"),
+                                bedriftNr = Organisasjonsnummer("123456789"),
+                                tiltakstype = Avtale.Tiltakstype.ARBEIDSTRENING,
+                                startDato = LocalDate.of(2023, 1, 1),
+                                sluttDato = LocalDate.of(2023, 12, 31),
+                                avtaleStatus = Avtale.Status.GJENNOMFORES,
+                            ),
+                        ),
+                    ),
+                ),
+            )
+
+            withTestApplication(oauth, mockEngine) {
                 val client = createClient {
                     install(ContentNegotiation) {
                         json()
@@ -117,6 +147,15 @@ class TiltakshistorikkTest : FunSpec({
                         beskrivelse = "Arbeidstrening hos Fretex",
                         arrangor = Tiltakshistorikk.Arrangor(Organisasjonsnummer("123123123")),
                     ),
+                    Tiltakshistorikk.ArbeidsgiverAvtale(
+                        norskIdent = NorskIdent("12345678910"),
+                        startDato = LocalDate.of(2023, 1, 1),
+                        sluttDato = LocalDate.of(2023, 12, 31),
+                        avtaleId = avtaleId,
+                        tiltakstype = Tiltakshistorikk.ArbeidsgiverAvtale.Tiltakstype.ARBEIDSTRENING,
+                        status = Tiltakshistorikk.ArbeidsgiverAvtale.Status.GJENNOMFORES,
+                        arbeidsgiver = Tiltakshistorikk.Arbeidsgiver(Organisasjonsnummer("123456789")),
+                    ),
                     Tiltakshistorikk.GruppetiltakDeltakelse(
                         norskIdent = NorskIdent("12345678910"),
                         id = UUID.fromString("6d54228f-534f-4b4b-9160-65eae26a3b06"),
@@ -138,8 +177,10 @@ class TiltakshistorikkTest : FunSpec({
             }
         }
 
-        test("maxAgeYears til å filtrere historikk") {
-            withTestApplication(oauth) {
+        test("filtrerer vekk historikk som er eldre enn maxAgeYears") {
+            val mockEngine = mockTiltakDatadeling()
+
+            withTestApplication(oauth, mockEngine) {
                 val client = createClient {
                     install(ContentNegotiation) {
                         json()
@@ -154,14 +195,30 @@ class TiltakshistorikkTest : FunSpec({
 
                 response.status shouldBe HttpStatusCode.OK
 
-                response.body<TiltakshistorikkResponse>()
-                    .historikk
-                    // Amt deltakelsen er fra 2002
-                    .map { it.opphav } shouldContainExactly listOf(Tiltakshistorikk.Opphav.ARENA, Tiltakshistorikk.Opphav.ARENA)
+                val historikk = response.body<TiltakshistorikkResponse>().historikk
+
+                historikk.map { it.opphav } shouldContainExactly listOf(
+                    Tiltakshistorikk.Opphav.ARENA,
+                    Tiltakshistorikk.Opphav.ARENA,
+                )
             }
         }
     }
 })
+
+private fun mockTiltakDatadeling(
+    response: GraphqlResponse<GetAvtalerForPersonResponse> = GraphqlResponse(
+        data = GetAvtalerForPersonResponse(avtalerForPerson = listOf()),
+    ),
+): MockEngine {
+    val mockEngine = createMockEngine(
+        "http://tiltak-datadeling/graphql" to {
+            val serializer = GraphqlResponse.serializer(GetAvtalerForPersonResponse.serializer())
+            respondJson(response, serializer)
+        },
+    )
+    return mockEngine
+}
 
 private fun inititalizeData(database: FlywayDatabaseTestListener) {
     val gruppetiltak = GruppetiltakRepository(database.db)

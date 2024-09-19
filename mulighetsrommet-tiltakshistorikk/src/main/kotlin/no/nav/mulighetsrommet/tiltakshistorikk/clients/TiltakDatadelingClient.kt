@@ -57,18 +57,18 @@ class TiltakDatadelingClient(
 
         val request = GraphqlRequest(
             query = """
-                    query(${'$'}norskIdent: String!) {
-                        avtalerForPerson(personnummer: ${'$'}norskIdent) {
-                            avtaleId
-                            avtaleNr
-                            deltakerFnr
-                            bedriftNr
-                            tiltakstype
-                            startDato
-                            sluttDato
-                            avtaleStatus
-                        }
+                query(${'$'}norskIdent: String!) {
+                    avtalerForPerson(personnummer: ${'$'}norskIdent) {
+                        avtaleId
+                        avtaleNr
+                        deltakerFnr
+                        bedriftNr
+                        tiltakstype
+                        startDato
+                        sluttDato
+                        avtaleStatus
                     }
+                }
             """.trimIndent(),
             variables = requestInput,
         )
