@@ -62,7 +62,10 @@ class RefusjonskravRepositoryTest : FunSpec({
             repository.upsert(krav)
             repository.get(krav.id) shouldBe RefusjonskravDto(
                 id = krav.id,
-                tiltaksgjennomforingId = AFT1.id,
+                tiltaksgjennomforing = RefusjonskravDto.Gjennomforing(
+                    id = AFT1.id,
+                    navn = AFT1.navn,
+                ),
                 periode = LocalDate.of(2023, 1, 1),
                 arrangor = RefusjonskravDto.Arrangor(
                     navn = ArrangorFixtures.underenhet1.navn,

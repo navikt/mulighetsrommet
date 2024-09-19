@@ -5,7 +5,6 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
-import no.nav.mulighetsrommet.api.clients.AccessType
 import no.nav.mulighetsrommet.api.domain.dto.JoyrideType
 import no.nav.mulighetsrommet.api.domain.dto.VeilederJoyrideDto
 import no.nav.mulighetsrommet.api.domain.dto.VeilederJoyrideRequest
@@ -14,6 +13,7 @@ import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.repositories.VeilederJoyrideRepository
 import no.nav.mulighetsrommet.api.services.NavVeilederService
 import no.nav.mulighetsrommet.ktor.extensions.getAccessToken
+import no.nav.mulighetsrommet.tokenprovider.AccessType
 import org.koin.ktor.ext.inject
 
 fun Route.veilederRoutes() {

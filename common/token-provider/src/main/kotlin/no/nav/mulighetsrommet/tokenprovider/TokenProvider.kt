@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.clients
+package no.nav.mulighetsrommet.tokenprovider
 
 import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine

@@ -57,7 +57,7 @@ class RefusjonServiceTest : FunSpec({
 
             val krav = service.getByOrgnr(Organisasjonsnummer(ArrangorFixtures.underenhet1.organisasjonsnummer))
             krav.size shouldBe 1
-            krav[0].tiltaksgjennomforingId shouldBe AFT1.id
+            krav[0].tiltaksgjennomforing.id shouldBe AFT1.id
             krav[0].periode shouldBe LocalDate.of(2023, 1, 1)
         }
 

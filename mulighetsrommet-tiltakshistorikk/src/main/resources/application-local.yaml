@@ -24,3 +24,8 @@ app:
       sisteTiltaksgjennomforingerV1:
         id: siste-tiltaksgjennomforinger
         topic: siste-tiltaksgjennomforinger
+
+  clients:
+    tiltakDatadeling:
+      url: http://localhost:8090/tiltak-datadeling
+      scope: default

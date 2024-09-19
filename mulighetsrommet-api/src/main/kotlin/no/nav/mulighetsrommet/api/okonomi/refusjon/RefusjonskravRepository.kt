@@ -102,8 +102,8 @@ class RefusjonskravRepository(private val db: Database) {
         return RefusjonskravDto(
             id = uuid("id"),
             tiltaksgjennomforing = RefusjonskravDto.Gjennomforing(
-                id = uuid("gjennomforing_id"),
-                navn = string("gjennomforing_navn"),
+                id = uuid("tiltaksgjennomforing_id"),
+                navn = string("tiltaksgjennomforing_navn"),
             ),
             periode = localDate("periode"),
             arrangor = RefusjonskravDto.Arrangor(

@@ -25,7 +25,7 @@ export function RefusjonskravTable({ krav }: Props) {
         <Table.Body>
           {krav.map(({ id, periode, beregning }) => {
             // TODO: Hardkodet enn så lenge
-            const status = RefusjonskravStatus.KLAR_FOR_INNSENDING
+            const status = RefusjonskravStatus.KLAR_FOR_INNSENDING;
 
             return (
               <Table.Row

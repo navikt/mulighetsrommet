@@ -3,8 +3,8 @@ drop view if exists refusjonskrav_admin_dto_view;
 create view refusjonskrav_admin_dto_view as
 select
     refusjonskrav.id,
-    gjennomforing.id as gjennomforing_id,
-    gjennomforing.navn as gjennomforing_navn,
+    tiltaksgjennomforing.id as tiltaksgjennomforing_id,
+    tiltaksgjennomforing.navn as tiltaksgjennomforing_navn,
     refusjonskrav.periode,
     refusjonskrav.beregning,
     arrangor.id                         as arrangor_id,

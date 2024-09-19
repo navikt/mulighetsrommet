@@ -9,6 +9,7 @@
     "backend": "cross-env VITE_MULIGHETSROMMET_API_BASE='http://localhost:8080' node ./server.js",
     "dev:vite": "remix vite:dev",
     "lint": "eslint --cache --cache-location ./node_modules/.cache/eslint app/ server.js",
+    "fix-lint": "eslint --cache --cache-location ./node_modules/.cache/eslint app/ server.js --fix",
     "start": "cross-env NODE_ENV=production VITE_MULIGHETSROMMET_API_BASE='http://mulighetsrommet-api' node ./server.js",
     "typecheck": "tsc",
     "build": "remix vite:build",

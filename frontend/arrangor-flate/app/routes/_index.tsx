@@ -1,4 +1,4 @@
-import { RefusjonskravDto, RefusjonskravService, RefusjonskravStatus } from "@mr/api-client";
+import { RefusjonskravDto, RefusjonskravService } from "@mr/api-client";
 import { Heading, VStack } from "@navikt/ds-react";
 import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";

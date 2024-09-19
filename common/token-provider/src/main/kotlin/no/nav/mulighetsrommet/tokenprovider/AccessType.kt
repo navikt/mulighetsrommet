@@ -1,6 +1,6 @@
-package no.nav.mulighetsrommet.api.clients
+package no.nav.mulighetsrommet.tokenprovider
 
 sealed class AccessType {
     data class OBO(val token: String) : AccessType()
-    object M2M : AccessType()
+    data object M2M : AccessType()
 }

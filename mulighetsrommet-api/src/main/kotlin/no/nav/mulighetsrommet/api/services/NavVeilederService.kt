@@ -1,7 +1,7 @@
 package no.nav.mulighetsrommet.api.services
 
-import no.nav.mulighetsrommet.api.clients.AccessType
 import no.nav.mulighetsrommet.api.domain.dto.NavVeilederDto
+import no.nav.mulighetsrommet.tokenprovider.AccessType
 import java.util.*
 
 class NavVeilederService(

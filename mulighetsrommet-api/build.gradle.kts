@@ -52,6 +52,7 @@ dependencies {
     implementation(projects.common.ktor)
     testImplementation(testFixtures(projects.common.ktor))
     implementation(projects.common.ktorClients)
+    implementation(projects.common.tokenProvider)
     implementation(projects.common.metrics)
     implementation(projects.common.slack)
     implementation(projects.common.tasks)
