@@ -7,9 +7,19 @@ import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
+import no.nav.pdfgen.core.Environment
+import no.nav.pdfgen.core.PDFGenCore
+import no.nav.pdfgen.core.pdf.createHtmlFromTemplateData
+import no.nav.pdfgen.core.pdf.createPDFA
+import org.verapdf.gf.foundry.VeraGreenfieldFoundryProvider
 import java.util.*
 
 fun Route.refusjonRoutes() {
+    VeraGreenfieldFoundryProvider.initialise()
+    PDFGenCore.init(
+        Environment(),
+    )
+
     route("/api/v1/intern/refusjon") {
         get("/{orgnr}/krav") {
             val orgnr = call.parameters.getOrFail<String>("orgnr")
@@ -45,6 +55,18 @@ fun Route.refusjonRoutes() {
                     ),
                 ),
             )
+        }
+
+        get("/kvittering/{id}") {
+            val id = call.parameters.getOrFail<UUID>("id")
+            val html = createHtmlFromTemplateData("refusjon-kvittering", "refusjon").toString()
+            val pdfBytes: ByteArray = createPDFA(html)
+
+            call.response.headers.append(
+                "Content-Disposition",
+                "attachment; filename=\"kvittering.pdf\"",
+            )
+            call.respondBytes(pdfBytes, contentType = io.ktor.http.ContentType.Application.Pdf)
         }
     }
 }

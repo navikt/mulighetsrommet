@@ -1815,21 +1815,20 @@ paths:
                 items:
                   $ref: "#/components/schemas/Refusjonskrav"
 
-  /api/v1/intern/pdf/{id}:
+  /api/v1/intern/refusjon/kvittering/{id}:
     parameters:
       - $ref: "#/components/parameters/ID"
     get:
       tags:
-        - PDF
+        - Refusjonskrav
       responses:
         200:
           description: Generer PDF kvittering for refusjonskrav
           content:
-            application/json:
+            application/pdf:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/PdfKvittering"
+                type: string
+                format: binary
 
 components:
   securitySchemes:
@@ -1911,21 +1910,7 @@ components:
         type: string
 
   schemas:
-    PdfKvittering:
-      type: object
-      properties:
-        content:
-          type: array
-          items:
-            type: object
-            properties:
-              title:
-                type: string
-              content:
-                type: string
-            required:
-              - title
-              - content
+
     ValidationErrorResponse:
       type: object
       properties:
