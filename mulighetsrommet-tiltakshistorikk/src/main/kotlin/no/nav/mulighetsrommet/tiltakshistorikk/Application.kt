@@ -58,8 +58,8 @@ fun Application.configure(config: AppConfig) {
 
     val tiltakDatadelingClient = TiltakDatadelingClient(
         engine = config.httpClientEngine,
-        baseUrl = config.tiltakDatadeling.url,
-        tokenProvider = cachedTokenProvider.withScope(config.tiltakDatadeling.scope),
+        baseUrl = config.clients.tiltakDatadeling.url,
+        tokenProvider = cachedTokenProvider.withScope(config.clients.tiltakDatadeling.scope),
     )
 
     val tiltakshistorikkService = TiltakshistorikkService(deltakerRepository, tiltakDatadelingClient)

@@ -49,7 +49,9 @@ fun createTestApplicationConfig(oauth: MockOAuth2Server, engine: HttpClientEngin
             ),
         ),
     ),
-    tiltakDatadeling = ServiceClientConfig(url = "http://tiltak-datadeling", scope = "tiltak-datadeling"),
+    clients = ClientConfig(
+        tiltakDatadeling = ServiceClientConfig(url = "http://tiltak-datadeling", scope = "tiltak-datadeling"),
+    ),
 )
 
 // Default values for 'iss' og 'aud' in tokens issued by mock-oauth2-server is 'default'.

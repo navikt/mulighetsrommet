@@ -18,6 +18,10 @@ data class AppConfig(
     val flyway: FlywayMigrationManager.MigrationConfig = FlywayMigrationManager.MigrationConfig(),
     val auth: AuthConfig,
     val kafka: KafkaConfig,
+    val clients: ClientConfig,
+)
+
+data class ClientConfig(
     val tiltakDatadeling: ServiceClientConfig,
 )
 
