@@ -10,50 +10,11 @@
         * {
             font-family: "Source Sans Pro" !important;
         }
-        .line_top {
-            border-top: 1px black solid;
-        }
         .line_bottom {
-            border-bottom: 1px black solid;
-        }
-        .line_left {
-            border-left: 1px black solid;
-        }
-        .line_right {
-            border-right: 1px black solid;
+            border-bottom: 1px #CCC solid;
         }
         .block {
             width: 100%;
-            margin-top: 0;
-        }
-        .inline {
-            display: inline-block;
-        }
-        .main_title {
-            margin-bottom: 0;
-            margin-top: 2mm;
-            margin-left: 2mm;
-            vertical-align: bottom;
-        }
-        h1 {
-            font-size: 22px;
-            margin-bottom: 0;
-            margin-top: 0;
-        }
-        h6 {
-            margin-bottom: 0;
-            margin-top: 0;
-        }
-        p {
-            font-size: 12px;
-            margin-left: 1mm;
-            margin-top: 0;
-            margin-right: 1mm;
-        }
-        h5 {
-            padding-top: 1mm;
-            margin-left: 1mm;
-            font-size: 12px;
             margin-top: 0;
         }
         h4 {
@@ -62,30 +23,21 @@
             font-size: 13px;
             margin-top: 0;
         }
-        h3 {
-            padding-top: 3mm;
-            margin-left: 1mm;
-            margin-top: 0;
-            margin-bottom: 0;
-            font-size: 14px;
-            font-style: italic;
-        }
         table th {
             width: 25%;
+            font-weight: normal;
         }
         table td {
             width: 75%;
+            font-weight: bold;
         }
         tr {
             font-size: 10px;
         }
-        hr {
-            background-color: #071A3636;
-        }
     </style>
 </head>
 <body>
-<div class="block">
+<div class="block line_bottom">
     <table class="block">
         <tbody>
         <tr>
@@ -105,14 +57,13 @@
             <td>{{ tiltakInfo.tiltakstype }}</td>
         </tr>
         <tr>
-            <th >rapporteringsperiode:</th>
+            <th>rapporteringsperiode:</th>
             <td>{{ tiltakInfo.rapporteringsperiode }}</td>
         </tr>
         </tbody>
     </table>
 </div>
-<hr />
-<div class="block">
+<div class="block line_bottom">
     <h4>Tilsagnsdetaljer</h4>
     <table class="block">
         <tbody>
@@ -139,8 +90,7 @@
         </tbody>
     </table>
 </div>
-<hr />
-<div class="block">
+<div class="block line_bottom">
     <h4>Refusjonskrav</h4>
     <table class="block">
         <tbody>
@@ -163,7 +113,6 @@
         </tbody>
     </table>
 </div>
-<hr />
 <div class="block">
     <h4>Betalingsinformasjon</h4>
     <table class="block">
