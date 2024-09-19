@@ -18,8 +18,6 @@ import no.nav.mulighetsrommet.api.SlackConfig
 import no.nav.mulighetsrommet.api.TaskConfig
 import no.nav.mulighetsrommet.api.avtaler.AvtaleValidator
 import no.nav.mulighetsrommet.api.avtaler.OpsjonLoggValidator
-import no.nav.mulighetsrommet.api.clients.AccessType
-import no.nav.mulighetsrommet.api.clients.CachedTokenProvider
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
 import no.nav.mulighetsrommet.api.clients.arenaadapter.ArenaAdapterClient
 import no.nav.mulighetsrommet.api.clients.brreg.BrregClient
@@ -57,6 +55,8 @@ import no.nav.mulighetsrommet.notifications.NotificationService
 import no.nav.mulighetsrommet.slack.SlackNotifier
 import no.nav.mulighetsrommet.slack.SlackNotifierImpl
 import no.nav.mulighetsrommet.tasks.DbSchedulerKotlinSerializer
+import no.nav.mulighetsrommet.tokenprovider.AccessType
+import no.nav.mulighetsrommet.tokenprovider.CachedTokenProvider
 import no.nav.mulighetsrommet.unleash.UnleashService
 import no.nav.mulighetsrommet.unleash.strategies.ByEnhetStrategy
 import no.nav.mulighetsrommet.unleash.strategies.ByNavIdentStrategy

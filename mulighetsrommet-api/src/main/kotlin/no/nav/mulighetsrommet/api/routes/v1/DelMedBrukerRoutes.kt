@@ -6,7 +6,6 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.api.clients.AccessType
 import no.nav.mulighetsrommet.api.clients.dialog.DialogRequest
 import no.nav.mulighetsrommet.api.clients.dialog.VeilarbdialogClient
 import no.nav.mulighetsrommet.api.clients.dialog.VeilarbdialogError
@@ -18,6 +17,7 @@ import no.nav.mulighetsrommet.api.services.PoaoTilgangService
 import no.nav.mulighetsrommet.domain.dto.NorskIdent
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.ktor.extensions.getAccessToken
+import no.nav.mulighetsrommet.tokenprovider.AccessType
 import org.koin.ktor.ext.inject
 import java.util.*
 

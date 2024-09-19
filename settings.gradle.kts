@@ -11,6 +11,7 @@ include(
     "common:metrics",
     "common:slack",
     "common:tasks",
+    "common:token-provider",
     "mulighetsrommet-api",
     "mulighetsrommet-arena-adapter",
     "mulighetsrommet-tiltakshistorikk",

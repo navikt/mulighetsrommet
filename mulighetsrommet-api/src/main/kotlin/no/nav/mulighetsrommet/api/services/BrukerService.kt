@@ -5,7 +5,6 @@ import io.ktor.http.*
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.api.clients.AccessType
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Client
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.clients.norg2.NorgError
@@ -24,6 +23,7 @@ import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.domain.dto.Innsatsgruppe
 import no.nav.mulighetsrommet.domain.dto.NorskIdent
 import no.nav.mulighetsrommet.ktor.exception.StatusException
+import no.nav.mulighetsrommet.tokenprovider.AccessType
 
 class BrukerService(
     private val veilarboppfolgingClient: VeilarboppfolgingClient,

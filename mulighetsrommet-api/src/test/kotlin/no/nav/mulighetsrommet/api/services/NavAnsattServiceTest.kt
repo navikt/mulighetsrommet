@@ -17,7 +17,6 @@ import io.mockk.verify
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.mulighetsrommet.api.AdGruppeNavAnsattRolleMapping
-import no.nav.mulighetsrommet.api.clients.AccessType
 import no.nav.mulighetsrommet.api.clients.msgraph.AzureAdNavAnsatt
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
@@ -43,6 +42,7 @@ import no.nav.mulighetsrommet.ktor.respondJson
 import no.nav.mulighetsrommet.notifications.NotificationService
 import no.nav.mulighetsrommet.notifications.NotificationType
 import no.nav.mulighetsrommet.notifications.ScheduledNotification
+import no.nav.mulighetsrommet.tokenprovider.AccessType
 import java.time.LocalDate
 import java.util.*
 

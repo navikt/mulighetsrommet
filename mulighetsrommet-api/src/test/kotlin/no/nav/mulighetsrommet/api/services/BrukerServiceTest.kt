@@ -10,7 +10,6 @@ import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.mockk
-import no.nav.mulighetsrommet.api.clients.AccessType
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Client
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2EnhetDto
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2EnhetStatus
@@ -26,6 +25,7 @@ import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
 import no.nav.mulighetsrommet.domain.dto.Innsatsgruppe
 import no.nav.mulighetsrommet.domain.dto.NorskIdent
 import no.nav.mulighetsrommet.ktor.exception.StatusException
+import no.nav.mulighetsrommet.tokenprovider.AccessType
 
 class BrukerServiceTest : FunSpec({
     val veilarboppfolgingClient: VeilarboppfolgingClient = mockk()

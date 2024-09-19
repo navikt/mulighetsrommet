@@ -8,11 +8,11 @@ import io.ktor.client.plugins.cache.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
-import no.nav.mulighetsrommet.api.clients.AccessType
-import no.nav.mulighetsrommet.api.clients.TokenProvider
 import no.nav.mulighetsrommet.api.domain.dto.AdGruppe
 import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
+import no.nav.mulighetsrommet.tokenprovider.AccessType
+import no.nav.mulighetsrommet.tokenprovider.TokenProvider
 import org.slf4j.LoggerFactory
 import java.util.*
 
