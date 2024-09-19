@@ -126,5 +126,5 @@ data class TiltakshistorikkResponse(
 )
 
 enum class TiltakshistorikkMelding {
-    MANGLER_DATA_FRA_TEAM_TILTAK,
+    MANGLER_HISTORIKK_FRA_TEAM_TILTAK,
 }

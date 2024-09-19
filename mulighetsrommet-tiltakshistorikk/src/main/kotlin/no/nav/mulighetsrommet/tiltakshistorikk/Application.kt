@@ -62,10 +62,12 @@ fun Application.configure(config: AppConfig) {
         tokenProvider = cachedTokenProvider.withScope(config.tiltakDatadeling.scope),
     )
 
+    val tiltakshistorikkService = TiltakshistorikkService(deltakerRepository, tiltakDatadelingClient)
+
     val kafka = configureKafka(config.kafka, db, deltakerRepository, gruppetiltakRepository)
 
     routing {
-        tiltakshistorikkRoutes(deltakerRepository, tiltakDatadelingClient)
+        tiltakshistorikkRoutes(deltakerRepository, tiltakshistorikkService)
     }
 
     environment.monitor.subscribe(ApplicationStarted) {
