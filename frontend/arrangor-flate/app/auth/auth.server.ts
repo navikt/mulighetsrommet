@@ -6,16 +6,6 @@ import { v4 as uuidv4 } from "uuid";
 const loginUrl = "/oauth2/login";
 
 export async function oboExchange(request: Request) {
-  const token = await tokenXExchange(request);
-
-  if (!token) {
-    throw redirectDocument(loginUrl);
-  }
-
-  setOpenApiHeaders(token);
-}
-
-export async function tokenXExchange(request: Request) {
   if (process.env.NODE_ENV !== "production") {
     return;
   }
@@ -35,6 +25,36 @@ export async function tokenXExchange(request: Request) {
   const obo = await requestTokenxOboToken(
     token,
     `${process.env.NAIS_CLUSTER_NAME}:team-mulighetsrommet:mulighetsrommet-api`,
+  );
+  if (!obo.ok) {
+    // eslint-disable-next-line no-console
+    console.log("obo exchange failed", obo);
+    throw redirectDocument(loginUrl);
+  }
+
+  setOpenApiHeaders(obo.token);
+}
+
+export async function tokenXExchangeAltinnAcl(request: Request) {
+  if (process.env.NODE_ENV !== "production") {
+    return;
+  }
+
+  const token = getToken(request);
+  if (!token) {
+    // eslint-disable-next-line no-console
+    console.log("missing token");
+    throw redirectDocument(loginUrl);
+  }
+  const validation = await validateToken(token);
+  if (!validation.ok) {
+    // eslint-disable-next-line no-console
+    console.log("invalid token");
+    throw redirectDocument(loginUrl);
+  }
+  const obo = await requestTokenxOboToken(
+    token,
+    `${process.env.NAIS_CLUSTER_NAME}:team-mulighetsrommet:mulighetsrommet-altinn-acl`,
   );
   if (!obo.ok) {
     // eslint-disable-next-line no-console

@@ -1,5 +1,5 @@
 import { getEnv } from "../env/envUtils";
-import { requireUserId, tokenXExchange } from "./auth.server";
+import { requireUserId, tokenXExchangeAltinnAcl } from "./auth.server";
 
 interface TilgangerResponse {
   roller: TiltaksarrangorRoller[];
@@ -14,7 +14,7 @@ type Roller = "TILTAK_ARRANGOR_REFUSJON";
 
 export async function getTilganger(request: Request): Promise<TilgangerResponse> {
   const personident = requireUserId(request);
-  const token = tokenXExchange(request);
+  const token = tokenXExchangeAltinnAcl(request);
 
   const headers = {
     "Content-Type": "application/json",
