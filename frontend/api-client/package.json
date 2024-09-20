@@ -9,7 +9,7 @@
     "build": "openapi-ts --useOptions --input ../../mulighetsrommet-api/src/main/resources/web/openapi.yaml --output ./build"
   },
   "devDependencies": {
-    "@hey-api/openapi-ts": "0.52.9",
+    "@hey-api/openapi-ts": "0.53.2",
     "typescript": "5.5.4"
   }
 }
