@@ -23,7 +23,9 @@ export async function getTilganger(request: Request): Promise<TilgangerResponse>
   const response = await fetch(`http://mulighetsrommet-altinn-acl/api/v1/rolle/tiltaksarrangor`, {
     method: "POST",
     body: JSON.stringify({ personident }),
-    headers,
+    headers: {
+      ...headers,
+    },
   });
 
   if (!response.ok) {
