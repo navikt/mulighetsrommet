@@ -6,6 +6,16 @@ import { v4 as uuidv4 } from "uuid";
 const loginUrl = "/oauth2/login";
 
 export async function oboExchange(request: Request) {
+  const token = await tokenXExchange(request);
+
+  if (!token) {
+    throw redirectDocument(loginUrl);
+  }
+
+  setOpenApiHeaders(token);
+}
+
+export async function tokenXExchange(request: Request) {
   if (process.env.NODE_ENV !== "production") {
     return;
   }
@@ -32,7 +42,7 @@ export async function oboExchange(request: Request) {
     throw redirectDocument(loginUrl);
   }
 
-  setOpenApiHeaders(obo.token);
+  return obo.token;
 }
 
 async function getPersonIdent(request: Request): Promise<string | undefined> {
