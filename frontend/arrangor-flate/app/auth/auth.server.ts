@@ -56,14 +56,14 @@ export async function tokenXExchangeAltinnAcl(request: Request) {
     token,
     `${process.env.NAIS_CLUSTER_NAME}:team-mulighetsrommet:mulighetsrommet-altinn-acl`,
   );
+
   if (!obo.ok) {
     // eslint-disable-next-line no-console
     console.log("obo exchange failed", obo);
     throw redirectDocument(loginUrl);
   }
 
-  // eslint-disable-next-line no-console
-  console.log("Token: ", obo.token); // TODO Fjern meg
+  console.log("Token: ", obo.token);
   return obo.token;
 }
 
