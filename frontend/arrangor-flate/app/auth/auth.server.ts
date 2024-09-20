@@ -62,6 +62,8 @@ export async function tokenXExchangeAltinnAcl(request: Request) {
     throw redirectDocument(loginUrl);
   }
 
+  // eslint-disable-next-line no-console
+  console.log("Token: ", obo.token); // TODO Fjern meg
   return obo.token;
 }
 

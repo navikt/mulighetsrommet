@@ -1,4 +1,3 @@
-import { getEnv } from "../env/envUtils";
 import { requireUserId, tokenXExchangeAltinnAcl } from "./auth.server";
 
 interface TilgangerResponse {
@@ -21,7 +20,7 @@ export async function getTilganger(request: Request): Promise<TilgangerResponse>
     Authorization: `Bearer ${token}`,
   };
 
-  const response = await fetch(`${getBaseUrl()}/api/v1/rolle/tiltaksarrangor`, {
+  const response = await fetch(`http://mulighetsrommet-altinn-acl/api/v1/rolle/tiltaksarrangor`, {
     method: "POST",
     body: JSON.stringify({ personident }),
     headers,
@@ -30,24 +29,10 @@ export async function getTilganger(request: Request): Promise<TilgangerResponse>
   if (!response.ok) {
     // eslint-disable-next-line no-console
     console.log(
-      `Klarte ikke hente tilganger for bruker. Status = ${response.status} - Error: ${response.statusText} `,
+      `Klarte ikke hente tilganger for bruker. Status = ${response.status} - Error: ${response.statusText} - ${JSON.stringify(response, null, 2)}`,
     );
     throw new Error("Klarte ikke hente tilganger for bruker");
   }
 
   return (await response.json()) as TilgangerResponse;
-}
-
-function getBaseUrl(): string {
-  const devBase = "https://mulighetsrommet-altinn-acl.intern.dev.nav.no";
-  const prodBase = "https://mulighetsrommet-altinn-acl.intern.nav.no";
-
-  switch (getEnv()) {
-    case "local":
-      throw new Error("Local not supported yet");
-    case "dev-gcp":
-      return devBase;
-    case "prod-gcp":
-      return prodBase;
-  }
 }
