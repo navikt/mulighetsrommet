@@ -4879,7 +4879,10 @@ components:
           required:
             - id
             - navn
-        periode:
+        periodeStart:
+          type: string
+          format: date
+        periodeSlutt:
           type: string
           format: date
         beregning:
@@ -4887,7 +4890,8 @@ components:
       required:
         - id
         - tiltaksgjennomforing
-        - periode
+        - periodeStart
+        - periodeSlutt
         - beregning
 
     RefusjonskravStatus:
