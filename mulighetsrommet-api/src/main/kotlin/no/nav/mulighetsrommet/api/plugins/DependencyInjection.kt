@@ -27,6 +27,7 @@ import no.nav.mulighetsrommet.api.clients.tiltakshistorikk.TiltakshistorikkClien
 import no.nav.mulighetsrommet.api.clients.utdanning.UtdanningClient
 import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClient
 import no.nav.mulighetsrommet.api.okonomi.refusjon.RefusjonService
+import no.nav.mulighetsrommet.api.okonomi.refusjon.RefusjonskravRepository
 import no.nav.mulighetsrommet.api.okonomi.tilsagn.TilsagnRepository
 import no.nav.mulighetsrommet.api.okonomi.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.okonomi.tilsagn.TilsagnValidator
@@ -167,6 +168,7 @@ private fun repositories() = module {
     single { VeilederJoyrideRepository(get()) }
     single { OpsjonLoggRepository(get()) }
     single { TilsagnRepository(get()) }
+    single { RefusjonskravRepository(get()) }
 }
 
 private fun services(appConfig: AppConfig) = module {
