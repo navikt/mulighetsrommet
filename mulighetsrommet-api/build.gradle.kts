@@ -45,6 +45,7 @@ flyway {
 }
 
 dependencies {
+    implementation(projects.common.nais)
     implementation(projects.common.database)
     testImplementation(testFixtures(projects.common.database))
     implementation(projects.common.domain)
@@ -93,7 +94,6 @@ dependencies {
     implementation(libs.prometheus.caffeine)
 
     implementation(libs.nav.common.auditLog)
-    implementation(libs.nav.common.tokenClient)
     implementation(libs.nav.common.client)
 
     // Dependency injection
@@ -106,14 +106,6 @@ dependencies {
 
     // Unleash
     implementation(libs.unleash)
-
-    implementation(libs.nav.common.auditLog)
-    implementation(libs.nav.common.tokenClient)
-    constraints {
-        implementation("net.minidev:json-smart:2.5.1") {
-            because("sikkerhetshull i transitiv avhengighet rapportert via snyk")
-        }
-    }
 
     // Tilgangskontroll
     implementation(libs.nav.poaoTilgang.client)
