@@ -16,7 +16,7 @@ export const meta: MetaFunction = () => {
 
 export async function loader({ request }: LoaderFunctionArgs) {
   await oboExchange(request);
-  const krav = await RefusjonskravService.getRefusjonskrav({ orgnr: "123456789" });
+  const krav = await RefusjonskravService.getRefusjonskrav({ orgnr: "973674471" });
 
   return json({ krav });
 }

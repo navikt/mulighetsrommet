@@ -36,8 +36,7 @@ import no.nav.mulighetsrommet.unleash.UnleashService
 import java.time.LocalDate
 import java.util.*
 
-class AvtaleValidatorTest :
-    FunSpec({
+class AvtaleValidatorTest : FunSpec({
         val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
         val unleash: UnleashService = mockk(relaxed = true)
         coEvery { unleash.isEnabled(any()) } returns true

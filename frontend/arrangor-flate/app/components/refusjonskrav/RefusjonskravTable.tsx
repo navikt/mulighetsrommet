@@ -23,7 +23,7 @@ export function RefusjonskravTable({ krav }: Props) {
           </Table.Row>
         </Table.Header>
         <Table.Body>
-          {krav.map(({ id, periode, beregning }) => {
+          {krav.map(({ id, periodeStart, periodeSlutt, beregning }) => {
             // TODO: Hardkodet enn så lenge
             const status = RefusjonskravStatus.KLAR_FOR_INNSENDING;
 
@@ -38,7 +38,7 @@ export function RefusjonskravTable({ krav }: Props) {
               >
                 <Table.DataCell>123</Table.DataCell>
                 <Table.DataCell>1</Table.DataCell>
-                <Table.DataCell>{periode}</Table.DataCell>
+                <Table.DataCell>{`${periodeStart} - ${periodeSlutt}`}</Table.DataCell>
                 <Table.DataCell>{beregning.belop} NOK</Table.DataCell>
                 <Table.DataCell>Frist for godkjenning</Table.DataCell>
                 <Table.DataCell>{statusTilTag(status)}</Table.DataCell>

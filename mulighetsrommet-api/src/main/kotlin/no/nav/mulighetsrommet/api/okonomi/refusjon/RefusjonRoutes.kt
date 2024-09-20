@@ -19,7 +19,7 @@ fun Route.refusjonRoutes() {
 
     route("/api/v1/intern/refusjon") {
         get("/{orgnr}/krav") {
-            val orgnr = call.parameters.getOrFail<Organisasjonsnummer>("orgnr")
+            val orgnr = Organisasjonsnummer(call.parameters.getOrFail<String>("orgnr"))
 
             call.respond(service.getByOrgnr(orgnr))
         }

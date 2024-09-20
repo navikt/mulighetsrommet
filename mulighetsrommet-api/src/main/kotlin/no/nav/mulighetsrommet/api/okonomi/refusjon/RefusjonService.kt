@@ -27,7 +27,7 @@ class RefusjonService(
         val periodeSlutt = periodeStart.with(TemporalAdjusters.lastDayOfMonth())
 
         val krav = tiltaksgjennomforingRepository
-            .getGjennomforesInPeriode(periodeStart, periodeSlutt)
+            .getGjennomforesInPeriodeUtenRefusjonskrav(periodeStart, periodeSlutt)
             .mapNotNull {
                 when (it.tiltakstype.tiltakskode) {
                     Tiltakskode.ARBEIDSFORBEREDENDE_TRENING -> lagAFTRefusjonskrav(
@@ -52,10 +52,6 @@ class RefusjonService(
         periodeStart: LocalDate,
         periodeSlutt: LocalDate,
     ): RefusjonskravDbo {
-        require(refusjonskravRepository.getByGjennomforingId(tiltaksgjennomforing.id) == null) {
-            "refusjonskrav finnes allerede"
-        }
-
         val beregning = aftRefusjonBeregning(
             tiltaksgjennomforing.id,
             periodeStart,

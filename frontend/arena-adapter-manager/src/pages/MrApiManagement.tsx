@@ -36,6 +36,23 @@ export function MrApiManagement() {
 
         <RunTask
           base={ApiBase.MR_API}
+          task={"generate-refusjonskrav"}
+          input={{
+            type: 'object',
+            required: ['dayInMonth'],
+            properties: {
+              dayInMonth: {
+                type: 'string',
+                title: 'Dato i måned',
+                description: 'En tilfeldig dato i måneden det skal genereres for (format: "2023-01-31")',
+                default: false
+              },
+            }
+          }}
+        />
+
+        <RunTask
+          base={ApiBase.MR_API}
           task="initial-load-tiltaksgjennomforinger"
           input={{
             oneOf: [
