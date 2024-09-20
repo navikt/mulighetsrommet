@@ -32,7 +32,9 @@ data class RefusjonskravDto(
     val id: UUID,
     val tiltaksgjennomforing: Gjennomforing,
     @Serializable(with = LocalDateSerializer::class)
-    val periode: LocalDate,
+    val periodeStart: LocalDate,
+    @Serializable(with = LocalDateSerializer::class)
+    val periodeSlutt: LocalDate,
     val beregning: Prismodell.RefusjonskravBeregning,
     val arrangor: Arrangor,
 ) {

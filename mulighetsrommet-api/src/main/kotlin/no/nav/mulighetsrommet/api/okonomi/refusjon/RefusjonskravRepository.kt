@@ -21,19 +21,22 @@ class RefusjonskravRepository(private val db: Database) {
             insert into refusjonskrav (
                 id,
                 tiltaksgjennomforing_id,
-                periode,
+                periode_start,
+                periode_slutt,
                 arrangor_id,
                 beregning
             ) values (
                 :id::uuid,
                 :tiltaksgjennomforing_id::uuid,
-                :periode,
+                :periode_start,
+                :periode_slutt,
                 :arrangor_id::uuid,
                 :beregning::jsonb
             )
             on conflict (id) do update set
                 tiltaksgjennomforing_id = excluded.tiltaksgjennomforing_id,
-                periode                 = excluded.periode,
+                periode_start           = excluded.periode_start,
+                periode_slutt           = excluded.periode_slutt,
                 arrangor_id             = excluded.arrangor_id,
                 beregning               = excluded.beregning
             returning *
@@ -93,7 +96,8 @@ class RefusjonskravRepository(private val db: Database) {
     private fun RefusjonskravDbo.toSqlParameters() = mapOf(
         "id" to id,
         "tiltaksgjennomforing_id" to tiltaksgjennomforingId,
-        "periode" to periode,
+        "periode_start" to periodeStart,
+        "periode_slutt" to periodeSlutt,
         "arrangor_id" to arrangorId,
         "beregning" to Json.encodeToString(beregning),
     )
@@ -105,7 +109,8 @@ class RefusjonskravRepository(private val db: Database) {
                 id = uuid("tiltaksgjennomforing_id"),
                 navn = string("tiltaksgjennomforing_navn"),
             ),
-            periode = localDate("periode"),
+            periodeStart = localDate("periode_start"),
+            periodeSlutt = localDate("periode_slutt"),
             arrangor = RefusjonskravDto.Arrangor(
                 id = uuid("arrangor_id"),
                 organisasjonsnummer = string("arrangor_organisasjonsnummer"),

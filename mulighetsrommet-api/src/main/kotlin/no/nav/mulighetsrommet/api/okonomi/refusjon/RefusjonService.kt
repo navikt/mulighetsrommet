@@ -65,7 +65,8 @@ class RefusjonService(
             id = UUID.randomUUID(),
             tiltaksgjennomforingId = tiltaksgjennomforing.id,
             arrangorId = tiltaksgjennomforing.arrangor.id,
-            periode = periodeStart,
+            periodeStart = periodeStart,
+            periodeSlutt = periodeSlutt,
             beregning = beregning,
         )
     }

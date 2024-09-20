@@ -53,7 +53,8 @@ class RefusjonskravRepositoryTest : FunSpec({
         val krav = RefusjonskravDbo(
             id = UUID.randomUUID(),
             tiltaksgjennomforingId = AFT1.id,
-            periode = LocalDate.of(2023, 1, 1),
+            periodeStart = LocalDate.of(2023, 1, 1),
+            periodeSlutt = LocalDate.of(2023, 1, 31),
             arrangorId = ArrangorFixtures.underenhet1.id,
             beregning = beregning,
         )
@@ -66,7 +67,8 @@ class RefusjonskravRepositoryTest : FunSpec({
                     id = AFT1.id,
                     navn = AFT1.navn,
                 ),
-                periode = LocalDate.of(2023, 1, 1),
+                periodeStart = LocalDate.of(2023, 1, 1),
+                periodeSlutt = LocalDate.of(2023, 1, 31),
                 arrangor = RefusjonskravDto.Arrangor(
                     navn = ArrangorFixtures.underenhet1.navn,
                     id = ArrangorFixtures.underenhet1.id,
