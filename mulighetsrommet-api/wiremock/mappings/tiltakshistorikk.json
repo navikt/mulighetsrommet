@@ -6,6 +6,9 @@
   "response": {
     "status": 200,
     "jsonBody": {
+      "meldinger": [
+        "MANGLER_HISTORIKK_FRA_TEAM_TILTAK"
+      ],
       "historikk": [
         {
           "norskIdent": "12345678901",
