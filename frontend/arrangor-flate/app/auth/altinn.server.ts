@@ -22,7 +22,7 @@ export async function getTilganger(request: Request): Promise<TilgangerResponse>
 
   const payload = {
     method: "POST",
-    body: JSON.stringify({ personident }),
+    body: JSON.stringify({ personident: personident }),
     headers: {
       ...headers,
     },
