@@ -67,7 +67,7 @@ export async function tokenXExchangeAltinnAcl(request: Request) {
 }
 
 async function getPersonIdent(request: Request): Promise<string | undefined> {
-  const token = await getToken(request);
+  const token = getToken(request);
 
   if (!token) {
     throw redirectDocument(loginUrl);
