@@ -3,9 +3,9 @@ import { Heading, VStack } from "@navikt/ds-react";
 import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
-import { oboExchange } from "~/auth/auth";
 import { RefusjonskravTable } from "~/components/refusjonskrav/RefusjonskravTable";
 import { PageHeader } from "../components/PageHeader";
+import { oboExchange, requireUserId } from "../auth/auth.server";
 
 export const meta: MetaFunction = () => {
   return [
@@ -15,20 +15,22 @@ export const meta: MetaFunction = () => {
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {
+  const userId = await requireUserId(request);
   await oboExchange(request);
   const krav = await RefusjonskravService.getRefusjonskrav({ orgnr: "123456789" });
 
-  return json({ krav });
+  return json({ krav, userId });
 }
 
 export default function Refusjon() {
-  const { krav } = useLoaderData<typeof loader>();
+  const { krav, userId } = useLoaderData<typeof loader>();
   const historiske = krav.filter((k) => k.status === RefusjonskravStatus.ATTESTERT);
   const aktive = krav.filter((k) => k.status !== RefusjonskravStatus.ATTESTERT);
 
   return (
     <>
       <PageHeader title="Tilgjengelige refusjonskrav" />
+      <h1>Hello {userId}</h1>
       <VStack align="center" gap="4">
         <RefusjonskravTable krav={aktive} />
         <Heading size="small" as="div">
