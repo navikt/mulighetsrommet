@@ -5,11 +5,11 @@
   "main": "index.mjs",
   "devDependencies": {
     "@eslint/js": "9.10.0",
-    "@tanstack/eslint-plugin-query": "5.53.0",
+    "@tanstack/eslint-plugin-query": "5.56.1",
     "eslint": "9.10.0",
     "eslint-plugin-prettier": "5.2.1",
     "eslint-plugin-promise": "7.1.0",
-    "eslint-plugin-react": "7.35.2",
+    "eslint-plugin-react": "7.36.1",
     "eslint-plugin-react-hooks": "5.1.0-rc.0",
     "eslint-plugin-react-refresh": "0.4.11",
     "typescript": "5.6.2"
