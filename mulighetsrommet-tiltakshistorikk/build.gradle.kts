@@ -15,6 +15,7 @@ tasks.shadowJar {
 }
 
 dependencies {
+    implementation(projects.common.nais)
     implementation(projects.common.domain)
     implementation(projects.common.database)
     implementation(projects.common.slack)

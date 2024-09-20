@@ -4,6 +4,8 @@ plugins {
 }
 
 dependencies {
+    implementation(projects.common.nais)
+
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.nav.common.tokenClient)

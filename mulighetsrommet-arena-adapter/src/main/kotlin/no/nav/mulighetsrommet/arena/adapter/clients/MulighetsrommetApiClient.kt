@@ -9,13 +9,15 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
+import no.nav.mulighetsrommet.tokenprovider.AccessType
+import no.nav.mulighetsrommet.tokenprovider.TokenProvider
 import org.slf4j.LoggerFactory
 
 class MulighetsrommetApiClient(
     engine: HttpClientEngine = CIO.create(),
     config: Config = Config(),
     baseUri: String,
-    private val getToken: () -> String,
+    private val tokenProvider: TokenProvider,
 ) {
 
     data class Config(
@@ -61,7 +63,7 @@ class MulighetsrommetApiClient(
         isValidResponse: HttpResponse.() -> Boolean = { status.isSuccess() },
     ): Either<ResponseException, HttpResponse> {
         val response = client.request(requestUri) {
-            bearerAuth(getToken())
+            bearerAuth(tokenProvider.exchange(AccessType.M2M))
             this.method = method
             payload?.let { setBody(it) }
         }

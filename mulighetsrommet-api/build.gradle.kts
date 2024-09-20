@@ -45,6 +45,7 @@ flyway {
 }
 
 dependencies {
+    implementation(projects.common.nais)
     implementation(projects.common.database)
     testImplementation(testFixtures(projects.common.database))
     implementation(projects.common.domain)

@@ -9,6 +9,7 @@ include(
     "common:ktor",
     "common:ktor-clients",
     "common:metrics",
+    "common:nais",
     "common:slack",
     "common:tasks",
     "common:token-provider",
