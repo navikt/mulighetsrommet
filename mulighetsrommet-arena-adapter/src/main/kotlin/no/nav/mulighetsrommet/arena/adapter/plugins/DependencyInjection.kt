@@ -1,13 +1,9 @@
 package no.nav.mulighetsrommet.arena.adapter.plugins
 
 import com.github.kagkarlsson.scheduler.Scheduler
-import com.nimbusds.jose.jwk.KeyUse
-import com.nimbusds.jose.jwk.RSAKey
 import io.ktor.server.application.*
 import no.nav.common.kafka.util.KafkaPropertiesBuilder
 import no.nav.common.kafka.util.KafkaPropertiesPreset
-import no.nav.common.token_client.builder.AzureAdTokenClientBuilder
-import no.nav.common.token_client.client.MachineToMachineTokenClient
 import no.nav.mulighetsrommet.arena.adapter.*
 import no.nav.mulighetsrommet.arena.adapter.clients.ArenaOrdsProxyClient
 import no.nav.mulighetsrommet.arena.adapter.clients.ArenaOrdsProxyClientImpl
@@ -26,26 +22,24 @@ import no.nav.mulighetsrommet.env.NaisEnv
 import no.nav.mulighetsrommet.kafka.KafkaConsumerOrchestrator
 import no.nav.mulighetsrommet.slack.SlackNotifier
 import no.nav.mulighetsrommet.slack.SlackNotifierImpl
+import no.nav.mulighetsrommet.tokenprovider.CachedTokenProvider
 import org.apache.kafka.common.serialization.ByteArrayDeserializer
 import org.koin.core.module.Module
 import org.koin.dsl.module
 import org.koin.ktor.plugin.KoinIsolated
 import org.koin.logger.SLF4JLogger
-import java.security.KeyPairGenerator
-import java.security.interfaces.RSAPrivateKey
-import java.security.interfaces.RSAPublicKey
 
 fun Application.configureDependencyInjection(
     appConfig: AppConfig,
 ) {
-    val tokenClient = createM2mTokenClient(appConfig)
+    val tokenProvider = CachedTokenProvider.init(appConfig.auth.azure.audience, appConfig.auth.azure.tokenEndpointUrl)
     install(KoinIsolated) {
         SLF4JLogger()
         modules(
             db(appConfig.database),
             kafka(appConfig.kafka),
             repositories(),
-            services(appConfig.services, tokenClient),
+            services(appConfig.services, tokenProvider),
             tasks(appConfig.tasks),
             slack(appConfig.slack),
         )
@@ -124,27 +118,26 @@ private fun repositories() = module {
     single { AvtaleRepository(get()) }
 }
 
-private fun services(services: ServiceConfig, tokenClient: MachineToMachineTokenClient): Module = module {
+private fun services(services: ServiceConfig, tokenProvider: CachedTokenProvider): Module = module {
     single {
         MulighetsrommetApiClient(
             config = MulighetsrommetApiClient.Config(maxRetries = 2),
             baseUri = services.mulighetsrommetApi.url,
-        ) {
-            tokenClient.createMachineToMachineToken(services.mulighetsrommetApi.scope)
-        }
+            tokenProvider = tokenProvider.withScope(services.mulighetsrommetApi.scope),
+        )
     }
     single {
         TiltakshistorikkClient(
             config = TiltakshistorikkClient.Config(maxRetries = 2),
             baseUri = services.tiltakshistorikk.url,
-        ) {
-            tokenClient.createMachineToMachineToken(services.tiltakshistorikk.scope)
-        }
+            tokenProvider = tokenProvider.withScope(services.tiltakshistorikk.scope),
+        )
     }
     single<ArenaOrdsProxyClient> {
-        ArenaOrdsProxyClientImpl(baseUrl = services.arenaOrdsProxy.url) {
-            tokenClient.createMachineToMachineToken(services.arenaOrdsProxy.scope)
-        }
+        ArenaOrdsProxyClientImpl(
+            baseUrl = services.arenaOrdsProxy.url,
+            tokenProvider = tokenProvider.withScope(services.arenaOrdsProxy.scope),
+        )
     }
     single {
         val processors = listOf(
@@ -168,27 +161,3 @@ private fun services(services: ServiceConfig, tokenClient: MachineToMachineToken
     }
     single { ArenaEntityService(get(), get(), get(), get(), get(), get()) }
 }
-
-private fun createM2mTokenClient(config: AppConfig): MachineToMachineTokenClient {
-    return when (NaisEnv.current()) {
-        NaisEnv.Local -> AzureAdTokenClientBuilder.builder()
-            .withClientId(config.auth.azure.audience)
-            .withPrivateJwk(createMockRSAKey("azure").toJSONString())
-            .withTokenEndpointUrl(config.auth.azure.tokenEndpointUrl)
-            .buildMachineToMachineTokenClient()
-
-        else -> AzureAdTokenClientBuilder.builder().withNaisDefaults().buildMachineToMachineTokenClient()
-    }
-}
-
-private fun createMockRSAKey(keyID: String): RSAKey = KeyPairGenerator
-    .getInstance("RSA").let {
-        it.initialize(2048)
-        it.generateKeyPair()
-    }.let {
-        RSAKey.Builder(it.public as RSAPublicKey)
-            .privateKey(it.private as RSAPrivateKey)
-            .keyUse(KeyUse.SIGNATURE)
-            .keyID(keyID)
-            .build()
-    }
