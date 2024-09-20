@@ -13,7 +13,7 @@ type Roller = "TILTAK_ARRANGOR_REFUSJON";
 
 export async function getTilganger(request: Request): Promise<TilgangerResponse> {
   const personident = requireUserId(request);
-  const token = tokenXExchangeAltinnAcl(request);
+  const token = await tokenXExchangeAltinnAcl(request);
 
   const headers = {
     "Content-Type": "application/json",
