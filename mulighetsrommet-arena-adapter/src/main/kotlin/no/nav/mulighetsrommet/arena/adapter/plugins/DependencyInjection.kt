@@ -68,7 +68,6 @@ private fun tasks(tasks: TaskConfig) = module {
         Scheduler
             .create(db.getDatasource(), replayEvents.task)
             .startTasks(retryFailedEvents.task, notifyFailedEvents.task)
-            .registerShutdownHook()
             .build()
     }
 }
