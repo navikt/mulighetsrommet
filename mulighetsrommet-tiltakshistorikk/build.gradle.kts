@@ -27,6 +27,9 @@ dependencies {
     implementation(projects.common.ktorClients)
     implementation(projects.common.metrics)
 
+    // Cache
+    implementation(libs.caffeine)
+
     // Kotlin
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.kotlinx.coroutines.core)
