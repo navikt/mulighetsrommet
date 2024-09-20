@@ -389,7 +389,6 @@ private fun tasks(config: TaskConfig) = module {
                 updateApentForInnsok.task,
             )
             .serializer(DbSchedulerKotlinSerializer())
-            .registerShutdownHook()
             .build()
     }
 }
