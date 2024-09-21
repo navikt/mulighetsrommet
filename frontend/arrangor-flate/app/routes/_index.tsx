@@ -25,18 +25,17 @@ export async function loader({ request }: LoaderFunctionArgs) {
   await oboExchange(request);
   const krav = await RefusjonskravService.getRefusjonskrav({ orgnr: "123456789" });
 
-  return json({ krav, tilganger });
+  return json({ krav });
 }
 
 export default function Refusjon() {
-  const { krav, tilganger } = useLoaderData<typeof loader>();
+  const { krav } = useLoaderData<typeof loader>();
   const historiske = krav.filter((k) => k.status === RefusjonskravStatus.ATTESTERT);
   const aktive = krav.filter((k) => k.status !== RefusjonskravStatus.ATTESTERT);
 
   return (
     <>
       <PageHeader title="Tilgjengelige refusjonskrav" />
-      <pre>{JSON.stringify(tilganger, null, 2)}</pre>
       <VStack align="center" gap="4">
         <RefusjonskravTable krav={aktive} />
         <Heading size="small" as="div">
