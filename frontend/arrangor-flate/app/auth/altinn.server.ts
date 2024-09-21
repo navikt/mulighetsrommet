@@ -27,8 +27,7 @@ export async function getTilganger(request: Request): Promise<TilgangerResponse>
       ...headers,
     },
   };
-  // eslint-disable-next-line no-console
-  console.log("Payload to altinn-acl: ", JSON.stringify(payload, null, 2)); // TODO Fjern meg
+
   const response = await fetch(
     `http://mulighetsrommet-altinn-acl/api/v1/rolle/tiltaksarrangor`,
     payload,

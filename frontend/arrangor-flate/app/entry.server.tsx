@@ -37,30 +37,9 @@ function setupOpenAPIClient({ base, token }: { base: string; token?: string }) {
   };
 }
 
-function setupOpenAPIClientForArrangorflate({ base, token }: { base: string; token?: string }) {
-  OpenAPI.BASE = base;
-  OpenAPI.HEADERS = async () => {
-    const headers: Record<string, string> = {};
-
-    headers["Accept"] = "application/json";
-    headers["Nav-Consumer-Id"] = uuidv4();
-
-    if (token) {
-      headers["Authorization"] = `Bearer ${token}`;
-    }
-
-    return headers;
-  };
-}
-
 setupOpenAPIClient({
   base: process.env.VITE_MULIGHETSROMMET_API_BASE ?? "http://localhost:3000",
   token: process.env.VITE_MULIGHETSROMMET_API_AUTH_TOKEN,
-});
-
-setupOpenAPIClientForArrangorflate({
-  base: process.env.VITE_MULIGHETSROMMET_ALTINN_ACL_API_BASE ?? "BASE not set for arrangorflate", // TODO Set korrekt base for mulighetsrommet-altinn-acl når det kjøres lokalt
-  token: process.env.VITE_MULIGHETSROMMET_ALTINN_ACL_AUTH_TOKEN,
 });
 
 export default function handleRequest(
