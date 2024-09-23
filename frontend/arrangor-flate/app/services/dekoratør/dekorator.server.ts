@@ -58,25 +58,12 @@ export const hentDekoratør = async (miljø: Miljø): Promise<Dekoratørfragment
 // TODO Bygg korrekt brødsmulesti
 export const byggBrødsmulesti = (miljø: Miljø) => {
   if (miljø === Miljø.ProdGcp) {
-    return [
-      // {
-      //   title: "Min side – arbeidsgiver",
-      //   url: "https://arbeidsgiver.nav.no/min-side-arbeidsgiver/",
-      // },
-      // {
-      //   title: "Kandidater til dine stillinger",
-      //   url: "https://arbeidsgiver.nav.no/kandidatliste/",
-      // },
-    ];
+    return [];
   } else {
     return [
       // {
       //   title: "Min side – arbeidsgiver",
-      //   url: "https://arbeidsgiver.intern.dev.nav.no/min-side-arbeidsgiver/",
-      // },
-      // {
-      //   title: "Kandidater til dine stillinger",
-      //   url: "https://presenterte-kandidater.intern.dev.nav.no/kandidatliste/",
+      //   url: "https://arrangor-refusjon.intern.dev.nav.no/",
       // },
     ];
   }
