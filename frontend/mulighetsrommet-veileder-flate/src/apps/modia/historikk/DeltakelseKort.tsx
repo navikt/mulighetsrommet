@@ -1,9 +1,10 @@
 import { DeltakerKort, DeltakerStatus, DeltakerStatusType } from "@mr/api-client";
-import { BodyShort, Box, Button, HGrid, HStack, Heading, Tag, VStack } from "@navikt/ds-react";
+import { BodyShort, Box, Button, Heading, HGrid, HStack, Tag, VStack } from "@navikt/ds-react";
 import classNames from "classnames";
-import { formaterDato } from "../../../utils/Utils";
+import { formaterDato } from "@/utils/Utils";
 import { ModiaRoute, resolveModiaRoute } from "../ModiaRoute";
 import styles from "./DeltakelseKort.module.scss";
+import { ReactNode } from "react";
 
 type Size = "small" | "medium" | "large";
 
@@ -20,7 +21,7 @@ export function DeltakelseKort({ deltakelse, size = "medium" }: Props) {
     deltakerId: id,
   });
 
-  if (eierskap === "ARENA") {
+  if (eierskap === "ARENA" || eierskap === "TEAM_TILTAK") {
     return (
       <Wrapper size={size} deltakelse={deltakelse}>
         <Innhold deltakelse={deltakelse} />
@@ -48,7 +49,7 @@ function Wrapper({
   size: Size;
   deltakelse: DeltakerKort;
   onClick?: () => void;
-  children: React.ReactNode;
+  children: ReactNode;
 }) {
   return (
     <Box

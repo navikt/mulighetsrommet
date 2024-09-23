@@ -327,7 +327,7 @@ fun DeltakelseFraKomet.toDeltakerKort(): DeltakerKort {
             startDato = periode?.startdato,
             sluttDato = periode?.sluttdato,
         ),
-        eierskap = DeltakerKort.Eierskap.KOMET,
+        eierskap = DeltakerKort.Eierskap.TEAM_KOMET,
         tittel = tittel,
         tiltakstypeNavn = tiltakstype.navn,
         status = DeltakerKort.DeltakerStatus(

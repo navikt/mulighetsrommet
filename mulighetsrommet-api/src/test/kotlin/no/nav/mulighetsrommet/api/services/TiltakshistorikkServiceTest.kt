@@ -99,7 +99,7 @@ class TiltakshistorikkServiceTest : FunSpec({
     val deltakerKortOppfolging = DeltakerKort(
         id = deltakelseOppfolging.id,
         tiltaksgjennomforingId = deltakelseOppfolging.gjennomforing.id,
-        eierskap = DeltakerKort.Eierskap.KOMET,
+        eierskap = DeltakerKort.Eierskap.TEAM_KOMET,
         tittel = "Oppfølging hos Fretex AS",
         tiltakstypeNavn = TiltakstypeFixtures.Oppfolging.navn,
         status = DeltakerKort.DeltakerStatus(

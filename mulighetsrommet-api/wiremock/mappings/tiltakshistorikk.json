@@ -6,9 +6,7 @@
   "response": {
     "status": 200,
     "jsonBody": {
-      "meldinger": [
-        "MANGLER_HISTORIKK_FRA_TEAM_TILTAK"
-      ],
+      "meldinger": [],
       "historikk": [
         {
           "norskIdent": "12345678901",
@@ -30,7 +28,7 @@
             "organisasjonsnummer": "123456789"
           },
           "opphav": "TEAM_KOMET",
-          "type":"GruppetiltakDeltakelse"
+          "type": "GruppetiltakDeltakelse"
         },
         {
           "norskIdent": "12345678901",
@@ -52,7 +50,7 @@
             "organisasjonsnummer": "123456789"
           },
           "opphav": "TEAM_KOMET",
-          "type":"GruppetiltakDeltakelse"
+          "type": "GruppetiltakDeltakelse"
         },
         {
           "norskIdent": "12345678901",
@@ -66,7 +64,7 @@
             "organisasjonsnummer": "987654321"
           },
           "opphav": "ARENA",
-          "type":"ArenaDeltakelse"
+          "type": "ArenaDeltakelse"
         },
         {
           "norskIdent": "12345678901",
@@ -80,7 +78,20 @@
             "organisasjonsnummer": "987654321"
           },
           "opphav": "ARENA",
-          "type":"ArenaDeltakelse"
+          "type": "ArenaDeltakelse"
+        },
+        {
+          "norskIdent": "12345678901",
+          "startDato": "2022-01-01",
+          "sluttDato": "2023-12-31",
+          "avtaleId": "28c9eb94-7b9f-4bd8-a242-1bf80929322c",
+          "tiltakstype": "ARBEIDSTRENING",
+          "status": "AVSLUTTET",
+          "arbeidsgiver": {
+            "organisasjonsnummer": "983982433"
+          },
+          "opphav": "TEAM_TILTAK",
+          "type": "ArbeidsgiverAvtale"
         }
       ]
     },

@@ -3017,7 +3017,8 @@ components:
           type: string
           enum:
             - ARENA
-            - KOMET
+            - TEAM_KOMET
+            - TEAM_TILTAK
         tittel:
           type: string
         tiltakstypeNavn:
