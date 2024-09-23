@@ -4,12 +4,14 @@ import { Form, useActionData, useLoaderData } from "@remix-run/react";
 import { DeltakerlisteDetaljer } from "../components/deltakerliste/DeltakerlisteDetaljer";
 import { PageHeader } from "../components/PageHeader";
 import { Deltakerliste } from "../domene/domene";
+import { requirePersonIdent } from "../auth/auth.server";
 
 type LoaderData = {
   deltakerliste: Deltakerliste;
 };
 
-export const loader: LoaderFunction = async ({ params }): Promise<LoaderData> => {
+export const loader: LoaderFunction = async ({ request, params }): Promise<LoaderData> => {
+  await requirePersonIdent(request);
   if (params.id === undefined) throw Error("Mangler id");
   return {
     deltakerliste: {
