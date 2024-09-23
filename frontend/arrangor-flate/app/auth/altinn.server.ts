@@ -1,4 +1,4 @@
-import { requireUserId, tokenXExchangeAltinnAcl } from "./auth.server";
+import { requirePersonIdent, tokenXExchangeAltinnAcl } from "./auth.server";
 
 interface TilgangerResponse {
   roller: TiltaksarrangorRoller[];
@@ -12,7 +12,7 @@ interface TiltaksarrangorRoller {
 type Roller = "TILTAK_ARRANGOR_REFUSJON";
 
 export async function getTilganger(request: Request): Promise<TilgangerResponse> {
-  const personident = await requireUserId(request);
+  const personident = await requirePersonIdent(request);
   const token = await tokenXExchangeAltinnAcl(request);
 
   const headers = {

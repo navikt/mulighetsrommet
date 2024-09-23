@@ -14,6 +14,7 @@ import {
 } from "@remix-run/react";
 import parse from "html-react-parser";
 import { ReactNode, useEffect } from "react";
+import { getOptionalPersonIdent } from "./auth/auth.server";
 import { Header } from "./components/Header";
 import css from "./root.module.css";
 import { Dekoratørfragmenter, hentSsrDekoratør } from "./services/dekoratør/dekorator.server";
@@ -23,10 +24,11 @@ import "./tailwind.css";
 
 export const meta: MetaFunction = () => [{ title: "Refusjoner" }];
 
-export const loader: LoaderFunction = async ({ request, context }) => {
+export const loader: LoaderFunction = async ({ request }) => {
   const miljø = hentMiljø();
   if (miljø !== Miljø.Lokalt) {
-    if (!context.erAutorisert) {
+    const userId = await getOptionalPersonIdent(request);
+    if (!userId) {
       throw redirectDocument(`/oauth2/login?redirect=${request.url}`);
     }
   }

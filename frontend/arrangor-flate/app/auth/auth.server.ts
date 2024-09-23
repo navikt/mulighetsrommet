@@ -66,7 +66,7 @@ export async function tokenXExchangeAltinnAcl(request: Request) {
   return obo.token;
 }
 
-async function getPersonIdent(request: Request): Promise<string | undefined> {
+export async function getOptionalPersonIdent(request: Request): Promise<string | undefined> {
   const token = getToken(request);
 
   if (!token) {
@@ -92,10 +92,10 @@ async function getPersonIdent(request: Request): Promise<string | undefined> {
   return parsed.pid;
 }
 
-export async function requireUserId(request: Request) {
+export async function requirePersonIdent(request: Request) {
   if (process.env.NODE_ENV !== "production") return "12345678910"; // TODO Finne ut hvordan vi vil løse det uten auth ved lokal utvikling
 
-  const userId = await getPersonIdent(request);
+  const userId = await getOptionalPersonIdent(request);
   if (!userId) {
     throw redirectDocument(loginUrl);
   }
