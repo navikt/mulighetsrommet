@@ -23,7 +23,11 @@ export async function loader({ request }: LoaderFunctionArgs) {
   }
 
   await setupOpenApi(request);
-  const krav = await RefusjonskravService.getRefusjonskrav({ orgnr: "123456789" });
+  // TODO: Vi trenger en måte å velge orgrn på
+  // F. eks med bedriftsvelger (eller hva det heter) som min-side-arbeidsgiver bruker
+  const krav = await RefusjonskravService.getRefusjonskrav({
+    orgnr: tilganger.roller[0].organisasjonsnummer,
+  });
 
   return json({ krav });
 }

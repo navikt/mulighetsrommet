@@ -1,3 +1,4 @@
+import { Miljø, hentMiljø } from "~/services/miljø";
 import { oboExchange, requirePersonIdent } from "./auth.server";
 
 interface TilgangerResponse {
@@ -12,6 +13,17 @@ interface TiltaksarrangorRoller {
 type Roller = "TILTAK_ARRANGOR_REFUSJON";
 
 export async function getTilganger(request: Request): Promise<TilgangerResponse> {
+  if (hentMiljø() === Miljø.Lokalt) {
+    return Promise.resolve({
+      roller: [
+        {
+          organisasjonsnummer: "974543036",
+          roller: ["TILTAK_ARRANGOR_REFUSJON"],
+        },
+      ],
+    });
+  }
+
   const [personident, token] = await Promise.all([
     requirePersonIdent(request),
     oboExchange(
