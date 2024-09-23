@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory
 import java.time.LocalDate
 
 class GenerateRefusjonskrav(
-    config: Config,
+    private val config: Config,
     private val refusjonService: RefusjonService,
     slackNotifier: SlackNotifier,
 ) {
@@ -46,6 +46,7 @@ class GenerateRefusjonskrav(
         }
 
     fun runTask(dayInMonth: LocalDate) {
+        if (config.disabled) return
         refusjonService.genererRefusjonskravForMonth(dayInMonth)
     }
 }
