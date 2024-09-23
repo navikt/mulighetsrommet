@@ -17,7 +17,7 @@ export function DeltakelseKort({ deltakelse, size = "medium" }: Props) {
 
   const deltakelseRoute = resolveModiaRoute({
     route: ModiaRoute.ARBEIDSMARKEDSTILTAK_DELTAKELSE,
-    deltakerId: id!,
+    deltakerId: id,
   });
 
   if (eierskap === "ARENA") {
@@ -56,10 +56,10 @@ function Wrapper({
       borderRadius="medium"
       padding={size === "small" ? "2" : size === "medium" ? "5" : "8"}
       className={classNames(styles.panel, {
-        [styles.utkast]: deltakelse?.status.type === DeltakerStatusType.UTKAST_TIL_PAMELDING,
+        [styles.utkast]: deltakelse.status.type === DeltakerStatusType.UTKAST_TIL_PAMELDING,
         [styles.kladd]:
-          deltakelse?.status.type === DeltakerStatusType.KLADD ||
-          deltakelse?.status.type === DeltakerStatusType.PABEGYNT_REGISTRERING,
+          deltakelse.status.type === DeltakerStatusType.KLADD ||
+          deltakelse.status.type === DeltakerStatusType.PABEGYNT_REGISTRERING,
       })}
     >
       {children}
@@ -85,9 +85,9 @@ function Innhold({ deltakelse }: { deltakelse: DeltakerKort }) {
         {status.aarsak ? <BodyShort size="small">Årsak: {status.aarsak}</BodyShort> : null}
         {periode?.startDato ? (
           <BodyShort size="small">
-            {periode?.startDato && !periode?.sluttDato
-              ? `Oppstartsdato ${formaterDato(periode?.startDato)}`
-              : [periode?.startDato, periode?.sluttDato]
+            {periode.startDato && !periode.sluttDato
+              ? `Oppstartsdato ${formaterDato(periode.startDato)}`
+              : [periode.startDato, periode.sluttDato]
                   .filter(Boolean)
                   .map((dato) => dato && formaterDato(dato))
                   .join(" - ")}
