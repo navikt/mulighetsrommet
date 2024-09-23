@@ -158,6 +158,8 @@ app:
     updateApentForInnsok:
       disabled: false
       cronPattern: "0 55 23 * * *" # 23.55 hver kveld
+    generateRefusjonskrav:
+      cronPattern: "0 0 5 7 * *"
 
   slack:
     token: ${SLACK_TOKEN}

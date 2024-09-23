@@ -1813,7 +1813,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/Refusjonskrav"
+                  $ref: "#/components/schemas/RefusjonskravDto"
 
 components:
   securitySchemes:
@@ -4862,34 +4862,37 @@ components:
         - startDato
         - belop
 
-    Refusjonskrav:
+    RefusjonskravDto:
       type: object
       properties:
         id:
           type: string
           format: uuid
-        tiltaksnr:
-          type: string
-        kravnr:
-          type: string
-        periode:
+        tiltaksgjennomforing:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            navn:
+              type: string
+          required:
+            - id
+            - navn
+        periodeStart:
           type: string
           format: date
-        belop:
-          type: string
-        fristForGodkjenning:
+        periodeSlutt:
           type: string
           format: date
-        status:
-          $ref: "#/components/schemas/RefusjonskravStatus"
+        beregning:
+          $ref: "#/components/schemas/RefusjonskravBeregning"
       required:
         - id
-        - tiltaksnr
-        - kravnr
-        - periode
-        - belop
-        - fristForGodkjenning
-        - status
+        - tiltaksgjennomforing
+        - periodeStart
+        - periodeSlutt
+        - beregning
 
     RefusjonskravStatus:
       type: string
@@ -4897,3 +4900,23 @@ components:
         - ATTESTERT
         - KLAR_FOR_INNSENDING
         - NARMER_SEG_FRIST
+
+    RefusjonskravBeregning:
+      oneOf:
+        - $ref: "#/components/schemas/RefusjonskravBeregningAFT"
+
+    RefusjonskravBeregningAFT:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - AFT
+        sats:
+          type: integer
+        belop:
+          type: integer
+      required:
+        - type
+        - sats
+        - belop

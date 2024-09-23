@@ -26,6 +26,8 @@ import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.clients.tiltakshistorikk.TiltakshistorikkClient
 import no.nav.mulighetsrommet.api.clients.utdanning.UtdanningClient
 import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClient
+import no.nav.mulighetsrommet.api.okonomi.refusjon.RefusjonService
+import no.nav.mulighetsrommet.api.okonomi.refusjon.RefusjonskravRepository
 import no.nav.mulighetsrommet.api.okonomi.tilsagn.TilsagnRepository
 import no.nav.mulighetsrommet.api.okonomi.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.okonomi.tilsagn.TilsagnValidator
@@ -166,6 +168,7 @@ private fun repositories() = module {
     single { VeilederJoyrideRepository(get()) }
     single { OpsjonLoggRepository(get()) }
     single { TilsagnRepository(get()) }
+    single { RefusjonskravRepository(get()) }
 }
 
 private fun services(appConfig: AppConfig) = module {
@@ -310,6 +313,7 @@ private fun services(appConfig: AppConfig) = module {
     single { NavVeilederService(get()) }
     single { NotificationService(get(), get(), get()) }
     single { ArrangorService(get(), get()) }
+    single { RefusjonService(get(), get(), get(), get()) }
     single {
         val byEnhetStrategy = ByEnhetStrategy(get())
         val byNavidentStrategy = ByNavIdentStrategy()
@@ -335,6 +339,7 @@ private fun tasks(config: TaskConfig) = module {
     single { InitialLoadTiltakstyper(get(), get(), get(), get()) }
     single { SynchronizeNavAnsatte(config.synchronizeNavAnsatte, get(), get(), get()) }
     single { SynchronizeUtdanninger(get(), get(), config.synchronizeUtdanninger, get()) }
+    single { GenerateRefusjonskrav(config.generateRefusjonskrav, get(), get()) }
     single {
         val updateTiltaksgjennomforingStatus = UpdateTiltaksgjennomforingStatus(
             get(),
@@ -367,6 +372,7 @@ private fun tasks(config: TaskConfig) = module {
         val initialLoadTiltakstyper: InitialLoadTiltakstyper by inject()
         val synchronizeNavAnsatte: SynchronizeNavAnsatte by inject()
         val synchronizeUtdanninger: SynchronizeUtdanninger by inject()
+        val generateRefusjonskrav: GenerateRefusjonskrav by inject()
 
         val db: Database by inject()
 
@@ -387,6 +393,7 @@ private fun tasks(config: TaskConfig) = module {
                 notifySluttdatoForAvtalerNarmerSeg.task,
                 notifyFailedKafkaEvents.task,
                 updateApentForInnsok.task,
+                generateRefusjonskrav.task,
             )
             .serializer(DbSchedulerKotlinSerializer())
             .build()

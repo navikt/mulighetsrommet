@@ -79,6 +79,10 @@ fun createTestApplicationConfig() = AppConfig(
         updateApentForInnsok = UpdateApentForInnsok.Config(
             disabled = true,
         ),
+        generateRefusjonskrav = GenerateRefusjonskrav.Config(
+            disabled = true,
+            cronPattern = null,
+        ),
     ),
     norg2 = Norg2Config(baseUrl = ""),
     slack = SlackConfig(
