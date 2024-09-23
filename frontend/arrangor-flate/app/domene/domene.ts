@@ -25,3 +25,20 @@ export interface Deltakerliste {
     refusjonskravnummer: string;
   };
 }
+
+export interface RolleTilgangRequest {
+  personident: string;
+}
+
+export interface Rolletilgang {
+  roller: TiltaksarrangorRoller[];
+}
+
+interface TiltaksarrangorRoller {
+  organisasjonsnummer: string;
+  roller: RolleType[];
+}
+
+export enum RolleType {
+  "TILTAK_ARRANGOR_REFUSJON",
+}
