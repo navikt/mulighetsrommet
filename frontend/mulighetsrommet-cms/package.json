@@ -29,6 +29,6 @@
   },
   "devDependencies": {
     "@types/react": "18.3.8",
-    "sass": "1.79.2"
+    "sass": "1.79.3"
   }
 }
