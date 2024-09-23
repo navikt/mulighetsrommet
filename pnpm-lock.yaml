@@ -18,8 +18,8 @@ importers:
   frontend/api-client:
     devDependencies:
       '@hey-api/openapi-ts':
-        specifier: 0.52.9
-        version: 0.52.9(typescript@5.6.2)
+        specifier: 0.53.3
+        version: 0.53.3(typescript@5.6.2)
       typescript:
         specifier: 5.6.2
         version: 5.6.2
@@ -2617,8 +2617,8 @@ packages:
   '@grafana/faro-web-sdk@1.10.0':
     resolution: {integrity: sha512-4BqxaE/EaOijKfru8jjKztFRrLYcC2fC+RTAFZd6JSus0LlUpBGCAmfK7iEqsF8lY+Mzp5K9jJaG0ppMlK25eA==}
 
-  '@hey-api/openapi-ts@0.52.9':
-    resolution: {integrity: sha512-257xD5lHAszpbj4US5GGnb5keqcYmnB0Sh+6BmPX4atettBOF9c3knU4mgZWEy75Dx3eEzgSMsJyUjRIVADX4w==}
+  '@hey-api/openapi-ts@0.53.3':
+    resolution: {integrity: sha512-o4XPr0g7Ey0xibSAohRO895ZKS2DgvVn2Dprd9wi7Oi1Vuoe+hT4Zy+0LqhMYOx14E2ViXVWa3fmihwO6meZsA==}
     engines: {node: ^18.0.0 || >=20.0.0}
     hasBin: true
     peerDependencies:
@@ -3977,8 +3977,8 @@ packages:
     resolution: {integrity: sha512-/Nf7TyzTx6S3yRJObOAV7956r8cr2+Oj8AC5dt8wSP3BQAoeX58NoHyCU8P8zGkNXStjTSi6fzO6F0pBdcYbEg==}
     engines: {node: '>= 0.8'}
 
-  c12@1.11.1:
-    resolution: {integrity: sha512-KDU0TvSvVdaYcQKQ6iPHATGz/7p/KiVjPg4vQrB6Jg/wX9R0yl5RZxWm9IoZqaIHD2+6PZd81+KMGwRr/lRIUg==}
+  c12@1.11.2:
+    resolution: {integrity: sha512-oBs8a4uvSDO9dm8b7OCFW7+dgtVrwmwnrVXYzLm43ta7ep2jCn/0MhoUFygIWtxhyy6+/MG7/agvpY0U1Iemew==}
     peerDependencies:
       magicast: ^0.3.4
     peerDependenciesMeta:
@@ -10926,10 +10926,10 @@ snapshots:
       ua-parser-js: 1.0.38
       web-vitals: 4.2.3
 
-  '@hey-api/openapi-ts@0.52.9(typescript@5.6.2)':
+  '@hey-api/openapi-ts@0.53.3(typescript@5.6.2)':
     dependencies:
       '@apidevtools/json-schema-ref-parser': 11.7.0
-      c12: 1.11.1
+      c12: 1.11.2
       commander: 12.1.0
       handlebars: 4.7.8
       typescript: 5.6.2
@@ -12774,7 +12774,7 @@ snapshots:
 
   bytes@3.1.2: {}
 
-  c12@1.11.1:
+  c12@1.11.2:
     dependencies:
       chokidar: 3.6.0
       confbox: 0.1.7
