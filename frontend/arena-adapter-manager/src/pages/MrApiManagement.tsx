@@ -38,16 +38,17 @@ export function MrApiManagement() {
           base={ApiBase.MR_API}
           task={"generate-refusjonskrav"}
           input={{
-            type: 'object',
-            required: ['dayInMonth'],
+            type: "object",
+            required: ["dayInMonth"],
             properties: {
               dayInMonth: {
-                type: 'string',
-                title: 'Dato i måned',
-                description: 'En tilfeldig dato i måneden det skal genereres for (format: "2023-01-31")',
-                default: false
+                type: "string",
+                title: "Dato i måned",
+                description:
+                  'En tilfeldig dato i måneden det skal genereres for (format: "2023-01-31")',
+                default: false,
               },
-            }
+            },
           }}
         />
 
