@@ -1,7 +1,7 @@
 import { DeltakerKort, DeltakerStatusType } from "@mr/api-client";
 import { tiltakAvklaring, tiltakOppfolging } from "./mockTiltaksgjennomforinger";
 
-export const historikkFraKomet: DeltakerKort[] = [
+export const deltakelserHistoriske: DeltakerKort[] = [
   {
     tittel: "Oppfølging hos Muligheter AS",
     tiltakstypeNavn: "Oppfølging",

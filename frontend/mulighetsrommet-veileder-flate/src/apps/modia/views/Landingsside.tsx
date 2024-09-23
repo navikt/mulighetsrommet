@@ -7,25 +7,26 @@ import {
 } from "@navikt/aksel-icons";
 import {
   Alert,
-  Link as AkselLink,
+  Box,
   Heading,
+  HGrid,
   HStack,
+  Link as AkselLink,
   Skeleton,
   Tabs,
   VStack,
-  Box,
-  HGrid,
 } from "@navikt/ds-react";
-import { Suspense, useState } from "react";
+import { ReactNode, Suspense, useState } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { Link, useLocation } from "react-router-dom";
-import { useTiltakshistorikkForBruker } from "../../../api/queries/useTiltakshistorikkForBruker";
+import { useTiltakshistorikkForBruker } from "@/api/queries/useTiltakshistorikkForBruker";
 import { DeltakelseKort } from "../historikk/DeltakelseKort";
 import styles from "./Landingsside.module.scss";
 import { DelMedBrukerHistorikk } from "../delMedBruker/DelMedBrukerHistorikk";
 import { isProduction } from "@/environment";
 import { useLogEvent } from "@/logging/amplitude";
 import ingenFunnImg from "public/ingen-funn.svg";
+import { DeltakelserMelding } from "@mr/api-client";
 
 function Feilmelding({ message }: { message: string }) {
   return (
@@ -125,7 +126,7 @@ export function Landingsside() {
                     />
                   }
                 >
-                  <Aktive />
+                  <DeltakelserAktive />
                 </Suspense>
               </ErrorBoundary>
             </Tabs.Panel>
@@ -146,7 +147,7 @@ export function Landingsside() {
                     </VStack>
                   }
                 >
-                  <Historikk />
+                  <DeltakelserHistoriske />
                 </Suspense>
               </ErrorBoundary>
             </Tabs.Panel>
@@ -181,7 +182,7 @@ export function Landingsside() {
   );
 }
 
-function Container(props: { children: React.ReactNode }) {
+function Container(props: { children: ReactNode }) {
   return (
     <VStack padding="2" gap="4" width={"100%"}>
       {props.children}
@@ -189,21 +190,55 @@ function Container(props: { children: React.ReactNode }) {
   );
 }
 
-function Aktive() {
-  const { data: aktive } = useTiltakshistorikkForBruker("AKTIVE");
+function DeltakelserAktive() {
+  const { data } = useTiltakshistorikkForBruker("AKTIVE");
 
   return (
     <Container>
-      {aktive.map((utkast) => {
-        return <DeltakelseKort key={utkast.id} deltakelse={utkast} />;
+      {data.deltakelser.map((deltakelse) => {
+        return <DeltakelseKort key={deltakelse.id} deltakelse={deltakelse} />;
       })}
-      {aktive.length === 0 && <IngenFunnetBox title="Brukeren har ingen aktive tiltak" />}
-      <Alert variant="info">
-        For oversikt over tiltakstypene “Sommerjobb”, “Midlertidig lønnstilskudd”, og “Varig
-        lønnstilskudd” se <TeamTiltakLenke />
-      </Alert>
+      {data.deltakelser.length === 0 && <IngenFunnetBox title="Brukeren har ingen aktive tiltak" />}
+      <DeltakelserMeldinger meldinger={data.meldinger} />
     </Container>
   );
+}
+
+function DeltakelserHistoriske() {
+  const { data } = useTiltakshistorikkForBruker("HISTORISKE");
+
+  return (
+    <Container>
+      {data.deltakelser.map((deltakelse) => {
+        return <DeltakelseKort key={deltakelse.id} deltakelse={deltakelse} />;
+      })}
+      {data.deltakelser.length === 0 && (
+        <IngenFunnetBox title="Brukeren har ingen tidligere tiltak" />
+      )}
+      <DeltakelserMeldinger meldinger={data.meldinger} />
+      <Alert variant="info">Vi viser bare historikk 5 år tilbake i tid.</Alert>
+    </Container>
+  );
+}
+
+function DeltakelserMeldinger(props: { meldinger: DeltakelserMelding[] }) {
+  return props.meldinger.map((melding) => {
+    switch (melding) {
+      case DeltakelserMelding.MANGLER_SISTE_DELTAKELSER_FRA_TEAM_KOMET:
+        return (
+          <Alert key={melding} variant="warning">
+            Informasjon om deltakelser på gruppetiltakene kan være utdatert
+          </Alert>
+        );
+      case DeltakelserMelding.MANGLER_DELTAKELSER_FRA_TEAM_TILTAK:
+        return (
+          <Alert key={melding} variant="info">
+            For oversikt over tiltakstypene “Sommerjobb”, “Midlertidig lønnstilskudd”, og “Varig
+            lønnstilskudd” se <TeamTiltakLenke />
+          </Alert>
+        );
+    }
+  });
 }
 
 function TeamTiltakLenke() {
@@ -215,23 +250,6 @@ function TeamTiltakLenke() {
     <AkselLink target="_blank" rel="noreferrer noopener" href={`${baseUrl}/tiltaksgjennomforing`}>
       Tiltaksgjennomføring - avtaler <ExternalLinkIcon title="Ikon for å åpne lenke i ny fane" />
     </AkselLink>
-  );
-}
-
-function Historikk() {
-  const { data: historiske } = useTiltakshistorikkForBruker("HISTORISKE");
-
-  return (
-    <Container>
-      {historiske.map((hist) => {
-        return <DeltakelseKort key={hist.id} deltakelse={hist} />;
-      })}
-      {historiske.length === 0 && <IngenFunnetBox title="Brukeren har ingen tidligere tiltak" />}
-      <Alert variant="info">
-        Vi viser bare historikk 5 år tilbake i tid. For oversikt over tiltakstypene “Sommerjobb”,
-        “Midlertidig lønnstilskudd”, og “Varig lønnstilskudd” se <TeamTiltakLenke />
-      </Alert>
-    </Container>
   );
 }
 

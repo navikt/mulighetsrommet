@@ -6,7 +6,7 @@ import {
   tiltakVta,
 } from "./mockTiltaksgjennomforinger";
 
-export const utkastFraKomet: DeltakerKort[] = [
+export const deltakelserAktive: DeltakerKort[] = [
   {
     id: window.crypto.randomUUID(),
     tiltaksgjennomforingId: tiltakAft.id,

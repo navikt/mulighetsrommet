@@ -8,6 +8,6 @@ export function useTiltakshistorikkForBruker(type: "AKTIVE" | "HISTORISKE") {
 
   return useSuspenseQuery({
     queryKey: QueryKeys.BrukerHistorikk(norskIdent, type),
-    queryFn: () => HistorikkService.hentHistorikkForBruker({ requestBody: { norskIdent, type } }),
+    queryFn: () => HistorikkService.getTiltakshistorikk({ requestBody: { norskIdent, type } }),
   });
 }
