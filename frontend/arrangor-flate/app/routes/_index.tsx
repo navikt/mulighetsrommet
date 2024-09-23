@@ -1,10 +1,11 @@
 import { RefusjonskravService, RefusjonskravStatus } from "@mr/api-client";
 import { Heading, VStack } from "@navikt/ds-react";
 import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
-import { json } from "@remix-run/node";
+import { json, redirect } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
-import { oboExchange } from "~/auth/auth";
 import { RefusjonskravTable } from "~/components/refusjonskrav/RefusjonskravTable";
+import { getTilganger } from "../auth/altinn.server";
+import { setupOpenApi } from "../auth/auth.server";
 import { PageHeader } from "../components/PageHeader";
 
 export const meta: MetaFunction = () => {
@@ -15,7 +16,13 @@ export const meta: MetaFunction = () => {
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  await oboExchange(request);
+  const tilganger = await getTilganger(request);
+
+  if (tilganger.roller.length === 0) {
+    throw redirect("/ingen-tilgang");
+  }
+
+  await setupOpenApi(request);
   const krav = await RefusjonskravService.getRefusjonskrav({ orgnr: "123456789" });
 
   return json({ krav });

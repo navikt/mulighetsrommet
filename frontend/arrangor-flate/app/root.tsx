@@ -1,5 +1,5 @@
 import { Alert, BodyShort, Box, Heading } from "@navikt/ds-react";
-import { LoaderFunction, redirectDocument } from "@remix-run/node";
+import { LoaderFunction } from "@remix-run/node";
 import {
   isRouteErrorResponse,
   json,
@@ -14,6 +14,7 @@ import {
 } from "@remix-run/react";
 import parse from "html-react-parser";
 import { ReactNode, useEffect } from "react";
+import { requirePersonIdent } from "./auth/auth.server";
 import { Header } from "./components/Header";
 import css from "./root.module.css";
 import { Dekoratørfragmenter, hentSsrDekoratør } from "./services/dekoratør/dekorator.server";
@@ -23,12 +24,11 @@ import "./tailwind.css";
 
 export const meta: MetaFunction = () => [{ title: "Refusjoner" }];
 
-export const loader: LoaderFunction = async ({ request, context }) => {
+export const loader: LoaderFunction = async ({ request }) => {
   const miljø = hentMiljø();
+  // TODO Se på lokalt oppsett
   if (miljø !== Miljø.Lokalt) {
-    if (!context.erAutorisert) {
-      throw redirectDocument(`/oauth2/login?redirect=${request.url}`);
-    }
+    await requirePersonIdent(request);
   }
 
   return json({
