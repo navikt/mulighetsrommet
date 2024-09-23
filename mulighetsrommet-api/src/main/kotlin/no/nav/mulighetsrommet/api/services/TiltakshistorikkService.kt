@@ -15,6 +15,7 @@ import no.nav.mulighetsrommet.domain.dbo.ArenaDeltakerStatus
 import no.nav.mulighetsrommet.domain.dto.NorskIdent
 import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
 import no.nav.mulighetsrommet.domain.dto.Tiltakshistorikk
+import no.nav.mulighetsrommet.domain.dto.TiltakshistorikkMelding
 import no.nav.mulighetsrommet.domain.dto.amt.AmtDeltakerStatus
 import no.nav.mulighetsrommet.env.NaisEnv
 import no.nav.mulighetsrommet.tokenprovider.AccessType
@@ -31,49 +32,76 @@ class TiltakshistorikkService(
     val log: Logger = LoggerFactory.getLogger(javaClass)
 
     suspend fun hentHistorikk(norskIdent: NorskIdent, obo: AccessType.OBO): Deltakelser = coroutineScope {
-        val historikkResponse = async {
-            val identer = hentHistoriskeNorskIdent(norskIdent, obo)
-            tiltakshistorikkClient.historikk(identer)
-        }
+        val historikk = async { getTiltakshistorikk(norskIdent, obo) }
+        val deltakelser = async { getGruppetiltakDeltakelser(norskIdent, obo) }
+        deltakelser.await().mergeWith(historikk.await())
+    }
 
-        val deltakelserResponse = async {
-            hentDeltakelserFraKomet(norskIdent, obo).getOrElse {
-                // TODO return warning som kan vises i frontend i stedet for å feile helt
-                throw Exception("Feil mot komet")
-            }
-        }
+    private suspend fun getTiltakshistorikk(
+        norskIdent: NorskIdent,
+        obo: AccessType.OBO,
+    ): Deltakelser {
+        val identer = hentHistoriskeNorskIdent(norskIdent, obo)
+        val historikk = tiltakshistorikkClient.historikk(identer)
 
-        // TODO håndter feilscenarier fra tiltakshistorikk
-        val historikk = historikkResponse.await().historikk.map {
-            when (it) {
-                is Tiltakshistorikk.ArenaDeltakelse -> {
-                    it.toDeltakerKort()
+        val meldinger = historikk.meldinger
+            .map {
+                when (it) {
+                    TiltakshistorikkMelding.MANGLER_HISTORIKK_FRA_TEAM_TILTAK -> DeltakelserMelding.MANGLER_DELTAKELSER_FRA_TEAM_TILTAK
                 }
-
-                is Tiltakshistorikk.GruppetiltakDeltakelse -> {
-                    it.toDeltakerKort()
-                }
-
-                is Tiltakshistorikk.ArbeidsgiverAvtale -> it.toDeltakerKort()
             }
-        }
+            .toSet()
 
-        val (historikkAktive, historikkHistoriske) = historikk.partition { erAktiv(it.status.type) }
-        val (deltakelserAktive, deltakelserHistoriske) = deltakelserResponse.await()
+        val (aktive, historiske) = historikk.historikk
+            .map { toDeltakerKort(it) }
+            .partition { erAktiv(it.status.type) }
 
-        Deltakelser(
-            aktive = mergeDeltakelser(historikkAktive, deltakelserAktive),
-            historiske = mergeDeltakelser(historikkHistoriske, deltakelserHistoriske),
+        return Deltakelser(
+            meldinger = meldinger,
+            aktive = aktive,
+            historiske = historiske,
         )
     }
 
-    private fun mergeDeltakelser(
-        deltakelser: List<DeltakerKort>,
-        amtDeltakelser: List<DeltakelseFraKomet>,
-    ): List<DeltakerKort> {
-        return (amtDeltakelser.map { it.toDeltakerKort() } + deltakelser)
-            .distinctBy { it.id }
-            .sortedWith(deltakerKortComparator)
+    private suspend fun getGruppetiltakDeltakelser(
+        norskIdent: NorskIdent,
+        obo: AccessType.OBO,
+    ): Deltakelser {
+        if (NaisEnv.current().isProdGCP()) {
+            log.debug("Henter ikke deltakelser fra Komet sitt API i prod")
+            return Deltakelser(
+                setOf(DeltakelserMelding.MANGLER_SISTE_DELTAKELSER_FRA_TEAM_KOMET),
+                emptyList(),
+                emptyList(),
+            )
+        }
+
+        return amtDeltakerClient.hentDeltakelser(DeltakelserRequest(norskIdent), obo).fold({ error ->
+            log.warn("Klarte ikke hente deltakelser fra Komet: $error")
+            Deltakelser(
+                meldinger = setOf(DeltakelserMelding.MANGLER_SISTE_DELTAKELSER_FRA_TEAM_KOMET),
+                aktive = emptyList(),
+                historiske = emptyList(),
+            )
+        }, { response ->
+            Deltakelser(
+                meldinger = setOf(),
+                aktive = response.aktive.map { it.toDeltakerKort() },
+                historiske = response.historikk.map { it.toDeltakerKort() },
+            )
+        })
+    }
+
+    private suspend fun toDeltakerKort(it: Tiltakshistorikk) = when (it) {
+        is Tiltakshistorikk.ArenaDeltakelse -> {
+            it.toDeltakerKort()
+        }
+
+        is Tiltakshistorikk.GruppetiltakDeltakelse -> {
+            it.toDeltakerKort()
+        }
+
+        is Tiltakshistorikk.ArbeidsgiverAvtale -> it.toDeltakerKort()
     }
 
     private fun Tiltakshistorikk.ArenaDeltakelse.toDeltakerKort(): DeltakerKort {
@@ -242,7 +270,6 @@ class TiltakshistorikkService(
         norskIdent: NorskIdent,
         obo: AccessType.OBO,
     ): Either<AmtDeltakerError, DeltakelserResponse> {
-        // TODO Hør med Komet om vi kan hente deltakelser fra dem i Prod
         if (NaisEnv.current().isProdGCP()) {
             log.debug("Henter ikke deltakelser fra Komet sitt API i prod")
             return Either.Right(DeltakelserResponse(emptyList(), emptyList()))
@@ -313,10 +340,25 @@ fun DeltakelseFraKomet.toDeltakerKort(): DeltakerKort {
     )
 }
 
+enum class DeltakelserMelding {
+    MANGLER_SISTE_DELTAKELSER_FRA_TEAM_KOMET,
+    MANGLER_DELTAKELSER_FRA_TEAM_TILTAK,
+}
+
 data class Deltakelser(
+    val meldinger: Set<DeltakelserMelding>,
     val aktive: List<DeltakerKort>,
     val historiske: List<DeltakerKort>,
-)
+) {
+    /**
+     * Kombinerer deltakelser. Ved konflikter på id så kastes deltakelse fra [other].
+     */
+    fun mergeWith(other: Deltakelser) = Deltakelser(
+        meldinger = meldinger + other.meldinger,
+        aktive = (aktive + other.aktive).distinctBy { it.id }.sortedWith(deltakerKortComparator),
+        historiske = (historiske + other.historiske).distinctBy { it.id }.sortedWith(deltakerKortComparator),
+    )
+}
 
 /**
  * Sorterer deltakelser basert på nyeste startdato først
