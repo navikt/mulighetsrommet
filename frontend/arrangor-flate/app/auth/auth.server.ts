@@ -2,61 +2,27 @@ import { OpenAPI } from "@mr/api-client";
 import { getToken, parseIdportenToken, requestTokenxOboToken, validateToken } from "@navikt/oasis";
 import { redirectDocument } from "@remix-run/node";
 import { v4 as uuidv4 } from "uuid";
+import { hentMiljø, Miljø } from "../services/miljø";
 
 const loginUrl = "/oauth2/login";
 
-export async function oboExchange(request: Request) {
-  if (process.env.NODE_ENV !== "production") {
-    return;
-  }
-
+export async function oboExchange(request: Request, audience: string) {
   const token = getToken(request);
+
   if (!token) {
     // eslint-disable-next-line no-console
     console.log("missing token");
     throw redirectDocument(loginUrl);
   }
+
   const validation = await validateToken(token);
   if (!validation.ok) {
     // eslint-disable-next-line no-console
     console.log("invalid token");
     throw redirectDocument(loginUrl);
   }
-  const obo = await requestTokenxOboToken(
-    token,
-    `${process.env.NAIS_CLUSTER_NAME}:team-mulighetsrommet:mulighetsrommet-api`,
-  );
-  if (!obo.ok) {
-    // eslint-disable-next-line no-console
-    console.log("obo exchange failed", obo);
-    throw redirectDocument(loginUrl);
-  }
 
-  setOpenApiHeaders(obo.token);
-}
-
-export async function tokenXExchangeAltinnAcl(request: Request) {
-  if (process.env.NODE_ENV !== "production") {
-    return;
-  }
-
-  const token = getToken(request);
-  if (!token) {
-    // eslint-disable-next-line no-console
-    console.log("missing token");
-    throw redirectDocument(loginUrl);
-  }
-  const validation = await validateToken(token);
-  if (!validation.ok) {
-    // eslint-disable-next-line no-console
-    console.log("invalid token");
-    throw redirectDocument(loginUrl);
-  }
-  const obo = await requestTokenxOboToken(
-    token,
-    `${process.env.NAIS_CLUSTER_NAME}:team-mulighetsrommet:mulighetsrommet-altinn-acl`,
-  );
-
+  const obo = await requestTokenxOboToken(token, audience);
   if (!obo.ok) {
     // eslint-disable-next-line no-console
     console.log("obo exchange failed", obo);
@@ -66,7 +32,25 @@ export async function tokenXExchangeAltinnAcl(request: Request) {
   return obo.token;
 }
 
-export async function getOptionalPersonIdent(request: Request): Promise<string | undefined> {
+export async function setupOpenApi(request: Request) {
+  const token =
+    hentMiljø() === Miljø.Lokalt
+      ? process.env.VITE_MULIGHETSROMMET_API_AUTH_TOKEN
+      : await oboExchange(
+          request,
+          `${process.env.NAIS_CLUSTER_NAME}:team-mulighetsrommet:mulighetsrommet-api`,
+        );
+
+  if (!token) {
+    throw new Error("Fant ingen token");
+  }
+
+  setOpenApiHeaders(token);
+}
+
+export async function requirePersonIdent(request: Request) {
+  if (process.env.NODE_ENV !== "production") return "12345678910"; // TODO Finne ut hvordan vi vil løse det uten auth ved lokal utvikling
+
   const token = getToken(request);
 
   if (!token) {
@@ -89,17 +73,12 @@ export async function getOptionalPersonIdent(request: Request): Promise<string |
     throw redirectDocument(loginUrl);
   }
 
-  return parsed.pid;
-}
-
-export async function requirePersonIdent(request: Request) {
-  if (process.env.NODE_ENV !== "production") return "12345678910"; // TODO Finne ut hvordan vi vil løse det uten auth ved lokal utvikling
-
-  const userId = await getOptionalPersonIdent(request);
-  if (!userId) {
+  const personident = parsed.pid;
+  if (!/^\d{11}$/.test(personident)) {
     throw redirectDocument(loginUrl);
   }
-  return userId;
+
+  return personident;
 }
 
 function setOpenApiHeaders(token: string) {

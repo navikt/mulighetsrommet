@@ -1,4 +1,4 @@
-import { requirePersonIdent, tokenXExchangeAltinnAcl } from "./auth.server";
+import { oboExchange, requirePersonIdent } from "./auth.server";
 
 interface TilgangerResponse {
   roller: TiltaksarrangorRoller[];
@@ -12,8 +12,13 @@ interface TiltaksarrangorRoller {
 type Roller = "TILTAK_ARRANGOR_REFUSJON";
 
 export async function getTilganger(request: Request): Promise<TilgangerResponse> {
-  const personident = await requirePersonIdent(request);
-  const token = await tokenXExchangeAltinnAcl(request);
+  const [personident, token] = await Promise.all([
+    requirePersonIdent(request),
+    oboExchange(
+      request,
+      `${process.env.NAIS_CLUSTER_NAME}:team-mulighetsrommet:mulighetsrommet-altinn-acl`,
+    ),
+  ]);
 
   const headers = {
     "Content-Type": "application/json",
@@ -28,8 +33,9 @@ export async function getTilganger(request: Request): Promise<TilgangerResponse>
     },
   };
 
+  // TODO Sette opp openAPi-client med "hardkodet" openapi.yaml
   const response = await fetch(
-    `http://mulighetsrommet-altinn-acl/api/v1/rolle/tiltaksarrangor`,
+    "http://mulighetsrommet-altinn-acl/api/v1/rolle/tiltaksarrangor",
     payload,
   );
 

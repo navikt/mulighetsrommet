@@ -5,7 +5,7 @@ import { json, redirect } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import { RefusjonskravTable } from "~/components/refusjonskrav/RefusjonskravTable";
 import { getTilganger } from "../auth/altinn.server";
-import { oboExchange } from "../auth/auth.server";
+import { setupOpenApi } from "../auth/auth.server";
 import { PageHeader } from "../components/PageHeader";
 
 export const meta: MetaFunction = () => {
@@ -22,7 +22,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     throw redirect("/ingen-tilgang");
   }
 
-  await oboExchange(request);
+  await setupOpenApi(request);
   const krav = await RefusjonskravService.getRefusjonskrav({ orgnr: "123456789" });
 
   return json({ krav });

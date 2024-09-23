@@ -39,7 +39,6 @@ function setupOpenAPIClient({ base, token }: { base: string; token?: string }) {
 
 setupOpenAPIClient({
   base: process.env.VITE_MULIGHETSROMMET_API_BASE ?? "http://localhost:3000",
-  token: process.env.VITE_MULIGHETSROMMET_API_AUTH_TOKEN,
 });
 
 export default function handleRequest(
