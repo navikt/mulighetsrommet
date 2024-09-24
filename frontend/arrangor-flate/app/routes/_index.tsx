@@ -1,4 +1,4 @@
-import { RefusjonskravService, RefusjonskravStatus } from "@mr/api-client";
+import { RefusjonskravDto, RefusjonskravService } from "@mr/api-client";
 import { Heading, VStack } from "@navikt/ds-react";
 import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
@@ -23,15 +23,19 @@ export async function loader({ request }: LoaderFunctionArgs) {
   }
 
   await setupOpenApi(request);
-  const krav = await RefusjonskravService.getRefusjonskrav({ orgnr: "123456789" });
+  // TODO: Vi trenger en måte å velge orgrn på
+  // F. eks med bedriftsvelger (eller hva det heter) som min-side-arbeidsgiver bruker
+  const krav = await RefusjonskravService.getRefusjonskrav({
+    orgnr: tilganger.roller[0].organisasjonsnummer,
+  });
 
   return json({ krav });
 }
 
 export default function Refusjon() {
   const { krav } = useLoaderData<typeof loader>();
-  const historiske = krav.filter((k) => k.status === RefusjonskravStatus.ATTESTERT);
-  const aktive = krav.filter((k) => k.status !== RefusjonskravStatus.ATTESTERT);
+  const historiske: RefusjonskravDto[] = [];
+  const aktive = krav;
 
   return (
     <>
