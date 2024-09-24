@@ -11,8 +11,8 @@ import no.nav.mulighetsrommet.api.routes.internal.maamRoutes
 import no.nav.mulighetsrommet.api.routes.v1.*
 
 fun Route.apiRoutes(config: AppConfig) {
+    maamRoutes()
     authenticate(AuthProvider.AZURE_AD_TEAM_MULIGHETSROMMET) {
-        maamRoutes()
     }
 
     refusjonRoutes()

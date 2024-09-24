@@ -172,4 +172,4 @@ app:
     environment: development
 
   utdanning:
-    baseurl: https://utdanning.no
+    baseurl: https://public-staging.api.utdanning.no
