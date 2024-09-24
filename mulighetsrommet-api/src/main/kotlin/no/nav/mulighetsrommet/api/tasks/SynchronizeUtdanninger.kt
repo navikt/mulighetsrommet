@@ -64,26 +64,23 @@ class SynchronizeUtdanninger(
     suspend fun syncUtdanninger() {
         utdanningClient
             .getUtdanninger()
-            .collect { saveUtdanning(it) }
+            .forEach { saveUtdanning(it) }
     }
 
     private fun saveUtdanning(utdanning: Utdanning) {
-        val id = utdanning.sammenligning_id.substringAfter("u_")
-        val interesser = utdanning.interesse.map { it.title }
-        val sokeord = utdanning.sokeord.map { it.title }
-
         @Language("PostgreSQL")
         val query = """
-            insert into utdanning (id, utdanning_no_sammenligning_id, title, description, aktiv, utdanningstype, sokeord, interesser)
-            values (:id, :utdanning_no_sammenligning_id, :title, :description, true, :utdanningstype::utdanningstype[], :sokeord, :interesser)
-            on conflict (id) do update set
-                utdanning_no_sammenligning_id = excluded.utdanning_no_sammenligning_id,
-                title = excluded.title,
-                description = excluded.description,
-                studieretning = excluded.studieretning,
-                utdanningstype = excluded.utdanningstype::utdanningstype[],
-                sokeord = excluded.sokeord,
-                interesser = excluded.interesser
+            insert into utdanning (utdanning_id, programomradekode, navn, utdanningsprogram, sluttkompetanse, aktiv, utdanningstatus, utdanningslop, programlop_start)
+            values (:utdanning_id, :programomradekode, :navn, :utdanningsprogram::utdanning_program, :sluttkompetanse::utdanning_sluttkompetanse, :aktiv, :utdanningstatus::utdanning_status, :utdanningslop, :programlop_start )
+            on conflict (utdanning_id) do update set
+                programomradekode = excluded.programomradekode,
+                navn = excluded.navn,
+                utdanningsprogram = excluded.utdanningsprogram,
+                sluttkompetanse = excluded.sluttkompetanse,
+                aktiv = excluded.aktiv,
+                utdanningstatus = excluded.utdanningstatus,
+                utdanningslop = excluded.utdanningslop,
+                programlop_start = excluded.programlop_start
         """.trimIndent()
 
         @Language("PostgreSQL")
@@ -96,7 +93,7 @@ class SynchronizeUtdanninger(
 
         @Language("PostgreSQL")
         val nusKodeKoblingforUtdanningQuery = """
-            insert into utdanning_nus_kode(utdanning_id, nus_kode_id)
+            insert into utdanning_nus_kode(utdanning_id, nus_kode)
             values (:utdanning_id, :nus_kode_id)
         """.trimIndent()
 
@@ -104,47 +101,29 @@ class SynchronizeUtdanninger(
             queryOf(
                 query,
                 mapOf(
-                    "id" to id,
-                    "utdanning_no_sammenligning_id" to utdanning.sammenligning_id,
-                    "title" to utdanning.title,
-                    "description" to utdanning.body.summary,
-                    "utdanningstype" to tx.createArrayOf(
-                        "utdanningstype",
-                        utdanning.utdtype.map { getUtdanningstype(it.utdt_kode) },
-                    ),
-                    "sokeord" to db.createTextArray(sokeord),
-                    "interesser" to db.createTextArray(interesser),
+                    "utdanning_id" to utdanning.utdanningId,
+                    "programomradekode" to utdanning.programomradekode,
+                    "navn" to utdanning.navn,
+                    "utdanningsprogram" to utdanning.utdanningsprogram?.name,
+                    "sluttkompetanse" to utdanning.sluttkompetanse?.name,
+                    "aktiv" to utdanning.aktiv,
+                    "utdanningstatus" to utdanning.utdanningstatus.name,
+                    "utdanningslop" to db.createTextArray(utdanning.utdanningslop),
+                    "programlop_start" to utdanning.utdanningslop.first(),
                 ),
             ).asExecute.let { tx.run(it) }
 
-            utdanning.nus.forEach { nus ->
+            utdanning.nusKodeverk.forEach { nus ->
                 queryOf(
                     nuskodeInnholdInsertQuery,
-                    mapOf("title" to nus.title, "nus_kode" to nus.nus_kode),
+                    mapOf("title" to nus.navn, "nus_kode" to nus.kode),
                 ).asExecute.runWithSession(tx)
 
                 queryOf(
                     nusKodeKoblingforUtdanningQuery,
-                    mapOf("utdanning_id" to id, "nus_kode_id" to nus.nus_kode),
+                    mapOf("utdanning_id" to utdanning.utdanningId, "nus_kode_id" to nus.kode),
                 ).asExecute.let { tx.run(it) }
             }
         }
     }
-
-    private fun getUtdanningstype(utdtKode: String): Utdanningstype {
-        return when (utdtKode) {
-            "VS" -> Utdanningstype.VIDEREGAENDE
-            "UH" -> Utdanningstype.UNIVERSITET_OG_HOGSKOLE
-            "TO" -> Utdanningstype.TILSKUDDSORDNING
-            "FAG" -> Utdanningstype.FAGSKOLE
-            else -> throw IllegalArgumentException("Ukjent utdanningstype")
-        }
-    }
-}
-
-enum class Utdanningstype {
-    FAGSKOLE,
-    TILSKUDDSORDNING,
-    VIDEREGAENDE,
-    UNIVERSITET_OG_HOGSKOLE,
 }
