@@ -17,7 +17,7 @@ export async function getTilganger(request: Request): Promise<TilgangerResponse>
     return Promise.resolve({
       roller: [
         {
-          organisasjonsnummer: "974543036",
+          organisasjonsnummer: "919777710",
           roller: ["TILTAK_ARRANGOR_REFUSJON"],
         },
       ],

@@ -51,4 +51,7 @@ export const refusjonHandlers = [
   http.get<PathParams, RefusjonskravDto[]>("*/api/v1/intern/refusjon/:orgnr/krav", () =>
     HttpResponse.json(mockKrav),
   ),
+  http.get<PathParams, RefusjonskravDto[]>("*/api/v1/intern/refusjon/:orgnr/krav/:id", () =>
+    HttpResponse.json(mockKrav[1]),
+  ),
 ];
