@@ -143,6 +143,11 @@ class TiltakshistorikkService(
             tiltakstypeNavn = tiltakstype.navn,
             innsoktDato = null,
             sistEndretDato = null,
+            /**
+             * Eierskapet er satt til ARENA selv om deltakelsene kommer fra Komet.
+             * Det er først når deltakelsen også er tilgjengelig fra [AmtDeltakerClient.hentDeltakelser]
+             * at eierskapet er TEAM_KOMET.
+             */
             eierskap = DeltakerKort.Eierskap.ARENA,
         )
     }
