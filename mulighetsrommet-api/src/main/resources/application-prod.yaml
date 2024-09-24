@@ -173,4 +173,4 @@ app:
     environment: production
 
   utdanning:
-    baseurl: https://utdanning.no
+    baseurl: https://api.utdanning.no
