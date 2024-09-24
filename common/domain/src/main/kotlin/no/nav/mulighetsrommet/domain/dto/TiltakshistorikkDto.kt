@@ -122,7 +122,7 @@ data class TiltakshistorikkRequest(
 @Serializable
 data class TiltakshistorikkResponse(
     val historikk: List<Tiltakshistorikk>,
-    val meldinger: List<TiltakshistorikkMelding>,
+    val meldinger: Set<TiltakshistorikkMelding>,
 )
 
 enum class TiltakshistorikkMelding {

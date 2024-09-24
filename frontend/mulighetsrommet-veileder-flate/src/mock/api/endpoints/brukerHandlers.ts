@@ -1,17 +1,19 @@
-import { utkastFraKomet } from "@/mock/fixtures/mockKometUtkast";
+import { deltakelserAktive } from "@/mock/fixtures/mockDeltakelserAktive";
 import {
   Bruker,
   BrukerVarsel,
+  DeltakelserMelding,
   DeltakerKort,
   GetAktivDeltakelseForBrukerRequest,
   GetBrukerRequest,
-  GetHistorikkForBrukerRequest,
+  GetDeltakelserForBrukerRequest,
+  GetDeltakelserForBrukerResponse,
   Innsatsgruppe,
   NavEnhetStatus,
   NavEnhetType,
 } from "@mr/api-client";
 import { http, HttpResponse, PathParams } from "msw";
-import { historikkFraKomet } from "../../fixtures/mockKometHistorikk";
+import { deltakelserHistoriske } from "../../fixtures/mockDeltakelserHistoriske";
 
 export const brukerHandlers = [
   http.post<PathParams, GetBrukerRequest, Bruker | string>(
@@ -51,22 +53,35 @@ export const brukerHandlers = [
     },
   ),
 
-  http.post<PathParams, GetHistorikkForBrukerRequest, DeltakerKort[]>(
+  http.post<PathParams, GetDeltakelserForBrukerRequest, GetDeltakelserForBrukerResponse>(
+    "*/api/v1/intern/bruker/tiltakshistorikk",
+    async ({ request }) => {
+      const { type } = await request.json();
+      const response: GetDeltakelserForBrukerResponse = {
+        meldinger: [DeltakelserMelding.MANGLER_DELTAKELSER_FRA_TEAM_TILTAK],
+        deltakelser: type === "AKTIVE" ? deltakelserAktive : deltakelserHistoriske,
+      };
+      return HttpResponse.json(response);
+    },
+  ),
+
+  http.post<PathParams, GetDeltakelserForBrukerRequest, DeltakerKort[]>(
     "*/api/v1/intern/bruker/historikk",
     async ({ request }) => {
       const { type } = await request.json();
       if (type === "AKTIVE") {
-        return HttpResponse.json(utkastFraKomet);
+        return HttpResponse.json(deltakelserAktive);
       } else {
-        return HttpResponse.json(historikkFraKomet);
+        return HttpResponse.json(deltakelserHistoriske);
       }
     },
   ),
+
   http.post<PathParams, GetAktivDeltakelseForBrukerRequest, DeltakerKort>(
     "*/api/v1/intern/bruker/deltakelse-for-gjennomforing",
     async ({ request }) => {
       const { tiltaksgjennomforingId } = await request.json();
-      const found = utkastFraKomet.find(
+      const found = deltakelserAktive.find(
         (utkast) => utkast.tiltaksgjennomforingId == tiltaksgjennomforingId,
       );
       if (found) {

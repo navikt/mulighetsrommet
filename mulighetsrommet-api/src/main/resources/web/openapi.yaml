@@ -956,6 +956,25 @@ paths:
               schema:
                 $ref: "#/components/schemas/VeilederflateTiltak"
 
+  /api/v1/intern/bruker/tiltakshistorikk:
+    post:
+      tags:
+        - Historikk
+      operationId: getTiltakshistorikk
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GetDeltakelserForBrukerRequest"
+        required: true
+      responses:
+        200:
+          description: Brukerens deltakelser på arbeidsmarkedstiltak
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetDeltakelserForBrukerResponse"
+
   /api/v1/intern/bruker/historikk:
     post:
       tags:
@@ -965,7 +984,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/GetHistorikkForBrukerRequest"
+              $ref: "#/components/schemas/GetDeltakelserForBrukerRequest"
         required: true
       responses:
         200:
@@ -1923,7 +1942,7 @@ components:
       required:
         - norskIdent
 
-    GetHistorikkForBrukerRequest:
+    GetDeltakelserForBrukerRequest:
       type: object
       properties:
         norskIdent:
@@ -2963,20 +2982,26 @@ components:
         - ANNET
         - SAMARBEIDET_MED_ARRANGOREN_ER_AVBRUTT
 
-    DeltakelserResponseFraKomet:
+    GetDeltakelserForBrukerResponse:
       type: object
       properties:
-        aktive:
+        meldinger:
           type: array
           items:
-            $ref: "#/components/schemas/DeltakelseFraKomet"
-        historikk:
+            $ref: "#/components/schemas/DeltakelserMelding"
+        deltakelser:
           type: array
           items:
-            $ref: "#/components/schemas/DeltakelseFraKomet"
+            $ref: "#/components/schemas/DeltakerKort"
       required:
-        - aktive
-        - historikk
+        - meldinger
+        - deltakelser
+
+    DeltakelserMelding:
+      type: string
+      enum:
+        - MANGLER_SISTE_DELTAKELSER_FRA_TEAM_KOMET
+        - MANGLER_DELTAKELSER_FRA_TEAM_TILTAK
 
     DeltakerKort:
       type: object
@@ -2992,7 +3017,8 @@ components:
           type: string
           enum:
             - ARENA
-            - KOMET
+            - TEAM_KOMET
+            - TEAM_TILTAK
         tittel:
           type: string
         tiltakstypeNavn:

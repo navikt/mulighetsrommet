@@ -10,6 +10,7 @@ import no.nav.common.audit_log.cef.CefMessage
 import no.nav.common.audit_log.cef.CefMessageEvent
 import no.nav.common.audit_log.cef.CefMessageSeverity
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerError
+import no.nav.mulighetsrommet.api.domain.dto.DeltakerKort
 import no.nav.mulighetsrommet.api.plugins.getNavAnsattAzureId
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.responses.BadRequest
@@ -17,6 +18,7 @@ import no.nav.mulighetsrommet.api.responses.NotFound
 import no.nav.mulighetsrommet.api.responses.ServerError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponseError
 import no.nav.mulighetsrommet.api.services.BrukerService
+import no.nav.mulighetsrommet.api.services.DeltakelserMelding
 import no.nav.mulighetsrommet.api.services.PoaoTilgangService
 import no.nav.mulighetsrommet.api.services.TiltakshistorikkService
 import no.nav.mulighetsrommet.auditlog.AuditLog
@@ -41,6 +43,36 @@ fun Route.brukerRoutes() {
 
             val obo = AccessType.OBO(call.getAccessToken())
             call.respond(brukerService.hentBrukerdata(request.norskIdent, obo))
+        }
+
+        post("tiltakshistorikk") {
+            val (norskIdent, type) = call.receive<GetDeltakelserForBrukerRequest>()
+            val navIdent = getNavIdent()
+            val obo = AccessType.OBO(call.getAccessToken())
+
+            poaoTilgangService.verifyAccessToUserFromVeileder(getNavAnsattAzureId(), norskIdent)
+
+            val tiltakshistorikk = historikkService.hentHistorikk(norskIdent, obo)
+
+            val response = GetDeltakelserForBrukerResponse(
+                meldinger = tiltakshistorikk.meldinger,
+                deltakelser = when (type) {
+                    DeltakelsesType.AKTIVE -> tiltakshistorikk.aktive
+                    DeltakelsesType.HISTORISKE -> tiltakshistorikk.historiske
+                },
+            )
+
+            if (response.deltakelser.isNotEmpty()) {
+                val message = createAuditMessage(
+                    msg = "NAV-ansatt med ident: '$navIdent' har sett på $type tiltaksdeltakelser for bruker med ident: '$norskIdent'.",
+                    topic = "Vis tiltakshistorikk",
+                    navIdent = navIdent,
+                    norskIdent = norskIdent,
+                )
+                AuditLog.auditLogger.log(message)
+            }
+
+            call.respond(response)
         }
 
         post("historikk") {
@@ -113,6 +145,12 @@ enum class DeltakelsesType {
 data class GetDeltakelserForBrukerRequest(
     val norskIdent: NorskIdent,
     val type: DeltakelsesType,
+)
+
+@Serializable
+data class GetDeltakelserForBrukerResponse(
+    val meldinger: Set<DeltakelserMelding>,
+    val deltakelser: List<DeltakerKort>,
 )
 
 @Serializable

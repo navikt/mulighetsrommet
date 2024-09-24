@@ -99,7 +99,7 @@ class TiltakshistorikkServiceTest : FunSpec({
     val deltakerKortOppfolging = DeltakerKort(
         id = deltakelseOppfolging.id,
         tiltaksgjennomforingId = deltakelseOppfolging.gjennomforing.id,
-        eierskap = DeltakerKort.Eierskap.KOMET,
+        eierskap = DeltakerKort.Eierskap.TEAM_KOMET,
         tittel = "Oppfølging hos Fretex AS",
         tiltakstypeNavn = TiltakstypeFixtures.Oppfolging.navn,
         status = DeltakerKort.DeltakerStatus(
@@ -190,7 +190,7 @@ class TiltakshistorikkServiceTest : FunSpec({
     test("henter historikk for bruker basert på person id") {
         coEvery { tiltakshistorikkClient.historikk(any()) } returns TiltakshistorikkResponse(
             historikk = listOf(deltakelseOppfolging, deltakelseAvklaring, deltakelseArbeidstrening),
-            meldinger = listOf(),
+            meldinger = setOf(),
         )
 
         coEvery { amtDeltakerClient.hentDeltakelser(any(), any()) } returns Either.Right(
@@ -208,6 +208,7 @@ class TiltakshistorikkServiceTest : FunSpec({
         )
 
         historikk shouldBe Deltakelser(
+            meldinger = setOf(),
             aktive = listOf(deltakerKortArbeidstrening, deltakerKortOppfolging, deltakerKortAvklaring),
             historiske = emptyList(),
         )
@@ -216,7 +217,7 @@ class TiltakshistorikkServiceTest : FunSpec({
     test("inkluderer deltakelser fra komet når de ikke finnes i tiltakshistorikken") {
         coEvery { tiltakshistorikkClient.historikk(any()) } returns TiltakshistorikkResponse(
             historikk = listOf(deltakelseAvklaring),
-            meldinger = listOf(),
+            meldinger = setOf(),
         )
 
         coEvery { amtDeltakerClient.hentDeltakelser(any(), any()) } returns Either.Right(
@@ -234,6 +235,7 @@ class TiltakshistorikkServiceTest : FunSpec({
         )
 
         historikk shouldBe Deltakelser(
+            meldinger = setOf(),
             aktive = listOf(deltakerKortOppfolging, deltakerKortAvklaring),
             historiske = emptyList(),
         )
@@ -242,7 +244,7 @@ class TiltakshistorikkServiceTest : FunSpec({
     test("viser kun deltakelser fra tiltakshistorikken når det ikke returneres deltakelser fra komet") {
         coEvery { tiltakshistorikkClient.historikk(any()) } returns TiltakshistorikkResponse(
             historikk = listOf(deltakelseAvklaring),
-            meldinger = listOf(),
+            meldinger = setOf(),
         )
 
         coEvery { amtDeltakerClient.hentDeltakelser(any(), any()) } returns Either.Right(
@@ -260,6 +262,7 @@ class TiltakshistorikkServiceTest : FunSpec({
         )
 
         historikk shouldBe Deltakelser(
+            meldinger = setOf(),
             aktive = listOf(deltakerKortAvklaring),
             historiske = emptyList(),
         )
@@ -268,7 +271,7 @@ class TiltakshistorikkServiceTest : FunSpec({
     test("sorterer deltakelser basert nyeste startdato") {
         coEvery { tiltakshistorikkClient.historikk(any()) } returns TiltakshistorikkResponse(
             historikk = listOf(deltakelseAvklaring, deltakelseOppfolging),
-            meldinger = listOf(),
+            meldinger = setOf(),
         )
 
         val deltakelseOppfolgingUtenStartdato = deltakelseOppfolgingFraKomet.copy(
@@ -292,6 +295,7 @@ class TiltakshistorikkServiceTest : FunSpec({
         )
 
         historikk shouldBe Deltakelser(
+            meldinger = setOf(),
             aktive = listOf(
                 deltakelseOppfolgingUtenStartdato.toDeltakerKort(),
                 deltakerKortOppfolging,

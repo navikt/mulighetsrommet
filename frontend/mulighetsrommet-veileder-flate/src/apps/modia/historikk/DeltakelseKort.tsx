@@ -1,9 +1,10 @@
 import { DeltakerKort, DeltakerStatus, DeltakerStatusType } from "@mr/api-client";
-import { BodyShort, Box, Button, HGrid, HStack, Heading, Tag, VStack } from "@navikt/ds-react";
+import { BodyShort, Box, Button, Heading, HGrid, HStack, Tag, VStack } from "@navikt/ds-react";
 import classNames from "classnames";
-import { formaterDato } from "../../../utils/Utils";
+import { formaterDato } from "@/utils/Utils";
 import { ModiaRoute, resolveModiaRoute } from "../ModiaRoute";
 import styles from "./DeltakelseKort.module.scss";
+import { ReactNode } from "react";
 
 type Size = "small" | "medium" | "large";
 
@@ -17,10 +18,10 @@ export function DeltakelseKort({ deltakelse, size = "medium" }: Props) {
 
   const deltakelseRoute = resolveModiaRoute({
     route: ModiaRoute.ARBEIDSMARKEDSTILTAK_DELTAKELSE,
-    deltakerId: id!,
+    deltakerId: id,
   });
 
-  if (eierskap === "ARENA") {
+  if (eierskap === "ARENA" || eierskap === "TEAM_TILTAK") {
     return (
       <Wrapper size={size} deltakelse={deltakelse}>
         <Innhold deltakelse={deltakelse} />
@@ -48,7 +49,7 @@ function Wrapper({
   size: Size;
   deltakelse: DeltakerKort;
   onClick?: () => void;
-  children: React.ReactNode;
+  children: ReactNode;
 }) {
   return (
     <Box
@@ -56,10 +57,10 @@ function Wrapper({
       borderRadius="medium"
       padding={size === "small" ? "2" : size === "medium" ? "5" : "8"}
       className={classNames(styles.panel, {
-        [styles.utkast]: deltakelse?.status.type === DeltakerStatusType.UTKAST_TIL_PAMELDING,
+        [styles.utkast]: deltakelse.status.type === DeltakerStatusType.UTKAST_TIL_PAMELDING,
         [styles.kladd]:
-          deltakelse?.status.type === DeltakerStatusType.KLADD ||
-          deltakelse?.status.type === DeltakerStatusType.PABEGYNT_REGISTRERING,
+          deltakelse.status.type === DeltakerStatusType.KLADD ||
+          deltakelse.status.type === DeltakerStatusType.PABEGYNT_REGISTRERING,
       })}
     >
       {children}
@@ -85,9 +86,9 @@ function Innhold({ deltakelse }: { deltakelse: DeltakerKort }) {
         {status.aarsak ? <BodyShort size="small">Årsak: {status.aarsak}</BodyShort> : null}
         {periode?.startDato ? (
           <BodyShort size="small">
-            {periode?.startDato && !periode?.sluttDato
-              ? `Oppstartsdato ${formaterDato(periode?.startDato)}`
-              : [periode?.startDato, periode?.sluttDato]
+            {periode.startDato && !periode.sluttDato
+              ? `Oppstartsdato ${formaterDato(periode.startDato)}`
+              : [periode.startDato, periode.sluttDato]
                   .filter(Boolean)
                   .map((dato) => dato && formaterDato(dato))
                   .join(" - ")}
