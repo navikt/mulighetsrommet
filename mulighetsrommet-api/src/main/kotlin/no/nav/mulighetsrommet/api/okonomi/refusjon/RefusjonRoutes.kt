@@ -13,9 +13,8 @@ import no.nav.pdfgen.core.Environment
 import no.nav.pdfgen.core.PDFGenCore
 import no.nav.pdfgen.core.pdf.createHtmlFromTemplateData
 import no.nav.pdfgen.core.pdf.createPDFA
-import org.verapdf.gf.foundry.VeraGreenfieldFoundryProvider
-import java.util.*
 import org.koin.ktor.ext.inject
+import org.verapdf.gf.foundry.VeraGreenfieldFoundryProvider
 import java.time.LocalDate
 import java.util.*
 
