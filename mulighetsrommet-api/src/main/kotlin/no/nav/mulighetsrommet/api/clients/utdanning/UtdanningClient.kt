@@ -23,6 +23,14 @@ class UtdanningClient(engine: HttpClientEngine = CIO.create(), val config: Confi
 }
 
 @Serializable
+data class Programomrade(
+    val navn: String,
+    val nus_koder: List<String>,
+    val programomradekode: String,
+    val utdanningsprogram: Utdanning.Utdanningsprogram?,
+)
+
+@Serializable
 data class Utdanning(
     @SerialName("programomradekode10")
     val programomradekode: String,
@@ -41,6 +49,10 @@ data class Utdanning(
     @SerialName("nus")
     val nusKodeverk: List<Nuskodeverk>,
 ) {
+
+    fun toProgramomrade(): Programomrade {
+        return Programomrade(navn, emptyList(), programomradekode, utdanningsprogram)
+    }
 
     @Serializable
     data class Nuskodeverk(
