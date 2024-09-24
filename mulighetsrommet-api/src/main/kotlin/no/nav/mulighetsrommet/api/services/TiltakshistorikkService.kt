@@ -69,11 +69,7 @@ class TiltakshistorikkService(
     ): Deltakelser {
         if (NaisEnv.current().isProdGCP()) {
             log.debug("Henter ikke deltakelser fra Komet sitt API i prod")
-            return Deltakelser(
-                setOf(DeltakelserMelding.MANGLER_SISTE_DELTAKELSER_FRA_TEAM_KOMET),
-                emptyList(),
-                emptyList(),
-            )
+            return Deltakelser(setOf(), emptyList(), emptyList())
         }
 
         return amtDeltakerClient.hentDeltakelser(DeltakelserRequest(norskIdent), obo).fold({ error ->
