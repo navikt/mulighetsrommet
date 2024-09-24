@@ -25,7 +25,9 @@ class UtdanningClient(engine: HttpClientEngine = CIO.create(), val config: Confi
 @Serializable
 data class Utdanning(
     @SerialName("programomradekode10")
-    val id: String,
+    val programomradekode: String,
+    @SerialName("utdanningsbeskrivelse_uno_id")
+    val utdanningId: String? = null, // null for utdanningsprogram
     @SerialName("programomrade_tittel")
     val navn: String,
     @SerialName("utdanningsprogram_type")
@@ -36,17 +38,16 @@ data class Utdanning(
     val utdanningstatus: Utdanningstatus,
     @SerialName("canonical_path")
     val utdanningslop: List<String>,
-    val nus: List<Nuskodeverk>,
+    @SerialName("nus")
+    val nusKodeverk: List<Nuskodeverk>,
 ) {
-
-    fun erYrkesfagligOgAktiv(): Boolean {
-        return utdanningsprogram == Utdanningsprogram.YRKESFAGLIG
-    }
 
     @Serializable
     data class Nuskodeverk(
-        val nus_navn_nb: String,
-        val nus_kode: String,
+        @SerialName("nus_navn_nb")
+        val navn: String,
+        @SerialName("nus_kode")
+        val kode: String,
     )
 
     @Serializable
