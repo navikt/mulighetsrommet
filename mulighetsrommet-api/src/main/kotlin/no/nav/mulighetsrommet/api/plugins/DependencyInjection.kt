@@ -1,8 +1,6 @@
 package no.nav.mulighetsrommet.api.plugins
 
 import com.github.kagkarlsson.scheduler.Scheduler
-import com.nimbusds.jose.jwk.KeyUse
-import com.nimbusds.jose.jwk.RSAKey
 import io.ktor.server.application.*
 import kotlinx.coroutines.runBlocking
 import no.nav.common.client.axsys.AxsysClient
@@ -10,16 +8,11 @@ import no.nav.common.client.axsys.AxsysV2ClientImpl
 import no.nav.common.kafka.producer.util.KafkaProducerClientBuilder
 import no.nav.common.kafka.util.KafkaPropertiesBuilder
 import no.nav.common.kafka.util.KafkaPropertiesPreset
-import no.nav.common.token_client.builder.AzureAdTokenClientBuilder
-import no.nav.common.token_client.client.MachineToMachineTokenClient
-import no.nav.common.token_client.client.OnBehalfOfTokenClient
 import no.nav.mulighetsrommet.api.AppConfig
 import no.nav.mulighetsrommet.api.SlackConfig
 import no.nav.mulighetsrommet.api.TaskConfig
 import no.nav.mulighetsrommet.api.avtaler.AvtaleValidator
 import no.nav.mulighetsrommet.api.avtaler.OpsjonLoggValidator
-import no.nav.mulighetsrommet.api.clients.AccessType
-import no.nav.mulighetsrommet.api.clients.CachedTokenProvider
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
 import no.nav.mulighetsrommet.api.clients.arenaadapter.ArenaAdapterClient
 import no.nav.mulighetsrommet.api.clients.brreg.BrregClient
@@ -33,6 +26,8 @@ import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.clients.tiltakshistorikk.TiltakshistorikkClient
 import no.nav.mulighetsrommet.api.clients.utdanning.UtdanningClient
 import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClient
+import no.nav.mulighetsrommet.api.okonomi.refusjon.RefusjonService
+import no.nav.mulighetsrommet.api.okonomi.refusjon.RefusjonskravRepository
 import no.nav.mulighetsrommet.api.okonomi.tilsagn.TilsagnRepository
 import no.nav.mulighetsrommet.api.okonomi.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.okonomi.tilsagn.TilsagnValidator
@@ -57,6 +52,8 @@ import no.nav.mulighetsrommet.notifications.NotificationService
 import no.nav.mulighetsrommet.slack.SlackNotifier
 import no.nav.mulighetsrommet.slack.SlackNotifierImpl
 import no.nav.mulighetsrommet.tasks.DbSchedulerKotlinSerializer
+import no.nav.mulighetsrommet.tokenprovider.AccessType
+import no.nav.mulighetsrommet.tokenprovider.CachedTokenProvider
 import no.nav.mulighetsrommet.unleash.UnleashService
 import no.nav.mulighetsrommet.unleash.strategies.ByEnhetStrategy
 import no.nav.mulighetsrommet.unleash.strategies.ByNavIdentStrategy
@@ -68,9 +65,6 @@ import org.koin.core.module.Module
 import org.koin.dsl.module
 import org.koin.ktor.plugin.KoinIsolated
 import org.koin.logger.SLF4JLogger
-import java.security.KeyPairGenerator
-import java.security.interfaces.RSAPrivateKey
-import java.security.interfaces.RSAPublicKey
 
 fun Application.configureDependencyInjection(appConfig: AppConfig) {
     install(KoinIsolated) {
@@ -174,13 +168,12 @@ private fun repositories() = module {
     single { VeilederJoyrideRepository(get()) }
     single { OpsjonLoggRepository(get()) }
     single { TilsagnRepository(get()) }
+    single { RefusjonskravRepository(get()) }
 }
 
 private fun services(appConfig: AppConfig) = module {
-    val cachedTokenProvider = CachedTokenProvider(
-        m2mTokenProvider = createM2mTokenClient(appConfig),
-        oboTokenProvider = createOboTokenClient(appConfig),
-    )
+    val azure = appConfig.auth.azure
+    val cachedTokenProvider = CachedTokenProvider.init(azure.audience, azure.tokenEndpointUrl)
 
     single {
         VeilarboppfolgingClient(
@@ -320,6 +313,7 @@ private fun services(appConfig: AppConfig) = module {
     single { NavVeilederService(get()) }
     single { NotificationService(get(), get(), get()) }
     single { ArrangorService(get(), get()) }
+    single { RefusjonService(get(), get(), get(), get()) }
     single {
         val byEnhetStrategy = ByEnhetStrategy(get())
         val byNavidentStrategy = ByNavIdentStrategy()
@@ -345,6 +339,7 @@ private fun tasks(config: TaskConfig) = module {
     single { InitialLoadTiltakstyper(get(), get(), get(), get()) }
     single { SynchronizeNavAnsatte(config.synchronizeNavAnsatte, get(), get(), get()) }
     single { SynchronizeUtdanninger(get(), get(), config.synchronizeUtdanninger, get()) }
+    single { GenerateRefusjonskrav(config.generateRefusjonskrav, get(), get()) }
     single {
         val updateTiltaksgjennomforingStatus = UpdateTiltaksgjennomforingStatus(
             get(),
@@ -377,6 +372,7 @@ private fun tasks(config: TaskConfig) = module {
         val initialLoadTiltakstyper: InitialLoadTiltakstyper by inject()
         val synchronizeNavAnsatte: SynchronizeNavAnsatte by inject()
         val synchronizeUtdanninger: SynchronizeUtdanninger by inject()
+        val generateRefusjonskrav: GenerateRefusjonskrav by inject()
 
         val db: Database by inject()
 
@@ -397,41 +393,9 @@ private fun tasks(config: TaskConfig) = module {
                 notifySluttdatoForAvtalerNarmerSeg.task,
                 notifyFailedKafkaEvents.task,
                 updateApentForInnsok.task,
+                generateRefusjonskrav.task,
             )
             .serializer(DbSchedulerKotlinSerializer())
-            .registerShutdownHook()
             .build()
     }
 }
-
-private fun createOboTokenClient(config: AppConfig): OnBehalfOfTokenClient = when (NaisEnv.current()) {
-    NaisEnv.Local -> AzureAdTokenClientBuilder.builder()
-        .withClientId(config.auth.azure.audience)
-        .withPrivateJwk(createMockRSAKey("azure").toJSONString())
-        .withTokenEndpointUrl(config.auth.azure.tokenEndpointUrl)
-        .buildOnBehalfOfTokenClient()
-
-    else -> AzureAdTokenClientBuilder.builder().withNaisDefaults().buildOnBehalfOfTokenClient()
-}
-
-private fun createM2mTokenClient(config: AppConfig): MachineToMachineTokenClient = when (NaisEnv.current()) {
-    NaisEnv.Local -> AzureAdTokenClientBuilder.builder()
-        .withClientId(config.auth.azure.audience)
-        .withPrivateJwk(createMockRSAKey("azure").toJSONString())
-        .withTokenEndpointUrl(config.auth.azure.tokenEndpointUrl)
-        .buildMachineToMachineTokenClient()
-
-    else -> AzureAdTokenClientBuilder.builder().withNaisDefaults().buildMachineToMachineTokenClient()
-}
-
-private fun createMockRSAKey(keyID: String): RSAKey = KeyPairGenerator
-    .getInstance("RSA").let {
-        it.initialize(2048)
-        it.generateKeyPair()
-    }.let {
-        RSAKey.Builder(it.public as RSAPublicKey)
-            .privateKey(it.private as RSAPrivateKey)
-            .keyUse(KeyUse.SIGNATURE)
-            .keyID(keyID)
-            .build()
-    }

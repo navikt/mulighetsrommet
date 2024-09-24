@@ -25,58 +25,98 @@ data class VeilederflateInnsatsgruppe(
 @Serializable
 sealed class VeilederflateTiltak {
     abstract val tiltakstype: VeilederflateTiltakstype
-    abstract val tiltaksnummer: String?
-    abstract val navn: String
+    abstract val tittel: String
+    abstract val underTittel: String
     abstract val status: TiltaksgjennomforingStatusDto
     abstract val beskrivelse: String?
     abstract val faneinnhold: Faneinnhold?
     abstract val kontaktinfo: VeilederflateKontaktinfo
     abstract val oppstart: TiltaksgjennomforingOppstartstype
     abstract val stedForGjennomforing: String?
+    abstract val fylke: String
+    abstract val enheter: List<String>
 }
 
 @Serializable
 @SerialName("TILTAK_GRUPPE")
 data class VeilederflateTiltakGruppe(
     override val tiltakstype: VeilederflateTiltakstype,
-    override val tiltaksnummer: String?,
-    override val navn: String,
+    override val tittel: String,
+    override val underTittel: String,
     override val status: TiltaksgjennomforingStatusDto,
     override val beskrivelse: String?,
     override val faneinnhold: Faneinnhold?,
     override val kontaktinfo: VeilederflateKontaktinfo,
     override val oppstart: TiltaksgjennomforingOppstartstype,
     override val stedForGjennomforing: String?,
+    override val fylke: String,
+    override val enheter: List<String>,
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
+    val tiltaksnummer: String?,
     val apentForInnsok: Boolean,
     @Serializable(with = LocalDateSerializer::class)
     val oppstartsdato: LocalDate,
     @Serializable(with = LocalDateSerializer::class)
     val sluttdato: LocalDate?,
     val arrangor: VeilederflateArrangor,
-    val fylke: String?,
-    val enheter: List<String>,
     val estimertVentetid: EstimertVentetid?,
     val personvernBekreftet: Boolean,
     val personopplysningerSomKanBehandles: List<PersonopplysningData>,
 ) : VeilederflateTiltak()
 
 @Serializable
-@SerialName("TILTAK_ARBEIDSGIVER")
-data class VeilederflateTiltakArbeidsgiver(
+@SerialName("TILTAK_ENKELTPLASS_ANSKAFFET")
+data class VeilederflateTiltakEnkeltplassAnskaffet(
     override val tiltakstype: VeilederflateTiltakstype,
-    override val tiltaksnummer: String?,
+    override val tittel: String,
+    override val underTittel: String,
     override val status: TiltaksgjennomforingStatusDto,
     override val beskrivelse: String?,
     override val faneinnhold: Faneinnhold?,
     override val kontaktinfo: VeilederflateKontaktinfo,
     override val oppstart: TiltaksgjennomforingOppstartstype,
-    override val navn: String,
     override val stedForGjennomforing: String?,
+    override val fylke: String,
+    override val enheter: List<String>,
     val sanityId: String,
-    val fylke: String?,
-    val enheter: List<String>?,
+    val tiltaksnummer: String?,
+    val arrangor: VeilederflateArrangor,
+) : VeilederflateTiltak()
+
+@Serializable
+@SerialName("TILTAK_EGEN_REGI")
+data class VeilederflateTiltakEgenRegi(
+    override val tiltakstype: VeilederflateTiltakstype,
+    override val tittel: String,
+    override val underTittel: String,
+    override val status: TiltaksgjennomforingStatusDto,
+    override val beskrivelse: String?,
+    override val faneinnhold: Faneinnhold?,
+    override val kontaktinfo: VeilederflateKontaktinfo,
+    override val oppstart: TiltaksgjennomforingOppstartstype,
+    override val stedForGjennomforing: String?,
+    override val fylke: String,
+    override val enheter: List<String>,
+    val sanityId: String,
+    val tiltaksnummer: String?,
+) : VeilederflateTiltak()
+
+@Serializable
+@SerialName("TILTAK_ENKELTPLASS")
+data class VeilederflateTiltakEnkeltplass(
+    override val tiltakstype: VeilederflateTiltakstype,
+    override val tittel: String,
+    override val underTittel: String,
+    override val status: TiltaksgjennomforingStatusDto,
+    override val beskrivelse: String?,
+    override val faneinnhold: Faneinnhold?,
+    override val kontaktinfo: VeilederflateKontaktinfo,
+    override val oppstart: TiltaksgjennomforingOppstartstype,
+    override val stedForGjennomforing: String?,
+    override val fylke: String,
+    override val enheter: List<String>,
+    val sanityId: String,
 ) : VeilederflateTiltak()
 
 @Serializable

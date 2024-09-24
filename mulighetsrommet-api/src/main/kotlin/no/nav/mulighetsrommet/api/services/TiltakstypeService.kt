@@ -2,7 +2,7 @@ package no.nav.mulighetsrommet.api.services
 
 import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
-import no.nav.mulighetsrommet.api.domain.dto.TiltakstypeAdminDto
+import no.nav.mulighetsrommet.api.domain.dto.TiltakstypeDto
 import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.api.responses.PaginatedResponse
 import no.nav.mulighetsrommet.api.routes.v1.TiltakstypeFilter
@@ -17,7 +17,7 @@ class TiltakstypeService(
     private val enabledTiltakskoder: List<Tiltakskode>,
 ) {
 
-    private val cacheBySanityId: Cache<UUID, TiltakstypeAdminDto> = Caffeine.newBuilder()
+    private val cacheBySanityId: Cache<UUID, TiltakstypeDto> = Caffeine.newBuilder()
         .expireAfterWrite(30, TimeUnit.MINUTES)
         .maximumSize(500)
         .recordStats()
@@ -28,7 +28,7 @@ class TiltakstypeService(
     fun getAll(
         filter: TiltakstypeFilter,
         pagination: Pagination,
-    ): PaginatedResponse<TiltakstypeAdminDto> {
+    ): PaginatedResponse<TiltakstypeDto> {
         val (totalCount, items) = tiltakstypeRepository.getAllSkalMigreres(
             pagination = pagination,
             sortering = filter.sortering,
@@ -37,12 +37,12 @@ class TiltakstypeService(
         return PaginatedResponse.of(pagination, totalCount, items)
     }
 
-    fun getById(id: UUID): TiltakstypeAdminDto? {
+    fun getById(id: UUID): TiltakstypeDto? {
         return tiltakstypeRepository.get(id)
     }
 
-    fun getBySanityId(sanityId: UUID): TiltakstypeAdminDto? {
-        return CacheUtils.tryCacheFirstNullable(cacheBySanityId, sanityId) {
+    fun getBySanityId(sanityId: UUID): TiltakstypeDto {
+        return CacheUtils.tryCacheFirstNotNull(cacheBySanityId, sanityId) {
             tiltakstypeRepository.getBySanityId(sanityId)
         }
     }

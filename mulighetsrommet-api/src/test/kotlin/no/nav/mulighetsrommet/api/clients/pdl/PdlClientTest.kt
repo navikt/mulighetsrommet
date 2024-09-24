@@ -7,8 +7,8 @@ import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import io.ktor.client.engine.mock.*
 import io.ktor.http.*
-import no.nav.mulighetsrommet.api.clients.AccessType
 import no.nav.mulighetsrommet.ktor.createMockEngine
+import no.nav.mulighetsrommet.tokenprovider.AccessType
 
 class PdlClientTest : FunSpec({
     test("Missing errors is parsed ok") {

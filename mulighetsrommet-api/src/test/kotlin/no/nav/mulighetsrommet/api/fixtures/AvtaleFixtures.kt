@@ -5,6 +5,7 @@ import no.nav.mulighetsrommet.api.routes.v1.AvtaleRequest
 import no.nav.mulighetsrommet.api.routes.v1.Opsjonsmodell
 import no.nav.mulighetsrommet.api.routes.v1.OpsjonsmodellData
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
+import no.nav.mulighetsrommet.domain.dto.Faneinnhold
 import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.domain.dto.Websaknummer
 import java.time.LocalDate
@@ -80,7 +81,7 @@ object AvtaleFixtures {
         navEnheter = listOf("0400", "0502"),
         antallPlasser = null,
         beskrivelse = null,
-        faneinnhold = null,
+        faneinnhold = Faneinnhold(kurstittel = "Min kurstittel"),
         personopplysninger = emptyList(),
         personvernBekreftet = false,
         amoKategorisering = null,
@@ -180,6 +181,32 @@ object AvtaleFixtures {
         sluttDato = null,
         avtaletype = Avtaletype.Forhaandsgodkjent,
         prisbetingelser = null,
+        administratorer = listOf(NavIdent("DD1")),
+        navEnheter = listOf("0400", "0502"),
+        antallPlasser = null,
+        beskrivelse = null,
+        faneinnhold = null,
+        personopplysninger = emptyList(),
+        personvernBekreftet = false,
+        amoKategorisering = null,
+        opsjonMaksVarighet = LocalDate.now().plusYears(3),
+        opsjonsmodell = Opsjonsmodell.TO_PLUSS_EN,
+        customOpsjonsmodellNavn = null,
+    )
+
+    val jobbklubb = AvtaleDbo(
+        id = UUID.randomUUID(),
+        navn = "Jobbklubb avtale",
+        avtalenummer = "2023#13",
+        websaknummer = Websaknummer("24/3234"),
+        tiltakstypeId = TiltakstypeFixtures.Jobbklubb.id,
+        arrangorId = ArrangorFixtures.hovedenhet.id,
+        arrangorUnderenheter = listOf(ArrangorFixtures.underenhet1.id),
+        arrangorKontaktpersoner = emptyList(),
+        startDato = LocalDate.of(2023, 1, 1),
+        sluttDato = LocalDate.now().plusMonths(3),
+        avtaletype = Avtaletype.Rammeavtale,
+        prisbetingelser = "Alt er dyrt",
         administratorer = listOf(NavIdent("DD1")),
         navEnheter = listOf("0400", "0502"),
         antallPlasser = null,

@@ -31,6 +31,7 @@ data class MulighetsrommetTestDomain(
         AvtaleFixtures.oppfolging,
         AvtaleFixtures.VTA,
         AvtaleFixtures.AFT,
+        AvtaleFixtures.jobbklubb,
         AvtaleFixtures.EnkelAmo,
     ),
     val gjennomforinger: List<TiltaksgjennomforingDbo> = listOf(),

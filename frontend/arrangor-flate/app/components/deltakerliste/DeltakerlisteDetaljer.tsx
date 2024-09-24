@@ -1,4 +1,5 @@
 import { Deltakerliste } from "../../domene/domene";
+import { Definisjonsliste } from "../Definisjonsliste";
 
 interface Props {
   deltakerliste: Deltakerliste;
@@ -7,15 +8,14 @@ interface Props {
 export function DeltakerlisteDetaljer({ deltakerliste }: Props) {
   const { tiltaksnavn, tiltaksnummer, avtalenavn, tiltakstype } = deltakerliste.detaljer;
   return (
-    <dl className="prose mt-5">
-      <dt>Tiltaksnavn:</dt>
-      <dd>{tiltaksnavn}</dd>
-      <dt>Tiltaksnummer:</dt>
-      <dd>{tiltaksnummer}</dd>
-      <dt>Avtalenavn:</dt>
-      <dd>{avtalenavn}</dd>
-      <dt>Tiltakstype:</dt>
-      <dd>{tiltakstype}</dd>
-    </dl>
+    <Definisjonsliste
+      title="Generelt"
+      definitions={[
+        { key: "Tiltaksnavn", value: tiltaksnavn },
+        { key: "Tiltaksnummer", value: tiltaksnummer },
+        { key: "Avtale", value: avtalenavn },
+        { key: "Tiltakstype", value: tiltakstype },
+      ]}
+    />
   );
 }

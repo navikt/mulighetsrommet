@@ -30,6 +30,8 @@ tasks.shadowJar {
 }
 
 dependencies {
+    implementation(projects.common.nais)
+    implementation(projects.common.tokenProvider)
     implementation(projects.common.domain)
     implementation(projects.common.database)
     testImplementation(testFixtures(projects.common.database))
@@ -59,13 +61,6 @@ dependencies {
     implementation(libs.ktor.server.defaultHeaders)
     implementation(libs.ktor.server.metricsMicrometer)
     testImplementation(libs.ktor.server.tests)
-
-    implementation(libs.nav.common.tokenClient)
-    constraints {
-        implementation("net.minidev:json-smart:2.5.1") {
-            because("sikkerhetshull i transitiv avhengighet rapportert via snyk")
-        }
-    }
 
     // Test
     testImplementation(libs.kotest.junit)

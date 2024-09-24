@@ -1,8 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ExclamationmarkTriangleFillIcon } from "@navikt/aksel-icons";
 import { Tabs } from "@navikt/ds-react";
 import { useAtom } from "jotai";
-import { Avtale, Tiltaksgjennomforing, TiltaksgjennomforingRequest } from "@mr/api-client";
+import { AvtaleDto, TiltaksgjennomforingDto, TiltaksgjennomforingRequest } from "@mr/api-client";
 import { DeepPartial, FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { v4 as uuidv4 } from "uuid";
 import { gjennomforingDetaljerTabAtom } from "@/api/atoms";
@@ -19,12 +18,13 @@ import { TiltaksgjennomforingSkjemaDetaljer } from "./TiltaksgjennomforingSkjema
 import { TiltaksgjennomforingSkjemaKnapperad } from "./TiltaksgjennomforingSkjemaKnapperad";
 import { logEvent } from "@/logging/amplitude";
 import { RedaksjoneltInnholdBunnKnapperad } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdBunnKnapperad";
+import { TabWithErrorBorder } from "../skjema/TabWithErrorBorder";
 
 interface Props {
   onClose: () => void;
   onSuccess: (id: string) => void;
-  avtale: Avtale;
-  tiltaksgjennomforing?: Tiltaksgjennomforing;
+  avtale: AvtaleDto;
+  tiltaksgjennomforing?: TiltaksgjennomforingDto;
   defaultValues: DeepPartial<InferredTiltaksgjennomforingSchema>;
 }
 
@@ -123,7 +123,8 @@ export function TiltaksgjennomforingSkjemaContainer({
     },
   );
 
-  const hasErrors = () => Object.keys(errors).length > 0;
+  const hasRedaksjoneltInnholdErrors = Boolean(errors?.faneinnhold);
+  const hasDetaljerErrors = Object.keys(errors).length > (hasRedaksjoneltInnholdErrors ? 1 : 0);
 
   return (
     <FormProvider {...form}>
@@ -131,27 +132,17 @@ export function TiltaksgjennomforingSkjemaContainer({
         <Tabs defaultValue={activeTab}>
           <Tabs.List className={styles.tabslist}>
             <div>
-              <Tabs.Tab
+              <TabWithErrorBorder
                 onClick={() => setActiveTab("detaljer")}
-                style={{
-                  border: hasErrors() ? "solid 2px #C30000" : "",
-                  borderRadius: hasErrors() ? "8px" : 0,
-                }}
                 value="detaljer"
-                label={
-                  hasErrors() ? (
-                    <span style={{ display: "flex", alignContent: "baseline", gap: "0.4rem" }}>
-                      <ExclamationmarkTriangleFillIcon aria-label="Detaljer" /> Detaljer
-                    </span>
-                  ) : (
-                    "Detaljer"
-                  )
-                }
+                label="Detaljer"
+                hasError={hasDetaljerErrors}
               />
-              <Tabs.Tab
+              <TabWithErrorBorder
                 onClick={() => setActiveTab("redaksjonelt-innhold")}
                 value="redaksjonelt-innhold"
                 label="Redaksjonelt innhold"
+                hasError={hasRedaksjoneltInnholdErrors}
               />
             </div>
             <TiltaksgjennomforingSkjemaKnapperad

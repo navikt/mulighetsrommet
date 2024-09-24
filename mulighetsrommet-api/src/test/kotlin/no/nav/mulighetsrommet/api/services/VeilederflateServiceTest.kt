@@ -3,37 +3,71 @@ package no.nav.mulighetsrommet.api.services
 import arrow.core.nonEmptyListOf
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.should
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.shouldBeInstanceOf
 import io.mockk.clearMocks
 import io.mockk.coEvery
 import io.mockk.coVerify
-import io.mockk.every
 import io.mockk.mockk
 import kotlinx.serialization.json.Json
-import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
+import kotliquery.Query
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
-import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
-import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
+import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dto.SanityResponse
+import no.nav.mulighetsrommet.api.domain.dto.VeilederflateTiltakEnkeltplassAnskaffet
+import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
+import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures
+import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
+import no.nav.mulighetsrommet.api.repositories.NavEnhetRepository
+import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
+import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.api.routes.v1.ApentForInnsok
+import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.domain.dto.Innsatsgruppe
 import java.util.*
 
 class VeilederflateServiceTest : FunSpec({
-    val sanityClient: SanityClient = mockk(relaxed = true)
-    val tiltaksgjennomforingService: TiltaksgjennomforingService = mockk(relaxed = true)
-    val tiltakstypeService: TiltakstypeService = mockk(relaxed = true)
-    val navEnhetService: NavEnhetService = mockk()
+    val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
 
-    every { navEnhetService.hentOverordnetFylkesenhet("0430") } returns NavEnhetDbo(
-        navn = "NAV Innlandet",
-        enhetsnummer = "0400",
-        status = NavEnhetStatus.AKTIV,
-        type = Norg2Type.FYLKE,
-        overordnetEnhet = null,
+    val domain = MulighetsrommetTestDomain(
+        enheter = listOf(
+            NavEnhetFixtures.Innlandet,
+            NavEnhetFixtures.Lillehammer,
+            NavEnhetFixtures.Oslo,
+        ),
+        ansatte = emptyList(),
+        arrangorer = emptyList(),
+        tiltakstyper = listOf(
+            TiltakstypeFixtures.EnkelAmo,
+            TiltakstypeFixtures.Arbeidstrening,
+        ),
+        avtaler = emptyList(),
+        gjennomforinger = emptyList(),
     )
 
-    val sanityGjennomforingInnlandet = UUID.fromString("8d8a73bc-b661-4efd-90fc-2c59b258200e")
-    val sanityGjennomforingStorElvdal = UUID.fromString("f21d1e35-d63b-4de7-a0a5-589e57111527")
+    val enkelAmoSanityId = UUID.randomUUID()
+    val arbeidstreningSanityId = UUID.randomUUID()
+
+    beforeEach {
+        domain.initialize(database.db)
+
+        listOf(
+            Query("update tiltakstype set sanity_id = '$enkelAmoSanityId' where id = '${TiltakstypeFixtures.EnkelAmo.id}'"),
+            Query("update tiltakstype set sanity_id = '$arbeidstreningSanityId' where id = '${TiltakstypeFixtures.Arbeidstrening.id}'"),
+        ).forEach {
+            database.db.run(it.asExecute)
+        }
+    }
+
+    val sanityClient: SanityClient = mockk(relaxed = true)
+
+    fun createVeilederflateService(): VeilederflateService = VeilederflateService(
+        sanityClient = sanityClient,
+        tiltaksgjennomforingRepository = TiltaksgjennomforingRepository(database.db),
+        tiltakstypeService = TiltakstypeService(TiltakstypeRepository(database.db), listOf()),
+        navEnhetService = NavEnhetService(NavEnhetRepository(database.db)),
+    )
 
     beforeEach {
         clearMocks(sanityClient)
@@ -46,28 +80,42 @@ class VeilederflateServiceTest : FunSpec({
             """
         [
             {
-                "_id": "8d8a5020-329d-4fbf-9eb2-20fc8a753a57",
-                "tiltaksgjennomforingNavn": "Arbeidsrettet norsk for minoritetsspråklige i Trondheim",
-                "enheter": [],
+                "_id": "6c64a4bd-2ae1-4aee-ad19-716884bf3b5e",
+                "tiltaksgjennomforingNavn": "Enkel AMO",
                 "oppstart": null,
                 "oppstartsdato": null,
                 "stedForGjennomforing": null,
                 "tiltaksnummer": "2023#176408",
                 "tiltakstype": {
-                    "_id": "${UUID.randomUUID()}",
-                    "tiltakstypeNavn": "Opplæring - Gruppe AMO",
+                    "_id": "$enkelAmoSanityId",
+                    "tiltakstypeNavn": "Arbeidsmarkedsopplæring (enkeltplass)",
                     "innsatsgrupper": ["SITUASJONSBESTEMT_INNSATS", "SPESIELT_TILPASSET_INNSATS", "GRADERT_VARIG_TILPASSET_INNSATS", "VARIG_TILPASSET_INNSATS"]
                 },
-                "fylke": null
+                "fylke": "0300",
+                "enheter": [],
+                "arrangor": {
+                    "_id": "${UUID.randomUUID()}",
+                    "navn": "Fretex",
+                    "organisasjonsnummer": null,
+                    "kontaktpersoner": [
+                        {
+                            "_id": "${UUID.randomUUID()}",
+                            "navn": "Donald",
+                            "telefon": "12341234",
+                            "epost": "donald@fretex.no",
+                            "beskrivelse": "Daglig leder"
+                        }
+                    ]
+                }
             },
             {
-                "_id": "$sanityGjennomforingInnlandet",
-                "tiltaksgjennomforingNavn": "Oppfølging Malvik",
-                "tiltaksnummer": "2023#199282",
-                "stedForGjennomforing": "Oslo",
+                "_id": "f21d1e35-d63b-4de7-a0a5-589e57111527",
+                "tiltaksgjennomforingNavn": "Arbeidstrening Innlandet",
+                "tiltaksnummer": null,
+                "stedForGjennomforing": "Innlandet",
                 "tiltakstype": {
-                    "_id": "${UUID.randomUUID()}",
-                    "tiltakstypeNavn": "Individuelt Tiltak",
+                    "_id": "$arbeidstreningSanityId",
+                    "tiltakstypeNavn": "Arbeidstrening",
                     "innsatsgrupper": ["SITUASJONSBESTEMT_INNSATS", "SPESIELT_TILPASSET_INNSATS", "GRADERT_VARIG_TILPASSET_INNSATS", "VARIG_TILPASSET_INNSATS"]
                 },
                 "fylke": "0400",
@@ -76,19 +124,19 @@ class VeilederflateServiceTest : FunSpec({
                 "enheter": null
             },
             {
-                "_id": "$sanityGjennomforingStorElvdal",
-                "tiltaksgjennomforingNavn": "Oppfølging for døve og personer med hørselshemming - Innlandet",
+                "_id": "82cebdb9-24ef-4f6d-b6b2-6ed45c67d3b6",
+                "tiltaksgjennomforingNavn": "Arbeidstrening",
                 "oppstart": "dato",
                 "stedForGjennomforing": null,
                 "oppstartsdato": "2020-11-02",
-                "tiltaksnummer": "2022#116075",
+                "tiltaksnummer": null,
                 "fylke": "0400",
                 "tiltakstype": {
-                    "_id": "${UUID.randomUUID()}",
-                    "tiltakstypeNavn": "Oppfølging",
+                    "_id": "$arbeidstreningSanityId",
+                    "tiltakstypeNavn": "Arbeidstrening",
                     "innsatsgrupper": ["SITUASJONSBESTEMT_INNSATS", "SPESIELT_TILPASSET_INNSATS", "GRADERT_VARIG_TILPASSET_INNSATS", "VARIG_TILPASSET_INNSATS"]
                 },
-                "enheter": ["0430"],
+                "enheter": ["0501"],
                 "faneinnhold": { "forHvemInfoboks": "infoboks" }
             }
         ]
@@ -96,41 +144,46 @@ class VeilederflateServiceTest : FunSpec({
         ),
     )
 
-    test("henter ikke gjennomføringer fra Sanity når filter for 'Åpent for innsøk' er STENGT") {
-        val veilederFlateService = VeilederflateService(
-            sanityClient,
-            tiltaksgjennomforingService,
-            tiltakstypeService,
-            navEnhetService,
+    test("utleder gjennomføringer som enkeltplass anskaffet tiltak når de har arrangør") {
+        val veilederFlateService = createVeilederflateService()
+
+        coEvery { sanityClient.query(any(), any()) } returns sanityResult
+
+        val tiltak = veilederFlateService.hentTiltaksgjennomforinger(
+            enheter = nonEmptyListOf("0300"),
+            apentForInnsok = ApentForInnsok.APENT,
+            innsatsgruppe = Innsatsgruppe.SPESIELT_TILPASSET_INNSATS,
+            cacheUsage = CacheUsage.NoCache,
         )
-        every {
-            tiltaksgjennomforingService.getAllVeilederflateTiltaksgjennomforing(
-                any(),
-                any(),
-                any(),
-                any(),
-                any(),
-            )
-        } returns listOf()
+
+        tiltak shouldHaveSize 1
+
+        tiltak.first().shouldBeInstanceOf<VeilederflateTiltakEnkeltplassAnskaffet>().should {
+            it.arrangor.selskapsnavn shouldBe "Fretex"
+        }
+    }
+
+    test("henter ikke gjennomføringer fra Sanity når filter for 'Åpent for innsøk' er STENGT") {
+        val veilederFlateService = createVeilederflateService()
 
         coEvery { sanityClient.query(any(), any()) } returns sanityResult
 
         veilederFlateService.hentTiltaksgjennomforinger(
-            enheter = nonEmptyListOf("0430"),
+            enheter = nonEmptyListOf("0501"),
             apentForInnsok = ApentForInnsok.APENT,
             innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
             cacheUsage = CacheUsage.NoCache,
         ) shouldHaveSize 2
 
         veilederFlateService.hentTiltaksgjennomforinger(
-            enheter = nonEmptyListOf("0430"),
+            enheter = nonEmptyListOf("0501"),
             apentForInnsok = ApentForInnsok.APENT_ELLER_STENGT,
             innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
             cacheUsage = CacheUsage.NoCache,
         ) shouldHaveSize 2
 
         veilederFlateService.hentTiltaksgjennomforinger(
-            enheter = nonEmptyListOf("0430"),
+            enheter = nonEmptyListOf("0501"),
             apentForInnsok = ApentForInnsok.STENGT,
             innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
             cacheUsage = CacheUsage.NoCache,
@@ -138,33 +191,19 @@ class VeilederflateServiceTest : FunSpec({
     }
 
     test("Med UseCache kalles sanity kun én gang") {
-        val veilederFlateService = VeilederflateService(
-            sanityClient,
-            tiltaksgjennomforingService,
-            tiltakstypeService,
-            navEnhetService,
-        )
-        every {
-            tiltaksgjennomforingService.getAllVeilederflateTiltaksgjennomforing(
-                any(),
-                any(),
-                any(),
-                any(),
-                any(),
-            )
-        } returns listOf()
+        val veilederFlateService = createVeilederflateService()
 
         coEvery { sanityClient.query(any(), any()) } returns sanityResult
 
         veilederFlateService.hentTiltaksgjennomforinger(
-            enheter = nonEmptyListOf("0430"),
+            enheter = nonEmptyListOf("0501"),
             apentForInnsok = ApentForInnsok.APENT,
             innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
             cacheUsage = CacheUsage.UseCache,
         ) shouldHaveSize 2
 
         veilederFlateService.hentTiltaksgjennomforinger(
-            enheter = nonEmptyListOf("0430"),
+            enheter = nonEmptyListOf("0501"),
             apentForInnsok = ApentForInnsok.APENT,
             innsatsgruppe = Innsatsgruppe.VARIG_TILPASSET_INNSATS,
             cacheUsage = CacheUsage.UseCache,

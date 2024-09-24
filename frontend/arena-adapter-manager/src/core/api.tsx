@@ -111,7 +111,8 @@ export type MrApiTask =
   | "initial-load-tiltakstyper"
   | "initial-load-tiltaksgjennomforinger"
   | "sync-navansatte"
-  | "sync-utdanning";
+  | "sync-utdanning"
+  | "generate-refusjonskrav";
 
 export const runTask = (base: ApiBase, task: MrApiTask, input?: object) =>
   fetch(`${base}/tasks/${task}`, {

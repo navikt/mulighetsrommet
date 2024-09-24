@@ -1,8 +1,8 @@
 import { Tag } from "@navikt/ds-react";
-import { Tiltakstype, TiltakstypeStatus } from "@mr/api-client";
+import { TiltakstypeDto, TiltakstypeStatus } from "@mr/api-client";
 
 interface Props {
-  tiltakstype: Tiltakstype;
+  tiltakstype: TiltakstypeDto;
 }
 
 export function TiltakstypestatusTag({ tiltakstype }: Props) {

@@ -23,3 +23,8 @@ app:
       sisteTiltaksgjennomforingerV1:
         id: siste-tiltaksgjennomforinger
         topic: team-mulighetsrommet.siste-tiltaksgjennomforinger-v1
+
+  clients:
+    tiltakDatadeling:
+      url: http://tiltak-datadeling.team-tiltak
+      scope: api://dev-gcp.team-tiltak.tiltak-datadeling/.default

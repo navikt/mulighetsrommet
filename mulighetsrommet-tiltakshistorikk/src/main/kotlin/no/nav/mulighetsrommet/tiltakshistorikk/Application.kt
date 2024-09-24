@@ -11,6 +11,7 @@ import no.nav.mulighetsrommet.hoplite.loadConfiguration
 import no.nav.mulighetsrommet.kafka.KafkaConsumerOrchestrator
 import no.nav.mulighetsrommet.ktor.plugins.configureMonitoring
 import no.nav.mulighetsrommet.ktor.startKtorApplication
+import no.nav.mulighetsrommet.tiltakshistorikk.clients.TiltakDatadelingClient
 import no.nav.mulighetsrommet.tiltakshistorikk.kafka.consumers.AmtDeltakerV1KafkaConsumer
 import no.nav.mulighetsrommet.tiltakshistorikk.kafka.consumers.SisteTiltaksgjennomforingerV1KafkaConsumer
 import no.nav.mulighetsrommet.tiltakshistorikk.plugins.configureAuthentication
@@ -18,6 +19,7 @@ import no.nav.mulighetsrommet.tiltakshistorikk.plugins.configureHTTP
 import no.nav.mulighetsrommet.tiltakshistorikk.plugins.configureSerialization
 import no.nav.mulighetsrommet.tiltakshistorikk.repositories.DeltakerRepository
 import no.nav.mulighetsrommet.tiltakshistorikk.repositories.GruppetiltakRepository
+import no.nav.mulighetsrommet.tokenprovider.CachedTokenProvider
 import org.apache.kafka.common.serialization.ByteArrayDeserializer
 
 fun main() {
@@ -41,10 +43,20 @@ fun Application.configure(config: AppConfig) {
     val gruppetiltakRepository = GruppetiltakRepository(db)
     val deltakerRepository = DeltakerRepository(db)
 
+    val cachedTokenProvider = CachedTokenProvider.init(config.auth.azure.audience, config.auth.azure.tokenEndpointUrl)
+
+    val tiltakDatadelingClient = TiltakDatadelingClient(
+        engine = config.httpClientEngine,
+        baseUrl = config.clients.tiltakDatadeling.url,
+        tokenProvider = cachedTokenProvider.withScope(config.clients.tiltakDatadeling.scope),
+    )
+
+    val tiltakshistorikkService = TiltakshistorikkService(deltakerRepository, tiltakDatadelingClient)
+
     val kafka = configureKafka(config.kafka, db, deltakerRepository, gruppetiltakRepository)
 
     routing {
-        tiltakshistorikkRoutes(deltakerRepository)
+        tiltakshistorikkRoutes(deltakerRepository, tiltakshistorikkService)
     }
 
     environment.monitor.subscribe(ApplicationStarted) {

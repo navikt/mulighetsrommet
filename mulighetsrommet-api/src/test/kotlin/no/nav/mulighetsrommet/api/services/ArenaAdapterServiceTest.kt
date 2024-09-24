@@ -12,7 +12,7 @@ import io.mockk.*
 import kotliquery.Query
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dbo.ArenaNavEnhet
-import no.nav.mulighetsrommet.api.domain.dto.AvtaleAdminDto
+import no.nav.mulighetsrommet.api.domain.dto.AvtaleDto
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.repositories.*
 import no.nav.mulighetsrommet.database.Database
@@ -23,8 +23,8 @@ import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.*
 import no.nav.mulighetsrommet.domain.dto.AvbruttAarsak
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
+import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingEksternV1Dto
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus
-import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingV1Dto
 import no.nav.mulighetsrommet.kafka.producers.SisteTiltaksgjennomforingerV1KafkaProducer
 import no.nav.mulighetsrommet.notifications.NotificationService
 import no.nav.mulighetsrommet.notifications.NotificationType
@@ -668,7 +668,7 @@ class ArenaAdapterServiceTest :
                 service.upsertTiltaksgjennomforing(gjennomforing.copy(avtaleId = AvtaleFixtures.oppfolging.id))
 
                 avtaler.get(AvtaleFixtures.oppfolging.id).shouldNotBeNull().arrangor.underenheter shouldBe listOf(
-                    AvtaleAdminDto.ArrangorUnderenhet(
+                    AvtaleDto.ArrangorUnderenhet(
                         id = ArrangorFixtures.underenhet1.id,
                         organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
                         navn = ArrangorFixtures.underenhet1.navn,
@@ -807,9 +807,9 @@ private fun createArenaAdapterService(
 )
 
 private fun toTiltaksgjennomforingDto(dbo: ArenaTiltaksgjennomforingDbo, tiltakstype: TiltakstypeDbo) = dbo.run {
-    TiltaksgjennomforingV1Dto(
+    TiltaksgjennomforingEksternV1Dto(
         id = id,
-        tiltakstype = TiltaksgjennomforingV1Dto.Tiltakstype(
+        tiltakstype = TiltaksgjennomforingEksternV1Dto.Tiltakstype(
             id = tiltakstypeId,
             navn = tiltakstype.navn,
             arenaKode = tiltakstype.arenaKode,

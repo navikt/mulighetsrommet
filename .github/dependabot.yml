@@ -13,6 +13,11 @@ registries:
     username: _json_key_base64
     password: ${{ secrets.GOOGLE_ARTIFACT_REGISTRY_READ_TOKEN }}
 
+  npm-github:
+    type: npm-registry
+    url: https://npm.pkg.github.com
+    token: ${{ secrets.READER_TOKEN }}
+
 updates:
   - package-ecosystem: github-actions
     directory: "/"
@@ -53,6 +58,8 @@ updates:
 
   - package-ecosystem: npm
     directory: "/"
+    registries:
+      - npm-github
     schedule:
       interval: weekly
       day: monday

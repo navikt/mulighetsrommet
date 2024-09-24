@@ -21,7 +21,7 @@ export function PameldingFraKometApnerSnart({ tiltak }: Props) {
       >
         <VStack gap="3">
           <Heading level="4" size="small" className={styles.text_center}>
-            Ny påmeldingsløsning er planlagt lansert 1. oktober
+            Ny påmeldingsløsning er planlagt lansert 15. oktober
           </Heading>
           <BodyShort>
             Påmelding på arbeidsmarkedstiltak skal i fremtiden gjøres her i Modia. AFT-tiltaket er

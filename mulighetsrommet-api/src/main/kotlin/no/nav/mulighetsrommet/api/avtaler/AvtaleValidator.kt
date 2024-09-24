@@ -8,8 +8,8 @@ import arrow.core.right
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.domain.dbo.AvtaleDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
-import no.nav.mulighetsrommet.api.domain.dto.AvtaleAdminDto
-import no.nav.mulighetsrommet.api.domain.dto.TiltakstypeAdminDto
+import no.nav.mulighetsrommet.api.domain.dto.AvtaleDto
+import no.nav.mulighetsrommet.api.domain.dto.TiltakstypeDto
 import no.nav.mulighetsrommet.api.repositories.ArrangorRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.responses.ValidationError
@@ -19,6 +19,7 @@ import no.nav.mulighetsrommet.api.services.TiltakstypeService
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.Tiltakskoder
+import no.nav.mulighetsrommet.domain.Tiltakskoder.isKursTiltak
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
 import no.nav.mulighetsrommet.domain.dto.allowedAvtaletypes
@@ -33,7 +34,7 @@ class AvtaleValidator(
 ) {
     private val opsjonsmodellerUtenValidering = listOf(Opsjonsmodell.AVTALE_UTEN_OPSJONSMODELL, Opsjonsmodell.AVTALE_VALGFRI_SLUTTDATO)
 
-    fun validate(avtale: AvtaleDbo, currentAvtale: AvtaleAdminDto?): Either<List<ValidationError>, AvtaleDbo> = either {
+    fun validate(avtale: AvtaleDbo, currentAvtale: AvtaleDto?): Either<List<ValidationError>, AvtaleDbo> = either {
         val tiltakstype = tiltakstyper.getById(avtale.tiltakstypeId)
             ?: raise(ValidationError.of(AvtaleDbo::tiltakstypeId, "Tiltakstypen finnes ikke").nel())
 
@@ -141,6 +142,10 @@ class AvtaleValidator(
             if (tiltakstype.tiltakskode == Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING && avtale.amoKategorisering == null) {
                 add(ValidationError.ofCustomLocation("amoKategorisering.kurstype", "Du må velge en kurstype"))
             }
+            if (isKursTiltak(tiltakstype.tiltakskode) && avtale.faneinnhold?.kurstittel.isNullOrBlank()) {
+                add(ValidationError.ofCustomLocation("faneinnhold.kurstittel", "Du må skrive en kurstittel"))
+            }
+
             validateNavEnheter(avtale.navEnheter)
 
             if (currentAvtale == null) {
@@ -192,8 +197,8 @@ class AvtaleValidator(
 
     private fun MutableList<ValidationError>.validateUpdateAvtale(
         avtale: AvtaleDbo,
-        currentAvtale: AvtaleAdminDto,
-        tiltakstype: TiltakstypeAdminDto,
+        currentAvtale: AvtaleDto,
+        tiltakstype: TiltakstypeDto,
     ) {
         val (numGjennomforinger, gjennomforinger) = tiltaksgjennomforinger.getAll(avtaleId = avtale.id)
 
@@ -321,15 +326,15 @@ class AvtaleValidator(
     }
 
     private fun skalValidereArenafelter(
-        avtale: AvtaleAdminDto,
-        tiltakstype: TiltakstypeAdminDto,
+        avtale: AvtaleDto,
+        tiltakstype: TiltakstypeDto,
     ): Boolean {
         return avtale.opphav == ArenaMigrering.Opphav.ARENA && !isEnabled(tiltakstype.tiltakskode)
     }
 
     private fun isTiltakstypeDisabled(
-        previous: AvtaleAdminDto?,
-        tiltakstype: TiltakstypeAdminDto,
+        previous: AvtaleDto?,
+        tiltakstype: TiltakstypeDto,
     ): Boolean {
         val kanIkkeOppretteAvtale = previous == null && !isEnabled(tiltakstype.tiltakskode)
 

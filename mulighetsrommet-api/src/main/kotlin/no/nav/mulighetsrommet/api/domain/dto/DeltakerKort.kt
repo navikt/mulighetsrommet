@@ -64,6 +64,13 @@ data class DeltakerKort(
             GJENNOMFORING_AVLYST,
             IKKE_MOTT,
             PABEGYNT_REGISTRERING,
+
+            // TODO egne enums per opphav
+            ANNULLERT,
+            PAABEGYNT,
+            MANGLER_GODKJENNING,
+            KLAR_FOR_OPPSTART,
+            AVSLUTTET,
         }
     }
 
@@ -71,5 +78,6 @@ data class DeltakerKort(
     enum class Eierskap {
         ARENA,
         KOMET,
+        TEAM_TILTAK,
     }
 }

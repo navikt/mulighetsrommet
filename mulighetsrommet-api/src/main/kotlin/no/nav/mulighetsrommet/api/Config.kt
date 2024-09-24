@@ -104,6 +104,7 @@ data class TaskConfig(
     val notifyFailedKafkaEvents: NotifyFailedKafkaEvents.Config,
     val generateValidationReport: GenerateValidationReport.Config = GenerateValidationReport.Config(),
     val updateApentForInnsok: UpdateApentForInnsok.Config = UpdateApentForInnsok.Config(),
+    val generateRefusjonskrav: GenerateRefusjonskrav.Config,
 )
 
 data class Norg2Config(

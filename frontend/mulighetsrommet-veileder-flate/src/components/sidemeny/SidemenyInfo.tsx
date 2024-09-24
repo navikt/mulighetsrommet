@@ -1,7 +1,6 @@
 import { BodyShort, Box } from "@navikt/ds-react";
 import {
   TiltaksgjennomforingOppstartstype,
-  TiltakskodeArena,
   VeilederflateInnsatsgruppe,
   VeilederflateTiltak,
 } from "@mr/api-client";
@@ -17,13 +16,14 @@ interface Props {
 }
 
 const SidemenyInfo = ({ innsatsgrupper, tiltak }: Props) => {
-  const { tiltaksnummer, tiltakstype, stedForGjennomforing } = tiltak;
+  const { tiltakstype, stedForGjennomforing } = tiltak;
 
   const minimumInnsatsgruppe = innsatsgrupper
     .filter((innsatsgruppe) => (tiltakstype.innsatsgrupper ?? []).includes(innsatsgruppe.nokkel))
     .reduce((prev, current) => (prev.order < current.order ? prev : current));
 
-  const arrangor = isTiltakGruppe(tiltak) ? tiltak.arrangor : null;
+  const tiltaksnummer = "tiltaksnummer" in tiltak ? tiltak.tiltaksnummer : null;
+  const arrangor = "arrangor" in tiltak ? tiltak.arrangor : null;
 
   return (
     <Box padding="5" background="bg-subtle" className={styles.panel} id="sidemeny">
@@ -105,25 +105,21 @@ const SidemenyInfo = ({ innsatsgrupper, tiltak }: Props) => {
 };
 
 function TiltakVarighetInfo({ tiltak }: { tiltak: VeilederflateTiltak }) {
-  const visSluttdato =
-    isTiltakGruppe(tiltak) &&
-    tiltak.sluttdato &&
-    tiltak.tiltakstype.arenakode &&
-    [
-      TiltakskodeArena.GRUPPEAMO,
-      TiltakskodeArena.JOBBK,
-      TiltakskodeArena.DIGIOPPARB,
-      TiltakskodeArena.GRUFAGYRKE,
-      TiltakskodeArena.ENKFAGYRKE,
-    ].includes(tiltak.tiltakstype.arenakode);
-
-  const tittel = visSluttdato ? "Varighet" : "Oppstart";
-
-  const innhold = visSluttdato
-    ? `${formaterDato(tiltak.oppstartsdato!)} - ${formaterDato(tiltak.sluttdato!)}`
-    : tiltak.oppstart === TiltaksgjennomforingOppstartstype.FELLES
-      ? formaterDato(tiltak.oppstartsdato)
-      : "Løpende";
+  const { tittel, innhold } =
+    !isTiltakGruppe(tiltak) || tiltak.oppstart === TiltaksgjennomforingOppstartstype.LOPENDE
+      ? {
+          tittel: "Oppstart",
+          innhold: "Løpende",
+        }
+      : tiltak.sluttdato
+        ? {
+            tittel: "Varighet",
+            innhold: `${formaterDato(tiltak.oppstartsdato)} - ${formaterDato(tiltak.sluttdato)}`,
+          }
+        : {
+            tittel: "Oppstart",
+            innhold: formaterDato(tiltak.oppstartsdato),
+          };
 
   return (
     <div className={styles.rad}>

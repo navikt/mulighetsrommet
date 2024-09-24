@@ -13,6 +13,8 @@ import { steg } from "./oppskrift/steg";
 import { oppskriftContent } from "./oppskrift/oppskriftContent";
 import { tips } from "./oppskrift/tips";
 import { alertMessage } from "./oppskrift/alertMessage";
+import { arrangor } from "./arrangor";
+import { arrangorKontaktperson } from "./arrangorKontaktperson";
 
 export const schemas = [
   // The following are document types which will appear
@@ -34,4 +36,6 @@ export const schemas = [
   // When added to this list, object types can be used as
   // { type: 'typename' } in other document schemas
   blockContent,
+  arrangor,
+  arrangorKontaktperson,
 ];

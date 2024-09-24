@@ -178,9 +178,9 @@ class DelMedBrukerServiceTest : FunSpec({
             delMedBruker.shouldBeRight().should {
                 it.shouldNotBeNull()
                 it.size shouldBe 3
-                it[0].konstruertNavn shouldBe "Oppfølging"
-                it[1].konstruertNavn shouldBe "Delt med bruker - Lokalt navn fra Sanity"
-                it[2].konstruertNavn shouldBe "Arbeidstrening"
+                it[0].tittel shouldBe "Oppfølging"
+                it[1].tittel shouldBe "Delt med bruker - Lokalt navn fra Sanity"
+                it[2].tittel shouldBe "Arbeidstrening"
             }
         }
     }

@@ -1,14 +1,21 @@
-package no.nav.mulighetsrommet.api.clients
+package no.nav.mulighetsrommet.tokenprovider
 
 import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
+import com.nimbusds.jose.jwk.KeyUse
+import com.nimbusds.jose.jwk.RSAKey
 import com.nimbusds.jwt.JWTParser
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
+import no.nav.common.token_client.builder.AzureAdTokenClientBuilder
 import no.nav.common.token_client.client.MachineToMachineTokenClient
 import no.nav.common.token_client.client.OnBehalfOfTokenClient
+import no.nav.mulighetsrommet.env.NaisEnv
+import java.security.KeyPairGenerator
+import java.security.interfaces.RSAPrivateKey
+import java.security.interfaces.RSAPublicKey
 import java.text.ParseException
 import java.util.concurrent.TimeUnit
 
@@ -34,6 +41,15 @@ class CachedTokenProvider(
         .maximumSize(10_000)
         .recordStats()
         .build()
+
+    companion object {
+        fun init(clientId: String, tokenEndpointUrl: String): CachedTokenProvider {
+            return CachedTokenProvider(
+                m2mTokenProvider = createM2mTokenClient(clientId, tokenEndpointUrl),
+                oboTokenProvider = createOboTokenClient(clientId, tokenEndpointUrl),
+            )
+        }
+    }
 
     fun withScope(scope: String): TokenProvider {
         return TokenProvider exchange@{ accessType ->
@@ -71,4 +87,38 @@ private fun AccessType.subject(): String =
                 throw IllegalArgumentException("Unable to get subject, access token is invalid")
             }
         }
+    }
+
+private fun createOboTokenClient(clientId: String, tokenEndpointUrl: String): OnBehalfOfTokenClient =
+    when (NaisEnv.current()) {
+        NaisEnv.Local -> AzureAdTokenClientBuilder.builder()
+            .withClientId(clientId)
+            .withPrivateJwk(createMockRSAKey("azure").toJSONString())
+            .withTokenEndpointUrl(tokenEndpointUrl)
+            .buildOnBehalfOfTokenClient()
+
+        else -> AzureAdTokenClientBuilder.builder().withNaisDefaults().buildOnBehalfOfTokenClient()
+    }
+
+private fun createM2mTokenClient(clientId: String, tokenEndpointUrl: String): MachineToMachineTokenClient =
+    when (NaisEnv.current()) {
+        NaisEnv.Local -> AzureAdTokenClientBuilder.builder()
+            .withClientId(clientId)
+            .withPrivateJwk(createMockRSAKey("azure").toJSONString())
+            .withTokenEndpointUrl(tokenEndpointUrl)
+            .buildMachineToMachineTokenClient()
+
+        else -> AzureAdTokenClientBuilder.builder().withNaisDefaults().buildMachineToMachineTokenClient()
+    }
+
+private fun createMockRSAKey(keyID: String): RSAKey = KeyPairGenerator
+    .getInstance("RSA").let {
+        it.initialize(2048)
+        it.generateKeyPair()
+    }.let {
+        RSAKey.Builder(it.public as RSAPublicKey)
+            .privateKey(it.private as RSAPrivateKey)
+            .keyUse(KeyUse.SIGNATURE)
+            .keyID(keyID)
+            .build()
     }

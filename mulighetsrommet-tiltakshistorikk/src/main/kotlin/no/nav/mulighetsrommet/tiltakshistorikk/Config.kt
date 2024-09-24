@@ -1,5 +1,7 @@
 package no.nav.mulighetsrommet.tiltakshistorikk
 
+import io.ktor.client.engine.*
+import io.ktor.client.engine.cio.*
 import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.database.FlywayMigrationManager
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
@@ -11,10 +13,16 @@ data class Config(
 )
 
 data class AppConfig(
+    val httpClientEngine: HttpClientEngine = CIO.create(),
     val database: DatabaseConfig,
     val flyway: FlywayMigrationManager.MigrationConfig = FlywayMigrationManager.MigrationConfig(),
     val auth: AuthConfig,
     val kafka: KafkaConfig,
+    val clients: ClientConfig,
+)
+
+data class ClientConfig(
+    val tiltakDatadeling: ServiceClientConfig,
 )
 
 data class AuthConfig(
@@ -26,6 +34,11 @@ data class AuthProvider(
     val jwksUri: String,
     val audience: String,
     val tokenEndpointUrl: String,
+)
+
+data class ServiceClientConfig(
+    val url: String,
+    val scope: String,
 )
 
 data class KafkaConfig(

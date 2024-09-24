@@ -90,8 +90,8 @@ app:
     scope: api://dev-gcp.obo.veilarbvedtaksstotte/.default
 
   veilarboppfolgingConfig:
-    url: https://veilarboppfolging.dev-fss-pub.nais.io/veilarboppfolging/api
-    scope: api://dev-fss.pto.veilarboppfolging/.default
+    url: http://veilarboppfolging.poao/veilarboppfolging/api
+    scope: api://dev-gcp.poao.veilarboppfolging/.default
 
   veilarbveilederConfig:
     url: https://veilarbveileder.dev-fss-pub.nais.io/veilarbveileder/api
@@ -158,6 +158,8 @@ app:
     updateApentForInnsok:
       disabled: false
       cronPattern: "0 55 23 * * *" # 23.55 hver kveld
+    generateRefusjonskrav:
+      cronPattern: "0 0 5 7 * *"
 
   slack:
     token: ${SLACK_TOKEN}

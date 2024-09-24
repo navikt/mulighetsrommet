@@ -6,6 +6,7 @@ import no.nav.mulighetsrommet.api.routes.v1.TiltaksgjennomforingRequest
 import no.nav.mulighetsrommet.domain.dbo.ArenaTiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
+import no.nav.mulighetsrommet.domain.dto.Faneinnhold
 import no.nav.mulighetsrommet.domain.dto.NavIdent
 import java.time.LocalDate
 import java.util.*
@@ -195,15 +196,15 @@ object TiltaksgjennomforingFixtures {
         sluttDato = LocalDate.of(2023, 2, 1),
         apentForInnsok = true,
         antallPlasser = 12,
-        administratorer = emptyList(),
-        navRegion = "2990",
-        navEnheter = emptyList(),
+        administratorer = listOf(NavIdent("DD1")),
+        navRegion = "0400",
+        navEnheter = listOf("0502"),
         oppstart = TiltaksgjennomforingOppstartstype.FELLES,
         kontaktpersoner = emptyList(),
         arrangorKontaktpersoner = emptyList(),
         stedForGjennomforing = "Oslo",
-        avtaleId = AvtaleFixtures.oppfolging.id,
-        faneinnhold = null,
+        avtaleId = AvtaleFixtures.jobbklubb.id,
+        faneinnhold = Faneinnhold(kurstittel = "Jobbklubb 1"),
         beskrivelse = null,
         deltidsprosent = 100.0,
         estimertVentetidVerdi = 3,
@@ -229,7 +230,7 @@ object TiltaksgjennomforingFixtures {
         arrangorKontaktpersoner = emptyList(),
         stedForGjennomforing = "Oslo",
         avtaleId = AvtaleFixtures.gruppeAmo.id,
-        faneinnhold = null,
+        faneinnhold = Faneinnhold(kurstittel = "Gruppe amo 1"),
         beskrivelse = null,
         deltidsprosent = 100.0,
         estimertVentetidVerdi = 3,

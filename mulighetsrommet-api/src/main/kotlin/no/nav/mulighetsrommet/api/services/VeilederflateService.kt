@@ -10,7 +10,10 @@ import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.clients.sanity.SanityParam
 import no.nav.mulighetsrommet.api.clients.sanity.SanityPerspective
 import no.nav.mulighetsrommet.api.domain.dto.*
+import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.routes.v1.ApentForInnsok
+import no.nav.mulighetsrommet.api.utils.TiltaksnavnUtils.tittelOgUnderTittel
+import no.nav.mulighetsrommet.domain.Tiltakskoder
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dto.Innsatsgruppe
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus
@@ -20,7 +23,7 @@ import java.util.concurrent.TimeUnit
 
 class VeilederflateService(
     private val sanityClient: SanityClient,
-    private val tiltaksgjennomforingService: TiltaksgjennomforingService,
+    private val tiltaksgjennomforingRepository: TiltaksgjennomforingRepository,
     private val tiltakstypeService: TiltakstypeService,
     private val navEnhetService: NavEnhetService,
 ) {
@@ -61,8 +64,8 @@ class VeilederflateService(
                     regelverkLenker = it.regelverkLenker,
                     faneinnhold = it.faneinnhold,
                     delingMedBruker = it.delingMedBruker,
-                    arenakode = tiltakstype?.arenaKode,
-                    tiltakskode = tiltakstype?.tiltakskode,
+                    arenakode = tiltakstype.arenaKode,
+                    tiltakskode = tiltakstype.tiltakskode,
                     kanKombineresMed = it.kanKombineresMed,
                 )
             }
@@ -142,7 +145,7 @@ class VeilederflateService(
         apentForInnsok: ApentForInnsok,
         search: String?,
         cacheUsage: CacheUsage,
-    ): List<VeilederflateTiltakArbeidsgiver> {
+    ): List<VeilederflateTiltak> {
         if (apentForInnsok == ApentForInnsok.STENGT) {
             // Det er foreløpig ikke noe egen funksjonalitet for å markere tiltak som midlertidig stengt i Sanity
             return emptyList()
@@ -159,7 +162,7 @@ class VeilederflateService(
             .filter { it.tiltakstype.innsatsgrupper != null && it.tiltakstype.innsatsgrupper.contains(innsatsgruppe) }
             .map { toVeilederTiltaksgjennomforing(it) }
             .filter { gjennomforing ->
-                if (gjennomforing.enheter.isNullOrEmpty()) {
+                if (gjennomforing.enheter.isEmpty()) {
                     gjennomforing.fylke in fylker
                 } else {
                     gjennomforing.enheter.any { enhet -> enhet in enheter }
@@ -189,6 +192,18 @@ class VeilederflateService(
               stedForGjennomforing,
               "fylke": fylke->nummer.current,
               "enheter": coalesce(enheter[]->nummer.current, []),
+              arrangor -> {
+                _id,
+                navn,
+                organisasjonsnummer,
+                kontaktpersoner[] -> {
+                  _id,
+                  navn,
+                  telefon,
+                  epost,
+                  beskrivelse,
+                }
+              },
             }
         """.trimIndent()
 
@@ -214,11 +229,11 @@ class VeilederflateService(
         apentForInnsok: ApentForInnsok,
         search: String?,
     ): List<VeilederflateTiltak> {
-        return tiltaksgjennomforingService.getAllVeilederflateTiltaksgjennomforing(
+        return tiltaksgjennomforingRepository.getAllVeilederflateTiltaksgjennomforing(
             search = search,
             sanityTiltakstypeIds = tiltakstypeIds?.map { UUID.fromString(it) },
             innsatsgruppe = innsatsgruppe,
-            enheter = enheter,
+            brukersEnheter = enheter,
             apentForInnsok = when (apentForInnsok) {
                 ApentForInnsok.APENT -> true
                 ApentForInnsok.STENGT -> false
@@ -231,7 +246,7 @@ class VeilederflateService(
         id: UUID,
         sanityPerspective: SanityPerspective,
     ): VeilederflateTiltak {
-        return tiltaksgjennomforingService.getVeilederflateTiltaksgjennomforing(id)
+        return tiltaksgjennomforingRepository.getVeilederflateTiltaksgjennomforing(id)
             ?.let { gjennomforing ->
                 val hentTiltakstyper = hentTiltakstyper()
                 val sanityTiltakstype = hentTiltakstyper
@@ -290,6 +305,18 @@ class VeilederflateService(
               kontaktpersoner[]{navKontaktperson->, "enheter": coalesce(enheter[]->nummer.current, [])},
               "fylke": fylke->nummer.current,
               "enheter": coalesce(enheter[]->nummer.current, []),
+              arrangor -> {
+                _id,
+                navn,
+                organisasjonsnummer,
+                kontaktpersoner[] -> {
+                  _id,
+                  navn,
+                  telefon,
+                  epost,
+                  beskrivelse,
+                }
+              },
               faneinnhold {
                 forHvemInfoboks,
                 forHvem,
@@ -315,55 +342,124 @@ class VeilederflateService(
     }
 
     private fun toVeilederTiltaksgjennomforing(
-        sanityGjennomforing: SanityTiltaksgjennomforing,
-    ): VeilederflateTiltakArbeidsgiver {
-        val tiltakstypeFraSanity =
-            tiltakstypeService.getBySanityId(UUID.fromString(sanityGjennomforing.tiltakstype._id))
+        gjennomforing: SanityTiltaksgjennomforing,
+    ): VeilederflateTiltak {
+        val tiltakstypeAdminDto = tiltakstypeService.getBySanityId(UUID.fromString(gjennomforing.tiltakstype._id))
 
-        return sanityGjennomforing.run {
-            val kontaktpersoner = kontaktpersoner
-                ?.mapNotNull { it.navKontaktperson }
-                ?.map {
-                    VeilederflateKontaktinfoTiltaksansvarlig(
-                        navn = it.navn,
-                        telefon = it.telefonnummer,
-                        enhet = it.enhet?.let { enhet -> navEnhetService.hentEnhet(enhet) },
-                        epost = it.epost,
-                        beskrivelse = it.beskrivelse,
-                    )
-                } ?: emptyList()
+        val tiltaksansvarlige = gjennomforing.kontaktpersoner
+            ?.mapNotNull { it.navKontaktperson }
+            ?.map {
+                VeilederflateKontaktinfoTiltaksansvarlig(
+                    navn = it.navn,
+                    telefon = it.telefonnummer,
+                    enhet = it.enhet?.let { enhet -> navEnhetService.hentEnhet(enhet) },
+                    epost = it.epost,
+                    beskrivelse = it.beskrivelse,
+                )
+            } ?: emptyList()
 
-            VeilederflateTiltakArbeidsgiver(
-                tiltaksnummer = tiltaksnummer,
-                status = TiltaksgjennomforingStatusDto(
-                    status = TiltaksgjennomforingStatus.GJENNOMFORES,
-                    avbrutt = null,
-                ),
-                beskrivelse = beskrivelse,
-                faneinnhold = faneinnhold?.copy(delMedBruker = delingMedBruker),
-                kontaktinfo = VeilederflateKontaktinfo(
-                    tiltaksansvarlige = kontaktpersoner,
-                ),
-                oppstart = TiltaksgjennomforingOppstartstype.LOPENDE,
+        val arrangor = gjennomforing.arrangor?.let { arrangor ->
+            val kontaktpersoner = arrangor.kontaktpersoner?.map { kontaktperson ->
+                VeilederflateArrangorKontaktperson(
+                    id = kontaktperson._id,
+                    navn = kontaktperson.navn,
+                    epost = kontaktperson.epost,
+                    telefon = kontaktperson.telefon,
+                    beskrivelse = kontaktperson.beskrivelse,
+                )
+            } ?: emptyList()
+            VeilederflateArrangor(
+                arrangorId = arrangor._id,
+                selskapsnavn = arrangor.navn,
+                organisasjonsnummer = arrangor.organisasjonsnummer?.value,
+                kontaktpersoner = kontaktpersoner,
+            )
+        }
+
+        val arenakode = tiltakstypeAdminDto.arenaKode
+        val tiltakstype = gjennomforing.tiltakstype.run {
+            VeilederflateTiltakstype(
                 sanityId = _id,
-                tiltakstype = tiltakstype.run {
-                    VeilederflateTiltakstype(
-                        sanityId = _id,
-                        navn = tiltakstypeNavn,
-                        beskrivelse = beskrivelse,
-                        innsatsgrupper = innsatsgrupper,
-                        regelverkLenker = regelverkLenker,
-                        faneinnhold = faneinnhold,
-                        delingMedBruker = delingMedBruker,
-                        arenakode = tiltakstypeFraSanity?.arenaKode,
-                        tiltakskode = tiltakstypeFraSanity?.tiltakskode,
-                        kanKombineresMed = kanKombineresMed,
-                    )
-                },
-                navn = tiltaksgjennomforingNavn ?: "",
+                navn = tiltakstypeNavn,
+                beskrivelse = beskrivelse,
+                innsatsgrupper = innsatsgrupper,
+                regelverkLenker = regelverkLenker,
+                faneinnhold = faneinnhold,
+                delingMedBruker = delingMedBruker,
+                arenakode = arenakode,
+                tiltakskode = tiltakstypeAdminDto.tiltakskode,
+                kanKombineresMed = kanKombineresMed,
+            )
+        }
+
+        val status = TiltaksgjennomforingStatusDto(
+            status = TiltaksgjennomforingStatus.GJENNOMFORES,
+            avbrutt = null,
+        )
+        val (tittel, underTittel) = tittelOgUnderTittel(
+            navn = gjennomforing.tiltaksgjennomforingNavn ?: "",
+            tiltakstypeNavn = tiltakstype.navn,
+            arenaKode = tiltakstypeAdminDto.arenaKode,
+        )
+
+        val faneinnhold = gjennomforing.faneinnhold?.copy(delMedBruker = gjennomforing.delingMedBruker)
+        val kontaktinfo = VeilederflateKontaktinfo(tiltaksansvarlige)
+        val fylke = gjennomforing.fylke ?: ""
+        val enheter = gjennomforing.enheter?.filterNotNull() ?: emptyList()
+        val tiltaksnummer = gjennomforing.tiltaksnummer
+        val beskrivelse = gjennomforing.beskrivelse
+        val sanityId = gjennomforing._id
+        val stedForGjennomforing = gjennomforing.stedForGjennomforing
+
+        return when {
+            Tiltakskoder.isEgenRegiTiltak(arenakode) -> {
+                VeilederflateTiltakEgenRegi(
+                    tiltaksnummer = tiltaksnummer,
+                    status = status,
+                    beskrivelse = beskrivelse,
+                    faneinnhold = faneinnhold,
+                    kontaktinfo = kontaktinfo,
+                    oppstart = TiltaksgjennomforingOppstartstype.LOPENDE,
+                    sanityId = sanityId,
+                    tiltakstype = tiltakstype,
+                    tittel = tittel,
+                    underTittel = underTittel,
+                    stedForGjennomforing = stedForGjennomforing,
+                    fylke = fylke,
+                    enheter = enheter,
+                )
+            }
+
+            arrangor != null -> VeilederflateTiltakEnkeltplassAnskaffet(
+                tiltaksnummer = tiltaksnummer,
+                status = status,
+                beskrivelse = beskrivelse,
+                faneinnhold = faneinnhold,
+                kontaktinfo = kontaktinfo,
+                oppstart = TiltaksgjennomforingOppstartstype.LOPENDE,
+                sanityId = sanityId,
+                tiltakstype = tiltakstype,
+                tittel = tittel,
+                underTittel = underTittel,
                 stedForGjennomforing = stedForGjennomforing,
                 fylke = fylke,
-                enheter = this.enheter?.filterNotNull(),
+                enheter = enheter,
+                arrangor = arrangor,
+            )
+
+            else -> VeilederflateTiltakEnkeltplass(
+                status = status,
+                beskrivelse = beskrivelse,
+                faneinnhold = faneinnhold,
+                kontaktinfo = kontaktinfo,
+                oppstart = TiltaksgjennomforingOppstartstype.LOPENDE,
+                sanityId = sanityId,
+                tiltakstype = tiltakstype,
+                tittel = tittel,
+                underTittel = underTittel,
+                stedForGjennomforing = stedForGjennomforing,
+                fylke = fylke,
+                enheter = enheter,
             )
         }
     }

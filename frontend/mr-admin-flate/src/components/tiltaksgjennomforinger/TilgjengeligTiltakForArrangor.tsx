@@ -1,7 +1,7 @@
 import { Alert, Button, Heading, HStack, Modal } from "@navikt/ds-react";
 import { useRef } from "react";
 import { formaterDato, max, subtractDays, subtractMonths } from "@/utils/Utils";
-import { Tiltaksgjennomforing } from "@mr/api-client";
+import { TiltaksgjennomforingDto } from "@mr/api-client";
 import { FormProvider, useForm } from "react-hook-form";
 import z from "zod";
 import { ControlledDateInput } from "@/components/skjema/ControlledDateInput";
@@ -11,7 +11,7 @@ import { useHandleApiUpsertResponse } from "@/api/effects";
 import { HarSkrivetilgang } from "../authActions/HarSkrivetilgang";
 
 interface Props {
-  gjennomforing: Tiltaksgjennomforing;
+  gjennomforing: TiltaksgjennomforingDto;
 }
 
 export const EditTilgjengeligForArrangorSchema = z.object({

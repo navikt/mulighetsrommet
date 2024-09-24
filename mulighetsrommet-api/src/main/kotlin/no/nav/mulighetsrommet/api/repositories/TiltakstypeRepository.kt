@@ -3,7 +3,7 @@ package no.nav.mulighetsrommet.api.repositories
 import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.api.domain.dto.TiltakstypeAdminDto
+import no.nav.mulighetsrommet.api.domain.dto.TiltakstypeDto
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.*
 import no.nav.mulighetsrommet.domain.Tiltakskode
@@ -11,8 +11,8 @@ import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
 import no.nav.mulighetsrommet.domain.dto.DeltakerRegistreringInnholdDto
 import no.nav.mulighetsrommet.domain.dto.Innholdselement
 import no.nav.mulighetsrommet.domain.dto.Innsatsgruppe
+import no.nav.mulighetsrommet.domain.dto.TiltakstypeEksternV2Dto
 import no.nav.mulighetsrommet.domain.dto.TiltakstypeStatus
-import no.nav.mulighetsrommet.domain.dto.TiltakstypeV2Dto
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
 import java.util.*
@@ -57,18 +57,18 @@ class TiltakstypeRepository(private val db: Database) {
         queryOf(query, tiltakstype.toSqlParameters()).asExecute.let { db.run(it) }
     }
 
-    fun get(id: UUID): TiltakstypeAdminDto? {
+    fun get(id: UUID): TiltakstypeDto? {
         @Language("PostgreSQL")
         val query = """
             select *
             from tiltakstype_admin_dto_view
             where id = ?::uuid
         """.trimIndent()
-        val queryResult = queryOf(query, id).map { it.toTiltakstypeAdminDto() }.asSingle
+        val queryResult = queryOf(query, id).map { it.toTiltakstypeDto() }.asSingle
         return db.run(queryResult)
     }
 
-    fun getEksternTiltakstype(id: UUID): TiltakstypeV2Dto? = db.useSession { session ->
+    fun getEksternTiltakstype(id: UUID): TiltakstypeEksternV2Dto? = db.useSession { session ->
         @Language("PostgreSQL")
         val query = """
             select id, navn, tiltakskode, arena_kode, innsatsgrupper
@@ -83,46 +83,48 @@ class TiltakstypeRepository(private val db: Database) {
             .asSingle.runWithSession(session)
     }
 
-    fun getByTiltakskode(tiltakskode: Tiltakskode): TiltakstypeAdminDto {
+    fun getByTiltakskode(tiltakskode: Tiltakskode): TiltakstypeDto {
         @Language("PostgreSQL")
         val query = """
             select *
             from tiltakstype_admin_dto_view
             where tiltakskode = ?::tiltakskode
         """.trimIndent()
-        val queryResult = queryOf(query, tiltakskode.name).map { it.toTiltakstypeAdminDto() }.asSingle
+        val queryResult = queryOf(query, tiltakskode.name).map { it.toTiltakstypeDto() }.asSingle
         return requireNotNull(db.run(queryResult)) {
             "Det finnes ingen tiltakstype for tiltakskode $tiltakskode"
         }
     }
 
-    fun getByArenaTiltakskode(arenaTiltakskode: String): TiltakstypeAdminDto {
+    fun getByArenaTiltakskode(arenaTiltakskode: String): TiltakstypeDto {
         @Language("PostgreSQL")
         val query = """
             select *
             from tiltakstype_admin_dto_view
             where arena_kode = ?
         """.trimIndent()
-        val queryResult = queryOf(query, arenaTiltakskode).map { it.toTiltakstypeAdminDto() }.asSingle
+        val queryResult = queryOf(query, arenaTiltakskode).map { it.toTiltakstypeDto() }.asSingle
         return requireNotNull(db.run(queryResult)) {
             "Det finnes ingen tiltakstype med arena_kode $arenaTiltakskode"
         }
     }
 
-    fun getBySanityId(sanityId: UUID): TiltakstypeAdminDto? {
+    fun getBySanityId(sanityId: UUID): TiltakstypeDto {
         @Language("PostgreSQL")
         val query = """
             select *
             from tiltakstype_admin_dto_view
             where sanity_id = ?::uuid
         """.trimIndent()
-        val queryResult = queryOf(query, sanityId).map { it.toTiltakstypeAdminDto() }.asSingle
-        return db.run(queryResult)
+        val queryResult = queryOf(query, sanityId).map { it.toTiltakstypeDto() }.asSingle
+        return requireNotNull(db.run(queryResult)) {
+            "Det finnes ingen tiltakstype med sanity_id=$sanityId"
+        }
     }
 
     fun getAll(
         pagination: Pagination = Pagination.all(),
-    ): PaginatedResult<TiltakstypeAdminDto> {
+    ): PaginatedResult<TiltakstypeDto> {
         @Language("PostgreSQL")
         val query = """
             select *, count(*) over() as total_count
@@ -134,7 +136,7 @@ class TiltakstypeRepository(private val db: Database) {
 
         return db.useSession { session ->
             queryOf(query, pagination.parameters)
-                .mapPaginated { it.toTiltakstypeAdminDto() }
+                .mapPaginated { it.toTiltakstypeDto() }
                 .runWithSession(session)
         }
     }
@@ -143,7 +145,7 @@ class TiltakstypeRepository(private val db: Database) {
         pagination: Pagination = Pagination.all(),
         statuser: List<TiltakstypeStatus> = emptyList(),
         sortering: String? = null,
-    ): PaginatedResult<TiltakstypeAdminDto> {
+    ): PaginatedResult<TiltakstypeDto> {
         val parameters = mapOf(
             "statuser" to statuser.ifEmpty { null }?.let { db.createArrayOf("text", statuser) },
         )
@@ -171,7 +173,7 @@ class TiltakstypeRepository(private val db: Database) {
 
         return db.useSession { session ->
             queryOf(query, parameters + pagination.parameters)
-                .mapPaginated { it.toTiltakstypeAdminDto() }
+                .mapPaginated { it.toTiltakstypeDto() }
                 .runWithSession(session)
         }
     }
@@ -232,13 +234,13 @@ class TiltakstypeRepository(private val db: Database) {
         "rett_paa_tiltakspenger" to rettPaaTiltakspenger,
     )
 
-    private fun Row.toTiltakstypeAdminDto(): TiltakstypeAdminDto {
+    private fun Row.toTiltakstypeDto(): TiltakstypeDto {
         val innsatsgrupper = arrayOrNull<String>("innsatsgrupper")
             ?.map { Innsatsgruppe.valueOf(it) }
             ?.toSet()
             ?: emptySet()
 
-        return TiltakstypeAdminDto(
+        return TiltakstypeDto(
             id = uuid("id"),
             navn = string("navn"),
             innsatsgrupper = innsatsgrupper,
@@ -253,12 +255,12 @@ class TiltakstypeRepository(private val db: Database) {
 
     private fun Row.tiltakstypeEksternDto(
         deltakerRegistreringInnhold: DeltakerRegistreringInnholdDto?,
-    ): TiltakstypeV2Dto {
+    ): TiltakstypeEksternV2Dto {
         val innsatsgrupper = arrayOrNull<String>("innsatsgrupper")
             ?.map { Innsatsgruppe.valueOf(it) }
             ?.toSet()
             ?: emptySet()
-        return TiltakstypeV2Dto(
+        return TiltakstypeEksternV2Dto(
             id = uuid("id"),
             navn = string("navn"),
             tiltakskode = Tiltakskode.valueOf(string("tiltakskode")),

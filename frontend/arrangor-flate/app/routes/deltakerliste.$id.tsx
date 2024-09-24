@@ -4,6 +4,7 @@ import { Link, useLoaderData } from "@remix-run/react";
 import { PageHeader } from "../components/PageHeader";
 import { DeltakerlisteDetaljer } from "../components/deltakerliste/DeltakerlisteDetaljer";
 import { Deltakerliste } from "../domene/domene";
+import { requirePersonIdent } from "../auth/auth.server";
 
 export const meta: MetaFunction = () => {
   return [{ title: "Refusjon" }, { name: "description", content: "Refusjonsdetaljer" }];
@@ -13,7 +14,8 @@ type LoaderData = {
   deltakerliste: Deltakerliste;
 };
 
-export const loader: LoaderFunction = async ({ params }): Promise<LoaderData> => {
+export const loader: LoaderFunction = async ({ request, params }): Promise<LoaderData> => {
+  await requirePersonIdent(request);
   if (params.id === undefined) throw Error("Mangler id");
 
   return {

@@ -7,25 +7,23 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
-import kotlinx.coroutines.async
 import no.nav.mulighetsrommet.domain.dbo.ArenaDeltakerDbo
 import no.nav.mulighetsrommet.domain.dto.TiltakshistorikkRequest
-import no.nav.mulighetsrommet.domain.dto.TiltakshistorikkResponse
 import no.nav.mulighetsrommet.tiltakshistorikk.repositories.DeltakerRepository
 import java.util.*
 
-fun Route.tiltakshistorikkRoutes(deltakerRepository: DeltakerRepository) {
+fun Route.tiltakshistorikkRoutes(
+    deltakerRepository: DeltakerRepository,
+    service: TiltakshistorikkService,
+) {
     authenticate {
         route("/api/v1/historikk") {
             post {
                 val request = call.receive<TiltakshistorikkRequest>()
 
-                val arenaDeltakelser = async { deltakerRepository.getArenaHistorikk(request.identer, request.maxAgeYears) }
-                val gruppetiltakDeltakelser = async { deltakerRepository.getKometHistorikk(request.identer, request.maxAgeYears) }
-                val tiltakshistorikk = arenaDeltakelser.await() + gruppetiltakDeltakelser.await()
+                val response = service.getTiltakshistorikk(request)
 
-                val historikk = tiltakshistorikk.sortedWith(compareBy(nullsLast()) { it.startDato })
-                call.respond(TiltakshistorikkResponse(historikk = historikk))
+                call.respond(response)
             }
         }
 

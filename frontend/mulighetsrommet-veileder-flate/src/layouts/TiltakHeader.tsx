@@ -3,34 +3,22 @@ import { TiltaksgjennomforingStatusTag } from "@mr/frontend-common";
 import { gjennomforingIsAktiv } from "@mr/frontend-common/utils/utils";
 import { BodyLong, Heading, HStack, VStack } from "@navikt/ds-react";
 import styles from "./TiltakHeader.module.scss";
-import { erKurstiltak } from "@/utils/Utils";
 
 interface Props {
   tiltak: VeilederflateTiltak;
 }
 
 export function TiltakHeader({ tiltak }: Props) {
-  const { navn, beskrivelse, tiltakstype } = tiltak;
+  const { beskrivelse, tiltakstype } = tiltak;
   return (
     <>
       <HStack align="center" gap="2" className={styles.tiltaksgjennomforing_title}>
         <Heading level="1" size="xlarge">
           <VStack>
-            {erKurstiltak(tiltakstype.tiltakskode, tiltakstype.arenakode) ? (
-              <>
-                {navn}
-                <BodyLong size="medium" textColor="subtle">
-                  {tiltakstype.navn}
-                </BodyLong>
-              </>
-            ) : (
-              <>
-                {tiltakstype.navn}
-                <BodyLong size="medium" textColor="subtle">
-                  {navn}
-                </BodyLong>
-              </>
-            )}
+            {tiltak.tittel}
+            <BodyLong size="medium" textColor="subtle">
+              {tiltak.underTittel}
+            </BodyLong>
           </VStack>
         </Heading>
         {!gjennomforingIsAktiv(tiltak.status.status) && (

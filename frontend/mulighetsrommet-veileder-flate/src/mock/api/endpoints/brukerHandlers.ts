@@ -9,10 +9,8 @@ import {
   Innsatsgruppe,
   NavEnhetStatus,
   NavEnhetType,
-  TiltakshistorikkAdminDto,
 } from "@mr/api-client";
 import { http, HttpResponse, PathParams } from "msw";
-import { historikk } from "../../fixtures/mockHistorikk";
 import { historikkFraKomet } from "../../fixtures/mockKometHistorikk";
 
 export const brukerHandlers = [
@@ -51,10 +49,6 @@ export const brukerHandlers = [
 
       return HttpResponse.json(bruker);
     },
-  ),
-
-  http.post<PathParams, TiltakshistorikkAdminDto[]>("*/api/v2/intern/bruker/historikk", () =>
-    HttpResponse.json(historikk),
   ),
 
   http.post<PathParams, GetHistorikkForBrukerRequest, DeltakerKort[]>(

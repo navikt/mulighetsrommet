@@ -1,4 +1,4 @@
-import { Avtale, Avtaletype, OpsjonsmodellKey, OpsjonStatus } from "@mr/api-client";
+import { AvtaleDto, Avtaletype, OpsjonsmodellKey, OpsjonStatus } from "@mr/api-client";
 import { Heading, HGrid, Select, TextField } from "@navikt/ds-react";
 import { useEffect } from "react";
 import { useFormContext } from "react-hook-form";
@@ -10,7 +10,7 @@ import { OpsjonerRegistrert } from "../opsjoner/OpsjonerRegistrert";
 import { Opsjonsmodell, opsjonsmodeller } from "../opsjoner/opsjonsmodeller";
 
 interface Props {
-  avtale?: Avtale;
+  avtale?: AvtaleDto;
   avtaletype: Avtaletype;
   arenaOpphavOgIngenEierskap: boolean;
   minStartDato: Date;

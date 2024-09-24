@@ -8,7 +8,7 @@ import {
   Kurstype,
   Opphav,
   PaginertTiltaksgjennomforing,
-  Tiltaksgjennomforing,
+  TiltaksgjennomforingDto,
   TiltaksgjennomforingOppstartstype,
   TiltaksgjennomforingStatus,
 } from "@mr/api-client";
@@ -17,7 +17,7 @@ import { mockArrangorer } from "./mock_arrangorer";
 import { mockEnheter } from "./mock_enheter";
 import { mockTiltakstyper } from "./mock_tiltakstyper";
 
-export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
+export const mockTiltaksgjennomforinger: TiltaksgjennomforingDto[] = [
   {
     id: "a7d63fb0-4366-412c-84b7-7c15518ee361",
     navn: "Yrkesnorsk med praksis med en veldig lang tittel som ikke er helt utenkelig at de skriver inn",
@@ -178,6 +178,7 @@ export const mockTiltaksgjennomforinger: Tiltaksgjennomforing[] = [
       kontaktpersoner: mockArrangorKontaktpersoner,
     },
     tiltakstype: mockTiltakstyper.GRUFAGYRKE,
+    avtaleId: mockAvtaler[3].id,
     startDato: "2022-01-01",
     sluttDato: "2022-12-12",
     arenaAnsvarligEnhet: mockEnheter._0313,

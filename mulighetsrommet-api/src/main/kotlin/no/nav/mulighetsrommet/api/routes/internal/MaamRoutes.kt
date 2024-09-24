@@ -10,10 +10,12 @@ import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.tasks.*
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
+import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.kafka.KafkaConsumerOrchestrator
 import no.nav.mulighetsrommet.kafka.Topic
 import org.koin.ktor.ext.inject
+import java.time.LocalDate
 import java.util.*
 
 fun Route.maamRoutes() {
@@ -24,6 +26,7 @@ fun Route.maamRoutes() {
             val initialLoadTiltakstyper: InitialLoadTiltakstyper by inject()
             val synchronizeNavAnsatte: SynchronizeNavAnsatte by inject()
             val synchronizeUtdanninger: SynchronizeUtdanninger by inject()
+            val generateRefusjonskrav: GenerateRefusjonskrav by inject()
 
             post("generate-validation-report") {
                 val taskId = generateValidationReport.schedule()
@@ -66,6 +69,12 @@ fun Route.maamRoutes() {
                 synchronizeUtdanninger.syncUtdanninger()
                 call.respond(HttpStatusCode.OK, GeneralTaskResponse(id = "Synkronisering av utdanning.no OK"))
             }
+
+            post("generate-refusjonskrav") {
+                val (dayInMonth) = call.receive<GenerateRefusjonskravRequest>()
+                generateRefusjonskrav.runTask(dayInMonth)
+                call.respond(HttpStatusCode.OK, GeneralTaskResponse(id = "Generering av refusjonskrav OK"))
+            }
         }
 
         route("/topics") {
@@ -84,6 +93,12 @@ fun Route.maamRoutes() {
         }
     }
 }
+
+@Serializable
+data class GenerateRefusjonskravRequest(
+    @Serializable(with = LocalDateSerializer::class)
+    val dayInMonth: LocalDate,
+)
 
 @Serializable
 data class StartInitialLoadTiltaksgjennomforingRequest(

@@ -1,10 +1,10 @@
 import { Tag } from "@navikt/ds-react";
-import { Avtale } from "@mr/api-client";
+import { AvtaleDto } from "@mr/api-client";
 import { useState } from "react";
 import { avbrytAvtaleAarsakToString } from "@/utils/Utils";
 
 interface Props {
-  avtale: Avtale;
+  avtale: AvtaleDto;
   showAvbruttAarsak?: boolean;
 }
 

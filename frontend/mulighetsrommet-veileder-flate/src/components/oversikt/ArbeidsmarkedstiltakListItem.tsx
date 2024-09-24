@@ -13,7 +13,11 @@ import {
   VeilederflateTiltak,
 } from "@mr/api-client";
 import styles from "./ArbeidsmarkedstiltakListItem.module.scss";
-import { isTiltakArbeidsgiver, isTiltakGruppe } from "@/api/queries/useArbeidsmarkedstiltakById";
+import {
+  isTiltakEnkeltplass,
+  isTiltakGruppe,
+  isTiltakMedArrangor,
+} from "@/api/queries/useArbeidsmarkedstiltakById";
 
 interface Props {
   tiltak: VeilederflateTiltak;
@@ -36,7 +40,6 @@ export function ArbeidsmarkedstiltakListItem({ tiltak, index, delMedBruker }: Pr
       })
     : "Dato mangler";
 
-  const { navn, tiltakstype } = tiltak;
   const id = isTiltakGruppe(tiltak) ? tiltak.id : tiltak.sanityId;
   const oppstart = utledOppstart(tiltak);
 
@@ -46,7 +49,7 @@ export function ArbeidsmarkedstiltakListItem({ tiltak, index, delMedBruker }: Pr
         harDeltMedBruker: styles.list_element_border,
       })}
       id={`list_element_${index}`}
-      data-testid={`tiltaksgjennomforing_${kebabCase(navn)}`}
+      data-testid={`tiltaksgjennomforing_${kebabCase(tiltak.tittel)}`}
     >
       <Lenke to={`../tiltak/${id}${paginationUrl}`}>
         {datoSidenSistDelt ? (
@@ -67,12 +70,12 @@ export function ArbeidsmarkedstiltakListItem({ tiltak, index, delMedBruker }: Pr
 
           <div className={classNames(styles.flex, styles.navn)}>
             <VStack>
-              <VisningsnavnForTiltak navn={navn} tiltakstype={tiltakstype} />
+              <VisningsnavnForTiltak tittel={tiltak.tittel} underTittel={tiltak.underTittel} />
             </VStack>
           </div>
 
           <div className={classNames(styles.infogrid, styles.metadata)}>
-            {isTiltakGruppe(tiltak) ? (
+            {isTiltakMedArrangor(tiltak) ? (
               <BodyShort size="small" title={tiltak.arrangor.selskapsnavn} className={styles.muted}>
                 {tiltak.arrangor.selskapsnavn}
               </BodyShort>
@@ -93,7 +96,7 @@ export function ArbeidsmarkedstiltakListItem({ tiltak, index, delMedBruker }: Pr
 }
 
 function utledOppstart(tiltak: VeilederflateTiltak) {
-  if (isTiltakArbeidsgiver(tiltak)) {
+  if (isTiltakEnkeltplass(tiltak)) {
     return "Løpende oppstart";
   }
 

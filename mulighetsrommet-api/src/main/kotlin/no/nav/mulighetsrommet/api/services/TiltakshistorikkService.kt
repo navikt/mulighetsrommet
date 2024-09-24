@@ -4,12 +4,11 @@ import arrow.core.Either
 import arrow.core.getOrElse
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
-import no.nav.mulighetsrommet.api.clients.AccessType
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.*
 import no.nav.mulighetsrommet.api.clients.pdl.*
 import no.nav.mulighetsrommet.api.clients.tiltakshistorikk.TiltakshistorikkClient
 import no.nav.mulighetsrommet.api.domain.dto.DeltakerKort
-import no.nav.mulighetsrommet.api.domain.dto.TiltakshistorikkAdminDto
+import no.nav.mulighetsrommet.api.domain.dto.TiltakshistorikkDto
 import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.api.utils.TiltaksnavnUtils
 import no.nav.mulighetsrommet.domain.dbo.ArenaDeltakerStatus
@@ -18,6 +17,7 @@ import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
 import no.nav.mulighetsrommet.domain.dto.Tiltakshistorikk
 import no.nav.mulighetsrommet.domain.dto.amt.AmtDeltakerStatus
 import no.nav.mulighetsrommet.env.NaisEnv
+import no.nav.mulighetsrommet.tokenprovider.AccessType
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -43,6 +43,7 @@ class TiltakshistorikkService(
             }
         }
 
+        // TODO håndter feilscenarier fra tiltakshistorikk
         val historikk = historikkResponse.await().historikk.map {
             when (it) {
                 is Tiltakshistorikk.ArenaDeltakelse -> {
@@ -53,7 +54,7 @@ class TiltakshistorikkService(
                     it.toDeltakerKort()
                 }
 
-                is Tiltakshistorikk.ArbeidsgiverAvtale -> throw IllegalStateException("ArbeidsgiverAvtale er enda ikke støttet")
+                is Tiltakshistorikk.ArbeidsgiverAvtale -> it.toDeltakerKort()
             }
         }
 
@@ -115,6 +116,36 @@ class TiltakshistorikkService(
             innsoktDato = null,
             sistEndretDato = null,
             eierskap = DeltakerKort.Eierskap.ARENA,
+        )
+    }
+
+    private suspend fun Tiltakshistorikk.ArbeidsgiverAvtale.toDeltakerKort(): DeltakerKort {
+        val arenaKode = when (tiltakstype) {
+            Tiltakshistorikk.ArbeidsgiverAvtale.Tiltakstype.ARBEIDSTRENING -> "ARBTREN"
+            Tiltakshistorikk.ArbeidsgiverAvtale.Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD -> "MIDLONTIL"
+            Tiltakshistorikk.ArbeidsgiverAvtale.Tiltakstype.VARIG_LONNSTILSKUDD -> "VARLONTIL"
+            Tiltakshistorikk.ArbeidsgiverAvtale.Tiltakstype.MENTOR -> "MENTOR"
+            Tiltakshistorikk.ArbeidsgiverAvtale.Tiltakstype.INKLUDERINGSTILSKUDD -> "INKLUTILS"
+            Tiltakshistorikk.ArbeidsgiverAvtale.Tiltakstype.SOMMERJOBB -> "TILSJOBB"
+        }
+        val tiltakstype = tiltakstypeRepository.getByArenaTiltakskode(arenaKode)
+        val arrangorNavn = getArrangor(arbeidsgiver.organisasjonsnummer).navn
+        return DeltakerKort(
+            id = avtaleId,
+            periode = DeltakerKort.Periode(
+                startDato = startDato,
+                sluttDato = sluttDato,
+            ),
+            status = DeltakerKort.DeltakerStatus(
+                type = DeltakerKort.DeltakerStatus.DeltakerStatusType.valueOf(status.name),
+                visningstekst = arbeidsgiverAvtaleStatusTilVisningstekst(status),
+                aarsak = null,
+            ),
+            tittel = TiltaksnavnUtils.tilKonstruertNavn(tiltakstype, arrangorNavn),
+            tiltakstypeNavn = tiltakstype.navn,
+            innsoktDato = null,
+            sistEndretDato = null,
+            eierskap = DeltakerKort.Eierskap.TEAM_TILTAK,
         )
     }
 
@@ -195,6 +226,18 @@ class TiltakshistorikkService(
         }
     }
 
+    private fun arbeidsgiverAvtaleStatusTilVisningstekst(status: Tiltakshistorikk.ArbeidsgiverAvtale.Status): String {
+        return when (status) {
+            Tiltakshistorikk.ArbeidsgiverAvtale.Status.ANNULLERT -> "Annullert"
+            Tiltakshistorikk.ArbeidsgiverAvtale.Status.AVBRUTT -> "Avbrutt"
+            Tiltakshistorikk.ArbeidsgiverAvtale.Status.PAABEGYNT -> "Påbegynt"
+            Tiltakshistorikk.ArbeidsgiverAvtale.Status.MANGLER_GODKJENNING -> "Mangler godkjenning"
+            Tiltakshistorikk.ArbeidsgiverAvtale.Status.KLAR_FOR_OPPSTART -> "Klar for oppstart"
+            Tiltakshistorikk.ArbeidsgiverAvtale.Status.GJENNOMFORES -> "Gjennomføres"
+            Tiltakshistorikk.ArbeidsgiverAvtale.Status.AVSLUTTET -> "Avsluttet"
+        }
+    }
+
     suspend fun hentDeltakelserFraKomet(
         norskIdent: NorskIdent,
         obo: AccessType.OBO,
@@ -226,7 +269,7 @@ class TiltakshistorikkService(
             }
     }
 
-    private suspend fun getArrangorHovedenhet(orgnr: Organisasjonsnummer): TiltakshistorikkAdminDto.Arrangor {
+    private suspend fun getArrangorHovedenhet(orgnr: Organisasjonsnummer): TiltakshistorikkDto.Arrangor {
         val navn = arrangorService.getOrSyncArrangorFromBrreg(orgnr.value).fold({ error ->
             log.warn("Klarte ikke hente arrangørs hovedenhet. BrregError: $error")
             null
@@ -234,7 +277,18 @@ class TiltakshistorikkService(
             virksomhet.overordnetEnhet?.let { getArrangorHovedenhet(Organisasjonsnummer(it)) }?.navn ?: virksomhet.navn
         })
 
-        return TiltakshistorikkAdminDto.Arrangor(organisasjonsnummer = Organisasjonsnummer(orgnr.value), navn = navn)
+        return TiltakshistorikkDto.Arrangor(organisasjonsnummer = Organisasjonsnummer(orgnr.value), navn = navn)
+    }
+
+    private suspend fun getArrangor(orgnr: Organisasjonsnummer): TiltakshistorikkDto.Arrangor {
+        val navn = arrangorService.getOrSyncArrangorFromBrreg(orgnr.value).fold({ error ->
+            log.warn("Klarte ikke hente hente arrangør. BrregError: $error")
+            null
+        }, { virksomhet ->
+            virksomhet.navn
+        })
+
+        return TiltakshistorikkDto.Arrangor(organisasjonsnummer = Organisasjonsnummer(orgnr.value), navn = navn)
     }
 }
 

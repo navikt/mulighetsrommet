@@ -67,3 +67,7 @@ spec:
       rules:
         - application: mulighetsrommet-api
         - application: mulighetsrommet-arena-adapter
+    outbound:
+      rules:
+        - application: tiltak-datadeling
+          namespace: team-tiltak

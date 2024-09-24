@@ -1,4 +1,10 @@
-import { ArrangorKontaktperson, Avtale, NavAnsatt, NavEnhet, NavEnhetType } from "@mr/api-client";
+import {
+  ArrangorKontaktperson,
+  AvtaleDto,
+  NavAnsatt,
+  NavEnhet,
+  NavEnhetType,
+} from "@mr/api-client";
 import { DeepPartial } from "react-hook-form";
 import { InferredAvtaleSchema } from "@/components/redaksjoneltInnhold/AvtaleSchema";
 
@@ -22,7 +28,7 @@ export function getLokaleUnderenheterAsSelectOptions(
 
 export function defaultAvtaleData(
   ansatt: NavAnsatt,
-  avtale?: Avtale,
+  avtale?: AvtaleDto,
 ): DeepPartial<InferredAvtaleSchema> {
   const navRegioner = avtale?.kontorstruktur?.map((struktur) => struktur.region.enhetsnummer) ?? [];
   const navEnheter =

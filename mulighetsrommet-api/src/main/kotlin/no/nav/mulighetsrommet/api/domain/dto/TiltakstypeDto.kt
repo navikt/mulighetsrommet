@@ -10,7 +10,7 @@ import java.time.LocalDate
 import java.util.*
 
 @Serializable
-data class TiltakstypeAdminDto(
+data class TiltakstypeDto(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     val navn: String,

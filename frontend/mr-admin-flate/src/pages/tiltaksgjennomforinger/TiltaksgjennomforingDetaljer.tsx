@@ -9,10 +9,13 @@ import { TiltakTilgjengeligForArrangor } from "@/components/tiltaksgjennomforing
 import { ArrangorKontaktpersonDetaljer } from "@/pages/arrangor/ArrangorKontaktpersonDetaljer";
 import { Kontaktperson } from "@/pages/tiltaksgjennomforinger/Kontaktperson";
 import { formaterDato, formatertVentetid } from "@/utils/Utils";
-import { isTiltakMedFellesOppstart } from "@/utils/tiltakskoder";
 import { ExternalLinkIcon } from "@navikt/aksel-icons";
 import { BodyShort, HelpText, HStack, Tag } from "@navikt/ds-react";
-import { Avtale, Tiltaksgjennomforing, TiltaksgjennomforingOppstartstype } from "@mr/api-client";
+import {
+  AvtaleDto,
+  TiltaksgjennomforingDto,
+  TiltaksgjennomforingOppstartstype,
+} from "@mr/api-client";
 import { useTitle } from "@mr/frontend-common";
 import { NOM_ANSATT_SIDE } from "@mr/frontend-common/constants";
 import { Link } from "react-router-dom";
@@ -21,10 +24,11 @@ import { AmoKategoriseringDetaljer } from "@/components/amoKategorisering/AmoKat
 import { DetaljerContainer } from "@/pages/DetaljerContainer";
 import { DetaljerInfoContainer } from "@/pages/DetaljerInfoContainer";
 import { ArrangorKontaktinfoContainer } from "@/pages/arrangor/ArrangorKontaktinfoContainer";
+import { isKursTiltak } from "@mr/frontend-common/utils/utils";
 
 interface Props {
-  tiltaksgjennomforing: Tiltaksgjennomforing;
-  avtale?: Avtale;
+  tiltaksgjennomforing: TiltaksgjennomforingDto;
+  avtale?: AvtaleDto;
 }
 
 export function TiltaksgjennomforingDetaljer({ tiltaksgjennomforing, avtale }: Props) {
@@ -132,7 +136,7 @@ export function TiltaksgjennomforingDetaljer({ tiltaksgjennomforing, avtale }: P
 
           <Bolk>
             <Metadata header={tiltaktekster.antallPlasserLabel} verdi={antallPlasser} />
-            {isTiltakMedFellesOppstart(tiltakstype.tiltakskode) && (
+            {isKursTiltak(tiltakstype.tiltakskode) && (
               <Metadata header={tiltaktekster.deltidsprosentLabel} verdi={deltidsprosent} />
             )}
           </Bolk>

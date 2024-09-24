@@ -1,7 +1,7 @@
 import React, { useRef } from "react";
 import { BodyShort, Button, Dropdown, Switch } from "@navikt/ds-react";
 import { useMutatePublisert } from "@/api/tiltaksgjennomforing/useMutatePublisert";
-import { NavAnsatt, Tiltaksgjennomforing, Toggles } from "@mr/api-client";
+import { NavAnsatt, TiltaksgjennomforingDto, Toggles } from "@mr/api-client";
 import { useTiltaksgjennomforingEndringshistorikk } from "@/api/tiltaksgjennomforing/useTiltaksgjennomforingEndringshistorikk";
 import { EndringshistorikkPopover } from "@/components/endringshistorikk/EndringshistorikkPopover";
 import { ViewEndringshistorikk } from "@/components/endringshistorikk/ViewEndringshistorikk";
@@ -17,7 +17,7 @@ import { useFeatureToggle } from "../../api/features/useFeatureToggle";
 
 interface Props {
   bruker: NavAnsatt;
-  tiltaksgjennomforing: Tiltaksgjennomforing;
+  tiltaksgjennomforing: TiltaksgjennomforingDto;
 }
 
 export function TiltaksgjennomforingKnapperad({ bruker, tiltaksgjennomforing }: Props) {

@@ -50,7 +50,7 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
   const { data: tiltak } = useModiaArbeidsmarkedstiltakById();
   const { data: regioner } = useRegioner();
 
-  useTitle(`Arbeidsmarkedstiltak - Detaljer ${tiltak?.navn ? `- ${tiltak.navn}` : null}`);
+  useTitle(`Arbeidsmarkedstiltak - Detaljer ${tiltak.tittel}`);
 
   const pagination = useAtomValue(paginationAtom);
 
@@ -65,6 +65,9 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
         dialogId: delMedBrukerInfo.dialogId,
       })
     : null;
+
+  const tiltaksnummer = "tiltaksnummer" in tiltak ? tiltak.tiltaksnummer : undefined;
+  const fylke = regioner.find((r) => r.enhetsnummer === tiltak.fylke)?.navn;
 
   return (
     <>
@@ -158,10 +161,7 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
             <LenkeListe lenker={tiltak.faneinnhold?.lenker} />
             <VisibleWhenToggledOn toggle={Toggles.MULIGHETSROMMET_VEILEDERFLATE_VIS_TILBAKEMELDING}>
               <TilbakemeldingsLenke
-                url={PORTEN_URL_FOR_TILBAKEMELDING(
-                  tiltak.tiltaksnummer,
-                  regioner.find((r) => r.enhetsnummer === tiltak.fylke)?.navn,
-                )}
+                url={PORTEN_URL_FOR_TILBAKEMELDING(tiltaksnummer, fylke)}
                 tekst="Gi tilbakemelding via Porten"
               />
             </VisibleWhenToggledOn>

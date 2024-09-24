@@ -4,7 +4,6 @@ import { useTiltaksgjennomforingAdministratorer } from "@/api/ansatt/useTiltaksg
 import { useTiltaksgjennomforingDeltakerSummary } from "@/api/tiltaksgjennomforing/useTiltaksgjennomforingDeltakerSummary";
 import { useMigrerteTiltakstyper } from "@/api/tiltakstyper/useMigrerteTiltakstyper";
 import { addYear, formaterDato } from "@/utils/Utils";
-import { isTiltakMedFellesOppstart } from "@/utils/tiltakskoder";
 import { PlusIcon, XMarkIcon } from "@navikt/aksel-icons";
 import {
   Alert,
@@ -18,8 +17,8 @@ import {
   TextField,
 } from "@navikt/ds-react";
 import {
-  Avtale,
-  Tiltaksgjennomforing,
+  AvtaleDto,
+  TiltaksgjennomforingDto,
   TiltaksgjennomforingKontaktperson,
   TiltaksgjennomforingOppstartstype,
   Tiltakskode,
@@ -44,10 +43,11 @@ import { SkjemaInputContainer } from "@/components/skjema/SkjemaInputContainer";
 import { SkjemaKolonne } from "@/components/skjema/SkjemaKolonne";
 import { VertikalSeparator } from "@/components/skjema/VertikalSeparator";
 import { KontaktpersonButton } from "@/components/kontaktperson/KontaktpersonButton";
+import { isKursTiltak } from "@mr/frontend-common/utils/utils";
 
 interface Props {
-  tiltaksgjennomforing?: Tiltaksgjennomforing;
-  avtale: Avtale;
+  tiltaksgjennomforing?: TiltaksgjennomforingDto;
+  avtale: AvtaleDto;
 }
 
 function visApentForInnsok(tiltakskode: Tiltakskode) {
@@ -206,7 +206,7 @@ export function TiltaksgjennomforingSkjemaDetaljer({ tiltaksgjennomforing, avtal
           <FormGroup>
             <SelectOppstartstype
               name="oppstart"
-              readonly={!isTiltakMedFellesOppstart(avtale.tiltakstype.tiltakskode)}
+              readonly={!isKursTiltak(avtale.tiltakstype.tiltakskode)}
             />
             <HGrid columns={2}>
               <DatePicker>
@@ -272,7 +272,7 @@ export function TiltaksgjennomforingSkjemaDetaljer({ tiltaksgjennomforing, avtal
                   valueAsNumber: true,
                 })}
               />
-              {isTiltakMedFellesOppstart(avtale.tiltakstype.tiltakskode) && (
+              {isKursTiltak(avtale.tiltakstype.tiltakskode) && (
                 <TextField
                   size="small"
                   readOnly={eierIkkeGjennomforing}

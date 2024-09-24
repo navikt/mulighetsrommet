@@ -1,7 +1,7 @@
 import { defaultTiltaksgjennomforingfilter, TiltaksgjennomforingFilter } from "@/api/atoms";
 import { useAtom } from "jotai/index";
 import { NullstillFilterKnapp } from "@mr/frontend-common/components/nullstillFilterKnapp/NullstillFilterKnapp";
-import { Avtale, LagretDokumenttype } from "@mr/api-client";
+import { AvtaleDto, LagretDokumenttype } from "@mr/api-client";
 import { WritableAtom } from "jotai";
 import { LagreFilterContainer } from "@mr/frontend-common";
 
@@ -11,7 +11,7 @@ interface Props {
     [newValue: TiltaksgjennomforingFilter],
     void
   >;
-  avtale?: Avtale;
+  avtale?: AvtaleDto;
 }
 export function NullstillKnappForTiltaksgjennomforinger({ filterAtom, avtale }: Props) {
   const [filter, setFilter] = useAtom(filterAtom);

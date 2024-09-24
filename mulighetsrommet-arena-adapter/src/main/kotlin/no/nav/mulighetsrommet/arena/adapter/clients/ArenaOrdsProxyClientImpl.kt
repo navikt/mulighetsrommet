@@ -11,12 +11,14 @@ import io.ktor.http.*
 import no.nav.mulighetsrommet.arena.adapter.models.dto.ArenaOrdsArrangor
 import no.nav.mulighetsrommet.arena.adapter.models.dto.ArenaOrdsFnr
 import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
+import no.nav.mulighetsrommet.tokenprovider.AccessType
+import no.nav.mulighetsrommet.tokenprovider.TokenProvider
 import org.slf4j.LoggerFactory
 
 class ArenaOrdsProxyClientImpl(
     engine: HttpClientEngine = CIO.create(),
     private val baseUrl: String,
-    private val tokenProvider: () -> String,
+    private val tokenProvider: TokenProvider,
 ) : ArenaOrdsProxyClient {
 
     private val log = LoggerFactory.getLogger(javaClass)
@@ -27,7 +29,7 @@ class ArenaOrdsProxyClientImpl(
 
     override suspend fun getArbeidsgiver(arbeidsgiverId: Int): Either<ResponseException, ArenaOrdsArrangor?> {
         val response = client.get("$baseUrl/ords/arbeidsgiver") {
-            bearerAuth(tokenProvider.invoke())
+            bearerAuth(tokenProvider.exchange(AccessType.M2M))
             parameter("arbeidsgiverId", arbeidsgiverId)
         }
 
@@ -45,7 +47,7 @@ class ArenaOrdsProxyClientImpl(
 
     override suspend fun getFnr(personId: Int): Either<ResponseException, ArenaOrdsFnr?> {
         val response = client.get("$baseUrl/ords/fnr") {
-            bearerAuth(tokenProvider.invoke())
+            bearerAuth(tokenProvider.exchange(AccessType.M2M))
             parameter("personId", personId)
         }
 

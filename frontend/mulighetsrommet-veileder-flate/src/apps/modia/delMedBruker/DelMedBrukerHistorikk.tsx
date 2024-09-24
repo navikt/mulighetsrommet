@@ -104,15 +104,7 @@ function contentForRow(delteTiltak: TiltakDeltMedBruker[]): ReactNode {
         return (
           <List.Item key={delt.dialogId}>
             <HStack gap="5" align="start">
-              <VisningsnavnForTiltak
-                noLink
-                navn={delt.lokaltNavn}
-                tiltakstype={{
-                  tiltakskode: delt.tiltakstype.tiltakskode,
-                  arenakode: delt.tiltakstype?.arenakode,
-                  navn: delt.tiltakstype.navn,
-                }}
-              />
+              <VisningsnavnForTiltak noLink tittel={delt.tittel} underTittel={delt.underTittel} />
               <BodyShort size="small">Delt {formaterDato(delt.createdAt)}</BodyShort>
             </HStack>
           </List.Item>
@@ -127,15 +119,7 @@ function createCells(antallTiltakDelt: number, tiltak: TiltakDeltMedBruker): Rea
     <>
       {antallTiltakDelt === 1 ? <Table.DataCell></Table.DataCell> : null}
       <Table.DataCell>
-        <VisningsnavnForTiltak
-          noLink
-          navn={tiltak.lokaltNavn}
-          tiltakstype={{
-            tiltakskode: tiltak.tiltakstype.tiltakskode,
-            arenakode: tiltak.tiltakstype?.arenakode,
-            navn: tiltak.tiltakstype.navn,
-          }}
-        />
+        <VisningsnavnForTiltak noLink tittel={tiltak.tittel} underTittel={tiltak.underTittel} />
       </Table.DataCell>
       <Table.DataCell title={tiltak.createdAt}>{formaterDato(tiltak.createdAt)}</Table.DataCell>
       <Table.DataCell>

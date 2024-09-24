@@ -1,6 +1,6 @@
 import {
   AvbrytAvtaleAarsak,
-  Avtale,
+  AvtaleDto,
   Avtaletype,
   Bransje,
   EstimertVentetidEnhet,
@@ -143,7 +143,7 @@ export function subtractDays(date: Date, numDays: number): Date {
   return newDate;
 }
 
-export function avtaleHarRegioner(avtale: Avtale): boolean {
+export function avtaleHarRegioner(avtale: AvtaleDto): boolean {
   return avtale.kontorstruktur.some((stru) => stru.region);
 }
 

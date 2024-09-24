@@ -90,17 +90,6 @@ export const oversiktenSteps: MulighetsrommetStep[] = [
     id: "sortering",
   },
   {
-    title: "Tiltakshistorikk",
-    content:
-      "Historikken gir deg oversikt over hvilke tiltak brukeren har deltatt på de siste fem årene. Klikk på ikonet for å se historikken.",
-    target: "#historikk_knapp",
-    placement: "left",
-    disableBeacon: true,
-    disableOverlayClose: true,
-    spotlightClicks: true,
-    id: "tiltakshistorikk-knapp",
-  },
-  {
     title: "Detaljert visning",
     content: "Ved å klikke på gjennomføringen vil du kunne se flere detaljer om tiltaket.",
     target: "#list_element_0",

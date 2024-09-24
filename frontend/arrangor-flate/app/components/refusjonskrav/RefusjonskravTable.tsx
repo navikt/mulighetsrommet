@@ -1,10 +1,10 @@
-import { Refusjonskrav, RefusjonskravStatus } from "@mr/api-client";
+import { RefusjonskravDto, RefusjonskravStatus } from "@mr/api-client";
 import { Table, Tag } from "@navikt/ds-react";
 import { Link } from "@remix-run/react";
 import { ReactNode } from "react";
 
 interface Props {
-  krav: Refusjonskrav[];
+  krav: RefusjonskravDto[];
 }
 
 export function RefusjonskravTable({ krav }: Props) {
@@ -23,7 +23,10 @@ export function RefusjonskravTable({ krav }: Props) {
           </Table.Row>
         </Table.Header>
         <Table.Body>
-          {krav.map(({ id, tiltaksnr, kravnr, periode, belop, fristForGodkjenning, status }) => {
+          {krav.map(({ id, periodeStart, periodeSlutt, beregning }) => {
+            // TODO: Hardkodet enn så lenge
+            const status = RefusjonskravStatus.KLAR_FOR_INNSENDING;
+
             return (
               <Table.Row
                 className={
@@ -33,11 +36,11 @@ export function RefusjonskravTable({ krav }: Props) {
                 }
                 key={id}
               >
-                <Table.DataCell>{tiltaksnr}</Table.DataCell>
-                <Table.DataCell>{kravnr}</Table.DataCell>
-                <Table.DataCell>{periode}</Table.DataCell>
-                <Table.DataCell>{belop} NOK</Table.DataCell>
-                <Table.DataCell>{fristForGodkjenning}</Table.DataCell>
+                <Table.DataCell>123</Table.DataCell>
+                <Table.DataCell>1</Table.DataCell>
+                <Table.DataCell>{`${periodeStart} - ${periodeSlutt}`}</Table.DataCell>
+                <Table.DataCell>{beregning.belop} NOK</Table.DataCell>
+                <Table.DataCell>Frist for godkjenning</Table.DataCell>
                 <Table.DataCell>{statusTilTag(status)}</Table.DataCell>
                 <Table.DataCell>
                   <Link className="hover:underline" to={`for-du-begynner/${id}`}>

@@ -1,5 +1,5 @@
 import { bransjeToString, kurstypeToString } from "@/utils/Utils";
-import { Avtale, Kurstype } from "@mr/api-client";
+import { AvtaleDto, Kurstype } from "@mr/api-client";
 import { HGrid, Select } from "@navikt/ds-react";
 import { tiltaktekster } from "../ledetekster/tiltaksgjennomforingLedetekster";
 import { ForerkortSkjema } from "./ForerkortSkjema";
@@ -8,7 +8,7 @@ import { NorksopplaeringSkjema } from "./NorskopplaeringSkjema";
 import { SertifiseringerSkjema } from "./SertifiseringerSelect";
 
 interface Props {
-  avtale: Avtale;
+  avtale: AvtaleDto;
 }
 
 export function TiltaksgjennomforingAmoKategoriseringSkjema(props: Props) {

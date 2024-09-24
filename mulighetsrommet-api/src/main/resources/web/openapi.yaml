@@ -49,7 +49,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Avtale"
+                $ref: "#/components/schemas/AvtaleDto"
         404:
           description: "Avtalen ble ikke funnet"
           content:
@@ -168,7 +168,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Avtale"
+                $ref: "#/components/schemas/AvtaleDto"
         400:
           description: Respons med valideringsfeil
           content:
@@ -453,7 +453,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Tiltaksgjennomforing"
+                $ref: "#/components/schemas/TiltaksgjennomforingDto"
         400:
           description: Respons med valideringsfeil
           content:
@@ -566,7 +566,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Tiltaksgjennomforing"
+                $ref: "#/components/schemas/TiltaksgjennomforingDto"
         404:
           description: "Tiltaksgjennomføringen ble ikke funnet"
           content:
@@ -744,7 +744,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Tiltakstype"
+                $ref: "#/components/schemas/TiltakstypeDto"
         404:
           description: "Tiltakstypen ble ikke funnet"
           content:
@@ -1813,7 +1813,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/Refusjonskrav"
+                  $ref: "#/components/schemas/RefusjonskravDto"
 
   /api/v1/intern/refusjon/kvittering/{id}:
     parameters:
@@ -2036,7 +2036,7 @@ components:
         data:
           type: array
           items:
-            $ref: "#/components/schemas/Tiltakstype"
+            $ref: "#/components/schemas/TiltakstypeDto"
 
     PaginertTiltaksgjennomforing:
       type: object
@@ -2049,7 +2049,7 @@ components:
         data:
           type: array
           items:
-            $ref: "#/components/schemas/Tiltaksgjennomforing"
+            $ref: "#/components/schemas/TiltaksgjennomforingDto"
 
     PaginertAvtale:
       type: object
@@ -2062,7 +2062,7 @@ components:
         data:
           type: array
           items:
-            $ref: "#/components/schemas/Avtale"
+            $ref: "#/components/schemas/AvtaleDto"
 
     PaginertArrangor:
       type: object
@@ -2103,7 +2103,7 @@ components:
         - VARLONTIL
         - UTVAOONAV
 
-    Tiltakstype:
+    TiltakstypeDto:
       type: object
       properties:
         id:
@@ -2137,7 +2137,7 @@ components:
         - startDato
         - status
 
-    Avtale:
+    AvtaleDto:
       type: object
       properties:
         id:
@@ -2422,7 +2422,7 @@ components:
         - navn-ascending
         - navn-descending
 
-    Tiltaksgjennomforing:
+    TiltaksgjennomforingDto:
       type: object
       properties:
         id:
@@ -3412,7 +3412,9 @@ components:
     VeilederflateTiltak:
       oneOf:
         - $ref: "#/components/schemas/VeilederflateTiltakGruppe"
-        - $ref: "#/components/schemas/VeilederflateTiltakArbeidsgiver"
+        - $ref: "#/components/schemas/VeilederflateTiltakEnkeltplassAnskaffet"
+        - $ref: "#/components/schemas/VeilederflateTiltakEgenRegi"
+        - $ref: "#/components/schemas/VeilederflateTiltakEnkeltplass"
 
     VeilederflateTiltakGruppe:
       type: object
@@ -3436,7 +3438,9 @@ components:
         id:
           type: string
           format: uuid
-        navn:
+        tittel:
+          type: string
+        underTittel:
           type: string
         stedForGjennomforing:
           type: string
@@ -3465,18 +3469,19 @@ components:
         - kontaktinfo
         - oppstart
         - id
-        - navn
+        - tittel
+        - underTittel
         - apentForInnsok
         - oppstartsdato
         - arrangor
         - personvernBekreftet
         - personopplysningerSomKanBehandles
 
-    VeilederflateTiltakArbeidsgiver:
+    VeilederflateTiltakEgenRegi:
       type: object
       properties:
         type:
-          const: "TILTAK_ARBEIDSGIVER"
+          const: "TILTAK_EGEN_REGI"
         tiltakstype:
           $ref: "#/components/schemas/VeilederflateTiltakstype"
         tiltaksnummer:
@@ -3493,7 +3498,9 @@ components:
           const: LOPENDE
         sanityId:
           type: string
-        navn:
+        tittel:
+          type: string
+        underTittel:
           type: string
         stedForGjennomforing:
           type: string
@@ -3505,7 +3512,85 @@ components:
         - kontaktinfo
         - oppstart
         - sanityId
-        - navn
+        - tittel
+        - underTittel
+
+    VeilederflateTiltakEnkeltplass:
+      type: object
+      properties:
+        type:
+          const: "TILTAK_ENKELTPLASS"
+        tiltakstype:
+          $ref: "#/components/schemas/VeilederflateTiltakstype"
+        status:
+          $ref: "#/components/schemas/TiltaksgjennomforingStatusDto"
+        beskrivelse:
+          type: string
+        faneinnhold:
+          $ref: "#/components/schemas/Faneinnhold"
+        kontaktinfo:
+          $ref: "#/components/schemas/VeilederflateKontaktInfo"
+        oppstart:
+          const: LOPENDE
+        sanityId:
+          type: string
+        tittel:
+          type: string
+        underTittel:
+          type: string
+        stedForGjennomforing:
+          type: string
+        fylke:
+          type: string
+      required:
+        - tiltakstype
+        - status
+        - kontaktinfo
+        - oppstart
+        - sanityId
+        - tittel
+        - underTittel
+
+    VeilederflateTiltakEnkeltplassAnskaffet:
+      type: object
+      properties:
+        type:
+          const: "TILTAK_ENKELTPLASS_ANSKAFFET"
+        tiltakstype:
+          $ref: "#/components/schemas/VeilederflateTiltakstype"
+        tiltaksnummer:
+          type: string
+        status:
+          $ref: "#/components/schemas/TiltaksgjennomforingStatusDto"
+        beskrivelse:
+          type: string
+        faneinnhold:
+          $ref: "#/components/schemas/Faneinnhold"
+        kontaktinfo:
+          $ref: "#/components/schemas/VeilederflateKontaktInfo"
+        oppstart:
+          const: LOPENDE
+        sanityId:
+          type: string
+        tittel:
+          type: string
+        underTittel:
+          type: string
+        stedForGjennomforing:
+          type: string
+        fylke:
+          type: string
+        arrangor:
+          $ref: "#/components/schemas/VeilderflateArrangor"
+      required:
+        - tiltakstype
+        - status
+        - kontaktinfo
+        - oppstart
+        - sanityId
+        - tittel
+        - underTittel
+        - arrangor
 
     RegelverkLenke:
       type: object
@@ -3569,6 +3654,8 @@ components:
             $ref: "#/components/schemas/Lenke"
         delMedBruker:
           type: string
+        kurstittel:
+          type: string
 
     FaneinnholdRequest:
       type: object
@@ -3594,6 +3681,9 @@ components:
           type: string
           nullable: true
         delMedBruker:
+          type: string
+          nullable: true
+        kurstittel:
           type: string
           nullable: true
 
@@ -3987,7 +4077,6 @@ components:
       type: string
       enum:
         - mulighetsrommet.veilederflate.visDeltakerRegistrering
-        - mulighetsrommet-veilederflate-landingsside
         - mulighetsrommet-veilederflate.vis-tilbakemelding
         - mulighetsrommet.admin-flate.enableDebugger
         - mulighetsrommet.admin-flate.opprett-tilsagn
@@ -4380,11 +4469,10 @@ components:
     TiltakDeltMedBruker:
       type: object
       properties:
-        lokaltNavn:
+        tittel:
           type: string
-        konstruertNavn:
+        underTittel:
           type: string
-          nullable: true
         tiltakstype:
           $ref: "#/components/schemas/TiltakDeltMedBrukerTiltakstype"
         createdAt:
@@ -4395,8 +4483,8 @@ components:
         tiltakId:
           type: string
       required:
-        - lokaltNavn
-        - konstruertNavn
+        - tittel
+        - underTittel
         - tiltakstype
         - createdAt
         - dialogId
@@ -4790,34 +4878,37 @@ components:
         - startDato
         - belop
 
-    Refusjonskrav:
+    RefusjonskravDto:
       type: object
       properties:
         id:
           type: string
           format: uuid
-        tiltaksnr:
-          type: string
-        kravnr:
-          type: string
-        periode:
+        tiltaksgjennomforing:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            navn:
+              type: string
+          required:
+            - id
+            - navn
+        periodeStart:
           type: string
           format: date
-        belop:
-          type: string
-        fristForGodkjenning:
+        periodeSlutt:
           type: string
           format: date
-        status:
-          $ref: "#/components/schemas/RefusjonskravStatus"
+        beregning:
+          $ref: "#/components/schemas/RefusjonskravBeregning"
       required:
         - id
-        - tiltaksnr
-        - kravnr
-        - periode
-        - belop
-        - fristForGodkjenning
-        - status
+        - tiltaksgjennomforing
+        - periodeStart
+        - periodeSlutt
+        - beregning
 
     RefusjonskravStatus:
       type: string
@@ -4825,3 +4916,23 @@ components:
         - ATTESTERT
         - KLAR_FOR_INNSENDING
         - NARMER_SEG_FRIST
+
+    RefusjonskravBeregning:
+      oneOf:
+        - $ref: "#/components/schemas/RefusjonskravBeregningAFT"
+
+    RefusjonskravBeregningAFT:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - AFT
+        sats:
+          type: integer
+        belop:
+          type: integer
+      required:
+        - type
+        - sats
+        - belop

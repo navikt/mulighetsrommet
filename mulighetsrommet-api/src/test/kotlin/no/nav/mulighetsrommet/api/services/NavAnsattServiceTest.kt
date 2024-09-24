@@ -17,7 +17,6 @@ import io.mockk.verify
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.mulighetsrommet.api.AdGruppeNavAnsattRolleMapping
-import no.nav.mulighetsrommet.api.clients.AccessType
 import no.nav.mulighetsrommet.api.clients.msgraph.AzureAdNavAnsatt
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
@@ -27,7 +26,7 @@ import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattRolle.*
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
 import no.nav.mulighetsrommet.api.domain.dto.AdGruppe
-import no.nav.mulighetsrommet.api.domain.dto.AvtaleAdminDto
+import no.nav.mulighetsrommet.api.domain.dto.AvtaleDto
 import no.nav.mulighetsrommet.api.domain.dto.NavAnsattDto
 import no.nav.mulighetsrommet.api.domain.dto.SanityResponse
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
@@ -43,6 +42,7 @@ import no.nav.mulighetsrommet.ktor.respondJson
 import no.nav.mulighetsrommet.notifications.NotificationService
 import no.nav.mulighetsrommet.notifications.NotificationType
 import no.nav.mulighetsrommet.notifications.ScheduledNotification
+import no.nav.mulighetsrommet.tokenprovider.AccessType
 import java.time.LocalDate
 import java.util.*
 
@@ -427,18 +427,18 @@ class NavAnsattServiceTest :
 
             test("varsler administratorer basert på hovedenhet når avtale ikke lengre har administrator") {
                 every { avtaleRepository.getAvtaleIdsByAdministrator(ansatt1.navIdent) } returns listOf(AvtaleFixtures.AFT.id)
-                every { avtaleRepository.get(AvtaleFixtures.AFT.id) } returns AvtaleAdminDto(
+                every { avtaleRepository.get(AvtaleFixtures.AFT.id) } returns AvtaleDto(
                     id = AvtaleFixtures.AFT.id,
                     navn = AvtaleFixtures.AFT.navn,
                     avtalenummer = AvtaleFixtures.AFT.avtalenummer,
                     tiltakstype = TiltakstypeFixtures.AFT.run {
-                        AvtaleAdminDto.Tiltakstype(
+                        AvtaleDto.Tiltakstype(
                             id = id,
                             navn = navn,
                             tiltakskode = tiltakskode!!,
                         )
                     },
-                    arrangor = AvtaleAdminDto.ArrangorHovedenhet(
+                    arrangor = AvtaleDto.ArrangorHovedenhet(
                         id = UUID.randomUUID(),
                         organisasjonsnummer = "123",
                         navn = "navn",

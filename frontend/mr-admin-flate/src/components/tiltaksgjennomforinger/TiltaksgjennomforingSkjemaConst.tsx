@@ -1,29 +1,29 @@
-import { isTiltakMedFellesOppstart } from "../../utils/tiltakskoder";
 import {
   ArrangorKontaktperson,
-  Avtale,
+  AvtaleDto,
   NavAnsatt,
   Opphav,
-  Tiltaksgjennomforing,
+  TiltaksgjennomforingDto,
   TiltaksgjennomforingOppstartstype,
   Tiltakskode,
 } from "@mr/api-client";
 import { InferredTiltaksgjennomforingSchema } from "@/components/redaksjoneltInnhold/TiltaksgjennomforingSchema";
 import { DeepPartial } from "react-hook-form";
+import { isKursTiltak } from "@mr/frontend-common/utils/utils";
 
-export function defaultOppstartType(avtale?: Avtale): TiltaksgjennomforingOppstartstype {
+export function defaultOppstartType(avtale?: AvtaleDto): TiltaksgjennomforingOppstartstype {
   if (!avtale) {
     return TiltaksgjennomforingOppstartstype.LOPENDE;
   }
 
   const tiltakskode = avtale.tiltakstype.tiltakskode;
-  return isTiltakMedFellesOppstart(tiltakskode)
+  return isKursTiltak(tiltakskode)
     ? TiltaksgjennomforingOppstartstype.FELLES
     : TiltaksgjennomforingOppstartstype.LOPENDE;
 }
 
 export function erArenaOpphavOgIngenEierskap(
-  tiltaksgjennomforing: Tiltaksgjennomforing | undefined,
+  tiltaksgjennomforing: TiltaksgjennomforingDto | undefined,
   migrerteTiltakstyper: Tiltakskode[],
 ) {
   return (
@@ -33,8 +33,8 @@ export function erArenaOpphavOgIngenEierskap(
 }
 
 function defaultNavRegion(
-  avtale: Avtale,
-  tiltaksgjennomforing?: Tiltaksgjennomforing,
+  avtale: AvtaleDto,
+  tiltaksgjennomforing?: TiltaksgjennomforingDto,
 ): string | undefined {
   if (tiltaksgjennomforing?.navRegion) {
     return tiltaksgjennomforing.navRegion.enhetsnummer;
@@ -44,7 +44,10 @@ function defaultNavRegion(
   }
 }
 
-function defaultNavEnheter(avtale: Avtale, tiltaksgjennomforing?: Tiltaksgjennomforing): string[] {
+function defaultNavEnheter(
+  avtale: AvtaleDto,
+  tiltaksgjennomforing?: TiltaksgjennomforingDto,
+): string[] {
   if (tiltaksgjennomforing?.navEnheter) {
     return tiltaksgjennomforing.navEnheter.map((enhet) => enhet.enhetsnummer);
   }
@@ -55,8 +58,8 @@ function defaultNavEnheter(avtale: Avtale, tiltaksgjennomforing?: Tiltaksgjennom
 }
 
 function defaultArrangor(
-  avtale: Avtale,
-  tiltaksgjennomforing?: Tiltaksgjennomforing,
+  avtale: AvtaleDto,
+  tiltaksgjennomforing?: TiltaksgjennomforingDto,
 ): string | undefined {
   if (tiltaksgjennomforing?.arrangor?.id) {
     return tiltaksgjennomforing.arrangor.id;
@@ -71,8 +74,8 @@ function defaultArrangor(
 
 export function defaultTiltaksgjennomforingData(
   ansatt: NavAnsatt,
-  avtale: Avtale,
-  tiltaksgjennomforing?: Tiltaksgjennomforing,
+  avtale: AvtaleDto,
+  tiltaksgjennomforing?: TiltaksgjennomforingDto,
 ): DeepPartial<InferredTiltaksgjennomforingSchema> {
   return {
     navn: tiltaksgjennomforing?.navn || avtale.navn,

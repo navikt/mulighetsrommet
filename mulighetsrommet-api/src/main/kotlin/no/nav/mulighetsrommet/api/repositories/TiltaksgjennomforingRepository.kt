@@ -14,11 +14,13 @@ import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.api.domain.dto.*
 import no.nav.mulighetsrommet.api.responses.StatusResponseError
+import no.nav.mulighetsrommet.api.utils.DBUtils.toFTSPrefixQuery
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.PaginatedResult
 import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.database.utils.mapPaginated
 import no.nav.mulighetsrommet.domain.Tiltakskode
+import no.nav.mulighetsrommet.domain.Tiltakskoder.isKursTiltak
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.ArenaTiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
@@ -352,10 +354,10 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             .asExecute.let { tx.run(it) }
     }
 
-    fun get(id: UUID): TiltaksgjennomforingAdminDto? =
+    fun get(id: UUID): TiltaksgjennomforingDto? =
         db.transaction { get(id, it) }
 
-    fun get(id: UUID, tx: Session): TiltaksgjennomforingAdminDto? {
+    fun get(id: UUID, tx: Session): TiltaksgjennomforingDto? {
         @Language("PostgreSQL")
         val query = """
             select *
@@ -364,7 +366,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         """.trimIndent()
 
         return queryOf(query, id)
-            .map { it.toTiltaksgjennomforingAdminDto() }
+            .map { it.toTiltaksgjennomforingDto() }
             .asSingle
             .let { tx.run(it) }
     }
@@ -395,9 +397,9 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         administratorNavIdent: NavIdent? = null,
         opphav: ArenaMigrering.Opphav? = null,
         publisert: Boolean? = null,
-    ): PaginatedResult<TiltaksgjennomforingAdminDto> {
+    ): PaginatedResult<TiltaksgjennomforingDto> {
         val parameters = mapOf(
-            "search" to search,
+            "search" to search?.toFTSPrefixQuery(),
             "search_arrangor" to search?.trim()?.let { "%$it%" },
             "slutt_dato_cutoff" to sluttDatoGreaterThanOrEqualTo,
             "avtale_id" to avtaleId,
@@ -437,7 +439,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
               and (:avtale_id::uuid is null or avtale_id = :avtale_id)
               and (:arrangor_ids::uuid[] is null or arrangor_id = any(:arrangor_ids))
               and (:arrangor_orgnrs::text[] is null or arrangor_organisasjonsnummer = any(:arrangor_orgnrs))
-              and (:search::text is null or (fts @@ websearch_to_tsquery('norwegian', :search) or arrangor_navn ilike :search_arrangor))
+              and (:search::text is null or (fts @@ to_tsquery('norwegian', :search) or arrangor_navn ilike :search_arrangor))
               and (:nav_enheter::text[] is null or (
                    nav_region_enhetsnummer = any (:nav_enheter) or
                    exists(select true
@@ -457,9 +459,27 @@ class TiltaksgjennomforingRepository(private val db: Database) {
 
         return db.useSession { session ->
             queryOf(query, parameters + pagination.parameters)
-                .mapPaginated { it.toTiltaksgjennomforingAdminDto() }
+                .mapPaginated { it.toTiltaksgjennomforingDto() }
                 .runWithSession(session)
         }
+    }
+
+    fun getGjennomforesInPeriodeUtenRefusjonskrav(periodeStart: LocalDate, periodeSlutt: LocalDate): List<TiltaksgjennomforingDto> {
+        @Language("PostgreSQL")
+        val query = """
+            select * from tiltaksgjennomforing_admin_dto_view
+            left join refusjonskrav on refusjonskrav.tiltaksgjennomforing_id = tiltaksgjennomforing_admin_dto_view.id
+            where
+                (start_dato <= :periode_slutt) and
+                (slutt_dato >= :periode_start or slutt_dato is null) and
+                (avbrutt_tidspunkt > :periode_start or avbrutt_tidspunkt is null) and
+                (refusjonskrav.id is null)
+        """.trimIndent()
+
+        return queryOf(query, mapOf("periode_start" to periodeStart, "periode_slutt" to periodeSlutt))
+            .map { it.toTiltaksgjennomforingDto() }
+            .asList
+            .let { db.run(it) }
     }
 
     fun getVeilederflateTiltaksgjennomforing(id: UUID): VeilederflateTiltakGruppe? {
@@ -486,7 +506,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         val parameters = mapOf(
             "innsatsgruppe" to innsatsgruppe.name,
             "brukers_enheter" to db.createTextArray(brukersEnheter),
-            "search" to search,
+            "search" to search?.toFTSPrefixQuery(),
             "apent_for_innsok" to apentForInnsok,
             "sanityTiltakstypeIds" to sanityTiltakstypeIds?.let { db.createUuidArray(it) },
         )
@@ -498,7 +518,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             where publisert
               and :innsatsgruppe::innsatsgruppe = any(tiltakstype_innsatsgrupper)
               and nav_enheter && :brukers_enheter
-              and (:search::text is null or fts @@ websearch_to_tsquery('norwegian', :search))
+              and (:search::text is null or fts @@ to_tsquery('norwegian', :search))
               and (:sanityTiltakstypeIds::uuid[] is null or tiltakstype_sanity_id = any(:sanityTiltakstypeIds))
               and (:apent_for_innsok::boolean is null or apent_for_innsok = :apent_for_innsok)
         """.trimIndent()
@@ -652,7 +672,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
     fun lukkApentForInnsokForTiltakMedStartdatoForDato(
         dagensDato: LocalDate,
         tx: TransactionalSession,
-    ): List<TiltaksgjennomforingAdminDto> {
+    ): List<TiltaksgjennomforingDto> {
         @Language("PostgreSQL")
         val query = """
             update tiltaksgjennomforing
@@ -728,14 +748,24 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         val avbruttTidspunkt = localDateTimeOrNull("avbrutt_tidspunkt")
         val avbruttAarsak = stringOrNull("avbrutt_aarsak")?.let { AvbruttAarsak.fromString(it) }
 
+        val tiltakstypeNavn = string("tiltakstype_navn")
+        val tiltakskode = stringOrNull("tiltakstype_tiltakskode")?.let { Tiltakskode.valueOf(it) }
+        val navn = string("navn")
+        val (tittel, underTittel) = if (isKursTiltak(tiltakskode)) {
+            navn to tiltakstypeNavn
+        } else {
+            tiltakstypeNavn to navn
+        }
+
         return VeilederflateTiltakGruppe(
             id = uuid("id"),
             tiltakstype = VeilederflateTiltakstype(
                 sanityId = uuid("tiltakstype_sanity_id").toString(),
-                navn = string("tiltakstype_navn"),
+                navn = tiltakstypeNavn,
                 tiltakskode = stringOrNull("tiltakstype_tiltakskode")?.let { Tiltakskode.valueOf(it) },
             ),
-            navn = string("navn"),
+            tittel = tittel,
+            underTittel = underTittel,
             stedForGjennomforing = stringOrNull("sted_for_gjennomforing"),
             apentForInnsok = boolean("apent_for_innsok"),
             tiltaksnummer = stringOrNull("tiltaksnummer"),
@@ -751,7 +781,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
                 selskapsnavn = stringOrNull("arrangor_navn"),
                 kontaktpersoner = arrangorKontaktpersoner,
             ),
-            fylke = stringOrNull("nav_region"),
+            fylke = string("nav_region"),
             enheter = navEnheter,
             beskrivelse = stringOrNull("beskrivelse"),
             faneinnhold = stringOrNull("faneinnhold")?.let { Json.decodeFromString(it) },
@@ -777,9 +807,9 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         )
     }
 
-    private fun Row.toTiltaksgjennomforingAdminDto(): TiltaksgjennomforingAdminDto {
+    private fun Row.toTiltaksgjennomforingDto(): TiltaksgjennomforingDto {
         val administratorer = stringOrNull("administratorer_json")
-            ?.let { Json.decodeFromString<List<TiltaksgjennomforingAdminDto.Administrator>>(it) }
+            ?.let { Json.decodeFromString<List<TiltaksgjennomforingDto.Administrator>>(it) }
             ?: emptyList()
         val navEnheterDto = stringOrNull("nav_enheter_json")
             ?.let { Json.decodeFromString<List<NavEnhetDbo>>(it) }
@@ -796,7 +826,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         val avbruttTidspunkt = localDateTimeOrNull("avbrutt_tidspunkt")
         val avbruttAarsak = stringOrNull("avbrutt_aarsak")?.let { AvbruttAarsak.fromString(it) }
 
-        return TiltaksgjennomforingAdminDto(
+        return TiltaksgjennomforingDto(
             id = uuid("id"),
             navn = string("navn"),
             tiltaksnummer = stringOrNull("tiltaksnummer"),
@@ -823,7 +853,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             createdAt = localDateTime("created_at"),
             deltidsprosent = double("deltidsprosent"),
             estimertVentetid = intOrNull("estimert_ventetid_verdi")?.let {
-                TiltaksgjennomforingAdminDto.EstimertVentetid(
+                TiltaksgjennomforingDto.EstimertVentetid(
                     verdi = int("estimert_ventetid_verdi"),
                     enhet = string("estimert_ventetid_enhet"),
                 )
@@ -848,14 +878,14 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             },
             kontaktpersoner = kontaktpersoner,
             administratorer = administratorer,
-            arrangor = TiltaksgjennomforingAdminDto.ArrangorUnderenhet(
+            arrangor = TiltaksgjennomforingDto.ArrangorUnderenhet(
                 id = uuid("arrangor_id"),
                 organisasjonsnummer = string("arrangor_organisasjonsnummer"),
                 navn = string("arrangor_navn"),
                 slettet = boolean("arrangor_slettet"),
                 kontaktpersoner = arrangorKontaktpersoner,
             ),
-            tiltakstype = TiltaksgjennomforingAdminDto.Tiltakstype(
+            tiltakstype = TiltaksgjennomforingDto.Tiltakstype(
                 id = uuid("tiltakstype_id"),
                 navn = string("tiltakstype_navn"),
                 tiltakskode = Tiltakskode.valueOf(string("tiltakstype_tiltakskode")),

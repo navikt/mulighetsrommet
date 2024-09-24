@@ -15,14 +15,20 @@ tasks.shadowJar {
 }
 
 dependencies {
+    implementation(projects.common.nais)
     implementation(projects.common.domain)
     implementation(projects.common.database)
     implementation(projects.common.slack)
     implementation(projects.common.kafka)
+    implementation(projects.common.tokenProvider)
     testImplementation(testFixtures(projects.common.database))
     implementation(projects.common.ktor)
     testImplementation(testFixtures(projects.common.ktor))
+    implementation(projects.common.ktorClients)
     implementation(projects.common.metrics)
+
+    // Cache
+    implementation(libs.caffeine)
 
     // Kotlin
     implementation(libs.kotlinx.serialization.json)
@@ -46,13 +52,6 @@ dependencies {
     implementation(libs.ktor.server.defaultHeaders)
     implementation(libs.ktor.server.metricsMicrometer)
     testImplementation(libs.ktor.server.tests)
-
-    implementation(libs.nav.common.tokenClient)
-    constraints {
-        implementation("net.minidev:json-smart:2.5.1") {
-            because("sikkerhetshull i transitiv avhengighet rapportert via snyk")
-        }
-    }
 
     // Test
     testImplementation(libs.kotest.junit)

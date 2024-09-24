@@ -3,16 +3,15 @@ import { useUpsertAvtale } from "@/api/avtaler/useUpsertAvtale";
 import { useHandleApiUpsertResponse } from "@/api/effects";
 import { erAnskaffetTiltak } from "@/utils/tiltakskoder";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ExclamationmarkTriangleFillIcon } from "@navikt/aksel-icons";
 import { Tabs } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import {
-  Avtale,
+  AvtaleDto,
   AvtaleRequest,
   EmbeddedTiltakstype,
   NavAnsatt,
   NavEnhet,
-  Tiltakstype,
+  TiltakstypeDto,
 } from "@mr/api-client";
 import React from "react";
 import { DeepPartial, FormProvider, SubmitHandler, useForm } from "react-hook-form";
@@ -27,13 +26,14 @@ import { Laster } from "../laster/Laster";
 import { InlineErrorBoundary } from "@mr/frontend-common";
 import { RedaksjoneltInnholdBunnKnapperad } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdBunnKnapperad";
 import styles from "./AvtaleSkjemaContainer.module.scss";
+import { TabWithErrorBorder } from "../skjema/TabWithErrorBorder";
 
 interface Props {
   onClose: () => void;
   onSuccess: (id: string) => void;
-  tiltakstyper: Tiltakstype[];
+  tiltakstyper: TiltakstypeDto[];
   ansatt: NavAnsatt;
-  avtale?: Avtale;
+  avtale?: AvtaleDto;
   enheter: NavEnhet[];
   redigeringsModus: boolean;
   defaultValues: DeepPartial<InferredAvtaleSchema>;
@@ -121,8 +121,11 @@ export function AvtaleSkjemaContainer({
     },
   );
 
+  const hasRedaksjoneltInnholdErrors = Boolean(errors?.faneinnhold);
   const hasPersonvernErrors = Boolean(errors?.personvernBekreftet);
-  const hasDetaljerErrors = Object.keys(errors).length > (hasPersonvernErrors ? 1 : 0);
+  const hasDetaljerErrors = Object.keys(errors).some(
+    (e) => e !== "faneinnhold" && e !== "personvernBekreftet",
+  );
 
   return (
     <FormProvider {...form}>
@@ -130,44 +133,23 @@ export function AvtaleSkjemaContainer({
         <Tabs defaultValue={activeTab}>
           <Tabs.List className={styles.tabslist}>
             <div>
-              <Tabs.Tab
+              <TabWithErrorBorder
                 onClick={() => setActiveTab("detaljer")}
-                style={{
-                  border: hasDetaljerErrors ? "solid 2px #C30000" : "",
-                  borderRadius: hasDetaljerErrors ? "8px" : 0,
-                }}
                 value="detaljer"
-                label={
-                  hasDetaljerErrors ? (
-                    <span style={{ display: "flex", alignContent: "baseline", gap: "0.4rem" }}>
-                      <ExclamationmarkTriangleFillIcon aria-label="Detaljer" /> Detaljer
-                    </span>
-                  ) : (
-                    "Detaljer"
-                  )
-                }
+                label="Detaljer"
+                hasError={hasDetaljerErrors}
               />
-              <Tabs.Tab
+              <TabWithErrorBorder
                 onClick={() => setActiveTab("personvern")}
-                style={{
-                  border: hasPersonvernErrors ? "solid 2px #C30000" : "",
-                  borderRadius: hasPersonvernErrors ? "8px" : 0,
-                }}
                 value="personvern"
-                label={
-                  hasPersonvernErrors ? (
-                    <span style={{ display: "flex", alignContent: "baseline", gap: "0.4rem" }}>
-                      <ExclamationmarkTriangleFillIcon aria-label="Personvern" /> Personvern
-                    </span>
-                  ) : (
-                    "Personvern"
-                  )
-                }
+                label="Personvern"
+                hasError={hasPersonvernErrors}
               />
-              <Tabs.Tab
+              <TabWithErrorBorder
                 label="Redaksjonelt innhold"
                 value="redaksjonelt-innhold"
                 onClick={() => setActiveTab("redaksjonelt-innhold")}
+                hasError={hasRedaksjoneltInnholdErrors}
               />
             </div>
             <AvtaleSkjemaKnapperad redigeringsModus={redigeringsModus} onClose={onClose} />

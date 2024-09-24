@@ -1,14 +1,14 @@
 import { Alert, Button, Heading, HelpText, Modal, Search } from "@navikt/ds-react";
 import { useSetAvtaleForGjennomforing } from "@/api/tiltaksgjennomforing/useSetAvtaleForGjennomforing";
 import { useState } from "react";
-import { Avtale, Tiltaksgjennomforing } from "@mr/api-client";
+import { AvtaleDto, TiltaksgjennomforingDto } from "@mr/api-client";
 import { TiltaksgjennomforingerListe } from "../tiltaksgjennomforinger/TiltaksgjennomforingerListe";
 import { Link } from "react-router-dom";
 import { RedaksjoneltInnholdModalContainer } from "@/components/modal/RedaksjoneltInnholdModalContainer";
 import { RedaksjoneltInnholdModalBody } from "@/components/modal/RedaksjoneltInnholdModalBody";
 
 interface Props {
-  avtale: Avtale;
+  avtale: AvtaleDto;
   modalOpen: boolean;
   onClose: () => void;
 }
@@ -24,7 +24,7 @@ export function LeggTilGjennomforingModal({ avtale, modalOpen, onClose }: Props)
     onClose();
   };
 
-  const handleLeggTil = (tiltaksgjennomforing: Tiltaksgjennomforing, avtaleId?: string) => {
+  const handleLeggTil = (tiltaksgjennomforing: TiltaksgjennomforingDto, avtaleId?: string) => {
     mutate(
       {
         gjennomforingId: tiltaksgjennomforing.id,

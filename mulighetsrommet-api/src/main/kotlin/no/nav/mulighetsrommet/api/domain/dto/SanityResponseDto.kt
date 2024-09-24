@@ -4,7 +4,10 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.*
 import no.nav.mulighetsrommet.domain.dto.Faneinnhold
 import no.nav.mulighetsrommet.domain.dto.Innsatsgruppe
+import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
+import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
+import java.util.*
 
 @Serializable
 data class RegelverkLenke(
@@ -36,9 +39,29 @@ data class SanityTiltaksgjennomforing(
     val stedForGjennomforing: String? = null,
     val fylke: String? = null,
     val enheter: List<String?>? = null,
+    val arrangor: SanityArrangor? = null,
     val kontaktpersoner: List<SanityKontaktperson>? = null,
     val faneinnhold: Faneinnhold? = null,
     val delingMedBruker: String? = null,
+)
+
+@Serializable
+data class SanityArrangor(
+    @Serializable(with = UUIDSerializer::class)
+    val _id: UUID,
+    val navn: String,
+    val organisasjonsnummer: Organisasjonsnummer? = null,
+    val kontaktpersoner: List<SanityArrangorKontaktperson>? = emptyList(),
+)
+
+@Serializable
+data class SanityArrangorKontaktperson(
+    @Serializable(with = UUIDSerializer::class)
+    val _id: UUID,
+    val navn: String,
+    val telefon: String?,
+    val epost: String,
+    val beskrivelse: String?,
 )
 
 @Serializable

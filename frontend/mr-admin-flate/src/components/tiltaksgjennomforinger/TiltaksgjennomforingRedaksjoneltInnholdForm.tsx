@@ -1,5 +1,5 @@
 import { Button, Heading, HStack, Modal, Search } from "@navikt/ds-react";
-import { Avtale, Tiltaksgjennomforing } from "@mr/api-client";
+import { AvtaleDto, TiltaksgjennomforingDto } from "@mr/api-client";
 import { RedaksjoneltInnholdForm } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdForm";
 import { useFormContext } from "react-hook-form";
 import { InferredTiltaksgjennomforingSchema } from "@/components/redaksjoneltInnhold/TiltaksgjennomforingSchema";
@@ -10,7 +10,7 @@ import { RedaksjoneltInnholdModalBody } from "@/components/modal/RedaksjoneltInn
 import { RedaksjoneltInnholdToppKnapperad } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdToppKnapperad";
 
 interface Props {
-  avtale: Avtale;
+  avtale: AvtaleDto;
 }
 
 export function TiltakgjennomforingRedaksjoneltInnholdForm({ avtale }: Props) {
@@ -20,7 +20,10 @@ export function TiltakgjennomforingRedaksjoneltInnholdForm({ avtale }: Props) {
 
   const { setValue } = useFormContext<InferredTiltaksgjennomforingSchema>();
 
-  function kopierRedaksjoneltInnhold({ beskrivelse, faneinnhold }: Tiltaksgjennomforing | Avtale) {
+  function kopierRedaksjoneltInnhold({
+    beskrivelse,
+    faneinnhold,
+  }: TiltaksgjennomforingDto | AvtaleDto) {
     setValue("beskrivelse", beskrivelse ?? null);
     setValue("faneinnhold", faneinnhold ?? null);
     // Ved å endre `key` så tvinger vi en update av den underliggende Slate-komponenten slik at

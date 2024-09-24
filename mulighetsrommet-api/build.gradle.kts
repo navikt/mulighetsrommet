@@ -45,6 +45,7 @@ flyway {
 }
 
 dependencies {
+    implementation(projects.common.nais)
     implementation(projects.common.database)
     testImplementation(testFixtures(projects.common.database))
     implementation(projects.common.domain)
@@ -52,6 +53,7 @@ dependencies {
     implementation(projects.common.ktor)
     testImplementation(testFixtures(projects.common.ktor))
     implementation(projects.common.ktorClients)
+    implementation(projects.common.tokenProvider)
     implementation(projects.common.metrics)
     implementation(projects.common.slack)
     implementation(projects.common.tasks)
@@ -95,7 +97,6 @@ dependencies {
     implementation(libs.prometheus.caffeine)
 
     implementation(libs.nav.common.auditLog)
-    implementation(libs.nav.common.tokenClient)
     implementation(libs.nav.common.client)
 
     // Dependency injection
@@ -109,21 +110,13 @@ dependencies {
     // Unleash
     implementation(libs.unleash)
 
-    implementation(libs.nav.common.auditLog)
-    implementation(libs.nav.common.tokenClient)
-    constraints {
-        implementation("net.minidev:json-smart:2.5.1") {
-            because("sikkerhetshull i transitiv avhengighet rapportert via snyk")
-        }
-    }
-
     // Tilgangskontroll
     implementation(libs.nav.poaoTilgang.client)
     constraints {
         implementation("org.yaml:snakeyaml:2.3") {
             because("sikkerhetshull i transitiv avhengighet rapportert via snyk")
         }
-        implementation("org.apache.tomcat.embed:tomcat-embed-core:9.0.93") {
+        implementation("org.apache.tomcat.embed:tomcat-embed-core:9.0.95") {
             because("sikkerhetshull i transitiv avhengighet rapportert via snyk")
         }
     }

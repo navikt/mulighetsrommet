@@ -102,6 +102,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
             AvtaleFixtures.oppfolgingMedAvtale,
             AvtaleFixtures.oppfolging,
             AvtaleFixtures.gruppeAmo,
+            AvtaleFixtures.jobbklubb,
             AvtaleFixtures.VTA,
             AvtaleFixtures.AFT,
         ),
@@ -251,6 +252,25 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
         validator.validate(offentligOffentlig, null).shouldBeLeft(
             listOf(ValidationError("sluttDato", "Du må legge inn sluttdato for gjennomføringen")),
         )
+    }
+
+    test("kurstittel er påkrevd hvis kurstiltak") {
+        val validator = TiltaksgjennomforingValidator(
+            TiltakstypeService(TiltakstypeRepository(database.db), Tiltakskode.entries),
+            avtaler,
+            arrangorer,
+        )
+        val jobbklubb = TiltaksgjennomforingFixtures.Jobbklubb1.copy(faneinnhold = null)
+        val gruppeAmo = TiltaksgjennomforingFixtures.GruppeAmo1.copy(faneinnhold = null)
+        val oppfolging = TiltaksgjennomforingFixtures.Oppfolging1
+
+        validator.validate(jobbklubb, null).shouldBeLeft(
+            listOf(ValidationError("faneinnhold.kurstittel", "Du må skrive en kurstittel")),
+        )
+        validator.validate(gruppeAmo, null).shouldBeLeft(
+            listOf(ValidationError("faneinnhold.kurstittel", "Du må skrive en kurstittel")),
+        )
+        validator.validate(oppfolging, null).shouldBeRight()
     }
 
     test("arrangøren må være aktiv i Brreg") {
