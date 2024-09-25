@@ -72,6 +72,14 @@ export default function RefusjonDeltakerlister() {
       />
       <HGrid gap="5" columns={1}>
         <DeltakerlisteDetaljer deltakerliste={deltakerliste} />
+        <div className="flex justify-between mt-8">
+          <span>
+            Refusjonskravperiode: <b>{deltakerliste.detaljer.refusjonskravperiode}</b>
+          </span>
+          <span>
+            Refusjonskravnummer: <b>{deltakerliste.detaljer.refusjonskravnummer}</b>
+          </span>
+        </div>
         <Alert variant="info">Her kommer deltakertabell</Alert>
         <Table zebraStripes>
           <Table.Header>
