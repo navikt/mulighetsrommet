@@ -76,12 +76,12 @@ export default function RefusjonDeltakerlister() {
       sort && sortKey === sort.orderBy && sort.direction === "descending"
         ? undefined
         : {
-            orderBy: sortKey,
-            direction:
-              sort && sortKey === sort.orderBy && sort.direction === "ascending"
-                ? "descending"
-                : "ascending",
-          },
+          orderBy: sortKey,
+          direction:
+            sort && sortKey === sort.orderBy && sort.direction === "ascending"
+              ? "descending"
+              : "ascending",
+        },
     );
   };
 
