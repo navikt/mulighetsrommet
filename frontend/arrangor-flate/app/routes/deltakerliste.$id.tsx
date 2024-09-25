@@ -76,12 +76,12 @@ export default function RefusjonDeltakerlister() {
       sort && sortKey === sort.orderBy && sort.direction === "descending"
         ? undefined
         : {
-          orderBy: sortKey,
-          direction:
-            sort && sortKey === sort.orderBy && sort.direction === "ascending"
-              ? "descending"
-              : "ascending",
-        },
+            orderBy: sortKey,
+            direction:
+              sort && sortKey === sort.orderBy && sort.direction === "ascending"
+                ? "descending"
+                : "ascending",
+          },
     );
   };
 
@@ -98,13 +98,11 @@ export default function RefusjonDeltakerlister() {
   const sortedData = deltakerliste.deltakere.slice().sort((a, b) => {
     if (sort) {
       return sort.direction === "ascending"
-        ? comparator(b, a, sort.orderBy)
-        : comparator(a, b, sort.orderBy);
+        ? comparator(b, a, sort.orderBy as keyof Deltaker)
+        : comparator(a, b, sort.orderBy as keyof Deltaker);
     }
     return 1;
   });
-
-  console.log(deltakerliste);
 
   return (
     <>

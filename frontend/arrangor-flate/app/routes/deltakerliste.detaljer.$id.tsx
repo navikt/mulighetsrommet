@@ -24,6 +24,7 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
         refusjonskravperiode: "01.01.2024 - 31.01.2024",
         refusjonskravnummer: "6",
       },
+      deltakere: [],
     },
   };
 };
