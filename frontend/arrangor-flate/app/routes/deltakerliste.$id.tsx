@@ -3,7 +3,7 @@ import type { LoaderFunction, MetaFunction } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
 import { PageHeader } from "../components/PageHeader";
 import { DeltakerlisteDetaljer } from "../components/deltakerliste/DeltakerlisteDetaljer";
-import { Deltakerliste } from "../domene/domene";
+import { Deltaker, Deltakerliste } from "../domene/domene";
 import { requirePersonIdent } from "../auth/auth.server";
 import { RefusjonskravService } from "@mr/api-client";
 import { useState } from "react";
@@ -64,7 +64,7 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
 };
 
 interface ScopedSortState extends SortState {
-  orderBy: "name" | "veileder" | "startDatePeriod" | "endDatePeriod";
+  orderBy: Deltaker["navn"];
 }
 
 export default function RefusjonDeltakerlister() {
@@ -95,7 +95,7 @@ export default function RefusjonDeltakerlister() {
     return 0;
   }
 
-  const sortedData = data.slice().sort((a, b) => {
+  const sortedData = deltakerliste.deltakere.slice().sort((a, b) => {
     if (sort) {
       return sort.direction === "ascending"
         ? comparator(b, a, sort.orderBy)
@@ -123,7 +123,11 @@ export default function RefusjonDeltakerlister() {
           </span>
         </div>
         <Alert variant="info">Her kommer deltakertabell</Alert>
-        <Table zebraStripes>
+        <Table
+          sort={sort}
+          onSortChange={(sortKey) => handleSort(sortKey as ScopedSortState["orderBy"])}
+          zebraStripes
+        >
           <Table.Header>
             <Table.Row>
               <Table.ColumnHeader scope="col" sortable sortKey="name">
@@ -146,7 +150,7 @@ export default function RefusjonDeltakerlister() {
             </Table.Row>
           </Table.Header>
           <Table.Body>
-            {deltakerliste.deltakere.map((deltaker, i) => {
+            {sortedData.map((deltaker, i) => {
               return (
                 <Table.Row key={i + deltaker.fodselsdato}>
                   <Table.HeaderCell>{deltaker.navn}</Table.HeaderCell>
