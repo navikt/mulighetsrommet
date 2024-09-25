@@ -1,5 +1,20 @@
-import { DeltakerKort, DeltakerStatus, DeltakerStatusType } from "@mr/api-client";
-import { BodyShort, Box, Button, Heading, HGrid, HStack, Tag, VStack } from "@navikt/ds-react";
+import {
+  AmtDeltakerStatusType,
+  ArbeidsgiverAvtaleStatus,
+  ArenaDeltakerStatus,
+  DeltakerKort,
+} from "@mr/api-client";
+import {
+  BodyShort,
+  Box,
+  Button,
+  Heading,
+  HGrid,
+  HStack,
+  Tag,
+  TagProps,
+  VStack,
+} from "@navikt/ds-react";
 import classNames from "classnames";
 import { formaterDato } from "@/utils/Utils";
 import { ModiaRoute, resolveModiaRoute } from "../ModiaRoute";
@@ -57,14 +72,24 @@ function Wrapper({
       borderRadius="medium"
       padding={size === "small" ? "2" : size === "medium" ? "5" : "8"}
       className={classNames(styles.panel, {
-        [styles.utkast]: deltakelse.status.type === DeltakerStatusType.UTKAST_TIL_PAMELDING,
-        [styles.kladd]:
-          deltakelse.status.type === DeltakerStatusType.KLADD ||
-          deltakelse.status.type === DeltakerStatusType.PABEGYNT_REGISTRERING,
+        [styles.utkast]: isKladd(deltakelse.status.type),
+        [styles.kladd]: isUtkast(deltakelse.status.type),
       })}
     >
       {children}
     </Box>
+  );
+}
+
+function isKladd(type: ArenaDeltakerStatus | AmtDeltakerStatusType | ArbeidsgiverAvtaleStatus) {
+  return type === AmtDeltakerStatusType.KLADD || type === ArbeidsgiverAvtaleStatus.PAABEGYNT;
+}
+
+function isUtkast(type: ArenaDeltakerStatus | AmtDeltakerStatusType | ArbeidsgiverAvtaleStatus) {
+  return (
+    type === AmtDeltakerStatusType.UTKAST_TIL_PAMELDING ||
+    type === AmtDeltakerStatusType.PABEGYNT_REGISTRERING ||
+    type === ArbeidsgiverAvtaleStatus.MANGLER_GODKJENNING
   );
 }
 
@@ -73,7 +98,7 @@ function Innhold({ deltakelse }: { deltakelse: DeltakerKort }) {
   return (
     <VStack gap="2">
       <HStack gap="10">
-        {tiltakstypeNavn ? <small>{tiltakstypeNavn.toUpperCase()}</small> : null}
+        <small>{tiltakstypeNavn.toUpperCase()}</small>
         {innsoktDato ? <small>Søkt inn: {formaterDato(innsoktDato)}</small> : null}
       </HStack>
       {tittel ? (
@@ -82,8 +107,8 @@ function Innhold({ deltakelse }: { deltakelse: DeltakerKort }) {
         </Heading>
       ) : null}
       <HStack align={"end"} gap="5">
-        {status ? <Status status={status} /> : null}
-        {status.aarsak ? <BodyShort size="small">Årsak: {status.aarsak}</BodyShort> : null}
+        <Status status={status.type} visningstekst={status.visningstekst} />
+        {"aarsak" in status ? <BodyShort size="small">Årsak: {status.aarsak}</BodyShort> : null}
         {periode?.startDato ? (
           <BodyShort size="small">
             {periode.startDato && !periode.sluttDato
@@ -103,71 +128,74 @@ function Innhold({ deltakelse }: { deltakelse: DeltakerKort }) {
 }
 
 interface StatusProps {
-  status: DeltakerStatus;
+  status: ArenaDeltakerStatus | AmtDeltakerStatusType | ArbeidsgiverAvtaleStatus;
+  visningstekst: string;
 }
 
-function Status({ status }: StatusProps) {
-  const { visningstekst } = status;
-  switch (status.type) {
-    case DeltakerStatusType.DELTAR:
-    case DeltakerStatusType.GJENNOMFORES:
-      return (
-        <Tag size="small" variant="success" className={styles.deltarStatus}>
-          {visningstekst}
-        </Tag>
-      );
-    case DeltakerStatusType.PABEGYNT_REGISTRERING:
-    case DeltakerStatusType.KLADD:
-      return (
-        <Tag size="small" variant="warning">
-          {visningstekst}
-        </Tag>
-      );
-    case DeltakerStatusType.INFORMASJONSMOTE:
-    case DeltakerStatusType.TILBUD:
-    case DeltakerStatusType.UTKAST_TIL_PAMELDING:
-      return (
-        <Tag size="small" variant="info">
-          {visningstekst}
-        </Tag>
-      );
-    case DeltakerStatusType.IKKE_AKTUELL:
-    case DeltakerStatusType.FEILREGISTRERT:
-    case DeltakerStatusType.VENTELISTE:
-    case DeltakerStatusType.AVBRUTT:
-    case DeltakerStatusType.AVBRUTT_UTKAST:
-    case DeltakerStatusType.AVSLAG:
-    case DeltakerStatusType.DELTAKELSE_AVBRUTT:
-    case DeltakerStatusType.GJENNOMFORING_AVBRUTT:
-    case DeltakerStatusType.GJENNOMFORING_AVLYST:
-    case DeltakerStatusType.TAKKET_NEI_TIL_TILBUD:
-    case DeltakerStatusType.IKKE_MOTT:
-      return (
-        <Tag size="small" variant="neutral">
-          {visningstekst}
-        </Tag>
-      );
-    case DeltakerStatusType.HAR_SLUTTET:
-    case DeltakerStatusType.FULLFORT:
-      return (
-        <Tag size="small" variant="alt1">
-          {visningstekst}
-        </Tag>
-      );
-    case DeltakerStatusType.SOKT_INN:
-    case DeltakerStatusType.VENTER_PA_OPPSTART:
-    case DeltakerStatusType.TAKKET_JA_TIL_TILBUD:
-    case DeltakerStatusType.AKTUELL:
-      return (
-        <Tag size="small" variant="alt3">
-          {visningstekst}
-        </Tag>
-      );
-    case DeltakerStatusType.VURDERES:
-      return (
-        <Tag size="small" variant="alt2">
-          {visningstekst}
-        </Tag>
-      );
+function Status({ status, visningstekst }: StatusProps) {
+  const { variant, className } = resolveStatusStyle(status);
+  return (
+    <Tag size="small" variant={variant} className={className}>
+      {visningstekst}
+    </Tag>
+  );
+}
+
+function resolveStatusStyle(
+  status: ArenaDeltakerStatus | AmtDeltakerStatusType | ArbeidsgiverAvtaleStatus,
+): {
+  variant: TagProps["variant"];
+  className?: string;
+} {
+  switch (status) {
+    case AmtDeltakerStatusType.DELTAR:
+    case ArenaDeltakerStatus.GJENNOMFORES:
+    case ArbeidsgiverAvtaleStatus.GJENNOMFORES:
+      return { variant: "success", className: styles.deltarStatus };
+
+    case AmtDeltakerStatusType.PABEGYNT_REGISTRERING:
+    case AmtDeltakerStatusType.KLADD:
+    case ArbeidsgiverAvtaleStatus.PAABEGYNT:
+      return { variant: "warning" };
+
+    case ArenaDeltakerStatus.INFORMASJONSMOTE:
+    case ArenaDeltakerStatus.TILBUD:
+    case AmtDeltakerStatusType.UTKAST_TIL_PAMELDING:
+    case ArbeidsgiverAvtaleStatus.KLAR_FOR_OPPSTART:
+    case ArbeidsgiverAvtaleStatus.MANGLER_GODKJENNING:
+      return { variant: "info" };
+
+    case AmtDeltakerStatusType.IKKE_AKTUELL:
+    case AmtDeltakerStatusType.FEILREGISTRERT:
+    case AmtDeltakerStatusType.VENTELISTE:
+    case AmtDeltakerStatusType.AVBRUTT:
+    case AmtDeltakerStatusType.AVBRUTT_UTKAST:
+    case ArenaDeltakerStatus.IKKE_AKTUELL:
+    case ArenaDeltakerStatus.FEILREGISTRERT:
+    case ArenaDeltakerStatus.VENTELISTE:
+    case ArenaDeltakerStatus.AVSLAG:
+    case ArenaDeltakerStatus.DELTAKELSE_AVBRUTT:
+    case ArenaDeltakerStatus.GJENNOMFORING_AVBRUTT:
+    case ArenaDeltakerStatus.GJENNOMFORING_AVLYST:
+    case ArenaDeltakerStatus.TAKKET_NEI_TIL_TILBUD:
+    case ArenaDeltakerStatus.IKKE_MOTT:
+    case ArbeidsgiverAvtaleStatus.AVBRUTT:
+    case ArbeidsgiverAvtaleStatus.ANNULLERT:
+      return { variant: "neutral" };
+
+    case AmtDeltakerStatusType.HAR_SLUTTET:
+    case AmtDeltakerStatusType.FULLFORT:
+    case ArenaDeltakerStatus.FULLFORT:
+    case ArbeidsgiverAvtaleStatus.AVSLUTTET:
+      return { variant: "alt1" };
+
+    case AmtDeltakerStatusType.SOKT_INN:
+    case AmtDeltakerStatusType.VENTER_PA_OPPSTART:
+    case ArenaDeltakerStatus.TAKKET_JA_TIL_TILBUD:
+    case ArenaDeltakerStatus.AKTUELL:
+      return { variant: "alt3" };
+
+    case AmtDeltakerStatusType.VURDERES:
+      return { variant: "alt2" };
   }
 }

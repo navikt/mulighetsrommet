@@ -36,19 +36,20 @@ data class AmtDeltakerStatus(
     val opprettetDato: LocalDateTime,
 ) {
     enum class Type {
-        VENTER_PA_OPPSTART,
+        AVBRUTT,
+        AVBRUTT_UTKAST,
         DELTAR,
+        FEILREGISTRERT,
+        FULLFORT,
         HAR_SLUTTET,
         IKKE_AKTUELL,
-        FEILREGISTRERT,
+        KLADD,
         PABEGYNT_REGISTRERING,
         SOKT_INN,
-        VURDERES,
-        VENTELISTE,
-        AVBRUTT,
-        FULLFORT,
         UTKAST_TIL_PAMELDING,
-        AVBRUTT_UTKAST,
+        VENTELISTE,
+        VENTER_PA_OPPSTART,
+        VURDERES,
     }
 
     enum class Aarsak {

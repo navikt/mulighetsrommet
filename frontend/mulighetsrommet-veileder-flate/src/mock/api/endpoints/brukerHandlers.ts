@@ -81,9 +81,11 @@ export const brukerHandlers = [
     "*/api/v1/intern/bruker/deltakelse-for-gjennomforing",
     async ({ request }) => {
       const { tiltaksgjennomforingId } = await request.json();
-      const found = deltakelserAktive.find(
-        (utkast) => utkast.tiltaksgjennomforingId == tiltaksgjennomforingId,
-      );
+      const found = deltakelserAktive.find((deltakelse) => {
+        return (
+          "gjennomforingId" in deltakelse && deltakelse.gjennomforingId === tiltaksgjennomforingId
+        );
+      });
       if (found) {
         return HttpResponse.json(found);
       } else {

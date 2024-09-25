@@ -1013,7 +1013,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/DeltakelseFraKomet"
+                $ref: "#/components/schemas/DeltakerKortGruppetiltak"
         204:
           description: Fant ikke deltakelse for gjennomføring
 
@@ -2882,94 +2882,6 @@ components:
       required:
         - dialogId
 
-    TiltakshistorikkAdminDto:
-      oneOf:
-        - $ref: "#/components/schemas/ArenaDeltakelse"
-        - $ref: "#/components/schemas/GruppetiltakDeltakelse"
-
-    ArenaDeltakelse:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        startDato:
-          type: string
-          format: date
-        sluttDato:
-          type: string
-          format: date
-        tiltakNavn:
-          type: string
-        tiltakstypeNavn:
-          type: string
-        status:
-          $ref: "#/components/schemas/ArenaDeltakerStatus"
-        arrangor:
-          $ref: "#/components/schemas/TiltakshistorikkArrangor"
-        opphav:
-          type: string
-          enum:
-            - ARENA
-      required:
-        - id
-        - tiltakstypeNavn
-        - tiltakNavn
-        - status
-        - arrangor
-        - opphav
-
-    ArenaDeltakerStatus:
-      type: string
-      enum:
-        - AVSLAG
-        - IKKE_AKTUELL
-        - TAKKET_NEI_TIL_TILBUD
-        - TILBUD
-        - TAKKET_JA_TIL_TILBUD
-        - INFORMASJONSMOTE
-        - AKTUELL
-        - VENTELISTE
-        - GJENNOMFORES
-        - DELTAKELSE_AVBRUTT
-        - GJENNOMFORING_AVBRUTT
-        - GJENNOMFORING_AVLYST
-        - FULLFORT
-        - IKKE_MOTT
-        - FEILREGISTRERT
-
-    GruppetiltakDeltakelse:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        startDato:
-          type: string
-          format: date
-        sluttDato:
-          type: string
-          format: date
-        tiltakNavn:
-          type: string
-        tiltakstypeNavn:
-          type: string
-        status:
-          $ref: "#/components/schemas/AmtDeltakerStatus"
-        arrangor:
-          $ref: "#/components/schemas/TiltakshistorikkArrangor"
-        opphav:
-          type: string
-          enum:
-            - TEAM_KOMET
-      required:
-        - id
-        - tiltakNavn
-        - tiltakstypeNavn
-        - status
-        - arrangor
-        - opphav
-
     AmtDeltakerStatus:
       type: object
       properties:
@@ -2999,6 +2911,7 @@ components:
         - FULLFORT
         - UTKAST_TIL_PAMELDING
         - AVBRUTT_UTKAST
+        - KLADD
 
     AmtDeltakerStatusAarsak:
       type: string
@@ -3039,138 +2952,173 @@ components:
         - HENTER_IKKE_DELTAKELSER_FRA_TEAM_TILTAK
 
     DeltakerKort:
+      oneOf:
+        - $ref: "#/components/schemas/DeltakerKortArena"
+        - $ref: "#/components/schemas/DeltakerKortGruppetiltak"
+        - $ref: "#/components/schemas/DeltakerKortArbeidsgiverAvtale"
+
+    DeltakerKortPeriode:
+      type: object
+      properties:
+        startDato:
+          type: string
+          format: date
+          nullable: true
+        sluttDato:
+          type: string
+          format: date
+          nullable: true
+
+    DeltakerKortEierskap:
+      type: string
+      enum:
+        - ARENA
+        - TEAM_KOMET
+        - TEAM_TILTAK
+
+    DeltakerKortArena:
       type: object
       properties:
         id:
           type: string
           format: uuid
-        tiltaksgjennomforingId:
-          type: string
-          format: uuid
-          nullable: true
         eierskap:
-          type: string
-          enum:
-            - ARENA
-            - TEAM_KOMET
-            - TEAM_TILTAK
+          $ref: "#/components/schemas/DeltakerKortEierskap"
         tittel:
           type: string
         tiltakstypeNavn:
           type: string
-        status:
-          $ref: "#/components/schemas/DeltakerStatus"
         innsoktDato:
           type: string
-          nullable: true
         sistEndretDato:
           type: string
-          nullable: true
         periode:
+          $ref: "#/components/schemas/DeltakerKortPeriode"
+        status:
           type: object
           properties:
-            startDato:
+            type:
+              $ref: "#/components/schemas/ArenaDeltakerStatus"
+            visningstekst:
               type: string
-              format: date
-              nullable: true
-            sluttDato:
-              type: string
-              format: date
-              nullable: true
+          required:
+            - type
+            - visningstekst
       required:
         - id
         - eierskap
         - tittel
         - tiltakstypeNavn
-        - status
         - periode
-
-    DeltakelseFraKomet:
-      type: object
-      properties:
-        deltakerId:
-          type: string
-          format: uuid
-        deltakerlisteId:
-          type: string
-          format: uuid
-          nullable: true
-        tittel:
-          type: string
-        tiltakstype:
-          type: object
-          properties:
-            navn:
-              type: string
-            tiltakskode:
-              $ref: "#/components/schemas/Tiltakskode"
-        status:
-          $ref: "#/components/schemas/DeltakerStatus"
-        innsoktDato:
-          type: string
-          nullable: true
-        sistEndretDato:
-          type: string
-          nullable: true
-        periode:
-          type: object
-          properties:
-            startDato:
-              type: string
-              nullable: true
-            sluttDato:
-              type: string
-              nullable: true
-          nullable: true
-      required:
-        - deltakerId
-        - deltakerlisteId
-        - tittel
-        - tiltakstypeNavn
         - status
 
-    DeltakerStatusType:
+    ArenaDeltakerStatus:
       type: string
       enum:
-        - KLADD
-        - UTKAST_TIL_PAMELDING
-        - AVBRUTT_UTKAST
-        - VENTER_PA_OPPSTART
-        - DELTAR
-        - HAR_SLUTTET
-        - IKKE_AKTUELL
-        - SOKT_INN
-        - VURDERES
-        - VENTELISTE
-        - AVBRUTT
-        - FULLFORT
-        - FEILREGISTRERT
         - AVSLAG
+        - IKKE_AKTUELL
         - TAKKET_NEI_TIL_TILBUD
         - TILBUD
         - TAKKET_JA_TIL_TILBUD
         - INFORMASJONSMOTE
         - AKTUELL
+        - VENTELISTE
         - GJENNOMFORES
         - DELTAKELSE_AVBRUTT
         - GJENNOMFORING_AVBRUTT
         - GJENNOMFORING_AVLYST
+        - FULLFORT
         - IKKE_MOTT
-        - PABEGYNT_REGISTRERING
+        - FEILREGISTRERT
 
-    DeltakerStatus:
+    DeltakerKortGruppetiltak:
       type: object
       properties:
-        "type":
-          $ref: "#/components/schemas/DeltakerStatusType"
-        visningstekst:
+        id:
           type: string
-        aarsak:
+          format: uuid
+        eierskap:
+          $ref: "#/components/schemas/DeltakerKortEierskap"
+        tittel:
           type: string
-          nullable: true
+        tiltakstypeNavn:
+          type: string
+        innsoktDato:
+          type: string
+        sistEndretDato:
+          type: string
+        periode:
+          $ref: "#/components/schemas/DeltakerKortPeriode"
+        status:
+          type: object
+          properties:
+            type:
+              $ref: "#/components/schemas/AmtDeltakerStatusType"
+            visningstekst:
+              type: string
+            aarsak:
+              type: string
+          required:
+            - type
+            - visningstekst
+        gjennomforingId:
+          type: string
+          format: uuid
       required:
-        - "type"
-        - visningstekst
+        - id
+        - eierskap
+        - tittel
+        - tiltakstypeNavn
+        - periode
+        - status
+        - gjennomforingId
+
+    DeltakerKortArbeidsgiverAvtale:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        eierskap:
+          $ref: "#/components/schemas/DeltakerKortEierskap"
+        tittel:
+          type: string
+        tiltakstypeNavn:
+          type: string
+        innsoktDato:
+          type: string
+        sistEndretDato:
+          type: string
+        periode:
+          $ref: "#/components/schemas/DeltakerKortPeriode"
+        status:
+          type: object
+          properties:
+            type:
+              $ref: "#/components/schemas/ArbeidsgiverAvtaleStatus"
+            visningstekst:
+              type: string
+          required:
+            - type
+            - visningstekst
+      required:
+        - id
+        - eierskap
+        - tittel
+        - tiltakstypeNavn
+        - periode
+        - status
+
+    ArbeidsgiverAvtaleStatus:
+      type: string
+      enum:
+        - ANNULLERT
+        - AVBRUTT
+        - PAABEGYNT
+        - MANGLER_GODKJENNING
+        - KLAR_FOR_OPPSTART
+        - GJENNOMFORES
+        - AVSLUTTET
 
     TiltakshistorikkArrangor:
       type: object

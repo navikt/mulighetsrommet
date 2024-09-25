@@ -16,7 +16,6 @@ import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.responses.BadRequest
 import no.nav.mulighetsrommet.api.responses.NotFound
 import no.nav.mulighetsrommet.api.responses.ServerError
-import no.nav.mulighetsrommet.api.responses.respondWithStatusResponseError
 import no.nav.mulighetsrommet.api.services.BrukerService
 import no.nav.mulighetsrommet.api.services.DeltakelserMelding
 import no.nav.mulighetsrommet.api.services.PoaoTilgangService
@@ -109,18 +108,15 @@ fun Route.brukerRoutes() {
 
             poaoTilgangService.verifyAccessToUserFromVeileder(getNavAnsattAzureId(), norskIdent)
 
-            historikkService.hentDeltakelserFraKomet(norskIdent, obo)
-                .onLeft { call.respondWithStatusResponseError(toStatusResponseError(it)) }
-                .onRight { deltakelser ->
-                    val aktivDeltakelse = deltakelser.aktive.firstOrNull {
-                        it.deltakerlisteId == tiltaksgjennomforingId
-                    }
-                    if (aktivDeltakelse == null) {
-                        call.respond(HttpStatusCode.NoContent)
-                    } else {
-                        call.respond(aktivDeltakelse)
-                    }
+            val deltakelser = historikkService.getGruppetiltakDeltakelser(norskIdent, obo)
+
+            val response = deltakelser.aktive
+                .firstOrNull {
+                    it is DeltakerKort.DeltakerKortGruppetiltak && it.gjennomforingId == tiltaksgjennomforingId
                 }
+                ?: HttpStatusCode.NoContent
+
+            call.respond(response)
         }
     }
 }
