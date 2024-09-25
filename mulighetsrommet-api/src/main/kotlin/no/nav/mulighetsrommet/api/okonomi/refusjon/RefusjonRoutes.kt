@@ -9,6 +9,8 @@ import no.nav.mulighetsrommet.api.okonomi.prismodell.Prismodell
 import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
+import no.nav.pdfgen.core.Environment
+import no.nav.pdfgen.core.PDFGenCore
 import no.nav.pdfgen.core.pdf.createHtmlFromTemplateData
 import no.nav.pdfgen.core.pdf.createPDFA
 import org.koin.ktor.ext.inject
@@ -18,10 +20,9 @@ import java.util.*
 
 fun Route.refusjonRoutes() {
     VeraGreenfieldFoundryProvider.initialise()
-    // TODO Enable PDFGenCore
-/*    PDFGenCore.init(
+    PDFGenCore.init(
         Environment(),
-    )*/
+    )
     val service: RefusjonService by inject()
 
     route("/api/v1/intern/refusjon") {
