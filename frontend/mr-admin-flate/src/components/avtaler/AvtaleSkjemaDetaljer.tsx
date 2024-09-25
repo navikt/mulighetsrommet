@@ -34,6 +34,7 @@ import { AvtaleDatoContainer } from "./avtaledatoer/AvtaleDatoContainer";
 import { getLokaleUnderenheterAsSelectOptions } from "./AvtaleSkjemaConst";
 import { opsjonsmodeller } from "./opsjoner/opsjonsmodeller";
 import { useCallback, useEffect } from "react";
+import { AvtaleUtdanningSkjema } from "../utdanning/AvtaleUtdanningSkjema";
 
 interface Props {
   tiltakstyper: TiltakstypeDto[];
@@ -73,7 +74,6 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
   }
 
   const updateOpsjonsmodellClb = useCallback(updateOpsjonsmodell, [setValue]);
-  // TODO Sett korrekt opsjonsmodell basert på avtaletypen
   useEffect(() => {
     if (avtale?.avtaletype && avtale.opsjonsmodellData && !avtale.opsjonsmodellData.opsjonsmodell) {
       updateOpsjonsmodellClb(avtale?.avtaletype);
@@ -182,6 +182,9 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
             </HGrid>
             {tiltakskode === Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING ? (
               <AvtaleAmoKategoriseringSkjema />
+            ) : null}
+            {tiltakskode === Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING ? (
+              <AvtaleUtdanningSkjema />
             ) : null}
           </FormGroup>
 

@@ -169,6 +169,7 @@ private fun repositories() = module {
     single { OpsjonLoggRepository(get()) }
     single { TilsagnRepository(get()) }
     single { RefusjonskravRepository(get()) }
+    single { UtdanningRepository(get()) }
 }
 
 private fun services(appConfig: AppConfig) = module {

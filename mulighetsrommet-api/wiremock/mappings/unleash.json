@@ -9,13 +9,17 @@
       "version": 1,
       "features": [
         {
-          "name": "mulighetsrommet-veilederflate.vis-tilbakemelding",
+          "name": "mulighetsrommet.admin-flate.opprett-tilsagn",
           "enabled": true,
           "strategies": []
         },
-
         {
-          "name": "mulighetsrommet.admin-flate-opprett-tiltaksgjennomforing",
+          "name": "mulighetsrommet.admin-flate.enable-utdanningskategorier",
+          "enabled": true,
+          "strategies": []
+        },
+        {
+          "name": "mulighetsrommet-veilederflate.vis-tilbakemelding",
           "enabled": true,
           "strategies": []
         },
@@ -25,32 +29,12 @@
           "strategies": []
         },
         {
-          "name": "mulighetsrommet.admin-flate.rediger-oppstart",
-          "enabled": true,
-          "strategies": []
-        },
-        {
-          "name": "mulighetsrommet.admin-flate.enable_nuskategorier",
-          "enabled": true,
-          "strategies": []
-        },
-        {
-          "name": "mulighetsrommet.admin-flate.registrere-opsjonsmodell",
-          "enabled": true,
-          "strategies": []
-        },
-        {
-          "name": "mulighetsrommet.admin-flate.registrere-opsjon",
-          "enabled": true,
-          "strategies": []
-        },
-        {
-          "name": "mulighetsrommet.admin-flate.opprett-tilsagn",
-          "enabled": true,
-          "strategies": []
-        },
-        {
           "name": "mulighetsrommet.veilederflate.visDeltakerRegistrering",
+          "enabled": true,
+          "strategies": []
+        },
+        {
+          "name": "mulighetsrommet.veilederflate-arena-oppskrifter",
           "enabled": true,
           "strategies": []
         }
