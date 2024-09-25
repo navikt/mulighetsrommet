@@ -6,8 +6,8 @@
   "license": "UNLICENSED",
   "scripts": {
     "dev": "sanity dev",
-    "start": "sanity start",
     "build": "sanity build",
+    "preview": "sanity start",
     "backup": "sanity dataset export production backups/backup-production.tar.gz --overwrite && sanity dataset export test backups/backup-test.tar.gz --overwrite"
   },
   "keywords": [

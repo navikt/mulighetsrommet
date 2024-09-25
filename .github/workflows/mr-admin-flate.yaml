@@ -57,7 +57,7 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.READER_TOKEN }}
       - name: Test
-        run: npx turbo run lint test:ci playwright --filter=mr-admin-flate
+        run: npx turbo run lint typecheck test playwright --filter=mr-admin-flate
 
   deploy-dev:
     name: Deploy (dev)

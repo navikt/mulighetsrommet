@@ -6,11 +6,11 @@
   "type": "module",
   "scripts": {
     "dev": "cross-env VITE_MULIGHETSROMMET_API_MOCK='true' node ./server.js",
-    "backend": "cross-env VITE_MULIGHETSROMMET_API_BASE='http://localhost:8080' node ./server.js",
     "dev:vite": "remix vite:dev",
-    "lint": "eslint --cache --cache-location ./node_modules/.cache/eslint app/ server.js",
-    "fix-lint": "eslint --cache --cache-location ./node_modules/.cache/eslint app/ server.js --fix",
+    "backend": "cross-env VITE_MULIGHETSROMMET_API_BASE='http://localhost:8080' node ./server.js",
     "start": "cross-env NODE_ENV=production VITE_MULIGHETSROMMET_API_BASE='http://mulighetsrommet-api' node ./server.js",
+    "lint": "eslint --cache --cache-location ./node_modules/.cache/eslint app/ server.js",
+    "lint:fix": "eslint --cache --cache-location ./node_modules/.cache/eslint app/ server.js --fix",
     "typecheck": "tsc",
     "build": "remix vite:build",
     "pack": "pnpm --filter @mr/arrangor-flate --prod deploy dist"

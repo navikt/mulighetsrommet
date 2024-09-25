@@ -13,6 +13,64 @@ Enn så lenge benytter vi følgende tooling for å kjøre tasks for henholdsvis 
 - [Gradle](https://gradle.org/) med subprojects
 - [Turborepo](https://turborepo.org/) i kombinasjon med [PNPM workspaces](https://pnpm.io/workspaces)
 
+### Tooling via asdf
+
+Om ønskelig så kan [asdf](https://asdf-vm.com/) benyttes til å installere verktøyene som trengs for å kjøre dette
+prosjektet lokalt. Dette prosjektet inkluderer en
+`asdf` [.tool-versions](https://asdf-vm.com/manage/configuration.html#tool-versions)-fil som spesifiserer versjoner for
+runtime-avhengigheter som matcher det vi kjører på Github Actions (CI) og på NAIS.
+
+For å benytte `asdf` så må du [installere programmet](https://asdf-vm.com/guide/getting-started.html) og deretter
+plugins for hver toolchain eller verktøy du ønsker å administrere med `asdf` (du kan utelate plugins etter eget ønske
+hvis du ønsker å administrere dette manuelt i stedet):
+
+```bash
+asdf plugin-add java
+asdf plugin-add gradle https://github.com/rfrancis/asdf-gradle.git
+asdf plugin-add nodejs
+asdf plugin-add kubectl https://github.com/asdf-community/asdf-kubectl.git
+```
+
+Når plugins er installert så kan du kjøre kommandoen `asdf install` i rot av prosjektet, samt for hver
+gang `.tools-versions` har endret seg.
+
+### Gradle
+
+Det anbefales å ha `gradle` installert, det gjør det lettere å kjøre kommandoer uavhengig av hvilket prosjekt du jobber
+med. Hvis du ikke har installert `gradle` installert via `asdf` så kan det
+også [installeres manuelt](https://gradle.org/install/).
+
+Det ligger et [gradlew](./gradlew) script i repoet som oppgraderes ved nye versjoner og `gradle` plukker automatisk opp
+dette. Dette lar oss kjøre scripts i forskjellige prosjekter uten å måtte referere direkte til `gradlew`, f.eks:
+
+```sh
+# I mappen mulighetsrommet-api
+gradle run
+```
+
+### Turborepo
+
+Turborepo benyttes til å kjøre kommandoer på tvers av workspaces. Det tar seg blandt annet av å cache output fra bygg og
+å kjøre bygge-script i achengigheter om det er behov for det. Det kan være en fordel å installere for å gjøre lokal
+utvikling enklere:
+
+```sh
+npm i -g turbo
+```
+
+Deretter kan npm-scripts kjøres direkte via `turbo`. Fordelen med å gjøre dette er bl.a. at interne avhengigheter bygges
+automatisk:
+
+```sh
+turbo run dev
+turbo run build
+# osv ...
+````
+
+Se [turbo.json](./turbo.json)
+og [Configuring tasks](https://turbo.build/repo/docs/crafting-your-repository/configuring-tasks) for hvordan man kan
+utvide støtten med flere scripts.
+
 ### Token for pnpm install av private pakker
 
 Noen pakker under `@navikt` hentes fra Github sitt NPM-repository. For at dette skal fungere må du først autentisere mot
@@ -39,28 +97,6 @@ Brukernavn er Github-brukernavnet ditt. Passordet er et [Personal Access Token](
 10. Trykk `Authorize` på `navikt`
 11. Ferdig!
 
-### Tooling via asdf
-
-Om ønskelig så kan [asdf](https://asdf-vm.com/) benyttes til å installere verktøyene som trengs for å kjøre dette
-prosjektet lokalt. Dette prosjektet inkluderer en
-`asdf` [.tool-versions](https://asdf-vm.com/manage/configuration.html#tool-versions)-fil som spesifiserer versjoner for
-runtime-avhengigheter som matcher det vi kjører på Github Actions (CI) og på NAIS.
-
-For å benytte `asdf` så må du [installere programmet](https://asdf-vm.com/guide/getting-started.html) og deretter
-plugins for hver toolchain eller verktøy du ønsker å administrere med `asdf` (du kan utelate plugins etter eget ønske
-hvis du ønsker å administrere dette manuelt i stedet):
-
-```bash
-asdf plugin-add java
-asdf plugin-add gradle https://github.com/rfrancis/asdf-gradle.git
-asdf plugin-add nodejs
-asdf plugin-add kubectl https://github.com/asdf-community/asdf-kubectl.git
-```
-
-Når plugins er installert så kan du kjøre kommandoen `asdf install` i rot av prosjektet, samt for hver
-gang `.tools-versions` har endret seg.
-****
-
 ### Docker
 
 For å gjøre utvikling på lokal maskin enklere benytter vi Docker og Docker Compose til å kjøre databaser og mocks av
@@ -82,22 +118,33 @@ docker compose -p mulighetsrommet down
 docker compose -p mulighetsrommet down -v
 ```
 
-### Git hooks
-
-For å gjøre noen rutineoppgaver enklere er det mulig å installere følgende git hooks på eget initiativ (ikke en komplett
-liste, blir oppdatert etter hvert som behovet oppstår):
-
-- Installasjon av pre-commit hook for å kjøre `ktlintFormat` på endrede filer: Kjør
-  kommando `./gradlew addKtlintFormatGitPreCommitHook`
-- Installasjon av pre-commit hook for å kjøre `ktlintCheck` på endrede filer: Kjør
-  kommando `./gradlew addKtlintCheckGitPreCommitHook`
-
 ## Utvikling
+
+### Kodeformatering og linting i backend
+
+Vi bruker `ktlint` for kodeformatering og linting av kotlin-kode. Følgende kommandoer kan benyttes til å sjekke og fikse
+lintefeil:
+
+```sh
+# Sjekk lintefeil
+gradle ktlintCheck
+
+# Sjekk lintefeil og fiks de som kan fikses automatisk
+gradle ktlintFormat
+```
 
 ### Kodeformatering og linting i frontend
 
-Vi bruker prettier for kodeformatering og eslint for linting.
-Du kan kjøre `pnpm run fix-lint` for å formatere koden i forhold til Prettier-konfigurasjon, og samtidig fikse lintefeil.
+Vi bruker `prettier` for kodeformatering og eslint for linting. Følgende kommandoer kan benyttes til å sjekke og fikse
+lintefeil:
+
+```sh
+# Sjekk lintefeil
+turbo run lint
+
+# Sjekk lintefeil og fiks de som kan fikses automatisk
+turbo run lint:fix
+```
 
 ### Mocks via Wiremock
 
