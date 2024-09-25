@@ -166,6 +166,22 @@ class AvtaleRepository(private val db: Database) {
             where avtale_id = ?::uuid and not (personopplysning = any (?))
         """.trimIndent()
 
+        @Language("PostgreSQL")
+        val deleteProgramomradeAndUtdanninger = """
+            delete from utdanning_programomrade_avtale
+            where avtale_id = ?::uuid
+        """.trimIndent()
+
+        @Language("PostgreSQL")
+        val upsertProgramomradeAndUtdanninger = """
+            insert into utdanning_programomrade_avtale(
+                avtale_id,
+                utdanning_id,
+                programomrade_id
+            )
+            values(:avtale_id::uuid, :utdanning_id::uuid, :programomrade_id::uuid)
+        """.trimIndent()
+
         tx.run(queryOf(query, avtale.toSqlParameters()).asExecute)
 
         avtale.administratorer.forEach { administrator ->
@@ -248,6 +264,23 @@ class AvtaleRepository(private val db: Database) {
 
         avtale.amoKategorisering?.let {
             AmoKategoriseringRepository.upsert(it, avtale.id, AmoKategoriseringRepository.ForeignIdType.AVTALE, tx)
+        }
+
+        tx.run(queryOf(deleteProgramomradeAndUtdanninger, avtale.id).asExecute)
+        avtale.programomradeOgUtdanningerRequest?.let { programomradeOgUtdanninger ->
+            val programomradeId = programomradeOgUtdanninger.programomradeId
+            programomradeOgUtdanninger.utdanningsIder.forEach {
+                tx.run(
+                    queryOf(
+                        upsertProgramomradeAndUtdanninger,
+                        mapOf(
+                            "avtale_id" to avtale.id,
+                            "programomrade_id" to programomradeId,
+                            "utdanning_id" to it,
+                        ),
+                    ).asExecute,
+                )
+            }
         }
     }
 

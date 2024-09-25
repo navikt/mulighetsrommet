@@ -1,10 +1,10 @@
-import { avtaleDetaljerTabAtom } from "@/api/atoms";
-import { useUpsertAvtale } from "@/api/avtaler/useUpsertAvtale";
-import { useHandleApiUpsertResponse } from "@/api/effects";
-import { erAnskaffetTiltak } from "@/utils/tiltakskoder";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Tabs } from "@navikt/ds-react";
-import { useAtom } from "jotai";
+import {avtaleDetaljerTabAtom} from "@/api/atoms";
+import {useUpsertAvtale} from "@/api/avtaler/useUpsertAvtale";
+import {useHandleApiUpsertResponse} from "@/api/effects";
+import {erAnskaffetTiltak} from "@/utils/tiltakskoder";
+import {zodResolver} from "@hookform/resolvers/zod";
+import {Tabs} from "@navikt/ds-react";
+import {useAtom} from "jotai";
 import {
   AvtaleDto,
   AvtaleRequest,
@@ -14,19 +14,19 @@ import {
   TiltakstypeDto,
 } from "@mr/api-client";
 import React from "react";
-import { DeepPartial, FormProvider, SubmitHandler, useForm } from "react-hook-form";
-import { v4 as uuidv4 } from "uuid";
-import { Separator } from "../detaljside/Metadata";
-import { AvtaleSchema, InferredAvtaleSchema } from "@/components/redaksjoneltInnhold/AvtaleSchema";
-import { AvtaleRedaksjoneltInnholdForm } from "./AvtaleRedaksjoneltInnholdForm";
-import { AvtaleSkjemaDetaljer } from "./AvtaleSkjemaDetaljer";
-import { AvtaleSkjemaKnapperad } from "./AvtaleSkjemaKnapperad";
-import { AvtalePersonvernForm } from "./AvtalePersonvernForm";
-import { Laster } from "../laster/Laster";
-import { InlineErrorBoundary } from "@mr/frontend-common";
-import { RedaksjoneltInnholdBunnKnapperad } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdBunnKnapperad";
+import {DeepPartial, FormProvider, SubmitHandler, useForm} from "react-hook-form";
+import {v4 as uuidv4} from "uuid";
+import {Separator} from "../detaljside/Metadata";
+import {AvtaleSchema, InferredAvtaleSchema} from "@/components/redaksjoneltInnhold/AvtaleSchema";
+import {AvtaleRedaksjoneltInnholdForm} from "./AvtaleRedaksjoneltInnholdForm";
+import {AvtaleSkjemaDetaljer} from "./AvtaleSkjemaDetaljer";
+import {AvtaleSkjemaKnapperad} from "./AvtaleSkjemaKnapperad";
+import {AvtalePersonvernForm} from "./AvtalePersonvernForm";
+import {Laster} from "../laster/Laster";
+import {InlineErrorBoundary} from "@mr/frontend-common";
+import {RedaksjoneltInnholdBunnKnapperad} from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdBunnKnapperad";
 import styles from "./AvtaleSkjemaContainer.module.scss";
-import { TabWithErrorBorder } from "../skjema/TabWithErrorBorder";
+import {TabWithErrorBorder} from "../skjema/TabWithErrorBorder";
 
 interface Props {
   onClose: () => void;
@@ -40,14 +40,14 @@ interface Props {
 }
 
 export function AvtaleSkjemaContainer({
-  onClose,
-  onSuccess,
-  ansatt,
-  avtale,
-  redigeringsModus,
-  defaultValues,
-  ...props
-}: Props) {
+                                        onClose,
+                                        onSuccess,
+                                        ansatt,
+                                        avtale,
+                                        redigeringsModus,
+                                        defaultValues,
+                                        ...props
+                                      }: Props) {
   const [activeTab, setActiveTab] = useAtom(avtaleDetaljerTabAtom);
 
   const mutation = useUpsertAvtale();
@@ -59,7 +59,7 @@ export function AvtaleSkjemaContainer({
 
   const {
     handleSubmit,
-    formState: { errors },
+    formState: {errors},
     watch,
   } = form;
 
@@ -93,6 +93,12 @@ export function AvtaleSkjemaContainer({
         opsjonsmodell: data?.opsjonsmodellData?.opsjonsmodell || null,
         customOpsjonsmodellNavn: data?.opsjonsmodellData?.customOpsjonsmodellNavn || null,
       },
+      programomradeMedUtdanningerRequest: data.programomradeOgUtdanninger
+        ? {
+          programomradeId: data.programomradeOgUtdanninger?.programomradeId,
+          utdanningsIder: data.programomradeOgUtdanninger?.utdanningsIder || [],
+        }
+        : null,
     };
 
     mutation.mutate(requestBody);
@@ -104,7 +110,7 @@ export function AvtaleSkjemaContainer({
     (validation) => {
       validation.errors.forEach((error) => {
         const name = mapErrorToSchemaPropertyName(error.name);
-        form.setError(name, { type: "custom", message: error.message });
+        form.setError(name, {type: "custom", message: error.message});
       });
 
       function mapErrorToSchemaPropertyName(name: string) {
@@ -115,6 +121,8 @@ export function AvtaleSkjemaContainer({
           opsjonMaksVarighet: "opsjonsmodellData.opsjonMaksVarighet",
           customOpsjonsmodellNavn: "opsjonsmodellData.customOpsjonsmodellNavn",
           tiltakstypeId: "tiltakstype",
+          programomrade: "programomradeOgUtdanninger.programomradeId",
+          utdanninger: "programomradeOgUtdanninger.utdanningsIder",
         };
         return (mapping[name] ?? name) as keyof InferredAvtaleSchema;
       }
@@ -152,7 +160,7 @@ export function AvtaleSkjemaContainer({
                 hasError={hasRedaksjoneltInnholdErrors}
               />
             </div>
-            <AvtaleSkjemaKnapperad redigeringsModus={redigeringsModus} onClose={onClose} />
+            <AvtaleSkjemaKnapperad redigeringsModus={redigeringsModus} onClose={onClose}/>
           </Tabs.List>
           <Tabs.Panel value="detaljer">
             <AvtaleSkjemaDetaljer
@@ -164,18 +172,18 @@ export function AvtaleSkjemaContainer({
           </Tabs.Panel>
           <Tabs.Panel value="personvern">
             <InlineErrorBoundary>
-              <React.Suspense fallback={<Laster tekst="Laster innhold" />}>
-                <AvtalePersonvernForm tiltakstypeId={watchedTiltakstype?.id} />
+              <React.Suspense fallback={<Laster tekst="Laster innhold"/>}>
+                <AvtalePersonvernForm tiltakstypeId={watchedTiltakstype?.id}/>
               </React.Suspense>
             </InlineErrorBoundary>
           </Tabs.Panel>
           <Tabs.Panel value="redaksjonelt-innhold">
-            <AvtaleRedaksjoneltInnholdForm tiltakstype={watchedTiltakstype} />
+            <AvtaleRedaksjoneltInnholdForm tiltakstype={watchedTiltakstype}/>
           </Tabs.Panel>
         </Tabs>
-        <Separator />
+        <Separator/>
         <RedaksjoneltInnholdBunnKnapperad>
-          <AvtaleSkjemaKnapperad redigeringsModus={redigeringsModus} onClose={onClose} />
+          <AvtaleSkjemaKnapperad redigeringsModus={redigeringsModus} onClose={onClose}/>
         </RedaksjoneltInnholdBunnKnapperad>
       </form>
     </FormProvider>

@@ -20,7 +20,10 @@ import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering.Opphav
-import no.nav.mulighetsrommet.domain.dto.*
+import no.nav.mulighetsrommet.domain.dto.AvbruttAarsak
+import no.nav.mulighetsrommet.domain.dto.AvtaleStatus
+import no.nav.mulighetsrommet.domain.dto.NavIdent
+import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus
 import no.nav.mulighetsrommet.notifications.NotificationRepository
 import no.nav.mulighetsrommet.notifications.NotificationType
 import no.nav.mulighetsrommet.notifications.ScheduledNotification
@@ -71,6 +74,7 @@ class AvtaleService(
                         amoKategorisering = amoKategorisering,
                         opsjonsmodell = opsjonsmodellData?.opsjonsmodell,
                         customOpsjonsmodellNavn = opsjonsmodellData?.customOpsjonsmodellNavn,
+                        programomradeOgUtdanningerRequest = programomradeMedUtdanningerRequest,
                     )
                 }
                 validator.validate(dbo, previous)

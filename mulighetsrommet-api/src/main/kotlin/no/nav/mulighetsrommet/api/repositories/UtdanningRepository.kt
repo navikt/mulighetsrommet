@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.repositories
 
 import kotlinx.serialization.Serializable
 import kotliquery.queryOf
+import no.nav.mulighetsrommet.api.routes.v1.ProgramomradeMedUtdanningerRequest
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import org.intellij.lang.annotations.Language
@@ -9,7 +10,7 @@ import java.util.*
 
 class UtdanningRepository(private val db: Database) {
 
-    fun getUtdanningerMedProgramomrader(): List<UtdanningerMedProgramomrade> {
+    fun getUtdanningerMedProgramomrader(): List<ProgramomradeMedUtdanninger> {
         @Language("PostgreSQL")
         val programomraderQuery = """
             SELECT * FROM utdanning_programomrade where utdanningsprogram = 'YRKESFAGLIG' and array_length(nus_koder, 1) > 0
@@ -54,7 +55,7 @@ class UtdanningRepository(private val db: Database) {
         }.asList.let { db.run(it) }
 
         val utdanningerMedProgramomrade = programomrader.map { programomrade ->
-            UtdanningerMedProgramomrade(
+            ProgramomradeMedUtdanninger(
                 programomrade = programomrade,
                 utdanninger = utdanninger.filter { it.programlopStart == programomrade.id },
             )
@@ -65,10 +66,17 @@ class UtdanningRepository(private val db: Database) {
 }
 
 @Serializable
-data class UtdanningerMedProgramomrade(
+data class ProgramomradeMedUtdanninger(
     val programomrade: Programomrade,
     val utdanninger: List<UtdanningDbo>,
-)
+) {
+    fun toRequest(): ProgramomradeMedUtdanningerRequest {
+        return ProgramomradeMedUtdanningerRequest(
+            programomradeId = programomrade.id,
+            utdanningsIder = utdanninger.map { it.id },
+        )
+    }
+}
 
 @Serializable
 data class Programomrade(

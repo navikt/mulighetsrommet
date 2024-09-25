@@ -32,7 +32,8 @@ class AvtaleValidator(
     private val arrangorer: ArrangorRepository,
     private val unleashService: UnleashService,
 ) {
-    private val opsjonsmodellerUtenValidering = listOf(Opsjonsmodell.AVTALE_UTEN_OPSJONSMODELL, Opsjonsmodell.AVTALE_VALGFRI_SLUTTDATO)
+    private val opsjonsmodellerUtenValidering =
+        listOf(Opsjonsmodell.AVTALE_UTEN_OPSJONSMODELL, Opsjonsmodell.AVTALE_VALGFRI_SLUTTDATO)
 
     fun validate(avtale: AvtaleDbo, currentAvtale: AvtaleDto?): Either<List<ValidationError>, AvtaleDbo> = either {
         val tiltakstype = tiltakstyper.getById(avtale.tiltakstypeId)
@@ -63,7 +64,10 @@ class AvtaleValidator(
                 }
                 if (
                     // Unntak for de som ikke er tatt over fra arena siden man ikke får endre avtaletype på de
-                    !listOf(Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING, Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING).contains(tiltakstype.tiltakskode) &&
+                    !listOf(
+                        Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
+                        Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
+                    ).contains(tiltakstype.tiltakskode) &&
                     !avtaleTypeErForhandsgodkjent(avtale.avtaletype) &&
                     avtale.startDato.plusYears(5).isBefore(avtale.sluttDato)
                 ) {
@@ -76,41 +80,39 @@ class AvtaleValidator(
                 }
             }
 
-            if (unleashService.isEnabled("mulighetsrommet.admin-flate.registrere-opsjonsmodell")) {
-                if (!avtaleTypeErForhandsgodkjent(avtale.avtaletype) && !opsjonsmodellerUtenValidering.contains(avtale.opsjonsmodell)) {
-                    if (avtale.opsjonMaksVarighet == null) {
-                        add(
-                            ValidationError.of(
-                                AvtaleDbo::opsjonMaksVarighet,
-                                "Du må legge inn maks varighet for opsjonen",
-                            ),
-                        )
-                    }
-
-                    if (avtale.opsjonsmodell == null) {
-                        add(ValidationError.of(AvtaleDbo::opsjonsmodell, "Du må velge en opsjonsmodell"))
-                    }
-
-                    if (avtale.opsjonsmodell != null && avtale.opsjonsmodell == Opsjonsmodell.ANNET) {
-                        if (avtale.customOpsjonsmodellNavn.isNullOrBlank()) {
-                            add(
-                                ValidationError.of(
-                                    AvtaleDbo::customOpsjonsmodellNavn,
-                                    "Du må beskrive opsjonsmodellen",
-                                ),
-                            )
-                        }
-                    }
-                }
-
-                if (currentAvtale?.opsjonerRegistrert?.isNotEmpty() == true && avtale.opsjonsmodell != currentAvtale.opsjonsmodellData?.opsjonsmodell) {
+            if (!avtaleTypeErForhandsgodkjent(avtale.avtaletype) && !opsjonsmodellerUtenValidering.contains(avtale.opsjonsmodell)) {
+                if (avtale.opsjonMaksVarighet == null) {
                     add(
                         ValidationError.of(
-                            AvtaleDbo::opsjonsmodell,
-                            "Du kan ikke endre opsjonsmodell når opsjoner er registrert",
+                            AvtaleDbo::opsjonMaksVarighet,
+                            "Du må legge inn maks varighet for opsjonen",
                         ),
                     )
                 }
+
+                if (avtale.opsjonsmodell == null) {
+                    add(ValidationError.of(AvtaleDbo::opsjonsmodell, "Du må velge en opsjonsmodell"))
+                }
+
+                if (avtale.opsjonsmodell != null && avtale.opsjonsmodell == Opsjonsmodell.ANNET) {
+                    if (avtale.customOpsjonsmodellNavn.isNullOrBlank()) {
+                        add(
+                            ValidationError.of(
+                                AvtaleDbo::customOpsjonsmodellNavn,
+                                "Du må beskrive opsjonsmodellen",
+                            ),
+                        )
+                    }
+                }
+            }
+
+            if (currentAvtale?.opsjonerRegistrert?.isNotEmpty() == true && avtale.opsjonsmodell != currentAvtale.opsjonsmodellData?.opsjonsmodell) {
+                add(
+                    ValidationError.of(
+                        AvtaleDbo::opsjonsmodell,
+                        "Du kan ikke endre opsjonsmodell når opsjoner er registrert",
+                    ),
+                )
             }
 
             if (avtale.avtaletype.kreverWebsaknummer() && avtale.websaknummer == null) {
@@ -142,6 +144,17 @@ class AvtaleValidator(
             if (tiltakstype.tiltakskode == Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING && avtale.amoKategorisering == null) {
                 add(ValidationError.ofCustomLocation("amoKategorisering.kurstype", "Du må velge en kurstype"))
             }
+
+            if (unleashService.isEnabled("mulighetsrommet.admin-flate.enable-utdanningskategorier")) {
+                if (avtale.programomradeOgUtdanningerRequest == null) {
+                    add(ValidationError.ofCustomLocation("programomrade", "Du må velge et programområde og én eller flere sluttkompetanser"))
+                }
+
+                if (avtale.programomradeOgUtdanningerRequest != null && avtale.programomradeOgUtdanningerRequest.utdanningsIder.isEmpty()) {
+                    add(ValidationError.ofCustomLocation("utdanninger", "Du må velge minst én sluttkompetanse"))
+                }
+            }
+
             if (isKursTiltak(tiltakstype.tiltakskode) && avtale.faneinnhold?.kurstittel.isNullOrBlank()) {
                 add(ValidationError.ofCustomLocation("faneinnhold.kurstittel", "Du må skrive en kurstittel"))
             }
