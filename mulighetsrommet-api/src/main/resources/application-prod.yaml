@@ -142,7 +142,6 @@ app:
     synchronizeNavAnsatte:
       cronPattern: "0 0 6 * * *" # Hver morgen kl. 06:00
     synchronizeUtdanninger:
-      disabled: true # TODO Enable synkronisering av utdanning når vi går mot korrekt prod-api
       cronPattern: "0 0 6 * * *" # Hver morgen kl. 06:00
     notifySluttdatoForGjennomforingerNarmerSeg:
       cronPattern: "0 0 6 * * *" # Hver morgen kl. 06:00

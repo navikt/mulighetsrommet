@@ -1852,6 +1852,21 @@ paths:
                 type: string
                 format: binary
 
+  /api/v1/intern/utdanninger:
+    get:
+      tags:
+        - Utdanninger
+      operationId: getUtdanninger
+      responses:
+        200:
+          description: Returns a list of programområder and the corresponding utdanninger
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ProgramomradeMedUtdanning"
+
 components:
   securitySchemes:
     bearerAuth:
@@ -4109,6 +4124,7 @@ components:
         - mulighetsrommet-veilederflate.vis-tilbakemelding
         - mulighetsrommet.admin-flate.enableDebugger
         - mulighetsrommet.admin-flate.opprett-tilsagn
+        - mulighetsrommet.admin-flate.enable-utdanningskategorier
 
     PublisertRequest:
       type: object
@@ -4966,6 +4982,57 @@ components:
         - sats
         - belop
 
+    ProgramomradeMedUtdanning:
+      type: object
+      properties:
+        programomrade:
+          $ref: "#/components/schemas/Programomrade"
+        utdanninger:
+          type: array
+          items:
+            $ref: "#/components/schemas/Utdanning"
+      required:
+        - programomrade
+        - utdanninger
+
+    Programomrade:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        navn:
+          type: string
+        nusKoder:
+          type: array
+          items:
+            type: string
+      required:
+          - id
+          - navn
+          - nusKoder
+
+    Utdanning:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        navn:
+          type: string
+        programlopStart:
+          type: string
+          format: uuid
+        nusKoder:
+          type: array
+          items:
+            type: string
+      required:
+        - id
+        - navn
+        - programlopStart
+        - nusKoder
+
     GetRefusjonskravRequest:
       type: object
       properties:
@@ -4975,3 +5042,5 @@ components:
             type: string
       required:
         - orgnr
+
+

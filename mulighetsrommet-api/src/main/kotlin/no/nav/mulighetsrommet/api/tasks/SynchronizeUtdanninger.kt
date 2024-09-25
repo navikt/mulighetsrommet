@@ -68,7 +68,7 @@ class SynchronizeUtdanninger(
             .partition { it.sluttkompetanse == null && it.utdanningId == null && it.utdanningslop.size == 1 }
 
         programomrader.map { it.toProgramomrade() }.forEach { saveProgramomrade(it) }
-        utdanninger.forEach { saveUtdanning(it) }
+        utdanninger.filter { it.nusKodeverk.isNotEmpty() }.forEach { saveUtdanning(it) }
     }
 
     private fun saveProgramomrade(programomrade: Programomrade) {
