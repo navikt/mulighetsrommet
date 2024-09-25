@@ -1,4 +1,4 @@
-import { Alert, Button, HGrid, Table } from "@navikt/ds-react";
+import { Alert, Button, HGrid, SortState, Table } from "@navikt/ds-react";
 import type { LoaderFunction, MetaFunction } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
 import { PageHeader } from "../components/PageHeader";
@@ -6,6 +6,7 @@ import { DeltakerlisteDetaljer } from "../components/deltakerliste/Deltakerliste
 import { Deltakerliste } from "../domene/domene";
 import { requirePersonIdent } from "../auth/auth.server";
 import { RefusjonskravService } from "@mr/api-client";
+import { useState } from "react";
 
 export const meta: MetaFunction = () => {
   return [{ title: "Refusjon" }, { name: "description", content: "Refusjonsdetaljer" }];
@@ -22,7 +23,6 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
   const krav = await RefusjonskravService.getRefusjonkrav({
     id: params.id,
   });
-  console.log(krav.beregning.deltakere);
 
   return {
     deltakerliste: {
@@ -63,8 +63,49 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
   };
 };
 
+interface ScopedSortState extends SortState {
+  orderBy: "name" | "veileder" | "startDatePeriod" | "endDatePeriod";
+}
+
 export default function RefusjonDeltakerlister() {
   const { deltakerliste } = useLoaderData<LoaderData>();
+  const [sort, setSort] = useState<ScopedSortState | undefined>();
+
+  const handleSort = (sortKey: ScopedSortState["orderBy"]) => {
+    setSort(
+      sort && sortKey === sort.orderBy && sort.direction === "descending"
+        ? undefined
+        : {
+            orderBy: sortKey,
+            direction:
+              sort && sortKey === sort.orderBy && sort.direction === "ascending"
+                ? "descending"
+                : "ascending",
+          },
+    );
+  };
+
+  function comparator<T>(a: T, b: T, orderBy: keyof T): number {
+    if (b[orderBy] == null || b[orderBy] < a[orderBy]) {
+      return -1;
+    }
+    if (b[orderBy] > a[orderBy]) {
+      return 1;
+    }
+    return 0;
+  }
+
+  const sortedData = data.slice().sort((a, b) => {
+    if (sort) {
+      return sort.direction === "ascending"
+        ? comparator(b, a, sort.orderBy)
+        : comparator(a, b, sort.orderBy);
+    }
+    return 1;
+  });
+
+  console.log(deltakerliste);
+
   return (
     <>
       <PageHeader

@@ -27,7 +27,7 @@ export interface Deltakerliste {
   deltakere: Deltaker[];
 }
 
-type Deltaker = {
+export type Deltaker = {
   navn: string;
   veileder: string;
   fodselsdato: string;
