@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api.utils
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.api.domain.dto.TiltakstypeDto
+import no.nav.mulighetsrommet.api.utils.TiltaksnavnUtils.hosTitleCaseArrangor
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.dto.TiltakstypeStatus
 import java.time.LocalDate
@@ -23,7 +24,7 @@ class TiltaksnavnUtilsTest : FunSpec({
                 sanityId = null,
             )
             val arrangor = "joblearn as"
-            val konstruertNavn = TiltaksnavnUtils.tilKonstruertNavn(tiltakstype, arrangor)
+            val konstruertNavn = tiltakstype.navn.hosTitleCaseArrangor(arrangor)
             konstruertNavn shouldBe "Oppfølging hos Joblearn AS"
         }
     }

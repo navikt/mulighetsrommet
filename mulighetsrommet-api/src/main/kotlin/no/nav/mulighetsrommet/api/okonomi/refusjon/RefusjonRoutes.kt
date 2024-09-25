@@ -9,11 +9,20 @@ import no.nav.mulighetsrommet.api.okonomi.prismodell.Prismodell
 import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
+import no.nav.pdfgen.core.Environment
+import no.nav.pdfgen.core.PDFGenCore
+import no.nav.pdfgen.core.pdf.createHtmlFromTemplateData
+import no.nav.pdfgen.core.pdf.createPDFA
 import org.koin.ktor.ext.inject
+import org.verapdf.gf.foundry.VeraGreenfieldFoundryProvider
 import java.time.LocalDate
 import java.util.*
 
 fun Route.refusjonRoutes() {
+    VeraGreenfieldFoundryProvider.initialise()
+    PDFGenCore.init(
+        Environment(),
+    )
     val service: RefusjonService by inject()
 
     route("/api/v1/intern/refusjon") {
@@ -21,6 +30,18 @@ fun Route.refusjonRoutes() {
             val orgnr = Organisasjonsnummer(call.parameters.getOrFail<String>("orgnr"))
 
             call.respond(service.getByOrgnr(orgnr))
+        }
+
+        get("/kvittering/{id}") {
+            val id = call.parameters.getOrFail<UUID>("id")
+            val html = createHtmlFromTemplateData("refusjon-kvittering", "refusjon").toString()
+            val pdfBytes: ByteArray = createPDFA(html)
+
+            call.response.headers.append(
+                "Content-Disposition",
+                "attachment; filename=\"kvittering.pdf\"",
+            )
+            call.respondBytes(pdfBytes, contentType = io.ktor.http.ContentType.Application.Pdf)
         }
     }
 }

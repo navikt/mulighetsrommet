@@ -1834,6 +1834,21 @@ paths:
                 items:
                   $ref: "#/components/schemas/RefusjonskravDto"
 
+  /api/v1/intern/refusjon/kvittering/{id}:
+    parameters:
+      - $ref: "#/components/parameters/ID"
+    get:
+      tags:
+        - Refusjonskrav
+      responses:
+        200:
+          description: Generer PDF kvittering for refusjonskrav
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+
   /api/v1/intern/utdanninger:
     get:
       tags:
@@ -1929,6 +1944,7 @@ components:
         type: string
 
   schemas:
+
     ValidationErrorResponse:
       type: object
       properties:
