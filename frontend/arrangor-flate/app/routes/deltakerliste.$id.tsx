@@ -22,6 +22,7 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
   const krav = await RefusjonskravService.getRefusjonkrav({
     id: params.id,
   });
+  console.log(krav.beregning.deltakere);
 
   return {
     deltakerliste: {
@@ -31,7 +32,7 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
         tiltaksnummer: "2024/123456",
         avtalenavn: "AFT - Fredrikstad, Sarpsborg, Halden",
         tiltakstype: "Arbeidsforberedende trening",
-        refusjonskravperiode: "01.01.2024 - 31.01.2024",
+        refusjonskravperiode: `${krav.periodeStart} - ${krav.periodeSlutt}`,
         refusjonskravnummer: "6",
       },
       deltakere: [
