@@ -1,5 +1,5 @@
-import { ProgramomradeMedUtdanning } from "@mr/api-client";
-export const mockProgramomraderOgUtdanninger: ProgramomradeMedUtdanning[] = [
+import { ProgramomradeMedUtdanninger } from "@mr/api-client";
+export const mockProgramomraderOgUtdanninger: ProgramomradeMedUtdanninger[] = [
   {
     programomrade: {
       id: "8303c8a1-4c0f-45a2-beb4-021e9f5d30d3",
