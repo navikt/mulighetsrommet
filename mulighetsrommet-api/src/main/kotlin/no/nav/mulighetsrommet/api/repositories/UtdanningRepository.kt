@@ -5,11 +5,9 @@ import kotliquery.queryOf
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import org.intellij.lang.annotations.Language
-import org.slf4j.LoggerFactory
 import java.util.*
 
 class UtdanningRepository(private val db: Database) {
-    private val logger = LoggerFactory.getLogger(javaClass)
 
     fun getUtdanningerMedProgramomrader(): List<UtdanningerMedProgramomrade> {
         @Language("PostgreSQL")
@@ -47,7 +45,7 @@ class UtdanningRepository(private val db: Database) {
         }.asList.let { db.run(it) }
 
         val utdanninger = queryOf(utdanningerQuery).map { row ->
-            Utdanning(
+            UtdanningDbo(
                 id = row.uuid("id"),
                 navn = row.string("navn"),
                 programlopStart = row.uuid("programlop_start"),
@@ -69,7 +67,7 @@ class UtdanningRepository(private val db: Database) {
 @Serializable
 data class UtdanningerMedProgramomrade(
     val programomrade: Programomrade,
-    val utdanninger: List<Utdanning>,
+    val utdanninger: List<UtdanningDbo>,
 )
 
 @Serializable
@@ -81,7 +79,7 @@ data class Programomrade(
 )
 
 @Serializable
-data class Utdanning(
+data class UtdanningDbo(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     val navn: String,
