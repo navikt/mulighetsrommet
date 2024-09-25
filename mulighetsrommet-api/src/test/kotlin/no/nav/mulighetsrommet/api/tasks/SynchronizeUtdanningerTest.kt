@@ -11,11 +11,16 @@ import no.nav.mulighetsrommet.api.clients.utdanning.UtdanningClient
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.repositories.UtdanningRepository
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
+import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import org.intellij.lang.annotations.Language
 
 class SynchronizeUtdanningerTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
     val utdanningClient: UtdanningClient = mockk(relaxed = true)
+
+    afterTest {
+        database.db.truncateAll()
+    }
 
     val utdanningBanemontorfaget = Utdanning(
         programomradekode = "BABAN3----",
