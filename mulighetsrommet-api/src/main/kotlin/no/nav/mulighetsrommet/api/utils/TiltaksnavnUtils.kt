@@ -1,6 +1,5 @@
 package no.nav.mulighetsrommet.api.utils
 
-import no.nav.mulighetsrommet.api.domain.dto.TiltakstypeDto
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.Tiltakskoder.isKursTiltak
 
@@ -27,10 +26,10 @@ object TiltaksnavnUtils {
             tiltakstypeNavn to navn
         }
 
-    fun tilKonstruertNavn(tiltakstype: TiltakstypeDto, arrangor: String?): String {
+    fun String.hosTitleCaseArrangor(arrangor: String?): String {
         val casedArrangor = toTitleCase(arrangor ?: "")
 
-        return "${tiltakstype.navn}${if (casedArrangor.isNotBlank()) " hos $casedArrangor" else ""}"
+        return "${this}${if (casedArrangor.isNotBlank()) " hos $casedArrangor" else ""}"
     }
 
     private val FORKORTELSER_MED_STORE_BOKSTAVER = listOf(
