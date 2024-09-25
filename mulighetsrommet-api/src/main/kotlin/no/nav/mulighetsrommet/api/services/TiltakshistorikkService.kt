@@ -10,7 +10,8 @@ import no.nav.mulighetsrommet.api.clients.tiltakshistorikk.TiltakshistorikkClien
 import no.nav.mulighetsrommet.api.domain.dto.DeltakerKort
 import no.nav.mulighetsrommet.api.domain.dto.TiltakshistorikkDto
 import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
-import no.nav.mulighetsrommet.api.utils.TiltaksnavnUtils
+import no.nav.mulighetsrommet.api.utils.TiltaksnavnUtils.hosTitleCaseArrangor
+import no.nav.mulighetsrommet.api.utils.TiltaksnavnUtils.tittelOgUnderTittel
 import no.nav.mulighetsrommet.domain.dbo.ArenaDeltakerStatus
 import no.nav.mulighetsrommet.domain.dto.NorskIdent
 import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
@@ -124,6 +125,7 @@ class TiltakshistorikkService(
     private suspend fun Tiltakshistorikk.GruppetiltakDeltakelse.toDeltakerKort(): DeltakerKort {
         val tiltakstype = tiltakstypeRepository.getByTiltakskode(gjennomforing.tiltakskode)
         val arrangorNavn = getArrangorHovedenhet(arrangor.organisasjonsnummer).navn
+        val (tittel) = tittelOgUnderTittel(gjennomforing.navn, tiltakstype.navn, gjennomforing.tiltakskode)
         return DeltakerKort(
             id = id,
             periode = DeltakerKort.Periode(
@@ -135,7 +137,7 @@ class TiltakshistorikkService(
                 visningstekst = gruppetiltakStatusTilVisningstekst(status.type),
                 aarsak = gruppetiltakAarsakTilTekst(status.aarsak),
             ),
-            tittel = TiltaksnavnUtils.tilKonstruertNavn(tiltakstype, arrangorNavn),
+            tittel = tittel.hosTitleCaseArrangor(arrangorNavn),
             tiltakstypeNavn = tiltakstype.navn,
             innsoktDato = null,
             sistEndretDato = null,
@@ -170,7 +172,7 @@ class TiltakshistorikkService(
                 visningstekst = arbeidsgiverAvtaleStatusTilVisningstekst(status),
                 aarsak = null,
             ),
-            tittel = TiltaksnavnUtils.tilKonstruertNavn(tiltakstype, arrangorNavn),
+            tittel = tiltakstype.navn.hosTitleCaseArrangor(arrangorNavn),
             tiltakstypeNavn = tiltakstype.navn,
             innsoktDato = null,
             sistEndretDato = null,
