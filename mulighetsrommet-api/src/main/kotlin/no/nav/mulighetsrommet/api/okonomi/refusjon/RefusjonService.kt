@@ -18,7 +18,7 @@ class RefusjonService(
     private val refusjonskravRepository: RefusjonskravRepository,
     private val db: Database,
 ) {
-    fun getByOrgnr(orgnr: Organisasjonsnummer): List<RefusjonskravDto> {
+    fun getByOrgnr(orgnr: List<Organisasjonsnummer>): List<RefusjonskravDto> {
         return refusjonskravRepository.getByOrgnr(orgnr)
     }
 

@@ -62,6 +62,9 @@ dependencies {
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.arrow.core)
     implementation(libs.arrow.core.serialization)
+    implementation(libs.pdfgen.core)
+    implementation(libs.verapdf)
+    implementation(libs.handlebars)
 
     // Logging
     implementation(libs.bundles.logging)

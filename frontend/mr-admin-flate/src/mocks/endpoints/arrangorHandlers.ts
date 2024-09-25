@@ -9,10 +9,6 @@ export const arrangorHandlers = [
   http.get<PathParams, PaginertArrangor | undefined>("*/api/v1/intern/arrangorer", () =>
     HttpResponse.json(mockArrangorer),
   ),
-  // TODO Route her er nok feil, skal ikke være alle-arrangorer
-  http.get<PathParams, PaginertArrangor | undefined>("*/api/v1/intern/alle-arrangorer", () =>
-    HttpResponse.json(mockArrangorer),
-  ),
   http.get<PathParams, Arrangor | undefined>("*/api/v1/intern/arrangorer/:id", ({ params }) => {
     return HttpResponse.json(mockArrangorer.data.find((enhet) => enhet.id === params.id));
   }),

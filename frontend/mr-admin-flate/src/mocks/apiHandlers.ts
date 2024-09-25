@@ -9,6 +9,7 @@ import { tiltakstypeHandlers } from "./endpoints/tiltakstyperHandlers";
 import { virksomhetHandlers } from "./endpoints/virksomhetHandlers";
 import { lagretFilterHandlers } from "./endpoints/lagretFilterHandlers";
 import { tilsagnHandlers } from "./endpoints/tilsagnHandler";
+import { utdanningHandlers } from "./endpoints/utdanningHandlers";
 
 export const apiHandlers = [
   ...arrangorHandlers,
@@ -22,4 +23,5 @@ export const apiHandlers = [
   ...featureToggleHandlers,
   ...lagretFilterHandlers,
   ...tilsagnHandlers,
+  ...utdanningHandlers,
 ];

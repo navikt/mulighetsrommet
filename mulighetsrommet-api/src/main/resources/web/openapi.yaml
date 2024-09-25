@@ -956,6 +956,25 @@ paths:
               schema:
                 $ref: "#/components/schemas/VeilederflateTiltak"
 
+  /api/v1/intern/bruker/tiltakshistorikk:
+    post:
+      tags:
+        - Historikk
+      operationId: getTiltakshistorikk
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GetDeltakelserForBrukerRequest"
+        required: true
+      responses:
+        200:
+          description: Brukerens deltakelser på arbeidsmarkedstiltak
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetDeltakelserForBrukerResponse"
+
   /api/v1/intern/bruker/historikk:
     post:
       tags:
@@ -965,7 +984,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/GetHistorikkForBrukerRequest"
+              $ref: "#/components/schemas/GetDeltakelserForBrukerRequest"
         required: true
       responses:
         200:
@@ -1798,13 +1817,16 @@ paths:
                 items:
                   $ref: "#/components/schemas/AFTSats"
 
-  /api/v1/intern/refusjon/{orgnr}/krav:
-    get:
-      parameters:
-        - $ref: "#/components/parameters/OrgnrParam"
+  /api/v1/intern/refusjon/krav:
+    post:
       tags:
         - Refusjonskrav
       operationId: getRefusjonskrav
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GetRefusjonskravRequest"
       responses:
         200:
           description: Hent refusjonskrav til arrangør
@@ -1829,6 +1851,36 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/RefusjonskravDto"
+
+  /api/v1/intern/refusjon/kvittering/{id}:
+    parameters:
+      - $ref: "#/components/parameters/ID"
+    get:
+      tags:
+        - Refusjonskrav
+      responses:
+        200:
+          description: Generer PDF kvittering for refusjonskrav
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+
+  /api/v1/intern/utdanninger:
+    get:
+      tags:
+        - Utdanninger
+      operationId: getUtdanninger
+      responses:
+        200:
+          description: Returns a list of programområder and the corresponding utdanninger
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ProgramomradeMedUtdanning"
 
 components:
   securitySchemes:
@@ -1910,6 +1962,7 @@ components:
         type: string
 
   schemas:
+
     ValidationErrorResponse:
       type: object
       properties:
@@ -1938,7 +1991,7 @@ components:
       required:
         - norskIdent
 
-    GetHistorikkForBrukerRequest:
+    GetDeltakelserForBrukerRequest:
       type: object
       properties:
         norskIdent:
@@ -2978,20 +3031,26 @@ components:
         - ANNET
         - SAMARBEIDET_MED_ARRANGOREN_ER_AVBRUTT
 
-    DeltakelserResponseFraKomet:
+    GetDeltakelserForBrukerResponse:
       type: object
       properties:
-        aktive:
+        meldinger:
           type: array
           items:
-            $ref: "#/components/schemas/DeltakelseFraKomet"
-        historikk:
+            $ref: "#/components/schemas/DeltakelserMelding"
+        deltakelser:
           type: array
           items:
-            $ref: "#/components/schemas/DeltakelseFraKomet"
+            $ref: "#/components/schemas/DeltakerKort"
       required:
-        - aktive
-        - historikk
+        - meldinger
+        - deltakelser
+
+    DeltakelserMelding:
+      type: string
+      enum:
+        - MANGLER_SISTE_DELTAKELSER_FRA_TEAM_KOMET
+        - MANGLER_DELTAKELSER_FRA_TEAM_TILTAK
 
     DeltakerKort:
       type: object
@@ -3007,7 +3066,8 @@ components:
           type: string
           enum:
             - ARENA
-            - KOMET
+            - TEAM_KOMET
+            - TEAM_TILTAK
         tittel:
           type: string
         tiltakstypeNavn:
@@ -4079,6 +4139,7 @@ components:
         - mulighetsrommet-veilederflate.vis-tilbakemelding
         - mulighetsrommet.admin-flate.enableDebugger
         - mulighetsrommet.admin-flate.opprett-tilsagn
+        - mulighetsrommet.admin-flate.enable-utdanningskategorier
 
     PublisertRequest:
       type: object
@@ -4935,3 +4996,66 @@ components:
         - type
         - sats
         - belop
+
+    ProgramomradeMedUtdanning:
+      type: object
+      properties:
+        programomrade:
+          $ref: "#/components/schemas/Programomrade"
+        utdanninger:
+          type: array
+          items:
+            $ref: "#/components/schemas/Utdanning"
+      required:
+        - programomrade
+        - utdanninger
+
+    Programomrade:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        navn:
+          type: string
+        nusKoder:
+          type: array
+          items:
+            type: string
+      required:
+          - id
+          - navn
+          - nusKoder
+
+    Utdanning:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        navn:
+          type: string
+        programlopStart:
+          type: string
+          format: uuid
+        nusKoder:
+          type: array
+          items:
+            type: string
+      required:
+        - id
+        - navn
+        - programlopStart
+        - nusKoder
+
+    GetRefusjonskravRequest:
+      type: object
+      properties:
+        orgnr:
+          type: array
+          items:
+            type: string
+      required:
+        - orgnr
+
+

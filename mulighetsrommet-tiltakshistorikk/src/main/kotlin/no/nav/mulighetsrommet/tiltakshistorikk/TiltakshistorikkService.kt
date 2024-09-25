@@ -36,23 +36,23 @@ class TiltakshistorikkService(
         arbeidsgiverAvtaler
             .await()
             .fold(
-                { feilmelding ->
+                { meldinger ->
                     val historikk = deltakelser.sortedWith(compareBy(nullsLast()) { it.startDato })
-                    TiltakshistorikkResponse(historikk = historikk, meldinger = feilmelding)
+                    TiltakshistorikkResponse(historikk = historikk, meldinger = meldinger)
                 },
                 { avtaler ->
                     val historikk = (deltakelser + avtaler).sortedWith(compareBy(nullsLast()) { it.startDato })
-                    TiltakshistorikkResponse(historikk = historikk, meldinger = listOf())
+                    TiltakshistorikkResponse(historikk = historikk, meldinger = setOf())
                 },
             )
     }
 
-    suspend fun getArbeidsgiverAvtaler(
+    private suspend fun getArbeidsgiverAvtaler(
         identer: List<NorskIdent>,
         maxAgeYears: Int?,
-    ): Either<NonEmptyList<TiltakshistorikkMelding>, List<Tiltakshistorikk.ArbeidsgiverAvtale>> {
+    ): Either<NonEmptySet<TiltakshistorikkMelding>, List<Tiltakshistorikk.ArbeidsgiverAvtale>> {
         if (NaisEnv.current().isProdGCP()) {
-            return nonEmptyListOf(TiltakshistorikkMelding.MANGLER_HISTORIKK_FRA_TEAM_TILTAK).left()
+            return nonEmptySetOf(TiltakshistorikkMelding.MANGLER_HISTORIKK_FRA_TEAM_TILTAK).left()
         }
 
         val minAvtaleDato = maxAgeYears?.let { LocalDate.now().minusYears(it.toLong()) } ?: LocalDate.MIN
@@ -77,7 +77,7 @@ class TiltakshistorikkService(
             }
             .mapLeft { errors ->
                 log.error("Klarte ikke hente tiltakshistorikk fra Team Tiltak. Errors=$errors")
-                nonEmptyListOf(TiltakshistorikkMelding.MANGLER_HISTORIKK_FRA_TEAM_TILTAK)
+                nonEmptySetOf(TiltakshistorikkMelding.MANGLER_HISTORIKK_FRA_TEAM_TILTAK)
             }
     }
 }

@@ -1,7 +1,7 @@
 import { DeltakerKort, DeltakerStatusType } from "@mr/api-client";
 import { tiltakAvklaring, tiltakOppfolging } from "./mockTiltaksgjennomforinger";
 
-export const historikkFraKomet: DeltakerKort[] = [
+export const deltakelserHistoriske: DeltakerKort[] = [
   {
     tittel: "Oppfølging hos Muligheter AS",
     tiltakstypeNavn: "Oppfølging",
@@ -13,7 +13,7 @@ export const historikkFraKomet: DeltakerKort[] = [
     },
     sistEndretDato: "2024-03-07",
     innsoktDato: "2024-03-02",
-    eierskap: "KOMET",
+    eierskap: "TEAM_KOMET",
     periode: {},
   },
   {
@@ -28,7 +28,7 @@ export const historikkFraKomet: DeltakerKort[] = [
       aarsak: "utdanning",
     },
     innsoktDato: "2024-03-02",
-    eierskap: "KOMET",
+    eierskap: "TEAM_KOMET",
     periode: {},
   },
   {
@@ -46,7 +46,7 @@ export const historikkFraKomet: DeltakerKort[] = [
       visningstekst: "Har sluttet",
     },
     innsoktDato: "2024-03-02",
-    eierskap: "KOMET",
+    eierskap: "TEAM_KOMET",
   },
   {
     periode: {
@@ -63,7 +63,7 @@ export const historikkFraKomet: DeltakerKort[] = [
       visningstekst: "Fullført",
     },
     innsoktDato: "2024-02-03",
-    eierskap: "KOMET",
+    eierskap: "TEAM_KOMET",
   },
   {
     periode: {
@@ -81,7 +81,7 @@ export const historikkFraKomet: DeltakerKort[] = [
       aarsak: "Fått jobb",
     },
     innsoktDato: "2024-02-03",
-    eierskap: "KOMET",
+    eierskap: "TEAM_KOMET",
   },
   {
     tittel: "Avklaring med Anne",
@@ -94,7 +94,7 @@ export const historikkFraKomet: DeltakerKort[] = [
       visningstekst: "Feilregistrert",
     },
     innsoktDato: "2024-02-03",
-    eierskap: "KOMET",
+    eierskap: "TEAM_KOMET",
     periode: {},
   },
 ];

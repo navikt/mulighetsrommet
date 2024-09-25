@@ -61,17 +61,17 @@ class RefusjonskravRepository(private val db: Database) {
         )
     }
 
-    fun getByOrgnr(orgnr: Organisasjonsnummer) = db.transaction { getByOrgnr(orgnr, it) }
+    fun getByOrgnr(orgnr: List<Organisasjonsnummer>) = db.transaction { getByOrgnr(orgnr, it) }
 
-    fun getByOrgnr(orgnr: Organisasjonsnummer, tx: Session): List<RefusjonskravDto> {
+    fun getByOrgnr(orgnr: List<Organisasjonsnummer>, tx: Session): List<RefusjonskravDto> {
         @Language("PostgreSQL")
         val query = """
             select * from refusjonskrav_admin_dto_view
-            where arrangor_organisasjonsnummer = :orgnr
+            where arrangor_organisasjonsnummer = any(:orgnr)
         """.trimIndent()
 
         return tx.run(
-            queryOf(query, mapOf("orgnr" to orgnr.value))
+            queryOf(query, mapOf("orgnr" to db.createTextArray(orgnr.map { it.value })))
                 .map { it.toRefusjonskravDto() }
                 .asList,
         )

@@ -26,7 +26,9 @@ export async function loader({ request }: LoaderFunctionArgs) {
   // TODO: Vi trenger en måte å velge orgrn på
   // F. eks med bedriftsvelger (eller hva det heter) som min-side-arbeidsgiver bruker
   const krav = await RefusjonskravService.getRefusjonskrav({
-    orgnr: tilganger.roller[0].organisasjonsnummer,
+    requestBody: {
+      orgnr: tilganger.roller.map((rolle) => rolle.organisasjonsnummer),
+    },
   });
 
   return json({ krav });

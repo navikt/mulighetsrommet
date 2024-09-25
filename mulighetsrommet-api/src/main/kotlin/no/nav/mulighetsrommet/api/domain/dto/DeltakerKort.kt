@@ -77,7 +77,7 @@ data class DeltakerKort(
     @Serializable
     enum class Eierskap {
         ARENA,
-        KOMET,
+        TEAM_KOMET,
         TEAM_TILTAK,
     }
 }

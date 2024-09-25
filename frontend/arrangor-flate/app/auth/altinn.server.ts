@@ -12,16 +12,16 @@ interface TiltaksarrangorRoller {
 
 type Roller = "TILTAK_ARRANGOR_REFUSJON";
 
+const mockRoller: TiltaksarrangorRoller[] = [
+  {
+    organisasjonsnummer: "973674471",
+    roller: ["TILTAK_ARRANGOR_REFUSJON"],
+  },
+];
+
 export async function getTilganger(request: Request): Promise<TilgangerResponse> {
   if (hentMiljø() === Miljø.Lokalt) {
-    return Promise.resolve({
-      roller: [
-        {
-          organisasjonsnummer: "919777710",
-          roller: ["TILTAK_ARRANGOR_REFUSJON"],
-        },
-      ],
-    });
+    return { roller: mockRoller };
   }
 
   const [personident, token] = await Promise.all([
@@ -59,5 +59,12 @@ export async function getTilganger(request: Request): Promise<TilgangerResponse>
     throw new Error("Klarte ikke hente tilganger for bruker");
   }
 
-  return (await response.json()) as TilgangerResponse;
+  const tilganger = await response.json();
+  if (hentMiljø() === Miljø.DevGcp) {
+    return {
+      roller: [...tilganger.roller, ...mockRoller],
+    };
+  }
+
+  return tilganger;
 }

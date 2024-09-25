@@ -6,7 +6,7 @@ import {
   tiltakVta,
 } from "./mockTiltaksgjennomforinger";
 
-export const utkastFraKomet: DeltakerKort[] = [
+export const deltakelserAktive: DeltakerKort[] = [
   {
     id: window.crypto.randomUUID(),
     tiltaksgjennomforingId: tiltakAft.id,
@@ -18,7 +18,7 @@ export const utkastFraKomet: DeltakerKort[] = [
     },
     tiltakstypeNavn: "Arbeidsforberende trening",
     tittel: "Arbeidsforberedende trening hos Barneverns- og Helsenemnda",
-    eierskap: "KOMET",
+    eierskap: "TEAM_KOMET",
     periode: {},
   },
   {
@@ -32,7 +32,7 @@ export const utkastFraKomet: DeltakerKort[] = [
     },
     tiltakstypeNavn: "Avklaring",
     tittel: "Avklaring hos Fretex AS",
-    eierskap: "KOMET",
+    eierskap: "TEAM_KOMET",
     periode: {},
   },
   {
@@ -45,7 +45,7 @@ export const utkastFraKomet: DeltakerKort[] = [
     },
     tiltakstypeNavn: "Jobbklubb",
     tittel: "Jobbklubb hos Fretex",
-    eierskap: "KOMET",
+    eierskap: "TEAM_KOMET",
     periode: {},
   },
   {
@@ -62,7 +62,7 @@ export const utkastFraKomet: DeltakerKort[] = [
       sluttDato: "2023-09-11",
     },
     tittel: "Jobbklubb hos Fretex",
-    eierskap: "KOMET",
+    eierskap: "TEAM_KOMET",
   },
   {
     id: window.crypto.randomUUID(),
@@ -78,7 +78,7 @@ export const utkastFraKomet: DeltakerKort[] = [
       sluttDato: "2023-09-11",
     },
     tittel: "Jobbklubb hos Fretex",
-    eierskap: "KOMET",
+    eierskap: "TEAM_KOMET",
   },
   {
     id: window.crypto.randomUUID(),
@@ -93,6 +93,6 @@ export const utkastFraKomet: DeltakerKort[] = [
       startDato: "2023-08-10",
     },
     tittel: "VTA hos Fretex",
-    eierskap: "KOMET",
+    eierskap: "TEAM_KOMET",
   },
 ];
