@@ -8,7 +8,6 @@ import no.nav.mulighetsrommet.api.clients.amtDeltaker.*
 import no.nav.mulighetsrommet.api.clients.pdl.*
 import no.nav.mulighetsrommet.api.clients.tiltakshistorikk.TiltakshistorikkClient
 import no.nav.mulighetsrommet.api.domain.dto.DeltakerKort
-import no.nav.mulighetsrommet.api.domain.dto.TiltakshistorikkDto
 import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.api.utils.TiltaksnavnUtils.hosTitleCaseArrangor
 import no.nav.mulighetsrommet.api.utils.TiltaksnavnUtils.tittelOgUnderTittel
@@ -125,7 +124,7 @@ class TiltakshistorikkService(
 
     private suspend fun Tiltakshistorikk.GruppetiltakDeltakelse.toDeltakerKort(): DeltakerKort {
         val tiltakstype = tiltakstypeRepository.getByTiltakskode(gjennomforing.tiltakskode)
-        val arrangorNavn = getArrangorHovedenhet(arrangor.organisasjonsnummer).navn
+        val arrangorNavn = getArrangorHovedenhetNavn(arrangor.organisasjonsnummer)
         val (tittel) = tittelOgUnderTittel(gjennomforing.navn, tiltakstype.navn, gjennomforing.tiltakskode)
         return DeltakerKort(
             id = id,
@@ -161,7 +160,7 @@ class TiltakshistorikkService(
             Tiltakshistorikk.ArbeidsgiverAvtale.Tiltakstype.SOMMERJOBB -> "TILSJOBB"
         }
         val tiltakstype = tiltakstypeRepository.getByArenaTiltakskode(arenaKode)
-        val arrangorNavn = getArrangor(arbeidsgiver.organisasjonsnummer).navn
+        val arrangorNavn = getArrangorNavn(arbeidsgiver.organisasjonsnummer)
         return DeltakerKort(
             id = avtaleId,
             periode = DeltakerKort.Periode(
@@ -300,26 +299,22 @@ class TiltakshistorikkService(
             }
     }
 
-    private suspend fun getArrangorHovedenhet(orgnr: Organisasjonsnummer): TiltakshistorikkDto.Arrangor {
-        val navn = arrangorService.getOrSyncArrangorFromBrreg(orgnr.value).fold({ error ->
+    private suspend fun getArrangorHovedenhetNavn(orgnr: Organisasjonsnummer): String? {
+        return arrangorService.getOrSyncArrangorFromBrreg(orgnr.value).fold({ error ->
             log.warn("Klarte ikke hente arrangørs hovedenhet. BrregError: $error")
             null
         }, { virksomhet ->
-            virksomhet.overordnetEnhet?.let { getArrangorHovedenhet(Organisasjonsnummer(it)) }?.navn ?: virksomhet.navn
+            virksomhet.overordnetEnhet?.let { getArrangorHovedenhetNavn(Organisasjonsnummer(it)) } ?: virksomhet.navn
         })
-
-        return TiltakshistorikkDto.Arrangor(organisasjonsnummer = Organisasjonsnummer(orgnr.value), navn = navn)
     }
 
-    private suspend fun getArrangor(orgnr: Organisasjonsnummer): TiltakshistorikkDto.Arrangor {
-        val navn = arrangorService.getOrSyncArrangorFromBrreg(orgnr.value).fold({ error ->
+    private suspend fun getArrangorNavn(orgnr: Organisasjonsnummer): String? {
+        return arrangorService.getOrSyncArrangorFromBrreg(orgnr.value).fold({ error ->
             log.warn("Klarte ikke hente hente arrangør. BrregError: $error")
             null
         }, { virksomhet ->
             virksomhet.navn
         })
-
-        return TiltakshistorikkDto.Arrangor(organisasjonsnummer = Organisasjonsnummer(orgnr.value), navn = navn)
     }
 }
 
