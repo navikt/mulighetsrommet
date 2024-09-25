@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.okonomi.refusjon
 
+import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -21,6 +22,17 @@ fun Route.refusjonRoutes() {
             val orgnr = Organisasjonsnummer(call.parameters.getOrFail<String>("orgnr"))
 
             call.respond(service.getByOrgnr(orgnr))
+        }
+        get("/krav/{id}") {
+            // val orgnr = Organisasjonsnummer(call.parameters.getOrFail<String>("orgnr"))
+            val id = call.parameters.getOrFail<UUID>("id")
+            val krav = service.getById(id)
+
+            if (krav != null) {
+                call.respond(krav)
+            } else {
+                call.respond(HttpStatusCode.NoContent)
+            }
         }
     }
 }
