@@ -65,7 +65,7 @@ class SynchronizeUtdanninger(
     suspend fun syncUtdanninger() {
         val (programomrader, utdanninger) = utdanningClient
             .getUtdanninger()
-            .partition { it.sluttkompetanse == null && it.utdanningId == null }
+            .partition { it.sluttkompetanse == null && it.utdanningId == null && it.utdanningslop.size == 1 }
 
         programomrader.map { it.toProgramomrade() }.forEach { saveProgramomrade(it) }
         utdanninger.forEach { saveUtdanning(it) }
