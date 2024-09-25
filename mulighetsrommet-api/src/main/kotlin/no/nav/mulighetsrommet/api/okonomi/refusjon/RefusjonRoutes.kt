@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.okonomi.refusjon
 
 import io.ktor.server.application.*
+import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
@@ -26,10 +27,10 @@ fun Route.refusjonRoutes() {
     val service: RefusjonService by inject()
 
     route("/api/v1/intern/refusjon") {
-        get("/{orgnr}/krav") {
-            val orgnr = Organisasjonsnummer(call.parameters.getOrFail<String>("orgnr"))
+        post("/krav") {
+            val request = call.receive<GetRefusjonskravRequest>()
 
-            call.respond(service.getByOrgnr(orgnr))
+            call.respond(service.getByOrgnr(request.orgnr))
         }
 
         get("/kvittering/{id}") {
@@ -45,6 +46,11 @@ fun Route.refusjonRoutes() {
         }
     }
 }
+
+@Serializable
+data class GetRefusjonskravRequest(
+    val orgnr: List<Organisasjonsnummer>,
+)
 
 @Serializable
 data class RefusjonskravDto(
