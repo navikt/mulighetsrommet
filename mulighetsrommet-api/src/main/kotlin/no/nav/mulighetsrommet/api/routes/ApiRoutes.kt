@@ -49,6 +49,7 @@ fun Route.adminflateRoutes() {
     notificationRoutes()
     janzzRoutes()
     tilsagnRoutes()
+    utdanningRoutes()
 }
 
 fun Route.veilederflateRoutes() {

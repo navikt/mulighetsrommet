@@ -50,4 +50,5 @@ export const QueryKeys = {
   besluttTilsagn: () => ["beslutt-tilsagn"],
   annullerTilsagn: () => ["annuller-tilsagn"],
   aftSatser: () => ["aftSatser"],
+  utdanninger: () => ["utdanninger"],
 };
