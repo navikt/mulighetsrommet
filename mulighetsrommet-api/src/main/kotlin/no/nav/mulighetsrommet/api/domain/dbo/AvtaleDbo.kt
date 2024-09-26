@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.domain.dbo
 
 import no.nav.mulighetsrommet.api.routes.v1.Opsjonsmodell
+import no.nav.mulighetsrommet.api.routes.v1.ProgramomradeMedUtdanningerRequest
 import no.nav.mulighetsrommet.domain.dto.*
 import java.time.LocalDate
 import java.util.*
@@ -29,4 +30,5 @@ data class AvtaleDbo(
     val amoKategorisering: AmoKategorisering?,
     val opsjonsmodell: Opsjonsmodell?,
     val customOpsjonsmodellNavn: String?,
+    val programomradeOgUtdanningerRequest: ProgramomradeMedUtdanningerRequest?,
 )

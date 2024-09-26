@@ -93,6 +93,12 @@ export function AvtaleSkjemaContainer({
         opsjonsmodell: data?.opsjonsmodellData?.opsjonsmodell || null,
         customOpsjonsmodellNavn: data?.opsjonsmodellData?.customOpsjonsmodellNavn || null,
       },
+      programomradeMedUtdanningerRequest: data.programomradeOgUtdanninger
+        ? {
+            programomradeId: data.programomradeOgUtdanninger?.programomradeId,
+            utdanningsIder: data.programomradeOgUtdanninger?.utdanningsIder || [],
+          }
+        : null,
     };
 
     mutation.mutate(requestBody);
@@ -115,6 +121,8 @@ export function AvtaleSkjemaContainer({
           opsjonMaksVarighet: "opsjonsmodellData.opsjonMaksVarighet",
           customOpsjonsmodellNavn: "opsjonsmodellData.customOpsjonsmodellNavn",
           tiltakstypeId: "tiltakstype",
+          programomrade: "programomradeOgUtdanninger.programomradeId",
+          utdanninger: "programomradeOgUtdanninger.utdanningsIder",
         };
         return (mapping[name] ?? name) as keyof InferredAvtaleSchema;
       }

@@ -55,6 +55,7 @@ data class AvtaleRequest(
     val personvernBekreftet: Boolean,
     val amoKategorisering: AmoKategorisering?,
     val opsjonsmodellData: OpsjonsmodellData?,
+    val programomradeMedUtdanningerRequest: ProgramomradeMedUtdanningerRequest?,
 )
 
 @Serializable
@@ -98,6 +99,16 @@ data class SlettOpsjonLoggRequest(
     val id: UUID,
     @Serializable(with = UUIDSerializer::class)
     val avtaleId: UUID,
+)
+
+@Serializable
+data class ProgramomradeMedUtdanningerRequest(
+    @Serializable(with = UUIDSerializer::class)
+    val programomradeId: UUID,
+    val utdanningsIder: List<
+        @Serializable(with = UUIDSerializer::class)
+        UUID,
+        >,
 )
 
 fun Route.avtaleRoutes() {

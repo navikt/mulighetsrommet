@@ -1844,7 +1844,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/ProgramomradeMedUtdanning"
+                  $ref: "#/components/schemas/ProgramomradeMedUtdanninger"
 
 components:
   securitySchemes:
@@ -2298,6 +2298,9 @@ components:
         opsjonsmodellData:
           $ref: "#/components/schemas/OpsjonsmodellData"
           nullable: true
+        programomradeMedUtdanningerRequest:
+          $ref: "#/components/schemas/ProgramomradeMedUtdanningerRequest"
+          nullable: true
       required:
         - id
         - navn
@@ -2318,6 +2321,7 @@ components:
         - personvernBekreftet
         - amoKategorisering
         - opsjonsmodellData
+        - programomradeMedUtdanningerRequest
 
     EmbeddedTiltakstype:
       type: object
@@ -4859,7 +4863,22 @@ components:
         - sats
         - belop
 
-    ProgramomradeMedUtdanning:
+    ProgramomradeMedUtdanningerRequest:
+      type: object
+      properties:
+        programomradeId:
+          type: string
+          format: uuid
+        utdanningsIder:
+          type: array
+          items:
+            type: string
+            format: uuid
+      required:
+        - programomradeId
+        - utdanningsIder
+
+    ProgramomradeMedUtdanninger:
       type: object
       properties:
         programomrade:
