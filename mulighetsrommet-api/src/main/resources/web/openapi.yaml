@@ -3036,6 +3036,7 @@ components:
       enum:
         - MANGLER_SISTE_DELTAKELSER_FRA_TEAM_KOMET
         - MANGLER_DELTAKELSER_FRA_TEAM_TILTAK
+        - HENTER_IKKE_DELTAKELSER_FRA_TEAM_TILTAK
 
     DeltakerKort:
       type: object
