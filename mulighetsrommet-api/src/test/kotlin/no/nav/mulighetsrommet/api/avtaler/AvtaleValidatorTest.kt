@@ -736,7 +736,7 @@ class AvtaleValidatorTest : FunSpec({
             )
         }
 
-        test("Skal validere at minst én utdanning er valgt når programområde er satt ogtiltakstypen er Gruppe Fag- og yrkesopplæring") {
+        test("Skal validere at minst én utdanning er valgt når programområde er satt og tiltakstypen er Gruppe Fag- og yrkesopplæring") {
             val programomradeId = UUID.randomUUID()
 
             @Language("PostgreSQL")
