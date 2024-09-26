@@ -3069,16 +3069,6 @@ components:
         - GJENNOMFORES
         - AVSLUTTET
 
-    TiltakshistorikkArrangor:
-      type: object
-      nullable: true
-      properties:
-        organisasjonsnummer:
-          type: string
-        navn:
-          type: string
-          nullable: true
-
     DelMedBruker:
       type: object
       properties:
@@ -4162,17 +4152,6 @@ components:
         - AVKLARING
         - ARBEIDSRETTET_REHABILITERING
         - ARBEIDSFORBEREDENDE_TRENING
-
-    Gruppetiltak:
-      type: object
-      properties:
-        navn:
-          type: string
-        tiltakskode:
-          $ref: "#/components/schemas/TiltakskodeArena"
-      required:
-        - navn
-        - tiltakskode
 
     Personopplysning:
       type: string
