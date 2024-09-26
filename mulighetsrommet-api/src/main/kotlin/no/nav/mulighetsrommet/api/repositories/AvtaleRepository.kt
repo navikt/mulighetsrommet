@@ -597,6 +597,9 @@ class AvtaleRepository(private val db: Database) {
         val amoKategorisering = stringOrNull("amo_kategorisering_json")
             ?.let { JsonIgnoreUnknownKeys.decodeFromString<AmoKategorisering>(it) }
 
+        val programomradeMedUtdanninger = stringOrNull("programomrade_og_utdanninger_json")
+            ?.let { JsonIgnoreUnknownKeys.decodeFromString<ProgramomradeMedUtdanninger>(it) }
+
         return AvtaleDto(
             id = uuid("id"),
             navn = string("navn"),
@@ -637,6 +640,7 @@ class AvtaleRepository(private val db: Database) {
             opsjonsmodellData = opsjonsmodellData,
             opsjonerRegistrert = opsjonerRegistrert.sortedBy { it.aktivertDato },
             amoKategorisering = amoKategorisering,
+            programomradeMedUtdanninger = programomradeMedUtdanninger,
         )
     }
 
