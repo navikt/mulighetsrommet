@@ -24,10 +24,10 @@ import { useTiltakshistorikkForBruker } from "@/api/queries/useTiltakshistorikkF
 import { DeltakelseKort } from "../historikk/DeltakelseKort";
 import styles from "./Landingsside.module.scss";
 import { DelMedBrukerHistorikk } from "../delMedBruker/DelMedBrukerHistorikk";
-import { isProduction } from "@/environment";
 import { useLogEvent } from "@/logging/amplitude";
 import ingenFunnImg from "public/ingen-funn.svg";
 import { DeltakelserMelding } from "@mr/api-client";
+import { TEAM_TILTAK_TILTAKSGJENNOMFORING_AVTALER_URL } from "@/constants";
 
 function Feilmelding({ message }: { message: string }) {
   return (
@@ -265,7 +265,7 @@ function ManglerDeltakelserFraTeamTiltakMelding() {
     <Alert variant="warning">
       <HStack align="center">
         Vi får ikke kontakt med baksystemene og informasjon om tiltak hos arbeidsgiver
-        <TeamTiltakLenke />
+        <TeamTiltakTiltaksgjennomforingAvtalerLink />
         mangler derfor i visningen.
         <HelpText>
           Gjelder følgende tiltakstyper:
@@ -288,18 +288,18 @@ function HenterIkkeDeltakelserFraTeamTiltakMeling() {
   return (
     <Alert variant="info">
       For oversikt over tiltakstypene “Sommerjobb”, “Midlertidig lønnstilskudd”, og “Varig
-      lønnstilskudd” se <TeamTiltakLenke />
+      lønnstilskudd” se <TeamTiltakTiltaksgjennomforingAvtalerLink />
     </Alert>
   );
 }
 
-function TeamTiltakLenke() {
-  const baseUrl = isProduction
-    ? "https://tiltaksgjennomforing.intern.nav.no"
-    : "https://tiltaksgjennomforing.intern.dev.nav.no";
-
+function TeamTiltakTiltaksgjennomforingAvtalerLink() {
   return (
-    <AkselLink target="_blank" rel="noreferrer noopener" href={`${baseUrl}/tiltaksgjennomforing`}>
+    <AkselLink
+      target="_blank"
+      rel="noreferrer noopener"
+      href={`${TEAM_TILTAK_TILTAKSGJENNOMFORING_AVTALER_URL}/tiltaksgjennomforing`}
+    >
       Tiltaksgjennomføring - avtaler <ExternalLinkIcon title="Ikon for å åpne lenke i ny fane" />
     </AkselLink>
   );

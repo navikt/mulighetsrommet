@@ -1,10 +1,10 @@
-import { GruppetiltakDeltakerStatus, Deltakelse, DeltakelseEierskap } from "@mr/api-client";
 import {
-  tiltakAft,
-  tiltakAvklaring,
-  tiltakJobbklubb,
-  tiltakVta,
-} from "./mockTiltaksgjennomforinger";
+  ArbeidsgiverAvtaleStatus,
+  Deltakelse,
+  DeltakelseEierskap,
+  GruppetiltakDeltakerStatus,
+} from "@mr/api-client";
+import { tiltakAft, tiltakAvklaring, tiltakJobbklubb } from "./mockTiltaksgjennomforinger";
 
 export const deltakelserAktive: Deltakelse[] = [
   {
@@ -44,19 +44,6 @@ export const deltakelserAktive: Deltakelse[] = [
       visningstekst: "Venter på oppstart",
     },
     tiltakstypeNavn: "Jobbklubb",
-    tittel: "Jobbklubb hos Fretex",
-    eierskap: DeltakelseEierskap.TEAM_KOMET,
-    periode: {},
-  },
-  {
-    id: window.crypto.randomUUID(),
-    gjennomforingId: tiltakJobbklubb.id,
-    innsoktDato: "2024-02-01",
-    status: {
-      type: GruppetiltakDeltakerStatus.VENTER_PA_OPPSTART,
-      visningstekst: "Venter på oppstart",
-    },
-    tiltakstypeNavn: "Jobbklubb",
     periode: {
       startDato: "2023-08-10",
       sluttDato: "2023-09-11",
@@ -82,17 +69,16 @@ export const deltakelserAktive: Deltakelse[] = [
   },
   {
     id: window.crypto.randomUUID(),
-    gjennomforingId: tiltakVta.id,
     innsoktDato: "2024-02-01",
     status: {
-      type: GruppetiltakDeltakerStatus.VENTER_PA_OPPSTART,
+      type: ArbeidsgiverAvtaleStatus.GJENNOMFORES,
       visningstekst: "Venter på oppstart",
     },
-    tiltakstypeNavn: "Varig tilrettelagt arbeid (VTA)",
+    tiltakstypeNavn: "Arbeidstrening",
     periode: {
       startDato: "2023-08-10",
     },
-    tittel: "VTA hos Fretex",
-    eierskap: DeltakelseEierskap.TEAM_KOMET,
+    tittel: "Arbeidstrening hos Fretex",
+    eierskap: DeltakelseEierskap.TEAM_TILTAK,
   },
 ];

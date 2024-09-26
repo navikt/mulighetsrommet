@@ -2920,7 +2920,7 @@ components:
           type: string
           format: uuid
         eierskap:
-          $ref: "#/components/schemas/DeltakelseEierskap"
+          const: ARENA
         tittel:
           type: string
         tiltakstypeNavn:
@@ -2975,7 +2975,10 @@ components:
           type: string
           format: uuid
         eierskap:
-          $ref: "#/components/schemas/DeltakelseEierskap"
+          type: string
+          enum:
+            - ARENA
+            - TEAM_KOMET
         tittel:
           type: string
         tiltakstypeNavn:
@@ -3035,7 +3038,7 @@ components:
           type: string
           format: uuid
         eierskap:
-          $ref: "#/components/schemas/DeltakelseEierskap"
+          const: TEAM_TILTAK
         tittel:
           type: string
         tiltakstypeNavn:
