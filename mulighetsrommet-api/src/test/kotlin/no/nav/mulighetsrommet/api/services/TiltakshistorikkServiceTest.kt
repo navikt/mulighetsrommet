@@ -13,7 +13,7 @@ import no.nav.mulighetsrommet.api.clients.pdl.PdlClient
 import no.nav.mulighetsrommet.api.clients.pdl.PdlIdent
 import no.nav.mulighetsrommet.api.clients.tiltakshistorikk.TiltakshistorikkClient
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
-import no.nav.mulighetsrommet.api.domain.dto.DeltakerKort
+import no.nav.mulighetsrommet.api.domain.dto.Deltakelse
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.repositories.ArrangorRepository
 import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
@@ -96,50 +96,50 @@ class TiltakshistorikkServiceTest : FunSpec({
         sistEndretDato = LocalDate.of(2018, 12, 5),
     )
 
-    val deltakerKortOppfolging = DeltakerKort.DeltakerKortGruppetiltak(
+    val deltakerKortOppfolging = Deltakelse.DeltakelseGruppetiltak(
         id = deltakelseOppfolging.id,
         gjennomforingId = deltakelseOppfolging.gjennomforing.id,
-        eierskap = DeltakerKort.Eierskap.TEAM_KOMET,
+        eierskap = Deltakelse.Eierskap.TEAM_KOMET,
         tittel = "Oppfølging hos Fretex AS",
         tiltakstypeNavn = TiltakstypeFixtures.Oppfolging.navn,
-        status = DeltakerKort.DeltakerKortGruppetiltak.DeltakerStatus(
+        status = Deltakelse.DeltakelseGruppetiltak.DeltakerStatus(
             type = AmtDeltakerStatus.Type.VENTELISTE,
             visningstekst = "Venteliste",
             aarsak = null,
         ),
-        periode = DeltakerKort.Periode(
+        periode = Deltakelse.Periode(
             startDato = LocalDate.of(2019, 1, 1),
             sluttDato = LocalDate.of(2019, 12, 3),
         ),
         sistEndretDato = LocalDate.of(2018, 12, 5),
         innsoktDato = LocalDate.of(2018, 12, 3),
     )
-    val deltakerKortAvklaring = DeltakerKort.DeltakerKortArena(
+    val deltakerKortAvklaring = Deltakelse.DeltakelseArena(
         id = deltakelseAvklaring.id,
-        eierskap = DeltakerKort.Eierskap.ARENA,
+        eierskap = Deltakelse.Eierskap.ARENA,
         tittel = "Avklaring",
         tiltakstypeNavn = TiltakstypeFixtures.Avklaring.navn,
-        status = DeltakerKort.DeltakerKortArena.DeltakerStatus(
+        status = Deltakelse.DeltakelseArena.DeltakerStatus(
             type = ArenaDeltakerStatus.VENTELISTE,
             visningstekst = "Venteliste",
         ),
-        periode = DeltakerKort.Periode(
+        periode = Deltakelse.Periode(
             startDato = LocalDate.of(2018, 12, 3),
             sluttDato = LocalDate.of(2019, 12, 3),
         ),
         sistEndretDato = null,
         innsoktDato = null,
     )
-    val deltakerKortArbeidstrening = DeltakerKort.DeltakerKortArbeidsgiverAvtale(
+    val deltakerKortArbeidstrening = Deltakelse.DeltakelseArbeidsgiverAvtale(
         id = deltakelseArbeidstrening.avtaleId,
-        eierskap = DeltakerKort.Eierskap.TEAM_TILTAK,
+        eierskap = Deltakelse.Eierskap.TEAM_TILTAK,
         tittel = "Arbeidstrening hos Underenhet 2 AS",
         tiltakstypeNavn = "Arbeidstrening",
-        status = DeltakerKort.DeltakerKortArbeidsgiverAvtale.DeltakerStatus(
+        status = Deltakelse.DeltakelseArbeidsgiverAvtale.DeltakerStatus(
             type = Tiltakshistorikk.ArbeidsgiverAvtale.Status.GJENNOMFORES,
             visningstekst = "Gjennomføres",
         ),
-        periode = DeltakerKort.Periode(
+        periode = Deltakelse.Periode(
             startDato = LocalDate.of(2020, 1, 1),
             sluttDato = LocalDate.of(2021, 12, 31),
         ),

@@ -10,7 +10,7 @@ import java.time.LocalDate
 import java.util.*
 
 @Serializable
-sealed class DeltakerKort {
+sealed class Deltakelse {
     abstract val id: UUID
     abstract val eierskap: Eierskap
     abstract val tittel: String
@@ -35,7 +35,7 @@ sealed class DeltakerKort {
     )
 
     @Serializable
-    data class DeltakerKortArena(
+    data class DeltakelseArena(
         @Serializable(with = UUIDSerializer::class)
         override val id: UUID,
         override val eierskap: Eierskap,
@@ -47,7 +47,7 @@ sealed class DeltakerKort {
         override val sistEndretDato: LocalDate?,
         override val periode: Periode,
         val status: DeltakerStatus,
-    ) : DeltakerKort() {
+    ) : Deltakelse() {
         @Serializable
         data class DeltakerStatus(
             val type: ArenaDeltakerStatus,
@@ -56,7 +56,7 @@ sealed class DeltakerKort {
     }
 
     @Serializable
-    data class DeltakerKortGruppetiltak(
+    data class DeltakelseGruppetiltak(
         @Serializable(with = UUIDSerializer::class)
         override val id: UUID,
         override val eierskap: Eierskap,
@@ -70,7 +70,7 @@ sealed class DeltakerKort {
         val status: DeltakerStatus,
         @Serializable(with = UUIDSerializer::class)
         val gjennomforingId: UUID,
-    ) : DeltakerKort() {
+    ) : Deltakelse() {
         @Serializable
         data class DeltakerStatus(
             val type: AmtDeltakerStatus.Type,
@@ -80,7 +80,7 @@ sealed class DeltakerKort {
     }
 
     @Serializable
-    data class DeltakerKortArbeidsgiverAvtale(
+    data class DeltakelseArbeidsgiverAvtale(
         @Serializable(with = UUIDSerializer::class)
         override val id: UUID,
         override val eierskap: Eierskap,
@@ -92,7 +92,7 @@ sealed class DeltakerKort {
         override val sistEndretDato: LocalDate?,
         override val periode: Periode,
         val status: DeltakerStatus,
-    ) : DeltakerKort() {
+    ) : Deltakelse() {
         @Serializable
         data class DeltakerStatus(
             val type: Tiltakshistorikk.ArbeidsgiverAvtale.Status,

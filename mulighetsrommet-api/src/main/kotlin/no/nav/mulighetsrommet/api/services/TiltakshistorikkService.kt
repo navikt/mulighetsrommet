@@ -7,7 +7,7 @@ import kotlinx.coroutines.coroutineScope
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.*
 import no.nav.mulighetsrommet.api.clients.pdl.*
 import no.nav.mulighetsrommet.api.clients.tiltakshistorikk.TiltakshistorikkClient
-import no.nav.mulighetsrommet.api.domain.dto.DeltakerKort
+import no.nav.mulighetsrommet.api.domain.dto.Deltakelse
 import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.api.utils.TiltaksnavnUtils.hosTitleCaseArrangor
 import no.nav.mulighetsrommet.api.utils.TiltaksnavnUtils.tittelOgUnderTittel
@@ -101,15 +101,15 @@ class TiltakshistorikkService(
         is Tiltakshistorikk.ArbeidsgiverAvtale -> it.toDeltakerKort()
     }
 
-    private fun Tiltakshistorikk.ArenaDeltakelse.toDeltakerKort(): DeltakerKort {
+    private fun Tiltakshistorikk.ArenaDeltakelse.toDeltakerKort(): Deltakelse {
         val tiltakstype = tiltakstypeRepository.getByArenaTiltakskode(arenaTiltakskode)
-        return DeltakerKort.DeltakerKortArena(
+        return Deltakelse.DeltakelseArena(
             id = id,
-            periode = DeltakerKort.Periode(
+            periode = Deltakelse.Periode(
                 startDato = startDato,
                 sluttDato = sluttDato,
             ),
-            status = DeltakerKort.DeltakerKortArena.DeltakerStatus(
+            status = Deltakelse.DeltakelseArena.DeltakerStatus(
                 type = status,
                 visningstekst = arenaStatusTilVisningstekst(status),
             ),
@@ -117,11 +117,11 @@ class TiltakshistorikkService(
             tiltakstypeNavn = tiltakstype.navn,
             innsoktDato = null,
             sistEndretDato = null,
-            eierskap = DeltakerKort.Eierskap.ARENA,
+            eierskap = Deltakelse.Eierskap.ARENA,
         )
     }
 
-    private suspend fun Tiltakshistorikk.GruppetiltakDeltakelse.toDeltakerKort(): DeltakerKort = coroutineScope {
+    private suspend fun Tiltakshistorikk.GruppetiltakDeltakelse.toDeltakerKort(): Deltakelse = coroutineScope {
         val tiltakstype = async { tiltakstypeRepository.getByTiltakskode(gjennomforing.tiltakskode) }
         val arrangorNavn = async { getArrangorHovedenhetNavn(arrangor.organisasjonsnummer) }
 
@@ -130,13 +130,13 @@ class TiltakshistorikkService(
             tiltakstype.await().navn,
             gjennomforing.tiltakskode,
         )
-        DeltakerKort.DeltakerKortGruppetiltak(
+        Deltakelse.DeltakelseGruppetiltak(
             id = id,
-            periode = DeltakerKort.Periode(
+            periode = Deltakelse.Periode(
                 startDato = startDato,
                 sluttDato = sluttDato,
             ),
-            status = DeltakerKort.DeltakerKortGruppetiltak.DeltakerStatus(
+            status = Deltakelse.DeltakelseGruppetiltak.DeltakerStatus(
                 type = status.type,
                 visningstekst = gruppetiltakStatusTilVisningstekst(status.type),
                 aarsak = gruppetiltakAarsakTilTekst(status.aarsak),
@@ -150,12 +150,12 @@ class TiltakshistorikkService(
              * Det er først når deltakelsen også er tilgjengelig fra [AmtDeltakerClient.hentDeltakelser]
              * at eierskapet er TEAM_KOMET.
              */
-            eierskap = DeltakerKort.Eierskap.ARENA,
+            eierskap = Deltakelse.Eierskap.ARENA,
             gjennomforingId = gjennomforing.id,
         )
     }
 
-    private suspend fun Tiltakshistorikk.ArbeidsgiverAvtale.toDeltakerKort(): DeltakerKort {
+    private suspend fun Tiltakshistorikk.ArbeidsgiverAvtale.toDeltakerKort(): Deltakelse {
         val arenaKode = when (tiltakstype) {
             Tiltakshistorikk.ArbeidsgiverAvtale.Tiltakstype.ARBEIDSTRENING -> "ARBTREN"
             Tiltakshistorikk.ArbeidsgiverAvtale.Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD -> "MIDLONTIL"
@@ -166,13 +166,13 @@ class TiltakshistorikkService(
         }
         val tiltakstype = tiltakstypeRepository.getByArenaTiltakskode(arenaKode)
         val arrangorNavn = getArrangorNavn(arbeidsgiver.organisasjonsnummer)
-        return DeltakerKort.DeltakerKortArbeidsgiverAvtale(
+        return Deltakelse.DeltakelseArbeidsgiverAvtale(
             id = avtaleId,
-            periode = DeltakerKort.Periode(
+            periode = Deltakelse.Periode(
                 startDato = startDato,
                 sluttDato = sluttDato,
             ),
-            status = DeltakerKort.DeltakerKortArbeidsgiverAvtale.DeltakerStatus(
+            status = Deltakelse.DeltakelseArbeidsgiverAvtale.DeltakerStatus(
                 type = status,
                 visningstekst = arbeidsgiverAvtaleStatusTilVisningstekst(status),
             ),
@@ -180,7 +180,7 @@ class TiltakshistorikkService(
             tiltakstypeNavn = tiltakstype.navn,
             innsoktDato = null,
             sistEndretDato = null,
-            eierskap = DeltakerKort.Eierskap.TEAM_TILTAK,
+            eierskap = Deltakelse.Eierskap.TEAM_TILTAK,
         )
     }
 
@@ -202,9 +202,9 @@ class TiltakshistorikkService(
         }
     }
 
-    private fun erAktiv(kort: DeltakerKort): Boolean {
+    private fun erAktiv(kort: Deltakelse): Boolean {
         return when (kort) {
-            is DeltakerKort.DeltakerKortArena -> kort.status.type in listOf(
+            is Deltakelse.DeltakelseArena -> kort.status.type in listOf(
                 ArenaDeltakerStatus.AKTUELL,
                 ArenaDeltakerStatus.VENTELISTE,
                 ArenaDeltakerStatus.TILBUD,
@@ -213,7 +213,7 @@ class TiltakshistorikkService(
                 ArenaDeltakerStatus.TAKKET_JA_TIL_TILBUD,
             )
 
-            is DeltakerKort.DeltakerKortGruppetiltak -> kort.status.type in listOf(
+            is Deltakelse.DeltakelseGruppetiltak -> kort.status.type in listOf(
                 AmtDeltakerStatus.Type.VENTER_PA_OPPSTART,
                 AmtDeltakerStatus.Type.DELTAR,
                 AmtDeltakerStatus.Type.VURDERES,
@@ -223,7 +223,7 @@ class TiltakshistorikkService(
                 AmtDeltakerStatus.Type.PABEGYNT_REGISTRERING,
             )
 
-            is DeltakerKort.DeltakerKortArbeidsgiverAvtale -> kort.status.type in listOf(
+            is Deltakelse.DeltakelseArbeidsgiverAvtale -> kort.status.type in listOf(
                 Tiltakshistorikk.ArbeidsgiverAvtale.Status.PAABEGYNT,
                 Tiltakshistorikk.ArbeidsgiverAvtale.Status.MANGLER_GODKJENNING,
                 Tiltakshistorikk.ArbeidsgiverAvtale.Status.KLAR_FOR_OPPSTART,
@@ -332,18 +332,18 @@ class TiltakshistorikkService(
     }
 }
 
-fun DeltakelseFraKomet.toDeltakerKort(): DeltakerKort {
-    return DeltakerKort.DeltakerKortGruppetiltak(
+fun DeltakelseFraKomet.toDeltakerKort(): Deltakelse {
+    return Deltakelse.DeltakelseGruppetiltak(
         id = deltakerId,
         gjennomforingId = deltakerlisteId,
-        periode = DeltakerKort.Periode(
+        periode = Deltakelse.Periode(
             startDato = periode?.startdato,
             sluttDato = periode?.sluttdato,
         ),
-        eierskap = DeltakerKort.Eierskap.TEAM_KOMET,
+        eierskap = Deltakelse.Eierskap.TEAM_KOMET,
         tittel = tittel,
         tiltakstypeNavn = tiltakstype.navn,
-        status = DeltakerKort.DeltakerKortGruppetiltak.DeltakerStatus(
+        status = Deltakelse.DeltakelseGruppetiltak.DeltakerStatus(
             type = status.type,
             visningstekst = status.visningstekst,
             aarsak = status.aarsak,
@@ -361,23 +361,23 @@ enum class DeltakelserMelding {
 
 data class Deltakelser(
     val meldinger: Set<DeltakelserMelding>,
-    val aktive: List<DeltakerKort>,
-    val historiske: List<DeltakerKort>,
+    val aktive: List<Deltakelse>,
+    val historiske: List<Deltakelse>,
 ) {
     /**
      * Kombinerer deltakelser. Ved konflikter på id så kastes deltakelse fra [other].
      */
     fun mergeWith(other: Deltakelser) = Deltakelser(
         meldinger = meldinger + other.meldinger,
-        aktive = (aktive + other.aktive).distinctBy { it.id }.sortedWith(deltakerKortComparator),
-        historiske = (historiske + other.historiske).distinctBy { it.id }.sortedWith(deltakerKortComparator),
+        aktive = (aktive + other.aktive).distinctBy { it.id }.sortedWith(deltakelseComparator),
+        historiske = (historiske + other.historiske).distinctBy { it.id }.sortedWith(deltakelseComparator),
     )
 }
 
 /**
  * Sorterer deltakelser basert på nyeste startdato først
  */
-private val deltakerKortComparator: Comparator<DeltakerKort> = Comparator { a, b ->
+private val deltakelseComparator: Comparator<Deltakelse> = Comparator { a, b ->
     val startDatoA = a.periode.startDato
     val startDatoB = b.periode.startDato
 

@@ -10,7 +10,7 @@ import no.nav.common.audit_log.cef.CefMessage
 import no.nav.common.audit_log.cef.CefMessageEvent
 import no.nav.common.audit_log.cef.CefMessageSeverity
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerError
-import no.nav.mulighetsrommet.api.domain.dto.DeltakerKort
+import no.nav.mulighetsrommet.api.domain.dto.Deltakelse
 import no.nav.mulighetsrommet.api.plugins.getNavAnsattAzureId
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.responses.BadRequest
@@ -112,7 +112,7 @@ fun Route.brukerRoutes() {
 
             val response = deltakelser.aktive
                 .firstOrNull {
-                    it is DeltakerKort.DeltakerKortGruppetiltak && it.gjennomforingId == tiltaksgjennomforingId
+                    it is Deltakelse.DeltakelseGruppetiltak && it.gjennomforingId == tiltaksgjennomforingId
                 }
                 ?: HttpStatusCode.NoContent
 
@@ -146,7 +146,7 @@ data class GetDeltakelserForBrukerRequest(
 @Serializable
 data class GetDeltakelserForBrukerResponse(
     val meldinger: Set<DeltakelserMelding>,
-    val deltakelser: List<DeltakerKort>,
+    val deltakelser: List<Deltakelse>,
 )
 
 @Serializable

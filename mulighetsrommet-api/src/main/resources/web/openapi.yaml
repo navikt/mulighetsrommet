@@ -994,7 +994,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/DeltakerKort"
+                  $ref: "#/components/schemas/Deltakelse"
 
   /api/v1/intern/bruker/deltakelse-for-gjennomforing:
     post:
@@ -1013,7 +1013,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/DeltakerKortGruppetiltak"
+                $ref: "#/components/schemas/DeltakelseGruppetiltak"
         204:
           description: Fant ikke deltakelse for gjennomføring
 
@@ -1947,7 +1947,6 @@ components:
         type: string
 
   schemas:
-
     ValidationErrorResponse:
       type: object
       properties:
@@ -2882,53 +2881,6 @@ components:
       required:
         - dialogId
 
-    AmtDeltakerStatus:
-      type: object
-      properties:
-        type:
-          $ref: "#/components/schemas/AmtDeltakerStatusType"
-        aarsak:
-          $ref: "#/components/schemas/AmtDeltakerStatusAarsak"
-        opprettetDato:
-          type: string
-          format: date-time
-      required:
-        - type
-
-    AmtDeltakerStatusType:
-      type: string
-      enum:
-        - VENTER_PA_OPPSTART
-        - DELTAR
-        - HAR_SLUTTET
-        - IKKE_AKTUELL
-        - FEILREGISTRERT
-        - PABEGYNT_REGISTRERING
-        - SOKT_INN
-        - VURDERES
-        - VENTELISTE
-        - AVBRUTT
-        - FULLFORT
-        - UTKAST_TIL_PAMELDING
-        - AVBRUTT_UTKAST
-        - KLADD
-
-    AmtDeltakerStatusAarsak:
-      type: string
-      enum:
-        - SYK
-        - FATT_JOBB
-        - TRENGER_ANNEN_STOTTE
-        - FIKK_IKKE_PLASS
-        - UTDANNING
-        - FERDIG
-        - AVLYST_KONTRAKT
-        - IKKE_MOTT
-        - FEILREGISTRERT
-        - OPPFYLLER_IKKE_KRAVENE
-        - ANNET
-        - SAMARBEIDET_MED_ARRANGOREN_ER_AVBRUTT
-
     GetDeltakelserForBrukerResponse:
       type: object
       properties:
@@ -2939,7 +2891,7 @@ components:
         deltakelser:
           type: array
           items:
-            $ref: "#/components/schemas/DeltakerKort"
+            $ref: "#/components/schemas/Deltakelse"
       required:
         - meldinger
         - deltakelser
@@ -2951,13 +2903,13 @@ components:
         - MANGLER_DELTAKELSER_FRA_TEAM_TILTAK
         - HENTER_IKKE_DELTAKELSER_FRA_TEAM_TILTAK
 
-    DeltakerKort:
+    Deltakelse:
       oneOf:
-        - $ref: "#/components/schemas/DeltakerKortArena"
-        - $ref: "#/components/schemas/DeltakerKortGruppetiltak"
-        - $ref: "#/components/schemas/DeltakerKortArbeidsgiverAvtale"
+        - $ref: "#/components/schemas/DeltakelseArena"
+        - $ref: "#/components/schemas/DeltakelseGruppetiltak"
+        - $ref: "#/components/schemas/DeltakelseArbeidsgiverAvtale"
 
-    DeltakerKortPeriode:
+    DeltakelsePeriode:
       type: object
       properties:
         startDato:
@@ -2969,21 +2921,21 @@ components:
           format: date
           nullable: true
 
-    DeltakerKortEierskap:
+    DeltakelseEierskap:
       type: string
       enum:
         - ARENA
         - TEAM_KOMET
         - TEAM_TILTAK
 
-    DeltakerKortArena:
+    DeltakelseArena:
       type: object
       properties:
         id:
           type: string
           format: uuid
         eierskap:
-          $ref: "#/components/schemas/DeltakerKortEierskap"
+          $ref: "#/components/schemas/DeltakelseEierskap"
         tittel:
           type: string
         tiltakstypeNavn:
@@ -2993,7 +2945,7 @@ components:
         sistEndretDato:
           type: string
         periode:
-          $ref: "#/components/schemas/DeltakerKortPeriode"
+          $ref: "#/components/schemas/DeltakelsePeriode"
         status:
           type: object
           properties:
@@ -3031,14 +2983,14 @@ components:
         - IKKE_MOTT
         - FEILREGISTRERT
 
-    DeltakerKortGruppetiltak:
+    DeltakelseGruppetiltak:
       type: object
       properties:
         id:
           type: string
           format: uuid
         eierskap:
-          $ref: "#/components/schemas/DeltakerKortEierskap"
+          $ref: "#/components/schemas/DeltakelseEierskap"
         tittel:
           type: string
         tiltakstypeNavn:
@@ -3048,12 +3000,12 @@ components:
         sistEndretDato:
           type: string
         periode:
-          $ref: "#/components/schemas/DeltakerKortPeriode"
+          $ref: "#/components/schemas/DeltakelsePeriode"
         status:
           type: object
           properties:
             type:
-              $ref: "#/components/schemas/AmtDeltakerStatusType"
+              $ref: "#/components/schemas/GruppetiltakDeltakerStatus"
             visningstekst:
               type: string
             aarsak:
@@ -3073,14 +3025,32 @@ components:
         - status
         - gjennomforingId
 
-    DeltakerKortArbeidsgiverAvtale:
+    GruppetiltakDeltakerStatus:
+      type: string
+      enum:
+        - VENTER_PA_OPPSTART
+        - DELTAR
+        - HAR_SLUTTET
+        - IKKE_AKTUELL
+        - FEILREGISTRERT
+        - PABEGYNT_REGISTRERING
+        - SOKT_INN
+        - VURDERES
+        - VENTELISTE
+        - AVBRUTT
+        - FULLFORT
+        - UTKAST_TIL_PAMELDING
+        - AVBRUTT_UTKAST
+        - KLADD
+
+    DeltakelseArbeidsgiverAvtale:
       type: object
       properties:
         id:
           type: string
           format: uuid
         eierskap:
-          $ref: "#/components/schemas/DeltakerKortEierskap"
+          $ref: "#/components/schemas/DeltakelseEierskap"
         tittel:
           type: string
         tiltakstypeNavn:
@@ -3090,7 +3060,7 @@ components:
         sistEndretDato:
           type: string
         periode:
-          $ref: "#/components/schemas/DeltakerKortPeriode"
+          $ref: "#/components/schemas/DeltakelsePeriode"
         status:
           type: object
           properties:
@@ -4957,9 +4927,9 @@ components:
           items:
             type: string
       required:
-          - id
-          - navn
-          - nusKoder
+        - id
+        - navn
+        - nusKoder
 
     Utdanning:
       type: object
@@ -4991,5 +4961,3 @@ components:
             type: string
       required:
         - orgnr
-
-

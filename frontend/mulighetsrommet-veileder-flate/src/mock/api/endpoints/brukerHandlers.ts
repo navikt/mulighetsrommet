@@ -3,7 +3,7 @@ import {
   Bruker,
   BrukerVarsel,
   DeltakelserMelding,
-  DeltakerKort,
+  Deltakelse,
   GetAktivDeltakelseForBrukerRequest,
   GetBrukerRequest,
   GetDeltakelserForBrukerRequest,
@@ -65,7 +65,7 @@ export const brukerHandlers = [
     },
   ),
 
-  http.post<PathParams, GetDeltakelserForBrukerRequest, DeltakerKort[]>(
+  http.post<PathParams, GetDeltakelserForBrukerRequest, Deltakelse[]>(
     "*/api/v1/intern/bruker/historikk",
     async ({ request }) => {
       const { type } = await request.json();
@@ -77,7 +77,7 @@ export const brukerHandlers = [
     },
   ),
 
-  http.post<PathParams, GetAktivDeltakelseForBrukerRequest, DeltakerKort>(
+  http.post<PathParams, GetAktivDeltakelseForBrukerRequest, Deltakelse>(
     "*/api/v1/intern/bruker/deltakelse-for-gjennomforing",
     async ({ request }) => {
       const { tiltaksgjennomforingId } = await request.json();
