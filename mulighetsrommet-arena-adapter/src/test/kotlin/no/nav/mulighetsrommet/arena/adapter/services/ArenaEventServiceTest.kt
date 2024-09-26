@@ -418,14 +418,25 @@ class ArenaEventServiceTest : FunSpec({
                 .value("status").isEqualTo(Ignored.name)
         }
 
-        test("should use EKSTERN_ID if exists") {
+        test("should use EKSTERN_ID if exists for table Tiltaksgjennomforing") {
+            val processor = ArenaEventTestProcessor()
+
+            val service = ArenaEventService(events = events, processors = listOf(processor), entities = entities)
+            service.processEvent(pendingEventWithEksternId.copy(arenaTable = ArenaTable.Tiltaksgjennomforing))
+
+            database.assertThat("arena_entity_mapping").row()
+                .value("entity_id").isEqualTo(eksternId)
+                .value("arena_id").isEqualTo(pendingEventWithEksternId.arenaId)
+        }
+
+        test("should not EKSTERN_ID if exists for other tables than Tiltaksgjennomforing") {
             val processor = ArenaEventTestProcessor()
 
             val service = ArenaEventService(events = events, processors = listOf(processor), entities = entities)
             service.processEvent(pendingEventWithEksternId)
 
             database.assertThat("arena_entity_mapping").row()
-                .value("entity_id").isEqualTo(eksternId)
+                .value("entity_id").isNotEqualTo(eksternId)
                 .value("arena_id").isEqualTo(pendingEventWithEksternId.arenaId)
         }
     }

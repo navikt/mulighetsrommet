@@ -62,10 +62,9 @@ data class ArenaEvent(
         }
     }
 
-    fun getEksternID(): UUID? {
-        return decodePayload<EksternIdPayload>().EKSTERN_ID?.let {
-            UUID.fromString(it)
-        }
+    fun getEksternID(): UUID? = when (arenaTable) {
+        ArenaTable.Tiltaksgjennomforing -> decodePayload<EksternIdPayload>().EKSTERN_ID?.let { UUID.fromString(it) }
+        else -> null
     }
 }
 
