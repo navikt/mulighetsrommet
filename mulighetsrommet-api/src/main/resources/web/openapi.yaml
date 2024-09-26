@@ -975,27 +975,6 @@ paths:
               schema:
                 $ref: "#/components/schemas/GetDeltakelserForBrukerResponse"
 
-  /api/v1/intern/bruker/historikk:
-    post:
-      tags:
-        - Historikk
-      operationId: hentHistorikkForBruker
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/GetDeltakelserForBrukerRequest"
-        required: true
-      responses:
-        200:
-          description: Historical data about the user
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Deltakelse"
-
   /api/v1/intern/bruker/deltakelse-for-gjennomforing:
     post:
       tags:

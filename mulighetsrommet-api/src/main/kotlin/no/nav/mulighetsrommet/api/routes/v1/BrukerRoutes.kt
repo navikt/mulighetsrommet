@@ -9,13 +9,9 @@ import kotlinx.serialization.Serializable
 import no.nav.common.audit_log.cef.CefMessage
 import no.nav.common.audit_log.cef.CefMessageEvent
 import no.nav.common.audit_log.cef.CefMessageSeverity
-import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerError
 import no.nav.mulighetsrommet.api.domain.dto.Deltakelse
 import no.nav.mulighetsrommet.api.plugins.getNavAnsattAzureId
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
-import no.nav.mulighetsrommet.api.responses.BadRequest
-import no.nav.mulighetsrommet.api.responses.NotFound
-import no.nav.mulighetsrommet.api.responses.ServerError
 import no.nav.mulighetsrommet.api.services.BrukerService
 import no.nav.mulighetsrommet.api.services.DeltakelserMelding
 import no.nav.mulighetsrommet.api.services.PoaoTilgangService
@@ -74,34 +70,6 @@ fun Route.brukerRoutes() {
             call.respond(response)
         }
 
-        post("historikk") {
-            val (norskIdent, type) = call.receive<GetDeltakelserForBrukerRequest>()
-            val navIdent = getNavIdent()
-            val obo = AccessType.OBO(call.getAccessToken())
-
-            poaoTilgangService.verifyAccessToUserFromVeileder(getNavAnsattAzureId(), norskIdent)
-
-            val historikk = historikkService.hentHistorikk(norskIdent, obo).let {
-                if (type == DeltakelsesType.AKTIVE) {
-                    it.aktive
-                } else {
-                    it.historiske
-                }
-            }
-
-            if (historikk.isNotEmpty()) {
-                val message = createAuditMessage(
-                    msg = "NAV-ansatt med ident: '$navIdent' har sett på $type tiltaksdeltakelser for bruker med ident: '$norskIdent'.",
-                    topic = "Vis tiltakshistorikk",
-                    navIdent = navIdent,
-                    norskIdent = norskIdent,
-                )
-                AuditLog.auditLogger.log(message)
-            }
-
-            call.respond(historikk)
-        }
-
         post("deltakelse-for-gjennomforing") {
             val (norskIdent, tiltaksgjennomforingId) = call.receive<GetAktivDeltakelseForBrukerRequest>()
             val obo = AccessType.OBO(call.getAccessToken())
@@ -119,12 +87,6 @@ fun Route.brukerRoutes() {
             call.respond(response)
         }
     }
-}
-
-private fun toStatusResponseError(it: AmtDeltakerError) = when (it) {
-    AmtDeltakerError.NotFound -> NotFound()
-    AmtDeltakerError.BadRequest -> BadRequest()
-    AmtDeltakerError.Error -> ServerError()
 }
 
 @Serializable
