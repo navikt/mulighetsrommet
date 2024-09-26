@@ -5,11 +5,7 @@
       "dependsOn": ["^build"],
       "outputs": ["dist"]
     },
-    "build:modia": {
-      "dependsOn": ["^build"],
-      "outputs": ["dist"]
-    },
-    "build:nav": {
+    "build:demo": {
       "dependsOn": ["^build"],
       "outputs": ["dist"]
     }

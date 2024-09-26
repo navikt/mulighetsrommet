@@ -1,44 +1,63 @@
-# Admin-flate
+# Tiltaksadministrasjon (admin-flate)
 
-Kildekode for flate for administrative oppgaver rundt opprettelse og redigering av tiltakstyper og tiltaksgjennomføringer.
-
-## Oppsett
-
-### Lokal utvikling
-
-`pnpm install`
-`pnpm run dev`
-
-### Lokal utvikling mot lokal backend
-
-`.env` må konfigureres med følgende variabler:
-
-```.env
-# Setter root url for alle HTTP-kall til mulighetsrommet-api.
-VITE_MULIGHETSROMMET_API_BASE='http://localhost:8080'
-
-# Setter Bearer token for HTTP-kall mot mulighetsrommet-api.
-# Dette tokenet kan genereres med å følge guiden beskrevet i README.md til mulighetsrommet-api.
-# MERK: det genererte tokenet trenger følgende custom claims for at login og access skal fungere:
-#   - NAVident: En tilfeldig NAVident
-#   - oid: En tilfeldig UUID
-VITE_MULIGHETSROMMET_API_AUTH_TOKEN=<token>
-```
-
-Deretter kan du kjøre `pnpm run backend`.
-
-## Deploy
-
-Ved merge til main-branch deployes appen til dev og prod.
+Kildekode for flate for administrative oppgaver rundt opprettelse og redigering av avtaler og
+tiltaksgjennomføringer.
 
 ## Demo
 
 Se demo av løsningen her https://tiltaksadministrasjon.ekstern.dev.nav.no
 
-# Henvendelser
+## Oppsett
 
-Spørsmål knyttet til koden eller prosjektet kan stilles via issues her på GitHub.
+### Installere avhengigheter
 
-## For NAV-ansatte
+```
+pnpm install
+```
 
-Interne henvendelser kan sendes via Slack i kanalen #valp-brukerstøtte
+### Lokal utvikling med mock-data
+
+```sh
+turbo run dev
+```
+
+### Lokal utvikling mot lokal backend
+
+`.env` må konfigureres med token for lokal autentisering. Se seksjonen
+om [lokal autentisering](../../mulighetsrommet-api/README.md#autentisering):
+
+```.env
+# Setter Bearer token for HTTP-kall mot mulighetsrommet-api.
+VITE_MULIGHETSROMMET_API_AUTH_TOKEN=<token>
+```
+
+Deretter kan appen startes mot lokal backend:
+
+```sh
+turbo run backend
+```
+
+## Testing og linting
+
+Koden lintes og formatteres med `eslint` og `prettier`.
+
+```
+turbo run lint
+
+# Fiks det som kan gjøres automatisk, bl.a. kode-formattering
+turbo run lint:fix
+```
+
+E2E-tester er skrevet med `playwright`. Ved lokal testing kan det være behjelpelig å kjøre `playwright` med UI'et:
+
+```
+# Kjør tester
+turbo run playwright
+
+# Kjør tester med UI
+turbo run playwright:open
+```
+
+## Deploy
+
+Ved merge til main-branch deployes appen til dev og prod.

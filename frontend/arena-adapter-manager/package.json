@@ -5,9 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "lint": "eslint . --report-unused-disable-directives --max-warnings 0",
+    "lint:fix": "eslint . --fix",
+    "typecheck": "tsc",
     "build": "vite build",
-    "lint": "eslint . --report-unused-disable-directives --max-warnings 0 && tsc",
-    "fix-lint": "eslint . --fix",
     "preview": "vite preview"
   },
   "dependencies": {

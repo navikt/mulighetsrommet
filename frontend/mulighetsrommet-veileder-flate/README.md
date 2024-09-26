@@ -1,22 +1,31 @@
-# `mulighetsrommet-veileder-flate`
+# Arbeidsmarkedstiltak (veileder-flate)
 
-Visning av arbeidsmarkedstiltak til veiledere og NAV-ansatte.
-
-Applikasjonen bygges og distribueres i flere varianter avhengig av bruksområde.
+Visning av arbeidsmarkedstiltak til veiledere og NAV-ansatte. Applikasjonen bygges og distribueres i flere varianter
+avhengig av bruksområde.
 
 **MODIA**
+
 - En variant rettet mot veiledere ved arbeidsrettet oppfølging.
-  - Kjører med en bruker (borger) i kontekst og inkluderer en del funksjoner rettet mot samhandling mellom NAV-veileder og bruker.
-  - Lar deg finne relevante arbeidsmarkedstiltak for bruker i kontekst.
-- Blir distribuert som en [Web Component](https://developer.mozilla.org/en-US/docs/Web/API/Web_components) og inkludert som en microfrontend i [veilarbpersonflate](https://github.com/navikt/veilarbpersonflatefs).
+    - Kjører med en bruker (borger) i kontekst og inkluderer en del funksjoner rettet mot samhandling mellom
+      NAV-veileder og bruker.
+    - Lar deg finne relevante arbeidsmarkedstiltak for bruker i kontekst.
+    - Gir deg oversikt over brukers tiltakshistorikk og integrerer med påmeldingsløsning for grintegrerer med
+      påmeldingsløsning for gruppetiltak.
+- Blir distribuert som en [Web Component](https://developer.mozilla.org/en-US/docs/Web/API/Web_components) og inkludert
+  som en microfrontend i [veilarbpersonflate](https://github.com/navikt/veilarbpersonflatefs).
 
 **NAV**
 
 - En variant som er tilgjengelig for alle NAV-ansatte.
-  - Gir deg en oversikt over arbeidsmarkedstiltak i NAV.
+    - Gir deg en oversikt over arbeidsmarkedstiltak i NAV.
 - Inneholder også en modus for forhåndsvisning av redaksjonelt innhold.
-  - Tilgjengelig for administratorer/redaktører innen tiltaksadministrasjon.
-  - Inkluderer noen mock-varianter av funksjoner som ellers kun er tilgjenglige for veiledere (via `MODIA`-varianten) slik at man kan forhåndsvise innhold uten å ha en reell bruker i kontekst.
+    - Tilgjengelig for administratorer/redaktører innen tiltaksadministrasjon.
+    - Inkluderer noen mock-varianter av funksjoner som ellers kun er tilgjenglige for veiledere (via `MODIA`-varianten)
+      slik at man kan forhåndsvise innhold uten å ha en reell bruker i kontekst.
+
+**LOKAL**
+
+- Lar deg navigere mellom de to overnevnte variantene.
 
 ## Lokal utvikling
 
@@ -32,29 +41,26 @@ APP=LOKAL # Eller MODIA, NAV
 pnpm install
 ```
 
-### Start dev-server med HTTP-mocks via MSW
+### Lokal utvikling med mock-data
 
+```sh
+turbo run dev
 ```
-pnpm run start
-```
 
-### Start dev-server koblet mot lokal backend
+### Lokal utvikling mot lokal backend
 
-`.env` må konfigureres med følgende variabler:
+`.env` må konfigureres med token for lokal autentisering. Se seksjonen
+om [lokal autentisering](../../mulighetsrommet-api/README.md#autentisering):
 
 ```.env
-# Bearer token trengs for HTTP-kall mot mulighetsrommet-api.
-# Dette tokenet kan genereres med å følge guiden beskrevet i README.md til mulighetsrommet-api.
+# Setter Bearer token for HTTP-kall mot mulighetsrommet-api.
 VITE_MULIGHETSROMMET_API_AUTH_TOKEN=<token>
-
-# Om ønskelig kan API-base settes til noe annet enn det som er standard
-# VITE_MULIGHETSROMMET_API_BASE='http://localhost:8080'
 ```
 
-Deretter kan dev-server startes:
+Deretter kan appen startes mot lokal backend:
 
-```
-pnpm run backend
+```sh
+turbo run backend
 ```
 
 ## Testing og linting
@@ -62,39 +68,26 @@ pnpm run backend
 Koden lintes og formatteres med `eslint` og `prettier`.
 
 ```
-pnpm run lint
+turbo run lint
 
 # Fiks det som kan gjøres automatisk, bl.a. kode-formattering
-pnpm run fix-lint
+turbo run lint:fix
 ```
 
-E2E-tester er skrevet med `playwright`.
-Ved lokal testing kan det være behjelpelig å kjøre `playwright` med UI'et.
+E2E-tester er skrevet med `playwright`. Ved lokal testing kan det være behjelpelig å kjøre `playwright` med UI'et:
 
 ```
 # Kjør tester
-pnpm run playwright
+turbo run playwright
 
 # Kjør tester med UI
-pnpm run playwright:open
+turbo run playwright:open
 ```
 
 ## Deploy
 
 Ved merge til main-branch deployes appen til dev og prod.
 
-- `MODIA`-varianten lastes opp til NAV CDN og importeres direkte i [veilarbpersonflate](https://github.com/navikt/veilarbpersonflatefs).
+- `MODIA`-varianten lastes opp til NAV CDN og importeres direkte
+  i [veilarbpersonflate](https://github.com/navikt/veilarbpersonflatefs).
 - `NAV`-varianten hostes via egen instans av [POAO-frontend](https://github.com/navikt/poao-frontend).
-
-## <a name="teknologier"></a>Teknologier
-
-Øvrige teknologier, rammeverk og biblioteker som er blitt tatt i bruk:
-
-- [**Typescript**](https://www.typescriptlang.org/)
-- [**Vite**](vitejs.dev/)
-- [**React**](https://reactjs.org/)
-- [**react-query**](https://react-query.tanstack.com/)
-- [**jotai**](https://github.com/pmndrs/jotai)
-- NAVs designsystem: [**@navikt/ds-css**](https://github.com/navikt/nav-frontend-moduler)
-- Mocking av testdata: [**MSW**](https://mswjs.io/)
-- Testverktøy for ende-til-ende-testing: [**Playwright**](https://playwright.dev/)

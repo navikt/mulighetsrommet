@@ -5,7 +5,7 @@ Klient generert av OpenAPI-dokumentasjonen i `mulighetsrommet-api`.
 ## Kom i gang
 
 ```
-pnpm build
+turbo run build
 ```
 
 Vil generere modeller, services og endepunkter.

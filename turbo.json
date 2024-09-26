@@ -4,15 +4,25 @@
     "mulighetsrommet-api/src/main/resources/web/openapi.yaml"
   ],
   "tasks": {
-    "fix-lint": {
+    "dev": {
       "dependsOn": ["^build"],
-      "outputs": []
+      "cache": false,
+      "persistent": true
+    },
+    "backend": {
+      "dependsOn": ["^build"],
+      "cache": false,
+      "persistent": true
     },
     "lint": {
       "dependsOn": ["^build"],
       "outputs": []
     },
-    "test:ci": {
+    "lint:fix": {
+      "dependsOn": ["^build"],
+      "outputs": []
+    },
+    "typecheck": {
       "dependsOn": ["^build"],
       "outputs": []
     },
@@ -20,18 +30,25 @@
       "dependsOn": ["^build"],
       "outputs": ["dist"]
     },
-    "build:demo": {
-      "dependsOn": ["^build"],
-      "outputs": ["dist"]
+    "preview": {
+      "cache": false,
+      "persistent": true
     },
-    "build:lokal": {
+    "test": {
+      "env": ["CI"],
       "dependsOn": ["^build"],
-      "outputs": ["dist"]
+      "outputs": []
     },
     "playwright": {
       "env": ["PLAYWRIGHT_BROWSERS_PATH"],
       "dependsOn": ["^build"],
       "outputs": []
+    },
+    "playwright:open": {
+      "passThroughEnv": ["*"],
+      "dependsOn": ["^build"],
+      "cache": false,
+      "persistent": true
     }
   }
 }
