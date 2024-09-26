@@ -1,8 +1,8 @@
 import {
-  GruppetiltakDeltakerStatus,
   ArbeidsgiverAvtaleStatus,
   ArenaDeltakerStatus,
   Deltakelse,
+  GruppetiltakDeltakerStatus,
 } from "@mr/api-client";
 import {
   BodyShort,
@@ -20,50 +20,60 @@ import { formaterDato } from "@/utils/Utils";
 import { ModiaRoute, resolveModiaRoute } from "../ModiaRoute";
 import styles from "./DeltakelseKort.module.scss";
 import { ReactNode } from "react";
+import { Lenkeknapp } from "@mr/frontend-common/components/lenkeknapp/Lenkeknapp";
+import { TEAM_TILTAK_TILTAKSGJENNOMFORING_AVTALER_URL } from "@/constants";
 
 type Size = "small" | "medium" | "large";
 
 interface Props {
   deltakelse: Deltakelse;
-  size?: Size;
 }
 
-export function DeltakelseKort({ deltakelse, size = "medium" }: Props) {
-  const { id, eierskap } = deltakelse;
-
-  const deltakelseRoute = resolveModiaRoute({
-    route: ModiaRoute.ARBEIDSMARKEDSTILTAK_DELTAKELSE,
-    deltakerId: id,
-  });
-
-  if (eierskap === "ARENA" || eierskap === "TEAM_TILTAK") {
-    return (
-      <Wrapper size={size} deltakelse={deltakelse}>
-        <Innhold deltakelse={deltakelse} />
-      </Wrapper>
-    );
-  }
-
+export function DeltakelseKort({ deltakelse }: Props) {
   return (
-    <Wrapper size={size} deltakelse={deltakelse}>
+    <Wrapper size="medium" status={deltakelse.status.type}>
+      <DeltakelseInnhold deltakelse={deltakelse} />
+    </Wrapper>
+  );
+}
+
+function DeltakelseInnhold({ deltakelse }: Props) {
+  if (deltakelse.eierskap === "ARENA") {
+    return <Innhold deltakelse={deltakelse} />;
+  } else if (deltakelse.eierskap === "TEAM_KOMET") {
+    const deltakelseRoute = resolveModiaRoute({
+      route: ModiaRoute.ARBEIDSMARKEDSTILTAK_DELTAKELSE,
+      deltakerId: deltakelse.id,
+    });
+
+    return (
       <HGrid columns="1fr 20%" align="center">
         <Innhold deltakelse={deltakelse} />
         <Button variant="secondary" onClick={deltakelseRoute.navigate} size="small">
           Gå til deltakelse
         </Button>
       </HGrid>
-    </Wrapper>
-  );
+    );
+  } else if (deltakelse.eierskap === "TEAM_TILTAK") {
+    const link = `${TEAM_TILTAK_TILTAKSGJENNOMFORING_AVTALER_URL}/tiltaksgjennomforing/avtale/${deltakelse.id}`;
+    return (
+      <HGrid columns="1fr 20%" align="center">
+        <Innhold deltakelse={deltakelse} />
+        <Lenkeknapp variant="secondary" to={link} size="small">
+          Gå til avtale
+        </Lenkeknapp>
+      </HGrid>
+    );
+  }
 }
 
 function Wrapper({
+  status,
   size,
   children,
-  deltakelse,
 }: {
+  status: ArenaDeltakerStatus | GruppetiltakDeltakerStatus | ArbeidsgiverAvtaleStatus;
   size: Size;
-  deltakelse: Deltakelse;
-  onClick?: () => void;
   children: ReactNode;
 }) {
   return (
@@ -72,8 +82,8 @@ function Wrapper({
       borderRadius="medium"
       padding={size === "small" ? "2" : size === "medium" ? "5" : "8"}
       className={classNames(styles.panel, {
-        [styles.utkast]: isKladd(deltakelse.status.type),
-        [styles.kladd]: isUtkast(deltakelse.status.type),
+        [styles.utkast]: isKladd(status),
+        [styles.kladd]: isUtkast(status),
       })}
     >
       {children}

@@ -1,3 +1,5 @@
+import { isProduction } from "@/environment";
+
 export const APPLICATION_NAME = "mulighetsrommet-veileder-flate";
 export const APPLICATION_WEB_COMPONENT_NAME = "mulighetsrommet-arbeidsmarkedstiltak";
 export const PORTEN_URL = "https://jira.adeo.no/plugins/servlet/desk/portal/541/create/1401";
@@ -18,3 +20,7 @@ const PORTEN_URL_CONFIG = {
     baseUrl: "https://jira-q1.adeo.no/plugins/servlet/desk/portal/761/create/5606",
   },
 };
+
+export const TEAM_TILTAK_TILTAKSGJENNOMFORING_AVTALER_URL = isProduction
+  ? "https://tiltaksgjennomforing.intern.nav.no"
+  : "https://tiltaksgjennomforing.intern.dev.nav.no";
