@@ -36,6 +36,7 @@ object AvtaleFixtures {
         opsjonMaksVarighet = LocalDate.now().plusYears(3),
         opsjonsmodell = Opsjonsmodell.TO_PLUSS_EN,
         customOpsjonsmodellNavn = null,
+        programomradeOgUtdanningerRequest = null,
     )
 
     val oppfolgingMedAvtale = AvtaleDbo(
@@ -62,6 +63,7 @@ object AvtaleFixtures {
         opsjonMaksVarighet = LocalDate.now().plusYears(3),
         opsjonsmodell = Opsjonsmodell.TO_PLUSS_EN,
         customOpsjonsmodellNavn = null,
+        programomradeOgUtdanningerRequest = null,
     )
 
     val gruppeAmo = AvtaleDbo(
@@ -88,6 +90,7 @@ object AvtaleFixtures {
         opsjonMaksVarighet = LocalDate.now().plusYears(3),
         opsjonsmodell = Opsjonsmodell.TO_PLUSS_EN,
         customOpsjonsmodellNavn = null,
+        programomradeOgUtdanningerRequest = null,
     )
 
     val IPS = AvtaleDbo(
@@ -114,6 +117,7 @@ object AvtaleFixtures {
         opsjonMaksVarighet = LocalDate.now().plusYears(3),
         opsjonsmodell = Opsjonsmodell.TO_PLUSS_EN,
         customOpsjonsmodellNavn = null,
+        programomradeOgUtdanningerRequest = null,
     )
 
     val VTA = AvtaleDbo(
@@ -140,6 +144,7 @@ object AvtaleFixtures {
         opsjonMaksVarighet = null,
         opsjonsmodell = null,
         customOpsjonsmodellNavn = null,
+        programomradeOgUtdanningerRequest = null,
     )
 
     val AFT = AvtaleDbo(
@@ -166,6 +171,7 @@ object AvtaleFixtures {
         opsjonMaksVarighet = null,
         opsjonsmodell = null,
         customOpsjonsmodellNavn = null,
+        programomradeOgUtdanningerRequest = null,
     )
 
     val EnkelAmo = AvtaleDbo(
@@ -192,6 +198,7 @@ object AvtaleFixtures {
         opsjonMaksVarighet = LocalDate.now().plusYears(3),
         opsjonsmodell = Opsjonsmodell.TO_PLUSS_EN,
         customOpsjonsmodellNavn = null,
+        programomradeOgUtdanningerRequest = null,
     )
 
     val jobbklubb = AvtaleDbo(
@@ -218,6 +225,7 @@ object AvtaleFixtures {
         opsjonMaksVarighet = LocalDate.now().plusYears(3),
         opsjonsmodell = Opsjonsmodell.TO_PLUSS_EN,
         customOpsjonsmodellNavn = null,
+        programomradeOgUtdanningerRequest = null,
     )
 
     val avtaleRequest = AvtaleRequest(
@@ -245,5 +253,6 @@ object AvtaleFixtures {
             opsjonsmodell = Opsjonsmodell.TO_PLUSS_EN,
             customOpsjonsmodellNavn = null,
         ),
+        programomradeMedUtdanningerRequest = null,
     )
 }

@@ -146,12 +146,19 @@ class AvtaleValidator(
             }
 
             if (unleashService.isEnabled("mulighetsrommet.admin-flate.enable-utdanningskategorier")) {
-                if (avtale.programomradeOgUtdanningerRequest == null) {
-                    add(ValidationError.ofCustomLocation("programomrade", "Du må velge et programområde og én eller flere sluttkompetanser"))
-                }
+                if (tiltakstype.tiltakskode == Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING) {
+                    if (avtale.programomradeOgUtdanningerRequest == null) {
+                        add(
+                            ValidationError.ofCustomLocation(
+                                "programomrade",
+                                "Du må velge et programområde og én eller flere sluttkompetanser",
+                            ),
+                        )
+                    }
 
-                if (avtale.programomradeOgUtdanningerRequest != null && avtale.programomradeOgUtdanningerRequest.utdanningsIder.isEmpty()) {
-                    add(ValidationError.ofCustomLocation("utdanninger", "Du må velge minst én sluttkompetanse"))
+                    if (avtale.programomradeOgUtdanningerRequest != null && avtale.programomradeOgUtdanningerRequest.utdanningsIder.isEmpty()) {
+                        add(ValidationError.ofCustomLocation("utdanninger", "Du må velge minst én sluttkompetanse"))
+                    }
                 }
             }
 
