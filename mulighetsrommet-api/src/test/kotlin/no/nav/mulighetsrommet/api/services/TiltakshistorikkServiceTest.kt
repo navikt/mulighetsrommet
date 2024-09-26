@@ -36,7 +36,7 @@ class TiltakshistorikkServiceTest : FunSpec({
 
     val tiltaksgjennomforing = TiltaksgjennomforingFixtures.Oppfolging1
 
-    val deltakelseOppfolging = Tiltakshistorikk.GruppetiltakDeltakelse(
+    val tiltakshistorikkOppfolging = Tiltakshistorikk.GruppetiltakDeltakelse(
         id = UUID.randomUUID(),
         gjennomforing = Gjennomforing(
             id = tiltaksgjennomforing.id,
@@ -54,7 +54,7 @@ class TiltakshistorikkServiceTest : FunSpec({
         arrangor = Arrangor(Organisasjonsnummer(ArrangorFixtures.underenhet1.organisasjonsnummer)),
     )
 
-    val deltakelseAvklaring = Tiltakshistorikk.ArenaDeltakelse(
+    val tiltakshistorikkAvklaring = Tiltakshistorikk.ArenaDeltakelse(
         id = UUID.randomUUID(),
         norskIdent = NorskIdent("12345678910"),
         status = ArenaDeltakerStatus.VENTELISTE,
@@ -65,7 +65,7 @@ class TiltakshistorikkServiceTest : FunSpec({
         arrangor = Arrangor(Organisasjonsnummer("123456789")),
     )
 
-    val deltakelseArbeidstrening = Tiltakshistorikk.ArbeidsgiverAvtale(
+    val tiltakshistorikkArbeidstrening = Tiltakshistorikk.ArbeidsgiverAvtale(
         norskIdent = NorskIdent("12345678910"),
         startDato = LocalDate.of(2020, 1, 1),
         sluttDato = LocalDate.of(2021, 12, 31),
@@ -76,8 +76,8 @@ class TiltakshistorikkServiceTest : FunSpec({
     )
 
     val deltakelseOppfolgingFraKomet = DeltakelseFraKomet(
-        deltakerId = deltakelseOppfolging.id,
-        deltakerlisteId = deltakelseOppfolging.gjennomforing.id,
+        deltakerId = tiltakshistorikkOppfolging.id,
+        deltakerlisteId = tiltakshistorikkOppfolging.gjennomforing.id,
         tittel = "Oppfølging hos Fretex AS",
         tiltakstype = DeltakelserResponse.Tiltakstype(
             navn = TiltakstypeFixtures.Oppfolging.navn,
@@ -96,9 +96,9 @@ class TiltakshistorikkServiceTest : FunSpec({
         sistEndretDato = LocalDate.of(2018, 12, 5),
     )
 
-    val deltakerKortOppfolging = Deltakelse.DeltakelseGruppetiltak(
-        id = deltakelseOppfolging.id,
-        gjennomforingId = deltakelseOppfolging.gjennomforing.id,
+    val deltakelseOppfolging = Deltakelse.DeltakelseGruppetiltak(
+        id = tiltakshistorikkOppfolging.id,
+        gjennomforingId = tiltakshistorikkOppfolging.gjennomforing.id,
         eierskap = Deltakelse.Eierskap.TEAM_KOMET,
         tittel = "Oppfølging hos Fretex AS",
         tiltakstypeNavn = TiltakstypeFixtures.Oppfolging.navn,
@@ -114,8 +114,8 @@ class TiltakshistorikkServiceTest : FunSpec({
         sistEndretDato = LocalDate.of(2018, 12, 5),
         innsoktDato = LocalDate.of(2018, 12, 3),
     )
-    val deltakerKortAvklaring = Deltakelse.DeltakelseArena(
-        id = deltakelseAvklaring.id,
+    val deltakelseAvklaring = Deltakelse.DeltakelseArena(
+        id = tiltakshistorikkAvklaring.id,
         eierskap = Deltakelse.Eierskap.ARENA,
         tittel = "Avklaring",
         tiltakstypeNavn = TiltakstypeFixtures.Avklaring.navn,
@@ -130,8 +130,8 @@ class TiltakshistorikkServiceTest : FunSpec({
         sistEndretDato = null,
         innsoktDato = null,
     )
-    val deltakerKortArbeidstrening = Deltakelse.DeltakelseArbeidsgiverAvtale(
-        id = deltakelseArbeidstrening.avtaleId,
+    val deltakelseArbeidstrening = Deltakelse.DeltakelseArbeidsgiverAvtale(
+        id = tiltakshistorikkArbeidstrening.avtaleId,
         eierskap = Deltakelse.Eierskap.TEAM_TILTAK,
         tittel = "Arbeidstrening hos Underenhet 2 AS",
         tiltakstypeNavn = "Arbeidstrening",
@@ -186,7 +186,7 @@ class TiltakshistorikkServiceTest : FunSpec({
 
     test("henter historikk for bruker basert på person id") {
         coEvery { tiltakshistorikkClient.historikk(any()) } returns TiltakshistorikkResponse(
-            historikk = listOf(deltakelseOppfolging, deltakelseAvklaring, deltakelseArbeidstrening),
+            historikk = listOf(tiltakshistorikkOppfolging, tiltakshistorikkAvklaring, tiltakshistorikkArbeidstrening),
             meldinger = setOf(),
         )
 
@@ -206,14 +206,14 @@ class TiltakshistorikkServiceTest : FunSpec({
 
         historikk shouldBe Deltakelser(
             meldinger = setOf(),
-            aktive = listOf(deltakerKortArbeidstrening, deltakerKortOppfolging, deltakerKortAvklaring),
+            aktive = listOf(deltakelseArbeidstrening, deltakelseOppfolging, deltakelseAvklaring),
             historiske = emptyList(),
         )
     }
 
     test("inkluderer deltakelser fra komet når de ikke finnes i tiltakshistorikken") {
         coEvery { tiltakshistorikkClient.historikk(any()) } returns TiltakshistorikkResponse(
-            historikk = listOf(deltakelseAvklaring),
+            historikk = listOf(tiltakshistorikkAvklaring),
             meldinger = setOf(),
         )
 
@@ -233,14 +233,14 @@ class TiltakshistorikkServiceTest : FunSpec({
 
         historikk shouldBe Deltakelser(
             meldinger = setOf(),
-            aktive = listOf(deltakerKortOppfolging, deltakerKortAvklaring),
+            aktive = listOf(deltakelseOppfolging, deltakelseAvklaring),
             historiske = emptyList(),
         )
     }
 
     test("viser kun deltakelser fra tiltakshistorikken når det ikke returneres deltakelser fra komet") {
         coEvery { tiltakshistorikkClient.historikk(any()) } returns TiltakshistorikkResponse(
-            historikk = listOf(deltakelseAvklaring),
+            historikk = listOf(tiltakshistorikkAvklaring),
             meldinger = setOf(),
         )
 
@@ -260,14 +260,14 @@ class TiltakshistorikkServiceTest : FunSpec({
 
         historikk shouldBe Deltakelser(
             meldinger = setOf(),
-            aktive = listOf(deltakerKortAvklaring),
+            aktive = listOf(deltakelseAvklaring),
             historiske = emptyList(),
         )
     }
 
     test("sorterer deltakelser basert nyeste startdato") {
         coEvery { tiltakshistorikkClient.historikk(any()) } returns TiltakshistorikkResponse(
-            historikk = listOf(deltakelseAvklaring, deltakelseOppfolging),
+            historikk = listOf(tiltakshistorikkAvklaring, tiltakshistorikkOppfolging),
             meldinger = setOf(),
         )
 
@@ -294,9 +294,9 @@ class TiltakshistorikkServiceTest : FunSpec({
         historikk shouldBe Deltakelser(
             meldinger = setOf(),
             aktive = listOf(
-                deltakelseOppfolgingUtenStartdato.toDeltakerKort(),
-                deltakerKortOppfolging,
-                deltakerKortAvklaring,
+                deltakelseOppfolgingUtenStartdato.toDeltakelse(),
+                deltakelseOppfolging,
+                deltakelseAvklaring,
             ),
             historiske = emptyList(),
         )

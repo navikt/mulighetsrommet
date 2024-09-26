@@ -54,7 +54,7 @@ class TiltakshistorikkService(
             .toSet()
 
         val (aktive, historiske) = historikk.historikk
-            .map { toDeltakerKort(it) }
+            .map { toDeltakelse(it) }
             .partition { erAktiv(it) }
 
         return Deltakelser(
@@ -83,25 +83,19 @@ class TiltakshistorikkService(
         }, { response ->
             Deltakelser(
                 meldinger = setOf(),
-                aktive = response.aktive.map { it.toDeltakerKort() },
-                historiske = response.historikk.map { it.toDeltakerKort() },
+                aktive = response.aktive.map { it.toDeltakelse() },
+                historiske = response.historikk.map { it.toDeltakelse() },
             )
         })
     }
 
-    private suspend fun toDeltakerKort(it: Tiltakshistorikk) = when (it) {
-        is Tiltakshistorikk.ArenaDeltakelse -> {
-            it.toDeltakerKort()
-        }
-
-        is Tiltakshistorikk.GruppetiltakDeltakelse -> {
-            it.toDeltakerKort()
-        }
-
-        is Tiltakshistorikk.ArbeidsgiverAvtale -> it.toDeltakerKort()
+    private suspend fun toDeltakelse(it: Tiltakshistorikk) = when (it) {
+        is Tiltakshistorikk.ArenaDeltakelse -> it.toDeltakelse()
+        is Tiltakshistorikk.GruppetiltakDeltakelse -> it.toDeltakelse()
+        is Tiltakshistorikk.ArbeidsgiverAvtale -> it.toDeltakelse()
     }
 
-    private fun Tiltakshistorikk.ArenaDeltakelse.toDeltakerKort(): Deltakelse {
+    private fun Tiltakshistorikk.ArenaDeltakelse.toDeltakelse(): Deltakelse.DeltakelseArena {
         val tiltakstype = tiltakstypeRepository.getByArenaTiltakskode(arenaTiltakskode)
         return Deltakelse.DeltakelseArena(
             id = id,
@@ -121,7 +115,7 @@ class TiltakshistorikkService(
         )
     }
 
-    private suspend fun Tiltakshistorikk.GruppetiltakDeltakelse.toDeltakerKort(): Deltakelse = coroutineScope {
+    private suspend fun Tiltakshistorikk.GruppetiltakDeltakelse.toDeltakelse() = coroutineScope {
         val tiltakstype = async { tiltakstypeRepository.getByTiltakskode(gjennomforing.tiltakskode) }
         val arrangorNavn = async { getArrangorHovedenhetNavn(arrangor.organisasjonsnummer) }
 
@@ -155,7 +149,7 @@ class TiltakshistorikkService(
         )
     }
 
-    private suspend fun Tiltakshistorikk.ArbeidsgiverAvtale.toDeltakerKort(): Deltakelse {
+    private suspend fun Tiltakshistorikk.ArbeidsgiverAvtale.toDeltakelse(): Deltakelse.DeltakelseArbeidsgiverAvtale {
         val arenaKode = when (tiltakstype) {
             Tiltakshistorikk.ArbeidsgiverAvtale.Tiltakstype.ARBEIDSTRENING -> "ARBTREN"
             Tiltakshistorikk.ArbeidsgiverAvtale.Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD -> "MIDLONTIL"
@@ -332,7 +326,7 @@ class TiltakshistorikkService(
     }
 }
 
-fun DeltakelseFraKomet.toDeltakerKort(): Deltakelse {
+fun DeltakelseFraKomet.toDeltakelse(): Deltakelse {
     return Deltakelse.DeltakelseGruppetiltak(
         id = deltakerId,
         gjennomforingId = deltakerlisteId,
