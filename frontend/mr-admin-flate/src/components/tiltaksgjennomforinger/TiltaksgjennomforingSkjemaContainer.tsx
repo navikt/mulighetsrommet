@@ -1,7 +1,12 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Tabs } from "@navikt/ds-react";
 import { useAtom } from "jotai";
-import { AvtaleDto, TiltaksgjennomforingDto, TiltaksgjennomforingRequest } from "@mr/api-client";
+import {
+  AvtaleDto,
+  TiltaksgjennomforingDto,
+  TiltaksgjennomforingRequest,
+  ValidationErrorResponse,
+} from "@mr/api-client";
 import { DeepPartial, FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { v4 as uuidv4 } from "uuid";
 import { gjennomforingDetaljerTabAtom } from "@/api/atoms";
@@ -19,6 +24,7 @@ import { TiltaksgjennomforingSkjemaKnapperad } from "./TiltaksgjennomforingSkjem
 import { logEvent } from "@/logging/amplitude";
 import { RedaksjoneltInnholdBunnKnapperad } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdBunnKnapperad";
 import { TabWithErrorBorder } from "../skjema/TabWithErrorBorder";
+import { useCallback } from "react";
 
 interface Props {
   onClose: () => void;
@@ -57,6 +63,31 @@ export function TiltaksgjennomforingSkjemaContainer({
     handleSubmit,
     formState: { errors },
   } = form;
+
+  const handleSuccess = useCallback(
+    (dto: TiltaksgjennomforingDto) => onSuccess(dto.id),
+    [onSuccess],
+  );
+  const handleValidationError = useCallback(
+    (validation: ValidationErrorResponse) => {
+      validation.errors.forEach((error) => {
+        const name = mapErrorToSchemaPropertyName(error.name);
+        form.setError(name, { type: "custom", message: error.message });
+      });
+
+      function mapErrorToSchemaPropertyName(name: string) {
+        const mapping: { [name: string]: string } = {
+          startDato: "startOgSluttDato.startDato",
+          sluttDato: "startOgSluttDato.sluttDato",
+          arrangorOrganisasjonsnummer: "tiltaksArrangorUnderenhetOrganisasjonsnummer",
+        };
+        return (mapping[name] ?? name) as keyof InferredTiltaksgjennomforingSchema;
+      }
+    },
+    [form],
+  );
+
+  useHandleApiUpsertResponse(mutation, handleSuccess, handleValidationError);
 
   const postData: SubmitHandler<InferredTiltaksgjennomforingSchema> = async (
     data,
@@ -102,26 +133,6 @@ export function TiltaksgjennomforingSkjemaContainer({
 
     mutation.mutate(body);
   };
-
-  useHandleApiUpsertResponse(
-    mutation,
-    (response) => onSuccess(response.id),
-    (validation) => {
-      validation.errors.forEach((error) => {
-        const name = mapErrorToSchemaPropertyName(error.name);
-        form.setError(name, { type: "custom", message: error.message });
-      });
-
-      function mapErrorToSchemaPropertyName(name: string) {
-        const mapping: { [name: string]: string } = {
-          startDato: "startOgSluttDato.startDato",
-          sluttDato: "startOgSluttDato.sluttDato",
-          arrangorOrganisasjonsnummer: "tiltaksArrangorUnderenhetOrganisasjonsnummer",
-        };
-        return (mapping[name] ?? name) as keyof InferredTiltaksgjennomforingSchema;
-      }
-    },
-  );
 
   const hasRedaksjoneltInnholdErrors = Boolean(errors?.faneinnhold);
   const hasDetaljerErrors = Object.keys(errors).length > (hasRedaksjoneltInnholdErrors ? 1 : 0);

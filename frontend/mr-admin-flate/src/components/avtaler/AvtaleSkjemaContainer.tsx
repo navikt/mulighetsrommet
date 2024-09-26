@@ -12,8 +12,9 @@ import {
   NavAnsatt,
   NavEnhet,
   TiltakstypeDto,
+  ValidationErrorResponse,
 } from "@mr/api-client";
-import React from "react";
+import React, { useCallback } from "react";
 import { DeepPartial, FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { v4 as uuidv4 } from "uuid";
 import { Separator } from "../detaljside/Metadata";
@@ -104,10 +105,9 @@ export function AvtaleSkjemaContainer({
     mutation.mutate(requestBody);
   };
 
-  useHandleApiUpsertResponse(
-    mutation,
-    (response) => onSuccess(response.id),
-    (validation) => {
+  const handleSuccess = useCallback((dto: AvtaleDto) => onSuccess(dto.id), [onSuccess]);
+  const handleValidationError = useCallback(
+    (validation: ValidationErrorResponse) => {
       validation.errors.forEach((error) => {
         const name = mapErrorToSchemaPropertyName(error.name);
         form.setError(name, { type: "custom", message: error.message });
@@ -127,7 +127,10 @@ export function AvtaleSkjemaContainer({
         return (mapping[name] ?? name) as keyof InferredAvtaleSchema;
       }
     },
+    [form],
   );
+
+  useHandleApiUpsertResponse(mutation, handleSuccess, handleValidationError);
 
   const hasRedaksjoneltInnholdErrors = Boolean(errors?.faneinnhold);
   const hasPersonvernErrors = Boolean(errors?.personvernBekreftet);
