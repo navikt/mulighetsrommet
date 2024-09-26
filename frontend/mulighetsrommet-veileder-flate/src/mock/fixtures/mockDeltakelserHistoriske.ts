@@ -1,19 +1,19 @@
-import { DeltakerKort, DeltakerStatusType } from "@mr/api-client";
+import { GruppetiltakDeltakerStatus, Deltakelse, DeltakelseEierskap } from "@mr/api-client";
 import { tiltakAvklaring, tiltakOppfolging } from "./mockTiltaksgjennomforinger";
 
-export const deltakelserHistoriske: DeltakerKort[] = [
+export const deltakelserHistoriske: Deltakelse[] = [
   {
     tittel: "Oppfølging hos Muligheter AS",
     tiltakstypeNavn: "Oppfølging",
     id: window.crypto.randomUUID(),
-    tiltaksgjennomforingId: tiltakOppfolging.id,
+    gjennomforingId: tiltakOppfolging.id,
     status: {
-      type: DeltakerStatusType.AVBRUTT_UTKAST,
+      type: GruppetiltakDeltakerStatus.AVBRUTT_UTKAST,
       visningstekst: "Avbrutt utkast",
     },
     sistEndretDato: "2024-03-07",
     innsoktDato: "2024-03-02",
-    eierskap: "TEAM_KOMET",
+    eierskap: DeltakelseEierskap.TEAM_KOMET,
     periode: {},
   },
   {
@@ -21,14 +21,14 @@ export const deltakelserHistoriske: DeltakerKort[] = [
     tiltakstypeNavn: "Oppfølging",
 
     id: window.crypto.randomUUID(),
-    tiltaksgjennomforingId: tiltakOppfolging.id,
+    gjennomforingId: tiltakOppfolging.id,
     status: {
-      type: DeltakerStatusType.IKKE_AKTUELL,
+      type: GruppetiltakDeltakerStatus.IKKE_AKTUELL,
       visningstekst: "Ikke aktuell",
       aarsak: "utdanning",
     },
     innsoktDato: "2024-03-02",
-    eierskap: "TEAM_KOMET",
+    eierskap: DeltakelseEierskap.TEAM_KOMET,
     periode: {},
   },
   {
@@ -40,13 +40,13 @@ export const deltakelserHistoriske: DeltakerKort[] = [
     tiltakstypeNavn: "Oppfølging",
 
     id: window.crypto.randomUUID(),
-    tiltaksgjennomforingId: tiltakOppfolging.id,
+    gjennomforingId: tiltakOppfolging.id,
     status: {
-      type: DeltakerStatusType.HAR_SLUTTET,
+      type: GruppetiltakDeltakerStatus.HAR_SLUTTET,
       visningstekst: "Har sluttet",
     },
     innsoktDato: "2024-03-02",
-    eierskap: "TEAM_KOMET",
+    eierskap: DeltakelseEierskap.TEAM_KOMET,
   },
   {
     periode: {
@@ -57,13 +57,13 @@ export const deltakelserHistoriske: DeltakerKort[] = [
     tiltakstypeNavn: "Avklaring",
 
     id: window.crypto.randomUUID(),
-    tiltaksgjennomforingId: tiltakAvklaring.id,
+    gjennomforingId: tiltakAvklaring.id,
     status: {
-      type: DeltakerStatusType.FULLFORT,
+      type: GruppetiltakDeltakerStatus.FULLFORT,
       visningstekst: "Fullført",
     },
     innsoktDato: "2024-02-03",
-    eierskap: "TEAM_KOMET",
+    eierskap: DeltakelseEierskap.TEAM_KOMET,
   },
   {
     periode: {
@@ -74,27 +74,27 @@ export const deltakelserHistoriske: DeltakerKort[] = [
     tiltakstypeNavn: "Avklaring",
 
     id: window.crypto.randomUUID(),
-    tiltaksgjennomforingId: tiltakAvklaring.id,
+    gjennomforingId: tiltakAvklaring.id,
     status: {
-      type: DeltakerStatusType.AVBRUTT,
+      type: GruppetiltakDeltakerStatus.AVBRUTT,
       visningstekst: "Avbrutt",
       aarsak: "Fått jobb",
     },
     innsoktDato: "2024-02-03",
-    eierskap: "TEAM_KOMET",
+    eierskap: DeltakelseEierskap.TEAM_KOMET,
   },
   {
     tittel: "Avklaring med Anne",
     tiltakstypeNavn: "Avklaring",
 
     id: window.crypto.randomUUID(),
-    tiltaksgjennomforingId: tiltakAvklaring.id,
+    gjennomforingId: tiltakAvklaring.id,
     status: {
-      type: DeltakerStatusType.FEILREGISTRERT,
+      type: GruppetiltakDeltakerStatus.FEILREGISTRERT,
       visningstekst: "Feilregistrert",
     },
     innsoktDato: "2024-02-03",
-    eierskap: "TEAM_KOMET",
+    eierskap: DeltakelseEierskap.TEAM_KOMET,
     periode: {},
   },
 ];

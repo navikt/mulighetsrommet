@@ -68,6 +68,7 @@ class AmtDeltakerV1KafkaConsumer(
         tiltaksgjennomforingId = gjennomforingId,
         // TODO ta en ny runde på statuser og se om vi trenger å gjøre noen oppdatering
         status = when (status.type) {
+            AmtDeltakerStatus.Type.KLADD -> Deltakerstatus.VENTER
             AmtDeltakerStatus.Type.VENTER_PA_OPPSTART -> Deltakerstatus.VENTER
             AmtDeltakerStatus.Type.DELTAR -> Deltakerstatus.DELTAR
             AmtDeltakerStatus.Type.HAR_SLUTTET -> Deltakerstatus.AVSLUTTET

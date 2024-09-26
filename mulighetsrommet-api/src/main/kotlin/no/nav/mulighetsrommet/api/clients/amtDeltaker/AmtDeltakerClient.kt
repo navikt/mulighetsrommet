@@ -11,6 +11,7 @@ import io.ktor.client.statement.*
 import io.ktor.http.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.domain.dto.NorskIdent
+import no.nav.mulighetsrommet.domain.dto.amt.AmtDeltakerStatus
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
@@ -94,28 +95,10 @@ data class DeltakelseFraKomet(
 
 @Serializable
 data class DeltakerStatus(
-    val type: DeltakerStatusType,
+    val type: AmtDeltakerStatus.Type,
     val visningstekst: String,
     val aarsak: String? = null,
-
-) {
-    @Serializable
-    enum class DeltakerStatusType {
-        KLADD,
-        UTKAST_TIL_PAMELDING,
-        AVBRUTT_UTKAST,
-        VENTER_PA_OPPSTART,
-        DELTAR,
-        HAR_SLUTTET,
-        IKKE_AKTUELL,
-        SOKT_INN,
-        VURDERES,
-        VENTELISTE,
-        AVBRUTT,
-        FULLFORT,
-        FEILREGISTRERT,
-    }
-}
+)
 
 @Serializable
 data class Periode(

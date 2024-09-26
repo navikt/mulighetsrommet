@@ -52,7 +52,7 @@ class TiltakshistorikkService(
         maxAgeYears: Int?,
     ): Either<NonEmptySet<TiltakshistorikkMelding>, List<Tiltakshistorikk.ArbeidsgiverAvtale>> {
         if (NaisEnv.current().isProdGCP()) {
-            return nonEmptySetOf(TiltakshistorikkMelding.MANGLER_HISTORIKK_FRA_TEAM_TILTAK).left()
+            return nonEmptySetOf(TiltakshistorikkMelding.HENTER_IKKE_HISTORIKK_FRA_TEAM_TILTAK).left()
         }
 
         val minAvtaleDato = maxAgeYears?.let { LocalDate.now().minusYears(it.toLong()) } ?: LocalDate.MIN
