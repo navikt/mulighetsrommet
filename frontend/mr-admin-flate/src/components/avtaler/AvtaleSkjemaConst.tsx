@@ -64,5 +64,13 @@ export function defaultAvtaleData(
       opsjonsmodell: avtale?.opsjonsmodellData?.opsjonsmodell ?? undefined,
       customOpsjonsmodellNavn: avtale?.opsjonsmodellData?.customOpsjonsmodellNavn ?? undefined,
     },
+    programomradeOgUtdanninger: avtale?.programomradeMedUtdanninger
+      ? {
+          programomradeId: avtale.programomradeMedUtdanninger.programomrade.id,
+          utdanningsIder: avtale.programomradeMedUtdanninger.utdanninger.map(
+            (utdanning) => utdanning.id,
+          ),
+        }
+      : undefined,
   };
 }

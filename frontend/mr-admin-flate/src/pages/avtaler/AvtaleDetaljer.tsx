@@ -20,6 +20,7 @@ import { Fragment } from "react";
 import { Link } from "react-router-dom";
 import { opsjonsmodellTilTekst } from "../../components/avtaler/opsjoner/opsjonsmodeller";
 import styles from "./AvtaleDetaljer.module.scss";
+import { ProgramomradeOgUtdanningerDetaljer } from "../../components/utdanning/ProgramomradeOgUtdanningerDetaljer";
 
 export function AvtaleDetaljer() {
   const { data: avtale, isPending, error } = useAvtale();
@@ -49,6 +50,7 @@ export function AvtaleDetaljer() {
     arenaAnsvarligEnhet,
     arrangor,
     amoKategorisering,
+    programomradeMedUtdanninger,
   } = avtale;
 
   return (
@@ -83,6 +85,12 @@ export function AvtaleDetaljer() {
             <Separator />
           </>
         )}
+
+        {programomradeMedUtdanninger ? (
+          <ProgramomradeOgUtdanningerDetaljer
+            programomradeMedUtdanninger={programomradeMedUtdanninger}
+          />
+        ) : null}
 
         <Heading size="small" as="h3">
           Avtalens varighet

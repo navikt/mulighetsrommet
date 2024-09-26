@@ -5,6 +5,7 @@ import { useFeatureToggle } from "../../api/features/useFeatureToggle";
 import { useHentUtdanninger } from "../../api/utdanning/useHentUtdanninger";
 import { InferredAvtaleSchema } from "../redaksjoneltInnhold/AvtaleSchema";
 import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
+import { avtaletekster } from "../ledetekster/avtaleLedetekster";
 
 export function AvtaleUtdanningSkjema() {
   const { data: enableUtdanningskjema } = useFeatureToggle(
@@ -24,7 +25,7 @@ export function AvtaleUtdanningSkjema() {
   if (isPending) {
     return (
       <Select disabled label="Velg programområde">
-        <option>Laster...</option>
+        <option>{avtaletekster.programomradeOgUtdanninger.laster}</option>
       </Select>
     );
   }
@@ -42,10 +43,9 @@ export function AvtaleUtdanningSkjema() {
 
   return (
     <>
-      <pre>{JSON.stringify(watch("programomradeOgUtdanninger"), null, 2)}</pre>
       <Select
         size="small"
-        label="Velg programområde"
+        label={avtaletekster.programomradeOgUtdanninger.velgProgramomrade}
         {...register("programomradeOgUtdanninger.programomradeId")}
         error={errors.programomradeOgUtdanninger?.programomradeId?.message}
       >
@@ -58,8 +58,8 @@ export function AvtaleUtdanningSkjema() {
       {watchedProgramomrade && (
         <ControlledMultiSelect
           size="small"
-          placeholder="Velg sluttkompetanser"
-          label="Velg sluttkompetanser"
+          placeholder={avtaletekster.programomradeOgUtdanninger.velgSluttkompetanser}
+          label={avtaletekster.programomradeOgUtdanninger.velgSluttkompetanser}
           {...register("programomradeOgUtdanninger.utdanningsIder")}
           options={utdanningerForProgramomrade.map((utdanning) => {
             return {
