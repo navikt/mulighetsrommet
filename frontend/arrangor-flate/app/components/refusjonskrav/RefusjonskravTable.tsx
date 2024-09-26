@@ -28,14 +28,7 @@ export function RefusjonskravTable({ krav }: Props) {
             const status = RefusjonskravStatus.KLAR_FOR_INNSENDING;
 
             return (
-              <Table.Row
-                className={
-                  status === RefusjonskravStatus.NARMER_SEG_FRIST
-                    ? "bg-surface-warning-moderate"
-                    : ""
-                }
-                key={id}
-              >
+              <Table.Row className={getRowStyle(status)} key={id}>
                 <Table.DataCell>123</Table.DataCell>
                 <Table.DataCell>1</Table.DataCell>
                 <Table.DataCell>{`${periodeStart} - ${periodeSlutt}`}</Table.DataCell>
@@ -54,6 +47,10 @@ export function RefusjonskravTable({ krav }: Props) {
       </Table>
     </>
   );
+}
+
+function getRowStyle(status: RefusjonskravStatus) {
+  return status === RefusjonskravStatus.NARMER_SEG_FRIST ? "bg-surface-warning-moderate" : "";
 }
 
 function statusTilTag(status: RefusjonskravStatus): ReactNode {
