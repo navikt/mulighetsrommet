@@ -49,6 +49,7 @@ class TiltakshistorikkService(
             .map {
                 when (it) {
                     TiltakshistorikkMelding.MANGLER_HISTORIKK_FRA_TEAM_TILTAK -> DeltakelserMelding.MANGLER_DELTAKELSER_FRA_TEAM_TILTAK
+                    TiltakshistorikkMelding.HENTER_IKKE_HISTORIKK_FRA_TEAM_TILTAK -> DeltakelserMelding.HENTER_IKKE_DELTAKELSER_FRA_TEAM_TILTAK
                 }
             }
             .toSet()
@@ -346,6 +347,7 @@ fun DeltakelseFraKomet.toDeltakerKort(): DeltakerKort {
 enum class DeltakelserMelding {
     MANGLER_SISTE_DELTAKELSER_FRA_TEAM_KOMET,
     MANGLER_DELTAKELSER_FRA_TEAM_TILTAK,
+    HENTER_IKKE_DELTAKELSER_FRA_TEAM_TILTAK,
 }
 
 data class Deltakelser(

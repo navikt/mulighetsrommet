@@ -196,7 +196,12 @@ function DeltakelserAktive() {
 
   return (
     <Container>
-      <DeltakelserMeldinger meldinger={data.meldinger} />
+      {data.meldinger.includes(DeltakelserMelding.MANGLER_SISTE_DELTAKELSER_FRA_TEAM_KOMET) && (
+        <ManglerSisteDeltakelserFraTeamKometMelding />
+      )}
+      {data.meldinger.includes(DeltakelserMelding.MANGLER_DELTAKELSER_FRA_TEAM_TILTAK) && (
+        <ManglerDeltakelserFraTeamTiltakMelding />
+      )}
       {data.deltakelser.map((deltakelse) => {
         return <DeltakelseKort key={deltakelse.id} deltakelse={deltakelse} />;
       })}
@@ -210,68 +215,82 @@ function DeltakelserHistoriske() {
 
   return (
     <Container>
-      <DeltakelserMeldinger meldinger={data.meldinger} />
+      {data.meldinger.includes(DeltakelserMelding.MANGLER_SISTE_DELTAKELSER_FRA_TEAM_KOMET) && (
+        <ManglerSisteDeltakelserFraTeamKometMelding />
+      )}
+      {data.meldinger.includes(DeltakelserMelding.MANGLER_DELTAKELSER_FRA_TEAM_TILTAK) && (
+        <ManglerDeltakelserFraTeamTiltakMelding />
+      )}
       {data.deltakelser.map((deltakelse) => {
         return <DeltakelseKort key={deltakelse.id} deltakelse={deltakelse} />;
       })}
       {data.deltakelser.length === 0 && (
         <IngenFunnetBox title="Brukeren har ingen tidligere tiltak" />
       )}
+      {data.meldinger.includes(DeltakelserMelding.HENTER_IKKE_DELTAKELSER_FRA_TEAM_TILTAK) && (
+        <HenterIkkeDeltakelserFraTeamTiltakMeling />
+      )}
       <Alert variant="info">Vi viser bare historikk 5 år tilbake i tid.</Alert>
     </Container>
   );
 }
 
-function DeltakelserMeldinger(props: { meldinger: DeltakelserMelding[] }) {
-  return props.meldinger.map((melding) => {
-    switch (melding) {
-      case DeltakelserMelding.MANGLER_SISTE_DELTAKELSER_FRA_TEAM_KOMET:
-        return (
-          <Alert key={melding} variant="warning">
-            <HStack align="center">
-              Vi får ikke kontakt med baksystemene og informasjon om deltakelser på gruppetiltakene
-              kan derfor være utdatert.
-              <HelpText>
-                Gjelder følgende tiltakstyper:
-                <ul>
-                  <li>Arbeidsforberedende trening</li>
-                  <li>Arbeidsmarkedsopplæring (gruppe)</li>
-                  <li>Arbeidsrettet rehabilitering</li>
-                  <li>Avklaring</li>
-                  <li>Digitalt oppfølgingstiltak</li>
-                  <li>Fag- og yrkesopplæring (gruppe)</li>
-                  <li>Jobbklubb</li>
-                  <li>Oppfølging</li>
-                  <li>Varig tilrettelagt arbeid i skjermet virksomhet</li>
-                </ul>
-              </HelpText>
-            </HStack>
-          </Alert>
-        );
-      case DeltakelserMelding.MANGLER_DELTAKELSER_FRA_TEAM_TILTAK:
-        return (
-          <Alert key={melding} variant="warning">
-            <HStack align="center">
-              Vi får ikke kontakt med baksystemene og informasjon om tiltak hos arbeidsgiver
-              <TeamTiltakLenke />
-              mangler derfor i visningen.
-              <HelpText>
-                Gjelder følgende tiltakstyper:
-                <ul>
-                  <li>Arbeidstrening</li>
-                  <li>Inkluderingstilskudd</li>
-                  <li>Mentor</li>
-                  <li>Midlertidig lønnstilskudd</li>
-                  <li>Tilskudd til sommerjobb</li>
-                  <li>Varig lønnstilskudd</li>
-                  <li>Varig tilrettelagt arbeid i ordinær virksomhet</li>
-                </ul>
-              </HelpText>
-            </HStack>
-          </Alert>
-        );
-    }
-  });
+function ManglerSisteDeltakelserFraTeamKometMelding() {
+  return (
+    <Alert variant="warning">
+      <HStack align="center">
+        Vi får ikke kontakt med baksystemene og informasjon om deltakelser på gruppetiltakene kan
+        derfor være utdatert.
+        <HelpText>
+          Gjelder følgende tiltakstyper:
+          <ul>
+            <li>Arbeidsforberedende trening</li>
+            <li>Arbeidsmarkedsopplæring (gruppe)</li>
+            <li>Arbeidsrettet rehabilitering</li>
+            <li>Avklaring</li>
+            <li>Digitalt oppfølgingstiltak</li>
+            <li>Fag- og yrkesopplæring (gruppe)</li>
+            <li>Jobbklubb</li>
+            <li>Oppfølging</li>
+            <li>Varig tilrettelagt arbeid i skjermet virksomhet</li>
+          </ul>
+        </HelpText>
+      </HStack>
+    </Alert>
+  );
+}
+
+function ManglerDeltakelserFraTeamTiltakMelding() {
+  return (
+    <Alert variant="warning">
+      <HStack align="center">
+        Vi får ikke kontakt med baksystemene og informasjon om tiltak hos arbeidsgiver
+        <TeamTiltakLenke />
+        mangler derfor i visningen.
+        <HelpText>
+          Gjelder følgende tiltakstyper:
+          <ul>
+            <li>Arbeidstrening</li>
+            <li>Inkluderingstilskudd</li>
+            <li>Mentor</li>
+            <li>Midlertidig lønnstilskudd</li>
+            <li>Tilskudd til sommerjobb</li>
+            <li>Varig lønnstilskudd</li>
+            <li>Varig tilrettelagt arbeid i ordinær virksomhet</li>
+          </ul>
+        </HelpText>
+      </HStack>
+    </Alert>
+  );
+}
+
+function HenterIkkeDeltakelserFraTeamTiltakMeling() {
+  return (
+    <Alert variant="info">
+      For oversikt over tiltakstypene “Sommerjobb”, “Midlertidig lønnstilskudd”, og “Varig
+      lønnstilskudd” se <TeamTiltakLenke />
+    </Alert>
+  );
 }
 
 function TeamTiltakLenke() {
