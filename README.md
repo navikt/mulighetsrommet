@@ -37,7 +37,7 @@ gang `.tools-versions` har endret seg.
 ### Gradle
 
 Det anbefales å ha `gradle` installert, det gjør det lettere å kjøre kommandoer uavhengig av hvilket prosjekt du jobber
-med. Hvis du ikke har installert `gradle` installert via `asdf` så kan det
+med. Hvis du ikke har installert `gradle` via `asdf` så kan det
 også [installeres manuelt](https://gradle.org/install/).
 
 Det ligger et [gradlew](./gradlew) script i repoet som oppgraderes ved nye versjoner og `gradle` plukker automatisk opp
@@ -51,8 +51,8 @@ gradle run
 ### Turborepo
 
 Turborepo benyttes til å kjøre kommandoer på tvers av workspaces. Det tar seg blandt annet av å cache output fra bygg og
-å kjøre bygge-script i achengigheter om det er behov for det. Det kan være en fordel å installere for å gjøre lokal
-utvikling enklere:
+å kjøre bygge-script i avhengigheter om det er behov for det. Det kan være en fordel å installere globalt for å gjøre
+lokal utvikling enklere:
 
 ```sh
 npm i -g turbo
