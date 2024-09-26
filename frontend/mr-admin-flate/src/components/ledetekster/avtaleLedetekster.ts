@@ -28,5 +28,7 @@ export const avtaletekster = {
     laster: "Laster...",
     velgProgramomrade: "Velg programområde",
     velgSluttkompetanser: "Velg sluttkompetanser",
+    programomradeLabel: "Programområde",
+    sluttkompetanserLabel: "Sluttkompetanser",
   },
 } as const;

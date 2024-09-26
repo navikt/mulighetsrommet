@@ -2,6 +2,7 @@ import { ProgramomradeMedUtdanninger } from "@mr/api-client";
 import { Bolk } from "../detaljside/Bolk";
 import { Metadata, Separator } from "../detaljside/Metadata";
 import { List } from "@navikt/ds-react";
+import { avtaletekster } from "../ledetekster/avtaleLedetekster";
 
 interface Props {
   programomradeMedUtdanninger: ProgramomradeMedUtdanninger;
@@ -11,16 +12,21 @@ export function ProgramomradeOgUtdanningerDetaljer({ programomradeMedUtdanninger
   return (
     <>
       <Bolk>
-        <Metadata header="Programområde" verdi={programomradeMedUtdanninger.programomrade.navn} />
+        <Metadata
+          header={avtaletekster.programomradeOgUtdanninger.programomradeLabel}
+          verdi={programomradeMedUtdanninger.programomrade.navn}
+        />
       </Bolk>
       <Bolk>
         <Metadata
-          header="Utdanninger"
+          header={avtaletekster.programomradeOgUtdanninger.sluttkompetanserLabel}
           verdi={
             <List>
-              {programomradeMedUtdanninger.utdanninger.map((utdanning) => (
-                <List.Item key={utdanning.id}>{utdanning.navn}</List.Item>
-              ))}
+              {programomradeMedUtdanninger.utdanninger
+                .sort((a, b) => a.navn.localeCompare(b.navn))
+                .map((utdanning) => (
+                  <List.Item key={utdanning.id}>{utdanning.navn}</List.Item>
+                ))}
             </List>
           }
         />
