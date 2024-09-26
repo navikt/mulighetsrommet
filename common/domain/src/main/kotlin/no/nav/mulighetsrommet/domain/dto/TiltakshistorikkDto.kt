@@ -102,13 +102,44 @@ sealed class Tiltakshistorikk {
         }
 
         enum class Status {
+            /**
+             * Tiltaket er påbegynt, men kan fortsatt mangle noe data som er påkrevd for at det skal kunne gjennomføres.
+             * Kan anses som en "kladd".
+             */
             PAABEGYNT,
+
+            /**
+             * Bl.a. når man mangler godkjenning av "controller", men kan muligens også være andre godkjenninger som
+             * kreves.
+             */
             MANGLER_GODKJENNING,
+
+            /**
+             * Status er basert på startdato for avtale. Kan anta at avtalen er klar, men startdato er i fremtiden.
+             */
             KLAR_FOR_OPPSTART,
+
+            /**
+             * Avtale gjennomføres.
+             * Bruker deltar på tiltaket.
+             */
             GJENNOMFORES,
+
+            /**
+             * Avtale har blitt avsluttet.
+             * Bruker har deltatt på tiltaket.
+             */
             AVSLUTTET,
-            ANNULLERT,
+
+            /**
+             * Avtale ble avbrutt.
+             */
             AVBRUTT,
+
+            /**
+             * Tiltaket ble aldri noe av.
+             */
+            ANNULLERT,
         }
     }
 }
