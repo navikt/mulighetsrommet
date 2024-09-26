@@ -2,8 +2,8 @@ import { useTiltakstyperSomStotterPameldingIModia } from "@/api/queries/useTilta
 import { ModiaRoute, resolveModiaRoute } from "@/apps/modia/ModiaRoute";
 import { useGetTiltaksgjennomforingIdFraUrl } from "@/hooks/useGetTiltaksgjennomforingIdFraUrl";
 import {
-  DeltakelseFraKomet,
-  DeltakerStatusType,
+  GruppetiltakDeltakerStatus,
+  DeltakelseGruppetiltak,
   VeilederflateTiltakGruppe,
   VeilederflateTiltakstype,
 } from "@mr/api-client";
@@ -39,7 +39,7 @@ export function PameldingForGruppetiltak({
   if (aktivDeltakelse) {
     vedtakRoute = resolveModiaRoute({
       route: ModiaRoute.ARBEIDSMARKEDSTILTAK_DELTAKELSE,
-      deltakerId: aktivDeltakelse.deltakerId,
+      deltakerId: aktivDeltakelse.id,
     });
   }
 
@@ -85,27 +85,27 @@ interface Tekst {
   variant: "info" | "success" | "warning";
 }
 
-function utledTekster(deltakelse: DeltakelseFraKomet): Tekst {
+function utledTekster(deltakelse: DeltakelseGruppetiltak): Tekst {
   switch (deltakelse.status.type) {
-    case DeltakerStatusType.VENTER_PA_OPPSTART:
+    case GruppetiltakDeltakerStatus.VENTER_PA_OPPSTART:
       return {
         overskrift: "Venter på oppstart",
         variant: "info",
         lenketekst: "Les om brukerens deltakelse",
       };
-    case DeltakerStatusType.DELTAR:
+    case GruppetiltakDeltakerStatus.DELTAR:
       return {
         overskrift: "Brukeren deltar på tiltaket",
         variant: "success",
         lenketekst: "Les om brukerens deltakelse",
       };
-    case DeltakerStatusType.UTKAST_TIL_PAMELDING:
+    case GruppetiltakDeltakerStatus.UTKAST_TIL_PAMELDING:
       return {
         overskrift: "Utkastet er delt og venter på godkjenning",
         variant: "info",
         lenketekst: "Gå til utkastet",
       };
-    case DeltakerStatusType.KLADD:
+    case GruppetiltakDeltakerStatus.KLADD:
       return {
         overskrift: "Kladden er ikke delt",
         lenketekst: "Gå til kladden",

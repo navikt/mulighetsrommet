@@ -1,4 +1,4 @@
-import { DeltakerKort, DeltakerStatusType } from "@mr/api-client";
+import { GruppetiltakDeltakerStatus, Deltakelse, DeltakelseEierskap } from "@mr/api-client";
 import {
   tiltakAft,
   tiltakAvklaring,
@@ -6,54 +6,54 @@ import {
   tiltakVta,
 } from "./mockTiltaksgjennomforinger";
 
-export const deltakelserAktive: DeltakerKort[] = [
+export const deltakelserAktive: Deltakelse[] = [
   {
     id: window.crypto.randomUUID(),
-    tiltaksgjennomforingId: tiltakAft.id,
+    gjennomforingId: tiltakAft.id,
     innsoktDato: "2024-03-02",
     sistEndretDato: "2024-03-27",
     status: {
-      type: DeltakerStatusType.KLADD,
+      type: GruppetiltakDeltakerStatus.KLADD,
       visningstekst: "Kladden er ikke delt",
     },
     tiltakstypeNavn: "Arbeidsforberende trening",
     tittel: "Arbeidsforberedende trening hos Barneverns- og Helsenemnda",
-    eierskap: "TEAM_KOMET",
+    eierskap: DeltakelseEierskap.TEAM_KOMET,
     periode: {},
   },
   {
     id: window.crypto.randomUUID(),
-    tiltaksgjennomforingId: tiltakAvklaring.id,
+    gjennomforingId: tiltakAvklaring.id,
     innsoktDato: "2024-02-01",
     sistEndretDato: "2024-03-27",
     status: {
-      type: DeltakerStatusType.UTKAST_TIL_PAMELDING,
+      type: GruppetiltakDeltakerStatus.UTKAST_TIL_PAMELDING,
       visningstekst: "Utkastet er delt og venter på godkjenning",
     },
     tiltakstypeNavn: "Avklaring",
     tittel: "Avklaring hos Fretex AS",
-    eierskap: "TEAM_KOMET",
+    eierskap: DeltakelseEierskap.TEAM_KOMET,
     periode: {},
   },
   {
     id: window.crypto.randomUUID(),
-    tiltaksgjennomforingId: tiltakJobbklubb.id,
+    gjennomforingId: tiltakJobbklubb.id,
     innsoktDato: "2024-02-01",
     status: {
-      type: DeltakerStatusType.VENTER_PA_OPPSTART,
+      type: GruppetiltakDeltakerStatus.VENTER_PA_OPPSTART,
       visningstekst: "Venter på oppstart",
     },
     tiltakstypeNavn: "Jobbklubb",
     tittel: "Jobbklubb hos Fretex",
-    eierskap: "TEAM_KOMET",
+    eierskap: DeltakelseEierskap.TEAM_KOMET,
     periode: {},
   },
   {
     id: window.crypto.randomUUID(),
-    tiltaksgjennomforingId: tiltakJobbklubb.id,
+    gjennomforingId: tiltakJobbklubb.id,
     innsoktDato: "2024-02-01",
     status: {
-      type: DeltakerStatusType.VENTER_PA_OPPSTART,
+      type: GruppetiltakDeltakerStatus.VENTER_PA_OPPSTART,
       visningstekst: "Venter på oppstart",
     },
     tiltakstypeNavn: "Jobbklubb",
@@ -62,14 +62,14 @@ export const deltakelserAktive: DeltakerKort[] = [
       sluttDato: "2023-09-11",
     },
     tittel: "Jobbklubb hos Fretex",
-    eierskap: "TEAM_KOMET",
+    eierskap: DeltakelseEierskap.TEAM_KOMET,
   },
   {
     id: window.crypto.randomUUID(),
-    tiltaksgjennomforingId: tiltakJobbklubb.id,
+    gjennomforingId: tiltakJobbklubb.id,
     innsoktDato: "2024-02-01",
     status: {
-      type: DeltakerStatusType.DELTAR,
+      type: GruppetiltakDeltakerStatus.DELTAR,
       visningstekst: "Deltar",
     },
     tiltakstypeNavn: "Jobbklubb",
@@ -78,14 +78,14 @@ export const deltakelserAktive: DeltakerKort[] = [
       sluttDato: "2023-09-11",
     },
     tittel: "Jobbklubb hos Fretex",
-    eierskap: "TEAM_KOMET",
+    eierskap: DeltakelseEierskap.TEAM_KOMET,
   },
   {
     id: window.crypto.randomUUID(),
-    tiltaksgjennomforingId: tiltakVta.id,
+    gjennomforingId: tiltakVta.id,
     innsoktDato: "2024-02-01",
     status: {
-      type: DeltakerStatusType.VENTER_PA_OPPSTART,
+      type: GruppetiltakDeltakerStatus.VENTER_PA_OPPSTART,
       visningstekst: "Venter på oppstart",
     },
     tiltakstypeNavn: "Varig tilrettelagt arbeid (VTA)",
@@ -93,6 +93,6 @@ export const deltakelserAktive: DeltakerKort[] = [
       startDato: "2023-08-10",
     },
     tittel: "VTA hos Fretex",
-    eierskap: "TEAM_KOMET",
+    eierskap: DeltakelseEierskap.TEAM_KOMET,
   },
 ];

@@ -13,7 +13,7 @@ import no.nav.mulighetsrommet.api.clients.pdl.PdlClient
 import no.nav.mulighetsrommet.api.clients.pdl.PdlIdent
 import no.nav.mulighetsrommet.api.clients.tiltakshistorikk.TiltakshistorikkClient
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
-import no.nav.mulighetsrommet.api.domain.dto.DeltakerKort
+import no.nav.mulighetsrommet.api.domain.dto.Deltakelse
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.repositories.ArrangorRepository
 import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
@@ -84,7 +84,7 @@ class TiltakshistorikkServiceTest : FunSpec({
             tiltakskode = GruppeTiltakstype.INDOPPFAG,
         ),
         status = DeltakerStatus(
-            type = DeltakerStatus.DeltakerStatusType.VENTELISTE,
+            type = AmtDeltakerStatus.Type.VENTELISTE,
             visningstekst = "Venteliste",
             aarsak = null,
         ),
@@ -96,53 +96,50 @@ class TiltakshistorikkServiceTest : FunSpec({
         sistEndretDato = LocalDate.of(2018, 12, 5),
     )
 
-    val deltakerKortOppfolging = DeltakerKort(
+    val deltakerKortOppfolging = Deltakelse.DeltakelseGruppetiltak(
         id = deltakelseOppfolging.id,
-        tiltaksgjennomforingId = deltakelseOppfolging.gjennomforing.id,
-        eierskap = DeltakerKort.Eierskap.TEAM_KOMET,
+        gjennomforingId = deltakelseOppfolging.gjennomforing.id,
+        eierskap = Deltakelse.Eierskap.TEAM_KOMET,
         tittel = "Oppfølging hos Fretex AS",
         tiltakstypeNavn = TiltakstypeFixtures.Oppfolging.navn,
-        status = DeltakerKort.DeltakerStatus(
-            type = DeltakerKort.DeltakerStatus.DeltakerStatusType.VENTELISTE,
+        status = Deltakelse.DeltakelseGruppetiltak.DeltakerStatus(
+            type = AmtDeltakerStatus.Type.VENTELISTE,
             visningstekst = "Venteliste",
             aarsak = null,
         ),
-        periode = DeltakerKort.Periode(
+        periode = Deltakelse.Periode(
             startDato = LocalDate.of(2019, 1, 1),
             sluttDato = LocalDate.of(2019, 12, 3),
         ),
         sistEndretDato = LocalDate.of(2018, 12, 5),
         innsoktDato = LocalDate.of(2018, 12, 3),
     )
-    val deltakerKortAvklaring = DeltakerKort(
+    val deltakerKortAvklaring = Deltakelse.DeltakelseArena(
         id = deltakelseAvklaring.id,
-        tiltaksgjennomforingId = null,
-        eierskap = DeltakerKort.Eierskap.ARENA,
+        eierskap = Deltakelse.Eierskap.ARENA,
         tittel = "Avklaring",
         tiltakstypeNavn = TiltakstypeFixtures.Avklaring.navn,
-        status = DeltakerKort.DeltakerStatus(
-            type = DeltakerKort.DeltakerStatus.DeltakerStatusType.VENTELISTE,
+        status = Deltakelse.DeltakelseArena.DeltakerStatus(
+            type = ArenaDeltakerStatus.VENTELISTE,
             visningstekst = "Venteliste",
-            aarsak = null,
         ),
-        periode = DeltakerKort.Periode(
+        periode = Deltakelse.Periode(
             startDato = LocalDate.of(2018, 12, 3),
             sluttDato = LocalDate.of(2019, 12, 3),
         ),
         sistEndretDato = null,
         innsoktDato = null,
     )
-    val deltakerKortArbeidstrening = DeltakerKort(
+    val deltakerKortArbeidstrening = Deltakelse.DeltakelseArbeidsgiverAvtale(
         id = deltakelseArbeidstrening.avtaleId,
-        eierskap = DeltakerKort.Eierskap.TEAM_TILTAK,
+        eierskap = Deltakelse.Eierskap.TEAM_TILTAK,
         tittel = "Arbeidstrening hos Underenhet 2 AS",
         tiltakstypeNavn = "Arbeidstrening",
-        status = DeltakerKort.DeltakerStatus(
-            type = DeltakerKort.DeltakerStatus.DeltakerStatusType.GJENNOMFORES,
+        status = Deltakelse.DeltakelseArbeidsgiverAvtale.DeltakerStatus(
+            type = Tiltakshistorikk.ArbeidsgiverAvtale.Status.GJENNOMFORES,
             visningstekst = "Gjennomføres",
-            aarsak = null,
         ),
-        periode = DeltakerKort.Periode(
+        periode = Deltakelse.Periode(
             startDato = LocalDate.of(2020, 1, 1),
             sluttDato = LocalDate.of(2021, 12, 31),
         ),
@@ -276,7 +273,7 @@ class TiltakshistorikkServiceTest : FunSpec({
 
         val deltakelseOppfolgingUtenStartdato = deltakelseOppfolgingFraKomet.copy(
             deltakerId = UUID.randomUUID(),
-            status = DeltakerStatus(type = DeltakerStatus.DeltakerStatusType.KLADD, visningstekst = "Kladd"),
+            status = DeltakerStatus(type = AmtDeltakerStatus.Type.KLADD, visningstekst = "Kladd"),
             periode = null,
         )
 

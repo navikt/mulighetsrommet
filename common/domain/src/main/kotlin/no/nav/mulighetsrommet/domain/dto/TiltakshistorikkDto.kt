@@ -102,13 +102,13 @@ sealed class Tiltakshistorikk {
         }
 
         enum class Status {
-            ANNULLERT,
-            AVBRUTT,
             PAABEGYNT,
             MANGLER_GODKJENNING,
             KLAR_FOR_OPPSTART,
             GJENNOMFORES,
             AVSLUTTET,
+            ANNULLERT,
+            AVBRUTT,
         }
     }
 }
