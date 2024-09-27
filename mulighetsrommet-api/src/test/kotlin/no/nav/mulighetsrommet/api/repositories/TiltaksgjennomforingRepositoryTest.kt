@@ -544,8 +544,13 @@ class TiltaksgjennomforingRepositoryTest : FunSpec({
 
             tiltaksgjennomforinger.upsert(gjennomforing)
 
-            tiltaksgjennomforinger.get(gjennomforing.id).should {
-                it!!.amoKategorisering shouldBe amo
+            tiltaksgjennomforinger.get(gjennomforing.id).shouldNotBeNull().should {
+                it.amoKategorisering shouldBe amo
+            }
+
+            tiltaksgjennomforinger.upsert(gjennomforing.copy(amoKategorisering = null))
+            tiltaksgjennomforinger.get(gjennomforing.id).shouldNotBeNull().should {
+                it.amoKategorisering shouldBe null
             }
         }
     }
