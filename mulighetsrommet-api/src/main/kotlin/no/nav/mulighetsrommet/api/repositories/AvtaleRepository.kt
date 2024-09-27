@@ -262,9 +262,7 @@ class AvtaleRepository(private val db: Database) {
             ).asExecute,
         )
 
-        avtale.amoKategorisering?.let {
-            AmoKategoriseringRepository.upsert(it, avtale.id, AmoKategoriseringRepository.ForeignIdType.AVTALE, tx)
-        }
+        AmoKategoriseringRepository.upsert(avtale, tx)
 
         tx.run(queryOf(deleteProgramomradeAndUtdanninger, avtale.id).asExecute)
         avtale.programomradeOgUtdanningerRequest?.let { programomradeOgUtdanninger ->

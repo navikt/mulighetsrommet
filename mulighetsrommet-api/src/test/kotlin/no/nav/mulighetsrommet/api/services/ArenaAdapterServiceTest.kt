@@ -12,6 +12,7 @@ import io.mockk.*
 import kotliquery.Query
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dbo.ArenaNavEnhet
+import no.nav.mulighetsrommet.api.domain.dbo.TiltakstypeDbo
 import no.nav.mulighetsrommet.api.domain.dto.AvtaleDto
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.repositories.*

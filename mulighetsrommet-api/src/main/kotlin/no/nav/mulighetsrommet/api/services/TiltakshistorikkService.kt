@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api.services
 import arrow.core.Either
 import arrow.core.getOrElse
 import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.*
 import no.nav.mulighetsrommet.api.clients.pdl.*
@@ -40,7 +41,7 @@ class TiltakshistorikkService(
     private suspend fun getTiltakshistorikk(
         norskIdent: NorskIdent,
         obo: AccessType.OBO,
-    ): Deltakelser {
+    ): Deltakelser = coroutineScope {
         val identer = hentHistoriskeNorskIdent(norskIdent, obo)
         val historikk = tiltakshistorikkClient.historikk(identer)
 
@@ -54,10 +55,11 @@ class TiltakshistorikkService(
             .toSet()
 
         val (aktive, historiske) = historikk.historikk
-            .map { toDeltakelse(it) }
+            .map { async { toDeltakelse(it) } }
+            .awaitAll()
             .partition { erAktiv(it) }
 
-        return Deltakelser(
+        Deltakelser(
             meldinger = meldinger,
             aktive = aktive,
             historiske = historiske,

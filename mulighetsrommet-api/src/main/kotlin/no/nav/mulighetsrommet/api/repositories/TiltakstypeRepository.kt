@@ -3,11 +3,11 @@ package no.nav.mulighetsrommet.api.repositories
 import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
+import no.nav.mulighetsrommet.api.domain.dbo.TiltakstypeDbo
 import no.nav.mulighetsrommet.api.domain.dto.TiltakstypeDto
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.*
 import no.nav.mulighetsrommet.domain.Tiltakskode
-import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
 import no.nav.mulighetsrommet.domain.dto.DeltakerRegistreringInnholdDto
 import no.nav.mulighetsrommet.domain.dto.Innholdselement
 import no.nav.mulighetsrommet.domain.dto.Innsatsgruppe
@@ -32,8 +32,7 @@ class TiltakstypeRepository(private val db: Database) {
                 tiltakskode,
                 arena_kode,
                 start_dato,
-                slutt_dato,
-                rett_paa_tiltakspenger
+                slutt_dato
             )
             values (
                 :id::uuid,
@@ -41,17 +40,14 @@ class TiltakstypeRepository(private val db: Database) {
                 :tiltakskode::tiltakskode,
                 :arena_kode,
                 :start_dato,
-                :slutt_dato,
-                :rett_paa_tiltakspenger
+                :slutt_dato
             )
             on conflict (id)
                 do update set navn        = excluded.navn,
                               tiltakskode = excluded.tiltakskode,
                               arena_kode = excluded.arena_kode,
                               start_dato = excluded.start_dato,
-                              slutt_dato = excluded.slutt_dato,
-                              rett_paa_tiltakspenger = excluded.rett_paa_tiltakspenger
-            returning *
+                              slutt_dato = excluded.slutt_dato
         """.trimIndent()
 
         queryOf(query, tiltakstype.toSqlParameters()).asExecute.let { db.run(it) }
@@ -231,7 +227,6 @@ class TiltakstypeRepository(private val db: Database) {
         "arena_kode" to arenaKode,
         "start_dato" to startDato,
         "slutt_dato" to sluttDato,
-        "rett_paa_tiltakspenger" to rettPaaTiltakspenger,
     )
 
     private fun Row.toTiltakstypeDto(): TiltakstypeDto {

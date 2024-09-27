@@ -4,17 +4,35 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotliquery.Session
 import kotliquery.queryOf
+import no.nav.mulighetsrommet.api.domain.dbo.AvtaleDbo
+import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.dto.*
 import org.intellij.lang.annotations.Language
 import java.util.*
 
 object AmoKategoriseringRepository {
-    enum class ForeignIdType {
+    fun upsert(dbo: TiltaksgjennomforingDbo, tx: Session) {
+        return if (dbo.amoKategorisering == null) {
+            delete(dbo.id, ForeignIdType.GJENNOMFORING, tx)
+        } else {
+            upsert(dbo.amoKategorisering, dbo.id, ForeignIdType.GJENNOMFORING, tx)
+        }
+    }
+
+    fun upsert(dbo: AvtaleDbo, tx: Session) {
+        return if (dbo.amoKategorisering == null) {
+            delete(dbo.id, ForeignIdType.AVTALE, tx)
+        } else {
+            upsert(dbo.amoKategorisering, dbo.id, ForeignIdType.AVTALE, tx)
+        }
+    }
+
+    private enum class ForeignIdType {
         AVTALE,
         GJENNOMFORING,
     }
 
-    fun upsert(amoKategorisering: AmoKategorisering, foreignId: UUID, foreignIdType: ForeignIdType, tx: Session) {
+    private fun upsert(amoKategorisering: AmoKategorisering, foreignId: UUID, foreignIdType: ForeignIdType, tx: Session) {
         val foreignName = when (foreignIdType) {
             ForeignIdType.AVTALE -> "avtale"
             ForeignIdType.GJENNOMFORING -> "tiltaksgjennomforing"
@@ -99,6 +117,22 @@ object AmoKategoriseringRepository {
             queryOf(deleteJoins, foreignId, tx.createArrayOf("bigint", sertifiseringer.map { it.konseptId }))
                 .asExecute,
         )
+    }
+
+    private fun delete(foreignId: UUID, foreignIdType: ForeignIdType, tx: Session) {
+        val foreignName = when (foreignIdType) {
+            ForeignIdType.AVTALE -> "avtale"
+            ForeignIdType.GJENNOMFORING -> "tiltaksgjennomforing"
+        }
+
+        @Language("PostgreSQL")
+        val query = """
+            delete from ${foreignName}_amo_kategorisering where ${foreignName}_id = ?::uuid
+        """.trimIndent()
+
+        tx.run(queryOf(query, foreignId).asUpdate)
+
+        updateSertifiseringer(foreignId, foreignName, emptyList(), tx)
     }
 
     fun AmoKategorisering.toSqlParameters(tx: Session) =
