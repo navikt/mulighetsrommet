@@ -111,23 +111,12 @@ fun Route.delMedBrukerRoutes() {
 
             poaoTilgang.verifyAccessToUserFromVeileder(getNavAnsattAzureId(), request.norskIdent)
 
-            delMedBrukerService.getDeltMedBruker(request.norskIdent, request.tiltakId)
-                .onRight {
-                    if (it == null) {
-                        call.respondText(
-                            status = HttpStatusCode.NoContent,
-                            text = "Fant ikke innslag om at veileder har delt tiltak med bruker tidligere",
-                        )
-                    } else {
-                        call.respond(it)
-                    }
-                }
-                .onLeft {
-                    call.respondText(
-                        status = HttpStatusCode.InternalServerError,
-                        text = "Klarte ikke finne innslag om at veileder har delt tiltak med bruker tidligere",
-                    )
-                }
+            val deltMedBruker = delMedBrukerService.getDeltMedBruker(request.norskIdent, request.tiltakId)
+                ?: call.respondText(
+                    status = HttpStatusCode.NoContent,
+                    text = "Fant ikke innslag om at veileder har delt tiltak med bruker tidligere",
+                )
+            call.respond(deltMedBruker)
         }
 
         post("alle") {
@@ -135,23 +124,7 @@ fun Route.delMedBrukerRoutes() {
 
             poaoTilgang.verifyAccessToUserFromVeileder(getNavAnsattAzureId(), request.norskIdent)
 
-            delMedBrukerService.getAlleDistinkteTiltakDeltMedBruker(request.norskIdent)
-                .onRight {
-                    if (it == null) {
-                        call.respondText(
-                            status = HttpStatusCode.NoContent,
-                            text = "Fant ingen innslag om at veileder har delt noen tiltak med bruker tidligere",
-                        )
-                    } else {
-                        call.respond(it)
-                    }
-                }
-                .onLeft {
-                    call.respondText(
-                        status = HttpStatusCode.InternalServerError,
-                        text = "Klarte ikke finne innslag om at veileder har delt noen tiltak med bruker tidligere",
-                    )
-                }
+            call.respond(delMedBrukerService.getAlleDistinkteTiltakDeltMedBruker(request.norskIdent))
         }
 
         post("historikk") {
@@ -159,16 +132,7 @@ fun Route.delMedBrukerRoutes() {
 
             poaoTilgang.verifyAccessToUserFromVeileder(getNavAnsattAzureId(), request.norskIdent)
 
-            delMedBrukerService.getDelMedBrukerHistorikk(request.norskIdent)
-                .onRight {
-                    call.respond(it)
-                }
-                .onLeft {
-                    call.respondText(
-                        status = HttpStatusCode.InternalServerError,
-                        text = "Klarte ikke finne innslag om at veileder har delt tiltak med bruker tidligere",
-                    )
-                }
+            call.respond(delMedBrukerService.getDelMedBrukerHistorikk(request.norskIdent))
         }
     }
 }

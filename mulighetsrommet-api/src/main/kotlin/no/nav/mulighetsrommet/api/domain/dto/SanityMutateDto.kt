@@ -53,7 +53,7 @@ data class CreateSanityTiltaksgjennomforingDto(
     val _type: String = "tiltaksgjennomforing",
     val tiltaksgjennomforingNavn: String,
     val tiltakstype: TiltakstypeRef? = null,
-    val tiltaksnummer: TiltaksnummerSlug? = null,
+    val tiltaksnummer: Slug? = null,
 )
 
 @Serializable
@@ -62,7 +62,7 @@ data class SanityTiltaksgjennomforingFields(
     val fylke: FylkeRef? = null,
     val enheter: List<EnhetRef>? = null,
     val tiltakstype: TiltakstypeRef? = null,
-    val tiltaksnummer: TiltaksnummerSlug? = null,
+    val tiltaksnummer: Slug? = null,
 ) {
     fun toSanityTiltaksgjennomforing(id: String) = CreateSanityTiltaksgjennomforingDto(
         _id = id,

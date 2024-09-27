@@ -14,6 +14,7 @@ import no.nav.mulighetsrommet.api.domain.dto.AvtaleDto
 import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingDto
 import no.nav.mulighetsrommet.api.domain.dto.TiltakstypeDto
 import no.nav.mulighetsrommet.api.repositories.*
+import no.nav.mulighetsrommet.api.services.cms.SanityService
 import no.nav.mulighetsrommet.api.utils.EnhetFilter
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.QueryResult
@@ -43,7 +44,7 @@ class ArenaAdapterService(
     private val tiltaksgjennomforinger: TiltaksgjennomforingRepository,
     private val deltakere: DeltakerRepository,
     private val tiltaksgjennomforingKafkaProducer: SisteTiltaksgjennomforingerV1KafkaProducer,
-    private val sanityTiltakService: SanityTiltakService,
+    private val sanityService: SanityService,
     private val arrangorService: ArrangorService,
     private val navEnhetService: NavEnhetService,
     private val notificationService: NotificationService,
@@ -108,9 +109,7 @@ class ArenaAdapterService(
 
         val sluttDato = arenaGjennomforing.sluttDato
         return if (sluttDato == null || sluttDato.isAfter(TiltaksgjennomforingSluttDatoCutoffDate)) {
-            db.transactionSuspend { tx ->
-                sanityTiltakService.createOrPatchSanityTiltaksgjennomforing(arenaGjennomforing, tx)
-            }
+            sanityService.createOrPatchSanityTiltaksgjennomforing(arenaGjennomforing, tiltakstype.sanityId)
         } else {
             null
         }
@@ -192,7 +191,7 @@ class ArenaAdapterService(
     }
 
     suspend fun removeSanityTiltaksgjennomforing(sanityId: UUID) {
-        sanityTiltakService.deleteSanityTiltaksgjennomforing(sanityId)
+        sanityService.deleteSanityTiltaksgjennomforing(sanityId)
     }
 
     fun upsertDeltaker(deltaker: DeltakerDbo): QueryResult<DeltakerDbo> = query { deltakere.upsert(deltaker) }

@@ -13,9 +13,9 @@ import no.nav.mulighetsrommet.api.domain.dto.Oppskrifter
 import no.nav.mulighetsrommet.api.plugins.AuthProvider
 import no.nav.mulighetsrommet.api.plugins.authenticate
 import no.nav.mulighetsrommet.api.plugins.getNavAnsattAzureId
-import no.nav.mulighetsrommet.api.services.CacheUsage
 import no.nav.mulighetsrommet.api.services.PoaoTilgangService
 import no.nav.mulighetsrommet.api.services.VeilederflateService
+import no.nav.mulighetsrommet.api.services.cms.CacheUsage
 import no.nav.mulighetsrommet.domain.dto.Innsatsgruppe
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import org.koin.ktor.ext.inject
@@ -115,7 +115,7 @@ fun Route.arbeidsmarkedstiltakRoutes() {
                 }
                 ?: SanityPerspective.PUBLISHED
 
-            val oppskrifter = veilederflateService.hentOppskrifterForTiltakstype(tiltakstypeId, perspective)
+            val oppskrifter = veilederflateService.hentOppskrifter(tiltakstypeId, perspective)
 
             call.respond(Oppskrifter(data = oppskrifter))
         }

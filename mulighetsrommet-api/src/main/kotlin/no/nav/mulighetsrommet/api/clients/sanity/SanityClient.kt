@@ -21,7 +21,6 @@ import org.slf4j.LoggerFactory
 import java.util.*
 
 class SanityClient(engine: HttpClientEngine = CIO.create(), val config: Config) {
-
     private val logger = LoggerFactory.getLogger(javaClass)
 
     data class Config(
@@ -91,7 +90,7 @@ class SanityClient(engine: HttpClientEngine = CIO.create(), val config: Config) 
         }
     }
 
-    internal suspend fun query(
+    suspend fun query(
         query: String,
         params: List<SanityParam> = listOf(),
         perspective: SanityPerspective = SanityPerspective.PUBLISHED,

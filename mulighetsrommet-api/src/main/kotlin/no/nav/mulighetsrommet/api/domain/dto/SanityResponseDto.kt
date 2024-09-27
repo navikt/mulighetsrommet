@@ -1,7 +1,10 @@
 package no.nav.mulighetsrommet.api.domain.dto
 
+import kotlinx.serialization.EncodeDefault
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.*
+import no.nav.mulighetsrommet.api.services.SanityRedaktor
 import no.nav.mulighetsrommet.domain.dto.Faneinnhold
 import no.nav.mulighetsrommet.domain.dto.Innsatsgruppe
 import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
@@ -31,7 +34,8 @@ data class SanityTiltakstype(
 
 @Serializable
 data class SanityTiltaksgjennomforing(
-    val _id: String,
+    @Serializable(with = UUIDSerializer::class)
+    val _id: UUID,
     val tiltakstype: SanityTiltakstype,
     val tiltaksgjennomforingNavn: String? = null,
     val tiltaksnummer: String? = null,
@@ -43,6 +47,7 @@ data class SanityTiltaksgjennomforing(
     val kontaktpersoner: List<SanityKontaktperson>? = null,
     val faneinnhold: Faneinnhold? = null,
     val delingMedBruker: String? = null,
+    val redaktor: List<SanityRedaktor>? = null,
 )
 
 @Serializable
@@ -76,6 +81,15 @@ data class KontaktinfoTiltaksansvarlig(
     val _createdAt: String? = null,
     val epost: String? = null,
     val beskrivelse: String? = null,
+    val navIdent: Slug? = null,
+)
+
+@Serializable
+@OptIn(ExperimentalSerializationApi::class)
+data class Slug(
+    @EncodeDefault
+    val _type: String = "slug",
+    val current: String,
 )
 
 @Serializable
@@ -89,12 +103,6 @@ data class EnhetRef(
     val _type: String = "reference",
     val _ref: String,
     val _key: String? = null,
-)
-
-@Serializable
-data class TiltaksnummerSlug(
-    val current: String,
-    val _type: String = "slug",
 )
 
 @Serializable(with = SanityReponseSerializer::class)

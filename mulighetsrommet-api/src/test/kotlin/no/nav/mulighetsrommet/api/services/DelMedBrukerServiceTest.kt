@@ -6,32 +6,36 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
+import io.mockk.every
 import io.mockk.mockk
-import kotlinx.serialization.json.Json
-import kotliquery.Query
-import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dbo.DelMedBrukerDbo
-import no.nav.mulighetsrommet.api.domain.dto.SanityResponse
+import no.nav.mulighetsrommet.api.domain.dto.SanityTiltaksgjennomforing
+import no.nav.mulighetsrommet.api.domain.dto.SanityTiltakstype
+import no.nav.mulighetsrommet.api.domain.dto.TiltakstypeDto
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
+import no.nav.mulighetsrommet.api.services.cms.SanityService
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.domain.dto.NorskIdent
+import no.nav.mulighetsrommet.domain.dto.TiltakstypeStatus
+import java.time.LocalDate
 import java.util.*
 
 class DelMedBrukerServiceTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
-    val sanityClient: SanityClient = mockk(relaxed = true)
+    val sanityService: SanityService = mockk(relaxed = true)
+    val tiltakstypeService: TiltakstypeService = mockk(relaxed = true)
 
     afterEach {
         database.db.truncateAll()
     }
 
     context("DelMedBrukerService") {
-        val service = DelMedBrukerService(database.db, sanityClient)
+        val service = DelMedBrukerService(database.db, sanityService, tiltakstypeService)
 
         val payload = DelMedBrukerDbo(
             id = "123",
@@ -60,7 +64,7 @@ class DelMedBrukerServiceTest : FunSpec({
                 sanityOrGjennomforingId = payload.sanityId!!,
             )
 
-            delMedBruker.shouldBeRight().should {
+            delMedBruker.should {
                 it.shouldNotBeNull()
 
                 it.id shouldBe "2"
@@ -92,7 +96,7 @@ class DelMedBrukerServiceTest : FunSpec({
                 sanityOrGjennomforingId = TiltaksgjennomforingFixtures.Oppfolging1.id,
             )
 
-            delMedBruker.shouldBeRight().should {
+            delMedBruker.should {
                 it.shouldNotBeNull()
                 it.tiltaksgjennomforingId shouldBe TiltaksgjennomforingFixtures.Oppfolging1.id
             }
@@ -102,41 +106,50 @@ class DelMedBrukerServiceTest : FunSpec({
             MulighetsrommetTestDomain().initialize(database.db)
             val sanityGjennomforingIdForEnkeltplass = UUID.randomUUID()
             val sanityGjennomforingIdForArbeidstrening = UUID.randomUUID()
-            val tiltakstypeIdForEnkeltAmo = UUID.randomUUID()
-            val tiltakstypeIdForArbeidstrening = UUID.randomUUID()
+            val tiltakstypeIdForEnkeltAmo = TiltakstypeFixtures.EnkelAmo.id
+            val tiltakstypeIdForArbeidstrening = TiltakstypeFixtures.Arbeidstrening.id
 
-            Query("update tiltakstype set sanity_id = '$tiltakstypeIdForEnkeltAmo' where id = '${TiltakstypeFixtures.EnkelAmo.id}'")
-                .asUpdate.let { database.db.run(it) }
-
-            Query("update tiltakstype set sanity_id = '$tiltakstypeIdForArbeidstrening' where id = '${TiltakstypeFixtures.Arbeidstrening.id}'")
-                .asUpdate.let { database.db.run(it) }
+            every { tiltakstypeService.getBySanityId(tiltakstypeIdForEnkeltAmo) } returns TiltakstypeDto(
+                id = tiltakstypeIdForEnkeltAmo,
+                navn = "EnkelAMo",
+                innsatsgrupper = emptySet(),
+                arenaKode = TiltakstypeFixtures.EnkelAmo.arenaKode,
+                tiltakskode = null,
+                startDato = LocalDate.of(2022, 1, 1),
+                sluttDato = null,
+                status = TiltakstypeStatus.AKTIV,
+                sanityId = tiltakstypeIdForEnkeltAmo,
+            )
+            every { tiltakstypeService.getBySanityId(tiltakstypeIdForArbeidstrening) } returns TiltakstypeDto(
+                id = tiltakstypeIdForArbeidstrening,
+                navn = TiltakstypeFixtures.Arbeidstrening.navn,
+                innsatsgrupper = emptySet(),
+                arenaKode = TiltakstypeFixtures.Arbeidstrening.arenaKode,
+                tiltakskode = null,
+                startDato = TiltakstypeFixtures.Arbeidstrening.startDato,
+                sluttDato = null,
+                status = TiltakstypeStatus.AKTIV,
+                sanityId = tiltakstypeIdForEnkeltAmo,
+            )
 
             coEvery {
-                sanityClient.query(any(), any())
-            } returns SanityResponse.Result(
-                500,
-                "",
-                Json.parseToJsonElement(
-                    """
-                        [
-                            {
-                                "_id": "$sanityGjennomforingIdForEnkeltplass",
-                                "tiltaksgjennomforingNavn": "Delt med bruker - Lokalt navn fra Sanity",
-                                "tiltakstype":  {
-                                    "_id": "$tiltakstypeIdForEnkeltAmo",
-                                    "tiltakstypeNavn": "Arbeidsmarkedsopplæring (AMO) enkeltplass"
-                                }
-                            },
-                            {
-                                "_id": "$sanityGjennomforingIdForArbeidstrening",
-                                "tiltaksgjennomforingNavn": "Delt med bruker - Sanity",
-                                "tiltakstype":  {
-                                    "_id": "$tiltakstypeIdForArbeidstrening",
-                                    "tiltakstypeNavn": "Arbeidstrening"
-                                }
-                            }
-                        ]
-                    """.trimIndent(),
+                sanityService.getAllTiltak(any(), any())
+            } returns listOf(
+                SanityTiltaksgjennomforing(
+                    _id = sanityGjennomforingIdForEnkeltplass,
+                    tiltaksgjennomforingNavn = "Delt med bruker - Lokalt navn fra Sanity",
+                    tiltakstype = SanityTiltakstype(
+                        _id = "$tiltakstypeIdForEnkeltAmo",
+                        tiltakstypeNavn = "Arbeidsmarkedsopplæring (AMO) enkeltplass",
+                    ),
+                ),
+                SanityTiltaksgjennomforing(
+                    _id = sanityGjennomforingIdForArbeidstrening,
+                    tiltaksgjennomforingNavn = "Delt med bruker - Sanity",
+                    tiltakstype = SanityTiltakstype(
+                        _id = "$tiltakstypeIdForArbeidstrening",
+                        tiltakstypeNavn = "Arbeidstrening",
+                    ),
                 ),
             )
 
@@ -175,7 +188,7 @@ class DelMedBrukerServiceTest : FunSpec({
 
             val delMedBruker = service.getDelMedBrukerHistorikk(NorskIdent("12345678910"))
 
-            delMedBruker.shouldBeRight().should {
+            delMedBruker.should {
                 it.shouldNotBeNull()
                 it.size shouldBe 3
                 it[0].tittel shouldBe "Oppfølging"

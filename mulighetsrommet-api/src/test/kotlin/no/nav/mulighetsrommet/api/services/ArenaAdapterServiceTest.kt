@@ -15,6 +15,7 @@ import no.nav.mulighetsrommet.api.domain.dbo.ArenaNavEnhet
 import no.nav.mulighetsrommet.api.domain.dto.AvtaleDto
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.repositories.*
+import no.nav.mulighetsrommet.api.services.cms.SanityService
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
@@ -186,8 +187,6 @@ class ArenaAdapterServiceTest :
         }
 
         context("tiltak i egen regi") {
-            val gjennomforinger = TiltaksgjennomforingRepository(database.db)
-
             val gjennomforing = ArenaTiltaksgjennomforingDbo(
                 id = UUID.randomUUID(),
                 sanityId = null,
@@ -228,24 +227,24 @@ class ArenaAdapterServiceTest :
             }
 
             test("should publish egen regi-tiltak to sanity") {
-                val sanityTiltakService = mockk<SanityTiltakService>(relaxed = true)
+                val sanityService = mockk<SanityService>(relaxed = true)
                 val service = createArenaAdapterService(
                     database.db,
-                    sanityTiltakService = sanityTiltakService,
+                    sanityService = sanityService,
                 )
 
                 service.upsertTiltaksgjennomforing(gjennomforing)
 
                 coVerify(exactly = 1) {
-                    sanityTiltakService.createOrPatchSanityTiltaksgjennomforing(gjennomforing, any())
+                    sanityService.createOrPatchSanityTiltaksgjennomforing(gjennomforing, any())
                 }
             }
 
             test("should delete egen regi-tiltak from sanity") {
-                val sanityTiltakService = mockk<SanityTiltakService>(relaxed = true)
+                val sanityService = mockk<SanityService>(relaxed = true)
                 val service = createArenaAdapterService(
                     database.db,
-                    sanityTiltakService = sanityTiltakService,
+                    sanityService = sanityService,
                 )
 
                 val sanityId = UUID.randomUUID()
@@ -253,7 +252,7 @@ class ArenaAdapterServiceTest :
                 service.removeSanityTiltaksgjennomforing(sanityId)
 
                 coVerify(exactly = 1) {
-                    sanityTiltakService.deleteSanityTiltaksgjennomforing(sanityId)
+                    sanityService.deleteSanityTiltaksgjennomforing(sanityId)
                 }
             }
 
@@ -334,16 +333,16 @@ class ArenaAdapterServiceTest :
             }
 
             test("should publish gruppetiltak to sanity") {
-                val sanityTiltakService = mockk<SanityTiltakService>(relaxed = true)
+                val sanityService = mockk<SanityService>(relaxed = true)
                 val service = createArenaAdapterService(
                     database.db,
-                    sanityTiltakService = sanityTiltakService,
+                    sanityService = sanityService,
                 )
 
                 service.upsertTiltaksgjennomforing(gjennomforing)
 
                 coVerify(exactly = 0) {
-                    sanityTiltakService.createOrPatchSanityTiltaksgjennomforing(any(), any())
+                    sanityService.createOrPatchSanityTiltaksgjennomforing(any(), any())
                 }
             }
 
@@ -787,7 +786,7 @@ class ArenaAdapterServiceTest :
 private fun createArenaAdapterService(
     db: Database,
     tiltaksgjennomforingKafkaProducer: SisteTiltaksgjennomforingerV1KafkaProducer = mockk(relaxed = true),
-    sanityTiltakService: SanityTiltakService = mockk(relaxed = true),
+    sanityService: SanityService = mockk(relaxed = true),
     notificationService: NotificationService = mockk(relaxed = true),
     migrerteTiltakstyper: List<Tiltakskode> = listOf(),
 ) = ArenaAdapterService(
@@ -798,7 +797,7 @@ private fun createArenaAdapterService(
     tiltaksgjennomforinger = TiltaksgjennomforingRepository(db),
     deltakere = DeltakerRepository(db),
     tiltaksgjennomforingKafkaProducer = tiltaksgjennomforingKafkaProducer,
-    sanityTiltakService = sanityTiltakService,
+    sanityService = sanityService,
     arrangorService = mockk(relaxed = true),
     navEnhetService = NavEnhetService(NavEnhetRepository(db)),
     notificationService = notificationService,
