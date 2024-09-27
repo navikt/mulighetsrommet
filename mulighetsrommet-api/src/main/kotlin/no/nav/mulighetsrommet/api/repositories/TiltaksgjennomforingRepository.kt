@@ -248,14 +248,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             ).asExecute,
         )
 
-        tiltaksgjennomforing.amoKategorisering?.let {
-            AmoKategoriseringRepository.upsert(
-                it,
-                tiltaksgjennomforing.id,
-                AmoKategoriseringRepository.ForeignIdType.GJENNOMFORING,
-                tx,
-            )
-        }
+        AmoKategoriseringRepository.upsert(tiltaksgjennomforing, tx)
     }
 
     fun upsertArenaTiltaksgjennomforing(tiltaksgjennomforing: ArenaTiltaksgjennomforingDbo) {

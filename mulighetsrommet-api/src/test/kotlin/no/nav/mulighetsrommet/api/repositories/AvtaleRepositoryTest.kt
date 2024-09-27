@@ -301,6 +301,10 @@ class AvtaleRepositoryTest : FunSpec({
             avtaler.get(avtale.id).shouldNotBeNull().should {
                 it.amoKategorisering shouldBe amoEndring
             }
+            avtaler.upsert(avtale.copy(amoKategorisering = null))
+            avtaler.get(avtale.id).shouldNotBeNull().should {
+                it.amoKategorisering shouldBe null
+            }
         }
     }
 
