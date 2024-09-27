@@ -24,6 +24,8 @@ class Mutation<T> private constructor(
 
         fun <T> patch(id: String, set: T) = Mutation(patch = Patch(id = id, set = set))
 
+        fun unsetPatch(id: String, unset: List<String>) = Mutation(patch = UnsetPatch(id = id, unset = unset))
+
         fun delete(id: String) = Mutation<Unit>(delete = Delete(id))
     }
 
@@ -36,6 +38,12 @@ class Mutation<T> private constructor(
     data class Patch<T>(
         val id: String,
         val set: T,
+    )
+
+    @Serializable
+    data class UnsetPatch(
+        val id: String,
+        val unset: List<String>,
     )
 }
 

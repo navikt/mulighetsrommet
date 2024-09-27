@@ -22,6 +22,7 @@ import no.nav.mulighetsrommet.api.services.SanityNavKontaktperson
 import no.nav.mulighetsrommet.api.services.SanityRedaktor
 import no.nav.mulighetsrommet.domain.dbo.ArenaTiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.domain.dto.Innsatsgruppe
+import no.nav.mulighetsrommet.domain.dto.NavIdent
 import org.slf4j.LoggerFactory
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -44,7 +45,7 @@ class SanityService(
             .recordStats()
             .build()
 
-    val sanityTiltaksgjennomforingQuery = """
+    private val sanityTiltaksgjennomforingQuery = """
         {
               _id,
               tiltakstype->{
@@ -416,6 +417,32 @@ class SanityService(
         return sanityClient.mutate(mutations)
     }
 
+    suspend fun getTiltakByNavIdent(navIdent: NavIdent): List<SanityTiltaksgjennomforing> {
+        val query =
+            """
+            *[_type == "tiltaksgjennomforing" && (${'$'}navIdent in kontaktpersoner[].navKontaktperson->navIdent.current || ${'$'}navIdent in redaktor[]->navIdent.current)]
+            $sanityTiltaksgjennomforingQuery
+            """.trimIndent()
+
+        val params = listOf(SanityParam.of("navIdent", navIdent.value))
+
+        return when (val response = sanityClient.query(query, params)) {
+            is SanityResponse.Result -> response.decode()
+            is SanityResponse.Error -> throw Exception("Klarte ikke hente ut tiltak fra Sanity: ${response.error}")
+        }
+    }
+
+    suspend fun getNavKontaktperson(navIdent: NavIdent): SanityNavKontaktperson? {
+        val query = """ *[_type == "navKontaktperson" && navIdent.current == ${'$'}navIdent] """.trimIndent()
+        val params = listOf(SanityParam.of("navIdent", navIdent.value))
+
+        return when (val response = sanityClient.query(query, params)) {
+            is SanityResponse.Result -> response.decode<List<SanityNavKontaktperson>>().firstOrNull()
+
+            is SanityResponse.Error -> throw Exception("Klarte ikke hente ut kontaktperson fra Sanity: ${response.error}")
+        }
+    }
+
     suspend fun getNavKontaktpersoner(): List<SanityNavKontaktperson> {
         val query = """ *[_type == "navKontaktperson"] """.trimIndent()
 
@@ -431,9 +458,18 @@ class SanityService(
 
         return when (val response = sanityClient.query(query)) {
             is SanityResponse.Result -> response.decode<List<SanityRedaktor>?>()
-
             is SanityResponse.Error -> throw Exception("Klarte ikke hente ut redaktorer fra Sanity: ${response.error}")
         } ?: emptyList()
+    }
+
+    suspend fun getRedaktor(navIdent: NavIdent): SanityRedaktor? {
+        val query = """ *[_type == "redaktor" && navIdent.current == ${'$'}navIdent] """.trimIndent()
+        val params = listOf(SanityParam.of("navIdent", navIdent.value))
+
+        return when (val response = sanityClient.query(query, params)) {
+            is SanityResponse.Result -> response.decode<List<SanityRedaktor>>().firstOrNull()
+            is SanityResponse.Error -> throw Exception("Klarte ikke hente ut kontaktperson fra Sanity: ${response.error}")
+        }
     }
 
     suspend fun createRedaktorer(redaktorer: List<SanityRedaktor>) {
@@ -449,6 +485,58 @@ class SanityService(
 
         if (response.status != HttpStatusCode.OK) {
             throw Exception("Klarte ikke upserte nav kontaktpersoner: Error: ${response.bodyAsText()} - Status: ${response.status}")
+        }
+    }
+
+    suspend fun removeNavIdentFromTiltaksgjennomforinger(navIdent: NavIdent) {
+        val kontaktpersonToDelete = getNavKontaktperson(navIdent)
+        val redaktorToDelete = getRedaktor(navIdent)
+
+        val mutations = getTiltakByNavIdent(navIdent)
+            .map { tiltak ->
+                Mutation.unsetPatch(
+                    id = tiltak._id.toString(),
+                    unset = listOfNotNull(
+                        if (kontaktpersonToDelete != null) {
+                            "kontaktpersoner[navKontaktperson._ref == \"${kontaktpersonToDelete._id}\"]"
+                        } else {
+                            null
+                        },
+                        if (redaktorToDelete != null) {
+                            "redaktor[_ref == \"${redaktorToDelete._id}\"]"
+                        } else {
+                            null
+                        },
+                    ),
+                )
+            }
+
+        val response = sanityClient.mutate(mutations)
+        if (response.status != HttpStatusCode.OK) {
+            throw Exception("Klarte ikke upserte nav kontaktpersoner: Error: ${response.bodyAsText()} - Status: ${response.status}")
+        }
+    }
+
+    suspend fun deleteNavIdent(navIdent: NavIdent) {
+        val queryResponse = sanityClient.query(
+            """
+            *[_type == "navKontaktperson" && navIdent.current == ${'$'}navIdent || _type == "redaktor" && navIdent.current == ${'$'}navIdent]._id
+            """.trimIndent(),
+            params = listOf(SanityParam.of("navIdent", navIdent.value)),
+        )
+
+        val ids = when (queryResponse) {
+            is SanityResponse.Result -> queryResponse.decode<List<String>>()
+            is SanityResponse.Error -> throw Exception("Klarte ikke hente ut id'er til sletting fra Sanity: ${queryResponse.error}")
+        }
+
+        if (ids.isEmpty()) {
+            return
+        }
+
+        val result = sanityClient.mutate(mutations = ids.map { Mutation.delete(it) })
+        if (result.status != HttpStatusCode.OK) {
+            throw Exception("Klarte ikke slette navIdent from Sanity: ${result.bodyAsText()}")
         }
     }
 }

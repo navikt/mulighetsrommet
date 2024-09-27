@@ -8,7 +8,7 @@ import com.github.kagkarlsson.scheduler.task.schedule.Schedule
 import com.github.kagkarlsson.scheduler.task.schedule.Schedules
 import io.ktor.server.plugins.*
 import kotlinx.coroutines.runBlocking
-import no.nav.mulighetsrommet.api.services.NavAnsattService
+import no.nav.mulighetsrommet.api.services.NavAnsattSyncService
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.slack.SlackNotifier
 import org.slf4j.LoggerFactory
@@ -21,7 +21,7 @@ import kotlin.jvm.optionals.getOrNull
 
 class SynchronizeNavAnsatte(
     config: Config,
-    private val navAnsattService: NavAnsattService,
+    private val navAnsattService: NavAnsattSyncService,
     slack: SlackNotifier,
     database: Database,
 ) {
