@@ -82,8 +82,8 @@ function Wrapper({
       borderRadius="medium"
       padding={size === "small" ? "2" : size === "medium" ? "5" : "8"}
       className={classNames(styles.panel, {
-        [styles.utkast]: isKladd(status),
-        [styles.kladd]: isUtkast(status),
+        [styles.utkast]: isUtkast(status),
+        [styles.kladd]: isKladd(status),
       })}
     >
       {children}
