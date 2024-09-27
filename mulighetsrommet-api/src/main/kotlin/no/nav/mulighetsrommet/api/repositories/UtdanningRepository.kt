@@ -2,7 +2,7 @@ package no.nav.mulighetsrommet.api.repositories
 
 import kotlinx.serialization.Serializable
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.api.routes.v1.ProgramomradeMedUtdanningerRequest
+import no.nav.mulighetsrommet.api.domain.dto.ProgramomradeMedUtdanningerRequestDto
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import org.intellij.lang.annotations.Language
@@ -70,8 +70,8 @@ data class ProgramomradeMedUtdanninger(
     val programomrade: Programomrade,
     val utdanninger: List<UtdanningDbo>,
 ) {
-    fun toRequest(): ProgramomradeMedUtdanningerRequest {
-        return ProgramomradeMedUtdanningerRequest(
+    fun toRequest(): ProgramomradeMedUtdanningerRequestDto {
+        return ProgramomradeMedUtdanningerRequestDto(
             programomradeId = programomrade.id,
             utdanningsIder = utdanninger.map { it.id },
         )

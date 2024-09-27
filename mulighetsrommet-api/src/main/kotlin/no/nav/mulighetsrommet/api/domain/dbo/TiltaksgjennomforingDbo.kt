@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.domain.dbo
 
+import no.nav.mulighetsrommet.api.domain.dto.ProgramomradeMedUtdanningerRequestDto
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dto.AmoKategorisering
 import no.nav.mulighetsrommet.domain.dto.Faneinnhold
@@ -31,6 +32,7 @@ data class TiltaksgjennomforingDbo(
     val estimertVentetidEnhet: String?,
     val tilgjengeligForArrangorFraOgMedDato: LocalDate?,
     val amoKategorisering: AmoKategorisering?,
+    val programomradeOgUtdanningerRequest: ProgramomradeMedUtdanningerRequestDto?,
 )
 
 data class TiltaksgjennomforingKontaktpersonDbo(

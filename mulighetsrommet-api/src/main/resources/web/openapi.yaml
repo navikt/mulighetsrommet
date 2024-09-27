@@ -2516,6 +2516,8 @@ components:
         amoKategorisering:
           $ref: "#/components/schemas/AmoKategorisering"
           nullable: true
+        programomradeMedUtdanninger:
+          $ref: "#/components/schemas/ProgramomradeMedUtdanninger"
       required:
         - id
         - tiltakstype
@@ -2619,6 +2621,9 @@ components:
         amoKategorisering:
           $ref: "#/components/schemas/AmoKategorisering"
           nullable: true
+        programomradeMedUtdanningerRequest:
+          $ref: "#/components/schemas/ProgramomradeMedUtdanningerRequest"
+          nullable: true
       required:
         - id
         - tiltakstypeId
@@ -2642,6 +2647,7 @@ components:
         - estimertVentetid
         - tilgjengeligForArrangorFraOgMedDato
         - amoKategorisering
+        - programomradeMedUtdanningerRequest
 
     TiltaksgjennomforingStatusDto:
       type: object

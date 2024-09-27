@@ -3,6 +3,8 @@ import {
   AvtaleDto,
   NavAnsatt,
   Opphav,
+  ProgramomradeMedUtdanninger,
+  ProgramomradeMedUtdanningerRequest,
   TiltaksgjennomforingDto,
   TiltaksgjennomforingOppstartstype,
   Tiltakskode,
@@ -115,5 +117,19 @@ export function defaultTiltaksgjennomforingData(
       tiltaksgjennomforing?.tilgjengeligForArrangorFraOgMedDato ?? null,
     amoKategorisering:
       tiltaksgjennomforing?.amoKategorisering ?? avtale.amoKategorisering ?? undefined,
+    programomradeOgUtdanninger:
+      mapToProgramomradeOgUtdanninger(tiltaksgjennomforing?.programomradeMedUtdanninger) ??
+      undefined,
   };
+
+  function mapToProgramomradeOgUtdanninger(
+    data?: ProgramomradeMedUtdanninger,
+  ): ProgramomradeMedUtdanningerRequest | undefined {
+    return data
+      ? {
+          programomradeId: data.programomrade.id,
+          utdanningsIder: data.utdanninger.map((utdanning) => utdanning.id),
+        }
+      : undefined;
+  }
 }

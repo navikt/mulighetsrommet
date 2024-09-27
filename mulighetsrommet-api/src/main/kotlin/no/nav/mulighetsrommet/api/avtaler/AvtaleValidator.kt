@@ -248,6 +248,25 @@ class AvtaleValidator(
                 )
             }
 
+            if (avtale.programomradeOgUtdanningerRequest?.programomradeId != currentAvtale.programomradeMedUtdanninger?.programomrade?.id) {
+                add(
+                    ValidationError.ofCustomLocation(
+                        "programomrade",
+                        "Programområde kan ikke endres fordi det finnes gjennomføringer for avtalen",
+                    ),
+                )
+            }
+
+            val currentUtdanningsIder = currentAvtale.programomradeMedUtdanninger?.utdanninger?.map { it.id } ?: emptyList()
+            if (avtale.programomradeOgUtdanningerRequest?.utdanningsIder != null && avtale.programomradeOgUtdanningerRequest.utdanningsIder.toSet() != currentUtdanningsIder.toSet()) {
+                add(
+                    ValidationError.ofCustomLocation(
+                        "utdanninger",
+                        "Sluttkompetanser kan ikke endres fordi det finnes gjennomføringer for avtalen",
+                    ),
+                )
+            }
+
             gjennomforinger.forEach { gjennomforing ->
                 val arrangorId = gjennomforing.arrangor.id
                 if (arrangorId !in avtale.arrangorUnderenheter) {
