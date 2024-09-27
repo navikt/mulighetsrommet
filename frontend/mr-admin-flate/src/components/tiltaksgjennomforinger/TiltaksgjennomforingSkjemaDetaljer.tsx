@@ -22,6 +22,7 @@ import {
   TiltaksgjennomforingKontaktperson,
   TiltaksgjennomforingOppstartstype,
   Tiltakskode,
+  Toggles,
 } from "@mr/api-client";
 import { ControlledSokeSelect } from "@mr/frontend-common";
 import { useEffect, useRef } from "react";
@@ -44,6 +45,8 @@ import { SkjemaKolonne } from "@/components/skjema/SkjemaKolonne";
 import { VertikalSeparator } from "@/components/skjema/VertikalSeparator";
 import { KontaktpersonButton } from "@/components/kontaktperson/KontaktpersonButton";
 import { isKursTiltak } from "@mr/frontend-common/utils/utils";
+import { useFeatureToggle } from "../../api/features/useFeatureToggle";
+import { TiltaksgjennomforingUtdanningskategorierSkjema } from "../utdanning/TiltaksgjennomforingUtdanningskategorierSkjema";
 
 interface Props {
   tiltaksgjennomforing?: TiltaksgjennomforingDto;
@@ -66,6 +69,9 @@ export function TiltaksgjennomforingSkjemaDetaljer({ tiltaksgjennomforing, avtal
   const { data: migrerteTiltakstyper = [] } = useMigrerteTiltakstyper();
   const { data: deltakerSummary } = useTiltaksgjennomforingDeltakerSummary(
     tiltaksgjennomforing?.id,
+  );
+  const { data: enableUtdanningskategorier } = useFeatureToggle(
+    Toggles.MULIGHETSROMMET_ADMIN_FLATE_ENABLE_UTDANNINGSKATEGORIER,
   );
 
   const endreStartDatoModalRef = useRef<HTMLDialogElement>(null);
@@ -200,6 +206,10 @@ export function TiltaksgjennomforingSkjemaDetaljer({ tiltaksgjennomforing, avtal
             ) : null}
             {avtale.tiltakstype.tiltakskode === Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING ? (
               <TiltaksgjennomforingAmoKategoriseringSkjema avtale={avtale} />
+            ) : null}
+            {enableUtdanningskategorier &&
+            avtale.tiltakstype.tiltakskode === Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING ? (
+              <TiltaksgjennomforingUtdanningskategorierSkjema avtale={avtale} />
             ) : null}
           </FormGroup>
 

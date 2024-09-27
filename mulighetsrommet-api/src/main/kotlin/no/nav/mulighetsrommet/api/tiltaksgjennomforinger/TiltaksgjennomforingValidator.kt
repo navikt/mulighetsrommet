@@ -14,18 +14,21 @@ import no.nav.mulighetsrommet.api.repositories.ArrangorRepository
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.services.TiltakstypeService
+import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.Tiltakskoder.isKursTiltak
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dto.AvtaleStatus
 import no.nav.mulighetsrommet.domain.dto.Avtaletype
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus
+import no.nav.mulighetsrommet.unleash.UnleashService
 import java.time.LocalDate
 
 class TiltaksgjennomforingValidator(
     private val tiltakstyper: TiltakstypeService,
     private val avtaler: AvtaleRepository,
     private val arrangorer: ArrangorRepository,
+    private val unleashService: UnleashService,
 ) {
     private val maksAntallTegnStedForGjennomforing = 100
 
@@ -135,6 +138,17 @@ class TiltaksgjennomforingValidator(
                 add(ValidationError.ofCustomLocation("faneinnhold.kurstittel", "Du må skrive en kurstittel"))
             }
 
+            if (unleashService.isEnabled("mulighetsrommet.admin-flate.enable-utdanningskategorier")) {
+                if (avtale.tiltakstype.tiltakskode == Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING) {
+                    if (next.programomradeOgUtdanningerRequest == null) {
+                        add(ValidationError.ofCustomLocation("programomrade", "Du må velge programområde og sluttkompetanse"))
+                    }
+
+                    if (next.programomradeOgUtdanningerRequest != null && next.programomradeOgUtdanningerRequest?.utdanningsIder?.size != 1) {
+                        add(ValidationError.ofCustomLocation("utdanninger", "Du må velge én sluttkompetanse for gjennomføringen"))
+                    }
+                }
+            }
             next = validateOrResetTilgjengeligForArrangorDato(next)
 
             if (previous == null) {

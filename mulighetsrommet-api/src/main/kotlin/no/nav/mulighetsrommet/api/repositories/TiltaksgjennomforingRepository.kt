@@ -168,6 +168,22 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             where tiltaksgjennomforing_id = ?::uuid and not (arrangor_kontaktperson_id = any (?))
         """.trimIndent()
 
+        @Language("PostgreSQL")
+        val deleteProgramomradeAndUtdanninger = """
+            delete from utdanning_programomrade_tiltaksgjennomforing
+            where tiltaksgjennomforing_id = ?::uuid
+        """.trimIndent()
+
+        @Language("PostgreSQL")
+        val upsertProgramomradeAndUtdanninger = """
+            insert into utdanning_programomrade_tiltaksgjennomforing(
+                tiltaksgjennomforing_id,
+                utdanning_id,
+                programomrade_id
+            )
+            values(:tiltaksgjennomforing_id::uuid, :utdanning_id::uuid, :programomrade_id::uuid)
+        """.trimIndent()
+
         tx.run(queryOf(query, tiltaksgjennomforing.toSqlParameters()).asExecute)
 
         tiltaksgjennomforing.administratorer.forEach { administrator ->
@@ -249,6 +265,23 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         )
 
         AmoKategoriseringRepository.upsert(tiltaksgjennomforing, tx)
+
+        tx.run(queryOf(deleteProgramomradeAndUtdanninger, tiltaksgjennomforing.id).asExecute)
+        tiltaksgjennomforing.programomradeOgUtdanningerRequest?.let { programomradeOgUtdanninger ->
+            val programomradeId = programomradeOgUtdanninger.programomradeId
+            programomradeOgUtdanninger.utdanningsIder.forEach {
+                tx.run(
+                    queryOf(
+                        upsertProgramomradeAndUtdanninger,
+                        mapOf(
+                            "tiltaksgjennomforing_id" to tiltaksgjennomforing.id,
+                            "programomrade_id" to programomradeId,
+                            "utdanning_id" to it,
+                        ),
+                    ).asExecute,
+                )
+            }
+        }
     }
 
     fun upsertArenaTiltaksgjennomforing(tiltaksgjennomforing: ArenaTiltaksgjennomforingDbo) {
@@ -457,7 +490,10 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         }
     }
 
-    fun getGjennomforesInPeriodeUtenRefusjonskrav(periodeStart: LocalDate, periodeSlutt: LocalDate): List<TiltaksgjennomforingDto> {
+    fun getGjennomforesInPeriodeUtenRefusjonskrav(
+        periodeStart: LocalDate,
+        periodeSlutt: LocalDate,
+    ): List<TiltaksgjennomforingDto> {
         @Language("PostgreSQL")
         val query = """
             select * from tiltaksgjennomforing_admin_dto_view
@@ -819,6 +855,10 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         val avbruttTidspunkt = localDateTimeOrNull("avbrutt_tidspunkt")
         val avbruttAarsak = stringOrNull("avbrutt_aarsak")?.let { AvbruttAarsak.fromString(it) }
 
+        val programomradeMedUtdanninger = stringOrNull("programomrade_og_utdanninger_json")?.let {
+            JsonIgnoreUnknownKeys.decodeFromString<ProgramomradeMedUtdanninger>(it)
+        }
+
         return TiltaksgjennomforingDto(
             id = uuid("id"),
             navn = string("navn"),
@@ -885,6 +925,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             ),
             tilgjengeligForArrangorFraOgMedDato = localDateOrNull("tilgjengelig_for_arrangor_fra_og_med_dato"),
             amoKategorisering = stringOrNull("amo_kategorisering_json")?.let { JsonIgnoreUnknownKeys.decodeFromString(it) },
+            programomradeMedUtdanninger = programomradeMedUtdanninger,
         )
     }
 

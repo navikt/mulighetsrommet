@@ -11,6 +11,7 @@ import {
   EmbeddedTiltakstype,
   NavAnsatt,
   NavEnhet,
+  Tiltakskode,
   TiltakstypeDto,
   ValidationErrorResponse,
 } from "@mr/api-client";
@@ -94,12 +95,14 @@ export function AvtaleSkjemaContainer({
         opsjonsmodell: data?.opsjonsmodellData?.opsjonsmodell || null,
         customOpsjonsmodellNavn: data?.opsjonsmodellData?.customOpsjonsmodellNavn || null,
       },
-      programomradeMedUtdanningerRequest: data.programomradeOgUtdanninger
-        ? {
-            programomradeId: data.programomradeOgUtdanninger?.programomradeId,
-            utdanningsIder: data.programomradeOgUtdanninger?.utdanningsIder || [],
-          }
-        : null,
+      programomradeMedUtdanningerRequest:
+        data.programomradeOgUtdanninger?.programomradeId &&
+        data.tiltakstype.tiltakskode === Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING
+          ? {
+              programomradeId: data.programomradeOgUtdanninger?.programomradeId,
+              utdanningsIder: data.programomradeOgUtdanninger?.utdanningsIder || [],
+            }
+          : null,
     };
 
     mutation.mutate(requestBody);

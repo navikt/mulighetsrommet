@@ -9,6 +9,7 @@ import io.ktor.server.util.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.domain.dto.FrikobleKontaktpersonRequest
 import no.nav.mulighetsrommet.api.domain.dto.OpsjonLoggEntry
+import no.nav.mulighetsrommet.api.domain.dto.ProgramomradeMedUtdanningerRequestDto
 import no.nav.mulighetsrommet.api.parameters.getPaginationParams
 import no.nav.mulighetsrommet.api.plugins.AuthProvider
 import no.nav.mulighetsrommet.api.plugins.authenticate
@@ -55,7 +56,7 @@ data class AvtaleRequest(
     val personvernBekreftet: Boolean,
     val amoKategorisering: AmoKategorisering?,
     val opsjonsmodellData: OpsjonsmodellData?,
-    val programomradeMedUtdanningerRequest: ProgramomradeMedUtdanningerRequest?,
+    val programomradeMedUtdanningerRequest: ProgramomradeMedUtdanningerRequestDto?,
 )
 
 @Serializable
@@ -99,16 +100,6 @@ data class SlettOpsjonLoggRequest(
     val id: UUID,
     @Serializable(with = UUIDSerializer::class)
     val avtaleId: UUID,
-)
-
-@Serializable
-data class ProgramomradeMedUtdanningerRequest(
-    @Serializable(with = UUIDSerializer::class)
-    val programomradeId: UUID,
-    val utdanningsIder: List<
-        @Serializable(with = UUIDSerializer::class)
-        UUID,
-        >,
 )
 
 fun Route.avtaleRoutes() {

@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.fixtures
 
 import no.nav.mulighetsrommet.api.domain.dbo.AvtaleDbo
+import no.nav.mulighetsrommet.api.domain.dto.ProgramomradeMedUtdanningerRequestDto
 import no.nav.mulighetsrommet.api.routes.v1.AvtaleRequest
 import no.nav.mulighetsrommet.api.routes.v1.Opsjonsmodell
 import no.nav.mulighetsrommet.api.routes.v1.OpsjonsmodellData
@@ -91,6 +92,36 @@ object AvtaleFixtures {
         opsjonsmodell = Opsjonsmodell.TO_PLUSS_EN,
         customOpsjonsmodellNavn = null,
         programomradeOgUtdanningerRequest = null,
+    )
+
+    val gruppeFagYrke = AvtaleDbo(
+        id = UUID.randomUUID(),
+        navn = "Gruppe Amo",
+        avtalenummer = "2024#8",
+        websaknummer = Websaknummer("24/1234"),
+        tiltakstypeId = TiltakstypeFixtures.GruppeFagOgYrkesopplaering.id,
+        arrangorId = ArrangorFixtures.hovedenhet.id,
+        arrangorUnderenheter = listOf(ArrangorFixtures.underenhet1.id),
+        arrangorKontaktpersoner = emptyList(),
+        startDato = LocalDate.of(2023, 1, 1),
+        sluttDato = LocalDate.now().plusMonths(3),
+        avtaletype = Avtaletype.OffentligOffentlig,
+        prisbetingelser = "Alt er dyrt",
+        administratorer = listOf(NavIdent("DD1")),
+        navEnheter = listOf("0400", "0502"),
+        antallPlasser = null,
+        beskrivelse = null,
+        faneinnhold = Faneinnhold(kurstittel = "Min kurstittel"),
+        personopplysninger = emptyList(),
+        personvernBekreftet = false,
+        amoKategorisering = null,
+        opsjonMaksVarighet = LocalDate.now().plusYears(3),
+        opsjonsmodell = Opsjonsmodell.TO_PLUSS_EN,
+        customOpsjonsmodellNavn = null,
+        programomradeOgUtdanningerRequest = ProgramomradeMedUtdanningerRequestDto(
+            programomradeId = UUID.randomUUID(),
+            utdanningsIder = emptyList(),
+        ),
     )
 
     val IPS = AvtaleDbo(

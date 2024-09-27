@@ -9,10 +9,15 @@ import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
+import io.mockk.coEvery
+import io.mockk.mockk
+import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
+import no.nav.mulighetsrommet.api.clients.utdanning.Utdanning
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
+import no.nav.mulighetsrommet.api.domain.dto.ProgramomradeMedUtdanningerRequestDto
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.repositories.ArrangorRepository
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
@@ -21,16 +26,21 @@ import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.services.TiltakstypeService
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
+import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dto.AvbruttAarsak
+import no.nav.mulighetsrommet.unleash.UnleashService
+import org.intellij.lang.annotations.Language
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 
 class TiltaksgjennomforingValidatorTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
+    val unleash: UnleashService = mockk(relaxed = true)
+    coEvery { unleash.isEnabled(any()) } returns true
 
     val avtaleStartDato = LocalDate.now()
     val avtaleSluttDato = LocalDate.now().plusMonths(1)
@@ -96,6 +106,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
             TiltakstypeFixtures.Jobbklubb,
             TiltakstypeFixtures.GruppeAmo,
             TiltakstypeFixtures.Oppfolging,
+            TiltakstypeFixtures.GruppeFagOgYrkesopplaering,
         ),
         avtaler = listOf(
             avtale,
@@ -105,6 +116,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
             AvtaleFixtures.jobbklubb,
             AvtaleFixtures.VTA,
             AvtaleFixtures.AFT,
+            AvtaleFixtures.gruppeFagYrke,
         ),
     )
 
@@ -126,9 +138,13 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
         arrangorer = ArrangorRepository(database.db)
     }
 
+    afterTest {
+        database.db.truncateAll()
+    }
+
     test("should fail when tiltakstype is not enabled") {
         tiltakstyper = TiltakstypeService(TiltakstypeRepository(database.db), emptyList())
-        val validator = TiltaksgjennomforingValidator(tiltakstyper, avtaler, arrangorer)
+        val validator = TiltaksgjennomforingValidator(tiltakstyper, avtaler, arrangorer, unleash)
 
         validator.validate(gjennomforing, null).shouldBeLeft().shouldContainExactlyInAnyOrder(
             ValidationError(
@@ -141,7 +157,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
     test("should fail when avtale does not exist") {
         val unknownAvtaleId = UUID.randomUUID()
 
-        val validator = TiltaksgjennomforingValidator(tiltakstyper, avtaler, arrangorer)
+        val validator = TiltaksgjennomforingValidator(tiltakstyper, avtaler, arrangorer, unleash)
 
         val dbo = gjennomforing.copy(avtaleId = unknownAvtaleId)
 
@@ -153,7 +169,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
     test("should fail when tiltakstype does not match with avtale") {
         avtaler.upsert(avtale.copy(tiltakstypeId = TiltakstypeFixtures.AFT.id))
 
-        val validator = TiltaksgjennomforingValidator(tiltakstyper, avtaler, arrangorer)
+        val validator = TiltaksgjennomforingValidator(tiltakstyper, avtaler, arrangorer, unleash)
 
         validator.validate(gjennomforing, null).shouldBeLeft().shouldContainExactlyInAnyOrder(
             ValidationError("tiltakstypeId", "Tiltakstypen må være den samme som for avtalen"),
@@ -161,7 +177,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
     }
 
     test("should fail when tiltakstype does not support change of oppstartstype") {
-        val validator = TiltaksgjennomforingValidator(tiltakstyper, avtaler, arrangorer)
+        val validator = TiltaksgjennomforingValidator(tiltakstyper, avtaler, arrangorer, unleash)
 
         validator.validate(gjennomforing.copy(oppstart = TiltaksgjennomforingOppstartstype.FELLES), null)
             .shouldBeLeft()
@@ -174,7 +190,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
 
         avtaler.avbryt(id, LocalDateTime.now(), AvbruttAarsak.BudsjettHensyn)
 
-        val validator = TiltaksgjennomforingValidator(tiltakstyper, avtaler, arrangorer)
+        val validator = TiltaksgjennomforingValidator(tiltakstyper, avtaler, arrangorer, unleash)
         val dbo = gjennomforing.copy(avtaleId = id)
 
         validator.validate(dbo, null).shouldBeLeft(
@@ -192,7 +208,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
     }
 
     test("kan ikke opprette før Avtale startDato") {
-        val validator = TiltaksgjennomforingValidator(tiltakstyper, avtaler, arrangorer)
+        val validator = TiltaksgjennomforingValidator(tiltakstyper, avtaler, arrangorer, unleash)
         val dbo = gjennomforing.copy(
             startDato = avtale.startDato.minusDays(1),
         )
@@ -207,7 +223,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
         val dbo = gjennomforing.copy(startDato = startDato)
         tiltaksgjennomforinger.upsert(dbo)
 
-        val validator = TiltaksgjennomforingValidator(tiltakstyper, avtaler, arrangorer)
+        val validator = TiltaksgjennomforingValidator(tiltakstyper, avtaler, arrangorer, unleash)
 
         val beforeAllowedDato = startDato.minusMonths(3)
         validator.validate(gjennomforing.copy(tilgjengeligForArrangorFraOgMedDato = beforeAllowedDato), null)
@@ -233,6 +249,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
             TiltakstypeService(TiltakstypeRepository(database.db), Tiltakskode.entries),
             avtaler,
             arrangorer,
+            unleash,
         )
         val forhaandsgodkjent = TiltaksgjennomforingFixtures.AFT1.copy(sluttDato = null)
         val rammeAvtale = TiltaksgjennomforingFixtures.Oppfolging1.copy(sluttDato = null)
@@ -259,6 +276,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
             TiltakstypeService(TiltakstypeRepository(database.db), Tiltakskode.entries),
             avtaler,
             arrangorer,
+            unleash,
         )
         val jobbklubb = TiltaksgjennomforingFixtures.Jobbklubb1.copy(faneinnhold = null)
         val gruppeAmo = TiltaksgjennomforingFixtures.GruppeAmo1.copy(faneinnhold = null)
@@ -273,10 +291,158 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
         validator.validate(oppfolging, null).shouldBeRight()
     }
 
+    test("Programområde og én sluttkompetanse er påkrevd hvis tiltakstypen er Gruppe Fag- og yrkesopplæring") {
+        val validator = TiltaksgjennomforingValidator(
+            TiltakstypeService(TiltakstypeRepository(database.db), Tiltakskode.entries),
+            avtaler,
+            arrangorer,
+            unleash,
+        )
+        val gruppeFagYrke = TiltaksgjennomforingFixtures.GruppeFagYrke1.copy(programomradeOgUtdanningerRequest = null)
+
+        validator.validate(gruppeFagYrke, null).shouldBeLeft(
+            listOf(ValidationError("programomrade", "Du må velge programområde og sluttkompetanse")),
+        )
+    }
+
+    test("Skal feile hvis mer enn én sluttkompetanse er valgt hvis tiltakstypen er Gruppe Fag- og yrkesopplæring") {
+        val programomradeId = UUID.randomUUID()
+        val programomradeKode = "BABAT1----"
+
+        val utdanningId = UUID.randomUUID()
+
+        @Language("PostgreSQL")
+        val insertProgramomrade = """
+                insert into utdanning_programomrade(id, navn, nus_koder, programomradekode, utdanningsprogram)
+                values(:id::uuid, :navn, :nusKoder, :programomradekode, :utdanningsprogram::utdanning_program)
+        """.trimIndent()
+
+        queryOf(
+            insertProgramomrade,
+            mapOf(
+                "id" to programomradeId,
+                "navn" to "Vg1 Bygg og anlegg",
+                "nusKoder" to database.db.createTextArray(listOf("3571")),
+                "programomradekode" to programomradeKode,
+                "utdanningsprogram" to Utdanning.Utdanningsprogram.YRKESFAGLIG.name,
+            ),
+        ).asExecute.let { database.db.run(it) }
+
+        @Language("PostgreSQL")
+        val insertUtdanninger = """
+                insert into utdanning(utdanning_id, programomradekode, navn, utdanningsprogram, sluttkompetanse, aktiv, utdanningstatus, utdanningslop, programlop_start)
+                values(:utdanning_id, :programomradekode, :navn, :utdanningsprogram::utdanning_program, :sluttkompetanse::utdanning_sluttkompetanse, :aktiv, :utdanningstatus::utdanning_status, :utdanningslop, :programlop_start::uuid)
+        """.trimIndent()
+
+        queryOf(
+            insertUtdanninger,
+            mapOf(
+                "utdanning_id" to "u_banemontorfag",
+                "programomradekode" to "BABAN3----",
+                "navn" to "Banemontørfaget (opplæring i bedrift)",
+                "utdanningsprogram" to Utdanning.Utdanningsprogram.YRKESFAGLIG.name,
+                "sluttkompetanse" to Utdanning.Sluttkompetanse.Fagbrev.name,
+                "aktiv" to true,
+                "utdanningstatus" to Utdanning.Utdanningstatus.GYLDIG.name,
+                "utdanningslop" to database.db.createTextArray(
+                    listOf(
+                        "BABAT1----",
+                        "BAANL2----",
+                        "BABAN3----",
+                    ),
+                ),
+                "programlopStart" to programomradeId,
+            ),
+        ).asExecute.let { database.db.run(it) }
+
+        val validator = TiltaksgjennomforingValidator(
+            TiltakstypeService(TiltakstypeRepository(database.db), Tiltakskode.entries),
+            avtaler,
+            arrangorer,
+            unleash,
+        )
+        val gruppeFagYrke = TiltaksgjennomforingFixtures.GruppeFagYrke1.copy(
+            programomradeOgUtdanningerRequest = ProgramomradeMedUtdanningerRequestDto(
+                programomradeId = programomradeId,
+                utdanningsIder = listOf(utdanningId, UUID.randomUUID()),
+            ),
+        )
+
+        validator.validate(gruppeFagYrke, null).shouldBeLeft(
+            listOf(ValidationError("utdanninger", "Du må velge én sluttkompetanse for gjennomføringen")),
+        )
+    }
+
+    test("Kun én sluttkompetanse skal velges for gjennomføring hvis tiltakstypen er Gruppe Fag- og yrkesopplæring") {
+        val programomradeId = UUID.randomUUID()
+        val programomradeKode = "BABAT1----"
+
+        val utdanningId = UUID.randomUUID()
+
+        @Language("PostgreSQL")
+        val insertProgramomrade = """
+                insert into utdanning_programomrade(id, navn, nus_koder, programomradekode, utdanningsprogram)
+                values(:id::uuid, :navn, :nusKoder, :programomradekode, :utdanningsprogram::utdanning_program)
+        """.trimIndent()
+
+        queryOf(
+            insertProgramomrade,
+            mapOf(
+                "id" to programomradeId,
+                "navn" to "Vg1 Bygg og anlegg",
+                "nusKoder" to database.db.createTextArray(listOf("3571")),
+                "programomradekode" to programomradeKode,
+                "utdanningsprogram" to Utdanning.Utdanningsprogram.YRKESFAGLIG.name,
+            ),
+        ).asExecute.let { database.db.run(it) }
+
+        @Language("PostgreSQL")
+        val insertUtdanninger = """
+                insert into utdanning(utdanning_id, programomradekode, navn, utdanningsprogram, sluttkompetanse, aktiv, utdanningstatus, utdanningslop, programlop_start)
+                values(:utdanning_id, :programomradekode, :navn, :utdanningsprogram::utdanning_program, :sluttkompetanse::utdanning_sluttkompetanse, :aktiv, :utdanningstatus::utdanning_status, :utdanningslop, :programlop_start::uuid)
+        """.trimIndent()
+
+        queryOf(
+            insertUtdanninger,
+            mapOf(
+                "utdanning_id" to "u_banemontorfag",
+                "programomradekode" to "BABAN3----",
+                "navn" to "Banemontørfaget (opplæring i bedrift)",
+                "utdanningsprogram" to Utdanning.Utdanningsprogram.YRKESFAGLIG.name,
+                "sluttkompetanse" to Utdanning.Sluttkompetanse.Fagbrev.name,
+                "aktiv" to true,
+                "utdanningstatus" to Utdanning.Utdanningstatus.GYLDIG.name,
+                "utdanningslop" to database.db.createTextArray(
+                    listOf(
+                        "BABAT1----",
+                        "BAANL2----",
+                        "BABAN3----",
+                    ),
+                ),
+                "programlopStart" to programomradeId,
+            ),
+        ).asExecute.let { database.db.run(it) }
+
+        val validator = TiltaksgjennomforingValidator(
+            TiltakstypeService(TiltakstypeRepository(database.db), Tiltakskode.entries),
+            avtaler,
+            arrangorer,
+            unleash,
+        )
+        val gruppeFagYrke = TiltaksgjennomforingFixtures.GruppeFagYrke1.copy(
+            programomradeOgUtdanningerRequest = ProgramomradeMedUtdanningerRequestDto(
+                programomradeId = programomradeId,
+                utdanningsIder = listOf(utdanningId),
+            ),
+        )
+
+        validator.validate(gruppeFagYrke, null).shouldBeRight()
+    }
+
     test("arrangøren må være aktiv i Brreg") {
         arrangorer.upsert(ArrangorFixtures.underenhet1.copy(slettetDato = LocalDate.of(2024, 1, 1)))
 
-        val validator = TiltaksgjennomforingValidator(tiltakstyper, avtaler, arrangorer)
+        val validator = TiltaksgjennomforingValidator(tiltakstyper, avtaler, arrangorer, unleash)
 
         validator.validate(gjennomforing, null).shouldBeLeft().shouldContainExactlyInAnyOrder(
             ValidationError(
@@ -287,7 +453,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
     }
 
     test("should validate fields in the gjennomføring and fields related to the avtale") {
-        val validator = TiltaksgjennomforingValidator(tiltakstyper, avtaler, arrangorer)
+        val validator = TiltaksgjennomforingValidator(tiltakstyper, avtaler, arrangorer, unleash)
 
         forAll(
             row(
@@ -348,6 +514,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
                 TiltakstypeService(TiltakstypeRepository(database.db), listOf()),
                 avtaler,
                 arrangorer,
+                unleash,
             )
 
             val current = tiltaksgjennomforinger.get(gjennomforing.id)
@@ -364,13 +531,13 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
         }
 
         test("Skal godta endringer for antall plasser selv om gjennomføringen er aktiv") {
-            val validator = TiltaksgjennomforingValidator(tiltakstyper, avtaler, arrangorer)
+            val validator = TiltaksgjennomforingValidator(tiltakstyper, avtaler, arrangorer, unleash)
             val previous = tiltaksgjennomforinger.get(gjennomforing.id)
             validator.validate(gjennomforing.copy(antallPlasser = 15), previous).shouldBeRight()
         }
 
         test("Skal godta endringer for startdato selv om gjennomføringen er aktiv, men startdato skal ikke kunne settes til før avtaledatoen") {
-            val validator = TiltaksgjennomforingValidator(tiltakstyper, avtaler, arrangorer)
+            val validator = TiltaksgjennomforingValidator(tiltakstyper, avtaler, arrangorer, unleash)
             val previous = tiltaksgjennomforinger.get(gjennomforing.id)
             validator.validate(gjennomforing.copy(startDato = LocalDate.now().plusDays(5)), previous).shouldBeRight()
             validator.validate(gjennomforing.copy(startDato = avtaleStartDato.minusDays(1)), previous).shouldBeLeft(
@@ -381,7 +548,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
         }
 
         test("Skal godta endringer for sluttdato frem i tid selv om gjennomføringen er aktiv") {
-            val validator = TiltaksgjennomforingValidator(tiltakstyper, avtaler, arrangorer)
+            val validator = TiltaksgjennomforingValidator(tiltakstyper, avtaler, arrangorer, unleash)
             val previous = tiltaksgjennomforinger.get(gjennomforing.id)
             avtaler.upsert(avtale.copy(startDato = LocalDate.now().minusDays(3)))
             validator.validate(gjennomforing.copy(sluttDato = avtaleSluttDato.plusDays(5)), previous).shouldBeRight()
@@ -404,7 +571,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
         test("skal godta endringer selv om avtale er avbrutt") {
             avtaler.avbryt(avtale.id, LocalDateTime.now(), AvbruttAarsak.BudsjettHensyn)
 
-            val validator = TiltaksgjennomforingValidator(tiltakstyper, avtaler, arrangorer)
+            val validator = TiltaksgjennomforingValidator(tiltakstyper, avtaler, arrangorer, unleash)
 
             val previous = tiltaksgjennomforinger.get(gjennomforing.id)
             validator.validate(gjennomforing, previous).shouldBeRight()
@@ -413,7 +580,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
         test("should fail when is avbrutt") {
             tiltaksgjennomforinger.avbryt(gjennomforing.id, LocalDateTime.now(), AvbruttAarsak.Feilregistrering)
 
-            val validator = TiltaksgjennomforingValidator(tiltakstyper, avtaler, arrangorer)
+            val validator = TiltaksgjennomforingValidator(tiltakstyper, avtaler, arrangorer, unleash)
 
             val previous = tiltaksgjennomforinger.get(gjennomforing.id)
             validator.validate(gjennomforing, previous).shouldBeLeft().shouldContainExactlyInAnyOrder(
@@ -424,7 +591,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
         test("should fail when is avsluttet") {
             tiltaksgjennomforinger.upsert(gjennomforing.copy(sluttDato = LocalDate.now().minusDays(2)))
 
-            val validator = TiltaksgjennomforingValidator(tiltakstyper, avtaler, arrangorer)
+            val validator = TiltaksgjennomforingValidator(tiltakstyper, avtaler, arrangorer, unleash)
 
             val previous = tiltaksgjennomforinger.get(gjennomforing.id)
             validator.validate(gjennomforing, previous).shouldBeLeft().shouldContainExactlyInAnyOrder(

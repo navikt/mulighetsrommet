@@ -25,6 +25,7 @@ import { DetaljerContainer } from "@/pages/DetaljerContainer";
 import { DetaljerInfoContainer } from "@/pages/DetaljerInfoContainer";
 import { ArrangorKontaktinfoContainer } from "@/pages/arrangor/ArrangorKontaktinfoContainer";
 import { isKursTiltak } from "@mr/frontend-common/utils/utils";
+import { ProgramomradeOgUtdanningerDetaljer } from "../../components/utdanning/ProgramomradeOgUtdanningerDetaljer";
 
 interface Props {
   tiltaksgjennomforing: TiltaksgjennomforingDto;
@@ -72,6 +73,7 @@ export function TiltaksgjennomforingDetaljer({ tiltaksgjennomforing, avtale }: P
     arrangor,
     stedForGjennomforing,
     amoKategorisering,
+    programomradeMedUtdanninger,
   } = tiltaksgjennomforing;
 
   return (
@@ -115,6 +117,11 @@ export function TiltaksgjennomforingDetaljer({ tiltaksgjennomforing, avtale }: P
               <AmoKategoriseringDetaljer amoKategorisering={amoKategorisering} />
               <Separator />
             </>
+          )}
+          {programomradeMedUtdanninger && (
+            <ProgramomradeOgUtdanningerDetaljer
+              programomradeMedUtdanninger={programomradeMedUtdanninger}
+            />
           )}
           <Bolk aria-label={tiltaktekster.oppstartstypeLabel}>
             <Metadata

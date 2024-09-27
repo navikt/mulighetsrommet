@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.fixtures
 
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
+import no.nav.mulighetsrommet.api.domain.dto.ProgramomradeMedUtdanningerRequestDto
 import no.nav.mulighetsrommet.api.routes.v1.EstimertVentetid
 import no.nav.mulighetsrommet.api.routes.v1.TiltaksgjennomforingRequest
 import no.nav.mulighetsrommet.domain.dbo.ArenaTiltaksgjennomforingDbo
@@ -53,6 +54,7 @@ object TiltaksgjennomforingFixtures {
         estimertVentetidEnhet = "dag",
         tilgjengeligForArrangorFraOgMedDato = null,
         amoKategorisering = null,
+        programomradeOgUtdanningerRequest = null,
     )
 
     val EnkelAmo1 = TiltaksgjennomforingDbo(
@@ -79,6 +81,7 @@ object TiltaksgjennomforingFixtures {
         estimertVentetidEnhet = "dag",
         tilgjengeligForArrangorFraOgMedDato = null,
         amoKategorisering = null,
+        programomradeOgUtdanningerRequest = null,
     )
 
     val Oppfolging1Request = TiltaksgjennomforingRequest(
@@ -107,6 +110,7 @@ object TiltaksgjennomforingFixtures {
             enhet = "dag",
         ),
         amoKategorisering = null,
+        programomradeMedUtdanningerRequest = null,
     )
 
     val Oppfolging2 = TiltaksgjennomforingDbo(
@@ -133,6 +137,7 @@ object TiltaksgjennomforingFixtures {
         estimertVentetidEnhet = "dag",
         tilgjengeligForArrangorFraOgMedDato = null,
         amoKategorisering = null,
+        programomradeOgUtdanningerRequest = null,
     )
 
     val VTA1 = TiltaksgjennomforingDbo(
@@ -159,6 +164,7 @@ object TiltaksgjennomforingFixtures {
         estimertVentetidEnhet = "dag",
         tilgjengeligForArrangorFraOgMedDato = null,
         amoKategorisering = null,
+        programomradeOgUtdanningerRequest = null,
     )
 
     val AFT1 = TiltaksgjennomforingDbo(
@@ -185,6 +191,7 @@ object TiltaksgjennomforingFixtures {
         estimertVentetidEnhet = "dag",
         tilgjengeligForArrangorFraOgMedDato = null,
         amoKategorisering = null,
+        programomradeOgUtdanningerRequest = null,
     )
 
     val Jobbklubb1 = TiltaksgjennomforingDbo(
@@ -211,6 +218,7 @@ object TiltaksgjennomforingFixtures {
         estimertVentetidEnhet = "dag",
         tilgjengeligForArrangorFraOgMedDato = null,
         amoKategorisering = null,
+        programomradeOgUtdanningerRequest = null,
     )
 
     val GruppeAmo1 = TiltaksgjennomforingDbo(
@@ -237,6 +245,37 @@ object TiltaksgjennomforingFixtures {
         estimertVentetidEnhet = "dag",
         tilgjengeligForArrangorFraOgMedDato = null,
         amoKategorisering = null,
+        programomradeOgUtdanningerRequest = null,
+    )
+
+    val GruppeFagYrke1 = TiltaksgjennomforingDbo(
+        id = UUID.randomUUID(),
+        navn = "Gruppe Fag- og yrkesopplæring 1",
+        tiltakstypeId = TiltakstypeFixtures.GruppeFagOgYrkesopplaering.id,
+        arrangorId = ArrangorFixtures.underenhet1.id,
+        startDato = LocalDate.of(2023, 1, 1),
+        sluttDato = LocalDate.of(2023, 2, 1),
+        apentForInnsok = true,
+        antallPlasser = 12,
+        administratorer = listOf(NavIdent("DD1")),
+        navRegion = "0400",
+        navEnheter = listOf("0502"),
+        oppstart = TiltaksgjennomforingOppstartstype.FELLES,
+        kontaktpersoner = emptyList(),
+        arrangorKontaktpersoner = emptyList(),
+        stedForGjennomforing = "Oslo",
+        avtaleId = AvtaleFixtures.gruppeFagYrke.id,
+        faneinnhold = Faneinnhold(kurstittel = "Gruppe fag og yrke 1"),
+        beskrivelse = null,
+        deltidsprosent = 100.0,
+        estimertVentetidVerdi = 3,
+        estimertVentetidEnhet = "dag",
+        tilgjengeligForArrangorFraOgMedDato = null,
+        amoKategorisering = null,
+        programomradeOgUtdanningerRequest = ProgramomradeMedUtdanningerRequestDto(
+            programomradeId = UUID.randomUUID(),
+            utdanningsIder = emptyList(),
+        ),
     )
 
     val IPS1 = TiltaksgjennomforingDbo(
@@ -263,5 +302,6 @@ object TiltaksgjennomforingFixtures {
         estimertVentetidEnhet = "dag",
         tilgjengeligForArrangorFraOgMedDato = null,
         amoKategorisering = null,
+        programomradeOgUtdanningerRequest = null,
     )
 }

@@ -15,12 +15,12 @@ import no.nav.mulighetsrommet.api.domain.dbo.AvtaleDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
 import no.nav.mulighetsrommet.api.domain.dto.OpsjonLoggEntry
+import no.nav.mulighetsrommet.api.domain.dto.ProgramomradeMedUtdanningerRequestDto
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.repositories.*
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.routes.v1.OpsjonLoggRequest
 import no.nav.mulighetsrommet.api.routes.v1.Opsjonsmodell
-import no.nav.mulighetsrommet.api.routes.v1.ProgramomradeMedUtdanningerRequest
 import no.nav.mulighetsrommet.api.services.EndringshistorikkService
 import no.nav.mulighetsrommet.api.services.NavEnhetService
 import no.nav.mulighetsrommet.api.services.OpsjonLoggService
@@ -780,7 +780,7 @@ class AvtaleValidatorTest : FunSpec({
                 opsjonMaksVarighet = LocalDate.of(2024, 5, 7).plusYears(3),
                 opsjonsmodell = Opsjonsmodell.TO_PLUSS_EN,
                 customOpsjonsmodellNavn = null,
-                programomradeOgUtdanningerRequest = ProgramomradeMedUtdanningerRequest(
+                programomradeOgUtdanningerRequest = ProgramomradeMedUtdanningerRequestDto(
                     programomradeId = programomradeId,
                     utdanningsIder = emptyList(),
                 ),

@@ -11,6 +11,7 @@ import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingKontaktpersonDbo
 import no.nav.mulighetsrommet.api.domain.dto.FrikobleKontaktpersonRequest
+import no.nav.mulighetsrommet.api.domain.dto.ProgramomradeMedUtdanningerRequestDto
 import no.nav.mulighetsrommet.api.parameters.getPaginationParams
 import no.nav.mulighetsrommet.api.plugins.AuthProvider
 import no.nav.mulighetsrommet.api.plugins.authenticate
@@ -280,6 +281,7 @@ data class TiltaksgjennomforingRequest(
     @Serializable(with = LocalDateSerializer::class)
     val tilgjengeligForArrangorFraOgMedDato: LocalDate?,
     val amoKategorisering: AmoKategorisering?,
+    val programomradeMedUtdanningerRequest: ProgramomradeMedUtdanningerRequestDto?,
 ) {
     fun toDbo() = TiltaksgjennomforingDbo(
         id = id,
@@ -311,6 +313,7 @@ data class TiltaksgjennomforingRequest(
         estimertVentetidEnhet = estimertVentetid?.enhet,
         tilgjengeligForArrangorFraOgMedDato = tilgjengeligForArrangorFraOgMedDato,
         amoKategorisering = amoKategorisering,
+        programomradeOgUtdanningerRequest = programomradeMedUtdanningerRequest,
     )
 }
 
