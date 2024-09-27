@@ -1,7 +1,7 @@
 package no.nav.mulighetsrommet.api.fixtures
 
+import no.nav.mulighetsrommet.api.domain.dbo.TiltakstypeDbo
 import no.nav.mulighetsrommet.domain.Tiltakskode
-import no.nav.mulighetsrommet.domain.dbo.TiltakstypeDbo
 import java.time.LocalDate
 import java.util.*
 
@@ -11,7 +11,6 @@ object TiltakstypeFixtures {
         navn = "Arbeidsforberedende trening (AFT)",
         tiltakskode = Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
         arenaKode = "ARBFORB",
-        rettPaaTiltakspenger = true,
         startDato = LocalDate.of(2023, 1, 1),
         sluttDato = null,
     )
@@ -21,7 +20,6 @@ object TiltakstypeFixtures {
         navn = "Varig tilrettelagt arbeid i skjermet virksomhet",
         tiltakskode = Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET,
         arenaKode = "VASV",
-        rettPaaTiltakspenger = false,
         startDato = LocalDate.of(2023, 1, 1),
         sluttDato = null,
     )
@@ -31,7 +29,6 @@ object TiltakstypeFixtures {
         navn = "Arbeidsrettet rehabilitering",
         tiltakskode = Tiltakskode.ARBEIDSRETTET_REHABILITERING,
         arenaKode = "ARBRRHDAG",
-        rettPaaTiltakspenger = false,
         startDato = LocalDate.of(2023, 1, 1),
         sluttDato = null,
     )
@@ -41,7 +38,6 @@ object TiltakstypeFixtures {
         navn = "Gruppe amo",
         tiltakskode = Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
         arenaKode = "GRUPPEAMO",
-        rettPaaTiltakspenger = false,
         startDato = LocalDate.of(2023, 1, 1),
         sluttDato = null,
     )
@@ -51,7 +47,6 @@ object TiltakstypeFixtures {
         navn = "Oppfølging",
         tiltakskode = Tiltakskode.OPPFOLGING,
         arenaKode = "INDOPPFAG",
-        rettPaaTiltakspenger = true,
         startDato = LocalDate.of(2023, 1, 1),
         sluttDato = null,
     )
@@ -61,7 +56,6 @@ object TiltakstypeFixtures {
         navn = "Jobbklubb",
         tiltakskode = Tiltakskode.JOBBKLUBB,
         arenaKode = "JOBBK",
-        rettPaaTiltakspenger = true,
         startDato = LocalDate.of(2023, 1, 1),
         sluttDato = null,
     )
@@ -71,7 +65,6 @@ object TiltakstypeFixtures {
         navn = "Digital oppfølging",
         tiltakskode = Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK,
         arenaKode = "DIGIOPPARB",
-        rettPaaTiltakspenger = true,
         startDato = LocalDate.of(2023, 1, 1),
         sluttDato = null,
     )
@@ -81,7 +74,6 @@ object TiltakstypeFixtures {
         navn = "Avklaring",
         tiltakskode = Tiltakskode.AVKLARING,
         arenaKode = "AVKLARAG",
-        rettPaaTiltakspenger = true,
         startDato = LocalDate.of(2023, 1, 1),
         sluttDato = null,
     )
@@ -91,7 +83,6 @@ object TiltakstypeFixtures {
         navn = "Fag- og yrkesopplæring (Gruppe)",
         tiltakskode = Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
         arenaKode = "GRUFAGYRKE",
-        rettPaaTiltakspenger = true,
         startDato = LocalDate.of(2023, 1, 11),
         sluttDato = null,
     )
@@ -101,7 +92,6 @@ object TiltakstypeFixtures {
         navn = "Arbeidstrening",
         tiltakskode = null,
         arenaKode = "ARBTREN",
-        rettPaaTiltakspenger = true,
         startDato = LocalDate.of(2023, 1, 11),
         sluttDato = null,
     )
@@ -111,7 +101,6 @@ object TiltakstypeFixtures {
         navn = "Enkel AMO",
         tiltakskode = null,
         arenaKode = "ENKELAMO",
-        rettPaaTiltakspenger = true,
         startDato = LocalDate.of(2023, 1, 11),
         sluttDato = null,
     )
@@ -121,7 +110,6 @@ object TiltakstypeFixtures {
         navn = "IPS",
         tiltakskode = null,
         arenaKode = "INDJOBSTOT",
-        rettPaaTiltakspenger = true,
         startDato = LocalDate.of(2023, 1, 11),
         sluttDato = null,
     )

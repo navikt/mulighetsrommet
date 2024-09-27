@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.domain.dbo
+package no.nav.mulighetsrommet.api.domain.dbo
 
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.domain.Tiltakskode
@@ -18,5 +18,4 @@ data class TiltakstypeDbo(
     val startDato: LocalDate,
     @Serializable(with = LocalDateSerializer::class)
     val sluttDato: LocalDate?,
-    val rettPaaTiltakspenger: Boolean,
 )
