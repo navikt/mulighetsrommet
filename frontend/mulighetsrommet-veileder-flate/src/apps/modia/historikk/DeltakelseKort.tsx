@@ -109,6 +109,7 @@ function isUtkast(
 
 function Innhold({ deltakelse }: { deltakelse: Deltakelse }) {
   const { tiltakstypeNavn, status, periode, tittel, innsoktDato } = deltakelse;
+  const aarsak = "aarsak" in status ? status.aarsak : null;
   return (
     <VStack gap="2">
       <HStack gap="10">
@@ -122,7 +123,7 @@ function Innhold({ deltakelse }: { deltakelse: Deltakelse }) {
       ) : null}
       <HStack align={"end"} gap="5">
         <Status status={status.type} visningstekst={status.visningstekst} />
-        {"aarsak" in status ? <BodyShort size="small">Årsak: {status.aarsak}</BodyShort> : null}
+        {aarsak ? <BodyShort size="small">Årsak: {aarsak}</BodyShort> : null}
         {periode?.startDato ? (
           <BodyShort size="small">
             {periode.startDato && !periode.sluttDato
