@@ -20,7 +20,7 @@ import kotlin.jvm.optionals.getOrNull
 class SynchronizeUtdanninger(
     private val db: Database,
     private val utdanningClient: UtdanningClient,
-    private val config: Config,
+    config: Config,
     private val slack: SlackNotifier,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)

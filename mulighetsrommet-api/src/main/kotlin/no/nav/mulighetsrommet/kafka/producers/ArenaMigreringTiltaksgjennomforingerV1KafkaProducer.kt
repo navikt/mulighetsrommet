@@ -28,15 +28,4 @@ class ArenaMigreringTiltaksgjennomforingerV1KafkaProducer(
         logger.info("publish på ${config.topic} id: ${value.id}")
         kafkaProducerClient.sendSync(record)
     }
-
-    fun retract(id: UUID) {
-        val record: ProducerRecord<String, String?> = ProducerRecord(
-            config.topic,
-            id.toString(),
-            null,
-        )
-
-        logger.info("retract på ${config.topic} id: $id")
-        kafkaProducerClient.sendSync(record)
-    }
 }

@@ -217,7 +217,7 @@ fun <T : Any> PipelineContext<T, ApplicationCall>.getAdminTiltaksgjennomforingsF
     val sortering = call.request.queryParameters["sort"]
     val avtaleId = call.request.queryParameters["avtaleId"]?.let { if (it.isEmpty()) null else UUID.fromString(it) }
     val arrangorIds = call.parameters.getAll("arrangorer")?.map { UUID.fromString(it) } ?: emptyList()
-    val publisert = call.request.queryParameters["publisert"]?.let { it.toBoolean() }
+    val publisert = call.request.queryParameters["publisert"]?.toBoolean()
 
     return AdminTiltaksgjennomforingFilter(
         search = search,
