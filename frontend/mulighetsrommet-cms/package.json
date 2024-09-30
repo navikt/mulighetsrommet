@@ -28,7 +28,7 @@
     "styled-components": "6.1.13"
   },
   "devDependencies": {
-    "@types/react": "18.3.8",
-    "sass-embedded": "1.79.3"
+    "@types/react": "18.3.10",
+    "sass-embedded": "1.79.4"
   }
 }
