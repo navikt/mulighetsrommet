@@ -28,7 +28,6 @@ import no.nav.mulighetsrommet.api.services.cms.SanityService
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.domain.dto.Faneinnhold
 import no.nav.mulighetsrommet.domain.dto.Innsatsgruppe
-import no.nav.mulighetsrommet.utils.toUUID
 import java.util.*
 
 class VeilederflateServiceTest : FunSpec({
@@ -72,7 +71,7 @@ class VeilederflateServiceTest : FunSpec({
 
     val sanityTiltak = listOf(
         SanityTiltaksgjennomforing(
-            _id = "6c64a4bd-2ae1-4aee-ad19-716884bf3b5e".toUUID(),
+            _id = "6c64a4bd-2ae1-4aee-ad19-716884bf3b5e",
             tiltaksgjennomforingNavn = "Enkel AMO",
             stedForGjennomforing = null,
             tiltaksnummer = "2023#176408",
@@ -99,7 +98,7 @@ class VeilederflateServiceTest : FunSpec({
             ),
         ),
         SanityTiltaksgjennomforing(
-            _id = "f21d1e35-d63b-4de7-a0a5-589e57111527".toUUID(),
+            _id = "f21d1e35-d63b-4de7-a0a5-589e57111527",
             tiltaksgjennomforingNavn = "Arbeidstrening Innlandet",
             tiltaksnummer = null,
             stedForGjennomforing = "Innlandet",
@@ -112,7 +111,7 @@ class VeilederflateServiceTest : FunSpec({
             enheter = null,
         ),
         SanityTiltaksgjennomforing(
-            _id = "82cebdb9-24ef-4f6d-b6b2-6ed45c67d3b6".toUUID(),
+            _id = "82cebdb9-24ef-4f6d-b6b2-6ed45c67d3b6",
             tiltaksgjennomforingNavn = "Arbeidstrening",
             stedForGjennomforing = null,
             tiltaksnummer = null,

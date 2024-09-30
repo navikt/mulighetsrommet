@@ -34,8 +34,7 @@ data class SanityTiltakstype(
 
 @Serializable
 data class SanityTiltaksgjennomforing(
-    @Serializable(with = UUIDSerializer::class)
-    val _id: UUID,
+    val _id: String,
     val tiltakstype: SanityTiltakstype,
     val tiltaksgjennomforingNavn: String? = null,
     val tiltaksnummer: String? = null,

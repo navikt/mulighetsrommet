@@ -17,6 +17,7 @@ import no.nav.mulighetsrommet.domain.dto.NorskIdent
 import no.nav.mulighetsrommet.domain.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.securelog.SecureLog
+import no.nav.mulighetsrommet.utils.toUUID
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
@@ -192,7 +193,7 @@ class DelMedBrukerService(
 
     private suspend fun getTiltakFraSanity(deltMedBruker: List<DelMedBrukerDbo>): List<TiltakDeltMedBruker> {
         val tiltakFraSanity = sanityService.getAllTiltak(search = null, CacheUsage.UseCache)
-            .filter { it._id in deltMedBruker.map { it.sanityId } }
+            .filter { it._id.toUUID() in deltMedBruker.map { it.sanityId } }
 
         val tiltakstyper = tiltakFraSanity
             .map {
@@ -207,13 +208,13 @@ class DelMedBrukerService(
                 arenaKode,
             )
 
-            deltMedBruker.filter { it.sanityId == tiltak._id }.map {
+            deltMedBruker.filter { it.sanityId == tiltak._id.toUUID() }.map {
                 TiltakDeltMedBruker(
                     tittel = tittel,
                     underTittel = underTittel,
                     createdAt = it.createdAt!!,
                     dialogId = it.dialogId,
-                    tiltakId = tiltak._id,
+                    tiltakId = tiltak._id.toUUID(),
                     tiltakstype = TiltakDeltMedBruker.Tiltakstype(
                         tiltakskode = null,
                         arenakode = arenaKode,

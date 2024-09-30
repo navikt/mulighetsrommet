@@ -13,7 +13,7 @@ import no.nav.mulighetsrommet.api.services.cms.CacheUsage
 import no.nav.mulighetsrommet.api.services.cms.SanityService
 import java.util.*
 
-class CmsClientTest : FunSpec({
+class SanityServiceTest : FunSpec({
     val sanityClient: SanityClient = mockk(relaxed = true)
 
     beforeEach {

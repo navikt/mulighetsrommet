@@ -79,8 +79,7 @@ data class VeilederflateTiltakEnkeltplassAnskaffet(
     override val stedForGjennomforing: String?,
     override val fylke: String,
     override val enheter: List<String>,
-    @Serializable(with = UUIDSerializer::class)
-    val sanityId: UUID,
+    val sanityId: String,
     val tiltaksnummer: String?,
     val arrangor: VeilederflateArrangor,
 ) : VeilederflateTiltak()
@@ -99,8 +98,7 @@ data class VeilederflateTiltakEgenRegi(
     override val stedForGjennomforing: String?,
     override val fylke: String,
     override val enheter: List<String>,
-    @Serializable(with = UUIDSerializer::class)
-    val sanityId: UUID,
+    val sanityId: String,
     val tiltaksnummer: String?,
 ) : VeilederflateTiltak()
 
@@ -118,8 +116,7 @@ data class VeilederflateTiltakEnkeltplass(
     override val stedForGjennomforing: String?,
     override val fylke: String,
     override val enheter: List<String>,
-    @Serializable(with = UUIDSerializer::class)
-    val sanityId: UUID,
+    val sanityId: String,
 ) : VeilederflateTiltak()
 
 @Serializable

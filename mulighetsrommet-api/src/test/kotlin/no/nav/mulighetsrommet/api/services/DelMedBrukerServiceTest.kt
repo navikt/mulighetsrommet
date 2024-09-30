@@ -136,7 +136,7 @@ class DelMedBrukerServiceTest : FunSpec({
                 sanityService.getAllTiltak(any(), any())
             } returns listOf(
                 SanityTiltaksgjennomforing(
-                    _id = sanityGjennomforingIdForEnkeltplass,
+                    _id = sanityGjennomforingIdForEnkeltplass.toString(),
                     tiltaksgjennomforingNavn = "Delt med bruker - Lokalt navn fra Sanity",
                     tiltakstype = SanityTiltakstype(
                         _id = "$tiltakstypeIdForEnkeltAmo",
@@ -144,7 +144,7 @@ class DelMedBrukerServiceTest : FunSpec({
                     ),
                 ),
                 SanityTiltaksgjennomforing(
-                    _id = sanityGjennomforingIdForArbeidstrening,
+                    _id = sanityGjennomforingIdForArbeidstrening.toString(),
                     tiltaksgjennomforingNavn = "Delt med bruker - Sanity",
                     tiltakstype = SanityTiltakstype(
                         _id = "$tiltakstypeIdForArbeidstrening",
