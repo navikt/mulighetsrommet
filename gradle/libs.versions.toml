@@ -47,7 +47,7 @@ flyway-database-postgresql = { module = "org.flywaydb:flyway-database-postgresql
 google-cloud-postgresSocketFactory = "com.google.cloud.sql:postgres-socket-factory:1.20.1"
 google-cloud-storage = "com.google.cloud:google-cloud-storage:2.43.1"
 
-hikaricp = "com.zaxxer:HikariCP:5.1.0"
+hikaricp = "com.zaxxer:HikariCP:6.0.0"
 
 hoplite-core = { module = "com.sksamuel.hoplite:hoplite-core", version.ref = "hoplite" }
 hoplite-yaml = { module = "com.sksamuel.hoplite:hoplite-yaml", version.ref = "hoplite" }
