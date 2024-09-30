@@ -33,6 +33,8 @@ import no.nav.mulighetsrommet.api.okonomi.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.okonomi.tilsagn.TilsagnValidator
 import no.nav.mulighetsrommet.api.repositories.*
 import no.nav.mulighetsrommet.api.services.*
+import no.nav.mulighetsrommet.api.services.VeilederflateService
+import no.nav.mulighetsrommet.api.services.cms.SanityService
 import no.nav.mulighetsrommet.api.tasks.*
 import no.nav.mulighetsrommet.api.tiltaksgjennomforinger.TiltaksgjennomforingValidator
 import no.nav.mulighetsrommet.database.Database
@@ -234,11 +236,13 @@ private fun services(appConfig: AppConfig) = module {
             baseUrl = appConfig.norg2.baseUrl,
         )
     }
+
     single {
         SanityClient(
             config = appConfig.sanity,
         )
     }
+    single { SanityService(get()) }
     single {
         BrregClient(baseUrl = appConfig.brreg.baseUrl, clientEngine = appConfig.engine)
     }
@@ -290,9 +294,10 @@ private fun services(appConfig: AppConfig) = module {
     single { TiltakshistorikkService(get(), get(), get(), get(), get()) }
     single { VeilederflateService(get(), get(), get(), get()) }
     single { BrukerService(get(), get(), get(), get(), get()) }
-    single { NavAnsattService(appConfig.auth.roles, get(), get(), get(), get(), get(), get(), get()) }
+    single { NavAnsattService(appConfig.auth.roles, get(), get()) }
+    single { NavAnsattSyncService(get(), get(), get(), get(), get(), get(), get()) }
     single { PoaoTilgangService(get()) }
-    single { DelMedBrukerService(get(), get()) }
+    single { DelMedBrukerService(get(), get(), get()) }
     single { MicrosoftGraphService(get()) }
     single {
         TiltaksgjennomforingService(
@@ -307,7 +312,6 @@ private fun services(appConfig: AppConfig) = module {
             get(),
         )
     }
-    single { SanityTiltakService(get(), get(), get()) }
     single { TiltakstypeService(get(), appConfig.migrerteTiltak) }
     single { NavEnheterSyncService(get(), get(), get(), get()) }
     single { NavEnhetService(get()) }

@@ -1,17 +1,15 @@
 package no.nav.mulighetsrommet.api.services
 
 import arrow.core.NonEmptyList
-import com.github.benmanes.caffeine.cache.Cache
-import com.github.benmanes.caffeine.cache.Caffeine
 import io.ktor.server.plugins.*
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
-import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
-import no.nav.mulighetsrommet.api.clients.sanity.SanityParam
 import no.nav.mulighetsrommet.api.clients.sanity.SanityPerspective
 import no.nav.mulighetsrommet.api.domain.dto.*
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.routes.v1.ApentForInnsok
+import no.nav.mulighetsrommet.api.services.cms.CacheUsage
+import no.nav.mulighetsrommet.api.services.cms.SanityService
 import no.nav.mulighetsrommet.api.utils.TiltaksnavnUtils.tittelOgUnderTittel
 import no.nav.mulighetsrommet.domain.Tiltakskoder
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
@@ -19,27 +17,13 @@ import no.nav.mulighetsrommet.domain.dto.Innsatsgruppe
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatusDto
 import java.util.*
-import java.util.concurrent.TimeUnit
 
 class VeilederflateService(
-    private val sanityClient: SanityClient,
+    private val sanityService: SanityService,
     private val tiltaksgjennomforingRepository: TiltaksgjennomforingRepository,
     private val tiltakstypeService: TiltakstypeService,
     private val navEnhetService: NavEnhetService,
 ) {
-    private val sanityTiltakstyperCache: Cache<String, List<SanityTiltakstype>> = Caffeine.newBuilder()
-        .expireAfterWrite(30, TimeUnit.MINUTES)
-        .maximumSize(500)
-        .recordStats()
-        .build()
-
-    private val sanityTiltaksgjennomforingerCache: Cache<String, List<SanityTiltaksgjennomforing>> =
-        Caffeine.newBuilder()
-            .expireAfterWrite(5, TimeUnit.MINUTES)
-            .maximumSize(10_000)
-            .recordStats()
-            .build()
-
     fun hentInnsatsgrupper(): List<VeilederflateInnsatsgruppe> {
         // TODO: benytt verdi for GRADERT_VARIG_TILPASSET_INNSATS når ny 14a-løsning er lansert nasjonalt
         return (Innsatsgruppe.entries - Innsatsgruppe.GRADERT_VARIG_TILPASSET_INNSATS)
@@ -53,7 +37,7 @@ class VeilederflateService(
     }
 
     suspend fun hentTiltakstyper(): List<VeilederflateTiltakstype> {
-        return getSanityTiltakstyper()
+        return sanityService.getTiltakstyper()
             .map {
                 val tiltakstype = tiltakstypeService.getBySanityId(UUID.fromString(it._id))
                 VeilederflateTiltakstype(
@@ -68,54 +52,6 @@ class VeilederflateService(
                     tiltakskode = tiltakstype.tiltakskode,
                     kanKombineresMed = it.kanKombineresMed,
                 )
-            }
-    }
-
-    private suspend fun getSanityTiltakstyper(): List<SanityTiltakstype> {
-        sanityTiltakstyperCache.getIfPresent("tiltakstyper")?.let { return@getSanityTiltakstyper it }
-
-        val result = sanityClient.query(
-            """
-                    *[_type == "tiltakstype"] {
-                      _id,
-                      tiltakstypeNavn,
-                      beskrivelse,
-                      nokkelinfoKomponenter,
-                      innsatsgrupper,
-                      "kanKombineresMed": coalesce(kombinasjon[]->{tiltakstypeNavn}.tiltakstypeNavn, []),
-                      regelverkLenker[]->,
-                      faneinnhold {
-                        forHvemInfoboks,
-                        forHvem,
-                        detaljerOgInnholdInfoboks,
-                        detaljerOgInnhold,
-                        pameldingOgVarighetInfoboks,
-                        pameldingOgVarighet,
-                      },
-                      delingMedBruker,
-                      "oppskrifter":  coalesce(oppskrifter[] -> {
-                        ...,
-                        steg[] {
-                          ...,
-                          innhold[] {
-                            ...,
-                            _type == "image" => {
-                              ...,
-                              asset-> // For å hente ut url til bilder
-                            }
-                          }
-                        }
-                      }, [])
-                    }
-            """.trimIndent(),
-        )
-
-        return when (result) {
-            is SanityResponse.Result -> result.decode<List<SanityTiltakstype>>()
-            is SanityResponse.Error -> throw Exception(result.error.toString())
-        }
-            .also {
-                sanityTiltakstyperCache.put("tiltakstyper", it)
             }
     }
 
@@ -151,7 +87,7 @@ class VeilederflateService(
             return emptyList()
         }
 
-        val sanityGjennomforinger = getSanityTiltak(search, cacheUsage)
+        val sanityGjennomforinger = sanityService.getAllTiltak(search, cacheUsage)
 
         val fylker = enheter.map {
             navEnhetService.hentOverordnetFylkesenhet(it)?.enhetsnummer
@@ -167,58 +103,6 @@ class VeilederflateService(
                 } else {
                     gjennomforing.enheter.any { enhet -> enhet in enheter }
                 }
-            }
-    }
-
-    private suspend fun getSanityTiltak(search: String?, cacheUsage: CacheUsage): List<SanityTiltaksgjennomforing> {
-        sanityTiltaksgjennomforingerCache.getIfPresent(search ?: "")?.let {
-            if (cacheUsage == CacheUsage.UseCache) {
-                return@getSanityTiltak it
-            }
-        }
-
-        val query = """
-            *[_type == "tiltaksgjennomforing"
-              ${if (search != null) "&& [tiltaksgjennomforingNavn, string(tiltaksnummer.current), tiltakstype->tiltakstypeNavn] match \$search" else ""}
-            ] {
-              _id,
-              tiltakstype->{
-                _id,
-                tiltakstypeNavn,
-                innsatsgrupper,
-              },
-              tiltaksgjennomforingNavn,
-              "tiltaksnummer": tiltaksnummer.current,
-              stedForGjennomforing,
-              "fylke": fylke->nummer.current,
-              "enheter": coalesce(enheter[]->nummer.current, []),
-              arrangor -> {
-                _id,
-                navn,
-                organisasjonsnummer,
-                kontaktpersoner[] -> {
-                  _id,
-                  navn,
-                  telefon,
-                  epost,
-                  beskrivelse,
-                }
-              },
-            }
-        """.trimIndent()
-
-        val params = buildList {
-            if (search != null) {
-                add(SanityParam.of("search", "*$search*"))
-            }
-        }
-
-        return when (val result = sanityClient.query(query, params)) {
-            is SanityResponse.Result -> result.decode<List<SanityTiltaksgjennomforing>>()
-            is SanityResponse.Error -> throw Exception(result.error.toString())
-        }
-            .also {
-                sanityTiltaksgjennomforingerCache.put(search ?: "", it)
             }
     }
 
@@ -255,90 +139,9 @@ class VeilederflateService(
                 gjennomforing.copy(tiltakstype = sanityTiltakstype)
             }
             ?: run {
-                val gjennomforing = getSanityTiltaksgjennomforing(id, sanityPerspective)
+                val gjennomforing = sanityService.getTiltak(id, sanityPerspective)
                 toVeilederTiltaksgjennomforing(gjennomforing)
             }
-    }
-
-    private suspend fun getSanityTiltaksgjennomforing(
-        id: UUID,
-        perspective: SanityPerspective,
-    ): SanityTiltaksgjennomforing {
-        val query = """
-            *[_type == "tiltaksgjennomforing" && _id == ${'$'}id] {
-              _id,
-              tiltakstype->{
-                _id,
-                tiltakstypeNavn,
-                beskrivelse,
-                nokkelinfoKomponenter,
-                innsatsgrupper,
-                "kanKombineresMed": coalesce(kombinasjon[]->{tiltakstypeNavn}.tiltakstypeNavn, []),
-                regelverkLenker[]->,
-                faneinnhold {
-                  forHvemInfoboks,
-                  forHvem,
-                  detaljerOgInnholdInfoboks,
-                  detaljerOgInnhold,
-                  pameldingOgVarighetInfoboks,
-                  pameldingOgVarighet
-                },
-                delingMedBruker,
-                "oppskrifter":  coalesce(oppskrifter[] -> {
-                  ...,
-                  steg[] {
-                    ...,
-                    innhold[] {
-                      ...,
-                      _type == "image" => {
-                        ...,
-                        asset-> // For å hente ut url til bilder
-                      }
-                    }
-                  }
-                }, [])
-              },
-              tiltaksgjennomforingNavn,
-              "tiltaksnummer": tiltaksnummer.current,
-              beskrivelse,
-              stedForGjennomforing,
-              kontaktpersoner[]{navKontaktperson->, "enheter": coalesce(enheter[]->nummer.current, [])},
-              "fylke": fylke->nummer.current,
-              "enheter": coalesce(enheter[]->nummer.current, []),
-              arrangor -> {
-                _id,
-                navn,
-                organisasjonsnummer,
-                kontaktpersoner[] -> {
-                  _id,
-                  navn,
-                  telefon,
-                  epost,
-                  beskrivelse,
-                }
-              },
-              faneinnhold {
-                forHvemInfoboks,
-                forHvem,
-                detaljerOgInnholdInfoboks,
-                detaljerOgInnhold,
-                pameldingOgVarighetInfoboks,
-                pameldingOgVarighet,
-                kontaktinfoInfoboks,
-                kontaktinfo,
-                lenker,
-                oppskrift
-              },
-              delingMedBruker,
-            }[0]
-        """.trimIndent()
-
-        val params = listOf(SanityParam.of("id", id))
-
-        return when (val result = sanityClient.query(query, params, perspective)) {
-            is SanityResponse.Result -> result.decode()
-            is SanityResponse.Error -> throw Exception(result.error.toString())
-        }
     }
 
     private fun toVeilederTiltaksgjennomforing(
@@ -464,35 +267,10 @@ class VeilederflateService(
         }
     }
 
-    suspend fun hentOppskrifterForTiltakstype(
+    suspend fun hentOppskrifter(
         tiltakstypeId: UUID,
         perspective: SanityPerspective,
     ): List<Oppskrift> {
-        val query = """
-              *[_type == "tiltakstype" && defined(oppskrifter) && _id == ${'$'}id] {
-               oppskrifter[] -> {
-                  ...,
-                  steg[] {
-                    ...,
-                    innhold[] {
-                      ...,
-                      _type == "image" => {
-                      ...,
-                      asset-> // For å hente ut url til bilder
-                      }
-                    }
-                  }
-               }
-             }.oppskrifter[]
-        """.trimIndent()
-
-        val params = listOf(SanityParam.of("id", tiltakstypeId))
-
-        return when (val result = sanityClient.query(query, params, perspective)) {
-            is SanityResponse.Result -> result.decode()
-            is SanityResponse.Error -> throw Exception(result.error.toString())
-        }
+        return sanityService.getOppskrifter(tiltakstypeId, perspective)
     }
 }
-
-enum class CacheUsage { UseCache, NoCache }

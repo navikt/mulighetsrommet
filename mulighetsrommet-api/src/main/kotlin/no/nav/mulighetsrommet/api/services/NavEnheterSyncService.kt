@@ -5,14 +5,13 @@ import no.nav.mulighetsrommet.api.clients.norg2.Norg2Client
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2EnhetDto
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Response
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
-import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
 import no.nav.mulighetsrommet.api.domain.dto.EnhetSlug
 import no.nav.mulighetsrommet.api.domain.dto.FylkeRef
-import no.nav.mulighetsrommet.api.domain.dto.Mutation
 import no.nav.mulighetsrommet.api.domain.dto.SanityEnhet
 import no.nav.mulighetsrommet.api.repositories.NavEnhetRepository
+import no.nav.mulighetsrommet.api.services.cms.SanityService
 import no.nav.mulighetsrommet.api.utils.NavEnhetUtils
 import no.nav.mulighetsrommet.slack.SlackNotifier
 import org.slf4j.LoggerFactory
@@ -46,7 +45,7 @@ val NAV_EGNE_ANSATTE_TIL_FYLKE_MAP = mapOf(
 
 class NavEnheterSyncService(
     private val norg2Client: Norg2Client,
-    private val sanityClient: SanityClient,
+    private val sanityService: SanityService,
     private val enhetRepository: NavEnhetRepository,
     private val slackNotifier: SlackNotifier,
 ) {
@@ -60,7 +59,12 @@ class NavEnheterSyncService(
         lagreEnheter(enheter)
 
         val enheterToSanity = utledEnheterTilSanity(enheter)
-        lagreEnheterTilSanity(enheterToSanity)
+        val response = sanityService.createSanityEnheter(enheterToSanity)
+
+        if (response.status != HttpStatusCode.OK) {
+            logger.error("Klarte ikke opprette enheter i sanity: ${response.status}")
+            slackNotifier.sendMessage("Klarte ikke oppdatere enheter fra NORG til Sanity. Statuskode: ${response.status.value}. Dette må sees på av en utvikler.")
+        }
     }
 
     private fun lagreEnheter(enheter: List<Norg2Response>) {
@@ -101,20 +105,6 @@ class NavEnheterSyncService(
 
     private fun isRelevantEnhetForSanity(it: Norg2Response): Boolean {
         return NavEnhetUtils.isRelevantEnhetStatus(it.enhet.status) && NavEnhetUtils.isRelevantEnhetType(it.enhet.type)
-    }
-
-    private suspend fun lagreEnheterTilSanity(sanityEnheter: List<SanityEnhet>) {
-        logger.info("Oppdaterer Sanity-enheter - Antall: ${sanityEnheter.size}")
-        val mutations = sanityEnheter.map { Mutation.createOrReplace(it) }
-
-        val response = sanityClient.mutate(mutations)
-
-        if (response.status != HttpStatusCode.OK) {
-            logger.error("Klarte ikke oppdatere enheter fra NORG til Sanity: {}", response.status)
-            slackNotifier.sendMessage("Klarte ikke oppdatere enheter fra NORG til Sanity. Statuskode: ${response.status.value}. Dette må sees på av en utvikler.")
-        } else {
-            logger.info("Oppdaterte enheter fra NORG til Sanity.")
-        }
     }
 
     private fun toSanityEnhet(enhet: Norg2EnhetDto, fylke: Norg2EnhetDto? = null): SanityEnhet {

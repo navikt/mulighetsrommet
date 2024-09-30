@@ -2,27 +2,21 @@ package no.nav.mulighetsrommet.api.services
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
-import io.ktor.client.engine.mock.*
 import io.mockk.mockk
 import no.nav.mulighetsrommet.api.clients.norg2.*
-import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.domain.dto.EnhetSlug
 import no.nav.mulighetsrommet.api.domain.dto.FylkeRef
 import no.nav.mulighetsrommet.api.domain.dto.SanityEnhet
 import no.nav.mulighetsrommet.api.repositories.NavEnhetRepository
+import no.nav.mulighetsrommet.api.services.cms.SanityService
 import no.nav.mulighetsrommet.slack.SlackNotifier
 
 class NavEnheterSyncServiceTest : FunSpec({
     val norg2Client: Norg2Client = mockk()
     val enheter: NavEnhetRepository = mockk(relaxed = true)
     val slackNotifier: SlackNotifier = mockk(relaxed = true)
-    val sanityClient = SanityClient(
-        MockEngine {
-            respondOk("Ok")
-        },
-        SanityClient.Config(projectId = "", dataset = "", apiVersion = "", token = ""),
-    )
-    val navEnheterSyncService = NavEnheterSyncService(norg2Client, sanityClient, enheter, slackNotifier)
+    val sanityService: SanityService = mockk(relaxed = true)
+    val navEnheterSyncService = NavEnheterSyncService(norg2Client, sanityService, enheter, slackNotifier)
 
     fun createEnhet(enhet: String, type: Norg2Type) = Norg2EnhetDto(
         enhetId = Math.random().toInt(),

@@ -1,15 +1,13 @@
 package no.nav.mulighetsrommet.api.services
 
-import arrow.core.Either
 import io.ktor.server.plugins.*
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotliquery.Row
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
-import no.nav.mulighetsrommet.api.clients.sanity.SanityParam
 import no.nav.mulighetsrommet.api.domain.dbo.DelMedBrukerDbo
-import no.nav.mulighetsrommet.api.domain.dto.SanityResponse
+import no.nav.mulighetsrommet.api.services.cms.CacheUsage
+import no.nav.mulighetsrommet.api.services.cms.SanityService
 import no.nav.mulighetsrommet.api.utils.TiltaksnavnUtils.tittelOgUnderTittel
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.utils.QueryResult
@@ -19,12 +17,17 @@ import no.nav.mulighetsrommet.domain.dto.NorskIdent
 import no.nav.mulighetsrommet.domain.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.securelog.SecureLog
+import no.nav.mulighetsrommet.utils.toUUID
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 import java.util.*
 
-class DelMedBrukerService(private val db: Database, private val sanityClient: SanityClient) {
+class DelMedBrukerService(
+    private val db: Database,
+    private val sanityService: SanityService,
+    private val tiltakstypeService: TiltakstypeService,
+) {
     private val log = LoggerFactory.getLogger(javaClass)
 
     fun lagreDelMedBruker(dbo: DelMedBrukerDbo): QueryResult<DelMedBrukerDbo> = query {
@@ -74,7 +77,7 @@ class DelMedBrukerService(private val db: Database, private val sanityClient: Sa
             .let { db.run(it)!! }
     }
 
-    fun getDeltMedBruker(fnr: NorskIdent, sanityOrGjennomforingId: UUID): QueryResult<DelMedBrukerDbo?> = query {
+    fun getDeltMedBruker(fnr: NorskIdent, sanityOrGjennomforingId: UUID): DelMedBrukerDbo? {
         @Language("PostgreSQL")
         val query = """
             select * from del_med_bruker
@@ -83,13 +86,14 @@ class DelMedBrukerService(private val db: Database, private val sanityClient: Sa
                 and (sanity_id = :id::uuid or tiltaksgjennomforing_id = :id::uuid)
             order by created_at desc limit 1
         """.trimIndent()
-        queryOf(query, mapOf("norsk_ident" to fnr.value, "id" to sanityOrGjennomforingId))
+
+        return queryOf(query, mapOf("norsk_ident" to fnr.value, "id" to sanityOrGjennomforingId))
             .map { it.toDelMedBruker() }
             .asSingle
             .let { db.run(it) }
     }
 
-    fun getAlleDistinkteTiltakDeltMedBruker(fnr: NorskIdent): QueryResult<List<DelMedBrukerDbo>?> = query {
+    fun getAlleDistinkteTiltakDeltMedBruker(fnr: NorskIdent): List<DelMedBrukerDbo> {
         @Language("PostgreSQL")
         val query = """
             select distinct on (tiltaksgjennomforing_id, sanity_id) *
@@ -97,13 +101,14 @@ class DelMedBrukerService(private val db: Database, private val sanityClient: Sa
             where norsk_ident = ?
             order by tiltaksgjennomforing_id, sanity_id, created_at desc;
         """.trimIndent()
-        queryOf(query, fnr.value)
+
+        return queryOf(query, fnr.value)
             .map { it.toDelMedBruker() }
             .asList
             .let { db.run(it) }
     }
 
-    private fun getAlleTiltakDeltMedBruker(fnr: NorskIdent): QueryResult<List<DelMedBrukerDbo>?> = query {
+    private fun getAlleTiltakDeltMedBruker(fnr: NorskIdent): List<DelMedBrukerDbo> {
         @Language("PostgreSQL")
         val query = """
             select *
@@ -111,21 +116,22 @@ class DelMedBrukerService(private val db: Database, private val sanityClient: Sa
             where norsk_ident = ?
             order by tiltaksgjennomforing_id, sanity_id, created_at desc;
         """.trimIndent()
-        queryOf(query, fnr.value)
+
+        return queryOf(query, fnr.value)
             .map { it.toDelMedBruker() }
             .asList
             .let { db.run(it) }
     }
 
-    suspend fun getDelMedBrukerHistorikk(norskIdent: NorskIdent): Either<Error, List<TiltakDeltMedBruker>> {
+    suspend fun getDelMedBrukerHistorikk(norskIdent: NorskIdent): List<TiltakDeltMedBruker> {
         // Hent delt med bruker-historikk fra database
-        val alleDeltMedBruker = getAlleTiltakDeltMedBruker(norskIdent).getOrNull() ?: emptyList()
+        val alleDeltMedBruker = getAlleTiltakDeltMedBruker(norskIdent)
         val tiltakFraDb = getTiltakFraDb(alleDeltMedBruker)
         val tiltakFraSanity = getTiltakFraSanity(alleDeltMedBruker)
 
         val alleDelteTiltak = (tiltakFraDb + tiltakFraSanity).sortedBy { it.createdAt }
 
-        return Either.Right(alleDelteTiltak)
+        return alleDelteTiltak
     }
 
     private fun getTiltakFraDb(deltMedBruker: List<DelMedBrukerDbo>): List<TiltakDeltMedBruker> {
@@ -174,7 +180,7 @@ class DelMedBrukerService(private val db: Database, private val sanityClient: Sa
                         underTittel = underTittel,
                         createdAt = it.createdAt!!,
                         dialogId = it.dialogId,
-                        tiltakId = id.toString(),
+                        tiltakId = id,
                         tiltakstype = TiltakDeltMedBruker.Tiltakstype(
                             tiltakskode = tiltak.tiltakskode,
                             arenakode = null,
@@ -186,58 +192,29 @@ class DelMedBrukerService(private val db: Database, private val sanityClient: Sa
     }
 
     private suspend fun getTiltakFraSanity(deltMedBruker: List<DelMedBrukerDbo>): List<TiltakDeltMedBruker> {
-        val sanityQuery = """
-         *[_type == "tiltaksgjennomforing" && _id in ${'$'}tiltakIds]{tiltaksgjennomforingNavn, _id, tiltakstype->{_id, tiltakstypeNavn}}
-        """.trimIndent()
+        val tiltakFraSanity = sanityService.getAllTiltak(search = null, CacheUsage.UseCache)
+            .filter { it._id.toUUID() in deltMedBruker.map { it.sanityId } }
 
-        val params = buildList {
-            add(
-                SanityParam.of(
-                    "tiltakIds",
-                    deltMedBruker.filter { it.sanityId != null }.map {
-                        it.sanityId.toString()
-                    },
-                ),
-            )
-        }
-
-        val tiltakFraSanity = when (val result = sanityClient.query(sanityQuery, params)) {
-            is SanityResponse.Result -> result.decode<List<SanityTiltak>>()
-            is SanityResponse.Error -> throw Exception(result.error.toString())
-        }
-
-        @Language("PostgreSQL")
-        val dbQuery = """
-            select sanity_id, arena_kode from tiltakstype where sanity_id = any(:ids::uuid[])
-        """.trimIndent()
-
-        val sanityTiltakQueryParams =
-            mapOf("ids" to tiltakFraSanity.map { UUID.fromString(it.tiltakstype.id) }.let { db.createUuidArray(it) })
-
-        val results = queryOf(dbQuery, sanityTiltakQueryParams)
-            .map { it.uuid("sanity_id") to it.string("arena_kode") }
-            .asList
-            .let { db.run(it) }
-
-        if (results.isEmpty()) {
-            return emptyList()
-        }
+        val tiltakstyper = tiltakFraSanity
+            .map {
+                tiltakstypeService.getBySanityId(UUID.fromString(it.tiltakstype._id))
+            }
 
         return tiltakFraSanity.map { tiltak ->
-            val arenaKode = results.first { it.first == UUID.fromString(tiltak.tiltakstype.id) }.second
+            val arenaKode = tiltakstyper.first { it.id == UUID.fromString(tiltak.tiltakstype._id) }.arenaKode
             val (tittel, underTittel) = tittelOgUnderTittel(
-                tiltak.navn,
+                tiltak.tiltaksgjennomforingNavn ?: "",
                 tiltak.tiltakstype.tiltakstypeNavn,
                 arenaKode,
             )
 
-            deltMedBruker.filter { it.sanityId == UUID.fromString(tiltak.id) }.map {
+            deltMedBruker.filter { it.sanityId == tiltak._id.toUUID() }.map {
                 TiltakDeltMedBruker(
                     tittel = tittel,
                     underTittel = underTittel,
                     createdAt = it.createdAt!!,
                     dialogId = it.dialogId,
-                    tiltakId = tiltak.id,
+                    tiltakId = tiltak._id.toUUID(),
                     tiltakstype = TiltakDeltMedBruker.Tiltakstype(
                         tiltakskode = null,
                         arenakode = arenaKode,
@@ -279,7 +256,8 @@ data class TiltakDeltMedBruker(
     @Serializable(with = LocalDateTimeSerializer::class)
     val createdAt: LocalDateTime,
     val dialogId: String,
-    val tiltakId: String,
+    @Serializable(with = UUIDSerializer::class)
+    val tiltakId: UUID,
     val tiltakstype: Tiltakstype,
 ) {
     @Serializable

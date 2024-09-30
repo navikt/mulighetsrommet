@@ -24,6 +24,8 @@ class Mutation<T> private constructor(
 
         fun <T> patch(id: String, set: T) = Mutation(patch = Patch(id = id, set = set))
 
+        fun unsetPatch(id: String, unset: List<String>) = Mutation(patch = UnsetPatch(id = id, unset = unset))
+
         fun delete(id: String) = Mutation<Unit>(delete = Delete(id))
     }
 
@@ -36,6 +38,12 @@ class Mutation<T> private constructor(
     data class Patch<T>(
         val id: String,
         val set: T,
+    )
+
+    @Serializable
+    data class UnsetPatch(
+        val id: String,
+        val unset: List<String>,
     )
 }
 
@@ -53,7 +61,7 @@ data class CreateSanityTiltaksgjennomforingDto(
     val _type: String = "tiltaksgjennomforing",
     val tiltaksgjennomforingNavn: String,
     val tiltakstype: TiltakstypeRef? = null,
-    val tiltaksnummer: TiltaksnummerSlug? = null,
+    val tiltaksnummer: Slug? = null,
 )
 
 @Serializable
@@ -62,7 +70,7 @@ data class SanityTiltaksgjennomforingFields(
     val fylke: FylkeRef? = null,
     val enheter: List<EnhetRef>? = null,
     val tiltakstype: TiltakstypeRef? = null,
-    val tiltaksnummer: TiltaksnummerSlug? = null,
+    val tiltaksnummer: Slug? = null,
 ) {
     fun toSanityTiltaksgjennomforing(id: String) = CreateSanityTiltaksgjennomforingDto(
         _id = id,
