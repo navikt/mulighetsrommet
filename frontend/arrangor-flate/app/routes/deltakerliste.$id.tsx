@@ -5,7 +5,7 @@ import { PageHeader } from "../components/PageHeader";
 import { DeltakerlisteDetaljer } from "../components/deltakerliste/DeltakerlisteDetaljer";
 import { Deltaker, Deltakerliste } from "../domene/domene";
 import { requirePersonIdent } from "../auth/auth.server";
-import { RefusjonskravService } from "@mr/api-client";
+import { RefusjonskravDto, RefusjonskravService } from "@mr/api-client";
 import { useState } from "react";
 
 export const meta: MetaFunction = () => {
@@ -14,6 +14,7 @@ export const meta: MetaFunction = () => {
 
 type LoaderData = {
   deltakerliste: Deltakerliste;
+  krav: RefusjonskravDto;
 };
 
 export const loader: LoaderFunction = async ({ request, params }): Promise<LoaderData> => {
@@ -69,21 +70,20 @@ interface ScopedSortState extends SortState {
 }
 
 export default function RefusjonDeltakerlister() {
-  const { deltakerliste, krav } = useLoaderData<LoaderData>();
+  const { deltakerliste } = useLoaderData<LoaderData>();
   const [sort, setSort] = useState<ScopedSortState | undefined>();
-  console.log(krav);
 
   const handleSort = (sortKey: ScopedSortState["orderBy"]) => {
     setSort(
       sort && sortKey === sort.orderBy && sort.direction === "descending"
         ? undefined
         : {
-          orderBy: sortKey,
-          direction:
-            sort && sortKey === sort.orderBy && sort.direction === "ascending"
-              ? "descending"
-              : "ascending",
-        },
+            orderBy: sortKey,
+            direction:
+              sort && sortKey === sort.orderBy && sort.direction === "ascending"
+                ? "descending"
+                : "ascending",
+          },
     );
   };
 
