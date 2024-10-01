@@ -1,6 +1,5 @@
 package no.nav.mulighetsrommet.api.services
 
-import arrow.core.Either
 import arrow.core.getOrElse
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -277,18 +276,6 @@ class TiltakshistorikkService(
             Tiltakshistorikk.ArbeidsgiverAvtale.Status.GJENNOMFORES -> "Gjennomføres"
             Tiltakshistorikk.ArbeidsgiverAvtale.Status.AVSLUTTET -> "Avsluttet"
         }
-    }
-
-    suspend fun hentDeltakelserFraKomet(
-        norskIdent: NorskIdent,
-        obo: AccessType.OBO,
-    ): Either<AmtDeltakerError, DeltakelserResponse> {
-        if (NaisEnv.current().isProdGCP()) {
-            log.debug("Henter ikke deltakelser fra Komet sitt API i prod")
-            return Either.Right(DeltakelserResponse(emptyList(), emptyList()))
-        }
-
-        return amtDeltakerClient.hentDeltakelser(DeltakelserRequest(norskIdent), obo)
     }
 
     private suspend fun hentHistoriskeNorskIdent(

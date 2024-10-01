@@ -12,7 +12,6 @@ import no.nav.mulighetsrommet.api.responses.*
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
-import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
 import java.util.*
 
@@ -22,8 +21,6 @@ class TilsagnService(
     private val validator: TilsagnValidator,
     private val db: Database,
 ) {
-    private val logger = LoggerFactory.getLogger(javaClass)
-
     suspend fun upsert(request: TilsagnRequest, navIdent: NavIdent): Either<List<ValidationError>, TilsagnDto> {
         val previous = tilsagnRepository.get(request.id)
 

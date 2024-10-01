@@ -63,7 +63,7 @@ data class Utdanning(
     )
 
     @Serializable
-    enum class Utdanningsprogram() {
+    enum class Utdanningsprogram {
         @SerialName("Yrkesfaglig utdanningsprogram")
         YRKESFAGLIG,
 
@@ -72,7 +72,7 @@ data class Utdanning(
     }
 
     @Serializable
-    enum class Sluttkompetanse() {
+    enum class Sluttkompetanse {
         Fagbrev,
         Svennebrev,
         Studiekompetanse,
@@ -80,7 +80,7 @@ data class Utdanning(
     }
 
     @Serializable
-    enum class Utdanningstatus() {
+    enum class Utdanningstatus {
         GYLDIG,
         KOMMENDE,
         UTGAAENDE,
