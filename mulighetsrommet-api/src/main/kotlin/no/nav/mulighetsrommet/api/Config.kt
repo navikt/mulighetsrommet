@@ -35,7 +35,6 @@ data class AppConfig(
     val veilarboppfolgingConfig: ServiceClientConfig,
     val veilarbvedtaksstotteConfig: ServiceClientConfig,
     val veilarbdialogConfig: ServiceClientConfig,
-    val veilarbveilederConfig: ServiceClientConfig,
     val amtDeltakerConfig: ServiceClientConfig,
     val poaoTilgang: ServiceClientConfig,
     val arenaAdapter: ServiceClientConfig,

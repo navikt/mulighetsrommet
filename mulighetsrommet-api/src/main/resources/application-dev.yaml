@@ -93,10 +93,6 @@ app:
     url: http://veilarboppfolging.poao/veilarboppfolging/api
     scope: api://dev-gcp.poao.veilarboppfolging/.default
 
-  veilarbveilederConfig:
-    url: https://veilarbveileder.dev-fss-pub.nais.io/veilarbveileder/api
-    scope: api://dev-fss.pto.veilarbveileder/.default
-
   veilarbdialogConfig:
     url: http://veilarbdialog.dab/veilarbdialog/api
     scope: api://dev-gcp.dab.veilarbdialog/.default
