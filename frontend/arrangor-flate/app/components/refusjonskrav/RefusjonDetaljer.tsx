@@ -1,4 +1,4 @@
-import { Krav, type TilsagnsDetaljer } from "../../domene/domene";
+import { Krav } from "../../domene/domene";
 import { Definisjonsliste } from "../Definisjonsliste";
 
 interface Props {
@@ -27,7 +27,3 @@ export function RefusjonDetaljer({ krav }: Props) {
     </>
   );
 }
-// <div className="flex justify-between mt-4 max-w-[50%]">
-//   <dt>Sum utbetalt så langt:</dt>
-//   <dd className="font-bold text-right">{sum}</dd>
-// </div>

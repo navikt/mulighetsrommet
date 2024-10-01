@@ -7,7 +7,7 @@ import { Deltakerliste, Krav, KravStatus, type TilsagnsDetaljer } from "../domen
 import { requirePersonIdent } from "../auth/auth.server";
 import Divider from "node_modules/@navikt/ds-react/esm/dropdown/Menu/Divider";
 import { RefusjonTilsagnsDetaljer } from "~/components/refusjonskrav/TilsagnsDetaljer";
-import { RefusjonDetaljer } from "~/components/refusjonskrav/RefusjonkravDetaljer";
+import { RefusjonDetaljer } from "~/components/refusjonskrav/RefusjonDetaljer";
 
 type LoaderData = {
   deltakerliste: Deltakerliste;

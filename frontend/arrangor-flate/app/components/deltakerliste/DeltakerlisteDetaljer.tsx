@@ -6,7 +6,8 @@ interface Props {
 }
 
 export function DeltakerlisteDetaljer({ deltakerliste }: Props) {
-  const { tiltaksnavn, tiltaksnummer, avtalenavn, tiltakstype } = deltakerliste.detaljer;
+  const { tiltaksnavn, tiltaksnummer, avtalenavn, tiltakstype, refusjonskravperiode } =
+    deltakerliste.detaljer;
   return (
     <Definisjonsliste
       title="Generelt"
@@ -15,6 +16,7 @@ export function DeltakerlisteDetaljer({ deltakerliste }: Props) {
         { key: "Tiltaksnummer", value: tiltaksnummer },
         { key: "Avtale", value: avtalenavn },
         { key: "Tiltakstype", value: tiltakstype },
+        { key: "Rapporteringsperiode", value: refusjonskravperiode },
       ]}
     />
   );

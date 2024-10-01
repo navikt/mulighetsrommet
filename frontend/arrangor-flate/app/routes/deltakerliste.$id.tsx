@@ -130,7 +130,6 @@ export default function RefusjonDeltakerlister() {
         >
           <Table.Header>
             <Table.Row>
-              <Table.HeaderCell scope="col"></Table.HeaderCell>
               <Table.ColumnHeader scope="col" sortable sortKey="name">
                 Etternavn, Fornavn
               </Table.ColumnHeader>
@@ -148,12 +147,17 @@ export default function RefusjonDeltakerlister() {
               <Table.HeaderCell scope="col">Deltakelses-prosent</Table.HeaderCell>
               <Table.HeaderCell scope="col">Månedsverk i perioden</Table.HeaderCell>
               <Table.HeaderCell scope="col">Beregnet beløp</Table.HeaderCell>
+              <Table.HeaderCell scope="col"></Table.HeaderCell>
             </Table.Row>
           </Table.Header>
           <Table.Body>
             {sortedData.map((deltaker, i) => {
               return (
-                <Table.ExpandableRow key={i + deltaker.fodselsdato} content="Content">
+                <Table.ExpandableRow
+                  key={i + deltaker.fodselsdato}
+                  content="Content"
+                  togglePlacement="right"
+                >
                   <Table.HeaderCell>{deltaker.navn}</Table.HeaderCell>
                   <Table.DataCell>{deltaker.veileder}</Table.DataCell>
                   <Table.DataCell>{deltaker.fodselsdato}</Table.DataCell>
