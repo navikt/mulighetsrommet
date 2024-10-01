@@ -108,10 +108,6 @@ app:
     url: http://localhost:8090/veilarboppfolging/api
     scope: default
 
-  veilarbveilederConfig:
-    url: http://localhost:8090/veilarbveileder/api
-    scope: default
-
   veilarbdialogConfig:
     url: http://localhost:8090/veilarbdialog/api
     scope: default

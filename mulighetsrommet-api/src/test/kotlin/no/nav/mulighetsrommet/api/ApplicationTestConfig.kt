@@ -49,7 +49,6 @@ fun createTestApplicationConfig() = AppConfig(
     sanity = SanityClient.Config(projectId = "", token = "", dataset = "", apiVersion = ""),
     veilarboppfolgingConfig = createServiceClientConfig("veilarboppfolging"),
     veilarbvedtaksstotteConfig = createServiceClientConfig("veilarbvedtaksstotte"),
-    veilarbveilederConfig = createServiceClientConfig("veilarbveileder"),
     veilarbdialogConfig = createServiceClientConfig("veilarbdialog"),
     amtDeltakerConfig = createServiceClientConfig("deltakelser"),
     poaoTilgang = createServiceClientConfig("poaotilgang"),
