@@ -8,12 +8,13 @@ interface Definition {
 
 interface Props {
   title?: string;
+  className?: string;
   definitions: Definition[];
 }
 
-export function Definisjonsliste({ title, definitions }: Props) {
+export function Definisjonsliste({ title, definitions, className }: Props) {
   return (
-    <div>
+    <div className={className}>
       {title && (
         <Heading className="mb-2" size="medium" level="2">
           {title}

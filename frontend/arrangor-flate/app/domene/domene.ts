@@ -27,6 +27,14 @@ export interface Deltakerliste {
   deltakere: Deltaker[];
 }
 
+export type TilsagnsDetaljer = {
+  antallPlasser: number;
+  prisPerPlass: number;
+  tilsagnsBelop: number;
+  tilsagnsPeriode: string;
+  sum: number;
+};
+
 export type Deltaker = {
   navn: string;
   veileder: string;

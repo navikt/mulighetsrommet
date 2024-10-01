@@ -25,6 +25,7 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
   });
 
   return {
+    krav,
     deltakerliste: {
       id: params.id,
       detaljer: {
@@ -68,20 +69,21 @@ interface ScopedSortState extends SortState {
 }
 
 export default function RefusjonDeltakerlister() {
-  const { deltakerliste } = useLoaderData<LoaderData>();
+  const { deltakerliste, krav } = useLoaderData<LoaderData>();
   const [sort, setSort] = useState<ScopedSortState | undefined>();
+  console.log(krav);
 
   const handleSort = (sortKey: ScopedSortState["orderBy"]) => {
     setSort(
       sort && sortKey === sort.orderBy && sort.direction === "descending"
         ? undefined
         : {
-            orderBy: sortKey,
-            direction:
-              sort && sortKey === sort.orderBy && sort.direction === "ascending"
-                ? "descending"
-                : "ascending",
-          },
+          orderBy: sortKey,
+          direction:
+            sort && sortKey === sort.orderBy && sort.direction === "ascending"
+              ? "descending"
+              : "ascending",
+        },
     );
   };
 
@@ -128,6 +130,7 @@ export default function RefusjonDeltakerlister() {
         >
           <Table.Header>
             <Table.Row>
+              <Table.HeaderCell scope="col"></Table.HeaderCell>
               <Table.ColumnHeader scope="col" sortable sortKey="name">
                 Etternavn, Fornavn
               </Table.ColumnHeader>
@@ -150,7 +153,7 @@ export default function RefusjonDeltakerlister() {
           <Table.Body>
             {sortedData.map((deltaker, i) => {
               return (
-                <Table.Row key={i + deltaker.fodselsdato}>
+                <Table.ExpandableRow key={i + deltaker.fodselsdato} content="Content">
                   <Table.HeaderCell>{deltaker.navn}</Table.HeaderCell>
                   <Table.DataCell>{deltaker.veileder}</Table.DataCell>
                   <Table.DataCell>{deltaker.fodselsdato}</Table.DataCell>
@@ -160,7 +163,7 @@ export default function RefusjonDeltakerlister() {
                   <Table.DataCell>{deltaker.deltakelsesProsent}</Table.DataCell>
                   <Table.DataCell>{deltaker.maanedsverk}</Table.DataCell>
                   <Table.DataCell>{deltaker.belop}</Table.DataCell>
-                </Table.Row>
+                </Table.ExpandableRow>
               );
             })}
           </Table.Body>
