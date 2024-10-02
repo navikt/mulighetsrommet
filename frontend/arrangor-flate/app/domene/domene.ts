@@ -36,6 +36,7 @@ export type TilsagnsDetaljer = {
 };
 
 export type Deltaker = {
+  id: string;
   navn: string;
   veileder: string;
   fodselsdato: string;

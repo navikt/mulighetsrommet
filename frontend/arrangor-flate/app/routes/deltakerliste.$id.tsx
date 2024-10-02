@@ -39,6 +39,7 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
       },
       deltakere: [
         {
+          id: "1",
           navn: "Skånsom seigmann",
           veileder: "Viggo Veileder",
           fodselsdato: "01.01.2001",
@@ -50,6 +51,7 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
           belop: 20205,
         },
         {
+          id: "2",
           navn: "Oksydert Fjellkjede",
           veileder: "Viggo Veileder",
           fodselsdato: "27467202907",
@@ -151,13 +153,9 @@ export default function RefusjonDeltakerlister() {
             </Table.Row>
           </Table.Header>
           <Table.Body>
-            {sortedData.map((deltaker, i) => {
+            {sortedData.map((deltaker) => {
               return (
-                <Table.ExpandableRow
-                  key={i + deltaker.fodselsdato}
-                  content="Content"
-                  togglePlacement="right"
-                >
+                <Table.ExpandableRow key={deltaker.id} content="Content" togglePlacement="right">
                   <Table.HeaderCell>{deltaker.navn}</Table.HeaderCell>
                   <Table.DataCell>{deltaker.veileder}</Table.DataCell>
                   <Table.DataCell>{deltaker.fodselsdato}</Table.DataCell>
