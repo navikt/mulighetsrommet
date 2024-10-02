@@ -22,6 +22,10 @@ class RefusjonService(
         return refusjonskravRepository.getByOrgnr(orgnr)
     }
 
+    fun getById(id: UUID): RefusjonskravDto? {
+        return refusjonskravRepository.get(id)
+    }
+
     fun genererRefusjonskravForMonth(dayInMonth: LocalDate) {
         val periodeStart = dayInMonth.with(TemporalAdjusters.firstDayOfMonth())
         val periodeSlutt = periodeStart.with(TemporalAdjusters.lastDayOfMonth())

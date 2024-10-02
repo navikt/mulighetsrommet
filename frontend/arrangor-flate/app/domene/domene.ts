@@ -24,7 +24,29 @@ export interface Deltakerliste {
     refusjonskravperiode: string;
     refusjonskravnummer: string;
   };
+  deltakere: Deltaker[];
 }
+
+export type TilsagnsDetaljer = {
+  antallPlasser: number;
+  prisPerPlass: number;
+  tilsagnsBelop: number;
+  tilsagnsPeriode: string;
+  sum: number;
+};
+
+export type Deltaker = {
+  id: string;
+  navn: string;
+  veileder: string;
+  fodselsdato: string;
+  startDatoTiltaket: string;
+  startDatoPerioden: string;
+  sluttDatoPerioden: string;
+  deltakelsesProsent: number;
+  maanedsverk: number;
+  belop: number;
+};
 
 export interface RolleTilgangRequest {
   personident: string;

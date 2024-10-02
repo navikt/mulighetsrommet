@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.okonomi.refusjon
 
+import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
@@ -43,6 +44,17 @@ fun Route.refusjonRoutes() {
                 "attachment; filename=\"kvittering.pdf\"",
             )
             call.respondBytes(pdfBytes, contentType = io.ktor.http.ContentType.Application.Pdf)
+        }
+        get("/krav/{id}") {
+            // val orgnr = Organisasjonsnummer(call.parameters.getOrFail<String>("orgnr"))
+            val id = call.parameters.getOrFail<UUID>("id")
+            val krav = service.getById(id)
+
+            if (krav != null) {
+                call.respond(krav)
+            } else {
+                call.respond(HttpStatusCode.NoContent)
+            }
         }
     }
 }
