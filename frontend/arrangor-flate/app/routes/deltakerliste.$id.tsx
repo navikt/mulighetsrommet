@@ -24,18 +24,18 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
   const krav = await RefusjonskravService.getRefusjonkrav({
     id: params.id,
   });
+  console.log(krav);
 
   return {
     krav,
     deltakerliste: {
       id: params.id,
       detaljer: {
-        tiltaksnavn: krav?.tiltaksgjennomforing?.navn,
-        tiltaksnummer: "2024/123456",
-        avtalenavn: "AFT - Fredrikstad, Sarpsborg, Halden",
-        tiltakstype: "Arbeidsforberedende trening",
+        tiltaksnavn: krav.tiltaksgjennomforing.navn,
+        tiltaksnummer: krav.tiltaksgjennomforing.tiltaksnummer,
+        avtalenavn: krav.avtale.navn,
+        tiltakstype: krav.tiltakstype.navn,
         refusjonskravperiode: `${krav.periodeStart} - ${krav.periodeSlutt}`,
-        refusjonskravnummer: "6",
       },
       deltakere: [
         {
@@ -80,12 +80,12 @@ export default function RefusjonDeltakerlister() {
       sort && sortKey === sort.orderBy && sort.direction === "descending"
         ? undefined
         : {
-            orderBy: sortKey,
-            direction:
-              sort && sortKey === sort.orderBy && sort.direction === "ascending"
-                ? "descending"
-                : "ascending",
-          },
+          orderBy: sortKey,
+          direction:
+            sort && sortKey === sort.orderBy && sort.direction === "ascending"
+              ? "descending"
+              : "ascending",
+        },
     );
   };
 

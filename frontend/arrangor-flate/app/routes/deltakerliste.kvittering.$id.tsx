@@ -5,11 +5,14 @@ import { useLoaderData } from "@remix-run/react";
 import { Definisjonsliste } from "../components/Definisjonsliste";
 import { PageHeader } from "../components/PageHeader";
 import { Separator } from "../components/Separator";
-import { Deltakerliste } from "../domene/domene";
+import { Deltakerliste, TilsagnsDetaljer } from "../domene/domene";
 import { requirePersonIdent } from "../auth/auth.server";
+import { DeltakerlisteDetaljer } from "~/components/deltakerliste/DeltakerlisteDetaljer";
+import { RefusjonTilsagnsDetaljer } from "~/components/refusjonskrav/TilsagnsDetaljer";
 
 type LoaderData = {
   deltakerliste: Deltakerliste;
+  tilsagnsDetaljer: TilsagnsDetaljer;
 };
 
 export const loader: LoaderFunction = async ({ request, params }): Promise<LoaderData> => {
@@ -24,15 +27,21 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
         avtalenavn: "AFT - Fredrikstad, Sarpsborg, Halden",
         tiltakstype: "Arbeidsforberedende trening",
         refusjonskravperiode: "01.01.2024 - 31.01.2024",
-        refusjonskravnummer: "6",
       },
       deltakere: [],
+    },
+    tilsagnsDetaljer: {
+      antallPlasser: 20,
+      prisPerPlass: 20205,
+      tilsagnsBelop: 1308530,
+      tilsagnsPeriode: "01.06.2024 - 30.06.2024",
+      sum: 1308530,
     },
   };
 };
 
 export default function RefusjonskravKvittering() {
-  const { deltakerliste } = useLoaderData<LoaderData>();
+  const { deltakerliste, tilsagnsDetaljer } = useLoaderData<LoaderData>();
   const { tiltaksnavn, tiltaksnummer, avtalenavn, tiltakstype } = deltakerliste.detaljer;
   return (
     <>
@@ -57,26 +66,9 @@ export default function RefusjonskravKvittering() {
       </div>
       <Separator />
       <VStack gap="5" className="mt-5">
-        <Definisjonsliste
-          title="Generelt"
-          definitions={[
-            { key: "Tiltaksnavn", value: tiltaksnavn },
-            { key: "Tiltaksnummer", value: tiltaksnummer },
-            { key: "Avtale", value: avtalenavn },
-            { key: "Tiltakstype", value: tiltakstype },
-          ]}
-        />
+        <DeltakerlisteDetaljer deltakerliste={deltakerliste} />
         <Separator />
-        <Definisjonsliste
-          title="Tilsagnsdetaljer"
-          definitions={[
-            { key: "Antall avtalte plasser", value: "20" },
-            { key: "Per per plass", value: "kr 20.205" },
-            { key: "Tilsagnsbeløp", value: "kr 1.920.000" },
-            { key: "Tilsagnsperiode", value: "01.01.2024 - 30.06.2024" },
-            { key: "Sum utbetalt så langt", value: "kr 1.320.000" },
-          ]}
-        />
+        <RefusjonTilsagnsDetaljer tilsagnsDetaljer={tilsagnsDetaljer} />
         <Separator />
         <Definisjonsliste
           title="Refusjonskrav"

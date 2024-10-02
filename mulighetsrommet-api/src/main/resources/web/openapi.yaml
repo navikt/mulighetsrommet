@@ -4844,6 +4844,9 @@ components:
               format: uuid
             navn:
               type: string
+            tiltaksnummer:
+              type: string
+
           required:
             - id
             - navn
@@ -4855,12 +4858,34 @@ components:
           format: date
         beregning:
           $ref: "#/components/schemas/RefusjonskravBeregning"
+
+        avtale:
+          type: object
+          properties:
+            id:
+              type: string
+            navn:
+              type: string
+          required:
+            - id
+            - navn
+
+        tiltakstype:
+          type: object
+          properties:
+            navn:
+              type: string
+          required:
+            - navn
+
       required:
         - id
         - tiltaksgjennomforing
         - periodeStart
         - periodeSlutt
         - beregning
+        - tiltakstype
+        - avtale
 
     RefusjonskravStatus:
       type: string

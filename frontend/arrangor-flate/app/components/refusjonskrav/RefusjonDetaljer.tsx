@@ -6,21 +6,18 @@ interface Props {
 }
 
 export function RefusjonDetaljer({ krav }: Props) {
-  const { kravnr, periode, belop } = krav;
+  const { periode, belop } = krav;
 
   return (
     <>
       <Definisjonsliste
         title="Refusjonskrav"
-        definitions={[
-          { key: "Refusjonskravnummer", value: kravnr },
-          { key: "Refusjonskravperiode", value: periode },
-        ]}
+        definitions={[{ key: "Refusjonskravperiode", value: periode }]}
       />
       <Definisjonsliste
         className="mt-4"
         definitions={[
-          { key: "Antall månedsverk", value: "15.27" },
+          { key: "Antall månedsverk", value: "todo" },
           { key: "Total refusjonskrav", value: belop },
         ]}
       />

@@ -4,8 +4,10 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
+import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.AFT1
+import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.okonomi.prismodell.Prismodell
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
@@ -66,6 +68,7 @@ class RefusjonskravRepositoryTest : FunSpec({
                 tiltaksgjennomforing = RefusjonskravDto.Gjennomforing(
                     id = AFT1.id,
                     navn = AFT1.navn,
+                    tiltaksnummer = null,
                 ),
                 periodeStart = LocalDate.of(2023, 1, 1),
                 periodeSlutt = LocalDate.of(2023, 1, 31),
@@ -76,6 +79,13 @@ class RefusjonskravRepositoryTest : FunSpec({
                     slettet = ArrangorFixtures.underenhet1.slettetDato != null,
                 ),
                 beregning = beregning,
+                avtale = RefusjonskravDto.Avtale(
+                    id = AvtaleFixtures.AFT.id,
+                    navn = AvtaleFixtures.AFT.navn,
+                ),
+                tiltakstype = RefusjonskravDto.Tiltakstype(
+                    navn = TiltakstypeFixtures.AFT.navn,
+                ),
             )
         }
     }

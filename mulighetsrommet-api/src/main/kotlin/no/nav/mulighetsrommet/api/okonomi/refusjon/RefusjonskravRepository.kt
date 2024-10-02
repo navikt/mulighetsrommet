@@ -108,6 +108,7 @@ class RefusjonskravRepository(private val db: Database) {
             tiltaksgjennomforing = RefusjonskravDto.Gjennomforing(
                 id = uuid("tiltaksgjennomforing_id"),
                 navn = string("tiltaksgjennomforing_navn"),
+                tiltaksnummer = stringOrNull("tiltaksgjennomforing_tiltaksnummer"),
             ),
             periodeStart = localDate("periode_start"),
             periodeSlutt = localDate("periode_slutt"),
@@ -116,6 +117,13 @@ class RefusjonskravRepository(private val db: Database) {
                 organisasjonsnummer = string("arrangor_organisasjonsnummer"),
                 navn = string("arrangor_navn"),
                 slettet = boolean("arrangor_slettet"),
+            ),
+            avtale = RefusjonskravDto.Avtale(
+                id = uuid("avtale_id"),
+                navn = string("avtale_navn"),
+            ),
+            tiltakstype = RefusjonskravDto.Tiltakstype(
+                navn = string("tiltakstype_navn"),
             ),
             beregning = Json.decodeFromString<Prismodell.RefusjonskravBeregning>(string("beregning")),
         )
