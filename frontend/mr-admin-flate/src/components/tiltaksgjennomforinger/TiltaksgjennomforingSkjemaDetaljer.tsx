@@ -1,5 +1,4 @@
 import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
-import { useHentKontaktpersoner } from "@/api/ansatt/useHentKontaktpersoner";
 import { useTiltaksgjennomforingAdministratorer } from "@/api/ansatt/useTiltaksgjennomforingAdministratorer";
 import { useTiltaksgjennomforingDeltakerSummary } from "@/api/tiltaksgjennomforing/useTiltaksgjennomforingDeltakerSummary";
 import { useMigrerteTiltakstyper } from "@/api/tiltakstyper/useMigrerteTiltakstyper";
@@ -25,7 +24,7 @@ import {
   Toggles,
 } from "@mr/api-client";
 import { ControlledSokeSelect } from "@mr/frontend-common";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useFieldArray, useFormContext } from "react-hook-form";
 import { tiltaktekster } from "../ledetekster/tiltaksgjennomforingLedetekster";
 import { EndreDatoAdvarselModal } from "../modal/EndreDatoAdvarselModal";
@@ -47,6 +46,7 @@ import { KontaktpersonButton } from "@/components/kontaktperson/KontaktpersonBut
 import { isKursTiltak } from "@mr/frontend-common/utils/utils";
 import { useFeatureToggle } from "../../api/features/useFeatureToggle";
 import { TiltaksgjennomforingUtdanningskategorierSkjema } from "../utdanning/TiltaksgjennomforingUtdanningskategorierSkjema";
+import { useSokNavAnsatt } from "@/api/ansatt/useSokNavAnsatt";
 
 interface Props {
   tiltaksgjennomforing?: TiltaksgjennomforingDto;
@@ -65,7 +65,8 @@ function visApentForInnsok(tiltakskode: Tiltakskode) {
 export function TiltaksgjennomforingSkjemaDetaljer({ tiltaksgjennomforing, avtale }: Props) {
   const { data: administratorer } = useTiltaksgjennomforingAdministratorer();
   const { data: ansatt, isLoading: isLoadingAnsatt } = useHentAnsatt();
-  const { data: kontaktpersoner, isLoading: isLoadingKontaktpersoner } = useHentKontaktpersoner();
+  const [kontaktpersonerQuery, setKontaktpersonerQuery] = useState<string>("");
+  const { data: kontaktpersoner } = useSokNavAnsatt(kontaktpersonerQuery);
   const { data: migrerteTiltakstyper = [] } = useMigrerteTiltakstyper();
   const { data: deltakerSummary } = useTiltaksgjennomforingDeltakerSummary(
     tiltaksgjennomforing?.id,
@@ -402,23 +403,20 @@ export function TiltaksgjennomforingSkjemaDetaljer({ tiltaksgjennomforing, avtal
                         <ControlledSokeSelect
                           helpText="Bestemmer kontaktperson som veilederene kan hendvende seg til for informasjon om gjennomføringen. Kan gjelde for én eller flere enheter."
                           size="small"
-                          placeholder={
-                            isLoadingKontaktpersoner ? "Laster kontaktpersoner..." : "Velg en"
-                          }
+                          placeholder="Søk etter kontaktperson"
                           label={tiltaktekster.kontaktpersonNav.navnLabel}
                           {...register(`kontaktpersoner.${index}.navIdent`, {
                             shouldUnregister: true,
                           })}
+                          onInputChange={(s: string) => {
+                            setKontaktpersonerQuery(s);
+                          }}
                           options={kontaktpersonerOption(index)}
                         />
                         <ControlledMultiSelect
                           size="small"
                           velgAlle
-                          placeholder={
-                            isLoadingKontaktpersoner
-                              ? "Laster enheter..."
-                              : "Velg ett eller flere områder"
-                          }
+                          placeholder="Velg ett eller flere områder"
                           label={tiltaktekster.kontaktpersonNav.omradeLabel}
                           {...register(`kontaktpersoner.${index}.navEnheter`, {
                             shouldUnregister: true,

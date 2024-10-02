@@ -8,6 +8,8 @@ import io.ktor.client.plugins.cache.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.domain.dto.AdGruppe
 import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
@@ -58,6 +60,47 @@ class MicrosoftGraphClient(
         return toNavAnsatt(user)
     }
 
+    suspend fun getNavAnsattByNavIdent(navIdent: NavIdent, accessType: AccessType): AzureAdNavAnsatt? {
+        val response = client.get("$baseUrl/v1.0/users") {
+            bearerAuth(tokenProvider.exchange(accessType))
+            parameter("\$filter", "onPremisesSamAccountName eq '$navIdent'")
+            parameter("\$select", "id,streetAddress,city,givenName,surname,onPremisesSamAccountName,mail,mobilePhone")
+        }
+
+        if (!response.status.isSuccess()) {
+            log.error("Feil ved søk på bruker med navIdent=$navIdent {}", response.bodyAsText())
+            throw RuntimeException("Feil ved søk på bruker med navIdent=$navIdent")
+        }
+
+        return response.body<GetUserSearchResponse>()
+            .value
+            .firstOrNull()
+            ?.let {
+                toNavAnsatt(it)
+            }
+    }
+
+    suspend fun getNavAnsattSok(nameQuery: String, accessType: AccessType): List<AzureAdNavAnsatt> {
+        val response = client.get("$baseUrl/v1.0/users") {
+            bearerAuth(tokenProvider.exchange(accessType))
+            parameter("\$search", "displayName:$nameQuery")
+            parameter("\$orderBy", "displayName")
+            parameter("\$select", "id,streetAddress,city,givenName,surname,onPremisesSamAccountName,mail,mobilePhone")
+        }
+
+        if (!response.status.isSuccess()) {
+            log.error("Feil under user search mot Azure {}", response.bodyAsText())
+            throw RuntimeException("Feil under user search mot Azure")
+        }
+
+        return response.body<GetUserSearchResponse>()
+            .value
+            .filter { isNavAnsatt(it) }
+            .map {
+                toNavAnsatt(it)
+            }
+    }
+
     suspend fun getMemberGroups(navAnsattAzureId: UUID, accessType: AccessType): List<AdGruppe> {
         val response = client.get("$baseUrl/v1.0/users/$navAnsattAzureId/transitiveMemberOf/microsoft.graph.group") {
             bearerAuth(tokenProvider.exchange(accessType))
@@ -93,6 +136,18 @@ class MicrosoftGraphClient(
         return result.value
             .filter { isNavAnsatt(it) }
             .map { toNavAnsatt(it) }
+    }
+
+    suspend fun addToGroup(objectId: UUID, groupId: UUID) {
+        val response = client.post("$baseUrl/v1.0/groups/$groupId/members/\$ref") {
+            bearerAuth(tokenProvider.exchange(AccessType.M2M))
+            setBody(AddMemberRequest("https://graph.microsoft.com/v1.0/directoryObjects/$objectId"))
+        }
+
+        if (!response.status.isSuccess()) {
+            log.error("Klarte ikke legge til medlem i AD-gruppe med id=$groupId: {}", response.bodyAsText())
+            throw RuntimeException("Klarte ikke hente medlemmer i AD-gruppe med id=$groupId")
+        }
     }
 
     /**
@@ -133,3 +188,9 @@ class MicrosoftGraphClient(
         )
     }
 }
+
+@Serializable
+data class AddMemberRequest(
+    @SerialName("@odata.id")
+    val odataId: String,
+)

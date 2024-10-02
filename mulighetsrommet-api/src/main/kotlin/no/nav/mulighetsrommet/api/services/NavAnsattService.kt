@@ -1,12 +1,13 @@
 package no.nav.mulighetsrommet.api.services
 
-import io.ktor.client.statement.*
-import io.ktor.http.*
+import kotliquery.Session
 import no.nav.mulighetsrommet.api.AdGruppeNavAnsattRolleMapping
 import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattDbo
+import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattRolle
 import no.nav.mulighetsrommet.api.domain.dto.NavAnsattDto
 import no.nav.mulighetsrommet.api.repositories.NavAnsattRepository
 import no.nav.mulighetsrommet.api.utils.NavAnsattFilter
+import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import org.slf4j.LoggerFactory
 import java.util.*
@@ -29,6 +30,33 @@ class NavAnsattService(
 
     fun getNavAnsatte(filter: NavAnsattFilter): List<NavAnsattDto> {
         return navAnsattRepository.getAll(roller = filter.roller)
+    }
+
+    suspend fun addUserToKontaktpersoner(navIdent: NavIdent, tx: Session) {
+        val kontaktPersonGruppeId = roles.find { it.rolle == NavAnsattRolle.KONTAKTPERSON }?.adGruppeId
+        requireNotNull(kontaktPersonGruppeId)
+
+        val ansatt = navAnsattRepository.getByNavIdent(navIdent)
+            ?: microsoftGraphService.getNavAnsattByNavIdent(navIdent, AccessType.M2M)?.let {
+                NavAnsattDto.fromAzureAdNavAnsatt(it, roller = emptySet())
+            }
+        requireNotNull(ansatt) {
+            "Fant ikke ansatt med navIdent=$navIdent i AzureAd"
+        }
+
+        if (!ansatt.roller.contains(NavAnsattRolle.KONTAKTPERSON)) {
+            microsoftGraphService.addToGroup(ansatt.azureId, kontaktPersonGruppeId)
+        }
+
+        navAnsattRepository.upsert(
+            NavAnsattDbo.fromNavAnsattDto(ansatt).copy(roller = ansatt.roller.plus(NavAnsattRolle.KONTAKTPERSON)),
+            tx,
+        )
+    }
+
+    suspend fun getNavAnsattFromAzureSok(query: String): List<NavAnsattDto> {
+        return microsoftGraphService.getNavAnsattSok(query, AccessType.M2M)
+            .map { NavAnsattDto.fromAzureAdNavAnsatt(it, emptySet()) }
     }
 
     suspend fun getNavAnsattFromAzure(azureId: UUID): NavAnsattDto {
