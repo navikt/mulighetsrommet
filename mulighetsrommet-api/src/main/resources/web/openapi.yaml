@@ -1816,6 +1816,21 @@ paths:
                 items:
                   $ref: "#/components/schemas/RefusjonskravDto"
 
+  /api/v1/intern/refusjon/krav/{id}:
+    get:
+      parameters:
+        - $ref: "#/components/parameters/ID"
+      tags:
+        - Refusjonskrav
+      operationId: getRefusjonkrav
+      responses:
+        200:
+          description: Hent refusjonskrav til arrangør
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RefusjonskravDto"
+
   /api/v1/intern/refusjon/kvittering/{id}:
     parameters:
       - $ref: "#/components/parameters/ID"

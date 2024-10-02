@@ -3,11 +3,16 @@ import { ActionFunction, LoaderFunction, redirect, json } from "@remix-run/node"
 import { Form, useActionData, useLoaderData } from "@remix-run/react";
 import { DeltakerlisteDetaljer } from "../components/deltakerliste/DeltakerlisteDetaljer";
 import { PageHeader } from "../components/PageHeader";
-import { Deltakerliste } from "../domene/domene";
+import { Deltakerliste, Krav, KravStatus, type TilsagnsDetaljer } from "../domene/domene";
 import { requirePersonIdent } from "../auth/auth.server";
+import Divider from "node_modules/@navikt/ds-react/esm/dropdown/Menu/Divider";
+import { RefusjonTilsagnsDetaljer } from "~/components/refusjonskrav/TilsagnsDetaljer";
+import { RefusjonDetaljer } from "~/components/refusjonskrav/RefusjonDetaljer";
 
 type LoaderData = {
   deltakerliste: Deltakerliste;
+  tilsagnsDetaljer: TilsagnsDetaljer;
+  krav: Krav;
 };
 
 export const loader: LoaderFunction = async ({ request, params }): Promise<LoaderData> => {
@@ -24,6 +29,23 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
         refusjonskravperiode: "01.01.2024 - 31.01.2024",
         refusjonskravnummer: "6",
       },
+      deltakere: [],
+    },
+    tilsagnsDetaljer: {
+      antallPlasser: 20,
+      prisPerPlass: 20205,
+      tilsagnsBelop: 1308530,
+      tilsagnsPeriode: "01.06.2024 - 30.06.2024",
+      sum: 1308530,
+    },
+    krav: {
+      id: "6",
+      kravnr: "6",
+      periode: "01.01.2024 - 31.01.2024",
+      belop: "1308530",
+      fristForGodkjenning: "01.02.2024",
+      status: KravStatus.Attestert,
+      tiltaksnr: "2024/123456",
     },
   };
 };
@@ -41,7 +63,7 @@ export const action: ActionFunction = async ({ request }) => {
 };
 
 export default function RefusjonskravDetaljer() {
-  const { deltakerliste } = useLoaderData<LoaderData>();
+  const { deltakerliste, tilsagnsDetaljer, krav } = useLoaderData<LoaderData>();
   const data = useActionData<typeof action>();
 
   return (
@@ -55,6 +77,11 @@ export default function RefusjonskravDetaljer() {
       />
       <VStack gap="5">
         <DeltakerlisteDetaljer deltakerliste={deltakerliste} />
+        <Divider />
+        <RefusjonTilsagnsDetaljer tilsagnsDetaljer={tilsagnsDetaljer} />
+        <Divider />
+        <RefusjonDetaljer krav={krav} />
+
         <Alert variant="info">Her kommer tilsagnsdetaljer</Alert>
         <Alert variant="info">Her kommer info om refusjonskrav</Alert>
         <Form method="post">

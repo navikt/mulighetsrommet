@@ -8,12 +8,13 @@ interface Definition {
 
 interface Props {
   title?: string;
+  className?: string;
   definitions: Definition[];
 }
 
-export function Definisjonsliste({ title, definitions }: Props) {
+export function Definisjonsliste({ title, definitions, className }: Props) {
   return (
-    <div>
+    <div className={className}>
       {title && (
         <Heading className="mb-2" size="medium" level="2">
           {title}
@@ -23,7 +24,7 @@ export function Definisjonsliste({ title, definitions }: Props) {
         {definitions.map((definition, index) => (
           <div className="flex justify-between" key={index}>
             <dt>{definition.key}:</dt>
-            <dd className="font-bold">{definition.value}</dd>
+            <dd className="font-bold text-right">{definition.value}</dd>
           </div>
         ))}
       </dl>
