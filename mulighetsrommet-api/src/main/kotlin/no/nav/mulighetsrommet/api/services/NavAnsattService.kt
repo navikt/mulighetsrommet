@@ -44,14 +44,16 @@ class NavAnsattService(
             "Fant ikke ansatt med navIdent=$navIdent i AzureAd"
         }
 
-        if (!ansatt.roller.contains(NavAnsattRolle.KONTAKTPERSON)) {
-            microsoftGraphService.addToGroup(ansatt.azureId, kontaktPersonGruppeId)
+        if (ansatt.roller.contains(NavAnsattRolle.KONTAKTPERSON)) {
+            return
         }
 
         navAnsattRepository.upsert(
             NavAnsattDbo.fromNavAnsattDto(ansatt).copy(roller = ansatt.roller.plus(NavAnsattRolle.KONTAKTPERSON)),
             tx,
         )
+
+        microsoftGraphService.addToGroup(ansatt.azureId, kontaktPersonGruppeId)
     }
 
     suspend fun getNavAnsattFromAzureSok(query: String): List<NavAnsattDto> {

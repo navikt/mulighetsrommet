@@ -44,10 +44,13 @@ class MicrosoftGraphClient(
         }
     }
 
+    private val azureAdNavAnsattFields =
+        "id,streetAddress,city,givenName,surname,onPremisesSamAccountName,mail,mobilePhone"
+
     suspend fun getNavAnsatt(navAnsattAzureId: UUID, accessType: AccessType): AzureAdNavAnsatt {
         val response = client.get("$baseUrl/v1.0/users/$navAnsattAzureId") {
             bearerAuth(tokenProvider.exchange(accessType))
-            parameter("\$select", "id,streetAddress,city,givenName,surname,onPremisesSamAccountName,mail,mobilePhone")
+            parameter("\$select", azureAdNavAnsattFields)
         }
 
         if (!response.status.isSuccess()) {
@@ -64,7 +67,7 @@ class MicrosoftGraphClient(
         val response = client.get("$baseUrl/v1.0/users") {
             bearerAuth(tokenProvider.exchange(accessType))
             parameter("\$filter", "onPremisesSamAccountName eq '$navIdent'")
-            parameter("\$select", "id,streetAddress,city,givenName,surname,onPremisesSamAccountName,mail,mobilePhone")
+            parameter("\$select", azureAdNavAnsattFields)
         }
 
         if (!response.status.isSuccess()) {
@@ -85,7 +88,7 @@ class MicrosoftGraphClient(
             bearerAuth(tokenProvider.exchange(accessType))
             parameter("\$search", "displayName:$nameQuery")
             parameter("\$orderBy", "displayName")
-            parameter("\$select", "id,streetAddress,city,givenName,surname,onPremisesSamAccountName,mail,mobilePhone")
+            parameter("\$select", azureAdNavAnsattFields)
         }
 
         if (!response.status.isSuccess()) {
@@ -122,7 +125,7 @@ class MicrosoftGraphClient(
     suspend fun getGroupMembers(groupId: UUID): List<AzureAdNavAnsatt> {
         val response = client.get("$baseUrl/v1.0/groups/$groupId/members") {
             bearerAuth(tokenProvider.exchange(AccessType.M2M))
-            parameter("\$select", "id,streetAddress,city,givenName,surname,onPremisesSamAccountName,mail,mobilePhone")
+            parameter("\$select", azureAdNavAnsattFields)
             parameter("\$top", "999")
         }
 
