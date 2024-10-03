@@ -69,6 +69,7 @@ class NavAnsattRepositoryTest : FunSpec({
             mobilnummer = "12345678",
             epost = "donald@nav.no",
             roller = setOf(NavAnsattRolle.TILTAKADMINISTRASJON_GENERELL),
+            skalSlettesDato = null,
         )
 
         val ansatt2 = NavAnsattDbo(
@@ -80,6 +81,7 @@ class NavAnsattRepositoryTest : FunSpec({
             mobilnummer = "12345678",
             epost = "dolly@nav.no",
             roller = setOf(NavAnsattRolle.KONTAKTPERSON),
+            skalSlettesDato = null,
         )
 
         val ansatt3 = NavAnsattDbo(
@@ -91,6 +93,7 @@ class NavAnsattRepositoryTest : FunSpec({
             mobilnummer = "12345678",
             epost = "ole@nav.no",
             roller = setOf(NavAnsattRolle.KONTAKTPERSON, NavAnsattRolle.TILTAKADMINISTRASJON_GENERELL),
+            skalSlettesDato = null,
         )
 
         test("CRUD") {

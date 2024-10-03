@@ -19,6 +19,7 @@ object NavAnsattFixture {
             NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV,
             NavAnsattRolle.AVTALER_SKRIV,
         ),
+        skalSlettesDato = null,
     )
     val ansatt2: NavAnsattDbo = NavAnsattDbo(
         navIdent = NavIdent("DD2"),
@@ -33,5 +34,6 @@ object NavAnsattFixture {
             NavAnsattRolle.TILTAKSGJENNOMFORINGER_SKRIV,
             NavAnsattRolle.AVTALER_SKRIV,
         ),
+        skalSlettesDato = null,
     )
 }

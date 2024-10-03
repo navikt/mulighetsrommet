@@ -14,10 +14,10 @@ data class NavAnsattDbo(
      */
     val hovedenhet: String,
     val azureId: UUID,
-    val mobilnummer: String? = null,
+    val mobilnummer: String?,
     val epost: String,
     val roller: Set<NavAnsattRolle>,
-    val skalSlettesDato: LocalDate? = null,
+    val skalSlettesDato: LocalDate?,
 ) {
     companion object {
         fun fromNavAnsattDto(dto: NavAnsattDto): NavAnsattDbo = NavAnsattDbo(

@@ -1,0 +1,25 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPathPattern": "/ms-graph/v1.0/users"
+  },
+  "response": {
+    "status": 200,
+    "jsonBody": {
+      "value": [
+        {
+          "id": "0bab029e-e84e-4842-8a27-d153b29782cf",
+          "streetAddress": "2990",
+          "city": "IT-Avdelingen",
+          "onPremisesSamAccountName": "B123456",
+          "givenName": "Bertil",
+          "surname": "Bengtsom",
+          "mail": "bertil.bengtson@nav.no"
+        }
+      ]
+    },
+    "headers": {
+      "Content-Type": "application/json"
+    }
+  }
+}

@@ -272,7 +272,7 @@ data class TiltaksgjennomforingRequest(
     val navEnheter: List<String>,
     val oppstart: TiltaksgjennomforingOppstartstype,
     val apentForInnsok: Boolean,
-    val kontaktpersoner: List<NavKontaktpersonForGjennomforing>,
+    val kontaktpersoner: List<TiltaksgjennomforingKontaktpersonDto>,
     val stedForGjennomforing: String?,
     val faneinnhold: Faneinnhold?,
     val beskrivelse: String?,
@@ -330,7 +330,7 @@ data class SetAvtaleForGjennomforingRequest(
 )
 
 @Serializable
-data class NavKontaktpersonForGjennomforing(
+data class TiltaksgjennomforingKontaktpersonDto(
     val navIdent: NavIdent,
     val navEnheter: List<String>,
     val beskrivelse: String?,

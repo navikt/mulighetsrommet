@@ -8,6 +8,8 @@ import io.ktor.client.plugins.cache.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.domain.dto.AdGruppe
 import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
@@ -42,10 +44,13 @@ class MicrosoftGraphClient(
         }
     }
 
+    private val azureAdNavAnsattFields =
+        "id,streetAddress,city,givenName,surname,onPremisesSamAccountName,mail,mobilePhone"
+
     suspend fun getNavAnsatt(navAnsattAzureId: UUID, accessType: AccessType): AzureAdNavAnsatt {
         val response = client.get("$baseUrl/v1.0/users/$navAnsattAzureId") {
             bearerAuth(tokenProvider.exchange(accessType))
-            parameter("\$select", "id,streetAddress,city,givenName,surname,onPremisesSamAccountName,mail,mobilePhone")
+            parameter("\$select", azureAdNavAnsattFields)
         }
 
         if (!response.status.isSuccess()) {
@@ -55,7 +60,50 @@ class MicrosoftGraphClient(
 
         val user = response.body<MsGraphUserDto>()
 
-        return toNavAnsatt(user)
+        return toNavAnsatt(user) ?: throw Exception("Ansatt med azureId ${user.id} manglet required felter")
+    }
+
+    suspend fun getNavAnsattByNavIdent(navIdent: NavIdent, accessType: AccessType): AzureAdNavAnsatt? {
+        val response = client.get("$baseUrl/v1.0/users") {
+            bearerAuth(tokenProvider.exchange(accessType))
+            parameter("\$search", "\"onPremisesSamAccountName:$navIdent\"")
+            parameter("\$select", azureAdNavAnsattFields)
+            header("ConsistencyLevel", "eventual")
+        }
+
+        if (!response.status.isSuccess()) {
+            log.error("Feil ved søk på bruker med navIdent=$navIdent {}", response.bodyAsText())
+            throw RuntimeException("Feil ved søk på bruker med navIdent=$navIdent")
+        }
+
+        return response.body<GetUserSearchResponse>()
+            .value
+            .firstOrNull()
+            ?.let {
+                toNavAnsatt(it)
+            }
+    }
+
+    suspend fun getNavAnsattSok(nameQuery: String, accessType: AccessType): List<AzureAdNavAnsatt> {
+        if (nameQuery.isBlank()) {
+            return emptyList()
+        }
+        val response = client.get("$baseUrl/v1.0/users") {
+            bearerAuth(tokenProvider.exchange(accessType))
+            parameter("\$search", "\"displayName:$nameQuery\"")
+            parameter("\$orderBy", "displayName")
+            parameter("\$select", azureAdNavAnsattFields)
+            header("ConsistencyLevel", "eventual")
+        }
+
+        if (!response.status.isSuccess()) {
+            log.error("Feil under user search mot Azure {}", response.bodyAsText())
+            throw RuntimeException("Feil under user search mot Azure")
+        }
+
+        return response.body<GetUserSearchResponse>()
+            .value
+            .mapNotNull { toNavAnsatt(it) }
     }
 
     suspend fun getMemberGroups(navAnsattAzureId: UUID, accessType: AccessType): List<AdGruppe> {
@@ -79,7 +127,7 @@ class MicrosoftGraphClient(
     suspend fun getGroupMembers(groupId: UUID): List<AzureAdNavAnsatt> {
         val response = client.get("$baseUrl/v1.0/groups/$groupId/members") {
             bearerAuth(tokenProvider.exchange(AccessType.M2M))
-            parameter("\$select", "id,streetAddress,city,givenName,surname,onPremisesSamAccountName,mail,mobilePhone")
+            parameter("\$select", azureAdNavAnsattFields)
             parameter("\$top", "999")
         }
 
@@ -92,7 +140,19 @@ class MicrosoftGraphClient(
 
         return result.value
             .filter { isNavAnsatt(it) }
-            .map { toNavAnsatt(it) }
+            .map { toNavAnsatt(it) ?: throw Exception("Ansatt med azureId ${it.id} manglet required felter") }
+    }
+
+    suspend fun addToGroup(objectId: UUID, groupId: UUID) {
+        val response = client.post("$baseUrl/v1.0/groups/$groupId/members/\$ref") {
+            bearerAuth(tokenProvider.exchange(AccessType.M2M))
+            setBody(AddMemberRequest("https://graph.microsoft.com/v1.0/directoryObjects/$objectId"))
+        }
+
+        if (!response.status.isSuccess()) {
+            log.error("Klarte ikke legge til medlem i AD-gruppe med id=$groupId: {}", response.bodyAsText())
+            throw RuntimeException("Klarte ikke hente medlemmer i AD-gruppe med id=$groupId")
+        }
     }
 
     /**
@@ -102,23 +162,28 @@ class MicrosoftGraphClient(
 
     private fun toNavAnsatt(user: MsGraphUserDto) = when {
         user.onPremisesSamAccountName == null -> {
-            throw RuntimeException("NAVident mangler for bruker med id=${user.id}")
+            log.warn("NAVident mangler for bruker med id=${user.id}")
+            null
         }
-
         user.streetAddress == null -> {
-            throw RuntimeException("NAV Enhetskode mangler for bruker med id=${user.id}")
+            log.warn("NAV Enhetskode mangler for bruker med id=${user.id}")
+            null
         }
-
         user.city == null -> {
-            throw RuntimeException("NAV Enhetsnavn mangler for bruker med id=${user.id}")
+            log.warn("NAV Enhetsnavn mangler for bruker med id=${user.id}")
+            null
         }
-
         user.givenName == null -> {
-            throw RuntimeException("Fornavn på ansatt mangler for bruker med id=${user.id}")
+            log.warn("Fornavn på ansatt mangler for bruker med id=${user.id}")
+            null
         }
-
         user.surname == null -> {
-            throw RuntimeException("Etternavn på ansatt mangler for bruker med id=${user.id}")
+            log.warn("Etternavn på ansatt mangler for bruker med id=${user.id}")
+            null
+        }
+        user.mail == null -> {
+            log.warn("Epost på ansatt mangler for bruker med id=${user.id}")
+            null
         }
 
         else -> AzureAdNavAnsatt(
@@ -133,3 +198,9 @@ class MicrosoftGraphClient(
         )
     }
 }
+
+@Serializable
+data class AddMemberRequest(
+    @SerialName("@odata.id")
+    val odataId: String,
+)

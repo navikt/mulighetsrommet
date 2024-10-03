@@ -44,6 +44,7 @@ class TiltaksgjennomforingService(
     private val validator: TiltaksgjennomforingValidator,
     private val documentHistoryService: EndringshistorikkService,
     private val tiltakstypeService: TiltakstypeService,
+    private val navAnsattService: NavAnsattService,
     private val db: Database,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
@@ -58,6 +59,10 @@ class TiltaksgjennomforingService(
                 db.transactionSuspend { tx ->
                     if (previous?.toTiltaksgjennomforingDbo() == dbo) {
                         return@transactionSuspend previous
+                    }
+
+                    dbo.kontaktpersoner.forEach {
+                        navAnsattService.addUserToKontaktpersoner(it.navIdent, tx)
                     }
 
                     tiltaksgjennomforinger.upsert(dbo, tx)
