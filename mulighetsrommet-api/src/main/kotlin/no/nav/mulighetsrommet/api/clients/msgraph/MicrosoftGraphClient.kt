@@ -60,14 +60,15 @@ class MicrosoftGraphClient(
 
         val user = response.body<MsGraphUserDto>()
 
-        return toNavAnsatt(user)
+        return toNavAnsatt(user) ?: throw Exception("Ansatt med azureId ${user.id} manglet required felter")
     }
 
     suspend fun getNavAnsattByNavIdent(navIdent: NavIdent, accessType: AccessType): AzureAdNavAnsatt? {
         val response = client.get("$baseUrl/v1.0/users") {
             bearerAuth(tokenProvider.exchange(accessType))
-            parameter("\$filter", "onPremisesSamAccountName eq '$navIdent'")
+            parameter("\$search", "\"onPremisesSamAccountName:$navIdent\"")
             parameter("\$select", azureAdNavAnsattFields)
+            header("ConsistencyLevel", "eventual")
         }
 
         if (!response.status.isSuccess()) {
@@ -102,10 +103,7 @@ class MicrosoftGraphClient(
 
         return response.body<GetUserSearchResponse>()
             .value
-            .filter { isNavAnsatt(it) }
-            .map {
-                toNavAnsatt(it)
-            }
+            .mapNotNull { toNavAnsatt(it) }
     }
 
     suspend fun getMemberGroups(navAnsattAzureId: UUID, accessType: AccessType): List<AdGruppe> {
@@ -142,7 +140,7 @@ class MicrosoftGraphClient(
 
         return result.value
             .filter { isNavAnsatt(it) }
-            .map { toNavAnsatt(it) }
+            .map { toNavAnsatt(it) ?: throw Exception("Ansatt med azureId ${it.id} manglet required felter") }
     }
 
     suspend fun addToGroup(objectId: UUID, groupId: UUID) {
@@ -164,23 +162,28 @@ class MicrosoftGraphClient(
 
     private fun toNavAnsatt(user: MsGraphUserDto) = when {
         user.onPremisesSamAccountName == null -> {
-            throw RuntimeException("NAVident mangler for bruker med id=${user.id}")
+            log.warn("NAVident mangler for bruker med id=${user.id}")
+            null
         }
-
         user.streetAddress == null -> {
-            throw RuntimeException("NAV Enhetskode mangler for bruker med id=${user.id}")
+            log.warn("NAV Enhetskode mangler for bruker med id=${user.id}")
+            null
         }
-
         user.city == null -> {
-            throw RuntimeException("NAV Enhetsnavn mangler for bruker med id=${user.id}")
+            log.warn("NAV Enhetsnavn mangler for bruker med id=${user.id}")
+            null
         }
-
         user.givenName == null -> {
-            throw RuntimeException("Fornavn på ansatt mangler for bruker med id=${user.id}")
+            log.warn("Fornavn på ansatt mangler for bruker med id=${user.id}")
+            null
         }
-
         user.surname == null -> {
-            throw RuntimeException("Etternavn på ansatt mangler for bruker med id=${user.id}")
+            log.warn("Etternavn på ansatt mangler for bruker med id=${user.id}")
+            null
+        }
+        user.mail == null -> {
+            log.warn("Epost på ansatt mangler for bruker med id=${user.id}")
+            null
         }
 
         else -> AzureAdNavAnsatt(
