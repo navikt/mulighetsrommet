@@ -23,23 +23,19 @@ class RefusjonskravRepository(private val db: Database) {
                 tiltaksgjennomforing_id,
                 periode_start,
                 periode_slutt,
-                arrangor_id,
                 beregning
             ) values (
                 :id::uuid,
                 :tiltaksgjennomforing_id::uuid,
                 :periode_start,
                 :periode_slutt,
-                :arrangor_id::uuid,
                 :beregning::jsonb
             )
             on conflict (id) do update set
                 tiltaksgjennomforing_id = excluded.tiltaksgjennomforing_id,
                 periode_start           = excluded.periode_start,
                 periode_slutt           = excluded.periode_slutt,
-                arrangor_id             = excluded.arrangor_id,
                 beregning               = excluded.beregning
-            returning *
         """.trimIndent()
 
         tx.run(queryOf(query, dbo.toSqlParameters()).asExecute)
@@ -98,7 +94,6 @@ class RefusjonskravRepository(private val db: Database) {
         "tiltaksgjennomforing_id" to tiltaksgjennomforingId,
         "periode_start" to periodeStart,
         "periode_slutt" to periodeSlutt,
-        "arrangor_id" to arrangorId,
         "beregning" to Json.encodeToString(beregning),
     )
 

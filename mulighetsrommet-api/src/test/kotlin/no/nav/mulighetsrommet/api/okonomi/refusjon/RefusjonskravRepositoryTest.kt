@@ -55,7 +55,6 @@ class RefusjonskravRepositoryTest : FunSpec({
             tiltaksgjennomforingId = AFT1.id,
             periodeStart = LocalDate.of(2023, 1, 1),
             periodeSlutt = LocalDate.of(2023, 1, 31),
-            arrangorId = ArrangorFixtures.underenhet1.id,
             beregning = beregning,
         )
 
