@@ -160,3 +160,14 @@ enum class TiltakshistorikkMelding {
     MANGLER_HISTORIKK_FRA_TEAM_TILTAK,
     HENTER_IKKE_HISTORIKK_FRA_TEAM_TILTAK,
 }
+
+@Serializable
+data class GruppetiltakDeltakelserRequest(
+    @Serializable(with = UUIDSerializer::class)
+    val gruppetiltakId: UUID,
+)
+
+@Serializable
+data class GruppetiltakDeltakelserResponse(
+    val deltakelser: List<Tiltakshistorikk.GruppetiltakDeltakelse>,
+)

@@ -8,6 +8,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import no.nav.mulighetsrommet.domain.dbo.ArenaDeltakerDbo
+import no.nav.mulighetsrommet.domain.dto.GruppetiltakDeltakelserResponse
 import no.nav.mulighetsrommet.domain.dto.TiltakshistorikkRequest
 import no.nav.mulighetsrommet.tiltakshistorikk.repositories.DeltakerRepository
 import java.util.*
@@ -22,6 +23,18 @@ fun Route.tiltakshistorikkRoutes(
                 val request = call.receive<TiltakshistorikkRequest>()
 
                 val response = service.getTiltakshistorikk(request)
+
+                call.respond(response)
+            }
+
+            get("/gruppetiltak/{id}") {
+                val id: UUID by call.parameters
+
+                val deltakelser = deltakerRepository.getGruppetiltakDeltakelser(id)
+
+                val response = GruppetiltakDeltakelserResponse(
+                    deltakelser = deltakelser,
+                )
 
                 call.respond(response)
             }

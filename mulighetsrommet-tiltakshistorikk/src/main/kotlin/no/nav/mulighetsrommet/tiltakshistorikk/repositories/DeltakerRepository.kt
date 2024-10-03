@@ -143,6 +143,33 @@ class DeltakerRepository(private val db: Database) {
         queryOf(query, deltaker.toSqlParameters()).asExecute.runWithSession(session)
     }
 
+    fun getGruppetiltakDeltakelser(gruppetiltakId: UUID): List<Tiltakshistorikk.GruppetiltakDeltakelse> =
+        db.useSession { session ->
+            @Language("PostgreSQL")
+            val query = """
+                select
+                    deltaker.person_ident as norsk_ident,
+                    deltaker.id,
+                    deltaker.start_dato,
+                    deltaker.slutt_dato,
+                    deltaker.status_type,
+                    deltaker.status_aarsak,
+                    deltaker.status_opprettet_dato,
+                    gruppetiltak.id as gruppetiltak_id,
+                    gruppetiltak.navn as gruppetiltak_navn,
+                    gruppetiltak.tiltakskode as gruppetiltak_tiltakskode,
+                    gruppetiltak.arrangor_organisasjonsnummer
+                from komet_deltaker deltaker join gruppetiltak on deltaker.gjennomforing_id = gruppetiltak.id
+                where gruppetiltak.id = :gruppetiltak_id
+            """.trimIndent()
+
+            val params = mapOf(
+                "gruppetiltak_id" to gruppetiltakId,
+            )
+
+            queryOf(query, params).map { it.toGruppetiltakDeltakelse() }.asList.runWithSession(session)
+        }
+
     fun getKometHistorikk(identer: List<NorskIdent>, maxAgeYears: Int?) = db.useSession { session ->
         @Language("PostgreSQL")
         val query = """

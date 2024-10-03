@@ -185,7 +185,7 @@ class TiltakshistorikkServiceTest : FunSpec({
     }
 
     test("henter historikk for bruker basert på person id") {
-        coEvery { tiltakshistorikkClient.historikk(any()) } returns TiltakshistorikkResponse(
+        coEvery { tiltakshistorikkClient.getTiltakshistorikk(any()) } returns TiltakshistorikkResponse(
             historikk = listOf(tiltakshistorikkOppfolging, tiltakshistorikkAvklaring, tiltakshistorikkArbeidstrening),
             meldinger = setOf(),
         )
@@ -212,7 +212,7 @@ class TiltakshistorikkServiceTest : FunSpec({
     }
 
     test("inkluderer deltakelser fra komet når de ikke finnes i tiltakshistorikken") {
-        coEvery { tiltakshistorikkClient.historikk(any()) } returns TiltakshistorikkResponse(
+        coEvery { tiltakshistorikkClient.getTiltakshistorikk(any()) } returns TiltakshistorikkResponse(
             historikk = listOf(tiltakshistorikkAvklaring),
             meldinger = setOf(),
         )
@@ -239,7 +239,7 @@ class TiltakshistorikkServiceTest : FunSpec({
     }
 
     test("viser kun deltakelser fra tiltakshistorikken når det ikke returneres deltakelser fra komet") {
-        coEvery { tiltakshistorikkClient.historikk(any()) } returns TiltakshistorikkResponse(
+        coEvery { tiltakshistorikkClient.getTiltakshistorikk(any()) } returns TiltakshistorikkResponse(
             historikk = listOf(tiltakshistorikkAvklaring),
             meldinger = setOf(),
         )
@@ -266,7 +266,7 @@ class TiltakshistorikkServiceTest : FunSpec({
     }
 
     test("sorterer deltakelser basert nyeste startdato") {
-        coEvery { tiltakshistorikkClient.historikk(any()) } returns TiltakshistorikkResponse(
+        coEvery { tiltakshistorikkClient.getTiltakshistorikk(any()) } returns TiltakshistorikkResponse(
             historikk = listOf(tiltakshistorikkAvklaring, tiltakshistorikkOppfolging),
             meldinger = setOf(),
         )
