@@ -7,28 +7,24 @@ const tekster = {
   manglerBelop: "Du må skrive inn et beløp for tilsagnet",
 } as const;
 
-const TilsagnBeregningSchema = z.discriminatedUnion("type", [
-  z.object({
-    type: z.literal("AFT"),
-    sats: z.number(),
-    antallPlasser: z.number(),
-    belop: z.number(),
-    periodeStart: z
-      .string({ required_error: tekster.manglerStartdato })
-      .min(10, tekster.manglerStartdato),
-    periodeSlutt: z
-      .string({ required_error: tekster.manglerSluttdato })
-      .min(10, tekster.manglerSluttdato),
-  }),
-  z.object({
-    type: z.literal("FRI"),
-    belop: z.number(),
-  }),
-]);
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const AFTBeregningSchema = z.object({
+  sats: z.number(),
+  antallPlasser: z.number(),
+  belop: z.number(),
+  periodeStart: z
+    .string({ required_error: tekster.manglerStartdato })
+    .min(10, tekster.manglerStartdato),
+  periodeSlutt: z
+    .string({ required_error: tekster.manglerSluttdato })
+    .min(10, tekster.manglerSluttdato),
+});
+
+export type InferredAFTBeregningSchema = z.infer<typeof AFTBeregningSchema>;
 
 export const OpprettTilsagnSchema = z
   .object({
-    id: z.string().optional().nullable(),
+    id: z.string().nullish(),
     periode: z.object({
       start: z
         .string({ required_error: tekster.manglerStartdato })
@@ -37,8 +33,10 @@ export const OpprettTilsagnSchema = z
         .string({ required_error: tekster.manglerSluttdato })
         .min(10, tekster.manglerSluttdato),
     }),
-    kostnadssted: z.string().length(4, tekster.manglerKostnadssted),
-    beregning: TilsagnBeregningSchema,
+    kostnadssted: z
+      .string({ required_error: tekster.manglerKostnadssted })
+      .length(4, tekster.manglerKostnadssted),
+    belop: z.number(),
   })
   .superRefine((data, ctx) => {
     if (data.periode.slutt < data.periode.start) {
@@ -46,13 +44,6 @@ export const OpprettTilsagnSchema = z
         code: ZodIssueCode.custom,
         message: "Sluttdato kan ikke være før startdato",
         path: ["periode.slutt"],
-      });
-    }
-    if (!data.beregning) {
-      ctx.addIssue({
-        code: ZodIssueCode.custom,
-        message: "Beregning mangler",
-        path: ["beregning"],
       });
     }
   });

@@ -5,7 +5,7 @@ import { mockTiltaksgjennomforinger } from "./mock_tiltaksgjennomforinger";
 export const mockTilsagn: TilsagnDto[] = [
   {
     arrangor: mockArrangorer.data[0],
-    beregning: { type: "FRI", belop: 14000 },
+    belop: 14000,
     id: "10e393b0-1b7c-4c68-9a42-b541b2f114b8",
     kostnadssted: {
       enhetsnummer: "0300",
@@ -22,7 +22,7 @@ export const mockTilsagn: TilsagnDto[] = [
   },
   {
     arrangor: mockArrangorer.data[0],
-    beregning: { type: "FRI", belop: 14000 },
+    belop: 14000,
     id: "fd1825aa-1951-4de2-9b72-12d22f121e92",
     kostnadssted: {
       enhetsnummer: "0300",
@@ -39,7 +39,7 @@ export const mockTilsagn: TilsagnDto[] = [
   },
   {
     arrangor: mockArrangorer.data[0],
-    beregning: { type: "FRI", belop: 67000 },
+    belop: 67000,
     id: "5950e714-95bc-4d4c-b52e-c75fde749056",
     kostnadssted: {
       enhetsnummer: "0300",

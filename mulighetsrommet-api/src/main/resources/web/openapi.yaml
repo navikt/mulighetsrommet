@@ -1721,24 +1721,6 @@ paths:
                 items:
                   $ref: "#/components/schemas/TilsagnDto"
 
-  /api/v1/intern/tilsagn/beregn:
-    post:
-      tags:
-        - Beregn Tilsagn
-      operationId: beregnTilsagn
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/TilsagnBeregningInput"
-      responses:
-        200:
-          description: TilsagnBeregning
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/TilsagnBeregning"
-
   /api/v1/intern/tilsagn/{id}:
     parameters:
       - $ref: "#/components/parameters/ID"
@@ -1780,6 +1762,24 @@ paths:
             text/plain:
               schema:
                 type: string
+
+  /api/v1/intern/tilsagn/aft/beregn:
+    post:
+      tags:
+        - Beregn AFT Tilsagn
+      operationId: beregnAFTTilsagn
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AFTBeregningInput"
+      responses:
+        200:
+          description: AFTTilsagnBeregning resultat
+          content:
+            application/json:
+              schema:
+                type: integer
 
   /api/v1/intern/tilsagn/aft/sats:
     get:
@@ -4637,15 +4637,15 @@ components:
           format: date
         kostnadssted:
           type: string
-        beregning:
-          $ref: "#/components/schemas/TilsagnBeregning"
+        belop:
+          type: integer
       required:
         - id
         - tiltaksgjennomforingId
         - periodeStart
         - periodeSlutt
         - kostnadssted
-        - beregning
+        - belop
 
     TilsagnDto:
       type: object
@@ -4664,8 +4664,8 @@ components:
           format: date
         kostnadssted:
           $ref: "#/components/schemas/NavEnhet"
-        beregning:
-          $ref: "#/components/schemas/TilsagnBeregning"
+        belop:
+          type: integer
         besluttelse:
           $ref: "#/components/schemas/TilsagnBesluttelseDto"
         annullertTidspunkt:
@@ -4699,7 +4699,6 @@ components:
         - periodeStart
         - periodeSlutt
         - kostnadssted
-        - beregning
         - belop
         - arrangor
         - lopenummer
@@ -4732,62 +4731,8 @@ components:
         besluttelse:
           $ref: "#/components/schemas/TilsagnBesluttelse"
 
-    TilsagnBeregning:
-      oneOf:
-        - $ref: "#/components/schemas/TilsagnBeregningAFT"
-        - $ref: "#/components/schemas/TilsagnBeregningFri"
-
-    TilsagnBeregningAFT:
-      type: object
+    AFTBeregningInput:
       properties:
-        type:
-          type: string
-          enum:
-            - AFT
-        sats:
-          type: integer
-        antallPlasser:
-          type: integer
-        belop:
-          type: integer
-        periodeStart:
-          type: string
-          format: date
-        periodeSlutt:
-          type: string
-          format: date
-      required:
-        - type
-        - sats
-        - antallPlasser
-        - belop
-        - periodeStart
-        - periodeSlutt
-
-    TilsagnBeregningFri:
-      type: object
-      properties:
-        type:
-          type: string
-          enum:
-            - FRI
-        belop:
-          type: integer
-      required:
-        - type
-        - belop
-
-    TilsagnBeregningInput:
-      oneOf:
-        - $ref: "#/components/schemas/TilsagnBeregningInputAFT"
-        - $ref: "#/components/schemas/TilsagnBeregningInputFri"
-
-    TilsagnBeregningInputAFT:
-      properties:
-        type:
-          type: string
-          enum:
-            - AFT
         periodeStart:
           type: string
           format: date
@@ -4799,23 +4744,17 @@ components:
         sats:
           type: integer
       required:
-        - type
         - periodeStart
         - periodeSlutt
         - sats
         - antallPlasser
 
-    TilsagnBeregningInputFri:
+    FriBeregningInput:
       type: object
       properties:
-        type:
-          type: string
-          enum:
-            - FRI
         belop:
           type: integer
       required:
-        - type
         - belop
 
     AFTSats:

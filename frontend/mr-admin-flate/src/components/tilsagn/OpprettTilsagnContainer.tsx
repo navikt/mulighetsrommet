@@ -23,7 +23,7 @@ export function OpprettTilsagnContainer({ tiltaksgjennomforing, tilsagn }: Props
       periodeStart: data.periode.start,
       periodeSlutt: data.periode.slutt,
       kostnadssted: data.kostnadssted,
-      beregning: data.beregning,
+      belop: data.belop,
       tiltaksgjennomforingId: tiltaksgjennomforing.id,
     };
 

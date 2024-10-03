@@ -13,18 +13,15 @@ export function FriBeregningSkjema() {
   return (
     <NumericFormat
       size="small"
-      error={errors.beregning?.message}
+      error={errors.belop?.message}
       label="Beløp i kroner"
       customInput={TextField}
-      value={watch("beregning")?.belop ?? 0}
+      value={watch("belop") ?? 0}
       valueIsNumericString
       thousandSeparator
       suffix=" kr"
       onValueChange={(e) => {
-        setValue("beregning", {
-          type: "FRI",
-          belop: Number.parseInt(e.value),
-        });
+        setValue("belop", Number.parseInt(e.value));
       }}
     />
   );

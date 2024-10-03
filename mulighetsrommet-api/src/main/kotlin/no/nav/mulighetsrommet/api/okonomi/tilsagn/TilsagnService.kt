@@ -6,7 +6,6 @@ import arrow.core.right
 import no.nav.mulighetsrommet.api.okonomi.BestillingDto
 import no.nav.mulighetsrommet.api.okonomi.OkonomiClient
 import no.nav.mulighetsrommet.api.okonomi.prismodell.Prismodell
-import no.nav.mulighetsrommet.api.okonomi.prismodell.Prismodell.TilsagnBeregning
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.responses.*
 import no.nav.mulighetsrommet.database.Database
@@ -37,31 +36,16 @@ class TilsagnService(
             }
     }
 
-    fun tilsagnBeregning(input: TilsagnBeregningInput): Either<List<ValidationError>, TilsagnBeregning> {
-        return validator.validateBeregningInput(input)
+    fun aftTilsagnBeregning(input: AFTTilsagnBeregningInput): Either<List<ValidationError>, Int> {
+        return validator.validateAFTBeregningInput(input)
             .map {
-                when (input) {
-                    is TilsagnBeregningInput.AFT -> aftTilsagnBeregning(input)
-                    is TilsagnBeregningInput.Fri -> TilsagnBeregning.Fri(input.belop)
-                }
+                Prismodell.AFT.beregnTilsagnBelop(
+                    sats = input.sats,
+                    antallPlasser = input.antallPlasser,
+                    periodeStart = input.periodeStart,
+                    periodeSlutt = input.periodeSlutt,
+                )
             }
-    }
-
-    private fun aftTilsagnBeregning(input: TilsagnBeregningInput.AFT): TilsagnBeregning.AFT {
-        val belop = Prismodell.AFT.beregnTilsagnBelop(
-            sats = input.sats,
-            antallPlasser = input.antallPlasser,
-            periodeStart = input.periodeStart,
-            periodeSlutt = input.periodeSlutt,
-        )
-
-        return TilsagnBeregning.AFT(
-            sats = input.sats,
-            antallPlasser = input.antallPlasser,
-            periodeStart = input.periodeStart,
-            periodeSlutt = input.periodeSlutt,
-            belop = belop,
-        )
     }
 
     suspend fun beslutt(id: UUID, besluttelse: TilsagnBesluttelse, navIdent: NavIdent): StatusResponse<Unit> {
@@ -122,7 +106,7 @@ class TilsagnService(
                 periodeSlutt = tilsagn.periodeSlutt,
                 organisasjonsnummer = Organisasjonsnummer(gjennomforing.arrangor.organisasjonsnummer),
                 kostnadSted = tilsagn.kostnadssted,
-                belop = tilsagn.beregning.belop,
+                belop = tilsagn.belop,
             ),
         )
     }

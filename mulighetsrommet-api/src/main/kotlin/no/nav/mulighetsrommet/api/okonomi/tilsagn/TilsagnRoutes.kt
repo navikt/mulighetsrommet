@@ -5,7 +5,6 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.okonomi.prismodell.Prismodell
 import no.nav.mulighetsrommet.api.plugins.AuthProvider
@@ -31,15 +30,6 @@ fun Route.tilsagnRoutes() {
             val result = service.get(id) ?: NotFound()
 
             call.respond(result)
-        }
-
-        post("/beregn") {
-            val request = call.receive<TilsagnBeregningInput>()
-
-            val result = service.tilsagnBeregning(request)
-                .mapLeft { BadRequest(errors = it) }
-
-            call.respondWithStatusResponse(result)
         }
 
         authenticate(AuthProvider.AZURE_AD_TILTAKSJENNOMFORINGER_SKRIV) {
@@ -70,15 +60,26 @@ fun Route.tilsagnRoutes() {
             }
         }
 
-        get("/aft/sats") {
-            call.respond(
-                Prismodell.AFT.satser.map {
-                    AFTSats(
-                        startDato = it.key,
-                        belop = it.value,
-                    )
-                },
-            )
+        route("/aft") {
+            post("/beregn") {
+                val request = call.receive<AFTTilsagnBeregningInput>()
+
+                val result = service.aftTilsagnBeregning(request)
+                    .mapLeft { BadRequest(errors = it) }
+
+                call.respondWithStatusResponse(result)
+            }
+
+            get("/sats") {
+                call.respond(
+                    Prismodell.AFT.satser.map {
+                        AFTSats(
+                            startDato = it.key,
+                            belop = it.value,
+                        )
+                    },
+                )
+            }
         }
     }
 
@@ -106,7 +107,7 @@ data class TilsagnRequest(
     @Serializable(with = LocalDateSerializer::class)
     val periodeSlutt: LocalDate,
     val kostnadssted: String,
-    val beregning: Prismodell.TilsagnBeregning,
+    val belop: Int,
 ) {
     fun toDbo(
         opprettetAv: NavIdent,
@@ -117,7 +118,7 @@ data class TilsagnRequest(
         periodeStart = periodeStart,
         periodeSlutt = periodeSlutt,
         kostnadssted = kostnadssted,
-        beregning = beregning,
+        belop = belop,
         opprettetAv = opprettetAv,
         arrangorId = arrangorId,
     )
@@ -134,22 +135,17 @@ enum class TilsagnBesluttelse {
 }
 
 @Serializable
-sealed class TilsagnBeregningInput {
-    @Serializable
-    @SerialName("AFT")
-    data class AFT(
-        @Serializable(with = LocalDateSerializer::class)
-        val periodeStart: LocalDate,
-        @Serializable(with = LocalDateSerializer::class)
-        val periodeSlutt: LocalDate,
-        val antallPlasser: Int,
-        val sats: Int,
-    ) : TilsagnBeregningInput()
+data class AFTTilsagnBeregningInput(
+    @Serializable(with = LocalDateSerializer::class)
+    val periodeStart: LocalDate,
+    @Serializable(with = LocalDateSerializer::class)
+    val periodeSlutt: LocalDate,
+    val antallPlasser: Int,
+    val sats: Int,
+)
 
-    @Serializable
-    @SerialName("FRI")
-    data class Fri(val belop: Int) : TilsagnBeregningInput()
-}
+@Serializable
+data class FriTilsagnBeregningInput(val belop: Int)
 
 @Serializable
 data class AFTSats(

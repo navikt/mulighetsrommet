@@ -23,7 +23,7 @@ export function Tilsagnstabell({ tilsagn }: Props) {
   }
 
   function totalSum(tilsagn: TilsagnDto[]): number {
-    return tilsagn.reduce((acc, tilsagn) => acc + tilsagn.beregning.belop, 0);
+    return tilsagn.reduce((acc, tilsagn) => acc + tilsagn.belop, 0);
   }
 
   function TilsagnStatus(props: { tilsagn: TilsagnDto; ansatt?: NavAnsatt }) {
@@ -94,7 +94,7 @@ export function Tilsagnstabell({ tilsagn }: Props) {
       </Table.Header>
       <Table.Body>
         {tilsagn.map((tilsagn) => {
-          const { periodeStart, periodeSlutt, kostnadssted, beregning, id, besluttelse } = tilsagn;
+          const { periodeStart, periodeSlutt, kostnadssted, belop, id, besluttelse } = tilsagn;
           return (
             <Table.Row key={id}>
               <Table.DataCell>{formaterDato(periodeStart)}</Table.DataCell>
@@ -102,7 +102,7 @@ export function Tilsagnstabell({ tilsagn }: Props) {
               <Table.DataCell>
                 {kostnadssted.navn} {kostnadssted.enhetsnummer}
               </Table.DataCell>
-              <Table.DataCell>{formaterTall(beregning.belop)} kr</Table.DataCell>
+              <Table.DataCell>{formaterTall(belop)} kr</Table.DataCell>
               <Table.DataCell>
                 <TilsagnStatus tilsagn={tilsagn} ansatt={ansatt} />
               </Table.DataCell>

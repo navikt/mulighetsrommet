@@ -8,7 +8,6 @@ import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Gjovik
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.AFT1
-import no.nav.mulighetsrommet.api.okonomi.prismodell.Prismodell
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.responses.BadRequest
 import no.nav.mulighetsrommet.api.responses.Forbidden
@@ -48,13 +47,7 @@ class TilsagnServiceTest : FunSpec({
             periodeStart = LocalDate.of(2023, 1, 1),
             periodeSlutt = LocalDate.of(2023, 2, 1),
             kostnadssted = Gjovik.enhetsnummer,
-            beregning = Prismodell.TilsagnBeregning.AFT(
-                belop = 123,
-                periodeStart = LocalDate.of(2023, 1, 1),
-                periodeSlutt = LocalDate.of(2023, 2, 1),
-                antallPlasser = 2,
-                sats = 4,
-            ),
+            belop = 123,
         )
 
         test("kan ikke beslutte egne") {

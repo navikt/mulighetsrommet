@@ -14,7 +14,6 @@ import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattDbo
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.api.fixtures.*
-import no.nav.mulighetsrommet.api.okonomi.prismodell.Prismodell
 import no.nav.mulighetsrommet.api.okonomi.tilsagn.TilsagnDto
 import no.nav.mulighetsrommet.api.okonomi.tilsagn.TilsagnDto.Arrangor
 import no.nav.mulighetsrommet.api.okonomi.tilsagn.TilsagnRepository
@@ -111,7 +110,7 @@ class TiltaksgjennomforingServiceTest : FunSpec({
                     periodeSlutt = LocalDate.now().plusDays(1),
                     opprettetAv = NavIdent("Z123123"),
                     kostnadssted = NavEnhetFixtures.Oslo,
-                    beregning = Prismodell.TilsagnBeregning.Fri(123),
+                    belop = 123,
                     annullertTidspunkt = null,
                     lopenummer = 1,
                     arrangor = Arrangor(

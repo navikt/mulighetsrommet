@@ -6,7 +6,7 @@ select
     tilsagn.tiltaksgjennomforing_id,
     tilsagn.periode_start,
     tilsagn.periode_slutt,
-    tilsagn.beregning,
+    tilsagn.belop,
     tilsagn.annullert_tidspunkt,
     tilsagn.lopenummer,
     tilsagn.kostnadssted,

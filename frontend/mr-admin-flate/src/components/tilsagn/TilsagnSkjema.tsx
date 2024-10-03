@@ -38,7 +38,7 @@ export function TilsagnSkjema({
     defaultValues: tilsagn
       ? {
           id: tilsagn.id,
-          beregning: tilsagn.beregning,
+          belop: tilsagn.belop,
           kostnadssted: tilsagn.kostnadssted.enhetsnummer,
           periode: {
             start: tilsagn.periodeStart,
@@ -48,13 +48,13 @@ export function TilsagnSkjema({
       : {},
   });
 
-  const { handleSubmit, register, setValue } = form;
+  const { handleSubmit, register, setValue, watch } = form;
 
   useEffect(() => {
     if (tilsagn) {
       setValue("id", tilsagn.id);
       setValue("kostnadssted", tilsagn?.kostnadssted.enhetsnummer);
-      setValue("beregning", tilsagn.beregning);
+      setValue("belop", tilsagn.belop);
       setValue("periode.start", tilsagn.periodeStart);
       setValue("periode.slutt", tilsagn.periodeSlutt);
     }
@@ -104,7 +104,16 @@ export function TilsagnSkjema({
         </FormGroup>
         <FormGroup>
           {prismodell == "AFT" ? (
-            <AFTBeregningSkjema defaultAntallPlasser={tiltaksgjennomforing.antallPlasser} />
+            <AFTBeregningSkjema
+              defaultAntallPlasser={tiltaksgjennomforing.antallPlasser}
+              periodeStart={watch("periode.start")}
+              periodeSlutt={watch("periode.slutt")}
+              onBelopChange={(value) => {
+                if (value) {
+                  setValue("belop", value);
+                }
+              }}
+            />
           ) : (
             <FriBeregningSkjema />
           )}
@@ -138,7 +147,6 @@ export function TilsagnSkjema({
           <Button size="small" type="submit" disabled={mutation.isPending}>
             {mutation.isPending ? "Sender til beslutning" : "Send til beslutning"}
           </Button>
-
           <Button onClick={onAvbryt} size="small" type="button" variant="primary-neutral">
             Avbryt
           </Button>

@@ -6,10 +6,8 @@ import arrow.core.nel
 import arrow.core.raise.either
 import arrow.core.right
 import no.nav.mulighetsrommet.api.okonomi.prismodell.Prismodell
-import no.nav.mulighetsrommet.api.okonomi.prismodell.Prismodell.TilsagnBeregning
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.api.responses.ValidationError
-import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.dto.NavIdent
 
 class TilsagnValidator(
@@ -39,26 +37,6 @@ class TilsagnValidator(
                 .left()
         }
 
-        when (request.beregning) {
-            is TilsagnBeregning.AFT -> {
-                if (gjennomforing.tiltakstype.tiltakskode != Tiltakskode.ARBEIDSFORBEREDENDE_TRENING) {
-                    return ValidationError
-                        .of(TilsagnDto::id, "Feil prismodell")
-                        .nel()
-                        .left()
-                }
-            }
-
-            is TilsagnBeregning.Fri -> {
-                if (gjennomforing.tiltakstype.tiltakskode == Tiltakskode.ARBEIDSFORBEREDENDE_TRENING) {
-                    return ValidationError
-                        .of(TilsagnDto::id, "Feil prismodell")
-                        .nel()
-                        .left()
-                }
-            }
-        }
-
         val next = request.toDbo(navIdent, gjennomforing.arrangor.id)
 
         val errors = buildList {
@@ -70,29 +48,22 @@ class TilsagnValidator(
         return errors.takeIf { it.isNotEmpty() }?.left() ?: next.right()
     }
 
-    fun validateBeregningInput(input: TilsagnBeregningInput): Either<List<ValidationError>, TilsagnBeregningInput> = either {
-        return when (input) {
-            is TilsagnBeregningInput.AFT -> validateAFTTilsagnBeregningInput(input)
-            is TilsagnBeregningInput.Fri -> input.right()
-        }
-    }
-
-    private fun validateAFTTilsagnBeregningInput(input: TilsagnBeregningInput.AFT): Either<List<ValidationError>, TilsagnBeregningInput> = either {
+    fun validateAFTBeregningInput(input: AFTTilsagnBeregningInput): Either<List<ValidationError>, AFTTilsagnBeregningInput> = either {
         val errors = buildList {
             if (input.periodeStart.year != input.periodeSlutt.year) {
-                add(ValidationError.of(TilsagnBeregningInput.AFT::periodeSlutt, "Perioden kan ikke gå over flere år"))
+                add(ValidationError.of(AFTTilsagnBeregningInput::periodeSlutt, "Perioden kan ikke gå over flere år"))
             }
             if (input.periodeStart.isAfter(input.periodeSlutt)) {
-                add(ValidationError.of(TilsagnBeregningInput.AFT::periodeSlutt, "Slutt kan ikke være før start"))
+                add(ValidationError.of(AFTTilsagnBeregningInput::periodeSlutt, "Slutt kan ikke være før start"))
             }
             if (input.antallPlasser <= 0) {
-                add(ValidationError.of(TilsagnBeregningInput.AFT::antallPlasser, "Antall plasser kan ikke være 0"))
+                add(ValidationError.of(AFTTilsagnBeregningInput::antallPlasser, "Antall plasser kan ikke være 0"))
             }
             if (Prismodell.AFT.findSats(input.periodeStart) != input.sats) {
                 add(ValidationError.ofCustomLocation("beregning.sats", "Feil sats for valgt periode"))
             }
             if (Prismodell.AFT.findSats(input.periodeStart) != Prismodell.AFT.findSats(input.periodeSlutt)) {
-                add(ValidationError.of(TilsagnBeregningInput.AFT::periodeStart, "Periode går over flere satser"))
+                add(ValidationError.of(AFTTilsagnBeregningInput::periodeStart, "Periode går over flere satser"))
             }
         }
 
