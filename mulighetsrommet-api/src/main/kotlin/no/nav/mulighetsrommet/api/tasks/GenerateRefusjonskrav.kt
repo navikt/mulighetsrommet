@@ -45,7 +45,7 @@ class GenerateRefusjonskrav(
             }
         }
 
-    fun runTask(dayInMonth: LocalDate) {
+    suspend fun runTask(dayInMonth: LocalDate) {
         if (config.disabled) return
         refusjonService.genererRefusjonskravForMonth(dayInMonth)
     }

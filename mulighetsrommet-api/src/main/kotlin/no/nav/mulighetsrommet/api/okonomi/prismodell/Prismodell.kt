@@ -2,7 +2,7 @@ package no.nav.mulighetsrommet.api.okonomi.prismodell
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.api.okonomi.prismodell.Prismodell.RefusjonskravBeregning.AFT.Deltaker
+import no.nav.mulighetsrommet.api.okonomi.models.RefusjonskravDeltakelse
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import java.lang.Math.addExact
 import java.lang.Math.multiplyExact
@@ -17,11 +17,14 @@ object Prismodell {
             LocalDate.of(2023, 1, 1) to 19500,
         )
 
-        fun findSats(periodeStart: LocalDate): Int? =
-            satser
+        fun findSats(periodeStart: LocalDate): Int {
+            val sats = satser
                 .filter { !it.key.isAfter(periodeStart) }
                 .maxByOrNull { it.key }
-                ?.value
+            return requireNotNull(sats?.value) {
+                "sats mangler for periode med start $periodeStart"
+            }
+        }
 
         fun beregnTilsagnBelop(
             sats: Int,
@@ -59,15 +62,11 @@ object Prismodell {
         }
 
         fun beregnRefusjonBelop(
-            deltakere: List<Deltaker>,
+            deltakelser: Set<RefusjonskravDeltakelse>,
             sats: Int,
-            periodeStart: LocalDate,
         ): Int {
-            require(sats == findSats(periodeStart)) {
-                "feil sats"
-            }
             // TODO: Implement
-            return multiplyExact(sats, deltakere.size)
+            return multiplyExact(sats, deltakelser.size)
         }
     }
 
@@ -100,28 +99,8 @@ object Prismodell {
         @SerialName("AFT")
         data class AFT(
             override val belop: Int,
-            val deltakere: List<Deltaker>,
             val sats: Int,
-            @Serializable(with = LocalDateSerializer::class)
-            val periodeStart: LocalDate,
-        ) : RefusjonskravBeregning() {
-            @Serializable
-            data class Deltaker(
-                @Serializable(with = LocalDateSerializer::class)
-                val startDato: LocalDate,
-                @Serializable(with = LocalDateSerializer::class)
-                val sluttDato: LocalDate,
-                val prosentPerioder: List<ProsentPeriode>,
-            ) {
-                @Serializable
-                data class ProsentPeriode(
-                    @Serializable(with = LocalDateSerializer::class)
-                    val startDato: LocalDate,
-                    @Serializable(with = LocalDateSerializer::class)
-                    val sluttDato: LocalDate,
-                    val prosent: Double,
-                )
-            }
-        }
+            val deltakere: Set<RefusjonskravDeltakelse>,
+        ) : RefusjonskravBeregning()
     }
 }
