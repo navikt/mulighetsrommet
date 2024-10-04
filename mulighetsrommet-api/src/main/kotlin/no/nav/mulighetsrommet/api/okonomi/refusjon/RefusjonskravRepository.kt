@@ -4,7 +4,8 @@ import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.api.okonomi.prismodell.Prismodell
+import no.nav.mulighetsrommet.api.okonomi.models.RefusjonKravBeregning
+import no.nav.mulighetsrommet.api.okonomi.models.RefusjonKravBeregningAft
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
 import org.intellij.lang.annotations.Language
@@ -17,54 +18,43 @@ class RefusjonskravRepository(private val db: Database) {
     fun upsert(dbo: RefusjonskravDbo, tx: Session) {
         @Language("PostgreSQL")
         val refusjonskravQuery = """
-            insert into refusjonskrav (
-                id,
-                tiltaksgjennomforing_id,
-                periode_start,
-                periode_slutt
-            ) values (
-                :id::uuid,
-                :tiltaksgjennomforing_id::uuid,
-                :periode_start,
-                :periode_slutt
-            )
+            insert into refusjonskrav (id, tiltaksgjennomforing_id)
+            values (:id::uuid, :tiltaksgjennomforing_id::uuid)
             on conflict (id) do update set
-                tiltaksgjennomforing_id = excluded.tiltaksgjennomforing_id,
-                periode_start           = excluded.periode_start,
-                periode_slutt           = excluded.periode_slutt
+                tiltaksgjennomforing_id = excluded.tiltaksgjennomforing_id
         """.trimIndent()
 
         queryOf(refusjonskravQuery, dbo.toSqlParameters()).asExecute.runWithSession(tx)
 
         when (dbo.beregning) {
-            is Prismodell.RefusjonskravBeregning.AFT -> {
+            is RefusjonKravBeregningAft -> {
                 upsertRefusjonskravBeregningAft(tx, dbo.id, dbo.beregning)
             }
-
-            else -> throw IllegalStateException("Refusjonskrav av typen ${dbo.beregning::class} er ikke støtte enda")
         }
     }
 
     private fun upsertRefusjonskravBeregningAft(
         tx: Session,
         id: UUID,
-        beregning: Prismodell.RefusjonskravBeregning.AFT,
+        beregning: RefusjonKravBeregningAft,
     ) {
         @Language("PostgreSQL")
         val query = """
-            insert into refusjonskrav_beregning_aft (refusjonskrav_id, belop, sats)
-            values (:refusjonskrav_id::uuid, :belop, :sats)
+            insert into refusjonskrav_beregning_aft (refusjonskrav_id, periode, sats, belop)
+            values (:refusjonskrav_id::uuid, tsrange(:periode_start, :periode_slutt), :sats, :belop)
             on conflict (refusjonskrav_id) do update set
-                belop = excluded.belop,
-                sats  = excluded.sats
+                periode = excluded.periode,
+                sats = excluded.sats,
+                belop = excluded.belop
         """.trimIndent()
 
         val params = mapOf(
             "refusjonskrav_id" to id,
-            "belop" to beregning.belop,
-            "sats" to beregning.sats,
+            "periode_start" to beregning.input.periodeStart,
+            "periode_slutt" to beregning.input.periodeSlutt,
+            "sats" to beregning.input.sats,
+            "belop" to beregning.output.belop,
         )
-
         queryOf(query, params).asExecute.runWithSession(tx)
 
         @Language("PostgreSQL")
@@ -73,7 +63,6 @@ class RefusjonskravRepository(private val db: Database) {
             from refusjonskrav_deltakelse_periode
             where refusjonskrav_id = :refusjonskrav_id::uuid;
         """
-
         queryOf(deletePerioderQuery, mapOf("refusjonskrav_id" to id)).asExecute.runWithSession(tx)
 
         @Language("PostgreSQL")
@@ -82,7 +71,7 @@ class RefusjonskravRepository(private val db: Database) {
             values (:refusjonskrav_id, :deltakelse_id, tsrange(:start, :slutt), :stillingsprosent)
         """.trimIndent()
 
-        val perioder = beregning.deltakere.flatMap { deltakelse ->
+        val perioder = beregning.input.deltakelser.flatMap { deltakelse ->
             deltakelse.perioder.map { periode ->
                 mapOf(
                     "refusjonskrav_id" to id,
@@ -94,6 +83,21 @@ class RefusjonskravRepository(private val db: Database) {
             }
         }
         tx.batchPreparedNamedStatement(insertPeriodeQuery, perioder)
+
+        @Language("PostgreSQL")
+        val insertManedsverkQuery = """
+            insert into refusjonskrav_deltakelse_manedsverk (refusjonskrav_id, deltakelse_id, manedsverk)
+            values (:refusjonskrav_id, :deltakelse_id, :manedsverk)
+        """.trimIndent()
+
+        val manedsverk = beregning.output.deltakelser.map { deltakelse ->
+            mapOf(
+                "refusjonskrav_id" to id,
+                "deltakelse_id" to deltakelse.deltakelseId,
+                "manedsverk" to deltakelse.manedsverk,
+            )
+        }
+        tx.batchPreparedNamedStatement(insertManedsverkQuery, manedsverk)
     }
 
     fun get(id: UUID) = db.transaction { get(id, it) }
@@ -106,7 +110,7 @@ class RefusjonskravRepository(private val db: Database) {
         """.trimIndent()
 
         return queryOf(refusjonskravQuery, mapOf("id" to id))
-            .map { it.toRefusjonskravAftDto() }
+            .map { it.toRefusjonsKravAft() }
             .asSingle
             .runWithSession(tx)
     }
@@ -122,7 +126,7 @@ class RefusjonskravRepository(private val db: Database) {
 
         return tx.run(
             queryOf(query, mapOf("orgnr" to db.createTextArray(orgnr.map { it.value })))
-                .map { it.toRefusjonskravAftDto() }
+                .map { it.toRefusjonsKravAft() }
                 .asList,
         )
     }
@@ -137,7 +141,7 @@ class RefusjonskravRepository(private val db: Database) {
         """.trimIndent()
 
         return queryOf(query, mapOf("id" to id))
-            .map { it.toRefusjonskravAftDto() }
+            .map { it.toRefusjonsKravAft() }
             .asSingle
             .runWithSession(tx)
     }
@@ -145,28 +149,31 @@ class RefusjonskravRepository(private val db: Database) {
     private fun RefusjonskravDbo.toSqlParameters() = mapOf(
         "id" to id,
         "tiltaksgjennomforing_id" to tiltaksgjennomforingId,
-        "periode_start" to periodeStart,
-        "periode_slutt" to periodeSlutt,
     )
 
-    private fun Row.toRefusjonskravAftDto(): RefusjonskravDto {
-        val beregning = Prismodell.RefusjonskravBeregning.AFT(
-            belop = int("belop"),
-            sats = int("sats"),
-            deltakere = stringOrNull("deltakelser_json")?.let { Json.decodeFromString(it) } ?: setOf(),
+    private fun Row.toRefusjonsKravAft(): RefusjonskravDto {
+        val beregning = RefusjonKravBeregningAft(
+            input = RefusjonKravBeregningAft.Input(
+                periodeStart = localDateTime("periode_start"),
+                periodeSlutt = localDateTime("periode_slutt"),
+                sats = int("sats"),
+                deltakelser = stringOrNull("perioder_json")?.let { Json.decodeFromString(it) } ?: setOf(),
+            ),
+            output = RefusjonKravBeregningAft.Output(
+                belop = int("belop"),
+                deltakelser = stringOrNull("manedsverk_json")?.let { Json.decodeFromString(it) } ?: setOf(),
+            ),
         )
         return toRefusjonskravDto(beregning)
     }
 
-    private fun Row.toRefusjonskravDto(beregning: Prismodell.RefusjonskravBeregning): RefusjonskravDto {
+    private fun Row.toRefusjonskravDto(beregning: RefusjonKravBeregning): RefusjonskravDto {
         return RefusjonskravDto(
             id = uuid("id"),
             tiltaksgjennomforing = RefusjonskravDto.Gjennomforing(
                 id = uuid("tiltaksgjennomforing_id"),
                 navn = string("tiltaksgjennomforing_navn"),
             ),
-            periodeStart = localDate("periode_start"),
-            periodeSlutt = localDate("periode_slutt"),
             arrangor = RefusjonskravDto.Arrangor(
                 id = uuid("arrangor_id"),
                 organisasjonsnummer = string("arrangor_organisasjonsnummer"),

@@ -5,11 +5,10 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.data.blocking.forAll
 import io.kotest.data.row
 import io.kotest.matchers.shouldBe
+import no.nav.mulighetsrommet.api.okonomi.models.DeltakelseManedsverk
 import no.nav.mulighetsrommet.api.okonomi.models.DeltakelsePeriode
+import no.nav.mulighetsrommet.api.okonomi.models.DeltakelsePerioder
 import no.nav.mulighetsrommet.api.okonomi.models.RefusjonKravBeregningAft
-import no.nav.mulighetsrommet.api.okonomi.models.RefusjonskravDeltakelseManedsverk
-import no.nav.mulighetsrommet.api.okonomi.models.RefusjonskravDeltakelsePerioder
-import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
@@ -141,55 +140,55 @@ class PrismodellTest : FunSpec({
             forAll(
                 row(
                     setOf(
-                        RefusjonskravDeltakelsePerioder(
+                        DeltakelsePerioder(
                             deltakelseId = deltakerId1,
                             perioder = listOf(
                                 DeltakelsePeriode(periodeStart, periodeSlutt, 100.0),
                             ),
                         ),
                     ),
-                    RefusjonKravBeregningAft(
-                        belop = BigDecimal("100.00"),
+                    RefusjonKravBeregningAft.Output(
+                        belop = 100,
                         deltakelser = setOf(
-                            RefusjonskravDeltakelseManedsverk(deltakerId1, BigDecimal("1.00")),
+                            DeltakelseManedsverk(deltakerId1, 1.0),
                         ),
                     ),
                 ),
                 row(
                     setOf(
-                        RefusjonskravDeltakelsePerioder(
+                        DeltakelsePerioder(
                             deltakelseId = deltakerId1,
                             perioder = listOf(
                                 DeltakelsePeriode(periodeStart, periodeSlutt, 50.0),
                             ),
                         ),
                     ),
-                    RefusjonKravBeregningAft(
-                        belop = BigDecimal("100.00"),
+                    RefusjonKravBeregningAft.Output(
+                        belop = 100,
                         deltakelser = setOf(
-                            RefusjonskravDeltakelseManedsverk(deltakerId1, BigDecimal("1.00")),
+                            DeltakelseManedsverk(deltakerId1, 1.0),
                         ),
                     ),
                 ),
                 row(
                     setOf(
-                        RefusjonskravDeltakelsePerioder(
+                        DeltakelsePerioder(
                             deltakelseId = deltakerId1,
                             perioder = listOf(
                                 DeltakelsePeriode(periodeStart, periodeMidt, 40.0),
                             ),
                         ),
                     ),
-                    RefusjonKravBeregningAft(
-                        belop = BigDecimal("25.00"),
+                    RefusjonKravBeregningAft.Output(
+                        belop = 25,
                         deltakelser = setOf(
-                            RefusjonskravDeltakelseManedsverk(deltakerId1, BigDecimal("0.25")),
+                            DeltakelseManedsverk(deltakerId1, 0.25),
                         ),
                     ),
                 ),
                 row(
                     setOf(
-                        RefusjonskravDeltakelsePerioder(
+                        DeltakelsePerioder(
                             deltakelseId = deltakerId1,
                             perioder = listOf(
                                 DeltakelsePeriode(periodeStart, periodeMidt, 49.0),
@@ -197,70 +196,66 @@ class PrismodellTest : FunSpec({
                             ),
                         ),
                     ),
-                    RefusjonKravBeregningAft(
-                        belop = BigDecimal("75.00"),
+                    RefusjonKravBeregningAft.Output(
+                        belop = 75,
                         deltakelser = setOf(
-                            RefusjonskravDeltakelseManedsverk(deltakerId1, BigDecimal("0.75")),
+                            DeltakelseManedsverk(deltakerId1, 0.75),
                         ),
                     ),
                 ),
                 row(
                     setOf(
-                        RefusjonskravDeltakelsePerioder(
+                        DeltakelsePerioder(
                             deltakelseId = deltakerId1,
                             perioder = listOf(
                                 DeltakelsePeriode(periodeStart, periodeSlutt, 100.0),
                             ),
                         ),
-                        RefusjonskravDeltakelsePerioder(
+                        DeltakelsePerioder(
                             deltakelseId = deltakerId2,
                             perioder = listOf(
                                 DeltakelsePeriode(periodeStart, periodeSlutt, 49.0),
                             ),
                         ),
                     ),
-                    RefusjonKravBeregningAft(
-                        belop = BigDecimal("150.00"),
+                    RefusjonKravBeregningAft.Output(
+                        belop = 150,
                         deltakelser = setOf(
-                            RefusjonskravDeltakelseManedsverk(deltakerId1, BigDecimal("1.00")),
-                            RefusjonskravDeltakelseManedsverk(deltakerId2, BigDecimal("0.50")),
+                            DeltakelseManedsverk(deltakerId1, 1.0),
+                            DeltakelseManedsverk(deltakerId2, 0.5),
                         ),
                     ),
                 ),
                 row(
                     setOf(
-                        RefusjonskravDeltakelsePerioder(
+                        DeltakelsePerioder(
                             deltakelseId = deltakerId1,
                             perioder = listOf(
                                 DeltakelsePeriode(periodeStart, periodeMidt, 49.0),
                                 DeltakelsePeriode(periodeMidt, periodeSlutt, 50.0),
                             ),
                         ),
-                        RefusjonskravDeltakelsePerioder(
+                        DeltakelsePerioder(
                             deltakelseId = deltakerId2,
                             perioder = listOf(
                                 DeltakelsePeriode(periodeStart, periodeMidt, 49.0),
                             ),
                         ),
                     ),
-                    RefusjonKravBeregningAft(
-                        belop = BigDecimal("100.00"),
+                    RefusjonKravBeregningAft.Output(
+                        belop = 100,
                         deltakelser = setOf(
-                            RefusjonskravDeltakelseManedsverk(deltakerId1, BigDecimal("0.75")),
-                            RefusjonskravDeltakelseManedsverk(deltakerId2, BigDecimal("0.25")),
+                            DeltakelseManedsverk(deltakerId1, 0.75),
+                            DeltakelseManedsverk(deltakerId2, 0.25),
                         ),
                     ),
                 ),
-            ) { deltakelser, expectedBelop ->
+            ) { deltakelser, expectedBeregning ->
+                val input = RefusjonKravBeregningAft.Input(periodeStart, periodeSlutt, 100, deltakelser)
 
-                val belop = Prismodell.AFT.beregnRefusjonBelop(
-                    periodeStart = periodeStart,
-                    periodeSlutt = periodeSlutt,
-                    sats = 100,
-                    deltakelser = deltakelser,
-                )
+                val beregning = Prismodell.AFT.beregnRefusjonBelop(input)
 
-                belop shouldBe expectedBelop
+                beregning shouldBe expectedBeregning
             }
         }
     }

@@ -2,16 +2,14 @@ package no.nav.mulighetsrommet.api.okonomi.prismodell
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.okonomi.models.DeltakelseManedsverk
 import no.nav.mulighetsrommet.api.okonomi.models.RefusjonKravBeregningAft
-import no.nav.mulighetsrommet.api.okonomi.models.RefusjonskravDeltakelsePerioder
-import no.nav.mulighetsrommet.api.okonomi.models.RefusjonskravDeltakelseManedsverk
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import java.lang.Math.addExact
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.time.Duration
 import java.time.LocalDate
-import java.time.LocalDateTime
 import kotlin.streams.asSequence
 
 object Prismodell {
@@ -65,12 +63,8 @@ object Prismodell {
                 .reduce { acc: Int, s: Int -> addExact(acc, s) }
         }
 
-        fun beregnRefusjonBelop(
-            periodeStart: LocalDateTime,
-            periodeSlutt: LocalDateTime,
-            sats: Int,
-            deltakelser: Set<RefusjonskravDeltakelsePerioder>,
-        ): RefusjonKravBeregningAft {
+        fun beregnRefusjonBelop(input: RefusjonKravBeregningAft.Input): RefusjonKravBeregningAft.Output {
+            val (periodeStart, periodeSlutt, sats, deltakelser) = input
             val totalDuration = Duration.between(periodeStart, periodeSlutt).toSeconds().toBigDecimal()
 
             val manedsverk = deltakelser
@@ -95,9 +89,9 @@ object Prismodell {
                             .divide(BigDecimal(100), 2, RoundingMode.HALF_UP)
                     }
 
-                    RefusjonskravDeltakelseManedsverk(
+                    DeltakelseManedsverk(
                         deltakelseId = deltkelse.deltakelseId,
-                        manedsverk = perioder.sumOf { it },
+                        manedsverk = perioder.sumOf { it }.toDouble(),
                     )
                 }
                 .toSet()
@@ -105,12 +99,13 @@ object Prismodell {
             // TODO: hvor nøyaktig skal utregning være?
             val belop = manedsverk
                 .fold(BigDecimal.ZERO) { sum, deltakelse ->
-                    sum.add(deltakelse.manedsverk)
+                    sum.add(BigDecimal(deltakelse.manedsverk))
                 }
                 .multiply(BigDecimal(sats))
                 .setScale(2, RoundingMode.HALF_UP)
+                .toInt()
 
-            return RefusjonKravBeregningAft(
+            return RefusjonKravBeregningAft.Output(
                 belop = belop,
                 deltakelser = manedsverk,
             )
@@ -136,18 +131,5 @@ object Prismodell {
         @Serializable
         @SerialName("FRI")
         data class Fri(override val belop: Int) : TilsagnBeregning()
-    }
-
-    @Serializable
-    sealed class RefusjonskravBeregning {
-        abstract val belop: Int
-
-        @Serializable
-        @SerialName("AFT")
-        data class AFT(
-            override val belop: Int,
-            val sats: Int,
-            val deltakere: Set<RefusjonskravDeltakelsePerioder>,
-        ) : RefusjonskravBeregning()
     }
 }
