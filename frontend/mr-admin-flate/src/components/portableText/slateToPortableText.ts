@@ -32,6 +32,9 @@ export const slateToPortableText = (nodes: Descendant[]): PortableTextBlock[] =>
         ...toPortableTextBlock(node),
         style: "h1",
       });
+      // Sometimes when deleting all elements, an empty 'list-item' remains. We convert this to an empty paragraph
+    } else if (node.type === "list-item") {
+      portableBlocks.push(toPortableTextBlock(node));
     } else if (node.type && node.type !== "paragraph") {
       throw Error(`Unsupported block type: ${node.type}`);
     } else {
