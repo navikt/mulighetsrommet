@@ -6,7 +6,10 @@ import io.kotest.data.blocking.forAll
 import io.kotest.data.row
 import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.api.okonomi.models.DeltakelsePeriode
-import no.nav.mulighetsrommet.api.okonomi.models.RefusjonskravDeltakelse
+import no.nav.mulighetsrommet.api.okonomi.models.RefusjonKravBeregningAft
+import no.nav.mulighetsrommet.api.okonomi.models.RefusjonskravDeltakelseManedsverk
+import no.nav.mulighetsrommet.api.okonomi.models.RefusjonskravDeltakelsePerioder
+import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
@@ -133,86 +136,120 @@ class PrismodellTest : FunSpec({
         val periodeSlutt = LocalDateTime.of(2023, 7, 1, 0, 0, 0)
 
         test("beløp beregnes fra månedsverk til deltakere og sats") {
+            val deltakerId1 = UUID.randomUUID()
+            val deltakerId2 = UUID.randomUUID()
             forAll(
                 row(
                     setOf(
-                        RefusjonskravDeltakelse(
-                            deltakelseId = UUID.randomUUID(),
+                        RefusjonskravDeltakelsePerioder(
+                            deltakelseId = deltakerId1,
                             perioder = listOf(
-                                DeltakelsePeriode(start = periodeStart, slutt = periodeSlutt, stillingsprosent = 100.0),
+                                DeltakelsePeriode(periodeStart, periodeSlutt, 100.0),
                             ),
                         ),
                     ),
-                    100,
+                    RefusjonKravBeregningAft(
+                        belop = BigDecimal("100.00"),
+                        deltakelser = setOf(
+                            RefusjonskravDeltakelseManedsverk(deltakerId1, BigDecimal("1.00")),
+                        ),
+                    ),
                 ),
                 row(
                     setOf(
-                        RefusjonskravDeltakelse(
-                            deltakelseId = UUID.randomUUID(),
+                        RefusjonskravDeltakelsePerioder(
+                            deltakelseId = deltakerId1,
                             perioder = listOf(
-                                DeltakelsePeriode(start = periodeStart, slutt = periodeSlutt, stillingsprosent = 50.0),
+                                DeltakelsePeriode(periodeStart, periodeSlutt, 50.0),
                             ),
                         ),
                     ),
-                    100,
+                    RefusjonKravBeregningAft(
+                        belop = BigDecimal("100.00"),
+                        deltakelser = setOf(
+                            RefusjonskravDeltakelseManedsverk(deltakerId1, BigDecimal("1.00")),
+                        ),
+                    ),
                 ),
                 row(
                     setOf(
-                        RefusjonskravDeltakelse(
-                            deltakelseId = UUID.randomUUID(),
+                        RefusjonskravDeltakelsePerioder(
+                            deltakelseId = deltakerId1,
                             perioder = listOf(
-                                DeltakelsePeriode(start = periodeStart, slutt = periodeMidt, stillingsprosent = 40.0),
+                                DeltakelsePeriode(periodeStart, periodeMidt, 40.0),
                             ),
                         ),
                     ),
-                    25,
+                    RefusjonKravBeregningAft(
+                        belop = BigDecimal("25.00"),
+                        deltakelser = setOf(
+                            RefusjonskravDeltakelseManedsverk(deltakerId1, BigDecimal("0.25")),
+                        ),
+                    ),
                 ),
                 row(
                     setOf(
-                        RefusjonskravDeltakelse(
-                            deltakelseId = UUID.randomUUID(),
+                        RefusjonskravDeltakelsePerioder(
+                            deltakelseId = deltakerId1,
                             perioder = listOf(
-                                DeltakelsePeriode(start = periodeStart, slutt = periodeMidt, stillingsprosent = 49.0),
-                                DeltakelsePeriode(start = periodeMidt, slutt = periodeSlutt, stillingsprosent = 50.0),
+                                DeltakelsePeriode(periodeStart, periodeMidt, 49.0),
+                                DeltakelsePeriode(periodeMidt, periodeSlutt, 50.0),
                             ),
                         ),
                     ),
-                    75,
+                    RefusjonKravBeregningAft(
+                        belop = BigDecimal("75.00"),
+                        deltakelser = setOf(
+                            RefusjonskravDeltakelseManedsverk(deltakerId1, BigDecimal("0.75")),
+                        ),
+                    ),
                 ),
                 row(
                     setOf(
-                        RefusjonskravDeltakelse(
-                            deltakelseId = UUID.randomUUID(),
+                        RefusjonskravDeltakelsePerioder(
+                            deltakelseId = deltakerId1,
                             perioder = listOf(
-                                DeltakelsePeriode(start = periodeStart, slutt = periodeSlutt, stillingsprosent = 100.0),
+                                DeltakelsePeriode(periodeStart, periodeSlutt, 100.0),
                             ),
                         ),
-                        RefusjonskravDeltakelse(
-                            deltakelseId = UUID.randomUUID(),
+                        RefusjonskravDeltakelsePerioder(
+                            deltakelseId = deltakerId2,
                             perioder = listOf(
-                                DeltakelsePeriode(start = periodeStart, slutt = periodeSlutt, stillingsprosent = 49.0),
+                                DeltakelsePeriode(periodeStart, periodeSlutt, 49.0),
                             ),
                         ),
                     ),
-                    150,
+                    RefusjonKravBeregningAft(
+                        belop = BigDecimal("150.00"),
+                        deltakelser = setOf(
+                            RefusjonskravDeltakelseManedsverk(deltakerId1, BigDecimal("1.00")),
+                            RefusjonskravDeltakelseManedsverk(deltakerId2, BigDecimal("0.50")),
+                        ),
+                    ),
                 ),
                 row(
                     setOf(
-                        RefusjonskravDeltakelse(
-                            deltakelseId = UUID.randomUUID(),
+                        RefusjonskravDeltakelsePerioder(
+                            deltakelseId = deltakerId1,
                             perioder = listOf(
-                                DeltakelsePeriode(start = periodeStart, slutt = periodeMidt, stillingsprosent = 49.0),
-                                DeltakelsePeriode(start = periodeMidt, slutt = periodeSlutt, stillingsprosent = 50.0),
+                                DeltakelsePeriode(periodeStart, periodeMidt, 49.0),
+                                DeltakelsePeriode(periodeMidt, periodeSlutt, 50.0),
                             ),
                         ),
-                        RefusjonskravDeltakelse(
-                            deltakelseId = UUID.randomUUID(),
+                        RefusjonskravDeltakelsePerioder(
+                            deltakelseId = deltakerId2,
                             perioder = listOf(
-                                DeltakelsePeriode(start = periodeStart, slutt = periodeMidt, stillingsprosent = 49.0),
+                                DeltakelsePeriode(periodeStart, periodeMidt, 49.0),
                             ),
                         ),
                     ),
-                    100,
+                    RefusjonKravBeregningAft(
+                        belop = BigDecimal("100.00"),
+                        deltakelser = setOf(
+                            RefusjonskravDeltakelseManedsverk(deltakerId1, BigDecimal("0.75")),
+                            RefusjonskravDeltakelseManedsverk(deltakerId2, BigDecimal("0.25")),
+                        ),
+                    ),
                 ),
             ) { deltakelser, expectedBelop ->
 
