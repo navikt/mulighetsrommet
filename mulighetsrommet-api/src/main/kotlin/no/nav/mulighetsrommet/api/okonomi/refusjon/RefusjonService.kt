@@ -1,7 +1,7 @@
 package no.nav.mulighetsrommet.api.okonomi.refusjon
 
 import no.nav.mulighetsrommet.api.okonomi.models.DeltakelsePeriode
-import no.nav.mulighetsrommet.api.okonomi.models.RefusjonskravDeltakelse
+import no.nav.mulighetsrommet.api.okonomi.models.RefusjonskravDeltakelsePerioder
 import no.nav.mulighetsrommet.api.okonomi.prismodell.Prismodell
 import no.nav.mulighetsrommet.api.repositories.DeltakerRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
@@ -80,16 +80,16 @@ class RefusjonService(
         periodeStart: LocalDate,
         periodeSlutt: LocalDate,
         sats: Int,
-        deltakere: Set<RefusjonskravDeltakelse>,
+        deltakere: Set<RefusjonskravDeltakelsePerioder>,
     ): Prismodell.RefusjonskravBeregning.AFT {
-        val belop = Prismodell.AFT.beregnRefusjonBelop(
+        val beregning = Prismodell.AFT.beregnRefusjonBelop(
             periodeStart = periodeStart.atStartOfDay(),
             periodeSlutt = periodeSlutt.atStartOfDay(),
             sats = sats,
             deltakelser = deltakere,
         )
         return Prismodell.RefusjonskravBeregning.AFT(
-            belop = belop,
+            belop = beregning.belop.toInt(),
             sats = sats,
             deltakere = deltakere,
         )
@@ -99,7 +99,7 @@ class RefusjonService(
         gjennomforingId: UUID,
         periodeStart: LocalDate,
         periodeSlutt: LocalDate,
-    ): Set<RefusjonskravDeltakelse> {
+    ): Set<RefusjonskravDeltakelsePerioder> {
         // TODO: hent deltakelser fra komet i stedet for tiltakshistorikk
         val deltakelser = deltakerRepository.getAll(gjennomforingId)
 
@@ -129,7 +129,7 @@ class RefusjonService(
                 // TODO: periodisering av prosent - fra Komet
                 val perioder = listOf(periode)
 
-                RefusjonskravDeltakelse(
+                RefusjonskravDeltakelsePerioder(
                     deltakelseId = deltakelse.id,
                     perioder = perioder,
                 )

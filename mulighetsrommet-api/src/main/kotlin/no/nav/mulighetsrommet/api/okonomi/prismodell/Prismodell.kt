@@ -2,8 +2,9 @@ package no.nav.mulighetsrommet.api.okonomi.prismodell
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.api.okonomi.models.DeltakelsePeriode
-import no.nav.mulighetsrommet.api.okonomi.models.RefusjonskravDeltakelse
+import no.nav.mulighetsrommet.api.okonomi.models.RefusjonKravBeregningAft
+import no.nav.mulighetsrommet.api.okonomi.models.RefusjonskravDeltakelsePerioder
+import no.nav.mulighetsrommet.api.okonomi.models.RefusjonskravDeltakelseManedsverk
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import java.lang.Math.addExact
 import java.math.BigDecimal
@@ -68,39 +69,51 @@ object Prismodell {
             periodeStart: LocalDateTime,
             periodeSlutt: LocalDateTime,
             sats: Int,
-            deltakelser: Set<RefusjonskravDeltakelse>,
-        ): Int {
+            deltakelser: Set<RefusjonskravDeltakelsePerioder>,
+        ): RefusjonKravBeregningAft {
             val totalDuration = Duration.between(periodeStart, periodeSlutt).toSeconds().toBigDecimal()
 
             val manedsverk = deltakelser
-                .flatMap {
-                    it.perioder.map { periode ->
-                        DeltakelsePeriode(
-                            start = maxOf(periodeStart, periode.start),
-                            slutt = minOf(periodeSlutt, periode.slutt),
-                            stillingsprosent = if (periode.stillingsprosent < 50) {
-                                50.0
-                            } else {
-                                100.0
-                            },
-                        )
+                .map { deltkelse ->
+                    val perioder = deltkelse.perioder.map { periode ->
+                        val start = maxOf(periodeStart, periode.start)
+                        val slutt = minOf(periodeSlutt, periode.slutt)
+                        val overlapDuration = Duration.between(start, slutt)
+                            .toSeconds()
+                            .toBigDecimal()
+
+                        val overlapFraction = overlapDuration.divide(totalDuration, 2, RoundingMode.HALF_UP)
+
+                        val stillingsprosent = if (periode.stillingsprosent < 50) {
+                            BigDecimal(50)
+                        } else {
+                            BigDecimal(100)
+                        }
+
+                        overlapFraction
+                            .multiply(stillingsprosent)
+                            .divide(BigDecimal(100), 2, RoundingMode.HALF_UP)
                     }
+
+                    RefusjonskravDeltakelseManedsverk(
+                        deltakelseId = deltkelse.deltakelseId,
+                        manedsverk = perioder.sumOf { it },
+                    )
                 }
-                .map {
-                    val overlapDuration = Duration.between(it.start, it.slutt).toSeconds().toBigDecimal()
-                    val overlapFraction = overlapDuration.divide(totalDuration, 2, RoundingMode.HALF_UP)
-                    val manedsverk = overlapFraction
-                        .multiply(BigDecimal(it.stillingsprosent))
-                        .divide(BigDecimal(100), 2, RoundingMode.HALF_UP)
-                    manedsverk
-                }
+                .toSet()
 
             // TODO: hvor nøyaktig skal utregning være?
-            return manedsverk
-                .reduce { a, b -> a.add(b) }
+            val belop = manedsverk
+                .fold(BigDecimal.ZERO) { sum, deltakelse ->
+                    sum.add(deltakelse.manedsverk)
+                }
                 .multiply(BigDecimal(sats))
                 .setScale(2, RoundingMode.HALF_UP)
-                .toInt()
+
+            return RefusjonKravBeregningAft(
+                belop = belop,
+                deltakelser = manedsverk,
+            )
         }
     }
 
@@ -134,7 +147,7 @@ object Prismodell {
         data class AFT(
             override val belop: Int,
             val sats: Int,
-            val deltakere: Set<RefusjonskravDeltakelse>,
+            val deltakere: Set<RefusjonskravDeltakelsePerioder>,
         ) : RefusjonskravBeregning()
     }
 }

@@ -8,7 +8,7 @@ import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.okonomi.models.DeltakelsePeriode
-import no.nav.mulighetsrommet.api.okonomi.models.RefusjonskravDeltakelse
+import no.nav.mulighetsrommet.api.okonomi.models.RefusjonskravDeltakelsePerioder
 import no.nav.mulighetsrommet.api.okonomi.prismodell.Prismodell
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
@@ -39,7 +39,7 @@ class RefusjonskravRepositoryTest : FunSpec({
             belop = 100_000,
             sats = 20_205,
             deltakere = setOf(
-                RefusjonskravDeltakelse(
+                RefusjonskravDeltakelsePerioder(
                     deltakelseId = UUID.randomUUID(),
                     perioder = listOf(
                         DeltakelsePeriode(
@@ -59,7 +59,7 @@ class RefusjonskravRepositoryTest : FunSpec({
                         ),
                     ),
                 ),
-                RefusjonskravDeltakelse(
+                RefusjonskravDeltakelsePerioder(
                     deltakelseId = UUID.randomUUID(),
                     perioder = listOf(
                         DeltakelsePeriode(
@@ -110,7 +110,7 @@ class RefusjonskravRepositoryTest : FunSpec({
                 slutt = LocalDateTime.of(2023, 1, 2, 0, 0, 0),
                 stillingsprosent = 100.0,
             )
-            val deltakelse = RefusjonskravDeltakelse(
+            val deltakelse = RefusjonskravDeltakelsePerioder(
                 deltakelseId = UUID.randomUUID(),
                 perioder = listOf(periode, periode),
             )
