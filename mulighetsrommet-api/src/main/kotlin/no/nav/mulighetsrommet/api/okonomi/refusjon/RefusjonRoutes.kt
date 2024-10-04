@@ -7,10 +7,9 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.api.okonomi.prismodell.Prismodell
+import no.nav.mulighetsrommet.api.okonomi.models.RefusjonKravBeregning
 import no.nav.mulighetsrommet.api.plugins.getPid
 import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
-import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import no.nav.pdfgen.core.Environment
 import no.nav.pdfgen.core.PDFGenCore
@@ -18,7 +17,6 @@ import no.nav.pdfgen.core.pdf.createHtmlFromTemplateData
 import no.nav.pdfgen.core.pdf.createPDFA
 import org.koin.ktor.ext.inject
 import org.verapdf.gf.foundry.VeraGreenfieldFoundryProvider
-import java.time.LocalDate
 import java.util.*
 
 fun Route.refusjonRoutes() {
@@ -45,7 +43,7 @@ fun Route.refusjonRoutes() {
                 "Content-Disposition",
                 "attachment; filename=\"kvittering.pdf\"",
             )
-            call.respondBytes(pdfBytes, contentType = io.ktor.http.ContentType.Application.Pdf)
+            call.respondBytes(pdfBytes, contentType = ContentType.Application.Pdf)
         }
         get("/krav/{id}") {
             // val orgnr = Organisasjonsnummer(call.parameters.getOrFail<String>("orgnr"))
@@ -71,12 +69,8 @@ data class RefusjonskravDto(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     val tiltaksgjennomforing: Gjennomforing,
-    @Serializable(with = LocalDateSerializer::class)
-    val periodeStart: LocalDate,
-    @Serializable(with = LocalDateSerializer::class)
-    val periodeSlutt: LocalDate,
-    val beregning: Prismodell.RefusjonskravBeregning,
     val arrangor: Arrangor,
+    val beregning: RefusjonKravBeregning,
     val tiltakstype: Tiltakstype,
 ) {
     @Serializable

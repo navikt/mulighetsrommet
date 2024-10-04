@@ -1,11 +1,14 @@
 alter table refusjonskrav
-    drop column beregning;
+    drop column beregning,
+    drop column periode_start,
+    drop column periode_slutt;
 
 create table refusjonskrav_beregning_aft
 (
     refusjonskrav_id uuid primary key references refusjonskrav (id),
-    belop            int not null,
-    sats             int not null
+    periode          tsrange not null,
+    sats             int     not null,
+    belop            int     not null
 );
 
 create table refusjonskrav_deltakelse_periode
@@ -20,3 +23,15 @@ create table refusjonskrav_deltakelse_periode
 create index refusjonskrav_deltakelse_periode_refusjonskrav_idx on refusjonskrav_deltakelse_periode (refusjonskrav_id);
 
 create index refusjonskrav_deltakelse_periode_deltakelse_idx on refusjonskrav_deltakelse_periode (deltakelse_id);
+
+create table refusjonskrav_deltakelse_manedsverk
+(
+    refusjonskrav_id uuid references refusjonskrav (id) not null,
+    deltakelse_id    uuid                               not null,
+    manedsverk       numeric(5, 2)                      not null,
+    unique (refusjonskrav_id, deltakelse_id)
+);
+
+create index refusjonskrav_deltakelse_manedsverk_refusjonskrav_idx on refusjonskrav_deltakelse_manedsverk (refusjonskrav_id);
+
+create index refusjonskrav_deltakelse_manedsverk_deltakelse_idx on refusjonskrav_deltakelse_manedsverk (deltakelse_id);

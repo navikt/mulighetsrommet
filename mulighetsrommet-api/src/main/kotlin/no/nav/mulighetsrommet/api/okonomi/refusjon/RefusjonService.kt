@@ -1,7 +1,8 @@
 package no.nav.mulighetsrommet.api.okonomi.refusjon
 
 import no.nav.mulighetsrommet.api.okonomi.models.DeltakelsePeriode
-import no.nav.mulighetsrommet.api.okonomi.models.RefusjonskravDeltakelsePerioder
+import no.nav.mulighetsrommet.api.okonomi.models.DeltakelsePerioder
+import no.nav.mulighetsrommet.api.okonomi.models.RefusjonKravBeregningAft
 import no.nav.mulighetsrommet.api.okonomi.prismodell.Prismodell
 import no.nav.mulighetsrommet.api.repositories.DeltakerRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
@@ -64,8 +65,17 @@ class RefusjonService(
             periodeStart = periodeStart,
             periodeSlutt = periodeSlutt,
         )
-        val sats = Prismodell.AFT.findSats(periodeStart)
-        val beregning = beregnRefusjonAft(periodeStart, periodeSlutt, sats, deltakere)
+
+        val input = RefusjonKravBeregningAft.Input(
+            periodeStart = periodeStart.atStartOfDay(),
+            periodeSlutt = periodeSlutt.atStartOfDay(),
+            sats = Prismodell.AFT.findSats(periodeStart),
+            deltakelser = deltakere,
+        )
+
+        val output = Prismodell.AFT.beregnRefusjonBelop(input)
+
+        val beregning = RefusjonKravBeregningAft(input, output)
 
         return RefusjonskravDbo(
             id = refusjonskravId,
@@ -76,30 +86,11 @@ class RefusjonService(
         )
     }
 
-    private fun beregnRefusjonAft(
-        periodeStart: LocalDate,
-        periodeSlutt: LocalDate,
-        sats: Int,
-        deltakere: Set<RefusjonskravDeltakelsePerioder>,
-    ): Prismodell.RefusjonskravBeregning.AFT {
-        val beregning = Prismodell.AFT.beregnRefusjonBelop(
-            periodeStart = periodeStart.atStartOfDay(),
-            periodeSlutt = periodeSlutt.atStartOfDay(),
-            sats = sats,
-            deltakelser = deltakere,
-        )
-        return Prismodell.RefusjonskravBeregning.AFT(
-            belop = beregning.belop.toInt(),
-            sats = sats,
-            deltakere = deltakere,
-        )
-    }
-
     private fun getDeltakelser(
         gjennomforingId: UUID,
         periodeStart: LocalDate,
         periodeSlutt: LocalDate,
-    ): Set<RefusjonskravDeltakelsePerioder> {
+    ): Set<DeltakelsePerioder> {
         // TODO: hent deltakelser fra komet i stedet for tiltakshistorikk
         val deltakelser = deltakerRepository.getAll(gjennomforingId)
 
@@ -129,7 +120,7 @@ class RefusjonService(
                 // TODO: periodisering av prosent - fra Komet
                 val perioder = listOf(periode)
 
-                RefusjonskravDeltakelsePerioder(
+                DeltakelsePerioder(
                     deltakelseId = deltakelse.id,
                     perioder = perioder,
                 )

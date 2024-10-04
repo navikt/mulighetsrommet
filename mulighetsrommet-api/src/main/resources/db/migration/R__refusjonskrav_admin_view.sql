@@ -2,8 +2,6 @@ drop view if exists refusjonskrav_admin_dto_view;
 
 create view refusjonskrav_admin_dto_view as
 select refusjonskrav.id,
-       refusjonskrav.periode_start,
-       refusjonskrav.periode_slutt,
        gjennomforing.id                  as tiltaksgjennomforing_id,
        gjennomforing.navn                as tiltaksgjennomforing_navn,
        arrangor.id                       as arrangor_id,
@@ -17,28 +15,40 @@ from refusjonskrav
          inner join tiltakstype on gjennomforing.tiltakstype_id = tiltakstype.id;
 
 create view refusjonskrav_aft_view as
-with deltakelser as (select refusjonskrav_id,
-                            jsonb_build_object(
-                                    'deltakelseId',
+with deltakelse_perioder as (select refusjonskrav_id,
                                     deltakelse_id,
-                                    'perioder',
                                     jsonb_agg(jsonb_build_object(
                                             'start', lower(periode),
                                             'slutt', upper(periode),
-                                            'stillingsprosent', prosent_stilling))
-                            ) as deltakelse
-                     from refusjonskrav_deltakelse_periode
-                     group by refusjonskrav_id, deltakelse_id),
-     beregning_aft as (select beregning.refusjonskrav_id,
-                              beregning.belop,
-                              beregning.sats,
-                              deltakelser_json
-                       from refusjonskrav_beregning_aft beregning
-                                left join lateral (select jsonb_agg(deltakelser.deltakelse) as deltakelser_json
-                                                   from deltakelser
-                                                   where deltakelser.refusjonskrav_id = beregning.refusjonskrav_id
-                                                   group by beregning.refusjonskrav_id
-                           ) on true)
-select krav.*, beregning_aft.belop, beregning_aft.sats, beregning_aft.deltakelser_json
+                                            'stillingsprosent', prosent_stilling
+                                              )) as perioder
+                             from refusjonskrav_deltakelse_periode
+                             group by refusjonskrav_id, deltakelse_id),
+     krav_perioder as (select refusjonskrav_id,
+                              jsonb_agg(jsonb_build_object(
+                                      'deltakelseId', deltakelse_id,
+                                      'perioder', deltakelse_perioder.perioder
+                                        )) as deltakelser
+                       from deltakelse_perioder
+                       group by refusjonskrav_id),
+     krav_manedsverk as (select refusjonskrav_id,
+                                jsonb_agg(jsonb_build_object(
+                                        'deltakelseId', deltakelse_id,
+                                        'manedsverk', manedsverk
+                                          )) as deltakelser
+                         from refusjonskrav_deltakelse_manedsverk
+                         group by refusjonskrav_id)
+select krav.*,
+       beregning.belop,
+       beregning.sats,
+       lower(beregning.periode)                           as periode_start,
+       upper(beregning.periode)                           as periode_slutt,
+       coalesce(krav_perioder.deltakelser, '[]'::jsonb)   as perioder_json,
+       coalesce(krav_manedsverk.deltakelser, '[]'::jsonb) as manedsverk_json
 from refusjonskrav_admin_dto_view krav
-         left join beregning_aft on refusjonskrav_id = id;
+         join
+     refusjonskrav_beregning_aft beregning on krav.id = beregning.refusjonskrav_id
+         left join
+     krav_perioder on krav.id = krav_perioder.refusjonskrav_id
+         left join
+     krav_manedsverk on krav.id = krav_manedsverk.refusjonskrav_id;

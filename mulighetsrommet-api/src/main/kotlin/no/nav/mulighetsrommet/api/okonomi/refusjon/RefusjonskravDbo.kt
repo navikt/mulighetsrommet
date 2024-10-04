@@ -1,6 +1,6 @@
 package no.nav.mulighetsrommet.api.okonomi.refusjon
 
-import no.nav.mulighetsrommet.api.okonomi.prismodell.Prismodell
+import no.nav.mulighetsrommet.api.okonomi.models.RefusjonKravBeregning
 import java.time.LocalDate
 import java.util.*
 
@@ -9,5 +9,5 @@ data class RefusjonskravDbo(
     val tiltaksgjennomforingId: UUID,
     val periodeStart: LocalDate,
     val periodeSlutt: LocalDate,
-    val beregning: Prismodell.RefusjonskravBeregning,
+    val beregning: RefusjonKravBeregning,
 )

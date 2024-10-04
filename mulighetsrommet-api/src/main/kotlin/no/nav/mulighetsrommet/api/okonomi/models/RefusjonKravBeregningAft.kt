@@ -3,12 +3,29 @@ package no.nav.mulighetsrommet.api.okonomi.models
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.domain.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
-import java.math.BigDecimal
 import java.time.LocalDateTime
 import java.util.*
 
+data class RefusjonKravBeregningAft(
+    override val input: Input,
+    override val output: Output,
+) : RefusjonKravBeregning() {
+
+    data class Input(
+        val periodeStart: LocalDateTime,
+        val periodeSlutt: LocalDateTime,
+        val sats: Int,
+        val deltakelser: Set<DeltakelsePerioder>,
+    ) : RefusjonKravBeregningInput()
+
+    data class Output(
+        override val belop: Int,
+        val deltakelser: Set<DeltakelseManedsverk>,
+    ) : RefusjonKravBeregningOutput()
+}
+
 @Serializable
-data class RefusjonskravDeltakelsePerioder(
+data class DeltakelsePerioder(
     @Serializable(with = UUIDSerializer::class)
     val deltakelseId: UUID,
     val perioder: List<DeltakelsePeriode>,
@@ -24,12 +41,9 @@ data class DeltakelsePeriode(
     val stillingsprosent: Double,
 )
 
-data class RefusjonKravBeregningAft(
-    val belop: BigDecimal,
-    val deltakelser: Set<RefusjonskravDeltakelseManedsverk>,
-)
-
-data class RefusjonskravDeltakelseManedsverk(
+@Serializable
+data class DeltakelseManedsverk(
+    @Serializable(with = UUIDSerializer::class)
     val deltakelseId: UUID,
-    val manedsverk: BigDecimal,
+    val manedsverk: Double,
 )
