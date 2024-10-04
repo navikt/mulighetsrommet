@@ -17,7 +17,6 @@ import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
 import no.nav.mulighetsrommet.domain.dto.Tiltakshistorikk
 import no.nav.mulighetsrommet.domain.dto.TiltakshistorikkMelding
 import no.nav.mulighetsrommet.domain.dto.amt.AmtDeltakerStatus
-import no.nav.mulighetsrommet.env.NaisEnv
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -69,11 +68,6 @@ class TiltakshistorikkService(
         norskIdent: NorskIdent,
         obo: AccessType.OBO,
     ): Deltakelser {
-        if (NaisEnv.current().isProdGCP()) {
-            log.debug("Henter ikke deltakelser fra Komet sitt API i prod")
-            return Deltakelser(setOf(), emptyList(), emptyList())
-        }
-
         return amtDeltakerClient.hentDeltakelser(DeltakelserRequest(norskIdent), obo).fold({ error ->
             log.warn("Klarte ikke hente deltakelser fra Komet: $error")
             Deltakelser(

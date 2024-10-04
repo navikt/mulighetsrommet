@@ -1,6 +1,5 @@
 package no.nav.mulighetsrommet.api.okonomi.refusjon
 
-import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingDto
 import no.nav.mulighetsrommet.api.okonomi.prismodell.Prismodell
 import no.nav.mulighetsrommet.api.repositories.DeltakerRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
@@ -35,7 +34,7 @@ class RefusjonService(
             .mapNotNull {
                 when (it.tiltakstype.tiltakskode) {
                     Tiltakskode.ARBEIDSFORBEREDENDE_TRENING -> lagAFTRefusjonskrav(
-                        it,
+                        gjennomforingId = it.id,
                         periodeStart = periodeStart,
                         periodeSlutt = periodeSlutt,
                     )
@@ -52,19 +51,18 @@ class RefusjonService(
     }
 
     fun lagAFTRefusjonskrav(
-        tiltaksgjennomforing: TiltaksgjennomforingDto,
+        gjennomforingId: UUID,
         periodeStart: LocalDate,
         periodeSlutt: LocalDate,
     ): RefusjonskravDbo {
         val beregning = aftRefusjonBeregning(
-            tiltaksgjennomforing.id,
+            gjennomforingId,
             periodeStart,
             periodeSlutt,
         )
         return RefusjonskravDbo(
             id = UUID.randomUUID(),
-            tiltaksgjennomforingId = tiltaksgjennomforing.id,
-            arrangorId = tiltaksgjennomforing.arrangor.id,
+            tiltaksgjennomforingId = gjennomforingId,
             periodeStart = periodeStart,
             periodeSlutt = periodeSlutt,
             beregning = beregning,
