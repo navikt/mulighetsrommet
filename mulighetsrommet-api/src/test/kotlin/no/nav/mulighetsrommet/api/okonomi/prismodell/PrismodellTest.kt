@@ -2,6 +2,8 @@ package no.nav.mulighetsrommet.api.okonomi.prismodell
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.data.blocking.forAll
+import io.kotest.data.row
 import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.api.okonomi.models.DeltakelsePeriode
 import no.nav.mulighetsrommet.api.okonomi.models.RefusjonskravDeltakelse
@@ -126,45 +128,103 @@ class PrismodellTest : FunSpec({
     }
 
     context("AFT refusjon beregning") {
-        val deltakelser = setOf(
-            RefusjonskravDeltakelse(
-                deltakelseId = UUID.randomUUID(),
-                perioder = listOf(
-                    DeltakelsePeriode(
-                        start = LocalDateTime.of(2023, 1, 1, 0, 0, 0),
-                        slutt = LocalDateTime.of(2023, 1, 10, 0, 0, 0),
-                        stillingsprosent = 100.0,
-                    ),
-                    DeltakelsePeriode(
-                        start = LocalDateTime.of(2023, 1, 10, 0, 0, 0),
-                        slutt = LocalDateTime.of(2023, 1, 20, 0, 0, 0),
-                        stillingsprosent = 50.0,
-                    ),
-                    DeltakelsePeriode(
-                        start = LocalDateTime.of(2023, 1, 20, 0, 0, 0),
-                        slutt = LocalDateTime.of(2023, 1, 30, 0, 0, 0),
-                        stillingsprosent = 50.0,
-                    ),
-                ),
-            ),
-            RefusjonskravDeltakelse(
-                deltakelseId = UUID.randomUUID(),
-                perioder = listOf(
-                    DeltakelsePeriode(
-                        start = LocalDateTime.of(2023, 1, 1, 0, 0, 0),
-                        slutt = LocalDateTime.of(2023, 1, 30, 0, 0, 0),
-                        stillingsprosent = 100.0,
-                    ),
-                ),
-            ),
-        )
+        val periodeStart = LocalDateTime.of(2023, 6, 1, 0, 0, 0)
+        val periodeMidt = LocalDateTime.of(2023, 6, 16, 0, 0, 0)
+        val periodeSlutt = LocalDateTime.of(2023, 7, 1, 0, 0, 0)
 
-        test("beløp beregnes fra sats og deltakelser") {
-            // TODO ta høyde for perioder
-            Prismodell.AFT.beregnRefusjonBelop(
-                sats = 100,
-                deltakelser = deltakelser,
-            ) shouldBe 200
+        test("beløp beregnes fra månedsverk til deltakere og sats") {
+            forAll(
+                row(
+                    setOf(
+                        RefusjonskravDeltakelse(
+                            deltakelseId = UUID.randomUUID(),
+                            perioder = listOf(
+                                DeltakelsePeriode(start = periodeStart, slutt = periodeSlutt, stillingsprosent = 100.0),
+                            ),
+                        ),
+                    ),
+                    100,
+                ),
+                row(
+                    setOf(
+                        RefusjonskravDeltakelse(
+                            deltakelseId = UUID.randomUUID(),
+                            perioder = listOf(
+                                DeltakelsePeriode(start = periodeStart, slutt = periodeSlutt, stillingsprosent = 50.0),
+                            ),
+                        ),
+                    ),
+                    100,
+                ),
+                row(
+                    setOf(
+                        RefusjonskravDeltakelse(
+                            deltakelseId = UUID.randomUUID(),
+                            perioder = listOf(
+                                DeltakelsePeriode(start = periodeStart, slutt = periodeMidt, stillingsprosent = 40.0),
+                            ),
+                        ),
+                    ),
+                    25,
+                ),
+                row(
+                    setOf(
+                        RefusjonskravDeltakelse(
+                            deltakelseId = UUID.randomUUID(),
+                            perioder = listOf(
+                                DeltakelsePeriode(start = periodeStart, slutt = periodeMidt, stillingsprosent = 49.0),
+                                DeltakelsePeriode(start = periodeMidt, slutt = periodeSlutt, stillingsprosent = 50.0),
+                            ),
+                        ),
+                    ),
+                    75,
+                ),
+                row(
+                    setOf(
+                        RefusjonskravDeltakelse(
+                            deltakelseId = UUID.randomUUID(),
+                            perioder = listOf(
+                                DeltakelsePeriode(start = periodeStart, slutt = periodeSlutt, stillingsprosent = 100.0),
+                            ),
+                        ),
+                        RefusjonskravDeltakelse(
+                            deltakelseId = UUID.randomUUID(),
+                            perioder = listOf(
+                                DeltakelsePeriode(start = periodeStart, slutt = periodeSlutt, stillingsprosent = 49.0),
+                            ),
+                        ),
+                    ),
+                    150,
+                ),
+                row(
+                    setOf(
+                        RefusjonskravDeltakelse(
+                            deltakelseId = UUID.randomUUID(),
+                            perioder = listOf(
+                                DeltakelsePeriode(start = periodeStart, slutt = periodeMidt, stillingsprosent = 49.0),
+                                DeltakelsePeriode(start = periodeMidt, slutt = periodeSlutt, stillingsprosent = 50.0),
+                            ),
+                        ),
+                        RefusjonskravDeltakelse(
+                            deltakelseId = UUID.randomUUID(),
+                            perioder = listOf(
+                                DeltakelsePeriode(start = periodeStart, slutt = periodeMidt, stillingsprosent = 49.0),
+                            ),
+                        ),
+                    ),
+                    100,
+                ),
+            ) { deltakelser, expectedBelop ->
+
+                val belop = Prismodell.AFT.beregnRefusjonBelop(
+                    periodeStart = periodeStart,
+                    periodeSlutt = periodeSlutt,
+                    sats = 100,
+                    deltakelser = deltakelser,
+                )
+
+                belop shouldBe expectedBelop
+            }
         }
     }
 })

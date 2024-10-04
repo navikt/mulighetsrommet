@@ -2,12 +2,15 @@ package no.nav.mulighetsrommet.api.okonomi.prismodell
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.okonomi.models.DeltakelsePeriode
 import no.nav.mulighetsrommet.api.okonomi.models.RefusjonskravDeltakelse
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import java.lang.Math.addExact
-import java.lang.Math.multiplyExact
+import java.math.BigDecimal
 import java.math.RoundingMode
+import java.time.Duration
 import java.time.LocalDate
+import java.time.LocalDateTime
 import kotlin.streams.asSequence
 
 object Prismodell {
@@ -62,11 +65,42 @@ object Prismodell {
         }
 
         fun beregnRefusjonBelop(
-            deltakelser: Set<RefusjonskravDeltakelse>,
+            periodeStart: LocalDateTime,
+            periodeSlutt: LocalDateTime,
             sats: Int,
+            deltakelser: Set<RefusjonskravDeltakelse>,
         ): Int {
-            // TODO: Implement
-            return multiplyExact(sats, deltakelser.size)
+            val totalDuration = Duration.between(periodeStart, periodeSlutt).toSeconds().toBigDecimal()
+
+            val manedsverk = deltakelser
+                .flatMap {
+                    it.perioder.map { periode ->
+                        DeltakelsePeriode(
+                            start = maxOf(periodeStart, periode.start),
+                            slutt = minOf(periodeSlutt, periode.slutt),
+                            stillingsprosent = if (periode.stillingsprosent < 50) {
+                                50.0
+                            } else {
+                                100.0
+                            },
+                        )
+                    }
+                }
+                .map {
+                    val overlapDuration = Duration.between(it.start, it.slutt).toSeconds().toBigDecimal()
+                    val overlapFraction = overlapDuration.divide(totalDuration, 2, RoundingMode.HALF_UP)
+                    val manedsverk = overlapFraction
+                        .multiply(BigDecimal(it.stillingsprosent))
+                        .divide(BigDecimal(100), 2, RoundingMode.HALF_UP)
+                    manedsverk
+                }
+
+            // TODO: hvor nøyaktig skal utregning være?
+            return manedsverk
+                .reduce { a, b -> a.add(b) }
+                .multiply(BigDecimal(sats))
+                .setScale(2, RoundingMode.HALF_UP)
+                .toInt()
         }
     }
 

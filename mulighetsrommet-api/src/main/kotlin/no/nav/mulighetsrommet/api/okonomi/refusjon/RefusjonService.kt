@@ -65,7 +65,7 @@ class RefusjonService(
             periodeSlutt = periodeSlutt,
         )
         val sats = Prismodell.AFT.findSats(periodeStart)
-        val beregning = beregnRefusjonAft(sats, deltakere)
+        val beregning = beregnRefusjonAft(periodeStart, periodeSlutt, sats, deltakere)
 
         return RefusjonskravDbo(
             id = refusjonskravId,
@@ -77,10 +77,14 @@ class RefusjonService(
     }
 
     private fun beregnRefusjonAft(
+        periodeStart: LocalDate,
+        periodeSlutt: LocalDate,
         sats: Int,
         deltakere: Set<RefusjonskravDeltakelse>,
     ): Prismodell.RefusjonskravBeregning.AFT {
         val belop = Prismodell.AFT.beregnRefusjonBelop(
+            periodeStart = periodeStart.atStartOfDay(),
+            periodeSlutt = periodeSlutt.atStartOfDay(),
             sats = sats,
             deltakelser = deltakere,
         )
