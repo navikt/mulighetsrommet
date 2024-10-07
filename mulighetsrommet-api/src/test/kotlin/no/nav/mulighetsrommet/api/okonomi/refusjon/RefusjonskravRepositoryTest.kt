@@ -7,10 +7,7 @@ import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
-import no.nav.mulighetsrommet.api.okonomi.models.DeltakelseManedsverk
-import no.nav.mulighetsrommet.api.okonomi.models.DeltakelsePeriode
-import no.nav.mulighetsrommet.api.okonomi.models.DeltakelsePerioder
-import no.nav.mulighetsrommet.api.okonomi.models.RefusjonKravBeregningAft
+import no.nav.mulighetsrommet.api.okonomi.models.*
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import org.junit.jupiter.api.assertThrows
@@ -89,7 +86,7 @@ class RefusjonskravRepositoryTest() : FunSpec({
         test("upsert and get") {
             val krav = RefusjonskravDbo(
                 id = UUID.randomUUID(),
-                tiltaksgjennomforingId = AFT1.id,
+                gjennomforingId = AFT1.id,
                 periodeStart = LocalDate.of(2023, 1, 1),
                 periodeSlutt = LocalDate.of(2023, 2, 1),
                 beregning = beregning,
@@ -99,7 +96,7 @@ class RefusjonskravRepositoryTest() : FunSpec({
 
             repository.get(krav.id) shouldBe RefusjonskravDto(
                 id = krav.id,
-                tiltaksgjennomforing = RefusjonskravDto.Gjennomforing(
+                gjennomforing = RefusjonskravDto.Gjennomforing(
                     id = AFT1.id,
                     navn = AFT1.navn,
                 ),
@@ -128,7 +125,7 @@ class RefusjonskravRepositoryTest() : FunSpec({
             )
             val krav = RefusjonskravDbo(
                 id = UUID.randomUUID(),
-                tiltaksgjennomforingId = AFT1.id,
+                gjennomforingId = AFT1.id,
                 periodeStart = LocalDate.of(2023, 1, 1),
                 periodeSlutt = LocalDate.of(2023, 1, 1),
                 beregning = RefusjonKravBeregningAft(

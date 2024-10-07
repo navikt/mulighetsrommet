@@ -5,57 +5,40 @@ import { useLoaderData, useParams } from "@remix-run/react";
 import { Definisjonsliste } from "../components/Definisjonsliste";
 import { PageHeader } from "../components/PageHeader";
 import { Separator } from "../components/Separator";
-import { Deltakerliste, Krav, TilsagnsDetaljer } from "../domene/domene";
+import { Refusjonskrav, TilsagnDetaljer } from "../domene/domene";
 import { requirePersonIdent } from "../auth/auth.server";
+import { loadRefusjonskrav } from "~/loaders/loadRefusjonskrav";
 import { DeltakerlisteDetaljer } from "~/components/deltakerliste/DeltakerlisteDetaljer";
 import { RefusjonTilsagnsDetaljer } from "~/components/refusjonskrav/TilsagnsDetaljer";
-import { RefusjonskravService } from "@mr/api-client";
 import { RefusjonDetaljer } from "~/components/refusjonskrav/RefusjonDetaljer";
 
 type LoaderData = {
-  deltakerliste: Deltakerliste;
-  tilsagnsDetaljer: TilsagnsDetaljer;
-  krav: Krav;
+  krav: Refusjonskrav;
+  tilsagnDetaljer: TilsagnDetaljer;
 };
 
 export const loader: LoaderFunction = async ({ request, params }): Promise<LoaderData> => {
   await requirePersonIdent(request);
+
   if (params.id === undefined) throw Error("Mangler id");
-  const krav = await RefusjonskravService.getRefusjonkrav({
-    id: params.id,
-  });
+
+  const krav = await loadRefusjonskrav(params.id);
 
   return {
-    deltakerliste: {
-      id: params.id,
-      detaljer: {
-        tiltaksnavn: krav.tiltaksgjennomforing.navn,
-        tiltakstype: krav.tiltakstype.navn,
-        refusjonskravperiode: `${krav.periodeStart} - ${krav.periodeSlutt}`,
-      },
-      deltakere: [],
-    },
-    tilsagnsDetaljer: {
+    krav,
+    tilsagnDetaljer: {
       antallPlasser: 20,
       prisPerPlass: 20205,
       tilsagnsBelop: 1308530,
       tilsagnsPeriode: "01.06.2024 - 30.06.2024",
       sum: 1308530,
     },
-    krav: {
-      id: krav.id,
-      kravnr: "6",
-      periode: `${krav.periodeStart} - ${krav.periodeSlutt}`,
-      belop: String(krav.beregning.belop),
-      fristForGodkjenning: "01.02.2024",
-    },
   };
 };
 
 export default function RefusjonskravKvittering() {
-  const { deltakerliste, tilsagnsDetaljer, krav } = useLoaderData<LoaderData>();
+  const { krav, tilsagnDetaljer } = useLoaderData<LoaderData>();
   const params = useParams();
-
   return (
     <>
       <PageHeader
@@ -79,9 +62,9 @@ export default function RefusjonskravKvittering() {
       </div>
       <Separator />
       <VStack gap="5" className="mt-5">
-        <DeltakerlisteDetaljer deltakerliste={deltakerliste} />
+        <DeltakerlisteDetaljer krav={krav} />
         <Separator />
-        <RefusjonTilsagnsDetaljer tilsagnsDetaljer={tilsagnsDetaljer} />
+        <RefusjonTilsagnsDetaljer tilsagnsDetaljer={tilsagnDetaljer} />
         <Separator />
         <RefusjonDetaljer krav={krav} />
         <Separator />

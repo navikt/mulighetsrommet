@@ -6,7 +6,7 @@ import java.util.*
 
 data class RefusjonskravDbo(
     val id: UUID,
-    val tiltaksgjennomforingId: UUID,
+    val gjennomforingId: UUID,
     val periodeStart: LocalDate,
     val periodeSlutt: LocalDate,
     val beregning: RefusjonKravBeregning,

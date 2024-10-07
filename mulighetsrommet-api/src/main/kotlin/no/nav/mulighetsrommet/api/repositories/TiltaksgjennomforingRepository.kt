@@ -497,7 +497,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         @Language("PostgreSQL")
         val query = """
             select * from tiltaksgjennomforing_admin_dto_view
-            left join refusjonskrav on refusjonskrav.tiltaksgjennomforing_id = tiltaksgjennomforing_admin_dto_view.id
+            left join refusjonskrav on refusjonskrav.gjennomforing_id = tiltaksgjennomforing_admin_dto_view.id
             where
                 (start_dato <= :periode_slutt) and
                 (slutt_dato >= :periode_start or slutt_dato is null) and

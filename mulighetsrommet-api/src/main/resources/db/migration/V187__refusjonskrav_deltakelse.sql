@@ -1,7 +1,15 @@
+create extension if not exists btree_gist;
+
+drop view if exists refusjonskrav_aft_view;
+drop view if exists refusjonskrav_admin_dto_view;
+
 alter table refusjonskrav
     drop column beregning,
     drop column periode_start,
     drop column periode_slutt;
+
+alter table refusjonskrav
+    rename column tiltaksgjennomforing_id to gjennomforing_id;
 
 create table refusjonskrav_beregning_aft
 (
