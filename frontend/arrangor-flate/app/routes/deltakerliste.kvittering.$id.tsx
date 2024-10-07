@@ -5,35 +5,27 @@ import { useLoaderData } from "@remix-run/react";
 import { Definisjonsliste } from "../components/Definisjonsliste";
 import { PageHeader } from "../components/PageHeader";
 import { Separator } from "../components/Separator";
-import { Deltakerliste } from "../domene/domene";
+import { Refusjonskrav } from "../domene/domene";
 import { requirePersonIdent } from "../auth/auth.server";
+import { loadRefusjonskrav } from "~/loaders/loadRefusjonskrav";
 
 type LoaderData = {
-  deltakerliste: Deltakerliste;
+  krav: Refusjonskrav;
 };
 
 export const loader: LoaderFunction = async ({ request, params }): Promise<LoaderData> => {
   await requirePersonIdent(request);
+
   if (params.id === undefined) throw Error("Mangler id");
-  return {
-    deltakerliste: {
-      id: params.id,
-      detaljer: {
-        tiltaksnavn: "AFT - Fredrikstad, Sarpsborg, Halden",
-        tiltaksnummer: "2024/123456",
-        avtalenavn: "AFT - Fredrikstad, Sarpsborg, Halden",
-        tiltakstype: "Arbeidsforberedende trening",
-        refusjonskravperiode: "01.01.2024 - 31.01.2024",
-        refusjonskravnummer: "6",
-      },
-      deltakere: [],
-    },
-  };
+
+  const krav = await loadRefusjonskrav(params.id);
+
+  return { krav };
 };
 
 export default function RefusjonskravKvittering() {
-  const { deltakerliste } = useLoaderData<LoaderData>();
-  const { tiltaksnavn, tiltaksnummer, avtalenavn, tiltakstype } = deltakerliste.detaljer;
+  const { krav } = useLoaderData<LoaderData>();
+  const { tiltaksnavn, tiltaksnummer, avtalenavn, tiltakstype } = krav.detaljer;
   return (
     <>
       <PageHeader

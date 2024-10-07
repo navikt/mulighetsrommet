@@ -1,10 +1,10 @@
-import { RefusjonskravDto, RefusjonskravStatus } from "@mr/api-client";
+import { RefusjonKravAft, RefusjonskravStatus } from "@mr/api-client";
 import { Table, Tag } from "@navikt/ds-react";
 import { Link } from "@remix-run/react";
 import { ReactNode } from "react";
 
 interface Props {
-  krav: RefusjonskravDto[];
+  krav: RefusjonKravAft[];
 }
 
 export function RefusjonskravTable({ krav }: Props) {
@@ -23,7 +23,9 @@ export function RefusjonskravTable({ krav }: Props) {
           </Table.Row>
         </Table.Header>
         <Table.Body>
-          {krav.map(({ id, periodeStart, periodeSlutt, beregning }) => {
+          {krav.map(({ id, beregning }) => {
+            const { periodeStart, periodeSlutt, belop } = beregning;
+
             // TODO: Hardkodet enn så lenge
             const status = RefusjonskravStatus.KLAR_FOR_INNSENDING;
 
@@ -32,7 +34,7 @@ export function RefusjonskravTable({ krav }: Props) {
                 <Table.DataCell>123</Table.DataCell>
                 <Table.DataCell>1</Table.DataCell>
                 <Table.DataCell>{`${periodeStart} - ${periodeSlutt}`}</Table.DataCell>
-                <Table.DataCell>{beregning.belop} NOK</Table.DataCell>
+                <Table.DataCell>{belop} NOK</Table.DataCell>
                 <Table.DataCell>Frist for godkjenning</Table.DataCell>
                 <Table.DataCell>{statusTilTag(status)}</Table.DataCell>
                 <Table.DataCell>

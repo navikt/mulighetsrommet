@@ -4,6 +4,7 @@ import no.nav.mulighetsrommet.api.clients.tiltakshistorikk.TiltakshistorikkClien
 import no.nav.mulighetsrommet.api.okonomi.models.DeltakelsePeriode
 import no.nav.mulighetsrommet.api.okonomi.models.DeltakelsePerioder
 import no.nav.mulighetsrommet.api.okonomi.models.RefusjonKravBeregningAft
+import no.nav.mulighetsrommet.api.okonomi.models.RefusjonskravDto
 import no.nav.mulighetsrommet.api.okonomi.prismodell.Prismodell
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.database.Database
@@ -79,7 +80,7 @@ class RefusjonService(
 
         return RefusjonskravDbo(
             id = refusjonskravId,
-            tiltaksgjennomforingId = gjennomforingId,
+            gjennomforingId = gjennomforingId,
             periodeStart = periodeStart,
             periodeSlutt = periodeSlutt,
             beregning = beregning,
@@ -112,7 +113,7 @@ class RefusjonService(
                 val sluttDato = minOf(deltakelse.sluttDato ?: periodeSlutt, periodeSlutt)
                 val periode = DeltakelsePeriode(
                     start = startDato.atStartOfDay(),
-                    slutt = sluttDato.atStartOfDay(),
+                    slutt = sluttDato.plusDays(1).atStartOfDay(),
                     stillingsprosent = 100.00,
                 )
 

@@ -6,6 +6,7 @@ import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.okonomi.models.RefusjonKravBeregning
 import no.nav.mulighetsrommet.api.okonomi.models.RefusjonKravBeregningAft
+import no.nav.mulighetsrommet.api.okonomi.models.RefusjonskravDto
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
 import org.intellij.lang.annotations.Language
@@ -18,10 +19,10 @@ class RefusjonskravRepository(private val db: Database) {
     fun upsert(dbo: RefusjonskravDbo, tx: Session) {
         @Language("PostgreSQL")
         val refusjonskravQuery = """
-            insert into refusjonskrav (id, tiltaksgjennomforing_id)
-            values (:id::uuid, :tiltaksgjennomforing_id::uuid)
+            insert into refusjonskrav (id, gjennomforing_id)
+            values (:id::uuid, :gjennomforing_id::uuid)
             on conflict (id) do update set
-                tiltaksgjennomforing_id = excluded.tiltaksgjennomforing_id
+                gjennomforing_id = excluded.gjennomforing_id
         """.trimIndent()
 
         queryOf(refusjonskravQuery, dbo.toSqlParameters()).asExecute.runWithSession(tx)
@@ -85,6 +86,14 @@ class RefusjonskravRepository(private val db: Database) {
         tx.batchPreparedNamedStatement(insertPeriodeQuery, perioder)
 
         @Language("PostgreSQL")
+        val deleteManedsverk = """
+            delete
+            from refusjonskrav_deltakelse_manedsverk
+            where refusjonskrav_id = :refusjonskrav_id::uuid;
+        """
+        queryOf(deleteManedsverk, mapOf("refusjonskrav_id" to id)).asExecute.runWithSession(tx)
+
+        @Language("PostgreSQL")
         val insertManedsverkQuery = """
             insert into refusjonskrav_deltakelse_manedsverk (refusjonskrav_id, deltakelse_id, manedsverk)
             values (:refusjonskrav_id, :deltakelse_id, :manedsverk)
@@ -137,7 +146,7 @@ class RefusjonskravRepository(private val db: Database) {
         @Language("PostgreSQL")
         val query = """
             select * from refusjonskrav_aft_view
-            where tiltaksgjennomforing_id = :id::uuid
+            where gjennomforing_id = :id::uuid
         """.trimIndent()
 
         return queryOf(query, mapOf("id" to id))
@@ -148,7 +157,7 @@ class RefusjonskravRepository(private val db: Database) {
 
     private fun RefusjonskravDbo.toSqlParameters() = mapOf(
         "id" to id,
-        "tiltaksgjennomforing_id" to tiltaksgjennomforingId,
+        "gjennomforing_id" to gjennomforingId,
     )
 
     private fun Row.toRefusjonsKravAft(): RefusjonskravDto {
@@ -170,9 +179,9 @@ class RefusjonskravRepository(private val db: Database) {
     private fun Row.toRefusjonskravDto(beregning: RefusjonKravBeregning): RefusjonskravDto {
         return RefusjonskravDto(
             id = uuid("id"),
-            tiltaksgjennomforing = RefusjonskravDto.Gjennomforing(
-                id = uuid("tiltaksgjennomforing_id"),
-                navn = string("tiltaksgjennomforing_navn"),
+            gjennomforing = RefusjonskravDto.Gjennomforing(
+                id = uuid("gjennomforing_id"),
+                navn = string("gjennomforing_navn"),
             ),
             arrangor = RefusjonskravDto.Arrangor(
                 id = uuid("arrangor_id"),

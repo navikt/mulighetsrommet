@@ -1,3 +1,5 @@
+import { RefusjonKravAftBeregning, RefusjonKravDeltakelsePeriode } from "@mr/api-client";
+
 export interface Krav {
   id: string;
   tiltaksnr: string;
@@ -14,7 +16,7 @@ export enum KravStatus {
   NarmerSegFrist,
 }
 
-export interface Deltakerliste {
+export interface Refusjonskrav {
   id: string;
   detaljer: {
     tiltaksnavn: string;
@@ -24,6 +26,7 @@ export interface Deltakerliste {
     refusjonskravperiode: string;
     refusjonskravnummer: string;
   };
+  beregning: RefusjonKravAftBeregning;
   deltakere: Deltaker[];
 }
 
@@ -35,18 +38,18 @@ export type TilsagnsDetaljer = {
   sum: number;
 };
 
-export type Deltaker = {
+export interface Deltaker {
   id: string;
   navn: string;
-  veileder: string;
-  fodselsdato: string;
-  startDatoTiltaket: string;
-  startDatoPerioden: string;
-  sluttDatoPerioden: string;
-  deltakelsesProsent: number;
+  norskIdent: string;
+  veileder?: string;
+  startDatoTiltaket?: string;
+  startDatoPerioden?: string;
+  sluttDatoPerioden?: string;
+  stillingsprosent?: number;
   maanedsverk: number;
-  belop: number;
-};
+  perioder: RefusjonKravDeltakelsePeriode[];
+}
 
 export interface RolleTilgangRequest {
   personident: string;

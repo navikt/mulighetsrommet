@@ -1,13 +1,13 @@
-import { Deltakerliste } from "../../domene/domene";
+import { Refusjonskrav } from "../../domene/domene";
 import { Definisjonsliste } from "../Definisjonsliste";
 
 interface Props {
-  deltakerliste: Deltakerliste;
+  krav: Refusjonskrav;
 }
 
-export function DeltakerlisteDetaljer({ deltakerliste }: Props) {
+export function DeltakerlisteDetaljer({ krav }: Props) {
   const { tiltaksnavn, tiltaksnummer, avtalenavn, tiltakstype, refusjonskravperiode } =
-    deltakerliste.detaljer;
+    krav.detaljer;
   return (
     <Definisjonsliste
       title="Generelt"
