@@ -84,6 +84,11 @@ app:
       # 0000-AZ-TILTAK-okonomi_beslutter
       - adGruppeId: b00ba197-c90a-4ff9-966e-6c9cf1c882bf
         rolle: OKONOMI_BESLUTTER
+    tokenx:
+      issuer: http://localhost:8081/tokenx
+      jwksUri: http://localhost:8081/tokenx/jwks
+      audience: mulighetsrommet-api
+      tokenEndpointUrl: http://localhost:8081/tokenx/token
 
   sanity:
     dataset: test

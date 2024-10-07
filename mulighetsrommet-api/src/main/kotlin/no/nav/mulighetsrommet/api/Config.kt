@@ -54,6 +54,7 @@ data class AppConfig(
 
 data class AuthConfig(
     val azure: AuthProvider,
+    val tokenx: AuthProvider,
     val roles: List<AdGruppeNavAnsattRolleMapping>,
 )
 

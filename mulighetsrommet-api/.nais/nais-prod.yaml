@@ -85,9 +85,12 @@ spec:
         extra:
           - NAVident
           - azp_name
+  tokenx:
+    enabled: true
   accessPolicy:
     inbound:
       rules:
+        - application: arrangor-flate
         - application: mulighetsrommet-arena-adapter
         - application: mulighetsrommet-arena-adapter-manager
         - application: mr-admin-flate
