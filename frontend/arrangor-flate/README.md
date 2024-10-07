@@ -2,13 +2,32 @@
 
 Flate for tiltaksarrangører som skal be om refusjon for arbeidsmarkedstiltak
 
-## Lokal utvikling
-
-For å starte utviklingsserveren, kjør:
+## Utvikling mot mock server
 
 ```
 turbo run dev
 ```
+
+## Utvikling mot backend
+
+For dette trenger man et access token definert i `VITE_MULIGHETSROMMET_API_AUTH_TOKEN`. For å generere denne:
+1. gå til `http://localhost:8081/tokenx/debugger`
+2. Trykk på knappen `Get a token`
+3. Skriv inn hva som helst i toppen
+4. Legg inn dette i optional claims (pid kan du velge selv men påkrevd)
+```json
+{
+ "pid": "11830348931",
+ "aud": "mulighetsrommet-api"
+}
+```
+5. Legg `access_token` verdien inn i env variabelen din
+
+
+```
+turbo run backend
+```
+
 
 ## Miljøer
 - [Flate for arrangører i dev-miljø](https://arrangor-refusjon.intern.dev.nav.no/)

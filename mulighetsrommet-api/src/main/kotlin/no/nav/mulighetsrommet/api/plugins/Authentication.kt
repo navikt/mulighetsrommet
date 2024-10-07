@@ -251,6 +251,8 @@ fun Application.configureAuthentication(
             }
         }
 
+        // Denne kunne sjekket mer spesifikt, som f. eks at kommer fra idporten eller
+        // arr-flate, men det er kun derfra tokenx kommer i per nå
         jwt(AuthProvider.TOKEN_X) {
             verifier(tokenxJwkProvider, auth.tokenx.issuer) {
                 withAudience(auth.tokenx.audience)
