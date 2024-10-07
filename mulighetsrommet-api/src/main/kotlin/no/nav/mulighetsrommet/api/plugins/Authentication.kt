@@ -10,6 +10,7 @@ import io.ktor.util.pipeline.*
 import no.nav.mulighetsrommet.api.AuthConfig
 import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattRolle
 import no.nav.mulighetsrommet.domain.dto.NavIdent
+import no.nav.mulighetsrommet.domain.dto.NorskIdent
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import java.net.URI
 import java.util.*
@@ -24,6 +25,7 @@ enum class AuthProvider {
     AZURE_AD_TILTAKSJENNOMFORINGER_SKRIV,
     AZURE_AD_TILTAKSADMINISTRASJON_GENERELL,
     AZURE_AD_OKONOMI_BESLUTTER,
+    TOKEN_X,
 }
 
 object AppRoles {
@@ -68,6 +70,17 @@ fun <T : Any> PipelineContext<T, ApplicationCall>.getNavAnsattAzureId(): UUID {
 }
 
 /**
+ * Gets a pid from the underlying [JWTPrincipal], or throws a [StatusException]
+ * if the claim is not available.
+ */
+fun <T : Any> PipelineContext<T, ApplicationCall>.getPid(): NorskIdent {
+    return call.principal<JWTPrincipal>()?.get("pid")?.let { NorskIdent(it) } ?: throw StatusException(
+        HttpStatusCode.Forbidden,
+        "pid mangler i JWTPrincipal",
+    )
+}
+
+/**
  * Utility to implement a JWT [Authentication] provider with its named derived from the [authProvider] paramater.
  */
 private fun AuthenticationConfig.jwt(
@@ -78,9 +91,8 @@ private fun AuthenticationConfig.jwt(
 fun Application.configureAuthentication(
     auth: AuthConfig,
 ) {
-    val (azure) = auth
-
-    val jwkProvider = JwkProviderBuilder(URI(azure.jwksUri).toURL()).cached(5, 12, TimeUnit.HOURS).build()
+    val azureJwkProvider = JwkProviderBuilder(URI(auth.azure.jwksUri).toURL()).cached(5, 12, TimeUnit.HOURS).build()
+    val tokenxJwkProvider = JwkProviderBuilder(URI(auth.tokenx.jwksUri).toURL()).cached(5, 12, TimeUnit.HOURS).build()
 
     fun hasApplicationRoles(credentials: JWTCredential, vararg requiredRoles: String): Boolean {
         val roles = credentials.getListClaim("roles", String::class)
@@ -96,8 +108,8 @@ fun Application.configureAuthentication(
 
     install(Authentication) {
         jwt(AuthProvider.AZURE_AD_TEAM_MULIGHETSROMMET) {
-            verifier(jwkProvider, azure.issuer) {
-                withAudience(azure.audience)
+            verifier(azureJwkProvider, auth.azure.issuer) {
+                withAudience(auth.azure.audience)
             }
 
             validate { credentials ->
@@ -112,8 +124,8 @@ fun Application.configureAuthentication(
         }
 
         jwt(AuthProvider.AZURE_AD_TILTAKSADMINISTRASJON_GENERELL) {
-            verifier(jwkProvider, azure.issuer) {
-                withAudience(azure.audience)
+            verifier(azureJwkProvider, auth.azure.issuer) {
+                withAudience(auth.azure.audience)
             }
 
             validate { credentials ->
@@ -132,8 +144,8 @@ fun Application.configureAuthentication(
         }
 
         jwt(AuthProvider.AZURE_AD_AVTALER_SKRIV) {
-            verifier(jwkProvider, azure.issuer) {
-                withAudience(azure.audience)
+            verifier(azureJwkProvider, auth.azure.issuer) {
+                withAudience(auth.azure.audience)
             }
 
             validate { credentials ->
@@ -153,8 +165,8 @@ fun Application.configureAuthentication(
         }
 
         jwt(AuthProvider.AZURE_AD_TILTAKSJENNOMFORINGER_SKRIV) {
-            verifier(jwkProvider, azure.issuer) {
-                withAudience(azure.audience)
+            verifier(azureJwkProvider, auth.azure.issuer) {
+                withAudience(auth.azure.audience)
             }
 
             validate { credentials ->
@@ -174,8 +186,8 @@ fun Application.configureAuthentication(
         }
 
         jwt(AuthProvider.AZURE_AD_OKONOMI_BESLUTTER) {
-            verifier(jwkProvider, azure.issuer) {
-                withAudience(azure.audience)
+            verifier(azureJwkProvider, auth.azure.issuer) {
+                withAudience(auth.azure.audience)
             }
 
             validate { credentials ->
@@ -195,8 +207,8 @@ fun Application.configureAuthentication(
         }
 
         jwt(AuthProvider.AZURE_AD_NAV_IDENT) {
-            verifier(jwkProvider, azure.issuer) {
-                withAudience(azure.audience)
+            verifier(azureJwkProvider, auth.azure.issuer) {
+                withAudience(auth.azure.audience)
             }
 
             validate { credentials ->
@@ -207,8 +219,8 @@ fun Application.configureAuthentication(
         }
 
         jwt(AuthProvider.AZURE_AD_DEFAULT_APP) {
-            verifier(jwkProvider, azure.issuer) {
-                withAudience(azure.audience)
+            verifier(azureJwkProvider, auth.azure.issuer) {
+                withAudience(auth.azure.audience)
             }
 
             validate { credentials ->
@@ -221,8 +233,8 @@ fun Application.configureAuthentication(
         }
 
         jwt(AuthProvider.AZURE_AD_TILTAKSGJENNOMFORING_APP) {
-            verifier(jwkProvider, azure.issuer) {
-                withAudience(azure.audience)
+            verifier(azureJwkProvider, auth.azure.issuer) {
+                withAudience(auth.azure.audience)
             }
 
             validate { credentials ->
@@ -234,6 +246,17 @@ fun Application.configureAuthentication(
                 ) {
                     return@validate null
                 }
+
+                JWTPrincipal(credentials.payload)
+            }
+        }
+
+        jwt(AuthProvider.TOKEN_X) {
+            verifier(tokenxJwkProvider, auth.tokenx.issuer) {
+                withAudience(auth.tokenx.audience)
+            }
+            validate { credentials ->
+                credentials["pid"] ?: return@validate null
 
                 JWTPrincipal(credentials.payload)
             }

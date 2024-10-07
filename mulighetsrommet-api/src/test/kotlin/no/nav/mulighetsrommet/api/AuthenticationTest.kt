@@ -45,6 +45,10 @@ class AuthenticationTest : FunSpec({
             authenticate(AuthProvider.AZURE_AD_TILTAKSGJENNOMFORING_APP) {
                 get("AZURE_AD_TILTAKSGJENNOMFORING_APP") { call.respond(HttpStatusCode.OK) }
             }
+
+            authenticate(AuthProvider.TOKEN_X) {
+                get("TOKEN_X") { call.respond(HttpStatusCode.OK) }
+            }
         }
     }
 
@@ -200,6 +204,39 @@ class AuthenticationTest : FunSpec({
                 row(requestWithClaimsReadTiltaksgjennomforing, HttpStatusCode.OK),
             ) { buildRequest, responseStatusCode ->
                 val response = client.get("/AZURE_AD_TILTAKSGJENNOMFORING_APP") { buildRequest(this) }
+
+                response.status shouldBe responseStatusCode
+            }
+        }
+    }
+
+    test("verify provider TOKEN_X") {
+        val requestWithoutBearerToken = { _: HttpRequestBuilder -> }
+        val requestWithWrongAudience = { request: HttpRequestBuilder ->
+            request.bearerAuth(oauth.issueToken(audience = "skatteetaten").serialize())
+        }
+        val requestWithWrongIssuer = { request: HttpRequestBuilder ->
+            request.bearerAuth(oauth.issueToken(issuerId = "skatteetaten").serialize())
+        }
+        val requestWithoutPid = { request: HttpRequestBuilder ->
+            request.bearerAuth(oauth.issueToken().serialize())
+        }
+        val requestWithPid = { request: HttpRequestBuilder ->
+            request.bearerAuth(oauth.issueToken(claims = mapOf(Pair("pid", "11830348931"))).serialize())
+        }
+
+        val config = createTestApplicationConfig().copy(
+            auth = createAuthConfig(oauth, roles = listOf()),
+        )
+        withTestApplication(config, additionalConfiguration = Application::configureTestAuthentationRoutes) {
+            forAll(
+                row(requestWithoutBearerToken, HttpStatusCode.Unauthorized),
+                row(requestWithWrongAudience, HttpStatusCode.Unauthorized),
+                row(requestWithWrongIssuer, HttpStatusCode.Unauthorized),
+                row(requestWithoutPid, HttpStatusCode.Unauthorized),
+                row(requestWithPid, HttpStatusCode.OK),
+            ) { buildRequest, responseStatusCode ->
+                val response = client.get("/TOKEN_X") { buildRequest(this) }
 
                 response.status shouldBe responseStatusCode
             }

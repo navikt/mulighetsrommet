@@ -149,4 +149,10 @@ fun createAuthConfig(
         tokenEndpointUrl = oauth?.tokenEndpointUrl(issuer)?.toString() ?: "http://localhost",
     ),
     roles = roles,
+    tokenx = AuthProvider(
+        issuer = oauth?.issuerUrl(issuer)?.toString() ?: issuer,
+        audience = audience,
+        jwksUri = oauth?.jwksUrl(issuer)?.toUri()?.toString() ?: "http://localhost",
+        tokenEndpointUrl = oauth?.tokenEndpointUrl(issuer)?.toString() ?: "http://localhost",
+    ),
 )
