@@ -16,6 +16,13 @@ const mockKrav: RefusjonskravDto[] = [
       id: uuid(),
       navn: "AFT tiltak Moss",
     },
+    avtale: {
+      id: "1",
+      navn: "AFT - Sens Arbeidsinkludering - Oslo",
+    },
+    tiltakstype: {
+      navn: "Arbeidsforbredene trening",
+    },
   },
   {
     id: uuid(),
@@ -30,6 +37,13 @@ const mockKrav: RefusjonskravDto[] = [
       id: uuid(),
       navn: "AFT tiltak Moss",
     },
+    avtale: {
+      id: "1",
+      navn: "AFT - Sens Arbeidsinkludering - Oslo",
+    },
+    tiltakstype: {
+      navn: "Arbeidsforbredene trening",
+    },
   },
   {
     id: uuid(),
@@ -43,6 +57,13 @@ const mockKrav: RefusjonskravDto[] = [
     tiltaksgjennomforing: {
       id: uuid(),
       navn: "Amo tiltak Halden",
+    },
+    avtale: {
+      id: "1",
+      navn: "AFT - Sens Arbeidsinkludering - Oslo",
+    },
+    tiltakstype: {
+      navn: "Arbeidsforbredene trening",
     },
   },
 ];

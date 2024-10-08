@@ -13,8 +13,8 @@ export function DeltakerlisteDetaljer({ deltakerliste }: Props) {
       title="Generelt"
       definitions={[
         { key: "Tiltaksnavn", value: tiltaksnavn },
-        { key: "Tiltaksnummer", value: tiltaksnummer },
-        { key: "Avtale", value: avtalenavn },
+        { key: "Tiltaksnummer", value: tiltaksnummer! },
+        { key: "Avtale", value: avtalenavn! },
         { key: "Tiltakstype", value: tiltakstype },
         { key: "Rapporteringsperiode", value: refusjonskravperiode },
       ]}
