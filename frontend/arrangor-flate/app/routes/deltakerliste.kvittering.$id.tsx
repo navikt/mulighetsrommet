@@ -30,8 +30,6 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
       id: params.id,
       detaljer: {
         tiltaksnavn: krav.tiltaksgjennomforing.navn,
-        tiltaksnummer: krav.tiltaksgjennomforing.tiltaksnummer,
-        avtalenavn: krav.avtale.navn,
         tiltakstype: krav.tiltakstype.navn,
         refusjonskravperiode: `${krav.periodeStart} - ${krav.periodeSlutt}`,
       },
@@ -50,7 +48,6 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
       periode: `${krav.periodeStart} - ${krav.periodeSlutt}`,
       belop: String(krav.beregning.belop),
       fristForGodkjenning: "01.02.2024",
-      tiltaksnr: krav.tiltaksgjennomforing.tiltaksnummer!,
     },
   };
 };

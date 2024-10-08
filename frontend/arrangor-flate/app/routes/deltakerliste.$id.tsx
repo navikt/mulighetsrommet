@@ -31,8 +31,6 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
       id: params.id,
       detaljer: {
         tiltaksnavn: krav.tiltaksgjennomforing.navn,
-        tiltaksnummer: krav.tiltaksgjennomforing.tiltaksnummer,
-        avtalenavn: krav.avtale.navn,
         tiltakstype: krav.tiltakstype.navn,
         refusjonskravperiode: `${krav.periodeStart} - ${krav.periodeSlutt}`,
       },

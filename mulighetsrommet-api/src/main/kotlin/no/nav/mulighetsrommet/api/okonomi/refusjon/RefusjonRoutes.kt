@@ -75,19 +75,10 @@ data class RefusjonskravDto(
     val periodeSlutt: LocalDate,
     val beregning: Prismodell.RefusjonskravBeregning,
     val arrangor: Arrangor,
-    val avtale: Avtale,
     val tiltakstype: Tiltakstype,
 ) {
     @Serializable
     data class Gjennomforing(
-        @Serializable(with = UUIDSerializer::class)
-        val id: UUID,
-        val navn: String,
-        val tiltaksnummer: String?,
-    )
-
-    @Serializable
-    data class Avtale(
         @Serializable(with = UUIDSerializer::class)
         val id: UUID,
         val navn: String,
