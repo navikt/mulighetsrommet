@@ -15,4 +15,4 @@ select refusjonskrav.id,
 from refusjonskrav
          inner join tiltaksgjennomforing gjennomforing on gjennomforing.id = refusjonskrav.tiltaksgjennomforing_id
          inner join arrangor on gjennomforing.arrangor_id = arrangor.id
-         inner join tiltakstype on tiltaksgjennomforing.tiltakstype_id = tiltakstype.id;
+         inner join tiltakstype on gjennomforing.tiltakstype_id = tiltakstype.id;
