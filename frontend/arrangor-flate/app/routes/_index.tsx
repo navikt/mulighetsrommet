@@ -22,8 +22,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
     throw redirect("/ingen-tilgang");
   }
 
-  console.log(tilganger);
-
   await setupOpenApi(request);
   // TODO: Vi trenger en måte å velge orgrn på
   // F. eks med bedriftsvelger (eller hva det heter) som min-side-arbeidsgiver bruker

@@ -3,9 +3,8 @@ import { ActionFunction, LoaderFunction, redirect, json } from "@remix-run/node"
 import { Form, useActionData, useLoaderData } from "@remix-run/react";
 import { DeltakerlisteDetaljer } from "../components/deltakerliste/DeltakerlisteDetaljer";
 import { PageHeader } from "../components/PageHeader";
-import { Deltakerliste, Krav, KravStatus, type TilsagnsDetaljer } from "../domene/domene";
+import { Deltakerliste, Krav, type TilsagnsDetaljer } from "../domene/domene";
 import { requirePersonIdent } from "../auth/auth.server";
-import Divider from "node_modules/@navikt/ds-react/esm/dropdown/Menu/Divider";
 import { RefusjonTilsagnsDetaljer } from "~/components/refusjonskrav/TilsagnsDetaljer";
 import { RefusjonDetaljer } from "~/components/refusjonskrav/RefusjonDetaljer";
 import { RefusjonskravService } from "@mr/api-client";

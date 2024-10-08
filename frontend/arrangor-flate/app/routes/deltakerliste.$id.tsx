@@ -24,7 +24,6 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
   const krav = await RefusjonskravService.getRefusjonkrav({
     id: params.id,
   });
-  console.log(krav);
 
   return {
     krav,
