@@ -8,6 +8,7 @@ import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.okonomi.prismodell.Prismodell
+import no.nav.mulighetsrommet.api.plugins.getPid
 import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
@@ -30,6 +31,7 @@ fun Route.refusjonRoutes() {
     route("/api/v1/intern/refusjon") {
         post("/krav") {
             val request = call.receive<GetRefusjonskravRequest>()
+            val norskIdent = getPid()
 
             call.respond(service.getByOrgnr(request.orgnr))
         }

@@ -2231,7 +2231,7 @@ components:
           items:
             $ref: "#/components/schemas/OpsjonLoggRegistrert"
         programomradeMedUtdanninger:
-            $ref: "#/components/schemas/ProgramomradeMedUtdanninger"
+          $ref: "#/components/schemas/ProgramomradeMedUtdanninger"
       required:
         - id
         - tiltakstype

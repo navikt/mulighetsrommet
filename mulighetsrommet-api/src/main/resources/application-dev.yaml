@@ -79,6 +79,11 @@ app:
       # 0000-AZ-TILTAK-okonomi_beslutter
       - adGruppeId: b00ba197-c90a-4ff9-966e-6c9cf1c882bf
         rolle: OKONOMI_BESLUTTER
+    tokenx:
+      issuer: ${TOKEN_X_ISSUER}
+      jwksUri: ${TOKEN_X_JWKS_URI}
+      audience: ${TOKEN_X_CLIENT_ID}
+      tokenEndpointUrl: ${TOKEN_X_WELL_KNOWN_URL}
 
   sanity:
     dataset: ${SANITY_DATASET}
@@ -170,4 +175,4 @@ app:
     environment: development
 
   utdanning:
-    baseurl: https://public-staging.api.utdanning.no
+    baseurl: https://api.utdanning.no

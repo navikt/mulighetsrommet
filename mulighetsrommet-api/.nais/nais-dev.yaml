@@ -137,7 +137,7 @@ spec:
         - host: team-mulighetsrommet-unleash-api.nav.cloud.nais.io
         - host: axsys.dev-fss-pub.nais.io
         - host: pdl-api.dev-fss-pub.nais.io
-        - host: public-staging.api.utdanning.no
+        - host: api.utdanning.no
 
   envFrom:
     - secret: mulighetsrommet-api
