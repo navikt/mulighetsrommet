@@ -11,7 +11,6 @@ import { DeltakerlisteDetaljer } from "~/components/deltakerliste/DeltakerlisteD
 import { RefusjonTilsagnsDetaljer } from "~/components/refusjonskrav/TilsagnsDetaljer";
 import { RefusjonskravService } from "@mr/api-client";
 import { RefusjonDetaljer } from "~/components/refusjonskrav/RefusjonDetaljer";
-import { http } from "msw";
 
 type LoaderData = {
   deltakerliste: Deltakerliste;

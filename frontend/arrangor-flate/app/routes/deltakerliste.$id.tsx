@@ -1,10 +1,10 @@
 import { Alert, Button, HGrid, SortState, Table } from "@navikt/ds-react";
 import type { LoaderFunction, MetaFunction } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
-import { PageHeader } from "../components/PageHeader";
-import { DeltakerlisteDetaljer } from "../components/deltakerliste/DeltakerlisteDetaljer";
-import { Deltaker, Deltakerliste } from "../domene/domene";
-import { requirePersonIdent } from "../auth/auth.server";
+import { PageHeader } from "~/components/PageHeader";
+import { DeltakerlisteDetaljer } from "~/components/deltakerliste/DeltakerlisteDetaljer";
+import { Deltaker, Deltakerliste } from "~/domene/domene";
+import { requirePersonIdent } from "~/auth/auth.server";
 import { RefusjonskravDto, RefusjonskravService } from "@mr/api-client";
 import { useState } from "react";
 
@@ -80,12 +80,12 @@ export default function RefusjonDeltakerlister() {
       sort && sortKey === sort.orderBy && sort.direction === "descending"
         ? undefined
         : {
-          orderBy: sortKey,
-          direction:
-            sort && sortKey === sort.orderBy && sort.direction === "ascending"
-              ? "descending"
-              : "ascending",
-        },
+            orderBy: sortKey,
+            direction:
+              sort && sortKey === sort.orderBy && sort.direction === "ascending"
+                ? "descending"
+                : "ascending",
+          },
     );
   };
 
@@ -119,9 +119,6 @@ export default function RefusjonDeltakerlister() {
         <div className="flex justify-between mt-8">
           <span>
             Refusjonskravperiode: <b>{deltakerliste.detaljer.refusjonskravperiode}</b>
-          </span>
-          <span>
-            Refusjonskravnummer: <b>{deltakerliste.detaljer.refusjonskravnummer}</b>
           </span>
         </div>
         <Alert variant="info">Her kommer deltakertabell</Alert>
