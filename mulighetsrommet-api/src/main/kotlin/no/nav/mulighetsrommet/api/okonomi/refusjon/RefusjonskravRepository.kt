@@ -1,6 +1,5 @@
 package no.nav.mulighetsrommet.api.okonomi.refusjon
 
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.Session
@@ -17,44 +16,99 @@ class RefusjonskravRepository(private val db: Database) {
 
     fun upsert(dbo: RefusjonskravDbo, tx: Session) {
         @Language("PostgreSQL")
-        val query = """
+        val refusjonskravQuery = """
             insert into refusjonskrav (
                 id,
                 tiltaksgjennomforing_id,
                 periode_start,
-                periode_slutt,
-                beregning
+                periode_slutt
             ) values (
                 :id::uuid,
                 :tiltaksgjennomforing_id::uuid,
                 :periode_start,
-                :periode_slutt,
-                :beregning::jsonb
+                :periode_slutt
             )
             on conflict (id) do update set
                 tiltaksgjennomforing_id = excluded.tiltaksgjennomforing_id,
                 periode_start           = excluded.periode_start,
-                periode_slutt           = excluded.periode_slutt,
-                beregning               = excluded.beregning
+                periode_slutt           = excluded.periode_slutt
         """.trimIndent()
 
-        tx.run(queryOf(query, dbo.toSqlParameters()).asExecute)
+        queryOf(refusjonskravQuery, dbo.toSqlParameters()).asExecute.runWithSession(tx)
+
+        when (dbo.beregning) {
+            is Prismodell.RefusjonskravBeregning.AFT -> {
+                upsertRefusjonskravBeregningAft(tx, dbo.id, dbo.beregning)
+            }
+
+            else -> throw IllegalStateException("Refusjonskrav av typen ${dbo.beregning::class} er ikke støtte enda")
+        }
+    }
+
+    private fun upsertRefusjonskravBeregningAft(
+        tx: Session,
+        id: UUID,
+        beregning: Prismodell.RefusjonskravBeregning.AFT,
+    ) {
+        @Language("PostgreSQL")
+        val query = """
+            insert into refusjonskrav_beregning_aft (refusjonskrav_id, belop, sats)
+            values (:refusjonskrav_id::uuid, :belop, :sats)
+            on conflict (refusjonskrav_id) do update set
+                belop = excluded.belop,
+                sats  = excluded.sats
+        """.trimIndent()
+
+        val params = mapOf(
+            "refusjonskrav_id" to id,
+            "belop" to beregning.belop,
+            "sats" to beregning.sats,
+        )
+
+        queryOf(query, params).asExecute.runWithSession(tx)
+
+        @Language("PostgreSQL")
+        val deletePerioderQuery = """
+            delete
+            from refusjonskrav_deltakelse_periode
+            where refusjonskrav_id = :refusjonskrav_id::uuid;
+        """
+
+        queryOf(deletePerioderQuery, mapOf("refusjonskrav_id" to id)).asExecute.runWithSession(tx)
+
+        @Language("PostgreSQL")
+        val insertPeriodeQuery = """
+            insert into refusjonskrav_deltakelse_periode (refusjonskrav_id, deltakelse_id, periode, prosent_stilling)
+            values (:refusjonskrav_id, :deltakelse_id, tsrange(:start, :slutt), :stillingsprosent)
+        """.trimIndent()
+
+        val perioder = beregning.deltakere.flatMap { deltakelse ->
+            deltakelse.perioder.map { periode ->
+                mapOf(
+                    "refusjonskrav_id" to id,
+                    "deltakelse_id" to deltakelse.deltakelseId,
+                    "start" to periode.start,
+                    "slutt" to periode.slutt,
+                    "stillingsprosent" to periode.stillingsprosent,
+                )
+            }
+        }
+        tx.batchPreparedNamedStatement(insertPeriodeQuery, perioder)
     }
 
     fun get(id: UUID) = db.transaction { get(id, it) }
 
     fun get(id: UUID, tx: Session): RefusjonskravDto? {
         @Language("PostgreSQL")
-        val query = """
-            select * from refusjonskrav_admin_dto_view
+        val refusjonskravQuery = """
+            select * from refusjonskrav_aft_view
             where id = :id::uuid
         """.trimIndent()
 
-        return tx.run(
-            queryOf(query, mapOf("id" to id))
-                .map { it.toRefusjonskravDto() }
-                .asSingle,
-        )
+        return queryOf(refusjonskravQuery, mapOf("id" to id))
+            .map { it.toRefusjonskravAftDto() }
+            .asSingle
+            .runWithSession(tx)
     }
 
     fun getByOrgnr(orgnr: List<Organisasjonsnummer>) = db.transaction { getByOrgnr(orgnr, it) }
@@ -62,13 +116,13 @@ class RefusjonskravRepository(private val db: Database) {
     fun getByOrgnr(orgnr: List<Organisasjonsnummer>, tx: Session): List<RefusjonskravDto> {
         @Language("PostgreSQL")
         val query = """
-            select * from refusjonskrav_admin_dto_view
+            select * from refusjonskrav_aft_view
             where arrangor_organisasjonsnummer = any(:orgnr)
         """.trimIndent()
 
         return tx.run(
             queryOf(query, mapOf("orgnr" to db.createTextArray(orgnr.map { it.value })))
-                .map { it.toRefusjonskravDto() }
+                .map { it.toRefusjonskravAftDto() }
                 .asList,
         )
     }
@@ -78,15 +132,14 @@ class RefusjonskravRepository(private val db: Database) {
     fun getByGjennomforingId(id: UUID, tx: Session): RefusjonskravDto? {
         @Language("PostgreSQL")
         val query = """
-            select * from refusjonskrav_admin_dto_view
+            select * from refusjonskrav_aft_view
             where tiltaksgjennomforing_id = :id::uuid
         """.trimIndent()
 
-        return tx.run(
-            queryOf(query, mapOf("id" to id))
-                .map { it.toRefusjonskravDto() }
-                .asSingle,
-        )
+        return queryOf(query, mapOf("id" to id))
+            .map { it.toRefusjonskravAftDto() }
+            .asSingle
+            .runWithSession(tx)
     }
 
     private fun RefusjonskravDbo.toSqlParameters() = mapOf(
@@ -94,10 +147,18 @@ class RefusjonskravRepository(private val db: Database) {
         "tiltaksgjennomforing_id" to tiltaksgjennomforingId,
         "periode_start" to periodeStart,
         "periode_slutt" to periodeSlutt,
-        "beregning" to Json.encodeToString(beregning),
     )
 
-    private fun Row.toRefusjonskravDto(): RefusjonskravDto {
+    private fun Row.toRefusjonskravAftDto(): RefusjonskravDto {
+        val beregning = Prismodell.RefusjonskravBeregning.AFT(
+            belop = int("belop"),
+            sats = int("sats"),
+            deltakere = stringOrNull("deltakelser_json")?.let { Json.decodeFromString(it) } ?: setOf(),
+        )
+        return toRefusjonskravDto(beregning)
+    }
+
+    private fun Row.toRefusjonskravDto(beregning: Prismodell.RefusjonskravBeregning): RefusjonskravDto {
         return RefusjonskravDto(
             id = uuid("id"),
             tiltaksgjennomforing = RefusjonskravDto.Gjennomforing(
@@ -115,7 +176,7 @@ class RefusjonskravRepository(private val db: Database) {
             tiltakstype = RefusjonskravDto.Tiltakstype(
                 navn = string("tiltakstype_navn"),
             ),
-            beregning = Json.decodeFromString<Prismodell.RefusjonskravBeregning>(string("beregning")),
+            beregning = beregning,
         )
     }
 }

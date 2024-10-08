@@ -3,7 +3,11 @@ package no.nav.mulighetsrommet.api.okonomi.prismodell
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import no.nav.mulighetsrommet.api.okonomi.models.DeltakelsePeriode
+import no.nav.mulighetsrommet.api.okonomi.models.RefusjonskravDeltakelse
 import java.time.LocalDate
+import java.time.LocalDateTime
+import java.util.*
 
 class PrismodellTest : FunSpec({
     context("AFT tilsagn beregning") {
@@ -21,7 +25,7 @@ class PrismodellTest : FunSpec({
                 antallPlasser = 6,
                 periodeStart = LocalDate.of(2024, 1, 1),
                 periodeSlutt = LocalDate.of(2024, 1, 31),
-            ) shouldBe 20205 * 6
+            ) shouldBe 121230
         }
         test("en plass halv måned") {
             Prismodell.AFT.beregnTilsagnBelop(
@@ -29,7 +33,7 @@ class PrismodellTest : FunSpec({
                 antallPlasser = 1,
                 periodeStart = LocalDate.of(2023, 4, 1),
                 periodeSlutt = LocalDate.of(2023, 4, 15),
-            ) shouldBe 19500 / 2
+            ) shouldBe 9750
         }
         test("flere plasser en og en halv måned") {
             Prismodell.AFT.beregnTilsagnBelop(
@@ -118,6 +122,49 @@ class PrismodellTest : FunSpec({
                 periodeStart = LocalDate.of(2024, 9, 15),
                 periodeSlutt = LocalDate.of(2024, 12, 31),
             ) shouldBe 1711768
+        }
+    }
+
+    context("AFT refusjon beregning") {
+        val deltakelser = setOf(
+            RefusjonskravDeltakelse(
+                deltakelseId = UUID.randomUUID(),
+                perioder = listOf(
+                    DeltakelsePeriode(
+                        start = LocalDateTime.of(2023, 1, 1, 0, 0, 0),
+                        slutt = LocalDateTime.of(2023, 1, 10, 0, 0, 0),
+                        stillingsprosent = 100.0,
+                    ),
+                    DeltakelsePeriode(
+                        start = LocalDateTime.of(2023, 1, 10, 0, 0, 0),
+                        slutt = LocalDateTime.of(2023, 1, 20, 0, 0, 0),
+                        stillingsprosent = 50.0,
+                    ),
+                    DeltakelsePeriode(
+                        start = LocalDateTime.of(2023, 1, 20, 0, 0, 0),
+                        slutt = LocalDateTime.of(2023, 1, 30, 0, 0, 0),
+                        stillingsprosent = 50.0,
+                    ),
+                ),
+            ),
+            RefusjonskravDeltakelse(
+                deltakelseId = UUID.randomUUID(),
+                perioder = listOf(
+                    DeltakelsePeriode(
+                        start = LocalDateTime.of(2023, 1, 1, 0, 0, 0),
+                        slutt = LocalDateTime.of(2023, 1, 30, 0, 0, 0),
+                        stillingsprosent = 100.0,
+                    ),
+                ),
+            ),
+        )
+
+        test("beløp beregnes fra sats og deltakelser") {
+            // TODO ta høyde for perioder
+            Prismodell.AFT.beregnRefusjonBelop(
+                sats = 100,
+                deltakelser = deltakelser,
+            ) shouldBe 200
         }
     }
 })

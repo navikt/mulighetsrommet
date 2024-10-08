@@ -7,19 +7,22 @@ import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
+import no.nav.mulighetsrommet.api.okonomi.models.DeltakelsePeriode
+import no.nav.mulighetsrommet.api.okonomi.models.RefusjonskravDeltakelse
 import no.nav.mulighetsrommet.api.okonomi.prismodell.Prismodell
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
+import org.junit.jupiter.api.assertThrows
+import java.sql.SQLException
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.*
 
 class RefusjonskravRepositoryTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
 
     val domain = MulighetsrommetTestDomain(
-        gjennomforinger = listOf(
-            AFT1,
-        ),
+        gjennomforinger = listOf(AFT1),
     )
 
     beforeEach {
@@ -33,34 +36,53 @@ class RefusjonskravRepositoryTest : FunSpec({
     context("CRUD") {
         val repository = RefusjonskravRepository(database.db)
         val beregning = Prismodell.RefusjonskravBeregning.AFT(
-            sats = 20205,
-            periodeStart = LocalDate.of(2023, 1, 1),
             belop = 100_000,
-            deltakere = listOf(
-                Prismodell.RefusjonskravBeregning.AFT.Deltaker(
-                    startDato = LocalDate.of(2023, 1, 1),
-                    sluttDato = LocalDate.of(2023, 1, 10),
-                    prosentPerioder = listOf(
-                        Prismodell.RefusjonskravBeregning.AFT.Deltaker.ProsentPeriode(
-                            startDato = LocalDate.of(2023, 1, 1),
-                            sluttDato = LocalDate.of(2023, 1, 10),
-                            prosent = 1.0,
+            sats = 20_205,
+            deltakere = setOf(
+                RefusjonskravDeltakelse(
+                    deltakelseId = UUID.randomUUID(),
+                    perioder = listOf(
+                        DeltakelsePeriode(
+                            start = LocalDateTime.of(2023, 1, 1, 0, 0, 0),
+                            slutt = LocalDateTime.of(2023, 1, 10, 0, 0, 0),
+                            stillingsprosent = 100.0,
+                        ),
+                        DeltakelsePeriode(
+                            start = LocalDateTime.of(2023, 1, 10, 0, 0, 0),
+                            slutt = LocalDateTime.of(2023, 1, 20, 0, 0, 0),
+                            stillingsprosent = 50.0,
+                        ),
+                        DeltakelsePeriode(
+                            start = LocalDateTime.of(2023, 1, 20, 0, 0, 0),
+                            slutt = LocalDateTime.of(2023, 1, 30, 0, 0, 0),
+                            stillingsprosent = 50.0,
+                        ),
+                    ),
+                ),
+                RefusjonskravDeltakelse(
+                    deltakelseId = UUID.randomUUID(),
+                    perioder = listOf(
+                        DeltakelsePeriode(
+                            start = LocalDateTime.of(2023, 1, 1, 0, 0, 0),
+                            slutt = LocalDateTime.of(2023, 1, 30, 0, 0, 0),
+                            stillingsprosent = 100.0,
                         ),
                     ),
                 ),
             ),
         )
 
-        val krav = RefusjonskravDbo(
-            id = UUID.randomUUID(),
-            tiltaksgjennomforingId = AFT1.id,
-            periodeStart = LocalDate.of(2023, 1, 1),
-            periodeSlutt = LocalDate.of(2023, 1, 31),
-            beregning = beregning,
-        )
-
         test("upsert and get") {
+            val krav = RefusjonskravDbo(
+                id = UUID.randomUUID(),
+                tiltaksgjennomforingId = AFT1.id,
+                periodeStart = LocalDate.of(2023, 1, 1),
+                periodeSlutt = LocalDate.of(2023, 1, 31),
+                beregning = beregning,
+            )
+
             repository.upsert(krav)
+
             repository.get(krav.id) shouldBe RefusjonskravDto(
                 id = krav.id,
                 tiltaksgjennomforing = RefusjonskravDto.Gjennomforing(
@@ -80,6 +102,33 @@ class RefusjonskravRepositoryTest : FunSpec({
                     navn = TiltakstypeFixtures.AFT.navn,
                 ),
             )
+        }
+
+        test("tillater ikke lagring av overlappende perioder") {
+            val periode = DeltakelsePeriode(
+                start = LocalDateTime.of(2023, 1, 1, 0, 0, 0),
+                slutt = LocalDateTime.of(2023, 1, 2, 0, 0, 0),
+                stillingsprosent = 100.0,
+            )
+            val deltakelse = RefusjonskravDeltakelse(
+                deltakelseId = UUID.randomUUID(),
+                perioder = listOf(periode, periode),
+            )
+            val krav = RefusjonskravDbo(
+                id = UUID.randomUUID(),
+                tiltaksgjennomforingId = AFT1.id,
+                periodeStart = LocalDate.of(2023, 1, 1),
+                periodeSlutt = LocalDate.of(2023, 1, 31),
+                beregning = Prismodell.RefusjonskravBeregning.AFT(
+                    belop = 100_000,
+                    sats = 20_205,
+                    deltakere = setOf(deltakelse),
+                ),
+            )
+
+            assertThrows<SQLException> {
+                repository.upsert(krav)
+            }
         }
     }
 })
