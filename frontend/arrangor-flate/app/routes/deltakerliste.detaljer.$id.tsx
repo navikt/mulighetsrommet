@@ -3,11 +3,12 @@ import { ActionFunction, LoaderFunction, redirect, json } from "@remix-run/node"
 import { Form, useActionData, useLoaderData } from "@remix-run/react";
 import { DeltakerlisteDetaljer } from "../components/deltakerliste/DeltakerlisteDetaljer";
 import { PageHeader } from "../components/PageHeader";
-import { Deltakerliste, Krav, KravStatus, type TilsagnsDetaljer } from "../domene/domene";
+import { Deltakerliste, Krav, type TilsagnsDetaljer } from "../domene/domene";
 import { requirePersonIdent } from "../auth/auth.server";
-import Divider from "node_modules/@navikt/ds-react/esm/dropdown/Menu/Divider";
 import { RefusjonTilsagnsDetaljer } from "~/components/refusjonskrav/TilsagnsDetaljer";
 import { RefusjonDetaljer } from "~/components/refusjonskrav/RefusjonDetaljer";
+import { RefusjonskravService } from "@mr/api-client";
+import { Separator } from "~/components/Separator";
 
 type LoaderData = {
   deltakerliste: Deltakerliste;
@@ -18,16 +19,17 @@ type LoaderData = {
 export const loader: LoaderFunction = async ({ request, params }): Promise<LoaderData> => {
   await requirePersonIdent(request);
   if (params.id === undefined) throw Error("Mangler id");
+  const krav = await RefusjonskravService.getRefusjonkrav({
+    id: params.id,
+  });
+
   return {
     deltakerliste: {
       id: params.id,
       detaljer: {
-        tiltaksnavn: "AFT - Fredrikstad, Sarpsborg, Halden",
-        tiltaksnummer: "2024/123456",
-        avtalenavn: "AFT - Fredrikstad, Sarpsborg, Halden",
-        tiltakstype: "Arbeidsforberedende trening",
-        refusjonskravperiode: "01.01.2024 - 31.01.2024",
-        refusjonskravnummer: "6",
+        tiltaksnavn: krav.tiltaksgjennomforing.navn,
+        tiltakstype: krav.tiltakstype.navn,
+        refusjonskravperiode: `${krav.periodeStart} - ${krav.periodeSlutt}`,
       },
       deltakere: [],
     },
@@ -39,13 +41,11 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
       sum: 1308530,
     },
     krav: {
-      id: "6",
+      id: krav.id,
       kravnr: "6",
-      periode: "01.01.2024 - 31.01.2024",
-      belop: "1308530",
+      periode: `${krav.periodeStart} - ${krav.periodeSlutt}`,
+      belop: String(krav.beregning.belop),
       fristForGodkjenning: "01.02.2024",
-      status: KravStatus.Attestert,
-      tiltaksnr: "2024/123456",
     },
   };
 };
@@ -77,9 +77,9 @@ export default function RefusjonskravDetaljer() {
       />
       <VStack gap="5">
         <DeltakerlisteDetaljer deltakerliste={deltakerliste} />
-        <Divider />
+        <Separator />
         <RefusjonTilsagnsDetaljer tilsagnsDetaljer={tilsagnsDetaljer} />
-        <Divider />
+        <Separator />
         <RefusjonDetaljer krav={krav} />
 
         <Alert variant="info">Her kommer tilsagnsdetaljer</Alert>

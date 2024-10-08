@@ -1,10 +1,10 @@
 import { Alert, Button, HGrid, SortState, Table } from "@navikt/ds-react";
 import type { LoaderFunction, MetaFunction } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
-import { PageHeader } from "../components/PageHeader";
-import { DeltakerlisteDetaljer } from "../components/deltakerliste/DeltakerlisteDetaljer";
-import { Deltaker, Deltakerliste } from "../domene/domene";
-import { requirePersonIdent } from "../auth/auth.server";
+import { PageHeader } from "~/components/PageHeader";
+import { DeltakerlisteDetaljer } from "~/components/deltakerliste/DeltakerlisteDetaljer";
+import { Deltaker, Deltakerliste } from "~/domene/domene";
+import { requirePersonIdent } from "~/auth/auth.server";
 import { RefusjonskravDto, RefusjonskravService } from "@mr/api-client";
 import { useState } from "react";
 
@@ -30,12 +30,9 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
     deltakerliste: {
       id: params.id,
       detaljer: {
-        tiltaksnavn: krav?.tiltaksgjennomforing?.navn,
-        tiltaksnummer: "2024/123456",
-        avtalenavn: "AFT - Fredrikstad, Sarpsborg, Halden",
-        tiltakstype: "Arbeidsforberedende trening",
+        tiltaksnavn: krav.tiltaksgjennomforing.navn,
+        tiltakstype: krav.tiltakstype.navn,
         refusjonskravperiode: `${krav.periodeStart} - ${krav.periodeSlutt}`,
-        refusjonskravnummer: "6",
       },
       deltakere: [
         {
@@ -119,9 +116,6 @@ export default function RefusjonDeltakerlister() {
         <div className="flex justify-between mt-8">
           <span>
             Refusjonskravperiode: <b>{deltakerliste.detaljer.refusjonskravperiode}</b>
-          </span>
-          <span>
-            Refusjonskravnummer: <b>{deltakerliste.detaljer.refusjonskravnummer}</b>
           </span>
         </div>
         <Alert variant="info">Her kommer deltakertabell</Alert>

@@ -112,6 +112,9 @@ class RefusjonskravRepository(private val db: Database) {
                 navn = string("arrangor_navn"),
                 slettet = boolean("arrangor_slettet"),
             ),
+            tiltakstype = RefusjonskravDto.Tiltakstype(
+                navn = string("tiltakstype_navn"),
+            ),
             beregning = Json.decodeFromString<Prismodell.RefusjonskravBeregning>(string("beregning")),
         )
     }

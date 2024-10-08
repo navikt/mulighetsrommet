@@ -1837,6 +1837,7 @@ paths:
     get:
       tags:
         - Refusjonskrav
+      operationId: getRefusjonkravKvittering
       responses:
         200:
           description: Generer PDF kvittering for refusjonskrav
@@ -4844,6 +4845,7 @@ components:
               format: uuid
             navn:
               type: string
+
           required:
             - id
             - navn
@@ -4855,12 +4857,22 @@ components:
           format: date
         beregning:
           $ref: "#/components/schemas/RefusjonskravBeregning"
+
+        tiltakstype:
+          type: object
+          properties:
+            navn:
+              type: string
+          required:
+            - navn
+
       required:
         - id
         - tiltaksgjennomforing
         - periodeStart
         - periodeSlutt
         - beregning
+        - tiltakstype
 
     RefusjonskravStatus:
       type: string

@@ -77,6 +77,7 @@ data class RefusjonskravDto(
     val periodeSlutt: LocalDate,
     val beregning: Prismodell.RefusjonskravBeregning,
     val arrangor: Arrangor,
+    val tiltakstype: Tiltakstype,
 ) {
     @Serializable
     data class Gjennomforing(
@@ -92,5 +93,10 @@ data class RefusjonskravDto(
         val organisasjonsnummer: String,
         val navn: String,
         val slettet: Boolean,
+    )
+
+    @Serializable
+    data class Tiltakstype(
+        val navn: String,
     )
 }

@@ -14,7 +14,7 @@ type Roller = "TILTAK_ARRANGOR_REFUSJON";
 
 const mockRoller: TiltaksarrangorRoller[] = [
   {
-    organisasjonsnummer: "973674471",
+    organisasjonsnummer: "971808616",
     roller: ["TILTAK_ARRANGOR_REFUSJON"],
   },
 ];
