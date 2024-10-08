@@ -7,44 +7,47 @@ interface Props {
   krav: RefusjonskravDto[];
 }
 
+const TableTitle = () => {};
+
 export function RefusjonskravTable({ krav }: Props) {
   return (
     <>
-      <Table>
-        <Table.Header>
-          <Table.Row>
-            <Table.HeaderCell>Tiltaksnr.</Table.HeaderCell>
-            <Table.HeaderCell>Kravnr.</Table.HeaderCell>
-            <Table.HeaderCell>Periode</Table.HeaderCell>
-            <Table.HeaderCell>Beløp</Table.HeaderCell>
-            <Table.HeaderCell>Frist for godkjenning</Table.HeaderCell>
-            <Table.HeaderCell>Status</Table.HeaderCell>
-            <Table.HeaderCell></Table.HeaderCell>
-          </Table.Row>
-        </Table.Header>
+      <div className="border-spacing-y-6 border-collapsed">
+        <div>
+          <div className="grid grid-cols-6 w-full gap-4">
+            <div>Periode</div>
+            <div>Månedsverk</div>
+            <div>Beløp</div>
+            <div>Frist for godkjenning</div>
+            <div>Status</div>
+            <div></div>
+          </div>
+        </div>
         <Table.Body>
-          {krav.map(({ id, periodeStart, periodeSlutt, beregning }) => {
+          {krav.map(({ id, periodeStart, periodeSlutt, beregning, tiltakstype }) => {
             // TODO: Hardkodet enn så lenge
             const status = RefusjonskravStatus.KLAR_FOR_INNSENDING;
 
             return (
-              <Table.Row className={getRowStyle(status)} key={id}>
-                <Table.DataCell>123</Table.DataCell>
-                <Table.DataCell>1</Table.DataCell>
-                <Table.DataCell>{`${periodeStart} - ${periodeSlutt}`}</Table.DataCell>
-                <Table.DataCell>{beregning.belop} NOK</Table.DataCell>
-                <Table.DataCell>Frist for godkjenning</Table.DataCell>
-                <Table.DataCell>{statusTilTag(status)}</Table.DataCell>
-                <Table.DataCell>
-                  <Link className="hover:underline" to={`for-du-begynner/${id}`}>
-                    Gå til krav
+              <div className={getRowStyle(status) + "grid grid-cols-6 gap-4"} key={id}>
+                <div>{`${periodeStart} - ${periodeSlutt}`}</div>
+                <div>123</div>
+                <div>{beregning.belop} NOK</div>
+                <div>Frist for godkjenning</div>
+                <div>{statusTilTag(status)}</div>
+                <div>
+                  <Link
+                    className="hover:underline font-bold no-underline"
+                    to={`for-du-begynner/${id}`}
+                  >
+                    Detaljer
                   </Link>
-                </Table.DataCell>
-              </Table.Row>
+                </div>
+              </div>
             );
           })}
         </Table.Body>
-      </Table>
+      </div>
     </>
   );
 }

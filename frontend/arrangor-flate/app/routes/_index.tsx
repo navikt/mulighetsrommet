@@ -1,5 +1,5 @@
 import { RefusjonskravDto, RefusjonskravService } from "@mr/api-client";
-import { Heading, VStack } from "@navikt/ds-react";
+import { Heading, Tabs, VStack } from "@navikt/ds-react";
 import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
@@ -42,13 +42,22 @@ export default function Refusjon() {
   return (
     <>
       <PageHeader title="Tilgjengelige refusjonskrav" />
-      <VStack align="center" gap="4">
-        <RefusjonskravTable krav={aktive} />
-        <Heading size="small" as="div">
-          Historiske refusjonskrav
-        </Heading>
-        <RefusjonskravTable krav={historiske} />
-      </VStack>
+      <Tabs defaultValue="aktive">
+        <Tabs.List>
+          <Tabs.Tab value="aktive" label="Aktive" />
+          <Tabs.Tab value="historiske" label="Historiske" />
+          <Tabs.Tab value="tilsagnsoversikt" label="Tilsagnsoversikt" />
+        </Tabs.List>
+        <Tabs.Panel value="aktive" className="w-full">
+          <RefusjonskravTable krav={aktive} />
+        </Tabs.Panel>
+        <Tabs.Panel value="historiske" className="w-full">
+          <RefusjonskravTable krav={historiske} />
+        </Tabs.Panel>
+        <Tabs.Panel value="tilsagnsoversikt" className="h-24 w-full bg-gray-50 p-4">
+          Sendt-tab
+        </Tabs.Panel>
+      </Tabs>
     </>
   );
 }
