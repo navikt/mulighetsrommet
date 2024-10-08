@@ -1,51 +1,35 @@
 import { Alert, Button, Checkbox, VStack } from "@navikt/ds-react";
-import { ActionFunction, LoaderFunction, redirect, json } from "@remix-run/node";
+import { ActionFunction, json, LoaderFunction, redirect } from "@remix-run/node";
 import { Form, useActionData, useLoaderData } from "@remix-run/react";
 import { DeltakerlisteDetaljer } from "../components/deltakerliste/DeltakerlisteDetaljer";
 import { PageHeader } from "../components/PageHeader";
-import { Deltakerliste, Krav, type TilsagnsDetaljer } from "../domene/domene";
+import { Refusjonskrav, type TilsagnDetaljer } from "../domene/domene";
 import { requirePersonIdent } from "../auth/auth.server";
 import { RefusjonTilsagnsDetaljer } from "~/components/refusjonskrav/TilsagnsDetaljer";
 import { RefusjonDetaljer } from "~/components/refusjonskrav/RefusjonDetaljer";
-import { RefusjonskravService } from "@mr/api-client";
 import { Separator } from "~/components/Separator";
+import { loadRefusjonskrav } from "~/loaders/loadRefusjonskrav";
 
 type LoaderData = {
-  deltakerliste: Deltakerliste;
-  tilsagnsDetaljer: TilsagnsDetaljer;
-  krav: Krav;
+  krav: Refusjonskrav;
+  tilsagnsDetaljer: TilsagnDetaljer;
 };
 
 export const loader: LoaderFunction = async ({ request, params }): Promise<LoaderData> => {
   await requirePersonIdent(request);
+
   if (params.id === undefined) throw Error("Mangler id");
-  const krav = await RefusjonskravService.getRefusjonkrav({
-    id: params.id,
-  });
+
+  const krav = await loadRefusjonskrav(params.id);
 
   return {
-    deltakerliste: {
-      id: params.id,
-      detaljer: {
-        tiltaksnavn: krav.tiltaksgjennomforing.navn,
-        tiltakstype: krav.tiltakstype.navn,
-        refusjonskravperiode: `${krav.periodeStart} - ${krav.periodeSlutt}`,
-      },
-      deltakere: [],
-    },
+    krav,
     tilsagnsDetaljer: {
       antallPlasser: 20,
       prisPerPlass: 20205,
       tilsagnsBelop: 1308530,
       tilsagnsPeriode: "01.06.2024 - 30.06.2024",
       sum: 1308530,
-    },
-    krav: {
-      id: krav.id,
-      kravnr: "6",
-      periode: `${krav.periodeStart} - ${krav.periodeSlutt}`,
-      belop: String(krav.beregning.belop),
-      fristForGodkjenning: "01.02.2024",
     },
   };
 };
@@ -63,7 +47,7 @@ export const action: ActionFunction = async ({ request }) => {
 };
 
 export default function RefusjonskravDetaljer() {
-  const { deltakerliste, tilsagnsDetaljer, krav } = useLoaderData<LoaderData>();
+  const { tilsagnsDetaljer, krav } = useLoaderData<LoaderData>();
   const data = useActionData<typeof action>();
 
   return (
@@ -72,11 +56,11 @@ export default function RefusjonskravDetaljer() {
         title="Detaljer for refusjonskrav"
         tilbakeLenke={{
           navn: "Tilbake til deltakerliste",
-          url: `/deltakerliste/${deltakerliste.id}`,
+          url: `/deltakerliste/${krav.id}`,
         }}
       />
       <VStack gap="5">
-        <DeltakerlisteDetaljer deltakerliste={deltakerliste} />
+        <DeltakerlisteDetaljer krav={krav} />
         <Separator />
         <RefusjonTilsagnsDetaljer tilsagnsDetaljer={tilsagnsDetaljer} />
         <Separator />
@@ -89,7 +73,7 @@ export default function RefusjonskravDetaljer() {
             <Checkbox name="bekreftelse" value="bekreftet">
               Det erklæres herved at alle opplysninger er gitt i henhold til de faktiske forhold
             </Checkbox>
-            <input type="hidden" name="deltakerlisteId" value={deltakerliste.id} />
+            <input type="hidden" name="deltakerlisteId" value={krav.id} />
             {data?.error && <Alert variant="error">{data.error}</Alert>}
             <Button type="submit">Bekreft og send refusjonskrav</Button>
           </VStack>
