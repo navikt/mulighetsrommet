@@ -42,6 +42,20 @@ services:
                   }
                 }
               ]
+            },
+            {
+              "issuerId": "tokenx",
+              "tokenExpiry": 15780000,
+              "requestMappings": [
+                {
+                  "requestParam": "scope",
+                  "match": "openid somescope",
+                  "claims": {
+                    "pid": "11830348931",
+                    "aud": ["mulighetsrommet-api"]
+                  }
+                }
+              ]
             }
           ]
         }
