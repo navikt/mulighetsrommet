@@ -23,7 +23,6 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
   const krav = await RefusjonskravService.getRefusjonkrav({
     id: params.id,
   });
-  console.log(krav);
 
   return {
     deltakerliste: {
@@ -50,7 +49,7 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
       periode: `${krav.periodeStart} - ${krav.periodeSlutt}`,
       belop: String(krav.beregning.belop),
       fristForGodkjenning: "01.02.2024",
-      tiltaksnr: "2024/123456",
+      tiltaksnr: krav.tiltaksgjennomforing.tiltaksnummer!,
     },
   };
 };

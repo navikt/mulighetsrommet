@@ -1837,6 +1837,7 @@ paths:
     get:
       tags:
         - Refusjonskrav
+      operationId: getRefusjonkravKvittering
       responses:
         200:
           description: Generer PDF kvittering for refusjonskrav

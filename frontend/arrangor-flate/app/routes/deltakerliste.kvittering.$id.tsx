@@ -1,32 +1,40 @@
 import { FilePdfIcon } from "@navikt/aksel-icons";
 import { Button, VStack } from "@navikt/ds-react";
 import { LoaderFunction } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import { useLoaderData, useParams } from "@remix-run/react";
 import { Definisjonsliste } from "../components/Definisjonsliste";
 import { PageHeader } from "../components/PageHeader";
 import { Separator } from "../components/Separator";
-import { Deltakerliste, TilsagnsDetaljer } from "../domene/domene";
+import { Deltakerliste, Krav, TilsagnsDetaljer } from "../domene/domene";
 import { requirePersonIdent } from "../auth/auth.server";
 import { DeltakerlisteDetaljer } from "~/components/deltakerliste/DeltakerlisteDetaljer";
 import { RefusjonTilsagnsDetaljer } from "~/components/refusjonskrav/TilsagnsDetaljer";
+import { RefusjonskravService } from "@mr/api-client";
+import { RefusjonDetaljer } from "~/components/refusjonskrav/RefusjonDetaljer";
+import { http } from "msw";
 
 type LoaderData = {
   deltakerliste: Deltakerliste;
   tilsagnsDetaljer: TilsagnsDetaljer;
+  krav: Krav;
 };
 
 export const loader: LoaderFunction = async ({ request, params }): Promise<LoaderData> => {
   await requirePersonIdent(request);
   if (params.id === undefined) throw Error("Mangler id");
+  const krav = await RefusjonskravService.getRefusjonkrav({
+    id: params.id,
+  });
+
   return {
     deltakerliste: {
       id: params.id,
       detaljer: {
-        tiltaksnavn: "AFT - Fredrikstad, Sarpsborg, Halden",
-        tiltaksnummer: "2024/123456",
-        avtalenavn: "AFT - Fredrikstad, Sarpsborg, Halden",
-        tiltakstype: "Arbeidsforberedende trening",
-        refusjonskravperiode: "01.01.2024 - 31.01.2024",
+        tiltaksnavn: krav.tiltaksgjennomforing.navn,
+        tiltaksnummer: krav.tiltaksgjennomforing.tiltaksnummer,
+        avtalenavn: krav.avtale.navn,
+        tiltakstype: krav.tiltakstype.navn,
+        refusjonskravperiode: `${krav.periodeStart} - ${krav.periodeSlutt}`,
       },
       deltakere: [],
     },
@@ -37,12 +45,21 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
       tilsagnsPeriode: "01.06.2024 - 30.06.2024",
       sum: 1308530,
     },
+    krav: {
+      id: krav.id,
+      kravnr: "6",
+      periode: `${krav.periodeStart} - ${krav.periodeSlutt}`,
+      belop: String(krav.beregning.belop),
+      fristForGodkjenning: "01.02.2024",
+      tiltaksnr: krav.tiltaksgjennomforing.tiltaksnummer!,
+    },
   };
 };
 
 export default function RefusjonskravKvittering() {
-  const { deltakerliste, tilsagnsDetaljer } = useLoaderData<LoaderData>();
-  const { tiltaksnavn, tiltaksnummer, avtalenavn, tiltakstype } = deltakerliste.detaljer;
+  const { deltakerliste, tilsagnsDetaljer, krav } = useLoaderData<LoaderData>();
+  const params = useParams();
+
   return (
     <>
       <PageHeader
@@ -54,15 +71,15 @@ export default function RefusjonskravKvittering() {
       />
       <Separator />
       <div className="flex justify-end">
-        <Button
-          variant="tertiary-neutral"
-          size="small"
-          onClick={() => alert("Nedlasting av pdf er ikke støttet enda")}
+        <a
+          href={`${import.meta.env.VITE_MULIGHETSROMMET_API_BASE}/api/v1/intern/refusjon/kvittering/${params.id}`}
         >
-          <span className="flex gap-2 items-center">
-            Last ned som PDF <FilePdfIcon fontSize={35} />
-          </span>
-        </Button>
+          <Button variant="tertiary-neutral" size="small">
+            <span className="flex gap-2 items-center">
+              Last ned som PDF <FilePdfIcon fontSize={35} />
+            </span>
+          </Button>
+        </a>
       </div>
       <Separator />
       <VStack gap="5" className="mt-5">
@@ -70,16 +87,7 @@ export default function RefusjonskravKvittering() {
         <Separator />
         <RefusjonTilsagnsDetaljer tilsagnsDetaljer={tilsagnsDetaljer} />
         <Separator />
-        <Definisjonsliste
-          title="Refusjonskrav"
-          definitions={[
-            { key: "Refusjonskravnummer", value: "6" },
-            { key: "Refusjonskravperiode", value: "01.06.2024 - 30.06.2024" },
-            { key: "Antall månedsverk", value: "15.27" },
-            { key: "Totalt refusjonskrav", value: "kr 308 530" },
-            { key: "Gjenstående beløp på tilsagnet", value: "kr 291 470" },
-          ]}
-        />
+        <RefusjonDetaljer krav={krav} />
         <Separator />
         <Definisjonsliste
           title="Betalingsinformasjon"
