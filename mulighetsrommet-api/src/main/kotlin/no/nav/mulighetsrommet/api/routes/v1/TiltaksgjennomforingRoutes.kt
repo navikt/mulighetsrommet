@@ -174,7 +174,7 @@ fun Route.tiltaksgjennomforingRoutes() {
             val id: UUID by call.parameters
 
             val deltakereForGjennomforing = deltakere.getAll(id)
-            val groupedDeltakere = deltakereForGjennomforing.groupBy { it.status }
+            val groupedDeltakere = deltakereForGjennomforing.groupBy { it.statusOld }
             val summary = TiltaksgjennomforingDeltakerSummary(
                 antallDeltakere = deltakereForGjennomforing.size,
                 antallAktiveDeltakere = groupedDeltakere.getOrDefault(Deltakerstatus.DELTAR, emptyList()).size,

@@ -107,7 +107,7 @@ class RefusjonService(
 //                    AmtDeltakerStatus.Type.HAR_SLUTTET,
 //                    AmtDeltakerStatus.Type.FULLFORT,
 //                )
-                it.status in listOf(Deltakerstatus.DELTAR, Deltakerstatus.AVSLUTTET)
+                it.statusOld in listOf(Deltakerstatus.DELTAR, Deltakerstatus.AVSLUTTET)
             }
             .map { deltakelse ->
                 val startDato = maxOf(requireNotNull(deltakelse.startDato), periodeStart)
