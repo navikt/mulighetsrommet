@@ -14,7 +14,6 @@ import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.domain.dbo.DeltakerDbo
-import no.nav.mulighetsrommet.domain.dbo.Deltakerstatus
 import no.nav.mulighetsrommet.domain.dto.amt.AmtDeltakerStatus
 import no.nav.mulighetsrommet.domain.dto.amt.AmtDeltakerV1Dto
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
@@ -69,7 +68,6 @@ class AmtDeltakerV1KafkaConsumerTest : FunSpec({
         val deltaker1Dbo = DeltakerDbo(
             id = amtDeltaker1.id,
             gjennomforingId = amtDeltaker1.gjennomforingId,
-            statusOld = Deltakerstatus.VENTER,
             startDato = null,
             sluttDato = null,
             registrertTidspunkt = amtDeltaker1.registrertDato,

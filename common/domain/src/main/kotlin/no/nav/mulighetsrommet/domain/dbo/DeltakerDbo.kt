@@ -15,7 +15,6 @@ data class DeltakerDbo(
     val id: UUID,
     @Serializable(with = UUIDSerializer::class)
     val gjennomforingId: UUID,
-    val statusOld: Deltakerstatus,
     @Serializable(with = LocalDateSerializer::class)
     val startDato: LocalDate?,
     @Serializable(with = LocalDateSerializer::class)
@@ -23,7 +22,7 @@ data class DeltakerDbo(
     @Serializable(with = LocalDateTimeSerializer::class)
     val registrertTidspunkt: LocalDateTime,
     @Serializable(with = LocalDateTimeSerializer::class)
-    val endretTidspunkt: LocalDateTime?,
+    val endretTidspunkt: LocalDateTime,
     val stillingsprosent: Double?,
-    val status: AmtDeltakerStatus?,
+    val status: AmtDeltakerStatus,
 )
