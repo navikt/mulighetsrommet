@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.domain.dbo
+package no.nav.mulighetsrommet.api.domain.dbo
 
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.domain.dto.amt.AmtDeltakerStatus

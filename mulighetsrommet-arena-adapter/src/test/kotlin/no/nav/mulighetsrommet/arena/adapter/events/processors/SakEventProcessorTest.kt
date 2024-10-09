@@ -28,7 +28,6 @@ class SakEventProcessorTest : FunSpec({
             tiltakstyper = TiltakstypeRepository(database.db),
             saker = SakRepository(database.db),
             tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db),
-            deltakere = DeltakerRepository(database.db),
             avtaler = AvtaleRepository(database.db),
         )
 

@@ -111,7 +111,6 @@ private fun repositories() = module {
     single { ArenaEventRepository(get()) }
     single { TiltakstypeRepository(get()) }
     single { SakRepository(get()) }
-    single { DeltakerRepository(get()) }
     single { TiltaksgjennomforingRepository(get()) }
     single { ArenaEntityMappingRepository(get()) }
     single { AvtaleRepository(get()) }
@@ -158,5 +157,5 @@ private fun services(services: ServiceConfig, tokenProvider: CachedTokenProvider
             entities = get(),
         )
     }
-    single { ArenaEntityService(get(), get(), get(), get(), get(), get()) }
+    single { ArenaEntityService(get(), get(), get(), get(), get()) }
 }
