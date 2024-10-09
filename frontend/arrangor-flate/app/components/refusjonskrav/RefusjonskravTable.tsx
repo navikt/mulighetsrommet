@@ -7,46 +7,56 @@ interface Props {
   krav: RefusjonskravDto[];
 }
 
-const TableTitle = () => {};
+const TableTitle = ({ children, className }: { children: ReactNode; className?: string }) => {
+  return <div className={"font-bold " + className}>{children}</div>;
+};
 
 export function RefusjonskravTable({ krav }: Props) {
   return (
     <>
-      <div className="border-spacing-y-6 border-collapsed">
+      <div className="border-spacing-y-6 border-collapsed mt-4">
         <div>
-          <div className="grid grid-cols-6 w-full gap-4">
-            <div>Periode</div>
-            <div>Månedsverk</div>
-            <div>Beløp</div>
-            <div>Frist for godkjenning</div>
-            <div>Status</div>
+          <div className="grid grid-cols-12 w-full gap-4">
+            <TableTitle className={"col-span-3"}>Periode</TableTitle>
+            <TableTitle className={"col-span-2"}>Månedsverk</TableTitle>
+            <TableTitle className={"col-span-2"}>Beløp</TableTitle>
+            <TableTitle className={"col-span-2"}>Innsendingsfrist</TableTitle>
+            <TableTitle>Status</TableTitle>
             <div></div>
           </div>
         </div>
-        <Table.Body>
-          {krav.map(({ id, periodeStart, periodeSlutt, beregning, tiltakstype }) => {
+        <div>
+          {krav.map(({ id, periodeStart, periodeSlutt, beregning, tiltaksgjennomforing }) => {
             // TODO: Hardkodet enn så lenge
             const status = RefusjonskravStatus.KLAR_FOR_INNSENDING;
 
             return (
-              <div className={getRowStyle(status) + "grid grid-cols-6 gap-4"} key={id}>
-                <div>{`${periodeStart} - ${periodeSlutt}`}</div>
-                <div>123</div>
-                <div>{beregning.belop} NOK</div>
-                <div>Frist for godkjenning</div>
-                <div>{statusTilTag(status)}</div>
-                <div>
-                  <Link
-                    className="hover:underline font-bold no-underline"
-                    to={`for-du-begynner/${id}`}
-                  >
-                    Detaljer
-                  </Link>
+              <div
+                className={
+                  getRowStyle(status) + "grid grid-cols-12 gap-4 border border-[#122B4414] my-4"
+                }
+                key={id}
+              >
+                <div className={"col-span-12 bg-[#122B4414] p-1"}>{tiltaksgjennomforing.navn}</div>
+                <div className={"grid grid-cols-12 col-span-12 p-2"}>
+                  <div className={"col-span-3"}>{`${periodeStart} - ${periodeSlutt}`}</div>
+                  <div className="col-span-2">123</div>
+                  <div className="col-span-2">{beregning.belop} NOK</div>
+                  <div className="col-span-2">Frist for godkjenning</div>
+                  <div className="col-span-2">{statusTilTag(status)}</div>
+                  <div className="col-span-1">
+                    <Link
+                      className="hover:underline font-bold no-underline"
+                      to={`for-du-begynner/${id}`}
+                    >
+                      Detaljer
+                    </Link>
+                  </div>
                 </div>
               </div>
             );
           })}
-        </Table.Body>
+        </div>
       </div>
     </>
   );

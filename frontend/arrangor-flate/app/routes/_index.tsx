@@ -34,10 +34,30 @@ export async function loader({ request }: LoaderFunctionArgs) {
   return json({ krav });
 }
 
+function calculateRefusjon(krav: RefusjonskravDto[]): {
+  historiske: RefusjonskravDto[];
+  aktive: RefusjonskravDto[];
+} {
+  const aktive = krav.filter((k) => {
+    const { periodeStart, periodeSlutt } = k;
+    const startDate = new Date(periodeStart);
+    const endDate = new Date(periodeSlutt);
+
+    console.log(startDate, endDate);
+
+    return Date.now() > endDate.getTime();
+  });
+
+  const historiske = krav.filter((k) => k.id);
+
+  return { historiske, aktive };
+}
+
 export default function Refusjon() {
   const { krav } = useLoaderData<typeof loader>();
-  const historiske: RefusjonskravDto[] = [];
-  const aktive = krav;
+  const { historiske, aktive } = calculateRefusjon(krav);
+
+  console.log(aktive);
 
   return (
     <>
@@ -55,7 +75,7 @@ export default function Refusjon() {
           <RefusjonskravTable krav={historiske} />
         </Tabs.Panel>
         <Tabs.Panel value="tilsagnsoversikt" className="h-24 w-full bg-gray-50 p-4">
-          Sendt-tab
+          Tilsagnsoversikt
         </Tabs.Panel>
       </Tabs>
     </>
