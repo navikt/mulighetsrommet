@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.domain.dbo
 
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.domain.dto.amt.AmtDeltakerStatus
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.domain.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
@@ -13,18 +14,16 @@ data class DeltakerDbo(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     @Serializable(with = UUIDSerializer::class)
-    val tiltaksgjennomforingId: UUID,
-    val status: Deltakerstatus,
+    val gjennomforingId: UUID,
+    val statusOld: Deltakerstatus,
     @Serializable(with = LocalDateSerializer::class)
     val startDato: LocalDate?,
     @Serializable(with = LocalDateSerializer::class)
     val sluttDato: LocalDate?,
     @Serializable(with = LocalDateTimeSerializer::class)
-    val registrertDato: LocalDateTime,
-    val opphav: Deltakeropphav,
+    val registrertTidspunkt: LocalDateTime,
+    @Serializable(with = LocalDateTimeSerializer::class)
+    val endretTidspunkt: LocalDateTime,
+    val stillingsprosent: Double?,
+    val status: AmtDeltakerStatus,
 )
-
-enum class Deltakeropphav {
-    ARENA,
-    AMT,
-}

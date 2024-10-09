@@ -3,62 +3,95 @@ package no.nav.mulighetsrommet.api.repositories
 import kotliquery.Row
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.database.Database
-import no.nav.mulighetsrommet.database.utils.DatabaseUtils
 import no.nav.mulighetsrommet.domain.dbo.DeltakerDbo
-import no.nav.mulighetsrommet.domain.dbo.Deltakeropphav
 import no.nav.mulighetsrommet.domain.dbo.Deltakerstatus
+import no.nav.mulighetsrommet.domain.dto.amt.AmtDeltakerStatus
 import org.intellij.lang.annotations.Language
-import org.slf4j.LoggerFactory
 import java.util.*
 
 class DeltakerRepository(private val db: Database) {
-
-    private val logger = LoggerFactory.getLogger(javaClass)
-
-    fun upsert(deltaker: DeltakerDbo): DeltakerDbo {
-        logger.info("Lagrer deltaker id=${deltaker.id}")
-
+    fun upsert(deltaker: DeltakerDbo) = db.useSession { session ->
         @Language("PostgreSQL")
         val query = """
-            insert into deltaker (id, tiltaksgjennomforing_id, status, opphav, start_dato, slutt_dato, registrert_dato)
-            values (:id::uuid, :tiltaksgjennomforing_id::uuid, :status::deltakerstatus, :opphav::deltakeropphav, :start_dato, :slutt_dato, :registrert_dato)
+            insert into deltaker (id,
+                                  gjennomforing_id,
+                                  status,
+                                  start_dato,
+                                  slutt_dato,
+                                  registrert_tidspunkt,
+                                  endret_tidspunkt,
+                                  stillingsprosent,
+                                  status_type,
+                                  status_aarsak,
+                                  status_opprettet_tidspunkt)
+            values (:id::uuid,
+                    :gjennomforing_id::uuid,
+                    :status::deltakerstatus,
+                    :start_dato,
+                    :slutt_dato,
+                    :registrert_tidspunkt,
+                    :endret_tidspunkt,
+                    :stillingsprosent,
+                    :status_type::deltaker_status_type,
+                    :status_aarsak::deltaker_status_aarsak,
+                    :status_opprettet_tidspunkt)
             on conflict (id)
-                do update set tiltaksgjennomforing_id = excluded.tiltaksgjennomforing_id,
-                              status                  = excluded.status,
-                              opphav                  = excluded.opphav,
-                              start_dato              = excluded.start_dato,
-                              slutt_dato              = excluded.slutt_dato,
-                              registrert_dato         = excluded.registrert_dato
-            returning *
+                do update set gjennomforing_id           = excluded.gjennomforing_id,
+                              status                     = excluded.status,
+                              start_dato                 = excluded.start_dato,
+                              slutt_dato                 = excluded.slutt_dato,
+                              registrert_tidspunkt       = excluded.registrert_tidspunkt,
+                              endret_tidspunkt           = excluded.endret_tidspunkt,
+                              stillingsprosent           = excluded.stillingsprosent,
+                              status_type                = excluded.status_type,
+                              status_aarsak              = excluded.status_aarsak,
+                              status_opprettet_tidspunkt = excluded.status_opprettet_tidspunkt
         """.trimIndent()
 
-        return queryOf(query, deltaker.toSqlParameters())
-            .map { it.toDeltakerDbo() }
-            .asSingle
-            .let { db.run(it)!! }
-    }
-
-    fun getAll(tiltaksgjennomforingId: UUID? = null): List<DeltakerDbo> {
-        val where = DatabaseUtils.andWhereParameterNotNull(
-            tiltaksgjennomforingId to "tiltaksgjennomforing_id = :tiltaksgjennomforing_id::uuid",
+        val params = mapOf(
+            "id" to deltaker.id,
+            "gjennomforing_id" to deltaker.gjennomforingId,
+            "status" to deltaker.statusOld.name,
+            "start_dato" to deltaker.startDato,
+            "slutt_dato" to deltaker.sluttDato,
+            "registrert_tidspunkt" to deltaker.registrertTidspunkt,
+            "endret_tidspunkt" to deltaker.endretTidspunkt,
+            "stillingsprosent" to deltaker.stillingsprosent,
+            "status_type" to deltaker.status.type.name,
+            "status_aarsak" to deltaker.status.aarsak?.name,
+            "status_opprettet_tidspunkt" to deltaker.status.opprettetDato,
         )
 
+        queryOf(query, params).asExecute.runWithSession(session)
+    }
+
+    fun getAll(tiltaksgjennomforingId: UUID? = null): List<DeltakerDbo> = db.useSession { session ->
         @Language("PostgreSQL")
         val query = """
-            select id, tiltaksgjennomforing_id, status, opphav, start_dato, slutt_dato, registrert_dato
+            select id,
+                   gjennomforing_id,
+                   status,
+                   start_dato,
+                   slutt_dato,
+                   registrert_tidspunkt,
+                   endret_tidspunkt,
+                   stillingsprosent,
+                   status_type,
+                   status_aarsak,
+                   status_opprettet_tidspunkt
             from deltaker
-            $where
+            where :gjennomforing_id::uuid is null or gjennomforing_id = :gjennomforing_id::uuid
         """.trimIndent()
 
-        return queryOf(query, mapOf("tiltaksgjennomforing_id" to tiltaksgjennomforingId))
+        val params = mapOf("gjennomforing_id" to tiltaksgjennomforingId)
+
+        queryOf(query, params)
             .map { it.toDeltakerDbo() }
             .asList
-            .let { db.run(it) }
+            .runWithSession(session)
     }
 
     fun delete(id: UUID) {
-        logger.info("Sletter deltaker id=$id")
-
         @Language("PostgreSQL")
         val query = """
             delete from deltaker
@@ -70,23 +103,19 @@ class DeltakerRepository(private val db: Database) {
             .let { db.run(it) }
     }
 
-    private fun DeltakerDbo.toSqlParameters() = mapOf(
-        "id" to id,
-        "tiltaksgjennomforing_id" to tiltaksgjennomforingId,
-        "status" to status.name,
-        "opphav" to opphav.name,
-        "start_dato" to startDato,
-        "slutt_dato" to sluttDato,
-        "registrert_dato" to registrertDato,
-    )
-
     private fun Row.toDeltakerDbo() = DeltakerDbo(
         id = uuid("id"),
-        tiltaksgjennomforingId = uuid("tiltaksgjennomforing_id"),
-        status = Deltakerstatus.valueOf(string("status")),
-        opphav = Deltakeropphav.valueOf(string("opphav")),
+        gjennomforingId = uuid("gjennomforing_id"),
+        statusOld = Deltakerstatus.valueOf(string("status")),
         startDato = localDateOrNull("start_dato"),
         sluttDato = localDateOrNull("slutt_dato"),
-        registrertDato = localDateTime("registrert_dato"),
+        registrertTidspunkt = localDateTime("registrert_tidspunkt"),
+        endretTidspunkt = localDateTime("endret_tidspunkt"),
+        stillingsprosent = doubleOrNull("stillingsprosent"),
+        status = AmtDeltakerStatus(
+            type = AmtDeltakerStatus.Type.valueOf(string("status_type")),
+            aarsak = stringOrNull("status_aarsak")?.let { AmtDeltakerStatus.Aarsak.valueOf(it) },
+            opprettetDato = localDateTime("status_opprettet_tidspunkt"),
+        ),
     )
 }

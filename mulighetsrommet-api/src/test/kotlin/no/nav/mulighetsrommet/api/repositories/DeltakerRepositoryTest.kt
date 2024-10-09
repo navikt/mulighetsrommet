@@ -7,8 +7,8 @@ import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.domain.dbo.DeltakerDbo
-import no.nav.mulighetsrommet.domain.dbo.Deltakeropphav
 import no.nav.mulighetsrommet.domain.dbo.Deltakerstatus
+import no.nav.mulighetsrommet.domain.dto.amt.AmtDeltakerStatus
 import java.time.LocalDateTime
 import java.util.*
 
@@ -29,16 +29,22 @@ class DeltakerRepositoryTest : FunSpec({
 
         val deltaker1 = DeltakerDbo(
             id = UUID.randomUUID(),
-            tiltaksgjennomforingId = TiltaksgjennomforingFixtures.Oppfolging1.id,
-            status = Deltakerstatus.VENTER,
-            opphav = Deltakeropphav.AMT,
+            gjennomforingId = TiltaksgjennomforingFixtures.Oppfolging1.id,
+            statusOld = Deltakerstatus.VENTER,
             startDato = null,
             sluttDato = null,
-            registrertDato = LocalDateTime.of(2023, 3, 1, 0, 0, 0),
+            registrertTidspunkt = LocalDateTime.of(2023, 3, 1, 0, 0, 0),
+            endretTidspunkt = LocalDateTime.of(2023, 3, 1, 0, 0, 0),
+            stillingsprosent = 100.0,
+            status = AmtDeltakerStatus(
+                AmtDeltakerStatus.Type.VENTER_PA_OPPSTART,
+                aarsak = null,
+                opprettetDato = LocalDateTime.of(2023, 3, 1, 0, 0, 0),
+            ),
         )
         val deltaker2 = deltaker1.copy(
             id = UUID.randomUUID(),
-            tiltaksgjennomforingId = TiltaksgjennomforingFixtures.Oppfolging2.id,
+            gjennomforingId = TiltaksgjennomforingFixtures.Oppfolging2.id,
         )
 
         test("CRUD") {
@@ -47,7 +53,7 @@ class DeltakerRepositoryTest : FunSpec({
 
             deltakere.getAll().shouldContainExactly(deltaker1, deltaker2)
 
-            val avsluttetDeltaker2 = deltaker2.copy(status = Deltakerstatus.AVSLUTTET)
+            val avsluttetDeltaker2 = deltaker2.copy(statusOld = Deltakerstatus.AVSLUTTET)
             deltakere.upsert(avsluttetDeltaker2)
 
             deltakere.getAll().shouldContainExactly(deltaker1, avsluttetDeltaker2)
