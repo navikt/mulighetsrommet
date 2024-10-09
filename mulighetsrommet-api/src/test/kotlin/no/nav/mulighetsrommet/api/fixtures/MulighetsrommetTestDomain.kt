@@ -1,11 +1,7 @@
 package no.nav.mulighetsrommet.api.fixtures
 
 import io.kotest.assertions.arrow.core.shouldBeRight
-import no.nav.mulighetsrommet.api.domain.dbo.AvtaleDbo
-import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattDbo
-import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
-import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
-import no.nav.mulighetsrommet.api.domain.dbo.TiltakstypeDbo
+import no.nav.mulighetsrommet.api.domain.dbo.*
 import no.nav.mulighetsrommet.api.domain.dto.ArrangorDto
 import no.nav.mulighetsrommet.api.repositories.*
 import no.nav.mulighetsrommet.database.Database
@@ -35,6 +31,7 @@ data class MulighetsrommetTestDomain(
         AvtaleFixtures.EnkelAmo,
     ),
     val gjennomforinger: List<TiltaksgjennomforingDbo> = listOf(),
+    val deltakere: List<DeltakerDbo> = listOf(),
 ) {
     fun initialize(database: Database) {
         NavEnhetRepository(database).also { repository ->
@@ -59,6 +56,10 @@ data class MulighetsrommetTestDomain(
 
         TiltaksgjennomforingRepository(database).also { repository ->
             gjennomforinger.forEach { repository.upsert(it) }
+        }
+
+        DeltakerRepository(database).also { repository ->
+            deltakere.forEach { repository.upsert(it) }
         }
     }
 }
