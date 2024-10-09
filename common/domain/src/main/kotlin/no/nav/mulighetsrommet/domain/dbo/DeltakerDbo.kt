@@ -23,7 +23,7 @@ data class DeltakerDbo(
     @Serializable(with = LocalDateTimeSerializer::class)
     val registrertTidspunkt: LocalDateTime,
     @Serializable(with = LocalDateTimeSerializer::class)
-    val endretTidspunkt: LocalDateTime,
+    val endretTidspunkt: LocalDateTime?,
     val stillingsprosent: Double?,
-    val status: AmtDeltakerStatus,
+    val status: AmtDeltakerStatus?,
 )
