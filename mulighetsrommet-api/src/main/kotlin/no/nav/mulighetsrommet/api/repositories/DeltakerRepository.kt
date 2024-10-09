@@ -57,9 +57,9 @@ class DeltakerRepository(private val db: Database) {
             "registrert_tidspunkt" to deltaker.registrertTidspunkt,
             "endret_tidspunkt" to deltaker.endretTidspunkt,
             "stillingsprosent" to deltaker.stillingsprosent,
-            "status_type" to deltaker.status.type.name,
-            "status_aarsak" to deltaker.status.aarsak?.name,
-            "status_opprettet_tidspunkt" to deltaker.status.opprettetDato,
+            "status_type" to deltaker.status?.type?.name,
+            "status_aarsak" to deltaker.status?.aarsak?.name,
+            "status_opprettet_tidspunkt" to deltaker.status?.opprettetDato,
         )
 
         queryOf(query, params).asExecute.runWithSession(session)
@@ -110,12 +110,14 @@ class DeltakerRepository(private val db: Database) {
         startDato = localDateOrNull("start_dato"),
         sluttDato = localDateOrNull("slutt_dato"),
         registrertTidspunkt = localDateTime("registrert_tidspunkt"),
-        endretTidspunkt = localDateTime("endret_tidspunkt"),
+        endretTidspunkt = localDateTimeOrNull("endret_tidspunkt"),
         stillingsprosent = doubleOrNull("stillingsprosent"),
-        status = AmtDeltakerStatus(
-            type = AmtDeltakerStatus.Type.valueOf(string("status_type")),
-            aarsak = stringOrNull("status_aarsak")?.let { AmtDeltakerStatus.Aarsak.valueOf(it) },
-            opprettetDato = localDateTime("status_opprettet_tidspunkt"),
-        ),
+        status = stringOrNull("status_type")?.let {
+            AmtDeltakerStatus(
+                type = AmtDeltakerStatus.Type.valueOf(it),
+                aarsak = stringOrNull("status_aarsak")?.let { AmtDeltakerStatus.Aarsak.valueOf(it) },
+                opprettetDato = localDateTime("status_opprettet_tidspunkt"),
+            )
+        },
     )
 }
