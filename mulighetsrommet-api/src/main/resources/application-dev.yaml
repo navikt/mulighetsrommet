@@ -86,7 +86,7 @@ app:
       tokenEndpointUrl: ${TOKEN_X_WELL_KNOWN_URL}
     maskinporten:
       issuer: ${MASKINPORTEN_ISSUER}
-      jwksUri: ${MASKINPORTEN_X_JWKS_URI}
+      jwksUri: ${MASKINPORTEN_JWKS_URI}
       audience: ${MASKINPORTEN_CLIENT_ID}
       tokenEndpointUrl: ${MASKINPORTEN_TOKEN_ENDPOINT}
 
