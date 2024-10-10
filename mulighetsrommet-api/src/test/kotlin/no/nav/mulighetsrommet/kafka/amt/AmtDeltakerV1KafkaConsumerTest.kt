@@ -14,7 +14,7 @@ import no.nav.mulighetsrommet.api.repositories.DeltakerRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
-import no.nav.mulighetsrommet.domain.dto.amt.AmtDeltakerStatus
+import no.nav.mulighetsrommet.domain.dto.DeltakerStatus
 import no.nav.mulighetsrommet.domain.dto.amt.AmtDeltakerV1Dto
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.kafka.consumers.amt.AmtDeltakerV1KafkaConsumer
@@ -50,8 +50,8 @@ class AmtDeltakerV1KafkaConsumerTest : FunSpec({
             personIdent = "10101010100",
             startDato = null,
             sluttDato = null,
-            status = AmtDeltakerStatus(
-                type = AmtDeltakerStatus.Type.VENTER_PA_OPPSTART,
+            status = DeltakerStatus(
+                type = DeltakerStatus.Type.VENTER_PA_OPPSTART,
                 aarsak = null,
                 opprettetDato = deltakelsesdato,
             ),
@@ -98,8 +98,8 @@ class AmtDeltakerV1KafkaConsumerTest : FunSpec({
             deltakere.upsert(deltaker1Dbo)
 
             val feilregistrertDeltaker1 = amtDeltaker1.copy(
-                status = AmtDeltakerStatus(
-                    type = AmtDeltakerStatus.Type.FEILREGISTRERT,
+                status = DeltakerStatus(
+                    type = DeltakerStatus.Type.FEILREGISTRERT,
                     aarsak = null,
                     opprettetDato = LocalDateTime.now(),
                 ),

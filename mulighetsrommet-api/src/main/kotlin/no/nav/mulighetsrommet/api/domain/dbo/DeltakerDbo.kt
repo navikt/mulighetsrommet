@@ -1,7 +1,7 @@
 package no.nav.mulighetsrommet.api.domain.dbo
 
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.domain.dto.amt.AmtDeltakerStatus
+import no.nav.mulighetsrommet.domain.dto.DeltakerStatus
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.domain.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
@@ -24,5 +24,5 @@ data class DeltakerDbo(
     @Serializable(with = LocalDateTimeSerializer::class)
     val endretTidspunkt: LocalDateTime,
     val stillingsprosent: Double?,
-    val status: AmtDeltakerStatus,
+    val status: DeltakerStatus,
 )

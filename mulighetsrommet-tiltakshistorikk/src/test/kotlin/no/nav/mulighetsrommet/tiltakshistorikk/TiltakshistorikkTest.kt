@@ -14,10 +14,10 @@ import io.ktor.serialization.kotlinx.json.*
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.dbo.ArenaDeltakerDbo
-import no.nav.mulighetsrommet.domain.dbo.ArenaDeltakerStatus
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dto.*
-import no.nav.mulighetsrommet.domain.dto.amt.AmtDeltakerStatus
+import no.nav.mulighetsrommet.domain.dto.ArenaDeltakerStatus
+import no.nav.mulighetsrommet.domain.dto.DeltakerStatus
 import no.nav.mulighetsrommet.domain.dto.amt.AmtDeltakerV1Dto
 import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.ktor.respondJson
@@ -159,7 +159,7 @@ class TiltakshistorikkTest : FunSpec({
                         sluttDato = LocalDate.of(2023, 12, 31),
                         avtaleId = avtaleId,
                         tiltakstype = Tiltakshistorikk.ArbeidsgiverAvtale.Tiltakstype.ARBEIDSTRENING,
-                        status = Tiltakshistorikk.ArbeidsgiverAvtale.Status.GJENNOMFORES,
+                        status = ArbeidsgiverAvtaleStatus.GJENNOMFORES,
                         arbeidsgiver = Tiltakshistorikk.Arbeidsgiver(Organisasjonsnummer("123456789")),
                     ),
                     Tiltakshistorikk.GruppetiltakDeltakelse(
@@ -167,8 +167,8 @@ class TiltakshistorikkTest : FunSpec({
                         id = UUID.fromString("6d54228f-534f-4b4b-9160-65eae26a3b06"),
                         startDato = null,
                         sluttDato = null,
-                        status = AmtDeltakerStatus(
-                            type = AmtDeltakerStatus.Type.VENTER_PA_OPPSTART,
+                        status = DeltakerStatus(
+                            type = DeltakerStatus.Type.VENTER_PA_OPPSTART,
                             aarsak = null,
                             opprettetDato = LocalDateTime.of(2002, 3, 1, 0, 0),
                         ),
@@ -302,8 +302,8 @@ private fun inititalizeData(database: FlywayDatabaseTestListener) {
         personIdent = "12345678910",
         startDato = null,
         sluttDato = null,
-        status = AmtDeltakerStatus(
-            type = AmtDeltakerStatus.Type.VENTER_PA_OPPSTART,
+        status = DeltakerStatus(
+            type = DeltakerStatus.Type.VENTER_PA_OPPSTART,
             aarsak = null,
             opprettetDato = deltakelsesdato,
         ),

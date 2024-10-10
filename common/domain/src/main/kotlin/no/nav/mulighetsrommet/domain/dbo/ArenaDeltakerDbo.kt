@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.domain.dbo
 
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.domain.dto.ArenaDeltakerStatus
 import no.nav.mulighetsrommet.domain.dto.NorskIdent
 import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
 import no.nav.mulighetsrommet.domain.serializers.LocalDateTimeSerializer
@@ -24,21 +25,3 @@ data class ArenaDeltakerDbo(
     @Serializable(with = LocalDateTimeSerializer::class)
     val registrertIArenaDato: LocalDateTime,
 )
-
-enum class ArenaDeltakerStatus {
-    AVSLAG,
-    IKKE_AKTUELL,
-    TAKKET_NEI_TIL_TILBUD,
-    TILBUD,
-    TAKKET_JA_TIL_TILBUD,
-    INFORMASJONSMOTE,
-    AKTUELL,
-    VENTELISTE,
-    GJENNOMFORES,
-    DELTAKELSE_AVBRUTT,
-    GJENNOMFORING_AVBRUTT,
-    GJENNOMFORING_AVLYST,
-    FULLFORT,
-    IKKE_MOTT,
-    FEILREGISTRERT,
-}

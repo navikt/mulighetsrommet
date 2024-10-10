@@ -4,7 +4,7 @@ import kotliquery.Row
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.domain.dbo.DeltakerDbo
 import no.nav.mulighetsrommet.database.Database
-import no.nav.mulighetsrommet.domain.dto.amt.AmtDeltakerStatus
+import no.nav.mulighetsrommet.domain.dto.DeltakerStatus
 import org.intellij.lang.annotations.Language
 import java.util.*
 
@@ -105,9 +105,9 @@ class DeltakerRepository(private val db: Database) {
         registrertTidspunkt = localDateTime("registrert_tidspunkt"),
         endretTidspunkt = localDateTime("endret_tidspunkt"),
         stillingsprosent = doubleOrNull("stillingsprosent"),
-        status = AmtDeltakerStatus(
-            type = AmtDeltakerStatus.Type.valueOf(string("status_type")),
-            aarsak = stringOrNull("status_aarsak")?.let { AmtDeltakerStatus.Aarsak.valueOf(it) },
+        status = DeltakerStatus(
+            type = DeltakerStatus.Type.valueOf(string("status_type")),
+            aarsak = stringOrNull("status_aarsak")?.let { DeltakerStatus.Aarsak.valueOf(it) },
             opprettetDato = localDateTime("status_opprettet_tidspunkt"),
         ),
 
