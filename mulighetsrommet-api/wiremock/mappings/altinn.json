@@ -1,0 +1,26 @@
+{
+  "request": {
+    "method": "POST",
+    "urlPath": "/altinn/accessmanagement/api/v1/resourceowner/authorizedparties",
+    "queryParameters": {
+      "includeAltinn2": {
+        "equalTo": "true"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "jsonBody": [
+      {
+        "name": "FRYKTLØS OPPSTEMT STRUTS LTD",
+        "type": "Organization",
+        "organizationNumber": "971808616",
+        "authorizedResources": ["tiltak-arrangor-refusjon"],
+        "subunits": []
+      }
+    ],
+    "headers": {
+      "Content-Type": "application/json"
+    }
+  }
+}

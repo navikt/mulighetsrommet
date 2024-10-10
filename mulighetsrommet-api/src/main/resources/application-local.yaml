@@ -89,6 +89,11 @@ app:
       jwksUri: http://localhost:8081/tokenx/jwks
       audience: mulighetsrommet-api
       tokenEndpointUrl: http://localhost:8081/tokenx/token
+    maskinporten:
+      issuer: http://localhost:8081/maskinporten
+      jwksUri: http://localhost:8081/maskinporten/jwks
+      audience: mulighetsrommet-api
+      tokenEndpointUrl: http://localhost:8081/maskinporten/token
 
   sanity:
     dataset: test
@@ -146,6 +151,11 @@ app:
 
   brreg:
     baseUrl: https://data.brreg.no/enhetsregisteret/api
+
+  altinn:
+    url: http://localhost:8090/altinn
+    apiKey: dummy
+    scope: default
 
   tasks:
     synchronizeNorgEnheter:

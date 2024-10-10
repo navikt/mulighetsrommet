@@ -1,7 +1,5 @@
 package no.nav.mulighetsrommet.api.services
 
-import io.ktor.client.statement.*
-import io.ktor.http.*
 import no.nav.mulighetsrommet.api.AdGruppeNavAnsattRolleMapping
 import no.nav.mulighetsrommet.api.domain.dbo.NavAnsattDbo
 import no.nav.mulighetsrommet.api.domain.dto.NavAnsattDto

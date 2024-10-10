@@ -8,7 +8,6 @@ import no.nav.mulighetsrommet.api.okonomi.models.RefusjonKravBeregning
 import no.nav.mulighetsrommet.api.okonomi.models.RefusjonKravBeregningAft
 import no.nav.mulighetsrommet.api.okonomi.models.RefusjonskravDto
 import no.nav.mulighetsrommet.database.Database
-import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
 import org.intellij.lang.annotations.Language
 import java.util.*
 
@@ -124,17 +123,17 @@ class RefusjonskravRepository(private val db: Database) {
             .runWithSession(tx)
     }
 
-    fun getByOrgnr(orgnr: List<Organisasjonsnummer>) = db.transaction { getByOrgnr(orgnr, it) }
+    fun getByArrangorIds(ids: List<UUID>) = db.transaction { getByArrangorIds(ids, it) }
 
-    fun getByOrgnr(orgnr: List<Organisasjonsnummer>, tx: Session): List<RefusjonskravDto> {
+    fun getByArrangorIds(ids: List<UUID>, tx: Session): List<RefusjonskravDto> {
         @Language("PostgreSQL")
         val query = """
             select * from refusjonskrav_aft_view
-            where arrangor_organisasjonsnummer = any(:orgnr)
+            where arrangor_id = any(:ids)
         """.trimIndent()
 
         return tx.run(
-            queryOf(query, mapOf("orgnr" to db.createTextArray(orgnr.map { it.value })))
+            queryOf(query, mapOf("ids" to db.createUuidArray(ids)))
                 .map { it.toRefusjonsKravAft() }
                 .asList,
         )
