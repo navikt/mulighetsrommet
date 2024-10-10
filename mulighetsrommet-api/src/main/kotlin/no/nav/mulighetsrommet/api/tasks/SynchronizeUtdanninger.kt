@@ -6,6 +6,7 @@ import com.github.kagkarlsson.scheduler.task.schedule.DisabledSchedule
 import com.github.kagkarlsson.scheduler.task.schedule.Schedule
 import com.github.kagkarlsson.scheduler.task.schedule.Schedules
 import kotlinx.coroutines.runBlocking
+import kotliquery.TransactionalSession
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.clients.utdanning.Programomrade
 import no.nav.mulighetsrommet.api.clients.utdanning.Utdanning
@@ -67,11 +68,13 @@ class SynchronizeUtdanninger(
             .getUtdanninger()
             .partition { it.sluttkompetanse == null && it.utdanningId == null && it.utdanningslop.size == 1 }
 
-        programomrader.map { it.toProgramomrade() }.forEach { saveProgramomrade(it) }
-        utdanninger.filter { it.nusKodeverk.isNotEmpty() }.forEach { saveUtdanning(it) }
+        db.transaction { tx ->
+            programomrader.map { it.toProgramomrade() }.forEach { saveProgramomrade(tx, it) }
+            utdanninger.filter { it.nusKodeverk.isNotEmpty() }.forEach { saveUtdanning(tx, it) }
+        }
     }
 
-    private fun saveProgramomrade(programomrade: Programomrade) {
+    private fun saveProgramomrade(session: TransactionalSession, programomrade: Programomrade) {
         @Language("PostgreSQL")
         val query = """
             insert into utdanning_programomrade (navn, programomradekode, utdanningsprogram)
@@ -81,32 +84,26 @@ class SynchronizeUtdanninger(
                 utdanningsprogram = excluded.utdanningsprogram
         """.trimIndent()
 
-        db.transaction { tx ->
-            queryOf(
-                query,
-                mapOf(
-                    "navn" to programomrade.navn,
-                    "programomradekode" to programomrade.programomradekode,
-                    "utdanningsprogram" to programomrade.utdanningsprogram?.name,
-                ),
-            ).asExecute.let { tx.run(it) }
-        }
+        val params = mapOf(
+            "navn" to programomrade.navn,
+            "programomradekode" to programomrade.programomradekode,
+            "utdanningsprogram" to programomrade.utdanningsprogram?.name,
+        )
+
+        queryOf(query, params).asExecute.runWithSession(session)
     }
 
-    private fun saveUtdanning(utdanning: Utdanning) {
+    private fun saveUtdanning(session: TransactionalSession, utdanning: Utdanning) {
         @Language("PostgreSQL")
         val getIdForProgramomradeQuery = """
             select id from utdanning_programomrade where programomradekode = :programomradekode
         """.trimIndent()
 
-        val programomradeId = db.transaction { tx ->
-            queryOf(
-                getIdForProgramomradeQuery,
-                mapOf("programomradekode" to utdanning.utdanningslop.first()),
-            ).map { it.uuid("id") }
+        val programomradeId =
+            queryOf(getIdForProgramomradeQuery, mapOf("programomradekode" to utdanning.utdanningslop.first()))
+                .map { it.uuid("id") }
                 .asSingle
-                .runWithSession(tx)
-        }
+                .runWithSession(session)
 
         @Language("PostgreSQL")
         val upsertUtdanning = """
@@ -137,33 +134,31 @@ class SynchronizeUtdanninger(
             values (:utdanning_id, :nus_kode_id)
         """.trimIndent()
 
-        db.transaction { tx ->
+        queryOf(
+            upsertUtdanning,
+            mapOf(
+                "utdanning_id" to utdanning.utdanningId,
+                "programomradekode" to utdanning.programomradekode,
+                "navn" to utdanning.navn,
+                "utdanningsprogram" to utdanning.utdanningsprogram?.name,
+                "sluttkompetanse" to utdanning.sluttkompetanse?.name,
+                "aktiv" to utdanning.aktiv,
+                "utdanningstatus" to utdanning.utdanningstatus.name,
+                "utdanningslop" to db.createTextArray(utdanning.utdanningslop),
+                "programlop_start" to programomradeId,
+            ),
+        ).asExecute.runWithSession(session)
+
+        utdanning.nusKodeverk.forEach { nus ->
             queryOf(
-                upsertUtdanning,
-                mapOf(
-                    "utdanning_id" to utdanning.utdanningId,
-                    "programomradekode" to utdanning.programomradekode,
-                    "navn" to utdanning.navn,
-                    "utdanningsprogram" to utdanning.utdanningsprogram?.name,
-                    "sluttkompetanse" to utdanning.sluttkompetanse?.name,
-                    "aktiv" to utdanning.aktiv,
-                    "utdanningstatus" to utdanning.utdanningstatus.name,
-                    "utdanningslop" to db.createTextArray(utdanning.utdanningslop),
-                    "programlop_start" to programomradeId,
-                ),
-            ).asExecute.let { tx.run(it) }
+                nuskodeInnholdInsertQuery,
+                mapOf("title" to nus.navn, "nus_kode" to nus.kode),
+            ).asExecute.runWithSession(session)
 
-            utdanning.nusKodeverk.forEach { nus ->
-                queryOf(
-                    nuskodeInnholdInsertQuery,
-                    mapOf("title" to nus.navn, "nus_kode" to nus.kode),
-                ).asExecute.runWithSession(tx)
-
-                queryOf(
-                    nusKodeKoblingforUtdanningQuery,
-                    mapOf("utdanning_id" to utdanning.utdanningId, "nus_kode_id" to nus.kode),
-                ).asExecute.let { tx.run(it) }
-            }
+            queryOf(
+                nusKodeKoblingforUtdanningQuery,
+                mapOf("utdanning_id" to utdanning.utdanningId, "nus_kode_id" to nus.kode),
+            ).asExecute.runWithSession(session)
         }
     }
 }
