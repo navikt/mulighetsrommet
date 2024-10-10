@@ -23,6 +23,12 @@ class TiltakstypeService(
         .recordStats()
         .build()
 
+    private val cacheByGjennomforingId: Cache<UUID, TiltakstypeDto> = Caffeine.newBuilder()
+        .expireAfterWrite(12, TimeUnit.HOURS)
+        .maximumSize(10_000)
+        .recordStats()
+        .build()
+
     fun isEnabled(tiltakskode: Tiltakskode?) = enabledTiltakskoder.contains(tiltakskode)
 
     fun getAll(
@@ -44,6 +50,12 @@ class TiltakstypeService(
     fun getBySanityId(sanityId: UUID): TiltakstypeDto {
         return CacheUtils.tryCacheFirstNotNull(cacheBySanityId, sanityId) {
             tiltakstypeRepository.getBySanityId(sanityId)
+        }
+    }
+
+    fun getByGjennomforingId(gjennomforingId: UUID): TiltakstypeDto {
+        return CacheUtils.tryCacheFirstNotNull(cacheByGjennomforingId, gjennomforingId) {
+            tiltakstypeRepository.getByGjennomforingId(gjennomforingId)
         }
     }
 }

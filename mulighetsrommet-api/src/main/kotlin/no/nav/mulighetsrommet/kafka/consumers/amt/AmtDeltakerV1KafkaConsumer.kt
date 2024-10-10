@@ -5,6 +5,8 @@ import kotlinx.serialization.json.decodeFromJsonElement
 import no.nav.common.kafka.consumer.util.deserializer.Deserializers.uuidDeserializer
 import no.nav.mulighetsrommet.api.domain.dbo.DeltakerDbo
 import no.nav.mulighetsrommet.api.repositories.DeltakerRepository
+import no.nav.mulighetsrommet.api.services.TiltakstypeService
+import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.dto.DeltakerStatus
 import no.nav.mulighetsrommet.domain.dto.amt.AmtDeltakerV1Dto
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
@@ -15,6 +17,7 @@ import java.util.*
 
 class AmtDeltakerV1KafkaConsumer(
     config: Config,
+    private val tiltakstyper: TiltakstypeService,
     private val deltakere: DeltakerRepository,
 ) : KafkaTopicConsumer<UUID, JsonElement>(
     config,
@@ -47,14 +50,28 @@ class AmtDeltakerV1KafkaConsumer(
         }
     }
 
-    private fun AmtDeltakerV1Dto.toDeltakerDbo(): DeltakerDbo = DeltakerDbo(
-        id = id,
-        gjennomforingId = gjennomforingId,
-        startDato = startDato,
-        sluttDato = sluttDato,
-        registrertTidspunkt = registrertDato,
-        endretTidspunkt = endretDato,
-        stillingsprosent = prosentStilling?.toDouble(),
-        status = status,
-    )
+    private fun AmtDeltakerV1Dto.toDeltakerDbo(): DeltakerDbo {
+        val tiltakstype = tiltakstyper.getByGjennomforingId(gjennomforingId)
+
+        val stillingsprosent = when (tiltakstype.tiltakskode) {
+            // Hvis stillingsprosent mangler for AFT/VTA så kan det antas å være 100
+            Tiltakskode.ARBEIDSFORBEREDENDE_TRENING, Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET -> {
+                prosentStilling?.toDouble() ?: 100.0
+            }
+
+            // TODO: ikke lese inn stillingsprosent for andre tiltakstyper?
+            //  Skal visstnok ikke være relevant for disse, selv om det finnes en del data der per i dag
+            else -> prosentStilling?.toDouble()
+        }
+        return DeltakerDbo(
+            id = id,
+            gjennomforingId = gjennomforingId,
+            startDato = startDato,
+            sluttDato = sluttDato,
+            registrertTidspunkt = registrertDato,
+            endretTidspunkt = endretDato,
+            stillingsprosent = stillingsprosent,
+            status = status,
+        )
+    }
 }
