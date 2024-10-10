@@ -89,8 +89,8 @@ class AltinnClient(
         }
 
         if (response.status != HttpStatusCode.OK) {
-            log.error("Klarte ikke hente organisasjoner for Altinn. response: ${response.status}")
-            throw RuntimeException("Klarte ikke å hente organisasjoner code=${response.status}, body=${response.bodyAsText()}")
+            log.error("Klarte ikke hente organisasjoner for Altinn. response: ${response.status}, body=${response.bodyAsText()}")
+            throw RuntimeException("Klarte ikke å hente organisasjoner code=${response.status}")
         }
 
         if (!response.headers["X-Warning-LimitReached"].isNullOrEmpty()) {

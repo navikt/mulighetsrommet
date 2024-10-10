@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.tokenprovider
 import com.nimbusds.jose.JWSSigner
 import com.nimbusds.jose.crypto.RSASSASigner
 import com.nimbusds.jose.jwk.RSAKey
+import com.nimbusds.jwt.JWTClaimsSet
 import com.nimbusds.oauth2.sdk.JWTBearerGrant
 import com.nimbusds.oauth2.sdk.Scope
 import com.nimbusds.oauth2.sdk.TokenRequest
@@ -10,9 +11,11 @@ import com.nimbusds.oauth2.sdk.TokenResponse
 import no.nav.common.token_client.utils.TokenClientUtils
 import org.slf4j.LoggerFactory
 import java.net.URI
+import java.util.*
 
 class MaskinPortenTokenProvider(
     private val clientId: String,
+    private val issuer: String,
     tokenEndpointUrl: String,
     privateJwk: String,
 ) {
@@ -39,7 +42,7 @@ class MaskinPortenTokenProvider(
     private fun createToken(scope: String, targetAudience: String): String {
         val signedJwt = TokenClientUtils.signedClientAssertion(
             TokenClientUtils.clientAssertionHeader(privateJwkKeyId),
-            TokenClientUtils.clientAssertionClaims(clientId, tokenEndpoint.toString()),
+            clientAssertionClaims(targetAudience = targetAudience, scope = scope),
             assertionSigner,
         )
 
@@ -73,5 +76,25 @@ class MaskinPortenTokenProvider(
         return M2MTokenProvider exchange@{ accessType ->
             createToken(scope, targetAudience)
         }
+    }
+
+    fun clientAssertionClaims(
+        targetAudience: String,
+        scope: String,
+    ): JWTClaimsSet {
+        val now = Date()
+        val expiration = Date(now.toInstant().plusSeconds(30).toEpochMilli())
+
+        return JWTClaimsSet.Builder()
+            .subject(clientId)
+            .issuer(clientId)
+            .audience(issuer)
+            .jwtID(UUID.randomUUID().toString())
+            .issueTime(now)
+            .notBeforeTime(now)
+            .expirationTime(expiration)
+            .claim("resource", targetAudience)
+            .claim("scope", scope)
+            .build()
     }
 }

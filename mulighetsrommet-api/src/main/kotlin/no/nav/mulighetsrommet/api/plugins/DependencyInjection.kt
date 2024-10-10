@@ -183,6 +183,7 @@ private fun services(appConfig: AppConfig) = module {
     val maskinportenTokenProvider = createMaskinportenM2mTokenClient(
         appConfig.auth.maskinporten.audience,
         appConfig.auth.maskinporten.tokenEndpointUrl,
+        appConfig.auth.maskinporten.issuer,
     )
 
     single {
