@@ -45,7 +45,7 @@ import { SkjemaKolonne } from "@/components/skjema/SkjemaKolonne";
 import { VertikalSeparator } from "@/components/skjema/VertikalSeparator";
 import { KontaktpersonButton } from "@/components/kontaktperson/KontaktpersonButton";
 import { isKursTiltak } from "@mr/frontend-common/utils/utils";
-import { useFeatureToggle } from "../../api/features/useFeatureToggle";
+import { useFeatureToggle } from "@/api/features/useFeatureToggle";
 import { TiltaksgjennomforingUtdanningskategorierSkjema } from "../utdanning/TiltaksgjennomforingUtdanningskategorierSkjema";
 
 interface Props {

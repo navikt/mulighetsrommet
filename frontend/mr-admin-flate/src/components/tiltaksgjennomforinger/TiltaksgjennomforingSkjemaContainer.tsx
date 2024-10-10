@@ -25,7 +25,9 @@ import { TiltaksgjennomforingSkjemaKnapperad } from "./TiltaksgjennomforingSkjem
 import { logEvent } from "@/logging/amplitude";
 import { RedaksjoneltInnholdBunnKnapperad } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdBunnKnapperad";
 import { TabWithErrorBorder } from "../skjema/TabWithErrorBorder";
-import { useCallback } from "react";
+import React, { useCallback } from "react";
+import { Laster } from "@/components/laster/Laster";
+import { InlineErrorBoundary } from "@mr/frontend-common";
 
 interface Props {
   onClose: () => void;
@@ -174,10 +176,14 @@ export function TiltaksgjennomforingSkjemaContainer({
             />
           </Tabs.List>
           <Tabs.Panel value="detaljer">
-            <TiltaksgjennomforingSkjemaDetaljer
-              avtale={avtale}
-              tiltaksgjennomforing={tiltaksgjennomforing}
-            />
+            <InlineErrorBoundary>
+              <React.Suspense fallback={<Laster tekst="Laster innhold" />}>
+                <TiltaksgjennomforingSkjemaDetaljer
+                  avtale={avtale}
+                  tiltaksgjennomforing={tiltaksgjennomforing}
+                />
+              </React.Suspense>
+            </InlineErrorBoundary>
           </Tabs.Panel>
           <Tabs.Panel value="redaksjonelt-innhold">
             <TiltakgjennomforingRedaksjoneltInnholdForm avtale={avtale} />
