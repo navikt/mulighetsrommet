@@ -179,7 +179,7 @@ fun Route.tiltaksgjennomforingRoutes() {
                 deltakereByStatus = deltakereForGjennomforing
                     .groupBy { it.status.type }
                     .map { (status, deltakere) ->
-                        DeltakerStatusSummary(status = status.name, count = deltakere.size)
+                        DeltakerStatusSummary(status = status.description, count = deltakere.size)
                     },
             )
 
