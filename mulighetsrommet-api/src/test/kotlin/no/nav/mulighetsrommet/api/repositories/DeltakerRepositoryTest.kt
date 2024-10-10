@@ -3,11 +3,10 @@ package no.nav.mulighetsrommet.api.repositories
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactly
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
+import no.nav.mulighetsrommet.api.domain.dbo.DeltakerDbo
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
-import no.nav.mulighetsrommet.domain.dbo.DeltakerDbo
-import no.nav.mulighetsrommet.domain.dbo.Deltakerstatus
 import no.nav.mulighetsrommet.domain.dto.amt.AmtDeltakerStatus
 import java.time.LocalDateTime
 import java.util.*
@@ -27,19 +26,20 @@ class DeltakerRepositoryTest : FunSpec({
     context("consume deltakere") {
         val deltakere = DeltakerRepository(database.db)
 
+        val registrertTidspunkt = LocalDateTime.of(2023, 3, 1, 0, 0, 0)
+
         val deltaker1 = DeltakerDbo(
             id = UUID.randomUUID(),
             gjennomforingId = TiltaksgjennomforingFixtures.Oppfolging1.id,
-            statusOld = Deltakerstatus.VENTER,
             startDato = null,
             sluttDato = null,
-            registrertTidspunkt = LocalDateTime.of(2023, 3, 1, 0, 0, 0),
-            endretTidspunkt = LocalDateTime.of(2023, 3, 1, 0, 0, 0),
+            registrertTidspunkt = registrertTidspunkt,
+            endretTidspunkt = registrertTidspunkt,
             stillingsprosent = 100.0,
             status = AmtDeltakerStatus(
                 AmtDeltakerStatus.Type.VENTER_PA_OPPSTART,
                 aarsak = null,
-                opprettetDato = LocalDateTime.of(2023, 3, 1, 0, 0, 0),
+                opprettetDato = registrertTidspunkt,
             ),
         )
         val deltaker2 = deltaker1.copy(
@@ -53,7 +53,13 @@ class DeltakerRepositoryTest : FunSpec({
 
             deltakere.getAll().shouldContainExactly(deltaker1, deltaker2)
 
-            val avsluttetDeltaker2 = deltaker2.copy(statusOld = Deltakerstatus.AVSLUTTET)
+            val avsluttetDeltaker2 = deltaker2.copy(
+                status = AmtDeltakerStatus(
+                    AmtDeltakerStatus.Type.HAR_SLUTTET,
+                    aarsak = null,
+                    opprettetDato = LocalDateTime.of(2023, 3, 2, 0, 0, 0),
+                ),
+            )
             deltakere.upsert(avsluttetDeltaker2)
 
             deltakere.getAll().shouldContainExactly(deltaker1, avsluttetDeltaker2)

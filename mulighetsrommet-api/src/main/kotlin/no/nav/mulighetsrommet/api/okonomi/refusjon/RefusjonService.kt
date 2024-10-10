@@ -9,8 +9,8 @@ import no.nav.mulighetsrommet.api.repositories.DeltakerRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.Tiltakskode
-import no.nav.mulighetsrommet.domain.dbo.Deltakerstatus
 import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
+import no.nav.mulighetsrommet.domain.dto.amt.AmtDeltakerStatus
 import java.time.LocalDate
 import java.time.temporal.TemporalAdjusters
 import java.util.*
@@ -92,7 +92,6 @@ class RefusjonService(
         periodeStart: LocalDate,
         periodeSlutt: LocalDate,
     ): Set<DeltakelsePerioder> {
-        // TODO: hent deltakelser fra komet i stedet for tiltakshistorikk
         val deltakelser = deltakerRepository.getAll(gjennomforingId)
 
         return deltakelser
@@ -100,14 +99,12 @@ class RefusjonService(
                 it.startDato != null && !it.startDato!!.isAfter(periodeSlutt)
             }
             .filter {
-                // TODO: hva er riktig logikk for å filtrere ut relevante deltakere?
-//                it.status.type in listOf(
-//                    AmtDeltakerStatus.Type.AVBRUTT,
-//                    AmtDeltakerStatus.Type.DELTAR,
-//                    AmtDeltakerStatus.Type.HAR_SLUTTET,
-//                    AmtDeltakerStatus.Type.FULLFORT,
-//                )
-                it.statusOld in listOf(Deltakerstatus.DELTAR, Deltakerstatus.AVSLUTTET)
+                it.status.type in listOf(
+                    AmtDeltakerStatus.Type.AVBRUTT,
+                    AmtDeltakerStatus.Type.DELTAR,
+                    AmtDeltakerStatus.Type.HAR_SLUTTET,
+                    AmtDeltakerStatus.Type.FULLFORT,
+                )
             }
             .map { deltakelse ->
                 val startDato = maxOf(requireNotNull(deltakelse.startDato), periodeStart)

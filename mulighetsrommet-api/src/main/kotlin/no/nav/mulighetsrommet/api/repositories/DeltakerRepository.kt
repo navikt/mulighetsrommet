@@ -2,9 +2,8 @@ package no.nav.mulighetsrommet.api.repositories
 
 import kotliquery.Row
 import kotliquery.queryOf
+import no.nav.mulighetsrommet.api.domain.dbo.DeltakerDbo
 import no.nav.mulighetsrommet.database.Database
-import no.nav.mulighetsrommet.domain.dbo.DeltakerDbo
-import no.nav.mulighetsrommet.domain.dbo.Deltakerstatus
 import no.nav.mulighetsrommet.domain.dto.amt.AmtDeltakerStatus
 import org.intellij.lang.annotations.Language
 import java.util.*
@@ -15,7 +14,6 @@ class DeltakerRepository(private val db: Database) {
         val query = """
             insert into deltaker (id,
                                   gjennomforing_id,
-                                  status,
                                   start_dato,
                                   slutt_dato,
                                   registrert_tidspunkt,
@@ -26,7 +24,6 @@ class DeltakerRepository(private val db: Database) {
                                   status_opprettet_tidspunkt)
             values (:id::uuid,
                     :gjennomforing_id::uuid,
-                    :status::deltakerstatus,
                     :start_dato,
                     :slutt_dato,
                     :registrert_tidspunkt,
@@ -37,7 +34,6 @@ class DeltakerRepository(private val db: Database) {
                     :status_opprettet_tidspunkt)
             on conflict (id)
                 do update set gjennomforing_id           = excluded.gjennomforing_id,
-                              status                     = excluded.status,
                               start_dato                 = excluded.start_dato,
                               slutt_dato                 = excluded.slutt_dato,
                               registrert_tidspunkt       = excluded.registrert_tidspunkt,
@@ -51,15 +47,14 @@ class DeltakerRepository(private val db: Database) {
         val params = mapOf(
             "id" to deltaker.id,
             "gjennomforing_id" to deltaker.gjennomforingId,
-            "status" to deltaker.statusOld.name,
             "start_dato" to deltaker.startDato,
             "slutt_dato" to deltaker.sluttDato,
             "registrert_tidspunkt" to deltaker.registrertTidspunkt,
             "endret_tidspunkt" to deltaker.endretTidspunkt,
             "stillingsprosent" to deltaker.stillingsprosent,
-            "status_type" to deltaker.status?.type?.name,
-            "status_aarsak" to deltaker.status?.aarsak?.name,
-            "status_opprettet_tidspunkt" to deltaker.status?.opprettetDato,
+            "status_type" to deltaker.status.type.name,
+            "status_aarsak" to deltaker.status.aarsak?.name,
+            "status_opprettet_tidspunkt" to deltaker.status.opprettetDato,
         )
 
         queryOf(query, params).asExecute.runWithSession(session)
@@ -70,7 +65,6 @@ class DeltakerRepository(private val db: Database) {
         val query = """
             select id,
                    gjennomforing_id,
-                   status,
                    start_dato,
                    slutt_dato,
                    registrert_tidspunkt,
@@ -106,18 +100,16 @@ class DeltakerRepository(private val db: Database) {
     private fun Row.toDeltakerDbo() = DeltakerDbo(
         id = uuid("id"),
         gjennomforingId = uuid("gjennomforing_id"),
-        statusOld = Deltakerstatus.valueOf(string("status")),
         startDato = localDateOrNull("start_dato"),
         sluttDato = localDateOrNull("slutt_dato"),
         registrertTidspunkt = localDateTime("registrert_tidspunkt"),
-        endretTidspunkt = localDateTimeOrNull("endret_tidspunkt"),
+        endretTidspunkt = localDateTime("endret_tidspunkt"),
         stillingsprosent = doubleOrNull("stillingsprosent"),
-        status = stringOrNull("status_type")?.let {
-            AmtDeltakerStatus(
-                type = AmtDeltakerStatus.Type.valueOf(it),
-                aarsak = stringOrNull("status_aarsak")?.let { AmtDeltakerStatus.Aarsak.valueOf(it) },
-                opprettetDato = localDateTime("status_opprettet_tidspunkt"),
-            )
-        },
+        status = AmtDeltakerStatus(
+            type = AmtDeltakerStatus.Type.valueOf(string("status_type")),
+            aarsak = stringOrNull("status_aarsak")?.let { AmtDeltakerStatus.Aarsak.valueOf(it) },
+            opprettetDato = localDateTime("status_opprettet_tidspunkt"),
+        ),
+
     )
 }
