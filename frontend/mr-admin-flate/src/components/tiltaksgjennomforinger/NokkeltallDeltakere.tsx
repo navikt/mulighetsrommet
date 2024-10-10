@@ -1,38 +1,35 @@
+import { Toggles } from "@mr/api-client";
 import { Heading } from "@navikt/ds-react";
 import * as Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
-import { Toggles } from "@mr/api-client";
 import { useRef } from "react";
-import { useFeatureToggle } from "../../api/features/useFeatureToggle";
-import { useTiltaksgjennomforingDeltakerSummary } from "../../api/tiltaksgjennomforing/useTiltaksgjennomforingDeltakerSummary";
+import { useFeatureToggle } from "@/api/features/useFeatureToggle";
+import { useTiltaksgjennomforingDeltakerSummary } from "@/api/tiltaksgjennomforing/useTiltaksgjennomforingDeltakerSummary";
 import styles from "./NokkeltallDeltakere.module.scss";
 
 interface Props {
   tiltaksgjennomforingId: string;
 }
 
-export function NokkeltallDeltakere({ tiltaksgjennomforingId }: Props) {
+export function NokkeltallDeltakere(props: Props) {
   const { data: enableDebug } = useFeatureToggle(
     Toggles.MULIGHETSROMMET_ADMIN_FLATE_ENABLE_DEBUGGER,
   );
+
+  if (!enableDebug) {
+    return null;
+  }
+
+  return <NokkeltallDeltakereGraph {...props} />;
+}
+
+function NokkeltallDeltakereGraph({ tiltaksgjennomforingId }: Props) {
   const { data: deltakerSummary } = useTiltaksgjennomforingDeltakerSummary(tiltaksgjennomforingId);
   const chartComponentRef = useRef<HighchartsReact.RefObject>(null);
 
-  if (!enableDebug) return null;
-
-  if (!deltakerSummary) return null;
-
-  const summaryUtenTotal = {
-    "Påbegynt registrering": deltakerSummary.pabegyntRegistrering,
-    "Venter på oppstart": deltakerSummary.antallDeltakereSomVenter,
-    Deltar: deltakerSummary.antallAktiveDeltakere,
-    "Har sluttet": deltakerSummary.antallAvsluttedeDeltakere,
-    "Ikke aktuelle": deltakerSummary.antallIkkeAktuelleDeltakere,
-  };
-
-  const dataArray = Object.keys(summaryUtenTotal).map((key) => ({
-    name: key,
-    y: summaryUtenTotal[key as keyof typeof summaryUtenTotal],
+  const dataArray = deltakerSummary.deltakereByStatus.map(({ status, count }) => ({
+    name: status,
+    y: count,
   }));
 
   const blaafarge = "#66CBEC";

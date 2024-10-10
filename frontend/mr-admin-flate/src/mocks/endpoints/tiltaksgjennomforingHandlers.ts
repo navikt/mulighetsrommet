@@ -138,12 +138,14 @@ export const tiltaksgjennomforingHandlers = [
     "*/api/v1/intern/tiltaksgjennomforinger/:id/deltaker-summary",
     () => {
       const deltakerSummary: TiltaksgjennomforingDeltakerSummary = {
-        antallAktiveDeltakere: 15,
-        antallAvsluttedeDeltakere: 3,
-        antallDeltakereSomVenter: 10,
-        antallIkkeAktuelleDeltakere: 2,
-        pabegyntRegistrering: 6,
         antallDeltakere: 36,
+        deltakereByStatus: [
+          { status: "Deltar", count: 15 },
+          { status: "Avsluttet", count: 3 },
+          { status: "Venter", count: 10 },
+          { status: "Ikke aktuell", count: 2 },
+          { status: "Påbegynt registrering", count: 6 },
+        ],
       };
       return HttpResponse.json(deltakerSummary);
     },
