@@ -3921,23 +3921,21 @@ components:
       properties:
         antallDeltakere:
           type: number
-        antallAktiveDeltakere:
-          type: number
-        antallDeltakereSomVenter:
-          type: number
-        antallAvsluttedeDeltakere:
-          type: number
-        antallIkkeAktuelleDeltakere:
-          type: number
-        pabegyntRegistrering:
-          type: number
+        deltakereByStatus:
+          type: array
+          items:
+            type: object
+            properties:
+              status:
+                type: string
+              count:
+                type: integer
+            required:
+              - status
+              - count
       required:
         - antallDeltakere
-        - antallAktiveDeltakere
-        - antallDeltakereSomVenter
-        - antallAvsluttedeDeltakere
-        - antallIkkeAktuelleDeltakere
-        - pabegyntRegistrering
+        - deltakereByStatus
 
     TiltaksgjennomforingKontaktperson:
       type: object
