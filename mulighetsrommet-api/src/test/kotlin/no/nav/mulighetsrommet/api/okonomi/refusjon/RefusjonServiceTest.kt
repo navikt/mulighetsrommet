@@ -17,8 +17,8 @@ import no.nav.mulighetsrommet.api.repositories.DeltakerRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
+import no.nav.mulighetsrommet.domain.dto.DeltakerStatus
 import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
-import no.nav.mulighetsrommet.domain.dto.amt.AmtDeltakerStatus
 import java.time.LocalDate
 
 class RefusjonServiceTest : FunSpec({
@@ -71,35 +71,35 @@ class RefusjonServiceTest : FunSpec({
                         AFT1.id,
                         startDato = LocalDate.of(2024, 1, 1),
                         sluttDato = LocalDate.of(2024, 1, 31),
-                        statusType = AmtDeltakerStatus.Type.DELTAR,
+                        statusType = DeltakerStatus.Type.DELTAR,
                         stillingsprosent = 100.0,
                     ),
                     DeltakerFixtures.createDeltaker(
                         AFT1.id,
                         startDato = LocalDate.of(2024, 1, 1),
                         sluttDato = LocalDate.of(2024, 1, 15),
-                        statusType = AmtDeltakerStatus.Type.DELTAR,
+                        statusType = DeltakerStatus.Type.DELTAR,
                         stillingsprosent = 40.0,
                     ),
                     DeltakerFixtures.createDeltaker(
                         AFT1.id,
                         startDato = LocalDate.of(2023, 1, 1),
                         sluttDato = LocalDate.of(2024, 12, 31),
-                        statusType = AmtDeltakerStatus.Type.DELTAR,
+                        statusType = DeltakerStatus.Type.DELTAR,
                         stillingsprosent = 50.0,
                     ),
                     DeltakerFixtures.createDeltaker(
                         AFT1.id,
                         startDato = LocalDate.of(2023, 1, 1),
                         sluttDato = LocalDate.of(2023, 12, 31),
-                        statusType = AmtDeltakerStatus.Type.DELTAR,
+                        statusType = DeltakerStatus.Type.DELTAR,
                         stillingsprosent = 100.0,
                     ),
                     DeltakerFixtures.createDeltaker(
                         AFT1.id,
                         startDato = LocalDate.of(2024, 1, 1),
                         sluttDato = LocalDate.of(2024, 1, 31),
-                        statusType = AmtDeltakerStatus.Type.IKKE_AKTUELL,
+                        statusType = DeltakerStatus.Type.IKKE_AKTUELL,
                         stillingsprosent = 100.0,
                     ),
                 ),
@@ -156,7 +156,7 @@ class RefusjonServiceTest : FunSpec({
                         AFT1.id,
                         startDato = LocalDate.of(2024, 1, 1),
                         sluttDato = LocalDate.of(2024, 1, 31),
-                        statusType = AmtDeltakerStatus.Type.DELTAR,
+                        statusType = DeltakerStatus.Type.DELTAR,
                         stillingsprosent = 100.0,
                     ),
                 ),

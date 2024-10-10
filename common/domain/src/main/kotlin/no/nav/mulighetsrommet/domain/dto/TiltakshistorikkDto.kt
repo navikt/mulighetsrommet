@@ -3,8 +3,6 @@ package no.nav.mulighetsrommet.domain.dto
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.domain.Tiltakskode
-import no.nav.mulighetsrommet.domain.dbo.ArenaDeltakerStatus
-import no.nav.mulighetsrommet.domain.dto.amt.AmtDeltakerStatus
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import java.time.LocalDate
@@ -69,7 +67,7 @@ sealed class Tiltakshistorikk {
         override val sluttDato: LocalDate?,
         @Serializable(with = UUIDSerializer::class)
         val id: UUID,
-        val status: AmtDeltakerStatus,
+        val status: DeltakerStatus,
         val gjennomforing: Gjennomforing,
         val arrangor: Arrangor,
     ) : Tiltakshistorikk() {
@@ -87,7 +85,7 @@ sealed class Tiltakshistorikk {
         @Serializable(with = UUIDSerializer::class)
         val avtaleId: UUID,
         val tiltakstype: Tiltakstype,
-        val status: Status,
+        val status: ArbeidsgiverAvtaleStatus,
         val arbeidsgiver: Arbeidsgiver,
     ) : Tiltakshistorikk() {
         override val opphav = Opphav.TEAM_TILTAK
@@ -99,47 +97,6 @@ sealed class Tiltakshistorikk {
             MENTOR,
             INKLUDERINGSTILSKUDD,
             SOMMERJOBB,
-        }
-
-        enum class Status {
-            /**
-             * Tiltaket er påbegynt, men kan fortsatt mangle noe data som er påkrevd for at det skal kunne gjennomføres.
-             * Kan anses som en "kladd".
-             */
-            PAABEGYNT,
-
-            /**
-             * Bl.a. når man mangler godkjenning av "controller", men kan muligens også være andre godkjenninger som
-             * kreves.
-             */
-            MANGLER_GODKJENNING,
-
-            /**
-             * Status er basert på startdato for avtale. Kan anta at avtalen er klar, men startdato er i fremtiden.
-             */
-            KLAR_FOR_OPPSTART,
-
-            /**
-             * Avtale gjennomføres.
-             * Bruker deltar på tiltaket.
-             */
-            GJENNOMFORES,
-
-            /**
-             * Avtale har blitt avsluttet.
-             * Bruker har deltatt på tiltaket.
-             */
-            AVSLUTTET,
-
-            /**
-             * Avtale ble avbrutt.
-             */
-            AVBRUTT,
-
-            /**
-             * Tiltaket ble aldri noe av.
-             */
-            ANNULLERT,
         }
     }
 }

@@ -10,8 +10,8 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.domain.dto.DeltakerStatus
 import no.nav.mulighetsrommet.domain.dto.NorskIdent
-import no.nav.mulighetsrommet.domain.dto.amt.AmtDeltakerStatus
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
@@ -85,20 +85,21 @@ data class DeltakelseFraKomet(
     val deltakerlisteId: UUID,
     val tittel: String,
     val tiltakstype: DeltakelserResponse.Tiltakstype,
-    val status: DeltakerStatus,
+    val status: Status,
     @Serializable(with = LocalDateSerializer::class)
     val innsoktDato: LocalDate? = null,
     @Serializable(with = LocalDateSerializer::class)
     val sistEndretDato: LocalDate? = null,
     val periode: Periode? = null,
-)
+) {
 
-@Serializable
-data class DeltakerStatus(
-    val type: AmtDeltakerStatus.Type,
-    val visningstekst: String,
-    val aarsak: String? = null,
-)
+    @Serializable
+    data class Status(
+        val type: DeltakerStatus.Type,
+        val visningstekst: String,
+        val aarsak: String? = null,
+    )
+}
 
 @Serializable
 data class Periode(

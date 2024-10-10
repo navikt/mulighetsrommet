@@ -7,7 +7,7 @@ import no.nav.mulighetsrommet.api.domain.dbo.DeltakerDbo
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
-import no.nav.mulighetsrommet.domain.dto.amt.AmtDeltakerStatus
+import no.nav.mulighetsrommet.domain.dto.DeltakerStatus
 import java.time.LocalDateTime
 import java.util.*
 
@@ -36,8 +36,8 @@ class DeltakerRepositoryTest : FunSpec({
             registrertTidspunkt = registrertTidspunkt,
             endretTidspunkt = registrertTidspunkt,
             stillingsprosent = 100.0,
-            status = AmtDeltakerStatus(
-                AmtDeltakerStatus.Type.VENTER_PA_OPPSTART,
+            status = DeltakerStatus(
+                DeltakerStatus.Type.VENTER_PA_OPPSTART,
                 aarsak = null,
                 opprettetDato = registrertTidspunkt,
             ),
@@ -54,8 +54,8 @@ class DeltakerRepositoryTest : FunSpec({
             deltakere.getAll().shouldContainExactly(deltaker1, deltaker2)
 
             val avsluttetDeltaker2 = deltaker2.copy(
-                status = AmtDeltakerStatus(
-                    AmtDeltakerStatus.Type.HAR_SLUTTET,
+                status = DeltakerStatus(
+                    DeltakerStatus.Type.HAR_SLUTTET,
                     aarsak = null,
                     opprettetDato = LocalDateTime.of(2023, 3, 2, 0, 0, 0),
                 ),
