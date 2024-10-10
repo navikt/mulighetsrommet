@@ -9,7 +9,7 @@ import no.nav.mulighetsrommet.api.repositories.DeltakerRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.Tiltakskode
-import no.nav.mulighetsrommet.domain.dto.amt.AmtDeltakerStatus
+import no.nav.mulighetsrommet.domain.dto.DeltakerStatus
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.temporal.TemporalAdjusters
@@ -96,10 +96,10 @@ class RefusjonService(
             .asSequence()
             .filter {
                 it.status.type in listOf(
-                    AmtDeltakerStatus.Type.AVBRUTT,
-                    AmtDeltakerStatus.Type.DELTAR,
-                    AmtDeltakerStatus.Type.HAR_SLUTTET,
-                    AmtDeltakerStatus.Type.FULLFORT,
+                    DeltakerStatus.Type.AVBRUTT,
+                    DeltakerStatus.Type.DELTAR,
+                    DeltakerStatus.Type.HAR_SLUTTET,
+                    DeltakerStatus.Type.FULLFORT,
                 )
             }
             .filter { it.stillingsprosent != null }

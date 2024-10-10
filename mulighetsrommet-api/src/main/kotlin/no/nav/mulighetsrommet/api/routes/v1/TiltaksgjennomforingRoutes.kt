@@ -23,7 +23,6 @@ import no.nav.mulighetsrommet.api.services.ExcelService
 import no.nav.mulighetsrommet.api.services.TiltaksgjennomforingService
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dto.*
-import no.nav.mulighetsrommet.domain.dto.amt.AmtDeltakerStatus
 import no.nav.mulighetsrommet.domain.serializers.AvbruttAarsakSerializer
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
@@ -174,43 +173,14 @@ fun Route.tiltaksgjennomforingRoutes() {
             val id: UUID by call.parameters
 
             val deltakereForGjennomforing = deltakere.getAll(id)
-            val groupedDeltakere = deltakereForGjennomforing.groupBy { it.status.type }
-            // TODO vis en graf per mulige status i stedet
+
             val summary = TiltaksgjennomforingDeltakerSummary(
                 antallDeltakere = deltakereForGjennomforing.size,
-                antallAktiveDeltakere = groupedDeltakere.count { (key) ->
-                    key == AmtDeltakerStatus.Type.DELTAR
-                },
-                antallDeltakereSomVenter = groupedDeltakere.count { (key) ->
-                    key in listOf(
-                        AmtDeltakerStatus.Type.KLADD,
-                        AmtDeltakerStatus.Type.VENTER_PA_OPPSTART,
-                        AmtDeltakerStatus.Type.SOKT_INN,
-                        AmtDeltakerStatus.Type.VURDERES,
-                        AmtDeltakerStatus.Type.VENTELISTE,
-                    )
-                },
-                antallAvsluttedeDeltakere = groupedDeltakere.count { (key) ->
-                    key in listOf(
-                        AmtDeltakerStatus.Type.HAR_SLUTTET,
-                        AmtDeltakerStatus.Type.AVBRUTT,
-                        AmtDeltakerStatus.Type.FULLFORT,
-                    )
-                },
-                antallIkkeAktuelleDeltakere = groupedDeltakere.count { (key) ->
-                    key in listOf(
-                        AmtDeltakerStatus.Type.IKKE_AKTUELL,
-                        AmtDeltakerStatus.Type.FEILREGISTRERT,
-                        AmtDeltakerStatus.Type.AVBRUTT_UTKAST,
-
-                    )
-                },
-                pabegyntRegistrering = groupedDeltakere.count { (key) ->
-                    key in listOf(
-                        AmtDeltakerStatus.Type.PABEGYNT_REGISTRERING,
-                        AmtDeltakerStatus.Type.UTKAST_TIL_PAMELDING,
-                    )
-                },
+                deltakereByStatus = deltakereForGjennomforing
+                    .groupBy { it.status.type }
+                    .map { (status, deltakere) ->
+                        DeltakerStatusSummary(status = status.description, count = deltakere.size)
+                    },
             )
 
             call.respond(summary)
@@ -258,11 +228,13 @@ fun <T : Any> PipelineContext<T, ApplicationCall>.getAdminTiltaksgjennomforingsF
 @Serializable
 data class TiltaksgjennomforingDeltakerSummary(
     val antallDeltakere: Int,
-    val antallAktiveDeltakere: Int,
-    val antallDeltakereSomVenter: Int,
-    val antallAvsluttedeDeltakere: Int,
-    val antallIkkeAktuelleDeltakere: Int,
-    val pabegyntRegistrering: Int,
+    val deltakereByStatus: List<DeltakerStatusSummary>,
+)
+
+@Serializable
+data class DeltakerStatusSummary(
+    val status: String,
+    val count: Int,
 )
 
 @Serializable

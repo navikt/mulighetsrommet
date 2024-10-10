@@ -4,19 +4,16 @@ import arrow.core.getOrElse
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
-import no.nav.mulighetsrommet.api.clients.amtDeltaker.*
+import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
+import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakelseFraKomet
+import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakelserRequest
 import no.nav.mulighetsrommet.api.clients.pdl.*
 import no.nav.mulighetsrommet.api.clients.tiltakshistorikk.TiltakshistorikkClient
 import no.nav.mulighetsrommet.api.domain.dto.Deltakelse
 import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.api.utils.TiltaksnavnUtils.hosTitleCaseArrangor
 import no.nav.mulighetsrommet.api.utils.TiltaksnavnUtils.tittelOgUnderTittel
-import no.nav.mulighetsrommet.domain.dbo.ArenaDeltakerStatus
-import no.nav.mulighetsrommet.domain.dto.NorskIdent
-import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
-import no.nav.mulighetsrommet.domain.dto.Tiltakshistorikk
-import no.nav.mulighetsrommet.domain.dto.TiltakshistorikkMelding
-import no.nav.mulighetsrommet.domain.dto.amt.AmtDeltakerStatus
+import no.nav.mulighetsrommet.domain.dto.*
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -98,9 +95,9 @@ class TiltakshistorikkService(
                 startDato = startDato,
                 sluttDato = sluttDato,
             ),
-            status = Deltakelse.DeltakelseArena.DeltakerStatus(
+            status = Deltakelse.DeltakelseArena.Status(
                 type = status,
-                visningstekst = arenaStatusTilVisningstekst(status),
+                visningstekst = status.description,
             ),
             tittel = beskrivelse,
             tiltakstypeNavn = tiltakstype.navn,
@@ -125,10 +122,10 @@ class TiltakshistorikkService(
                 startDato = startDato,
                 sluttDato = sluttDato,
             ),
-            status = Deltakelse.DeltakelseGruppetiltak.DeltakerStatus(
+            status = Deltakelse.DeltakelseGruppetiltak.Status(
                 type = status.type,
-                visningstekst = gruppetiltakStatusTilVisningstekst(status.type),
-                aarsak = gruppetiltakAarsakTilTekst(status.aarsak),
+                visningstekst = status.type.description,
+                aarsak = status.aarsak?.description,
             ),
             tittel = tittel.hosTitleCaseArrangor(arrangorNavn.await()),
             tiltakstypeNavn = tiltakstype.await().navn,
@@ -161,9 +158,9 @@ class TiltakshistorikkService(
                 startDato = startDato,
                 sluttDato = sluttDato,
             ),
-            status = Deltakelse.DeltakelseArbeidsgiverAvtale.DeltakerStatus(
+            status = Deltakelse.DeltakelseArbeidsgiverAvtale.Status(
                 type = status,
-                visningstekst = arbeidsgiverAvtaleStatusTilVisningstekst(status),
+                visningstekst = status.description,
             ),
             tittel = tiltakstype.navn.hosTitleCaseArrangor(arrangorNavn),
             tiltakstypeNavn = tiltakstype.navn,
@@ -171,24 +168,6 @@ class TiltakshistorikkService(
             sistEndretDato = null,
             eierskap = Deltakelse.Eierskap.TEAM_TILTAK,
         )
-    }
-
-    private fun gruppetiltakAarsakTilTekst(aarsak: AmtDeltakerStatus.Aarsak?): String? {
-        return when (aarsak) {
-            AmtDeltakerStatus.Aarsak.SYK -> "Syk"
-            AmtDeltakerStatus.Aarsak.FATT_JOBB -> "Fått jobb"
-            AmtDeltakerStatus.Aarsak.TRENGER_ANNEN_STOTTE -> "Trenger annen støtte"
-            AmtDeltakerStatus.Aarsak.FIKK_IKKE_PLASS -> "Fikk ikke plass"
-            AmtDeltakerStatus.Aarsak.IKKE_MOTT -> "Møter ikke opp"
-            AmtDeltakerStatus.Aarsak.ANNET -> "Annet"
-            AmtDeltakerStatus.Aarsak.AVLYST_KONTRAKT -> "Avlyst kontrakt"
-            AmtDeltakerStatus.Aarsak.UTDANNING -> "Utdanning"
-            AmtDeltakerStatus.Aarsak.SAMARBEIDET_MED_ARRANGOREN_ER_AVBRUTT -> "Samarbeidet med arrangøren er avbrutt"
-            AmtDeltakerStatus.Aarsak.FERDIG -> "Ferdig"
-            AmtDeltakerStatus.Aarsak.FEILREGISTRERT -> "Feilregistrert"
-            AmtDeltakerStatus.Aarsak.OPPFYLLER_IKKE_KRAVENE -> "Oppfyller ikke kravene"
-            null -> null
-        }
     }
 
     private fun erAktiv(kort: Deltakelse): Boolean {
@@ -203,72 +182,21 @@ class TiltakshistorikkService(
             )
 
             is Deltakelse.DeltakelseGruppetiltak -> kort.status.type in listOf(
-                AmtDeltakerStatus.Type.VENTER_PA_OPPSTART,
-                AmtDeltakerStatus.Type.DELTAR,
-                AmtDeltakerStatus.Type.VURDERES,
-                AmtDeltakerStatus.Type.VENTELISTE,
-                AmtDeltakerStatus.Type.UTKAST_TIL_PAMELDING,
-                AmtDeltakerStatus.Type.SOKT_INN,
-                AmtDeltakerStatus.Type.PABEGYNT_REGISTRERING,
+                DeltakerStatus.Type.VENTER_PA_OPPSTART,
+                DeltakerStatus.Type.DELTAR,
+                DeltakerStatus.Type.VURDERES,
+                DeltakerStatus.Type.VENTELISTE,
+                DeltakerStatus.Type.UTKAST_TIL_PAMELDING,
+                DeltakerStatus.Type.SOKT_INN,
+                DeltakerStatus.Type.PABEGYNT_REGISTRERING,
             )
 
             is Deltakelse.DeltakelseArbeidsgiverAvtale -> kort.status.type in listOf(
-                Tiltakshistorikk.ArbeidsgiverAvtale.Status.PAABEGYNT,
-                Tiltakshistorikk.ArbeidsgiverAvtale.Status.MANGLER_GODKJENNING,
-                Tiltakshistorikk.ArbeidsgiverAvtale.Status.KLAR_FOR_OPPSTART,
-                Tiltakshistorikk.ArbeidsgiverAvtale.Status.GJENNOMFORES,
+                ArbeidsgiverAvtaleStatus.PAABEGYNT,
+                ArbeidsgiverAvtaleStatus.MANGLER_GODKJENNING,
+                ArbeidsgiverAvtaleStatus.KLAR_FOR_OPPSTART,
+                ArbeidsgiverAvtaleStatus.GJENNOMFORES,
             )
-        }
-    }
-
-    private fun gruppetiltakStatusTilVisningstekst(status: AmtDeltakerStatus.Type): String {
-        return when (status) {
-            AmtDeltakerStatus.Type.FULLFORT -> "Fullført"
-            AmtDeltakerStatus.Type.VENTER_PA_OPPSTART -> "Venter på oppstart"
-            AmtDeltakerStatus.Type.DELTAR -> "Deltar"
-            AmtDeltakerStatus.Type.HAR_SLUTTET -> "Har sluttet"
-            AmtDeltakerStatus.Type.IKKE_AKTUELL -> "Ikke aktuell"
-            AmtDeltakerStatus.Type.FEILREGISTRERT -> "Feilregistrert"
-            AmtDeltakerStatus.Type.PABEGYNT_REGISTRERING -> "Påbegynt registrering"
-            AmtDeltakerStatus.Type.SOKT_INN -> "Søkt om plass"
-            AmtDeltakerStatus.Type.VURDERES -> "Vurderes"
-            AmtDeltakerStatus.Type.VENTELISTE -> "På venteliste"
-            AmtDeltakerStatus.Type.AVBRUTT -> "Avbrutt"
-            AmtDeltakerStatus.Type.UTKAST_TIL_PAMELDING -> "Utkast til påmelding"
-            AmtDeltakerStatus.Type.AVBRUTT_UTKAST -> "Avbrutt utkast"
-            AmtDeltakerStatus.Type.KLADD -> "Kladd"
-        }
-    }
-
-    private fun arenaStatusTilVisningstekst(status: ArenaDeltakerStatus): String {
-        return when (status) {
-            ArenaDeltakerStatus.AVSLAG -> "Fått avslag"
-            ArenaDeltakerStatus.IKKE_AKTUELL -> "Ikke aktuell"
-            ArenaDeltakerStatus.TAKKET_NEI_TIL_TILBUD -> "Takket nei til tilbud"
-            ArenaDeltakerStatus.TILBUD -> "Godkjent tiltaksplass"
-            ArenaDeltakerStatus.TAKKET_JA_TIL_TILBUD -> "Takket ja til tilbud"
-            ArenaDeltakerStatus.INFORMASJONSMOTE -> "Informasjonsmøte"
-            ArenaDeltakerStatus.AKTUELL -> "Aktuell"
-            ArenaDeltakerStatus.VENTELISTE -> "Venteliste"
-            ArenaDeltakerStatus.GJENNOMFORES -> "Gjennomføres"
-            ArenaDeltakerStatus.DELTAKELSE_AVBRUTT -> "Deltakelse avbrutt"
-            ArenaDeltakerStatus.GJENNOMFORING_AVBRUTT -> "Gjennomføring avbrutt"
-            ArenaDeltakerStatus.GJENNOMFORING_AVLYST -> "Gjennomføring avlyst"
-            ArenaDeltakerStatus.FULLFORT -> "Fullført"
-            ArenaDeltakerStatus.IKKE_MOTT -> "Ikke møtt"
-            ArenaDeltakerStatus.FEILREGISTRERT -> "Feilregistrert"
-        }
-    }
-
-    private fun arbeidsgiverAvtaleStatusTilVisningstekst(status: Tiltakshistorikk.ArbeidsgiverAvtale.Status): String {
-        return when (status) {
-            Tiltakshistorikk.ArbeidsgiverAvtale.Status.ANNULLERT -> "Annullert"
-            Tiltakshistorikk.ArbeidsgiverAvtale.Status.AVBRUTT -> "Avbrutt"
-            Tiltakshistorikk.ArbeidsgiverAvtale.Status.PAABEGYNT -> "Påbegynt"
-            Tiltakshistorikk.ArbeidsgiverAvtale.Status.MANGLER_GODKJENNING -> "Mangler godkjenning"
-            Tiltakshistorikk.ArbeidsgiverAvtale.Status.KLAR_FOR_OPPSTART -> "Klar for oppstart"
-            Tiltakshistorikk.ArbeidsgiverAvtale.Status.GJENNOMFORES -> "Gjennomføres"
-            Tiltakshistorikk.ArbeidsgiverAvtale.Status.AVSLUTTET -> "Avsluttet"
         }
     }
 
@@ -320,7 +248,7 @@ fun DeltakelseFraKomet.toDeltakelse(): Deltakelse {
         eierskap = Deltakelse.Eierskap.TEAM_KOMET,
         tittel = tittel,
         tiltakstypeNavn = tiltakstype.navn,
-        status = Deltakelse.DeltakelseGruppetiltak.DeltakerStatus(
+        status = Deltakelse.DeltakelseGruppetiltak.Status(
             type = status.type,
             visningstekst = status.visningstekst,
             aarsak = status.aarsak,

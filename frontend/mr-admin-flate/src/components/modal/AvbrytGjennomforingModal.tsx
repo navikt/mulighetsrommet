@@ -127,7 +127,7 @@ export const AvbrytGjennomforingModal = ({ modalRef, tiltaksgjennomforing }: Pro
       }
       body={
         <>
-          {deltakerSummary && deltakerSummary.antallDeltakere > 0 && (
+          {deltakerSummary.antallDeltakere > 0 && (
             <Alert variant="warning">
               {`Det finnes ${deltakerSummary.antallDeltakere} deltaker${deltakerSummary.antallDeltakere > 1 ? "e" : ""} på gjennomføringen. Ved å
            avbryte denne vil det føre til statusendring på alle deltakere som har en aktiv status.`}
