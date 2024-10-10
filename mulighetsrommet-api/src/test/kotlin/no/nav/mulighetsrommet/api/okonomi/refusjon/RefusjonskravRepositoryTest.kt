@@ -16,7 +16,7 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 
-class RefusjonskravRepositoryTest() : FunSpec({
+class RefusjonskravRepositoryTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(createDatabaseTestConfig()))
 
     val domain = MulighetsrommetTestDomain(
@@ -87,8 +87,6 @@ class RefusjonskravRepositoryTest() : FunSpec({
             val krav = RefusjonskravDbo(
                 id = UUID.randomUUID(),
                 gjennomforingId = AFT1.id,
-                periodeStart = LocalDate.of(2023, 1, 1),
-                periodeSlutt = LocalDate.of(2023, 2, 1),
                 beregning = beregning,
             )
 
@@ -126,8 +124,6 @@ class RefusjonskravRepositoryTest() : FunSpec({
             val krav = RefusjonskravDbo(
                 id = UUID.randomUUID(),
                 gjennomforingId = AFT1.id,
-                periodeStart = LocalDate.of(2023, 1, 1),
-                periodeSlutt = LocalDate.of(2023, 1, 1),
                 beregning = RefusjonKravBeregningAft(
                     input = RefusjonKravBeregningAft.Input(
                         periodeStart = LocalDate.of(2023, 1, 1).atStartOfDay(),

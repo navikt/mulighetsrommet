@@ -491,8 +491,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
     }
 
     fun getGjennomforesInPeriodeUtenRefusjonskrav(
-        periodeStart: LocalDate,
-        periodeSlutt: LocalDate,
+        periodeStart: LocalDateTime,
+        periodeSlutt: LocalDateTime,
     ): List<TiltaksgjennomforingDto> {
         @Language("PostgreSQL")
         val query = """

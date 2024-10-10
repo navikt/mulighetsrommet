@@ -12,6 +12,7 @@ import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
 import no.nav.mulighetsrommet.domain.dto.amt.AmtDeltakerStatus
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.temporal.TemporalAdjusters
 import java.util.*
 
@@ -30,8 +31,8 @@ class RefusjonService(
     }
 
     fun genererRefusjonskravForMonth(dayInMonth: LocalDate) {
-        val periodeStart = dayInMonth.with(TemporalAdjusters.firstDayOfMonth())
-        val periodeSlutt = periodeStart.with(TemporalAdjusters.lastDayOfMonth())
+        val periodeStart = dayInMonth.with(TemporalAdjusters.firstDayOfMonth()).atStartOfDay()
+        val periodeSlutt = periodeStart.with(TemporalAdjusters.lastDayOfMonth()).plusDays(1)
 
         val krav = tiltaksgjennomforingRepository
             .getGjennomforesInPeriodeUtenRefusjonskrav(periodeStart, periodeSlutt)
@@ -56,8 +57,8 @@ class RefusjonService(
 
     fun createRefusjonskravAft(
         gjennomforingId: UUID,
-        periodeStart: LocalDate,
-        periodeSlutt: LocalDate,
+        periodeStart: LocalDateTime,
+        periodeSlutt: LocalDateTime,
     ): RefusjonskravDbo {
         val refusjonskravId = UUID.randomUUID()
 
@@ -68,9 +69,9 @@ class RefusjonService(
         )
 
         val input = RefusjonKravBeregningAft.Input(
-            periodeStart = periodeStart.atStartOfDay(),
-            periodeSlutt = periodeSlutt.atStartOfDay(),
-            sats = Prismodell.AFT.findSats(periodeStart),
+            periodeStart = periodeStart,
+            periodeSlutt = periodeSlutt,
+            sats = Prismodell.AFT.findSats(periodeStart.toLocalDate()),
             deltakelser = deltakere,
         )
 
@@ -81,23 +82,19 @@ class RefusjonService(
         return RefusjonskravDbo(
             id = refusjonskravId,
             gjennomforingId = gjennomforingId,
-            periodeStart = periodeStart,
-            periodeSlutt = periodeSlutt,
             beregning = beregning,
         )
     }
 
     private fun getDeltakelser(
         gjennomforingId: UUID,
-        periodeStart: LocalDate,
-        periodeSlutt: LocalDate,
+        periodeStart: LocalDateTime,
+        periodeSlutt: LocalDateTime,
     ): Set<DeltakelsePerioder> {
         val deltakelser = deltakerRepository.getAll(gjennomforingId)
 
         return deltakelser
-            .filter {
-                it.startDato != null && !it.startDato!!.isAfter(periodeSlutt)
-            }
+            .asSequence()
             .filter {
                 it.status.type in listOf(
                     AmtDeltakerStatus.Type.AVBRUTT,
@@ -106,17 +103,22 @@ class RefusjonService(
                     AmtDeltakerStatus.Type.FULLFORT,
                 )
             }
+            .filter { it.stillingsprosent != null }
+            .filter {
+                it.startDato != null && !it.startDato.atStartOfDay().isAfter(periodeSlutt)
+            }
+            .filter {
+                it.sluttDato == null || it.sluttDato.plusDays(1).atStartOfDay().isAfter(periodeStart)
+            }
             .map { deltakelse ->
-                val startDato = maxOf(requireNotNull(deltakelse.startDato), periodeStart)
-                val sluttDato = minOf(deltakelse.sluttDato ?: periodeSlutt, periodeSlutt)
-                val periode = DeltakelsePeriode(
-                    start = startDato.atStartOfDay(),
-                    slutt = sluttDato.plusDays(1).atStartOfDay(),
-                    stillingsprosent = 100.00,
-                )
+                val start = maxOf(requireNotNull(deltakelse.startDato).atStartOfDay(), periodeStart)
+                val slutt = minOf(deltakelse.sluttDato?.plusDays(1)?.atStartOfDay() ?: periodeSlutt, periodeSlutt)
+                val stillingsprosent = requireNotNull(deltakelse.stillingsprosent) {
+                    "stillingsprosent mangler for deltakelse id=${deltakelse.id}"
+                }
 
                 // TODO: periodisering av prosent - fra Komet
-                val perioder = listOf(periode)
+                val perioder = listOf(DeltakelsePeriode(start, slutt, stillingsprosent))
 
                 DeltakelsePerioder(
                     deltakelseId = deltakelse.id,
