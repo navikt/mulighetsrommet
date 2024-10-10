@@ -115,7 +115,7 @@ private fun createM2mTokenClient(clientId: String, tokenEndpointUrl: String): Ma
         else -> AzureAdTokenClientBuilder.builder().withNaisDefaults().buildMachineToMachineTokenClient()
     }
 
-fun createMaskinportenM2mTokenClient(clientId: String, tokenEndpointUrl: String, issuer: String): MaskinPortenTokenProvider =
+fun createMaskinportenM2mTokenClient(clientId: String, tokenEndpointUrl: String, issuer: String): MaskinPortenTokenProvider? =
     when (NaisEnv.current()) {
         NaisEnv.Local -> MaskinPortenTokenProvider(
             clientId = clientId,
@@ -123,6 +123,7 @@ fun createMaskinportenM2mTokenClient(clientId: String, tokenEndpointUrl: String,
             privateJwk = createMockRSAKey("maskinporten").toJSONString(),
             issuer = issuer,
         )
+        NaisEnv.ProdGCP -> null // TODO: Remove when prod
         else -> MaskinPortenTokenProvider(
             clientId = clientId,
             tokenEndpointUrl = tokenEndpointUrl,

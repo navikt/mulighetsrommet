@@ -57,6 +57,7 @@ import no.nav.mulighetsrommet.slack.SlackNotifierImpl
 import no.nav.mulighetsrommet.tasks.DbSchedulerKotlinSerializer
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import no.nav.mulighetsrommet.tokenprovider.CachedTokenProvider
+import no.nav.mulighetsrommet.tokenprovider.M2MTokenProvider
 import no.nav.mulighetsrommet.tokenprovider.createMaskinportenM2mTokenClient
 import no.nav.mulighetsrommet.unleash.UnleashService
 import no.nav.mulighetsrommet.unleash.strategies.ByEnhetStrategy
@@ -274,10 +275,10 @@ private fun services(appConfig: AppConfig) = module {
             baseUrl = appConfig.altinn.url,
             altinnApiKey = appConfig.altinn.apiKey,
             clientEngine = appConfig.engine,
-            tokenProvider = maskinportenTokenProvider.withScope(
+            tokenProvider = maskinportenTokenProvider?.withScope(
                 scope = appConfig.altinn.scope,
                 targetAudience = appConfig.altinn.url,
-            ),
+            ) ?: M2MTokenProvider { "dummy" }, // TODO: Remove when prod
         )
     }
     single { EndringshistorikkService(get()) }

@@ -82,10 +82,10 @@ app:
       audience: ${TOKEN_X_CLIENT_ID}
       tokenEndpointUrl: ${TOKEN_X_WELL_KNOWN_URL}
     maskinporten:
-      issuer: ${MASKINPORTEN_ISSUER}
-      jwksUri: ${MASKINPORTEN_X_JWKS_URI}
-      audience: ${MASKINPORTEN_CLIENT_ID}
-      tokenEndpointUrl: ${MASKINPORTEN_TOKEN_ENDPOINT}
+      issuer: ${MASKINPORTEN_ISSUER:dummyremovewhenprod}
+      jwksUri: ${MASKINPORTEN_X_JWKS_URI:dummyremovewhenprod}
+      audience: ${MASKINPORTEN_CLIENT_ID:dummyremovewhenprod}
+      tokenEndpointUrl: ${MASKINPORTEN_TOKEN_ENDPOINT:dummyremovewhenprod}
 
 
   sanity:
