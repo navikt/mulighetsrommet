@@ -1,4 +1,4 @@
-import { RefusjonskravDto, RefusjonskravService } from "@mr/api-client";
+import { RefusjonKravAft, RefusjonskravService } from "@mr/api-client";
 import { Heading, VStack } from "@navikt/ds-react";
 import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
@@ -23,7 +23,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
 export default function Refusjon() {
   const { krav } = useLoaderData<typeof loader>();
-  const historiske: RefusjonskravDto[] = [];
+  const historiske: RefusjonKravAft[] = [];
   const aktive = krav;
 
   return (

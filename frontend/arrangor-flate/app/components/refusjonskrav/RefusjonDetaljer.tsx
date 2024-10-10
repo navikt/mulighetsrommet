@@ -1,27 +1,24 @@
-import { Krav } from "../../domene/domene";
+import { Refusjonskrav } from "../../domene/domene";
 import { Definisjonsliste } from "../Definisjonsliste";
 
 interface Props {
-  krav: Krav;
+  krav: Refusjonskrav;
 }
 
 export function RefusjonDetaljer({ krav }: Props) {
-  const { kravnr, periode, belop } = krav;
+  const { refusjonskravperiode } = krav.detaljer;
 
   return (
     <>
       <Definisjonsliste
         title="Refusjonskrav"
-        definitions={[
-          { key: "Refusjonskravnummer", value: kravnr },
-          { key: "Refusjonskravperiode", value: periode },
-        ]}
+        definitions={[{ key: "Refusjonskravperiode", value: refusjonskravperiode }]}
       />
       <Definisjonsliste
         className="mt-4"
         definitions={[
-          { key: "Antall månedsverk", value: "15.27" },
-          { key: "Total refusjonskrav", value: belop },
+          { key: "Antall månedsverk", value: String(krav.beregning.antallManedsverk) },
+          { key: "Total refusjonskrav", value: String(krav.beregning.belop) },
         ]}
       />
     </>

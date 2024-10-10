@@ -5,7 +5,6 @@ import com.github.kagkarlsson.scheduler.task.helper.Tasks
 import com.github.kagkarlsson.scheduler.task.schedule.DisabledSchedule
 import com.github.kagkarlsson.scheduler.task.schedule.Schedule
 import com.github.kagkarlsson.scheduler.task.schedule.Schedules
-import kotlinx.coroutines.runBlocking
 import no.nav.mulighetsrommet.api.okonomi.refusjon.RefusjonService
 import no.nav.mulighetsrommet.slack.SlackNotifier
 import org.slf4j.LoggerFactory
@@ -37,12 +36,10 @@ class GenerateRefusjonskrav(
             slackNotifier.sendMessage("Klarte ikke generere refusjonskrav. Cause: ${failure.cause.get().message}")
         }
         .execute { _, _ ->
-            runBlocking {
-                logger.info("Genererer refusjonskrav")
+            logger.info("Genererer refusjonskrav")
 
-                val dayInPreviousMonth = LocalDate.now().minusMonths(1)
-                runTask(dayInPreviousMonth)
-            }
+            val dayInPreviousMonth = LocalDate.now().minusMonths(1)
+            runTask(dayInPreviousMonth)
         }
 
     fun runTask(dayInMonth: LocalDate) {

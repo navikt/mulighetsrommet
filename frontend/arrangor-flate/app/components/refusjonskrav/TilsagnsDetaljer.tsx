@@ -1,8 +1,8 @@
-import { type TilsagnsDetaljer } from "../../domene/domene";
+import { type TilsagnDetaljer } from "../../domene/domene";
 import { Definisjonsliste } from "../Definisjonsliste";
 
 interface Props {
-  tilsagnsDetaljer: TilsagnsDetaljer;
+  tilsagnsDetaljer: TilsagnDetaljer;
 }
 
 export function RefusjonTilsagnsDetaljer({ tilsagnsDetaljer }: Props) {

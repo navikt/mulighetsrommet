@@ -21,9 +21,9 @@ import no.nav.mulighetsrommet.api.responses.BadRequest
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.services.ExcelService
 import no.nav.mulighetsrommet.api.services.TiltaksgjennomforingService
-import no.nav.mulighetsrommet.domain.dbo.Deltakerstatus
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dto.*
+import no.nav.mulighetsrommet.domain.dto.amt.AmtDeltakerStatus
 import no.nav.mulighetsrommet.domain.serializers.AvbruttAarsakSerializer
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
@@ -174,20 +174,43 @@ fun Route.tiltaksgjennomforingRoutes() {
             val id: UUID by call.parameters
 
             val deltakereForGjennomforing = deltakere.getAll(id)
-            val groupedDeltakere = deltakereForGjennomforing.groupBy { it.status }
+            val groupedDeltakere = deltakereForGjennomforing.groupBy { it.status.type }
+            // TODO vis en graf per mulige status i stedet
             val summary = TiltaksgjennomforingDeltakerSummary(
                 antallDeltakere = deltakereForGjennomforing.size,
-                antallAktiveDeltakere = groupedDeltakere.getOrDefault(Deltakerstatus.DELTAR, emptyList()).size,
-                antallDeltakereSomVenter = groupedDeltakere.getOrDefault(Deltakerstatus.VENTER, emptyList()).size,
-                antallAvsluttedeDeltakere = groupedDeltakere.getOrDefault(Deltakerstatus.AVSLUTTET, emptyList()).size,
-                antallIkkeAktuelleDeltakere = groupedDeltakere.getOrDefault(
-                    Deltakerstatus.IKKE_AKTUELL,
-                    emptyList(),
-                ).size,
-                pabegyntRegistrering = groupedDeltakere.getOrDefault(
-                    Deltakerstatus.PABEGYNT_REGISTRERING,
-                    emptyList(),
-                ).size,
+                antallAktiveDeltakere = groupedDeltakere.count { (key) ->
+                    key == AmtDeltakerStatus.Type.DELTAR
+                },
+                antallDeltakereSomVenter = groupedDeltakere.count { (key) ->
+                    key in listOf(
+                        AmtDeltakerStatus.Type.KLADD,
+                        AmtDeltakerStatus.Type.VENTER_PA_OPPSTART,
+                        AmtDeltakerStatus.Type.SOKT_INN,
+                        AmtDeltakerStatus.Type.VURDERES,
+                        AmtDeltakerStatus.Type.VENTELISTE,
+                    )
+                },
+                antallAvsluttedeDeltakere = groupedDeltakere.count { (key) ->
+                    key in listOf(
+                        AmtDeltakerStatus.Type.HAR_SLUTTET,
+                        AmtDeltakerStatus.Type.AVBRUTT,
+                        AmtDeltakerStatus.Type.FULLFORT,
+                    )
+                },
+                antallIkkeAktuelleDeltakere = groupedDeltakere.count { (key) ->
+                    key in listOf(
+                        AmtDeltakerStatus.Type.IKKE_AKTUELL,
+                        AmtDeltakerStatus.Type.FEILREGISTRERT,
+                        AmtDeltakerStatus.Type.AVBRUTT_UTKAST,
+
+                    )
+                },
+                pabegyntRegistrering = groupedDeltakere.count { (key) ->
+                    key in listOf(
+                        AmtDeltakerStatus.Type.PABEGYNT_REGISTRERING,
+                        AmtDeltakerStatus.Type.UTKAST_TIL_PAMELDING,
+                    )
+                },
             )
 
             call.respond(summary)

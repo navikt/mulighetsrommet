@@ -106,11 +106,11 @@ class DelMedBrukerServiceTest : FunSpec({
             MulighetsrommetTestDomain().initialize(database.db)
             val sanityGjennomforingIdForEnkeltplass = UUID.randomUUID()
             val sanityGjennomforingIdForArbeidstrening = UUID.randomUUID()
-            val tiltakstypeIdForEnkeltAmo = TiltakstypeFixtures.EnkelAmo.id
-            val tiltakstypeIdForArbeidstrening = TiltakstypeFixtures.Arbeidstrening.id
+            val enkeltAmoSanityId = UUID.randomUUID()
+            val arbeidstreningSanityId = UUID.randomUUID()
 
-            every { tiltakstypeService.getBySanityId(tiltakstypeIdForEnkeltAmo) } returns TiltakstypeDto(
-                id = tiltakstypeIdForEnkeltAmo,
+            every { tiltakstypeService.getBySanityId(enkeltAmoSanityId) } returns TiltakstypeDto(
+                id = TiltakstypeFixtures.EnkelAmo.id,
                 navn = "EnkelAMo",
                 innsatsgrupper = emptySet(),
                 arenaKode = TiltakstypeFixtures.EnkelAmo.arenaKode,
@@ -118,10 +118,10 @@ class DelMedBrukerServiceTest : FunSpec({
                 startDato = LocalDate.of(2022, 1, 1),
                 sluttDato = null,
                 status = TiltakstypeStatus.AKTIV,
-                sanityId = tiltakstypeIdForEnkeltAmo,
+                sanityId = enkeltAmoSanityId,
             )
-            every { tiltakstypeService.getBySanityId(tiltakstypeIdForArbeidstrening) } returns TiltakstypeDto(
-                id = tiltakstypeIdForArbeidstrening,
+            every { tiltakstypeService.getBySanityId(arbeidstreningSanityId) } returns TiltakstypeDto(
+                id = TiltakstypeFixtures.Arbeidstrening.id,
                 navn = TiltakstypeFixtures.Arbeidstrening.navn,
                 innsatsgrupper = emptySet(),
                 arenaKode = TiltakstypeFixtures.Arbeidstrening.arenaKode,
@@ -129,7 +129,7 @@ class DelMedBrukerServiceTest : FunSpec({
                 startDato = TiltakstypeFixtures.Arbeidstrening.startDato,
                 sluttDato = null,
                 status = TiltakstypeStatus.AKTIV,
-                sanityId = tiltakstypeIdForEnkeltAmo,
+                sanityId = arbeidstreningSanityId,
             )
 
             coEvery {
@@ -139,7 +139,7 @@ class DelMedBrukerServiceTest : FunSpec({
                     _id = sanityGjennomforingIdForEnkeltplass.toString(),
                     tiltaksgjennomforingNavn = "Delt med bruker - Lokalt navn fra Sanity",
                     tiltakstype = SanityTiltakstype(
-                        _id = "$tiltakstypeIdForEnkeltAmo",
+                        _id = "$enkeltAmoSanityId",
                         tiltakstypeNavn = "Arbeidsmarkedsopplæring (AMO) enkeltplass",
                     ),
                 ),
@@ -147,7 +147,7 @@ class DelMedBrukerServiceTest : FunSpec({
                     _id = sanityGjennomforingIdForArbeidstrening.toString(),
                     tiltaksgjennomforingNavn = "Delt med bruker - Sanity",
                     tiltakstype = SanityTiltakstype(
-                        _id = "$tiltakstypeIdForArbeidstrening",
+                        _id = "$arbeidstreningSanityId",
                         tiltakstypeNavn = "Arbeidstrening",
                     ),
                 ),

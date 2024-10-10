@@ -7,15 +7,13 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
+import no.nav.mulighetsrommet.api.domain.dbo.DeltakerDbo
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures
 import no.nav.mulighetsrommet.api.repositories.DeltakerRepository
 import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
-import no.nav.mulighetsrommet.domain.dbo.DeltakerDbo
-import no.nav.mulighetsrommet.domain.dbo.Deltakeropphav
-import no.nav.mulighetsrommet.domain.dbo.Deltakerstatus
 import no.nav.mulighetsrommet.domain.dto.amt.AmtDeltakerStatus
 import no.nav.mulighetsrommet.domain.dto.amt.AmtDeltakerV1Dto
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
@@ -69,12 +67,13 @@ class AmtDeltakerV1KafkaConsumerTest : FunSpec({
         )
         val deltaker1Dbo = DeltakerDbo(
             id = amtDeltaker1.id,
-            tiltaksgjennomforingId = amtDeltaker1.gjennomforingId,
-            status = Deltakerstatus.VENTER,
-            opphav = Deltakeropphav.AMT,
+            gjennomforingId = amtDeltaker1.gjennomforingId,
             startDato = null,
             sluttDato = null,
-            registrertDato = amtDeltaker1.registrertDato,
+            registrertTidspunkt = amtDeltaker1.registrertDato,
+            endretTidspunkt = amtDeltaker1.endretDato,
+            stillingsprosent = amtDeltaker1.prosentStilling?.toDouble(),
+            status = amtDeltaker1.status,
         )
         val deltaker2Dbo = deltaker1Dbo.copy(
             id = amtDeltaker2.id,
@@ -85,14 +84,6 @@ class AmtDeltakerV1KafkaConsumerTest : FunSpec({
             deltakerConsumer.consume(amtDeltaker2.id, Json.encodeToJsonElement(amtDeltaker2))
 
             deltakere.getAll().shouldContainExactly(deltaker1Dbo, deltaker2Dbo)
-        }
-
-        test("ignore deltakere with invalid foreign key reference to gjennomforing") {
-            val deltakerForUnknownGjennomforing = amtDeltaker1.copy(gjennomforingId = UUID.randomUUID())
-
-            deltakerConsumer.consume(amtDeltaker1.id, Json.encodeToJsonElement(deltakerForUnknownGjennomforing))
-
-            deltakere.getAll().shouldBeEmpty()
         }
 
         test("delete deltakere for tombstone messages") {

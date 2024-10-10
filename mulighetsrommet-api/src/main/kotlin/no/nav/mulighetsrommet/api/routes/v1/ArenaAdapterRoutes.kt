@@ -11,7 +11,6 @@ import io.ktor.util.pipeline.*
 import no.nav.mulighetsrommet.api.services.ArenaAdapterService
 import no.nav.mulighetsrommet.domain.dbo.ArenaAvtaleDbo
 import no.nav.mulighetsrommet.domain.dbo.ArenaTiltaksgjennomforingDbo
-import no.nav.mulighetsrommet.domain.dbo.DeltakerDbo
 import no.nav.mulighetsrommet.domain.dto.UpsertTiltaksgjennomforingResponse
 import org.koin.ktor.ext.inject
 import org.postgresql.util.PSQLException
@@ -56,28 +55,6 @@ fun Route.arenaAdapterRoutes() {
 
             arenaAdapterService.removeSanityTiltaksgjennomforing(sanityId)
             call.response.status(HttpStatusCode.OK)
-        }
-
-        put("deltaker") {
-            val deltaker = call.receive<DeltakerDbo>()
-
-            arenaAdapterService.upsertDeltaker(deltaker)
-                .onRight { call.respond(it) }
-                .onLeft {
-                    logError(logger, it.error)
-                    call.respond(HttpStatusCode.InternalServerError, "Kunne ikke opprette deltaker")
-                }
-        }
-
-        delete("deltaker/{id}") {
-            val id = call.parameters.getOrFail<UUID>("id")
-
-            arenaAdapterService.removeDeltaker(id)
-                .onRight { call.response.status(HttpStatusCode.OK) }
-                .onLeft {
-                    logError(logger, it.error)
-                    call.respond(HttpStatusCode.InternalServerError, "Kunne ikke slette deltaker")
-                }
         }
     }
 }

@@ -192,16 +192,19 @@ class DelMedBrukerService(
     }
 
     private suspend fun getTiltakFraSanity(deltMedBruker: List<DelMedBrukerDbo>): List<TiltakDeltMedBruker> {
-        val tiltakFraSanity = sanityService.getAllTiltak(search = null, CacheUsage.UseCache)
-            .filter { it._id.toUUID() in deltMedBruker.map { it.sanityId } }
+        val delteSanityTiltak = deltMedBruker.mapNotNull { deling -> deling.sanityId }
+
+        val tiltakFraSanity = sanityService.getAllTiltak(search = null, CacheUsage.UseCache).filter {
+            it._id.toUUID() in delteSanityTiltak
+        }
 
         val tiltakstyper = tiltakFraSanity
-            .map {
-                tiltakstypeService.getBySanityId(UUID.fromString(it.tiltakstype._id))
-            }
+            .map { tiltakstypeService.getBySanityId(UUID.fromString(it.tiltakstype._id)) }
+            .associateBy { it.sanityId }
 
         return tiltakFraSanity.map { tiltak ->
-            val arenaKode = tiltakstyper.first { it.id == UUID.fromString(tiltak.tiltakstype._id) }.arenaKode
+            val arenaKode = tiltakstyper.getValue(UUID.fromString(tiltak.tiltakstype._id)).arenaKode
+
             val (tittel, underTittel) = tittelOgUnderTittel(
                 tiltak.tiltaksgjennomforingNavn ?: "",
                 tiltak.tiltakstype.tiltakstypeNavn,
