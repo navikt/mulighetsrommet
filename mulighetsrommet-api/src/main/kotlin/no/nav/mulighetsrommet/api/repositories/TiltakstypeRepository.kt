@@ -118,6 +118,20 @@ class TiltakstypeRepository(private val db: Database) {
         }
     }
 
+    fun getByGjennomforingId(gjennomforingId: UUID): TiltakstypeDto {
+        @Language("PostgreSQL")
+        val query = """
+            select t.*
+            from tiltakstype_admin_dto_view t
+            join tiltaksgjennomforing g on g.tiltakstype_id = t.id
+            where g.id = ?::uuid
+        """.trimIndent()
+        val queryResult = queryOf(query, gjennomforingId).map { it.toTiltakstypeDto() }.asSingle
+        return requireNotNull(db.run(queryResult)) {
+            "Det finnes ingen tiltakstype for gjennomforing med id=$gjennomforingId"
+        }
+    }
+
     fun getAll(
         pagination: Pagination = Pagination.all(),
     ): PaginatedResult<TiltakstypeDto> {

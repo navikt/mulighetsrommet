@@ -11,7 +11,8 @@ import no.nav.mulighetsrommet.api.domain.dbo.DeltakerDbo
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltaksgjennomforingFixtures
 import no.nav.mulighetsrommet.api.repositories.DeltakerRepository
-import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
+import no.nav.mulighetsrommet.api.repositories.TiltakstypeRepository
+import no.nav.mulighetsrommet.api.services.TiltakstypeService
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.domain.dto.DeltakerStatus
@@ -26,10 +27,13 @@ class AmtDeltakerV1KafkaConsumerTest : FunSpec({
 
     context("consume deltakere") {
         beforeTest {
-            MulighetsrommetTestDomain().initialize(database.db)
-
-            val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
-            tiltaksgjennomforinger.upsert(TiltaksgjennomforingFixtures.Oppfolging1)
+            MulighetsrommetTestDomain(
+                gjennomforinger = listOf(
+                    TiltaksgjennomforingFixtures.Oppfolging1,
+                    TiltaksgjennomforingFixtures.AFT1,
+                    TiltaksgjennomforingFixtures.VTA1,
+                ),
+            ).initialize(database.db)
         }
 
         afterEach {
@@ -39,7 +43,8 @@ class AmtDeltakerV1KafkaConsumerTest : FunSpec({
         val deltakere = DeltakerRepository(database.db)
         val deltakerConsumer = AmtDeltakerV1KafkaConsumer(
             config = KafkaTopicConsumer.Config(id = "deltaker", topic = "deltaker"),
-            deltakere,
+            tiltakstyper = TiltakstypeService(TiltakstypeRepository(database.db), listOf()),
+            deltakere = deltakere,
         )
 
         val deltakelsesdato = LocalDateTime.of(2023, 3, 1, 0, 0, 0)
@@ -107,6 +112,22 @@ class AmtDeltakerV1KafkaConsumerTest : FunSpec({
             deltakerConsumer.consume(feilregistrertDeltaker1.id, Json.encodeToJsonElement(feilregistrertDeltaker1))
 
             deltakere.getAll().shouldBeEmpty()
+        }
+
+        test("tolker stillingsprosent som 100 hvis den mangler for forhåndsgodkjente tiltak") {
+            deltakerConsumer.consume(
+                amtDeltaker1.id,
+                Json.encodeToJsonElement(amtDeltaker1.copy(gjennomforingId = TiltaksgjennomforingFixtures.AFT1.id)),
+            )
+            deltakerConsumer.consume(
+                amtDeltaker2.id,
+                Json.encodeToJsonElement(amtDeltaker2.copy(gjennomforingId = TiltaksgjennomforingFixtures.VTA1.id)),
+            )
+
+            deltakere.getAll().shouldContainExactly(
+                deltaker1Dbo.copy(gjennomforingId = TiltaksgjennomforingFixtures.AFT1.id, stillingsprosent = 100.0),
+                deltaker2Dbo.copy(gjennomforingId = TiltaksgjennomforingFixtures.VTA1.id, stillingsprosent = 100.0),
+            )
         }
     }
 })
