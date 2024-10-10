@@ -76,7 +76,7 @@ class ArrangorAnsattRepository(private val db: Database) {
             where norsk_ident = ?
         """.trimIndent()
 
-        return queryOf(query, norskIdent)
+        return queryOf(query, norskIdent.value)
             .map {
                 ArrangorAnsatt(
                     id = it.uuid("id"),

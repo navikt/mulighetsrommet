@@ -74,7 +74,8 @@ class AltinnClient(
             val type: String,
             val value: String,
         )
-        val response = client.post("$baseUrl/accessmanagement/api/v1/resourceowner/authorizedparties?includeAltinn2=true") {
+        val response = client.post("$baseUrl/accessmanagement/api/v1/resourceowner/authorizedparties") {
+            parameter("includeAltinn2", "true")
             header("Ocp-Apim-Subscription-Key", altinnApiKey)
             bearerAuth(tokenProvider.exchange(AccessType.M2M))
             header(HttpHeaders.ContentType, ContentType.Application.Json)
@@ -86,7 +87,7 @@ class AltinnClient(
             )
         }
 
-        if (response.status !== HttpStatusCode.OK) {
+        if (response.status != HttpStatusCode.OK) {
             log.error("Klarte ikke hente organisasjoner for Altinn. response: ${response.status}")
             throw RuntimeException("Klarte ikke å hente organisasjoner code=${response.status}")
         }

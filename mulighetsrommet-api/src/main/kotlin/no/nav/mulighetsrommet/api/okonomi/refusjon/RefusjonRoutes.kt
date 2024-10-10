@@ -17,21 +17,18 @@ import no.nav.mulighetsrommet.domain.dto.NorskIdent
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.domain.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
-import no.nav.pdfgen.core.Environment
-import no.nav.pdfgen.core.PDFGenCore
 import no.nav.pdfgen.core.pdf.createHtmlFromTemplateData
 import no.nav.pdfgen.core.pdf.createPDFA
 import org.koin.ktor.ext.inject
-import org.verapdf.gf.foundry.VeraGreenfieldFoundryProvider
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 
 fun Route.refusjonRoutes() {
-    VeraGreenfieldFoundryProvider.initialise()
-    PDFGenCore.init(
-        Environment(),
-    )
+    // VeraGreenfieldFoundryProvider.initialise()
+    // PDFGenCore.init(
+    // Environment(),
+    // )
     val service: RefusjonService by inject()
     val arrangorRolleService: ArrangorRolleService by inject()
 
