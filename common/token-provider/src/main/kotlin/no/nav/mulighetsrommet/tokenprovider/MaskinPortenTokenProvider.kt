@@ -3,7 +3,7 @@ package no.nav.mulighetsrommet.tokenprovider
 import com.nimbusds.jose.JWSSigner
 import com.nimbusds.jose.crypto.RSASSASigner
 import com.nimbusds.jose.jwk.RSAKey
-import com.nimbusds.oauth2.sdk.ClientCredentialsGrant
+import com.nimbusds.oauth2.sdk.JWTBearerGrant
 import com.nimbusds.oauth2.sdk.Scope
 import com.nimbusds.oauth2.sdk.TokenRequest
 import com.nimbusds.oauth2.sdk.TokenResponse
@@ -43,14 +43,12 @@ class MaskinPortenTokenProvider(
             assertionSigner,
         )
 
-        val request = TokenRequest(
-            tokenEndpoint,
-            signedJwt,
-            ClientCredentialsGrant(),
-            Scope(scope),
-            null,
-            mapOf("resource" to listOf(targetAudience)),
-        )
+        val request =
+            TokenRequest(
+                tokenEndpoint,
+                JWTBearerGrant(signedJwt.clientAssertion),
+                Scope(*(scope.split(" ")).toTypedArray()),
+            )
 
         val response = TokenResponse.parse(request.toHTTPRequest().send())
 
