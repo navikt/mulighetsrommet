@@ -13,6 +13,7 @@ import no.nav.mulighetsrommet.api.SlackConfig
 import no.nav.mulighetsrommet.api.TaskConfig
 import no.nav.mulighetsrommet.api.avtaler.AvtaleValidator
 import no.nav.mulighetsrommet.api.avtaler.OpsjonLoggValidator
+import no.nav.mulighetsrommet.api.clients.altinn.AltinnClient
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
 import no.nav.mulighetsrommet.api.clients.arenaadapter.ArenaAdapterClient
 import no.nav.mulighetsrommet.api.clients.brreg.BrregClient
@@ -56,6 +57,7 @@ import no.nav.mulighetsrommet.slack.SlackNotifierImpl
 import no.nav.mulighetsrommet.tasks.DbSchedulerKotlinSerializer
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import no.nav.mulighetsrommet.tokenprovider.CachedTokenProvider
+import no.nav.mulighetsrommet.tokenprovider.createMaskinportenM2mTokenClient
 import no.nav.mulighetsrommet.unleash.UnleashService
 import no.nav.mulighetsrommet.unleash.strategies.ByEnhetStrategy
 import no.nav.mulighetsrommet.unleash.strategies.ByNavIdentStrategy
@@ -172,11 +174,17 @@ private fun repositories() = module {
     single { TilsagnRepository(get()) }
     single { RefusjonskravRepository(get()) }
     single { UtdanningRepository(get()) }
+    single { ArrangorAnsattRepository(get()) }
 }
 
 private fun services(appConfig: AppConfig) = module {
     val azure = appConfig.auth.azure
     val cachedTokenProvider = CachedTokenProvider.init(azure.audience, azure.tokenEndpointUrl)
+    val maskinportenTokenProvider = createMaskinportenM2mTokenClient(
+        appConfig.auth.maskinporten.audience,
+        appConfig.auth.maskinporten.tokenEndpointUrl,
+        appConfig.auth.maskinporten.issuer,
+    )
 
     single {
         VeilarboppfolgingClient(
@@ -261,6 +269,17 @@ private fun services(appConfig: AppConfig) = module {
         )
     }
     single { UtdanningClient(config = appConfig.utdanning) }
+    single {
+        AltinnClient(
+            baseUrl = appConfig.altinn.url,
+            altinnApiKey = appConfig.altinn.apiKey,
+            clientEngine = appConfig.engine,
+            tokenProvider = maskinportenTokenProvider.withScope(
+                scope = appConfig.altinn.scope,
+                targetAudience = appConfig.altinn.url,
+            ),
+        )
+    }
     single { EndringshistorikkService(get()) }
     single {
         ArenaAdapterService(
@@ -336,6 +355,7 @@ private fun services(appConfig: AppConfig) = module {
     single { OpsjonLoggService(get(), get(), get(), get(), get()) }
     single { LagretFilterService(get()) }
     single { TilsagnService(get(), get(), get(), get()) }
+    single { ArrangorRolleService(get(), get(), get(), get()) }
 }
 
 private fun tasks(config: TaskConfig) = module {

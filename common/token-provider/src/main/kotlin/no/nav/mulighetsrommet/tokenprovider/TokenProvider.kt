@@ -23,6 +23,10 @@ fun interface TokenProvider {
     suspend fun exchange(accessType: AccessType): String
 }
 
+fun interface M2MTokenProvider {
+    suspend fun exchange(accessType: AccessType.M2M): String
+}
+
 /**
  * Denne wrapper kall til login.microsoft i `CoroutineScope(Dispatchers.IO)`
  * som gjør at man kan gjøre token exchanges i parallel (dvs. med coroutines uten
@@ -109,6 +113,22 @@ private fun createM2mTokenClient(clientId: String, tokenEndpointUrl: String): Ma
             .buildMachineToMachineTokenClient()
 
         else -> AzureAdTokenClientBuilder.builder().withNaisDefaults().buildMachineToMachineTokenClient()
+    }
+
+fun createMaskinportenM2mTokenClient(clientId: String, tokenEndpointUrl: String, issuer: String): MaskinPortenTokenProvider =
+    when (NaisEnv.current()) {
+        NaisEnv.Local -> MaskinPortenTokenProvider(
+            clientId = clientId,
+            tokenEndpointUrl = tokenEndpointUrl,
+            privateJwk = createMockRSAKey("maskinporten").toJSONString(),
+            issuer = issuer,
+        )
+        else -> MaskinPortenTokenProvider(
+            clientId = clientId,
+            tokenEndpointUrl = tokenEndpointUrl,
+            privateJwk = System.getenv("MASKINPORTEN_CLIENT_JWK"),
+            issuer = issuer,
+        )
     }
 
 private fun createMockRSAKey(keyID: String): RSAKey = KeyPairGenerator

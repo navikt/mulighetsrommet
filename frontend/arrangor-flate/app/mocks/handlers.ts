@@ -1,4 +1,3 @@
-import { mulighetsrommetAltinnAclHandlers } from "./altinnMocks";
 import { refusjonHandlers } from "./refusjonMocks";
 
-export const handlers = [...mulighetsrommetAltinnAclHandlers, ...refusjonHandlers];
+export const handlers = [...refusjonHandlers];

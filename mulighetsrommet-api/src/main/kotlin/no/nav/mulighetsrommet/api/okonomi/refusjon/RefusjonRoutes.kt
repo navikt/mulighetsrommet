@@ -2,14 +2,13 @@ package no.nav.mulighetsrommet.api.okonomi.refusjon
 
 import io.ktor.http.*
 import io.ktor.server.application.*
-import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.okonomi.prismodell.Prismodell
 import no.nav.mulighetsrommet.api.plugins.getPid
-import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
+import no.nav.mulighetsrommet.api.services.ArrangorRolleService
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import no.nav.pdfgen.core.Environment
@@ -27,13 +26,16 @@ fun Route.refusjonRoutes() {
         Environment(),
     )
     val service: RefusjonService by inject()
+    val arrangorRolleService: ArrangorRolleService by inject()
 
     route("/api/v1/intern/refusjon") {
-        post("/krav") {
-            val request = call.receive<GetRefusjonskravRequest>()
-            val norskIdent = getPid()
+        get("/krav") {
+            val roller = arrangorRolleService.getRoller(getPid())
+            if (roller.isEmpty()) {
+                return@get call.respond(HttpStatusCode.Unauthorized)
+            }
 
-            call.respond(service.getByOrgnr(request.orgnr))
+            call.respond(service.getByArrangorIds(roller.map { it.arrangorId }))
         }
 
         get("/kvittering/{id}") {
@@ -47,8 +49,8 @@ fun Route.refusjonRoutes() {
             )
             call.respondBytes(pdfBytes, contentType = io.ktor.http.ContentType.Application.Pdf)
         }
+
         get("/krav/{id}") {
-            // val orgnr = Organisasjonsnummer(call.parameters.getOrFail<String>("orgnr"))
             val id = call.parameters.getOrFail<UUID>("id")
             val krav = service.getById(id)
 
@@ -60,11 +62,6 @@ fun Route.refusjonRoutes() {
         }
     }
 }
-
-@Serializable
-data class GetRefusjonskravRequest(
-    val orgnr: List<Organisasjonsnummer>,
-)
 
 @Serializable
 data class RefusjonskravDto(

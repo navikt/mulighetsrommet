@@ -81,6 +81,12 @@ app:
       jwksUri: ${TOKEN_X_JWKS_URI}
       audience: ${TOKEN_X_CLIENT_ID}
       tokenEndpointUrl: ${TOKEN_X_WELL_KNOWN_URL}
+    maskinporten:
+      issuer: ${MASKINPORTEN_ISSUER}
+      jwksUri: ${MASKINPORTEN_X_JWKS_URI}
+      audience: ${MASKINPORTEN_CLIENT_ID}
+      tokenEndpointUrl: ${MASKINPORTEN_TOKEN_ENDPOINT}
+
 
   sanity:
     dataset: ${SANITY_DATASET}
@@ -136,6 +142,11 @@ app:
 
   brreg:
     baseUrl: https://data.brreg.no/enhetsregisteret/api
+
+  altinn:
+    url: dummy
+    apiKey: ${ALTINN_API_KEY:dummy}
+    scope: ${MASKINPORTEN_SCOPES:dummy}
 
   tasks:
     synchronizeNorgEnheter:

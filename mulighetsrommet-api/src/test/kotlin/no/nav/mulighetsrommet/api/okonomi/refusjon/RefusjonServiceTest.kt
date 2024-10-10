@@ -15,7 +15,6 @@ import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.domain.dbo.DeltakerDbo
 import no.nav.mulighetsrommet.domain.dbo.Deltakeropphav
 import no.nav.mulighetsrommet.domain.dbo.Deltakerstatus
-import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
@@ -55,7 +54,7 @@ class RefusjonServiceTest : FunSpec({
 
             service.genererRefusjonskravForMonth(LocalDate.of(2023, 1, 1))
 
-            val krav = service.getByOrgnr(listOf(Organisasjonsnummer(ArrangorFixtures.underenhet1.organisasjonsnummer)))
+            val krav = service.getByArrangorIds(listOf(ArrangorFixtures.underenhet1.id))
             krav.size shouldBe 1
             krav[0].tiltaksgjennomforing.id shouldBe AFT1.id
             krav[0].periodeStart shouldBe LocalDate.of(2023, 1, 1)

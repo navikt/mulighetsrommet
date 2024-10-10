@@ -34,6 +34,10 @@ export function MrApiManagement() {
           Synkroniserer data fra utdanning.no.
         </RunTask>
 
+        <RunTask base={ApiBase.MR_API} task={"sync-arrangoransatte"}>
+          Synkroniserer Arrangor-ansatte fra altinn-acl.
+        </RunTask>
+
         <RunTask
           base={ApiBase.MR_API}
           task={"generate-refusjonskrav"}

@@ -1,0 +1,22 @@
+{
+  "request": {
+    "method": "POST",
+    "urlPattern": "/altinn-acl/api/v1/rolle/tiltaksarrangor"
+  },
+  "response": {
+    "status": 200,
+    "jsonBody": {
+      "roller": [
+        {
+          "organisasjonsnummer": "973674471",
+          "roller": [
+            "TILTAK_ARRANGOR_REFUSJON"
+          ]
+        }
+      ]
+    },
+    "headers": {
+      "Content-Type": "application/json"
+    }
+  }
+}
