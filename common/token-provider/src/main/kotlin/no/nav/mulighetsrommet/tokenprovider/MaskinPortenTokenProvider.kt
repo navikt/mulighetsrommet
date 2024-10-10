@@ -62,11 +62,11 @@ class MaskinPortenTokenProvider(
             throw RuntimeException("Failed to fetch Maskinporten M2M token for scope=$scope")
         }
 
-        val successResponse = response.toSuccessResponse()
-
-        val accessToken = successResponse.tokens.accessToken
-
-        return accessToken.value
+        return response
+            .toSuccessResponse()
+            .tokens
+            .accessToken
+            .value
     }
 
     fun withScope(scope: String, targetAudience: String): M2MTokenProvider {

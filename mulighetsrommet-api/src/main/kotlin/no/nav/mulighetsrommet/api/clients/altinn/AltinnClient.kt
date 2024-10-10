@@ -5,6 +5,7 @@ import io.ktor.client.engine.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.cache.*
 import io.ktor.client.request.*
+import io.ktor.client.statement.*
 import io.ktor.http.*
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.domain.dto.NorskIdent
@@ -89,7 +90,7 @@ class AltinnClient(
 
         if (response.status != HttpStatusCode.OK) {
             log.error("Klarte ikke hente organisasjoner for Altinn. response: ${response.status}")
-            throw RuntimeException("Klarte ikke å hente organisasjoner code=${response.status}")
+            throw RuntimeException("Klarte ikke å hente organisasjoner code=${response.status}, body=${response.bodyAsText()}")
         }
 
         if (!response.headers["X-Warning-LimitReached"].isNullOrEmpty()) {
