@@ -298,7 +298,7 @@ function TeamTiltakTiltaksgjennomforingAvtalerLink() {
     <AkselLink
       target="_blank"
       rel="noreferrer noopener"
-      href={`${TEAM_TILTAK_TILTAKSGJENNOMFORING_AVTALER_URL}/tiltaksgjennomforing`}
+      href={`${TEAM_TILTAK_TILTAKSGJENNOMFORING_AVTALER_URL}/tiltaksgjennomforing?part=VEILEDER`}
     >
       Tiltaksgjennomføring - avtaler <ExternalLinkIcon title="Ikon for å åpne lenke i ny fane" />
     </AkselLink>
