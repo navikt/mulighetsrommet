@@ -6,8 +6,8 @@ import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.api.clients.utdanning.Utdanning
 import no.nav.mulighetsrommet.api.clients.utdanning.UtdanningClient
+import no.nav.mulighetsrommet.api.clients.utdanning.UtdanningNoProgramomraade
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.repositories.UtdanningRepository
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
@@ -22,35 +22,35 @@ class SynchronizeUtdanningerTest : FunSpec({
         database.db.truncateAll()
     }
 
-    val utdanningBanemontorfaget = Utdanning(
+    val utdanningBanemontorfaget = UtdanningNoProgramomraade(
         programomradekode = "BABAN3----",
         utdanningId = "u_banemontorfag",
         navn = "Banemontørfaget (opplæring i bedrift)",
-        utdanningsprogram = Utdanning.Utdanningsprogram.YRKESFAGLIG,
-        sluttkompetanse = Utdanning.Sluttkompetanse.FAGBREV,
+        utdanningsprogram = UtdanningNoProgramomraade.Utdanningsprogram.YRKESFAGLIG,
+        sluttkompetanse = UtdanningNoProgramomraade.Sluttkompetanse.Fagbrev,
         aktiv = true,
-        utdanningstatus = Utdanning.Utdanningstatus.GYLDIG,
+        utdanningstatus = UtdanningNoProgramomraade.Status.GYLDIG,
         utdanningslop = listOf(
             "BABAT1----",
             "BAANL2----",
             "BABAN3----",
         ),
         nusKodeverk = listOf(
-            Utdanning.NusKodeverk(
+            UtdanningNoProgramomraade.NusKodeverk(
                 navn = "Banemontørfaget, Vg3",
                 kode = "457103",
             ),
         ),
     )
 
-    val programomradeByggOgAnleggsteknikk = Utdanning(
+    val programomradeByggOgAnleggsteknikk = UtdanningNoProgramomraade(
         programomradekode = "BABAT1----",
         utdanningId = null,
         navn = "Vg1 Bygg- og anleggsteknikk",
-        utdanningsprogram = Utdanning.Utdanningsprogram.YRKESFAGLIG,
+        utdanningsprogram = UtdanningNoProgramomraade.Utdanningsprogram.YRKESFAGLIG,
         sluttkompetanse = null,
         aktiv = true,
-        utdanningstatus = Utdanning.Utdanningstatus.GYLDIG,
+        utdanningstatus = UtdanningNoProgramomraade.Status.GYLDIG,
         utdanningslop = listOf(
             "BABAT1----",
         ),
@@ -58,10 +58,9 @@ class SynchronizeUtdanningerTest : FunSpec({
     )
 
     context("Synchronize utdanninger") {
+        val utdanningRepository = UtdanningRepository(database.db)
+
         test("Skal synkronisere programområder og utdanninger") {
-
-            val utdanningRepository = UtdanningRepository(database.db)
-
             val synchronizeUtdanninger = SynchronizeUtdanninger(
                 db = database.db,
                 utdanningClient = utdanningClient,
@@ -89,10 +88,10 @@ class SynchronizeUtdanningerTest : FunSpec({
 
             programomraderMedUtdanninger should {
                 it.size shouldBe 1
-                it[0].programomrade.navn shouldBe "Vg1 Bygg- og anleggsteknikk"
+                it[0].programomrade.navn shouldBe "Bygg- og anleggsteknikk"
                 it[0].programomrade.nusKoder shouldBe listOf("3571")
                 it[0].utdanninger.size shouldBe 1
-                it[0].utdanninger[0].navn shouldBe "Banemontørfaget (opplæring i bedrift)"
+                it[0].utdanninger[0].navn shouldBe "Banemontørfaget"
                 it[0].utdanninger[0].nusKoder shouldBe listOf("457103")
                 it[0].utdanninger[0].programlopStart shouldBe it[0].programomrade.id
             }
@@ -105,14 +104,14 @@ class SynchronizeUtdanningerTest : FunSpec({
                 slack = mockk(relaxed = true),
             )
 
-            val programomradeBetongOgMurVg2 = Utdanning(
+            val programomradeBetongOgMurVg2 = UtdanningNoProgramomraade(
                 programomradekode = "BABMO2----",
                 utdanningId = null,
                 navn = "Vg2 Betong og mur",
-                utdanningsprogram = Utdanning.Utdanningsprogram.YRKESFAGLIG,
+                utdanningsprogram = UtdanningNoProgramomraade.Utdanningsprogram.YRKESFAGLIG,
                 sluttkompetanse = null,
                 aktiv = true,
-                utdanningstatus = Utdanning.Utdanningstatus.GYLDIG,
+                utdanningstatus = UtdanningNoProgramomraade.Status.GYLDIG,
                 utdanningslop = listOf(
                     "BABAT1----",
                     "BABMO2----",
@@ -141,10 +140,10 @@ class SynchronizeUtdanningerTest : FunSpec({
 
             programomraderMedUtdanninger should {
                 it.size shouldBe 1
-                it[0].programomrade.navn shouldBe "Vg1 Bygg- og anleggsteknikk"
+                it[0].programomrade.navn shouldBe "Bygg- og anleggsteknikk"
                 it[0].programomrade.nusKoder shouldBe listOf("3571")
                 it[0].utdanninger.size shouldBe 1
-                it[0].utdanninger[0].navn shouldBe "Banemontørfaget (opplæring i bedrift)"
+                it[0].utdanninger[0].navn shouldBe "Banemontørfaget"
                 it[0].utdanninger[0].nusKoder shouldBe listOf("457103")
                 it[0].utdanninger[0].programlopStart shouldBe it[0].programomrade.id
             }

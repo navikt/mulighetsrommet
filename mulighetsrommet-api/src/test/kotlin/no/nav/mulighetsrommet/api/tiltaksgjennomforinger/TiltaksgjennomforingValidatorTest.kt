@@ -13,11 +13,12 @@ import io.mockk.coEvery
 import io.mockk.mockk
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
-import no.nav.mulighetsrommet.api.clients.utdanning.Utdanning
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
 import no.nav.mulighetsrommet.api.domain.dto.ProgramomradeMedUtdanningerRequestDto
+import no.nav.mulighetsrommet.api.domain.dto.Utdanning
+import no.nav.mulighetsrommet.api.domain.dto.Utdanningsprogram
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.repositories.ArrangorRepository
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
@@ -324,7 +325,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
                 "navn" to "Vg1 Bygg og anlegg",
                 "nusKoder" to database.db.createTextArray(listOf("3571")),
                 "programomradekode" to programomradeKode,
-                "utdanningsprogram" to Utdanning.Utdanningsprogram.YRKESFAGLIG.name,
+                "utdanningsprogram" to Utdanningsprogram.YRKESFAGLIG.name,
             ),
         ).asExecute.let { database.db.run(it) }
 
@@ -340,10 +341,10 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
                 "utdanning_id" to "u_banemontorfag",
                 "programomradekode" to "BABAN3----",
                 "navn" to "Banemontørfaget (opplæring i bedrift)",
-                "utdanningsprogram" to Utdanning.Utdanningsprogram.YRKESFAGLIG.name,
+                "utdanningsprogram" to Utdanningsprogram.YRKESFAGLIG.name,
                 "sluttkompetanse" to Utdanning.Sluttkompetanse.FAGBREV.name,
                 "aktiv" to true,
-                "utdanningstatus" to Utdanning.Utdanningstatus.GYLDIG.name,
+                "utdanningstatus" to Utdanning.Status.GYLDIG.name,
                 "utdanningslop" to database.db.createTextArray(
                     listOf(
                         "BABAT1----",
@@ -392,7 +393,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
                 "navn" to "Vg1 Bygg og anlegg",
                 "nusKoder" to database.db.createTextArray(listOf("3571")),
                 "programomradekode" to programomradeKode,
-                "utdanningsprogram" to Utdanning.Utdanningsprogram.YRKESFAGLIG.name,
+                "utdanningsprogram" to Utdanningsprogram.YRKESFAGLIG.name,
             ),
         ).asExecute.let { database.db.run(it) }
 
@@ -408,10 +409,10 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
                 "utdanning_id" to "u_banemontorfag",
                 "programomradekode" to "BABAN3----",
                 "navn" to "Banemontørfaget (opplæring i bedrift)",
-                "utdanningsprogram" to Utdanning.Utdanningsprogram.YRKESFAGLIG.name,
+                "utdanningsprogram" to Utdanningsprogram.YRKESFAGLIG.name,
                 "sluttkompetanse" to Utdanning.Sluttkompetanse.FAGBREV.name,
                 "aktiv" to true,
-                "utdanningstatus" to Utdanning.Utdanningstatus.GYLDIG.name,
+                "utdanningstatus" to Utdanning.Status.GYLDIG.name,
                 "utdanningslop" to database.db.createTextArray(
                     listOf(
                         "BABAT1----",

@@ -8,9 +8,12 @@ import com.github.kagkarlsson.scheduler.task.schedule.Schedules
 import kotlinx.coroutines.runBlocking
 import kotliquery.TransactionalSession
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.api.clients.utdanning.Programomrade
-import no.nav.mulighetsrommet.api.clients.utdanning.Utdanning
 import no.nav.mulighetsrommet.api.clients.utdanning.UtdanningClient
+import no.nav.mulighetsrommet.api.clients.utdanning.UtdanningNoProgramomraade
+import no.nav.mulighetsrommet.api.domain.dto.NusKodeverk
+import no.nav.mulighetsrommet.api.domain.dto.Programomrade
+import no.nav.mulighetsrommet.api.domain.dto.Utdanning
+import no.nav.mulighetsrommet.api.domain.dto.Utdanningsprogram
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.slack.SlackNotifier
 import org.intellij.lang.annotations.Language
@@ -64,13 +67,13 @@ class SynchronizeUtdanninger(
         }
 
     suspend fun syncUtdanninger() {
-        val (programomrader, utdanninger) = utdanningClient
-            .getUtdanninger()
-            .partition { it.sluttkompetanse == null && it.utdanningId == null && it.utdanningslop.size == 1 }
+        val allUtdanninger = utdanningClient.getUtdanninger()
+
+        val (programomrader, utdanninger) = resolveRelevantUtdanninger(allUtdanninger)
 
         db.transaction { tx ->
-            programomrader.map { it.toProgramomrade() }.forEach { saveProgramomrade(tx, it) }
-            utdanninger.filter { it.nusKodeverk.isNotEmpty() }.forEach { saveUtdanning(tx, it) }
+            programomrader.forEach { saveProgramomrade(tx, it) }
+            utdanninger.forEach { saveUtdanning(tx, it) }
         }
     }
 
@@ -161,4 +164,59 @@ class SynchronizeUtdanninger(
             ).asExecute.runWithSession(session)
         }
     }
+}
+
+private fun resolveRelevantUtdanninger(utdanninger: List<UtdanningNoProgramomraade>): Pair<List<Programomrade>, List<Utdanning>> {
+    return utdanninger
+        .partition { it.sluttkompetanse == null && it.utdanningId == null && it.utdanningslop.size == 1 }
+        .let { (programomrader, utdanninger) ->
+            val relevantProgramomrader = programomrader.map { toProgramomrade(it) }
+
+            val relevantUtdanninger = utdanninger
+                .filter { it.nusKodeverk.isNotEmpty() }
+                .map { sanitizeUtdanning(it) }
+
+            Pair(relevantProgramomrader, relevantUtdanninger)
+        }
+}
+
+private fun toProgramomrade(utdanning: UtdanningNoProgramomraade): Programomrade {
+    val navn = utdanning.navn.replace("^Vg1 ".toRegex(), "")
+    val utdanningsprogram = when (utdanning.utdanningsprogram) {
+        UtdanningNoProgramomraade.Utdanningsprogram.YRKESFAGLIG -> Utdanningsprogram.YRKESFAGLIG
+        UtdanningNoProgramomraade.Utdanningsprogram.STUDIEFORBEREDENDE -> Utdanningsprogram.STUDIEFORBEREDENDE
+        null -> null
+    }
+    return Programomrade(navn, emptyList(), utdanning.programomradekode, utdanningsprogram)
+}
+
+private fun sanitizeUtdanning(utdanning: UtdanningNoProgramomraade): Utdanning {
+    return Utdanning(
+        navn = utdanning.navn.replace(" \\(opplæring i bedrift\\)\$".toRegex(), ""),
+        programomradekode = utdanning.programomradekode,
+        utdanningId = requireNotNull(utdanning.utdanningId) {
+            "klarte ikke lese utdanningId for utdanning=$utdanning"
+        },
+        utdanningsprogram = when (utdanning.utdanningsprogram) {
+            UtdanningNoProgramomraade.Utdanningsprogram.YRKESFAGLIG -> Utdanningsprogram.YRKESFAGLIG
+            UtdanningNoProgramomraade.Utdanningsprogram.STUDIEFORBEREDENDE -> Utdanningsprogram.STUDIEFORBEREDENDE
+            null -> throw IllegalArgumentException("utdanningsprogram mangler for utdanning=$utdanning")
+        },
+        sluttkompetanse = when (utdanning.sluttkompetanse) {
+            UtdanningNoProgramomraade.Sluttkompetanse.Fagbrev -> Utdanning.Sluttkompetanse.FAGBREV
+            UtdanningNoProgramomraade.Sluttkompetanse.Svennebrev -> Utdanning.Sluttkompetanse.SVENNEBREV
+            UtdanningNoProgramomraade.Sluttkompetanse.Yrkeskompetanse -> Utdanning.Sluttkompetanse.YRKESKOMPETANSE
+            UtdanningNoProgramomraade.Sluttkompetanse.Studiekompetanse -> Utdanning.Sluttkompetanse.STUDIEKOMPETANSE
+            null -> null
+        },
+        aktiv = utdanning.aktiv,
+        utdanningstatus = when (utdanning.utdanningstatus) {
+            UtdanningNoProgramomraade.Status.KOMMENDE -> Utdanning.Status.KOMMENDE
+            UtdanningNoProgramomraade.Status.GYLDIG -> Utdanning.Status.GYLDIG
+            UtdanningNoProgramomraade.Status.UTGAAENDE -> Utdanning.Status.UTGAAENDE
+            UtdanningNoProgramomraade.Status.UTGAATT -> Utdanning.Status.UTGAATT
+        },
+        utdanningslop = utdanning.utdanningslop,
+        nusKodeverk = utdanning.nusKodeverk.map { NusKodeverk(navn = it.navn, kode = it.kode) },
+    )
 }

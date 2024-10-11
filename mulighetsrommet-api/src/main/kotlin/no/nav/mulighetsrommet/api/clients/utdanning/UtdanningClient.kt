@@ -7,6 +7,8 @@ import io.ktor.client.engine.cio.*
 import io.ktor.client.request.*
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.domain.dto.NusKodeverk
+import no.nav.mulighetsrommet.api.domain.dto.Utdanningsprogram
 import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
 
 class UtdanningClient(engine: HttpClientEngine = CIO.create(), val config: Config) {
@@ -16,22 +18,14 @@ class UtdanningClient(engine: HttpClientEngine = CIO.create(), val config: Confi
 
     private val client: HttpClient = httpJsonClient(engine)
 
-    suspend fun getUtdanninger(): List<Utdanning> {
+    suspend fun getUtdanninger(): List<UtdanningNoProgramomraade> {
         val response = client.get("${config.baseUrl}/nav_export/programomraader")
-        return response.body<List<Utdanning>>()
+        return response.body()
     }
 }
 
 @Serializable
-data class Programomrade(
-    val navn: String,
-    val nusKoder: List<String>,
-    val programomradekode: String,
-    val utdanningsprogram: Utdanning.Utdanningsprogram?,
-)
-
-@Serializable
-data class Utdanning(
+data class UtdanningNoProgramomraade(
     @SerialName("programomradekode10")
     val programomradekode: String,
     @SerialName("utdanningsbeskrivelse_uno_id")
@@ -43,17 +37,12 @@ data class Utdanning(
     val sluttkompetanse: Sluttkompetanse? = null,
     val aktiv: Boolean,
     @SerialName("calculated_status")
-    val utdanningstatus: Utdanningstatus,
+    val utdanningstatus: Status,
     @SerialName("canonical_path")
     val utdanningslop: List<String>,
     @SerialName("nus")
     val nusKodeverk: List<NusKodeverk>,
 ) {
-
-    fun toProgramomrade(): Programomrade {
-        return Programomrade(navn, emptyList(), programomradekode, utdanningsprogram)
-    }
-
     @Serializable
     data class NusKodeverk(
         @SerialName("nus_navn_nb")
@@ -73,21 +62,14 @@ data class Utdanning(
 
     @Serializable
     enum class Sluttkompetanse {
-        @SerialName("Fagbrev")
-        FAGBREV,
-
-        @SerialName("Svennebrev")
-        SVENNEBREV,
-
-        @SerialName("Studiekompetanse")
-        STUDIEKOMPETANSE,
-
-        @SerialName("Yrkeskompetanse")
-        YRKESKOMPETANSE,
+        Fagbrev,
+        Svennebrev,
+        Studiekompetanse,
+        Yrkeskompetanse,
     }
 
     @Serializable
-    enum class Utdanningstatus {
+    enum class Status {
         GYLDIG,
         KOMMENDE,
         UTGAAENDE,

@@ -9,13 +9,13 @@ import io.mockk.coEvery
 import io.mockk.mockk
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
-import no.nav.mulighetsrommet.api.clients.utdanning.Utdanning
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dbo.AvtaleDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
 import no.nav.mulighetsrommet.api.domain.dto.OpsjonLoggEntry
 import no.nav.mulighetsrommet.api.domain.dto.ProgramomradeMedUtdanningerRequestDto
+import no.nav.mulighetsrommet.api.domain.dto.Utdanningsprogram
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.repositories.*
 import no.nav.mulighetsrommet.api.responses.ValidationError
@@ -752,7 +752,7 @@ class AvtaleValidatorTest : FunSpec({
                     "navn" to "Vg1 Bygg og anlegg",
                     "nusKoder" to database.db.createTextArray(listOf("3571")),
                     "programomradekode" to "BABAT1----",
-                    "utdanningsprogram" to Utdanning.Utdanningsprogram.YRKESFAGLIG.name,
+                    "utdanningsprogram" to Utdanningsprogram.YRKESFAGLIG.name,
                 ),
             ).asExecute.let { database.db.run(it) }
 
