@@ -104,7 +104,7 @@ fun createTestApplicationConfig() = AppConfig(
     pameldingIModia = emptyList(),
     pamOntologi = createServiceClientConfig("pam-ontologi"),
     utdanning = UtdanningClient.Config(
-        baseurl = "",
+        baseUrl = "",
     ),
     altinn = AltinnClient.Config(
         url = "altinn-acl",

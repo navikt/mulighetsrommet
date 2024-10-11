@@ -36,7 +36,7 @@ class SynchronizeUtdanningerTest : FunSpec({
             "BABAN3----",
         ),
         nusKodeverk = listOf(
-            Utdanning.Nuskodeverk(
+            Utdanning.NusKodeverk(
                 navn = "Banemontørfaget, Vg3",
                 kode = "457103",
             ),
@@ -70,7 +70,6 @@ class SynchronizeUtdanningerTest : FunSpec({
             )
 
             coEvery { utdanningClient.getUtdanninger() } returns listOf(
-
                 utdanningBanemontorfaget,
                 programomradeByggOgAnleggsteknikk,
             )
@@ -99,8 +98,6 @@ class SynchronizeUtdanningerTest : FunSpec({
             }
         }
         test("Skal bare synkronisere programområder fra vg1") {
-            val utdanningRepository = UtdanningRepository(database.db)
-
             val synchronizeUtdanninger = SynchronizeUtdanninger(
                 db = database.db,
                 utdanningClient = utdanningClient,

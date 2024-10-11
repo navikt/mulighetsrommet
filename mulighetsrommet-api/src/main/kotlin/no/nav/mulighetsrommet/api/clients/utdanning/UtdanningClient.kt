@@ -11,13 +11,13 @@ import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
 
 class UtdanningClient(engine: HttpClientEngine = CIO.create(), val config: Config) {
     data class Config(
-        val baseurl: String,
+        val baseUrl: String,
     )
 
     private val client: HttpClient = httpJsonClient(engine)
 
     suspend fun getUtdanninger(): List<Utdanning> {
-        val response = client.get("${config.baseurl}/nav_export/programomraader")
+        val response = client.get("${config.baseUrl}/nav_export/programomraader")
         return response.body<List<Utdanning>>()
     }
 }
@@ -25,7 +25,7 @@ class UtdanningClient(engine: HttpClientEngine = CIO.create(), val config: Confi
 @Serializable
 data class Programomrade(
     val navn: String,
-    val nus_koder: List<String>,
+    val nusKoder: List<String>,
     val programomradekode: String,
     val utdanningsprogram: Utdanning.Utdanningsprogram?,
 )
@@ -47,7 +47,7 @@ data class Utdanning(
     @SerialName("canonical_path")
     val utdanningslop: List<String>,
     @SerialName("nus")
-    val nusKodeverk: List<Nuskodeverk>,
+    val nusKodeverk: List<NusKodeverk>,
 ) {
 
     fun toProgramomrade(): Programomrade {
@@ -55,7 +55,7 @@ data class Utdanning(
     }
 
     @Serializable
-    data class Nuskodeverk(
+    data class NusKodeverk(
         @SerialName("nus_navn_nb")
         val navn: String,
         @SerialName("nus_kode")
