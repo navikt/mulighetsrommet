@@ -7,7 +7,6 @@ import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.mockk.coEvery
 import io.mockk.mockk
-import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dbo.AvtaleDbo
@@ -15,7 +14,6 @@ import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
 import no.nav.mulighetsrommet.api.domain.dto.OpsjonLoggEntry
 import no.nav.mulighetsrommet.api.domain.dto.ProgramomradeMedUtdanningerRequestDto
-import no.nav.mulighetsrommet.api.domain.dto.Utdanningsprogram
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.repositories.*
 import no.nav.mulighetsrommet.api.responses.ValidationError
@@ -32,7 +30,6 @@ import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.dto.*
 import no.nav.mulighetsrommet.unleash.UnleashService
-import org.intellij.lang.annotations.Language
 import java.time.LocalDate
 import java.util.*
 
@@ -123,10 +120,7 @@ class AvtaleValidatorTest : FunSpec({
     beforeEach {
         domain.initialize(database.db)
 
-        tiltakstyper = TiltakstypeService(
-            TiltakstypeRepository(database.db),
-            listOf(Tiltakskode.OPPFOLGING),
-        )
+        tiltakstyper = TiltakstypeService(TiltakstypeRepository(database.db), Tiltakskode.entries)
         navEnheterService = NavEnhetService(NavEnhetRepository(database.db))
         avtaler = AvtaleRepository(database.db)
         opsjonslogg = OpsjonLoggRepository(database.db)
@@ -508,6 +502,41 @@ class AvtaleValidatorTest : FunSpec({
         )
     }
 
+    test("Skal validere at programområde er satt når tiltakstypen er Gruppe Fag- og yrkesopplæring") {
+        val avtaleMedEndringer = avtaleDbo.copy(
+            tiltakstypeId = TiltakstypeFixtures.GruppeFagOgYrkesopplaering.id,
+            programomradeOgUtdanningerRequest = null,
+        )
+
+        val validator = AvtaleValidator(tiltakstyper, gjennomforinger, navEnheterService, arrangorer, unleash)
+
+        validator.validate(avtaleMedEndringer, null).shouldBeLeft(
+            listOf(
+                ValidationError("programomrade", "Du må velge et programområde og én eller flere sluttkompetanser"),
+            ),
+        )
+    }
+
+    test("Skal validere at minst én utdanning er valgt når programområde er satt og tiltakstypen er Gruppe Fag- og yrkesopplæring") {
+        val programomradeId = UUID.randomUUID()
+
+        val avtaleMedEndringer = avtaleDbo.copy(
+            tiltakstypeId = TiltakstypeFixtures.GruppeFagOgYrkesopplaering.id,
+            programomradeOgUtdanningerRequest = ProgramomradeMedUtdanningerRequestDto(
+                programomradeId = programomradeId,
+                utdanningsIder = emptyList(),
+            ),
+        )
+
+        val validator = AvtaleValidator(tiltakstyper, gjennomforinger, navEnheterService, arrangorer, unleash)
+
+        validator.validate(avtaleMedEndringer, null).shouldBeLeft(
+            listOf(
+                ValidationError("utdanninger", "Du må velge minst én sluttkompetanse"),
+            ),
+        )
+    }
+
     context("når avtalen allerede eksisterer") {
         test("skal kunne endre felter med opphav fra Arena når vi har tatt eierskap til tiltakstypen") {
             val avtaleMedEndringer = AvtaleDbo(
@@ -674,144 +703,6 @@ class AvtaleValidatorTest : FunSpec({
             validator.validate(avtaleMedEndringer, previous).shouldBeLeft(
                 listOf(
                     ValidationError("opsjonsmodell", "Du kan ikke endre opsjonsmodell når opsjoner er registrert"),
-                ),
-            )
-        }
-
-        test("Skal validere at programområde er satt når tiltakstypen er Gruppe Fag- og yrkesopplæring") {
-            val avtaleMedEndringer = AvtaleDbo(
-                id = avtaleDbo.id,
-                navn = "Nytt navn",
-                tiltakstypeId = TiltakstypeFixtures.GruppeFagOgYrkesopplaering.id,
-                arrangorId = ArrangorFixtures.underenhet1.id,
-                arrangorUnderenheter = listOf(ArrangorFixtures.underenhet1.id),
-                arrangorKontaktpersoner = emptyList(),
-                avtalenummer = "123456",
-                websaknummer = Websaknummer("24/1234"),
-                startDato = LocalDate.of(2024, 5, 7),
-                sluttDato = LocalDate.of(2024, 5, 7).plusYears(1),
-                administratorer = listOf(NavIdent("B123456")),
-                avtaletype = Avtaletype.Avtale,
-                prisbetingelser = null,
-                navEnheter = listOf("0300"),
-                antallPlasser = null,
-                beskrivelse = null,
-                faneinnhold = Faneinnhold(kurstittel = "Min kurstittel"),
-                personopplysninger = emptyList(),
-                personvernBekreftet = false,
-                amoKategorisering = null,
-                opsjonMaksVarighet = LocalDate.of(2024, 5, 7).plusYears(3),
-                opsjonsmodell = Opsjonsmodell.TO_PLUSS_EN,
-                customOpsjonsmodellNavn = null,
-                programomradeOgUtdanningerRequest = null,
-            )
-
-            avtaler.upsert(
-                avtaleDbo.copy(
-                    administratorer = listOf(),
-                    tiltakstypeId = TiltakstypeFixtures.GruppeFagOgYrkesopplaering.id,
-                    startDato = LocalDate.of(2024, 5, 7),
-                    sluttDato = LocalDate.of(2024, 5, 7).plusYears(1),
-                ),
-            )
-            avtaler.setOpphav(avtaleDbo.id, ArenaMigrering.Opphav.MR_ADMIN_FLATE)
-
-            val previous = avtaler.get(avtaleDbo.id)
-
-            val validator = AvtaleValidator(
-                TiltakstypeService(
-                    TiltakstypeRepository(database.db),
-                    Tiltakskode.entries.toList(),
-                ),
-                gjennomforinger,
-                navEnheterService,
-                arrangorer,
-                unleash,
-            )
-
-            validator.validate(avtaleMedEndringer, previous).shouldBeLeft(
-                listOf(
-                    ValidationError("programomrade", "Du må velge et programområde og én eller flere sluttkompetanser"),
-                ),
-            )
-        }
-
-        test("Skal validere at minst én utdanning er valgt når programområde er satt og tiltakstypen er Gruppe Fag- og yrkesopplæring") {
-            val programomradeId = UUID.randomUUID()
-
-            @Language("PostgreSQL")
-            val insertProgramomrade = """
-                insert into utdanning_programomrade(id, navn, nus_koder, programomradekode, utdanningsprogram)
-                values(:id::uuid, :navn, :nusKoder, :programomradekode, :utdanningsprogram::utdanning_program)
-            """.trimIndent()
-
-            queryOf(
-                insertProgramomrade,
-                mapOf(
-                    "id" to programomradeId,
-                    "navn" to "Vg1 Bygg og anlegg",
-                    "nusKoder" to database.db.createTextArray(listOf("3571")),
-                    "programomradekode" to "BABAT1----",
-                    "utdanningsprogram" to Utdanningsprogram.YRKESFAGLIG.name,
-                ),
-            ).asExecute.let { database.db.run(it) }
-
-            val avtaleMedEndringer = AvtaleDbo(
-                id = avtaleDbo.id,
-                navn = "Nytt navn",
-                tiltakstypeId = TiltakstypeFixtures.GruppeFagOgYrkesopplaering.id,
-                arrangorId = ArrangorFixtures.underenhet1.id,
-                arrangorUnderenheter = listOf(ArrangorFixtures.underenhet1.id),
-                arrangorKontaktpersoner = emptyList(),
-                avtalenummer = "123456",
-                websaknummer = Websaknummer("24/1234"),
-                startDato = LocalDate.of(2024, 5, 7),
-                sluttDato = LocalDate.of(2024, 5, 7).plusYears(1),
-                administratorer = listOf(NavIdent("B123456")),
-                avtaletype = Avtaletype.Avtale,
-                prisbetingelser = null,
-                navEnheter = listOf("0300"),
-                antallPlasser = null,
-                beskrivelse = null,
-                faneinnhold = Faneinnhold(kurstittel = "Min kurstittel"),
-                personopplysninger = emptyList(),
-                personvernBekreftet = false,
-                amoKategorisering = null,
-                opsjonMaksVarighet = LocalDate.of(2024, 5, 7).plusYears(3),
-                opsjonsmodell = Opsjonsmodell.TO_PLUSS_EN,
-                customOpsjonsmodellNavn = null,
-                programomradeOgUtdanningerRequest = ProgramomradeMedUtdanningerRequestDto(
-                    programomradeId = programomradeId,
-                    utdanningsIder = emptyList(),
-                ),
-            )
-
-            avtaler.upsert(
-                avtaleDbo.copy(
-                    administratorer = listOf(),
-                    tiltakstypeId = TiltakstypeFixtures.GruppeFagOgYrkesopplaering.id,
-                    startDato = LocalDate.of(2024, 5, 7),
-                    sluttDato = LocalDate.of(2024, 5, 7).plusYears(1),
-                ),
-            )
-            avtaler.setOpphav(avtaleDbo.id, ArenaMigrering.Opphav.MR_ADMIN_FLATE)
-
-            val previous = avtaler.get(avtaleDbo.id)
-
-            val validator = AvtaleValidator(
-                TiltakstypeService(
-                    TiltakstypeRepository(database.db),
-                    Tiltakskode.entries.toList(),
-                ),
-                gjennomforinger,
-                navEnheterService,
-                arrangorer,
-                unleash,
-            )
-
-            validator.validate(avtaleMedEndringer, previous).shouldBeLeft(
-                listOf(
-                    ValidationError("utdanninger", "Du må velge minst én sluttkompetanse"),
                 ),
             )
         }
