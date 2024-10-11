@@ -27,7 +27,7 @@ class SynchronizeUtdanningerTest : FunSpec({
         utdanningId = "u_banemontorfag",
         navn = "Banemontørfaget (opplæring i bedrift)",
         utdanningsprogram = Utdanning.Utdanningsprogram.YRKESFAGLIG,
-        sluttkompetanse = Utdanning.Sluttkompetanse.Fagbrev,
+        sluttkompetanse = Utdanning.Sluttkompetanse.FAGBREV,
         aktiv = true,
         utdanningstatus = Utdanning.Utdanningstatus.GYLDIG,
         utdanningslop = listOf(

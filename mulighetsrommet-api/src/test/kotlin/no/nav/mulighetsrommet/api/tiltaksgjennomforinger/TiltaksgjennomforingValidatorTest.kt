@@ -341,7 +341,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
                 "programomradekode" to "BABAN3----",
                 "navn" to "Banemontørfaget (opplæring i bedrift)",
                 "utdanningsprogram" to Utdanning.Utdanningsprogram.YRKESFAGLIG.name,
-                "sluttkompetanse" to Utdanning.Sluttkompetanse.Fagbrev.name,
+                "sluttkompetanse" to Utdanning.Sluttkompetanse.FAGBREV.name,
                 "aktiv" to true,
                 "utdanningstatus" to Utdanning.Utdanningstatus.GYLDIG.name,
                 "utdanningslop" to database.db.createTextArray(
@@ -409,7 +409,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
                 "programomradekode" to "BABAN3----",
                 "navn" to "Banemontørfaget (opplæring i bedrift)",
                 "utdanningsprogram" to Utdanning.Utdanningsprogram.YRKESFAGLIG.name,
-                "sluttkompetanse" to Utdanning.Sluttkompetanse.Fagbrev.name,
+                "sluttkompetanse" to Utdanning.Sluttkompetanse.FAGBREV.name,
                 "aktiv" to true,
                 "utdanningstatus" to Utdanning.Utdanningstatus.GYLDIG.name,
                 "utdanningslop" to database.db.createTextArray(

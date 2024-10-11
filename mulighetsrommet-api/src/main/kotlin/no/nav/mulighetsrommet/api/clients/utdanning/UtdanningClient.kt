@@ -73,10 +73,17 @@ data class Utdanning(
 
     @Serializable
     enum class Sluttkompetanse {
-        Fagbrev,
-        Svennebrev,
-        Studiekompetanse,
-        Yrkeskompetanse,
+        @SerialName("Fagbrev")
+        FAGBREV,
+
+        @SerialName("Svennebrev")
+        SVENNEBREV,
+
+        @SerialName("Studiekompetanse")
+        STUDIEKOMPETANSE,
+
+        @SerialName("Yrkeskompetanse")
+        YRKESKOMPETANSE,
     }
 
     @Serializable
