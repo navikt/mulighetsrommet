@@ -1,7 +1,7 @@
 import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
 import { useHentKontaktpersoner } from "@/api/ansatt/useHentKontaktpersoner";
 import { useTiltaksgjennomforingAdministratorer } from "@/api/ansatt/useTiltaksgjennomforingAdministratorer";
-import { useTiltaksgjennomforingDeltakerSummary } from "@/api/tiltaksgjennomforing/useTiltaksgjennomforingDeltakerSummary";
+import { useGjennomforingDeltakerSummary } from "@/api/tiltaksgjennomforing/useTiltaksgjennomforingDeltakerSummary";
 import { useMigrerteTiltakstyper } from "@/api/tiltakstyper/useMigrerteTiltakstyper";
 import { addYear, formaterDato } from "@/utils/Utils";
 import { PlusIcon, XMarkIcon } from "@navikt/aksel-icons";
@@ -67,9 +67,7 @@ export function TiltaksgjennomforingSkjemaDetaljer({ tiltaksgjennomforing, avtal
   const { data: ansatt, isLoading: isLoadingAnsatt } = useHentAnsatt();
   const { data: kontaktpersoner, isLoading: isLoadingKontaktpersoner } = useHentKontaktpersoner();
   const { data: migrerteTiltakstyper = [] } = useMigrerteTiltakstyper();
-  const { data: deltakerSummary } = useTiltaksgjennomforingDeltakerSummary(
-    tiltaksgjennomforing?.id,
-  );
+  const { data: deltakerSummary } = useGjennomforingDeltakerSummary(tiltaksgjennomforing?.id);
   const { data: enableUtdanningskategorier } = useFeatureToggle(
     Toggles.MULIGHETSROMMET_ADMIN_FLATE_ENABLE_UTDANNINGSKATEGORIER,
   );

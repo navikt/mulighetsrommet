@@ -4,7 +4,7 @@ import * as Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
 import { useRef } from "react";
 import { useFeatureToggle } from "@/api/features/useFeatureToggle";
-import { useTiltaksgjennomforingDeltakerSummary } from "@/api/tiltaksgjennomforing/useTiltaksgjennomforingDeltakerSummary";
+import { useSuspenseGjennomforingDeltakerSummary } from "@/api/tiltaksgjennomforing/useTiltaksgjennomforingDeltakerSummary";
 import styles from "./NokkeltallDeltakere.module.scss";
 
 interface Props {
@@ -24,7 +24,7 @@ export function NokkeltallDeltakere(props: Props) {
 }
 
 function NokkeltallDeltakereGraph({ tiltaksgjennomforingId }: Props) {
-  const { data: deltakerSummary } = useTiltaksgjennomforingDeltakerSummary(tiltaksgjennomforingId);
+  const { data: deltakerSummary } = useSuspenseGjennomforingDeltakerSummary(tiltaksgjennomforingId);
   const chartComponentRef = useRef<HighchartsReact.RefObject>(null);
 
   const dataArray = deltakerSummary.deltakereByStatus.map(({ status, count }) => ({

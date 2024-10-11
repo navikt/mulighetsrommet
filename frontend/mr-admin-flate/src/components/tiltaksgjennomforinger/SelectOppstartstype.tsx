@@ -2,7 +2,7 @@ import { Alert, HelpText } from "@navikt/ds-react";
 import { TiltaksgjennomforingOppstartstype } from "@mr/api-client";
 import { ControlledSokeSelect } from "@mr/frontend-common";
 import { useController } from "react-hook-form";
-import { useTiltaksgjennomforingDeltakerSummary } from "@/api/tiltaksgjennomforing/useTiltaksgjennomforingDeltakerSummary";
+import { useSuspenseGjennomforingDeltakerSummary } from "@/api/tiltaksgjennomforing/useTiltaksgjennomforingDeltakerSummary";
 import { useGetTiltaksgjennomforingIdFromUrl } from "@/hooks/useGetTiltaksgjennomforingIdFromUrl";
 
 interface SelectOppstartstypeProps {
@@ -47,7 +47,7 @@ interface OppstartstypePropsWarning {
 }
 
 function OppstartstypeWarning({ gjennomforingId }: OppstartstypePropsWarning) {
-  const { data: summary } = useTiltaksgjennomforingDeltakerSummary(gjennomforingId);
+  const { data: summary } = useSuspenseGjennomforingDeltakerSummary(gjennomforingId);
 
   return summary.antallDeltakere > 0 ? (
     <Alert variant="warning">
