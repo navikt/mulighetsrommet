@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.clients.altinn
+package no.nav.mulighetsrommet.altinn
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldHaveSize
@@ -11,7 +11,7 @@ class AltinnClientTest : FunSpec({
 			[
 				{
 					"name": "LAGSPORT PLUTSELIG",
-					"organizationNumber": null,
+					"organizationNumber": "123456789",
 					"type": "Person",
 					"authorizedResources": [],
 					"subunits": []
@@ -54,7 +54,7 @@ class AltinnClientTest : FunSpec({
         )
 
         val norskIdent = NorskIdent("12345678901")
-        val organisasjoner = altinnClient.hentRoller(norskIdent)
+        val organisasjoner = altinnClient.hentRettigheter(norskIdent)
 
         organisasjoner shouldHaveSize 2
     }

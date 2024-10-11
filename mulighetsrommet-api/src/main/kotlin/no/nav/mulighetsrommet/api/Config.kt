@@ -2,7 +2,7 @@ package no.nav.mulighetsrommet.api
 
 import io.ktor.client.engine.*
 import io.ktor.client.engine.cio.*
-import no.nav.mulighetsrommet.api.clients.altinn.AltinnClient
+import no.nav.mulighetsrommet.altinn.AltinnClient
 import no.nav.mulighetsrommet.api.clients.brreg.BrregClient
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.clients.utdanning.UtdanningClient
