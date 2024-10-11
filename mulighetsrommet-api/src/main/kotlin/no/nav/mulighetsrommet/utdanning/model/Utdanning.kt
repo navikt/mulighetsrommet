@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.domain.dto
+package no.nav.mulighetsrommet.utdanning.model
 
 import kotlinx.serialization.Serializable
 

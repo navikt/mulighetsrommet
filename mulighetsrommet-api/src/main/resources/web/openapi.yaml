@@ -5001,14 +5001,9 @@ components:
           format: uuid
         navn:
           type: string
-        nusKoder:
-          type: array
-          items:
-            type: string
       required:
         - id
         - navn
-        - nusKoder
 
     Utdanning:
       type: object
@@ -5018,18 +5013,9 @@ components:
           format: uuid
         navn:
           type: string
-        programlopStart:
-          type: string
-          format: uuid
-        nusKoder:
-          type: array
-          items:
-            type: string
       required:
         - id
         - navn
-        - programlopStart
-        - nusKoder
 
     GetRefusjonskravRequest:
       type: object

@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.tasks
+package no.nav.mulighetsrommet.utdanning.task
 
 import com.github.kagkarlsson.scheduler.task.helper.RecurringTask
 import com.github.kagkarlsson.scheduler.task.helper.Tasks
@@ -6,28 +6,28 @@ import com.github.kagkarlsson.scheduler.task.schedule.DisabledSchedule
 import com.github.kagkarlsson.scheduler.task.schedule.Schedule
 import com.github.kagkarlsson.scheduler.task.schedule.Schedules
 import kotlinx.coroutines.runBlocking
-import kotliquery.TransactionalSession
-import kotliquery.queryOf
-import no.nav.mulighetsrommet.api.clients.utdanning.UtdanningClient
-import no.nav.mulighetsrommet.api.clients.utdanning.UtdanningNoProgramomraade
-import no.nav.mulighetsrommet.api.domain.dto.NusKodeverk
-import no.nav.mulighetsrommet.api.domain.dto.Programomrade
-import no.nav.mulighetsrommet.api.domain.dto.Utdanning
-import no.nav.mulighetsrommet.api.domain.dto.Utdanningsprogram
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.slack.SlackNotifier
-import org.intellij.lang.annotations.Language
+import no.nav.mulighetsrommet.utdanning.client.UtdanningClient
+import no.nav.mulighetsrommet.utdanning.client.UtdanningNoProgramomraade
+import no.nav.mulighetsrommet.utdanning.db.*
+import no.nav.mulighetsrommet.utdanning.model.NusKodeverk
+import no.nav.mulighetsrommet.utdanning.model.Programomrade
+import no.nav.mulighetsrommet.utdanning.model.Utdanning
+import no.nav.mulighetsrommet.utdanning.model.Utdanningsprogram
 import org.slf4j.LoggerFactory
 import org.slf4j.MDC
 import kotlin.jvm.optionals.getOrNull
 
 class SynchronizeUtdanninger(
+    config: Config,
     private val db: Database,
     private val utdanningClient: UtdanningClient,
-    config: Config,
     private val slack: SlackNotifier,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
+
+    private val utdanningRepository = UtdanningRepository(db)
 
     data class Config(
         val disabled: Boolean = false,
@@ -42,8 +42,7 @@ class SynchronizeUtdanninger(
         }
     }
 
-    val task: RecurringTask<Void> = Tasks
-        .recurring(javaClass.name, config.toSchedule())
+    val task: RecurringTask<Void> = Tasks.recurring(javaClass.name, config.toSchedule())
         .onFailure { failure, _ ->
             val cause = failure.cause.getOrNull()?.message
             val stackTrace = failure.cause.getOrNull()?.stackTraceToString()
@@ -72,96 +71,8 @@ class SynchronizeUtdanninger(
         val (programomrader, utdanninger) = resolveRelevantUtdanninger(allUtdanninger)
 
         db.transaction { tx ->
-            programomrader.forEach { saveProgramomrade(tx, it) }
-            utdanninger.forEach { saveUtdanning(tx, it) }
-        }
-    }
-
-    private fun saveProgramomrade(session: TransactionalSession, programomrade: Programomrade) {
-        @Language("PostgreSQL")
-        val query = """
-            insert into utdanning_programomrade (navn, programomradekode, utdanningsprogram)
-            values (:navn, :programomradekode, :utdanningsprogram::utdanning_program)
-            on conflict (programomradekode) do update set
-                navn = excluded.navn,
-                utdanningsprogram = excluded.utdanningsprogram
-        """.trimIndent()
-
-        val params = mapOf(
-            "navn" to programomrade.navn,
-            "programomradekode" to programomrade.programomradekode,
-            "utdanningsprogram" to programomrade.utdanningsprogram?.name,
-        )
-
-        queryOf(query, params).asExecute.runWithSession(session)
-    }
-
-    private fun saveUtdanning(session: TransactionalSession, utdanning: Utdanning) {
-        @Language("PostgreSQL")
-        val getIdForProgramomradeQuery = """
-            select id from utdanning_programomrade where programomradekode = :programomradekode
-        """.trimIndent()
-
-        val programomradeId =
-            queryOf(getIdForProgramomradeQuery, mapOf("programomradekode" to utdanning.utdanningslop.first()))
-                .map { it.uuid("id") }
-                .asSingle
-                .runWithSession(session)
-
-        @Language("PostgreSQL")
-        val upsertUtdanning = """
-            insert into utdanning (utdanning_id, programomradekode, navn, utdanningsprogram, sluttkompetanse, aktiv, utdanningstatus, utdanningslop, programlop_start)
-            values (:utdanning_id, :programomradekode, :navn, :utdanningsprogram::utdanning_program, :sluttkompetanse::utdanning_sluttkompetanse, :aktiv, :utdanningstatus::utdanning_status, :utdanningslop, :programlop_start::uuid)
-            on conflict (utdanning_id) do update set
-                programomradekode = excluded.programomradekode,
-                navn = excluded.navn,
-                utdanningsprogram = excluded.utdanningsprogram,
-                sluttkompetanse = excluded.sluttkompetanse,
-                aktiv = excluded.aktiv,
-                utdanningstatus = excluded.utdanningstatus,
-                utdanningslop = excluded.utdanningslop,
-                programlop_start = excluded.programlop_start
-        """.trimIndent()
-
-        @Language("PostgreSQL")
-        val nuskodeInnholdInsertQuery = """
-            insert into utdanning_nus_kode_innhold(title, nus_kode)
-            values(:title, :nus_kode)
-            on conflict (nus_kode) do update set
-                title = excluded.title
-        """.trimIndent()
-
-        @Language("PostgreSQL")
-        val nusKodeKoblingforUtdanningQuery = """
-            insert into utdanning_nus_kode(utdanning_id, nus_kode)
-            values (:utdanning_id, :nus_kode_id)
-        """.trimIndent()
-
-        queryOf(
-            upsertUtdanning,
-            mapOf(
-                "utdanning_id" to utdanning.utdanningId,
-                "programomradekode" to utdanning.programomradekode,
-                "navn" to utdanning.navn,
-                "utdanningsprogram" to utdanning.utdanningsprogram?.name,
-                "sluttkompetanse" to utdanning.sluttkompetanse?.name,
-                "aktiv" to utdanning.aktiv,
-                "utdanningstatus" to utdanning.utdanningstatus.name,
-                "utdanningslop" to db.createTextArray(utdanning.utdanningslop),
-                "programlop_start" to programomradeId,
-            ),
-        ).asExecute.runWithSession(session)
-
-        utdanning.nusKodeverk.forEach { nus ->
-            queryOf(
-                nuskodeInnholdInsertQuery,
-                mapOf("title" to nus.navn, "nus_kode" to nus.kode),
-            ).asExecute.runWithSession(session)
-
-            queryOf(
-                nusKodeKoblingforUtdanningQuery,
-                mapOf("utdanning_id" to utdanning.utdanningId, "nus_kode_id" to nus.kode),
-            ).asExecute.runWithSession(session)
+            programomrader.forEach { utdanningRepository.upsertPrograomomrade(tx, it) }
+            utdanninger.forEach { utdanningRepository.upsertUtdanning(tx, it) }
         }
     }
 }

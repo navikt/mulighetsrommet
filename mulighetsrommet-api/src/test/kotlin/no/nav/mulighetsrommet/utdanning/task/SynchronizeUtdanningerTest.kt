@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.tasks
+package no.nav.mulighetsrommet.utdanning.task
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.should
@@ -6,12 +6,12 @@ import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.api.clients.utdanning.UtdanningClient
-import no.nav.mulighetsrommet.api.clients.utdanning.UtdanningNoProgramomraade
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
-import no.nav.mulighetsrommet.api.repositories.UtdanningRepository
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
+import no.nav.mulighetsrommet.utdanning.client.UtdanningClient
+import no.nav.mulighetsrommet.utdanning.client.UtdanningNoProgramomraade
+import no.nav.mulighetsrommet.utdanning.db.UtdanningRepository
 import org.intellij.lang.annotations.Language
 
 class SynchronizeUtdanningerTest : FunSpec({
@@ -149,4 +149,16 @@ class SynchronizeUtdanningerTest : FunSpec({
             }
         }
     }
+//
+//    test("sync integrasjon") {
+//        val x = UtdanningClient(config = UtdanningClient.Config(baseUrl = "https://api.utdanning.no"))
+//        val synchronizeUtdanninger = SynchronizeUtdanninger(
+//            db = database.db,
+//            utdanningClient = x,
+//            config = SynchronizeUtdanninger.Config(disabled = true, cronPattern = "0 0 0 1 * ?"),
+//            slack = mockk(relaxed = true),
+//        )
+//
+//        synchronizeUtdanninger.syncUtdanninger()
+//    }
 })

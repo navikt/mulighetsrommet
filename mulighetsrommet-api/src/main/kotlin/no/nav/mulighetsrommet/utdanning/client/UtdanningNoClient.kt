@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.clients.utdanning
+package no.nav.mulighetsrommet.utdanning.client
 
 import io.ktor.client.*
 import io.ktor.client.call.*
@@ -7,8 +7,6 @@ import io.ktor.client.engine.cio.*
 import io.ktor.client.request.*
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.api.domain.dto.NusKodeverk
-import no.nav.mulighetsrommet.api.domain.dto.Utdanningsprogram
 import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
 
 class UtdanningClient(engine: HttpClientEngine = CIO.create(), val config: Config) {

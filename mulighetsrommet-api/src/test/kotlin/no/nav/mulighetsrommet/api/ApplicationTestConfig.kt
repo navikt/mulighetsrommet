@@ -5,7 +5,6 @@ import io.ktor.server.testing.*
 import no.nav.mulighetsrommet.altinn.AltinnClient
 import no.nav.mulighetsrommet.api.clients.brreg.BrregClient
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
-import no.nav.mulighetsrommet.api.clients.utdanning.UtdanningClient
 import no.nav.mulighetsrommet.api.tasks.*
 import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.database.FlywayMigrationManager
@@ -15,6 +14,8 @@ import no.nav.mulighetsrommet.kafka.producers.ArenaMigreringTiltaksgjennomforing
 import no.nav.mulighetsrommet.kafka.producers.SisteTiltaksgjennomforingerV1KafkaProducer
 import no.nav.mulighetsrommet.kafka.producers.SisteTiltakstyperV2KafkaProducer
 import no.nav.mulighetsrommet.unleash.UnleashService
+import no.nav.mulighetsrommet.utdanning.client.UtdanningClient
+import no.nav.mulighetsrommet.utdanning.task.SynchronizeUtdanninger
 import no.nav.security.mock.oauth2.MockOAuth2Server
 
 var databaseConfig: DatabaseConfig? = null
