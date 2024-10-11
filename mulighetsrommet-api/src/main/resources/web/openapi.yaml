@@ -1797,15 +1797,10 @@ paths:
                   $ref: "#/components/schemas/AFTSats"
 
   /api/v1/intern/refusjon/krav:
-    post:
+    get:
       tags:
         - Refusjonskrav
       operationId: getRefusjonskrav
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/GetRefusjonskravRequest"
       responses:
         200:
           description: Hent refusjonskrav til arrangør

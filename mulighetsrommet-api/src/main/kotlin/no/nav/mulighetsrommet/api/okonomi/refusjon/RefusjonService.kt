@@ -10,7 +10,6 @@ import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.dto.DeltakerStatus
-import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.temporal.TemporalAdjusters
@@ -22,8 +21,8 @@ class RefusjonService(
     private val refusjonskravRepository: RefusjonskravRepository,
     private val db: Database,
 ) {
-    fun getByOrgnr(orgnr: List<Organisasjonsnummer>): List<RefusjonskravDto> {
-        return refusjonskravRepository.getByOrgnr(orgnr)
+    fun getByArrangorIds(ids: List<UUID>): List<RefusjonskravDto> {
+        return refusjonskravRepository.getByArrangorIds(ids)
     }
 
     fun getById(id: UUID): RefusjonskravDto? {

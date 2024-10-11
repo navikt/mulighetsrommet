@@ -21,7 +21,7 @@ import kotlin.jvm.optionals.getOrNull
 
 class SynchronizeNavAnsatte(
     config: Config,
-    private val navAnsattService: NavAnsattSyncService,
+    private val navAnsattSyncService: NavAnsattSyncService,
     slack: SlackNotifier,
     database: Database,
 ) {
@@ -63,7 +63,7 @@ class SynchronizeNavAnsatte(
             runBlocking {
                 val today = LocalDate.now()
                 val deletionDate = today.plus(config.deleteNavAnsattGracePeriod)
-                navAnsattService.synchronizeNavAnsatte(today, deletionDate)
+                navAnsattSyncService.synchronizeNavAnsatte(today, deletionDate)
             }
         }
 

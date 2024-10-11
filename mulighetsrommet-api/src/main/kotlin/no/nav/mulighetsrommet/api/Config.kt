@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api
 
 import io.ktor.client.engine.*
 import io.ktor.client.engine.cio.*
+import no.nav.mulighetsrommet.api.clients.altinn.AltinnClient
 import no.nav.mulighetsrommet.api.clients.brreg.BrregClient
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.clients.utdanning.UtdanningClient
@@ -50,11 +51,13 @@ data class AppConfig(
     val pdl: ServiceClientConfig,
     val engine: HttpClientEngine = CIO.create(),
     val utdanning: UtdanningClient.Config,
+    val altinn: AltinnClient.Config,
 )
 
 data class AuthConfig(
     val azure: AuthProvider,
     val tokenx: AuthProvider,
+    val maskinporten: AuthProvider,
     val roles: List<AdGruppeNavAnsattRolleMapping>,
 )
 

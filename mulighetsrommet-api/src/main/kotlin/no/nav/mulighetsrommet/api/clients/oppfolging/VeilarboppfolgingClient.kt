@@ -93,7 +93,7 @@ class VeilarboppfolgingClient(
 
     suspend fun erBrukerUnderOppfolging(
         fnr: NorskIdent,
-        accessType: AccessType,
+        accessType: AccessType.OBO,
     ): Either<ErUnderOppfolgingError, Boolean> {
         return hentGjeldendePeriode(fnr, accessType)
             .map { (it.sluttDato == null).right() }
@@ -108,7 +108,7 @@ class VeilarboppfolgingClient(
 
     private suspend fun hentGjeldendePeriode(
         fnr: NorskIdent,
-        accessType: AccessType,
+        accessType: AccessType.OBO,
     ): Either<OppfolgingError, OppfolgingPeriodeMinimalDTO> {
         gjeldendePeriodeCache.getIfPresent(fnr)?.let { return@hentGjeldendePeriode it.right() }
 
@@ -125,7 +125,7 @@ class VeilarboppfolgingClient(
             }
 
             HttpStatusCode.Forbidden -> {
-                log.info("Manglet tilgang til å hente oppfølgingsstatus for bruker.")
+                log.info("Manglet tilgang til å hente gjeldende periode for bruker.")
                 OppfolgingError.Forbidden.left()
             }
 
@@ -134,7 +134,7 @@ class VeilarboppfolgingClient(
             }
 
             else -> if (!response.status.isSuccess()) {
-                log.warn("Klarte ikke hente oppfølgingsstatus for bruker. Status: ${response.status}")
+                log.warn("Klarte ikke hente gjeldende periode for bruker. Status: ${response.status}")
                 OppfolgingError.Error.left()
             } else {
                 response.body<OppfolgingPeriodeMinimalDTO>().right()

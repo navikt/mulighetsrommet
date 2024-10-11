@@ -18,7 +18,6 @@ import no.nav.mulighetsrommet.api.repositories.TiltaksgjennomforingRepository
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.domain.dto.DeltakerStatus
-import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
 import java.time.LocalDate
 
 class RefusjonServiceTest : FunSpec({
@@ -48,8 +47,8 @@ class RefusjonServiceTest : FunSpec({
 
             service.genererRefusjonskravForMonth(LocalDate.of(2024, 1, 1))
 
-            val allKrav = service.getByOrgnr(
-                listOf(Organisasjonsnummer(ArrangorFixtures.underenhet1.organisasjonsnummer)),
+            val allKrav = service.getByArrangorIds(
+                listOf(ArrangorFixtures.underenhet1.id),
             )
             allKrav.size shouldBe 1
 
@@ -109,7 +108,7 @@ class RefusjonServiceTest : FunSpec({
             service.genererRefusjonskravForMonth(LocalDate.of(2024, 1, 1))
 
             val krav = service
-                .getByOrgnr(listOf(Organisasjonsnummer(ArrangorFixtures.underenhet1.organisasjonsnummer)))
+                .getByArrangorIds(listOf(ArrangorFixtures.underenhet1.id))
                 .first()
 
             krav.beregning.input.shouldBeTypeOf<RefusjonKravBeregningAft.Input>().should {
@@ -166,7 +165,7 @@ class RefusjonServiceTest : FunSpec({
             service.genererRefusjonskravForMonth(LocalDate.of(2024, 1, 1))
 
             val krav = service
-                .getByOrgnr(listOf(Organisasjonsnummer(ArrangorFixtures.underenhet1.organisasjonsnummer)))
+                .getByArrangorIds(listOf(ArrangorFixtures.underenhet1.id))
                 .first()
 
             krav.beregning.output.shouldBeTypeOf<RefusjonKravBeregningAft.Output>().should {

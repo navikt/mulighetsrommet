@@ -3,7 +3,6 @@ package no.nav.mulighetsrommet.api.okonomi.refusjon
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.plugins.*
-import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
@@ -13,8 +12,8 @@ import no.nav.mulighetsrommet.api.okonomi.models.DeltakelsePeriode
 import no.nav.mulighetsrommet.api.okonomi.models.RefusjonKravBeregningAft
 import no.nav.mulighetsrommet.api.okonomi.models.RefusjonskravDto
 import no.nav.mulighetsrommet.api.plugins.getPid
+import no.nav.mulighetsrommet.api.services.ArrangorRolleService
 import no.nav.mulighetsrommet.domain.dto.NorskIdent
-import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.domain.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
@@ -34,13 +33,16 @@ fun Route.refusjonRoutes() {
         Environment(),
     )
     val service: RefusjonService by inject()
+    val arrangorRolleService: ArrangorRolleService by inject()
 
     route("/api/v1/intern/refusjon") {
-        post("/krav") {
-            val request = call.receive<GetRefusjonskravRequest>()
-            val norskIdent = getPid()
+        get("/krav") {
+            val roller = arrangorRolleService.getRoller(getPid())
+            if (roller.isEmpty()) {
+                return@get call.respond(HttpStatusCode.Unauthorized)
+            }
 
-            val krav = service.getByOrgnr(request.orgnr)
+            val krav = service.getByArrangorIds(roller.map { it.arrangorId })
                 .map {
                     // TODO egen listemodell som er generell på tvers av beregningstype?
                     toRefusjonKravOppsummering(it)
@@ -108,11 +110,6 @@ private fun toRefusjonKravOppsummering(krav: RefusjonskravDto) = when (val bereg
         )
     }
 }
-
-@Serializable
-data class GetRefusjonskravRequest(
-    val orgnr: List<Organisasjonsnummer>,
-)
 
 @Serializable
 @SerialName("AFT")
