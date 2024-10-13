@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.routes.v1
+package no.nav.mulighetsrommet.utdanning.api
 
 import io.ktor.server.application.*
 import io.ktor.server.response.*
@@ -11,7 +11,7 @@ fun Route.utdanningRoutes() {
 
     route("utdanninger") {
         get {
-            call.respond(utdanningRepository.getUtdanningerMedProgramomrader())
+            call.respond(utdanningRepository.getUtdanningsprogrammer())
         }
     }
 }

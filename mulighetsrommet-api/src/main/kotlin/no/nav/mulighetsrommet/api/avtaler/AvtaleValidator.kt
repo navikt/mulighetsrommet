@@ -147,16 +147,16 @@ class AvtaleValidator(
 
             if (unleashService.isEnabled("mulighetsrommet.admin-flate.enable-utdanningskategorier")) {
                 if (tiltakstype.tiltakskode == Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING) {
-                    val utdanninger = avtale.programomradeOgUtdanningerRequest
+                    val utdanninger = avtale.utdanningslop
                     if (utdanninger == null) {
                         add(
-                            ValidationError.ofCustomLocation(
-                                "programomrade",
-                                "Du må velge et programområde og én eller flere sluttkompetanser",
+                            ValidationError.of(
+                                AvtaleDbo::utdanningslop,
+                                "Du må velge et utdanningsprogram og ett eller flere lærefag",
                             ),
                         )
-                    } else if (utdanninger.utdanningsIder.isEmpty()) {
-                        add(ValidationError.ofCustomLocation("utdanninger", "Du må velge minst én sluttkompetanse"))
+                    } else if (utdanninger.utdanninger.isEmpty()) {
+                        add(ValidationError.of(AvtaleDbo::utdanningslop, "Du må velge minst én sluttkompetanse"))
                     }
                 }
             }
@@ -269,22 +269,22 @@ class AvtaleValidator(
                     )
                 }
 
-                gjennomforing.programomradeMedUtdanninger?.also {
-                    if (avtale.programomradeOgUtdanningerRequest?.programomradeId != it.programomrade.id) {
+                gjennomforing.utdanningslop?.also {
+                    if (avtale.utdanningslop?.utdanningsprogram != it.utdanningsprogram.id) {
                         add(
-                            ValidationError.ofCustomLocation(
-                                "utdanninger",
-                                "Utdanningsprogram kan ikke endres fordi en gjennomføring allerede er opprettet for utdanningsprogrammet ${it.programomrade.navn}",
+                            ValidationError.of(
+                                AvtaleDbo::utdanningslop,
+                                "Utdanningsprogram kan ikke endres fordi en gjennomføring allerede er opprettet for utdanningsprogrammet ${it.utdanningsprogram.navn}",
                             ),
                         )
                     }
 
                     it.utdanninger.forEach { utdanning ->
-                        val utdanninger = avtale.programomradeOgUtdanningerRequest?.utdanningsIder ?: listOf()
+                        val utdanninger = avtale.utdanningslop?.utdanninger ?: listOf()
                         if (!utdanninger.contains(utdanning.id)) {
                             add(
-                                ValidationError.ofCustomLocation(
-                                    "utdanninger",
+                                ValidationError.of(
+                                    AvtaleDbo::utdanningslop,
                                     "Lærefaget ${utdanning.navn} mangler i avtalen, men er i bruk på en av avtalens gjennomføringer",
                                 ),
                             )

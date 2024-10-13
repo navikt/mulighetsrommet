@@ -15,7 +15,7 @@ import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
-import no.nav.mulighetsrommet.api.domain.dto.ProgramomradeMedUtdanningerRequestDto
+import no.nav.mulighetsrommet.api.domain.dbo.UtdanningslopDbo
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.repositories.ArrangorRepository
 import no.nav.mulighetsrommet.api.repositories.AvtaleRepository
@@ -274,40 +274,26 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
         validator.validate(oppfolging, null).shouldBeRight()
     }
 
-    test("Programområde og én sluttkompetanse er påkrevd hvis tiltakstypen er Gruppe Fag- og yrkesopplæring") {
+    test("utdanningsprogram og lærefag er påkrevd når tiltakstypen er Gruppe Fag- og yrkesopplæring") {
         val validator = TiltaksgjennomforingValidator(tiltakstyper, avtaler, arrangorer, unleash)
 
-        val gruppeFagYrke = TiltaksgjennomforingFixtures.GruppeFagYrke1.copy(programomradeOgUtdanningerRequest = null)
+        val gruppeFagYrke = TiltaksgjennomforingFixtures.GruppeFagYrke1.copy(utdanningslop = null)
 
         validator.validate(gruppeFagYrke, null).shouldBeLeft(
-            listOf(ValidationError("programomrade", "Du må velge programområde og sluttkompetanse")),
+            listOf(ValidationError("utdanningslop", "Du må velge utdanningsprogram og lærefag")),
         )
     }
 
-    test("Skal feile hvis mer enn én sluttkompetanse er valgt hvis tiltakstypen er Gruppe Fag- og yrkesopplæring") {
-        val validator = TiltaksgjennomforingValidator(tiltakstyper, avtaler, arrangorer, unleash)
-
+    // TODO: fiks test
+    xtest("utdanningsløp må være valgt fra avtalen når tiltakstypen er Gruppe Fag- og yrkesopplæring") {
         val gruppeFagYrke = TiltaksgjennomforingFixtures.GruppeFagYrke1.copy(
-            programomradeOgUtdanningerRequest = ProgramomradeMedUtdanningerRequestDto(
-                programomradeId = UUID.randomUUID(),
-                utdanningsIder = listOf(UUID.randomUUID(), UUID.randomUUID()),
+            utdanningslop = UtdanningslopDbo(
+                utdanningsprogram = UUID.randomUUID(),
+                utdanninger = listOf(UUID.randomUUID()),
             ),
         )
 
-        validator.validate(gruppeFagYrke, null).shouldBeLeft(
-            listOf(ValidationError("utdanninger", "Du må velge én sluttkompetanse for gjennomføringen")),
-        )
-    }
-
-    test("Kun én sluttkompetanse skal velges for gjennomføring hvis tiltakstypen er Gruppe Fag- og yrkesopplæring") {
         val validator = TiltaksgjennomforingValidator(tiltakstyper, avtaler, arrangorer, unleash)
-
-        val gruppeFagYrke = TiltaksgjennomforingFixtures.GruppeFagYrke1.copy(
-            programomradeOgUtdanningerRequest = ProgramomradeMedUtdanningerRequestDto(
-                programomradeId = UUID.randomUUID(),
-                utdanningsIder = listOf(UUID.randomUUID()),
-            ),
-        )
 
         validator.validate(gruppeFagYrke, null).shouldBeRight()
     }

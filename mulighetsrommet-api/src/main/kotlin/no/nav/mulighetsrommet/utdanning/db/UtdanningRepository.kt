@@ -3,44 +3,44 @@ package no.nav.mulighetsrommet.utdanning.db
 import kotliquery.TransactionalSession
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.database.Database
-import no.nav.mulighetsrommet.utdanning.model.Programomrade
-import no.nav.mulighetsrommet.utdanning.model.ProgramomradeMedUtdanninger
+import no.nav.mulighetsrommet.utdanning.api.UtdanningsprogramMedUtdanninger
 import no.nav.mulighetsrommet.utdanning.model.Utdanning
+import no.nav.mulighetsrommet.utdanning.model.Utdanningsprogram
 import org.intellij.lang.annotations.Language
 
 class UtdanningRepository(private val db: Database) {
 
-    fun getUtdanningerMedProgramomrader(): List<ProgramomradeMedUtdanninger> {
+    fun getUtdanningsprogrammer(): List<UtdanningsprogramMedUtdanninger> {
         @Language("PostgreSQL")
-        val programomraderQuery = """
+        val utdanningsprogrammerQuery = """
             select *
-            from utdanning_programomrade
-            where utdanningsprogram = 'YRKESFAGLIG' and array_length(nus_koder, 1) > 0
+            from utdanningsprogram
+            where utdanningsprogram_type = 'YRKESFAGLIG' and array_length(nus_koder, 1) > 0
             order by navn
         """.trimIndent()
 
         @Language("PostgreSQL")
         val utdanningerQuery = """
             select
-                u.id,
-                u.navn,
-                u.programlop_start,
-                coalesce(array_agg(nki.nus_kode) filter (where nki.nus_kode is not null), '{}') as nuskoder
+                utdanning.id,
+                utdanning.navn,
+                utdanning.programlop_start,
+                coalesce(array_agg(nus_kode_innhold.nus_kode) filter (where nus_kode_innhold.nus_kode is not null), '{}') as nuskoder
             from
-                utdanning u
+                utdanning
                     left join
-                utdanning_nus_kode unk on u.utdanning_id = unk.utdanning_id
+                utdanning_nus_kode on utdanning.utdanning_id = utdanning_nus_kode.utdanning_id
                     left join
-                utdanning_nus_kode_innhold nki on unk.nus_kode = nki.nus_kode
+                utdanning_nus_kode_innhold nus_kode_innhold on utdanning_nus_kode.nus_kode = nus_kode_innhold.nus_kode
             group by
-                u.id, u.navn
+                utdanning.id, utdanning.navn
             having
-                coalesce(array_agg(nki.nus_kode) filter (where nki.nus_kode is not null), '{}') <> '{}'
-            order by u.navn;
+                coalesce(array_agg(nus_kode_innhold.nus_kode) filter (where nus_kode_innhold.nus_kode is not null), '{}') <> '{}'
+            order by utdanning.navn;
         """.trimIndent()
 
-        val programomrader = queryOf(programomraderQuery).map { row ->
-            ProgramomradeMedUtdanninger.Programomrade(
+        val utdanningsprogrammer = queryOf(utdanningsprogrammerQuery).map { row ->
+            UtdanningsprogramMedUtdanninger.Utdanningsprogram(
                 id = row.uuid("id"),
                 navn = row.string("navn"),
                 nusKoder = row.array<String>("nus_koder").toList(),
@@ -48,7 +48,7 @@ class UtdanningRepository(private val db: Database) {
         }.asList.let { db.run(it) }
 
         val utdanninger = queryOf(utdanningerQuery).map { row ->
-            ProgramomradeMedUtdanninger.Utdanning(
+            UtdanningsprogramMedUtdanninger.Utdanning(
                 id = row.uuid("id"),
                 navn = row.string("navn"),
                 programlopStart = row.uuid("programlop_start"),
@@ -56,30 +56,28 @@ class UtdanningRepository(private val db: Database) {
             )
         }.asList.let { db.run(it) }
 
-        val utdanningerMedProgramomrade = programomrader.map { programomrade ->
-            ProgramomradeMedUtdanninger(
-                programomrade = programomrade,
-                utdanninger = utdanninger.filter { it.programlopStart == programomrade.id },
+        return utdanningsprogrammer.map { utdanningsprogram ->
+            UtdanningsprogramMedUtdanninger(
+                utdanningsprogram = utdanningsprogram,
+                utdanninger = utdanninger.filter { it.programlopStart == utdanningsprogram.id },
             )
         }
-
-        return utdanningerMedProgramomrade
     }
 
-    fun upsertPrograomomrade(session: TransactionalSession, programomrade: Programomrade) {
+    fun upsertPrograomomrade(session: TransactionalSession, utdanningsprogram: Utdanningsprogram) {
         @Language("PostgreSQL")
         val query = """
-            insert into utdanning_programomrade (navn, programomradekode, utdanningsprogram)
-            values (:navn, :programomradekode, :utdanningsprogram::utdanning_program)
+            insert into utdanningsprogram (navn, programomradekode, utdanningsprogram_type)
+            values (:navn, :programomradekode, :utdanningsprogram_type::utdanningsprogram_type)
             on conflict (programomradekode) do update set
                 navn = excluded.navn,
-                utdanningsprogram = excluded.utdanningsprogram
+                utdanningsprogram_type = excluded.utdanningsprogram_type
         """.trimIndent()
 
         val params = mapOf(
-            "navn" to programomrade.navn,
-            "programomradekode" to programomrade.programomradekode,
-            "utdanningsprogram" to programomrade.utdanningsprogram?.name,
+            "navn" to utdanningsprogram.navn,
+            "programomradekode" to utdanningsprogram.programomradekode,
+            "utdanningsprogram_type" to utdanningsprogram.type?.name,
         )
 
         queryOf(query, params).asExecute.runWithSession(session)
@@ -88,7 +86,7 @@ class UtdanningRepository(private val db: Database) {
     fun upsertUtdanning(session: TransactionalSession, utdanning: Utdanning) {
         @Language("PostgreSQL")
         val getIdForProgramomradeQuery = """
-            select id from utdanning_programomrade where programomradekode = :programomradekode
+            select id from utdanningsprogram where programomradekode = :programomradekode
         """.trimIndent()
 
         val programomradeId =
@@ -99,12 +97,11 @@ class UtdanningRepository(private val db: Database) {
 
         @Language("PostgreSQL")
         val upsertUtdanning = """
-            insert into utdanning (utdanning_id, programomradekode, navn, utdanningsprogram, sluttkompetanse, aktiv, utdanningstatus, utdanningslop, programlop_start)
-            values (:utdanning_id, :programomradekode, :navn, :utdanningsprogram::utdanning_program, :sluttkompetanse::utdanning_sluttkompetanse, :aktiv, :utdanningstatus::utdanning_status, :utdanningslop, :programlop_start::uuid)
+            insert into utdanning (utdanning_id, programomradekode, navn, sluttkompetanse, aktiv, utdanningstatus, utdanningslop, programlop_start)
+            values (:utdanning_id, :programomradekode, :navn, :sluttkompetanse::utdanning_sluttkompetanse, :aktiv, :utdanningstatus::utdanning_status, :utdanningslop, :programlop_start::uuid)
             on conflict (utdanning_id) do update set
                 programomradekode = excluded.programomradekode,
                 navn = excluded.navn,
-                utdanningsprogram = excluded.utdanningsprogram,
                 sluttkompetanse = excluded.sluttkompetanse,
                 aktiv = excluded.aktiv,
                 utdanningstatus = excluded.utdanningstatus,
@@ -132,7 +129,6 @@ class UtdanningRepository(private val db: Database) {
                 "utdanning_id" to utdanning.utdanningId,
                 "programomradekode" to utdanning.programomradekode,
                 "navn" to utdanning.navn,
-                "utdanningsprogram" to utdanning.utdanningsprogram.name,
                 "sluttkompetanse" to utdanning.sluttkompetanse?.name,
                 "aktiv" to utdanning.aktiv,
                 "utdanningstatus" to utdanning.utdanningstatus.name,

@@ -1842,16 +1842,16 @@ paths:
     get:
       tags:
         - Utdanninger
-      operationId: getUtdanninger
+      operationId: getUtdanningsprogrammer
       responses:
         200:
-          description: Returns a list of programområder and the corresponding utdanninger
+          description: Alle utdanningsprogram med utdanninger
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/ProgramomradeMedUtdanninger"
+                  $ref: "#/components/schemas/UtdanningsprogramMedUtdanninger"
 
 components:
   securitySchemes:
@@ -2221,8 +2221,8 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/OpsjonLoggRegistrert"
-        programomradeMedUtdanninger:
-          $ref: "#/components/schemas/ProgramomradeMedUtdanninger"
+        utdanningslop:
+          $ref: "#/components/schemas/Utdanningslop"
       required:
         - id
         - tiltakstype
@@ -2307,8 +2307,8 @@ components:
         opsjonsmodellData:
           $ref: "#/components/schemas/OpsjonsmodellData"
           nullable: true
-        programomradeMedUtdanningerRequest:
-          $ref: "#/components/schemas/ProgramomradeMedUtdanningerRequest"
+        utdanningslop:
+          $ref: "#/components/schemas/UtdanningslopDbo"
           nullable: true
       required:
         - id
@@ -2330,7 +2330,7 @@ components:
         - personvernBekreftet
         - amoKategorisering
         - opsjonsmodellData
-        - programomradeMedUtdanningerRequest
+        - utdanningslop
 
     EmbeddedTiltakstype:
       type: object
@@ -2523,8 +2523,8 @@ components:
         amoKategorisering:
           $ref: "#/components/schemas/AmoKategorisering"
           nullable: true
-        programomradeMedUtdanninger:
-          $ref: "#/components/schemas/ProgramomradeMedUtdanninger"
+        utdanningslop:
+          $ref: "#/components/schemas/Utdanningslop"
       required:
         - id
         - tiltakstype
@@ -2628,8 +2628,8 @@ components:
         amoKategorisering:
           $ref: "#/components/schemas/AmoKategorisering"
           nullable: true
-        programomradeMedUtdanningerRequest:
-          $ref: "#/components/schemas/ProgramomradeMedUtdanningerRequest"
+        utdanningslop:
+          $ref: "#/components/schemas/UtdanningslopDbo"
           nullable: true
       required:
         - id
@@ -2654,7 +2654,7 @@ components:
         - estimertVentetid
         - tilgjengeligForArrangorFraOgMedDato
         - amoKategorisering
-        - programomradeMedUtdanningerRequest
+        - utdanningslop
 
     TiltaksgjennomforingStatusDto:
       type: object
@@ -4965,35 +4965,48 @@ components:
         - slutt
         - stillingsprosent
 
-    ProgramomradeMedUtdanningerRequest:
+    UtdanningslopDbo:
       type: object
       properties:
-        programomradeId:
+        utdanningsprogram:
           type: string
           format: uuid
-        utdanningsIder:
+        utdanninger:
           type: array
           items:
             type: string
             format: uuid
       required:
-        - programomradeId
-        - utdanningsIder
+        - utdanningsprogram
+        - utdanninger
 
-    ProgramomradeMedUtdanninger:
+    Utdanningslop:
       type: object
       properties:
-        programomrade:
-          $ref: "#/components/schemas/Programomrade"
+        utdanningsprogram:
+          $ref: "#/components/schemas/Utdanningsprogram"
         utdanninger:
           type: array
           items:
             $ref: "#/components/schemas/Utdanning"
       required:
-        - programomrade
+        - utdanningsprogram
         - utdanninger
 
-    Programomrade:
+    UtdanningsprogramMedUtdanninger:
+      type: object
+      properties:
+        utdanningsprogram:
+          $ref: "#/components/schemas/Utdanningsprogram"
+        utdanninger:
+          type: array
+          items:
+            $ref: "#/components/schemas/Utdanning"
+      required:
+        - utdanningsprogram
+        - utdanninger
+
+    Utdanningsprogram:
       type: object
       properties:
         id:

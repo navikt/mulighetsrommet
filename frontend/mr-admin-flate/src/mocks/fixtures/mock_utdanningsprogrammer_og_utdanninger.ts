@@ -1,7 +1,8 @@
-import { ProgramomradeMedUtdanninger } from "@mr/api-client";
-export const mockProgramomraderOgUtdanninger: ProgramomradeMedUtdanninger[] = [
+import { UtdanningsprogramMedUtdanninger } from "@mr/api-client";
+
+export const mockUtdanningsprogrammerOgUtdanninger: UtdanningsprogramMedUtdanninger[] = [
   {
-    programomrade: {
+    utdanningsprogram: {
       id: "8303c8a1-4c0f-45a2-beb4-021e9f5d30d3",
       navn: "Vg1 Bygg- og anleggsteknikk",
     },
@@ -117,7 +118,7 @@ export const mockProgramomraderOgUtdanninger: ProgramomradeMedUtdanninger[] = [
     ],
   },
   {
-    programomrade: {
+    utdanningsprogram: {
       id: "84f4aa33-b89a-4c5b-910e-0d01ae477210",
       navn: "Vg1 Elektro og datateknologi",
     },
@@ -229,7 +230,7 @@ export const mockProgramomraderOgUtdanninger: ProgramomradeMedUtdanninger[] = [
     ],
   },
   {
-    programomrade: {
+    utdanningsprogram: {
       id: "af199ddc-839e-4209-bc27-d6ae8bb0089d",
       navn: "Vg1 Frisør, blomster, interiør og eksponeringsdesign",
     },
@@ -253,7 +254,7 @@ export const mockProgramomraderOgUtdanninger: ProgramomradeMedUtdanninger[] = [
     ],
   },
   {
-    programomrade: {
+    utdanningsprogram: {
       id: "448291e2-eb5d-4ac5-8183-6206b1841021",
       navn: "Vg1 Helse- og oppvekstfag",
     },
@@ -305,7 +306,7 @@ export const mockProgramomraderOgUtdanninger: ProgramomradeMedUtdanninger[] = [
     ],
   },
   {
-    programomrade: {
+    utdanningsprogram: {
       id: "66f9687d-ad64-457b-a572-be5f4e01af59",
       navn: "Vg1 Håndverk, design og produktutvikling",
     },
@@ -437,7 +438,7 @@ export const mockProgramomraderOgUtdanninger: ProgramomradeMedUtdanninger[] = [
     ],
   },
   {
-    programomrade: {
+    utdanningsprogram: {
       id: "8b4b76d7-a79a-491c-bc87-342c7fd637b6",
       navn: "Vg1 Informasjonsteknologi og medieproduksjon",
     },
@@ -465,7 +466,7 @@ export const mockProgramomraderOgUtdanninger: ProgramomradeMedUtdanninger[] = [
     ],
   },
   {
-    programomrade: {
+    utdanningsprogram: {
       id: "d21f638c-0645-43cf-96e1-c5bcd79dc2be",
       navn: "Vg1 Naturbruk",
     },
@@ -513,7 +514,7 @@ export const mockProgramomraderOgUtdanninger: ProgramomradeMedUtdanninger[] = [
     ],
   },
   {
-    programomrade: {
+    utdanningsprogram: {
       id: "92107f7a-e5ea-482b-96ec-5a4791011cf7",
       navn: "Vg1 Restaurant- og matfag",
     },
@@ -565,7 +566,7 @@ export const mockProgramomraderOgUtdanninger: ProgramomradeMedUtdanninger[] = [
     ],
   },
   {
-    programomrade: {
+    utdanningsprogram: {
       id: "f280aab3-5168-47ee-b172-c073d95ed2cc",
       navn: "Vg1 Salg, service og reiseliv",
     },
@@ -589,7 +590,7 @@ export const mockProgramomraderOgUtdanninger: ProgramomradeMedUtdanninger[] = [
     ],
   },
   {
-    programomrade: {
+    utdanningsprogram: {
       id: "56e90b72-a73c-4daa-b956-d1ffa416660d",
       navn: "Vg1 Teknologi- og industrifag",
     },

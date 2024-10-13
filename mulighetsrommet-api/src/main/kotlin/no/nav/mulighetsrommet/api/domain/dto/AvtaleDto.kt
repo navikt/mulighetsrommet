@@ -14,7 +14,6 @@ import no.nav.mulighetsrommet.domain.serializers.AvtaleStatusSerializer
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.domain.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
-import no.nav.mulighetsrommet.utdanning.model.ProgramomradeMedUtdanninger
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
@@ -48,7 +47,7 @@ data class AvtaleDto(
     val amoKategorisering: AmoKategorisering?,
     val opsjonsmodellData: OpsjonsmodellData? = null,
     val opsjonerRegistrert: List<OpsjonLoggRegistrert>?,
-    val programomradeMedUtdanninger: ProgramomradeMedUtdanninger? = null,
+    val utdanningslop: UtdanningslopDto?,
 ) {
     @Serializable
     data class Tiltakstype(
@@ -125,7 +124,7 @@ data class AvtaleDto(
             opsjonMaksVarighet = opsjonsmodellData?.opsjonMaksVarighet,
             opsjonsmodell = opsjonsmodellData?.opsjonsmodell,
             customOpsjonsmodellNavn = opsjonsmodellData?.customOpsjonsmodellNavn,
-            programomradeOgUtdanningerRequest = programomradeMedUtdanninger?.toRequest(),
+            utdanningslop = utdanningslop?.toDbo(),
         )
 
     fun toArenaAvtaleDbo() =

@@ -12,8 +12,8 @@ import no.nav.mulighetsrommet.api.createDatabaseTestConfig
 import no.nav.mulighetsrommet.api.domain.dbo.AvtaleDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetDbo
 import no.nav.mulighetsrommet.api.domain.dbo.NavEnhetStatus
+import no.nav.mulighetsrommet.api.domain.dbo.UtdanningslopDbo
 import no.nav.mulighetsrommet.api.domain.dto.OpsjonLoggEntry
-import no.nav.mulighetsrommet.api.domain.dto.ProgramomradeMedUtdanningerRequestDto
 import no.nav.mulighetsrommet.api.fixtures.*
 import no.nav.mulighetsrommet.api.repositories.*
 import no.nav.mulighetsrommet.api.responses.ValidationError
@@ -107,7 +107,7 @@ class AvtaleValidatorTest : FunSpec({
         opsjonMaksVarighet = LocalDate.now().plusYears(3),
         opsjonsmodell = Opsjonsmodell.TO_PLUSS_EN,
         customOpsjonsmodellNavn = null,
-        programomradeOgUtdanningerRequest = null,
+        utdanningslop = null,
     )
 
     lateinit var navEnheterService: NavEnhetService
@@ -457,29 +457,27 @@ class AvtaleValidatorTest : FunSpec({
         )
     }
 
-    test("Skal validere at programområde er satt når tiltakstypen er Gruppe Fag- og yrkesopplæring") {
+    test("utdanningsprogram er påkrevd når tiltakstypen er Gruppe Fag- og yrkesopplæring") {
         val avtaleMedEndringer = avtaleDbo.copy(
             tiltakstypeId = TiltakstypeFixtures.GruppeFagOgYrkesopplaering.id,
-            programomradeOgUtdanningerRequest = null,
+            utdanningslop = null,
         )
 
         val validator = AvtaleValidator(tiltakstyper, gjennomforinger, navEnheterService, arrangorer, unleash)
 
         validator.validate(avtaleMedEndringer, null).shouldBeLeft(
             listOf(
-                ValidationError("programomrade", "Du må velge et programområde og én eller flere sluttkompetanser"),
+                ValidationError("utdanningslop", "Du må velge et utdanningsprogram og ett eller flere lærefag"),
             ),
         )
     }
 
-    test("Skal validere at minst én utdanning er valgt når programområde er satt og tiltakstypen er Gruppe Fag- og yrkesopplæring") {
-        val programomradeId = UUID.randomUUID()
-
+    test("minst én utdanning er påkrevd når tiltakstypen er Gruppe Fag- og yrkesopplæring") {
         val avtaleMedEndringer = avtaleDbo.copy(
             tiltakstypeId = TiltakstypeFixtures.GruppeFagOgYrkesopplaering.id,
-            programomradeOgUtdanningerRequest = ProgramomradeMedUtdanningerRequestDto(
-                programomradeId = programomradeId,
-                utdanningsIder = emptyList(),
+            utdanningslop = UtdanningslopDbo(
+                utdanningsprogram = UUID.randomUUID(),
+                utdanninger = emptyList(),
             ),
         )
 
@@ -487,7 +485,7 @@ class AvtaleValidatorTest : FunSpec({
 
         validator.validate(avtaleMedEndringer, null).shouldBeLeft(
             listOf(
-                ValidationError("utdanninger", "Du må velge minst én sluttkompetanse"),
+                ValidationError("utdanningslop", "Du må velge minst én sluttkompetanse"),
             ),
         )
     }
@@ -523,7 +521,7 @@ class AvtaleValidatorTest : FunSpec({
                 opsjonMaksVarighet = LocalDate.now().plusYears(3),
                 opsjonsmodell = Opsjonsmodell.TO_PLUSS_EN,
                 customOpsjonsmodellNavn = null,
-                programomradeOgUtdanningerRequest = null,
+                utdanningslop = null,
             )
 
             avtaler.upsert(avtaleDbo.copy(administratorer = listOf()))
@@ -565,7 +563,7 @@ class AvtaleValidatorTest : FunSpec({
                 opsjonMaksVarighet = LocalDate.now().plusYears(3),
                 opsjonsmodell = Opsjonsmodell.TO_PLUSS_EN,
                 customOpsjonsmodellNavn = null,
-                programomradeOgUtdanningerRequest = null,
+                utdanningslop = null,
             )
 
             avtaler.upsert(
@@ -618,7 +616,7 @@ class AvtaleValidatorTest : FunSpec({
                 opsjonMaksVarighet = LocalDate.of(2024, 5, 7).plusYears(3),
                 opsjonsmodell = Opsjonsmodell.TO_PLUSS_EN,
                 customOpsjonsmodellNavn = null,
-                programomradeOgUtdanningerRequest = null,
+                utdanningslop = null,
             )
 
             avtaler.upsert(

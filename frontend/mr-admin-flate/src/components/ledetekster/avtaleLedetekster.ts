@@ -24,11 +24,14 @@ export const avtaletekster = {
   tiltaksarrangorUnderenheterLabel: "Tiltaksarrangør underenheter",
   kontaktpersonerHosTiltaksarrangorLabel: "Kontaktpersoner hos tiltaksarrangør",
   avtaltForlengelseLabel: "Avtalt mulighet for forlengelse",
-  programomradeOgUtdanninger: {
-    laster: "Laster...",
-    velgProgramomrade: "Velg programområde",
-    velgSluttkompetanser: "Velg sluttkompetanser",
-    programomradeLabel: "Programområde",
-    sluttkompetanserLabel: "Sluttkompetanser",
+  utdanning: {
+    utdanningsprogram: {
+      label: "Utdanningsprogram",
+      velg: "Velg utdanningsprogram",
+    },
+    laerefag: {
+      label: "Lærefag",
+      velg: "Velg lærefag",
+    },
   },
 } as const;

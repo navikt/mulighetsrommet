@@ -272,8 +272,8 @@ her: https://github.com/navikt/azure-ad-self-service/blob/main/DirectoryRead/REA
 # Data fra utdanning.no og nus-koder
 
 Vi har noen tabeller som representerer data fra utdanning.no, ispedd nus-koder.
-For utdanninger så hentes alt fra utdanning.no, men for programområder så er nus-kodene hardkodet (insertet manuelt)
-direkte inn i databasen.
+For utdanninger så hentes alt fra utdanning.no, men for utdanningsprogrammer så er nus-kodene hardkodet (insertet
+manuelt) direkte inn i databasen.
 Selve verdiene for nus-kodene har vi fått fra Christian Ruff hos datavarehuset.
 
 # Datadeling på Datamarkedsplassen

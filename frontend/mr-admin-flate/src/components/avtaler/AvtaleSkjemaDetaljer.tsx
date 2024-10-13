@@ -34,7 +34,7 @@ import { AvtaleDatoContainer } from "./avtaledatoer/AvtaleDatoContainer";
 import { getLokaleUnderenheterAsSelectOptions } from "./AvtaleSkjemaConst";
 import { opsjonsmodeller } from "./opsjoner/opsjonsmodeller";
 import { useCallback, useEffect } from "react";
-import { AvtaleUtdanningSkjema } from "../utdanning/AvtaleUtdanningSkjema";
+import { AvtaleUtdanningslopSkjema } from "../utdanning/AvtaleUtdanningslopSkjema";
 
 interface Props {
   tiltakstyper: TiltakstypeDto[];
@@ -184,7 +184,7 @@ export function AvtaleSkjemaDetaljer({ tiltakstyper, ansatt, enheter, avtale }: 
               <AvtaleAmoKategoriseringSkjema />
             ) : null}
             {tiltakskode === Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING ? (
-              <AvtaleUtdanningSkjema />
+              <AvtaleUtdanningslopSkjema />
             ) : null}
           </FormGroup>
 

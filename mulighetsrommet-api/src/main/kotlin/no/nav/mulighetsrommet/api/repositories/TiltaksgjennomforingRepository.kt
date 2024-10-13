@@ -27,7 +27,6 @@ import no.nav.mulighetsrommet.domain.dbo.Avslutningsstatus
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
 import no.nav.mulighetsrommet.domain.dto.*
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
-import no.nav.mulighetsrommet.utdanning.model.ProgramomradeMedUtdanninger
 import org.intellij.lang.annotations.Language
 import org.slf4j.LoggerFactory
 import java.time.LocalDate
@@ -170,19 +169,19 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         """.trimIndent()
 
         @Language("PostgreSQL")
-        val deleteProgramomradeAndUtdanninger = """
-            delete from utdanning_programomrade_tiltaksgjennomforing
+        val deleteUtdanningslop = """
+            delete from tiltaksgjennomforing_utdanningsprogram
             where tiltaksgjennomforing_id = ?::uuid
         """.trimIndent()
 
         @Language("PostgreSQL")
-        val upsertProgramomradeAndUtdanninger = """
-            insert into utdanning_programomrade_tiltaksgjennomforing(
+        val insertUtdanningslop = """
+            insert into tiltaksgjennomforing_utdanningsprogram(
                 tiltaksgjennomforing_id,
                 utdanning_id,
-                programomrade_id
+                utdanningsprogram_id
             )
-            values(:tiltaksgjennomforing_id::uuid, :utdanning_id::uuid, :programomrade_id::uuid)
+            values(:tiltaksgjennomforing_id::uuid, :utdanning_id::uuid, :utdanningsprogram_id::uuid)
         """.trimIndent()
 
         tx.run(queryOf(query, tiltaksgjennomforing.toSqlParameters()).asExecute)
@@ -267,16 +266,15 @@ class TiltaksgjennomforingRepository(private val db: Database) {
 
         AmoKategoriseringRepository.upsert(tiltaksgjennomforing, tx)
 
-        tx.run(queryOf(deleteProgramomradeAndUtdanninger, tiltaksgjennomforing.id).asExecute)
-        tiltaksgjennomforing.programomradeOgUtdanningerRequest?.let { programomradeOgUtdanninger ->
-            val programomradeId = programomradeOgUtdanninger.programomradeId
-            programomradeOgUtdanninger.utdanningsIder.forEach {
+        tx.run(queryOf(deleteUtdanningslop, tiltaksgjennomforing.id).asExecute)
+        tiltaksgjennomforing.utdanningslop?.let { utdanningslop ->
+            utdanningslop.utdanninger.forEach {
                 tx.run(
                     queryOf(
-                        upsertProgramomradeAndUtdanninger,
+                        insertUtdanningslop,
                         mapOf(
                             "tiltaksgjennomforing_id" to tiltaksgjennomforing.id,
-                            "programomrade_id" to programomradeId,
+                            "utdanningsprogram_id" to utdanningslop.utdanningsprogram,
                             "utdanning_id" to it,
                         ),
                     ).asExecute,
@@ -856,8 +854,8 @@ class TiltaksgjennomforingRepository(private val db: Database) {
         val avbruttTidspunkt = localDateTimeOrNull("avbrutt_tidspunkt")
         val avbruttAarsak = stringOrNull("avbrutt_aarsak")?.let { AvbruttAarsak.fromString(it) }
 
-        val programomradeMedUtdanninger = stringOrNull("programomrade_og_utdanninger_json")?.let {
-            JsonIgnoreUnknownKeys.decodeFromString<ProgramomradeMedUtdanninger>(it)
+        val utdanningslop = stringOrNull("utdanningslop_json")?.let {
+            Json.decodeFromString<UtdanningslopDto>(it)
         }
 
         return TiltaksgjennomforingDto(
@@ -926,7 +924,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             ),
             tilgjengeligForArrangorFraOgMedDato = localDateOrNull("tilgjengelig_for_arrangor_fra_og_med_dato"),
             amoKategorisering = stringOrNull("amo_kategorisering_json")?.let { JsonIgnoreUnknownKeys.decodeFromString(it) },
-            programomradeMedUtdanninger = programomradeMedUtdanninger,
+            utdanningslop = utdanningslop,
         )
     }
 

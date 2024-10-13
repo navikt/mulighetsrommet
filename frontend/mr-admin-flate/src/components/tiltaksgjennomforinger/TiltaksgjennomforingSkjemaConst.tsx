@@ -3,11 +3,11 @@ import {
   AvtaleDto,
   NavAnsatt,
   Opphav,
-  ProgramomradeMedUtdanninger,
-  ProgramomradeMedUtdanningerRequest,
   TiltaksgjennomforingDto,
   TiltaksgjennomforingOppstartstype,
   Tiltakskode,
+  Utdanningslop,
+  UtdanningslopDbo,
 } from "@mr/api-client";
 import { InferredTiltaksgjennomforingSchema } from "@/components/redaksjoneltInnhold/TiltaksgjennomforingSchema";
 import { DeepPartial } from "react-hook-form";
@@ -117,19 +117,15 @@ export function defaultTiltaksgjennomforingData(
       tiltaksgjennomforing?.tilgjengeligForArrangorFraOgMedDato ?? null,
     amoKategorisering:
       tiltaksgjennomforing?.amoKategorisering ?? avtale.amoKategorisering ?? undefined,
-    programomradeOgUtdanninger:
-      mapToProgramomradeOgUtdanninger(tiltaksgjennomforing?.programomradeMedUtdanninger) ??
-      undefined,
+    utdanningslop: tiltaksgjennomforing?.utdanningslop
+      ? toUtdanningslopDbo(tiltaksgjennomforing.utdanningslop)
+      : undefined,
   };
+}
 
-  function mapToProgramomradeOgUtdanninger(
-    data?: ProgramomradeMedUtdanninger,
-  ): ProgramomradeMedUtdanningerRequest | undefined {
-    return data
-      ? {
-          programomradeId: data.programomrade.id,
-          utdanningsIder: data.utdanninger.map((utdanning) => utdanning.id),
-        }
-      : undefined;
-  }
+function toUtdanningslopDbo(data: Utdanningslop): UtdanningslopDbo {
+  return {
+    utdanningsprogram: data.utdanningsprogram.id,
+    utdanninger: data.utdanninger.map((utdanning) => utdanning.id),
+  };
 }

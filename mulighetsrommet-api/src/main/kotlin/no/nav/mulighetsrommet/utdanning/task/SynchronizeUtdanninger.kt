@@ -12,9 +12,9 @@ import no.nav.mulighetsrommet.utdanning.client.UtdanningClient
 import no.nav.mulighetsrommet.utdanning.client.UtdanningNoProgramomraade
 import no.nav.mulighetsrommet.utdanning.db.*
 import no.nav.mulighetsrommet.utdanning.model.NusKodeverk
-import no.nav.mulighetsrommet.utdanning.model.Programomrade
 import no.nav.mulighetsrommet.utdanning.model.Utdanning
 import no.nav.mulighetsrommet.utdanning.model.Utdanningsprogram
+import no.nav.mulighetsrommet.utdanning.model.UtdanningsprogramType
 import org.slf4j.LoggerFactory
 import org.slf4j.MDC
 import kotlin.jvm.optionals.getOrNull
@@ -77,28 +77,28 @@ class SynchronizeUtdanninger(
     }
 }
 
-private fun resolveRelevantUtdanninger(utdanninger: List<UtdanningNoProgramomraade>): Pair<List<Programomrade>, List<Utdanning>> {
+private fun resolveRelevantUtdanninger(utdanninger: List<UtdanningNoProgramomraade>): Pair<List<Utdanningsprogram>, List<Utdanning>> {
     return utdanninger
         .partition { it.sluttkompetanse == null && it.utdanningId == null && it.utdanningslop.size == 1 }
         .let { (programomrader, utdanninger) ->
-            val relevantProgramomrader = programomrader.map { toProgramomrade(it) }
+            val utdanningssprogrammer = programomrader.map { toUtdanningsprogram(it) }
 
-            val relevantUtdanninger = utdanninger
+            val relevanteUtdanninger = utdanninger
                 .filter { it.nusKodeverk.isNotEmpty() }
                 .map { sanitizeUtdanning(it) }
 
-            Pair(relevantProgramomrader, relevantUtdanninger)
+            Pair(utdanningssprogrammer, relevanteUtdanninger)
         }
 }
 
-private fun toProgramomrade(utdanning: UtdanningNoProgramomraade): Programomrade {
+private fun toUtdanningsprogram(utdanning: UtdanningNoProgramomraade): Utdanningsprogram {
     val navn = utdanning.navn.replace("^Vg1 ".toRegex(), "")
     val utdanningsprogram = when (utdanning.utdanningsprogram) {
-        UtdanningNoProgramomraade.Utdanningsprogram.YRKESFAGLIG -> Utdanningsprogram.YRKESFAGLIG
-        UtdanningNoProgramomraade.Utdanningsprogram.STUDIEFORBEREDENDE -> Utdanningsprogram.STUDIEFORBEREDENDE
+        UtdanningNoProgramomraade.Utdanningsprogram.YRKESFAGLIG -> UtdanningsprogramType.YRKESFAGLIG
+        UtdanningNoProgramomraade.Utdanningsprogram.STUDIEFORBEREDENDE -> UtdanningsprogramType.STUDIEFORBEREDENDE
         null -> null
     }
-    return Programomrade(navn, emptyList(), utdanning.programomradekode, utdanningsprogram)
+    return Utdanningsprogram(navn, emptyList(), utdanning.programomradekode, utdanningsprogram)
 }
 
 private fun sanitizeUtdanning(utdanning: UtdanningNoProgramomraade): Utdanning {
@@ -107,11 +107,6 @@ private fun sanitizeUtdanning(utdanning: UtdanningNoProgramomraade): Utdanning {
         programomradekode = utdanning.programomradekode,
         utdanningId = requireNotNull(utdanning.utdanningId) {
             "klarte ikke lese utdanningId for utdanning=$utdanning"
-        },
-        utdanningsprogram = when (utdanning.utdanningsprogram) {
-            UtdanningNoProgramomraade.Utdanningsprogram.YRKESFAGLIG -> Utdanningsprogram.YRKESFAGLIG
-            UtdanningNoProgramomraade.Utdanningsprogram.STUDIEFORBEREDENDE -> Utdanningsprogram.STUDIEFORBEREDENDE
-            null -> throw IllegalArgumentException("utdanningsprogram mangler for utdanning=$utdanning")
         },
         sluttkompetanse = when (utdanning.sluttkompetanse) {
             UtdanningNoProgramomraade.Sluttkompetanse.Fagbrev -> Utdanning.Sluttkompetanse.FAGBREV
