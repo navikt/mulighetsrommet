@@ -75,6 +75,7 @@ class SynchronizeUtdanningerTest : FunSpec({
 
             synchronizeUtdanninger.syncUtdanninger()
 
+            // TODO: hardkode i service i stedet
             // Mocker å hardkode nus-kode slik utvikler gjør det i dev og prod for programområdene
             @Language("PostgreSQL")
             val updateNusKoder = """
