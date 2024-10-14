@@ -118,12 +118,14 @@ class RefusjonService(
 
                 // TODO: periodisering av prosent - fra Komet
                 val perioder = listOf(DeltakelsePeriode(start, slutt, stillingsprosent))
+                    .filter { it.start.isBefore(it.slutt) }
 
                 DeltakelsePerioder(
                     deltakelseId = deltakelse.id,
                     perioder = perioder,
                 )
             }
+            .filter { it.perioder.isNotEmpty() }
             .toSet()
     }
 }

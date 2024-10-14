@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.okonomi.refusjon
 
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeTypeOf
@@ -176,6 +177,38 @@ class RefusjonServiceTest : FunSpec({
                         manedsverk = 1.0,
                     ),
                 )
+            }
+        }
+
+        test("deltaker med startDato lik periodeSlutt blir ikke med i kravet") {
+            val domain = MulighetsrommetTestDomain(
+                gjennomforinger = listOf(AFT1),
+                deltakere = listOf(
+                    DeltakerFixtures.createDeltaker(
+                        AFT1.id,
+                        startDato = LocalDate.of(2024, 2, 1),
+                        sluttDato = LocalDate.of(2024, 6, 1),
+                        statusType = DeltakerStatus.Type.DELTAR,
+                        stillingsprosent = 100.0,
+                    ),
+                    DeltakerFixtures.createDeltaker(
+                        AFT1.id,
+                        startDato = LocalDate.of(2023, 1, 1),
+                        sluttDato = LocalDate.of(2024, 2, 1),
+                        statusType = DeltakerStatus.Type.DELTAR,
+                        stillingsprosent = 100.0,
+                    ),
+                ),
+            )
+            domain.initialize(database.db)
+            service.genererRefusjonskravForMonth(LocalDate.of(2024, 1, 1))
+
+            val krav = service
+                .getByArrangorIds(listOf(ArrangorFixtures.underenhet1.id))
+                .first()
+
+            krav.beregning.input.shouldBeTypeOf<RefusjonKravBeregningAft.Input>().should {
+                it.deltakelser shouldHaveSize 1
             }
         }
     }

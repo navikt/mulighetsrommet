@@ -72,7 +72,6 @@ class RefusjonskravRepositoryTest : FunSpec({
                         ),
                     ),
                 ),
-
             ),
             output = RefusjonKravBeregningAft.Output(
                 belop = 100_000,

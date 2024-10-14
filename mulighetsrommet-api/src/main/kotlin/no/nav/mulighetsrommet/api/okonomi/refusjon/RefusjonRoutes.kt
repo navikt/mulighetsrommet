@@ -19,6 +19,7 @@ import no.nav.mulighetsrommet.domain.dto.NorskIdent
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.domain.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
+import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.pdfgen.core.Environment
 import no.nav.pdfgen.core.PDFGenCore
 import no.nav.pdfgen.core.pdf.createHtmlFromTemplateData
@@ -47,7 +48,7 @@ fun Route.refusjonRoutes() {
             val arrangorer = rettigheter.map {
                 arrangorService.getOrSyncArrangorFromBrreg(it.organisasjonsnummer.value)
                     .getOrElse {
-                        throw Exception("asdf")
+                        throw StatusException(HttpStatusCode.InternalServerError, "Feil ved henting av arrangor_id")
                     }
             }
 
