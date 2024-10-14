@@ -29,6 +29,6 @@
   },
   "devDependencies": {
     "@types/react": "18.3.11",
-    "sass-embedded": "1.79.4"
+    "sass-embedded": "1.79.5"
   }
 }
