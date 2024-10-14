@@ -57,7 +57,7 @@
   "devDependencies": {
     "@axe-core/playwright": "4.10.0",
     "@mr/eslint-config-react-app": "workspace:*",
-    "@playwright/test": "1.47.2",
+    "@playwright/test": "1.48.0",
     "@rollup/plugin-terser": "0.4.4",
     "@types/is-hotkey": "0.1.10",
     "@types/react": "18.3.11",
@@ -67,7 +67,7 @@
     "axe-core": "4.10.0",
     "cross-env": "7.0.3",
     "msw": "2.4.11",
-    "playwright": "1.47.2",
+    "playwright": "1.48.0",
     "sass-embedded": "1.79.5",
     "typescript": "5.6.3",
     "typescript-eslint": "8.8.1",
