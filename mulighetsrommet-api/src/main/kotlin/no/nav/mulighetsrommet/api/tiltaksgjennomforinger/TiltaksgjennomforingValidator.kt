@@ -140,12 +140,39 @@ class TiltaksgjennomforingValidator(
 
             if (unleashService.isEnabled("mulighetsrommet.admin-flate.enable-utdanningskategorier")) {
                 if (avtale.tiltakstype.tiltakskode == Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING) {
-                    if (next.programomradeOgUtdanningerRequest == null) {
-                        add(ValidationError.ofCustomLocation("programomrade", "Du må velge programområde og sluttkompetanse"))
-                    }
-
-                    if (next.programomradeOgUtdanningerRequest != null && next.programomradeOgUtdanningerRequest?.utdanningsIder?.size != 1) {
-                        add(ValidationError.ofCustomLocation("utdanninger", "Du må velge én sluttkompetanse for gjennomføringen"))
+                    val utdanningsprogram = avtale.programomradeMedUtdanninger
+                    val utdanninger = next.programomradeOgUtdanningerRequest
+                    if (utdanninger == null) {
+                        add(
+                            ValidationError.ofCustomLocation(
+                                "programomrade",
+                                "Du må velge programområde og sluttkompetanse",
+                            ),
+                        )
+                    } else if (utdanninger.utdanningsIder.isEmpty()) {
+                        add(
+                            ValidationError.ofCustomLocation(
+                                "utdanninger",
+                                "Du må velge mins én sluttkompetanse for gjennomføringen",
+                            ),
+                        )
+                    } else if (utdanninger.programomradeId != utdanningsprogram?.programomrade?.id) {
+                        add(
+                            ValidationError.ofCustomLocation(
+                                "utdanninger",
+                                "Utdanningsprogrammet må være det samme som er valgt på avtalen: ${utdanningsprogram?.programomrade?.navn}",
+                            ),
+                        )
+                    } else {
+                        val avtalensLaerefag = utdanningsprogram.utdanninger.map { it.id }
+                        if (!avtalensLaerefag.containsAll(utdanninger.utdanningsIder)) {
+                            add(
+                                ValidationError.ofCustomLocation(
+                                    "utdanninger",
+                                    "Lærefag må være valgt fra avtalens lærefag, minst ett av de valge lærefagene mangler i avtalen.",
+                                ),
+                            )
+                        }
                     }
                 }
             }

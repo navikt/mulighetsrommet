@@ -370,6 +370,8 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
         }
 
         test("skal ikke kunne endre felter med opphav fra Arena når vi ikke har tatt eierskap til tiltakstypen") {
+            tiltakstyper = TiltakstypeService(TiltakstypeRepository(database.db), listOf())
+
             val gjennomforingMedEndringer = gjennomforing.copy(
                 navn = "Nytt navn",
                 tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
@@ -383,12 +385,7 @@ class TiltaksgjennomforingValidatorTest : FunSpec({
 
             tiltaksgjennomforinger.setOpphav(gjennomforing.id, ArenaMigrering.Opphav.ARENA)
 
-            val validator = TiltaksgjennomforingValidator(
-                TiltakstypeService(TiltakstypeRepository(database.db), listOf()),
-                avtaler,
-                arrangorer,
-                unleash,
-            )
+            val validator = TiltaksgjennomforingValidator(tiltakstyper, avtaler, arrangorer, unleash)
 
             val current = tiltaksgjennomforinger.get(gjennomforing.id)
             validator.validate(gjennomforingMedEndringer, current).shouldBeLeft().shouldContainExactlyInAnyOrder(

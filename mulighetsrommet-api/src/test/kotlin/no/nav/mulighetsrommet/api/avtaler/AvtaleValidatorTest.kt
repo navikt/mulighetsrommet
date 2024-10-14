@@ -258,16 +258,6 @@ class AvtaleValidatorTest : FunSpec({
     }
 
     test("sluttDato er påkrevd hvis ikke forhåndsgodkjent") {
-        val validator = AvtaleValidator(
-            TiltakstypeService(
-                TiltakstypeRepository(database.db),
-                Tiltakskode.entries.toList(),
-            ),
-            gjennomforinger,
-            navEnheterService,
-            arrangorer,
-            unleash,
-        )
         val forhaandsgodkjent = AvtaleFixtures.AFT.copy(sluttDato = null)
         val rammeAvtale = AvtaleFixtures.oppfolging.copy(sluttDato = null)
         val avtale = AvtaleFixtures.oppfolgingMedAvtale.copy(sluttDato = null)
@@ -275,6 +265,8 @@ class AvtaleValidatorTest : FunSpec({
             sluttDato = null,
             amoKategorisering = AmoKategorisering.Studiespesialisering,
         )
+
+        val validator = AvtaleValidator(tiltakstyper, gjennomforinger, navEnheterService, arrangorer, unleash)
 
         validator.validate(forhaandsgodkjent, null).shouldBeRight()
         validator.validate(rammeAvtale, null).shouldBeLeft(
@@ -289,16 +281,7 @@ class AvtaleValidatorTest : FunSpec({
     }
 
     test("amoKategorisering er påkrevd hvis gruppe amo") {
-        val validator = AvtaleValidator(
-            TiltakstypeService(
-                TiltakstypeRepository(database.db),
-                Tiltakskode.entries.toList(),
-            ),
-            gjennomforinger,
-            navEnheterService,
-            arrangorer,
-            unleash,
-        )
+        val validator = AvtaleValidator(tiltakstyper, gjennomforinger, navEnheterService, arrangorer, unleash)
         val gruppeAmo = AvtaleFixtures.gruppeAmo.copy()
         validator.validate(gruppeAmo, null).shouldBeLeft(
             listOf(ValidationError("amoKategorisering.kurstype", "Du må velge en kurstype")),
@@ -306,16 +289,6 @@ class AvtaleValidatorTest : FunSpec({
     }
 
     test("Opsjonsdata må være satt hvis ikke avtaletypen er forhåndsgodkjent") {
-        val validator = AvtaleValidator(
-            TiltakstypeService(
-                TiltakstypeRepository(database.db),
-                Tiltakskode.entries.toList(),
-            ),
-            gjennomforinger,
-            navEnheterService,
-            arrangorer,
-            unleash,
-        )
         val forhaandsgodkjent = AvtaleFixtures.AFT
         val rammeAvtale = AvtaleFixtures.oppfolging.copy(opsjonsmodell = null, opsjonMaksVarighet = null)
         val avtale = AvtaleFixtures.oppfolgingMedAvtale.copy(opsjonsmodell = null, opsjonMaksVarighet = null)
@@ -324,6 +297,8 @@ class AvtaleValidatorTest : FunSpec({
             opsjonMaksVarighet = null,
             amoKategorisering = AmoKategorisering.Studiespesialisering,
         )
+
+        val validator = AvtaleValidator(tiltakstyper, gjennomforinger, navEnheterService, arrangorer, unleash)
 
         validator.validate(forhaandsgodkjent, null).shouldBeRight()
         validator.validate(rammeAvtale, null).shouldBeLeft(
@@ -347,20 +322,12 @@ class AvtaleValidatorTest : FunSpec({
     }
 
     test("Custom navn for opsjon må være satt hvis opsjonsmodell er ANNET") {
-        val validator = AvtaleValidator(
-            TiltakstypeService(
-                TiltakstypeRepository(database.db),
-                Tiltakskode.entries.toList(),
-            ),
-            gjennomforinger,
-            navEnheterService,
-            arrangorer,
-            unleash,
-        )
         val rammeAvtale = AvtaleFixtures.oppfolging.copy(
             opsjonsmodell = Opsjonsmodell.ANNET,
             opsjonMaksVarighet = LocalDate.now(),
         )
+
+        val validator = AvtaleValidator(tiltakstyper, gjennomforinger, navEnheterService, arrangorer, unleash)
 
         validator.validate(rammeAvtale, null).shouldBeLeft(
             listOf(
@@ -370,14 +337,6 @@ class AvtaleValidatorTest : FunSpec({
     }
 
     test("avtaletype må være allowed") {
-        val validator = AvtaleValidator(
-            TiltakstypeService(TiltakstypeRepository(database.db), Tiltakskode.entries),
-            gjennomforinger,
-            navEnheterService,
-            arrangorer,
-            unleash,
-        )
-
         val aft = AvtaleFixtures.AFT.copy(
             avtaletype = Avtaletype.Rammeavtale,
             opsjonMaksVarighet = LocalDate.now(),
@@ -393,6 +352,9 @@ class AvtaleValidatorTest : FunSpec({
             avtaletype = Avtaletype.Forhaandsgodkjent,
             amoKategorisering = AmoKategorisering.Studiespesialisering,
         )
+
+        val validator = AvtaleValidator(tiltakstyper, gjennomforinger, navEnheterService, arrangorer, unleash)
+
         validator.validate(aft, null).shouldBeLeft(
             listOf(
                 ValidationError(
@@ -430,13 +392,7 @@ class AvtaleValidatorTest : FunSpec({
     }
 
     test("Websak-referanse må være med når avtalen er avtale eller rammeavtale") {
-        val validator = AvtaleValidator(
-            TiltakstypeService(TiltakstypeRepository(database.db), Tiltakskode.entries),
-            gjennomforinger,
-            navEnheterService,
-            arrangorer,
-            unleash,
-        )
+        val validator = AvtaleValidator(tiltakstyper, gjennomforinger, navEnheterService, arrangorer, unleash)
 
         val rammeavtale = AvtaleFixtures.oppfolging.copy(avtaletype = Avtaletype.Rammeavtale, websaknummer = null)
         validator.validate(rammeavtale, null).shouldBeLeft(
@@ -448,12 +404,11 @@ class AvtaleValidatorTest : FunSpec({
             listOf(ValidationError("websaknummer", "Du må skrive inn Websaknummer til avtalesaken")),
         )
 
-        val offentligOffentligSamarbeid =
-            AvtaleFixtures.gruppeAmo.copy(
-                avtaletype = Avtaletype.OffentligOffentlig,
-                websaknummer = null,
-                amoKategorisering = AmoKategorisering.Studiespesialisering,
-            )
+        val offentligOffentligSamarbeid = AvtaleFixtures.gruppeAmo.copy(
+            avtaletype = Avtaletype.OffentligOffentlig,
+            websaknummer = null,
+            amoKategorisering = AmoKategorisering.Studiespesialisering,
+        )
         validator.validate(offentligOffentligSamarbeid, null).shouldBeRight()
     }
 
@@ -539,6 +494,11 @@ class AvtaleValidatorTest : FunSpec({
 
     context("når avtalen allerede eksisterer") {
         test("skal kunne endre felter med opphav fra Arena når vi har tatt eierskap til tiltakstypen") {
+            tiltakstyper = TiltakstypeService(
+                TiltakstypeRepository(database.db),
+                listOf(Tiltakskode.OPPFOLGING, Tiltakskode.ARBEIDSFORBEREDENDE_TRENING),
+            )
+
             val avtaleMedEndringer = AvtaleDbo(
                 id = avtaleDbo.id,
                 navn = "Nytt navn",
@@ -569,22 +529,18 @@ class AvtaleValidatorTest : FunSpec({
             avtaler.upsert(avtaleDbo.copy(administratorer = listOf()))
             avtaler.setOpphav(avtaleDbo.id, ArenaMigrering.Opphav.ARENA)
 
-            val validator = AvtaleValidator(
-                TiltakstypeService(
-                    TiltakstypeRepository(database.db),
-                    listOf(Tiltakskode.OPPFOLGING, Tiltakskode.ARBEIDSFORBEREDENDE_TRENING),
-                ),
-                gjennomforinger,
-                navEnheterService,
-                arrangorer,
-                unleash,
-            )
+            val validator = AvtaleValidator(tiltakstyper, gjennomforinger, navEnheterService, arrangorer, unleash)
 
             val previous = avtaler.get(avtaleDbo.id)
             validator.validate(avtaleMedEndringer, previous).shouldBeRight()
         }
 
         test("skal ikke kunne endre felter med opphav fra Arena når vi ikke har tatt eierskap til tiltakstypen") {
+            tiltakstyper = TiltakstypeService(
+                TiltakstypeRepository(database.db),
+                emptyList(),
+            )
+
             val avtaleMedEndringer = AvtaleDbo(
                 id = avtaleDbo.id,
                 navn = "Nytt navn",
@@ -689,16 +645,7 @@ class AvtaleValidatorTest : FunSpec({
 
             val previous = avtaler.get(avtaleDbo.id)
 
-            val validator = AvtaleValidator(
-                TiltakstypeService(
-                    TiltakstypeRepository(database.db),
-                    Tiltakskode.entries.toList(),
-                ),
-                gjennomforinger,
-                navEnheterService,
-                arrangorer,
-                unleash,
-            )
+            val validator = AvtaleValidator(tiltakstyper, gjennomforinger, navEnheterService, arrangorer, unleash)
 
             validator.validate(avtaleMedEndringer, previous).shouldBeLeft(
                 listOf(
@@ -729,16 +676,7 @@ class AvtaleValidatorTest : FunSpec({
                     gjennomforing.copy(arrangorId = ArrangorFixtures.underenhet2.id),
                 )
 
-                val validator = AvtaleValidator(
-                    TiltakstypeService(
-                        TiltakstypeRepository(database.db),
-                        listOf(Tiltakskode.OPPFOLGING, Tiltakskode.ARBEIDSFORBEREDENDE_TRENING),
-                    ),
-                    gjennomforinger,
-                    navEnheterService,
-                    arrangorer,
-                    unleash,
-                )
+                val validator = AvtaleValidator(tiltakstyper, gjennomforinger, navEnheterService, arrangorer, unleash)
 
                 val dbo = avtaleDbo.copy(
                     tiltakstypeId = TiltakstypeFixtures.AFT.id,
@@ -764,7 +702,7 @@ class AvtaleValidatorTest : FunSpec({
                         ),
                         ValidationError(
                             "startDato",
-                            "Startdato kan ikke være før startdatoen til tiltaksgjennomføringer koblet til avtalen. Minst en gjennomføring har startdato: $formatertDato",
+                            "Startdato kan ikke være før startdatoen til gjennomføringer koblet til avtalen. Minst en gjennomføring har startdato: $formatertDato",
                         ),
                     ),
                 )
@@ -775,16 +713,7 @@ class AvtaleValidatorTest : FunSpec({
                     gjennomforing.copy(navRegion = "0400"),
                 )
 
-                val validator = AvtaleValidator(
-                    TiltakstypeService(
-                        TiltakstypeRepository(database.db),
-                        listOf(Tiltakskode.OPPFOLGING),
-                    ),
-                    gjennomforinger,
-                    navEnheterService,
-                    arrangorer,
-                    unleash,
-                )
+                val validator = AvtaleValidator(tiltakstyper, gjennomforinger, navEnheterService, arrangorer, unleash)
 
                 val dbo = avtaleDbo.copy(
                     navEnheter = listOf("0400"),
