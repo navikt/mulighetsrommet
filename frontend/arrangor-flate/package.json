@@ -33,7 +33,7 @@
     "cross-env": "^7.0.3",
     "csp-header": "^5.2.1",
     "express": "^4.21.1",
-    "express-prom-bundle": "^7.0.0",
+    "express-prom-bundle": "^8.0.0",
     "html-react-parser": "^5.1.18",
     "http-proxy-middleware": "^3.0.3",
     "isbot": "^5.1.17",
