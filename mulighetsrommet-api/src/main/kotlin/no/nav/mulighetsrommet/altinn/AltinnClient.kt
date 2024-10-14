@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.clients.altinn
+package no.nav.mulighetsrommet.altinn
 
 import io.ktor.client.call.*
 import io.ktor.client.engine.*
@@ -8,14 +8,14 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.altinn.models.AltinnRessurs
+import no.nav.mulighetsrommet.altinn.models.BedriftRettigheter
 import no.nav.mulighetsrommet.domain.dto.NorskIdent
 import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
 import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import no.nav.mulighetsrommet.tokenprovider.M2MTokenProvider
 import org.slf4j.LoggerFactory
-
-const val PAGINERING_SIZE = 500
 
 class AltinnClient(
     private val baseUrl: String,
@@ -34,40 +34,27 @@ class AltinnClient(
         val scope: String,
     )
 
-    suspend fun hentRoller(norskIdent: NorskIdent): List<AltinnRolle> {
-        val roller: MutableList<AltinnRolle> = mutableListOf()
-        var ferdig = false
-        while (!ferdig) {
-            log.info("Henter organisasjoner fra Altinn")
-            val authorizedParties = hentAuthorizedParties(norskIdent)
-            roller.addAll(findAltinnRoller(authorizedParties, listOf(AltinnRessurs.TILTAK_ARRANGOR_REFUSJON)))
-            ferdig = roller.size < PAGINERING_SIZE
-        }
-        return roller
+    suspend fun hentRettigheter(norskIdent: NorskIdent): List<BedriftRettigheter> {
+        log.info("Henter organisasjoner fra Altinn")
+        // TODO: Fiks paginering
+        val authorizedParties = hentAuthorizedParties(norskIdent)
+        return findAltinnRoller(authorizedParties)
     }
 
     private fun findAltinnRoller(
         parties: List<AuthorizedParty>,
-        ressurser: List<AltinnRessurs>,
-        roller: MutableList<AltinnRolle> = mutableListOf(),
-    ): List<AltinnRolle> {
-        for (party in parties) {
-            if (party.organizationNumber != null) {
-                roller.addAll(
-                    ressurser
-                        .filter { party.authorizedResources.contains(it.ressursId) }
-                        .map {
-                            AltinnRolle(
-                                organisasjonsnummer = Organisasjonsnummer(party.organizationNumber),
-                                ressurs = it,
-                            )
-                        },
-                )
+    ): List<BedriftRettigheter> =
+        parties
+            .flatMap { party ->
+                findAltinnRoller(party.subunits) +
+                    BedriftRettigheter(
+                        organisasjonsnummer = Organisasjonsnummer(party.organizationNumber),
+                        rettigheter = AltinnRessurs
+                            .entries
+                            .filter { it.ressursId in party.authorizedResources },
+                    )
             }
-            findAltinnRoller(party.subunits, ressurser, roller)
-        }
-        return roller
-    }
+            .filter { it.rettigheter.isNotEmpty() }
 
     private suspend fun hentAuthorizedParties(norskIdent: NorskIdent): List<AuthorizedParty> {
         @Serializable
@@ -102,18 +89,9 @@ class AltinnClient(
 
     @Serializable
     data class AuthorizedParty(
-        val organizationNumber: String? = null,
+        val organizationNumber: String,
         val type: String,
         val authorizedResources: List<String>,
         val subunits: List<AuthorizedParty>,
     )
 }
-
-enum class AltinnRessurs(val ressursId: String) {
-    TILTAK_ARRANGOR_REFUSJON("tiltak-arrangor-refusjon"),
-}
-
-data class AltinnRolle(
-    val organisasjonsnummer: Organisasjonsnummer,
-    val ressurs: AltinnRessurs,
-)

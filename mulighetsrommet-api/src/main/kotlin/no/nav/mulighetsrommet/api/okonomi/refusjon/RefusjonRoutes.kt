@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.okonomi.refusjon
 
+import arrow.core.getOrElse
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.plugins.*
@@ -8,11 +9,12 @@ import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.altinn.AltinnRettigheterService
 import no.nav.mulighetsrommet.api.okonomi.models.DeltakelsePeriode
 import no.nav.mulighetsrommet.api.okonomi.models.RefusjonKravBeregningAft
 import no.nav.mulighetsrommet.api.okonomi.models.RefusjonskravDto
 import no.nav.mulighetsrommet.api.plugins.getPid
-import no.nav.mulighetsrommet.api.services.ArrangorRolleService
+import no.nav.mulighetsrommet.api.services.ArrangorService
 import no.nav.mulighetsrommet.domain.dto.NorskIdent
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.domain.serializers.LocalDateTimeSerializer
@@ -33,16 +35,23 @@ fun Route.refusjonRoutes() {
         Environment(),
     )
     val service: RefusjonService by inject()
-    val arrangorRolleService: ArrangorRolleService by inject()
+    val altinnRettigheterService: AltinnRettigheterService by inject()
+    val arrangorService: ArrangorService by inject()
 
     route("/api/v1/intern/refusjon") {
         get("/krav") {
-            val roller = arrangorRolleService.getRoller(getPid())
-            if (roller.isEmpty()) {
-                return@get call.respond(HttpStatusCode.Unauthorized)
+            val rettigheter = altinnRettigheterService.getRettigheter(getPid())
+            if (rettigheter.isEmpty()) {
+                return@get call.respond(HttpStatusCode.Forbidden)
+            }
+            val arrangorer = rettigheter.map {
+                arrangorService.getOrSyncArrangorFromBrreg(it.organisasjonsnummer.value)
+                    .getOrElse {
+                        throw Exception("asdf")
+                    }
             }
 
-            val krav = service.getByArrangorIds(roller.map { it.arrangorId })
+            val krav = service.getByArrangorIds(arrangorer.map { it.id })
                 .map {
                     // TODO egen listemodell som er generell på tvers av beregningstype?
                     toRefusjonKravOppsummering(it)

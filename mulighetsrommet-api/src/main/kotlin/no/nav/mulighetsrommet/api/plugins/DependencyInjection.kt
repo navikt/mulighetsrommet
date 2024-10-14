@@ -8,12 +8,14 @@ import no.nav.common.client.axsys.AxsysV2ClientImpl
 import no.nav.common.kafka.producer.util.KafkaProducerClientBuilder
 import no.nav.common.kafka.util.KafkaPropertiesBuilder
 import no.nav.common.kafka.util.KafkaPropertiesPreset
+import no.nav.mulighetsrommet.altinn.AltinnClient
+import no.nav.mulighetsrommet.altinn.AltinnRettigheterRepository
+import no.nav.mulighetsrommet.altinn.AltinnRettigheterService
 import no.nav.mulighetsrommet.api.AppConfig
 import no.nav.mulighetsrommet.api.SlackConfig
 import no.nav.mulighetsrommet.api.TaskConfig
 import no.nav.mulighetsrommet.api.avtaler.AvtaleValidator
 import no.nav.mulighetsrommet.api.avtaler.OpsjonLoggValidator
-import no.nav.mulighetsrommet.api.clients.altinn.AltinnClient
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
 import no.nav.mulighetsrommet.api.clients.arenaadapter.ArenaAdapterClient
 import no.nav.mulighetsrommet.api.clients.brreg.BrregClient
@@ -175,7 +177,7 @@ private fun repositories() = module {
     single { TilsagnRepository(get()) }
     single { RefusjonskravRepository(get()) }
     single { UtdanningRepository(get()) }
-    single { ArrangorAnsattRepository(get()) }
+    single { AltinnRettigheterRepository(get()) }
 }
 
 private fun services(appConfig: AppConfig) = module {
@@ -356,7 +358,7 @@ private fun services(appConfig: AppConfig) = module {
     single { OpsjonLoggService(get(), get(), get(), get(), get()) }
     single { LagretFilterService(get()) }
     single { TilsagnService(get(), get(), get(), get()) }
-    single { ArrangorRolleService(get(), get(), get(), get()) }
+    single { AltinnRettigheterService(get(), get()) }
 }
 
 private fun tasks(config: TaskConfig) = module {
