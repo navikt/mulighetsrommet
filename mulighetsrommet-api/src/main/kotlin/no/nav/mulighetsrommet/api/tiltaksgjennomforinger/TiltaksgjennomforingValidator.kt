@@ -5,7 +5,6 @@ import arrow.core.left
 import arrow.core.nel
 import arrow.core.raise.either
 import arrow.core.right
-import no.nav.mulighetsrommet.api.domain.dbo.AvtaleDbo
 import no.nav.mulighetsrommet.api.domain.dbo.TiltaksgjennomforingDbo
 import no.nav.mulighetsrommet.api.domain.dto.AvtaleDto
 import no.nav.mulighetsrommet.api.domain.dto.TiltaksgjennomforingDto
@@ -74,7 +73,12 @@ class TiltaksgjennomforingValidator(
             }
 
             if (avtale.avtaletype != Avtaletype.Forhaandsgodkjent && next.sluttDato == null) {
-                add(ValidationError.of(AvtaleDbo::sluttDato, "Du må legge inn sluttdato for gjennomføringen"))
+                add(
+                    ValidationError.of(
+                        TiltaksgjennomforingDbo::sluttDato,
+                        "Du må legge inn sluttdato for gjennomføringen",
+                    ),
+                )
             }
 
             if (next.sluttDato != null && next.startDato.isAfter(next.sluttDato)) {
@@ -144,7 +148,7 @@ class TiltaksgjennomforingValidator(
                     if (utdanningslop == null) {
                         add(
                             ValidationError.of(
-                                AvtaleDbo::utdanningslop,
+                                TiltaksgjennomforingDbo::utdanningslop,
                                 "Du må velge utdanningsprogram og lærefag",
                             ),
                         )
