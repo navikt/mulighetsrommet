@@ -44,6 +44,8 @@ enum class Personopplysning(private val tittel: String, private val hjelpetekst:
         "Dersom det påvirker hvilke arbeidsoppgaver deltaker kan ha, behov for tilrettelegging, eller f.eks. dersom vedkommende ikke kan håndtere kjøtt.",
         21,
     ),
+    NASJONALITET("Nasjonalitet", null, 22),
+    ADRESSESPERRE("Adressesperre", null, 23),
     ;
 
     fun toPersonopplysningData() = PersonopplysningData(
