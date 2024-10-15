@@ -14,22 +14,17 @@ import {
 } from "@remix-run/react";
 import parse from "html-react-parser";
 import { ReactNode, useEffect } from "react";
-import { requirePersonIdent } from "./auth/auth.server";
+import { checkValidToken } from "./auth/auth.server";
 import { Header } from "./components/Header";
 import css from "./root.module.css";
 import { Dekoratørfragmenter, hentSsrDekoratør } from "./services/dekoratør/dekorator.server";
 import useInjectDecoratorScript from "./services/dekoratør/useInjectScript";
-import { hentMiljø, Miljø } from "./services/miljø";
 import "./tailwind.css";
 
 export const meta: MetaFunction = () => [{ title: "Refusjoner" }];
 
 export const loader: LoaderFunction = async ({ request }) => {
-  const miljø = hentMiljø();
-  // TODO Se på lokalt oppsett
-  if (miljø !== Miljø.Lokalt) {
-    await requirePersonIdent(request);
-  }
+  await checkValidToken(request);
 
   return json({
     dekorator: await hentSsrDekoratør(),

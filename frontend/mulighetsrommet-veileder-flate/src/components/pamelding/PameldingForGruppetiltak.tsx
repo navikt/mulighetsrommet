@@ -26,7 +26,8 @@ export function PameldingForGruppetiltak({
 
   const skalVisePameldingslenke =
     brukerHarRettPaaValgtTiltak &&
-    (tiltak.tiltakstype.tiltakskode && stotterPameldingIModia.includes(tiltak.tiltakstype.tiltakskode)) &&
+    tiltak.tiltakstype.tiltakskode &&
+    stotterPameldingIModia.includes(tiltak.tiltakstype.tiltakskode) &&
     !aktivDeltakelse;
 
   const opprettDeltakelseRoute = resolveModiaRoute({

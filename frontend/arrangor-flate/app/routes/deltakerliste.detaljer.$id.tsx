@@ -4,7 +4,7 @@ import { Form, useActionData, useLoaderData } from "@remix-run/react";
 import { DeltakerlisteDetaljer } from "../components/deltakerliste/DeltakerlisteDetaljer";
 import { PageHeader } from "../components/PageHeader";
 import { Refusjonskrav, type TilsagnDetaljer } from "../domene/domene";
-import { requirePersonIdent } from "../auth/auth.server";
+import { checkValidToken } from "../auth/auth.server";
 import { RefusjonTilsagnsDetaljer } from "~/components/refusjonskrav/TilsagnsDetaljer";
 import { RefusjonDetaljer } from "~/components/refusjonskrav/RefusjonDetaljer";
 import { Separator } from "~/components/Separator";
@@ -16,7 +16,7 @@ type LoaderData = {
 };
 
 export const loader: LoaderFunction = async ({ request, params }): Promise<LoaderData> => {
-  await requirePersonIdent(request);
+  await checkValidToken(request);
 
   if (params.id === undefined) throw Error("Mangler id");
 
