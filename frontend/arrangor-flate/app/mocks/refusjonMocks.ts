@@ -1,4 +1,4 @@
-import { RefusjonKravAft } from "@mr/api-client";
+import { RefusjonKravAft, RefusjonskravStatus } from "@mr/api-client";
 import { http, HttpResponse, PathParams } from "msw";
 import { v4 as uuid } from "uuid";
 
@@ -6,6 +6,7 @@ const mockKrav: RefusjonKravAft[] = [
   {
     type: "AFT",
     id: uuid(),
+    status: RefusjonskravStatus.KLAR_FOR_GODKJENNING,
     tiltakstype: {
       navn: "Arbeidsforbredene trening",
     },
@@ -30,6 +31,7 @@ const mockKrav: RefusjonKravAft[] = [
   {
     type: "AFT",
     id: uuid(),
+    status: RefusjonskravStatus.KLAR_FOR_GODKJENNING,
     tiltakstype: {
       navn: "Arbeidsforbredene trening",
     },
@@ -54,6 +56,7 @@ const mockKrav: RefusjonKravAft[] = [
   {
     type: "AFT",
     id: uuid(),
+    status: RefusjonskravStatus.KLAR_FOR_GODKJENNING,
     tiltakstype: {
       navn: "Arbeidsforbredene trening",
     },

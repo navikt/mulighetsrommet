@@ -45,6 +45,7 @@ fun Route.refusjonRoutes() {
             if (rettigheter.isEmpty()) {
                 return@get call.respond(HttpStatusCode.Forbidden)
             }
+
             val arrangorer = rettigheter.map {
                 arrangorService.getOrSyncArrangorFromBrreg(it.organisasjonsnummer.value)
                     .getOrElse {
@@ -107,6 +108,7 @@ private fun toRefusjonKravOppsummering(krav: RefusjonskravDto) = when (val bereg
 
         RefusjonKravAft(
             id = krav.id,
+            status = krav.status,
             tiltakstype = krav.tiltakstype,
             gjennomforing = krav.gjennomforing,
             arrangor = krav.arrangor,
@@ -126,6 +128,7 @@ private fun toRefusjonKravOppsummering(krav: RefusjonskravDto) = when (val bereg
 data class RefusjonKravAft(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
+    val status: RefusjonskravStatus,
     val tiltakstype: RefusjonskravDto.Tiltakstype,
     val gjennomforing: RefusjonskravDto.Gjennomforing,
     val arrangor: RefusjonskravDto.Arrangor,

@@ -80,6 +80,7 @@ class RefusjonService(
 
         return RefusjonskravDbo(
             id = refusjonskravId,
+            status = RefusjonskravStatus.KLAR_FOR_GODKJENNING,
             gjennomforingId = gjennomforingId,
             beregning = beregning,
         )
