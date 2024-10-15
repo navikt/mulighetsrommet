@@ -2,7 +2,7 @@ import {
   ENDRINGSMELDINGER_URL,
   PREVIEW_ARBEIDSMARKEDSTILTAK_URL,
   SANITY_STUDIO_URL,
-} from "../../constants";
+} from "@/constants";
 import { AvtaleIkon } from "../ikoner/AvtaleIkon";
 import { EndringsmeldingerIkon } from "../ikoner/EndringsmeldingerIkon";
 import { ForhandsvisningIkon } from "../ikoner/ForhandsvisningIkon";
