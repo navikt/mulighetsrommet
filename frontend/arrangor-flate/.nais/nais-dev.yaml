@@ -30,7 +30,6 @@ spec:
         - application: nav-dekoratoren
           namespace: personbruker
         - application: mulighetsrommet-api
-        - application: mulighetsrommet-altinn-acl
   tokenx:
     enabled: true
   idporten:

@@ -96,13 +96,13 @@ private fun toTiltakshistorikk(avtale: Avtale) = Tiltakshistorikk.ArbeidsgiverAv
         Avtale.Tiltakstype.SOMMERJOBB -> Tiltakshistorikk.ArbeidsgiverAvtale.Tiltakstype.SOMMERJOBB
     },
     status = when (avtale.avtaleStatus) {
-        Avtale.Status.ANNULLERT -> Tiltakshistorikk.ArbeidsgiverAvtale.Status.ANNULLERT
-        Avtale.Status.AVBRUTT -> Tiltakshistorikk.ArbeidsgiverAvtale.Status.AVBRUTT
-        Avtale.Status.PAABEGYNT -> Tiltakshistorikk.ArbeidsgiverAvtale.Status.PAABEGYNT
-        Avtale.Status.MANGLER_GODKJENNING -> Tiltakshistorikk.ArbeidsgiverAvtale.Status.MANGLER_GODKJENNING
-        Avtale.Status.KLAR_FOR_OPPSTART -> Tiltakshistorikk.ArbeidsgiverAvtale.Status.KLAR_FOR_OPPSTART
-        Avtale.Status.GJENNOMFORES -> Tiltakshistorikk.ArbeidsgiverAvtale.Status.GJENNOMFORES
-        Avtale.Status.AVSLUTTET -> Tiltakshistorikk.ArbeidsgiverAvtale.Status.AVSLUTTET
+        Avtale.Status.ANNULLERT -> ArbeidsgiverAvtaleStatus.ANNULLERT
+        Avtale.Status.AVBRUTT -> ArbeidsgiverAvtaleStatus.AVBRUTT
+        Avtale.Status.PAABEGYNT -> ArbeidsgiverAvtaleStatus.PAABEGYNT
+        Avtale.Status.MANGLER_GODKJENNING -> ArbeidsgiverAvtaleStatus.MANGLER_GODKJENNING
+        Avtale.Status.KLAR_FOR_OPPSTART -> ArbeidsgiverAvtaleStatus.KLAR_FOR_OPPSTART
+        Avtale.Status.GJENNOMFORES -> ArbeidsgiverAvtaleStatus.GJENNOMFORES
+        Avtale.Status.AVSLUTTET -> ArbeidsgiverAvtaleStatus.AVSLUTTET
     },
     arbeidsgiver = Tiltakshistorikk.Arbeidsgiver(organisasjonsnummer = avtale.bedriftNr),
 )

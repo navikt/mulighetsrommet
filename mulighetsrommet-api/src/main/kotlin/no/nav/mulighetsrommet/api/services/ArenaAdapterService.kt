@@ -17,14 +17,11 @@ import no.nav.mulighetsrommet.api.repositories.*
 import no.nav.mulighetsrommet.api.services.cms.SanityService
 import no.nav.mulighetsrommet.api.utils.EnhetFilter
 import no.nav.mulighetsrommet.database.Database
-import no.nav.mulighetsrommet.database.utils.QueryResult
-import no.nav.mulighetsrommet.database.utils.query
 import no.nav.mulighetsrommet.domain.Tiltakskoder
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering
 import no.nav.mulighetsrommet.domain.constants.ArenaMigrering.TiltaksgjennomforingSluttDatoCutoffDate
 import no.nav.mulighetsrommet.domain.dbo.ArenaAvtaleDbo
 import no.nav.mulighetsrommet.domain.dbo.ArenaTiltaksgjennomforingDbo
-import no.nav.mulighetsrommet.domain.dbo.DeltakerDbo
 import no.nav.mulighetsrommet.domain.dto.AvtaleStatus
 import no.nav.mulighetsrommet.domain.dto.NavIdent
 import no.nav.mulighetsrommet.kafka.producers.SisteTiltaksgjennomforingerV1KafkaProducer
@@ -193,10 +190,6 @@ class ArenaAdapterService(
     suspend fun removeSanityTiltaksgjennomforing(sanityId: UUID) {
         sanityService.deleteSanityTiltaksgjennomforing(sanityId)
     }
-
-    fun upsertDeltaker(deltaker: DeltakerDbo): QueryResult<DeltakerDbo> = query { deltakere.upsert(deltaker) }
-
-    fun removeDeltaker(id: UUID): QueryResult<Unit> = query { deltakere.delete(id) }
 
     private fun mergeWithCurrentGjennomforing(
         tiltaksgjennomforing: ArenaTiltaksgjennomforingDbo,

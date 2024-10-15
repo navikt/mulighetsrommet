@@ -1797,15 +1797,10 @@ paths:
                   $ref: "#/components/schemas/AFTSats"
 
   /api/v1/intern/refusjon/krav:
-    post:
+    get:
       tags:
         - Refusjonskrav
       operationId: getRefusjonskrav
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/GetRefusjonskravRequest"
       responses:
         200:
           description: Hent refusjonskrav til arrangør
@@ -1814,7 +1809,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/RefusjonskravDto"
+                  $ref: "#/components/schemas/RefusjonKravAft"
 
   /api/v1/intern/refusjon/krav/{id}:
     get:
@@ -1829,7 +1824,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/RefusjonskravDto"
+                $ref: "#/components/schemas/RefusjonKravAft"
 
   /api/v1/intern/refusjon/kvittering/{id}:
     parameters:
@@ -3921,23 +3916,21 @@ components:
       properties:
         antallDeltakere:
           type: number
-        antallAktiveDeltakere:
-          type: number
-        antallDeltakereSomVenter:
-          type: number
-        antallAvsluttedeDeltakere:
-          type: number
-        antallIkkeAktuelleDeltakere:
-          type: number
-        pabegyntRegistrering:
-          type: number
+        deltakereByStatus:
+          type: array
+          items:
+            type: object
+            properties:
+              status:
+                type: string
+              count:
+                type: integer
+            required:
+              - status
+              - count
       required:
         - antallDeltakere
-        - antallAktiveDeltakere
-        - antallDeltakereSomVenter
-        - antallAvsluttedeDeltakere
-        - antallIkkeAktuelleDeltakere
-        - pabegyntRegistrering
+        - deltakereByStatus
 
     TiltaksgjennomforingKontaktperson:
       type: object
@@ -4208,6 +4201,8 @@ components:
         - SOSIALE_FORHOLD
         - HELSEOPPLYSNINGER
         - RELIGION
+        - NASJONALITET
+        - ADRESSESPERRE
 
     Kurstype:
       type: string
@@ -4831,49 +4826,6 @@ components:
         - startDato
         - belop
 
-    RefusjonskravDto:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        tiltaksgjennomforing:
-          type: object
-          properties:
-            id:
-              type: string
-              format: uuid
-            navn:
-              type: string
-
-          required:
-            - id
-            - navn
-        periodeStart:
-          type: string
-          format: date
-        periodeSlutt:
-          type: string
-          format: date
-        beregning:
-          $ref: "#/components/schemas/RefusjonskravBeregning"
-
-        tiltakstype:
-          type: object
-          properties:
-            navn:
-              type: string
-          required:
-            - navn
-
-      required:
-        - id
-        - tiltaksgjennomforing
-        - periodeStart
-        - periodeSlutt
-        - beregning
-        - tiltakstype
-
     RefusjonskravStatus:
       type: string
       enum:
@@ -4881,25 +4833,138 @@ components:
         - KLAR_FOR_INNSENDING
         - NARMER_SEG_FRIST
 
-    RefusjonskravBeregning:
-      oneOf:
-        - $ref: "#/components/schemas/RefusjonskravBeregningAFT"
-
-    RefusjonskravBeregningAFT:
+    RefusjonKravAft:
       type: object
       properties:
         type:
+          const: AFT
+        id:
           type: string
-          enum:
-            - AFT
-        sats:
-          type: integer
+          format: uuid
+        tiltakstype:
+          $ref: "#/components/schemas/RefusjonKravTiltakstype"
+        gjennomforing:
+          $ref: "#/components/schemas/RefusjonKravGjennomforing"
+        arrangor:
+          $ref: "#/components/schemas/RefusjonKravArrangor"
+        deltakelser:
+          type: array
+          items:
+            $ref: "#/components/schemas/RefusjonKravDeltakelse"
+        beregning:
+          $ref: "#/components/schemas/RefusjonKravAftBeregning"
+      required:
+        - type
+        - id
+        - tiltakstype
+        - gjennomforing
+        - arrangor
+        - deltakelser
+        - beregning
+
+    RefusjonKravTiltakstype:
+      type: object
+      properties:
+        navn:
+          type: string
+      required:
+        - navn
+
+    RefusjonKravGjennomforing:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        navn:
+          type: string
+      required:
+        - id
+        - navn
+
+    RefusjonKravArrangor:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        organisasjonsnummer:
+          type: string
+        navn:
+          type: string
+        slettet:
+          type: boolean
+      required:
+        - id
+        - organisasjonsnummer
+        - navn
+        - slettet
+
+    RefusjonKravAftBeregning:
+      type: object
+      properties:
+        periodeStart:
+          type: string
+          format: date-time
+        periodeSlutt:
+          type: string
+          format: date-time
+        antallManedsverk:
+          type: number
         belop:
           type: integer
       required:
-        - type
-        - sats
+        - periodeStart
+        - periodeSlutt
+        - antallManedsverk
         - belop
+
+    RefusjonKravDeltakelse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        norskIdent:
+          type: string
+        navn:
+          type: string
+        startDato:
+          type: string
+          format: date
+        sluttDato:
+          type: string
+          format: date
+        perioder:
+          type: array
+          items:
+            $ref: "#/components/schemas/RefusjonKravDeltakelsePeriode"
+        manedsverk:
+          type: number
+        veileder:
+          type: string
+      required:
+        - id
+        - norskIdent
+        - navn
+        - perioder
+        - manedsverk
+
+    RefusjonKravDeltakelsePeriode:
+      type: object
+      properties:
+        start:
+          type: string
+          format: date-time
+        slutt:
+          type: string
+          format: date-time
+        stillingsprosent:
+          type: number
+      required:
+        - start
+        - slutt
+        - stillingsprosent
 
     ProgramomradeMedUtdanningerRequest:
       type: object

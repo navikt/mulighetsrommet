@@ -74,7 +74,6 @@ class ArenaEventServiceTest : FunSpec({
             tiltakstyper = TiltakstypeRepository(db = database.db),
             saker = SakRepository(db = database.db),
             tiltaksgjennomforinger = TiltaksgjennomforingRepository(db = database.db),
-            deltakere = DeltakerRepository(db = database.db),
             avtaler = AvtaleRepository(db = database.db),
         )
     }

@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api
 
 import io.ktor.server.application.*
 import io.ktor.server.testing.*
+import no.nav.mulighetsrommet.altinn.AltinnClient
 import no.nav.mulighetsrommet.api.clients.brreg.BrregClient
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.clients.utdanning.UtdanningClient
@@ -106,6 +107,11 @@ fun createTestApplicationConfig() = AppConfig(
     utdanning = UtdanningClient.Config(
         baseurl = "",
     ),
+    altinn = AltinnClient.Config(
+        url = "altinn-acl",
+        scope = "default",
+        apiKey = "apiKey",
+    ),
 )
 
 fun createKafkaConfig(): KafkaConfig = KafkaConfig(
@@ -150,6 +156,12 @@ fun createAuthConfig(
     ),
     roles = roles,
     tokenx = AuthProvider(
+        issuer = oauth?.issuerUrl(issuer)?.toString() ?: issuer,
+        audience = audience,
+        jwksUri = oauth?.jwksUrl(issuer)?.toUri()?.toString() ?: "http://localhost",
+        tokenEndpointUrl = oauth?.tokenEndpointUrl(issuer)?.toString() ?: "http://localhost",
+    ),
+    maskinporten = AuthProvider(
         issuer = oauth?.issuerUrl(issuer)?.toString() ?: issuer,
         audience = audience,
         jwksUri = oauth?.jwksUrl(issuer)?.toUri()?.toString() ?: "http://localhost",

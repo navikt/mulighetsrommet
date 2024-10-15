@@ -2,9 +2,8 @@ import { Alert, HelpText } from "@navikt/ds-react";
 import { TiltaksgjennomforingOppstartstype } from "@mr/api-client";
 import { ControlledSokeSelect } from "@mr/frontend-common";
 import { useController } from "react-hook-form";
-import { useTiltaksgjennomforingDeltakerSummary } from "@/api/tiltaksgjennomforing/useTiltaksgjennomforingDeltakerSummary";
-import { Laster } from "../laster/Laster";
-import { useGetTiltaksgjennomforingIdFromUrl } from "../../hooks/useGetTiltaksgjennomforingIdFromUrl";
+import { useSuspenseGjennomforingDeltakerSummary } from "@/api/tiltaksgjennomforing/useTiltaksgjennomforingDeltakerSummary";
+import { useGetTiltaksgjennomforingIdFromUrl } from "@/hooks/useGetTiltaksgjennomforingIdFromUrl";
 
 interface SelectOppstartstypeProps {
   name: string;
@@ -48,17 +47,9 @@ interface OppstartstypePropsWarning {
 }
 
 function OppstartstypeWarning({ gjennomforingId }: OppstartstypePropsWarning) {
-  const {
-    data: summary,
-    isPending,
-    isError,
-  } = useTiltaksgjennomforingDeltakerSummary(gjennomforingId);
+  const { data: summary } = useSuspenseGjennomforingDeltakerSummary(gjennomforingId);
 
-  if (isPending) {
-    return <Laster />;
-  }
-
-  return isError || summary.antallDeltakere > 0 ? (
+  return summary.antallDeltakere > 0 ? (
     <Alert variant="warning">
       Deltakerstatus påvirkes av oppstartstypen. Hvis du endrer oppstartstypen så kan deltakelser
       som er avsluttet få en ny status. Statusen vises i aktivitetsplanen og deltakeroversikten.{" "}

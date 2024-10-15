@@ -5,9 +5,9 @@ hoplite = "2.8.2"
 koin = "4.0.0"
 kotest = "5.9.1"
 kotest-testcontainers = "2.0.2"
-kotlin = "2.0.20"
+kotlin = "2.0.21"
 ktor = "2.3.12"
-logback = "1.5.8"
+logback = "1.5.10"
 metrics = "4.2.28"
 arrow = "1.2.4"
 
@@ -17,7 +17,7 @@ kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 ktlint = "org.jlleitschuh.gradle.ktlint:12.1.1"
 shadow = "com.github.johnrengelman.shadow:8.1.1"
-openapi-generator = "org.openapi.generator:7.8.0"
+openapi-generator = "org.openapi.generator:7.9.0"
 
 [bundles]
 logging = [
@@ -35,7 +35,7 @@ arrow-core-serialization = { module = "io.arrow-kt:arrow-core-serialization", ve
 assertj-db = "org.assertj:assertj-db:2.0.2"
 
 caffeine = "com.github.ben-manes.caffeine:caffeine:3.1.8"
-pdfgen-core = "no.nav.pdfgen:pdfgen-core:1.1.29"
+pdfgen-core = "no.nav.pdfgen:pdfgen-core:1.1.30"
 verapdf = "org.verapdf:validation-model:1.26.1"
 handlebars = "com.github.jknack:handlebars:4.4.0"
 
@@ -45,7 +45,7 @@ flyway-core = { module = "org.flywaydb:flyway-core", version.ref = "flyway" }
 flyway-database-postgresql = { module = "org.flywaydb:flyway-database-postgresql", version.ref = "flyway" }
 
 google-cloud-postgresSocketFactory = "com.google.cloud.sql:postgres-socket-factory:1.21.0"
-google-cloud-storage = "com.google.cloud:google-cloud-storage:2.43.1"
+google-cloud-storage = "com.google.cloud:google-cloud-storage:2.43.2"
 
 hikaricp = "com.zaxxer:HikariCP:6.0.0"
 
@@ -104,7 +104,7 @@ metrics-healthchecks = { module = "io.dropwizard.metrics:metrics-healthchecks", 
 
 micrometer-registry-prometheus = "io.micrometer:micrometer-registry-prometheus:1.13.5"
 
-mockk = "io.mockk:mockk:1.13.12"
+mockk = "io.mockk:mockk:1.13.13"
 
 nav-common-log = { module = "no.nav.common:log", version.ref = "common-java-modules" }
 nav-common-auditLog = { module = "no.nav.common:audit-log", version.ref = "common-java-modules" }

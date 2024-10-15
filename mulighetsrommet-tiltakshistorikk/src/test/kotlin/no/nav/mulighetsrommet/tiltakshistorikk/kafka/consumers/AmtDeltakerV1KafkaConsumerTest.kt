@@ -8,9 +8,9 @@ import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListe
 import no.nav.mulighetsrommet.database.kotest.extensions.truncateAll
 import no.nav.mulighetsrommet.domain.Tiltakskode
 import no.nav.mulighetsrommet.domain.dbo.TiltaksgjennomforingOppstartstype
+import no.nav.mulighetsrommet.domain.dto.DeltakerStatus
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingEksternV1Dto
 import no.nav.mulighetsrommet.domain.dto.TiltaksgjennomforingStatus
-import no.nav.mulighetsrommet.domain.dto.amt.AmtDeltakerStatus
 import no.nav.mulighetsrommet.domain.dto.amt.AmtDeltakerV1Dto
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.tiltakshistorikk.createDatabaseTestConfig
@@ -56,8 +56,8 @@ class AmtDeltakerV1KafkaConsumerTest : FunSpec({
             personIdent = "10101010100",
             startDato = null,
             sluttDato = null,
-            status = AmtDeltakerStatus(
-                type = AmtDeltakerStatus.Type.VENTER_PA_OPPSTART,
+            status = DeltakerStatus(
+                type = DeltakerStatus.Type.VENTER_PA_OPPSTART,
                 aarsak = null,
                 opprettetDato = deltakelsesdato,
             ),
@@ -95,8 +95,8 @@ class AmtDeltakerV1KafkaConsumerTest : FunSpec({
             deltakere.upsertKometDeltaker(amtDeltaker1)
 
             val feilregistrertDeltaker1 = amtDeltaker1.copy(
-                status = AmtDeltakerStatus(
-                    type = AmtDeltakerStatus.Type.FEILREGISTRERT,
+                status = DeltakerStatus(
+                    type = DeltakerStatus.Type.FEILREGISTRERT,
                     aarsak = null,
                     opprettetDato = LocalDateTime.now(),
                 ),

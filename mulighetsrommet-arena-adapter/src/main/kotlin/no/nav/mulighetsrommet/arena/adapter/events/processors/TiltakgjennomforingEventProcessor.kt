@@ -91,12 +91,6 @@ class TiltakgjennomforingEventProcessor(
             .bind()
     }
 
-    override fun getDependentEntities(event: ArenaEvent): List<ArenaEntityMapping> {
-        return entities.getDeltakereByTiltaksgjennomforingId(event.arenaId.toInt()).mapNotNull {
-            entities.getMapping(ArenaTable.Deltaker, it.tiltaksdeltakerId.toString()).getOrNull()
-        }
-    }
-
     private fun resolveFromMappingStatus(avtaleId: Int): Either<ProcessingError, Int?> {
         return entities.getMapping(ArenaTable.AvtaleInfo, avtaleId.toString())
             .flatMap { mapping ->

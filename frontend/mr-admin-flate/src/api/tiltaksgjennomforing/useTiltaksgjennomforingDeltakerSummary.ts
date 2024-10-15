@@ -1,16 +1,25 @@
-import { useQuery } from "@tanstack/react-query";
 import { QueryKeys } from "@/api/QueryKeys";
 import { TiltaksgjennomforingerService } from "@mr/api-client";
+import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 
-export function useTiltaksgjennomforingDeltakerSummary(id?: string) {
-  return useQuery({
-    queryKey: QueryKeys.tiltaksgjennomforingDeltakerSummary(id!),
+function getDeltakerSummaryQuery(id: string) {
+  return {
+    queryKey: QueryKeys.tiltaksgjennomforingDeltakerSummary(id),
     queryFn() {
       return TiltaksgjennomforingerService.getTiltaksgjennomforingDeltakerSummary({
-        id: id!,
+        id,
       });
     },
-    throwOnError: false,
+  };
+}
+
+export function useSuspenseGjennomforingDeltakerSummary(id: string) {
+  return useSuspenseQuery(getDeltakerSummaryQuery(id));
+}
+
+export function useGjennomforingDeltakerSummary(id?: string) {
+  return useQuery({
+    ...getDeltakerSummaryQuery(id ?? ""),
     enabled: !!id,
   });
 }

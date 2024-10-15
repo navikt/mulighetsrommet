@@ -1,17 +1,25 @@
 package no.nav.mulighetsrommet.api.okonomi.refusjon
 
+import arrow.core.getOrElse
 import io.ktor.http.*
 import io.ktor.server.application.*
-import io.ktor.server.request.*
+import io.ktor.server.plugins.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.api.okonomi.prismodell.Prismodell
+import no.nav.mulighetsrommet.altinn.AltinnRettigheterService
+import no.nav.mulighetsrommet.api.okonomi.models.DeltakelsePeriode
+import no.nav.mulighetsrommet.api.okonomi.models.RefusjonKravBeregningAft
+import no.nav.mulighetsrommet.api.okonomi.models.RefusjonskravDto
 import no.nav.mulighetsrommet.api.plugins.getPid
-import no.nav.mulighetsrommet.domain.dto.Organisasjonsnummer
+import no.nav.mulighetsrommet.api.services.ArrangorService
+import no.nav.mulighetsrommet.domain.dto.NorskIdent
 import no.nav.mulighetsrommet.domain.serializers.LocalDateSerializer
+import no.nav.mulighetsrommet.domain.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
+import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.pdfgen.core.Environment
 import no.nav.pdfgen.core.PDFGenCore
 import no.nav.pdfgen.core.pdf.createHtmlFromTemplateData
@@ -19,6 +27,7 @@ import no.nav.pdfgen.core.pdf.createPDFA
 import org.koin.ktor.ext.inject
 import org.verapdf.gf.foundry.VeraGreenfieldFoundryProvider
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.*
 
 fun Route.refusjonRoutes() {
@@ -27,13 +36,39 @@ fun Route.refusjonRoutes() {
         Environment(),
     )
     val service: RefusjonService by inject()
+    val altinnRettigheterService: AltinnRettigheterService by inject()
+    val arrangorService: ArrangorService by inject()
 
     route("/api/v1/intern/refusjon") {
-        post("/krav") {
-            val request = call.receive<GetRefusjonskravRequest>()
-            val norskIdent = getPid()
+        get("/krav") {
+            val rettigheter = altinnRettigheterService.getRettigheter(getPid())
+            if (rettigheter.isEmpty()) {
+                return@get call.respond(HttpStatusCode.Forbidden)
+            }
+            val arrangorer = rettigheter.map {
+                arrangorService.getOrSyncArrangorFromBrreg(it.organisasjonsnummer.value)
+                    .getOrElse {
+                        throw StatusException(HttpStatusCode.InternalServerError, "Feil ved henting av arrangor_id")
+                    }
+            }
 
-            call.respond(service.getByOrgnr(request.orgnr))
+            val krav = service.getByArrangorIds(arrangorer.map { it.id })
+                .map {
+                    // TODO egen listemodell som er generell på tvers av beregningstype?
+                    toRefusjonKravOppsummering(it)
+                }
+
+            call.respond(krav)
+        }
+
+        get("/krav/{id}") {
+            val id = call.parameters.getOrFail<UUID>("id")
+
+            val krav = service.getById(id) ?: throw NotFoundException("Fant ikke refusjonskra med id=$id")
+
+            val oppsummering = toRefusjonKravOppsummering(krav)
+
+            call.respond(oppsummering)
         }
 
         get("/kvittering/{id}") {
@@ -45,58 +80,80 @@ fun Route.refusjonRoutes() {
                 "Content-Disposition",
                 "attachment; filename=\"kvittering.pdf\"",
             )
-            call.respondBytes(pdfBytes, contentType = io.ktor.http.ContentType.Application.Pdf)
-        }
-        get("/krav/{id}") {
-            // val orgnr = Organisasjonsnummer(call.parameters.getOrFail<String>("orgnr"))
-            val id = call.parameters.getOrFail<UUID>("id")
-            val krav = service.getById(id)
-
-            if (krav != null) {
-                call.respond(krav)
-            } else {
-                call.respond(HttpStatusCode.NoContent)
-            }
+            call.respondBytes(pdfBytes, contentType = ContentType.Application.Pdf)
         }
     }
 }
 
-@Serializable
-data class GetRefusjonskravRequest(
-    val orgnr: List<Organisasjonsnummer>,
-)
+private fun toRefusjonKravOppsummering(krav: RefusjonskravDto) = when (val beregning = krav.beregning) {
+    is RefusjonKravBeregningAft -> {
+        val perioder = beregning.input.deltakelser.associateBy { it.deltakelseId }
+        val manedsverk = beregning.output.deltakelser.associateBy { it.deltakelseId }
+
+        val deltakelser = perioder.map { (id, perioder) ->
+            RefusjonKravDeltakelse(
+                id = id,
+                perioder = perioder.perioder,
+                manedsverk = manedsverk.getValue(id).manedsverk,
+                // TODO data om deltaker
+                norskIdent = NorskIdent("12345678910"),
+                navn = "TODO TODOESEN",
+                startDato = null,
+                sluttDato = null,
+                // TODO data om veileder hos arrangør
+                veileder = null,
+            )
+        }
+
+        RefusjonKravAft(
+            id = krav.id,
+            tiltakstype = krav.tiltakstype,
+            gjennomforing = krav.gjennomforing,
+            arrangor = krav.arrangor,
+            deltakelser = deltakelser,
+            beregning = RefusjonKravAft.Beregning(
+                periodeStart = beregning.input.periodeStart,
+                periodeSlutt = beregning.input.periodeSlutt,
+                antallManedsverk = deltakelser.sumOf { it.manedsverk },
+                belop = beregning.output.belop,
+            ),
+        )
+    }
+}
 
 @Serializable
-data class RefusjonskravDto(
+@SerialName("AFT")
+data class RefusjonKravAft(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
-    val tiltaksgjennomforing: Gjennomforing,
-    @Serializable(with = LocalDateSerializer::class)
-    val periodeStart: LocalDate,
-    @Serializable(with = LocalDateSerializer::class)
-    val periodeSlutt: LocalDate,
-    val beregning: Prismodell.RefusjonskravBeregning,
-    val arrangor: Arrangor,
-    val tiltakstype: Tiltakstype,
+    val tiltakstype: RefusjonskravDto.Tiltakstype,
+    val gjennomforing: RefusjonskravDto.Gjennomforing,
+    val arrangor: RefusjonskravDto.Arrangor,
+    val deltakelser: List<RefusjonKravDeltakelse>,
+    val beregning: Beregning,
 ) {
     @Serializable
-    data class Gjennomforing(
-        @Serializable(with = UUIDSerializer::class)
-        val id: UUID,
-        val navn: String,
-    )
-
-    @Serializable
-    data class Arrangor(
-        @Serializable(with = UUIDSerializer::class)
-        val id: UUID,
-        val organisasjonsnummer: String,
-        val navn: String,
-        val slettet: Boolean,
-    )
-
-    @Serializable
-    data class Tiltakstype(
-        val navn: String,
+    data class Beregning(
+        @Serializable(with = LocalDateTimeSerializer::class)
+        val periodeStart: LocalDateTime,
+        @Serializable(with = LocalDateTimeSerializer::class)
+        val periodeSlutt: LocalDateTime,
+        val antallManedsverk: Double,
+        val belop: Int,
     )
 }
+
+@Serializable
+data class RefusjonKravDeltakelse(
+    @Serializable(with = UUIDSerializer::class)
+    val id: UUID,
+    val norskIdent: NorskIdent,
+    val navn: String,
+    @Serializable(with = LocalDateSerializer::class)
+    val startDato: LocalDate?,
+    @Serializable(with = LocalDateSerializer::class)
+    val sluttDato: LocalDate?,
+    val perioder: List<DeltakelsePeriode>,
+    val manedsverk: Double,
+    val veileder: String?,
+)
