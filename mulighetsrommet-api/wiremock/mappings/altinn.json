@@ -15,7 +15,9 @@
         "name": "FRYKTLØS OPPSTEMT STRUTS LTD",
         "type": "Organization",
         "organizationNumber": "971808616",
-        "authorizedResources": ["tiltak-arrangor-refusjon"],
+        "authorizedResources": [
+          "tiltak-arrangor-refusjon"
+        ],
         "subunits": []
       }
     ],

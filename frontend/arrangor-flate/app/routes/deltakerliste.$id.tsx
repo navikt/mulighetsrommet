@@ -77,11 +77,6 @@ export default function RefusjonDeltakerlister() {
       />
       <HGrid gap="5" columns={1}>
         <DeltakerlisteDetaljer krav={krav} />
-        <div className="flex justify-between mt-8">
-          <span>
-            Refusjonskravperiode: <b>{krav.detaljer.refusjonskravperiode}</b>
-          </span>
-        </div>
         <Table
           sort={sort}
           onSortChange={(sortKey) => handleSort(sortKey as ScopedSortState["orderBy"])}

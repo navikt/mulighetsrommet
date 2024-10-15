@@ -13,7 +13,7 @@ export function DeltakerlisteDetaljer({ krav }: Props) {
       definitions={[
         { key: "Tiltaksnavn", value: tiltaksnavn },
         { key: "Tiltakstype", value: tiltakstype },
-        { key: "Rapporteringsperiode", value: refusjonskravperiode },
+        { key: "Refusjonskravperiode", value: refusjonskravperiode },
       ]}
     />
   );
