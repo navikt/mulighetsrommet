@@ -1,5 +1,5 @@
 import { RefusjonKravAft, RefusjonskravStatus } from "@mr/api-client";
-import { Table, Tag } from "@navikt/ds-react";
+import { Tag } from "@navikt/ds-react";
 import { Link } from "@remix-run/react";
 import { ReactNode } from "react";
 

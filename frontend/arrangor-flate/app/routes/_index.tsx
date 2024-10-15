@@ -1,5 +1,5 @@
 import { RefusjonKravAft, RefusjonskravService } from "@mr/api-client";
-import { Heading, Tabs, VStack } from "@navikt/ds-react";
+import { Tabs } from "@navikt/ds-react";
 import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";

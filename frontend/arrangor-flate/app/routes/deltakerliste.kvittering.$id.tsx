@@ -11,7 +11,6 @@ import { loadRefusjonskrav } from "~/loaders/loadRefusjonskrav";
 import { DeltakerlisteDetaljer } from "~/components/deltakerliste/DeltakerlisteDetaljer";
 import { RefusjonTilsagnsDetaljer } from "~/components/refusjonskrav/TilsagnsDetaljer";
 import { RefusjonDetaljer } from "~/components/refusjonskrav/RefusjonDetaljer";
-import { RefusjonskravService } from "@mr/api-client";
 
 type LoaderData = {
   krav: Refusjonskrav;
