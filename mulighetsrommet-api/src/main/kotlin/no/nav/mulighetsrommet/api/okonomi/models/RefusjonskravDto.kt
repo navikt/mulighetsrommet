@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.okonomi.models
 
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.okonomi.refusjon.RefusjonskravStatus
 import no.nav.mulighetsrommet.domain.serializers.UUIDSerializer
 import java.util.*
 
@@ -8,6 +9,7 @@ import java.util.*
 data class RefusjonskravDto(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
+    val status: RefusjonskravStatus,
     val tiltakstype: Tiltakstype,
     val gjennomforing: Gjennomforing,
     val arrangor: Arrangor,

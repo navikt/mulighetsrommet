@@ -803,21 +803,6 @@ paths:
                 items:
                   type: string
 
-  /api/v1/intern/tiltakstyper/pameldingKommerSnartIModia:
-    get:
-      tags:
-        - Tiltakstyper
-      operationId: getTiltakstyperSomSnartHarPameldingIModia
-      responses:
-        200:
-          description: Liste over tiltak som snart støtter påmelding i Modia
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  type: string
-
   /api/v1/intern/veileder/innsatsgrupper:
     get:
       tags:
@@ -4829,9 +4814,9 @@ components:
     RefusjonskravStatus:
       type: string
       enum:
-        - ATTESTERT
-        - KLAR_FOR_INNSENDING
         - NARMER_SEG_FRIST
+        - KLAR_FOR_GODKJENNING
+        - GODKJENT_AV_ARRANGOR
 
     RefusjonKravAft:
       type: object
@@ -4841,6 +4826,8 @@ components:
         id:
           type: string
           format: uuid
+        status:
+          $ref: "#/components/schemas/RefusjonskravStatus"
         tiltakstype:
           $ref: "#/components/schemas/RefusjonKravTiltakstype"
         gjennomforing:
@@ -4856,6 +4843,7 @@ components:
       required:
         - type
         - id
+        - status
         - tiltakstype
         - gjennomforing
         - arrangor

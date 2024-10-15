@@ -24,10 +24,6 @@ fun Route.featureTogglesRoute(config: AppConfig) {
         get("stotterPameldingIModia") {
             call.respond(config.pameldingIModia)
         }
-
-        get("pameldingKommerSnartIModia") {
-            call.respond(config.pameldingKommerSnartIModia)
-        }
     }
 
     route("/features") {

@@ -39,6 +39,7 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
 export default function RefusjonskravKvittering() {
   const { krav, tilsagnDetaljer } = useLoaderData<LoaderData>();
   const params = useParams();
+
   return (
     <>
       <PageHeader
@@ -50,9 +51,7 @@ export default function RefusjonskravKvittering() {
       />
       <Separator />
       <div className="flex justify-end">
-        <a
-          href={`${import.meta.env.VITE_MULIGHETSROMMET_API_BASE}/api/v1/intern/refusjon/kvittering/${params.id}`}
-        >
+        <a href={`/lastned-kvittering/${params.id}`} target="_blank">
           <Button variant="tertiary-neutral" size="small">
             <span className="flex gap-2 items-center">
               Last ned som PDF <FilePdfIcon fontSize={35} />

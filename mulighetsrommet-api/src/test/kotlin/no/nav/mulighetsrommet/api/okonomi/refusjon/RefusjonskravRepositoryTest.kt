@@ -85,6 +85,7 @@ class RefusjonskravRepositoryTest : FunSpec({
         test("upsert and get") {
             val krav = RefusjonskravDbo(
                 id = UUID.randomUUID(),
+                status = RefusjonskravStatus.KLAR_FOR_GODKJENNING,
                 gjennomforingId = AFT1.id,
                 beregning = beregning,
             )
@@ -93,6 +94,7 @@ class RefusjonskravRepositoryTest : FunSpec({
 
             repository.get(krav.id) shouldBe RefusjonskravDto(
                 id = krav.id,
+                status = RefusjonskravStatus.KLAR_FOR_GODKJENNING,
                 gjennomforing = RefusjonskravDto.Gjennomforing(
                     id = AFT1.id,
                     navn = AFT1.navn,
@@ -122,6 +124,7 @@ class RefusjonskravRepositoryTest : FunSpec({
             )
             val krav = RefusjonskravDbo(
                 id = UUID.randomUUID(),
+                status = RefusjonskravStatus.KLAR_FOR_GODKJENNING,
                 gjennomforingId = AFT1.id,
                 beregning = RefusjonKravBeregningAft(
                     input = RefusjonKravBeregningAft.Input(

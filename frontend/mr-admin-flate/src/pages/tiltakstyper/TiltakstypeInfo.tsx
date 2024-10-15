@@ -15,7 +15,7 @@ export function TiltakstypeInfo() {
     return null;
   }
 
-  const tiltakstypeSanityUrl = `${SANITY_STUDIO_URL}/tiltakstype;${tiltakstype.sanityId}`;
+  const tiltakstypeSanityUrl = `${SANITY_STUDIO_URL}/structure/tiltakstype;${tiltakstype.sanityId}`;
 
   return (
     <DetaljerContainer>

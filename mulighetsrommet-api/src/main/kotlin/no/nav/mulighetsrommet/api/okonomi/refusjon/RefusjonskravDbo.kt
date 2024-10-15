@@ -7,4 +7,5 @@ data class RefusjonskravDbo(
     val id: UUID,
     val gjennomforingId: UUID,
     val beregning: RefusjonKravBeregning,
+    val status: RefusjonskravStatus,
 )

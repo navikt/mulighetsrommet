@@ -1,4 +1,4 @@
-import { useTiltakstyperSomStotterPameldingIModia } from "@/api/queries/useTiltakstyperSomSnartStotterPameldingIModia";
+import { useTiltakstyperSomStotterPameldingIModia } from "@/api/queries/useTiltakstyperSomStotterPameldingIModia";
 import { ModiaRoute, resolveModiaRoute } from "@/apps/modia/ModiaRoute";
 import { useGetTiltaksgjennomforingIdFraUrl } from "@/hooks/useGetTiltaksgjennomforingIdFraUrl";
 import {
