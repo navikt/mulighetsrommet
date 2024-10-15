@@ -1,7 +1,7 @@
 import { Button, GuidePanel, Heading, HGrid, List } from "@navikt/ds-react";
 import { json, Link, MetaFunction, useParams } from "@remix-run/react";
 import { PageHeader } from "../components/PageHeader";
-import { requirePersonIdent } from "../auth/auth.server";
+import { checkValidToken } from "../auth/auth.server";
 import { LoaderFunction } from "@remix-run/node";
 
 export const meta: MetaFunction = () => {
@@ -12,7 +12,7 @@ export const meta: MetaFunction = () => {
 };
 
 export const loader: LoaderFunction = async ({ request, params }): Promise<object> => {
-  await requirePersonIdent(request);
+  await checkValidToken(request);
   if (params.id === undefined) throw Error("Mangler id");
   return json({});
 };

@@ -6,7 +6,7 @@ import { Definisjonsliste } from "../components/Definisjonsliste";
 import { PageHeader } from "../components/PageHeader";
 import { Separator } from "../components/Separator";
 import { Refusjonskrav, TilsagnDetaljer } from "../domene/domene";
-import { requirePersonIdent } from "../auth/auth.server";
+import { checkValidToken } from "../auth/auth.server";
 import { loadRefusjonskrav } from "~/loaders/loadRefusjonskrav";
 import { DeltakerlisteDetaljer } from "~/components/deltakerliste/DeltakerlisteDetaljer";
 import { RefusjonTilsagnsDetaljer } from "~/components/refusjonskrav/TilsagnsDetaljer";
@@ -18,7 +18,7 @@ type LoaderData = {
 };
 
 export const loader: LoaderFunction = async ({ request, params }): Promise<LoaderData> => {
-  await requirePersonIdent(request);
+  await checkValidToken(request);
 
   if (params.id === undefined) throw Error("Mangler id");
 

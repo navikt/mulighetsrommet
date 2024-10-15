@@ -4,7 +4,7 @@ import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import { RefusjonskravTable } from "~/components/refusjonskrav/RefusjonskravTable";
-import { setupOpenApi } from "../auth/auth.server";
+import { checkValidToken, setupOpenApi } from "../auth/auth.server";
 import { PageHeader } from "../components/PageHeader";
 
 export const meta: MetaFunction = () => {
@@ -15,6 +15,7 @@ export const meta: MetaFunction = () => {
 };
 
 export async function loader({ request }: LoaderFunctionArgs) {
+  await checkValidToken(request);
   await setupOpenApi(request);
   const krav = await RefusjonskravService.getRefusjonskrav();
 

@@ -5,7 +5,6 @@ import {
   GruppetiltakDeltakerStatus,
   DeltakelseGruppetiltak,
   VeilederflateTiltakGruppe,
-  VeilederflateTiltakstype,
 } from "@mr/api-client";
 import { Alert, BodyShort, Button, Heading, VStack } from "@navikt/ds-react";
 import { ReactNode } from "react";
@@ -27,7 +26,8 @@ export function PameldingForGruppetiltak({
 
   const skalVisePameldingslenke =
     brukerHarRettPaaValgtTiltak &&
-    tiltakstypeStotterPamelding(stotterPameldingIModia, tiltak.tiltakstype) &&
+    tiltak.tiltakstype.tiltakskode &&
+    stotterPameldingIModia.includes(tiltak.tiltakstype.tiltakskode) &&
     !aktivDeltakelse;
 
   const opprettDeltakelseRoute = resolveModiaRoute({
@@ -114,13 +114,4 @@ function utledTekster(deltakelse: DeltakelseGruppetiltak): Tekst {
     default:
       throw new Error("Ukjent deltakerstatus");
   }
-}
-
-function tiltakstypeStotterPamelding(
-  tiltakstyperSomStotterPamelding: string[],
-  tiltakstype: VeilederflateTiltakstype,
-): boolean {
-  return (
-    !!tiltakstype.tiltakskode && tiltakstyperSomStotterPamelding.includes(tiltakstype.tiltakskode)
-  );
 }

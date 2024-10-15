@@ -1,9 +1,9 @@
 import { LoaderFunction } from "@remix-run/node";
-import { requirePersonIdent } from "../auth/auth.server";
 import { RefusjonskravService } from "@mr/api-client";
+import { checkValidToken } from "../auth/auth.server";
 
 export const loader: LoaderFunction = async ({ request, params }): Promise<Response> => {
-  await requirePersonIdent(request);
+  await checkValidToken(request);
 
   if (params.id === undefined) throw Error("Mangler id");
 
