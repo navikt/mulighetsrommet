@@ -4814,9 +4814,9 @@ components:
     RefusjonskravStatus:
       type: string
       enum:
-        - ATTESTERT
-        - KLAR_FOR_INNSENDING
         - NARMER_SEG_FRIST
+        - KLAR_FOR_GODKJENNING
+        - GODKJENT_AV_ARRANGOR
 
     RefusjonKravAft:
       type: object
@@ -4826,6 +4826,8 @@ components:
         id:
           type: string
           format: uuid
+        status:
+          $ref: "#/components/schemas/RefusjonskravStatus"
         tiltakstype:
           $ref: "#/components/schemas/RefusjonKravTiltakstype"
         gjennomforing:
@@ -4841,6 +4843,7 @@ components:
       required:
         - type
         - id
+        - status
         - tiltakstype
         - gjennomforing
         - arrangor
