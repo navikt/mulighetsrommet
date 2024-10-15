@@ -26,10 +26,7 @@ export function RefusjonskravTable({ krav }: Props) {
           </div>
         </div>
         <div>
-          {krav.map(({ id, beregning, gjennomforing }) => {
-            // TODO: Hardkodet enn så lenge
-            const status = RefusjonskravStatus.KLAR_FOR_INNSENDING;
-
+          {krav.map(({ id, status, beregning, gjennomforing }) => {
             return (
               <div
                 className={
@@ -70,9 +67,9 @@ function getRowStyle(status: RefusjonskravStatus) {
 
 function statusTilTag(status: RefusjonskravStatus): ReactNode {
   switch (status) {
-    case RefusjonskravStatus.ATTESTERT:
-      return <Tag variant="neutral">Attestert</Tag>;
-    case RefusjonskravStatus.KLAR_FOR_INNSENDING:
+    case RefusjonskravStatus.GODKJENT_AV_ARRANGOR:
+      return <Tag variant="neutral">Godkjent</Tag>;
+    case RefusjonskravStatus.KLAR_FOR_GODKJENNING:
       return <Tag variant="alt1">Klar for innsending</Tag>;
     case RefusjonskravStatus.NARMER_SEG_FRIST:
       return <Tag variant="warning">Nærmer seg frist</Tag>;

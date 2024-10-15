@@ -18,13 +18,20 @@ class RefusjonskravRepository(private val db: Database) {
     fun upsert(dbo: RefusjonskravDbo, tx: Session) {
         @Language("PostgreSQL")
         val refusjonskravQuery = """
-            insert into refusjonskrav (id, gjennomforing_id)
-            values (:id::uuid, :gjennomforing_id::uuid)
+            insert into refusjonskrav (id, status, gjennomforing_id)
+            values (:id::uuid, :status::refusjonskrav_status, :gjennomforing_id::uuid)
             on conflict (id) do update set
+                status = excluded.status,
                 gjennomforing_id = excluded.gjennomforing_id
         """.trimIndent()
 
-        queryOf(refusjonskravQuery, dbo.toSqlParameters()).asExecute.runWithSession(tx)
+        val params = mapOf(
+            "id" to dbo.id,
+            "status" to dbo.status.name,
+            "gjennomforing_id" to dbo.gjennomforingId,
+        )
+
+        queryOf(refusjonskravQuery, params).asExecute.runWithSession(tx)
 
         when (dbo.beregning) {
             is RefusjonKravBeregningAft -> {
@@ -113,7 +120,8 @@ class RefusjonskravRepository(private val db: Database) {
     fun get(id: UUID, tx: Session): RefusjonskravDto? {
         @Language("PostgreSQL")
         val refusjonskravQuery = """
-            select * from refusjonskrav_aft_view
+            select *
+            from refusjonskrav_aft_view
             where id = :id::uuid
         """.trimIndent()
 
@@ -154,11 +162,6 @@ class RefusjonskravRepository(private val db: Database) {
             .runWithSession(tx)
     }
 
-    private fun RefusjonskravDbo.toSqlParameters() = mapOf(
-        "id" to id,
-        "gjennomforing_id" to gjennomforingId,
-    )
-
     private fun Row.toRefusjonsKravAft(): RefusjonskravDto {
         val beregning = RefusjonKravBeregningAft(
             input = RefusjonKravBeregningAft.Input(
@@ -178,6 +181,7 @@ class RefusjonskravRepository(private val db: Database) {
     private fun Row.toRefusjonskravDto(beregning: RefusjonKravBeregning): RefusjonskravDto {
         return RefusjonskravDto(
             id = uuid("id"),
+            status = RefusjonskravStatus.valueOf(string("status")),
             gjennomforing = RefusjonskravDto.Gjennomforing(
                 id = uuid("gjennomforing_id"),
                 navn = string("gjennomforing_navn"),
