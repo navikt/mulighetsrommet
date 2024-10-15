@@ -3,7 +3,8 @@ import { Alert, Button, HelpText, HStack, Table } from "@navikt/ds-react";
 import { NavAnsatt, NavAnsattRolle, TilsagnBesluttelse, TilsagnDto } from "@mr/api-client";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useHentAnsatt } from "../../../api/ansatt/useHentAnsatt";
-import { formaterDato, formaterTall } from "../../../utils/Utils";
+import { formaterDato } from "../../../utils/Utils";
+import { formaterTall } from "@mr/frontend-common/utils/utils";
 
 interface Props {
   tilsagn: TilsagnDto[];
@@ -108,7 +109,7 @@ export function Tilsagnstabell({ tilsagn }: Props) {
               </Table.DataCell>
               <Table.DataCell>
                 {tilsagn?.opprettetAv === ansatt?.navIdent &&
-                besluttelse?.utfall === TilsagnBesluttelse.AVVIST ? (
+                  besluttelse?.utfall === TilsagnBesluttelse.AVVIST ? (
                   <Button
                     type="button"
                     variant="primary"

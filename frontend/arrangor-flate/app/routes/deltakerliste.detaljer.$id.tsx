@@ -66,8 +66,6 @@ export default function RefusjonskravDetaljer() {
         <Separator />
         <RefusjonDetaljer krav={krav} />
 
-        <Alert variant="info">Her kommer tilsagnsdetaljer</Alert>
-        <Alert variant="info">Her kommer info om refusjonskrav</Alert>
         <Form method="post">
           <VStack gap="2" justify={"start"} align={"start"}>
             <Checkbox name="bekreftelse" value="bekreftet">
