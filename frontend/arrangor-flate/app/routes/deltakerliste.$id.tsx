@@ -41,12 +41,12 @@ export default function RefusjonDeltakerlister() {
       sort && sortKey === sort.orderBy && sort.direction === "descending"
         ? undefined
         : {
-            orderBy: sortKey,
-            direction:
-              sort && sortKey === sort.orderBy && sort.direction === "ascending"
-                ? "descending"
-                : "ascending",
-          },
+          orderBy: sortKey,
+          direction:
+            sort && sortKey === sort.orderBy && sort.direction === "ascending"
+              ? "descending"
+              : "ascending",
+        },
     );
   };
 
@@ -69,6 +69,8 @@ export default function RefusjonDeltakerlister() {
     return 1;
   });
 
+  console.log(sortedData);
+
   return (
     <>
       <PageHeader
@@ -77,11 +79,6 @@ export default function RefusjonDeltakerlister() {
       />
       <HGrid gap="5" columns={1}>
         <DeltakerlisteDetaljer krav={krav} />
-        <div className="flex justify-between mt-8">
-          <span>
-            Refusjonskravperiode: <b>{krav.detaljer.refusjonskravperiode}</b>
-          </span>
-        </div>
         <Table
           sort={sort}
           onSortChange={(sortKey) => handleSort(sortKey as ScopedSortState["orderBy"])}

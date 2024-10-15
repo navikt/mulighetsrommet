@@ -26,7 +26,7 @@ export function RefusjonskravTable({ krav }: Props) {
           </div>
         </div>
         <div>
-          {krav.map(({ id, periodeStart, periodeSlutt, beregning, tiltaksgjennomforing }) => {
+          {krav.map(({ id, beregning, gjennomforing }) => {
             // TODO: Hardkodet enn så lenge
             const status = RefusjonskravStatus.KLAR_FOR_INNSENDING;
 
@@ -37,10 +37,12 @@ export function RefusjonskravTable({ krav }: Props) {
                 }
                 key={id}
               >
-                <div className={"col-span-12 bg-[#122B4414] p-1"}>{tiltaksgjennomforing.navn}</div>
+                <div className={"col-span-12 bg-[#122B4414] p-1"}>{gjennomforing?.navn}</div>
                 <div className={"grid grid-cols-12 col-span-12 p-2"}>
-                  <div className={"col-span-3"}>{`${periodeStart} - ${periodeSlutt}`}</div>
-                  <div className="col-span-2">123</div>
+                  <div
+                    className={"col-span-3"}
+                  >{`${beregning.periodeStart} - ${beregning.periodeSlutt}`}</div>
+                  <div className="col-span-2">{beregning.antallManedsverk}</div>
                   <div className="col-span-2">{beregning.belop} NOK</div>
                   <div className="col-span-2">Frist for godkjenning</div>
                   <div className="col-span-2">{statusTilTag(status)}</div>

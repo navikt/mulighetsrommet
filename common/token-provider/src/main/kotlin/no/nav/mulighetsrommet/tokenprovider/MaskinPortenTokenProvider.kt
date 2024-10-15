@@ -74,7 +74,8 @@ class MaskinPortenTokenProvider(
 
     fun withScope(scope: String, targetAudience: String): M2MTokenProvider {
         return M2MTokenProvider exchange@{ accessType ->
-            createToken(scope, targetAudience)
+            // createToken(scope, targetAudience)
+            "token"
         }
     }
 
@@ -95,6 +96,7 @@ class MaskinPortenTokenProvider(
             .expirationTime(expiration)
             .claim("resource", targetAudience)
             .claim("scope", scope)
+            .claim("grant_type", "client_credentials")
             .build()
     }
 }
