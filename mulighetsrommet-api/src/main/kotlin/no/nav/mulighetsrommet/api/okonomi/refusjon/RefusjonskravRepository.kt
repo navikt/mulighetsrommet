@@ -115,6 +115,19 @@ class RefusjonskravRepository(private val db: Database) {
         tx.batchPreparedNamedStatement(insertManedsverkQuery, manedsverk)
     }
 
+    fun setStatus(id: UUID, status: RefusjonskravStatus) {
+        @Language("PostgreSQL")
+        val query = """
+            update refusjonskrav
+            set status = :status::refusjonskrav_status
+            where id = :id::uuid
+        """.trimIndent()
+
+        queryOf(query, mapOf("id" to id, "status" to status.name))
+            .asUpdate
+            .let { db.run(it) }
+    }
+
     fun get(id: UUID) = db.transaction { get(id, it) }
 
     fun get(id: UUID, tx: Session): RefusjonskravDto? {

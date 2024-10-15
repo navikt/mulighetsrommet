@@ -72,6 +72,14 @@ fun Route.refusjonRoutes() {
             call.respond(oppsummering)
         }
 
+        post("/krav/{id}/godkjenn-refusjon") {
+            val id = call.parameters.getOrFail<UUID>("id")
+
+            service.godkjennRefusjon(id)
+
+            call.respond(HttpStatusCode.OK)
+        }
+
         get("/kvittering/{id}") {
             val id = call.parameters.getOrFail<UUID>("id")
             val html = createHtmlFromTemplateData("refusjon-kvittering", "refusjon").toString()

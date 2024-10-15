@@ -9,6 +9,7 @@ import { RefusjonTilsagnsDetaljer } from "~/components/refusjonskrav/TilsagnsDet
 import { RefusjonDetaljer } from "~/components/refusjonskrav/RefusjonDetaljer";
 import { Separator } from "~/components/Separator";
 import { loadRefusjonskrav } from "~/loaders/loadRefusjonskrav";
+import { RefusjonskravService } from "@mr/api-client";
 
 type LoaderData = {
   krav: Refusjonskrav;
@@ -37,13 +38,21 @@ export const loader: LoaderFunction = async ({ request, params }): Promise<Loade
 export const action: ActionFunction = async ({ request }) => {
   const formdata = await request.formData();
   const bekreftelse = formdata.get("bekreftelse");
-  const deltakerlisteId = formdata.get("deltakerlisteId");
+  const refusjonskravId = formdata.get("refusjonskravId");
 
   if (!bekreftelse) {
     return json({ error: "Du må bekrefte at opplysningene er korrekte" }, { status: 400 });
   }
 
-  return redirect(`/deltakerliste/kvittering/${deltakerlisteId}`);
+  if (!refusjonskravId) {
+    return json({ error: "Mangler refusjonskravId" }, { status: 400 });
+  }
+
+  RefusjonskravService.godkjennRefusjonskrav({
+    id: refusjonskravId as string,
+  });
+
+  return redirect(`/deltakerliste/kvittering/${refusjonskravId}`);
 };
 
 export default function RefusjonskravDetaljer() {
@@ -71,7 +80,7 @@ export default function RefusjonskravDetaljer() {
             <Checkbox name="bekreftelse" value="bekreftet">
               Det erklæres herved at alle opplysninger er gitt i henhold til de faktiske forhold
             </Checkbox>
-            <input type="hidden" name="deltakerlisteId" value={krav.id} />
+            <input type="hidden" name="refusjonskravId" value={krav.id} />
             {data?.error && <Alert variant="error">{data.error}</Alert>}
             <Button type="submit">Bekreft og send refusjonskrav</Button>
           </VStack>
