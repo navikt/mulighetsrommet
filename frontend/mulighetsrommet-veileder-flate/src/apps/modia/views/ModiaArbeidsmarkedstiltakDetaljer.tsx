@@ -35,7 +35,6 @@ import { PameldingForGruppetiltak } from "@/components/pamelding/PameldingForGru
 import { VisibleWhenToggledOn } from "@/components/toggles/VisibleWhenToggledOn";
 import { useGetTiltaksgjennomforingIdFraUrl } from "@/hooks/useGetTiltaksgjennomforingIdFraUrl";
 import { ModiaRoute, resolveModiaRoute } from "../ModiaRoute";
-import { PameldingFraKometApnerSnart } from "../pamelding/PameldingFraKometApnerSnart";
 
 export function ModiaArbeidsmarkedstiltakDetaljer() {
   const { fnr } = useModiaContext();
@@ -147,10 +146,6 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
                 <Chat2Icon aria-label="Åpne i dialogen" />
               </Button>
             )}
-
-            {gjennomforingIsAktiv(tiltak.status.status) ? (
-              <PameldingFraKometApnerSnart tiltak={tiltak} />
-            ) : null}
 
             {isTiltakGruppe(tiltak) && tiltak.personvernBekreftet ? (
               <InlineErrorBoundary>
