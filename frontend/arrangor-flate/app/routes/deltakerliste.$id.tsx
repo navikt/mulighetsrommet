@@ -95,7 +95,7 @@ export default function RefusjonDeltakerlister() {
               <Table.ColumnHeader scope="col" sortable sortKey="endDatePeriod">
                 Sluttdato i perioden
               </Table.ColumnHeader>
-              <Table.HeaderCell scope="col">Stillingsprosent</Table.HeaderCell>
+              <Table.HeaderCell scope="col">Stillings-prosent</Table.HeaderCell>
               <Table.HeaderCell scope="col">Månedsverk i perioden</Table.HeaderCell>
               <Table.ColumnHeader scope="col" sortable sortKey="veileder">
                 Veileder
