@@ -102,7 +102,6 @@ fun createTestApplicationConfig() = AppConfig(
     pdl = ServiceClientConfig(url = "", scope = ""),
     migrerteTiltak = emptyList(),
     pameldingIModia = emptyList(),
-    pameldingKommerSnartIModia = emptyList(),
     pamOntologi = createServiceClientConfig("pam-ontologi"),
     utdanning = UtdanningClient.Config(
         baseurl = "",
