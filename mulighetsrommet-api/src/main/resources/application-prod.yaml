@@ -19,7 +19,8 @@ app:
     - OPPFOLGING
     - VARIG_TILRETTELAGT_ARBEID_SKJERMET
 
-  pameldingIModia: []
+  pameldingIModia:
+    - ARBEIDSFORBEREDENDE_TRENING
 
   pameldingKommerSnartIModia:
     - ARBEIDSFORBEREDENDE_TRENING
