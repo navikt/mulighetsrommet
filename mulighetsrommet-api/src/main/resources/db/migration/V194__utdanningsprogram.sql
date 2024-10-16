@@ -1,3 +1,12 @@
+delete
+from utdanning_programomrade_avtale;
+delete
+from utdanning_programomrade_tiltaksgjennomforing;
+delete
+from utdanning;
+delete
+from utdanning_programomrade;
+
 alter table utdanning_programomrade_avtale
     rename to avtale_utdanningsprogram;
 
