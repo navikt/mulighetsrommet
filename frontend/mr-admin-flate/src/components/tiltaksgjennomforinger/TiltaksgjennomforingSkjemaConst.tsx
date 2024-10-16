@@ -119,7 +119,9 @@ export function defaultTiltaksgjennomforingData(
       tiltaksgjennomforing?.amoKategorisering ?? avtale.amoKategorisering ?? undefined,
     utdanningslop: tiltaksgjennomforing?.utdanningslop
       ? toUtdanningslopDbo(tiltaksgjennomforing.utdanningslop)
-      : undefined,
+      : avtale.utdanningslop
+        ? toUtdanningslopDbo(avtale.utdanningslop)
+        : undefined,
   };
 }
 
